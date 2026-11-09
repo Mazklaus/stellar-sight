@@ -83,6 +83,7 @@ var idle_button: Button
 var spectator := false
 var spectator_panel: SpectatorPanel
 var battle_report: BattleReportPanel
+var battle_replay: BattleReplayPanel
 
 
 func _ready() -> void:
@@ -106,6 +107,17 @@ func _ready() -> void:
 	add_child(_toasts)
 	battle_report = BattleReportPanel.new()
 	add_child(battle_report)
+	battle_replay = BattleReplayPanel.new()
+	add_child(battle_replay)
+	battle_report.replay_requested.connect(func(r: Dictionary) -> void:
+		var state := battle_report._state
+		var viewer := battle_report._viewer
+		battle_report.hide_report()
+		battle_replay.show_replay(state, viewer, r))
+	# En quittant la vue, on revient au rapport de la même bataille.
+	battle_replay.closed.connect(func() -> void:
+		if battle_replay._state != null:
+			battle_report.show_report(battle_replay._state, battle_replay._viewer, battle_replay.report))
 	set_system_mode(false)
 
 

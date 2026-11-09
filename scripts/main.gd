@@ -375,6 +375,7 @@ func _start(state: GameState) -> void:
 		_hud.notify("Ordre refusé : %s" % reason, "bad"))
 	simulation.chronicle_added.connect(_hud.show_chronicle)
 	simulation.combat_event.connect(_on_combat_event)
+	_hud.battle_replay.close_silently()
 	_hud.battle_report.hide_report()
 	_defeat_told = state.get_empire(LOCAL_PLAYER).eliminated
 	simulation.ticked.connect(func(_tick: int) -> void:
@@ -502,7 +503,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	match key.keycode:
 		KEY_ESCAPE:
-			if _hud.battle_report.visible:
+			if _hud.battle_replay.visible:
+				_hud.battle_replay.hide_replay()
+			elif _hud.battle_report.visible:
 				_hud.battle_report.hide_report()
 			elif is_empire_screen_open():
 				close_empire_screen()
@@ -539,7 +542,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_PAGEUP, KEY_PAGEDOWN:
 			cycle_system(-1 if key.keycode == KEY_PAGEUP else 1)
 		KEY_SPACE:
-			GameClock.toggle_pause()
+			# La vue de replay ne met jamais la partie en pause : Espace y met seulement la lecture en pause.
+			if _hud.battle_replay.visible:
+				_hud.battle_replay.toggle_play()
+			else:
+				GameClock.toggle_pause()
 		KEY_F5:
 			save_game()
 		KEY_F9:
@@ -565,6 +572,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				return
 			if key.physical_keycode == KEY_T and selected_fleet >= 0 and not is_system_view_open() and not is_empire_screen_open():
 				cycle_tactic(selected_fleet)
+				return
+			if key.physical_keycode == KEY_R and _hud.battle_report.visible:
+				_hud.battle_report.request_replay()
 				return
 			if key.physical_keycode == KEY_B and not is_system_view_open() and not is_empire_screen_open():
 				toggle_battle_report()

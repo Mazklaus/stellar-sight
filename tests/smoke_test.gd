@@ -164,6 +164,7 @@ func _test_main_scene() -> void:
 	await _test_colony_ui(main)
 	await _test_navigation_ui(main)
 	_reveal_map(main)  # le menu principal a lancé une nouvelle partie
+	await _test_replay_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_press(KEY_SPACE)
@@ -832,6 +833,44 @@ func _find_button(node: Node, prefix: String) -> Button:
 func _reveal_map(main: Node) -> void:
 	for sys in main.galaxy.systems:
 		main.simulation.state.get_empire(0).explored[sys.id] = true
+
+
+## Vue de replay : ouverte depuis le rapport (R), Espace n'y touche qu'à la lecture, Échap revient au rapport.
+func _test_replay_ui(main: Node) -> void:
+	var sim: Simulation = preload("res://tests/catalogue_tests.gd").new()._log_battle()
+	sim.advance(12)
+	_check(not sim.state.battle_reports.is_empty(), "replay : une bataille à revoir")
+	if sim.state.battle_reports.is_empty():
+		return
+	var r: Dictionary = sim.state.battle_reports[-1]
+	var hud: Hud = main._hud
+	var clock: Node = root.get_node("GameClock")
+	var was_paused: bool = clock.paused
+	hud.battle_report.show_report(sim.state, 0, r)
+	_check(hud.battle_report._replay_btn.visible, "replay : le rapport propose « Revoir la bataille »")
+	_press(KEY_R, KEY_R)
+	await process_frame
+	_check(hud.battle_replay.visible and not hud.battle_report.visible, "replay : R ouvre la vue à la place du rapport")
+	_check(hud.battle_replay.day_count() == int(r["day"]), "replay : autant de jours que la bataille")
+	for _i in 20:
+		await process_frame
+	_check(hud.battle_replay.t > 0.0, "replay : la lecture avance")
+	_press(KEY_SPACE)
+	_check(not hud.battle_replay.playing and clock.paused == was_paused, "replay : Espace met la lecture en pause, pas la partie")
+	hud.battle_replay._seek_day(99)
+	_check(hud.battle_replay.current_day() == hud.battle_replay.day_count() - 1, "replay : on saute au dernier jour")
+	await process_frame
+	_press(KEY_ESCAPE)
+	await process_frame
+	_check(not hud.battle_replay.visible and hud.battle_report.visible, "replay : Échap revient au rapport")
+	_press(KEY_ESCAPE)
+	_check(not hud.battle_report.visible, "replay : Échap ferme ensuite le rapport")
+	# Un rapport sans journal (sauvegarde d'avant) n'offre pas la vue.
+	var old := r.duplicate(true)
+	old.erase("log")
+	hud.battle_report.show_report(sim.state, 0, old)
+	_check(not hud.battle_report._replay_btn.visible, "replay : pas de bouton pour un rapport sans journal")
+	hud.battle_report.hide_report()
 
 
 func _press(keycode: Key, physical: Key = KEY_NONE) -> void:

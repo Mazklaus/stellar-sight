@@ -1,7 +1,7 @@
 extends RefCounted
 ## Tests du catalogue de vaisseaux : classes communes, classes de peuple liées aux couches d'espèce,
 ## rangs de bataille (écran, ligne, arrière), défense ponctuelle, bonus de taille, titan unique,
-## Martyr, tactique Adaptative, Coursier de saut, et IA qui se sert du catalogue. Appelés par smoke_test.gd.
+## Martyr, tactique Adaptative, Coursier de saut, IA qui se sert du catalogue, et journal de bataille (vue de replay). Appelés par smoke_test.gd.
 
 var _check: Callable
 
@@ -19,6 +19,7 @@ func run(check: Callable) -> void:
 	_test_blockade_runner()
 	_test_titan_launch()
 	_test_ai_uses_catalogue()
+	_test_battle_log()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -267,3 +268,79 @@ func _test_ai_uses_catalogue() -> void:
 			fresh += 1
 	print("  IA Vétéran, 3 ans x2 : ", built)
 	_ok(fresh >= 3, "les IA Vétéran construisent plusieurs classes du nouveau catalogue (%d)" % fresh)
+
+
+## Bataille mixte qui sert aux tests du journal : écran, ligne, arrière et chasseurs des deux côtés.
+func _log_battle(seed_value := 91) -> Simulation:
+	var st := _state(seed_value)
+	st.fleets.clear()
+	var sid := _empty_system(st)
+	_war(st, 0, 1)
+	_spawn(st, 0, ["escorteur", "fregate", "fregate", "torpilleur", "porte_vaisseaux", "transport"], sid)
+	_spawn(st, 1, ["corvette", "corvette", "croiseur", "fregate", "cuirasse", "bombarde"], sid)
+	return Simulation.new(st)
+
+
+func _test_battle_log() -> void:
+	var sim := _log_battle()
+	sim.advance(3)
+	var b: Dictionary = sim.state.battles.values()[0] if not sim.state.battles.is_empty() else {}
+	_ok(not b.is_empty() and b["log"].size() == 3, "la bataille en cours tient un journal d'un jour par jour de combat")
+	# Sauvegarde en pleine bataille : le journal repart du même point et finit à l'identique.
+	var loaded := GameState.from_dict(JSON.parse_string(JSON.stringify(sim.state.to_dict())))
+	_ok(loaded != null, "une bataille avec journal se recharge")
+	var sim2 := Simulation.new(loaded)
+	sim.advance(8)
+	sim2.advance(8)
+	_ok(sim.state.checksum() == sim2.state.checksum(), "journal compris, la bataille rechargée finit à l'identique")
+	_ok(not sim.state.battle_reports.is_empty(), "la bataille a produit un rapport")
+	if sim.state.battle_reports.is_empty():
+		return
+	var r: Dictionary = sim.state.battle_reports[-1]
+	var r2: Dictionary = sim2.state.battle_reports[-1] if not sim2.state.battle_reports.is_empty() else {}
+	_ok(JSON.stringify(r.get("log", [])) == JSON.stringify(r2.get("log", [])), "même journal après rechargement")
+	_ok(not r.has("slots"), "le rapport ne garde pas la table de suivi interne")
+	_ok(BattleReplayPanel.has_log(r), "le rapport porte un journal rejouable")
+	var units: Array = r["units"]
+	_ok(units.size() == 12, "une unité par vaisseau engagé (%d)" % units.size())
+	_ok(r["log"].size() == int(r["day"]), "un jour de journal par jour de combat")
+	# Cohérence : les dégâts du journal sont ceux du rapport, ses destructions sont les pertes.
+	var dealt := {}
+	var lost := {}
+	var valid := true
+	var phases_ok := true
+	for d: Dictionary in r["log"]:
+		phases_ok = phases_ok and int(d["phase"]) == Combat.phase_index(int(d["day"]))
+		for sh: Array in d["shots"]:
+			var a := int(sh[0])
+			var tg := int(sh[1])
+			valid = valid and a >= 0 and a < units.size() and tg >= 0 and tg < units.size()
+			valid = valid and int(units[a][0]) != int(units[tg][0]) and Combat.weapons(String(units[a][1])).has(String(sh[2]))
+			if a >= 0 and a < units.size():
+				var owner := int(units[a][0])
+				dealt[owner] = int(dealt.get(owner, 0)) + int(sh[3])
+		for k in d["kills"]:
+			valid = valid and int(k) >= 0 and int(k) < units.size()
+			if int(k) >= 0 and int(k) < units.size():
+				var owner := int(units[int(k)][0])
+				lost[owner] = int(lost.get(owner, 0)) + 1
+	_ok(valid, "chaque tir relie un vaisseau à un ennemi, avec une arme qu'il porte")
+	_ok(phases_ok, "chaque jour du journal note sa phase")
+	var sums_ok := true
+	for s: Dictionary in r["sides"]:
+		var eid := int(s["empire"])
+		var n_lost := 0
+		for c in s["lost"]:
+			n_lost += int(s["lost"][c])
+		sums_ok = sums_ok and int(dealt.get(eid, 0)) == int(s["dealt"]) and int(lost.get(eid, 0)) == n_lost
+	_ok(sums_ok, "dégâts et destructions du journal = ceux du rapport")
+	# Un même vaisseau ne meurt qu'une fois et ne tire plus ensuite.
+	var dead := {}
+	var ghost := false
+	for d: Dictionary in r["log"]:
+		for sh: Array in d["shots"]:
+			ghost = ghost or dead.has(int(sh[0]))
+		for k in d["kills"]:
+			ghost = ghost or dead.has(int(k))
+			dead[int(k)] = true
+	_ok(not ghost, "aucun vaisseau détruit ne tire ni ne meurt deux fois")

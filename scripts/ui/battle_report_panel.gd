@@ -5,6 +5,8 @@ extends PanelContainer
 ## Simple lecture de state.battle_reports : rien ici ne touche à la simulation.
 
 signal closed
+## Le joueur veut revoir la bataille dans la vue de replay.
+signal replay_requested(report: Dictionary)
 
 const WIDTH := 660.0
 
@@ -15,6 +17,7 @@ var _outcome: Label
 var _sides: VBoxContainer
 var _state: GameState
 var _viewer := 0
+var _replay_btn: Button
 
 
 func _ready() -> void:
@@ -44,7 +47,14 @@ func _ready() -> void:
 	box.add_child(help)
 	var foot := HBoxContainer.new()
 	foot.alignment = BoxContainer.ALIGNMENT_END
+	foot.add_theme_constant_override("separation", 8)
 	box.add_child(foot)
+	_replay_btn = Button.new()
+	_replay_btn.text = "REVOIR LA BATAILLE"
+	_replay_btn.tooltip_text = "Rejouer la bataille jour par jour  (R)"
+	_replay_btn.focus_mode = Control.FOCUS_NONE
+	_replay_btn.pressed.connect(request_replay)
+	foot.add_child(_replay_btn)
 	var close := Button.new()
 	close.text = "FERMER"
 	close.tooltip_text = "Fermer le rapport  (Échap ou B)"
@@ -76,6 +86,7 @@ func show_report(state: GameState, viewer: int, r: Dictionary) -> void:
 		c.queue_free()
 	for s: Dictionary in r["sides"]:
 		_sides.add_child(_side_row(s))
+	_replay_btn.visible = BattleReplayPanel.has_log(r)
 	visible = true
 	modulate.a = 0.0
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.15)
@@ -85,6 +96,12 @@ func hide_report() -> void:
 	if visible:
 		visible = false
 		closed.emit()
+
+
+## Demande la vue de replay (si le rapport a un journal) ; le HUD masque alors le rapport.
+func request_replay() -> void:
+	if visible and BattleReplayPanel.has_log(report):
+		replay_requested.emit(report)
 
 
 static func _fought(r: Dictionary, empire_id: int) -> bool:

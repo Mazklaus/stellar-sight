@@ -68,7 +68,7 @@ static func _in_conflict(state: GameState, fleets: Array) -> bool:
 
 static func _new_battle(state: GameState, sid: int) -> Dictionary:
 	var b := {"id": state.next_battle_id, "system": sid, "start": state.tick, "day": 0,
-			"fleets": [], "sides": []}
+			"fleets": [], "sides": [], "units": [], "slots": [], "log": []}
 	state.next_battle_id += 1
 	state.battles[sid] = b
 	return b
@@ -113,6 +113,8 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 			var side := _side(b, f.owner)
 			for s in f.ships:
 				side["engaged"][s] = int(side["engaged"].get(s, 0)) + 1
+	_sync_units(b, fighters)
+	var day_log := {"day": day, "phase": phase, "shots": [], "kills": []}
 	if fresh:
 		var names := PackedStringArray()
 		var ids: Array[int] = []
@@ -171,6 +173,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 				var key := Vector2i(tg.id, ti)
 				pending[key] = int(pending.get(key, 0)) + dmg
 				side["dealt"] = int(side["dealt"]) + dmg
+				day_log["shots"].append([_unit(b, f.id, i), _unit(b, tg.id, ti), String(k), dmg])
 				if wd.get("self_destruct", false):
 					martyrs.append([f, i, int(wd.get("fervor", 0))])
 	# Les martyrs disparaissent dans leur charge (après les tirs du jour, qui sont simultanés).
@@ -181,9 +184,65 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		var e := state.get_empire(mf.owner)
 		if int(m[2]) > 0 and e.faction().has("fervor"):
 			e.fervor = mini(int(e.faction()["fervor"]["max"]), e.fervor + int(m[2]))
-	_apply_damage(state, b, fighters, pending)
+	_apply_damage(state, b, fighters, pending, day_log)
+	b["log"].append(day_log)
 	if day >= Combat.battle_days():
 		_end_battle(state, sid, added, events)
+
+
+# --- Journal de bataille (pour la vue qui rejoue la bataille) -----------------------------------
+# "units" : un vaisseau engagé par entrée, [empire, classe, rang, jour d'arrivée] ; son indice sert
+# d'identifiant stable. "slots" : [[flotte, [unités alignées sur ses vaisseaux]]...], tenu à jour.
+# "log" : un jour par entrée, {day, phase, shots: [[tireur, cible, arme, dégâts]...], kills: [unités]}.
+# Rien de tout cela n'influence la bataille : c'est un enregistrement.
+
+static func _slots_of(b: Dictionary, fid: int) -> Array:
+	for pair: Array in b["slots"]:
+		if int(pair[0]) == fid:
+			return pair[1]
+	var fresh: Array = []
+	b["slots"].append([fid, fresh])
+	return fresh
+
+
+## Aligne les unités du journal sur les vaisseaux de chaque flotte (nouvelle flotte, renforts fusionnés).
+static func _sync_units(b: Dictionary, fighters: Array[Fleet]) -> void:
+	for f in fighters:
+		var slots := _slots_of(b, f.id)
+		var units: Array = b["units"]
+		var aligned := slots.size() == f.ships.size()
+		if aligned:
+			for i in slots.size():
+				if String(units[int(slots[i])][1]) != f.ships[i]:
+					aligned = false
+					break
+		if aligned:
+			continue
+		# Réalignement : on garde les unités déjà connues de la même classe, dans l'ordre.
+		var pool := {}
+		for u in slots:
+			var cls := String(units[int(u)][1])
+			if not pool.has(cls):
+				pool[cls] = []
+			pool[cls].append(int(u))
+		slots.clear()
+		for sh in f.ships:
+			if pool.has(sh) and not pool[sh].is_empty():
+				slots.append(pool[sh].pop_front())
+			else:
+				units.append([f.owner, sh, Combat.ship_line(sh), int(b["day"])])
+				slots.append(units.size() - 1)
+
+
+static func _unit(b: Dictionary, fid: int, i: int) -> int:
+	var slots := _slots_of(b, fid)
+	return int(slots[i]) if i < slots.size() else -1
+
+
+static func _drop_unit(b: Dictionary, fid: int, i: int) -> void:
+	var slots := _slots_of(b, fid)
+	if i < slots.size():
+		slots.remove_at(i)
 
 
 ## Liste de cibles [[flotte, indice, poids]...] en tableau cumulé [entrées, total] : `flat` donne le
@@ -227,7 +286,7 @@ static func _damage_bonus(state: GameState, b: Dictionary, f: Fleet, sid: int) -
 	return pct
 
 
-static func _apply_damage(state: GameState, b: Dictionary, fighters: Array[Fleet], pending: Dictionary) -> void:
+static func _apply_damage(state: GameState, b: Dictionary, fighters: Array[Fleet], pending: Dictionary, day_log := {}) -> void:
 	for f in fighters:
 		var lost_any := false
 		for i in range(f.ships.size() - 1, -1, -1):
@@ -239,6 +298,9 @@ static func _apply_damage(state: GameState, b: Dictionary, fighters: Array[Fleet
 				var side := _side(b, f.owner)
 				side["lost"][f.ships[i]] = int(side["lost"].get(f.ships[i], 0)) + 1
 				_credit_kill(state, b, f.owner)
+				if day_log.has("kills"):
+					day_log["kills"].append(_unit(b, f.id, i))
+				_drop_unit(b, f.id, i)
 				f.remove_at(i)
 				lost_any = true
 		if lost_any:
@@ -275,6 +337,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 	report["end"] = state.tick
 	report["winner"] = winner
 	report["system_name"] = state.galaxy.systems[sid].system_name
+	report.erase("slots")
 	state.battle_reports.append(report)
 	var keep := int(Combat.data().get("reports_max", 12))
 	while state.battle_reports.size() > keep:
