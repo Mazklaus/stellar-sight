@@ -24,7 +24,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 		c.days_left -= 1
 		if c.is_established():
 			if c.is_colony():
-				c.population = maxi(c.population, int(GameData.rules()["colony_start_pop"]))
+				c.population = maxi(c.population, FactionTraits.colony_start_pop(state, c.owner))
 				added.append(state.add_chronicle(
 						"%s fonde une colonie sur %s. Les premiers colons découvrent la gravité locale, et ses opinions." % [e.display_name(), planet_name]))
 			else:
@@ -44,8 +44,21 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 	if not c.is_colony():
 		return
 	var cap := Economy.max_pop(state, state.galaxy.get_planet(c.planet_id), c.owner, c.buildings)
-	if c.population >= cap or e.starving:
+	if e.starving:
 		c.growth = 0
+		return
+	if c.population >= cap:
+		# Biomasse (Essaim Kh'thari) : une colonie pleine continue de grandir, le surplus est digéré.
+		var bio: Dictionary = e.faction().get("biomass", {})
+		if bio.is_empty() or cap <= 0:
+			c.growth = 0
+			return
+		c.growth += Economy.growth_per_day(state, c)
+		if c.growth >= Economy.growth_threshold(c.population):
+			c.growth = 0
+			var gain := int(bio["materials"])
+			e.resources["materials"] = int(e.resources.get("materials", 0)) + gain
+			e.biomass += gain
 		return
 	c.growth += Economy.growth_per_day(state, c)
 	if c.growth >= Economy.growth_threshold(c.population):
@@ -57,6 +70,8 @@ static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionar
 	var net: Dictionary = Economy.empire_income(state, e.id)["net"]
 	for r in net:
 		e.resources[r] = int(e.resources.get(r, 0)) + int(net[r])
+
+	_monthly_traits(state, e, added)
 
 	var was_starving := e.starving
 	e.starving = e.resources["food"] < 0
@@ -82,3 +97,24 @@ static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionar
 	# Les stocks ne descendent jamais sous zéro : le manque se paie en famine ou en chantiers arrêtés.
 	for r in e.resources:
 		e.resources[r] = maxi(0, int(e.resources[r]))
+
+
+## Traits de faction au bilan mensuel (après les ressources, avant le plancher à zéro) :
+## ferveur du Chœur Éternel, dissidence des fiefs lointains d'Ossarane.
+static func _monthly_traits(state: GameState, e: Empire, added: Array[Dictionary]) -> void:
+	var f := e.faction()
+	if FactionTraits.has_fervor(f):
+		var fv: Dictionary = f["fervor"]
+		var before := e.fervor
+		e.fervor = clampi(e.fervor + FactionTraits.fervor_delta(state, e.id), 0, int(fv["max"]))
+		if e.fervor <= 0 and before > 0:
+			added.append(state.add_chronicle("Le dieu-machine du %s se tait. Les forges ralentissent, les prêtres chantent plus fort, par précaution." % e.short_name()))
+		elif e.fervor >= int(fv["exalted_at"]) and before < int(fv["exalted_at"]):
+			added.append(state.add_chronicle("Exaltation dans l'Hégémonie : le dieu-machine ronronne, les forges flamboient, les hymnes gagnent un couplet."))
+	if FactionTraits.has_fiefs(f):
+		var was := e.dissent
+		e.dissent = int(e.resources.get("crystals", 0)) < 0
+		if e.dissent and not was:
+			added.append(state.add_chronicle("Dissidence chez %s : faute de cristaux, les fiefs lointains découvrent qu'ils ont toujours détesté la capitale." % e.display_name()))
+		elif was and not e.dissent:
+			added.append(state.add_chronicle("Les fiefs lointains de %s renouvellent leur serment. Les cristaux sont arrivés, l'affection aussi." % e.short_name()))

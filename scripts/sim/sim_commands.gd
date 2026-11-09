@@ -56,6 +56,17 @@ static func split_fleet(player: int, fleet_id: int, ship_id: String) -> Dictiona
 	return {"type": "split_fleet", "player": player, "fleet": fleet_id, "ship": ship_id}
 
 
+## Chœur Éternel : sacrifie un fidèle d'une colonie (-1 population) pour nourrir la ferveur.
+static func sacrifice(player: int, planet_id: int) -> Dictionary:
+	return {"type": "sacrifice", "player": player, "planet": planet_id}
+
+
+## Concorde de Vael : vote d'urgence, achève tout de suite le chantier ("building" ou "ship")
+## d'une planète contre de l'influence.
+static func rush(player: int, planet_id: int, what: String) -> Dictionary:
+	return {"type": "rush", "player": player, "planet": planet_id, "what": what}
+
+
 ## Renvoie "" si l'ordre est applicable à cet état, sinon la raison du refus.
 static func validate(state: GameState, cmd: Dictionary) -> String:
 	if not cmd.has("type") or not cmd.has("player"):
@@ -87,6 +98,10 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Fleets.check_merge(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("into", -1)))
 		"split_fleet":
 			return Fleets.check_split(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("ship", "")))
+		"sacrifice":
+			return FactionTraits.check_sacrifice(state, int(cmd["player"]), int(cmd.get("planet", -1)))
+		"rush":
+			return FactionTraits.check_rush(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("what", "")))
 		_:
 			return "type d'ordre inconnu : %s" % cmd["type"]
 
@@ -132,6 +147,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var c: Colony = state.colonies[int(cmd["planet"])]
 			var sd := GameData.ship(String(cmd["ship"]))
 			Economy.pay(e, sd.get("cost", {}))
+			c.population -= int(sd.get("pop_cost", 0))
 			c.ship_build = String(cmd["ship"])
 			c.ship_days = int(sd["days"])
 		"move_fleet":
@@ -168,3 +184,23 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var ship_id := String(cmd["ship"])
 			f.remove_ship(ship_id)
 			state.spawn_ship(f.owner, ship_id, f.system_id)
+		"sacrifice":
+			var e := state.get_empire(int(cmd["player"]))
+			var c: Colony = state.colonies[int(cmd["planet"])]
+			var fv: Dictionary = e.faction()["fervor"]
+			c.population -= 1
+			c.growth = 0
+			e.fervor = mini(int(fv["max"]), e.fervor + int(fv["sacrifice_gain"]))
+			state.add_chronicle("Offrande sur %s : un fidèle rejoint le dieu-machine. Il paraît que c'est un honneur ; il paraît surtout que c'est obligatoire." % [
+					state.galaxy.get_planet(c.planet_id).display_name(state.galaxy)])
+		"rush":
+			var e := state.get_empire(int(cmd["player"]))
+			var pid := int(cmd["planet"])
+			var what := String(cmd["what"])
+			e.resources["influence"] = int(e.resources["influence"]) - FactionTraits.rush_cost(state, e.id, pid, what)
+			var c: Colony = state.colonies[pid]
+			# Le chantier s'achève au prochain jour de simulation, comme s'il était arrivé à terme.
+			if what == FactionTraits.RUSH_BUILDING:
+				c.construction_days = 1
+			else:
+				c.ship_days = 1

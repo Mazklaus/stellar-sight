@@ -456,7 +456,7 @@ func _refresh_economy() -> void:
 	_alerts.add_theme_color_override("font_color", UiTheme.BAD if me.starving or me.blackout else UiTheme.TEXT_DIM)
 
 	_faction_art.set_caption(me.short_name(), 30)
-	_trait.text = String(me.faction().get("trait", ""))
+	_trait.text = EmpireBar.trait_summary(me.faction())
 	var t := EmpireReport.totals(_state, _player)
 	(_totals["population"] as Label).text = str(t["population"])
 	(_totals["colonies"] as Label).text = str(t["colonies"])

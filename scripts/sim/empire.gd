@@ -16,6 +16,11 @@ var explored: Dictionary = {}
 var contacts: Array[int] = []
 ## Vaisseaux sortis des chantiers, par classe (sert à numéroter les nouvelles flottes).
 var ships_built: Dictionary = {}
+## Traits de faction (voir FactionTraits) : ferveur du Chœur Éternel, dissidence des fiefs lointains
+## d'Ossarane (cristaux manquants au dernier bilan), matériaux digérés en biomasse par l'Essaim.
+var fervor: int = 0
+var dissent: bool = false
+var biomass: int = 0
 
 
 func faction() -> Dictionary:
@@ -45,6 +50,9 @@ func to_dict() -> Dictionary:
 		"explored": sorted_explored(),
 		"contacts": Array(contacts),
 		"ships_built": ships_built.duplicate(),
+		"fervor": fervor,
+		"dissent": dissent,
+		"biomass": biomass,
 	}
 
 
@@ -69,4 +77,7 @@ static func from_dict(d: Dictionary) -> Empire:
 		e.contacts.append(int(c))
 	for k in d["ships_built"]:
 		e.ships_built[String(k)] = int(d["ships_built"][k])
+	e.fervor = int(d.get("fervor", 0))
+	e.dissent = bool(d.get("dissent", false))
+	e.biomass = int(d.get("biomass", 0))
 	return e

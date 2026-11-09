@@ -14,6 +14,7 @@ func _initialize() -> void:
 	preload("res://tests/sim_tests.gd").new().run(_check)
 	preload("res://tests/economy_tests.gd").new().run(_check)
 	preload("res://tests/fleet_tests.gd").new().run(_check)
+	preload("res://tests/faction_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -716,6 +717,7 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(menu._faction_cards[MainMenu.RANDOM_FACTION].button_pressed and menu._lore_header.text == "AU HASARD", "case Au hasard")
 	menu.select_faction("khthari")
 	_check(menu._lore_header.text == "KH'THARI" and menu._faction_lore.text != "", "le choix de faction montre l'histoire du peuple")
+	_check(menu.trait_text().contains("Essaimage") and menu.trait_text().contains("Biomasse"), "le choix de faction liste tous les traits du peuple")
 	menu._seed_edit.text = "123"
 	menu.set_time_choice(2)
 	menu.launch()
@@ -730,6 +732,8 @@ func _test_navigation_ui(main: Node) -> void:
 	clock.set_mode(clock.MODE_REALTIME)
 	_check(main.simulation.state.get_empire(0).faction_id == "khthari", "le joueur joue la faction choisie")
 	_check(hud.bar._name.text == "KH'THARI", "le panneau d'empire suit la nouvelle faction")
+	hud.bar.refresh()
+	_check(hud.bar.gauge_text().begins_with("BIOMASSE"), "le panneau d'empire montre la jauge de la faction (%s)" % hud.bar.gauge_text())
 	main.player_faction = "ossarane"
 
 

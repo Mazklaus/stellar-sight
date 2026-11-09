@@ -38,6 +38,9 @@ var _name: Label
 var _chips := {}
 var _screen_buttons := {}
 var _status: Label
+## Jauge du trait de faction (ferveur, fiefs, ambassades, biomasse), au bout de la 2e ligne.
+var _gauge: Widgets.RichTipPanel
+var _gauge_label: Label
 
 
 func _ready() -> void:
@@ -100,6 +103,15 @@ func _ready() -> void:
 			cbox.add_child(delta)
 			row.add_child(chip)
 			_chips[r] = {"panel": chip, "stock": stock, "delta": delta}
+		if row_ids == ROWS[ROWS.size() - 1]:
+			_gauge = Widgets.RichTipPanel.new()
+			_gauge.mouse_filter = Control.MOUSE_FILTER_STOP
+			_gauge.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+			_gauge_label = Label.new()
+			_gauge_label.add_theme_font_size_override("font_size", 14)
+			_gauge_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_gauge.add_child(_gauge_label)
+			row.add_child(_gauge)
 	box.add_child(_rule())
 	_status = Label.new()
 	_status.add_theme_font_size_override("font_size", 13)
@@ -126,7 +138,14 @@ func refresh() -> void:
 	_emblem.queue_redraw()
 	_name.text = me.short_name().to_upper()
 	_name.add_theme_color_override("font_color", me.color().lightened(0.25))
-	_name.tooltip_text = "%s\n%s" % [me.display_name(), String(me.faction().get("trait", ""))]
+	_name.tooltip_text = "%s\n%s" % [me.display_name(), trait_summary(me.faction())]
+	var g := FactionTraits.gauge(_state, _player)
+	_gauge.visible = not g.is_empty()
+	if not g.is_empty():
+		var delta := " (%+d)" % int(g["delta"]) if g.has("delta") else ""
+		_gauge_label.text = "%s %s%s" % [String(g["label"]).to_upper(), g["value"], delta]
+		_gauge_label.add_theme_color_override("font_color", UiTheme.BAD if g["bad"] else me.color().lightened(0.35))
+		_gauge.tooltip_text = String(g["tip"])
 	for r: Dictionary in EmpireReport.resources(_state, _player):
 		var chip: Dictionary = _chips[r["id"]]
 		var net := int(r["net"])
@@ -138,6 +157,19 @@ func refresh() -> void:
 		(chip["panel"] as Control).tooltip_text = _resource_tip(r, me)
 	_status.text = _status_line(me)
 	_status.add_theme_color_override("font_color", UiTheme.BAD if me.starving or me.blackout else UiTheme.TEXT_DIM)
+
+
+## Traits d'une faction en lignes « Nom : effet » (infobulles, écrans d'empire).
+static func trait_summary(faction: Dictionary) -> String:
+	var lines := PackedStringArray()
+	for t: Dictionary in faction.get("traits", []):
+		lines.append("%s : %s" % [t["name"], t["text"]])
+	return "\n".join(lines) if not lines.is_empty() else String(faction.get("trait", ""))
+
+
+## Texte de la jauge de faction ("" si aucune), pour les tests.
+func gauge_text() -> String:
+	return _gauge_label.text if _gauge.visible else ""
 
 
 ## Le menu d'empire ouvert est mis en évidence ("" = aucun).

@@ -14,6 +14,8 @@ signal rename_requested(system_id: int, new_name: String)
 signal colonize_requested(planet_id: int, kind: String)
 signal build_requested(planet_id: int, building_id: String)
 signal build_ship_requested(planet_id: int, ship_id: String)
+## Ordre de trait de faction déjà formé (offrande, vote d'urgence) : main.gd le soumet tel quel.
+signal command_requested(cmd: Dictionary)
 ## Passer au système suivant (1) ou précédent (-1) de l'empire.
 signal cycle_requested(step: int)
 ## La vue affichée a changé : gestion (true) ou orbitale (false). Les onglets du HUD suivent.
@@ -436,8 +438,17 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 		actions.append(_claim_action(p, Colony.KIND_COLONY))
 	if c == null:
 		actions.append(_claim_action(p, Colony.KIND_OUTPOST))
+	var me := _state.get_empire(_player)
+	if me and c and c.owner == _player and c.is_established():
+		var f := me.faction()
+		if FactionTraits.can_rush(f) and c.construction != "":
+			actions.append(_rush_action(p, FactionTraits.RUSH_BUILDING))
+		if FactionTraits.can_rush(f) and c.ship_build != "":
+			actions.append(_rush_action(p, FactionTraits.RUSH_SHIP))
+		if FactionTraits.has_fervor(f) and c.is_colony():
+			actions.append(_sacrifice_action(p))
 	if c and c.owner == _player and c.is_established() and c.is_colony():
-		for sid in GameData.ship_ids():
+		for sid in FactionTraits.ship_ids_for(me.faction_id):
 			actions.append(_ship_action(p, sid))
 	if c and c.owner == _player and c.is_established():
 		for bid in GameData.buildings():
@@ -447,14 +458,51 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 	return actions
 
 
+## Vote d'urgence (Concorde de Vael) : achever le chantier en cours contre de l'influence.
+func _rush_action(p: Planet, what: String) -> Dictionary:
+	var c: Colony = _state.colonies[p.id]
+	var cmd := SimCommands.rush(_player, p.id, what)
+	var reason := SimCommands.validate(_state, cmd)
+	var label := String(GameData.building(c.construction).get("label", c.construction)) if what == FactionTraits.RUSH_BUILDING \
+			else String(GameData.ship(c.ship_build).get("label", c.ship_build))
+	var days := c.construction_days if what == FactionTraits.RUSH_BUILDING else c.ship_days
+	return {
+		"text": "Vote d'urgence : %s" % label,
+		"detail": "%d influence  »  achevé demain au lieu de dans %d j" % [FactionTraits.rush_cost(_state, _player, p.id, what), days],
+		"reason": reason,
+		"tooltip": reason if reason != "" else "L'Assemblée vote les crédits en séance de nuit. Le discours d'ouverture est, exceptionnellement, court.",
+		"action": func() -> void: command_requested.emit(cmd),
+	}
+
+
+## Offrande (Chœur Éternel) : un fidèle de moins, de la ferveur en plus.
+func _sacrifice_action(p: Planet) -> Dictionary:
+	var me := _state.get_empire(_player)
+	var cmd := SimCommands.sacrifice(_player, p.id)
+	var reason := SimCommands.validate(_state, cmd)
+	var fv: Dictionary = me.faction()["fervor"]
+	return {
+		"text": "Offrande au dieu-machine",
+		"detail": "-1 population  »  +%d ferveur (%d / %d)" % [int(fv["sacrifice_gain"]), me.fervor, int(fv["max"])],
+		"reason": reason,
+		"tooltip": reason if reason != "" else "Un fidèle rejoint le dieu-machine. La ferveur remonte ; la natalité, elle, prend note.",
+		"action": func() -> void: command_requested.emit(cmd),
+	}
+
+
 func _ship_action(p: Planet, ship_id: String) -> Dictionary:
 	var sd := GameData.ship(ship_id)
 	var reason := SimCommands.validate(_state, SimCommands.build_ship(_player, p.id, ship_id))
 	var pid := p.id
+	var price := GameData.format_amounts(sd.get("cost", {}))
+	if int(sd.get("pop_cost", 0)) > 0:
+		price += ", %d pop" % int(sd["pop_cost"])
+	@warning_ignore("integer_division")
+	var spd := int(sd["speed"]) * FactionTraits.fleet_speed_pct(_state, _player) / 100
 	return {
 		"text": "Chantier spatial : %s" % sd["label"],
-		"detail": "%s, %d j  »  vitesse %d, vision %d saut%s" % [GameData.format_amounts(sd.get("cost", {})), int(sd["days"]),
-				int(sd["speed"]), int(sd["vision"]), "s" if int(sd["vision"]) > 1 else ""],
+		"detail": "%s, %d j  »  vitesse %d, vision %d saut%s" % [price, int(sd["days"]),
+				spd, int(sd["vision"]), "s" if int(sd["vision"]) > 1 else ""],
 		"reason": reason,
 		"tooltip": reason if reason != "" else String(sd.get("description", "")),
 		"action": func() -> void: build_ship_requested.emit(pid, ship_id),

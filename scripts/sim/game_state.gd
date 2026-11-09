@@ -7,7 +7,7 @@ extends RefCounted
 ## stockée : elle se régénère à l'identique depuis la graine. Seules les données
 ## qui changent en cours de partie sont sérialisées.
 
-const FORMAT_VERSION := 3
+const FORMAT_VERSION := 4
 const CHRONICLE_MAX := 50
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
@@ -262,6 +262,8 @@ func _setup_empires(player_faction: String) -> void:
 			e.resources[r] = int(rules["start_resources"].get(r, 0))
 		empires.append(e)
 		var faction := e.faction()
+		if FactionTraits.has_fervor(faction):
+			e.fervor = int(faction["fervor"]["start"])
 		var sys := galaxy.systems[homes[i]]
 		# Monde d'origine : la plus grande planète du système, transformée au goût de l'espèce.
 		var home_id: int = sys.planet_ids[0]
@@ -290,7 +292,7 @@ func _setup_empires(player_faction: String) -> void:
 		colonies[home_id] = c
 		e.capital_planet = home_id
 		# Flotte de départ : de quoi explorer et fonder une première colonie.
-		for ship_id in rules.get("start_ships", []):
+		for ship_id in FactionTraits.start_ships(e.faction_id):
 			spawn_ship(e.id, String(ship_id), sys.id)
 	rebuild_ownership()
 

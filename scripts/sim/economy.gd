@@ -15,7 +15,11 @@ static func habitability(planet_type: String, faction: Dictionary) -> int:
 		return 100
 	if pref.size() > 1 and pref[1] == planet_type:
 		return 80
-	return int(GameData.planet_type(planet_type).get("base_hab", 0))
+	var base := int(GameData.planet_type(planet_type).get("base_hab", 0))
+	# Plancher de faction (Vael : une espèce pour chaque monde), seulement sur les mondes habitables.
+	if base > 0:
+		return maxi(base, FactionTraits.hab_floor(faction))
+	return base
 
 
 ## Population maximale d'une planète pour un empire, bâtiments compris.
@@ -72,6 +76,7 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		var bd := GameData.building(b)
 		_add(gross, bd.get("yields", {}))
 		_add(upkeep, bd.get("upkeep", {}))
+	FactionTraits.adjust_yields(state, colony, gross, upkeep)
 	return {"gross": gross, "upkeep": upkeep}
 
 
@@ -87,12 +92,11 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 		_add(gross, y["gross"])
 		_add(upkeep, y["upkeep"])
 	_add(upkeep, Fleets.upkeep(state, empire_id))
-	var e := state.get_empire(empire_id)
-	var pct: Dictionary = e.faction().get("production_pct", {}) if e else {}
+	gross["influence"] += FactionTraits.extra_influence(state, empire_id)
 	var net := _zero()
 	for r in gross:
 		@warning_ignore("integer_division")
-		gross[r] = gross[r] * int(pct.get(r, 100)) / 100
+		gross[r] = gross[r] * FactionTraits.production_pct(state, empire_id, r) / 100
 		net[r] = gross[r] - upkeep[r]
 	return {"gross": gross, "upkeep": upkeep, "net": net}
 
@@ -140,10 +144,12 @@ static func needs_ship(state: GameState, empire_id: int, planet_id: int) -> bool
 
 
 ## Coût réel d'une revendication : avec un vaisseau colon, les matériaux sont déjà dans le vaisseau.
+## Les traits de faction s'appliquent ensuite (l'Essaim Kh'thari ne paie jamais d'influence).
 static func claim_cost_for(state: GameState, empire_id: int, planet_id: int, kind: String) -> Dictionary:
+	var cost := claim_cost(kind)
 	if needs_ship(state, empire_id, planet_id):
-		return GameData.rules()["claims"][kind].get("ship_cost", claim_cost(kind))
-	return claim_cost(kind)
+		cost = GameData.rules()["claims"][kind].get("ship_cost", cost)
+	return FactionTraits.adjust_claim_cost(state, empire_id, cost)
 
 
 ## Nombre de colonisations en cours (pas encore fondées) d'un empire.

@@ -65,8 +65,9 @@ func _test_start() -> void:
 		var fleets := Fleets.empire_fleets(st, e.id)
 		var home := _home(st, e.id)
 		_ok(fleets.size() == 2, "%s : deux flottes au départ (obtenu %d)" % [e.faction_id, fleets.size()])
-		_ok(_fleet_with(st, e.id, "scout") != null and _fleet_with(st, e.id, "colony_ship") != null,
-				"%s : un éclaireur et un vaisseau colon" % e.faction_id)
+		var settler := "spore_ship" if e.faction_id == "khthari" else "colony_ship"
+		_ok(_fleet_with(st, e.id, "scout") != null and _fleet_with(st, e.id, settler) != null,
+				"%s : un éclaireur et un vaisseau colon (%s)" % [e.faction_id, settler])
 		var all_home := true
 		for f in fleets:
 			all_home = all_home and f.system_id == home and not f.is_moving()
@@ -104,7 +105,7 @@ func _test_move() -> void:
 	_ok(Fleets.eta_days(st, scout) == expected, "délai annoncé = délai de l'itinéraire (%d j)" % expected)
 	var mid := Fleets.position(st, scout)
 	sim.step()
-	_ok(scout.progress == Fleets.speed(scout) or scout.system_id != st.galaxy.get_planet(st.get_empire(0).capital_planet).system_id,
+	_ok(scout.progress == Fleets.speed(scout, st) or scout.system_id != st.galaxy.get_planet(st.get_empire(0).capital_planet).system_id,
 			"la flotte avance de sa vitesse chaque jour")
 	_ok(Fleets.position(st, scout) != mid, "sa position sur la carte change")
 	var days := 1 + _run_until_stopped(sim, scout.id)
@@ -152,7 +153,7 @@ func _test_turn_around_and_stop() -> void:
 			"demi-tour : la flotte repart vers son point de départ sans téléporter")
 	var days := _run_until_stopped(sim, scout.id)
 	@warning_ignore("integer_division")
-	var expected_days := (done + Fleets.speed(scout) - 1) / Fleets.speed(scout)
+	var expected_days := (done + Fleets.speed(scout, st) - 1) / Fleets.speed(scout, st)
 	_ok(scout.system_id == home and days == expected_days, "retour au départ en %d j (prévu %d)" % [days, expected_days])
 	# Arrêt en route : on rebrousse chemin si on est à moins de la moitié.
 	sim.submit(SimCommands.move_fleet(0, scout.id, n))

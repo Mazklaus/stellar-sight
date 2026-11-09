@@ -428,7 +428,7 @@ func _refresh_fleet_card() -> void:
 		_fleet_status.text = "En orbite de %s." % _system_label(f.system_id)
 	var v := Fleets.vision(f)
 	_fleet_stats.text = "%d vaisseau%s  ·  vitesse %d  ·  vision %d saut%s" % [f.ships.size(), "x" if f.ships.size() > 1 else "",
-			Fleets.speed(f), v, "s" if v > 1 else ""]
+			Fleets.speed(f, _state), v, "s" if v > 1 else ""]
 	var can_colonize := mine and not f.is_moving() and Fleets.colonizer_ship(f) != ""
 	if can_colonize:
 		can_colonize = false

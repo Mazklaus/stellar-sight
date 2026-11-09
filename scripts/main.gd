@@ -95,6 +95,7 @@ func _ready() -> void:
 		simulation.submit(SimCommands.build(LOCAL_PLAYER, planet_id, building_id)))
 	_system_screen.build_ship_requested.connect(func(planet_id: int, ship_id: String) -> void:
 		simulation.submit(SimCommands.build_ship(LOCAL_PLAYER, planet_id, ship_id)))
+	_system_screen.command_requested.connect(func(cmd: Dictionary) -> void: simulation.submit(cmd))
 
 	_empire_screens = EmpireScreens.new()
 	add_child(_empire_screens)
