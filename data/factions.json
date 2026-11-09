@@ -4,20 +4,53 @@
 		"production_pct": {"crystals": 150, "influence": 110}, "growth_pct": 100, "food_upkeep_pct": 100,
 		"home_deposit": "crystals",
 		"lore": "Les Lignées d'Ossarane tracent leurs routes de saut comme d'autres tracent des arbres généalogiques : avec soin, avec orgueil, et en effaçant discrètement les branches qui ont mal tourné. Chaque maison garde un navigateur façonné dès l'enfance pour sentir les cristaux. On dit qu'il en existe de très doués. On le dit surtout dans les maisons qui en ont.",
-		"trait": "Navigateurs façonnés : +50 % de cristaux de saut et +10 % d'influence. Un gisement de cristaux est garanti dans le système d'origine."},
+		"fleet_speed_pct": 130,
+		"fiefs": {"influence": 1, "far_jumps": 4, "crystal_upkeep": 1, "dissent_pct": 50},
+		"trait": "Navigateurs façonnés et fiefs : flottes plus rapides, monopole des cristaux, tribut des fiefs.",
+		"traits": [
+			{"name": "Navigateurs façonnés", "text": "Les flottes voyagent 30 % plus vite. +50 % de cristaux de saut, +10 % d'influence, et un gisement de cristaux garanti dans le système d'origine."},
+			{"name": "Serment des fiefs", "text": "Chaque colonie hors du système capital est un fief qui verse +1 influence par mois."},
+			{"name": "Fils de Saphène", "text": "Un fief à plus de 4 sauts de la capitale réclame 1 cristal par mois. Si les cristaux manquent, les fiefs lointains entrent en dissidence et produisent moitié moins."}
+		]},
 	{"id": "choeur", "name": "Hégémonie du Chœur Éternel", "short": "Chœur Éternel", "registre": "Grimdark",
 		"color": "#c0392b", "preferred": ["arctic", "desert"],
 		"production_pct": {"materials": 125}, "growth_pct": 80, "food_upkeep_pct": 100,
 		"lore": "L'Hégémonie du Chœur Éternel chante depuis dix mille ans le même hymne, et n'a toujours pas trouvé la fin du deuxième couplet. Ses forges tournent jour et nuit au rythme des psaumes. La galaxie est vaste, froide et pleine d'hérétiques : le Chœur considère que c'est une excellente nouvelle pour l'industrie.",
-		"trait": "Forges sacrées : +25 % de matériaux, mais une croissance 20 % plus lente."},
+		"colony_start_pop": 2,
+		"fervor": {"start": 50, "max": 100, "decay": 5, "per_colony": 1, "sacrifice_gain": 20, "sacrifice_min_pop": 2, "exalted_at": 60, "exalted_pct": 125, "silent_pct": 75},
+		"trait": "Forges sacrées et ferveur : le dieu-machine se nourrit de la foi, et des fidèles.",
+		"traits": [
+			{"name": "Forges sacrées", "text": "+25 % de matériaux, mais une croissance 20 % plus lente."},
+			{"name": "Le dieu-machine a faim", "text": "La ferveur (0 à 100) baisse de 5 par mois et monte de 1 par colonie. À 60 ou plus, l'Exaltation donne +25 % à toute la production. À 0, le dieu se tait : -25 % partout."},
+			{"name": "Offrande", "text": "Une colonie d'au moins 2 population peut sacrifier un fidèle : -1 population, +20 ferveur."},
+			{"name": "Pèlerins zélés", "text": "Les nouvelles colonies démarrent avec 2 population au lieu de 1."}
+		]},
 	{"id": "vael", "name": "Concorde de Vael", "short": "Vael", "registre": "Space opera héroïque",
 		"color": "#4a90e2", "preferred": ["ocean", "continental"],
 		"production_pct": {"influence": 150, "energy": 110}, "growth_pct": 100, "food_upkeep_pct": 100,
 		"lore": "La Concorde de Vael est née d'un traité signé par quarante peuples qui ne s'entendaient sur rien, sauf sur l'urgence de ne plus se tirer dessus. Depuis, elle vote. Beaucoup. Ses héros sont réels, ses discours sont longs, et ses flottes arrivent toujours au dernier moment, ce qu'elle appelle une tradition.",
-		"trait": "Assemblées ouvertes : +50 % d'influence et +10 % d'énergie."},
+		"hab_floor": 60,
+		"rush": {"days_per_influence": 2, "min": 5},
+		"contact_influence": 2,
+		"trait": "Assemblées ouvertes : influence abondante, peuples multiples, votes d'urgence.",
+		"traits": [
+			{"name": "Assemblées ouvertes", "text": "+50 % d'influence et +10 % d'énergie."},
+			{"name": "Quarante peuples", "text": "La Concorde compte une espèce pour chaque monde : toute planète habitable l'est au moins à 60 %."},
+			{"name": "Vote d'urgence", "text": "Dépenser de l'influence pour achever tout de suite un bâtiment ou un vaisseau (1 influence pour 2 jours restants, 5 au minimum)."},
+			{"name": "Ambassades", "text": "+2 influence par mois pour chaque empire rencontré."}
+		]},
 	{"id": "khthari", "name": "Essaim Kh'thari", "short": "Kh'thari", "registre": "Horreur biologique",
 		"color": "#6fcf3a", "preferred": ["toxic", "ocean"],
 		"production_pct": {"influence": 50}, "growth_pct": 200, "food_upkeep_pct": 150,
 		"lore": "L'Essaim Kh'thari ne conquiert pas : il s'installe, puis il grandit, puis il ne reste plus que lui. Il n'a ni empereur ni capitale au sens où on l'entend, seulement une faim très patiente. Les diplomates qui ont tenté de négocier avec lui le décrivent comme un interlocuteur attentif. Ils le décrivent de l'intérieur.",
-		"trait": "Croissance explosive : population deux fois plus rapide, mais chaque population mange 50 % de plus et l'influence est divisée par deux."}
+		"claim_influence_free": true,
+		"start_ships": ["scout", "spore_ship"],
+		"ships_excluded": ["colony_ship"],
+		"biomass": {"materials": 15},
+		"trait": "Croissance explosive, essaimage et biomasse : l'Essaim ne négocie pas, il grandit.",
+		"traits": [
+			{"name": "Croissance explosive", "text": "Population deux fois plus rapide, mais chaque population mange 50 % de plus et l'influence est divisée par deux."},
+			{"name": "Essaimage", "text": "Pas de vaisseau colon : des vaisseaux-spores, payés en population (2) et en nourriture. Coloniser ne coûte jamais d'influence."},
+			{"name": "Biomasse", "text": "Une colonie pleine continue de grandir : chaque population en trop est digérée en 15 matériaux."}
+		]}
 ]

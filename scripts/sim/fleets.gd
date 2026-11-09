@@ -15,11 +15,15 @@ static func lane_length(galaxy: Galaxy, a: int, b: int) -> int:
 
 
 ## Vitesse d'une flotte : celle de son vaisseau le plus lent (unités par jour).
-static func speed(fleet: Fleet) -> int:
+## Avec l'état, le trait de faction de son propriétaire s'applique (navigateurs d'Ossarane).
+static func speed(fleet: Fleet, state: GameState = null) -> int:
 	var v := 0
 	for s in fleet.ships:
 		var sv := int(GameData.ship(s).get("speed", 1))
 		v = sv if v == 0 else mini(v, sv)
+	if state != null:
+		@warning_ignore("integer_division")
+		v = v * FactionTraits.fleet_speed_pct(state, fleet.owner) / 100
 	return maxi(1, v)
 
 
@@ -121,7 +125,7 @@ static func remaining_distance(state: GameState, fleet: Fleet) -> int:
 
 ## Jours avant l'arrivée (0 à l'arrêt).
 static func eta_days(state: GameState, fleet: Fleet) -> int:
-	var v := speed(fleet)
+	var v := speed(fleet, state)
 	@warning_ignore("integer_division")
 	return (remaining_distance(state, fleet) + v - 1) / v
 
@@ -130,6 +134,7 @@ static func eta_days(state: GameState, fleet: Fleet) -> int:
 static func route_days(state: GameState, fleet: Fleet, plan: Dictionary) -> int:
 	var f := Fleet.new()
 	f.ships = fleet.ships
+	f.owner = fleet.owner
 	f.system_id = int(plan["system"])
 	f.path.assign(plan["path"])
 	f.progress = int(plan["progress"])
@@ -145,7 +150,7 @@ static func position(state: GameState, fleet: Fleet, extra := 0.0) -> Vector2:
 		return a
 	var b := g.systems[fleet.path[0]].position
 	var lane := float(lane_length(g, fleet.system_id, fleet.path[0]))
-	var t := clampf((fleet.progress + extra * speed(fleet)) / lane, 0.0, 1.0)
+	var t := clampf((fleet.progress + extra * speed(fleet, state)) / lane, 0.0, 1.0)
 	return a.lerp(b, t)
 
 
@@ -357,8 +362,13 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	var sd := GameData.ship(ship_id)
 	if sd.is_empty():
 		return "classe de vaisseau inconnue : %s" % ship_id
+	if not FactionTraits.ship_ids_for(e.faction_id).has(ship_id):
+		return "votre peuple ne construit pas de %s" % String(sd["plural"]).to_lower()
 	if c.ship_build != "":
 		return "le chantier spatial est occupé"
+	var pop_cost := int(sd.get("pop_cost", 0))
+	if pop_cost > 0 and c.population <= pop_cost:
+		return "il faut plus de %d population sur cette colonie (le vaisseau emporte %d population)" % [pop_cost, pop_cost]
 	var cost: Dictionary = sd.get("cost", {})
 	if not Economy.can_afford(e, cost):
 		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)

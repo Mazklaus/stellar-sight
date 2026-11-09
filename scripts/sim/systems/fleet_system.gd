@@ -64,7 +64,7 @@ static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictiona
 static func _move(state: GameState, f: Fleet) -> void:
 	if not f.is_moving():
 		return
-	f.progress += Fleets.speed(f)
+	f.progress += Fleets.speed(f, state)
 	while f.is_moving():
 		var lane := Fleets.lane_length(state.galaxy, f.system_id, f.path[0])
 		if f.progress < lane:

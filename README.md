@@ -117,6 +117,24 @@ La partie démarre en pause, le 01/01/2400, centrée sur le système d'origine d
 
 Références consultées pour ces mécaniques : Endless Space 2 reste le modèle principal ([déplacements et routes](https://gamepressure.com/endless-space-2/systems-and-ways-of-travelling/z29c4b), [colonisation par vaisseau colon et avant-poste](https://www.gamepressure.com/endless-space-2/colonization-migration-and-evacuation/z69c4f)), complété par d'autres 4X en temps réel : Stellaris pour les contre-ordres en plein trajet et l'exploration par vaisseaux scientifiques, Sins of a Solar Empire pour garder des trajets courts (ses joueurs se plaignent d'attendre plusieurs minutes une flotte, [discussion Steam](https://steamcommunity.com/app/1575940/discussions/1/651441204180820081)).
 
+## Les 4 peuples et leurs traits
+
+Chaque peuple de la première version a des traits qui changent vraiment la façon de jouer (économie, flottes, colonisation). Ils sont décrits en entier dans l'écran Nouvelle partie, rappelés en infobulle sur le nom du peuple, et chaque peuple a sa jauge dans le panneau d'empire. Tous les réglages sont dans `data/factions.json`.
+
+| Peuple | Traits | Ce que ça change |
+|---|---|---|
+| **Lignées d'Ossarane** (médiéval spatial) | Navigateurs façonnés, Serment des fiefs, Fils de Saphène | Flottes 30 % plus rapides et monopole des cristaux. Chaque colonie hors du système capital est un fief qui verse +1 influence ; un fief à plus de 4 sauts coûte 1 cristal par mois, et sans cristaux les fiefs lointains entrent en dissidence (production divisée par deux). On s'étend vite, mais on doit tenir ses routes de cristaux. |
+| **Hégémonie du Chœur Éternel** (grimdark) | Forges sacrées, Le dieu-machine a faim, Offrande, Pèlerins zélés | La ferveur (0 à 100) baisse de 5 par mois et monte de 1 par colonie. À 60 ou plus, Exaltation : +25 % de production ; à 0, le dieu se tait : -25 %. Ordre « Offrande » : -1 population, +20 ferveur. Les nouvelles colonies démarrent à 2 population. On s'étend pour nourrir le dieu, ou on sacrifie. |
+| **Concorde de Vael** (space opera héroïque) | Assemblées ouvertes, Quarante peuples, Vote d'urgence, Ambassades | Toute planète habitable l'est au moins à 60 %. Ordre « Vote d'urgence » : achever tout de suite un bâtiment ou un vaisseau contre de l'influence (1 pour 2 jours restants). +2 influence par mois par empire rencontré. L'influence devient une monnaie. |
+| **Essaim Kh'thari** (horreur biologique) | Croissance explosive, Essaimage, Biomasse | Pas de vaisseau colon : des vaisseaux-spores payés en population (2) et en nourriture. Coloniser ne coûte jamais d'influence. Une colonie pleine continue de grandir et digère chaque population en trop en 15 matériaux. On produit des colons, pas des diplomates. |
+
+Nouveaux ordres : `sacrifice` (Chœur) et `rush` (Vael). Sauvegarde en version 4 (ferveur, dissidence, biomasse).
+
+![Choix du peuple et ses traits](docs/apercu-factions.png)
+![Offrande et jauge de ferveur](docs/apercu-offrande.png)
+
+Références consultées pour ces mécaniques (les traits restent originaux) : les guides Gamepressure d'Endless Space 2 sur [le choix de la race](https://www.gamepressure.com/endless-space-2/what-race-should-i-choose/z09d03) (les Unfallen sacrifient leur population contre de l'approbation, les Cravers doublent leur croissance, les Lumeris n'ont pas de vaisseau colon) et sur [l'Empire Uni](https://www.gamepressure.com/endless-space-2/united-empire/za9ce9) (l'influence sert à accélérer les constructions), et les discussions des développeurs de Stellaris sur [l'essaim dévoreur](https://admin-forum.paradoxplaza.com/forum/developer-diary/stellaris-dev-diary-76-hive-mind-improvements-tradition-swapping.1034124) (une ruche privée de diplomatie).
+
 ## Organisation du code
 
 La simulation et l'affichage sont séparés dès maintenant, pour pouvoir ajouter le multijoueur et passer en 2,5D sans tout réécrire.
@@ -137,6 +155,7 @@ scripts/
     empire.gd             Un empire : faction, stocks de ressources, capitale
     colony.gd             Une colonie ou un avant-poste : population, bâtiments, chantier
     economy.gd            Règles de l'économie (calculs purs, partagés par la simulation et l'interface)
+    faction_traits.gd     Traits des peuples : fiefs, ferveur, vote d'urgence, vaisseaux-spores, biomasse
     fleet.gd              Une flotte : vaisseaux, position, trajet
     fleets.gd             Règles des flottes : chemins, délais, vision et brouillard, vérification des ordres
     empire_report.gd      Bilans d'un empire pour les menus (lecture seule) et parcours de ses systèmes
@@ -171,6 +190,7 @@ tools/
   capture_system_view.gd  Captures d'écran de la vue système (rendu réel, voir l'en-tête du fichier)
   capture_ui.gd           Captures des menus et de l'interface
   capture_fleets.gd       Captures des flottes et du brouillard de guerre
+  capture_factions.gd     Captures des 4 peuples et de leurs ordres propres
   main.gd                 Assemble le tout et gère les entrées
 data/                     Données de jeu en JSON : tout l'équilibrage se règle ici
   rules.json              Ressources, coûts de colonisation, croissance, gisements, monde d'origine

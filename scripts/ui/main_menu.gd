@@ -44,7 +44,7 @@ var _lore_header: Label
 var _options_page: Control
 var _options: OptionsPanel
 var _faction_cards := {}
-var _faction_trait: Label
+var _faction_trait: RichTextLabel
 var _seed_edit: LineEdit
 ## Façon de jouer choisie pour la nouvelle partie (GameClock.MODE_*), et longueur des tours.
 var time_mode: int = 0
@@ -258,7 +258,7 @@ func select_faction(id: String) -> void:
 	_faction_emblem.queue_redraw()
 	_faction_registre.text = String(f.get("registre", ""))
 	_faction_registre.add_theme_color_override("font_color", col.lightened(0.3))
-	_faction_trait.text = String(f.get("trait", ""))
+	_faction_trait.text = trait_bbcode(f, col)
 	var worlds := PackedStringArray()
 	for t in f.get("preferred", []):
 		worlds.append(String(TYPE_LABELS.get(t, t)))
@@ -274,6 +274,19 @@ func set_time_choice(index: int) -> void:
 	else:
 		time_mode = GameClock.MODE_TURNS
 		turn_days = GameClock.TURN_LENGTHS[mini(index - 1, GameClock.TURN_LENGTHS.size() - 1)]
+
+
+## Traits d'un peuple en texte enrichi : le nom de chaque trait en gras, à sa couleur.
+static func trait_bbcode(f: Dictionary, col: Color) -> String:
+	var lines := PackedStringArray()
+	for t: Dictionary in f.get("traits", []):
+		lines.append("[b][color=#%s]%s[/color][/b]  %s" % [col.lightened(0.35).to_html(false), t["name"], t["text"]])
+	return "\n".join(lines) if not lines.is_empty() else String(f.get("trait", ""))
+
+
+## Texte brut des traits affichés (pour les tests).
+func trait_text() -> String:
+	return _faction_trait.get_parsed_text()
 
 
 ## Lance la partie avec la faction choisie ; graine tapée (nombre ou texte) ou tirée au hasard.
@@ -364,7 +377,7 @@ func _build_new_page(root: Control) -> void:
 	bottom.anchor_right = 1.0
 	bottom.offset_left = 32
 	bottom.offset_right = -32
-	bottom.offset_top = -330
+	bottom.offset_top = -390
 	bottom.offset_bottom = -96
 	bottom.add_theme_constant_override("separation", 24)
 	page_root.add_child(bottom)
@@ -376,8 +389,15 @@ func _build_new_page(root: Control) -> void:
 	trow.add_child(_faction_emblem)
 	_faction_registre = Label.new()
 	trow.add_child(_faction_registre)
-	traits.add_child(UiTheme.section("Trait du peuple"))
-	_faction_trait = UiTheme.paragraph("", 440, 15)
+	traits.add_child(UiTheme.section("Traits du peuple"))
+	_faction_trait = RichTextLabel.new()
+	_faction_trait.bbcode_enabled = true
+	_faction_trait.fit_content = true
+	_faction_trait.scroll_active = false
+	_faction_trait.custom_minimum_size = Vector2(440, 0)
+	_faction_trait.add_theme_font_size_override("normal_font_size", 13)
+	_faction_trait.add_theme_font_size_override("bold_font_size", 13)
+	_faction_trait.add_theme_color_override("default_color", UiTheme.TEXT)
 	traits.add_child(_faction_trait)
 	traits.add_child(UiTheme.section("Mondes préférés"))
 	_faction_worlds = Label.new()

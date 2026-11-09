@@ -13,7 +13,6 @@ static func resources(state: GameState, empire_id: int) -> Array[Dictionary]:
 	if e == null:
 		return out
 	var income := Economy.empire_income(state, empire_id)
-	var pct: Dictionary = e.faction().get("production_pct", {})
 	for r in GameData.resource_ids():
 		var stock := int(e.resources.get(r, 0))
 		var net := int(income["net"][r])
@@ -28,7 +27,7 @@ static func resources(state: GameState, empire_id: int) -> Array[Dictionary]:
 			"gross": int(income["gross"][r]),
 			"upkeep": int(income["upkeep"][r]),
 			"net": net,
-			"bonus_pct": int(pct.get(r, 100)) - 100,
+			"bonus_pct": FactionTraits.production_pct(state, empire_id, r) - 100,
 			"months_left": months,
 		})
 	return out
