@@ -160,7 +160,8 @@ func _test_chronicle() -> void:
 
 
 func _test_performance() -> void:
-	var sim := Simulation.new(GameState.create(3))
+	# Les règles seules (empires sans IA) : le socle doit rester très rapide.
+	var sim := Simulation.new(GameState.create(3, 150, 1800.0, "", {"ai_level": ""}))
 	var start := Time.get_ticks_usec()
 	sim.advance(3600)
 	var ms := (Time.get_ticks_usec() - start) / 1000.0

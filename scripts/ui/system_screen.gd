@@ -96,6 +96,10 @@ func _ready() -> void:
 	_build_nav()
 
 
+## Lecture seule (mode spectateur) : on regarde les planètes, on ne donne aucun ordre.
+var read_only := false
+
+
 ## Ouvre l'écran sur un système. La planète du joueur (sa capitale d'abord) est choisie d'office.
 func open(state: GameState, s: StarSystem, player: int) -> void:
 	_state = state
@@ -432,6 +436,8 @@ func _refresh_panel(s: StarSystem) -> void:
 func planet_actions(p: Planet) -> Array[Dictionary]:
 	var c: Colony = _state.colonies.get(p.id)
 	var actions: Array[Dictionary] = []
+	if read_only:
+		return actions
 	# Coloniser n'est proposé que là où l'espèce du joueur peut vivre.
 	var livable := Economy.max_pop(_state, p, _player) > 0
 	if livable and (c == null or (c.owner == _player and not c.is_colony())):

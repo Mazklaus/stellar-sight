@@ -96,9 +96,16 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 	var net := _zero()
 	for r in gross:
 		@warning_ignore("integer_division")
-		gross[r] = gross[r] * FactionTraits.production_pct(state, empire_id, r) / 100
+		gross[r] = gross[r] * production_pct(state, empire_id, r) / 100
 		net[r] = gross[r] - upkeep[r]
 	return {"gross": gross, "upkeep": upkeep, "net": net}
+
+
+## Pourcentage total appliqué à la production brute d'une ressource : traits de faction (et ferveur),
+## puis bonus de difficulté des IA des niveaux hauts.
+static func production_pct(state: GameState, empire_id: int, resource: String) -> int:
+	@warning_ignore("integer_division")
+	return FactionTraits.production_pct(state, empire_id, resource) * AiLevels.production_pct(state, empire_id) / 100
 
 
 ## Coût d'une revendication ("colony" ou "outpost").

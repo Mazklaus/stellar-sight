@@ -24,6 +24,11 @@ var simulation: Simulation
 var save_path := SaveGame.QUICKSAVE_PATH
 ## Faction du joueur local pour les nouvelles parties (choisie dans le menu principal).
 var player_faction := "ossarane"
+## Niveau des empires IA pour les nouvelles parties (AiLevels), et partie sans joueur (spectateur).
+var ai_level := AiLevels.default_id()
+var spectator := false
+## Empire dont l'interface montre les yeux : le joueur local, ou l'empire suivi par le spectateur.
+var view_empire := LOCAL_PLAYER
 ## Ouvrir le menu principal au lancement (les tests et les captures le désactivent).
 var start_with_menu := true
 ## Vrai dès que le joueur a lancé ou chargé une partie (la galaxie derrière le menu n'en est pas une).
@@ -56,7 +61,7 @@ func _ready() -> void:
 	UiSettings.apply()
 	get_tree().root.theme = UiTheme.theme()
 	_view = GalaxyView.new()
-	_view.viewer = LOCAL_PLAYER
+	_view.viewer = view_empire
 	add_child(_view)
 	_camera = GalaxyCamera.new()
 	add_child(_camera)
@@ -90,12 +95,12 @@ func _ready() -> void:
 	_system_screen.mode_changed.connect(_hud.set_manage_tab)
 	_system_screen.rename_requested.connect(_on_rename_requested)
 	_system_screen.colonize_requested.connect(func(planet_id: int, kind: String) -> void:
-		simulation.submit(SimCommands.colonize(LOCAL_PLAYER, planet_id, kind)))
+		_submit(SimCommands.colonize(view_empire, planet_id, kind)))
 	_system_screen.build_requested.connect(func(planet_id: int, building_id: String) -> void:
-		simulation.submit(SimCommands.build(LOCAL_PLAYER, planet_id, building_id)))
+		_submit(SimCommands.build(view_empire, planet_id, building_id)))
 	_system_screen.build_ship_requested.connect(func(planet_id: int, ship_id: String) -> void:
-		simulation.submit(SimCommands.build_ship(LOCAL_PLAYER, planet_id, ship_id)))
-	_system_screen.command_requested.connect(func(cmd: Dictionary) -> void: simulation.submit(cmd))
+		_submit(SimCommands.build_ship(view_empire, planet_id, ship_id)))
+	_system_screen.command_requested.connect(func(cmd: Dictionary) -> void: _submit(cmd))
 
 	_empire_screens = EmpireScreens.new()
 	add_child(_empire_screens)
@@ -117,16 +122,27 @@ func _ready() -> void:
 		open_main_menu())
 	_pause_menu.quit_requested.connect(func() -> void: get_tree().quit())
 
+	_hud.spectator_panel.empire_followed.connect(follow_empire)
+	_hud.spectator_panel.capital_requested.connect(func(id: int) -> void:
+		follow_empire(id)
+		go_to_capital())
+	_hud.spectator_panel.fog_requested.connect(set_spectator_fog)
+
 	_main_menu = MainMenu.new()
 	add_child(_main_menu)
 	_main_menu.new_game_requested.connect(func(faction_id: String, seed_value: int) -> void:
 		player_faction = faction_id
+		ai_level = _main_menu.ai_level
+		spectator = _main_menu.spectator
 		new_game(seed_value)
 		GameClock.set_mode(_main_menu.time_mode, _main_menu.turn_days)
 		game_in_progress = true
 		close_main_menu()
-		var me := simulation.state.get_empire(LOCAL_PLAYER)
-		_hud.notify("%s : que la chronique commence." % me.display_name(), "good"))
+		if spectator:
+			_hud.notify("Mode spectateur : %d peuples, aucun joueur. Espace pour lancer le temps, V pour changer de regard." % simulation.state.empires.size(), "good")
+		else:
+			var me := simulation.state.get_empire(view_empire)
+			_hud.notify("%s : que la chronique commence." % me.display_name(), "good"))
 	_main_menu.resume_requested.connect(close_main_menu)
 	_main_menu.continue_requested.connect(func() -> void:
 		if load_game():
@@ -142,9 +158,10 @@ func _ready() -> void:
 
 
 func new_game(seed_value: int) -> void:
-	_start(GameState.create(seed_value, SYSTEM_COUNT, GALAXY_RADIUS, player_faction))
+	_start(GameState.create(seed_value, SYSTEM_COUNT, GALAXY_RADIUS, player_faction,
+			{"ai_level": ai_level, "spectator": spectator}))
 	# On commence chez soi : caméra sur le système d'origine, fiche ouverte.
-	var me := simulation.state.get_empire(LOCAL_PLAYER)
+	var me := simulation.state.get_empire(view_empire)
 	if me:
 		var home := galaxy.get_planet(me.capital_planet).system_id
 		_camera.stop_glide()
@@ -172,7 +189,7 @@ func load_game() -> bool:
 	_start(state)
 	GameClock.apply_settings(SaveGame.last_clock)
 	game_in_progress = true
-	var me := state.get_empire(LOCAL_PLAYER)
+	var me := state.get_empire(view_empire)
 	if me:
 		_select(galaxy.get_planet(me.capital_planet).system_id)
 		_camera.position = galaxy.get_system(_view.selected_id).position
@@ -187,13 +204,13 @@ func open_system_view(id: int, planet_id := -1) -> void:
 	var s := galaxy.get_system(id) if galaxy else null
 	if s == null:
 		return
-	if not Fleets.is_explored(simulation.state, LOCAL_PLAYER, id):
+	if not Fleets.is_explored(simulation.state, view_empire, id):
 		_hud.notify("Système inexploré : envoyez d'abord un vaisseau y jeter un œil.")
 		return
 	if is_empire_screen_open():
 		close_empire_screen()
 	_select(id)
-	_system_screen.open(simulation.state, s, LOCAL_PLAYER)
+	_system_screen.open(simulation.state, s, view_empire)
 	if planet_id >= 0 and s.planet_ids.has(planet_id):
 		_system_screen.select_planet(planet_id)
 	_hud.set_system_mode(true)
@@ -220,12 +237,12 @@ func is_system_view_open() -> bool:
 ## ouverte, sinon sur la carte (sélection et glissement de la caméra).
 func cycle_system(step: int) -> void:
 	var current := _system_screen.system_id if is_system_view_open() else _view.selected_id
-	_go_to_system(EmpireReport.cycle_system(simulation.state, LOCAL_PLAYER, current, step))
+	_go_to_system(EmpireReport.cycle_system(simulation.state, view_empire, current, step))
 
 
 ## Revient au système de la capitale.
 func go_to_capital() -> void:
-	var me := simulation.state.get_empire(LOCAL_PLAYER)
+	var me := simulation.state.get_empire(view_empire)
 	if me:
 		_go_to_system(galaxy.get_planet(me.capital_planet).system_id)
 
@@ -256,7 +273,7 @@ func toggle_empire_screen(screen_id: String) -> void:
 		_auto_paused = true
 		GameClock.set_paused(true)
 	_hud.show_hover(null, Vector2.ZERO)
-	_empire_screens.open(screen_id, simulation.state, LOCAL_PLAYER)
+	_empire_screens.open(screen_id, simulation.state, view_empire)
 	_hud.set_empire_screen_open(true)
 	_update_map_input()
 
@@ -339,6 +356,14 @@ func _start(state: GameState) -> void:
 	if is_system_view_open():
 		close_system_view()
 	close_empire_screen()
+	# Une partie sans aucun joueur humain se regarde (nouvelle partie en spectateur, ou sauvegarde d'une telle partie).
+	spectator = state.is_spectator_game()
+	view_empire = LOCAL_PLAYER
+	_hud.set_spectator(spectator)
+	_system_screen.read_only = spectator
+	_view.viewer = view_empire
+	_view.fog = not spectator
+	_hud.spectator_panel.set_fog(false)
 	simulation = Simulation.new(state)
 	simulation.command_applied.connect(_on_command_applied)
 	simulation.command_rejected.connect(func(_cmd: Dictionary, reason: String) -> void:
@@ -348,7 +373,7 @@ func _start(state: GameState) -> void:
 		_announce_arrivals()
 		_refresh_all())
 	_view.set_state(state)
-	_hud.set_state(state, LOCAL_PLAYER)
+	_hud.set_state(state, view_empire)
 	select_fleet(-1)
 	_fleets_moving = _moving_fleet_ids()
 	_hud.show_chronicle(state.chronicle.back() if not state.chronicle.is_empty() else {})
@@ -364,8 +389,37 @@ func _refresh_all() -> void:
 	_empire_screens.refresh()
 
 
+## Tous les ordres du joueur local passent par là. Un spectateur regarde, il ne commande pas.
+func _submit(cmd: Dictionary) -> bool:
+	if spectator:
+		_hud.notify("Mode spectateur : les peuples se débrouillent seuls.")
+		return false
+	return simulation.submit(cmd)
+
+
+# --- Mode spectateur ----------------------------------------------------------------------------
+
+## Suit un empire : panneau d'empire, flottes, capitale (H) et, en vue « yeux de l'empire », son brouillard.
+func follow_empire(empire_id: int) -> void:
+	if not spectator or simulation.state.get_empire(empire_id) == null:
+		return
+	view_empire = empire_id
+	_view.viewer = empire_id
+	_hud.follow_empire(simulation.state, empire_id)
+	_view.queue_redraw()
+
+
+## Vue d'ensemble (false) ou yeux de l'empire suivi (true).
+func set_spectator_fog(on: bool) -> void:
+	if not spectator:
+		return
+	_view.fog = on
+	_hud.spectator_panel.set_fog(on)
+	_view.queue_redraw()
+
+
 func _on_rename_requested(system_id: int, new_name: String) -> void:
-	simulation.submit(SimCommands.rename_system(LOCAL_PLAYER, system_id, new_name))
+	_submit(SimCommands.rename_system(view_empire, system_id, new_name))
 
 
 func _on_command_applied(_cmd: Dictionary) -> void:
@@ -467,6 +521,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			# Dans la vue système, Tab bascule vue orbitale / gestion ; sur la carte, il passe d'un système à l'autre.
 			if is_system_view_open():
 				_system_screen.toggle_mode()
+			elif spectator:
+				follow_empire(posmod(view_empire + (-1 if key.shift_pressed else 1), simulation.state.empires.size()))
 			else:
 				cycle_system(-1 if key.shift_pressed else 1)
 		KEY_PAGEUP, KEY_PAGEDOWN:
@@ -481,6 +537,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			if is_system_view_open():
 				_system_screen.select_adjacent_planet(-1 if key.keycode == KEY_LEFT else 1)
 		_:
+			if key.physical_keycode == KEY_V and spectator and not is_system_view_open():
+				set_spectator_fog(not _view.fog)
+				return
 			if key.physical_keycode == KEY_H:
 				go_to_capital()
 				return
@@ -541,12 +600,12 @@ func select_fleet(fleet_id: int) -> void:
 ## Envoie la flotte sélectionnée vers un système (si c'est la nôtre).
 func order_fleet_to(system_id: int) -> void:
 	var f: Fleet = simulation.state.fleets.get(selected_fleet)
-	if f == null or f.owner != LOCAL_PLAYER or system_id < 0:
+	if f == null or f.owner != view_empire or system_id < 0:
 		return
-	if simulation.submit(SimCommands.move_fleet(LOCAL_PLAYER, f.id, system_id)):
+	if _submit(SimCommands.move_fleet(view_empire, f.id, system_id)):
 		var plan := Fleets.plan_route(simulation.state, f, system_id)
 		var days := Fleets.route_days(simulation.state, f, plan)
-		var where := galaxy.get_system(system_id).system_name if Fleets.is_explored(simulation.state, LOCAL_PLAYER, system_id) else "un système inexploré"
+		var where := galaxy.get_system(system_id).system_name if Fleets.is_explored(simulation.state, view_empire, system_id) else "un système inexploré"
 		if days == 0:
 			_hud.notify("%s : reste à %s." % [f.fleet_name, where])
 		else:
@@ -555,7 +614,7 @@ func order_fleet_to(system_id: int) -> void:
 
 ## Passe à la flotte suivante (1) ou précédente (-1) du joueur, et y glisse la caméra.
 func cycle_fleet(step: int) -> void:
-	var mine := Fleets.empire_fleets(simulation.state, LOCAL_PLAYER)
+	var mine := Fleets.empire_fleets(simulation.state, view_empire)
 	if mine.is_empty():
 		_hud.notify("Aucune flotte. Les chantiers spatiaux des colonies en construisent.")
 		return
@@ -568,7 +627,7 @@ func cycle_fleet(step: int) -> void:
 ## Passe à la prochaine flotte du joueur qui attend des ordres (à l'arrêt, sans exploration auto).
 func cycle_idle_fleet(step: int) -> void:
 	var ids: Array[int] = []
-	for f in Fleets.idle_fleets(simulation.state, LOCAL_PLAYER):
+	for f in Fleets.idle_fleets(simulation.state, view_empire):
 		ids.append(f.id)
 	if ids.is_empty():
 		_hud.notify("Toutes vos flottes ont des ordres.")
@@ -606,16 +665,16 @@ func focus_fleet(fleet_id: int) -> void:
 ## Active ou coupe l'exploration automatique d'une flotte du joueur.
 func toggle_auto_explore(fleet_id: int) -> void:
 	var f: Fleet = simulation.state.fleets.get(fleet_id)
-	if f == null or f.owner != LOCAL_PLAYER:
+	if f == null or f.owner != view_empire:
 		return
 	var order := "" if f.is_exploring() else Fleet.ORDER_EXPLORE
-	if simulation.submit(SimCommands.set_fleet_order(LOCAL_PLAYER, fleet_id, order)):
+	if _submit(SimCommands.set_fleet_order(view_empire, fleet_id, order)):
 		_hud.notify("%s : %s" % [f.fleet_name, "part explorer l'inconnu." if order != "" else "exploration automatique interrompue."])
 
 
 func _moving_fleet_ids() -> Dictionary:
 	var out := {}
-	for f in Fleets.empire_fleets(simulation.state, LOCAL_PLAYER):
+	for f in Fleets.empire_fleets(simulation.state, view_empire):
 		if f.is_moving():
 			out[f.id] = true
 	return out
@@ -624,6 +683,8 @@ func _moving_fleet_ids() -> Dictionary:
 ## Annonce les flottes du joueur arrivées à destination pendant le dernier tick
 ## (celles en exploration automatique repartent aussitôt : on ne les annonce pas).
 func _announce_arrivals() -> void:
+	if spectator:
+		return  # les IA n'attendent les ordres de personne
 	var st := simulation.state
 	for fid in _fleets_moving:
 		var f: Fleet = st.fleets.get(fid)
@@ -641,25 +702,25 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 		"explore":
 			toggle_auto_explore(fleet_id)
 		"stop":
-			simulation.submit(SimCommands.stop_fleet(LOCAL_PLAYER, fleet_id))
+			_submit(SimCommands.stop_fleet(view_empire, fleet_id))
 		"merge":
-			for other in Fleets.fleets_at(st, f.system_id, LOCAL_PLAYER):
+			for other in Fleets.fleets_at(st, f.system_id, view_empire):
 				if other.id != fleet_id:
-					simulation.submit(SimCommands.merge_fleets(LOCAL_PLAYER, other.id, fleet_id))
+					_submit(SimCommands.merge_fleets(view_empire, other.id, fleet_id))
 		"split":
 			# On détache un vaisseau de la classe la plus nombreuse (un éclaireur d'un groupe, par exemple).
 			var best := ""
 			for sid in GameData.ship_ids():
 				if f.count(sid) > 0 and (best == "" or f.count(sid) > f.count(best)):
 					best = sid
-			simulation.submit(SimCommands.split_fleet(LOCAL_PLAYER, fleet_id, best))
+			_submit(SimCommands.split_fleet(view_empire, fleet_id, best))
 		"colonize":
 			# On ouvre le système sur la meilleure planète à revendiquer.
 			var target := -1
 			for pid in galaxy.get_system(f.system_id).planet_ids:
-				if target == -1 and Economy.check_colonize(st, LOCAL_PLAYER, pid, Colony.KIND_COLONY) == "":
+				if target == -1 and Economy.check_colonize(st, view_empire, pid, Colony.KIND_COLONY) == "":
 					target = pid
 			for pid in galaxy.get_system(f.system_id).planet_ids:
-				if target == -1 and Economy.check_colonize(st, LOCAL_PLAYER, pid, Colony.KIND_OUTPOST) == "":
+				if target == -1 and Economy.check_colonize(st, view_empire, pid, Colony.KIND_OUTPOST) == "":
 					target = pid
 			open_system_view(f.system_id, target)

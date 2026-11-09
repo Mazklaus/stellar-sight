@@ -27,7 +27,7 @@ static func resources(state: GameState, empire_id: int) -> Array[Dictionary]:
 			"gross": int(income["gross"][r]),
 			"upkeep": int(income["upkeep"][r]),
 			"net": net,
-			"bonus_pct": FactionTraits.production_pct(state, empire_id, r) - 100,
+			"bonus_pct": Economy.production_pct(state, empire_id, r) - 100,
 			"months_left": months,
 		})
 	return out
@@ -102,6 +102,23 @@ static func totals(state: GameState, empire_id: int) -> Dictionary:
 		t["population"] += int(c["population"])
 	t["systems"] = owned_systems(state, empire_id).size()
 	return t
+
+
+## Score d'un empire, pour le tableau du mode spectateur : population, revendications et exploration.
+## Simple indicateur de course (il n'y a pas encore de victoire) : 2 par population, 10 par colonie,
+## 4 par avant-poste, 1 pour 3 systèmes explorés.
+static func score(state: GameState, empire_id: int) -> int:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return 0
+	var pts := 0
+	for pid in state.colonies:
+		var c: Colony = state.colonies[pid]
+		if c.owner != empire_id or not c.is_established():
+			continue
+		pts += c.population * 2 + (10 if c.is_colony() else 4)
+	@warning_ignore("integer_division")
+	return pts + e.explored.size() / 3
 
 
 ## Systèmes où l'empire a au moins une revendication (fondée ou non), celui de la capitale d'abord.

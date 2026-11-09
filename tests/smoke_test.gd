@@ -15,6 +15,7 @@ func _initialize() -> void:
 	preload("res://tests/economy_tests.gd").new().run(_check)
 	preload("res://tests/fleet_tests.gd").new().run(_check)
 	preload("res://tests/faction_tests.gd").new().run(_check)
+	preload("res://tests/ai_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -734,7 +735,59 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(hud.bar._name.text == "KH'THARI", "le panneau d'empire suit la nouvelle faction")
 	hud.bar.refresh()
 	_check(hud.bar.gauge_text().begins_with("BIOMASSE"), "le panneau d'empire montre la jauge de la faction (%s)" % hud.bar.gauge_text())
+	await _test_spectator(main, menu, hud, clock)
 	main.player_faction = "ossarane"
+
+
+## Mode spectateur : partie sans joueur lancée depuis le menu, tableau des empires, regards, aucun ordre.
+func _test_spectator(main: Node, menu: MainMenu, hud: Hud, clock: Node) -> void:
+	_check(not hud.spectator_panel.visible and hud.fleet_list.visible, "partie normale : pas de tableau des empires")
+	main.open_main_menu()
+	menu.show_page("new")
+	menu.set_ai_level("veteran")
+	menu.set_spectator(true)
+	menu._seed_edit.text = "321"
+	menu.launch()
+	await process_frame
+	var st: GameState = main.simulation.state
+	_check(main.spectator and st.is_spectator_game() and st.get_empire(0).ai_level == "veteran", "spectateur : tous les peuples sont des IA du niveau choisi")
+	_check(hud.spectator_panel.visible and not hud.fleet_list.visible and hud.spectator_panel.row_count() == st.empires.size(), "spectateur : le tableau des empires remplace la liste des flottes")
+	_check(not main._view.fog, "spectateur : vue d'ensemble, sans brouillard")
+	var f: Fleet = Fleets.empire_fleets(st, 0)[0]
+	var n_cmd: int = main.simulation.command_log.size()
+	_check(not main._submit(SimCommands.set_fleet_order(0, f.id, Fleet.ORDER_EXPLORE)) and main.simulation.command_log.size() == n_cmd, "spectateur : aucun ordre accepté")
+	main.open_system_view(main.galaxy.get_planet(st.get_empire(0).capital_planet).system_id)
+	_check(main._system_screen.planet_actions(main.galaxy.get_planet(st.get_empire(0).capital_planet)).is_empty(), "spectateur : la vue système est en lecture seule")
+	main.close_system_view()
+	_press(KEY_V, KEY_V)
+	_check(main._view.fog and main._view.viewer == 0 and hud.spectator_panel.fog, "V : les yeux de l'empire suivi")
+	_press(KEY_TAB)
+	_check(main.view_empire == 1 and main._view.viewer == 1 and hud.bar._name.text == st.get_empire(1).short_name().to_upper(), "Tab : on suit l'empire suivant")
+	hud.spectator_panel.row_button(2).pressed.emit()
+	_check(main.view_empire == 2 and hud.spectator_panel.followed == 2, "clic sur une ligne : on suit cet empire")
+	_press(KEY_V, KEY_V)
+	_check(not main._view.fog, "V : retour à la vue d'ensemble")
+	clock.set_speed(4)
+	_press(KEY_SPACE)
+	for _i in 120:
+		await process_frame
+	_press(KEY_SPACE)
+	_check(st.tick > 0, "spectateur : le temps passe (%d jours)" % st.tick)
+	var intents := 0
+	for e in st.empires:
+		if e.ai_intent != "":
+			intents += 1
+	_check(intents > 0 and hud.spectator_panel.row_text(0) != "", "les IA annoncent ce qu'elles font dans le tableau (%s)" % hud.spectator_panel.row_text(0))
+	main.save_game()
+	main.load_game()
+	_check(main.spectator and hud.spectator_panel.visible, "une partie de spectateur rechargée reste en spectateur")
+	menu.set_spectator(false)
+	main.open_main_menu()
+	menu.show_page("new")
+	menu.launch()
+	await process_frame
+	_check(not main.spectator and not hud.spectator_panel.visible and main.simulation.state.get_empire(1).ai_level == "veteran", "retour à une partie normale, rivaux au niveau choisi")
+	menu.set_ai_level(AiLevels.default_id())
 
 
 ## La vue système à taille réelle : chaque planète se trouve sous sa position affichée.
