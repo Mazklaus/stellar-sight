@@ -46,6 +46,10 @@ var _options: OptionsPanel
 var _faction_cards := {}
 var _faction_trait: Label
 var _seed_edit: LineEdit
+## Façon de jouer choisie pour la nouvelle partie (GameClock.MODE_*), et longueur des tours.
+var time_mode: int = 0
+var turn_days: int = 10
+var _time_select: OptionButton
 
 
 func _ready() -> void:
@@ -262,6 +266,16 @@ func select_faction(id: String) -> void:
 	_faction_lore.text = String(f.get("lore", ""))
 
 
+## Choix de la ligne « Temps » : 0 = temps réel, puis une entrée par longueur de tour.
+func set_time_choice(index: int) -> void:
+	_time_select.select(index)
+	if index <= 0:
+		time_mode = GameClock.MODE_REALTIME
+	else:
+		time_mode = GameClock.MODE_TURNS
+		turn_days = GameClock.TURN_LENGTHS[mini(index - 1, GameClock.TURN_LENGTHS.size() - 1)]
+
+
 ## Lance la partie avec la faction choisie ; graine tapée (nombre ou texte) ou tirée au hasard.
 func launch() -> void:
 	var text := _seed_edit.text.strip_edges()
@@ -413,6 +427,21 @@ func _build_new_page(root: Control) -> void:
 	sl.custom_minimum_size = Vector2(90, 0)
 	size_row.add_child(sl)
 	size_row.add_child(UiTheme.dim("150 systèmes, spirale", 14))
+	var time_row := HBoxContainer.new()
+	time_row.add_theme_constant_override("separation", 10)
+	gbox.add_child(time_row)
+	var tl := Label.new()
+	tl.text = "Temps"
+	tl.custom_minimum_size = Vector2(90, 0)
+	time_row.add_child(tl)
+	_time_select = OptionButton.new()
+	_time_select.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_time_select.tooltip_text = "Temps réel : le temps file, Espace met en pause.\nTour par tour : le temps est arrêté pendant vos ordres ; Fin de tour (Espace) fait passer les jours du tour."
+	_time_select.add_item("Temps réel pausable")
+	for d in GameClock.TURN_LENGTHS:
+		_time_select.add_item("Tour par tour, %d jours par tour" % d)
+	_time_select.item_selected.connect(set_time_choice)
+	time_row.add_child(_time_select)
 
 	var back_b := Widgets.RoundButton.new("back", "Retour")
 	back_b.tooltip_text = "Échap"

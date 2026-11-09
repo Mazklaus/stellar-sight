@@ -113,6 +113,7 @@ func _ready() -> void:
 	_main_menu.new_game_requested.connect(func(faction_id: String, seed_value: int) -> void:
 		player_faction = faction_id
 		new_game(seed_value)
+		GameClock.set_mode(_main_menu.time_mode, _main_menu.turn_days)
 		game_in_progress = true
 		close_main_menu()
 		var me := simulation.state.get_empire(LOCAL_PLAYER)
@@ -147,7 +148,7 @@ func new_game(seed_value: int) -> void:
 
 
 func save_game() -> void:
-	if SaveGame.save_state(simulation.state, save_path) == OK:
+	if SaveGame.save_state(simulation.state, save_path, GameClock.settings()) == OK:
 		_hud.notify("Partie sauvegardée (%s)" % GameCalendar.date_string(simulation.state.tick), "good")
 	else:
 		_hud.notify("Échec de la sauvegarde : %s" % SaveGame.last_error, "bad")
@@ -160,6 +161,7 @@ func load_game() -> bool:
 		_hud.notify("Chargement impossible : %s" % SaveGame.last_error, "bad")
 		return false
 	_start(state)
+	GameClock.apply_settings(SaveGame.last_clock)
 	game_in_progress = true
 	var me := state.get_empire(LOCAL_PLAYER)
 	if me:

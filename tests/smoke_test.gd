@@ -104,6 +104,39 @@ func _test_clock() -> void:
 	clock.set_speed(99)
 	_check(clock.speed_index == 4, "vitesse bornée")
 	_check(GameCalendar.date_string(360 + 30 * 2 + 4) == "05/03/2401", "format de date (obtenu %s)" % GameCalendar.date_string(364))
+
+	# Tour par tour : le temps ne passe qu'à la fin du tour, puis s'arrête au tour suivant.
+	var turns := Simulation.new(GameState.create(11))
+	clock.attach(turns)
+	clock.set_mode(clock.MODE_TURNS, 10)
+	_check(clock.is_turn_based() and clock.paused and clock.turn() == 1, "tour par tour : tour 1, arrêté")
+	clock.set_paused(false)
+	clock._process(5.0)
+	_check(clock.paused and clock.day == 0, "tour par tour : reprendre ne lance pas de tour")
+	turns.submit(SimCommands.rename_system(0, 2, "Tour-Un"))
+	clock._process(0.016)
+	_check(turns.state.galaxy.systems[2].system_name == "Tour-Un", "tour par tour : les ordres s'appliquent pendant le tour")
+	clock.toggle_pause()
+	_check(clock.is_resolving_turn() and not clock.paused, "Espace / centre du cadran : fin de tour")
+	_check(not clock.end_turn(), "pas de deuxième fin de tour pendant la résolution")
+	clock.set_paused(true)
+	clock._process(5.0)
+	_check(clock.is_resolving_turn() and clock.day == 0, "un menu peut suspendre la résolution du tour")
+	clock.set_paused(false)
+	var turn_seen := [0]
+	clock.turn_started.connect(func(t: int) -> void: turn_seen[0] = t, CONNECT_ONE_SHOT)
+	for _i in 20:
+		clock._process(0.5)
+	_check(clock.day == 10 and clock.paused and not clock.is_resolving_turn(), "le tour fait 10 jours puis s'arrête (jour %d)" % clock.day)
+	_check(turn_seen[0] == 2 and clock.turn() == 2, "signal de début du tour 2")
+	clock._process(5.0)
+	_check(clock.day == 10, "rien ne bouge entre deux tours")
+	_check(clock.settings() == {"mode": "turns", "turn_days": 10}, "réglages du mode pour la sauvegarde")
+	clock.apply_settings({})
+	_check(not clock.is_turn_based(), "sauvegarde sans réglage : temps réel")
+	clock.apply_settings({"mode": "turns", "turn_days": 30})
+	_check(clock.is_turn_based() and clock.turn_days == 30 and clock.turn() == 1, "réglages relus : 30 jours par tour")
+	clock.set_mode(clock.MODE_REALTIME)
 	clock.attach(null)
 	_check(clock.day == 0, "horloge détachée")
 
@@ -581,6 +614,16 @@ func _test_navigation_ui(main: Node) -> void:
 	dial.speed_requested.emit(3)
 	_check(clock.speed_index == 3, "cadran : cran de vitesse 4")
 	clock.set_paused(true)
+	# Au tour par tour, le centre du cadran termine le tour.
+	clock.set_mode(clock.MODE_TURNS, 5)
+	var d0: int = clock.day
+	dial.pause_toggled.emit()
+	_check(clock.is_resolving_turn(), "cadran au tour par tour : fin de tour")
+	dial.speed_requested.emit(0)
+	for _i in 60:
+		await process_frame
+	_check(clock.day > d0, "le tour avance en jeu (jour %d → %d)" % [d0, clock.day])
+	clock.set_mode(clock.MODE_REALTIME)
 
 	# Onglet « Gestion du système » : le referme.
 	main.open_system_view(home_sys)
@@ -638,9 +681,17 @@ func _test_navigation_ui(main: Node) -> void:
 	menu.select_faction("khthari")
 	_check(menu._lore_header.text == "KH'THARI" and menu._faction_lore.text != "", "le choix de faction montre l'histoire du peuple")
 	menu._seed_edit.text = "123"
+	menu.set_time_choice(2)
 	menu.launch()
 	await process_frame
 	_check(not menu.is_open() and main.simulation.state.seed_value == 123, "nouvelle partie avec la graine choisie")
+	_check(clock.is_turn_based() and clock.turn_days == GameClock.TURN_LENGTHS[1], "nouvelle partie au tour par tour")
+	main.save_game()
+	clock.set_mode(clock.MODE_REALTIME)
+	main.load_game()
+	_check(clock.is_turn_based() and clock.turn_days == GameClock.TURN_LENGTHS[1], "le mode tour par tour est gardé dans la sauvegarde")
+	menu.set_time_choice(0)
+	clock.set_mode(clock.MODE_REALTIME)
 	_check(main.simulation.state.get_empire(0).faction_id == "khthari", "le joueur joue la faction choisie")
 	_check(hud.bar._name.text == "KH'THARI", "le panneau d'empire suit la nouvelle faction")
 	main.player_faction = "ossarane"

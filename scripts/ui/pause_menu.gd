@@ -13,7 +13,7 @@ signal quit_requested
 ## Raccourcis par thème, affichés dans la page « Raccourcis ».
 const SHORTCUT_GROUPS := [
 	["Temps", [
-		["Espace", "Pause / reprise"],
+		["Espace", "Pause / reprise (tour par tour : fin de tour)"],
 		["1 à 5", "Vitesse du temps"],
 	]],
 	["Carte", [
