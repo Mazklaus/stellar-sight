@@ -7,12 +7,16 @@ const SYSTEM_COUNT := 150
 const GALAXY_RADIUS := 1800.0
 const PICK_RADIUS_PX := 14.0
 const START_ZOOM := 0.22
+## Zoom de départ, centré sur le système d'origine du joueur.
+const HOME_ZOOM := 0.45
 ## Identifiant du joueur local. En multijoueur, chaque machine aura le sien.
 const LOCAL_PLAYER := 0
 
 var simulation: Simulation
 ## Fichier de sauvegarde rapide (F5 / F9). Les tests le redirigent ailleurs.
 var save_path := SaveGame.QUICKSAVE_PATH
+## Faction du joueur local pour les nouvelles parties (le choix en début de partie viendra avec les factions jouables).
+var player_faction := "ossarane"
 ## Raccourci vers la galaxie de la partie en cours.
 var galaxy: Galaxy:
 	get:
@@ -33,13 +37,25 @@ func _ready() -> void:
 	_hud = Hud.new()
 	add_child(_hud)
 	_hud.rename_requested.connect(_on_rename_requested)
+	_hud.colonize_requested.connect(func(planet_id: int, kind: String) -> void:
+		simulation.submit(SimCommands.colonize(LOCAL_PLAYER, planet_id, kind)))
+	_hud.build_requested.connect(func(planet_id: int, building_id: String) -> void:
+		simulation.submit(SimCommands.build(LOCAL_PLAYER, planet_id, building_id)))
 	new_game(randi())
 
 
 func new_game(seed_value: int) -> void:
-	_start(GameState.create(seed_value, SYSTEM_COUNT, GALAXY_RADIUS))
-	_camera.position = Vector2.ZERO
-	_camera.zoom = Vector2(START_ZOOM, START_ZOOM)
+	_start(GameState.create(seed_value, SYSTEM_COUNT, GALAXY_RADIUS, player_faction))
+	# On commence chez soi : caméra sur le système d'origine, fiche ouverte.
+	var me := simulation.state.get_empire(LOCAL_PLAYER)
+	if me:
+		var home := galaxy.get_planet(me.capital_planet).system_id
+		_camera.position = galaxy.get_system(home).position
+		_camera.zoom = Vector2(HOME_ZOOM, HOME_ZOOM)
+		_select(home)
+	else:
+		_camera.position = Vector2.ZERO
+		_camera.zoom = Vector2(START_ZOOM, START_ZOOM)
 
 
 func save_game() -> void:
@@ -64,9 +80,13 @@ func _start(state: GameState) -> void:
 	simulation.command_rejected.connect(func(_cmd: Dictionary, reason: String) -> void:
 		_hud.notify("Ordre refusé : %s" % reason))
 	simulation.chronicle_added.connect(_hud.show_chronicle)
-	_view.set_galaxy(state.galaxy)
+	simulation.ticked.connect(func(_tick: int) -> void:
+		_view.queue_redraw()
+		_hud.refresh())
+	_view.set_state(state)
+	_hud.set_state(state, LOCAL_PLAYER)
 	_hud.set_galaxy_info(state.seed_value, state.galaxy.systems.size())
-	_hud.show_system(null, state.galaxy)
+	_hud.show_system(null, state)
 	_hud.show_chronicle(state.chronicle.back() if not state.chronicle.is_empty() else {})
 	GameClock.attach(simulation)
 
@@ -75,10 +95,9 @@ func _on_rename_requested(system_id: int, new_name: String) -> void:
 	simulation.submit(SimCommands.rename_system(LOCAL_PLAYER, system_id, new_name))
 
 
-func _on_command_applied(cmd: Dictionary) -> void:
+func _on_command_applied(_cmd: Dictionary) -> void:
 	_view.queue_redraw()
-	if int(cmd.get("system", -1)) == _view.selected_id:
-		_hud.show_system(galaxy.get_system(_view.selected_id), galaxy)
+	_hud.refresh()
 	if not simulation.state.chronicle.is_empty():
 		_hud.show_chronicle(simulation.state.chronicle.back())
 
@@ -95,10 +114,7 @@ func _process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	var mb := event as InputEventMouseButton
 	if mb and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
-		var id := _pick_system_at(mb.position)
-		_view.selected_id = id
-		_view.queue_redraw()
-		_hud.show_system(galaxy.get_system(id), galaxy)
+		_select(_pick_system_at(mb.position))
 		return
 
 	var key := event as InputEventKey
@@ -113,14 +129,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif key.keycode == KEY_F9:
 		load_game()
 	elif key.keycode == KEY_ESCAPE:
-		_view.selected_id = -1
-		_view.queue_redraw()
-		_hud.show_system(null, galaxy)
+		_select(-1)
 	else:
 		# Touches physiques 1 à 5 (rangée du haut, même sur AZERTY) ou pavé numérique.
 		var speed := _speed_from_key(key)
 		if speed >= 0:
 			GameClock.set_speed(speed)
+
+
+func _select(id: int) -> void:
+	_view.selected_id = id
+	_view.queue_redraw()
+	_hud.show_system(galaxy.get_system(id), simulation.state)
 
 
 func _speed_from_key(key: InputEventKey) -> int:

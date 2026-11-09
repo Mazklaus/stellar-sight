@@ -1,0 +1,30 @@
+{
+	"resources": [
+		{"id": "energy", "label": "Énergie", "short": "Én"},
+		{"id": "materials", "label": "Matériaux", "short": "Mat"},
+		{"id": "food", "label": "Nourriture", "short": "Nour"},
+		{"id": "influence", "label": "Influence", "short": "Inf"},
+		{"id": "crystals", "label": "Cristaux de saut", "short": "Crist"}
+	],
+	"start_resources": {"energy": 100, "materials": 200, "food": 100, "influence": 60, "crystals": 0},
+	"month_days": 30,
+	"food_per_pop": 1,
+	"pop_per_size": 4,
+	"growth_per_day": 10,
+	"growth_threshold_base": 100,
+	"growth_threshold_per_pop": 20,
+	"max_projects": 2,
+	"outpost_slots": 1,
+	"claims": {
+		"colony": {"label": "Colonie", "cost": {"materials": 150, "influence": 40}, "days": 100, "upkeep": {"energy": 1}},
+		"outpost": {"label": "Avant-poste", "cost": {"materials": 60, "influence": 20}, "days": 45, "upkeep": {"energy": 1}}
+	},
+	"colony_start_pop": 1,
+	"homeworld": {"size": 4, "pop": 8, "buildings": ["capitale", "ferme_hydroponique", "complexe_minier"]},
+	"deposits": [
+		{"id": "minerals", "label": "Filons riches", "chance": 12, "yields": {"materials": 2}},
+		{"id": "fertile", "label": "Sols fertiles", "chance": 10, "yields": {"food": 2}, "habitable_only": true},
+		{"id": "geothermal", "label": "Géothermie", "chance": 8, "yields": {"energy": 2}},
+		{"id": "crystals", "label": "Cristaux de saut", "chance": 4, "yields": {"crystals": 1}, "star_bonus": {"neutron": 4, "black_hole": 4, "blue_giant": 2}}
+	]
+}

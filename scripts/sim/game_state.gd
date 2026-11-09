@@ -7,7 +7,7 @@ extends RefCounted
 ## stockée : elle se régénère à l'identique depuis la graine. Seules les données
 ## qui changent en cours de partie sont sérialisées.
 
-const FORMAT_VERSION := 1
+const FORMAT_VERSION := 2
 const CHRONICLE_MAX := 50
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
@@ -25,9 +25,27 @@ var galaxy: Galaxy
 ## Chronique galactique : derniers événements, du plus ancien au plus récent.
 ## Chaque entrée : {"tick": int, "text": String}.
 var chronicle: Array[Dictionary] = []
+## Empires en jeu ; l'identifiant d'un empire est aussi celui de son joueur dans les ordres.
+var empires: Array[Empire] = []
+## Revendications (colonies et avant-postes), par identifiant de planète.
+var colonies: Dictionary = {}
+## Modifications des planètes générées (monde d'origine…) : identifiant -> {"type", "size", "deposits"}.
+var planet_overrides: Dictionary = {}
+
+## Propriétaire de chaque système revendiqué (donnée dérivée des colonies, non sauvegardée).
+var _system_owner: Dictionary = {}
 
 
-static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0) -> GameState:
+## Nouvelle partie : galaxie, puis les empires de la première version placés dans leurs systèmes d'origine.
+## player_faction devient l'empire 0 (le joueur local) ; les autres suivent dans l'ordre des données.
+static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "") -> GameState:
+	var s := _base(seed_value_, system_count_, galaxy_radius_)
+	s._setup_empires(player_faction)
+	return s
+
+
+## Galaxie et générateur seulement, sans empires (base commune à create() et from_dict()).
+static func _base(seed_value_: int, system_count_: int, galaxy_radius_: float) -> GameState:
 	var s := GameState.new()
 	s.seed_value = seed_value_
 	s.system_count = system_count_
@@ -42,6 +60,19 @@ func to_dict() -> Dictionary:
 	var systems := []
 	for sys in galaxy.systems:
 		systems.append({"name": sys.system_name})
+	var empire_list := []
+	for e in empires:
+		empire_list.append(e.to_dict())
+	var colony_list := []
+	for pid in sorted_colony_ids():
+		colony_list.append(colonies[pid].to_dict())
+	var override_list := []
+	var override_ids := planet_overrides.keys()
+	override_ids.sort()
+	for pid in override_ids:
+		var o: Dictionary = planet_overrides[pid].duplicate(true)
+		o["planet"] = pid
+		override_list.append(o)
 	return {
 		"version": FORMAT_VERSION,
 		"seed": seed_value,
@@ -53,6 +84,9 @@ func to_dict() -> Dictionary:
 		"rng_state": str(rng.state),
 		"systems": systems,
 		"chronicle": chronicle.duplicate(true),
+		"empires": empire_list,
+		"colonies": colony_list,
+		"planet_overrides": override_list,
 	}
 
 
@@ -60,14 +94,14 @@ func to_dict() -> Dictionary:
 ## (le détail est dans GameState.last_error).
 static func from_dict(d: Dictionary) -> GameState:
 	last_error = ""
-	for key in ["version", "seed", "system_count", "galaxy_radius", "tick", "rng_state", "systems", "chronicle"]:
+	for key in ["version", "seed", "system_count", "galaxy_radius", "tick", "rng_state", "systems", "chronicle", "empires", "colonies", "planet_overrides"]:
 		if not d.has(key):
 			last_error = "champ manquant : %s" % key
 			return null
 	if int(d["version"]) != FORMAT_VERSION:
 		last_error = "version de format %s non prise en charge (attendu %d)" % [d["version"], FORMAT_VERSION]
 		return null
-	var s := GameState.create(int(d["seed"]), int(d["system_count"]), float(d["galaxy_radius"]))
+	var s := GameState._base(int(d["seed"]), int(d["system_count"]), float(d["galaxy_radius"]))
 	var systems: Array = d["systems"]
 	if systems.size() != s.galaxy.systems.size():
 		last_error = "nombre de systèmes incohérent (%d au lieu de %d)" % [systems.size(), s.galaxy.systems.size()]
@@ -79,6 +113,25 @@ static func from_dict(d: Dictionary) -> GameState:
 	s.rng.state = String(d["rng_state"]).to_int()
 	for e: Dictionary in d["chronicle"]:
 		s.chronicle.append({"tick": int(e["tick"]), "text": String(e["text"])})
+	for o: Dictionary in d["planet_overrides"]:
+		var fields := o.duplicate(true)
+		fields.erase("planet")
+		if s.galaxy.get_planet(int(o["planet"])) == null:
+			last_error = "planète inconnue dans les modifications : %s" % o["planet"]
+			return null
+		s.override_planet(int(o["planet"]), fields)
+	for e: Dictionary in d["empires"]:
+		if GameData.faction(String(e["faction"])).is_empty():
+			last_error = "faction inconnue : %s" % e["faction"]
+			return null
+		s.empires.append(Empire.from_dict(e))
+	for c: Dictionary in d["colonies"]:
+		var colony := Colony.from_dict(c)
+		if s.galaxy.get_planet(colony.planet_id) == null or s.get_empire(colony.owner) == null:
+			last_error = "colonie invalide sur la planète %d" % colony.planet_id
+			return null
+		s.colonies[colony.planet_id] = colony
+	s.rebuild_ownership()
 	return s
 
 
@@ -94,3 +147,131 @@ func add_chronicle(text: String) -> Dictionary:
 	while chronicle.size() > CHRONICLE_MAX:
 		chronicle.pop_front()
 	return entry
+
+
+func get_empire(id: int) -> Empire:
+	if id < 0 or id >= empires.size():
+		return null
+	return empires[id]
+
+
+## Identifiants des planètes revendiquées, triés : tout parcours qui modifie l'état passe par là,
+## pour que l'ordre de traitement soit le même sur toutes les machines.
+func sorted_colony_ids() -> Array:
+	var ids := colonies.keys()
+	ids.sort()
+	return ids
+
+
+## Propriétaire d'un système (-1 si personne). Une colonisation en cours compte déjà.
+func system_owner(system_id: int) -> int:
+	return int(_system_owner.get(system_id, -1))
+
+
+func rebuild_ownership() -> void:
+	_system_owner.clear()
+	for pid in sorted_colony_ids():
+		var sys_id := galaxy.get_planet(pid).system_id
+		if not _system_owner.has(sys_id):
+			_system_owner[sys_id] = colonies[pid].owner
+
+
+func add_colony(colony: Colony) -> void:
+	colonies[colony.planet_id] = colony
+	rebuild_ownership()
+
+
+## Modifie une planète générée et retient la modification (elle sera sauvegardée).
+func override_planet(planet_id: int, fields: Dictionary) -> void:
+	var p := galaxy.get_planet(planet_id)
+	var o: Dictionary = planet_overrides.get(planet_id, {})
+	if fields.has("type"):
+		p.type = String(fields["type"])
+		o["type"] = p.type
+	if fields.has("size"):
+		p.size = int(fields["size"])
+		o["size"] = p.size
+	if fields.has("deposits"):
+		p.deposits.clear()
+		for dep in fields["deposits"]:
+			p.deposits.append(String(dep))
+		o["deposits"] = Array(p.deposits)
+	planet_overrides[planet_id] = o
+
+
+func _setup_empires(player_faction: String) -> void:
+	var order := GameData.faction_ids()
+	if order.has(player_faction):
+		order.erase(player_faction)
+		order.push_front(player_faction)
+	var homes := _pick_home_systems(order.size())
+	var rules := GameData.rules()
+	var hw: Dictionary = rules["homeworld"]
+	for i in mini(order.size(), homes.size()):
+		var e := Empire.new()
+		e.id = i
+		e.faction_id = order[i]
+		for r in GameData.resource_ids():
+			e.resources[r] = int(rules["start_resources"].get(r, 0))
+		empires.append(e)
+		var faction := e.faction()
+		var sys := galaxy.systems[homes[i]]
+		# Monde d'origine : la plus grande planète du système, transformée au goût de l'espèce.
+		var home_id: int = sys.planet_ids[0]
+		for pid in sys.planet_ids:
+			if galaxy.planets[pid].size > galaxy.planets[home_id].size:
+				home_id = pid
+		override_planet(home_id, {"type": faction["preferred"][0], "size": hw["size"]})
+		var dep := String(faction.get("home_deposit", ""))
+		if dep != "":
+			var target := home_id
+			for pid in sys.planet_ids:
+				if pid != home_id:
+					target = pid
+					break
+			if not galaxy.planets[target].deposits.has(dep):
+				var deps := Array(galaxy.planets[target].deposits)
+				deps.append(dep)
+				override_planet(target, {"deposits": deps})
+		var c := Colony.new()
+		c.planet_id = home_id
+		c.owner = e.id
+		c.kind = Colony.KIND_COLONY
+		c.population = int(hw["pop"])
+		for b in hw["buildings"]:
+			c.buildings.append(String(b))
+		colonies[home_id] = c
+		e.capital_planet = home_id
+	rebuild_ownership()
+
+
+## Systèmes d'origine : le premier au hasard (via state.rng), puis chaque suivant le plus loin
+## possible des précédents. Seulement des étoiles calmes avec au moins deux planètes.
+func _pick_home_systems(count: int) -> Array[int]:
+	var candidates: Array[int] = []
+	for s in galaxy.systems:
+		if s.planet_count >= 2 and s.star_type != "neutron" and s.star_type != "black_hole":
+			candidates.append(s.id)
+	if candidates.size() < count:
+		candidates.clear()
+		for s in galaxy.systems:
+			if s.planet_count >= 1:
+				candidates.append(s.id)
+	var chosen: Array[int] = []
+	if candidates.is_empty():
+		return chosen
+	chosen.append(candidates[rng.randi_range(0, candidates.size() - 1)])
+	while chosen.size() < count and chosen.size() < candidates.size():
+		var best := -1
+		var best_d := -1.0
+		for c in candidates:
+			if chosen.has(c):
+				continue
+			var d := INF
+			for h in chosen:
+				d = minf(d, galaxy.systems[c].position.distance_squared_to(galaxy.systems[h].position))
+			if d > best_d:
+				best_d = d
+				best = c
+		chosen.append(best)
+	return chosen

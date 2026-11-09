@@ -1,0 +1,19 @@
+[
+	{"id": "ossarane", "name": "Lignées d'Ossarane", "short": "Ossarane", "registre": "Médiéval spatial",
+		"color": "#e8b44a", "preferred": ["desert", "continental"],
+		"production_pct": {"crystals": 150, "influence": 110}, "growth_pct": 100, "food_upkeep_pct": 100,
+		"home_deposit": "crystals",
+		"trait": "Navigateurs façonnés : +50 % de cristaux de saut et +10 % d'influence. Un gisement de cristaux est garanti dans le système d'origine."},
+	{"id": "choeur", "name": "Hégémonie du Chœur Éternel", "short": "Chœur Éternel", "registre": "Grimdark",
+		"color": "#c0392b", "preferred": ["arctic", "desert"],
+		"production_pct": {"materials": 125}, "growth_pct": 80, "food_upkeep_pct": 100,
+		"trait": "Forges sacrées : +25 % de matériaux, mais une croissance 20 % plus lente."},
+	{"id": "vael", "name": "Concorde de Vael", "short": "Vael", "registre": "Space opera héroïque",
+		"color": "#4a90e2", "preferred": ["ocean", "continental"],
+		"production_pct": {"influence": 150, "energy": 110}, "growth_pct": 100, "food_upkeep_pct": 100,
+		"trait": "Assemblées ouvertes : +50 % d'influence et +10 % d'énergie."},
+	{"id": "khthari", "name": "Essaim Kh'thari", "short": "Kh'thari", "registre": "Horreur biologique",
+		"color": "#6fcf3a", "preferred": ["toxic", "ocean"],
+		"production_pct": {"influence": 50}, "growth_pct": 200, "food_upkeep_pct": 150,
+		"trait": "Croissance explosive : population deux fois plus rapide, mais chaque population mange 50 % de plus et l'influence est divisée par deux."}
+]

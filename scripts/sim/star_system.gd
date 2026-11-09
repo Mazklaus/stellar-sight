@@ -9,3 +9,5 @@ var position: Vector2 = Vector2.ZERO
 var star_type: String = "yellow"
 var planet_count: int = 0
 var neighbors: Array[int] = []
+## Identifiants des planètes du système (dans Galaxy.planets), de la plus proche à la plus lointaine.
+var planet_ids: Array[int] = []
