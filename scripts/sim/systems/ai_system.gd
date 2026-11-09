@@ -15,7 +15,7 @@ extends RefCounted
 static func process(state: GameState) -> Array[Dictionary]:
 	var added: Array[Dictionary] = []
 	for e in state.empires:
-		if not e.is_ai() or not should_think(state, e):
+		if not e.is_ai() or e.eliminated or not should_think(state, e):
 			continue
 		var last: Variant = state.chronicle.back() if not state.chronicle.is_empty() else null
 		AiPlayer.think(state, e)

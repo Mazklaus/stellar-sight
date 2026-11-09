@@ -505,12 +505,17 @@ func _ship_action(p: Planet, ship_id: String) -> Dictionary:
 		price += ", %d pop" % int(sd["pop_cost"])
 	@warning_ignore("integer_division")
 	var spd := int(sd["speed"]) * FactionTraits.fleet_speed_pct(_state, _player) / 100
+	var detail := "%s, %d j  »  vitesse %d, vision %d saut%s" % [price, int(sd["days"]),
+			spd, int(sd["vision"]), "s" if int(sd["vision"]) > 1 else ""]
+	var tip := String(sd.get("description", ""))
+	if Combat.is_military(ship_id):
+		detail = "%s, %d j  »  puissance %d, vitesse %d" % [price, int(sd["days"]), Combat.ship_strength(ship_id), spd]
+		tip += "\n\n%s" % Combat.ship_summary(ship_id)
 	return {
 		"text": "Chantier spatial : %s" % sd["label"],
-		"detail": "%s, %d j  »  vitesse %d, vision %d saut%s" % [price, int(sd["days"]),
-				spd, int(sd["vision"]), "s" if int(sd["vision"]) > 1 else ""],
+		"detail": detail,
 		"reason": reason,
-		"tooltip": reason if reason != "" else String(sd.get("description", "")),
+		"tooltip": ("%s\n\n%s" % [reason, tip]) if reason != "" else tip,
 		"action": func() -> void: build_ship_requested.emit(pid, ship_id),
 	}
 

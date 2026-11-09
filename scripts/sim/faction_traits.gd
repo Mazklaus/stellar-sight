@@ -197,16 +197,56 @@ static func adjust_claim_cost(state: GameState, empire_id: int, cost: Dictionary
 # --- Vaisseaux ----------------------------------------------------------------------------------
 
 ## Classes de vaisseaux qu'une faction peut construire, dans l'ordre des données.
+## Une classe peut demander des couches d'espèce ("requires"."species" : archétype, credo, gouvernement,
+## registre, traits) plutôt qu'un peuple précis : une espèce de l'éditeur qui partage la combinaison
+## y a droit aussi. Une classe disponible qui en remplace une autre ("replaces") la retire du catalogue.
 static func ship_ids_for(faction_id: String) -> Array[String]:
 	var f := GameData.faction(faction_id)
 	var excluded: Array = f.get("ships_excluded", [])
 	var out: Array[String] = []
+	var replaced := {}
 	for sid in GameData.ship_ids():
-		var only: Array = GameData.ship(sid).get("factions", [])
+		var sd := GameData.ship(sid)
+		var only: Array = sd.get("factions", [])
 		if excluded.has(sid) or (not only.is_empty() and not only.has(faction_id)):
 			continue
+		if not species_matches(f, sd.get("requires", {}).get("species", {})):
+			continue
+		if sd.has("replaces"):
+			replaced[String(sd["replaces"])] = true
 		out.append(sid)
-	return out
+	var kept: Array[String] = []
+	for sid in out:
+		if not replaced.has(sid):
+			kept.append(sid)
+	return kept
+
+
+## Couches d'espèce d'une faction : {archetype, gouvernement, credo, traits, registre}.
+static func species(faction: Dictionary) -> Dictionary:
+	var sp: Dictionary = faction.get("species", {}).duplicate()
+	sp["registre"] = String(faction.get("registre", ""))
+	return sp
+
+
+## L'espèce remplit-elle les conditions ? Chaque couche citée doit correspondre à l'une des valeurs
+## demandées ; pour les traits, il suffit d'en avoir un.
+static func species_matches(faction: Dictionary, req: Dictionary) -> bool:
+	if req.is_empty():
+		return true
+	var sp := species(faction)
+	for layer in req:
+		var wanted: Array = req[layer]
+		if layer == "traits":
+			var has_one := false
+			for t in sp.get("traits", []):
+				if wanted.has(t):
+					has_one = true
+			if not has_one:
+				return false
+		elif not wanted.has(sp.get(layer, "")):
+			return false
+	return true
 
 
 static func start_ships(faction_id: String) -> Array:

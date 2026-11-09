@@ -14,6 +14,10 @@ var blackout: bool = false
 var explored: Dictionary = {}
 ## Empires rencontrés (identifiants, triés).
 var contacts: Array[int] = []
+## Empires avec qui il est en guerre (identifiants, triés). La guerre vaut dans les deux sens.
+var wars: Array[int] = []
+## Plus aucune revendication : l'empire a disparu de la galaxie (ses flottes avec lui).
+var eliminated: bool = false
 ## Vaisseaux sortis des chantiers, par classe (sert à numéroter les nouvelles flottes).
 var ships_built: Dictionary = {}
 ## Traits de faction (voir FactionTraits) : ferveur du Chœur Éternel, dissidence des fiefs lointains
@@ -66,6 +70,8 @@ func to_dict() -> Dictionary:
 		"biomass": biomass,
 		"ai": ai_level,
 		"temper": ai_temperament,
+		"wars": Array(wars),
+		"eliminated": eliminated,
 	}
 
 
@@ -95,4 +101,8 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.biomass = int(d.get("biomass", 0))
 	e.ai_level = String(d.get("ai", ""))
 	e.ai_temperament = String(d.get("temper", ""))
+	for w in d.get("wars", []):
+		e.wars.append(int(w))
+	e.wars.sort()
+	e.eliminated = bool(d.get("eliminated", false))
 	return e

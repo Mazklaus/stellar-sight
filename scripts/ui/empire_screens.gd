@@ -10,6 +10,8 @@ extends CanvasLayer
 signal planet_requested(planet_id: int)
 signal close_requested
 signal screen_changed(screen_id: String)
+## Le joueur déclare la guerre à un empire (écran Diplomatie, après confirmation).
+signal war_requested(empire_id: int)
 
 const MARGIN := 10.0
 const SIDE_WIDTH := EmpireBar.WIDTH
@@ -59,6 +61,10 @@ var _pick_title: Label
 var _pick_lines: Label
 var _pick_net: HBoxContainer
 var _pick_open: Widgets.RoundButton
+# Diplomatie
+var _diplo_sig := ""
+## Boutons « Déclarer la guerre » par empire (pour les tests).
+var war_buttons := {}
 
 
 func _ready() -> void:
@@ -174,6 +180,9 @@ func refresh() -> void:
 			_refresh_economy()
 		"colonies":
 			_refresh_colonies()
+		"diplomacy":
+			if _diplomacy_sig() != _diplo_sig:
+				show_screen("diplomacy")
 
 
 ## Lignes de la liste des colonies (boutons), pour les tests.
@@ -817,6 +826,8 @@ func _build_research() -> void:
 func _build_diplomacy() -> void:
 	_side_header("screen_diplomacy", "Diplomatie", Color(0.8, 0.6, 1.0), "faction")
 	_side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("diplomacy").get("why", "")), SIDE_WIDTH - 24.0, 14))
+	_diplo_sig = _diplomacy_sig()
+	war_buttons.clear()
 
 	var rows := VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 22)
@@ -844,9 +855,37 @@ func _build_diplomacy() -> void:
 		info.add_child(ib)
 		ib.add_child(UiTheme.dim(String(e.faction().get("registre", "")), 13))
 		var status := Label.new()
-		status.text = "Aucun contact"
-		status.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		var me := _state.get_empire(_player)
+		var met := me.contacts.has(e.id)
+		if e.eliminated:
+			status.text = "Disparu"
+			status.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		elif not met:
+			status.text = "Aucun contact"
+			status.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		elif Combat.at_war(_state, _player, e.id):
+			status.text = "EN GUERRE"
+			status.add_theme_color_override("font_color", UiTheme.BAD)
+		else:
+			status.text = "En paix"
+			status.add_theme_color_override("font_color", UiTheme.GOOD)
 		ib.add_child(status)
+		if met and not e.eliminated and not Combat.at_war(_state, _player, e.id):
+			var war := Button.new()
+			war.text = "DÉCLARER LA GUERRE"
+			war.tooltip_text = "Deux clics : la guerre vaut dans les deux sens, et la paix arrivera avec la diplomatie."
+			war.focus_mode = Control.FOCUS_NONE
+			var target := e.id
+			war.pressed.connect(func() -> void:
+				if war.text == "DÉCLARER LA GUERRE":
+					war.text = "CONFIRMER ?"
+					war.theme_type_variation = &"PrimaryButton"
+				else:
+					war_requested.emit(target))
+			ib.add_child(war)
+			war_buttons[e.id] = war
+		elif Combat.always_war(_state, e.id) and met:
+			ib.add_child(UiTheme.dim("L'Essaim ne négocie pas.", 13))
 	var treaties := Widgets.Block.new("Traités")
 	rows.add_child(treaties)
 	treaties.body.add_child(_locked_row(6, Vector2(120, 110), "Emplacement de traité"))
@@ -857,6 +896,14 @@ func _build_diplomacy() -> void:
 	propose.tooltip_text = "Arrive avec la diplomatie."
 	foot.add_child(propose)
 	_spacer(rows)
+
+
+## Ce qui change l'écran Diplomatie : contacts, guerres, disparitions.
+func _diplomacy_sig() -> String:
+	var parts := PackedStringArray()
+	for e in _state.empires:
+		parts.append("%d:%s:%s:%s" % [e.id, str(e.contacts), str(e.wars), e.eliminated])
+	return "|".join(parts)
 
 
 func _spacer(parent: Control) -> void:

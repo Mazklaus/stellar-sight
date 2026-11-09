@@ -54,6 +54,8 @@ var selected_fleet := -1
 var _right_press := Vector2(-1, -1)
 ## Flottes du joueur en route au tick précédent : pour annoncer leur arrivée.
 var _fleets_moving := {}
+## La défaite du joueur a déjà été annoncée.
+var _defeat_told := false
 
 
 func _ready() -> void:
@@ -106,6 +108,7 @@ func _ready() -> void:
 	_empire_screens = EmpireScreens.new()
 	add_child(_empire_screens)
 	_empire_screens.close_requested.connect(close_empire_screen)
+	_empire_screens.war_requested.connect(declare_war)
 	_empire_screens.screen_changed.connect(func(id: String) -> void: _hud.bar.set_open_screen(id))
 	_empire_screens.planet_requested.connect(func(pid: int) -> void:
 		close_empire_screen()
@@ -371,8 +374,13 @@ func _start(state: GameState) -> void:
 	simulation.command_rejected.connect(func(_cmd: Dictionary, reason: String) -> void:
 		_hud.notify("Ordre refusé : %s" % reason, "bad"))
 	simulation.chronicle_added.connect(_hud.show_chronicle)
+	simulation.combat_event.connect(_on_combat_event)
+	_hud.battle_replay.close_silently()
+	_hud.battle_report.hide_report()
+	_defeat_told = state.get_empire(LOCAL_PLAYER).eliminated
 	simulation.ticked.connect(func(_tick: int) -> void:
 		_announce_arrivals()
+		_check_defeat()
 		_refresh_all())
 	_view.set_state(state)
 	_hud.set_state(state, view_empire)
@@ -495,7 +503,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	match key.keycode:
 		KEY_ESCAPE:
-			if is_empire_screen_open():
+			if _hud.battle_replay.visible:
+				_hud.battle_replay.hide_replay()
+			elif _hud.battle_report.visible:
+				_hud.battle_report.hide_report()
+			elif is_empire_screen_open():
 				close_empire_screen()
 			elif is_system_view_open():
 				close_system_view()
@@ -530,7 +542,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_PAGEUP, KEY_PAGEDOWN:
 			cycle_system(-1 if key.keycode == KEY_PAGEUP else 1)
 		KEY_SPACE:
-			GameClock.toggle_pause()
+			# La vue de replay ne met jamais la partie en pause : Espace y met seulement la lecture en pause.
+			if _hud.battle_replay.visible:
+				_hud.battle_replay.toggle_play()
+			else:
+				GameClock.toggle_pause()
 		KEY_F5:
 			save_game()
 		KEY_F9:
@@ -553,6 +569,15 @@ func _unhandled_input(event: InputEvent) -> void:
 				return
 			if key.physical_keycode == KEY_E and selected_fleet >= 0 and not is_system_view_open() and not is_empire_screen_open():
 				toggle_auto_explore(selected_fleet)
+				return
+			if key.physical_keycode == KEY_T and selected_fleet >= 0 and not is_system_view_open() and not is_empire_screen_open():
+				cycle_tactic(selected_fleet)
+				return
+			if key.physical_keycode == KEY_R and _hud.battle_report.visible:
+				_hud.battle_report.request_replay()
+				return
+			if key.physical_keycode == KEY_B and not is_system_view_open() and not is_empire_screen_open():
+				toggle_battle_report()
 				return
 			# Touches physiques 1 à 5 (rangée du haut, même sur AZERTY) ou pavé numérique.
 			var speed := _speed_from_key(key)
@@ -716,6 +741,14 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 				if f.count(sid) > 0 and (best == "" or f.count(sid) > f.count(best)):
 					best = sid
 			_submit(SimCommands.split_fleet(view_empire, fleet_id, best))
+		"tactic":
+			cycle_tactic(fleet_id)
+		"invade":
+			var sname := galaxy.get_system(f.system_id).system_name
+			if _submit(SimCommands.invade(view_empire, fleet_id)):
+				_hud.notify("%s : les troupes débarquent sur %s." % [f.fleet_name, sname], "good")
+		"report":
+			toggle_battle_report()
 		"colonize":
 			# On ouvre le système sur la meilleure planète à revendiquer.
 			var target := -1
@@ -726,3 +759,72 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 				if target == -1 and Economy.check_colonize(st, view_empire, pid, Colony.KIND_OUTPOST) == "":
 					target = pid
 			open_system_view(f.system_id, target)
+
+
+# --- Combat -------------------------------------------------------------------------------------
+
+## Passe la flotte à la tactique suivante.
+func cycle_tactic(fleet_id: int) -> void:
+	var f: Fleet = simulation.state.fleets.get(fleet_id)
+	if f == null or f.owner != view_empire or not Combat.is_armed(f):
+		return
+	var ids := Combat.tactic_ids_for(f)
+	var next := ids[(ids.find(Combat.fleet_tactic(f)) + 1) % ids.size()]
+	if _submit(SimCommands.set_tactic(view_empire, fleet_id, next)):
+		_hud.notify("%s : tactique « %s »." % [f.fleet_name, Combat.tactic_label(next)])
+
+
+## Ouvre (ou ferme) le dernier rapport de bataille de l'empire affiché.
+func toggle_battle_report() -> void:
+	if _hud.battle_report.visible:
+		_hud.battle_report.hide_report()
+		return
+	var r := Hud.last_report(simulation.state, view_empire)
+	if r.is_empty():
+		_hud.notify("Aucune bataille à raconter. Pour l'instant.")
+		return
+	_hud.battle_report.show_report(simulation.state, view_empire, r)
+
+
+## Déclaration de guerre depuis l'écran Diplomatie.
+func declare_war(target: int) -> void:
+	if _submit(SimCommands.declare_war(view_empire, target)):
+		_hud.notify("Guerre déclarée à %s." % simulation.state.get_empire(target).display_name(), "bad")
+
+
+## Batailles et sièges qui concernent le joueur : avis, et au tour par tour le tour s'interrompt
+## au début d'une bataille, pour laisser choisir la tactique ou sonner la retraite.
+func _on_combat_event(ev: Dictionary) -> void:
+	if spectator:
+		return
+	var st := simulation.state
+	match String(ev["type"]):
+		"battle_started":
+			if not ev["empires"].has(view_empire) or bool(ev.get("renewed", false)):
+				return
+			var sname := galaxy.get_system(int(ev["system"])).system_name
+			if GameClock.interrupt_turn():
+				_hud.notify("Bataille à %s : le tour s'interrompt. Tactique (T), retraite (clic droit) ou Fin de tour." % sname, "bad")
+			else:
+				_hud.notify("Bataille engagée à %s !" % sname, "bad")
+		"battle_ended":
+			var r: Dictionary = ev["report"]
+			if not BattleReportPanel._fought(r, view_empire):
+				return
+			var winner := int(r["winner"])
+			var outcome := "victoire" if winner == view_empire else ("défaite" if winner >= 0 else "issue indécise")
+			_hud.notify("Bataille de %s : %s.  (B : rapport)" % [String(r["system_name"]), outcome], "good" if winner == view_empire else "bad")
+		"siege_started":
+			var sname := galaxy.get_system(int(ev["system"])).system_name
+			if int(ev["owner"]) == view_empire:
+				_hud.notify("%s assiège %s ! Sa garnison va fondre." % [st.get_empire(int(ev["by"])).short_name(), sname], "bad")
+			elif int(ev["by"]) == view_empire:
+				_hud.notify("Siège de %s : la garnison s'use chaque jour. Envahissez quand vos troupes la dépassent." % sname, "good")
+
+
+func _check_defeat() -> void:
+	if spectator or _defeat_told:
+		return
+	if simulation.state.get_empire(LOCAL_PLAYER).eliminated:
+		_defeat_told = true
+		_hud.notify("Votre empire a disparu. La chronique retiendra votre nom, mal orthographié.", "bad")

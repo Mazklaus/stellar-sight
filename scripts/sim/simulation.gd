@@ -12,6 +12,8 @@ signal ticked(tick: int)
 signal command_applied(cmd: Dictionary)
 signal command_rejected(cmd: Dictionary, reason: String)
 signal chronicle_added(entry: Dictionary)
+## Événements de combat pour l'interface (bataille engagée ou terminée, siège) : voir CombatSystem.
+signal combat_event(event: Dictionary)
 
 var state: GameState
 ## Ordres appliqués depuis le début de la session, avec le tick où ils l'ont été
@@ -71,6 +73,11 @@ func step() -> void:
 		chronicle_added.emit(entry)
 	for entry in FleetSystem.process(state):
 		chronicle_added.emit(entry)
+	var events: Array = []
+	for entry in CombatSystem.process(state, events):
+		chronicle_added.emit(entry)
+	for ev in events:
+		combat_event.emit(ev)
 	for entry in ChronicleSystem.process(state):
 		chronicle_added.emit(entry)
 	# Les empires IA décident en dernier, sur l'état du jour. Leurs ordres passent par les mêmes

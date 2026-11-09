@@ -2,7 +2,8 @@ class_name FleetSystem
 extends RefCounted
 ## Flottes, exécutées à chaque tick, dans un ordre fixe :
 ## 1. chantiers spatiaux : les vaisseaux terminés sortent en orbite, chacun dans sa propre flotte ;
-## 2. déplacements : chaque flotte avance de sa vitesse le long de son trajet ;
+## 2. déplacements : chaque flotte avance de sa vitesse le long de son trajet ; une flotte qui entre
+##    dans un système tenu par une flotte armée d'un empire en guerre avec elle s'y arrête (blocus) ;
 ## 3. exploration : chaque empire découvre ce que voient ses revendications et ses flottes,
 ##    et rencontre les empires qu'il aperçoit (premier contact) ;
 ## 4. exploration automatique : les flottes qui en ont l'ordre repartent vers la frontière.
@@ -50,15 +51,21 @@ static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictiona
 	var e := state.get_empire(c.owner)
 	if e.blackout:
 		return
+	var p := state.galaxy.get_planet(c.planet_id)
+	if Combat.is_besieged(state, p.system_id):
+		return  # chantiers spatiaux bloqués pendant le siège
 	c.ship_days -= 1
 	if c.ship_days > 0:
 		return
-	var p := state.galaxy.get_planet(c.planet_id)
 	var f := state.spawn_ship(c.owner, c.ship_build, p.system_id)
 	c.ship_build = ""
 	c.ship_days = 0
-	added.append(state.add_chronicle("%s : le %s sort des chantiers de %s. On a cassé une bouteille sur la coque, et un peu la coque." % [
-			e.short_name(), f.fleet_name, p.display_name(state.galaxy)]))
+	var launch := String(GameData.ship(f.ships[0]).get("launch", ""))
+	if launch != "":
+		added.append(state.add_chronicle(launch % [e.display_name(), p.display_name(state.galaxy)]))
+	else:
+		added.append(state.add_chronicle("%s : le %s sort des chantiers de %s. On a cassé une bouteille sur la coque, et un peu la coque." % [
+				e.short_name(), f.fleet_name, p.display_name(state.galaxy)]))
 
 
 static func _move(state: GameState, f: Fleet) -> void:
@@ -71,6 +78,8 @@ static func _move(state: GameState, f: Fleet) -> void:
 			return
 		f.progress -= lane
 		f.system_id = f.path.pop_front()
+		if f.is_moving() and Combat.blocks(state, f.owner, f.system_id, f):
+			f.path.clear()  # blocus : impossible de passer sans livrer bataille
 	f.progress = 0  # arrivée : le reste du trajet du jour est perdu
 
 
@@ -82,6 +91,10 @@ static func update_exploration(state: GameState) -> Array[Dictionary]:
 	for e in state.empires:
 		var seen := Fleets.visible_systems(state, e.id)
 		seen_by.append(seen)
+	state.seen_cache = seen_by.duplicate()
+	state.seen_tick = state.tick
+	for e in state.empires:
+		var seen: Dictionary = seen_by[e.id]
 		for sid in seen:
 			e.explored[sid] = true
 	for e in state.empires:
@@ -116,3 +129,7 @@ static func _meet(state: GameState, a: Empire, b: Empire, added: Array[Dictionar
 		b.contacts.sort()
 	added.append(state.add_chronicle("Premier contact entre %s et %s. Chacun trouve l'autre étrange, et se garde bien de le dire." % [
 			a.display_name(), b.display_name()]))
+	# L'Essaim Kh'thari ne négocie pas : la rencontre vaut déclaration de guerre.
+	if not a.wars.has(b.id) and (Combat.always_war(state, a.id) or Combat.always_war(state, b.id)):
+		var swarm := a if Combat.always_war(state, a.id) else b
+		added.append(Combat.start_war(state, swarm.id, (b if swarm == a else a).id, true))

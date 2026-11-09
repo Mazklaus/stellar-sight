@@ -11,6 +11,13 @@ var owner: int = -1
 var fleet_name: String = ""
 ## Classes des vaisseaux (identifiants de data/ships.json), triées.
 var ships: Array[String] = []
+## Points de structure de chaque vaisseau, dans le même ordre que ships.
+var hp: Array[int] = []
+## Troupes embarquées (équipages prêts à débarquer) : au plus Combat.max_troops(flotte).
+var troops: int = 0
+## Tactique de combat (data/combat.json, « tactics ») : choisie avant la bataille, comme les plans
+## de bataille d'Endless Space 2.
+var tactic: String = ""
 var system_id: int = -1
 ## Systèmes restant à atteindre, dans l'ordre (vide = à l'arrêt).
 var path: Array[int] = []
@@ -50,17 +57,56 @@ func count(ship_id: String) -> int:
 	return ships.count(ship_id)
 
 
-func add_ship(ship_id: String) -> void:
-	ships.append(ship_id)
-	ships.sort()
+## Ajoute un vaisseau à sa place dans l'ordre trié ; hp < 0 : intact.
+func add_ship(ship_id: String, ship_hp := -1) -> void:
+	var i := ships.bsearch(ship_id, false)
+	ships.insert(i, ship_id)
+	hp.insert(i, ship_hp if ship_hp >= 0 else max_hp_of(ship_id))
 
 
+## Retire un vaisseau de cette classe (le plus abîmé : on garde les meilleurs).
 func remove_ship(ship_id: String) -> bool:
-	var i := ships.find(ship_id)
-	if i < 0:
-		return false
+	return remove_ship_hp(ship_id) >= 0
+
+
+## Retire un vaisseau de cette classe et renvoie ses points de structure (-1 s'il n'y en a pas).
+## Le plus abîmé part en premier, à égalité le premier de la liste.
+func remove_ship_hp(ship_id: String) -> int:
+	var best := -1
+	for i in ships.size():
+		if ships[i] == ship_id and (best == -1 or hp[i] < hp[best]):
+			best = i
+	if best < 0:
+		return -1
+	var h := hp[best]
+	ships.remove_at(best)
+	hp.remove_at(best)
+	return h
+
+
+## Retire le vaisseau d'indice i (détruit au combat).
+func remove_at(i: int) -> void:
 	ships.remove_at(i)
-	return true
+	hp.remove_at(i)
+
+
+static func max_hp_of(ship_id: String) -> int:
+	return maxi(1, int(GameData.ship(ship_id).get("hp", 50)))
+
+
+## Points de structure actuels et maximum de toute la flotte.
+func total_hp() -> int:
+	var n := 0
+	for h in hp:
+		n += h
+	return n
+
+
+func total_max_hp() -> int:
+	var n := 0
+	for s in ships:
+		n += max_hp_of(s)
+	return n
 
 
 func to_dict() -> Dictionary:
@@ -73,6 +119,9 @@ func to_dict() -> Dictionary:
 		"path": Array(path),
 		"progress": progress,
 		"order": standing_order,
+		"hp": Array(hp),
+		"troops": troops,
+		"tactic": tactic,
 	}
 
 
@@ -84,6 +133,12 @@ static func from_dict(d: Dictionary) -> Fleet:
 	for s in d["ships"]:
 		f.ships.append(String(s))
 	f.ships.sort()
+	var saved_hp: Array = d.get("hp", [])
+	for i in f.ships.size():
+		var mx := max_hp_of(f.ships[i])
+		f.hp.append(clampi(int(saved_hp[i]), 1, mx) if i < saved_hp.size() else mx)
+	f.troops = maxi(0, int(d.get("troops", 0)))
+	f.tactic = String(d.get("tactic", ""))
 	f.system_id = int(d["system"])
 	for s in d["path"]:
 		f.path.append(int(s))

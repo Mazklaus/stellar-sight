@@ -77,6 +77,11 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		_add(gross, bd.get("yields", {}))
 		_add(upkeep, bd.get("upkeep", {}))
 	FactionTraits.adjust_yields(state, colony, gross, upkeep)
+	if Combat.is_besieged(state, planet.system_id):
+		var pct := int(Combat.data().get("besieged_production_pct", 50))
+		for r in gross:
+			@warning_ignore("integer_division")
+			gross[r] = gross[r] * pct / 100
 	return {"gross": gross, "upkeep": upkeep}
 
 
@@ -226,6 +231,9 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 		return "nécessite un gisement : %s" % GameData.deposit(dep).get("label", dep)
 	if b.get("unique", false) and c.buildings.has(building_id):
 		return "déjà construit sur cette planète"
+	var needs := String(b.get("requires_building", ""))
+	if needs != "" and not c.buildings.has(needs):
+		return "nécessite d'abord : %s" % String(GameData.building(needs).get("label", needs))
 	var used := building_slots_used(c)
 	var slots := building_slots(state, c)
 	if used >= slots:

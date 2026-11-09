@@ -67,6 +67,21 @@ static func rush(player: int, planet_id: int, what: String) -> Dictionary:
 	return {"type": "rush", "player": player, "planet": planet_id, "what": what}
 
 
+## Déclare la guerre à un empire rencontré (la guerre vaut dans les deux sens).
+static func declare_war(player: int, target: int) -> Dictionary:
+	return {"type": "declare_war", "player": player, "target": target}
+
+
+## Choisit la tactique de combat d'une flotte (Combat.tactic_ids()).
+static func set_tactic(player: int, fleet_id: int, tactic: String) -> Dictionary:
+	return {"type": "set_tactic", "player": player, "fleet": fleet_id, "tactic": tactic}
+
+
+## Débarque les troupes d'une flotte sur le système ennemi où elle stationne : il change de mains.
+static func invade(player: int, fleet_id: int) -> Dictionary:
+	return {"type": "invade", "player": player, "fleet": fleet_id}
+
+
 ## Renvoie "" si l'ordre est applicable à cet état, sinon la raison du refus.
 static func validate(state: GameState, cmd: Dictionary) -> String:
 	if not cmd.has("type") or not cmd.has("player"):
@@ -102,6 +117,12 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return FactionTraits.check_sacrifice(state, int(cmd["player"]), int(cmd.get("planet", -1)))
 		"rush":
 			return FactionTraits.check_rush(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("what", "")))
+		"declare_war":
+			return Combat.check_declare_war(state, int(cmd["player"]), int(cmd.get("target", -1)))
+		"set_tactic":
+			return Combat.check_tactic(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("tactic", "")))
+		"invade":
+			return Combat.check_invade(state, int(cmd["player"]), int(cmd.get("fleet", -1)))
 		_:
 			return "type d'ordre inconnu : %s" % cmd["type"]
 
@@ -176,14 +197,22 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 		"merge_fleets":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var into: Fleet = state.fleets[int(cmd["into"])]
-			for s in f.ships:
-				into.add_ship(s)
+			for i in f.ships.size():
+				into.add_ship(f.ships[i], f.hp[i])
+			into.troops += f.troops
 			state.fleets.erase(f.id)
 		"split_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var ship_id := String(cmd["ship"])
-			f.remove_ship(ship_id)
-			state.spawn_ship(f.owner, ship_id, f.system_id)
+			var before := Combat.max_troops(f)
+			var ship_hp := f.remove_ship_hp(ship_id)
+			var nf := state.spawn_ship(f.owner, ship_id, f.system_id)
+			nf.hp[0] = ship_hp
+			nf.tactic = f.tactic
+			# Les troupes se répartissent selon la capacité de chaque flotte.
+			@warning_ignore("integer_division")
+			nf.troops = f.troops * Combat.max_troops(nf) / maxi(1, before)
+			f.troops -= nf.troops
 		"sacrifice":
 			var e := state.get_empire(int(cmd["player"]))
 			var c: Colony = state.colonies[int(cmd["planet"])]
@@ -204,3 +233,12 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				c.construction_days = 1
 			else:
 				c.ship_days = 1
+		"declare_war":
+			Combat.start_war(state, int(cmd["player"]), int(cmd["target"]))
+		"set_tactic":
+			state.fleets[int(cmd["fleet"])].tactic = String(cmd["tactic"])
+		"invade":
+			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			var sid := f.system_id
+			f.troops -= Combat.garrison(state, sid)  # les défenseurs se battent jusqu'au dernier
+			Combat.capture_system(state, sid, f.owner)

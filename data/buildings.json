@@ -13,5 +13,16 @@
 		"requires_deposit": "crystals", "outpost_ok": true,
 		"yields": {"crystals": 2}, "upkeep": {"energy": 2}},
 	"habitats": {"label": "Habitats orbitaux", "cost": {"materials": 150}, "days": 120, "unique": true,
-		"max_pop": 4, "yields": {}, "upkeep": {"energy": 2}}
+		"max_pop": 4, "yields": {}, "upkeep": {"energy": 2}},
+	"bastion": {"label": "Bastion orbital", "cost": {"materials": 120, "energy": 20}, "days": 60, "unique": true, "outpost_ok": true,
+		"garrison": 20, "battery": {"kinetic": 20, "missile": 12},
+		"text": "+20 garnison. Ses batteries tirent chaque jour sur les flottes qui assiègent le système, tant que la garnison tient.",
+		"yields": {}, "upkeep": {"energy": 1}},
+	"arsenal": {"label": "Arsenal orbital", "cost": {"materials": 150, "energy": 40}, "days": 70, "unique": true,
+		"text": "Cales géantes et grues orbitales : permet de construire cuirassés et porte-vaisseaux dans cette colonie.",
+		"yields": {}, "upkeep": {"energy": 2}},
+	"chantier_titanesque": {"label": "Chantier titanesque", "cost": {"materials": 600, "energy": 200, "crystals": 20}, "days": 180, "unique": true,
+		"requires_building": "arsenal",
+		"text": "Une cale de la taille d'une lune. Permet de construire le Titan de l'empire (un seul à la fois).",
+		"yields": {}, "upkeep": {"energy": 4}}
 }
