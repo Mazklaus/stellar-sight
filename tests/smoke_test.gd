@@ -14,6 +14,7 @@ func _initialize() -> void:
 	preload("res://tests/sim_tests.gd").new().run(_check)
 	preload("res://tests/economy_tests.gd").new().run(_check)
 	_test_clock()
+	_test_empire_report()
 	await _test_main_scene()
 	print("")
 	if _failures == 0:
@@ -112,11 +113,15 @@ func _test_main_scene() -> void:
 	_check(scene != null, "main.tscn se charge")
 	var main := scene.instantiate()
 	main.save_path = "user://saves/test_quicksave.json"  # ne jamais toucher la vraie sauvegarde du joueur
+	main.start_with_menu = false
 	root.add_child(main)
 	for _i in 10:
 		await process_frame
 	_check(main.galaxy != null and main.galaxy.systems.size() == main.SYSTEM_COUNT, "galaxie créée au lancement")
+	_check(root.theme == UiTheme.theme() and main._hud.bar.theme == UiTheme.theme() and main._pause_menu.get_child(0).theme == UiTheme.theme(),
+			"le thème de l'interface est appliqué à la fenêtre et aux calques")
 	await _test_colony_ui(main)
+	await _test_navigation_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_press(KEY_SPACE)
@@ -133,6 +138,8 @@ func _test_main_scene() -> void:
 	main._camera.position = target.position
 	await process_frame
 	await process_frame
+	# En mode sans fenêtre, l'écran fait 64x64 pixels : la barre d'empire le recouvrirait entièrement.
+	main._hud.visible = false
 	var screen_pos: Vector2 = main.get_viewport().get_visible_rect().size * 0.5
 	var motion := InputEventMouseMotion.new()
 	motion.position = screen_pos
@@ -146,19 +153,22 @@ func _test_main_scene() -> void:
 	root.push_input(click)
 	await process_frame
 	_check(main._view.selected_id == target.id, "clic gauche : le système sous le curseur est sélectionné (obtenu %d)" % main._view.selected_id)
+	main._hud.visible = true
 	_check(main._hud._info_panel.visible, "la fiche du système s'affiche")
 	_press(KEY_ESCAPE)
 	_check(main._view.selected_id == -1, "Échap désélectionne")
 
-	# Renommage par l'interface : passe par un ordre de simulation.
-	main._view.selected_id = 5
-	main._hud.show_system(main.galaxy.get_system(5), main.simulation.state)
-	main._hud._name_edit.text = "Port-Libre"
-	main._hud._submit_rename()
+	# Renommage depuis la vue système : passe par un ordre de simulation.
+	main.open_system_view(5)
+	main._system_screen._toggle_rename()
+	main._system_screen._rename_edit.text = "Port-Libre"
+	main._system_screen.submit_rename()
 	await process_frame
 	await process_frame
-	_check(main.galaxy.systems[5].system_name == "Port-Libre", "renommer depuis la fiche (obtenu %s)" % main.galaxy.systems[5].system_name)
+	_check(main.galaxy.systems[5].system_name == "Port-Libre", "renommer depuis la vue système (obtenu %s)" % main.galaxy.systems[5].system_name)
 	_check(main.simulation.command_log.back()["type"] == "rename_system", "le renommage est un ordre journalisé")
+	_check(main._system_screen._title.text == "Port-Libre", "l'en-tête de la vue système suit le nouveau nom")
+	main.close_system_view()
 
 	# F5 sauvegarde, F9 recharge exactement la même partie.
 	_press(KEY_F5)
@@ -178,8 +188,8 @@ func _test_main_scene() -> void:
 	_check(main._view.galaxy == main.galaxy, "F9 : la vue affiche la partie chargée")
 
 	var old_seed: int = main.galaxy.seed_value
-	_press(KEY_R)
-	_check(main.galaxy.seed_value != old_seed or main.galaxy.systems.size() == main.SYSTEM_COUNT, "R régénère la galaxie")
+	main.new_game(old_seed + 1)
+	_check(main.galaxy.seed_value == old_seed + 1 and main.galaxy.systems.size() == main.SYSTEM_COUNT, "nouvelle galaxie")
 	for _i in 10:
 		await process_frame
 	DirAccess.remove_absolute(main.save_path)
@@ -187,33 +197,68 @@ func _test_main_scene() -> void:
 	await process_frame
 
 
-## Au lancement : caméra et fiche sur le système d'origine ; coloniser et construire depuis la fiche.
+## Au lancement : caméra et fiche sur le système d'origine ; vue système, colonisation et construction.
 func _test_colony_ui(main: Node) -> void:
 	var st: GameState = main.simulation.state
 	var me: Empire = st.get_empire(main.LOCAL_PLAYER)
+	var screen: SystemScreen = main._system_screen
 	_check(me.faction_id == main.player_faction, "le joueur joue sa faction (%s)" % me.faction_id)
 	var home_sys: int = main.galaxy.get_planet(me.capital_planet).system_id
 	_check(main._view.selected_id == home_sys, "le système d'origine est sélectionné au lancement")
-	_check(main._hud._info_panel.visible and main._hud._planet_box.get_child_count() == main.galaxy.systems[home_sys].planet_count,
-			"la fiche liste les planètes du système d'origine")
-	_check(main._hud._res_label.text.contains("Matériaux 200"), "les ressources du joueur s'affichent (%s)" % main._hud._res_label.text)
-	_check(main._hud._build_menus.size() >= 1, "un menu de construction sur le monde d'origine")
+	main._hud.show_hover(null, Vector2.ZERO)  # la souris peut tomber sur une étoile dans la petite fenêtre de test
+	_check(main._hud._info_panel.visible and main._hud.planet_row_count() == main.galaxy.systems[home_sys].planet_count,
+			"la fiche résume les planètes du système d'origine")
+	_check(main._hud.bar.resource_text().contains("Matériaux 200"), "la barre d'empire affiche les ressources (%s)" % main._hud.bar.resource_text())
+	_check(not screen.visible, "la vue système est fermée au lancement")
 
-	# Construire depuis le menu de la fiche.
-	var menu: MenuButton = main._hud._build_menus[0]
-	var popup := menu.get_popup()
-	var farm_index := -1
-	for i in popup.item_count:
-		if popup.get_item_text(i).begins_with("Fermes hydroponiques"):
-			farm_index = i
-	_check(farm_index != -1 and not popup.is_item_disabled(farm_index), "la ferme est proposée et disponible")
-	popup.id_pressed.emit(popup.get_item_id(farm_index))
+	# Entrée ouvre la vue système du système sélectionné, sur la capitale.
+	_press(KEY_ENTER)
+	await process_frame
+	_check(main.is_system_view_open() and screen.system_id == home_sys, "Entrée ouvre la vue système")
+	_check(not main._hud._info_panel.visible and not main._view.visible, "la carte et sa fiche s'effacent")
+	_check(screen.planet_id == me.capital_planet, "la capitale est choisie d'office")
+	_check(screen._cards.get_child_count() == main.galaxy.systems[home_sys].planet_count, "une carte par planète dans le bandeau")
+	_check(screen.view._bodies.size() == main.galaxy.systems[home_sys].planet_count, "chaque planète est dessinée en orbite")
+
+	# Construire depuis la fiche de la planète.
+	var farm := screen.find_action("Construire : Fermes hydroponiques")
+	_check(farm != null and not farm.disabled, "la ferme est proposée et disponible")
+	if farm:
+		farm.pressed.emit()
 	for _i in 3:
 		await process_frame
 	var home: Colony = st.colonies[me.capital_planet]
-	_check(home.construction == "ferme_hydroponique", "construire depuis la fiche lance un chantier")
+	_check(home.construction == "ferme_hydroponique", "construire depuis la vue système lance un chantier")
+	farm = screen.find_action("Construire : Fermes hydroponiques")
+	_check(farm != null and farm.disabled and farm.tooltip_text.contains("chantier"), "un second chantier est refusé, avec la raison")
 
-	# Coloniser depuis la fiche d'un système voisin.
+	# Clic sur une autre planète du bandeau : la fiche change.
+	if main.galaxy.systems[home_sys].planet_count > 1:
+		var other: int = screen._card_ids[0] if screen._card_ids[0] != me.capital_planet else screen._card_ids[1]
+		(screen._cards.get_child(screen._card_ids.find(other)) as Button).pressed.emit()
+		_check(screen.planet_id == other and screen.view.selected_planet == other, "choisir une planète dans le bandeau")
+	# Tab bascule sur la vue de gestion (planètes alignées) et revient.
+	_press(KEY_TAB)
+	await process_frame
+	_check(screen.manage_mode and screen.manage.visible and not screen.view.show_scene, "Tab : vue de gestion")
+	_check(screen.manage._columns.size() == main.galaxy.systems[home_sys].planet_count, "une colonne par planète en gestion")
+	var home_col: Dictionary = screen.manage._columns[me.capital_planet]
+	_check((home_col["status"] as Label).text.begins_with("Colonisée"), "la capitale est « Colonisée » (obtenu %s)" % (home_col["status"] as Label).text)
+	_check((home_col["yields"]["food"]["value"] as Label).visible, "rendements réels affichés pour sa propre planète")
+	_check(main._hud._tab_manage.button_pressed and not main._hud._tab_orbit.button_pressed, "l'onglet Gestion suit la vue")
+	main._hud._tab_orbit.pressed.emit()
+	await process_frame
+	_check(not screen.manage_mode and screen.view.show_scene, "onglet Vue orbitale : retour à la vue orbitale")
+	_press(KEY_TAB)
+	_press(KEY_TAB)
+	await process_frame
+	_check(not screen.manage_mode and screen.view.show_scene, "Tab : retour à la vue orbitale")
+	_press(KEY_ESCAPE)
+	await process_frame
+	_check(not main.is_system_view_open() and main._view.visible and main._view.selected_id == home_sys,
+			"Échap revient à la galaxie, système toujours sélectionné")
+
+	# Coloniser depuis la vue d'un système voisin.
 	var target := -1
 	for n in main.galaxy.systems[home_sys].neighbors:
 		for pid in main.galaxy.systems[n].planet_ids:
@@ -225,24 +270,294 @@ func _test_colony_ui(main: Node) -> void:
 				target = pid
 	_check(target != -1, "une planète à revendiquer près du système d'origine")
 	if target != -1:
-		main._select(main.galaxy.get_planet(target).system_id)
-		var button := _find_button(main._hud._planet_box, "Avant-poste")
+		main.open_system_view(main.galaxy.get_planet(target).system_id)
+		screen.view.planet_clicked.emit(target)
+		var button := screen.find_action("Poser un avant-poste")
 		_check(button != null and not button.disabled, "bouton Avant-poste actif")
 		if button:
 			button.pressed.emit()
 		for _i in 3:
 			await process_frame
-		_check(st.colonies.has(target) and st.colonies[target].kind == Colony.KIND_OUTPOST, "avant-poste lancé depuis la fiche")
-		_check(_find_button(main._hud._planet_box, "Avant-poste") == null or st.galaxy.systems[main.galaxy.get_planet(target).system_id].planet_count > 1,
-				"la fiche se met à jour après l'ordre")
+		_check(st.colonies.has(target) and st.colonies[target].kind == Colony.KIND_OUTPOST, "avant-poste lancé depuis la vue système")
+		_check(screen.find_action("Poser un avant-poste") == null, "la fiche se met à jour après l'ordre")
+		main.close_system_view()
 	var far := -1
 	for p in st.galaxy.planets:
 		if far == -1 and st.system_owner(p.system_id) == -1 and not Economy.in_range(st, 0, p.system_id):
 			far = p.id
-	main._select(main.galaxy.get_planet(far).system_id)
-	var far_button := _find_button(main._hud._planet_box, "Avant-poste")
+	main.open_system_view(main.galaxy.get_planet(far).system_id)
+	screen.select_planet(far)
+	var far_button := screen.find_action("Poser un avant-poste")
 	_check(far_button != null and far_button.disabled and far_button.tooltip_text.contains("portée"), "hors de portée : bouton grisé avec la raison")
+	main.close_system_view()
 	main._select(-1)
+	_test_system_view_picking(st)
+
+
+## Bilans d'empire (lecture seule) : mêmes chiffres que la simulation, navigation entre systèmes.
+func _test_empire_report() -> void:
+	print("Bilans d'empire…")
+	var st := GameState.create(77, 150, 1800.0, "vael")
+	var me := st.get_empire(0)
+	var checksum := st.checksum()
+	var res := EmpireReport.resources(st, 0)
+	var income := Economy.empire_income(st, 0)
+	_check(res.size() == GameData.resource_ids().size(), "une ligne par ressource")
+	var ok := true
+	for r in res:
+		if r["stock"] != me.resources[r["id"]] or r["net"] != income["net"][r["id"]] or r["net"] != r["gross"] - r["upkeep"]:
+			ok = false
+	_check(ok, "stock, production, entretien et bilan cohérents avec la simulation")
+	var influence: Dictionary = res[GameData.resource_ids().find("influence")]
+	_check(influence["bonus_pct"] == 50, "bonus de faction de Vael sur l'influence (obtenu %d)" % influence["bonus_pct"])
+	var home := st.galaxy.get_planet(me.capital_planet).system_id
+	var cols := EmpireReport.colonies(st, 0)
+	_check(cols.size() == 1 and cols[0]["capital"] and cols[0]["population"] > 0, "la capitale est la seule colonie au départ")
+	var t := EmpireReport.totals(st, 0)
+	_check(t["colonies"] == 1 and t["outposts"] == 0 and t["systems"] == 1, "chiffres clés de départ")
+	_check(EmpireReport.owned_systems(st, 0) == [home], "un seul système possédé : celui d'origine")
+	# Un avant-poste dans un système voisin ajoute un système à parcourir avec Tab.
+	var target := -1
+	for n in st.galaxy.systems[home].neighbors:
+		for pid in st.galaxy.systems[n].planet_ids:
+			if target == -1 and Economy.check_colonize(st, 0, pid, Colony.KIND_OUTPOST) == "":
+				target = pid
+	var sim := Simulation.new(st)
+	sim.submit(SimCommands.colonize(0, target, Colony.KIND_OUTPOST))
+	sim.flush_commands()
+	var other := st.galaxy.get_planet(target).system_id
+	_check(EmpireReport.owned_systems(st, 0) == [home, other], "le système de l'avant-poste suit celui d'origine")
+	_check(EmpireReport.totals(st, 0)["founding"] == 1, "la fondation en cours est comptée")
+	_check(EmpireReport.cycle_system(st, 0, home, 1) == other and EmpireReport.cycle_system(st, 0, other, 1) == home,
+			"système suivant, en boucle")
+	_check(EmpireReport.cycle_system(st, 0, home, -1) == other, "système précédent, en boucle")
+	_check(EmpireReport.cycle_system(st, 0, -1, 1) == home, "sans sélection : on part du système d'origine")
+	_check(EmpireReport.cycle_system(st, 3, -1, 1) != -1, "les autres empires ont aussi leur système")
+	_check(EmpireReport.cycle_system(st, 9, -1, 1) == -1, "empire inconnu : aucun système")
+	var checksum_after := st.checksum()
+	EmpireReport.resources(st, 0)
+	EmpireReport.colonies(st, 0)
+	EmpireReport.totals(st, 0)
+	_check(st.checksum() == checksum_after and checksum != "", "les bilans ne modifient pas la partie")
+
+
+## Barre d'empire, menus d'empire, menu pause, menu principal, raccourcis de navigation.
+func _test_navigation_ui(main: Node) -> void:
+	var st: GameState = main.simulation.state
+	var me: Empire = st.get_empire(main.LOCAL_PLAYER)
+	var clock: Node = root.get_node("GameClock")
+	var hud: Hud = main._hud
+	var screens: EmpireScreens = main._empire_screens
+	var home_sys: int = main.galaxy.get_planet(me.capital_planet).system_id
+	main._select(-1)
+
+	# Menus d'empire.
+	_press(KEY_F1)
+	await process_frame
+	_check(screens.is_open() and screens.current == "economy", "F1 ouvre l'économie")
+	_check(hud.bar.screen_button("economy").button_pressed, "le bouton Économie de la barre est mis en évidence")
+	var row := screens.economy_row_text("materials")
+	_check(row.begins_with("Matériaux|%d|" % me.resources["materials"]), "ligne des matériaux (%s)" % row)
+	_check(not main._camera.is_processing_unhandled_input(), "la carte ne réagit plus sous un menu d'empire")
+	_press(KEY_F2)
+	await process_frame
+	_check(screens.current == "colonies", "F2 passe aux colonies")
+	var rows := screens.colony_buttons()
+	_check(rows.size() == EmpireReport.colonies(st, 0).size() and rows.size() >= 2, "une ligne par colonie ou avant-poste (%d)" % rows.size())
+	_press(KEY_F2)
+	_check(not screens.is_open() and not hud.bar.screen_button("colonies").button_pressed, "F2 referme les colonies")
+	_check(main._camera.is_processing_unhandled_input(), "la carte reprend la main")
+	main.toggle_empire_screen("colonies")
+	await process_frame
+	var second: int = screens._col_rows[1]["pid"]
+	screens.colony_buttons()[1].pressed.emit()
+	_check(screens.selected_planet == second and screens.colony_buttons()[1].button_pressed, "clic sur une colonie : elle est choisie")
+	_check(screens._pick_title.text == main.galaxy.get_planet(second).display_name(main.galaxy).to_upper(), "la fiche de la colonie choisie suit")
+	screens.set_colony_filter("outpost")
+	var outposts := 0
+	for c in EmpireReport.colonies(st, 0):
+		if c["established"] and c["kind"] != Colony.KIND_COLONY:
+			outposts += 1
+	_check(screens.colony_buttons().size() == outposts, "filtre Avant-postes (%d)" % outposts)
+	screens.set_colony_filter("all")
+	screens.select_colony(me.capital_planet)
+	screens._pick_open.pressed.emit()
+	await process_frame
+	_check(not screens.is_open() and main.is_system_view_open() and main._system_screen.planet_id == me.capital_planet,
+			"Ouvrir la vue système depuis la colonie choisie")
+	main.close_system_view()
+	_press(KEY_F3)
+	await process_frame
+	_check(screens.is_open() and screens.current == "research" and screens._tab.text.begins_with("RECHERCHE"), "F3 : écran Recherche (en attente)")
+	_press(KEY_F4)
+	await process_frame
+	_check(screens.current == "diplomacy" and screens._content.get_child(0) != null, "F4 : écran Diplomatie (en attente)")
+	_check(not hud._tabs.visible and hud.bar.visible and hud.dial.visible, "écran d'empire : onglets de vue masqués, panneau et cadran restent")
+	_press(KEY_F4)
+	_check(not screens.is_open() and hud._tabs.visible, "F4 referme, les onglets reviennent")
+	main.toggle_empire_screen("economy")
+	await process_frame
+	_check(screens._sys_list.get_child_count() == EmpireReport.owned_systems(st, 0).size(), "une ligne par système dans l'économie")
+	_check(screens._donut.center_value != "" and screens._donut.parts.size() == GameData.resource_ids().size(), "anneau de répartition rempli")
+	main.toggle_empire_screen("economy")
+	_press(KEY_ESCAPE)
+	_check(not screens.is_open(), "Échap ferme le menu d'empire")
+
+	# Pause automatique (réglage local, jamais enregistré ici).
+	UiSettings.auto_pause_menus = true
+	clock.set_paused(false)
+	main.toggle_empire_screen("economy")
+	_check(clock.paused, "pause automatique à l'ouverture d'un menu d'empire")
+	main.close_empire_screen()
+	_check(not clock.paused, "le temps repart à la fermeture")
+	UiSettings.auto_pause_menus = false
+	clock.set_paused(true)
+
+	# Navigation entre les systèmes de l'empire.
+	var owned := EmpireReport.owned_systems(st, 0)
+	main._select(-1)
+	_press(KEY_TAB)
+	_check(main._view.selected_id == owned[0], "Tab sans sélection : système d'origine")
+	_press(KEY_TAB)
+	_check(main._view.selected_id == owned[1 % owned.size()], "Tab : système suivant de l'empire")
+	var ev := InputEventKey.new()
+	ev.keycode = KEY_TAB
+	ev.physical_keycode = KEY_TAB
+	ev.shift_pressed = true
+	ev.pressed = true
+	root.push_input(ev)
+	_check(main._view.selected_id == owned[0], "Maj+Tab : système précédent")
+	main._select(owned[owned.size() - 1])
+	_press(KEY_H, KEY_H)
+	_check(main._view.selected_id == home_sys, "H : retour à la capitale")
+	main.open_system_view(home_sys)
+	var screen: SystemScreen = main._system_screen
+	var first: int = screen.planet_id
+	_press(KEY_RIGHT)
+	_check(screen.planet_id != first or main.galaxy.systems[home_sys].planet_count == 1, "flèche droite : planète suivante")
+	_press(KEY_LEFT)
+	_check(screen.planet_id == first, "flèche gauche : planète précédente")
+	if owned.size() > 1:
+		_press(KEY_PAGEDOWN)
+		_check(main.is_system_view_open() and screen.system_id == owned[1], "Page suiv. dans la vue système : système suivant")
+		screen.cycle_requested.emit(-1)
+		_check(screen.system_id == home_sys, "bouton système précédent de la vue système")
+	main.close_system_view()
+
+	# Survol : la fiche montre le système survolé, puis revient à la sélection.
+	main._select(-1)
+	hud.show_hover(main.galaxy.systems[home_sys], Vector2(10, 10))
+	_check(hud._info_panel.visible and hud.card_system() == home_sys and hud._card_title.text == main.galaxy.systems[home_sys].system_name,
+			"la fiche montre le système survolé")
+	_check(not hud._enter_button.visible, "pas de bouton d'entrée pour un simple survol")
+	hud.show_hover(null, Vector2.ZERO)
+	_check(not hud._info_panel.visible, "fin du survol sans sélection : la fiche se cache")
+
+	# Lentille économique (touche L).
+	_press(KEY_L, KEY_L)
+	_check(hud.lens == "economy" and main._view.lens == "economy", "L active la lentille économique")
+	var net := EmpireReport.system_net(st, 0, home_sys)
+	_check(int(net["food"]) != 0 or int(net["materials"]) != 0, "la lentille a un bilan à montrer pour le système d'origine")
+	_press(KEY_L, KEY_L)
+	_check(hud.lens == "" and main._view.lens == "", "L la désactive")
+
+	# Cadran du temps : le centre met en pause, les crans règlent la vitesse.
+	var dial: TimeDial = hud.dial
+	clock.set_paused(true)
+	dial.pause_toggled.emit()
+	_check(not clock.paused, "cadran : le centre relance le temps")
+	dial.speed_requested.emit(3)
+	_check(clock.speed_index == 3, "cadran : cran de vitesse 4")
+	clock.set_paused(true)
+
+	# Onglet « Gestion du système » : le referme.
+	main.open_system_view(home_sys)
+	hud._tab_galaxy.pressed.emit()
+	_check(not main.is_system_view_open(), "l'onglet de la vue système la referme")
+
+	# Menu pause : Échap sans sélection, le temps s'arrête puis reprend comme avant.
+	main._select(-1)
+	clock.set_paused(false)
+	_press(KEY_ESCAPE)
+	_check(main._pause_menu.is_open() and clock.paused, "Échap sans sélection : menu pause, jeu en pause")
+	_press(KEY_SPACE)
+	_check(clock.paused, "Espace ne relance pas le temps sous le menu pause")
+	main._pause_menu.show_page("confirm_quit")
+	_check(main._pause_menu._confirm.visible and not main._pause_menu._home.visible, "Quitter demande confirmation")
+	main._pause_menu.show_page("shortcuts")
+	_press(KEY_ESCAPE)
+	_check(main._pause_menu.is_open() and main._pause_menu.page == "home", "Échap revient à l'accueil du menu pause")
+	_press(KEY_ESCAPE)
+	_check(not main._pause_menu.is_open() and not clock.paused, "Échap referme le menu pause et le temps reprend")
+	clock.set_paused(true)
+
+	# Menu principal : reprendre, puis nouvelle partie avec une autre faction et une graine choisie.
+	main.open_main_menu()
+	await process_frame
+	var menu: MainMenu = main._main_menu
+	_check(menu.is_open() and not hud.visible and menu._resume.visible, "menu principal : la partie en cours peut reprendre")
+	_check(not menu._continue.visible and menu._items.size() == 5, "accueil : Reprendre remplace Continuer")
+	menu._layout_home()
+	var geo: Array = menu._planet_geometry()
+	var orbit_r: float = geo[1] + geo[2].y * 0.09
+	var orbit_ok := true
+	for it in menu._items:
+		var pin: Vector2 = it.position + Vector2(it.DIAMETER * 0.5 + 2.0, it.size.y * 0.5)
+		if it.visible and absf(pin.distance_to(geo[0]) - orbit_r) > 1.0:
+			orbit_ok = false
+	_check(orbit_ok, "les entrées sont posées sur l'orbite de la planète")
+	menu.show_page("options")
+	menu._options.show_tab("controls")
+	_check(menu._options_page.visible and menu._options._pages["controls"].visible and not menu._options._pages["display"].visible, "options : onglet Commandes")
+	var was_auto := UiSettings.auto_pause_menus
+	menu._options._auto_pause.pressed.emit()
+	_check(UiSettings.auto_pause_menus != was_auto and menu._options._auto_pause.text == ("Activé" if UiSettings.auto_pause_menus else "Désactivé"), "options : la case suit le réglage")
+	menu._options._scale.pressed.emit()
+	_check(is_equal_approx(root.content_scale_factor, 1.25) and menu._options._scale.text == "125 %", "options : échelle de l'interface")
+	menu._options.reset_defaults()
+	_check(not UiSettings.auto_pause_menus and is_equal_approx(root.content_scale_factor, 1.0), "options : valeurs par défaut")
+	menu.show_page("home")
+	_press(KEY_ESCAPE)
+	_check(not menu.is_open() and hud.visible, "Échap reprend la partie")
+	main.open_main_menu()
+	menu.show_page("new")
+	menu.select_faction(MainMenu.RANDOM_FACTION)
+	_check(menu._faction_cards[MainMenu.RANDOM_FACTION].button_pressed and menu._lore_header.text == "AU HASARD", "case Au hasard")
+	menu.select_faction("khthari")
+	_check(menu._lore_header.text == "KH'THARI" and menu._faction_lore.text != "", "le choix de faction montre l'histoire du peuple")
+	menu._seed_edit.text = "123"
+	menu.launch()
+	await process_frame
+	_check(not menu.is_open() and main.simulation.state.seed_value == 123, "nouvelle partie avec la graine choisie")
+	_check(main.simulation.state.get_empire(0).faction_id == "khthari", "le joueur joue la faction choisie")
+	_check(hud.bar._name.text == "KH'THARI", "le panneau d'empire suit la nouvelle faction")
+	main.player_faction = "ossarane"
+
+
+## La vue système à taille réelle : chaque planète se trouve sous sa position affichée.
+func _test_system_view_picking(st: GameState) -> void:
+	var busiest: StarSystem = st.galaxy.systems[0]
+	for s in st.galaxy.systems:
+		if s.planet_count > busiest.planet_count:
+			busiest = s
+	var v := SystemView.new()
+	root.add_child(v)
+	v.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	v.size = Vector2(1600, 900)
+	v.margins = Vector4(0, 130, 420, 150)
+	v.set_system(st, busiest, 0)
+	var ok := true
+	for pid in busiest.planet_ids:
+		var pos := v.planet_position(pid)
+		if not v.scene_rect().grow(40).has_point(pos):
+			ok = false
+		# Une planète devant une autre peut la masquer : on vérifie seulement que le clic tombe sur une planète.
+		if v.planet_at(pos) == -1:
+			ok = false
+	_check(ok, "vue système : %d planètes dans la scène et cliquables" % busiest.planet_count)
+	var r_last := v.orbit_radius(busiest.planet_count - 1)
+	_check(v.orbit_radius(0) > v.star_radius() and r_last > v.orbit_radius(0), "orbites ordonnées, hors de l'étoile")
+	v.queue_free()
 
 
 func _find_button(node: Node, prefix: String) -> Button:
