@@ -25,6 +25,7 @@ var galaxy: Galaxy:
 var _view: GalaxyView
 var _camera: GalaxyCamera
 var _hud: Hud
+var _system_screen: SystemScreen
 
 
 func _ready() -> void:
@@ -35,11 +36,16 @@ func _ready() -> void:
 	add_child(_camera)
 	_camera.make_current()
 	_hud = Hud.new()
+	_hud.layer = 2  # au-dessus de la vue système
 	add_child(_hud)
-	_hud.rename_requested.connect(_on_rename_requested)
-	_hud.colonize_requested.connect(func(planet_id: int, kind: String) -> void:
+	_hud.open_system_requested.connect(open_system_view)
+	_system_screen = SystemScreen.new()
+	add_child(_system_screen)
+	_system_screen.close_requested.connect(close_system_view)
+	_system_screen.rename_requested.connect(_on_rename_requested)
+	_system_screen.colonize_requested.connect(func(planet_id: int, kind: String) -> void:
 		simulation.submit(SimCommands.colonize(LOCAL_PLAYER, planet_id, kind)))
-	_hud.build_requested.connect(func(planet_id: int, building_id: String) -> void:
+	_system_screen.build_requested.connect(func(planet_id: int, building_id: String) -> void:
 		simulation.submit(SimCommands.build(LOCAL_PLAYER, planet_id, building_id)))
 	new_game(randi())
 
@@ -74,7 +80,38 @@ func load_game() -> void:
 	_hud.notify("Partie chargée (%s)" % GameCalendar.date_string(state.tick))
 
 
+## Ouvre l'écran dédié d'un système (étoile, planètes en orbite, fiche et ordres).
+func open_system_view(id: int) -> void:
+	var s := galaxy.get_system(id) if galaxy else null
+	if s == null:
+		return
+	_select(id)
+	_system_screen.open(simulation.state, s, LOCAL_PLAYER)
+	_hud.set_system_mode(true)
+	# La carte est cachée et ne réagit plus (caméra, survol) tant que la vue système est ouverte.
+	_view.visible = false
+	_camera.set_process(false)
+	_camera.set_process_unhandled_input(false)
+
+
+func close_system_view() -> void:
+	if not _system_screen.is_open():
+		return
+	_system_screen.close()
+	_hud.set_system_mode(false)
+	_view.visible = true
+	_camera.set_process(true)
+	_camera.set_process_unhandled_input(true)
+	_select(_view.selected_id)
+
+
+func is_system_view_open() -> bool:
+	return _system_screen != null and _system_screen.is_open()
+
+
 func _start(state: GameState) -> void:
+	if is_system_view_open():
+		close_system_view()
 	simulation = Simulation.new(state)
 	simulation.command_applied.connect(_on_command_applied)
 	simulation.command_rejected.connect(func(_cmd: Dictionary, reason: String) -> void:
@@ -82,7 +119,8 @@ func _start(state: GameState) -> void:
 	simulation.chronicle_added.connect(_hud.show_chronicle)
 	simulation.ticked.connect(func(_tick: int) -> void:
 		_view.queue_redraw()
-		_hud.refresh())
+		_hud.refresh()
+		_system_screen.refresh())
 	_view.set_state(state)
 	_hud.set_state(state, LOCAL_PLAYER)
 	_hud.set_galaxy_info(state.seed_value, state.galaxy.systems.size())
@@ -98,12 +136,13 @@ func _on_rename_requested(system_id: int, new_name: String) -> void:
 func _on_command_applied(_cmd: Dictionary) -> void:
 	_view.queue_redraw()
 	_hud.refresh()
+	_system_screen.refresh()
 	if not simulation.state.chronicle.is_empty():
 		_hud.show_chronicle(simulation.state.chronicle.back())
 
 
 func _process(_delta: float) -> void:
-	if galaxy == null:
+	if galaxy == null or is_system_view_open():
 		return
 	var id := _pick_system()
 	if id != _view.hovered_id:
@@ -113,14 +152,24 @@ func _process(_delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	var mb := event as InputEventMouseButton
-	if mb and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
-		_select(_pick_system_at(mb.position))
+	if mb and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT and not is_system_view_open():
+		var picked := _pick_system_at(mb.position)
+		if mb.double_click and picked >= 0:
+			open_system_view(picked)
+		else:
+			_select(picked)
 		return
 
 	var key := event as InputEventKey
 	if key == null or not key.pressed or key.echo:
 		return
-	if key.keycode == KEY_SPACE:
+	if key.keycode == KEY_ESCAPE and is_system_view_open():
+		close_system_view()
+	elif key.keycode == KEY_TAB and is_system_view_open():
+		_system_screen.toggle_mode()
+	elif (key.keycode == KEY_ENTER or key.keycode == KEY_KP_ENTER) and not is_system_view_open():
+		open_system_view(_view.selected_id)
+	elif key.keycode == KEY_SPACE:
 		GameClock.toggle_pause()
 	elif key.keycode == KEY_R:
 		new_game(randi())

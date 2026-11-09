@@ -1,29 +1,27 @@
 class_name Hud
 extends CanvasLayer
-## Interface : barre du haut (date, vitesse, ressources de l'empire du joueur), fiche du système
-## sélectionné (planètes, colonies, colonisation, construction, renommage), dernière entrée de la
+## Interface : barre du haut (date, vitesse, ressources de l'empire du joueur), fiche résumée du
+## système sélectionné sur la carte (avec l'accès à sa vue système), dernière entrée de la
 ## chronique, notifications et aide en bas.
-## L'interface ne modifie jamais la partie : elle émet des demandes (rename_requested,
-## colonize_requested, build_requested) que main.gd transforme en ordres pour la simulation.
-## Pour griser un bouton, elle pose la même question que la simulation (SimCommands.validate).
+## Les actions sur les planètes (colonisation, construction, renommage) se font dans la vue système
+## (SystemScreen). L'interface ne modifie jamais la partie : elle émet des demandes.
 
-signal rename_requested(system_id: int, new_name: String)
-signal colonize_requested(planet_id: int, kind: String)
-signal build_requested(planet_id: int, building_id: String)
+signal open_system_requested(system_id: int)
 
 const SPEED_NAMES := ["1", "2", "3", "4", "5"]
 const NOTIFY_SECONDS := 3.0
 const PANEL_WIDTH := 430.0
-const PLANETS_MAX_HEIGHT := 520.0
+const HELP_GALAXY := "Espace : pause   1 à 5 : vitesse   Clic : sélectionner   Double-clic ou Entrée : vue système   Clic droit glissé ou ZQSD : se déplacer   Molette : zoom   F5 / F9 : sauver / charger   R : nouvelle galaxie"
+const HELP_SYSTEM := "Espace : pause   1 à 5 : vitesse   Clic sur une planète : la choisir   Tab : vue orbitale / gestion   Échap : retour à la galaxie   F5 / F9 : sauvegarder / charger"
 
 var _top_label: Label
 var _res_label: Label
 var _info_panel: PanelContainer
 var _info_label: Label
-var _planet_scroll: ScrollContainer
-var _planet_box: VBoxContainer
-var _build_menus: Array[MenuButton] = []
-var _name_edit: LineEdit
+var _planet_label: Label
+var _enter_button: Button
+var _help: Label
+var _system_mode := false
 var _chronicle_label: Label
 var _notify_label: Label
 var _notify_left := 0.0
@@ -31,7 +29,6 @@ var _seed_text := ""
 var _system_id := -1
 var _state: GameState
 var _player := 0
-var _refresh_pending := false
 
 
 func _ready() -> void:
@@ -66,26 +63,18 @@ func _ready() -> void:
 	_info_label.custom_minimum_size = Vector2(PANEL_WIDTH - 30.0, 0)
 	_info_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(_info_label)
-	_planet_scroll = ScrollContainer.new()
-	_planet_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	box.add_child(_planet_scroll)
-	_planet_box = VBoxContainer.new()
-	_planet_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_planet_box.add_theme_constant_override("separation", 8)
-	_planet_scroll.add_child(_planet_box)
-	var rename_row := HBoxContainer.new()
-	box.add_child(rename_row)
-	_name_edit = LineEdit.new()
-	_name_edit.max_length = SimCommands.NAME_MAX_LENGTH
-	_name_edit.placeholder_text = "Nouveau nom du système"
-	_name_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_name_edit.text_submitted.connect(func(_t: String) -> void: _submit_rename())
-	rename_row.add_child(_name_edit)
-	var rename_button := Button.new()
-	rename_button.text = "Renommer"
-	rename_button.focus_mode = Control.FOCUS_NONE
-	rename_button.pressed.connect(_submit_rename)
-	rename_row.add_child(rename_button)
+	_planet_label = Label.new()
+	_planet_label.custom_minimum_size = Vector2(PANEL_WIDTH - 30.0, 0)
+	_planet_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_planet_label.modulate = Color(1, 1, 1, 0.82)
+	box.add_child(_planet_label)
+	_enter_button = Button.new()
+	_enter_button.text = "Entrer dans le système  (Entrée)"
+	_enter_button.focus_mode = Control.FOCUS_NONE
+	_enter_button.pressed.connect(func() -> void:
+		if _system_id >= 0:
+			open_system_requested.emit(_system_id))
+	box.add_child(_enter_button)
 
 	_chronicle_label = Label.new()
 	_chronicle_label.anchor_top = 1.0
@@ -106,14 +95,14 @@ func _ready() -> void:
 	_notify_label.visible = false
 	add_child(_notify_label)
 
-	var help := Label.new()
-	help.anchor_top = 1.0
-	help.anchor_bottom = 1.0
-	help.offset_top = -34.0
-	help.offset_left = 16.0
-	help.modulate = Color(1, 1, 1, 0.7)
-	help.text = "Espace : pause   1 à 5 : vitesse   Clic gauche : sélectionner   Clic droit glissé, ZQSD ou flèches : se déplacer   Molette : zoom   F5 : sauvegarder   F9 : charger   R : nouvelle galaxie"
-	add_child(help)
+	_help = Label.new()
+	_help.anchor_top = 1.0
+	_help.anchor_bottom = 1.0
+	_help.offset_top = -34.0
+	_help.offset_left = 16.0
+	_help.modulate = Color(1, 1, 1, 0.7)
+	_help.text = HELP_GALAXY
+	add_child(_help)
 
 	GameClock.day_passed.connect(func(_day: int) -> void: _refresh_top())
 	GameClock.speed_changed.connect(func(_speed: int) -> void: _refresh_top())
@@ -127,9 +116,6 @@ func _process(delta: float) -> void:
 		_notify_label.modulate.a = clampf(_notify_left, 0.0, 1.0)
 		if _notify_left <= 0.0:
 			_notify_label.visible = false
-	if _refresh_pending and not _menu_open():
-		_refresh_pending = false
-		_refresh_system()
 
 
 ## Branche l'interface sur une partie (nouvelle ou chargée) et sur l'empire du joueur local.
@@ -148,25 +134,25 @@ func set_galaxy_info(seed_value: int, system_count: int) -> void:
 func refresh() -> void:
 	_refresh_top()
 	if _system_id >= 0:
-		if _menu_open():
-			# Ne pas reconstruire un menu ouvert sous le curseur : on attend qu'il se ferme.
-			_refresh_pending = true
-		else:
-			_refresh_system()
+		_refresh_system()
 
 
 func show_system(s: StarSystem, state: GameState) -> void:
 	if s == null:
 		_system_id = -1
-		_name_edit.release_focus()
 		_info_panel.visible = false
 		return
 	_state = state
-	if _system_id != s.id:
-		_name_edit.text = ""
 	_system_id = s.id
 	_refresh_system()
-	_info_panel.visible = true
+	_info_panel.visible = not _system_mode
+
+
+## Vue système ouverte (true) ou carte de la galaxie (false) : la fiche résumée et l'aide s'adaptent.
+func set_system_mode(on: bool) -> void:
+	_system_mode = on
+	_info_panel.visible = not on and _system_id >= 0
+	_help.text = HELP_SYSTEM if on else HELP_GALAXY
 
 
 ## Affiche une entrée de chronique ({"tick", "text"}), ou efface la ligne si l'entrée est vide.
@@ -202,148 +188,11 @@ func _refresh_system() -> void:
 		s.neighbors.size(),
 		", ".join(neighbor_names),
 	]
-	for child in _planet_box.get_children():
-		_planet_box.remove_child(child)
-		child.queue_free()
-	_build_menus.clear()
+	var lines := PackedStringArray()
 	for pid in s.planet_ids:
-		_planet_box.add_child(_planet_row(galaxy.get_planet(pid)))
-	_planet_scroll.visible = not s.planet_ids.is_empty()
-	# Hauteur de la liste : son contenu, plafonné (on fait défiler au-delà).
-	_planet_scroll.custom_minimum_size = Vector2(PANEL_WIDTH - 30.0, minf(PLANETS_MAX_HEIGHT, 96.0 * s.planet_ids.size()))
-
-
-func _planet_row(p: Planet) -> Control:
-	var row := VBoxContainer.new()
-	row.add_theme_constant_override("separation", 2)
-	var me := _state.get_empire(_player)
-	var c: Colony = _state.colonies.get(p.id)
-
-	var title := Label.new()
-	title.add_theme_font_size_override("font_size", 15)
-	title.text = "%s  ·  %s, taille %d" % [p.display_name(_state.galaxy), p.type_label(), p.size]
-	if c:
-		title.modulate = _state.get_empire(c.owner).color().lightened(0.25)
-	row.add_child(title)
-
-	var lines := PackedStringArray()
-	if me and p.is_habitable_type():
-		var hab := Economy.habitability(p.type, me.faction())
-		var cap := Economy.max_pop(_state, p, _player)
-		lines.append("Habitable à %d %% pour vous (%d pop max)" % [hab, cap] if cap > 0 else "Inhabitable pour votre espèce")
-	elif not p.is_habitable_type():
-		lines.append("Inhabitable (avant-poste seulement)")
-	if not p.deposits.is_empty():
-		var deps := PackedStringArray()
-		for d in p.deposits:
-			deps.append(String(GameData.deposit(d).get("label", d)))
-		lines.append("Gisements : %s" % ", ".join(deps))
-	if c:
-		lines.append_array(_colony_lines(p, c))
-	var details := Label.new()
-	details.text = "\n".join(lines)
-	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	details.custom_minimum_size = Vector2(PANEL_WIDTH - 50.0, 0)
-	details.modulate = Color(1, 1, 1, 0.8)
-	row.add_child(details)
-
-	var actions := HBoxContainer.new()
-	if c == null or (c.owner == _player and not c.is_colony()):
-		actions.add_child(_claim_button(p, Colony.KIND_COLONY))
-	if c == null:
-		actions.add_child(_claim_button(p, Colony.KIND_OUTPOST))
-	if c and c.owner == _player and c.is_established():
-		actions.add_child(_build_menu(p))
-	if actions.get_child_count() > 0:
-		row.add_child(actions)
-	row.add_child(HSeparator.new())
-	return row
-
-
-func _colony_lines(p: Planet, c: Colony) -> PackedStringArray:
-	var lines := PackedStringArray()
-	var owner := _state.get_empire(c.owner)
-	var kind_label := "Colonie" if c.is_colony() else "Avant-poste"
-	if not c.is_established():
-		lines.append("%s de %s en fondation : %d j" % [kind_label, owner.short_name(), c.days_left])
-		return lines
-	if c.is_colony():
-		var cap := Economy.max_pop(_state, p, c.owner, c.buildings)
-		@warning_ignore("integer_division")
-		var growth := "" if c.population >= cap else ", croissance %d %%" % (100 * c.growth / Economy.growth_threshold(c.population))
-		lines.append("%s de %s : %d/%d pop%s" % [kind_label, owner.short_name(), c.population, cap, growth])
-	else:
-		lines.append("%s de %s" % [kind_label, owner.short_name()])
-	if not c.buildings.is_empty():
-		var names := PackedStringArray()
-		for b in c.buildings:
-			names.append(String(GameData.building(b).get("label", b)))
-		lines.append("Bâtiments (%d/%d) : %s" % [Economy.building_slots_used(c), Economy.building_slots(_state, c), ", ".join(names)])
-	if c.construction != "":
-		lines.append("Chantier : %s (%d j)" % [GameData.building(c.construction).get("label", c.construction), c.construction_days])
-	if c.owner == _player:
-		var y := Economy.colony_yields(_state, c)
-		var net := {}
-		for r in y["gross"]:
-			net[r] = int(y["gross"][r]) - int(y["upkeep"][r])
-		lines.append("Par mois (avant bonus) : %s" % GameData.format_amounts(net, true))
-	return lines
-
-
-func _claim_button(p: Planet, kind: String) -> Button:
-	var b := Button.new()
-	b.focus_mode = Control.FOCUS_NONE
-	var cost := GameData.format_amounts(Economy.claim_cost(kind))
-	var upgrade: bool = _state.colonies.has(p.id)
-	b.text = "%s (%s)" % ["Fonder une colonie" if upgrade else ("Coloniser" if kind == Colony.KIND_COLONY else "Avant-poste"), cost]
-	var reason := SimCommands.validate(_state, SimCommands.colonize(_player, p.id, kind))
-	b.disabled = reason != ""
-	b.tooltip_text = reason if reason != "" else "%d jours. %s" % [Economy.claim_days(kind),
-			"Une colonie accueille une population." if kind == Colony.KIND_COLONY else "Un avant-poste revendique le système et exploite la planète, sans population."]
-	b.pressed.connect(func() -> void: colonize_requested.emit(p.id, kind))
-	return b
-
-
-func _build_menu(p: Planet) -> MenuButton:
-	var menu := MenuButton.new()
-	menu.text = "Construire…"
-	menu.flat = false
-	menu.focus_mode = Control.FOCUS_NONE
-	var popup := menu.get_popup()
-	var ids: Array[String] = []
-	for bid in GameData.buildings():
-		var b := GameData.building(bid)
-		if not b.get("buildable", true):
-			continue
-		var reason := SimCommands.validate(_state, SimCommands.build(_player, p.id, bid))
-		var gain := GameData.format_amounts(b.get("yields", {}), true)
-		if b.has("max_pop"):
-			gain = "+%d pop max" % int(b["max_pop"])
-		popup.add_item("%s : %s, %d j (%s)" % [b["label"], GameData.format_amounts(b.get("cost", {})), int(b["days"]), gain], ids.size())
-		var idx := popup.item_count - 1
-		popup.set_item_disabled(idx, reason != "")
-		popup.set_item_tooltip(idx, reason)
-		ids.append(bid)
-	popup.id_pressed.connect(func(id: int) -> void: build_requested.emit(p.id, ids[id]))
-	popup.popup_hide.connect(func() -> void: _refresh_pending = true)
-	_build_menus.append(menu)
-	return menu
-
-
-func _menu_open() -> bool:
-	for m in _build_menus:
-		if is_instance_valid(m) and m.get_popup().visible:
-			return true
-	return false
-
-
-func _submit_rename() -> void:
-	var new_name := _name_edit.text.strip_edges()
-	if _system_id < 0 or new_name.is_empty():
-		return
-	rename_requested.emit(_system_id, new_name)
-	_name_edit.text = ""
-	_name_edit.release_focus()
+		var p := galaxy.get_planet(pid)
+		lines.append("%s  ·  %s  ·  %s" % [p.display_name(galaxy), p.type_label(), PlanetInfo.status_line(_state, p)])
+	_planet_label.text = "\n".join(lines) if not lines.is_empty() else "Aucune planète."
 
 
 func _panel_style() -> StyleBoxFlat:
