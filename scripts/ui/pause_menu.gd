@@ -29,6 +29,8 @@ const SHORTCUT_GROUPS := [
 	["Flottes", [
 		["Clic sur un chevron", "Sélectionner une flotte"],
 		["F / Maj+F", "Flotte suivante / précédente"],
+		["I / Maj+I", "Flotte inactive suivante / précédente"],
+		["E", "Exploration automatique de la flotte"],
 		["Clic droit", "Envoyer la flotte vers le système visé"],
 		["Échap", "Désélectionner la flotte"],
 	]],
