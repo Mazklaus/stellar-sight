@@ -25,6 +25,13 @@ func _ready() -> void:
 	_info_panel.offset_right = -16.0
 	_info_panel.offset_top = 56.0
 	_info_panel.visible = false
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.05, 0.06, 0.1, 0.94)
+	panel_style.border_color = Color(0.55, 0.7, 1.0, 0.35)
+	panel_style.set_border_width_all(1)
+	panel_style.set_corner_radius_all(4)
+	panel_style.set_content_margin_all(12)
+	_info_panel.add_theme_stylebox_override("panel", panel_style)
 	add_child(_info_panel)
 	_info_label = Label.new()
 	_info_label.custom_minimum_size = Vector2(300, 0)

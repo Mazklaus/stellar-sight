@@ -2,6 +2,8 @@
 
 Premier prototype du 4X spatial Stellar Sigth, pour **Godot 4.7**. Il couvre l'étape 1 de la première version : génération d'une galaxie spirale de 150 systèmes, routes de saut, caméra, sélection d'un système et horloge en temps réel pausable.
 
+![Aperçu de la galaxie](docs/apercu-galaxie.png)
+
 ## Lancer le prototype
 
 1. Copier le dossier `stellar-sigth` sur ton PC.
@@ -47,7 +49,16 @@ Principes :
 - **Un jour de jeu = un tick de simulation**, à pas fixe, indépendant de la cadence d'affichage.
 - **La vue ne modifie jamais la simulation**, elle la lit seulement.
 
+## Tests
+
+Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, Échap, R) :
+
+```
+godot --headless --path . -s res://tests/smoke_test.gd
+```
+
+Il affiche `OK : N vérifications passées.` et renvoie le code 0 si tout passe, 1 sinon.
+
 ## Limites connues
 
-- Le prototype a été écrit sans pouvoir être lancé dans Godot de mon côté : la syntaxe a été vérifiée avec un analyseur GDScript, mais pas l'exécution. Signale-moi toute erreur affichée dans la console de Godot.
 - Pas encore de gameplay : c'est l'étape 2 (empires, brouillard de guerre, colonisation).

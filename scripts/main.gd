@@ -48,7 +48,7 @@ func _process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	var mb := event as InputEventMouseButton
 	if mb and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
-		var id := _pick_system()
+		var id := _pick_system_at(mb.position)
 		_view.selected_id = id
 		_view.queue_redraw()
 		_hud.show_system(galaxy.get_system(id), galaxy)
@@ -82,3 +82,9 @@ func _speed_from_key(key: InputEventKey) -> int:
 
 func _pick_system() -> int:
 	return galaxy.find_nearest(get_global_mouse_position(), PICK_RADIUS_PX / _camera.zoom.x)
+
+
+## Système sous une position écran (celle d'un événement de clic, par exemple).
+func _pick_system_at(screen_pos: Vector2) -> int:
+	var world_pos := get_viewport().get_canvas_transform().affine_inverse() * screen_pos
+	return galaxy.find_nearest(world_pos, PICK_RADIUS_PX / _camera.zoom.x)
