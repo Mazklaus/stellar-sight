@@ -8,9 +8,14 @@ const SAVE_DIR := "user://saves"
 const QUICKSAVE_PATH := "user://saves/quicksave.json"
 
 static var last_error := ""
+## Réglages de l'horloge lus par le dernier load_state() réussi ({"mode": "realtime"|"turns",
+## "turn_days": int}), vide si la sauvegarde n'en contient pas (anciennes sauvegardes).
+static var last_clock := {}
 
 
-static func save_state(state: GameState, path: String = QUICKSAVE_PATH) -> Error:
+## clock : façon de jouer (temps réel ou tour par tour), rangée à côté de l'état car ce n'est
+## pas une donnée de simulation (elle n'entre pas dans l'empreinte).
+static func save_state(state: GameState, path: String = QUICKSAVE_PATH, clock := {}) -> Error:
 	last_error = ""
 	var dir_err := DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	if dir_err != OK:
@@ -23,6 +28,8 @@ static func save_state(state: GameState, path: String = QUICKSAVE_PATH) -> Error
 		"checksum": state.checksum(),
 		"state": state.to_dict(),
 	}
+	if not clock.is_empty():
+		data["clock"] = clock
 	# Écriture dans un fichier temporaire puis renommage : une coupure pendant
 	# l'écriture n'abîme pas la sauvegarde précédente.
 	var tmp_path := path + ".tmp"
@@ -41,6 +48,7 @@ static func save_state(state: GameState, path: String = QUICKSAVE_PATH) -> Error
 ## Charge une sauvegarde. Renvoie null en cas d'échec (détail dans SaveGame.last_error).
 static func load_state(path: String = QUICKSAVE_PATH) -> GameState:
 	last_error = ""
+	last_clock = {}
 	if not FileAccess.file_exists(path):
 		last_error = "aucune sauvegarde"
 		return null
@@ -57,6 +65,8 @@ static func load_state(path: String = QUICKSAVE_PATH) -> GameState:
 	if state.checksum() != String(parsed.get("checksum", "")):
 		last_error = "sauvegarde abîmée (empreinte différente)"
 		return null
+	if parsed.get("clock") is Dictionary:
+		last_clock = parsed["clock"]
 	return state
 
 

@@ -14,7 +14,7 @@ Premier prototype du 4X spatial Stellar Sigth, pour **Godot 4.7**. Il couvre l'�
 
 | Action | Commande |
 | --- | --- |
-| Pause / reprise | Espace, ou le centre du cadran du temps (en bas à droite) |
+| Pause / reprise (tour par tour : fin de tour) | Espace, ou le centre du cadran du temps (en bas à droite) |
 | Vitesse 1 à 5 | Touches 1 à 5 (rangée du haut ou pavé numérique), ou les crans du cadran |
 | Sélectionner un système | Clic gauche (le survol l'affiche dans la fiche en bas à gauche) |
 | Lentille économique | L, ou l'onglet « Lentille économique » en haut |
@@ -46,6 +46,7 @@ La disposition reprend celle d'Endless Space 2, sans rien lui emprunter (dessins
 - **Onglets de vue** en haut au centre : Vue galaxie, Lentille économique (la carte s'assombrit et seuls vos systèmes restent, avec leur bilan par ressource), et Gestion du système (×) quand un système est ouvert.
 - **Fiche de sélection** en bas à gauche : une vignette de l'étoile, le nom, le propriétaire, une pastille par planète (cerclée de la couleur du propriétaire), une ligne d'ambiance et le bouton pour entrer dans le système. Elle montre le système survolé, sinon le système choisi.
 - **Cadran du temps** en bas à droite, à la place du bouton de fin de tour : le centre met en pause, la date est dessous, les cinq crans de l'arc règlent la vitesse.
+- **Tour par tour au choix** (ligne « Temps » de la nouvelle partie : temps réel pausable, ou tours de 5, 10 ou 30 jours). Au tour par tour, le temps est arrêté pendant qu'on donne ses ordres ; le cadran devient un bouton « Fin de tour » (Espace) qui fait défiler les jours du tour en accéléré, avec la progression sur l'anneau, puis s'arrête au tour suivant. La simulation ne fait aucune différence entre les deux modes (un tour = N ticks ordinaires) : mêmes règles, même déterminisme, et le choix est rangé dans la sauvegarde. En multijoueur, le plan est celui des tours simultanés d'Endless Space 2 : l'hôte lance la fin de tour quand tous les joueurs ont terminé.
 - **Étiquettes de systèmes** sur la carte : un cartouche sombre souligné de la couleur du propriétaire, et les pastilles des planètes pour vos systèmes et la sélection.
 - **Écrans d'empire** en plein écran, comme dans Endless Space 2 : la carte s'efface derrière un voile, le panneau d'empire et le cadran restent, un onglet en haut au centre nomme l'écran et le ferme, une colonne à gauche résume, et le contenu se range en blocs titrés.
   - **Économie** : bilan des ressources (stock, production, entretien, bilan, tendance), anneau de répartition de la production, production par système (un clic ouvre le système), alertes. La colonne montre votre peuple et ses chiffres clés.
@@ -135,7 +136,7 @@ scripts/
       economy_system.gd   Fondations, chantiers, croissance chaque jour ; bilan chaque mois
       fleet_system.gd     Chantiers spatiaux, déplacements, exploration et premiers contacts
       chronicle_system.gd Petits événements racontés par le chroniqueur
-    game_clock.gd         Horloge (autoload GameClock) : pilote la simulation en temps réel, pause, 5 vitesses
+    game_clock.gd         Horloge (autoload GameClock) : pilote la simulation en temps réel (pause, 5 vitesses) ou au tour par tour
   view/                   Affichage 2D (sera remplacé par la 2,5D)
     galaxy_view.gd        Dessin des étoiles, routes, sélection, noms
     galaxy_camera.gd      Zoom et déplacement
@@ -144,7 +145,7 @@ scripts/
     ui_theme.gd           Thème visuel : palette, polices, panneaux plats, styles nommés
     hud.gd                Interface en jeu : onglets de vue, fiche de sélection, notifications, chronique, cadran
     empire_bar.gd         Panneau d'empire (menus, ressources, ligne d'état)
-    time_dial.gd          Cadran du temps (pause, date, vitesse)
+    time_dial.gd          Cadran du temps (pause, date, vitesse ; fin de tour au tour par tour)
     empire_screens.gd     Écrans d'empire plein écran : Économie, Colonies, Recherche, Diplomatie
     main_menu.gd          Menu principal et choix de la faction
     pause_menu.gd         Menu du jeu et liste des raccourcis
