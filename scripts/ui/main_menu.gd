@@ -10,6 +10,9 @@ signal continue_requested
 signal quit_requested
 
 const TAGLINE := "Chronique d'une galaxie qui n'avait rien demandé"
+const NEWS := "Prototype : galaxie, économie et colonisation jouables. Recherche et diplomatie en préparation."
+## Rayon de la planète de l'accueil, en part de la hauteur de l'écran.
+const PLANET_RADIUS := 0.6
 const TILE_SIZE := Vector2(150, 270)
 ## Case « Au hasard » du choix de faction : un peuple est tiré au lancement.
 const RANDOM_FACTION := "random"
@@ -19,7 +22,15 @@ const TYPE_LABELS := {"continental": "continental", "ocean": "océanique", "dese
 var page := "home"
 var selected_faction := ""
 
-var _home: VBoxContainer
+var _home: Control
+var _items: Array[Widgets.OrbitMenuItem] = []
+var _planet: ColorRect
+var _orbits: Control
+var _logo: Widgets.TitleRing
+var _halo: TextureRect
+var _tagline: Label
+var _hint: PanelContainer
+var _hint_label: Label
 var _resume: Button
 var _continue: Button
 var _new_page: Control
@@ -30,12 +41,11 @@ var _faction_registre: Label
 var _faction_worlds: Label
 var _faction_lore: Label
 var _lore_header: Label
-var _options_page: PanelContainer
+var _options_page: Control
 var _options: OptionsPanel
 var _faction_cards := {}
 var _faction_trait: Label
 var _seed_edit: LineEdit
-var _title_block: VBoxContainer
 
 
 func _ready() -> void:
@@ -51,12 +61,16 @@ func _ready() -> void:
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	backdrop.visible = backdrop.has_art()
 	root.add_child(backdrop)
-	# Voile sombre à gauche pour la lisibilité, la galaxie reste visible à droite.
+	# Accueil, sur le modèle des 4X « épurés » : une grande planète à gauche, les entrées posées le
+	# long de son orbite, l'emblème-titre à droite, sur la galaxie qui dérive.
+	_home = Control.new()
+	_home.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_home.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_home)
 	var shade := TextureRect.new()
 	var grad := Gradient.new()
-	grad.set_color(0, Color(0.0, 0.005, 0.02, 0.95))
-	grad.set_color(1, Color(0.0, 0.005, 0.02, 0.15))
-	grad.add_point(0.45, Color(0.0, 0.005, 0.02, 0.75))
+	grad.set_color(0, Color(0.0, 0.005, 0.02, 0.8))
+	grad.set_color(1, Color(0.0, 0.005, 0.02, 0.1))
 	var gtex := GradientTexture2D.new()
 	gtex.gradient = grad
 	gtex.fill_to = Vector2(1, 0)
@@ -64,44 +78,71 @@ func _ready() -> void:
 	shade.stretch_mode = TextureRect.STRETCH_SCALE
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(shade)
+	_home.add_child(shade)
+	_planet = ColorRect.new()
+	_planet.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var world := Planet.new()
+	world.type = "continental"
+	world.id = 7
+	world.system_id = 3
+	var mat := SystemView.make_planet_material(world)
+	mat.set_shader_parameter("light_dir", Vector3(0.92, -0.3, 0.35))
+	mat.set_shader_parameter("spin", 0.006)
+	mat.set_shader_parameter("relief_scale", 4.2)
+	_planet.material = mat
+	_home.add_child(_planet)
+	_orbits = Control.new()
+	_orbits.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_orbits.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_orbits.draw.connect(_draw_orbits)
+	_home.add_child(_orbits)
 
-	_title_block = VBoxContainer.new()
-	_title_block.position = Vector2(96, 120)
-	_title_block.add_theme_constant_override("separation", 0)
-	_title_block.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(_title_block)
-	var title := Label.new()
-	title.text = "STELLAR SIGTH"
-	title.add_theme_font_override("font", UiTheme.font(200, 14))
-	title.add_theme_font_size_override("font_size", 86)
-	title.add_theme_color_override("font_color", Color(0.95, 0.97, 1.0))
-	title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.6))
-	title.add_theme_constant_override("shadow_offset_y", 2)
-	_title_block.add_child(title)
-	var line := ColorRect.new()
-	line.color = Color(1, 1, 1, 0.35)
-	line.custom_minimum_size = Vector2(640, 1)
-	line.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	_title_block.add_child(line)
-	var gap := Control.new()
-	gap.custom_minimum_size = Vector2(0, 10)
-	_title_block.add_child(gap)
-	var tag := UiTheme.dim(TAGLINE.to_upper(), 14)
-	tag.add_theme_font_override("font", UiTheme.font(400, 4))
-	_title_block.add_child(tag)
+	# Halo sombre derrière l'emblème, pour qu'il se lise par-dessus la galaxie.
+	_halo = TextureRect.new()
+	var hgrad := Gradient.new()
+	hgrad.set_color(0, Color(0.0, 0.005, 0.02, 0.85))
+	hgrad.set_color(1, Color(0.0, 0.005, 0.02, 0.0))
+	var htex := GradientTexture2D.new()
+	htex.gradient = hgrad
+	htex.fill = GradientTexture2D.FILL_RADIAL
+	htex.fill_from = Vector2(0.5, 0.5)
+	htex.fill_to = Vector2(1.0, 0.5)
+	_halo.texture = htex
+	_halo.stretch_mode = TextureRect.STRETCH_SCALE
+	_halo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_home.add_child(_halo)
+	_logo = Widgets.TitleRing.new(170)
+	_home.add_child(_logo)
+	_tagline = UiTheme.dim(TAGLINE.to_upper(), 13)
+	_tagline.add_theme_font_override("font", UiTheme.font(400, 4))
+	_tagline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_home.add_child(_tagline)
 
-	_home = VBoxContainer.new()
-	_home.position = Vector2(96, 340)
-	_home.custom_minimum_size = Vector2(360, 0)
-	_home.add_theme_constant_override("separation", 10)
-	root.add_child(_home)
-	_resume = _menu_button("Reprendre la partie", func() -> void: resume_requested.emit())
-	_continue = _menu_button("Continuer", func() -> void: continue_requested.emit())
-	_menu_button("Nouvelle partie", func() -> void: show_page("new"))
-	_menu_button("Options", func() -> void: show_page("options"))
-	_menu_button("Quitter", func() -> void: quit_requested.emit())
+	_resume = _menu_button("resume", "Reprendre la partie", "Revenir à la partie en cours, là où le temps s'est arrêté.", func() -> void: resume_requested.emit())
+	_continue = _menu_button("load", "Continuer", "", func() -> void: continue_requested.emit())
+	_menu_button("new", "Nouvelle partie", "Choisir un peuple et lancer une nouvelle galaxie.", func() -> void: show_page("new"))
+	_menu_button("options", "Options", "Affichage, partie et commandes.", func() -> void: show_page("options"))
+	_menu_button("quit", "Quitter", "Retourner au bureau. La galaxie attendra.", func() -> void: quit_requested.emit())
+	_hint = PanelContainer.new()
+	_hint.add_theme_stylebox_override("panel", UiTheme.box(Color(0.02, 0.03, 0.05, 0.92), Color(1, 1, 1, 0.12), 8, 1))
+	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hint.visible = false
+	_home.add_child(_hint)
+	_hint_label = UiTheme.paragraph("", 260, 14)
+	_hint.add_child(_hint_label)
 
+	var news := HBoxContainer.new()
+	news.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	news.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	news.offset_top = -36
+	news.offset_bottom = -12
+	news.add_theme_constant_override("separation", 10)
+	news.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_home.add_child(news)
+	var bullet := Widgets.Dot.new(UiTheme.ACCENT, 8)
+	bullet.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	news.add_child(bullet)
+	news.add_child(UiTheme.dim(NEWS, 14))
 	var version := UiTheme.dim("Prototype  ·  Godot 4.7", 13)
 	version.anchor_left = 1.0
 	version.anchor_right = 1.0
@@ -111,13 +152,39 @@ func _ready() -> void:
 	version.offset_right = -20
 	version.offset_top = -34
 	version.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	root.add_child(version)
+	_home.add_child(version)
+	root.resized.connect(_layout_home)
+	_layout_home.call_deferred()
 
 	_build_new_page(root)
-	_options_page = _window(root, Vector2(520, 340))
+	# Options en plein écran : la galaxie floute sous un voile, la page est centrée.
+	_options_page = Control.new()
+	_options_page.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_options_page.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.add_child(_options_page)
+	var veil := ColorRect.new()
+	veil.color = Color(0.01, 0.02, 0.035, 0.88)
+	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_options_page.add_child(veil)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_options_page.add_child(center)
+	center.anchor_bottom = 0.9
 	_options = OptionsPanel.new()
 	_options.back_requested.connect(func() -> void: show_page("home"))
-	_options_page.add_child(_options)
+	center.add_child(_options)
+	# Boutons ronds dans les coins bas de l'écran, comme sur les grandes pages de réglages.
+	var foot := _options.footer
+	foot.get_parent().remove_child(foot)
+	foot.anchor_top = 1.0
+	foot.anchor_bottom = 1.0
+	foot.anchor_right = 1.0
+	foot.offset_left = 28
+	foot.offset_right = -32
+	foot.offset_top = -80
+	foot.offset_bottom = -24
+	_options_page.add_child(foot)
 	show_page("home")
 
 
@@ -126,9 +193,10 @@ func open(can_resume: bool, has_save: bool, save_label := "") -> void:
 	_resume.visible = can_resume
 	_continue.visible = not can_resume
 	_continue.disabled = not has_save
-	_continue.tooltip_text = "Charger la sauvegarde rapide (%s)" % save_label if has_save else "Aucune sauvegarde pour l'instant."
+	_continue.description = "Charger la sauvegarde rapide (%s)." % save_label if has_save else "Aucune sauvegarde pour l'instant."
 	visible = true
 	show_page("home")
+	_layout_home()
 
 
 func close() -> void:
@@ -142,7 +210,6 @@ func is_open() -> bool:
 func show_page(name: String) -> void:
 	page = name
 	_home.visible = name == "home"
-	_title_block.visible = name == "home"
 	_new_page.visible = name == "new"
 	_options_page.visible = name == "options"
 	if name == "options":
@@ -442,23 +509,75 @@ func _bottom_block(parent: Control, heading: String, width: float, padding := 14
 	return body
 
 
-func _menu_button(text: String, action: Callable) -> Button:
-	var b := Button.new()
-	b.theme_type_variation = &"MenuItem"
-	b.text = text
-	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	b.focus_mode = Control.FOCUS_NONE
-	b.custom_minimum_size = Vector2(360, 54)
+func _menu_button(glyph: String, text: String, desc: String, action: Callable) -> Widgets.OrbitMenuItem:
+	var b := Widgets.OrbitMenuItem.new(glyph, text, desc)
 	b.pressed.connect(action)
+	b.mouse_entered.connect(func() -> void: _show_hint(b))
+	b.mouse_exited.connect(func() -> void: _hint.visible = false)
 	_home.add_child(b)
+	_items.append(b)
 	return b
 
 
-func _window(root: Control, win_size: Vector2) -> PanelContainer:
-	var w := PanelContainer.new()
-	w.theme_type_variation = &"WindowPanel"
-	w.position = Vector2(96, 110)
-	w.custom_minimum_size = win_size
-	w.visible = false
-	root.add_child(w)
-	return w
+## Petite bulle d'aide à droite de l'entrée survolée.
+func _show_hint(b: Widgets.OrbitMenuItem) -> void:
+	if b.description == "":
+		return
+	_hint_label.text = b.description
+	_hint.reset_size()
+	_hint.position = b.position + Vector2(b.DIAMETER + 40.0, b.size.y - 4.0)
+	_hint.visible = true
+
+
+## Centre et rayon de la grande planète, selon la taille de l'écran.
+func _planet_geometry() -> Array:
+	var vs := _home.size if _home.size.y > 0 else Vector2(1600, 900)
+	var r := vs.y * PLANET_RADIUS
+	var c := Vector2(-r * 0.42, vs.y * 0.5)
+	return [c, r, vs]
+
+
+## Place la planète, les entrées sur leur orbite et l'emblème (à chaque redimensionnement).
+func _layout_home() -> void:
+	if _home == null:
+		return
+	var g := _planet_geometry()
+	var c: Vector2 = g[0]
+	var r: float = g[1]
+	var vs: Vector2 = g[2]
+	var body := float((_planet.material as ShaderMaterial).get_shader_parameter("body"))
+	var side := r / body * 2.0
+	_planet.size = Vector2(side, side)
+	_planet.position = c - _planet.size * 0.5
+	var orbit := r + vs.y * 0.09
+	var shown: Array[Widgets.OrbitMenuItem] = []
+	for b in _items:
+		if b.visible:
+			shown.append(b)
+	var step := vs.y * 0.115
+	for i in shown.size():
+		var y := c.y + (float(i) - float(shown.size() - 1) * 0.5) * step
+		var dy := y - c.y
+		var x := c.x + sqrt(maxf(0.0, orbit * orbit - dy * dy))
+		var b := shown[i]
+		b.size = b.custom_minimum_size
+		b.position = Vector2(x - b.DIAMETER * 0.5 - 2.0, y - b.size.y * 0.5)
+	_logo.size = _logo.custom_minimum_size
+	_halo.size = Vector2(760, 760)
+	_halo.position = Vector2(vs.x * 0.66, vs.y * 0.47) - _halo.size * 0.5
+	_logo.position = Vector2(vs.x * 0.66, vs.y * 0.45) - _logo.size * 0.5
+	_tagline.size = Vector2(600, 20)
+	_tagline.position = Vector2(vs.x * 0.66 - 300.0, vs.y * 0.45 + _logo.radius + 48.0)
+	_orbits.queue_redraw()
+
+
+## Fines orbites autour de la planète, dont celle qui porte les entrées.
+func _draw_orbits() -> void:
+	var g := _planet_geometry()
+	var c: Vector2 = g[0]
+	var r: float = g[1]
+	var vs: Vector2 = g[2]
+	_orbits.draw_arc(c, r + vs.y * 0.09, -PI * 0.5, PI * 0.5, 160, Color(1, 1, 1, 0.22), 1.2, true)
+	_orbits.draw_arc(c, r + vs.y * 0.2, -PI * 0.5, PI * 0.5, 160, Color(1, 1, 1, 0.08), 1.0, true)
+	_orbits.draw_arc(c, r * 1.01, -PI * 0.5, PI * 0.5, 160, Color(0.55, 0.8, 1.0, 0.18), 2.0, true)
+

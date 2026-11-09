@@ -355,6 +355,10 @@ class RoundButton:
 			"plus":
 				draw_line(c + Vector2(-s, 0), c + Vector2(s, 0), col, 2.0, true)
 				draw_line(c + Vector2(0, -s), c + Vector2(0, s), col, 2.0, true)
+			"reset":
+				draw_arc(c, s, -PI * 0.35, PI * 1.45, 28, col, 2.0, true)
+				var tip := c + Vector2(cos(-PI * 0.35), sin(-PI * 0.35)) * s
+				draw_polyline(PackedVector2Array([tip + Vector2(-s * 0.55, -s * 0.05), tip, tip + Vector2(-s * 0.05, s * 0.55)]), col, 2.0, true)
 		var f := get_theme_font("font")
 		var fs := get_theme_font_size("font_size")
 		var ty := size.y * 0.5 + f.get_ascent(fs) * 0.5 - 2.0
@@ -446,3 +450,121 @@ class Donut:
 		var nf := UiTheme.font(300)
 		var vw := nf.get_string_size(center_value, HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x
 		draw_string(nf, c + Vector2(-vw * 0.5, 24), center_value, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, UiTheme.TEXT)
+
+
+## Entrée du menu principal : pictogramme dans un cercle, libellé en capitales sur un bandeau
+## translucide qui s'efface vers la droite. Les entrées se posent le long d'une orbite.
+## glyph : "new", "load", "resume", "options", "quit".
+class OrbitMenuItem:
+	extends Button
+	const DIAMETER := 52.0
+	var glyph := "new"
+	var label_text := ""
+	## Phrase d'aide affichée à côté de l'entrée survolée.
+	var description := ""
+
+	func _init(g := "new", text_value := "", desc := "") -> void:
+		glyph = g
+		label_text = text_value.to_upper()
+		description = desc
+		focus_mode = Control.FOCUS_NONE
+		flat = true
+		var f := UiTheme.font(400, 1)
+		add_theme_font_override("font", f)
+		add_theme_font_size_override("font_size", 22)
+		custom_minimum_size = Vector2(DIAMETER + 300.0, DIAMETER + 8.0)
+		mouse_entered.connect(queue_redraw)
+		mouse_exited.connect(queue_redraw)
+
+	func _draw() -> void:
+		var hot := is_hovered() and not disabled
+		var col := UiTheme.TEXT
+		if disabled:
+			col = Color(UiTheme.TEXT, 0.32)
+		elif hot:
+			col = UiTheme.ACCENT.lightened(0.25)
+		var c := Vector2(DIAMETER * 0.5 + 2.0, size.y * 0.5)
+		var r := DIAMETER * 0.5
+		# Bandeau du libellé.
+		var band := Rect2(c.x, c.y - 24.0, size.x - c.x, 48.0)
+		var a0 := 0.42 if hot else 0.26
+		draw_polygon(PackedVector2Array([band.position, Vector2(band.end.x, band.position.y), band.end, Vector2(band.position.x, band.end.y)]),
+				PackedColorArray([Color(0.08, 0.12, 0.16, a0), Color(0.08, 0.12, 0.16, 0.0), Color(0.08, 0.12, 0.16, 0.0), Color(0.08, 0.12, 0.16, a0)]))
+		draw_circle(c, r, Color(0.02, 0.04, 0.06, 0.85))
+		if hot:
+			draw_circle(c, r, Color(UiTheme.ACCENT, 0.16))
+		draw_arc(c, r, 0.0, TAU, 56, Color(col, 0.6 if not hot else 0.95), 1.3, true)
+		var s := r * 0.38
+		var w := 1.8
+		match glyph:
+			"new":
+				draw_rect(Rect2(c + Vector2(-s, -s * 0.7), Vector2(s * 1.7, s * 1.6)), col, false, w)
+				draw_line(c + Vector2(s * 0.55, -s * 1.15), c + Vector2(s * 0.55, -s * 0.25), col, w, true)
+				draw_line(c + Vector2(s * 0.1, -s * 0.7), c + Vector2(s, -s * 0.7), col, w, true)
+			"load":
+				draw_line(c + Vector2(0, -s), c + Vector2(0, s * 0.4), col, w, true)
+				draw_polyline(PackedVector2Array([c + Vector2(-s * 0.55, -s * 0.1), c + Vector2(0, s * 0.45), c + Vector2(s * 0.55, -s * 0.1)]), col, w, true)
+				draw_polyline(PackedVector2Array([c + Vector2(-s, s * 0.3), c + Vector2(-s, s), c + Vector2(s, s), c + Vector2(s, s * 0.3)]), col, w, true)
+			"resume":
+				draw_colored_polygon(PackedVector2Array([c + Vector2(-s * 0.6, -s), c + Vector2(s, 0), c + Vector2(-s * 0.6, s)]), col)
+			"options":
+				draw_arc(c, s * 0.42, 0.0, TAU, 20, col, w, true)
+				for i in 8:
+					var a := TAU * i / 8.0
+					draw_line(c + Vector2(cos(a), sin(a)) * s * 0.72, c + Vector2(cos(a), sin(a)) * s * 1.1, col, w + 0.8, true)
+				draw_arc(c, s * 0.78, 0.0, TAU, 28, col, w, true)
+			"quit":
+				draw_polyline(PackedVector2Array([c + Vector2(s * 0.3, -s), c + Vector2(-s * 0.8, -s), c + Vector2(-s * 0.8, s), c + Vector2(s * 0.3, s)]), col, w, true)
+				draw_line(c + Vector2(-s * 0.2, 0), c + Vector2(s * 1.05, 0), col, w, true)
+				draw_polyline(PackedVector2Array([c + Vector2(s * 0.6, -s * 0.45), c + Vector2(s * 1.05, 0), c + Vector2(s * 0.6, s * 0.45)]), col, w, true)
+		var f := get_theme_font("font")
+		var fs := get_theme_font_size("font_size")
+		draw_string(f, Vector2(DIAMETER + 18.0, c.y + f.get_ascent(fs) * 0.36), label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
+
+
+## Emblème-titre du menu principal : un anneau fin, deux arcs hachurés, un cercle pointillé et
+## un petit cercle satellite autour du nom du jeu en lettres très espacées.
+class TitleRing:
+	extends Control
+	var lines: Array[String] = ["STELLAR", "SIGTH"]
+	var radius := 180.0
+	var _t := 0.0
+
+	func _init(r := 180.0) -> void:
+		radius = r
+		custom_minimum_size = Vector2(r * 2.6, r * 2.6)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _process(delta: float) -> void:
+		_t += delta
+		queue_redraw()
+
+	func _draw() -> void:
+		var c := size * 0.5
+		var r := radius
+		var line := Color(UiTheme.ACCENT.lightened(0.35), 0.75)
+		draw_arc(c, r, 0.0, TAU, 128, line, 1.4, true)
+		# Arcs hachurés, qui tournent très lentement.
+		var rot := _t * 0.03
+		for span in [[-0.55, 0.62], [2.45, 3.62]]:
+			var a0: float = span[0] + rot
+			var a1: float = span[1] + rot
+			var n := 46
+			for i in n:
+				var a := lerpf(a0, a1, float(i) / float(n - 1))
+				var d := Vector2(cos(a), sin(a))
+				draw_line(c + d * (r + 12.0), c + d * (r + 26.0), Color(line, 0.65), 1.6, true)
+		# Cercle pointillé intérieur.
+		for i in 60:
+			var a := TAU * i / 60.0 - rot * 2.0
+			draw_circle(c + Vector2(cos(a), sin(a)) * (r * 0.72), 1.4, Color(1, 1, 1, 0.5))
+		# Satellite.
+		var sa := 0.75 + rot * 0.5
+		draw_arc(c + Vector2(cos(sa), sin(sa)) * r, r * 0.27, 0.0, TAU, 64, Color(1, 1, 1, 0.8), 1.4, true)
+		var f := UiTheme.font(300, 22)
+		var fs := int(r * 0.24)
+		var total := lines.size() * fs * 1.45
+		for i in lines.size():
+			var w := f.get_string_size(lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+			var y := c.y - total * 0.5 + (i + 0.8) * fs * 1.45
+			draw_string(f, Vector2(c.x - w * 0.5 + 11.0, y), lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.88, 0.95, 1.0, 0.95))

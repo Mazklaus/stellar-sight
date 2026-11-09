@@ -496,6 +496,27 @@ func _test_navigation_ui(main: Node) -> void:
 	await process_frame
 	var menu: MainMenu = main._main_menu
 	_check(menu.is_open() and not hud.visible and menu._resume.visible, "menu principal : la partie en cours peut reprendre")
+	_check(not menu._continue.visible and menu._items.size() == 5, "accueil : Reprendre remplace Continuer")
+	menu._layout_home()
+	var geo: Array = menu._planet_geometry()
+	var orbit_r: float = geo[1] + geo[2].y * 0.09
+	var orbit_ok := true
+	for it in menu._items:
+		var pin: Vector2 = it.position + Vector2(it.DIAMETER * 0.5 + 2.0, it.size.y * 0.5)
+		if it.visible and absf(pin.distance_to(geo[0]) - orbit_r) > 1.0:
+			orbit_ok = false
+	_check(orbit_ok, "les entrées sont posées sur l'orbite de la planète")
+	menu.show_page("options")
+	menu._options.show_tab("controls")
+	_check(menu._options_page.visible and menu._options._pages["controls"].visible and not menu._options._pages["display"].visible, "options : onglet Commandes")
+	var was_auto := UiSettings.auto_pause_menus
+	menu._options._auto_pause.pressed.emit()
+	_check(UiSettings.auto_pause_menus != was_auto and menu._options._auto_pause.text == ("Activé" if UiSettings.auto_pause_menus else "Désactivé"), "options : la case suit le réglage")
+	menu._options._scale.pressed.emit()
+	_check(is_equal_approx(root.content_scale_factor, 1.25) and menu._options._scale.text == "125 %", "options : échelle de l'interface")
+	menu._options.reset_defaults()
+	_check(not UiSettings.auto_pause_menus and is_equal_approx(root.content_scale_factor, 1.0), "options : valeurs par défaut")
+	menu.show_page("home")
 	_press(KEY_ESCAPE)
 	_check(not menu.is_open() and hud.visible, "Échap reprend la partie")
 	main.open_main_menu()
