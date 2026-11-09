@@ -13,6 +13,7 @@ signal close_requested
 signal rename_requested(system_id: int, new_name: String)
 signal colonize_requested(planet_id: int, kind: String)
 signal build_requested(planet_id: int, building_id: String)
+signal build_ship_requested(planet_id: int, ship_id: String)
 ## Passer au système suivant (1) ou précédent (-1) de l'empire.
 signal cycle_requested(step: int)
 ## La vue affichée a changé : gestion (true) ou orbitale (false). Les onglets du HUD suivent.
@@ -241,6 +242,12 @@ func _refresh_header(s: StarSystem) -> void:
 	parts.append("%d planète%s" % [s.planet_count, "s" if s.planet_count > 1 else ""] if s.planet_count > 0 else "aucune planète")
 	parts.append("Système de %s" % owner.display_name() if owner else "Système libre")
 	parts.append("à portée" if Economy.in_range(_state, _player, s.id) else "hors de portée")
+	var names := PackedStringArray()
+	for f in Fleets.fleets_at(_state, s.id):
+		if f.owner == _player or Fleets.fleet_visible(_state, _player, f, Fleets.visible_systems(_state, _player)):
+			names.append(f.fleet_name if f.owner == _player else "%s (%s)" % [f.fleet_name, _state.get_empire(f.owner).short_name()])
+	if not names.is_empty():
+		parts.append("en orbite : %s" % ", ".join(names))
 	_subtitle.text = "  ·  ".join(parts)
 
 
@@ -429,12 +436,29 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 		actions.append(_claim_action(p, Colony.KIND_COLONY))
 	if c == null:
 		actions.append(_claim_action(p, Colony.KIND_OUTPOST))
+	if c and c.owner == _player and c.is_established() and c.is_colony():
+		for sid in GameData.ship_ids():
+			actions.append(_ship_action(p, sid))
 	if c and c.owner == _player and c.is_established():
 		for bid in GameData.buildings():
 			var b := GameData.building(bid)
 			if b.get("buildable", true):
 				actions.append(_build_action(p, bid, b))
 	return actions
+
+
+func _ship_action(p: Planet, ship_id: String) -> Dictionary:
+	var sd := GameData.ship(ship_id)
+	var reason := SimCommands.validate(_state, SimCommands.build_ship(_player, p.id, ship_id))
+	var pid := p.id
+	return {
+		"text": "Chantier spatial : %s" % sd["label"],
+		"detail": "%s, %d j  »  vitesse %d, vision %d saut%s" % [GameData.format_amounts(sd.get("cost", {})), int(sd["days"]),
+				int(sd["speed"]), int(sd["vision"]), "s" if int(sd["vision"]) > 1 else ""],
+		"reason": reason,
+		"tooltip": reason if reason != "" else String(sd.get("description", "")),
+		"action": func() -> void: build_ship_requested.emit(pid, ship_id),
+	}
 
 
 ## Barres de potentiel (0 à 5) par ressource, avec un mot pour les lire.
@@ -458,11 +482,16 @@ func _claim_action(p: Planet, kind: String) -> Dictionary:
 	var label := "Fonder une colonie" if upgrade else ("Coloniser" if kind == Colony.KIND_COLONY else "Poser un avant-poste")
 	var reason := SimCommands.validate(_state, SimCommands.colonize(_player, p.id, kind))
 	var pid := p.id
+	var by_ship := Economy.needs_ship(_state, _player, p.id)
+	var tip := "Une colonie accueille une population." if kind == Colony.KIND_COLONY \
+			else "Un avant-poste revendique le système et exploite la planète, sans population."
+	if by_ship:
+		tip += "\nLe vaisseau colon en orbite se démonte pour la fonder."
 	return {
-		"text": "%s  (%s, %d j)" % [label, GameData.format_amounts(Economy.claim_cost(kind)), Economy.claim_days(kind)],
+		"text": "%s  (%s%s, %d j)" % [label, GameData.format_amounts(Economy.claim_cost_for(_state, _player, p.id, kind)),
+				" + vaisseau colon" if by_ship else "", Economy.claim_days(kind)],
 		"reason": reason,
-		"tooltip": reason if reason != "" else ("Une colonie accueille une population." if kind == Colony.KIND_COLONY \
-				else "Un avant-poste revendique le système et exploite la planète, sans population."),
+		"tooltip": reason if reason != "" else tip,
 		"action": func() -> void: colonize_requested.emit(pid, kind),
 	}
 

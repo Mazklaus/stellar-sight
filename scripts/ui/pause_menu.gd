@@ -26,6 +26,12 @@ const SHORTCUT_GROUPS := [
 		["Clic droit glissé", "Déplacer la carte"],
 		["Molette", "Zoomer vers le curseur"],
 	]],
+	["Flottes", [
+		["Clic sur un chevron", "Sélectionner une flotte"],
+		["F / Maj+F", "Flotte suivante / précédente"],
+		["Clic droit", "Envoyer la flotte vers le système visé"],
+		["Échap", "Désélectionner la flotte"],
+	]],
 	["Vue système", [
 		["Clic", "Choisir une planète"],
 		["Flèches gauche / droite", "Planète précédente / suivante"],

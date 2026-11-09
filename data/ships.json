@@ -1,0 +1,23 @@
+{
+	"scout": {
+		"label": "Éclaireur",
+		"plural": "Éclaireurs",
+		"description": "Coque légère bourrée de capteurs. Va voir ce qu'il y a derrière l'horizon, et revient (en général).",
+		"cost": {"materials": 40},
+		"days": 20,
+		"upkeep": {"energy": 1},
+		"speed": 40,
+		"vision": 2
+	},
+	"colony_ship": {
+		"label": "Vaisseau colon",
+		"plural": "Vaisseaux colons",
+		"description": "Une arche lente pleine de colons optimistes et de semences. Elle se démonte à l'arrivée pour fonder un avant-poste ou une colonie.",
+		"cost": {"materials": 100, "food": 20},
+		"days": 40,
+		"upkeep": {"energy": 1},
+		"speed": 25,
+		"vision": 1,
+		"colonizer": true
+	}
+}

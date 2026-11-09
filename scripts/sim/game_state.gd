@@ -7,7 +7,7 @@ extends RefCounted
 ## stockée : elle se régénère à l'identique depuis la graine. Seules les données
 ## qui changent en cours de partie sont sérialisées.
 
-const FORMAT_VERSION := 2
+const FORMAT_VERSION := 3
 const CHRONICLE_MAX := 50
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
@@ -31,6 +31,10 @@ var empires: Array[Empire] = []
 var colonies: Dictionary = {}
 ## Modifications des planètes générées (monde d'origine…) : identifiant -> {"type", "size", "deposits"}.
 var planet_overrides: Dictionary = {}
+## Flottes en jeu, par identifiant.
+var fleets: Dictionary = {}
+## Identifiant de la prochaine flotte créée (jamais réutilisé).
+var next_fleet_id: int = 0
 
 ## Propriétaire de chaque système revendiqué (donnée dérivée des colonies, non sauvegardée).
 var _system_owner: Dictionary = {}
@@ -41,6 +45,7 @@ var _system_owner: Dictionary = {}
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "") -> GameState:
 	var s := _base(seed_value_, system_count_, galaxy_radius_)
 	s._setup_empires(player_faction)
+	FleetSystem.update_exploration(s)
 	return s
 
 
@@ -73,6 +78,9 @@ func to_dict() -> Dictionary:
 		var o: Dictionary = planet_overrides[pid].duplicate(true)
 		o["planet"] = pid
 		override_list.append(o)
+	var fleet_list := []
+	for fid in sorted_fleet_ids():
+		fleet_list.append(fleets[fid].to_dict())
 	return {
 		"version": FORMAT_VERSION,
 		"seed": seed_value,
@@ -87,6 +95,8 @@ func to_dict() -> Dictionary:
 		"empires": empire_list,
 		"colonies": colony_list,
 		"planet_overrides": override_list,
+		"fleets": fleet_list,
+		"next_fleet_id": next_fleet_id,
 	}
 
 
@@ -94,7 +104,7 @@ func to_dict() -> Dictionary:
 ## (le détail est dans GameState.last_error).
 static func from_dict(d: Dictionary) -> GameState:
 	last_error = ""
-	for key in ["version", "seed", "system_count", "galaxy_radius", "tick", "rng_state", "systems", "chronicle", "empires", "colonies", "planet_overrides"]:
+	for key in ["version", "seed", "system_count", "galaxy_radius", "tick", "rng_state", "systems", "chronicle", "empires", "colonies", "planet_overrides", "fleets", "next_fleet_id"]:
 		if not d.has(key):
 			last_error = "champ manquant : %s" % key
 			return null
@@ -131,6 +141,20 @@ static func from_dict(d: Dictionary) -> GameState:
 			last_error = "colonie invalide sur la planète %d" % colony.planet_id
 			return null
 		s.colonies[colony.planet_id] = colony
+	for fd: Dictionary in d["fleets"]:
+		var f := Fleet.from_dict(fd)
+		var bad := s.get_empire(f.owner) == null or s.galaxy.get_system(f.system_id) == null or f.ships.is_empty()
+		for sid in f.path:
+			if s.galaxy.get_system(sid) == null:
+				bad = true
+		for ship in f.ships:
+			if GameData.ship(ship).is_empty():
+				bad = true
+		if bad:
+			last_error = "flotte invalide : %d" % f.id
+			return null
+		s.fleets[f.id] = f
+	s.next_fleet_id = int(d["next_fleet_id"])
 	s.rebuild_ownership()
 	return s
 
@@ -147,6 +171,29 @@ func add_chronicle(text: String) -> Dictionary:
 	while chronicle.size() > CHRONICLE_MAX:
 		chronicle.pop_front()
 	return entry
+
+
+## Identifiants des flottes, triés (même raison que sorted_colony_ids).
+func sorted_fleet_ids() -> Array:
+	var ids := fleets.keys()
+	ids.sort()
+	return ids
+
+
+## Crée une flotte d'un vaisseau dans un système. Son nom suit la classe : « Éclaireur 3 ».
+func spawn_ship(owner_id: int, ship_id: String, system_id: int) -> Fleet:
+	var e := get_empire(owner_id)
+	var n := int(e.ships_built.get(ship_id, 0)) + 1
+	e.ships_built[ship_id] = n
+	var f := Fleet.new()
+	f.id = next_fleet_id
+	next_fleet_id += 1
+	f.owner = owner_id
+	f.fleet_name = "%s %d" % [GameData.ship(ship_id).get("label", ship_id), n]
+	f.ships.append(ship_id)
+	f.system_id = system_id
+	fleets[f.id] = f
+	return f
 
 
 func get_empire(id: int) -> Empire:
@@ -242,6 +289,9 @@ func _setup_empires(player_faction: String) -> void:
 			c.buildings.append(String(b))
 		colonies[home_id] = c
 		e.capital_planet = home_id
+		# Flotte de départ : de quoi explorer et fonder une première colonie.
+		for ship_id in rules.get("start_ships", []):
+			spawn_ship(e.id, String(ship_id), sys.id)
 	rebuild_ownership()
 
 

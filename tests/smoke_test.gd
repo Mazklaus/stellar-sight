@@ -13,6 +13,7 @@ func _initialize() -> void:
 	_test_generator()
 	preload("res://tests/sim_tests.gd").new().run(_check)
 	preload("res://tests/economy_tests.gd").new().run(_check)
+	preload("res://tests/fleet_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -120,8 +121,12 @@ func _test_main_scene() -> void:
 	_check(main.galaxy != null and main.galaxy.systems.size() == main.SYSTEM_COUNT, "galaxie créée au lancement")
 	_check(root.theme == UiTheme.theme() and main._hud.bar.theme == UiTheme.theme() and main._pause_menu.get_child(0).theme == UiTheme.theme(),
 			"le thème de l'interface est appliqué à la fenêtre et aux calques")
+	await _test_fleet_ui(main)
+	# La suite parcourt toute la carte : on lève le brouillard pour le joueur.
+	_reveal_map(main)
 	await _test_colony_ui(main)
 	await _test_navigation_ui(main)
+	_reveal_map(main)  # le menu principal a lancé une nouvelle partie
 
 	var clock: Node = root.get_node("GameClock")
 	_press(KEY_SPACE)
@@ -198,6 +203,108 @@ func _test_main_scene() -> void:
 
 
 ## Au lancement : caméra et fiche sur le système d'origine ; vue système, colonisation et construction.
+## Flottes à l'écran : brouillard, sélection, ordres au clic droit, fiche de flotte, chantier spatial.
+func _test_fleet_ui(main: Node) -> void:
+	var st: GameState = main.simulation.state
+	var me := st.get_empire(0)
+	var home := st.galaxy.get_planet(me.capital_planet).system_id
+	var scout: Fleet = null
+	var colonist: Fleet = null
+	for f in Fleets.empire_fleets(st, 0):
+		if f.count("scout") > 0:
+			scout = f
+		elif f.count("colony_ship") > 0:
+			colonist = f
+	_check(scout != null and colonist != null, "flottes de départ présentes à l'écran")
+	var frontier := -1
+	var unknown := -1
+	for sys in st.galaxy.systems:
+		if frontier == -1 and not Fleets.is_explored(st, 0, sys.id) and Fleets.is_known(st, 0, sys.id):
+			frontier = sys.id
+		if unknown == -1 and not Fleets.is_known(st, 0, sys.id):
+			unknown = sys.id
+	_check(main._view.pick_system(st.galaxy.systems[unknown].position, 5.0) == -1, "un système hors des cartes ne se sélectionne pas")
+	_check(main._view.pick_system(st.galaxy.systems[frontier].position, 5.0) == frontier, "un système repéré se sélectionne")
+	main.open_system_view(frontier)
+	_check(not main.is_system_view_open() and Array(main._hud.toast_texts()).any(func(t: String) -> bool: return t.contains("inexploré")),
+			"pas de vue système pour un système inexploré")
+	main._select(frontier)
+	_check(main._hud._card_title.text == "Système inexploré" and not main._hud._enter_button.visible, "fiche d'un système inexploré")
+	main._select(-1)
+
+	# Sélection et fiche de flotte.
+	var at: Vector2 = main._view.fleet_world_position(scout.id)
+	_check(main._view.pick_fleet(at, 4.0) == scout.id, "la flotte se sélectionne à sa position à l'écran")
+	_check(main._view.fleet_world_position(colonist.id) != at, "deux flottes au même système ne se recouvrent pas")
+	main.select_fleet(scout.id)
+	_check(main._hud.fleet_card_visible() and main._hud._fleet_title.text == scout.fleet_name, "fiche de la flotte affichée")
+	_check(main._hud.fleet_button("stop").disabled and main._hud.fleet_button("split").disabled and not main._hud.fleet_button("colonize").visible,
+			"boutons de la fiche selon la flotte (éclaireur à l'arrêt)")
+	main.order_fleet_to(frontier)
+	await process_frame
+	await process_frame
+	_check(scout.is_moving() and scout.destination() == frontier, "ordre de déplacement donné depuis l'interface")
+	_check(Array(main._hud.toast_texts()).any(func(t: String) -> bool: return t.contains("cap sur")), "la notification annonce le trajet")
+	main._hud.refresh()
+	_check(main._hud._fleet_status.text.begins_with("En route") and not main._hud.fleet_button("stop").disabled, "fiche : en route, bouton Arrêter actif")
+	main._hud.fleet_button("stop").pressed.emit()
+	await process_frame
+	await process_frame
+	_check(scout.path.size() == 1, "Arrêter : la flotte s'arrête au prochain système")
+
+	# Clic droit sur un système voisin : la flotte y part. (Écran de 64x64 en mode sans fenêtre.)
+	main.select_fleet(colonist.id)
+	var dest: int = st.galaxy.systems[home].neighbors[0]
+	main._camera.position = st.galaxy.systems[dest].position
+	main._hud.visible = false
+	await process_frame
+	var center: Vector2 = main.get_viewport().get_visible_rect().size * 0.5
+	for pressed in [true, false]:
+		var rc := InputEventMouseButton.new()
+		rc.button_index = MOUSE_BUTTON_RIGHT
+		rc.position = center
+		rc.global_position = center
+		rc.pressed = pressed
+		root.push_input(rc)
+	await process_frame
+	await process_frame
+	main._hud.visible = true
+	_check(colonist.is_moving() and colonist.destination() == dest, "clic droit : la flotte sélectionnée part vers le système visé")
+	main.order_fleet_to(home)
+	await process_frame
+	await process_frame
+	_check(colonist.system_id == home or colonist.destination() == home, "contre-ordre : retour au système d'origine")
+
+	# F : flotte suivante ; Échap : désélection.
+	main.select_fleet(-1)
+	_press(KEY_F)
+	await process_frame
+	_check(main.selected_fleet == scout.id, "F sélectionne la première flotte")
+	_press(KEY_F)
+	await process_frame
+	_check(main.selected_fleet == colonist.id, "F passe à la flotte suivante")
+	_press(KEY_ESCAPE)
+	await process_frame
+	_check(main.selected_fleet == -1 and not main._hud.fleet_card_visible(), "Échap désélectionne la flotte")
+
+	# Chantier spatial depuis la vue système.
+	main.open_system_view(home, me.capital_planet)
+	var screen: SystemScreen = main._system_screen
+	var b := screen.find_action("Chantier spatial : Éclaireur")
+	_check(b != null and not b.disabled, "bouton du chantier spatial actif sur la capitale")
+	if b:
+		b.pressed.emit()
+	await process_frame
+	await process_frame
+	_check(st.colonies[me.capital_planet].ship_build == "scout", "éclaireur mis en chantier depuis la vue système")
+	_check(screen.find_action("Chantier spatial : Vaisseau colon").disabled, "un seul vaisseau à la fois par chantier")
+	main.close_system_view()
+	# On rend l'état de départ aux tests suivants (qui vérifient les stocks initiaux).
+	st.colonies[me.capital_planet].ship_build = ""
+	me.resources["materials"] += int(GameData.ship("scout")["cost"]["materials"])
+	main._refresh_all()
+
+
 func _test_colony_ui(main: Node) -> void:
 	var st: GameState = main.simulation.state
 	var me: Empire = st.get_empire(main.LOCAL_PLAYER)
@@ -317,15 +424,20 @@ func _test_empire_report() -> void:
 	_check(t["colonies"] == 1 and t["outposts"] == 0 and t["systems"] == 1, "chiffres clés de départ")
 	_check(EmpireReport.owned_systems(st, 0) == [home], "un seul système possédé : celui d'origine")
 	# Un avant-poste dans un système voisin ajoute un système à parcourir avec Tab.
+	# (On y pose directement le vaisseau colon de départ, sans attendre le trajet.)
 	var target := -1
+	var ship := Fleets.colonizer_fleet(st, 0, home)
 	for n in st.galaxy.systems[home].neighbors:
+		if target == -1:
+			ship.system_id = n
 		for pid in st.galaxy.systems[n].planet_ids:
 			if target == -1 and Economy.check_colonize(st, 0, pid, Colony.KIND_OUTPOST) == "":
 				target = pid
+	var other := st.galaxy.get_planet(target).system_id
+	ship.system_id = other
 	var sim := Simulation.new(st)
 	sim.submit(SimCommands.colonize(0, target, Colony.KIND_OUTPOST))
 	sim.flush_commands()
-	var other := st.galaxy.get_planet(target).system_id
 	_check(EmpireReport.owned_systems(st, 0) == [home, other], "le système de l'avant-poste suit celui d'origine")
 	_check(EmpireReport.totals(st, 0)["founding"] == 1, "la fondation en cours est comptée")
 	_check(EmpireReport.cycle_system(st, 0, home, 1) == other and EmpireReport.cycle_system(st, 0, other, 1) == home,
@@ -568,6 +680,11 @@ func _find_button(node: Node, prefix: String) -> Button:
 		if found:
 			return found
 	return null
+
+
+func _reveal_map(main: Node) -> void:
+	for sys in main.galaxy.systems:
+		main.simulation.state.get_empire(0).explored[sys.id] = true
 
 
 func _press(keycode: Key, physical: Key = KEY_NONE) -> void:

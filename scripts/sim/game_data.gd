@@ -50,6 +50,24 @@ static func building(id: String) -> Dictionary:
 	return buildings().get(id, {})
 
 
+## Classes de vaisseaux (data/ships.json), par identifiant.
+static func ships() -> Dictionary:
+	return _load("ships")
+
+
+static func ship(id: String) -> Dictionary:
+	return ships().get(id, {})
+
+
+## Identifiants des classes de vaisseaux, triés (ordre stable pour l'interface et la simulation).
+static func ship_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for k in ships():
+		ids.append(String(k))
+	ids.sort()
+	return ids
+
+
 static func deposit(id: String) -> Dictionary:
 	for d: Dictionary in rules()["deposits"]:
 		if d["id"] == id:

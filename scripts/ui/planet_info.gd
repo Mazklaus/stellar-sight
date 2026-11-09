@@ -89,6 +89,8 @@ static func colony_lines(state: GameState, p: Planet, c: Colony, player: int) ->
 		lines.append("Bâtiments : 0/%d" % Economy.building_slots(state, c))
 	if c.construction != "":
 		lines.append("Chantier : %s (%d j)" % [GameData.building(c.construction).get("label", c.construction), c.construction_days])
+	if c.ship_build != "":
+		lines.append("Chantier spatial : %s (%d j)" % [GameData.ship(c.ship_build).get("label", c.ship_build), c.ship_days])
 	if c.owner == player:
 		lines.append("Par mois (avant bonus) : %s" % GameData.format_amounts(net_yields(state, c), true))
 	return lines

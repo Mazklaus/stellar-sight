@@ -7,6 +7,9 @@ extends Node2D
 const SYSTEM_COUNT := 150
 const GALAXY_RADIUS := 1800.0
 const PICK_RADIUS_PX := 14.0
+const FLEET_PICK_RADIUS_PX := 11.0
+## Au-delà de ce déplacement (pixels), un clic droit est un glissé de caméra, pas un ordre.
+const RIGHT_CLICK_SLOP_PX := 6.0
 const START_ZOOM := 0.22
 ## Zoom de départ, centré sur le système d'origine du joueur.
 const HOME_ZOOM := 0.45
@@ -40,6 +43,9 @@ var _pause_menu: PauseMenu
 ## État de la pause avant l'ouverture du menu pause (ou d'un menu d'empire en pause automatique).
 var _paused_before := false
 var _auto_paused := false
+## Flotte sélectionnée (-1 = aucune).
+var selected_fleet := -1
+var _right_press := Vector2(-1, -1)
 
 
 func _ready() -> void:
@@ -63,6 +69,7 @@ func _ready() -> void:
 	_hud.pause_toggled.connect(GameClock.toggle_pause)
 	_hud.speed_requested.connect(GameClock.set_speed)
 	_hud.close_system_requested.connect(close_system_view)
+	_hud.fleet_action_requested.connect(_on_fleet_action)
 	_hud.lens_changed.connect(func(l: String) -> void:
 		_view.lens = l
 		_view.queue_redraw())
@@ -78,6 +85,8 @@ func _ready() -> void:
 		simulation.submit(SimCommands.colonize(LOCAL_PLAYER, planet_id, kind)))
 	_system_screen.build_requested.connect(func(planet_id: int, building_id: String) -> void:
 		simulation.submit(SimCommands.build(LOCAL_PLAYER, planet_id, building_id)))
+	_system_screen.build_ship_requested.connect(func(planet_id: int, ship_id: String) -> void:
+		simulation.submit(SimCommands.build_ship(LOCAL_PLAYER, planet_id, ship_id)))
 
 	_empire_screens = EmpireScreens.new()
 	add_child(_empire_screens)
@@ -166,6 +175,9 @@ func load_game() -> bool:
 func open_system_view(id: int, planet_id := -1) -> void:
 	var s := galaxy.get_system(id) if galaxy else null
 	if s == null:
+		return
+	if not Fleets.is_explored(simulation.state, LOCAL_PLAYER, id):
+		_hud.notify("Système inexploré : envoyez d'abord un vaisseau y jeter un œil.")
 		return
 	if is_empire_screen_open():
 		close_empire_screen()
@@ -324,11 +336,14 @@ func _start(state: GameState) -> void:
 	simulation.ticked.connect(func(_tick: int) -> void: _refresh_all())
 	_view.set_state(state)
 	_hud.set_state(state, LOCAL_PLAYER)
+	select_fleet(-1)
 	_hud.show_chronicle(state.chronicle.back() if not state.chronicle.is_empty() else {})
 	GameClock.attach(simulation)
 
 
 func _refresh_all() -> void:
+	if selected_fleet >= 0 and not simulation.state.fleets.has(selected_fleet):
+		select_fleet(-1)  # flotte dissoute (vaisseau colon démonté, fusion)
 	_view.queue_redraw()
 	_hud.refresh()
 	_system_screen.refresh()
@@ -348,6 +363,7 @@ func _on_command_applied(_cmd: Dictionary) -> void:
 func _process(delta: float) -> void:
 	if galaxy == null:
 		return
+	_view.day_fraction = GameClock.day_fraction()
 	if _main_menu.is_open():
 		_camera.position += MENU_DRIFT * delta  # la galaxie dérive doucement derrière le menu
 		return
@@ -365,11 +381,24 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	var mb := event as InputEventMouseButton
 	if mb and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT and not is_system_view_open() and not is_modal_open():
+		var fleet := _pick_fleet_at(mb.position)
+		if fleet >= 0 and not mb.double_click:
+			select_fleet(fleet)
+			return
 		var picked := _pick_system_at(mb.position)
 		if mb.double_click and picked >= 0:
 			open_system_view(picked)
 		else:
+			select_fleet(-1)
 			_select(picked)
+		return
+	# Clic droit (sans glisser) avec une flotte sélectionnée : l'envoyer vers le système visé.
+	if mb and mb.button_index == MOUSE_BUTTON_RIGHT and not is_system_view_open() and not is_modal_open():
+		if mb.pressed:
+			_right_press = mb.position
+		elif _right_press.x >= 0.0 and mb.position.distance_to(_right_press) <= RIGHT_CLICK_SLOP_PX:
+			_right_press = Vector2(-1, -1)
+			order_fleet_to(_pick_system_at(mb.position))
 		return
 
 	var key := event as InputEventKey
@@ -399,6 +428,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				close_empire_screen()
 			elif is_system_view_open():
 				close_system_view()
+			elif selected_fleet >= 0:
+				select_fleet(-1)
 			elif _view.selected_id >= 0:
 				_select(-1)
 			else:
@@ -438,6 +469,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			if key.physical_keycode == KEY_H:
 				go_to_capital()
 				return
+			if key.physical_keycode == KEY_F and not is_system_view_open() and not is_empire_screen_open():
+				cycle_fleet(-1 if key.shift_pressed else 1)
+				return
 			# Touches physiques 1 à 5 (rangée du haut, même sur AZERTY) ou pavé numérique.
 			var speed := _speed_from_key(key)
 			if speed >= 0:
@@ -459,10 +493,86 @@ func _speed_from_key(key: InputEventKey) -> int:
 
 
 func _pick_system() -> int:
-	return galaxy.find_nearest(get_global_mouse_position(), PICK_RADIUS_PX / _camera.zoom.x)
+	return _view.pick_system(get_global_mouse_position(), PICK_RADIUS_PX / _camera.zoom.x)
 
 
-## Système sous une position écran (celle d'un événement de clic, par exemple).
+## Système connu sous une position écran (celle d'un événement de clic, par exemple).
 func _pick_system_at(screen_pos: Vector2) -> int:
 	var world_pos := get_viewport().get_canvas_transform().affine_inverse() * screen_pos
-	return galaxy.find_nearest(world_pos, PICK_RADIUS_PX / _camera.zoom.x)
+	return _view.pick_system(world_pos, PICK_RADIUS_PX / _camera.zoom.x)
+
+
+func _pick_fleet_at(screen_pos: Vector2) -> int:
+	var world_pos := get_viewport().get_canvas_transform().affine_inverse() * screen_pos
+	return _view.pick_fleet(world_pos, FLEET_PICK_RADIUS_PX / _camera.zoom.x)
+
+
+# --- Flottes ----------------------------------------------------------------------------------
+
+## Sélectionne une flotte (-1 : aucune). Sa fiche s'affiche et son trajet se dessine.
+func select_fleet(fleet_id: int) -> void:
+	selected_fleet = fleet_id
+	_view.selected_fleet = fleet_id
+	_view.queue_redraw()
+	_hud.show_fleet(fleet_id)
+
+
+## Envoie la flotte sélectionnée vers un système (si c'est la nôtre).
+func order_fleet_to(system_id: int) -> void:
+	var f: Fleet = simulation.state.fleets.get(selected_fleet)
+	if f == null or f.owner != LOCAL_PLAYER or system_id < 0:
+		return
+	if simulation.submit(SimCommands.move_fleet(LOCAL_PLAYER, f.id, system_id)):
+		var plan := Fleets.plan_route(simulation.state, f, system_id)
+		var days := Fleets.route_days(simulation.state, f, plan)
+		var where := galaxy.get_system(system_id).system_name if Fleets.is_explored(simulation.state, LOCAL_PLAYER, system_id) else "un système inexploré"
+		if days == 0:
+			_hud.notify("%s : reste à %s." % [f.fleet_name, where])
+		else:
+			_hud.notify("%s : cap sur %s (%d jour%s)." % [f.fleet_name, where, days, "s" if days > 1 else ""])
+
+
+## Passe à la flotte suivante (1) ou précédente (-1) du joueur, et y glisse la caméra.
+func cycle_fleet(step: int) -> void:
+	var mine := Fleets.empire_fleets(simulation.state, LOCAL_PLAYER)
+	if mine.is_empty():
+		_hud.notify("Aucune flotte. Les chantiers spatiaux des colonies en construisent.")
+		return
+	var ids: Array[int] = []
+	for f in mine:
+		ids.append(f.id)
+	var i := ids.find(selected_fleet)
+	var next := ids[0] if i < 0 and step > 0 else ids[posmod(i + step, ids.size())]
+	select_fleet(next)
+	_camera.glide_to(_view.fleet_world_position(next), maxf(_camera.zoom.x, HOME_ZOOM))
+
+
+func _on_fleet_action(action: String, fleet_id: int) -> void:
+	var st := simulation.state
+	var f: Fleet = st.fleets.get(fleet_id)
+	if f == null:
+		return
+	match action:
+		"stop":
+			simulation.submit(SimCommands.stop_fleet(LOCAL_PLAYER, fleet_id))
+		"merge":
+			for other in Fleets.fleets_at(st, f.system_id, LOCAL_PLAYER):
+				if other.id != fleet_id:
+					simulation.submit(SimCommands.merge_fleets(LOCAL_PLAYER, other.id, fleet_id))
+		"split":
+			# On détache un vaisseau de la classe la plus nombreuse (un éclaireur d'un groupe, par exemple).
+			var best := ""
+			for sid in GameData.ship_ids():
+				if f.count(sid) > 0 and (best == "" or f.count(sid) > f.count(best)):
+					best = sid
+			simulation.submit(SimCommands.split_fleet(LOCAL_PLAYER, fleet_id, best))
+		"colonize":
+			# On ouvre le système sur la meilleure planète à revendiquer.
+			var target := -1
+			for pid in galaxy.get_system(f.system_id).planet_ids:
+				if target == -1 and Economy.check_colonize(st, LOCAL_PLAYER, pid, Colony.KIND_COLONY) == "":
+					target = pid
+			for pid in galaxy.get_system(f.system_id).planet_ids:
+				if target == -1 and Economy.check_colonize(st, LOCAL_PLAYER, pid, Colony.KIND_OUTPOST) == "":
+					target = pid
+			open_system_view(f.system_id, target)
