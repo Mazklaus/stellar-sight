@@ -56,8 +56,10 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 		c.growth += Economy.growth_per_day(state, c)
 		if c.growth >= Economy.growth_threshold(c.population):
 			c.growth = 0
-			var gain := int(bio["materials"])
+			var bg := FactionTraits.biomass_gain(state, c.owner)
+			var gain := int(bg["materials"])
 			e.resources["materials"] = int(e.resources.get("materials", 0)) + gain
+			e.resources["knowledge"] = int(e.resources.get("knowledge", 0)) + int(bg["knowledge"])
 			e.biomass += gain
 		return
 	c.growth += Economy.growth_per_day(state, c)
@@ -70,6 +72,8 @@ static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionar
 	var net: Dictionary = Economy.empire_income(state, e.id)["net"]
 	for r in net:
 		e.resources[r] = int(e.resources.get(r, 0)) + int(net[r])
+
+	_monthly_research(state, e, int(net.get("knowledge", 0)), added)
 
 	_monthly_traits(state, e, added)
 
@@ -118,3 +122,20 @@ static func _monthly_traits(state: GameState, e: Empire, added: Array[Dictionary
 			added.append(state.add_chronicle("Dissidence chez %s : faute de cristaux, les fiefs lointains découvrent qu'ils ont toujours détesté la capitale." % e.display_name()))
 		elif was and not e.dissent:
 			added.append(state.add_chronicle("Les fiefs lointains de %s renouvellent leur serment. Les cristaux sont arrivés, l'affection aussi." % e.short_name()))
+
+
+## Recherche au bilan mensuel : la file consomme le Savoir stocké (Research.advance).
+## Chronique : chaque découverte d'un joueur humain, et l'ouverture d'une ère pour tous.
+static func _monthly_research(state: GameState, e: Empire, income: int, added: Array[Dictionary]) -> void:
+	if e.eliminated:
+		return
+	var era_before := Research.current_era(state, e.id)
+	var done := Research.advance(state, e.id, income)
+	if done.is_empty():
+		return
+	if not e.is_ai():
+		for tid in done:
+			added.append(state.add_chronicle("%s découvre : %s." % [e.short_name(), String(Research.tech(tid).get("label", tid))]))
+	var era_after := Research.current_era(state, e.id)
+	if era_after > era_before:
+		added.append(state.add_chronicle("%s entre dans l'ère %d. Les savants réclament déjà des crédits pour la suivante." % [e.display_name(), era_after]))

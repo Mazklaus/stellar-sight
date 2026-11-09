@@ -30,7 +30,11 @@ func _ok(cond: bool, what: String) -> void:
 
 ## Partie sans IA : les rivaux sont des joueurs inertes, ils reçoivent donc les propositions.
 func _state(faction := "ossarane", options := {"ai_level": ""}) -> GameState:
-	return GameState.create(4242, 150, 1800.0, faction, options)
+	var st := GameState.create(4242, 150, 1800.0, faction, options)
+	# Les alliances demandent les Chancelleries : on les accorde à tous pour tester les traités.
+	for e in st.empires:
+		Research.grant(st, e.id, ["chancelleries"])
+	return st
 
 
 func _meet(st: GameState, a: int, b: int) -> void:
@@ -350,7 +354,7 @@ func _test_save_roundtrip() -> void:
 		return
 	_ok(back.checksum() == st.checksum(), "même empreinte après sauvegarde : relations, souvenirs, propositions, héritier")
 	_ok(Diplomacy.status(back, 0, 1) == "peace" and back.proposals.size() == 1 and back.get_empire(0).heir_suitor == 2, "contenu diplomatique conservé")
-	_ok(int(d["version"]) == 7, "format de sauvegarde 7")
+	_ok(int(d["version"]) == 8, "format de sauvegarde 8")
 
 
 ## Une vraie partie entre IA : il se signe des traités, et deux parties identiques restent identiques.

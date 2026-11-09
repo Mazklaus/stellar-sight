@@ -393,6 +393,10 @@ static func check_terms(state: GameState, a: int, b: int, treaty: String) -> Str
 				return "on ne s'allie pas avec un ennemi"
 			if pact(state, a, b) == ALLIANCE:
 				return "vous êtes déjà alliés"
+			if Research.fx_int(state, a, "alliances") <= 0:
+				return "il faut d'abord les Chancelleries (recherche, Société)"
+			if Research.fx_int(state, b, "alliances") <= 0:
+				return "%s n'a pas encore de chancelleries pour signer une alliance" % state.get_empire(b).short_name()
 			if pact(state, a, b) != PEACE:
 				return "il faut d'abord signer la paix"
 			if pact_days(state, a, b) < days("alliance_after_days", 180):

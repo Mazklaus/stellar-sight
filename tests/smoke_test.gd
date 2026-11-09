@@ -19,6 +19,7 @@ func _initialize() -> void:
 	preload("res://tests/combat_tests.gd").new().run(_check)
 	preload("res://tests/catalogue_tests.gd").new().run(_check)
 	preload("res://tests/diplomacy_tests.gd").new().run(_check)
+	preload("res://tests/research_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -576,7 +577,25 @@ func _test_navigation_ui(main: Node) -> void:
 	main.close_system_view()
 	_press(KEY_F3)
 	await process_frame
-	_check(screens.is_open() and screens.current == "research" and screens._tab.text.begins_with("RECHERCHE"), "F3 : écran Recherche (en attente)")
+	_check(screens.is_open() and screens.current == "research" and screens._tab.text.begins_with("RECHERCHE"), "F3 : écran Recherche")
+	var rme: Empire = main.simulation.state.get_empire(main.view_empire)
+	var rtree: ResearchTree = screens.research_tree
+	_check(rtree != null and rtree.card_ids().size() == Research.visible_ids(rme.faction()).size(), "l'arbre montre toutes les technologies du peuple")
+	var rfirst := ""
+	for tid in Research.visible_ids(rme.faction()):
+		if Research.is_available(main.simulation.state, main.view_empire, tid) and not rme.research_queue.has(tid):
+			rfirst = tid
+			break
+	rtree.select(rfirst)
+	await process_frame
+	_check(screens.research_selected == rfirst and screens.research_buttons.has("queue"), "choisir une technologie montre sa fiche et ses boutons")
+	(screens.research_buttons["front"] as Button).pressed.emit()
+	await process_frame
+	_check(rme.research_queue.size() > 0 and rme.research_queue[0] == rfirst, "« Lancer maintenant » la met en tête de file")
+	_check(screens.research_buttons.has("remove"), "la fiche propose alors de la retirer")
+	(screens.research_buttons["remove"] as Button).pressed.emit()
+	await process_frame
+	_check(not rme.research_queue.has(rfirst), "« Retirer de la file »")
 	_press(KEY_F4)
 	await process_frame
 	_check(screens.current == "diplomacy" and screens._content.get_child(0) != null, "F4 : écran Diplomatie")

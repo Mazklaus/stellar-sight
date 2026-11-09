@@ -1,0 +1,1351 @@
+{
+	"_sources": "Arbre visible en domaines et ères à seuils, coût qui monte avec chaque technologie connue, technologies de peuple : Endless Space 2 (endless-space-2.fandom.com/wiki/Technology). Savoir stocké dépensé au double, poids de l'IA : Stellaris (stellaris.paradoxwikis.com/Technology). Familles d'armes en marques : Galactic Civilizations II (galciv.fandom.com/wiki/Technology). Étude : https://claude.ai/artifact/VZPzNQD33eoKTu8FgYQAC1 ; maquette du Chœur : https://claude.ai/artifact/4UzS2fXPdfBGcRaDS6w2Vt",
+	"domains": [
+		{
+			"id": "armement",
+			"label": "Armement",
+			"short": "Arm",
+			"desc": "Armes, défenses, troupes",
+			"color": "#e0574a"
+		},
+		{
+			"id": "genie",
+			"label": "Génie spatial",
+			"short": "Gén",
+			"desc": "Vaisseaux, vitesse, chantiers",
+			"color": "#6fa3d6"
+		},
+		{
+			"id": "economie",
+			"label": "Économie",
+			"short": "Éco",
+			"desc": "Production, bâtiments, Savoir",
+			"color": "#d1aa4c"
+		},
+		{
+			"id": "societe",
+			"label": "Société",
+			"short": "Soc",
+			"desc": "Colonisation, croissance, influence",
+			"color": "#79bb84"
+		}
+	],
+	"eras": 5,
+	"era_thresholds": [
+		0,
+		2,
+		3,
+		3,
+		4
+	],
+	"base_cost": [30, 120, 320, 800, 1900],
+	"cost_scale_pct": 300,
+	"per_known_permille": 25,
+	"per_colony_pct": 5,
+	"free_colonies": 5,
+	"spend_rate_pct": 200,
+	"technologies": {
+		"canons_masse": {
+			"label": "Canons à masse réactive",
+			"domain": "armement",
+			"era": 1,
+			"text": "Canons cinétiques marque II : +20 % de dégâts.",
+			"effects": {
+				"weapon_pct": {
+					"kinetic": 20
+				}
+			},
+			"flavor": "Même principe qu'avant, mais le projectile arrive avant qu'on ait fini de le regretter."
+		},
+		"lentilles": {
+			"label": "Lentilles de focalisation",
+			"domain": "armement",
+			"era": 1,
+			"text": "Rayons marque II : +20 % de dégâts.",
+			"effects": {
+				"weapon_pct": {
+					"beam": 20
+				}
+			}
+		},
+		"blindage_composite": {
+			"label": "Blindage composite",
+			"domain": "armement",
+			"era": 1,
+			"text": "Blindage marque II : +20 % de protection du blindage.",
+			"effects": {
+				"defense_pct": {
+					"armor": 20
+				}
+			}
+		},
+		"tetes_chercheuses": {
+			"label": "Missiles à tête chercheuse",
+			"domain": "armement",
+			"era": 1,
+			"text": "Missiles marque II : +20 % de dégâts.",
+			"effects": {
+				"weapon_pct": {
+					"missile": 20
+				}
+			}
+		},
+		"boucliers_phase": {
+			"label": "Boucliers à phase",
+			"domain": "armement",
+			"era": 2,
+			"text": "Boucliers marque II : +20 % de protection des boucliers.",
+			"pre": [
+				"lentilles"
+			],
+			"effects": {
+				"defense_pct": {
+					"shield": 20
+				}
+			}
+		},
+		"interception": {
+			"label": "Tourelles d'interception",
+			"domain": "armement",
+			"era": 2,
+			"text": "Défense ponctuelle marque II : +20 % d'interception des missiles, torpilles et chasseurs.",
+			"pre": [
+				"blindage_composite"
+			],
+			"effects": {
+				"defense_pct": {
+					"pd": 20
+				}
+			}
+		},
+		"torpilles": {
+			"label": "Torpilles à fusion",
+			"domain": "armement",
+			"era": 2,
+			"text": "Famille d'armes Torpilles (fortes contre les grosses coques). Il faut aussi les Torpilleurs pour en armer un vaisseau.",
+			"pre": [
+				"tetes_chercheuses"
+			]
+		},
+		"bastions": {
+			"label": "Bastions orbitaux",
+			"domain": "armement",
+			"era": 2,
+			"text": "Débloque le Bastion orbital : garnison et batterie de défense d'un système.",
+			"pre": [
+				"blindage_composite"
+			]
+		},
+		"marines": {
+			"label": "Marines d'assaut",
+			"domain": "armement",
+			"era": 2,
+			"text": "+25 % de troupes embarquées.",
+			"pre": [
+				"canons_masse"
+			],
+			"effects": {
+				"troops_pct": 25
+			}
+		},
+		"accelerateurs": {
+			"label": "Accélérateurs magnétiques",
+			"domain": "armement",
+			"era": 3,
+			"text": "Canons cinétiques marque III : +20 % de dégâts en plus.",
+			"pre": [
+				"canons_masse",
+				"marines"
+			],
+			"effects": {
+				"weapon_pct": {
+					"kinetic": 20
+				}
+			}
+		},
+		"plasma": {
+			"label": "Rayons à plasma",
+			"domain": "armement",
+			"era": 3,
+			"text": "Rayons marque III : +20 % de dégâts en plus.",
+			"pre": [
+				"boucliers_phase"
+			],
+			"effects": {
+				"weapon_pct": {
+					"beam": 20
+				}
+			}
+		},
+		"plaques_ablatives": {
+			"label": "Plaques ablatives",
+			"domain": "armement",
+			"era": 3,
+			"text": "Blindage marque III : +20 % de protection en plus.",
+			"pre": [
+				"interception"
+			],
+			"effects": {
+				"defense_pct": {
+					"armor": 20
+				}
+			}
+		},
+		"essaims": {
+			"label": "Missiles en essaim",
+			"domain": "armement",
+			"era": 3,
+			"text": "Missiles marque III et torpilles marque II : +20 % de dégâts.",
+			"pre": [
+				"torpilles"
+			],
+			"effects": {
+				"weapon_pct": {
+					"missile": 20,
+					"torpedo": 20
+				}
+			}
+		},
+		"artillerie": {
+			"label": "Artillerie lourde",
+			"domain": "armement",
+			"era": 3,
+			"text": "Famille d'armes Artillerie (portée longue, rien en phase courte). Il faut aussi les Cuirassés pour en armer un vaisseau.",
+			"pre": [
+				"accelerateurs"
+			]
+		},
+		"chasse": {
+			"label": "Escadrilles de chasse",
+			"domain": "armement",
+			"era": 3,
+			"text": "Famille d'armes Chasseurs (ignorent les rangs). Il faut aussi les Baies de lancement pour les embarquer.",
+			"pre": [
+				"torpilles"
+			]
+		},
+		"phase_dense": {
+			"label": "Boucliers de phase dense",
+			"domain": "armement",
+			"era": 4,
+			"text": "Boucliers et défense ponctuelle marque III : +20 % de protection.",
+			"pre": [
+				"plasma"
+			],
+			"effects": {
+				"defense_pct": {
+					"shield": 20,
+					"pd": 20
+				}
+			}
+		},
+		"canons_rail": {
+			"label": "Canons à rail",
+			"domain": "armement",
+			"era": 4,
+			"text": "Canons cinétiques marque IV et artillerie marque II : +20 % de dégâts.",
+			"pre": [
+				"artillerie"
+			],
+			"effects": {
+				"weapon_pct": {
+					"kinetic": 20,
+					"artillery": 20
+				}
+			}
+		},
+		"antimatiere": {
+			"label": "Torpilles à antimatière",
+			"domain": "armement",
+			"era": 4,
+			"text": "Torpilles marque III et chasseurs marque II : +20 % de dégâts.",
+			"pre": [
+				"essaims",
+				"chasse"
+			],
+			"effects": {
+				"weapon_pct": {
+					"torpedo": 20,
+					"fighters": 20
+				}
+			}
+		},
+		"litanies": {
+			"label": "Litanies de visée",
+			"domain": "armement",
+			"era": 1,
+			"text": "+10 % de dégâts pour toutes les flottes pendant l'Exaltation.",
+			"effects_exalted": {
+				"damage_pct": 10
+			},
+			"requires": {
+				"species": {
+					"credo": [
+						"foi"
+					]
+				}
+			},
+			"flavor": "Le canonnier chante, le canon écoute."
+		},
+		"charge_sacree": {
+			"label": "Charge sacrée",
+			"domain": "armement",
+			"era": 2,
+			"text": "Débloque le Martyr : un brûlot payé en population qui explose en phase courte et nourrit la ferveur.",
+			"pre": [
+				"litanies"
+			],
+			"requires": {
+				"species": {
+					"traits": [
+						"fanatisme"
+					]
+				}
+			}
+		},
+		"zelotes": {
+			"label": "Zélotes d'assaut",
+			"domain": "armement",
+			"era": 3,
+			"text": "+25 % de troupes embarquées, en plus des Marines.",
+			"pre": [
+				"charge_sacree"
+			],
+			"effects": {
+				"troops_pct": 25
+			},
+			"requires": {
+				"species": {
+					"traits": [
+						"fanatisme"
+					]
+				}
+			}
+		},
+		"duellistes": {
+			"label": "Duellistes de lignée",
+			"domain": "armement",
+			"era": 1,
+			"text": "+10 % de dégâts dans les systèmes de l'empire : chaque maison défend son nom.",
+			"effects": {
+				"home_damage_pct": 10
+			},
+			"requires": {
+				"species": {
+					"credo": [
+						"honneur"
+					]
+				}
+			}
+		},
+		"ban_vassaux": {
+			"label": "Ban des vassaux",
+			"domain": "armement",
+			"era": 3,
+			"text": "+50 % de garnison dans les fiefs.",
+			"pre": [
+				"duellistes",
+				"bastions"
+			],
+			"effects": {
+				"garrison_pct": 50
+			},
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"feodalite"
+					]
+				}
+			}
+		},
+		"dernier_moment": {
+			"label": "Doctrine du dernier moment",
+			"domain": "armement",
+			"era": 2,
+			"text": "Les renforts infligent 15 % de dégâts en plus (s'ajoute à « Au dernier moment »).",
+			"effects": {
+				"reinforcement_pct": 15
+			},
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"republique"
+					]
+				}
+			}
+		},
+		"griffes": {
+			"label": "Griffes chitineuses",
+			"domain": "armement",
+			"era": 1,
+			"text": "Canons cinétiques organiques : +25 % de dégâts.",
+			"effects": {
+				"weapon_pct": {
+					"kinetic": 25
+				}
+			},
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			},
+			"replaces": "canons_masse",
+			"flavor": "L'Essaim n'a pas inventé le canon. Il a fait pousser quelque chose qui y ressemble."
+		},
+		"acide": {
+			"label": "Sécrétions acides",
+			"domain": "armement",
+			"era": 3,
+			"text": "+10 % de dégâts pour toutes les armes.",
+			"pre": [
+				"griffes"
+			],
+			"effects": {
+				"damage_pct": 10
+			},
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			}
+		},
+		"debarquement": {
+			"label": "Navires de débarquement",
+			"domain": "genie",
+			"era": 1,
+			"text": "Débloque le Transport de troupes."
+		},
+		"propulseurs": {
+			"label": "Propulseurs à fusion",
+			"domain": "genie",
+			"era": 1,
+			"text": "+10 % de vitesse pour toutes les flottes.",
+			"effects": {
+				"fleet_speed_pct": 10
+			},
+			"tags": [
+				"saut"
+			]
+		},
+		"capteurs": {
+			"label": "Capteurs profonds",
+			"domain": "genie",
+			"era": 1,
+			"text": "Les colonies et avant-postes voient un saut plus loin.",
+			"effects": {
+				"claim_vision": 1
+			}
+		},
+		"cales_rapides": {
+			"label": "Chantiers à cadence",
+			"domain": "genie",
+			"era": 1,
+			"text": "Les vaisseaux sortent des chantiers 15 % plus vite.",
+			"effects": {
+				"ship_days_pct": -15
+			}
+		},
+		"coques_lourdes": {
+			"label": "Coques lourdes",
+			"domain": "genie",
+			"era": 2,
+			"text": "Débloque le Croiseur.",
+			"pre": [
+				"debarquement"
+			]
+		},
+		"torpilleurs": {
+			"label": "Torpilleurs",
+			"domain": "genie",
+			"era": 2,
+			"text": "Débloque le Torpilleur (demande aussi les Torpilles à fusion).",
+			"pre": [
+				"cales_rapides"
+			]
+		},
+		"hyperflux": {
+			"label": "Moteurs à hyperflux",
+			"domain": "genie",
+			"era": 2,
+			"text": "+10 % de vitesse pour toutes les flottes.",
+			"pre": [
+				"propulseurs"
+			],
+			"effects": {
+				"fleet_speed_pct": 10
+			},
+			"tags": [
+				"saut"
+			]
+		},
+		"coques_series": {
+			"label": "Coques de série",
+			"domain": "genie",
+			"era": 2,
+			"text": "Les vaisseaux coûtent 10 % de moins.",
+			"pre": [
+				"cales_rapides"
+			],
+			"effects": {
+				"ship_cost_pct": -10
+			}
+		},
+		"bombardes": {
+			"label": "Bombardes de siège",
+			"domain": "genie",
+			"era": 3,
+			"text": "Débloque la Bombarde.",
+			"pre": [
+				"coques_lourdes"
+			]
+		},
+		"baies": {
+			"label": "Baies de lancement",
+			"domain": "genie",
+			"era": 3,
+			"text": "Débloque le Porte-vaisseaux (demande aussi les Escadrilles de chasse et un Arsenal).",
+			"pre": [
+				"coques_lourdes"
+			]
+		},
+		"arsenaux": {
+			"label": "Arsenaux orbitaux",
+			"domain": "genie",
+			"era": 3,
+			"text": "Débloque l'Arsenal orbital, chantier des grosses coques.",
+			"pre": [
+				"coques_series"
+			]
+		},
+		"ia_bord": {
+			"label": "Intelligences de bord",
+			"domain": "genie",
+			"era": 3,
+			"text": "Des esprits artificiels pointent les armes : +10 % de dégâts pour toutes les armes.",
+			"pre": [
+				"torpilleurs"
+			],
+			"effects": {
+				"damage_pct": 10
+			},
+			"heretic": {
+				"species": {
+					"registre": [
+						"Grimdark"
+					]
+				},
+				"cost_pct": 150,
+				"fervor": -15,
+				"text": "Hérétique pour le Chœur : coûte 50 % de plus et retire 15 ferveur."
+			}
+		},
+		"esprits_lies": {
+			"label": "Esprits-liés",
+			"domain": "genie",
+			"era": 3,
+			"text": "Des cerveaux de fidèles câblés aux tourelles : +10 % de dégâts pour toutes les armes, et +5 ferveur à la découverte.",
+			"pre": [
+				"torpilleurs"
+			],
+			"effects": {
+				"damage_pct": 10
+			},
+			"requires": {
+				"species": {
+					"registre": [
+						"Grimdark"
+					]
+				}
+			},
+			"fervor": 5,
+			"flavor": "Ils ont demandé à servir. Enfin, quelqu'un a demandé pour eux."
+		},
+		"cuirasses": {
+			"label": "Cuirassés",
+			"domain": "genie",
+			"era": 4,
+			"text": "Débloque le Cuirassé (demande aussi l'Artillerie lourde et un Arsenal).",
+			"pre": [
+				"arsenaux"
+			]
+		},
+		"saut_precision": {
+			"label": "Saut de précision",
+			"domain": "genie",
+			"era": 4,
+			"text": "+15 % de vitesse pour toutes les flottes.",
+			"pre": [
+				"hyperflux"
+			],
+			"effects": {
+				"fleet_speed_pct": 15
+			},
+			"tags": [
+				"saut"
+			]
+		},
+		"coques_modulaires": {
+			"label": "Coques modulaires",
+			"domain": "genie",
+			"era": 4,
+			"text": "Les vaisseaux coûtent encore 10 % de moins et sortent 10 % plus vite.",
+			"pre": [
+				"arsenaux"
+			],
+			"effects": {
+				"ship_cost_pct": -10,
+				"ship_days_pct": -10
+			}
+		},
+		"ravitaillement": {
+			"label": "Ravitaillement en vol",
+			"domain": "genie",
+			"era": 4,
+			"text": "L'entretien des flottes coûte 20 % de moins.",
+			"pre": [
+				"coques_series"
+			],
+			"effects": {
+				"upkeep_pct": -20
+			}
+		},
+		"chantier_titanesque": {
+			"label": "Chantier titanesque",
+			"domain": "genie",
+			"era": 5,
+			"text": "Débloque le Chantier titanesque et le Titan.",
+			"pre": [
+				"cuirasses",
+				"coques_modulaires"
+			]
+		},
+		"forges_nefs": {
+			"label": "Forges-nefs",
+			"domain": "genie",
+			"era": 2,
+			"text": "Pendant l'Exaltation, les vaisseaux coûtent 10 % de moins.",
+			"pre": [
+				"debarquement"
+			],
+			"effects_exalted": {
+				"ship_cost_pct": -10
+			},
+			"requires": {
+				"species": {
+					"registre": [
+						"Grimdark"
+					]
+				}
+			}
+		},
+		"cartes_lignees": {
+			"label": "Cartes des lignées",
+			"domain": "genie",
+			"era": 1,
+			"text": "Les routes de saut des maisons : +15 % de vitesse pour toutes les flottes.",
+			"effects": {
+				"fleet_speed_pct": 15
+			},
+			"requires": {
+				"species": {
+					"traits": [
+						"navigateurs"
+					]
+				}
+			},
+			"replaces": "propulseurs",
+			"tags": [
+				"saut"
+			]
+		},
+		"ecoles_navigateurs": {
+			"label": "Écoles de navigateurs",
+			"domain": "genie",
+			"era": 2,
+			"text": "+1 vision pour les colonies, et +10 % de vitesse.",
+			"pre": [
+				"cartes_lignees"
+			],
+			"effects": {
+				"claim_vision": 1,
+				"fleet_speed_pct": 10
+			},
+			"requires": {
+				"species": {
+					"traits": [
+						"navigateurs"
+					]
+				}
+			},
+			"tags": [
+				"saut"
+			]
+		},
+		"equipages_mixtes": {
+			"label": "Équipages mixtes",
+			"domain": "genie",
+			"era": 2,
+			"text": "Quarante espèces sur le même pont : les vaisseaux sortent 15 % plus vite.",
+			"pre": [
+				"cales_rapides"
+			],
+			"effects": {
+				"ship_days_pct": -15
+			},
+			"requires": {
+				"species": {
+					"traits": [
+						"pluriel"
+					]
+				}
+			}
+		},
+		"spores_rapides": {
+			"label": "Cosses accélérées",
+			"domain": "genie",
+			"era": 1,
+			"text": "Les vaisseaux sortent 20 % plus vite des chantiers (ou des cocons).",
+			"effects": {
+				"ship_days_pct": -20
+			},
+			"requires": {
+				"species": {
+					"traits": [
+						"fecondite"
+					]
+				}
+			},
+			"replaces": "cales_rapides"
+		},
+		"hydroponie": {
+			"label": "Hydroponie avancée",
+			"domain": "economie",
+			"era": 1,
+			"text": "+15 % de nourriture.",
+			"effects": {
+				"production_pct": {
+					"food": 15
+				}
+			}
+		},
+		"fusion_compacte": {
+			"label": "Fusion compacte",
+			"domain": "economie",
+			"era": 1,
+			"text": "+15 % d'énergie.",
+			"effects": {
+				"production_pct": {
+					"energy": 15
+				}
+			}
+		},
+		"extraction": {
+			"label": "Extraction profonde",
+			"domain": "economie",
+			"era": 1,
+			"text": "+15 % de matériaux.",
+			"effects": {
+				"production_pct": {
+					"materials": 15
+				}
+			}
+		},
+		"academies": {
+			"label": "Académies",
+			"domain": "economie",
+			"era": 1,
+			"text": "Débloque l'Académie : +4 Savoir et +10 % de Savoir dans sa colonie."
+		},
+		"raffinage": {
+			"label": "Raffinage des cristaux",
+			"domain": "economie",
+			"era": 2,
+			"text": "Débloque la Raffinerie de cristaux.",
+			"pre": [
+				"fusion_compacte"
+			]
+		},
+		"logistique": {
+			"label": "Logistique impériale",
+			"domain": "economie",
+			"era": 2,
+			"text": "+1 emplacement de bâtiment sur les planètes de taille 3 ou plus.",
+			"pre": [
+				"extraction"
+			],
+			"effects": {
+				"building_slots": 1
+			}
+		},
+		"banques_donnees": {
+			"label": "Banques de données",
+			"domain": "economie",
+			"era": 2,
+			"text": "+15 % de Savoir.",
+			"pre": [
+				"academies"
+			],
+			"effects": {
+				"production_pct": {
+					"knowledge": 15
+				}
+			}
+		},
+		"recyclage": {
+			"label": "Recyclage orbital",
+			"domain": "economie",
+			"era": 2,
+			"text": "+10 % de matériaux et d'énergie.",
+			"pre": [
+				"extraction"
+			],
+			"effects": {
+				"production_pct": {
+					"materials": 10,
+					"energy": 10
+				}
+			}
+		},
+		"bourses": {
+			"label": "Bourses interstellaires",
+			"domain": "economie",
+			"era": 3,
+			"text": "+15 % d'énergie et +10 % d'influence.",
+			"pre": [
+				"recyclage"
+			],
+			"effects": {
+				"production_pct": {
+					"energy": 15,
+					"influence": 10
+				}
+			}
+		},
+		"automatisation": {
+			"label": "Automatisation",
+			"domain": "economie",
+			"era": 3,
+			"text": "+10 % de production de toutes les ressources.",
+			"pre": [
+				"logistique"
+			],
+			"effects": {
+				"production_pct": {
+					"all": 10
+				}
+			},
+			"forbidden": {
+				"species": {
+					"registre": [
+						"Grimdark"
+					]
+				}
+			}
+		},
+		"nanofabrication": {
+			"label": "Nanofabrication",
+			"domain": "economie",
+			"era": 3,
+			"text": "Les bâtiments coûtent 20 % de moins.",
+			"pre": [
+				"logistique"
+			],
+			"effects": {
+				"building_cost_pct": -20
+			}
+		},
+		"cristallographie": {
+			"label": "Cristallographie",
+			"domain": "economie",
+			"era": 3,
+			"text": "+25 % de cristaux de saut.",
+			"pre": [
+				"raffinage"
+			],
+			"effects": {
+				"production_pct": {
+					"crystals": 25
+				}
+			}
+		},
+		"reseaux_savants": {
+			"label": "Réseaux savants",
+			"domain": "economie",
+			"era": 3,
+			"text": "+20 % de Savoir.",
+			"pre": [
+				"banques_donnees"
+			],
+			"effects": {
+				"production_pct": {
+					"knowledge": 20
+				}
+			}
+		},
+		"scriptorium": {
+			"label": "Scriptorium",
+			"domain": "economie",
+			"era": 1,
+			"text": "À la place de l'Académie : le Scriptorium, +4 Savoir et +1 ferveur par mois. Les moines recopient le savoir, ils ne le discutent pas.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"theocratie"
+					]
+				}
+			},
+			"replaces": "academies"
+		},
+		"forges_psalmodiques": {
+			"label": "Forges psalmodiques",
+			"domain": "economie",
+			"era": 2,
+			"text": "+20 % de matériaux pendant l'Exaltation.",
+			"pre": [
+				"extraction"
+			],
+			"effects_exalted": {
+				"production_pct": {
+					"materials": 20
+				}
+			},
+			"requires": {
+				"species": {
+					"registre": [
+						"Grimdark"
+					]
+				}
+			}
+		},
+		"serviteurs": {
+			"label": "Serviteurs pénitents",
+			"domain": "economie",
+			"era": 3,
+			"text": "À la place de l'Automatisation : +15 % de production de toutes les ressources, mais une croissance 10 % plus lente.",
+			"pre": [
+				"logistique"
+			],
+			"effects": {
+				"production_pct": {
+					"all": 15
+				},
+				"growth_pct": -10
+			},
+			"requires": {
+				"species": {
+					"registre": [
+						"Grimdark"
+					]
+				}
+			},
+			"replaces": "automatisation",
+			"flavor": "Ils travaillent sans relâche. Ils n'ont plus vraiment le choix, ni d'avis."
+		},
+		"universites": {
+			"label": "Universités des Quarante",
+			"domain": "economie",
+			"era": 1,
+			"text": "À la place de l'Académie : l'Université, +6 Savoir et +10 % dans sa colonie.",
+			"requires": {
+				"species": {
+					"credo": [
+						"raison"
+					]
+				}
+			},
+			"replaces": "academies"
+		},
+		"ganglions": {
+			"label": "Ganglions de mémoire",
+			"domain": "economie",
+			"era": 1,
+			"text": "À la place de l'Académie : le Ganglion, +4 Savoir, nourri de nourriture plutôt que de livres.",
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			},
+			"replaces": "academies"
+		},
+		"digestion_totale": {
+			"label": "Digestion totale",
+			"domain": "economie",
+			"era": 2,
+			"text": "La biomasse rapporte +5 matériaux de plus par population digérée.",
+			"pre": [
+				"hydroponie"
+			],
+			"effects": {
+				"biomass_bonus": 5
+			},
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			}
+		},
+		"monopole": {
+			"label": "Monopole des cristaux",
+			"domain": "economie",
+			"era": 2,
+			"text": "+25 % de cristaux de saut.",
+			"pre": [
+				"fusion_compacte"
+			],
+			"effects": {
+				"production_pct": {
+					"crystals": 25
+				}
+			},
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"feodalite"
+					]
+				}
+			}
+		},
+		"adaptation": {
+			"label": "Adaptation climatique",
+			"domain": "societe",
+			"era": 1,
+			"text": "+20 % d'habitabilité sur les mondes continentaux et océaniques (hors monde d'origine).",
+			"effects": {
+				"hab_bonus": {
+					"continental": 20,
+					"ocean": 20
+				}
+			}
+		},
+		"administration": {
+			"label": "Administration coloniale",
+			"domain": "societe",
+			"era": 1,
+			"text": "+1 colonisation simultanée.",
+			"effects": {
+				"max_projects": 1
+			}
+		},
+		"rhetorique": {
+			"label": "Rhétorique impériale",
+			"domain": "societe",
+			"era": 1,
+			"text": "+15 % d'influence.",
+			"effects": {
+				"production_pct": {
+					"influence": 15
+				}
+			}
+		},
+		"medecine": {
+			"label": "Médecine coloniale",
+			"domain": "societe",
+			"era": 1,
+			"text": "+15 % de croissance de la population.",
+			"effects": {
+				"growth_pct": 15
+			}
+		},
+		"mondes_toxiques": {
+			"label": "Mondes toxiques",
+			"domain": "societe",
+			"era": 2,
+			"text": "Les mondes toxiques deviennent habitables (40 %).",
+			"pre": [
+				"adaptation"
+			],
+			"effects": {
+				"hab_set": {
+					"toxic": 40
+				}
+			}
+		},
+		"biomes_extremes": {
+			"label": "Biomes extrêmes",
+			"domain": "societe",
+			"era": 2,
+			"text": "+20 % d'habitabilité sur les mondes désertiques et glaciaires.",
+			"pre": [
+				"adaptation"
+			],
+			"effects": {
+				"hab_bonus": {
+					"desert": 20,
+					"arctic": 20
+				}
+			}
+		},
+		"chancelleries": {
+			"label": "Chancelleries",
+			"domain": "societe",
+			"era": 2,
+			"text": "Débloque les alliances.",
+			"pre": [
+				"rhetorique"
+			],
+			"effects": {
+				"alliances": 1
+			}
+		},
+		"colons_formes": {
+			"label": "Colons formés",
+			"domain": "societe",
+			"era": 2,
+			"text": "Les nouvelles colonies démarrent avec 1 population de plus.",
+			"pre": [
+				"medecine"
+			],
+			"effects": {
+				"colony_start_pop": 1
+			}
+		},
+		"habitats": {
+			"label": "Habitats orbitaux",
+			"domain": "societe",
+			"era": 3,
+			"text": "Débloque les Habitats orbitaux.",
+			"pre": [
+				"mondes_toxiques"
+			]
+		},
+		"cites_flottantes": {
+			"label": "Cités flottantes",
+			"domain": "societe",
+			"era": 3,
+			"text": "Les géantes gazeuses deviennent habitables (30 %).",
+			"pre": [
+				"mondes_toxiques"
+			],
+			"effects": {
+				"hab_set": {
+					"gas_giant": 30
+				}
+			}
+		},
+		"genetique": {
+			"label": "Génétique appliquée",
+			"domain": "societe",
+			"era": 3,
+			"text": "+15 % de croissance de la population.",
+			"pre": [
+				"colons_formes"
+			],
+			"effects": {
+				"growth_pct": 15
+			},
+			"heretic": {
+				"species": {
+					"registre": [
+						"Grimdark"
+					]
+				},
+				"cost_pct": 150,
+				"fervor": -10,
+				"text": "Hérétique pour le Chœur : coûte 50 % de plus et retire 10 ferveur."
+			}
+		},
+		"propagande": {
+			"label": "Propagande",
+			"domain": "societe",
+			"era": 3,
+			"text": "+20 % d'influence.",
+			"pre": [
+				"chancelleries"
+			],
+			"effects": {
+				"production_pct": {
+					"influence": 20
+				}
+			}
+		},
+		"administration2": {
+			"label": "Gouverneurs de secteur",
+			"domain": "societe",
+			"era": 3,
+			"text": "+1 colonisation simultanée.",
+			"pre": [
+				"administration",
+				"colons_formes"
+			],
+			"effects": {
+				"max_projects": 1
+			}
+		},
+		"catechisme": {
+			"label": "Catéchisme",
+			"domain": "societe",
+			"era": 1,
+			"text": "+1 ferveur par mois pour chaque colonie de 5 population ou plus.",
+			"effects": {
+				"fervor_big_colony": 1
+			},
+			"requires": {
+				"species": {
+					"credo": [
+						"foi"
+					]
+				}
+			}
+		},
+		"offrande_consacree": {
+			"label": "Offrande consacrée",
+			"domain": "societe",
+			"era": 2,
+			"text": "L'Offrande donne 10 ferveur de plus.",
+			"pre": [
+				"catechisme"
+			],
+			"effects": {
+				"sacrifice_gain": 10
+			},
+			"requires": {
+				"species": {
+					"traits": [
+						"fanatisme"
+					]
+				}
+			}
+		},
+		"pelerinages": {
+			"label": "Pèlerinages",
+			"domain": "societe",
+			"era": 3,
+			"text": "+20 % de croissance pendant l'Exaltation.",
+			"pre": [
+				"offrande_consacree"
+			],
+			"effects_exalted": {
+				"growth_pct": 20
+			},
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"theocratie"
+					]
+				}
+			}
+		},
+		"vassalite": {
+			"label": "Serments de vassalité",
+			"domain": "societe",
+			"era": 1,
+			"text": "Chaque fief verse 1 influence de plus par mois.",
+			"effects": {
+				"fief_influence": 1
+			},
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"feodalite"
+					]
+				}
+			}
+		},
+		"tournois": {
+			"label": "Tournois des maisons",
+			"domain": "societe",
+			"era": 3,
+			"text": "+20 % d'influence.",
+			"pre": [
+				"vassalite",
+				"rhetorique"
+			],
+			"effects": {
+				"production_pct": {
+					"influence": 20
+				}
+			},
+			"requires": {
+				"species": {
+					"credo": [
+						"honneur"
+					]
+				}
+			}
+		},
+		"assemblees": {
+			"label": "Assemblées élargies",
+			"domain": "societe",
+			"era": 1,
+			"text": "+15 % d'influence, en plus de la Rhétorique.",
+			"effects": {
+				"production_pct": {
+					"influence": 15
+				}
+			},
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"republique"
+					]
+				}
+			}
+		},
+		"xenodiplomatie": {
+			"label": "Xénodiplomatie",
+			"domain": "societe",
+			"era": 2,
+			"text": "+10 % d'habitabilité sur tous les mondes habitables.",
+			"pre": [
+				"assemblees"
+			],
+			"effects": {
+				"hab_bonus": {
+					"all": 10
+				}
+			},
+			"requires": {
+				"species": {
+					"traits": [
+						"pluriel"
+					]
+				}
+			}
+		},
+		"couvees": {
+			"label": "Couvées",
+			"domain": "societe",
+			"era": 1,
+			"text": "+20 % de croissance de la population.",
+			"effects": {
+				"growth_pct": 20
+			},
+			"requires": {
+				"species": {
+					"traits": [
+						"fecondite"
+					]
+				}
+			}
+		},
+		"metabolisme": {
+			"label": "Métabolisme adaptatif",
+			"domain": "societe",
+			"era": 2,
+			"text": "+20 % d'habitabilité sur tous les mondes habitables.",
+			"pre": [
+				"couvees"
+			],
+			"effects": {
+				"hab_bonus": {
+					"all": 20
+				}
+			},
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			}
+		}
+	}
+}

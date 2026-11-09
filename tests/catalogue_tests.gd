@@ -100,6 +100,9 @@ func _test_requirements() -> void:
 	var st := _state()
 	var e := st.get_empire(0)
 	_rich(e)
+	var cap0 := e.capital_planet
+	_ok(Fleets.check_build_ship(st, 0, cap0, "cuirasse").contains("technologie"), "cuirassé refusé sans ses technologies")
+	Research.grant_all(st, 0)
 	var cap := e.capital_planet
 	var c: Colony = st.colonies[cap]
 	_ok(Fleets.check_build_ship(st, 0, cap, "cuirasse").contains("Arsenal"), "cuirassé refusé sans arsenal")

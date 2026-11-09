@@ -37,6 +37,17 @@ var ai_temperament: String = ""
 ## Dernière intention notable de l'IA, pour le mode spectateur. Simple affichage : jamais sauvegardée,
 ## jamais lue par la simulation (elle ne peut donc pas casser le déterminisme).
 var ai_intent: String = ""
+## Recherche (voir Research) : technologies découvertes (id -> true), file de recherche (la première
+## est en cours), Savoir déjà investi dans la recherche en cours, et travail mis de côté quand une
+## recherche a été interrompue (id -> Savoir investi).
+var techs: Dictionary = {}
+var research_queue: Array[String] = []
+var research_progress: int = 0
+var research_shelf: Dictionary = {}
+## Effets cumulés des technologies, recalculés quand tech_fx_n ne correspond plus (jamais sauvegardés).
+var tech_fx: Dictionary = {}
+var tech_fx_exalted: Dictionary = {}
+var tech_fx_n: int = -1
 
 
 func is_ai() -> bool:
@@ -80,7 +91,26 @@ func to_dict() -> Dictionary:
 		"heir": heir_loyalty,
 		"suitor": heir_suitor,
 		"mediation": mediation_tick,
+		"techs": sorted_techs(),
+		"queue": Array(research_queue),
+		"progress": research_progress,
+		"shelf": _sorted_shelf(),
 	}
+
+
+func sorted_techs() -> Array:
+	var ids := techs.keys()
+	ids.sort()
+	return ids
+
+
+func _sorted_shelf() -> Array:
+	var ids := research_shelf.keys()
+	ids.sort()
+	var out := []
+	for k in ids:
+		out.append([k, research_shelf[k]])
+	return out
 
 
 func sorted_explored() -> Array:
@@ -116,4 +146,11 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.heir_loyalty = int(d.get("heir", -1))
 	e.heir_suitor = int(d.get("suitor", -1))
 	e.mediation_tick = int(d.get("mediation", -100000))
+	for t in d.get("techs", []):
+		e.techs[String(t)] = true
+	for t in d.get("queue", []):
+		e.research_queue.append(String(t))
+	e.research_progress = int(d.get("progress", 0))
+	for pair in d.get("shelf", []):
+		e.research_shelf[String(pair[0])] = int(pair[1])
 	return e

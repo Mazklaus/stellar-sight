@@ -83,6 +83,7 @@
 		"siege": 1
 	},
 	"croiseur": {
+		"requires_tech": ["coques_lourdes"],
 		"label": "Croiseur",
 		"plural": "Croiseurs",
 		"line": "line",
@@ -125,6 +126,7 @@
 		"siege": 0
 	},
 	"torpilleur": {
+		"requires_tech": ["torpilleurs", "torpilles"],
 		"label": "Torpilleur",
 		"plural": "Torpilleurs",
 		"role": "Ligne",
@@ -145,6 +147,7 @@
 		"siege": 0
 	},
 	"transport": {
+		"requires_tech": ["debarquement"],
 		"label": "Transport de troupes",
 		"plural": "Transports de troupes",
 		"role": "Invasion",
@@ -164,6 +167,7 @@
 		"siege": 0
 	},
 	"bombarde": {
+		"requires_tech": ["bombardes"],
 		"label": "Bombarde",
 		"plural": "Bombardes",
 		"role": "Siège",
@@ -184,6 +188,7 @@
 		"siege": 8
 	},
 	"cuirasse": {
+		"requires_tech": ["cuirasses", "artillerie"],
 		"label": "Cuirassé",
 		"plural": "Cuirassés",
 		"role": "Artillerie",
@@ -206,6 +211,7 @@
 		"siege": 3
 	},
 	"porte_vaisseaux": {
+		"requires_tech": ["baies", "chasse"],
 		"label": "Porte-vaisseaux",
 		"plural": "Porte-vaisseaux",
 		"role": "Chasseurs",
@@ -228,6 +234,7 @@
 		"siege": 1
 	},
 	"titan": {
+		"requires_tech": ["chantier_titanesque"],
 		"label": "Titan",
 		"plural": "Titans",
 		"role": "Titan",
@@ -275,6 +282,7 @@
 		"siege": 1
 	},
 	"martyr": {
+		"requires_tech": ["charge_sacree"],
 		"label": "Martyr",
 		"plural": "Martyrs",
 		"role": "Sacrifice",
@@ -320,6 +328,7 @@
 		"siege": 1
 	},
 	"ruche_mere": {
+		"requires_tech": ["baies", "chasse"],
 		"label": "Ruche-mère",
 		"plural": "Ruches-mères",
 		"role": "Chasseurs",

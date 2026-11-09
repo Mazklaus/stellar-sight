@@ -168,8 +168,10 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 				var pick: Array = _pick(cum, state.rng.randi_range(0, int(cum[1]) - 1))
 				var tg: Fleet = pick[0]
 				var ti: int = pick[1]
-				var dmg := Combat.shot_damage(String(k), int(w[k]), phase, tac, bonus, tg.ships[ti], Combat.fleet_tactic(tg),
-						Combat.fleet_pd(tg))
+				@warning_ignore("integer_division")
+				var wbonus := bonus * (100 + Combat.weapon_bonus(state, f.owner, String(k))) / 100
+				var dmg := Combat.shot_damage(String(k), int(w[k]), phase, tac, wbonus, tg.ships[ti], Combat.fleet_tactic(tg),
+						Combat.fleet_pd(tg), Combat.defense_bonus(state, tg.owner))
 				var key := Vector2i(tg.id, ti)
 				pending[key] = int(pending.get(key, 0)) + dmg
 				side["dealt"] = int(side["dealt"]) + dmg
@@ -279,10 +281,13 @@ static func _damage_bonus(state: GameState, b: Dictionary, f: Fleet, sid: int) -
 	var pct := 100
 	if state.system_owner(sid) == f.owner:
 		@warning_ignore("integer_division")
-		pct = pct * int(Combat.trait_value(state, f.owner, "home_damage_pct", 100)) / 100
+		pct = pct * (int(Combat.trait_value(state, f.owner, "home_damage_pct", 100)) + Research.fx_int(state, f.owner, "home_damage_pct")) / 100
 	if _joined_day(b, f.id) > 1:
-		@warning_ignore("integer_division")
-		pct = pct * int(Combat.trait_value(state, f.owner, "reinforcement_pct", 100)) / 100
+		var rp := int(Combat.trait_value(state, f.owner, "reinforcement_pct", 100))
+		var rt := Research.fx_int(state, f.owner, "reinforcement_pct")
+		if rp != 100 or rt != 0:
+			@warning_ignore("integer_division")
+			pct = pct * (rp + rt) / 100
 	return pct
 
 
@@ -304,7 +309,7 @@ static func _apply_damage(state: GameState, b: Dictionary, fighters: Array[Fleet
 				f.remove_at(i)
 				lost_any = true
 		if lost_any:
-			f.troops = mini(f.troops, Combat.max_troops(f))
+			f.troops = mini(f.troops, Combat.max_troops(f, state))
 		if f.ships.is_empty():
 			state.fleets.erase(f.id)
 
@@ -313,10 +318,16 @@ static func _apply_damage(state: GameState, b: Dictionary, fighters: Array[Fleet
 static func _credit_kill(state: GameState, b: Dictionary, victim: int) -> void:
 	for s: Dictionary in b["sides"]:
 		var eid := int(s["empire"])
+		if not Combat.at_war(state, eid, victim):
+			continue
+		var e := state.get_empire(eid)
 		var gain := int(Combat.trait_value(state, eid, "fervor_per_kill", 0))
-		if gain > 0 and Combat.at_war(state, eid, victim):
-			var e := state.get_empire(eid)
+		if gain > 0:
 			e.fervor = mini(int(e.faction()["fervor"]["max"]), e.fervor + gain)
+		# Reliques saintes du Chœur, mémoire génétique de l'Essaim : on apprend des épaves.
+		var know := int(e.faction().get("research", {}).get("knowledge_per_kill", 0))
+		if know > 0:
+			e.resources["knowledge"] = int(e.resources.get("knowledge", 0)) + know
 
 
 ## Fin d'une bataille : rapport, chronicle, événement. Le vainqueur est le seul camp encore présent.
@@ -433,8 +444,11 @@ static func _battery_fire(state: GameState, sid: int, by: Array[Fleet]) -> void:
 	for k in keys:
 		var pick: Array = list[state.rng.randi_range(0, list.size() - 1)]
 		var tg: Fleet = pick[0]
-		var dmg := Combat.shot_damage(String(k), int(bat[k]), 1, Combat.default_tactic(),
-				int(Combat.trait_value(state, owner, "home_damage_pct", 100)), tg.ships[pick[1]], Combat.fleet_tactic(tg))
+		@warning_ignore("integer_division")
+		var bb := (int(Combat.trait_value(state, owner, "home_damage_pct", 100)) + Research.fx_int(state, owner, "home_damage_pct")) \
+				* (100 + Combat.weapon_bonus(state, owner, String(k))) / 100
+		var dmg := Combat.shot_damage(String(k), int(bat[k]), 1, Combat.default_tactic(), bb, tg.ships[pick[1]],
+				Combat.fleet_tactic(tg), 0, Combat.defense_bonus(state, tg.owner))
 		var key := Vector2i(tg.id, int(pick[1]))
 		pending[key] = int(pending.get(key, 0)) + dmg
 	for f: Fleet in by:
@@ -444,7 +458,7 @@ static func _battery_fire(state: GameState, sid: int, by: Array[Fleet]) -> void:
 				f.hp[i] -= dmg
 				if f.hp[i] <= 0:
 					f.remove_at(i)
-		f.troops = mini(f.troops, Combat.max_troops(f))
+		f.troops = mini(f.troops, Combat.max_troops(f, state))
 		if f.ships.is_empty():
 			state.fleets.erase(f.id)
 
@@ -467,7 +481,7 @@ static func _repairs(state: GameState, fought: Dictionary) -> void:
 			if f.hp[i] < mx:
 				@warning_ignore("integer_division")
 				f.hp[i] = mini(mx, f.hp[i] + maxi(1, mx * pct / 100))
-		var tmax := Combat.max_troops(f)
+		var tmax := Combat.max_troops(f, state)
 		if at_home and f.troops < tmax:
 			@warning_ignore("integer_division")
 			f.troops = mini(tmax, f.troops + maxi(1, tmax * regen / 100))

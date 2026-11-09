@@ -22,12 +22,47 @@ static func habitability(planet_type: String, faction: Dictionary) -> int:
 	return base
 
 
+## Habitabilité pour un empire, technologies comprises : un type rendu habitable (hab_set) prend la
+## meilleure des deux valeurs, puis hab_bonus s'ajoute sur les mondes habitables qui ne sont pas le
+## monde d'origine du peuple (100 % au plus).
+static func habitability_for(state: GameState, empire_id: int, planet_type: String) -> int:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return 0
+	var f := e.faction()
+	var hab := habitability(planet_type, f)
+	var fx := Research.effects(state, empire_id)
+	var set_to := int(fx.get("hab_set", {}).get(planet_type, 0))
+	if set_to > hab:
+		hab = maxi(set_to, FactionTraits.hab_floor(f))
+	var pref: Array = f.get("preferred", [])
+	if hab > 0 and (pref.is_empty() or pref[0] != planet_type):
+		var bonus: Dictionary = fx.get("hab_bonus", {})
+		hab = mini(100, hab + int(bonus.get(planet_type, 0)) + int(bonus.get("all", 0)))
+	return hab
+
+
+## Le type de planète peut-il accueillir une population de cet empire ? Les types sans population
+## (géantes gazeuses) le deviennent avec une technologie qui les rend habitables (cités flottantes).
+static func houses_pop(state: GameState, empire_id: int, planet_type: String) -> bool:
+	if not GameData.planet_type(planet_type).get("pop_yields", {}).is_empty():
+		return true
+	return Research.fx_sub(state, empire_id, "hab_set", planet_type) > 0
+
+
+## Rendement par population d'un type de planète (cités flottantes pour les types sans population).
+static func pop_yields(planet_type: String) -> Dictionary:
+	var pt := GameData.planet_type(planet_type)
+	var y: Dictionary = pt.get("pop_yields", {})
+	return y if not y.is_empty() else pt.get("city_pop_yields", {})
+
+
 ## Population maximale d'une planète pour un empire, bâtiments compris.
 static func max_pop(state: GameState, planet: Planet, empire_id: int, buildings: Array[String] = []) -> int:
 	var e := state.get_empire(empire_id)
-	if e == null or not planet.is_habitable_type():
+	if e == null or not houses_pop(state, empire_id, planet.type):
 		return 0
-	var hab := habitability(planet.type, e.faction())
+	var hab := habitability_for(state, empire_id, planet.type)
 	if hab <= 0:
 		return 0
 	@warning_ignore("integer_division")
@@ -42,7 +77,10 @@ static func max_pop(state: GameState, planet: Planet, empire_id: int, buildings:
 @warning_ignore("integer_division")
 static func growth_per_day(state: GameState, colony: Colony) -> int:
 	var e := state.get_empire(colony.owner)
-	var pct := int(e.faction().get("growth_pct", 100)) if e else 100
+	if e == null:
+		return int(GameData.rules()["growth_per_day"])
+	var pct := int(e.faction().get("growth_pct", 100))
+	pct = pct * maxi(10, 100 + Research.fx_int(state, colony.owner, "growth_pct")) / 100
 	return int(GameData.rules()["growth_per_day"]) * pct / 100
 
 
@@ -63,7 +101,7 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 	var rules := GameData.rules()
 	_add(upkeep, rules["claims"][colony.kind].get("upkeep", {}))
 	if colony.is_colony():
-		_add(gross, ptype.get("pop_yields", {}), colony.population)
+		_add(gross, pop_yields(planet.type), colony.population)
 		var e := state.get_empire(colony.owner)
 		var food_pct := int(e.faction().get("food_upkeep_pct", 100)) if e else 100
 		@warning_ignore("integer_division")
@@ -72,10 +110,19 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		_add(gross, ptype.get("outpost_yields", {}))
 	for d in planet.deposits:
 		_add(gross, GameData.deposit(d).get("yields", {}))
+	var knowledge_pct := 0
 	for b in colony.buildings:
 		var bd := GameData.building(b)
 		_add(gross, bd.get("yields", {}))
 		_add(upkeep, bd.get("upkeep", {}))
+		knowledge_pct += int(bd.get("knowledge_pct", 0))
+	if colony.is_colony():
+		# Savoir : chaque population pense un peu (pop_per_knowledge habitants pour 1 Savoir).
+		@warning_ignore("integer_division")
+		gross["knowledge"] = int(gross.get("knowledge", 0)) + colony.population / maxi(1, int(rules.get("pop_per_knowledge", 2)))
+	if knowledge_pct != 0:
+		@warning_ignore("integer_division")
+		gross["knowledge"] = int(gross["knowledge"]) * (100 + knowledge_pct) / 100
 	FactionTraits.adjust_yields(state, colony, gross, upkeep)
 	if Combat.is_besieged(state, planet.system_id):
 		var pct := int(Combat.data().get("besieged_production_pct", 50))
@@ -110,10 +157,15 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 
 
 ## Pourcentage total appliqué à la production brute d'une ressource : traits de faction (et ferveur),
-## puis bonus de difficulté des IA des niveaux hauts.
+## technologies et talent de recherche du peuple, puis bonus de difficulté des IA des niveaux hauts.
+@warning_ignore("integer_division")
 static func production_pct(state: GameState, empire_id: int, resource: String) -> int:
-	@warning_ignore("integer_division")
-	return FactionTraits.production_pct(state, empire_id, resource) * AiLevels.production_pct(state, empire_id) / 100
+	var pct := FactionTraits.production_pct(state, empire_id, resource)
+	var bonus := Research.production_bonus(state, empire_id, resource)
+	if resource == "knowledge":
+		bonus += FactionTraits.peace_knowledge_pct(state, empire_id)
+	pct = pct * (100 + bonus) / 100
+	return pct * AiLevels.production_pct(state, empire_id) / 100
 
 
 ## Coût d'une revendication ("colony" ou "outpost").
@@ -167,6 +219,21 @@ static func claim_cost_for(state: GameState, empire_id: int, planet_id: int, kin
 	return FactionTraits.adjust_claim_cost(state, empire_id, cost)
 
 
+## Colonisations simultanées permises (règle commune + technologies d'administration).
+static func max_projects_for(state: GameState, empire_id: int) -> int:
+	return int(GameData.rules()["max_projects"]) + Research.fx_int(state, empire_id, "max_projects")
+
+
+## Coût d'un bâtiment pour un empire (technologies de nanofabrication comprises).
+static func building_cost(state: GameState, empire_id: int, building_id: String) -> Dictionary:
+	return Research.scaled_amounts(GameData.building(building_id).get("cost", {}), Research.fx_int(state, empire_id, "building_cost_pct"))
+
+
+## Bâtiment débloqué par les technologies de l'empire ?
+static func building_unlocked(state: GameState, empire_id: int, building_id: String) -> bool:
+	return Research.knows_all(state, empire_id, GameData.building(building_id).get("requires_tech", []))
+
+
 ## Nombre de colonisations en cours (pas encore fondées) d'un empire.
 static func active_projects(state: GameState, empire_id: int) -> int:
 	var n := 0
@@ -202,7 +269,7 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 		return "hors de portée : il faut un vaisseau colon à l'arrêt dans ce système (ou une revendication établie dans le système)"
 	if kind == Colony.KIND_COLONY and max_pop(state, p, empire_id) < 1:
 		return "planète inhabitable pour votre espèce"
-	var max_projects := int(GameData.rules()["max_projects"])
+	var max_projects := max_projects_for(state, empire_id)
 	if active_projects(state, empire_id) >= max_projects:
 		return "déjà %d colonisations en cours" % max_projects
 	var cost := claim_cost_for(state, empire_id, planet_id, kind)
@@ -224,6 +291,8 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 	var b := GameData.building(building_id)
 	if b.is_empty() or not b.get("buildable", true):
 		return "bâtiment inconnu : %s" % building_id
+	if not building_unlocked(state, empire_id, building_id):
+		return "technologie requise : %s" % Research.missing_text(state, empire_id, b.get("requires_tech", []))
 	if c.construction != "":
 		return "un chantier est déjà en cours"
 	if not c.is_colony() and not b.get("outpost_ok", false):
@@ -241,7 +310,7 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 	var slots := building_slots(state, c)
 	if used >= slots:
 		return "plus d'emplacement libre (%d/%d)" % [used, slots]
-	var cost: Dictionary = b.get("cost", {})
+	var cost := building_cost(state, empire_id, building_id)
 	if not can_afford(e, cost):
 		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)
 	return ""
@@ -252,7 +321,10 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 static func building_slots(state: GameState, colony: Colony) -> int:
 	if not colony.is_colony():
 		return int(GameData.rules()["outpost_slots"])
-	return state.galaxy.get_planet(colony.planet_id).size
+	var size := state.galaxy.get_planet(colony.planet_id).size
+	if size >= 3:
+		size += Research.fx_int(state, colony.owner, "building_slots")
+	return size
 
 
 static func building_slots_used(colony: Colony) -> int:

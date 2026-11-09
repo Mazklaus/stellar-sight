@@ -481,7 +481,7 @@ func _refresh_fleet_card() -> void:
 	if Combat.is_armed(f) or f.total_hp() < f.total_max_hp():
 		@warning_ignore("integer_division")
 		_fleet_stats.text += "\nPuissance %d  ·  coque %d %%  ·  troupes %d/%d  ·  %s" % [Combat.fleet_power(f),
-				f.total_hp() * 100 / maxi(1, f.total_max_hp()), f.troops, Combat.max_troops(f), Combat.tactic_label(Combat.fleet_tactic(f))]
+				f.total_hp() * 100 / maxi(1, f.total_max_hp()), f.troops, Combat.max_troops(f, _state), Combat.tactic_label(Combat.fleet_tactic(f))]
 	var can_colonize := mine and not f.is_moving() and Fleets.colonizer_ship(f) != ""
 	if can_colonize:
 		can_colonize = false

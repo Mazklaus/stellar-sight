@@ -40,6 +40,7 @@ static func think(state: GameState, e: Empire) -> void:
 		"intent": "",
 	}
 	_faction_talents(ctx)
+	_research(ctx)
 	_buildings(ctx)
 	_foothold_claims(ctx)
 	_shipyards(ctx)
@@ -402,7 +403,9 @@ static func _buildings(ctx: Dictionary) -> void:
 			continue
 		var urgent := urgent_needs(ctx, net)
 		for b in building_wishes(ctx, c, net):
-			var cost: Dictionary = GameData.building(b).get("cost", {})
+			if not Economy.building_unlocked(state, e.id, b):
+				continue
+			var cost := Economy.building_cost(state, e.id, b)
 			if _res(ctx, "materials") - int(cost.get("materials", 0)) < reserve and not urgent.has(b):
 				continue  # on garde de quoi lancer le vaisseau colon
 			if _issue(ctx, SimCommands.build(e.id, c.planet_id, b)):
@@ -437,6 +440,13 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 	var ai: Dictionary = ctx["ai"]
 	var p := state.galaxy.get_planet(c.planet_id)
 	var out := urgent_needs(ctx, net)
+	# Le bâtiment de recherche du peuple (Académie, Scriptorium, Université, Ganglion), sur les colonies
+	# déjà peuplées : le Savoir paie toutes les technologies.
+	var lab := research_building(ctx)
+	@warning_ignore("integer_division")
+	var lab_quota := _own_colonies(state, e.id).size() / 5
+	if lab != "" and c.is_colony() and c.population >= 4 and not c.buildings.has(lab) and _lab_count(ctx) <= lab_quota:
+		out.append(lab)
 	# Le registre complet sait lire son goulot : quand les matériaux s'entassent, c'est l'influence
 	# qui freine l'expansion (chaque revendication en coûte) ; les forums passent alors devant.
 	if use >= 2 and c.is_colony() and _res(ctx, "materials") >= 250:
@@ -515,7 +525,8 @@ static func _foothold_claims(ctx: Dictionary) -> void:
 	var state: GameState = ctx["state"]
 	var e: Empire = ctx["e"]
 	var use := _use(ctx)
-	var max_claims := mini(int(ctx["lv"].get("max_claims", 2)), int(GameData.rules()["max_projects"]))
+	var max_claims := mini(int(ctx["lv"].get("max_claims", 2)) + Research.fx_int(state, e.id, "max_projects"),
+			Economy.max_projects_for(state, e.id))
 	var reserve_inf := int(ctx["lv"].get("reserve_influence", 0))
 	for sid in EmpireReport.owned_systems(state, e.id):
 		if Economy.active_projects(state, e.id) >= max_claims:
@@ -970,7 +981,8 @@ static func _buildable_warships(ctx: Dictionary) -> Array[String]:
 	if free_yard:
 		for sid in FactionTraits.ship_ids_for(e.faction_id):
 			var sd := GameData.ship(sid)
-			if not Combat.is_military(sid) or not Economy.can_afford(e, sd.get("cost", {})):
+			if not Combat.is_military(sid) or not Fleets.ship_unlocked(state, e.id, sid) \
+					or not Economy.can_afford(e, Fleets.ship_cost(state, e.id, sid)):
 				continue
 			if int(sd.get("pop_cost", 0)) >= max_pop and int(sd.get("pop_cost", 0)) > 0:
 				continue
@@ -1183,3 +1195,121 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 ## Diplomatie : voir AiDiplomacy. L'Essaim Kh'thari n'y entre jamais.
 static func _diplomacy(ctx: Dictionary) -> void:
 	AiDiplomacy.think(ctx)
+
+
+# --- Recherche ---------------------------------------------------------------------------------
+
+## Poids de base de chaque domaine pour l'IA (×10), avant le tempérament et la guerre.
+const RESEARCH_WEIGHTS := {"armement": 14, "genie": 11, "economie": 12, "societe": 10}
+## Une technologie d'ère plus avancée vaut plus que son prix : ×1,8 par ère (en centièmes).
+const ERA_VALUE := [100, 180, 324, 583, 1050]
+
+
+## Garde deux technologies en file. Le choix pèse l'intérêt du domaine (tempérament du peuple et de
+## l'IA, guerre, penchant de recherche du peuple) contre le coût. La Recrue choisit avec du bruit,
+## et ne voit pas qu'une technologie hérétique fâche son dieu ; les autres l'évitent.
+static func _research(ctx: Dictionary) -> void:
+	var e: Empire = ctx["e"]
+	var guard := 0
+	while e.research_queue.size() < 2 and guard < 3:
+		guard += 1
+		if _forgets(ctx):
+			return
+		var tid := research_pick(ctx)
+		if tid == "" or not _issue(ctx, SimCommands.research(e.id, tid)):
+			return
+		if e.research_queue.size() == 1:
+			_intent(ctx, "Recherche : %s" % String(Research.tech(tid).get("label", tid)))
+
+
+## Meilleure technologie à mettre en file ("" si aucune).
+static func research_pick(ctx: Dictionary) -> String:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var f := e.faction()
+	var use := _use(ctx)
+	var weights := research_weights(ctx)
+	var labs := _lab_techs()
+	var bias_techs: Array = []
+	if use >= 1 and ctx["ai"].has("building_bias"):
+		bias_techs = GameData.building(String(ctx["ai"]["building_bias"])).get("requires_tech", [])
+	var best := ""
+	var best_score := -1
+	for tid in Research.visible_ids(f):
+		if Research.check_queue(state, e.id, tid) != "":
+			continue
+		if use >= 1 and Research.is_heretic(f, tid):
+			continue
+		var t := Research.tech(tid)
+		var era := clampi(int(t.get("era", 1)), 1, ERA_VALUE.size())
+		var w := int(weights.get(String(t["domain"]), 10))
+		if labs.has(tid) or bias_techs.has(tid):
+			w *= 3  # le bâtiment de recherche et celui du penchant du peuple d'abord (Raffinerie d'Ossarane)
+		@warning_ignore("integer_division")
+		var score := w * int(ERA_VALUE[era - 1]) * 1000 / maxi(1, Research.cost(state, e.id, tid))
+		if use == 0:
+			score = score * (50 + posmod(hash([state.seed_value, e.id, tid, e.techs.size()]), 100)) / 100
+		if score > best_score:
+			best_score = score
+			best = tid
+	return best
+
+
+## Poids des domaines pour cet empire : tempérament (armement contre société), guerre en cours,
+## penchant du peuple (bloc ai.research_bias de data/factions.json).
+static func research_weights(ctx: Dictionary) -> Dictionary:
+	var e: Empire = ctx["e"]
+	var w := RESEARCH_WEIGHTS.duplicate()
+	var a := AiLevels.aggression(e)
+	w["armement"] = int(w["armement"]) + 2 * a
+	w["societe"] = int(w["societe"]) - a
+	if not e.wars.is_empty():
+		w["armement"] = int(w["armement"]) + 6
+		w["genie"] = int(w["genie"]) + 3
+	var bias: Dictionary = ctx["ai"].get("research_bias", {}) if _use(ctx) >= 1 else {}
+	for d in bias:
+		w[d] = int(w.get(d, 10)) + int(bias[d])
+	for d in w:
+		w[d] = maxi(2, int(w[d]))
+	return w
+
+
+static var _labs_cache := {}
+
+
+## Technologies qui débloquent un bâtiment producteur de Savoir.
+static func _lab_techs() -> Dictionary:
+	if _labs_cache.is_empty():
+		for bid in GameData.buildings():
+			var bd := GameData.building(bid)
+			if int(bd.get("yields", {}).get("knowledge", 0)) > 0:
+				for t in bd.get("requires_tech", []):
+					_labs_cache[String(t)] = true
+		_labs_cache["_"] = true
+	return _labs_cache
+
+
+## Bâtiments de recherche de l'empire (achevés ou en chantier) : un pour cinq revendications au plus,
+## le reste des emplacements nourrit l'économie.
+static func _lab_count(ctx: Dictionary) -> int:
+	var n := 0
+	for c in _own_colonies(ctx["state"], ctx["e"].id):
+		for b in c.buildings:
+			if int(GameData.building(b).get("yields", {}).get("knowledge", 0)) > 0:
+				n += 1
+		if c.construction != "" and int(GameData.building(c.construction).get("yields", {}).get("knowledge", 0)) > 0:
+			n += 1
+	return n
+
+
+## Bâtiment de recherche débloqué pour ce peuple ("" si aucun encore).
+static func research_building(ctx: Dictionary) -> String:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	for bid in GameData.buildings():
+		var bd := GameData.building(bid)
+		if not bd.has("requires_tech") or int(bd.get("yields", {}).get("knowledge", 0)) <= 0:
+			continue
+		if Economy.building_unlocked(state, e.id, bid):
+			return String(bid)
+	return ""

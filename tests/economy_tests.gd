@@ -30,7 +30,7 @@ func _ok(cond: bool, what: String) -> void:
 
 func _test_data() -> void:
 	_ok(Array(GameData.faction_ids()) == ["ossarane", "choeur", "vael", "khthari"], "les 4 factions de la V1 sont chargées")
-	_ok(GameData.resource_ids().size() == 5, "4 ressources communes + cristaux de saut")
+	_ok(GameData.resource_ids().size() == 6, "4 ressources communes + cristaux de saut + Savoir")
 	for f: Dictionary in GameData.factions():
 		for t in f["preferred"]:
 			_ok(not GameData.planet_type(t).is_empty(), "%s : type préféré %s connu" % [f["id"], t])
@@ -239,6 +239,8 @@ func _test_build() -> void:
 	_ok(not sim.submit(SimCommands.build(1, home, "forum")), "refus : construire chez un autre empire")
 	var rival_home := st.empires[1].capital_planet
 	_ok(not sim.submit(SimCommands.build(0, rival_home, "forum")), "refus : planète d'un rival")
+	_ok(not sim.submit(SimCommands.build(0, home, "habitats")) and reasons.back().contains("technologie"), "refus : habitats sans la technologie")
+	Research.grant(st, 0, ["raffinage", "habitats"])
 	if not st.galaxy.get_planet(home).deposits.has("crystals"):
 		_ok(not sim.submit(SimCommands.build(0, home, "raffinerie")) and reasons.back().contains("gisement"), "refus : raffinerie sans gisement")
 

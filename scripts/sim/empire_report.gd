@@ -91,7 +91,7 @@ static func system_net(state: GameState, empire_id: int, system_id: int) -> Dict
 ## Chiffres clés : {"colonies", "outposts", "founding", "population", "systems", "max_projects"}.
 static func totals(state: GameState, empire_id: int) -> Dictionary:
 	var t := {"colonies": 0, "outposts": 0, "founding": 0, "population": 0, "systems": 0,
-			"max_projects": int(GameData.rules()["max_projects"])}
+			"max_projects": Economy.max_projects_for(state, empire_id)}
 	for c in colonies(state, empire_id):
 		if not c["established"]:
 			t["founding"] += 1
