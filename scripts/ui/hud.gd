@@ -82,6 +82,7 @@ var idle_button: Button
 ## Mode spectateur : aucun ordre, le tableau des empires remplace la liste des flottes.
 var spectator := false
 var spectator_panel: SpectatorPanel
+var battle_report: BattleReportPanel
 
 
 func _ready() -> void:
@@ -103,6 +104,8 @@ func _ready() -> void:
 	_toasts.add_theme_constant_override("separation", 4)
 	_toasts.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_toasts)
+	battle_report = BattleReportPanel.new()
+	add_child(battle_report)
 	set_system_mode(false)
 
 
@@ -393,6 +396,8 @@ func _build_fleet_card() -> void:
 	_fleet_status = UiTheme.paragraph("", CARD_WIDTH - 26.0, 14)
 	inner.add_child(_fleet_status)
 	_fleet_stats = UiTheme.dim("", 13)
+	_fleet_stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_fleet_stats.custom_minimum_size = Vector2(CARD_WIDTH - 26.0, 0)
 	inner.add_child(_fleet_stats)
 	var grid := GridContainer.new()
 	grid.columns = 2
@@ -403,21 +408,29 @@ func _build_fleet_card() -> void:
 			["colonize", "COLONISER ICI", "Ouvrir le système pour choisir la planète où fonder la revendication"],
 			["stop", "ARRÊTER", "S'arrêter au système le plus proche sur la route"],
 			["merge", "RASSEMBLER", "Réunir dans cette flotte les autres flottes à l'arrêt dans ce système"],
-			["split", "DÉTACHER", "Détacher un vaisseau dans une nouvelle flotte"]]:
+			["split", "DÉTACHER", "Détacher un vaisseau dans une nouvelle flotte"],
+			["report", "RAPPORT", "Dernier rapport de bataille de vos flottes  (B)"],
+			["tactic", "TACTIQUE", "Changer de tactique de combat (choisie avant la bataille, appliquée sans votre intervention)  (T)"],
+			["invade", "ENVAHIR", "Débarquer les troupes : le système change de mains si elles sont plus nombreuses que la garnison"]]:
 		var b := Button.new()
 		b.text = a[1]
 		b.tooltip_text = a[2]
 		b.focus_mode = Control.FOCUS_NONE
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		if a[0] == "colonize":
+		if a[0] == "colonize" or a[0] == "invade":
 			b.theme_type_variation = &"PrimaryButton"
 		if a[0] == "explore":
 			b.toggle_mode = true
 		var action: String = a[0]
 		b.pressed.connect(func() -> void: fleet_action_requested.emit(action, _fleet_id))
-		grid.add_child(b)
+		# Tactique et invasion prennent toute la largeur, sous la grille.
+		if action == "tactic" or action == "invade":
+			b.clip_text = true
+			inner.add_child(b)
+		else:
+			grid.add_child(b)
 		_fleet_buttons[action] = b
-	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte.  F : flotte suivante.  I : flotte inactive suivante.", CARD_WIDTH - 26.0, 12)
+	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte.  F : flotte suivante.  I : flotte inactive suivante.  T : tactique.", CARD_WIDTH - 26.0, 12)
 	_fleet_hint.theme_type_variation = &"Dim"
 	inner.add_child(_fleet_hint)
 
@@ -449,9 +462,14 @@ func _refresh_fleet_card() -> void:
 				_system_label(f.destination()), eta, "s" if eta > 1 else "", _system_label(f.next_system())]
 	else:
 		_fleet_status.text = "En orbite de %s." % _system_label(f.system_id)
+	_fleet_status.text += combat_status(_state, f)
 	var v := Fleets.vision(f)
 	_fleet_stats.text = "%d vaisseau%s  ·  vitesse %d  ·  vision %d saut%s" % [f.ships.size(), "x" if f.ships.size() > 1 else "",
 			Fleets.speed(f, _state), v, "s" if v > 1 else ""]
+	if Combat.is_armed(f) or f.total_hp() < f.total_max_hp():
+		@warning_ignore("integer_division")
+		_fleet_stats.text += "\nPuissance %d  ·  coque %d %%  ·  troupes %d/%d  ·  %s" % [Combat.fleet_power(f),
+				f.total_hp() * 100 / maxi(1, f.total_max_hp()), f.troops, Combat.max_troops(f), Combat.tactic_label(Combat.fleet_tactic(f))]
 	var can_colonize := mine and not f.is_moving() and Fleets.colonizer_ship(f) != ""
 	if can_colonize:
 		can_colonize = false
@@ -472,7 +490,42 @@ func _refresh_fleet_card() -> void:
 	_fleet_buttons["merge"].disabled = f.is_moving() or not others
 	_fleet_buttons["split"].visible = mine
 	_fleet_buttons["split"].disabled = f.is_moving() or f.ships.size() < 2
+	var armed := Combat.is_armed(f)
+	_fleet_buttons["tactic"].visible = mine and armed
+	_fleet_buttons["tactic"].text = "TACTIQUE : %s" % Combat.tactic_label(Combat.fleet_tactic(f)).to_upper()
+	_fleet_buttons["tactic"].tooltip_text = "%s\n\nClic : tactique suivante  (T)" % String(Combat.tactic(Combat.fleet_tactic(f)).get("desc", ""))
+	var enemy_owner := _state.system_owner(f.system_id)
+	var invade_why := Combat.check_invade(_state, _player, f.id) if mine else "x"
+	_fleet_buttons["invade"].visible = mine and not f.is_moving() and enemy_owner >= 0 and Combat.at_war(_state, _player, enemy_owner)
+	_fleet_buttons["invade"].disabled = invade_why != ""
+	_fleet_buttons["invade"].tooltip_text = "Débarquer les troupes : le système change de mains.\n%s" % (invade_why if invade_why != "" else "%d troupes contre une garnison de %d : la place est à vous." % [f.troops, Combat.garrison(_state, f.system_id)])
+	_fleet_buttons["report"].visible = mine and armed
+	_fleet_buttons["report"].disabled = last_report(_state, _player).is_empty()
 	_fleet_hint.visible = mine
+
+
+## Ligne de combat d'une flotte à l'arrêt : bataille en cours, siège mené.
+static func combat_status(state: GameState, f: Fleet) -> String:
+	if f.is_moving():
+		return ""
+	var b := Combat.battle_at(state, f.system_id)
+	if not b.is_empty():
+		var day := int(b["day"])
+		return "\nEN BATAILLE : jour %d sur %d, %s." % [day, Combat.battle_days(), Combat.phase_label(Combat.phase_index(day)).to_lower()]
+	var owner := state.system_owner(f.system_id)
+	if owner >= 0 and Combat.at_war(state, f.owner, owner) and Combat.is_besieged(state, f.system_id) and Combat.is_armed(f):
+		return "\nSIÈGE : garnison %d / %d." % [Combat.garrison(state, f.system_id), Combat.garrison_max(state, f.system_id)]
+	return ""
+
+
+## Dernier rapport de bataille où l'empire a combattu ({} s'il n'y en a pas).
+static func last_report(state: GameState, empire_id: int) -> Dictionary:
+	for i in range(state.battle_reports.size() - 1, -1, -1):
+		var r: Dictionary = state.battle_reports[i]
+		for s: Dictionary in r["sides"]:
+			if int(s["empire"]) == empire_id:
+				return r
+	return {}
 
 
 ## Nom d'un système tel que le joueur le connaît (pas de nom dans le brouillard).
@@ -635,6 +688,12 @@ func _refresh_card() -> void:
 		"Système de %s" % owner.short_name() if owner else "Système libre",
 		"à portée" if Economy.in_range(_state, _player, s.id) else "hors de portée",
 	]
+	if owner:
+		var war := owner.id != _player and Combat.at_war(_state, _player, owner.id)
+		_card_owner.text += "%s\nGarnison %d / %d%s" % ["  ·  EN GUERRE" if war else "", Combat.garrison(_state, s.id), Combat.garrison_max(_state, s.id),
+				"  ·  ASSIÉGÉ" if Combat.is_besieged(_state, s.id) else ""]
+	if not Combat.battle_at(_state, s.id).is_empty():
+		_card_owner.text += "\nBataille en cours"
 	_card_lore.text = String(STAR_LORE.get(s.star_type, ""))
 	# Une pastille par planète, à la couleur de son type ; un anneau à la couleur du propriétaire.
 	var dots := _planet_dots.get_children()

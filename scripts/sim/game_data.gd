@@ -73,6 +73,11 @@ static func ai() -> Dictionary:
 	return _load("ai")
 
 
+## Règles du combat (data/combat.json) : phases, armes, tactiques, siège.
+static func combat() -> Dictionary:
+	return _load("combat")
+
+
 static func deposit(id: String) -> Dictionary:
 	for d: Dictionary in rules()["deposits"]:
 		if d["id"] == id:

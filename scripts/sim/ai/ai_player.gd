@@ -14,7 +14,9 @@ extends RefCounted
 ## 3. revendications sans vaisseau dans les systèmes déjà tenus ;
 ## 4. chantiers spatiaux : éclaireurs et vaisseaux colons (ou spores) ;
 ## 5. flottes : exploration automatique, vaisseaux colons vers la meilleure cible ;
-## 6. militaire et 7. diplomatie : points d'extension, vides tant que ces systèmes n'existent pas.
+## 6. militaire : déclarations de guerre (tempérament et rapport de forces), vaisseaux de guerre,
+##    tactiques, défense des systèmes assiégés, offensives, sièges, invasions et retraites ;
+## 7. diplomatie : point d'extension, vide tant que les traités n'existent pas.
 ##
 ## Règles d'or : la simulation reste déterministe (aucun aléatoire hors de l'état : les « oublis »
 ## des niveaux bas viennent d'un hachage de la graine, du jour et de l'empire), l'IA ne lit que
@@ -41,7 +43,11 @@ static func think(state: GameState, e: Empire) -> void:
 	_foothold_claims(ctx)
 	_shipyards(ctx)
 	_fleets(ctx)
-	_military(ctx)
+	# Les niveaux qui réfléchissent très souvent ne revoient leur stratégie militaire qu'un jour sur
+	# deux ou trois : la guerre se joue sur des semaines, et la simulation reste rapide.
+	var every := maxi(1, int(ctx["lv"].get("think_days", 10)))
+	if every >= 4 or posmod(state.tick + e.id * 3, 4) < every:
+		_military(ctx)
 	_diplomacy(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
@@ -434,6 +440,10 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 	# qui freine l'expansion (chaque revendication en coûte) ; les forums passent alors devant.
 	if use >= 2 and c.is_colony() and _res(ctx, "materials") >= 250:
 		out.append("forum")
+	# En guerre, les systèmes du front se fortifient (dès le niveau Normal).
+	if not e.wars.is_empty() and _skill(ctx) >= 1 and int(rival_distance(ctx).get(p.system_id, 99)) <= 2 \
+			and Combat.battery(state, p.system_id).is_empty():
+		out.push_front("bastion")
 	if p.deposits.has("crystals"):
 		var fiefs := FactionTraits.has_fiefs(e.faction()) and use >= 1
 		if fiefs or int(net.get("crystals", 0)) < 1:
@@ -596,7 +606,7 @@ static func _fleets(ctx: Dictionary) -> void:
 			continue  # dissoute par une colonisation plus haut dans la boucle
 		if Fleets.colonizer_ship(f) != "":
 			_colonizer(ctx, f)
-		elif f.is_idle() and _frontier(ctx) and not _forgets(ctx):
+		elif f.is_idle() and not Combat.is_warfleet(f) and _frontier(ctx) and not _forgets(ctx):
 			_issue(ctx, SimCommands.set_fleet_order(e.id, f.id, Fleet.ORDER_EXPLORE))
 
 
@@ -633,14 +643,404 @@ static func _colonizer(ctx: Dictionary, f: Fleet) -> void:
 		_intent(ctx, ("Expansion vers %s, à la frontière d'un rival" if border else "Expansion vers %s") % sname)
 
 
-# --- 6. et 7. Points d'extension ---------------------------------------------------------------
 
-## Militaire : rien tant que le combat n'existe pas. AiLevels.aggression(e) dira quand attaquer
-## (seuil de rapport de forces) et never_peace (tempérament de l'Essaim) interdira la paix. Ce module recevra la défense des colonies,
-## l'escorte des vaisseaux colons et les offensives, avec le même schéma (valider, appliquer).
-static func _military(_ctx: Dictionary) -> void:
-	pass
 
+# --- 6. Militaire ------------------------------------------------------------------------------
+## Le niveau règle le savoir-faire (military.skill : 0 maladroit, 1 les bases, 2 tout), le tempérament
+## règle l'envie d'en découdre (AiLevels.aggression : quand déclarer la guerre, combien armer).
+## La Recrue ne s'abstient pas : elle arme, attaque et choisit ses tactiques, mais mal (toujours à
+## l'assaut, flottes envoyées une par une, jamais de retraite), comme pour les talents de son peuple.
+
+static func _mil(ctx: Dictionary) -> Dictionary:
+	return ctx["lv"].get("military", {})
+
+
+static func _skill(ctx: Dictionary) -> int:
+	return int(_mil(ctx).get("skill", 1))
+
+
+static func _warfleets(ctx: Dictionary) -> Array[Fleet]:
+	var out: Array[Fleet] = []
+	for f in Fleets.empire_fleets(ctx["state"], ctx["e"].id):
+		if Combat.is_warfleet(f):
+			out.append(f)
+	return out
+
+
+static func _my_power(ctx: Dictionary) -> int:
+	var n := 0
+	for f in _warfleets(ctx):
+		n += Combat.fleet_power(f)
+	return n
+
+
+## Systèmes que l'empire voit aujourd'hui (mémorisés le temps d'une réflexion).
+static func _seen(ctx: Dictionary) -> Dictionary:
+	if not ctx.has("seen"):
+		var state: GameState = ctx["state"]
+		var e: Empire = ctx["e"]
+		# Calculé par l'exploration plus tôt dans le même tick (identique sur toutes les machines).
+		if state.seen_tick == state.tick and e.id < state.seen_cache.size():
+			ctx["seen"] = state.seen_cache[e.id]
+		else:
+			ctx["seen"] = Fleets.visible_systems(state, e.id)
+	return ctx["seen"]
+
+
+## Force estimée d'un rival : ses flottes armées que l'on voit, plus une part pour chacun de ses systèmes
+## connus (garnisons, flottes cachées). La Recrue ne compte que ce qu'elle voit.
+static func enemy_power(ctx: Dictionary, other: int) -> int:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var n := 0
+	for f in Fleets.empire_fleets(state, other):
+		if Combat.is_armed(f) and Fleets.fleet_visible(state, e.id, f, _seen(ctx)):
+			n += Combat.fleet_power(f)
+	if _skill(ctx) >= 1:
+		for sid in e.sorted_explored():
+			if state.system_owner(int(sid)) == other:
+				n += 6
+	return n
+
+
+## Un rival a-t-il un système (exploré) à `reach` sauts ou moins des nôtres ?
+static func _borders(ctx: Dictionary, other: int, reach := 2) -> bool:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var dist := {}
+	var queue: Array[int] = []
+	for sid in EmpireReport.owned_systems(state, e.id):
+		dist[sid] = 0
+		queue.append(sid)
+	var i := 0
+	while i < queue.size():
+		var cur := queue[i]
+		i += 1
+		if state.system_owner(cur) == other and e.explored.has(cur):
+			return true
+		if int(dist[cur]) >= reach:
+			continue
+		for n in state.galaxy.systems[cur].neighbors:
+			if not dist.has(n):
+				dist[n] = int(dist[cur]) + 1
+				queue.append(n)
+	return false
+
+
+static func _military(ctx: Dictionary) -> void:
+	_declare_wars(ctx)
+	_build_warships(ctx)
+	_command_warfleets(ctx)
+
+
+## Déclarer la guerre : seulement passé le délai de grâce, à un voisin, avec un rapport de forces
+## qui dépend du tempérament (data/ai.json, war.declare_ratio_pct). Un pacifique ne déclare jamais.
+## Les niveaux qui savent jouer n'ouvrent pas un second front tant qu'une guerre est à leurs portes,
+## sauf les tempéraments les plus belliqueux.
+static func _declare_wars(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var war: Dictionary = GameData.ai().get("war", {})
+	if state.tick < int(war.get("grace_days", 240)):
+		return
+	var aggr := AiLevels.aggression(e)
+	if _skill(ctx) >= 1 and aggr < 2:
+		for w in e.wars:
+			if _borders(ctx, w):
+				return  # déjà une guerre à nos portes : pas de second front (sauf les plus belliqueux)
+	var ratios: Dictionary = war.get("declare_ratio_pct", {})
+	if not ratios.has(str(aggr)):
+		return
+	var need := int(ratios[str(aggr)])
+	var mine := _my_power(ctx)
+	if mine <= 0:
+		return
+	for other in e.contacts:
+		var o := state.get_empire(other)
+		# Plus le tempérament est agressif, plus il va chercher loin ses ennemis.
+		if o == null or o.eliminated or e.wars.has(other) or not _borders(ctx, other, 2 + maxi(0, aggr)):
+			continue
+		if mine * 100 < need * maxi(10, enemy_power(ctx, other)) or _forgets(ctx):
+			continue
+		if _issue(ctx, SimCommands.declare_war(e.id, other)):
+			_intent(ctx, "Déclare la guerre à %s" % o.short_name())
+			return
+
+
+## Combien de vaisseaux de guerre l'empire veut : la base du niveau, plus selon ses colonies,
+## doublée en guerre ; le tempérament l'augmente ou la réduit.
+static func wanted_warships(ctx: Dictionary) -> int:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var mil := _mil(ctx)
+	var n := int(mil.get("warships", 2))
+	var per := int(mil.get("per_colonies", 0))
+	if per > 0:
+		@warning_ignore("integer_division")
+		n += _own_colonies(state, e.id).size() / per
+	var aggr := AiLevels.aggression(e)
+	if not e.wars.is_empty():
+		n = n * 2 + 2
+	elif aggr < 0:
+		@warning_ignore("integer_division")
+		n = maxi(1, n * 2 / 3)
+	return n + maxi(0, aggr)
+
+
+static func _warship_count(ctx: Dictionary) -> int:
+	var n := 0
+	for f in _warfleets(ctx):
+		n += f.ships.size()
+	for c in _own_colonies(ctx["state"], ctx["e"].id):
+		if c.ship_build != "" and Combat.is_military(c.ship_build):
+			n += 1
+	return n
+
+
+static func _build_warships(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var at_war := not e.wars.is_empty()
+	var missing := wanted_warships(ctx) - _warship_count(ctx)
+	var built := 0
+	while missing > 0 and built < 2:
+		if _forgets(ctx):
+			return
+		var cls := _pick_warship(ctx)
+		var yard := _best_yard(ctx, cls)
+		if yard == null:
+			return
+		var cost: Dictionary = GameData.ship(cls).get("cost", {})
+		# En paix, on garde de quoi lancer le prochain vaisseau colon ; en guerre, l'armée passe avant.
+		var reserve := 0 if at_war else _material_reserve(ctx)
+		if _res(ctx, "materials") - int(cost.get("materials", 0)) < reserve:
+			return
+		if not _issue(ctx, SimCommands.build_ship(e.id, yard.planet_id, cls)):
+			return
+		missing -= 1
+		built += 1
+		_intent(ctx, "Arme la flotte (%s)" % String(GameData.ship(cls)["label"]).to_lower())
+
+
+## Classe de vaisseau de guerre à construire.
+## - Recrue : au petit bonheur (hachage de la graine et du jour).
+## - Normal : corvettes tant qu'on est pauvre, frégates ensuite, un croiseur de temps en temps en guerre.
+## - Vétéran et plus : des troupes quand la guerre en manque, sinon ce qui contre la flotte ennemie
+##   la plus visible (rayons contre coques sans boucliers, canons et missiles contre les boucliers).
+static func _pick_warship(ctx: Dictionary) -> String:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var classes: Array[String] = []
+	for sid in FactionTraits.ship_ids_for(e.faction_id):
+		if Combat.is_military(sid):
+			classes.append(sid)
+	if classes.is_empty():
+		return ""
+	var skill := _skill(ctx)
+	if skill <= 0:
+		return classes[posmod(hash([state.seed_value, state.tick, e.id, "warship"]), classes.size())]
+	var mats := _res(ctx, "materials")
+	var at_war := not e.wars.is_empty()
+	if skill == 1:
+		@warning_ignore("integer_division")
+		if at_war and posmod(state.tick / 10 + e.id, 4) == 0 and mats >= 260:
+			return "croiseur"
+		return "corvette" if mats < 200 else "fregate"
+	if at_war:
+		var troops := 0
+		for f in _warfleets(ctx):
+			troops += f.troops
+		if troops < 24 and mats >= 260:
+			return "croiseur"
+	var shields := 0
+	var bare := 0
+	for fid in state.sorted_fleet_ids():
+		var f: Fleet = state.fleets[fid]
+		if f.owner == e.id or not Combat.is_armed(f) or not Fleets.fleet_visible(state, e.id, f, _seen(ctx)):
+			continue
+		for s in f.ships:
+			if int(GameData.ship(s).get("shield", 0)) >= 20:
+				shields += 1
+			else:
+				bare += 1
+	if shields > bare:
+		return "croiseur" if mats >= 300 else "corvette"
+	return "fregate" if mats >= 140 else "corvette"
+
+
+## Tactique adaptée à une flotte : selon ses armes (Vétéran et plus), toujours la même pour les autres.
+static func tactic_for(ctx: Dictionary, f: Fleet) -> String:
+	var skill := _skill(ctx)
+	if skill <= 0:
+		return "assaut"  # la Recrue charge, même avec des missiles
+	if skill == 1:
+		return Combat.default_tactic()
+	var by_phase := [0, 0, 0]
+	for s in f.ships:
+		var w := Combat.weapons(s)
+		for k in w:
+			for i in 3:
+				by_phase[i] += int(w[k]) * Combat.weapon_eff(String(k), i)
+	if by_phase[0] > by_phase[2] * 5 / 4:
+		return "distance"
+	if by_phase[2] > by_phase[0] * 5 / 4:
+		return "assaut"
+	return Combat.default_tactic()
+
+
+## Système d'un empire ennemi le plus facile à prendre : garnison, flottes vues sur place, distance.
+static func war_target(ctx: Dictionary, from: int) -> int:
+	var key := "target_%d" % from
+	if not ctx.has(key):
+		ctx[key] = _war_target(ctx, from)
+	return ctx[key]
+
+
+static func _war_target(ctx: Dictionary, from: int) -> int:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var res := Fleets._dijkstra(state, e.id, from)
+	var best := -1
+	var best_score := 0
+	var ids: Array = res["dist"].keys()
+	ids.sort()
+	for k in ids:
+		var sid := int(k)
+		var owner := state.system_owner(sid)
+		if owner < 0 or not e.wars.has(owner) or not e.explored.has(sid):
+			continue
+		var defense := Combat.garrison(state, sid) + _defense_at(ctx, sid) * 2
+		@warning_ignore("integer_division")
+		var score := defense * 10 + int(res["dist"][k]) / 20
+		if best == -1 or score < best_score:
+			best = sid
+			best_score = score
+	return best
+
+
+## Puissance armée ennemie vue dans un système.
+static func _defense_at(ctx: Dictionary, sid: int) -> int:
+	return int(_enemy_power_map(ctx).get(sid, 0))
+
+
+## Puissance armée ennemie (en guerre avec nous) vue à l'arrêt, par système : calculée une fois par réflexion.
+static func _enemy_power_map(ctx: Dictionary) -> Dictionary:
+	if ctx.has("enemy_map"):
+		return ctx["enemy_map"]
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var out := {}
+	if not e.wars.is_empty():
+		var seen := _seen(ctx)
+		for fid in state.sorted_fleet_ids():
+			var f: Fleet = state.fleets[fid]
+			if f.is_moving() or not e.wars.has(f.owner) or not seen.has(f.system_id) or not Combat.is_armed(f):
+				continue
+			out[f.system_id] = int(out.get(f.system_id, 0)) + Combat.fleet_power(f)
+	ctx["enemy_map"] = out
+	return out
+
+
+static func _capital_system(ctx: Dictionary) -> int:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	return state.galaxy.get_planet(e.capital_planet).system_id if e.capital_planet >= 0 else -1
+
+
+static func _command_warfleets(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var mil := _mil(ctx)
+	var skill := _skill(ctx)
+	var home := _capital_system(ctx)
+	if home < 0:
+		return
+	var fleets := _warfleets(ctx)
+	# Tactiques.
+	for f in fleets:
+		var tac := tactic_for(ctx, f)
+		if Combat.fleet_tactic(f) != tac:
+			_issue(ctx, SimCommands.set_tactic(e.id, f.id, tac))
+	# Rassembler les flottes à l'arrêt dans un même système (sauf la Recrue, qui les envoie une par une).
+	if bool(mil.get("concentrate", true)):
+		var first := {}
+		for f in fleets:
+			if f.is_moving() or not state.fleets.has(f.id):
+				continue
+			if first.has(f.system_id):
+				_issue(ctx, SimCommands.merge_fleets(e.id, f.id, int(first[f.system_id])))
+			else:
+				first[f.system_id] = f.id
+		fleets = _warfleets(ctx)
+	# Systèmes à secourir : assiégés, ou avec une flotte ennemie armée.
+	var threatened := -1
+	for k in state.sieges:
+		if state.system_owner(int(k)) == e.id and (threatened == -1 or int(k) < threatened):
+			threatened = int(k)
+	if threatened == -1:
+		var emap := _enemy_power_map(ctx)
+		var keys := emap.keys()
+		keys.sort()
+		for k in keys:
+			if state.system_owner(int(k)) == e.id:
+				threatened = int(k)
+				break
+	for f in fleets:
+		if not state.fleets.has(f.id):
+			continue
+		_command_fleet(ctx, f, home, threatened)
+
+
+static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var mil := _mil(ctx)
+	var here := f.system_id
+	# Retraite : en bataille et nettement dominé (pas la Recrue).
+	if not f.is_moving() and bool(mil.get("retreat", false)) and not Combat.battle_at(state, here).is_empty():
+		var enemy := _defense_at(ctx, here)
+		if Combat.fleet_power(f) * 100 < enemy * 60 and here != home:
+			if _issue(ctx, SimCommands.move_fleet(e.id, f.id, home)):
+				_intent(ctx, "Sonne la retraite vers la capitale")
+			return
+	if f.is_moving():
+		return
+	# Sur un système ennemi : invasion si possible, sinon on tient le siège.
+	var owner := state.system_owner(here)
+	if owner >= 0 and e.wars.has(owner):
+		if _issue(ctx, SimCommands.invade(e.id, f.id)):
+			_intent(ctx, "Envahit %s" % state.galaxy.systems[here].system_name)
+		return
+	if not Combat.battle_at(state, here).is_empty():
+		return  # on tient la position jusqu'à la fin de la bataille
+	# Défense d'un système menacé.
+	if threatened >= 0 and threatened != here and not _forgets(ctx):
+		if _issue(ctx, SimCommands.move_fleet(e.id, f.id, threatened)):
+			_intent(ctx, "Vole au secours de %s" % state.galaxy.systems[threatened].system_name)
+		return
+	if e.wars.is_empty() or threatened == here:
+		if here != home and threatened < 0:
+			_issue(ctx, SimCommands.move_fleet(e.id, f.id, home))
+		return
+	# Offensive : passé le délai de grâce (les premiers mois servent à s'installer), et quand la flotte
+	# est assez forte pour la cible (la Recrue part sans compter).
+	if state.tick < int(GameData.ai().get("war", {}).get("grace_days", 360)):
+		return
+	var target := war_target(ctx, home)
+	if target < 0 or _forgets(ctx):
+		return
+	var need := int(mil.get("attack_ratio_pct", 130))
+	@warning_ignore("integer_division")
+	var defense := _defense_at(ctx, target) + Combat.garrison(state, target) / 4
+	if _skill(ctx) >= 1 and Combat.fleet_power(f) * 100 < need * maxi(8, defense):
+		if here != home:
+			_issue(ctx, SimCommands.move_fleet(e.id, f.id, home))  # on rentre grossir la flotte
+		return
+	if _issue(ctx, SimCommands.move_fleet(e.id, f.id, target)):
+		_intent(ctx, "Lance une offensive sur %s" % state.galaxy.systems[target].system_name)
+
+
+# --- 7. Diplomatie -----------------------------------------------------------------------------
 
 ## Diplomatie : rien tant que les traités n'existent pas. L'Essaim Kh'thari n'y entrera jamais.
 static func _diplomacy(_ctx: Dictionary) -> void:

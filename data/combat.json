@@ -1,0 +1,30 @@
+{
+	"_sources": "Trois phases de portée et efficacité des armes selon la portée : structure d'Endless Space (guide gamepressure.com, Endless Space : Battle). Défenses par famille d'armes (boucliers contre l'énergie, blindage contre cinétiques et missiles) : discussions de joueurs sur le forum d'Endless Space 2 (pas de source officielle trouvée). Tactique choisie avant la bataille, sans contrôle pendant : plans de bataille d'Endless Space 2. Siège qui use la garnison puis invasion par les troupes embarquées : Endless Space 2 (guide gamepressure.com Armies and ground battles, GDD 14 Ground battle).",
+	"phases": [
+		{"id": "long", "label": "Longue portée", "days": 2},
+		{"id": "medium", "label": "Moyenne portée", "days": 2},
+		{"id": "short", "label": "Courte portée", "days": 2}
+	],
+	"weapons": {
+		"kinetic": {"label": "Canons cinétiques", "short": "Cinétique", "eff": [20, 40, 90], "defense": "armor"},
+		"beam": {"label": "Rayons", "short": "Rayons", "eff": [50, 90, 70], "defense": "shield"},
+		"missile": {"label": "Missiles", "short": "Missiles", "eff": [90, 70, 40], "defense": "armor"}
+	},
+	"default_tactic": "equilibre",
+	"tactics": [
+		{"id": "equilibre", "label": "Équilibre", "dmg": [100, 100, 100], "taken": 100,
+			"desc": "Ni charge ni recul : la flotte tire à toutes les portées comme elle peut."},
+		{"id": "assaut", "label": "Assaut", "dmg": [70, 110, 135], "taken": 100,
+			"desc": "Fonce au contact. Idéal pour les canons cinétiques des corvettes, désastreux pour des missiles."},
+		{"id": "distance", "label": "Tir à distance", "dmg": [135, 110, 70], "taken": 100,
+			"desc": "Garde l'ennemi au loin et le noie sous les missiles. Les corvettes y perdent leurs dents."},
+		{"id": "rempart", "label": "Rempart", "dmg": [85, 85, 85], "taken": 80,
+			"desc": "Serre les rangs et encaisse : -20 % de dégâts reçus, -15 % de dégâts infligés. Pour tenir en attendant les renforts."}
+	],
+	"repair_pct_home": 5,
+	"repair_pct_away": 1,
+	"troops_regen_pct": 10,
+	"garrison": {"per_pop": 5, "per_outpost": 6, "capital": 30, "regen_per_day": 2},
+	"besieged_production_pct": 50,
+	"reports_max": 12
+}

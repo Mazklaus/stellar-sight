@@ -121,6 +121,8 @@ func _process(delta: float) -> void:
 		_accumulator -= step
 		processed += 1
 		simulation.step()
+		if paused:
+			return  # tour interrompu pendant ce jour (bataille engagée)
 		if _turn_target >= 0 and day >= _turn_target:
 			_finish_turn()
 			return
@@ -140,6 +142,16 @@ func day_fraction() -> float:
 
 func _seconds_per_day() -> float:
 	return TURN_SECONDS_PER_DAY if mode == MODE_TURNS else SECONDS_PER_DAY[speed_index]
+
+
+## Interrompt le tour en cours de résolution (une bataille vient de s'engager) : le jeu s'arrête
+## pour laisser le joueur choisir sa tactique ou sonner la retraite ; le prochain « Fin de tour »
+## joue le reste du tour (le découpage en tours ne change pas). Sans effet hors tour par tour.
+func interrupt_turn() -> bool:
+	if mode != MODE_TURNS or _turn_target < 0:
+		return false
+	_finish_turn()
+	return true
 
 
 func _finish_turn() -> void:

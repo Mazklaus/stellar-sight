@@ -45,6 +45,9 @@ var _font: Font
 var _last_zoom := -1.0
 
 
+const BATTLE_COLOR := Color(1.0, 0.42, 0.36)
+
+
 func _ready() -> void:
 	_font = UiTheme.body_font()
 
@@ -161,6 +164,7 @@ func _draw() -> void:
 			_draw_unknown_system(s, px)
 
 	_draw_fleets(px)
+	_draw_conflicts(px)
 
 	if lens == "economy" and state != null:
 		# Lentille économique : tout s'assombrit sauf les systèmes du joueur, qui affichent leur bilan.
@@ -179,6 +183,33 @@ func _draw() -> void:
 		var key := s.id == selected_id or s.id == hovered_id or (state != null and state.system_owner(s.id) >= 0)
 		if show_all_labels or key:
 			_draw_label(s, px, show_dots or key)
+
+
+## Combats visibles : deux lames croisées au-dessus d'un système en bataille, un anneau rouge
+## en pointillés autour d'un système assiégé.
+func _draw_conflicts(px: float) -> void:
+	if state == null:
+		return
+	for k in state.sieges:
+		var sid := int(k)
+		if fog and not _seen.has(sid):
+			continue
+		var c := galaxy.systems[sid].position
+		var r := 15.0 * px
+		var n := 16
+		for i in n:
+			if i % 2 == 0:
+				draw_arc(c, r, TAU * i / n, TAU * (i + 1) / n, 4, Color(BATTLE_COLOR, 0.85), 1.6 * px, true)
+	for k in state.battles:
+		var sid := int(k)
+		if fog and not _seen.has(sid):
+			continue
+		var c := galaxy.systems[sid].position + Vector2(0, -17.0) * px
+		var s := 6.0 * px
+		draw_circle(c, s * 1.6, Color(0.02, 0.03, 0.05, 0.85))
+		draw_arc(c, s * 1.6, 0.0, TAU, 20, BATTLE_COLOR, 1.2 * px, true)
+		draw_line(c + Vector2(-s, -s), c + Vector2(s, s), BATTLE_COLOR, 1.8 * px, true)
+		draw_line(c + Vector2(s, -s), c + Vector2(-s, s), BATTLE_COLOR, 1.8 * px, true)
 
 
 ## Territoire : une zone à la couleur de l'empire autour de ses systèmes et le long de ses routes.

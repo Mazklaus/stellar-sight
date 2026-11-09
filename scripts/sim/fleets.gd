@@ -51,29 +51,71 @@ static func find_path(state: GameState, empire_id: int, from: int, to: int) -> A
 
 
 ## Distances (en unités) depuis un système vers tous ceux joignables par des routes connues.
+## File de priorité (tas binaire) sur la clé distance * 65536 + identifiant : on traite toujours le
+## système le plus proche, à égalité le plus petit identifiant, comme un parcours linéaire, mais vite.
 static func _dijkstra(state: GameState, empire_id: int, from: int) -> Dictionary:
 	var g := state.galaxy
 	var dist := {from: 0}
 	var prev := {}
 	var done := {}
-	while true:
-		var best := -1
-		for k in dist:
-			if done.has(k):
-				continue
-			if best == -1 or dist[k] < dist[best] or (dist[k] == dist[best] and k < best):
-				best = k
-		if best == -1:
-			break
+	var heap: Array[int] = [from]
+	while not heap.is_empty():
+		var key := _heap_pop(heap)
+		var best := key & 0xFFFF
+		var d0 := key >> 16
+		if done.has(best) or d0 != int(dist[best]):
+			continue
 		done[best] = true
 		for n in g.systems[best].neighbors:
 			if done.has(n) or not lane_known(state, empire_id, best, n):
 				continue
-			var d: int = dist[best] + lane_length(g, best, n)
+			var d: int = d0 + lane_length(g, best, n)
 			if not dist.has(n) or d < dist[n] or (d == dist[n] and best < int(prev[n])):
+				var improved: bool = not dist.has(n) or d < int(dist[n])
 				dist[n] = d
 				prev[n] = best
+				if improved:
+					_heap_push(heap, (d << 16) | n)
 	return {"dist": dist, "prev": prev}
+
+
+static func _heap_push(heap: Array[int], v: int) -> void:
+	heap.append(v)
+	var i := heap.size() - 1
+	while i > 0:
+		@warning_ignore("integer_division")
+		var p := (i - 1) / 2
+		if heap[p] <= heap[i]:
+			break
+		var tmp := heap[p]
+		heap[p] = heap[i]
+		heap[i] = tmp
+		i = p
+
+
+static func _heap_pop(heap: Array[int]) -> int:
+	var top := heap[0]
+	var last: int = heap.pop_back()
+	if heap.is_empty():
+		return top
+	heap[0] = last
+	var i := 0
+	var n := heap.size()
+	while true:
+		var l := i * 2 + 1
+		var r := l + 1
+		var m := i
+		if l < n and heap[l] < heap[m]:
+			m = l
+		if r < n and heap[r] < heap[m]:
+			m = r
+		if m == i:
+			break
+		var tmp := heap[m]
+		heap[m] = heap[i]
+		heap[i] = tmp
+		i = m
+	return top
 
 
 ## Itinéraire d'une flotte vers un système : {"system", "path", "progress"} prêts à lui être appliqués,

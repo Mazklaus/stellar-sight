@@ -7,7 +7,7 @@ extends RefCounted
 ## stockée : elle se régénère à l'identique depuis la graine. Seules les données
 ## qui changent en cours de partie sont sérialisées.
 
-const FORMAT_VERSION := 5
+const FORMAT_VERSION := 6
 const CHRONICLE_MAX := 50
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
@@ -35,7 +35,21 @@ var planet_overrides: Dictionary = {}
 var fleets: Dictionary = {}
 ## Identifiant de la prochaine flotte créée (jamais réutilisé).
 var next_fleet_id: int = 0
+## Garnisons entamées par un siège : identifiant de système -> garnison actuelle
+## (absent = garnison pleine, voir Combat.garrison).
+var garrisons: Dictionary = {}
+## Sièges en cours : identifiant de système -> {"by": empire assiégeant, "start": tick}.
+var sieges: Dictionary = {}
+## Batailles en cours : identifiant de système -> bataille (voir CombatSystem).
+var battles: Dictionary = {}
+## Derniers rapports de bataille, du plus ancien au plus récent.
+var battle_reports: Array[Dictionary] = []
+var next_battle_id: int = 0
 
+## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
+## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
+var seen_cache: Array[Dictionary] = []
+var seen_tick: int = -1
 ## Propriétaire de chaque système revendiqué (donnée dérivée des colonies, non sauvegardée).
 var _system_owner: Dictionary = {}
 
@@ -104,7 +118,32 @@ func to_dict() -> Dictionary:
 		"planet_overrides": override_list,
 		"fleets": fleet_list,
 		"next_fleet_id": next_fleet_id,
+		"garrisons": _int_map_to_list(garrisons, "garrison"),
+		"sieges": _sorted_values(sieges),
+		"battles": _sorted_values(battles),
+		"battle_reports": battle_reports.duplicate(true),
+		"next_battle_id": next_battle_id,
 	}
+
+
+## Dictionnaire id -> entier, en liste triée [{"system": id, key: valeur}] (le JSON n'a pas de clés entières).
+static func _int_map_to_list(d: Dictionary, key: String) -> Array:
+	var ids := d.keys()
+	ids.sort()
+	var out := []
+	for k in ids:
+		out.append({"system": k, key: d[k]})
+	return out
+
+
+## Valeurs d'un dictionnaire id -> dictionnaire, triées par identifiant (elles portent leur "system").
+static func _sorted_values(d: Dictionary) -> Array:
+	var ids := d.keys()
+	ids.sort()
+	var out := []
+	for k in ids:
+		out.append(d[k].duplicate(true))
+	return out
 
 
 ## Reconstruit un état à partir de to_dict(). Renvoie null si les données sont invalides
@@ -168,6 +207,17 @@ static func from_dict(d: Dictionary) -> GameState:
 			return null
 		s.fleets[f.id] = f
 	s.next_fleet_id = int(d["next_fleet_id"])
+	for g: Dictionary in d.get("garrisons", []):
+		s.garrisons[int(g["system"])] = int(g["garrison"])
+	for sg: Dictionary in d.get("sieges", []):
+		var v: Dictionary = GameData._to_ints(sg)
+		s.sieges[int(v["system"])] = v
+	for b: Dictionary in d.get("battles", []):
+		var v: Dictionary = GameData._to_ints(b)
+		s.battles[int(v["system"])] = v
+	for r: Dictionary in d.get("battle_reports", []):
+		s.battle_reports.append(GameData._to_ints(r))
+	s.next_battle_id = int(d.get("next_battle_id", 0))
 	s.rebuild_ownership()
 	return s
 
@@ -203,7 +253,8 @@ func spawn_ship(owner_id: int, ship_id: String, system_id: int) -> Fleet:
 	next_fleet_id += 1
 	f.owner = owner_id
 	f.fleet_name = "%s %d" % [GameData.ship(ship_id).get("label", ship_id), n]
-	f.ships.append(ship_id)
+	f.add_ship(ship_id)
+	f.troops = Combat.max_troops(f)
 	f.system_id = system_id
 	fleets[f.id] = f
 	return f

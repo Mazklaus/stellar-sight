@@ -205,6 +205,14 @@ func _update_row(f: Fleet) -> void:
 	elif f.is_moving():
 		status.text = "EN ROUTE  ·  %d j" % eta
 		detail.text = "%s  ·  vers %s" % [Fleets.composition(f), _label(f.destination())]
+	elif not Combat.battle_at(_state, f.system_id).is_empty():
+		status.text = "EN BATAILLE"
+		color = UiTheme.BAD
+		detail.text = "%s  ·  à %s" % [Fleets.composition(f), _label(f.system_id)]
+	elif Combat.is_besieged(_state, f.system_id) and _state.system_owner(f.system_id) != f.owner and Combat.is_armed(f):
+		status.text = "SIÈGE  ·  GARNISON %d" % Combat.garrison(_state, f.system_id)
+		color = UiTheme.WARN
+		detail.text = "%s  ·  à %s" % [Fleets.composition(f), _label(f.system_id)]
 	else:
 		status.text = "ATTEND DES ORDRES"
 		color = IDLE_COLOR
