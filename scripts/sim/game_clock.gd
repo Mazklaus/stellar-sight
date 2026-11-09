@@ -1,7 +1,8 @@
 extends Node
-## Horloge du jeu (autoload « GameClock »). Temps réel pausable :
-## la simulation avance par jours de jeu, à pas fixe, quelle que soit la cadence d'affichage.
-## Un jour = un tick de simulation. En multijoueur, seul l'hôte fera avancer cette horloge.
+## Horloge du jeu (autoload « GameClock ») : le pilote de la simulation en temps réel pausable.
+## Elle transforme le temps réel en ticks à pas fixe et appelle Simulation.step().
+## Elle ne contient aucun état de partie : pause et vitesse sont des réglages locaux.
+## En multijoueur, seul l'hôte fera avancer la simulation ; les clients suivront ses ticks.
 
 signal day_passed(day: int)
 signal speed_changed(speed_index: int)
@@ -9,20 +10,37 @@ signal pause_changed(paused: bool)
 
 ## Secondes réelles par jour de jeu, pour les vitesses 1 à 5.
 const SECONDS_PER_DAY: Array[float] = [1.0, 0.5, 0.25, 0.1, 0.04]
-const START_YEAR := 2400
-const DAYS_PER_MONTH := 30
-const DAYS_PER_YEAR := 360
 const MAX_DAYS_PER_FRAME := 8
 
-var day: int = 0
+var simulation: Simulation
 var speed_index: int = 1
 var paused: bool = true
+## Jour de jeu courant (lecture seule : c'est le tick de la simulation).
+var day: int:
+	get:
+		return simulation.state.tick if simulation else 0
 
 var _accumulator: float = 0.0
 
 
+## Branche l'horloge sur une simulation (nouvelle partie ou partie chargée). Le jeu repart en pause.
+func attach(sim: Simulation) -> void:
+	if simulation and simulation.ticked.is_connected(_on_ticked):
+		simulation.ticked.disconnect(_on_ticked)
+	simulation = sim
+	if simulation:
+		simulation.ticked.connect(_on_ticked)
+	_accumulator = 0.0
+	set_paused(true)
+	day_passed.emit(day)
+
+
 func _process(delta: float) -> void:
+	if simulation == null:
+		return
 	if paused:
+		# Les ordres donnés pendant la pause s'appliquent tout de suite, sans faire passer le temps.
+		simulation.flush_commands()
 		return
 	_accumulator += delta
 	var step := SECONDS_PER_DAY[speed_index]
@@ -30,11 +48,16 @@ func _process(delta: float) -> void:
 	while _accumulator >= step and processed < MAX_DAYS_PER_FRAME:
 		_accumulator -= step
 		processed += 1
-		day += 1
-		day_passed.emit(day)
+		simulation.step()
 	if processed >= MAX_DAYS_PER_FRAME:
 		# La machine n'arrive pas à suivre : on ralentit plutôt que d'accumuler du retard.
 		_accumulator = 0.0
+	if processed == 0:
+		simulation.flush_commands()
+
+
+func _on_ticked(tick: int) -> void:
+	day_passed.emit(tick)
 
 
 func set_paused(value: bool) -> void:
@@ -57,17 +80,5 @@ func set_speed(index: int) -> void:
 	speed_changed.emit(speed_index)
 
 
-func reset() -> void:
-	day = 0
-	_accumulator = 0.0
-	set_paused(true)
-	day_passed.emit(day)
-
-
 func date_string() -> String:
-	@warning_ignore("integer_division")
-	var year := START_YEAR + day / DAYS_PER_YEAR
-	@warning_ignore("integer_division")
-	var month := (day % DAYS_PER_YEAR) / DAYS_PER_MONTH + 1
-	var day_of_month := day % DAYS_PER_MONTH + 1
-	return "%02d/%02d/%d" % [day_of_month, month, year]
+	return GameCalendar.date_string(day)

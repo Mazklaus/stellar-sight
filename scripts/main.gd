@@ -1,13 +1,22 @@
 extends Node2D
-## Point d'entrée du prototype : crée la galaxie, la vue, la caméra et l'interface,
-## et relie les entrées du joueur à l'horloge et à la sélection.
+## Point d'entrée : crée la simulation, la vue, la caméra et l'interface,
+## et traduit les entrées du joueur en réglages d'horloge, en sélection ou en ordres.
+## Rien ici ne modifie l'état de partie directement : tout passe par Simulation.submit().
 
 const SYSTEM_COUNT := 150
 const GALAXY_RADIUS := 1800.0
 const PICK_RADIUS_PX := 14.0
 const START_ZOOM := 0.22
+## Identifiant du joueur local. En multijoueur, chaque machine aura le sien.
+const LOCAL_PLAYER := 0
 
-var galaxy: Galaxy
+var simulation: Simulation
+## Fichier de sauvegarde rapide (F5 / F9). Les tests le redirigent ailleurs.
+var save_path := SaveGame.QUICKSAVE_PATH
+## Raccourci vers la galaxie de la partie en cours.
+var galaxy: Galaxy:
+	get:
+		return simulation.state.galaxy if simulation else null
 
 var _view: GalaxyView
 var _camera: GalaxyCamera
@@ -23,17 +32,55 @@ func _ready() -> void:
 	_camera.make_current()
 	_hud = Hud.new()
 	add_child(_hud)
-	_new_galaxy(randi())
+	_hud.rename_requested.connect(_on_rename_requested)
+	new_game(randi())
 
 
-func _new_galaxy(seed_value: int) -> void:
-	galaxy = GalaxyGenerator.generate(seed_value, SYSTEM_COUNT, GALAXY_RADIUS)
-	_view.set_galaxy(galaxy)
-	_hud.set_galaxy_info(seed_value, galaxy.systems.size())
-	_hud.show_system(null, galaxy)
+func new_game(seed_value: int) -> void:
+	_start(GameState.create(seed_value, SYSTEM_COUNT, GALAXY_RADIUS))
 	_camera.position = Vector2.ZERO
 	_camera.zoom = Vector2(START_ZOOM, START_ZOOM)
-	GameClock.reset()
+
+
+func save_game() -> void:
+	if SaveGame.save_state(simulation.state, save_path) == OK:
+		_hud.notify("Partie sauvegardée (%s)" % GameCalendar.date_string(simulation.state.tick))
+	else:
+		_hud.notify("Échec de la sauvegarde : %s" % SaveGame.last_error)
+
+
+func load_game() -> void:
+	var state := SaveGame.load_state(save_path)
+	if state == null:
+		_hud.notify("Chargement impossible : %s" % SaveGame.last_error)
+		return
+	_start(state)
+	_hud.notify("Partie chargée (%s)" % GameCalendar.date_string(state.tick))
+
+
+func _start(state: GameState) -> void:
+	simulation = Simulation.new(state)
+	simulation.command_applied.connect(_on_command_applied)
+	simulation.command_rejected.connect(func(_cmd: Dictionary, reason: String) -> void:
+		_hud.notify("Ordre refusé : %s" % reason))
+	simulation.chronicle_added.connect(_hud.show_chronicle)
+	_view.set_galaxy(state.galaxy)
+	_hud.set_galaxy_info(state.seed_value, state.galaxy.systems.size())
+	_hud.show_system(null, state.galaxy)
+	_hud.show_chronicle(state.chronicle.back() if not state.chronicle.is_empty() else {})
+	GameClock.attach(simulation)
+
+
+func _on_rename_requested(system_id: int, new_name: String) -> void:
+	simulation.submit(SimCommands.rename_system(LOCAL_PLAYER, system_id, new_name))
+
+
+func _on_command_applied(cmd: Dictionary) -> void:
+	_view.queue_redraw()
+	if int(cmd.get("system", -1)) == _view.selected_id:
+		_hud.show_system(galaxy.get_system(_view.selected_id), galaxy)
+	if not simulation.state.chronicle.is_empty():
+		_hud.show_chronicle(simulation.state.chronicle.back())
 
 
 func _process(_delta: float) -> void:
@@ -60,7 +107,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if key.keycode == KEY_SPACE:
 		GameClock.toggle_pause()
 	elif key.keycode == KEY_R:
-		_new_galaxy(randi())
+		new_game(randi())
+	elif key.keycode == KEY_F5:
+		save_game()
+	elif key.keycode == KEY_F9:
+		load_game()
 	elif key.keycode == KEY_ESCAPE:
 		_view.selected_id = -1
 		_view.queue_redraw()
