@@ -272,11 +272,13 @@ static func check_declare_war(state: GameState, empire_id: int, target: int) -> 
 		return "vous n'avez jamais rencontré cet empire"
 	if e.wars.has(target):
 		return "vous êtes déjà en guerre"
-	return ""
+	return Diplomacy.check_war(state, empire_id, target)
 
 
-## Déclare la guerre, dans les deux sens. Renvoie l'entrée de chronique.
-static func start_war(state: GameState, a: int, b: int, by_nature := false) -> Dictionary:
+## Déclare la guerre, dans les deux sens, puis ses suites diplomatiques (traité rompu, griefs,
+## alliés qui suivent : voir Diplomacy.on_war_declared). joined : a entre en guerre aux côtés d'un allié.
+## Renvoie l'entrée de chronique.
+static func start_war(state: GameState, a: int, b: int, by_nature := false, joined := false) -> Dictionary:
 	var ea := state.get_empire(a)
 	var eb := state.get_empire(b)
 	if not ea.wars.has(b):
@@ -285,11 +287,18 @@ static func start_war(state: GameState, a: int, b: int, by_nature := false) -> D
 	if not eb.wars.has(a):
 		eb.wars.append(a)
 		eb.wars.sort()
+	if joined:
+		Diplomacy.on_war_declared(state, a, b, by_nature, joined)
+		return {}
+	var entry: Dictionary
 	if by_nature:
-		return state.add_chronicle("%s rencontre %s et ne voit pas l'intérêt de discuter. C'est la guerre : l'Essaim ne signe rien, il digère." % [
+		entry = state.add_chronicle("%s rencontre %s et ne voit pas l'intérêt de discuter. C'est la guerre : l'Essaim ne signe rien, il digère." % [
 				ea.display_name(), eb.display_name()])
-	return state.add_chronicle("%s déclare la guerre à %s. Les amirautés ressortent les cartes, les poètes les hymnes." % [
-			ea.display_name(), eb.display_name()])
+	else:
+		entry = state.add_chronicle("%s déclare la guerre à %s. Les amirautés ressortent les cartes, les poètes les hymnes." % [
+				ea.display_name(), eb.display_name()])
+	Diplomacy.on_war_declared(state, a, b, by_nature, joined)
+	return entry
 
 
 # --- Systèmes : garnison, siège, invasion ------------------------------------------------------
@@ -407,6 +416,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 	var old := state.system_owner(system_id)
 	var eo := state.get_empire(old)
 	var en := state.get_empire(new_owner)
+	Diplomacy.note_conquest(state, new_owner, old)
 	var digest := bool(trait_value(state, new_owner, "digest", false))
 	var bio := int(en.faction().get("biomass", {}).get("materials", 0))
 	var digested := 0

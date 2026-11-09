@@ -25,6 +25,11 @@ var ships_built: Dictionary = {}
 var fervor: int = 0
 var dissent: bool = false
 var biomass: int = 0
+## Diplomatie (voir Diplomacy) : loyauté de l'héritier d'une dynastie féodale (-1 = pas d'héritier),
+## dernier empire qui l'a soudoyé (-1 = aucun), dernier arbitrage d'une république (jour).
+var heir_loyalty: int = -1
+var heir_suitor: int = -1
+var mediation_tick: int = -100000
 ## Niveau de l'IA qui dirige cet empire (voir AiLevels) ; "" = un joueur humain.
 var ai_level: String = ""
 ## Tempérament de l'IA (voir AiLevels.temperament) : son attitude envers les autres empires.
@@ -72,6 +77,9 @@ func to_dict() -> Dictionary:
 		"temper": ai_temperament,
 		"wars": Array(wars),
 		"eliminated": eliminated,
+		"heir": heir_loyalty,
+		"suitor": heir_suitor,
+		"mediation": mediation_tick,
 	}
 
 
@@ -105,4 +113,7 @@ static func from_dict(d: Dictionary) -> Empire:
 		e.wars.append(int(w))
 	e.wars.sort()
 	e.eliminated = bool(d.get("eliminated", false))
+	e.heir_loyalty = int(d.get("heir", -1))
+	e.heir_suitor = int(d.get("suitor", -1))
+	e.mediation_tick = int(d.get("mediation", -100000))
 	return e

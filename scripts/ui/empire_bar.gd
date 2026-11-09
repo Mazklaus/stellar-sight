@@ -17,8 +17,8 @@ const SCREENS := [
 	{"id": "colonies", "label": "Colonies", "key": "F2", "glyph": "colonies", "ready": true},
 	{"id": "research", "label": "Recherche", "key": "F3", "glyph": "research", "ready": true, "soon": true,
 		"why": "Les savants de l'empire réclament encore des crédits. La recherche arrive bientôt : l'écran est prêt, l'arbre des technologies viendra le remplir."},
-	{"id": "diplomacy", "label": "Diplomatie", "key": "F4", "glyph": "diplomacy", "ready": true, "soon": true,
-		"why": "Pour l'instant, la galaxie ne connaît que deux mots : paix et guerre. On peut déclarer la guerre à un empire rencontré ; les traités et la paix arrivent avec la diplomatie."},
+	{"id": "diplomacy", "label": "Diplomatie", "key": "F4", "glyph": "diplomacy", "ready": true,
+		"why": "Guerre froide à la rencontre, puis la paix, l'alliance, le commerce ou la guerre. Survolez une opinion pour en voir les raisons, et une proposition pour savoir ce que l'autre en pense."},
 ]
 ## Description d'un menu d'empire (entrée de SCREENS), {} s'il n'existe pas.
 static func screen_info(screen_id: String) -> Dictionary:

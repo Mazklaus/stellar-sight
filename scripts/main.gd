@@ -56,6 +56,8 @@ var _right_press := Vector2(-1, -1)
 var _fleets_moving := {}
 ## La défaite du joueur a déjà été annoncée.
 var _defeat_told := false
+## Dernière proposition diplomatique annoncée (les suivantes reçues par le joueur font un avis).
+var _proposals_told := -1
 
 
 func _ready() -> void:
@@ -109,6 +111,7 @@ func _ready() -> void:
 	add_child(_empire_screens)
 	_empire_screens.close_requested.connect(close_empire_screen)
 	_empire_screens.war_requested.connect(declare_war)
+	_empire_screens.command_requested.connect(diplomacy_command)
 	_empire_screens.screen_changed.connect(func(id: String) -> void: _hud.bar.set_open_screen(id))
 	_empire_screens.planet_requested.connect(func(pid: int) -> void:
 		close_empire_screen()
@@ -378,8 +381,10 @@ func _start(state: GameState) -> void:
 	_hud.battle_replay.close_silently()
 	_hud.battle_report.hide_report()
 	_defeat_told = state.get_empire(LOCAL_PLAYER).eliminated
+	_proposals_told = state.next_proposal_id - 1
 	simulation.ticked.connect(func(_tick: int) -> void:
 		_announce_arrivals()
+		_announce_proposals()
 		_check_defeat()
 		_refresh_all())
 	_view.set_state(state)
@@ -790,6 +795,41 @@ func toggle_battle_report() -> void:
 func declare_war(target: int) -> void:
 	if _submit(SimCommands.declare_war(view_empire, target)):
 		_hud.notify("Guerre déclarée à %s." % simulation.state.get_empire(target).display_name(), "bad")
+
+
+## Avis pour chaque proposition de traité reçue par l'empire affiché.
+func _announce_proposals() -> void:
+	if spectator:
+		return
+	var st := simulation.state
+	for p in Diplomacy.proposals_for(st, view_empire):
+		if int(p["id"]) > _proposals_told:
+			_hud.notify("%s vous propose : %s.  (F4 : Diplomatie)" % [st.get_empire(int(p["from"])).short_name(),
+					Diplomacy.treaty_label(String(p["treaty"])).to_lower()], "good")
+	_proposals_told = st.next_proposal_id - 1
+
+
+## Ordres de l'écran Diplomatie : on les soumet, puis on dit ce qui s'est passé.
+func diplomacy_command(cmd: Dictionary) -> void:
+	var st := simulation.state
+	var before := st.chronicle.size()
+	var last: Variant = st.chronicle.back() if before > 0 else null
+	if not _submit(cmd):
+		return
+	simulation.flush_commands()  # la réponse d'une IA est immédiate : on la montre tout de suite
+	if not st.chronicle.is_empty() and not is_same(st.chronicle.back(), last):
+		var kind := "info"
+		match String(cmd["type"]):
+			"propose_treaty":
+				var t := String(cmd["treaty"])
+				var target := int(cmd["target"])
+				var signed := Diplomacy.has_trade(st, view_empire, target) if t == Diplomacy.TRADE else Diplomacy.has_pact(st, view_empire, target)
+				if t == Diplomacy.ALLIANCE:
+					signed = Diplomacy.allied(st, view_empire, target)
+				if t != Diplomacy.MAPS:
+					kind = "good" if signed else ("info" if not st.get_empire(target).is_ai() else "bad")
+		_hud.notify(String(st.chronicle.back()["text"]), kind)
+	_empire_screens.refresh()
 
 
 ## Batailles et sièges qui concernent le joueur : avis, et au tour par tour le tour s'interrompt

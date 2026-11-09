@@ -16,7 +16,8 @@ extends RefCounted
 ## 5. flottes : exploration automatique, vaisseaux colons vers la meilleure cible ;
 ## 6. militaire : déclarations de guerre (tempérament et rapport de forces), vaisseaux de guerre,
 ##    tactiques, défense des systèmes assiégés, offensives, sièges, invasions et retraites ;
-## 7. diplomatie : point d'extension, vide tant que les traités n'existent pas.
+## 7. diplomatie (AiDiplomacy) : propositions de traités, alliances quittées, talents diplomatiques
+##    du peuple (héritier, arbitrage).
 ##
 ## Règles d'or : la simulation reste déterministe (aucun aléatoire hors de l'état : les « oublis »
 ## des niveaux bas viennent d'un hachage de la graine, du jour et de l'empire), l'IA ne lit que
@@ -785,7 +786,15 @@ static func _declare_wars(ctx: Dictionary) -> void:
 		# Plus le tempérament est agressif, plus il va chercher loin ses ennemis.
 		if o == null or o.eliminated or e.wars.has(other) or not _borders(ctx, other, 2 + maxi(0, aggr)):
 			continue
-		if mine * 100 < need * maxi(10, enemy_power(ctx, other)) or _forgets(ctx):
+		if SimCommands.validate(state, SimCommands.declare_war(e.id, other)) != "":
+			continue  # trêve, alliance
+		# L'opinion pèse : on attaque plus volontiers ceux qu'on déteste. Rompre un traité (parjure)
+		# est réservé aux plus belliqueux, et seulement contre un empire qu'ils haïssent.
+		var op := Diplomacy.opinion(state, e.id, other)
+		if Diplomacy.has_pact(state, e.id, other) and (aggr < 2 or op > -20):
+			continue
+		var need_here := need + maxi(0, op) * 2
+		if mine * 100 < need_here * maxi(10, enemy_power(ctx, other)) or _forgets(ctx):
 			continue
 		if _issue(ctx, SimCommands.declare_war(e.id, other)):
 			_intent(ctx, "Déclare la guerre à %s" % o.short_name())
@@ -1171,6 +1180,6 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 
 # --- 7. Diplomatie -----------------------------------------------------------------------------
 
-## Diplomatie : rien tant que les traités n'existent pas. L'Essaim Kh'thari n'y entrera jamais.
-static func _diplomacy(_ctx: Dictionary) -> void:
-	pass
+## Diplomatie : voir AiDiplomacy. L'Essaim Kh'thari n'y entre jamais.
+static func _diplomacy(ctx: Dictionary) -> void:
+	AiDiplomacy.think(ctx)

@@ -342,6 +342,13 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 	var keep := int(Combat.data().get("reports_max", 12))
 	while state.battle_reports.size() > keep:
 		state.battle_reports.pop_front()
+	# Score de guerre : la puissance détruite de chaque camp revient à ceux qui le combattaient.
+	for s: Dictionary in b["sides"]:
+		var pts := 0
+		for ship in s["lost"]:
+			pts += Combat.ship_strength(String(ship)) * int(s["lost"][ship])
+		for o: Dictionary in b["sides"]:
+			Diplomacy.add_war_score(state, int(o["empire"]), int(s["empire"]), pts)
 	var losses := PackedStringArray()
 	for s: Dictionary in b["sides"]:
 		losses.append("%s %d" % [state.get_empire(int(s["empire"])).short_name(), Combat.count_ships(s["lost"])])
