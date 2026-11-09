@@ -10,6 +10,12 @@ var capital_planet: int = -1
 ## Pénuries constatées au dernier bilan mensuel.
 var starving: bool = false
 var blackout: bool = false
+## Systèmes explorés (vus au moins une fois) : id -> true. Le reste de la galaxie est dans le brouillard.
+var explored: Dictionary = {}
+## Empires rencontrés (identifiants, triés).
+var contacts: Array[int] = []
+## Vaisseaux sortis des chantiers, par classe (sert à numéroter les nouvelles flottes).
+var ships_built: Dictionary = {}
 
 
 func faction() -> Dictionary:
@@ -36,7 +42,16 @@ func to_dict() -> Dictionary:
 		"capital": capital_planet,
 		"starving": starving,
 		"blackout": blackout,
+		"explored": sorted_explored(),
+		"contacts": Array(contacts),
+		"ships_built": ships_built.duplicate(),
 	}
+
+
+func sorted_explored() -> Array:
+	var ids := explored.keys()
+	ids.sort()
+	return ids
 
 
 static func from_dict(d: Dictionary) -> Empire:
@@ -48,4 +63,10 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.capital_planet = int(d["capital"])
 	e.starving = bool(d["starving"])
 	e.blackout = bool(d["blackout"])
+	for sid in d["explored"]:
+		e.explored[int(sid)] = true
+	for c in d["contacts"]:
+		e.contacts.append(int(c))
+	for k in d["ships_built"]:
+		e.ships_built[String(k)] = int(d["ships_built"][k])
 	return e

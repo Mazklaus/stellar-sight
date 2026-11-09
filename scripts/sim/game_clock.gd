@@ -56,6 +56,13 @@ func _process(delta: float) -> void:
 		simulation.flush_commands()
 
 
+## Fraction du jour en cours déjà écoulée (0 à 1), pour animer les flottes entre deux ticks.
+func day_fraction() -> float:
+	if paused or simulation == null:
+		return 0.0
+	return clampf(_accumulator / SECONDS_PER_DAY[speed_index], 0.0, 1.0)
+
+
 func _on_ticked(tick: int) -> void:
 	day_passed.emit(tick)
 

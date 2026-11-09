@@ -26,6 +26,31 @@ static func build(player: int, planet_id: int, building_id: String) -> Dictionar
 	return {"type": "build", "player": player, "planet": planet_id, "building": building_id}
 
 
+## Construit un vaisseau au chantier spatial d'une colonie.
+static func build_ship(player: int, planet_id: int, ship_id: String) -> Dictionary:
+	return {"type": "build_ship", "player": player, "planet": planet_id, "ship": ship_id}
+
+
+## Envoie une flotte vers un système, par le plus court chemin connu.
+static func move_fleet(player: int, fleet_id: int, system_id: int) -> Dictionary:
+	return {"type": "move_fleet", "player": player, "fleet": fleet_id, "system": system_id}
+
+
+## Arrête une flotte au prochain système (ou fait demi-tour si c'est plus près).
+static func stop_fleet(player: int, fleet_id: int) -> Dictionary:
+	return {"type": "stop_fleet", "player": player, "fleet": fleet_id}
+
+
+## Verse tous les vaisseaux d'une flotte dans une autre (même système, à l'arrêt).
+static func merge_fleets(player: int, fleet_id: int, into_id: int) -> Dictionary:
+	return {"type": "merge_fleets", "player": player, "fleet": fleet_id, "into": into_id}
+
+
+## Détache un vaisseau d'une classe donnée dans une nouvelle flotte.
+static func split_fleet(player: int, fleet_id: int, ship_id: String) -> Dictionary:
+	return {"type": "split_fleet", "player": player, "fleet": fleet_id, "ship": ship_id}
+
+
 ## Renvoie "" si l'ordre est applicable à cet état, sinon la raison du refus.
 static func validate(state: GameState, cmd: Dictionary) -> String:
 	if not cmd.has("type") or not cmd.has("player"):
@@ -45,6 +70,16 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Economy.check_colonize(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("kind", "")))
 		"build":
 			return Economy.check_build(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("building", "")))
+		"build_ship":
+			return Fleets.check_build_ship(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("ship", "")))
+		"move_fleet":
+			return Fleets.check_move(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("system", -1)))
+		"stop_fleet":
+			return Fleets.check_stop(state, int(cmd["player"]), int(cmd.get("fleet", -1)))
+		"merge_fleets":
+			return Fleets.check_merge(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("into", -1)))
+		"split_fleet":
+			return Fleets.check_split(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("ship", "")))
 		_:
 			return "type d'ordre inconnu : %s" % cmd["type"]
 
@@ -62,7 +97,14 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var e := state.get_empire(int(cmd["player"]))
 			var pid := int(cmd["planet"])
 			var kind := String(cmd["kind"])
-			Economy.pay(e, Economy.claim_cost(kind))
+			Economy.pay(e, Economy.claim_cost_for(state, e.id, pid, kind))
+			var p := state.galaxy.get_planet(pid)
+			if Economy.needs_ship(state, e.id, pid):
+				# Le vaisseau colon se démonte : ses modules deviennent les premiers bâtiments.
+				var f := Fleets.colonizer_fleet(state, e.id, p.system_id)
+				f.remove_ship(Fleets.colonizer_ship(f))
+				if f.ships.is_empty():
+					state.fleets.erase(f.id)
 			var c: Colony = state.colonies.get(pid)
 			if c == null:
 				c = Colony.new()
@@ -78,3 +120,37 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Economy.pay(e, b.get("cost", {}))
 			c.construction = String(cmd["building"])
 			c.construction_days = int(b["days"])
+		"build_ship":
+			var e := state.get_empire(int(cmd["player"]))
+			var c: Colony = state.colonies[int(cmd["planet"])]
+			var sd := GameData.ship(String(cmd["ship"]))
+			Economy.pay(e, sd.get("cost", {}))
+			c.ship_build = String(cmd["ship"])
+			c.ship_days = int(sd["days"])
+		"move_fleet":
+			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			var plan := Fleets.plan_route(state, f, int(cmd["system"]))
+			f.system_id = int(plan["system"])
+			f.path.assign(plan["path"])
+			f.progress = int(plan["progress"])
+		"stop_fleet":
+			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			var lane := Fleets.lane_length(state.galaxy, f.system_id, f.path[0])
+			if f.progress * 2 >= lane:
+				f.path.resize(1)  # finir la route en cours
+			else:
+				var back := f.system_id
+				f.system_id = f.path[0]
+				f.path.assign([back])
+				f.progress = lane - f.progress
+		"merge_fleets":
+			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			var into: Fleet = state.fleets[int(cmd["into"])]
+			for s in f.ships:
+				into.add_ship(s)
+			state.fleets.erase(f.id)
+		"split_fleet":
+			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			var ship_id := String(cmd["ship"])
+			f.remove_ship(ship_id)
+			state.spawn_ship(f.owner, ship_id, f.system_id)

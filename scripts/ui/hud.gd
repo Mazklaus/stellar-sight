@@ -17,6 +17,8 @@ signal speed_requested(index: int)
 signal lens_changed(lens: String)
 ## Onglets de la vue système : gestion (true) ou vue orbitale (false).
 signal system_mode_requested(manage: bool)
+## Bouton de la fiche de flotte : "stop", "merge", "split" ou "colonize".
+signal fleet_action_requested(action: String, fleet_id: int)
 
 const MARGIN := 10.0
 const CARD_WIDTH := 320.0
@@ -61,6 +63,15 @@ var _hover_id := -1
 var _state: GameState
 var _player := 0
 var lens := ""
+var _fleet_id := -1
+var _fleet_panel: PanelContainer
+var _fleet_style: StyleBoxFlat
+var _fleet_title: Label
+var _fleet_kind: Label
+var _fleet_status: Label
+var _fleet_stats: Label
+var _fleet_hint: Label
+var _fleet_buttons: Dictionary = {}
 
 
 func _ready() -> void:
@@ -69,6 +80,7 @@ func _ready() -> void:
 	bar.screen_requested.connect(func(id: String) -> void: screen_requested.emit(id))
 	_build_tabs()
 	_build_card()
+	_build_fleet_card()
 	_build_chronicle()
 	_build_dial()
 
@@ -94,7 +106,24 @@ func set_state(state: GameState, player: int) -> void:
 ## Met à jour ce qui change avec le temps. Appelé à chaque tick et après chaque ordre.
 func refresh() -> void:
 	bar.refresh()
+	_refresh_fleet_card()
 	_refresh_card()
+
+
+## Flotte sélectionnée sur la carte (-1 = aucune) : sa fiche s'affiche en bas à gauche.
+func show_fleet(fleet_id: int) -> void:
+	_fleet_id = fleet_id
+	_refresh_fleet_card()
+	_refresh_card()
+
+
+func fleet_card_visible() -> bool:
+	return _fleet_panel.visible
+
+
+## Bouton de la fiche de flotte, pour les tests ("stop", "merge", "split", "colonize").
+func fleet_button(action: String) -> Button:
+	return _fleet_buttons.get(action)
 
 
 ## Système sélectionné sur la carte (null = aucun).
@@ -109,6 +138,7 @@ func set_empire_screen_open(on: bool) -> void:
 	_empire_screen = on
 	_tabs.visible = not on
 	_chronicle.visible = not on
+	_refresh_fleet_card()
 	_refresh_card()
 
 
@@ -122,6 +152,7 @@ func set_system_mode(on: bool) -> void:
 	_tab_manage.visible = on
 	if on:
 		_hover_id = -1
+	_refresh_fleet_card()
 	_refresh_card()
 
 
@@ -298,6 +329,109 @@ func _build_card() -> void:
 	inner.add_child(_enter_button)
 
 
+func _build_fleet_card() -> void:
+	_fleet_panel = PanelContainer.new()
+	_fleet_style = UiTheme.box(UiTheme.PANEL, UiTheme.LINE, 12, 0)
+	_fleet_style.border_width_top = 2  # filet à la couleur de l'empire
+	_fleet_panel.add_theme_stylebox_override("panel", _fleet_style)
+	_fleet_panel.anchor_top = 1.0
+	_fleet_panel.anchor_bottom = 1.0
+	_fleet_panel.offset_left = MARGIN
+	_fleet_panel.offset_right = MARGIN + CARD_WIDTH
+	_fleet_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_fleet_panel.offset_bottom = -MARGIN
+	_fleet_panel.offset_top = -MARGIN
+	_fleet_panel.visible = false
+	add_child(_fleet_panel)
+	var inner := VBoxContainer.new()
+	inner.add_theme_constant_override("separation", 4)
+	_fleet_panel.add_child(inner)
+	var tag := UiTheme.section("Flotte")
+	inner.add_child(tag)
+	_fleet_title = UiTheme.title("", 26)
+	inner.add_child(_fleet_title)
+	_fleet_kind = Label.new()
+	_fleet_kind.add_theme_font_size_override("font_size", 14)
+	inner.add_child(_fleet_kind)
+	_fleet_status = UiTheme.paragraph("", CARD_WIDTH - 26.0, 14)
+	inner.add_child(_fleet_status)
+	_fleet_stats = UiTheme.dim("", 13)
+	inner.add_child(_fleet_stats)
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 4)
+	grid.add_theme_constant_override("v_separation", 4)
+	inner.add_child(grid)
+	for a in [["colonize", "COLONISER ICI", "Ouvrir le système pour choisir la planète où fonder la revendication"],
+			["stop", "ARRÊTER", "S'arrêter au système le plus proche sur la route"],
+			["merge", "RASSEMBLER", "Réunir dans cette flotte les autres flottes à l'arrêt dans ce système"],
+			["split", "DÉTACHER", "Détacher un vaisseau dans une nouvelle flotte"]]:
+		var b := Button.new()
+		b.text = a[1]
+		b.tooltip_text = a[2]
+		b.focus_mode = Control.FOCUS_NONE
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		if a[0] == "colonize":
+			b.theme_type_variation = &"PrimaryButton"
+		var action: String = a[0]
+		b.pressed.connect(func() -> void: fleet_action_requested.emit(action, _fleet_id))
+		grid.add_child(b)
+		_fleet_buttons[action] = b
+	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte.  F : flotte suivante.", CARD_WIDTH - 26.0, 12)
+	_fleet_hint.theme_type_variation = &"Dim"
+	inner.add_child(_fleet_hint)
+
+
+func _refresh_fleet_card() -> void:
+	if _fleet_panel == null:
+		return
+	var f: Fleet = _state.fleets.get(_fleet_id) if _state else null
+	_fleet_panel.visible = f != null and not _system_mode and not _empire_screen
+	# La fiche du système survolé se range à droite de celle de la flotte.
+	_info_panel.offset_left = MARGIN + (CARD_WIDTH + MARGIN if _fleet_panel.visible else 0.0)
+	_info_panel.offset_right = _info_panel.offset_left + CARD_WIDTH
+	if not _fleet_panel.visible:
+		return
+	var g := _state.galaxy
+	var owner := _state.get_empire(f.owner)
+	var mine := f.owner == _player
+	_fleet_style.border_color = owner.color()
+	_fleet_title.text = f.fleet_name
+	_fleet_title.add_theme_color_override("font_color", owner.color().lightened(0.35))
+	_fleet_kind.text = Fleets.composition(f) if mine else "%s  ·  %s" % [owner.short_name(), Fleets.composition(f)]
+	if f.is_moving():
+		var eta := Fleets.eta_days(_state, f)
+		_fleet_status.text = "En route vers %s, arrivée dans %d jour%s (prochain saut : %s)." % [
+				_system_label(f.destination()), eta, "s" if eta > 1 else "", _system_label(f.next_system())]
+	else:
+		_fleet_status.text = "En orbite de %s." % _system_label(f.system_id)
+	var v := Fleets.vision(f)
+	_fleet_stats.text = "%d vaisseau%s  ·  vitesse %d  ·  vision %d saut%s" % [f.ships.size(), "x" if f.ships.size() > 1 else "",
+			Fleets.speed(f), v, "s" if v > 1 else ""]
+	var can_colonize := mine and not f.is_moving() and Fleets.colonizer_ship(f) != ""
+	if can_colonize:
+		can_colonize = false
+		for pid in g.systems[f.system_id].planet_ids:
+			for kind in [Colony.KIND_OUTPOST, Colony.KIND_COLONY]:
+				if Economy.check_colonize(_state, _player, pid, kind) == "":
+					can_colonize = true
+	var others := Fleets.fleets_at(_state, f.system_id, _player).size() > 1
+	_fleet_buttons["colonize"].visible = mine and Fleets.colonizer_ship(f) != ""
+	_fleet_buttons["colonize"].disabled = not can_colonize
+	_fleet_buttons["stop"].visible = mine
+	_fleet_buttons["stop"].disabled = not f.is_moving()
+	_fleet_buttons["merge"].visible = mine
+	_fleet_buttons["merge"].disabled = f.is_moving() or not others
+	_fleet_buttons["split"].visible = mine
+	_fleet_buttons["split"].disabled = f.is_moving() or f.ships.size() < 2
+	_fleet_hint.visible = mine
+
+
+## Nom d'un système tel que le joueur le connaît (pas de nom dans le brouillard).
+func _system_label(id: int) -> String:
+	return _state.galaxy.systems[id].system_name if Fleets.is_explored(_state, _player, id) else "un système inexploré"
+
+
 func _build_chronicle() -> void:
 	_chronicle = Widgets.RichTipPanel.new()
 	_chronicle.tip_width = 460.0
@@ -368,6 +502,19 @@ func _refresh_card() -> void:
 	_info_panel.visible = true
 	var galaxy := _state.galaxy
 	var s := galaxy.get_system(id)
+	if not Fleets.is_explored(_state, _player, id):
+		_portrait.visible = false
+		_card_title.text = "Système inexploré"
+		_card_title.add_theme_color_override("font_color", UiTheme.TEXT)
+		_card_kind.text = "Une lueur repérée par vos capteurs"
+		_card_owner.text = "Dans le brouillard"
+		_card_lore.text = "Les cartes s'arrêtent ici. Au-delà, il y a peut-être des mondes, ou des dragons. Envoyez un éclaireur (clic droit avec une flotte sélectionnée)."
+		for d in _planet_dots.get_children():
+			_planet_dots.remove_child(d)
+			d.queue_free()
+		_enter_button.visible = false
+		return
+	_portrait.visible = true
 	var owner := _state.get_empire(_state.system_owner(s.id))
 	_portrait.set_star(s.star_type, fmod(float(s.id) * 0.731, 7.0))
 	_card_title.text = s.system_name

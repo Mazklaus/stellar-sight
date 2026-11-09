@@ -18,6 +18,10 @@ var buildings: Array[String] = []
 ## Bâtiment en construction ("" = aucun) et jours restants.
 var construction: String = ""
 var construction_days: int = 0
+## Vaisseau en construction au chantier spatial ("" = aucun) et jours restants.
+## Le chantier spatial est indépendant de celui des bâtiments.
+var ship_build: String = ""
+var ship_days: int = 0
 
 
 func is_established() -> bool:
@@ -39,6 +43,8 @@ func to_dict() -> Dictionary:
 		"buildings": Array(buildings),
 		"construction": construction,
 		"construction_days": construction_days,
+		"ship_build": ship_build,
+		"ship_days": ship_days,
 	}
 
 
@@ -54,4 +60,6 @@ static func from_dict(d: Dictionary) -> Colony:
 		c.buildings.append(String(b))
 	c.construction = String(d["construction"])
 	c.construction_days = int(d["construction_days"])
+	c.ship_build = String(d["ship_build"])
+	c.ship_days = int(d["ship_days"])
 	return c

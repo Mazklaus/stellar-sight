@@ -28,6 +28,17 @@ var hovered_id := -1
 var viewer := 0
 ## Lentille : "" (normale) ou "economy" (bilan mensuel de chaque système du joueur).
 var lens := ""
+## Flotte sélectionnée (-1 si aucune) : mise en valeur, avec son trajet.
+var selected_fleet := -1
+## Brouillard de guerre actif (désactivable pour le débogage et certaines captures).
+var fog := true
+## Fraction de jour écoulée, fournie par l'horloge, pour animer les flottes entre deux ticks.
+var day_fraction := 0.0
+
+## Systèmes vus en ce moment par le joueur, recalculés à chaque dessin.
+var _seen := {}
+## Position (monde) de chaque flotte dessinée, pour la sélection au clic.
+var _fleet_pos := {}
 
 var _background := PackedVector2Array()
 var _font: Font
@@ -53,6 +64,59 @@ func _process(_delta: float) -> void:
 	if not is_equal_approx(z, _last_zoom):
 		_last_zoom = z
 		queue_redraw()
+	# Flottes en mouvement : on redessine à chaque image pour un déplacement fluide.
+	if day_fraction > 0.0 and state != null:
+		for fid in state.fleets:
+			if state.fleets[fid].is_moving():
+				queue_redraw()
+				break
+
+
+# --- Brouillard de guerre -----------------------------------------------------------------------
+
+## Le joueur a exploré ce système (ou le brouillard est désactivé).
+func is_explored(id: int) -> bool:
+	return not fog or state == null or Fleets.is_explored(state, viewer, id)
+
+
+## Le joueur connaît la position de ce système (exploré, ou relié à un système exploré).
+func is_known(id: int) -> bool:
+	return not fog or state == null or Fleets.is_known(state, viewer, id)
+
+
+## Le joueur voit ce système en ce moment.
+func is_seen(id: int) -> bool:
+	return not fog or state == null or _seen.has(id)
+
+
+## Système connu le plus proche d'une position du monde (-1 si aucun à moins de max_distance).
+func pick_system(world_pos: Vector2, max_distance: float) -> int:
+	var best := -1
+	var best_d := max_distance * max_distance
+	for s in galaxy.systems:
+		var d := s.position.distance_squared_to(world_pos)
+		if d <= best_d and is_known(s.id):
+			best_d = d
+			best = s.id
+	return best
+
+
+## Flotte dessinée la plus proche d'une position du monde (-1 si aucune à moins de max_distance).
+func pick_fleet(world_pos: Vector2, max_distance: float) -> int:
+	var best := -1
+	var best_d := max_distance * max_distance
+	var positions := fleet_positions()
+	for fid in positions:
+		var d: float = (positions[fid] as Vector2).distance_squared_to(world_pos)
+		if d <= best_d and state.fleets.has(fid):
+			best_d = d
+			best = fid
+	return best
+
+
+## Position (monde) d'une flotte, telle que dessinée.
+func fleet_world_position(fid: int) -> Vector2:
+	return fleet_positions().get(fid, Vector2.ZERO)
 
 
 func _zoom() -> float:
@@ -72,6 +136,7 @@ func _draw() -> void:
 	if galaxy == null:
 		return
 	var px := 1.0 / _zoom()  # un pixel écran, en unités du monde
+	_seen = Fleets.visible_systems(state, viewer) if state != null and fog else {}
 
 	_draw_territory()
 
@@ -79,14 +144,23 @@ func _draw() -> void:
 		draw_circle(p, 1.1 * px, Color(1, 1, 1, 0.22))
 
 	for lane in galaxy.lanes:
+		var ea := is_explored(lane.x)
+		var eb := is_explored(lane.y)
+		if not ea and not eb:
+			continue  # route inconnue : dans le brouillard
 		var a := galaxy.systems[lane.x].position
 		var b := galaxy.systems[lane.y].position
 		var lit := lane.x == selected_id or lane.y == selected_id
-		var color := Color(LANE_COLOR, 0.75 if lit else 0.22)
-		draw_line(a, b, color, (2.0 if lit else 1.0) * px, true)
+		var alpha := 0.75 if lit else (0.22 if ea and eb else 0.1)
+		draw_line(a, b, Color(LANE_COLOR, alpha), (2.0 if lit else 1.0) * px, true)
 
 	for s in galaxy.systems:
-		_draw_system(s, px)
+		if is_explored(s.id):
+			_draw_system(s, px)
+		elif is_known(s.id):
+			_draw_unknown_system(s, px)
+
+	_draw_fleets(px)
 
 	if lens == "economy" and state != null:
 		# Lentille économique : tout s'assombrit sauf les systèmes du joueur, qui affichent leur bilan.
@@ -100,6 +174,8 @@ func _draw() -> void:
 	var show_all_labels := _zoom() >= LABEL_MIN_ZOOM
 	var show_dots := _zoom() >= PLANET_DOTS_MIN_ZOOM
 	for s in galaxy.systems:
+		if not is_explored(s.id):
+			continue
 		var key := s.id == selected_id or s.id == hovered_id or (state != null and state.system_owner(s.id) >= 0)
 		if show_all_labels or key:
 			_draw_label(s, px, show_dots or key)
@@ -114,17 +190,19 @@ func _draw_territory() -> void:
 	var bg: Color = ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color.BLACK)
 	for lane in galaxy.lanes:
 		var oa := state.system_owner(lane.x)
-		if oa != -1 and oa == state.system_owner(lane.y):
+		if oa != -1 and oa == state.system_owner(lane.y) and is_explored(lane.x) and is_explored(lane.y):
 			var tint := bg.lerp(state.get_empire(oa).color(), 0.13)
 			draw_line(galaxy.systems[lane.x].position, galaxy.systems[lane.y].position, tint, TERRITORY_RADIUS * 1.1)
 	for s in galaxy.systems:
 		var owner := state.get_empire(state.system_owner(s.id))
-		if owner:
+		if owner and is_explored(s.id):
 			draw_circle(s.position, TERRITORY_RADIUS, bg.lerp(owner.color(), 0.13))
 
 
 func _draw_system(s: StarSystem, px: float) -> void:
 	var color: Color = STAR_COLORS.get(s.star_type, Color.WHITE)
+	if not is_seen(s.id):
+		color = color.darkened(0.35)  # exploré mais hors de vue : dernières observations
 	var r := (6.5 if s.star_type == "blue_giant" else 4.5) * px
 	_draw_claims(s, r, px)
 	draw_circle(s.position, r * 2.8, Color(color, 0.12))
@@ -137,6 +215,93 @@ func _draw_system(s: StarSystem, px: float) -> void:
 		draw_arc(s.position, r * 2.4, 0.0, TAU, 32, Color(1, 1, 1, 0.55), 1.5 * px, true)
 	if s.id == selected_id:
 		draw_arc(s.position, r * 2.8, 0.0, TAU, 40, SELECT_COLOR, 2.0 * px, true)
+
+
+## Système connu mais inexploré : une petite lueur grise, sans nom ni planètes.
+func _draw_unknown_system(s: StarSystem, px: float) -> void:
+	draw_circle(s.position, 7.0 * px, Color(0.6, 0.65, 0.75, 0.08))
+	draw_circle(s.position, 2.2 * px, Color(0.7, 0.74, 0.82, 0.55))
+	if s.id == hovered_id or s.id == selected_id:
+		draw_arc(s.position, 9.0 * px, 0.0, TAU, 24, SELECT_COLOR if s.id == selected_id else Color(1, 1, 1, 0.5), 1.5 * px, true)
+
+
+# --- Flottes ------------------------------------------------------------------------------------
+
+## Flottes visibles : un chevron à la couleur de l'empire, pointé dans le sens de la marche.
+## À l'arrêt, les flottes d'un même système s'alignent à droite de l'étoile.
+## La flotte sélectionnée montre son trajet et le délai d'arrivée.
+func _draw_fleets(px: float) -> void:
+	_fleet_pos = fleet_positions(px)
+	if selected_fleet >= 0 and _fleet_pos.has(selected_fleet):
+		_draw_route(state.fleets[selected_fleet], px)
+	for fid in _fleet_pos:
+		_draw_fleet_icon(state.fleets[fid], _fleet_pos[fid], px)
+
+
+## Position (monde) de chaque flotte visible par le joueur, telle qu'elle est dessinée.
+func fleet_positions(px := -1.0) -> Dictionary:
+	var out := {}
+	if state == null:
+		return out
+	if px < 0.0:
+		px = 1.0 / _zoom()
+		if fog:
+			_seen = Fleets.visible_systems(state, viewer)
+	var stacked := {}
+	for fid in state.sorted_fleet_ids():
+		var f: Fleet = state.fleets[fid]
+		if fog and not Fleets.fleet_visible(state, viewer, f, _seen):
+			continue
+		var pos: Vector2
+		if f.is_moving():
+			pos = Fleets.position(state, f, day_fraction)
+		else:
+			var k := int(stacked.get(f.system_id, 0))
+			stacked[f.system_id] = k + 1
+			pos = galaxy.systems[f.system_id].position + Vector2(16.0 + k * 13.0, 10.0) * px
+		out[fid] = pos
+	return out
+
+
+func _draw_fleet_icon(f: Fleet, pos: Vector2, px: float) -> void:
+	var col := state.get_empire(f.owner).color()
+	var dir := Vector2.RIGHT
+	if f.is_moving():
+		dir = (galaxy.systems[f.path[0]].position - galaxy.systems[f.system_id].position).normalized()
+	var side := dir.orthogonal()
+	var s := (7.0 if f.ships.size() > 1 else 6.0) * px
+	var tip := pos + dir * s
+	var pts := PackedVector2Array([tip, pos - dir * s * 0.7 + side * s * 0.75, pos - dir * s * 0.25, pos - dir * s * 0.7 - side * s * 0.75])
+	if f.id == selected_fleet:
+		draw_circle(pos, s * 1.9, Color(SELECT_COLOR, 0.18))
+		draw_arc(pos, s * 1.9, 0.0, TAU, 24, SELECT_COLOR, 1.5 * px, true)
+	draw_colored_polygon(pts, Color(0.02, 0.03, 0.05, 0.85))
+	var inner := PackedVector2Array()
+	for p in pts:
+		inner.append(pos + (p - pos) * 0.78)
+	draw_colored_polygon(inner, col)
+	if f.ships.size() > 1:
+		draw_set_transform(pos, 0.0, Vector2(px, px))
+		draw_string(_font, Vector2(8, 12), str(f.ships.size()), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 1, 1, 0.85))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Trajet de la flotte sélectionnée : pointillés jusqu'à destination, et le délai.
+func _draw_route(f: Fleet, px: float) -> void:
+	if not f.is_moving():
+		return
+	var pts := PackedVector2Array([_fleet_pos[f.id]])
+	for sid in f.path:
+		pts.append(galaxy.systems[sid].position)
+	for i in range(pts.size() - 1):
+		draw_dashed_line(pts[i], pts[i + 1], Color(SELECT_COLOR, 0.8), 1.6 * px, 7.0 * px, true)
+	var end := pts[-1]
+	draw_arc(end, 11.0 * px, 0.0, TAU, 24, Color(SELECT_COLOR, 0.8), 1.5 * px, true)
+	draw_set_transform(end, 0.0, Vector2(px, px))
+	var text := "%d j" % Fleets.eta_days(state, f)
+	draw_rect(Rect2(Vector2(14, -8), Vector2(_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
+	draw_string(_font, Vector2(19, 6), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, SELECT_COLOR)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## Anneau à la couleur du propriétaire (pointillé tant qu'une fondation est en cours),

@@ -38,6 +38,17 @@ func _initialize() -> void:
 	var sim: Simulation = main.simulation
 	var st: GameState = sim.state
 	for month in 48:
+		# Mise en scène : un vaisseau colon apparaît chaque mois près de l'empire (sans attendre les chantiers).
+		if month % 2 == 0:
+			for sid in EmpireReport.owned_systems(st, 0):
+				var placed := false
+				for n in st.galaxy.systems[sid].neighbors:
+					if not placed and st.system_owner(n) == -1 and st.galaxy.systems[n].planet_count > 0:
+						st.spawn_ship(0, "colony_ship", n)
+						FleetSystem.update_exploration(st)
+						placed = true
+				if placed:
+					break
 		for p in st.galaxy.planets:
 			if Economy.check_colonize(st, 0, p.id, Colony.KIND_COLONY) == "":
 				sim.submit(SimCommands.colonize(0, p.id, Colony.KIND_COLONY))

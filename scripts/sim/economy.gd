@@ -86,6 +86,7 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 		var y := colony_yields(state, c)
 		_add(gross, y["gross"])
 		_add(upkeep, y["upkeep"])
+	_add(upkeep, Fleets.upkeep(state, empire_id))
 	var e := state.get_empire(empire_id)
 	var pct: Dictionary = e.faction().get("production_pct", {}) if e else {}
 	var net := _zero()
@@ -117,20 +118,32 @@ static func pay(empire: Empire, cost: Dictionary) -> void:
 		empire.resources[r] = int(empire.resources.get(r, 0)) - int(cost[r])
 
 
-## Un système est à portée s'il contient, ou s'il est voisin d'un système qui contient,
-## une colonie ou un avant-poste ÉTABLI de l'empire. (Les vaisseaux colons viendront avec les flottes.)
-static func in_range(state: GameState, empire_id: int, system_id: int) -> bool:
-	var reach := {}
-	for pid in state.colonies:
-		var c: Colony = state.colonies[pid]
-		if c.owner == empire_id and c.is_established():
-			reach[state.galaxy.get_planet(pid).system_id] = true
-	if reach.has(system_id):
-		return true
-	for n in state.galaxy.systems[system_id].neighbors:
-		if reach.has(n):
+## L'empire a pied dans le système : il y possède une colonie ou un avant-poste ÉTABLI.
+## Il peut alors revendiquer les autres planètes du système sans vaisseau colon.
+static func has_foothold(state: GameState, empire_id: int, system_id: int) -> bool:
+	for pid in state.galaxy.systems[system_id].planet_ids:
+		var c: Colony = state.colonies.get(pid)
+		if c and c.owner == empire_id and c.is_established():
 			return true
 	return false
+
+
+## Un système est à portée de colonisation si l'empire y a pied, ou si l'un de ses vaisseaux colons
+## y est à l'arrêt (comme dans Endless Space 2, le vaisseau se démonte pour fonder la revendication).
+static func in_range(state: GameState, empire_id: int, system_id: int) -> bool:
+	return has_foothold(state, empire_id, system_id) or Fleets.colonizer_fleet(state, empire_id, system_id) != null
+
+
+## La revendication de cette planète consommerait un vaisseau colon (pas encore pied dans le système).
+static func needs_ship(state: GameState, empire_id: int, planet_id: int) -> bool:
+	return not has_foothold(state, empire_id, state.galaxy.get_planet(planet_id).system_id)
+
+
+## Coût réel d'une revendication : avec un vaisseau colon, les matériaux sont déjà dans le vaisseau.
+static func claim_cost_for(state: GameState, empire_id: int, planet_id: int, kind: String) -> Dictionary:
+	if needs_ship(state, empire_id, planet_id):
+		return GameData.rules()["claims"][kind].get("ship_cost", claim_cost(kind))
+	return claim_cost(kind)
 
 
 ## Nombre de colonisations en cours (pas encore fondées) d'un empire.
@@ -165,13 +178,13 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 	if owner != -1 and owner != empire_id:
 		return "système revendiqué par %s" % state.get_empire(owner).display_name()
 	if not in_range(state, empire_id, p.system_id):
-		return "hors de portée : il faut une colonie ou un avant-poste établi dans ce système ou un système voisin"
+		return "hors de portée : il faut un vaisseau colon à l'arrêt dans ce système (ou une revendication établie dans le système)"
 	if kind == Colony.KIND_COLONY and max_pop(state, p, empire_id) < 1:
 		return "planète inhabitable pour votre espèce"
 	var max_projects := int(GameData.rules()["max_projects"])
 	if active_projects(state, empire_id) >= max_projects:
 		return "déjà %d colonisations en cours" % max_projects
-	var cost := claim_cost(kind)
+	var cost := claim_cost_for(state, empire_id, planet_id, kind)
 	if not can_afford(e, cost):
 		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)
 	return ""
