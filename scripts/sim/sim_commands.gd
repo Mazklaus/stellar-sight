@@ -15,6 +15,17 @@ static func rename_system(player: int, system_id: int, new_name: String) -> Dict
 	return {"type": "rename_system", "player": player, "system": system_id, "name": new_name}
 
 
+## Lance une colonie ("colony") ou un avant-poste ("outpost") sur une planète.
+## Une colonie sur un de ses propres avant-postes le transforme en colonie.
+static func colonize(player: int, planet_id: int, kind: String = Colony.KIND_COLONY) -> Dictionary:
+	return {"type": "colonize", "player": player, "planet": planet_id, "kind": kind}
+
+
+## Lance la construction d'un bâtiment sur une colonie ou un avant-poste.
+static func build(player: int, planet_id: int, building_id: String) -> Dictionary:
+	return {"type": "build", "player": player, "planet": planet_id, "building": building_id}
+
+
 ## Renvoie "" si l'ordre est applicable à cet état, sinon la raison du refus.
 static func validate(state: GameState, cmd: Dictionary) -> String:
 	if not cmd.has("type") or not cmd.has("player"):
@@ -30,6 +41,10 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			if n.length() > NAME_MAX_LENGTH:
 				return "nom trop long (%d caractères max)" % NAME_MAX_LENGTH
 			return ""
+		"colonize":
+			return Economy.check_colonize(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("kind", "")))
+		"build":
+			return Economy.check_build(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("building", "")))
 		_:
 			return "type d'ordre inconnu : %s" % cmd["type"]
 
@@ -43,3 +58,23 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			sys.system_name = String(cmd["name"]).strip_edges()
 			if old_name != sys.system_name:
 				state.add_chronicle("Les cartographes rebaptisent %s : on dira désormais %s." % [old_name, sys.system_name])
+		"colonize":
+			var e := state.get_empire(int(cmd["player"]))
+			var pid := int(cmd["planet"])
+			var kind := String(cmd["kind"])
+			Economy.pay(e, Economy.claim_cost(kind))
+			var c: Colony = state.colonies.get(pid)
+			if c == null:
+				c = Colony.new()
+				c.planet_id = pid
+				c.owner = e.id
+			c.kind = kind
+			c.days_left = Economy.claim_days(kind)
+			state.add_colony(c)
+		"build":
+			var e := state.get_empire(int(cmd["player"]))
+			var c: Colony = state.colonies[int(cmd["planet"])]
+			var b := GameData.building(String(cmd["building"]))
+			Economy.pay(e, b.get("cost", {}))
+			c.construction = String(cmd["building"])
+			c.construction_days = int(b["days"])

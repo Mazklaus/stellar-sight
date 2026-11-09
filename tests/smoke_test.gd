@@ -12,6 +12,7 @@ var _checks := 0
 func _initialize() -> void:
 	_test_generator()
 	preload("res://tests/sim_tests.gd").new().run(_check)
+	preload("res://tests/economy_tests.gd").new().run(_check)
 	_test_clock()
 	await _test_main_scene()
 	print("")
@@ -115,6 +116,7 @@ func _test_main_scene() -> void:
 	for _i in 10:
 		await process_frame
 	_check(main.galaxy != null and main.galaxy.systems.size() == main.SYSTEM_COUNT, "galaxie créée au lancement")
+	await _test_colony_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_press(KEY_SPACE)
@@ -150,13 +152,13 @@ func _test_main_scene() -> void:
 
 	# Renommage par l'interface : passe par un ordre de simulation.
 	main._view.selected_id = 5
-	main._hud.show_system(main.galaxy.get_system(5), main.galaxy)
+	main._hud.show_system(main.galaxy.get_system(5), main.simulation.state)
 	main._hud._name_edit.text = "Port-Libre"
 	main._hud._submit_rename()
 	await process_frame
 	await process_frame
 	_check(main.galaxy.systems[5].system_name == "Port-Libre", "renommer depuis la fiche (obtenu %s)" % main.galaxy.systems[5].system_name)
-	_check(main.simulation.command_log.size() == 1, "le renommage est un ordre journalisé")
+	_check(main.simulation.command_log.back()["type"] == "rename_system", "le renommage est un ordre journalisé")
 
 	# F5 sauvegarde, F9 recharge exactement la même partie.
 	_press(KEY_F5)
@@ -183,6 +185,74 @@ func _test_main_scene() -> void:
 	DirAccess.remove_absolute(main.save_path)
 	main.queue_free()
 	await process_frame
+
+
+## Au lancement : caméra et fiche sur le système d'origine ; coloniser et construire depuis la fiche.
+func _test_colony_ui(main: Node) -> void:
+	var st: GameState = main.simulation.state
+	var me: Empire = st.get_empire(main.LOCAL_PLAYER)
+	_check(me.faction_id == main.player_faction, "le joueur joue sa faction (%s)" % me.faction_id)
+	var home_sys: int = main.galaxy.get_planet(me.capital_planet).system_id
+	_check(main._view.selected_id == home_sys, "le système d'origine est sélectionné au lancement")
+	_check(main._hud._info_panel.visible and main._hud._planet_box.get_child_count() == main.galaxy.systems[home_sys].planet_count,
+			"la fiche liste les planètes du système d'origine")
+	_check(main._hud._res_label.text.contains("Matériaux 200"), "les ressources du joueur s'affichent (%s)" % main._hud._res_label.text)
+	_check(main._hud._build_menus.size() >= 1, "un menu de construction sur le monde d'origine")
+
+	# Construire depuis le menu de la fiche.
+	var menu: MenuButton = main._hud._build_menus[0]
+	var popup := menu.get_popup()
+	var farm_index := -1
+	for i in popup.item_count:
+		if popup.get_item_text(i).begins_with("Fermes hydroponiques"):
+			farm_index = i
+	_check(farm_index != -1 and not popup.is_item_disabled(farm_index), "la ferme est proposée et disponible")
+	popup.id_pressed.emit(popup.get_item_id(farm_index))
+	for _i in 3:
+		await process_frame
+	var home: Colony = st.colonies[me.capital_planet]
+	_check(home.construction == "ferme_hydroponique", "construire depuis la fiche lance un chantier")
+
+	# Coloniser depuis la fiche d'un système voisin.
+	var target := -1
+	for n in main.galaxy.systems[home_sys].neighbors:
+		for pid in main.galaxy.systems[n].planet_ids:
+			if target == -1 and Economy.check_colonize(st, 0, pid, Colony.KIND_OUTPOST) == "":
+				target = pid
+	if target == -1:
+		for pid in main.galaxy.systems[home_sys].planet_ids:
+			if target == -1 and Economy.check_colonize(st, 0, pid, Colony.KIND_OUTPOST) == "":
+				target = pid
+	_check(target != -1, "une planète à revendiquer près du système d'origine")
+	if target != -1:
+		main._select(main.galaxy.get_planet(target).system_id)
+		var button := _find_button(main._hud._planet_box, "Avant-poste")
+		_check(button != null and not button.disabled, "bouton Avant-poste actif")
+		if button:
+			button.pressed.emit()
+		for _i in 3:
+			await process_frame
+		_check(st.colonies.has(target) and st.colonies[target].kind == Colony.KIND_OUTPOST, "avant-poste lancé depuis la fiche")
+		_check(_find_button(main._hud._planet_box, "Avant-poste") == null or st.galaxy.systems[main.galaxy.get_planet(target).system_id].planet_count > 1,
+				"la fiche se met à jour après l'ordre")
+	var far := -1
+	for p in st.galaxy.planets:
+		if far == -1 and st.system_owner(p.system_id) == -1 and not Economy.in_range(st, 0, p.system_id):
+			far = p.id
+	main._select(main.galaxy.get_planet(far).system_id)
+	var far_button := _find_button(main._hud._planet_box, "Avant-poste")
+	_check(far_button != null and far_button.disabled and far_button.tooltip_text.contains("portée"), "hors de portée : bouton grisé avec la raison")
+	main._select(-1)
+
+
+func _find_button(node: Node, prefix: String) -> Button:
+	for child in node.get_children():
+		if child is Button and not child is MenuButton and (child as Button).text.begins_with(prefix):
+			return child
+		var found := _find_button(child, prefix)
+		if found:
+			return found
+	return null
 
 
 func _press(keycode: Key, physical: Key = KEY_NONE) -> void:

@@ -37,6 +37,7 @@ static func generate(seed_value: int, count: int = 150, radius: float = 1800.0, 
 		galaxy.systems.append(s)
 
 	_build_lanes(rng, galaxy, points, radius)
+	_make_planets(galaxy)
 	return galaxy
 
 
@@ -124,6 +125,47 @@ static func _link(galaxy: Galaxy, e: Vector2i) -> void:
 	galaxy.lanes.append(e)
 	galaxy.systems[e.x].neighbors.append(e.y)
 	galaxy.systems[e.y].neighbors.append(e.x)
+
+
+## Planètes de chaque système. Chaque système a son propre flux aléatoire dérivé de la graine :
+## le générateur principal n'est pas touché, donc positions, noms et routes ne changent pas.
+static func _make_planets(galaxy: Galaxy) -> void:
+	var types := GameData.planet_types()
+	var deposits: Array = GameData.rules()["deposits"]
+	for s in galaxy.systems:
+		var prng := RandomNumberGenerator.new()
+		prng.seed = hash([galaxy.seed_value, "planets", s.id])
+		for k in s.planet_count:
+			var p := Planet.new()
+			p.id = galaxy.planets.size()
+			p.system_id = s.id
+			p.index = k
+			p.type = _pick_planet_type(prng, types, s.star_type)
+			var sizes: Array = types[p.type]["sizes"]
+			p.size = prng.randi_range(int(sizes[0]), int(sizes[1]))
+			for d: Dictionary in deposits:
+				var chance := int(d["chance"]) * int(d.get("star_bonus", {}).get(s.star_type, 1))
+				var roll := prng.randi_range(1, 100)
+				if d.get("habitable_only", false) and not p.is_habitable_type():
+					continue
+				if roll <= chance:
+					p.deposits.append(String(d["id"]))
+			galaxy.planets.append(p)
+			s.planet_ids.append(p.id)
+
+
+static func _pick_planet_type(rng: RandomNumberGenerator, types: Dictionary, star_type: String) -> String:
+	var total := 0
+	for t in types:
+		total += int(types[t]["weights"].get(star_type, 0))
+	if total <= 0:
+		return "barren"
+	var roll := rng.randi_range(1, total)
+	for t in types:
+		roll -= int(types[t]["weights"].get(star_type, 0))
+		if roll <= 0:
+			return t
+	return "barren"
 
 
 static func _make_name(rng: RandomNumberGenerator, used: Dictionary) -> String:

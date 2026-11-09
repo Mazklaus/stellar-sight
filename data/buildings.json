@@ -1,0 +1,17 @@
+{
+	"capitale": {"label": "Capitale impériale", "buildable": false,
+		"yields": {"energy": 3, "materials": 3, "influence": 5}, "upkeep": {}},
+	"ferme_hydroponique": {"label": "Fermes hydroponiques", "cost": {"materials": 80}, "days": 60,
+		"yields": {"food": 6}, "upkeep": {"energy": 1}},
+	"centrale_fusion": {"label": "Centrale à fusion", "cost": {"materials": 90}, "days": 60,
+		"yields": {"energy": 6}, "upkeep": {}},
+	"complexe_minier": {"label": "Complexe minier", "cost": {"materials": 60, "energy": 30}, "days": 60,
+		"yields": {"materials": 6}, "upkeep": {"energy": 1}},
+	"forum": {"label": "Forum impérial", "cost": {"materials": 120}, "days": 90, "unique": true,
+		"yields": {"influence": 2}, "upkeep": {"energy": 2}},
+	"raffinerie": {"label": "Raffinerie de cristaux", "cost": {"materials": 100, "energy": 50}, "days": 90, "unique": true,
+		"requires_deposit": "crystals", "outpost_ok": true,
+		"yields": {"crystals": 2}, "upkeep": {"energy": 2}},
+	"habitats": {"label": "Habitats orbitaux", "cost": {"materials": 150}, "days": 120, "unique": true,
+		"max_pop": 4, "yields": {}, "upkeep": {"energy": 2}}
+}

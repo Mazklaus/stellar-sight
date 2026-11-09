@@ -6,12 +6,20 @@ var seed_value: int = 0
 var systems: Array[StarSystem] = []
 ## Chaque route relie deux identifiants de systèmes : Vector2i(a, b) avec a < b.
 var lanes: Array[Vector2i] = []
+## Toutes les planètes, indexées par leur identifiant.
+var planets: Array[Planet] = []
 
 
 func get_system(id: int) -> StarSystem:
 	if id < 0 or id >= systems.size():
 		return null
 	return systems[id]
+
+
+func get_planet(id: int) -> Planet:
+	if id < 0 or id >= planets.size():
+		return null
+	return planets[id]
 
 
 ## Renvoie l'identifiant du système le plus proche de world_pos,

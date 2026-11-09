@@ -67,6 +67,8 @@ func has_pending_commands() -> bool:
 func step() -> void:
 	flush_commands()
 	state.tick += 1
+	for entry in EconomySystem.process(state):
+		chronicle_added.emit(entry)
 	for entry in ChronicleSystem.process(state):
 		chronicle_added.emit(entry)
 	ticked.emit(state.tick)
