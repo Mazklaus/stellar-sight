@@ -79,6 +79,7 @@ var research_tree: ResearchTree
 var research_selected := ""
 var research_buttons := {}
 var _research_sig := ""
+var _tech_panel: PanelContainer
 
 
 func _ready() -> void:
@@ -152,6 +153,9 @@ func open(screen_id: String, state: GameState, player: int) -> void:
 func close() -> void:
 	visible = false
 	current = ""
+	if _tech_panel and is_instance_valid(_tech_panel):
+		_tech_panel.queue_free()
+		_tech_panel = null
 
 
 func is_open() -> bool:
@@ -160,6 +164,9 @@ func is_open() -> bool:
 
 func show_screen(screen_id: String) -> void:
 	current = screen_id
+	if _tech_panel and is_instance_valid(_tech_panel):
+		_tech_panel.queue_free()
+		_tech_panel = null
 	for c in _content.get_children() + _side_box.get_children():
 		c.get_parent().remove_child(c)
 		c.queue_free()
@@ -811,8 +818,8 @@ func _build_research() -> void:
 	research_tree = ResearchTree.new()
 	research_tree.selected = research_selected
 	scroll.add_child(research_tree)
-	var width := get_viewport().get_visible_rect().size.x - CONTENT_LEFT - CONTENT_RIGHT - 16.0
-	research_tree.setup(_state, _player, width)
+	var vp := get_viewport().get_visible_rect().size
+	research_tree.setup(_state, _player, vp.x - CONTENT_LEFT - CONTENT_RIGHT - 16.0, vp.y - _content.offset_top + _content.offset_bottom - 4.0)
 	research_tree.tech_selected.connect(func(tid: String) -> void:
 		research_selected = tid
 		_fill_research_side())
@@ -870,43 +877,70 @@ func _fill_research_side() -> void:
 		talent.tooltip_text = String(rs.get("text", ""))
 		talent.add_theme_color_override("font_color", e.color().lightened(0.3))
 
-	if e.research_queue.size() > 1:
-		_side_box.add_child(UiTheme.section("File d'attente"))
-		var shown := 0
-		for i in range(1, e.research_queue.size()):
-			if shown >= 5:
-				_side_box.add_child(UiTheme.dim("… et %d autres" % (e.research_queue.size() - 1 - shown), 13))
-				break
-			var tid := e.research_queue[i]
-			var row := HBoxContainer.new()
-			row.add_theme_constant_override("separation", 6)
-			var l := Button.new()
-			l.flat = true
-			l.focus_mode = Control.FOCUS_NONE
-			l.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			l.text = "%d. %s" % [i + 1, Research.tech(tid).get("label", tid)]
-			l.add_theme_font_size_override("font_size", 14)
-			l.custom_minimum_size = Vector2(0, 24)
-			l.add_theme_constant_override("content_margin_top", 0)
-			l.add_theme_stylebox_override("normal", StyleBoxEmpty.new())
-			l.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
-			l.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
-			l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			l.clip_text = true
-			l.pressed.connect(func() -> void:
-				research_selected = tid
-				research_tree.select(tid))
-			row.add_child(l)
-			var x := Widgets.IconButton.new("close", 20)
-			x.tooltip_text = "Retirer de la file"
-			x.pressed.connect(func() -> void: command_requested.emit(SimCommands.research_remove(_player, tid)))
-			row.add_child(x)
-			_side_box.add_child(row)
-			shown += 1
+	if not e.research_queue.is_empty():
+		_side_box.add_child(UiTheme.section("File de recherche"))
+		_side_box.add_child(_queue_chips(e, income))
+	_fill_tech_panel()
 
-	if research_selected != "":
-		_side_box.add_child(HSeparator.new())
-		_side_box.add_child(_tech_detail(research_selected))
+
+## File de recherche en pastilles rondes, à la manière d'Endless Space 2 : une pastille par
+## technologie (couleur du domaine, rang dans la file), et sous chacune les mois avant qu'elle soit
+## achevée à ce rythme. Clic : sa fiche.
+func _queue_chips(e: Empire, income: int) -> Control:
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 6)
+	flow.add_theme_constant_override("v_separation", 4)
+	var left := 0
+	for i in e.research_queue.size():
+		var tid := e.research_queue[i]
+		var t := Research.tech(tid)
+		left += Research.cost(_state, _player, tid) - (e.research_progress if i == 0 else int(e.research_shelf.get(tid, 0)))
+		var col := Color.html(String(Research.domain(String(t["domain"])).get("color", "#ffffff")))
+		var cell := VBoxContainer.new()
+		cell.add_theme_constant_override("separation", 0)
+		var b := Button.new()
+		b.focus_mode = Control.FOCUS_NONE
+		b.custom_minimum_size = Vector2(38, 38)
+		b.text = str(i + 1)
+		b.add_theme_font_override("font", UiTheme.numbers_font())
+		b.add_theme_font_size_override("font_size", 15)
+		var st := UiTheme.box(Color(col.darkened(0.6), 0.9 if i == 0 else 0.6), Color(col, 0.95 if i == 0 else 0.6), 0, 2)
+		st.set_corner_radius_all(19)
+		st.corner_detail = 12
+		b.add_theme_stylebox_override("normal", st)
+		var hv := st.duplicate() as StyleBoxFlat
+		hv.bg_color = Color(col.darkened(0.3), 0.9)
+		b.add_theme_stylebox_override("hover", hv)
+		b.add_theme_stylebox_override("pressed", hv)
+		@warning_ignore("integer_division")
+		var months := (left + income - 1) / income if income > 0 else -1
+		b.tooltip_text = "%s\n%s" % [t.get("label", tid), "achevée dans %d mois environ" % months if months >= 0 else "le Savoir manque"]
+		b.pressed.connect(func() -> void: research_tree.select(tid))
+		cell.add_child(b)
+		var m := UiTheme.dim("%d m" % months if months >= 0 else "?", 12)
+		m.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		cell.add_child(m)
+		flow.add_child(cell)
+	return flow
+
+
+## Fiche de la technologie choisie, en bas à gauche par-dessus la colonne (comme dans Endless Space 2).
+func _fill_tech_panel() -> void:
+	if _tech_panel == null or not is_instance_valid(_tech_panel):
+		_tech_panel = PanelContainer.new()
+		_tech_panel.theme_type_variation = &"SidePanel"
+		_tech_panel.custom_minimum_size = Vector2(SIDE_WIDTH, 0)
+		_root.add_child(_tech_panel)
+	for c in _tech_panel.get_children():
+		_tech_panel.remove_child(c)
+		c.queue_free()
+	_tech_panel.visible = research_selected != "" and current == "research"
+	if not _tech_panel.visible:
+		return
+	_tech_panel.add_child(_tech_detail(research_selected))
+	_tech_panel.reset_size()
+	var vp := get_viewport().get_visible_rect().size
+	_tech_panel.position = Vector2(MARGIN, vp.y - MARGIN - _tech_panel.get_combined_minimum_size().y)
 
 
 func _tech_detail(tid: String) -> Control:
@@ -930,9 +964,13 @@ func _tech_detail(tid: String) -> Control:
 		var shown := Research.replaced_by(f, String(p))
 		pre.append(String(Research.tech(shown if shown != "" else String(p)).get("label", p)))
 	if not pre.is_empty():
-		box.add_child(UiTheme.dim("Prérequis : %s" % ", ".join(pre), 13))
+		var pl := UiTheme.paragraph("Prérequis : %s" % ", ".join(pre), SIDE_WIDTH - 24.0, 13)
+		pl.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		box.add_child(pl)
 	if t.has("replaces"):
-		box.add_child(UiTheme.dim("Propre à votre peuple, à la place de : %s" % Research.tech(String(t["replaces"])).get("label", t["replaces"]), 13))
+		var rl := UiTheme.paragraph("Propre à votre peuple, à la place de : %s" % Research.tech(String(t["replaces"])).get("label", t["replaces"]), SIDE_WIDTH - 24.0, 13)
+		rl.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		box.add_child(rl)
 	elif Research.is_specific(tid):
 		box.add_child(UiTheme.dim("Propre à votre peuple.", 13))
 	if Research.is_heretic(f, tid):
@@ -967,8 +1005,9 @@ func _tech_detail(tid: String) -> Control:
 	var now := Widgets.RoundButton.new("next", "Lancer maintenant", 13)
 	now.disabled = why != ""
 	now.pressed.connect(func() -> void: command_requested.emit(SimCommands.research(_player, tid, true)))
-	var acts := HBoxContainer.new()
-	acts.add_theme_constant_override("separation", 4)
+	# (boutons l'un sous l'autre : la fiche garde la largeur de la colonne, sans déborder sur l'arbre)
+	var acts := VBoxContainer.new()
+	acts.add_theme_constant_override("separation", 2)
 	box.add_child(acts)
 	acts.add_child(now)
 	research_buttons["front"] = now

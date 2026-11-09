@@ -48,6 +48,11 @@ var research_shelf: Dictionary = {}
 var tech_fx: Dictionary = {}
 var tech_fx_exalted: Dictionary = {}
 var tech_fx_n: int = -1
+## Une technologie connue change-t-elle d'effet quand le peuple est exalté ?
+var tech_fx_has_exalted: bool = false
+## Population logeable par type de planète (pourcentage d'habitabilité, 0 si aucune), même règle.
+var hab_cache: Dictionary = {}
+var hab_cache_n: int = -1
 
 
 func is_ai() -> bool:

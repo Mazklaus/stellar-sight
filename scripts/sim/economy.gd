@@ -57,12 +57,24 @@ static func pop_yields(planet_type: String) -> Dictionary:
 	return y if not y.is_empty() else pt.get("city_pop_yields", {})
 
 
+## Habitabilité d'un type pour la population de l'empire (0 s'il n'y loge personne). Appelée sans
+## cesse par l'IA qui jauge les planètes : gardée par empire tant que ses technologies ne changent pas
+## (aucun effet d'exaltation ne touche l'habitabilité).
+static func _pop_hab(state: GameState, empire_id: int, planet_type: String) -> int:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return 0
+	if e.hab_cache_n != e.techs.size():
+		e.hab_cache.clear()
+		e.hab_cache_n = e.techs.size()
+	if not e.hab_cache.has(planet_type):
+		e.hab_cache[planet_type] = habitability_for(state, empire_id, planet_type) if houses_pop(state, empire_id, planet_type) else 0
+	return e.hab_cache[planet_type]
+
+
 ## Population maximale d'une planète pour un empire, bâtiments compris.
 static func max_pop(state: GameState, planet: Planet, empire_id: int, buildings: Array[String] = []) -> int:
-	var e := state.get_empire(empire_id)
-	if e == null or not houses_pop(state, empire_id, planet.type):
-		return 0
-	var hab := habitability_for(state, empire_id, planet.type)
+	var hab := _pop_hab(state, empire_id, planet.type)
 	if hab <= 0:
 		return 0
 	@warning_ignore("integer_division")

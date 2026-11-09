@@ -109,6 +109,14 @@ static func _own_colonies(state: GameState, empire_id: int, established_only := 
 	return out
 
 
+## Colonies établies de l'empire qui réfléchit, gardées le temps d'une réflexion (ses ordres n'en
+## établissent aucune) : les boucles par colonie ne reparcourent pas toutes les revendications.
+static func _my_colonies(ctx: Dictionary) -> Array[Colony]:
+	if not ctx.has("my_colonies"):
+		ctx["my_colonies"] = _own_colonies(ctx["state"], ctx["e"].id)
+	return ctx["my_colonies"]
+
+
 ## Classe de vaisseau colonisateur que l'empire construit ("" si aucune).
 static func colonizer_class(e: Empire) -> String:
 	for sid in FactionTraits.ship_ids_for(e.faction_id):
@@ -398,7 +406,7 @@ static func _buildings(ctx: Dictionary) -> void:
 	var e: Empire = ctx["e"]
 	var net := _net(ctx).duplicate()
 	var reserve := _material_reserve(ctx)
-	for c in _own_colonies(state, e.id):
+	for c in _my_colonies(ctx):
 		if c.construction != "" or Economy.building_slots_used(c) >= Economy.building_slots(state, c) or _forgets(ctx):
 			continue
 		var urgent := urgent_needs(ctx, net)
@@ -409,6 +417,8 @@ static func _buildings(ctx: Dictionary) -> void:
 			if _res(ctx, "materials") - int(cost.get("materials", 0)) < reserve and not urgent.has(b):
 				continue  # on garde de quoi lancer le vaisseau colon
 			if _issue(ctx, SimCommands.build(e.id, c.planet_id, b)):
+				if b == String(ctx.get("lab", "")):
+					ctx["lab_count"] = int(ctx["lab_count"]) + 1
 				var bd := GameData.building(b)
 				for r in bd.get("yields", {}):
 					net[r] = int(net.get(r, 0)) + int(bd["yields"][r])
@@ -442,10 +452,14 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 	var out := urgent_needs(ctx, net)
 	# Le bâtiment de recherche du peuple (Académie, Scriptorium, Université, Ganglion), sur les colonies
 	# déjà peuplées : le Savoir paie toutes les technologies.
-	var lab := research_building(ctx)
-	@warning_ignore("integer_division")
-	var lab_quota := _own_colonies(state, e.id).size() / 5
-	if lab != "" and c.is_colony() and c.population >= 4 and not c.buildings.has(lab) and _lab_count(ctx) <= lab_quota:
+	# (bâtiment, quota et compte gardés dans ctx : sinon chaque colonie recompterait tout l'empire)
+	if not ctx.has("lab"):
+		ctx["lab"] = research_building(ctx)
+		@warning_ignore("integer_division")
+		ctx["lab_quota"] = _my_colonies(ctx).size() / 5
+		ctx["lab_count"] = _lab_count(ctx)
+	var lab: String = ctx["lab"]
+	if lab != "" and c.is_colony() and c.population >= 4 and not c.buildings.has(lab) and int(ctx["lab_count"]) <= int(ctx["lab_quota"]):
 		out.append(lab)
 	# Le registre complet sait lire son goulot : quand les matériaux s'entassent, c'est l'influence
 	# qui freine l'expansion (chaque revendication en coûte) ; les forums passent alors devant.
@@ -487,7 +501,7 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 
 ## Un bâtiment existe-t-il (ou est-il en chantier) dans une colonie de l'empire ?
 static func _empire_has_building(ctx: Dictionary, building_id: String) -> bool:
-	for c in _own_colonies(ctx["state"], ctx["e"].id):
+	for c in _my_colonies(ctx):
 		if c.buildings.has(building_id) or c.construction == building_id:
 			return true
 	return false
@@ -496,11 +510,13 @@ static func _empire_has_building(ctx: Dictionary, building_id: String) -> bool:
 ## La colonie la plus peuplée de l'empire (à égalité, la plus ancienne identifiant) : là où vont les
 ## chantiers lourds.
 static func _is_main_yard(ctx: Dictionary, c: Colony) -> bool:
-	var best: Colony = null
-	for o in _own_colonies(ctx["state"], ctx["e"].id):
-		if o.is_colony() and (best == null or o.population > best.population):
-			best = o
-	return best != null and best.planet_id == c.planet_id
+	if not ctx.has("main_yard"):
+		var best: Colony = null
+		for o in _my_colonies(ctx):
+			if o.is_colony() and (best == null or o.population > best.population):
+				best = o
+		ctx["main_yard"] = best.planet_id if best != null else -1
+	return int(ctx["main_yard"]) == c.planet_id
 
 
 ## Matériaux à garder pour le prochain vaisseau colon, s'il en manque un.
@@ -1235,8 +1251,9 @@ static func research_pick(ctx: Dictionary) -> String:
 		bias_techs = GameData.building(String(ctx["ai"]["building_bias"])).get("requires_tech", [])
 	var best := ""
 	var best_score := -1
+	var colonies := Research.colony_count(state, e.id)
 	for tid in Research.visible_ids(f):
-		if Research.check_queue(state, e.id, tid) != "":
+		if e.techs.has(tid) or e.research_queue.has(tid) or Research.check_queue(state, e.id, tid) != "":
 			continue
 		if use >= 1 and Research.is_heretic(f, tid):
 			continue
@@ -1246,7 +1263,7 @@ static func research_pick(ctx: Dictionary) -> String:
 		if labs.has(tid) or bias_techs.has(tid):
 			w *= 3  # le bâtiment de recherche et celui du penchant du peuple d'abord (Raffinerie d'Ossarane)
 		@warning_ignore("integer_division")
-		var score := w * int(ERA_VALUE[era - 1]) * 1000 / maxi(1, Research.cost(state, e.id, tid))
+		var score := w * int(ERA_VALUE[era - 1]) * 1000 / maxi(1, Research.cost(state, e.id, tid, colonies))
 		if use == 0:
 			score = score * (50 + posmod(hash([state.seed_value, e.id, tid, e.techs.size()]), 100)) / 100
 		if score > best_score:
@@ -1293,7 +1310,7 @@ static func _lab_techs() -> Dictionary:
 ## le reste des emplacements nourrit l'économie.
 static func _lab_count(ctx: Dictionary) -> int:
 	var n := 0
-	for c in _own_colonies(ctx["state"], ctx["e"].id):
+	for c in _my_colonies(ctx):
 		for b in c.buildings:
 			if int(GameData.building(b).get("yields", {}).get("knowledge", 0)) > 0:
 				n += 1

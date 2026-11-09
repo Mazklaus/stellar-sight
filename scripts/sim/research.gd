@@ -53,6 +53,8 @@ static func eras() -> int:
 # --- Technologies d'un peuple -------------------------------------------------------------------
 
 static var _visible_cache := {}
+## Par peuple : technologie commune remplacée -> technologie du peuple qui la remplace.
+static var _replaced_cache := {}
 
 
 ## Technologies de l'arbre d'une faction (toutes visibles dès le début), dans l'ordre des données.
@@ -77,6 +79,11 @@ static func visible_ids(faction: Dictionary) -> Array[String]:
 	for tid in out:
 		if not replaced.has(tid):
 			kept.append(tid)
+	var repl := {}
+	for tid in kept:
+		if techs[tid].has("replaces"):
+			repl[String(techs[tid]["replaces"])] = tid
+	_replaced_cache[key] = repl
 	_visible_cache[key] = kept
 	return kept
 
@@ -87,10 +94,8 @@ static func is_visible(faction: Dictionary, tid: String) -> bool:
 
 ## La technologie commune que celle-ci remplace pour ce peuple ("" si aucune).
 static func replaced_by(faction: Dictionary, tid: String) -> String:
-	for v in visible_ids(faction):
-		if String(tech(v).get("replaces", "")) == tid:
-			return v
-	return ""
+	visible_ids(faction)
+	return String(_replaced_cache[String(faction.get("id", ""))].get(tid, ""))
 
 
 ## Une technologie qui en remplace une autre compte comme elle pour les prérequis.
@@ -192,7 +197,8 @@ static func current_era(state: GameState, empire_id: int) -> int:
 
 ## Coût en Savoir d'une technologie pour un empire, à cet instant.
 @warning_ignore("integer_division")
-static func cost(state: GameState, empire_id: int, tid: String) -> int:
+## colonies : nombre de colonies fondées s'il est déjà connu (l'IA qui compare toutes les technologies).
+static func cost(state: GameState, empire_id: int, tid: String, colonies := -1) -> int:
 	var d := data()
 	var t := tech(tid)
 	var e := state.get_empire(empire_id)
@@ -200,7 +206,9 @@ static func cost(state: GameState, empire_id: int, tid: String) -> int:
 	var c := int(d["base_cost"][era - 1]) * int(d.get("cost_scale_pct", 100)) / 100
 	var known := e.techs.size() if e else 0
 	c = c * (1000 + int(d.get("per_known_permille", 0)) * known) / 1000
-	var extra := maxi(0, colony_count(state, empire_id) - int(d.get("free_colonies", 0))) * int(d.get("per_colony_pct", 0))
+	if colonies < 0:
+		colonies = colony_count(state, empire_id)
+	var extra := maxi(0, colonies - int(d.get("free_colonies", 0))) * int(d.get("per_colony_pct", 0))
 	c = c * (100 + extra) / 100
 	if e:
 		var f := e.faction()
@@ -464,17 +472,24 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 	if e.tech_fx_n != e.techs.size():
 		var base := {}
 		var exalted := {}
+		var has_exalted := false
 		var ids: Array = e.techs.keys()
 		ids.sort()
 		for tid in ids:
 			var t := tech(String(tid))
 			_merge(base, t.get("effects", {}))
 			_merge(exalted, t.get("effects", {}))
-			_merge(exalted, t.get("effects_exalted", {}))
+			if t.has("effects_exalted"):
+				has_exalted = true
+				_merge(exalted, t["effects_exalted"])
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
+		e.tech_fx_has_exalted = has_exalted
 		e.tech_fx_n = e.techs.size()
-	return e.tech_fx_exalted if FactionTraits.is_exalted(state, empire_id) else e.tech_fx
+	# (appelé des centaines de milliers de fois par partie : l'exaltation n'est testée que si elle compte)
+	if e.tech_fx_has_exalted and FactionTraits.is_exalted(state, empire_id):
+		return e.tech_fx_exalted
+	return e.tech_fx
 
 
 static func _merge(into: Dictionary, fx: Dictionary) -> void:

@@ -11,11 +11,12 @@ signal tech_activated(tech_id: String)
 
 const LANE_LABEL := 30.0
 const ERA_HEAD := 30.0
-const CARD_H := 30.0
+const MAX_CARD_H := 30.0
+const MIN_CARD_H := 22.0
 const GAP_X := 6.0
-const GAP_Y := 5.0
+const GAP_Y := 4.0
 const ERA_GAP := 16.0
-const LANE_GAP := 12.0
+const LANE_GAP := 10.0
 const MIN_CARD_W := 112.0
 
 var selected := ""
@@ -23,6 +24,7 @@ var _state: GameState
 var _player := 0
 var _cols := 1
 var _card_w := 150.0
+var _card_h := MAX_CARD_H
 var _rects := {}
 var _lanes: Array[Dictionary] = []
 var _hover := ""
@@ -36,10 +38,11 @@ func _init() -> void:
 	_bold = UiTheme.numbers_font()
 
 
-func setup(state: GameState, player: int, width: float) -> void:
+## width, height : place disponible ; l'arbre s'y ajuste (height = 0 : hauteur libre).
+func setup(state: GameState, player: int, width: float, height := 0.0) -> void:
 	_state = state
 	_player = player
-	_layout(width)
+	_layout(width, height)
 	queue_redraw()
 
 
@@ -62,7 +65,7 @@ func select(tech_id: String) -> void:
 	tech_selected.emit(tech_id)
 
 
-func _layout(width: float) -> void:
+func _layout(width: float, height: float) -> void:
 	_rects.clear()
 	_lanes.clear()
 	var me := _state.get_empire(_player) if _state else null
@@ -73,7 +76,9 @@ func _layout(width: float) -> void:
 	_cols = 2 if usable / (eras * 2) - GAP_X >= MIN_CARD_W else 1
 	_card_w = maxf(MIN_CARD_W, floorf((usable - eras * (_cols - 1) * GAP_X) / (eras * _cols)))
 	var ids := Research.visible_ids(me.faction())
-	var y := ERA_HEAD
+	# Premier passage : technologies par domaine et par ère, et rangées nécessaires.
+	var lanes := []
+	var total_rows := 0
 	for d in Research.domain_ids():
 		var cells := {}
 		var rows := 1
@@ -87,6 +92,15 @@ func _layout(width: float) -> void:
 			cells[era].append(tid)
 		for era in cells:
 			rows = maxi(rows, ceili(float(cells[era].size()) / _cols))
+		lanes.append([d, cells, rows])
+		total_rows += rows
+	# Les cartes rapetissent pour que tout l'arbre tienne en hauteur (jamais sous MIN_CARD_H).
+	var room := height - ERA_HEAD - lanes.size() * LANE_GAP - total_rows * GAP_Y
+	_card_h = clampf(floorf(room / maxi(1, total_rows)), MIN_CARD_H, MAX_CARD_H) if height > 0 else MAX_CARD_H
+	var y := ERA_HEAD
+	for lane: Array in lanes:
+		var cells: Dictionary = lane[1]
+		var rows: int = lane[2]
 		for era in cells:
 			var list: Array = cells[era]
 			for i in list.size():
@@ -94,9 +108,9 @@ func _layout(width: float) -> void:
 				var r := i / _cols
 				var c := i % _cols
 				var x: float = LANE_LABEL + (era - 1) * (_cols * _card_w + (_cols - 1) * GAP_X + ERA_GAP) + c * (_card_w + GAP_X)
-				_rects[list[i]] = Rect2(x, y + r * (CARD_H + GAP_Y), _card_w, CARD_H)
-		var h := rows * (CARD_H + GAP_Y) - GAP_Y
-		_lanes.append({"id": d, "y": y, "h": h})
+				_rects[list[i]] = Rect2(x, y + r * (_card_h + GAP_Y), _card_w, _card_h)
+		var h := rows * (_card_h + GAP_Y) - GAP_Y
+		_lanes.append({"id": lane[0], "y": y, "h": h})
 		y += h + LANE_GAP
 	custom_minimum_size = Vector2(LANE_LABEL + eras * (_cols * _card_w + (_cols - 1) * GAP_X) + (eras - 1) * ERA_GAP, y)
 
