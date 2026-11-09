@@ -11,14 +11,16 @@ signal close_requested
 signal rename_requested(system_id: int, new_name: String)
 signal colonize_requested(planet_id: int, kind: String)
 signal build_requested(planet_id: int, building_id: String)
+## Passer au système suivant (1) ou précédent (-1) de l'empire.
+signal cycle_requested(step: int)
 
 const PANEL_WIDTH := 400.0
-## Place laissée à la barre du haut de l'interface principale.
-const TOP := 62.0
+## Place laissée à la barre d'empire.
+const TOP := EmpireBar.HEIGHT + 12.0
 ## Place laissée à la chronique et à l'aide, en bas.
-const BOTTOM := 72.0
+const BOTTOM := Hud.BOTTOM_RESERVED + 2.0
 const CARD_SIZE := Vector2(150, 56)
-const ACCENT := Color(0.55, 0.72, 1.0)
+const ACCENT := UiTheme.ACCENT
 const TYPE_DOT_COLORS := {
 	"continental": Color(0.3, 0.6, 0.35), "ocean": Color(0.2, 0.45, 0.85), "desert": Color(0.9, 0.65, 0.35),
 	"arctic": Color(0.85, 0.92, 1.0), "toxic": Color(0.65, 0.75, 0.2), "gas_giant": Color(0.88, 0.72, 0.5),
@@ -57,7 +59,7 @@ func _ready() -> void:
 	layer = 1  # sous l'interface principale (barre du haut, chronique), au-dessus de la carte
 	visible = false
 	view = SystemView.new()
-	view.margins = Vector4(0, TOP + 70.0, PANEL_WIDTH + 24.0, BOTTOM + CARD_SIZE.y + 24.0)
+	view.margins = Vector4(0, TOP + 104.0, PANEL_WIDTH + 24.0, BOTTOM + CARD_SIZE.y + 24.0)
 	view.planet_clicked.connect(select_planet)
 	add_child(view)
 	_build_header()
@@ -75,8 +77,13 @@ func open(state: GameState, s: StarSystem, player: int) -> void:
 	_rename_edit.text = ""
 	view.set_system(state, s, player)
 	_rebuild_cards()
+	var was_open := visible
 	visible = true
 	refresh()
+	if not was_open:
+		# Arrivée en fondu depuis la carte.
+		view.modulate.a = 0.0
+		view.create_tween().tween_property(view, "modulate:a", 1.0, 0.25)
 
 
 func close() -> void:
@@ -96,6 +103,14 @@ func select_planet(pid: int) -> void:
 	refresh()
 
 
+## Planète suivante (step = 1) ou précédente (-1) dans l'ordre des orbites, en boucle.
+func select_adjacent_planet(step: int) -> void:
+	if not is_open() or _card_ids.is_empty():
+		return
+	var i := _card_ids.find(planet_id)
+	select_planet(_card_ids[posmod(i + step, _card_ids.size())] if i >= 0 else _card_ids[0])
+
+
 ## Met à jour les textes (appelé à chaque tick et après chaque ordre). Les boutons ne sont
 ## reconstruits que si leur état change, pour ne pas voler un clic en cours.
 func refresh() -> void:
@@ -111,27 +126,36 @@ func refresh() -> void:
 # --- En-tête ---------------------------------------------------------------------------------
 
 func _build_header() -> void:
+	var nav := HBoxContainer.new()
+	nav.position = Vector2(16, TOP)
+	nav.add_theme_constant_override("separation", 4)
+	add_child(nav)
 	var back := Button.new()
-	back.text = "  Galaxie  (Échap)  "
+	back.text = "Galaxie"
+	back.tooltip_text = "Revenir à la carte de la galaxie  (Échap)"
 	back.focus_mode = Control.FOCUS_NONE
-	back.position = Vector2(16, TOP)
-	back.add_theme_stylebox_override("normal", _box(Color(0.05, 0.07, 0.12, 0.85), Color(ACCENT, 0.4)))
-	back.add_theme_stylebox_override("hover", _box(Color(0.1, 0.14, 0.24, 0.95), Color(ACCENT, 0.8)))
 	back.pressed.connect(func() -> void: close_requested.emit())
-	add_child(back)
+	nav.add_child(back)
+	var prev := Widgets.IconButton.new("prev", 34)
+	prev.theme_type_variation = &""
+	prev.tooltip_text = "Système précédent de l'empire  (Maj+Tab)"
+	prev.pressed.connect(func() -> void: cycle_requested.emit(-1))
+	nav.add_child(prev)
+	var next := Widgets.IconButton.new("next", 34)
+	next.theme_type_variation = &""
+	next.tooltip_text = "Système suivant de l'empire  (Tab)"
+	next.pressed.connect(func() -> void: cycle_requested.emit(1))
+	nav.add_child(next)
 
 	var head := VBoxContainer.new()
-	head.position = Vector2(20, TOP + 34.0)
+	head.position = Vector2(20, TOP + 42.0)
 	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head.add_theme_constant_override("separation", 0)
 	add_child(head)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	head.add_child(row)
-	_title = Label.new()
-	_title.add_theme_font_size_override("font_size", 34)
-	_title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
-	_title.add_theme_constant_override("shadow_offset_y", 2)
+	_title = UiTheme.title("", 42)
 	row.add_child(_title)
 	_rename_button = Button.new()
 	_rename_button.text = "Renommer"
@@ -238,7 +262,7 @@ func _refresh_cards() -> void:
 		var card: Button = _cards.get_child(i)
 		var roman: String = Planet.ROMAN[p.index] if p.index < Planet.ROMAN.size() else str(p.index + 1)
 		var type_name := "Astéroïdes" if p.type == "asteroids" else p.type_label()
-		card.text = "%s  %s\n%s" % [roman, type_name, _short_status(p)]
+		card.text = "%s  %s\n%s" % [roman, type_name, "taille %d · %s" % [p.size, PlanetInfo.short_status(_state, p, _player)] if not _state.colonies.has(p.id) else PlanetInfo.short_status(_state, p, _player)]
 		card.set_pressed_no_signal(pid == planet_id)
 		var c: Colony = _state.colonies.get(pid)
 		var col := _state.get_empire(c.owner).color().lightened(0.35) if c else Color(0.88, 0.9, 0.96)
@@ -246,18 +270,6 @@ func _refresh_cards() -> void:
 		card.add_theme_color_override("font_hover_color", col.lightened(0.2))
 		card.add_theme_color_override("font_pressed_color", SystemView.SELECT_COLOR)
 		card.add_theme_color_override("font_hover_pressed_color", SystemView.SELECT_COLOR)
-
-
-func _short_status(p: Planet) -> String:
-	var c: Colony = _state.colonies.get(p.id)
-	if c == null:
-		return "taille %d · libre" % p.size
-	var owner := _state.get_empire(c.owner).short_name()
-	if not c.is_established():
-		return "%s · %d j" % [owner, c.days_left]
-	if c.is_colony():
-		return "%s · %d pop" % [owner, c.population]
-	return "%s · avant-poste" % owner
 
 
 # --- Fiche de la planète ---------------------------------------------------------------------
@@ -271,7 +283,7 @@ func _build_panel() -> void:
 	_panel.offset_right = -16.0
 	_panel.offset_top = TOP + 6.0
 	_panel.offset_bottom = -BOTTOM - 8.0
-	_panel.add_theme_stylebox_override("panel", _box(Color(0.035, 0.045, 0.08, 0.9), Color(ACCENT, 0.35), 16))
+	_panel.theme_type_variation = &"SidePanel"
 	add_child(_panel)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -285,8 +297,7 @@ func _build_panel() -> void:
 	box.add_theme_constant_override("separation", 6)
 	margin.add_child(box)
 
-	_p_title = Label.new()
-	_p_title.add_theme_font_size_override("font_size", 24)
+	_p_title = UiTheme.title("", 30)
 	box.add_child(_p_title)
 	_p_sub = _text_label(box)
 	_p_sub.modulate = Color(0.75, 0.8, 0.92)
@@ -296,10 +307,6 @@ func _build_panel() -> void:
 	_hab_bar.max_value = 100
 	_hab_bar.show_percentage = false
 	_hab_bar.custom_minimum_size = Vector2(0, 8)
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(1, 1, 1, 0.08)
-	bg.set_corner_radius_all(3)
-	_hab_bar.add_theme_stylebox_override("background", bg)
 	box.add_child(_hab_bar)
 	_hab_label = _text_label(box)
 	_dep_title = _section(box, "Gisements")
@@ -383,7 +390,7 @@ func _build_action(p: Planet, bid: String, b: Dictionary) -> Dictionary:
 	var pid := p.id
 	return {
 		"text": "Construire : %s" % b["label"],
-		"detail": "%s, %d j  →  %s" % [GameData.format_amounts(b.get("cost", {})), int(b["days"]), gain],
+		"detail": "%s, %d j  »  %s" % [GameData.format_amounts(b.get("cost", {})), int(b["days"]), gain],
 		"reason": reason,
 		"tooltip": reason,
 		"action": func() -> void: build_requested.emit(pid, bid),
@@ -408,10 +415,6 @@ func _set_actions(actions: Array[Dictionary]) -> void:
 		b.text = a["text"] if not a.has("detail") else "%s\n%s" % [a["text"], a["detail"]]
 		b.disabled = a["reason"] != ""
 		b.tooltip_text = a["tooltip"]
-		b.add_theme_stylebox_override("normal", _box(Color(0.08, 0.11, 0.19, 0.95), Color(ACCENT, 0.35)))
-		b.add_theme_stylebox_override("hover", _box(Color(0.12, 0.17, 0.3, 1.0), Color(ACCENT, 0.9)))
-		b.add_theme_stylebox_override("pressed", _box(Color(0.18, 0.15, 0.06, 1.0), Color(SystemView.SELECT_COLOR, 0.9)))
-		b.add_theme_stylebox_override("disabled", _box(Color(0.05, 0.06, 0.09, 0.8), Color(1, 1, 1, 0.08)))
 		b.pressed.connect(a["action"])
 		_actions.add_child(b)
 
@@ -438,10 +441,7 @@ func _default_planet(s: StarSystem) -> int:
 
 
 func _section(parent: Control, text: String) -> Label:
-	var l := Label.new()
-	l.text = text.to_upper()
-	l.add_theme_font_size_override("font_size", 11)
-	l.add_theme_color_override("font_color", Color(ACCENT, 0.85))
+	var l := UiTheme.section(text)
 	parent.add_child(l)
 	return l
 
@@ -455,13 +455,7 @@ func _text_label(parent: Control) -> Label:
 
 
 func _box(bg: Color, border: Color, margin := 8) -> StyleBoxFlat:
-	var st := StyleBoxFlat.new()
-	st.bg_color = bg
-	st.border_color = border
-	st.set_border_width_all(1)
-	st.set_corner_radius_all(5)
-	st.set_content_margin_all(margin)
-	return st
+	return UiTheme.box(bg, border, margin, 5)
 
 
 ## Petite pastille de couleur pour le type de planète (bandeau du bas).

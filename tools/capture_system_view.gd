@@ -11,6 +11,7 @@ func _initialize() -> void:
 	DirAccess.make_dir_recursive_absolute(out)
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	main.save_path = "user://saves/capture_quicksave.json"
+	main.start_with_menu = false
 	root.add_child(main)
 	await _frames(5)
 	main.new_game(int(OS.get_environment("CAPTURE_SEED")) if OS.get_environment("CAPTURE_SEED") != "" else 4242)
