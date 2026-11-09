@@ -15,11 +15,19 @@ const MARGIN := 10.0
 const SCREENS := [
 	{"id": "economy", "label": "Économie", "key": "F1", "glyph": "economy", "ready": true},
 	{"id": "colonies", "label": "Colonies", "key": "F2", "glyph": "colonies", "ready": true},
-	{"id": "research", "label": "Recherche", "key": "F3", "glyph": "research", "ready": false,
-		"why": "Les savants de l'empire réclament encore des crédits. La recherche arrive bientôt."},
-	{"id": "diplomacy", "label": "Diplomatie", "key": "F4", "glyph": "diplomacy", "ready": false,
-		"why": "Personne n'a encore répondu à nos messages. La diplomatie arrive avec les autres empires joueurs."},
+	{"id": "research", "label": "Recherche", "key": "F3", "glyph": "research", "ready": true, "soon": true,
+		"why": "Les savants de l'empire réclament encore des crédits. La recherche arrive bientôt : l'écran est prêt, l'arbre des technologies viendra le remplir."},
+	{"id": "diplomacy", "label": "Diplomatie", "key": "F4", "glyph": "diplomacy", "ready": true, "soon": true,
+		"why": "Personne n'a encore répondu à nos messages. La diplomatie arrive bientôt, avec les contacts entre empires."},
 ]
+## Description d'un menu d'empire (entrée de SCREENS), {} s'il n'existe pas.
+static func screen_info(screen_id: String) -> Dictionary:
+	for sc: Dictionary in SCREENS:
+		if sc["id"] == screen_id:
+			return sc
+	return {}
+
+
 ## Disposition des ressources : deux lignes.
 const ROWS := [["energy", "materials", "food"], ["influence", "crystals"]]
 
@@ -47,7 +55,7 @@ func _ready() -> void:
 		var b := Widgets.IconButton.new(String(sc["glyph"]), 34)
 		b.toggle_mode = true
 		b.disabled = not sc["ready"]
-		b.tooltip_text = "%s  (%s)" % [sc["label"], sc["key"]] if sc["ready"] else "%s  (%s)\n%s" % [sc["label"], sc["key"], sc["why"]]
+		b.tooltip_text = "%s  (%s)" % [sc["label"], sc["key"]] + ("\nBientôt : l'écran est en place." if sc.get("soon", false) else "")
 		var id: String = sc["id"]
 		b.pressed.connect(func() -> void: screen_requested.emit(id))
 		icons.add_child(b)

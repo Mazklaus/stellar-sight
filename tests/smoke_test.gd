@@ -205,6 +205,7 @@ func _test_colony_ui(main: Node) -> void:
 	_check(me.faction_id == main.player_faction, "le joueur joue sa faction (%s)" % me.faction_id)
 	var home_sys: int = main.galaxy.get_planet(me.capital_planet).system_id
 	_check(main._view.selected_id == home_sys, "le système d'origine est sélectionné au lancement")
+	main._hud.show_hover(null, Vector2.ZERO)  # la souris peut tomber sur une étoile dans la petite fenêtre de test
 	_check(main._hud._info_panel.visible and main._hud.planet_row_count() == main.galaxy.systems[home_sys].planet_count,
 			"la fiche résume les planètes du système d'origine")
 	_check(main._hud.bar.resource_text().contains("Matériaux 200"), "la barre d'empire affiche les ressources (%s)" % main._hud.bar.resource_text())
@@ -368,14 +369,36 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(main._camera.is_processing_unhandled_input(), "la carte reprend la main")
 	main.toggle_empire_screen("colonies")
 	await process_frame
-	screens.colony_buttons()[0].pressed.emit()
+	var second: int = screens._col_rows[1]["pid"]
+	screens.colony_buttons()[1].pressed.emit()
+	_check(screens.selected_planet == second and screens.colony_buttons()[1].button_pressed, "clic sur une colonie : elle est choisie")
+	_check(screens._pick_title.text == main.galaxy.get_planet(second).display_name(main.galaxy).to_upper(), "la fiche de la colonie choisie suit")
+	screens.set_colony_filter("outpost")
+	var outposts := 0
+	for c in EmpireReport.colonies(st, 0):
+		if c["established"] and c["kind"] != Colony.KIND_COLONY:
+			outposts += 1
+	_check(screens.colony_buttons().size() == outposts, "filtre Avant-postes (%d)" % outposts)
+	screens.set_colony_filter("all")
+	screens.select_colony(me.capital_planet)
+	screens._pick_open.pressed.emit()
 	await process_frame
 	_check(not screens.is_open() and main.is_system_view_open() and main._system_screen.planet_id == me.capital_planet,
-			"clic sur une colonie : vue système sur cette planète")
+			"Ouvrir la vue système depuis la colonie choisie")
 	main.close_system_view()
 	_press(KEY_F3)
 	await process_frame
-	_check(not screens.is_open() and hud.toast_texts()[-1].contains("bientôt"), "F3 : la recherche est annoncée pour bientôt")
+	_check(screens.is_open() and screens.current == "research" and screens._tab.text.begins_with("RECHERCHE"), "F3 : écran Recherche (en attente)")
+	_press(KEY_F4)
+	await process_frame
+	_check(screens.current == "diplomacy" and screens._content.get_child(0) != null, "F4 : écran Diplomatie (en attente)")
+	_check(not hud._tabs.visible and hud.bar.visible and hud.dial.visible, "écran d'empire : onglets de vue masqués, panneau et cadran restent")
+	_press(KEY_F4)
+	_check(not screens.is_open() and hud._tabs.visible, "F4 referme, les onglets reviennent")
+	main.toggle_empire_screen("economy")
+	await process_frame
+	_check(screens._sys_list.get_child_count() == EmpireReport.owned_systems(st, 0).size(), "une ligne par système dans l'économie")
+	_check(screens._donut.center_value != "" and screens._donut.parts.size() == GameData.resource_ids().size(), "anneau de répartition rempli")
 	main.toggle_empire_screen("economy")
 	_press(KEY_ESCAPE)
 	_check(not screens.is_open(), "Échap ferme le menu d'empire")
@@ -459,6 +482,8 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(main._pause_menu.is_open() and clock.paused, "Échap sans sélection : menu pause, jeu en pause")
 	_press(KEY_SPACE)
 	_check(clock.paused, "Espace ne relance pas le temps sous le menu pause")
+	main._pause_menu.show_page("confirm_quit")
+	_check(main._pause_menu._confirm.visible and not main._pause_menu._home.visible, "Quitter demande confirmation")
 	main._pause_menu.show_page("shortcuts")
 	_press(KEY_ESCAPE)
 	_check(main._pause_menu.is_open() and main._pause_menu.page == "home", "Échap revient à l'accueil du menu pause")
@@ -471,11 +496,35 @@ func _test_navigation_ui(main: Node) -> void:
 	await process_frame
 	var menu: MainMenu = main._main_menu
 	_check(menu.is_open() and not hud.visible and menu._resume.visible, "menu principal : la partie en cours peut reprendre")
+	_check(not menu._continue.visible and menu._items.size() == 5, "accueil : Reprendre remplace Continuer")
+	menu._layout_home()
+	var geo: Array = menu._planet_geometry()
+	var orbit_r: float = geo[1] + geo[2].y * 0.09
+	var orbit_ok := true
+	for it in menu._items:
+		var pin: Vector2 = it.position + Vector2(it.DIAMETER * 0.5 + 2.0, it.size.y * 0.5)
+		if it.visible and absf(pin.distance_to(geo[0]) - orbit_r) > 1.0:
+			orbit_ok = false
+	_check(orbit_ok, "les entrées sont posées sur l'orbite de la planète")
+	menu.show_page("options")
+	menu._options.show_tab("controls")
+	_check(menu._options_page.visible and menu._options._pages["controls"].visible and not menu._options._pages["display"].visible, "options : onglet Commandes")
+	var was_auto := UiSettings.auto_pause_menus
+	menu._options._auto_pause.pressed.emit()
+	_check(UiSettings.auto_pause_menus != was_auto and menu._options._auto_pause.text == ("Activé" if UiSettings.auto_pause_menus else "Désactivé"), "options : la case suit le réglage")
+	menu._options._scale.pressed.emit()
+	_check(is_equal_approx(root.content_scale_factor, 1.25) and menu._options._scale.text == "125 %", "options : échelle de l'interface")
+	menu._options.reset_defaults()
+	_check(not UiSettings.auto_pause_menus and is_equal_approx(root.content_scale_factor, 1.0), "options : valeurs par défaut")
+	menu.show_page("home")
 	_press(KEY_ESCAPE)
 	_check(not menu.is_open() and hud.visible, "Échap reprend la partie")
 	main.open_main_menu()
 	menu.show_page("new")
+	menu.select_faction(MainMenu.RANDOM_FACTION)
+	_check(menu._faction_cards[MainMenu.RANDOM_FACTION].button_pressed and menu._lore_header.text == "AU HASARD", "case Au hasard")
 	menu.select_faction("khthari")
+	_check(menu._lore_header.text == "KH'THARI" and menu._faction_lore.text != "", "le choix de faction montre l'histoire du peuple")
 	menu._seed_edit.text = "123"
 	menu.launch()
 	await process_frame
