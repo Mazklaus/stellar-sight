@@ -142,10 +142,11 @@ static func planet_value(state: GameState, e: Empire, p: Planet, use := 1) -> Di
 		for r in y:
 			value += int(y[r]) * 4
 		value += deposits * 6
-	if use >= 1:
-		value += int(ai.get("colony_bonus", 0)) if kind == Colony.KIND_COLONY else int(ai.get("outpost_bonus", 0))
-		if crystals:
-			value += int(ai.get("crystal_bonus", 0))
+	# Les goûts du peuple pèsent à tous les niveaux ; la Recrue les suit sans réfléchir
+	# (Ossarane court après les cristaux sans compter ce que coûtent les fiefs lointains).
+	value += int(ai.get("colony_bonus", 0)) if kind == Colony.KIND_COLONY else int(ai.get("outpost_bonus", 0))
+	if crystals:
+		value += int(ai.get("crystal_bonus", 0))
 	return {"kind": kind, "value": value}
 
 
@@ -254,6 +255,7 @@ static func _has_open_targets(state: GameState, e: Empire, use: int, need: int) 
 static func _faction_talents(ctx: Dictionary) -> void:
 	var use := _use(ctx)
 	if use <= 0:
+		_clumsy_talents(ctx)
 		return
 	var e: Empire = ctx["e"]
 	var f := e.faction()
@@ -261,6 +263,34 @@ static func _faction_talents(ctx: Dictionary) -> void:
 		_fervor(ctx, use)
 	if FactionTraits.can_rush(f):
 		_rush(ctx, use)
+
+
+## Recrue : elle connaît les talents de son peuple, mais s'en sert très mal.
+## - Chœur : attend que le dieu se taise pour réagir, et sacrifie dans sa plus petite colonie
+##   (celle qui avait le plus besoin de grandir).
+## - Vael : vote l'urgence sur des chantiers presque finis, au prix plancher, sans garder d'influence
+##   pour ses revendications.
+## - Ossarane et Kh'thari : voir planet_value (court après ses goûts sans compter les cristaux)
+##   et _best_yard (lance les spores depuis ses colonies les plus fragiles).
+static func _clumsy_talents(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var f := e.faction()
+	if FactionTraits.has_fervor(f) and e.fervor <= 0 and not _forgets(ctx):
+		var smallest: Colony = null
+		for c in _own_colonies(state, e.id):
+			if FactionTraits.check_sacrifice(state, e.id, c.planet_id) == "" and (smallest == null or c.population < smallest.population):
+				smallest = c
+		if smallest and _issue(ctx, SimCommands.sacrifice(e.id, smallest.planet_id)):
+			_intent(ctx, "Offrande tardive, sur une colonie qui n'en demandait pas tant")
+	if FactionTraits.can_rush(f):
+		for c in _own_colonies(state, e.id):
+			if _forgets(ctx):
+				continue
+			if c.construction != "" and c.construction_days <= 8 and _issue(ctx, SimCommands.rush(e.id, c.planet_id, FactionTraits.RUSH_BUILDING)):
+				_intent(ctx, "Vote d'urgence… sur un chantier presque fini")
+			elif c.ship_build != "" and c.ship_days <= 8 and _issue(ctx, SimCommands.rush(e.id, c.planet_id, FactionTraits.RUSH_SHIP)):
+				_intent(ctx, "Vote d'urgence… sur un vaisseau presque fini")
 
 
 ## Chœur Éternel : offrande quand la ferveur va manquer. Les bases évitent le Silence du dieu ;
@@ -503,6 +533,8 @@ static func _best_yard(ctx: Dictionary, ship_id: String) -> Colony:
 		if Fleets.check_build_ship(state, e.id, c.planet_id, ship_id) != "":
 			continue
 		var score := c.population * 10
+		if _use(ctx) <= 0 and int(GameData.ship(ship_id).get("pop_cost", 0)) > 0:
+			score = 1000 - c.population  # la Recrue de l'Essaim vide ses colonies les plus fragiles
 		if _use(ctx) >= 2 and e.faction().has("biomass"):
 			var cap := Economy.max_pop(state, state.galaxy.get_planet(c.planet_id), e.id, c.buildings)
 			if c.population >= cap:

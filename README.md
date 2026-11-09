@@ -143,13 +143,15 @@ Les trois autres peuples sont menés par l'ordinateur : ils explorent, colonisen
 
 | Niveau | Comment il joue | Bonus |
 |---|---|---|
-| **Recrue** | Réfléchit tous les 20 jours, oublie une décision sur trois, ignore les talents de son peuple, une seule colonisation à la fois | aucun |
+| **Recrue** | Réfléchit tous les 20 jours, oublie une décision sur trois, se sert très mal des talents de son peuple, une seule colonisation à la fois | aucun |
 | **Normal** (par défaut) | Tous les 10 jours, quelques oublis, connaît les bases de son peuple | aucun |
 | **Vétéran** | Tous les 5 jours, aucun oubli, exploite tout le registre de son peuple et lit son goulot (quand les matériaux s'entassent, il construit des forums pour l'influence) | aucun |
 | **Expert** | Le jeu du Vétéran | +15 % de production, petite avance au départ |
 | **Légende** | Le jeu du Vétéran, plus réactif encore | +30 % de production, vraie avance au départ |
 
 Ce que chaque peuple fait de ses talents selon le niveau (bloc `"ai"` de `data/factions.json`) :
+
+- **À la Recrue**, chaque peuple connaît ses talents mais les gâche : le Chœur attend que son dieu se taise et sacrifie dans sa plus petite colonie ; Vael vote l'urgence sur des chantiers presque finis, au prix plancher, sans garder d'influence pour coloniser ; Ossarane court après les cristaux sans compter ce que coûtent ses fiefs lointains ; l'Essaim lance ses spores depuis ses colonies les plus fragiles.
 
 - **Ossarane** : garde ses premiers fiefs à portée de la capitale et ne pose de fief lointain que s'il produit les cristaux pour le payer (au Vétéran, le compte est exact) ; raffinerie sur chaque gisement de cristaux.
 - **Chœur Éternel** : offrande quand le dieu va se taire (Normal) ; au Vétéran, entretient l'Exaltation (+25 %) en prenant le fidèle dans une colonie pleine, qui regrandit sans rien perdre.

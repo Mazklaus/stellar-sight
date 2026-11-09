@@ -2,7 +2,7 @@
 	"default_level": "normal",
 	"levels": [
 		{"id": "recrue", "label": "Recrue", "short": "Rec",
-			"desc": "Réfléchit lentement, oublie des décisions, ignore les talents de son peuple. Aucun bonus.",
+			"desc": "Réfléchit lentement, oublie des décisions et se sert très mal des talents de son peuple. Aucun bonus.",
 			"think_days": 20, "mistake_pct": 35, "faction_use": 0,
 			"scouts": 1, "colonizers": 1, "max_claims": 1, "plan_targets": false,
 			"reserve_influence": 0, "production_pct": 100, "start_bonus": {}},

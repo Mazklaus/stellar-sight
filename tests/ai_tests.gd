@@ -50,7 +50,7 @@ func _test_levels() -> void:
 		prev_use = int(l["faction_use"])
 		_ok(String(l.get("label", "")) != "" and String(l.get("desc", "")) != "", "niveau %s : nom et description" % id)
 	_ok(ordered, "les niveaux montent dans l'ordre (réflexion plus fréquente, talents mieux exploités, bonus)")
-	_ok(int(AiLevels.level(ids[0])["faction_use"]) == 0 and int(AiLevels.level(ids[-1])["faction_use"]) == 2, "le plus bas ignore les talents du peuple, le plus haut les exploite tous")
+	_ok(int(AiLevels.level(ids[0])["faction_use"]) == 0 and int(AiLevels.level(ids[-1])["faction_use"]) == 2, "le plus bas use mal des talents du peuple, le plus haut les exploite tous")
 	_ok(int(AiLevels.level("normal")["production_pct"]) == 100 and int(AiLevels.level("veteran")["production_pct"]) == 100, "Normal et Vétéran ne trichent pas")
 	_ok(AiLevels.level("inconnu") == AiLevels.level(AiLevels.default_id()), "un niveau inconnu retombe sur le niveau par défaut")
 	for f: Dictionary in GameData.factions():
@@ -192,14 +192,23 @@ func _test_talents() -> void:
 		var e := _empire_of(st, "choeur")
 		e.fervor = 0
 		var cap: Colony = st.colonies[e.capital_planet]
+		# Une petite colonie à côté de la capitale : la Recrue la saigne, les autres prennent à la capitale.
+		var small := -1
+		for pid in st.galaxy.get_system(st.galaxy.get_planet(e.capital_planet).system_id).planet_ids:
+			if pid != e.capital_planet and not st.colonies.has(pid) and small < 0:
+				small = pid
+		var sc := Colony.new()
+		sc.planet_id = small
+		sc.owner = e.id
+		sc.population = 3
+		st.add_colony(sc)
 		var before := cap.population
 		st.tick = 1
 		AiPlayer.think(st, e)
-		var sacrificed := cap.population < before and e.fervor > 0
 		if lv == "recrue":
-			_ok(not sacrificed, "Chœur Recrue : n'a pas l'idée de l'offrande")
+			_ok(e.fervor > 0 and sc.population == 2 and cap.population == before, "Chœur Recrue : offrande, mais dans sa plus petite colonie")
 		else:
-			_ok(sacrificed, "Chœur %s : offrande quand le dieu se tait" % lv)
+			_ok(e.fervor > 0 and cap.population < before and sc.population == 3, "Chœur %s : offrande prise dans la colonie la plus peuplée" % lv)
 	# Vétéran : entretient l'Exaltation ; Normal se contente d'éviter le Silence.
 	for lv in ["normal", "veteran"]:
 		var st := GameState.create(5, 150, 1800.0, "", {"spectator": true, "ai_level": lv})
@@ -209,6 +218,23 @@ func _test_talents() -> void:
 		var before := cap.population
 		AiPlayer.think(st, e)
 		_ok((cap.population < before) == (lv == "veteran"), "Chœur %s : %s pour rester exalté" % [lv, "offrande" if lv == "veteran" else "pas d'offrande"])
+	# Vael Recrue : vote sur un chantier presque fini, jamais sur un long.
+	var vst := GameState.create(5, 150, 1800.0, "", {"spectator": true, "ai_level": "recrue"})
+	var ve := _empire_of(vst, "vael")
+	var vcap: Colony = vst.colonies[ve.capital_planet]
+	vcap.ship_build = "colony_ship"
+	vcap.ship_days = 6
+	ve.resources["influence"] = 10
+	ve.resources["materials"] = 0
+	vst.tick = 2  # un jour où la Recrue n'oublie rien (le hachage est fixe)
+	var voted := false
+	for t in range(2, 40):
+		vst.tick = t
+		AiPlayer.think(vst, ve)
+		if vcap.ship_days == 1:
+			voted = true
+			break
+	_ok(voted and int(ve.resources["influence"]) == 5, "Vael Recrue : vote d'urgence au prix plancher sur un vaisseau presque fini")
 	# Vael : vote d'urgence sur un vaisseau colon quand l'influence déborde.
 	for lv in ["recrue", "normal"]:
 		var st := GameState.create(5, 150, 1800.0, "", {"spectator": true, "ai_level": lv})
