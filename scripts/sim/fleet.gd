@@ -16,6 +16,11 @@ var system_id: int = -1
 var path: Array[int] = []
 ## Distance déjà parcourue sur la route system_id -> path[0].
 var progress: int = 0
+## Ordre permanent : "" (aucun, la flotte attend les ordres) ou ORDER_EXPLORE (exploration automatique).
+var standing_order: String = ""
+
+const ORDER_EXPLORE := "explore"
+const STANDING_ORDERS := ["", ORDER_EXPLORE]
 
 
 func is_moving() -> bool:
@@ -30,6 +35,15 @@ func next_system() -> int:
 ## Destination finale (le système actuel à l'arrêt).
 func destination() -> int:
 	return path[-1] if not path.is_empty() else system_id
+
+
+func is_exploring() -> bool:
+	return standing_order == ORDER_EXPLORE
+
+
+## À l'arrêt et sans ordre permanent : la flotte attend qu'on lui dise quoi faire.
+func is_idle() -> bool:
+	return not is_moving() and standing_order == ""
 
 
 func count(ship_id: String) -> int:
@@ -58,6 +72,7 @@ func to_dict() -> Dictionary:
 		"system": system_id,
 		"path": Array(path),
 		"progress": progress,
+		"order": standing_order,
 	}
 
 
@@ -73,4 +88,7 @@ static func from_dict(d: Dictionary) -> Fleet:
 	for s in d["path"]:
 		f.path.append(int(s))
 	f.progress = int(d["progress"])
+	f.standing_order = String(d.get("order", ""))  # absent des sauvegardes d'avant l'exploration auto
+	if not STANDING_ORDERS.has(f.standing_order):
+		f.standing_order = ""
 	return f

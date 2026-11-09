@@ -157,6 +157,45 @@ static func vision_center(state: GameState, fleet: Fleet) -> int:
 	return fleet.path[0] if fleet.progress * 2 >= lane else fleet.system_id
 
 
+# --- Exploration automatique ------------------------------------------------------------------
+
+## Système vers lequel une flotte en exploration automatique doit se diriger : le plus proche
+## (en distance de route) des systèmes connus mais inexplorés, en évitant ceux que vise déjà une
+## autre flotte du même empire en exploration. -1 s'il n'y en a plus aucun de joignable.
+## Déterministe : égalités départagées par l'identifiant.
+static func explore_target(state: GameState, fleet: Fleet) -> int:
+	var origin := fleet.next_system() if fleet.is_moving() else fleet.system_id
+	var res := _dijkstra(state, fleet.owner, origin)
+	var taken := {}
+	for other in empire_fleets(state, fleet.owner):
+		if other.id != fleet.id and other.is_exploring() and other.is_moving():
+			taken[other.destination()] = true
+	var best := -1
+	var best_free := false
+	var best_d := 0
+	for k in res["dist"]:
+		var sid := int(k)
+		if is_explored(state, fleet.owner, sid):
+			continue
+		var d := int(res["dist"][k])
+		var free := not taken.has(sid)
+		# Un système libre passe avant un système déjà visé ; puis le plus proche ; puis le plus petit id.
+		if best == -1 or (free and not best_free) or (free == best_free and (d < best_d or (d == best_d and sid < best))):
+			best = sid
+			best_free = free
+			best_d = d
+	return best
+
+
+## Flottes du joueur qui attendent des ordres (à l'arrêt, sans ordre permanent), triées par id.
+static func idle_fleets(state: GameState, empire_id: int) -> Array[Fleet]:
+	var out: Array[Fleet] = []
+	for f in empire_fleets(state, empire_id):
+		if f.is_idle():
+			out.append(f)
+	return out
+
+
 # --- Brouillard de guerre ----------------------------------------------------------------------
 
 ## Systèmes que l'empire voit en ce moment : autour de ses revendications (1 saut)
@@ -323,6 +362,19 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	var cost: Dictionary = sd.get("cost", {})
 	if not Economy.can_afford(e, cost):
 		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)
+	return ""
+
+
+static func check_order(state: GameState, empire_id: int, fleet_id: int, order: String) -> String:
+	var f: Fleet = state.fleets.get(fleet_id)
+	if f == null or f.owner != empire_id:
+		return "cette flotte ne vous appartient pas"
+	if not Fleet.STANDING_ORDERS.has(order):
+		return "ordre inconnu : %s" % order
+	if f.standing_order == order:
+		return "la flotte a déjà cet ordre" if order != "" else "la flotte n'a pas d'ordre permanent"
+	if order == Fleet.ORDER_EXPLORE and explore_target(state, f) == -1:
+		return "plus aucun système inexploré joignable par vos routes connues"
 	return ""
 
 

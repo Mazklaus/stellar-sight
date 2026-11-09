@@ -41,6 +41,11 @@ static func stop_fleet(player: int, fleet_id: int) -> Dictionary:
 	return {"type": "stop_fleet", "player": player, "fleet": fleet_id}
 
 
+## Donne (ou retire, avec "") un ordre permanent à une flotte : Fleet.ORDER_EXPLORE.
+static func set_fleet_order(player: int, fleet_id: int, order: String) -> Dictionary:
+	return {"type": "set_fleet_order", "player": player, "fleet": fleet_id, "order": order}
+
+
 ## Verse tous les vaisseaux d'une flotte dans une autre (même système, à l'arrêt).
 static func merge_fleets(player: int, fleet_id: int, into_id: int) -> Dictionary:
 	return {"type": "merge_fleets", "player": player, "fleet": fleet_id, "into": into_id}
@@ -76,6 +81,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Fleets.check_move(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("system", -1)))
 		"stop_fleet":
 			return Fleets.check_stop(state, int(cmd["player"]), int(cmd.get("fleet", -1)))
+		"set_fleet_order":
+			return Fleets.check_order(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("order", "")))
 		"merge_fleets":
 			return Fleets.check_merge(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("into", -1)))
 		"split_fleet":
@@ -130,11 +137,13 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 		"move_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var plan := Fleets.plan_route(state, f, int(cmd["system"]))
+			f.standing_order = ""  # un ordre donné à la main reprend la main sur l'exploration
 			f.system_id = int(plan["system"])
 			f.path.assign(plan["path"])
 			f.progress = int(plan["progress"])
 		"stop_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			f.standing_order = ""
 			var lane := Fleets.lane_length(state.galaxy, f.system_id, f.path[0])
 			if f.progress * 2 >= lane:
 				f.path.resize(1)  # finir la route en cours
@@ -143,6 +152,11 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				f.system_id = f.path[0]
 				f.path.assign([back])
 				f.progress = lane - f.progress
+		"set_fleet_order":
+			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			f.standing_order = String(cmd["order"])
+			if f.is_exploring():
+				FleetSystem.explore_step(state, f)  # cap immédiat sur la frontière, sans attendre le tick
 		"merge_fleets":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var into: Fleet = state.fleets[int(cmd["into"])]

@@ -3,9 +3,9 @@ extends CanvasLayer
 ## Interface en jeu, disposée aux quatre coins comme dans les grands 4X spatiaux :
 ##   en haut à gauche  le panneau d'empire (menus, ressources, état) ;
 ##   en haut au centre les onglets de vue (galaxie, lentille économique, gestion du système) ;
-##   en haut à droite  la chronique galactique ;
+##   en haut à droite  la chronique galactique, et dessous la liste des flottes ;
 ##   en bas à gauche   la fiche du système survolé ou sélectionné, avec son illustration ;
-##   en bas à droite   le cadran du temps et le menu du jeu.
+##   en bas à droite   le cadran du temps, le menu du jeu et le rappel des flottes inactives.
 ## L'interface ne modifie jamais la partie : elle émet des demandes.
 
 signal open_system_requested(system_id: int)
@@ -17,8 +17,13 @@ signal speed_requested(index: int)
 signal lens_changed(lens: String)
 ## Onglets de la vue système : gestion (true) ou vue orbitale (false).
 signal system_mode_requested(manage: bool)
-## Bouton de la fiche de flotte : "stop", "merge", "split" ou "colonize".
+## Bouton de la fiche de flotte : "explore", "stop", "merge", "split" ou "colonize".
 signal fleet_action_requested(action: String, fleet_id: int)
+## Liste des flottes : sélectionner une flotte (et y centrer la carte), ou ouvrir son système.
+signal fleet_requested(fleet_id: int)
+signal fleet_system_requested(fleet_id: int)
+## Bouton « flottes inactives » : passer à la prochaine flotte qui attend des ordres.
+signal idle_fleet_requested
 
 const MARGIN := 10.0
 const CARD_WIDTH := 320.0
@@ -72,6 +77,8 @@ var _fleet_status: Label
 var _fleet_stats: Label
 var _fleet_hint: Label
 var _fleet_buttons: Dictionary = {}
+var fleet_list: FleetListPanel
+var idle_button: Button
 
 
 func _ready() -> void:
@@ -82,6 +89,7 @@ func _ready() -> void:
 	_build_card()
 	_build_fleet_card()
 	_build_chronicle()
+	_build_fleet_list()
 	_build_dial()
 
 	_toasts = VBoxContainer.new()
@@ -99,6 +107,7 @@ func set_state(state: GameState, player: int) -> void:
 	_state = state
 	_player = player
 	bar.set_state(state, player)
+	fleet_list.set_state(state, player)
 	_hover_id = -1
 	show_system(null, state)
 
@@ -106,6 +115,8 @@ func set_state(state: GameState, player: int) -> void:
 ## Met à jour ce qui change avec le temps. Appelé à chaque tick et après chaque ordre.
 func refresh() -> void:
 	bar.refresh()
+	fleet_list.refresh()
+	_refresh_idle_button()
 	_refresh_fleet_card()
 	_refresh_card()
 
@@ -113,6 +124,7 @@ func refresh() -> void:
 ## Flotte sélectionnée sur la carte (-1 = aucune) : sa fiche s'affiche en bas à gauche.
 func show_fleet(fleet_id: int) -> void:
 	_fleet_id = fleet_id
+	fleet_list.set_selected(fleet_id)
 	_refresh_fleet_card()
 	_refresh_card()
 
@@ -138,6 +150,7 @@ func set_empire_screen_open(on: bool) -> void:
 	_empire_screen = on
 	_tabs.visible = not on
 	_chronicle.visible = not on
+	_refresh_side_visibility()
 	_refresh_fleet_card()
 	_refresh_card()
 
@@ -152,6 +165,7 @@ func set_system_mode(on: bool) -> void:
 	_tab_manage.visible = on
 	if on:
 		_hover_id = -1
+	_refresh_side_visibility()
 	_refresh_fleet_card()
 	_refresh_card()
 
@@ -362,7 +376,8 @@ func _build_fleet_card() -> void:
 	grid.add_theme_constant_override("h_separation", 4)
 	grid.add_theme_constant_override("v_separation", 4)
 	inner.add_child(grid)
-	for a in [["colonize", "COLONISER ICI", "Ouvrir le système pour choisir la planète où fonder la revendication"],
+	for a in [["explore", "EXPLORATION AUTO", "La flotte part seule vers les systèmes inexplorés les plus proches, et continue jusqu'à ce qu'il n'y en ait plus  (E)"],
+			["colonize", "COLONISER ICI", "Ouvrir le système pour choisir la planète où fonder la revendication"],
 			["stop", "ARRÊTER", "S'arrêter au système le plus proche sur la route"],
 			["merge", "RASSEMBLER", "Réunir dans cette flotte les autres flottes à l'arrêt dans ce système"],
 			["split", "DÉTACHER", "Détacher un vaisseau dans une nouvelle flotte"]]:
@@ -373,11 +388,13 @@ func _build_fleet_card() -> void:
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if a[0] == "colonize":
 			b.theme_type_variation = &"PrimaryButton"
+		if a[0] == "explore":
+			b.toggle_mode = true
 		var action: String = a[0]
 		b.pressed.connect(func() -> void: fleet_action_requested.emit(action, _fleet_id))
 		grid.add_child(b)
 		_fleet_buttons[action] = b
-	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte.  F : flotte suivante.", CARD_WIDTH - 26.0, 12)
+	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte.  F : flotte suivante.  I : flotte inactive suivante.", CARD_WIDTH - 26.0, 12)
 	_fleet_hint.theme_type_variation = &"Dim"
 	inner.add_child(_fleet_hint)
 
@@ -399,7 +416,11 @@ func _refresh_fleet_card() -> void:
 	_fleet_title.text = f.fleet_name
 	_fleet_title.add_theme_color_override("font_color", owner.color().lightened(0.35))
 	_fleet_kind.text = Fleets.composition(f) if mine else "%s  ·  %s" % [owner.short_name(), Fleets.composition(f)]
-	if f.is_moving():
+	if f.is_exploring() and mine:
+		var eta := Fleets.eta_days(_state, f)
+		_fleet_status.text = "Exploration automatique : cap sur %s (%d jour%s)." % [_system_label(f.destination()), eta, "s" if eta > 1 else ""] \
+				if f.is_moving() else "Exploration automatique : en quête du prochain système."
+	elif f.is_moving():
 		var eta := Fleets.eta_days(_state, f)
 		_fleet_status.text = "En route vers %s, arrivée dans %d jour%s (prochain saut : %s)." % [
 				_system_label(f.destination()), eta, "s" if eta > 1 else "", _system_label(f.next_system())]
@@ -418,6 +439,10 @@ func _refresh_fleet_card() -> void:
 	var others := Fleets.fleets_at(_state, f.system_id, _player).size() > 1
 	_fleet_buttons["colonize"].visible = mine and Fleets.colonizer_ship(f) != ""
 	_fleet_buttons["colonize"].disabled = not can_colonize
+	_fleet_buttons["explore"].visible = mine
+	_fleet_buttons["explore"].set_pressed_no_signal(f.is_exploring())
+	_fleet_buttons["explore"].text = "EXPLORATION : ACTIVE" if f.is_exploring() else "EXPLORATION AUTO"
+	_fleet_buttons["explore"].disabled = mine and not f.is_exploring() and Fleets.explore_target(_state, f) == -1
 	_fleet_buttons["stop"].visible = mine
 	_fleet_buttons["stop"].disabled = not f.is_moving()
 	_fleet_buttons["merge"].visible = mine
@@ -464,6 +489,38 @@ func _build_chronicle() -> void:
 	box.add_child(_chronicle_label)
 
 
+func _build_fleet_list() -> void:
+	fleet_list = FleetListPanel.new()
+	fleet_list.anchor_left = 1.0
+	fleet_list.anchor_right = 1.0
+	fleet_list.offset_left = -CHRONICLE_WIDTH - MARGIN
+	fleet_list.offset_right = -MARGIN
+	add_child(fleet_list)
+	fleet_list.fleet_requested.connect(func(fid: int) -> void: fleet_requested.emit(fid))
+	fleet_list.fleet_system_requested.connect(func(fid: int) -> void: fleet_system_requested.emit(fid))
+	# La liste se range juste sous la chronique, dont la hauteur suit la longueur du texte.
+	_chronicle.resized.connect(_place_fleet_list)
+	_place_fleet_list()
+
+
+func _place_fleet_list() -> void:
+	fleet_list.offset_top = _chronicle.offset_top + _chronicle.size.y + 6.0
+
+
+func _refresh_side_visibility() -> void:
+	if fleet_list:
+		fleet_list.visible = not _system_mode and not _empire_screen
+	_refresh_idle_button()
+
+
+func _refresh_idle_button() -> void:
+	if idle_button == null:
+		return
+	var n := Fleets.idle_fleets(_state, _player).size() if _state else 0
+	idle_button.visible = n > 0 and not _system_mode and not _empire_screen
+	idle_button.text = "%d FLOTTE%s INACTIVE%s" % [n, "S" if n > 1 else "", "S" if n > 1 else ""]
+
+
 func _build_dial() -> void:
 	dial = TimeDial.new()
 	dial.anchor_left = 1.0
@@ -490,6 +547,22 @@ func _build_dial() -> void:
 	menu.tooltip_text = "Menu du jeu  (Échap)"
 	menu.pressed.connect(func() -> void: menu_requested.emit())
 	add_child(menu)
+	# Comme le bouton au-dessus de la fin de tour d'Endless Space 2 : aller aux flottes sans ordres.
+	idle_button = Button.new()
+	idle_button.focus_mode = Control.FOCUS_NONE
+	idle_button.anchor_left = 1.0
+	idle_button.anchor_right = 1.0
+	idle_button.anchor_top = 1.0
+	idle_button.anchor_bottom = 1.0
+	idle_button.offset_right = -MARGIN - 44.0
+	idle_button.offset_left = idle_button.offset_right - 210.0
+	idle_button.offset_top = -TimeDial.SIDE - MARGIN - 40.0
+	idle_button.offset_bottom = -TimeDial.SIDE - MARGIN - 4.0
+	idle_button.add_theme_color_override("font_color", FleetListPanel.IDLE_COLOR)
+	idle_button.tooltip_text = "Passer à la prochaine flotte qui attend des ordres  (I)"
+	idle_button.pressed.connect(func() -> void: idle_fleet_requested.emit())
+	idle_button.visible = false
+	add_child(idle_button)
 
 
 func _refresh_card() -> void:
