@@ -231,6 +231,9 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 		return "nécessite un gisement : %s" % GameData.deposit(dep).get("label", dep)
 	if b.get("unique", false) and c.buildings.has(building_id):
 		return "déjà construit sur cette planète"
+	var needs := String(b.get("requires_building", ""))
+	if needs != "" and not c.buildings.has(needs):
+		return "nécessite d'abord : %s" % String(GameData.building(needs).get("label", needs))
 	var used := building_slots_used(c)
 	var slots := building_slots(state, c)
 	if used >= slots:

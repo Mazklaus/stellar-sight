@@ -52,10 +52,13 @@ static func ship_damage_profile(ship_id: String) -> int:
 	var phases: Array = data()["phases"]
 	var w := weapons(ship_id)
 	for k in w:
-		var eff: Array = data()["weapons"][k]["eff"]
+		var wd: Dictionary = data()["weapons"][k]
+		var eff: Array = wd["eff"]
 		for i in phases.size():
+			# Une arme qui se sacrifie (Martyr) ne frappe qu'une fois.
+			var days := 1 if wd.get("self_destruct", false) else int(phases[i]["days"])
 			@warning_ignore("integer_division")
-			total += int(w[k]) * int(eff[i]) * int(phases[i]["days"]) / 100
+			total += int(w[k]) * int(eff[i]) * days / 100
 	return total
 
 
@@ -89,6 +92,46 @@ static func siege_power(f: Fleet) -> int:
 	return n
 
 
+## Rang de bataille d'une classe : "screen" (écran), "line" (ligne) ou "rear" (arrière).
+static func ship_line(ship_id: String) -> String:
+	return String(GameData.ship(ship_id).get("line", "line"))
+
+
+static func ship_size(ship_id: String) -> String:
+	return String(GameData.ship(ship_id).get("size", "medium"))
+
+
+static func line_label(line: String) -> String:
+	return String(data().get("lines", {}).get(line, {}).get("label", line))
+
+
+static func size_label(size: String) -> String:
+	return String(data().get("sizes", {}).get(size, {}).get("label", size))
+
+
+## Poids d'un rang dans le choix des cibles (l'arrière vaut 0 : protégé tant que le front tient).
+static func line_weight(line: String) -> int:
+	return int(data().get("lines", {}).get(line, {}).get("weight", 1))
+
+
+## Défense ponctuelle que les escorteurs d'une flotte prêtent à chacun de ses vaisseaux.
+static func fleet_pd(f: Fleet) -> int:
+	var n := 0
+	for s in f.ships:
+		n += int(GameData.ship(s).get("pd_fleet", 0))
+	return mini(n, int(data().get("pd_cap", 60)))
+
+
+## La flotte ne compte que des forceurs de blocus (coursiers de saut) : aucun blocus ne l'arrête.
+static func runs_blockades(f: Fleet) -> bool:
+	if f == null or f.ships.is_empty():
+		return false
+	for s in f.ships:
+		if not GameData.ship(s).get("blockade_runner", false):
+			return false
+	return true
+
+
 # --- Tactiques et phases -----------------------------------------------------------------------
 
 static func tactic_ids() -> Array[String]:
@@ -110,7 +153,28 @@ static func tactic(id: String) -> Dictionary:
 
 
 static func fleet_tactic(f: Fleet) -> String:
-	return f.tactic if tactic_ids().has(f.tactic) else default_tactic()
+	return f.tactic if tactic_ids_for(f).has(f.tactic) else default_tactic()
+
+
+## Tactiques ouvertes à une flotte : certaines demandent un vaisseau particulier ("requires" :
+## l'Adaptative veut une Frégate des Quarante, capable de changer de manière de se battre).
+static func tactic_ids_for(f: Fleet) -> Array[String]:
+	var out: Array[String] = []
+	for t: Dictionary in data()["tactics"]:
+		var need := String(t.get("requires", ""))
+		if need != "" and not _fleet_has_flag(f, need):
+			continue
+		out.append(String(t["id"]))
+	return out
+
+
+static func _fleet_has_flag(f: Fleet, flag: String) -> bool:
+	if f == null:
+		return false
+	for s in f.ships:
+		if GameData.ship(s).get(flag, false):
+			return true
+	return false
 
 
 static func tactic_label(id: String) -> String:
@@ -147,14 +211,29 @@ static func weapon_eff(weapon: String, phase: int) -> int:
 
 ## Dégâts d'un tir : arme de puissance `power`, à la phase donnée, modifiée par la tactique du tireur,
 ## un bonus en % (traits de peuple), la défense de la cible et sa tactique.
+## Pour le catalogue : certaines armes frappent plus ou moins fort selon la taille de la cible
+## ("vs_size" : torpilles contre les grosses coques, artillerie mal à l'aise contre les petites), et
+## missiles, torpilles et chasseurs sont en partie abattus par la défense ponctuelle de la cible et des
+## escorteurs de sa flotte (`fleet_pd`), plafonnée à "pd_cap" %.
+## Une arme sans effet à cette phase (efficacité 0) ne tire pas : 0 dégât.
 static func shot_damage(weapon: String, power: int, phase: int, shooter_tactic: String, bonus_pct: int,
-		target_ship: String, target_tactic: String) -> int:
+		target_ship: String, target_tactic: String, target_fleet_pd := 0) -> int:
 	var wd: Dictionary = data()["weapons"].get(weapon, {})
-	var defense := int(GameData.ship(target_ship).get(String(wd.get("defense", "armor")), 0)) if target_ship != "" else 0
+	var eff := weapon_eff(weapon, phase)
+	if eff <= 0:
+		return 0
+	var sd := GameData.ship(target_ship) if target_ship != "" else {}
+	var defense := int(sd.get(String(wd.get("defense", "armor")), 0))
 	var mult := int(tactic(shooter_tactic)["dmg"][phase])
 	var taken := int(tactic(target_tactic).get("taken", 100))
+	var size_pct := int(wd.get("vs_size", {}).get(String(sd.get("size", "medium")), 100)) if target_ship != "" else 100
+	var pd := 0
+	if wd.get("intercept", false) and target_ship != "":
+		pd = mini(int(data().get("pd_cap", 60)), int(sd.get("pd", 0)) + target_fleet_pd)
 	@warning_ignore("integer_division")
-	var d := power * weapon_eff(weapon, phase) * mult * bonus_pct * (100 - defense) * taken / 10000000000
+	var d := power * eff * mult * bonus_pct * (100 - defense) * taken / 10000000000
+	@warning_ignore("integer_division")
+	d = d * size_pct / 100 * (100 - pd) / 100
 	return maxi(1, d)
 
 
@@ -283,7 +362,10 @@ static func is_besieged(state: GameState, system_id: int) -> bool:
 
 
 ## Un ennemi armé à l'arrêt dans ce système arrête les flottes de cet empire qui le traversent (blocus).
-static func blocks(state: GameState, empire_id: int, system_id: int) -> bool:
+## Une flotte de coursiers de saut (`runs_blockades`) passe quand même.
+static func blocks(state: GameState, empire_id: int, system_id: int, moving: Fleet = null) -> bool:
+	if runs_blockades(moving):
+		return false
 	for f in Fleets.fleets_at(state, system_id):
 		if at_war(state, f.owner, empire_id) and is_armed(f):
 			return true
@@ -384,6 +466,8 @@ static func check_tactic(state: GameState, empire_id: int, fleet_id: int, tactic
 		return "cette flotte ne vous appartient pas"
 	if not tactic_ids().has(tactic_id):
 		return "tactique inconnue : %s" % tactic_id
+	if not tactic_ids_for(f).has(tactic_id):
+		return "cette flotte ne peut pas suivre la tactique %s" % tactic_label(tactic_id)
 	if fleet_tactic(f) == tactic_id:
 		return "la flotte suit déjà cette tactique"
 	return ""
@@ -398,13 +482,19 @@ static func ship_summary(ship_id: String) -> String:
 	var w := weapons(ship_id)
 	for k in w:
 		parts.append("%s %d" % [String(data()["weapons"][k]["short"]), int(w[k])])
+	parts.append("%s, %s" % [line_label(ship_line(ship_id)), size_label(ship_size(ship_id)).to_lower()])
 	parts.append("structure %d" % Fleet.max_hp_of(ship_id))
 	if int(sd.get("armor", 0)) > 0:
 		parts.append("blindage %d %%" % int(sd["armor"]))
 	if int(sd.get("shield", 0)) > 0:
 		parts.append("boucliers %d %%" % int(sd["shield"]))
+	if int(sd.get("pd", 0)) > 0 or int(sd.get("pd_fleet", 0)) > 0:
+		parts.append("défense ponctuelle %d %%%s" % [int(sd.get("pd", 0)),
+				(" (+%d %% à la flotte)" % int(sd["pd_fleet"])) if int(sd.get("pd_fleet", 0)) > 0 else ""])
 	if int(sd.get("troops", 0)) > 0:
 		parts.append("%d troupes" % int(sd["troops"]))
+	if int(sd.get("siege", 0)) > 1:
+		parts.append("siège %d" % int(sd["siege"]))
 	return "  ·  ".join(parts)
 
 

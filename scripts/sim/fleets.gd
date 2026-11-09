@@ -406,6 +406,12 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 		return "classe de vaisseau inconnue : %s" % ship_id
 	if not FactionTraits.ship_ids_for(e.faction_id).has(ship_id):
 		return "votre peuple ne construit pas de %s" % String(sd["plural"]).to_lower()
+	var req: Dictionary = sd.get("requires", {})
+	var need := String(req.get("building", ""))
+	if need != "" and not c.buildings.has(need):
+		return "il faut un bâtiment sur cette colonie : %s" % String(GameData.building(need).get("label", need))
+	if req.get("unique_per_empire", false) and count_owned_or_building(state, empire_id, ship_id) > 0:
+		return "un seul %s par empire" % String(sd["label"]).to_lower()
 	if c.ship_build != "":
 		return "le chantier spatial est occupé"
 	var pop_cost := int(sd.get("pop_cost", 0))
@@ -415,6 +421,20 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	if not Economy.can_afford(e, cost):
 		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)
 	return ""
+
+
+## Vaisseaux d'une classe que l'empire possède ou a en chantier (titan : un seul par empire).
+static func count_owned_or_building(state: GameState, empire_id: int, ship_id: String) -> int:
+	var n := 0
+	for fid in state.fleets:
+		var f: Fleet = state.fleets[fid]
+		if f.owner == empire_id:
+			n += f.count(ship_id)
+	for pid in state.colonies:
+		var c: Colony = state.colonies[pid]
+		if c.owner == empire_id and c.ship_build == ship_id:
+			n += 1
+	return n
 
 
 static func check_order(state: GameState, empire_id: int, fleet_id: int, order: String) -> String:

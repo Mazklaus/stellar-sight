@@ -1,5 +1,6 @@
 [
 	{"id": "ossarane", "name": "Lignées d'Ossarane", "short": "Ossarane", "registre": "Médiéval spatial",
+		"species": {"archetype": "humanoide", "gouvernement": "feodalite", "credo": "honneur", "traits": ["navigateurs"]},
 		"color": "#e8b44a", "preferred": ["desert", "continental"],
 		"production_pct": {"crystals": 150, "influence": 110}, "growth_pct": 100, "food_upkeep_pct": 100,
 		"home_deposit": "crystals",
@@ -16,6 +17,7 @@
 			{"name": "Ban des vassaux", "text": "Au combat dans ses propres systèmes, la flotte inflige 15 % de dégâts en plus. Les garnisons des fiefs sont 50 % plus nombreuses."}
 		]},
 	{"id": "choeur", "name": "Hégémonie du Chœur Éternel", "short": "Chœur Éternel", "registre": "Grimdark",
+		"species": {"archetype": "humanoide", "gouvernement": "theocratie", "credo": "foi", "traits": ["fanatisme"]},
 		"color": "#c0392b", "preferred": ["arctic", "desert"],
 		"production_pct": {"materials": 125}, "growth_pct": 80, "food_upkeep_pct": 100,
 		"lore": "L'Hégémonie du Chœur Éternel chante depuis dix mille ans le même hymne, et n'a toujours pas trouvé la fin du deuxième couplet. Ses forges tournent jour et nuit au rythme des psaumes. La galaxie est vaste, froide et pleine d'hérétiques : le Chœur considère que c'est une excellente nouvelle pour l'industrie.",
@@ -32,6 +34,7 @@
 			{"name": "Croisade", "text": "Chaque vaisseau ennemi détruit rapporte +2 ferveur, chaque système conquis +10. Le dieu-machine aime la guerre presque autant que les hymnes."}
 		]},
 	{"id": "vael", "name": "Concorde de Vael", "short": "Vael", "registre": "Space opera héroïque",
+		"species": {"archetype": "humanoide", "gouvernement": "republique", "credo": "raison", "traits": ["pluriel"]},
 		"color": "#4a90e2", "preferred": ["ocean", "continental"],
 		"production_pct": {"influence": 150, "energy": 110}, "growth_pct": 100, "food_upkeep_pct": 100,
 		"lore": "La Concorde de Vael est née d'un traité signé par quarante peuples qui ne s'entendaient sur rien, sauf sur l'urgence de ne plus se tirer dessus. Depuis, elle vote. Beaucoup. Ses héros sont réels, ses discours sont longs, et ses flottes arrivent toujours au dernier moment, ce qu'elle appelle une tradition.",
@@ -49,6 +52,7 @@
 			{"name": "Au dernier moment", "text": "Une flotte qui rejoint une bataille déjà engagée inflige 30 % de dégâts en plus jusqu'à la fin de la bataille. C'est une tradition."}
 		]},
 	{"id": "khthari", "name": "Essaim Kh'thari", "short": "Kh'thari", "registre": "Horreur biologique",
+		"species": {"archetype": "ruche", "gouvernement": "ruche", "credo": "survie", "traits": ["fecondite"]},
 		"color": "#6fcf3a", "preferred": ["toxic", "ocean"],
 		"production_pct": {"influence": 50}, "growth_pct": 200, "food_upkeep_pct": 150,
 		"lore": "L'Essaim Kh'thari ne conquiert pas : il s'installe, puis il grandit, puis il ne reste plus que lui. Il n'a ni empereur ni capitale au sens où on l'entend, seulement une faim très patiente. Les diplomates qui ont tenté de négocier avec lui le décrivent comme un interlocuteur attentif. Ils le décrivent de l'intérieur.",

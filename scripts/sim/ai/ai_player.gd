@@ -444,6 +444,13 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 	if not e.wars.is_empty() and _skill(ctx) >= 1 and int(rival_distance(ctx).get(p.system_id, 99)) <= 2 \
 			and Combat.battery(state, p.system_id).is_empty():
 		out.push_front("bastion")
+	# Arsenal (cuirassés, porte-vaisseaux) puis chantier titanesque, sur la plus grande colonie seulement.
+	if c.is_colony() and _skill(ctx) >= 1 and _is_main_yard(ctx, c):
+		if not _empire_has_building(ctx, "arsenal") and (not e.wars.is_empty() or _res(ctx, "materials") >= 400):
+			out.push_front("arsenal")
+		elif _skill(ctx) >= 2 and c.buildings.has("arsenal") and not _empire_has_building(ctx, "chantier_titanesque") \
+				and _res(ctx, "materials") >= 1200:
+			out.push_front("chantier_titanesque")
 	if p.deposits.has("crystals"):
 		var fiefs := FactionTraits.has_fiefs(e.faction()) and use >= 1
 		if fiefs or int(net.get("crystals", 0)) < 1:
@@ -465,6 +472,24 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 		if int(net.get("food", 0)) < 10:
 			out.append("ferme_hydroponique")
 	return out
+
+
+## Un bâtiment existe-t-il (ou est-il en chantier) dans une colonie de l'empire ?
+static func _empire_has_building(ctx: Dictionary, building_id: String) -> bool:
+	for c in _own_colonies(ctx["state"], ctx["e"].id):
+		if c.buildings.has(building_id) or c.construction == building_id:
+			return true
+	return false
+
+
+## La colonie la plus peuplée de l'empire (à égalité, la plus ancienne identifiant) : là où vont les
+## chantiers lourds.
+static func _is_main_yard(ctx: Dictionary, c: Colony) -> bool:
+	var best: Colony = null
+	for o in _own_colonies(ctx["state"], ctx["e"].id):
+		if o.is_colony() and (best == null or o.population > best.population):
+			best = o
+	return best != null and best.planet_id == c.planet_id
 
 
 ## Matériaux à garder pour le prochain vaisseau colon, s'il en manque un.
@@ -817,23 +842,26 @@ static func _build_warships(ctx: Dictionary) -> void:
 			return
 		if not _issue(ctx, SimCommands.build_ship(e.id, yard.planet_id, cls)):
 			return
+		ctx.erase("buildable_warships")
 		missing -= 1
 		built += 1
 		_intent(ctx, "Arme la flotte (%s)" % String(GameData.ship(cls)["label"]).to_lower())
 
 
-## Classe de vaisseau de guerre à construire.
-## - Recrue : au petit bonheur (hachage de la graine et du jour).
-## - Normal : corvettes tant qu'on est pauvre, frégates ensuite, un croiseur de temps en temps en guerre.
-## - Vétéran et plus : des troupes quand la guerre en manque, sinon ce qui contre la flotte ennemie
-##   la plus visible (rayons contre coques sans boucliers, canons et missiles contre les boucliers).
+## Classe de vaisseau de guerre à construire, parmi celles qu'un chantier peut lancer tout de suite
+## (bâtiment requis, ressources, titan unique). Les classes de peuple remplacent leur modèle commun
+## (`_variant` : le Coursier de saut d'Ossarane à la place de la corvette, par exemple).
+## - Recrue : au petit bonheur (hachage de la graine et du jour), titan compris.
+## - Normal : corvettes tant qu'on est pauvre, frégates ensuite, un escorteur de temps en temps,
+##   des troupes (transport ou croiseur) quand la guerre en manque.
+## - Vétéran et plus : le titan dès qu'il est possible ; des troupes quand il en manque ; un écran
+##   quand la flotte n'en a pas assez (escorteurs contre missiles et chasseurs) ; des torpilleurs
+##   contre les grosses coques ennemies ; cuirassés ou porte-vaisseaux une fois l'arsenal bâti ;
+##   une bombarde pour les sièges ; sinon ce qui contre la flotte ennemie la plus visible.
 static func _pick_warship(ctx: Dictionary) -> String:
 	var state: GameState = ctx["state"]
 	var e: Empire = ctx["e"]
-	var classes: Array[String] = []
-	for sid in FactionTraits.ship_ids_for(e.faction_id):
-		if Combat.is_military(sid):
-			classes.append(sid)
+	var classes := _buildable_warships(ctx)
 	if classes.is_empty():
 		return ""
 	var skill := _skill(ctx)
@@ -841,31 +869,129 @@ static func _pick_warship(ctx: Dictionary) -> String:
 		return classes[posmod(hash([state.seed_value, state.tick, e.id, "warship"]), classes.size())]
 	var mats := _res(ctx, "materials")
 	var at_war := not e.wars.is_empty()
+	var troops := 0
+	var mine := {}
+	var total := 0
+	for f in _warfleets(ctx):
+		troops += f.troops
+		for sh in f.ships:
+			mine[Combat.ship_line(sh)] = int(mine.get(Combat.ship_line(sh), 0)) + 1
+			total += 1
+	@warning_ignore("integer_division")
+	var turn := state.tick / 10 + e.id
 	if skill == 1:
-		@warning_ignore("integer_division")
-		if at_war and posmod(state.tick / 10 + e.id, 4) == 0 and mats >= 260:
-			return "croiseur"
-		return "corvette" if mats < 200 else "fregate"
-	if at_war:
-		var troops := 0
-		for f in _warfleets(ctx):
-			troops += f.troops
-		if troops < 24 and mats >= 260:
-			return "croiseur"
+		if at_war and troops < 20 and posmod(turn, 3) == 0:
+			var t := _first(classes, ["transport", "croiseur"])
+			if t != "":
+				return t
+		if posmod(turn, 5) == 0 and classes.has("escorteur"):
+			return "escorteur"
+		var base := _variant(classes, "corvette") if mats < 200 else _variant(classes, "fregate")
+		return base if base != "" else classes[0]
+	if classes.has("titan"):
+		return "titan"
+	if at_war and troops < 24:
+		var t := _first(classes, ["transport", "croiseur"])
+		if t != "":
+			return t
+	# Ce que montre la flotte ennemie la plus visible.
 	var shields := 0
 	var bare := 0
+	var big := 0
+	var interceptable := 0
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
 		if f.owner == e.id or not Combat.is_armed(f) or not Fleets.fleet_visible(state, e.id, f, _seen(ctx)):
 			continue
-		for s in f.ships:
-			if int(GameData.ship(s).get("shield", 0)) >= 20:
+		for sh in f.ships:
+			if int(GameData.ship(sh).get("shield", 0)) >= 20:
 				shields += 1
 			else:
 				bare += 1
+			if ["large", "titan"].has(Combat.ship_size(sh)):
+				big += 1
+			for k in Combat.weapons(sh):
+				if Combat.data()["weapons"][k].get("intercept", false):
+					interceptable += 1
+	if total >= 3 and int(mine.get("screen", 0)) * 3 < total:
+		if interceptable >= 2 and classes.has("escorteur"):
+			return "escorteur"
+		if at_war and classes.has("martyr") and posmod(turn, 2) == 0:
+			return "martyr"
+		var sc := _variant(classes, "corvette")
+		if sc != "":
+			return sc
+	if big >= 2 and classes.has("torpilleur"):
+		return "torpilleur"
+	if mats >= 450:
+		var heavy := _variant(classes, "porte_vaisseaux") if interceptable < 3 else ""
+		if heavy == "":
+			heavy = _first(classes, ["cuirasse"])
+		if heavy != "":
+			return heavy
+	if at_war and classes.has("bombarde") and posmod(turn, 4) == 0:
+		return "bombarde"
+	var pick := ""
 	if shields > bare:
-		return "croiseur" if mats >= 300 else "corvette"
-	return "fregate" if mats >= 140 else "corvette"
+		pick = _variant(classes, "croiseur") if mats >= 300 else _variant(classes, "corvette")
+	else:
+		pick = _variant(classes, "fregate") if mats >= 140 else _variant(classes, "corvette")
+	return pick if pick != "" else classes[0]
+
+
+## Classes de guerre lançables tout de suite quelque part : bâtiment requis présent, titan pas encore
+## construit, ressources et population suffisantes. Vérification légère, gardée pour la réflexion.
+static func _buildable_warships(ctx: Dictionary) -> Array[String]:
+	if ctx.has("buildable_warships"):
+		return ctx["buildable_warships"]
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var have := {}
+	var free_yard := false
+	var max_pop := 0
+	for c in _own_colonies(state, e.id):
+		if not c.is_colony():
+			continue
+		for b in c.buildings:
+			have[b] = true
+		if c.ship_build == "":
+			free_yard = true
+			max_pop = maxi(max_pop, c.population)
+	var out: Array[String] = []
+	if free_yard:
+		for sid in FactionTraits.ship_ids_for(e.faction_id):
+			var sd := GameData.ship(sid)
+			if not Combat.is_military(sid) or not Economy.can_afford(e, sd.get("cost", {})):
+				continue
+			if int(sd.get("pop_cost", 0)) >= max_pop and int(sd.get("pop_cost", 0)) > 0:
+				continue
+			var req: Dictionary = sd.get("requires", {})
+			if req.has("building") and not have.has(String(req["building"])):
+				continue
+			if req.get("unique_per_empire", false) and Fleets.count_owned_or_building(state, e.id, sid) > 0:
+				continue
+			out.append(sid)
+	ctx["buildable_warships"] = out
+	return out
+
+
+## La classe `base` si elle est au catalogue, sinon la classe de peuple qui la remplace ("" sinon).
+static func _variant(classes: Array[String], base: String) -> String:
+	if classes.has(base):
+		return base
+	for sid in classes:
+		if String(GameData.ship(sid).get("replaces", "")) == base:
+			return sid
+	return ""
+
+
+## La première des classes voulues (ou leur variante de peuple) qui est au catalogue.
+static func _first(classes: Array[String], wanted: Array) -> String:
+	for w in wanted:
+		var v := _variant(classes, String(w))
+		if v != "":
+			return v
+	return ""
 
 
 ## Tactique adaptée à une flotte : selon ses armes (Vétéran et plus), toujours la même pour les autres.
@@ -873,6 +999,9 @@ static func tactic_for(ctx: Dictionary, f: Fleet) -> String:
 	var skill := _skill(ctx)
 	if skill <= 0:
 		return "assaut"  # la Recrue charge, même avec des missiles
+	# Une flotte qui peut suivre l'Adaptative (Frégate des Quarante) la prend dès que le peuple est connu.
+	if _use(ctx) >= 1 and Combat.tactic_ids_for(f).has("adaptatif"):
+		return "adaptatif"
 	if skill == 1:
 		return Combat.default_tactic()
 	var by_phase := [0, 0, 0]

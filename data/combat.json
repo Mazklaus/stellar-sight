@@ -1,5 +1,5 @@
 {
-	"_sources": "Trois phases de portée et efficacité des armes selon la portée : structure d'Endless Space (guide gamepressure.com, Endless Space : Battle). Défenses par famille d'armes (boucliers contre l'énergie, blindage contre cinétiques et missiles) : discussions de joueurs sur le forum d'Endless Space 2 (pas de source officielle trouvée). Tactique choisie avant la bataille, sans contrôle pendant : plans de bataille d'Endless Space 2. Siège qui use la garnison puis invasion par les troupes embarquées : Endless Space 2 (guide gamepressure.com Armies and ground battles, GDD 14 Ground battle).",
+	"_sources": "Trois phases de portée et efficacité des armes selon la portée : structure d'Endless Space (guide gamepressure.com, Endless Space : Battle). Défenses par famille d'armes (boucliers contre l'énergie, blindage contre cinétiques et missiles) : discussions de joueurs sur le forum d'Endless Space 2 (pas de source officielle trouvée). Tactique choisie avant la bataille, sans contrôle pendant : plans de bataille d'Endless Space 2. Siège qui use la garnison puis invasion par les troupes embarquées : Endless Space 2 (guide gamepressure.com Armies and ground battles, GDD 14 Ground battle). Catalogue (écran, ligne, arrière ; défense ponctuelle contre missiles et chasseurs ; bonus des torpilles contre les grosses coques ; artillerie sans portée courte ; titan unique) : rôles et positions de départ de Galactic Civilizations IV (wiki.galciv.com, GalCiv4:Spaceship Battles), journal de développement 271 de Stellaris (combat 3.6), rôles d'Endless Space 2 (gamepressure.com), titans de Stellaris (stellaris.paradoxwikis.com, Ship). Étude complète : https://claude.ai/artifact/497ptZZyfqQfhcSajXLkTh",
 	"phases": [
 		{"id": "long", "label": "Longue portée", "days": 2},
 		{"id": "medium", "label": "Moyenne portée", "days": 2},
@@ -8,8 +8,26 @@
 	"weapons": {
 		"kinetic": {"label": "Canons cinétiques", "short": "Cinétique", "eff": [20, 40, 90], "defense": "armor"},
 		"beam": {"label": "Rayons", "short": "Rayons", "eff": [50, 90, 70], "defense": "shield"},
-		"missile": {"label": "Missiles", "short": "Missiles", "eff": [90, 70, 40], "defense": "armor"}
+		"missile": {"label": "Missiles", "short": "Missiles", "eff": [90, 70, 40], "defense": "armor", "intercept": true},
+		"torpedo": {"label": "Torpilles", "short": "Torpilles", "eff": [30, 90, 100], "defense": "armor", "intercept": true,
+			"vs_size": {"small": 40, "medium": 100, "large": 170, "titan": 250}},
+		"artillery": {"label": "Artillerie lourde", "short": "Artillerie", "eff": [100, 80, 0], "defense": "armor",
+			"vs_size": {"small": 40, "medium": 80, "large": 120, "titan": 140}},
+		"fighters": {"label": "Chasseurs", "short": "Chasseurs", "eff": [70, 100, 90], "defense": "shield", "intercept": true, "ignores_lines": true},
+		"martyr": {"label": "Charge sacrée", "short": "Charge sacrée", "eff": [0, 0, 100], "defense": "armor", "self_destruct": true, "fervor": 5}
 	},
+	"lines": {
+		"screen": {"label": "Écran", "weight": 3, "desc": "Devant : attire les tirs et protège le reste de la flotte."},
+		"line": {"label": "Ligne", "weight": 2, "desc": "Le gros de la flotte."},
+		"rear": {"label": "Arrière", "weight": 0, "desc": "Hors d'atteinte tant qu'il reste un vaisseau d'écran ou de ligne, sauf pour les chasseurs."}
+	},
+	"sizes": {
+		"small": {"label": "Petite coque"},
+		"medium": {"label": "Coque moyenne"},
+		"large": {"label": "Grande coque"},
+		"titan": {"label": "Titan"}
+	},
+	"pd_cap": 60,
 	"default_tactic": "equilibre",
 	"tactics": [
 		{"id": "equilibre", "label": "Équilibre", "dmg": [100, 100, 100], "taken": 100,
@@ -19,7 +37,9 @@
 		{"id": "distance", "label": "Tir à distance", "dmg": [135, 110, 70], "taken": 100,
 			"desc": "Garde l'ennemi au loin et le noie sous les missiles. Les corvettes y perdent leurs dents."},
 		{"id": "rempart", "label": "Rempart", "dmg": [85, 85, 85], "taken": 80,
-			"desc": "Serre les rangs et encaisse : -20 % de dégâts reçus, -15 % de dégâts infligés. Pour tenir en attendant les renforts."}
+			"desc": "Serre les rangs et encaisse : -20 % de dégâts reçus, -15 % de dégâts infligés. Pour tenir en attendant les renforts."},
+		{"id": "adaptatif", "label": "Adaptative", "dmg": [120, 115, 120], "taken": 100, "requires": "adaptive",
+			"desc": "Change de manière de se battre à chaque phase. Il faut un équipage capable de voter vite : une Frégate des Quarante dans la flotte."}
 	],
 	"repair_pct_home": 5,
 	"repair_pct_away": 1,

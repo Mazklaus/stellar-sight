@@ -78,8 +78,10 @@ func _test_data() -> void:
 	for sid in GameData.ship_ids():
 		if Combat.is_military(sid):
 			mil += 1
-			_ok(Combat.is_armed_ship(sid), "%s est armé" % sid)
-	_ok(mil == 3, "trois classes de vaisseaux de guerre (obtenu %d)" % mil)
+			_ok(Combat.is_armed_ship(sid) or int(GameData.ship(sid).get("troops", 0)) > 0, "%s est armé ou porte des troupes" % sid)
+			_ok(["screen", "line", "rear"].has(Combat.ship_line(sid)), "%s a un rang de bataille" % sid)
+			_ok(Combat.data()["sizes"].has(Combat.ship_size(sid)), "%s a une taille de coque" % sid)
+	_ok(mil >= 9, "le catalogue compte au moins neuf classes de guerre (obtenu %d)" % mil)
 	_ok(Combat.ship_strength("corvette") < Combat.ship_strength("fregate") and Combat.ship_strength("fregate") < Combat.ship_strength("croiseur"),
 			"puissance croissante : corvette < frégate < croiseur")
 	_ok(Combat.tactic_ids().size() >= 3 and Combat.tactic_ids().has(Combat.default_tactic()), "tactiques présentes, avec une tactique par défaut")

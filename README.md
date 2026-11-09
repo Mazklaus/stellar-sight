@@ -188,7 +188,7 @@ Les flottes d'empires en guerre se battent quand elles se retrouvent dans le mê
 ![Siège et invasion](docs/apercu-siege.png)
 
 - **La guerre.** Les empires se déclarent la guerre depuis l'écran Diplomatie (F4), une fois rencontrés ; elle vaut dans les deux sens. L'Essaim Kh'thari est en guerre avec tout empire qu'il rencontre. La paix et les traités arriveront avec la diplomatie.
-- **Trois vaisseaux de guerre** (périmètre V1 du GDD), construits au chantier spatial : la **corvette** (rapide, canons cinétiques, mortelle au contact), la **frégate** (rayons à moyenne portée, boucliers) et le **croiseur** (missiles à longue portée, blindage, 12 troupes pour les invasions). Éclaireurs et vaisseaux colons ne sont pas armés : ils subissent.
+- **Un catalogue de vaisseaux de guerre** (voir « Catalogue de vaisseaux » plus bas) : la **corvette** (rapide, canons cinétiques, mortelle au contact), la **frégate** (rayons à moyenne portée, boucliers), le **croiseur** (missiles à longue portée, blindage, 12 troupes pour les invasions), et neuf autres classes. Éclaireurs et vaisseaux colons ne sont pas armés : ils subissent.
 - **La bataille** est automatique et dure six jours : deux à longue portée, deux à moyenne, deux à courte. Chaque famille d'armes a sa portée (missiles 90/70/40 %, rayons 50/90/70 %, canons 20/40/90 %), les boucliers réduisent les rayons, le blindage les canons et les missiles. Tous les vaisseaux tirent chaque jour sur une cible au hasard (tirée par la simulation, donc identique sur toutes les machines), les dégâts s'appliquent ensemble. Au bout des six jours, un rapport est rédigé (B) ; si les deux camps sont encore là, une nouvelle bataille commence. Les flottes qui arrivent en cours de route rejoignent la bataille.
 - **La tactique** se choisit avant (T), comme les plans de bataille d'Endless Space 2 : Équilibre, Assaut (charge, pour les corvettes), Tir à distance (pour les missiles), Rempart (-20 % de dégâts reçus). On ne contrôle rien pendant la bataille, mais on peut **sonner la retraite** : l'ordre de déplacement s'applique avant la reprise du lendemain.
 - **Le blocus.** Une flotte armée ennemie arrête toute flotte qui traverse son système.
@@ -221,6 +221,46 @@ Sur 3 galaxies et 8 ans entre IA Normales (`tools/war_bench.gd`), il y a une cen
 - Endless Space (le premier) : [guide Gamepressure du combat](https://www.gamepressure.com/endless-space/battle/z33e65) (efficacité des armes par phase : missiles 90/70/40 %, rayons 50/90/70 %, cinétiques 20/40/90 %, reprise telle quelle).
 - Stellaris : [journal de développement 99 sur les armées](https://admin-forum.paradoxplaza.com/forum/developer-diary/dev-diary-99-ground-combat-army-rework.1061707/page-17) et [guide de la conquête](https://gamerempire.net/stellaris-how-to-conquer-a-planet/) (bombardement qui use les défenses, forteresses) : pour le bastion qui tient tant que la garnison tient.
 - De mémoire (non vérifié) : la durée de six jours, les chiffres des vaisseaux et des garnisons, les traits de combat des peuples et le comportement de l'IA sont des choix maison.
+
+## Catalogue de vaisseaux
+
+Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichit pour que chaque classe ait un usage et un contre. Tout est dans `data/ships.json` et `data/combat.json`. L'étude qui a mené à ces choix (dix jeux comparés, sources, décisions) : [Étude : systèmes de combat et types de vaisseaux](https://claude.ai/artifact/497ptZZyfqQfhcSajXLkTh).
+
+![Bataille entre flottes mixtes et son rapport](docs/apercu-catalogue.png)
+
+**Nouvelles règles de bataille**
+
+- **Écran, ligne, arrière.** Chaque classe a un rang. Les tirs visent surtout l'écran (poids 3), puis la ligne (poids 2) ; l'arrière n'est visé que quand il ne reste plus ni écran ni ligne. Les chasseurs, eux, frappent partout. Inspiré des rôles et positions de départ de [Galactic Civilizations IV](https://wiki.galciv.com/index.php/GalCiv4:Spaceship_Battles) et des rôles d'[Endless Space 2](https://www.gamepressure.com/endless-space-2/roles-and-types-of-ships/z29cd2).
+- **Défense ponctuelle.** Missiles, torpilles et chasseurs sont en partie abattus par la défense ponctuelle de la cible et par celle que les escorteurs prêtent à toute leur flotte (plafond 60 %). Inspiré de la flak et de la défense ponctuelle de Stellaris ([journal de développement 271](https://devtrackers.gg/stellaris/p/d228cc12-stellaris-dev-diary-271-ready-fight)).
+- **Taille des coques.** Les torpilles frappent plus fort les grosses coques (40 % contre une petite, 250 % contre un titan) ; l'artillerie lourde écrase de loin mais ne tire plus à courte portée. Même source : bonus de taille des torpilles et portée minimale des grosses armes dans Stellaris.
+
+**Les classes communes**
+
+| Classe | Rang | Rôle | Particularité |
+| --- | --- | --- | --- |
+| Corvette | Écran | Chasse | Canons cinétiques, mortelle au contact |
+| Escorteur | Écran | Antimissile | Défense ponctuelle 30 %, +15 % à toute sa flotte |
+| Frégate | Ligne | Ligne | Rayons à moyenne portée, boucliers |
+| Torpilleur | Ligne | Anti-gros | Torpilles, bonus contre les grandes coques et le titan |
+| Croiseur | Ligne | Siège | Missiles, blindage, 12 troupes |
+| Transport de troupes | Arrière | Invasion | 30 troupes, aucune arme |
+| Bombarde | Arrière | Siège | Siège 8 : use la garnison bien plus vite |
+| Cuirassé | Arrière | Artillerie | Artillerie lourde, rien à courte portée ; demande un **arsenal orbital** |
+| Porte-vaisseaux | Arrière | Chasseurs | Chasseurs qui ignorent les rangs ; demande un arsenal orbital |
+| Titan | Ligne | Méga-vaisseau | Premier échelon des méga-vaisseaux : un seul par empire, demande un **chantier titanesque** (qui demande un arsenal), annoncé à toute la galaxie |
+
+**Les classes de peuple.** Une classe de peuple existe quand elle a du sens pour lui. Elle ne dépend pas de l'identifiant de la faction mais des **couches d'espèce** du GDD (registre, archétype, gouvernement, credo, traits ; bloc `"species"` de `data/factions.json`) : une espèce créée plus tard dans l'éditeur qui partage la combinaison y aura droit aussi. L'idée vient des armes du Colosse de Stellaris, qui dépendent des éthiques de l'empire ([guide](https://gamerempire.net/?p=55930)).
+
+| Classe | Condition d'espèce | Peuple V1 | Effet |
+| --- | --- | --- | --- |
+| Coursier de saut | trait « navigateurs » | Ossarane | Remplace la corvette ; une flotte de coursiers traverse les blocus |
+| Martyr | credo « foi » | Chœur Éternel | S'ajoute ; payé en population, il se sacrifie à courte portée (gros dégâts, +5 ferveur) |
+| Frégate des Quarante | trait « pluriel » | Vael | Remplace la frégate ; ouvre la tactique **Adaptative** à sa flotte |
+| Ruche-mère | archétype « ruche » | Kh'thari | Remplace le porte-vaisseaux ; payée en nourriture et en population plutôt qu'en métal |
+
+**L'IA et le catalogue.** La Recrue pioche au hasard dans ce qu'elle peut construire. Le Normal ajoute un escorteur de temps en temps et des transports quand les troupes manquent. Le Vétéran et au-dessus gardent un tiers d'écran, prennent des escorteurs contre les missiles et chasseurs ennemis, des torpilleurs contre les grosses coques, des cuirassés ou porte-vaisseaux une fois l'arsenal bâti, une bombarde pour les sièges, et lancent leur titan dès que possible. Toutes utilisent la classe de leur peuple à la place du modèle commun, et la tactique Adaptative quand elles l'ont.
+
+À venir, selon l'étude : les familles d'armes, modules et doctrines viendront avec la couche de technologies ; les échelons de méga-vaisseaux au-dessus du titan, plus tard (jeu de base ou extension, à décider par échelon).
 
 ## Organisation du code
 
@@ -328,7 +368,7 @@ Principes :
 
 ## Tests
 
-Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), le noyau de simulation (`tests/sim_tests.gd` : déterminisme sur 1000 ticks, ordres valides et refusés, ordres en pause, rediffusion, sauvegarde/chargement à l'identique, reprise après chargement identique à une partie jamais interrompue, fichiers abîmés refusés, performance), l'économie (`tests/economy_tests.gd` : données, planètes déterministes, départ des 4 empires, bilan mensuel exact, traits de faction, colonisation et chacun de ses refus, avant-poste transformé en colonie, chantiers et emplacements, croissance plafonnée, famine, pénurie d'énergie, déterminisme, rediffusion et sauvegarde avec colonies, 10 ans sans stock négatif), les empires IA (`tests/ai_tests.gd` : niveaux ordonnés, rivaux et spectateur, expansion en 2 ans sans famine, déterminisme et rediffusion, tour par tour identique au temps réel, aucune triche (brouillard, stocks), Recrue < Vétéran < Légende, talents de chaque peuple selon le niveau, tempérament (décalage du peuple, sauvegarde, belliqueux plus collé à ses rivaux que pacifique), sauvegarde, performance), les flottes (`tests/fleet_tests.gd` : flottes et vision de départ, chemins le long des routes, arrivée au jour annoncé, refus, demi-tour et arrêt en route, chantier spatial, colonisation par vaisseau colon, rassembler et détacher, entretien, premier contact, sauvegarde en plein trajet, rediffusion, expéditions d'exploration), le combat (`tests/combat_tests.gd` : règles de dégâts, déclaration de guerre, bataille et rapport, rapports de force, tactiques, déterminisme et sauvegarde en pleine bataille, blocus, retraite, siège et invasion, disparition d'un empire, traits de combat des 4 peuples, fusion et réparations, IA qui arme, déclare et se bat selon son tempérament et son niveau), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, ouverture et fermeture de la vue système, bascule vers la vue de gestion, construction et colonisation depuis la fiche de la planète, renommage, F5/F9, Échap, brouillard, sélection de flotte, clic droit pour l'envoyer, fiche de flotte, F, chantier spatial), les bilans d'empire, l'interface (thème, barre d'empire, écrans Économie, Colonies, Recherche et Diplomatie (filtres, colonie choisie, anneau), pause automatique, Tab, H, flèches, fiche de sélection, lentille économique, cadran du temps, menu pause, menu principal et nouvelle partie avec faction et graine choisies) ainsi que la géométrie de la vue système (planètes dans la scène et cliquables) :
+Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), le noyau de simulation (`tests/sim_tests.gd` : déterminisme sur 1000 ticks, ordres valides et refusés, ordres en pause, rediffusion, sauvegarde/chargement à l'identique, reprise après chargement identique à une partie jamais interrompue, fichiers abîmés refusés, performance), l'économie (`tests/economy_tests.gd` : données, planètes déterministes, départ des 4 empires, bilan mensuel exact, traits de faction, colonisation et chacun de ses refus, avant-poste transformé en colonie, chantiers et emplacements, croissance plafonnée, famine, pénurie d'énergie, déterminisme, rediffusion et sauvegarde avec colonies, 10 ans sans stock négatif), les empires IA (`tests/ai_tests.gd` : niveaux ordonnés, rivaux et spectateur, expansion en 2 ans sans famine, déterminisme et rediffusion, tour par tour identique au temps réel, aucune triche (brouillard, stocks), Recrue < Vétéran < Légende, talents de chaque peuple selon le niveau, tempérament (décalage du peuple, sauvegarde, belliqueux plus collé à ses rivaux que pacifique), sauvegarde, performance), les flottes (`tests/fleet_tests.gd` : flottes et vision de départ, chemins le long des routes, arrivée au jour annoncé, refus, demi-tour et arrêt en route, chantier spatial, colonisation par vaisseau colon, rassembler et détacher, entretien, premier contact, sauvegarde en plein trajet, rediffusion, expéditions d'exploration), le combat (`tests/combat_tests.gd` : règles de dégâts, déclaration de guerre, bataille et rapport, rapports de force, tactiques, déterminisme et sauvegarde en pleine bataille, blocus, retraite, siège et invasion, disparition d'un empire, traits de combat des 4 peuples, fusion et réparations, IA qui arme, déclare et se bat selon son tempérament et son niveau), le catalogue (`tests/catalogue_tests.gd` : classes de chaque peuple, conditions d'espèce d'une espèce personnalisée, arsenal et titan unique, torpilles, artillerie et défense ponctuelle, écran qui protège l'arrière, chasseurs qui le touchent, Martyr, tactique Adaptative, Coursier qui force le blocus, lancement du titan, IA qui se sert du catalogue), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, ouverture et fermeture de la vue système, bascule vers la vue de gestion, construction et colonisation depuis la fiche de la planète, renommage, F5/F9, Échap, brouillard, sélection de flotte, clic droit pour l'envoyer, fiche de flotte, F, chantier spatial), les bilans d'empire, l'interface (thème, barre d'empire, écrans Économie, Colonies, Recherche et Diplomatie (filtres, colonie choisie, anneau), pause automatique, Tab, H, flèches, fiche de sélection, lentille économique, cadran du temps, menu pause, menu principal et nouvelle partie avec faction et graine choisies) ainsi que la géométrie de la vue système (planètes dans la scène et cliquables) :
 
 ```
 godot --headless --path . -s res://tests/smoke_test.gd
@@ -339,7 +379,7 @@ Il affiche `OK : N vérifications passées.` et renvoie le code 0 si tout passe,
 ## Limites connues
 
 - L'IA ne négocie pas encore : pas de paix possible tant que la diplomatie n'existe pas (une guerre déclarée dure jusqu'à la disparition d'un des deux empires).
-- Pas de conception modulaire des vaisseaux ni de vue tactique de bataille (prévues après la V1 dans le GDD), pas d'amiraux ni de héros.
+- Pas de conception modulaire des vaisseaux ni de vue tactique de bataille (prévues après la V1 dans le GDD), pas d'amiraux ni de héros. Les classes du catalogue se débloquent par des bâtiments en attendant l'arbre de recherche.
 - Les vaisseaux colons de l'IA ne tiennent pas encore compte des zones de guerre.
 - Faute d'autre usage, les matériaux s'entassent chez les IA en milieu de partie ; l'Essaim Kh'thari, qui ne paie jamais d'influence, s'étend plus vite que les autres (équilibrage des peuples à revoir).
 - Hors de vue, les systèmes explorés montrent leur propriétaire actuel, pas la dernière information connue.

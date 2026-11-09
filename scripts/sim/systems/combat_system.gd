@@ -128,22 +128,28 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 			added.append(state.add_chronicle("Bataille à %s : %s ouvrent le feu. Les chroniqueurs taillent leurs crayons." % [
 					state.galaxy.systems[sid].system_name, " et ".join(names)]))
 		events.append({"type": "battle_started", "system": sid, "empires": ids, "renewed": renewed})
-	# Cibles possibles de chaque empire : tous les vaisseaux ennemis présents, dans l'ordre.
+	# Cibles possibles de chaque empire : les vaisseaux ennemis présents, chacun avec un poids selon
+	# son rang (écran 3, ligne 2, arrière 0 : l'arrière n'est visé que quand le front est tombé).
+	# Les chasseurs ignorent les rangs (poids 1 partout). Deux listes cumulées par empire.
 	var targets := {}
 	for f in fighters:
 		if targets.has(f.owner):
 			continue
 		var list: Array = []
+		var front := 0
 		for g in fighters:
 			if Combat.at_war(state, f.owner, g.owner):
 				for i in g.ships.size():
-					list.append([g, i])
-		targets[f.owner] = list
+					var wgt := Combat.line_weight(Combat.ship_line(g.ships[i]))
+					list.append([g, i, wgt])
+					front += wgt
+		targets[f.owner] = {"lined": _cumulate(list, front == 0), "any": _cumulate(list, true)}
 	# Tirs simultanés : on cumule, puis on applique.
 	var pending := {}
+	var martyrs: Array = []
 	for f in fighters:
-		var list: Array = targets[f.owner]
-		if list.is_empty():
+		var lists: Dictionary = targets[f.owner]
+		if lists["any"][1] <= 0:
 			continue
 		var tac := Combat.fleet_tactic(f)
 		var bonus := _damage_bonus(state, b, f, sid)
@@ -153,16 +159,60 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 			var keys := w.keys()
 			keys.sort()
 			for k in keys:
-				var pick: Array = list[state.rng.randi_range(0, list.size() - 1)]
+				var wd: Dictionary = Combat.data()["weapons"].get(k, {})
+				if Combat.weapon_eff(String(k), phase) <= 0:
+					continue
+				var cum: Array = lists["any"] if wd.get("ignores_lines", false) else lists["lined"]
+				var pick: Array = _pick(cum, state.rng.randi_range(0, int(cum[1]) - 1))
 				var tg: Fleet = pick[0]
 				var ti: int = pick[1]
-				var dmg := Combat.shot_damage(String(k), int(w[k]), phase, tac, bonus, tg.ships[ti], Combat.fleet_tactic(tg))
+				var dmg := Combat.shot_damage(String(k), int(w[k]), phase, tac, bonus, tg.ships[ti], Combat.fleet_tactic(tg),
+						Combat.fleet_pd(tg))
 				var key := Vector2i(tg.id, ti)
 				pending[key] = int(pending.get(key, 0)) + dmg
 				side["dealt"] = int(side["dealt"]) + dmg
+				if wd.get("self_destruct", false):
+					martyrs.append([f, i, int(wd.get("fervor", 0))])
+	# Les martyrs disparaissent dans leur charge (après les tirs du jour, qui sont simultanés).
+	for m in martyrs:
+		var mf: Fleet = m[0]
+		var key := Vector2i(mf.id, int(m[1]))
+		pending[key] = int(pending.get(key, 0)) + Fleet.max_hp_of(mf.ships[int(m[1])]) * 10
+		var e := state.get_empire(mf.owner)
+		if int(m[2]) > 0 and e.faction().has("fervor"):
+			e.fervor = mini(int(e.faction()["fervor"]["max"]), e.fervor + int(m[2]))
 	_apply_damage(state, b, fighters, pending)
 	if day >= Combat.battle_days():
 		_end_battle(state, sid, added, events)
+
+
+## Liste de cibles [[flotte, indice, poids]...] en tableau cumulé [entrées, total] : `flat` donne le
+## même poids (1) à toutes, sinon chaque cible garde le poids de son rang.
+static func _cumulate(list: Array, flat: bool) -> Array:
+	var out: Array = []
+	var total := 0
+	for t in list:
+		var wgt := 1 if flat else int(t[2])
+		if wgt <= 0:
+			continue
+		total += wgt
+		out.append([t[0], t[1], total])
+	return [out, total]
+
+
+## Cible tirée : la première entrée dont le cumul dépasse `roll` (0 ≤ roll < total).
+static func _pick(cum: Array, roll: int) -> Array:
+	var entries: Array = cum[0]
+	var lo := 0
+	var hi := entries.size() - 1
+	while lo < hi:
+		@warning_ignore("integer_division")
+		var mid := (lo + hi) / 2
+		if int(entries[mid][2]) > roll:
+			hi = mid
+		else:
+			lo = mid + 1
+	return entries[lo]
 
 
 ## Bonus de dégâts des traits de peuple (en %) : Ossarane chez elle, Vael arrivée en renfort.

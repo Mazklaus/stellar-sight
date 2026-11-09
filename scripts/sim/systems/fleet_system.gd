@@ -60,8 +60,12 @@ static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictiona
 	var f := state.spawn_ship(c.owner, c.ship_build, p.system_id)
 	c.ship_build = ""
 	c.ship_days = 0
-	added.append(state.add_chronicle("%s : le %s sort des chantiers de %s. On a cassé une bouteille sur la coque, et un peu la coque." % [
-			e.short_name(), f.fleet_name, p.display_name(state.galaxy)]))
+	var launch := String(GameData.ship(f.ships[0]).get("launch", ""))
+	if launch != "":
+		added.append(state.add_chronicle(launch % [e.display_name(), p.display_name(state.galaxy)]))
+	else:
+		added.append(state.add_chronicle("%s : le %s sort des chantiers de %s. On a cassé une bouteille sur la coque, et un peu la coque." % [
+				e.short_name(), f.fleet_name, p.display_name(state.galaxy)]))
 
 
 static func _move(state: GameState, f: Fleet) -> void:
@@ -74,7 +78,7 @@ static func _move(state: GameState, f: Fleet) -> void:
 			return
 		f.progress -= lane
 		f.system_id = f.path.pop_front()
-		if f.is_moving() and Combat.blocks(state, f.owner, f.system_id):
+		if f.is_moving() and Combat.blocks(state, f.owner, f.system_id, f):
 			f.path.clear()  # blocus : impossible de passer sans livrer bataille
 	f.progress = 0  # arrivée : le reste du trajet du jour est perdu
 

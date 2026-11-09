@@ -515,7 +515,7 @@ func _ship_action(p: Planet, ship_id: String) -> Dictionary:
 		"text": "Chantier spatial : %s" % sd["label"],
 		"detail": detail,
 		"reason": reason,
-		"tooltip": reason if reason != "" else tip,
+		"tooltip": ("%s\n\n%s" % [reason, tip]) if reason != "" else tip,
 		"action": func() -> void: build_ship_requested.emit(pid, ship_id),
 	}
 
