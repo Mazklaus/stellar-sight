@@ -12,7 +12,7 @@ const SPEED_NAMES := ["1", "2", "3", "4", "5"]
 const NOTIFY_SECONDS := 3.0
 const PANEL_WIDTH := 430.0
 const HELP_GALAXY := "Espace : pause   1 à 5 : vitesse   Clic : sélectionner   Double-clic ou Entrée : vue système   Clic droit glissé ou ZQSD : se déplacer   Molette : zoom   F5 / F9 : sauver / charger   R : nouvelle galaxie"
-const HELP_SYSTEM := "Espace : pause   1 à 5 : vitesse   Clic sur une planète : la choisir   Échap : retour à la galaxie   F5 / F9 : sauvegarder / charger"
+const HELP_SYSTEM := "Espace : pause   1 à 5 : vitesse   Clic sur une planète : la choisir   Tab : vue orbitale / gestion   Échap : retour à la galaxie   F5 / F9 : sauvegarder / charger"
 
 var _top_label: Label
 var _res_label: Label

@@ -1,8 +1,10 @@
 class_name SystemScreen
 extends CanvasLayer
-## Écran dédié à un système : la scène (SystemView) avec l'étoile et ses planètes en orbite,
-## un en-tête (nom, étoile, propriétaire, renommage), un bandeau de planètes en bas
-## et, à droite, la fiche de la planète choisie avec ses actions.
+## Écran dédié à un système, avec deux vues que l'on bascule par les onglets du haut (ou Tab) :
+## - la vue orbitale (SystemView) : l'étoile, les planètes en orbite et leurs fiches accrochées ;
+## - la vue de gestion (SystemManagePanel) : les planètes alignées en grand pour les comparer.
+## Autour : un en-tête (nom, étoile, propriétaire, renommage), un bandeau de planètes en bas
+## (vue orbitale) et, à droite, la fiche de la planète choisie avec ses ordres.
 ## Comme le reste de l'interface, il ne modifie jamais la partie : il émet des demandes
 ## que main.gd transforme en ordres (SimCommands). Les boutons grisés posent la même question
 ## que la simulation (SimCommands.validate) et affichent sa réponse en infobulle.
@@ -26,6 +28,9 @@ const TYPE_DOT_COLORS := {
 }
 
 var view: SystemView
+var manage: SystemManagePanel
+## Vue de gestion affichée (true) ou vue orbitale (false). Gardé d'un système à l'autre.
+var manage_mode := false
 var system_id := -1
 var planet_id := -1
 
@@ -50,6 +55,10 @@ var _status_label: Label
 var _actions_title: Label
 var _actions: VBoxContainer
 var _actions_sig := ""
+var _tab_orbit: Button
+var _tab_manage: Button
+var _pot_title: Label
+var _pot_view: Control
 var _icons := {}
 
 
@@ -60,7 +69,19 @@ func _ready() -> void:
 	view.margins = Vector4(0, TOP + 70.0, PANEL_WIDTH + 24.0, BOTTOM + CARD_SIZE.y + 24.0)
 	view.planet_clicked.connect(select_planet)
 	add_child(view)
+	manage = SystemManagePanel.new()
+	manage.anchor_right = 1.0
+	manage.anchor_bottom = 1.0
+	manage.offset_left = 16.0
+	manage.offset_top = TOP + 112.0
+	manage.offset_right = -PANEL_WIDTH - 40.0
+	manage.offset_bottom = -BOTTOM - 12.0
+	manage.visible = false
+	manage.actions_for = planet_actions
+	manage.planet_clicked.connect(select_planet)
+	add_child(manage)
 	_build_header()
+	_build_tabs()
 	_build_cards()
 	_build_panel()
 
@@ -76,7 +97,8 @@ func open(state: GameState, s: StarSystem, player: int) -> void:
 	view.set_system(state, s, player)
 	_rebuild_cards()
 	visible = true
-	refresh()
+	manage.set_system(state, s, player)
+	set_manage_mode(manage_mode)
 
 
 func close() -> void:
@@ -85,6 +107,7 @@ func close() -> void:
 	planet_id = -1
 	_rename_edit.release_focus()
 	view.set_system(null, null, _player)
+	manage.set_system(null, null, _player)
 
 
 func is_open() -> bool:
@@ -103,9 +126,55 @@ func refresh() -> void:
 		return
 	var s := _state.galaxy.get_system(system_id)
 	view.selected_planet = planet_id
+	manage.selected_planet = planet_id
 	_refresh_header(s)
 	_refresh_cards()
 	_refresh_panel(s)
+	if manage_mode:
+		manage.refresh()
+
+
+## Bascule entre la vue orbitale et la vue de gestion.
+func set_manage_mode(on: bool) -> void:
+	manage_mode = on
+	manage.visible = on
+	view.show_scene = not on
+	_cards.visible = not on
+	_tab_orbit.set_pressed_no_signal(not on)
+	_tab_manage.set_pressed_no_signal(on)
+	refresh()
+
+
+func toggle_mode() -> void:
+	set_manage_mode(not manage_mode)
+
+
+func _build_tabs() -> void:
+	var tabs := HBoxContainer.new()
+	tabs.anchor_left = 0.5
+	tabs.anchor_right = 0.5
+	tabs.offset_top = TOP
+	tabs.offset_left = -PANEL_WIDTH * 0.5 - 150.0
+	tabs.offset_right = -PANEL_WIDTH * 0.5 + 150.0
+	tabs.alignment = BoxContainer.ALIGNMENT_CENTER
+	tabs.add_theme_constant_override("separation", 2)
+	add_child(tabs)
+	_tab_orbit = _tab(tabs, "Vue orbitale", false)
+	_tab_manage = _tab(tabs, "Gestion  (Tab)", true)
+
+
+func _tab(parent: Control, text: String, manage_tab: bool) -> Button:
+	var b := Button.new()
+	b.text = "  %s  " % text
+	b.toggle_mode = true
+	b.focus_mode = Control.FOCUS_NONE
+	b.add_theme_stylebox_override("normal", _box(Color(0.04, 0.05, 0.1, 0.75), Color(ACCENT, 0.2)))
+	b.add_theme_stylebox_override("hover", _box(Color(0.08, 0.11, 0.2, 0.9), Color(ACCENT, 0.6)))
+	b.add_theme_stylebox_override("pressed", _box(Color(0.1, 0.14, 0.26, 0.95), Color(ACCENT, 0.9)))
+	b.add_theme_stylebox_override("hover_pressed", _box(Color(0.12, 0.17, 0.3, 0.95), Color(ACCENT, 1.0)))
+	b.pressed.connect(func() -> void: set_manage_mode(manage_tab))
+	parent.add_child(b)
+	return b
 
 
 # --- En-tête ---------------------------------------------------------------------------------
@@ -302,6 +371,11 @@ func _build_panel() -> void:
 	_hab_bar.add_theme_stylebox_override("background", bg)
 	box.add_child(_hab_bar)
 	_hab_label = _text_label(box)
+	_pot_title = _section(box, "Potentiel")
+	_pot_view = Control.new()
+	_pot_view.custom_minimum_size = Vector2(0, GameData.resource_ids().size() * 16.0)
+	_pot_view.draw.connect(_draw_potential)
+	box.add_child(_pot_view)
 	_dep_title = _section(box, "Gisements")
 	_dep_label = _text_label(box)
 	_status_title = _section(box, "Statut")
@@ -314,7 +388,7 @@ func _build_panel() -> void:
 
 func _refresh_panel(s: StarSystem) -> void:
 	var p := _state.galaxy.get_planet(planet_id) if planet_id >= 0 else null
-	for n: Control in [_hab_title, _hab_bar, _hab_label, _dep_title, _dep_label, _actions_title]:
+	for n: Control in [_hab_title, _hab_bar, _hab_label, _pot_title, _pot_view, _dep_title, _dep_label, _actions_title]:
 		n.visible = p != null
 	if p == null:
 		_p_title.text = GalaxyGenerator.star_label(s.star_type)
@@ -339,12 +413,23 @@ func _refresh_panel(s: StarSystem) -> void:
 	_hab_bar.add_theme_stylebox_override("fill", fill)
 	_hab_label.text = hab["text"]
 
+	_pot_view.set_meta("potential", PlanetInfo.potential(p))
+	_pot_view.queue_redraw()
+
 	var deps := PlanetInfo.deposit_labels(p)
 	_dep_label.text = ", ".join(deps) if not deps.is_empty() else "Aucun gisement notable"
 
 	_status_title.visible = true
 	_status_label.text = "\n".join(PlanetInfo.colony_lines(_state, p, c, _player)) if c else "Aucune revendication. Elle n'attend que vous (ou un voisin plus rapide)."
 
+	var actions := planet_actions(p)
+	_set_actions(actions)
+	_actions_title.visible = not actions.is_empty()
+
+
+## Ordres possibles sur une planète (colonisation, avant-poste, chantiers), avec leur raison de refus.
+func planet_actions(p: Planet) -> Array[Dictionary]:
+	var c: Colony = _state.colonies.get(p.id)
 	var actions: Array[Dictionary] = []
 	# Coloniser n'est proposé que là où l'espèce du joueur peut vivre.
 	var livable := Economy.max_pop(_state, p, _player) > 0
@@ -357,8 +442,23 @@ func _refresh_panel(s: StarSystem) -> void:
 			var b := GameData.building(bid)
 			if b.get("buildable", true):
 				actions.append(_build_action(p, bid, b))
-	_set_actions(actions)
-	_actions_title.visible = not actions.is_empty()
+	return actions
+
+
+## Barres de potentiel (0 à 5) par ressource, avec un mot pour les lire.
+func _draw_potential() -> void:
+	var pot: Dictionary = _pot_view.get_meta("potential", {})
+	var font := ThemeDB.fallback_font
+	var y := 0.0
+	for r in GameData.resource_ids():
+		var rc: Color = PlanetInfo.RESOURCE_COLORS.get(r, Color.WHITE)
+		var v := int(pot.get(r, 0))
+		_pot_view.draw_string(font, Vector2(0, y + 12), GameData.resource_label(r), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(rc, 0.95))
+		for i in 5:
+			_pot_view.draw_rect(Rect2(130.0 + i * 22.0, y + 4.0, 18.0, 7.0), rc if i < v else Color(rc, 0.12))
+		_pot_view.draw_string(font, Vector2(250, y + 12), PlanetInfo.potential_label(v), HORIZONTAL_ALIGNMENT_LEFT, -1, 12,
+				Color(1, 1, 1, 0.75 if v > 0 else 0.35))
+		y += 16.0
 
 
 func _claim_action(p: Planet, kind: String) -> Dictionary:

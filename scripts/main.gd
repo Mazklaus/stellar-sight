@@ -165,6 +165,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if key.keycode == KEY_ESCAPE and is_system_view_open():
 		close_system_view()
+	elif key.keycode == KEY_TAB and is_system_view_open():
+		_system_screen.toggle_mode()
 	elif (key.keycode == KEY_ENTER or key.keycode == KEY_KP_ENTER) and not is_system_view_open():
 		open_system_view(_view.selected_id)
 	elif key.keycode == KEY_SPACE:

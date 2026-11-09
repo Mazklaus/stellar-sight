@@ -228,6 +228,17 @@ func _test_colony_ui(main: Node) -> void:
 		var other: int = screen._card_ids[0] if screen._card_ids[0] != me.capital_planet else screen._card_ids[1]
 		(screen._cards.get_child(screen._card_ids.find(other)) as Button).pressed.emit()
 		_check(screen.planet_id == other and screen.view.selected_planet == other, "choisir une planète dans le bandeau")
+	# Tab bascule sur la vue de gestion (planètes alignées) et revient.
+	_press(KEY_TAB)
+	await process_frame
+	_check(screen.manage_mode and screen.manage.visible and not screen.view.show_scene, "Tab : vue de gestion")
+	_check(screen.manage._columns.size() == main.galaxy.systems[home_sys].planet_count, "une colonne par planète en gestion")
+	var home_col: Dictionary = screen.manage._columns[me.capital_planet]
+	_check((home_col["status"] as Label).text.begins_with("Colonisée"), "la capitale est « Colonisée » (obtenu %s)" % (home_col["status"] as Label).text)
+	_check((home_col["yields"]["food"]["value"] as Label).visible, "rendements réels affichés pour sa propre planète")
+	_press(KEY_TAB)
+	await process_frame
+	_check(not screen.manage_mode and screen.view.show_scene, "Tab : retour à la vue orbitale")
 	_press(KEY_ESCAPE)
 	await process_frame
 	_check(not main.is_system_view_open() and main._view.visible and main._view.selected_id == home_sys,

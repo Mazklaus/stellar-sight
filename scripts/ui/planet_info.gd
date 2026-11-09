@@ -3,6 +3,18 @@ extends RefCounted
 ## Textes d'interface sur une planète, partagés par la fiche de la galaxie et la vue système.
 ## Ne fait que lire l'état : les chiffres viennent des mêmes fonctions qu'utilise la simulation (Economy).
 
+## Couleur de chaque ressource dans l'interface.
+const RESOURCE_COLORS := {
+	"energy": Color(1.0, 0.84, 0.3), "materials": Color(0.95, 0.55, 0.3), "food": Color(0.5, 0.88, 0.4),
+	"influence": Color(0.75, 0.55, 1.0), "crystals": Color(0.4, 0.9, 1.0),
+}
+## Couleur de chaque disponibilité (voir availability()).
+const AVAILABILITY_COLORS := {
+	"owned": Color(1.0, 0.82, 0.3), "foreign": Color(1.0, 0.5, 0.45), "founding": Color(1.0, 0.82, 0.3, 0.8),
+	"colonizable": Color(0.45, 0.95, 0.55), "outpost": Color(0.6, 0.78, 1.0), "out_of_range": Color(0.6, 0.62, 0.7),
+	"claimed": Color(1.0, 0.5, 0.45),
+}
+
 
 ## "Colonie d'Ossarane (8 pop)", "Avant-poste de Vael en fondation", "Libre"…
 static func status_line(state: GameState, p: Planet) -> String:
@@ -74,3 +86,48 @@ static func net_yields(state: GameState, c: Colony) -> Dictionary:
 	for r in y["gross"]:
 		net[r] = int(y["gross"][r]) - int(y["upkeep"][r])
 	return net
+
+
+## Potentiel de la planète pour chaque ressource, de 0 à 5 (affiché en barres).
+## Indicatif : rendement par population, rendement d'avant-poste et gisements.
+static func potential(p: Planet) -> Dictionary:
+	var t := GameData.planet_type(p.type)
+	var pop: Dictionary = t.get("pop_yields", {})
+	var outpost: Dictionary = t.get("outpost_yields", {})
+	var out := {}
+	for r in GameData.resource_ids():
+		var v := int(pop.get(r, 0)) * 2 + int(outpost.get(r, 0))
+		for d in p.deposits:
+			v += int(GameData.deposit(d).get("yields", {}).get(r, 0)) * 2
+		out[r] = clampi(v, 0, 5)
+	return out
+
+
+static func potential_label(v: int) -> String:
+	if v <= 0:
+		return "nul"
+	if v <= 2:
+		return "faible"
+	if v <= 3:
+		return "bon"
+	return "excellent"
+
+
+## Ce que la planète représente pour le joueur, en un mot : {"text", "kind"}.
+## kind : "owned", "foreign", "founding", "colonizable", "outpost", "out_of_range", "claimed".
+static func availability(state: GameState, p: Planet, player: int) -> Dictionary:
+	var c: Colony = state.colonies.get(p.id)
+	if c:
+		var mine := c.owner == player
+		if not c.is_established():
+			return {"text": "En fondation (%d j)" % c.days_left, "kind": "founding"}
+		var what := "Colonisée" if c.is_colony() else "Avant-poste"
+		return {"text": what if mine else "%s (%s)" % [what, state.get_empire(c.owner).short_name()], "kind": "owned" if mine else "foreign"}
+	var owner := state.system_owner(p.system_id)
+	if owner != -1 and owner != player:
+		return {"text": "Revendiquée", "kind": "claimed"}
+	if not Economy.in_range(state, player, p.system_id):
+		return {"text": "Hors de portée", "kind": "out_of_range"}
+	if Economy.max_pop(state, p, player) > 0:
+		return {"text": "Colonisable", "kind": "colonizable"}
+	return {"text": "Avant-poste possible", "kind": "outpost"}
