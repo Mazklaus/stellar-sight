@@ -17,15 +17,24 @@ Premier prototype du 4X spatial Stellar Sigth, pour **Godot 4.7**. Il couvre l'�
 | Pause / reprise | Espace |
 | Vitesse 1 à 5 | Touches 1 à 5 (rangée du haut ou pavé numérique) |
 | Sélectionner un système | Clic gauche |
+| Ouvrir la vue système | Double-clic sur le système, Entrée, ou bouton « Entrer dans le système » |
+| Choisir une planète (vue système) | Clic sur la planète ou sur sa carte en bas |
+| Revenir à la galaxie | Échap ou bouton « Galaxie » |
 | Désélectionner | Échap |
 | Se déplacer | Clic droit glissé, molette enfoncée, ZQSD ou flèches |
 | Zoomer | Molette (vers le curseur) |
-| Coloniser, poser un avant-poste | Boutons sous chaque planète, dans la fiche du système |
-| Construire un bâtiment | Menu « Construire… » sous une de ses planètes |
-| Renommer le système sélectionné | Champ « Nouveau nom du système » de la fiche, puis Entrée |
+| Coloniser, poser un avant-poste | Section « Ordres » de la fiche de la planète, dans la vue système |
+| Construire un bâtiment | Boutons « Construire : … » de la fiche d'une de ses planètes |
+| Renommer un système | Bouton « Renommer » à côté de son nom, dans la vue système, puis Entrée |
 | Sauvegarde rapide | F5 |
 | Chargement rapide | F9 |
 | Nouvelle galaxie | R |
+
+## Vue système
+
+![Vue système](docs/apercu-vue-systeme.png)
+
+Chaque système a son écran : l'étoile au centre (avec sa couronne, les faisceaux d'une étoile à neutrons ou le disque d'un trou noir), les planètes qui tournent sur leurs orbites vues en légère plongée, éclairées du côté de l'étoile, et les ceintures d'astéroïdes. Les anneaux de couleur montrent qui possède quoi (en pointillé pendant une fondation), le losange marque une capitale. À droite, la fiche de la planète choisie : habitabilité pour votre espèce, gisements, colonie, bâtiments, production et ordres possibles. Le mouvement des orbites est décoratif et n'influence pas la partie.
 
 Le jeu démarre en pause, le 01/01/2400, centré sur le système d'origine du joueur (les Lignées d'Ossarane par défaut). Les noms des systèmes apparaissent quand on zoome. Un bouton grisé explique pourquoi en survol (ressources, portée…).
 
@@ -56,8 +65,14 @@ scripts/
   view/                   Affichage 2D (sera remplacé par la 2,5D)
     galaxy_view.gd        Dessin des étoiles, routes, sélection, noms
     galaxy_camera.gd      Zoom et déplacement
+    system_view.gd        Vue système : étoile, orbites, planètes animées, annotations, clic sur une planète
   ui/
-    hud.gd                Barre du haut, fiche du système, aide
+    hud.gd                Barre du haut, fiche résumée du système sélectionné, aide
+    system_screen.gd      Écran de la vue système : en-tête, bandeau des planètes, fiche et ordres
+    planet_info.gd        Textes sur une planète partagés par les deux écrans
+shaders/                  Rendu de la vue système (planète éclairée, étoile, fond étoilé)
+tools/
+  capture_system_view.gd  Captures d'écran de la vue système (rendu réel, voir l'en-tête du fichier)
   main.gd                 Assemble le tout et gère les entrées
 data/                     Données de jeu en JSON : tout l'équilibrage se règle ici
   rules.json              Ressources, coûts de colonisation, croissance, gisements, monde d'origine
@@ -99,7 +114,7 @@ Principes :
 
 ## Tests
 
-Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), le noyau de simulation (`tests/sim_tests.gd` : déterminisme sur 1000 ticks, ordres valides et refusés, ordres en pause, rediffusion, sauvegarde/chargement à l'identique, reprise après chargement identique à une partie jamais interrompue, fichiers abîmés refusés, performance), l'économie (`tests/economy_tests.gd` : données, planètes déterministes, départ des 4 empires, bilan mensuel exact, traits de faction, colonisation et chacun de ses refus, avant-poste transformé en colonie, chantiers et emplacements, croissance plafonnée, famine, pénurie d'énergie, déterminisme, rediffusion et sauvegarde avec colonies, 10 ans sans stock négatif), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, construction et colonisation depuis la fiche, renommage, F5/F9, Échap, R) :
+Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), le noyau de simulation (`tests/sim_tests.gd` : déterminisme sur 1000 ticks, ordres valides et refusés, ordres en pause, rediffusion, sauvegarde/chargement à l'identique, reprise après chargement identique à une partie jamais interrompue, fichiers abîmés refusés, performance), l'économie (`tests/economy_tests.gd` : données, planètes déterministes, départ des 4 empires, bilan mensuel exact, traits de faction, colonisation et chacun de ses refus, avant-poste transformé en colonie, chantiers et emplacements, croissance plafonnée, famine, pénurie d'énergie, déterminisme, rediffusion et sauvegarde avec colonies, 10 ans sans stock négatif), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, ouverture et fermeture de la vue système, construction et colonisation depuis la fiche de la planète, renommage, F5/F9, Échap, R) ainsi que la géométrie de la vue système (planètes dans la scène et cliquables) :
 
 ```
 godot --headless --path . -s res://tests/smoke_test.gd

@@ -150,15 +150,17 @@ func _test_main_scene() -> void:
 	_press(KEY_ESCAPE)
 	_check(main._view.selected_id == -1, "Échap désélectionne")
 
-	# Renommage par l'interface : passe par un ordre de simulation.
-	main._view.selected_id = 5
-	main._hud.show_system(main.galaxy.get_system(5), main.simulation.state)
-	main._hud._name_edit.text = "Port-Libre"
-	main._hud._submit_rename()
+	# Renommage depuis la vue système : passe par un ordre de simulation.
+	main.open_system_view(5)
+	main._system_screen._toggle_rename()
+	main._system_screen._rename_edit.text = "Port-Libre"
+	main._system_screen.submit_rename()
 	await process_frame
 	await process_frame
-	_check(main.galaxy.systems[5].system_name == "Port-Libre", "renommer depuis la fiche (obtenu %s)" % main.galaxy.systems[5].system_name)
+	_check(main.galaxy.systems[5].system_name == "Port-Libre", "renommer depuis la vue système (obtenu %s)" % main.galaxy.systems[5].system_name)
 	_check(main.simulation.command_log.back()["type"] == "rename_system", "le renommage est un ordre journalisé")
+	_check(main._system_screen._title.text == "Port-Libre", "l'en-tête de la vue système suit le nouveau nom")
+	main.close_system_view()
 
 	# F5 sauvegarde, F9 recharge exactement la même partie.
 	_press(KEY_F5)
@@ -187,33 +189,51 @@ func _test_main_scene() -> void:
 	await process_frame
 
 
-## Au lancement : caméra et fiche sur le système d'origine ; coloniser et construire depuis la fiche.
+## Au lancement : caméra et fiche sur le système d'origine ; vue système, colonisation et construction.
 func _test_colony_ui(main: Node) -> void:
 	var st: GameState = main.simulation.state
 	var me: Empire = st.get_empire(main.LOCAL_PLAYER)
+	var screen: SystemScreen = main._system_screen
 	_check(me.faction_id == main.player_faction, "le joueur joue sa faction (%s)" % me.faction_id)
 	var home_sys: int = main.galaxy.get_planet(me.capital_planet).system_id
 	_check(main._view.selected_id == home_sys, "le système d'origine est sélectionné au lancement")
-	_check(main._hud._info_panel.visible and main._hud._planet_box.get_child_count() == main.galaxy.systems[home_sys].planet_count,
-			"la fiche liste les planètes du système d'origine")
+	_check(main._hud._info_panel.visible and main._hud._planet_label.text.get_slice_count("\n") == main.galaxy.systems[home_sys].planet_count,
+			"la fiche résume les planètes du système d'origine")
 	_check(main._hud._res_label.text.contains("Matériaux 200"), "les ressources du joueur s'affichent (%s)" % main._hud._res_label.text)
-	_check(main._hud._build_menus.size() >= 1, "un menu de construction sur le monde d'origine")
+	_check(not screen.visible, "la vue système est fermée au lancement")
 
-	# Construire depuis le menu de la fiche.
-	var menu: MenuButton = main._hud._build_menus[0]
-	var popup := menu.get_popup()
-	var farm_index := -1
-	for i in popup.item_count:
-		if popup.get_item_text(i).begins_with("Fermes hydroponiques"):
-			farm_index = i
-	_check(farm_index != -1 and not popup.is_item_disabled(farm_index), "la ferme est proposée et disponible")
-	popup.id_pressed.emit(popup.get_item_id(farm_index))
+	# Entrée ouvre la vue système du système sélectionné, sur la capitale.
+	_press(KEY_ENTER)
+	await process_frame
+	_check(main.is_system_view_open() and screen.system_id == home_sys, "Entrée ouvre la vue système")
+	_check(not main._hud._info_panel.visible and not main._view.visible, "la carte et sa fiche s'effacent")
+	_check(screen.planet_id == me.capital_planet, "la capitale est choisie d'office")
+	_check(screen._cards.get_child_count() == main.galaxy.systems[home_sys].planet_count, "une carte par planète dans le bandeau")
+	_check(screen.view._bodies.size() == main.galaxy.systems[home_sys].planet_count, "chaque planète est dessinée en orbite")
+
+	# Construire depuis la fiche de la planète.
+	var farm := screen.find_action("Construire : Fermes hydroponiques")
+	_check(farm != null and not farm.disabled, "la ferme est proposée et disponible")
+	if farm:
+		farm.pressed.emit()
 	for _i in 3:
 		await process_frame
 	var home: Colony = st.colonies[me.capital_planet]
-	_check(home.construction == "ferme_hydroponique", "construire depuis la fiche lance un chantier")
+	_check(home.construction == "ferme_hydroponique", "construire depuis la vue système lance un chantier")
+	farm = screen.find_action("Construire : Fermes hydroponiques")
+	_check(farm != null and farm.disabled and farm.tooltip_text.contains("chantier"), "un second chantier est refusé, avec la raison")
 
-	# Coloniser depuis la fiche d'un système voisin.
+	# Clic sur une autre planète du bandeau : la fiche change.
+	if main.galaxy.systems[home_sys].planet_count > 1:
+		var other: int = screen._card_ids[0] if screen._card_ids[0] != me.capital_planet else screen._card_ids[1]
+		(screen._cards.get_child(screen._card_ids.find(other)) as Button).pressed.emit()
+		_check(screen.planet_id == other and screen.view.selected_planet == other, "choisir une planète dans le bandeau")
+	_press(KEY_ESCAPE)
+	await process_frame
+	_check(not main.is_system_view_open() and main._view.visible and main._view.selected_id == home_sys,
+			"Échap revient à la galaxie, système toujours sélectionné")
+
+	# Coloniser depuis la vue d'un système voisin.
 	var target := -1
 	for n in main.galaxy.systems[home_sys].neighbors:
 		for pid in main.galaxy.systems[n].planet_ids:
@@ -225,24 +245,54 @@ func _test_colony_ui(main: Node) -> void:
 				target = pid
 	_check(target != -1, "une planète à revendiquer près du système d'origine")
 	if target != -1:
-		main._select(main.galaxy.get_planet(target).system_id)
-		var button := _find_button(main._hud._planet_box, "Avant-poste")
+		main.open_system_view(main.galaxy.get_planet(target).system_id)
+		screen.view.planet_clicked.emit(target)
+		var button := screen.find_action("Poser un avant-poste")
 		_check(button != null and not button.disabled, "bouton Avant-poste actif")
 		if button:
 			button.pressed.emit()
 		for _i in 3:
 			await process_frame
-		_check(st.colonies.has(target) and st.colonies[target].kind == Colony.KIND_OUTPOST, "avant-poste lancé depuis la fiche")
-		_check(_find_button(main._hud._planet_box, "Avant-poste") == null or st.galaxy.systems[main.galaxy.get_planet(target).system_id].planet_count > 1,
-				"la fiche se met à jour après l'ordre")
+		_check(st.colonies.has(target) and st.colonies[target].kind == Colony.KIND_OUTPOST, "avant-poste lancé depuis la vue système")
+		_check(screen.find_action("Poser un avant-poste") == null, "la fiche se met à jour après l'ordre")
+		main.close_system_view()
 	var far := -1
 	for p in st.galaxy.planets:
 		if far == -1 and st.system_owner(p.system_id) == -1 and not Economy.in_range(st, 0, p.system_id):
 			far = p.id
-	main._select(main.galaxy.get_planet(far).system_id)
-	var far_button := _find_button(main._hud._planet_box, "Avant-poste")
+	main.open_system_view(main.galaxy.get_planet(far).system_id)
+	screen.select_planet(far)
+	var far_button := screen.find_action("Poser un avant-poste")
 	_check(far_button != null and far_button.disabled and far_button.tooltip_text.contains("portée"), "hors de portée : bouton grisé avec la raison")
+	main.close_system_view()
 	main._select(-1)
+	_test_system_view_picking(st)
+
+
+## La vue système à taille réelle : chaque planète se trouve sous sa position affichée.
+func _test_system_view_picking(st: GameState) -> void:
+	var busiest: StarSystem = st.galaxy.systems[0]
+	for s in st.galaxy.systems:
+		if s.planet_count > busiest.planet_count:
+			busiest = s
+	var v := SystemView.new()
+	root.add_child(v)
+	v.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	v.size = Vector2(1600, 900)
+	v.margins = Vector4(0, 130, 420, 150)
+	v.set_system(st, busiest, 0)
+	var ok := true
+	for pid in busiest.planet_ids:
+		var pos := v.planet_position(pid)
+		if not v.scene_rect().grow(40).has_point(pos):
+			ok = false
+		# Une planète devant une autre peut la masquer : on vérifie seulement que le clic tombe sur une planète.
+		if v.planet_at(pos) == -1:
+			ok = false
+	_check(ok, "vue système : %d planètes dans la scène et cliquables" % busiest.planet_count)
+	var r_last := v.orbit_radius(busiest.planet_count - 1)
+	_check(v.orbit_radius(0) > v.star_radius() and r_last > v.orbit_radius(0), "orbites ordonnées, hors de l'étoile")
+	v.queue_free()
 
 
 func _find_button(node: Node, prefix: String) -> Button:
