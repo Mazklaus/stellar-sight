@@ -3,7 +3,7 @@ extends CanvasLayer
 ## Écrans d'empire, en plein écran comme dans les 4X « épurés » : la carte s'efface, le panneau
 ## d'empire et le cadran du temps restent en place, un onglet en haut au centre nomme l'écran (et le
 ## ferme), une colonne à gauche résume, et le contenu se range en blocs titrés.
-## Économie, Colonies, Recherche et Diplomatie (ces deux dernières en attente de leurs systèmes).
+## Économie, Colonies, Recherche (en attente de son système) et Diplomatie.
 ## Les chiffres viennent d'EmpireReport, qui applique les règles de la simulation sans rien modifier.
 ## Les emplacements d'illustration (Widgets.ArtSlot) prendront les images de assets/art/ quand elles existeront.
 
@@ -12,6 +12,8 @@ signal close_requested
 signal screen_changed(screen_id: String)
 ## Le joueur déclare la guerre à un empire (écran Diplomatie, après confirmation).
 signal war_requested(empire_id: int)
+## Un ordre de l'écran Diplomatie (proposer, répondre, rompre, soudoyer, banquet, arbitrer).
+signal command_requested(cmd: Dictionary)
 
 const MARGIN := 10.0
 const SIDE_WIDTH := EmpireBar.WIDTH
@@ -65,6 +67,13 @@ var _pick_open: Widgets.RoundButton
 var _diplo_sig := ""
 ## Boutons « Déclarer la guerre » par empire (pour les tests).
 var war_buttons := {}
+## Empire choisi dans l'écran Diplomatie, et les boutons de sa relation (pour les tests).
+var diplo_selected := -1
+var diplo_table: DiplomacyTable
+var treaty_buttons := {}
+var cancel_buttons := {}
+var proposal_buttons := {}
+var ability_buttons := {}
 
 
 func _ready() -> void:
@@ -825,84 +834,328 @@ func _build_research() -> void:
 
 func _build_diplomacy() -> void:
 	_side_header("screen_diplomacy", "Diplomatie", Color(0.8, 0.6, 1.0), "faction")
-	_side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("diplomacy").get("why", "")), SIDE_WIDTH - 24.0, 14))
 	_diplo_sig = _diplomacy_sig()
 	war_buttons.clear()
+	treaty_buttons.clear()
+	cancel_buttons.clear()
+	proposal_buttons.clear()
+	ability_buttons.clear()
+	var me := _state.get_empire(_player)
+	if diplo_selected < 0 or _state.get_empire(diplo_selected) == null or diplo_selected == _player:
+		diplo_selected = -1
+		for e in _state.empires:
+			if e.id != _player and me.contacts.has(e.id) and not e.eliminated:
+				diplo_selected = e.id
+				break
+		if diplo_selected < 0:
+			diplo_selected = 1 if _player == 0 else 0
 
-	var rows := VBoxContainer.new()
-	rows.add_theme_constant_override("separation", 22)
-	_content.add_child(rows)
-	var known := Widgets.Block.new("Empires de la galaxie")
-	rows.add_child(known)
-	var cards := HBoxContainer.new()
-	cards.add_theme_constant_override("separation", 14)
-	known.body.add_child(cards)
-	for e: Empire in _state.empires:
-		if e.id == _player:
-			continue
-		var card := VBoxContainer.new()
-		card.add_theme_constant_override("separation", 0)
-		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		cards.add_child(card)
-		var art := Widgets.ArtSlot.new("faction_" + e.faction_id, Vector2(0, 190), e.color(), "faction")
-		art.set_caption(e.short_name(), 24)
-		card.add_child(art)
-		var info := PanelContainer.new()
-		info.add_theme_stylebox_override("panel", UiTheme.box(Color(1, 1, 1, 0.04), Color(0, 0, 0, 0), 10, 0))
-		card.add_child(info)
-		var ib := VBoxContainer.new()
-		ib.add_theme_constant_override("separation", 2)
-		info.add_child(ib)
-		ib.add_child(UiTheme.dim(String(e.faction().get("registre", "")), 13))
-		var status := Label.new()
-		var me := _state.get_empire(_player)
-		var met := me.contacts.has(e.id)
-		if e.eliminated:
-			status.text = "Disparu"
-			status.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
-		elif not met:
-			status.text = "Aucun contact"
-			status.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
-		elif Combat.at_war(_state, _player, e.id):
-			status.text = "EN GUERRE"
-			status.add_theme_color_override("font_color", UiTheme.BAD)
+	# Colonne de gauche : bilan, talents du peuple, héritier.
+	var g := _grid()
+	_side_box.add_child(g)
+	var wars := 0
+	var pacts := 0
+	for o in me.contacts:
+		if Combat.at_war(_state, _player, o):
+			wars += 1
+		elif Diplomacy.has_pact(_state, _player, o):
+			pacts += 1
+	_key_value(g, "Empires rencontrés", str(me.contacts.size()))
+	_key_value(g, "Guerres", str(wars))
+	_key_value(g, "Traités", str(pacts))
+	var income := Diplomacy.treaty_income(_state, _player)
+	if not income.is_empty():
+		_key_value(g, "Revenus des traités", GameData.format_amounts(income, true))
+	_side_box.add_child(HSeparator.new())
+	for ab in Diplomacy.faction_abilities(me.faction()):
+		var t := UiTheme.paragraph("%s. %s" % [ab["label"], ab["text"]], SIDE_WIDTH - 24.0, 13)
+		_side_box.add_child(t)
+	if Diplomacy.has_heir(_state, _player):
+		_side_box.add_child(_heir_box(me))
+	if Diplomacy.faction_abilities(me.faction()).is_empty():
+		_side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("diplomacy").get("why", "")), SIDE_WIDTH - 24.0, 14))
+
+	# Contenu : la table à gauche, la relation choisie et les propositions à droite.
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 22)
+	_content.add_child(row)
+	var left := Widgets.Block.new("Galaxie diplomatique")
+	left.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.add_child(left)
+	diplo_table = DiplomacyTable.new(430.0)
+	left.body.add_child(diplo_table)
+	diplo_table.setup(_state, _player, diplo_selected)
+	diplo_table.empire_selected.connect(func(id: int) -> void:
+		diplo_selected = id
+		show_screen("diplomacy"))
+	var legend := HBoxContainer.new()
+	legend.add_theme_constant_override("separation", 12)
+	for st in ["war", "cold", "peace", "alliance"]:
+		var pair := HBoxContainer.new()
+		pair.add_theme_constant_override("separation", 4)
+		pair.add_child(Widgets.Dot.new(DiplomacyTable.STATUS_COLORS[st], 10))
+		pair.add_child(UiTheme.dim(Diplomacy.status_label(st), 13))
+		legend.add_child(pair)
+	left.body.add_child(legend)
+
+	var right := VBoxContainer.new()
+	right.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	right.add_theme_constant_override("separation", 18)
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(right)
+	var props := Diplomacy.proposals_for(_state, _player)
+	if not props.is_empty():
+		right.add_child(_proposals_block(props))
+	right.add_child(_relation_block(diplo_selected))
+
+
+func _heir_box(me: Empire) -> Control:
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	var trend := Diplomacy.heir_trend(_state, _player)
+	var delta := 0
+	var lines := PackedStringArray()
+	for p in trend:
+		delta += int(p["value"])
+		lines.append("%+d  %s" % [int(p["value"]), p["label"]])
+	var g := _grid()
+	box.add_child(g)
+	var v := _key_value(g, "Loyauté de l'héritier", "%d / 100" % me.heir_loyalty)
+	v.add_theme_color_override("font_color", UiTheme.GOOD if me.heir_loyalty >= 50 else (UiTheme.WARN if me.heir_loyalty >= 25 else UiTheme.BAD))
+	v.tooltip_text = "Chaque mois : %+d\n%s" % [delta, "\n".join(lines)]
+	v.mouse_filter = Control.MOUSE_FILTER_STOP
+	var t := _key_value(g, "Tendance", "%+d / mois" % delta)
+	t.add_theme_color_override("font_color", UiTheme.delta_color(delta))
+	if me.heir_suitor >= 0 and _state.get_empire(me.heir_suitor) != null:
+		box.add_child(UiTheme.dim("Courtisé par %s" % _state.get_empire(me.heir_suitor).short_name(), 13))
+	var cost: Dictionary = Diplomacy.ability("heir")["banquet_cost"]
+	var b := Button.new()
+	b.text = "BANQUET DES LIGNÉES (%s)" % GameData.format_amounts(cost)
+	b.focus_mode = Control.FOCUS_NONE
+	var why := Diplomacy.check_banquet(_state, _player)
+	b.disabled = why != ""
+	b.tooltip_text = why if why != "" else "+%d loyauté." % int(Diplomacy.ability("heir")["banquet_gain"])
+	b.pressed.connect(func() -> void: command_requested.emit(SimCommands.banquet(_player)))
+	box.add_child(b)
+	ability_buttons["banquet"] = b
+	return box
+
+
+func _proposals_block(props: Array[Dictionary]) -> Control:
+	var blk := Widgets.Block.new("Propositions reçues")
+	for p in props:
+		var line := HBoxContainer.new()
+		line.add_theme_constant_override("separation", 10)
+		blk.body.add_child(line)
+		var from := _state.get_empire(int(p["from"]))
+		var left := Diplomacy.days("proposal_days", 30) - (_state.tick - int(p["tick"]))
+		var l := Label.new()
+		l.text = "%s propose : %s  (encore %d j)" % [from.short_name(), Diplomacy.treaty_label(String(p["treaty"])), left]
+		l.add_theme_color_override("font_color", from.color().lerp(Color.WHITE, 0.4))
+		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		l.tooltip_text = String(Diplomacy.treaty_info(String(p["treaty"])).get("desc", ""))
+		l.mouse_filter = Control.MOUSE_FILTER_STOP
+		line.add_child(l)
+		var pid := int(p["id"])
+		var ok := Button.new()
+		ok.text = "ACCEPTER"
+		ok.theme_type_variation = &"PrimaryButton"
+		ok.focus_mode = Control.FOCUS_NONE
+		var why := Diplomacy.check_answer(_state, _player, pid, true)
+		ok.disabled = why != ""
+		ok.tooltip_text = why
+		ok.pressed.connect(func() -> void: command_requested.emit(SimCommands.answer_proposal(_player, pid, true)))
+		line.add_child(ok)
+		var no := Button.new()
+		no.text = "REFUSER"
+		no.focus_mode = Control.FOCUS_NONE
+		no.pressed.connect(func() -> void: command_requested.emit(SimCommands.answer_proposal(_player, pid, false)))
+		line.add_child(no)
+		proposal_buttons[pid] = [ok, no]
+	return blk
+
+
+func _relation_block(id: int) -> Control:
+	var e := _state.get_empire(id)
+	var me := _state.get_empire(_player)
+	var blk := Widgets.Block.new(e.display_name())
+	var st := Diplomacy.status(_state, _player, id)
+	if e.eliminated:
+		st = "none"
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 14)
+	blk.body.add_child(head)
+	var art := Widgets.ArtSlot.new("faction_" + e.faction_id, Vector2(150, 110), e.color(), "faction")
+	head.add_child(art)
+	var info := VBoxContainer.new()
+	info.add_theme_constant_override("separation", 2)
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(info)
+	info.add_child(UiTheme.dim(String(e.faction().get("registre", "")), 13))
+	var sl := Label.new()
+	sl.text = ("Disparu" if e.eliminated else Diplomacy.status_label(st)).to_upper()
+	sl.add_theme_font_size_override("font_size", 20)
+	sl.add_theme_color_override("font_color", DiplomacyTable.STATUS_COLORS[st])
+	info.add_child(sl)
+	var extra := PackedStringArray()
+	if Diplomacy.in_truce(_state, _player, id):
+		extra.append("Trêve : encore %d jours" % Diplomacy.truce_left(_state, _player, id))
+	if st == "peace" or st == "alliance":
+		extra.append("Signé il y a %d jours" % Diplomacy.pact_days(_state, _player, id))
+	if Diplomacy.has_trade(_state, _player, id):
+		extra.append("Accord commercial")
+	if st == "war":
+		extra.append("Guerre depuis %d jours, score %+d" % [Diplomacy.pact_days(_state, _player, id), Diplomacy.war_score(_state, _player, id)])
+	if e.is_ai():
+		extra.append("Tempérament : %s" % AiLevels.temperament_label(e))
+	for x in extra:
+		info.add_child(UiTheme.dim(x, 13))
+	if st == "none":
+		blk.body.add_child(UiTheme.paragraph("Aucun contact : vos éclaireurs n'ont pas encore croisé cet empire." if not e.eliminated else "Cet empire a disparu de la galaxie.", 520, 14))
+		return blk
+
+	# Opinions, détaillées dans l'infobulle.
+	var g := _grid(2)
+	blk.body.add_child(g)
+	_opinion_row(g, "Son opinion de vous", id, _player)
+	_opinion_row(g, "Votre opinion de lui", _player, id)
+	for ab in Diplomacy.faction_abilities(e.faction()):
+		var t := UiTheme.paragraph("%s. %s" % [ab["label"], ab["text"]], 520, 13)
+		t.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		blk.body.add_child(t)
+	if Diplomacy.has_heir(_state, id):
+		blk.body.add_child(UiTheme.dim("Loyauté de son héritier : %d / 100" % e.heir_loyalty, 13))
+
+	# Traités : un bouton par traité, avec ce que l'autre en pense (comme la barre d'Endless Space 2).
+	blk.body.add_child(UiTheme.section("Proposer"))
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 12)
+	grid.add_theme_constant_override("v_separation", 6)
+	blk.body.add_child(grid)
+	for t in Diplomacy.TREATY_IDS:
+		var b := Button.new()
+		b.text = Diplomacy.treaty_label(t).to_upper()
+		b.focus_mode = Control.FOCUS_NONE
+		b.custom_minimum_size = Vector2(220, 0)
+		var why := Diplomacy.check_propose(_state, _player, id, t)
+		b.disabled = why != ""
+		var desc := String(Diplomacy.treaty_info(t).get("desc", ""))
+		b.tooltip_text = (why + "\n\n" + desc) if why != "" else desc
+		var treaty := t
+		b.pressed.connect(func() -> void: command_requested.emit(SimCommands.propose_treaty(_player, id, treaty)))
+		grid.add_child(b)
+		treaty_buttons[t] = b
+		var verdict := Label.new()
+		verdict.mouse_filter = Control.MOUSE_FILTER_STOP
+		if why != "":
+			verdict.text = why
+			verdict.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		elif e.is_ai():
+			var ev := AiDiplomacy.evaluate(_state, id, _player, t)
+			var yes := int(ev["score"]) >= int(Diplomacy.data()["ai"]["accept_at"])
+			verdict.text = "%s  (%+d)" % ["Accepterait" if yes else "Refuserait", int(ev["score"])]
+			verdict.add_theme_color_override("font_color", UiTheme.GOOD if yes else UiTheme.BAD)
+			var lines := PackedStringArray()
+			for p in ev["parts"]:
+				lines.append("%+d  %s" % [int(p["value"]), p["label"]])
+			verdict.tooltip_text = "Ce que %s pense de l'offre :\n%s" % [e.short_name(), "\n".join(lines)]
 		else:
-			status.text = "En paix"
-			status.add_theme_color_override("font_color", UiTheme.GOOD)
-		ib.add_child(status)
-		if met and not e.eliminated and not Combat.at_war(_state, _player, e.id):
-			var war := Button.new()
-			war.text = "DÉCLARER LA GUERRE"
-			war.tooltip_text = "Deux clics : la guerre vaut dans les deux sens, et la paix arrivera avec la diplomatie."
-			war.focus_mode = Control.FOCUS_NONE
-			var target := e.id
-			war.pressed.connect(func() -> void:
-				if war.text == "DÉCLARER LA GUERRE":
-					war.text = "CONFIRMER ?"
-					war.theme_type_variation = &"PrimaryButton"
-				else:
-					war_requested.emit(target))
-			ib.add_child(war)
-			war_buttons[e.id] = war
-		elif Combat.always_war(_state, e.id) and met:
-			ib.add_child(UiTheme.dim("L'Essaim ne négocie pas.", 13))
-	var treaties := Widgets.Block.new("Traités")
-	rows.add_child(treaties)
-	treaties.body.add_child(_locked_row(6, Vector2(120, 110), "Emplacement de traité"))
-	var foot := HBoxContainer.new()
-	treaties.body.add_child(foot)
-	var propose := Widgets.RoundButton.new("plus", "Proposer un traité", 16)
-	propose.disabled = true
-	propose.tooltip_text = "Arrive avec la diplomatie."
-	foot.add_child(propose)
-	_spacer(rows)
+			verdict.text = "Il devra répondre"
+			verdict.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		verdict.add_theme_font_size_override("font_size", 13)
+		verdict.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		verdict.custom_minimum_size = Vector2(240, 0)
+		grid.add_child(verdict)
+
+	# Rompre, déclarer, intriguer, arbitrer.
+	var acts := HFlowContainer.new()
+	acts.add_theme_constant_override("h_separation", 10)
+	acts.add_theme_constant_override("v_separation", 6)
+	blk.body.add_child(acts)
+	for t in [Diplomacy.ALLIANCE, Diplomacy.PEACE, Diplomacy.TRADE]:
+		var label: String = {"alliance": "QUITTER L'ALLIANCE", "peace": "DÉNONCER LA PAIX", "trade": "ROMPRE L'ACCORD"}[t]
+		var shown: bool = (t == Diplomacy.ALLIANCE and Diplomacy.allied(_state, _player, id)) \
+				or (t == Diplomacy.PEACE and Diplomacy.pact(_state, _player, id) == Diplomacy.PEACE) \
+				or (t == Diplomacy.TRADE and Diplomacy.has_trade(_state, _player, id))
+		if not shown:
+			continue
+		var b := Button.new()
+		b.text = label
+		b.focus_mode = Control.FOCUS_NONE
+		var why := Diplomacy.check_cancel(_state, _player, id, t)
+		b.disabled = why != ""
+		b.tooltip_text = why
+		var treaty: String = t
+		b.pressed.connect(func() -> void: command_requested.emit(SimCommands.cancel_treaty(_player, id, treaty)))
+		acts.add_child(b)
+		cancel_buttons[t] = b
+	if not e.eliminated and not Combat.at_war(_state, _player, id):
+		var war := Button.new()
+		var label := "ROMPRE ET DÉCLARER LA GUERRE" if Diplomacy.has_pact(_state, _player, id) else "DÉCLARER LA GUERRE"
+		war.text = label
+		war.focus_mode = Control.FOCUS_NONE
+		var why := Combat.check_declare_war(_state, _player, id)
+		war.disabled = why != ""
+		war.tooltip_text = why if why != "" else ("Deux clics. Rompre un traité fait de vous un parjure aux yeux de toute la galaxie." \
+				if Diplomacy.has_pact(_state, _player, id) else "Deux clics : la guerre vaut dans les deux sens.")
+		var target := id
+		war.pressed.connect(func() -> void:
+			if war.text == label:
+				war.text = "CONFIRMER ?"
+				war.theme_type_variation = &"PrimaryButton"
+			else:
+				war_requested.emit(target))
+		acts.add_child(war)
+		war_buttons[id] = war
+	if Diplomacy.has_heir(_state, id):
+		var b := Button.new()
+		b.text = "SOUDOYER L'HÉRITIER (%s)" % GameData.format_amounts(Diplomacy.ability("heir")["bribe_cost"])
+		b.focus_mode = Control.FOCUS_NONE
+		var why := Diplomacy.check_bribe(_state, _player, id)
+		b.disabled = why != ""
+		b.tooltip_text = why if why != "" else "Sa loyauté baisse de %d. À 0, il vous livre son fief le plus lointain. Ils le sauront." % int(Diplomacy.ability("heir")["bribe_loss"])
+		b.pressed.connect(func() -> void: command_requested.emit(SimCommands.bribe_heir(_player, id)))
+		acts.add_child(b)
+		ability_buttons["bribe"] = b
+	if Diplomacy.has_ability(_state, _player, "mediation"):
+		for w in e.wars:
+			if w == _player or not me.contacts.has(w) or Diplomacy.no_treaties(_state, w) or Diplomacy.no_treaties(_state, id):
+				continue
+			var b := Button.new()
+			b.text = "ARBITRER : %s / %s" % [e.short_name().to_upper(), _state.get_empire(w).short_name().to_upper()]
+			b.focus_mode = Control.FOCUS_NONE
+			var why := Diplomacy.check_mediate(_state, _player, id, w)
+			b.disabled = why != ""
+			b.tooltip_text = why if why != "" else "Les Veilleurs du Seuil imposent la paix (%s)." % GameData.format_amounts(Diplomacy.ability("mediation")["cost"])
+			var other := w
+			b.pressed.connect(func() -> void: command_requested.emit(SimCommands.mediate(_player, id, other)))
+			acts.add_child(b)
+			ability_buttons["mediate_%d" % w] = b
+	return blk
 
 
-## Ce qui change l'écran Diplomatie : contacts, guerres, disparitions.
+func _opinion_row(g: GridContainer, caption: String, who: int, about: int) -> void:
+	var v := Diplomacy.opinion(_state, who, about)
+	var val := _key_value(g, caption, "%+d  %s" % [v, Diplomacy.opinion_label(v)])
+	val.add_theme_color_override("font_color", UiTheme.delta_color(v) if absi(v) >= 20 else UiTheme.TEXT)
+	var lines := PackedStringArray()
+	for p in Diplomacy.opinion_parts(_state, who, about):
+		lines.append("%+d  %s" % [int(p["value"]), p["label"]])
+	val.tooltip_text = "\n".join(lines) if not lines.is_empty() else "Aucune raison particulière."
+	val.mouse_filter = Control.MOUSE_FILTER_STOP
+
+
+## Ce qui change l'écran Diplomatie : contacts, guerres, traités, propositions, mois, influence.
 func _diplomacy_sig() -> String:
 	var parts := PackedStringArray()
 	for e in _state.empires:
-		parts.append("%d:%s:%s:%s" % [e.id, str(e.contacts), str(e.wars), e.eliminated])
+		parts.append("%d:%s:%s:%s:%d" % [e.id, str(e.contacts), str(e.wars), e.eliminated, e.heir_loyalty])
+	@warning_ignore("integer_division")
+	parts.append(str(_state.tick / 30))
+	parts.append(str(_state.relations))
+	parts.append(str(_state.proposals.size()) + ":" + str(_state.next_proposal_id))
+	parts.append(str(_state.get_empire(_player).resources.get("influence", 0)))
 	return "|".join(parts)
 
 

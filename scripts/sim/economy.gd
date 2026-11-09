@@ -98,6 +98,9 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 		_add(upkeep, y["upkeep"])
 	_add(upkeep, Fleets.upkeep(state, empire_id))
 	gross["influence"] += FactionTraits.extra_influence(state, empire_id)
+	var treaties := Diplomacy.treaty_income(state, empire_id)
+	for r in treaties:
+		gross[r] += int(treaties[r])
 	var net := _zero()
 	for r in gross:
 		@warning_ignore("integer_division")

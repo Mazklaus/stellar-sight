@@ -78,6 +78,11 @@ static func combat() -> Dictionary:
 	return _load("combat")
 
 
+## Diplomatie (data/diplomacy.json) : traités, opinion, souvenirs, talents des peuples, IA.
+static func diplomacy() -> Dictionary:
+	return _load("diplomacy")
+
+
 static func deposit(id: String) -> Dictionary:
 	for d: Dictionary in rules()["deposits"]:
 		if d["id"] == id:

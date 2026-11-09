@@ -72,6 +72,37 @@ static func declare_war(player: int, target: int) -> Dictionary:
 	return {"type": "declare_war", "player": player, "target": target}
 
 
+## Propose un traité (Diplomacy.TREATY_IDS) à un empire rencontré. Une IA répond tout de suite,
+## un joueur humain reçoit la proposition.
+static func propose_treaty(player: int, target: int, treaty: String) -> Dictionary:
+	return {"type": "propose_treaty", "player": player, "target": target, "treaty": treaty}
+
+
+## Répond à une proposition reçue.
+static func answer_proposal(player: int, proposal_id: int, accept: bool) -> Dictionary:
+	return {"type": "answer_proposal", "player": player, "proposal": proposal_id, "accept": accept}
+
+
+## Rompt un traité : "alliance", "peace" (après la trêve) ou "trade".
+static func cancel_treaty(player: int, target: int, treaty: String) -> Dictionary:
+	return {"type": "cancel_treaty", "player": player, "target": target, "treaty": treaty}
+
+
+## Soudoie l'héritier d'une dynastie féodale rivale (sa loyauté baisse).
+static func bribe_heir(player: int, target: int) -> Dictionary:
+	return {"type": "bribe_heir", "player": player, "target": target}
+
+
+## Banquet des lignées : la dynastie regagne la loyauté de son héritier.
+static func banquet(player: int) -> Dictionary:
+	return {"type": "banquet", "player": player}
+
+
+## Une république fait arbitrer la guerre entre deux autres empires (paix imposée).
+static func mediate(player: int, a: int, b: int) -> Dictionary:
+	return {"type": "mediate", "player": player, "a": a, "b": b}
+
+
 ## Choisit la tactique de combat d'une flotte (Combat.tactic_ids()).
 static func set_tactic(player: int, fleet_id: int, tactic: String) -> Dictionary:
 	return {"type": "set_tactic", "player": player, "fleet": fleet_id, "tactic": tactic}
@@ -119,6 +150,18 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return FactionTraits.check_rush(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("what", "")))
 		"declare_war":
 			return Combat.check_declare_war(state, int(cmd["player"]), int(cmd.get("target", -1)))
+		"propose_treaty":
+			return Diplomacy.check_propose(state, int(cmd["player"]), int(cmd.get("target", -1)), String(cmd.get("treaty", "")))
+		"answer_proposal":
+			return Diplomacy.check_answer(state, int(cmd["player"]), int(cmd.get("proposal", -1)), bool(cmd.get("accept", false)))
+		"cancel_treaty":
+			return Diplomacy.check_cancel(state, int(cmd["player"]), int(cmd.get("target", -1)), String(cmd.get("treaty", "")))
+		"bribe_heir":
+			return Diplomacy.check_bribe(state, int(cmd["player"]), int(cmd.get("target", -1)))
+		"banquet":
+			return Diplomacy.check_banquet(state, int(cmd["player"]))
+		"mediate":
+			return Diplomacy.check_mediate(state, int(cmd["player"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)))
 		"set_tactic":
 			return Combat.check_tactic(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("tactic", "")))
 		"invade":
@@ -235,6 +278,18 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				c.ship_days = 1
 		"declare_war":
 			Combat.start_war(state, int(cmd["player"]), int(cmd["target"]))
+		"propose_treaty":
+			Diplomacy.propose(state, int(cmd["player"]), int(cmd["target"]), String(cmd["treaty"]))
+		"answer_proposal":
+			Diplomacy.answer(state, int(cmd["proposal"]), bool(cmd["accept"]))
+		"cancel_treaty":
+			Diplomacy.cancel(state, int(cmd["player"]), int(cmd["target"]), String(cmd["treaty"]))
+		"bribe_heir":
+			Diplomacy.bribe(state, int(cmd["player"]), int(cmd["target"]))
+		"banquet":
+			Diplomacy.banquet(state, int(cmd["player"]))
+		"mediate":
+			Diplomacy.mediate(state, int(cmd["player"]), int(cmd["a"]), int(cmd["b"]))
 		"set_tactic":
 			state.fleets[int(cmd["fleet"])].tactic = String(cmd["tactic"])
 		"invade":

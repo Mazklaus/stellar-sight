@@ -1,0 +1,150 @@
+{
+	"_sources": [
+		"Endless Space 2 (référence principale) : guerre froide par défaut à la rencontre, paix (aucune attaque), alliance (relations partagées avec l'extérieur, on peut la quitter et on retombe en guerre froide), échange de cartes, accord commercial, trêves forcées par les factions pacifistes, verrous temporels. https://www.gamepressure.com/endless-space-2/diplomacy/z49cce ; https://endlessspace.fandom.com/wiki/Diplomatic_Status ; https://community.amplitude-studios.com/amplitude-studios/endless-space-2/blogs/586-update-1-1-0-galactic-statecraft",
+		"Endless Space 2, pression diplomatique : rapport de forces et friction de frontière. https://community.amplitude-studios.com/amplitude-studios/endless-space-2/blogs/584-galactic-statecraft-pressure-retake-constellation-control",
+		"Stellaris : la confiance monte avec les traités en vigueur, friction de frontière, menace commune. https://forum.paradoxplaza.com/forum/threads/asimov-update-1-2-released-checksum-2352-not-for-problem-reports.953141/ ; https://admin-forum.paradoxplaza.com/forum/developer-diary/stellaris-dev-diary-315-the-velvet-glove.1600119/",
+		"Civilization VI : griefs (souvenirs d'offenses qui s'effacent avec le temps), guerre surprise plus mal vue. https://civilization.fandom.com/wiki/Casus_Belli_(Civ6)",
+		"Document de game design : opinion selon la dissonance des registres, les credos et l'histoire commune ; V1 = guerre, paix, alliance ; Ossarane : un héritier peut trahir ; Vael : les Veilleurs du Seuil arbitrent les conflits ; Kh'thari : pas de diplomatie classique."
+	],
+	"proposal_days": 30,
+	"refusal_cooldown_days": 60,
+	"ai_cooldown_days": 120,
+	"maps_cooldown_days": 720,
+	"truce_days": 360,
+	"alliance_after_days": 180,
+	"min_war_days": 60,
+	"treaties": {
+		"peace": {"label": "Paix", "verb": "la paix",
+			"desc": "Aucune attaque possible de part et d'autre. Signer ouvre une trêve d'un an : personne ne peut déclarer la guerre. Après la trêve, attaquer quand même fait de vous un parjure aux yeux de toute la galaxie.",
+			"income": {"influence": 1}},
+		"alliance": {"label": "Alliance", "verb": "une alliance",
+			"desc": "Exige six mois de paix. Les alliés partagent leurs guerres (une déclaration contre l'un entraîne l'autre) et leurs cartes chaque mois. La quitter ramène à la guerre froide.",
+			"income": {"influence": 2}},
+		"trade": {"label": "Accord commercial", "verb": "un accord commercial",
+			"desc": "Exige la paix. Les marchands circulent : +4 énergie et +1 influence par mois pour chacun. Prend fin avec la paix.",
+			"income": {"energy": 4, "influence": 1}},
+		"maps": {"label": "Échange de cartes", "verb": "un échange de cartes",
+			"desc": "Chacun reçoit les systèmes explorés par l'autre. Impossible en guerre ; pas plus d'une fois tous les deux ans."}
+	},
+	"opinion": {
+		"min": -100,
+		"max": 100,
+		"registre_scale": 5,
+		"registre_same": 2,
+		"registre_pairs": [
+			["Médiéval spatial", "Grimdark", 0],
+			["Médiéval spatial", "Space opera héroïque", -1],
+			["Médiéval spatial", "Classique / hard SF", 0],
+			["Médiéval spatial", "Picaresque / pulp", -1],
+			["Médiéval spatial", "Cosmique / étrange", 1],
+			["Médiéval spatial", "Horreur biologique", -2],
+			["Grimdark", "Space opera héroïque", -3],
+			["Grimdark", "Classique / hard SF", -2],
+			["Grimdark", "Picaresque / pulp", -1],
+			["Grimdark", "Cosmique / étrange", -1],
+			["Grimdark", "Horreur biologique", -2],
+			["Space opera héroïque", "Classique / hard SF", 1],
+			["Space opera héroïque", "Picaresque / pulp", 1],
+			["Space opera héroïque", "Cosmique / étrange", 0],
+			["Space opera héroïque", "Horreur biologique", -2],
+			["Classique / hard SF", "Picaresque / pulp", 0],
+			["Classique / hard SF", "Cosmique / étrange", -1],
+			["Classique / hard SF", "Horreur biologique", -1],
+			["Picaresque / pulp", "Cosmique / étrange", 0],
+			["Picaresque / pulp", "Horreur biologique", -2],
+			["Cosmique / étrange", "Horreur biologique", 0]
+		],
+		"credo_same": 10,
+		"credo_pairs": [
+			["foi", "raison", -10],
+			["honneur", "profit", -10],
+			["foi", "profit", -5],
+			["transcendance", "survie", -5],
+			["raison", "transcendance", -5]
+		],
+		"gouvernement_same": 5,
+		"gouvernement_pairs": [
+			["feodalite", "republique", -5],
+			["theocratie", "republique", -5],
+			["theocratie", "conscience_distribuee", -5],
+			["syndicat", "horde", -5]
+		],
+		"archetype_seen": {"ruche": -10},
+		"traits_observer": {
+			"pluriel": {"all": 5, "label": "Quarante peuples : la Concorde aime tout le monde (un peu)"},
+			"fanatisme": {"other_credo": -10, "label": "Fanatisme : un autre credo, c'est une hérésie"}
+		},
+		"border_per_system": -3,
+		"border_max": -15,
+		"at_war": -40,
+		"peace": 10,
+		"alliance": 20,
+		"trade": 5,
+		"common_enemy": 15,
+		"trust_per_month": 2,
+		"trust_decay_per_month": 1,
+		"trust_max": 30,
+		"levels": [
+			[50, "Amicale"], [20, "Cordiale"], [-19, "Neutre"], [-49, "Méfiante"], [-100, "Hostile"]
+		]
+	},
+	"memories": {
+		"declared_war": {"value": -30, "days": 1800, "label": "Nous a déclaré la guerre"},
+		"broke_treaty": {"value": -50, "days": 2400, "label": "A rompu un traité avec nous"},
+		"oathbreaker": {"value": -15, "days": 1800, "label": "Parjure : a rompu un traité"},
+		"conquest": {"value": -8, "days": 1800, "stack": 5, "label": "Nous a pris des systèmes"},
+		"peace_signed": {"value": 10, "days": 720, "label": "A signé la paix avec nous"},
+		"left_alliance": {"value": -20, "days": 1080, "label": "A quitté notre alliance"},
+		"denounced": {"value": -15, "days": 720, "label": "A dénoncé notre traité"},
+		"ally_joined": {"value": 15, "days": 1800, "label": "Est entré en guerre à nos côtés"},
+		"bribed_heir": {"value": -25, "days": 1800, "stack": 2, "label": "A soudoyé notre héritier"},
+		"mediated": {"value": 15, "days": 1080, "label": "A arbitré notre guerre"},
+		"heir_gift": {"value": 10, "days": 1080, "label": "Nous a livré un fief (l'héritier félon)"}
+	},
+	"abilities": {
+		"no_treaties": {
+			"requires": {"gouvernement": ["ruche"], "credo": ["survie"]},
+			"label": "Faim sans traité",
+			"text": "Une ruche qui ne vit que pour survivre ne signe rien : ni paix, ni alliance, ni commerce."
+		},
+		"heir": {
+			"requires": {"gouvernement": ["feodalite"]},
+			"label": "L'héritier",
+			"text": "La dynastie a un héritier dont la loyauté (0 à 100) baisse avec la dissidence des fiefs, les guerres et les intrigues des rivaux. À 0, il trahit : il livre le fief le plus lointain à celui qui l'a acheté, ou à un ennemi.",
+			"start": 70, "rest": 70, "regen": 2, "dissent": -6, "per_war": -2, "treaty_bonus": 1,
+			"bribe_cost": {"influence": 30}, "bribe_loss": 15,
+			"banquet_cost": {"influence": 20, "crystals": 3}, "banquet_gain": 20,
+			"after_betrayal": 60
+		},
+		"mediation": {
+			"requires": {"gouvernement": ["republique"]},
+			"label": "Les Veilleurs du Seuil",
+			"text": "Une république peut faire arbitrer une guerre entre deux empires qu'elle connaît : s'ils la respectent (opinion d'elle positive) et que la guerre dure depuis deux mois, la paix est imposée, avec sa trêve.",
+			"cost": {"influence": 40}, "cooldown_days": 360
+		},
+		"crusade": {
+			"requires": {"gouvernement": ["theocratie"], "credo": ["foi"]},
+			"label": "Pas de paix avec les hérétiques",
+			"text": "Déclarer la guerre à un empire d'un autre credo rapporte 10 ferveur ; chaque traité de paix avec un empire d'un autre credo coûte 1 ferveur par mois.",
+			"war_fervor": 10, "treaty_fervor": -1
+		}
+	},
+	"ai": {
+		"accept_at": 0,
+		"propose_at": 5,
+		"recrue_noise": 20,
+		"peace_war_base": 10,
+		"peace_cold_base": 5,
+		"alliance_base": -30,
+		"trade_base": 5,
+		"maps_base": -10,
+		"temperament_peace": -10,
+		"temperament_other": -5,
+		"weariness_max": 30,
+		"score_max": 30,
+		"pressure_max": 25,
+		"crusade_peace": -15,
+		"common_enemy_bonus": 15,
+		"too_early": -100
+	}
+}

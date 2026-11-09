@@ -7,7 +7,7 @@ extends RefCounted
 ## stockée : elle se régénère à l'identique depuis la graine. Seules les données
 ## qui changent en cours de partie sont sérialisées.
 
-const FORMAT_VERSION := 6
+const FORMAT_VERSION := 7
 const CHRONICLE_MAX := 50
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
@@ -45,6 +45,13 @@ var battles: Dictionary = {}
 ## Derniers rapports de bataille, du plus ancien au plus récent.
 var battle_reports: Array[Dictionary] = []
 var next_battle_id: int = 0
+## Diplomatie (voir Diplomacy) : relations par paire d'empires ("a-b", a < b) -> {"pact", "since",
+## "truce", "trade", "trust", "score", "cool"} ; souvenirs (griefs et gestes) qui s'effacent avec le
+## temps ; propositions de traité en attente d'une réponse humaine.
+var relations: Dictionary = {}
+var memories: Array[Dictionary] = []
+var proposals: Array[Dictionary] = []
+var next_proposal_id: int = 0
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -123,6 +130,10 @@ func to_dict() -> Dictionary:
 		"battles": _sorted_values(battles),
 		"battle_reports": battle_reports.duplicate(true),
 		"next_battle_id": next_battle_id,
+		"relations": _sorted_values(relations),
+		"memories": memories.duplicate(true),
+		"proposals": proposals.duplicate(true),
+		"next_proposal_id": next_proposal_id,
 	}
 
 
@@ -218,6 +229,14 @@ static func from_dict(d: Dictionary) -> GameState:
 	for r: Dictionary in d.get("battle_reports", []):
 		s.battle_reports.append(GameData._to_ints(r))
 	s.next_battle_id = int(d.get("next_battle_id", 0))
+	for r: Dictionary in d.get("relations", []):
+		var v: Dictionary = GameData._to_ints(r)
+		s.relations[String(v["key"])] = v
+	for m: Dictionary in d.get("memories", []):
+		s.memories.append(GameData._to_ints(m))
+	for p: Dictionary in d.get("proposals", []):
+		s.proposals.append(GameData._to_ints(p))
+	s.next_proposal_id = int(d.get("next_proposal_id", 0))
 	s.rebuild_ownership()
 	return s
 
@@ -359,6 +378,8 @@ func _setup_empires(player_faction: String) -> void:
 		var faction := e.faction()
 		if FactionTraits.has_fervor(faction):
 			e.fervor = int(faction["fervor"]["start"])
+		if Diplomacy.has_ability_faction(faction, "heir"):
+			e.heir_loyalty = int(Diplomacy.ability("heir")["start"])
 		var sys := galaxy.systems[homes[i]]
 		# Monde d'origine : la plus grande planète du système, transformée au goût de l'espèce.
 		var home_id: int = sys.planet_ids[0]

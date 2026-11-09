@@ -18,6 +18,7 @@ func _initialize() -> void:
 	preload("res://tests/ai_tests.gd").new().run(_check)
 	preload("res://tests/combat_tests.gd").new().run(_check)
 	preload("res://tests/catalogue_tests.gd").new().run(_check)
+	preload("res://tests/diplomacy_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -578,7 +579,25 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(screens.is_open() and screens.current == "research" and screens._tab.text.begins_with("RECHERCHE"), "F3 : écran Recherche (en attente)")
 	_press(KEY_F4)
 	await process_frame
-	_check(screens.current == "diplomacy" and screens._content.get_child(0) != null, "F4 : écran Diplomatie (en attente)")
+	_check(screens.current == "diplomacy" and screens._content.get_child(0) != null, "F4 : écran Diplomatie")
+	# Rencontre, puis échange de cartes proposé depuis l'écran : l'IA répond tout de suite.
+	var dst: GameState = main.simulation.state
+	var other := 1
+	for pair in [[0, other], [other, 0]]:
+		if not dst.get_empire(pair[0]).contacts.has(pair[1]):
+			dst.get_empire(pair[0]).contacts.append(pair[1])
+			dst.get_empire(pair[0]).contacts.sort()
+	screens.diplo_selected = other
+	screens.show_screen("diplomacy")
+	await process_frame
+	_check(screens.diplo_table != null and screens.diplo_table.buttons.has(other), "table diplomatique : un bouton par empire")
+	_check(screens.treaty_buttons.size() == Diplomacy.TREATY_IDS.size(), "un bouton par traité")
+	var maps_btn: Button = screens.treaty_buttons.get("maps")
+	_check(maps_btn != null and not maps_btn.disabled, "échange de cartes proposable en guerre froide")
+	if maps_btn and not maps_btn.disabled:
+		maps_btn.pressed.emit()
+		await process_frame
+		_check(Diplomacy.cooldown_left(dst, 0, other, "maps") > 0, "la proposition part et l'IA répond (signée ou refusée)")
 	_check(not hud._tabs.visible and hud.bar.visible and hud.dial.visible, "écran d'empire : onglets de vue masqués, panneau et cadran restent")
 	_press(KEY_F4)
 	_check(not screens.is_open() and hud._tabs.visible, "F4 referme, les onglets reviennent")
