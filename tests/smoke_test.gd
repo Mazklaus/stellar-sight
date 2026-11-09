@@ -11,6 +11,7 @@ var _checks := 0
 
 func _initialize() -> void:
 	_test_generator()
+	preload("res://tests/sim_tests.gd").new().run(_check)
 	_test_clock()
 	await _test_main_scene()
 	print("")
@@ -80,23 +81,28 @@ func _same_galaxy(a: Galaxy, b: Galaxy) -> bool:
 func _test_clock() -> void:
 	print("Horloge…")
 	var clock: Node = root.get_node("GameClock")
-	clock.reset()
+	var sim := Simulation.new(GameState.create(11))
+	clock.attach(sim)
 	_check(clock.paused, "l'horloge démarre en pause")
 	_check(clock.date_string() == "01/01/2400", "date initiale (obtenu %s)" % clock.date_string())
 	clock._process(5.0)
 	_check(clock.day == 0, "aucun jour ne passe en pause")
+	sim.submit(SimCommands.rename_system(0, 1, "Arrêt-sur-Image"))
+	clock._process(0.016)
+	_check(sim.state.galaxy.systems[1].system_name == "Arrêt-sur-Image", "un ordre donné en pause s'applique")
+	_check(clock.day == 0, "toujours aucun jour écoulé")
 	clock.set_paused(false)
 	clock.set_speed(0)
 	clock._process(1.0)
-	_check(clock.day == 1, "vitesse 1 : 1 jour par seconde (obtenu %d)" % clock.day)
+	_check(clock.day == 1 and sim.state.tick == 1, "vitesse 1 : 1 jour par seconde (obtenu %d)" % clock.day)
 	clock.set_speed(4)
 	clock._process(10.0)
 	_check(clock.day == 1 + clock.MAX_DAYS_PER_FRAME, "plafond de jours par image respecté")
 	clock.set_speed(99)
 	_check(clock.speed_index == 4, "vitesse bornée")
-	clock.day = 360 + 30 * 2 + 4
-	_check(clock.date_string() == "05/03/2401", "format de date (obtenu %s)" % clock.date_string())
-	clock.reset()
+	_check(GameCalendar.date_string(360 + 30 * 2 + 4) == "05/03/2401", "format de date (obtenu %s)" % GameCalendar.date_string(364))
+	clock.attach(null)
+	_check(clock.day == 0, "horloge détachée")
 
 
 func _test_main_scene() -> void:
@@ -104,6 +110,7 @@ func _test_main_scene() -> void:
 	var scene: PackedScene = load("res://scenes/main.tscn")
 	_check(scene != null, "main.tscn se charge")
 	var main := scene.instantiate()
+	main.save_path = "user://saves/test_quicksave.json"  # ne jamais toucher la vraie sauvegarde du joueur
 	root.add_child(main)
 	for _i in 10:
 		await process_frame
@@ -141,11 +148,39 @@ func _test_main_scene() -> void:
 	_press(KEY_ESCAPE)
 	_check(main._view.selected_id == -1, "Échap désélectionne")
 
+	# Renommage par l'interface : passe par un ordre de simulation.
+	main._view.selected_id = 5
+	main._hud.show_system(main.galaxy.get_system(5), main.galaxy)
+	main._hud._name_edit.text = "Port-Libre"
+	main._hud._submit_rename()
+	await process_frame
+	await process_frame
+	_check(main.galaxy.systems[5].system_name == "Port-Libre", "renommer depuis la fiche (obtenu %s)" % main.galaxy.systems[5].system_name)
+	_check(main.simulation.command_log.size() == 1, "le renommage est un ordre journalisé")
+
+	# F5 sauvegarde, F9 recharge exactement la même partie.
+	_press(KEY_F5)
+	var saved_checksum: String = main.simulation.state.checksum()
+	var saved_tick: int = main.simulation.state.tick
+	_press(KEY_SPACE)
+	for _i in 40:
+		await process_frame
+	_press(KEY_SPACE)
+	main.simulation.submit(SimCommands.rename_system(0, 5, "Autre-Nom"))
+	main.simulation.flush_commands()
+	_press(KEY_F9)
+	_check(main.simulation.state.tick == saved_tick, "F9 : retour au jour sauvegardé")
+	_check(main.simulation.state.checksum() == saved_checksum, "F9 : partie rechargée à l'identique")
+	_check(main.galaxy.systems[5].system_name == "Port-Libre", "F9 : le nom sauvegardé revient")
+	_check(clock.paused and clock.simulation == main.simulation, "F9 : l'horloge suit la partie chargée, en pause")
+	_check(main._view.galaxy == main.galaxy, "F9 : la vue affiche la partie chargée")
+
 	var old_seed: int = main.galaxy.seed_value
 	_press(KEY_R)
 	_check(main.galaxy.seed_value != old_seed or main.galaxy.systems.size() == main.SYSTEM_COUNT, "R régénère la galaxie")
 	for _i in 10:
 		await process_frame
+	DirAccess.remove_absolute(main.save_path)
 	main.queue_free()
 	await process_frame
 
