@@ -55,6 +55,7 @@ var _chronicle: Widgets.RichTipPanel
 var _chronicle_label: Label
 var _chronicle_date: Label
 var _system_mode := false
+var _empire_screen := false
 var _system_id := -1
 var _hover_id := -1
 var _state: GameState
@@ -100,6 +101,14 @@ func refresh() -> void:
 func show_system(s: StarSystem, state: GameState) -> void:
 	_state = state
 	_system_id = s.id if s else -1
+	_refresh_card()
+
+
+## Écran d'empire ouvert : il a son propre onglet et sa colonne, la fiche et la chronique s'effacent.
+func set_empire_screen_open(on: bool) -> void:
+	_empire_screen = on
+	_tabs.visible = not on
+	_chronicle.visible = not on
 	_refresh_card()
 
 
@@ -353,7 +362,7 @@ func _refresh_card() -> void:
 	if _info_panel == null:
 		return
 	var id := card_system()
-	if _state == null or id < 0 or _system_mode:
+	if _state == null or id < 0 or _system_mode or _empire_screen:
 		_info_panel.visible = false
 		return
 	_info_panel.visible = true

@@ -10,9 +10,11 @@ var _auto_pause: CheckBox
 
 func _ready() -> void:
 	add_theme_constant_override("separation", 12)
-	add_child(UiTheme.title("Options", 34))
-	add_child(HSeparator.new())
-	add_child(UiTheme.section("Affichage"))
+	var title := UiTheme.title("OPTIONS", 30)
+	title.add_theme_font_override("font", UiTheme.font(300, 3))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	add_child(title)
+	add_child(Widgets.NotchHeader.new("Affichage", 18))
 	_fullscreen = CheckBox.new()
 	_fullscreen.text = "Plein écran  (F11)"
 	_fullscreen.focus_mode = Control.FOCUS_NONE
@@ -20,7 +22,7 @@ func _ready() -> void:
 		if on != UiSettings.fullscreen:
 			UiSettings.toggle_fullscreen())
 	add_child(_fullscreen)
-	add_child(UiTheme.section("Partie"))
+	add_child(Widgets.NotchHeader.new("Partie", 18))
 	_auto_pause = CheckBox.new()
 	_auto_pause.text = "Pause automatique dans les menus d'empire"
 	_auto_pause.tooltip_text = "Le temps s'arrête quand vous consultez l'économie ou vos colonies, et repart à la fermeture."
@@ -32,9 +34,8 @@ func _ready() -> void:
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0, 10)
 	add_child(gap)
-	var back := Button.new()
-	back.text = "Retour  (Échap)"
-	back.focus_mode = Control.FOCUS_NONE
+	var back := Widgets.RoundButton.new("back", "Retour", 16)
+	back.tooltip_text = "Échap"
 	back.pressed.connect(func() -> void: back_requested.emit())
 	add_child(back)
 	sync()

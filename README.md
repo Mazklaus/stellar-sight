@@ -23,7 +23,7 @@ Premier prototype du 4X spatial Stellar Sigth, pour **Godot 4.7**. Il couvre l'�
 | Revenir à la capitale | H |
 | Planète précédente / suivante (vue système) | Flèches gauche / droite, clic sur la planète ou sa carte en bas |
 | Basculer vue orbitale / gestion du système | Tab, ou les onglets en haut au centre |
-| Économie, Colonies | F1, F2, ou les pictogrammes du panneau d'empire (F3 et F4 : bientôt) |
+| Économie, Colonies, Recherche, Diplomatie | F1 à F4, ou les pictogrammes du panneau d'empire |
 | Revenir en arrière | Échap : ferme le menu d'empire, puis la vue système, puis désélectionne, puis ouvre le menu du jeu. L'onglet « Vue galaxie » ramène aussi à la carte |
 | Se déplacer | Clic droit glissé, molette enfoncée, ZQSD ou flèches |
 | Zoomer | Molette (vers le curseur) |
@@ -43,19 +43,30 @@ La disposition reprend celle d'Endless Space 2, sans rien lui emprunter (dessins
 - **Fiche de sélection** en bas à gauche : une vignette de l'étoile, le nom, le propriétaire, une pastille par planète (cerclée de la couleur du propriétaire), une ligne d'ambiance et le bouton pour entrer dans le système. Elle montre le système survolé, sinon le système choisi.
 - **Cadran du temps** en bas à droite, à la place du bouton de fin de tour : le centre met en pause, la date est dessous, les cinq crans de l'arc règlent la vitesse.
 - **Étiquettes de systèmes** sur la carte : un cartouche sombre souligné de la couleur du propriétaire, et les pastilles des planètes pour vos systèmes et la sélection.
-- **Menus d'empire** (fenêtre à onglets, la carte reste visible derrière) : **Économie** (tableau des ressources : stock, production, entretien, bilan, tendance ; alertes de famine et de pénurie ; votre faction et ses chiffres clés) et **Colonies** (toutes vos revendications avec population, chantier et bilan par ressource ; un clic ouvre la vue système sur la planète). Recherche et Diplomatie sont en place, grisées, pour la suite.
+- **Écrans d'empire** en plein écran, comme dans Endless Space 2 : la carte s'efface derrière un voile, le panneau d'empire et le cadran restent, un onglet en haut au centre nomme l'écran et le ferme, une colonne à gauche résume, et le contenu se range en blocs titrés.
+  - **Économie** : bilan des ressources (stock, production, entretien, bilan, tendance), anneau de répartition de la production, production par système (un clic ouvre le système), alertes. La colonne montre votre peuple et ses chiffres clés.
+  - **Colonies** : liste filtrable (toutes, colonies, avant-postes, fondations), fiche de la colonie choisie avec son illustration et un bouton pour ouvrir sa vue système (ou double-clic sur la ligne). La colonne fait le compte dans un anneau.
+  - **Recherche** et **Diplomatie** : écrans en place, en attente de leurs systèmes (arbre des technologies par ères, empires de la galaxie, emplacements de traités verrouillés).
 - **Navigation fluide** : la caméra glisse vers le système choisi (Tab, H), la vue système s'ouvre en fondu, et les flèches de son en-tête passent d'un système de l'empire à l'autre.
 - **Chronique galactique** en haut à droite (les six dernières entrées en infobulle). Les notifications (sauvegarde, ordre refusé) apparaissent sous les onglets et s'effacent seules.
-- **Menu principal** sur une galaxie qui dérive : Continuer (sauvegarde rapide) ou Reprendre la partie, Nouvelle partie (choix parmi les 4 peuples avec leur particularité, graine facultative : un nombre ou un mot), Options, Quitter.
-- **Menu du jeu** (Échap) : le temps s'arrête et reprend comme avant à la fermeture. Reprendre, Sauvegarder, Charger, Raccourcis (la liste complète), Options, Menu principal, Quitter (avec confirmation).
+- **Menu principal** sur une galaxie qui dérive : Continuer (sauvegarde rapide) ou Reprendre la partie, Nouvelle partie, Options, Quitter.
+- **Nouvelle partie**, sur le modèle du choix de faction d'Endless Space 2 : une rangée de portraits (les 4 peuples et « Au hasard »), la grande illustration du peuple choisi à droite, puis ses affinités et traits, son histoire et les réglages de la galaxie (graine facultative : un nombre ou un mot). Boutons ronds Retour et Commencer.
+- **Menu du jeu** (Échap) : le temps s'arrête et reprend comme avant à la fermeture. Reprendre, Sauvegarder, Charger, Raccourcis (rangés par thème), Options, Menu principal, Quitter (page de confirmation Annuler / Quitter).
 - **Options** : plein écran, et pause automatique à l'ouverture des menus d'empire. Ce sont des réglages du poste (`user://settings.cfg`), jamais enregistrés dans la partie.
 
 ![Lentille économique](docs/apercu-lentille-economique.png)
 ![Menu principal](docs/apercu-menu-principal.png)
 ![Nouvelle partie](docs/apercu-nouvelle-partie.png)
-![Menus d'empire](docs/apercu-menus-empire.png)
+![Écran Économie](docs/apercu-ecran-economie.png)
+![Écran Colonies](docs/apercu-menus-empire.png)
 
 L'interface ne fait que lire la partie et émettre des demandes : les bilans des menus d'empire viennent de `EmpireReport` (côté simulation, en lecture seule, avec les mêmes règles qu'`Economy`), et tout changement passe toujours par un ordre.
+
+### Emplacements d'illustrations
+
+Les portraits de peuples, les bandeaux des écrans d'empire, la planète de la colonie choisie, le bandeau de la galaxie et le fond du menu principal sont des emplacements (`Widgets.ArtSlot`). Tant qu'il n'y a pas d'image, un motif dessiné tient la place dans la bonne teinte. Pour habiller le jeu, il suffira de déposer une image nommée d'après l'emplacement dans `assets/art/` (liste dans [assets/art/LISEZMOI.md](assets/art/LISEZMOI.md)) : aucun code à changer.
+
+Sources d'inspiration étudiées : captures d'Endless Space 2 de la galerie [HUDS+GUIS](https://www.hudsandguis.com/home/2017/7/6/endless-space-2) (écran du Sénat, quêtes, nouvelle partie, choix de faction, choix du gouvernement) et le [guide de l'interface de Gamepressure](https://www.gamepressure.com/endless-space-2/interface-summary/z49c44). Seules la disposition et l'ergonomie s'en inspirent.
 
 ## Vue système
 
@@ -108,7 +119,7 @@ scripts/
     hud.gd                Interface en jeu : onglets de vue, fiche de sélection, notifications, chronique, cadran
     empire_bar.gd         Panneau d'empire (menus, ressources, ligne d'état)
     time_dial.gd          Cadran du temps (pause, date, vitesse)
-    empire_screens.gd     Menus d'empire à onglets : Économie, Colonies
+    empire_screens.gd     Écrans d'empire plein écran : Économie, Colonies, Recherche, Diplomatie
     main_menu.gd          Menu principal et choix de la faction
     pause_menu.gd         Menu du jeu et liste des raccourcis
     options_panel.gd      Page Options (partagée)
@@ -119,6 +130,7 @@ scripts/
     system_manage_panel.gd Vue de gestion : planètes alignées, rendements, jauge, disponibilité, ordre principal
     planet_info.gd        Textes sur une planète partagés par les deux écrans
 assets/fonts/             Police Exo 2 (licence SIL OFL, fichier de licence à côté)
+assets/art/               Illustrations d'habillage (vide pour l'instant, voir assets/art/LISEZMOI.md)
 shaders/                  Rendu de la vue système (planète éclairée, étoile, fond étoilé)
 tools/
   capture_system_view.gd  Captures d'écran de la vue système (rendu réel, voir l'en-tête du fichier)
@@ -164,7 +176,7 @@ Principes :
 
 ## Tests
 
-Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), le noyau de simulation (`tests/sim_tests.gd` : déterminisme sur 1000 ticks, ordres valides et refusés, ordres en pause, rediffusion, sauvegarde/chargement à l'identique, reprise après chargement identique à une partie jamais interrompue, fichiers abîmés refusés, performance), l'économie (`tests/economy_tests.gd` : données, planètes déterministes, départ des 4 empires, bilan mensuel exact, traits de faction, colonisation et chacun de ses refus, avant-poste transformé en colonie, chantiers et emplacements, croissance plafonnée, famine, pénurie d'énergie, déterminisme, rediffusion et sauvegarde avec colonies, 10 ans sans stock négatif), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, ouverture et fermeture de la vue système, bascule vers la vue de gestion, construction et colonisation depuis la fiche de la planète, renommage, F5/F9, Échap), les bilans d'empire, l'interface (thème, barre d'empire, menus Économie et Colonies, pause automatique, Tab, H, flèches, fiche de sélection, lentille économique, cadran du temps, menu pause, menu principal et nouvelle partie avec faction et graine choisies) ainsi que la géométrie de la vue système (planètes dans la scène et cliquables) :
+Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), le noyau de simulation (`tests/sim_tests.gd` : déterminisme sur 1000 ticks, ordres valides et refusés, ordres en pause, rediffusion, sauvegarde/chargement à l'identique, reprise après chargement identique à une partie jamais interrompue, fichiers abîmés refusés, performance), l'économie (`tests/economy_tests.gd` : données, planètes déterministes, départ des 4 empires, bilan mensuel exact, traits de faction, colonisation et chacun de ses refus, avant-poste transformé en colonie, chantiers et emplacements, croissance plafonnée, famine, pénurie d'énergie, déterminisme, rediffusion et sauvegarde avec colonies, 10 ans sans stock négatif), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, ouverture et fermeture de la vue système, bascule vers la vue de gestion, construction et colonisation depuis la fiche de la planète, renommage, F5/F9, Échap), les bilans d'empire, l'interface (thème, barre d'empire, écrans Économie, Colonies, Recherche et Diplomatie (filtres, colonie choisie, anneau), pause automatique, Tab, H, flèches, fiche de sélection, lentille économique, cadran du temps, menu pause, menu principal et nouvelle partie avec faction et graine choisies) ainsi que la géométrie de la vue système (planètes dans la scène et cliquables) :
 
 ```
 godot --headless --path . -s res://tests/smoke_test.gd

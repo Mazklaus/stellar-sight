@@ -55,7 +55,7 @@ func _ready() -> void:
 	_camera.make_current()
 
 	_hud = Hud.new()
-	_hud.layer = 2  # au-dessus de la vue système
+	_hud.layer = 3  # au-dessus de la vue système et des écrans d'empire
 	add_child(_hud)
 	_hud.open_system_requested.connect(open_system_view)
 	_hud.screen_requested.connect(toggle_empire_screen)
@@ -224,7 +224,7 @@ func toggle_empire_screen(screen_id: String) -> void:
 	if _empire_screens.is_open() and _empire_screens.current == screen_id:
 		close_empire_screen()
 		return
-	var sc := _screen_info(screen_id)
+	var sc := EmpireBar.screen_info(screen_id)
 	if not sc.get("ready", false):
 		_hud.notify(String(sc.get("why", "Bientôt.")))
 		_hud.bar.set_open_screen(_empire_screens.current)
@@ -234,6 +234,7 @@ func toggle_empire_screen(screen_id: String) -> void:
 		GameClock.set_paused(true)
 	_hud.show_hover(null, Vector2.ZERO)
 	_empire_screens.open(screen_id, simulation.state, LOCAL_PLAYER)
+	_hud.set_empire_screen_open(true)
 	_update_map_input()
 
 
@@ -242,6 +243,7 @@ func close_empire_screen() -> void:
 		return
 	_empire_screens.close()
 	_hud.bar.set_open_screen("")
+	_hud.set_empire_screen_open(false)
 	if _auto_paused:
 		_auto_paused = false
 		GameClock.set_paused(false)
@@ -252,11 +254,6 @@ func is_empire_screen_open() -> bool:
 	return _empire_screens != null and _empire_screens.is_open()
 
 
-func _screen_info(screen_id: String) -> Dictionary:
-	for sc: Dictionary in EmpireBar.SCREENS:
-		if sc["id"] == screen_id:
-			return sc
-	return {}
 
 
 # --- Menu principal et menu pause -------------------------------------------------------------
