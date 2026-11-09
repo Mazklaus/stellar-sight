@@ -23,6 +23,10 @@ func _initialize() -> void:
 	main.open_system_view(home)
 	await _frames(90)
 	await _shot(out + "/vue-systeme-origine.png")
+	main._system_screen.set_manage_mode(true)
+	await _frames(30)
+	await _shot(out + "/vue-gestion-origine.png")
+	main._system_screen.set_manage_mode(false)
 	# Un système bien rempli, avec si possible une géante gazeuse et une ceinture d'astéroïdes.
 	var best: StarSystem = null
 	var best_score := -1
@@ -40,6 +44,10 @@ func _initialize() -> void:
 	main.open_system_view(best.id)
 	await _frames(120)
 	await _shot(out + "/vue-systeme-riche.png")
+	main._system_screen.set_manage_mode(true)
+	await _frames(30)
+	await _shot(out + "/vue-gestion-riche.png")
+	main._system_screen.set_manage_mode(false)
 	for s in st.galaxy.systems:
 		if s.star_type == "black_hole" and s.planet_count >= 2:
 			main.open_system_view(s.id)

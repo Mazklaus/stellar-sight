@@ -12,7 +12,7 @@ const STAR_SHADER := preload("res://shaders/star.gdshader")
 const BACKDROP_SHADER := preload("res://shaders/space_backdrop.gdshader")
 
 ## Aplatissement des orbites : 1 = vue de dessus, plus petit = vue rasante.
-const TILT := 0.34
+const TILT := 0.42
 ## Rayon du cœur de l'étoile (pixels à l'échelle 1) et part du rectangle qu'il occupe dans le shader.
 const STAR_LOOKS := {
 	"yellow": {"radius": 40.0, "core": 0.2, "mode": 0},
@@ -60,6 +60,15 @@ var selected_planet := -1
 var hovered_planet := -1
 ## Marges couvertes par l'interface (gauche, haut, droite, bas) : la scène se place dans le reste.
 var margins := Vector4(0, 0, 0, 0)
+## false : seul le fond est dessiné (la vue de gestion s'affiche par-dessus).
+var show_scene := true:
+	set(value):
+		show_scene = value
+		if _star:
+			_star.visible = value
+			for b in _bodies.values():
+				b.visible = value
+			queue_redraw()
 
 var _backdrop: ColorRect
 var _star: ColorRect
@@ -119,7 +128,8 @@ func set_system(value_state: GameState, s: StarSystem, viewer: int) -> void:
 		var p := state.galaxy.get_planet(pid)
 		var body := ColorRect.new()
 		body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		body.material = _planet_material(p)
+		body.material = make_planet_material(p)
+		body.visible = show_scene
 		add_child(body)
 		_bodies[pid] = body
 		if p.type == "asteroids":
@@ -208,7 +218,7 @@ func planet_radius(pid: int) -> float:
 
 ## Planète sous un point de l'écran (la plus en avant si plusieurs se recouvrent), ou -1.
 func planet_at(pos: Vector2) -> int:
-	if system == null:
+	if system == null or not show_scene:
 		return -1
 	var best := -1
 	var best_depth := -INF
@@ -262,7 +272,7 @@ func _update_layout() -> void:
 # --- Dessin ----------------------------------------------------------------------------------
 
 func _draw() -> void:
-	if system == null:
+	if system == null or not show_scene:
 		return
 	var c := star_center()
 	for pid in system.planet_ids:
@@ -312,97 +322,150 @@ func _draw_belt(pid: int, c: Vector2, rx: float) -> void:
 		draw_circle(pos, rock.z * scale_factor() * (0.7 + 0.3 * depth), Color(0.72, 0.66, 0.58, 0.35 + 0.45 * depth))
 
 
-## Annotations au-dessus de tout : propriétaires, sélection, noms.
+## Annotations au-dessus de tout : propriété et population, sélection, et une fiche accrochée
+## à chaque planète (nom, taille et type, disponibilité ; barres de potentiel pour la planète
+## survolée ou choisie).
 func _draw_overlay() -> void:
-	if system == null:
+	if system == null or not show_scene:
 		return
 	var sf := scale_factor()
 	for pid in system.planet_ids:
-		var p := state.galaxy.get_planet(pid)
 		var pos := planet_position(pid)
 		var r := planet_radius(pid)
 		var c: Colony = state.colonies.get(pid)
 		if c:
-			var col := state.get_empire(c.owner).color()
-			if c.is_established():
-				_overlay.draw_arc(pos, r + 5.0 * sf, 0.0, TAU, 48, col, 2.0, true)
-			else:
-				for i in 12:
-					var a := TAU * i / 12.0 + _time * 0.3
-					_overlay.draw_arc(pos, r + 5.0 * sf, a, a + TAU / 24.0, 6, col, 2.0, true)
-			if state.get_empire(c.owner).capital_planet == pid:
-				var top := pos + Vector2(0, -r - 14.0 * sf)
-				var d := 6.0 * sf
-				_overlay.draw_colored_polygon(PackedVector2Array([top + Vector2(0, -d), top + Vector2(d * 0.7, 0),
-						top + Vector2(0, d), top + Vector2(-d * 0.7, 0)]), col)
+			_draw_claim_ring(pid, c, pos, r + 5.0 * sf)
 		if pid == selected_planet:
 			_draw_brackets(pos, r + 11.0 * sf, SELECT_COLOR)
 		elif pid == hovered_planet:
 			_overlay.draw_arc(pos, r + 9.0 * sf, 0.0, TAU, 48, Color(1, 1, 1, 0.6), 1.5, true)
-		_draw_tag(p, c, pos, r)
+	# Fiches dessinées de l'arrière vers l'avant, celle de la planète choisie en dernier.
+	var order: Array = system.planet_ids.duplicate()
+	order.sort_custom(func(a: int, b: int) -> bool:
+		var ka := planet_depth(a) + (4.0 if a == selected_planet else (2.0 if a == hovered_planet else 0.0))
+		var kb := planet_depth(b) + (4.0 if b == selected_planet else (2.0 if b == hovered_planet else 0.0))
+		return ka < kb)
+	for pid in order:
+		_draw_card(pid, sf)
 
 
-## Fiche flottante à droite de la planète : nom, type, statut et, pour une revendication, son bilan.
-func _draw_tag(p: Planet, c: Colony, pos: Vector2, r: float) -> void:
+## Anneau de propriété : une colonie montre sa population en arc (comme une jauge),
+## un avant-poste un anneau plein, une fondation un anneau pointillé qui tourne.
+func _draw_claim_ring(pid: int, c: Colony, pos: Vector2, radius: float) -> void:
+	var owner := state.get_empire(c.owner)
+	var col := owner.color()
+	if not c.is_established():
+		for i in 12:
+			var a := TAU * i / 12.0 + _time * 0.3
+			_overlay.draw_arc(pos, radius, a, a + TAU / 24.0, 6, col, 2.0, true)
+	elif c.is_colony():
+		var p := state.galaxy.get_planet(pid)
+		var cap := maxi(Economy.max_pop(state, p, c.owner, c.buildings), 1)
+		var frac := clampf(float(c.population) / float(cap), 0.0, 1.0)
+		_overlay.draw_arc(pos, radius, 0.0, TAU, 48, Color(col, 0.25), 3.0, true)
+		if frac > 0.0:
+			_overlay.draw_arc(pos, radius, -PI / 2.0, -PI / 2.0 + TAU * frac, 48, col, 3.0, true)
+	else:
+		_overlay.draw_arc(pos, radius, 0.0, TAU, 48, col, 1.5, true)
+	if owner.capital_planet == pid:
+		var top := pos + Vector2(0, -radius - 9.0)
+		var d := 6.0 * scale_factor()
+		_overlay.draw_colored_polygon(PackedVector2Array([top + Vector2(0, -d), top + Vector2(d * 0.7, 0),
+				top + Vector2(0, d), top + Vector2(-d * 0.7, 0)]), col)
+
+
+## Fiche accrochée à une planète, reliée par un trait fin. Placée à droite de la planète,
+## ou à gauche quand la planète est dans la moitié droite de la scène.
+func _draw_card(pid: int, sf: float) -> void:
+	var p := state.galaxy.get_planet(pid)
+	var pos := planet_position(pid)
+	var r := planet_radius(pid)
+	var detailed := pid == selected_planet or pid == hovered_planet
+	var fs := int(round(clampf(15.0 * sf, 10.0, 18.0)))
+	var fs_small := maxi(fs - 3, 9)
+	var avail := PlanetInfo.availability(state, p, player)
 	var lines: Array[Dictionary] = [
-		{"text": p.display_name(state.galaxy), "font": _title_font, "size": 18, "col": UiTheme.TEXT},
-		{"text": "%s, taille %d" % [p.type_label(), p.size], "font": _font, "size": 12, "col": Color(UiTheme.TEXT, 0.85)},
-		{"text": PlanetInfo.short_status(state, p), "font": _font, "size": 12, "col": UiTheme.TEXT_DIM},
+		{"text": p.display_name(state.galaxy), "size": fs, "color": _name_color(pid)},
+		{"text": "%s, taille %d" % [p.type_label(), p.size], "size": fs_small, "color": Color(0.8, 0.84, 0.94, 0.85)},
+		{"text": avail["text"], "size": fs_small, "color": PlanetInfo.AVAILABILITY_COLORS.get(avail["kind"], Color.WHITE)},
 	]
-	var owner := state.get_empire(c.owner) if c else null
-	if owner:
-		lines[2]["col"] = owner.color().lightened(0.3)
-	if p.id == selected_planet:
-		lines[0]["col"] = SELECT_COLOR
+	var width := 0.0
+	for l in lines:
+		width = maxf(width, _font.get_string_size(l["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, l["size"]).x)
+	# Bilan mensuel d'une revendication établie, une pastille par ressource.
 	var yields: Array[Dictionary] = []
+	var c: Colony = state.colonies.get(pid)
 	if c and c.is_established():
-		var y := Economy.colony_yields(state, c)
+		var yl := Economy.colony_yields(state, c)
 		for res in GameData.resource_ids():
-			var v := int(y["gross"][res]) - int(y["upkeep"][res])
+			var v := int(yl["gross"][res]) - int(yl["upkeep"][res])
 			if v != 0:
 				yields.append({"r": res, "v": v})
-	var w := 0.0
-	var h := 6.0
-	for l in lines:
-		w = maxf(w, (l["font"] as Font).get_string_size(l["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, l["size"]).x)
-		h += float(l["size"]) + 4.0
+	var yields_h := 0.0
 	if not yields.is_empty():
-		w = maxf(w, yields.size() * 34.0)
-		h += 18.0
-	var origin := pos + Vector2(r + 12.0, -r * 0.6 - 10.0)
-	var box := Rect2(origin, Vector2(w + 16.0, h + 4.0))
-	# Si la fiche sort de la scène à droite, elle passe à gauche de la planète.
-	if box.end.x > scene_rect().end.x + margins.z - 8.0:
-		box.position.x = pos.x - r - 12.0 - box.size.x
-	_overlay.draw_rect(box, Color(0.02, 0.03, 0.05, 0.5 if p.id != selected_planet else 0.72))
-	var edge := owner.color() if owner else Color(1, 1, 1, 0.25)
-	if p.id == selected_planet:
-		edge = SELECT_COLOR
-	_overlay.draw_rect(Rect2(box.position, Vector2(2, box.size.y)), edge)
-	var y_pos := box.position.y + 4.0
+		width = maxf(width, yields.size() * 34.0)
+		yields_h = float(fs_small) + 6.0
+	var pips_h := 0.0
+	var pip := 6.0
+	if detailed:
+		width = maxf(width, 22.0 + 5.0 * (pip + 2.0) + 4.0)
+		pips_h = GameData.resource_ids().size() * (pip + 3.0) + 4.0
+	var pad := 6.0
+	var h := 0.0
 	for l in lines:
-		y_pos += float(l["size"]) + 2.0
-		_overlay.draw_string(l["font"], Vector2(box.position.x + 10.0, y_pos), l["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, l["size"], l["col"])
-		y_pos += 2.0
+		h += int(l["size"]) + 3
+	var size_card := Vector2(width + pad * 2.0, h + yields_h + pips_h + pad * 2.0)
+	var right := pos.x < star_center().x + orbit_radius(system.planet_count - 1) * 0.35
+	var anchor := pos + Vector2((r + 14.0 * sf) * (1.0 if right else -1.0), -r * 0.6)
+	var top_left := Vector2(anchor.x if right else anchor.x - size_card.x, anchor.y - size_card.y * 0.35)
+	var rect := Rect2(top_left, size_card)
+	var bg := Color(0.02, 0.03, 0.05, 0.72 if detailed else 0.5)
+	_overlay.draw_rect(rect, bg)
+	var edge := Color(1, 1, 1, 0.35 if detailed else 0.18)
+	if c:
+		edge = Color(state.get_empire(c.owner).color(), 0.9)
+	if pid == selected_planet:
+		edge = Color(SELECT_COLOR, 0.9)
+	_overlay.draw_line(rect.position, rect.position + Vector2(0, rect.size.y), edge, 2.0)
+	_overlay.draw_line(pos + Vector2((r + 2.0) * (1.0 if right else -1.0), -r * 0.4),
+			Vector2(rect.position.x if right else rect.end.x, anchor.y), Color(edge, edge.a * 0.8), 1.0, true)
+	var y := rect.position.y + pad
+	for l in lines:
+		y += int(l["size"])
+		_overlay.draw_string(_font, Vector2(rect.position.x + pad, y), l["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, l["size"], l["color"])
+		y += 3
 	if not yields.is_empty():
-		var x := box.position.x + 10.0
-		y_pos += 14.0
+		y += float(fs_small) + 2.0
+		var x := rect.position.x + pad
 		for yv in yields:
-			_overlay.draw_circle(Vector2(x + 3.5, y_pos - 4.0), 3.5, ResourceIcon.color_of(yv["r"]))
-			_overlay.draw_string(_font, Vector2(x + 10.0, y_pos), "%+d" % yv["v"], HORIZONTAL_ALIGNMENT_LEFT, -1, 12, UiTheme.delta_color(yv["v"]))
+			_overlay.draw_circle(Vector2(x + 3.5, y - fs_small * 0.35), 3.5, ResourceIcon.color_of(yv["r"]))
+			_overlay.draw_string(_font, Vector2(x + 10.0, y), "%+d" % yv["v"], HORIZONTAL_ALIGNMENT_LEFT, -1, fs_small, UiTheme.delta_color(yv["v"]))
 			x += 34.0
+		y += 4.0
+	if detailed:
+		y += 4
+		var pot := PlanetInfo.potential(p)
+		for res in GameData.resource_ids():
+			var rc: Color = PlanetInfo.RESOURCE_COLORS.get(res, Color.WHITE)
+			_overlay.draw_string(_font, Vector2(rect.position.x + pad, y + pip), GameData.resource_label(res, true).left(2),
+					HORIZONTAL_ALIGNMENT_LEFT, -1, 9, Color(rc, 0.9))
+			for i in 5:
+				var cell := Rect2(rect.position.x + pad + 22.0 + i * (pip + 2.0), y + 1.0, pip, pip - 1.0)
+				_overlay.draw_rect(cell, rc if i < int(pot[res]) else Color(rc, 0.14))
+			y += pip + 3.0
+
+
+func _name_color(pid: int) -> Color:
+	if pid == selected_planet:
+		return SELECT_COLOR
+	var c: Colony = state.colonies.get(pid)
+	return state.get_empire(c.owner).color().lightened(0.3) if c else UiTheme.TEXT
 
 
 func _draw_brackets(pos: Vector2, r: float, col: Color) -> void:
 	for i in 4:
 		var a := TAU * i / 4.0 + PI / 4.0
 		_overlay.draw_arc(pos, r, a - 0.35, a + 0.35, 10, col, 2.5, true)
-
-
-func _draw_centered(text: String, pos: Vector2, fs: int, col: Color) -> void:
-	var w := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-	_overlay.draw_string(_font, pos + Vector2(-w * 0.5 + 1, 1), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0, 0, 0, 0.7))
-	_overlay.draw_string(_font, pos - Vector2(w * 0.5, 0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
 
 
 func _owner_of(pid: int) -> Empire:
@@ -430,13 +493,14 @@ func _gui_input(event: InputEvent) -> void:
 
 # --- Matériaux -------------------------------------------------------------------------------
 
-func _material(shader: Shader) -> ShaderMaterial:
+static func _material(shader: Shader) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
 	m.shader = shader
 	return m
 
 
-func _planet_material(p: Planet) -> ShaderMaterial:
+## Matériau d'une planète selon son type (partagé avec la vue de gestion).
+static func make_planet_material(p: Planet) -> ShaderMaterial:
 	var m := _material(PLANET_SHADER)
 	var look: Dictionary = PLANET_LOOKS.get(p.type, PLANET_LOOKS["barren"])
 	for key in look:

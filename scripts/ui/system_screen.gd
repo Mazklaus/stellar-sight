@@ -1,8 +1,10 @@
 class_name SystemScreen
 extends CanvasLayer
-## Écran dédié à un système : la scène (SystemView) avec l'étoile et ses planètes en orbite,
-## un en-tête (nom, étoile, propriétaire, renommage), un bandeau de planètes en bas
-## et, à droite, la fiche de la planète choisie avec ses actions.
+## Écran dédié à un système, avec deux vues que l'on bascule par les onglets du HUD (ou Tab) :
+## - la vue orbitale (SystemView) : l'étoile, les planètes en orbite et leurs fiches accrochées ;
+## - la vue de gestion (SystemManagePanel) : les planètes alignées en grand pour les comparer.
+## Autour : une colonne à gauche (nom du système, renommage, fiche de la planète choisie et ses
+## ordres), un bandeau de planètes en bas (vue orbitale) et des flèches pour changer de système.
 ## Comme le reste de l'interface, il ne modifie jamais la partie : il émet des demandes
 ## que main.gd transforme en ordres (SimCommands). Les boutons grisés posent la même question
 ## que la simulation (SimCommands.validate) et affichent sa réponse en infobulle.
@@ -13,6 +15,8 @@ signal colonize_requested(planet_id: int, kind: String)
 signal build_requested(planet_id: int, building_id: String)
 ## Passer au système suivant (1) ou précédent (-1) de l'empire.
 signal cycle_requested(step: int)
+## La vue affichée a changé : gestion (true) ou orbitale (false). Les onglets du HUD suivent.
+signal mode_changed(manage: bool)
 
 ## Colonne de gestion, à gauche, sous le panneau d'empire.
 const PANEL_WIDTH := EmpireBar.WIDTH
@@ -29,6 +33,9 @@ const TYPE_DOT_COLORS := {
 }
 
 var view: SystemView
+var manage: SystemManagePanel
+## Vue de gestion affichée (true) ou vue orbitale (false). Gardé d'un système à l'autre.
+var manage_mode := false
 var system_id := -1
 var planet_id := -1
 
@@ -53,6 +60,8 @@ var _status_label: Label
 var _actions_title: Label
 var _actions: VBoxContainer
 var _actions_sig := ""
+var _pot_title: Label
+var _pot_view: Control
 var _icons := {}
 var _panel_box: VBoxContainer
 
@@ -65,6 +74,19 @@ func _ready() -> void:
 	view.margins = Vector4(SCENE_LEFT, 64.0, 40.0, CARD_SIZE.y + 2.0 * MARGIN + 20.0)
 	view.planet_clicked.connect(select_planet)
 	add_child(view)
+	manage = SystemManagePanel.new()
+	manage.anchor_right = 1.0
+	manage.anchor_bottom = 1.0
+	# À droite de la colonne, sous les onglets, en laissant le coin du cadran du temps libre.
+	# Entre les flèches de changement de système, sous la chronique, au-dessus du cadran.
+	manage.offset_left = SCENE_LEFT + 60.0
+	manage.offset_top = 110.0
+	manage.offset_right = -70.0
+	manage.offset_bottom = -TimeDial.SIDE - 10.0
+	manage.visible = false
+	manage.actions_for = planet_actions
+	manage.planet_clicked.connect(select_planet)
+	add_child(manage)
 	_build_panel()
 	_build_header()
 	_build_cards()
@@ -83,11 +105,13 @@ func open(state: GameState, s: StarSystem, player: int) -> void:
 	_rebuild_cards()
 	var was_open := visible
 	visible = true
-	refresh()
+	manage.set_system(state, s, player)
+	set_manage_mode(manage_mode)
 	if not was_open:
 		# Arrivée en fondu depuis la carte.
-		view.modulate.a = 0.0
-		view.create_tween().tween_property(view, "modulate:a", 1.0, 0.25)
+		for n: CanvasItem in [view, manage]:
+			n.modulate.a = 0.0
+			n.create_tween().tween_property(n, "modulate:a", 1.0, 0.25)
 
 
 func close() -> void:
@@ -96,6 +120,7 @@ func close() -> void:
 	planet_id = -1
 	_rename_edit.release_focus()
 	view.set_system(null, null, _player)
+	manage.set_system(null, null, _player)
 
 
 func is_open() -> bool:
@@ -122,9 +147,28 @@ func refresh() -> void:
 		return
 	var s := _state.galaxy.get_system(system_id)
 	view.selected_planet = planet_id
+	manage.selected_planet = planet_id
 	_refresh_header(s)
 	_refresh_cards()
 	_refresh_panel(s)
+	if manage_mode:
+		manage.refresh()
+
+
+## Bascule entre la vue orbitale et la vue de gestion.
+func set_manage_mode(on: bool) -> void:
+	manage_mode = on
+	manage.visible = on
+	view.show_scene = not on
+	_cards.visible = not on
+	mode_changed.emit(on)
+	refresh()
+
+
+func toggle_mode() -> void:
+	set_manage_mode(not manage_mode)
+
+
 
 
 # --- En-tête ---------------------------------------------------------------------------------
@@ -319,6 +363,11 @@ func _build_panel() -> void:
 	_hab_bar.custom_minimum_size = Vector2(0, 8)
 	box.add_child(_hab_bar)
 	_hab_label = _text_label(box)
+	_pot_title = _section(box, "Potentiel")
+	_pot_view = Control.new()
+	_pot_view.custom_minimum_size = Vector2(0, GameData.resource_ids().size() * 16.0)
+	_pot_view.draw.connect(_draw_potential)
+	box.add_child(_pot_view)
 	_dep_title = _section(box, "Gisements")
 	_dep_label = _text_label(box)
 	_status_title = _section(box, "Statut")
@@ -331,7 +380,7 @@ func _build_panel() -> void:
 
 func _refresh_panel(s: StarSystem) -> void:
 	var p := _state.galaxy.get_planet(planet_id) if planet_id >= 0 else null
-	for n: Control in [_hab_title, _hab_bar, _hab_label, _dep_title, _dep_label, _actions_title]:
+	for n: Control in [_hab_title, _hab_bar, _hab_label, _pot_title, _pot_view, _dep_title, _dep_label, _actions_title]:
 		n.visible = p != null
 	if p == null:
 		_p_title.text = GalaxyGenerator.star_label(s.star_type)
@@ -356,12 +405,23 @@ func _refresh_panel(s: StarSystem) -> void:
 	_hab_bar.add_theme_stylebox_override("fill", fill)
 	_hab_label.text = hab["text"]
 
+	_pot_view.set_meta("potential", PlanetInfo.potential(p))
+	_pot_view.queue_redraw()
+
 	var deps := PlanetInfo.deposit_labels(p)
 	_dep_label.text = ", ".join(deps) if not deps.is_empty() else "Aucun gisement notable"
 
 	_status_title.visible = true
 	_status_label.text = "\n".join(PlanetInfo.colony_lines(_state, p, c, _player)) if c else "Aucune revendication. Elle n'attend que vous (ou un voisin plus rapide)."
 
+	var actions := planet_actions(p)
+	_set_actions(actions)
+	_actions_title.visible = not actions.is_empty()
+
+
+## Ordres possibles sur une planète (colonisation, avant-poste, chantiers), avec leur raison de refus.
+func planet_actions(p: Planet) -> Array[Dictionary]:
+	var c: Colony = _state.colonies.get(p.id)
 	var actions: Array[Dictionary] = []
 	# Coloniser n'est proposé que là où l'espèce du joueur peut vivre.
 	var livable := Economy.max_pop(_state, p, _player) > 0
@@ -374,8 +434,23 @@ func _refresh_panel(s: StarSystem) -> void:
 			var b := GameData.building(bid)
 			if b.get("buildable", true):
 				actions.append(_build_action(p, bid, b))
-	_set_actions(actions)
-	_actions_title.visible = not actions.is_empty()
+	return actions
+
+
+## Barres de potentiel (0 à 5) par ressource, avec un mot pour les lire.
+func _draw_potential() -> void:
+	var pot: Dictionary = _pot_view.get_meta("potential", {})
+	var font := UiTheme.body_font()
+	var y := 0.0
+	for r in GameData.resource_ids():
+		var rc: Color = PlanetInfo.RESOURCE_COLORS.get(r, Color.WHITE)
+		var v := int(pot.get(r, 0))
+		_pot_view.draw_string(font, Vector2(0, y + 12), GameData.resource_label(r), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(rc, 0.95))
+		for i in 5:
+			_pot_view.draw_rect(Rect2(100.0 + i * 22.0, y + 5.0, 18.0, 5.0), rc if i < v else Color(rc, 0.12))
+		_pot_view.draw_string(font, Vector2(218, y + 12), PlanetInfo.potential_label(v), HORIZONTAL_ALIGNMENT_LEFT, -1, 12,
+				Color(1, 1, 1, 0.75 if v > 0 else 0.35))
+		y += 16.0
 
 
 func _claim_action(p: Planet, kind: String) -> Dictionary:

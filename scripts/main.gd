@@ -71,6 +71,8 @@ func _ready() -> void:
 	add_child(_system_screen)
 	_system_screen.close_requested.connect(close_system_view)
 	_system_screen.cycle_requested.connect(cycle_system)
+	_hud.system_mode_requested.connect(func(m: bool) -> void: _system_screen.set_manage_mode(m))
+	_system_screen.mode_changed.connect(_hud.set_manage_tab)
 	_system_screen.rename_requested.connect(_on_rename_requested)
 	_system_screen.colonize_requested.connect(func(planet_id: int, kind: String) -> void:
 		simulation.submit(SimCommands.colonize(LOCAL_PLAYER, planet_id, kind)))
@@ -419,7 +421,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			if not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "economy" else "economy")
 		KEY_TAB:
-			cycle_system(-1 if key.shift_pressed else 1)
+			# Dans la vue système, Tab bascule vue orbitale / gestion ; sur la carte, il passe d'un système à l'autre.
+			if is_system_view_open():
+				_system_screen.toggle_mode()
+			else:
+				cycle_system(-1 if key.shift_pressed else 1)
+		KEY_PAGEUP, KEY_PAGEDOWN:
+			cycle_system(-1 if key.keycode == KEY_PAGEUP else 1)
 		KEY_SPACE:
 			GameClock.toggle_pause()
 		KEY_F5:

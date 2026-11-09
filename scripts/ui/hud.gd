@@ -15,6 +15,8 @@ signal menu_requested
 signal pause_toggled
 signal speed_requested(index: int)
 signal lens_changed(lens: String)
+## Onglets de la vue système : gestion (true) ou vue orbitale (false).
+signal system_mode_requested(manage: bool)
 
 const MARGIN := 10.0
 const CARD_WIDTH := 320.0
@@ -38,7 +40,8 @@ var dial: TimeDial
 var _tabs: HBoxContainer
 var _tab_galaxy: Button
 var _tab_economy: Button
-var _tab_system: Button
+var _tab_orbit: Button
+var _tab_manage: Button
 var _info_panel: PanelContainer
 var _portrait: Widgets.StarPortrait
 var _card_title: Label
@@ -103,9 +106,11 @@ func show_system(s: StarSystem, state: GameState) -> void:
 ## Vue système ouverte (true) ou carte de la galaxie (false).
 func set_system_mode(on: bool) -> void:
 	_system_mode = on
-	_tab_galaxy.visible = not on
+	# Dans la vue système, « Vue galaxie » ramène à la carte ; la lentille laisse place aux deux vues du système.
+	_tab_galaxy.set_pressed_no_signal(not on and lens == "")
 	_tab_economy.visible = not on
-	_tab_system.visible = on
+	_tab_orbit.visible = on
+	_tab_manage.visible = on
 	if on:
 		_hover_id = -1
 	_refresh_card()
@@ -190,6 +195,12 @@ func set_lens(value: String) -> void:
 	lens_changed.emit(value)
 
 
+## Onglet de la vue système affichée (suit SystemScreen.mode_changed).
+func set_manage_tab(manage: bool) -> void:
+	_tab_orbit.set_pressed_no_signal(not manage)
+	_tab_manage.set_pressed_no_signal(manage)
+
+
 # --- Construction ---------------------------------------------------------------------------
 
 func _build_tabs() -> void:
@@ -199,11 +210,20 @@ func _build_tabs() -> void:
 	_tabs.add_theme_constant_override("separation", 2)
 	add_child(_tabs)
 	_tab_galaxy = _tab("Vue galaxie", "La carte des systèmes")
-	_tab_galaxy.pressed.connect(func() -> void: set_lens(""))
+	_tab_galaxy.pressed.connect(func() -> void:
+		if _system_mode:
+			_tab_galaxy.set_pressed_no_signal(false)
+			close_system_requested.emit()
+		else:
+			set_lens(""))
 	_tab_economy = _tab("Lentille économique", "Bilan mensuel de chacun de vos systèmes, sur la carte  (L)")
 	_tab_economy.pressed.connect(func() -> void: set_lens("" if lens == "economy" else "economy"))
-	_tab_system = _tab("Gestion du système   ×", "Revenir à la galaxie  (Échap)")
-	_tab_system.pressed.connect(func() -> void: close_system_requested.emit())
+	_tab_orbit = _tab("Vue orbitale", "L'étoile et ses planètes en orbite  (Tab)")
+	_tab_orbit.pressed.connect(func() -> void: system_mode_requested.emit(false))
+	_tab_manage = _tab("Gestion du système", "Les planètes côte à côte, pour comparer  (Tab)")
+	_tab_manage.pressed.connect(func() -> void: system_mode_requested.emit(true))
+	_tab_orbit.visible = false
+	_tab_manage.visible = false
 	_tab_galaxy.set_pressed_no_signal(true)
 
 

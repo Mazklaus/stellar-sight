@@ -19,11 +19,12 @@ Premier prototype du 4X spatial Stellar Sigth, pour **Godot 4.7**. Il couvre l'�
 | Sélectionner un système | Clic gauche (le survol l'affiche dans la fiche en bas à gauche) |
 | Lentille économique | L, ou l'onglet « Lentille économique » en haut |
 | Ouvrir la vue système | Double-clic sur le système, Entrée, ou bouton « Entrer dans le système » |
-| Système suivant / précédent de l'empire | Tab / Maj+Tab (sur la carte ou dans la vue système) |
+| Système suivant / précédent de l'empire | Tab / Maj+Tab sur la carte ; Page préc. / Page suiv. ou les flèches à l'écran dans la vue système |
 | Revenir à la capitale | H |
 | Planète précédente / suivante (vue système) | Flèches gauche / droite, clic sur la planète ou sa carte en bas |
+| Basculer vue orbitale / gestion du système | Tab, ou les onglets en haut au centre |
 | Économie, Colonies | F1, F2, ou les pictogrammes du panneau d'empire (F3 et F4 : bientôt) |
-| Revenir en arrière | Échap : ferme le menu d'empire, puis la vue système, puis désélectionne, puis ouvre le menu du jeu |
+| Revenir en arrière | Échap : ferme le menu d'empire, puis la vue système, puis désélectionne, puis ouvre le menu du jeu. L'onglet « Vue galaxie » ramène aussi à la carte |
 | Se déplacer | Clic droit glissé, molette enfoncée, ZQSD ou flèches |
 | Zoomer | Molette (vers le curseur) |
 | Coloniser, poser un avant-poste, construire | Section « Ordres » de la fiche de la planète, dans la vue système |
@@ -58,9 +59,18 @@ L'interface ne fait que lire la partie et émettre des demandes : les bilans des
 
 ## Vue système
 
-![Vue système](docs/apercu-vue-systeme.png)
+![Vue orbitale](docs/apercu-vue-systeme.png)
 
-Chaque système a son écran : l'étoile au centre (avec sa couronne, les faisceaux d'une étoile à neutrons ou le disque d'un trou noir), les planètes qui tournent sur leurs orbites vues en légère plongée, éclairées du côté de l'étoile, et les ceintures d'astéroïdes. Les anneaux de couleur montrent qui possède quoi (en pointillé pendant une fondation), le losange marque une capitale. Chaque planète porte un cartouche flottant (nom, type, statut, bilan). À gauche, sous le panneau d'empire, la fiche de la planète choisie : habitabilité pour votre espèce, gisements, colonie, bâtiments, production et ordres possibles. Le mouvement des orbites est décoratif et n'influence pas la partie.
+Chaque système a son écran, avec deux vues (onglets en haut au centre, ou Tab) :
+
+- **Vue orbitale** : l'étoile au centre (couronne, faisceaux d'une étoile à neutrons ou disque d'un trou noir), les planètes qui tournent sur leurs orbites, éclairées du côté de l'étoile, et les ceintures d'astéroïdes. Chaque planète porte une fiche accrochée (nom, type et taille, disponibilité : colonisable, avant-poste possible, hors de portée…) ; la planète survolée ou choisie montre aussi son potentiel par ressource. Une colonie est entourée d'un arc de population à la couleur de son empire, un losange marque une capitale. Les fiches de vos planètes établies affichent aussi leur bilan du mois.
+- **Gestion** : les planètes alignées en grand pour les comparer d'un coup d'œil, avec leurs rendements par mois (ou leur potentiel si elles ne sont pas à vous), la jauge de population, la disponibilité et l'ordre principal.
+
+![Vue de gestion](docs/apercu-vue-gestion.png)
+
+À gauche, sous le panneau d'empire, la colonne du système : son nom (renommable), puis la fiche de la planète choisie : habitabilité pour votre espèce, potentiel, gisements, colonie, bâtiments, production et ordres. Le mouvement des orbites est décoratif et n'influence pas la partie.
+
+Inspiration : les deux niveaux de lecture (vue orbitale avec fiches accrochées, puis vue de gestion avec les planètes côte à côte) viennent de l'étude de captures d'Endless Space 2 ([galerie HUDS+GUIS](https://www.hudsandguis.com/home/2017/7/6/endless-space-2)) ; le rendu et la mise en page restent les nôtres.
 
 La partie démarre en pause, le 01/01/2400, centrée sur le système d'origine du peuple choisi. Les noms des systèmes apparaissent quand on zoome. Un bouton grisé explique pourquoi en survol (ressources, portée…).
 
@@ -105,7 +115,8 @@ scripts/
     ui_settings.gd        Réglages du poste (plein écran, pause automatique)
     widgets.gd            Petits contrôles : bouton à pictogramme, infobulle enrichie, emblème, pastille, vignette d'étoile
     resource_icon.gd      Icônes vectorielles des ressources
-    system_screen.gd      Écran de la vue système : en-tête, bandeau des planètes, fiche et ordres
+    system_screen.gd      Écran de la vue système : colonne (en-tête, fiche et ordres), bandeau des planètes
+    system_manage_panel.gd Vue de gestion : planètes alignées, rendements, jauge, disponibilité, ordre principal
     planet_info.gd        Textes sur une planète partagés par les deux écrans
 assets/fonts/             Police Exo 2 (licence SIL OFL, fichier de licence à côté)
 shaders/                  Rendu de la vue système (planète éclairée, étoile, fond étoilé)
@@ -153,7 +164,7 @@ Principes :
 
 ## Tests
 
-Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), le noyau de simulation (`tests/sim_tests.gd` : déterminisme sur 1000 ticks, ordres valides et refusés, ordres en pause, rediffusion, sauvegarde/chargement à l'identique, reprise après chargement identique à une partie jamais interrompue, fichiers abîmés refusés, performance), l'économie (`tests/economy_tests.gd` : données, planètes déterministes, départ des 4 empires, bilan mensuel exact, traits de faction, colonisation et chacun de ses refus, avant-poste transformé en colonie, chantiers et emplacements, croissance plafonnée, famine, pénurie d'énergie, déterminisme, rediffusion et sauvegarde avec colonies, 10 ans sans stock négatif), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, ouverture et fermeture de la vue système, construction et colonisation depuis la fiche de la planète, renommage, F5/F9, Échap), les bilans d'empire, l'interface (thème, barre d'empire, menus Économie et Colonies, pause automatique, Tab, H, flèches, fiche de sélection, lentille économique, cadran du temps, menu pause, menu principal et nouvelle partie avec faction et graine choisies) ainsi que la géométrie de la vue système (planètes dans la scène et cliquables) :
+Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), le noyau de simulation (`tests/sim_tests.gd` : déterminisme sur 1000 ticks, ordres valides et refusés, ordres en pause, rediffusion, sauvegarde/chargement à l'identique, reprise après chargement identique à une partie jamais interrompue, fichiers abîmés refusés, performance), l'économie (`tests/economy_tests.gd` : données, planètes déterministes, départ des 4 empires, bilan mensuel exact, traits de faction, colonisation et chacun de ses refus, avant-poste transformé en colonie, chantiers et emplacements, croissance plafonnée, famine, pénurie d'énergie, déterminisme, rediffusion et sauvegarde avec colonies, 10 ans sans stock négatif), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, ouverture et fermeture de la vue système, bascule vers la vue de gestion, construction et colonisation depuis la fiche de la planète, renommage, F5/F9, Échap), les bilans d'empire, l'interface (thème, barre d'empire, menus Économie et Colonies, pause automatique, Tab, H, flèches, fiche de sélection, lentille économique, cadran du temps, menu pause, menu principal et nouvelle partie avec faction et graine choisies) ainsi que la géométrie de la vue système (planètes dans la scène et cliquables) :
 
 ```
 godot --headless --path . -s res://tests/smoke_test.gd
