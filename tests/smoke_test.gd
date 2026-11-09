@@ -287,6 +287,42 @@ func _test_fleet_ui(main: Node) -> void:
 	await process_frame
 	_check(main.selected_fleet == -1 and not main._hud.fleet_card_visible(), "Échap désélectionne la flotte")
 
+	# Liste des flottes, flottes inactives, exploration auto (ergonomie à la Endless Space 2).
+	var hud: Hud = main._hud
+	hud.refresh()
+	_check(hud.fleet_list.visible and hud.fleet_list.row_count() == Fleets.empire_fleets(st, 0).size(), "liste des flottes : une ligne par flotte")
+	hud.fleet_list.row_button(colonist.id).pressed.emit()
+	await process_frame
+	_check(main.selected_fleet == colonist.id and hud.fleet_list.row_button(colonist.id).button_pressed, "clic sur une ligne : la flotte est sélectionnée")
+	main.select_fleet(scout.id)
+	_check(hud.fleet_button("explore").visible and not hud.fleet_button("explore").disabled, "bouton d'exploration auto sur la fiche")
+	_press(KEY_E, KEY_E)
+	await process_frame
+	await process_frame
+	_check(scout.is_exploring() and scout.is_moving(), "E : exploration automatique lancée")
+	hud.refresh()
+	_check(hud.fleet_list.row_status(scout.id) == "EXPLORATION AUTO" and hud.fleet_button("explore").button_pressed, "liste et fiche montrent l'exploration")
+	_check(hud._fleet_status.text.begins_with("Exploration automatique"), "fiche : état de l'exploration")
+	if colonist.is_moving():
+		main.simulation.submit(SimCommands.stop_fleet(0, colonist.id))
+		main.simulation.flush_commands()
+		for _d in 60:
+			if not colonist.is_moving():
+				break
+			main.simulation.step()
+	hud.refresh()
+	_check(hud.idle_button.visible and hud.idle_button.text.begins_with("1 FLOTTE"), "rappel des flottes inactives (obtenu %s)" % hud.idle_button.text)
+	main.select_fleet(-1)
+	_press(KEY_I, KEY_I)
+	await process_frame
+	_check(main.selected_fleet == colonist.id, "I : sélectionne la flotte qui attend des ordres")
+	main.select_fleet(scout.id)
+	hud.fleet_button("explore").pressed.emit()
+	await process_frame
+	await process_frame
+	_check(not scout.is_exploring(), "le bouton coupe l'exploration auto")
+	main.select_fleet(-1)
+
 	# Chantier spatial depuis la vue système.
 	main.open_system_view(home, me.capital_planet)
 	var screen: SystemScreen = main._system_screen

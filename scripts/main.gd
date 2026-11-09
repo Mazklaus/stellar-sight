@@ -46,6 +46,8 @@ var _auto_paused := false
 ## Flotte sélectionnée (-1 = aucune).
 var selected_fleet := -1
 var _right_press := Vector2(-1, -1)
+## Flottes du joueur en route au tick précédent : pour annoncer leur arrivée.
+var _fleets_moving := {}
 
 
 func _ready() -> void:
@@ -70,6 +72,12 @@ func _ready() -> void:
 	_hud.speed_requested.connect(GameClock.set_speed)
 	_hud.close_system_requested.connect(close_system_view)
 	_hud.fleet_action_requested.connect(_on_fleet_action)
+	_hud.fleet_requested.connect(focus_fleet)
+	_hud.fleet_system_requested.connect(func(fid: int) -> void:
+		var f: Fleet = simulation.state.fleets.get(fid)
+		if f:
+			open_system_view(f.system_id if not f.is_moving() else f.next_system()))
+	_hud.idle_fleet_requested.connect(func() -> void: cycle_idle_fleet(1))
 	_hud.lens_changed.connect(func(l: String) -> void:
 		_view.lens = l
 		_view.queue_redraw())
@@ -333,10 +341,13 @@ func _start(state: GameState) -> void:
 	simulation.command_rejected.connect(func(_cmd: Dictionary, reason: String) -> void:
 		_hud.notify("Ordre refusé : %s" % reason, "bad"))
 	simulation.chronicle_added.connect(_hud.show_chronicle)
-	simulation.ticked.connect(func(_tick: int) -> void: _refresh_all())
+	simulation.ticked.connect(func(_tick: int) -> void:
+		_announce_arrivals()
+		_refresh_all())
 	_view.set_state(state)
 	_hud.set_state(state, LOCAL_PLAYER)
 	select_fleet(-1)
+	_fleets_moving = _moving_fleet_ids()
 	_hud.show_chronicle(state.chronicle.back() if not state.chronicle.is_empty() else {})
 	GameClock.attach(simulation)
 
@@ -355,6 +366,7 @@ func _on_rename_requested(system_id: int, new_name: String) -> void:
 
 
 func _on_command_applied(_cmd: Dictionary) -> void:
+	_fleets_moving = _moving_fleet_ids()
 	_refresh_all()
 	if not simulation.state.chronicle.is_empty():
 		_hud.show_chronicle(simulation.state.chronicle.back())
@@ -472,6 +484,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			if key.physical_keycode == KEY_F and not is_system_view_open() and not is_empire_screen_open():
 				cycle_fleet(-1 if key.shift_pressed else 1)
 				return
+			if key.physical_keycode == KEY_I and not is_system_view_open() and not is_empire_screen_open():
+				cycle_idle_fleet(-1 if key.shift_pressed else 1)
+				return
+			if key.physical_keycode == KEY_E and selected_fleet >= 0 and not is_system_view_open() and not is_empire_screen_open():
+				toggle_auto_explore(selected_fleet)
+				return
 			# Touches physiques 1 à 5 (rangée du haut, même sur AZERTY) ou pavé numérique.
 			var speed := _speed_from_key(key)
 			if speed >= 0:
@@ -541,10 +559,74 @@ func cycle_fleet(step: int) -> void:
 	var ids: Array[int] = []
 	for f in mine:
 		ids.append(f.id)
+	focus_fleet(_cycle_id(ids, step))
+
+
+## Passe à la prochaine flotte du joueur qui attend des ordres (à l'arrêt, sans exploration auto).
+func cycle_idle_fleet(step: int) -> void:
+	var ids: Array[int] = []
+	for f in Fleets.idle_fleets(simulation.state, LOCAL_PLAYER):
+		ids.append(f.id)
+	if ids.is_empty():
+		_hud.notify("Toutes vos flottes ont des ordres.")
+		return
+	focus_fleet(_cycle_id(ids, step))
+
+
+## Identifiant suivant (ou précédent) de la flotte sélectionnée dans une liste triée.
+## Si la flotte sélectionnée n'y est pas, on prend la première après elle.
+func _cycle_id(ids: Array[int], step: int) -> int:
 	var i := ids.find(selected_fleet)
-	var next := ids[0] if i < 0 and step > 0 else ids[posmod(i + step, ids.size())]
-	select_fleet(next)
-	_camera.glide_to(_view.fleet_world_position(next), maxf(_camera.zoom.x, HOME_ZOOM))
+	if i >= 0:
+		return ids[posmod(i + step, ids.size())]
+	if step > 0:
+		for id in ids:
+			if id > selected_fleet:
+				return id
+		return ids[0]
+	for k in range(ids.size() - 1, -1, -1):
+		if ids[k] < selected_fleet:
+			return ids[k]
+	return ids[-1]
+
+
+## Sélectionne une flotte et glisse la caméra jusqu'à elle (liste des flottes, F, I).
+func focus_fleet(fleet_id: int) -> void:
+	if not simulation.state.fleets.has(fleet_id):
+		return
+	if is_system_view_open():
+		close_system_view()
+	select_fleet(fleet_id)
+	_camera.glide_to(_view.fleet_world_position(fleet_id), maxf(_camera.zoom.x, HOME_ZOOM))
+
+
+## Active ou coupe l'exploration automatique d'une flotte du joueur.
+func toggle_auto_explore(fleet_id: int) -> void:
+	var f: Fleet = simulation.state.fleets.get(fleet_id)
+	if f == null or f.owner != LOCAL_PLAYER:
+		return
+	var order := "" if f.is_exploring() else Fleet.ORDER_EXPLORE
+	if simulation.submit(SimCommands.set_fleet_order(LOCAL_PLAYER, fleet_id, order)):
+		_hud.notify("%s : %s" % [f.fleet_name, "part explorer l'inconnu." if order != "" else "exploration automatique interrompue."])
+
+
+func _moving_fleet_ids() -> Dictionary:
+	var out := {}
+	for f in Fleets.empire_fleets(simulation.state, LOCAL_PLAYER):
+		if f.is_moving():
+			out[f.id] = true
+	return out
+
+
+## Annonce les flottes du joueur arrivées à destination pendant le dernier tick
+## (celles en exploration automatique repartent aussitôt : on ne les annonce pas).
+func _announce_arrivals() -> void:
+	var st := simulation.state
+	for fid in _fleets_moving:
+		var f: Fleet = st.fleets.get(fid)
+		if f != null and not f.is_moving() and not f.is_exploring():
+			_hud.notify("%s est arrivé à %s et attend vos ordres." % [f.fleet_name, galaxy.get_system(f.system_id).system_name])
+	_fleets_moving = _moving_fleet_ids()
 
 
 func _on_fleet_action(action: String, fleet_id: int) -> void:
@@ -553,6 +635,8 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 	if f == null:
 		return
 	match action:
+		"explore":
+			toggle_auto_explore(fleet_id)
 		"stop":
 			simulation.submit(SimCommands.stop_fleet(LOCAL_PLAYER, fleet_id))
 		"merge":

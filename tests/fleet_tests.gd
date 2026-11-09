@@ -21,6 +21,9 @@ func run(check: Callable) -> void:
 	_test_contact()
 	_test_save_and_replay()
 	_test_scouting_run()
+	_test_auto_explore()
+	_test_auto_explore_two_scouts()
+	_test_auto_explore_end()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -343,3 +346,96 @@ func _test_scouting_run() -> void:
 	_ok(trips == 12, "12 expéditions successives possibles (obtenu %d)" % trips)
 	_ok(st.get_empire(0).explored.size() > start + 10, "l'exploration progresse (%d -> %d systèmes)" % [start, st.get_empire(0).explored.size()])
 	print("  éclaireur : %d systèmes explorés en %d jours" % [st.get_empire(0).explored.size(), st.tick])
+
+
+## Exploration automatique : l'éclaireur part seul, ne s'arrête pas tant qu'il reste de l'inconnu,
+## rend la main à un ordre manuel, survit à la sauvegarde et se rediffuse à l'identique.
+func _test_auto_explore() -> void:
+	var sim := Simulation.new(GameState.create(31))
+	var st := sim.state
+	var scout := _fleet_with(st, 0, "scout")
+	var colonist := _fleet_with(st, 0, "colony_ship")
+	var start := st.get_empire(0).explored.size()
+	_ok(scout.is_idle() and Fleets.idle_fleets(st, 0).size() == 2, "au départ, les deux flottes attendent des ordres")
+	_ok(Fleets.check_order(st, 0, scout.id, "patrouille_imaginaire") != "", "ordre permanent inconnu refusé")
+	_ok(Fleets.check_order(st, 1, scout.id, Fleet.ORDER_EXPLORE) != "", "on ne donne pas d'ordre à la flotte d'un autre")
+	_ok(Fleets.check_order(st, 0, scout.id, "") != "", "rien à annuler sur une flotte sans ordre permanent")
+	sim.submit(SimCommands.set_fleet_order(0, scout.id, Fleet.ORDER_EXPLORE))
+	sim.flush_commands()
+	_ok(scout.is_exploring() and scout.is_moving(), "exploration auto : l'éclaireur part aussitôt")
+	_ok(not Fleets.is_explored(st, 0, scout.destination()), "il vise un système inexploré")
+	_ok(Fleets.idle_fleets(st, 0).size() == 1 and Fleets.idle_fleets(st, 0)[0].id == colonist.id, "il ne compte plus parmi les flottes inactives")
+	var stopped_days := 0
+	for _d in 240:
+		sim.step()
+		if not scout.is_moving():
+			stopped_days += 1
+	_ok(scout.is_exploring(), "toujours en exploration après 240 jours")
+	_ok(stopped_days == 0, "l'éclaireur ne reste jamais à l'arrêt (obtenu %d jours)" % stopped_days)
+	var explored := st.get_empire(0).explored.size()
+	_ok(explored > start + 30, "l'exploration auto découvre la galaxie (%d -> %d systèmes)" % [start, explored])
+	print("  exploration auto : %d systèmes explorés en %d jours" % [explored, st.tick])
+	# Sauvegarde et rediffusion.
+	var loaded := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_dict())))
+	_ok(loaded != null and loaded.fleets[scout.id].is_exploring(), "l'ordre d'exploration est sauvegardé")
+	var b := Simulation.new(loaded)
+	sim.advance(60)
+	b.advance(60)
+	_ok(sim.state.checksum() == b.state.checksum(), "exploration auto déterministe après rechargement")
+	var replayed := Simulation.replay(GameState.create(31), sim.command_log, st.tick)
+	_ok(replayed.state.checksum() == st.checksum(), "rediffusion d'une partie avec exploration auto")
+	# Un ordre manuel reprend la main.
+	sim.submit(SimCommands.move_fleet(0, scout.id, _home(st)))
+	sim.flush_commands()
+	_ok(not scout.is_exploring() and scout.destination() == _home(st), "un ordre de déplacement coupe l'exploration auto")
+	sim.submit(SimCommands.set_fleet_order(0, scout.id, Fleet.ORDER_EXPLORE))
+	sim.flush_commands()
+	sim.submit(SimCommands.set_fleet_order(0, scout.id, ""))
+	sim.flush_commands()
+	_ok(not scout.is_exploring(), "l'exploration auto se coupe")
+	# Une ancienne sauvegarde (sans le champ) se relit sans ordre.
+	var d := st.to_dict()
+	for fd in d["fleets"]:
+		fd.erase("order")
+	var old := GameState.from_dict(d)
+	_ok(old != null and old.fleets[scout.id].standing_order == "", "sauvegarde sans ordre permanent relue")
+
+
+## Deux éclaireurs en exploration ne visent pas le même système.
+func _test_auto_explore_two_scouts() -> void:
+	var sim := Simulation.new(GameState.create(47))
+	var st := sim.state
+	var a := _fleet_with(st, 0, "scout")
+	var b := st.spawn_ship(0, "scout", a.system_id)
+	sim.submit(SimCommands.set_fleet_order(0, a.id, Fleet.ORDER_EXPLORE))
+	sim.submit(SimCommands.set_fleet_order(0, b.id, Fleet.ORDER_EXPLORE))
+	sim.flush_commands()
+	_ok(a.is_moving() and b.is_moving() and a.destination() != b.destination(), "deux éclaireurs, deux cibles différentes")
+	var same := 0
+	for _d in 120:
+		sim.step()
+		if a.is_moving() and b.is_moving() and a.destination() == b.destination():
+			same += 1
+	_ok(same <= 5, "ils se répartissent la frontière (même cible %d jours sur 120)" % same)
+
+
+## Quand tout est exploré, l'ordre s'arrête, la chronique le dit, et la flotte redevient inactive.
+func _test_auto_explore_end() -> void:
+	var sim := Simulation.new(GameState.create(5))
+	var st := sim.state
+	var scout := _fleet_with(st, 0, "scout")
+	sim.submit(SimCommands.set_fleet_order(0, scout.id, Fleet.ORDER_EXPLORE))
+	sim.flush_commands()
+	var e := st.get_empire(0)
+	for sys in st.galaxy.systems:
+		e.explored[sys.id] = true
+	sim.step()
+	sim.step()  # arrivée ou cible explorée : plus rien à viser
+	var guard := 0
+	while scout.is_moving() and guard < 400:
+		sim.step()
+		guard += 1
+	_ok(not scout.is_exploring() and scout.is_idle(), "plus rien à explorer : l'ordre s'arrête")
+	_ok(st.chronicle.any(func(c: Dictionary) -> bool: return String(c["text"]).contains(scout.fleet_name) and String(c["text"]).contains("cartographié")),
+			"la chronique annonce la fin de l'exploration")
+	_ok(Fleets.check_order(st, 0, scout.id, Fleet.ORDER_EXPLORE) != "", "exploration refusée quand il n'y a plus rien à voir")

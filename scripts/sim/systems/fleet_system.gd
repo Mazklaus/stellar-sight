@@ -4,7 +4,8 @@ extends RefCounted
 ## 1. chantiers spatiaux : les vaisseaux terminés sortent en orbite, chacun dans sa propre flotte ;
 ## 2. déplacements : chaque flotte avance de sa vitesse le long de son trajet ;
 ## 3. exploration : chaque empire découvre ce que voient ses revendications et ses flottes,
-##    et rencontre les empires qu'il aperçoit (premier contact).
+##    et rencontre les empires qu'il aperçoit (premier contact) ;
+## 4. exploration automatique : les flottes qui en ont l'ordre repartent vers la frontière.
 ## Aucun aléatoire, uniquement des entiers, tout est parcouru dans l'ordre des identifiants.
 
 
@@ -15,7 +16,32 @@ static func process(state: GameState) -> Array[Dictionary]:
 	for fid in state.sorted_fleet_ids():
 		_move(state, state.fleets[fid])
 	added.append_array(update_exploration(state))
+	for fid in state.sorted_fleet_ids():
+		var f: Fleet = state.fleets[fid]
+		if f.is_exploring():
+			var entry := explore_step(state, f)
+			if not entry.is_empty():
+				added.append(entry)
 	return added
+
+
+## Une flotte en exploration automatique choisit sa prochaine cible : à l'arrêt, ou dès que sa
+## destination a été explorée en chemin (un éclaireur voit à deux sauts, il n'a pas besoin d'y aller).
+## Quand il ne reste rien à explorer, l'ordre s'arrête et la chronique le signale.
+static func explore_step(state: GameState, f: Fleet) -> Dictionary:
+	if f.is_moving() and not Fleets.is_explored(state, f.owner, f.destination()):
+		return {}
+	var target := Fleets.explore_target(state, f)
+	var plan := Fleets.plan_route(state, f, target) if target >= 0 else {}
+	if plan.is_empty():
+		f.standing_order = ""
+		var e := state.get_empire(f.owner)
+		return state.add_chronicle("%s : le %s a cartographié tout ce que ses routes connues permettaient d'atteindre. L'équipage attend de nouveaux ordres, et des vacances." % [
+				e.short_name(), f.fleet_name])
+	f.system_id = int(plan["system"])
+	f.path.assign(plan["path"])
+	f.progress = int(plan["progress"])
+	return {}
 
 
 static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictionary]) -> void:

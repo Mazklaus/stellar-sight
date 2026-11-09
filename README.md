@@ -30,6 +30,9 @@ Premier prototype du 4X spatial Stellar Sigth, pour **Godot 4.7**. Il couvre l'�
 | Sélectionner une flotte | Clic gauche sur son chevron, ou F / Maj+F (flotte suivante / précédente) |
 | Envoyer la flotte sélectionnée | Clic droit sur un système (sans glisser) |
 | Arrêter, rassembler, détacher, coloniser | Boutons de la fiche de flotte, en bas à gauche |
+| Liste des flottes | Panneau à droite sous la chronique : clic = sélectionner et centrer, double-clic = ouvrir le système |
+| Flotte inactive suivante | I / Maj+I, ou le bouton « N flottes inactives » au-dessus du cadran |
+| Exploration automatique | E (flotte sélectionnée), ou le bouton de la fiche de flotte |
 | Construire un vaisseau | « Chantier spatial » dans les ordres d'une colonie, dans la vue système |
 | Coloniser, poser un avant-poste, construire | Section « Ordres » de la fiche de la planète, dans la vue système |
 | Renommer un système | Bouton « Renommer » à côté de son nom, dans la vue système, puis Entrée |
@@ -97,6 +100,11 @@ La partie démarre en pause, le 01/01/2400, centrée sur le système d'origine d
 - **Deux classes de vaisseaux pour commencer** (`data/ships.json`) : l'éclaireur (40 Mat, 20 j, rapide, voit à 2 sauts) et le vaisseau colon (100 Mat + 20 Nour, 40 j, lent). Chaque empire démarre avec un de chaque, comme dans Endless Space 2 où l'on commence avec un vaisseau colon. Les vaisseaux de guerre arriveront avec le combat.
 - **Chantier spatial** : chaque colonie peuplée construit un vaisseau à la fois, indépendamment de son chantier de bâtiments. Le vaisseau terminé apparaît en orbite dans sa propre flotte (« Éclaireur 2 »). Chaque vaisseau coûte 1 Én d'entretien par mois.
 - **Déplacement en temps réel le long des routes de saut** : clic droit sur un système, la flotte prend le plus court chemin connu et avance chaque jour de sa vitesse (celle de son vaisseau le plus lent). Le trajet et le délai s'affichent en pointillés ; le chevron glisse en continu entre deux jours. Une flotte en route peut recevoir un contre-ordre : elle finit sa route ou fait demi-tour, selon ce qui est le plus court (comme dans Stellaris). « Arrêter » la pose au système le plus proche.
+- **Ergonomie des flottes** (d'après Endless Space 2) : liste permanente de toutes vos flottes à droite (état : en route, en exploration, attend des ordres, avec délais) ; bouton des flottes inactives au-dessus du cadran, comme celui au-dessus de la fin de tour d'ES2 ; avis à l'arrivée d'une flotte.
+- **Exploration automatique** : ordre permanent d'une flotte (sauvegardé, rejouable). Elle vise le système inexploré le plus proche par les routes connues, change de cible dès que la sienne a été vue en chemin, évite celles déjà visées par un autre explorateur, et s'arrête (avec une ligne de chronique) quand il n'y a plus rien à atteindre. Un ordre manuel la coupe.
+
+![Liste des flottes et exploration automatique](docs/apercu-flottes-liste.png)
+
 - **Flottes** : « Rassembler » réunit les flottes à l'arrêt dans un même système, « Détacher » en sépare un vaisseau.
 - **Brouillard de guerre** : on ne voit que ce qu'observent ses revendications (1 saut autour) et ses flottes (selon leur vision). Un système vu une fois reste exploré (comme la « terra incognita » d'Endless Space 2 que les vaisseaux dissipent pour de bon) ; hors de vue, il est assombri et les flottes étrangères y sont invisibles. Les systèmes reliés à un système exploré apparaissent comme de simples lueurs, sans nom ni planètes : on peut y envoyer une flotte, pas les ouvrir. Le reste de la galaxie et ses routes sont cachés.
 - **Colonisation par vaisseau colon** : pour s'installer dans un nouveau système, il faut y amener un vaisseau colon, qui se démonte pour fonder l'avant-poste ou la colonie (il ne reste à payer que l'influence). Une fois une revendication établie dans un système, ses autres planètes se revendiquent sans vaisseau, comme avant. La règle provisoire « système voisin » disparaît.
