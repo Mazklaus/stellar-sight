@@ -7,7 +7,7 @@ extends RefCounted
 ## stockée : elle se régénère à l'identique depuis la graine. Seules les données
 ## qui changent en cours de partie sont sérialisées.
 
-const FORMAT_VERSION := 4
+const FORMAT_VERSION := 5
 const CHRONICLE_MAX := 50
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
@@ -42,9 +42,16 @@ var _system_owner: Dictionary = {}
 
 ## Nouvelle partie : galaxie, puis les empires de la première version placés dans leurs systèmes d'origine.
 ## player_faction devient l'empire 0 (le joueur local) ; les autres suivent dans l'ordre des données.
-static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "") -> GameState:
+## options :
+## - "ai_level" : niveau des empires IA (AiLevels, défaut celui de data/ai.json ; "" = aucune IA,
+##   les autres empires restent inertes, ce dont se servent les tests de règles) ;
+## - "ai_levels" : niveaux empire par empire (tableau, prioritaire sur "ai_level") ;
+## - "temperament" / "temperaments" : tempérament des IA (AiLevels.temperament), global ou empire par empire ;
+## - "spectator" : aucun joueur humain, l'empire 0 est lui aussi une IA (mode spectateur).
+static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
 	var s := _base(seed_value_, system_count_, galaxy_radius_)
 	s._setup_empires(player_faction)
+	s._setup_ai(options)
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -133,6 +140,12 @@ static func from_dict(d: Dictionary) -> GameState:
 	for e: Dictionary in d["empires"]:
 		if GameData.faction(String(e["faction"])).is_empty():
 			last_error = "faction inconnue : %s" % e["faction"]
+			return null
+		if String(e.get("ai", "")) != "" and not AiLevels.is_valid(String(e["ai"])):
+			last_error = "niveau d'IA inconnu : %s" % e["ai"]
+			return null
+		if String(e.get("temper", "")) != "" and not AiLevels.is_valid_temperament(String(e["temper"])):
+			last_error = "tempérament d'IA inconnu : %s" % e["temper"]
 			return null
 		s.empires.append(Empire.from_dict(e))
 	for c: Dictionary in d["colonies"]:
@@ -244,6 +257,37 @@ func override_planet(planet_id: int, fields: Dictionary) -> void:
 			p.deposits.append(String(dep))
 		o["deposits"] = Array(p.deposits)
 	planet_overrides[planet_id] = o
+
+
+func _setup_ai(options: Dictionary) -> void:
+	var level := String(options.get("ai_level", AiLevels.default_id()))
+	var per: Array = options.get("ai_levels", [])
+	var temper := String(options.get("temperament", AiLevels.default_temperament()))
+	var tempers: Array = options.get("temperaments", [])
+	var spectator := bool(options.get("spectator", false))
+	for e in empires:
+		if e.id == 0 and not spectator:
+			continue  # le joueur humain
+		var lv := String(per[e.id]) if e.id < per.size() else level
+		if lv == "":
+			continue
+		if not AiLevels.is_valid(lv):
+			lv = AiLevels.default_id()
+		e.ai_level = lv
+		var tp := String(tempers[e.id]) if e.id < tempers.size() else temper
+		e.ai_temperament = tp if AiLevels.is_valid_temperament(tp) else AiLevels.default_temperament()
+		# Avance de départ des niveaux hauts (affichée dans la description du niveau).
+		var bonus: Dictionary = AiLevels.level(lv).get("start_bonus", {})
+		for r in bonus:
+			e.resources[r] = int(e.resources.get(r, 0)) + int(bonus[r])
+
+
+## Aucun empire n'est joué par un humain : la partie se regarde (mode spectateur).
+func is_spectator_game() -> bool:
+	for e in empires:
+		if not e.is_ai():
+			return false
+	return not empires.is_empty()
 
 
 func _setup_empires(player_faction: String) -> void:

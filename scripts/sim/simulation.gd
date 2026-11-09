@@ -73,6 +73,11 @@ func step() -> void:
 		chronicle_added.emit(entry)
 	for entry in ChronicleSystem.process(state):
 		chronicle_added.emit(entry)
+	# Les empires IA décident en dernier, sur l'état du jour. Leurs ordres passent par les mêmes
+	# règles que ceux des joueurs (SimCommands), mais ils ne vont pas dans command_log :
+	# l'IA fait partie de la simulation, elle se rejoue toute seule à l'identique.
+	for entry in AiSystem.process(state):
+		chronicle_added.emit(entry)
 	ticked.emit(state.tick)
 
 

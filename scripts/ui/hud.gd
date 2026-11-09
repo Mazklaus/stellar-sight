@@ -79,6 +79,9 @@ var _fleet_hint: Label
 var _fleet_buttons: Dictionary = {}
 var fleet_list: FleetListPanel
 var idle_button: Button
+## Mode spectateur : aucun ordre, le tableau des empires remplace la liste des flottes.
+var spectator := false
+var spectator_panel: SpectatorPanel
 
 
 func _ready() -> void:
@@ -90,6 +93,7 @@ func _ready() -> void:
 	_build_fleet_card()
 	_build_chronicle()
 	_build_fleet_list()
+	_build_spectator_panel()
 	_build_dial()
 
 	_toasts = VBoxContainer.new()
@@ -108,6 +112,7 @@ func set_state(state: GameState, player: int) -> void:
 	_player = player
 	bar.set_state(state, player)
 	fleet_list.set_state(state, player)
+	spectator_panel.set_state(state if spectator else null, player)
 	_hover_id = -1
 	show_system(null, state)
 
@@ -116,9 +121,27 @@ func set_state(state: GameState, player: int) -> void:
 func refresh() -> void:
 	bar.refresh()
 	fleet_list.refresh()
+	if spectator:
+		spectator_panel.refresh()
 	_refresh_idle_button()
 	_refresh_fleet_card()
 	_refresh_card()
+
+
+## Mode spectateur (partie sans joueur) ou partie normale. À appeler avant set_state().
+func set_spectator(on: bool) -> void:
+	spectator = on
+	_refresh_side_visibility()
+
+
+## Empire suivi par le spectateur : le panneau d'empire et la fiche de flotte le regardent.
+func follow_empire(state: GameState, empire_id: int) -> void:
+	_state = state
+	_player = empire_id
+	bar.set_state(state, empire_id)
+	fleet_list.set_state(state, empire_id)
+	spectator_panel.set_followed(empire_id)
+	refresh()
 
 
 ## Flotte sélectionnée sur la carte (-1 = aucune) : sa fiche s'affiche en bas à gauche.
@@ -411,7 +434,7 @@ func _refresh_fleet_card() -> void:
 		return
 	var g := _state.galaxy
 	var owner := _state.get_empire(f.owner)
-	var mine := f.owner == _player
+	var mine := f.owner == _player and not spectator
 	_fleet_style.border_color = owner.color()
 	_fleet_title.text = f.fleet_name
 	_fleet_title.add_theme_color_override("font_color", owner.color().lightened(0.35))
@@ -505,11 +528,26 @@ func _build_fleet_list() -> void:
 
 func _place_fleet_list() -> void:
 	fleet_list.offset_top = _chronicle.offset_top + _chronicle.size.y + 6.0
+	if spectator_panel:
+		spectator_panel.offset_top = fleet_list.offset_top
+
+
+func _build_spectator_panel() -> void:
+	spectator_panel = SpectatorPanel.new()
+	spectator_panel.anchor_left = 1.0
+	spectator_panel.anchor_right = 1.0
+	spectator_panel.offset_left = -CHRONICLE_WIDTH - MARGIN
+	spectator_panel.offset_right = -MARGIN
+	spectator_panel.visible = false
+	add_child(spectator_panel)
+	_place_fleet_list()
 
 
 func _refresh_side_visibility() -> void:
 	if fleet_list:
-		fleet_list.visible = not _system_mode and not _empire_screen
+		fleet_list.visible = not _system_mode and not _empire_screen and not spectator
+	if spectator_panel:
+		spectator_panel.visible = spectator and not _system_mode and not _empire_screen
 	_refresh_idle_button()
 
 
@@ -517,7 +555,7 @@ func _refresh_idle_button() -> void:
 	if idle_button == null:
 		return
 	var n := Fleets.idle_fleets(_state, _player).size() if _state else 0
-	idle_button.visible = n > 0 and not _system_mode and not _empire_screen
+	idle_button.visible = n > 0 and not _system_mode and not _empire_screen and not spectator
 	idle_button.text = "%d FLOTTE%s INACTIVE%s" % [n, "S" if n > 1 else "", "S" if n > 1 else ""]
 
 

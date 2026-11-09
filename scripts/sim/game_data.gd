@@ -68,6 +68,11 @@ static func ship_ids() -> Array[String]:
 	return ids
 
 
+## Niveaux de difficulté de l'IA (data/ai.json).
+static func ai() -> Dictionary:
+	return _load("ai")
+
+
 static func deposit(id: String) -> Dictionary:
 	for d: Dictionary in rules()["deposits"]:
 		if d["id"] == id:

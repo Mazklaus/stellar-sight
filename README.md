@@ -38,6 +38,8 @@ Premier prototype du 4X spatial Stellar Sigth, pour **Godot 4.7**. Il couvre l'�
 | Renommer un système | Bouton « Renommer » à côté de son nom, dans la vue système, puis Entrée |
 | Sauvegarde / chargement rapide | F5 / F9, ou le menu du jeu |
 | Plein écran | F11, ou Options |
+| Spectateur : suivre l'empire suivant / précédent | Tab / Maj+Tab, ou clic sur sa ligne du tableau des empires (double-clic : sa capitale) |
+| Spectateur : vue d'ensemble ou yeux de l'empire suivi | V, ou les boutons du tableau des empires |
 
 ## Interface et menus
 
@@ -128,12 +130,50 @@ Chaque peuple de la première version a des traits qui changent vraiment la faç
 | **Concorde de Vael** (space opera héroïque) | Assemblées ouvertes, Quarante peuples, Vote d'urgence, Ambassades | Toute planète habitable l'est au moins à 60 %. Ordre « Vote d'urgence » : achever tout de suite un bâtiment ou un vaisseau contre de l'influence (1 pour 2 jours restants). +2 influence par mois par empire rencontré. L'influence devient une monnaie. |
 | **Essaim Kh'thari** (horreur biologique) | Croissance explosive, Essaimage, Biomasse | Pas de vaisseau colon : des vaisseaux-spores payés en population (2) et en nourriture. Coloniser ne coûte jamais d'influence. Une colonie pleine continue de grandir et digère chaque population en trop en 15 matériaux. On produit des colons, pas des diplomates. |
 
-Nouveaux ordres : `sacrifice` (Chœur) et `rush` (Vael). Sauvegarde en version 4 (ferveur, dissidence, biomasse).
+Nouveaux ordres : `sacrifice` (Chœur) et `rush` (Vael). Sauvegarde en version 4 (ferveur, dissidence, biomasse), puis 5 avec le niveau des IA.
 
 ![Choix du peuple et ses traits](docs/apercu-factions.png)
 ![Offrande et jauge de ferveur](docs/apercu-offrande.png)
 
 Références consultées pour ces mécaniques (les traits restent originaux) : les guides Gamepressure d'Endless Space 2 sur [le choix de la race](https://www.gamepressure.com/endless-space-2/what-race-should-i-choose/z09d03) (les Unfallen sacrifient leur population contre de l'approbation, les Cravers doublent leur croissance, les Lumeris n'ont pas de vaisseau colon) et sur [l'Empire Uni](https://www.gamepressure.com/endless-space-2/united-empire/za9ce9) (l'influence sert à accélérer les constructions), et les discussions des développeurs de Stellaris sur [l'essaim dévoreur](https://admin-forum.paradoxplaza.com/forum/developer-diary/stellaris-dev-diary-76-hive-mind-improvements-tradition-swapping.1034124) (une ruche privée de diplomatie).
+
+## Empires IA et mode spectateur
+
+Les trois autres peuples sont menés par l'ordinateur : ils explorent, colonisent, construisent et se servent des talents de leur peuple. Le niveau et le tempérament se choisissent dans la ligne « Rivaux » de la nouvelle partie (réglages dans `data/ai.json`).
+
+| Niveau | Comment il joue | Bonus |
+|---|---|---|
+| **Recrue** | Réfléchit tous les 20 jours, oublie une décision sur trois, se sert très mal des talents de son peuple, une seule colonisation à la fois | aucun |
+| **Normal** (par défaut) | Tous les 10 jours, quelques oublis, connaît les bases de son peuple | aucun |
+| **Vétéran** | Tous les 5 jours, aucun oubli, exploite tout le registre de son peuple et lit son goulot (quand les matériaux s'entassent, il construit des forums pour l'influence) | aucun |
+| **Expert** | Le jeu du Vétéran | +15 % de production, petite avance au départ |
+| **Légende** | Le jeu du Vétéran, plus réactif encore | +30 % de production, vraie avance au départ |
+
+Ce que chaque peuple fait de ses talents selon le niveau (bloc `"ai"` de `data/factions.json`) :
+
+- **À la Recrue**, chaque peuple connaît ses talents mais les gâche : le Chœur attend que son dieu se taise et sacrifie dans sa plus petite colonie ; Vael vote l'urgence sur des chantiers presque finis, au prix plancher, sans garder d'influence pour coloniser ; Ossarane court après les cristaux sans compter ce que coûtent ses fiefs lointains ; l'Essaim lance ses spores depuis ses colonies les plus fragiles.
+
+- **Ossarane** : garde ses premiers fiefs à portée de la capitale et ne pose de fief lointain que s'il produit les cristaux pour le payer (au Vétéran, le compte est exact) ; raffinerie sur chaque gisement de cristaux.
+- **Chœur Éternel** : offrande quand le dieu va se taire (Normal) ; au Vétéran, entretient l'Exaltation (+25 %) en prenant le fidèle dans une colonie pleine, qui regrandit sans rien perdre.
+- **Vael** : vote d'urgence sur les vaisseaux colons et les longs chantiers dès que l'influence déborde (au Vétéran, dès qu'il reste de quoi payer la prochaine revendication) ; un éclaireur de plus pour rencontrer les autres empires (ambassades).
+- **Kh'thari** : vaisseaux-spores lancés depuis ses colonies les plus peuplées (pleines d'abord au Vétéran, la biomasse fait le reste), colonisation sans compter l'influence, fermes en priorité.
+
+**Tempérament.** À côté du niveau, un second réglage règle l'attitude des IA envers les autres empires, sans jamais changer leurs ressources : Pacifique, Prudent, Normal, Agressif, Belliqueux (`data/ai.json`). Chaque peuple le décale d'un cran (bloc `"ai"."temperament"`) : Ossarane est fière (sans décalage), le Chœur zélé et l'Essaim vorace (un cran plus agressifs ; l'Essaim ne fera jamais la paix), Vael conciliante (un cran plus pacifique). Tant qu'il n'y a ni combat ni diplomatie, il oriente l'expansion : un empire agressif colonise au contact de ses rivaux et se jette sur les systèmes disputés, un empire pacifique garde ses distances (seules comptent les frontières qu'il a explorées). Le combat et la diplomatie liront la même valeur (`AiLevels.aggression`) pour décider des guerres et des traités. Inspiré de l'agressivité des IA de Stellaris ([Gameranx](https://gameranx.com/updates/id/55918/article/stellaris-beta-patch-1-10-adds-ai-aggressiveness-customized-titles-and-more/)), des traits de personnalité des IA d'Endless Space 2 et de la guerre éternelle des Cravers ([forum Amplitude](https://community.amplitude-studios.com/amplitude-studios/endless-space-2/ideas/227-faction-goals)), et des programmes des dirigeants de Civilization VI ([PCGamesN](https://www.pcgamesn.com/civilization-vi/leaders-agendas)).
+
+Sur 3 galaxies et 5 ans entre IA (`tools/ai_bench.gd`), le score moyen monte bien avec le niveau pour chaque peuple, et une IA Légende finit devant les autres dans les parties mixtes.
+
+**Comment c'est fait.** L'IA fait partie de la simulation (`AiSystem`, appelé à la fin de chaque tick, et le cerveau `AiPlayer`) : elle ne voit que ce que son empire a exploré et n'agit que par les ordres ordinaires (`SimCommands`), validés comme ceux d'un joueur. Ses « oublis » viennent d'un hachage de la graine et du jour, jamais de l'aléatoire global : elle joue exactement pareil en temps réel et au tour par tour, dans une rediffusion (le journal ne garde que les ordres des joueurs, les IA se rejouent seules) et sur toutes les machines d'une partie en réseau. Les modules `_military` et `_diplomacy` sont en place, vides, pour le combat et la diplomatie.
+
+**Mode spectateur.** Ligne « Partie » de la nouvelle partie : « Spectateur ». Les 4 peuples sont des IA et personne ne donne d'ordre. La carte est entièrement visible, et le **tableau des empires** remplace la liste des flottes : classement au score, niveau, systèmes, colonies, population, flottes, jauge du peuple, ce que fait chaque IA en ce moment, et la courbe du score de chacun mois après mois. Clic sur une ligne (ou Tab) : suivre l'empire (panneau d'empire, H pour sa capitale) ; double-clic : sa capitale. V ou les deux boutons : vue d'ensemble, ou les **yeux de l'empire** suivi (son brouillard de guerre). La vue système reste consultable, en lecture seule. Une sauvegarde d'une partie sans joueur se recharge en spectateur. Ce même mode servira aux spectateurs d'une partie en réseau (un client sans empire).
+
+![Mode spectateur : vue d'ensemble](docs/apercu-spectateur.png)
+![Mode spectateur : les yeux du Chœur Éternel](docs/apercu-spectateur-yeux.png)
+
+Recherche consultée (le reste vient de mémoire et est signalé comme tel dans la PR) :
+- Endless Space 2 : [discussion Steam « What does upping the difficulty do to the AI? »](https://steamcommunity.com/app/392110/discussions/0/1291817837615803045/) (propos rapportés de l'équipe : l'IA reçoit des bonus à partir de Difficile ; en dessous, elle réagit moins aux menaces, poursuit ses objectifs plus lentement et négocie moins bien ; son seul avantage est un bonus de production) ; [fil sur les outils de débogage E.N.F.E.R.](https://community.amplitude-studios.com/amplitude-studios/endless-space-2/forums/65-general/threads/24821-enfer-ai-debug-tools?page=-7) (IA à base d'objectifs et de tâches dotés d'une « motivation » qui plafonne les ressources engagées ; outil désactivé en multijoueur parce qu'il montre les informations des adversaires) ; [fil Steam sur l'IA](https://steamcommunity.com/app/392110/discussions/0/3111396383970684094) (l'IA utilise les mêmes mécaniques que le joueur). Aucune trace d'un mode spectateur dans Endless Space 2 ; une [suggestion de joueurs pour le premier Endless Space](https://community.amplitude-studios.com/amplitude-studios/endless-space/forums/29-archives/threads/13521-composite-suggestion-timed-peace-and-replays-spectating?page=1) le réclamait déjà.
+- Galactic Civilizations : [journal de développement « Organic Difficulty »](https://forums.sorcererking.com/537257/galciv-iv-dev-journal-106-organic-difficulty-in-galciv-iv) et [notes de la v3.3](https://forums.sinsofasolarempire2.com/541281/galactic-civilizations-iv-v3-3-now-available) (IA adaptative), [wiki](https://galciv.fandom.com/wiki/Difficulty_level) (difficulté réglable empire par empire).
+- Stellaris : commande `observe` pour regarder la partie ([PCGamesN](https://www.pcgamesn.com/stellaris/cheats-console-commands)).
+- Age of Empires II DE : spectateurs qui passent d'un joueur à l'autre avec un bandeau d'informations ([Wikipédia](https://en.wikipedia.org/wiki/Age_of_Empires_II:_Definitive_Edition)), et l'outil [CaptureAge](https://captureage.com/docs) (statistiques et événements pour les spectateurs).
 
 ## Organisation du code
 
@@ -156,6 +196,7 @@ scripts/
     colony.gd             Une colonie ou un avant-poste : population, bâtiments, chantier
     economy.gd            Règles de l'économie (calculs purs, partagés par la simulation et l'interface)
     faction_traits.gd     Traits des peuples : fiefs, ferveur, vote d'urgence, vaisseaux-spores, biomasse
+    ai/                   Empires IA : niveaux de difficulté (ai_levels.gd), cerveau (ai_player.gd)
     fleet.gd              Une flotte : vaisseaux, position, trajet
     fleets.gd             Règles des flottes : chemins, délais, vision et brouillard, vérification des ordres
     empire_report.gd      Bilans d'un empire pour les menus (lecture seule) et parcours de ses systèmes
@@ -163,6 +204,7 @@ scripts/
       economy_system.gd   Fondations, chantiers, croissance chaque jour ; bilan chaque mois
       fleet_system.gd     Chantiers spatiaux, déplacements, exploration et premiers contacts
       chronicle_system.gd Petits événements racontés par le chroniqueur
+      ai_system.gd        Empires IA : chacun réfléchit à son rythme et donne des ordres ordinaires
     game_clock.gd         Horloge (autoload GameClock) : pilote la simulation en temps réel (pause, 5 vitesses) ou au tour par tour
   view/                   Affichage 2D (sera remplacé par la 2,5D)
     galaxy_view.gd        Dessin des étoiles, routes, sélection, noms
@@ -233,7 +275,7 @@ Principes :
 
 ## Tests
 
-Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), le noyau de simulation (`tests/sim_tests.gd` : déterminisme sur 1000 ticks, ordres valides et refusés, ordres en pause, rediffusion, sauvegarde/chargement à l'identique, reprise après chargement identique à une partie jamais interrompue, fichiers abîmés refusés, performance), l'économie (`tests/economy_tests.gd` : données, planètes déterministes, départ des 4 empires, bilan mensuel exact, traits de faction, colonisation et chacun de ses refus, avant-poste transformé en colonie, chantiers et emplacements, croissance plafonnée, famine, pénurie d'énergie, déterminisme, rediffusion et sauvegarde avec colonies, 10 ans sans stock négatif), les flottes (`tests/fleet_tests.gd` : flottes et vision de départ, chemins le long des routes, arrivée au jour annoncé, refus, demi-tour et arrêt en route, chantier spatial, colonisation par vaisseau colon, rassembler et détacher, entretien, premier contact, sauvegarde en plein trajet, rediffusion, expéditions d'exploration), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, ouverture et fermeture de la vue système, bascule vers la vue de gestion, construction et colonisation depuis la fiche de la planète, renommage, F5/F9, Échap, brouillard, sélection de flotte, clic droit pour l'envoyer, fiche de flotte, F, chantier spatial), les bilans d'empire, l'interface (thème, barre d'empire, écrans Économie, Colonies, Recherche et Diplomatie (filtres, colonie choisie, anneau), pause automatique, Tab, H, flèches, fiche de sélection, lentille économique, cadran du temps, menu pause, menu principal et nouvelle partie avec faction et graine choisies) ainsi que la géométrie de la vue système (planètes dans la scène et cliquables) :
+Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), le noyau de simulation (`tests/sim_tests.gd` : déterminisme sur 1000 ticks, ordres valides et refusés, ordres en pause, rediffusion, sauvegarde/chargement à l'identique, reprise après chargement identique à une partie jamais interrompue, fichiers abîmés refusés, performance), l'économie (`tests/economy_tests.gd` : données, planètes déterministes, départ des 4 empires, bilan mensuel exact, traits de faction, colonisation et chacun de ses refus, avant-poste transformé en colonie, chantiers et emplacements, croissance plafonnée, famine, pénurie d'énergie, déterminisme, rediffusion et sauvegarde avec colonies, 10 ans sans stock négatif), les empires IA (`tests/ai_tests.gd` : niveaux ordonnés, rivaux et spectateur, expansion en 2 ans sans famine, déterminisme et rediffusion, tour par tour identique au temps réel, aucune triche (brouillard, stocks), Recrue < Vétéran < Légende, talents de chaque peuple selon le niveau, tempérament (décalage du peuple, sauvegarde, belliqueux plus collé à ses rivaux que pacifique), sauvegarde, performance), les flottes (`tests/fleet_tests.gd` : flottes et vision de départ, chemins le long des routes, arrivée au jour annoncé, refus, demi-tour et arrêt en route, chantier spatial, colonisation par vaisseau colon, rassembler et détacher, entretien, premier contact, sauvegarde en plein trajet, rediffusion, expéditions d'exploration), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, ouverture et fermeture de la vue système, bascule vers la vue de gestion, construction et colonisation depuis la fiche de la planète, renommage, F5/F9, Échap, brouillard, sélection de flotte, clic droit pour l'envoyer, fiche de flotte, F, chantier spatial), les bilans d'empire, l'interface (thème, barre d'empire, écrans Économie, Colonies, Recherche et Diplomatie (filtres, colonie choisie, anneau), pause automatique, Tab, H, flèches, fiche de sélection, lentille économique, cadran du temps, menu pause, menu principal et nouvelle partie avec faction et graine choisies) ainsi que la géométrie de la vue système (planètes dans la scène et cliquables) :
 
 ```
 godot --headless --path . -s res://tests/smoke_test.gd
@@ -243,7 +285,8 @@ Il affiche `OK : N vérifications passées.` et renvoie le code 0 si tout passe,
 
 ## Limites connues
 
-- Les trois autres empires ne prennent encore aucune décision (leurs flottes restent chez eux) : l'IA basique est la prochaine étape, avec le combat.
+- L'IA ne se bat pas et ne négocie pas encore : elle attendra le combat et la diplomatie (modules prêts, vides).
+- Faute d'autre usage, les matériaux s'entassent chez les IA en milieu de partie ; l'Essaim Kh'thari, qui ne paie jamais d'influence, s'étend plus vite que les autres (équilibrage des peuples à revoir).
 - Pas encore de combat ni de vaisseaux de guerre : les flottes se croisent sans se battre.
 - Hors de vue, les systèmes explorés montrent leur propriétaire actuel, pas la dernière information connue.
 - Pas encore de mécaniques signatures des factions : prochaine étape, les factions jouables.

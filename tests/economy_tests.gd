@@ -207,7 +207,7 @@ func _test_colonize_refusals() -> void:
 
 
 func _test_outpost_upgrade() -> void:
-	var sim := Simulation.new(GameState.create(42))
+	var sim := Simulation.new(GameState.create(42, 150, 1800.0, "", {"ai_level": ""}))  # aucune IA : on compte les colonies
 	var st := sim.state
 	var target := _find_target(st, 0, Colony.KIND_COLONY)
 	sim.submit(SimCommands.colonize(0, target, Colony.KIND_OUTPOST))

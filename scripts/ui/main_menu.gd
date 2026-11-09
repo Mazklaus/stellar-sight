@@ -50,6 +50,14 @@ var _seed_edit: LineEdit
 var time_mode: int = 0
 var turn_days: int = 10
 var _time_select: OptionButton
+## Niveau des empires IA (AiLevels) et mode spectateur (aucun joueur humain : on regarde les IA).
+var ai_level: String = AiLevels.default_id()
+## Tempérament des IA (AiLevels.temperament) : leur attitude envers les autres empires.
+var temperament: String = AiLevels.default_temperament()
+var _temper_select: OptionButton
+var spectator := false
+var _ai_select: OptionButton
+var _mode_select: OptionButton
 
 
 func _ready() -> void:
@@ -276,6 +284,25 @@ func set_time_choice(index: int) -> void:
 		turn_days = GameClock.TURN_LENGTHS[mini(index - 1, GameClock.TURN_LENGTHS.size() - 1)]
 
 
+func set_ai_level(id: String) -> void:
+	if not AiLevels.is_valid(id):
+		return
+	ai_level = id
+	_ai_select.select(AiLevels.ids().find(id))
+
+
+func set_temperament(id: String) -> void:
+	if not AiLevels.is_valid_temperament(id):
+		return
+	temperament = id
+	_temper_select.select(AiLevels.temperament_ids().find(id))
+
+
+func set_spectator(on: bool) -> void:
+	spectator = on
+	_mode_select.select(1 if on else 0)
+
+
 ## Traits d'un peuple en texte enrichi : le nom de chaque trait en gras, à sa couleur.
 static func trait_bbcode(f: Dictionary, col: Color) -> String:
 	var lines := PackedStringArray()
@@ -438,7 +465,41 @@ func _build_new_page(root: Control) -> void:
 	rl.text = "Rivaux"
 	rl.custom_minimum_size = Vector2(90, 0)
 	rivals.add_child(rl)
-	rivals.add_child(UiTheme.dim("les %d autres peuples, menés par l'ordinateur" % (GameData.faction_ids().size() - 1), 14))
+	_ai_select = OptionButton.new()
+	_ai_select.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var tip := PackedStringArray(["Niveau des empires menés par l'ordinateur :"])
+	for id in AiLevels.ids():
+		_ai_select.add_item("IA %s" % AiLevels.label(id))
+		tip.append("%s : %s" % [AiLevels.label(id), AiLevels.level(id).get("desc", "")])
+	_ai_select.tooltip_text = "\n".join(tip)
+	_ai_select.select(AiLevels.ids().find(ai_level))
+	_ai_select.item_selected.connect(func(i: int) -> void: set_ai_level(AiLevels.ids()[i]))
+	rivals.add_child(_ai_select)
+	_temper_select = OptionButton.new()
+	_temper_select.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var ttip := PackedStringArray(["Tempérament des IA envers les autres empires (ne change pas leurs ressources) :"])
+	for id in AiLevels.temperament_ids():
+		_temper_select.add_item(String(AiLevels.temperament(id)["label"]))
+		ttip.append("%s : %s" % [AiLevels.temperament(id)["label"], AiLevels.temperament(id).get("desc", "")])
+	ttip.append("Chaque peuple le décale d'un cran : le Chœur (zélé) et l'Essaim (vorace) vers l'agressif, Vael (conciliante) vers le pacifique.")
+	_temper_select.tooltip_text = "\n".join(ttip)
+	_temper_select.select(AiLevels.temperament_ids().find(temperament))
+	_temper_select.item_selected.connect(func(i: int) -> void: set_temperament(AiLevels.temperament_ids()[i]))
+	rivals.add_child(_temper_select)
+	var mode_row := HBoxContainer.new()
+	mode_row.add_theme_constant_override("separation", 10)
+	gbox.add_child(mode_row)
+	var ml := Label.new()
+	ml.text = "Partie"
+	ml.custom_minimum_size = Vector2(90, 0)
+	mode_row.add_child(ml)
+	_mode_select = OptionButton.new()
+	_mode_select.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_mode_select.add_item("Jouer le peuple choisi")
+	_mode_select.add_item("Spectateur : regarder les %d peuples s'affronter" % GameData.faction_ids().size())
+	_mode_select.tooltip_text = "Spectateur : tous les peuples sont menés par l'ordinateur, la carte est entièrement visible\net le tableau des empires permet de suivre chacun d'eux (ou de voir à travers ses yeux)."
+	_mode_select.item_selected.connect(func(i: int) -> void: set_spectator(i == 1))
+	mode_row.add_child(_mode_select)
 	var size_row := HBoxContainer.new()
 	size_row.add_theme_constant_override("separation", 10)
 	gbox.add_child(size_row)
