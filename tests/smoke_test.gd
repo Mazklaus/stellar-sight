@@ -264,6 +264,7 @@ func _test_fleet_ui(main: Node) -> void:
 	_check(not main.is_system_view_open() and Array(main._hud.toast_texts()).any(func(t: String) -> bool: return t.contains("inexploré")),
 			"pas de vue système pour un système inexploré")
 	main._select(frontier)
+	main._hud.show_hover(null, Vector2.ZERO)  # la fiche montre le survol d'abord : selon la galaxie tirée, la souris peut être sur une étoile
 	_check(main._hud._card_title.text == "Système inexploré" and not main._hud._enter_button.visible, "fiche d'un système inexploré")
 	main._select(-1)
 

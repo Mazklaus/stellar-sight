@@ -19,6 +19,7 @@ func _initialize() -> void:
 	menu.show_page("new")
 	menu.select_faction("vael")
 	menu.set_ai_level("veteran")
+	menu.set_temperament("agressif")
 	menu.set_spectator(true)
 	menu._seed_edit.text = "2026"
 	await _frames(5)

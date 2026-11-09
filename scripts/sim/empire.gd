@@ -23,6 +23,8 @@ var dissent: bool = false
 var biomass: int = 0
 ## Niveau de l'IA qui dirige cet empire (voir AiLevels) ; "" = un joueur humain.
 var ai_level: String = ""
+## Tempérament de l'IA (voir AiLevels.temperament) : son attitude envers les autres empires.
+var ai_temperament: String = ""
 ## Dernière intention notable de l'IA, pour le mode spectateur. Simple affichage : jamais sauvegardée,
 ## jamais lue par la simulation (elle ne peut donc pas casser le déterminisme).
 var ai_intent: String = ""
@@ -63,6 +65,7 @@ func to_dict() -> Dictionary:
 		"dissent": dissent,
 		"biomass": biomass,
 		"ai": ai_level,
+		"temper": ai_temperament,
 	}
 
 
@@ -91,4 +94,5 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.dissent = bool(d.get("dissent", false))
 	e.biomass = int(d.get("biomass", 0))
 	e.ai_level = String(d.get("ai", ""))
+	e.ai_temperament = String(d.get("temper", ""))
 	return e

@@ -1,5 +1,18 @@
 {
 	"default_level": "normal",
+	"default_temperament": "normal",
+	"temperaments": [
+		{"id": "pacifique", "label": "Pacifique", "aggression": -2,
+			"desc": "Garde ses distances : laisse une marge avec ses voisins et ne leur dispute pas les systèmes."},
+		{"id": "prudent", "label": "Prudent", "aggression": -1,
+			"desc": "Évite de s'installer sous le nez des autres empires."},
+		{"id": "normal", "label": "Normal", "aggression": 0,
+			"desc": "Le caractère de son peuple, ni plus ni moins."},
+		{"id": "agressif", "label": "Agressif", "aggression": 1,
+			"desc": "Pousse ses colonies vers les frontières de ses rivaux et se précipite sur les systèmes disputés."},
+		{"id": "belliqueux", "label": "Belliqueux", "aggression": 2,
+			"desc": "Cherche le contact : colonise au plus près des autres empires, quitte à les encercler."}
+	],
 	"levels": [
 		{"id": "recrue", "label": "Recrue", "short": "Rec",
 			"desc": "Réfléchit lentement, oublie des décisions et se sert très mal des talents de son peuple. Aucun bonus.",

@@ -16,6 +16,7 @@ func run(check: Callable) -> void:
 	_test_difficulty_order()
 	_test_talents()
 	_test_save()
+	_test_temperament()
 	_test_performance()
 
 
@@ -285,6 +286,62 @@ func _test_save() -> void:
 	var d := sim.state.to_dict()
 	d["empires"][1]["ai"] = "dieu"
 	_ok(GameState.from_dict(d) == null and GameState.last_error.contains("IA"), "niveau d'IA inconnu refusé au chargement")
+
+
+## Tempérament : réglage séparé de la difficulté, décalé par le peuple, qui oriente l'expansion.
+func _test_temperament() -> void:
+	var ids := AiLevels.temperament_ids()
+	_ok(ids.size() == 5 and AiLevels.is_valid_temperament(AiLevels.default_temperament()), "5 tempéraments, dont un par défaut")
+	var prev := -99
+	var ordered := true
+	for id in ids:
+		ordered = ordered and int(AiLevels.temperament(id)["aggression"]) > prev
+		prev = int(AiLevels.temperament(id)["aggression"])
+	_ok(ordered, "les tempéraments vont du plus pacifique au plus agressif")
+	var st := GameState.create(5, 150, 1800.0, "", {"spectator": true, "temperament": "agressif"})
+	var vael := _empire_of(st, "vael")
+	var swarm := _empire_of(st, "khthari")
+	var oss := _empire_of(st, "ossarane")
+	_ok(AiLevels.aggression(oss) == 1 and AiLevels.aggression(vael) == 0 and AiLevels.aggression(swarm) == 2,
+			"le peuple décale le réglage (Ossarane %d, Vael %d, Essaim %d)" % [AiLevels.aggression(oss), AiLevels.aggression(vael), AiLevels.aggression(swarm)])
+	_ok(bool(AiLevels.personality(swarm).get("temperament", {}).get("never_peace", false)), "l'Essaim ne fera jamais la paix (pour la diplomatie)")
+	_ok(AiLevels.temperament_label(swarm) == "Agressif (Vorace)", "libellé du tempérament (%s)" % AiLevels.temperament_label(swarm))
+	var back := GameState.from_dict(st.to_dict())
+	_ok(back != null and back.get_empire(1).ai_temperament == "agressif", "le tempérament est dans la sauvegarde")
+	var d := st.to_dict()
+	d["empires"][1]["temper"] = "lunatique"
+	_ok(GameState.from_dict(d) == null and GameState.last_error.contains("tempérament"), "tempérament inconnu refusé au chargement")
+	_ok(int(st.get_empire(1).resources["materials"]) == int(GameData.rules()["start_resources"]["materials"]), "le tempérament ne donne aucune ressource")
+	# Effet : un empire belliqueux s'installe plus près de ses rivaux qu'un empire pacifique.
+	var near := {}
+	for tp in ["pacifique", "belliqueux"]:
+		var total := 0
+		var n := 0
+		for sd in [3, 17]:
+			var sim := Simulation.new(GameState.create(sd, 150, 1800.0, "", {"spectator": true, "ai_level": "veteran", "temperament": tp}))
+			sim.advance(1440)
+			var r := _border_stats(sim.state)
+			total += r[0]
+			n += r[1]
+		near[tp] = float(total) / maxf(1.0, float(n))
+	_ok(near["belliqueux"] > near["pacifique"], "belliqueux : plus de systèmes collés aux rivaux que pacifique (%.2f contre %.2f)" % [near["belliqueux"], near["pacifique"]])
+
+
+## [systèmes revendiqués voisins d'un système rival, systèmes revendiqués] pour tous les empires.
+func _border_stats(st: GameState) -> Array:
+	var touching := 0
+	var total := 0
+	for s in st.galaxy.systems:
+		var owner := st.system_owner(s.id)
+		if owner == -1:
+			continue
+		total += 1
+		for n in s.neighbors:
+			var o := st.system_owner(n)
+			if o != -1 and o != owner:
+				touching += 1
+				break
+	return [touching, total]
 
 
 func _test_performance() -> void:

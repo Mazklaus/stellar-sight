@@ -46,6 +46,7 @@ var _system_owner: Dictionary = {}
 ## - "ai_level" : niveau des empires IA (AiLevels, défaut celui de data/ai.json ; "" = aucune IA,
 ##   les autres empires restent inertes, ce dont se servent les tests de règles) ;
 ## - "ai_levels" : niveaux empire par empire (tableau, prioritaire sur "ai_level") ;
+## - "temperament" / "temperaments" : tempérament des IA (AiLevels.temperament), global ou empire par empire ;
 ## - "spectator" : aucun joueur humain, l'empire 0 est lui aussi une IA (mode spectateur).
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
 	var s := _base(seed_value_, system_count_, galaxy_radius_)
@@ -142,6 +143,9 @@ static func from_dict(d: Dictionary) -> GameState:
 			return null
 		if String(e.get("ai", "")) != "" and not AiLevels.is_valid(String(e["ai"])):
 			last_error = "niveau d'IA inconnu : %s" % e["ai"]
+			return null
+		if String(e.get("temper", "")) != "" and not AiLevels.is_valid_temperament(String(e["temper"])):
+			last_error = "tempérament d'IA inconnu : %s" % e["temper"]
 			return null
 		s.empires.append(Empire.from_dict(e))
 	for c: Dictionary in d["colonies"]:
@@ -258,6 +262,8 @@ func override_planet(planet_id: int, fields: Dictionary) -> void:
 func _setup_ai(options: Dictionary) -> void:
 	var level := String(options.get("ai_level", AiLevels.default_id()))
 	var per: Array = options.get("ai_levels", [])
+	var temper := String(options.get("temperament", AiLevels.default_temperament()))
+	var tempers: Array = options.get("temperaments", [])
 	var spectator := bool(options.get("spectator", false))
 	for e in empires:
 		if e.id == 0 and not spectator:
@@ -268,6 +274,8 @@ func _setup_ai(options: Dictionary) -> void:
 		if not AiLevels.is_valid(lv):
 			lv = AiLevels.default_id()
 		e.ai_level = lv
+		var tp := String(tempers[e.id]) if e.id < tempers.size() else temper
+		e.ai_temperament = tp if AiLevels.is_valid_temperament(tp) else AiLevels.default_temperament()
 		# Avance de départ des niveaux hauts (affichée dans la description du niveau).
 		var bonus: Dictionary = AiLevels.level(lv).get("start_bonus", {})
 		for r in bonus:

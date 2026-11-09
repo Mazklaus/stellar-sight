@@ -229,11 +229,52 @@ static func colonize_target(ctx: Dictionary, f: Fleet) -> Dictionary:
 		var days := int(res["dist"][k]) / maxi(1, speed)
 		var score := int(claim["value"]) * 10 - days * 2 if plan else 100000 - days
 		score -= _far_fief_penalty(ctx, sid) * 10
+		score += border_bias(ctx, sid)
 		if best.is_empty() or score > best_score:
 			best_score = score
 			best = claim.duplicate()
 			best["system"] = sid
 	return best
+
+
+## Distance en sauts de chaque système au plus proche système rival connu (au plus 3 sauts).
+## Seuls comptent les systèmes rivaux que l'empire a explorés : l'IA ne devine pas les frontières.
+static func rival_distance(ctx: Dictionary) -> Dictionary:
+	if ctx.has("rival_dist"):
+		return ctx["rival_dist"]
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var dist := {}
+	var queue: Array[int] = []
+	for sid in e.sorted_explored():
+		var owner := state.system_owner(int(sid))
+		if owner != -1 and owner != e.id:
+			dist[int(sid)] = 0
+			queue.append(int(sid))
+	var i := 0
+	while i < queue.size():
+		var cur := queue[i]
+		i += 1
+		if int(dist[cur]) >= 3:
+			continue
+		for n in state.galaxy.systems[cur].neighbors:
+			if not dist.has(n):
+				dist[n] = int(dist[cur]) + 1
+				queue.append(n)
+	ctx["rival_dist"] = dist
+	return dist
+
+
+## Effet du tempérament sur une cible de colonisation : un empire agressif est attiré par les
+## systèmes voisins de ses rivaux (frontières, systèmes disputés), un pacifique les évite.
+static func border_bias(ctx: Dictionary, system_id: int) -> int:
+	var aggr := AiLevels.aggression(ctx["e"])
+	if aggr == 0:
+		return 0
+	var d := int(rival_distance(ctx).get(system_id, 99))
+	if d < 1 or d > 2:
+		return 0
+	return aggr * (3 - d) * (60 if aggr > 0 else 80)
 
 
 ## Y a-t-il au moins `need` systèmes libres qui mériteraient un vaisseau colon ?
@@ -587,12 +628,15 @@ static func _colonizer(ctx: Dictionary, f: Fleet) -> void:
 	if int(target["system"]) == f.system_id:
 		return
 	if _issue(ctx, SimCommands.move_fleet(e.id, f.id, int(target["system"]))):
-		_intent(ctx, "Expansion vers %s" % state.galaxy.systems[int(target["system"])].system_name)
+		var sname := state.galaxy.systems[int(target["system"])].system_name
+		var border := int(rival_distance(ctx).get(int(target["system"]), 99)) <= 1
+		_intent(ctx, ("Expansion vers %s, à la frontière d'un rival" if border else "Expansion vers %s") % sname)
 
 
 # --- 6. et 7. Points d'extension ---------------------------------------------------------------
 
-## Militaire : rien tant que le combat n'existe pas. Ce module recevra la défense des colonies,
+## Militaire : rien tant que le combat n'existe pas. AiLevels.aggression(e) dira quand attaquer
+## (seuil de rapport de forces) et never_peace (tempérament de l'Essaim) interdira la paix. Ce module recevra la défense des colonies,
 ## l'escorte des vaisseaux colons et les offensives, avec le même schéma (valider, appliquer).
 static func _military(_ctx: Dictionary) -> void:
 	pass

@@ -26,6 +26,7 @@ var save_path := SaveGame.QUICKSAVE_PATH
 var player_faction := "ossarane"
 ## Niveau des empires IA pour les nouvelles parties (AiLevels), et partie sans joueur (spectateur).
 var ai_level := AiLevels.default_id()
+var temperament := AiLevels.default_temperament()
 var spectator := false
 ## Empire dont l'interface montre les yeux : le joueur local, ou l'empire suivi par le spectateur.
 var view_empire := LOCAL_PLAYER
@@ -133,6 +134,7 @@ func _ready() -> void:
 	_main_menu.new_game_requested.connect(func(faction_id: String, seed_value: int) -> void:
 		player_faction = faction_id
 		ai_level = _main_menu.ai_level
+		temperament = _main_menu.temperament
 		spectator = _main_menu.spectator
 		new_game(seed_value)
 		GameClock.set_mode(_main_menu.time_mode, _main_menu.turn_days)
@@ -159,7 +161,7 @@ func _ready() -> void:
 
 func new_game(seed_value: int) -> void:
 	_start(GameState.create(seed_value, SYSTEM_COUNT, GALAXY_RADIUS, player_faction,
-			{"ai_level": ai_level, "spectator": spectator}))
+			{"ai_level": ai_level, "temperament": temperament, "spectator": spectator}))
 	# On commence chez soi : caméra sur le système d'origine, fiche ouverte.
 	var me := simulation.state.get_empire(view_empire)
 	if me:

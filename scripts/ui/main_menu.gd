@@ -52,6 +52,9 @@ var turn_days: int = 10
 var _time_select: OptionButton
 ## Niveau des empires IA (AiLevels) et mode spectateur (aucun joueur humain : on regarde les IA).
 var ai_level: String = AiLevels.default_id()
+## Tempérament des IA (AiLevels.temperament) : leur attitude envers les autres empires.
+var temperament: String = AiLevels.default_temperament()
+var _temper_select: OptionButton
 var spectator := false
 var _ai_select: OptionButton
 var _mode_select: OptionButton
@@ -288,6 +291,13 @@ func set_ai_level(id: String) -> void:
 	_ai_select.select(AiLevels.ids().find(id))
 
 
+func set_temperament(id: String) -> void:
+	if not AiLevels.is_valid_temperament(id):
+		return
+	temperament = id
+	_temper_select.select(AiLevels.temperament_ids().find(id))
+
+
 func set_spectator(on: bool) -> void:
 	spectator = on
 	_mode_select.select(1 if on else 0)
@@ -465,6 +475,17 @@ func _build_new_page(root: Control) -> void:
 	_ai_select.select(AiLevels.ids().find(ai_level))
 	_ai_select.item_selected.connect(func(i: int) -> void: set_ai_level(AiLevels.ids()[i]))
 	rivals.add_child(_ai_select)
+	_temper_select = OptionButton.new()
+	_temper_select.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var ttip := PackedStringArray(["Tempérament des IA envers les autres empires (ne change pas leurs ressources) :"])
+	for id in AiLevels.temperament_ids():
+		_temper_select.add_item(String(AiLevels.temperament(id)["label"]))
+		ttip.append("%s : %s" % [AiLevels.temperament(id)["label"], AiLevels.temperament(id).get("desc", "")])
+	ttip.append("Chaque peuple le décale d'un cran : le Chœur (zélé) et l'Essaim (vorace) vers l'agressif, Vael (conciliante) vers le pacifique.")
+	_temper_select.tooltip_text = "\n".join(ttip)
+	_temper_select.select(AiLevels.temperament_ids().find(temperament))
+	_temper_select.item_selected.connect(func(i: int) -> void: set_temperament(AiLevels.temperament_ids()[i]))
+	rivals.add_child(_temper_select)
 	var mode_row := HBoxContainer.new()
 	mode_row.add_theme_constant_override("separation", 10)
 	gbox.add_child(mode_row)

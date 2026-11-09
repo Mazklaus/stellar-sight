@@ -156,7 +156,7 @@ func refresh() -> void:
 		_rows_box.move_child(r["button"], i)
 		var t := EmpireReport.totals(_state, e.id)
 		(r["name"] as Label).text = "%d. %s" % [i + 1, e.short_name()]
-		(r["level"] as Label).text = ("IA %s" % AiLevels.label(e.ai_level)) if e.is_ai() else "Joueur"
+		(r["level"] as Label).text = ("IA %s · %s" % [AiLevels.label(e.ai_level), AiLevels.temperament_label(e)]) if e.is_ai() else "Joueur"
 		(r["score"] as Label).text = "%d" % EmpireReport.score(_state, e.id)
 		var gauge := FactionTraits.gauge(_state, e.id)
 		var stats := "%d sys · %d col · %d av · %d pop · %d flottes" % [t["systems"], t["colonies"], t["outposts"],
@@ -167,9 +167,11 @@ func refresh() -> void:
 		(r["stats"] as Label).add_theme_color_override("font_color", UiTheme.BAD if not gauge.is_empty() and gauge.get("bad", false) else UiTheme.TEXT_DIM)
 		var intent := e.ai_intent if e.ai_intent != "" else ("En réflexion…" if e.is_ai() else "")
 		(r["intent"] as Label).text = intent
-		(r["button"] as Button).tooltip_text = "%s\n%s\n%s" % [e.display_name(),
+		(r["button"] as Button).tooltip_text = "%s\n%s\n%s\nTempérament %s : %s %s" % [e.display_name(),
 				AiLevels.level(e.ai_level).get("desc", "") if e.is_ai() else "Joueur humain",
-				String(AiLevels.personality(e).get("style", ""))]
+				String(AiLevels.personality(e).get("style", "")), AiLevels.temperament_label(e),
+				AiLevels.temperament(e.ai_temperament).get("desc", ""),
+				String(AiLevels.personality(e).get("temperament", {}).get("text", ""))]
 	_restyle()
 
 
