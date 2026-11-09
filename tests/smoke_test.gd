@@ -405,10 +405,36 @@ func _test_navigation_ui(main: Node) -> void:
 		_check(screen.system_id == home_sys, "bouton système précédent de la vue système")
 	main.close_system_view()
 
-	# Étiquette de survol.
+	# Survol : la fiche montre le système survolé, puis revient à la sélection.
+	main._select(-1)
 	hud.show_hover(main.galaxy.systems[home_sys], Vector2(10, 10))
-	_check(hud._hover.visible and hud._hover_title.text == main.galaxy.systems[home_sys].system_name, "étiquette de survol d'un système")
+	_check(hud._info_panel.visible and hud.card_system() == home_sys and hud._card_title.text == main.galaxy.systems[home_sys].system_name,
+			"la fiche montre le système survolé")
+	_check(not hud._enter_button.visible, "pas de bouton d'entrée pour un simple survol")
 	hud.show_hover(null, Vector2.ZERO)
+	_check(not hud._info_panel.visible, "fin du survol sans sélection : la fiche se cache")
+
+	# Lentille économique (touche L).
+	_press(KEY_L, KEY_L)
+	_check(hud.lens == "economy" and main._view.lens == "economy", "L active la lentille économique")
+	var net := EmpireReport.system_net(st, 0, home_sys)
+	_check(int(net["food"]) != 0 or int(net["materials"]) != 0, "la lentille a un bilan à montrer pour le système d'origine")
+	_press(KEY_L, KEY_L)
+	_check(hud.lens == "" and main._view.lens == "", "L la désactive")
+
+	# Cadran du temps : le centre met en pause, les crans règlent la vitesse.
+	var dial: TimeDial = hud.dial
+	clock.set_paused(true)
+	dial.pause_toggled.emit()
+	_check(not clock.paused, "cadran : le centre relance le temps")
+	dial.speed_requested.emit(3)
+	_check(clock.speed_index == 3, "cadran : cran de vitesse 4")
+	clock.set_paused(true)
+
+	# Onglet « Gestion du système » : le referme.
+	main.open_system_view(home_sys)
+	hud._tab_system.pressed.emit()
+	_check(not main.is_system_view_open(), "l'onglet de la vue système la referme")
 
 	# Menu pause : Échap sans sélection, le temps s'arrête puis reprend comme avant.
 	main._select(-1)
@@ -439,7 +465,7 @@ func _test_navigation_ui(main: Node) -> void:
 	await process_frame
 	_check(not menu.is_open() and main.simulation.state.seed_value == 123, "nouvelle partie avec la graine choisie")
 	_check(main.simulation.state.get_empire(0).faction_id == "khthari", "le joueur joue la faction choisie")
-	_check(hud.bar._name.text == "Kh'thari", "la barre d'empire suit la nouvelle faction")
+	_check(hud.bar._name.text == "KH'THARI", "le panneau d'empire suit la nouvelle faction")
 	main.player_faction = "ossarane"
 
 

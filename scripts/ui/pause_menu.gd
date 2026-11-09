@@ -21,6 +21,7 @@ const SHORTCUTS := [
 	["Flèches gauche / droite", "Planète précédente / suivante (vue système)"],
 	["F1", "Économie"],
 	["F2", "Colonies"],
+	["L", "Lentille économique de la carte"],
 	["ZQSD / flèches", "Déplacer la carte"],
 	["Clic droit glissé", "Déplacer la carte"],
 	["Molette", "Zoomer vers le curseur"],

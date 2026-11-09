@@ -14,11 +14,12 @@ signal build_requested(planet_id: int, building_id: String)
 ## Passer au système suivant (1) ou précédent (-1) de l'empire.
 signal cycle_requested(step: int)
 
-const PANEL_WIDTH := 400.0
-## Place laissée à la barre d'empire.
-const TOP := EmpireBar.HEIGHT + 12.0
-## Place laissée à la chronique et à l'aide, en bas.
-const BOTTOM := Hud.BOTTOM_RESERVED + 2.0
+## Colonne de gestion, à gauche, sous le panneau d'empire.
+const PANEL_WIDTH := EmpireBar.WIDTH
+const PANEL_TOP := EmpireBar.MARGIN + EmpireBar.HEIGHT + 8.0
+const MARGIN := 10.0
+## Début de la scène, à droite de la colonne.
+const SCENE_LEFT := PANEL_WIDTH + 2.0 * MARGIN
 const CARD_SIZE := Vector2(150, 56)
 const ACCENT := UiTheme.ACCENT
 const TYPE_DOT_COLORS := {
@@ -53,18 +54,21 @@ var _actions_title: Label
 var _actions: VBoxContainer
 var _actions_sig := ""
 var _icons := {}
+var _panel_box: VBoxContainer
 
 
 func _ready() -> void:
 	layer = 1  # sous l'interface principale (barre du haut, chronique), au-dessus de la carte
 	visible = false
 	view = SystemView.new()
-	view.margins = Vector4(0, TOP + 104.0, PANEL_WIDTH + 24.0, BOTTOM + CARD_SIZE.y + 24.0)
+	# La scène occupe ce qui reste à droite de la colonne, au-dessus du bandeau des planètes.
+	view.margins = Vector4(SCENE_LEFT, 64.0, 40.0, CARD_SIZE.y + 2.0 * MARGIN + 20.0)
 	view.planet_clicked.connect(select_planet)
 	add_child(view)
+	_build_panel()
 	_build_header()
 	_build_cards()
-	_build_panel()
+	_build_nav()
 
 
 ## Ouvre l'écran sur un système. La planète du joueur (sa capitale d'abord) est choisie d'office.
@@ -126,36 +130,20 @@ func refresh() -> void:
 # --- En-tête ---------------------------------------------------------------------------------
 
 func _build_header() -> void:
-	var nav := HBoxContainer.new()
-	nav.position = Vector2(16, TOP)
-	nav.add_theme_constant_override("separation", 4)
-	add_child(nav)
-	var back := Button.new()
-	back.text = "Galaxie"
-	back.tooltip_text = "Revenir à la carte de la galaxie  (Échap)"
-	back.focus_mode = Control.FOCUS_NONE
-	back.pressed.connect(func() -> void: close_requested.emit())
-	nav.add_child(back)
-	var prev := Widgets.IconButton.new("prev", 34)
-	prev.theme_type_variation = &""
-	prev.tooltip_text = "Système précédent de l'empire  (Maj+Tab)"
-	prev.pressed.connect(func() -> void: cycle_requested.emit(-1))
-	nav.add_child(prev)
-	var next := Widgets.IconButton.new("next", 34)
-	next.theme_type_variation = &""
-	next.tooltip_text = "Système suivant de l'empire  (Tab)"
-	next.pressed.connect(func() -> void: cycle_requested.emit(1))
-	nav.add_child(next)
-
+	# En tête de la colonne : nom du système (renommable) et sa situation.
 	var head := VBoxContainer.new()
-	head.position = Vector2(20, TOP + 42.0)
-	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head.add_theme_constant_override("separation", 0)
-	add_child(head)
+	_panel_box.add_child(head)
+	_panel_box.move_child(head, 0)
+	var sep := HSeparator.new()
+	_panel_box.add_child(sep)
+	_panel_box.move_child(sep, 1)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	head.add_child(row)
-	_title = UiTheme.title("", 42)
+	_title = UiTheme.title("", 36)
+	_title.clip_text = true
+	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_title)
 	_rename_button = Button.new()
 	_rename_button.text = "Renommer"
@@ -168,16 +156,37 @@ func _build_header() -> void:
 	_rename_edit = LineEdit.new()
 	_rename_edit.max_length = SimCommands.NAME_MAX_LENGTH
 	_rename_edit.placeholder_text = "Nouveau nom, puis Entrée"
-	_rename_edit.custom_minimum_size = Vector2(240, 0)
+	_rename_edit.custom_minimum_size = Vector2(180, 0)
 	_rename_edit.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_rename_edit.visible = false
 	_rename_edit.text_submitted.connect(func(_t: String) -> void: submit_rename())
 	row.add_child(_rename_edit)
-	_subtitle = Label.new()
-	_subtitle.add_theme_font_size_override("font_size", 15)
-	_subtitle.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
-	_subtitle.modulate = Color(0.8, 0.86, 0.98)
+	_subtitle = UiTheme.paragraph("", PANEL_WIDTH - 40.0, 13)
+	_subtitle.theme_type_variation = &"Dim"
 	head.add_child(_subtitle)
+
+
+## Flèches de part et d'autre de la scène : système précédent / suivant de l'empire.
+func _build_nav() -> void:
+	for step in [-1, 1]:
+		var b := Widgets.IconButton.new("prev" if step < 0 else "next", 40)
+		b.theme_type_variation = &""
+		b.tooltip_text = "Système %s de l'empire  (%s)" % ["précédent" if step < 0 else "suivant", "Maj+Tab" if step < 0 else "Tab"]
+		b.anchor_top = 0.5
+		b.anchor_bottom = 0.5
+		b.offset_top = -20.0
+		b.offset_bottom = 20.0
+		if step < 0:
+			b.offset_left = SCENE_LEFT + 6.0
+			b.offset_right = SCENE_LEFT + 46.0
+		else:
+			b.anchor_left = 1.0
+			b.anchor_right = 1.0
+			b.offset_left = -46.0
+			b.offset_right = -6.0
+		var st: int = step
+		b.pressed.connect(func() -> void: cycle_requested.emit(st))
+		add_child(b)
 
 
 func _refresh_header(s: StarSystem) -> void:
@@ -221,9 +230,9 @@ func _build_cards() -> void:
 	_cards.add_theme_constant_override("separation", 8)
 	_cards.anchor_top = 1.0
 	_cards.anchor_bottom = 1.0
-	_cards.offset_left = 16.0
-	_cards.offset_top = -BOTTOM - CARD_SIZE.y - 8.0
-	_cards.offset_bottom = -BOTTOM - 8.0
+	_cards.offset_left = SCENE_LEFT
+	_cards.offset_top = -MARGIN - CARD_SIZE.y
+	_cards.offset_bottom = -MARGIN
 	add_child(_cards)
 
 
@@ -234,7 +243,7 @@ func _rebuild_cards() -> void:
 	_card_ids.clear()
 	var s := _state.galaxy.get_system(system_id)
 	# Les cartes se partagent la largeur libre à gauche de la fiche.
-	var free_width := view.size.x - PANEL_WIDTH - 56.0
+	var free_width := view.size.x - SCENE_LEFT - Hud.DIAL_RESERVED - 50.0
 	var width := clampf((free_width - 8.0 * (s.planet_count - 1)) / maxf(s.planet_count, 1), 90.0, CARD_SIZE.x)
 	for pid in s.planet_ids:
 		var p := _state.galaxy.get_planet(pid)
@@ -246,10 +255,12 @@ func _rebuild_cards() -> void:
 		card.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		card.icon = _type_icon(p.type)
 		card.add_theme_font_size_override("font_size", 13)
-		card.add_theme_stylebox_override("normal", _box(Color(0.05, 0.07, 0.12, 0.82), Color(ACCENT, 0.25)))
-		card.add_theme_stylebox_override("hover", _box(Color(0.09, 0.12, 0.2, 0.92), Color(ACCENT, 0.6)))
-		card.add_theme_stylebox_override("pressed", _box(Color(0.14, 0.12, 0.06, 0.95), Color(SystemView.SELECT_COLOR, 0.9)))
-		card.add_theme_stylebox_override("hover_pressed", _box(Color(0.16, 0.14, 0.07, 0.95), Color(SystemView.SELECT_COLOR, 1.0)))
+		card.add_theme_stylebox_override("normal", _box(UiTheme.PANEL, UiTheme.LINE))
+		card.add_theme_stylebox_override("hover", _box(Color(0.09, 0.11, 0.15, 0.92), UiTheme.LINE_STRONG))
+		var on := _box(Color(0.06, 0.09, 0.12, 0.95), ACCENT)
+		on.border_width_bottom = 2
+		card.add_theme_stylebox_override("pressed", on)
+		card.add_theme_stylebox_override("hover_pressed", on)
 		card.pressed.connect(select_planet.bind(pid))
 		_cards.add_child(card)
 		_card_ids.append(pid)
@@ -276,13 +287,11 @@ func _refresh_cards() -> void:
 
 func _build_panel() -> void:
 	_panel = PanelContainer.new()
-	_panel.anchor_left = 1.0
-	_panel.anchor_right = 1.0
 	_panel.anchor_bottom = 1.0
-	_panel.offset_left = -PANEL_WIDTH - 16.0
-	_panel.offset_right = -16.0
-	_panel.offset_top = TOP + 6.0
-	_panel.offset_bottom = -BOTTOM - 8.0
+	_panel.offset_left = MARGIN
+	_panel.offset_right = MARGIN + PANEL_WIDTH
+	_panel.offset_top = PANEL_TOP
+	_panel.offset_bottom = -MARGIN
 	_panel.theme_type_variation = &"SidePanel"
 	add_child(_panel)
 	var scroll := ScrollContainer.new()
@@ -296,8 +305,9 @@ func _build_panel() -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 6)
 	margin.add_child(box)
+	_panel_box = box
 
-	_p_title = UiTheme.title("", 30)
+	_p_title = UiTheme.title("", 26)
 	box.add_child(_p_title)
 	_p_sub = _text_label(box)
 	_p_sub.modulate = Color(0.75, 0.8, 0.92)
@@ -449,13 +459,13 @@ func _section(parent: Control, text: String) -> Label:
 func _text_label(parent: Control) -> Label:
 	var l := Label.new()
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	l.custom_minimum_size = Vector2(PANEL_WIDTH - 70.0, 0)
+	l.custom_minimum_size = Vector2(PANEL_WIDTH - 60.0, 0)
 	parent.add_child(l)
 	return l
 
 
 func _box(bg: Color, border: Color, margin := 8) -> StyleBoxFlat:
-	return UiTheme.box(bg, border, margin, 5)
+	return UiTheme.box(bg, border, margin, 1)
 
 
 ## Petite pastille de couleur pour le type de planète (bandeau du bas).

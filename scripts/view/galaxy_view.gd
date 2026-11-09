@@ -12,9 +12,11 @@ const STAR_COLORS := {
 	"black_hole": Color(0.55, 0.3, 0.85),
 }
 const LANE_COLOR := Color(0.55, 0.7, 1.0)
-const SELECT_COLOR := Color(1.0, 0.82, 0.3)
+const SELECT_COLOR := Color(0.38, 0.86, 0.92)
 const LABEL_MIN_ZOOM := 0.5
 const LABEL_FONT_SIZE := 13
+## Zoom à partir duquel tous les systèmes montrent leurs pastilles de planètes.
+const PLANET_DOTS_MIN_ZOOM := 0.8
 ## Rayon du halo de territoire autour d'un système revendiqué, en unités du monde.
 const TERRITORY_RADIUS := 85.0
 
@@ -22,6 +24,10 @@ var state: GameState
 var galaxy: Galaxy
 var selected_id := -1
 var hovered_id := -1
+## Joueur dont on montre le point de vue (lentille économique).
+var viewer := 0
+## Lentille : "" (normale) ou "economy" (bilan mensuel de chaque système du joueur).
+var lens := ""
 
 var _background := PackedVector2Array()
 var _font: Font
@@ -29,7 +35,7 @@ var _last_zoom := -1.0
 
 
 func _ready() -> void:
-	_font = ThemeDB.fallback_font
+	_font = UiTheme.body_font()
 
 
 func set_state(value: GameState) -> void:
@@ -82,10 +88,21 @@ func _draw() -> void:
 	for s in galaxy.systems:
 		_draw_system(s, px)
 
+	if lens == "economy" and state != null:
+		# Lentille économique : tout s'assombrit sauf les systèmes du joueur, qui affichent leur bilan.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		for s in galaxy.systems:
+			if state.system_owner(s.id) == viewer:
+				_draw_system(s, px)
+				_draw_label(s, px, true)
+				_draw_yields(s, px)
+		return
 	var show_all_labels := _zoom() >= LABEL_MIN_ZOOM
+	var show_dots := _zoom() >= PLANET_DOTS_MIN_ZOOM
 	for s in galaxy.systems:
-		if show_all_labels or s.id == selected_id or s.id == hovered_id:
-			_draw_label(s, px)
+		var key := s.id == selected_id or s.id == hovered_id or (state != null and state.system_owner(s.id) >= 0)
+		if show_all_labels or key:
+			_draw_label(s, px, show_dots or key)
 
 
 ## Territoire : une zone à la couleur de l'empire autour de ses systèmes et le long de ses routes.
@@ -151,9 +168,56 @@ func _draw_claims(s: StarSystem, r: float, px: float) -> void:
 		draw_colored_polygon(PackedVector2Array([top + Vector2(0, -d), top + Vector2(d * 0.7, 0), top + Vector2(0, d), top + Vector2(-d * 0.7, 0)]), col)
 
 
-func _draw_label(s: StarSystem, px: float) -> void:
+## Étiquette du système : son nom dans un petit cartouche sombre, une pastille par planète dessous
+## (pleine si la planète est revendiquée, à la couleur de son propriétaire).
+func _draw_label(s: StarSystem, px: float, dots := true) -> void:
 	# On annule le zoom localement pour que le texte reste net et de taille constante.
 	draw_set_transform(s.position, 0.0, Vector2(px, px))
-	var color := SELECT_COLOR if s.id == selected_id else Color(0.85, 0.88, 0.95, 0.85)
-	draw_string(_font, Vector2(10, 4), s.system_name, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_FONT_SIZE, color)
+	var selected := s.id == selected_id
+	var owner := state.get_empire(state.system_owner(s.id)) if state else null
+	var w := _font.get_string_size(s.system_name, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_FONT_SIZE).x
+	var tag := Rect2(Vector2(-w * 0.5 - 7, -34), Vector2(w + 14, 19))
+	draw_rect(tag, Color(0.02, 0.03, 0.05, 0.78 if not selected else 0.92))
+	if selected:
+		draw_rect(Rect2(tag.position + Vector2(0, tag.size.y - 2), Vector2(tag.size.x, 2)), SELECT_COLOR)
+	elif owner:
+		draw_rect(Rect2(tag.position + Vector2(0, tag.size.y - 1), Vector2(tag.size.x, 1)), owner.color())
+	var col := Color(0.92, 0.94, 0.97) if selected or s.id == hovered_id else Color(0.85, 0.88, 0.93, 0.85)
+	draw_string(_font, Vector2(-w * 0.5, -20), s.system_name, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_FONT_SIZE, col)
+	# Pastilles des planètes sous l'étiquette, entre elle et l'étoile.
+	var n := s.planet_count if dots else 0
+	for i in n:
+		var pos := Vector2((i - (n - 1) * 0.5) * 9.0, -9)
+		var c: Colony = state.colonies.get(s.planet_ids[i]) if state else null
+		if c:
+			draw_circle(pos, 3.0, state.get_empire(c.owner).color())
+		else:
+			draw_arc(pos, 2.6, 0.0, TAU, 12, Color(1, 1, 1, 0.55), 1.0, true)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Lentille économique : bilan mensuel du système (toutes ses revendications), sous l'étoile.
+func _draw_yields(s: StarSystem, px: float) -> void:
+	var net := EmpireReport.system_net(state, viewer, s.id)
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	var parts: Array[Dictionary] = []
+	for r in GameData.resource_ids():
+		var v := int(net.get(r, 0))
+		if v != 0:
+			parts.append({"r": r, "text": "%+d" % v, "v": v})
+	var widths: Array[float] = []
+	var total := 0.0
+	for part in parts:
+		var tw := _font.get_string_size(part["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 14.0
+		widths.append(tw)
+		total += tw
+	var x := -total * 0.5
+	if not parts.is_empty():
+		draw_rect(Rect2(Vector2(x - 6, 16), Vector2(total + 8, 18)), Color(0.02, 0.03, 0.05, 0.9))
+	for i in parts.size():
+		var part: Dictionary = parts[i]
+		draw_circle(Vector2(x + 4, 25), 3.5, ResourceIcon.color_of(part["r"]))
+		draw_string(_font, Vector2(x + 10, 30), part["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, 12,
+				UiTheme.delta_color(int(part["v"])))
+		x += widths[i]
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

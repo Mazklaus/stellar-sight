@@ -74,6 +74,21 @@ static func colonies(state: GameState, empire_id: int) -> Array[Dictionary]:
 	return out
 
 
+## Bilan mensuel (avant bonus de faction) des revendications d'un empire dans un système : {res: int}.
+static func system_net(state: GameState, empire_id: int, system_id: int) -> Dictionary:
+	var net := {}
+	for r in GameData.resource_ids():
+		net[r] = 0
+	for pid in state.galaxy.systems[system_id].planet_ids:
+		var c: Colony = state.colonies.get(pid)
+		if c == null or c.owner != empire_id:
+			continue
+		var y := Economy.colony_yields(state, c)
+		for r in y["gross"]:
+			net[r] += int(y["gross"][r]) - int(y["upkeep"][r])
+	return net
+
+
 ## Chiffres clés : {"colonies", "outposts", "founding", "population", "systems", "max_projects"}.
 static func totals(state: GameState, empire_id: int) -> Dictionary:
 	var t := {"colonies": 0, "outposts": 0, "founding": 0, "population": 0, "systems": 0,

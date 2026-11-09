@@ -40,7 +40,6 @@ func _ready() -> void:
 	var dim := ColorRect.new()
 	dim.color = Color(0.0, 0.01, 0.03, 0.62)
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	dim.offset_top = EmpireBar.HEIGHT  # la barre d'empire reste utilisable au-dessus
 	dim.gui_input.connect(func(ev: InputEvent) -> void:
 		var mb := ev as InputEventMouseButton
 		if mb and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
@@ -52,8 +51,8 @@ func _ready() -> void:
 	_window.set_anchors_preset(Control.PRESET_CENTER)
 	_window.offset_left = -WINDOW_SIZE.x * 0.5
 	_window.offset_right = WINDOW_SIZE.x * 0.5
-	_window.offset_top = -WINDOW_SIZE.y * 0.5 + EmpireBar.HEIGHT * 0.5
-	_window.offset_bottom = WINDOW_SIZE.y * 0.5 + EmpireBar.HEIGHT * 0.5
+	_window.offset_top = -WINDOW_SIZE.y * 0.5
+	_window.offset_bottom = WINDOW_SIZE.y * 0.5
 	add_child(_window)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 12)
@@ -62,15 +61,15 @@ func _ready() -> void:
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 4)
 	box.add_child(head)
-	_title = UiTheme.title("", 32, UiTheme.TEXT)
+	_title = UiTheme.title("", 34, UiTheme.TEXT)
 	_title.custom_minimum_size = Vector2(220, 0)
 	head.add_child(_title)
 	for sc in EmpireBar.SCREENS:
 		var b := Button.new()
-		b.theme_type_variation = &"BarButton"
+		b.theme_type_variation = &"TabButton"
 		b.toggle_mode = true
 		b.focus_mode = Control.FOCUS_NONE
-		b.text = "%s  %s" % [sc["label"], sc["key"]]
+		b.text = ("%s  %s" % [sc["label"], sc["key"]]).to_upper()
 		b.disabled = not sc["ready"]
 		b.tooltip_text = "" if sc["ready"] else String(sc["why"])
 		b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -369,7 +368,7 @@ func _rebuild_colony_rows(list: Array[Dictionary]) -> void:
 		var b := Button.new()
 		b.focus_mode = Control.FOCUS_NONE
 		b.custom_minimum_size = Vector2(0, 44)
-		b.add_theme_stylebox_override("normal", UiTheme.box(Color(0.05, 0.07, 0.12, 0.7), Color(UiTheme.ACCENT, 0.12), 8, 5))
+		b.add_theme_stylebox_override("normal", UiTheme.box(Color(1, 1, 1, 0.035), Color(0, 0, 0, 0), 8, 0))
 		var pid: int = c["planet_id"]
 		b.pressed.connect(func() -> void: planet_requested.emit(pid))
 		b.tooltip_text = "Ouvrir la vue système"
@@ -393,7 +392,7 @@ func _rebuild_colony_rows(list: Array[Dictionary]) -> void:
 			row.add_child(cell)
 			cells.append(cell)
 		(cells[0] as Label).theme_type_variation = &"Title"
-		(cells[0] as Label).add_theme_font_size_override("font_size", 19)
+		(cells[0] as Label).add_theme_font_size_override("font_size", 20)
 		_col_list.add_child(b)
 		_col_rows.append({"button": b, "cells": cells, "net_sig": ""})
 

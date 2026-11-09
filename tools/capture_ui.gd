@@ -51,12 +51,16 @@ func _initialize() -> void:
 	main._view.hovered_id = n
 	main._view.queue_redraw()
 	main.set_process(false)
-	main._hud.show_hover(st.galaxy.get_system(n), screen_pos)
+	main._hud.show_hover(null, screen_pos)
 	for t in main._hud._toasts.get_children():
 		t.queue_free()
 	main._hud.notify("Partie sauvegardée (%s)" % GameCalendar.date_string(st.tick), "good")
 	await _frames(5)
 	await _shot(out + "/galaxie-interface.png")
+	main._hud.set_lens("economy")
+	await _frames(5)
+	await _shot(out + "/galaxie-lentille-economique.png")
+	main._hud.set_lens("")
 	main.set_process(true)
 	main.toggle_empire_screen("economy")
 	await _frames(20)

@@ -57,25 +57,22 @@ func _ready() -> void:
 	root.add_child(_title_block)
 	var title := Label.new()
 	title.text = "STELLAR SIGTH"
-	var wide := FontVariation.new()
-	wide.base_font = UiTheme.FONT_TITLE
-	wide.spacing_glyph = 8
-	title.add_theme_font_override("font", wide)
-	title.add_theme_font_size_override("font_size", 88)
+	title.add_theme_font_override("font", UiTheme.font(200, 14))
+	title.add_theme_font_size_override("font_size", 86)
 	title.add_theme_color_override("font_color", Color(0.95, 0.97, 1.0))
-	title.add_theme_color_override("font_shadow_color", Color(UiTheme.ACCENT, 0.35))
-	title.add_theme_constant_override("shadow_offset_y", 0)
-	title.add_theme_constant_override("shadow_outline_size", 18)
+	title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.6))
+	title.add_theme_constant_override("shadow_offset_y", 2)
 	_title_block.add_child(title)
 	var line := ColorRect.new()
-	line.color = UiTheme.GOLD
-	line.custom_minimum_size = Vector2(120, 2)
+	line.color = Color(1, 1, 1, 0.35)
+	line.custom_minimum_size = Vector2(640, 1)
 	line.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_title_block.add_child(line)
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0, 10)
 	_title_block.add_child(gap)
-	var tag := UiTheme.dim(TAGLINE, 18)
+	var tag := UiTheme.dim(TAGLINE.to_upper(), 14)
+	tag.add_theme_font_override("font", UiTheme.font(400, 4))
 	_title_block.add_child(tag)
 
 	_home = VBoxContainer.new()
@@ -184,8 +181,10 @@ func _build_new_page(root: Control) -> void:
 		card.toggle_mode = true
 		card.focus_mode = Control.FOCUS_NONE
 		card.custom_minimum_size = FACTION_CARD
-		card.add_theme_stylebox_override("pressed", UiTheme.box(Color(col.darkened(0.75), 0.95), col, 8))
-		card.add_theme_stylebox_override("hover_pressed", UiTheme.box(Color(col.darkened(0.7), 1.0), col.lightened(0.2), 8))
+		var on := UiTheme.box(Color(col.darkened(0.8), 0.9), col, 8)
+		on.border_width_left = 3
+		card.add_theme_stylebox_override("pressed", on)
+		card.add_theme_stylebox_override("hover_pressed", on)
 		card.pressed.connect(select_faction.bind(fid))
 		card.gui_input.connect(func(ev: InputEvent) -> void:
 			var mb := ev as InputEventMouseButton

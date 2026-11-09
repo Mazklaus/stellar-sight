@@ -50,7 +50,7 @@ const GAS_PALETTES := [
 	[Color(0.5, 0.36, 0.6), Color(0.86, 0.76, 0.9), Color(0.68, 0.45, 0.62), Color(0.98, 0.82, 0.62), Color(0.85, 0.7, 1.0)],
 ]
 const ORBIT_COLOR := Color(0.6, 0.75, 1.0, 0.14)
-const SELECT_COLOR := Color(1.0, 0.82, 0.3)
+const SELECT_COLOR := Color(0.38, 0.86, 0.92)
 const ORBIT_SPEED := 0.07
 
 var state: GameState
@@ -68,13 +68,15 @@ var _bodies := {}
 var _belts := {}
 var _time := 0.0
 var _font: Font
+var _title_font: Font
 
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	clip_contents = true
-	_font = ThemeDB.fallback_font
+	_font = UiTheme.body_font()
+	_title_font = UiTheme.title_font()
 	# Le fond est un frère placé avant nous : il doit passer sous les orbites que l'on dessine.
 	_backdrop = ColorRect.new()
 	_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -337,15 +339,58 @@ func _draw_overlay() -> void:
 			_draw_brackets(pos, r + 11.0 * sf, SELECT_COLOR)
 		elif pid == hovered_planet:
 			_overlay.draw_arc(pos, r + 9.0 * sf, 0.0, TAU, 48, Color(1, 1, 1, 0.6), 1.5, true)
-		var name_col := Color(0.88, 0.9, 0.96, 0.95)
-		if pid == selected_planet:
-			name_col = SELECT_COLOR
-		elif c:
-			name_col = state.get_empire(c.owner).color().lightened(0.3)
-		var label_y := pos.y + r + 20.0 * sf + 6.0
-		var fs := int(round(clampf(14.0 * sf, 10.0, 18.0)))
-		_draw_centered(p.display_name(state.galaxy), Vector2(pos.x, label_y), fs, name_col)
-		_draw_centered(p.type_label(), Vector2(pos.x, label_y + fs + 2), maxi(fs - 3, 9), Color(0.7, 0.76, 0.88, 0.7))
+		_draw_tag(p, c, pos, r)
+
+
+## Fiche flottante à droite de la planète : nom, type, statut et, pour une revendication, son bilan.
+func _draw_tag(p: Planet, c: Colony, pos: Vector2, r: float) -> void:
+	var lines: Array[Dictionary] = [
+		{"text": p.display_name(state.galaxy), "font": _title_font, "size": 18, "col": UiTheme.TEXT},
+		{"text": "%s, taille %d" % [p.type_label(), p.size], "font": _font, "size": 12, "col": Color(UiTheme.TEXT, 0.85)},
+		{"text": PlanetInfo.short_status(state, p), "font": _font, "size": 12, "col": UiTheme.TEXT_DIM},
+	]
+	var owner := state.get_empire(c.owner) if c else null
+	if owner:
+		lines[2]["col"] = owner.color().lightened(0.3)
+	if p.id == selected_planet:
+		lines[0]["col"] = SELECT_COLOR
+	var yields: Array[Dictionary] = []
+	if c and c.is_established():
+		var y := Economy.colony_yields(state, c)
+		for res in GameData.resource_ids():
+			var v := int(y["gross"][res]) - int(y["upkeep"][res])
+			if v != 0:
+				yields.append({"r": res, "v": v})
+	var w := 0.0
+	var h := 6.0
+	for l in lines:
+		w = maxf(w, (l["font"] as Font).get_string_size(l["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, l["size"]).x)
+		h += float(l["size"]) + 4.0
+	if not yields.is_empty():
+		w = maxf(w, yields.size() * 34.0)
+		h += 18.0
+	var origin := pos + Vector2(r + 12.0, -r * 0.6 - 10.0)
+	var box := Rect2(origin, Vector2(w + 16.0, h + 4.0))
+	# Si la fiche sort de la scène à droite, elle passe à gauche de la planète.
+	if box.end.x > scene_rect().end.x + margins.z - 8.0:
+		box.position.x = pos.x - r - 12.0 - box.size.x
+	_overlay.draw_rect(box, Color(0.02, 0.03, 0.05, 0.5 if p.id != selected_planet else 0.72))
+	var edge := owner.color() if owner else Color(1, 1, 1, 0.25)
+	if p.id == selected_planet:
+		edge = SELECT_COLOR
+	_overlay.draw_rect(Rect2(box.position, Vector2(2, box.size.y)), edge)
+	var y_pos := box.position.y + 4.0
+	for l in lines:
+		y_pos += float(l["size"]) + 2.0
+		_overlay.draw_string(l["font"], Vector2(box.position.x + 10.0, y_pos), l["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, l["size"], l["col"])
+		y_pos += 2.0
+	if not yields.is_empty():
+		var x := box.position.x + 10.0
+		y_pos += 14.0
+		for yv in yields:
+			_overlay.draw_circle(Vector2(x + 3.5, y_pos - 4.0), 3.5, ResourceIcon.color_of(yv["r"]))
+			_overlay.draw_string(_font, Vector2(x + 10.0, y_pos), "%+d" % yv["v"], HORIZONTAL_ALIGNMENT_LEFT, -1, 12, UiTheme.delta_color(yv["v"]))
+			x += 34.0
 
 
 func _draw_brackets(pos: Vector2, r: float, col: Color) -> void:

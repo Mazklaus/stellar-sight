@@ -48,6 +48,7 @@ func _ready() -> void:
 	UiSettings.apply()
 	get_tree().root.theme = UiTheme.theme()
 	_view = GalaxyView.new()
+	_view.viewer = LOCAL_PLAYER
 	add_child(_view)
 	_camera = GalaxyCamera.new()
 	add_child(_camera)
@@ -61,6 +62,10 @@ func _ready() -> void:
 	_hud.menu_requested.connect(open_pause_menu)
 	_hud.pause_toggled.connect(GameClock.toggle_pause)
 	_hud.speed_requested.connect(GameClock.set_speed)
+	_hud.close_system_requested.connect(close_system_view)
+	_hud.lens_changed.connect(func(l: String) -> void:
+		_view.lens = l
+		_view.queue_redraw())
 
 	_system_screen = SystemScreen.new()
 	add_child(_system_screen)
@@ -410,6 +415,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_ENTER, KEY_KP_ENTER:
 			if not is_system_view_open() and not is_empire_screen_open():
 				open_system_view(_view.selected_id)
+		KEY_L:
+			if not is_system_view_open():
+				_hud.set_lens("" if _hud.lens == "economy" else "economy")
 		KEY_TAB:
 			cycle_system(-1 if key.shift_pressed else 1)
 		KEY_SPACE:
