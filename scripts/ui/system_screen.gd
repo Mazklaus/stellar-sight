@@ -1,10 +1,10 @@
 class_name SystemScreen
 extends CanvasLayer
-## Écran dédié à un système, avec deux vues que l'on bascule par les onglets du haut (ou Tab) :
+## Écran dédié à un système, avec deux vues que l'on bascule par les onglets du HUD (ou Tab) :
 ## - la vue orbitale (SystemView) : l'étoile, les planètes en orbite et leurs fiches accrochées ;
 ## - la vue de gestion (SystemManagePanel) : les planètes alignées en grand pour les comparer.
-## Autour : un en-tête (nom, étoile, propriétaire, renommage), un bandeau de planètes en bas
-## (vue orbitale) et, à droite, la fiche de la planète choisie avec ses ordres.
+## Autour : une colonne à gauche (nom du système, renommage, fiche de la planète choisie et ses
+## ordres), un bandeau de planètes en bas (vue orbitale) et des flèches pour changer de système.
 ## Comme le reste de l'interface, il ne modifie jamais la partie : il émet des demandes
 ## que main.gd transforme en ordres (SimCommands). Les boutons grisés posent la même question
 ## que la simulation (SimCommands.validate) et affichent sa réponse en infobulle.
@@ -13,14 +13,19 @@ signal close_requested
 signal rename_requested(system_id: int, new_name: String)
 signal colonize_requested(planet_id: int, kind: String)
 signal build_requested(planet_id: int, building_id: String)
+## Passer au système suivant (1) ou précédent (-1) de l'empire.
+signal cycle_requested(step: int)
+## La vue affichée a changé : gestion (true) ou orbitale (false). Les onglets du HUD suivent.
+signal mode_changed(manage: bool)
 
-const PANEL_WIDTH := 400.0
-## Place laissée à la barre du haut de l'interface principale.
-const TOP := 62.0
-## Place laissée à la chronique et à l'aide, en bas.
-const BOTTOM := 72.0
+## Colonne de gestion, à gauche, sous le panneau d'empire.
+const PANEL_WIDTH := EmpireBar.WIDTH
+const PANEL_TOP := EmpireBar.MARGIN + EmpireBar.HEIGHT + 8.0
+const MARGIN := 10.0
+## Début de la scène, à droite de la colonne.
+const SCENE_LEFT := PANEL_WIDTH + 2.0 * MARGIN
 const CARD_SIZE := Vector2(150, 56)
-const ACCENT := Color(0.55, 0.72, 1.0)
+const ACCENT := UiTheme.ACCENT
 const TYPE_DOT_COLORS := {
 	"continental": Color(0.3, 0.6, 0.35), "ocean": Color(0.2, 0.45, 0.85), "desert": Color(0.9, 0.65, 0.35),
 	"arctic": Color(0.85, 0.92, 1.0), "toxic": Color(0.65, 0.75, 0.2), "gas_giant": Color(0.88, 0.72, 0.5),
@@ -55,35 +60,37 @@ var _status_label: Label
 var _actions_title: Label
 var _actions: VBoxContainer
 var _actions_sig := ""
-var _tab_orbit: Button
-var _tab_manage: Button
 var _pot_title: Label
 var _pot_view: Control
 var _icons := {}
+var _panel_box: VBoxContainer
 
 
 func _ready() -> void:
 	layer = 1  # sous l'interface principale (barre du haut, chronique), au-dessus de la carte
 	visible = false
 	view = SystemView.new()
-	view.margins = Vector4(0, TOP + 70.0, PANEL_WIDTH + 24.0, BOTTOM + CARD_SIZE.y + 24.0)
+	# La scène occupe ce qui reste à droite de la colonne, au-dessus du bandeau des planètes.
+	view.margins = Vector4(SCENE_LEFT, 64.0, 40.0, CARD_SIZE.y + 2.0 * MARGIN + 20.0)
 	view.planet_clicked.connect(select_planet)
 	add_child(view)
 	manage = SystemManagePanel.new()
 	manage.anchor_right = 1.0
 	manage.anchor_bottom = 1.0
-	manage.offset_left = 16.0
-	manage.offset_top = TOP + 112.0
-	manage.offset_right = -PANEL_WIDTH - 40.0
-	manage.offset_bottom = -BOTTOM - 12.0
+	# À droite de la colonne, sous les onglets, en laissant le coin du cadran du temps libre.
+	# Entre les flèches de changement de système, sous la chronique, au-dessus du cadran.
+	manage.offset_left = SCENE_LEFT + 60.0
+	manage.offset_top = 110.0
+	manage.offset_right = -70.0
+	manage.offset_bottom = -TimeDial.SIDE - 10.0
 	manage.visible = false
 	manage.actions_for = planet_actions
 	manage.planet_clicked.connect(select_planet)
 	add_child(manage)
-	_build_header()
-	_build_tabs()
-	_build_cards()
 	_build_panel()
+	_build_header()
+	_build_cards()
+	_build_nav()
 
 
 ## Ouvre l'écran sur un système. La planète du joueur (sa capitale d'abord) est choisie d'office.
@@ -96,9 +103,15 @@ func open(state: GameState, s: StarSystem, player: int) -> void:
 	_rename_edit.text = ""
 	view.set_system(state, s, player)
 	_rebuild_cards()
+	var was_open := visible
 	visible = true
 	manage.set_system(state, s, player)
 	set_manage_mode(manage_mode)
+	if not was_open:
+		# Arrivée en fondu depuis la carte.
+		for n: CanvasItem in [view, manage]:
+			n.modulate.a = 0.0
+			n.create_tween().tween_property(n, "modulate:a", 1.0, 0.25)
 
 
 func close() -> void:
@@ -117,6 +130,14 @@ func is_open() -> bool:
 func select_planet(pid: int) -> void:
 	planet_id = pid
 	refresh()
+
+
+## Planète suivante (step = 1) ou précédente (-1) dans l'ordre des orbites, en boucle.
+func select_adjacent_planet(step: int) -> void:
+	if not is_open() or _card_ids.is_empty():
+		return
+	var i := _card_ids.find(planet_id)
+	select_planet(_card_ids[posmod(i + step, _card_ids.size())] if i >= 0 else _card_ids[0])
 
 
 ## Met à jour les textes (appelé à chaque tick et après chaque ordre). Les boutons ne sont
@@ -140,8 +161,7 @@ func set_manage_mode(on: bool) -> void:
 	manage.visible = on
 	view.show_scene = not on
 	_cards.visible = not on
-	_tab_orbit.set_pressed_no_signal(not on)
-	_tab_manage.set_pressed_no_signal(on)
+	mode_changed.emit(on)
 	refresh()
 
 
@@ -149,58 +169,25 @@ func toggle_mode() -> void:
 	set_manage_mode(not manage_mode)
 
 
-func _build_tabs() -> void:
-	var tabs := HBoxContainer.new()
-	tabs.anchor_left = 0.5
-	tabs.anchor_right = 0.5
-	tabs.offset_top = TOP
-	tabs.offset_left = -PANEL_WIDTH * 0.5 - 150.0
-	tabs.offset_right = -PANEL_WIDTH * 0.5 + 150.0
-	tabs.alignment = BoxContainer.ALIGNMENT_CENTER
-	tabs.add_theme_constant_override("separation", 2)
-	add_child(tabs)
-	_tab_orbit = _tab(tabs, "Vue orbitale", false)
-	_tab_manage = _tab(tabs, "Gestion  (Tab)", true)
-
-
-func _tab(parent: Control, text: String, manage_tab: bool) -> Button:
-	var b := Button.new()
-	b.text = "  %s  " % text
-	b.toggle_mode = true
-	b.focus_mode = Control.FOCUS_NONE
-	b.add_theme_stylebox_override("normal", _box(Color(0.04, 0.05, 0.1, 0.75), Color(ACCENT, 0.2)))
-	b.add_theme_stylebox_override("hover", _box(Color(0.08, 0.11, 0.2, 0.9), Color(ACCENT, 0.6)))
-	b.add_theme_stylebox_override("pressed", _box(Color(0.1, 0.14, 0.26, 0.95), Color(ACCENT, 0.9)))
-	b.add_theme_stylebox_override("hover_pressed", _box(Color(0.12, 0.17, 0.3, 0.95), Color(ACCENT, 1.0)))
-	b.pressed.connect(func() -> void: set_manage_mode(manage_tab))
-	parent.add_child(b)
-	return b
 
 
 # --- En-tête ---------------------------------------------------------------------------------
 
 func _build_header() -> void:
-	var back := Button.new()
-	back.text = "  Galaxie  (Échap)  "
-	back.focus_mode = Control.FOCUS_NONE
-	back.position = Vector2(16, TOP)
-	back.add_theme_stylebox_override("normal", _box(Color(0.05, 0.07, 0.12, 0.85), Color(ACCENT, 0.4)))
-	back.add_theme_stylebox_override("hover", _box(Color(0.1, 0.14, 0.24, 0.95), Color(ACCENT, 0.8)))
-	back.pressed.connect(func() -> void: close_requested.emit())
-	add_child(back)
-
+	# En tête de la colonne : nom du système (renommable) et sa situation.
 	var head := VBoxContainer.new()
-	head.position = Vector2(20, TOP + 34.0)
-	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head.add_theme_constant_override("separation", 0)
-	add_child(head)
+	_panel_box.add_child(head)
+	_panel_box.move_child(head, 0)
+	var sep := HSeparator.new()
+	_panel_box.add_child(sep)
+	_panel_box.move_child(sep, 1)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	head.add_child(row)
-	_title = Label.new()
-	_title.add_theme_font_size_override("font_size", 34)
-	_title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
-	_title.add_theme_constant_override("shadow_offset_y", 2)
+	_title = UiTheme.title("", 36)
+	_title.clip_text = true
+	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_title)
 	_rename_button = Button.new()
 	_rename_button.text = "Renommer"
@@ -213,16 +200,37 @@ func _build_header() -> void:
 	_rename_edit = LineEdit.new()
 	_rename_edit.max_length = SimCommands.NAME_MAX_LENGTH
 	_rename_edit.placeholder_text = "Nouveau nom, puis Entrée"
-	_rename_edit.custom_minimum_size = Vector2(240, 0)
+	_rename_edit.custom_minimum_size = Vector2(180, 0)
 	_rename_edit.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_rename_edit.visible = false
 	_rename_edit.text_submitted.connect(func(_t: String) -> void: submit_rename())
 	row.add_child(_rename_edit)
-	_subtitle = Label.new()
-	_subtitle.add_theme_font_size_override("font_size", 15)
-	_subtitle.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
-	_subtitle.modulate = Color(0.8, 0.86, 0.98)
+	_subtitle = UiTheme.paragraph("", PANEL_WIDTH - 40.0, 13)
+	_subtitle.theme_type_variation = &"Dim"
 	head.add_child(_subtitle)
+
+
+## Flèches de part et d'autre de la scène : système précédent / suivant de l'empire.
+func _build_nav() -> void:
+	for step in [-1, 1]:
+		var b := Widgets.IconButton.new("prev" if step < 0 else "next", 40)
+		b.theme_type_variation = &""
+		b.tooltip_text = "Système %s de l'empire  (%s)" % ["précédent" if step < 0 else "suivant", "Maj+Tab" if step < 0 else "Tab"]
+		b.anchor_top = 0.5
+		b.anchor_bottom = 0.5
+		b.offset_top = -20.0
+		b.offset_bottom = 20.0
+		if step < 0:
+			b.offset_left = SCENE_LEFT + 6.0
+			b.offset_right = SCENE_LEFT + 46.0
+		else:
+			b.anchor_left = 1.0
+			b.anchor_right = 1.0
+			b.offset_left = -46.0
+			b.offset_right = -6.0
+		var st: int = step
+		b.pressed.connect(func() -> void: cycle_requested.emit(st))
+		add_child(b)
 
 
 func _refresh_header(s: StarSystem) -> void:
@@ -266,9 +274,9 @@ func _build_cards() -> void:
 	_cards.add_theme_constant_override("separation", 8)
 	_cards.anchor_top = 1.0
 	_cards.anchor_bottom = 1.0
-	_cards.offset_left = 16.0
-	_cards.offset_top = -BOTTOM - CARD_SIZE.y - 8.0
-	_cards.offset_bottom = -BOTTOM - 8.0
+	_cards.offset_left = SCENE_LEFT
+	_cards.offset_top = -MARGIN - CARD_SIZE.y
+	_cards.offset_bottom = -MARGIN
 	add_child(_cards)
 
 
@@ -279,7 +287,7 @@ func _rebuild_cards() -> void:
 	_card_ids.clear()
 	var s := _state.galaxy.get_system(system_id)
 	# Les cartes se partagent la largeur libre à gauche de la fiche.
-	var free_width := view.size.x - PANEL_WIDTH - 56.0
+	var free_width := view.size.x - SCENE_LEFT - Hud.DIAL_RESERVED - 50.0
 	var width := clampf((free_width - 8.0 * (s.planet_count - 1)) / maxf(s.planet_count, 1), 90.0, CARD_SIZE.x)
 	for pid in s.planet_ids:
 		var p := _state.galaxy.get_planet(pid)
@@ -291,10 +299,12 @@ func _rebuild_cards() -> void:
 		card.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		card.icon = _type_icon(p.type)
 		card.add_theme_font_size_override("font_size", 13)
-		card.add_theme_stylebox_override("normal", _box(Color(0.05, 0.07, 0.12, 0.82), Color(ACCENT, 0.25)))
-		card.add_theme_stylebox_override("hover", _box(Color(0.09, 0.12, 0.2, 0.92), Color(ACCENT, 0.6)))
-		card.add_theme_stylebox_override("pressed", _box(Color(0.14, 0.12, 0.06, 0.95), Color(SystemView.SELECT_COLOR, 0.9)))
-		card.add_theme_stylebox_override("hover_pressed", _box(Color(0.16, 0.14, 0.07, 0.95), Color(SystemView.SELECT_COLOR, 1.0)))
+		card.add_theme_stylebox_override("normal", _box(UiTheme.PANEL, UiTheme.LINE))
+		card.add_theme_stylebox_override("hover", _box(Color(0.09, 0.11, 0.15, 0.92), UiTheme.LINE_STRONG))
+		var on := _box(Color(0.06, 0.09, 0.12, 0.95), ACCENT)
+		on.border_width_bottom = 2
+		card.add_theme_stylebox_override("pressed", on)
+		card.add_theme_stylebox_override("hover_pressed", on)
 		card.pressed.connect(select_planet.bind(pid))
 		_cards.add_child(card)
 		_card_ids.append(pid)
@@ -307,7 +317,7 @@ func _refresh_cards() -> void:
 		var card: Button = _cards.get_child(i)
 		var roman: String = Planet.ROMAN[p.index] if p.index < Planet.ROMAN.size() else str(p.index + 1)
 		var type_name := "Astéroïdes" if p.type == "asteroids" else p.type_label()
-		card.text = "%s  %s\n%s" % [roman, type_name, _short_status(p)]
+		card.text = "%s  %s\n%s" % [roman, type_name, "taille %d · %s" % [p.size, PlanetInfo.short_status(_state, p, _player)] if not _state.colonies.has(p.id) else PlanetInfo.short_status(_state, p, _player)]
 		card.set_pressed_no_signal(pid == planet_id)
 		var c: Colony = _state.colonies.get(pid)
 		var col := _state.get_empire(c.owner).color().lightened(0.35) if c else Color(0.88, 0.9, 0.96)
@@ -317,30 +327,16 @@ func _refresh_cards() -> void:
 		card.add_theme_color_override("font_hover_pressed_color", SystemView.SELECT_COLOR)
 
 
-func _short_status(p: Planet) -> String:
-	var c: Colony = _state.colonies.get(p.id)
-	if c == null:
-		return "taille %d · libre" % p.size
-	var owner := _state.get_empire(c.owner).short_name()
-	if not c.is_established():
-		return "%s · %d j" % [owner, c.days_left]
-	if c.is_colony():
-		return "%s · %d pop" % [owner, c.population]
-	return "%s · avant-poste" % owner
-
-
 # --- Fiche de la planète ---------------------------------------------------------------------
 
 func _build_panel() -> void:
 	_panel = PanelContainer.new()
-	_panel.anchor_left = 1.0
-	_panel.anchor_right = 1.0
 	_panel.anchor_bottom = 1.0
-	_panel.offset_left = -PANEL_WIDTH - 16.0
-	_panel.offset_right = -16.0
-	_panel.offset_top = TOP + 6.0
-	_panel.offset_bottom = -BOTTOM - 8.0
-	_panel.add_theme_stylebox_override("panel", _box(Color(0.035, 0.045, 0.08, 0.9), Color(ACCENT, 0.35), 16))
+	_panel.offset_left = MARGIN
+	_panel.offset_right = MARGIN + PANEL_WIDTH
+	_panel.offset_top = PANEL_TOP
+	_panel.offset_bottom = -MARGIN
+	_panel.theme_type_variation = &"SidePanel"
 	add_child(_panel)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -353,9 +349,9 @@ func _build_panel() -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 6)
 	margin.add_child(box)
+	_panel_box = box
 
-	_p_title = Label.new()
-	_p_title.add_theme_font_size_override("font_size", 24)
+	_p_title = UiTheme.title("", 26)
 	box.add_child(_p_title)
 	_p_sub = _text_label(box)
 	_p_sub.modulate = Color(0.75, 0.8, 0.92)
@@ -365,10 +361,6 @@ func _build_panel() -> void:
 	_hab_bar.max_value = 100
 	_hab_bar.show_percentage = false
 	_hab_bar.custom_minimum_size = Vector2(0, 8)
-	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(1, 1, 1, 0.08)
-	bg.set_corner_radius_all(3)
-	_hab_bar.add_theme_stylebox_override("background", bg)
 	box.add_child(_hab_bar)
 	_hab_label = _text_label(box)
 	_pot_title = _section(box, "Potentiel")
@@ -448,15 +440,15 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 ## Barres de potentiel (0 à 5) par ressource, avec un mot pour les lire.
 func _draw_potential() -> void:
 	var pot: Dictionary = _pot_view.get_meta("potential", {})
-	var font := ThemeDB.fallback_font
+	var font := UiTheme.body_font()
 	var y := 0.0
 	for r in GameData.resource_ids():
 		var rc: Color = PlanetInfo.RESOURCE_COLORS.get(r, Color.WHITE)
 		var v := int(pot.get(r, 0))
 		_pot_view.draw_string(font, Vector2(0, y + 12), GameData.resource_label(r), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(rc, 0.95))
 		for i in 5:
-			_pot_view.draw_rect(Rect2(130.0 + i * 22.0, y + 4.0, 18.0, 7.0), rc if i < v else Color(rc, 0.12))
-		_pot_view.draw_string(font, Vector2(250, y + 12), PlanetInfo.potential_label(v), HORIZONTAL_ALIGNMENT_LEFT, -1, 12,
+			_pot_view.draw_rect(Rect2(100.0 + i * 22.0, y + 5.0, 18.0, 5.0), rc if i < v else Color(rc, 0.12))
+		_pot_view.draw_string(font, Vector2(218, y + 12), PlanetInfo.potential_label(v), HORIZONTAL_ALIGNMENT_LEFT, -1, 12,
 				Color(1, 1, 1, 0.75 if v > 0 else 0.35))
 		y += 16.0
 
@@ -483,7 +475,7 @@ func _build_action(p: Planet, bid: String, b: Dictionary) -> Dictionary:
 	var pid := p.id
 	return {
 		"text": "Construire : %s" % b["label"],
-		"detail": "%s, %d j  →  %s" % [GameData.format_amounts(b.get("cost", {})), int(b["days"]), gain],
+		"detail": "%s, %d j  »  %s" % [GameData.format_amounts(b.get("cost", {})), int(b["days"]), gain],
 		"reason": reason,
 		"tooltip": reason,
 		"action": func() -> void: build_requested.emit(pid, bid),
@@ -508,10 +500,6 @@ func _set_actions(actions: Array[Dictionary]) -> void:
 		b.text = a["text"] if not a.has("detail") else "%s\n%s" % [a["text"], a["detail"]]
 		b.disabled = a["reason"] != ""
 		b.tooltip_text = a["tooltip"]
-		b.add_theme_stylebox_override("normal", _box(Color(0.08, 0.11, 0.19, 0.95), Color(ACCENT, 0.35)))
-		b.add_theme_stylebox_override("hover", _box(Color(0.12, 0.17, 0.3, 1.0), Color(ACCENT, 0.9)))
-		b.add_theme_stylebox_override("pressed", _box(Color(0.18, 0.15, 0.06, 1.0), Color(SystemView.SELECT_COLOR, 0.9)))
-		b.add_theme_stylebox_override("disabled", _box(Color(0.05, 0.06, 0.09, 0.8), Color(1, 1, 1, 0.08)))
 		b.pressed.connect(a["action"])
 		_actions.add_child(b)
 
@@ -538,10 +526,7 @@ func _default_planet(s: StarSystem) -> int:
 
 
 func _section(parent: Control, text: String) -> Label:
-	var l := Label.new()
-	l.text = text.to_upper()
-	l.add_theme_font_size_override("font_size", 11)
-	l.add_theme_color_override("font_color", Color(ACCENT, 0.85))
+	var l := UiTheme.section(text)
 	parent.add_child(l)
 	return l
 
@@ -549,19 +534,13 @@ func _section(parent: Control, text: String) -> Label:
 func _text_label(parent: Control) -> Label:
 	var l := Label.new()
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	l.custom_minimum_size = Vector2(PANEL_WIDTH - 70.0, 0)
+	l.custom_minimum_size = Vector2(PANEL_WIDTH - 60.0, 0)
 	parent.add_child(l)
 	return l
 
 
 func _box(bg: Color, border: Color, margin := 8) -> StyleBoxFlat:
-	var st := StyleBoxFlat.new()
-	st.bg_color = bg
-	st.border_color = border
-	st.set_border_width_all(1)
-	st.set_corner_radius_all(5)
-	st.set_content_margin_all(margin)
-	return st
+	return UiTheme.box(bg, border, margin, 1)
 
 
 ## Petite pastille de couleur pour le type de planète (bandeau du bas).

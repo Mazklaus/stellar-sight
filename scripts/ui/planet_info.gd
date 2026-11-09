@@ -30,6 +30,20 @@ static func status_line(state: GameState, p: Planet) -> String:
 	return "%s de %s" % [kind_label, owner.short_name()]
 
 
+## Version courte pour les listes : "libre", "Vael · 8 pop", "fondation · 30 j"…
+## Le nom du propriétaire est omis quand c'est viewer (la couleur suffit à le reconnaître).
+static func short_status(state: GameState, p: Planet, viewer := -1) -> String:
+	var c: Colony = state.colonies.get(p.id)
+	if c == null:
+		return "libre"
+	var owner := "" if c.owner == viewer else state.get_empire(c.owner).short_name() + " · "
+	if not c.is_established():
+		return "%sfondation · %d j" % [owner, c.days_left]
+	if c.is_colony():
+		return "%s%d pop" % [owner, c.population]
+	return "%savant-poste" % owner
+
+
 ## Habitabilité pour l'espèce du joueur : {"pct": 0..100, "text": String}.
 static func habitability(state: GameState, p: Planet, player: int) -> Dictionary:
 	var me := state.get_empire(player)

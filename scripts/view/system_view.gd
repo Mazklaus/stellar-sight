@@ -50,7 +50,7 @@ const GAS_PALETTES := [
 	[Color(0.5, 0.36, 0.6), Color(0.86, 0.76, 0.9), Color(0.68, 0.45, 0.62), Color(0.98, 0.82, 0.62), Color(0.85, 0.7, 1.0)],
 ]
 const ORBIT_COLOR := Color(0.6, 0.75, 1.0, 0.14)
-const SELECT_COLOR := Color(1.0, 0.82, 0.3)
+const SELECT_COLOR := Color(0.38, 0.86, 0.92)
 const ORBIT_SPEED := 0.07
 
 var state: GameState
@@ -77,13 +77,15 @@ var _bodies := {}
 var _belts := {}
 var _time := 0.0
 var _font: Font
+var _title_font: Font
 
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	clip_contents = true
-	_font = ThemeDB.fallback_font
+	_font = UiTheme.body_font()
+	_title_font = UiTheme.title_font()
 	# Le fond est un frère placé avant nous : il doit passer sous les orbites que l'on dessine.
 	_backdrop = ColorRect.new()
 	_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -390,6 +392,19 @@ func _draw_card(pid: int, sf: float) -> void:
 	var width := 0.0
 	for l in lines:
 		width = maxf(width, _font.get_string_size(l["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, l["size"]).x)
+	# Bilan mensuel d'une revendication établie, une pastille par ressource.
+	var yields: Array[Dictionary] = []
+	var c: Colony = state.colonies.get(pid)
+	if c and c.is_established():
+		var yl := Economy.colony_yields(state, c)
+		for res in GameData.resource_ids():
+			var v := int(yl["gross"][res]) - int(yl["upkeep"][res])
+			if v != 0:
+				yields.append({"r": res, "v": v})
+	var yields_h := 0.0
+	if not yields.is_empty():
+		width = maxf(width, yields.size() * 34.0)
+		yields_h = float(fs_small) + 6.0
 	var pips_h := 0.0
 	var pip := 6.0
 	if detailed:
@@ -399,14 +414,18 @@ func _draw_card(pid: int, sf: float) -> void:
 	var h := 0.0
 	for l in lines:
 		h += int(l["size"]) + 3
-	var size_card := Vector2(width + pad * 2.0, h + pips_h + pad * 2.0)
+	var size_card := Vector2(width + pad * 2.0, h + yields_h + pips_h + pad * 2.0)
 	var right := pos.x < star_center().x + orbit_radius(system.planet_count - 1) * 0.35
 	var anchor := pos + Vector2((r + 14.0 * sf) * (1.0 if right else -1.0), -r * 0.6)
 	var top_left := Vector2(anchor.x if right else anchor.x - size_card.x, anchor.y - size_card.y * 0.35)
 	var rect := Rect2(top_left, size_card)
-	var bg := Color(0.03, 0.04, 0.08, 0.72 if detailed else 0.5)
+	var bg := Color(0.02, 0.03, 0.05, 0.72 if detailed else 0.5)
 	_overlay.draw_rect(rect, bg)
-	var edge := Color(SELECT_COLOR, 0.8) if pid == selected_planet else Color(0.6, 0.75, 1.0, 0.35 if detailed else 0.18)
+	var edge := Color(1, 1, 1, 0.35 if detailed else 0.18)
+	if c:
+		edge = Color(state.get_empire(c.owner).color(), 0.9)
+	if pid == selected_planet:
+		edge = Color(SELECT_COLOR, 0.9)
 	_overlay.draw_line(rect.position, rect.position + Vector2(0, rect.size.y), edge, 2.0)
 	_overlay.draw_line(pos + Vector2((r + 2.0) * (1.0 if right else -1.0), -r * 0.4),
 			Vector2(rect.position.x if right else rect.end.x, anchor.y), Color(edge, edge.a * 0.8), 1.0, true)
@@ -415,6 +434,14 @@ func _draw_card(pid: int, sf: float) -> void:
 		y += int(l["size"])
 		_overlay.draw_string(_font, Vector2(rect.position.x + pad, y), l["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, l["size"], l["color"])
 		y += 3
+	if not yields.is_empty():
+		y += float(fs_small) + 2.0
+		var x := rect.position.x + pad
+		for yv in yields:
+			_overlay.draw_circle(Vector2(x + 3.5, y - fs_small * 0.35), 3.5, ResourceIcon.color_of(yv["r"]))
+			_overlay.draw_string(_font, Vector2(x + 10.0, y), "%+d" % yv["v"], HORIZONTAL_ALIGNMENT_LEFT, -1, fs_small, UiTheme.delta_color(yv["v"]))
+			x += 34.0
+		y += 4.0
 	if detailed:
 		y += 4
 		var pot := PlanetInfo.potential(p)
@@ -432,7 +459,7 @@ func _name_color(pid: int) -> Color:
 	if pid == selected_planet:
 		return SELECT_COLOR
 	var c: Colony = state.colonies.get(pid)
-	return state.get_empire(c.owner).color().lightened(0.3) if c else Color(0.92, 0.94, 1.0)
+	return state.get_empire(c.owner).color().lightened(0.3) if c else UiTheme.TEXT
 
 
 func _draw_brackets(pos: Vector2, r: float, col: Color) -> void:

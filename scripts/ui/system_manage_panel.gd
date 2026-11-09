@@ -24,7 +24,9 @@ var _action_sigs := {}
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_row = HBoxContainer.new()
-	_row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# Rangée centrée verticalement ; ses colonnes gardent la même hauteur, alignées en haut.
+	_row.set_anchors_and_offsets_preset(Control.PRESET_HCENTER_WIDE)
+	_row.grow_vertical = Control.GROW_DIRECTION_BOTH
 	_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_row.add_theme_constant_override("separation", 10)
 	_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -122,7 +124,7 @@ func _make_column(p: Planet, width: float, sphere: float) -> Dictionary:
 	holder.add_child(body)
 	holder.draw.connect(_draw_gauge.bind(holder, p, sphere))
 
-	var status := _label(box, 14)
+	var status := _label(box, 13)
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var actions := VBoxContainer.new()
 	actions.add_theme_constant_override("separation", 3)
@@ -161,7 +163,7 @@ func _refresh_column(p: Planet, col: Dictionary) -> void:
 	var status: Label = col["status"]
 	status.text = avail["text"]
 	if c and c.is_colony() and c.is_established():
-		status.text += "  ·  %d/%d pop" % [c.population, Economy.max_pop(state, p, c.owner, c.buildings)]
+		status.text += " · %d/%d pop" % [c.population, Economy.max_pop(state, p, c.owner, c.buildings)]
 	status.add_theme_color_override("font_color", PlanetInfo.AVAILABILITY_COLORS.get(avail["kind"], Color.WHITE))
 	(col["holder"] as Control).queue_redraw()
 

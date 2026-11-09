@@ -20,6 +20,10 @@ GameClock="*res://scripts/sim/game_clock.gd"
 window/size/viewport_width=1600
 window/size/viewport_height=900
 
+[gui]
+
+timers/tooltip_delay_sec=0.35
+
 [rendering]
 
 environment/defaults/default_clear_color=Color(0.02, 0.025, 0.05, 1)
