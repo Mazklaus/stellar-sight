@@ -78,10 +78,13 @@ static func fleet_power(f: Fleet) -> int:
 	return p
 
 
-static func max_troops(f: Fleet) -> int:
+## Capacité de troupes d'une flotte ; avec l'état, les technologies de son propriétaire comptent (Marines).
+static func max_troops(f: Fleet, state: GameState = null) -> int:
 	var n := 0
 	for s in f.ships:
 		n += int(GameData.ship(s).get("troops", 0))
+	if state != null:
+		n = Research.scaled(n, Research.fx_int(state, f.owner, "troops_pct"))
 	return n
 
 
@@ -216,20 +219,26 @@ static func weapon_eff(weapon: String, phase: int) -> int:
 ## missiles, torpilles et chasseurs sont en partie abattus par la défense ponctuelle de la cible et des
 ## escorteurs de sa flotte (`fleet_pd`), plafonnée à "pd_cap" %.
 ## Une arme sans effet à cette phase (efficacité 0) ne tire pas : 0 dégât.
+## target_def : bonus de protection des technologies de la cible, {armor, shield, pd} en points de %.
 static func shot_damage(weapon: String, power: int, phase: int, shooter_tactic: String, bonus_pct: int,
-		target_ship: String, target_tactic: String, target_fleet_pd := 0) -> int:
+		target_ship: String, target_tactic: String, target_fleet_pd := 0, target_def := {}) -> int:
 	var wd: Dictionary = data()["weapons"].get(weapon, {})
 	var eff := weapon_eff(weapon, phase)
 	if eff <= 0:
 		return 0
 	var sd := GameData.ship(target_ship) if target_ship != "" else {}
-	var defense := int(sd.get(String(wd.get("defense", "armor")), 0))
+	var def_kind := String(wd.get("defense", "armor"))
+	var defense := int(sd.get(def_kind, 0))
+	if defense > 0 and target_def.has(def_kind):
+		@warning_ignore("integer_division")
+		defense = mini(90, defense * (100 + int(target_def[def_kind])) / 100)
 	var mult := int(tactic(shooter_tactic)["dmg"][phase])
 	var taken := int(tactic(target_tactic).get("taken", 100))
 	var size_pct := int(wd.get("vs_size", {}).get(String(sd.get("size", "medium")), 100)) if target_ship != "" else 100
 	var pd := 0
 	if wd.get("intercept", false) and target_ship != "":
-		pd = mini(int(data().get("pd_cap", 60)), int(sd.get("pd", 0)) + target_fleet_pd)
+		@warning_ignore("integer_division")
+		pd = mini(int(data().get("pd_cap", 60)), (int(sd.get("pd", 0)) + target_fleet_pd) * (100 + int(target_def.get("pd", 0))) / 100)
 	@warning_ignore("integer_division")
 	var d := power * eff * mult * bonus_pct * (100 - defense) * taken / 10000000000
 	@warning_ignore("integer_division")
@@ -244,6 +253,16 @@ static func at_war(state: GameState, a: int, b: int) -> bool:
 		return false
 	var e := state.get_empire(a)
 	return e != null and e.wars.has(b)
+
+
+## Bonus d'arme d'un empire (technologies) : weapon_pct de la famille + damage_pct, en points de %.
+static func weapon_bonus(state: GameState, empire_id: int, weapon: String) -> int:
+	return Research.fx_sub(state, empire_id, "weapon_pct", weapon) + Research.fx_int(state, empire_id, "damage_pct")
+
+
+## Bonus de protection d'un empire (technologies) : {armor, shield, pd}.
+static func defense_bonus(state: GameState, empire_id: int) -> Dictionary:
+	return Research.effects(state, empire_id).get("defense_pct", {})
 
 
 ## Trait de combat d'un peuple (bloc "combat" de data/factions.json).
@@ -321,8 +340,12 @@ static func garrison_max(state: GameState, system_id: int) -> int:
 			n += int(g["capital"])
 		for b in c.buildings:
 			n += int(GameData.building(b).get("garrison", 0))
+	var pct := int(trait_value(state, owner, "garrison_pct", 100))
+	# Ban des vassaux (technologie) : les fiefs, hors du système capital, gardent mieux.
+	if e.capital_planet >= 0 and state.galaxy.get_planet(e.capital_planet).system_id != system_id:
+		pct += Research.fx_int(state, owner, "garrison_pct")
 	@warning_ignore("integer_division")
-	return n * int(trait_value(state, owner, "garrison_pct", 100)) / 100
+	return n * pct / 100
 
 
 ## Garnison actuelle (le siège l'use, elle remonte ensuite d'un point par jour).

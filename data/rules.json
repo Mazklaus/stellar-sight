@@ -4,11 +4,13 @@
 		{"id": "materials", "label": "Matériaux", "short": "Mat"},
 		{"id": "food", "label": "Nourriture", "short": "Nour"},
 		{"id": "influence", "label": "Influence", "short": "Inf"},
-		{"id": "crystals", "label": "Cristaux de saut", "short": "Crist"}
+		{"id": "crystals", "label": "Cristaux de saut", "short": "Crist"},
+		{"id": "knowledge", "label": "Savoir", "short": "Sav"}
 	],
 	"start_resources": {"energy": 100, "materials": 200, "food": 100, "influence": 60, "crystals": 0},
 	"month_days": 30,
 	"food_per_pop": 1,
+	"pop_per_knowledge": 5,
 	"pop_per_size": 4,
 	"growth_per_day": 10,
 	"growth_threshold_base": 100,

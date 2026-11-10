@@ -15,8 +15,8 @@ const MARGIN := 10.0
 const SCREENS := [
 	{"id": "economy", "label": "Économie", "key": "F1", "glyph": "economy", "ready": true},
 	{"id": "colonies", "label": "Colonies", "key": "F2", "glyph": "colonies", "ready": true},
-	{"id": "research", "label": "Recherche", "key": "F3", "glyph": "research", "ready": true, "soon": true,
-		"why": "Les savants de l'empire réclament encore des crédits. La recherche arrive bientôt : l'écran est prêt, l'arbre des technologies viendra le remplir."},
+	{"id": "research", "label": "Recherche", "key": "F3", "glyph": "research", "ready": true,
+		"why": "Quatre domaines sur cinq ères, tout l'arbre visible. Le Savoir finance la technologie en tête de file ; une ère s'ouvre quand on connaît assez de technologies de la précédente."},
 	{"id": "diplomacy", "label": "Diplomatie", "key": "F4", "glyph": "diplomacy", "ready": true,
 		"why": "Guerre froide à la rencontre, puis la paix, l'alliance, le commerce ou la guerre. Survolez une opinion pour en voir les raisons, et une proposition pour savoir ce que l'autre en pense."},
 ]
@@ -29,7 +29,7 @@ static func screen_info(screen_id: String) -> Dictionary:
 
 
 ## Disposition des ressources : deux lignes.
-const ROWS := [["energy", "materials", "food"], ["influence", "crystals"]]
+const ROWS := [["energy", "materials", "food"], ["influence", "crystals", "knowledge"]]
 
 var _state: GameState
 var _player := 0

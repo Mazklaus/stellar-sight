@@ -47,11 +47,11 @@ static func short_status(state: GameState, p: Planet, viewer := -1) -> String:
 ## Habitabilité pour l'espèce du joueur : {"pct": 0..100, "text": String}.
 static func habitability(state: GameState, p: Planet, player: int) -> Dictionary:
 	var me := state.get_empire(player)
-	if not p.is_habitable_type():
+	if not p.is_habitable_type() and (me == null or not Economy.houses_pop(state, player, p.type)):
 		return {"pct": 0, "text": "Inhabitable : avant-poste seulement"}
 	if me == null:
 		return {"pct": 0, "text": ""}
-	var hab := Economy.habitability(p.type, me.faction())
+	var hab := Economy.habitability_for(state, player, p.type)
 	var cap := Economy.max_pop(state, p, player)
 	if cap <= 0:
 		return {"pct": hab, "text": "Inhabitable pour votre espèce"}

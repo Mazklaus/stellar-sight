@@ -105,6 +105,7 @@ func _ready() -> void:
 	_toasts.add_theme_constant_override("separation", 4)
 	_toasts.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_toasts)
+	_place_toasts()
 	battle_report = BattleReportPanel.new()
 	add_child(battle_report)
 	battle_replay = BattleReplayPanel.new()
@@ -188,6 +189,7 @@ func set_empire_screen_open(on: bool) -> void:
 	_empire_screen = on
 	_tabs.visible = not on
 	_chronicle.visible = not on
+	_place_toasts()
 	_refresh_side_visibility()
 	_refresh_fleet_card()
 	_refresh_card()
@@ -255,6 +257,7 @@ func notify(text: String, kind := "info") -> void:
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	toast.add_child(l)
 	_toasts.add_child(toast)
+	_style_toast(toast)
 	while _toasts.get_child_count() > TOAST_MAX:
 		var old := _toasts.get_child(0)
 		_toasts.remove_child(old)
@@ -263,6 +266,42 @@ func notify(text: String, kind := "info") -> void:
 	tw.tween_interval(TOAST_SECONDS)
 	tw.tween_property(toast, "modulate:a", 0.0, 0.5)
 	tw.tween_callback(toast.queue_free)
+
+
+## Les avis s'affichent en haut au centre sur la carte. Quand un écran d'empire est ouvert, ils se
+## rangent en bas à droite, au-dessus du cadran, pour ne jamais couvrir le contenu (comme dans
+## Endless Space 2, où rien ne flotte au-dessus de l'arbre des technologies).
+func _place_toasts() -> void:
+	if _empire_screen:
+		_toasts.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+		_toasts.offset_right = -14.0
+		_toasts.offset_bottom = -TimeDial.SIDE - 40.0
+		_toasts.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		_toasts.grow_vertical = Control.GROW_DIRECTION_BEGIN
+		_toasts.alignment = BoxContainer.ALIGNMENT_END
+	else:
+		_toasts.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+		_toasts.offset_top = 58.0
+		_toasts.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		_toasts.grow_vertical = Control.GROW_DIRECTION_END
+		_toasts.alignment = BoxContainer.ALIGNMENT_BEGIN
+	for t in _toasts.get_children():
+		_style_toast(t as PanelContainer)
+
+
+## Avis compacts (texte plus petit, retour à la ligne) quand ils sont rangés sur le côté.
+func _style_toast(toast: PanelContainer) -> void:
+	var l := toast.get_child(0) as Label
+	if _empire_screen:
+		l.add_theme_font_size_override("font_size", 13)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		l.custom_minimum_size = Vector2(300, 0)
+	else:
+		l.remove_theme_font_size_override("font_size")
+		l.autowrap_mode = TextServer.AUTOWRAP_OFF
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.custom_minimum_size = Vector2.ZERO
 
 
 ## Texte des notifications affichées (pour les tests).
@@ -481,7 +520,7 @@ func _refresh_fleet_card() -> void:
 	if Combat.is_armed(f) or f.total_hp() < f.total_max_hp():
 		@warning_ignore("integer_division")
 		_fleet_stats.text += "\nPuissance %d  ·  coque %d %%  ·  troupes %d/%d  ·  %s" % [Combat.fleet_power(f),
-				f.total_hp() * 100 / maxi(1, f.total_max_hp()), f.troops, Combat.max_troops(f), Combat.tactic_label(Combat.fleet_tactic(f))]
+				f.total_hp() * 100 / maxi(1, f.total_max_hp()), f.troops, Combat.max_troops(f, _state), Combat.tactic_label(Combat.fleet_tactic(f))]
 	var can_colonize := mine and not f.is_moving() and Fleets.colonizer_ship(f) != ""
 	if can_colonize:
 		can_colonize = false

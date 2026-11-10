@@ -459,7 +459,12 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 	if c and c.owner == _player and c.is_established():
 		for bid in GameData.buildings():
 			var b := GameData.building(bid)
-			if b.get("buildable", true):
+			# Les bâtiments d'une technologie que ce peuple n'aura jamais (Académie pour le Chœur) n'apparaissent pas.
+			var possible := true
+			for t in b.get("requires_tech", []):
+				if not Research.is_visible(me.faction(), String(t)):
+					possible = false
+			if b.get("buildable", true) and possible:
 				actions.append(_build_action(p, bid, b))
 	return actions
 
@@ -489,7 +494,7 @@ func _sacrifice_action(p: Planet) -> Dictionary:
 	var fv: Dictionary = me.faction()["fervor"]
 	return {
 		"text": "Offrande au dieu-machine",
-		"detail": "-1 population  »  +%d ferveur (%d / %d)" % [int(fv["sacrifice_gain"]), me.fervor, int(fv["max"])],
+		"detail": "-1 population  »  +%d ferveur (%d / %d)" % [FactionTraits.sacrifice_gain(_state, _player), me.fervor, int(fv["max"])],
 		"reason": reason,
 		"tooltip": reason if reason != "" else "Un fidèle rejoint le dieu-machine. La ferveur remonte ; la natalité, elle, prend note.",
 		"action": func() -> void: command_requested.emit(cmd),
@@ -500,16 +505,17 @@ func _ship_action(p: Planet, ship_id: String) -> Dictionary:
 	var sd := GameData.ship(ship_id)
 	var reason := SimCommands.validate(_state, SimCommands.build_ship(_player, p.id, ship_id))
 	var pid := p.id
-	var price := GameData.format_amounts(sd.get("cost", {}))
+	var price := GameData.format_amounts(Fleets.ship_cost(_state, _player, ship_id))
+	var days := Fleets.ship_days(_state, _player, ship_id)
 	if int(sd.get("pop_cost", 0)) > 0:
 		price += ", %d pop" % int(sd["pop_cost"])
 	@warning_ignore("integer_division")
 	var spd := int(sd["speed"]) * FactionTraits.fleet_speed_pct(_state, _player) / 100
-	var detail := "%s, %d j  »  vitesse %d, vision %d saut%s" % [price, int(sd["days"]),
+	var detail := "%s, %d j  »  vitesse %d, vision %d saut%s" % [price, days,
 			spd, int(sd["vision"]), "s" if int(sd["vision"]) > 1 else ""]
 	var tip := String(sd.get("description", ""))
 	if Combat.is_military(ship_id):
-		detail = "%s, %d j  »  puissance %d, vitesse %d" % [price, int(sd["days"]), Combat.ship_strength(ship_id), spd]
+		detail = "%s, %d j  »  puissance %d, vitesse %d" % [price, days, Combat.ship_strength(ship_id), spd]
 		tip += "\n\n%s" % Combat.ship_summary(ship_id)
 	return {
 		"text": "Chantier spatial : %s" % sd["label"],
@@ -563,7 +569,7 @@ func _build_action(p: Planet, bid: String, b: Dictionary) -> Dictionary:
 	var pid := p.id
 	return {
 		"text": "Construire : %s" % b["label"],
-		"detail": "%s, %d j  »  %s" % [GameData.format_amounts(b.get("cost", {})), int(b["days"]), gain],
+		"detail": "%s, %d j  »  %s" % [GameData.format_amounts(Economy.building_cost(_state, _player, bid)), int(b["days"]), gain],
 		"reason": reason,
 		"tooltip": reason,
 		"action": func() -> void: build_requested.emit(pid, bid),

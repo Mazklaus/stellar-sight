@@ -83,6 +83,11 @@ static func diplomacy() -> Dictionary:
 	return _load("diplomacy")
 
 
+## Technologies (data/technologies.json) : domaines, ères, coûts, arbre.
+static func technologies() -> Dictionary:
+	return _load("technologies")
+
+
 static func deposit(id: String) -> Dictionary:
 	for d: Dictionary in rules()["deposits"]:
 		if d["id"] == id:

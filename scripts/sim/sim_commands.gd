@@ -113,6 +113,16 @@ static func invade(player: int, fleet_id: int) -> Dictionary:
 	return {"type": "invade", "player": player, "fleet": fleet_id}
 
 
+## Met une technologie dans la file de recherche (en tête avec front : elle devient la recherche en cours).
+static func research(player: int, tech_id: String, front := false) -> Dictionary:
+	return {"type": "research_queue", "player": player, "tech": tech_id, "front": front}
+
+
+## Retire une technologie de la file de recherche (et celles qui en dépendaient).
+static func research_remove(player: int, tech_id: String) -> Dictionary:
+	return {"type": "research_remove", "player": player, "tech": tech_id}
+
+
 ## Renvoie "" si l'ordre est applicable à cet état, sinon la raison du refus.
 static func validate(state: GameState, cmd: Dictionary) -> String:
 	if not cmd.has("type") or not cmd.has("player"):
@@ -166,6 +176,10 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Combat.check_tactic(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("tactic", "")))
 		"invade":
 			return Combat.check_invade(state, int(cmd["player"]), int(cmd.get("fleet", -1)))
+		"research_queue":
+			return Research.check_queue(state, int(cmd["player"]), String(cmd.get("tech", "")), bool(cmd.get("front", false)))
+		"research_remove":
+			return Research.check_remove(state, int(cmd["player"]), String(cmd.get("tech", "")))
 		_:
 			return "type d'ordre inconnu : %s" % cmd["type"]
 
@@ -203,17 +217,17 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var e := state.get_empire(int(cmd["player"]))
 			var c: Colony = state.colonies[int(cmd["planet"])]
 			var b := GameData.building(String(cmd["building"]))
-			Economy.pay(e, b.get("cost", {}))
+			Economy.pay(e, Economy.building_cost(state, e.id, String(cmd["building"])))
 			c.construction = String(cmd["building"])
 			c.construction_days = int(b["days"])
 		"build_ship":
 			var e := state.get_empire(int(cmd["player"]))
 			var c: Colony = state.colonies[int(cmd["planet"])]
 			var sd := GameData.ship(String(cmd["ship"]))
-			Economy.pay(e, sd.get("cost", {}))
+			Economy.pay(e, Fleets.ship_cost(state, e.id, String(cmd["ship"])))
 			c.population -= int(sd.get("pop_cost", 0))
 			c.ship_build = String(cmd["ship"])
-			c.ship_days = int(sd["days"])
+			c.ship_days = Fleets.ship_days(state, e.id, String(cmd["ship"]))
 		"move_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var plan := Fleets.plan_route(state, f, int(cmd["system"]))
@@ -247,14 +261,14 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 		"split_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var ship_id := String(cmd["ship"])
-			var before := Combat.max_troops(f)
+			var before := Combat.max_troops(f, state)
 			var ship_hp := f.remove_ship_hp(ship_id)
 			var nf := state.spawn_ship(f.owner, ship_id, f.system_id)
 			nf.hp[0] = ship_hp
 			nf.tactic = f.tactic
 			# Les troupes se répartissent selon la capacité de chaque flotte.
 			@warning_ignore("integer_division")
-			nf.troops = f.troops * Combat.max_troops(nf) / maxi(1, before)
+			nf.troops = f.troops * Combat.max_troops(nf, state) / maxi(1, before)
 			f.troops -= nf.troops
 		"sacrifice":
 			var e := state.get_empire(int(cmd["player"]))
@@ -262,7 +276,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var fv: Dictionary = e.faction()["fervor"]
 			c.population -= 1
 			c.growth = 0
-			e.fervor = mini(int(fv["max"]), e.fervor + int(fv["sacrifice_gain"]))
+			e.fervor = mini(int(fv["max"]), e.fervor + FactionTraits.sacrifice_gain(state, e.id))
 			state.add_chronicle("Offrande sur %s : un fidèle rejoint le dieu-machine. Il paraît que c'est un honneur ; il paraît surtout que c'est obligatoire." % [
 					state.galaxy.get_planet(c.planet_id).display_name(state.galaxy)])
 		"rush":
@@ -297,3 +311,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var sid := f.system_id
 			f.troops -= Combat.garrison(state, sid)  # les défenseurs se battent jusqu'au dernier
 			Combat.capture_system(state, sid, f.owner)
+		"research_queue":
+			Research.apply_queue(state, int(cmd["player"]), String(cmd["tech"]), bool(cmd.get("front", false)))
+		"research_remove":
+			Research.apply_remove(state, int(cmd["player"]), String(cmd["tech"]))

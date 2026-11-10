@@ -2,7 +2,7 @@ class_name ResourceIcon
 extends Control
 ## Petite icône vectorielle d'une ressource, dessinée par le code (aucune image à fournir) :
 ## éclair pour l'énergie, cube pour les matériaux, feuille pour la nourriture,
-## étoile pour l'influence, cristal pour les cristaux de saut.
+## étoile pour l'influence, cristal pour les cristaux de saut, livre ouvert pour le Savoir.
 
 const COLORS := {
 	"energy": Color(1.0, 0.85, 0.3),
@@ -10,6 +10,7 @@ const COLORS := {
 	"food": Color(0.5, 0.88, 0.45),
 	"influence": Color(0.78, 0.55, 1.0),
 	"crystals": Color(0.4, 0.92, 1.0),
+	"knowledge": Color(1.0, 0.58, 0.66),
 }
 
 var resource_id := ""
@@ -66,6 +67,14 @@ func _draw() -> void:
 			draw_colored_polygon(_place(facets, o, s), col)
 			draw_colored_polygon(_place(PackedVector2Array([Vector2(0.5, 0.02), Vector2(0.82, 0.36), Vector2(0.5, 0.36)]), o, s), col.lightened(0.45))
 			draw_colored_polygon(_place(PackedVector2Array([Vector2(0.18, 0.36), Vector2(0.5, 0.36), Vector2(0.5, 0.98)]), o, s), col.darkened(0.3))
+			return
+		"knowledge":
+			# Livre ouvert : deux pages inclinées et une tranche.
+			var lp := PackedVector2Array([Vector2(0.06, 0.24), Vector2(0.48, 0.32), Vector2(0.48, 0.9), Vector2(0.06, 0.8)])
+			var rp := PackedVector2Array([Vector2(0.52, 0.32), Vector2(0.94, 0.24), Vector2(0.94, 0.8), Vector2(0.52, 0.9)])
+			draw_colored_polygon(_place(lp, o, s), col)
+			draw_colored_polygon(_place(rp, o, s), col.darkened(0.2))
+			draw_line(o + Vector2(0.5, 0.3) * s, o + Vector2(0.5, 0.92) * s, col.lightened(0.5), maxf(1.0, s * 0.06))
 			return
 		_:
 			draw_circle(o + Vector2(s, s) * 0.5, s * 0.4, col)

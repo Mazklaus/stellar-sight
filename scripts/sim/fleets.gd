@@ -249,7 +249,7 @@ static func idle_fleets(state: GameState, empire_id: int) -> Array[Fleet]:
 ## et de ses flottes (selon leur portée de vision). Dictionnaire id -> true.
 static func visible_systems(state: GameState, empire_id: int) -> Dictionary:
 	var sources := {}
-	var claim_vision := int(GameData.rules().get("claim_vision", 1))
+	var claim_vision := int(GameData.rules().get("claim_vision", 1)) + Research.fx_int(state, empire_id, "claim_vision")
 	for pid in state.sorted_colony_ids():
 		var c: Colony = state.colonies[pid]
 		if c.owner == empire_id:
@@ -351,7 +351,22 @@ static func upkeep(state: GameState, empire_id: int) -> Dictionary:
 			var u: Dictionary = GameData.ship(s).get("upkeep", {})
 			for r in u:
 				out[r] = int(out.get(r, 0)) + int(u[r])
-	return out
+	return Research.scaled_amounts(out, Research.fx_int(state, empire_id, "upkeep_pct"))
+
+
+## Coût d'un vaisseau pour un empire (technologies de coques comprises ; pendant l'Exaltation aussi).
+static func ship_cost(state: GameState, empire_id: int, ship_id: String) -> Dictionary:
+	return Research.scaled_amounts(GameData.ship(ship_id).get("cost", {}), Research.fx_int(state, empire_id, "ship_cost_pct"))
+
+
+## Durée de construction d'un vaisseau pour un empire, en jours (au moins 1).
+static func ship_days(state: GameState, empire_id: int, ship_id: String) -> int:
+	return maxi(1, Research.scaled(int(GameData.ship(ship_id).get("days", 1)), Research.fx_int(state, empire_id, "ship_days_pct")))
+
+
+## Classe de vaisseau débloquée par les technologies de l'empire ?
+static func ship_unlocked(state: GameState, empire_id: int, ship_id: String) -> bool:
+	return Research.knows_all(state, empire_id, GameData.ship(ship_id).get("requires_tech", []))
 
 
 ## Composition lisible : "2 Éclaireurs, Vaisseau colon".
@@ -406,6 +421,8 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 		return "classe de vaisseau inconnue : %s" % ship_id
 	if not FactionTraits.ship_ids_for(e.faction_id).has(ship_id):
 		return "votre peuple ne construit pas de %s" % String(sd["plural"]).to_lower()
+	if not ship_unlocked(state, empire_id, ship_id):
+		return "technologie requise : %s" % Research.missing_text(state, empire_id, sd.get("requires_tech", []))
 	var req: Dictionary = sd.get("requires", {})
 	var need := String(req.get("building", ""))
 	if need != "" and not c.buildings.has(need):
@@ -417,7 +434,7 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	var pop_cost := int(sd.get("pop_cost", 0))
 	if pop_cost > 0 and c.population <= pop_cost:
 		return "il faut plus de %d population sur cette colonie (le vaisseau emporte %d population)" % [pop_cost, pop_cost]
-	var cost: Dictionary = sd.get("cost", {})
+	var cost := ship_cost(state, empire_id, ship_id)
 	if not Economy.can_afford(e, cost):
 		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)
 	return ""

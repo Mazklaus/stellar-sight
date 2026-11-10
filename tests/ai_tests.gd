@@ -351,4 +351,6 @@ func _test_performance() -> void:
 	var ms := (Time.get_ticks_usec() - start) / 1000.0
 	print("  3 ans entre 4 IA Légende en %.1f ms (%.2f ms par jour)" % [ms, ms / 1080.0])
 	# À la vitesse 5, un jour dure 40 ms : la simulation doit en laisser l'essentiel à l'affichage.
-	_ok(ms / 1080.0 < 10.0, "IA assez rapides pour la vitesse maximale")
+	# (11 ms depuis la recherche : les empires y grandissent d'environ 15 % en 3 ans, donc plus de
+	# colonies et de flottes à gérer ; il reste plus de 70 % du jour pour l'affichage.)
+	_ok(ms / 1080.0 < 11.0, "IA assez rapides pour la vitesse maximale")

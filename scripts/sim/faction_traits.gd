@@ -60,6 +60,14 @@ static func fervor_pct(state: GameState, empire_id: int) -> int:
 	return 100
 
 
+## L'empire est-il en Exaltation (ferveur au-dessus du seuil) ?
+static func is_exalted(state: GameState, empire_id: int) -> bool:
+	var e := state.get_empire(empire_id)
+	if e == null or not has_fervor(e.faction()):
+		return false
+	return e.fervor >= int(e.faction()["fervor"]["exalted_at"])
+
+
 ## Variation mensuelle de la ferveur : +per_colony par colonie fondée, -decay.
 static func fervor_delta(state: GameState, empire_id: int) -> int:
 	var e := state.get_empire(empire_id)
@@ -71,7 +79,26 @@ static func fervor_delta(state: GameState, empire_id: int) -> int:
 		var c: Colony = state.colonies[pid]
 		if c.owner == empire_id and c.is_colony() and c.is_established():
 			n += 1
-	return n * int(fv["per_colony"]) - int(fv["decay"])
+	var delta := n * int(fv["per_colony"]) - int(fv["decay"])
+	# Bâtiments qui chantent (Scriptorium) et catéchisme des grandes colonies (technologies).
+	var big := Research.fx_int(state, empire_id, "fervor_big_colony")
+	for pid in state.colonies:
+		var c: Colony = state.colonies[pid]
+		if c.owner != empire_id or not c.is_established():
+			continue
+		for b in c.buildings:
+			delta += int(GameData.building(b).get("fervor", 0))
+		if big > 0 and c.is_colony() and c.population >= 5:
+			delta += big
+	return delta
+
+
+## Ferveur gagnée par une offrande (technologies comprises).
+static func sacrifice_gain(state: GameState, empire_id: int) -> int:
+	var e := state.get_empire(empire_id)
+	if e == null or not has_fervor(e.faction()):
+		return 0
+	return int(e.faction()["fervor"]["sacrifice_gain"]) + Research.fx_int(state, empire_id, "sacrifice_gain")
 
 
 ## "" si l'empire peut sacrifier un fidèle sur cette colonie, sinon la raison du refus.
@@ -150,7 +177,7 @@ static func adjust_yields(state: GameState, c: Colony, gross: Dictionary, upkeep
 		return
 	var fi: Dictionary = e.faction()["fiefs"]
 	if c.is_colony():
-		gross["influence"] = int(gross.get("influence", 0)) + int(fi["influence"])
+		gross["influence"] = int(gross.get("influence", 0)) + int(fi["influence"]) + Research.fx_int(state, c.owner, "fief_influence")
 	if is_far_fief(state, c):
 		upkeep["crystals"] = int(upkeep.get("crystals", 0)) + int(fi["crystal_upkeep"])
 		if e.dissent:
@@ -177,7 +204,8 @@ static func fief_counts(state: GameState, empire_id: int) -> Dictionary:
 
 ## Population d'une colonie à sa fondation.
 static func colony_start_pop(state: GameState, empire_id: int) -> int:
-	return int(_faction(state, empire_id).get("colony_start_pop", GameData.rules()["colony_start_pop"]))
+	return int(_faction(state, empire_id).get("colony_start_pop", GameData.rules()["colony_start_pop"])) \
+			+ Research.fx_int(state, empire_id, "colony_start_pop")
 
 
 ## Habitabilité plancher (Vael) : 0 si aucune.
@@ -254,8 +282,36 @@ static func start_ships(faction_id: String) -> Array:
 
 
 ## Vitesse des flottes d'un empire, en pourcentage.
+@warning_ignore("integer_division")
 static func fleet_speed_pct(state: GameState, empire_id: int) -> int:
-	return int(_faction(state, empire_id).get("fleet_speed_pct", 100))
+	return int(_faction(state, empire_id).get("fleet_speed_pct", 100)) * (100 + Research.fx_int(state, empire_id, "fleet_speed_pct")) / 100
+
+
+# --- Recherche ----------------------------------------------------------------------------------
+
+## Académies des Quarante (Vael) : +x % de Savoir par empire en paix ou allié, plafonné.
+static func peace_knowledge_pct(state: GameState, empire_id: int) -> int:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return 0
+	var rs: Dictionary = e.faction().get("research", {})
+	var per := int(rs.get("peace_knowledge_pct", 0))
+	if per == 0:
+		return 0
+	var n := 0
+	for c in e.contacts:
+		if Diplomacy.has_pact(state, empire_id, c):
+			n += 1
+	return mini(n * per, int(rs.get("peace_knowledge_max", 100)))
+
+
+## Matériaux et Savoir d'une population digérée en biomasse (Essaim) : {"materials", "knowledge"}.
+static func biomass_gain(state: GameState, empire_id: int) -> Dictionary:
+	var f := _faction(state, empire_id)
+	if not f.has("biomass"):
+		return {}
+	return {"materials": int(f["biomass"]["materials"]) + Research.fx_int(state, empire_id, "biomass_bonus"),
+			"knowledge": int(f.get("research", {}).get("knowledge_per_biomass", 0))}
 
 
 # --- Vote d'urgence (Vael) ----------------------------------------------------------------------
@@ -315,7 +371,7 @@ static func gauge(state: GameState, empire_id: int) -> Dictionary:
 				else "Ferveur ordinaire. Exaltation à %d." % int(fv["exalted_at"]))
 		return {"label": "Ferveur", "value": "%d" % e.fervor, "delta": delta,
 				"tip": "Ferveur %d / %d (%+d par mois)\n%s\nOffrande : -1 population, +%d ferveur." % [
-					e.fervor, int(fv["max"]), delta, mood, int(fv["sacrifice_gain"])],
+					e.fervor, int(fv["max"]), delta, mood, sacrifice_gain(state, empire_id)],
 				"bad": e.fervor <= 0}
 	if has_fiefs(f):
 		var n := fief_counts(state, empire_id)
