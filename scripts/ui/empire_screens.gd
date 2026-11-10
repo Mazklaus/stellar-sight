@@ -3,7 +3,7 @@ extends CanvasLayer
 ## Écrans d'empire, en plein écran comme dans les 4X « épurés » : la carte s'efface, le panneau
 ## d'empire et le cadran du temps restent en place, un onglet en haut au centre nomme l'écran (et le
 ## ferme), une colonne à gauche résume, et le contenu se range en blocs titrés.
-## Économie, Colonies, Recherche (en attente de son système) et Diplomatie.
+## Économie, Colonies, Recherche, Diplomatie et Chantier (éditeur de vaisseaux, voir ShipyardScreen).
 ## Les chiffres viennent d'EmpireReport, qui applique les règles de la simulation sans rien modifier.
 ## Les emplacements d'illustration (Widgets.ArtSlot) prendront les images de assets/art/ quand elles existeront.
 
@@ -81,6 +81,10 @@ var research_selected := ""
 var research_buttons := {}
 var _research_sig := ""
 var _tech_panel: PanelContainer
+## Écran Chantier (éditeur de vaisseaux) ; garde le modèle affiché d'une ouverture à l'autre.
+var shipyard: ShipyardScreen
+var _shipyard_selected := ""
+var _shipyard_sig := ""
 
 
 func _ready() -> void:
@@ -189,6 +193,8 @@ func show_screen(screen_id: String) -> void:
 			_build_research()
 		"diplomacy":
 			_build_diplomacy()
+		"shipyard":
+			_build_shipyard()
 	refresh()
 	screen_changed.emit(screen_id)
 
@@ -209,6 +215,11 @@ func refresh() -> void:
 			if _research_signature() != _research_sig:
 				_fill_research_side()
 				research_tree.refresh()
+		"shipyard":
+			# Une technologie découverte ouvre des coques et des modules : on rafraîchit les listes.
+			if _shipyard_signature() != _shipyard_sig and shipyard != null:
+				_shipyard_sig = _shipyard_signature()
+				shipyard._refresh_all()
 
 
 ## Lignes de la liste des colonies (boutons), pour les tests.
@@ -828,6 +839,23 @@ func _build_research() -> void:
 		if Research.check_queue(_state, _player, tid, true) == "":
 			command_requested.emit(SimCommands.research(_player, tid, true)))
 	_fill_research_side()
+
+
+func _build_shipyard() -> void:
+	if shipyard != null and is_instance_valid(shipyard):
+		_shipyard_selected = shipyard.selected
+	shipyard = ShipyardScreen.new()
+	shipyard.selected = _shipyard_selected
+	_content.add_child(shipyard)
+	shipyard.command_requested.connect(func(cmd: Dictionary) -> void: command_requested.emit(cmd))
+	var vp := get_viewport().get_visible_rect().size
+	shipyard.setup(_state, _player, _side_box, SIDE_WIDTH - 24.0, vp.y - SIDE_TOP - 60.0)
+	_shipyard_sig = _shipyard_signature()
+
+
+func _shipyard_signature() -> String:
+	var e := _state.get_empire(_player)
+	return "%d|%d" % [e.techs.size(), _state.designs.size()]
 
 
 func _research_signature() -> String:

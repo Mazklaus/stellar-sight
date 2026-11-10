@@ -530,6 +530,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			toggle_empire_screen("research")
 		KEY_F4:
 			toggle_empire_screen("diplomacy")
+		KEY_F6:
+			toggle_empire_screen("shipyard")
 		KEY_ENTER, KEY_KP_ENTER:
 			if not is_system_view_open() and not is_empire_screen_open():
 				open_system_view(_view.selected_id)

@@ -362,7 +362,11 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
 - Les classes de combat de `data/ships.json` sont des **modèles d'origine** (`origin`) : leurs caractéristiques sont calculées depuis leur coque et leurs modules. Corvette, frégate, croiseur, cuirassé, porte-vaisseaux, titan, martyr et ruche-mère gardent exactement leurs chiffres ; escorteur, torpilleur, transport, bombarde, coursier et frégate des Quarante, devenus des modèles sur une coque commune ou de peuple, bougent un peu.
 - Les modèles conçus en partie vivent dans `GameState.designs` (sauvegarde version 10 ; les parties version 9 se chargent encore) : nom, coque, modules, rang (écran, ligne, arrière), priorité de cible, version. Une nouvelle version garde la coque et retire l'ancienne de la liste de construction ; les vaisseaux déjà construits restent tels quels. `GameData.ship()` les lit comme des classes, donc combat, flottes et chantiers fonctionnent sans changement.
 - Commandes : `SimCommands.save_design`, `SimCommands.retire_design`. Tests : `tests/design_tests.gd`.
-- À venir : écran Chantier (lot 2), priorité de cible en bataille et seuils de miniaturisation (lot 3), conception automatique, IA, hangars à variantes et modules titanesques (lot 4).
+- **Écran Chantier** (F6, lot 2) : modèles rangés par coque à gauche (« + Coque » ouvre un brouillon vierge), coque schématique au centre avec ses emplacements colorés par type (clic : choisir, clic droit : vider), modules de l'emplacement choisi à droite avec leur effet pour cette taille de coque, caractéristiques en bas comparées au modèle affiché (dégâts par phase, coque, défenses, vitesse, coût, durée). Enregistrer, nouvelle version, retirer ou remettre en service. Captures : `tools/capture_shipyard.gd`.
+
+![Écran Chantier](docs/apercu-chantier.png)
+
+- À venir : priorité de cible en bataille et seuils de miniaturisation (lot 4), conception automatique et IA qui conçoivent leurs modèles (lot 3), hangars à variantes et modules titanesques (lot 4).
 
 ## Organisation du code
 
