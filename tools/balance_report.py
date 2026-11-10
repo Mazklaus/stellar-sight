@@ -26,6 +26,8 @@ for g in games:
             if len(sysy) >= yr:
                 s["sys%d" % yr].append(sysy[yr - 1])
         s["peak"].append(max(sysy) if sysy else 0)
+        if e["dead"] > 0:
+            s["killers"].append(e.get("killer") or "?")
 
 print("%d parties, %d avec un vainqueur, durée moyenne %.0f s" % (
     len(games), sum(1 for g in games if g.get("winner")), sum(g["ms"] for g in games) / max(1, len(games)) / 1000))
@@ -41,3 +43,8 @@ for f, s in sorted(stats.items()):
 
     wl = ", ".join("%s %d" % (v[:4], y) for v, y in sorted(wins[f], key=lambda t: t[1]))
     print("%-9s %5d %6d %5d %6s %6s %6s %6s %5s  %d : %s" % (f, n, dead, early, avg("sys5"), avg("sys10"), avg("sys15"), avg("sys20"), avg("peak"), len(wins[f]), wl))
+    if s["killers"]:
+        ks = defaultdict(int)
+        for k in s["killers"]:
+            ks[k] += 1
+        print("          capitale prise par : " + ", ".join("%s %d" % kv for kv in sorted(ks.items())))

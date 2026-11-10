@@ -29,6 +29,8 @@ func _initialize() -> void:
 				r["systems"].append(0 if e.eliminated else Victory.systems_held(st, e.id))
 				if e.eliminated and int(r["dead"]) < 0:
 					r["dead"] = y
+					var taker := st.get_empire(st.system_owner(st.galaxy.get_planet(e.home_planet).system_id))
+					r["killer"] = taker.faction_id if taker != null else ""
 				if int(r["first_war"]) < 0 and not e.wars.is_empty():
 					r["first_war"] = y
 		for e in st.empires:

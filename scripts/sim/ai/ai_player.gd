@@ -588,9 +588,10 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 	var lab: String = ctx["lab"]
 	if lab != "" and c.is_colony() and c.population >= 4 and not c.buildings.has(lab) and int(ctx["lab_count"]) <= int(ctx["lab_quota"]):
 		out.append(lab)
-	# Le registre complet sait lire son goulot : quand les matériaux s'entassent, c'est l'influence
-	# qui freine l'expansion (chaque revendication en coûte) ; les forums passent alors devant.
-	if use >= 2 and c.is_colony() and _res(ctx, "materials") >= 250:
+	# Lire son goulot : quand les matériaux s'entassent, c'est l'influence qui freine l'expansion
+	# (chaque revendication en coûte) ; les forums passent alors devant. Le Vétéran le voit dès 250,
+	# les autres niveaux à 500 (sans quoi le Chœur entassait des milliers de matériaux inutiles).
+	if c.is_colony() and _res(ctx, "materials") >= (250 if use >= 2 else 500):
 		out.append("forum")
 	# En guerre, les systèmes du front se fortifient (dès le niveau Normal).
 	if not e.wars.is_empty() and _skill(ctx) >= 1 and int(rival_distance(ctx).get(p.system_id, 99)) <= 2 \
