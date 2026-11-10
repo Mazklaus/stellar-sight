@@ -495,7 +495,7 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	if need != "" and not c.buildings.has(need):
 		return "il faut un bâtiment sur cette colonie : %s" % String(GameData.building(need).get("label", need))
 	if req.get("unique_per_empire", false) and count_same_hull(state, empire_id, ship_id) > 0:
-		return "un seul %s par empire" % String(sd["label"]).to_lower()
+		return "un seul %s par empire" % unique_label(ship_id) + (", toutes variantes confondues" if Designs.hull(String(sd.get("hull", ""))).has("echelon") else "")
 	if c.ship_build != "":
 		return "le chantier spatial est occupé"
 	var pop_cost := int(sd.get("pop_cost", 0))
@@ -507,24 +507,46 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	return ""
 
 
-## Vaisseaux de l'empire (en service ou en chantier) sur la même coque que ship_id : un titan conçu
-## au Chantier compte comme le titan d'origine pour la règle « un seul par empire ».
+## Vaisseaux de l'empire (en service ou en chantier) qui comptent pour la règle « un seul par empire »
+## de ship_id : même coque (un titan conçu au Chantier compte comme le titan d'origine), ou même
+## échelon de méga-vaisseau (Titan porteur, Titan bastion et Titan : un seul des trois).
 static func count_same_hull(state: GameState, empire_id: int, ship_id: String) -> int:
-	var hid := String(GameData.ship(ship_id).get("hull", ""))
-	if hid == "":
+	var key := unique_key(ship_id)
+	if key == "":
 		return count_owned_or_building(state, empire_id, ship_id)
 	var n := 0
 	for fid in state.fleets:
 		var f: Fleet = state.fleets[fid]
 		if f.owner == empire_id:
 			for sh in f.ships:
-				if String(GameData.ship(sh).get("hull", "")) == hid:
+				if unique_key(sh) == key:
 					n += 1
 	for pid in state.colonies:
 		var c: Colony = state.colonies[pid]
-		if c.owner == empire_id and c.ship_build != "" and String(GameData.ship(c.ship_build).get("hull", "")) == hid:
+		if c.owner == empire_id and c.ship_build != "" and unique_key(c.ship_build) == key:
 			n += 1
 	return n
+
+
+## Clé de la règle « un seul par empire » : "echelon:N" pour un méga-vaisseau, sinon sa coque ("" sans coque).
+static func unique_key(ship_id: String) -> String:
+	var hid := String(GameData.ship(ship_id).get("hull", ""))
+	if hid == "":
+		return ""
+	var h := Designs.hull(hid)
+	return "echelon:%d" % int(h["echelon"]) if h.has("echelon") else hid
+
+
+## Nom de ce qui est unique pour ship_id, pour les messages (« titan », « léviathan »…).
+static func unique_label(ship_id: String) -> String:
+	var sd := GameData.ship(ship_id)
+	var h := Designs.hull(String(sd.get("hull", "")))
+	if h.has("echelon"):
+		var names: Array = Designs.data().get("echelons", [])
+		var i := int(h["echelon"])
+		if i < names.size():
+			return String(names[i])
+	return String(sd.get("label", ship_id)).to_lower()
 
 
 ## Vaisseaux d'une classe que l'empire possède ou a en chantier (titan : un seul par empire).

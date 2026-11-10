@@ -381,7 +381,15 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
 | 2 | Léviathan (cœur : antimissile de flotte) | Léviathans | Titanesque ×2, **colossal** ×1 | **Forge mobile** (la flotte se répare partout comme chez elle), **canon à singularité** (nouvelle famille d'armes qui ignore blindage et boucliers, terrible contre les grosses coques ; demande aussi les Canons à singularité) |
 | 3 | Nef-monde (cœur : cité de bord, les troupes se reforment partout) | Nefs-mondes | Titanesque ×2, colossal ×1, **astral** ×1 | **Moteur de trame** (toute la flotte avance au moins à sa vitesse), **brise-monde** (siège en quelques jours) |
 
-  Les IA conçoivent et lancent aussi leurs méga-vaisseaux, en commençant par l'échelon le plus haut qu'elles savent construire.
+  Chaque échelon a trois coques au choix, et l'empire n'a qu'**un seul méga-vaisseau par échelon, toutes variantes confondues** (A arme, L lourd, D défense, S soutien, T titanesque, C colossal, As astral) :
+
+| Échelon | Bataille | Porteuse (à l'arrière) | Bastion / siège |
+|---|---|---|---|
+| Titan | A6 L3 D6 S5 T1 | A2 L6 D5 S5 T1 | Bastion (écran) : A3 L2 D9 S6 T1, plus de coque, plus lent |
+| Léviathan | A8 L4 D8 S6 T2 C1 | A3 L9 D7 S7 T2 C1 | De siège : A5 L5 D8 S8 T1 C2 |
+| Nef-monde | A10 L5 D10 S8 T2 C1 As1 | A4 L11 D9 S9 T2 C1 As1 | Bastion (écran) : A6 L6 D11 S11 T1 C1 As2 |
+
+  Les IA conçoivent et lancent aussi leurs méga-vaisseaux, en commençant par l'échelon le plus haut qu'elles savent construire ; chacune a sa variante préférée.
   Les grandes équipes des méga-chantiers posent plusieurs modules à la fois (durée des modules à 60 % sur le Léviathan, 40 % sur la Nef-monde). Blindage et boucliers empilés plafonnent à 75 % (`defense_cap`, les technologies montent jusqu'à 90 %), pour qu'une méga-coque bardée reste vulnérable.
 
 ## Organisation du code

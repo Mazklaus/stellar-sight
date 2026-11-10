@@ -928,7 +928,13 @@ static func _designs(ctx: Dictionary) -> void:
 		var old: Dictionary = mine.get(sid, {})
 		if not old.is_empty() and String(old.get("sig", "")) == sig:
 			continue
-		var spec := Designs.auto_design(state, e.id, String(sd["hull"]), role, quality, e.techs.size())
+		var hid := String(sd["hull"])
+		if quality >= 1:
+			# Méga-vaisseaux : chaque IA a sa variante préférée (bataille, porteuse, bastion ou siège).
+			var options := Designs.variants_of(hid)
+			hid = options[posmod(hash([state.seed_value, e.id, "mega"]), options.size())]
+			role = String(Designs.HULL_ROLES.get(hid, role))
+		var spec := Designs.auto_design(state, e.id, hid, role, quality, e.techs.size())
 		if (spec["modules"] as Array).is_empty() and role != "invasion":
 			continue
 		if not old.is_empty() and old["modules"] == spec["modules"] and String(old["line"]) == String(spec["line"]):
@@ -1094,7 +1100,7 @@ static func _buildable_warships(ctx: Dictionary) -> Array[String]:
 			var req: Dictionary = sd.get("requires", {})
 			if req.has("building") and not have.has(String(req["building"])):
 				continue
-			if req.get("unique_per_empire", false) and Fleets.count_owned_or_building(state, e.id, sid) > 0:
+			if req.get("unique_per_empire", false) and Fleets.count_same_hull(state, e.id, sid) > 0:
 				continue
 			out.append(sid)
 	ctx["buildable_warships"] = out

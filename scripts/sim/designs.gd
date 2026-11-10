@@ -430,6 +430,22 @@ const CLASS_ROLES := {
 }
 
 
+## Rôle des variantes de méga-coques (les autres coques gardent le rôle de leur classe d'origine).
+const HULL_ROLES := {
+	"titan_porteur": "porteur", "leviathan_porteur": "porteur", "nef_porteuse": "porteur",
+	"titan_bastion": "escorte", "nef_bastion": "escorte", "leviathan_siege": "siege",
+}
+
+
+## La coque et ses variantes du même échelon (Titan, Titan porteur, Titan bastion…), coque d'abord.
+static func variants_of(hull_id: String) -> Array[String]:
+	var out: Array[String] = [hull_id]
+	for hid in hull_ids():
+		if String(hull(hid).get("variant_of", "")) == hull_id:
+			out.append(hid)
+	return out
+
+
 ## Ce que montrent les adversaires dans les batailles où l'empire s'est battu : part des armes arrêtées
 ## par le blindage ou le bouclier, armes interceptables, et défenses de leurs coques.
 static func threat(state: GameState, empire_id: int) -> Dictionary:

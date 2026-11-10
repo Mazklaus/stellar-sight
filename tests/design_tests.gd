@@ -378,6 +378,18 @@ func _test_echelons() -> void:
 	_ok(Fleets.check_build_ship(st, 0, cap, "leviathan") == "", "posséder un titan n'empêche pas le Léviathan")
 	st.spawn_ship(0, "leviathan", home)
 	_ok(Fleets.check_build_ship(st, 0, cap, "leviathan").contains("un seul"), "un seul Léviathan par empire")
+	# Variantes : trois coques par échelon, un seul méga-vaisseau de l'échelon quelle que soit la variante.
+	for base in ["titan", "leviathan", "nef_monde"]:
+		_ok(Designs.variants_of(base).size() == 3, "trois variantes pour %s" % base)
+	var bastion := Designs.auto_design(st, 0, "titan_bastion", "escorte", 1)
+	_ok(String(bastion["hull"]) == "titan_bastion" and int(Designs.hull("titan_bastion")["slots"]["defense"]) > int(Designs.hull("titan")["slots"]["defense"]), "le titan bastion a plus d'emplacements de défense")
+	var spec := {"name": "Rempart", "hull": "titan_bastion", "modules": bastion["modules"], "line": "screen", "target": "nearest"}
+	_ok(_apply(st, SimCommands.save_design(0, spec)) == "", "un titan bastion s'enregistre")
+	var tb := ""
+	for id in st.designs:
+		if String(st.designs[id]["hull"]) == "titan_bastion":
+			tb = String(id)
+	_ok(tb != "" and Fleets.check_build_ship(st, 0, cap, tb).contains("toutes variantes"), "un titan possédé bloque aussi le titan bastion")
 	# Moteur de trame : la flotte entière avance à la vitesse de la trame.
 	var slow := st.spawn_ship(0, "transport", home)
 	var before := Fleets.speed(slow)
