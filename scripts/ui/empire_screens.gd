@@ -28,6 +28,7 @@ const TYPE_COLORS := {
 	"continental": Color(0.35, 0.7, 0.4), "ocean": Color(0.25, 0.5, 0.9), "desert": Color(0.9, 0.65, 0.35),
 	"arctic": Color(0.75, 0.88, 1.0), "toxic": Color(0.65, 0.78, 0.2), "gas_giant": Color(0.88, 0.7, 0.45),
 	"barren": Color(0.6, 0.58, 0.55), "asteroids": Color(0.62, 0.56, 0.48),
+	"gaia": Color(0.3, 0.8, 0.45), "ecumenopole": Color(0.9, 0.76, 0.42),
 }
 
 var current := ""

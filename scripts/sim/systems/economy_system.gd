@@ -35,11 +35,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 	if c.construction != "" and not e.blackout:
 		c.construction_days -= 1
 		if c.construction_days <= 0:
-			var label := String(GameData.building(c.construction).get("label", c.construction))
-			c.buildings.append(c.construction)
-			c.construction = ""
-			c.construction_days = 0
-			added.append(state.add_chronicle("%s : chantier achevé sur %s (%s)." % [e.short_name(), planet_name, label]))
+			_finish_building(state, c, e, planet_name, added)
 
 	if not c.is_colony():
 		return
@@ -50,6 +46,15 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 	if c.population >= cap:
 		# Biomasse (Essaim Kh'thari) : une colonie pleine continue de grandir, le surplus est digéré.
 		var bio: Dictionary = e.faction().get("biomass", {})
+		if bio.is_empty() and cap > 0 and Research.fx_int(state, c.owner, "migration") > 0:
+			# Spatioports de transit : les colons d'une colonie pleine partent peupler une autre colonie.
+			c.growth += Economy.growth_per_day(state, c)
+			if c.growth >= Economy.growth_threshold(c.population):
+				c.growth = 0
+				var dest := migration_target(state, c)
+				if dest:
+					dest.population += 1
+			return
 		if bio.is_empty() or cap <= 0:
 			c.growth = 0
 			return
@@ -66,6 +71,53 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 	if c.growth >= Economy.growth_threshold(c.population):
 		c.growth = 0
 		c.population += 1
+
+
+## Fin d'un chantier : un bâtiment s'ajoute, un bâtiment de 2e rang remplace son 1er rang, un projet de
+## terraformation change le type de la planète (retenu dans planet_overrides, donc sauvegardé).
+static func _finish_building(state: GameState, c: Colony, e: Empire, planet_name: String, added: Array[Dictionary]) -> void:
+	var bid := c.construction
+	var b := GameData.building(bid)
+	var label := String(b.get("label", bid))
+	c.construction = ""
+	c.construction_days = 0
+	if b.has("terraform"):
+		var p := state.galaxy.get_planet(c.planet_id)
+		var target := Economy.terraform_target(state, c.owner, p, bid)
+		if target == "":
+			return  # (le monde a changé entre-temps : le projet n'a plus d'objet)
+		var before := p.type_label()
+		state.override_planet(c.planet_id, {"type": target})
+		e.hab_cache.clear()
+		added.append(state.add_chronicle("%s : %s n'est plus un monde %s, c'est désormais : %s. Les cartes sont à refaire." % [
+				e.short_name(), planet_name, before.to_lower(), p.type_label()]))
+		return
+	var base := String(b.get("upgrades", ""))
+	var at := c.buildings.find(base) if base != "" else -1
+	if at >= 0:
+		c.buildings[at] = bid
+	else:
+		c.buildings.append(bid)
+	Economy.clear_wonders()
+	if b.get("galaxy_unique", false):
+		added.append(state.add_chronicle("Merveille : %s achève %s sur %s. Toute la galaxie en parle, certains avec envie." % [e.display_name(), label, planet_name]))
+	else:
+		added.append(state.add_chronicle("%s : chantier achevé sur %s (%s)." % [e.short_name(), planet_name, label]))
+
+
+## Colonie qui accueille les migrants (Spatioports de transit) : la moins peuplée de l'empire qui a
+## encore de la place (à égalité, la plus petite identifiant). null si toutes sont pleines.
+static func migration_target(state: GameState, from: Colony) -> Colony:
+	var best: Colony = null
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c == from or c.owner != from.owner or not c.is_colony() or not c.is_established():
+			continue
+		if best != null and c.population >= best.population:
+			continue
+		if c.population < Economy.max_pop(state, state.galaxy.get_planet(pid), c.owner, c.buildings):
+			best = c
+	return best
 
 
 static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionary]) -> void:

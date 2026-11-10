@@ -39,6 +39,9 @@ static func habitability_for(state: GameState, empire_id: int, planet_type: Stri
 	if hab > 0 and (pref.is_empty() or pref[0] != planet_type):
 		var bonus: Dictionary = fx.get("hab_bonus", {})
 		hab = mini(100, hab + int(bonus.get(planet_type, 0)) + int(bonus.get("all", 0)))
+	# Plancher des technologies tardives (Adaptation totale, Symbiose universelle), sur les mondes habitables.
+	if hab > 0:
+		hab = maxi(hab, mini(100, int(fx.get("hab_min", 0))))
 	return hab
 
 
@@ -72,6 +75,10 @@ static func _pop_hab(state: GameState, empire_id: int, planet_type: String) -> i
 	return e.hab_cache[planet_type]
 
 
+## Population par taille de chaque type de planète, en % (écuménopole : 200), lue une fois.
+static var _dense_types := {}
+
+
 ## Population maximale d'une planète pour un empire, bâtiments compris.
 static func max_pop(state: GameState, planet: Planet, empire_id: int, buildings: Array[String] = []) -> int:
 	var hab := _pop_hab(state, empire_id, planet.type)
@@ -79,6 +86,14 @@ static func max_pop(state: GameState, planet: Planet, empire_id: int, buildings:
 		return 0
 	@warning_ignore("integer_division")
 	var base := planet.size * int(GameData.rules()["pop_per_size"]) * hab / 100
+	# Écuménopole : la ville couvre tout, deux fois plus d'habitants par taille.
+	if _dense_types.is_empty():
+		for t in GameData.planet_types():
+			_dense_types[t] = int(GameData.planet_type(t).get("pop_per_size_pct", 100))
+	var dense := int(_dense_types.get(planet.type, 100))
+	if dense != 100:
+		@warning_ignore("integer_division")
+		base = base * dense / 100
 	if base <= 0:
 		return 0
 	for b in buildings:
@@ -112,21 +127,37 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 	var ptype := GameData.planet_type(planet.type)
 	var rules := GameData.rules()
 	_add(upkeep, rules["claims"][colony.kind].get("upkeep", {}))
+	var fx := Research.effects(state, colony.owner)
 	if colony.is_colony():
 		_add(gross, pop_yields(planet.type), colony.population)
 		var e := state.get_empire(colony.owner)
 		var food_pct := int(e.faction().get("food_upkeep_pct", 100)) if e else 100
+		# Réplicateurs de matière : la population mange moins.
+		@warning_ignore("integer_division")
+		food_pct = food_pct * maxi(0, 100 + int(fx.get("food_upkeep_pct", 0))) / 100
 		@warning_ignore("integer_division")
 		upkeep["food"] += colony.population * int(rules["food_per_pop"]) * food_pct / 100
 	else:
 		_add(gross, ptype.get("outpost_yields", {}))
+		# Écopes et foreuses : les avant-postes des géantes, des astéroïdes et des mondes stériles.
+		_add(gross, fx.get("outpost_yields", {}).get(planet.type, {}))
+	# Forage du manteau : les gisements rapportent plus.
+	var dep_mult := 100 + int(fx.get("deposit_pct", 0))
 	for d in planet.deposits:
-		_add(gross, GameData.deposit(d).get("yields", {}))
+		var dy: Dictionary = GameData.deposit(d).get("yields", {})
+		for r in dy:
+			@warning_ignore("integer_division")
+			gross[r] = int(gross.get(r, 0)) + int(dy[r]) * dep_mult / 100
 	var knowledge_pct := 0
+	# Économie d'abondance : plus d'entretien des bâtiments.
+	var bld_upkeep := maxi(0, 100 + int(fx.get("building_upkeep_pct", 0)))
 	for b in colony.buildings:
 		var bd := GameData.building(b)
 		_add(gross, bd.get("yields", {}))
-		_add(upkeep, bd.get("upkeep", {}))
+		if bld_upkeep == 100:
+			_add(upkeep, bd.get("upkeep", {}))
+		elif bld_upkeep > 0:
+			_add(upkeep, Research.scaled_amounts(bd.get("upkeep", {}), bld_upkeep - 100))
 		knowledge_pct += int(bd.get("knowledge_pct", 0))
 	if colony.is_colony():
 		# Savoir : chaque population pense un peu (pop_per_knowledge habitants pour 1 Savoir).
@@ -318,10 +349,14 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 	var needs := String(b.get("requires_building", ""))
 	if needs != "" and not c.buildings.has(needs):
 		return "nécessite d'abord : %s" % String(GameData.building(needs).get("label", needs))
-	var used := building_slots_used(c)
-	var slots := building_slots(state, c)
-	if used >= slots:
-		return "plus d'emplacement libre (%d/%d)" % [used, slots]
+	var special := check_special(state, empire_id, c, p, building_id)
+	if special != "":
+		return special
+	if takes_slot(building_id):
+		var used := building_slots_used(c)
+		var slots := building_slots(state, c)
+		if used >= slots:
+			return "plus d'emplacement libre (%d/%d)" % [used, slots]
 	var cost := building_cost(state, empire_id, building_id)
 	if not can_afford(e, cost):
 		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)
@@ -329,14 +364,103 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 
 
 ## Emplacements : la taille de la planète pour une colonie, un seul pour un avant-poste.
-## La capitale n'occupe pas d'emplacement.
+## La capitale n'occupe pas d'emplacement (ni les projets comme la terraformation).
 static func building_slots(state: GameState, colony: Colony) -> int:
 	if not colony.is_colony():
-		return int(GameData.rules()["outpost_slots"])
+		return int(GameData.rules()["outpost_slots"]) + Research.fx_int(state, colony.owner, "outpost_slots")
 	var size := state.galaxy.get_planet(colony.planet_id).size
 	if size >= 3:
 		size += Research.fx_int(state, colony.owner, "building_slots")
-	return size
+	return size + Research.fx_int(state, colony.owner, "building_slots_all")
+
+
+## Règles des bâtiments tardifs : 2e rang (upgrades), projets de terraformation, population ou taille
+## minimale, un par système (Préfecture), un par empire (mégastructures), un dans la galaxie (merveilles).
+static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet, building_id: String) -> String:
+	var b := GameData.building(building_id)
+	var base := String(b.get("upgrades", ""))
+	if base != "" and not c.buildings.has(base):
+		return "remplace un bâtiment de 1er rang : %s" % String(GameData.building(base).get("label", base))
+	if b.has("terraform"):
+		if not c.is_colony():
+			return "seulement sur une colonie"
+		var target := terraform_target(state, empire_id, p, building_id)
+		if target == "":
+			return "impossible sur ce monde (%s)" % p.type_label()
+	var min_pop := int(b.get("min_pop", 0))
+	if min_pop > 0 and c.population < min_pop:
+		return "il faut %d population (%d)" % [min_pop, c.population]
+	var min_size := int(b.get("min_size", 0))
+	if min_size > 0 and p.size < min_size:
+		return "il faut une planète de taille %d ou plus" % min_size
+	if b.get("per_system", false):
+		for pid in state.galaxy.systems[p.system_id].planet_ids:
+			var o: Colony = state.colonies.get(pid)
+			if o and (o.buildings.has(building_id) or o.construction == building_id):
+				return "déjà une %s dans ce système" % String(b.get("label", building_id)).to_lower()
+	if b.get("empire_unique", false) or b.get("galaxy_unique", false):
+		var galaxy := bool(b.get("galaxy_unique", false))
+		for pid in state.colonies:
+			var o: Colony = state.colonies[pid]
+			if (galaxy or o.owner == empire_id) and (o.buildings.has(building_id) or o.construction == building_id):
+				if not galaxy:
+					return "une seule par empire : déjà bâtie ou en chantier"
+				return "merveille déjà bâtie ou en chantier chez %s" % (state.get_empire(o.owner).display_name() if o.owner != empire_id else "vous")
+	return ""
+
+
+## Le bâtiment prend-il un emplacement ? Pas les bâtiments de 2e rang (ils remplacent le 1er rang),
+## ni les projets (terraformation).
+static func takes_slot(building_id: String) -> bool:
+	var b := GameData.building(building_id)
+	return not b.has("upgrades") and not b.get("project", false)
+
+
+## Type de planète obtenu par un projet de terraformation ("" s'il ne s'applique pas à ce monde) :
+## "preferred2" = le second monde préféré du peuple, sinon un type fixe (gaia, ecumenopole).
+static func terraform_target(state: GameState, empire_id: int, p: Planet, building_id: String) -> String:
+	var b := GameData.building(building_id)
+	if not b.get("terraform_from", []).has(p.type):
+		return ""
+	var target := String(b.get("terraform", ""))
+	if target == "preferred2":
+		var e := state.get_empire(empire_id)
+		var pref: Array = e.faction().get("preferred", []) if e else []
+		if pref.size() < 2 or pref.has(p.type):
+			return ""
+		target = String(pref[1])
+	if target == p.type or GameData.planet_type(target).is_empty():
+		return ""
+	return target
+
+
+## Merveilles et mégastructures tenues : "building_id#planète" -> propriétaire. L'opinion et le score
+## les consultent sans cesse : recalculé une fois par mois, ou dès qu'un chantier s'achève
+## (une planète conquise change de mains au plus tard au mois suivant).
+static var _wonders_tick := -1
+static var _wonders_state: GameState = null
+static var _wonders := {}
+
+
+## À appeler quand un bâtiment notable change (chantier achevé, planète conquise) dans le même jour.
+static func clear_wonders() -> void:
+	_wonders_tick = -1
+
+
+static func wonders(state: GameState) -> Dictionary:
+	@warning_ignore("integer_division")
+	var month := state.tick / int(GameData.rules()["month_days"])
+	if _wonders_tick != month or _wonders_state != state:
+		_wonders.clear()
+		for pid in state.sorted_colony_ids():
+			var c: Colony = state.colonies[pid]
+			for b in c.buildings:
+				var bd := GameData.building(b)
+				if bd.get("galaxy_unique", false) or bd.has("score") or bd.has("opinion"):
+					_wonders[b + "#" + str(pid)] = c.owner
+		_wonders_tick = month
+		_wonders_state = state
+	return _wonders
 
 
 static func building_slots_used(colony: Colony) -> int:

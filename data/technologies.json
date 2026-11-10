@@ -1,5 +1,5 @@
 {
-	"_sources": "Arbre visible en domaines et ères à seuils, coût qui monte avec chaque technologie connue, technologies de peuple : Endless Space 2 (endless-space-2.fandom.com/wiki/Technology). Savoir stocké dépensé au double, poids de l'IA : Stellaris (stellaris.paradoxwikis.com/Technology). Familles d'armes en marques : Galactic Civilizations II (galciv.fandom.com/wiki/Technology). Étude : https://claude.ai/artifact/VZPzNQD33eoKTu8FgYQAC1 ; maquette du Chœur : https://claude.ai/artifact/4UzS2fXPdfBGcRaDS6w2Vt",
+	"_sources": "Arbre visible en domaines et ères à seuils, coût qui monte avec chaque technologie connue, technologies de peuple : Endless Space 2 (endless-space-2.fandom.com/wiki/Technology). Savoir stocké dépensé au double, poids de l'IA : Stellaris (stellaris.paradoxwikis.com/Technology). Familles d'armes en marques : Galactic Civilizations II (galciv.fandom.com/wiki/Technology). Étude : https://claude.ai/artifact/VZPzNQD33eoKTu8FgYQAC1 ; maquette du Chœur : https://claude.ai/artifact/4UzS2fXPdfBGcRaDS6w2Vt Ères IV-V d'Économie et de Société : niveaux de développement de système, bâtiments de 2e rang et technologies ultimes à 3 technologies de l'ère V (endless-space-2.fandom.com/wiki/Economy_and_Trade, /wiki/System_Development), terraformation, mondes Gaïa, écuménopole et mégastructures une par empire (stellaris.paradoxwikis.com/Ecumenopolis, /Megastructures ; thegamer.com, guide de terraformation), merveilles uniques dans la galaxie (galciv.fandom.com/wiki/Galactic_Achievements).",
 	"domains": [
 		{
 			"id": "armement",
@@ -1866,6 +1866,326 @@
 				}
 			},
 			"victory": "moisson"
+		},
+		"arcologies_productives": {
+			"label": "Arcologies productives",
+			"domain": "economie",
+			"era": 4,
+			"pre": [
+				"automatisation"
+			],
+			"text": "Débloque les bâtiments de 2e rang : Ferme verticale, Centrale à confinement et Mine profonde. Chacun remplace son bâtiment de 1er rang sur place, sans prendre d'emplacement, et rend plus du double.",
+			"flavor": "On a fini par construire vers le haut. Puis vers le bas. Puis dans les deux sens à la fois.",
+			"eureka": {
+				"kind": "building",
+				"what": "complexe_minier",
+				"n": 8
+			}
+		},
+		"ecopes": {
+			"label": "Écopes et foreuses",
+			"domain": "economie",
+			"era": 4,
+			"pre": [
+				"cristallographie"
+			],
+			"text": "Les avant-postes travaillent enfin : sur une géante gazeuse +2 énergie et +1 cristal de saut, sur une ceinture d'astéroïdes +3 matériaux, sur un monde stérile +2 matériaux.",
+			"effects": {
+				"outpost_yields": {
+					"gas_giant": {
+						"energy": 2,
+						"crystals": 1
+					},
+					"asteroids": {
+						"materials": 3
+					},
+					"barren": {
+						"materials": 2
+					}
+				}
+			},
+			"flavor": "Trois techniciens, un chat, et désormais une foreuse de quatre kilomètres. Le chat est ravi.",
+			"eureka": {
+				"kind": "claim",
+				"what": "gas_giant",
+				"n": 4
+			}
+		},
+		"fabriques_autonomes": {
+			"label": "Fabriques autonomes",
+			"domain": "economie",
+			"era": 4,
+			"pre": [
+				"nanofabrication"
+			],
+			"text": "+1 emplacement de bâtiment sur toutes les colonies, petites comprises, et un 2e emplacement sur les avant-postes.",
+			"effects": {
+				"building_slots_all": 1,
+				"outpost_slots": 1
+			},
+			"flavor": "Les usines se construisent elles-mêmes. Elles demandent seulement qu'on arrête de les regarder.",
+			"eureka": {
+				"kind": "techs",
+				"n": 45
+			}
+		},
+		"compagnies": {
+			"label": "Compagnies marchandes",
+			"domain": "economie",
+			"era": 4,
+			"pre": [
+				"bourses"
+			],
+			"text": "Chaque accord commercial rapporte le double. Un partenaire commercial vaut désormais une colonie.",
+			"effects": {
+				"trade_income_pct": 100
+			},
+			"flavor": "Elles ont des actionnaires, des flottes et des avis sur la politique étrangère. Surtout des avis.",
+			"eureka": {
+				"kind": "trade",
+				"n": 3
+			}
+		},
+		"forage_manteau": {
+			"label": "Forage du manteau",
+			"domain": "economie",
+			"era": 4,
+			"pre": [
+				"automatisation"
+			],
+			"text": "Les gisements (filons, sols fertiles, géothermie, cristaux) rapportent le double. Les planètes à gisement valent d'être disputées.",
+			"effects": {
+				"deposit_pct": 100
+			},
+			"flavor": "La croûte, c'était l'emballage.",
+			"eureka": {
+				"kind": "deposit",
+				"what": "minerals",
+				"n": 6
+			}
+		},
+		"arcologie_planetaire": {
+			"label": "Arcologie planétaire",
+			"domain": "economie",
+			"era": 5,
+			"pre": [
+				"arcologies_productives"
+			],
+			"text": "Projet d'Écuménopole sur une colonie de 12 population ou plus (taille 3 ou plus) : toute la planète devient une ville. Habitable à 100 %, deux fois plus de population, chaque habitant produit énergie, matériaux et Savoir, mais plus aucune nourriture.",
+			"flavor": "De l'espace, on ne voit plus le sol. Du sol, on ne voit plus l'espace. Personne ne se plaint : personne ne sort.",
+			"eureka": {
+				"kind": "pop",
+				"n": 400
+			}
+		},
+		"collecteur_stellaire": {
+			"label": "Collecteur stellaire",
+			"domain": "economie",
+			"era": 5,
+			"pre": [
+				"ecopes"
+			],
+			"text": "Mégastructure, une par empire : un essaim de miroirs autour d'une étoile, construit depuis une colonie ou un avant-poste. +60 énergie par mois.",
+			"flavor": "L'étoile n'a rien demandé. Elle brille pareil, simplement plus pour nous.",
+			"eureka": {
+				"kind": "claim",
+				"what": "gas_giant",
+				"n": 8
+			}
+		},
+		"nexus_savoir": {
+			"label": "Nexus du savoir",
+			"domain": "economie",
+			"era": 5,
+			"pre": [
+				"fabriques_autonomes"
+			],
+			"text": "Mégastructure, une par empire : une station de recherche de la taille d'une ville. +40 Savoir par mois.",
+			"flavor": "Quarante mille chercheurs, un seul café. La productivité n'a jamais été aussi haute.",
+			"eureka": {
+				"kind": "techs",
+				"n": 70
+			}
+		},
+		"replicateurs": {
+			"label": "Réplicateurs de matière",
+			"domain": "economie",
+			"era": 5,
+			"pre": [
+				"forage_manteau"
+			],
+			"text": "La population ne mange plus que la moitié de sa nourriture : les fermes libèrent leurs emplacements, les écuménopoles deviennent tenables.",
+			"effects": {
+				"food_upkeep_pct": -50
+			},
+			"flavor": "Ça a le goût de ce que vous voulez. Ça a surtout la texture de rien.",
+			"eureka": {
+				"kind": "pop",
+				"n": 300
+			}
+		},
+		"abondance": {
+			"label": "Économie d'abondance",
+			"domain": "economie",
+			"era": 5,
+			"text": "Technologie ultime (il faut 3 autres technologies de l'ère V d'Économie). Les bâtiments ne coûtent plus aucun entretien, et la Bourse des Mille Soleils, merveille unique dans la galaxie, peut être bâtie.",
+			"effects": {
+				"building_upkeep_pct": -100
+			},
+			"ultimate": 3,
+			"flavor": "La rareté était une habitude. On s'en est défait comme des autres."
+		},
+		"terraformation": {
+			"label": "Terraformation",
+			"domain": "societe",
+			"era": 4,
+			"pre": [
+				"biomes_extremes"
+			],
+			"text": "Projet de Terraformation sur une colonie d'un monde continental, océanique, désertique, glaciaire ou toxique : la planète devient le second monde préféré de votre peuple (80 % d'habitabilité).",
+			"flavor": "On ne change pas le climat d'une planète en un jour. Il faut un an, et beaucoup de patience de la part des autochtones microbiens.",
+			"eureka": {
+				"kind": "planet",
+				"what": "desert",
+				"n": 1
+			}
+		},
+		"cites_creusees": {
+			"label": "Cités creusées",
+			"domain": "societe",
+			"era": 4,
+			"pre": [
+				"habitats"
+			],
+			"text": "Les mondes stériles (30 %) et les ceintures d'astéroïdes (50 %) deviennent habitables : on vit dans la roche, on y extrait des matériaux.",
+			"effects": {
+				"hab_set": {
+					"barren": 30,
+					"asteroids": 50
+				}
+			},
+			"flavor": "Pas de ciel, pas de météo, pas de voisins bruyants. Juste de la roche, et des mineurs qui chantent faux.",
+			"eureka": {
+				"kind": "claim",
+				"what": "asteroids",
+				"n": 3
+			}
+		},
+		"prefectures": {
+			"label": "Capitales de secteur",
+			"domain": "societe",
+			"era": 4,
+			"pre": [
+				"administration2"
+			],
+			"text": "Débloque la Préfecture, une par système, dans une colonie de 10 population ou plus : +3 influence, et six colonies de plus échappent au surcoût de recherche des grands empires.",
+			"flavor": "Un gouverneur, un palais, un tampon. L'empire peut grandir : quelqu'un d'autre signera les formulaires.",
+			"eureka": {
+				"kind": "colonies",
+				"n": 25
+			}
+		},
+		"ambassades": {
+			"label": "Ambassades permanentes",
+			"domain": "societe",
+			"era": 4,
+			"pre": [
+				"propagande"
+			],
+			"text": "+15 d'opinion chez tous les empires rencontrés : la paix, le commerce et les alliances se négocient plus facilement.",
+			"effects": {
+				"opinion_all": 15
+			},
+			"flavor": "Des diplomates à demeure, des réceptions chaque semaine, et un buffet qui fait plus pour la paix que dix traités.",
+			"eureka": {
+				"kind": "contacts",
+				"n": 5
+			}
+		},
+		"mondes_jardins": {
+			"label": "Mondes-jardins",
+			"domain": "societe",
+			"era": 5,
+			"pre": [
+				"terraformation"
+			],
+			"text": "Projet de Monde-jardin sur une colonie (monde continental, océanique, désertique, glaciaire, toxique ou stérile) : la planète devient un monde-jardin, habitable à 100 % pour tous les peuples et riche en tout.",
+			"flavor": "Un monde fait pour la vie, par la vie. Les poètes s'y installent en premier ; les promoteurs, juste après.",
+			"eureka": {
+				"kind": "planet",
+				"what": "ocean",
+				"n": 3
+			}
+		},
+		"assemblee": {
+			"label": "Assemblée interstellaire",
+			"domain": "societe",
+			"era": 5,
+			"pre": [
+				"ambassades"
+			],
+			"text": "Débloque l'Assemblée interstellaire, merveille unique dans la galaxie : +8 influence, +20 d'opinion chez tous les empires et des points de score.",
+			"flavor": "Un parlement pour toutes les espèces. Les débats durent des siècles ; c'était le but.",
+			"eureka": {
+				"kind": "peace",
+				"n": 2
+			}
+		},
+		"spatioports": {
+			"label": "Spatioports de transit",
+			"domain": "societe",
+			"era": 5,
+			"pre": [
+				"prefectures"
+			],
+			"text": "Une colonie pleine ne perd plus sa croissance : ses colons partent vers la colonie la moins peuplée de l'empire qui a encore de la place.",
+			"effects": {
+				"migration": 1
+			},
+			"flavor": "Billet aller simple, hublot en option, chat accepté.",
+			"eureka": {
+				"kind": "pop",
+				"n": 250
+			}
+		},
+		"adaptation_totale": {
+			"label": "Adaptation totale",
+			"domain": "societe",
+			"era": 5,
+			"pre": [
+				"cites_creusees"
+			],
+			"text": "Aucun monde habitable ne descend sous 60 % d'habitabilité : les pires planètes deviennent de vraies colonies.",
+			"effects": {
+				"hab_min": 60
+			},
+			"heretic": {
+				"species": {
+					"registre": [
+						"Grimdark"
+					]
+				},
+				"cost_pct": 150,
+				"fervor": -10,
+				"text": "Hérétique pour le Chœur : coûte 50 % de plus et retire 10 ferveur."
+			},
+			"flavor": "Le corps s'adapte au monde. Puis le monde, vexé, s'adapte un peu aussi.",
+			"eureka": {
+				"kind": "colonies",
+				"n": 40
+			}
+		},
+		"symbiose": {
+			"label": "Symbiose universelle",
+			"domain": "societe",
+			"era": 5,
+			"text": "Technologie ultime (il faut 3 autres technologies de l'ère V de Société). Aucun monde habitable ne descend sous 80 %, et la population croît 25 % plus vite.",
+			"effects": {
+				"hab_min": 20,
+				"growth_pct": 25
+			},
+			"ultimate": 3,
+			"flavor": "Plus de mondes hostiles, seulement des mondes qu'on n'a pas encore compris."
 		}
 	},
 	"marks": {

@@ -235,6 +235,15 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	if has_trade(state, a, b):
 		_part(out, "Accord commercial", int(cfg["trade"]))
 	_part(out, "Confiance", trust(state, a, b))
+	# Ambassades permanentes de b, et merveilles qui lui valent l'estime de tous (Assemblée interstellaire).
+	_part(out, "Ambassades permanentes", Research.fx_int(state, b, "opinion_all"))
+	var w := Economy.wonders(state)
+	for key in w:
+		if int(w[key]) == b:
+			var bid := String(key).get_slice("#", 0)
+			var op := int(GameData.building(bid).get("opinion", 0))
+			if op != 0:
+				_part(out, String(GameData.building(bid).get("label", bid)), op)
 	var common := common_enemies(state, a, b)
 	_part(out, "Ennemi commun", int(cfg["common_enemy"]) * mini(2, common.size()))
 	# Menace : b approche d'une victoire que a peut voir (data/victories.json, threat_opinion).
@@ -623,7 +632,8 @@ static func treaty_income(state: GameState, empire_id: int) -> Dictionary:
 		if p != COLD:
 			_add(out, treaty_info(p).get("income", {}))
 		if has_trade(state, empire_id, other):
-			_add(out, treaty_info(TRADE).get("income", {}))
+			# Compagnies marchandes : chaque accord commercial rapporte plus.
+			_add(out, Research.scaled_amounts(treaty_info(TRADE).get("income", {}), Research.fx_int(state, empire_id, "trade_income_pct")))
 	return out
 
 

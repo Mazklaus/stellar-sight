@@ -469,11 +469,18 @@ static func _buildings(ctx: Dictionary) -> void:
 	var e: Empire = ctx["e"]
 	var net := _net(ctx).duplicate()
 	var reserve := _material_reserve(ctx)
+	var late := _knows_late(ctx)
 	for c in _my_colonies(ctx):
-		if c.construction != "" or Economy.building_slots_used(c) >= Economy.building_slots(state, c) or _forgets(ctx):
+		if c.construction != "" or _forgets(ctx):
+			continue
+		var full := Economy.building_slots_used(c) >= Economy.building_slots(state, c)
+		if full and not late:
 			continue
 		var urgent := urgent_needs(ctx, net)
-		for b in building_wishes(ctx, c, net):
+		var wishes := late_wishes(ctx, c, net) if late else ([] as Array[String])
+		if not full:
+			wishes.append_array(building_wishes(ctx, c, net))
+		for b in wishes:
 			if not Economy.building_unlocked(state, e.id, b):
 				continue
 			var cost := Economy.building_cost(state, e.id, b)
@@ -488,6 +495,63 @@ static func _buildings(ctx: Dictionary) -> void:
 				for r in bd.get("upkeep", {}):
 					net[r] = int(net.get(r, 0)) - int(bd["upkeep"][r])
 				break
+
+
+## Technologies qui débloquent les chantiers tardifs (2e rang, préfectures, projets, merveilles).
+const LATE_TECHS := ["arcologies_productives", "prefectures", "terraformation", "collecteur_stellaire",
+		"nexus_savoir", "abondance", "assemblee", "mondes_jardins", "arcologie_planetaire"]
+
+
+static func _knows_late(ctx: Dictionary) -> bool:
+	var e: Empire = ctx["e"]
+	for t in LATE_TECHS:
+		if e.techs.has(t):
+			return true
+	return false
+
+
+## Chantiers tardifs souhaités pour une colonie (ceux sans emplacement passent même si elle est pleine) :
+## bâtiments de 2e rang, Préfecture, mégastructures et merveilles sur la colonie principale, puis
+## terraformation des colonies pleines quand les matériaux s'entassent.
+static func late_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Array[String]:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var out: Array[String] = []
+	var mat := _res(ctx, "materials")
+	if not c.is_colony():
+		if e.techs.has("collecteur_stellaire") and mat >= 1700 and not _empire_has_building(ctx, "collecteur_stellaire"):
+			out.append("collecteur_stellaire")
+		return out
+	if e.techs.has("arcologies_productives") and mat >= 350:
+		if c.buildings.has("complexe_minier"):
+			out.append("mine_profonde")
+		if c.buildings.has("centrale_fusion"):
+			out.append("centrale_confinement")
+		if c.buildings.has("ferme_hydroponique"):
+			out.append("ferme_verticale")
+	if e.techs.has("prefectures") and c.population >= 10 and mat >= 400:
+		out.append("prefecture")
+	if _is_main_yard(ctx, c):
+		for w in ["bourse_mille_soleils", "assemblee", "nexus_savoir", "collecteur_stellaire"]:
+			var need := int(GameData.building(w).get("cost", {}).get("materials", 0)) + 500
+			if Economy.building_unlocked(state, e.id, w) and mat >= need and not _empire_has_building(ctx, w):
+				out.append(w)
+	if mat >= 1500:
+		var p := state.galaxy.get_planet(c.planet_id)
+		var cap := Economy.max_pop(state, p, e.id, c.buildings)
+		if c.population >= cap - 1:
+			var hab := Economy._pop_hab(state, e.id, p.type)
+			if Economy.building_unlocked(state, e.id, "ecumenopole") and mat >= 2200 and c.population >= 12:
+				# La ville ne nourrit plus personne : seulement si la nourriture déborde assez.
+				var lost := int(Economy.pop_yields(p.type).get("food", 0)) * c.population
+				@warning_ignore("integer_division")
+				if int(net.get("food", 0)) >= lost + c.population / 2 + 10:
+					out.append("ecumenopole")
+			if hab < 100 and Economy.building_unlocked(state, e.id, "monde_jardin"):
+				out.append("monde_jardin")
+			if hab < 80 and Economy.building_unlocked(state, e.id, "terraformeur"):
+				out.append("terraformeur")
+	return out
 
 
 ## Bâtiments qui comblent un manque (famine ou panne d'énergie en vue) : ils passent avant
@@ -1419,7 +1483,7 @@ static func research_pick(ctx: Dictionary) -> String:
 		bias_techs = GameData.building(String(ctx["ai"]["building_bias"])).get("requires_tech", [])
 	var best := ""
 	var best_score := -1
-	var colonies := Research.colony_count(state, e.id)
+	var colonies := Research.cost_colonies(state, e.id)
 	for tid in Research.visible_ids(f):
 		if e.techs.has(tid) or e.research_queue.has(tid) or Research.check_queue(state, e.id, tid) != "":
 			continue
