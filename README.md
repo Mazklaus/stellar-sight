@@ -366,7 +366,8 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
 
 ![Écran Chantier](docs/apercu-chantier.png)
 
-- À venir : priorité de cible en bataille et seuils de miniaturisation (lot 4), conception automatique et IA qui conçoivent leurs modèles (lot 3), hangars à variantes et modules titanesques (lot 4).
+- **Conception automatique et IA** (lot 3) : `Designs.auto_design(state, empire, coque, rôle, qualité)` remplit une coque pour un rôle (assaut, ligne, escorte, torpilleur, artillerie, porteur, invasion, siège). Qualité 0 : modules au hasard parmi ceux qui conviennent ; 1 : équilibré ; 2 : défenses et armes adaptées à ce que l'empire a affronté (`Designs.threat`, d'après ses rapports de bataille). Le bouton « Concevoir pour moi » du Chantier s'en sert (qualité 2). Chaque IA conçoit, une fois par mois, un modèle par classe d'origine qu'elle sait construire (même coque, même rôle), le renouvelle quand elle a découvert des technologies ou beaucoup combattu, et le construit à la place de la classe. La qualité suit son niveau militaire (Recrue maladroite, Normal équilibré, Vétéran et au-delà adaptés).
+- À venir : priorité de cible en bataille et seuils de miniaturisation, hangars à variantes et modules titanesques (lot 4).
 
 ## Organisation du code
 

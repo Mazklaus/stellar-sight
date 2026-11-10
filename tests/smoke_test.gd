@@ -625,6 +625,12 @@ func _test_navigation_ui(main: Node) -> void:
 	(yard.buttons["retire"] as Button).pressed.emit()
 	await process_frame
 	_check(yst.designs[ynext]["retired"], "« Retirer de la construction »")
+	(yard.hull_buttons[yhull] as Button).pressed.emit()
+	await process_frame
+	yard.auto_design_draft("escorte")
+	await process_frame
+	_check(not yard.draft_modules().is_empty() and String(yard.draft["line"]) == "screen" and String(yard.draft["name"]) != "",
+			"« Concevoir pour moi » remplit la coque, le rang et un nom (%s)" % ", ".join(yard.draft_modules()))
 	_press(KEY_F4)
 	await process_frame
 	_check(screens.current == "diplomacy" and screens._content.get_child(0) != null, "F4 : écran Diplomatie")

@@ -16,6 +16,8 @@ func run(check: Callable) -> void:
 	_test_build_and_fight()
 	_test_versions_and_retire()
 	_test_savegame()
+	_test_auto_design()
+	_test_ai_designs()
 	GameData.clear_custom_ships()
 
 
@@ -116,7 +118,7 @@ func _test_fit() -> void:
 func _test_save_design() -> void:
 	var st := _state()
 	_ok(Designs.hull_ids_for("choeur").has("martyr") and not Designs.hull_ids_for("vael").has("martyr"), "coque de martyr : seulement pour un credo de la foi")
-	_ok(Designs.hull_ids_for("ossarane").has("coursier") and not Designs.hull_ids_for("ossarane").has("corvette"), "les Navigateurs remplacent la corvette par le coursier")
+	_ok(Designs.hull_ids_for("ossarane").has("coursier") and Designs.hull_ids_for("ossarane").has("corvette"), "les Navigateurs ont la coque de coursier en plus de la corvette (option A : les coques de peuple s'ajoutent)")
 	var spec := {"name": "Lame de l'aube", "hull": "corvette", "modules": ["canon_cinetique", "canon_cinetique", "plaques_blindage"], "line": "screen", "target": "smallest"}
 	_ok(_apply(st, SimCommands.save_design(0, spec)) == "", "enregistrer un modèle valide")
 	var id := "m0_0"
@@ -196,3 +198,57 @@ func _test_savegame() -> void:
 	old.erase("next_design_id")
 	var v9 := GameState.from_dict(old)
 	_ok(v9 != null and v9.designs.is_empty(), "une sauvegarde version 9 se charge encore (sans modèles)")
+
+
+func _test_auto_design() -> void:
+	var st := _state()
+	Research.grant(st, 0, ["coques_lourdes", "debarquement", "torpilles"])
+	var all_fit := true
+	for role in Designs.ROLES:
+		for hid in ["corvette", "fregate", "croiseur"]:
+			for q in 3:
+				var spec := Designs.auto_design(st, 0, hid, role, q, 3)
+				all_fit = all_fit and Designs.check_fit(hid, spec["modules"]) == "" \
+						and Research.knows_all(st, 0, Designs.required_techs(hid, spec["modules"]))
+	_ok(all_fit, "conception automatique : tout rôle, toute qualité, le modèle tient et n'utilise que des modules connus")
+	var inv := Designs.auto_design(st, 0, "fregate", "invasion", 1)
+	_ok((inv["modules"] as Array).count("soute_troupes") == 2 and GameData.combat() != null and Designs.compute("fregate", inv["modules"]).get("weapons", {}).is_empty(),
+			"rôle Invasion : soutes à troupes, pas d'armes")
+	var esc := Designs.auto_design(st, 0, "corvette", "escorte", 1)
+	_ok((esc["modules"] as Array).has("antimissile") and String(esc["line"]) == "screen", "rôle Escorte : antimissile d'abord, à l'écran")
+	_ok((Designs.auto_design(st, 0, "corvette", "torpilleur", 1)["modules"] as Array).has("tube_torpilles"), "rôle Torpilleur : tubes lance-torpilles")
+	# Qualité 2 : les défenses suivent les armes vues en bataille.
+	st.battle_reports.append({"units": [[0, "corvette", "screen", 0], [1, "fregate", "line", 0], [1, "fregate", "line", 0]]})
+	var vs_beams := Designs.auto_design(st, 0, "fregate", "ligne", 2)
+	_ok((vs_beams["modules"] as Array).count("bouclier") == 2, "Légende face à des rayons : boucliers (%s)" % ", ".join(vs_beams["modules"]))
+	st.battle_reports.clear()
+	st.battle_reports.append({"units": [[0, "corvette", "screen", 0], [1, "corvette", "screen", 0], [1, "corvette", "screen", 0]]})
+	var vs_guns := Designs.auto_design(st, 0, "fregate", "ligne", 2)
+	_ok((vs_guns["modules"] as Array).count("plaques_blindage") == 2, "face à des canons : blindage (%s)" % ", ".join(vs_guns["modules"]))
+	var balanced := Designs.auto_design(st, 0, "fregate", "ligne", 1)
+	_ok((balanced["modules"] as Array).has("plaques_blindage") and (balanced["modules"] as Array).has("bouclier"), "qualité 1 : blindage et bouclier équilibrés")
+
+
+func _test_ai_designs() -> void:
+	var sim := Simulation.new(GameState.create(23, 150, 1800.0, "", {"spectator": true, "ai_level": "veteran"}))
+	sim.advance(420)
+	var st := sim.state
+	var every_ai := true
+	var used := 0
+	for e in st.empires:
+		var mine := Designs.designs_of(st, e.id, true)
+		every_ai = every_ai and not mine.is_empty()
+		for f in Fleets.empire_fleets(st, e.id):
+			for sh in f.ships:
+				if st.designs.has(sh):
+					used += 1
+	for pid in st.colonies:
+		if st.designs.has(String(st.colonies[pid].ship_build)):
+			used += 1
+	_ok(every_ai, "chaque IA a conçu ses propres modèles avec l'éditeur")
+	_ok(used > 0, "les IA construisent leurs modèles (%d vaisseaux en service ou en chantier)" % used)
+	var roles_ok := true
+	for id in st.designs:
+		var rec: Dictionary = st.designs[id]
+		roles_ok = roles_ok and Designs.CLASS_ROLES.has(String(rec.get("role", ""))) and String(rec.get("sig", "")) != ""
+	_ok(roles_ok, "un modèle d'IA dit quelle classe il remplace et quand il a été conçu")

@@ -339,6 +339,11 @@ static func save(state: GameState, empire_id: int, spec: Dictionary) -> String:
 		"retired": false,
 		"created": state.tick,
 	}
+	# Modèles d'IA : la classe d'origine qu'ils remplacent, et l'état de l'empire quand ils ont été conçus.
+	if spec.has("role"):
+		rec["role"] = String(spec["role"])
+	if spec.has("sig"):
+		rec["sig"] = String(spec["sig"])
 	var prev := String(spec.get("previous", ""))
 	if prev != "":
 		var old: Dictionary = state.designs[prev]
@@ -360,3 +365,169 @@ static func check_retire(state: GameState, empire_id: int, design_id: String) ->
 ## Nom lisible d'un vaisseau (modèle ou classe).
 static func label(ship_id: String) -> String:
 	return String(GameData.ship(ship_id).get("label", ship_id))
+
+
+# --- Conception automatique -----------------------------------------------------------------------
+# Le bouton « Concevoir pour moi » du Chantier et les IA utilisent le même outil. Un rôle dit ce que le
+# modèle doit faire (portée préférée, défense, soutien) ; la qualité dit à quel point le choix est
+# réfléchi : 0 maladroit (modules au hasard parmi ceux qui conviennent), 1 équilibré, 2 adapté à
+# l'adversaire (défenses contre ses armes, armes contre ses défenses).
+
+## Rôles : libellé, poids des phases (longue, moyenne, courte), arme préférée, rang, soutien voulu.
+const ROLES := {
+	"assaut": {"label": "Assaut", "phases": [0, 1, 3], "line": "screen", "support": ["propulseurs", "belier_siege"]},
+	"ligne": {"label": "Ligne", "phases": [1, 3, 1], "line": "line", "support": ["soute_troupes", "propulseurs"]},
+	"escorte": {"label": "Escorte", "phases": [1, 1, 1], "line": "screen", "defense_first": "antimissile", "support": ["reseau_antimissile"]},
+	"torpilleur": {"label": "Torpilleur", "phases": [0, 2, 2], "prefer": "torpedo", "line": "line", "support": ["propulseurs"]},
+	"artillerie": {"label": "Artillerie", "phases": [3, 1, 0], "line": "rear", "support": ["capteurs", "propulseurs"]},
+	"porteur": {"label": "Porteur", "phases": [1, 1, 1], "prefer": "fighters", "line": "rear", "support": ["reseau_antimissile", "capteurs"]},
+	"invasion": {"label": "Invasion", "phases": [0, 0, 0], "line": "rear", "unarmed": true, "support": ["soute_troupes"]},
+	"siege": {"label": "Siège", "phases": [1, 1, 1], "line": "rear", "support": ["belier_siege", "soute_troupes"]},
+}
+## Rôle de chaque modèle d'origine (l'IA remplace ses classes par ses propres modèles de même rôle).
+const CLASS_ROLES := {
+	"corvette": "assaut", "coursier": "assaut", "martyr": "assaut", "fregate": "ligne", "fregate_quarante": "ligne",
+	"croiseur": "ligne", "escorteur": "escorte", "torpilleur": "torpilleur", "transport": "invasion",
+	"bombarde": "siege", "cuirasse": "artillerie", "porte_vaisseaux": "porteur", "ruche_mere": "porteur", "titan": "ligne",
+}
+
+
+## Ce que montrent les adversaires dans les batailles où l'empire s'est battu : part des armes arrêtées
+## par le blindage ou le bouclier, armes interceptables, et défenses de leurs coques.
+static func threat(state: GameState, empire_id: int) -> Dictionary:
+	var out := {"armor": 0, "shield": 0, "intercept": 0, "their_armor": 0, "their_shield": 0, "seen": 0}
+	var table: Dictionary = GameData.combat().get("weapons", {})
+	for r: Dictionary in state.battle_reports:
+		var mine := false
+		for u in r.get("units", []):
+			if int(u[0]) == empire_id:
+				mine = true
+				break
+		if not mine:
+			continue
+		for u in r.get("units", []):
+			if int(u[0]) == empire_id:
+				continue
+			var sd := GameData.ship(String(u[1]))
+			for fam in sd.get("weapons", {}):
+				var w: Dictionary = table.get(fam, {})
+				var p := int(sd["weapons"][fam])
+				out[String(w.get("defense", "armor"))] = int(out.get(String(w.get("defense", "armor")), 0)) + p
+				if w.get("intercept", false):
+					out["intercept"] = int(out["intercept"]) + p
+			out["their_armor"] = int(out["their_armor"]) + int(sd.get("armor", 0))
+			out["their_shield"] = int(out["their_shield"]) + int(sd.get("shield", 0))
+			out["seen"] = int(out["seen"]) + 1
+	return out
+
+
+## Modules posables par l'empire sur cette coque, pour un type d'emplacement donné.
+static func _usable(state: GameState, empire_id: int, hull_id: String, slot_type: String) -> Array[String]:
+	var size := String(hull(hull_id).get("size", "small"))
+	var accepts: Array = slot_types().get(slot_type, {}).get("accepts", [])
+	var out: Array[String] = []
+	for mid in module_ids():
+		var m := module(mid)
+		if not accepts.has(String(m.get("slot", ""))):
+			continue
+		var sizes: Array = m.get("sizes", [])
+		if not sizes.is_empty() and not sizes.has(size):
+			continue
+		if not Research.knows_all(state, empire_id, m.get("requires_tech", [])):
+			continue
+		out.append(mid)
+	return out
+
+
+## Intérêt d'une arme pour un rôle : dégâts pondérés par phase, et (qualité 2) contre les défenses vues.
+@warning_ignore("integer_division")
+static func _weapon_score(mid: String, size: String, role: Dictionary, quality: int, th: Dictionary) -> int:
+	var m := module(mid)
+	var table: Dictionary = GameData.combat().get("weapons", {})
+	var phases: Array = role.get("phases", [1, 1, 1])
+	var score := 0
+	for fam in m.get("weapons", {}):
+		var p := int(_sized(m["weapons"][fam], size))
+		var eff: Array = table.get(fam, {}).get("eff", [0, 0, 0])
+		var s := 0
+		for i in 3:
+			s += p * int(eff[i]) * int(phases[i])
+		if String(role.get("prefer", "")) == fam:
+			s = s * 3 + 1000
+		if quality >= 2 and int(th.get("seen", 0)) > 0:
+			var def := String(table.get(fam, {}).get("defense", "armor"))
+			var theirs := int(th.get("their_" + def, 0))
+			var other := int(th.get("their_shield" if def == "armor" else "their_armor", 0))
+			if theirs * 2 < other:
+				s = s * 13 / 10
+			elif theirs > other * 2:
+				s = s * 7 / 10
+		score += s
+	return score
+
+
+## Défense choisie pour le n-ième emplacement de défense.
+static func _defense_pick(options: Array[String], n: int, role: Dictionary, quality: int, th: Dictionary) -> String:
+	var first := String(role.get("defense_first", ""))
+	if n == 0 and first != "" and options.has(first):
+		return first
+	var armor := options.has("plaques_blindage")
+	var shield := options.has("bouclier")
+	if quality >= 2 and int(th.get("seen", 0)) > 0:
+		if int(th.get("intercept", 0)) * 2 > int(th.get("armor", 0)) + int(th.get("shield", 0)) and options.has("antimissile") and n == 1:
+			return "antimissile"
+		var want_shield := int(th.get("shield", 0)) > int(th.get("armor", 0))
+		if want_shield and shield:
+			return "bouclier"
+		if armor:
+			return "plaques_blindage"
+	# Équilibré : blindage et bouclier en alternance.
+	if armor and shield:
+		return "plaques_blindage" if posmod(n, 2) == 0 else "bouclier"
+	return options[0] if not options.is_empty() else ""
+
+
+## Modèle conçu automatiquement : {"hull", "modules", "line", "target"} (le nom reste à donner).
+## salt rend les choix maladroits (qualité 0) différents d'un appel à l'autre, de façon déterministe.
+static func auto_design(state: GameState, empire_id: int, hull_id: String, role_id: String, quality := 1, salt := 0) -> Dictionary:
+	var role: Dictionary = ROLES.get(role_id, ROLES["ligne"])
+	var size := String(hull(hull_id).get("size", "small"))
+	var th := threat(state, empire_id) if quality >= 2 else {}
+	var counts: Dictionary = hull(hull_id).get("slots", {})
+	var mods: Array = []
+	var n_def := 0
+	var k := 0
+	for t in slot_types():
+		for i in int(counts.get(t, 0)):
+			k += 1
+			var options := _usable(state, empire_id, hull_id, String(t))
+			if options.is_empty():
+				continue
+			var pick := ""
+			if quality <= 0:
+				pick = options[posmod(hash([state.seed_value, empire_id, hull_id, role_id, salt, k]), options.size())]
+			elif t == "defense":
+				pick = _defense_pick(options, n_def, role, quality, th)
+				n_def += 1
+			elif t == "support":
+				for want in role.get("support", []):
+					if options.has(want) and (want != "belier_siege" or mods.count("belier_siege") == 0 or role_id == "siege"):
+						pick = want
+						break
+			elif role.get("unarmed", false):
+				pick = ""
+			else:
+				var best := -1
+				for mid in options:
+					if module(mid).get("weapons", {}).is_empty():
+						continue
+					var sc := _weapon_score(mid, size, role, quality, th)
+					if sc > best:
+						best = sc
+						pick = mid
+			if pick != "":
+				mods.append(pick)
+	# Le placement final passe par la même règle que le joueur : on retire ce qui ne tiendrait pas.
+	while not mods.is_empty() and check_fit(hull_id, mods) != "":
+		mods.pop_back()
+	return {"hull": hull_id, "modules": mods, "line": String(role.get("line", "line")), "target": "largest" if role_id in ["torpilleur", "artillerie"] else "nearest"}

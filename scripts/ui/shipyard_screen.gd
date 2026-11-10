@@ -131,7 +131,7 @@ func _build_main() -> void:
 	actions.add_theme_constant_override("separation", 6)
 	actions.custom_minimum_size = Vector2(230, 0)
 	bottom.add_child(actions)
-	for spec: Array in [["save", "Enregistrer le modèle"], ["retire", "Retirer"], ["auto", "Concevoir pour moi"]]:
+	for spec: Array in [["save", "Enregistrer le modèle"], ["retire", "Retirer"]]:
 		var b := Button.new()
 		b.text = spec[1]
 		b.focus_mode = Control.FOCUS_NONE
@@ -139,8 +139,18 @@ func _build_main() -> void:
 		buttons[spec[0]] = b
 	(buttons["save"] as Button).pressed.connect(save_draft)
 	(buttons["retire"] as Button).pressed.connect(_toggle_retire)
-	(buttons["auto"] as Button).disabled = true
-	(buttons["auto"] as Button).tooltip_text = "Arrive avec le prochain lot, en même temps que les IA qui conçoivent leurs propres modèles."
+	# « Concevoir pour moi » : le même outil que les IA, au mieux de ce qu'on sait de l'adversaire.
+	var auto := MenuButton.new()
+	auto.text = "Concevoir pour moi  ▾"
+	auto.flat = false
+	auto.focus_mode = Control.FOCUS_NONE
+	auto.tooltip_text = "Remplit la coque pour un rôle, avec les modules que vous connaissez, en tenant compte des armes et des défenses vues dans vos batailles."
+	var roles := Designs.ROLES.keys()
+	for i in roles.size():
+		auto.get_popup().add_item(String(Designs.ROLES[roles[i]]["label"]), i)
+	auto.get_popup().id_pressed.connect(func(i: int) -> void: auto_design_draft(String(roles[i])))
+	actions.add_child(auto)
+	buttons["auto"] = auto
 	_reason = UiTheme.dim("", 13)
 	_reason.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_reason.custom_minimum_size = Vector2(230, 0)
@@ -315,6 +325,19 @@ func place_module(mid: String) -> void:
 		if String(draft["slots"][i]) == "" and sl[i]["type"] == sl[target]["type"]:
 			slot_index = i
 			break
+	_refresh_all()
+
+
+## Remplit le brouillon avec la conception automatique pour un rôle (qualité la plus haute).
+func auto_design_draft(role_id: String) -> void:
+	var hid := String(draft.get("hull", ""))
+	var spec := Designs.auto_design(_state, _player, hid, role_id, 2)
+	draft["slots"] = _assign_slots(hid, spec["modules"])
+	draft["line"] = String(spec["line"])
+	draft["target"] = String(spec["target"])
+	if String(draft.get("name", "")).strip_edges() == "":
+		draft["name"] = "%s %s" % [String(Designs.hull(hid).get("label", hid)), String(Designs.ROLES[role_id]["label"]).to_lower()]
+	slot_index = -1
 	_refresh_all()
 
 

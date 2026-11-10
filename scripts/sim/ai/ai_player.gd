@@ -43,6 +43,7 @@ static func think(state: GameState, e: Empire) -> void:
 	_research(ctx)
 	_buildings(ctx)
 	_foothold_claims(ctx)
+	_designs(ctx)
 	_shipyards(ctx)
 	_refits(ctx)
 	_fleets(ctx)
@@ -886,7 +887,7 @@ static func _build_warships(ctx: Dictionary) -> void:
 	while missing > 0 and built < 2:
 		if _forgets(ctx):
 			return
-		var cls := _pick_warship(ctx)
+		var cls := _own_design(ctx, _pick_warship(ctx))
 		var yard := _best_yard(ctx, cls)
 		if yard == null:
 			return
@@ -901,6 +902,69 @@ static func _build_warships(ctx: Dictionary) -> void:
 		missing -= 1
 		built += 1
 		_intent(ctx, "Arme la flotte (%s)" % String(GameData.ship(cls)["label"]).to_lower())
+
+
+## Éditeur de vaisseaux : une fois par mois, l'IA conçoit ses propres modèles avec l'outil du bouton
+## « Concevoir pour moi », un par classe d'origine qu'elle sait construire (même rôle, même coque), et
+## les renouvelle quand elle a découvert des technologies ou vu beaucoup de combats. La qualité suit
+## son niveau militaire : la Recrue pose des modules au hasard parmi ceux qui conviennent, le Normal
+## équilibre, le Vétéran et au-delà adaptent défenses et armes à ce qu'ils ont affronté.
+static func _designs(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	# Une fenêtre de la largeur du rythme de réflexion : chaque IA y réfléchit exactement une fois par mois.
+	var every := maxi(1, int(ctx["lv"].get("think_days", 10)))
+	if posmod(state.tick + e.id * 7, 30) >= mini(every, 30):
+		return
+	var quality := clampi(_skill(ctx), 0, 2)
+	@warning_ignore("integer_division")
+	var sig := "%d|%d" % [e.techs.size(), (int(e.stats.get("kills", 0)) + int(e.stats.get("ships_lost", 0))) / 10]
+	var mine := _ai_designs(ctx)
+	for sid in FactionTraits.ship_ids_for(e.faction_id):
+		var role := String(Designs.CLASS_ROLES.get(sid, ""))
+		var sd := GameData.ship(sid)
+		if role == "" or not sd.has("hull") or not Fleets.ship_unlocked(state, e.id, sid):
+			continue
+		var old: Dictionary = mine.get(sid, {})
+		if not old.is_empty() and String(old.get("sig", "")) == sig:
+			continue
+		var spec := Designs.auto_design(state, e.id, String(sd["hull"]), role, quality, e.techs.size())
+		if (spec["modules"] as Array).is_empty() and role != "invasion":
+			continue
+		if not old.is_empty() and old["modules"] == spec["modules"] and String(old["line"]) == String(spec["line"]):
+			continue
+		var version := int(old.get("version", 0)) + 1
+		spec["name"] = "%s Mk %d" % [String(sd["label"]), version]
+		spec["role"] = sid
+		spec["sig"] = sig
+		if not old.is_empty():
+			spec["previous"] = String(old["id"])
+		if _issue(ctx, SimCommands.save_design(e.id, spec)):
+			mine = _ai_designs(ctx)
+
+
+## Derniers modèles actifs de l'IA, par classe d'origine remplacée.
+static func _ai_designs(ctx: Dictionary) -> Dictionary:
+	var out := {}
+	for rec in Designs.designs_of(ctx["state"], ctx["e"].id, true):
+		if rec.has("role"):
+			out[String(rec["role"])] = rec
+	return out
+
+
+## Le modèle de l'IA qui remplace cette classe, s'il peut être lancé maintenant ; sinon la classe.
+static func _own_design(ctx: Dictionary, cls: String) -> String:
+	if cls == "":
+		return cls
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var rec: Dictionary = _ai_designs(ctx).get(cls, {})
+	if rec.is_empty():
+		return cls
+	var id := String(rec["id"])
+	if not Fleets.ship_unlocked(state, e.id, id) or not Economy.can_afford(e, Fleets.ship_cost(state, e.id, id)):
+		return cls
+	return id
 
 
 ## Classe de vaisseau de guerre à construire, parmi celles qu'un chantier peut lancer tout de suite
