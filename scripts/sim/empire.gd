@@ -7,6 +7,8 @@ var faction_id: String = ""
 ## Stocks : {"energy": int, "materials": int, ...}.
 var resources: Dictionary = {}
 var capital_planet: int = -1
+## Capitale d'origine (planète du monde natal), qui compte pour la victoire par conquête même perdue.
+var home_planet: int = -1
 ## Pénuries constatées au dernier bilan mensuel.
 var starving: bool = false
 var blackout: bool = false
@@ -52,6 +54,9 @@ var marks_log: Array[Dictionary] = []
 var stats: Dictionary = {}
 ## Eurêkas déjà obtenus (id de technologie -> true).
 var eurekas: Dictionary = {}
+## Victoires (voir VictorySystem) : id de victoire -> {"pct": avancée au dernier bilan, "held": jours
+## de compte à rebours déjà tenus, "warn": dernière alerte donnée}.
+var victory: Dictionary = {}
 ## Effets cumulés des technologies, recalculés quand tech_fx_n ne correspond plus (jamais sauvegardés).
 var tech_fx: Dictionary = {}
 var tech_fx_exalted: Dictionary = {}
@@ -91,6 +96,7 @@ func to_dict() -> Dictionary:
 		"faction": faction_id,
 		"resources": resources.duplicate(),
 		"capital": capital_planet,
+		"home": home_planet,
 		"starving": starving,
 		"blackout": blackout,
 		"explored": sorted_explored(),
@@ -113,7 +119,19 @@ func to_dict() -> Dictionary:
 		"marks_log": marks_log.duplicate(true),
 		"stats": stats.duplicate(),
 		"eurekas": sorted_eurekas(),
+		"victory": _sorted_victory(),
 	}
+
+
+func _sorted_victory() -> Array:
+	var ids := victory.keys()
+	ids.sort()
+	var out := []
+	for k in ids:
+		var v: Dictionary = victory[k].duplicate()
+		v["id"] = k
+		out.append(v)
+	return out
 
 
 func sorted_eurekas() -> Array:
@@ -150,6 +168,7 @@ static func from_dict(d: Dictionary) -> Empire:
 	for r in GameData.resource_ids():
 		e.resources[r] = int(d["resources"].get(r, 0))
 	e.capital_planet = int(d["capital"])
+	e.home_planet = int(d.get("home", e.capital_planet))
 	e.starving = bool(d["starving"])
 	e.blackout = bool(d["blackout"])
 	for sid in d["explored"]:
@@ -187,4 +206,6 @@ static func from_dict(d: Dictionary) -> Empire:
 		e.stats[String(k)] = int(st[k])
 	for t in d.get("eurekas", []):
 		e.eurekas[String(t)] = true
+	for v: Dictionary in d.get("victory", []):
+		e.victory[String(v["id"])] = {"pct": int(v.get("pct", 0)), "held": int(v.get("held", 0)), "warn": int(v.get("warn", 0))}
 	return e

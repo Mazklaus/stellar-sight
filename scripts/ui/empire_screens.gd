@@ -83,6 +83,10 @@ var _research_sig := ""
 var _tech_panel: PanelContainer
 ## Écran Chantier (éditeur de vaisseaux) ; garde le modèle affiché d'une ouverture à l'autre.
 var shipyard: ShipyardScreen
+## Écran Victoire : tout voir (mode spectateur), lignes de progression par victoire (pour les tests).
+var see_all := false
+var victory_rows := {}
+var _vict_sig := ""
 var _shipyard_selected := ""
 var _shipyard_sig := ""
 
@@ -195,6 +199,8 @@ func show_screen(screen_id: String) -> void:
 			_build_diplomacy()
 		"shipyard":
 			_build_shipyard()
+		"victory":
+			_build_victory()
 	refresh()
 	screen_changed.emit(screen_id)
 
@@ -211,6 +217,9 @@ func refresh() -> void:
 		"diplomacy":
 			if _diplomacy_sig() != _diplo_sig:
 				show_screen("diplomacy")
+		"victory":
+			if _victory_sig() != _vict_sig:
+				show_screen("victory")
 		"research":
 			if _research_signature() != _research_sig:
 				_fill_research_side()
@@ -1363,6 +1372,18 @@ func _relation_block(id: int) -> Control:
 		b.pressed.connect(func() -> void: command_requested.emit(SimCommands.bribe_heir(_player, id)))
 		acts.add_child(b)
 		ability_buttons["bribe"] = b
+	if Victory.applies(_state, _player, "elu") and not Diplomacy.no_treaties(_state, id) and not e.eliminated:
+		var b := Button.new()
+		var united := Victory.united(_state, _player, id)
+		b.text = "LIGNÉES UNIES" if united else "UNIR NOS LIGNÉES (%s)" % GameData.format_amounts(Victory.info("elu")["union_cost"])
+		b.focus_mode = Control.FOCUS_NONE
+		var why := Victory.check_union(_state, _player, id)
+		b.disabled = why != ""
+		b.tooltip_text = (why if why != "" else "Un pas vers l'Élu des routes : l'union tient tant que l'alliance tient.") if not united \
+				else "Vos maisons sont unies. Si l'alliance tombe, l'union tombe avec elle."
+		b.pressed.connect(func() -> void: command_requested.emit(SimCommands.unite_lineages(_player, id)))
+		acts.add_child(b)
+		ability_buttons["union"] = b
 	if Diplomacy.has_ability(_state, _player, "mediation"):
 		for w in e.wars:
 			if w == _player or not me.contacts.has(w) or Diplomacy.no_treaties(_state, w) or Diplomacy.no_treaties(_state, id):
@@ -1409,3 +1430,148 @@ func _spacer(parent: Control) -> void:
 	gap.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(gap)
+
+
+# --- Victoire -------------------------------------------------------------------------------
+
+func _build_victory() -> void:
+	_vict_sig = _victory_sig()
+	victory_rows.clear()
+	var me := _state.get_empire(_player)
+	_side_header("screen_victory", "Victoire", Color(1.0, 0.85, 0.45), "faction")
+	var w := _state.winner
+	if not w.is_empty():
+		var we := _state.get_empire(int(w["empire"]))
+		var winners := we.short_name()
+		for a in w.get("allies", []):
+			winners += " et " + _state.get_empire(int(a)).short_name()
+		_side_box.add_child(UiTheme.title("%s l'emporte%s" % [winners, "nt" if not Array(w.get("allies", [])).is_empty() else ""], 20, we.color().lightened(0.3)))
+		_side_box.add_child(UiTheme.dim("%s, le %s" % [Victory.label(String(w["victory"])), GameCalendar.date_string(int(w["tick"]))], 14))
+		_side_box.add_child(HSeparator.new())
+	var g := _grid()
+	_side_box.add_child(g)
+	var dl := Victory.deadline(_state)
+	_key_value(g, "Date limite", GameCalendar.date_string(dl) if dl > 0 else "aucune")
+	_key_value(g, "Victoires de peuple", "en jeu" if Victory.people_enabled(_state) else "désactivées")
+	_key_value(g, "Votre score", str(Victory.score(_state, _player)))
+	_side_box.add_child(HSeparator.new())
+	var mine := Victory.people_ids_for(me.faction())
+	if mine.is_empty():
+		_side_box.add_child(UiTheme.paragraph("Votre peuple n'a pas de victoire propre : ses couches d'espèce n'en ouvrent aucune.", SIDE_WIDTH - 24.0, 13))
+	for id in mine:
+		_side_box.add_child(UiTheme.section(Victory.label(id)))
+		_side_box.add_child(UiTheme.paragraph(Victory.rule_text(id), SIDE_WIDTH - 24.0, 13))
+		_side_box.add_child(UiTheme.dim("La contrer : %s" % String(Victory.info(id).get("counter", "")), 12))
+	_side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("victory").get("why", "")), SIDE_WIDTH - 24.0, 13))
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_content.add_child(scroll)
+	var cols := HFlowContainer.new()
+	cols.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cols.add_theme_constant_override("h_separation", 22)
+	cols.add_theme_constant_override("v_separation", 18)
+	scroll.add_child(cols)
+	for id in Victory.ids():
+		if not Victory.enabled(_state, id):
+			continue
+		if Victory.is_people(id) and not _victory_relevant(id):
+			continue
+		cols.add_child(_victory_block(id))
+
+
+## Une victoire de peuple ne s'affiche que si un empire connu peut la viser.
+func _victory_relevant(id: String) -> bool:
+	for e in _victory_empires():
+		if Victory.applies(_state, e.id, id):
+			return true
+	return false
+
+
+## Empires affichés : soi d'abord, puis ceux rencontrés (tous en spectateur).
+func _victory_empires() -> Array[Empire]:
+	var me := _state.get_empire(_player)
+	var out: Array[Empire] = [me]
+	for e in _state.empires:
+		if e.id != _player and (see_all or me.contacts.has(e.id)):
+			out.append(e)
+	return out
+
+
+func _victory_block(id: String) -> Widgets.Block:
+	var blk := Widgets.Block.new(Victory.label(id))
+	blk.custom_minimum_size = Vector2(430, 0)
+	blk.heading.add_theme_font_size_override("font_size", 22)
+	var rule := UiTheme.paragraph(Victory.rule_text(id), 400, 13)
+	rule.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	blk.body.add_child(rule)
+	var rows := {}
+	var viewer := -1 if see_all else _player
+	for e in _victory_empires():
+		if not Victory.applies(_state, e.id, id):
+			continue
+		var line := HBoxContainer.new()
+		line.add_theme_constant_override("separation", 10)
+		line.mouse_filter = Control.MOUSE_FILTER_STOP
+		var name := Label.new()
+		name.text = e.short_name() + (" (disparu)" if e.eliminated else "")
+		name.custom_minimum_size = Vector2(130, 0)
+		name.add_theme_color_override("font_color", e.color().lightened(0.25))
+		line.add_child(name)
+		var bar := ProgressBar.new()
+		bar.show_percentage = false
+		bar.custom_minimum_size = Vector2(200, 8)
+		bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		bar.max_value = 100
+		var fill := UiTheme.box(e.color(), Color(0, 0, 0, 0), 0, 0)
+		bar.add_theme_stylebox_override("fill", fill)
+		line.add_child(bar)
+		var val := Label.new()
+		val.theme_type_variation = &"Numbers"
+		val.custom_minimum_size = Vector2(60, 0)
+		val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		line.add_child(val)
+		if id == Victory.SCORE:
+			bar.max_value = maxi(1, _best_score())
+			bar.value = Victory.score(_state, e.id)
+			val.text = str(Victory.score(_state, e.id))
+			line.tooltip_text = "\n".join(Victory.progress(_state, e.id, id)["lines"])
+		else:
+			var pct := Victory.visible_pct(_state, viewer, e.id, id) if not e.eliminated else 0
+			if pct < 0:
+				bar.value = 0
+				val.text = "?"
+				line.tooltip_text = "Cachée : on ne la voit qu'à partir de %d %%." % Victory.visible_at()
+			else:
+				bar.value = pct
+				val.text = "%d %%" % pct
+				if pct >= Victory.met_at():
+					val.add_theme_color_override("font_color", Color(1.0, 0.55, 0.4) if e.id != _player else UiTheme.ACCENT)
+				# Le détail se lit pour soi, pour le spectateur, et pour les rivaux une fois la victoire visible.
+				line.tooltip_text = "\n".join(Victory.progress(_state, e.id, id)["lines"])
+		blk.body.add_child(line)
+		rows[e.id] = val
+	if rows.is_empty():
+		blk.body.add_child(UiTheme.dim("Aucun empire connu ne peut la viser.", 13))
+	victory_rows[id] = rows
+	return blk
+
+
+func _best_score() -> int:
+	var best := 1
+	for e in _victory_empires():
+		best = maxi(best, Victory.score(_state, e.id))
+	return best
+
+
+## Ce qui change l'écran Victoire : le mois (avancées recalculées), les contacts, le vainqueur.
+func _victory_sig() -> String:
+	var parts := PackedStringArray()
+	@warning_ignore("integer_division")
+	parts.append(str(_state.tick / 30))
+	parts.append(str(_state.winner))
+	for e in _state.empires:
+		parts.append("%d:%s:%s" % [e.id, str(e.contacts), e.eliminated])
+	return "|".join(parts)
+

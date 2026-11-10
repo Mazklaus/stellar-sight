@@ -104,21 +104,9 @@ static func totals(state: GameState, empire_id: int) -> Dictionary:
 	return t
 
 
-## Score d'un empire, pour le tableau du mode spectateur : population, revendications et exploration.
-## Simple indicateur de course (il n'y a pas encore de victoire) : 2 par population, 10 par colonie,
-## 4 par avant-poste, 1 pour 3 systèmes explorés.
+## Score d'un empire (celui de la victoire au score, voir Victory.score).
 static func score(state: GameState, empire_id: int) -> int:
-	var e := state.get_empire(empire_id)
-	if e == null:
-		return 0
-	var pts := 0
-	for pid in state.colonies:
-		var c: Colony = state.colonies[pid]
-		if c.owner != empire_id or not c.is_established():
-			continue
-		pts += c.population * 2 + (10 if c.is_colony() else 4)
-	@warning_ignore("integer_division")
-	return pts + e.explored.size() / 3
+	return Victory.score(state, empire_id)
 
 
 ## Systèmes où l'empire a au moins une revendication (fondée ou non), celui de la capitale d'abord.

@@ -189,7 +189,7 @@ func _test_savegame() -> void:
 	var home := st.galaxy.get_planet(st.get_empire(0).capital_planet).system_id
 	st.spawn_ship(0, "m0_0", home)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 10 and (d["designs"] as Array).size() == 1, "sauvegarde version 10 avec les modèles")
+	_ok(int(d["version"]) >= 10 and (d["designs"] as Array).size() == 1, "sauvegarde version 10 (ou plus) avec les modèles")
 	var text := JSON.stringify(d)
 	GameData.clear_custom_ships()
 	var back := GameState.from_dict(JSON.parse_string(text))

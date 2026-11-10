@@ -98,6 +98,11 @@ static func banquet(player: int) -> Dictionary:
 	return {"type": "banquet", "player": player}
 
 
+## Une dynastie féodale unit ses lignées à celles d'un allié (victoire de l'Élu des routes).
+static func unite_lineages(player: int, target: int) -> Dictionary:
+	return {"type": "unite_lineages", "player": player, "target": target}
+
+
 ## Une république fait arbitrer la guerre entre deux autres empires (paix imposée).
 static func mediate(player: int, a: int, b: int) -> Dictionary:
 	return {"type": "mediate", "player": player, "a": a, "b": b}
@@ -185,6 +190,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Diplomacy.check_bribe(state, int(cmd["player"]), int(cmd.get("target", -1)))
 		"banquet":
 			return Diplomacy.check_banquet(state, int(cmd["player"]))
+		"unite_lineages":
+			return Victory.check_union(state, int(cmd["player"]), int(cmd.get("target", -1)))
 		"mediate":
 			return Diplomacy.check_mediate(state, int(cmd["player"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)))
 		"set_tactic":
@@ -325,6 +332,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Diplomacy.bribe(state, int(cmd["player"]), int(cmd["target"]))
 		"banquet":
 			Diplomacy.banquet(state, int(cmd["player"]))
+		"unite_lineages":
+			Victory.union(state, int(cmd["player"]), int(cmd["target"]))
 		"mediate":
 			Diplomacy.mediate(state, int(cmd["player"]), int(cmd["a"]), int(cmd["b"]))
 		"set_tactic":

@@ -22,6 +22,7 @@ func _initialize() -> void:
 	preload("res://tests/research_tests.gd").new().run(_check)
 	preload("res://tests/arsenal_tests.gd").new().run(_check)
 	preload("res://tests/design_tests.gd").new().run(_check)
+	preload("res://tests/victory_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -169,6 +170,7 @@ func _test_main_scene() -> void:
 	await _test_navigation_ui(main)
 	_reveal_map(main)  # le menu principal a lancé une nouvelle partie
 	await _test_replay_ui(main)
+	await _test_victory_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_press(KEY_SPACE)
@@ -944,6 +946,52 @@ func _test_replay_ui(main: Node) -> void:
 	hud.battle_report.show_report(sim.state, 0, old)
 	_check(not hud.battle_report._replay_btn.visible, "replay : pas de bouton pour un rapport sans journal")
 	hud.battle_report.hide_report()
+
+
+## Écran Victoire (F7) et panneau de fin de partie : continuer, ou revenir au menu.
+func _test_victory_ui(main: Node) -> void:
+	var screens: EmpireScreens = main._empire_screens
+	var st: GameState = main.simulation.state
+	_press(KEY_F7)
+	await process_frame
+	_check(screens.current == "victory", "F7 : écran Victoire")
+	_check(screens.victory_rows.has("conquete") and screens.victory_rows.has("domination") and screens.victory_rows.has("score"),
+			"écran Victoire : les trois victoires classiques")
+	var mine := Victory.people_ids_for(st.get_empire(main.view_empire).faction())
+	_check(not mine.is_empty() and screens.victory_rows.has(mine[0]) and screens.victory_rows[mine[0]].has(main.view_empire),
+			"écran Victoire : sa victoire de peuple, avec sa ligne")
+	# Un rival rencontré dont la victoire de peuple est à 30 % : cachée.
+	var rival := 1
+	for pair in [[0, rival], [rival, 0]]:
+		if not st.get_empire(pair[0]).contacts.has(pair[1]):
+			st.get_empire(pair[0]).contacts.append(pair[1])
+			st.get_empire(pair[0]).contacts.sort()
+	var rid: String = Victory.people_ids_for(st.get_empire(rival).faction())[0]
+	st.get_empire(rival).victory[rid] = {"pct": 30, "held": 0, "warn": 0}
+	screens.show_screen("victory")
+	await process_frame
+	var cell: Label = screens.victory_rows.get(rid, {}).get(rival)
+	_check(cell != null and cell.text == "?", "écran Victoire : la victoire de peuple d'un rival reste cachée sous 50 %")
+	st.get_empire(rival).victory[rid]["pct"] = 60
+	screens.show_screen("victory")
+	await process_frame
+	cell = screens.victory_rows.get(rid, {}).get(rival)
+	_check(cell != null and cell.text == "60 %", "écran Victoire : visible à 60 %")
+	_press(KEY_F7)
+	await process_frame
+	_check(not screens.is_open(), "F7 referme l'écran Victoire")
+	# Fin de partie : le panneau s'ouvre au tick suivant la proclamation.
+	st.winner = {"empire": main.view_empire, "victory": "conquete", "tick": st.tick, "allies": []}
+	main.simulation.ticked.emit(st.tick)
+	await process_frame
+	_check(main.is_victory_panel_open() and main._victory_panel.title_label.text == "VICTOIRE", "fin de partie : panneau « Victoire »")
+	_check(root.get_node("GameClock").paused, "fin de partie : le temps s'arrête")
+	_press(KEY_ESCAPE)
+	await process_frame
+	_check(not main.is_victory_panel_open(), "fin de partie : Échap continue la partie")
+	main.simulation.ticked.emit(st.tick)
+	_check(not main.is_victory_panel_open(), "fin de partie : le panneau ne revient pas")
+	st.winner = {}
 
 
 func _press(keycode: Key, physical: Key = KEY_NONE) -> void:

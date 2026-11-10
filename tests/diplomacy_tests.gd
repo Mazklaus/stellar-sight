@@ -354,7 +354,7 @@ func _test_save_roundtrip() -> void:
 		return
 	_ok(back.checksum() == st.checksum(), "même empreinte après sauvegarde : relations, souvenirs, propositions, héritier")
 	_ok(Diplomacy.status(back, 0, 1) == "peace" and back.proposals.size() == 1 and back.get_empire(0).heir_suitor == 2, "contenu diplomatique conservé")
-	_ok(int(d["version"]) == 10, "format de sauvegarde 10")
+	_ok(int(d["version"]) == GameState.FORMAT_VERSION and GameState.FORMAT_VERSION >= 10, "format de sauvegarde à jour")
 
 
 ## Une vraie partie entre IA : il se signe des traités, et deux parties identiques restent identiques.

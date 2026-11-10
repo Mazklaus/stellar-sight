@@ -46,6 +46,13 @@ var _system_screen: SystemScreen
 var _empire_screens: EmpireScreens
 var _main_menu: MainMenu
 var _pause_menu: PauseMenu
+var _victory_panel: VictoryPanel
+## Le vainqueur a déjà été annoncé (panneau de fin de partie montré, ou partie chargée déjà gagnée).
+var _victory_told := false
+## Réglages des victoires de la prochaine partie (menu Nouvelle partie) : date limite en jours
+## (-1 = celle par défaut de data/victories.json) et victoires de peuple.
+var victory_deadline := -1
+var people_victories := true
 ## État de la pause avant l'ouverture du menu pause (ou d'un menu d'empire en pause automatique).
 var _paused_before := false
 var _auto_paused := false
@@ -129,6 +136,13 @@ func _ready() -> void:
 		open_main_menu())
 	_pause_menu.quit_requested.connect(func() -> void: get_tree().quit())
 
+	_victory_panel = VictoryPanel.new()
+	add_child(_victory_panel)
+	_victory_panel.continue_requested.connect(close_victory_panel)
+	_victory_panel.main_menu_requested.connect(func() -> void:
+		close_victory_panel()
+		open_main_menu())
+
 	_hud.spectator_panel.empire_followed.connect(follow_empire)
 	_hud.spectator_panel.capital_requested.connect(func(id: int) -> void:
 		follow_empire(id)
@@ -142,6 +156,8 @@ func _ready() -> void:
 		ai_level = _main_menu.ai_level
 		temperament = _main_menu.temperament
 		spectator = _main_menu.spectator
+		victory_deadline = _main_menu.deadline_days
+		people_victories = _main_menu.people_victories
 		new_game(seed_value)
 		GameClock.set_mode(_main_menu.time_mode, _main_menu.turn_days)
 		game_in_progress = true
@@ -167,7 +183,9 @@ func _ready() -> void:
 
 func new_game(seed_value: int) -> void:
 	_start(GameState.create(seed_value, SYSTEM_COUNT, GALAXY_RADIUS, player_faction,
-			{"ai_level": ai_level, "temperament": temperament, "spectator": spectator}))
+			{"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
+			"deadline": victory_deadline if victory_deadline >= 0 else Victory.default_deadline(),
+			"people_victories": people_victories}))
 	# On commence chez soi : caméra sur le système d'origine, fiche ouverte.
 	var me := simulation.state.get_empire(view_empire)
 	if me:
@@ -307,6 +325,7 @@ func is_empire_screen_open() -> bool:
 # --- Menu principal et menu pause -------------------------------------------------------------
 
 func open_main_menu() -> void:
+	close_victory_panel()
 	close_system_view()
 	close_empire_screen()
 	GameClock.set_paused(true)
@@ -344,9 +363,40 @@ func close_pause_menu() -> void:
 	_update_map_input()
 
 
-## Un menu plein écran (principal, pause ou d'empire) recouvre la carte.
+## Fin de partie : le panneau du vainqueur, partie en pause.
+func open_victory_panel() -> void:
+	if _victory_panel.is_open() or simulation.state.winner.is_empty():
+		return
+	close_system_view()
+	close_empire_screen()
+	GameClock.set_paused(true)
+	_hud.show_hover(null, Vector2.ZERO)
+	_victory_panel.open(simulation.state, -1 if spectator else LOCAL_PLAYER)
+	_update_map_input()
+
+
+## Continuer la partie après la victoire (le temps reste en pause : Espace pour repartir).
+func close_victory_panel() -> void:
+	if _victory_panel == null or not _victory_panel.is_open():
+		return
+	_victory_panel.close()
+	_update_map_input()
+
+
+func is_victory_panel_open() -> bool:
+	return _victory_panel != null and _victory_panel.is_open()
+
+
+func _check_victory() -> void:
+	if _victory_told or simulation.state.winner.is_empty():
+		return
+	_victory_told = true
+	open_victory_panel()
+
+
+## Un menu plein écran (principal, pause, d'empire ou de fin de partie) recouvre la carte.
 func is_modal_open() -> bool:
-	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open()
+	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open()
 
 
 ## La caméra de la carte ne réagit que si la carte est visible et rien ne la recouvre.
@@ -381,11 +431,15 @@ func _start(state: GameState) -> void:
 	_hud.battle_replay.close_silently()
 	_hud.battle_report.hide_report()
 	_defeat_told = state.get_empire(LOCAL_PLAYER).eliminated
+	_victory_told = not state.winner.is_empty()
+	close_victory_panel()
+	_empire_screens.see_all = spectator
 	_proposals_told = state.next_proposal_id - 1
 	simulation.ticked.connect(func(_tick: int) -> void:
 		_announce_arrivals()
 		_announce_proposals()
 		_check_defeat()
+		_check_victory()
 		_refresh_all())
 	_view.set_state(state)
 	_hud.set_state(state, view_empire)
@@ -496,6 +550,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			if not _main_menu.back() and game_in_progress:
 				close_main_menu()
 		return
+	if is_victory_panel_open():
+		if key.keycode == KEY_ESCAPE or key.keycode == KEY_ENTER:
+			close_victory_panel()
+		return
 	if _pause_menu.is_open():
 		if key.keycode == KEY_ESCAPE and not _pause_menu.back():
 			close_pause_menu()
@@ -532,6 +590,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			toggle_empire_screen("diplomacy")
 		KEY_F6:
 			toggle_empire_screen("shipyard")
+		KEY_F7:
+			toggle_empire_screen("victory")
 		KEY_ENTER, KEY_KP_ENTER:
 			if not is_system_view_open() and not is_empire_screen_open():
 				open_system_view(_view.selected_id)

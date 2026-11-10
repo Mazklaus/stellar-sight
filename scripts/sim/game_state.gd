@@ -7,9 +7,10 @@ extends RefCounted
 ## stockée : elle se régénère à l'identique depuis la graine. Seules les données
 ## qui changent en cours de partie sont sérialisées.
 
-const FORMAT_VERSION := 10
-## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux).
-const READABLE_VERSIONS := [9, 10]
+const FORMAT_VERSION := 11
+## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
+## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu).
+const READABLE_VERSIONS := [9, 10, 11]
 const CHRONICLE_MAX := 50
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
@@ -57,6 +58,11 @@ var next_proposal_id: int = 0
 ## Modèles de vaisseaux conçus en partie (voir Designs), par identifiant ("m<empire>_<n>").
 var designs: Dictionary = {}
 var next_design_id: int = 0
+## Victoires (voir Victory) : règles choisies au lancement {"deadline": jours (0 = sans date limite),
+## "people": victoires de peuple en jeu}, et vainqueur proclamé {"empire", "victory", "tick", "allies":
+## alliés qui partagent la victoire} ({} = aucun).
+var victory_rules: Dictionary = {"deadline": 0, "people": true}
+var winner: Dictionary = {}
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -73,9 +79,13 @@ var _system_owner: Dictionary = {}
 ##   les autres empires restent inertes, ce dont se servent les tests de règles) ;
 ## - "ai_levels" : niveaux empire par empire (tableau, prioritaire sur "ai_level") ;
 ## - "temperament" / "temperaments" : tempérament des IA (AiLevels.temperament), global ou empire par empire ;
-## - "spectator" : aucun joueur humain, l'empire 0 est lui aussi une IA (mode spectateur).
+## - "spectator" : aucun joueur humain, l'empire 0 est lui aussi une IA (mode spectateur) ;
+## - "deadline" : date limite en jours pour la victoire au score (0 = aucune, défaut data/victories.json) ;
+## - "people_victories" : victoires de peuple en jeu (défaut oui).
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
 	var s := _base(seed_value_, system_count_, galaxy_radius_)
+	s.victory_rules = {"deadline": maxi(0, int(options.get("deadline", Victory.default_deadline()))),
+			"people": bool(options.get("people_victories", true))}
 	s._setup_empires(player_faction)
 	s._setup_ai(options)
 	FleetSystem.update_exploration(s)
@@ -143,6 +153,8 @@ func to_dict() -> Dictionary:
 		"next_proposal_id": next_proposal_id,
 		"designs": _sorted_designs(),
 		"next_design_id": next_design_id,
+		"victory_rules": victory_rules.duplicate(),
+		"winner": winner.duplicate(),
 	}
 
 
@@ -264,6 +276,14 @@ static func from_dict(d: Dictionary) -> GameState:
 	for p: Dictionary in d.get("proposals", []):
 		s.proposals.append(GameData._to_ints(p))
 	s.next_proposal_id = int(d.get("next_proposal_id", 0))
+	var vr: Dictionary = d.get("victory_rules", {})
+	s.victory_rules = {"deadline": int(vr.get("deadline", 0)), "people": bool(vr.get("people", true))}
+	var w: Dictionary = d.get("winner", {})
+	if not w.is_empty():
+		var allies := []
+		for a in w.get("allies", []):
+			allies.append(int(a))
+		s.winner = {"empire": int(w["empire"]), "victory": String(w["victory"]), "tick": int(w["tick"]), "allies": allies}
 	s.rebuild_ownership()
 	return s
 
@@ -434,6 +454,7 @@ func _setup_empires(player_faction: String) -> void:
 			c.buildings.append(String(b))
 		colonies[home_id] = c
 		e.capital_planet = home_id
+		e.home_planet = home_id
 		# Flotte de départ : de quoi explorer et fonder une première colonie.
 		for ship_id in FactionTraits.start_ships(e.faction_id):
 			spawn_ship(e.id, String(ship_id), sys.id)
