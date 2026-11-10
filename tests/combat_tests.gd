@@ -19,6 +19,7 @@ func run(check: Callable) -> void:
 	_test_siege_and_invasion()
 	_test_elimination()
 	_test_khthari()
+	_test_swarm_coalition()
 	_test_faction_bonuses()
 	_test_merge_split_repair()
 	_test_ai_war()
@@ -373,7 +374,20 @@ func _test_khthari() -> void:
 	var other := st.get_empire(1)
 	var added: Array[Dictionary] = []
 	FleetSystem._meet(st, kh, other, added)
-	_ok(Combat.at_war(st, 0, 1), "l'Essaim est en guerre avec tout empire rencontré")
+	_ok(Combat.at_war(st, 0, 1), "l'Essaim sans proie part en guerre contre le premier empire rencontré")
+	FleetSystem._meet(st, kh, st.get_empire(3), added)
+	_ok(not Combat.at_war(st, 0, 3), "l'Essaim ne chasse qu'une proie à la fois")
+	# Proie disparue : la faim lui en désigne une autre, l'empire rencontré le plus proche.
+	kh.wars.clear()
+	other.wars.clear()
+	st.tick = 30 * 40
+	CombatSystem._hunger(st, added)
+	_ok(Combat.has_live_war(st, 0) and kh.wars.size() == 1, "sans guerre, l'Essaim se choisit une nouvelle proie (%s)" % str(kh.wars))
+	_ok(kh.wars.has(Combat.nearest_prey(st, 0)) or kh.wars.has(1), "la proie est la plus proche des empires rencontrés")
+	kh.wars.clear()
+	for e in st.empires:
+		e.wars.clear()
+	Combat.start_war(st, 0, 1, true)
 	# Rencontre entre deux autres peuples : pas de guerre automatique.
 	FleetSystem._meet(st, st.get_empire(1), st.get_empire(2), added)
 	_ok(not Combat.at_war(st, 1, 2), "les autres peuples ne partent pas en guerre au premier contact")
@@ -384,7 +398,8 @@ func _test_khthari() -> void:
 	var mat := int(kh.resources["materials"])
 	Combat.capture_system(st, target, 0)
 	_ok(c.owner == 0 and c.population == 1, "colonie conquise par l'Essaim : il n'y reste qu'une population (avant : %d)" % pop)
-	_ok(int(kh.resources["materials"]) == mat + (pop - 1) * 15, "le reste est digéré en biomasse (15 matériaux par population)")
+	var bio := int(kh.faction()["biomass"]["materials"])
+	_ok(int(kh.resources["materials"]) == mat + (pop - 1) * bio, "le reste est digéré en biomasse (%d matériaux par population)" % bio)
 	# Coques vivantes : réparation partout.
 	_clear_fleets(st)
 	var sid := _empty_system(st)
@@ -493,7 +508,7 @@ func _test_ai_war() -> void:
 	_ok(declared[0] == 0, "des IA pacifiques ne déclarent jamais la guerre")
 	for e in st2.empires:
 		for w in e.wars:
-			_ok(Combat.always_war(st2, e.id) or Combat.always_war(st2, w), "seul l'Essaim est en guerre chez les pacifiques")
+			_ok(Combat.hunts(st2, e.id) or Combat.hunts(st2, w), "seul l'Essaim est en guerre chez les pacifiques")
 	# Tactiques selon le niveau : la Recrue charge toujours, le Vétéran adapte aux armes.
 	var st3 := _state(5)
 	_clear_fleets(st3)
@@ -516,3 +531,54 @@ func _test_ai_war() -> void:
 	e1.ai_temperament = "pacifique"
 	ctx["lv"] = AiLevels.level("recrue")
 	_ok(AiPlayer.wanted_warships(ctx) < big, "une Recrue pacifique arme moins qu'une Légende belliqueuse")
+
+
+## Coalition contre l'Essaim : un voisin entre en guerre contre un Essaim qui a déjà conquis et qui
+## le dépasse d'au moins 25 % en systèmes ; ni avant sa première conquête, ni s'il est plus petit.
+func _test_swarm_coalition() -> void:
+	var st := _state(43, "ossarane")
+	var me := st.get_empire(0)
+	var sw: Empire = null
+	for e in st.empires:
+		if e.faction_id == "khthari":
+			sw = e
+	FleetSystem._meet(st, me, sw, [])
+	_ok(Combat.at_war(st, sw.id, 0), "première rencontre : l'Essaim sans proie attaque")
+	# Ossarane n'est pas sa proie ici : on remet les compteurs à zéro.
+	sw.wars.clear()
+	me.wars.clear()
+	st.tick = 400
+	# L'Essaim s'installe autour de la capitale d'Ossarane (3 systèmes voisins).
+	var home := _home(st, 0)
+	var placed := 0
+	for n in st.galaxy.systems[home].neighbors:
+		if placed >= 3 or st.system_owner(n) != -1 or st.galaxy.systems[n].planet_ids.is_empty():
+			continue
+		var c := Colony.new()
+		c.planet_id = st.galaxy.systems[n].planet_ids[0]
+		c.owner = sw.id
+		c.kind = Colony.KIND_OUTPOST
+		st.add_colony(c)
+		placed += 1
+	me.explored.merge(_explore_all(st), true)
+	me.ai_level = "veteran"
+	var ctx := {"state": st, "e": me, "lv": AiLevels.level("veteran"), "ai": AiLevels.personality(me), "salt": 0, "intent": ""}
+	_ok(not AiPlayer._swarm_coalition(ctx), "pas de coalition avant la première conquête de l'Essaim")
+	sw.stats["conquests"] = 1
+	ctx = {"state": st, "e": me, "lv": AiLevels.level("veteran"), "ai": AiLevels.personality(me), "salt": 0, "intent": ""}
+	var bigger := Victory.systems_held(st, sw.id) * 4 >= Victory.systems_held(st, 0) * 5
+	_ok(AiPlayer._swarm_coalition(ctx) == bigger and Combat.at_war(st, 0, sw.id) == bigger,
+			"coalition contre un Essaim plus grand que soi (%d systèmes contre %d)" % [Victory.systems_held(st, sw.id), Victory.systems_held(st, 0)])
+	_ok(bigger, "le cas de test place bien l'Essaim au-dessus")
+	me.ai_level = "recrue"
+	me.wars.clear()
+	sw.wars.clear()
+	ctx = {"state": st, "e": me, "lv": AiLevels.level("recrue"), "ai": AiLevels.personality(me), "salt": 0, "intent": ""}
+	_ok(not AiPlayer._swarm_coalition(ctx), "la Recrue ne voit pas venir le danger")
+
+
+func _explore_all(st: GameState) -> Dictionary:
+	var out := {}
+	for sys in st.galaxy.systems:
+		out[sys.id] = true
+	return out

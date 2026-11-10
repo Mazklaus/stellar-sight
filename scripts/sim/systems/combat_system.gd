@@ -38,7 +38,24 @@ static func process(state: GameState, events: Array = []) -> Array[Dictionary]:
 	_sieges(state, fought, added, events)
 	_repairs(state, fought)
 	_eliminations(state, added)
+	_hunger(state, added)
 	return added
+
+
+## La faim de l'Essaim : une fois par mois, un Essaim sans guerre (proie digérée ou disparue) se
+## choisit une nouvelle proie, l'empire rencontré le plus proche.
+static func _hunger(state: GameState, added: Array[Dictionary]) -> void:
+	if state.tick % 30 != 0:
+		return
+	for e in state.empires:
+		if e.eliminated or not Combat.hunts(state, e.id) or Combat.has_live_war(state, e.id):
+			continue
+		var prey := Combat.nearest_prey(state, e.id)
+		if prey < 0:
+			continue
+		Combat.start_war(state, e.id, prey, true, true)
+		added.append(state.add_chronicle("%s a fini de digérer. Il flaire %s, et se met en chasse : c'est la guerre." % [
+				e.display_name(), state.get_empire(prey).display_name()]))
 
 
 static func _stationary_by_system(state: GameState) -> Dictionary:

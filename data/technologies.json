@@ -1854,7 +1854,7 @@
 			"label": "La Grande Moisson",
 			"domain": "societe",
 			"era": 4,
-			"text": "Victoire de peuple : quand l'Essaim porte la moitié de toute la vie de la galaxie et a digéré assez de peuples conquis, la Moisson est faite.",
+			"text": "Victoire de peuple : quand l'Essaim porte la moitié de toute la vie de la galaxie et a digéré assez de peuples conquis, et le tient deux ans, la Moisson est faite.",
 			"pre": [
 				"genetique"
 			],

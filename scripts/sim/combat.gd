@@ -304,9 +304,53 @@ static func trait_value(state: GameState, empire_id: int, key: String, default: 
 	return e.faction().get("combat", {}).get(key, default)
 
 
-## L'Essaim Kh'thari est en guerre avec tout empire rencontré.
-static func always_war(state: GameState, empire_id: int) -> bool:
-	return bool(trait_value(state, empire_id, "always_war", false))
+## L'Essaim Kh'thari chasse : il est toujours en guerre avec au moins un empire rencontré, sa proie,
+## mais une seule à la fois par nature (il peut toujours déclarer d'autres guerres lui-même).
+static func hunts(state: GameState, empire_id: int) -> bool:
+	return bool(trait_value(state, empire_id, "prey", false))
+
+
+## L'empire est-il en guerre avec au moins un empire encore en vie ?
+static func has_live_war(state: GameState, empire_id: int) -> bool:
+	for w in state.get_empire(empire_id).wars:
+		var o := state.get_empire(int(w))
+		if o != null and not o.eliminated:
+			return true
+	return false
+
+
+## Proie de l'Essaim sans guerre : l'empire rencontré dont un système est le plus proche des siens
+## (en sauts, puis par identifiant). -1 si aucun.
+static func nearest_prey(state: GameState, empire_id: int) -> int:
+	var e := state.get_empire(empire_id)
+	var dist := {}
+	var queue: Array[int] = []
+	for sid in EmpireReport.owned_systems(state, empire_id):
+		dist[sid] = 0
+		queue.append(sid)
+	var best := -1
+	var best_d := -1
+	var i := 0
+	while i < queue.size():
+		var cur := queue[i]
+		i += 1
+		if best_d >= 0 and int(dist[cur]) > best_d:
+			break
+		var owner := state.system_owner(cur)
+		if owner >= 0 and owner != empire_id and e.contacts.has(owner) and not state.get_empire(owner).eliminated:
+			if best == -1 or owner < best:
+				best = owner
+				best_d = int(dist[cur])
+		for n in state.galaxy.systems[cur].neighbors:
+			if not dist.has(n):
+				dist[n] = int(dist[cur]) + 1
+				queue.append(n)
+	if best == -1:
+		for c in e.contacts:  # rencontré mais hors d'atteinte : le premier venu
+			var o := state.get_empire(int(c))
+			if o != null and not o.eliminated:
+				return int(c)
+	return best
 
 
 static func check_declare_war(state: GameState, empire_id: int, target: int) -> String:
