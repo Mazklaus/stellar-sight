@@ -233,10 +233,8 @@ static func ship_ids_for(faction_id: String) -> Array[String]:
 	var excluded: Array = f.get("ships_excluded", [])
 	var out: Array[String] = []
 	var replaced := {}
-	for sid in GameData.ship_ids():
+	for sid in GameData.class_ids():  # les modèles conçus en partie : voir Designs.buildable_ids
 		var sd := GameData.ship(sid)
-		if sd.get("custom", false):
-			continue  # modèles conçus en partie : voir Designs.buildable_ids
 		var only: Array = sd.get("factions", [])
 		if excluded.has(sid) or (not only.is_empty() and not only.has(faction_id)):
 			continue

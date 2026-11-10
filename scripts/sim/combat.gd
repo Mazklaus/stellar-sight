@@ -127,6 +127,14 @@ static func fleet_pd(f: Fleet) -> int:
 	return mini(n, int(data().get("pd_cap", 60)))
 
 
+## Bouclier de flotte (module titanesque) : le plus fort de la flotte, ajouté au bouclier de chaque vaisseau.
+static func fleet_shield(f: Fleet) -> int:
+	var n := 0
+	for s in f.ships:
+		n = maxi(n, int(GameData.ship(s).get("shield_fleet", 0)))
+	return n
+
+
 ## La flotte ne compte que des forceurs de blocus (coursiers de saut) : aucun blocus ne l'arrête.
 static func runs_blockades(f: Fleet) -> bool:
 	if f == null or f.ships.is_empty():
@@ -223,7 +231,7 @@ static func weapon_eff(weapon: String, phase: int) -> int:
 ## Une arme sans effet à cette phase (efficacité 0) ne tire pas : 0 dégât.
 ## target_def : bonus de protection des technologies de la cible, {armor, shield, pd} en points de %.
 static func shot_damage(weapon: String, power: int, phase: int, shooter_tactic: String, bonus_pct: int,
-		target_ship: String, target_tactic: String, target_fleet_pd := 0, target_def := {}) -> int:
+		target_ship: String, target_tactic: String, target_fleet_pd := 0, target_def := {}, target_fleet_shield := 0) -> int:
 	var wd: Dictionary = data()["weapons"].get(weapon, {})
 	var eff := weapon_eff(weapon, phase)
 	if eff <= 0:
@@ -231,6 +239,8 @@ static func shot_damage(weapon: String, power: int, phase: int, shooter_tactic: 
 	var sd := GameData.ship(target_ship) if target_ship != "" else {}
 	var def_kind := String(wd.get("defense", "armor"))
 	var defense := int(sd.get(def_kind, 0))
+	if def_kind == "shield":
+		defense += target_fleet_shield
 	if defense > 0 and target_def.has(def_kind):
 		@warning_ignore("integer_division")
 		defense = mini(90, defense * (100 + int(target_def[def_kind])) / 100)
@@ -262,7 +272,8 @@ static func at_war(state: GameState, a: int, b: int) -> bool:
 static func weapon_bonus(state: GameState, empire_id: int, weapon: String, marks := {}) -> int:
 	if marks.is_empty():
 		marks = Research.marks(state, empire_id)
-	return Research.mark_bonus(int(marks.get(weapon, 1))) + Research.fx_sub(state, empire_id, "weapon_pct", weapon) \
+	var fam := String(data()["weapons"].get(weapon, {}).get("mark_family", weapon))
+	return Research.mark_bonus(int(marks.get(fam, 1))) + Research.fx_sub(state, empire_id, "weapon_pct", weapon) \
 			+ Research.fx_int(state, empire_id, "damage_pct")
 
 

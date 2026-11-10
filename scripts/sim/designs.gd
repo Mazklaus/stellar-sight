@@ -15,7 +15,7 @@ extends RefCounted
 ## accepte. Un échelon de méga-coque au-delà du titan ajoute son propre type sans toucher au code.
 
 ## Caractéristiques additives (coque + modules).
-const STATS := ["hp", "armor", "shield", "pd", "pd_fleet", "speed", "vision", "troops", "siege"]
+const STATS := ["hp", "armor", "shield", "pd", "pd_fleet", "shield_fleet", "speed", "vision", "troops", "siege"]
 ## Drapeaux qu'un module transmet au vaisseau.
 const FLAGS := ["blockade_runner", "adaptive"]
 const LINES := ["screen", "line", "rear"]
@@ -122,7 +122,10 @@ static func compute(hull_id: String, modules: Array) -> Dictionary:
 ## Répartit les modules posés dans les emplacements de la coque. Renvoie "" si tout tient,
 ## sinon la raison. Chaque module va d'abord dans un emplacement de son propre type, puis dans un
 ## type qui l'accepte aussi (un emplacement lourd accepte une arme, par exemple).
-static func check_fit(hull_id: String, modules: Array) -> String:
+##
+## extra (voir extras) : modules qui, grâce aux marques de l'empire, tiennent aussi dans d'autres types
+## d'emplacements ou sur d'autres tailles de coque (miniaturisation).
+static func check_fit(hull_id: String, modules: Array, extra := {}) -> String:
 	var h := hull(hull_id)
 	if h.is_empty():
 		return "coque inconnue : %s" % hull_id
@@ -142,11 +145,15 @@ static func check_fit(hull_id: String, modules: Array) -> String:
 		if kind == "integrated":
 			return "%s est intégré à une coque de peuple : il ne se pose pas à la main" % String(m.get("label", mid))
 		var sizes: Array = m.get("sizes", [])
-		if not sizes.is_empty() and not sizes.has(String(h["size"])):
+		var more: Array = extra.get(mid, [])
+		if not sizes.is_empty() and not sizes.has(String(h["size"])) and more.is_empty():
 			return "%s ne tient pas sur une coque de cette taille" % String(m.get("label", mid))
 		var can: Array = []
 		for t in types:
-			if (types[t].get("accepts", []) as Array).has(kind):
+			if (types[t].get("accepts", []) as Array).has(kind) and (sizes.is_empty() or sizes.has(String(h["size"]))):
+				can.append(String(t))
+		for t in more:
+			if not can.has(t):
 				can.append(String(t))
 		hosts[mid] = can
 	order.sort_custom(func(a, b): return (hosts[a] as Array).size() < (hosts[b] as Array).size())
@@ -166,6 +173,31 @@ static func check_fit(hull_id: String, modules: Array) -> String:
 		if not placed:
 			return "plus d'emplacement libre pour %s (%s)" % [String(m.get("label", mid)), String(types.get(kind, {}).get("label", kind)).to_lower()]
 	return ""
+
+
+## Miniaturisation (façon Master of Orion II) : à partir d'une marque donnée, certains modules tiennent
+## dans d'autres emplacements. Renvoie {module: [types d'emplacements en plus]} pour cette coque.
+static func extras(state: GameState, empire_id: int, hull_id: String) -> Dictionary:
+	var out := {}
+	var size := String(hull(hull_id).get("size", ""))
+	var marks := Research.marks(state, empire_id) if state != null else {}
+	for r: Dictionary in data().get("miniaturisation", []):
+		if int(marks.get(String(r["family"]), 1)) < int(r["mark"]) or not (r.get("sizes", []) as Array).has(size):
+			continue
+		for mid in r["modules"]:
+			if not out.has(mid):
+				out[mid] = []
+			if not (out[mid] as Array).has(String(r["slot"])):
+				out[mid].append(String(r["slot"]))
+	return out
+
+
+## Règle de miniaturisation qui concerne un module ({} s'il n'y en a pas).
+static func miniaturisation_of(mid: String) -> Dictionary:
+	for r: Dictionary in data().get("miniaturisation", []):
+		if (r["modules"] as Array).has(mid):
+			return r
+	return {}
 
 
 ## Coques qu'un peuple peut utiliser, dans l'ordre des données. Comme pour les classes, une coque
@@ -293,7 +325,7 @@ static func check_save(state: GameState, empire_id: int, spec: Dictionary) -> St
 	if not hull_ids_for(e.faction_id).has(hid):
 		return "votre peuple n'utilise pas la coque %s" % String(hull(hid)["label"])
 	var mods: Array = spec.get("modules", [])
-	var why := check_fit(hid, mods)
+	var why := check_fit(hid, mods, extras(state, empire_id, hid))
 	if why != "":
 		return why
 	var techs := required_techs(hid, mods)
@@ -425,13 +457,13 @@ static func threat(state: GameState, empire_id: int) -> Dictionary:
 static func _usable(state: GameState, empire_id: int, hull_id: String, slot_type: String) -> Array[String]:
 	var size := String(hull(hull_id).get("size", "small"))
 	var accepts: Array = slot_types().get(slot_type, {}).get("accepts", [])
+	var extra := extras(state, empire_id, hull_id)
 	var out: Array[String] = []
 	for mid in module_ids():
 		var m := module(mid)
-		if not accepts.has(String(m.get("slot", ""))):
-			continue
 		var sizes: Array = m.get("sizes", [])
-		if not sizes.is_empty() and not sizes.has(size):
+		var native := accepts.has(String(m.get("slot", ""))) and (sizes.is_empty() or sizes.has(size))
+		if not native and not (extra.get(mid, []) as Array).has(slot_type):
 			continue
 		if not Research.knows_all(state, empire_id, m.get("requires_tech", [])):
 			continue
@@ -510,24 +542,45 @@ static func auto_design(state: GameState, empire_id: int, hull_id: String, role_
 				pick = _defense_pick(options, n_def, role, quality, th)
 				n_def += 1
 			elif t == "support":
+				# Au plus deux fois le même soutien, sauf pour les rôles qui en vivent (invasion, siège).
+				var specialist := role_id in ["invasion", "siege"]
 				for want in role.get("support", []):
-					if options.has(want) and (want != "belier_siege" or mods.count("belier_siege") == 0 or role_id == "siege"):
-						pick = want
-						break
+					if not options.has(want):
+						continue
+					if want == "belier_siege" and mods.count("belier_siege") > 0 and role_id != "siege":
+						continue
+					if not specialist and mods.count(want) >= 2:
+						continue
+					pick = want
+					break
 			elif role.get("unarmed", false):
 				pick = ""
+			elif t == "heavy" and role_id == "porteur" and quality >= 1:
+				# Un porteur mélange ses hangars : chasseurs, puis bombardiers, puis intercepteurs.
+				var hangars := ["hangar_chasseurs", "hangar_bombardiers", "hangar_intercepteurs"]
+				var known: Array = []
+				for hgr in hangars:
+					if options.has(hgr):
+						known.append(hgr)
+				if not known.is_empty():
+					pick = known[posmod(mods.filter(func(x): return hangars.has(x)).size(), known.size())]
+			elif t == "titanic" and role_id == "escorte" and options.has("bouclier_flotte"):
+				pick = "bouclier_flotte"
 			else:
 				var best := -1
 				for mid in options:
 					if module(mid).get("weapons", {}).is_empty():
 						continue
-					var sc := _weapon_score(mid, size, role, quality, th)
+					# Rendements décroissants : une deuxième famille d'armes vaut mieux qu'un sixième tube.
+					@warning_ignore("integer_division")
+					var sc := _weapon_score(mid, size, role, quality, th) / (1 + mods.count(mid))
 					if sc > best:
 						best = sc
 						pick = mid
 			if pick != "":
 				mods.append(pick)
 	# Le placement final passe par la même règle que le joueur : on retire ce qui ne tiendrait pas.
-	while not mods.is_empty() and check_fit(hull_id, mods) != "":
+	var extra := extras(state, empire_id, hull_id)
+	while not mods.is_empty() and check_fit(hull_id, mods, extra) != "":
 		mods.pop_back()
 	return {"hull": hull_id, "modules": mods, "line": String(role.get("line", "line")), "target": "largest" if role_id in ["torpilleur", "artillerie"] else "nearest"}

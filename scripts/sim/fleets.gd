@@ -372,8 +372,11 @@ static func ship_unlocked(state: GameState, empire_id: int, ship_id: String) -> 
 ## Composition lisible : "2 Éclaireurs, Vaisseau colon".
 static func composition(fleet: Fleet) -> String:
 	var parts := PackedStringArray()
+	var counts := {}
+	for sh in fleet.ships:
+		counts[sh] = int(counts.get(sh, 0)) + 1
 	for sid in GameData.ship_ids():
-		var n := fleet.count(sid)
+		var n := int(counts.get(sid, 0))
 		if n == 1:
 			parts.append(String(GameData.ship(sid)["label"]))
 		elif n > 1:

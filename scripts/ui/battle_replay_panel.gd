@@ -20,6 +20,7 @@ const COL_GAP := 190.0    # écart entre écran, ligne et arrière
 const WEAPON_COLORS := {
 	"kinetic": Color(1.0, 0.86, 0.45), "beam": Color(0.45, 0.92, 1.0), "missile": Color(1.0, 0.6, 0.3),
 	"torpedo": Color(0.95, 0.45, 0.85), "artillery": Color(1.0, 0.95, 0.8), "fighters": Color(0.6, 1.0, 0.6),
+	"bombers": Color(0.85, 1.0, 0.4), "stellar_lance": Color(1.0, 0.98, 0.7),
 	"martyr": Color(1.0, 0.35, 0.25),
 }
 
@@ -376,7 +377,11 @@ func _draw_shot(weapon: String, a: Vector2, b: Vector2, p: float, hit: bool, k: 
 			draw_line(a.lerp(b, maxf(0.0, p - 0.12)), a.lerp(b, p), Color(col.r, col.g, col.b, 0.5), 2.0)
 		"artillery":
 			draw_circle(_bezier(a, b, Vector2(0, -110.0), p), 4.5, col)
-		"fighters":
+		"stellar_lance":
+			var la := sin(p * PI)
+			draw_line(a, b, Color(col.r, col.g, col.b, 0.9 * la), 7.0)
+			draw_line(a, b, Color(1, 1, 1, 0.8 * la), 2.0)
+		"fighters", "bombers":
 			for j in 4:
 				var q := clampf(p - j * 0.05, 0.0, 1.0)
 				var c := a.lerp(b, q) + Vector2(0, sin(q * 12.0 + j) * 10.0)

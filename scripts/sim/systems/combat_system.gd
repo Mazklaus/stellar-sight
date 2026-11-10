@@ -134,8 +134,9 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 	# son rang (écran 3, ligne 2, arrière 0 : l'arrière n'est visé que quand le front est tombé).
 	# Les chasseurs ignorent les rangs (poids 1 partout). Deux listes cumulées par empire.
 	var targets := {}
+	var raw := {}
 	for f in fighters:
-		if targets.has(f.owner):
+		if raw.has(f.owner):
 			continue
 		var list: Array = []
 		var front := 0
@@ -145,13 +146,13 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 					var wgt := Combat.line_weight(Combat.ship_line(g.ships[i]))
 					list.append([g, i, wgt])
 					front += wgt
-		targets[f.owner] = {"lined": _cumulate(list, front == 0), "any": _cumulate(list, true)}
+		raw[f.owner] = [list, front]
+		targets[f.owner] = {"nearest": {"lined": _cumulate(list, front == 0), "any": _cumulate(list, true)}}
 	# Tirs simultanés : on cumule, puis on applique.
 	var pending := {}
 	var martyrs: Array = []
 	for f in fighters:
-		var lists: Dictionary = targets[f.owner]
-		if lists["any"][1] <= 0:
+		if targets[f.owner]["nearest"]["any"][1] <= 0:
 			continue
 		var tac := Combat.fleet_tactic(f)
 		var bonus := _damage_bonus(state, b, f, sid)
@@ -168,6 +169,12 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		for i in f.ships.size():
 			var w := Combat.weapons(f.ships[i])
 			var my_marks := Combat.ship_marks(state, f, i)
+			# Priorité de cible du modèle (éditeur de vaisseaux) : elle pondère les cibles possibles.
+			var prio := String(GameData.ship(f.ships[i]).get("target", "nearest"))
+			if not targets[f.owner].has(prio):
+				var r: Array = raw[f.owner]
+				targets[f.owner][prio] = {"lined": _cumulate(r[0], int(r[1]) == 0, prio), "any": _cumulate(r[0], true, prio)}
+			var lists: Dictionary = targets[f.owner][prio]
 			var keys := w.keys()
 			keys.sort()
 			for k in keys:
@@ -184,7 +191,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 				@warning_ignore("integer_division")
 				var wbonus := bonus * (100 + Combat.weapon_bonus(state, f.owner, String(k), my_marks)) / 100
 				var dmg := Combat.shot_damage(String(k), int(w[k]), phase, tac, wbonus, tg.ships[ti], Combat.fleet_tactic(tg),
-						Combat.fleet_pd(tg), Combat.defense_bonus(state, tg.owner, Combat.ship_marks(state, tg, ti)))
+						Combat.fleet_pd(tg), Combat.defense_bonus(state, tg.owner, Combat.ship_marks(state, tg, ti)), Combat.fleet_shield(tg))
 				var screen := Research.fx_int(state, tg.owner, "screen_taken_pct")
 				if screen != 0 and Combat.ship_line(tg.ships[ti]) == "screen":
 					@warning_ignore("integer_division")
@@ -266,16 +273,33 @@ static func _drop_unit(b: Dictionary, fid: int, i: int) -> void:
 
 ## Liste de cibles [[flotte, indice, poids]...] en tableau cumulé [entrées, total] : `flat` donne le
 ## même poids (1) à toutes, sinon chaque cible garde le poids de son rang.
-static func _cumulate(list: Array, flat: bool) -> Array:
+## prio (priorité de cible du tireur) multiplie ces poids : « les plus gros » (x1 à x6 selon la taille),
+## « les plus petits » (l'inverse), « porteurs et arrière » (x4 pour l'arrière et les porteurs) ;
+## une cible de poids nul (l'arrière, tant que le front tient) le reste.
+static func _cumulate(list: Array, flat: bool, prio := "nearest") -> Array:
 	var out: Array = []
 	var total := 0
 	for t in list:
 		var wgt := 1 if flat else int(t[2])
 		if wgt <= 0:
 			continue
+		if prio != "nearest":
+			wgt *= _prio_weight(prio, (t[0] as Fleet).ships[int(t[1])])
 		total += wgt
 		out.append([t[0], t[1], total])
 	return [out, total]
+
+
+const PRIO_SIZES := {"largest": {"small": 1, "medium": 2, "large": 4, "titan": 6}, "smallest": {"small": 4, "medium": 2, "large": 1, "titan": 1}}
+
+
+static func _prio_weight(prio: String, ship_id: String) -> int:
+	if PRIO_SIZES.has(prio):
+		return int(PRIO_SIZES[prio].get(Combat.ship_size(ship_id), 1))
+	if prio == "rear":
+		var sd := GameData.ship(ship_id)
+		return 4 if Combat.ship_line(ship_id) == "rear" or sd.get("weapons", {}).has("fighters") else 1
+	return 1
 
 
 ## Cible tirée : la première entrée dont le cumul dépasse `roll` (0 ≤ roll < total).

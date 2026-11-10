@@ -367,7 +367,12 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
 ![Écran Chantier](docs/apercu-chantier.png)
 
 - **Conception automatique et IA** (lot 3) : `Designs.auto_design(state, empire, coque, rôle, qualité)` remplit une coque pour un rôle (assaut, ligne, escorte, torpilleur, artillerie, porteur, invasion, siège). Qualité 0 : modules au hasard parmi ceux qui conviennent ; 1 : équilibré ; 2 : défenses et armes adaptées à ce que l'empire a affronté (`Designs.threat`, d'après ses rapports de bataille). Le bouton « Concevoir pour moi » du Chantier s'en sert (qualité 2). Chaque IA conçoit, une fois par mois, un modèle par classe d'origine qu'elle sait construire (même coque, même rôle), le renouvelle quand elle a découvert des technologies ou beaucoup combattu, et le construit à la place de la classe. La qualité suit son niveau militaire (Recrue maladroite, Normal équilibré, Vétéran et au-delà adaptés).
-- À venir : priorité de cible en bataille et seuils de miniaturisation, hangars à variantes et modules titanesques (lot 4).
+- **Lot 4** :
+  - **Priorité de cible appliquée en bataille** : « les plus gros » / « les plus petits » pondèrent les cibles selon leur taille, « porteurs et arrière » les porteurs et l'arrière ; l'écran protège toujours ce qui est derrière lui tant qu'il tient.
+  - **Miniaturisation** (`miniaturisation` dans `data/designs.json`) : à la marque III, l'artillerie tient dans un emplacement d'arme d'une grande coque, un hangar léger dans celui d'une frégate, l'antimissile dans un emplacement de soutien.
+  - **Hangars** : intercepteurs (couvrent la flotte), chasseurs, bombardiers (nouvelle famille d'armes, forte contre les grosses coques, marque des chasseurs).
+  - **Modules titanesques** : lance stellaire (nouvelle famille d'armes), bouclier de flotte (s'ajoute au bouclier de chaque vaisseau de la flotte), hangar géant, canon de siège planétaire. Les échelons au-delà du titan ajouteront leur propre type d'emplacement dans les données.
+  - La conception automatique (joueur et IA) mélange les hangars, diversifie armes et soutiens, et profite de la miniaturisation.
 
 ## Organisation du code
 
