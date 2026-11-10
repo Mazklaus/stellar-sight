@@ -39,6 +39,7 @@ var _dmg_until: Array = []  # _dmg_until[d][u] : dégâts cumulés avant le jour
 var _dead_day: Array = []   # jour (indice du journal) où l'unité est détruite, -1 sinon
 var _play_btn: Button
 var _speed_btn: Button
+var cinematic: BattleCinematic  # la même bataille en 3D, par-dessus cette vue
 
 
 func _ready() -> void:
@@ -57,7 +58,11 @@ func _ready() -> void:
 	_play_btn = _button(bar, "PAUSE", "Lecture ou pause  (Espace)", toggle_play)
 	_speed_btn = _button(bar, "VITESSE ×1", "Changer la vitesse de lecture", _cycle_speed)
 	_button(bar, "JOUR ▶", "Passer au jour suivant", func() -> void: _seek_day(1))
+	_button(bar, "CINÉMATIQUE 3D", "Regarder la bataille en 3D, sous plusieurs plans de caméra (prototype)", open_cinematic)
 	_button(bar, "PASSER", "Fermer la vue et revenir au rapport  (Échap)", hide_replay)
+	cinematic = BattleCinematic.new()
+	add_child(cinematic)
+	cinematic.closed.connect(func() -> void: queue_redraw())
 
 
 func _button(parent: Control, text: String, tip: String, cb: Callable) -> Button:
@@ -96,7 +101,19 @@ func show_replay(state: GameState, viewer: int, r: Dictionary) -> void:
 	queue_redraw()
 
 
+## Ouvre la cinématique 3D de la bataille affichée (la vue 2D se met en pause dessous).
+func open_cinematic() -> void:
+	if report.is_empty():
+		return
+	playing = false
+	_refresh_buttons()
+	cinematic.show_cinematic(_state, report, _left)
+
+
 func hide_replay() -> void:
+	if cinematic and cinematic.visible:
+		cinematic.hide_cinematic()  # Échap dans la cinématique : retour à la vue 2D
+		return
 	if visible:
 		visible = false
 		closed.emit()
@@ -104,6 +121,8 @@ func hide_replay() -> void:
 
 ## Ferme sans revenir au rapport (nouvelle partie, chargement).
 func close_silently() -> void:
+	if cinematic:
+		cinematic.close_silently()
 	visible = false
 	_state = null
 	report = {}

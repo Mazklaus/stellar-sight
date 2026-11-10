@@ -176,8 +176,33 @@ défaut de portrait, le sprite vu de dessus en filigrane).
 
 ![Replay d'une bataille de frégates Ossarane contre l'Essaim Kh'thari](apercu-vaisseaux-3d-replay.png)
 
+## Cinématique 3D des batailles
+
+Depuis la vue de replay, le bouton « CINÉMATIQUE 3D » rejoue la bataille avec les modèles 3D
+(`scripts/ui/battle_cinematic.gd`, `BattleCinematic`), à la manière d'Endless Space 2 : les flottes
+arrivent chacune de leur côté, se rapprochent au fil des phases, se croisent à courte portée puis
+s'écartent. Les positions ne dépendent que du temps (avance, recul et changement de jour sans
+accumulation). Un réalisateur de caméra enchaîne des plans de 4 secondes (ensemble, poursuite, flanc,
+croisement), tirés du numéro de la bataille ; « VUE D'ENSEMBLE » (touche C) fige une caméra haute, comme
+la vue de dessus qu'Amplitude a ajoutée pour les joueurs lassés des gros plans. Le ciel est une
+nébuleuse, l'étoile du système prend sa couleur de la carte, les tirs du journal sont des traits
+lumineux et les destructions des éclairs. Échap revient à la vue 2D.
+
+Le jeu charge une version allégée de chaque modèle : `alleger_vaisseau.py` réduit les textures à 1024
+pixels en JPEG (environ 1 Mo par vaisseau) et les écrit dans `assets/ships/` avec le masque :
+
+    blender -b --python tools/vaisseaux/alleger_vaisseau.py -- sources/ossarane_fregate.glb
+
+La teinte d'empire est une passe multiplicative guidée par le masque. Un vaisseau sans modèle (ou une
+classe dont la coque n'a pas de modèle, en remontant les variantes) vole sous forme de fléchette
+facettée teinte aux couleurs de l'empire.
+
+![Cinématique : poursuite pendant la phase de moyenne portée](apercu-cinematique-poursuite.png)
+
 ## Pas encore fait
 
 - Les sprites sur la carte galactique et dans la vue système (les flottes y sont des icônes).
 - Les lumières 2D qui utiliseraient les normales des sprites.
 - Les titans en pièces assemblées.
+- Dans la cinématique : animations propres aux vaisseaux (tourelles, réacteurs aux points d'attache),
+  trajectoires en courbes, boucliers et impacts localisés, son.

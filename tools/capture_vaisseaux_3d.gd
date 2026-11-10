@@ -2,7 +2,8 @@ extends SceneTree
 ## Captures des sprites tirés des modèles 3D (docs/vaisseaux-3d.md) avec le rendu réel :
 ##   xvfb-run -a -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_vaisseaux_3d.gd
 ## Écrit dans CAPTURE_DIR (par défaut user://captures) : une bataille de frégates Ossarane contre
-## l'Essaim Kh'thari dans la vue de replay, puis la frégate au Chantier pour chacun des deux peuples.
+## l'Essaim Kh'thari dans la vue de replay et dans la cinématique 3D, puis la frégate au Chantier pour
+## chacun des deux peuples.
 
 
 func _initialize() -> void:
@@ -50,6 +51,23 @@ func _initialize() -> void:
 	rp._refresh_buttons()
 	await _frames(20)
 	await _shot(out + "/vaisseaux-3d-replay.png")
+	# Cinématique 3D : quelques instants (plans différents), puis la vue d'ensemble.
+	rp.open_cinematic()
+	var cin := rp.cinematic
+	cin.playing = false
+	cin._refresh_buttons()
+	var end := cin.day_count() * BattleCinematic.DAY_SECONDS
+	for f in [0.05, 0.3, 0.45, 0.7, 0.8, 0.9]:
+		cin.t = end * f
+		cin._update(0.0)
+		await _frames(6)
+		await _shot(out + "/vaisseaux-3d-cinematique-%02d.png" % int(f * 100))
+	cin.overview = true
+	cin.t = end * 0.55
+	cin._update(0.0)
+	await _frames(6)
+	await _shot(out + "/vaisseaux-3d-cinematique-ensemble.png")
+	cin.hide_cinematic()
 	rp.close_silently()
 	main.toggle_battle_report()
 

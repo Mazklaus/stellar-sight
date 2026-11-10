@@ -1,7 +1,7 @@
 extends RefCounted
 ## Tests des sprites tirés des modèles 3D (ShipArt, docs/vaisseaux-3d.md) : coque de chaque vaisseau,
 ## sprite trouvé par peuple et par coque (repli sur la coque de base d'une variante), teinte d'empire
-## limitée au masque. Appelés par smoke_test.gd.
+## limitée au masque, cinématique 3D des batailles (BattleCinematic). Appelés par smoke_test.gd.
 
 var _check: Callable
 
@@ -12,6 +12,7 @@ func run(check: Callable) -> void:
 	_test_hulls()
 	_test_lookup()
 	_test_tint()
+	_test_cinematic()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -61,3 +62,47 @@ func _test_tint() -> void:
 	_ok(a.r > 0.8 and a.g < 0.5 and a.b < 0.5, "ShipArt : la zone du masque tire vers la couleur de l'empire")
 	_ok(absf(b.r - 0.8) < 0.01 and absf(b.g - 0.8) < 0.01 and absf(b.a - 0.5) < 0.01, "ShipArt : hors du masque, le sprite est intact (transparence comprise)")
 	_ok(absf(a.a - 1.0) < 0.01, "ShipArt : la teinte garde l'opacité")
+
+
+## Journal de bataille fictif : 6 jours (2 par phase), une frégate de chaque côté et une corvette
+## de l'empire 1 détruite le 3e jour.
+func _fake_report() -> Dictionary:
+	var log: Array = []
+	for d in 6:
+		var shots: Array = [[0, 2 if d < 3 else 1, "beam", 10], [1, 0, "missile", 8], [2, 0, "kinetic", 4]]
+		if d >= 3:
+			shots = [[0, 1, "beam", 10], [1, 0, "missile", 8]]
+		log.append({"day": d + 1, "phase": d / 2, "shots": shots, "kills": [2] if d == 2 else []})
+	return {"id": 7, "system": 0, "system_name": "Essai", "sides": [{"empire": 0}, {"empire": 1}],
+			"units": [[0, "fregate", "line", 1], [1, "fregate", "line", 1], [1, "corvette", "screen", 1]], "log": log}
+
+
+func _test_cinematic() -> void:
+	var st := GameState.create(4242, 150, 1800.0, "ossarane", {"ai_level": ""})
+	var cin := BattleCinematic.new()
+	cin._ready()
+	cin.show_cinematic(st, _fake_report(), {0: true})
+	_ok(cin._units.size() == 3, "Cinématique : un vaisseau 3D par unité du journal")
+	var end := cin.day_count() * BattleCinematic.DAY_SECONDS
+	_ok(cin.unit_pos(0, 0.0).x < cin.unit_pos(1, 0.0).x, "Cinématique : chaque camp arrive de son côté")
+	_ok(cin.unit_pos(0, end).x > cin.unit_pos(1, end).x, "Cinématique : à courte portée, les flottes se sont croisées")
+	_ok(cin.unit_pos(0, 4.2).is_equal_approx(cin.unit_pos(0, 4.2)), "Cinématique : positions calculées à partir du temps seul")
+	_ok(String(cin.shot_at(0.0)["kind"]) == "ensemble", "Cinématique : le premier plan est un plan d'ensemble")
+	var kinds := {}
+	var tt := 0.0
+	while tt < end:
+		kinds[String(cin.shot_at(tt)["kind"])] = true
+		tt += BattleCinematic.SHOT_SECONDS
+	_ok(kinds.size() >= 2, "Cinématique : la caméra enchaîne plusieurs sortes de plans")
+	_ok(cin.shot_at(5.0) == cin.shot_at(5.0), "Cinématique : un même instant redonne le même plan")
+	cin.t = 3.5 * BattleCinematic.DAY_SECONDS
+	cin._update(0.0)
+	_ok(not (cin._units[2]["node"] as Node3D).visible and (cin._units[0]["node"] as Node3D).visible, "Cinématique : la corvette détruite a disparu, la frégate vole encore")
+	if ResourceLoader.exists(ShipArt.DIR + "ossarane_fregate.glb"):
+		var model := BattleCinematic.ship_model("ossarane", "bombarde")
+		_ok(model != null, "Cinématique : la bombarde Ossarane prend le modèle 3D de la frégate")
+		if model:
+			model.free()
+	_ok(BattleCinematic.ship_model("vael", "fregate") == null, "Cinématique : sans modèle 3D, une silhouette simple")
+	cin.close_silently()
+	cin.free()
