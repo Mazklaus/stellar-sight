@@ -161,6 +161,8 @@ sur la HD (signe qu'elles ne viennent pas de la même génération).
 - `<nom>_sprite_masque.png` : le masque d'empire vu sous le même angle ;
 - `<nom>_sprite_n.png` : les normales vues de dessus (x à droite, y en haut), réservées à de futures
   lumières 2D.
+- `<nom>_portrait.png` et `<nom>_portrait_masque.png` : vue 3/4 avant en perspective, nez à droite,
+  recadrée au plus près : l'illustration du Chantier (et plus tard des fiches).
 
 Le jeu (`scripts/ui/ship_art.gd`) cherche `assets/ships/<peuple>_<coque>_sprite.png` pour chaque vaisseau :
 la coque d'une classe vient de `origin` dans `data/designs.json` (une bombarde est une coque de frégate),
@@ -169,7 +171,8 @@ La zone du masque est teinte à 55 % vers la couleur de l'empire, en gardant la 
 Sans sprite, l'interface garde son dessin stylisé : on peut donc ajouter les vaisseaux un par un.
 
 Pour l'instant, les sprites apparaissent dans la vue de replay des batailles (retournés pour le camp de
-droite, grisés une fois détruits) et en filigrane derrière les emplacements du Chantier.
+droite, grisés une fois détruits), et le portrait en haut du Chantier, au-dessus des emplacements (à
+défaut de portrait, le sprite vu de dessus en filigrane).
 
 ![Replay d'une bataille de frégates Ossarane contre l'Essaim Kh'thari](apercu-vaisseaux-3d-replay.png)
 

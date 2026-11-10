@@ -44,6 +44,8 @@ func _test_lookup() -> void:
 	_ok(ShipArt.base_name("vael", "fregate") == "", "ShipArt : pas de sprite Vael, l'interface garde son dessin")
 	_ok(ShipArt.base_name("ossarane", "titan_bastion") == "", "ShipArt : variante sans sprite ni coque de base dessinée")
 	_ok(not ShipArt.has_art("ossarane", "croiseur"), "ShipArt : pas encore de croiseur Ossarane")
+	_ok(ShipArt.base_name("khthari", "fregate", "portrait") == "khthari_fregate", "ShipArt : portrait 3/4 de la frégate Kh'thari trouvé")
+	_ok(ShipArt.base_name("vael", "fregate", "portrait") == "", "ShipArt : pas de portrait Vael")
 
 
 func _test_tint() -> void:

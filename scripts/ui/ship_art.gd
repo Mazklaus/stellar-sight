@@ -1,8 +1,9 @@
 class_name ShipArt
 extends RefCounted
 ## Sprites des vaisseaux tirés de leur modèle 3D (docs/vaisseaux-3d.md, tools/vaisseaux/).
-## Un sprite par peuple et par coque : res://assets/ships/<peuple>_<coque>_sprite.png, vue de dessus,
-## nez vers la droite, avec son masque <..>_sprite_masque.png (blanc = teint aux couleurs de l'empire).
+## Par peuple et par coque, dans res://assets/ships/ : <peuple>_<coque>_sprite.png (vue de dessus, nez
+## vers la droite) et <peuple>_<coque>_portrait.png (vue 3/4 avant), chacun avec son masque
+## <..>_masque.png (blanc = teint aux couleurs de l'empire).
 ## Sans sprite pour ce peuple et cette coque (ni pour la coque dont elle est la variante), texture()
 ## renvoie null et l'interface garde son dessin stylisé.
 
@@ -23,11 +24,11 @@ static func hull_of(ship_id: String) -> String:
 
 ## Nom de fichier (sans suffixe) du sprite d'un vaisseau pour un peuple, ou "" s'il n'en a pas.
 ## Une variante de coque (titan_bastion…) reprend le sprite de sa coque de base.
-static func base_name(faction_id: String, ship_id: String) -> String:
+static func base_name(faction_id: String, ship_id: String, kind := "sprite") -> String:
 	var h := hull_of(ship_id)
 	while h != "":
 		var base := "%s_%s" % [faction_id, h]
-		if ResourceLoader.exists(DIR + base + "_sprite.png"):
+		if ResourceLoader.exists("%s%s_%s.png" % [DIR, base, kind]):
 			return base
 		h = String(Designs.hull(h).get("variant_of", ""))
 	return ""
@@ -37,20 +38,29 @@ static func has_art(faction_id: String, ship_id: String) -> bool:
 	return base_name(faction_id, ship_id) != ""
 
 
-## Sprite teint aux couleurs de l'empire (gardé en cache), ou null.
+## Sprite vu de dessus teint aux couleurs de l'empire (gardé en cache), ou null.
 static func texture(faction_id: String, ship_id: String, tint: Color) -> Texture2D:
-	var base := base_name(faction_id, ship_id)
+	return _teinte(faction_id, ship_id, tint, "sprite")
+
+
+## Portrait 3/4 teint aux couleurs de l'empire (gardé en cache), ou null.
+static func portrait(faction_id: String, ship_id: String, tint: Color) -> Texture2D:
+	return _teinte(faction_id, ship_id, tint, "portrait")
+
+
+static func _teinte(faction_id: String, ship_id: String, tint: Color, kind: String) -> Texture2D:
+	var base := base_name(faction_id, ship_id, kind)
 	if base == "":
 		return null
-	var key := "%s|%s" % [base, tint.to_html(false)]
+	var key := "%s_%s|%s" % [base, kind, tint.to_html(false)]
 	if _cache.has(key):
 		return _cache[key]
-	var img := _image(DIR + base + "_sprite.png")
+	var img := _image("%s%s_%s.png" % [DIR, base, kind])
 	var tex: Texture2D = null
 	if img:
-		var masque := _image(DIR + base + "_sprite_masque.png")
+		var masque := _image("%s%s_%s_masque.png" % [DIR, base, kind])
 		var finale := teinter(img, masque, tint) if masque else img.duplicate() as Image
-		# Mipmaps : les sprites (512 px) sont affichés bien plus petits ; dessiner avec
+		# Mipmaps : les images (512 à 900 px) sont affichées bien plus petites ; dessiner avec
 		# CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS pour éviter le grain.
 		if finale.is_compressed():
 			finale.decompress()

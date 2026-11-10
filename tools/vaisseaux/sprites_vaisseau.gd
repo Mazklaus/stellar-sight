@@ -3,6 +3,7 @@ extends SceneTree
 ##   <nom>_sprite.png         rendu éclairé, fond transparent (ce que le jeu affiche)
 ##   <nom>_sprite_masque.png  zone à teindre aux couleurs de l'empire (blanc = teinte)
 ##   <nom>_sprite_n.png       normales vues de dessus (x à droite, y en haut), pour de futures lumières 2D
+##   <nom>_portrait.png       vue 3/4 avant en perspective, nez à droite (Chantier, fiches), et son masque
 ## Lancement (une fenêtre est nécessaire ; sur serveur, xvfb-run et --rendering-driver opengl3) :
 ##   godot --path . -s res://tools/vaisseaux/sprites_vaisseau.gd -- <vaisseau.glb> [dossier] [taille]
 ## Le masque est lu à côté du glb (<nom>_masque.png). Dossier par défaut : res://assets/ships,
@@ -94,14 +95,43 @@ func _init() -> void:
 	(await _capture(vue)).save_png(base + "_sprite_n.png")
 
 	var chemin_masque := chemin.get_basename() + "_masque.png"
+	var masque: ImageTexture = null
 	if FileAccess.file_exists(chemin_masque):
-		var masque := ImageTexture.create_from_image(Image.load_from_file(chemin_masque))
+		masque = ImageTexture.create_from_image(Image.load_from_file(chemin_masque))
 		for mi in maillages:
 			mi.material_override = _passe_masque(masque)
 		(await _capture(vue)).save_png(base + "_sprite_masque.png")
 	else:
 		print("pas de masque à côté du glb : sprite sans teinte d'empire")
 	print("sprites : ", base, "_sprite*.png (", vue.size.x, " x ", vue.size.y, ")")
+
+	# Portrait 3/4 avant, en perspective, nez vers la droite : illustration du Chantier et des fiches.
+	for mi in maillages:
+		mi.material_override = null
+	soleil.visible = true
+	appoint.visible = true
+	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	vue.size = Vector2i(taille * 2, taille * 2)
+	var rayon := aabb.size.length() * 0.5
+	cam.projection = Camera3D.PROJECTION_PERSPECTIVE
+	cam.keep_aspect = Camera3D.KEEP_HEIGHT
+	cam.fov = 30.0
+	cam.far = rayon * 20.0
+	var dist := rayon / sin(deg_to_rad(cam.fov * 0.5)) * 1.05
+	var pos := aabb.get_center() + Vector3(1.0, 0.6, -0.55).normalized() * dist
+	cam.transform = Transform3D(Basis.looking_at(aabb.get_center() - pos, Vector3.UP), pos)
+	soleil.rotation_degrees = Vector3(-40, 30, 0)
+	var portrait := await _capture(vue)
+	var cadre := portrait.get_used_rect().grow(int(taille * 0.04)).intersection(Rect2i(Vector2i.ZERO, portrait.get_size()))
+	portrait.get_region(cadre).save_png(base + "_portrait.png")
+	if masque:
+		for mi in maillages:
+			mi.material_override = _passe_masque(masque)
+		soleil.visible = false
+		appoint.visible = false
+		env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+		(await _capture(vue)).get_region(cadre).save_png(base + "_portrait_masque.png")
+	print("portrait : ", base, "_portrait.png (", cadre.size.x, " x ", cadre.size.y, ")")
 	quit()
 
 

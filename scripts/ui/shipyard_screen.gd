@@ -595,6 +595,8 @@ class HullView:
 	var filled: Array = []
 	var chosen := -1
 	var _rects: Array[Rect2] = []
+	var _portrait: Texture2D = null
+	var _portrait_rect := Rect2()
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_STOP
@@ -625,6 +627,12 @@ class HullView:
 		_rects.resize(slot_list.size())
 		var n := cols.size()
 		var gap := 12.0
+		# Avec un portrait 3/4 du vaisseau, il occupe le haut et les emplacements se rangent dessous.
+		var haut := 0.0
+		_portrait = ShipArt.portrait(faction_id, hull_id, tint) if faction_id != "" else null
+		if _portrait:
+			haut = size.y * 0.42
+			_portrait_rect = _fit(_portrait, Rect2(Vector2(10, 6), Vector2(size.x - 20, haut - 12)))
 		# Les cases rétrécissent pour que toutes les colonnes tiennent (titan : cinq types d'emplacements).
 		var box := Vector2(minf(BOX.x, (size.x - 20.0 - (n - 1) * gap) / maxf(1.0, n)), BOX.y)
 		var total_w := n * box.x + (n - 1) * gap
@@ -632,7 +640,7 @@ class HullView:
 		for ci in n:
 			var idx: Array = cols[ci]
 			var h := idx.size() * box.y + (idx.size() - 1) * 8.0
-			var y0 := (size.y - h) * 0.5
+			var y0 := haut + (size.y - 40.0 - haut - h) * 0.5 if _portrait else (size.y - h) * 0.5
 			for k in idx.size():
 				_rects[idx[k]] = Rect2(Vector2(x0 - ci * (box.x + gap), y0 + k * (box.y + 8.0)), box)
 
@@ -648,7 +656,9 @@ class HullView:
 		var body := PackedVector2Array([c + Vector2(w, 0), c + Vector2(w * 0.55, -hh), c + Vector2(-w * 0.8, -hh * 0.85),
 				c + Vector2(-w, -hh * 0.4), c + Vector2(-w, hh * 0.4), c + Vector2(-w * 0.8, hh * 0.85), c + Vector2(w * 0.55, hh)])
 		var art := ShipArt.texture(faction_id, hull_id, tint) if faction_id != "" else null
-		if art:
+		if _portrait:
+			draw_texture_rect(_portrait, _portrait_rect, false)
+		elif art:
 			# Sprite du modèle 3D, en filigrane derrière les emplacements (proue à droite).
 			var ext := Vector2(w * 2.0, w * 2.0 * art.get_height() / art.get_width())
 			if ext.y > hh * 2.2:
@@ -680,6 +690,12 @@ class HullView:
 			draw_rect(r, Color(1.0, 0.8, 0.35, 0.9), false, 1.5)
 			draw_string(font, r.position + Vector2(8, 18), "◆ " + String(Designs.module(String(mid)).get("label", mid)), HORIZONTAL_ALIGNMENT_LEFT, 150, 12, Color(1.0, 0.88, 0.6))
 			x += 170.0
+
+	## Rectangle centré dans `zone` qui garde les proportions de la texture.
+	static func _fit(tex: Texture2D, zone: Rect2) -> Rect2:
+		var k := minf(zone.size.x / tex.get_width(), zone.size.y / tex.get_height())
+		var ext := Vector2(tex.get_width(), tex.get_height()) * k
+		return Rect2(zone.position + (zone.size - ext) * 0.5, ext)
 
 	func _slot_at(p: Vector2) -> int:
 		for i in _rects.size():
