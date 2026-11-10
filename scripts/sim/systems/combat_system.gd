@@ -155,23 +155,40 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 			continue
 		var tac := Combat.fleet_tactic(f)
 		var bonus := _damage_bonus(state, b, f, sid)
+		# Doctrines : portée préférée, premier jour (guerre éclair), frappe en profondeur.
+		var pfx: Dictionary = Research.effects(state, f.owner).get("phase_damage_pct", {})
+		var dpct := int(pfx.get(String(Combat.data()["phases"][phase]["id"]), 0))
+		if day == 1:
+			dpct += Research.fx_int(state, f.owner, "first_day_damage_pct")
+		if dpct != 0:
+			@warning_ignore("integer_division")
+			bonus = bonus * maxi(0, 100 + dpct) / 100
+		var deep := Research.fx_int(state, f.owner, "deep_strike_pct")
 		var side := _side(b, f.owner)
 		for i in f.ships.size():
 			var w := Combat.weapons(f.ships[i])
+			var my_marks := Combat.ship_marks(state, f, i)
 			var keys := w.keys()
 			keys.sort()
 			for k in keys:
 				var wd: Dictionary = Combat.data()["weapons"].get(k, {})
 				if Combat.weapon_eff(String(k), phase) <= 0:
 					continue
-				var cum: Array = lists["any"] if wd.get("ignores_lines", false) else lists["lined"]
+				var any: bool = wd.get("ignores_lines", false)
+				if not any and deep > 0 and state.rng.randi_range(0, 99) < deep:
+					any = true
+				var cum: Array = lists["any"] if any else lists["lined"]
 				var pick: Array = _pick(cum, state.rng.randi_range(0, int(cum[1]) - 1))
 				var tg: Fleet = pick[0]
 				var ti: int = pick[1]
 				@warning_ignore("integer_division")
-				var wbonus := bonus * (100 + Combat.weapon_bonus(state, f.owner, String(k))) / 100
+				var wbonus := bonus * (100 + Combat.weapon_bonus(state, f.owner, String(k), my_marks)) / 100
 				var dmg := Combat.shot_damage(String(k), int(w[k]), phase, tac, wbonus, tg.ships[ti], Combat.fleet_tactic(tg),
-						Combat.fleet_pd(tg), Combat.defense_bonus(state, tg.owner))
+						Combat.fleet_pd(tg), Combat.defense_bonus(state, tg.owner, Combat.ship_marks(state, tg, ti)))
+				var screen := Research.fx_int(state, tg.owner, "screen_taken_pct")
+				if screen != 0 and Combat.ship_line(tg.ships[ti]) == "screen":
+					@warning_ignore("integer_division")
+					dmg = maxi(1, dmg * maxi(0, 100 + screen) / 100)  # rideau d'acier
 				var key := Vector2i(tg.id, ti)
 				pending[key] = int(pending.get(key, 0)) + dmg
 				side["dealt"] = int(side["dealt"]) + dmg
@@ -316,11 +333,13 @@ static func _apply_damage(state: GameState, b: Dictionary, fighters: Array[Fleet
 
 ## Croisade du Chœur : chaque vaisseau détruit nourrit le dieu-machine des empires qui le combattaient.
 static func _credit_kill(state: GameState, b: Dictionary, victim: int) -> void:
+	Research.count_stat(state, victim, "ships_lost")
 	for s: Dictionary in b["sides"]:
 		var eid := int(s["empire"])
 		if not Combat.at_war(state, eid, victim):
 			continue
 		var e := state.get_empire(eid)
+		Research.count_stat(state, eid, "kills")
 		var gain := int(Combat.trait_value(state, eid, "fervor_per_kill", 0))
 		if gain > 0:
 			e.fervor = mini(int(e.faction()["fervor"]["max"]), e.fervor + gain)
@@ -360,6 +379,26 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 			pts += Combat.ship_strength(String(ship)) * int(s["lost"][ship])
 		for o: Dictionary in b["sides"]:
 			Diplomacy.add_war_score(state, int(o["empire"]), int(s["empire"]), pts)
+	# Épaves : le vainqueur étudie les armes et les doctrines des vaincus.
+	if winner >= 0:
+		Research.count_stat(state, winner, "battles_won")
+		var studied := PackedStringArray()
+		var found := PackedStringArray()
+		for s: Dictionary in b["sides"]:
+			var loser := int(s["empire"])
+			if loser == winner or not Combat.at_war(state, winner, loser) or Combat.count_ships(s["engaged"]) == 0:
+				continue
+			for r in Research.study_wrecks(state, winner, loser):
+				var lbl := String(Research.tech(String(r[0])).get("label", r[0]))
+				if bool(r[2]):
+					found.append(lbl)
+				elif not studied.has(lbl):
+					studied.append(lbl)
+		report["wrecks"] = Array(studied) + Array(found)
+		var we := state.get_empire(winner)
+		if not we.is_ai() and not found.is_empty():
+			added.append(state.add_chronicle("Les épaves de %s livrent leurs secrets : %s découvre %s." % [
+					state.galaxy.systems[sid].system_name, we.short_name(), ", ".join(found)]))
 	var losses := PackedStringArray()
 	for s: Dictionary in b["sides"]:
 		losses.append("%s %d" % [state.get_empire(int(s["empire"])).short_name(), Combat.count_ships(s["lost"])])
@@ -417,6 +456,7 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 			added.append(state.add_chronicle("%s met le siège devant %s. La garnison serre les dents, la population les rations." % [
 					state.get_empire(lead.owner).display_name(), state.galaxy.systems[sid].system_name]))
 			events.append({"type": "siege_started", "system": sid, "by": lead.owner, "owner": owner})
+			Research.count_stat(state, owner, "besieged")
 		var before := Combat.garrison(state, sid)
 		# Les bastions tirent tant que la garnison tient.
 		if before > 0:
@@ -424,7 +464,7 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 		var power := 0
 		for f: Fleet in by:
 			if state.fleets.has(f.id):
-				power += Combat.siege_power(f)
+				power += Combat.siege_power(f, state)
 		state.garrisons[sid] = maxi(0, before - power)
 
 
@@ -448,7 +488,7 @@ static func _battery_fire(state: GameState, sid: int, by: Array[Fleet]) -> void:
 		var bb := (int(Combat.trait_value(state, owner, "home_damage_pct", 100)) + Research.fx_int(state, owner, "home_damage_pct")) \
 				* (100 + Combat.weapon_bonus(state, owner, String(k))) / 100
 		var dmg := Combat.shot_damage(String(k), int(bat[k]), 1, Combat.default_tactic(), bb, tg.ships[pick[1]],
-				Combat.fleet_tactic(tg), 0, Combat.defense_bonus(state, tg.owner))
+				Combat.fleet_tactic(tg), 0, Combat.defense_bonus(state, tg.owner, Combat.ship_marks(state, tg, int(pick[1]))))
 		var key := Vector2i(tg.id, int(pick[1]))
 		pending[key] = int(pending.get(key, 0)) + dmg
 	for f: Fleet in by:
@@ -476,6 +516,7 @@ static func _repairs(state: GameState, fought: Dictionary) -> void:
 			continue  # en pleine bataille ou en plein siège
 		var at_home := not f.is_moving() and state.system_owner(sid) == f.owner
 		var pct := home if at_home or bool(Combat.trait_value(state, f.owner, "repair_anywhere", false)) else away
+		pct = Research.scaled(pct, Research.fx_int(state, f.owner, "repair_pct"))  # guerre d'usure
 		for i in f.ships.size():
 			var mx := Fleet.max_hp_of(f.ships[i])
 			if f.hp[i] < mx:

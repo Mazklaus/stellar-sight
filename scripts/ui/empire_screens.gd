@@ -17,6 +17,7 @@ signal command_requested(cmd: Dictionary)
 
 const MARGIN := 10.0
 const SIDE_WIDTH := EmpireBar.WIDTH
+const ROMAN := ["I", "II", "III", "IV", "V"]
 const SIDE_TOP := EmpireBar.MARGIN + EmpireBar.HEIGHT + 8.0
 const CONTENT_LEFT := SIDE_WIDTH + 2.0 * MARGIN + 18.0
 ## Le contenu s'arrête avant le cadran du temps, en bas à droite.
@@ -973,6 +974,35 @@ func _tech_detail(tid: String) -> Control:
 		box.add_child(rl)
 	elif Research.is_specific(tid):
 		box.add_child(UiTheme.dim("Propre à votre peuple.", 13))
+	# Marques : où en est chaque famille touchée.
+	var mk: Dictionary = t.get("effects", {}).get("marks", {})
+	if not mk.is_empty():
+		var now := Research.marks(_state, _player)
+		var parts := PackedStringArray()
+		for fam in Research.mark_families():
+			if mk.has(fam):
+				var m := int(now.get(fam, 1))
+				parts.append("%s %s" % [Research.mark_label(String(fam)), ROMAN[m - 1] if e.techs.has(tid) else "%s → %s" % [ROMAN[m - 1], ROMAN[mini(4, m)]]])
+		var ml := UiTheme.paragraph("Marques : %s. Les vaisseaux déjà construits les reçoivent au chantier (remise à niveau)." % ", ".join(parts), SIDE_WIDTH - 24.0, 13)
+		ml.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		box.add_child(ml)
+	if t.get("doctrine", false) and not e.techs.has(String(t.get("exclusive", ""))):
+		var other := String(t.get("exclusive", ""))
+		var dl := UiTheme.paragraph("Doctrine définitive : la choisir ferme « %s » (que seules les épaves des batailles gagnées peuvent encore livrer)." % String(Research.tech(other).get("label", other)), SIDE_WIDTH - 24.0, 13)
+		dl.add_theme_color_override("font_color", UiTheme.ACCENT)
+		box.add_child(dl)
+	if t.has("eureka") and not e.techs.has(tid):
+		var st := Research.eureka_status(_state, _player, tid)
+		var eu_txt := "Eurêka obtenu : 40 %% du coût déjà payé." if e.eurekas.has(tid) else \
+				"Eurêka : %s (%d / %d) paiera 40 %% du coût." % [Research.eureka_text(tid), mini(int(st[0]), int(st[1])), int(st[1])]
+		var el := UiTheme.paragraph(eu_txt, SIDE_WIDTH - 24.0, 13)
+		el.add_theme_color_override("font_color", UiTheme.GOOD if e.eurekas.has(tid) else Color("d9b85c"))
+		box.add_child(el)
+	var got := int(e.research_shelf.get(tid, 0))
+	if got > 0 and not e.techs.has(tid):
+		var gl := UiTheme.paragraph("Déjà acquis : %d / %d Savoir (épaves, eurêka ou recherche interrompue)." % [got, Research.cost(_state, _player, tid)], SIDE_WIDTH - 24.0, 13)
+		gl.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		box.add_child(gl)
 	if Research.is_heretic(f, tid):
 		var h := UiTheme.paragraph(String(t["heretic"].get("text", "Hérétique pour votre peuple.")), SIDE_WIDTH - 24.0, 13)
 		h.add_theme_color_override("font_color", UiTheme.BAD)

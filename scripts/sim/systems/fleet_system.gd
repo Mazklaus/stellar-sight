@@ -16,6 +16,10 @@ static func process(state: GameState) -> Array[Dictionary]:
 		_process_shipyard(state, state.colonies[pid], added)
 	for fid in state.sorted_fleet_ids():
 		_move(state, state.fleets[fid])
+	for fid in state.sorted_fleet_ids():
+		var entry := _refit_step(state, state.fleets[fid])
+		if not entry.is_empty():
+			added.append(entry)
 	added.append_array(update_exploration(state))
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
@@ -24,6 +28,26 @@ static func process(state: GameState) -> Array[Dictionary]:
 			if not entry.is_empty():
 				added.append(entry)
 	return added
+
+
+## Remise à niveau au chantier : un jour de plus à quai. Partir ou se battre l'interrompt (le prix
+## payé est perdu) ; au bout du compte, tous les vaisseaux prennent les marques actuelles de l'empire.
+static func _refit_step(state: GameState, f: Fleet) -> Dictionary:
+	if f.refit_left <= 0:
+		return {}
+	if f.is_moving() or state.battles.has(f.system_id) or not Fleets.has_own_yard(state, f.owner, f.system_id):
+		f.refit_left = 0
+		return {}
+	f.refit_left -= 1
+	if f.refit_left > 0:
+		return {}
+	var g := Research.mark_gen(state, f.owner)
+	for i in f.gen.size():
+		f.gen[i] = g
+	if state.get_empire(f.owner).is_ai():
+		return {}
+	return state.add_chronicle("%s sort du chantier de %s avec les dernières marques d'armes. L'équipage trouve que ça sent le neuf, et la facture." % [
+			f.fleet_name, state.galaxy.systems[f.system_id].system_name])
 
 
 ## Une flotte en exploration automatique choisit sa prochaine cible : à l'arrêt, ou dès que sa
@@ -58,6 +82,7 @@ static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictiona
 	if c.ship_days > 0:
 		return
 	var f := state.spawn_ship(c.owner, c.ship_build, p.system_id)
+	Research.count_stat(state, c.owner, "built")
 	c.ship_build = ""
 	c.ship_days = 0
 	var launch := String(GameData.ship(f.ships[0]).get("launch", ""))

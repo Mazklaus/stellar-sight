@@ -462,6 +462,7 @@ func _build_fleet_card() -> void:
 			["split", "DÉTACHER", "Détacher un vaisseau dans une nouvelle flotte"],
 			["report", "RAPPORT", "Dernier rapport de bataille de vos flottes  (B)"],
 			["tactic", "TACTIQUE", "Changer de tactique de combat (choisie avant la bataille, appliquée sans votre intervention)  (T)"],
+			["refit", "REMISE À NIVEAU", "Donner aux vaisseaux les dernières marques d'armes et de défenses, dans le chantier d'une de vos colonies"],
 			["invade", "ENVAHIR", "Débarquer les troupes : le système change de mains si elles sont plus nombreuses que la garnison"]]:
 		var b := Button.new()
 		b.text = a[1]
@@ -475,7 +476,7 @@ func _build_fleet_card() -> void:
 		var action: String = a[0]
 		b.pressed.connect(func() -> void: fleet_action_requested.emit(action, _fleet_id))
 		# Tactique et invasion prennent toute la largeur, sous la grille.
-		if action == "tactic" or action == "invade":
+		if action == "tactic" or action == "invade" or action == "refit":
 			b.clip_text = true
 			inner.add_child(b)
 		else:
@@ -545,6 +546,17 @@ func _refresh_fleet_card() -> void:
 	_fleet_buttons["tactic"].visible = mine and armed
 	_fleet_buttons["tactic"].text = "TACTIQUE : %s" % Combat.tactic_label(Combat.fleet_tactic(f)).to_upper()
 	_fleet_buttons["tactic"].tooltip_text = "%s\n\nClic : tactique suivante  (T)" % String(Combat.tactic(Combat.fleet_tactic(f)).get("desc", ""))
+	var late := Fleets.outdated_count(_state, f)
+	if armed and (late > 0 or f.refit_left > 0):
+		_fleet_stats.text += "\n" + (("Au chantier : encore %d jour%s." % [f.refit_left, "s" if f.refit_left > 1 else ""]) if f.refit_left > 0 \
+				else "%d vaisseau%s avec des marques d'armes dépassées." % [late, "x" if late > 1 else ""])
+	_fleet_buttons["refit"].visible = mine and armed and (late > 0 or f.refit_left > 0)
+	var refit_why := Fleets.check_refit(_state, _player, f.id) if mine else "x"
+	_fleet_buttons["refit"].disabled = refit_why != ""
+	_fleet_buttons["refit"].text = "AU CHANTIER : %d J" % f.refit_left if f.refit_left > 0 \
+			else "REMISE À NIVEAU : %s, %d J" % [GameData.format_amounts(Fleets.refit_cost(_state, f)).to_upper(), Fleets.refit_days()]
+	_fleet_buttons["refit"].tooltip_text = "Les vaisseaux gardent les marques de leur construction. Au chantier d'une de vos colonies, ils prennent les dernières (10 %% de leur prix, %d jours à quai ; partir interrompt les travaux).%s" % [
+			Fleets.refit_days(), ("\n" + refit_why.substr(0, 1).to_upper() + refit_why.substr(1) + ".") if refit_why != "" and f.refit_left == 0 else ""]
 	var enemy_owner := _state.system_owner(f.system_id)
 	var invade_why := Combat.check_invade(_state, _player, f.id) if mine else "x"
 	_fleet_buttons["invade"].visible = mine and not f.is_moving() and enemy_owner >= 0 and Combat.at_war(_state, _player, enemy_owner)

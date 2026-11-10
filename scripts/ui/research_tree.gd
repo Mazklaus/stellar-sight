@@ -252,6 +252,11 @@ func _draw_card(tid: String, r: Rect2, e: Empire, f: Dictionary) -> void:
 		var cost := maxi(1, Research.cost(_state, _player, tid))
 		var frac := clampf(float(e.research_progress) / cost, 0.0, 1.0)
 		draw_rect(Rect2(r.position, Vector2(r.size.x * frac, r.size.y)), Color(UiTheme.ACCENT, 0.18))
+	elif st != "known" and e.research_shelf.has(tid):
+		# Savoir déjà acquis (épaves, eurêka, recherche interrompue) : un trait sous la carte.
+		var cost := maxi(1, Research.cost(_state, _player, tid))
+		var frac := clampf(float(e.research_shelf[tid]) / cost, 0.0, 1.0)
+		draw_rect(Rect2(r.position.x, r.end.y - 3, r.size.x * frac, 3), Color(0.85, 0.72, 0.36, 0.8))
 	draw_rect(r, border, false, 2.0 if tid == selected else 1.0)
 	if tid == selected:
 		draw_rect(r.grow(2), Color(UiTheme.ACCENT, 0.55), false, 1.0)
@@ -265,6 +270,22 @@ func _draw_card(tid: String, r: Rect2, e: Empire, f: Dictionary) -> void:
 		var c := Vector2(x + 3, r.get_center().y)
 		draw_line(c + Vector2(-3, -3), c + Vector2(3, 3), UiTheme.BAD, 1.6)
 		draw_line(c + Vector2(-3, 3), c + Vector2(3, -3), UiTheme.BAD, 1.6)
+		x += 10
+	if t.get("doctrine", false):
+		# Doctrine : un petit écu ; barré quand l'autre branche a été choisie.
+		var c := Vector2(x + 3, r.get_center().y)
+		var shield := PackedVector2Array([c + Vector2(-4, -4), c + Vector2(4, -4), c + Vector2(4, 0), c + Vector2(0, 5), c + Vector2(-4, 0), c + Vector2(-4, -4)])
+		draw_polyline(shield, Color(UiTheme.ACCENT, 0.9), 1.3, true)
+		if e.techs.has(String(t.get("exclusive", ""))) and st != "known":
+			draw_line(c + Vector2(-5, 5), c + Vector2(5, -5), UiTheme.BAD, 1.4)
+		x += 11
+	if t.has("eureka") and st != "known":
+		# Eurêka : un point doré, plein une fois obtenu.
+		var c := Vector2(x + 3, r.get_center().y)
+		if e.eurekas.has(tid):
+			draw_circle(c, 3.2, Color(0.85, 0.72, 0.36))
+		else:
+			draw_arc(c, 3.2, 0, TAU, 12, Color(0.85, 0.72, 0.36, 0.8), 1.2, true)
 		x += 10
 	var right: float = r.end.x - 6
 	if st == "queued" or st == "current":

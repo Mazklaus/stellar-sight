@@ -38,7 +38,13 @@
 		3,
 		4
 	],
-	"base_cost": [30, 120, 320, 800, 1900],
+	"base_cost": [
+		30,
+		120,
+		320,
+		800,
+		1900
+	],
 	"cost_scale_pct": 300,
 	"per_known_permille": 25,
 	"per_colony_pct": 5,
@@ -51,11 +57,15 @@
 			"era": 1,
 			"text": "Canons cinétiques marque II : +20 % de dégâts.",
 			"effects": {
-				"weapon_pct": {
-					"kinetic": 20
+				"marks": {
+					"kinetic": 1
 				}
 			},
-			"flavor": "Même principe qu'avant, mais le projectile arrive avant qu'on ait fini de le regretter."
+			"flavor": "Même principe qu'avant, mais le projectile arrive avant qu'on ait fini de le regretter.",
+			"eureka": {
+				"kind": "kills",
+				"n": 3
+			}
 		},
 		"lentilles": {
 			"label": "Lentilles de focalisation",
@@ -63,8 +73,8 @@
 			"era": 1,
 			"text": "Rayons marque II : +20 % de dégâts.",
 			"effects": {
-				"weapon_pct": {
-					"beam": 20
+				"marks": {
+					"beam": 1
 				}
 			}
 		},
@@ -74,9 +84,13 @@
 			"era": 1,
 			"text": "Blindage marque II : +20 % de protection du blindage.",
 			"effects": {
-				"defense_pct": {
-					"armor": 20
+				"marks": {
+					"armor": 1
 				}
+			},
+			"eureka": {
+				"kind": "ships_lost",
+				"n": 3
 			}
 		},
 		"tetes_chercheuses": {
@@ -85,8 +99,8 @@
 			"era": 1,
 			"text": "Missiles marque II : +20 % de dégâts.",
 			"effects": {
-				"weapon_pct": {
-					"missile": 20
+				"marks": {
+					"missile": 1
 				}
 			}
 		},
@@ -99,8 +113,8 @@
 				"lentilles"
 			],
 			"effects": {
-				"defense_pct": {
-					"shield": 20
+				"marks": {
+					"shield": 1
 				}
 			}
 		},
@@ -113,8 +127,8 @@
 				"blindage_composite"
 			],
 			"effects": {
-				"defense_pct": {
-					"pd": 20
+				"marks": {
+					"pd": 1
 				}
 			}
 		},
@@ -125,7 +139,11 @@
 			"text": "Famille d'armes Torpilles (fortes contre les grosses coques). Il faut aussi les Torpilleurs pour en armer un vaisseau.",
 			"pre": [
 				"tetes_chercheuses"
-			]
+			],
+			"eureka": {
+				"kind": "kills",
+				"n": 12
+			}
 		},
 		"bastions": {
 			"label": "Bastions orbitaux",
@@ -134,7 +152,11 @@
 			"text": "Débloque le Bastion orbital : garnison et batterie de défense d'un système.",
 			"pre": [
 				"blindage_composite"
-			]
+			],
+			"eureka": {
+				"kind": "besieged",
+				"n": 1
+			}
 		},
 		"marines": {
 			"label": "Marines d'assaut",
@@ -146,6 +168,10 @@
 			],
 			"effects": {
 				"troops_pct": 25
+			},
+			"eureka": {
+				"kind": "conquests",
+				"n": 1
 			}
 		},
 		"accelerateurs": {
@@ -158,8 +184,8 @@
 				"marines"
 			],
 			"effects": {
-				"weapon_pct": {
-					"kinetic": 20
+				"marks": {
+					"kinetic": 1
 				}
 			}
 		},
@@ -172,8 +198,8 @@
 				"boucliers_phase"
 			],
 			"effects": {
-				"weapon_pct": {
-					"beam": 20
+				"marks": {
+					"beam": 1
 				}
 			}
 		},
@@ -186,8 +212,8 @@
 				"interception"
 			],
 			"effects": {
-				"defense_pct": {
-					"armor": 20
+				"marks": {
+					"armor": 1
 				}
 			}
 		},
@@ -200,9 +226,9 @@
 				"torpilles"
 			],
 			"effects": {
-				"weapon_pct": {
-					"missile": 20,
-					"torpedo": 20
+				"marks": {
+					"missile": 1,
+					"torpedo": 1
 				}
 			}
 		},
@@ -213,7 +239,11 @@
 			"text": "Famille d'armes Artillerie (portée longue, rien en phase courte). Il faut aussi les Cuirassés pour en armer un vaisseau.",
 			"pre": [
 				"accelerateurs"
-			]
+			],
+			"eureka": {
+				"kind": "conquests",
+				"n": 3
+			}
 		},
 		"chasse": {
 			"label": "Escadrilles de chasse",
@@ -233,9 +263,9 @@
 				"plasma"
 			],
 			"effects": {
-				"defense_pct": {
-					"shield": 20,
-					"pd": 20
+				"marks": {
+					"shield": 1,
+					"pd": 1
 				}
 			}
 		},
@@ -248,9 +278,9 @@
 				"artillerie"
 			],
 			"effects": {
-				"weapon_pct": {
-					"kinetic": 20,
-					"artillery": 20
+				"marks": {
+					"kinetic": 1,
+					"artillery": 1
 				}
 			}
 		},
@@ -264,9 +294,9 @@
 				"chasse"
 			],
 			"effects": {
-				"weapon_pct": {
-					"torpedo": 20,
-					"fighters": 20
+				"marks": {
+					"torpedo": 1,
+					"fighters": 1
 				}
 			}
 		},
@@ -417,7 +447,11 @@
 			"label": "Navires de débarquement",
 			"domain": "genie",
 			"era": 1,
-			"text": "Débloque le Transport de troupes."
+			"text": "Débloque le Transport de troupes.",
+			"eureka": {
+				"kind": "wars",
+				"n": 1
+			}
 		},
 		"propulseurs": {
 			"label": "Propulseurs à fusion",
@@ -438,6 +472,10 @@
 			"text": "Les colonies et avant-postes voient un saut plus loin.",
 			"effects": {
 				"claim_vision": 1
+			},
+			"eureka": {
+				"kind": "explored",
+				"n": 15
 			}
 		},
 		"cales_rapides": {
@@ -447,6 +485,10 @@
 			"text": "Les vaisseaux sortent des chantiers 15 % plus vite.",
 			"effects": {
 				"ship_days_pct": -15
+			},
+			"eureka": {
+				"kind": "built",
+				"n": 6
 			}
 		},
 		"coques_lourdes": {
@@ -456,7 +498,11 @@
 			"text": "Débloque le Croiseur.",
 			"pre": [
 				"debarquement"
-			]
+			],
+			"eureka": {
+				"kind": "kills",
+				"n": 10
+			}
 		},
 		"torpilleurs": {
 			"label": "Torpilleurs",
@@ -480,7 +526,11 @@
 			},
 			"tags": [
 				"saut"
-			]
+			],
+			"eureka": {
+				"kind": "explored",
+				"n": 35
+			}
 		},
 		"coques_series": {
 			"label": "Coques de série",
@@ -492,6 +542,10 @@
 			],
 			"effects": {
 				"ship_cost_pct": -10
+			},
+			"eureka": {
+				"kind": "built",
+				"n": 20
 			}
 		},
 		"bombardes": {
@@ -730,6 +784,10 @@
 				"production_pct": {
 					"food": 15
 				}
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 3
 			}
 		},
 		"fusion_compacte": {
@@ -741,6 +799,11 @@
 				"production_pct": {
 					"energy": 15
 				}
+			},
+			"eureka": {
+				"kind": "building",
+				"what": "centrale_fusion",
+				"n": 2
 			}
 		},
 		"extraction": {
@@ -752,13 +815,22 @@
 				"production_pct": {
 					"materials": 15
 				}
+			},
+			"eureka": {
+				"kind": "building",
+				"what": "complexe_minier",
+				"n": 2
 			}
 		},
 		"academies": {
 			"label": "Académies",
 			"domain": "economie",
 			"era": 1,
-			"text": "Débloque l'Académie : +4 Savoir et +10 % de Savoir dans sa colonie."
+			"text": "Débloque l'Académie : +4 Savoir et +10 % de Savoir dans sa colonie.",
+			"eureka": {
+				"kind": "pop",
+				"n": 25
+			}
 		},
 		"raffinage": {
 			"label": "Raffinage des cristaux",
@@ -767,7 +839,12 @@
 			"text": "Débloque la Raffinerie de cristaux.",
 			"pre": [
 				"fusion_compacte"
-			]
+			],
+			"eureka": {
+				"kind": "deposit",
+				"what": "crystals",
+				"n": 1
+			}
 		},
 		"logistique": {
 			"label": "Logistique impériale",
@@ -779,6 +856,10 @@
 			],
 			"effects": {
 				"building_slots": 1
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 10
 			}
 		},
 		"banques_donnees": {
@@ -793,6 +874,10 @@
 				"production_pct": {
 					"knowledge": 15
 				}
+			},
+			"eureka": {
+				"kind": "techs",
+				"n": 10
 			}
 		},
 		"recyclage": {
@@ -808,6 +893,10 @@
 					"materials": 10,
 					"energy": 10
 				}
+			},
+			"eureka": {
+				"kind": "ships_lost",
+				"n": 8
 			}
 		},
 		"bourses": {
@@ -823,6 +912,10 @@
 					"energy": 15,
 					"influence": 10
 				}
+			},
+			"eureka": {
+				"kind": "trade",
+				"n": 1
 			}
 		},
 		"automatisation": {
@@ -870,6 +963,11 @@
 				"production_pct": {
 					"crystals": 25
 				}
+			},
+			"eureka": {
+				"kind": "deposit",
+				"what": "crystals",
+				"n": 3
 			}
 		},
 		"reseaux_savants": {
@@ -884,6 +982,10 @@
 				"production_pct": {
 					"knowledge": 20
 				}
+			},
+			"eureka": {
+				"kind": "techs",
+				"n": 22
 			}
 		},
 		"scriptorium": {
@@ -1023,6 +1125,11 @@
 					"continental": 20,
 					"ocean": 20
 				}
+			},
+			"eureka": {
+				"kind": "planet",
+				"what": "ocean",
+				"n": 1
 			}
 		},
 		"administration": {
@@ -1032,6 +1139,10 @@
 			"text": "+1 colonisation simultanée.",
 			"effects": {
 				"max_projects": 1
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 5
 			}
 		},
 		"rhetorique": {
@@ -1043,6 +1154,10 @@
 				"production_pct": {
 					"influence": 15
 				}
+			},
+			"eureka": {
+				"kind": "contacts",
+				"n": 1
 			}
 		},
 		"medecine": {
@@ -1052,6 +1167,10 @@
 			"text": "+15 % de croissance de la population.",
 			"effects": {
 				"growth_pct": 15
+			},
+			"eureka": {
+				"kind": "pop",
+				"n": 20
 			}
 		},
 		"mondes_toxiques": {
@@ -1066,6 +1185,11 @@
 				"hab_set": {
 					"toxic": 40
 				}
+			},
+			"eureka": {
+				"kind": "claim",
+				"what": "toxic",
+				"n": 1
 			}
 		},
 		"biomes_extremes": {
@@ -1081,6 +1205,11 @@
 					"desert": 20,
 					"arctic": 20
 				}
+			},
+			"eureka": {
+				"kind": "planet",
+				"what": "arctic",
+				"n": 1
 			}
 		},
 		"chancelleries": {
@@ -1093,6 +1222,10 @@
 			],
 			"effects": {
 				"alliances": 1
+			},
+			"eureka": {
+				"kind": "contacts",
+				"n": 3
 			}
 		},
 		"colons_formes": {
@@ -1105,6 +1238,10 @@
 			],
 			"effects": {
 				"colony_start_pop": 1
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 8
 			}
 		},
 		"habitats": {
@@ -1114,7 +1251,11 @@
 			"text": "Débloque les Habitats orbitaux.",
 			"pre": [
 				"mondes_toxiques"
-			]
+			],
+			"eureka": {
+				"kind": "pop",
+				"n": 80
+			}
 		},
 		"cites_flottantes": {
 			"label": "Cités flottantes",
@@ -1128,6 +1269,11 @@
 				"hab_set": {
 					"gas_giant": 30
 				}
+			},
+			"eureka": {
+				"kind": "claim",
+				"what": "gas_giant",
+				"n": 1
 			}
 		},
 		"genetique": {
@@ -1164,6 +1310,10 @@
 				"production_pct": {
 					"influence": 20
 				}
+			},
+			"eureka": {
+				"kind": "peace",
+				"n": 1
 			}
 		},
 		"administration2": {
@@ -1193,6 +1343,10 @@
 						"foi"
 					]
 				}
+			},
+			"eureka": {
+				"kind": "exalted",
+				"n": 1
 			}
 		},
 		"offrande_consacree": {
@@ -1212,6 +1366,10 @@
 						"fanatisme"
 					]
 				}
+			},
+			"eureka": {
+				"kind": "sacrifices",
+				"n": 3
 			}
 		},
 		"pelerinages": {
@@ -1346,6 +1504,286 @@
 					]
 				}
 			}
+		},
+		"faisceaux_gamma": {
+			"label": "Faisceaux gamma",
+			"domain": "armement",
+			"era": 4,
+			"text": "Rayons marque IV et boucliers marque IV.",
+			"pre": [
+				"plasma"
+			],
+			"effects": {
+				"marks": {
+					"beam": 1,
+					"shield": 1
+				}
+			},
+			"flavor": "Le rayon est invisible. Le trou qu'il laisse, beaucoup moins."
+		},
+		"missiles_furtifs": {
+			"label": "Missiles furtifs",
+			"domain": "armement",
+			"era": 4,
+			"text": "Missiles marque IV et torpilles marque IV.",
+			"pre": [
+				"essaims"
+			],
+			"effects": {
+				"marks": {
+					"missile": 1,
+					"torpedo": 1
+				}
+			},
+			"flavor": "Les tourelles adverses tirent sur ce qu'elles voient. C'est tout le problème."
+		},
+		"blindage_reactif": {
+			"label": "Blindage réactif",
+			"domain": "armement",
+			"era": 4,
+			"text": "Blindage marque IV et défense ponctuelle marque IV.",
+			"pre": [
+				"plaques_ablatives"
+			],
+			"effects": {
+				"marks": {
+					"armor": 1,
+					"pd": 1
+				}
+			}
+		},
+		"obusiers": {
+			"label": "Obusiers à fragmentation",
+			"domain": "armement",
+			"era": 4,
+			"text": "Artillerie marque III et chasseurs marque III.",
+			"pre": [
+				"artillerie"
+			],
+			"effects": {
+				"marks": {
+					"artillery": 1,
+					"fighters": 1
+				}
+			}
+		},
+		"canons_singularite": {
+			"label": "Canons à singularité",
+			"domain": "armement",
+			"era": 5,
+			"text": "Canons cinétiques marque V et artillerie marque IV.",
+			"pre": [
+				"canons_rail"
+			],
+			"effects": {
+				"marks": {
+					"kinetic": 1,
+					"artillery": 1
+				}
+			},
+			"flavor": "Le projectile pèse un gramme. Il en paraît beaucoup plus à l'arrivée."
+		},
+		"lances_stellaires": {
+			"label": "Lances stellaires",
+			"domain": "armement",
+			"era": 5,
+			"text": "Rayons marque V et boucliers marque V.",
+			"pre": [
+				"faisceaux_gamma"
+			],
+			"effects": {
+				"marks": {
+					"beam": 1,
+					"shield": 1
+				}
+			}
+		},
+		"torpilles_singulieres": {
+			"label": "Torpilles à singularité",
+			"domain": "armement",
+			"era": 5,
+			"text": "Missiles marque V et torpilles marque V.",
+			"pre": [
+				"missiles_furtifs",
+				"antimatiere"
+			],
+			"effects": {
+				"marks": {
+					"missile": 1,
+					"torpedo": 1
+				}
+			}
+		},
+		"matiere_programmable": {
+			"label": "Matière programmable",
+			"domain": "armement",
+			"era": 5,
+			"text": "Blindage marque V et défense ponctuelle marque V.",
+			"pre": [
+				"blindage_reactif"
+			],
+			"effects": {
+				"marks": {
+					"armor": 1,
+					"pd": 1
+				}
+			}
+		},
+		"escadres_autonomes": {
+			"label": "Escadres autonomes",
+			"domain": "armement",
+			"era": 5,
+			"text": "Chasseurs marque IV et artillerie marque V.",
+			"pre": [
+				"obusiers"
+			],
+			"effects": {
+				"marks": {
+					"fighters": 1,
+					"artillery": 1
+				}
+			}
+		},
+		"nuees_pensantes": {
+			"label": "Nuées pensantes",
+			"domain": "armement",
+			"era": 5,
+			"text": "Chasseurs marque V.",
+			"pre": [
+				"escadres_autonomes"
+			],
+			"effects": {
+				"marks": {
+					"fighters": 1
+				}
+			},
+			"flavor": "Elles votent avant chaque attaque. Toujours à l'unanimité."
+		},
+		"rideau_acier": {
+			"label": "Rideau d'acier",
+			"domain": "armement",
+			"era": 2,
+			"text": "Doctrine : les vaisseaux d'écran encaissent 20 % de dégâts en moins.",
+			"effects": {
+				"screen_taken_pct": -20
+			},
+			"doctrine": true,
+			"exclusive": "frappe_profondeur",
+			"eureka": {
+				"kind": "battles_won",
+				"n": 2
+			}
+		},
+		"frappe_profondeur": {
+			"label": "Frappe en profondeur",
+			"domain": "armement",
+			"era": 2,
+			"text": "Doctrine : 25 % des tirs ignorent les rangs et visent n'importe quel vaisseau, arrière compris.",
+			"effects": {
+				"deep_strike_pct": 25
+			},
+			"doctrine": true,
+			"exclusive": "rideau_acier",
+			"eureka": {
+				"kind": "battles_won",
+				"n": 2
+			}
+		},
+		"feu_lointain": {
+			"label": "Feu lointain",
+			"domain": "armement",
+			"era": 3,
+			"text": "Doctrine : +15 % de dégâts à longue portée, -10 % à courte portée.",
+			"effects": {
+				"phase_damage_pct": {
+					"long": 15,
+					"short": -10
+				}
+			},
+			"doctrine": true,
+			"exclusive": "abordage",
+			"eureka": {
+				"kind": "battles_won",
+				"n": 4
+			}
+		},
+		"abordage": {
+			"label": "Abordage",
+			"domain": "armement",
+			"era": 3,
+			"text": "Doctrine : +15 % de dégâts à courte portée et +25 % de troupes embarquées.",
+			"effects": {
+				"phase_damage_pct": {
+					"short": 15
+				},
+				"troops_pct": 25
+			},
+			"doctrine": true,
+			"exclusive": "feu_lointain",
+			"eureka": {
+				"kind": "battles_won",
+				"n": 4
+			}
+		},
+		"guerre_usure": {
+			"label": "Guerre d'usure",
+			"domain": "armement",
+			"era": 4,
+			"text": "Doctrine : réparations deux fois plus rapides, sièges 25 % plus efficaces.",
+			"effects": {
+				"repair_pct": 100,
+				"siege_pct": 25
+			},
+			"doctrine": true,
+			"exclusive": "guerre_eclair",
+			"eureka": {
+				"kind": "battles_won",
+				"n": 8
+			}
+		},
+		"guerre_eclair": {
+			"label": "Guerre éclair",
+			"domain": "armement",
+			"era": 4,
+			"text": "Doctrine : flottes 20 % plus rapides, +10 % de dégâts le premier jour de chaque bataille.",
+			"effects": {
+				"fleet_speed_pct": 20,
+				"first_day_damage_pct": 10
+			},
+			"doctrine": true,
+			"exclusive": "guerre_usure",
+			"eureka": {
+				"kind": "battles_won",
+				"n": 8
+			}
 		}
-	}
+	},
+	"marks": {
+		"step_pct": 20,
+		"max": 5,
+		"families": [
+			"kinetic",
+			"beam",
+			"missile",
+			"torpedo",
+			"artillery",
+			"fighters",
+			"armor",
+			"shield",
+			"pd"
+		],
+		"labels": {
+			"kinetic": "Canons cinétiques",
+			"beam": "Rayons",
+			"missile": "Missiles",
+			"torpedo": "Torpilles",
+			"artillery": "Artillerie",
+			"fighters": "Chasseurs",
+			"armor": "Blindage",
+			"shield": "Boucliers",
+			"pd": "Défense ponctuelle"
+		}
+	},
+	"eureka_pct": 40,
+	"wreck_pct": 10
 }

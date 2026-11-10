@@ -2,7 +2,8 @@ extends SceneTree
 ## Captures de la recherche avec le rendu réel :
 ##   xvfb-run -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_research.gd
 ## Écrit les images dans CAPTURE_DIR (par défaut user://captures) : l'arbre du Chœur Éternel en début
-## de partie (une hérésie choisie), puis en milieu de partie avec une file, et l'arbre de Vael.
+## de partie (une hérésie choisie), puis en milieu de partie avec une file, une doctrine et des épaves,
+## une flotte à remettre à niveau, et l'arbre de Vael.
 
 
 func _initialize() -> void:
@@ -41,13 +42,35 @@ func _initialize() -> void:
 		if Research.check_queue(st, 0, t) == "":
 			Research.apply_queue(st, 0, t, false)
 	me.research_progress = Research.cost(st, 0, me.research_queue[0]) / 3 if not me.research_queue.is_empty() else 0
+	# Lot 2 : une doctrine choisie (l'autre est barrée), des épaves et un eurêka en cours.
+	Research.grant(st, 0, ["rideau_acier"])
+	me.eurekas["mondes_toxiques"] = true
+	me.research_shelf["mondes_toxiques"] = Research.cost(st, 0, "mondes_toxiques") * 40 / 100
+	me.research_shelf["frappe_profondeur"] = Research.cost(st, 0, "frappe_profondeur") * 30 / 100
 	main._refresh_all()
 	main.toggle_empire_screen("research")
 	main._empire_screens.research_selected = "esprits_lies"
 	main._empire_screens.show_screen("research")
 	await _frames(30)
 	await _shot(out + "/recherche-choeur-milieu.png")
+	main._empire_screens.research_selected = "frappe_profondeur"
+	main._empire_screens.show_screen("research")
+	await _frames(20)
+	await _shot(out + "/recherche-doctrine.png")
 	main.close_empire_screen()
+
+	# Une flotte en retard d'une marque, à quai chez elle : le bouton de remise à niveau.
+	var home := st.galaxy.get_planet(me.capital_planet).system_id
+	var war := st.spawn_ship(0, "fregate", home)
+	war.add_ship("fregate", -1, war.gen[0])
+	war.add_ship("corvette", -1, war.gen[0])
+	Research.grant(st, 0, ["accelerateurs"])
+	me.resources["materials"] = maxi(500, int(me.resources["materials"]))
+	main._refresh_all()
+	main.select_fleet(war.id)
+	main.focus_fleet(war.id)
+	await _frames(30)
+	await _shot(out + "/flotte-remise-a-niveau.png")
 
 	var sv := GameState.create(2026, 150, 1800.0, "vael", {"ai_level": "normal"})
 	main._start(sv)
