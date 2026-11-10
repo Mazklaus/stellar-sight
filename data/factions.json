@@ -64,13 +64,13 @@
 		"ai": {"style": "Essaimage : des colonies pleines qui crachent des spores, sans jamais compter l'influence.", "colony_bonus": 10, "outpost_bonus": 5, "building_bias": "ferme_hydroponique", "food_margin": 4, "research_bias": {"societe": 2, "armement": 2, "economie": -2}, "temperament": {"label": "Vorace", "aggression": 1, "never_peace": true, "text": "Un cran plus agressif que le réglage, et ne fera jamais la paix (quand la diplomatie existera)."}},
 		"start_ships": ["scout", "spore_ship"],
 		"ships_excluded": ["colony_ship"],
-		"combat": {"always_war": true, "digest": true, "repair_anywhere": true, "garrison_pct": 150},
+		"combat": {"prey": true, "digest": true, "repair_anywhere": true, "garrison_pct": 150},
 		"biomass": {"materials": 15},
 		"trait": "Croissance explosive, essaimage et biomasse : l'Essaim ne négocie pas, il grandit.",
 		"traits": [
 			{"name": "Croissance explosive", "text": "Population deux fois plus rapide, mais chaque population mange 50 % de plus et l'influence est divisée par deux."},
 			{"name": "Essaimage", "text": "Pas de vaisseau colon : des vaisseaux-spores, payés en population (2) et en nourriture. Coloniser ne coûte jamais d'influence."},
 			{"name": "Biomasse", "text": "Une colonie pleine continue de grandir : chaque population en trop est digérée en 15 matériaux."},
-			{"name": "Faim sans traité", "text": "L'Essaim est en guerre avec tout empire qu'il rencontre, et ne signe rien. Les colonies conquises sont digérées : il n'y reste qu'une population, le reste devient biomasse. Ses coques vivantes se réparent partout, et chaque larve défend la ruche : garnisons 50 % plus nombreuses."}
+			{"name": "Faim sans traité", "text": "L'Essaim chasse une proie à la fois : sans guerre, il attaque le premier empire rencontré, puis, sa proie digérée, le plus proche. Il ne signe rien, et ses autres voisins le savent : dès qu'il a goûté au sang et les dépasse, ils se liguent contre lui. Les colonies conquises sont digérées : il n'y reste qu'une population, le reste devient biomasse. Ses coques vivantes se réparent partout, et chaque larve défend la ruche : garnisons 50 % plus nombreuses."}
 		]}
 ]

@@ -205,7 +205,7 @@ func _test_alliances() -> void:
 	st2.colonies[e.home_planet].population = 300
 	e.stats["digested"] = 100
 	Research.grant(st2, 0, ["grande_moisson"])
-	_months(st2, 1)
+	_months(st2, 25)
 	_ok(st2.winner.get("victory", "") == "moisson" and Array(st2.winner["allies"]).is_empty(), "une victoire de peuple ne se partage pas")
 
 
@@ -363,11 +363,14 @@ func _test_moisson() -> void:
 	_ok(not p["won"] and int(p["pct"]) == 0, "Moisson : rien de digéré, 0 %")
 	e.stats["digested"] = 50
 	p = Victory.progress(st, 0, "moisson")
-	_ok(not p["won"] and int(p["pct"]) == mini(50, Victory.met_at() - 1), "Moisson : la moitié digérée (%d %%)" % int(p["pct"]))
+	_ok(not p["won"] and int(p["pct"]) == (Victory.met_at() - 1) / 2, "Moisson : la moitié digérée (%d %%)" % int(p["pct"]))
 	e.stats["digested"] = 100
 	Research.grant(st, 0, ["grande_moisson"])
 	_months(st, 1)
-	_ok(st.winner.get("victory", "") == "moisson", "Moisson : faite, victoire immédiate")
+	p = Victory.progress(st, 0, "moisson")
+	_ok(st.winner.is_empty() and p["cond"] and int(p["pct"]) >= Victory.met_at(), "Moisson : seuils atteints, le compte à rebours démarre (%d %%)" % int(p["pct"]))
+	_months(st, 24)
+	_ok(st.winner.get("victory", "") == "moisson", "Moisson : faite après deux ans tenus")
 	# La digestion d'une conquête est bien comptée.
 	var st2 := _state("khthari")
 	var victim := _id_of(st2, "vael")
@@ -397,7 +400,7 @@ func _test_visibility_and_threat() -> void:
 	var st2 := _state("khthari")
 	var e := st2.get_empire(0)
 	st2.colonies[e.home_planet].population = 300
-	e.stats["digested"] = 52
+	e.stats["digested"] = 70  # 70 % du chemin d'approche (74 %) : un peu plus de la moitié
 	_months(st2, 1)
 	_ok(String(st2.chronicle.back()["text"]).contains("mi-chemin"), "alerte à mi-chemin")
 	var n := st2.chronicle.size()

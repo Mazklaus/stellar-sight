@@ -231,7 +231,8 @@ func _test_khthari() -> void:
 	cap.growth = Economy.growth_threshold(cap.population) - 1
 	var mat: int = e.resources["materials"]
 	sim.step()
-	_ok(e.resources["materials"] == mat + 15 and e.biomass == 15, "biomasse : +15 matériaux pour une population en trop")
+	var bio := int(e.faction()["biomass"]["materials"])
+	_ok(e.resources["materials"] == mat + bio and e.biomass == bio, "biomasse : +%d matériaux pour une population en trop" % bio)
 	_ok(cap.population == Economy.max_pop(st, st.galaxy.get_planet(cap.planet_id), 0, cap.buildings), "la population ne dépasse pas le maximum")
 	var other := _game("vael")
 	var oc: Colony = other.state.colonies[other.state.empires[0].capital_planet]

@@ -68,9 +68,9 @@
 			"kind": "people", "label": "La Moisson",
 			"requires": {"archetype": ["ruche"]},
 			"tech": "grande_moisson",
-			"text": "Porter %d %% de toute la population de la galaxie, et avoir digéré au moins %d population conquise.",
+			"text": "Porter %d %% de toute la population de la galaxie, avoir digéré au moins %d population conquise, et tenir ainsi %d ans.",
 			"counter": "Coalition militaire, coloniser plus vite, reprendre les mondes.",
-			"pop_share_pct": 50, "digested": 100,
+			"pop_share_pct": 50, "digested": 100, "hold_days": 720, "on_fail": "reset",
 			"chronicle": "La Moisson est faite. %s ne conquiert plus la galaxie : il la digère."
 		}
 	}

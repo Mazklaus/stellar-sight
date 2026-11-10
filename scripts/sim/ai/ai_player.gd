@@ -942,6 +942,8 @@ static func _declare_wars(ctx: Dictionary) -> void:
 	if state.tick < int(war.get("grace_days", 240)):
 		return
 	var aggr := AiLevels.aggression(e)
+	if _swarm_coalition(ctx):
+		return
 	if _skill(ctx) >= 1 and aggr < 2:
 		for w in e.wars:
 			if _borders(ctx, w):
@@ -978,6 +980,33 @@ static func _declare_wars(ctx: Dictionary) -> void:
 			return
 
 
+## Coalition contre l'Essaim : dès qu'un Essaim voisin a goûté au sang (une première conquête) et
+## qu'il tient au moins 25 % de systèmes de plus que soi, ses autres voisins entrent en guerre contre
+## lui sans compter les forces, même s'ils ont déjà un front ; sauf les pacifiques et la Recrue, qui
+## ne voit pas venir le danger.
+static func _swarm_coalition(ctx: Dictionary) -> bool:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if _skill(ctx) < 1 or AiLevels.aggression(e) <= -2:
+		return false
+	for other in e.contacts:
+		var o := state.get_empire(int(other))
+		if o == null or o.eliminated or e.wars.has(o.id) or not Combat.hunts(state, o.id):
+			continue
+		if int(o.stats.get("conquests", 0)) <= 0 or not _borders(ctx, o.id, 3):
+			continue
+		# La peur suit la menace : on ne rejoint la coalition que contre un Essaim plus grand que soi.
+		@warning_ignore("integer_division")
+		if Victory.systems_held(state, o.id) * 4 < Victory.systems_held(state, e.id) * 5:
+			continue
+		if SimCommands.validate(state, SimCommands.declare_war(e.id, o.id)) != "" or _forgets(ctx):
+			continue
+		if _issue(ctx, SimCommands.declare_war(e.id, o.id)):
+			_intent(ctx, "Rejoint la coalition contre %s" % o.short_name())
+			return true
+	return false
+
+
 ## Combien de vaisseaux de guerre l'empire veut : la base du niveau, plus selon ses colonies,
 ## doublée en guerre ; le tempérament l'augmente ou la réduit.
 static func wanted_warships(ctx: Dictionary) -> int:
@@ -992,10 +1021,28 @@ static func wanted_warships(ctx: Dictionary) -> int:
 	var aggr := AiLevels.aggression(e)
 	if not e.wars.is_empty():
 		n = n * 2 + 2
+	elif _swarm_near(ctx) >= 0:
+		@warning_ignore("integer_division")
+		n = n * 3 / 2 + 1  # un Essaim qui chasse à nos portes : on arme sans attendre d'être sa proie
 	elif aggr < 0:
 		@warning_ignore("integer_division")
 		n = maxi(1, n * 2 / 3)
 	return n + maxi(0, aggr)
+
+
+## Un Essaim rencontré, en chasse, qui a un système à 3 sauts des nôtres : son identifiant, sinon -1.
+static func _swarm_near(ctx: Dictionary) -> int:
+	if ctx.has("swarm_near"):
+		return ctx["swarm_near"]
+	var state: GameState = ctx["state"]
+	var out := -1
+	for other in ctx["e"].contacts:
+		var o := state.get_empire(int(other))
+		if o != null and not o.eliminated and Combat.hunts(state, o.id) and _borders(ctx, o.id, 3):
+			out = o.id
+			break
+	ctx["swarm_near"] = out
+	return out
 
 
 static func _warship_count(ctx: Dictionary) -> int:

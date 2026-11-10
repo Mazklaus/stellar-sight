@@ -154,7 +154,11 @@ static func _meet(state: GameState, a: Empire, b: Empire, added: Array[Dictionar
 		b.contacts.sort()
 	added.append(state.add_chronicle("Premier contact entre %s et %s. Chacun trouve l'autre étrange, et se garde bien de le dire." % [
 			a.display_name(), b.display_name()]))
-	# L'Essaim Kh'thari ne négocie pas : la rencontre vaut déclaration de guerre.
-	if not a.wars.has(b.id) and (Combat.always_war(state, a.id) or Combat.always_war(state, b.id)):
-		var swarm := a if Combat.always_war(state, a.id) else b
-		added.append(Combat.start_war(state, swarm.id, (b if swarm == a else a).id, true))
+	# L'Essaim Kh'thari ne négocie pas : s'il n'a pas de proie, la rencontre vaut déclaration de guerre.
+	# Il ne chasse qu'une proie à la fois ; les autres attendront leur tour (voir CombatSystem._hunger).
+	for pair in [[a, b], [b, a]]:
+		var swarm: Empire = pair[0]
+		var prey: Empire = pair[1]
+		if Combat.hunts(state, swarm.id) and not swarm.wars.has(prey.id) and not Combat.has_live_war(state, swarm.id):
+			added.append(Combat.start_war(state, swarm.id, prey.id, true))
+			break
