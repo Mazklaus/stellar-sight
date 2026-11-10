@@ -329,6 +329,11 @@ static func score(state: GameState, empire_id: int) -> int:
 			continue
 		pts += c.population * int(s.get("pop", 2)) + int(s.get("colony", 10) if c.is_colony() else s.get("outpost", 4))
 	pts += e.techs.size() * int(s.get("tech", 5))
+	# Merveilles et mégastructures (data/buildings.json, champ score).
+	var w := Economy.wonders(state)
+	for key in w:
+		if int(w[key]) == empire_id:
+			pts += int(GameData.building(String(key).get_slice("#", 0)).get("score", 0))
 	pts += int(e.stats.get("kills", 0)) * int(s.get("kill", 2))
 	pts += int(e.stats.get("conquests", 0)) * int(s.get("conquest", 10))
 	@warning_ignore("integer_division")

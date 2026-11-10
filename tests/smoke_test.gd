@@ -23,6 +23,7 @@ func _initialize() -> void:
 	preload("res://tests/arsenal_tests.gd").new().run(_check)
 	preload("res://tests/design_tests.gd").new().run(_check)
 	preload("res://tests/victory_tests.gd").new().run(_check)
+	preload("res://tests/late_era_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()

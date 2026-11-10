@@ -18,9 +18,15 @@
 		"pop_yields": {}, "city_pop_yields": {"energy": 2, "materials": 1}, "outpost_yields": {"energy": 3},
 		"weights": {"yellow": 20, "red": 18, "white": 16, "blue_giant": 22, "neutron": 10, "black_hole": 10}},
 	"barren": {"label": "Stérile", "base_hab": 0, "sizes": [1, 3],
-		"pop_yields": {}, "outpost_yields": {"materials": 2},
+		"pop_yields": {}, "city_pop_yields": {"materials": 2, "energy": 1}, "outpost_yields": {"materials": 2},
 		"weights": {"yellow": 18, "red": 22, "white": 24, "blue_giant": 22, "neutron": 34, "black_hole": 30}},
 	"asteroids": {"label": "Ceinture d'astéroïdes", "base_hab": 0, "sizes": [1, 1],
-		"pop_yields": {}, "outpost_yields": {"materials": 3},
-		"weights": {"yellow": 10, "red": 14, "white": 23, "blue_giant": 24, "neutron": 45, "black_hole": 53}}
+		"pop_yields": {}, "city_pop_yields": {"materials": 3}, "outpost_yields": {"materials": 3},
+		"weights": {"yellow": 10, "red": 14, "white": 23, "blue_giant": 24, "neutron": 45, "black_hole": 53}},
+	"gaia": {"label": "Monde-jardin", "base_hab": 100, "sizes": [1, 5], "terraformed": true,
+		"pop_yields": {"food": 2, "energy": 2, "materials": 2}, "outpost_yields": {"food": 2},
+		"weights": {}},
+	"ecumenopole": {"label": "Écuménopole", "base_hab": 100, "sizes": [3, 5], "terraformed": true, "pop_per_size_pct": 200,
+		"pop_yields": {"energy": 3, "materials": 3, "knowledge": 1}, "outpost_yields": {"energy": 2},
+		"weights": {}}
 }

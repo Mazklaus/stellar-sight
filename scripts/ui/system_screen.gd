@@ -33,6 +33,7 @@ const TYPE_DOT_COLORS := {
 	"continental": Color(0.3, 0.6, 0.35), "ocean": Color(0.2, 0.45, 0.85), "desert": Color(0.9, 0.65, 0.35),
 	"arctic": Color(0.85, 0.92, 1.0), "toxic": Color(0.65, 0.75, 0.2), "gas_giant": Color(0.88, 0.72, 0.5),
 	"barren": Color(0.55, 0.53, 0.5), "asteroids": Color(0.6, 0.55, 0.48),
+	"gaia": Color(0.3, 0.8, 0.45), "ecumenopole": Color(0.9, 0.76, 0.42),
 }
 
 var view: SystemView
@@ -566,12 +567,21 @@ func _build_action(p: Planet, bid: String, b: Dictionary) -> Dictionary:
 	var gain := GameData.format_amounts(b.get("yields", {}), true)
 	if b.has("max_pop"):
 		gain = "+%d pop max" % int(b["max_pop"])
+	var verb := "Construire"
+	if b.has("terraform"):
+		verb = "Projet"
+		var target := Economy.terraform_target(_state, _player, p, bid)
+		gain = "devient : %s" % String(GameData.planet_type(target).get("label", target)) if target != "" else "pas sur ce monde"
+	elif b.has("upgrades"):
+		verb = "Améliorer"
+		gain = "remplace %s, %s" % [String(GameData.building(String(b["upgrades"])).get("label", "")).to_lower(), gain]
 	var pid := p.id
+	var tip := String(b.get("text", ""))
 	return {
-		"text": "Construire : %s" % b["label"],
+		"text": "%s : %s" % [verb, b["label"]],
 		"detail": "%s, %d j  »  %s" % [GameData.format_amounts(Economy.building_cost(_state, _player, bid)), int(b["days"]), gain],
 		"reason": reason,
-		"tooltip": reason,
+		"tooltip": ("%s\n\n%s" % [reason, tip]) if reason != "" and tip != "" else (reason if reason != "" else tip),
 		"action": func() -> void: build_requested.emit(pid, bid),
 	}
 

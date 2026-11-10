@@ -42,6 +42,11 @@ const PLANET_LOOKS := {
 		"c_high": Color(0.66, 0.63, 0.58), "atmo": Color(0.6, 0.6, 0.6), "atmo_strength": 0.05},
 	"asteroids": {"mode": 2, "c_deep": Color(0.3, 0.27, 0.24), "c_shallow": Color(0.5, 0.46, 0.4), "c_low": Color(0.2, 0.18, 0.16),
 		"c_high": Color(0.62, 0.58, 0.52), "atmo": Color(0.5, 0.5, 0.5), "atmo_strength": 0.0, "relief_scale": 4.0},
+	"gaia": {"c_deep": Color(0.02, 0.12, 0.32), "c_shallow": Color(0.1, 0.48, 0.6), "c_low": Color(0.2, 0.55, 0.22),
+		"c_high": Color(0.42, 0.68, 0.3), "atmo": Color(0.5, 0.85, 1.0), "sea_level": 0.48, "ice": 0.04, "clouds": 0.55},
+	"ecumenopole": {"c_deep": Color(0.16, 0.15, 0.17), "c_shallow": Color(0.3, 0.28, 0.3), "c_low": Color(0.46, 0.42, 0.36),
+		"c_high": Color(0.9, 0.76, 0.42), "atmo": Color(1.0, 0.82, 0.5), "atmo_strength": 0.45, "sea_level": -1.0,
+		"clouds": 0.15, "relief_scale": 6.0},
 }
 ## Variantes de couleurs des géantes gazeuses (choisies d'après la planète).
 const GAS_PALETTES := [

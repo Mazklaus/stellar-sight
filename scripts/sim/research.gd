@@ -216,7 +216,7 @@ static func cost(state: GameState, empire_id: int, tid: String, colonies := -1) 
 	var known := e.techs.size() if e else 0
 	c = c * (1000 + int(d.get("per_known_permille", 0)) * known) / 1000
 	if colonies < 0:
-		colonies = colony_count(state, empire_id)
+		colonies = cost_colonies(state, empire_id)
 	var extra := maxi(0, colonies - int(d.get("free_colonies", 0))) * int(d.get("per_colony_pct", 0))
 	c = c * (100 + extra) / 100
 	if e:
@@ -228,6 +228,35 @@ static func cost(state: GameState, empire_id: int, tid: String, colonies := -1) 
 		if is_heretic(f, tid):
 			c = c * int(t["heretic"].get("cost_pct", 100)) / 100
 	return maxi(1, c)
+
+
+## Colonies qui comptent dans le surcoût de recherche : les colonies fondées, moins celles que
+## couvrent les Préfectures (free_colonies chacune).
+static func cost_colonies(state: GameState, empire_id: int) -> int:
+	var n := 0
+	var free := 0
+	for pid in state.colonies:
+		var c: Colony = state.colonies[pid]
+		if c.owner == empire_id and c.is_colony() and c.is_established():
+			n += 1
+			for b in c.buildings:
+				free += int(_free_colony_buildings().get(b, 0))
+	return maxi(0, n - free)
+
+
+static var _free_cache := {}
+static var _free_cached := false
+
+
+## Bâtiments qui couvrent des colonies (Préfecture) : id -> nombre, lu une fois dans les données.
+static func _free_colony_buildings() -> Dictionary:
+	if not _free_cached:
+		for bid in GameData.buildings():
+			var n := int(GameData.building(bid).get("free_colonies", 0))
+			if n > 0:
+				_free_cache[bid] = n
+		_free_cached = true
+	return _free_cache
 
 
 static func colony_count(state: GameState, empire_id: int) -> int:
@@ -304,7 +333,28 @@ static func check_queue(state: GameState, empire_id: int, tid: String, front := 
 		return "ère %d fermée en %s : il faut %d technologies de l'ère %d (%d)" % [
 				era, String(domain(String(t["domain"])).get("label", t["domain"])), era_threshold(era), era - 1,
 				count_in(planned, String(t["domain"]), era - 1)]
+	if not ultimate_ok(planned, tid):
+		return "technologie ultime : il faut %d autres technologies de l'ère %d en %s (%d)" % [
+				int(t["ultimate"]), era, String(domain(String(t["domain"])).get("label", t["domain"])),
+				count_in(planned, String(t["domain"]), era)]
 	return ""
+
+
+## Technologie ultime (champ ultimate = n) : il faut n autres technologies de sa propre ère dans son
+## domaine, quelles qu'elles soient (comme les technologies de l'Endless d'Endless Space 2).
+static func ultimate_ok(have: Dictionary, tid: String) -> bool:
+	var t := tech(tid)
+	if not t.has("ultimate"):
+		return true
+	var n := count_in(have, String(t["domain"]), int(t.get("era", 1)))
+	if have.has(tid):
+		n -= 1
+	return n >= int(t["ultimate"])
+
+
+## Technologie ultime ?
+static func is_ultimate(tid: String) -> bool:
+	return tech(tid).has("ultimate")
 
 
 ## Une technologie peut-elle être recherchée tout de suite (prérequis et ère, sans compter la file) ?
@@ -316,7 +366,7 @@ static func is_available(state: GameState, empire_id: int, tid: String) -> bool:
 	for p in t.get("pre", []):
 		if not _satisfies(e.faction(), e.techs, String(p)):
 			return false
-	return era_open(e.techs, String(t["domain"]), int(t.get("era", 1)))
+	return era_open(e.techs, String(t["domain"]), int(t.get("era", 1))) and ultimate_ok(e.techs, tid)
 
 
 static func check_remove(state: GameState, empire_id: int, tid: String) -> String:
@@ -382,7 +432,7 @@ static func _plannable(e: Empire, planned: Dictionary, tid: String) -> bool:
 	for p in t.get("pre", []):
 		if not _satisfies(e.faction(), planned, String(p)):
 			return false
-	return era_open(planned, String(t["domain"]), int(t.get("era", 1)))
+	return era_open(planned, String(t["domain"]), int(t.get("era", 1))) and ultimate_ok(planned, tid)
 
 
 ## Après une insertion en tête, remet en ordre la file pour que chaque technologie suive ses prérequis.
@@ -789,9 +839,9 @@ static func _merge(into: Dictionary, fx: Dictionary) -> void:
 	for k in fx:
 		var v: Variant = fx[k]
 		if v is Dictionary:
+			# (sous-dictionnaires à plusieurs niveaux : outpost_yields {type: {ressource: n}})
 			var sub: Dictionary = into.get(k, {})
-			for kk in v:
-				sub[kk] = int(sub.get(kk, 0)) + int(v[kk])
+			_merge(sub, v)
 			into[k] = sub
 		else:
 			into[k] = int(into.get(k, 0)) + int(v)
