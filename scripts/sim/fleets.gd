@@ -476,7 +476,9 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	var sd := GameData.ship(ship_id)
 	if sd.is_empty():
 		return "classe de vaisseau inconnue : %s" % ship_id
-	if not FactionTraits.ship_ids_for(e.faction_id).has(ship_id):
+	if not Designs.can_build_id(state, empire_id, ship_id):
+		if sd.get("custom", false):
+			return "ce modèle n'est pas disponible pour vous (retiré, ou conçu par un autre empire)"
 		return "votre peuple ne construit pas de %s" % String(sd["plural"]).to_lower()
 	if not ship_unlocked(state, empire_id, ship_id):
 		return "technologie requise : %s" % Research.missing_text(state, empire_id, sd.get("requires_tech", []))

@@ -113,6 +113,16 @@ static func refit(player: int, fleet_id: int) -> Dictionary:
 	return {"type": "refit", "player": player, "fleet": fleet_id}
 
 
+## Enregistre un modèle de vaisseau (voir Designs.check_save pour spec).
+static func save_design(player: int, spec: Dictionary) -> Dictionary:
+	return {"type": "save_design", "player": player, "spec": spec.duplicate(true)}
+
+
+## Retire un modèle de la liste de construction (retired false : l'y remet). Ses vaisseaux restent.
+static func retire_design(player: int, design_id: String, retired := true) -> Dictionary:
+	return {"type": "retire_design", "player": player, "design": design_id, "retired": retired}
+
+
 ## Débarque les troupes d'une flotte sur le système ennemi où elle stationne : il change de mains.
 static func invade(player: int, fleet_id: int) -> Dictionary:
 	return {"type": "invade", "player": player, "fleet": fleet_id}
@@ -179,6 +189,10 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Diplomacy.check_mediate(state, int(cmd["player"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)))
 		"set_tactic":
 			return Combat.check_tactic(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("tactic", "")))
+		"save_design":
+			return Designs.check_save(state, int(cmd["player"]), cmd.get("spec", {}))
+		"retire_design":
+			return Designs.check_retire(state, int(cmd["player"]), String(cmd.get("design", "")))
 		"refit":
 			return Fleets.check_refit(state, int(cmd["player"]), int(cmd.get("fleet", -1)))
 		"invade":
@@ -315,6 +329,10 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Diplomacy.mediate(state, int(cmd["player"]), int(cmd["a"]), int(cmd["b"]))
 		"set_tactic":
 			state.fleets[int(cmd["fleet"])].tactic = String(cmd["tactic"])
+		"save_design":
+			Designs.save(state, int(cmd["player"]), cmd["spec"])
+		"retire_design":
+			state.designs[String(cmd["design"])]["retired"] = bool(cmd.get("retired", true))
 		"refit":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			Economy.pay(state.get_empire(f.owner), Fleets.refit_cost(state, f))
