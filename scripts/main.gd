@@ -752,6 +752,12 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 			var sname := galaxy.get_system(f.system_id).system_name
 			if _submit(SimCommands.invade(view_empire, fleet_id)):
 				_hud.notify("%s : les troupes débarquent sur %s." % [f.fleet_name, sname], "good")
+		"refit":
+			var why := SimCommands.validate(simulation.state, SimCommands.refit(view_empire, fleet_id))
+			if why != "":
+				_hud.notify("%s : %s." % [f.fleet_name, why], "warn")
+			elif _submit(SimCommands.refit(view_empire, fleet_id)):
+				_hud.notify("%s entre au chantier pour %d jours : partir avant la fin interrompt les travaux." % [f.fleet_name, Fleets.refit_days()], "good")
 		"report":
 			toggle_battle_report()
 		"colonize":

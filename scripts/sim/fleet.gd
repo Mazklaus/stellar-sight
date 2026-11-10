@@ -13,6 +13,14 @@ var fleet_name: String = ""
 var ships: Array[String] = []
 ## Points de structure de chaque vaisseau, dans le même ordre que ships.
 var hp: Array[int] = []
+## Marques d'armes et de défenses de chaque vaisseau (aligné sur ships) : indice dans
+## Empire.marks_log, l'état des marques de l'empire quand le vaisseau est sorti du chantier ou y a
+## été remis à niveau. -1 : toujours à jour (anciennes sauvegardes, vaisseaux de test).
+var gen: Array[int] = []
+## Jours restants de remise à niveau au chantier (0 : aucune en cours).
+var refit_left: int = 0
+## Marque du dernier vaisseau retiré par remove_ship_hp (pour le reporter dans une autre flotte).
+var last_gen: int = -1
 ## Troupes embarquées (équipages prêts à débarquer) : au plus Combat.max_troops(flotte).
 var troops: int = 0
 ## Tactique de combat (data/combat.json, « tactics ») : choisie avant la bataille, comme les plans
@@ -58,10 +66,11 @@ func count(ship_id: String) -> int:
 
 
 ## Ajoute un vaisseau à sa place dans l'ordre trié ; hp < 0 : intact.
-func add_ship(ship_id: String, ship_hp := -1) -> void:
+func add_ship(ship_id: String, ship_hp := -1, ship_gen := -1) -> void:
 	var i := ships.bsearch(ship_id, false)
 	ships.insert(i, ship_id)
 	hp.insert(i, ship_hp if ship_hp >= 0 else max_hp_of(ship_id))
+	gen.insert(i, ship_gen)
 
 
 ## Retire un vaisseau de cette classe (le plus abîmé : on garde les meilleurs).
@@ -79,8 +88,10 @@ func remove_ship_hp(ship_id: String) -> int:
 	if best < 0:
 		return -1
 	var h := hp[best]
+	last_gen = gen[best]
 	ships.remove_at(best)
 	hp.remove_at(best)
+	gen.remove_at(best)
 	return h
 
 
@@ -88,6 +99,7 @@ func remove_ship_hp(ship_id: String) -> int:
 func remove_at(i: int) -> void:
 	ships.remove_at(i)
 	hp.remove_at(i)
+	gen.remove_at(i)
 
 
 static func max_hp_of(ship_id: String) -> int:
@@ -122,6 +134,8 @@ func to_dict() -> Dictionary:
 		"hp": Array(hp),
 		"troops": troops,
 		"tactic": tactic,
+		"gen": Array(gen),
+		"refit": refit_left,
 	}
 
 
@@ -137,6 +151,10 @@ static func from_dict(d: Dictionary) -> Fleet:
 	for i in f.ships.size():
 		var mx := max_hp_of(f.ships[i])
 		f.hp.append(clampi(int(saved_hp[i]), 1, mx) if i < saved_hp.size() else mx)
+	var saved_gen: Array = d.get("gen", [])
+	for i in f.ships.size():
+		f.gen.append(int(saved_gen[i]) if i < saved_gen.size() else -1)
+	f.refit_left = maxi(0, int(d.get("refit", 0)))
 	f.troops = maxi(0, int(d.get("troops", 0)))
 	f.tactic = String(d.get("tactic", ""))
 	f.system_id = int(d["system"])

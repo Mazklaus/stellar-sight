@@ -80,6 +80,9 @@ func show_report(state: GameState, viewer: int, r: Dictionary) -> void:
 	else:
 		var we := state.get_empire(winner)
 		_outcome.text = "Victoire de %s%s" % [we.display_name(), "  ·  la vôtre" if winner == viewer else ""]
+		var wrecks: Array = r.get("wrecks", [])
+		if not wrecks.is_empty() and (winner == viewer or viewer < 0):
+			_outcome.text += "\nÉpaves étudiées : %s." % ", ".join(PackedStringArray(wrecks))
 		_outcome.add_theme_color_override("font_color", UiTheme.GOOD if winner == viewer else (UiTheme.BAD if _fought(r, viewer) else UiTheme.TEXT))
 	for c in _sides.get_children():
 		_sides.remove_child(c)

@@ -279,6 +279,10 @@ static func check_queue(state: GameState, empire_id: int, tid: String, front := 
 	for q in e.research_queue:
 		planned[q] = true
 	var t := tech(tid)
+	var other := String(t.get("exclusive", ""))
+	if other != "" and planned.has(other):
+		return "doctrine fermée : vous avez choisi « %s » (définitif ; celle-ci ne s'obtient plus que par les épaves)" % \
+				String(tech(other).get("label", other))
 	var missing := PackedStringArray()
 	for p in t.get("pre", []):
 		if not _satisfies(f, planned, String(p)):
@@ -456,6 +460,278 @@ static func grant_all(state: GameState, empire_id: int) -> void:
 		grant(state, empire_id, visible_ids(e.faction()))
 
 
+# --- Marques d'armes et de défenses -------------------------------------------------------------
+
+## Familles à marques (6 armes, 3 défenses), dans l'ordre d'affichage.
+static func mark_families() -> Array:
+	return data().get("marks", {}).get("families", [])
+
+
+static func mark_label(fam: String) -> String:
+	return String(data().get("marks", {}).get("labels", {}).get(fam, fam))
+
+
+## Bonus d'une marque, en points de % (+20 par marque au-delà de la première).
+static func mark_bonus(mark: int) -> int:
+	return int(data().get("marks", {}).get("step_pct", 20)) * maxi(0, mark - 1)
+
+
+## Marques actuelles de l'empire {famille: 1..5} : ce que reçoit un vaisseau neuf ou remis à niveau.
+static func marks(state: GameState, empire_id: int) -> Dictionary:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return {}
+	effects(state, empire_id)
+	return e.tech_marks
+
+
+## Indice de l'état actuel des marques dans Empire.marks_log (ajouté s'il a changé) : le vaisseau
+## qui sort du chantier le garde jusqu'à sa prochaine remise à niveau.
+static func mark_gen(state: GameState, empire_id: int) -> int:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return -1
+	var now := marks(state, empire_id)
+	if e.marks_log.is_empty() or e.marks_log[e.marks_log.size() - 1] != now:
+		e.marks_log.append(now.duplicate())
+	return e.marks_log.size() - 1
+
+
+## Marques d'un vaisseau d'après son indice (-1 : celles de l'empire, toujours à jour).
+static func marks_of_gen(state: GameState, empire_id: int, g: int) -> Dictionary:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return {}
+	if g < 0 or g >= e.marks_log.size():
+		return marks(state, empire_id)
+	return e.marks_log[g]
+
+
+## Le vaisseau a-t-il des marques en retard sur celles de l'empire ?
+static func gen_outdated(state: GameState, empire_id: int, g: int) -> bool:
+	return g >= 0 and marks_of_gen(state, empire_id, g) != marks(state, empire_id)
+
+
+## Technologie qui donne la marque suivante d'une famille à cet empire ("" s'il n'y en a plus) :
+## la moins avancée de son arbre parmi celles qu'il ne connaît pas.
+static func next_mark_tech(state: GameState, empire_id: int, fam: String) -> String:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return ""
+	var best := ""
+	var best_era := 99
+	for tid in visible_ids(e.faction()):
+		if e.techs.has(tid) or not tech(tid).get("effects", {}).get("marks", {}).has(fam):
+			continue
+		var era := int(tech(tid).get("era", 1))
+		if era < best_era:
+			best_era = era
+			best = tid
+	return best
+
+
+# --- Épaves et eurêkas ---------------------------------------------------------------------------
+
+## Ajoute du Savoir déjà acquis à une technologie (épave, eurêka) : à la recherche en cours s'il
+## s'agit d'elle, sinon mis de côté. Une technologie entièrement payée ainsi est découverte aussitôt
+## (c'est la seule façon d'obtenir l'autre branche d'une doctrine). Renvoie true si elle l'est.
+static func add_progress(state: GameState, empire_id: int, tid: String, amount: int) -> bool:
+	var e := state.get_empire(empire_id)
+	if e == null or amount <= 0 or e.techs.has(tid):
+		return false
+	if not e.research_queue.is_empty() and e.research_queue[0] == tid:
+		e.research_progress += amount
+		return false  # achevée au prochain bilan, avec le reste de la recherche
+	var have := int(e.research_shelf.get(tid, 0)) + amount
+	if have >= cost(state, empire_id, tid) and not e.research_queue.has(tid):
+		complete(state, empire_id, tid)
+		return true
+	e.research_shelf[tid] = have
+	return false
+
+
+## Savoir déjà acquis pour une technologie (en cours ou mis de côté).
+static func progress_of(state: GameState, empire_id: int, tid: String) -> int:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return 0
+	if not e.research_queue.is_empty() and e.research_queue[0] == tid:
+		return e.research_progress
+	return int(e.research_shelf.get(tid, 0))
+
+
+## Pourcentage de bonus des épaves pour un peuple (Reliques saintes ×2, Mémoire génétique ×3).
+static func wreck_mult(faction: Dictionary) -> int:
+	return int(faction.get("research", {}).get("wreck_pct", 100))
+
+
+## Épaves (Stellaris) : le vainqueur d'une bataille étudie ce que le vaincu avait de plus avancé.
+## Chaque famille où le vaincu a une meilleure marque donne wreck_pct % (10 %) de la technologie de la
+## marque suivante ; chaque doctrine du vaincu que le vainqueur n'a pas, autant. Renvoie les
+## technologies touchées [[id, Savoir, découverte ?]...].
+@warning_ignore("integer_division")
+static func study_wrecks(state: GameState, winner: int, loser: int) -> Array:
+	var out: Array = []
+	var w := state.get_empire(winner)
+	var l := state.get_empire(loser)
+	if w == null or l == null:
+		return out
+	var pct := int(data().get("wreck_pct", 10)) * wreck_mult(w.faction()) / 100
+	var mine := marks(state, winner)
+	var theirs := marks(state, loser)
+	var targets: Array[String] = []
+	for fam in mark_families():
+		if int(theirs.get(fam, 1)) > int(mine.get(fam, 1)):
+			var tid := next_mark_tech(state, winner, String(fam))
+			if tid != "" and not targets.has(tid):
+				targets.append(tid)
+	for tid in l.sorted_techs():
+		if tech(String(tid)).get("doctrine", false) and not w.techs.has(tid) and is_visible(w.faction(), String(tid)):
+			targets.append(String(tid))
+	for tid in targets:
+		var amount := maxi(1, cost(state, winner, tid) * pct / 100)
+		out.append([tid, amount, add_progress(state, winner, tid, amount)])
+	return out
+
+
+const CLAIM_KINDS := ["colonies", "pop", "building", "deposit", "planet", "claim"]
+
+
+## Ce que tiennent les revendications fondées d'un empire, pour les eurêkas en attente `tids` (tous
+## ceux de son arbre si vide) : {"kind:what": total}. Un seul passage sur les revendications.
+static func claims_summary(state: GameState, empire_id: int, tids: Array = []) -> Dictionary:
+	var e := state.get_empire(empire_id)
+	var want: Array = []
+	for tid in (tids if not tids.is_empty() else visible_ids(e.faction())):
+		var eu: Dictionary = tech(String(tid)).get("eureka", {})
+		if CLAIM_KINDS.has(String(eu.get("kind", ""))):
+			var pair := [String(eu["kind"]), String(eu.get("what", ""))]
+			if not want.has(pair):
+				want.append(pair)
+	var out := {}
+	for pair in want:
+		out[pair[0] + ":" + pair[1]] = 0
+	if want.is_empty():
+		return out
+	for pid in state.colonies:
+		var c: Colony = state.colonies[pid]
+		if c.owner != empire_id or not c.is_established():
+			continue
+		var p := state.galaxy.get_planet(pid)
+		for pair in want:
+			var what: String = pair[1]
+			var n := 0
+			match String(pair[0]):
+				"colonies": n = 1 if c.is_colony() else 0
+				"pop": n = c.population if c.is_colony() else 0
+				"building": n = 1 if c.buildings.has(what) else 0
+				"deposit": n = 1 if p.deposits.has(what) else 0
+				"planet": n = 1 if c.is_colony() and p.type == what else 0
+				"claim": n = 1 if p.type == what else 0
+			if n != 0:
+				var k: String = pair[0] + ":" + what
+				out[k] = int(out[k]) + n
+	return out
+
+
+## Avancement d'un eurêka : [valeur actuelle, objectif]. Les conditions lisent l'état sans le changer.
+## summary : claims_summary déjà calculé (plusieurs eurêkas d'affilée), sinon calculé ici.
+static func eureka_status(state: GameState, empire_id: int, tid: String, summary := {}) -> Array:
+	var eu: Dictionary = tech(tid).get("eureka", {})
+	var e := state.get_empire(empire_id)
+	if eu.is_empty() or e == null:
+		return [0, 0]
+	var n := int(eu.get("n", 1))
+	var what := String(eu.get("what", ""))
+	var have := 0
+	match String(eu.get("kind", "")):
+		"kills", "ships_lost", "battles_won", "conquests", "besieged", "wars", "built", "sacrifices":
+			have = int(e.stats.get(String(eu["kind"]), 0))
+		"contacts":
+			have = e.contacts.size()
+		"explored":
+			have = e.explored.size()
+		"techs":
+			have = e.techs.size()
+		"exalted":
+			have = 1 if FactionTraits.is_exalted(state, empire_id) else 0
+		"trade", "peace":
+			for c in e.contacts:
+				var r: Dictionary = state.relations.get(Diplomacy.key(empire_id, c), {})
+				if String(eu["kind"]) == "trade" and int(r.get("trade", 0)) != 0:
+					have += 1
+				elif String(eu["kind"]) == "peace" and String(r.get("pact", "")) != "":
+					have += 1
+		_:
+			var k := String(eu["kind"]) + ":" + what
+			if not summary.has(k):
+				summary = claims_summary(state, empire_id, [tid])
+			have = int(summary.get(k, 0))
+	return [have, n]
+
+
+## Objectif d'un eurêka, en clair ("" s'il n'y en a pas).
+static func eureka_text(tid: String) -> String:
+	var eu: Dictionary = tech(tid).get("eureka", {})
+	if eu.is_empty():
+		return ""
+	var n := int(eu.get("n", 1))
+	var what := String(eu.get("what", ""))
+	var plural := "s" if n > 1 else ""
+	match String(eu.get("kind", "")):
+		"kills": return "détruire %d vaisseau%s ennemi%s" % [n, "x" if n > 1 else "", plural]
+		"ships_lost": return "perdre %d vaisseau%s au combat" % [n, "x" if n > 1 else ""]
+		"battles_won": return "gagner %d bataille%s" % [n, plural]
+		"conquests": return "conquérir %d système%s" % [n, plural]
+		"besieged": return "subir un siège"
+		"wars": return "entrer en guerre"
+		"built": return "construire %d vaisseau%s" % [n, "x" if n > 1 else ""]
+		"sacrifices": return "faire %d offrande%s" % [n, plural]
+		"contacts": return "rencontrer %d empire%s" % [n, plural]
+		"explored": return "explorer %d systèmes" % n
+		"techs": return "connaître %d technologies" % n
+		"exalted": return "atteindre l'Exaltation"
+		"trade": return "signer un accord commercial"
+		"peace": return "signer une paix"
+		"colonies": return "fonder %d colonies" % n
+		"pop": return "atteindre %d de population" % n
+		"building": return "avoir %d %s" % [n, String(GameData.building(what).get("label", what)).to_lower()]
+		"deposit": return "tenir %d gisement%s de %s" % [n, plural, String(GameData.deposit(what).get("label", what)).to_lower()]
+		"planet": return "coloniser un monde %s" % String(GameData.planet_type(what).get("label", what)).to_lower()
+		"claim": return "revendiquer une planète %s" % String(GameData.planet_type(what).get("label", what)).to_lower()
+	return ""
+
+
+## Eurêkas (Civilization VI) atteints ce mois-ci : chacun paie eureka_pct % (40 %) de la technologie,
+## une seule fois. Renvoie les technologies concernées.
+@warning_ignore("integer_division")
+static func check_eurekas(state: GameState, empire_id: int) -> Array[String]:
+	var out: Array[String] = []
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return out
+	var pct := int(data().get("eureka_pct", 40))
+	var pending: Array = []
+	for tid in visible_ids(e.faction()):
+		if not e.techs.has(tid) and not e.eurekas.has(tid) and tech(tid).has("eureka"):
+			pending.append(tid)
+	var summary := claims_summary(state, empire_id, pending) if not pending.is_empty() else {}
+	for tid in pending:
+		var st := eureka_status(state, empire_id, tid, summary)
+		if int(st[0]) < int(st[1]):
+			continue
+		e.eurekas[tid] = true
+		add_progress(state, empire_id, tid, maxi(1, cost(state, empire_id, tid) * pct / 100))
+		out.append(tid)
+	return out
+
+
+static func count_stat(state: GameState, empire_id: int, key: String, n := 1) -> void:
+	var e := state.get_empire(empire_id)
+	if e:
+		e.stats[key] = int(e.stats.get(key, 0)) + n
+
+
 # --- Effets -------------------------------------------------------------------------------------
 
 ## Effets cumulés des technologies connues : les nombres s'additionnent, les tables aussi, clé par clé.
@@ -464,7 +740,9 @@ static func grant_all(state: GameState, empire_id: int) -> void:
 ## building_slots, building_cost_pct, hab_bonus {type|"all"}, hab_set {type}, weapon_pct {famille},
 ## damage_pct, defense_pct {armor, shield, pd}, troops_pct, home_damage_pct, reinforcement_pct,
 ## garrison_pct, fleet_speed_pct, ship_days_pct, ship_cost_pct, upkeep_pct, claim_vision, alliances,
-## fervor_big_colony, sacrifice_gain, fief_influence, biomass_bonus.
+## fervor_big_colony, sacrifice_gain, fief_influence, biomass_bonus, marks {famille} (marques en plus),
+## doctrines : screen_taken_pct, deep_strike_pct, phase_damage_pct {long|medium|short}, repair_pct,
+## siege_pct, first_day_damage_pct.
 static func effects(state: GameState, empire_id: int) -> Dictionary:
 	var e := state.get_empire(empire_id)
 	if e == null:
@@ -485,6 +763,12 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted
+		var md: Dictionary = data().get("marks", {})
+		var bonus: Dictionary = base.get("marks", {})
+		var marks := {}
+		for fam in md.get("families", []):
+			marks[String(fam)] = mini(int(md.get("max", 5)), 1 + int(bonus.get(fam, 0)))
+		e.tech_marks = marks
 		e.tech_fx_n = e.techs.size()
 	# (appelé des centaines de milliers de fois par partie : l'exaltation n'est testée que si elle compte)
 	if e.tech_fx_has_exalted and FactionTraits.is_exalted(state, empire_id):

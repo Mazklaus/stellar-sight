@@ -108,6 +108,11 @@ static func set_tactic(player: int, fleet_id: int, tactic: String) -> Dictionary
 	return {"type": "set_tactic", "player": player, "fleet": fleet_id, "tactic": tactic}
 
 
+## Remet une flotte à niveau dans un chantier ami : ses vaisseaux prennent les marques actuelles.
+static func refit(player: int, fleet_id: int) -> Dictionary:
+	return {"type": "refit", "player": player, "fleet": fleet_id}
+
+
 ## Débarque les troupes d'une flotte sur le système ennemi où elle stationne : il change de mains.
 static func invade(player: int, fleet_id: int) -> Dictionary:
 	return {"type": "invade", "player": player, "fleet": fleet_id}
@@ -174,6 +179,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Diplomacy.check_mediate(state, int(cmd["player"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)))
 		"set_tactic":
 			return Combat.check_tactic(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("tactic", "")))
+		"refit":
+			return Fleets.check_refit(state, int(cmd["player"]), int(cmd.get("fleet", -1)))
 		"invade":
 			return Combat.check_invade(state, int(cmd["player"]), int(cmd.get("fleet", -1)))
 		"research_queue":
@@ -255,7 +262,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var into: Fleet = state.fleets[int(cmd["into"])]
 			for i in f.ships.size():
-				into.add_ship(f.ships[i], f.hp[i])
+				into.add_ship(f.ships[i], f.hp[i], f.gen[i])
 			into.troops += f.troops
 			state.fleets.erase(f.id)
 		"split_fleet":
@@ -265,6 +272,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var ship_hp := f.remove_ship_hp(ship_id)
 			var nf := state.spawn_ship(f.owner, ship_id, f.system_id)
 			nf.hp[0] = ship_hp
+			nf.gen[0] = f.last_gen
 			nf.tactic = f.tactic
 			# Les troupes se répartissent selon la capacité de chaque flotte.
 			@warning_ignore("integer_division")
@@ -277,6 +285,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			c.population -= 1
 			c.growth = 0
 			e.fervor = mini(int(fv["max"]), e.fervor + FactionTraits.sacrifice_gain(state, e.id))
+			Research.count_stat(state, e.id, "sacrifices")
 			state.add_chronicle("Offrande sur %s : un fidèle rejoint le dieu-machine. Il paraît que c'est un honneur ; il paraît surtout que c'est obligatoire." % [
 					state.galaxy.get_planet(c.planet_id).display_name(state.galaxy)])
 		"rush":
@@ -306,6 +315,10 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Diplomacy.mediate(state, int(cmd["player"]), int(cmd["a"]), int(cmd["b"]))
 		"set_tactic":
 			state.fleets[int(cmd["fleet"])].tactic = String(cmd["tactic"])
+		"refit":
+			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			Economy.pay(state.get_empire(f.owner), Fleets.refit_cost(state, f))
+			f.refit_left = Fleets.refit_days()
 		"invade":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var sid := f.system_id

@@ -44,6 +44,7 @@ static func think(state: GameState, e: Empire) -> void:
 	_buildings(ctx)
 	_foothold_claims(ctx)
 	_shipyards(ctx)
+	_refits(ctx)
 	_fleets(ctx)
 	# Les niveaux qui réfléchissent très souvent ne revoient leur stratégie militaire qu'un jour sur
 	# deux ou trois : la guerre se joue sur des semaines, et la simulation reste rapide.
@@ -622,6 +623,24 @@ static func _shipyards(ctx: Dictionary) -> void:
 		var yard := _best_yard(ctx, scout)
 		if yard and _res(ctx, "materials") - int(GameData.ship(scout).get("cost", {}).get("materials", 0)) >= _material_reserve(ctx):
 			_issue(ctx, SimCommands.build_ship(e.id, yard.planet_id, scout))
+
+
+## Remise à niveau : en paix, les flottes armées à quai dans un système à soi prennent les dernières
+## marques (si l'on peut payer sans entamer la réserve du prochain vaisseau colon).
+static func _refits(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if not e.wars.is_empty() or e.marks_log.is_empty():
+		return
+	for f in Fleets.empire_fleets(state, e.id):
+		if f.is_moving() or f.refit_left > 0 or not Combat.is_armed(f) or _forgets(ctx):
+			continue
+		if Fleets.outdated_count(state, f) == 0:
+			continue
+		var cost := Fleets.refit_cost(state, f)
+		if _res(ctx, "materials") - int(cost.get("materials", 0)) < _material_reserve(ctx):
+			continue
+		_issue(ctx, SimCommands.refit(e.id, f.id))
 
 
 ## Chantier spatial libre le plus adapté : la colonie la plus peuplée (un vaisseau-spore emporte
@@ -1263,7 +1282,7 @@ static func research_pick(ctx: Dictionary) -> String:
 		if labs.has(tid) or bias_techs.has(tid):
 			w *= 3  # le bâtiment de recherche et celui du penchant du peuple d'abord (Raffinerie d'Ossarane)
 		@warning_ignore("integer_division")
-		var score := w * int(ERA_VALUE[era - 1]) * 1000 / maxi(1, Research.cost(state, e.id, tid, colonies))
+		var score := w * int(ERA_VALUE[era - 1]) * 1000 / maxi(1, Research.cost(state, e.id, tid, colonies) - int(e.research_shelf.get(tid, 0)))
 		if use == 0:
 			score = score * (50 + posmod(hash([state.seed_value, e.id, tid, e.techs.size()]), 100)) / 100
 		if score > best_score:

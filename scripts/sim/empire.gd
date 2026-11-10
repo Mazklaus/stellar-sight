@@ -44,10 +44,20 @@ var techs: Dictionary = {}
 var research_queue: Array[String] = []
 var research_progress: int = 0
 var research_shelf: Dictionary = {}
+## États successifs des marques d'armes et de défenses ({famille: marque}) : les vaisseaux y renvoient
+## par indice (Fleet.gen). Une entrée s'ajoute quand une marque change.
+var marks_log: Array[Dictionary] = []
+## Faits d'armes et de règne comptés pour les eurêkas : kills, ships_lost, battles_won, conquests,
+## besieged, wars, built, sacrifices.
+var stats: Dictionary = {}
+## Eurêkas déjà obtenus (id de technologie -> true).
+var eurekas: Dictionary = {}
 ## Effets cumulés des technologies, recalculés quand tech_fx_n ne correspond plus (jamais sauvegardés).
 var tech_fx: Dictionary = {}
 var tech_fx_exalted: Dictionary = {}
 var tech_fx_n: int = -1
+## Marques actuelles {famille: marque}, recalculées avec tech_fx.
+var tech_marks: Dictionary = {}
 ## Une technologie connue change-t-elle d'effet quand le peuple est exalté ?
 var tech_fx_has_exalted: bool = false
 ## Population logeable par type de planète (pourcentage d'habitabilité, 0 si aucune), même règle.
@@ -100,7 +110,16 @@ func to_dict() -> Dictionary:
 		"queue": Array(research_queue),
 		"progress": research_progress,
 		"shelf": _sorted_shelf(),
+		"marks_log": marks_log.duplicate(true),
+		"stats": stats.duplicate(),
+		"eurekas": sorted_eurekas(),
 	}
+
+
+func sorted_eurekas() -> Array:
+	var ids := eurekas.keys()
+	ids.sort()
+	return ids
 
 
 func sorted_techs() -> Array:
@@ -158,4 +177,14 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.research_progress = int(d.get("progress", 0))
 	for pair in d.get("shelf", []):
 		e.research_shelf[String(pair[0])] = int(pair[1])
+	for m in d.get("marks_log", []):
+		var md := {}
+		for k in m:
+			md[String(k)] = int(m[k])
+		e.marks_log.append(md)
+	var st: Dictionary = d.get("stats", {})
+	for k in st:
+		e.stats[String(k)] = int(st[k])
+	for t in d.get("eurekas", []):
+		e.eurekas[String(t)] = true
 	return e

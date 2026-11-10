@@ -46,5 +46,6 @@
 	"troops_regen_pct": 10,
 	"garrison": {"per_pop": 5, "per_outpost": 6, "capital": 30, "regen_per_day": 2},
 	"besieged_production_pct": 50,
-	"reports_max": 12
+	"reports_max": 12,
+	"refit": {"days": 5, "cost_pct": 10, "_note": "Remise à niveau au chantier : les vaisseaux gardent les marques de leur construction jusque-là (étude des technologies, 10 % du prix et quelques jours)."}
 }

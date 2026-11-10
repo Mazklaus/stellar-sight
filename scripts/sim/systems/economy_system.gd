@@ -130,6 +130,15 @@ static func _monthly_research(state: GameState, e: Empire, income: int, added: A
 	if e.eliminated:
 		return
 	var era_before := Research.current_era(state, e.id)
+	# Eurêkas : ce qui s'est passé fait avancer la recherche (40 % d'une technologie). Vérifiés chaque
+	# trimestre, à tour de rôle selon l'empire : la simulation reste légère.
+	@warning_ignore("integer_division")
+	var quarter := posmod(state.tick / int(GameData.rules()["month_days"]) + e.id, 3) == 0
+	for tid in (Research.check_eurekas(state, e.id) if quarter else []):
+		if not e.is_ai():
+			added.append(state.add_chronicle("Eurêka ! Objectif atteint (%s) : les savants de %s font un bond de %d %s sur « %s »." % [
+					Research.eureka_text(tid), e.short_name(), int(Research.data().get("eureka_pct", 40)), "%",
+					String(Research.tech(tid).get("label", tid))]))
 	var done := Research.advance(state, e.id, income)
 	if done.is_empty():
 		return

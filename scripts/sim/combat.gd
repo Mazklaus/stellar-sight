@@ -88,10 +88,12 @@ static func max_troops(f: Fleet, state: GameState = null) -> int:
 	return n
 
 
-static func siege_power(f: Fleet) -> int:
+static func siege_power(f: Fleet, state: GameState = null) -> int:
 	var n := 0
 	for s in f.ships:
 		n += int(GameData.ship(s).get("siege", 0))
+	if state != null:
+		n = Research.scaled(n, Research.fx_int(state, f.owner, "siege_pct"))  # guerre d'usure
 	return n
 
 
@@ -255,14 +257,30 @@ static func at_war(state: GameState, a: int, b: int) -> bool:
 	return e != null and e.wars.has(b)
 
 
-## Bonus d'arme d'un empire (technologies) : weapon_pct de la famille + damage_pct, en points de %.
-static func weapon_bonus(state: GameState, empire_id: int, weapon: String) -> int:
-	return Research.fx_sub(state, empire_id, "weapon_pct", weapon) + Research.fx_int(state, empire_id, "damage_pct")
+## Bonus d'arme (technologies), en points de % : marque de la famille (celle du vaisseau, `marks`,
+## sinon celle de l'empire), weapon_pct de la famille (armes de peuple) et damage_pct.
+static func weapon_bonus(state: GameState, empire_id: int, weapon: String, marks := {}) -> int:
+	if marks.is_empty():
+		marks = Research.marks(state, empire_id)
+	return Research.mark_bonus(int(marks.get(weapon, 1))) + Research.fx_sub(state, empire_id, "weapon_pct", weapon) \
+			+ Research.fx_int(state, empire_id, "damage_pct")
 
 
-## Bonus de protection d'un empire (technologies) : {armor, shield, pd}.
-static func defense_bonus(state: GameState, empire_id: int) -> Dictionary:
-	return Research.effects(state, empire_id).get("defense_pct", {})
+## Bonus de protection (technologies) : {armor, shield, pd} en points de %, marques du vaisseau
+## (`marks`, sinon celles de l'empire) et defense_pct.
+static func defense_bonus(state: GameState, empire_id: int, marks := {}) -> Dictionary:
+	if marks.is_empty():
+		marks = Research.marks(state, empire_id)
+	var extra: Dictionary = Research.effects(state, empire_id).get("defense_pct", {})
+	var out := {}
+	for k in ["armor", "shield", "pd"]:
+		out[k] = Research.mark_bonus(int(marks.get(k, 1))) + int(extra.get(k, 0))
+	return out
+
+
+## Marques d'un vaisseau d'une flotte.
+static func ship_marks(state: GameState, f: Fleet, i: int) -> Dictionary:
+	return Research.marks_of_gen(state, f.owner, f.gen[i] if i < f.gen.size() else -1)
 
 
 ## Trait de combat d'un peuple (bloc "combat" de data/factions.json).
@@ -303,6 +321,8 @@ static func start_war(state: GameState, a: int, b: int, by_nature := false, join
 	if not ea.wars.has(b):
 		ea.wars.append(b)
 		ea.wars.sort()
+		Research.count_stat(state, a, "wars")
+		Research.count_stat(state, b, "wars")
 	if not eb.wars.has(a):
 		eb.wars.append(a)
 		eb.wars.sort()
@@ -440,6 +460,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 	var eo := state.get_empire(old)
 	var en := state.get_empire(new_owner)
 	Diplomacy.note_conquest(state, new_owner, old)
+	Research.count_stat(state, new_owner, "conquests")
 	var digest := bool(trait_value(state, new_owner, "digest", false))
 	var bio := int(en.faction().get("biomass", {}).get("materials", 0))
 	var digested := 0

@@ -381,6 +381,63 @@ static func composition(fleet: Fleet) -> String:
 	return ", ".join(parts) if not parts.is_empty() else "aucun vaisseau"
 
 
+# --- Remise à niveau ---------------------------------------------------------------------------
+
+## Vaisseaux de la flotte dont les marques sont en retard sur celles de l'empire.
+static func outdated_count(state: GameState, f: Fleet) -> int:
+	var n := 0
+	for i in f.ships.size():
+		if i < f.gen.size() and Research.gen_outdated(state, f.owner, f.gen[i]):
+			n += 1
+	return n
+
+
+## Coût de la remise à niveau : cost_pct % (10 %) du prix de chaque vaisseau en retard.
+static func refit_cost(state: GameState, f: Fleet) -> Dictionary:
+	var out := {}
+	var pct := int(Combat.data().get("refit", {}).get("cost_pct", 10))
+	for i in f.ships.size():
+		if i < f.gen.size() and Research.gen_outdated(state, f.owner, f.gen[i]):
+			var c := ship_cost(state, f.owner, f.ships[i])
+			for r in c:
+				out[r] = int(out.get(r, 0)) + int(c[r])
+	for r in out:
+		@warning_ignore("integer_division")
+		out[r] = maxi(1, int(out[r]) * pct / 100)
+	return out
+
+
+static func refit_days() -> int:
+	return int(Combat.data().get("refit", {}).get("days", 5))
+
+
+## Un chantier ami : une colonie fondée de l'empire dans ce système.
+static func has_own_yard(state: GameState, empire_id: int, system_id: int) -> bool:
+	for pid in state.galaxy.systems[system_id].planet_ids:
+		var c: Colony = state.colonies.get(pid)
+		if c != null and c.owner == empire_id and c.is_established() and c.is_colony():
+			return true
+	return false
+
+
+static func check_refit(state: GameState, empire_id: int, fleet_id: int) -> String:
+	var f: Fleet = state.fleets.get(fleet_id)
+	if f == null or f.owner != empire_id:
+		return "cette flotte ne vous appartient pas"
+	if f.refit_left > 0:
+		return "remise à niveau déjà en cours (encore %d jours)" % f.refit_left
+	if outdated_count(state, f) == 0:
+		return "les vaisseaux ont déjà les dernières marques"
+	if f.is_moving() or not has_own_yard(state, empire_id, f.system_id):
+		return "il faut être à l'arrêt dans un système où vous avez une colonie (son chantier fait le travail)"
+	if state.battles.has(f.system_id):
+		return "impossible en pleine bataille"
+	var cost := refit_cost(state, f)
+	if not Economy.can_afford(state.get_empire(empire_id), cost):
+		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)
+	return ""
+
+
 # --- Vérification des ordres -------------------------------------------------------------------
 
 static func check_move(state: GameState, empire_id: int, fleet_id: int, system_id: int) -> String:
@@ -476,6 +533,8 @@ static func check_merge(state: GameState, empire_id: int, fleet_id: int, into_id
 		return "une flotte ne peut pas fusionner avec elle-même"
 	if f.is_moving() or into.is_moving() or f.system_id != into.system_id:
 		return "les deux flottes doivent être à l'arrêt dans le même système"
+	if f.refit_left > 0 or into.refit_left > 0:
+		return "une des flottes est en remise à niveau au chantier"
 	return ""
 
 
@@ -487,6 +546,8 @@ static func check_split(state: GameState, empire_id: int, fleet_id: int, ship_id
 		return "impossible en plein trajet"
 	if f.ships.size() < 2:
 		return "la flotte n'a qu'un vaisseau"
+	if f.refit_left > 0:
+		return "la flotte est en remise à niveau au chantier"
 	if f.count(ship_id) == 0:
 		return "aucun vaisseau de cette classe dans la flotte"
 	return ""

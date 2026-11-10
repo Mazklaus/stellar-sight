@@ -7,7 +7,7 @@ extends RefCounted
 ## stockée : elle se régénère à l'identique depuis la graine. Seules les données
 ## qui changent en cours de partie sont sérialisées.
 
-const FORMAT_VERSION := 8
+const FORMAT_VERSION := 9
 const CHRONICLE_MAX := 50
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
@@ -272,7 +272,7 @@ func spawn_ship(owner_id: int, ship_id: String, system_id: int) -> Fleet:
 	next_fleet_id += 1
 	f.owner = owner_id
 	f.fleet_name = "%s %d" % [GameData.ship(ship_id).get("label", ship_id), n]
-	f.add_ship(ship_id)
+	f.add_ship(ship_id, -1, Research.mark_gen(self, owner_id))
 	f.troops = Combat.max_troops(f, self)
 	f.system_id = system_id
 	fleets[f.id] = f
