@@ -153,8 +153,8 @@ Les trois autres peuples sont menés par l'ordinateur : ils explorent, colonisen
 | Niveau | Comment il joue | Bonus |
 |---|---|---|
 | **Recrue** | Réfléchit tous les 20 jours, oublie une décision sur trois, se sert très mal des talents de son peuple, une seule colonisation à la fois | aucun |
-| **Normal** (par défaut) | Tous les 10 jours, quelques oublis, connaît les bases de son peuple | aucun |
-| **Vétéran** | Tous les 5 jours, aucun oubli, exploite tout le registre de son peuple et lit son goulot (quand les matériaux s'entassent, il construit des forums pour l'influence) | aucun |
+| **Normal** (par défaut) | Tous les 10 jours, quelques oublis, connaît les bases de son peuple ; quand ses matériaux s'entassent (500), il construit des forums pour l'influence | aucun |
+| **Vétéran** | Tous les 5 jours, aucun oubli, exploite tout le registre de son peuple et lit son goulot plus tôt (forums dès 250 matériaux en réserve) | aucun |
 | **Expert** | Le jeu du Vétéran | +15 % de production, petite avance au départ |
 | **Légende** | Le jeu du Vétéran, plus réactif encore | +30 % de production, vraie avance au départ |
 

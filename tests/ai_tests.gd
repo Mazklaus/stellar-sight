@@ -17,6 +17,7 @@ func run(check: Callable) -> void:
 	_test_talents()
 	_test_save()
 	_test_temperament()
+	_test_bottleneck()
 	_test_performance()
 
 
@@ -33,6 +34,22 @@ func _total_score(st: GameState) -> int:
 	for e in st.empires:
 		n += EmpireReport.score(st, e.id)
 	return n
+
+
+## Goulot d'influence : quand les matériaux s'entassent, l'IA Normale bâtit aussi des forums
+## (au-delà de 500 ; le Vétéran dès 250).
+func _test_bottleneck() -> void:
+	var st := GameState.create(7, 150, 1800.0, "", {"spectator": true, "ai_level": "normal"})
+	var e := st.empires[0]
+	var c: Colony = st.colonies[e.capital_planet]
+	var wishes := func(level: String, mats: int) -> Array[String]:
+		e.resources["materials"] = mats
+		var ctx := {"state": st, "e": e, "lv": AiLevels.level(level), "ai": AiLevels.personality(e), "salt": 0, "intent": ""}
+		var net := {"influence": 10, "energy": 50, "food": 50, "materials": 50, "crystals": 5}
+		return AiPlayer.building_wishes(ctx, c, net)
+	_ok(not wishes.call("normal", 300).has("forum"), "IA Normale, 300 matériaux et assez d'influence : pas de forum")
+	_ok(wishes.call("normal", 600).has("forum"), "IA Normale, matériaux entassés : elle bâtit des forums pour l'influence")
+	_ok(wishes.call("veteran", 300).has("forum"), "le Vétéran lit son goulot plus tôt (dès 250 matériaux)")
 
 
 func _test_levels() -> void:
