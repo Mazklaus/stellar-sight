@@ -437,6 +437,8 @@ func _fill_modules() -> void:
 		var ok := _accepts(stype, kind, mid)
 		if not ok and not later:
 			continue
+		if not Designs.module_allowed(mid, _state.get_empire(_player).faction_id):
+			continue  # module d'un autre peuple
 		var b := Button.new()
 		b.text = "%s\n%s" % [m.get("label", mid), module_value(mid, size)]
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT

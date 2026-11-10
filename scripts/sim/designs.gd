@@ -19,8 +19,9 @@ extends RefCounted
 ## fleet_speed : vitesse minimale de toute la flotte (moteur de trame).
 const STATS := ["hp", "armor", "shield", "pd", "pd_fleet", "shield_fleet", "fleet_speed", "speed", "vision", "troops", "siege"]
 ## Drapeaux qu'un module transmet au vaisseau (fleet_repair : la flotte se répare partout comme chez
-## elle ; fleet_barracks : ses troupes se reforment partout).
-const FLAGS := ["blockade_runner", "adaptive", "fleet_repair", "fleet_barracks"]
+## elle ; fleet_barracks : ses troupes se reforment partout ; anchor : les ennemis ne quittent pas la
+## bataille ; reliquary : ferveur à chaque victoire ; digester : épaves changées en matériaux).
+const FLAGS := ["blockade_runner", "adaptive", "fleet_repair", "fleet_barracks", "anchor", "reliquary", "digester"]
 const LINES := ["screen", "line", "rear"]
 const TARGETS := ["nearest", "largest", "smallest", "rear"]
 const NAME_MAX := 32
@@ -105,6 +106,9 @@ static func compute(hull_id: String, modules: Array) -> Dictionary:
 		# Méga-coques des échelons supérieurs : leurs équipes posent plusieurs modules à la fois.
 		@warning_ignore("integer_division")
 		out["days"] = int(out["days"]) + int(_sized(m.get("days", 0), size)) * int(h.get("module_days_pct", 100)) / 100
+		# Entretien des modules (négatif : le module rapporte, comme le cœur-étoile).
+		for r in m.get("upkeep", {}):
+			out["upkeep"][r] = int(out["upkeep"].get(r, 0)) + int(m["upkeep"][r])
 		for flag in FLAGS:
 			if m.get(flag, false):
 				out[flag] = true
@@ -333,6 +337,9 @@ static func check_save(state: GameState, empire_id: int, spec: Dictionary) -> St
 	var why := check_fit(hid, mods, extras(state, empire_id, hid))
 	if why != "":
 		return why
+	for mid in mods:
+		if not module_allowed(String(mid), e.faction_id):
+			return "votre peuple n'utilise pas le module %s" % String(module(String(mid)).get("label", mid))
 	var techs := required_techs(hid, mods)
 	if not Research.knows_all(state, empire_id, techs):
 		return "technologie requise : %s" % Research.missing_text(state, empire_id, techs)
@@ -489,8 +496,15 @@ static func _usable(state: GameState, empire_id: int, hull_id: String, slot_type
 			continue
 		if not Research.knows_all(state, empire_id, m.get("requires_tech", [])):
 			continue
+		if not module_allowed(mid, state.get_empire(empire_id).faction_id):
+			continue
 		out.append(mid)
 	return out
+
+
+## Un module de peuple ("requires": {"species": …}) ne va qu'aux peuples qui remplissent ses conditions.
+static func module_allowed(mid: String, faction_id: String) -> bool:
+	return FactionTraits.species_matches(GameData.faction(faction_id), module(mid).get("requires", {}).get("species", {}))
 
 
 ## Intérêt d'une arme pour un rôle : dégâts pondérés par phase, et (qualité 2) contre les défenses vues.
@@ -565,6 +579,7 @@ static func auto_design(state: GameState, empire_id: int, hull_id: String, role_
 	var th := threat(state, empire_id) if quality >= 2 else {}
 	var counts: Dictionary = hull(hull_id).get("slots", {})
 	var mods: Array = []
+	var mega_slots := int(counts.get("titanic", 0)) + int(counts.get("colossal", 0)) + int(counts.get("astral", 0))
 	var n_def := 0
 	var k := 0
 	for t in slot_types():
@@ -574,7 +589,16 @@ static func auto_design(state: GameState, empire_id: int, hull_id: String, role_
 			if options.is_empty():
 				continue
 			var pick := ""
-			if quality <= 0:
+			# Un module de peuple dans un emplacement de méga-coque : l'IA se sert du talent de son peuple,
+			# dès qu'il lui reste un autre emplacement de méga-coque pour l'arme ou le bouclier du rôle.
+			if quality >= 1 and t in ["titanic", "colossal", "astral"] and mega_slots >= 2:
+				for mid in options:
+					if module(mid).get("requires", {}).has("species") and not mods.has(mid):
+						pick = mid
+						break
+			if pick != "":
+				pass
+			elif quality <= 0:
 				pick = options[posmod(hash([state.seed_value, empire_id, hull_id, role_id, salt, k]), options.size())]
 			elif t == "defense":
 				pick = _defense_pick(options, n_def, role, quality, th)

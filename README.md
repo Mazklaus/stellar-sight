@@ -390,6 +390,12 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
 | Nef-monde | A10 L5 D10 S8 T2 C1 As1 | A4 L11 D9 S9 T2 C1 As1 | Bastion (écran) : A6 L6 D11 S11 T1 C1 As2 |
 
   Les IA conçoivent et lancent aussi leurs méga-vaisseaux, en commençant par l'échelon le plus haut qu'elles savent construire ; chacune a sa variante préférée.
+
+  Autres modules des emplacements de méga-coques :
+  - titanesques : **dôme antimissile** (antimissile de toute la flotte), **caserne titanesque** (de quoi envahir sans transports), **œil du titan** (+3 sauts de vision) ;
+  - colossal : **ancre gravitationnelle** (tant que la bataille dure, aucune flotte ennemie en guerre ne peut quitter le système) ;
+  - astraux : **soleil captif** (lance stellaire géante), **cœur-étoile** (entretien négatif : le vaisseau rapporte de l'énergie chaque mois) ;
+  - modules de peuple (`"requires": {"species": …}` sur le module, réservés aux peuples qui remplissent la condition) : **propulseurs de navigateurs** (Ossarane, titanesque : force les blocus, plus rapide), **noyau des Quarante** (Vael, titanesque : tactique Adaptative), **reliquaire du dieu-machine** (Chœur, titanesque : +10 de ferveur à chaque victoire), **ventre digesteur** (Kh'thari, colossal : un quart du coût en matériaux des vaisseaux ennemis détruits). La conception automatique monte le module du peuple dès que la coque a un deuxième emplacement de méga-coque.
   Les grandes équipes des méga-chantiers posent plusieurs modules à la fois (durée des modules à 60 % sur le Léviathan, 40 % sur la Nef-monde). Blindage et boucliers empilés plafonnent à 75 % (`defense_cap`, les technologies montent jusqu'à 90 %), pour qu'une méga-coque bardée reste vulnérable.
 
 ## Organisation du code

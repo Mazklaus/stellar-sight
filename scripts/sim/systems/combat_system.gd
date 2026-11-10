@@ -419,6 +419,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 				elif not studied.has(lbl):
 					studied.append(lbl)
 		report["wrecks"] = Array(studied) + Array(found)
+		_trophies(state, b, winner, report)
 		var we := state.get_empire(winner)
 		if not we.is_ai() and not found.is_empty():
 			added.append(state.add_chronicle("Les épaves de %s livrent leurs secrets : %s découvre %s." % [
@@ -525,6 +526,36 @@ static func _battery_fire(state: GameState, sid: int, by: Array[Fleet]) -> void:
 		f.troops = mini(f.troops, Combat.max_troops(f, state))
 		if f.ships.is_empty():
 			state.fleets.erase(f.id)
+
+
+## Méga-modules de peuple du vainqueur : le reliquaire nourrit la ferveur, le ventre digesteur change
+## les épaves ennemies en matériaux (un quart de ce qu'elles avaient coûté).
+static func _trophies(state: GameState, b: Dictionary, winner: int, report: Dictionary) -> void:
+	var relic := false
+	var digest := false
+	for s: Dictionary in b["sides"]:
+		if int(s["empire"]) == winner:
+			for ship in s["engaged"]:
+				var sd := GameData.ship(String(ship))
+				relic = relic or bool(sd.get("reliquary", false))
+				digest = digest or bool(sd.get("digester", false))
+	if not relic and not digest:
+		return
+	var e := state.get_empire(winner)
+	if relic and FactionTraits.has_fervor(e.faction()):
+		e.fervor = mini(int(e.faction()["fervor"]["max"]), e.fervor + int(Combat.data().get("reliquary_fervor", 10)))
+		report["relic"] = true
+	if digest:
+		var mats := 0
+		for s: Dictionary in b["sides"]:
+			if int(s["empire"]) != winner and Combat.at_war(state, winner, int(s["empire"])):
+				for ship in s["lost"]:
+					mats += int(GameData.ship(String(ship)).get("cost", {}).get("materials", 0)) * int(s["lost"][ship])
+		@warning_ignore("integer_division")
+		var gain := mats * int(Combat.data().get("digester_pct", 25)) / 100
+		if gain > 0:
+			e.resources["materials"] = int(e.resources.get("materials", 0)) + gain
+			report["digested"] = gain
 
 
 # --- Réparations et troupes --------------------------------------------------------------------

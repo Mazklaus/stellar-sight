@@ -458,6 +458,8 @@ static func check_move(state: GameState, empire_id: int, fleet_id: int, system_i
 		return "ce système n'apparaît sur aucune de vos cartes"
 	if not f.is_moving() and f.system_id == system_id:
 		return "la flotte y est déjà"
+	if not f.is_moving() and anchored(state, f):
+		return "une ancre gravitationnelle ennemie retient la flotte tant que la bataille dure"
 	if plan_route(state, f, system_id).is_empty():
 		return "aucune route connue jusque-là"
 	return ""
@@ -526,6 +528,16 @@ static func count_same_hull(state: GameState, empire_id: int, ship_id: String) -
 		if c.owner == empire_id and c.ship_build != "" and unique_key(c.ship_build) == key:
 			n += 1
 	return n
+
+
+## Une ancre gravitationnelle ennemie (en guerre) retient la flotte dans la bataille de son système.
+static func anchored(state: GameState, f: Fleet) -> bool:
+	if not state.battles.has(f.system_id):
+		return false
+	for other in fleets_at(state, f.system_id):
+		if other.owner != f.owner and Combat.at_war(state, other.owner, f.owner) and Combat._fleet_has_flag(other, "anchor"):
+			return true
+	return false
 
 
 ## Clé de la règle « un seul par empire » : "echelon:N" pour un méga-vaisseau, sinon sa coque ("" sans coque).

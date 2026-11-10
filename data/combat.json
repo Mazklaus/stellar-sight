@@ -35,6 +35,8 @@
 	},
 	"pd_cap": 60,
 	"defense_cap": 75,
+	"reliquary_fervor": 10,
+	"digester_pct": 25,
 	"default_tactic": "equilibre",
 	"tactics": [
 		{"id": "equilibre", "label": "Équilibre", "dmg": [100, 100, 100], "taken": 100,
