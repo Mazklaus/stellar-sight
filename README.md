@@ -426,6 +426,10 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
 
 ![Fin de partie](docs/apercu-fin-de-partie.png)
 
+## Modèles 3D des vaisseaux (en préparation)
+
+Les vaisseaux auront un modèle 3D source (glTF), produit à partir d'un concept Midjourney par Tripo, puis cuit dans Blender par `tools/vaisseaux/cuire_vaisseau.py` et contrôlé par `tools/vaisseaux/apercu_vaisseau.gd`. Le jeu ne les charge pas encore. Règles (nommage, axes, budgets, cartes, masque d'empire, points d'attache) et commandes : [docs/vaisseaux-3d.md](docs/vaisseaux-3d.md).
+
 ## Organisation du code
 
 La simulation et l'affichage sont séparés dès maintenant, pour pouvoir ajouter le multijoueur et passer en 2,5D sans tout réécrire.
