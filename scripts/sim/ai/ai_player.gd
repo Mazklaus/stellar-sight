@@ -41,6 +41,7 @@ static func think(state: GameState, e: Empire) -> void:
 	}
 	_faction_talents(ctx)
 	_research(ctx)
+	_victory(ctx)
 	_buildings(ctx)
 	_foothold_claims(ctx)
 	_designs(ctx)
@@ -360,6 +361,8 @@ static func _fervor(ctx: Dictionary, use: int) -> void:
 	var fv: Dictionary = e.faction()["fervor"]
 	var next := e.fervor + FactionTraits.fervor_delta(state, e.id)
 	var floor_wanted := int(fv["exalted_at"]) if use >= 2 else int(fv["decay"]) * 2
+	if use >= 1 and _singing(ctx):
+		floor_wanted = int(fv["exalted_at"])  # le Dernier Couplet ne se chante qu'en Exaltation
 	if next >= floor_wanted or _forgets(ctx):
 		return
 	# Le fidèle vient de la colonie la plus peuplée (jamais en dessous de 3 : on garde de quoi grandir).
@@ -399,6 +402,64 @@ static func _rush(ctx: Dictionary, use: int) -> void:
 			if cost >= 0 and _res(ctx, "influence") - cost >= keep:
 				if _issue(ctx, SimCommands.rush(e.id, c.planet_id, FactionTraits.RUSH_BUILDING)):
 					_intent(ctx, "Vote d'urgence sur un chantier")
+
+
+# --- Victoire de peuple ------------------------------------------------------------------------
+
+## Poursuivre sa victoire de peuple : cathédrales du Dernier Couplet, unions de l'Élu des routes.
+## La Charte (paix et commerce avec tous) et la Moisson (croître et digérer) se jouent avec les modules
+## habituels. La Recrue s'y prend mal : cathédrale sur sa plus petite colonie, unions oubliées.
+static func _victory(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if Victory.applies(state, e.id, "couplet") and Victory.has_tech(state, e.id, "couplet"):
+		_cathedrals(ctx)
+	if Victory.applies(state, e.id, "elu") and Victory.has_tech(state, e.id, "elu"):
+		for other in Diplomacy.allies(state, e.id):
+			if _forgets(ctx):
+				continue
+			if _issue(ctx, SimCommands.unite_lineages(e.id, other)):
+				_intent(ctx, "Unit ses lignées à celles de %s" % state.get_empire(other).short_name())
+
+
+## Systèmes qui ont (ou auront) une cathédrale de l'empire.
+static func _cathedral_sites(ctx: Dictionary) -> Dictionary:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var b := String(Victory.info("couplet")["building"])
+	var sites := {}
+	for c in _own_colonies(state, e.id, false):
+		if c.buildings.has(b) or c.construction == b:
+			sites[state.galaxy.get_planet(c.planet_id).system_id] = true
+	return sites
+
+
+static func _cathedrals(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var b := String(Victory.info("couplet")["building"])
+	var sites := _cathedral_sites(ctx)
+	if sites.size() >= int(Victory.info("couplet")["sites"]) or _forgets(ctx):
+		return
+	var use := _use(ctx)
+	var best: Colony = null
+	for c in _my_colonies(ctx):
+		if not c.is_colony() or c.construction != "" or sites.has(state.galaxy.get_planet(c.planet_id).system_id):
+			continue
+		if Economy.check_build(state, e.id, c.planet_id, b) != "":
+			continue
+		# Les bonnes IA bâtissent sur leurs mondes les plus peuplés (plus durs à prendre), la Recrue au hasard du plus petit.
+		if best == null or (c.population > best.population if use >= 1 else c.population < best.population):
+			best = c
+	if best and _issue(ctx, SimCommands.build(e.id, best.planet_id, b)):
+		_intent(ctx, "Bâtit une Cathédrale-chœur sur %s" % state.galaxy.get_planet(best.planet_id).display_name(state.galaxy))
+
+
+## Le Chœur chante-t-il (ou peut-il chanter) le Dernier Couplet : toutes ses cathédrales debout ?
+static func _singing(ctx: Dictionary) -> bool:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	return Victory.applies(state, e.id, "couplet") and Victory.cathedral_systems(state, e.id).size() >= int(Victory.info("couplet")["sites"])
 
 
 # --- 2. Bâtiments ------------------------------------------------------------------------------
@@ -841,6 +902,11 @@ static func _declare_wars(ctx: Dictionary) -> void:
 		if Diplomacy.has_pact(state, e.id, other) and (aggr < 2 or op > -20):
 			continue
 		var need_here := need + maxi(0, op) * 2
+		# Un empire dont le compte à rebours de victoire tourne : on l'attaque même un peu plus fort que soi.
+		var threat := Victory.best_cached(state, other)
+		if String(threat["id"]) != "" and Victory.visible_pct(state, e.id, other, String(threat["id"])) >= Victory.met_at() and _skill(ctx) >= 1:
+			@warning_ignore("integer_division")
+			need_here = need_here * 2 / 3
 		if mine * 100 < need_here * maxi(10, enemy_power(ctx, other)) or _forgets(ctx):
 			continue
 		if _issue(ctx, SimCommands.declare_war(e.id, other)):
@@ -1312,6 +1378,8 @@ static func _diplomacy(ctx: Dictionary) -> void:
 
 ## Poids de base de chaque domaine pour l'IA (×10), avant le tempérament et la guerre.
 const RESEARCH_WEIGHTS := {"armement": 14, "genie": 11, "economie": 12, "societe": 10}
+## Technologies connues avant que l'IA ne pousse le chemin de sa victoire de peuple.
+const VICTORY_PATH_AFTER := 20
 ## Une technologie d'ère plus avancée vaut plus que son prix : ×1,8 par ère (en centièmes).
 const ERA_VALUE := [100, 180, 324, 583, 1050]
 
@@ -1341,6 +1409,11 @@ static func research_pick(ctx: Dictionary) -> String:
 	var use := _use(ctx)
 	var weights := research_weights(ctx)
 	var labs := _lab_techs()
+	var victory_techs: Array[String] = []
+	if Victory.people_enabled(state):
+		victory_techs = Victory.people_techs(f)
+	# Le chemin vers la victoire de peuple ne passe qu'après les bases (bâtiment de recherche, économie).
+	var path := victory_path(state, e, victory_techs) if e.techs.size() >= VICTORY_PATH_AFTER else {}
 	var bias_techs: Array = []
 	if use >= 1 and ctx["ai"].has("building_bias"):
 		bias_techs = GameData.building(String(ctx["ai"]["building_bias"])).get("requires_tech", [])
@@ -1357,6 +1430,10 @@ static func research_pick(ctx: Dictionary) -> String:
 		var w := int(weights.get(String(t["domain"]), 10))
 		if labs.has(tid) or bias_techs.has(tid):
 			w *= 3  # le bâtiment de recherche et celui du penchant du peuple d'abord (Raffinerie d'Ossarane)
+		if victory_techs.has(tid):
+			w *= 6 if use >= 1 else 2  # la technologie de sa victoire de peuple, dès que l'ère s'ouvre
+		elif path.has(tid):
+			w *= int(path[tid]) if use >= 1 else 2  # le chemin qui y mène : ses prérequis, puis l'ère à ouvrir
 		@warning_ignore("integer_division")
 		var score := w * int(ERA_VALUE[era - 1]) * 1000 / maxi(1, Research.cost(state, e.id, tid, colonies) - int(e.research_shelf.get(tid, 0)))
 		if use == 0:
@@ -1365,6 +1442,33 @@ static func research_pick(ctx: Dictionary) -> String:
 			best_score = score
 			best = tid
 	return best
+
+
+## Chemin vers les technologies de victoire pas encore connues : id -> multiplicateur de poids.
+## Leurs prérequis (récursivement) comptent ×5 ; les technologies des ères précédentes de leur
+## domaine comptent ×4 tant que l'ère n'est pas ouverte (il en faut assez pour l'ouvrir) : sans quoi
+## les peuples guerriers, qui pèsent surtout l'armement, n'atteignent jamais l'ère IV de Société.
+static func victory_path(_state: GameState, e: Empire, victory_techs: Array[String]) -> Dictionary:
+	var out := {}
+	for vt in victory_techs:
+		if e.techs.has(vt):
+			continue
+		var t := Research.tech(vt)
+		var dom := String(t.get("domain", ""))
+		var era := int(t.get("era", 1))
+		if not Research.era_open(e.techs, dom, era):
+			for tid in Research.visible_ids(e.faction()):
+				var o := Research.tech(tid)
+				if String(o["domain"]) == dom and int(o["era"]) < era:
+					out[tid] = 4
+		var todo: Array = Array(t.get("pre", []))
+		while not todo.is_empty():
+			var p := String(todo.pop_back())
+			if e.techs.has(p) or int(out.get(p, 0)) == 5:
+				continue
+			out[p] = 5
+			todo.append_array(Research.tech(p).get("pre", []))
+	return out
 
 
 ## Poids des domaines pour cet empire : tempérament (armement contre société), guerre en cours,

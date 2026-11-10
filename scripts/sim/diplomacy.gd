@@ -237,6 +237,14 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	_part(out, "Confiance", trust(state, a, b))
 	var common := common_enemies(state, a, b)
 	_part(out, "Ennemi commun", int(cfg["common_enemy"]) * mini(2, common.size()))
+	# Menace : b approche d'une victoire que a peut voir (data/victories.json, threat_opinion).
+	var best := Victory.best_cached(state, b)
+	if String(best["id"]) != "" and Victory.visible_pct(state, a, b, String(best["id"])) >= 0:
+		var malus := 0
+		for step: Array in Victory.data().get("threat_opinion", []):
+			if int(best["pct"]) >= int(step[0]):
+				malus = int(step[1])
+		_part(out, "Menace pour la galaxie : %s" % Victory.label(String(best["id"])), malus)
 	# Histoire commune : les souvenirs qui ne sont pas encore effacés.
 	for m in state.memories:
 		if int(m["who"]) == a and int(m["about"]) == b:

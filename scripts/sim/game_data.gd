@@ -145,6 +145,11 @@ static func technologies() -> Dictionary:
 	return _load("technologies")
 
 
+## Conditions de victoire (data/victories.json) : classiques, de peuple, date limite, score.
+static func victories() -> Dictionary:
+	return _load("victories")
+
+
 static func deposit(id: String) -> Dictionary:
 	for d: Dictionary in rules()["deposits"]:
 		if d["id"] == id:

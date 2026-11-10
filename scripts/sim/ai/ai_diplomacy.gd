@@ -194,6 +194,9 @@ static func _heir(ctx: Dictionary) -> void:
 		return
 	var use := AiPlayer._use(ctx)
 	var at: int = [12, 35, 45][clampi(use, 0, 2)]
+	# Pendant que l'Élu se prépare, l'héritier doit rester loyal (seuil de la victoire, plus une marge).
+	if use >= 1 and Victory.applies(state, e.id, "elu") and Victory.union_count(state, e.id) > 0:
+		at = maxi(at, int(Victory.info("elu")["heir_min"]) + 5)
 	if e.heir_loyalty > at or AiPlayer._forgets(ctx):
 		return
 	if _issue(ctx, SimCommands.banquet(e.id)):

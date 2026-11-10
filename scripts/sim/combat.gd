@@ -496,6 +496,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 	if digested > 0:
 		en.resources["materials"] = int(en.resources.get("materials", 0)) + digested * bio
 		en.biomass += digested * bio
+		Research.count_stat(state, en.id, "digested", digested)
 	state.rebuild_ownership()
 	state.garrisons[system_id] = 0
 	state.sieges.erase(system_id)

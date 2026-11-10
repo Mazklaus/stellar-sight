@@ -21,6 +21,8 @@ const SCREENS := [
 		"why": "Guerre froide à la rencontre, puis la paix, l'alliance, le commerce ou la guerre. Survolez une opinion pour en voir les raisons, et une proposition pour savoir ce que l'autre en pense."},
 	{"id": "shipyard", "label": "Chantier", "key": "F6", "glyph": "shipyard", "ready": true,
 		"why": "Concevez vos vaisseaux : une coque, des modules dans ses emplacements, un rang et une cible. Les modèles enregistrés rejoignent la liste de construction."},
+	{"id": "victory", "label": "Victoire", "key": "F7", "glyph": "victory", "ready": true,
+		"why": "Toutes les façons de gagner cette partie, et où en est chaque empire. La victoire de peuple d'un rival reste cachée tant qu'il n'est pas à mi-chemin."},
 ]
 ## Description d'un menu d'empire (entrée de SCREENS), {} s'il n'existe pas.
 static func screen_info(screen_id: String) -> Dictionary:

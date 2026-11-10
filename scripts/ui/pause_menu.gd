@@ -42,6 +42,7 @@ const SHORTCUT_GROUPS := [
 	]],
 	["Menus", [
 		["F1 à F4", "Économie, Colonies, Recherche, Diplomatie"],
+		["F6 / F7", "Chantier, Victoire"],
 		["Échap", "Revenir en arrière, puis ce menu"],
 		["F5 / F9", "Sauvegarde / chargement rapide"],
 		["F11", "Plein écran"],

@@ -1795,6 +1795,77 @@
 				"kind": "battles_won",
 				"n": 8
 			}
+		},
+		"lignees_croisees": {
+			"label": "Lignées croisées",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple, l'Élu des routes : permet d'unir ses lignées à celles d'un allié de longue date (Diplomatie). Quand toutes les dynasties rivales sont unies et l'héritier loyal, l'Élu naît en deux ans.",
+			"pre": [
+				"propagande"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"feodalite"
+					]
+				}
+			},
+			"victory": "elu"
+		},
+		"dernier_couplet": {
+			"label": "Le Dernier Couplet",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : débloque la Cathédrale-chœur. Trois cathédrales dans trois systèmes, puis deux ans d'Exaltation, et l'hymne s'achève enfin.",
+			"pre": [
+				"pelerinages"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"theocratie"
+					],
+					"credo": [
+						"foi"
+					]
+				}
+			},
+			"victory": "couplet"
+		},
+		"charte": {
+			"label": "Charte des Quarante et Un",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : la Charte s'ouvre à la signature. Chaque empire survivant en paix et en commerce avec la république la signe ; deux ans de ratification sans défection, et elle préside la galaxie.",
+			"pre": [
+				"propagande"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"republique"
+					]
+				}
+			},
+			"victory": "charte"
+		},
+		"grande_moisson": {
+			"label": "La Grande Moisson",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand l'Essaim porte la moitié de toute la vie de la galaxie et a digéré assez de peuples conquis, la Moisson est faite.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			},
+			"victory": "moisson"
 		}
 	},
 	"marks": {

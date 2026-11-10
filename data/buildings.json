@@ -39,5 +39,9 @@
 		"yields": {"knowledge": 6}, "upkeep": {"energy": 2}},
 	"ganglion": {"requires_tech": ["ganglions"], "label": "Ganglion de mémoire", "cost": {"food": 40, "materials": 60}, "days": 60, "unique": true,
 		"text": "+4 Savoir. Une masse nerveuse qui se souvient de tout ce que l'Essaim a mangé, et de ce que ça lui a appris.",
-		"yields": {"knowledge": 4}, "upkeep": {"food": 2}}
+		"yields": {"knowledge": 4}, "upkeep": {"food": 2}},
+	"cathedrale": {"requires_tech": ["dernier_couplet"], "label": "Cathédrale-chœur", "cost": {"materials": 600, "energy": 150}, "days": 240, "unique": true,
+		"victory": "couplet", "fervor": 2,
+		"text": "+2 ferveur par mois, +3 influence. Trois cathédrales dans trois systèmes, et le Dernier Couplet peut enfin être chanté (victoire de peuple). Si l'une tombe, il faut tout reprendre depuis le début du couplet.",
+		"yields": {"influence": 3}, "upkeep": {"energy": 3}}
 }

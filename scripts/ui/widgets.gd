@@ -5,7 +5,7 @@ extends RefCounted
 
 
 ## Bouton avec un pictogramme vectoriel (pas besoin de police à symboles ni d'image).
-## glyph : "pause", "play", "menu", "prev", "next", "close", "home", "economy", "colonies", "research", "diplomacy", "shipyard".
+## glyph : "pause", "play", "menu", "prev", "next", "close", "home", "economy", "colonies", "research", "diplomacy", "shipyard", "victory".
 class IconButton:
 	extends Button
 	var glyph := ""
@@ -68,6 +68,14 @@ class IconButton:
 				draw_line(c + Vector2(-s * 0.6, -s * 1.1), c + Vector2(-s * 0.6, s * 1.1), Color(col, 0.6), 1.5, true)
 			"home":
 				draw_colored_polygon(PackedVector2Array([c + Vector2(0, -s * 1.2), c + Vector2(s * 1.1, 0), c + Vector2(0, s * 1.2), c + Vector2(-s * 1.1, 0)]), col)
+			"victory":
+				# Une étoile à cinq branches.
+				var pts := PackedVector2Array()
+				for i in 10:
+					var r := s * (1.25 if i % 2 == 0 else 0.5)
+					var a := -PI / 2.0 + i * PI / 5.0
+					pts.append(c + Vector2(cos(a), sin(a)) * r)
+				draw_colored_polygon(pts, col)
 
 
 ## Conteneur dont l'infobulle accepte le BBCode ([color], [b]…) : tooltip_text est lu comme du BBCode.

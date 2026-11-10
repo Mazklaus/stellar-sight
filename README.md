@@ -39,6 +39,8 @@ Premier prototype du 4X spatial Stellar Sigth, pour **Godot 4.7**. Il couvre l'�
 | Revoir la bataille (vue de replay) | R, ou « Revoir la bataille » dans le rapport ; Espace lecture/pause, Échap revient au rapport |
 | Recherche : choisir, lancer, mettre en file, retirer | Écran Recherche (F3) : clic sur une technologie pour sa fiche, double-clic pour la lancer tout de suite ; boutons de la fiche ; croix de la file |
 | Diplomatie : proposer un traité, répondre, rompre, déclarer la guerre | Écran Diplomatie (F4) : choisir l'empire sur la table, puis les boutons de la relation (la guerre en deux clics) |
+| Victoires : où en est chaque empire | F7, ou le pictogramme étoile du panneau d'empire |
+| Diplomatie : unir nos lignées (Ossarane) | Écran Diplomatie (F4), bouton « Unir nos lignées » avec un allié de longue date |
 | Construire un vaisseau | « Chantier spatial » dans les ordres d'une colonie, dans la vue système |
 | Coloniser, poser un avant-poste, construire | Section « Ordres » de la fiche de la planète, dans la vue système |
 | Renommer un système | Bouton « Renommer » à côté de son nom, dans la vue système, puis Entrée |
@@ -398,6 +400,29 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
   - modules de peuple (`"requires": {"species": …}` sur le module, réservés aux peuples qui remplissent la condition) : **propulseurs de navigateurs** (Ossarane, titanesque : force les blocus, plus rapide), **noyau des Quarante** (Vael, titanesque : tactique Adaptative), **reliquaire du dieu-machine** (Chœur, titanesque : +10 de ferveur à chaque victoire), **ventre digesteur** (Kh'thari, colossal : un quart du coût en matériaux des vaisseaux ennemis détruits). La conception automatique monte le module du peuple dès que la coque a un deuxième emplacement de méga-coque. Les conditions portent sur les couches d'espèce (et peuvent en combiner plusieurs) : une espèce personnalisée obtient les modules de sa combinaison. L'arbre de recherche affiche les coques et modules que chaque technologie débloque.
   Les grandes équipes des méga-chantiers posent plusieurs modules à la fois (durée des modules à 60 % sur le Léviathan, 40 % sur la Nef-monde). Blindage et boucliers empilés plafonnent à 75 % (`defense_cap`, les technologies montent jusqu'à 90 %), pour qu'une méga-coque bardée reste vulnérable.
 
+## Victoires
+
+Étude sourcée (Civilization VI, Galactic Civilizations III, Stellaris, Old World, Endless Space 2) : [Claude Doc](https://claude.ai/artifact/TYX252JaLg64V6qQhUpXm2). Règles en données dans `data/victories.json`, calculs dans `Victory`, vérification mensuelle dans `VictorySystem`.
+
+![Victoires vues par le Chœur Éternel](docs/apercu-victoire.png)
+
+- **Trois victoires pour tous** :
+  - **Conquête** : tenir la capitale d'origine de chaque empire hors de son alliance, en gardant la sienne (ou être seul encore en vie avec ses alliés).
+  - **Domination** : tenir 50 % des systèmes de la galaxie pendant 3 ans. Les systèmes des alliés comptent, mais chaque allié ajoute 10 points au seuil (plafond 90 %).
+  - **Score** : à la date limite choisie dans Nouvelle partie (30, 60 ou 90 ans, ou aucune ; 60 par défaut), l'empire en tête du classement gagne. Le score compte population, colonies, avant-postes, technologies, vaisseaux détruits, conquêtes, exploration et peuples.
+  - Conquête et Domination se gagnent **en alliance**, comme dans Endless Space 2 : les alliés partagent la victoire (« Victoire partagée »).
+- **Une victoire par peuple**, tirée du GDD et débloquée par une technologie de Société de l'ère IV. Les conditions portent sur les couches d'espèce, donc une espèce personnalisée reçoit celles de sa combinaison :
+  - **L'Élu des routes** (gouvernement féodal, Ossarane) : unir ses lignées à des alliés d'au moins 180 jours (bouton « Unir nos lignées » de la Diplomatie, 50 influence et 10 cristaux), garder l'héritier loyal (50 au moins), puis tenir 2 ans. Une union se rompt avec l'alliance.
+  - **Le Dernier Couplet** (théocratie de foi, Chœur Éternel) : bâtir 3 cathédrales-chœurs dans 3 systèmes et chanter en Exaltation 2 ans ; le compte à rebours se fige quand le chœur se tait.
+  - **La Charte des Quarante et Un** (république, Vael) : faire signer paix et commerce à au moins deux empires, et à tous les survivants qui acceptent les traités, puis tenir 2 ans.
+  - **La Moisson** (archétype ruche, Kh'thari) : la moitié de la population galactique et 100 de population ennemie digérée.
+- **Avancée** de 0 à 100 % : à 75 % la condition est remplie et le compte à rebours commence. Sans la technologie de sa victoire de peuple, l'avancée plafonne à 74 %. Les autres empires voient une avancée à partir de 50 % (le spectateur voit tout), le chroniqueur alerte à 50 et 75 %, et l'IA prend le meneur en grippe (opinion -15 puis -30, guerre plus facile à 75 %).
+- **Fin de partie** : panneau Victoire, Victoire partagée ou Défaite avec le mot du chroniqueur et le classement final ; on peut continuer la partie (plus aucune victoire n'est proclamée) ou revenir au menu.
+- **IA** : chacune poursuit sa victoire de peuple (techniques et cathédrales, unions, traités), la Recrue plus maladroitement mais sans l'ignorer.
+- Sauvegarde version 11 (les versions 9 et 10 se chargent, sans date limite). Captures : `tools/capture_victory.gd` ; parties entre IA jusqu'à la victoire : `tools/victory_bench.gd` (variables SEEDS, LEVEL, YEARS).
+
+![Fin de partie](docs/apercu-fin-de-partie.png)
+
 ## Organisation du code
 
 La simulation et l'affichage sont séparés dès maintenant, pour pouvoir ajouter le multijoueur et passer en 2,5D sans tout réécrire.
@@ -425,6 +450,7 @@ scripts/
     fleets.gd             Règles des flottes : chemins, délais, vision et brouillard, vérification des ordres
     combat.gd             Règles du combat : puissance, dégâts, tactiques, guerre, garnison, siège, invasion
     diplomacy.gd          Règles de la diplomatie : statuts, traités, opinion, souvenirs, héritier, arbitrage
+    victory.gd            Règles des victoires : conditions, avancée, score, alliances, unions, visibilité
     empire_report.gd      Bilans d'un empire pour les menus (lecture seule) et parcours de ses systèmes
     systems/              Systèmes de simulation exécutés à chaque tick
       economy_system.gd   Fondations, chantiers, croissance chaque jour ; bilan chaque mois
@@ -432,6 +458,7 @@ scripts/
       chronicle_system.gd Petits événements racontés par le chroniqueur
       combat_system.gd    Batailles, blocus, sièges, réparations et empires disparus
       diplomacy_system.gd Propositions qui expirent ; chaque mois confiance, cartes des alliés, souvenirs, héritier
+      victory_system.gd   Chaque mois l'avancée des victoires, les alertes et le vainqueur ; la date limite chaque jour
       ai_system.gd        Empires IA : chacun réfléchit à son rythme et donne des ordres ordinaires
     game_clock.gd         Horloge (autoload GameClock) : pilote la simulation en temps réel (pause, 5 vitesses) ou au tour par tour
   view/                   Affichage 2D (sera remplacé par la 2,5D)
@@ -443,7 +470,7 @@ scripts/
     hud.gd                Interface en jeu : onglets de vue, fiche de sélection, notifications, chronique, cadran
     empire_bar.gd         Panneau d'empire (menus, ressources, ligne d'état)
     time_dial.gd          Cadran du temps (pause, date, vitesse ; fin de tour au tour par tour)
-    empire_screens.gd     Écrans d'empire plein écran : Économie, Colonies, Recherche, Diplomatie
+    empire_screens.gd     Écrans d'empire plein écran : Économie, Colonies, Recherche, Diplomatie, Victoires
     main_menu.gd          Menu principal et choix de la faction
     pause_menu.gd         Menu du jeu et liste des raccourcis
     options_panel.gd      Page Options (partagée)
@@ -457,6 +484,7 @@ scripts/
     battle_replay_panel.gd Vue de replay : rejoue le journal d'une bataille (R)
     diplomacy_table.gd    Table des statuts diplomatiques (écran Diplomatie)
     research_tree.gd      Arbre des technologies (écran Recherche)
+    victory_panel.gd      Fin de partie : vainqueur, mot du chroniqueur, classement final
 assets/fonts/             Police Exo 2 (licence SIL OFL, fichier de licence à côté)
 assets/art/               Illustrations d'habillage (vide pour l'instant, voir assets/art/LISEZMOI.md)
 shaders/                  Rendu de la vue système (planète éclairée, étoile, fond étoilé)
@@ -468,6 +496,8 @@ tools/
   capture_combat.gd       Captures du combat (bataille, rapport, siège, diplomatie, spectateur en guerre)
   capture_diplomacy.gd    Captures de la diplomatie (Vael, arbitrage, héritier d'Ossarane, spectateur)
   capture_research.gd     Captures de l'écran Recherche (Chœur, Vael) et rythme d'une partie entre IA
+  capture_victory.gd      Captures des victoires (écran F7, fin de partie, unir nos lignées, nouvelle partie)
+  victory_bench.gd        Parties entre IA jusqu'à la victoire (qui gagne, quand, et où en sont les victoires de peuple)
   war_bench.gd            Banc d'essai de la guerre entre IA (batailles, sièges, invasions, disparitions)
   main.gd                 Assemble le tout et gère les entrées
 data/                     Données de jeu en JSON : tout l'équilibrage se règle ici
@@ -479,6 +509,7 @@ data/                     Données de jeu en JSON : tout l'équilibrage se règl
   combat.json             Combat : phases, armes, tactiques, garnisons, siège, réparations
   diplomacy.json          Diplomatie : traités, opinion, souvenirs, talents des peuples, jugement de l'IA
   technologies.json       Recherche : domaines, ères, coûts, et toutes les technologies avec leurs effets
+  victories.json          Victoires : seuils, dates limites, poids du score, victoires de peuple et leurs textes
 ```
 
 Principes :
@@ -514,7 +545,7 @@ Principes :
 
 ## Tests
 
-Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), le noyau de simulation (`tests/sim_tests.gd` : déterminisme sur 1000 ticks, ordres valides et refusés, ordres en pause, rediffusion, sauvegarde/chargement à l'identique, reprise après chargement identique à une partie jamais interrompue, fichiers abîmés refusés, performance), l'économie (`tests/economy_tests.gd` : données, planètes déterministes, départ des 4 empires, bilan mensuel exact, traits de faction, colonisation et chacun de ses refus, avant-poste transformé en colonie, chantiers et emplacements, croissance plafonnée, famine, pénurie d'énergie, déterminisme, rediffusion et sauvegarde avec colonies, 10 ans sans stock négatif), les empires IA (`tests/ai_tests.gd` : niveaux ordonnés, rivaux et spectateur, expansion en 2 ans sans famine, déterminisme et rediffusion, tour par tour identique au temps réel, aucune triche (brouillard, stocks), Recrue < Vétéran < Légende, talents de chaque peuple selon le niveau, tempérament (décalage du peuple, sauvegarde, belliqueux plus collé à ses rivaux que pacifique), sauvegarde, performance), les flottes (`tests/fleet_tests.gd` : flottes et vision de départ, chemins le long des routes, arrivée au jour annoncé, refus, demi-tour et arrêt en route, chantier spatial, colonisation par vaisseau colon, rassembler et détacher, entretien, premier contact, sauvegarde en plein trajet, rediffusion, expéditions d'exploration), le combat (`tests/combat_tests.gd` : règles de dégâts, déclaration de guerre, bataille et rapport, rapports de force, tactiques, déterminisme et sauvegarde en pleine bataille, blocus, retraite, siège et invasion, disparition d'un empire, traits de combat des 4 peuples, fusion et réparations, IA qui arme, déclare et se bat selon son tempérament et son niveau), le catalogue (`tests/catalogue_tests.gd` : classes de chaque peuple, conditions d'espèce d'une espèce personnalisée, arsenal et titan unique, torpilles, artillerie et défense ponctuelle, écran qui protège l'arrière, chasseurs qui le touchent, Martyr, tactique Adaptative, Coursier qui force le blocus, lancement du titan, IA qui se sert du catalogue, journal de bataille cohérent avec le rapport et identique après rechargement), la diplomatie (`tests/diplomacy_tests.gd` : statuts, propositions, refus, délais et expiration, trêve, alliance qui partage cartes et guerres, allié en paix qui reste en dehors, parjure, dénonciation, opinion (registres, credos, traits, souvenirs qui s'effacent), Essaim sans traité et espèce personnalisée, jugement de l'IA (guerre récente, guerre longue et perdue, tempérament, humeur de la Recrue, croisade), héritier soudoyé, banquet et trahison, arbitrage, ferveur, score de guerre, sauvegarde, partie entre IA déterministe où des traités se signent), la recherche (`tests/research_tests.gd` : arbre cohérent, arbre de chaque peuple (variantes, interdits, hérésies, peuple personnalisé), file et seuils d'ère, travail mis de côté, coûts (ère, technologies connues, taille de l'empire, talents des peuples), avancée mensuelle, effets sur l'économie, les flottes et le combat, contenu verrouillé, alliances et Chancelleries, ferveur et Exaltation, IA qui recherche selon son tempérament, déterminisme, sauvegarde), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, ouverture et fermeture de la vue système, bascule vers la vue de gestion, construction et colonisation depuis la fiche de la planète, renommage, F5/F9, Échap, brouillard, sélection de flotte, clic droit pour l'envoyer, fiche de flotte, F, chantier spatial), les bilans d'empire, l'interface (thème, barre d'empire, écrans Économie, Colonies, Recherche et Diplomatie (filtres, colonie choisie, anneau), pause automatique, Tab, H, flèches, fiche de sélection, lentille économique, cadran du temps, menu pause, menu principal et nouvelle partie avec faction et graine choisies, vue de replay ouverte depuis le rapport) ainsi que la géométrie de la vue système (planètes dans la scène et cliquables) :
+Un test de fumée vérifie la génération (plusieurs graines : 150 systèmes, galaxie connectée, noms uniques, déterminisme), le noyau de simulation (`tests/sim_tests.gd` : déterminisme sur 1000 ticks, ordres valides et refusés, ordres en pause, rediffusion, sauvegarde/chargement à l'identique, reprise après chargement identique à une partie jamais interrompue, fichiers abîmés refusés, performance), l'économie (`tests/economy_tests.gd` : données, planètes déterministes, départ des 4 empires, bilan mensuel exact, traits de faction, colonisation et chacun de ses refus, avant-poste transformé en colonie, chantiers et emplacements, croissance plafonnée, famine, pénurie d'énergie, déterminisme, rediffusion et sauvegarde avec colonies, 10 ans sans stock négatif), les empires IA (`tests/ai_tests.gd` : niveaux ordonnés, rivaux et spectateur, expansion en 2 ans sans famine, déterminisme et rediffusion, tour par tour identique au temps réel, aucune triche (brouillard, stocks), Recrue < Vétéran < Légende, talents de chaque peuple selon le niveau, tempérament (décalage du peuple, sauvegarde, belliqueux plus collé à ses rivaux que pacifique), sauvegarde, performance), les flottes (`tests/fleet_tests.gd` : flottes et vision de départ, chemins le long des routes, arrivée au jour annoncé, refus, demi-tour et arrêt en route, chantier spatial, colonisation par vaisseau colon, rassembler et détacher, entretien, premier contact, sauvegarde en plein trajet, rediffusion, expéditions d'exploration), le combat (`tests/combat_tests.gd` : règles de dégâts, déclaration de guerre, bataille et rapport, rapports de force, tactiques, déterminisme et sauvegarde en pleine bataille, blocus, retraite, siège et invasion, disparition d'un empire, traits de combat des 4 peuples, fusion et réparations, IA qui arme, déclare et se bat selon son tempérament et son niveau), le catalogue (`tests/catalogue_tests.gd` : classes de chaque peuple, conditions d'espèce d'une espèce personnalisée, arsenal et titan unique, torpilles, artillerie et défense ponctuelle, écran qui protège l'arrière, chasseurs qui le touchent, Martyr, tactique Adaptative, Coursier qui force le blocus, lancement du titan, IA qui se sert du catalogue, journal de bataille cohérent avec le rapport et identique après rechargement), la diplomatie (`tests/diplomacy_tests.gd` : statuts, propositions, refus, délais et expiration, trêve, alliance qui partage cartes et guerres, allié en paix qui reste en dehors, parjure, dénonciation, opinion (registres, credos, traits, souvenirs qui s'effacent), Essaim sans traité et espèce personnalisée, jugement de l'IA (guerre récente, guerre longue et perdue, tempérament, humeur de la Recrue, croisade), héritier soudoyé, banquet et trahison, arbitrage, ferveur, score de guerre, sauvegarde, partie entre IA déterministe où des traités se signent), les victoires (`tests/victory_tests.gd` : données, conquête et domination avec ou sans alliés, score à date limite, Élu, Couplet, Charte, Moisson, visibilité et menace, IA qui poursuit sa victoire, sauvegarde, déterminisme), la recherche (`tests/research_tests.gd` : arbre cohérent, arbre de chaque peuple (variantes, interdits, hérésies, peuple personnalisé), file et seuils d'ère, travail mis de côté, coûts (ère, technologies connues, taille de l'empire, talents des peuples), avancée mensuelle, effets sur l'économie, les flottes et le combat, contenu verrouillé, alliances et Chancelleries, ferveur et Exaltation, IA qui recherche selon son tempérament, déterminisme, sauvegarde), l'horloge et la scène principale avec des entrées simulées (pause, vitesse, clic, ouverture et fermeture de la vue système, bascule vers la vue de gestion, construction et colonisation depuis la fiche de la planète, renommage, F5/F9, Échap, brouillard, sélection de flotte, clic droit pour l'envoyer, fiche de flotte, F, chantier spatial), les bilans d'empire, l'interface (thème, barre d'empire, écrans Économie, Colonies, Recherche et Diplomatie (filtres, colonie choisie, anneau), pause automatique, Tab, H, flèches, fiche de sélection, lentille économique, cadran du temps, menu pause, menu principal et nouvelle partie avec faction et graine choisies, vue de replay ouverte depuis le rapport) ainsi que la géométrie de la vue système (planètes dans la scène et cliquables) :
 
 ```
 godot --headless --path . -s res://tests/smoke_test.gd
@@ -532,6 +563,7 @@ Il affiche `OK : N vérifications passées.` et renvoie le code 0 si tout passe,
 - Pas encore de mécaniques signatures des factions : prochaine étape, les factions jouables.
 - Équilibre des peuples bousculé par la recherche (contenu verrouillé, alliances qui attendent les Chancelleries) : sur trois parties d'essai de 9 ans entre IA Normal, Ossarane s'en sort plus mal qu'avant. À surveiller en jouant.
 - Recherche, lot 1 : pas encore de marques d'armes IV-V, de doctrines, d'épaves, d'eurêkas ni de technologies ultimes ; les ères 4 et 5 sont presque vides. Les familles d'armes exclusives des peuples attendent l'éditeur de vaisseaux.
+- Victoires : seuils calibrés sur quelques parties entre IA seulement. L'Essaim Kh'thari gagne souvent tôt par Conquête (an 9 sur la graine 42), ce qui tient à l'équilibre des peuples plus qu'aux victoires. Pas de victoire scientifique ni économique pour l'instant.
 - Un seul emplacement de sauvegarde (rapide) pour l'instant ; l'écran de sauvegardes multiples viendra plus tard.
 - Pas encore de sons d'interface ni de raccourcis personnalisables.
 - Le multijoueur lui-même (réseau) n'est pas fait : le noyau est prêt pour un hôte qui fait autorité, mais rien n'est encore envoyé sur le réseau.

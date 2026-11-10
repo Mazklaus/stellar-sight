@@ -58,6 +58,11 @@ var _temper_select: OptionButton
 var spectator := false
 var _ai_select: OptionButton
 var _mode_select: OptionButton
+## Victoires de la nouvelle partie : date limite du score en jours (0 = aucune) et victoires de peuple.
+var deadline_days: int = Victory.default_deadline()
+var people_victories := true
+var _deadline_select: OptionButton
+var _people_check: CheckBox
 
 
 func _ready() -> void:
@@ -271,7 +276,11 @@ func select_faction(id: String) -> void:
 	for t in f.get("preferred", []):
 		worlds.append(String(TYPE_LABELS.get(t, t)))
 	_faction_worlds.text = ", ".join(worlds) if not worlds.is_empty() else "—"
-	_faction_lore.text = String(f.get("lore", ""))
+	var lore := String(f.get("lore", ""))
+	# Victoire de peuple, ouverte par ses couches d'espèce.
+	for vid in Victory.people_ids_for(f):
+		lore += "\n\nVictoire de peuple, %s : %s" % [Victory.label(vid), Victory.rule_text(vid)]
+	_faction_lore.text = lore
 
 
 ## Choix de la ligne « Temps » : 0 = temps réel, puis une entrée par longueur de tour.
@@ -296,6 +305,19 @@ func set_temperament(id: String) -> void:
 		return
 	temperament = id
 	_temper_select.select(AiLevels.temperament_ids().find(id))
+
+
+func set_deadline(days: int) -> void:
+	deadline_days = maxi(0, days)
+	var opts := Victory.deadline_options()
+	for i in opts.size():
+		if int(opts[i]["days"]) == deadline_days:
+			_deadline_select.select(i)
+
+
+func set_people_victories(on: bool) -> void:
+	people_victories = on
+	_people_check.set_pressed_no_signal(on)
 
 
 func set_spectator(on: bool) -> void:
@@ -437,7 +459,8 @@ func _build_new_page(root: Control) -> void:
 	_faction_lore.add_theme_color_override("font_color", Color(UiTheme.TEXT, 0.85))
 	lore_box.add_child(_faction_lore)
 	var galaxy := _bottom_block(bottom, "Galaxie", 400, 0)
-	var banner := Widgets.ArtSlot.new("new_game_galaxy", Vector2(400, 86), Color(0.45, 0.6, 0.95), "galaxy")
+	var banner := Widgets.ArtSlot.new("new_game_galaxy", Vector2(400, 50), Color(0.45, 0.6, 0.95), "galaxy")
+	banner.set_caption("150 systèmes, spirale", 15)
 	galaxy.add_child(banner)
 	var gbox := VBoxContainer.new()
 	gbox.add_theme_constant_override("separation", 8)
@@ -500,14 +523,6 @@ func _build_new_page(root: Control) -> void:
 	_mode_select.tooltip_text = "Spectateur : tous les peuples sont menés par l'ordinateur, la carte est entièrement visible\net le tableau des empires permet de suivre chacun d'eux (ou de voir à travers ses yeux)."
 	_mode_select.item_selected.connect(func(i: int) -> void: set_spectator(i == 1))
 	mode_row.add_child(_mode_select)
-	var size_row := HBoxContainer.new()
-	size_row.add_theme_constant_override("separation", 10)
-	gbox.add_child(size_row)
-	var sl := Label.new()
-	sl.text = "Taille"
-	sl.custom_minimum_size = Vector2(90, 0)
-	size_row.add_child(sl)
-	size_row.add_child(UiTheme.dim("150 systèmes, spirale", 14))
 	var time_row := HBoxContainer.new()
 	time_row.add_theme_constant_override("separation", 10)
 	gbox.add_child(time_row)
@@ -523,6 +538,28 @@ func _build_new_page(root: Control) -> void:
 		_time_select.add_item("Tour par tour, %d jours par tour" % d)
 	_time_select.item_selected.connect(set_time_choice)
 	time_row.add_child(_time_select)
+	var vic_row := HBoxContainer.new()
+	vic_row.add_theme_constant_override("separation", 10)
+	gbox.add_child(vic_row)
+	var vl := Label.new()
+	vl.text = "Victoire"
+	vl.custom_minimum_size = Vector2(90, 0)
+	vic_row.add_child(vl)
+	_deadline_select = OptionButton.new()
+	_deadline_select.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_deadline_select.tooltip_text = "Date limite : à cette date, le meilleur score l'emporte si personne n'a gagné avant.\nConquête et domination sont toujours en jeu (F7 pour suivre la course)."
+	for d: Dictionary in Victory.deadline_options():
+		_deadline_select.add_item("Score : %s" % String(d["label"]).to_lower())
+	_deadline_select.item_selected.connect(func(i: int) -> void: set_deadline(int(Victory.deadline_options()[i]["days"])))
+	vic_row.add_child(_deadline_select)
+	_people_check = CheckBox.new()
+	_people_check.text = "De peuple"
+	_people_check.focus_mode = Control.FOCUS_NONE
+	_people_check.button_pressed = people_victories
+	_people_check.tooltip_text = "Chaque peuple a une victoire qui lui est propre, tirée de ses couches d'espèce\n(l'Élu des routes, le Dernier Couplet, la Charte des Quarante et Un, la Moisson)."
+	_people_check.toggled.connect(func(on: bool) -> void: people_victories = on)
+	vic_row.add_child(_people_check)
+	set_deadline(deadline_days)
 
 	var back_b := Widgets.RoundButton.new("back", "Retour")
 	back_b.tooltip_text = "Échap"
