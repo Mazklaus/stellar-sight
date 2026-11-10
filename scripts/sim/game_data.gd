@@ -80,12 +80,18 @@ static func designs_data() -> Dictionary:
 static var _custom := {}
 
 
+static var _ids_cache: Array[String] = []
+static var _class_ids_cache: Array[String] = []
+
+
 static func register_custom_ship(id: String, stats: Dictionary) -> void:
 	_custom[id] = stats
+	_ids_cache = []
 
 
 static func clear_custom_ships() -> void:
 	_custom.clear()
+	_ids_cache = []
 
 
 static func ship(id: String) -> Dictionary:
@@ -96,17 +102,28 @@ static func ship(id: String) -> Dictionary:
 
 ## Identifiants des classes de vaisseaux, triés (ordre stable pour l'interface et la simulation),
 ## puis ceux des modèles conçus en partie, triés aussi.
+## Liste gardée en cache (refaite quand un modèle est enregistré) : ne pas la modifier.
 static func ship_ids() -> Array[String]:
-	var ids: Array[String] = []
-	for k in ships():
-		ids.append(String(k))
-	ids.sort()
-	var custom: Array[String] = []
-	for k in _custom:
-		custom.append(String(k))
-	custom.sort()
-	ids.append_array(custom)
-	return ids
+	if _ids_cache.is_empty():
+		var ids: Array[String] = class_ids().duplicate()
+		var custom: Array[String] = []
+		for k in _custom:
+			custom.append(String(k))
+		custom.sort()
+		ids.append_array(custom)
+		_ids_cache = ids
+	return _ids_cache
+
+
+## Identifiants des classes de data/ships.json seulement, triés (cache, ne pas modifier).
+static func class_ids() -> Array[String]:
+	if _class_ids_cache.is_empty():
+		var ids: Array[String] = []
+		for k in ships():
+			ids.append(String(k))
+		ids.sort()
+		_class_ids_cache = ids
+	return _class_ids_cache
 
 
 static func ai() -> Dictionary:

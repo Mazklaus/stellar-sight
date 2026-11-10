@@ -39,6 +39,14 @@ func _initialize() -> void:
 	await _frames(20)
 	await _shot(out + "/chantier-modele.png")
 
+	Research.grant(st, 0, ["artillerie", "lances_stellaires", "boucliers_phase", "chasse", "canons_rail", "obusiers"])
+	screens.shipyard.new_draft("titan")
+	screens.shipyard.auto_design_draft("ligne")
+	screens.shipyard.draft["name"] = "Soleil de l'Hymne"
+	screens.shipyard._refresh_all()
+	await _frames(20)
+	await _shot(out + "/chantier-titan.png")
+
 	screens.shipyard.new_draft("martyr")
 	screens.shipyard.place_module("plaques_blindage")
 	await _frames(20)

@@ -940,15 +940,19 @@ static func _designs(ctx: Dictionary) -> void:
 		if not old.is_empty():
 			spec["previous"] = String(old["id"])
 		if _issue(ctx, SimCommands.save_design(e.id, spec)):
+			ctx.erase("ai_designs")
 			mine = _ai_designs(ctx)
 
 
 ## Derniers modèles actifs de l'IA, par classe d'origine remplacée.
 static func _ai_designs(ctx: Dictionary) -> Dictionary:
+	if ctx.has("ai_designs"):
+		return ctx["ai_designs"]
 	var out := {}
 	for rec in Designs.designs_of(ctx["state"], ctx["e"].id, true):
 		if rec.has("role"):
 			out[String(rec["role"])] = rec
+	ctx["ai_designs"] = out
 	return out
 
 

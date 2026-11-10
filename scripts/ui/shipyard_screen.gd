@@ -287,13 +287,22 @@ func _assign_slots(hid: String, modules: Array) -> Array:
 	for mid in rest:
 		var kind := String(Designs.module(String(mid)).get("slot", ""))
 		for i in sl.size():
-			if out[i] == "" and _accepts(String(sl[i]["type"]), kind):
+			if out[i] == "" and _accepts(String(sl[i]["type"]), kind, String(mid)):
 				out[i] = String(mid)
 				break
 	return out
 
 
-func _accepts(slot_type: String, module_kind: String) -> bool:
+## Un emplacement de ce type reçoit-il ce module ? (type accepté et bonne taille de coque, ou
+## miniaturisation débloquée par les marques de l'empire.)
+func _accepts(slot_type: String, module_kind: String, mid := "") -> bool:
+	if mid != "":
+		var sizes: Array = Designs.module(mid).get("sizes", [])
+		var size := String(Designs.hull(String(draft.get("hull", ""))).get("size", ""))
+		if (Designs.extras(_state, _player, String(draft.get("hull", ""))).get(mid, []) as Array).has(slot_type):
+			return true
+		if not sizes.is_empty() and not sizes.has(size):
+			return false
 	return (Designs.slot_types().get(slot_type, {}).get("accepts", []) as Array).has(module_kind)
 
 
@@ -310,10 +319,10 @@ func place_module(mid: String) -> void:
 	var kind := String(Designs.module(mid).get("slot", ""))
 	var sl := slots()
 	var target := slot_index
-	if target < 0 or target >= sl.size() or not _accepts(String(sl[target]["type"]), kind):
+	if target < 0 or target >= sl.size() or not _accepts(String(sl[target]["type"]), kind, mid):
 		target = -1
 		for i in sl.size():
-			if String(draft["slots"][i]) == "" and _accepts(String(sl[i]["type"]), kind):
+			if String(draft["slots"][i]) == "" and _accepts(String(sl[i]["type"]), kind, mid):
 				target = i
 				break
 	if target < 0:
@@ -423,10 +432,10 @@ func _fill_modules() -> void:
 	for mid in Designs.module_ids():
 		var m := Designs.module(mid)
 		var kind := String(m.get("slot", ""))
-		if not _accepts(stype, kind):
-			continue
-		var sizes: Array = m.get("sizes", [])
-		if not sizes.is_empty() and not sizes.has(size):
+		var mini := Designs.miniaturisation_of(mid)
+		var later := not mini.is_empty() and String(mini["slot"]) == stype and (mini.get("sizes", []) as Array).has(size)
+		var ok := _accepts(stype, kind, mid)
+		if not ok and not later:
 			continue
 		var b := Button.new()
 		b.text = "%s\n%s" % [m.get("label", mid), module_value(mid, size)]
@@ -439,6 +448,10 @@ func _fill_modules() -> void:
 		if not Research.knows_all(_state, _player, techs):
 			b.disabled = true
 			b.tooltip_text += "\nTechnologie requise : %s" % Research.missing_text(_state, _player, techs)
+		if not mini.is_empty() and later:
+			b.tooltip_text += "\n%s" % String(mini.get("text", ""))
+			if not ok:
+				b.disabled = true
 		b.pressed.connect(func() -> void: place_module(mid))
 		_modules_box.add_child(b)
 		module_buttons[mid] = b
@@ -459,7 +472,7 @@ static func module_value(mid: String, size: String) -> String:
 	for fam in m.get("weapons", {}):
 		var v := int(Designs._sized(m["weapons"][fam], size))
 		parts.append("%s %d" % [weapons.get(fam, {}).get("short", fam), v])
-	var names := {"hp": "coque", "armor": "blindage", "shield": "bouclier", "pd": "antimissile", "pd_fleet": "antimissile de flotte",
+	var names := {"hp": "coque", "armor": "blindage", "shield": "bouclier", "pd": "antimissile", "pd_fleet": "antimissile de flotte", "shield_fleet": "bouclier de flotte",
 			"speed": "vitesse", "vision": "vision", "troops": "troupes", "siege": "siège"}
 	for k in Designs.STATS:
 		if m.has(k):
@@ -602,15 +615,17 @@ class HullView:
 				cols.append(idx)
 		_rects.resize(slot_list.size())
 		var n := cols.size()
-		var gap := 14.0
-		var total_w := n * BOX.x + (n - 1) * gap
-		var x0 := (size.x + total_w) * 0.5 - BOX.x
+		var gap := 12.0
+		# Les cases rétrécissent pour que toutes les colonnes tiennent (titan : cinq types d'emplacements).
+		var box := Vector2(minf(BOX.x, (size.x - 20.0 - (n - 1) * gap) / maxf(1.0, n)), BOX.y)
+		var total_w := n * box.x + (n - 1) * gap
+		var x0 := (size.x + total_w) * 0.5 - box.x
 		for ci in n:
 			var idx: Array = cols[ci]
-			var h := idx.size() * BOX.y + (idx.size() - 1) * 8.0
+			var h := idx.size() * box.y + (idx.size() - 1) * 8.0
 			var y0 := (size.y - h) * 0.5
 			for k in idx.size():
-				_rects[idx[k]] = Rect2(Vector2(x0 - ci * (BOX.x + gap), y0 + k * (BOX.y + 8.0)), BOX)
+				_rects[idx[k]] = Rect2(Vector2(x0 - ci * (box.x + gap), y0 + k * (box.y + 8.0)), box)
 
 	func _draw() -> void:
 		if hull_id == "":

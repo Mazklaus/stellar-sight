@@ -14,6 +14,10 @@
 		"artillery": {"label": "Artillerie lourde", "short": "Artillerie", "eff": [100, 80, 0], "defense": "armor",
 			"vs_size": {"small": 40, "medium": 80, "large": 120, "titan": 140}},
 		"fighters": {"label": "Chasseurs", "short": "Chasseurs", "eff": [70, 100, 90], "defense": "shield", "intercept": true, "ignores_lines": true},
+		"bombers": {"label": "Bombardiers", "short": "Bombardiers", "eff": [0, 60, 110], "defense": "armor", "intercept": true, "ignores_lines": true, "mark_family": "fighters",
+			"vs_size": {"small": 30, "medium": 80, "large": 150, "titan": 200}},
+		"stellar_lance": {"label": "Lance stellaire", "short": "Lance", "eff": [120, 100, 50], "defense": "shield", "mark_family": "beam",
+			"vs_size": {"small": 50, "medium": 100, "large": 150, "titan": 200}},
 		"martyr": {"label": "Charge sacrée", "short": "Charge sacrée", "eff": [0, 0, 100], "defense": "armor", "self_destruct": true, "fervor": 5}
 	},
 	"lines": {

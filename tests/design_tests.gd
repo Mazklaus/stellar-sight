@@ -18,6 +18,9 @@ func run(check: Callable) -> void:
 	_test_savegame()
 	_test_auto_design()
 	_test_ai_designs()
+	_test_target_priority()
+	_test_miniaturisation()
+	_test_hangars_and_titanic()
 	GameData.clear_custom_ships()
 
 
@@ -252,3 +255,95 @@ func _test_ai_designs() -> void:
 		var rec: Dictionary = st.designs[id]
 		roles_ok = roles_ok and Designs.CLASS_ROLES.has(String(rec.get("role", ""))) and String(rec.get("sig", "")) != ""
 	_ok(roles_ok, "un modèle d'IA dit quelle classe il remplace et quand il a été conçu")
+
+
+func _test_target_priority() -> void:
+	_ok(CombatSystem._prio_weight("largest", "cuirasse") > CombatSystem._prio_weight("largest", "corvette"), "« les plus gros » pèse plus sur une grande coque")
+	_ok(CombatSystem._prio_weight("smallest", "corvette") > CombatSystem._prio_weight("smallest", "cuirasse"), "« les plus petits » pèse plus sur une petite coque")
+	_ok(CombatSystem._prio_weight("rear", "porte_vaisseaux") > CombatSystem._prio_weight("rear", "fregate"), "« porteurs et arrière » vise les porteurs")
+	var big := Fleet.new()
+	big.add_ship("corvette")
+	big.add_ship("croiseur")
+	var list := [[big, 0, 3], [big, 1, 2]]
+	var near: Array = CombatSystem._cumulate(list, false)
+	var large: Array = CombatSystem._cumulate(list, false, "largest")
+	_ok(int(near[0][0][2]) * 100 / int(near[1]) > int(large[0][0][2]) * 100 / int(large[1]),
+			"avec « les plus gros », la corvette est moins souvent visée que le croiseur")
+	var rear := [[big, 0, 0], [big, 1, 2]]
+	_ok(int(CombatSystem._cumulate(rear, false, "rear")[0].size()) == 1, "l'arrière reste protégé tant que le front tient, quelle que soit la priorité")
+	# En bataille : un modèle « les plus gros » tire surtout sur le croiseur.
+	var rates := []
+	for prio in ["nearest", "largest"]:
+		var st := _state("vael", 6161)
+		_apply(st, SimCommands.save_design(0, {"name": "Batteries", "hull": "fregate", "modules": ["batterie_rayons", "batterie_rayons", "batterie_rayons"], "target": prio}))
+		var hits := _battle_hits(st, "m0_0")
+		rates.append(hits[1] * 100 / maxi(1, hits[0] + hits[1]))
+	_ok(int(rates[1]) > int(rates[0]) + 10, "en bataille, « les plus gros » vise bien plus le croiseur derrière l'écran de corvettes (%d %% des tirs contre %d %%)" % [rates[1], rates[0]])
+
+
+## Tirs d'un modèle sur 3 corvettes et 1 croiseur ennemis pendant le premier jour d'une bataille :
+## [tirs sur des corvettes, tirs sur le croiseur].
+func _battle_hits(st: GameState, design_id: String) -> Array:
+	var home := st.galaxy.get_planet(st.get_empire(0).capital_planet).system_id
+	var mine := st.spawn_ship(0, design_id, home)
+	for _i in 5:
+		mine.add_ship(design_id)
+	var foe := st.spawn_ship(1, "croiseur", home)
+	for _i in 3:
+		foe.add_ship("corvette")
+	# Le croiseur est en ligne, les corvettes à l'écran : sans priorité, les corvettes prennent l'essentiel.
+	Combat.start_war(st, 0, 1)
+	var sim := Simulation.new(st)
+	sim.advance(2)
+	var counts := [0, 0]
+	for r in [st.battles.values(), st.battle_reports]:
+		for b: Dictionary in r:
+			var units: Array = b.get("units", [])
+			for day: Dictionary in b.get("log", []):
+				if int(day.get("day", 0)) != 1:
+					continue  # le premier jour seulement : ensuite l'écran tombe et tout va au croiseur
+				for shot: Array in day.get("shots", []):
+					if int(shot[0]) < 0 or int(shot[1]) < 0 or String(units[int(shot[0])][1]) != design_id:
+						continue
+					counts[1 if String(units[int(shot[1])][1]) == "croiseur" else 0] += 1
+	return counts
+
+
+func _test_miniaturisation() -> void:
+	var st := _state("vael", 7171)
+	Research.grant(st, 0, ["coques_lourdes", "artillerie"])
+	var spec := {"name": "Croiseur d'artillerie", "hull": "croiseur", "modules": ["piece_artillerie", "piece_artillerie"]}
+	_ok(SimCommands.validate(st, SimCommands.save_design(0, spec)) != "", "sans marque III, pas d'artillerie sur un croiseur")
+	Research.grant(st, 0, ["canons_rail", "obusiers"])
+	_ok(SimCommands.validate(st, SimCommands.save_design(0, spec)) == "", "artillerie marque III : deux pièces sur un croiseur (%s)" % SimCommands.validate(st, SimCommands.save_design(0, spec)))
+	var pd := {"name": "Corvette bouclier", "hull": "corvette", "modules": ["antimissile", "antimissile", "antimissile"]}
+	_ok(SimCommands.validate(st, SimCommands.save_design(0, pd)) != "", "sans marque III, l'antimissile reste en défense")
+	Research.grant(st, 0, ["interception", "phase_dense"])
+	_ok(SimCommands.validate(st, SimCommands.save_design(0, pd)) == "", "antimissile marque III : il tient aussi en soutien")
+	Research.grant(st, 0, ["chasse", "antimatiere"])
+	var fr := {"name": "Frégate porteuse", "hull": "fregate", "modules": ["hangar_chasseurs"]}
+	_ok(SimCommands.validate(st, SimCommands.save_design(0, fr)) == "" and int(Designs.compute("fregate", ["hangar_chasseurs"])["weapons"]["fighters"]) > 0,
+			"chasseurs marque III : un hangar léger sur une frégate")
+	var auto := Designs.auto_design(st, 0, "croiseur", "artillerie", 1)
+	_ok((auto["modules"] as Array).has("piece_artillerie"), "la conception automatique profite de la miniaturisation (%s)" % ", ".join(auto["modules"]))
+
+
+func _test_hangars_and_titanic() -> void:
+	var st := _state("vael", 8181)
+	Research.grant(st, 0, ["baies", "chasse", "torpilles", "coques_lourdes"])
+	var carrier := Designs.auto_design(st, 0, "porte_vaisseaux", "porteur", 1)
+	_ok((carrier["modules"] as Array).has("hangar_chasseurs") and (carrier["modules"] as Array).has("hangar_bombardiers"), "un porteur mélange chasseurs et bombardiers (%s)" % ", ".join(carrier["modules"]))
+	_ok(Combat.weapon_bonus(st, 0, "bombers", {"fighters": 3}) == Combat.weapon_bonus(st, 0, "fighters", {"fighters": 3}), "les bombardiers suivent la marque des chasseurs")
+	var vs_big := Combat.shot_damage("bombers", 26, 2, "equilibre", 100, "cuirasse", "equilibre")
+	var vs_small := Combat.shot_damage("bombers", 26, 2, "equilibre", 100, "corvette", "equilibre")
+	_ok(vs_big > vs_small, "les bombardiers frappent plus fort les grosses coques (%d contre %d)" % [vs_big, vs_small])
+	var inter := Designs.compute("porte_vaisseaux", ["hangar_intercepteurs"])
+	_ok(int(inter["pd_fleet"]) > int(Designs.compute("porte_vaisseaux", [])["pd_fleet"]), "les intercepteurs couvrent la flotte")
+	_ok(Designs.check_fit("titan", ["lance_stellaire"]) == "" and Designs.check_fit("titan", ["lance_stellaire", "hangar_geant"]) != "", "un seul module titanesque sur le titan")
+	_ok(Designs.check_fit("cuirasse", ["lance_stellaire"]) != "", "pas de module titanesque hors des méga-coques")
+	Research.grant(st, 0, ["lances_stellaires", "boucliers_phase"])
+	_ok((Designs.auto_design(st, 0, "titan", "ligne", 1)["modules"] as Array).has("lance_stellaire"), "titan de ligne : lance stellaire")
+	_ok((Designs.auto_design(st, 0, "titan", "escorte", 1)["modules"] as Array).has("bouclier_flotte"), "titan d'escorte : bouclier de flotte")
+	var bare := Combat.shot_damage("beam", 30, 1, "equilibre", 100, "fregate", "equilibre")
+	var covered := Combat.shot_damage("beam", 30, 1, "equilibre", 100, "fregate", "equilibre", 0, {}, 20)
+	_ok(covered < bare, "le bouclier de flotte protège contre les rayons (%d contre %d)" % [covered, bare])
