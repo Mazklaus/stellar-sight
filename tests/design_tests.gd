@@ -435,6 +435,15 @@ func _test_mega_modules() -> void:
 	Research.grant_all(vael, 0)
 	_ok(Designs.module_allowed("reliquaire", "choeur") and not Designs.module_allowed("reliquaire", "vael"), "le reliquaire est au Chœur seul")
 	_ok(Designs.module_allowed("noyau_quarante", "vael") and Designs.module_allowed("propulseurs_navigateurs", "ossarane") and Designs.module_allowed("ventre_digesteur", "khthari"), "chaque peuple a son module de méga-coque")
+	# Espèce personnalisée : les modules suivent ses couches, et une condition peut combiner plusieurs couches.
+	var custom := {"registre": "Grimdark", "species": {"archetype": "ruche", "gouvernement": "theocratie", "credo": "foi", "traits": ["navigateurs"]}}
+	_ok(Designs.module_allowed_for("reliquaire", custom) and Designs.module_allowed_for("propulseurs_navigateurs", custom) and Designs.module_allowed_for("ventre_digesteur", custom) and not Designs.module_allowed_for("noyau_quarante", custom), "une espèce personnalisée obtient les modules de ses couches")
+	_ok(FactionTraits.species_matches(custom, {"credo": ["foi"], "gouvernement": ["theocratie"]}) and not FactionTraits.species_matches(custom, {"credo": ["foi"], "gouvernement": ["republique"]}), "une condition peut combiner plusieurs couches")
+	for mid in Designs.module_ids():
+		for t in Designs.module(mid).get("requires_tech", []):
+			var tt := Research.tech(String(t))
+			_ok(not tt.is_empty() and not tt.has("requires"), "le module %s dépend d'une technologie commune (%s)" % [mid, t])
+	_ok(Array(Research.unlocks(GameData.faction("choeur"), "etoiles_captives")).has("module Soleil captif"), "l'arbre affiche les modules débloqués")
 	var bad := {"name": "Hérésie", "hull": "titan", "modules": ["reliquaire"], "line": "line", "target": "nearest"}
 	_ok(Designs.check_save(vael, 0, bad).contains("module"), "Vael ne peut pas monter le reliquaire")
 	_ok(Designs.check_save(choeur, 0, bad) == "", "le Chœur peut monter le reliquaire")

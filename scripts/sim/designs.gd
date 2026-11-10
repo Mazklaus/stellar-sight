@@ -503,8 +503,13 @@ static func _usable(state: GameState, empire_id: int, hull_id: String, slot_type
 
 
 ## Un module de peuple ("requires": {"species": …}) ne va qu'aux peuples qui remplissent ses conditions.
+## Les conditions portent sur les couches d'espèce, donc une espèce personnalisée y a droit aussi.
 static func module_allowed(mid: String, faction_id: String) -> bool:
-	return FactionTraits.species_matches(GameData.faction(faction_id), module(mid).get("requires", {}).get("species", {}))
+	return module_allowed_for(mid, GameData.faction(faction_id))
+
+
+static func module_allowed_for(mid: String, faction: Dictionary) -> bool:
+	return FactionTraits.species_matches(faction, module(mid).get("requires", {}).get("species", {}))
 
 
 ## Intérêt d'une arme pour un rôle : dégâts pondérés par phase, et (qualité 2) contre les défenses vues.

@@ -681,7 +681,7 @@
 			"label": "Léviathans",
 			"domain": "genie",
 			"era": 5,
-			"text": "Débloque le Léviathan, deuxième échelon des méga-vaisseaux, et ses modules colossaux : la forge mobile, et le canon à singularité avec les Canons à singularité.",
+			"text": "Débloque le Léviathan, deuxième échelon des méga-vaisseaux, ses variantes, et les modules colossaux forge mobile et canon à singularité (avec les Canons à singularité).",
 			"pre": [
 				"chantier_titanesque"
 			]
@@ -690,10 +690,30 @@
 			"label": "Nefs-mondes",
 			"domain": "genie",
 			"era": 5,
-			"text": "Débloque la Nef-monde, troisième échelon des méga-vaisseaux, et ses modules astraux : le moteur de trame et le brise-monde.",
+			"text": "Débloque la Nef-monde, troisième échelon des méga-vaisseaux, ses variantes, et les modules astraux moteur de trame et brise-monde.",
 			"pre": [
 				"leviathans",
 				"matiere_programmable"
+			]
+		},
+		"puits_gravite": {
+			"label": "Puits de gravité",
+			"domain": "genie",
+			"era": 5,
+			"text": "Un puits de gravité artificiel assez profond pour retenir une flotte : débloque l'ancre gravitationnelle des Léviathans.",
+			"pre": [
+				"leviathans",
+				"saut_precision"
+			]
+		},
+		"etoiles_captives": {
+			"label": "Étoiles captives",
+			"domain": "genie",
+			"era": 5,
+			"text": "Mettre une étoile naine en cage à bord d'une Nef-monde : débloque le soleil captif, l'arme la plus lourde du jeu, et le cœur-étoile, qui rend de l'énergie à l'empire.",
+			"pre": [
+				"nefs_mondes",
+				"lances_stellaires"
 			]
 		},
 		"forges_nefs": {

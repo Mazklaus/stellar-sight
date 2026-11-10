@@ -116,7 +116,8 @@ static func is_specific(tid: String) -> bool:
 	return tech(tid).has("requires")
 
 
-## Ce que la technologie débloque pour ce peuple : bâtiments et classes de vaisseaux (libellés).
+## Ce que la technologie débloque pour ce peuple : bâtiments, classes de vaisseaux, coques et modules
+## du Chantier (libellés).
 static func unlocks(faction: Dictionary, tid: String) -> PackedStringArray:
 	var out := PackedStringArray()
 	for bid in GameData.buildings():
@@ -125,6 +126,14 @@ static func unlocks(faction: Dictionary, tid: String) -> PackedStringArray:
 	for sid in FactionTraits.ship_ids_for(String(faction.get("id", ""))):
 		if GameData.ship(sid).get("requires_tech", []).has(tid):
 			out.append(String(GameData.ship(sid).get("label", sid)))
+	for hid in Designs.hull_ids_for(String(faction.get("id", ""))):
+		var h := Designs.hull(hid)
+		if h.get("requires_tech", []).has(tid) and not out.has(String(h.get("label", hid))):
+			out.append("coque %s" % String(h.get("label", hid)))
+	for mid in Designs.module_ids():
+		var m := Designs.module(mid)
+		if m.get("requires_tech", []).has(tid) and Designs.module_allowed_for(mid, faction):
+			out.append("module %s" % String(m.get("label", mid)))
 	return out
 
 
