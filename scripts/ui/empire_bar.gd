@@ -19,6 +19,8 @@ const SCREENS := [
 		"why": "Quatre domaines sur cinq ères, tout l'arbre visible. Le Savoir finance la technologie en tête de file ; une ère s'ouvre quand on connaît assez de technologies de la précédente."},
 	{"id": "diplomacy", "label": "Diplomatie", "key": "F4", "glyph": "diplomacy", "ready": true,
 		"why": "Guerre froide à la rencontre, puis la paix, l'alliance, le commerce ou la guerre. Survolez une opinion pour en voir les raisons, et une proposition pour savoir ce que l'autre en pense."},
+	{"id": "shipyard", "label": "Chantier", "key": "F6", "glyph": "shipyard", "ready": true,
+		"why": "Concevez vos vaisseaux : une coque, des modules dans ses emplacements, un rang et une cible. Les modèles enregistrés rejoignent la liste de construction."},
 ]
 ## Description d'un menu d'empire (entrée de SCREENS), {} s'il n'existe pas.
 static func screen_info(screen_id: String) -> Dictionary:

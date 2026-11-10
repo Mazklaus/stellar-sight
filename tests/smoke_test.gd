@@ -21,6 +21,7 @@ func _initialize() -> void:
 	preload("res://tests/diplomacy_tests.gd").new().run(_check)
 	preload("res://tests/research_tests.gd").new().run(_check)
 	preload("res://tests/arsenal_tests.gd").new().run(_check)
+	preload("res://tests/design_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -597,6 +598,39 @@ func _test_navigation_ui(main: Node) -> void:
 	(screens.research_buttons["remove"] as Button).pressed.emit()
 	await process_frame
 	_check(not rme.research_queue.has(rfirst), "« Retirer de la file »")
+	_press(KEY_F6)
+	await process_frame
+	_check(screens.current == "shipyard" and screens.shipyard != null and screens._tab.text.begins_with("CHANTIER"), "F6 : écran Chantier")
+	var yard: ShipyardScreen = screens.shipyard
+	var yst: GameState = main.simulation.state
+	var yhull := String(Designs.hull_ids_for(rme.faction_id)[0])
+	_check(yard.selected != "" and yard.design_buttons.has(yard.selected), "le Chantier montre un modèle d'origine à l'ouverture")
+	(yard.hull_buttons[yhull] as Button).pressed.emit()
+	await process_frame
+	_check(yard.selected == "" and String(yard.draft["hull"]) == yhull and yard.slot_index == 0, "« + coque » : brouillon vierge, premier emplacement choisi")
+	_check(yard.module_buttons.has("canon_cinetique"), "les modules de l'emplacement choisi sont proposés")
+	(yard.module_buttons["canon_cinetique"] as Button).pressed.emit()
+	await process_frame
+	_check(yard.draft_modules() == ["canon_cinetique"], "cliquer un module le pose dans l'emplacement")
+	_check((yard.buttons["save"] as Button).disabled, "sans nom, on ne peut pas enregistrer")
+	yard._name.text = "Épine"
+	yard._name.text_changed.emit("Épine")
+	_check(not (yard.buttons["save"] as Button).disabled, "avec un nom, « Enregistrer le modèle » s'active")
+	var ynext := "m%d_%d" % [main.view_empire, yst.next_design_id]
+	(yard.buttons["save"] as Button).pressed.emit()
+	await process_frame
+	_check(yst.designs.has(ynext) and yard.selected == ynext and Designs.buildable_ids(yst, main.view_empire).has(ynext),
+			"le modèle est enregistré, affiché et constructible")
+	_check((yard.buttons["save"] as Button).text == "Nouvelle version", "un modèle à soi s'enregistre ensuite en nouvelle version")
+	(yard.buttons["retire"] as Button).pressed.emit()
+	await process_frame
+	_check(yst.designs[ynext]["retired"], "« Retirer de la construction »")
+	(yard.hull_buttons[yhull] as Button).pressed.emit()
+	await process_frame
+	yard.auto_design_draft("escorte")
+	await process_frame
+	_check(not yard.draft_modules().is_empty() and String(yard.draft["line"]) == "screen" and String(yard.draft["name"]) != "",
+			"« Concevoir pour moi » remplit la coque, le rang et un nom (%s)" % ", ".join(yard.draft_modules()))
 	_press(KEY_F4)
 	await process_frame
 	_check(screens.current == "diplomacy" and screens._content.get_child(0) != null, "F4 : écran Diplomatie")

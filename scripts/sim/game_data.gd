@@ -50,25 +50,65 @@ static func building(id: String) -> Dictionary:
 	return buildings().get(id, {})
 
 
-## Classes de vaisseaux (data/ships.json), par identifiant.
+## Classes de vaisseaux (data/ships.json), par identifiant. Les classes de combat sont des modèles
+## d'origine de l'éditeur (Designs) : leurs caractéristiques sont calculées une fois depuis leur coque
+## et leurs modules (data/designs.json), puis gardées en cache avec le reste.
 static func ships() -> Dictionary:
+	if not _cache.has("ships_built"):
+		var raw: Dictionary = _load("ships")
+		for sid in raw:
+			var o := Designs.origin(String(sid))
+			if o.is_empty():
+				continue
+			var computed := Designs.compute(String(o["hull"]), o.get("modules", []))
+			var sd: Dictionary = raw[sid]
+			for k in computed:
+				if not sd.has(k) or k in Designs.STATS or k in ["weapons", "cost", "days", "upkeep", "hull"] or k in Designs.FLAGS:
+					sd[k] = computed[k]
+			sd["modules"] = (o.get("modules", []) as Array).duplicate()
+		_cache["ships_built"] = true
 	return _load("ships")
 
 
+## Coques, modules et modèles d'origine de l'éditeur de vaisseaux (data/designs.json).
+static func designs_data() -> Dictionary:
+	return _load("designs")
+
+
+## Modèles conçus en partie (voir Designs.register_all) : identifiant -> caractéristiques.
+## Ils se lisent comme des classes, partout où le jeu lit GameData.ship().
+static var _custom := {}
+
+
+static func register_custom_ship(id: String, stats: Dictionary) -> void:
+	_custom[id] = stats
+
+
+static func clear_custom_ships() -> void:
+	_custom.clear()
+
+
 static func ship(id: String) -> Dictionary:
+	if _custom.has(id):
+		return _custom[id]
 	return ships().get(id, {})
 
 
-## Identifiants des classes de vaisseaux, triés (ordre stable pour l'interface et la simulation).
+## Identifiants des classes de vaisseaux, triés (ordre stable pour l'interface et la simulation),
+## puis ceux des modèles conçus en partie, triés aussi.
 static func ship_ids() -> Array[String]:
 	var ids: Array[String] = []
 	for k in ships():
 		ids.append(String(k))
 	ids.sort()
+	var custom: Array[String] = []
+	for k in _custom:
+		custom.append(String(k))
+	custom.sort()
+	ids.append_array(custom)
 	return ids
 
 
-## Niveaux de difficulté de l'IA (data/ai.json).
 static func ai() -> Dictionary:
 	return _load("ai")
 

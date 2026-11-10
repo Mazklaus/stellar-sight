@@ -454,7 +454,7 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 		if FactionTraits.has_fervor(f) and c.is_colony():
 			actions.append(_sacrifice_action(p))
 	if c and c.owner == _player and c.is_established() and c.is_colony():
-		for sid in FactionTraits.ship_ids_for(me.faction_id):
+		for sid in Designs.buildable_ids(_state, _player):
 			actions.append(_ship_action(p, sid))
 	if c and c.owner == _player and c.is_established():
 		for bid in GameData.buildings():

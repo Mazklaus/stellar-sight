@@ -476,7 +476,9 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	var sd := GameData.ship(ship_id)
 	if sd.is_empty():
 		return "classe de vaisseau inconnue : %s" % ship_id
-	if not FactionTraits.ship_ids_for(e.faction_id).has(ship_id):
+	if not Designs.can_build_id(state, empire_id, ship_id):
+		if sd.get("custom", false):
+			return "ce modèle n'est pas disponible pour vous (retiré, ou conçu par un autre empire)"
 		return "votre peuple ne construit pas de %s" % String(sd["plural"]).to_lower()
 	if not ship_unlocked(state, empire_id, ship_id):
 		return "technologie requise : %s" % Research.missing_text(state, empire_id, sd.get("requires_tech", []))
@@ -484,7 +486,7 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	var need := String(req.get("building", ""))
 	if need != "" and not c.buildings.has(need):
 		return "il faut un bâtiment sur cette colonie : %s" % String(GameData.building(need).get("label", need))
-	if req.get("unique_per_empire", false) and count_owned_or_building(state, empire_id, ship_id) > 0:
+	if req.get("unique_per_empire", false) and count_same_hull(state, empire_id, ship_id) > 0:
 		return "un seul %s par empire" % String(sd["label"]).to_lower()
 	if c.ship_build != "":
 		return "le chantier spatial est occupé"
@@ -495,6 +497,26 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	if not Economy.can_afford(e, cost):
 		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)
 	return ""
+
+
+## Vaisseaux de l'empire (en service ou en chantier) sur la même coque que ship_id : un titan conçu
+## au Chantier compte comme le titan d'origine pour la règle « un seul par empire ».
+static func count_same_hull(state: GameState, empire_id: int, ship_id: String) -> int:
+	var hid := String(GameData.ship(ship_id).get("hull", ""))
+	if hid == "":
+		return count_owned_or_building(state, empire_id, ship_id)
+	var n := 0
+	for fid in state.fleets:
+		var f: Fleet = state.fleets[fid]
+		if f.owner == empire_id:
+			for sh in f.ships:
+				if String(GameData.ship(sh).get("hull", "")) == hid:
+					n += 1
+	for pid in state.colonies:
+		var c: Colony = state.colonies[pid]
+		if c.owner == empire_id and c.ship_build != "" and String(GameData.ship(c.ship_build).get("hull", "")) == hid:
+			n += 1
+	return n
 
 
 ## Vaisseaux d'une classe que l'empire possède ou a en chantier (titan : un seul par empire).

@@ -7,7 +7,9 @@ extends RefCounted
 ## stockée : elle se régénère à l'identique depuis la graine. Seules les données
 ## qui changent en cours de partie sont sérialisées.
 
-const FORMAT_VERSION := 9
+const FORMAT_VERSION := 10
+## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux).
+const READABLE_VERSIONS := [9, 10]
 const CHRONICLE_MAX := 50
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
@@ -52,6 +54,9 @@ var relations: Dictionary = {}
 var memories: Array[Dictionary] = []
 var proposals: Array[Dictionary] = []
 var next_proposal_id: int = 0
+## Modèles de vaisseaux conçus en partie (voir Designs), par identifiant ("m<empire>_<n>").
+var designs: Dictionary = {}
+var next_design_id: int = 0
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -86,6 +91,8 @@ static func _base(seed_value_: int, system_count_: int, galaxy_radius_: float) -
 	s.galaxy = GalaxyGenerator.generate(seed_value_, system_count_, galaxy_radius_)
 	# Flux aléatoire distinct de celui de la génération, dérivé de la même graine.
 	s.rng.seed = hash([seed_value_, "simulation"])
+	# Une nouvelle partie (ou un chargement) repart sans les modèles de la précédente.
+	GameData.clear_custom_ships()
 	return s
 
 
@@ -134,7 +141,18 @@ func to_dict() -> Dictionary:
 		"memories": memories.duplicate(true),
 		"proposals": proposals.duplicate(true),
 		"next_proposal_id": next_proposal_id,
+		"designs": _sorted_designs(),
+		"next_design_id": next_design_id,
 	}
+
+
+func _sorted_designs() -> Array:
+	var ids := designs.keys()
+	ids.sort()
+	var out := []
+	for k in ids:
+		out.append(designs[k].duplicate(true))
+	return out
 
 
 ## Dictionnaire id -> entier, en liste triée [{"system": id, key: valeur}] (le JSON n'a pas de clés entières).
@@ -165,7 +183,7 @@ static func from_dict(d: Dictionary) -> GameState:
 		if not d.has(key):
 			last_error = "champ manquant : %s" % key
 			return null
-	if int(d["version"]) != FORMAT_VERSION:
+	if not READABLE_VERSIONS.has(int(d["version"])):
 		last_error = "version de format %s non prise en charge (attendu %d)" % [d["version"], FORMAT_VERSION]
 		return null
 	var s := GameState._base(int(d["seed"]), int(d["system_count"]), float(d["galaxy_radius"]))
@@ -204,6 +222,15 @@ static func from_dict(d: Dictionary) -> GameState:
 			last_error = "colonie invalide sur la planète %d" % colony.planet_id
 			return null
 		s.colonies[colony.planet_id] = colony
+	# Les modèles avant les flottes : leurs vaisseaux doivent être reconnus.
+	for rd: Dictionary in d.get("designs", []):
+		var rec: Dictionary = GameData._to_ints(rd)
+		if Designs.hull(String(rec.get("hull", ""))).is_empty() or s.get_empire(int(rec.get("owner", -1))) == null:
+			last_error = "modèle de vaisseau invalide : %s" % rec.get("id", "?")
+			return null
+		s.designs[String(rec["id"])] = rec
+	s.next_design_id = int(d.get("next_design_id", 0))
+	Designs.register_all(s)
 	for fd: Dictionary in d["fleets"]:
 		var f := Fleet.from_dict(fd)
 		var bad := s.get_empire(f.owner) == null or s.galaxy.get_system(f.system_id) == null or f.ships.is_empty()

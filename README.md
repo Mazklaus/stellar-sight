@@ -353,6 +353,22 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
 
 À venir, selon l'étude : les familles d'armes, modules et doctrines viendront avec la couche de technologies ; les échelons de méga-vaisseaux au-dessus du titan, plus tard (jeu de base ou extension, à décider par échelon).
 
+### Éditeur de vaisseaux (lot 1 : le moteur)
+
+Étude sourcée (Endless Space 2, Stellaris, Galactic Civilizations IV, Master of Orion II) : https://claude.ai/artifact/F51fEJz4ATWYVRL1Pk7ftb
+
+- Un vaisseau = une **coque** (`data/designs.json`, `hulls`) + ses **modules intégrés** (coques de peuple, jamais retirables) + les **modules posés** dans ses emplacements typés : armes, lourds (artillerie, hangars), défense, soutien, titanesque. Les types d'emplacements sont des données (`slot_types`, champ `accepts`) : un échelon de méga-coque au-delà du titan ajoute le sien sans toucher au code.
+- La valeur d'un module dépend de la taille de la coque (petite, moyenne, grande, titan), comme les tailles d'emplacements de Stellaris. Un emplacement vide ne coûte rien : le vaisseau est moins cher et sort plus vite.
+- Les classes de combat de `data/ships.json` sont des **modèles d'origine** (`origin`) : leurs caractéristiques sont calculées depuis leur coque et leurs modules. Corvette, frégate, croiseur, cuirassé, porte-vaisseaux, titan, martyr et ruche-mère gardent exactement leurs chiffres ; escorteur, torpilleur, transport, bombarde, coursier et frégate des Quarante, devenus des modèles sur une coque commune ou de peuple, bougent un peu.
+- Les modèles conçus en partie vivent dans `GameState.designs` (sauvegarde version 10 ; les parties version 9 se chargent encore) : nom, coque, modules, rang (écran, ligne, arrière), priorité de cible, version. Une nouvelle version garde la coque et retire l'ancienne de la liste de construction ; les vaisseaux déjà construits restent tels quels. `GameData.ship()` les lit comme des classes, donc combat, flottes et chantiers fonctionnent sans changement.
+- Commandes : `SimCommands.save_design`, `SimCommands.retire_design`. Tests : `tests/design_tests.gd`.
+- **Écran Chantier** (F6, lot 2) : modèles rangés par coque à gauche (« + Coque » ouvre un brouillon vierge), coque schématique au centre avec ses emplacements colorés par type (clic : choisir, clic droit : vider), modules de l'emplacement choisi à droite avec leur effet pour cette taille de coque, caractéristiques en bas comparées au modèle affiché (dégâts par phase, coque, défenses, vitesse, coût, durée). Enregistrer, nouvelle version, retirer ou remettre en service. Captures : `tools/capture_shipyard.gd`.
+
+![Écran Chantier](docs/apercu-chantier.png)
+
+- **Conception automatique et IA** (lot 3) : `Designs.auto_design(state, empire, coque, rôle, qualité)` remplit une coque pour un rôle (assaut, ligne, escorte, torpilleur, artillerie, porteur, invasion, siège). Qualité 0 : modules au hasard parmi ceux qui conviennent ; 1 : équilibré ; 2 : défenses et armes adaptées à ce que l'empire a affronté (`Designs.threat`, d'après ses rapports de bataille). Le bouton « Concevoir pour moi » du Chantier s'en sert (qualité 2). Chaque IA conçoit, une fois par mois, un modèle par classe d'origine qu'elle sait construire (même coque, même rôle), le renouvelle quand elle a découvert des technologies ou beaucoup combattu, et le construit à la place de la classe. La qualité suit son niveau militaire (Recrue maladroite, Normal équilibré, Vétéran et au-delà adaptés).
+- À venir : priorité de cible en bataille et seuils de miniaturisation, hangars à variantes et modules titanesques (lot 4).
+
 ## Organisation du code
 
 La simulation et l'affichage sont séparés dès maintenant, pour pouvoir ajouter le multijoueur et passer en 2,5D sans tout réécrire.

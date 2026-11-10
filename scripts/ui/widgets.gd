@@ -5,7 +5,7 @@ extends RefCounted
 
 
 ## Bouton avec un pictogramme vectoriel (pas besoin de police à symboles ni d'image).
-## glyph : "pause", "play", "menu", "prev", "next", "close", "home", "economy", "colonies", "research", "diplomacy".
+## glyph : "pause", "play", "menu", "prev", "next", "close", "home", "economy", "colonies", "research", "diplomacy", "shipyard".
 class IconButton:
 	extends Button
 	var glyph := ""
@@ -62,6 +62,10 @@ class IconButton:
 			"diplomacy":
 				draw_arc(c + Vector2(-s * 0.45, 0), s * 0.75, 0.0, TAU, 24, col, 1.6, true)
 				draw_arc(c + Vector2(s * 0.45, 0), s * 0.75, 0.0, TAU, 24, col, 1.6, true)
+			"shipyard":
+				draw_colored_polygon(PackedVector2Array([c + Vector2(s * 1.2, 0), c + Vector2(s * 0.3, -s * 0.7), c + Vector2(-s * 1.1, -s * 0.55),
+						c + Vector2(-s * 1.1, s * 0.55), c + Vector2(s * 0.3, s * 0.7)]), col)
+				draw_line(c + Vector2(-s * 0.6, -s * 1.1), c + Vector2(-s * 0.6, s * 1.1), Color(col, 0.6), 1.5, true)
 			"home":
 				draw_colored_polygon(PackedVector2Array([c + Vector2(0, -s * 1.2), c + Vector2(s * 1.1, 0), c + Vector2(0, s * 1.2), c + Vector2(-s * 1.1, 0)]), col)
 
