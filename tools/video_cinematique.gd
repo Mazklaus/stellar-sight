@@ -1,11 +1,8 @@
 extends SceneTree
-## Vidéo de la cinématique 3D (6 jours, 30 images/s) : images PNG dans CAPTURE_DIR, puis
-##   ffmpeg -framerate 30 -i f%04d.png -c:v libx264 -pix_fmt yuv420p cinematique.mp4
-## Captures des sprites tirés des modèles 3D (docs/vaisseaux-3d.md) avec le rendu réel :
-##   xvfb-run -a -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_vaisseaux_3d.gd
-## Écrit dans CAPTURE_DIR (par défaut user://captures) : une bataille de frégates Ossarane contre
-## l'Essaim Kh'thari dans la vue de replay et dans la cinématique 3D, puis la frégate au Chantier pour
-## chacun des deux peuples.
+## Vidéo de la cinématique 3D d'une bataille de frégates Ossarane contre l'Essaim Kh'thari,
+## rendue image par image (30 images/s) dans CAPTURE_DIR (par défaut user://captures) :
+##   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --resolution 1280x720 -s res://tools/video_cinematique.gd
+## puis : ffmpeg -framerate 30 -i f%04d.png -c:v libx264 -pix_fmt yuv420p cinematique.mp4
 
 
 func _initialize() -> void:
