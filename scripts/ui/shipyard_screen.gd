@@ -437,6 +437,8 @@ func _fill_modules() -> void:
 		var ok := _accepts(stype, kind, mid)
 		if not ok and not later:
 			continue
+		if not Designs.module_allowed(mid, _state.get_empire(_player).faction_id):
+			continue  # module d'un autre peuple
 		var b := Button.new()
 		b.text = "%s\n%s" % [m.get("label", mid), module_value(mid, size)]
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -473,7 +475,7 @@ static func module_value(mid: String, size: String) -> String:
 		var v := int(Designs._sized(m["weapons"][fam], size))
 		parts.append("%s %d" % [weapons.get(fam, {}).get("short", fam), v])
 	var names := {"hp": "coque", "armor": "blindage", "shield": "bouclier", "pd": "antimissile", "pd_fleet": "antimissile de flotte", "shield_fleet": "bouclier de flotte",
-			"speed": "vitesse", "vision": "vision", "troops": "troupes", "siege": "siège"}
+			"fleet_speed": "vitesse de la flotte", "speed": "vitesse", "vision": "vision", "troops": "troupes", "siege": "siège"}
 	for k in Designs.STATS:
 		if m.has(k):
 			var v := int(Designs._sized(m[k], size))
@@ -601,7 +603,7 @@ class HullView:
 	func _layout() -> void:
 		_rects.clear()
 		# Colonnes de la proue (à droite) vers la poupe : armes, lourds, titanesque, défense, soutien.
-		var order := ["weapon", "heavy", "titanic", "defense", "support"]
+		var order := ["weapon", "heavy", "astral", "colossal", "titanic", "defense", "support"]
 		for t in Designs.slot_types():
 			if not order.has(t):
 				order.insert(3, t)

@@ -12,12 +12,16 @@ extends RefCounted
 ## pour que tout le reste du jeu (combat, construction, flottes) les lise comme une classe.
 ##
 ## Les types d'emplacements sont des données ("slot_types") : chacun dit quels emplacements de module il
-## accepte. Un échelon de méga-coque au-delà du titan ajoute son propre type sans toucher au code.
+## accepte. Chaque échelon de méga-coque au-delà du titan (Léviathan : colossal, Nef-monde : astral)
+## ajoute son propre type, qui accepte aussi les modules des échelons inférieurs.
 
 ## Caractéristiques additives (coque + modules).
-const STATS := ["hp", "armor", "shield", "pd", "pd_fleet", "shield_fleet", "speed", "vision", "troops", "siege"]
-## Drapeaux qu'un module transmet au vaisseau.
-const FLAGS := ["blockade_runner", "adaptive"]
+## fleet_speed : vitesse minimale de toute la flotte (moteur de trame).
+const STATS := ["hp", "armor", "shield", "pd", "pd_fleet", "shield_fleet", "fleet_speed", "speed", "vision", "troops", "siege"]
+## Drapeaux qu'un module transmet au vaisseau (fleet_repair : la flotte se répare partout comme chez
+## elle ; fleet_barracks : ses troupes se reforment partout ; anchor : les ennemis ne quittent pas la
+## bataille ; reliquary : ferveur à chaque victoire ; digester : épaves changées en matériaux).
+const FLAGS := ["blockade_runner", "adaptive", "fleet_repair", "fleet_barracks", "anchor", "reliquary", "digester"]
 const LINES := ["screen", "line", "rear"]
 const TARGETS := ["nearest", "largest", "smallest", "rear"]
 const NAME_MAX := 32
@@ -99,7 +103,12 @@ static func compute(hull_id: String, modules: Array) -> Dictionary:
 		var cost: Dictionary = raw.get(size, {}) if raw.has(size) else raw
 		for r in cost:
 			out["cost"][r] = int(out["cost"].get(r, 0)) + int(cost[r])
-		out["days"] = int(out["days"]) + int(_sized(m.get("days", 0), size))
+		# Méga-coques des échelons supérieurs : leurs équipes posent plusieurs modules à la fois.
+		@warning_ignore("integer_division")
+		out["days"] = int(out["days"]) + int(_sized(m.get("days", 0), size)) * int(h.get("module_days_pct", 100)) / 100
+		# Entretien des modules (négatif : le module rapporte, comme le cœur-étoile).
+		for r in m.get("upkeep", {}):
+			out["upkeep"][r] = int(out["upkeep"].get(r, 0)) + int(m["upkeep"][r])
 		for flag in FLAGS:
 			if m.get(flag, false):
 				out[flag] = true
@@ -328,6 +337,9 @@ static func check_save(state: GameState, empire_id: int, spec: Dictionary) -> St
 	var why := check_fit(hid, mods, extras(state, empire_id, hid))
 	if why != "":
 		return why
+	for mid in mods:
+		if not module_allowed(String(mid), e.faction_id):
+			return "votre peuple n'utilise pas le module %s" % String(module(String(mid)).get("label", mid))
 	var techs := required_techs(hid, mods)
 	if not Research.knows_all(state, empire_id, techs):
 		return "technologie requise : %s" % Research.missing_text(state, empire_id, techs)
@@ -421,7 +433,24 @@ const CLASS_ROLES := {
 	"corvette": "assaut", "coursier": "assaut", "martyr": "assaut", "fregate": "ligne", "fregate_quarante": "ligne",
 	"croiseur": "ligne", "escorteur": "escorte", "torpilleur": "torpilleur", "transport": "invasion",
 	"bombarde": "siege", "cuirasse": "artillerie", "porte_vaisseaux": "porteur", "ruche_mere": "porteur", "titan": "ligne",
+	"leviathan": "ligne", "nef_monde": "ligne",
 }
+
+
+## Rôle des variantes de méga-coques (les autres coques gardent le rôle de leur classe d'origine).
+const HULL_ROLES := {
+	"titan_porteur": "porteur", "leviathan_porteur": "porteur", "nef_porteuse": "porteur",
+	"titan_bastion": "escorte", "nef_bastion": "escorte", "leviathan_siege": "siege",
+}
+
+
+## La coque et ses variantes du même échelon (Titan, Titan porteur, Titan bastion…), coque d'abord.
+static func variants_of(hull_id: String) -> Array[String]:
+	var out: Array[String] = [hull_id]
+	for hid in hull_ids():
+		if String(hull(hid).get("variant_of", "")) == hull_id:
+			out.append(hid)
+	return out
 
 
 ## Ce que montrent les adversaires dans les batailles où l'empire s'est battu : part des armes arrêtées
@@ -467,8 +496,20 @@ static func _usable(state: GameState, empire_id: int, hull_id: String, slot_type
 			continue
 		if not Research.knows_all(state, empire_id, m.get("requires_tech", [])):
 			continue
+		if not module_allowed(mid, state.get_empire(empire_id).faction_id):
+			continue
 		out.append(mid)
 	return out
+
+
+## Un module de peuple ("requires": {"species": …}) ne va qu'aux peuples qui remplissent ses conditions.
+## Les conditions portent sur les couches d'espèce, donc une espèce personnalisée y a droit aussi.
+static func module_allowed(mid: String, faction_id: String) -> bool:
+	return module_allowed_for(mid, GameData.faction(faction_id))
+
+
+static func module_allowed_for(mid: String, faction: Dictionary) -> bool:
+	return FactionTraits.species_matches(faction, module(mid).get("requires", {}).get("species", {}))
 
 
 ## Intérêt d'une arme pour un rôle : dégâts pondérés par phase, et (qualité 2) contre les défenses vues.
@@ -519,6 +560,22 @@ static func _defense_pick(options: Array[String], n: int, role: Dictionary, qual
 	return options[0] if not options.is_empty() else ""
 
 
+## L'arme qui apporte le plus à ce rôle parmi les options, avec des rendements décroissants : une
+## deuxième famille d'armes vaut mieux qu'un sixième tube. "" s'il n'y a aucune arme.
+static func _best_weapon(options: Array[String], mods: Array, size: String, role: Dictionary, quality: int, th: Dictionary) -> String:
+	var best := -1
+	var pick := ""
+	for mid in options:
+		if module(mid).get("weapons", {}).is_empty():
+			continue
+		@warning_ignore("integer_division")
+		var sc := _weapon_score(mid, size, role, quality, th) / (1 + mods.count(mid))
+		if sc > best:
+			best = sc
+			pick = mid
+	return pick
+
+
 ## Modèle conçu automatiquement : {"hull", "modules", "line", "target"} (le nom reste à donner).
 ## salt rend les choix maladroits (qualité 0) différents d'un appel à l'autre, de façon déterministe.
 static func auto_design(state: GameState, empire_id: int, hull_id: String, role_id: String, quality := 1, salt := 0) -> Dictionary:
@@ -527,6 +584,7 @@ static func auto_design(state: GameState, empire_id: int, hull_id: String, role_
 	var th := threat(state, empire_id) if quality >= 2 else {}
 	var counts: Dictionary = hull(hull_id).get("slots", {})
 	var mods: Array = []
+	var mega_slots := int(counts.get("titanic", 0)) + int(counts.get("colossal", 0)) + int(counts.get("astral", 0))
 	var n_def := 0
 	var k := 0
 	for t in slot_types():
@@ -536,7 +594,16 @@ static func auto_design(state: GameState, empire_id: int, hull_id: String, role_
 			if options.is_empty():
 				continue
 			var pick := ""
-			if quality <= 0:
+			# Un module de peuple dans un emplacement de méga-coque : l'IA se sert du talent de son peuple,
+			# dès qu'il lui reste un autre emplacement de méga-coque pour l'arme ou le bouclier du rôle.
+			if quality >= 1 and t in ["titanic", "colossal", "astral"] and mega_slots >= 2:
+				for mid in options:
+					if module(mid).get("requires", {}).has("species") and not mods.has(mid):
+						pick = mid
+						break
+			if pick != "":
+				pass
+			elif quality <= 0:
 				pick = options[posmod(hash([state.seed_value, empire_id, hull_id, role_id, salt, k]), options.size())]
 			elif t == "defense":
 				pick = _defense_pick(options, n_def, role, quality, th)
@@ -566,17 +633,21 @@ static func auto_design(state: GameState, empire_id: int, hull_id: String, role_
 					pick = known[posmod(mods.filter(func(x): return hangars.has(x)).size(), known.size())]
 			elif t == "titanic" and role_id == "escorte" and options.has("bouclier_flotte"):
 				pick = "bouclier_flotte"
+			elif t == "colossal" or t == "astral":
+				# Échelons supérieurs : la forge pour qui tient la durée, le brise-monde pour qui assiège,
+				# sinon le canon à singularité et le moteur de trame ; à défaut, la meilleure arme.
+				var support_role := role_id in ["escorte", "invasion", "siege"]
+				var wish := ["forge_mobile", "canon_singularite"] if support_role else ["canon_singularite", "forge_mobile"]
+				if t == "astral":
+					wish = ["brise_monde", "moteur_trame"] if role_id in ["siege", "artillerie"] else ["moteur_trame", "brise_monde"]
+				for want in wish:
+					if options.has(want):
+						pick = want
+						break
+				if pick == "":
+					pick = _best_weapon(options, mods, size, role, quality, th)
 			else:
-				var best := -1
-				for mid in options:
-					if module(mid).get("weapons", {}).is_empty():
-						continue
-					# Rendements décroissants : une deuxième famille d'armes vaut mieux qu'un sixième tube.
-					@warning_ignore("integer_division")
-					var sc := _weapon_score(mid, size, role, quality, th) / (1 + mods.count(mid))
-					if sc > best:
-						best = sc
-						pick = mid
+				pick = _best_weapon(options, mods, size, role, quality, th)
 			if pick != "":
 				mods.append(pick)
 	# Le placement final passe par la même règle que le joueur : on retire ce qui ne tiendrait pas.

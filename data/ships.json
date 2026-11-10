@@ -153,6 +153,32 @@
 		"military": true,
 		"design": true
 	},
+	"leviathan": {
+		"requires_tech": ["leviathans"],
+		"label": "Léviathan",
+		"plural": "Léviathans",
+		"role": "Méga-vaisseau",
+		"line": "line",
+		"size": "titan",
+		"description": "Le deuxième échelon des méga-vaisseaux : là où le titan est une forteresse, le Léviathan est une base avancée, avec sa forge et son emplacement colossal. Un seul par empire.",
+		"requires": {"building": "chantier_titanesque", "unique_per_empire": true},
+		"launch": "%s : un Léviathan s'arrache aux chantiers de %s. Les astronomes voisins le prennent d'abord pour une lune.",
+		"military": true,
+		"design": true
+	},
+	"nef_monde": {
+		"requires_tech": ["nefs_mondes"],
+		"label": "Nef-monde",
+		"plural": "Nefs-mondes",
+		"role": "Méga-vaisseau",
+		"line": "line",
+		"size": "titan",
+		"description": "Le troisième échelon des méga-vaisseaux : une ville entière qui voyage, qui plie l'espace autour de sa flotte et reforme ses troupes en route. Un seul par empire.",
+		"requires": {"building": "chantier_titanesque", "unique_per_empire": true},
+		"launch": "%s : une Nef-monde quitte %s. Ce n'est plus une flotte qui part en guerre, c'est un pays.",
+		"military": true,
+		"design": true
+	},
 	"coursier": {
 		"label": "Coursier de saut",
 		"plural": "Coursiers de saut",

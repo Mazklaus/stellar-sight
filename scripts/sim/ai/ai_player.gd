@@ -928,7 +928,13 @@ static func _designs(ctx: Dictionary) -> void:
 		var old: Dictionary = mine.get(sid, {})
 		if not old.is_empty() and String(old.get("sig", "")) == sig:
 			continue
-		var spec := Designs.auto_design(state, e.id, String(sd["hull"]), role, quality, e.techs.size())
+		var hid := String(sd["hull"])
+		if quality >= 1:
+			# Méga-vaisseaux : chaque IA a sa variante préférée (bataille, porteuse, bastion ou siège).
+			var options := Designs.variants_of(hid)
+			hid = options[posmod(hash([state.seed_value, e.id, "mega"]), options.size())]
+			role = String(Designs.HULL_ROLES.get(hid, role))
+		var spec := Designs.auto_design(state, e.id, hid, role, quality, e.techs.size())
 		if (spec["modules"] as Array).is_empty() and role != "invasion":
 			continue
 		if not old.is_empty() and old["modules"] == spec["modules"] and String(old["line"]) == String(spec["line"]):
@@ -977,7 +983,7 @@ static func _own_design(ctx: Dictionary, cls: String) -> String:
 ## - Recrue : au petit bonheur (hachage de la graine et du jour), titan compris.
 ## - Normal : corvettes tant qu'on est pauvre, frégates ensuite, un escorteur de temps en temps,
 ##   des troupes (transport ou croiseur) quand la guerre en manque.
-## - Vétéran et plus : le titan dès qu'il est possible ; des troupes quand il en manque ; un écran
+## - Vétéran et plus : un méga-vaisseau dès qu'il est possible (le plus haut échelon d'abord) ; des troupes quand il en manque ; un écran
 ##   quand la flotte n'en a pas assez (escorteurs contre missiles et chasseurs) ; des torpilleurs
 ##   contre les grosses coques ennemies ; cuirassés ou porte-vaisseaux une fois l'arsenal bâti ;
 ##   une bombarde pour les sièges ; sinon ce qui contre la flotte ennemie la plus visible.
@@ -1011,8 +1017,10 @@ static func _pick_warship(ctx: Dictionary) -> String:
 			return "escorteur"
 		var base := _variant(classes, "corvette") if mats < 200 else _variant(classes, "fregate")
 		return base if base != "" else classes[0]
-	if classes.has("titan"):
-		return "titan"
+	# Méga-vaisseaux : l'échelon le plus haut qu'on sait lancer (un seul de chaque par empire).
+	for mega in ["nef_monde", "leviathan", "titan"]:
+		if classes.has(mega):
+			return mega
 	if at_war and troops < 24:
 		var t := _first(classes, ["transport", "croiseur"])
 		if t != "":
@@ -1092,7 +1100,7 @@ static func _buildable_warships(ctx: Dictionary) -> Array[String]:
 			var req: Dictionary = sd.get("requires", {})
 			if req.has("building") and not have.has(String(req["building"])):
 				continue
-			if req.get("unique_per_empire", false) and Fleets.count_owned_or_building(state, e.id, sid) > 0:
+			if req.get("unique_per_empire", false) and Fleets.count_same_hull(state, e.id, sid) > 0:
 				continue
 			out.append(sid)
 	ctx["buildable_warships"] = out

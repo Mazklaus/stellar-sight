@@ -20,7 +20,7 @@ const COL_GAP := 190.0    # écart entre écran, ligne et arrière
 const WEAPON_COLORS := {
 	"kinetic": Color(1.0, 0.86, 0.45), "beam": Color(0.45, 0.92, 1.0), "missile": Color(1.0, 0.6, 0.3),
 	"torpedo": Color(0.95, 0.45, 0.85), "artillery": Color(1.0, 0.95, 0.8), "fighters": Color(0.6, 1.0, 0.6),
-	"bombers": Color(0.85, 1.0, 0.4), "stellar_lance": Color(1.0, 0.98, 0.7),
+	"bombers": Color(0.85, 1.0, 0.4), "stellar_lance": Color(1.0, 0.98, 0.7), "singularity": Color(0.75, 0.4, 1.0),
 	"martyr": Color(1.0, 0.35, 0.25),
 }
 
@@ -386,6 +386,10 @@ func _draw_shot(weapon: String, a: Vector2, b: Vector2, p: float, hit: bool, k: 
 				var q := clampf(p - j * 0.05, 0.0, 1.0)
 				var c := a.lerp(b, q) + Vector2(0, sin(q * 12.0 + j) * 10.0)
 				draw_colored_polygon(PackedVector2Array([c + Vector2(4, 0), c + Vector2(-3, -2.5), c + Vector2(-3, 2.5)]), col)
+		"singularity":
+			var sc := a.lerp(b, p)
+			draw_circle(sc, 5.0, Color(0.02, 0.0, 0.05))
+			draw_arc(sc, 7.0 + sin(p * 20.0) * 1.5, 0.0, TAU, 20, col, 2.0, true)
 		"martyr":
 			draw_circle(a.lerp(b, p), 6.0, col)
 		_:

@@ -21,6 +21,8 @@ func run(check: Callable) -> void:
 	_test_target_priority()
 	_test_miniaturisation()
 	_test_hangars_and_titanic()
+	_test_echelons()
+	_test_mega_modules()
 	GameData.clear_custom_ships()
 
 
@@ -347,3 +349,162 @@ func _test_hangars_and_titanic() -> void:
 	var bare := Combat.shot_damage("beam", 30, 1, "equilibre", 100, "fregate", "equilibre")
 	var covered := Combat.shot_damage("beam", 30, 1, "equilibre", 100, "fregate", "equilibre", 0, {}, 20)
 	_ok(covered < bare, "le bouclier de flotte protège contre les rayons (%d contre %d)" % [covered, bare])
+
+
+func _test_echelons() -> void:
+	var st := _state("choeur", 9191)
+	var e := st.get_empire(0)
+	var cap := e.capital_planet
+	var c: Colony = st.colonies[cap]
+	var home := st.galaxy.get_planet(cap).system_id
+	for r in GameData.resource_ids():
+		e.resources[r] = 50000
+	# Données : chaque échelon a son emplacement propre, qui accepte aussi les modules inférieurs.
+	_ok(int(Designs.hull("leviathan").get("slots", {}).get("colossal", 0)) == 1 and int(Designs.hull("nef_monde").get("slots", {}).get("astral", 0)) == 1, "Léviathan : emplacement colossal ; Nef-monde : astral")
+	_ok(Designs.check_fit("leviathan", ["lance_stellaire", "hangar_geant", "canon_siege"]) == "", "l'emplacement colossal accepte un module titanesque")
+	_ok(Designs.check_fit("titan", ["forge_mobile"]) != "" and Designs.check_fit("leviathan", ["moteur_trame"]) != "", "pas de module d'un échelon supérieur sur une coque inférieure")
+	_ok(Designs.check_fit("nef_monde", ["moteur_trame", "forge_mobile"]) == "", "la Nef-monde porte modules astral et colossal")
+	var titan := GameData.ship("titan")
+	var lev := GameData.ship("leviathan")
+	var nef := GameData.ship("nef_monde")
+	_ok(int(lev.get("hp", 0)) > int(titan.get("hp", 0)) and int(nef.get("hp", 0)) > int(lev.get("hp", 0)), "chaque échelon dépasse le précédent (%d, %d, %d)" % [int(titan.get("hp", 0)), int(lev.get("hp", 0)), int(nef.get("hp", 0))])
+	_ok(lev.get("fleet_repair", false) and nef.get("fleet_barracks", false) and int(nef.get("fleet_speed", 0)) > 0, "modèles d'origine : forge mobile, cité de bord, moteur de trame")
+	# Construction : technologie, chantier titanesque, un seul de chaque coque par empire.
+	_ok(Fleets.check_build_ship(st, 0, cap, "leviathan") != "", "Léviathan verrouillé au départ")
+	Research.grant_all(st, 0)
+	c.buildings.append("arsenal")
+	c.buildings.append("chantier_titanesque")
+	_ok(Fleets.check_build_ship(st, 0, cap, "leviathan") == "", "Léviathan possible avec sa technologie et le chantier titanesque")
+	st.spawn_ship(0, "titan", home)
+	_ok(Fleets.check_build_ship(st, 0, cap, "leviathan") == "", "posséder un titan n'empêche pas le Léviathan")
+	st.spawn_ship(0, "leviathan", home)
+	_ok(Fleets.check_build_ship(st, 0, cap, "leviathan").contains("un seul"), "un seul Léviathan par empire")
+	# Variantes : trois coques par échelon, un seul méga-vaisseau de l'échelon quelle que soit la variante.
+	for base in ["titan", "leviathan", "nef_monde"]:
+		_ok(Designs.variants_of(base).size() == 3, "trois variantes pour %s" % base)
+	var bastion := Designs.auto_design(st, 0, "titan_bastion", "escorte", 1)
+	_ok(String(bastion["hull"]) == "titan_bastion" and int(Designs.hull("titan_bastion")["slots"]["defense"]) > int(Designs.hull("titan")["slots"]["defense"]), "le titan bastion a plus d'emplacements de défense")
+	var spec := {"name": "Rempart", "hull": "titan_bastion", "modules": bastion["modules"], "line": "screen", "target": "nearest"}
+	_ok(_apply(st, SimCommands.save_design(0, spec)) == "", "un titan bastion s'enregistre")
+	var tb := ""
+	for id in st.designs:
+		if String(st.designs[id]["hull"]) == "titan_bastion":
+			tb = String(id)
+	_ok(tb != "" and Fleets.check_build_ship(st, 0, cap, tb).contains("toutes variantes"), "un titan possédé bloque aussi le titan bastion")
+	# Moteur de trame : la flotte entière avance à la vitesse de la trame.
+	var slow := st.spawn_ship(0, "transport", home)
+	var before := Fleets.speed(slow)
+	slow.add_ship("nef_monde")
+	_ok(Fleets.speed(slow) >= int(nef["fleet_speed"]) and Fleets.speed(slow) > before, "le moteur de trame entraîne toute la flotte (%d → %d)" % [before, Fleets.speed(slow)])
+	# Canon à singularité : ignore blindage et boucliers.
+	var vs_armor := Combat.shot_damage("singularity", 100, 1, "equilibre", 100, "cuirasse", "equilibre")
+	var vs_bare := Combat.shot_damage("singularity", 100, 1, "equilibre", 100, "corvette", "equilibre")
+	var art := Combat.shot_damage("artillery", 100, 1, "equilibre", 100, "cuirasse", "equilibre")
+	_ok(vs_armor > art and vs_armor > vs_bare, "la singularité traverse le blindage et broie les grosses coques (%d, %d contre %d)" % [vs_armor, vs_bare, art])
+	# Forge mobile et cité de bord : réparation et troupes loin de chez soi.
+	var away := -1
+	for sys in st.galaxy.systems:
+		if st.system_owner(sys.id) == -1:
+			away = sys.id
+			break
+	var a := st.spawn_ship(0, "leviathan", away)
+	var b := st.spawn_ship(0, "titan", away)
+	a.hp[0] = 1000
+	b.hp[0] = 1000
+	a.troops = 0
+	CombatSystem._repairs(st, {})
+	var pa := (a.hp[0] - 1000) * 1000 / Fleet.max_hp_of("leviathan")
+	var pb := (b.hp[0] - 1000) * 1000 / Fleet.max_hp_of("titan")
+	_ok(pa > pb, "la forge mobile répare comme à la maison (%d ‰ contre %d ‰)" % [pa, pb])
+	var w := st.spawn_ship(0, "nef_monde", away)
+	w.troops = 0
+	CombatSystem._repairs(st, {})
+	_ok(w.troops > 0 and a.troops == 0, "la cité de bord reforme les troupes loin de chez elles")
+	# Conception automatique et IA.
+	var siege := Designs.auto_design(st, 0, "nef_monde", "siege", 1)["modules"] as Array
+	var line := Designs.auto_design(st, 0, "nef_monde", "ligne", 1)["modules"] as Array
+	_ok(siege.has("brise_monde") and line.has("moteur_trame") and line.has("canon_singularite"), "auto : brise-monde pour le siège, trame et singularité pour la ligne")
+	_ok(Designs.CLASS_ROLES.has("leviathan") and Designs.CLASS_ROLES.has("nef_monde"), "les IA conçoivent aussi leurs méga-vaisseaux")
+
+
+func _test_mega_modules() -> void:
+	# Modules de peuple : réservés à leur peuple, et l'IA s'en sert.
+	var choeur := _state("choeur", 7272)
+	var vael := _state("vael", 7272)
+	Research.grant_all(choeur, 0)
+	Research.grant_all(vael, 0)
+	_ok(Designs.module_allowed("reliquaire", "choeur") and not Designs.module_allowed("reliquaire", "vael"), "le reliquaire est au Chœur seul")
+	_ok(Designs.module_allowed("noyau_quarante", "vael") and Designs.module_allowed("propulseurs_navigateurs", "ossarane") and Designs.module_allowed("ventre_digesteur", "khthari"), "chaque peuple a son module de méga-coque")
+	# Espèce personnalisée : les modules suivent ses couches, et une condition peut combiner plusieurs couches.
+	var custom := {"registre": "Grimdark", "species": {"archetype": "ruche", "gouvernement": "theocratie", "credo": "foi", "traits": ["navigateurs"]}}
+	_ok(Designs.module_allowed_for("reliquaire", custom) and Designs.module_allowed_for("propulseurs_navigateurs", custom) and Designs.module_allowed_for("ventre_digesteur", custom) and not Designs.module_allowed_for("noyau_quarante", custom), "une espèce personnalisée obtient les modules de ses couches")
+	_ok(FactionTraits.species_matches(custom, {"credo": ["foi"], "gouvernement": ["theocratie"]}) and not FactionTraits.species_matches(custom, {"credo": ["foi"], "gouvernement": ["republique"]}), "une condition peut combiner plusieurs couches")
+	for mid in Designs.module_ids():
+		for t in Designs.module(mid).get("requires_tech", []):
+			var tt := Research.tech(String(t))
+			_ok(not tt.is_empty() and not tt.has("requires"), "le module %s dépend d'une technologie commune (%s)" % [mid, t])
+	_ok(Array(Research.unlocks(GameData.faction("choeur"), "etoiles_captives")).has("module Soleil captif"), "l'arbre affiche les modules débloqués")
+	var bad := {"name": "Hérésie", "hull": "titan", "modules": ["reliquaire"], "line": "line", "target": "nearest"}
+	_ok(Designs.check_save(vael, 0, bad).contains("module"), "Vael ne peut pas monter le reliquaire")
+	_ok(Designs.check_save(choeur, 0, bad) == "", "le Chœur peut monter le reliquaire")
+	_ok((Designs.auto_design(choeur, 0, "leviathan", "ligne", 1)["modules"] as Array).has("reliquaire"), "l'IA du Chœur monte son reliquaire sur un Léviathan")
+	_ok((Designs.auto_design(choeur, 0, "titan", "ligne", 1)["modules"] as Array).has("lance_stellaire"), "sur un titan (un seul emplacement), l'arme du rôle passe d'abord")
+	_ok(not (Designs.auto_design(vael, 0, "leviathan", "ligne", 1)["modules"] as Array).has("reliquaire"), "l'IA de Vael ne le monte pas")
+	# Cœur-étoile : un entretien négatif, le vaisseau rapporte de l'énergie.
+	var star := Designs.compute("nef_monde", ["coeur_etoile"])
+	_ok(int(star["upkeep"].get("energy", 0)) < 0, "le cœur-étoile rapporte de l'énergie (%d)" % int(star["upkeep"].get("energy", 0)))
+	_ok(int(Designs.compute("titan", ["oeil_titan"])["vision"]) == int(Designs.compute("titan", [])["vision"]) + 3, "l'œil du titan voit trois sauts plus loin")
+	# Ancre gravitationnelle : la flotte ennemie ne quitte pas la bataille.
+	var st := _state("choeur", 6363)
+	var sid := -1
+	for sys in st.galaxy.systems:
+		if st.system_owner(sys.id) == -1 and sys.neighbors.size() >= 1:
+			sid = sys.id
+			break
+	for p in [[0, 1], [1, 0]]:
+		if not st.get_empire(p[0]).contacts.has(p[1]):
+			st.get_empire(p[0]).contacts.append(p[1])
+	Combat.start_war(st, 0, 1)
+	var anchor_spec := {"name": "Puits", "hull": "leviathan", "modules": ["ancre_gravitationnelle"], "line": "line", "target": "nearest"}
+	Research.grant_all(st, 0)
+	_ok(_apply(st, SimCommands.save_design(0, anchor_spec)) == "", "un Léviathan à ancre s'enregistre")
+	var aid := ""
+	for id in st.designs:
+		aid = String(id)
+	var mine := st.spawn_ship(0, aid, sid)
+	var theirs := st.spawn_ship(1, "fregate", sid)
+	st.battles[sid] = {"day": 0}
+	_ok(Fleets.anchored(st, theirs) and not Fleets.anchored(st, mine), "l'ancre retient l'ennemi, pas sa propre flotte")
+	st.battles.erase(sid)
+	_ok(not Fleets.anchored(st, theirs), "hors bataille, l'ancre ne retient plus rien")
+	# Reliquaire et ventre digesteur : trophées du vainqueur.
+	var e0 := st.get_empire(0)
+	var b := {"sides": [{"empire": 0, "engaged": {"titan": 1}, "lost": {}}, {"empire": 1, "engaged": {"cuirasse": 2}, "lost": {"cuirasse": 2}}]}
+	var rep := {}
+	var mats := int(e0.resources.get("materials", 0))
+	CombatSystem._trophies(st, b, 0, rep)
+	_ok(rep.is_empty() and int(e0.resources.get("materials", 0)) == mats, "sans module de trophée, rien de plus")
+	var kh := _state("khthari", 6363)
+	Research.grant_all(kh, 0)
+	var dig := {"name": "Estomac", "hull": "leviathan", "modules": ["ventre_digesteur"], "line": "line", "target": "nearest"}
+	_ok(_apply(kh, SimCommands.save_design(0, dig)) == "", "l'Essaim enregistre un Léviathan digesteur")
+	var did := ""
+	for id in kh.designs:
+		did = String(id)
+	for p in [[0, 1], [1, 0]]:
+		if not kh.get_empire(p[0]).contacts.has(p[1]):
+			kh.get_empire(p[0]).contacts.append(p[1])
+	Combat.start_war(kh, 0, 1)
+	var ek := kh.get_empire(0)
+	var before := int(ek.resources.get("materials", 0))
+	rep = {}
+	CombatSystem._trophies(kh, {"sides": [{"empire": 0, "engaged": {did: 1}, "lost": {}}, {"empire": 1, "engaged": {"cuirasse": 2}, "lost": {"cuirasse": 2}}]}, 0, rep)
+	_ok(int(ek.resources.get("materials", 0)) > before and int(rep.get("digested", 0)) > 0, "le ventre digesteur change les épaves en matériaux (+%d)" % int(rep.get("digested", 0)))
+	var ec := choeur.get_empire(0)
+	ec.fervor = 20
+	_ok(_apply(choeur, SimCommands.save_design(0, {"name": "Châsse", "hull": "titan", "modules": ["reliquaire"], "line": "line", "target": "nearest"})) == "", "le Chœur enregistre un titan à reliquaire")
+	var rid := ""
+	for id in choeur.designs:
+		rid = String(id)
+	CombatSystem._trophies(choeur, {"sides": [{"empire": 0, "engaged": {rid: 1}, "lost": {}}, {"empire": 1, "engaged": {"fregate": 1}, "lost": {"fregate": 1}}]}, 0, {})
+	_ok(ec.fervor > 20, "le reliquaire nourrit la ferveur à chaque victoire (%d)" % ec.fervor)

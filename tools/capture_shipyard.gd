@@ -47,6 +47,14 @@ func _initialize() -> void:
 	await _frames(20)
 	await _shot(out + "/chantier-titan.png")
 
+	Research.grant(st, 0, ["leviathans", "nefs_mondes", "canons_singularite", "matiere_programmable"])
+	screens.shipyard.new_draft("nef_monde")
+	screens.shipyard.auto_design_draft("ligne")
+	screens.shipyard.draft["name"] = "Patrie errante"
+	screens.shipyard._refresh_all()
+	await _frames(20)
+	await _shot(out + "/chantier-nef-monde.png")
+
 	screens.shipyard.new_draft("martyr")
 	screens.shipyard.place_module("plaques_blindage")
 	await _frames(20)
