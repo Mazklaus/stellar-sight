@@ -677,6 +677,25 @@
 				"coques_modulaires"
 			]
 		},
+		"leviathans": {
+			"label": "Léviathans",
+			"domain": "genie",
+			"era": 5,
+			"text": "Débloque le Léviathan, deuxième échelon des méga-vaisseaux, et ses modules colossaux : la forge mobile, et le canon à singularité avec les Canons à singularité.",
+			"pre": [
+				"chantier_titanesque"
+			]
+		},
+		"nefs_mondes": {
+			"label": "Nefs-mondes",
+			"domain": "genie",
+			"era": 5,
+			"text": "Débloque la Nef-monde, troisième échelon des méga-vaisseaux, et ses modules astraux : le moteur de trame et le brise-monde.",
+			"pre": [
+				"leviathans",
+				"matiere_programmable"
+			]
+		},
 		"forges_nefs": {
 			"label": "Forges-nefs",
 			"domain": "genie",

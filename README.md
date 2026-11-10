@@ -351,7 +351,7 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
 
 **L'IA et le catalogue.** La Recrue pioche au hasard dans ce qu'elle peut construire. Le Normal ajoute un escorteur de temps en temps et des transports quand les troupes manquent. Le Vétéran et au-dessus gardent un tiers d'écran, prennent des escorteurs contre les missiles et chasseurs ennemis, des torpilleurs contre les grosses coques, des cuirassés ou porte-vaisseaux une fois l'arsenal bâti, une bombarde pour les sièges, et lancent leur titan dès que possible. Toutes utilisent la classe de leur peuple à la place du modèle commun, et la tactique Adaptative quand elles l'ont.
 
-À venir, selon l'étude : les familles d'armes, modules et doctrines viendront avec la couche de technologies ; les échelons de méga-vaisseaux au-dessus du titan, plus tard (jeu de base ou extension, à décider par échelon).
+À venir, selon l'étude : les familles d'armes, modules et doctrines viendront avec la couche de technologies ; les échelons de méga-vaisseaux au-dessus du titan (faits : Léviathan et Nef-monde, voir l'éditeur de vaisseaux).
 
 ### Éditeur de vaisseaux (lot 1 : le moteur)
 
@@ -371,8 +371,18 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
   - **Priorité de cible appliquée en bataille** : « les plus gros » / « les plus petits » pondèrent les cibles selon leur taille, « porteurs et arrière » les porteurs et l'arrière ; l'écran protège toujours ce qui est derrière lui tant qu'il tient.
   - **Miniaturisation** (`miniaturisation` dans `data/designs.json`) : à la marque III, l'artillerie tient dans un emplacement d'arme d'une grande coque, un hangar léger dans celui d'une frégate, l'antimissile dans un emplacement de soutien.
   - **Hangars** : intercepteurs (couvrent la flotte), chasseurs, bombardiers (nouvelle famille d'armes, forte contre les grosses coques, marque des chasseurs).
-  - **Modules titanesques** : lance stellaire (nouvelle famille d'armes), bouclier de flotte (s'ajoute au bouclier de chaque vaisseau de la flotte), hangar géant, canon de siège planétaire. Les échelons au-delà du titan ajouteront leur propre type d'emplacement dans les données.
+  - **Modules titanesques** : lance stellaire (nouvelle famille d'armes), bouclier de flotte (s'ajoute au bouclier de chaque vaisseau de la flotte), hangar géant, canon de siège planétaire.
   - La conception automatique (joueur et IA) mélange les hangars, diversifie armes et soutiens, et profite de la miniaturisation.
+- **Échelons au-dessus du titan** : chaque méga-coque garde les emplacements titanesques et ajoute son propre type, qui accepte aussi les modules des échelons inférieurs. Un seul vaisseau de chaque coque par empire, au Chantier titanesque.
+
+| Échelon | Coque | Technologie | Emplacement propre | Modules de l'échelon |
+|---|---|---|---|---|
+| 1 | Titan | Chantier titanesque | Titanesque ×1 | Lance stellaire, bouclier de flotte, hangar géant, canon de siège |
+| 2 | Léviathan (cœur : antimissile de flotte) | Léviathans | Titanesque ×2, **colossal** ×1 | **Forge mobile** (la flotte se répare partout comme chez elle), **canon à singularité** (nouvelle famille d'armes qui ignore blindage et boucliers, terrible contre les grosses coques ; demande aussi les Canons à singularité) |
+| 3 | Nef-monde (cœur : cité de bord, les troupes se reforment partout) | Nefs-mondes | Titanesque ×2, colossal ×1, **astral** ×1 | **Moteur de trame** (toute la flotte avance au moins à sa vitesse), **brise-monde** (siège en quelques jours) |
+
+  Les IA conçoivent et lancent aussi leurs méga-vaisseaux, en commençant par l'échelon le plus haut qu'elles savent construire.
+  Les grandes équipes des méga-chantiers posent plusieurs modules à la fois (durée des modules à 60 % sur le Léviathan, 40 % sur la Nef-monde). Blindage et boucliers empilés plafonnent à 75 % (`defense_cap`, les technologies montent jusqu'à 90 %), pour qu'une méga-coque bardée reste vulnérable.
 
 ## Organisation du code
 

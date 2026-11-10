@@ -16,11 +16,16 @@ static func lane_length(galaxy: Galaxy, a: int, b: int) -> int:
 
 ## Vitesse d'une flotte : celle de son vaisseau le plus lent (unités par jour).
 ## Avec l'état, le trait de faction de son propriétaire s'applique (navigateurs d'Ossarane).
+## Un moteur de trame (Nef-monde) entraîne toute la flotte à sa vitesse, plus lents compris.
 static func speed(fleet: Fleet, state: GameState = null) -> int:
 	var v := 0
+	var warp := 0
 	for s in fleet.ships:
-		var sv := int(GameData.ship(s).get("speed", 1))
+		var sd := GameData.ship(s)
+		var sv := int(sd.get("speed", 1))
 		v = sv if v == 0 else mini(v, sv)
+		warp = maxi(warp, int(sd.get("fleet_speed", 0)))
+	v = maxi(v, warp)
 	if state != null:
 		@warning_ignore("integer_division")
 		v = v * FactionTraits.fleet_speed_pct(state, fleet.owner) / 100

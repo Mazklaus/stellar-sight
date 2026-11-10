@@ -977,7 +977,7 @@ static func _own_design(ctx: Dictionary, cls: String) -> String:
 ## - Recrue : au petit bonheur (hachage de la graine et du jour), titan compris.
 ## - Normal : corvettes tant qu'on est pauvre, frégates ensuite, un escorteur de temps en temps,
 ##   des troupes (transport ou croiseur) quand la guerre en manque.
-## - Vétéran et plus : le titan dès qu'il est possible ; des troupes quand il en manque ; un écran
+## - Vétéran et plus : un méga-vaisseau dès qu'il est possible (le plus haut échelon d'abord) ; des troupes quand il en manque ; un écran
 ##   quand la flotte n'en a pas assez (escorteurs contre missiles et chasseurs) ; des torpilleurs
 ##   contre les grosses coques ennemies ; cuirassés ou porte-vaisseaux une fois l'arsenal bâti ;
 ##   une bombarde pour les sièges ; sinon ce qui contre la flotte ennemie la plus visible.
@@ -1011,8 +1011,10 @@ static func _pick_warship(ctx: Dictionary) -> String:
 			return "escorteur"
 		var base := _variant(classes, "corvette") if mats < 200 else _variant(classes, "fregate")
 		return base if base != "" else classes[0]
-	if classes.has("titan"):
-		return "titan"
+	# Méga-vaisseaux : l'échelon le plus haut qu'on sait lancer (un seul de chaque par empire).
+	for mega in ["nef_monde", "leviathan", "titan"]:
+		if classes.has(mega):
+			return mega
 	if at_war and troops < 24:
 		var t := _first(classes, ["transport", "croiseur"])
 		if t != "":

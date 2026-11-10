@@ -241,6 +241,8 @@ static func shot_damage(weapon: String, power: int, phase: int, shooter_tactic: 
 	var defense := int(sd.get(def_kind, 0))
 	if def_kind == "shield":
 		defense += target_fleet_shield
+	# Blindage et boucliers empilés plafonnent ("defense_cap") ; les technologies montent jusqu'à 90.
+	defense = mini(defense, int(data().get("defense_cap", 75)))
 	if defense > 0 and target_def.has(def_kind):
 		@warning_ignore("integer_division")
 		defense = mini(90, defense * (100 + int(target_def[def_kind])) / 100)

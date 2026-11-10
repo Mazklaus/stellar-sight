@@ -18,6 +18,8 @@
 			"vs_size": {"small": 30, "medium": 80, "large": 150, "titan": 200}},
 		"stellar_lance": {"label": "Lance stellaire", "short": "Lance", "eff": [120, 100, 50], "defense": "shield", "mark_family": "beam",
 			"vs_size": {"small": 50, "medium": 100, "large": 150, "titan": 200}},
+		"singularity": {"label": "Singularité", "short": "Singularité", "eff": [60, 100, 100], "defense": "none",
+			"vs_size": {"small": 30, "medium": 70, "large": 120, "titan": 160}},
 		"martyr": {"label": "Charge sacrée", "short": "Charge sacrée", "eff": [0, 0, 100], "defense": "armor", "self_destruct": true, "fervor": 5}
 	},
 	"lines": {
@@ -32,6 +34,7 @@
 		"titan": {"label": "Titan"}
 	},
 	"pd_cap": 60,
+	"defense_cap": 75,
 	"default_tactic": "equilibre",
 	"tactics": [
 		{"id": "equilibre", "label": "Équilibre", "dmg": [100, 100, 100], "taken": 100,

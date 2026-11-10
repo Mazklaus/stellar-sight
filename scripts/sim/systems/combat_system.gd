@@ -539,15 +539,24 @@ static func _repairs(state: GameState, fought: Dictionary) -> void:
 		if not f.is_moving() and (fought.has(sid) or state.sieges.has(sid) and state.system_owner(sid) != f.owner):
 			continue  # en pleine bataille ou en plein siège
 		var at_home := not f.is_moving() and state.system_owner(sid) == f.owner
-		var pct := home if at_home or bool(Combat.trait_value(state, f.owner, "repair_anywhere", false)) else away
-		pct = Research.scaled(pct, Research.fx_int(state, f.owner, "repair_pct"))  # guerre d'usure
+		var damaged := false
 		for i in f.ships.size():
-			var mx := Fleet.max_hp_of(f.ships[i])
-			if f.hp[i] < mx:
-				@warning_ignore("integer_division")
-				f.hp[i] = mini(mx, f.hp[i] + maxi(1, mx * pct / 100))
+			if f.hp[i] < Fleet.max_hp_of(f.ships[i]):
+				damaged = true
+				break
+		if damaged:
+			# Forge mobile (Léviathan) : la flotte se répare partout comme chez elle.
+			var anywhere := at_home or bool(Combat.trait_value(state, f.owner, "repair_anywhere", false)) or Combat._fleet_has_flag(f, "fleet_repair")
+			var pct := home if anywhere else away
+			pct = Research.scaled(pct, Research.fx_int(state, f.owner, "repair_pct"))  # guerre d'usure
+			for i in f.ships.size():
+				var mx := Fleet.max_hp_of(f.ships[i])
+				if f.hp[i] < mx:
+					@warning_ignore("integer_division")
+					f.hp[i] = mini(mx, f.hp[i] + maxi(1, mx * pct / 100))
 		var tmax := Combat.max_troops(f, state)
-		if at_home and f.troops < tmax:
+		# Cité de bord (Nef-monde) : les troupes se reforment même loin de chez elles.
+		if f.troops < tmax and (at_home or Combat._fleet_has_flag(f, "fleet_barracks")):
 			@warning_ignore("integer_division")
 			f.troops = mini(tmax, f.troops + maxi(1, tmax * regen / 100))
 

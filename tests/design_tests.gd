@@ -21,6 +21,7 @@ func run(check: Callable) -> void:
 	_test_target_priority()
 	_test_miniaturisation()
 	_test_hangars_and_titanic()
+	_test_echelons()
 	GameData.clear_custom_ships()
 
 
@@ -347,3 +348,67 @@ func _test_hangars_and_titanic() -> void:
 	var bare := Combat.shot_damage("beam", 30, 1, "equilibre", 100, "fregate", "equilibre")
 	var covered := Combat.shot_damage("beam", 30, 1, "equilibre", 100, "fregate", "equilibre", 0, {}, 20)
 	_ok(covered < bare, "le bouclier de flotte protège contre les rayons (%d contre %d)" % [covered, bare])
+
+
+func _test_echelons() -> void:
+	var st := _state("choeur", 9191)
+	var e := st.get_empire(0)
+	var cap := e.capital_planet
+	var c: Colony = st.colonies[cap]
+	var home := st.galaxy.get_planet(cap).system_id
+	for r in GameData.resource_ids():
+		e.resources[r] = 50000
+	# Données : chaque échelon a son emplacement propre, qui accepte aussi les modules inférieurs.
+	_ok(int(Designs.hull("leviathan").get("slots", {}).get("colossal", 0)) == 1 and int(Designs.hull("nef_monde").get("slots", {}).get("astral", 0)) == 1, "Léviathan : emplacement colossal ; Nef-monde : astral")
+	_ok(Designs.check_fit("leviathan", ["lance_stellaire", "hangar_geant", "canon_siege"]) == "", "l'emplacement colossal accepte un module titanesque")
+	_ok(Designs.check_fit("titan", ["forge_mobile"]) != "" and Designs.check_fit("leviathan", ["moteur_trame"]) != "", "pas de module d'un échelon supérieur sur une coque inférieure")
+	_ok(Designs.check_fit("nef_monde", ["moteur_trame", "forge_mobile"]) == "", "la Nef-monde porte modules astral et colossal")
+	var titan := GameData.ship("titan")
+	var lev := GameData.ship("leviathan")
+	var nef := GameData.ship("nef_monde")
+	_ok(int(lev.get("hp", 0)) > int(titan.get("hp", 0)) and int(nef.get("hp", 0)) > int(lev.get("hp", 0)), "chaque échelon dépasse le précédent (%d, %d, %d)" % [int(titan.get("hp", 0)), int(lev.get("hp", 0)), int(nef.get("hp", 0))])
+	_ok(lev.get("fleet_repair", false) and nef.get("fleet_barracks", false) and int(nef.get("fleet_speed", 0)) > 0, "modèles d'origine : forge mobile, cité de bord, moteur de trame")
+	# Construction : technologie, chantier titanesque, un seul de chaque coque par empire.
+	_ok(Fleets.check_build_ship(st, 0, cap, "leviathan") != "", "Léviathan verrouillé au départ")
+	Research.grant_all(st, 0)
+	c.buildings.append("arsenal")
+	c.buildings.append("chantier_titanesque")
+	_ok(Fleets.check_build_ship(st, 0, cap, "leviathan") == "", "Léviathan possible avec sa technologie et le chantier titanesque")
+	st.spawn_ship(0, "titan", home)
+	_ok(Fleets.check_build_ship(st, 0, cap, "leviathan") == "", "posséder un titan n'empêche pas le Léviathan")
+	st.spawn_ship(0, "leviathan", home)
+	_ok(Fleets.check_build_ship(st, 0, cap, "leviathan").contains("un seul"), "un seul Léviathan par empire")
+	# Moteur de trame : la flotte entière avance à la vitesse de la trame.
+	var slow := st.spawn_ship(0, "transport", home)
+	var before := Fleets.speed(slow)
+	slow.add_ship("nef_monde")
+	_ok(Fleets.speed(slow) >= int(nef["fleet_speed"]) and Fleets.speed(slow) > before, "le moteur de trame entraîne toute la flotte (%d → %d)" % [before, Fleets.speed(slow)])
+	# Canon à singularité : ignore blindage et boucliers.
+	var vs_armor := Combat.shot_damage("singularity", 100, 1, "equilibre", 100, "cuirasse", "equilibre")
+	var vs_bare := Combat.shot_damage("singularity", 100, 1, "equilibre", 100, "corvette", "equilibre")
+	var art := Combat.shot_damage("artillery", 100, 1, "equilibre", 100, "cuirasse", "equilibre")
+	_ok(vs_armor > art and vs_armor > vs_bare, "la singularité traverse le blindage et broie les grosses coques (%d, %d contre %d)" % [vs_armor, vs_bare, art])
+	# Forge mobile et cité de bord : réparation et troupes loin de chez soi.
+	var away := -1
+	for sys in st.galaxy.systems:
+		if st.system_owner(sys.id) == -1:
+			away = sys.id
+			break
+	var a := st.spawn_ship(0, "leviathan", away)
+	var b := st.spawn_ship(0, "titan", away)
+	a.hp[0] = 1000
+	b.hp[0] = 1000
+	a.troops = 0
+	CombatSystem._repairs(st, {})
+	var pa := (a.hp[0] - 1000) * 1000 / Fleet.max_hp_of("leviathan")
+	var pb := (b.hp[0] - 1000) * 1000 / Fleet.max_hp_of("titan")
+	_ok(pa > pb, "la forge mobile répare comme à la maison (%d ‰ contre %d ‰)" % [pa, pb])
+	var w := st.spawn_ship(0, "nef_monde", away)
+	w.troops = 0
+	CombatSystem._repairs(st, {})
+	_ok(w.troops > 0 and a.troops == 0, "la cité de bord reforme les troupes loin de chez elles")
+	# Conception automatique et IA.
+	var siege := Designs.auto_design(st, 0, "nef_monde", "siege", 1)["modules"] as Array
+	var line := Designs.auto_design(st, 0, "nef_monde", "ligne", 1)["modules"] as Array
+	_ok(siege.has("brise_monde") and line.has("moteur_trame") and line.has("canon_singularite"), "auto : brise-monde pour le siège, trame et singularité pour la ligne")
+	_ok(Designs.CLASS_ROLES.has("leviathan") and Designs.CLASS_ROLES.has("nef_monde"), "les IA conçoivent aussi leurs méga-vaisseaux")
