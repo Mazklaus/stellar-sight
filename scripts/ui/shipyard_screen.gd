@@ -409,6 +409,10 @@ func _refresh_all() -> void:
 	_name.text = String(draft.get("name", ""))
 	_line.select(maxi(0, Designs.LINES.find(String(draft.get("line", "line")))))
 	_target.select(maxi(0, Designs.TARGETS.find(String(draft.get("target", "nearest")))))
+	var me := _state.get_empire(_player)
+	if me:
+		_hull_view.faction_id = me.faction_id
+		_hull_view.tint = me.color()
 	_hull_view.show_hull(hid, slots(), draft.get("slots", []), slot_index)
 	_fill_modules()
 	_fill_stats()
@@ -585,6 +589,8 @@ class HullView:
 	signal slot_clicked(index: int, right: bool)
 	const BOX := Vector2(150, 50)
 	var hull_id := ""
+	var faction_id := ""  # peuple dont on montre le sprite de coque (ShipArt), s'il existe
+	var tint := Color.WHITE
 	var slot_list: Array[Dictionary] = []
 	var filled: Array = []
 	var chosen := -1
@@ -592,6 +598,7 @@ class HullView:
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_STOP
+		texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS  # sprite de coque réduit
 
 	func show_hull(hid: String, sl: Array[Dictionary], f: Array, sel: int) -> void:
 		hull_id = hid
@@ -640,10 +647,18 @@ class HullView:
 		var hh := size.y * 0.44 * scale
 		var body := PackedVector2Array([c + Vector2(w, 0), c + Vector2(w * 0.55, -hh), c + Vector2(-w * 0.8, -hh * 0.85),
 				c + Vector2(-w, -hh * 0.4), c + Vector2(-w, hh * 0.4), c + Vector2(-w * 0.8, hh * 0.85), c + Vector2(w * 0.55, hh)])
-		draw_colored_polygon(body, Color(0.12, 0.2, 0.28, 0.55))
-		var outline := body.duplicate()
-		outline.append(body[0])
-		draw_polyline(outline, Color(UiTheme.ACCENT, 0.5), 1.5, true)
+		var art := ShipArt.texture(faction_id, hull_id, tint) if faction_id != "" else null
+		if art:
+			# Sprite du modèle 3D, en filigrane derrière les emplacements (proue à droite).
+			var ext := Vector2(w * 2.0, w * 2.0 * art.get_height() / art.get_width())
+			if ext.y > hh * 2.2:
+				ext *= hh * 2.2 / ext.y
+			draw_texture_rect(art, Rect2(c - ext * 0.5, ext), false, Color(1, 1, 1, 0.55))
+		else:
+			draw_colored_polygon(body, Color(0.12, 0.2, 0.28, 0.55))
+			var outline := body.duplicate()
+			outline.append(body[0])
+			draw_polyline(outline, Color(UiTheme.ACCENT, 0.5), 1.5, true)
 		var font := UiTheme.body_font()
 		for i in slot_list.size():
 			var r := _rects[i]

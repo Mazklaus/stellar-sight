@@ -15,6 +15,7 @@ signal closed
 const DAY_SECONDS := 2.2
 const SPEEDS := [1.0, 2.0, 4.0]
 const SIZE_PX := {"small": 11.0, "medium": 15.0, "large": 21.0, "titan": 32.0}
+const SPRITE_SCALE := 5.0  # longueur d'un sprite de vaisseau, en multiples de SIZE_PX
 const STEP := 54.0        # écart entre deux vaisseaux d'une colonne
 const COL_GAP := 190.0    # écart entre écran, ligne et arrière
 const WEAPON_COLORS := {
@@ -44,6 +45,7 @@ func _ready() -> void:
 	visible = false
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS  # sprites de vaisseaux réduits
 	var bar := HBoxContainer.new()
 	bar.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 	bar.offset_top = -72.0
@@ -333,15 +335,25 @@ func _draw_unit(i: int, d: int, frac: float) -> void:
 	var dir := 1.0 if left else -1.0
 	var pts := PackedVector2Array([pos + Vector2(r * 1.2 * dir, 0), pos + Vector2(-r * 0.8 * dir, -r * 0.75),
 			pos + Vector2(-r * 0.45 * dir, 0), pos + Vector2(-r * 0.8 * dir, r * 0.75)])
+	var art := ShipArt.texture(e.faction_id, String(u[1]), col) if e else null
+	if art:
+		# Sprite tiré du modèle 3D : nez vers la droite, retourné pour le camp de droite.
+		var long := r * SPRITE_SCALE
+		var ext := Vector2(long, long * art.get_height() / art.get_width())
+		draw_set_transform(pos, 0.0, Vector2(dir, 1.0))
+		draw_texture_rect(art, Rect2(-ext * 0.5, ext), false, Color(0.4, 0.4, 0.42, 0.4) if dead else Color.WHITE)
+		draw_set_transform(Vector2.ZERO)
 	if dead:
-		draw_colored_polygon(pts, Color(0.35, 0.35, 0.38, 0.35))
+		if not art:
+			draw_colored_polygon(pts, Color(0.35, 0.35, 0.38, 0.35))
 		draw_line(pos + Vector2(-r, -r), pos + Vector2(r, r), Color(1, 0.4, 0.35, 0.5), 1.5)
 		draw_line(pos + Vector2(-r, r), pos + Vector2(r, -r), Color(1, 0.4, 0.35, 0.5), 1.5)
 		return
 	if dying:
 		draw_circle(pos, r * 2.2 * (frac - 0.7) / 0.15 + r, Color(1, 0.7, 0.3, 0.55))
-	draw_colored_polygon(pts, col)
-	draw_polyline(pts + PackedVector2Array([pts[0]]), col.lightened(0.4), 1.0)
+	if not art:
+		draw_colored_polygon(pts, col)
+		draw_polyline(pts + PackedVector2Array([pts[0]]), col.lightened(0.4), 1.0)
 	# Coque : dégâts appliqués à la fin de chaque jour.
 	var dmg := int(_dmg_until[d][i]) if frac < 0.8 else int(_dmg_until[mini(d + 1, _dmg_until.size() - 1)][i])
 	var hp_frac := clampf(1.0 - float(dmg) / float(_max_hp[i]), 0.0, 1.0)

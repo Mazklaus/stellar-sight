@@ -21,6 +21,7 @@ Les chiffres marqués *estimation* sont des points de départ, à ajuster une fo
 | 3. Version basse | Tripo Studio, retopologie de la HD | toi | `<nom>_basse.fbx` |
 | 4. Cuisson | `tools/vaisseaux/cuire_vaisseau.py` (Blender) | script | `<nom>.glb`, `<nom>_masque.png`, `<nom>.rapport.json` |
 | 5. Contrôle | `tools/vaisseaux/apercu_vaisseau.gd` (Godot) | script, puis œil humain | planche dessus, profil, 3/4 |
+| 6. Sprites | `tools/vaisseaux/sprites_vaisseau.gd` (Godot) | script | `<nom>_sprite.png`, `_sprite_masque.png`, `_sprite_n.png` dans `assets/ships/` |
 
 ### Réglages Tripo Studio
 
@@ -44,9 +45,12 @@ Les chiffres marqués *estimation* sont des points de départ, à ajuster une fo
 
 Emplacements :
 
-- `sources/` à la racine (ignoré par git, trop lourd : 60 à 70 Mo par HD) : `<nom>_hd.glb`,
-  `<nom>_basse.fbx`, `<nom>.points.json`. À sauvegarder ailleurs que dans le dépôt.
-- `assets/ships/` : les sorties de la cuisson, celles que le jeu chargera.
+- `sources/` à la racine, ignoré par git et par Godot (`.gdignore`, posé par le script de cuisson) :
+  les exports Tripo (`<nom>_hd.glb`, `<nom>_basse.fbx`, 60 à 70 Mo pour une HD), `<nom>.points.json`,
+  et les sorties de la cuisson (`<nom>.glb`, son masque, son rapport). C'est la source 3D de chaque
+  vaisseau : à sauvegarder ailleurs que dans le dépôt.
+- `assets/ships/` : les sprites, seuls fichiers que le jeu charge pour l'instant (quelques centaines de
+  Ko par vaisseau, versionnés).
 
 ## Axes, échelle, origine
 
@@ -126,10 +130,12 @@ blender -b --python tools/vaisseaux/cuire_vaisseau.py -- \
     --nom ossarane_fregate --taille medium --points sources/ossarane_fregate.points.json
 
 godot --path . -s res://tools/vaisseaux/apercu_vaisseau.gd -- \
-    assets/ships/ossarane_fregate.glb ossarane_fregate_planche.png
+    sources/ossarane_fregate.glb ossarane_fregate_planche.png
+
+godot --path . -s res://tools/vaisseaux/sprites_vaisseau.gd -- sources/ossarane_fregate.glb
 ```
 
-Options de la cuisson : `--sortie` (défaut `assets/ships`), `--tourner`, `--resolution`,
+Options de la cuisson : `--sortie` (défaut `sources`), `--tourner`, `--resolution`,
 `--masque-tolerance`, `--sans-masque`. Compter 1 à 2 minutes par frégate sur 4 cœurs, l'occlusion
 ambiante prenant l'essentiel.
 
@@ -146,8 +152,29 @@ sur la HD (signe qu'elles ne viennent pas de la même génération).
    pas le cockpit ni les réacteurs.
 5. Rapport sans avertissement.
 
+## Sprites et affichage en jeu
+
+`sprites_vaisseau.gd` photographie le modèle vu de dessus, nez vers la droite, fond transparent,
+512 pixels pour la longueur (3e argument pour changer) :
+
+- `<nom>_sprite.png` : rendu éclairé (soleil venu de l'avant gauche), ce que le jeu affiche ;
+- `<nom>_sprite_masque.png` : le masque d'empire vu sous le même angle ;
+- `<nom>_sprite_n.png` : les normales vues de dessus (x à droite, y en haut), réservées à de futures
+  lumières 2D.
+
+Le jeu (`scripts/ui/ship_art.gd`) cherche `assets/ships/<peuple>_<coque>_sprite.png` pour chaque vaisseau :
+la coque d'une classe vient de `origin` dans `data/designs.json` (une bombarde est une coque de frégate),
+celle d'un modèle conçu de son enregistrement, et une variante de coque se rabat sur sa coque de base.
+La zone du masque est teinte à 55 % vers la couleur de l'empire, en gardant la luminosité du sprite.
+Sans sprite, l'interface garde son dessin stylisé : on peut donc ajouter les vaisseaux un par un.
+
+Pour l'instant, les sprites apparaissent dans la vue de replay des batailles (retournés pour le camp de
+droite, grisés une fois détruits) et en filigrane derrière les emplacements du Chantier.
+
+![Replay d'une bataille de frégates Ossarane contre l'Essaim Kh'thari](apercu-vaisseaux-3d-replay.png)
+
 ## Pas encore fait
 
-- L'outil qui tire les sprites 2D (couleur + normales) du modèle pour la vue actuelle du jeu.
-- Le chargement des modèles par le jeu, et la teinte d'empire dans un shader.
+- Les sprites sur la carte galactique et dans la vue système (les flottes y sont des icônes).
+- Les lumières 2D qui utiliseraient les normales des sprites.
 - Les titans en pièces assemblées.
