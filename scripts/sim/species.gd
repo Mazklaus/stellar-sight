@@ -171,6 +171,10 @@ static func errors(spec: Dictionary) -> Array[String]:
 	var allowed: Array = parts()["biomes"]
 	if biomes.size() != 2 or String(biomes[0]) == String(biomes[1]) or not allowed.has(String(biomes[0])) or not allowed.has(String(biomes[1])):
 		out.append("il faut deux biomes différents parmi : %s" % ", ".join(PackedStringArray(allowed)))
+	var arch := brick("archetype", String(spec["archetype"]))
+	for bm in biomes:
+		if (arch.get("fields", {}).get("hab_none", []) as Array).has(String(bm)):
+			out.append("%s : le biome %s est inhabitable pour ce corps" % [arch["label"], String(GameData.planet_type(String(bm)).get("label", bm)).to_lower()])
 	var p := portrait_def(String(spec.get("portrait", "")))
 	# Tout portrait va avec tout peuple : les archétypes d'un portrait ne servent qu'à l'ordre de la galerie.
 	if p.is_empty():

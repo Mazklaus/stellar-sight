@@ -23,6 +23,7 @@ func run(check: Callable) -> void:
 	_test_syndicate()
 	_test_profit()
 	_test_horde()
+	_test_reptile()
 	_test_save()
 	_cleanup()
 
@@ -442,6 +443,59 @@ func _test_horde() -> void:
 	_ok(sim.state.tick == 720 and not sim.state.get_empire(1).eliminated, "une partie entre IA tourne avec une horde")
 	var cf := FactionTraits.city_fleet(sim.state, 1)
 	_ok(cf != null and sim.state.system_owner(cf.destination()) == 1, "l'IA garde sa flotte-ville chez elle")
+
+
+## Archétype reptilien : sang-froid (mange moins, pas de monde glaciaire) et transhumance.
+func _test_reptile() -> void:
+	SpeciesLibrary.dir = TEST_DIR
+	var s := _spec("", "Écailles d'Essai")
+	s["archetype"] = "reptilien"
+	s["biomes"] = ["desert", "arctic"]
+	_ok(_err_has(s, "inhabitable"), "un reptilien ne peut pas naître sur un monde glaciaire")
+	s["biomes"] = ["desert", "continental"]
+	s["portrait"] = "reptilien_1"
+	_ok(Species.check(s) == "", "reptilien valide (%s)" % Species.check(s))
+	_ok(Species.portraits("reptilien").size() >= 3, "au moins 3 portraits reptiliens")
+	_ok(SpeciesLibrary.save(s) == "", "reptilien enregistré")
+	var fid := String(s["id"])
+	var f := GameData.faction(fid)
+	_ok(int(f["food_upkeep_pct"]) == 70 and bool(f["migration"]), "sang-froid et transhumance dans la fiche")
+	_ok(Economy.habitability("arctic", f) == 0 and Economy.habitability("arctic", GameData.faction("vael")) > 0, "monde glaciaire inhabitable pour lui seul")
+	var st := GameState.create(5, 150, 1800.0, fid, {"ai_level": "normal", "rivals": ["vael"]})
+	var me := st.get_empire(0)
+	var home: Colony = st.colonies[me.home_planet]
+	var up := int(Economy.colony_yields(st, home)["upkeep"].get("food", 0))
+	_ok(up == home.population * int(GameData.rules()["food_per_pop"]) * 70 / 100, "chaque habitant mange 30 %% de moins (%d)" % up)
+	_ok(FactionTraits.migrates(st, 0) and not FactionTraits.migrates(st, 1), "transhumance dès le départ, pour lui seul")
+	# Une colonie pleine envoie ses naissances dans la colonie la moins peuplée.
+	var cap_sys := st.galaxy.get_planet(me.home_planet).system_id
+	var free_pid := -1
+	for pid in st.galaxy.systems[cap_sys].planet_ids:
+		if not st.colonies.has(pid) and Economy.habitability_for(st, 0, st.galaxy.get_planet(pid).type) > 0:
+			free_pid = pid
+			break
+	if free_pid < 0:
+		for pid in st.galaxy.systems[cap_sys].planet_ids:
+			if not st.colonies.has(pid):
+				free_pid = pid
+				st.override_planet(pid, {"type": "desert"})
+				break
+	var c := Colony.new()
+	c.planet_id = free_pid
+	c.owner = 0
+	c.kind = Colony.KIND_COLONY
+	c.population = 1
+	st.colonies[free_pid] = c
+	st.rebuild_ownership()
+	home.population = Economy.max_pop(st, st.galaxy.get_planet(home.planet_id), 0, home.buildings)
+	var full := home.population
+	home.growth = Economy.colony_threshold(st, home) - 1
+	var added: Array[Dictionary] = []
+	EconomySystem._process_colony(st, home, added)
+	_ok(home.population == full and c.population == 2, "la colonie pleine peuple la plus petite (%d, %d)" % [home.population, c.population])
+	var sim := Simulation.new(GameState.create(9, 150, 1800.0, "", {"rivals": ["choeur", fid], "spectator": true}))
+	sim.advance(400)
+	_ok(sim.state.tick == 400, "une partie entre IA tourne avec un peuple reptilien")
 
 
 func _test_save() -> void:

@@ -468,6 +468,18 @@ static func hab_extra(faction: Dictionary, planet_type: String) -> int:
 	return int(faction.get("hab_extra", {}).get(planet_type, 0))
 
 
+## Types de planète inhabitables pour ce corps (reptiliens : mondes glaciaires), même s'ils le sont
+## pour les autres. Une technologie qui rend le type habitable (hab_set) passe outre.
+static func hab_none(faction: Dictionary) -> Array:
+	return faction.get("hab_none", [])
+
+
+## Transhumance : les naissances d'une colonie pleine partent peupler une autre colonie (trait de
+## corps reptilien, ou technologie des Spatioports de transit).
+static func migrates(state: GameState, empire_id: int) -> bool:
+	return bool(_faction(state, empire_id).get("migration", false)) or Research.fx_int(state, empire_id, "migration") > 0
+
+
 ## Habitabilité plancher (Vael) : 0 si aucune.
 static func hab_floor(faction: Dictionary) -> int:
 	return int(faction.get("hab_floor", 0))
