@@ -551,11 +551,17 @@ func _setup_empires(player_faction: String, rivals: Variant = null, duplicates :
 		c.owner = e.id
 		c.kind = Colony.KIND_COLONY
 		c.population = int(hw["pop"])
+		var city := FactionTraits.city_ship(faction)
 		for b in hw["buildings"]:
-			c.buildings.append(String(b))
+			# Horde : pas de palais sur le monde natal, la capitale est la flotte-ville.
+			if city == "" or String(b) != "capitale":
+				c.buildings.append(String(b))
 		colonies[home_id] = c
-		e.capital_planet = home_id
+		e.capital_planet = home_id if city == "" else -1
 		e.home_planet = home_id
+		if city != "":
+			var cf := spawn_ship(e.id, city, sys.id)
+			cf.fleet_name = "%s des %s" % [String(GameData.ship(city).get("label", city)), e.short_name()]
 		# Flotte de départ : de quoi explorer et fonder une première colonie.
 		for ship_id in FactionTraits.start_ships(e.faction_id):
 			spawn_ship(e.id, String(ship_id), sys.id)

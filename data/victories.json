@@ -19,7 +19,7 @@
 	"victories": {
 		"conquete": {
 			"kind": "classic", "label": "Conquête",
-			"text": "Tenir, avec ses alliés, la capitale d'origine de chaque rival hors de l'alliance, en gardant la sienne. Rester seuls en vie suffit aussi. Les alliés gagnent ensemble.",
+			"text": "Tenir, avec ses alliés, la capitale d'origine de chaque rival hors de l'alliance, en gardant la sienne (une horde : abattre sa flotte-ville, et garder la sienne). Rester seuls en vie suffit aussi. Les alliés gagnent ensemble.",
 			"counter": "Défendre sa capitale, reprendre la sienne.",
 			"chronicle": "%s tient toutes les capitales de la galaxie. Les autres trônes servent désormais de porte-manteaux."
 		},
