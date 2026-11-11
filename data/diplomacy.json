@@ -24,7 +24,9 @@
 			"desc": "Exige la paix. Les marchands circulent : +4 énergie et +1 influence par mois pour chacun. Prend fin avec la paix.",
 			"income": {"energy": 4, "influence": 1}},
 		"maps": {"label": "Échange de cartes", "verb": "un échange de cartes",
-			"desc": "Chacun reçoit les systèmes explorés par l'autre. Impossible en guerre ; pas plus d'une fois tous les deux ans."}
+			"desc": "Chacun reçoit les systèmes explorés par l'autre. Impossible en guerre ; pas plus d'une fois tous les deux ans."},
+		"contract": {"label": "Contrat de flotte", "verb": "un contrat de flotte",
+			"desc": "Un syndicat loue ses flottes à un empire en guerre : il entre en guerre contre l'ennemi du client, qui le paie chaque mois en énergie tant que dure sa guerre (deux ans au plus)."}
 	},
 	"opinion": {
 		"min": -100,
@@ -100,7 +102,9 @@
 		"bribed_heir": {"value": -25, "days": 1800, "stack": 2, "label": "A soudoyé notre héritier"},
 		"mediated": {"value": 15, "days": 1080, "label": "A arbitré notre guerre"},
 		"heir_gift": {"value": 10, "days": 1080, "label": "Nous a livré un fief (l'héritier félon)"},
-		"union": {"value": 20, "days": 3600, "label": "Nos lignées sont unies"}
+		"union": {"value": 20, "days": 3600, "label": "Nos lignées sont unies"},
+		"contract_honored": {"value": 15, "days": 1440, "stack": 2, "label": "A loué ses flottes pour nous, et tenu parole"},
+		"contract_unpaid": {"value": -25, "days": 1440, "label": "N'a pas payé nos flottes"}
 	},
 	"abilities": {
 		"no_treaties": {
@@ -128,6 +132,12 @@
 			"label": "Pas de paix avec les hérétiques",
 			"text": "Déclarer la guerre à un empire d'un autre credo rapporte 10 ferveur ; chaque traité de paix avec un empire d'un autre credo coûte 1 ferveur par mois.",
 			"war_fervor": 10, "treaty_fervor": -1
+		},
+		"mercenary": {
+			"requires": {"gouvernement": ["syndicat"]},
+			"label": "Flottes à louer",
+			"text": "Le syndicat loue ses flottes à un empire en guerre : il entre en guerre contre l'ennemi de son client, qui le paie chaque mois en énergie (8, plus 2 par vaisseau armé, prix fixé à la signature). Le contrat court tant que dure la guerre du client, deux ans au plus ; ensuite les mercenaires rentrent et signent la paix avec leur ancienne cible. Un client qui ne paie plus perd ses mercenaires et leur estime.",
+			"min_warships": 2, "fee_base": 8, "fee_per_ship": 2, "max_days": 720, "cooldown_days": 90
 		}
 	},
 	"ai": {
@@ -146,6 +156,9 @@
 		"pressure_max": 25,
 		"crusade_peace": -15,
 		"common_enemy_bonus": 15,
-		"too_early": -100
+		"too_early": -100,
+		"contract_base": 10,
+		"contract_fee_div": 2,
+		"merc_base": 10
 	}
 }
