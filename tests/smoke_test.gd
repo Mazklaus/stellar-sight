@@ -782,6 +782,24 @@ func _test_navigation_ui(main: Node) -> void:
 	main.close_pause_menu()
 	main.leave_network("")
 	_check(not main.net.is_active() and clock.driver == null, "quitter le réseau rend la main à l'horloge locale")
+	# Tours simultanés en réseau : l'hôte seul termine son tour, les jours défilent jusqu'au tour suivant.
+	main.net.autosave_path = "user://test_multi_auto.json"
+	clock.set_mode(clock.MODE_TURNS, 5)
+	_check(main.host_game(24599) and main.net.turn_mode and clock.is_turn_based(), "le tour par tour s'ouvre au réseau")
+	_check(main.net.waiting == [Lockstep.HOST] and not clock.net_ready, "en réseau, le tour attend que l'hôte ait terminé")
+	var turn_end: int = (main.simulation.state.tick / 5 + 1) * 5
+	clock.toggle_pause()
+	_check(not main.net.paused and main.net.turn_target == turn_end and clock.is_resolving_turn(), "Fin de tour : seul joueur prêt, les jours du tour défilent")
+	for _i in 120:
+		await process_frame
+		if main.net.paused:
+			break
+	_check(main.net.paused and main.simulation.state.tick == turn_end and not clock.is_resolving_turn(), "tout le monde s'arrête au début du tour suivant")
+	var seats_saved: Dictionary = main.net.seats_record()
+	_check(seats_saved.size() == 1 and int(seats_saved.values()[0]["e"]) == main.local_player and FileAccess.file_exists("user://test_multi_auto.json"), "sauvegarde automatique de fin de tour, avec les places")
+	main.leave_network("")
+	DirAccess.remove_absolute("user://test_multi_auto.json")
+	clock.set_mode(clock.MODE_REALTIME)
 
 	# Menu principal : reprendre, puis nouvelle partie avec une autre faction et une graine choisie.
 	main.open_main_menu()
@@ -792,7 +810,20 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(menu.is_open() and not hud.visible and menu._resume.visible, "menu principal : la partie en cours peut reprendre")
 	_check(not menu._continue.visible and menu._items.size() == 8, "accueil : Reprendre remplace Continuer")
 	menu.show_page("join")
-	_check(menu._join_page.visible and not menu._home.visible, "accueil : page Rejoindre une partie")
+	_check(menu._join_page.visible and not menu._home.visible, "accueil : page Multijoueur")
+	menu.show_empire_choice([{"id": 1, "name": "Empire libre", "registre": "", "color": "ff8800", "colonies": 2, "player": "", "reserved": "", "free": true},
+			{"id": 2, "name": "Empire pris", "registre": "", "color": "0088ff", "colonies": 1, "player": "Alice", "reserved": "", "free": false}])
+	var choice_buttons := menu._join_choice.get_children().filter(func(n: Node) -> bool: return n is Button and not n.is_queued_for_deletion())
+	_check(not menu._join_form.visible and choice_buttons.size() == 2 and not choice_buttons[0].disabled and choice_buttons[1].disabled, "Multijoueur : choix de l'empire, les empires joués sont grisés")
+	menu.show_page("join")
+	_check(menu._join_form.visible and not menu._join_choice.visible, "Multijoueur : la page revient au formulaire")
+	var old_time := menu._time_select.selected
+	menu.open_host_new()
+	_check(menu.page == "new" and menu.host_new and menu.time_mode == clock.MODE_TURNS, "Héberger : page Nouvelle partie, tours simultanés proposés")
+	menu.show_page("home")
+	_check(not menu.host_new, "revenir à l'accueil annule l'hébergement")
+	menu.set_time_choice(old_time)
+	menu.show_page("join")
 	menu._join_address.text = ""
 	menu.request_join()
 	_check(menu._join_status.text.contains("adresse"), "Rejoindre : l'adresse est demandée")

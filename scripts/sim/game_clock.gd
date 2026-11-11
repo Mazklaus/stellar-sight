@@ -47,8 +47,13 @@ var day: int:
 
 var _accumulator: float = 0.0
 ## Multijoueur : la session qui pilote la simulation à la place de l'horloge locale (null en solo).
-## Elle doit offrir clock_process(delta), request_pause(bool), request_speed(int) et day_fraction().
+## Elle doit offrir clock_process(delta), request_pause(bool), request_speed(int), request_toggle()
+## et day_fraction().
 var driver: Object = null
+## Multijoueur au tour par tour : le joueur local a terminé son tour et attend les autres.
+var net_ready := false
+## Multijoueur au tour par tour : noms des joueurs qui n'ont pas encore terminé leur tour.
+var net_waiting: Array[String] = []
 
 
 ## Branche l'horloge sur une simulation (nouvelle partie ou partie chargée). Le jeu repart en pause.
@@ -97,6 +102,11 @@ func is_resolving_turn() -> bool:
 ## En multijoueur, l'hôte l'appellera quand tous les joueurs auront terminé leur tour
 ## (tours simultanés, comme Endless Space 2).
 func end_turn() -> bool:
+	if driver != null:
+		if mode != MODE_TURNS or _turn_target >= 0 or net_ready:
+			return false
+		driver.request_toggle()
+		return true
 	if mode != MODE_TURNS or simulation == null or _turn_target >= 0:
 		return false
 	_turn_target = turn() * turn_days
@@ -159,6 +169,10 @@ func _seconds_per_day() -> float:
 func interrupt_turn() -> bool:
 	if mode != MODE_TURNS or _turn_target < 0:
 		return false
+	if driver != null:
+		# En réseau, la pause est commune : tout le monde s'arrête au même jour.
+		driver.request_pause(true)
+		return true
 	_finish_turn()
 	return true
 
@@ -196,7 +210,7 @@ func _set_running(running: bool) -> void:
 ## Espace et le centre du cadran : pause / reprise en temps réel, fin de tour au tour par tour.
 func toggle_pause() -> void:
 	if driver != null:
-		driver.request_pause(not paused)
+		driver.request_toggle()
 		return
 	if mode == MODE_TURNS:
 		if paused and _turn_target < 0:
@@ -218,8 +232,19 @@ func set_speed(index: int) -> void:
 	speed_changed.emit(speed_index)
 
 
-## Multijoueur : la session impose la pause et la vitesse partagées (affichage seulement).
-func net_sync(is_paused: bool, speed: int) -> void:
+## Multijoueur : la session impose la pause, la vitesse et la façon de jouer partagées (affichage
+## seulement). net_mode < 0 laisse le mode tel quel ; target : fin du tour en cours de résolution (-1 : aucun).
+func net_sync(is_paused: bool, speed: int, net_mode := -1, days := 0, target := -1) -> void:
+	if net_mode >= 0:
+		if days > 0:
+			turn_days = days
+		var was_resolving := _turn_target >= 0
+		_turn_target = target if net_mode == MODE_TURNS else -1
+		if net_mode != mode:
+			mode = net_mode
+			mode_changed.emit(mode)
+		if was_resolving and _turn_target < 0 and is_paused and day % turn_days == 0:
+			turn_started.emit(turn())
 	if paused != is_paused:
 		paused = is_paused
 		pause_changed.emit(paused)

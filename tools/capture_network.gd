@@ -1,9 +1,9 @@
 extends SceneTree
-## Captures du multijoueur (lot 2) avec le rendu réel :
+## Captures du multijoueur avec le rendu réel :
 ##   xvfb-run -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_network.gd
-## Écrit dans CAPTURE_DIR (par défaut user://captures) : l'accueil avec « Rejoindre », la page
-## Rejoindre une partie, le menu du jeu avec « Ouvrir en réseau », puis la partie ouverte au réseau
-## quand un second joueur (une autre session dans le même processus) la rejoint.
+## Écrit dans CAPTURE_DIR (par défaut user://captures) : l'accueil, la page Multijoueur, puis une partie
+## hébergée au tour par tour qu'un second joueur (une autre session dans le même processus) rejoint :
+## le choix de son empire, et le cadran de l'hôte qui a terminé son tour et attend l'autre joueur.
 
 
 func _initialize() -> void:
@@ -20,36 +20,53 @@ func _initialize() -> void:
 	menu.show_page("join")
 	menu._join_name.text = "Alice"
 	menu._join_address.text = "192.168.1.20"
-	menu.set_join_status("Connexion à 192.168.1.20…")
 	await _frames(5)
-	await _shot(out + "/reseau-rejoindre.png")
-	menu.show_page("home")
-	menu.show_page("new")
+	await _shot(out + "/reseau-multijoueur.png")
+	# L'hôte : Nouvelle partie en réseau (tours simultanés), lancée et ouverte aussitôt.
+	main.player_name = "Maître Sentient"
+	main.net.autosave_path = "user://saves/capture_multi_auto.json"
+	menu.open_host_new()
 	menu.select_faction("ossarane")
 	menu.launch()
 	await _frames(20)
-	main.open_pause_menu()
-	await _frames(5)
-	await _shot(out + "/reseau-menu-du-jeu.png")
-	main.close_pause_menu()
-	main.player_name = "Maître Sentient"
-	main.host_game(24598)
 	# Un second joueur rejoint, depuis une autre session dans ce même processus.
 	var guest := NetSession.new()
 	guest.player_name = "Alice"
+	guest.token = "capture-alice"
 	root.add_child(guest)
+	var offer := []
+	guest.choose_empire.connect(func(list: Array) -> void: offer.assign(list))
 	guest.joined.connect(func(state: GameState, _e: int) -> void:
 		guest.core = Lockstep.new(Simulation.new(state), false))
-	guest.join("127.0.0.1", 24598)
+	guest.join("127.0.0.1", 24570)
+	for _i in 120:
+		guest._poll()
+		await process_frame
+		if not offer.is_empty():
+			break
+	menu.visible = true
+	menu.show_empire_choice(offer)
+	await _frames(5)
+	await _shot(out + "/reseau-choix-empire.png")
+	menu.visible = false
+	for d in offer:
+		if d["free"]:
+			guest.pick(int(d["id"]))
+			break
 	for _i in 120:
 		guest._poll()
 		guest._flush()
 		await process_frame
 		if guest.core != null:
 			break
-	await _frames(20)
-	await _shot(out + "/reseau-partie-ouverte.png")
+	get_root().get_node("GameClock").toggle_pause()  # l'hôte termine son tour
+	# L'invité partage l'horloge de ce processus : on n'écoute plus que l'hôte pour l'affichage.
+	await _frames(10)
+	main.net._sync_clock()
+	await _frames(5)
+	await _shot(out + "/reseau-tour-simultane.png")
 	guest.close()
+	main.leave_network("")
 	quit(0)
 
 

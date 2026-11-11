@@ -6,7 +6,12 @@ extends SceneTree
 ##   ROLE=host CLIENTS=2 DAYS=1800 godot --headless --path . -s res://tools/net_bot.gd
 ##   ROLE=client ADDR=127.0.0.1 godot --headless --path . -s res://tools/net_bot.gd
 ## Variables : PORT (24570), SEED (7), NAME, ORDERS (ordres par seconde, défaut 6), TIMEOUT (secondes),
-## QUIT_AT (client : quitte brutalement à ce jour, pour tester le départ d'un joueur).
+## QUIT_AT (client : quitte brutalement à ce jour, pour tester le départ d'un joueur), TURNS (hôte :
+## tours simultanés de TURNS jours ; chacun donne quelques ordres puis termine son tour, et met parfois
+## la partie en pause pendant que les jours défilent), PICK (client : rang de l'empire libre choisi).
+## RESUME=1 (hôte) : reprend la dernière sauvegarde automatique en réseau (les joueurs y retrouvent leur
+## empire) ; HOST_QUITS_AT (hôte) : quitte brutalement à ce jour.
+## Le nom sert d'identifiant : un client relancé avec le même nom retrouve son empire.
 
 var session: NetSession
 var role := ""
@@ -21,6 +26,8 @@ var _quit_in := -1.0
 
 
 var _ready_done := false
+## Tour par tour : temps avant de terminer son tour, et ordres encore à donner pendant ce tour.
+var _turn_wait := -1.0
 
 
 func _initialize() -> void:
@@ -37,6 +44,7 @@ func _setup() -> void:
 	rng.seed = hash(_env("NAME", role) + str(Time.get_ticks_usec()))
 	session = NetSession.new()
 	session.player_name = _env("NAME", role)
+	session.token = "bot-" + _env("NAME", role)
 	root.add_child(session)
 	session.notice.connect(func(t: String, _o: String) -> void: print("[%s] %s" % [role, t]))
 	session.ended.connect(func(r: String) -> void:
@@ -47,10 +55,21 @@ func _setup() -> void:
 		quit(2))
 	var clock: Node = root.get_node("GameClock")
 	if role == "host":
-		var st := GameState.create(int(_env("SEED", "7")), 150, 1800.0, "ossarane", {"ai_level": "normal"})
+		var seats := {}
+		var st: GameState
+		if _env("RESUME", "") != "":
+			st = SaveGame.load_state(NetSession.AUTOSAVE_PATH)
+			seats = SaveGame.last_clock.get("net", {})
+			print("[host] reprise au jour %d, places : %s" % [st.tick, seats])
+		else:
+			st = GameState.create(int(_env("SEED", "7")), 150, 1800.0, "ossarane", {"ai_level": "normal"})
 		var sim := Simulation.new(st)
 		clock.attach(sim)
-		var err := session.host(sim, 0, port)
+		if _env("RESUME", "") != "":
+			clock.apply_settings(SaveGame.last_clock)
+		elif _env("TURNS", "") != "":
+			clock.set_mode(clock.MODE_TURNS, int(_env("TURNS", "10")))
+		var err := session.host(sim, 0, port, seats)
 		if err != OK:
 			print("[host] ouverture impossible : %s" % error_string(err))
 			quit(2)
@@ -63,6 +82,15 @@ func _setup() -> void:
 			clock.attach(sim)
 			session.bind(sim)
 			print("[%s] entré, empire %d, jour %d" % [session.player_name, e, state.tick]))
+		session.choose_empire.connect(func(list: Array) -> void:
+			var free := list.filter(func(d: Dictionary) -> bool: return d["free"])
+			if free.is_empty():
+				print("[%s] aucun empire libre" % session.player_name)
+				quit(2)
+				return
+			var d: Dictionary = free[mini(int(_env("PICK", "0")), free.size() - 1)]
+			print("[%s] choisit %s" % [session.player_name, d["name"]])
+			session.pick(int(d["id"])))
 		session.join(_env("ADDR", "127.0.0.1"), port)
 
 
@@ -85,8 +113,18 @@ func _process(delta: float) -> bool:
 	var st := session.core.sim.state
 	if role == "host" and not started and session.core.seats.size() - 1 >= clients and session.paused:
 		started = true
-		session.request_pause(false)
+		if not session.turn_mode:
+			session.request_pause(false)
 		print("[host] tout le monde est là : c'est parti")
+	if role == "host" and _env("HOST_QUITS_AT", "") != "" and st.tick >= int(_env("HOST_QUITS_AT", "0")) and session.paused:
+		print("[host] je quitte au jour %d" % st.tick)
+		quit(0)
+		return false
+	if session.turn_mode:
+		_turn_bot(delta, st)
+		if st.tick >= days and session.paused and session.turn_target < 0 and not session.core.can_step() and not done:
+			_finish()
+		return false
 	# Après un départ (pause automatique), l'hôte relance la partie.
 	if role == "host" and started and session.paused and st.tick < days and not session.core.can_step():
 		session.request_pause(false)
@@ -104,6 +142,33 @@ func _process(delta: float) -> bool:
 	if st.tick >= days and session.paused and not session.core.can_step() and not done:
 		_finish()
 	return false
+
+
+## Tours simultanés : quelques ordres, puis fin de tour ; parfois une pause pendant la résolution.
+func _turn_bot(delta: float, st: GameState) -> void:
+	if role != "host" and _env("QUIT_AT", "") != "" and st.tick >= int(_env("QUIT_AT", "0")):
+		print("[%s] je quitte au jour %d" % [session.player_name, st.tick])
+		quit(0)
+		return
+	var ordering := session.paused and not session.core.can_step()
+	if not session.paused and rng.randf() < 0.004 and role != "host":
+		session.request_toggle()  # pause commune au milieu du tour (comme une bataille)
+		return
+	if not ordering or st.tick >= days or (role == "host" and not started):
+		_turn_wait = -1.0
+		return
+	var me := Lockstep.HOST if role == "host" else session._peer.get_unique_id()
+	if not session.waiting.has(me):
+		return  # déjà prêt
+	if _turn_wait < 0.0:
+		_turn_wait = rng.randf_range(0.05, 0.4)
+	if rng.randf() < 0.3:
+		var cmd := _random_order(st, session.my_empire)
+		if SimCommands.validate(st, cmd) == "" and session.submit(cmd) == "":
+			sent += 1
+	_turn_wait -= delta
+	if _turn_wait < 0.0:
+		session.request_toggle()
 
 
 func _finish() -> void:
