@@ -26,6 +26,11 @@ signal joined(state: GameState, empire_id: int)
 signal join_failed(reason: String)
 ## Client : l'hôte propose les empires à prendre (voir _empire_list) ; répondre par pick().
 signal choose_empire(empires: Array)
+## Salon d'avant-partie, client : nouvel état du salon (voir lobby_state()).
+signal lobby_changed(state: Dictionary)
+## Salon, hôte : un joueur demande quelque chose (« take » une place, « set » peuple et couleur de sa
+## place, « ready »). Le jeu applique ce qui est permis puis appelle lobby_update().
+signal lobby_request(peer: int, kind: String, data: Dictionary)
 ## La session s'est terminée (hôte parti, réseau fermé).
 signal ended(reason: String)
 ## Les joueurs connectés ont changé (noms, empires).
@@ -97,6 +102,14 @@ var _ready := {}
 var _beacon: LanDiscovery
 var _beacon_timer := 0.0
 var _port := DEFAULT_PORT
+## Salon d'avant-partie (hôte, avant la création de la partie) : ouvert, places tenues par chaque pair
+## (pair -> indice de place), pairs prêts, et dernier état envoyé (places, résumé des réglages).
+var lobby_open := false
+var lobby_seats := {}
+var lobby_ready := {}
+var _lobby_view := {}
+## Client : mon identifiant de pair dans le salon.
+var _lobby_me := 0
 
 
 func is_active() -> bool:
@@ -164,6 +177,125 @@ static func local_token() -> String:
 	return t
 
 
+## Ouvre le salon d'avant-partie : les joueurs se connectent pendant que l'hôte règle la partie, prennent
+## une place « joueur humain » et y choisissent peuple et couleur. start_from_lobby() lance la partie.
+func open_lobby(port := DEFAULT_PORT) -> Error:
+	close()
+	_peer = ENetMultiplayerPeer.new()
+	var err := _peer.create_server(port, MAX_PLAYERS - 1)
+	if err != OK:
+		_peer = null
+		return err
+	_peer.peer_connected.connect(_on_peer_connected)
+	_peer.peer_disconnected.connect(_on_peer_disconnected)
+	role = HOST
+	_port = port
+	_beacon = LanDiscovery.new()
+	_beacon_timer = 0.0
+	lobby_open = true
+	if token == "":
+		token = local_token()
+	names = {Lockstep.HOST: player_name}
+	_tokens = {Lockstep.HOST: token}
+	return OK
+
+
+## Hôte : état du salon à montrer à tous. view : {"slots": [{"i", "name", "faction", "color",
+## "human", "level"}], "summary": texte des réglages}. Les joueurs et leur place s'y ajoutent ici.
+func lobby_update(view: Dictionary) -> void:
+	if not lobby_open:
+		return
+	_lobby_view = view.duplicate(true)
+	_send(0, {"k": "lobby", "l": lobby_state()})
+
+
+## Salon : places (avec qui les tient), résumé, noms et joueurs prêts.
+func lobby_state() -> Dictionary:
+	var st := _lobby_view.duplicate(true)
+	var held := {}
+	for p in lobby_seats:
+		held[int(lobby_seats[p])] = p
+	for sl in st.get("slots", []):
+		var p := int(held.get(int(sl["i"]), 0))
+		sl["peer"] = p
+		sl["player"] = String(names.get(p, "")) if p != 0 else ""
+		sl["ready"] = lobby_ready.has(p)
+	st["host"] = player_name
+	st["names"] = names.duplicate()
+	return st
+
+
+## Hôte : la place i n'est plus pour un humain (passée à l'IA ou retirée) : son joueur la perd.
+func lobby_release_slot(i: int) -> void:
+	for p in lobby_seats.keys():
+		if int(lobby_seats[p]) == i:
+			lobby_seats.erase(p)
+			lobby_ready.erase(p)
+
+
+## Hôte : la place est-elle tenue par un joueur ?
+func lobby_slot_holder(i: int) -> int:
+	for p in lobby_seats:
+		if int(lobby_seats[p]) == i:
+			return p
+	return 0
+
+
+## Hôte : tous les joueurs connectés ont une place et sont prêts.
+func lobby_all_ready() -> bool:
+	for p in names:
+		if p == Lockstep.HOST:
+			continue
+		if not lobby_seats.has(p) or not lobby_ready.has(p):
+			return false
+	return true
+
+
+## Hôte : la partie est créée ; chaque joueur du salon prend l'empire de sa place (seats : pair ->
+## empire). Les empires des places humaines ont été créés tenus par l'IA : l'accueil les leur confie.
+func start_from_lobby(sim: Simulation, empire_id: int, seats: Dictionary) -> void:
+	lobby_open = false
+	core = Lockstep.new(sim, true)
+	core.seats[Lockstep.HOST] = empire_id
+	core.desync_detected.connect(_on_desync)
+	my_empire = empire_id
+	speed = _clock().speed_index
+	turn_mode = _clock().is_turn_based()
+	turn_days = _clock().turn_days
+	turn_target = -1
+	paused = true
+	_update_waiting()
+	_attach_clock()
+	for p in seats:
+		if names.has(p):
+			_picks[p] = int(seats[p])
+			_joins.append(p)
+	# Les joueurs sans place entrent comme à l'ordinaire : ils choisiront un empire libre.
+	for p in names.keys():
+		if p != Lockstep.HOST and not seats.has(p):
+			_send(p, {"k": "choose", "l": _empire_list()})
+	lobby_seats.clear()
+	lobby_ready.clear()
+	_after_stop()
+	players_changed.emit()
+
+
+## Client : demandes au salon.
+func lobby_take(i: int) -> void:
+	_send(Lockstep.HOST, {"k": "lobby_take", "i": i})
+
+
+func lobby_set(faction: String, color: String) -> void:
+	var msg := {"k": "lobby_set", "f": faction, "c": color}
+	if not GameData.is_official(faction) and not GameData.faction(faction).is_empty():
+		msg["def"] = GameData.faction(faction)  # peuple créé : l'hôte en a besoin pour créer la partie
+	_send(Lockstep.HOST, msg)
+
+
+func lobby_set_ready(value: bool) -> void:
+	_send(Lockstep.HOST, {"k": "lobby_ready", "r": value})
+
+
 ## Se connecte à une partie. La réponse arrive par joined ou join_failed.
 func join(address: String, port := DEFAULT_PORT) -> Error:
 	close()
@@ -192,6 +324,10 @@ func close() -> void:
 		_peer.close()
 	_peer = null
 	_beacon = null
+	lobby_open = false
+	lobby_seats = {}
+	lobby_ready = {}
+	_lobby_view = {}
 	role = NONE
 	core = null
 	names = {}
@@ -311,10 +447,16 @@ func clock_process(delta: float) -> void:
 	_flush()
 
 
-func _process(_delta: float) -> void:
-	# Hors partie (connexion en cours), on écoute quand même le réseau.
+func _process(delta: float) -> void:
+	# Hors partie (connexion en cours, salon), on écoute quand même le réseau.
 	if _peer and _clock().driver != self:
 		_poll()
+		if lobby_open and _beacon:
+			_beacon_timer -= delta
+			if _beacon_timer <= 0.0:
+				_beacon_timer = 1.0
+				_beacon.announce({"name": player_name, "port": _port, "players": names.size(), "turns": _clock().is_turn_based(),
+						"date": "salon", "version": GameVersion.fingerprint()})
 
 
 ## L'horloge du jeu (autoload).
@@ -680,6 +822,17 @@ func _on_peer_connected(id: int) -> void:
 func _on_peer_disconnected(id: int) -> void:
 	if role != HOST:
 		return
+	if lobby_open:
+		var who := String(names.get(id, ""))
+		names.erase(id)
+		_tokens.erase(id)
+		lobby_seats.erase(id)
+		lobby_ready.erase(id)
+		if who != "":
+			notice.emit("%s a quitté le salon." % who, "")
+		players_changed.emit()
+		lobby_update(_lobby_view)
+		return
 	_joins.erase(id)
 	_picks.erase(id)
 	if core.seats.has(id):
@@ -764,6 +917,12 @@ func _host_message(from: int, msg: Dictionary) -> void:
 				tok = "nom:" + pname.to_lower()
 			names[from] = pname if pname != "" else "Joueur"
 			_tokens[from] = tok
+			if lobby_open:
+				notice.emit("%s entre dans le salon." % names[from], "good")
+				players_changed.emit()
+				_send(from, {"k": "lobby", "l": lobby_state(), "you": from})
+				_send(0, {"k": "lobby", "l": lobby_state()})
+				return
 			# Il revient alors que son ancienne connexion n'est pas encore tombée : on la ferme.
 			for p in core.seats.keys():
 				if p != Lockstep.HOST and _tokens.get(p, "") == tok:
@@ -776,7 +935,7 @@ func _host_message(from: int, msg: Dictionary) -> void:
 			else:
 				_send(from, {"k": "choose", "l": _empire_list()})
 		"pick":
-			if not names.has(from) or core.seats.has(from) or _joins.has(from):
+			if core == null or not names.has(from) or core.seats.has(from) or _joins.has(from):
 				return
 			var e := int(msg.get("e", -1))
 			if not _is_free(e):
@@ -785,19 +944,24 @@ func _host_message(from: int, msg: Dictionary) -> void:
 			_picks[from] = e
 			_queue_join(from)
 		"ready":
-			if core.seats.has(from):
+			if core and core.seats.has(from):
 				_host_ready(from, bool(msg.get("r", true)))
+		"lobby_take", "lobby_set", "lobby_ready":
+			if lobby_open and names.has(from):
+				var data := msg.duplicate()
+				data.erase("k")
+				lobby_request.emit(from, String(msg["k"]).trim_prefix("lobby_"), data)
 		"order":
-			if not core.seats.has(from) or not msg.get("c") is Dictionary:
+			if core == null or not core.seats.has(from) or not msg.get("c") is Dictionary:
 				return
 			var why := core.request(from, msg["c"])
 			if why != "":
 				_send(from, {"k": "notice", "t": "Ordre refusé : %s" % why, "o": "bad"})
 		"ack":
-			if core.seats.has(from):
+			if core and core.seats.has(from):
 				core.host_receive_ack(from, int(msg.get("t", 0)), String(msg.get("h", "")))
 		"pause":
-			if core.seats.has(from):
+			if core and core.seats.has(from):
 				_host_pause(from, bool(msg.get("p", true)))
 
 
@@ -815,6 +979,12 @@ func _client_message(msg: Dictionary) -> void:
 			joined.emit(state, my_empire)  # le jeu crée sa Simulation et appelle bind()
 			_client_message(msg.get("clock", {}))
 			players_changed.emit()
+		"lobby":
+			if msg.has("you"):
+				_lobby_me = int(msg["you"])
+			var st: Dictionary = msg.get("l", {})
+			st["you"] = _lobby_me
+			lobby_changed.emit(st)
 		"choose":
 			choose_empire.emit(msg.get("l", []))
 			if String(msg.get("r", "")) != "":

@@ -5,14 +5,14 @@
 # Variable GODOT : chemin de l'exécutable (défaut : godot). BRUNO_QUITS_AT=<jour> : un client quitte
 # en cours de route (son empire passe à l'IA, sauvegarde automatique) ; les deux autres doivent finir pareil.
 # BRUNO_REJOINS=1 (avec BRUNO_QUITS_AT) : il revient aussitôt et doit retrouver son empire.
-# TURNS=<jours> : tours simultanés au lieu du temps réel.
+# TURNS=<jours> : tours simultanés au lieu du temps réel. LOBBY=1 : la partie naît d'un salon où chacun prend sa place.
 set -u
 cd "$(dirname "$0")/.."
 GODOT="${GODOT:-godot}"
 DAYS="${1:-1800}"
 PORT="${PORT:-24571}"
 LOG="$(mktemp -d)"
-TURNS="${TURNS:-}" ROLE=host CLIENTS=2 DAYS="$DAYS" PORT="$PORT" NAME=Hote "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/host.txt" 2>&1 &
+LOBBY="${LOBBY:-}" TURNS="${TURNS:-}" ROLE=host CLIENTS=2 DAYS="$DAYS" PORT="$PORT" NAME=Hote "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/host.txt" 2>&1 &
 sleep 2
 for n in Alice Bruno; do
   QUIT=""
