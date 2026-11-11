@@ -438,6 +438,8 @@ func _start(state: GameState) -> void:
 	_view.viewer = view_empire
 	_view.fog = not spectator
 	_hud.spectator_panel.set_fog(false)
+	# Ce que l'interface montre hors de vue : la mémoire du joueur, ou tout pour le spectateur.
+	Intel.lens = -1 if spectator else view_empire
 	simulation = Simulation.new(state)
 	simulation.command_applied.connect(_on_command_applied)
 	simulation.command_rejected.connect(func(_cmd: Dictionary, reason: String) -> void:
@@ -490,6 +492,8 @@ func follow_empire(empire_id: int) -> void:
 		return
 	view_empire = empire_id
 	_view.viewer = empire_id
+	if _view.fog:
+		Intel.lens = empire_id
 	_hud.follow_empire(simulation.state, empire_id)
 	_view.queue_redraw()
 
@@ -499,7 +503,9 @@ func set_spectator_fog(on: bool) -> void:
 	if not spectator:
 		return
 	_view.fog = on
+	Intel.lens = view_empire if on else -1
 	_hud.spectator_panel.set_fog(on)
+	_refresh_all()
 	_view.queue_redraw()
 
 

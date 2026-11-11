@@ -27,6 +27,8 @@ var starving: bool = false
 var blackout: bool = false
 ## Systèmes explorés (vus au moins une fois) : id -> true. Le reste de la galaxie est dans le brouillard.
 var explored: Dictionary = {}
+## Dernière information connue (voir Intel) : système -> {"day": jour du relevé, "info": relevé}.
+var intel: Dictionary = {}
 ## Plus courts chemins par les routes connues, depuis chaque système déjà demandé (Fleets._dijkstra) :
 ## donnée dérivée, non sauvegardée, valable tant que explored n'a pas grandi.
 var path_cache: Dictionary = {}
@@ -142,6 +144,7 @@ func to_dict() -> Dictionary:
 		"starving": starving,
 		"blackout": blackout,
 		"explored": sorted_explored(),
+		"intel": Intel.to_list(self),
 		"contacts": Array(contacts),
 		"ships_built": ships_built.duplicate(),
 		"fervor": fervor,
@@ -218,6 +221,7 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.blackout = bool(d["blackout"])
 	for sid in d["explored"]:
 		e.explored[int(sid)] = true
+	Intel.from_list(e, d.get("intel", []))
 	for c in d["contacts"]:
 		e.contacts.append(int(c))
 	for k in d["ships_built"]:

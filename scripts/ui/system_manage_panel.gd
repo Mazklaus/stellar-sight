@@ -134,7 +134,7 @@ func _make_column(p: Planet, width: float, sphere: float) -> Dictionary:
 
 
 func _refresh_column(p: Planet, col: Dictionary) -> void:
-	var c: Colony = state.colonies.get(p.id)
+	var c: Colony = Intel.shown_colony(state, p.id)
 	var selected := p.id == selected_planet
 	(col["root"] as PanelContainer).add_theme_stylebox_override("panel", _style(selected))
 	var title: Label = col["title"]
@@ -196,7 +196,7 @@ func _refresh_column(p: Planet, col: Dictionary) -> void:
 ## Jauge autour de la planète : population pour une colonie, anneau plein pour un avant-poste,
 ## pointillé pendant une fondation.
 func _draw_gauge(holder: Control, p: Planet, sphere: float) -> void:
-	var c: Colony = state.colonies.get(p.id) if state else null
+	var c: Colony = Intel.shown_colony(state, p.id) if state else null
 	var center := holder.size * 0.5
 	var radius := sphere * 0.5 + 8.0
 	holder.draw_arc(center, radius, PI * 0.75, PI * 2.25, 64, Color(1, 1, 1, 0.08), 3.0, true)

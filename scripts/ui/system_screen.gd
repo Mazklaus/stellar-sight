@@ -243,12 +243,14 @@ func _build_nav() -> void:
 
 func _refresh_header(s: StarSystem) -> void:
 	_title.text = s.system_name
-	var owner := _state.get_empire(_state.system_owner(s.id))
+	var owner := _state.get_empire(Intel.shown_owner(_state, s.id))
 	_title.add_theme_color_override("font_color", owner.color().lightened(0.35) if owner else Color(0.95, 0.96, 1.0))
 	var parts := PackedStringArray([GalaxyGenerator.star_label(s.star_type)])
 	parts.append("%d planète%s" % [s.planet_count, "s" if s.planet_count > 1 else ""] if s.planet_count > 0 else "aucune planète")
 	parts.append("Système de %s" % owner.display_name() if owner else "Système libre")
 	parts.append("à portée" if Economy.in_range(_state, _player, s.id) else "hors de portée")
+	if not Intel.shown_live(_state, s.id):
+		parts.append("hors de vue, %s" % Intel.age_label(_state, Intel.lens, s.id))
 	var names := PackedStringArray()
 	for f in Fleets.fleets_at(_state, s.id):
 		if f.owner == _player or Fleets.fleet_visible(_state, _player, f, Fleets.visible_systems(_state, _player)):
@@ -331,9 +333,9 @@ func _refresh_cards() -> void:
 		var card: Button = _cards.get_child(i)
 		var roman: String = Planet.ROMAN[p.index] if p.index < Planet.ROMAN.size() else str(p.index + 1)
 		var type_name := "Astéroïdes" if p.type == "asteroids" else p.type_label()
-		card.text = "%s  %s\n%s" % [roman, type_name, "taille %d · %s" % [p.size, PlanetInfo.short_status(_state, p, _player)] if not _state.colonies.has(p.id) else PlanetInfo.short_status(_state, p, _player)]
+		card.text = "%s  %s\n%s" % [roman, type_name, "taille %d · %s" % [p.size, PlanetInfo.short_status(_state, p, _player)] if Intel.shown_colony(_state, p.id) == null else PlanetInfo.short_status(_state, p, _player)]
 		card.set_pressed_no_signal(pid == planet_id)
-		var c: Colony = _state.colonies.get(pid)
+		var c: Colony = Intel.shown_colony(_state, pid)
 		var col := _state.get_empire(c.owner).color().lightened(0.35) if c else Color(0.88, 0.9, 0.96)
 		card.add_theme_color_override("font_color", col)
 		card.add_theme_color_override("font_hover_color", col.lightened(0.2))
@@ -405,7 +407,7 @@ func _refresh_panel(s: StarSystem) -> void:
 		_status_label.text = ""
 		_set_actions([])
 		return
-	var c: Colony = _state.colonies.get(p.id)
+	var c: Colony = Intel.shown_colony(_state, p.id)
 	_p_title.text = p.display_name(_state.galaxy)
 	_p_title.add_theme_color_override("font_color", _state.get_empire(c.owner).color().lightened(0.3) if c else Color(0.95, 0.96, 1.0))
 	_p_sub.text = "%s  ·  taille %d  ·  orbite %d" % [p.type_label(), p.size, p.index + 1]

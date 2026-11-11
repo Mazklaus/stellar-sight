@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 15
+const FORMAT_VERSION := 16
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -368,6 +368,10 @@ static func from_dict(d: Dictionary) -> GameState:
 			allies.append(int(a))
 		s.winner = {"empire": int(w["empire"]), "victory": String(w["victory"]), "tick": int(w["tick"]), "allies": allies}
 	s.rebuild_ownership()
+	# Sauvegardes d'avant la dernière information connue : la mémoire part de l'état réel.
+	if int(d["version"]) < 16:
+		for e in s.empires:
+			Intel.seed_from_truth(s, e)
 	return s
 
 
