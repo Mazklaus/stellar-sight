@@ -248,6 +248,11 @@ static func diet(faction: Dictionary) -> String:
 	return String(faction.get("diet", "food"))
 
 
+## Matériaux que coûte chaque nouvel habitant d'une population assemblée (synthétiques), 0 sinon.
+static func assembly_cost(faction: Dictionary) -> int:
+	return int(faction.get("assembly", {}).get("materials", 0))
+
+
 ## Habitabilité propre d'un type que les autres ne peuplent pas (lithoïdes : mondes stériles), 0 sinon.
 static func hab_extra(faction: Dictionary, planet_type: String) -> int:
 	return int(faction.get("hab_extra", {}).get(planet_type, 0))

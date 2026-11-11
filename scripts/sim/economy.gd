@@ -120,6 +120,15 @@ static func growth_threshold(population: int) -> int:
 	return int(r["growth_threshold_base"]) + int(r["growth_threshold_per_pop"]) * population
 
 
+## Seuil de la prochaine population d'une colonie : une population assemblée (synthétiques) ne
+## ralentit pas en grandissant, son seuil reste celui d'une colonie naissante.
+static func colony_threshold(state: GameState, c: Colony) -> int:
+	var e := state.get_empire(c.owner)
+	if e and FactionTraits.assembly_cost(e.faction()) > 0:
+		return growth_threshold(0)
+	return growth_threshold(c.population)
+
+
 ## Rendement mensuel brut et entretien d'une revendication, avant les bonus de faction.
 ## Renvoie {"gross": {res: int}, "upkeep": {res: int}}.
 static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
@@ -135,11 +144,12 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 	if colony.is_colony():
 		var e := state.get_empire(colony.owner)
 		var py := pop_yields(planet.type)
-		# Mangeurs de roche : ce que les autres cultivent, ils l'extraient (la nourriture de la
-		# population devient des matériaux), et ils mangent des matériaux.
-		if e and FactionTraits.diet(e.faction()) == "materials" and py.has("food"):
+		# Un peuple qui ne mange pas de nourriture ne la cultive pas non plus : ce que les habitants
+		# produiraient en nourriture va dans ce qu'ils mangent (lithoïdes : matériaux, synthétiques : énergie).
+		var diet0 := FactionTraits.diet(e.faction()) if e else "food"
+		if diet0 != "food" and py.has("food"):
 			py = py.duplicate()
-			py["materials"] = int(py.get("materials", 0)) + int(py["food"])
+			py[diet0] = int(py.get(diet0, 0)) + int(py["food"])
 			py.erase("food")
 		_add(gross, py, colony.population)
 		var food_pct := int(e.faction().get("food_upkeep_pct", 100)) if e else 100
