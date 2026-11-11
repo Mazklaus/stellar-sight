@@ -7,7 +7,13 @@
 		{"id": "Space opera héroïque", "label": "Space opera héroïque", "text": "Républiques, chevaliers et rébellions. Tout le monde a un destin, certains en ont même deux."},
 		{"id": "Grimdark", "label": "Grimdark", "text": "Théocraties, guerre éternelle et sacrifice. L'espoir y est un luxe, et le luxe une hérésie."},
 		{"id": "Classique / hard SF", "label": "Classique / hard SF", "text": "Ingénieurs, colons et coalitions rationnelles. Ici, on calcule avant de rêver. Pas encore de mécanique propre : le ton et l'opinion seulement."},
-		{"id": "Picaresque / pulp", "label": "Picaresque / pulp", "text": "Mercenaires, contrebandiers et héros malgré eux. Pas encore de mécanique propre : le ton et l'opinion seulement."},
+		{"id": "Picaresque / pulp", "label": "Picaresque / pulp", "text": "Mercenaires, contrebandiers et héros malgré eux. On parle d'eux, en bien ou en mal, et c'est déjà ça.",
+			"fields": {"reputation": {"max": 100, "decay": 1, "op_success": 3, "op_caught": 5, "contract_done": 10, "david": 10, "battle_lost": -8, "exploit": 5,
+				"energy_per": 10, "fee_per": 2, "intrigue_per": 5, "caught_memory": "rogue_caught"}},
+			"traits": [
+				{"name": "Réputation", "text": "Une jauge de 0 à 100 (-1 par mois) : +3 par opération d'espionnage réussie, +5 par opération découverte (on parle de nous), +10 par contrat de flotte mené à terme ou par victoire contre une flotte trois fois plus forte, -8 par bataille perdue. Chaque tranche de 10 rapporte 1 énergie par mois ; elle renchérit les contrats de flotte (+1 % par 2 points) et facilite les intrigues (+1 % de réussite par 5 points)."},
+				{"name": "On s'y attendait", "text": "Des espions picaresques pris la main dans le sac : personne n'est surpris. Le souvenir laissé à la victime pèse moitié moins (-10 au lieu de -20)."}
+			]},
 		{"id": "Horreur biologique", "label": "Horreur biologique", "text": "Ruches, mutations et faim sans fin. Les autres peuples vous trouveront difficile à aimer."},
 		{"id": "Cosmique / étrange", "label": "Cosmique / étrange", "text": "Entités anciennes et horreur douce. Pas encore de mécanique propre : le ton et l'opinion seulement."}
 	],
@@ -177,7 +183,7 @@
 		{"id": "synthetique_2", "look": "antenna", "label": "Coordinatrice à antennes", "archetypes": ["synthetique"]},
 		{"id": "synthetique_3", "look": "core", "label": "Noyau ouvert", "archetypes": ["synthetique"]}
 	],
-	"ship_styles": ["ossarane", "choeur", "vael", "khthari", "teyl"],
+	"ship_styles": ["ossarane", "choeur", "vael", "khthari", "teyl", "ferrocornes", "brisecomete"],
 	"temperaments": [
 		{"id": -1, "label": "Conciliant", "text": "Un cran plus pacifique que le réglage de l'IA."},
 		{"id": 0, "label": "Mesuré", "text": "Ni plus ni moins que le réglage de l'IA."},
@@ -188,6 +194,8 @@
 		"choeur": {"registre": "Grimdark", "archetype": "humanoide", "gouvernement": "theocratie", "credo": "foi", "origine": "gisement_filons", "biomes": ["arctic", "desert"], "traits": ["forgerons", "pelerins", "lents"], "temperament": 1, "portrait": "humanoide_2", "ship_style": "choeur"},
 		"vael": {"registre": "Space opera héroïque", "archetype": "humanoide", "gouvernement": "republique", "credo": "raison", "origine": "gisement_geothermie", "biomes": ["ocean", "continental"], "traits": ["orateurs", "pluriel"], "temperament": -1, "portrait": "humanoide_3", "ship_style": "vael"},
 		"khthari": {"registre": "Horreur biologique", "archetype": "ruche", "gouvernement": "ruche", "credo": "survie", "origine": "sans_heritage", "biomes": ["toxic", "ocean"], "traits": ["fecondite"], "temperament": 1, "portrait": "ruche_1", "ship_style": "khthari"},
-		"teyl": {"registre": "Classique / hard SF", "archetype": "synthetique", "gouvernement": "conscience", "credo": "raison", "origine": "gisement_geothermie", "biomes": ["arctic", "desert"], "traits": ["erudits", "forgerons"], "temperament": 0, "portrait": "synthetique_1", "ship_style": "teyl"}
+		"teyl": {"registre": "Classique / hard SF", "archetype": "synthetique", "gouvernement": "conscience", "credo": "raison", "origine": "gisement_geothermie", "biomes": ["arctic", "desert"], "traits": ["erudits", "forgerons"], "temperament": 0, "portrait": "synthetique_1", "ship_style": "teyl"},
+		"ferrocornes": {"registre": "Grimdark", "archetype": "reptilien", "gouvernement": "horde", "credo": "honneur", "origine": "gisement_filons", "biomes": ["desert", "toxic"], "traits": ["canonniers", "tenaces"], "temperament": 1, "portrait": "reptilien_1", "ship_style": "ferrocornes"},
+		"brisecomete": {"registre": "Picaresque / pulp", "archetype": "humanoide", "gouvernement": "syndicat", "credo": "profit", "origine": "sans_heritage", "biomes": ["arctic", "continental"], "traits": ["pluriel", "navigateurs", "canonniers"], "temperament": 0, "portrait": "humanoide_5", "ship_style": "brisecomete"}
 	}
 }

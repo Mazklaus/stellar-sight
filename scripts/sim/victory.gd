@@ -67,6 +67,10 @@ static func rule_text(id: String) -> String:
 			return t % [int(v["pop_share_pct"]), int(v["digested"]), years]
 		"noosphere":
 			return t % [int(v["nodes"]), years]
+		"terre_promise":
+			return t % [int(v["min_jumps"]), int(v["reveal_jumps"]), maxi(1, years)]
+		"legende":
+			return t % [int(v["exploits"]), int(v["min_reputation"]), maxi(1, years)]
 	return t
 
 
@@ -214,6 +218,10 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			_moisson(state, e, out)
 		"noosphere":
 			_noosphere(state, e, out)
+		"terre_promise":
+			_terre_promise(state, e, out)
+		"legende":
+			_legende(state, e, out)
 	if is_people(id) and not has_tech(state, empire_id, id):
 		out["lines"].append("Technologie requise : %s" % String(Research.tech(tech_for(id)).get("label", tech_for(id))))
 		out["cond"] = false
@@ -567,6 +575,92 @@ static func _noosphere(state: GameState, e: Empire, out: Dictionary) -> void:
 		out["lines"].append("Revendications coupées : %d (aucune permise)" % cut)
 	out["cond"] = nodes >= want and cut == 0
 	_timed(out, nodes if cut == 0 else mini(nodes, want - 1), want)
+
+
+## Terre promise d'une horde : un monde habitable pour elle, à au moins min_jumps sauts de son
+## berceau et hors des systèmes d'origine, tiré par hachage de la graine (le même à chaque calcul,
+## sans rien sauvegarder). À défaut, parmi les plus lointains. -1 s'il n'y en a aucun.
+static var _promised := {}
+
+static func promised_planet(state: GameState, empire_id: int) -> int:
+	var e := state.get_empire(empire_id)
+	if e == null or not FactionTraits.has_horde(e.faction()) or e.home_planet < 0:
+		return -1
+	var key := "%d:%d:%d:%s" % [state.galaxy.get_instance_id(), state.seed_value, empire_id, e.faction_id]
+	if _promised.has(key):
+		return int(_promised[key])
+	var homes := {}
+	for o in state.empires:
+		if o.home_planet >= 0:
+			homes[state.galaxy.get_planet(o.home_planet).system_id] = true
+	var d: Dictionary = FactionTraits.jumps_from(state.galaxy, state.galaxy.get_planet(e.home_planet).system_id)
+	var want := int(info("terre_promise").get("min_jumps", 6))
+	var far: Array[int] = []
+	var farthest: Array[int] = []
+	var best_d := -1
+	for p: Planet in state.galaxy.planets:
+		if homes.has(p.system_id) or Economy.habitability(p.type, e.faction()) <= 0 or not d.has(p.system_id):
+			continue
+		var j := int(d[p.system_id])
+		if j >= want:
+			far.append(p.id)
+		if j > best_d:
+			best_d = j
+			farthest.clear()
+		if j == best_d:
+			farthest.append(p.id)
+	var pool := far if not far.is_empty() else farthest
+	var pid := -1
+	if not pool.is_empty():
+		pool.sort()
+		pid = pool[posmod(hash([state.seed_value, empire_id, "terre_promise"]), pool.size())]
+	_promised[key] = pid
+	return pid
+
+
+static func _terre_promise(state: GameState, e: Empire, out: Dictionary) -> void:
+	var pid := promised_planet(state, e.id)
+	if pid < 0:
+		out["lines"].append("Aucune Terre promise dans cette galaxie")
+		return
+	var p := state.galaxy.get_planet(pid)
+	var cf := FactionTraits.city_fleet(state, e.id)
+	var v := info("terre_promise")
+	var known := has_tech(state, e.id, "terre_promise")
+	var found := false
+	if cf == null:
+		out["lines"].append("Sans flotte-ville, les Chants de la route se taisent")
+	elif known:
+		var dist := int(FactionTraits.jumps_from(state.galaxy, cf.system_id).get(p.system_id, 999))
+		found = dist <= int(v["reveal_jumps"])
+		if found:
+			out["lines"].append("Terre promise : %s" % p.display_name(state.galaxy))
+		else:
+			out["lines"].append("Les Chants de la route : la Terre promise est à %d sauts de la flotte-ville" % dist)
+	var c: Colony = state.colonies.get(pid)
+	var owned := c != null and c.owner == e.id and c.is_established()
+	var camped := cf != null and not cf.is_moving() and cf.system_id == p.system_id
+	if owned or camped:
+		found = true
+	out["lines"].append("Colonie sur la Terre promise : %s" % ("fondée" if owned else "non"))
+	out["lines"].append("Flotte-ville au camp : %s" % ("oui" if camped else "non"))
+	out["cond"] = owned and camped
+	_timed(out, int(found) + int(owned) + int(camped), 3)
+
+
+## La Légende (registre Picaresque) : des exploits différents, puis une réputation tenue.
+static func _legende(state: GameState, e: Empire, out: Dictionary) -> void:
+	var v := info("legende")
+	var need := int(v["exploits"])
+	var min_rep := int(v["min_reputation"])
+	var n := mini(e.exploits.size(), need)
+	out["lines"].append("Exploits : %d / %d" % [e.exploits.size(), need])
+	for x in Reputation.EXPLOITS:
+		if e.exploits.has(String(x[0])):
+			out["lines"].append("  ✓ %s" % String(x[1]))
+	out["lines"].append("Réputation : %d (%d au moins)" % [e.reputation, min_rep])
+	out["cond"] = e.exploits.size() >= need and e.reputation >= min_rep
+	_timed(out, n + int(e.reputation >= min_rep), need + 1)
 
 
 # --- Ce que l'on voit des autres ---------------------------------------------------------------

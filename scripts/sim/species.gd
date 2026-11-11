@@ -276,7 +276,7 @@ static func build(spec: Dictionary) -> Dictionary:
 		"growth_pct": 100, "food_upkeep_pct": 100, "production_pct": {}, "research": {}, "combat": {}, "ai": {},
 		"traits": [],
 	}
-	for layer in ["archetype", "gouvernement", "credo", "origine"]:
+	for layer in ["registre", "archetype", "gouvernement", "credo", "origine"]:
 		var b := brick(layer, String(spec[layer]))
 		_merge(f, b.get("fields", {}))
 		var w: Dictionary = b.get("with", {})

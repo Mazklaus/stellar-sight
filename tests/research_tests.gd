@@ -278,7 +278,7 @@ func _test_faction_research() -> void:
 
 
 func _test_ai_research() -> void:
-	var sim := Simulation.new(GameState.create(77, 150, 1800.0, "", {"spectator": true, "ai_level": "normal"}))
+	var sim := Simulation.new(GameState.create(77, 150, 1800.0, "", {"spectator": true, "ai_level": "normal", "rivals": ["ossarane", "choeur", "vael", "khthari"]}))
 	sim.advance(30 * 30)
 	var st := sim.state
 	var counts := PackedStringArray()

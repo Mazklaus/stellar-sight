@@ -169,6 +169,10 @@ static func planet_value(state: GameState, e: Empire, p: Planet, use := 1) -> Di
 	value += int(ai.get("colony_bonus", 0)) if kind == Colony.KIND_COLONY else int(ai.get("outpost_bonus", 0))
 	if crystals:
 		value += int(ai.get("crystal_bonus", 0))
+	# Horde : la Terre promise, dès que les Chants de la route sont connus (une vraie colonie).
+	if use >= 1 and kind == Colony.KIND_COLONY and FactionTraits.has_horde(e.faction()) \
+			and Victory.has_tech(state, e.id, "terre_promise") and p.id == Victory.promised_planet(state, e.id):
+		value += 80
 	return {"kind": kind, "value": value}
 
 
@@ -849,6 +853,14 @@ static func city_camp(ctx: Dictionary) -> int:
 		var sid := state.galaxy.get_planet(c.planet_id).system_id
 		pops[sid] = int(pops.get(sid, 0)) + c.population * 10 + 1
 	var emap := _enemy_power_map(ctx)
+	# Terre promise : une fois la colonie fondée, la flotte-ville va y camper (victoire de peuple).
+	if Victory.has_tech(state, e.id, "terre_promise"):
+		var tp := Victory.promised_planet(state, e.id)
+		var tc: Colony = state.colonies.get(tp) if tp >= 0 else null
+		if tc != null and tc.owner == e.id and tc.is_established():
+			var tsys := state.galaxy.get_planet(tp).system_id
+			if not emap.has(tsys):
+				return tsys
 	var best := -1
 	var best_pop := -1
 	var keys := pops.keys()

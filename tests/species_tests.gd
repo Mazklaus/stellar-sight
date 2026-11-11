@@ -20,10 +20,13 @@ func run(check: Callable) -> void:
 	_test_synthetic()
 	_test_network()
 	_test_teyl_game()
+	_test_ferrocornes_game()
 	_test_syndicate()
 	_test_profit()
 	_test_horde()
 	_test_reptile()
+	_test_reputation()
+	_test_brisecomete_game()
 	_test_save()
 	_cleanup()
 
@@ -41,7 +44,7 @@ func _spec(preset: String, name := "Peuple d'essai") -> Dictionary:
 
 
 func _test_presets() -> void:
-	var expect := {"ossarane": [2, 4], "choeur": [2, 4], "vael": [4, 4], "khthari": [1, 5], "teyl": [2, 4]}
+	var expect := {"ossarane": [2, 4], "choeur": [2, 4], "vael": [4, 4], "khthari": [1, 5], "teyl": [2, 4], "ferrocornes": [2, 4], "brisecomete": [5, 5]}
 	for p in expect:
 		var s := _spec(p)
 		_ok(Species.check(s) == "", "modèle %s valide (%s)" % [p, Species.check(s)])
@@ -79,6 +82,17 @@ func _test_presets_match_officials() -> void:
 	_ok(t["network"] == off["network"] and t["assembly"] == off["assembly"] and String(t["diet"]) == "energy" and String(off["diet"]) == "energy", "Teyl : réseau, assemblage, énergie")
 	_ok(int(t["production_pct"]["knowledge"]) == int(off["production_pct"]["knowledge"]) and int(t["production_pct"]["materials"]) == int(off["production_pct"]["materials"]) and t["hab_extra"] == off["hab_extra"], "Teyl : érudits, fonderies, châssis étanches")
 	_ok(String(t["home_deposit"]) == String(off["home_deposit"]) and int(t["research"]["peace_knowledge_pct"]) == 5, "Teyl : cœur brûlant, académies")
+	var fr := Species.build(_spec("ferrocornes"))
+	var fo := GameData.faction("ferrocornes")
+	for key in ["horde", "hab_none", "migration", "food_upkeep_pct", "home_deposit", "combat", "research", "preferred", "production_pct", "growth_pct", "ship_style"]:
+		_ok(fr[key] == fo[key], "Ferrocornes : %s identique à la fiche officielle (%s / %s)" % [key, str(fr[key]), str(fo[key])])
+	_ok(fr["traits"].size() == fo["traits"].size(), "Ferrocornes : autant de traits affichés")
+	var br := Species.build(_spec("brisecomete"))
+	var bo := GameData.faction("brisecomete")
+	for key in ["reputation", "research", "preferred", "production_pct", "growth_pct", "food_upkeep_pct", "combat", "hab_floor", "fleet_speed_pct",
+			"colony_influence_pct", "outpost_yields", "start_ships", "ship_style", "registre", "species"]:
+		_ok(br[key] == bo[key], "Brisecomète : %s identique à la fiche officielle (%s / %s)" % [key, str(br[key]), str(bo[key])])
+	_ok(br["traits"].size() == bo["traits"].size() and not bo.has("home_deposit"), "Brisecomète : autant de traits affichés, aucun gisement")
 	var humain := _spec("")
 	humain["credo"] = "survie"
 	_ok(int(Species.build(humain)["production_pct"]["knowledge"]) == 75, "survie sans ruche : Savoir -25 % seulement")
@@ -170,7 +184,7 @@ func _test_game() -> void:
 	_ok(SpeciesLibrary.save(s) == "", "ruche créée enregistrée")
 	var fid := String(s["id"])
 	var st := GameState.create(5, 150, 1800.0, fid, {"ai_level": ""})
-	_ok(st.empires.size() == 6 and st.empires[0].faction_id == fid, "peuple créé joué par le joueur, 5 officiels en rivaux")
+	_ok(st.empires.size() == 8 and st.empires[0].faction_id == fid, "peuple créé joué par le joueur, 7 officiels en rivaux")
 	_ok(st.custom_factions.has(fid), "fiche recopiée dans la partie")
 	var spores := 0
 	for id in st.fleets:
@@ -541,11 +555,79 @@ func _test_teyl_game() -> void:
 	for e in sim.state.empires:
 		if e.faction_id == "teyl":
 			tid = e.id
-	_ok(sim.state.empires.size() == 5 and tid >= 0, "partie par défaut : cinq peuples dont Teyl")
+	_ok(sim.state.empires.size() == 7 and tid >= 0, "partie par défaut : sept peuples dont Teyl")
 	sim.advance(720)
 	var e := sim.state.get_empire(tid)
 	var nodes := FactionTraits.network_nodes(sim.state, tid)
 	_ok(not e.eliminated and nodes >= 2, "Teyl (IA) : en vie après deux ans, %d nœuds reliés" % nodes)
+
+
+## Clans Ferrocornes, 6e peuple officiel : proposés par défaut et joués par l'IA.
+func _test_ferrocornes_game() -> void:
+	_ok(GameData.is_official("ferrocornes") and GameData.portrait_art("ferrocornes") == "faction_ferrocornes", "Ferrocornes : peuple officiel, emplacement d'illustration")
+	var sim := Simulation.new(GameState.create(12, 150, 1800.0, "", {"spectator": true, "ai_level": "normal"}))
+	var fid := -1
+	for e in sim.state.empires:
+		if e.faction_id == "ferrocornes":
+			fid = e.id
+	_ok(sim.state.empires.size() == 7 and fid >= 0 and FactionTraits.city_fleet(sim.state, fid) != null, "partie par défaut : sept peuples, les Ferrocornes avec leur flotte-ville")
+	sim.advance(720)
+	_ok(not sim.state.get_empire(fid).eliminated, "Ferrocornes (IA) : en vie après deux ans")
+
+
+## Registre Picaresque : la réputation et ce qu'elle change.
+func _test_reputation() -> void:
+	var st := GameState.create(8, 150, 1800.0, "brisecomete", {"ai_level": "", "rivals": ["ossarane", "choeur", "vael"]})
+	var me := st.get_empire(0)
+	_ok(Reputation.has(me.faction()) and not Reputation.has(st.get_empire(1).faction()), "réputation : le registre Picaresque seulement")
+	_ok(Species.build(_spec("ossarane")).has("reputation") == false and Species.build(_spec("brisecomete")).has("reputation"), "la couche registre apporte ses champs")
+	Reputation.gain(st, 0, "op_success")
+	Reputation.gain(st, 1, "op_success")
+	_ok(me.reputation == 3 and st.get_empire(1).reputation == 0, "opération réussie : +3, et rien pour les autres registres (%d)" % me.reputation)
+	var o := Espionage.op_def("vol_techno")
+	Espionage._discovered(st, 0, 1, o, false, "")
+	var rogue := false
+	var spy := false
+	for m in st.memories:
+		if int(m["who"]) == 1 and int(m["about"]) == 0:
+			rogue = rogue or String(m["kind"]) == "rogue_caught"
+			spy = spy or String(m["kind"]) == "spy_caught"
+	_ok(me.reputation == 8 and rogue and not spy, "pris : +5 de réputation, et un souvenir moitié moins lourd (%d)" % me.reputation)
+	var base := int(Diplomacy.contract_fee(st, 0)["energy"])
+	me.reputation = 100
+	var fee := int(Diplomacy.contract_fee(st, 0)["energy"])
+	_ok(fee == base * 150 / 100, "réputation 100 : contrats 50 %% plus chers (%d contre %d)" % [fee, base])
+	_ok(Reputation.income(st, 0) == 10 and Reputation.intrigue_bonus(st, 0) == 20, "réputation 100 : +10 énergie par mois, intrigues +20 %%")
+	me.reputation = 0
+	var e0 := int(Economy.empire_income(st, 0)["net"]["energy"])
+	me.reputation = 50
+	_ok(int(Economy.empire_income(st, 0)["net"]["energy"]) > e0, "la réputation rapporte de l'énergie au bilan")
+	Reputation.monthly(st)
+	_ok(me.reputation == 49, "la réputation s'use d'un point par mois")
+	# Bataille gagnée contre trois fois plus fort : exploit ; bataille perdue : réputation en baisse.
+	Combat.start_war(st, 0, 1, false, true)
+	var b := {"sides": [{"empire": 0, "engaged": {"corvette": 1}, "lost": {}}, {"empire": 1, "engaged": {"corvette": 3}, "lost": {}}]}
+	Reputation.battle(st, b, 0)
+	_ok(me.exploits.has("david") and me.reputation >= 59, "victoire contre trois fois plus fort : exploit et réputation (%d)" % me.reputation)
+	var before := me.reputation
+	Reputation.battle(st, b, 1)
+	_ok(me.reputation == before - 8, "bataille perdue : -8 de réputation")
+	var copy := GameState.from_dict(st.to_snapshot())
+	_ok(copy.get_empire(0).reputation == me.reputation and copy.get_empire(0).exploits.has("david"), "réputation et exploits sauvegardés")
+
+
+## Syndicat Brisecomète, 7e peuple officiel : proposé par défaut et joué par l'IA.
+func _test_brisecomete_game() -> void:
+	_ok(GameData.is_official("brisecomete") and GameData.portrait_art("brisecomete") == "faction_brisecomete", "Brisecomète : peuple officiel, emplacement d'illustration")
+	var sim := Simulation.new(GameState.create(14, 150, 1800.0, "", {"spectator": true, "ai_level": "normal"}))
+	var bid := -1
+	for e in sim.state.empires:
+		if e.faction_id == "brisecomete":
+			bid = e.id
+	_ok(sim.state.empires.size() == 7 and bid >= 0, "partie par défaut : sept peuples, dont le Syndicat Brisecomète")
+	sim.advance(720)
+	_ok(not sim.state.get_empire(bid).eliminated, "Brisecomète (IA) : en vie après deux ans (réputation %d, %d exploits)" % [
+			sim.state.get_empire(bid).reputation, sim.state.get_empire(bid).exploits.size()])
 
 
 ## Gouvernement Syndicat : comptoirs, colonies chères, flottes à louer.

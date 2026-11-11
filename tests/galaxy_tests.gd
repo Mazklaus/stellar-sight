@@ -64,7 +64,7 @@ func _test_sizes_and_shapes() -> void:
 		var t0 := Time.get_ticks_msec()
 		var st := _state({"shape": shape, "size": "grande"}, 9)
 		var ms := Time.get_ticks_msec() - t0
-		_ok(st.galaxy.systems.size() == 230 and _connected(st.galaxy) and st.empires.size() == 5, "forme %s : 230 systèmes reliés, 5 départs (%d ms)" % [shape, ms])
+		_ok(st.galaxy.systems.size() == 230 and _connected(st.galaxy) and st.empires.size() == 7, "forme %s : 230 systèmes reliés, 7 départs (%d ms)" % [shape, ms])
 	# L'anneau laisse le centre vide ; l'elliptique est aplatie.
 	var ring := _state({"shape": "anneau"}, 5)
 	var inner := ring.galaxy.systems.filter(func(s: StarSystem) -> bool: return s.position.length() < ring.galaxy_radius * 0.4)
@@ -89,7 +89,7 @@ func _test_lanes() -> void:
 func _spread(st: GameState) -> Array[float]:
 	var nearest: Array[float] = []
 	for e in st.empires:
-		var p := st.galaxy.systems[st.galaxy.get_planet(e.capital_planet).system_id].position
+		var p := st.galaxy.systems[st.galaxy.get_planet(e.home_planet).system_id].position
 		var best := INF
 		for o in st.empires:
 			if o != e:
@@ -104,7 +104,7 @@ func _test_placements() -> void:
 		var st := _state({"placement": placement, "size": "grande"}, 31, "ossarane", {"rivals": rivals, "duplicates": true})
 		var homes := {}
 		for e in st.empires:
-			homes[st.galaxy.get_planet(e.capital_planet).system_id] = true
+			homes[st.galaxy.get_planet(e.home_planet).system_id] = true
 		_ok(st.empires.size() == 8 and homes.size() == 8, "départs %s : 8 empires, 8 systèmes différents" % placement)
 	# Équilibré : chacun dans son secteur, à mi-distance du centre, système d'au moins 3 planètes.
 	var bal := _state({"placement": "equilibre", "size": "grande"}, 31, "ossarane", {"rivals": rivals, "duplicates": true})
@@ -126,7 +126,7 @@ func _test_guaranteed() -> void:
 		var st := _state({"guaranteed": k, "placement": "chaotique"}, 21)
 		var ok := true
 		for e in st.empires:
-			var home_sys := st.galaxy.get_planet(e.capital_planet).system_id
+			var home_sys := st.galaxy.get_planet(e.home_planet).system_id
 			var preferred: Array = e.faction()["preferred"]
 			var near := {}
 			var frontier: Array[int] = [home_sys]

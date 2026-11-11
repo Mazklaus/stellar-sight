@@ -31,7 +31,7 @@ func _ok(cond: bool, what: String) -> void:
 
 
 func _home(st: GameState, empire_id := 0) -> int:
-	return st.galaxy.get_planet(st.get_empire(empire_id).capital_planet).system_id
+	return st.galaxy.get_planet(st.get_empire(empire_id).home_planet).system_id
 
 
 func _fleet_with(st: GameState, empire_id: int, ship_id: String) -> Fleet:
@@ -64,7 +64,9 @@ func _test_start() -> void:
 	for e in st.empires:
 		var fleets := Fleets.empire_fleets(st, e.id)
 		var home := _home(st, e.id)
-		_ok(fleets.size() == 2, "%s : deux flottes au départ (obtenu %d)" % [e.faction_id, fleets.size()])
+		# Une horde part en plus avec sa Flotte-ville.
+		var expected := FactionTraits.start_ships(e.faction_id).size() + (1 if FactionTraits.has_horde(e.faction()) else 0)
+		_ok(fleets.size() == expected, "%s : %d flottes au départ (obtenu %d)" % [e.faction_id, expected, fleets.size()])
 		var settler := "spore_ship" if e.faction_id == "khthari" else "colony_ship"
 		_ok(_fleet_with(st, e.id, "scout") != null and _fleet_with(st, e.id, settler) != null,
 				"%s : un éclaireur et un vaisseau colon (%s)" % [e.faction_id, settler])

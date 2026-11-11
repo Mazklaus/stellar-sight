@@ -107,6 +107,7 @@
 		"contract_unpaid": {"value": -25, "days": 1440, "label": "N'a pas payé nos flottes"},
 		"tech_stolen": {"value": -20, "days": 1440, "stack": 3, "label": "Nous a volé une technologie"},
 		"spy_caught": {"value": -20, "days": 1440, "stack": 3, "label": "Ses espions ont été pris chez nous"},
+		"rogue_caught": {"value": -10, "days": 1440, "stack": 3, "label": "Ses aventuriers ont été pris chez nous (on s'y attendait)"},
 		"spy_grief": {"value": -5, "days": 360, "label": "Grief : la guerre contre lui ne serait pas un parjure"},
 		"spy_expelled": {"value": -10, "days": 720, "label": "A expulsé nos agents"},
 		"spy_shamed": {"value": -10, "days": 1080, "label": "Espion démasqué qui a refusé de réparer"},

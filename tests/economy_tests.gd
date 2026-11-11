@@ -29,7 +29,7 @@ func _ok(cond: bool, what: String) -> void:
 
 
 func _test_data() -> void:
-	_ok(Array(GameData.faction_ids()) == ["ossarane", "choeur", "vael", "khthari", "teyl"], "les 5 peuples officiels sont chargés")
+	_ok(Array(GameData.faction_ids()) == ["ossarane", "choeur", "vael", "khthari", "teyl", "ferrocornes", "brisecomete"], "les 7 peuples officiels sont chargés")
 	_ok(GameData.resource_ids().size() == 6, "4 ressources communes + cristaux de saut + Savoir")
 	for f: Dictionary in GameData.factions():
 		for t in f["preferred"]:
@@ -70,21 +70,23 @@ func _test_planets() -> void:
 
 func _test_start() -> void:
 	var st := GameState.create(42)
-	_ok(st.empires.size() == 5, "5 empires au départ")
+	_ok(st.empires.size() == 7, "7 empires au départ")
 	var homes := {}
 	for e in st.empires:
-		var c: Colony = st.colonies.get(e.capital_planet)
-		var p := st.galaxy.get_planet(e.capital_planet)
+		var c: Colony = st.colonies.get(e.home_planet)
+		var p := st.galaxy.get_planet(e.home_planet)
 		homes[p.system_id] = true
 		_ok(c != null and c.owner == e.id and c.is_colony() and c.is_established(), "%s : monde d'origine colonisé" % e.faction_id)
-		_ok(c.population == 8 and c.buildings.has("capitale"), "%s : 8 pop et une capitale" % e.faction_id)
+		# Une horde n'a pas de palais : sa capitale est la flotte-ville.
+		var horde := FactionTraits.has_horde(e.faction())
+		_ok(c.population == 8 and c.buildings.has("capitale") != horde, "%s : 8 pop et une capitale (ou la flotte-ville)" % e.faction_id)
 		_ok(p.type == e.faction()["preferred"][0] and p.size == 4, "%s : monde d'origine à son goût" % e.faction_id)
 		_ok(Economy.habitability(p.type, e.faction()) == 100, "%s : habitabilité 100 %% chez soi" % e.faction_id)
 		_ok(st.system_owner(p.system_id) == e.id, "%s : système d'origine revendiqué" % e.faction_id)
 		var income: Dictionary = Economy.empire_income(st, e.id)["net"]
 		_ok(income["food"] >= 0 and income["energy"] > 0 and income["materials"] > 0 and income["influence"] > 0,
 				"%s : économie de départ viable (%s)" % [e.faction_id, GameData.format_amounts(income, true)])
-	_ok(homes.size() == 5, "5 systèmes d'origine distincts")
+	_ok(homes.size() == 7, "7 systèmes d'origine distincts")
 	var osso := st.empires[0]
 	var has_crystals := false
 	for pid in st.galaxy.systems[st.galaxy.get_planet(osso.capital_planet).system_id].planet_ids:
@@ -277,7 +279,8 @@ func _test_build() -> void:
 
 
 func _test_growth() -> void:
-	var sim := Simulation.new(GameState.create(5))
+	# Les 4 peuples V1 : la croissance de l'Essaim ne doit pas dépendre d'une guerre de voisinage.
+	var sim := Simulation.new(GameState.create(5, 150, 1800.0, "", {"rivals": ["choeur", "vael", "khthari"]}))
 	var st := sim.state
 	var c: Colony = st.colonies[st.empires[0].capital_planet]
 	var start := c.population

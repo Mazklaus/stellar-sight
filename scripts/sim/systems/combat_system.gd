@@ -421,6 +421,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 			pts += Combat.ship_strength(String(ship)) * int(s["lost"][ship])
 		for o: Dictionary in b["sides"]:
 			Diplomacy.add_war_score(state, int(o["empire"]), int(s["empire"]), pts)
+	Reputation.battle(state, b, winner)
 	# Épaves : le vainqueur étudie les armes et les doctrines des vaincus.
 	if winner >= 0:
 		Research.count_stat(state, winner, "battles_won")

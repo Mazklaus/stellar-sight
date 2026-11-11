@@ -1,6 +1,6 @@
 extends RefCounted
 ## Tests des victoires : données et couches d'espèce, conquête, domination, score à date limite,
-## les cinq victoires de peuple (Élu des routes, Dernier Couplet, Charte, Moisson, Noosphère), technologie
+## les six victoires de peuple (Élu des routes, Dernier Couplet, Charte, Moisson, Noosphère, Terre promise), technologie
 ## requise, visibilité et malus d'opinion, IA qui poursuit sa victoire, sauvegarde, anciennes
 ## sauvegardes et déterminisme. Appelés par smoke_test.gd.
 
@@ -21,6 +21,8 @@ func run(check: Callable) -> void:
 	_test_charte()
 	_test_moisson()
 	_test_noosphere()
+	_test_terre_promise()
+	_test_legende()
 	_test_visibility_and_threat()
 	_test_ai_pursuit()
 	_test_save()
@@ -92,7 +94,7 @@ func _home_system(st: GameState, id: int) -> int:
 func _test_data() -> void:
 	var ids := Victory.ids()
 	_ok(ids.slice(0, 3) == ["conquete", "domination", "score"], "trois victoires classiques d'abord")
-	var want := {"ossarane": ["elu"], "choeur": ["couplet"], "vael": ["charte"], "khthari": ["moisson"], "teyl": ["noosphere"]}
+	var want := {"ossarane": ["elu"], "choeur": ["couplet"], "vael": ["charte"], "khthari": ["moisson"], "teyl": ["noosphere"], "ferrocornes": ["terre_promise"], "brisecomete": ["legende"]}
 	for f in want:
 		_ok(Array(Victory.people_ids_for(GameData.faction(f))) == want[f], "%s : sa victoire de peuple (%s)" % [f, str(Victory.people_ids_for(GameData.faction(f)))])
 	# Un peuple personnalisé y a droit par ses couches, pas par son nom.
@@ -382,6 +384,86 @@ func _test_moisson() -> void:
 
 
 ## Teyl : douze colonies reliées au réseau, aucune revendication coupée, deux ans tenus.
+## Ferrocornes : trouver la Terre promise, y fonder une colonie, y faire camper la flotte-ville un an.
+func _test_terre_promise() -> void:
+	var st := _state("ferrocornes")
+	var e := st.get_empire(0)
+	_ok(Array(Victory.ids_for(st, 0)).has("terre_promise"), "Terre promise : visée par les Ferrocornes")
+	var pid := Victory.promised_planet(st, 0)
+	_ok(pid >= 0 and pid == Victory.promised_planet(st, 0), "Terre promise : un monde tiré, toujours le même")
+	_ok(Victory.promised_planet(st, 1) == -1, "seule une horde a une Terre promise")
+	var p := st.galaxy.get_planet(pid)
+	var home_sys := _home_system(st, 0)
+	var dist := int(FactionTraits.jumps_from(st.galaxy, home_sys)[p.system_id])
+	_ok(dist >= int(Victory.info("terre_promise")["min_jumps"]) and Economy.habitability(p.type, e.faction()) > 0, "Terre promise : habitable, à %d sauts du berceau" % dist)
+	var st2 := GameState.create(4243, 150, 1800.0, "ferrocornes", {"ai_level": "", "rivals": ["ossarane", "choeur"]})
+	_ok(Victory.promised_planet(st2, 0) >= 0, "une autre graine donne aussi une Terre promise")
+	var pr := Victory.progress(st, 0, "terre_promise")
+	_ok(not str(pr["lines"]).contains("sauts de la flotte-ville") and str(pr["lines"]).contains("Technologie requise"), "sans les Chants de la route, aucun indice (%s)" % str(pr["lines"]))
+	Research.grant(st, 0, ["terre_promise"])
+	pr = Victory.progress(st, 0, "terre_promise")
+	_ok(str(pr["lines"]).contains("est à %d sauts de la flotte-ville" % dist) and not str(pr["lines"]).contains(p.display_name(st.galaxy)), "les Chants donnent la distance, pas le nom (%s)" % str(pr["lines"]))
+	var cf := FactionTraits.city_fleet(st, 0)
+	cf.system_id = p.system_id
+	pr = Victory.progress(st, 0, "terre_promise")
+	_ok(str(pr["lines"]).contains(p.display_name(st.galaxy)) and not pr["cond"], "à deux sauts, la Terre promise est nommée ; il manque la colonie")
+	var c := Colony.new()
+	c.planet_id = pid
+	c.owner = 0
+	c.kind = Colony.KIND_COLONY
+	c.population = 2
+	st.add_colony(c)
+	_months(st, 1)
+	pr = Victory.progress(st, 0, "terre_promise")
+	_ok(pr["cond"] and int(pr["pct"]) >= Victory.met_at() and st.winner.is_empty(), "colonie fondée, flotte-ville au camp : le compte à rebours démarre")
+	_months(st, 13)
+	_ok(not st.winner.is_empty(), "un an au camp : la Terre promise est atteinte (%s)" % str(st.winner))
+	# Lever le camp remet le compte à zéro.
+	var st3 := _state("ferrocornes")
+	Research.grant(st3, 0, ["terre_promise"])
+	var pid3 := Victory.promised_planet(st3, 0)
+	var c3 := Colony.new()
+	c3.planet_id = pid3
+	c3.owner = 0
+	c3.kind = Colony.KIND_COLONY
+	c3.population = 2
+	st3.add_colony(c3)
+	var cf3 := FactionTraits.city_fleet(st3, 0)
+	cf3.system_id = st3.galaxy.get_planet(pid3).system_id
+	_months(st3, 3)
+	_ok(Victory.held(st3, 0, "terre_promise") > 0, "le camp tient")
+	cf3.path = [st3.galaxy.systems[cf3.system_id].neighbors[0]]
+	_months(st3, 1)
+	_ok(Victory.held(st3, 0, "terre_promise") == 0, "la flotte-ville lève le camp : tout est à refaire")
+
+
+func _test_legende() -> void:
+	var st := _state("brisecomete")
+	var e := st.get_empire(0)
+	_ok(Array(Victory.ids_for(st, 0)).has("legende") and not Array(Victory.ids_for(st, 1)).has("legende"), "La Légende : visée par le registre Picaresque seulement")
+	var need := int(Victory.info("legende")["exploits"])
+	var min_rep := int(Victory.info("legende")["min_reputation"])
+	Research.grant(st, 0, ["legende"])
+	for i in need - 1:
+		Reputation.exploit(st, 0, String(Reputation.EXPLOITS[i][0]))
+	Reputation.exploit(st, 0, String(Reputation.EXPLOITS[0][0]))
+	_ok(e.exploits.size() == need - 1, "un exploit ne compte qu'une fois (%d)" % e.exploits.size())
+	e.reputation = 90
+	_months(st, 1)
+	var pr := Victory.progress(st, 0, "legende")
+	_ok(not pr["cond"] and str(pr["lines"]).contains("Exploits : %d / %d" % [need - 1, need]), "La Légende : il manque un exploit (%s)" % str(pr["lines"]))
+	Reputation.exploit(st, 0, "contrat")
+	_months(st, 1)
+	pr = Victory.progress(st, 0, "legende")
+	_ok(pr["cond"] and int(pr["pct"]) >= Victory.met_at(), "sept exploits et la réputation : le compte à rebours démarre")
+	e.reputation = min_rep - 1
+	_months(st, 1)
+	_ok(Victory.held(st, 0, "legende") == 0, "la réputation retombe sous %d : tout est à refaire" % min_rep)
+	e.reputation = 100
+	_months(st, 14)
+	_ok(not st.winner.is_empty(), "un an de Légende : victoire (%s)" % str(st.winner))
+
+
 func _test_noosphere() -> void:
 	var st := _state("teyl")
 	var cap_sys := _home_system(st, 0)

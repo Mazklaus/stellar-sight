@@ -1850,6 +1850,42 @@
 			},
 			"victory": "charte"
 		},
+		"terre_promise": {
+			"label": "Chants de la route",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : les anciens chants des clans donnent le chemin de la Terre promise. Chaque mois, ils disent à combien de sauts de la flotte-ville elle se trouve ; à deux sauts, ils la nomment.",
+			"pre": [
+				"administration2"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"horde"
+					]
+				}
+			},
+			"victory": "terre_promise",
+			"flavor": "« Là où les étoiles chantent faux, tourne à gauche. » Personne ne sait plus chanter juste."
+		},
+		"legende": {
+			"label": "Mille et une histoires",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : les conteurs des docks recueillent les exploits du peuple. Sept exploits différents et une réputation d'au moins 60, tenus un an, et la Légende entre dans l'histoire.",
+			"pre": [
+				"administration2"
+			],
+			"requires": {
+				"species": {
+					"registre": [
+						"Picaresque / pulp"
+					]
+				}
+			},
+			"victory": "legende",
+			"flavor": "« C'était trois contre un. Puis dix contre un, au deuxième verre. »"
+		},
 		"noosphere": {
 			"label": "Éveil de la Noosphère",
 			"domain": "societe",
