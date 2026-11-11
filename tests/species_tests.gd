@@ -102,7 +102,10 @@ func _test_rules() -> void:
 	_ok(_err_has(h, "incompatible") or _err_has(h, "demande"), "esprit de ruche sans corps de ruche refusé")
 	h = _spec("")
 	h["portrait"] = "ruche_1"
-	_ok(_err_has(h, "portrait"), "portrait de ruche refusé pour un humanoïde")
+	_ok(Species.check(h) == "", "portrait libre : un humanoïde peut prendre un portrait de ruche")
+	h["portrait"] = "inconnu_9"
+	_ok(_err_has(h, "portrait"), "portrait inconnu refusé")
+	_ok(Species.gallery("ruche").size() == Species.portraits().size() and (Species.gallery("ruche")[0]["archetypes"] as Array).has("ruche"), "galerie complète, archétype en premier")
 	h = _spec("")
 	h["biomes"] = ["ocean", "ocean"]
 	_ok(_err_has(h, "biomes"), "deux biomes identiques refusés")

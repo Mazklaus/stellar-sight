@@ -112,11 +112,7 @@ func duplicate_current() -> void:
 
 func set_layer(layer: String, id: String) -> void:
 	spec[layer] = id
-	# Le portrait suit l'archétype : on garde le premier de la nouvelle galerie s'il ne va plus.
-	if layer == "archetype" and not (Species.portrait_def(String(spec.get("portrait", ""))).get("archetypes", []) as Array).has(id):
-		var ps := Species.portraits(id)
-		if not ps.is_empty():
-			spec["portrait"] = String(ps[0]["id"])
+	# Le portrait reste celui choisi : la galerie se réordonne seulement (ceux de l'archétype d'abord).
 	_sync_all()
 
 
@@ -366,9 +362,9 @@ func _build_identity(page: VBoxContainer) -> void:
 			spec["lore"] = _lore_edit.text.substr(0, Species.LORE_MAX)
 			_refresh())
 	lore_col.add_child(_lore_edit)
-	page.add_child(UiTheme.section("Portrait (selon l'archétype)"))
+	page.add_child(UiTheme.section("Portrait (libre ; ceux de l'archétype en premier)"))
 	_portrait_grid = GridContainer.new()
-	_portrait_grid.columns = 6
+	_portrait_grid.columns = 8
 	_portrait_grid.add_theme_constant_override("h_separation", 8)
 	_portrait_grid.add_theme_constant_override("v_separation", 8)
 	page.add_child(_portrait_grid)
@@ -567,16 +563,16 @@ func _rebuild_portraits() -> void:
 	for c in _portrait_grid.get_children():
 		c.queue_free()
 	var col := Color.html(String(spec.get("color", "#9b7fd4")))
-	for p: Dictionary in Species.portraits(String(spec.get("archetype", ""))):
+	for p: Dictionary in Species.gallery(String(spec.get("archetype", ""))):
 		var b := Button.new()
 		b.toggle_mode = true
 		b.focus_mode = Control.FOCUS_NONE
-		b.custom_minimum_size = Vector2(122, 150)
+		b.custom_minimum_size = Vector2(92, 114)
 		b.tooltip_text = String(p["label"])
 		var clear := StyleBoxEmpty.new()
 		for st in ["normal", "hover", "pressed", "hover_pressed"]:
 			b.add_theme_stylebox_override(st, clear)
-		var art := Widgets.ArtSlot.new("portrait_" + String(p["id"]), Vector2(122, 150), col, "faction")
+		var art := Widgets.ArtSlot.new("portrait_" + String(p["id"]), Vector2(92, 114), col, "faction")
 		b.add_child(art)
 		var frame := Panel.new()
 		frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
