@@ -1,7 +1,8 @@
 class_name GalaxyGenerator
 extends RefCounted
-## Génère une galaxie spirale procédurale à partir d'une graine.
-## Même graine = même galaxie, ce qui servira aussi au multijoueur et aux sauvegardes.
+## Génère une galaxie procédurale à partir d'une graine et d'une forme (voir GalaxySettings) :
+## spirale à N bras, elliptique, anneau ou amas, routes plus ou moins denses.
+## Même graine et même forme = même galaxie (multijoueur, sauvegardes).
 
 const STAR_TYPES := [
 	{"id": "yellow", "label": "Naine jaune", "weight": 30},
@@ -19,13 +20,15 @@ const SYLLABLES := [
 ]
 
 
-static func generate(seed_value: int, count: int = 150, radius: float = 1800.0, arms: int = 3) -> Galaxy:
+## shape : {"form": "spiral" | "elliptical" | "ring" | "clusters", "arms", "lane_chance", "lane_len"} ;
+## vide = spirale à 3 bras, routes normales (la galaxie d'origine).
+static func generate(seed_value: int, count: int = 150, radius: float = 1800.0, shape := {}) -> Galaxy:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var galaxy := Galaxy.new()
 	galaxy.seed_value = seed_value
 
-	var points := _scatter_points(rng, count, radius, arms)
+	var points := _scatter_points(rng, count, radius, shape)
 	var used_names := {}
 	for i in points.size():
 		var s := StarSystem.new()
@@ -36,7 +39,7 @@ static func generate(seed_value: int, count: int = 150, radius: float = 1800.0, 
 		s.planet_count = rng.randi_range(0, 7)
 		galaxy.systems.append(s)
 
-	_build_lanes(rng, galaxy, points, radius)
+	_build_lanes(rng, galaxy, points, radius, float(shape.get("lane_chance", 0.3)), float(shape.get("lane_len", 0.2)))
 	_make_planets(galaxy)
 	return galaxy
 
@@ -48,16 +51,32 @@ static func star_label(star_type: String) -> String:
 	return star_type
 
 
-## Répartit les systèmes sur un bulbe central et des bras spiraux,
-## avec une distance minimale pour garder la carte lisible.
-static func _scatter_points(rng: RandomNumberGenerator, count: int, radius: float, arms: int) -> PackedVector2Array:
+## Répartit les systèmes selon la forme, avec une distance minimale pour garder la carte lisible.
+## La spirale : un bulbe central et des bras. Le flux aléatoire de la spirale à 3 bras est celui
+## d'origine, pour que les anciennes graines redonnent les mêmes galaxies.
+static func _scatter_points(rng: RandomNumberGenerator, count: int, radius: float, shape: Dictionary) -> PackedVector2Array:
 	var points := PackedVector2Array()
-	var min_dist := radius * 0.06
+	# Distance minimale à densité constante : celle d'une galaxie de 150 systèmes ramenée à ce rayon
+	# (une grande galaxie a un rayon plus grand, pas des étoiles plus écartées).
+	var min_dist := radius * 0.06 / sqrt(maxf(1.0, float(count)) / 150.0)
+	var form := String(shape.get("form", "spiral"))
+	var arms := int(shape.get("arms", 3))
+	var centers := _cluster_centers(rng, count, radius) if form == "clusters" else PackedVector2Array()
 	var attempts := 0
 	while points.size() < count and attempts < count * 300:
 		attempts += 1
 		var candidate := Vector2.ZERO
-		if rng.randf() < 0.2:
+		if form == "elliptical":
+			# Disque aplati, plus dense au centre.
+			var r := sqrt(rng.randf()) * radius
+			candidate = Vector2.from_angle(rng.randf() * TAU) * r * Vector2(1.0, 0.62)
+		elif form == "ring":
+			var rr := rng.randf_range(0.58, 1.0) * radius
+			candidate = Vector2.from_angle(rng.randf() * TAU) * rr
+		elif form == "clusters":
+			var c := centers[rng.randi_range(0, centers.size() - 1)]
+			candidate = c + Vector2(rng.randfn(0.0, radius * 0.11), rng.randfn(0.0, radius * 0.11))
+		elif rng.randf() < 0.2:
 			var core_r := sqrt(rng.randf()) * radius * 0.25
 			candidate = Vector2.from_angle(rng.randf() * TAU) * core_r
 		else:
@@ -71,6 +90,22 @@ static func _scatter_points(rng: RandomNumberGenerator, count: int, radius: floa
 	return points
 
 
+## Centres des amas : assez écartés les uns des autres pour laisser des vides entre eux.
+static func _cluster_centers(rng: RandomNumberGenerator, count: int, radius: float) -> PackedVector2Array:
+	var n := clampi(int(round(float(count) / 22.0)), 4, 18)
+	var centers := PackedVector2Array()
+	var gap := radius * 0.42
+	var tries := 0
+	while centers.size() < n and tries < 4000:
+		tries += 1
+		var c := Vector2.from_angle(rng.randf() * TAU) * sqrt(rng.randf()) * radius * 0.82
+		if _far_enough(c, centers, gap):
+			centers.append(c)
+		elif tries % 500 == 0:
+			gap *= 0.9
+	return centers
+
+
 static func _far_enough(candidate: Vector2, points: PackedVector2Array, min_dist: float) -> bool:
 	var min_sq := min_dist * min_dist
 	for p in points:
@@ -81,7 +116,8 @@ static func _far_enough(candidate: Vector2, points: PackedVector2Array, min_dist
 
 ## Routes de saut : triangulation de Delaunay, puis arbre couvrant minimal
 ## (toute la galaxie reste connectée) et quelques routes courtes en plus pour les boucles.
-static func _build_lanes(rng: RandomNumberGenerator, galaxy: Galaxy, points: PackedVector2Array, radius: float) -> void:
+static func _build_lanes(rng: RandomNumberGenerator, galaxy: Galaxy, points: PackedVector2Array, radius: float,
+		lane_chance := 0.3, lane_len := 0.2) -> void:
 	var tri := Geometry2D.triangulate_delaunay(points)
 	var edges := {}
 	for i in range(0, tri.size(), 3):
@@ -96,14 +132,14 @@ static func _build_lanes(rng: RandomNumberGenerator, galaxy: Galaxy, points: Pac
 	for i in points.size():
 		parent.append(i)
 
-	var extra_max_len := radius * 0.2
+	var extra_max_len := radius * lane_len
 	for e: Vector2i in sorted_edges:
 		var ra := _find_root(parent, e.x)
 		var rb := _find_root(parent, e.y)
 		if ra != rb:
 			parent[ra] = rb
 			_link(galaxy, e)
-		elif edges[e] < extra_max_len and rng.randf() < 0.3:
+		elif edges[e] < extra_max_len and rng.randf() < lane_chance:
 			_link(galaxy, e)
 
 

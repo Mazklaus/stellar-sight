@@ -71,6 +71,16 @@ var _slot_note: Label
 var _dup_check: CheckBox
 var _add_slot: Button
 var _slots_dirty := false
+## Réglages de la galaxie (GalaxySettings) : taille, forme, routes, départs, mondes garantis.
+var galaxy_settings: Dictionary = GalaxySettings.defaults()
+var _galaxy_banner: Widgets.ArtSlot
+var _size_select: OptionButton
+var _shape_select: OptionButton
+var _lanes_select: OptionButton
+var _placement_select: OptionButton
+var _guaranteed_select: OptionButton
+var _placement_desc: Label
+var _galaxy_adv: PopupPanel
 ## Nombre d'empires au plus dans une galaxie (joueur compris).
 const MAX_EMPIRES := 12
 ## Noms des couleurs de Empire.PALETTE, dans le même ordre.
@@ -451,6 +461,18 @@ func rival_ids(player := "") -> Array[String]:
 
 ## Ce que deviendront les rivaux au lancement, en clair (doublons retirés), sous la liste.
 func slots_note() -> String:
+	var notes := PackedStringArray()
+	var dup := _duplicates_note()
+	if dup != "":
+		notes.append(dup)
+	var rec := GalaxySettings.recommended_empires(galaxy_settings)
+	if slots.size() + 1 > rec:
+		notes.append("Galaxie %s : %d empires conseillés, vous en prévoyez %d. Ça va être serré." % [
+			String(GalaxySettings.entry("size", galaxy_settings["size"])["label"]).to_lower(), rec, slots.size() + 1])
+	return "\n".join(notes)
+
+
+func _duplicates_note() -> String:
 	if allow_duplicates:
 		return ""
 	var seen: Array[String] = []
@@ -732,17 +754,28 @@ func _build_new_page(root: Control) -> void:
 	_faction_worlds = Label.new()
 	wrow.add_child(_faction_worlds)
 
-	# Galaxie : pour l'instant fixe, seule la graine change (la galaxie paramétrable viendra ensuite).
+	# Galaxie : taille, forme, graine ; routes, départs et mondes garantis derrière « Avancé ».
 	var galaxy := _bottom_block(bottom, "Galaxie", 330, 0)
-	var banner := Widgets.ArtSlot.new("new_game_galaxy", Vector2(330, 50), Color(0.45, 0.6, 0.95), "galaxy")
-	banner.set_caption("150 systèmes, spirale", 15)
-	galaxy.add_child(banner)
+	_galaxy_banner = Widgets.ArtSlot.new("new_game_galaxy", Vector2(330, 38), Color(0.45, 0.6, 0.95), "galaxy")
+	galaxy.add_child(_galaxy_banner)
 	var gbox := _block_rows(galaxy)
+	_size_select = _settings_select("size")
+	_labeled_row(gbox, "Taille", _size_select)
+	_shape_select = _settings_select("shape")
+	_labeled_row(gbox, "Forme", _shape_select)
 	_seed_edit = LineEdit.new()
-	_seed_edit.placeholder_text = "au hasard (un nombre ou un mot)"
-	_seed_edit.tooltip_text = "La même graine redonne la même galaxie, et les mêmes rivaux tirés au hasard."
+	_seed_edit.placeholder_text = "graine au hasard"
+	_seed_edit.tooltip_text = "Un nombre ou un mot. La même graine redonne la même galaxie, et les mêmes rivaux tirés au hasard."
 	_seed_edit.text_submitted.connect(func(_t: String) -> void: launch())
 	_labeled_row(gbox, "Graine", _seed_edit)
+	var adv := Button.new()
+	adv.text = "+ Avancé"
+	adv.focus_mode = Control.FOCUS_NONE
+	adv.tooltip_text = "Routes, placement des départs, mondes habitables garantis."
+	adv.pressed.connect(open_galaxy_advanced)
+	_seed_edit.get_parent().add_child(adv)
+	_build_galaxy_advanced(page_root)
+	_refresh_galaxy()
 
 	# Partie : jouer ou regarder, temps réel ou tour par tour.
 	var game := _block_rows(_bottom_block(bottom, "Partie", 330, 0))
@@ -813,6 +846,89 @@ func _rebuild_tiles() -> void:
 		var tile := _faction_tile(fid, String(f.get("short", fid)), col)
 		_tile_grid.add_child(tile)
 		_faction_cards[fid] = tile
+
+
+## Change un réglage de la galaxie ("size", "shape", "lanes", "placement", "guaranteed").
+func set_galaxy(key: String, value: Variant) -> bool:
+	var next := galaxy_settings.duplicate()
+	next[key] = value
+	next = GalaxySettings.normalize(next)
+	if next[key] != value and str(next[key]) != str(value):
+		return false
+	galaxy_settings = next
+	_refresh_galaxy()
+	_refresh_slots()
+	return true
+
+
+func open_galaxy_advanced() -> void:
+	_galaxy_adv.reset_size()
+	_galaxy_adv.popup_centered()
+
+
+## Liste d'un réglage de la galaxie, dont chaque entrée porte son identifiant.
+func _settings_select(key: String) -> OptionButton:
+	var b := OptionButton.new()
+	b.clip_text = true
+	var tip := PackedStringArray()
+	for e: Dictionary in GalaxySettings._table(key):
+		var label := String(e["label"])
+		if key == "size":
+			label = "%s : %d systèmes" % [label, int(e["systems"])]
+			tip.append("%s : %d systèmes, %d empires conseillés" % [e["label"], e["systems"], e["empires"]])
+		elif e.has("desc"):
+			tip.append("%s : %s" % [e["label"], String(e["desc"]).replace("\n", " ")])
+		b.add_item(label)
+		b.set_item_metadata(b.item_count - 1, e["id"])
+	b.tooltip_text = "\n".join(tip)
+	b.item_selected.connect(func(i: int) -> void: set_galaxy(key, String(b.get_item_metadata(i))))
+	return b
+
+
+## Fenêtre « Galaxie : réglages avancés », le « + » du bloc à la Endless Space 2.
+func _build_galaxy_advanced(page_root: Control) -> void:
+	_galaxy_adv = PopupPanel.new()
+	_galaxy_adv.add_theme_stylebox_override("panel", UiTheme.box(Color(0.03, 0.04, 0.06, 1.0), Color(1, 1, 1, 0.16), 18, 1))
+	page_root.add_child(_galaxy_adv)
+	var box := VBoxContainer.new()
+	box.custom_minimum_size = Vector2(520, 0)
+	box.add_theme_constant_override("separation", 10)
+	_galaxy_adv.add_child(box)
+	box.add_child(_header("Galaxie : réglages avancés"))
+	_lanes_select = _settings_select("lanes")
+	_labeled_row(box, "Routes", _lanes_select)
+	_placement_select = _settings_select("placement")
+	_labeled_row(box, "Départs", _placement_select)
+	_placement_desc = UiTheme.paragraph("", 500, 13)
+	_placement_desc.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	box.add_child(_placement_desc)
+	_guaranteed_select = OptionButton.new()
+	for k in GalaxySettings.MAX_GUARANTEED + 1:
+		_guaranteed_select.add_item("Aucun" if k == 0 else "%d monde%s de votre type à 2 sauts au plus" % [k, "s" if k > 1 else ""])
+	_guaranteed_select.tooltip_text = "Des planètes d'un type préféré de chaque peuple, près de son départ (Stellaris en met 2).\nAucun : la galaxie telle qu'elle est tirée."
+	_guaranteed_select.item_selected.connect(func(i: int) -> void: set_galaxy("guaranteed", i))
+	_labeled_row(box, "Garantis", _guaranteed_select)
+	var close := Button.new()
+	close.text = "Fermer"
+	close.focus_mode = Control.FOCUS_NONE
+	close.size_flags_horizontal = Control.SIZE_SHRINK_END
+	close.pressed.connect(func() -> void: _galaxy_adv.hide())
+	box.add_child(close)
+
+
+## Remet les listes du bloc Galaxie et de la fenêtre avancée sur les réglages, et la légende.
+func _refresh_galaxy() -> void:
+	if _size_select == null:
+		return
+	for pair in [[_size_select, "size"], [_shape_select, "shape"], [_lanes_select, "lanes"], [_placement_select, "placement"]]:
+		var b: OptionButton = pair[0]
+		for i in b.item_count:
+			if String(b.get_item_metadata(i)) == String(galaxy_settings[pair[1]]):
+				b.select(i)
+	_guaranteed_select.select(int(galaxy_settings["guaranteed"]))
+	_placement_desc.text = String(GalaxySettings.entry("placement", galaxy_settings["placement"])["desc"])
+	_galaxy_banner.set_caption("%s · %d empires conseillés" % [GalaxySettings.summary(galaxy_settings),
+			GalaxySettings.recommended_empires(galaxy_settings)], 13)
 
 
 ## Bloc « Empires rivaux », en haut à droite : réglages par défaut, puis une ligne par rival
