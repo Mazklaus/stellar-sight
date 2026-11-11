@@ -46,6 +46,17 @@ var _options: OptionsPanel
 var _faction_cards := {}
 var _faction_trait: RichTextLabel
 var _seed_edit: LineEdit
+var _tile_strip: ScrollContainer
+var _tile_grid: HBoxContainer
+## Page « Peuples » : bibliothèque et éditeur d'espèces.
+var _species: SpeciesEditor
+## Page à rouvrir en quittant l'éditeur (accueil, ou Nouvelle partie si l'on venait de là).
+var _species_return := "home"
+## Peuples des empires rivaux (officiels ou créés), dans l'ordre. Le peuple joué en est retiré au lancement.
+var rivals: Array[String] = []
+var _rivals_menu: MenuButton
+## Nombre d'empires au plus dans une galaxie (joueur compris).
+const MAX_EMPIRES := 8
 ## Façon de jouer choisie pour la nouvelle partie (GameClock.MODE_*), et longueur des tours.
 var time_mode: int = 0
 var turn_days: int = 10
@@ -138,6 +149,7 @@ func _ready() -> void:
 	_resume = _menu_button("resume", "Reprendre la partie", "Revenir à la partie en cours, là où le temps s'est arrêté.", func() -> void: resume_requested.emit())
 	_continue = _menu_button("load", "Continuer", "", func() -> void: continue_requested.emit())
 	_menu_button("new", "Nouvelle partie", "Choisir un peuple et lancer une nouvelle galaxie.", func() -> void: show_page("new"))
+	_menu_button("species", "Peuples", "Créer, modifier et ranger vos propres peuples : couches d'espèce, traits, portrait.", func() -> void: open_species("home"))
 	_menu_button("options", "Options", "Affichage, partie et commandes.", func() -> void: show_page("options"))
 	_menu_button("quit", "Quitter", "Retourner au bureau. La galaxie attendra.", func() -> void: quit_requested.emit())
 	_hint = PanelContainer.new()
@@ -202,6 +214,10 @@ func _ready() -> void:
 	foot.offset_top = -80
 	foot.offset_bottom = -24
 	_options_page.add_child(foot)
+	_species = SpeciesEditor.new()
+	root.add_child(_species)
+	_species.back_requested.connect(func() -> void: show_page(_species_return))
+	_species.library_changed.connect(_on_library_changed)
 	show_page("home")
 
 
@@ -229,6 +245,8 @@ func show_page(name: String) -> void:
 	_home.visible = name == "home"
 	_new_page.visible = name == "new"
 	_options_page.visible = name == "options"
+	if _species:
+		_species.visible = name == "species"
 	if name == "options":
 		_options.sync()
 	if name == "new" and selected_faction == "":
@@ -237,10 +255,67 @@ func show_page(name: String) -> void:
 
 ## Échap : revient à l'accueil depuis une sous-page. Renvoie false si l'on était déjà à l'accueil.
 func back() -> bool:
+	if page == "species":
+		show_page(_species_return)
+		return true
 	if page != "home":
 		show_page("home")
 		return true
 	return false
+
+
+## Ouvre l'éditeur de peuples ; Retour (ou Échap) ramène à la page d'où l'on vient.
+func open_species(from: String) -> void:
+	_species_return = from
+	show_page("species")
+	if from == "new" and not GameData.is_official(selected_faction) and selected_faction != RANDOM_FACTION:
+		_species.open_saved(selected_faction)
+
+
+## Un peuple a été enregistré ou supprimé : la rangée de portraits et la liste des rivaux se refont.
+func _on_library_changed() -> void:
+	var known := GameData.all_faction_ids()
+	var kept: Array[String] = []
+	for fid in rivals:
+		if known.has(fid):
+			kept.append(fid)
+	rivals = kept
+	_rebuild_tiles()
+	_rebuild_rivals_menu()
+	if selected_faction != RANDOM_FACTION and not known.has(selected_faction):
+		selected_faction = ""
+	if selected_faction != "":
+		select_faction(selected_faction)
+	elif page == "new":
+		select_faction(GameData.faction_ids()[0])
+
+
+## Rivaux réellement engagés pour le peuple choisi (le peuple joué n'est pas son propre rival).
+func rival_ids(player := "") -> Array[String]:
+	var out: Array[String] = []
+	for fid in rivals:
+		if fid != player and not GameData.faction(fid).is_empty() and out.size() < MAX_EMPIRES - 1:
+			out.append(fid)
+	# Seul rival coché = le peuple joué : on reprend les officiels plutôt qu'une galaxie vide.
+	if out.is_empty():
+		for fid in GameData.faction_ids():
+			if fid != player:
+				out.append(fid)
+	return out
+
+
+## Ajoute ou retire un peuple des rivaux. Refuse d'en retirer le dernier ou d'en mettre trop.
+func toggle_rival(fid: String) -> bool:
+	if rivals.has(fid):
+		if rivals.size() <= 1:
+			return false
+		rivals.erase(fid)
+	else:
+		if rivals.size() >= MAX_EMPIRES - 1:
+			return false
+		rivals.append(fid)
+	_rebuild_rivals_menu()
+	return true
 
 
 func select_faction(id: String) -> void:
@@ -348,7 +423,7 @@ func launch() -> void:
 		seed_value = text.hash()
 	var faction := selected_faction
 	if faction == RANDOM_FACTION:
-		var ids := GameData.faction_ids()
+		var ids := GameData.all_faction_ids()
 		faction = ids[randi() % ids.size()]
 	new_game_requested.emit(faction, seed_value)
 
@@ -411,20 +486,41 @@ func _build_new_page(root: Control) -> void:
 	page_root.add_child(left)
 	left.add_child(_header("Peuples disponibles"))
 	# Rangée défilante : les peuples créés s'ajoutent à droite des officiels.
-	var strip := ScrollContainer.new()
-	strip.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	strip.custom_minimum_size = Vector2(5 * TILE_SIZE.x + 4 * 4, TILE_SIZE.y + (14 if GameData.library_faction_ids().size() > 0 else 0))
-	left.add_child(strip)
-	var grid := HBoxContainer.new()
-	grid.add_theme_constant_override("separation", 4)
-	strip.add_child(grid)
-	# Peuples officiels, peuples créés de la bibliothèque (user://species/), puis « Au hasard ».
-	for fid in GameData.all_faction_ids() + [RANDOM_FACTION]:
-		var f := GameData.faction(fid) if fid != RANDOM_FACTION else {"short": "Au hasard", "color": "#8fa3b8"}
-		var col := Color.html(String(f.get("color", "#ffffff")))
-		var tile := _faction_tile(fid, String(f.get("short", fid)), col)
-		grid.add_child(tile)
-		_faction_cards[fid] = tile
+	_tile_strip = ScrollContainer.new()
+	_tile_strip.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	left.add_child(_tile_strip)
+	_tile_grid = HBoxContainer.new()
+	_tile_grid.add_theme_constant_override("separation", 4)
+	_tile_strip.add_child(_tile_grid)
+	_rebuild_tiles()
+	# Sous les portraits : l'éditeur de peuples et le choix des rivaux.
+	var tools := HBoxContainer.new()
+	tools.add_theme_constant_override("separation", 12)
+	left.add_child(tools)
+	var create_b := Button.new()
+	create_b.text = "Créer ou modifier un peuple…"
+	create_b.focus_mode = Control.FOCUS_NONE
+	create_b.tooltip_text = "Ouvre l'éditeur de peuples (le peuple créé sélectionné s'y ouvre)."
+	create_b.pressed.connect(func() -> void: open_species("new"))
+	tools.add_child(create_b)
+	var al := Label.new()
+	al.text = "Empires rivaux"
+	tools.add_child(al)
+	_rivals_menu = MenuButton.new()
+	_rivals_menu.flat = false
+	_rivals_menu.focus_mode = Control.FOCUS_NONE
+	_rivals_menu.custom_minimum_size = Vector2(330, 0)
+	_rivals_menu.tooltip_text = "Les peuples qui vous disputent la galaxie, officiels ou créés (%d au plus).\nLe peuple que vous jouez n'est jamais son propre rival." % (MAX_EMPIRES - 1)
+	var pop := _rivals_menu.get_popup()
+	pop.hide_on_checkable_item_selection = false
+	pop.id_pressed.connect(func(i: int) -> void:
+		var ids := GameData.all_faction_ids()
+		if i >= 0 and i < ids.size():
+			toggle_rival(ids[i]))
+	tools.add_child(_rivals_menu)
+	if rivals.is_empty():
+		rivals.assign(GameData.faction_ids())
+	_rebuild_rivals_menu()
 
 	var bottom := HBoxContainer.new()
 	bottom.anchor_top = 1.0
@@ -526,7 +622,7 @@ func _build_new_page(root: Control) -> void:
 	_mode_select = OptionButton.new()
 	_mode_select.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_mode_select.add_item("Jouer le peuple choisi")
-	_mode_select.add_item("Spectateur : regarder les %d peuples s'affronter" % GameData.faction_ids().size())
+	_mode_select.add_item("Spectateur : les empires s'affrontent sans vous")
 	_mode_select.tooltip_text = "Spectateur : tous les peuples sont menés par l'ordinateur, la carte est entièrement visible\net le tableau des empires permet de suivre chacun d'eux (ou de voir à travers ses yeux)."
 	_mode_select.item_selected.connect(func(i: int) -> void: set_spectator(i == 1))
 	mode_row.add_child(_mode_select)
@@ -587,6 +683,41 @@ func _build_new_page(root: Control) -> void:
 	go.offset_bottom = -76 + go.custom_minimum_size.y
 	go.pressed.connect(launch)
 	page_root.add_child(go)
+
+
+## Refait la rangée de portraits : officiels, peuples créés de la bibliothèque (user://species/), « Au hasard ».
+func _rebuild_tiles() -> void:
+	for c in _tile_grid.get_children():
+		_tile_grid.remove_child(c)
+		c.queue_free()
+	_faction_cards.clear()
+	_tile_strip.custom_minimum_size = Vector2(5 * TILE_SIZE.x + 4 * 4, TILE_SIZE.y + (14 if GameData.library_faction_ids().size() > 0 else 0))
+	for fid in GameData.all_faction_ids() + [RANDOM_FACTION]:
+		var f := GameData.faction(fid) if fid != RANDOM_FACTION else {"short": "Au hasard", "color": "#8fa3b8"}
+		var col := Color.html(String(f.get("color", "#ffffff")))
+		var tile := _faction_tile(fid, String(f.get("short", fid)), col)
+		_tile_grid.add_child(tile)
+		_faction_cards[fid] = tile
+
+
+## Coches des rivaux dans le menu déroulant, et son libellé (les noms courts des rivaux).
+func _rebuild_rivals_menu() -> void:
+	if _rivals_menu == null:
+		return
+	var pop := _rivals_menu.get_popup()
+	pop.clear()
+	var ids := GameData.all_faction_ids()
+	for i in ids.size():
+		# Les peuples créés après un séparateur.
+		if i == GameData.faction_ids().size():
+			pop.add_separator("Vos peuples")
+		var f := GameData.faction(ids[i])
+		pop.add_check_item(String(f.get("name", ids[i])), i)
+		pop.set_item_checked(pop.get_item_index(i), rivals.has(ids[i]))
+	var names := PackedStringArray()
+	for fid in rivals:
+		names.append(String(GameData.faction(fid).get("short", fid)))
+	_rivals_menu.text = "%d : %s" % [rivals.size(), ", ".join(names)]
 
 
 ## Portrait cliquable d'un peuple : illustration (ou motif) et nom dans un bandeau.

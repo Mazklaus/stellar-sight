@@ -2,7 +2,8 @@ extends SceneTree
 ## Captures des peuples créés (éditeur d'espèces) avec le rendu réel :
 ##   xvfb-run -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_species.gd
 ## Écrit dans CAPTURE_DIR (par défaut user://captures) : Nouvelle partie avec deux peuples créés de la
-## bibliothèque (une féodalité humanoïde, une ruche), et la galerie des portraits provisoires.
+## bibliothèque (une féodalité humanoïde, une ruche), l'éditeur de peuples (onglets, refus), le choix des
+## rivaux, et la galerie des portraits provisoires.
 ## Les peuples d'exemple vivent dans un dossier de bibliothèque à part, effacé à la fin.
 
 const DIR := "user://capture_species"
@@ -37,6 +38,25 @@ func _initialize() -> void:
 	main._main_menu.select_faction("p_nuee_de_vor")
 	await _frames(5)
 	await _shot(out + "/nouvelle-partie-ruche-creee.png")
+	# L'éditeur de peuples, ouvert sur l'Ordre d'Azur, onglet par onglet.
+	main._main_menu.select_faction("p_ordre_d_azur")
+	main._main_menu.open_species("new")
+	var ed: SpeciesEditor = main._main_menu._species
+	for t in ["identity", "layers", "traits"]:
+		ed.show_tab(t)
+		await _frames(5)
+		await _shot(out + "/editeur-%s.png" % t)
+	# Un peuple refusé : la raison s'affiche, Enregistrer est grisé.
+	ed.open_new("vael")
+	ed.set_layer("archetype", "ruche")
+	ed.show_tab("layers")
+	await _frames(5)
+	await _shot(out + "/editeur-refus.png")
+	main._main_menu.show_page("new")
+	main._main_menu._rivals_menu.show_popup()
+	await _frames(5)
+	await _shot(out + "/nouvelle-partie-rivaux.png")
+	main._main_menu._rivals_menu.get_popup().hide()
 	main.queue_free()
 	await _frames(3)
 

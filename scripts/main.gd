@@ -53,6 +53,8 @@ var _victory_told := false
 ## (-1 = celle par défaut de data/victories.json) et victoires de peuple.
 var victory_deadline := -1
 var people_victories := true
+## Peuples des empires rivaux choisis dans Nouvelle partie (vide = les peuples officiels).
+var rivals: Array[String] = []
 ## État de la pause avant l'ouverture du menu pause (ou d'un menu d'empire en pause automatique).
 var _paused_before := false
 var _auto_paused := false
@@ -160,6 +162,7 @@ func _ready() -> void:
 		spectator = _main_menu.spectator
 		victory_deadline = _main_menu.deadline_days
 		people_victories = _main_menu.people_victories
+		rivals = _main_menu.rival_ids("" if spectator else faction_id)
 		new_game(seed_value)
 		GameClock.set_mode(_main_menu.time_mode, _main_menu.turn_days)
 		game_in_progress = true
@@ -184,10 +187,12 @@ func _ready() -> void:
 
 
 func new_game(seed_value: int) -> void:
-	_start(GameState.create(seed_value, SYSTEM_COUNT, GALAXY_RADIUS, player_faction,
-			{"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
+	var options := {"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 			"deadline": victory_deadline if victory_deadline >= 0 else Victory.default_deadline(),
-			"people_victories": people_victories}))
+			"people_victories": people_victories}
+	if not rivals.is_empty():
+		options["rivals"] = rivals
+	_start(GameState.create(seed_value, SYSTEM_COUNT, GALAXY_RADIUS, player_faction, options))
 	# On commence chez soi : caméra sur le système d'origine, fiche ouverte.
 	var me := simulation.state.get_empire(view_empire)
 	if me:
