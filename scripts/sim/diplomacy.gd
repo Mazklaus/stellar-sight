@@ -469,7 +469,7 @@ static func propose(state: GameState, from: int, to: int, treaty: String) -> boo
 
 
 static func _treaty_phrase(treaty: String) -> String:
-	return {"peace": "la paix", "alliance": "l'alliance", "trade": "l'accord commercial", "maps": "l'échange de cartes"}.get(treaty, treaty)
+	return {"peace": "la paix", "alliance": "l'alliance", "trade": "l'accord commercial", "maps": "l'échange de cartes", "contract": "le contrat de flotte"}.get(treaty, treaty)
 
 
 static func check_answer(state: GameState, player: int, proposal_id: int, accept: bool) -> String:
@@ -479,6 +479,8 @@ static func check_answer(state: GameState, player: int, proposal_id: int, accept
 	if int(p["to"]) != player:
 		return "cette proposition ne vous est pas adressée"
 	if accept:
+		if String(p["treaty"]) == CONTRACT:
+			return check_contract(state, int(p["merc"]), int(p["client"]), int(p["target"]))
 		return check_terms(state, player, int(p["from"]), String(p["treaty"]))
 	return ""
 
@@ -488,7 +490,9 @@ static func answer(state: GameState, proposal_id: int, accept: bool) -> void:
 	state.proposals.erase(p)
 	var from := int(p["from"])
 	var to := int(p["to"])
-	if accept:
+	if accept and String(p["treaty"]) == CONTRACT:
+		sign_contract(state, int(p["merc"]), int(p["client"]), int(p["target"]))
+	elif accept:
 		sign_treaty(state, from, to, String(p["treaty"]))
 	else:
 		_set_cooldown(state, from, to, String(p["treaty"]), days("ai_cooldown_days", 120))
@@ -634,6 +638,13 @@ static func treaty_income(state: GameState, empire_id: int) -> Dictionary:
 		if has_trade(state, empire_id, other):
 			# Compagnies marchandes : chaque accord commercial rapporte plus.
 			_add(out, Research.scaled_amounts(treaty_info(TRADE).get("income", {}), Research.fx_int(state, empire_id, "trade_income_pct")))
+	# Contrats de flotte : le client paie, le mercenaire encaisse.
+	var c := contract_of(state, empire_id)
+	if not c.is_empty():
+		_add(out, c["fee"])
+	for cc in contracts_of_client(state, empire_id):
+		for r in cc["fee"]:
+			out[r] = int(out.get(r, 0)) - int(cc["fee"][r])
 	return out
 
 
@@ -898,6 +909,189 @@ static func mediate(state: GameState, player: int, a: int, b: int) -> void:
 	sign_treaty(state, a, b, PEACE)
 	remember(state, a, player, "mediated")
 	remember(state, b, player, "mediated")
+
+
+# --- Talent : flottes à louer (syndicats, Syndicat Brisecomète) -------------------------------
+## Contrat : rangé dans la relation mercenaire-client, {"merc", "client", "target", "fee", "since", "until"}.
+## Inspiration : les enclaves de mercenaires de Stellaris (une flotte louée à qui peut payer, pour un
+## temps donné) ; le prix suit la flotte louée, fixé à la signature.
+
+const CONTRACT := "contract"
+
+
+## Contrat en cours où empire_id est le mercenaire ({} sinon).
+static func contract_of(state: GameState, merc: int) -> Dictionary:
+	var keys := state.relations.keys()
+	keys.sort()
+	for k in keys:
+		var c: Dictionary = state.relations[k].get("contract", {})
+		if not c.is_empty() and int(c["merc"]) == merc:
+			return c
+	return {}
+
+
+## Contrats où empire_id est le client.
+static func contracts_of_client(state: GameState, client: int) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var keys := state.relations.keys()
+	keys.sort()
+	for k in keys:
+		var c: Dictionary = state.relations[k].get("contract", {})
+		if not c.is_empty() and int(c["client"]) == client:
+			out.append(c)
+	return out
+
+
+## Vaisseaux armés d'un empire.
+static func warships(state: GameState, empire_id: int) -> int:
+	var n := 0
+	for f in Fleets.empire_fleets(state, empire_id):
+		for sid in f.ships:
+			if Combat.is_armed_ship(sid):
+				n += 1
+	return n
+
+
+## Prix mensuel d'un contrat avec ce mercenaire, aujourd'hui.
+static func contract_fee(state: GameState, merc: int) -> Dictionary:
+	var ab := ability("mercenary")
+	return {"energy": int(ab["fee_base"]) + int(ab["fee_per_ship"]) * warships(state, merc)}
+
+
+## Le contrat merc -> client contre target est-il possible ? "" si oui.
+static func check_contract(state: GameState, merc: int, client: int, target: int) -> String:
+	var em := state.get_empire(merc)
+	var ec := state.get_empire(client)
+	var et := state.get_empire(target)
+	if em == null or ec == null or et == null or merc == client or merc == target or client == target:
+		return "empire inconnu"
+	if em.eliminated or ec.eliminated or et.eliminated:
+		return "cet empire a disparu"
+	if not has_ability(state, merc, "mercenary"):
+		return "seul un syndicat loue ses flottes"
+	if not em.contacts.has(client) or not em.contacts.has(target):
+		return "les mercenaires doivent connaître le client et sa cible"
+	if no_treaties(state, client):
+		return "l'Essaim ne signe rien : il digère"
+	if not Combat.at_war(state, client, target):
+		return "%s n'est pas en guerre contre %s" % [ec.short_name(), et.short_name()]
+	if Combat.at_war(state, merc, client):
+		return "on ne loue pas ses flottes à un ennemi"
+	if Combat.at_war(state, merc, target):
+		return "déjà en guerre contre %s" % et.short_name()
+	if has_pact(state, merc, target) or in_truce(state, merc, target):
+		return "un traité ou une trêve lie les mercenaires à %s" % et.short_name()
+	if not contract_of(state, merc).is_empty():
+		return "les flottes sont déjà louées"
+	if warships(state, merc) < int(ability("mercenary")["min_warships"]):
+		return "il faut au moins %d vaisseaux armés à louer" % int(ability("mercenary")["min_warships"])
+	var left := int(rel(state, merc, client).get("contract_cool", 0)) - state.tick
+	if left > 0:
+		return "les mercenaires rentrent à peine (%d jours)" % left
+	return ""
+
+
+## Signe le contrat (conditions vérifiées) : les mercenaires entrent en guerre contre la cible.
+static func sign_contract(state: GameState, merc: int, client: int, target: int) -> void:
+	var r := _rel_w(state, merc, client)
+	r["contract"] = {"merc": merc, "client": client, "target": target, "fee": contract_fee(state, merc),
+			"since": state.tick, "until": state.tick + int(ability("mercenary")["max_days"])}
+	_drop_contract_proposals(state, merc, client)
+	state.add_chronicle("%s loue ses flottes à %s contre %s, pour %s par mois. Les canons sont neutres ; les factures, beaucoup moins." % [
+			state.get_empire(merc).display_name(), state.get_empire(client).display_name(),
+			state.get_empire(target).display_name(), GameData.format_amounts(r["contract"]["fee"])])
+	Combat.start_war(state, merc, target, false, true)
+
+
+## Fin d'un contrat. reason : "done" (guerre finie ou terme), "unpaid" (le client ne paie plus),
+## "broken" (les mercenaires ont signé avec la cible ou attaqué leur client), "gone" (un empire a disparu).
+static func end_contract(state: GameState, merc: int, reason: String) -> void:
+	var c := contract_of(state, merc)
+	if c.is_empty():
+		return
+	var client := int(c["client"])
+	var target := int(c["target"])
+	var r := _rel_w(state, merc, client)
+	r.erase("contract")
+	r["contract_cool"] = state.tick + int(ability("mercenary")["cooldown_days"])
+	var em := state.get_empire(merc)
+	var ec := state.get_empire(client)
+	match reason:
+		"unpaid":
+			remember(state, merc, client, "contract_unpaid")
+			state.add_chronicle("%s ne paie plus : les flottes de %s font demi-tour en envoyant la facture." % [ec.display_name(), em.display_name()])
+		"broken":
+			state.add_chronicle("%s abandonne le contrat de %s avant la fin de sa guerre." % [em.display_name(), ec.display_name()])
+		"done":
+			remember(state, client, merc, "contract_honored")
+			state.add_chronicle("Fin du contrat entre %s et %s. Les mercenaires repartent, payés et presque polis." % [em.display_name(), ec.display_name()])
+	# Les mercenaires rentrent : la paix avec leur ancienne cible, sans rancune de métier.
+	if reason != "gone" and Combat.at_war(state, merc, target) and not state.get_empire(target).eliminated \
+			and not no_treaties(state, target) and not em.eliminated:
+		sign_treaty(state, merc, target, PEACE)
+
+
+## Bilan mensuel d'un contrat (le paiement passe par treaty_income) : le contrat prend fin quand la
+## guerre du client est finie, à son terme, si un empire a disparu, si le client n'a plus d'énergie,
+## ou si les mercenaires ont fait la paix avec la cible.
+static func contract_month(state: GameState, merc: int) -> void:
+	var c := contract_of(state, merc)
+	if c.is_empty():
+		return
+	var em := state.get_empire(merc)
+	var ec := state.get_empire(int(c["client"]))
+	var et := state.get_empire(int(c["target"]))
+	if em.eliminated or ec.eliminated:
+		end_contract(state, merc, "gone")
+	elif Combat.at_war(state, merc, ec.id):
+		end_contract(state, merc, "broken")
+	elif int(ec.resources.get("energy", 0)) < 0:
+		end_contract(state, merc, "unpaid")
+	elif et.eliminated or not Combat.at_war(state, ec.id, et.id) or state.tick >= int(c["until"]):
+		end_contract(state, merc, "done")
+	elif not Combat.at_war(state, merc, et.id):
+		end_contract(state, merc, "broken")
+
+
+## Propositions de contrat : {"treaty": "contract", "from", "to", "merc", "client", "target"}.
+static func propose_contract(state: GameState, player: int, merc: int, client: int, target: int) -> bool:
+	var other := client if player == merc else merc
+	var eo := state.get_empire(other)
+	if eo.is_ai():
+		var ev := AiDiplomacy.evaluate_contract(state, other, merc, client, target)
+		if int(ev["score"]) >= int(data()["ai"]["accept_at"]):
+			sign_contract(state, merc, client, target)
+			return true
+		_set_cooldown(state, player, other, CONTRACT, days("refusal_cooldown_days", 60))
+		state.add_chronicle("%s décline le contrat de flotte contre %s." % [eo.display_name(), state.get_empire(target).display_name()])
+		return false
+	state.proposals.append({"id": state.next_proposal_id, "from": player, "to": other, "treaty": CONTRACT,
+			"merc": merc, "client": client, "target": target, "tick": state.tick})
+	state.next_proposal_id += 1
+	_set_cooldown(state, player, other, CONTRACT, days("proposal_days", 30))
+	state.add_chronicle("%s propose un contrat de flotte à %s, contre %s." % [
+			state.get_empire(player).display_name(), eo.display_name(), state.get_empire(target).display_name()])
+	return false
+
+
+static func check_propose_contract(state: GameState, player: int, merc: int, client: int, target: int) -> String:
+	if player != merc and player != client:
+		return "un contrat se signe entre le syndicat et son client"
+	var why := check_contract(state, merc, client, target)
+	if why != "":
+		return why
+	var other := client if player == merc else merc
+	for p in state.proposals:
+		if String(p["treaty"]) == CONTRACT and ((int(p["from"]) == player and int(p["to"]) == other) or (int(p["from"]) == other and int(p["to"]) == player)):
+			return "un contrat est déjà proposé"
+	var left := cooldown_left(state, player, other, CONTRACT)
+	if left > 0:
+		return "trop tôt pour reproposer (%d jours)" % left
+	return ""
+
+
+static func _drop_contract_proposals(state: GameState, a: int, b: int) -> void:
+	_drop_proposals(state, a, b, CONTRACT)
 
 
 # --- Bilan mensuel -----------------------------------------------------------------------------

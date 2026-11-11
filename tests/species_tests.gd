@@ -20,6 +20,7 @@ func run(check: Callable) -> void:
 	_test_synthetic()
 	_test_network()
 	_test_teyl_game()
+	_test_syndicate()
 	_test_save()
 	_cleanup()
 
@@ -377,3 +378,109 @@ func _test_teyl_game() -> void:
 	var e := sim.state.get_empire(tid)
 	var nodes := FactionTraits.network_nodes(sim.state, tid)
 	_ok(not e.eliminated and nodes >= 2, "Teyl (IA) : en vie après deux ans, %d nœuds reliés" % nodes)
+
+
+## Gouvernement Syndicat : comptoirs, colonies chères, flottes à louer.
+func _test_syndicate() -> void:
+	SpeciesLibrary.dir = TEST_DIR
+	var s := _spec("vael", "Comptoir d'Essai")
+	s["gouvernement"] = "syndicat"
+	_ok(Species.check(s) == "", "syndicat valide (%s)" % Species.check(s))
+	_ok(SpeciesLibrary.save(s) == "", "syndicat enregistré")
+	var fid := String(s["id"])
+	var st := GameState.create(5, 150, 1800.0, fid, {"ai_level": "normal", "rivals": ["vael", "choeur"]})
+	var me := st.get_empire(0)
+	var vael := st.get_empire(1)
+	var choeur := st.get_empire(2)
+	_ok(Diplomacy.has_ability(st, 0, "mercenary") and not Diplomacy.has_ability(st, 1, "mercenary"), "flottes à louer : talent du syndicat")
+	# Colonies chères, comptoirs rentables.
+	var cap_sys := st.galaxy.get_planet(me.capital_planet).system_id
+	var free_pid := -1
+	for pid in st.galaxy.systems[cap_sys].planet_ids:
+		if not st.colonies.has(pid):
+			free_pid = pid
+			break
+	_ok(free_pid >= 0, "planète libre chez soi")
+	var vcost := Economy.claim_cost(Colony.KIND_COLONY)
+	_ok(int(Economy.claim_cost_for(st, 0, free_pid, Colony.KIND_COLONY)["influence"]) == 2 * int(vcost["influence"]), "une vraie colonie coûte deux fois plus d'influence")
+	_ok(int(Economy.claim_cost_for(st, 0, free_pid, Colony.KIND_OUTPOST)["influence"]) == int(Economy.claim_cost(Colony.KIND_OUTPOST)["influence"]), "un avant-poste coûte le prix normal")
+	var post := Colony.new()
+	post.planet_id = free_pid
+	post.owner = 0
+	post.kind = Colony.KIND_OUTPOST
+	st.colonies[free_pid] = post
+	st.rebuild_ownership()
+	var gross: Dictionary = Economy.colony_yields(st, post)["gross"]
+	var plain: Dictionary = GameData.planet_type(st.galaxy.get_planet(free_pid).type).get("outpost_yields", {})
+	_ok(int(gross.get("energy", 0)) >= int(plain.get("energy", 0)) + 2, "un avant-poste est un comptoir (+2 énergie)")
+	# Le contrat : Vael en guerre contre le Chœur loue nos flottes.
+	for a in [0, 1, 2]:
+		for b in [0, 1, 2]:
+			if a != b and not st.get_empire(a).contacts.has(b):
+				st.get_empire(a).contacts.append(b)
+	var cmd := SimCommands.contract(0, 0, 1, 2)
+	_ok(SimCommands.validate(st, cmd).contains("pas en guerre"), "pas de contrat sans guerre du client")
+	Combat.start_war(st, 1, 2)
+	_ok(Diplomacy.warships(st, 0) == 2, "deux corvettes au départ")
+	for f in Fleets.empire_fleets(st, 0):
+		if Combat.is_armed(f):
+			st.fleets.erase(f.id)
+	_ok(SimCommands.validate(st, cmd).contains("vaisseaux armés"), "pas de contrat sans flotte à louer")
+	for i in 3:
+		st.spawn_ship(0, "corvette", cap_sys)
+	_ok(SimCommands.validate(st, cmd) == "", "contrat possible (%s)" % SimCommands.validate(st, cmd))
+	var fee := int(Diplomacy.contract_fee(st, 0)["energy"])
+	_ok(fee == 8 + 2 * 3, "prix : 8 + 2 par vaisseau armé (%d)" % fee)
+	vael.resources["energy"] = 2000
+	var inc_before := int(Economy.empire_income(st, 1)["net"].get("energy", 0))
+	var ev := AiDiplomacy.evaluate_contract(st, 1, 0, 1, 2)
+	_ok(int(ev["score"]) >= 0, "Vael (IA) accepte des renforts (%d : %s)" % [int(ev["score"]), str(ev["parts"])])
+	SimCommands.apply(st, cmd)
+	var c := Diplomacy.contract_of(st, 0)
+	_ok(not c.is_empty() and int(c["client"]) == 1 and int(c["target"]) == 2, "contrat signé")
+	_ok(Combat.at_war(st, 0, 2) and not Combat.at_war(st, 0, 1), "les mercenaires entrent en guerre contre la cible seulement")
+	_ok(int(Diplomacy.treaty_income(st, 0).get("energy", 0)) == fee and int(Economy.empire_income(st, 1)["net"].get("energy", 0)) <= inc_before - fee, "le client paie, le mercenaire encaisse (%d, %d -> %d)" % [int(Diplomacy.treaty_income(st, 0).get("energy", 0)), inc_before, int(Economy.empire_income(st, 1)["net"].get("energy", 0))])
+	_ok(FactionTraits.gauge(st, 0)["label"] == "Contrat" and FactionTraits.gauge(st, 0)["value"] == vael.short_name(), "jauge Contrat")
+	_ok(SimCommands.validate(st, SimCommands.contract(0, 0, 2, 1)) != "", "un seul contrat à la fois")
+	# Les mercenaires (IA ou non) ne font pas la paix avec leur cible en cours de contrat.
+	_ok(int(AiDiplomacy.evaluate(st, 0, 2, Diplomacy.PEACE)["score"]) < 0, "pas de paix avec la cible pendant le contrat")
+	# La guerre du client finit : contrat honoré, les mercenaires signent la paix avec la cible.
+	Diplomacy.sign_treaty(st, 1, 2, Diplomacy.PEACE)
+	Diplomacy.contract_month(st, 0)
+	_ok(Diplomacy.contract_of(st, 0).is_empty() and not Combat.at_war(st, 0, 2) and Diplomacy.pact(st, 0, 2) == Diplomacy.PEACE, "fin de guerre : fin du contrat et paix avec la cible")
+	_ok(Diplomacy.opinion_parts(st, 1, 0).any(func(p: Dictionary) -> bool: return String(p["label"]).contains("tenu parole")), "le client s'en souvient en bien")
+	_ok(SimCommands.validate(st, cmd) != "", "repos des mercenaires entre deux contrats")
+	# Un client qui ne paie plus perd ses mercenaires.
+	var st2 := GameState.create(6, 150, 1800.0, fid, {"ai_level": "normal", "rivals": ["vael", "choeur"]})
+	for a in [0, 1, 2]:
+		for b in [0, 1, 2]:
+			if a != b and not st2.get_empire(a).contacts.has(b):
+				st2.get_empire(a).contacts.append(b)
+	Combat.start_war(st2, 1, 2)
+	for i in 2:
+		st2.spawn_ship(0, "corvette", st2.galaxy.get_planet(st2.get_empire(0).capital_planet).system_id)
+	Diplomacy.sign_contract(st2, 0, 1, 2)
+	st2.get_empire(1).resources["energy"] = -5
+	Diplomacy.contract_month(st2, 0)
+	_ok(Diplomacy.contract_of(st2, 0).is_empty() and Diplomacy.opinion_parts(st2, 0, 1).any(func(p: Dictionary) -> bool: return String(p["label"]).contains("payé")), "client insolvable : contrat rompu, rancune")
+	# Sauvegarde : le contrat survit au rechargement.
+	Diplomacy.end_contract(st2, 0, "gone")
+	var st3 := GameState.create(7, 150, 1800.0, fid, {"ai_level": "normal", "rivals": ["vael", "choeur"]})
+	for a in [0, 1, 2]:
+		for b in [0, 1, 2]:
+			if a != b and not st3.get_empire(a).contacts.has(b):
+				st3.get_empire(a).contacts.append(b)
+	Combat.start_war(st3, 1, 2)
+	Diplomacy.sign_contract(st3, 0, 1, 2)
+	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st3.to_dict())))
+	_ok(back != null and int(Diplomacy.contract_of(back, 0).get("target", -1)) == 2, "contrat sauvegardé et rechargé")
+	# Une partie entre IA avec un syndicat : rien ne casse, et il trouve des clients.
+	var sp := Simulation.new(GameState.create(9, 150, 1800.0, "", {"spectator": true, "ai_level": "normal", "rivals": ["ossarane", "choeur", fid, "vael", "khthari"]}))
+	var signed := 0
+	for i in 18:
+		sp.advance(60)
+		for e in sp.state.empires:
+			if not Diplomacy.contract_of(sp.state, e.id).is_empty():
+				signed += 1
+	_ok(signed > 0, "partie entre IA : le syndicat trouve des clients (%d relevés sous contrat sur 18)" % signed)
+

@@ -1028,6 +1028,8 @@ static func wanted_warships(ctx: Dictionary) -> int:
 	if per > 0:
 		@warning_ignore("integer_division")
 		n += _my_colonies(ctx).size() / per
+	# Syndicats : une flotte à louer, même en temps de paix.
+	n += int(ctx["ai"].get("extra_warships", 0))
 	var aggr := AiLevels.aggression(e)
 	if not e.wars.is_empty():
 		n = n * 2 + 2

@@ -162,6 +162,10 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		upkeep[diet] = int(upkeep.get(diet, 0)) + colony.population * int(rules["food_per_pop"]) * food_pct / 100
 	else:
 		_add(gross, ptype.get("outpost_yields", {}))
+		# Syndicats : chaque avant-poste est un comptoir.
+		var oe := state.get_empire(colony.owner)
+		if oe != null:
+			_add(gross, oe.faction().get("outpost_yields", {}))
 		# Écopes et foreuses : les avant-postes des géantes, des astéroïdes et des mondes stériles.
 		_add(gross, fx.get("outpost_yields", {}).get(planet.type, {}))
 	# Forage du manteau : les gisements rapportent plus.
@@ -282,7 +286,7 @@ static func claim_cost_for(state: GameState, empire_id: int, planet_id: int, kin
 	var cost := claim_cost(kind)
 	if needs_ship(state, empire_id, planet_id):
 		cost = GameData.rules()["claims"][kind].get("ship_cost", cost)
-	return FactionTraits.adjust_claim_cost(state, empire_id, cost)
+	return FactionTraits.adjust_claim_cost(state, empire_id, cost, kind)
 
 
 ## Colonisations simultanées permises (règle commune + technologies d'administration).

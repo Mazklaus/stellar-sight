@@ -19,7 +19,7 @@ extends RefCounted
 
 const FORMAT := 1
 const PCT_KEYS := ["growth_pct", "food_upkeep_pct", "fleet_speed_pct"]
-const AI_SUM_KEYS := ["colony_bonus", "outpost_bonus", "crystal_bonus", "food_margin", "scouts"]
+const AI_SUM_KEYS := ["colony_bonus", "outpost_bonus", "crystal_bonus", "food_margin", "scouts", "extra_warships"]
 const NAME_MAX := 40
 const SHORT_MAX := 16
 const LORE_MAX := 1200

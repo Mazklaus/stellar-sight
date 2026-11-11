@@ -72,6 +72,12 @@
 				{"name": "Réseau de nœuds", "text": "+5 % de Savoir par colonie reliée à la capitale (50 % au plus). Un nœud est relié si l'on peut aller de proche en proche jusqu'à la capitale par des systèmes à soi ou à personne, sans traverser de blocus ennemi."},
 				{"name": "Nœuds coupés", "text": "Une revendication coupée du réseau produit moitié moins, et ne compte plus dans le bonus de Savoir."}
 			]},
+		{"id": "syndicat", "label": "Syndicat", "text": "Un conseil d'actionnaires, des contrats, et des flottes qui vont où va l'argent.",
+			"fields": {"outpost_yields": {"energy": 2}, "colony_influence_pct": 200, "start_ships": ["scout", "colony_ship", "corvette", "corvette"], "ai": {"outpost_bonus": 6, "colony_bonus": -10, "extra_warships": 4, "research_bias": {"armement": 2, "economie": 1}}},
+			"traits": [{"name": "Flottes à louer", "text": "Louer ses flottes à un empire en guerre (Diplomatie) : le syndicat entre en guerre contre l'ennemi du client, qui le paie chaque mois en énergie (8, plus 2 par vaisseau armé) tant que dure sa guerre, deux ans au plus. Ensuite, la paix avec l'ancienne cible."},
+				{"name": "Comptoirs", "text": "Chaque avant-poste rapporte +2 énergie par mois."},
+				{"name": "Pas de racines", "text": "Fonder une vraie colonie coûte deux fois plus d'influence."},
+				{"name": "Flotte de départ", "text": "Deux corvettes en plus au départ : un syndicat commence par ce qu'il loue."}]},
 		{"id": "ruche", "label": "Esprit de ruche", "text": "Pas de chefs, pas de débats : une seule volonté, qui a faim.",
 			"requires": {"archetype": ["ruche"]},
 			"fields": {"combat": {"prey": true, "digest": true, "garrison_pct": 150}, "ai": {"research_bias": {"armement": 2}, "temperament": {"never_peace": true}}},

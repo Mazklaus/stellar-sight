@@ -108,6 +108,11 @@ static func mediate(player: int, a: int, b: int) -> Dictionary:
 	return {"type": "mediate", "player": player, "a": a, "b": b}
 
 
+## Contrat de flotte entre un syndicat (merc) et un client en guerre contre target ; player est l'un des deux.
+static func contract(player: int, merc: int, client: int, target: int) -> Dictionary:
+	return {"type": "contract", "player": player, "merc": merc, "client": client, "target": target}
+
+
 ## Choisit la tactique de combat d'une flotte (Combat.tactic_ids()).
 static func set_tactic(player: int, fleet_id: int, tactic: String) -> Dictionary:
 	return {"type": "set_tactic", "player": player, "fleet": fleet_id, "tactic": tactic}
@@ -201,6 +206,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Victory.check_union(state, int(cmd["player"]), int(cmd.get("target", -1)))
 		"mediate":
 			return Diplomacy.check_mediate(state, int(cmd["player"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)))
+		"contract":
+			return Diplomacy.check_propose_contract(state, int(cmd["player"]), int(cmd.get("merc", -1)), int(cmd.get("client", -1)), int(cmd.get("target", -1)))
 		"set_tactic":
 			return Combat.check_tactic(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("tactic", "")))
 		"save_design":
@@ -350,6 +357,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Victory.union(state, int(cmd["player"]), int(cmd["target"]))
 		"mediate":
 			Diplomacy.mediate(state, int(cmd["player"]), int(cmd["a"]), int(cmd["b"]))
+		"contract":
+			Diplomacy.propose_contract(state, int(cmd["player"]), int(cmd["merc"]), int(cmd["client"]), int(cmd["target"]))
 		"set_tactic":
 			state.fleets[int(cmd["fleet"])].tactic = String(cmd["tactic"])
 		"save_design":
