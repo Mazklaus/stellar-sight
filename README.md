@@ -426,9 +426,9 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
 
 ![Fin de partie](docs/apercu-fin-de-partie.png)
 
-## Modèles 3D des vaisseaux (en préparation)
+## Modèles 3D des vaisseaux
 
-Les vaisseaux auront un modèle 3D source (glTF), produit à partir d'un concept Midjourney par Tripo, puis cuit dans Blender par `tools/vaisseaux/cuire_vaisseau.py` et contrôlé par `tools/vaisseaux/apercu_vaisseau.gd`. Le jeu ne les charge pas encore. Règles (nommage, axes, budgets, cartes, masque d'empire, points d'attache) et commandes : [docs/vaisseaux-3d.md](docs/vaisseaux-3d.md).
+Les vaisseaux ont un modèle 3D source (glTF), produit à partir d'un concept Midjourney par Tripo, puis cuit dans Blender par `tools/vaisseaux/cuire_vaisseau.py` et contrôlé par `tools/vaisseaux/apercu_vaisseau.gd`. `tools/vaisseaux/sprites_vaisseau.gd` en tire des sprites vus de dessus (`assets/ships/`), que la vue de replay et le Chantier affichent teints aux couleurs de l'empire (`ShipArt`) ; sans sprite, ils gardent leur dessin stylisé. Une version allégée du modèle (`tools/vaisseaux/alleger_vaisseau.py`) sert à la cinématique 3D des batailles, ouverte depuis la vue de replay (`BattleCinematic`). Pour l'instant, seules les frégates Ossarane et Kh'thari en ont un. Règles (nommage, axes, budgets, cartes, masque d'empire, points d'attache) et commandes : [docs/vaisseaux-3d.md](docs/vaisseaux-3d.md).
 
 ## Organisation du code
 

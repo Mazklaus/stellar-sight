@@ -409,6 +409,10 @@ func _refresh_all() -> void:
 	_name.text = String(draft.get("name", ""))
 	_line.select(maxi(0, Designs.LINES.find(String(draft.get("line", "line")))))
 	_target.select(maxi(0, Designs.TARGETS.find(String(draft.get("target", "nearest")))))
+	var me := _state.get_empire(_player)
+	if me:
+		_hull_view.faction_id = me.faction_id
+		_hull_view.tint = me.color()
 	_hull_view.show_hull(hid, slots(), draft.get("slots", []), slot_index)
 	_fill_modules()
 	_fill_stats()
@@ -585,13 +589,18 @@ class HullView:
 	signal slot_clicked(index: int, right: bool)
 	const BOX := Vector2(150, 50)
 	var hull_id := ""
+	var faction_id := ""  # peuple dont on montre le sprite de coque (ShipArt), s'il existe
+	var tint := Color.WHITE
 	var slot_list: Array[Dictionary] = []
 	var filled: Array = []
 	var chosen := -1
 	var _rects: Array[Rect2] = []
+	var _portrait: Texture2D = null
+	var _portrait_rect := Rect2()
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_STOP
+		texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS  # sprite de coque réduit
 
 	func show_hull(hid: String, sl: Array[Dictionary], f: Array, sel: int) -> void:
 		hull_id = hid
@@ -618,6 +627,12 @@ class HullView:
 		_rects.resize(slot_list.size())
 		var n := cols.size()
 		var gap := 12.0
+		# Avec un portrait 3/4 du vaisseau, il occupe le haut et les emplacements se rangent dessous.
+		var haut := 0.0
+		_portrait = ShipArt.portrait(faction_id, hull_id, tint) if faction_id != "" else null
+		if _portrait:
+			haut = size.y * 0.42
+			_portrait_rect = _fit(_portrait, Rect2(Vector2(10, 6), Vector2(size.x - 20, haut - 12)))
 		# Les cases rétrécissent pour que toutes les colonnes tiennent (titan : cinq types d'emplacements).
 		var box := Vector2(minf(BOX.x, (size.x - 20.0 - (n - 1) * gap) / maxf(1.0, n)), BOX.y)
 		var total_w := n * box.x + (n - 1) * gap
@@ -625,7 +640,7 @@ class HullView:
 		for ci in n:
 			var idx: Array = cols[ci]
 			var h := idx.size() * box.y + (idx.size() - 1) * 8.0
-			var y0 := (size.y - h) * 0.5
+			var y0 := haut + (size.y - 40.0 - haut - h) * 0.5 if _portrait else (size.y - h) * 0.5
 			for k in idx.size():
 				_rects[idx[k]] = Rect2(Vector2(x0 - ci * (box.x + gap), y0 + k * (box.y + 8.0)), box)
 
@@ -640,10 +655,20 @@ class HullView:
 		var hh := size.y * 0.44 * scale
 		var body := PackedVector2Array([c + Vector2(w, 0), c + Vector2(w * 0.55, -hh), c + Vector2(-w * 0.8, -hh * 0.85),
 				c + Vector2(-w, -hh * 0.4), c + Vector2(-w, hh * 0.4), c + Vector2(-w * 0.8, hh * 0.85), c + Vector2(w * 0.55, hh)])
-		draw_colored_polygon(body, Color(0.12, 0.2, 0.28, 0.55))
-		var outline := body.duplicate()
-		outline.append(body[0])
-		draw_polyline(outline, Color(UiTheme.ACCENT, 0.5), 1.5, true)
+		var art := ShipArt.texture(faction_id, hull_id, tint) if faction_id != "" else null
+		if _portrait:
+			draw_texture_rect(_portrait, _portrait_rect, false)
+		elif art:
+			# Sprite du modèle 3D, en filigrane derrière les emplacements (proue à droite).
+			var ext := Vector2(w * 2.0, w * 2.0 * art.get_height() / art.get_width())
+			if ext.y > hh * 2.2:
+				ext *= hh * 2.2 / ext.y
+			draw_texture_rect(art, Rect2(c - ext * 0.5, ext), false, Color(1, 1, 1, 0.55))
+		else:
+			draw_colored_polygon(body, Color(0.12, 0.2, 0.28, 0.55))
+			var outline := body.duplicate()
+			outline.append(body[0])
+			draw_polyline(outline, Color(UiTheme.ACCENT, 0.5), 1.5, true)
 		var font := UiTheme.body_font()
 		for i in slot_list.size():
 			var r := _rects[i]
@@ -665,6 +690,12 @@ class HullView:
 			draw_rect(r, Color(1.0, 0.8, 0.35, 0.9), false, 1.5)
 			draw_string(font, r.position + Vector2(8, 18), "◆ " + String(Designs.module(String(mid)).get("label", mid)), HORIZONTAL_ALIGNMENT_LEFT, 150, 12, Color(1.0, 0.88, 0.6))
 			x += 170.0
+
+	## Rectangle centré dans `zone` qui garde les proportions de la texture.
+	static func _fit(tex: Texture2D, zone: Rect2) -> Rect2:
+		var k := minf(zone.size.x / tex.get_width(), zone.size.y / tex.get_height())
+		var ext := Vector2(tex.get_width(), tex.get_height()) * k
+		return Rect2(zone.position + (zone.size - ext) * 0.5, ext)
 
 	func _slot_at(p: Vector2) -> int:
 		for i in _rects.size():

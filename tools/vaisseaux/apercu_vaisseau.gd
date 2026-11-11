@@ -23,6 +23,7 @@ func _init() -> void:
 	var vaisseau: Node3D = doc.generate_scene(state)
 	root.add_child(vaisseau)
 	_teinter(vaisseau, args[0].get_basename() + "_masque.png")
+	await process_frame  # les transformations globales ne sont valables qu'une fois dans l'arbre
 	var aabb := AABB()
 	var premier := true
 	for n in vaisseau.find_children("*", "MeshInstance3D", true, false):

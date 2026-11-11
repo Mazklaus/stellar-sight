@@ -9,7 +9,7 @@
 #   blender -b --python tools/vaisseaux/cuire_vaisseau.py -- \
 #       --hd sources/ossarane_fregate_hd.glb --basse sources/ossarane_fregate_basse.fbx \
 #       --nom ossarane_fregate --taille medium
-# Options : --sortie DIR (défaut assets/ships), --points FICHIER.json, --tourner DEGRES,
+# Options : --sortie DIR (défaut sources, ignoré par git et par Godot), --points FICHIER.json, --tourner DEGRES,
 #           --resolution N, --masque-tolerance T (0 à 1), --sans-masque.
 
 import argparse
@@ -40,7 +40,7 @@ def lire_arguments():
 	p.add_argument("--basse", required=True, help="version basse (.fbx ou .glb), géométrie finale")
 	p.add_argument("--nom", required=True, help="<peuple>_<coque>[_<variante>], ex. ossarane_fregate")
 	p.add_argument("--taille", required=True, choices=sorted(TAILLES))
-	p.add_argument("--sortie", default="assets/ships")
+	p.add_argument("--sortie", default="sources")
 	p.add_argument("--points", help="points d'attache (.json), voir docs/vaisseaux-3d.md")
 	p.add_argument("--tourner", type=float, default=0.0,
 		help="rotation autour de la verticale (degrés) si le nez ne pointe pas vers l'avant")
@@ -317,6 +317,9 @@ def principal():
 	res = a.resolution or reglage["resolution"]
 	avertissements = []
 	os.makedirs(a.sortie, exist_ok=True)
+	if os.path.basename(os.path.normpath(a.sortie)) == "sources":
+		# Godot n'importe pas ce dossier (fichiers de 10 à 70 Mo, inutiles au jeu).
+		open(os.path.join(a.sortie, ".gdignore"), "a").close()
 
 	bpy.ops.wm.read_factory_settings(use_empty=True)
 	basse = importer(a.basse)
