@@ -51,7 +51,7 @@ func setup(state: GameState, player: int, selected_id: int) -> void:
 		b.focus_mode = Control.FOCUS_NONE
 		b.toggle_mode = true
 		b.button_pressed = id == selected
-		b.text = "%s\n%s" % [e.short_name().to_upper(), "Disparu" if e.eliminated else Diplomacy.status_label(st)]
+		b.text = "%s\n%s" % [e.short_name().to_upper(), "Disparu" if e.eliminated else Diplomacy.status_text(state, player, id)]
 		b.custom_minimum_size = Vector2(130, 46)
 		b.add_theme_font_size_override("font_size", 13)
 		b.add_theme_color_override("font_color", e.color().lerp(Color.WHITE, 0.25))

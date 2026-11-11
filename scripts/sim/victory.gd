@@ -263,9 +263,10 @@ static func _owner_of(state: GameState, planet_id: int) -> int:
 ## partie fait jouer chaque allié pour lui-même.
 static func bloc(state: GameState, empire_id: int) -> Array[int]:
 	var out: Array[int] = [empire_id]
-	if not allies_count(state):
-		return out
 	for a in Diplomacy.allies(state, empire_id):
+		# Les coéquipiers gagnent toujours ensemble ; les autres alliés si la partie le permet.
+		if not allies_count(state) and Diplomacy.team_of(state, empire_id, a) <= 0:
+			continue
 		if not state.get_empire(a).eliminated and not out.has(a):
 			out.append(a)
 	out.sort()

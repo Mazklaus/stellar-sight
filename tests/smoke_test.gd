@@ -833,8 +833,41 @@ func _test_navigation_ui(main: Node) -> void:
 	var old_time := menu._time_select.selected
 	menu.open_host_new()
 	_check(menu.page == "new" and menu.host_new and menu.time_mode == clock.MODE_TURNS, "Héberger : page Nouvelle partie, tours simultanés proposés")
+	# Salon d'avant-partie : ouvert dès la page, une place « joueur humain » prise par un joueur (simulé),
+	# qui y met un peuple qu'il a créé, se dit prêt, et prend cet empire au lancement.
+	main.net.autosave_path = "user://test_multi_auto.json"
+	var menu_before: Dictionary = menu.settings()
+	_check(main.net.lobby_open and main.net.is_host(), "Héberger : le salon s'ouvre au réseau pendant les réglages")
+	_check(menu.set_slot_human(0, true) and menu.is_slot_human(0) and bool(menu.lobby_view()["slots"][0]["human"]), "salon : une place devient « joueur humain »")
+	await process_frame
+	main.net.names[77] = "Alice"
+	main._on_lobby_request(77, "take", {"i": 0})
+	var own_people: Dictionary = GameData.faction("teyl").duplicate(true)
+	own_people["id"] = "peuple_alice"
+	own_people["name"] = "Peuple d'Alice"
+	main._on_lobby_request(77, "set", {"f": "peuple_alice", "c": "", "def": own_people})
+	var alice_fid := String(menu.slots[0]["faction"])
+	_check(main.net.lobby_seats.get(77, -1) == 0 and alice_fid.begins_with("peuple_alice@") and not main.net.lobby_all_ready(), "salon : le joueur prend sa place et y met son propre peuple")
+	_check(String(menu.lobby_holders.get(0, "")) == "Alice" and menu._lobby_label.text.contains("Alice"), "salon : l'hôte voit qui tient la place")
+	menu.launch()
+	await process_frame
+	_check(menu.is_open() and not main.net.core, "salon : on ne lance pas tant qu'un joueur n'est pas prêt")
+	main._on_lobby_request(77, "ready", {"r": true})
+	_check(main.net.lobby_all_ready(), "salon : tout le monde est prêt")
+	menu.launch()
+	await process_frame
+	var alice_empire: Empire = main.simulation.state.get_empire(1)
+	_check(not menu.is_open() and main.net.core != null and main.net.core.seats.get(77, -1) == 1, "salon : au lancement, le joueur prend l'empire de sa place")
+	_check(alice_empire.faction_id == alice_fid and not alice_empire.is_ai() and main.simulation.state.custom_factions.has(alice_fid), "salon : son peuple créé est dans la partie (instantané compris)")
+	main.leave_network("")
+	DirAccess.remove_absolute("user://test_multi_auto.json")
+	GameData.unregister_library_faction(alice_fid)
+	main.open_main_menu()
+	await process_frame
+	menu.open_host_new()
 	menu.show_page("home")
-	_check(not menu.host_new, "revenir à l'accueil annule l'hébergement")
+	_check(not menu.host_new and not main.net.is_active() and not menu.is_slot_human(0), "revenir à l'accueil annule l'hébergement et ferme le salon")
+	menu.apply_settings(menu_before)
 	menu.set_time_choice(old_time)
 	menu.show_page("join")
 	menu._join_address.text = ""
@@ -1055,6 +1088,22 @@ func _test_rival_slots(main: Node, menu: MainMenu) -> void:
 	_check(setup["ai_levels"] == ["normal", "legende", "normal", "normal", "normal"] and setup["temperaments"][2] == "belliqueux" and setup["colors"][3] == Empire.PALETTE[4], "niveaux, tempéraments et couleurs par empire (%s)" % [setup["ai_levels"]])
 	menu.apply_defaults_to_all()
 	_check(menu.slots.all(func(s: Dictionary) -> bool: return s["level"] == "" and s["temper"] == ""), "Appliquer à tous : chaque rival revient au défaut")
+	# Équipes : vous et le 2e rival, les 3e et 4e entre eux (le 1er, votre peuple, est retiré).
+	_check(menu.set_slot_team(1, 1) and menu.set_slot_team(2, 2) and menu.set_slot_team(3, 2) and not menu.set_slot_team(0, 9), "équipes réglées par place")
+	menu.set_player_team(1)
+	var teamed := menu.empire_setup("ossarane", 5)
+	_check(teamed["teams"] == [1, 1, 2, 2, 0], "équipes par empire (%s)" % [teamed["teams"]])
+	_check(menu.settings()["slots"][1]["team"] == 1 and not menu.settings()["slots"][0].has("team"), "équipes enregistrées dans les réglages")
+	var with_teams := menu.settings()
+	menu.set_slot_team(0, 3)
+	_check(menu.slots_note().contains("Équipe 3"), "équipe d'un seul empire signalée (%s)" % menu.slots_note())
+	menu.apply_settings(with_teams)
+	_check(menu.player_team == 1 and menu.slot_team(1) == 1 and menu.slot_team(0) == 0, "équipes relues")
+	_check(int(menu.lobby_view()["slots"][1].get("team", 0)) == 1 and int(menu.lobby_view()["host_team"]) == 1, "équipes montrées au salon")
+	for i in menu.slots.size():
+		menu.set_slot_team(i, 0)
+	menu.set_player_team(0)
+	_check(not menu.settings()["slots"].any(func(s: Dictionary) -> bool: return s.has("team")), "sans équipe, rien d'enregistré")
 	menu.randomize_slots()
 	var a := menu.empire_setup("ossarane", 9)
 	_check(a == menu.empire_setup("ossarane", 9), "même graine, mêmes rivaux tirés au hasard")

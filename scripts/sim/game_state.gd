@@ -120,6 +120,9 @@ var _system_owner: Dictionary = {}
 ## - "colors" : couleur de chaque empire (codes html, par indice d'empire ; "" = automatique). En
 ##   automatique, un empire prend la couleur de son peuple, ou la première couleur libre de
 ##   Empire.PALETTE si elle est déjà prise ;
+## - "teams" : équipe de chaque empire (par indice d'empire ; 0 = aucune). Les empires d'une même
+##   équipe naissent alliés, se connaissent, voient ensemble (vision des alliés) et gagnent ensemble ;
+##   leur alliance ne se rompt pas (Diplomacy.team_of) ;
 ## - "galaxy" : réglages de la galaxie (GalaxySettings) ; ils fixent alors aussi le nombre de systèmes
 ##   et le rayon, à la place de system_count_ et galaxy_radius_.
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
@@ -137,6 +140,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	s.ai_scaling = bool(options.get("ai_scaling", false))
 	s._setup_empires(player_faction, options.get("rivals", null), bool(options.get("duplicates", false)), options.get("distances", []))
 	s._setup_colors(options.get("colors", []))
+	s._setup_teams(options.get("teams", []))
 	s._setup_ai(options)
 	s._setup_advanced_starts(options.get("starts", []))
 	for e in s.empires:
@@ -522,6 +526,22 @@ func _setup_ai(options: Dictionary) -> void:
 		var bonus: Dictionary = {} if ai_scaling else AiLevels.level(lv).get("start_bonus", {})
 		for r in bonus:
 			e.resources[r] = int(e.resources.get(r, 0)) + int(bonus[r])
+
+
+## Équipes : alliances verrouillées dès le départ entre empires d'une même équipe.
+func _setup_teams(teams: Array) -> void:
+	for a in empires:
+		for b in empires:
+			if b.id <= a.id or a.id >= teams.size() or b.id >= teams.size():
+				continue
+			var t := int(teams[a.id])
+			if t <= 0 or int(teams[b.id]) != t:
+				continue
+			if not a.contacts.has(b.id):
+				a.contacts.append(b.id)
+			if not b.contacts.has(a.id):
+				b.contacts.append(a.id)
+			Diplomacy.form_team(self, a.id, b.id, t)
 
 
 ## Aucun empire n'est joué par un humain : la partie se regarde (mode spectateur).
