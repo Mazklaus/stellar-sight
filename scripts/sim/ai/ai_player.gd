@@ -559,7 +559,11 @@ static func late_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Array[St
 static func urgent_needs(ctx: Dictionary, net: Dictionary) -> Array[String]:
 	var out: Array[String] = []
 	var food_margin := 2 + (int(ctx["ai"].get("food_margin", 0)) if _use(ctx) >= 1 else 0)
-	if int(net.get("food", 0)) < food_margin:
+	# Un peuple qui mange la roche manque de matériaux, pas de nourriture : des mines, pas des fermes.
+	if FactionTraits.diet(ctx["e"].faction()) == "materials":
+		if int(net.get("materials", 0)) < food_margin:
+			out.append("complexe_minier")
+	elif int(net.get("food", 0)) < food_margin:
 		out.append("ferme_hydroponique")
 	if int(net.get("energy", 0)) < 3:
 		out.append("centrale_fusion")
@@ -622,7 +626,7 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 		out.append("complexe_minier")
 		if int(net.get("energy", 0)) < 10:
 			out.append("centrale_fusion")
-		if int(net.get("food", 0)) < 10:
+		if int(net.get("food", 0)) < 10 and FactionTraits.diet(e.faction()) == "food":
 			out.append("ferme_hydroponique")
 	return out
 

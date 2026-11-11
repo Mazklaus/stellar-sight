@@ -19,7 +19,8 @@ static func habitability(planet_type: String, faction: Dictionary) -> int:
 	# Plancher de faction (Vael : une espèce pour chaque monde), seulement sur les mondes habitables.
 	if base > 0:
 		return maxi(base, FactionTraits.hab_floor(faction))
-	return base
+	# Mondes que seul ce corps peuple (lithoïdes : la roche nue).
+	return FactionTraits.hab_extra(faction, planet_type)
 
 
 ## Habitabilité pour un empire, technologies comprises : un type rendu habitable (hab_set) prend la
@@ -49,6 +50,9 @@ static func habitability_for(state: GameState, empire_id: int, planet_type: Stri
 ## (géantes gazeuses) le deviennent avec une technologie qui les rend habitables (cités flottantes).
 static func houses_pop(state: GameState, empire_id: int, planet_type: String) -> bool:
 	if not GameData.planet_type(planet_type).get("pop_yields", {}).is_empty():
+		return true
+	var e := state.get_empire(empire_id)
+	if e and FactionTraits.hab_extra(e.faction(), planet_type) > 0:
 		return true
 	return Research.fx_sub(state, empire_id, "hab_set", planet_type) > 0
 
@@ -129,14 +133,22 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 	_add(upkeep, rules["claims"][colony.kind].get("upkeep", {}))
 	var fx := Research.effects(state, colony.owner)
 	if colony.is_colony():
-		_add(gross, pop_yields(planet.type), colony.population)
 		var e := state.get_empire(colony.owner)
+		var py := pop_yields(planet.type)
+		# Mangeurs de roche : ce que les autres cultivent, ils l'extraient (la nourriture de la
+		# population devient des matériaux), et ils mangent des matériaux.
+		if e and FactionTraits.diet(e.faction()) == "materials" and py.has("food"):
+			py = py.duplicate()
+			py["materials"] = int(py.get("materials", 0)) + int(py["food"])
+			py.erase("food")
+		_add(gross, py, colony.population)
 		var food_pct := int(e.faction().get("food_upkeep_pct", 100)) if e else 100
 		# Réplicateurs de matière : la population mange moins.
 		@warning_ignore("integer_division")
 		food_pct = food_pct * maxi(0, 100 + int(fx.get("food_upkeep_pct", 0))) / 100
 		@warning_ignore("integer_division")
-		upkeep["food"] += colony.population * int(rules["food_per_pop"]) * food_pct / 100
+		var diet := FactionTraits.diet(e.faction()) if e else "food"
+		upkeep[diet] = int(upkeep.get(diet, 0)) + colony.population * int(rules["food_per_pop"]) * food_pct / 100
 	else:
 		_add(gross, ptype.get("outpost_yields", {}))
 		# Écopes et foreuses : les avant-postes des géantes, des astéroïdes et des mondes stériles.

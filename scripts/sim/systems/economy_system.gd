@@ -130,7 +130,8 @@ static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionar
 	_monthly_traits(state, e, added)
 
 	var was_starving := e.starving
-	e.starving = e.resources["food"] < 0
+	# Famine : plus de nourriture, ou plus de matériaux pour un peuple qui mange la roche.
+	e.starving = int(e.resources.get(FactionTraits.diet(e.faction()), 0)) < 0
 	if e.starving:
 		# Famine : la colonie la plus peuplée perd une population.
 		var worst: Colony = null
