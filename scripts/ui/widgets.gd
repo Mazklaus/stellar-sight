@@ -338,6 +338,7 @@ class ArtSlot:
 		var hive := pid.begins_with("ruche")
 		var rock := pid.begins_with("lithoide")
 		var synth := pid.begins_with("synthetique")
+		var scaly := pid.begins_with("reptilien")
 		var s := minf(r.size.x, r.size.y * 0.9)
 		var cx := r.size.x * 0.5
 		var base := r.size.y
@@ -403,6 +404,38 @@ class ArtSlot:
 						draw_arc(head + Vector2(-hr * 0.2, hr * 0.5), hr * (0.25 + 0.15 * i), PI * 1.1, PI * 1.6, 10, Color(edge, 0.6), 1.0, true)
 			for side in [-1.0, 1.0]:
 				draw_line(head + Vector2(side * hr * 0.55, -hr * 0.15), head + Vector2(side * hr * 0.2, -hr * 0.05), eye, 3.0, true)
+		elif scaly:
+			# Tête de reptile : un crâne en coin qui s'affine vers le museau, des écailles, des yeux fendus.
+			draw_line(head + Vector2(0, hr), head + Vector2(0, hr * 1.6), fill, hr * 0.8)
+			if look == "frill":
+				var fp := PackedVector2Array()
+				for i in 13:
+					var a := PI * 0.95 + PI * 1.1 * i / 12.0
+					var rr := hr * (1.9 if i % 2 == 0 else 1.55)
+					fp.append(head + Vector2(cos(a) * rr, sin(a) * rr * 0.9 + hr * 0.2))
+				fp.append(head + Vector2(0, hr * 0.2))
+				draw_colored_polygon(fp, Color(edge, 0.45))
+			var long := 1.35 if look == "snout" else 1.15
+			var sp := PackedVector2Array([head + Vector2(-hr * 0.95, -hr * 0.55), head + Vector2(-hr * 0.55, -hr * 1.0), head + Vector2(hr * 0.55, -hr * 1.0),
+					head + Vector2(hr * 0.95, -hr * 0.55), head + Vector2(hr * 0.6, hr * 0.5), head + Vector2(hr * 0.25, hr * long),
+					head + Vector2(-hr * 0.25, hr * long), head + Vector2(-hr * 0.6, hr * 0.5)])
+			draw_colored_polygon(sp, fill)
+			sp.append(sp[0])
+			draw_polyline(sp, edge, 1.5, true)
+			for k in 3:
+				for j in 3 - (k % 2):
+					var x := -hr * 0.4 + j * hr * 0.4 + (hr * 0.2 if k % 2 == 1 else 0.0)
+					draw_arc(head + Vector2(x, -hr * 0.65 + k * hr * 0.22), hr * 0.13, 0.0, PI, 6, Color(edge, 0.45), 1.0, true)
+			for side in [-1.0, 1.0]:
+				var e0 := head + Vector2(side * hr * 0.45, -hr * 0.05)
+				draw_circle(e0, hr * 0.17, Color(eye, 0.35))
+				draw_line(e0 + Vector2(0, -hr * 0.14), e0 + Vector2(0, hr * 0.14), eye, 2.0, true)
+				draw_circle(head + Vector2(side * hr * 0.12, hr * (long - 0.2)), 1.5, Color(edge, 0.8))
+			if look == "spines":
+				for k in 5:
+					var x := -hr * 0.5 + k * hr * 0.25
+					var h := hr * (0.5 + 0.35 * (2 - absi(k - 2)) * 0.5)
+					draw_colored_polygon(PackedVector2Array([head + Vector2(x - 4, -hr * 0.95), head + Vector2(x, -hr * 0.95 - h), head + Vector2(x + 4, -hr * 0.95)]), edge)
 		elif hive:
 			var hp := PackedVector2Array()
 			for i in 24:

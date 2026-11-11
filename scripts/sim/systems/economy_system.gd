@@ -46,7 +46,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 	if c.population >= cap:
 		# Biomasse (Essaim Kh'thari) : une colonie pleine continue de grandir, le surplus est digéré.
 		var bio: Dictionary = e.faction().get("biomass", {})
-		if bio.is_empty() and cap > 0 and Research.fx_int(state, c.owner, "migration") > 0:
+		if bio.is_empty() and cap > 0 and FactionTraits.migrates(state, c.owner):
 			# Spatioports de transit : les colons d'une colonie pleine partent peupler une autre colonie.
 			c.growth += Economy.growth_per_day(state, c)
 			if c.growth >= Economy.colony_threshold(state, c):

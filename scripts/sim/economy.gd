@@ -10,6 +10,9 @@ extends RefCounted
 ## Habitabilité (0 à 100 %) d'un type de planète pour une faction :
 ## 100 % pour le type d'origine, 80 % pour le second préféré, sinon la valeur de base du type.
 static func habitability(planet_type: String, faction: Dictionary) -> int:
+	# Mondes où ce corps ne vit pas (reptiliens : le froid).
+	if FactionTraits.hab_none(faction).has(planet_type):
+		return 0
 	var pref: Array = faction.get("preferred", [])
 	if pref.size() > 0 and pref[0] == planet_type:
 		return 100
