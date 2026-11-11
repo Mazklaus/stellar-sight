@@ -26,6 +26,10 @@ var _state: GameState
 var _rows := {}
 var _box: VBoxContainer
 var _rows_box: VBoxContainer
+## Les lignes défilent quand elles ne tiennent plus (12 empires) : le panneau s'arrête à max_height
+## (fixé par le HUD : jusqu'au cadran du temps).
+var _rows_scroll: ScrollContainer
+var max_height := 0.0
 var _chart: _ScoreChart
 var _overview_button: Button
 var _eyes_button: Button
@@ -51,9 +55,13 @@ func _ready() -> void:
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(title)
 	head.add_child(UiTheme.dim("SPECTATEUR", 11))
+	_rows_scroll = ScrollContainer.new()
+	_rows_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_box.add_child(_rows_scroll)
 	_rows_box = VBoxContainer.new()
 	_rows_box.add_theme_constant_override("separation", 3)
-	_box.add_child(_rows_box)
+	_rows_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_rows_scroll.add_child(_rows_box)
 	_box.add_child(UiTheme.dim("Score au fil des mois", 11))
 	_chart = _ScoreChart.new()
 	_chart.panel = self
@@ -97,6 +105,23 @@ func set_state(state: GameState, follow := 0) -> void:
 	for e in state.empires:
 		_rows[e.id] = _make_row(e)
 	refresh()
+	_fit_rows.call_deferred()
+
+
+## Hauteur disponible pour tout le panneau (0 = sans limite).
+func set_max_height(h: float) -> void:
+	max_height = h
+	_fit_rows()
+
+
+## La liste prend la hauteur de ses lignes, au plus ce qui reste sous max_height.
+func _fit_rows() -> void:
+	if _rows_scroll == null:
+		return
+	var want := _rows_box.get_combined_minimum_size().y
+	var other := _box.get_combined_minimum_size().y - _rows_scroll.get_combined_minimum_size().y
+	var avail := max_height - other - 24.0
+	_rows_scroll.custom_minimum_size.y = want if max_height <= 0.0 else clampf(avail, minf(want, 120.0), want)
 
 
 func set_followed(empire_id: int, emit := false) -> void:

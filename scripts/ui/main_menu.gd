@@ -1033,7 +1033,7 @@ func _refresh_galaxy() -> void:
 				b.select(i)
 	_guaranteed_select.select(int(galaxy_settings["guaranteed"]))
 	_placement_desc.text = String(GalaxySettings.entry("placement", galaxy_settings["placement"])["desc"])
-	_galaxy_banner.set_caption("%s · %d empires conseillés" % [GalaxySettings.summary(galaxy_settings),
+	_galaxy_banner.set_caption("%s · %d empires" % [GalaxySettings.summary(galaxy_settings),
 			GalaxySettings.recommended_empires(galaxy_settings)], 13)
 
 

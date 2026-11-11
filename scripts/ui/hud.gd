@@ -646,6 +646,8 @@ func _place_fleet_list() -> void:
 	fleet_list.offset_top = _chronicle.offset_top + _chronicle.size.y + 6.0
 	if spectator_panel:
 		spectator_panel.offset_top = fleet_list.offset_top
+		# Le tableau s'arrête au-dessus du cadran du temps ; ses lignes défilent au-delà.
+		spectator_panel.set_max_height(get_viewport().get_visible_rect().size.y - spectator_panel.offset_top - TimeDial.SIDE - MARGIN - 8.0)
 
 
 func _build_spectator_panel() -> void:
@@ -656,6 +658,7 @@ func _build_spectator_panel() -> void:
 	spectator_panel.offset_right = -MARGIN
 	spectator_panel.visible = false
 	add_child(spectator_panel)
+	get_viewport().size_changed.connect(_place_fleet_list)
 	_place_fleet_list()
 
 
