@@ -16,6 +16,7 @@ func run(check: Callable) -> void:
 	_test_ids()
 	_test_library()
 	_test_game()
+	_test_lithoid()
 	_test_save()
 	_cleanup()
 
@@ -177,6 +178,43 @@ func _test_game() -> void:
 	_ok(SpeciesLibrary.save(feod) == "", "féodalité créée enregistrée")
 	var st3 := GameState.create(8, 150, 1800.0, String(feod["id"]), {"ai_level": ""})
 	_ok(st3.empires[0].heir_loyalty > 0 and FactionTraits.fleet_speed_pct(st3, 0) == 130, "héritier et navigateurs pour un peuple créé")
+
+
+## Archétype lithoïde : mange des matériaux, grandit lentement, habite les mondes stériles.
+func _test_lithoid() -> void:
+	SpeciesLibrary.dir = TEST_DIR
+	var s := _spec("vael", "Concile de Basalte")
+	s["archetype"] = "lithoide"
+	s["portrait"] = "lithoide_2"
+	_ok(Species.check(s) == "", "lithoïde valide (%s)" % Species.check(s))
+	var g := s.duplicate(true)
+	g["gouvernement"] = "ruche"
+	_ok(_err_has(g, "incompatible") or _err_has(g, "demande"), "pas d'esprit de ruche pour des lithoïdes")
+	_ok(SpeciesLibrary.save(s) == "", "lithoïde enregistré")
+	var fid := String(s["id"])
+	var f := GameData.faction(fid)
+	_ok(FactionTraits.diet(f) == "materials" and int(f["growth_pct"]) == 75, "régime de roche et croissance lente")
+	_ok(Economy.habitability("barren", f) == 50 and Economy.habitability("barren", GameData.faction("vael")) == 0, "monde stérile habitable pour lui seul")
+	var st := GameState.create(5, 150, 1800.0, fid, {"ai_level": ""})
+	_ok(Economy.houses_pop(st, 0, "barren") and not Economy.houses_pop(st, 1, "barren"), "il loge une population sur la roche nue")
+	var cap: Colony = st.colonies[st.get_empire(0).capital_planet]
+	var y := Economy.colony_yields(st, cap)
+	_ok(int(y["upkeep"].get("food", 0)) == 0 and int(y["upkeep"]["materials"]) >= cap.population, "la capitale mange des matériaux, pas de nourriture")
+	_ok(Economy.growth_per_day(st, cap) < int(GameData.rules()["growth_per_day"]), "la population grandit plus lentement")
+	st.get_empire(0).resources["materials"] = -50
+	st.get_empire(0).resources["food"] = 500
+	var sim := Simulation.new(st)
+	sim.advance(int(GameData.rules()["month_days"]) + 1)
+	_ok(st.get_empire(0).starving, "sans matériaux, les lithoïdes ont faim")
+	var st2 := GameState.create(3, 150, 1800.0, "", {"rivals": ["choeur", fid], "spectator": true})
+	Simulation.new(st2).advance(1440)
+	var barren := 0
+	for pid in st2.colonies:
+		var c: Colony = st2.colonies[pid]
+		if c.owner == 1 and c.is_colony() and st2.galaxy.get_planet(pid).type == "barren":
+			barren += 1
+	_ok(not st2.get_empire(1).eliminated, "l'IA lithoïde survit quatre ans")
+	_ok(barren > 0, "l'IA lithoïde colonise des mondes stériles (%d en 4 ans)" % barren)
 
 
 func _test_save() -> void:

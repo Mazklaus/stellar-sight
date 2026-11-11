@@ -243,6 +243,16 @@ static func colony_start_pop(state: GameState, empire_id: int) -> int:
 			+ Research.fx_int(state, empire_id, "colony_start_pop")
 
 
+## Ce que mange la population : "food" d'ordinaire, "materials" pour les lithoïdes.
+static func diet(faction: Dictionary) -> String:
+	return String(faction.get("diet", "food"))
+
+
+## Habitabilité propre d'un type que les autres ne peuplent pas (lithoïdes : mondes stériles), 0 sinon.
+static func hab_extra(faction: Dictionary, planet_type: String) -> int:
+	return int(faction.get("hab_extra", {}).get(planet_type, 0))
+
+
 ## Habitabilité plancher (Vael) : 0 si aucune.
 static func hab_floor(faction: Dictionary) -> int:
 	return int(faction.get("hab_floor", 0))

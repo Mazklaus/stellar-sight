@@ -65,15 +65,16 @@ func _initialize() -> void:
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.add_child(bg)
 	var grid := GridContainer.new()
-	grid.columns = 5
+	grid.columns = 7
 	grid.position = Vector2(60, 60)
 	grid.add_theme_constant_override("h_separation", 16)
 	grid.add_theme_constant_override("v_separation", 16)
 	bg.add_child(grid)
 	for p: Dictionary in Species.portraits():
 		var box := VBoxContainer.new()
-		var col := Color("#3fb6a8") if (p["archetypes"] as Array).has("humanoide") else Color("#c46a2b")
-		box.add_child(Widgets.ArtSlot.new("portrait_" + String(p["id"]), Vector2(270, 330), col, "faction"))
+		var arch := String((p["archetypes"] as Array)[0])
+		var col := {"humanoide": Color("#3fb6a8"), "ruche": Color("#c46a2b"), "lithoide": Color("#9aa7b8")}.get(arch, Color("#9b7fd4")) as Color
+		box.add_child(Widgets.ArtSlot.new("portrait_" + String(p["id"]), Vector2(200, 245), col, "faction"))
 		var l := Label.new()
 		l.text = String(p["label"])
 		box.add_child(l)

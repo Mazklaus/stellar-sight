@@ -452,6 +452,12 @@ Sources consultées pour la mise en page : la création de civilisation de Galac
 
 ![Éditeur de peuples, onglet Traits](docs/apercu-editeur-peuples.png)
 
+### Lot 3 : nouvelles briques, une à la fois
+
+Chaque nouvelle brique apporte une vraie mécanique et passe au banc de 24 parties.
+
+- **Archétype Lithoïde** : des corps de pierre et de cristal. Ce que les autres cultivent, ils l'extraient (la nourriture produite par les habitants devient des matériaux) et chacun mange 1 matériau par mois au lieu de nourriture ; sans matériaux, c'est la famine (`diet`). Population 25 % plus lente. Les mondes stériles leur sont habitables à 50 % (`hab_extra`). L'IA bâtit des mines plutôt que des fermes quand elle manque, et recherche les mondes que seul son corps peuple (`own_world_bonus`). Inspiration : les Lithoïdes de Stellaris, qui mangent des minéraux, grandissent 25 % moins vite et gagnent en habitabilité (journal de développement Paradox n° 157 et fils de joueurs, vus en extraits de recherche seulement : le forum Paradox refuse l'accès automatique). Banc (24 parties, 25 ans, IA Normale, « Concile de Basalte » : lithoïde, république, raison, filons, érudits + garnisons tenaces) : dans la cible de l'étude d'équilibrage (avec l'IA qui colonise la roche nue : 5 morts avant l'an 10, 18,1 systèmes à l'an 10, 12 % de victoires ; sans : 3, 21,4 et 17 %, écart dans le bruit d'un banc de 24 parties).
+
 ## Modèles 3D des vaisseaux
 
 Les vaisseaux ont un modèle 3D source (glTF), produit à partir d'un concept Midjourney par Tripo, puis cuit dans Blender par `tools/vaisseaux/cuire_vaisseau.py` et contrôlé par `tools/vaisseaux/apercu_vaisseau.gd`. `tools/vaisseaux/sprites_vaisseau.gd` en tire des sprites vus de dessus (`assets/ships/`), que la vue de replay et le Chantier affichent teints aux couleurs de l'empire (`ShipArt`) ; sans sprite, ils gardent leur dessin stylisé. Une version allégée du modèle (`tools/vaisseaux/alleger_vaisseau.py`) sert à la cinématique 3D des batailles, ouverte depuis la vue de replay (`BattleCinematic`). Pour l'instant, seules les frégates Ossarane et Kh'thari en ont un. Règles (nommage, axes, budgets, cartes, masque d'empire, points d'attache) et commandes : [docs/vaisseaux-3d.md](docs/vaisseaux-3d.md).

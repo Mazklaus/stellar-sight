@@ -326,6 +326,7 @@ class ArtSlot:
 		var pid := art_id.trim_prefix("portrait_")
 		var look := String(Species.portrait_def(pid).get("look", ""))
 		var hive := pid.begins_with("ruche")
+		var rock := pid.begins_with("lithoide")
 		var s := minf(r.size.x, r.size.y * 0.9)
 		var cx := r.size.x * 0.5
 		var base := r.size.y
@@ -333,13 +334,43 @@ class ArtSlot:
 		var edge := Color(tint.lightened(0.35), 0.8)
 		var eye := Color(tint.lightened(0.7), 0.95)
 		draw_circle(Vector2(cx, base * 0.42), s * 0.42, Color(tint, 0.07))
-		var sw := s * (0.5 if look == "colossus" else 0.4)
+		var sw := s * (0.5 if look == "colossus" or look == "boulder" else 0.4)
 		var sh_y := base * 0.78
 		draw_colored_polygon(PackedVector2Array([Vector2(cx - sw, base), Vector2(cx - sw * 0.85, sh_y), Vector2(cx - sw * 0.3, sh_y - s * 0.08),
 				Vector2(cx + sw * 0.3, sh_y - s * 0.08), Vector2(cx + sw * 0.85, sh_y), Vector2(cx + sw, base)]), fill.darkened(0.2))
 		var head := Vector2(cx, base * 0.48)
 		var hr := s * (0.14 if look == "crown" and hive else 0.17)
-		if hive:
+		if rock:
+			# Tête à facettes : un polygone irrégulier, des arêtes claires, des yeux comme des braises.
+			var k := 7 if look != "boulder" else 9
+			var rp := PackedVector2Array()
+			for i in k:
+				var a := TAU * i / float(k) - PI * 0.5
+				var rr := hr * (1.25 if look == "boulder" else 1.05) * (0.86 + 0.14 * float((i * 5) % 3))
+				rp.append(head + Vector2(cos(a) * rr, sin(a) * rr * 1.1))
+			draw_colored_polygon(rp, fill)
+			for i in k:
+				if i % 2 == 0:
+					draw_line(head, rp[i], Color(edge, 0.35), 1.0, true)
+			rp.append(rp[0])
+			draw_polyline(rp, edge, 1.5, true)
+			match look:
+				"shards":
+					for x in [-0.6, -0.15, 0.35, 0.75]:
+						var b0 := head + Vector2(hr * x, -hr * 0.85)
+						var h := hr * (0.9 + 0.5 * absf(x))
+						draw_colored_polygon(PackedVector2Array([b0 + Vector2(-hr * 0.13, 0), b0 + Vector2(hr * 0.12 * x, -h), b0 + Vector2(hr * 0.13, 0)]), Color(eye, 0.75))
+				"geode":
+					draw_circle(head + Vector2(0, hr * 0.15), hr * 0.42, Color(eye, 0.35))
+					for i in 6:
+						var a := TAU * i / 6.0
+						draw_line(head + Vector2(0, hr * 0.15), head + Vector2(0, hr * 0.15) + Vector2(cos(a), sin(a)) * hr * 0.42, eye, 1.5, true)
+				"boulder":
+					for i in 3:
+						draw_arc(head + Vector2(-hr * 0.2, hr * 0.5), hr * (0.25 + 0.15 * i), PI * 1.1, PI * 1.6, 10, Color(edge, 0.6), 1.0, true)
+			for side in [-1.0, 1.0]:
+				draw_line(head + Vector2(side * hr * 0.55, -hr * 0.15), head + Vector2(side * hr * 0.2, -hr * 0.05), eye, 3.0, true)
+		elif hive:
 			var hp := PackedVector2Array()
 			for i in 24:
 				var a := TAU * i / 24.0
