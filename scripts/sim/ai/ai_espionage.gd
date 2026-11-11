@@ -8,6 +8,11 @@ extends RefCounted
 ##   sinon l'empire rencontré qu'elle aime le moins ; une cellule va à une deuxième cible quand elle
 ##   en a trois ou plus à placer. Pas d'espionnage des alliés (le lot 2 rendra cela risqué).
 ## La Recrue « utilise mal » : tout chez le premier empire rencontré, rien chez elle.
+## Opérations (lot 2) : une à la fois, quand l'influence le permet (une réserve gardée de côté).
+## En guerre : saboter puis voler ; en paix, selon le tempérament : voler (pas les pacifiques) ou
+## commander un rapport. La Recrue lance la première qui passe, sans regarder ses chances ; les
+## autres veulent au moins 50 % de succès et, en paix, au plus 40 % de risque d'être prises.
+## Réponse à des espions démasqués : expulser un ennemi ou un empire mal aimé, sinon exiger réparation.
 ## Déterministe : ordre des identifiants, opinions entières, aucun aléatoire.
 
 
@@ -35,6 +40,52 @@ static func think(ctx: Dictionary) -> void:
 		var n := int(want[b])
 		if Espionage.cells_on(state, e.id, b) != n:
 			AiPlayer._issue(ctx, SimCommands.spy_cells(e.id, b, n))
+	_operation(ctx)
+
+
+const OP_RESERVE := 100
+const WAR_OPS := ["sabotage_chantier", "archives", "vol_techno", "siphon", "rapport"]
+const PEACE_OPS := ["vol_techno", "rapport"]
+const CALM_OPS := ["rapport"]
+
+
+static func _operation(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if AiPlayer._forgets(ctx):
+		return
+	var use := int(ctx["lv"].get("faction_use", 1))
+	var calm := AiLevels.aggression(e) < 0
+	var ks := state.networks.keys()
+	ks.sort()
+	for k in ks:
+		var net: Dictionary = state.networks[k]
+		var b := int(net["b"])
+		if int(net["a"]) != e.id or b == e.id or Diplomacy.allied(state, e.id, b):
+			continue
+		if not Espionage.running(state, e.id, b).is_empty():
+			continue
+		var war := Combat.at_war(state, e.id, b)
+		var menu: Array = WAR_OPS if war else (CALM_OPS if calm else PEACE_OPS)
+		for op_id in menu:
+			if Espionage.check_op(state, e.id, b, op_id) != "":
+				continue
+			var cost := Espionage.op_cost(state, e.id, op_id)
+			if int(e.resources.get("influence", 0)) - int(cost.get("influence", 0)) < OP_RESERVE:
+				continue
+			if use > 0:
+				var ch := Espionage.chances(state, e.id, b, op_id)
+				if int(ch["success"]) < 50 or (not war and int(ch["discovery"]) > 40):
+					continue
+			if AiPlayer._issue(ctx, SimCommands.spy_op(e.id, b, op_id)):
+				return
+
+
+## Réponse de l'IA victime : "expel" ou "reparation".
+static func response(state: GameState, victim: int, spy: int) -> String:
+	if Combat.at_war(state, victim, spy) or Diplomacy.opinion(state, victim, spy) < -30:
+		return "expel"
+	return "reparation"
 
 
 ## Répartition voulue {empire visé: cellules} (l'empire lui-même = contre-espionnage).

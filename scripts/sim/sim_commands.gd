@@ -158,6 +158,21 @@ static func probe(player: int, system_id: int) -> Dictionary:
 	return {"type": "probe", "player": player, "system": system_id}
 
 
+## Lance une opération d'espionnage (data/espionage.json "operations") chez target.
+static func spy_op(player: int, target: int, op_id: String) -> Dictionary:
+	return {"type": "spy_op", "player": player, "target": target, "op": op_id}
+
+
+## Annule l'opération en cours chez target.
+static func spy_cancel(player: int, target: int) -> Dictionary:
+	return {"type": "spy_cancel", "player": player, "target": target}
+
+
+## Répond à des espions démasqués chez soi : "expel" ou "reparation".
+static func spy_answer(player: int, case_id: int, choice: String) -> Dictionary:
+	return {"type": "spy_answer", "player": player, "case": case_id, "choice": choice}
+
+
 ## Renvoie "" si l'ordre est applicable à cet état, sinon la raison du refus.
 ## Multijoueur : confie un empire à un humain (ai_level "") ou à l'IA (un niveau d'AiLevels), quand un
 ## joueur rejoint ou quitte la partie. Seul l'hôte l'émet (la session refuse celui d'un client) ;
@@ -234,6 +249,12 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Research.check_remove(state, int(cmd["player"]), String(cmd.get("tech", "")))
 		"spy_cells":
 			return Espionage.check_cells(state, int(cmd["player"]), int(cmd.get("target", -1)), int(cmd.get("n", -1)))
+		"spy_op":
+			return Espionage.check_op(state, int(cmd["player"]), int(cmd.get("target", -1)), String(cmd.get("op", "")))
+		"spy_cancel":
+			return Espionage.check_cancel(state, int(cmd["player"]), int(cmd.get("target", -1)))
+		"spy_answer":
+			return Espionage.check_answer(state, int(cmd["player"]), int(cmd.get("case", -1)), String(cmd.get("choice", "")))
 		"probe":
 			return Espionage.check_probe(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"seat":
@@ -357,6 +378,12 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				c.ship_days = 1
 		"spy_cells":
 			Espionage.set_cells(state, int(cmd["player"]), int(cmd["target"]), int(cmd["n"]))
+		"spy_op":
+			Espionage.launch(state, int(cmd["player"]), int(cmd["target"]), String(cmd["op"]))
+		"spy_cancel":
+			Espionage.cancel(state, int(cmd["player"]), int(cmd["target"]))
+		"spy_answer":
+			Espionage.answer(state, int(cmd["player"]), int(cmd["case"]), String(cmd["choice"]))
 		"probe":
 			Espionage.probe(state, int(cmd["player"]), int(cmd["system"]))
 		"declare_war":

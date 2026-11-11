@@ -609,90 +609,25 @@ static func add_progress(state: GameState, empire_id: int, tid: String, amount: 
 	return false
 
 
-# --- Espionnage industriel (credo Profit) -------------------------------------------------------
+# --- Technologies à voler (opération « Voler une technologie », dividende du credo Profit) --------
 ## Inspiration : l'opération « Steal Technology » de l'espionnage de Stellaris (une technologie que la
-## cible connaît et pas vous). Ici sans réseau d'espions : un vol tous les six mois, sans hasard
-## (la prise se décide par un hachage de la partie, du jour et des deux empires).
+## cible connaît et pas vous). Voir Espionage.
 
-static func steal_rules(faction: Dictionary) -> Dictionary:
-	return faction.get("research", {}).get("steal", {})
-
-
-## Ce qu'on volerait aujourd'hui : [victime, technologie] (vide si rien). La victime est l'empire
-## rencontré qui a le plus de technologies cherchables que le voleur n'a pas ; la technologie, la
-## plus chère d'entre elles (à égalité, l'ordre des identifiants).
-static func steal_target(state: GameState, thief: int) -> Array:
+## La technologie qu'on volerait à la victime : la plus chère de celles qu'elle connaît et que le
+## voleur peut chercher (à égalité, l'ordre des identifiants). "" si rien.
+static func steal_target(state: GameState, thief: int, victim: int) -> String:
 	var e := state.get_empire(thief)
-	if e == null or steal_rules(e.faction()).is_empty():
-		return []
-	var best_victim := -1
-	var best_list: Array[String] = []
-	for o in e.contacts:
-		var oe := state.get_empire(o)
-		if oe == null or oe.eliminated:
+	var oe := state.get_empire(victim)
+	if e == null or oe == null or oe.eliminated:
+		return ""
+	var pick := ""
+	for tid in oe.sorted_techs():
+		var t := String(tid)
+		if not is_available(state, thief, t):
 			continue
-		var cand: Array[String] = []
-		for tid in oe.sorted_techs():
-			if is_available(state, thief, String(tid)) and not e.research_queue.slice(0, 1).has(tid):
-				cand.append(String(tid))
-		if cand.size() > best_list.size():
-			best_list = cand
-			best_victim = o
-	if best_victim < 0:
-		return []
-	var pick := best_list[0]
-	for tid in best_list:
-		if cost(state, thief, tid) > cost(state, thief, pick):
-			pick = tid
-	return [best_victim, pick]
-
-
-## Les espions se font-ils prendre ? Déterministe : même partie, même jour, même réponse.
-static func steal_caught(state: GameState, thief: int, victim: int) -> bool:
-	var r := steal_rules(state.get_empire(thief).faction())
-	var pct := int(r.get("trade_caught_pct" if Diplomacy.has_trade(state, thief, victim) else "caught_pct", 30))
-	return posmod(hash([state.seed_value, state.tick, thief, victim, "vol"]), 100) < pct
-
-
-## Un vol (appelé chaque mois ; n'agit que tous les every_days, décalé selon l'empire).
-## Renvoie [victime, technologie, Savoir, découverte ?, pris ?] ou [] si rien.
-static func steal_month(state: GameState, thief: int) -> Array:
-	var e := state.get_empire(thief)
-	if e == null or e.eliminated:
-		return []
-	var r := steal_rules(e.faction())
-	if r.is_empty():
-		return []
-	@warning_ignore("integer_division")
-	var every := maxi(1, int(r["every_days"]) / 30)
-	@warning_ignore("integer_division")
-	if posmod(state.tick / 30 + thief, every) != 0:
-		return []
-	return steal_now(state, thief)
-
-
-static func steal_now(state: GameState, thief: int) -> Array:
-	var e := state.get_empire(thief)
-	var tgt := steal_target(state, thief)
-	if tgt.is_empty():
-		return []
-	var victim := int(tgt[0])
-	var tid := String(tgt[1])
-	@warning_ignore("integer_division")
-	var amount := maxi(1, cost(state, thief, tid) * int(steal_rules(e.faction())["pct"]) / 100)
-	var done := add_progress(state, thief, tid, amount)
-	var caught := steal_caught(state, thief, victim)
-	count_stat(state, thief, "stolen")
-	var label := String(tech(tid).get("label", tid))
-	var ve := state.get_empire(victim)
-	if caught:
-		Diplomacy.remember(state, victim, thief, "tech_stolen")
-		state.add_chronicle("Des espions de %s sont pris dans les archives de %s avec les plans de « %s ». Ils parlent d'un malentendu ; personne ne les croit." % [
-				e.display_name(), ve.display_name(), label], Espionage.public_to(state, [thief, victim]))
-	else:
-		state.add_chronicle("Les plans de « %s » quittent les archives de %s sans que personne ne sache comment. %s, curieusement, avance très vite sur le sujet." % [
-				label, ve.display_name(), e.display_name()], Espionage.private_to(state, [thief]))
-	return [victim, tid, amount, done, caught]
+		if pick == "" or cost(state, thief, t) > cost(state, thief, pick):
+			pick = t
+	return pick
 
 
 ## Savoir déjà acquis pour une technologie (en cours ou mis de côté).

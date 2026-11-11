@@ -20,6 +20,12 @@ func run(check: Callable) -> void:
 	_test_save()
 	_test_old_save()
 	_test_determinism()
+	_test_operations()
+	_test_larcin_sabotage()
+	_test_discovery()
+	_test_ally_caught()
+	_test_ai_ops()
+	_test_save_ops()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -232,7 +238,7 @@ func _test_save() -> void:
 	sim.advance(31)
 	_ok(st.get_empire(0).dossiers.has(1), "dossier tenu avant sauvegarde")
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 17, "format de sauvegarde 17")
+	_ok(int(d["version"]) == GameState.FORMAT_VERSION, "format de sauvegarde à jour")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null, "sauvegarde 17 relue (%s)" % GameState.last_error)
 	if back == null:
@@ -303,3 +309,158 @@ func _test_ai_reads_network() -> void:
 	st.networks[Espionage.key(0, 1)]["inf"] = 25
 	Espionage.monthly(st)
 	_ok(Intel.owner_in(st, spy, Intel.seen(st, 0), target) == 1, "réseau et IA : les Cartographes lui apprennent qui tient le système")
+
+
+# --- Lot 2 : opérations -------------------------------------------------------------------------
+
+## Réseau de 0 chez 1 au niveau voulu, avec de l'influence pour opérer.
+func _ready_net(seed_value: int, inf: int) -> GameState:
+	var st := _met(seed_value)
+	Espionage.set_cells(st, 0, 1, 1)
+	st.networks[Espionage.key(0, 1)]["inf"] = inf
+	st.get_empire(0).resources["influence"] = 500
+	return st
+
+
+func _test_operations() -> void:
+	var st := _ready_net(50, 25)
+	_ok(Espionage.check_op(st, 0, 1, "rapport") == "", "rapport possible au palier Cartographes")
+	_ok(Espionage.check_op(st, 0, 1, "siphon") != "", "larcin refusé sous le palier Comptables")
+	var ch := Espionage.chances(st, 0, 1, "rapport")
+	_ok(int(ch["success"]) == 85 and int(ch["discovery"]) == 10, "briefing : chances de base sans modificateur (%d / %d)" % [ch["success"], ch["discovery"]])
+	Espionage.set_cells(st, 1, 1, 2)
+	ch = Espionage.chances(st, 0, 1, "rapport")
+	_ok(int(ch["discovery"]) == 30 and int(ch["success"]) == 75, "contre-espionnage : +20 découverte, chiffrement : -10 succès (%d / %d)" % [ch["success"], ch["discovery"]])
+	Espionage.set_cells(st, 1, 1, 0)
+	var cmd := SimCommands.spy_op(0, 1, "rapport")
+	_ok(SimCommands.validate(st, cmd) == "", "ordre : lancer un rapport")
+	SimCommands.apply(st, cmd)
+	_ok(int(st.get_empire(0).resources["influence"]) == 480 and not Espionage.running(st, 0, 1).is_empty(), "rapport lancé, 20 influence payées")
+	_ok(SimCommands.validate(st, cmd) != "", "une seule opération à la fois par réseau")
+	SimCommands.apply(st, SimCommands.spy_cancel(0, 1))
+	_ok(Espionage.running(st, 0, 1).is_empty(), "opération annulée")
+	# Résolution : on force les chances pour tester chaque issue.
+	var sim := Simulation.new(st)
+	SimCommands.apply(st, SimCommands.spy_op(0, 1, "rapport"))
+	var op: Dictionary = Espionage.running(st, 0, 1)
+	op["success"] = 100
+	op["discovery"] = 0
+	var before_inf := Espionage.infiltration(st, 0, 1)
+	sim.advance(31)
+	_ok(Espionage.running(st, 0, 1).is_empty(), "opération terminée à son terme")
+	_ok(int(st.get_empire(0).dossiers.get(1, {}).get("tier", 0)) == 4, "rapport réussi : dossier complet")
+	_ok(Espionage.infiltration(st, 0, 1) < before_inf + 10, "une réussite consomme de l'infiltration")
+	_ok(not Espionage.can_read(st.chronicle.back(), 1) or not String(st.chronicle.back()["text"]).contains("Rapport"), "réussite discrète : la victime n'en sait rien")
+
+
+func _test_larcin_sabotage() -> void:
+	var st := _ready_net(51, 70)
+	var e0 := st.get_empire(0)
+	var e1 := st.get_empire(1)
+	e1.resources["energy"] = 400
+	var energy0 := int(e0.resources["energy"])
+	SimCommands.apply(st, SimCommands.spy_op(0, 1, "siphon"))
+	var op: Dictionary = Espionage.running(st, 0, 1)
+	op["success"] = 100
+	op["discovery"] = 0
+	op["end"] = st.tick
+	Espionage.daily(st)
+	_ok(int(e1.resources["energy"]) == 320 and int(e0.resources["energy"]) == energy0 + 80, "siphon : 20 % de son énergie passe chez nous")
+	# Sabotage d'un chantier.
+	var cap: Colony = st.colonies[e1.capital_planet]
+	cap.construction = "forum" if GameData.building("forum").size() > 0 else GameData.buildings().keys()[0]
+	cap.construction_days = 10
+	_ok(Espionage.check_op(st, 0, 1, "sabotage_chantier") == "", "sabotage possible au palier Amirauté (%s)" % Espionage.check_op(st, 0, 1, "sabotage_chantier"))
+	SimCommands.apply(st, SimCommands.spy_op(0, 1, "sabotage_chantier"))
+	op = Espionage.running(st, 0, 1)
+	op["success"] = 100
+	op["discovery"] = 0
+	op["end"] = st.tick
+	Espionage.daily(st)
+	_ok(cap.construction_days == 70, "sabotage : 60 jours de retard (%d)" % cap.construction_days)
+	# Archives.
+	e1.research_progress = 100
+	SimCommands.apply(st, SimCommands.spy_op(0, 1, "archives"))
+	op = Espionage.running(st, 0, 1)
+	op["success"] = 100
+	op["discovery"] = 0
+	op["end"] = st.tick
+	Espionage.daily(st)
+	_ok(e1.research_progress == 50, "archives : la moitié du Savoir en cours brûle")
+
+
+func _test_discovery() -> void:
+	var st := _ready_net(52, 45)
+	SimCommands.apply(st, SimCommands.spy_op(0, 1, "rapport"))
+	var op: Dictionary = Espionage.running(st, 0, 1)
+	op["success"] = 0
+	op["discovery"] = 100
+	op["end"] = st.tick
+	Espionage.daily(st)
+	_ok(Espionage.infiltration(st, 0, 1) == 15, "démasqué : le réseau perd 30")
+	var labels := PackedStringArray()
+	for p in Diplomacy.opinion_parts(st, 1, 0):
+		labels.append(String(p["label"]))
+	_ok(" ".join(labels).contains("pris chez nous"), "la victime s'en souvient")
+	_ok(Espionage.has_grief(st, 1, 0), "grief d'un an")
+	var cases := Espionage.cases_for(st, 1)
+	_ok(cases.size() == 1, "un dossier attend la réponse de la victime (humaine dans ce test)")
+	_ok(Espionage.can_read(st.chronicle.back(), 1), "la victime lit la découverte dans sa chronique")
+	# Réparation payée.
+	var inf0 := int(st.get_empire(0).resources["influence"])
+	SimCommands.apply(st, SimCommands.spy_answer(1, int(cases[0]["id"]), "reparation"))
+	_ok(int(st.get_empire(0).resources["influence"]) == inf0 - 80, "réparation : 80 influence payées")
+	_ok(Espionage.cases_for(st, 1).is_empty(), "dossier clos")
+	# Expulsion faute de réponse.
+	SimCommands.apply(st, SimCommands.spy_op(0, 1, "rapport"))
+	op = Espionage.running(st, 0, 1)
+	op["success"] = 0
+	op["discovery"] = 100
+	op["end"] = st.tick
+	Espionage.daily(st)
+	st.tick += 30
+	Espionage.daily(st)
+	_ok(Espionage.cases_for(st, 1).is_empty() and Espionage.infiltration(st, 0, 1) == 0 and Espionage.cells_on(st, 0, 1) == 0, "sans réponse en 30 jours : expulsion")
+	# Grief : déclarer la guerre à l'espion pendant une paix n'est pas un parjure.
+	Diplomacy._rel_w(st, 0, 1)["pact"] = Diplomacy.PEACE
+	Combat.start_war(st, 1, 0)
+	var parjure := false
+	for m in st.memories:
+		if int(m["about"]) == 1 and (String(m["kind"]) == "oathbreaker" or String(m["kind"]) == "broke_treaty"):
+			parjure = true
+	_ok(not parjure, "grief : rompre la paix avec l'espion n'est pas un parjure")
+
+
+func _test_ally_caught() -> void:
+	var st := _ready_net(53, 45)
+	Diplomacy._rel_w(st, 0, 1)["pact"] = Diplomacy.ALLIANCE
+	SimCommands.apply(st, SimCommands.spy_op(0, 1, "rapport"))
+	var op: Dictionary = Espionage.running(st, 0, 1)
+	op["discovery"] = 100
+	op["end"] = st.tick
+	Espionage.daily(st)
+	_ok(not Diplomacy.allied(st, 0, 1), "un allié pris à espionner : l'alliance est rompue")
+
+
+func _test_ai_ops() -> void:
+	var st := _ready_net(54, 50)
+	st.get_empire(1).ai_level = "normal"
+	st.get_empire(0).ai_level = "normal"
+	st.get_empire(0).resources["influence"] = 300
+	var ctx := {"state": st, "e": st.get_empire(0), "lv": AiLevels.level("normal"), "ai": AiLevels.personality(st.get_empire(0)), "salt": 0, "intent": ""}
+	ctx["lv"] = (ctx["lv"] as Dictionary).duplicate()
+	ctx["lv"]["mistake_pct"] = 0
+	AiEspionage._operation(ctx)
+	_ok(not Espionage.running(st, 0, 1).is_empty(), "l'IA lance une opération quand elle a de quoi (%s)" % str(Espionage.running(st, 0, 1).get("op", "")))
+	_ok(AiEspionage.response(st, 1, 0) in ["expel", "reparation"], "l'IA répond à une découverte")
+	Combat.start_war(st, 1, 0)
+	_ok(AiEspionage.response(st, 1, 0) == "expel", "en guerre, l'IA expulse")
+
+
+func _test_save_ops() -> void:
+	var st := _ready_net(55, 45)
+	SimCommands.apply(st, SimCommands.spy_op(0, 1, "rapport"))
+	st.spy_cases.append({"id": 99, "victim": 0, "spy": 1, "op": "siphon", "tick": st.tick})
+	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_dict())))
+	_ok(back != null and back.checksum() == st.checksum(), "opérations et dossiers sauvegardés (version %d)" % GameState.FORMAT_VERSION)
+	_ok(back != null and back.operations.size() == 1 and String(back.operations[0]["op"]) == "rapport" and back.spy_cases.size() == 1, "opérations relues")

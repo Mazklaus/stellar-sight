@@ -94,6 +94,9 @@ var _shipyard_selected := ""
 ## empire visé (pour les tests).
 var intel_selected := -1
 var intel_buttons := {}
+## Boutons LANCER par opération (empire choisi), et EXPULSER / EXIGER RÉPARATION par dossier.
+var intel_op_buttons := {}
+var intel_case_buttons := {}
 var _intel_sig := ""
 var _shipyard_sig := ""
 

@@ -33,6 +33,32 @@
 		{"id": "conseil", "at": 80, "label": "Conseil",
 			"text": "Ce qu'il pense de chacun : ses guerres, ses haines et ses amitiés."}
 	],
+	"operations": [
+		{"id": "rapport", "family": "renseignement", "label": "Rapport complet", "tier": 1,
+			"cost": {"influence": 20}, "days": 30, "success": 85, "discovery": 10, "spend": 5,
+			"text": "Un dossier complet (comme au palier Conseil) et les relevés de tous ses systèmes, une fois."},
+		{"id": "vol_techno", "family": "larcin", "label": "Voler une technologie", "tier": 2,
+			"cost": {"influence": 40}, "days": 60, "success": 70, "discovery": 25, "spend": 15, "steal_pct": 40,
+			"text": "40 % d'une technologie qu'il connaît et pas vous (la plus chère qu'on puisse chercher)."},
+		{"id": "siphon", "family": "larcin", "label": "Siphonner l'énergie", "tier": 2,
+			"cost": {"influence": 25}, "days": 30, "success": 75, "discovery": 20, "spend": 10, "take_pct": 20, "take_max": 150,
+			"text": "20 % de sa réserve d'énergie (150 au plus) passent dans la vôtre."},
+		{"id": "sabotage_chantier", "family": "sabotage", "label": "Saboter un chantier", "tier": 3,
+			"cost": {"influence": 50}, "days": 45, "success": 65, "discovery": 35, "spend": 20, "delay_days": 60,
+			"text": "Le chantier spatial le plus avancé de sa capitale (ou de sa plus grande colonie) prend 60 jours de retard."},
+		{"id": "archives", "family": "sabotage", "label": "Brûler des archives", "tier": 3,
+			"cost": {"influence": 50}, "days": 45, "success": 65, "discovery": 35, "spend": 20, "burn_pct": 50,
+			"text": "La moitié du Savoir déjà accumulé sur sa recherche en cours part en fumée."}
+	],
+	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
+	"chances": {
+		"per_tier": 5, "per_crypto": 10, "counter_per_cell": 10, "era_gap_discovery": 10, "min": 5, "max": 95,
+		"_": "succès + per_tier par palier au-dessus du minimum + per_crypto par point de déchiffrement d'avance ; découverte + counter_per_cell par cellule chez la cible, + era_gap_discovery par ère d'avance de la cible, - per_tier par palier au-dessus"
+	},
+	"discovery": {
+		"infiltration_loss": 30, "answer_days": 30, "reparation": {"influence": 80},
+		"_": "un réseau pris perd 30 ; la victime a 30 jours pour répondre (sinon : expulsion) ; réparation exigée"
+	},
 	"probes": {
 		"max": 3,
 		"regen_days": 90,
