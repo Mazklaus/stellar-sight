@@ -64,5 +64,5 @@ static func _sample(st: GameState, e: Empire) -> Dictionary:
 		"proj": Economy.active_projects(st, e.id), "maxproj": Economy.max_projects_for(st, e.id),
 		"colonizers": colonizers, "building": building_colonizer, "waiting": waiting,
 		"warships": warships, "war": not e.wars.is_empty(),
-		"targets": AiPlayer._has_open_targets(st, e, int(use), 1),
+		"targets": AiPlayer._has_open_targets(st, e, int(use), 1, Intel.seen(st, e.id)),
 	}

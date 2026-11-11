@@ -16,6 +16,7 @@ func run(check: Callable) -> void:
 	_test_chronicle()
 	_test_probes()
 	_test_ai()
+	_test_ai_reads_network()
 	_test_save()
 	_test_old_save()
 	_test_determinism()
@@ -275,3 +276,30 @@ func _test_determinism() -> void:
 		if e.is_ai() and Espionage.cells_used(a.state, e.id) > 0:
 			used = true
 	_ok(used, "les IA affectent leurs cellules")
+
+
+## Les relevés d'un réseau Cartographes nourrissent la mémoire, donc le jugement de l'IA (Intel.owner_in) :
+## un système pris en douce hors de vue devient connu de l'espion.
+func _test_ai_reads_network() -> void:
+	var sim := Simulation.new(_met(41))
+	var st := sim.state
+	var spy := st.get_empire(0)
+	var target := -1
+	var vis := Fleets.visible_systems(st, 0)
+	for s in st.galaxy.systems:
+		if s.planet_count > 0 and st.system_owner(s.id) == -1 and not vis.has(s.id):
+			target = s.id
+			break
+	_ok(target >= 0, "réseau et IA : un système libre hors de vue")
+	if target < 0:
+		return
+	var c := Colony.new()
+	c.planet_id = st.galaxy.get_system(target).planet_ids[0]
+	c.owner = 1
+	c.kind = Colony.KIND_OUTPOST
+	st.add_colony(c)
+	_ok(Intel.owner_in(st, spy, Intel.seen(st, 0), target) == -1, "réseau et IA : sans réseau, l'espion croit le système libre")
+	Espionage.set_cells(st, 0, 1, 1)
+	st.networks[Espionage.key(0, 1)]["inf"] = 25
+	Espionage.monthly(st)
+	_ok(Intel.owner_in(st, spy, Intel.seen(st, 0), target) == 1, "réseau et IA : les Cartographes lui apprennent qui tient le système")

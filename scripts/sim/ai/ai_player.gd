@@ -174,13 +174,14 @@ static func planet_value(state: GameState, e: Empire, p: Planet, use := 1) -> Di
 
 ## Meilleure planète à revendiquer dans un système pour l'empire : {"planet", "kind", "value"},
 ## ou {} s'il n'y a rien à prendre (déjà pris, ou système d'un autre empire).
-static func best_claim(state: GameState, e: Empire, system_id: int, use := 1) -> Dictionary:
-	var owner := state.system_owner(system_id)
+## vis : systèmes que l'empire voit ce tick ; hors de vue, l'IA juge sur sa mémoire (Intel).
+static func best_claim(state: GameState, e: Empire, system_id: int, use: int, vis: Dictionary) -> Dictionary:
+	var owner := Intel.owner_in(state, e, vis, system_id)
 	if owner != -1 and owner != e.id:
 		return {}
 	var best := {}
 	for pid in state.galaxy.systems[system_id].planet_ids:
-		var c: Colony = state.colonies.get(pid)
+		var c: Colony = Intel.colony_in(state, e, vis, pid)
 		var p := state.galaxy.get_planet(pid)
 		var v := {}
 		if c == null:
@@ -242,9 +243,9 @@ static func colonize_target(ctx: Dictionary, f: Fleet) -> Dictionary:
 		var sid := int(k)
 		if not Fleets.is_explored(state, e.id, sid) or taken.has(sid) or Economy.has_foothold(state, e.id, sid):
 			continue
-		if state.system_owner(sid) != -1:
+		if _owner(ctx, sid) != -1:
 			continue
-		var claim := best_claim(state, e, sid, use)
+		var claim := best_claim(state, e, sid, use, _seen(ctx))
 		if claim.is_empty() or int(claim["value"]) < MIN_TARGET_VALUE:
 			continue
 		@warning_ignore("integer_division")
@@ -269,7 +270,7 @@ static func rival_distance(ctx: Dictionary) -> Dictionary:
 	var dist := {}
 	var queue: Array[int] = []
 	for sid in e.sorted_explored():
-		var owner := state.system_owner(int(sid))
+		var owner := _owner(ctx, int(sid))
 		if owner != -1 and owner != e.id:
 			dist[int(sid)] = 0
 			queue.append(int(sid))
@@ -300,12 +301,12 @@ static func border_bias(ctx: Dictionary, system_id: int) -> int:
 
 
 ## Y a-t-il au moins `need` systèmes libres qui mériteraient un vaisseau colon ?
-static func _has_open_targets(state: GameState, e: Empire, use: int, need: int) -> bool:
+static func _has_open_targets(state: GameState, e: Empire, use: int, need: int, vis: Dictionary) -> bool:
 	var n := 0
 	for sid in e.sorted_explored():
-		if state.system_owner(int(sid)) != -1:
+		if Intel.owner_in(state, e, vis, int(sid)) != -1:
 			continue
-		var claim := best_claim(state, e, int(sid), use)
+		var claim := best_claim(state, e, int(sid), use, vis)
 		if not claim.is_empty() and int(claim["value"]) >= MIN_TARGET_VALUE:
 			n += 1
 			if n >= need:
@@ -685,7 +686,7 @@ static func _foothold_claims(ctx: Dictionary) -> void:
 			return
 		if not Economy.has_foothold(state, e.id, sid) or _forgets(ctx):
 			continue
-		var claim := best_claim(state, e, sid, use)
+		var claim := best_claim(state, e, sid, use, _seen(ctx))
 		if claim.is_empty():
 			continue
 		var cost := Economy.claim_cost_for(state, e.id, int(claim["planet"]), String(claim["kind"]))
@@ -728,7 +729,7 @@ static func _frontier(ctx: Dictionary) -> bool:
 
 static func _open(ctx: Dictionary) -> bool:
 	if not ctx.has("open"):
-		ctx["open"] = _has_open_targets(ctx["state"], ctx["e"], _use(ctx), 1)
+		ctx["open"] = _has_open_targets(ctx["state"], ctx["e"], _use(ctx), 1, _seen(ctx))
 	return ctx["open"]
 
 
@@ -748,7 +749,7 @@ static func _shipyards(ctx: Dictionary) -> void:
 	var cls := colonizer_class(e)
 	var wanted := int(ctx["lv"].get("colonizers", 1))
 	var have := _colonizer_count(state, e)
-	if cls != "" and have < wanted and _has_open_targets(state, e, use, have + 1) and not _forgets(ctx):
+	if cls != "" and have < wanted and _has_open_targets(state, e, use, have + 1, _seen(ctx)) and not _forgets(ctx):
 		var yard := _best_yard(ctx, cls)
 		if yard and _issue(ctx, SimCommands.build_ship(e.id, yard.planet_id, cls)):
 			_intent(ctx, "Prépare une expansion")
@@ -868,11 +869,11 @@ static func _colonizer(ctx: Dictionary, f: Fleet) -> void:
 	if f.is_moving():
 		# En route : on vérifie que la cible est toujours libre (un rival a pu passer avant).
 		var dest := f.destination()
-		var owner := state.system_owner(dest)
+		var owner := _owner(ctx, dest)
 		if owner == -1 or owner == e.id:
 			return
 	elif not _forgets(ctx):
-		var here := best_claim(state, e, f.system_id, _use(ctx))
+		var here := best_claim(state, e, f.system_id, _use(ctx), _seen(ctx))
 		if not here.is_empty() and int(here["value"]) >= MIN_TARGET_VALUE and not Economy.has_foothold(state, e.id, f.system_id):
 			# Le vaisseau colon passe avant les revendications sans vaisseau : il a déjà coûté cher.
 			if _issue(ctx, SimCommands.colonize(e.id, int(here["planet"]), String(here["kind"]))):
@@ -925,6 +926,12 @@ static func _my_power(ctx: Dictionary) -> int:
 	return n
 
 
+## Propriétaire d'un système tel que l'empire le connaît : en direct s'il le voit, sinon sa mémoire
+## (dernière information connue). L'IA a les mêmes yeux que le joueur.
+static func _owner(ctx: Dictionary, system_id: int) -> int:
+	return Intel.owner_in(ctx["state"], ctx["e"], _seen(ctx), system_id)
+
+
 ## Systèmes que l'empire voit aujourd'hui (mémorisés le temps d'une réflexion).
 static func _seen(ctx: Dictionary) -> Dictionary:
 	if not ctx.has("seen"):
@@ -950,7 +957,7 @@ static func enemy_power(ctx: Dictionary, other: int) -> int:
 	if _skill(ctx) >= 1:
 		# (une somme : l'ordre de parcours ne compte pas, inutile de trier)
 		for sid in e.explored:
-			if state.system_owner(int(sid)) == other:
+			if _owner(ctx, int(sid)) == other:
 				n += 6
 	return n
 
@@ -968,7 +975,7 @@ static func _borders(ctx: Dictionary, other: int, reach := 2) -> bool:
 	while i < queue.size():
 		var cur := queue[i]
 		i += 1
-		if state.system_owner(cur) == other and e.explored.has(cur):
+		if e.explored.has(cur) and _owner(ctx, cur) == other:
 			return true
 		if int(dist[cur]) >= reach:
 			continue
@@ -1411,10 +1418,10 @@ static func _war_target(ctx: Dictionary, from: int) -> int:
 	ids.sort()
 	for k in ids:
 		var sid := int(k)
-		var owner := state.system_owner(sid)
+		var owner := _owner(ctx, sid)
 		if owner < 0 or not e.wars.has(owner) or not e.explored.has(sid):
 			continue
-		var defense := Combat.garrison(state, sid) + _defense_at(ctx, sid) * 2
+		var defense := Intel.garrison_in(state, e, _seen(ctx), sid) + _defense_at(ctx, sid) * 2
 		@warning_ignore("integer_division")
 		var score := defense * 10 + int(res["dist"][k]) / 20
 		if best == -1 or score < best_score:
@@ -1536,7 +1543,7 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 		return
 	var need := int(mil.get("attack_ratio_pct", 130))
 	@warning_ignore("integer_division")
-	var defense := _defense_at(ctx, target) + Combat.garrison(state, target) / 4
+	var defense := _defense_at(ctx, target) + Intel.garrison_in(state, e, _seen(ctx), target) / 4
 	if _skill(ctx) >= 1 and Combat.fleet_power(f) * 100 < need * maxi(8, defense):
 		if here != home:
 			_issue(ctx, SimCommands.move_fleet(e.id, f.id, home))  # on rentre grossir la flotte
