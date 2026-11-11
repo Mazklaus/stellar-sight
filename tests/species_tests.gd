@@ -18,6 +18,7 @@ func run(check: Callable) -> void:
 	_test_game()
 	_test_lithoid()
 	_test_synthetic()
+	_test_network()
 	_test_save()
 	_cleanup()
 
@@ -247,6 +248,79 @@ func _test_synthetic() -> void:
 	e.resources["materials"] = 500
 	sim.advance(30)
 	_ok(cap.population > pop0 and int(e.resources["materials"]) < 500, "avec des matériaux, la chaîne reprend et les dépense")
+
+
+## Gouvernement Conscience distribuée : bonus de Savoir par nœud relié, nœuds coupés affaiblis.
+func _test_network() -> void:
+	SpeciesLibrary.dir = TEST_DIR
+	var s := _spec("vael", "Réseau d'Essai")
+	s["gouvernement"] = "conscience"
+	s["archetype"] = "synthetique"
+	_ok(Species.check(s) == "", "conscience distribuée valide (%s)" % Species.check(s))
+	_ok(SpeciesLibrary.save(s) == "", "conscience distribuée enregistrée")
+	var fid := String(s["id"])
+	var st := GameState.create(5, 150, 1800.0, fid, {"ai_level": ""})
+	var e := st.get_empire(0)
+	_ok(FactionTraits.network_nodes(st, 0) == 1 and FactionTraits.network_pct(st, 0) == 5, "la capitale est le premier nœud (+5 %)")
+	var base := FactionTraits.production_pct(st, 0, "knowledge")
+	# Une colonie voisine reliée, puis coupée par un système ennemi.
+	var cap_sys := st.galaxy.get_planet(e.capital_planet).system_id
+	var near: int = st.galaxy.systems[cap_sys].neighbors[0]
+	var pid: int = st.galaxy.systems[near].planet_ids[0]
+	var c := Colony.new()
+	c.planet_id = pid
+	c.owner = 0
+	c.kind = Colony.KIND_COLONY
+	c.population = 2
+	st.colonies[pid] = c
+	st.rebuild_ownership()
+	_ok(c.is_established(), "colonie d'essai établie")
+	_ok(FactionTraits.is_networked(st, c) and FactionTraits.network_nodes(st, 0) == 2, "la colonie voisine est un nœud")
+	_ok(FactionTraits.production_pct(st, 0, "knowledge") > base, "chaque nœud ajoute du Savoir")
+	var full: Dictionary = Economy.colony_yields(st, c)["gross"].duplicate()
+	# Un nœud entouré de systèmes ennemis est coupé : il produit moitié moins.
+	var d := FactionTraits.jumps_from(st.galaxy, cap_sys)
+	var far := -1
+	for sid in d:
+		if int(d[sid]) < 2 or int(d[sid]) > 4 or st.galaxy.systems[sid].planet_ids.is_empty() or st.system_owner(sid) != -1:
+			continue
+		var ok := true
+		for n in st.galaxy.systems[sid].neighbors:
+			if n == cap_sys or st.galaxy.systems[n].planet_ids.is_empty() or st.system_owner(n) > 0:
+				ok = false
+		if ok:
+			far = sid
+			break
+	_ok(far >= 0, "système d'essai à 2-4 sauts trouvé")
+	var fc := Colony.new()
+	fc.planet_id = st.galaxy.systems[far].planet_ids[0]
+	fc.owner = 0
+	fc.kind = Colony.KIND_COLONY
+	fc.population = 2
+	st.colonies[fc.planet_id] = fc
+	st.rebuild_ownership()
+	_ok(FactionTraits.is_networked(st, fc), "nœud lointain relié tant que la route est libre")
+	var linked: Dictionary = Economy.colony_yields(st, fc)["gross"].duplicate()
+	for n in st.galaxy.systems[far].neighbors:
+		var foe := Colony.new()
+		foe.planet_id = st.galaxy.systems[n].planet_ids[0]
+		foe.owner = 1
+		foe.kind = Colony.KIND_OUTPOST
+		st.colonies[foe.planet_id] = foe
+	st.rebuild_ownership()
+	_ok(not FactionTraits.is_networked(st, fc), "des systèmes ennemis tout autour coupent le nœud")
+	var cut: Dictionary = Economy.colony_yields(st, fc)["gross"]
+	var halved := true
+	for r in linked:
+		if int(linked[r]) > 1 and int(cut.get(r, 0)) * 2 > int(linked[r]) + 1:
+			halved = false
+	_ok(halved, "le nœud coupé produit moitié moins (%s contre %s)" % [cut, linked])
+	var g := FactionTraits.gauge(st, 0)
+	_ok(bool(g["bad"]) and String(g["label"]) == "Réseau", "la jauge Réseau signale le nœud coupé (%s)" % g.get("value", ""))
+	var sim := Simulation.new(GameState.create(9, 150, 1800.0, "", {"rivals": ["choeur", fid], "spectator": true}))
+	sim.advance(400)
+	_ok(sim.state.tick == 400, "une partie entre IA tourne avec la conscience distribuée")
+	_ok(not full.is_empty(), "rendements lus")
 
 
 func _test_save() -> void:

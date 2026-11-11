@@ -66,6 +66,12 @@
 				{"name": "Ambassades", "text": "+2 influence par mois pour chaque empire rencontré."},
 				{"name": "Au dernier moment", "text": "Une flotte qui rejoint une bataille déjà engagée inflige 30 % de dégâts en plus jusqu'à la fin de la bataille."}
 			]},
+		{"id": "conscience", "label": "Conscience distribuée", "text": "Pas de capitale qui commande : un réseau qui pense. Chaque colonie est un nœud.",
+			"fields": {"network": {"knowledge_per_node": 5, "max_pct": 50, "cut_pct": 50}, "ai": {"research_bias": {"genie": 2, "societe": 1}}},
+			"traits": [
+				{"name": "Réseau de nœuds", "text": "+5 % de Savoir par colonie reliée à la capitale (50 % au plus). Un nœud est relié si l'on peut aller de proche en proche jusqu'à la capitale par des systèmes à soi ou à personne, sans traverser de blocus ennemi."},
+				{"name": "Nœuds coupés", "text": "Une revendication coupée du réseau produit moitié moins, et ne compte plus dans le bonus de Savoir."}
+			]},
 		{"id": "ruche", "label": "Esprit de ruche", "text": "Pas de chefs, pas de débats : une seule volonté, qui a faim.",
 			"requires": {"archetype": ["ruche"]},
 			"fields": {"combat": {"prey": true, "digest": true, "garrison_pct": 150}, "ai": {"research_bias": {"armement": 2}, "temperament": {"never_peace": true}}},
