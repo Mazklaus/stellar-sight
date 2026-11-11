@@ -222,24 +222,39 @@ static func last_seen(state: GameState, viewer: int, system_id: int) -> int:
 
 ## Propriétaire du système selon le lecteur (-1 : personne, ou rien de connu).
 static func owner_of(state: GameState, viewer: int, system_id: int) -> int:
-	if is_live(state, viewer, system_id):
+	if viewer < 0:
 		return state.system_owner(system_id)
-	var m := known(state, viewer, system_id)
-	if m.is_empty():
-		return -1
-	return int(m["info"]["owner"])
+	var e := state.get_empire(viewer)
+	return -1 if e == null else owner_in(state, e, seen(state, viewer), system_id)
 
 
 ## Revendication d'une planète selon le lecteur : la vraie si son système est vu (ou si elle est au
 ## lecteur), sinon une copie reconstituée depuis le relevé (sans chantiers), ou null.
 static func colony_of(state: GameState, viewer: int, planet_id: int) -> Colony:
+	var e := state.get_empire(viewer) if viewer >= 0 else null
+	if e == null:
+		return state.colonies.get(planet_id)
+	return colony_in(state, e, seen(state, viewer), planet_id)
+
+
+# --- Lecture pour la simulation (l'IA) : vis = systèmes que l'empire voit ce tick ---------------
+## Mêmes réponses que owner_of et colony_of, sans recalculer la vision à chaque appel.
+
+static func owner_in(state: GameState, e: Empire, vis: Dictionary, system_id: int) -> int:
+	if vis.has(system_id):
+		return state.system_owner(system_id)
+	var m: Dictionary = e.intel.get(system_id, {})
+	return -1 if m.is_empty() else int(m["info"]["owner"])
+
+
+static func colony_in(state: GameState, e: Empire, vis: Dictionary, planet_id: int) -> Colony:
 	var real: Colony = state.colonies.get(planet_id)
-	if real != null and real.owner == viewer:
+	if real != null and real.owner == e.id:
 		return real
 	var p := state.galaxy.get_planet(planet_id)
-	if p == null or is_live(state, viewer, p.system_id):
+	if p == null or vis.has(p.system_id):
 		return real
-	var m := known(state, viewer, p.system_id)
+	var m: Dictionary = e.intel.get(p.system_id, {})
 	if m.is_empty():
 		return null
 	for cl in m["info"]["claims"]:
@@ -252,6 +267,26 @@ static func colony_of(state: GameState, viewer: int, planet_id: int) -> Colony:
 			c.days_left = 0 if int(cl[4]) == 1 else 1
 			return c
 	return null
+
+
+## Garnison d'un système : la vraie s'il est vu, sinon une estimation tirée du relevé (population et
+## avant-postes du propriétaire, sans les bâtiments ni la capitale, qu'on ne voit pas de loin).
+static func garrison_in(state: GameState, e: Empire, vis: Dictionary, system_id: int) -> int:
+	if vis.has(system_id):
+		return Combat.garrison(state, system_id)
+	var m: Dictionary = e.intel.get(system_id, {})
+	if m.is_empty():
+		return 0
+	var owner := int(m["info"]["owner"])
+	if owner < 0:
+		return 0
+	var g: Dictionary = Combat.data()["garrison"]
+	var n := 0
+	for cl in m["info"]["claims"]:
+		if int(cl[1]) != owner or int(cl[4]) != 1:
+			continue
+		n += int(cl[3]) * int(g["per_pop"]) if int(cl[2]) == 1 else int(g["per_outpost"])
+	return n
 
 
 ## Siège connu (-1 : aucun) et bataille connue, selon le lecteur.
