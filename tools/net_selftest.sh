@@ -6,13 +6,14 @@
 # en cours de route (son empire passe à l'IA, sauvegarde automatique) ; les deux autres doivent finir pareil.
 # BRUNO_REJOINS=1 (avec BRUNO_QUITS_AT) : il revient aussitôt et doit retrouver son empire.
 # TURNS=<jours> : tours simultanés au lieu du temps réel. LOBBY=1 : la partie naît d'un salon où chacun prend sa place.
+# CHAT=1 : chacun écrit un message ; chaque machine doit avoir reçu les trois.
 set -u
 cd "$(dirname "$0")/.."
 GODOT="${GODOT:-godot}"
 DAYS="${1:-1800}"
 PORT="${PORT:-24571}"
 LOG="$(mktemp -d)"
-LOBBY="${LOBBY:-}" TURNS="${TURNS:-}" ROLE=host CLIENTS=2 DAYS="$DAYS" PORT="$PORT" NAME=Hote "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/host.txt" 2>&1 &
+CHAT="${CHAT:-}" LOBBY="${LOBBY:-}" TURNS="${TURNS:-}" ROLE=host CLIENTS=2 DAYS="$DAYS" PORT="$PORT" NAME=Hote "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/host.txt" 2>&1 &
 sleep 2
 for n in Alice Bruno; do
   QUIT=""
@@ -22,7 +23,7 @@ for n in Alice Bruno; do
       sleep 1
       ROLE=client ADDR=127.0.0.1 DAYS="$DAYS" PORT="$PORT" NAME="$n" "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/$n.txt" 2>&1 ) &
   else
-    QUIT_AT="$QUIT" ROLE=client ADDR=127.0.0.1 DAYS="$DAYS" PORT="$PORT" NAME="$n" "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/$n.txt" 2>&1 &
+    CHAT="${CHAT:-}" QUIT_AT="$QUIT" ROLE=client ADDR=127.0.0.1 DAYS="$DAYS" PORT="$PORT" NAME="$n" "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/$n.txt" 2>&1 &
   fi
   sleep 1
 done
@@ -33,6 +34,10 @@ COUNT=$(grep -h "^FINAL" "$LOG"/*.txt | awk '{print $3, $4}' | sort -u | wc -l)
 TOTAL=$(grep -h "^FINAL" "$LOG"/*.txt | wc -l)
 EXPECTED=3
 if [ -n "${BRUNO_QUITS_AT:-}" ] && [ -z "${BRUNO_REJOINS:-}" ]; then EXPECTED=2; fi
+if [ -n "${CHAT:-}" ] && [ "$(grep -h "^FINAL" "$LOG"/*.txt | grep -c "chat=3$")" -ne "$TOTAL" ]; then
+  echo "ÉCHEC : la discussion n'est pas arrivée partout (journaux dans $LOG)."
+  exit 1
+fi
 if [ "$TOTAL" -eq "$EXPECTED" ] && [ "$COUNT" -eq 1 ]; then
   echo "OK : les $EXPECTED machines finissent au même jour avec la même empreinte."
   exit 0

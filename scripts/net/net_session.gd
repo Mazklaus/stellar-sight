@@ -37,6 +37,8 @@ signal ended(reason: String)
 signal players_changed
 ## Pause ou vitesse partagées ont changé.
 signal clock_changed
+## Discussion : un message reçu (ou envoyé). team : réservé à l'équipe de l'auteur.
+signal chat_received(entry: Dictionary)
 
 enum { NONE, HOST, CLIENT }
 
@@ -77,6 +79,13 @@ var turn_mode := false
 var turn_days := 10
 var turn_target := -1
 var waiting: Array = []
+## Minuteur de tour (GameClock.TURN_TIMERS) et instant local où il force la fin du tour (-1 : arrêté).
+var timer_id := ""
+var timer_end_ms := -1
+## Discussion : derniers messages ({"n": auteur, "t": texte, "e": équipe seulement}), du plus ancien.
+var chat_log: Array[Dictionary] = []
+const CHAT_MAX := 200
+const CHAT_KEEP := 60
 ## Identifiant durable du joueur (user://net.cfg) : c'est lui qui retrouve l'empire au retour.
 var token := ""
 ## Hôte : places réservées aux joueurs partis, identifiant -> {"e": empire, "n": nom}.
@@ -149,6 +158,8 @@ func host(sim: Simulation, empire_id: int, port := DEFAULT_PORT, seats := {}) ->
 	speed = _clock().speed_index
 	turn_mode = _clock().is_turn_based()
 	turn_days = _clock().turn_days
+	timer_id = _clock().turn_timer
+	timer_end_ms = -1
 	turn_target = -1
 	paused = true
 	for t in seats:
@@ -262,6 +273,8 @@ func start_from_lobby(sim: Simulation, empire_id: int, seats: Dictionary) -> voi
 	speed = _clock().speed_index
 	turn_mode = _clock().is_turn_based()
 	turn_days = _clock().turn_days
+	timer_id = _clock().turn_timer
+	timer_end_ms = -1
 	turn_target = -1
 	paused = true
 	_update_waiting()
@@ -336,15 +349,18 @@ func close() -> void:
 	_leaves.clear()
 	_pausing = false
 	absent = {}
+	chat_log.clear()
 	_tokens = {}
 	_picks = {}
 	_ready = {}
 	waiting = []
 	turn_target = -1
+	timer_end_ms = -1
 	if _clock().driver == self:
 		_clock().driver = null
 		_clock().net_ready = false
 		_clock().net_waiting.clear()
+		_clock().net_timer_end_ms = -1
 
 
 func _end(reason: String) -> void:
@@ -488,6 +504,7 @@ func _sync_clock() -> void:
 	for p in waiting:
 		who.append(String(names.get(p, "?")))
 	c.net_waiting = who
+	c.net_timer_end_ms = timer_end_ms if turn_mode and stopped else -1
 
 
 func _set_timeout(id: int) -> void:
@@ -519,6 +536,7 @@ func _host_clock(delta: float) -> void:
 			_after_stop()
 		return
 	if paused:
+		_tick_timer()
 		core.flush_paused()
 		return
 	_accum += delta
@@ -649,10 +667,32 @@ func _try_start_turn() -> void:
 		_start_turn()
 
 
+## Minuteur de tour : lancé quand on donne ses ordres (« fixe ») ou quand il ne reste qu'un joueur à
+## attendre (« dernier ») ; à zéro, l'hôte termine le tour pour tout le monde, comme s'il le forçait.
+func _tick_timer() -> void:
+	var info := Clock.timer_info(timer_id)
+	var mode := String(info["mode"])
+	var runs := turn_mode and paused and not _pausing and _joins.is_empty() and _leaves.is_empty() \
+			and (mode == "fixe" or (mode == "dernier" and waiting.size() == 1 and core.seats.size() > 1))
+	if not runs:
+		if timer_end_ms >= 0:
+			timer_end_ms = -1
+			_broadcast_clock()
+		return
+	var now := Time.get_ticks_msec()
+	if timer_end_ms < 0:
+		timer_end_ms = now + int(info["s"]) * 1000
+		_broadcast_clock()
+	elif now >= timer_end_ms:
+		_announce("Temps écoulé : fin du tour%s." % ("" if waiting.is_empty() else " sans attendre %s" % _names_of(waiting)), "")
+		_start_turn()
+
+
 ## Les jours du tour défilent chez tous, jusqu'au début du tour suivant (calé sur turn_days, comme
 ## en solo : un tour interrompu par une bataille repart vers la même fin).
 func _start_turn() -> void:
 	turn_target = (core.tick() / turn_days + 1) * turn_days
+	timer_end_ms = -1
 	_ready.clear()
 	_pausing = false
 	paused = false
@@ -878,7 +918,8 @@ func _announce(text: String, tone: String) -> void:
 
 func _clock_msg() -> Dictionary:
 	return {"k": "clock", "p": paused or _pausing, "s": speed, "b": paused_by, "d": delay,
-			"tm": turn_mode, "td": turn_days, "tt": turn_target, "w": waiting, "names": names}
+			"tm": turn_mode, "td": turn_days, "tt": turn_target, "w": waiting, "names": names, "ti": timer_id,
+			"tl": timer_end_ms - Time.get_ticks_msec() if timer_end_ms >= 0 else -1}
 
 
 func _broadcast_clock() -> void:
@@ -963,6 +1004,9 @@ func _host_message(from: int, msg: Dictionary) -> void:
 		"pause":
 			if core and core.seats.has(from):
 				_host_pause(from, bool(msg.get("p", true)))
+		"chat":
+			if names.has(from):
+				_host_chat(from, String(msg.get("t", "")), bool(msg.get("e", false)))
 
 
 func _client_message(msg: Dictionary) -> void:
@@ -1003,6 +1047,9 @@ func _client_message(msg: Dictionary) -> void:
 			turn_days = maxi(1, int(msg.get("td", 10)))
 			turn_target = int(msg.get("tt", -1))
 			waiting = msg.get("w", [])
+			timer_id = String(msg.get("ti", ""))
+			var left := int(msg.get("tl", -1))
+			timer_end_ms = Time.get_ticks_msec() + left if left >= 0 else -1
 			if msg.get("names") is Dictionary:
 				names = msg["names"]
 			if core:
@@ -1010,6 +1057,8 @@ func _client_message(msg: Dictionary) -> void:
 			clock_changed.emit()
 		"notice":
 			notice.emit(String(msg.get("t", "")), String(msg.get("o", "")))
+		"chat":
+			_add_chat({"n": String(msg.get("n", "?")), "t": String(msg.get("t", "")), "e": bool(msg.get("e", false))})
 		"desync":
 			if core:
 				DirAccess.make_dir_recursive_absolute(DESYNC_DIR)
@@ -1020,6 +1069,56 @@ func _client_message(msg: Dictionary) -> void:
 func bind(sim: Simulation) -> void:
 	core = Lockstep.new(sim, false)
 	_attach_clock()
+
+
+# --- Discussion ---------------------------------------------------------------------------------
+
+## Envoie un message à tous (team : à son équipe seulement, en partie). L'hôte le relaie.
+func send_chat(text: String, team := false) -> void:
+	text = text.strip_edges().substr(0, CHAT_MAX)
+	if text == "" or role == NONE:
+		return
+	if role == HOST:
+		_host_chat(Lockstep.HOST, text, team)
+	else:
+		_send(Lockstep.HOST, {"k": "chat", "t": text, "e": team})
+
+
+## Hôte : relaie un message à qui doit le lire (tout le monde, ou l'équipe de l'auteur).
+func _host_chat(by: int, text: String, team: bool) -> void:
+	text = text.strip_edges().substr(0, CHAT_MAX)
+	if text == "":
+		return
+	var to := chat_recipients(by, team)
+	if to.is_empty():
+		return
+	var msg := {"k": "chat", "n": String(names.get(by, "?")), "t": text, "e": team and core != null}
+	for p in to:
+		if p == Lockstep.HOST:
+			_add_chat({"n": msg["n"], "t": text, "e": msg["e"]})
+		else:
+			_send(p, msg)
+
+
+## Qui lit un message de by : tout le monde, ou en partie les joueurs de son équipe (et lui-même).
+func chat_recipients(by: int, team: bool) -> Array[int]:
+	var out: Array[int] = []
+	var mine := int(core.seats.get(by, -1)) if core else -1
+	for p: int in names:
+		if team and core:
+			var theirs := int(core.seats.get(p, -1))
+			if p != by and (mine < 0 or theirs < 0 or Diplomacy.team_of(core.sim.state, mine, theirs) <= 0):
+				continue
+		out.append(p)
+	out.sort()
+	return out
+
+
+func _add_chat(entry: Dictionary) -> void:
+	chat_log.append(entry)
+	while chat_log.size() > CHAT_KEEP:
+		chat_log.pop_front()
+	chat_received.emit(entry)
 
 
 func _send(to: int, msg: Dictionary) -> void:
