@@ -1,7 +1,8 @@
 extends RefCounted
 ## Tests de l'espionnage, lot 1 (Espionage) : cellules, croissance des réseaux, chiffrement,
 ## contre-espionnage, paliers (relevés, dossiers), chronique filtrée, sondes, ordres, IA,
-## sauvegarde 17, reprise des sauvegardes 16 et déterminisme. Appelés par smoke_test.gd.
+## sauvegarde 17, reprise des sauvegardes 16 et déterminisme ; lot 2 : opérations et découverte ;
+## lot 3 : talents de peuple, intrigue, réseau retourné. Appelés par smoke_test.gd.
 
 var _check: Callable
 
@@ -26,6 +27,9 @@ func run(check: Callable) -> void:
 	_test_ally_caught()
 	_test_ai_ops()
 	_test_save_ops()
+	_test_talents()
+	_test_intrigue()
+	_test_turned()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -102,7 +106,7 @@ func _test_counter() -> void:
 	Espionage.set_cells(st, 1, 1, 1)
 	_ok(Espionage.encryption(st, 1) == Espionage.decryption(st, 1) + 1, "une cellule chez soi : chiffrement +1")
 	_ok(Espionage.crypto_pct(st, 0, 1) == 50, "chiffrement d'avance : 50 %")
-	_ok(_part(st, 0, 1, "Contre-espionnage") == -2, "contre-espionnage : -2 par cellule")
+	_ok(_part(st, 0, 1, "Contre-espionnage") == -4, "contre-espionnage : -2 par cellule, compté double par l'Inquisition du Chœur")
 	_ok(Espionage.suspected(st, 1).is_empty(), "réseau trop faible : pas soupçonné")
 	st.networks[Espionage.key(0, 1)]["inf"] = 25
 	_ok(Array(Espionage.suspected(st, 1)) == [0], "réseau au 1er palier : soupçonné")
@@ -330,7 +334,7 @@ func _test_operations() -> void:
 	_ok(int(ch["success"]) == 85 and int(ch["discovery"]) == 10, "briefing : chances de base sans modificateur (%d / %d)" % [ch["success"], ch["discovery"]])
 	Espionage.set_cells(st, 1, 1, 2)
 	ch = Espionage.chances(st, 0, 1, "rapport")
-	_ok(int(ch["discovery"]) == 30 and int(ch["success"]) == 75, "contre-espionnage : +20 découverte, chiffrement : -10 succès (%d / %d)" % [ch["success"], ch["discovery"]])
+	_ok(int(ch["discovery"]) == 50 and int(ch["success"]) == 75, "contre-espionnage : +20 découverte par cellule (Inquisition du Chœur), chiffrement : -10 succès (%d / %d)" % [ch["success"], ch["discovery"]])
 	Espionage.set_cells(st, 1, 1, 0)
 	var cmd := SimCommands.spy_op(0, 1, "rapport")
 	_ok(SimCommands.validate(st, cmd) == "", "ordre : lancer un rapport")
@@ -464,3 +468,177 @@ func _test_save_ops() -> void:
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_dict())))
 	_ok(back != null and back.checksum() == st.checksum(), "opérations et dossiers sauvegardés (version %d)" % GameState.FORMAT_VERSION)
 	_ok(back != null and back.operations.size() == 1 and String(back.operations[0]["op"]) == "rapport" and back.spy_cases.size() == 1, "opérations relues")
+
+
+# --- Lot 3 : talents de peuple, intrigue, réseau retourné ------------------------------------------
+
+func _empire_of(st: GameState, faction_id: String) -> int:
+	for e in st.empires:
+		if e.faction_id == faction_id:
+			return e.id
+	return -1
+
+
+func _meet(st: GameState, a: int, b: int) -> void:
+	for pair in [[a, b], [b, a]]:
+		var e := st.get_empire(pair[0])
+		if not e.contacts.has(pair[1]):
+			e.contacts.append(pair[1])
+			e.contacts.sort()
+
+
+## Lance une opération de a chez b et la tranche tout de suite, chances forcées.
+func _force_op(st: GameState, a: int, b: int, op_id: String, success: int, discovery: int) -> void:
+	SimCommands.apply(st, SimCommands.spy_op(a, b, op_id))
+	var op: Dictionary = Espionage.running(st, a, b)
+	op["success"] = success
+	op["discovery"] = discovery
+	op["end"] = st.tick
+	Espionage.daily(st)
+
+
+func _count_memories(st: GameState, who: int, about: int, kind: String) -> int:
+	var n := 0
+	for m in st.memories:
+		if int(m["who"]) == who and int(m["about"]) == about and String(m["kind"]) == kind:
+			n += int(m["count"])
+	return n
+
+
+func _test_talents() -> void:
+	var st := _met(60)
+	var oss := _empire_of(st, "ossarane")
+	var choeur := _empire_of(st, "choeur")
+	var vael := _empire_of(st, "vael")
+	var kh := _empire_of(st, "khthari")
+	var teyl := _empire_of(st, "teyl")
+	_ok(oss >= 0 and choeur >= 0 and vael >= 0 and kh >= 0 and teyl >= 0, "les cinq peuples officiels sont en jeu")
+	var era := Research.current_era(st, oss)
+	_ok(Espionage.encryption(st, oss) == era + 1, "féodalité : maisons méfiantes, chiffrement +1")
+	_ok(Espionage.encryption(st, vael) == Research.current_era(st, vael) - 1, "république : assemblées ouvertes, chiffrement -1")
+	_ok(Espionage.decryption(st, teyl) == Research.current_era(st, teyl) + 2 and Espionage.encryption(st, teyl) == Research.current_era(st, teyl) + 2,
+			"synthétiques : déchiffrement et chiffrement +2")
+	var names := PackedStringArray()
+	for tl in Espionage.talent_labels(st, oss):
+		names.append(String(tl[0]))
+	_ok(names.has("Maisons méfiantes"), "les talents s'affichent par leur nom")
+	# Inquisition du Chœur : le contre-espionnage compte double.
+	_meet(st, oss, choeur)
+	Espionage.set_cells(st, oss, choeur, 2)
+	Espionage.set_cells(st, choeur, choeur, 1)
+	_ok(_part(st, oss, choeur, "Contre-espionnage") == -4, "foi : une cellule de contre-espionnage compte double (%d)" % _part(st, oss, choeur, "Contre-espionnage"))
+	# Conscience distribuée : ses nœuds sont ouverts.
+	_meet(st, oss, teyl)
+	Espionage.set_cells(st, oss, choeur, 0)
+	Espionage.set_cells(st, oss, teyl, 1)
+	_ok(_part(st, oss, teyl, "Conscience partagée") == 2, "conscience distribuée : +2 par mois aux réseaux chez elle")
+	# La ruche : pas d'intrigue, ni chez elle ni par elle ; les espions pris sont dévorés.
+	_meet(st, oss, kh)
+	Espionage.set_cells(st, oss, teyl, 0)
+	Espionage.set_cells(st, oss, kh, 1)
+	st.networks[Espionage.key(oss, kh)]["inf"] = 70
+	st.get_empire(oss).resources["influence"] = 900
+	_ok(Espionage.check_op(st, oss, kh, "discorde").contains("ruche"), "aucune intrigue ne prend sur une ruche")
+	_meet(st, kh, oss)
+	Espionage.set_cells(st, kh, oss, 1)
+	st.networks[Espionage.key(kh, oss)]["inf"] = 70
+	st.get_empire(kh).resources["influence"] = 900
+	_ok(Espionage.check_op(st, kh, oss, "heritier").contains("ruche"), "une ruche ne complote pas")
+	Espionage.set_cells(st, kh, oss, 0)
+	_force_op(st, oss, kh, "rapport", 0, 100)
+	_ok(Espionage.cases_for(st, kh).is_empty() and Espionage.infiltration(st, oss, kh) == 0 and Espionage.cells_on(st, oss, kh) == 0,
+			"ruche : les espions pris sont dévorés sur-le-champ, sans dossier")
+	# République : un espion pris fait scandale (souvenir double).
+	_meet(st, oss, vael)
+	Espionage.set_cells(st, oss, kh, 0)
+	Espionage.set_cells(st, oss, vael, 1)
+	st.networks[Espionage.key(oss, vael)]["inf"] = 40
+	_force_op(st, oss, vael, "rapport", 0, 100)
+	_ok(_count_memories(st, vael, oss, "spy_caught") == 2, "république : le scandale compte double (%d)" % _count_memories(st, vael, oss, "spy_caught"))
+	# Foi : un espion infidèle démasqué rallume la ferveur.
+	st.get_empire(choeur).fervor = 0
+	Espionage.set_cells(st, oss, vael, 0)
+	Espionage.set_cells(st, oss, choeur, 1)
+	st.networks[Espionage.key(oss, choeur)]["inf"] = 40
+	_force_op(st, oss, choeur, "rapport", 0, 100)
+	_ok(st.get_empire(choeur).fervor == 10, "foi : un espion infidèle démasqué donne +10 de ferveur (%d)" % st.get_empire(choeur).fervor)
+
+
+func _test_intrigue() -> void:
+	var st := _met(61)
+	var oss := _empire_of(st, "ossarane")
+	var choeur := _empire_of(st, "choeur")
+	var vael := _empire_of(st, "vael")
+	_meet(st, choeur, oss)
+	_meet(st, oss, vael)
+	# Discorde : le Chœur accuse Vael auprès d'Ossarane.
+	Espionage.set_cells(st, choeur, oss, 1)
+	st.networks[Espionage.key(choeur, oss)]["inf"] = 70
+	st.get_empire(choeur).resources["influence"] = 900
+	_ok(Espionage.check_op(st, choeur, oss, "discorde") == "", "discorde possible au palier Amirauté (%s)" % Espionage.check_op(st, choeur, oss, "discorde"))
+	_ok(Espionage._framed(st, choeur, oss) == vael, "la discorde vise l'ami de la cible, pas l'espion")
+	var before := Diplomacy.opinion(st, oss, vael)
+	_force_op(st, choeur, oss, "discorde", 100, 0)
+	_ok(_count_memories(st, oss, vael, "framed") == 1 and Diplomacy.opinion(st, oss, vael) < before, "discorde : la cible croit que son ami l'espionne")
+	_ok(_count_memories(st, oss, choeur, "spy_caught") == 0, "discorde réussie sans être prise : personne ne soupçonne l'espion")
+	# Héritier : en secret, et c'est à l'espion qu'il pensera.
+	_ok(Diplomacy.has_heir(st, oss), "Ossarane a un héritier")
+	var loyalty := st.get_empire(oss).heir_loyalty
+	st.networks[Espionage.key(choeur, oss)]["inf"] = 70
+	_force_op(st, choeur, oss, "heritier", 100, 0)
+	_ok(st.get_empire(oss).heir_loyalty == maxi(0, loyalty - 30) and st.get_empire(oss).heir_suitor == choeur, "héritier corrompu : -30 de loyauté, prétendant = l'espion")
+	_ok(_count_memories(st, oss, choeur, "bribed_heir") == 0, "corrompre par le réseau ne laisse pas de souvenir (contrairement à la bourse diplomatique)")
+	st.networks[Espionage.key(choeur, oss)]["inf"] = 70
+	_ok(Espionage.check_op(st, choeur, vael, "heritier") != "", "pas d'héritier chez une république")
+
+
+func _test_turned() -> void:
+	var st := _ready_net(62, 60)
+	Espionage.set_cells(st, 1, 1, 1)
+	_force_op(st, 0, 1, "rapport", 0, 100)
+	var cases := Espionage.cases_for(st, 1)
+	_ok(cases.size() == 1, "un dossier de découverte")
+	var cmd := SimCommands.spy_answer(1, int(cases[0]["id"]), "turn")
+	_ok(SimCommands.validate(st, cmd) == "", "retourner le réseau : possible avec une cellule chez soi (%s)" % SimCommands.validate(st, cmd))
+	SimCommands.apply(st, cmd)
+	_ok(Espionage.is_turned(st, 0, 1) and Array(Espionage.turned_by(st, 1)) == [0], "réseau retourné")
+	_ok(not Espionage.can_read(st.chronicle.back(), 0), "l'espion n'apprend pas que son réseau est retourné")
+	st.networks[Espionage.key(0, 1)]["inf"] = 70
+	_ok(not Espionage.private_to(st, [1]).has(0), "un réseau retourné ne lit plus la chronique intérieure")
+	var e1 := st.get_empire(1)
+	e1.resources["energy"] = 400
+	var d := Espionage._report(st, 0, 1, 3)
+	_ok(int(d["res"]["energy"]) == 200 and (d["fleets"] as Array).is_empty() and int(d["warships"]) == 0, "dossier arrangé : réserves divisées par deux, aucune flotte")
+	_force_op(st, 0, 1, "siphon", 100, 100)
+	_ok(int(e1.resources["energy"]) == 400 and Espionage.cases_for(st, 1).is_empty(), "opération par un réseau retourné : rien ne se passe, personne n'est pris")
+	var cfg: Dictionary = Espionage.data()["turned"]
+	cfg["false_pct"] = 100
+	Espionage._record(st, 0, 1)
+	var fake := 0
+	for sid in EmpireReport.owned_systems(st, 1):
+		if int(st.get_empire(0).intel[sid]["info"]["owner"]) == -1:
+			fake += 1
+	_ok(fake == EmpireReport.owned_systems(st, 1).size() and fake > 0, "relevés faux : ses systèmes paraissent libres")
+	cfg["false_pct"] = 50
+	# Sauvegarde : le réseau retourné survit.
+	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_dict())))
+	_ok(back != null and Espionage.is_turned(back, 0, 1) and back.checksum() == st.checksum(), "réseau retourné sauvegardé (version %d)" % GameState.FORMAT_VERSION)
+	# L'IA Vétéran retourne quand elle le peut.
+	e1.ai_level = "veteran"
+	_ok(AiEspionage.response(st, 1, 0) == "turn", "l'IA Vétéran retourne le réseau")
+	e1.ai_level = "normal"
+	_ok(AiEspionage.response(st, 1, 0) != "turn", "l'IA Normale ne retourne pas")
+	e1.ai_level = ""
+	# L'espion finit par comprendre.
+	var keep := [int(cfg["spot_min"]), int(cfg["spot_max"])]
+	cfg["spot_min"] = 100
+	cfg["spot_max"] = 100
+	Espionage.monthly(st)
+	cfg["spot_min"] = keep[0]
+	cfg["spot_max"] = keep[1]
+	_ok(not Espionage.is_turned(st, 0, 1) and Espionage.infiltration(st, 0, 1) == 0 and _count_memories(st, 0, 1, "turned_us") == 1,
+			"l'espion découvre la ruse : réseau à zéro, rancune")
+	# Sans cellule chez soi, on ne retourne personne.
+	var st2 := _ready_net(63, 60)
+	_force_op(st2, 0, 1, "rapport", 0, 100)
+	_ok(SimCommands.validate(st2, SimCommands.spy_answer(1, int(Espionage.cases_for(st2, 1)[0]["id"]), "turn")) != "", "sans contre-espionnage, pas d'agents doubles")

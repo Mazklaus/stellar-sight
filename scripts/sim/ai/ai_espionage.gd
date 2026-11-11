@@ -12,7 +12,10 @@ extends RefCounted
 ## En guerre : saboter puis voler ; en paix, selon le tempérament : voler (pas les pacifiques) ou
 ## commander un rapport. La Recrue lance la première qui passe, sans regarder ses chances ; les
 ## autres veulent au moins 50 % de succès et, en paix, au plus 40 % de risque d'être prises.
-## Réponse à des espions démasqués : expulser un ennemi ou un empire mal aimé, sinon exiger réparation.
+## Lot 3 : en guerre, elle corrompt l'héritier d'une dynastie et sème la discorde chez l'ennemi après
+## les sabotages ; en paix, un tempérament agressif tente aussi l'héritier.
+## Réponse à des espions démasqués : à partir de Vétéran, retourner le réseau quand elle a des agents
+## chez elle pour le mener ; sinon expulser un ennemi ou un empire mal aimé, sinon exiger réparation.
 ## Déterministe : ordre des identifiants, opinions entières, aucun aléatoire.
 
 
@@ -44,8 +47,8 @@ static func think(ctx: Dictionary) -> void:
 
 
 const OP_RESERVE := 100
-const WAR_OPS := ["sabotage_chantier", "archives", "vol_techno", "siphon", "rapport"]
-const PEACE_OPS := ["vol_techno", "rapport"]
+const WAR_OPS := ["sabotage_chantier", "archives", "heritier", "discorde", "vol_techno", "siphon", "rapport"]
+const PEACE_OPS := ["vol_techno", "heritier", "rapport"]
 const CALM_OPS := ["rapport"]
 
 
@@ -81,8 +84,11 @@ static func _operation(ctx: Dictionary) -> void:
 				return
 
 
-## Réponse de l'IA victime : "expel" ou "reparation".
+## Réponse de l'IA victime : "turn", "expel" ou "reparation".
 static func response(state: GameState, victim: int, spy: int) -> String:
+	var ev := state.get_empire(victim)
+	if int(AiLevels.level(ev.ai_level).get("faction_use", 1)) >= 2 and Espionage.check_turn(state, victim, spy) == "":
+		return "turn"
 	if Combat.at_war(state, victim, spy) or Diplomacy.opinion(state, victim, spy) < -30:
 		return "expel"
 	return "reparation"

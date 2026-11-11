@@ -32,10 +32,10 @@ static func build(es: EmpireScreens) -> void:
 	var free := es._key_value(g, "Libres", str(Espionage.cells_free(state, player)))
 	free.add_theme_color_override("font_color", UiTheme.GOLD if Espionage.cells_free(state, player) > 0 else UiTheme.TEXT)
 	var dec := es._key_value(g, "Déchiffrement", str(Espionage.decryption(state, player)))
-	dec.tooltip_text = "Votre ère : plus elle est avancée, plus vos réseaux percent les codes des autres."
+	dec.tooltip_text = "Votre ère (et vos talents) : plus elle est avancée, plus vos réseaux percent les codes des autres."
 	dec.mouse_filter = Control.MOUSE_FILTER_STOP
 	var enc := es._key_value(g, "Chiffrement", str(Espionage.encryption(state, player)))
-	enc.tooltip_text = "Votre ère, +%d si au moins une cellule fait du contre-espionnage chez vous." % int(Espionage.data()["network"]["home_cell_encryption"])
+	enc.tooltip_text = "Votre ère, +%d si au moins une cellule fait du contre-espionnage chez vous, plus vos talents." % int(Espionage.data()["network"]["home_cell_encryption"])
 	enc.mouse_filter = Control.MOUSE_FILTER_STOP
 	var wait := Espionage.probe_wait(state, me)
 	var pv := es._key_value(g, "Sondes", "%d / %d" % [me.probes, Espionage.probes_max()])
@@ -55,6 +55,21 @@ static func build(es: EmpireScreens) -> void:
 		var t := UiTheme.paragraph("Réseaux soupçonnés chez nous : %s." % ", ".join(names), EmpireScreens.SIDE_WIDTH - 24.0, 13)
 		t.add_theme_color_override("font_color", UiTheme.WARN)
 		es._side_box.add_child(t)
+	var doubles := Espionage.turned_by(state, player)
+	if not doubles.is_empty():
+		var dn := PackedStringArray()
+		for s in doubles:
+			dn.append(state.get_empire(s).short_name())
+		var td := UiTheme.paragraph("Agents doubles : nous tenons le réseau de %s, qui ne lit que ce que nous voulons." % ", ".join(dn), EmpireScreens.SIDE_WIDTH - 24.0, 13)
+		td.add_theme_color_override("font_color", UiTheme.GOLD)
+		es._side_box.add_child(td)
+	var talents := Espionage.talent_labels(state, player)
+	if not talents.is_empty():
+		es._side_box.add_child(HSeparator.new())
+		es._side_box.add_child(UiTheme.dim("Talents de votre peuple", 13))
+		for tl in talents:
+			var tlab := UiTheme.paragraph("%s : %s" % [tl[0], tl[1]], EmpireScreens.SIDE_WIDTH - 24.0, 12)
+			es._side_box.add_child(tlab)
 	es._side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("intel").get("why", "")), EmpireScreens.SIDE_WIDTH - 24.0, 13))
 
 	# Contenu : réseaux à gauche, dossier à droite.
@@ -299,12 +314,17 @@ static func _cases_block(es: EmpireScreens, cases: Array[Dictionary]) -> Control
 		blk.body.add_child(line)
 		var cid := int(c["id"])
 		var buttons := []
+		var turn_why := Espionage.check_turn(state, es._player, int(c["spy"]))
 		for pair in [["expel", "EXPULSER", "Leur réseau tombe à 0 et leurs cellules rentrent."],
-				["reparation", "EXIGER RÉPARATION", "Ils paient %s s'ils le peuvent ; sinon, toute la galaxie apprend qu'ils ont refusé. Leur réseau reste en place." % GameData.format_amounts(due)]]:
+				["reparation", "EXIGER RÉPARATION", "Ils paient %s s'ils le peuvent ; sinon, toute la galaxie apprend qu'ils ont refusé. Leur réseau reste en place." % GameData.format_amounts(due)],
+				["turn", "RETOURNER", "On les relâche sans un mot, et ils travaillent pour nous : leurs relevés de nos systèmes et leurs dossiers mentiront, leurs opérations échoueront, jusqu'à ce qu'ils comprennent (environ %d %% de chances par mois)." % Espionage.spot_chance(state, int(c["spy"]), es._player)]]:
 			var b := Button.new()
 			b.text = pair[1]
 			b.focus_mode = Control.FOCUS_NONE
 			b.tooltip_text = pair[2]
+			if pair[0] == "turn" and turn_why != "":
+				b.disabled = true
+				b.tooltip_text += "\nImpossible : %s." % turn_why
 			var choice := String(pair[0])
 			b.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.spy_answer(es._player, cid, choice)))
 			line.add_child(b)
