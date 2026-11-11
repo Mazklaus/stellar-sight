@@ -32,7 +32,7 @@
 		"line": "rear",
 		"size": "medium",
 		"description": "Une cosse de chitine qui fend le vide, pleine de larves qui dorment. À l'arrivée, elle s'ouvre, et ce qui en sort fonde une colonie. Personne ne demande l'avis de la planète.",
-		"factions": ["khthari"],
+		"requires": {"species": {"archetype": ["ruche"]}},
 		"cost": {"food": 40},
 		"pop_cost": 2,
 		"days": 25,

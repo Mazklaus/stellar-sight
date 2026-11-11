@@ -334,9 +334,10 @@ static func _pick(cum: Array, roll: int) -> Array:
 	return entries[lo]
 
 
-## Bonus de dégâts des traits de peuple (en %) : Ossarane chez elle, Vael arrivée en renfort.
+## Bonus de dégâts des traits de peuple (en %) : bonus général, Ossarane chez elle, Vael arrivée en renfort.
 static func _damage_bonus(state: GameState, b: Dictionary, f: Fleet, sid: int) -> int:
-	var pct := 100
+	# Bonus général du peuple (trait Canonniers, défaut Piètres soldats des peuples créés).
+	var pct := int(Combat.trait_value(state, f.owner, "damage_pct", 100))
 	if state.system_owner(sid) == f.owner:
 		@warning_ignore("integer_division")
 		pct = pct * (int(Combat.trait_value(state, f.owner, "home_damage_pct", 100)) + Research.fx_int(state, f.owner, "home_damage_pct")) / 100

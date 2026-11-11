@@ -451,7 +451,7 @@ static func ship_model(faction_id: String, ship_id: String) -> Node3D:
 		return null
 	var h := ShipArt.hull_of(ship_id)
 	while h != "":
-		var path := "%s%s_%s.glb" % [ShipArt.DIR, faction_id, h]
+		var path := "%s%s_%s.glb" % [ShipArt.DIR, GameData.ship_style(faction_id), h]
 		if ResourceLoader.exists(path):
 			var scene := load(path) as PackedScene
 			if scene:
@@ -464,7 +464,7 @@ func _tint_model(model: Node3D, faction_id: String, ship_id: String, col: Color)
 	var h := ShipArt.hull_of(ship_id)
 	var mask_path := ""
 	while h != "":
-		var p := "%s%s_%s_masque.png" % [ShipArt.DIR, faction_id, h]
+		var p := "%s%s_%s_masque.png" % [ShipArt.DIR, GameData.ship_style(faction_id), h]
 		if ResourceLoader.exists(p):
 			mask_path = p
 			break

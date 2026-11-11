@@ -48,3 +48,22 @@ for f, s in sorted(stats.items()):
         for k in s["killers"]:
             ks[k] += 1
         print("          capitale prise par : " + ", ".join("%s %d" % kv for kv in sorted(ks.items())))
+
+# Cibles de l'étude d'équilibrage (conclusion 1) : chaque peuple gagne 10 à 45 % des parties
+# (victoires partagées comprises) et meurt avant l'an 10 dans moins de 25 % des parties.
+print()
+print("Cibles : victoires 10-45 %, morts avant l'an 10 < 25 %")
+for f, s in sorted(stats.items()):
+    n = len(s["dead"])
+    if n == 0:
+        continue
+    won = len(wins[f])
+    for g in games:
+        w = g.get("winner")
+        if w and w["faction"] != f:
+            ally_factions = [e["faction"] for i, e in enumerate(g["empires"]) if i in w.get("allies", [])]
+            won += ally_factions.count(f)
+    early = sum(1 for d in s["dead"] if 0 < d <= 10)
+    wp, ep = 100.0 * won / n, 100.0 * early / n
+    ok = 10 <= wp <= 45 and ep < 25
+    print("%-24s victoires %4.0f %%  morts <an10 %4.0f %%  %s" % (f, wp, ep, "dans la cible" if ok else "HORS CIBLE"))

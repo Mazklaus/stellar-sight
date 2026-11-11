@@ -274,6 +274,12 @@ class ArtSlot:
 			x += step
 		var c := size * Vector2(0.62, 0.5)
 		var s := minf(size.x, size.y)
+		if art_id.begins_with("portrait_"):
+			_draw_portrait(r)
+			if _caption and _caption.text != "":
+				_shade(r)
+			draw_rect(r, Color(1, 1, 1, 0.08), false, 1.0)
+			return
 		match motif:
 			"faction":
 				for i in 3:
@@ -312,6 +318,85 @@ class ArtSlot:
 		if _caption and _caption.text != "":
 			_shade(r)
 		draw_rect(r, Color(1, 1, 1, 0.08), false, 1.0)
+
+	## Portrait provisoire d'un peuple créé (« portrait_<id> ») tant qu'aucune illustration n'est
+	## déposée : un buste en silhouette, humanoïde ou insectoïde, avec l'ornement décrit par le champ
+	## "look" du portrait (data/species_parts.json) pour que chaque portrait de la galerie se distingue.
+	func _draw_portrait(r: Rect2) -> void:
+		var pid := art_id.trim_prefix("portrait_")
+		var look := String(Species.portrait_def(pid).get("look", ""))
+		var hive := pid.begins_with("ruche")
+		var s := minf(r.size.x, r.size.y * 0.9)
+		var cx := r.size.x * 0.5
+		var base := r.size.y
+		var fill := Color(tint.darkened(0.35), 0.95)
+		var edge := Color(tint.lightened(0.35), 0.8)
+		var eye := Color(tint.lightened(0.7), 0.95)
+		draw_circle(Vector2(cx, base * 0.42), s * 0.42, Color(tint, 0.07))
+		var sw := s * (0.5 if look == "colossus" else 0.4)
+		var sh_y := base * 0.78
+		draw_colored_polygon(PackedVector2Array([Vector2(cx - sw, base), Vector2(cx - sw * 0.85, sh_y), Vector2(cx - sw * 0.3, sh_y - s * 0.08),
+				Vector2(cx + sw * 0.3, sh_y - s * 0.08), Vector2(cx + sw * 0.85, sh_y), Vector2(cx + sw, base)]), fill.darkened(0.2))
+		var head := Vector2(cx, base * 0.48)
+		var hr := s * (0.14 if look == "crown" and hive else 0.17)
+		if hive:
+			var hp := PackedVector2Array()
+			for i in 24:
+				var a := TAU * i / 24.0
+				hp.append(head + Vector2(cos(a) * hr * (1.3 if look == "colossus" else 1.05), sin(a) * hr * 1.35))
+			draw_colored_polygon(hp, fill)
+			hp.append(hp[0])
+			draw_polyline(hp, edge, 1.5, true)
+			for side in [-1.0, 1.0]:
+				var m0 := head + Vector2(side * hr * 0.5, hr * 1.1)
+				var big := 1.6 if look == "mandibles" else 1.0
+				draw_polyline(PackedVector2Array([m0, m0 + Vector2(side * hr * 0.5, hr * 0.5) * big, m0 + Vector2(side * hr * 0.1, hr * 0.8) * big]), edge, 2.5, true)
+				if look != "colossus":
+					var a0 := head + Vector2(side * hr * 0.4, -hr * 1.2)
+					var a1 := a0 + Vector2(side * hr * 0.9, -hr * 1.2)
+					draw_line(a0, a1, edge, 1.5, true)
+					draw_circle(a1, 2.5, edge)
+				var n := 6 if look == "eyes" else 2
+				for k in n:
+					draw_circle(head + Vector2(side * hr * (0.3 + 0.12 * k), -hr * 0.25 + (k % 3) * 5.0), 2.6 if look != "eyes" else 3.2, eye)
+			if look == "crown":
+				for k in 5:
+					var x := -hr * 0.8 + k * hr * 0.4
+					draw_colored_polygon(PackedVector2Array([head + Vector2(x - 4, -hr * 1.25), head + Vector2(x, -hr * 1.75), head + Vector2(x + 4, -hr * 1.25)]), edge)
+			if look == "colossus":
+				for k in 3:
+					draw_arc(head, hr * (1.0 - 0.25 * k), PI * 1.15, PI * 1.85, 16, edge, 1.5, true)
+		else:
+			draw_line(head + Vector2(0, hr), head + Vector2(0, hr * 1.6), fill, hr * 0.7)
+			draw_circle(head, hr, fill)
+			draw_arc(head, hr, 0.0, TAU, 40, edge, 1.5, true)
+			match look:
+				"horns":
+					for side in [-1.0, 1.0]:
+						draw_polyline(PackedVector2Array([head + Vector2(side * hr * 0.6, -hr * 0.7), head + Vector2(side * hr * 1.1, -hr * 1.4), head + Vector2(side * hr * 0.8, -hr * 1.9)]), edge, 2.5, true)
+				"horns2":
+					for side in [-1.0, 1.0]:
+						draw_polyline(PackedVector2Array([head + Vector2(side * hr * 0.9, -hr * 0.3), head + Vector2(side * hr * 1.6, -hr * 0.2), head + Vector2(side * hr * 1.7, hr * 0.5)]), edge, 3.0, true)
+				"crest":
+					draw_colored_polygon(PackedVector2Array([head + Vector2(-hr * 0.25, -hr * 0.9), head + Vector2(-hr * 0.1, -hr * 1.9), head + Vector2(hr * 0.5, -hr * 1.5), head + Vector2(hr * 0.25, -hr * 0.9)]), edge)
+				"crown":
+					for k in 5:
+						var x := -hr * 0.7 + k * hr * 0.35
+						draw_line(head + Vector2(x, -hr * 0.85), head + Vector2(x, -hr * 1.25), edge, 2.0, true)
+				"hood":
+					draw_arc(head, hr * 1.25, PI * 0.95, PI * 2.05, 24, edge, 2.5, true)
+					draw_line(head + Vector2(-hr * 1.25, 0), head + Vector2(-hr * 1.1, hr * 1.4), edge, 2.5, true)
+					draw_line(head + Vector2(hr * 1.25, 0), head + Vector2(hr * 1.1, hr * 1.4), edge, 2.5, true)
+				"wrinkles":
+					for k in 3:
+						draw_arc(head + Vector2(0, -hr * 0.45), hr * (0.25 + 0.12 * k), PI * 1.2, PI * 1.8, 12, edge, 1.0, true)
+					draw_line(head + Vector2(-hr * 0.4, hr * 0.7), head + Vector2(hr * 0.4, hr * 0.7), edge, 1.5, true)
+			if look == "hood":
+				for side in [-1.0, 1.0]:
+					draw_line(head + Vector2(side * hr * 0.5, -hr * 0.05), head + Vector2(side * hr * 0.2, -hr * 0.05), eye, 2.0)
+			else:
+				for side in [-1.0, 1.0]:
+					draw_circle(head + Vector2(side * hr * 0.38, -hr * 0.05), 2.2, eye)
 
 	## Ombre en bas pour la lisibilité du libellé.
 	func _shade(r: Rect2) -> void:

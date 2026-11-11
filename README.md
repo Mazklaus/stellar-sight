@@ -426,6 +426,19 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
 
 ![Fin de partie](docs/apercu-fin-de-partie.png)
 
+## Éditeur d'espèces (lot 1 : le moteur)
+
+Le joueur pourra créer son propre peuple avec les mêmes briques que les 4 officiels. Ce lot pose les règles, la bibliothèque et le jeu des peuples créés ; l'écran de l'éditeur arrive au lot 2. Étude de conception : [Éditeur d'espèces](https://claude.ai/artifact/6hHfLGyBr2iGm5ypxvuaX2), lignes directrices tirées de l'étude d'équilibrage.
+
+- **Six couches, chacune avec un rôle** (`data/species_parts.json`) : registre (ton, opinion), archétype (le corps : la ruche essaime avec des vaisseaux-spores), gouvernement (la mécanique signature avec son défaut : fiefs, ferveur, vote d'urgence, faim sans traité), credo (le style de recherche), origine (gisement garanti, ou +1 point de traits) et deux biomes. Gratuits.
+- **Traits sur un budget** : 4 points, 5 traits, 3 points de défauts au plus. Un trait de croissance (qui grandit avec la population) coûte 1 point de plus et un seul est permis ; un défaut qu'une autre couche annule est refusé (« Orateurs maladroits » avec une ruche qui colonise sans influence). Les 4 officiels recomposés coûtent 0 à 4 points.
+- **Identité** : nom, nom court, histoire, couleur, portrait (galerie filtrée par archétype, portraits provisoires dessinés en attendant les illustrations `assets/art/portrait_<id>.png`), style de vaisseaux d'un officiel, tempérament de l'IA.
+- **Bibliothèque** : chaque peuple est un fichier `user://species/<id>.json`, gardé d'une partie à l'autre et partageable. Au démarrage, chaque fichier est revérifié (un fichier modifié hors règles est écarté) et les peuples valides s'ajoutent aux officiels dans Nouvelle partie.
+- **En partie** : un peuple créé joue comme un officiel (`Species.build` produit une fiche au format de `data/factions.json`), pour le joueur comme pour l'IA, avec les vaisseaux, modules, technologies et victoires de peuple de ses couches. La partie recopie sa fiche dans la sauvegarde (format 12) : elle se recharge même si le fichier a changé ou disparu. `GameState.create` accepte `"rivals"` pour choisir les peuples des autres empires.
+- **Banc court** : `SPECIES=user://species/p_x.json SEEDS=1,...,24 godot --headless --path . -s res://tools/balance_bench.gd`, puis `python3 tools/balance_report.py` affiche si chaque peuple est dans la cible (victoires 10-45 %, morts avant l'an 10 < 25 %). `SPECIES=preset:choeur` essaie une copie d'un officiel.
+
+![Galerie des portraits provisoires](docs/apercu-portraits.png)
+
 ## Modèles 3D des vaisseaux
 
 Les vaisseaux ont un modèle 3D source (glTF), produit à partir d'un concept Midjourney par Tripo, puis cuit dans Blender par `tools/vaisseaux/cuire_vaisseau.py` et contrôlé par `tools/vaisseaux/apercu_vaisseau.gd`. `tools/vaisseaux/sprites_vaisseau.gd` en tire des sprites vus de dessus (`assets/ships/`), que la vue de replay et le Chantier affichent teints aux couleurs de l'empire (`ShipArt`) ; sans sprite, ils gardent leur dessin stylisé. Une version allégée du modèle (`tools/vaisseaux/alleger_vaisseau.py`) sert à la cinématique 3D des batailles, ouverte depuis la vue de replay (`BattleCinematic`). Pour l'instant, seules les frégates Ossarane et Kh'thari en ont un. Règles (nommage, axes, budgets, cartes, masque d'empire, points d'attache) et commandes : [docs/vaisseaux-3d.md](docs/vaisseaux-3d.md).
@@ -451,6 +464,8 @@ scripts/
     colony.gd             Une colonie ou un avant-poste : population, bâtiments, chantier
     economy.gd            Règles de l'économie (calculs purs, partagés par la simulation et l'interface)
     faction_traits.gd     Traits des peuples : fiefs, ferveur, vote d'urgence, vaisseaux-spores, biomasse
+    species.gd            Éditeur d'espèces : budget, vérification, assemblage d'un peuple créé
+    species_library.gd    Bibliothèque des peuples créés (user://species/)
     research.gd           Recherche : arbre de chaque peuple, file, ères, coûts, avancée mensuelle, effets des technologies
     ai/                   Empires IA : niveaux de difficulté (ai_levels.gd), cerveau (ai_player.gd), diplomatie (ai_diplomacy.gd)
     fleet.gd              Une flotte : vaisseaux, position, trajet
@@ -510,6 +525,7 @@ tools/
 data/                     Données de jeu en JSON : tout l'équilibrage se règle ici
   rules.json              Ressources, coûts de colonisation, croissance, gisements, monde d'origine
   factions.json           Les 4 factions de la V1 : couleur, planètes préférées, bonus
+  species_parts.json      Briques de l'éditeur d'espèces : couches, traits, budget, portraits, modèles
   planet_types.json       Types de planètes : habitabilité, rendements, fréquence selon l'étoile
   buildings.json          Bâtiments : coût, durée, rendement, entretien
   ships.json              Classes de vaisseaux : coût, durée, entretien, vitesse, vision, armes, défenses, troupes

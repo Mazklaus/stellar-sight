@@ -25,9 +25,10 @@ static func hull_of(ship_id: String) -> String:
 ## Nom de fichier (sans suffixe) du sprite d'un vaisseau pour un peuple, ou "" s'il n'en a pas.
 ## Une variante de coque (titan_bastion…) reprend le sprite de sa coque de base.
 static func base_name(faction_id: String, ship_id: String, kind := "sprite") -> String:
+	var style := GameData.ship_style(faction_id)  # un peuple créé emprunte le style d'un officiel
 	var h := hull_of(ship_id)
 	while h != "":
-		var base := "%s_%s" % [faction_id, h]
+		var base := "%s_%s" % [style, h]
 		if ResourceLoader.exists("%s%s_%s.png" % [DIR, base, kind]):
 			return base
 		h = String(Designs.hull(h).get("variant_of", ""))
