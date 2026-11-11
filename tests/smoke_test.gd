@@ -934,6 +934,11 @@ func _test_species_editor(main: Node, menu: MainMenu) -> void:
 	_check(ed.visible and not menu._home.visible and menu.page == "species", "accueil : Peuples ouvre l'éditeur")
 	ed.open_new("ossarane")
 	_check(String(ed.spec["gouvernement"]) == "feodalite" and ed.editing_id == "", "Partir d'Ossarane : ses couches, peuple nouveau")
+	var prev_before := ed._preview_rules.text
+	ed.set_layer("registre", "Horreur biologique")
+	_check(ed._preview_rules.text != prev_before and ed._preview_rules.text.contains("Registre : Horreur biologique") and ed._preview_rules.text.contains("Mal vu"),
+			"changer de registre se voit dans l'aperçu (opinion des autres registres)")
+	ed.set_layer("registre", "Médiéval spatial")
 	ed._name_edit.text = "Ligue de Sel"
 	ed._name_edit.text_changed.emit("Ligue de Sel")
 	var chosen := String(ed.spec["portrait"])

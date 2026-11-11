@@ -295,6 +295,19 @@ static func _pair_value(pairs: Array, x: String, y: String) -> int:
 	return 0
 
 
+## Ce que le registre reg vaut d'opinion auprès de chaque registre (même registre compris), pour
+## l'éditeur de peuples : [[registre, points], …] du plus aimé au plus détesté.
+static func registre_opinions(reg: String) -> Array:
+	var cfg: Dictionary = data()["opinion"]
+	var out := []
+	for b: Dictionary in Species.options("registre"):
+		var other := String(b["id"])
+		var dis := int(cfg["registre_same"]) if other == reg else _pair_value(cfg["registre_pairs"], reg, other)
+		out.append([other, dis * int(cfg["registre_scale"])])
+	out.sort_custom(func(x: Array, y: Array) -> bool: return int(x[1]) > int(y[1]) or (int(x[1]) == int(y[1]) and String(x[0]) < String(y[0])))
+	return out
+
+
 ## Opinion de a sur b, de -100 à 100.
 static func opinion(state: GameState, a: int, b: int) -> int:
 	var n := 0

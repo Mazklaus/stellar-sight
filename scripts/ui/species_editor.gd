@@ -622,7 +622,7 @@ func _refresh() -> void:
 	# tant que ses couches existent : on voit ce qu'on compose.
 	if _layers_ok(probe):
 		var built := Species.build(probe)
-		lines.append("[color=#%s]%s[/color]" % [UiTheme.TEXT_DIM.to_html(false), String(built.get("registre", ""))])
+		lines.append(_registre_bbcode(String(built.get("registre", "")), col))
 		lines.append(MainMenu.trait_bbcode(built, col))
 		var rs: Dictionary = built.get("research", {})
 		if rs.has("name"):
@@ -635,6 +635,26 @@ func _refresh() -> void:
 	if not (u["ships"] as Array).is_empty():
 		lines.append("[b]Vaisseaux propres :[/b] " + ", ".join(PackedStringArray(u["ships"])))
 	_preview_rules.text = "\n".join(lines)
+
+
+## Le registre dans l'aperçu : son nom et l'opinion qu'il vaut auprès de chaque registre, pour qu'un
+## changement de registre se voie (les registres sans mécanique propre ne jouent que sur le ton et
+## l'opinion ; les règles qui suivent viennent des autres couches et des traits).
+func _registre_bbcode(reg: String, col: Color) -> String:
+	var good := PackedStringArray()
+	var bad := PackedStringArray()
+	for p: Array in Diplomacy.registre_opinions(reg):
+		var label := "même registre" if String(p[0]) == reg else String(p[0])
+		if int(p[1]) > 0:
+			good.append("%s %+d" % [label, int(p[1])])
+		elif int(p[1]) < 0:
+			bad.append("%s %+d" % [label, int(p[1])])
+	var out := "[b][color=#%s]Registre : %s[/color][/b]" % [col.lightened(0.35).to_html(false), reg]
+	if not good.is_empty():
+		out += "\n[color=#%s]Bien vu : %s[/color]" % [UiTheme.GOOD.to_html(false), ", ".join(good)]
+	if not bad.is_empty():
+		out += "\n[color=#%s]Mal vu : %s[/color]" % [UiTheme.BAD.to_html(false), ", ".join(bad)]
+	return out
 
 
 func _layers_ok(s: Dictionary) -> bool:
