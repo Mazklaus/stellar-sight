@@ -14,6 +14,7 @@ func run(check: Callable) -> void:
 	_test_distances()
 	_test_advanced_start()
 	_test_save()
+	_test_caches()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -123,3 +124,29 @@ func _test_save() -> void:
 	d["version"] = 13
 	var old := GameState.from_dict(d)
 	_ok(old != null and Victory.enabled(old, "conquete") and Victory.allies_count(old) and not old.ai_scaling, "ancienne sauvegarde : tout en jeu, bonus fixes")
+
+
+## Caches de vitesse (grandes galaxies) : ils redonnent exactement les mêmes résultats.
+func _test_caches() -> void:
+	var st := _state({}, 31)
+	var e := st.get_empire(0)
+	var home := st.galaxy.get_planet(e.home_planet).system_id
+	var a := Fleets._dijkstra(st, 0, home)
+	_ok(Fleets._dijkstra(st, 0, home) == Fleets._dijkstra_raw(st, 0, home) and is_same(a, Fleets._dijkstra(st, 0, home)), "plus courts chemins : cache identique au calcul")
+	var before: int = a["dist"].size()
+	for sid in st.galaxy.systems.size():
+		e.explored[sid] = true
+	var after: Dictionary = Fleets._dijkstra(st, 0, home)
+	_ok(after["dist"].size() > before and after == Fleets._dijkstra_raw(st, 0, home), "plus courts chemins : recalculés quand l'exploration grandit (%d → %d)" % [before, after["dist"].size()])
+	var f := e.faction()
+	var copy := f.duplicate(true)
+	copy["name"] = "Concorde de test"
+	GameData.set_game_factions({e.faction_id: copy})
+	_ok(e.faction()["name"] == "Concorde de test", "fiche du peuple : suit un changement des peuples de la partie")
+	GameData.clear_game_factions()
+	_ok(e.faction() == f, "fiche du peuple : revient à l'officielle")
+	var vis := Fleets.visible_all(st)
+	var same := true
+	for em in st.empires:
+		same = same and vis[em.id] == Fleets.visible_systems(st, em.id) and vis[em.id].keys() == Fleets.visible_systems(st, em.id).keys()
+	_ok(same, "vision de tous les empires d'un coup = vision empire par empire")

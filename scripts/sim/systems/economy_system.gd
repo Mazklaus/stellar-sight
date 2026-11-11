@@ -19,8 +19,8 @@ static func process(state: GameState) -> Array[Dictionary]:
 
 static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary]) -> void:
 	var e := state.get_empire(c.owner)
-	var planet_name := state.galaxy.get_planet(c.planet_id).display_name(state.galaxy)
 	if not c.is_established():
+		var planet_name := state.galaxy.get_planet(c.planet_id).display_name(state.galaxy)
 		c.days_left -= 1
 		if c.is_established():
 			if c.is_colony():
@@ -35,7 +35,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 	if c.construction != "" and not e.blackout:
 		c.construction_days -= 1
 		if c.construction_days <= 0:
-			_finish_building(state, c, e, planet_name, added)
+			_finish_building(state, c, e, state.galaxy.get_planet(c.planet_id).display_name(state.galaxy), added)
 
 	if not c.is_colony():
 		return
