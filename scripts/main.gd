@@ -69,6 +69,8 @@ var _proposals_told := -1
 
 func _ready() -> void:
 	randomize()
+	# Peuples créés dans l'éditeur d'espèces (user://species/), proposés en Nouvelle partie.
+	SpeciesLibrary.load_all()
 	UiSettings.load_settings()
 	UiSettings.apply()
 	get_tree().root.theme = UiTheme.theme()

@@ -4,6 +4,11 @@ extends SceneTree
 ##   SEEDS=1,2,3 YEARS=25 godot --headless --path . -s res://tools/balance_bench.gd
 ##   python3 tools/balance_report.py fichier.jsonl
 ## Variables : SEEDS, YEARS (défaut 25), LEVEL (défaut normal), TEMPER (défaut normal).
+## SPECIES : peuples créés à ajouter aux 4 officiels (éditeur d'espèces), séparés par des virgules :
+## chemin d'un fichier de peuple (user://species/p_x.json ou chemin absolu) ou « preset:<officiel> »
+## (peuple créé depuis le modèle d'un officiel). Banc court d'un peuple créé, cibles de l'étude
+## d'équilibrage : gagner 10 à 45 % des parties, mourir avant l'an 10 dans moins de 25 % :
+##   SPECIES=user://species/p_x.json SEEDS=1,2,...,24 godot --headless --path . -s res://tools/balance_bench.gd
 
 
 func _initialize() -> void:
@@ -13,8 +18,25 @@ func _initialize() -> void:
 	var seeds := [3, 17, 99]
 	if OS.get_environment("SEEDS") != "":
 		seeds = Array(OS.get_environment("SEEDS").split(",")).map(func(s: String) -> int: return int(s))
+	var rivals := GameData.faction_ids()
+	for entry in OS.get_environment("SPECIES").split(",", false):
+		var spec := {}
+		if entry.begins_with("preset:"):
+			spec = Species.from_preset(entry.substr(7))
+			spec["name"] = "Copie de " + entry.substr(7)
+			spec["short"] = spec["name"].substr(0, 16)
+			spec["id"] = Species.make_id(spec["name"], rivals)
+		else:
+			spec = SpeciesLibrary.read_file(entry)
+		var err := "fichier illisible" if spec.is_empty() else Species.check(spec)
+		if err != "":
+			printerr("Peuple refusé (%s) : %s" % [entry, err])
+			quit(1)
+			return
+		GameData.register_library_faction(Species.build(spec))
+		rivals.append(String(spec["id"]))
 	for sd in seeds:
-		var st := GameState.create(sd, 150, 1800.0, "", {"spectator": true, "ai_level": level, "temperament": temper})
+		var st := GameState.create(sd, 150, 1800.0, "", {"spectator": true, "ai_level": level, "temperament": temper, "rivals": rivals})
 		var sim := Simulation.new(st)
 		var rows := {}
 		for e in st.empires:

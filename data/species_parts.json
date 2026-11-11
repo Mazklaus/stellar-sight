@@ -1,0 +1,137 @@
+{
+	"_doc": "Briques de l'éditeur d'espèces. Chaque brique ajoute des champs au format de data/factions.json (voir SpeciesBuilder pour les règles de fusion). Un peuple = registre + archétype + gouvernement + credo + origine + biomes + traits payés sur le budget. 'with' : champs ajoutés seulement si une autre couche a la valeur citée. 'requires' / 'excludes' : couches exigées ou interdites. Traits : 'cost' (positif = coûte, négatif = rend des points), 'growth' (boucle de croissance : un seul par peuple, +1 point), 'opposes' (traits exclusifs), 'neutralized_by' (un défaut annulé par ces couches est interdit).",
+	"budget": {"points": 4, "max_traits": 5, "max_flaws": 3, "growth_extra": 1, "max_growth": 1},
+	"layers": ["registre", "archetype", "gouvernement", "credo", "origine"],
+	"registre": [
+		{"id": "Médiéval spatial", "label": "Médiéval spatial", "text": "Maisons nobles, serments et navigateurs façonnés. On s'y trahit avec beaucoup de politesse."},
+		{"id": "Space opera héroïque", "label": "Space opera héroïque", "text": "Républiques, chevaliers et rébellions. Tout le monde a un destin, certains en ont même deux."},
+		{"id": "Grimdark", "label": "Grimdark", "text": "Théocraties, guerre éternelle et sacrifice. L'espoir y est un luxe, et le luxe une hérésie."},
+		{"id": "Classique / hard SF", "label": "Classique / hard SF", "text": "Ingénieurs, colons et coalitions rationnelles. Ici, on calcule avant de rêver. Pas encore de mécanique propre : le ton et l'opinion seulement."},
+		{"id": "Picaresque / pulp", "label": "Picaresque / pulp", "text": "Mercenaires, contrebandiers et héros malgré eux. Pas encore de mécanique propre : le ton et l'opinion seulement."},
+		{"id": "Horreur biologique", "label": "Horreur biologique", "text": "Ruches, mutations et faim sans fin. Les autres peuples vous trouveront difficile à aimer."},
+		{"id": "Cosmique / étrange", "label": "Cosmique / étrange", "text": "Entités anciennes et horreur douce. Pas encore de mécanique propre : le ton et l'opinion seulement."}
+	],
+	"archetype": [
+		{"id": "humanoide", "label": "Humanoïde", "text": "Deux bras, deux jambes, des opinions sur tout. Colonise avec des vaisseaux colons, selon les règles communes.",
+			"excludes": {"gouvernement": ["ruche"]}},
+		{"id": "ruche", "label": "Ruche", "text": "Un seul corps en mille morceaux. Ne colonise pas : il essaime.",
+			"requires": {"gouvernement": ["ruche"]},
+			"fields": {"claim_influence_free": true, "start_ships": ["scout", "spore_ship"], "ships_excluded": ["colony_ship"], "biomass": {"materials": 15}, "combat": {"repair_anywhere": true},
+				"ai": {"colony_bonus": 10, "outpost_bonus": 5, "building_bias": "ferme_hydroponique", "food_margin": 4, "research_bias": {"economie": -2}}},
+			"traits": [
+				{"name": "Essaimage", "text": "Pas de vaisseau colon : des vaisseaux-spores, payés en population (2) et en nourriture. Coloniser ne coûte jamais d'influence."},
+				{"name": "Biomasse", "text": "Une colonie pleine continue de grandir : chaque population en trop est digérée en 15 matériaux. Les coques vivantes se réparent partout."}
+			]}
+	],
+	"gouvernement": [
+		{"id": "feodalite", "label": "Féodalité", "text": "Des fiefs, des serments et un héritier qui lorgne le trône.",
+			"fields": {"fiefs": {"influence": 1, "far_jumps": 4, "crystal_upkeep": 1, "dissent_pct": 50, "levy": {"every_days": 180, "max": 4, "ship": "corvette"}}, "combat": {"home_damage_pct": 115, "garrison_pct": 150},
+				"ai": {"crystal_bonus": 25}},
+			"traits": [
+				{"name": "Serment des fiefs", "text": "Chaque colonie hors du système capital est un fief qui verse +1 influence par mois."},
+				{"name": "Fiefs lointains", "text": "Un fief à plus de 4 sauts de la capitale réclame 1 cristal par mois. Si les cristaux manquent, les fiefs lointains entrent en dissidence et produisent moitié moins."},
+				{"name": "Ban des vassaux", "text": "Au combat dans ses propres systèmes, la flotte inflige 15 % de dégâts en plus. Les garnisons des fiefs sont 50 % plus nombreuses."},
+				{"name": "Levée du ban", "text": "En guerre contre une flotte plus forte, chaque fief lève une corvette tous les 6 mois (4 au plus par levée)."}
+			]},
+		{"id": "theocratie", "label": "Théocratie", "text": "Un dieu, une foi, et une faim qu'il faut nourrir chaque mois.",
+			"fields": {"fervor": {"start": 50, "max": 100, "decay": 5, "per_colony": 1, "sacrifice_gain": 20, "sacrifice_min_pop": 2, "exalted_at": 60, "exalted_pct": 125, "silent_pct": 75},
+				"combat": {"fervor_per_kill": 2, "fervor_per_conquest": 10}, "ai": {"colony_bonus": 15}},
+			"traits": [
+				{"name": "Le dieu a faim", "text": "La ferveur (0 à 100) baisse de 5 par mois et monte de 1 par colonie. À 60 ou plus, l'Exaltation donne +25 % à toute la production. À 0, le dieu se tait : -25 % partout."},
+				{"name": "Offrande", "text": "Une colonie d'au moins 2 population peut sacrifier un fidèle : -1 population, +20 ferveur."},
+				{"name": "Croisade", "text": "Chaque vaisseau ennemi détruit rapporte +2 ferveur, chaque système conquis +10."}
+			]},
+		{"id": "republique", "label": "République", "text": "Des assemblées, des votes, et des votes sur les votes.",
+			"fields": {"rush": {"days_per_influence": 2, "min": 5}, "contact_influence": 2, "combat": {"reinforcement_pct": 130}, "ai": {"scouts": 1}},
+			"traits": [
+				{"name": "Vote d'urgence", "text": "Dépenser de l'influence pour achever tout de suite un bâtiment ou un vaisseau (1 influence pour 2 jours restants, 5 au minimum)."},
+				{"name": "Ambassades", "text": "+2 influence par mois pour chaque empire rencontré."},
+				{"name": "Au dernier moment", "text": "Une flotte qui rejoint une bataille déjà engagée inflige 30 % de dégâts en plus jusqu'à la fin de la bataille."}
+			]},
+		{"id": "ruche", "label": "Esprit de ruche", "text": "Pas de chefs, pas de débats : une seule volonté, qui a faim.",
+			"requires": {"archetype": ["ruche"]},
+			"fields": {"combat": {"prey": true, "digest": true, "garrison_pct": 150}, "ai": {"research_bias": {"armement": 2}, "temperament": {"never_peace": true}}},
+			"traits": [
+				{"name": "Faim sans traité", "text": "La ruche chasse une proie à la fois : sans guerre, elle attaque le premier empire rencontré, puis le plus proche. Les colonies conquises sont digérées. Chaque larve défend la ruche : garnisons 50 % plus nombreuses."}
+			]}
+	],
+	"credo": [
+		{"id": "honneur", "label": "Honneur", "text": "Un serment vaut plus qu'une flotte. En théorie.",
+			"fields": {"research": {"name": "Secrets de maison", "text": "Les technologies de saut coûtent 25 % de moins : chaque maison garde ses routes.", "tag_cost_pct": {"saut": 75}}, "ai": {"research_bias": {"genie": 3}}}},
+		{"id": "foi", "label": "Foi", "text": "Les étoiles sont un texte sacré. Les hérétiques, des fautes de frappe.",
+			"fields": {"production_pct": {"knowledge": 80}, "research": {"name": "Reliques saintes", "text": "Savoir -20 % et technologies de société 25 % plus chères (l'innovation est suspecte). Chaque vaisseau ennemi détruit rapporte 4 Savoir, et les épaves livrent deux fois plus de secrets. Avec une théocratie, chaque technologie d'armement donne +5 ferveur.", "domain_cost_pct": {"societe": 125}, "fervor_per_domain": {"armement": 5}, "knowledge_per_kill": 4, "wreck_pct": 200},
+				"ai": {"research_bias": {"armement": 3, "societe": -2}}}},
+		{"id": "raison", "label": "Raison", "text": "Tout se discute, se mesure et se publie, de préférence en assemblée.",
+			"fields": {"research": {"name": "Académies", "text": "+5 % de Savoir pour chaque empire en paix avec vous (20 % au plus) : la science se fait à plusieurs.", "peace_knowledge_pct": 5, "peace_knowledge_max": 20}, "ai": {"research_bias": {"societe": 3, "economie": 1}}}},
+		{"id": "survie", "label": "Survie", "text": "Vivre, grandir, ne pas mourir. Le reste est de la littérature.",
+			"fields": {"production_pct": {"knowledge": 75}, "research": {"name": "Mémoire génétique", "text": "Savoir -25 %, mais on apprend en se battant : +8 Savoir par vaisseau ennemi détruit, et les épaves livrent trois fois plus de secrets. Une ruche apprend aussi en mangeant (Savoir -50 %, +2 Savoir par population digérée).", "knowledge_per_kill": 8, "wreck_pct": 300},
+				"ai": {"research_bias": {"societe": 2}}},
+			"with": {"archetype": {"ruche": {"production_pct": {"knowledge": 67}, "research": {"knowledge_per_biomass": 2}}}}}
+	],
+	"origine": [
+		{"id": "gisement_cristaux", "label": "Veine de cristaux", "text": "Un gisement de cristaux de saut garanti dans le système d'origine.", "fields": {"home_deposit": "crystals"}},
+		{"id": "gisement_filons", "label": "Filons du berceau", "text": "Un gisement de filons riches garanti dans le système d'origine.", "fields": {"home_deposit": "minerals"}},
+		{"id": "gisement_geothermie", "label": "Cœur brûlant", "text": "Un gisement géothermique garanti dans le système d'origine.", "fields": {"home_deposit": "geothermal"}},
+		{"id": "sans_heritage", "label": "Partis de rien", "text": "Aucun gisement garanti, mais un peuple qui a appris à se débrouiller : +1 point de traits.", "points": 1}
+	],
+	"biomes": ["continental", "ocean", "desert", "arctic", "toxic"],
+	"traits": [
+		{"id": "navigateurs", "label": "Navigateurs", "cost": 2, "text": "Flottes 30 % plus rapides, +50 % de cristaux de saut, +10 % d'influence.", "opposes": ["casaniers"],
+			"fields": {"fleet_speed_pct": 130, "production_pct": {"crystals": 150, "influence": 110}, "ai": {"building_bias": "raffinerie"}}},
+		{"id": "orateurs", "label": "Assemblées ouvertes", "cost": 2, "text": "+50 % d'influence et +10 % d'énergie.", "opposes": ["maladroits"],
+			"fields": {"production_pct": {"influence": 150, "energy": 110}}},
+		{"id": "pluriel", "label": "Quarante peuples", "cost": 2, "text": "Le peuple compte une espèce pour chaque monde : toute planète habitable l'est au moins à 60 %.",
+			"fields": {"hab_floor": 60}},
+		{"id": "forgerons", "label": "Forges sacrées", "cost": 1, "text": "+25 % de matériaux.",
+			"fields": {"production_pct": {"materials": 125}, "ai": {"building_bias": "complexe_minier"}}},
+		{"id": "erudits", "label": "Érudits", "cost": 1, "text": "+20 % de Savoir.", "opposes": ["distraits"],
+			"fields": {"production_pct": {"knowledge": 120}}},
+		{"id": "tenaces", "label": "Garnisons tenaces", "cost": 1, "text": "Garnisons 50 % plus nombreuses.",
+			"fields": {"combat": {"garrison_pct": 150}}},
+		{"id": "canonniers", "label": "Canonniers", "cost": 1, "text": "+10 % de dégâts au combat.", "opposes": ["piètres_soldats"],
+			"fields": {"combat": {"damage_pct": 110}}},
+		{"id": "pelerins", "label": "Pèlerins zélés", "cost": 1, "growth": true, "text": "Les nouvelles colonies démarrent avec 2 population au lieu de 1.",
+			"fields": {"colony_start_pop": 2}},
+		{"id": "prolifiques", "label": "Prolifiques", "cost": 1, "growth": true, "text": "Population 50 % plus rapide.", "opposes": ["lents", "fecondite"],
+			"fields": {"growth_pct": 150}},
+		{"id": "fecondite", "label": "Fécondité", "cost": 0, "growth": true, "text": "Population deux fois plus rapide, mais chaque population mange 50 % de plus et l'influence est divisée par deux.", "opposes": ["prolifiques", "lents"],
+			"fields": {"growth_pct": 200, "food_upkeep_pct": 150, "production_pct": {"influence": 50}}},
+		{"id": "lents", "label": "Lents à croître", "cost": -1, "text": "Population 20 % plus lente.", "opposes": ["prolifiques", "fecondite"],
+			"fields": {"growth_pct": 80}},
+		{"id": "casaniers", "label": "Casaniers", "cost": -1, "text": "Flottes 20 % plus lentes.", "opposes": ["navigateurs"],
+			"fields": {"fleet_speed_pct": 80}},
+		{"id": "maladroits", "label": "Orateurs maladroits", "cost": -1, "text": "Influence -30 %.", "opposes": ["orateurs"],
+			"neutralized_by": {"archetype": ["ruche"]},
+			"fields": {"production_pct": {"influence": 70}}},
+		{"id": "distraits", "label": "Distraits", "cost": -1, "text": "Savoir -20 %.", "opposes": ["erudits"],
+			"fields": {"production_pct": {"knowledge": 80}}},
+		{"id": "voraces", "label": "Voraces", "cost": -1, "text": "Chaque population mange 30 % de plus.",
+			"fields": {"food_upkeep_pct": 130}},
+		{"id": "piètres_soldats", "label": "Piètres soldats", "cost": -2, "text": "-15 % de dégâts au combat.", "opposes": ["canonniers"],
+			"fields": {"combat": {"damage_pct": 85}}}
+	],
+	"portraits": [
+		{"id": "humanoide_1", "look": "horns", "label": "Noble au regard d'acier", "archetypes": ["humanoide"]},
+		{"id": "humanoide_2", "look": "hood", "label": "Prêtre aux yeux voilés", "archetypes": ["humanoide"]},
+		{"id": "humanoide_3", "look": "crown", "label": "Sénatrice aux tempes d'argent", "archetypes": ["humanoide"]},
+		{"id": "humanoide_4", "look": "horns2", "label": "Contrebandier à cornes", "archetypes": ["humanoide"]},
+		{"id": "humanoide_5", "look": "crest", "label": "Ingénieure à crête", "archetypes": ["humanoide"]},
+		{"id": "humanoide_6", "look": "wrinkles", "label": "Ancien aux mille rides", "archetypes": ["humanoide"]},
+		{"id": "ruche_1", "look": "mandibles", "label": "Reine aux mandibules", "archetypes": ["ruche"]},
+		{"id": "ruche_2", "look": "eyes", "label": "Nuée aux yeux multiples", "archetypes": ["ruche"]},
+		{"id": "ruche_3", "look": "crown", "label": "Larve couronnée", "archetypes": ["ruche"]},
+		{"id": "ruche_4", "look": "colossus", "label": "Colosse chitineux", "archetypes": ["ruche"]}
+	],
+	"ship_styles": ["ossarane", "choeur", "vael", "khthari"],
+	"temperaments": [
+		{"id": -1, "label": "Conciliant", "text": "Un cran plus pacifique que le réglage de l'IA."},
+		{"id": 0, "label": "Mesuré", "text": "Ni plus ni moins que le réglage de l'IA."},
+		{"id": 1, "label": "Belliqueux", "text": "Un cran plus agressif que le réglage de l'IA."}
+	],
+	"presets": {
+		"ossarane": {"registre": "Médiéval spatial", "archetype": "humanoide", "gouvernement": "feodalite", "credo": "honneur", "origine": "gisement_cristaux", "biomes": ["desert", "continental"], "traits": ["navigateurs"], "temperament": 0, "portrait": "humanoide_1", "ship_style": "ossarane"},
+		"choeur": {"registre": "Grimdark", "archetype": "humanoide", "gouvernement": "theocratie", "credo": "foi", "origine": "gisement_filons", "biomes": ["arctic", "desert"], "traits": ["forgerons", "pelerins", "lents"], "temperament": 1, "portrait": "humanoide_2", "ship_style": "choeur"},
+		"vael": {"registre": "Space opera héroïque", "archetype": "humanoide", "gouvernement": "republique", "credo": "raison", "origine": "gisement_geothermie", "biomes": ["ocean", "continental"], "traits": ["orateurs", "pluriel"], "temperament": -1, "portrait": "humanoide_3", "ship_style": "vael"},
+		"khthari": {"registre": "Horreur biologique", "archetype": "ruche", "gouvernement": "ruche", "credo": "survie", "origine": "sans_heritage", "biomes": ["toxic", "ocean"], "traits": ["fecondite"], "temperament": 1, "portrait": "ruche_1", "ship_style": "khthari"}
+	}
+}

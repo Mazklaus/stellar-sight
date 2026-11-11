@@ -354,7 +354,7 @@ func _build_economy() -> void:
 	var me := _state.get_empire(_player) if _state else null
 	var col := me.color() if me else UiTheme.ACCENT
 	var fid := me.faction_id if me else ""
-	_faction_art = _side_header("faction_" + fid, me.short_name() if me else "", col, "faction")
+	_faction_art = _side_header(GameData.portrait_art(fid), me.short_name() if me else "", col, "faction")
 	_side_box.add_child(UiTheme.section("Effets"))
 	_trait = UiTheme.paragraph("", SIDE_WIDTH - 24.0, 14)
 	_side_box.add_child(_trait)
@@ -1240,7 +1240,7 @@ func _relation_block(id: int) -> Control:
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 14)
 	blk.body.add_child(head)
-	var art := Widgets.ArtSlot.new("faction_" + e.faction_id, Vector2(150, 110), e.color(), "faction")
+	var art := Widgets.ArtSlot.new(GameData.portrait_art(e.faction_id), Vector2(150, 110), e.color(), "faction")
 	head.add_child(art)
 	var info := VBoxContainer.new()
 	info.add_theme_constant_override("separation", 2)

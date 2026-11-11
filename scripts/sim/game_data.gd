@@ -16,22 +16,97 @@ static func rules() -> Dictionary:
 	return _load("rules")
 
 
+## Peuples officiels (data/factions.json), dans l'ordre des données.
 static func factions() -> Array:
 	return _load("factions")
 
 
+## Peuples créés dans l'éditeur d'espèces (voir Species, SpeciesLibrary), au format de factions.json :
+## - ceux de la bibliothèque du joueur (user://species/), chargés au démarrage ;
+## - ceux de la partie en cours, recopiés dans la sauvegarde : ils passent avant la bibliothèque, pour
+##   qu'une partie garde son peuple tel qu'il était au lancement même si le fichier a changé depuis.
+static var _library_factions := {}
+static var _game_factions := {}
+
+
+## Fiche d'un peuple par identifiant : partie en cours, puis bibliothèque, puis officiels. {} si inconnu.
 static func faction(id: String) -> Dictionary:
+	if _game_factions.has(id):
+		return _game_factions[id]
+	if _library_factions.has(id):
+		return _library_factions[id]
 	for f: Dictionary in factions():
 		if f["id"] == id:
 			return f
 	return {}
 
 
+## Identifiants des peuples officiels seulement.
 static func faction_ids() -> Array[String]:
 	var ids: Array[String] = []
 	for f: Dictionary in factions():
 		ids.append(String(f["id"]))
 	return ids
+
+
+## Peuples officiels puis peuples de la bibliothèque (triés), pour les listes de choix.
+static func all_faction_ids() -> Array[String]:
+	var ids := faction_ids()
+	ids.append_array(library_faction_ids())
+	return ids
+
+
+static func library_faction_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for k in _library_factions:
+		ids.append(String(k))
+	ids.sort()
+	return ids
+
+
+static func is_official(id: String) -> bool:
+	return faction_ids().has(id)
+
+
+static func register_library_faction(f: Dictionary) -> void:
+	_library_factions[String(f["id"])] = f
+
+
+static func unregister_library_faction(id: String) -> void:
+	_library_factions.erase(id)
+
+
+static func clear_library_factions() -> void:
+	_library_factions.clear()
+
+
+## Peuples créés de la partie en cours (GameState.custom_factions).
+static func set_game_factions(d: Dictionary) -> void:
+	_game_factions = d
+
+
+static func clear_game_factions() -> void:
+	_game_factions = {}
+
+
+## Style des vaisseaux d'un peuple (sprites et modèles 3D d'un peuple officiel) : son identifiant
+## pour un officiel, celui choisi dans l'éditeur pour un peuple créé.
+static func ship_style(faction_id: String) -> String:
+	return String(faction(faction_id).get("ship_style", faction_id))
+
+
+## Illustration du peuple (Widgets.ArtSlot) : "faction_<id>" pour un officiel, "portrait_<portrait>"
+## pour un peuple créé (portrait choisi dans l'éditeur).
+static func portrait_art(faction_id: String) -> String:
+	var f := faction(faction_id)
+	if f.has("portrait"):
+		return "portrait_" + String(f["portrait"])
+	return "faction_" + faction_id
+
+
+## Briques de l'éditeur d'espèces (data/species_parts.json).
+static func species_parts() -> Dictionary:
+	return _load("species_parts")
 
 
 static func planet_types() -> Dictionary:

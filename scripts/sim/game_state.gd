@@ -7,10 +7,11 @@ extends RefCounted
 ## stockée : elle se régénère à l'identique depuis la graine. Seules les données
 ## qui changent en cours de partie sont sérialisées.
 
-const FORMAT_VERSION := 11
+const FORMAT_VERSION := 12
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
-## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu).
-const READABLE_VERSIONS := [9, 10, 11]
+## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
+## de peuples créés).
+const READABLE_VERSIONS := [9, 10, 11, 12]
 const CHRONICLE_MAX := 50
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
@@ -63,6 +64,10 @@ var next_design_id: int = 0
 ## alliés qui partagent la victoire} ({} = aucun).
 var victory_rules: Dictionary = {"deadline": 0, "people": true}
 var winner: Dictionary = {}
+## Peuples créés dans l'éditeur qui jouent dans cette partie : identifiant -> fiche complète
+## (Species.build), recopiée au lancement et sauvegardée, pour que la partie ne dépende pas des
+## fichiers de la bibliothèque (modifiés ou supprimés depuis).
+var custom_factions: Dictionary = {}
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -81,12 +86,14 @@ var _system_owner: Dictionary = {}
 ## - "temperament" / "temperaments" : tempérament des IA (AiLevels.temperament), global ou empire par empire ;
 ## - "spectator" : aucun joueur humain, l'empire 0 est lui aussi une IA (mode spectateur) ;
 ## - "deadline" : date limite en jours pour la victoire au score (0 = aucune, défaut data/victories.json) ;
-## - "people_victories" : victoires de peuple en jeu (défaut oui).
+## - "people_victories" : victoires de peuple en jeu (défaut oui) ;
+## - "rivals" : peuples des autres empires (officiels ou créés), dans l'ordre ; défaut : les peuples
+##   officiels autres que celui du joueur.
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
 	var s := _base(seed_value_, system_count_, galaxy_radius_)
 	s.victory_rules = {"deadline": maxi(0, int(options.get("deadline", Victory.default_deadline()))),
 			"people": bool(options.get("people_victories", true))}
-	s._setup_empires(player_faction)
+	s._setup_empires(player_faction, options.get("rivals", null))
 	s._setup_ai(options)
 	FleetSystem.update_exploration(s)
 	return s
@@ -103,6 +110,7 @@ static func _base(seed_value_: int, system_count_: int, galaxy_radius_: float) -
 	s.rng.seed = hash([seed_value_, "simulation"])
 	# Une nouvelle partie (ou un chargement) repart sans les modèles de la précédente.
 	GameData.clear_custom_ships()
+	GameData.clear_game_factions()
 	return s
 
 
@@ -155,6 +163,7 @@ func to_dict() -> Dictionary:
 		"next_design_id": next_design_id,
 		"victory_rules": victory_rules.duplicate(),
 		"winner": winner.duplicate(),
+		"custom_factions": _sorted_values(custom_factions),
 	}
 
 
@@ -217,6 +226,14 @@ static func from_dict(d: Dictionary) -> GameState:
 			last_error = "planète inconnue dans les modifications : %s" % o["planet"]
 			return null
 		s.override_planet(int(o["planet"]), fields)
+	# Peuples créés avant les empires : leur fiche vient de la sauvegarde, pas de la bibliothèque.
+	for cf: Dictionary in d.get("custom_factions", []):
+		var fd: Dictionary = GameData._to_ints(cf)
+		if not Species.is_valid_id(String(fd.get("id", ""))) or not fd.has("species"):
+			last_error = "peuple créé invalide : %s" % fd.get("id", "?")
+			return null
+		s.custom_factions[String(fd["id"])] = fd
+	GameData.set_game_factions(s.custom_factions)
 	for e: Dictionary in d["empires"]:
 		if GameData.faction(String(e["faction"])).is_empty():
 			last_error = "faction inconnue : %s" % e["faction"]
@@ -407,11 +424,19 @@ func is_spectator_game() -> bool:
 	return not empires.is_empty()
 
 
-func _setup_empires(player_faction: String) -> void:
-	var order := GameData.faction_ids()
-	if order.has(player_faction):
-		order.erase(player_faction)
-		order.push_front(player_faction)
+func _setup_empires(player_faction: String, rivals: Variant = null) -> void:
+	var order: Array[String] = []
+	if player_faction != "" and not GameData.faction(player_faction).is_empty():
+		order.append(player_faction)
+	var others: Array = rivals if rivals is Array else GameData.faction_ids()
+	for fid in others:
+		if not order.has(String(fid)) and not GameData.faction(String(fid)).is_empty():
+			order.append(String(fid))
+	# Les peuples créés sont recopiés dans la partie (et dans sa sauvegarde).
+	for fid in order:
+		if not GameData.is_official(fid):
+			custom_factions[fid] = GameData.faction(fid).duplicate(true)
+	GameData.set_game_factions(custom_factions)
 	var homes := _pick_home_systems(order.size())
 	var rules := GameData.rules()
 	var hw: Dictionary = rules["homeworld"]

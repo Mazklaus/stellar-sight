@@ -410,10 +410,16 @@ func _build_new_page(root: Control) -> void:
 	left.add_theme_constant_override("separation", 10)
 	page_root.add_child(left)
 	left.add_child(_header("Peuples disponibles"))
+	# Rangée défilante : les peuples créés s'ajoutent à droite des officiels.
+	var strip := ScrollContainer.new()
+	strip.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	strip.custom_minimum_size = Vector2(5 * TILE_SIZE.x + 4 * 4, TILE_SIZE.y + (14 if GameData.library_faction_ids().size() > 0 else 0))
+	left.add_child(strip)
 	var grid := HBoxContainer.new()
 	grid.add_theme_constant_override("separation", 4)
-	left.add_child(grid)
-	for fid in GameData.faction_ids() + [RANDOM_FACTION]:
+	strip.add_child(grid)
+	# Peuples officiels, peuples créés de la bibliothèque (user://species/), puis « Au hasard ».
+	for fid in GameData.all_faction_ids() + [RANDOM_FACTION]:
 		var f := GameData.faction(fid) if fid != RANDOM_FACTION else {"short": "Au hasard", "color": "#8fa3b8"}
 		var col := Color.html(String(f.get("color", "#ffffff")))
 		var tile := _faction_tile(fid, String(f.get("short", fid)), col)
@@ -441,9 +447,10 @@ func _build_new_page(root: Control) -> void:
 	traits.add_child(UiTheme.section("Traits du peuple"))
 	_faction_trait = RichTextLabel.new()
 	_faction_trait.bbcode_enabled = true
-	_faction_trait.fit_content = true
-	_faction_trait.scroll_active = false
-	_faction_trait.custom_minimum_size = Vector2(440, 0)
+	# Hauteur fixe qui défile : un peuple créé peut aligner plus de traits qu'un officiel.
+	_faction_trait.fit_content = false
+	_faction_trait.scroll_active = true
+	_faction_trait.custom_minimum_size = Vector2(440, 150)
 	_faction_trait.add_theme_font_size_override("normal_font_size", 13)
 	_faction_trait.add_theme_font_size_override("bold_font_size", 13)
 	_faction_trait.add_theme_color_override("default_color", UiTheme.TEXT)
@@ -597,7 +604,7 @@ func _faction_tile(fid: String, label: String, col: Color) -> Button:
 		if mb and mb.double_click and mb.button_index == MOUSE_BUTTON_LEFT:
 			select_faction(fid)
 			launch())
-	var art := Widgets.ArtSlot.new("faction_" + fid, Vector2(TILE_SIZE.x, TILE_SIZE.y - 34), col, "faction")
+	var art := Widgets.ArtSlot.new(GameData.portrait_art(fid) if fid != RANDOM_FACTION else "faction_" + fid, Vector2(TILE_SIZE.x, TILE_SIZE.y - 34), col, "faction")
 	art.variant = fid.hash()
 	tile.add_child(art)
 	var bar := PanelContainer.new()
