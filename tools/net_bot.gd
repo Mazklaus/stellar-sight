@@ -120,6 +120,10 @@ func _process(delta: float) -> bool:
 	if session == null or session.core == null:
 		return false
 	var st := session.core.sim.state
+	# CHAT=1 : chacun écrit une fois, une fois la partie lancée ; FINAL compte les messages reçus.
+	if _env("CHAT", "") != "" and not _chatted and st.tick >= 5:
+		_chatted = true
+		session.send_chat("salut de %s" % session.player_name)
 	if role == "host" and not started and session.core.seats.size() - 1 >= clients and session.paused:
 		started = true
 		if not session.turn_mode:
@@ -273,12 +277,15 @@ func _on_lobby_state(st: Dictionary) -> void:
 		print("[%s] place %d prise, prêt" % [session.player_name, mine])
 
 
+var _chatted := false
+
+
 func _finish() -> void:
 	if done or session.core == null:
 		return
 	done = true
 	var st := session.core.sim.state
-	print("FINAL %s %d %s ordres=%d" % [session.player_name, st.tick, st.checksum(), sent])
+	print("FINAL %s %d %s ordres=%d chat=%d" % [session.player_name, st.tick, st.checksum(), sent, session.chat_log.size()])
 	_quit_in = 3.0  # le temps que les derniers messages partent
 
 

@@ -800,6 +800,33 @@ func _test_navigation_ui(main: Node) -> void:
 	var seats_saved: Dictionary = main.net.seats_record()
 	_check(seats_saved.size() == 1 and int(seats_saved.values()[0]["e"]) == main.local_player and FileAccess.file_exists("user://test_multi_auto.json"), "sauvegarde automatique de fin de tour, avec les places")
 	main.leave_network("")
+	# Minuteur de tour : il court pendant les ordres ; à zéro, l'hôte termine le tour pour tous.
+	clock.turn_timer = "fixe-60"
+	_check(main.host_game(24599) and main.net.timer_id == "fixe-60", "le minuteur suit la partie au réseau")
+	await process_frame
+	_check(main.net.timer_end_ms > 0 and clock.timer_left() > 55 and clock.timer_left() <= 60, "minuteur lancé : une minute pour donner ses ordres (%d s)" % clock.timer_left())
+	_check(main._hud.dial._tip().contains("Minuteur"), "le cadran annonce le temps qui reste")
+	var timed_tick: int = main.simulation.state.tick
+	main.net.timer_end_ms = Time.get_ticks_msec() - 1
+	await process_frame
+	_check(not main.net.paused and main.net.turn_target > timed_tick and clock.timer_left() < 0, "temps écoulé : le tour passe sans attendre")
+	_check(clock.settings().get("timer", "") == "fixe-60", "le minuteur est gardé dans la sauvegarde")
+	for _i in 120:
+		await process_frame
+		if main.net.paused:
+			break
+	main.net.timer_id = "dernier-30"
+	main.net.timer_end_ms = -1
+	main.net._tick_timer()
+	_check(main.net.timer_end_ms < 0, "« dernier joueur » : pas de minuteur quand on joue seul")
+	# Discussion : l'hôte écrit, le message s'affiche en bas de l'écran.
+	main.net.send_chat("  Bonjour la galaxie  ")
+	_check(main.net.chat_log.size() == 1 and main.net.chat_log[0]["t"] == "Bonjour la galaxie" and main.chat.visible, "discussion : message de l'hôte affiché")
+	_press(KEY_ENTER)
+	_check(main.chat.is_input_open() and not main.is_system_view_open(), "en réseau, Entrée ouvre la discussion")
+	main.chat.close_input()
+	main.leave_network("")
+	clock.turn_timer = ""
 	DirAccess.remove_absolute("user://test_multi_auto.json")
 	clock.set_mode(clock.MODE_REALTIME)
 
@@ -852,12 +879,17 @@ func _test_navigation_ui(main: Node) -> void:
 	menu.launch()
 	await process_frame
 	_check(menu.is_open() and not main.net.core, "salon : on ne lance pas tant qu'un joueur n'est pas prêt")
+	main.net._host_message(77, {"k": "chat", "t": "Prête quand vous voulez"})
+	_check(not main.net.chat_log.is_empty() and main.net.chat_log[-1]["n"] == "Alice" and menu._host_chat.visible, "salon : la discussion arrive chez l'hôte")
 	main._on_lobby_request(77, "ready", {"r": true})
 	_check(main.net.lobby_all_ready(), "salon : tout le monde est prêt")
 	menu.launch()
 	await process_frame
 	var alice_empire: Empire = main.simulation.state.get_empire(1)
 	_check(not menu.is_open() and main.net.core != null and main.net.core.seats.get(77, -1) == 1, "salon : au lancement, le joueur prend l'empire de sa place")
+	_check(main.net.chat_recipients(Lockstep.HOST, true) == [Lockstep.HOST] and main.net.chat_recipients(Lockstep.HOST, false).has(77), "discussion d'équipe : personne hors de l'équipe")
+	Diplomacy.form_team(main.simulation.state, main.local_player, 1, 1)
+	_check(main.net.chat_recipients(Lockstep.HOST, true).has(77) and main.chat.has_team(), "discussion d'équipe : le coéquipier la reçoit")
 	_check(alice_empire.faction_id == alice_fid and not alice_empire.is_ai() and main.simulation.state.custom_factions.has(alice_fid), "salon : son peuple créé est dans la partie (instantané compris)")
 	main.leave_network("")
 	DirAccess.remove_absolute("user://test_multi_auto.json")

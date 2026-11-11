@@ -29,6 +29,18 @@ const MAX_DAYS_PER_FRAME := 8
 ## Durées de tour proposées (jours de jeu), et celle par défaut.
 const TURN_LENGTHS: Array[int] = [5, 10, 30]
 const DEFAULT_TURN_DAYS := 10
+## Minuteurs de tour en réseau (l'hôte les fait respecter) : aucun ; « fixe » : chaque tour dure au plus
+## s secondes ; « dernier » : quand un seul joueur n'a pas terminé, il a s secondes.
+const TURN_TIMERS: Array[Dictionary] = [
+	{"id": "", "label": "Aucun minuteur", "mode": "", "s": 0},
+	{"id": "fixe-60", "label": "1 min par tour", "mode": "fixe", "s": 60},
+	{"id": "fixe-120", "label": "2 min par tour", "mode": "fixe", "s": 120},
+	{"id": "fixe-180", "label": "3 min par tour", "mode": "fixe", "s": 180},
+	{"id": "fixe-300", "label": "5 min par tour", "mode": "fixe", "s": 300},
+	{"id": "dernier-30", "label": "Dernier joueur : 30 s", "mode": "dernier", "s": 30},
+	{"id": "dernier-60", "label": "Dernier joueur : 1 min", "mode": "dernier", "s": 60},
+	{"id": "dernier-120", "label": "Dernier joueur : 2 min", "mode": "dernier", "s": 120},
+]
 ## Pendant la résolution d'un tour, les jours défilent à cette cadence (secondes réelles par jour).
 const TURN_SECONDS_PER_DAY := 0.06
 
@@ -54,6 +66,24 @@ var driver: Object = null
 var net_ready := false
 ## Multijoueur au tour par tour : noms des joueurs qui n'ont pas encore terminé leur tour.
 var net_waiting: Array[String] = []
+## Minuteur de tour choisi pour les parties en réseau (TURN_TIMERS), gardé dans la sauvegarde.
+var turn_timer := ""
+## Multijoueur : instant (Time.get_ticks_msec) où le minuteur force la fin du tour, -1 sans minuteur.
+var net_timer_end_ms := -1
+
+
+static func timer_info(id: String) -> Dictionary:
+	for t in TURN_TIMERS:
+		if t["id"] == id:
+			return t
+	return TURN_TIMERS[0]
+
+
+## Secondes avant que le minuteur force la fin du tour, -1 s'il ne court pas.
+func timer_left() -> int:
+	if net_timer_end_ms < 0 or driver == null:
+		return -1
+	return maxi(0, ceili((net_timer_end_ms - Time.get_ticks_msec()) / 1000.0))
 
 
 ## Branche l'horloge sur une simulation (nouvelle partie ou partie chargée). Le jeu repart en pause.
@@ -256,13 +286,17 @@ func net_sync(is_paused: bool, speed: int, net_mode := -1, days := 0, target := 
 
 ## Réglages à ranger dans une sauvegarde (voir SaveGame.save_state).
 func settings() -> Dictionary:
-	return {"mode": "turns" if mode == MODE_TURNS else "realtime", "turn_days": turn_days}
+	var out := {"mode": "turns" if mode == MODE_TURNS else "realtime", "turn_days": turn_days}
+	if turn_timer != "":
+		out["timer"] = turn_timer
+	return out
 
 
 ## Réapplique des réglages lus dans une sauvegarde ; vide = temps réel (anciennes sauvegardes).
 func apply_settings(d: Dictionary) -> void:
 	var days := int(d.get("turn_days", DEFAULT_TURN_DAYS))
 	set_mode(MODE_TURNS if d.get("mode", "") == "turns" else MODE_REALTIME, maxi(days, 1))
+	turn_timer = String(timer_info(String(d.get("timer", "")))["id"])
 
 
 func date_string() -> String:

@@ -62,6 +62,12 @@ func _initialize() -> void:
 			step = 2
 		elif step == 2 and main.net.lobby_all_ready():
 			break
+	menu.set_turn_timer("dernier-60")
+	visitor.send_chat("Je prends Teyl. On fait équipe ?")
+	for _i in 10:
+		visitor._poll()
+		await process_frame
+	main.net.send_chat("Ça marche, équipe 1 !")
 	await _frames(20)
 	visitor._poll()
 	await _shot(out + "/reseau-salon-hote.png")
@@ -74,6 +80,7 @@ func _initialize() -> void:
 	# L'hôte : Nouvelle partie en réseau (tours simultanés), lancée et ouverte aussitôt.
 	menu.open_host_new()
 	menu.select_faction("ossarane")
+	menu.set_turn_timer("dernier-60")
 	menu.launch()
 	await _frames(20)
 	# Un second joueur rejoint, depuis une autre session dans ce même processus.
@@ -107,6 +114,12 @@ func _initialize() -> void:
 		if guest.core != null:
 			break
 	get_root().get_node("GameClock").toggle_pause()  # l'hôte termine son tour
+	guest.send_chat("Une minute, je place mon éclaireur.")
+	for _i in 10:
+		guest._poll()
+		guest._flush()
+		await process_frame
+	main.net.send_chat("Le minuteur tourne !")
 	# L'invité partage l'horloge de ce processus : on n'écoute plus que l'hôte pour l'affichage.
 	await _frames(10)
 	main.net._sync_clock()

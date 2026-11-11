@@ -49,6 +49,8 @@ var galaxy: Galaxy:
 var _view: GalaxyView
 var _camera: GalaxyCamera
 var _hud: Hud
+## Discussion entre joueurs, en partie en réseau.
+var chat: ChatPanel
 var _system_screen: SystemScreen
 var _empire_screens: EmpireScreens
 var _main_menu: MainMenu
@@ -163,6 +165,16 @@ func _ready() -> void:
 		open_main_menu())
 
 	net.notice.connect(func(text: String, tone: String) -> void: _hud.notify(text, tone))
+	# Discussion en partie : en bas, à droite de la fiche du système ; Entrée pour écrire.
+	chat = ChatPanel.new(true)
+	chat.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	chat.offset_left = 345.0
+	chat.offset_right = 345.0 + 520.0
+	chat.offset_bottom = -14.0
+	chat.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	chat.visible = false
+	_hud.add_child(chat)
+	chat.bind(net)
 	net.joined.connect(_on_net_joined)
 	net.join_failed.connect(func(reason: String) -> void:
 		if _main_menu.page == "join":
@@ -206,6 +218,7 @@ func _ready() -> void:
 					seats[peer] = pos + 1
 		new_game(seed_value, hosting and net.lobby_open)
 		GameClock.set_mode(_main_menu.time_mode, _main_menu.turn_days)
+		GameClock.turn_timer = _main_menu.turn_timer
 		game_in_progress = true
 		close_main_menu()
 		if hosting:
@@ -253,6 +266,7 @@ func _ready() -> void:
 		if net.lobby_open:
 			_lobby_sync())
 	net.choose_empire.connect(func(list: Array) -> void: _main_menu.show_empire_choice(list))
+	_main_menu.bind_chat(net)
 
 	UiTheme.apply_to(self)
 	new_game(randi())
@@ -914,7 +928,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_F8:
 			toggle_empire_screen("intel")
 		KEY_ENTER, KEY_KP_ENTER:
-			if not is_system_view_open() and not is_empire_screen_open():
+			# En réseau, Entrée ouvre la discussion (le système s'ouvre par double clic ou son bouton).
+			if net.core != null and chat:
+				chat.open_input()
+			elif not is_system_view_open() and not is_empire_screen_open():
 				open_system_view(_view.selected_id)
 		KEY_L:
 			if not is_system_view_open():
