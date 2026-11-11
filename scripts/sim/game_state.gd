@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 17
+const FORMAT_VERSION := 18
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -82,6 +82,11 @@ var custom_factions: Dictionary = {}
 ## Réseaux d'espionnage {"a>b": {"a", "b", "cells", "inf"}} (voir Espionage). a == b : cellules de
 ## contre-espionnage de a chez lui.
 var networks: Dictionary = {}
+## Opérations d'espionnage en cours {"id", "a", "b", "op", "start", "end", "success", "discovery"}, et
+## dossiers de découverte en attente de la réponse de la victime {"id", "victim", "spy", "op", "tick"}.
+var operations: Array[Dictionary] = []
+var spy_cases: Array[Dictionary] = []
+var next_spy_id: int = 0
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -217,6 +222,9 @@ func to_dict() -> Dictionary:
 		"winner": winner.duplicate(),
 		"custom_factions": _sorted_values(custom_factions),
 		"networks": Espionage.networks_to_list(self),
+		"operations": operations.duplicate(true),
+		"spy_cases": spy_cases.duplicate(true),
+		"next_spy_id": next_spy_id,
 	}
 
 
@@ -380,6 +388,15 @@ static func from_dict(d: Dictionary) -> GameState:
 			allies.append(int(a))
 		s.winner = {"empire": int(w["empire"]), "victory": String(w["victory"]), "tick": int(w["tick"]), "allies": allies}
 	Espionage.networks_from_list(s, d.get("networks", []))
+	for op: Dictionary in d.get("operations", []):
+		var v: Dictionary = GameData._to_ints(op)
+		v["op"] = String(v["op"])
+		s.operations.append(v)
+	for c: Dictionary in d.get("spy_cases", []):
+		var v: Dictionary = GameData._to_ints(c)
+		v["op"] = String(v["op"])
+		s.spy_cases.append(v)
+	s.next_spy_id = int(d.get("next_spy_id", 0))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant la dernière information connue : la mémoire part de l'état réel.
 	if int(d["version"]) < 16:

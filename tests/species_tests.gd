@@ -653,7 +653,7 @@ func _test_syndicate() -> void:
 	_ok(signed > 0, "partie entre IA : le syndicat trouve des clients (%d relevés sous contrat sur 18)" % signed)
 
 
-## Credo Profit : espionnage industriel, un vol tous les six mois.
+## Credo Profit : espionnage industriel, branché sur l'espionnage commun (Espionage, talent "spy").
 func _test_profit() -> void:
 	SpeciesLibrary.dir = TEST_DIR
 	var s := _spec("vael", "Marchands d'Essai")
@@ -662,13 +662,16 @@ func _test_profit() -> void:
 	_ok(SpeciesLibrary.save(s) == "", "credo profit enregistré")
 	var fid := String(s["id"])
 	var f := GameData.faction(fid)
-	_ok(int(f["production_pct"]["knowledge"]) == 85 and int(Research.steal_rules(f)["pct"]) == 60, "Savoir -15 %, vol de 60 %")
+	var spy: Dictionary = f["research"]["spy"]
+	_ok(int(f["production_pct"]["knowledge"]) == 85 and int(spy["extra_cells"]) == 1 and int(spy["larcin_cost_pct"]) == 50, "Savoir -15 %, +1 cellule, larcins à moitié prix")
 	var st := GameState.create(5, 150, 1800.0, fid, {"ai_level": "", "rivals": ["vael", "choeur"]})
 	for a in [0, 1, 2]:
 		for b in [0, 1, 2]:
 			if a != b and not st.get_empire(a).contacts.has(b):
 				st.get_empire(a).contacts.append(b)
-	_ok(Research.steal_target(st, 0).is_empty(), "rien à voler au départ (mêmes technologies)")
+	_ok(Espionage.cells_total(st, 0) == 3 and Espionage.cells_total(st, 1) == 2, "3 cellules au lieu de 2")
+	_ok(int(Espionage.op_cost(st, 0, "vol_techno")["influence"]) == 20 and int(Espionage.op_cost(st, 1, "vol_techno")["influence"]) == 40, "voler une technologie : 20 influence au lieu de 40")
+	_ok(Research.steal_target(st, 0, 1) == "", "rien à voler au départ (mêmes technologies)")
 	# Vael apprend deux technologies que nous pourrions chercher.
 	var avail: Array[String] = []
 	for tid in Research.visible_ids(st.get_empire(0).faction()):
@@ -676,26 +679,20 @@ func _test_profit() -> void:
 			avail.append(String(tid))
 	_ok(avail.size() >= 2, "technologies cherchables trouvées (%d)" % avail.size())
 	Research.grant(st, 1, avail.slice(0, 2))
-	var tgt := Research.steal_target(st, 0)
-	_ok(tgt.size() == 2 and int(tgt[0]) == 1 and avail.slice(0, 2).has(String(tgt[1])), "cible : Vael et une de ses technologies (%s)" % str(tgt))
-	var tid := String(tgt[1])
+	var tid := Research.steal_target(st, 0, 1)
+	_ok(avail.slice(0, 2).has(tid), "cible : une technologie de Vael (%s)" % tid)
+	# Réseau deux fois plus rapide chez un partenaire commercial.
+	Espionage.set_cells(st, 0, 1, 1)
+	var g := Espionage.growth(st, 0, 1)
+	Diplomacy._rel_w(st, 0, 1)["trade"] = 1
+	_ok(Espionage.growth(st, 0, 1) > g + 2, "commerce : réseau plus rapide (%d contre %d)" % [Espionage.growth(st, 0, 1), g])
+	# Dividende : un réseau à 40 chez un partenaire commercial rapporte 25 % d'une technologie, tous les six mois.
+	st.networks[Espionage.key(0, 1)]["inf"] = 50
+	var sim := Simulation.new(st)
 	var before := Research.progress_of(st, 0, tid)
-	var caught_expected := Research.steal_caught(st, 0, 1)
-	var r := Research.steal_now(st, 0)
-	@warning_ignore("integer_division")
-	var want := Research.cost(st, 0, tid) * 60 / 100
-	_ok(Research.progress_of(st, 0, tid) - before == want, "60 %% de la technologie volés (%d / %d)" % [Research.progress_of(st, 0, tid) - before, want])
-	var remembers := Diplomacy.opinion_parts(st, 1, 0).any(func(p: Dictionary) -> bool: return String(p["label"]).contains("volé"))
-	_ok(bool(r[4]) == caught_expected and remembers == caught_expected, "pris ou non, la victime s'en souvient seulement si elle les a pris (%s)" % str(r[4]))
-	_ok(Research.steal_now(st, 0)[3] or Research.knows(st, 0, tid), "deux vols : la technologie est acquise")
-	# Un vol tous les six mois, pas plus.
-	var st2 := GameState.create(5, 150, 1800.0, fid, {"ai_level": "", "rivals": ["vael", "choeur"]})
-	st2.get_empire(0).contacts.append(1)
-	Research.grant(st2, 1, avail)
-	var sim := Simulation.new(st2)
 	sim.advance(360)
-	var n := int(st2.get_empire(0).stats.get("stolen", 0))
-	_ok(n == 2, "deux vols en un an (%d)" % n)
-	# Un peuple sans ce credo ne vole rien.
-	_ok(Research.steal_rules(GameData.faction("vael")).is_empty(), "Vael ne vole pas")
+	var n := int(st.get_empire(0).stats.get("stolen", 0))
+	_ok(n == 2 or Research.knows(st, 0, tid), "deux dividendes en un an (%d)" % n)
+	_ok(Research.progress_of(st, 0, tid) > before or Research.knows(st, 0, tid), "le dividende fait avancer la technologie")
+	_ok(Espionage.talent(st, 1).is_empty(), "Vael n'a pas ce talent")
 

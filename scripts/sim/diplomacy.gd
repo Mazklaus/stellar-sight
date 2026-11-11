@@ -680,7 +680,11 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 	if by_nature:
 		return
 	remember(state, b, a, "declared_war")
-	if broke:
+	if broke and Espionage.has_grief(state, a, b):
+		# Grief : l'autre a été pris à espionner, la rupture n'est pas un parjure.
+		state.add_chronicle("%s rompt son traité avec %s, et brandit le dossier de ses espions démasqués. Les juristes, pour une fois, approuvent." % [
+				state.get_empire(a).display_name(), state.get_empire(b).display_name()], Espionage.public_to(state, [a, b]))
+	elif broke:
 		remember(state, b, a, "broke_treaty")
 		for e in state.empires:
 			if e.id != a and e.id != b and not e.eliminated and e.contacts.has(a):
@@ -712,6 +716,17 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 			remember(state, friend, ally, "ally_joined")
 			state.add_chronicle("%s honore son alliance et entre en guerre contre %s aux côtés de %s." % [
 					ae.display_name(), state.get_empire(foe).display_name(), state.get_empire(friend).display_name()], Espionage.public_to(state, [ally, foe, friend]))
+
+
+## Un allié pris à espionner : l'alliance est rompue, avec le souvenir d'un traité rompu.
+static func break_alliance_for_spying(state: GameState, victim: int, spy: int) -> void:
+	var r := _rel_w(state, victim, spy)
+	r["pact"] = COLD
+	r["trade"] = 0
+	r["since"] = state.tick
+	remember(state, victim, spy, "broke_treaty")
+	state.add_chronicle("%s rompt son alliance avec %s : on n'espionne pas ses amis, ou alors on ne se fait pas prendre." % [
+			state.get_empire(victim).display_name(), state.get_empire(spy).display_name()], Espionage.public_to(state, [victim, spy]))
 
 
 static func _drop_all_proposals(state: GameState, a: int, b: int) -> void:

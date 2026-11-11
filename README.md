@@ -40,7 +40,7 @@ Premier prototype du 4X spatial Stellar Sigth, pour **Godot 4.7**. Il couvre l'�
 | Recherche : choisir, lancer, mettre en file, retirer | Écran Recherche (F3) : clic sur une technologie pour sa fiche, double-clic pour la lancer tout de suite ; boutons de la fiche ; croix de la file |
 | Diplomatie : proposer un traité, répondre, rompre, déclarer la guerre | Écran Diplomatie (F4) : choisir l'empire sur la table, puis les boutons de la relation (la guerre en deux clics) |
 | Victoires : où en est chaque empire | F7, ou le pictogramme étoile du panneau d'empire |
-| Renseignement : cellules d'espionnage, réseaux, dossiers | F8, ou le pictogramme œil du panneau d'empire |
+| Renseignement : cellules d'espionnage, réseaux, dossiers, opérations, espions démasqués | F8, ou le pictogramme œil du panneau d'empire |
 | Sonde vers un système connu hors de vue | bouton « Sonde » dans la vue du système |
 | Diplomatie : unir nos lignées (Ossarane) | Écran Diplomatie (F4), bouton « Unir nos lignées » avec un allié de longue date |
 | Construire un vaisseau | « Chantier spatial » dans les ordres d'une colonie, dans la vue système |

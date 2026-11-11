@@ -50,6 +50,16 @@ func _initialize() -> void:
 	main._empire_screens.show_screen("intel")
 	await _frames(8)
 	await _shot(out + "/renseignement-sans-dossier.png")
+	# 3. Une opération en cours chez l'un, des espions démasqués chez nous.
+	me.resources["influence"] = 300
+	main._empire_screens.intel_selected = 1
+	sim.submit(SimCommands.spy_op(0, 1, "vol_techno") if Espionage.check_op(st, 0, 1, "vol_techno") == "" else SimCommands.spy_op(0, 1, "rapport"))
+	sim.flush_commands()
+	st.spy_cases.append({"id": st.next_spy_id, "victim": 0, "spy": 2, "op": "siphon", "tick": st.tick})
+	st.next_spy_id += 1
+	main._empire_screens.show_screen("intel")
+	await _frames(8)
+	await _shot(out + "/renseignement-operations.png")
 	main.toggle_empire_screen("intel")
 	await _frames(4)
 
