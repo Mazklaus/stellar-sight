@@ -1,6 +1,7 @@
 extends RefCounted
 ## Tests de la dernière information connue (Intel) : mémoire figée hors de vue, rafraîchie au retour,
-## sauvegarde, reprise des anciennes sauvegardes, partage entre alliés, déterminisme et affichage.
+## sauvegarde, reprise des anciennes sauvegardes, partage entre alliés, déterminisme, affichage, et IA
+## qui raisonne sur sa mémoire (mêmes yeux que le joueur).
 ## Appelés par smoke_test.gd.
 
 var _check: Callable
@@ -19,6 +20,7 @@ func run(check: Callable) -> void:
 	_test_display()
 	_test_ghosts()
 	_test_allied_vision()
+	_test_ai_memory()
 	Intel.lens = old_lens
 
 
@@ -260,3 +262,41 @@ func _test_allied_vision() -> void:
 	var before := st.relations.size()
 	Fleets.allies_of(st, 3)
 	_ok(st.relations.size() == before, "lire les alliés ne crée aucune relation")
+
+
+## L'IA juge les systèmes hors de vue sur sa mémoire : un rival installé en douce passe inaperçu,
+## un système qu'elle croit pris reste pris pour elle, et elle ne connaît pas les garnisons d'en face.
+func _test_ai_memory() -> void:
+	var sim := Simulation.new(GameState.create(11))
+	var st := sim.state
+	var e := st.get_empire(0)
+	var y := _far_free_system(st, 0)
+	if y < 0:
+		_ok(false, "IA : un système libre hors de vue pour le test")
+		return
+	_glimpse(sim, 0, y)
+	var ctx := AiDiplomacy._ctx(st, e)
+	ctx["lv"] = AiLevels.level("veteran")
+	var power_before := AiPlayer.enemy_power(ctx, 1)
+	var free_before := not AiPlayer.best_claim(st, e, y, 1, Intel.seen(st, 0)).is_empty()
+	var planets: Array = st.galaxy.get_system(y).planet_ids
+	for pid in planets:
+		_claim(st, 1, pid)
+	sim.advance(40)
+	_ok(st.system_owner(y) == 1, "IA : le rival a pris le système hors de vue (état réel)")
+	ctx = AiDiplomacy._ctx(st, e)
+	ctx["lv"] = AiLevels.level("veteran")
+	_ok(AiPlayer._owner(ctx, y) == -1, "IA : hors de vue, le système reste libre pour elle")
+	_ok(free_before and not AiPlayer.best_claim(st, e, y, 1, Intel.seen(st, 0)).is_empty(), "IA : elle peut encore viser ce système qu'elle croit libre")
+	_ok(AiPlayer.best_claim(st, e, y, 1, {y: true}).is_empty(), "IA : vu en direct, le système pris n'est plus une cible")
+	_ok(AiPlayer.enemy_power(ctx, 1) == power_before, "IA : la force estimée du rival ignore ce qu'elle n'a pas vu")
+	_ok(Intel.garrison_in(st, e, Intel.seen(st, 0), y) == 0, "IA : pas de garnison connue dans un système qu'elle croit libre")
+	_ok(Intel.garrison_in(st, e, {y: true}, y) == Combat.garrison(st, y), "IA : vue en direct, la garnison est la vraie")
+	# Un éclaireur repasse : la mémoire, donc l'IA, se met à jour.
+	_glimpse(sim, 0, y)
+	ctx = AiDiplomacy._ctx(st, e)
+	ctx["lv"] = AiLevels.level("veteran")
+	_ok(AiPlayer._owner(ctx, y) == 1 and AiPlayer.best_claim(st, e, y, 1, Intel.seen(st, 0)).is_empty(), "IA : au retour d'un éclaireur, elle sait le système pris")
+	_ok(AiPlayer.enemy_power(ctx, 1) == power_before + 6, "IA : et compte ce système dans la force du rival")
+	var est := Intel.garrison_in(st, e, Intel.seen(st, 0), y)
+	_ok(est > 0 and est <= Combat.garrison_max(st, y), "IA : garnison estimée depuis le relevé (%d, réelle %d)" % [est, Combat.garrison(st, y)])
