@@ -25,8 +25,11 @@ func run(check: Callable) -> void:
 	_test_profit()
 	_test_horde()
 	_test_reptile()
+	_test_energetic()
+	_test_echoes()
 	_test_reputation()
 	_test_brisecomete_game()
+	_test_murmurants_game()
 	_test_save()
 	_cleanup()
 
@@ -44,7 +47,7 @@ func _spec(preset: String, name := "Peuple d'essai") -> Dictionary:
 
 
 func _test_presets() -> void:
-	var expect := {"ossarane": [2, 4], "choeur": [2, 4], "vael": [4, 4], "khthari": [1, 5], "teyl": [2, 4], "ferrocornes": [2, 4], "brisecomete": [5, 5]}
+	var expect := {"ossarane": [2, 4], "choeur": [2, 4], "vael": [4, 4], "khthari": [1, 5], "teyl": [2, 4], "ferrocornes": [2, 4], "brisecomete": [5, 5], "murmurants": [4, 4]}
 	for p in expect:
 		var s := _spec(p)
 		_ok(Species.check(s) == "", "modèle %s valide (%s)" % [p, Species.check(s)])
@@ -93,6 +96,12 @@ func _test_presets_match_officials() -> void:
 			"colony_influence_pct", "outpost_yields", "start_ships", "ship_style", "registre", "species"]:
 		_ok(br[key] == bo[key], "Brisecomète : %s identique à la fiche officielle (%s / %s)" % [key, str(br[key]), str(bo[key])])
 	_ok(br["traits"].size() == bo["traits"].size() and not bo.has("home_deposit"), "Brisecomète : autant de traits affichés, aucun gisement")
+	var mu := Species.build(_spec("murmurants"))
+	var mo := GameData.faction("murmurants")
+	for key in ["veil", "echoes", "fervor", "research", "preferred", "production_pct", "growth_pct", "food_upkeep_pct", "combat", "hab_extra", "fleet_speed_pct",
+			"colony_start_pop", "home_deposit", "ship_style", "registre", "species"]:
+		_ok(mu[key] == mo[key], "Murmurants : %s identique à la fiche officielle (%s / %s)" % [key, str(mu[key]), str(mo[key])])
+	_ok(mu["traits"].size() == mo["traits"].size(), "Murmurants : autant de traits affichés")
 	var humain := _spec("")
 	humain["credo"] = "survie"
 	_ok(int(Species.build(humain)["production_pct"]["knowledge"]) == 75, "survie sans ruche : Savoir -25 % seulement")
@@ -184,7 +193,7 @@ func _test_game() -> void:
 	_ok(SpeciesLibrary.save(s) == "", "ruche créée enregistrée")
 	var fid := String(s["id"])
 	var st := GameState.create(5, 150, 1800.0, fid, {"ai_level": ""})
-	_ok(st.empires.size() == 8 and st.empires[0].faction_id == fid, "peuple créé joué par le joueur, 7 officiels en rivaux")
+	_ok(st.empires.size() == 9 and st.empires[0].faction_id == fid, "peuple créé joué par le joueur, 8 officiels en rivaux")
 	_ok(st.custom_factions.has(fid), "fiche recopiée dans la partie")
 	var spores := 0
 	for id in st.fleets:
@@ -555,7 +564,7 @@ func _test_teyl_game() -> void:
 	for e in sim.state.empires:
 		if e.faction_id == "teyl":
 			tid = e.id
-	_ok(sim.state.empires.size() == 7 and tid >= 0, "partie par défaut : sept peuples dont Teyl")
+	_ok(sim.state.empires.size() == 8 and tid >= 0, "partie par défaut : huit peuples dont Teyl")
 	sim.advance(720)
 	var e := sim.state.get_empire(tid)
 	var nodes := FactionTraits.network_nodes(sim.state, tid)
@@ -570,9 +579,90 @@ func _test_ferrocornes_game() -> void:
 	for e in sim.state.empires:
 		if e.faction_id == "ferrocornes":
 			fid = e.id
-	_ok(sim.state.empires.size() == 7 and fid >= 0 and FactionTraits.city_fleet(sim.state, fid) != null, "partie par défaut : sept peuples, les Ferrocornes avec leur flotte-ville")
+	_ok(sim.state.empires.size() == 8 and fid >= 0 and FactionTraits.city_fleet(sim.state, fid) != null, "partie par défaut : huit peuples, les Ferrocornes avec leur flotte-ville")
 	sim.advance(720)
 	_ok(not sim.state.get_empire(fid).eliminated, "Ferrocornes (IA) : en vie après deux ans")
+
+
+## Archétype Énergétique : le Voile, corps immatériels.
+func _test_energetic() -> void:
+	SpeciesLibrary.dir = TEST_DIR
+	var s := _spec("", "Lueurs d'Essai")
+	s["archetype"] = "energetique"
+	s["portrait"] = "energetique_1"
+	_ok(Species.check(s) == "", "énergétique valide (%s)" % Species.check(s))
+	_ok(Species.portraits("energetique").size() >= 3, "au moins 3 portraits énergétiques")
+	_ok(SpeciesLibrary.save(s) == "", "énergétique enregistré")
+	var fid := String(s["id"])
+	var f := GameData.faction(fid)
+	_ok(int(f["food_upkeep_pct"]) == 0 and int(f["growth_pct"]) == 75 and Veil.has(f) and int(f["combat"]["garrison_pct"]) == 50, "voile, sans nourriture, croissance lente, garnisons faibles")
+	_ok(Economy.habitability("barren", f) == 50, "mondes stériles habitables à 50 %")
+	var st := GameState.create(6, 150, 1800.0, fid, {"ai_level": "", "rivals": ["vael", "choeur"]})
+	var me := st.get_empire(0)
+	var home: Colony = st.colonies[me.home_planet]
+	_ok(int(Economy.colony_yields(st, home)["upkeep"].get("food", 0)) == 0, "ils ne mangent pas")
+	var home_sys := st.galaxy.get_planet(me.home_planet).system_id
+	var rival: Fleet = Fleets.empire_fleets(st, 1)[0]
+	rival.path = []
+	rival.system_id = int(st.galaxy.systems[home_sys].neighbors[0])
+	var mine: Fleet = Fleets.empire_fleets(st, 0)[0]
+	var seen := Fleets.visible_systems(st, 1)
+	_ok(seen.has(home_sys), "le système d'origine est à portée de vue du rival")
+	_ok(not Fleets.fleet_visible(st, 1, mine, seen) and Fleets.fleet_visible(st, -1, mine, seen), "le Voile cache leurs flottes (le spectateur voit tout)")
+	_ok(not FleetSystem._sees_empire(st, seen, 0, 1) and FleetSystem._sees_empire(st, seen, 0), "on ne rencontre pas ce qu'on ne voit pas")
+	Intel.record(st, Fleets.visible_all(st))
+	var known: Dictionary = st.get_empire(1).intel.get(home_sys, {})
+	_ok(not known.is_empty() and int(known["info"]["owner"]) == -1 and (known["info"]["claims"] as Array).is_empty(), "la mémoire du rival ne garde qu'un système vide")
+	_ok(me.spotted_tick == -1, "personne ne les a repérés")
+	Research.grant(st, 1, [Veil.detection_tech()])
+	Intel.record(st, Fleets.visible_all(st))
+	known = st.get_empire(1).intel.get(home_sys, {})
+	_ok(int(known["info"]["owner"]) == 0 and Fleets.fleet_visible(st, 1, mine, Fleets.visible_systems(st, 1)), "les Détecteurs d'abysse percent le Voile")
+	_ok(me.spotted_tick >= 0 and me.spotted_by == 1, "les voilà repérés")
+	# De près, la présence se sent.
+	var st2 := GameState.create(6, 150, 1800.0, fid, {"ai_level": "", "rivals": ["vael", "choeur"]})
+	var r2: Fleet = Fleets.empire_fleets(st2, 1)[0]
+	r2.path = []
+	r2.system_id = st2.galaxy.get_planet(st2.get_empire(0).home_planet).system_id
+	Intel.record(st2, Fleets.visible_all(st2))
+	_ok(int(st2.get_empire(1).intel[r2.system_id]["info"]["owner"]) == 0 and st2.get_empire(0).spotted_tick >= 0, "une flotte à l'arrêt dans leur système les voit")
+	var copy := GameState.from_dict(st.to_snapshot())
+	_ok(copy.get_empire(0).spotted_tick == me.spotted_tick, "repérage sauvegardé")
+
+
+## Registre Cosmique : les Échos (replier le temps, préscience).
+func _test_echoes() -> void:
+	SpeciesLibrary.dir = TEST_DIR
+	var s := _spec("", "Échos d'Essai")
+	s["registre"] = "Cosmique / étrange"
+	_ok(Species.check(s) == "", "cosmique valide (%s)" % Species.check(s))
+	_ok(SpeciesLibrary.save(s) == "", "cosmique enregistré")
+	var fid := String(s["id"])
+	_ok(Echoes.has(GameData.faction(fid)) and not Echoes.has(GameData.faction("vael")), "les échos : registre Cosmique seulement")
+	var st := GameState.create(7, 150, 1800.0, fid, {"ai_level": "", "rivals": ["vael", "choeur"]})
+	var me := st.get_empire(0)
+	_ok(Echoes.monthly_gain(st, 0) == 3, "2 échos par mois, plus 1 par colonie peuplée (%d)" % Echoes.monthly_gain(st, 0))
+	Echoes.monthly(st)
+	_ok(me.echoes == 3, "les échos s'accumulent")
+	var home: Colony = st.colonies[me.home_planet]
+	home.construction = "ferme_hydroponique"
+	home.construction_days = 90
+	var cmd := SimCommands.fold(0, me.home_planet, Echoes.BUILDING)
+	_ok(SimCommands.validate(st, cmd).contains("échos insuffisants"), "replier le temps demande des échos")
+	me.echoes = 40
+	_ok(SimCommands.validate(st, cmd) == "", "replier le temps : permis (%s)" % SimCommands.validate(st, cmd))
+	SimCommands.apply(st, cmd)
+	_ok(home.construction_days == 30 and me.echoes == 10, "le chantier avance de 60 jours pour 30 échos (%d j, %d échos)" % [home.construction_days, me.echoes])
+	_ok(SimCommands.validate(st, SimCommands.fold(1, st.get_empire(1).home_planet, Echoes.BUILDING)) != "", "les autres registres ne replient pas le temps")
+	# Préscience : une flotte en route vers un de nos systèmes se voit dès son départ.
+	var rival: Fleet = Fleets.empire_fleets(st, 1)[0]
+	var home_sys := st.galaxy.get_planet(me.home_planet).system_id
+	rival.path.clear()
+	rival.path.append(home_sys)
+	_ok(Echoes.foresees(st, 0, rival) and Fleets.fleet_visible(st, 0, rival, {}), "préscience : la flotte qui vient est visible")
+	_ok(not Echoes.foresees(st, 1, Fleets.empire_fleets(st, 0)[0]), "pas de préscience pour les autres")
+	var copy := GameState.from_dict(st.to_snapshot())
+	_ok(copy.get_empire(0).echoes == me.echoes, "échos sauvegardés")
 
 
 ## Registre Picaresque : la réputation et ce qu'elle change.
@@ -624,10 +714,24 @@ func _test_brisecomete_game() -> void:
 	for e in sim.state.empires:
 		if e.faction_id == "brisecomete":
 			bid = e.id
-	_ok(sim.state.empires.size() == 7 and bid >= 0, "partie par défaut : sept peuples, dont le Syndicat Brisecomète")
+	_ok(sim.state.empires.size() == 8 and bid >= 0, "partie par défaut : huit peuples, dont le Syndicat Brisecomète")
 	sim.advance(720)
 	_ok(not sim.state.get_empire(bid).eliminated, "Brisecomète (IA) : en vie après deux ans (réputation %d, %d exploits)" % [
 			sim.state.get_empire(bid).reputation, sim.state.get_empire(bid).exploits.size()])
+
+
+## Murmurants d'Abysse, 8e peuple officiel : joué par l'IA, voilé, et ses échos servent.
+func _test_murmurants_game() -> void:
+	_ok(GameData.is_official("murmurants") and GameData.portrait_art("murmurants") == "faction_murmurants", "Murmurants : peuple officiel, emplacement d'illustration")
+	var sim := Simulation.new(GameState.create(15, 150, 1800.0, "", {"spectator": true, "ai_level": "normal"}))
+	var mid := -1
+	for e in sim.state.empires:
+		if e.faction_id == "murmurants":
+			mid = e.id
+	_ok(mid >= 0, "partie par défaut : les Murmurants y sont")
+	sim.advance(720)
+	var m := sim.state.get_empire(mid)
+	_ok(not m.eliminated and int(m.stats.get("folds", 0)) > 0, "Murmurants (IA) : en vie après deux ans, le temps replié %d fois" % int(m.stats.get("folds", 0)))
 
 
 ## Gouvernement Syndicat : comptoirs, colonies chères, flottes à louer.

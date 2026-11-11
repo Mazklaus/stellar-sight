@@ -465,6 +465,16 @@
 				"saut"
 			]
 		},
+		"detecteurs_abysse": {
+			"label": "Détecteurs d'abysse",
+			"domain": "genie",
+			"era": 2,
+			"text": "Percent le Voile des peuples énergétiques : leurs flottes et leurs revendications apparaissent partout où l'on voit.",
+			"pre": [
+				"capteurs"
+			],
+			"flavor": "« Il n'y a rien là-bas. » — « Alors pourquoi le rien nous regarde-t-il ? »"
+		},
 		"capteurs": {
 			"label": "Capteurs profonds",
 			"domain": "genie",
@@ -1885,6 +1895,24 @@
 			},
 			"victory": "legende",
 			"flavor": "« C'était trois contre un. Puis dix contre un, au deuxième verre. »"
+		},
+		"silence_parfait": {
+			"label": "Le Grand Silence",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : les colonies apprennent à se taire tout à fait. Huit colonies peuplées tenues trois ans sans qu'aucun empire non allié ne les aperçoive, et le Silence parfait est atteint.",
+			"pre": [
+				"administration2"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"energetique"
+					]
+				}
+			},
+			"victory": "silence",
+			"flavor": "« Nous ne sommes pas cachés. Vous ne regardez simplement pas au bon endroit, ni au bon moment. »"
 		},
 		"noosphere": {
 			"label": "Éveil de la Noosphère",

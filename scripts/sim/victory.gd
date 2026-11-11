@@ -71,6 +71,8 @@ static func rule_text(id: String) -> String:
 			return t % [int(v["min_jumps"]), int(v["reveal_jumps"]), maxi(1, years)]
 		"legende":
 			return t % [int(v["exploits"]), int(v["min_reputation"]), maxi(1, years)]
+		"silence":
+			return t % [int(v["colonies"]), years]
 	return t
 
 
@@ -222,6 +224,8 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			_terre_promise(state, e, out)
 		"legende":
 			_legende(state, e, out)
+		"silence":
+			_silence(state, e, out)
 	if is_people(id) and not has_tech(state, empire_id, id):
 		out["lines"].append("Technologie requise : %s" % String(Research.tech(tech_for(id)).get("label", tech_for(id))))
 		out["cond"] = false
@@ -661,6 +665,26 @@ static func _legende(state: GameState, e: Empire, out: Dictionary) -> void:
 	out["lines"].append("Réputation : %d (%d au moins)" % [e.reputation, min_rep])
 	out["cond"] = e.exploits.size() >= need and e.reputation >= min_rep
 	_timed(out, n + int(e.reputation >= min_rep), need + 1)
+
+
+## Le Silence parfait (archétype Énergétique) : assez de colonies peuplées, et pas un repérage depuis
+## le dernier bilan (VictorySystem vérifie tous les check_days) ; un repérage remet tout à zéro.
+static func _silence(state: GameState, e: Empire, out: Dictionary) -> void:
+	var want := int(info("silence")["colonies"])
+	var n := 0
+	for pid in state.colonies:
+		var c: Colony = state.colonies[pid]
+		if c.owner == e.id and c.is_established():
+			n += 1
+	var since := -1 if e.spotted_tick < 0 else state.tick - e.spotted_tick
+	var quiet := since < 0 or since > int(data().get("check_days", 30))
+	out["lines"].append("Colonies peuplées : %d / %d" % [n, want])
+	if since < 0:
+		out["lines"].append("Jamais repéré")
+	else:
+		out["lines"].append("Dernier repérage : il y a %s, par %s" % [_days_text(since), state.get_empire(e.spotted_by).display_name() if e.spotted_by >= 0 else "?"])
+	out["cond"] = n >= want and quiet
+	_timed(out, mini(n, want) if quiet else mini(n, want - 1), want)
 
 
 # --- Ce que l'on voit des autres ---------------------------------------------------------------
