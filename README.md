@@ -467,6 +467,15 @@ Chaque nouvelle brique apporte une vraie mécanique et passe au banc de 24 parti
 
 Les vaisseaux ont un modèle 3D source (glTF), produit à partir d'un concept Midjourney par Tripo, puis cuit dans Blender par `tools/vaisseaux/cuire_vaisseau.py` et contrôlé par `tools/vaisseaux/apercu_vaisseau.gd`. `tools/vaisseaux/sprites_vaisseau.gd` en tire des sprites vus de dessus (`assets/ships/`), que la vue de replay et le Chantier affichent teints aux couleurs de l'empire (`ShipArt`) ; sans sprite, ils gardent leur dessin stylisé. Une version allégée du modèle (`tools/vaisseaux/alleger_vaisseau.py`) sert à la cinématique 3D des batailles, ouverte depuis la vue de replay (`BattleCinematic`). Pour l'instant, seules les frégates Ossarane et Kh'thari en ont un. Règles (nommage, axes, budgets, cartes, masque d'empire, points d'attache) et commandes : [docs/vaisseaux-3d.md](docs/vaisseaux-3d.md).
 
+## Multijoueur en réseau (en cours)
+
+Étude et choix : hôte joueur + lockstep par ordres (seuls les ordres des humains voyagent ; l'IA, l'économie et les combats tournent à l'identique sur chaque machine). Lot 1, fondations :
+
+- **Instantané de partie** : `GameState.to_snapshot()` ajoute à l'état la galaxie complète (`Galaxy.to_dict()` : positions au bit près, routes, planètes) ; `from_dict()` la reprend telle quelle au lieu de la régénérer. La génération utilise des sinus et cosinus qui peuvent différer entre Windows et Linux : l'hôte crée la partie et envoie l'instantané. Les sauvegardes l'utilisent aussi (version 15) : elles se rechargent à l'identique sur un autre système. L'empreinte (`checksum()`) ne couvre toujours que `to_dict()`.
+- **Empreinte de version** : `GameVersion.fingerprint()` (data/, scripts/sim/, scripts/net/ et version de Godot) ; le salon refusera un joueur dont la version diffère.
+- **Comparer deux états** : `StateDiff.differences(a, b)` ; en ligne de commande `A=… B=… godot --headless --path . -s res://tools/state_diff.gd`.
+- **Test de déterminisme** à lancer sur chaque système : `godot --headless --path . -s res://tools/determinism_check.gd` (sous Windows, avec l'exécutable `_console`). Il compare la création de 4 galaxies et 3 ans de simulation à la référence Linux (`tools/determinism_reference.txt`, départs dans `tools/determinism_starts/`). « Créations différentes, simulation identique » est sans gravité ; « PARTIES DIFFÉRENTES » est à signaler, avec le fichier `user://determinism.txt`. `WRITE_REFERENCE=1` réécrit la référence.
+
 ## Organisation du code
 
 La simulation et l'affichage sont séparés dès maintenant, pour pouvoir ajouter le multijoueur et passer en 2,5D sans tout réécrire.

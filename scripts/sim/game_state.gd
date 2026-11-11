@@ -3,16 +3,17 @@ extends RefCounted
 ## Tout l'état d'une partie, et rien d'autre : c'est ce qu'on sauvegarde,
 ## ce qu'on compare entre machines en multijoueur, et la seule chose que la simulation modifie.
 ##
-## La partie statique de la galaxie (positions, routes, types d'étoiles) n'est pas
-## stockée : elle se régénère à l'identique depuis la graine. Seules les données
-## qui changent en cours de partie sont sérialisées.
+## La partie statique de la galaxie (positions, routes, types d'étoiles) n'entre pas dans to_dict()
+## ni dans l'empreinte : elle ne change pas en cours de partie. to_snapshot() l'ajoute, pour les
+## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
+## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 14
+const FORMAT_VERSION := 15
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
-## bonus d'IA fixes).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14]
+## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -139,13 +140,17 @@ static func default_victory_rules() -> Dictionary:
 
 
 ## Galaxie et générateur seulement, sans empires (base commune à create() et from_dict()).
-static func _base(seed_value_: int, system_count_: int, galaxy_radius_: float, settings := {}) -> GameState:
+## galaxy_data : galaxie écrite par Galaxy.to_dict() ; vide = régénérée depuis la graine.
+static func _base(seed_value_: int, system_count_: int, galaxy_radius_: float, settings := {}, galaxy_data := {}) -> GameState:
 	var s := GameState.new()
 	s.seed_value = seed_value_
 	s.system_count = system_count_
 	s.galaxy_radius = galaxy_radius_
 	s.galaxy_settings = GalaxySettings.normalize(settings)
-	s.galaxy = GalaxyGenerator.generate(seed_value_, system_count_, galaxy_radius_, GalaxySettings.generator_shape(s.galaxy_settings))
+	if galaxy_data.is_empty():
+		s.galaxy = GalaxyGenerator.generate(seed_value_, system_count_, galaxy_radius_, GalaxySettings.generator_shape(s.galaxy_settings))
+	else:
+		s.galaxy = Galaxy.from_dict(galaxy_data)
 	# Flux aléatoire distinct de celui de la génération, dérivé de la même graine.
 	s.rng.seed = hash([seed_value_, "simulation"])
 	# Une nouvelle partie (ou un chargement) repart sans les modèles de la précédente.
@@ -209,6 +214,14 @@ func to_dict() -> Dictionary:
 	}
 
 
+## État complet avec la galaxie elle-même (positions, routes, planètes) : ce qu'on sauvegarde et ce
+## que l'hôte envoie aux joueurs. Se relit avec from_dict(), sans rien régénérer.
+func to_snapshot() -> Dictionary:
+	var d := to_dict()
+	d["galaxy"] = galaxy.to_dict()
+	return d
+
+
 func _sorted_designs() -> Array:
 	var ids := designs.keys()
 	ids.sort()
@@ -249,7 +262,14 @@ static func from_dict(d: Dictionary) -> GameState:
 	if not READABLE_VERSIONS.has(int(d["version"])):
 		last_error = "version de format %s non prise en charge (attendu %d)" % [d["version"], FORMAT_VERSION]
 		return null
-	var s := GameState._base(int(d["seed"]), int(d["system_count"]), float(d["galaxy_radius"]), d.get("galaxy_settings", {}))
+	var galaxy_data: Variant = d.get("galaxy", {})
+	if not galaxy_data is Dictionary:
+		last_error = "galaxie illisible"
+		return null
+	var s := GameState._base(int(d["seed"]), int(d["system_count"]), float(d["galaxy_radius"]), d.get("galaxy_settings", {}), galaxy_data)
+	if s.galaxy == null:
+		last_error = "galaxie incohérente"
+		return null
 	var systems: Array = d["systems"]
 	if systems.size() != s.galaxy.systems.size():
 		last_error = "nombre de systèmes incohérent (%d au lieu de %d)" % [systems.size(), s.galaxy.systems.size()]

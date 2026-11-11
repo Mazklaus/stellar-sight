@@ -26,7 +26,8 @@ static func save_state(state: GameState, path: String = QUICKSAVE_PATH, clock :=
 		"saved_at": Time.get_datetime_string_from_system(),
 		"date": GameCalendar.date_string(state.tick),
 		"checksum": state.checksum(),
-		"state": state.to_dict(),
+		# La galaxie entière : la sauvegarde se recharge à l'identique sur un autre système.
+		"state": state.to_snapshot(),
 	}
 	if not clock.is_empty():
 		data["clock"] = clock
