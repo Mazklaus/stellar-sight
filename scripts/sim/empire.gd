@@ -29,6 +29,9 @@ var blackout: bool = false
 var explored: Dictionary = {}
 ## Dernière information connue (voir Intel) : système -> {"day": jour du relevé, "info": relevé}.
 var intel: Dictionary = {}
+## Flottes étrangères aperçues puis perdues de vue (voir Intel) : flotte -> {"sys", "day", "owner",
+## "ships", "armed"}. Une silhouette s'efface quand on revoit l'endroit vide, ou avec le temps.
+var sightings: Dictionary = {}
 ## Plus courts chemins par les routes connues, depuis chaque système déjà demandé (Fleets._dijkstra) :
 ## donnée dérivée, non sauvegardée, valable tant que explored n'a pas grandi.
 var path_cache: Dictionary = {}
@@ -145,6 +148,7 @@ func to_dict() -> Dictionary:
 		"blackout": blackout,
 		"explored": sorted_explored(),
 		"intel": Intel.to_list(self),
+		"sightings": Intel.sightings_to_list(self),
 		"contacts": Array(contacts),
 		"ships_built": ships_built.duplicate(),
 		"fervor": fervor,
@@ -222,6 +226,7 @@ static func from_dict(d: Dictionary) -> Empire:
 	for sid in d["explored"]:
 		e.explored[int(sid)] = true
 	Intel.from_list(e, d.get("intel", []))
+	Intel.sightings_from_list(e, d.get("sightings", []))
 	for c in d["contacts"]:
 		e.contacts.append(int(c))
 	for k in d["ships_built"]:

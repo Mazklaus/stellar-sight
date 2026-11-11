@@ -17,6 +17,8 @@ func run(check: Callable) -> void:
 	_test_share()
 	_test_determinism()
 	_test_display()
+	_test_ghosts()
+	_test_allied_vision()
 	Intel.lens = old_lens
 
 
@@ -204,3 +206,57 @@ func _test_display() -> void:
 	view.fog = false
 	_ok(view.owner_of(y) == 1, "carte sans brouillard : état réel")
 	view.free()
+
+
+func _test_ghosts() -> void:
+	var sim := Simulation.new(GameState.create(16))
+	var st := sim.state
+	var y := _far_free_system(st, 0)
+	if y < 0:
+		return
+	var mine := st.spawn_ship(0, "scout", y)
+	var theirs := st.spawn_ship(1, "scout", y)
+	sim.step()
+	_ok(st.get_empire(0).sightings.has(theirs.id), "flotte étrangère vue : notée")
+	_ok(Intel.ghosts(st, 0).is_empty(), "pas de silhouette tant qu'on la voit")
+	st.fleets.erase(mine.id)
+	sim.step()
+	var gs := Intel.ghosts(st, 0)
+	_ok(gs.size() == 1 and int(gs[0]["fleet"]) == theirs.id and int(gs[0]["sys"]) == y, "flotte perdue de vue : silhouette là où on l'a vue")
+	_ok(Intel.ghost_lines(st, 0, y).size() == 1, "fiche du système : une ligne par silhouette (%s)" % ", ".join(Intel.ghost_lines(st, 0, y)))
+	st.fleets.erase(theirs.id)
+	sim.advance(10)
+	_ok(Intel.ghosts(st, 0).size() == 1, "une flotte partie hors de vue reste en silhouette")
+	var back := st.spawn_ship(0, "scout", y)
+	sim.step()
+	_ok(not st.get_empire(0).sightings.has(theirs.id), "endroit revu vide : la silhouette s'efface")
+	var other := st.spawn_ship(1, "scout", y)
+	sim.step()
+	st.fleets.erase(back.id)
+	sim.advance(Intel.SIGHTING_DAYS + 2)
+	_ok(not st.get_empire(0).sightings.has(other.id), "silhouette effacée au bout de %d jours" % Intel.SIGHTING_DAYS)
+	var d := st.to_dict()
+	var re := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
+	_ok(re != null and re.checksum() == st.checksum(), "silhouettes sauvegardées à l'identique")
+
+
+func _test_allied_vision() -> void:
+	var st := GameState.create(17)
+	var their_home := _home(st, 1)
+	_ok(not Fleets.visible_systems(st, 0).has(their_home), "sans alliance, on ne voit pas chez le rival")
+	Diplomacy._rel_w(st, 0, 1)["pact"] = Diplomacy.ALLIANCE
+	_ok(Fleets.visible_systems(st, 0).has(their_home) and Fleets.visible_systems(st, 1).has(_home(st, 0)), "alliance : vision partagée en direct")
+	var all := Fleets.visible_all(st)
+	var same := true
+	for e in st.empires:
+		var one := Fleets.visible_systems(st, e.id)
+		if one.size() != all[e.id].size():
+			same = false
+		for k in one:
+			if not all[e.id].has(k):
+				same = false
+	_ok(same, "vision de tous les empires identique à celle de chacun (alliés compris)")
+	_ok(not Fleets.visible_systems(st, 2).has(their_home) or Fleets.allies_of(st, 2).has(1), "un tiers ne profite pas de l'alliance")
+	var before := st.relations.size()
+	Fleets.allies_of(st, 3)
+	_ok(st.relations.size() == before, "lire les alliés ne crée aucune relation")
