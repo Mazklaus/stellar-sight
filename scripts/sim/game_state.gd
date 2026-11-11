@@ -103,7 +103,8 @@ var _system_owner: Dictionary = {}
 ## - "starts" : départ par indice d'empire ("" = normal, "avance" = une avance de colonies et de
 ##   vaisseaux, voir rules.json "advanced_start") ;
 ## - "distances" : distance de chaque empire à l'empire 0 ("" = selon le placement, "proche" ou
-##   "lointain" : il reçoit l'un des départs tirés les plus proches ou les plus lointains du vôtre) ;
+##   "lointain" : il reçoit l'un des départs tirés les plus proches ou les plus lointains du vôtre ;
+##   "hasard" : l'un des trois, tiré avec la graine) ;
 ## - "rivals" : peuples des autres empires (officiels ou créés), dans l'ordre ; défaut : les peuples
 ##   officiels autres que celui du joueur ;
 ## - "duplicates" : plusieurs empires peuvent partager un peuple (défaut non : les doublons sont ignorés) ;
@@ -604,7 +605,11 @@ func _guarantee_worlds(e: Empire, home_sys: int, homes: Array[int]) -> void:
 ## « lointain » les plus éloignés ; les autres gardent l'ordre du placement.
 func _assign_distances(homes: Array[int], distances: Array) -> Array[int]:
 	var wants := false
+	distances = distances.duplicate()
 	for i in range(1, mini(homes.size(), distances.size())):
+		# « Au hasard » : proche, selon le placement ou lointain, tiré avec la graine.
+		if String(distances[i]) == "hasard":
+			distances[i] = ["proche", "", "lointain"][rng.randi_range(0, 2)]
 		wants = wants or String(distances[i]) in ["proche", "lointain"]
 	if not wants:
 		return homes

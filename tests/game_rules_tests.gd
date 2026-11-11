@@ -75,6 +75,26 @@ func _test_distances() -> void:
 	for e in st.empires:
 		homes[st.galaxy.get_planet(e.home_planet).system_id] = true
 	_ok(homes.size() == st.empires.size(), "distance : un départ par empire")
+	# Au hasard : tiré avec la graine (même graine, même tirage), parmi les départs existants.
+	var r1 := _state({"distances": ["", "hasard", "hasard", "hasard"]}, 9)
+	var r2 := _state({"distances": ["", "hasard", "hasard", "hasard"]}, 9)
+	var same := true
+	var picked := {}
+	for i in r1.empires.size():
+		same = same and r1.empires[i].home_planet == r2.empires[i].home_planet
+		picked[r1.galaxy.get_planet(r1.empires[i].home_planet).system_id] = true
+	_ok(same and picked.size() == r1.empires.size(), "distance au hasard : même graine, même tirage, un départ par empire")
+	var draws := {}
+	for sd in range(30, 42):
+		var rs := _state({"distances": ["", "hasard"]}, sd)
+		var bs := _state({}, sd)
+		var d1 := _home(rs, rs.empires[1]).distance_to(_home(rs, rs.empires[0]))
+		var all: Array[float] = []
+		for e in bs.empires.slice(1):
+			all.append(_home(bs, e).distance_to(_home(bs, bs.empires[0])))
+		all.sort()
+		draws["proche" if is_equal_approx(d1, all[0]) else ("loin" if is_equal_approx(d1, all[all.size() - 1]) else "milieu")] = true
+	_ok(draws.size() >= 2, "distance au hasard : la distance change d'une graine à l'autre (%s)" % [draws.keys()])
 
 
 func _test_advanced_start() -> void:

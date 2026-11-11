@@ -902,7 +902,7 @@ func _test_game_menu(main: Node, menu: MainMenu) -> void:
 	menu.apply_preset("default")
 	menu.select_faction("vael")
 	_check(menu.current_preset() == "default", "préréglage : l'écran par défaut est reconnu")
-	_check(menu.set_slot(0, "start", "avance") and menu.set_slot(3, "distance", "proche") and not menu.set_slot(1, "start", "turbo"), "départ et distance réglables par rival")
+	_check(menu.set_slot(0, "start", "avance") and menu.set_slot(3, "distance", "proche") and not menu.set_slot(1, "start", "turbo") and menu.set_slot(1, "distance", "hasard") and menu.set_slot(1, "distance", ""), "départ et distance (dont au hasard) réglables par rival")
 	_check(menu.current_preset() == "", "un réglage touché : Personnalisé")
 	menu.set_victory("domination", false)
 	menu.set_victory("allies", false)
