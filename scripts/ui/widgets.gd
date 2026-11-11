@@ -633,6 +633,9 @@ class OrbitMenuItem:
 				draw_line(c + Vector2(0, -s), c + Vector2(0, s * 0.4), col, w, true)
 				draw_polyline(PackedVector2Array([c + Vector2(-s * 0.55, -s * 0.1), c + Vector2(0, s * 0.45), c + Vector2(s * 0.55, -s * 0.1)]), col, w, true)
 				draw_polyline(PackedVector2Array([c + Vector2(-s, s * 0.3), c + Vector2(-s, s), c + Vector2(s, s), c + Vector2(s, s * 0.3)]), col, w, true)
+			"quick":
+				for dx in [-s * 0.55, s * 0.25]:
+					draw_polyline(PackedVector2Array([c + Vector2(dx - s * 0.35, -s * 0.8), c + Vector2(dx + s * 0.45, 0), c + Vector2(dx - s * 0.35, s * 0.8)]), col, w, true)
 			"resume":
 				draw_colored_polygon(PackedVector2Array([c + Vector2(-s * 0.6, -s), c + Vector2(s, 0), c + Vector2(-s * 0.6, s)]), col)
 			"options":

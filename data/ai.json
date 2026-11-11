@@ -1,6 +1,7 @@
 {
 	"default_level": "normal",
 	"default_temperament": "normal",
+	"scaling_days": 14400,
 	"war": {"grace_days": 360, "declare_ratio_pct": {"3": 80, "2": 100, "1": 150, "0": 300}},
 	"temperaments": [
 		{"id": "pacifique", "label": "Pacifique", "aggression": -2,

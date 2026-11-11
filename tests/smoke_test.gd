@@ -27,6 +27,7 @@ func _initialize() -> void:
 	preload("res://tests/ship_art_tests.gd").new().run(_check)
 	preload("res://tests/species_tests.gd").new().run(_check)
 	preload("res://tests/galaxy_tests.gd").new().run(_check)
+	preload("res://tests/game_rules_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -771,8 +772,10 @@ func _test_navigation_ui(main: Node) -> void:
 	main.open_main_menu()
 	await process_frame
 	var menu: MainMenu = main._main_menu
+	# Les lancements des tests ne remplacent pas la « dernière partie » de l'utilisateur.
+	menu.presets_path = "user://test_new_game_presets.json"
 	_check(menu.is_open() and not hud.visible and menu._resume.visible, "menu principal : la partie en cours peut reprendre")
-	_check(not menu._continue.visible and menu._items.size() == 6, "accueil : Reprendre remplace Continuer")
+	_check(not menu._continue.visible and menu._items.size() == 7, "accueil : Reprendre remplace Continuer")
 	menu._layout_home()
 	var geo: Array = menu._planet_geometry()
 	var orbit_r: float = geo[1] + geo[2].y * 0.09
@@ -884,9 +887,66 @@ func _test_species_editor(main: Node, menu: MainMenu) -> void:
 	await _test_rival_slots(main, menu)
 	main.empire_setup = {}
 	await _test_galaxy_menu(main, menu)
+	await _test_game_menu(main, menu)
 	main.open_main_menu()
 	menu.show_page("options")
 	await process_frame
+
+
+## Lot 3 de Nouvelle partie : départ et distance par rival, victoires à cocher, difficulté
+## progressive, préréglages, code de partie, Partie rapide.
+func _test_game_menu(main: Node, menu: MainMenu) -> void:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(menu.presets_path))
+	menu._rebuild_presets()
+	menu.show_page("new")
+	menu.apply_preset("default")
+	menu.select_faction("vael")
+	_check(menu.current_preset() == "default", "préréglage : l'écran par défaut est reconnu")
+	_check(menu.set_slot(0, "start", "avance") and menu.set_slot(3, "distance", "proche") and not menu.set_slot(1, "start", "turbo"), "départ et distance réglables par rival")
+	_check(menu.current_preset() == "", "un réglage touché : Personnalisé")
+	menu.set_victory("domination", false)
+	menu.set_victory("allies", false)
+	menu.set_ai_scaling(true)
+	var setup := menu.empire_setup("vael", 3)
+	_check(setup["starts"] == ["", "avance", "", ""] and setup["distances"] == ["", "", "", "proche"], "départs et distances par empire (%s)" % [setup["distances"]])
+	_check(menu.save_preset("Ma partie") and menu.current_preset() == "Ma partie" and menu.preset_names() == ["Ma partie"], "préréglage enregistré et reconnu")
+	menu.apply_preset("default")
+	_check(menu.slots[0]["start"] == "" and menu.victories["domination"] and not menu.ai_scaling, "Par défaut : tout revient")
+	menu.apply_preset("Ma partie")
+	_check(menu.slots[0]["start"] == "avance" and not menu.victories["allies"] and menu.ai_scaling, "préréglage rechargé")
+	# Code de partie : aller-retour exact, graine comprise.
+	menu._seed_edit.text = "1234"
+	var code := menu.game_code()
+	var saved := menu.settings()
+	menu.apply_preset("default")
+	menu._seed_edit.text = ""
+	_check(code.begins_with(MainMenu.CODE_PREFIX) and menu.apply_game_code(code) == "Réglages appliqués." and MainMenu._same(menu.settings(), saved), "code de partie : mêmes réglages et même graine (%d caractères)" % code.length())
+	_check(menu.apply_game_code("SS1-n'importe quoi").begins_with("Code illisible") and MainMenu.decode_game_code("xyz").is_empty(), "code illisible refusé")
+	var d := MainMenu.decode_game_code(code)
+	d["slots"][1]["faction"] = "p_inconnu"
+	var raw := JSON.stringify(d).to_utf8_buffer().compress(FileAccess.COMPRESSION_DEFLATE)
+	var odd := MainMenu.CODE_PREFIX + Marshalls.raw_to_base64(raw).replace("+", "-").replace("/", "_").replace("=", "")
+	_check(menu.apply_game_code(odd).contains("p_inconnu") and menu.slots[1]["faction"] == MainMenu.RANDOM_FACTION, "peuple inconnu dans un code : Au hasard, signalé")
+	menu.apply_game_code(code)
+	menu.launch()
+	await process_frame
+	var st: GameState = main.simulation.state
+	_check(st.ai_scaling and not Victory.enabled(st, "domination") and not Victory.allies_count(st) and st.get_empire(1).advanced_start, "partie lancée avec les règles choisies")
+	_check(st.seed_value == 1234, "partie lancée avec la graine du code")
+	_check(MainMenu._same(menu.last_settings(), MainMenu._without_seed(saved)), "dernière partie retenue")
+	# Partie rapide : mêmes réglages, autre galaxie.
+	main.open_main_menu()
+	menu.apply_preset("default")
+	_check(menu._quick.visible and menu.quick_game(), "Partie rapide proposée et lancée")
+	await process_frame
+	var q: GameState = main.simulation.state
+	_check(q.ai_scaling and q.get_empire(1).advanced_start and q.seed_value != 1234, "Partie rapide : derniers réglages, nouvelle graine")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(menu.presets_path))
+	menu.apply_preset("default")
+	menu._seed_edit.text = ""
+	main.game_options = {}
+	main.empire_setup = {}
+	main.open_main_menu()
 
 
 ## Bloc Galaxie de Nouvelle partie : réglages refusés ou retenus, partie lancée avec eux, sauvegarde.

@@ -17,10 +17,10 @@ const TILE_SIZE := Vector2(150, 240)
 ## Largeur de la rangée de portraits (cinq visibles).
 const TILE_STRIP_WIDTH := 5 * 150 + 4 * 4
 ## Largeur des colonnes de la liste des rivaux.
-const SLOT_COL_FACTION := 200.0
+const SLOT_COL_FACTION := 202.0
 const SLOT_COL_COLOR := 96.0
 const SLOT_COL_LEVEL := 160.0
-const SLOT_COL_TEMPER := 172.0
+const SLOT_COL_TEMPER := 158.0
 ## Case « Au hasard » du choix de faction : un peuple est tiré au lancement.
 const RANDOM_FACTION := "random"
 const TYPE_LABELS := {"continental": "continental", "ocean": "océanique", "desert": "désertique", "arctic": "glaciaire",
@@ -71,6 +71,11 @@ var _slot_note: Label
 var _dup_check: CheckBox
 var _add_slot: Button
 var _slots_dirty := false
+var _slot_adv: PopupPanel
+var _slot_adv_index := -1
+var _slot_adv_title: Label
+var _slot_start_select: OptionButton
+var _slot_dist_select: OptionButton
 ## Réglages de la galaxie (GalaxySettings) : taille, forme, routes, départs, mondes garantis.
 var galaxy_settings: Dictionary = GalaxySettings.defaults()
 var _galaxy_banner: Widgets.ArtSlot
@@ -83,6 +88,9 @@ var _placement_desc: Label
 var _galaxy_adv: PopupPanel
 ## Nombre d'empires au plus dans une galaxie (joueur compris).
 const MAX_EMPIRES := 12
+## Départ et distance au joueur d'un rival (réglages derrière le « + » de sa ligne).
+const START_LABELS := {"": "Normal", "avance": "Avancé"}
+const DISTANCE_LABELS := {"": "Selon le placement", "proche": "Proche de vous", "lointain": "Loin de vous"}
 ## Noms des couleurs de Empire.PALETTE, dans le même ordre.
 const COLOR_NAMES := ["Or", "Pourpre", "Azur", "Vert", "Violet", "Orange", "Turquoise", "Rose", "Blanc",
 	"Brun", "Gris", "Lime"]
@@ -103,6 +111,28 @@ var deadline_days: int = Victory.default_deadline()
 var people_victories := true
 var _deadline_select: OptionButton
 var _people_check: CheckBox
+## Victoires classiques en jeu et alliés qui gagnent ensemble (GameState.victory_rules).
+var victories := {"conquete": true, "domination": true, "allies": true}
+var _victory_checks := {}
+## Difficulté progressive : les bonus des IA Expert et Légende montent avec le temps.
+var ai_scaling := false
+var _scaling_check: CheckBox
+
+## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
+const PRESETS_PATH := "user://new_game_presets.json"
+## Préfixe des codes de partie (graine et réglages, à partager).
+const CODE_PREFIX := "SS1-"
+var presets_path := PRESETS_PATH
+var _quick: Widgets.OrbitMenuItem
+var _preset_select: OptionButton
+var _preset_popup: PopupPanel
+var _preset_name: LineEdit
+var _preset_delete: Button
+var _code_popup: PopupPanel
+var _code_out: LineEdit
+var _code_in: LineEdit
+var _code_note: Label
+var _applying := false
 
 
 func _ready() -> void:
@@ -177,6 +207,7 @@ func _ready() -> void:
 
 	_resume = _menu_button("resume", "Reprendre la partie", "Revenir à la partie en cours, là où le temps s'est arrêté.", func() -> void: resume_requested.emit())
 	_continue = _menu_button("load", "Continuer", "", func() -> void: continue_requested.emit())
+	_quick = _menu_button("quick", "Partie rapide", "Relancer aussitôt avec les réglages de votre dernière partie, sur une nouvelle galaxie.", quick_game)
 	_menu_button("new", "Nouvelle partie", "Choisir un peuple et lancer une nouvelle galaxie.", func() -> void: show_page("new"))
 	_menu_button("species", "Peuples", "Créer, modifier et ranger vos propres peuples : couches d'espèce, traits, portrait.", func() -> void: open_species("home"))
 	_menu_button("options", "Options", "Affichage, partie et commandes.", func() -> void: show_page("options"))
@@ -252,6 +283,7 @@ func _ready() -> void:
 
 ## Affiche le menu. can_resume : une partie est en cours derrière ; has_save : une sauvegarde existe.
 func open(can_resume: bool, has_save: bool, save_label := "") -> void:
+	_quick.visible = not last_settings().is_empty()
 	_resume.visible = can_resume
 	_continue.visible = not can_resume
 	_continue.disabled = not has_save
@@ -327,7 +359,7 @@ static func default_slots() -> Array[Dictionary]:
 
 
 static func new_slot(fid: String) -> Dictionary:
-	return {"faction": fid, "color": "", "level": "", "temper": ""}
+	return {"faction": fid, "color": "", "level": "", "temper": "", "start": "", "distance": ""}
 
 
 ## Ajoute un rival (au hasard par défaut). Refuse au-delà de MAX_EMPIRES - 1 rivaux.
@@ -348,7 +380,8 @@ func remove_slot(index: int) -> bool:
 	return true
 
 
-## Change un réglage d'un rival : "faction", "color", "level" ou "temper" ("" = par défaut).
+## Change un réglage d'un rival : "faction", "color", "level", "temper", "start" (départ : "" ou
+## "avance") ou "distance" ("", "proche", "lointain") ; "" = par défaut.
 func set_slot(index: int, key: String, value: String) -> bool:
 	if index < 0 or index >= slots.size() or not slots[index].has(key):
 		return false
@@ -364,6 +397,12 @@ func set_slot(index: int, key: String, value: String) -> bool:
 				return false
 		"color":
 			if value != "" and not Empire.PALETTE.has(value):
+				return false
+		"start":
+			if not START_LABELS.has(value):
+				return false
+		"distance":
+			if not DISTANCE_LABELS.has(value):
 				return false
 	slots[index][key] = value
 	_refresh_slots()
@@ -432,7 +471,7 @@ func empire_setup(player: String, seed_value := 0) -> Dictionary:
 		picked[i] = pool[rng.randi_range(0, pool.size() - 1)]
 		used.append(picked[i])
 	var out := {"rivals": [] as Array[String], "ai_levels": [ai_level], "temperaments": [temperament],
-			"colors": [""], "duplicates": allow_duplicates}
+			"colors": [""], "starts": [""], "distances": [""], "duplicates": allow_duplicates}
 	for i in slots.size():
 		if picked[i] == "" or (out["rivals"] as Array).size() >= MAX_EMPIRES - 1:
 			continue
@@ -441,6 +480,8 @@ func empire_setup(player: String, seed_value := 0) -> Dictionary:
 		(out["ai_levels"] as Array).append(s["level"] if s["level"] != "" else ai_level)
 		(out["temperaments"] as Array).append(s["temper"] if s["temper"] != "" else temperament)
 		(out["colors"] as Array).append(s["color"])
+		(out["starts"] as Array).append(String(s.get("start", "")))
+		(out["distances"] as Array).append(String(s.get("distance", "")))
 	# Tous les rivaux retirés : on reprend les officiels plutôt qu'une galaxie vide.
 	if (out["rivals"] as Array).is_empty():
 		for fid in GameData.faction_ids():
@@ -449,6 +490,8 @@ func empire_setup(player: String, seed_value := 0) -> Dictionary:
 				(out["ai_levels"] as Array).append(ai_level)
 				(out["temperaments"] as Array).append(temperament)
 				(out["colors"] as Array).append("")
+				(out["starts"] as Array).append("")
+				(out["distances"] as Array).append("")
 	return out
 
 
@@ -542,6 +585,7 @@ func set_time_choice(index: int) -> void:
 	else:
 		time_mode = GameClock.MODE_TURNS
 		turn_days = GameClock.TURN_LENGTHS[mini(index - 1, GameClock.TURN_LENGTHS.size() - 1)]
+	_refresh_preset()
 
 
 ## Niveau d'IA par défaut des rivaux (ceux restés sur « Par défaut », et tous en spectateur).
@@ -564,6 +608,7 @@ func set_temperament(id: String) -> void:
 
 func set_deadline(days: int) -> void:
 	deadline_days = maxi(0, days)
+	_refresh_preset()
 	var opts := Victory.deadline_options()
 	for i in opts.size():
 		if int(opts[i]["days"]) == deadline_days:
@@ -573,6 +618,42 @@ func set_deadline(days: int) -> void:
 func set_people_victories(on: bool) -> void:
 	people_victories = on
 	_people_check.set_pressed_no_signal(on)
+	_refresh_preset()
+
+
+func _victory_check(key: String, tip: Array) -> CheckBox:
+	var c := CheckBox.new()
+	c.text = String(tip[0])
+	c.tooltip_text = String(tip[1])
+	c.focus_mode = Control.FOCUS_NONE
+	c.button_pressed = bool(victories[key])
+	c.toggled.connect(func(on: bool) -> void: set_victory(key, on))
+	c.custom_minimum_size = Vector2(140, 0)
+	_victory_checks[key] = c
+	return c
+
+
+## Met en jeu ou retire une victoire ("conquete", "domination"), ou fait gagner les alliés ensemble ("allies").
+func set_victory(key: String, on: bool) -> bool:
+	if not victories.has(key):
+		return false
+	victories[key] = on
+	if _victory_checks.has(key):
+		(_victory_checks[key] as CheckBox).set_pressed_no_signal(on)
+	_refresh_preset()
+	return true
+
+
+func set_ai_scaling(on: bool) -> void:
+	ai_scaling = on
+	if _scaling_check:
+		_scaling_check.set_pressed_no_signal(on)
+	_refresh_preset()
+
+
+## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
+func game_options() -> Dictionary:
+	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling}
 
 
 func set_spectator(on: bool) -> void:
@@ -606,6 +687,9 @@ func launch() -> void:
 	if faction == RANDOM_FACTION:
 		var ids := GameData.all_faction_ids()
 		faction = ids[randi() % ids.size()]
+	var store := _load_presets()
+	store["last"] = _without_seed(settings())
+	_save_presets(store)
 	new_game_requested.emit(faction, seed_value)
 
 
@@ -660,6 +744,7 @@ func _build_new_page(root: Control) -> void:
 	title.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	title.offset_top = 18
 	page_root.add_child(title)
+	_build_presets_bar(page_root)
 
 	# Écran unique en blocs, à la Endless Space 2 : Empire (peuple joué) en haut à gauche, Rivaux en
 	# haut à droite, puis en bas les traits du peuple, la Galaxie, la Partie et la Victoire.
@@ -794,12 +879,18 @@ func _build_new_page(root: Control) -> void:
 		_time_select.add_item("Tour par tour, %d jours" % d)
 	_time_select.item_selected.connect(set_time_choice)
 	_labeled_row(game, "Temps", _time_select)
+	_scaling_check = CheckBox.new()
+	_scaling_check.text = "Difficulté progressive"
+	_scaling_check.focus_mode = Control.FOCUS_NONE
+	_scaling_check.tooltip_text = "Les bonus des IA Expert et Légende partent de zéro et atteignent leur pleine valeur\naprès %d ans de partie (comme la difficulté progressive de Stellaris).\nPas d'avance de départ : elles vous laissent le temps de vous installer." % (AiLevels.scaling_days() / GameCalendar.DAYS_PER_YEAR)
+	_scaling_check.toggled.connect(set_ai_scaling)
+	game.add_child(_scaling_check)
 
 	# Victoire : date limite du score, victoires de peuple.
 	var vic := _block_rows(_bottom_block(bottom, "Victoire", 330, 0))
 	_deadline_select = OptionButton.new()
 	_deadline_select.clip_text = true
-	_deadline_select.tooltip_text = "Date limite : à cette date, le meilleur score l'emporte si personne n'a gagné avant.\nConquête et domination sont toujours en jeu (F7 pour suivre la course)."
+	_deadline_select.tooltip_text = "Date limite : à cette date, le meilleur score l'emporte si personne n'a gagné avant.\nLes autres victoires se cochent en dessous (F7 pour suivre la course)."
 	for d: Dictionary in Victory.deadline_options():
 		_deadline_select.add_item("Score : %s" % String(d["label"]).to_lower())
 	_deadline_select.item_selected.connect(func(i: int) -> void: set_deadline(int(Victory.deadline_options()[i]["days"])))
@@ -809,8 +900,22 @@ func _build_new_page(root: Control) -> void:
 	_people_check.focus_mode = Control.FOCUS_NONE
 	_people_check.button_pressed = people_victories
 	_people_check.tooltip_text = "Chaque peuple a une victoire qui lui est propre, tirée de ses couches d'espèce\n(l'Élu des routes, le Dernier Couplet, la Charte des Quarante et Un, la Moisson)."
-	_people_check.toggled.connect(func(on: bool) -> void: people_victories = on)
-	vic.add_child(_people_check)
+	_people_check.toggled.connect(set_people_victories)
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 10)
+	grid.add_theme_constant_override("v_separation", 2)
+	vic.add_child(grid)
+	var vtips := {
+		"conquete": ["Conquête", "Prendre et tenir toutes les capitales d'origine rivales (ou rester seul en vie)."],
+		"domination": ["Domination", "Tenir une grande part des systèmes de la galaxie pendant un temps."],
+		"allies": ["Alliés ensemble", "Les alliés additionnent leurs conquêtes et leurs systèmes, et gagnent ensemble\n(Endless Space 2). Décoché : chacun pour soi, même allié."],
+	}
+	for key in ["conquete", "domination"]:
+		grid.add_child(_victory_check(key, vtips[key]))
+	grid.add_child(_people_check)
+	_people_check.text = "De peuple"
+	grid.add_child(_victory_check("allies", vtips["allies"]))
 	set_deadline(deadline_days)
 	var back_b := Widgets.RoundButton.new("back", "Retour")
 	back_b.tooltip_text = "Échap"
@@ -918,6 +1023,7 @@ func _build_galaxy_advanced(page_root: Control) -> void:
 
 ## Remet les listes du bloc Galaxie et de la fenêtre avancée sur les réglages, et la légende.
 func _refresh_galaxy() -> void:
+	_refresh_preset()
 	if _size_select == null:
 		return
 	for pair in [[_size_select, "size"], [_shape_select, "shape"], [_lanes_select, "lanes"], [_placement_select, "placement"]]:
@@ -1036,6 +1142,7 @@ func _build_rivals_block(page_root: Control) -> void:
 	_slot_note.add_theme_color_override("font_color", UiTheme.WARN)
 	_slot_note.add_theme_font_size_override("font_size", 13)
 	body.add_child(_slot_note)
+	_build_slot_advanced(page_root)
 	if slots.is_empty():
 		slots = default_slots()
 	_refresh_slots()
@@ -1058,6 +1165,7 @@ func _refresh_slots() -> void:
 	_add_slot.disabled = slots.size() >= MAX_EMPIRES - 1
 	_slot_note.text = slots_note()
 	_slot_note.visible = _slot_note.text != ""
+	_refresh_preset()
 	if not _slots_dirty:
 		_slots_dirty = true
 		_rebuild_slot_rows.call_deferred()
@@ -1163,6 +1271,16 @@ func _slot_row(i: int) -> HBoxContainer:
 	_mark_override(tsel, s["temper"] != "")
 	row.add_child(tsel)
 
+	var more := Button.new()
+	var custom := String(s.get("start", "")) != "" or String(s.get("distance", "")) != ""
+	more.text = "+"
+	more.focus_mode = Control.FOCUS_NONE
+	more.custom_minimum_size = Vector2(26, 0)
+	more.tooltip_text = "Départ : %s\nDistance : %s" % [START_LABELS[String(s.get("start", ""))], DISTANCE_LABELS[String(s.get("distance", ""))]]
+	_mark_button(more, custom)
+	more.pressed.connect(func() -> void: open_slot_advanced(i))
+	row.add_child(more)
+
 	var rm := Button.new()
 	rm.text = "×"
 	rm.focus_mode = Control.FOCUS_NONE
@@ -1171,6 +1289,58 @@ func _slot_row(i: int) -> HBoxContainer:
 	rm.pressed.connect(func() -> void: remove_slot(i))
 	row.add_child(rm)
 	return row
+
+
+func _mark_button(b: Button, on: bool) -> void:
+	if on:
+		b.add_theme_color_override("font_color", UiTheme.ACCENT)
+		b.add_theme_color_override("font_hover_color", UiTheme.ACCENT)
+
+
+## Fenêtre « + » d'un rival : départ avancé et distance à votre capitale.
+func open_slot_advanced(index: int) -> void:
+	if index < 0 or index >= slots.size():
+		return
+	_slot_adv_index = index
+	var s := slots[index]
+	var fid := String(s["faction"])
+	_slot_adv_title.text = ("Rival %d : %s" % [index + 1, "au hasard" if fid == RANDOM_FACTION else String(GameData.faction(fid).get("short", fid))]).to_upper()
+	_slot_start_select.select(START_LABELS.keys().find(String(s.get("start", ""))))
+	_slot_dist_select.select(DISTANCE_LABELS.keys().find(String(s.get("distance", ""))))
+	_slot_adv.reset_size()
+	_slot_adv.popup_centered()
+
+
+func _build_slot_advanced(page_root: Control) -> void:
+	_slot_adv = PopupPanel.new()
+	_slot_adv.add_theme_stylebox_override("panel", UiTheme.box(Color(0.03, 0.04, 0.06, 1.0), Color(1, 1, 1, 0.16), 18, 1))
+	page_root.add_child(_slot_adv)
+	var box := VBoxContainer.new()
+	box.custom_minimum_size = Vector2(480, 0)
+	box.add_theme_constant_override("separation", 10)
+	_slot_adv.add_child(box)
+	_slot_adv_title = _header("")
+	box.add_child(_slot_adv_title)
+	_slot_start_select = OptionButton.new()
+	for k in START_LABELS:
+		_slot_start_select.add_item(String(START_LABELS[k]))
+	_slot_start_select.tooltip_text = "Avancé : l'empire part avec deux colonies de plus autour de son monde d'origine,\nsa flotte de départ en double et des réserves (matériaux, énergie, influence)."
+	_slot_start_select.item_selected.connect(func(i: int) -> void: set_slot(_slot_adv_index, "start", String(START_LABELS.keys()[i])))
+	_labeled_row(box, "Départ", _slot_start_select)
+	_slot_dist_select = OptionButton.new()
+	for k in DISTANCE_LABELS:
+		_slot_dist_select.add_item(String(DISTANCE_LABELS[k]))
+	_slot_dist_select.item_selected.connect(func(i: int) -> void: set_slot(_slot_adv_index, "distance", String(DISTANCE_LABELS.keys()[i])))
+	_labeled_row(box, "Distance", _slot_dist_select)
+	var note := UiTheme.paragraph("Les départs sont tirés selon le placement de la galaxie ; « Proche de vous » donne à ce rival l'un des départs les plus proches du vôtre, « Loin de vous » l'un des plus éloignés.", 460, 13)
+	note.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	box.add_child(note)
+	var close := Button.new()
+	close.text = "Fermer"
+	close.focus_mode = Control.FOCUS_NONE
+	close.size_flags_horizontal = Control.SIZE_SHRINK_END
+	close.pressed.connect(func() -> void: _slot_adv.hide())
+	box.add_child(close)
 
 
 func _mark_override(b: OptionButton, on: bool) -> void:
@@ -1357,3 +1527,397 @@ func _draw_orbits() -> void:
 	_orbits.draw_arc(c, r + vs.y * 0.2, -PI * 0.5, PI * 0.5, 160, Color(1, 1, 1, 0.08), 1.0, true)
 	_orbits.draw_arc(c, r * 1.01, -PI * 0.5, PI * 0.5, 160, Color(0.55, 0.8, 1.0, 0.18), 2.0, true)
 
+
+
+# --- Réglages enregistrés : dernière partie, préréglages, code de partie ---------------------------
+
+## Tous les réglages de l'écran, en données (préréglages, Partie rapide, code de partie).
+func settings() -> Dictionary:
+	return {"faction": selected_faction, "slots": slots.duplicate(true), "duplicates": allow_duplicates,
+		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
+		"time_mode": time_mode, "turn_days": turn_days, "deadline": deadline_days, "people": people_victories,
+		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "galaxy": galaxy_settings.duplicate(),
+		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
+
+
+static func _without_seed(d: Dictionary) -> Dictionary:
+	var out := d.duplicate(true)
+	out.erase("seed")
+	return out
+
+
+## Réglages par défaut de l'écran (votre peuple choisi gardé).
+func default_settings() -> Dictionary:
+	return {"faction": selected_faction, "slots": default_slots(), "duplicates": false,
+		"ai_level": AiLevels.default_id(), "temperament": AiLevels.default_temperament(), "spectator": false,
+		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "deadline": Victory.default_deadline(), "people": true,
+		"victories": {"conquete": true, "domination": true, "allies": true}, "ai_scaling": false,
+		"galaxy": GalaxySettings.defaults()}
+
+
+## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
+## valeur par défaut ; un peuple absent de cette installation (peuple créé ailleurs) passe « Au hasard ».
+## Renvoie les avertissements à afficher.
+func apply_settings(d: Dictionary) -> PackedStringArray:
+	var warn := PackedStringArray()
+	var base := default_settings()
+	_applying = true
+	var fid := String(d.get("faction", selected_faction))
+	if fid != RANDOM_FACTION and GameData.faction(fid).is_empty():
+		warn.append("Votre peuple « %s » n'existe pas ici : tiré au hasard." % fid)
+		fid = RANDOM_FACTION
+	if fid != "":
+		select_faction(fid)
+	allow_duplicates = bool(d.get("duplicates", false))
+	if _dup_check:
+		_dup_check.set_pressed_no_signal(allow_duplicates)
+	var new_slots: Array[Dictionary] = []
+	var raw: Variant = d.get("slots", base["slots"])
+	for item: Variant in (raw if raw is Array else []):
+		if not item is Dictionary or new_slots.size() >= MAX_EMPIRES - 1:
+			continue
+		var src: Dictionary = item
+		var sf := String(src.get("faction", RANDOM_FACTION))
+		if sf != RANDOM_FACTION and GameData.faction(sf).is_empty():
+			warn.append("Peuple rival « %s » inconnu ici : remplacé par Au hasard." % sf)
+			sf = RANDOM_FACTION
+		var slot := new_slot(sf)
+		for k in ["color", "level", "temper", "start", "distance"]:
+			slot[k] = String(src.get(k, ""))
+		if slot["color"] != "" and not Empire.PALETTE.has(slot["color"]):
+			slot["color"] = ""
+		if slot["level"] != "" and not AiLevels.is_valid(slot["level"]):
+			slot["level"] = ""
+		if slot["temper"] != "" and not AiLevels.is_valid_temperament(slot["temper"]):
+			slot["temper"] = ""
+		if not START_LABELS.has(slot["start"]):
+			slot["start"] = ""
+		if not DISTANCE_LABELS.has(slot["distance"]):
+			slot["distance"] = ""
+		new_slots.append(slot)
+	slots = new_slots if not new_slots.is_empty() else default_slots()
+	set_ai_level(String(d.get("ai_level", base["ai_level"])))
+	set_temperament(String(d.get("temperament", base["temperament"])))
+	set_spectator(bool(d.get("spectator", false)))
+	var turns := int(d.get("time_mode", GameClock.MODE_REALTIME)) == GameClock.MODE_TURNS
+	var ti := GameClock.TURN_LENGTHS.find(int(d.get("turn_days", 10)))
+	set_time_choice(1 + maxi(0, ti) if turns else 0)
+	set_deadline(int(d.get("deadline", base["deadline"])))
+	set_people_victories(bool(d.get("people", true)))
+	var vic: Dictionary = d.get("victories", {}) if d.get("victories", {}) is Dictionary else {}
+	for k in victories:
+		set_victory(k, bool(vic.get(k, true)))
+	set_ai_scaling(bool(d.get("ai_scaling", false)))
+	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
+	if _seed_edit and d.has("seed"):
+		_seed_edit.text = String(d["seed"])
+	_applying = false
+	_refresh_galaxy()
+	_refresh_slots()
+	return warn
+
+
+func _load_presets() -> Dictionary:
+	var f := FileAccess.open(presets_path, FileAccess.READ)
+	if f == null:
+		return {"last": {}, "presets": []}
+	var text := f.get_as_text()
+	var d: Variant = JSON.parse_string(text) if text.strip_edges() != "" else null
+	if not d is Dictionary:
+		return {"last": {}, "presets": []}
+	var out: Dictionary = d
+	if not out.get("last", {}) is Dictionary:
+		out["last"] = {}
+	if not out.get("presets", []) is Array:
+		out["presets"] = []
+	return out
+
+
+func _save_presets(store: Dictionary) -> void:
+	DirAccess.make_dir_recursive_absolute(presets_path.get_base_dir())
+	var f := FileAccess.open(presets_path, FileAccess.WRITE)
+	if f:
+		f.store_string(JSON.stringify(store, "\t"))
+		f.close()
+	_rebuild_presets()
+
+
+## Réglages de la dernière partie lancée ({} = aucune).
+func last_settings() -> Dictionary:
+	return _load_presets()["last"]
+
+
+## Noms des préréglages enregistrés, dans l'ordre.
+func preset_names() -> Array[String]:
+	var out: Array[String] = []
+	for p: Variant in _load_presets()["presets"]:
+		if p is Dictionary:
+			out.append(String(p.get("name", "")))
+	return out
+
+
+## Enregistre les réglages de l'écran sous ce nom (remplace un préréglage du même nom).
+func save_preset(name: String) -> bool:
+	name = name.strip_edges()
+	if name == "":
+		return false
+	var store := _load_presets()
+	var list: Array = store["presets"].filter(func(p: Variant) -> bool: return p is Dictionary and String(p.get("name", "")) != name)
+	list.append({"name": name, "settings": _without_seed(settings())})
+	store["presets"] = list
+	_save_presets(store)
+	return true
+
+
+func delete_preset(name: String) -> bool:
+	var store := _load_presets()
+	var before: int = store["presets"].size()
+	store["presets"] = store["presets"].filter(func(p: Variant) -> bool: return p is Dictionary and String(p.get("name", "")) != name)
+	if store["presets"].size() == before:
+		return false
+	_save_presets(store)
+	return true
+
+
+## Applique un préréglage : "default", "last" ou le nom d'un préréglage enregistré.
+func apply_preset(key: String) -> bool:
+	var d := {}
+	if key == "default":
+		d = default_settings()
+	elif key == "last":
+		d = last_settings()
+	else:
+		for p: Variant in _load_presets()["presets"]:
+			if p is Dictionary and String(p.get("name", "")) == key:
+				d = p.get("settings", {})
+	if d.is_empty():
+		return false
+	var seed_text := _seed_edit.text
+	apply_settings(d)
+	_seed_edit.text = seed_text
+	return true
+
+
+## Nom du préréglage qui correspond à l'écran ("" = Personnalisé).
+func current_preset() -> String:
+	var cur := _without_seed(settings())
+	if _same(cur, default_settings()):
+		return "default"
+	for p: Variant in _load_presets()["presets"]:
+		if p is Dictionary and _same(cur, p.get("settings", {})):
+			return String(p.get("name", ""))
+	if _same(cur, last_settings()):
+		return "last"
+	return ""
+
+
+## Comparaison de réglages, après un aller-retour JSON (les nombres d'un fichier sont des flottants).
+static func _same(a: Dictionary, b: Variant) -> bool:
+	if not b is Dictionary or (b as Dictionary).is_empty():
+		return false
+	return JSON.stringify(JSON.parse_string(JSON.stringify(a)), "", true) == JSON.stringify(JSON.parse_string(JSON.stringify(b)), "", true)
+
+
+## Partie rapide : les réglages de la dernière partie, sur une nouvelle galaxie (graine au hasard).
+func quick_game() -> bool:
+	var last := last_settings()
+	if last.is_empty():
+		return false
+	apply_settings(last)
+	_seed_edit.text = ""
+	launch()
+	return true
+
+
+## Code de partie : graine et réglages en une ligne à partager (une graine est tirée s'il n'y en a pas).
+func game_code() -> String:
+	if _seed_edit.text.strip_edges() == "":
+		_seed_edit.text = str(randi() % 1000000000)
+	var raw := JSON.stringify(settings()).to_utf8_buffer()
+	var z := raw.compress(FileAccess.COMPRESSION_DEFLATE)
+	return CODE_PREFIX + Marshalls.raw_to_base64(z).replace("+", "-").replace("/", "_").replace("=", "")
+
+
+## Réglages contenus dans un code de partie ({} = code illisible).
+static func decode_game_code(code: String) -> Dictionary:
+	code = code.strip_edges()
+	if not code.begins_with(CODE_PREFIX):
+		return {}
+	var b64 := code.substr(CODE_PREFIX.length()).replace("-", "+").replace("_", "/")
+	var ok_chars := RegEx.create_from_string("^[A-Za-z0-9+/]+$")
+	if ok_chars.search(b64) == null:
+		return {}
+	while b64.length() % 4 != 0:
+		b64 += "="
+	var z := Marshalls.base64_to_raw(b64)
+	if z.is_empty():
+		return {}
+	var raw := z.decompress_dynamic(1 << 20, FileAccess.COMPRESSION_DEFLATE)
+	if raw.is_empty():
+		return {}
+	var d: Variant = JSON.parse_string(raw.get_string_from_utf8())
+	return d if d is Dictionary else {}
+
+
+## Applique un code de partie ; renvoie le message à afficher.
+func apply_game_code(code: String) -> String:
+	var d := decode_game_code(code)
+	if d.is_empty():
+		return "Code illisible : vérifiez qu'il commence par %s et qu'il est complet." % CODE_PREFIX
+	var warn := apply_settings(d)
+	if _code_out:
+		_code_out.text = game_code()
+	return "Réglages appliqués." if warn.is_empty() else "Réglages appliqués. " + " ".join(warn)
+
+
+func _build_presets_bar(page_root: Control) -> void:
+	var bar := HBoxContainer.new()
+	bar.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	bar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	bar.offset_right = -32
+	bar.offset_top = 22
+	bar.add_theme_constant_override("separation", 8)
+	page_root.add_child(bar)
+	_preset_select = OptionButton.new()
+	_preset_select.custom_minimum_size = Vector2(200, 0)
+	_preset_select.clip_text = true
+	_preset_select.tooltip_text = "Préréglages : les réglages par défaut, ceux de votre dernière partie, ou les vôtres.\nToucher à un réglage repasse en « Personnalisé »."
+	_preset_select.item_selected.connect(func(i: int) -> void:
+		var key := String(_preset_select.get_item_metadata(i))
+		if key != "":
+			apply_preset(key))
+	bar.add_child(_preset_select)
+	var save_b := Button.new()
+	save_b.text = "Enregistrer…"
+	save_b.focus_mode = Control.FOCUS_NONE
+	save_b.tooltip_text = "Enregistrer ces réglages comme préréglage (sans la graine)."
+	save_b.pressed.connect(open_preset_popup)
+	bar.add_child(save_b)
+	var code_b := Button.new()
+	code_b.text = "Code de partie…"
+	code_b.focus_mode = Control.FOCUS_NONE
+	code_b.tooltip_text = "Une ligne qui contient la graine et tous les réglages : à partager, ou à coller pour rejouer la même galaxie."
+	code_b.pressed.connect(open_code_popup)
+	bar.add_child(code_b)
+
+	_preset_popup = _small_popup(page_root, "Enregistrer les réglages")
+	var pbox := _preset_popup.get_child(0) as VBoxContainer
+	_preset_name = LineEdit.new()
+	_preset_name.placeholder_text = "Nom du préréglage"
+	_preset_name.text_submitted.connect(func(t: String) -> void:
+		if save_preset(t):
+			_preset_popup.hide())
+	_labeled_row(pbox, "Nom", _preset_name)
+	var prow := HBoxContainer.new()
+	prow.add_theme_constant_override("separation", 8)
+	pbox.add_child(prow)
+	_preset_delete = Button.new()
+	_preset_delete.focus_mode = Control.FOCUS_NONE
+	_preset_delete.pressed.connect(func() -> void:
+		delete_preset(_preset_name.text.strip_edges())
+		_preset_popup.hide())
+	prow.add_child(_preset_delete)
+	var pspace := Control.new()
+	pspace.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	prow.add_child(pspace)
+	var ok := Button.new()
+	ok.text = "Enregistrer"
+	ok.focus_mode = Control.FOCUS_NONE
+	ok.pressed.connect(func() -> void:
+		if save_preset(_preset_name.text):
+			_preset_popup.hide())
+	prow.add_child(ok)
+	_preset_name.text_changed.connect(func(_t: String) -> void: _refresh_delete_button())
+
+	_code_popup = _small_popup(page_root, "Code de partie")
+	var cbox := _code_popup.get_child(0) as VBoxContainer
+	_code_out = LineEdit.new()
+	_code_out.editable = false
+	_code_out.select_all_on_focus = true
+	_labeled_row(cbox, "Ce code", _code_out)
+	var copy := Button.new()
+	copy.text = "Copier"
+	copy.focus_mode = Control.FOCUS_NONE
+	copy.pressed.connect(func() -> void:
+		DisplayServer.clipboard_set(_code_out.text)
+		_code_note.text = "Copié. Le même code redonne la même galaxie, les mêmes rivaux et les mêmes règles.")
+	_code_out.get_parent().add_child(copy)
+	_code_in = LineEdit.new()
+	_code_in.placeholder_text = "Collez ici le code d'un ami"
+	_code_in.text_submitted.connect(func(t: String) -> void: _code_note.text = apply_game_code(t))
+	_labeled_row(cbox, "Rejouer", _code_in)
+	var use := Button.new()
+	use.text = "Appliquer"
+	use.focus_mode = Control.FOCUS_NONE
+	use.pressed.connect(func() -> void: _code_note.text = apply_game_code(_code_in.text))
+	_code_in.get_parent().add_child(use)
+	_code_note = UiTheme.paragraph("", 560, 13)
+	_code_note.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	cbox.add_child(_code_note)
+	_rebuild_presets()
+
+
+func _small_popup(page_root: Control, heading: String) -> PopupPanel:
+	var pop := PopupPanel.new()
+	pop.add_theme_stylebox_override("panel", UiTheme.box(Color(0.03, 0.04, 0.06, 1.0), Color(1, 1, 1, 0.16), 18, 1))
+	page_root.add_child(pop)
+	var box := VBoxContainer.new()
+	box.custom_minimum_size = Vector2(600, 0)
+	box.add_theme_constant_override("separation", 10)
+	pop.add_child(box)
+	box.add_child(_header(heading))
+	return pop
+
+
+func open_preset_popup() -> void:
+	var cur := current_preset()
+	_preset_name.text = cur if cur != "default" and cur != "last" else ""
+	_refresh_delete_button()
+	_preset_popup.reset_size()
+	_preset_popup.popup_centered()
+
+
+func _refresh_delete_button() -> void:
+	var name := _preset_name.text.strip_edges()
+	_preset_delete.text = "Supprimer « %s »" % name if preset_names().has(name) else "Supprimer"
+	_preset_delete.disabled = not preset_names().has(name)
+
+
+func open_code_popup() -> void:
+	_code_out.text = game_code()
+	_code_in.text = ""
+	_code_note.text = "Le code contient la graine : partagez-le pour jouer la même galaxie. Les peuples créés dans l'éditeur ne voyagent pas avec lui."
+	_code_popup.reset_size()
+	_code_popup.popup_centered()
+
+
+func _rebuild_presets() -> void:
+	if _preset_select == null:
+		return
+	_preset_select.clear()
+	_preset_select.add_item("Personnalisé")
+	_preset_select.set_item_metadata(0, "")
+	_preset_select.add_item("Par défaut")
+	_preset_select.set_item_metadata(1, "default")
+	if not last_settings().is_empty():
+		_preset_select.add_item("Dernière partie")
+		_preset_select.set_item_metadata(_preset_select.item_count - 1, "last")
+	var names := preset_names()
+	if not names.is_empty():
+		_preset_select.add_separator("Mes réglages")
+		for n in names:
+			_preset_select.add_item(n)
+			_preset_select.set_item_metadata(_preset_select.item_count - 1, n)
+	_refresh_preset()
+
+
+## Le menu des préréglages montre celui qui correspond à l'écran, ou « Personnalisé ».
+func _refresh_preset() -> void:
+	if _preset_select == null or _applying or _seed_edit == null:
+		return
+	var cur := current_preset()
+	for i in _preset_select.item_count:
+		if not _preset_select.is_item_separator(i) and String(_preset_select.get_item_metadata(i)) == cur:
+			_preset_select.select(i)
+			return
+	_preset_select.select(0)

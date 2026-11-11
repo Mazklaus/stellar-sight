@@ -102,7 +102,12 @@ static func enabled(state: GameState, id: String) -> bool:
 		return deadline(state) > 0
 	if is_people(id):
 		return people_enabled(state)
-	return true
+	return bool(state.victory_rules.get(id, true))
+
+
+## Les alliés avancent-ils ensemble vers la conquête et la domination (réglage de la partie) ?
+static func allies_count(state: GameState) -> bool:
+	return bool(state.victory_rules.get("allies", true))
 
 
 ## Victoires de peuple auxquelles une faction (ou un peuple personnalisé) a droit, par ses couches.
@@ -250,9 +255,12 @@ static func _owner_of(state: GameState, planet_id: int) -> int:
 
 
 ## Bloc d'un empire pour la conquête et la domination : lui et ses alliés encore en vie (Endless
-## Space 2 : les alliés avancent ensemble vers ces victoires, et les gagnent ensemble).
+## Space 2 : les alliés avancent ensemble vers ces victoires, et les gagnent ensemble). Lui seul si la
+## partie fait jouer chaque allié pour lui-même.
 static func bloc(state: GameState, empire_id: int) -> Array[int]:
 	var out: Array[int] = [empire_id]
+	if not allies_count(state):
+		return out
 	for a in Diplomacy.allies(state, empire_id):
 		if not state.get_empire(a).eliminated and not out.has(a):
 			out.append(a)

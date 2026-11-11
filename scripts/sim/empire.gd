@@ -15,6 +15,8 @@ var faction_id: String = ""
 var color_hex: String = ""
 ## Complément de nom quand plusieurs empires partagent un peuple (« II », « III »…) ; "" sinon.
 var name_suffix: String = ""
+## Départ avancé choisi dans Nouvelle partie (affiché dans le tableau des empires).
+var advanced_start := false
 ## Stocks : {"energy": int, "materials": int, ...}.
 var resources: Dictionary = {}
 var capital_planet: int = -1
@@ -121,6 +123,7 @@ func to_dict() -> Dictionary:
 		"faction": faction_id,
 		"color": color_hex,
 		"suffix": name_suffix,
+		"advanced": advanced_start,
 		"resources": resources.duplicate(),
 		"capital": capital_planet,
 		"home": home_planet,
@@ -194,6 +197,7 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.faction_id = String(d["faction"])
 	e.color_hex = String(d.get("color", ""))
 	e.name_suffix = String(d.get("suffix", ""))
+	e.advanced_start = bool(d.get("advanced", false))
 	for r in GameData.resource_ids():
 		e.resources[r] = int(d["resources"].get(r, 0))
 	e.capital_planet = int(d["capital"])
