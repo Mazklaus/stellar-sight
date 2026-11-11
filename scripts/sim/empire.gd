@@ -87,6 +87,9 @@ var victory: Dictionary = {}
 var dossiers: Dictionary = {}
 var probes: int = 0
 var probe_day: int = 0
+## Registre Picaresque (voir Reputation) : réputation 0-100 et exploits accomplis {id: jour}.
+var reputation: int = 0
+var exploits: Dictionary = {}
 ## Effets cumulés des technologies, recalculés quand tech_fx_n ne correspond plus (jamais sauvegardés).
 var tech_fx: Dictionary = {}
 var tech_fx_exalted: Dictionary = {}
@@ -177,7 +180,18 @@ func to_dict() -> Dictionary:
 		"dossiers": _sorted_dossiers(),
 		"probes": probes,
 		"probe_day": probe_day,
+		"reputation": reputation,
+		"exploits": _sorted_exploits(),
 	}
+
+
+func _sorted_exploits() -> Array:
+	var ids := exploits.keys()
+	ids.sort()
+	var out := []
+	for k in ids:
+		out.append([String(k), int(exploits[k])])
+	return out
 
 
 func _sorted_dossiers() -> Array:
@@ -288,4 +302,7 @@ static func from_dict(d: Dictionary) -> Empire:
 		e.dossiers[about] = dos
 	e.probes = int(d.get("probes", int(GameData.espionage()["probes"]["start"])))
 	e.probe_day = int(d.get("probe_day", 0))
+	e.reputation = int(d.get("reputation", 0))
+	for pair in d.get("exploits", []):
+		e.exploits[String(pair[0])] = int(pair[1])
 	return e

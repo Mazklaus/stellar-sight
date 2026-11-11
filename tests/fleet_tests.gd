@@ -65,7 +65,7 @@ func _test_start() -> void:
 		var fleets := Fleets.empire_fleets(st, e.id)
 		var home := _home(st, e.id)
 		# Une horde part en plus avec sa Flotte-ville.
-		var expected := 3 if FactionTraits.has_horde(e.faction()) else 2
+		var expected := FactionTraits.start_ships(e.faction_id).size() + (1 if FactionTraits.has_horde(e.faction()) else 0)
 		_ok(fleets.size() == expected, "%s : %d flottes au départ (obtenu %d)" % [e.faction_id, expected, fleets.size()])
 		var settler := "spore_ship" if e.faction_id == "khthari" else "colony_ship"
 		_ok(_fleet_with(st, e.id, "scout") != null and _fleet_with(st, e.id, settler) != null,

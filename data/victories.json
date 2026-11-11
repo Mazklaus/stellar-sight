@@ -82,6 +82,15 @@
 			"nodes": 12, "hold_days": 720, "on_fail": "reset",
 			"chronicle": "La Noosphère s'éveille. %s ne pense plus en colonies mais en galaxie ; sa première pensée commune a duré quatre secondes et réglé trois guerres."
 		},
+		"legende": {
+			"kind": "people", "label": "La Légende",
+			"requires": {"registre": ["Picaresque / pulp"]},
+			"tech": "legende",
+			"text": "Accomplir %d exploits improbables différents (vaincre une flotte trois fois plus forte, voler une technologie, mener un contrat à terme…), puis garder une réputation d'au moins %d pendant %d an.",
+			"counter": "Les battre : chaque bataille perdue ternit la légende (réputation -8).",
+			"exploits": 7, "min_reputation": 60, "hold_days": 360, "on_fail": "reset",
+			"chronicle": "On ne raconte plus les exploits de %s : on les chante, on les brode, on les vend en feuilletons. La Légende est entrée dans l'histoire, avec quelques arrangements."
+		},
 		"terre_promise": {
 			"kind": "people", "label": "La Terre promise",
 			"requires": {"gouvernement": ["horde"]},

@@ -16,6 +16,9 @@ extends RefCounted
 ## les sabotages ; en paix, un tempérament agressif tente aussi l'héritier.
 ## Réponse à des espions démasqués : à partir de Vétéran, retourner le réseau quand elle a des agents
 ## chez elle pour le mener ; sinon expulser un ennemi ou un empire mal aimé, sinon exiger réparation.
+## Registre Picaresque : en paix aussi, le siphon est permis ; les opérations qui donnent un exploit
+## manquant passent en premier (victoire de la Légende), et être pris fait moins peur (60 % de risque
+## au plus, puisque cela fait parler de soi).
 ## Déterministe : ordre des identifiants, opinions entières, aucun aléatoire.
 
 
@@ -50,6 +53,10 @@ const OP_RESERVE := 100
 const WAR_OPS := ["sabotage_chantier", "archives", "heritier", "discorde", "vol_techno", "siphon", "rapport"]
 const PEACE_OPS := ["vol_techno", "heritier", "rapport"]
 const CALM_OPS := ["rapport"]
+const ROGUE_PEACE_OPS := ["vol_techno", "siphon", "heritier", "rapport"]
+## Exploit de la Légende que donne chaque opération réussie.
+const OP_EXPLOITS := {"vol_techno": "vol", "siphon": "siphon", "sabotage_chantier": "sabotage", "archives": "archives",
+		"discorde": "discorde", "heritier": "heritier", "rapport": "rapport"}
 
 
 static func _operation(ctx: Dictionary) -> void:
@@ -59,6 +66,7 @@ static func _operation(ctx: Dictionary) -> void:
 		return
 	var use := int(ctx["lv"].get("faction_use", 1))
 	var calm := AiLevels.aggression(e) < 0
+	var rogue := use > 0 and Reputation.has(e.faction())
 	var ks := state.networks.keys()
 	ks.sort()
 	for k in ks:
@@ -70,6 +78,8 @@ static func _operation(ctx: Dictionary) -> void:
 			continue
 		var war := Combat.at_war(state, e.id, b)
 		var menu: Array = WAR_OPS if war else (CALM_OPS if calm else PEACE_OPS)
+		if rogue:
+			menu = _rogue_menu(e, WAR_OPS if war else ROGUE_PEACE_OPS)
 		for op_id in menu:
 			if Espionage.check_op(state, e.id, b, op_id) != "":
 				continue
@@ -78,10 +88,22 @@ static func _operation(ctx: Dictionary) -> void:
 				continue
 			if use > 0:
 				var ch := Espionage.chances(state, e.id, b, op_id)
-				if int(ch["success"]) < 50 or (not war and int(ch["discovery"]) > 40):
+				if int(ch["success"]) < 50 or (not war and int(ch["discovery"]) > (60 if rogue else 40)):
 					continue
 			if AiPlayer._issue(ctx, SimCommands.spy_op(e.id, b, op_id)):
 				return
+
+
+## Les opérations d'abord qui donneraient un exploit encore manquant, dans l'ordre du menu.
+static func _rogue_menu(e: Empire, base: Array) -> Array:
+	var first := []
+	var then := []
+	for op_id in base:
+		if e.exploits.has(String(OP_EXPLOITS.get(op_id, ""))):
+			then.append(op_id)
+		else:
+			first.append(op_id)
+	return first + then
 
 
 ## Réponse de l'IA victime : "turn", "expel" ou "reparation".

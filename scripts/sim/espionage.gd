@@ -532,6 +532,8 @@ static func chances(state: GameState, a: int, b: int, op_id: String) -> Dictiona
 		sp.append(["Réseau au-dessus du palier requis", above * int(c["per_tier"])])
 	if crypto != 0:
 		sp.append(["Déchiffrement contre chiffrement", crypto * int(c["per_crypto"])])
+	if String(o.get("family", "")) == "intrigue" and Reputation.intrigue_bonus(state, a) > 0:
+		sp.append(["Réputation", Reputation.intrigue_bonus(state, a)])
 	var dp := [["Base", int(o["discovery"])]]
 	if counter > 0:
 		dp.append(["Contre-espionnage (%d cellule%s)" % [counter, "s" if counter > 1 else ""], counter_weight(state, b) * int(c["counter_per_cell"])])
@@ -667,6 +669,7 @@ static func _resolve(state: GameState, op: Dictionary) -> void:
 		if not net.is_empty():
 			net["inf"] = maxi(0, int(net["inf"]) - int(o.get("spend", 0)))
 		Research.count_stat(state, a, "operations")
+		Reputation.gain(state, a, "op_success")
 	if not seen:
 		if ok:
 			state.add_chronicle("%s, chez %s : %s" % [o["label"], eb.short_name(), what], private_to(state, [a]))
@@ -685,6 +688,7 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		"rapport":
 			ea.dossiers[b] = dossier(state, b, data()["tiers"].size())
 			Intel.record_systems(state, ea, EmpireReport.owned_systems(state, b))
+			Reputation.exploit(state, a, "rapport")
 			return "le dossier complet est sur la table, cartes à jour comprises."
 		"vol_techno":
 			var tid := Research.steal_target(state, a, b)
@@ -694,12 +698,15 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			var amount := maxi(1, Research.cost(state, a, tid) * int(o["steal_pct"]) / 100)
 			Research.add_progress(state, a, tid, amount)
 			Research.count_stat(state, a, "stolen")
+			Reputation.exploit(state, a, "vol")
 			return "les plans de « %s » changent de mains (%d Savoir)." % [String(Research.tech(tid).get("label", tid)), amount]
 		"siphon":
 			@warning_ignore("integer_division")
 			var take := mini(int(o["take_max"]), maxi(0, int(eb.resources.get("energy", 0))) * int(o["take_pct"]) / 100)
 			eb.resources["energy"] = int(eb.resources.get("energy", 0)) - take
 			ea.resources["energy"] = int(ea.resources.get("energy", 0)) + take
+			if take > 0:
+				Reputation.exploit(state, a, "siphon")
 			return "%d énergie détournée. Les compteurs de la cible tournent, les nôtres aussi." % take
 		"sabotage_chantier":
 			var pid := _sabotage_site(state, b)
@@ -710,24 +717,29 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 				c.ship_days += int(o["delay_days"])
 			else:
 				c.construction_days += int(o["delay_days"])
+			Reputation.exploit(state, a, "sabotage")
 			return "le chantier de %s prend %d jours de retard. Un boulon mal serré, puis mille." % [
 					state.galaxy.get_planet(pid).display_name(state.galaxy), int(o["delay_days"])]
 		"archives":
 			@warning_ignore("integer_division")
 			var burnt := eb.research_progress * int(o["burn_pct"]) / 100
 			eb.research_progress -= burnt
+			if burnt > 0:
+				Reputation.exploit(state, a, "archives")
 			return "%d Savoir partent en fumée. Les bibliothécaires accusent la foudre, puis les rats." % burnt
 		"discorde":
 			var c := _framed(state, a, b)
 			if c < 0:
 				return "il n'avait plus d'ami à brouiller. Les fausses preuves finissent au broyeur."
 			Diplomacy.remember(state, b, c, "framed")
+			Reputation.exploit(state, a, "discorde")
 			return "de fausses preuves accusent %s de l'espionner. L'amitié refroidit d'un coup." % state.get_empire(c).short_name()
 		"heritier":
 			if not Diplomacy.has_heir(state, b):
 				return "l'héritier n'est plus là. La bourse reste dans la poche."
 			eb.heir_loyalty = maxi(0, eb.heir_loyalty - int(o["loyalty_loss"]))
 			eb.heir_suitor = a
+			Reputation.exploit(state, a, "heritier")
 			return "l'héritier accepte nos conseils, et notre or (loyauté %d). C'est à nous qu'il pense, désormais." % eb.heir_loyalty
 	return ""
 
@@ -771,8 +783,9 @@ static func _discovered(state: GameState, a: int, b: int, o: Dictionary, ok: boo
 	if not net.is_empty():
 		net["inf"] = maxi(0, int(net["inf"]) - int(data()["discovery"]["infiltration_loss"]))
 	var tb := talent(state, b)
+	Reputation.gain(state, a, "op_caught")
 	for i in maxi(1, int(tb.get("caught_memory", 1))):
-		Diplomacy.remember(state, b, a, "spy_caught")
+		Diplomacy.remember(state, b, a, Reputation.caught_memory(state, a))
 	Diplomacy.remember(state, b, a, "spy_grief")
 	var verdict := "Ils ont réussi quand même : %s" % what if ok else "Ils repartent bredouilles, et repérés."
 	state.add_chronicle("Des agents de %s sont démasqués chez %s (%s). %s" % [ea.display_name(), eb.display_name(), String(o["label"]).to_lower(), verdict],
@@ -1008,6 +1021,7 @@ static func _spot_turned(state: GameState, a: int, b: int) -> void:
 	net.erase("turned")
 	net["inf"] = 0
 	Diplomacy.remember(state, a, b, "turned_us")
+	Reputation.exploit(state, a, "double_jeu")
 	var eb := state.get_empire(b)
 	state.add_chronicle("Les relevés venus de chez %s ne collaient plus : notre réseau était retourné depuis des mois. On repart de zéro, avec des agents neufs et des soupçons anciens." % eb.short_name(),
 			private_to(state, [a]))

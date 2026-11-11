@@ -64,7 +64,7 @@ func _test_sizes_and_shapes() -> void:
 		var t0 := Time.get_ticks_msec()
 		var st := _state({"shape": shape, "size": "grande"}, 9)
 		var ms := Time.get_ticks_msec() - t0
-		_ok(st.galaxy.systems.size() == 230 and _connected(st.galaxy) and st.empires.size() == 6, "forme %s : 230 systèmes reliés, 6 départs (%d ms)" % [shape, ms])
+		_ok(st.galaxy.systems.size() == 230 and _connected(st.galaxy) and st.empires.size() == 7, "forme %s : 230 systèmes reliés, 7 départs (%d ms)" % [shape, ms])
 	# L'anneau laisse le centre vide ; l'elliptique est aplatie.
 	var ring := _state({"shape": "anneau"}, 5)
 	var inner := ring.galaxy.systems.filter(func(s: StarSystem) -> bool: return s.position.length() < ring.galaxy_radius * 0.4)

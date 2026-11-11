@@ -22,6 +22,7 @@ func run(check: Callable) -> void:
 	_test_moisson()
 	_test_noosphere()
 	_test_terre_promise()
+	_test_legende()
 	_test_visibility_and_threat()
 	_test_ai_pursuit()
 	_test_save()
@@ -93,7 +94,7 @@ func _home_system(st: GameState, id: int) -> int:
 func _test_data() -> void:
 	var ids := Victory.ids()
 	_ok(ids.slice(0, 3) == ["conquete", "domination", "score"], "trois victoires classiques d'abord")
-	var want := {"ossarane": ["elu"], "choeur": ["couplet"], "vael": ["charte"], "khthari": ["moisson"], "teyl": ["noosphere"], "ferrocornes": ["terre_promise"]}
+	var want := {"ossarane": ["elu"], "choeur": ["couplet"], "vael": ["charte"], "khthari": ["moisson"], "teyl": ["noosphere"], "ferrocornes": ["terre_promise"], "brisecomete": ["legende"]}
 	for f in want:
 		_ok(Array(Victory.people_ids_for(GameData.faction(f))) == want[f], "%s : sa victoire de peuple (%s)" % [f, str(Victory.people_ids_for(GameData.faction(f)))])
 	# Un peuple personnalisé y a droit par ses couches, pas par son nom.
@@ -434,6 +435,33 @@ func _test_terre_promise() -> void:
 	cf3.path = [st3.galaxy.systems[cf3.system_id].neighbors[0]]
 	_months(st3, 1)
 	_ok(Victory.held(st3, 0, "terre_promise") == 0, "la flotte-ville lève le camp : tout est à refaire")
+
+
+func _test_legende() -> void:
+	var st := _state("brisecomete")
+	var e := st.get_empire(0)
+	_ok(Array(Victory.ids_for(st, 0)).has("legende") and not Array(Victory.ids_for(st, 1)).has("legende"), "La Légende : visée par le registre Picaresque seulement")
+	var need := int(Victory.info("legende")["exploits"])
+	var min_rep := int(Victory.info("legende")["min_reputation"])
+	Research.grant(st, 0, ["legende"])
+	for i in need - 1:
+		Reputation.exploit(st, 0, String(Reputation.EXPLOITS[i][0]))
+	Reputation.exploit(st, 0, String(Reputation.EXPLOITS[0][0]))
+	_ok(e.exploits.size() == need - 1, "un exploit ne compte qu'une fois (%d)" % e.exploits.size())
+	e.reputation = 90
+	_months(st, 1)
+	var pr := Victory.progress(st, 0, "legende")
+	_ok(not pr["cond"] and str(pr["lines"]).contains("Exploits : %d / %d" % [need - 1, need]), "La Légende : il manque un exploit (%s)" % str(pr["lines"]))
+	Reputation.exploit(st, 0, "contrat")
+	_months(st, 1)
+	pr = Victory.progress(st, 0, "legende")
+	_ok(pr["cond"] and int(pr["pct"]) >= Victory.met_at(), "sept exploits et la réputation : le compte à rebours démarre")
+	e.reputation = min_rep - 1
+	_months(st, 1)
+	_ok(Victory.held(st, 0, "legende") == 0, "la réputation retombe sous %d : tout est à refaire" % min_rep)
+	e.reputation = 100
+	_months(st, 14)
+	_ok(not st.winner.is_empty(), "un an de Légende : victoire (%s)" % str(st.winner))
 
 
 func _test_noosphere() -> void:

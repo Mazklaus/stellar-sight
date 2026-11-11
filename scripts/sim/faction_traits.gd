@@ -551,6 +551,9 @@ static func species_matches(faction: Dictionary, req: Dictionary) -> bool:
 					has_one = true
 			if not has_one:
 				return false
+		elif layer == "registre":
+			if not wanted.has(String(faction.get("registre", ""))):
+				return false
 		elif not wanted.has(sp.get(layer, "")):
 			return false
 	return true
@@ -679,6 +682,8 @@ static func gauge(state: GameState, empire_id: int) -> Dictionary:
 		tip += "\n%d revendication%s à plus de %d sauts : %d %% de production." % [far, "s" if far > 1 else "", int(hd["far_jumps"]), int(hd["far_pct"]) - 100]
 		return {"label": "Flotte-ville", "value": ("en route" if cf.is_moving() else where) if far == 0 else "%s (%d loin)" % ["en route" if cf.is_moving() else where, far],
 				"tip": tip}
+	if Reputation.has(f):
+		return Reputation.gauge(state, empire_id)
 	if Diplomacy.has_ability(state, empire_id, "mercenary"):
 		var c := Diplomacy.contract_of(state, empire_id)
 		if c.is_empty():

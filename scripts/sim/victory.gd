@@ -69,6 +69,8 @@ static func rule_text(id: String) -> String:
 			return t % [int(v["nodes"]), years]
 		"terre_promise":
 			return t % [int(v["min_jumps"]), int(v["reveal_jumps"]), maxi(1, years)]
+		"legende":
+			return t % [int(v["exploits"]), int(v["min_reputation"]), maxi(1, years)]
 	return t
 
 
@@ -218,6 +220,8 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			_noosphere(state, e, out)
 		"terre_promise":
 			_terre_promise(state, e, out)
+		"legende":
+			_legende(state, e, out)
 	if is_people(id) and not has_tech(state, empire_id, id):
 		out["lines"].append("Technologie requise : %s" % String(Research.tech(tech_for(id)).get("label", tech_for(id))))
 		out["cond"] = false
@@ -642,6 +646,21 @@ static func _terre_promise(state: GameState, e: Empire, out: Dictionary) -> void
 	out["lines"].append("Flotte-ville au camp : %s" % ("oui" if camped else "non"))
 	out["cond"] = owned and camped
 	_timed(out, int(found) + int(owned) + int(camped), 3)
+
+
+## La Légende (registre Picaresque) : des exploits différents, puis une réputation tenue.
+static func _legende(state: GameState, e: Empire, out: Dictionary) -> void:
+	var v := info("legende")
+	var need := int(v["exploits"])
+	var min_rep := int(v["min_reputation"])
+	var n := mini(e.exploits.size(), need)
+	out["lines"].append("Exploits : %d / %d" % [e.exploits.size(), need])
+	for x in Reputation.EXPLOITS:
+		if e.exploits.has(String(x[0])):
+			out["lines"].append("  ✓ %s" % String(x[1]))
+	out["lines"].append("Réputation : %d (%d au moins)" % [e.reputation, min_rep])
+	out["cond"] = e.exploits.size() >= need and e.reputation >= min_rep
+	_timed(out, n + int(e.reputation >= min_rep), need + 1)
 
 
 # --- Ce que l'on voit des autres ---------------------------------------------------------------

@@ -220,6 +220,8 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 	gross["influence"] += FactionTraits.extra_influence(state, empire_id)
 	# Horde : la flotte-ville rapporte ce que rapporte une capitale.
 	_add(gross, FactionTraits.city_yields(state, empire_id))
+	# Registre Picaresque : la réputation rapporte des « crédits ».
+	gross["energy"] += Reputation.income(state, empire_id)
 	var treaties := Diplomacy.treaty_income(state, empire_id)
 	for r in treaties:
 		gross[r] += int(treaties[r])

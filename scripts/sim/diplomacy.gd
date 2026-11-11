@@ -1009,7 +1009,9 @@ static func warships(state: GameState, empire_id: int) -> int:
 ## Prix mensuel d'un contrat avec ce mercenaire, aujourd'hui.
 static func contract_fee(state: GameState, merc: int) -> Dictionary:
 	var ab := ability("mercenary")
-	return {"energy": int(ab["fee_base"]) + int(ab["fee_per_ship"]) * warships(state, merc)}
+	var fee := int(ab["fee_base"]) + int(ab["fee_per_ship"]) * warships(state, merc)
+	@warning_ignore("integer_division")
+	return {"energy": fee * (100 + Reputation.fee_pct(state, merc)) / 100}
 
 
 ## Le contrat merc -> client contre target est-il possible ? "" si oui.
@@ -1078,6 +1080,8 @@ static func end_contract(state: GameState, merc: int, reason: String) -> void:
 			state.add_chronicle("%s abandonne le contrat de %s avant la fin de sa guerre." % [em.display_name(), ec.display_name()], Espionage.public_to(state, [merc, client]))
 		"done":
 			remember(state, client, merc, "contract_honored")
+			Reputation.gain(state, merc, "contract_done")
+			Reputation.exploit(state, merc, "contrat")
 			state.add_chronicle("Fin du contrat entre %s et %s. Les mercenaires repartent, payés et presque polis." % [em.display_name(), ec.display_name()], Espionage.public_to(state, [merc, client]))
 	# Les mercenaires rentrent : la paix avec leur ancienne cible, sans rancune de métier.
 	if reason != "gone" and Combat.at_war(state, merc, target) and not state.get_empire(target).eliminated \
