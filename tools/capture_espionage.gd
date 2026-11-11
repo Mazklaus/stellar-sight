@@ -1,5 +1,5 @@
 extends SceneTree
-## Captures de l'espionnage (lot 1), avec le rendu réel :
+## Captures de l'espionnage (lots 1 à 3), avec le rendu réel :
 ##   xvfb-run -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_espionage.gd
 ## Écrit les images dans le dossier donné par CAPTURE_DIR (par défaut user://captures).
 ## Scénario : deux rivaux rencontrés ; un réseau Amirauté chez l'un, un réseau naissant chez l'autre,
@@ -55,11 +55,19 @@ func _initialize() -> void:
 	main._empire_screens.intel_selected = 1
 	sim.submit(SimCommands.spy_op(0, 1, "vol_techno") if Espionage.check_op(st, 0, 1, "vol_techno") == "" else SimCommands.spy_op(0, 1, "rapport"))
 	sim.flush_commands()
-	st.spy_cases.append({"id": st.next_spy_id, "victim": 0, "spy": 2, "op": "siphon", "tick": st.tick})
+	st.networks[Espionage.key(2, 0)] = {"a": 2, "b": 0, "cells": 1, "inf": 30}
+	var case_id := st.next_spy_id
+	st.spy_cases.append({"id": case_id, "victim": 0, "spy": 2, "op": "siphon", "tick": st.tick})
 	st.next_spy_id += 1
 	main._empire_screens.show_screen("intel")
 	await _frames(8)
 	await _shot(out + "/renseignement-operations.png")
+	# 4 (lot 3). Le réseau de l'autre retourné : agents doubles et talents dans le panneau de côté.
+	sim.submit(SimCommands.spy_answer(0, case_id, "turn"))
+	sim.flush_commands()
+	main._empire_screens.show_screen("intel")
+	await _frames(8)
+	await _shot(out + "/renseignement-retourne.png")
 	main.toggle_empire_screen("intel")
 	await _frames(4)
 
