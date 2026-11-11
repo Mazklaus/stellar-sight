@@ -98,7 +98,7 @@ func _test_counter() -> void:
 	_ok(_part(st, 0, 1, "Contre-espionnage") == -2, "contre-espionnage : -2 par cellule")
 	_ok(Espionage.suspected(st, 1).is_empty(), "réseau trop faible : pas soupçonné")
 	st.networks[Espionage.key(0, 1)]["inf"] = 25
-	_ok(Espionage.suspected(st, 1) == [0] as Array[int], "réseau au 1er palier : soupçonné")
+	_ok(Array(Espionage.suspected(st, 1)) == [0], "réseau au 1er palier : soupçonné")
 	Espionage.set_cells(st, 1, 1, 0)
 	_ok(Espionage.suspected(st, 1).is_empty(), "sans cellule chez soi : on ne soupçonne rien")
 

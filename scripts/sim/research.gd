@@ -688,10 +688,10 @@ static func steal_now(state: GameState, thief: int) -> Array:
 	if caught:
 		Diplomacy.remember(state, victim, thief, "tech_stolen")
 		state.add_chronicle("Des espions de %s sont pris dans les archives de %s avec les plans de « %s ». Ils parlent d'un malentendu ; personne ne les croit." % [
-				e.display_name(), ve.display_name(), label])
+				e.display_name(), ve.display_name(), label], Espionage.public_to(state, [thief, victim]))
 	else:
 		state.add_chronicle("Les plans de « %s » quittent les archives de %s sans que personne ne sache comment. %s, curieusement, avance très vite sur le sujet." % [
-				label, ve.display_name(), e.display_name()])
+				label, ve.display_name(), e.display_name()], Espionage.private_to(state, [thief]))
 	return [victim, tid, amount, done, caught]
 
 

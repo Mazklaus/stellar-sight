@@ -59,6 +59,17 @@ func _initialize() -> void:
 		if not Intel.is_live(st, 0, sid) and st.galaxy.systems[sid].planet_count > 0:
 			target = sid
 			break
+	if target < 0:
+		# Un système aperçu par un éclaireur posé là puis retiré.
+		var seen := Fleets.visible_systems(st, 0)
+		for sys in st.galaxy.systems:
+			if sys.planet_count > 1 and not seen.has(sys.id):
+				var f := st.spawn_ship(0, "scout", sys.id)
+				sim.step()
+				st.fleets.erase(f.id)
+				sim.advance(3)
+				target = sys.id
+				break
 	if target >= 0:
 		main.set_process(true)
 		main.open_system_view(target)
