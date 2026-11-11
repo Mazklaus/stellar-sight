@@ -104,7 +104,8 @@
 		"heir_gift": {"value": 10, "days": 1080, "label": "Nous a livré un fief (l'héritier félon)"},
 		"union": {"value": 20, "days": 3600, "label": "Nos lignées sont unies"},
 		"contract_honored": {"value": 15, "days": 1440, "stack": 2, "label": "A loué ses flottes pour nous, et tenu parole"},
-		"contract_unpaid": {"value": -25, "days": 1440, "label": "N'a pas payé nos flottes"}
+		"contract_unpaid": {"value": -25, "days": 1440, "label": "N'a pas payé nos flottes"},
+		"tech_stolen": {"value": -20, "days": 1440, "stack": 3, "label": "Nous a volé une technologie"}
 	},
 	"abilities": {
 		"no_treaties": {
