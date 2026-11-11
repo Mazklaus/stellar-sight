@@ -92,6 +92,27 @@ func is_seen(id: int) -> bool:
 	return not fog or state == null or _seen.has(id)
 
 
+## Propriétaire du système tel que le joueur le connaît : réel s'il le voit (ou sans brouillard),
+## sinon celui de sa dernière observation (voir Intel).
+func owner_of(id: int) -> int:
+	if is_seen(id):
+		return state.system_owner(id)
+	var m := Intel.known(state, viewer, id)
+	return -1 if m.is_empty() else int(m["info"]["owner"])
+
+
+## Revendication d'une planète telle que le joueur la connaît (voir Intel.colony_of).
+func colony_of(pid: int) -> Colony:
+	if not fog:
+		return state.colonies.get(pid)
+	return Intel.colony_of(state, viewer, pid)
+
+
+## Couleur d'un empire sur la carte : atténuée pour un système connu par une ancienne observation.
+func _owner_color(owner: Empire, id: int) -> Color:
+	return owner.color() if is_seen(id) else owner.color().darkened(0.4)
+
+
 ## Système connu le plus proche d'une position du monde (-1 si aucun à moins de max_distance).
 func pick_system(world_pos: Vector2, max_distance: float) -> int:
 	var best := -1
@@ -170,7 +191,7 @@ func _draw() -> void:
 		# Lentille économique : tout s'assombrit sauf les systèmes du joueur, qui affichent leur bilan.
 		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
 		for s in galaxy.systems:
-			if state.system_owner(s.id) == viewer:
+			if owner_of(s.id) == viewer:
 				_draw_system(s, px)
 				_draw_label(s, px, true)
 				_draw_yields(s, px)
@@ -180,7 +201,7 @@ func _draw() -> void:
 	for s in galaxy.systems:
 		if not is_explored(s.id):
 			continue
-		var key := s.id == selected_id or s.id == hovered_id or (state != null and state.system_owner(s.id) >= 0)
+		var key := s.id == selected_id or s.id == hovered_id or (state != null and owner_of(s.id) >= 0)
 		if show_all_labels or key:
 			_draw_label(s, px, show_dots or key)
 
@@ -220,14 +241,15 @@ func _draw_territory() -> void:
 		return
 	var bg: Color = ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color.BLACK)
 	for lane in galaxy.lanes:
-		var oa := state.system_owner(lane.x)
-		if oa != -1 and oa == state.system_owner(lane.y) and is_explored(lane.x) and is_explored(lane.y):
-			var tint := bg.lerp(state.get_empire(oa).color(), 0.13)
+		var oa := owner_of(lane.x)
+		if oa != -1 and oa == owner_of(lane.y) and is_explored(lane.x) and is_explored(lane.y):
+			var faded := not (is_seen(lane.x) and is_seen(lane.y))
+			var tint := bg.lerp(state.get_empire(oa).color(), 0.08 if faded else 0.13)
 			draw_line(galaxy.systems[lane.x].position, galaxy.systems[lane.y].position, tint, TERRITORY_RADIUS * 1.1)
 	for s in galaxy.systems:
-		var owner := state.get_empire(state.system_owner(s.id))
+		var owner := state.get_empire(owner_of(s.id))
 		if owner and is_explored(s.id):
-			draw_circle(s.position, TERRITORY_RADIUS, bg.lerp(owner.color(), 0.13))
+			draw_circle(s.position, TERRITORY_RADIUS, bg.lerp(owner.color(), 0.13 if is_seen(s.id) else 0.08))
 
 
 func _draw_system(s: StarSystem, px: float) -> void:
@@ -340,18 +362,18 @@ func _draw_route(f: Fleet, px: float) -> void:
 func _draw_claims(s: StarSystem, r: float, px: float) -> void:
 	if state == null:
 		return
-	var owner := state.get_empire(state.system_owner(s.id))
+	var owner := state.get_empire(owner_of(s.id))
 	if owner == null:
 		return
 	var established := false
 	var capital := false
 	for pid in s.planet_ids:
-		var c: Colony = state.colonies.get(pid)
+		var c: Colony = colony_of(pid)
 		if c and c.is_established():
 			established = true
 		if owner.capital_planet == pid:
 			capital = true
-	var col := owner.color()
+	var col := _owner_color(owner, s.id)
 	if established:
 		draw_arc(s.position, r * 1.9, 0.0, TAU, 32, col, 2.0 * px, true)
 	else:
@@ -370,23 +392,23 @@ func _draw_label(s: StarSystem, px: float, dots := true) -> void:
 	# On annule le zoom localement pour que le texte reste net et de taille constante.
 	draw_set_transform(s.position, 0.0, Vector2(px, px))
 	var selected := s.id == selected_id
-	var owner := state.get_empire(state.system_owner(s.id)) if state else null
+	var owner := state.get_empire(owner_of(s.id)) if state else null
 	var w := _font.get_string_size(s.system_name, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_FONT_SIZE).x
 	var tag := Rect2(Vector2(-w * 0.5 - 7, -34), Vector2(w + 14, 19))
 	draw_rect(tag, Color(0.02, 0.03, 0.05, 0.78 if not selected else 0.92))
 	if selected:
 		draw_rect(Rect2(tag.position + Vector2(0, tag.size.y - 2), Vector2(tag.size.x, 2)), SELECT_COLOR)
 	elif owner:
-		draw_rect(Rect2(tag.position + Vector2(0, tag.size.y - 1), Vector2(tag.size.x, 1)), owner.color())
+		draw_rect(Rect2(tag.position + Vector2(0, tag.size.y - 1), Vector2(tag.size.x, 1)), _owner_color(owner, s.id))
 	var col := Color(0.92, 0.94, 0.97) if selected or s.id == hovered_id else Color(0.85, 0.88, 0.93, 0.85)
 	draw_string(_font, Vector2(-w * 0.5, -20), s.system_name, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_FONT_SIZE, col)
 	# Pastilles des planètes sous l'étiquette, entre elle et l'étoile.
 	var n := s.planet_count if dots else 0
 	for i in n:
 		var pos := Vector2((i - (n - 1) * 0.5) * 9.0, -9)
-		var c: Colony = state.colonies.get(s.planet_ids[i]) if state else null
+		var c: Colony = colony_of(s.planet_ids[i]) if state else null
 		if c:
-			draw_circle(pos, 3.0, state.get_empire(c.owner).color())
+			draw_circle(pos, 3.0, _owner_color(state.get_empire(c.owner), s.id))
 		else:
 			draw_arc(pos, 2.6, 0.0, TAU, 12, Color(1, 1, 1, 0.55), 1.0, true)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

@@ -119,6 +119,7 @@ static func update_exploration(state: GameState) -> Array[Dictionary]:
 		var seen: Dictionary = seen_by[e.id]
 		for sid in seen:
 			e.explored[sid] = true
+	Intel.record(state, seen_by)
 	for e in state.empires:
 		var seen: Dictionary = seen_by[e.id]
 		for other in state.empires:

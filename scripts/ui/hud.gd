@@ -745,7 +745,8 @@ func _refresh_card() -> void:
 		_enter_button.visible = false
 		return
 	_portrait.visible = true
-	var owner := _state.get_empire(_state.system_owner(s.id))
+	var owner := _state.get_empire(Intel.shown_owner(_state, s.id))
+	var live := Intel.shown_live(_state, s.id)
 	_portrait.set_star(s.star_type, fmod(float(s.id) * 0.731, 7.0))
 	_card_title.text = s.system_name
 	_card_title.add_theme_color_override("font_color", owner.color().lightened(0.35) if owner else UiTheme.TEXT)
@@ -754,12 +755,21 @@ func _refresh_card() -> void:
 		"Système de %s" % owner.short_name() if owner else "Système libre",
 		"à portée" if Economy.in_range(_state, _player, s.id) else "hors de portée",
 	]
-	if owner:
+	if owner and owner.eliminated:
+		_card_owner.text += "  ·  empire disparu"
+	if owner and live:
 		var war := owner.id != _player and Combat.at_war(_state, _player, owner.id)
 		_card_owner.text += "%s\nGarnison %d / %d%s" % ["  ·  EN GUERRE" if war else "", Combat.garrison(_state, s.id), Combat.garrison_max(_state, s.id),
 				"  ·  ASSIÉGÉ" if Combat.is_besieged(_state, s.id) else ""]
-	if not Combat.battle_at(_state, s.id).is_empty():
+	elif owner and Intel.siege_of(_state, Intel.lens, s.id) >= 0:
+		_card_owner.text += "\nAssiégé"
+	if live and not Combat.battle_at(_state, s.id).is_empty():
 		_card_owner.text += "\nBataille en cours"
+	elif not live and Intel.battle_known(_state, Intel.lens, s.id):
+		_card_owner.text += "\nBataille en cours"
+	if not live:
+		_card_owner.text += "\nHors de vue : %s (%s)" % [Intel.age_label(_state, Intel.lens, s.id),
+				GameCalendar.date_string(Intel.last_seen(_state, Intel.lens, s.id))]
 	_card_lore.text = String(STAR_LORE.get(s.star_type, ""))
 	# Une pastille par planète, à la couleur de son type ; un anneau à la couleur du propriétaire.
 	var dots := _planet_dots.get_children()
@@ -775,7 +785,7 @@ func _refresh_card() -> void:
 		var p := galaxy.get_planet(s.planet_ids[i])
 		var dot := _planet_dots.get_child(i) as Widgets.Dot
 		dot.color = SystemScreen.TYPE_DOT_COLORS.get(p.type, Color.GRAY)
-		var c: Colony = _state.colonies.get(p.id)
+		var c: Colony = Intel.shown_colony(_state, p.id)
 		dot.ring = _state.get_empire(c.owner).color() if c else Color(0, 0, 0, 0)
 		dot.tooltip_text = "%s  ·  %s  ·  taille %d\n%s" % [p.display_name(galaxy), p.type_label(), p.size, PlanetInfo.status_line(_state, p)]
 		dot.queue_redraw()
