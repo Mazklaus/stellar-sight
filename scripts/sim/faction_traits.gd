@@ -337,13 +337,20 @@ static func hab_floor(faction: Dictionary) -> int:
 	return int(faction.get("hab_floor", 0))
 
 
-## Coût d'une revendication après les traits (Kh'thari : jamais d'influence).
-static func adjust_claim_cost(state: GameState, empire_id: int, cost: Dictionary) -> Dictionary:
-	if not _faction(state, empire_id).get("claim_influence_free", false):
-		return cost
-	var out := cost.duplicate()
-	out.erase("influence")
-	return out
+## Coût d'une revendication après les traits (Kh'thari : jamais d'influence ; syndicats : les vraies
+## colonies coûtent plus d'influence, colony_influence_pct).
+static func adjust_claim_cost(state: GameState, empire_id: int, cost: Dictionary, kind := "") -> Dictionary:
+	var f := _faction(state, empire_id)
+	if f.get("claim_influence_free", false):
+		var out := cost.duplicate()
+		out.erase("influence")
+		return out
+	if kind == Colony.KIND_COLONY and f.has("colony_influence_pct") and cost.has("influence"):
+		var out2 := cost.duplicate()
+		@warning_ignore("integer_division")
+		out2["influence"] = int(cost["influence"]) * int(f["colony_influence_pct"]) / 100
+		return out2
+	return cost
 
 
 # --- Vaisseaux ----------------------------------------------------------------------------------
@@ -507,6 +514,16 @@ static func gauge(state: GameState, empire_id: int) -> Dictionary:
 %d revendication%s coupée%s du réseau : production divisée par deux." % [cut, "s" if cut > 1 else "", "s" if cut > 1 else ""]
 		return {"label": "Réseau", "value": "%d" % nodes if cut == 0 else "%d (%d coupé%s)" % [nodes, cut, "s" if cut > 1 else ""],
 				"tip": tip, "bad": cut > 0}
+	if Diplomacy.has_ability(state, empire_id, "mercenary"):
+		var c := Diplomacy.contract_of(state, empire_id)
+		if c.is_empty():
+			return {"label": "Contrat", "value": "aucun", "tip": "Flottes libres : %d vaisseaux armés, %s par mois à la location.\nLouez-les depuis la Diplomatie à un empire en guerre." % [
+					Diplomacy.warships(state, empire_id), GameData.format_amounts(Diplomacy.contract_fee(state, empire_id))]}
+		@warning_ignore("integer_division")
+		var left := maxi(0, int(c["until"]) - state.tick) / 30
+		return {"label": "Contrat", "value": state.get_empire(int(c["client"])).short_name(),
+				"tip": "Flottes louées à %s contre %s : %s par mois, %d mois au plus." % [state.get_empire(int(c["client"])).short_name(),
+						state.get_empire(int(c["target"])).short_name(), GameData.format_amounts(c["fee"]), left]}
 	if has_fiefs(f):
 		var n := fief_counts(state, empire_id)
 		var tip := "%d fief%s (+%d influence chacun s'il est peuplé)\n%d fief%s lointain%s (plus de %d sauts) : %d cristal par mois chacun" % [

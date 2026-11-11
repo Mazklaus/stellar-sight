@@ -59,3 +59,4 @@ static func _monthly(state: GameState) -> void:
 			continue
 		Diplomacy.heir_month(state, e.id)
 		Diplomacy.crusade_month(state, e.id)
+		Diplomacy.contract_month(state, e.id)

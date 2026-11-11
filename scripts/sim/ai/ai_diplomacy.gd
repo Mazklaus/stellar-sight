@@ -69,6 +69,9 @@ static func evaluate(state: GameState, ai_id: int, from_id: int, treaty: String)
 			_p(parts, "Tempérament", int(c["temperament_peace"]) * aggr)
 			if Diplomacy.has_ability(state, ai_id, "crusade") and _credo(state, ai_id) != _credo(state, from_id):
 				_p(parts, "Pas de paix avec les hérétiques", int(c["crusade_peace"]))
+			var ct := Diplomacy.contract_of(state, ai_id)
+			if not ct.is_empty() and int(ct["target"]) == from_id:
+				_p(parts, "Nos flottes sont louées contre vous", int(c["too_early"]))
 		Diplomacy.ALLIANCE:
 			_p(parts, "S'engager dans une alliance", int(c["alliance_base"]))
 			_p(parts, "Opinion", op)
@@ -96,6 +99,73 @@ static func evaluate(state: GameState, ai_id: int, from_id: int, treaty: String)
 	for p in parts:
 		score += int(p["value"])
 	return {"score": score, "parts": parts}
+
+
+## Jugement d'un contrat de flotte par l'empire IA ai_id (le mercenaire ou le client) :
+## {"score", "parts"}, accepté si score >= ai.accept_at.
+static func evaluate_contract(state: GameState, ai_id: int, merc: int, client: int, target: int) -> Dictionary:
+	var parts: Array[Dictionary] = []
+	var e := state.get_empire(ai_id)
+	var c := cfg()
+	var fee := int(Diplomacy.contract_fee(state, merc).get("energy", 0))
+	if ai_id == client:
+		_p(parts, "Des renforts contre %s" % state.get_empire(target).short_name(), int(c["contract_base"]))
+		if _skill(e) >= 1:
+			_p(parts, "Rapport de forces", _pressure(state, e, target))
+		var net := int(Economy.empire_income(state, ai_id)["net"].get("energy", 0))
+		@warning_ignore("integer_division")
+		_p(parts, "Prix : %d énergie par mois" % fee, -fee / maxi(1, int(c["contract_fee_div"])))
+		# Le trésor doit tenir un an : le revenu du mois plus un douzième des réserves.
+		@warning_ignore("integer_division")
+		if net + int(e.resources.get("energy", 0)) / 12 < fee:
+			_p(parts, "Le trésor ne suivra pas", -30)
+		@warning_ignore("integer_division")
+		_p(parts, "Opinion des mercenaires", Diplomacy.opinion(state, ai_id, merc) / 4)
+	else:
+		_p(parts, "Un contrat payé", int(c["merc_base"]))
+		@warning_ignore("integer_division")
+		_p(parts, "Ce que la cible pense de nous", -Diplomacy.opinion(state, ai_id, target) / 4)
+		@warning_ignore("integer_division")
+		_p(parts, "Opinion du client", Diplomacy.opinion(state, ai_id, client) / 4)
+		_p(parts, "Déjà en guerre ailleurs", -20 * e.wars.size())
+		if e.is_ai():
+			_p(parts, "Tempérament", 5 * AiLevels.aggression(e))
+			if _skill(e) >= 1:
+				# Pas de contrat contre plus fort que soi.
+				_p(parts, "Rapport de forces", mini(0, -_pressure(state, e, target)))
+	var score := 0
+	for p in parts:
+		score += int(p["value"])
+	return {"score": score, "parts": parts}
+
+
+## Syndicat IA : louer ses flottes au meilleur client (au plus une proposition par réflexion).
+static func _hire_out(ctx: Dictionary) -> bool:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if not Diplomacy.has_ability(state, e.id, "mercenary") or not Diplomacy.contract_of(state, e.id).is_empty():
+		return false
+	var best := []
+	var best_score := -999
+	for client in e.contacts:
+		var ce := state.get_empire(client)
+		if ce == null or ce.eliminated:
+			continue
+		for target in ce.wars:
+			if SimCommands.validate(state, SimCommands.contract(e.id, e.id, client, target)) != "":
+				continue
+			var mine := int(evaluate_contract(state, e.id, e.id, client, target)["score"])
+			if mine < int(cfg()["propose_at"]):
+				continue
+			var theirs := int(evaluate_contract(state, client, e.id, client, target)["score"]) if ce.is_ai() else 0
+			if ce.is_ai() and theirs < int(cfg()["accept_at"]):
+				continue
+			if mine + theirs > best_score:
+				best_score = mine + theirs
+				best = [client, target]
+	if best.is_empty():
+		return false
+	return _issue(ctx, SimCommands.contract(e.id, e.id, int(best[0]), int(best[1])))
 
 
 static func _p(parts: Array[Dictionary], label: String, value: int) -> void:
@@ -135,6 +205,8 @@ static func think(ctx: Dictionary) -> void:
 	_heir(ctx)
 	_leave_alliances(ctx)
 	if _propose(ctx):
+		return
+	if _hire_out(ctx):
 		return
 	_mediate(ctx)
 	_bribe(ctx)

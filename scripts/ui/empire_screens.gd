@@ -1373,6 +1373,37 @@ func _relation_block(id: int) -> Control:
 		b.pressed.connect(func() -> void: command_requested.emit(SimCommands.bribe_heir(_player, id)))
 		acts.add_child(b)
 		ability_buttons["bribe"] = b
+	# Flottes à louer : le syndicat propose ses flottes, ou le client les engage.
+	if Diplomacy.has_ability(_state, _player, "mercenary") and not e.eliminated:
+		for w in e.wars:
+			if w == _player or not me.contacts.has(w):
+				continue
+			var b := Button.new()
+			b.text = "LOUER NOS FLOTTES CONTRE %s" % _state.get_empire(w).short_name().to_upper()
+			b.focus_mode = Control.FOCUS_NONE
+			var why := Diplomacy.check_propose_contract(_state, _player, _player, id, w)
+			b.disabled = why != ""
+			b.tooltip_text = why if why != "" else "Nous entrons en guerre contre %s ; %s nous paie %s par mois tant que dure sa guerre." % [
+					_state.get_empire(w).short_name(), e.short_name(), GameData.format_amounts(Diplomacy.contract_fee(_state, _player))]
+			var target := w
+			b.pressed.connect(func() -> void: command_requested.emit(SimCommands.contract(_player, _player, id, target)))
+			acts.add_child(b)
+			ability_buttons["hire_out_%d" % w] = b
+	if Diplomacy.has_ability(_state, id, "mercenary") and not e.eliminated:
+		for w in me.wars:
+			if w == id or not e.contacts.has(w):
+				continue
+			var b := Button.new()
+			b.text = "ENGAGER CONTRE %s" % _state.get_empire(w).short_name().to_upper()
+			b.focus_mode = Control.FOCUS_NONE
+			var why := Diplomacy.check_propose_contract(_state, _player, id, _player, w)
+			b.disabled = why != ""
+			b.tooltip_text = why if why != "" else "%s entre en guerre contre %s pour %s par mois, tant que dure votre guerre." % [
+					e.short_name(), _state.get_empire(w).short_name(), GameData.format_amounts(Diplomacy.contract_fee(_state, id))]
+			var target := w
+			b.pressed.connect(func() -> void: command_requested.emit(SimCommands.contract(_player, id, _player, target)))
+			acts.add_child(b)
+			ability_buttons["hire_%d" % w] = b
 	if Victory.applies(_state, _player, "elu") and not Diplomacy.no_treaties(_state, id) and not e.eliminated:
 		var b := Button.new()
 		var united := Victory.united(_state, _player, id)
