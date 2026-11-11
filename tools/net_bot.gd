@@ -90,6 +90,12 @@ func _setup() -> void:
 			clock.attach(sim)
 			session.bind(sim)
 			print("[%s] entré, empire %d, jour %d" % [session.player_name, e, state.tick]))
+		session.resynced.connect(func(state: GameState) -> void:
+			var sim := Simulation.new(state)
+			clock.attach(sim)
+			session.bind(sim)
+			_resyncs += 1
+			print("[%s] resynchronisé au jour %d" % [session.player_name, state.tick]))
 		session.choose_empire.connect(func(list: Array) -> void:
 			var free := list.filter(func(d: Dictionary) -> bool: return d["free"])
 			if free.is_empty():
@@ -109,7 +115,9 @@ func _process(delta: float) -> bool:
 		_setup()
 		return false
 	if Time.get_ticks_msec() > int(_env("TIMEOUT", "300")) * 1000:
-		print("[%s] délai dépassé" % role)
+		print("[%s] délai dépassé (jour %d, pause %s/%s, fin de tour %d, en attente %s, trame %s)" % [role,
+				session.core.tick() if session.core else -1, session.paused, session._pausing, session.turn_target,
+				session.waiting, session.core.can_step() if session.core else false])
 		quit(3)
 		return false
 	if _quit_in >= 0.0:
@@ -120,6 +128,13 @@ func _process(delta: float) -> bool:
 	if session == null or session.core == null:
 		return false
 	var st := session.core.sim.state
+	# DESYNC_AT : ce client fausse une fois son propre état (test de la resynchronisation).
+	if role != "host" and _env("DESYNC_AT", "") != "" and not _desynced and st.tick >= int(_env("DESYNC_AT", "0")):
+		_desynced = true
+		var me := st.get_empire(session.my_empire)
+		var key: String = me.resources.keys()[0]
+		me.resources[key] = int(me.resources[key]) + 777
+		print("[%s] écart provoqué au jour %d" % [session.player_name, st.tick])
 	# CHAT=1 : chacun écrit une fois, une fois la partie lancée ; FINAL compte les messages reçus.
 	if _env("CHAT", "") != "" and not _chatted and st.tick >= 5:
 		_chatted = true
@@ -278,6 +293,8 @@ func _on_lobby_state(st: Dictionary) -> void:
 
 
 var _chatted := false
+var _desynced := false
+var _resyncs := 0
 
 
 func _finish() -> void:
@@ -285,7 +302,7 @@ func _finish() -> void:
 		return
 	done = true
 	var st := session.core.sim.state
-	print("FINAL %s %d %s ordres=%d chat=%d" % [session.player_name, st.tick, st.checksum(), sent, session.chat_log.size()])
+	print("FINAL %s %d %s ordres=%d chat=%d resync=%d" % [session.player_name, st.tick, st.checksum(), sent, session.chat_log.size(), _resyncs])
 	_quit_in = 3.0  # le temps que les derniers messages partent
 
 

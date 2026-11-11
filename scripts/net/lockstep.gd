@@ -46,6 +46,9 @@ var seats := {}
 var acks := {}
 ## Sommes de contrôle : jour -> {pair: somme} (celle de l'hôte sous HOST).
 var _hashes := {}
+## Pair -> premier jour dont on compare de nouveau la somme (après une resynchronisation, les sommes
+## encore en route de son ancien état sont ignorées).
+var hash_floor := {}
 
 
 func _init(simulation: Simulation, host := false) -> void:
@@ -174,7 +177,7 @@ func slowest() -> int:
 ## Message d'un client (accusé de réception et somme de contrôle).
 func host_receive_ack(peer: int, t: int, h := "") -> void:
 	acks[peer] = maxi(int(acks.get(peer, 0)), t)
-	if h != "":
+	if h != "" and t >= int(hash_floor.get(peer, 0)):
 		_record_hash(peer, t, h)
 
 
@@ -203,6 +206,16 @@ func add_peer(peer: int, empire_id: int) -> void:
 func remove_peer(peer: int) -> void:
 	seats.erase(peer)
 	acks.erase(peer)
+	hash_floor.erase(peer)
+
+
+## Un pair repart de l'état courant de l'hôte (resynchronisation) : il reprend au jour courant, et ses
+## sommes des jours déjà passés, calculées sur son ancien état, ne comptent plus.
+func resync_peer(peer: int) -> void:
+	acks[peer] = tick()
+	hash_floor[peer] = tick() + 1
+	for t in _hashes:
+		(_hashes[t] as Dictionary).erase(peer)
 
 
 ## Morceaux de la trame courante déjà appliqués (l'état envoyé à un nouveau venu les contient déjà).

@@ -7,6 +7,7 @@
 # BRUNO_REJOINS=1 (avec BRUNO_QUITS_AT) : il revient aussitôt et doit retrouver son empire.
 # TURNS=<jours> : tours simultanés au lieu du temps réel. LOBBY=1 : la partie naît d'un salon où chacun prend sa place.
 # CHAT=1 : chacun écrit un message ; chaque machine doit avoir reçu les trois.
+# BRUNO_DESYNC_AT=<jour> : Bruno fausse son état à ce jour ; l'hôte doit le resynchroniser.
 set -u
 cd "$(dirname "$0")/.."
 GODOT="${GODOT:-godot}"
@@ -18,12 +19,14 @@ sleep 2
 for n in Alice Bruno; do
   QUIT=""
   if [ "$n" = Bruno ] && [ -n "${BRUNO_QUITS_AT:-}" ]; then QUIT="$BRUNO_QUITS_AT"; fi
+  DESYNC=""
+  if [ "$n" = Bruno ]; then DESYNC="${BRUNO_DESYNC_AT:-}"; fi
   if [ -n "$QUIT" ] && [ -n "${BRUNO_REJOINS:-}" ]; then
     ( QUIT_AT="$QUIT" ROLE=client ADDR=127.0.0.1 DAYS="$DAYS" PORT="$PORT" NAME="$n" "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/$n-1.log" 2>&1
       sleep 1
       ROLE=client ADDR=127.0.0.1 DAYS="$DAYS" PORT="$PORT" NAME="$n" "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/$n.txt" 2>&1 ) &
   else
-    CHAT="${CHAT:-}" QUIT_AT="$QUIT" ROLE=client ADDR=127.0.0.1 DAYS="$DAYS" PORT="$PORT" NAME="$n" "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/$n.txt" 2>&1 &
+    DESYNC_AT="$DESYNC" CHAT="${CHAT:-}" QUIT_AT="$QUIT" ROLE=client ADDR=127.0.0.1 DAYS="$DAYS" PORT="$PORT" NAME="$n" "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/$n.txt" 2>&1 &
   fi
   sleep 1
 done
@@ -34,7 +37,11 @@ COUNT=$(grep -h "^FINAL" "$LOG"/*.txt | awk '{print $3, $4}' | sort -u | wc -l)
 TOTAL=$(grep -h "^FINAL" "$LOG"/*.txt | wc -l)
 EXPECTED=3
 if [ -n "${BRUNO_QUITS_AT:-}" ] && [ -z "${BRUNO_REJOINS:-}" ]; then EXPECTED=2; fi
-if [ -n "${CHAT:-}" ] && [ "$(grep -h "^FINAL" "$LOG"/*.txt | grep -c "chat=3$")" -ne "$TOTAL" ]; then
+if [ -n "${BRUNO_DESYNC_AT:-}" ] && ! grep -q "^FINAL Bruno .* resync=[1-9]" "$LOG"/*.txt; then
+  echo "ÉCHEC : Bruno n'a pas été resynchronisé (journaux dans $LOG)."
+  exit 1
+fi
+if [ -n "${CHAT:-}" ] && [ "$(grep -h "^FINAL" "$LOG"/*.txt | grep -c "chat=3 ")" -ne "$TOTAL" ]; then
   echo "ÉCHEC : la discussion n'est pas arrivée partout (journaux dans $LOG)."
   exit 1
 fi

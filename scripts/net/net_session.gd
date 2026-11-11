@@ -22,6 +22,9 @@ extends Node
 signal notice(text: String, tone: String)
 ## Client : l'hôte a accepté ; state est la partie à rejoindre, empire_id l'empire confié.
 signal joined(state: GameState, empire_id: int)
+## Client : l'hôte a renvoyé son état après une désynchronisation ; le jeu remplace sa partie par
+## celle-ci (et rappelle bind()), sans changer d'empire.
+signal resynced(state: GameState)
 ## Client : connexion refusée ou perdue avant d'entrer.
 signal join_failed(reason: String)
 ## Client : l'hôte propose les empires à prendre (voir _empire_list) ; répondre par pick().
@@ -105,6 +108,10 @@ var _stall_told := false
 var _delay_timer := 0.0
 ## Hôte : pair -> identifiant, pair -> empire choisi (arrivée en attente), pairs ayant fini leur tour.
 var _tokens := {}
+## Hôte : pairs désynchronisés à qui renvoyer l'état dès que tout le monde est arrêté, et faut-il
+## repartir ensuite (la partie tournait quand l'écart a été vu).
+var _resyncs: Array[int] = []
+var _resume_after_resync := false
 var _picks := {}
 var _ready := {}
 ## Hôte : annonce de la partie sur le réseau local (voir LanDiscovery).
@@ -347,6 +354,8 @@ func close() -> void:
 	my_empire = -1
 	_joins.clear()
 	_leaves.clear()
+	_resyncs.clear()
+	_resume_after_resync = false
 	_pausing = false
 	absent = {}
 	chat_log.clear()
@@ -530,6 +539,10 @@ func _host_clock(delta: float) -> void:
 			core.step()
 			n += 1
 		if not core.can_step():
+			# Arrêt tombé sur la fin du tour : c'est une fin de tour ordinaire (on donne ses ordres).
+			if turn_mode and turn_target >= 0 and core.tick() >= turn_target:
+				_finish_turn()
+				return
 			_pausing = false
 			paused = true
 			_broadcast_clock()
@@ -707,6 +720,7 @@ func _start_turn() -> void:
 ## Tout le monde est arrivé au début du tour suivant : on donne ses ordres.
 func _finish_turn() -> void:
 	paused = true
+	_pausing = false  # une pause demandée au dernier jour du tour (écart, joueur) est déjà là
 	turn_target = -1
 	_ready.clear()
 	_update_waiting()
@@ -731,8 +745,16 @@ func _after_stop() -> void:
 	_joins.clear()
 	for id in joins:
 		_welcome(id)
+	_send_resyncs()
 	_update_waiting()
 	_broadcast_clock()
+	# La partie tournait avant l'écart : elle repart d'elle-même (au tour par tour, vers la même fin).
+	if _resume_after_resync:
+		_resume_after_resync = false
+		if turn_mode and turn_target >= 0:
+			_start_turn()
+		elif not turn_mode:
+			_host_pause(Lockstep.HOST, false)
 	players_changed.emit()
 	_flush()
 
@@ -901,14 +923,35 @@ func _drop(id: int) -> void:
 		_after_stop()
 
 
+## Désynchronisation : les deux états sont gardés pour l'analyse (user://desync), puis, dès que tout
+## le monde est arrêté au même jour, l'hôte renvoie son état au joueur concerné et la partie repart.
 func _on_desync(peer: int, tick: int) -> void:
-	_host_pause(Lockstep.HOST, true)
 	DirAccess.make_dir_recursive_absolute(DESYNC_DIR)
 	var path := "%s/hote_jour_%d.json" % [DESYNC_DIR, core.tick()]
 	SaveGame.save_state(core.sim.state, path)
 	_send(peer, {"k": "desync", "t": tick})
-	_announce("Désynchronisation avec %s au %s : la partie est en pause. États enregistrés dans %s." % [
+	_announce("Écart de calcul avec %s au %s : resynchronisation sur l'état de l'hôte (états gardés dans %s)." % [
 			names.get(peer, "un joueur"), GameCalendar.date_string(tick), DESYNC_DIR], "bad")
+	if not _resyncs.has(peer):
+		_resyncs.append(peer)
+	if paused and not _pausing:
+		_after_stop()
+		return
+	if not _pausing:
+		_resume_after_resync = true
+	_host_pause(Lockstep.HOST, true)
+
+
+## Renvoie l'état de l'hôte (instantané, comme à l'arrivée) aux pairs désynchronisés.
+func _send_resyncs() -> void:
+	if _resyncs.is_empty():
+		return
+	var snap := var_to_bytes(core.sim.state.to_snapshot()).compress(FileAccess.COMPRESSION_GZIP)
+	for p in _resyncs:
+		if core.seats.has(p):
+			core.resync_peer(p)
+			_send(p, {"k": "resync", "s": snap, "t": core.tick(), "clock": _clock_msg()})
+	_resyncs.clear()
 
 
 func _announce(text: String, tone: String) -> void:
@@ -1063,6 +1106,16 @@ func _client_message(msg: Dictionary) -> void:
 			if core:
 				DirAccess.make_dir_recursive_absolute(DESYNC_DIR)
 				SaveGame.save_state(core.sim.state, "%s/client_jour_%d.json" % [DESYNC_DIR, core.tick()])
+		"resync":
+			var raw2: PackedByteArray = msg.get("s", PackedByteArray())
+			var snap2: Variant = bytes_to_var(raw2.decompress_dynamic(-1, FileAccess.COMPRESSION_GZIP))
+			var fresh := GameState.from_dict(snap2) if snap2 is Dictionary else null
+			if fresh == null:
+				_end("état de l'hôte illisible (%s)" % GameState.last_error)
+				return
+			resynced.emit(fresh)  # le jeu remplace sa Simulation et rappelle bind()
+			_client_message(msg.get("clock", {}))
+			notice.emit("Partie resynchronisée sur l'état de l'hôte.", "good")
 
 
 ## Client : branche la simulation créée par le jeu à partir de la partie reçue.
