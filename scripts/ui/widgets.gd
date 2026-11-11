@@ -68,6 +68,11 @@ class IconButton:
 				draw_line(c + Vector2(-s * 0.6, -s * 1.1), c + Vector2(-s * 0.6, s * 1.1), Color(col, 0.6), 1.5, true)
 			"home":
 				draw_colored_polygon(PackedVector2Array([c + Vector2(0, -s * 1.2), c + Vector2(s * 1.1, 0), c + Vector2(0, s * 1.2), c + Vector2(-s * 1.1, 0)]), col)
+			"intel":
+				# Un œil : deux arcs et la pupille.
+				draw_arc(c + Vector2(0, s * 0.9), s * 1.5, -PI * 0.78, -PI * 0.22, 16, col, 1.6, true)
+				draw_arc(c + Vector2(0, -s * 0.9), s * 1.5, PI * 0.22, PI * 0.78, 16, col, 1.6, true)
+				draw_circle(c, s * 0.42, col)
 			"victory":
 				# Une étoile à cinq branches.
 				var pts := PackedVector2Array()

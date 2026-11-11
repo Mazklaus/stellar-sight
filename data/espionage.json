@@ -1,0 +1,42 @@
+{
+	"_sources": [
+		"Étude « l'espionnage comme pilier de Stellar Sigth » (2026-11-11, validée) : https://claude.ai/artifact/Hc6DrQEhz1c7gNez5eKZqc",
+		"Stellaris (Nemesis) : un réseau par empire rival, dont la force (infiltration) ouvre le renseignement passif puis les opérations ; chiffrement contre déchiffrement. https://devtrackers.gg/stellaris/p/431690a8-stellaris-dev-diary-197-operations-and-assets ; https://www.thegamer.com/stellaris-espionage-everything-players-need-know/",
+		"Galactic Civilizations : le renseignement dévoile l'autre empire par paliers (revenus, recherche en cours, technologies, bases). https://galciv.fandom.com/wiki/Espionage",
+		"Civilization V : l'espion posté surveille et révèle les intentions du dirigeant ; contre-espionnage chez soi. https://civilization.fandom.com/wiki/Espionage_(Civ5)",
+		"Endless Space 2 (Penumbra) : sondes de détection, défense qui ralentit le piratage ennemi. https://endless-space-2.fandom.com/wiki/Hacking"
+	],
+	"cells": {
+		"start": 2,
+		"per_era": [0, 0, 1, 1, 2],
+		"_per_era": "cellules en plus selon l'ère atteinte (ère 1 à 5)"
+	},
+	"network": {
+		"max": 100,
+		"growth_per_cell": 4,
+		"decay_without_cells": 3,
+		"trade_bonus": 2,
+		"border_bonus": 1,
+		"war_malus": 2,
+		"counter_per_cell": 2,
+		"crypto_pct": [25, 50, 100, 150, 200],
+		"_crypto_pct": "croissance en % selon déchiffrement de l'espion moins chiffrement de la cible : -2 ou moins, -1, 0, +1, +2 ou plus",
+		"home_cell_encryption": 1
+	},
+	"tiers": [
+		{"id": "cartographes", "at": 20, "label": "Cartographes",
+			"text": "Les relevés de ses systèmes se mettent à jour chaque mois, même hors de vue."},
+		{"id": "comptables", "at": 40, "label": "Comptables",
+			"text": "Ses ressources, sa recherche en cours et ses technologies ; ses affaires intérieures arrivent dans notre chronique."},
+		{"id": "amiraute", "at": 60, "label": "Amirauté",
+			"text": "Ses flottes : combien, où, et combien de vaisseaux de guerre."},
+		{"id": "conseil", "at": 80, "label": "Conseil",
+			"text": "Ce qu'il pense de chacun : ses guerres, ses haines et ses amitiés."}
+	],
+	"probes": {
+		"max": 3,
+		"regen_days": 90,
+		"start": 2,
+		"cost": {"energy": 10}
+	}
+}

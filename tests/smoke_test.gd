@@ -30,6 +30,7 @@ func _initialize() -> void:
 	preload("res://tests/game_rules_tests.gd").new().run(_check)
 	preload("res://tests/net_tests.gd").new().run(_check)
 	preload("res://tests/intel_tests.gd").new().run(_check)
+	preload("res://tests/espionage_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -178,6 +179,7 @@ func _test_main_scene() -> void:
 	_reveal_map(main)  # le menu principal a lancé une nouvelle partie
 	await _test_replay_ui(main)
 	await _test_victory_ui(main)
+	await _test_intel_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_press(KEY_SPACE)
@@ -1155,6 +1157,39 @@ func _test_replay_ui(main: Node) -> void:
 	hud.battle_report.show_report(sim.state, 0, old)
 	_check(not hud.battle_report._replay_btn.visible, "replay : pas de bouton pour un rapport sans journal")
 	hud.battle_report.hide_report()
+
+
+## Écran Renseignement (F8) : une ligne par empire rencontré, cellules affectées par les boutons.
+func _test_intel_ui(main: Node) -> void:
+	var screens: EmpireScreens = main._empire_screens
+	var st: GameState = main.simulation.state
+	var me: int = main.view_empire
+	var rival := 1 if me != 1 else 0
+	for pair in [[me, rival], [rival, me]]:
+		if not st.get_empire(pair[0]).contacts.has(pair[1]):
+			st.get_empire(pair[0]).contacts.append(pair[1])
+			st.get_empire(pair[0]).contacts.sort()
+	for k in st.networks.keys():
+		if int(st.networks[k]["a"]) == me:
+			st.networks.erase(k)
+	_press(KEY_F8)
+	await process_frame
+	_check(screens.current == "intel", "F8 : écran Renseignement")
+	_check(screens.intel_buttons.has(rival) and screens.intel_buttons.has(me), "écran Renseignement : lignes du rival et du contre-espionnage")
+	if screens.intel_buttons.has(rival):
+		(screens.intel_buttons[rival][1] as Button).pressed.emit()
+		main.simulation.flush_commands()
+		await process_frame
+		_check(Espionage.cells_on(st, me, rival) == 1, "écran Renseignement : + affecte une cellule")
+		_check(screens.intel_buttons.has(rival) and not (screens.intel_buttons[rival][0] as Button).disabled, "écran Renseignement : − devient possible")
+	st.networks[Espionage.key(me, rival)] = {"a": me, "b": rival, "cells": 1, "inf": 70}
+	Espionage.monthly(st)
+	screens.show_screen("intel")
+	await process_frame
+	_check(st.get_empire(me).dossiers.has(rival), "écran Renseignement : dossier ouvert au palier Amirauté")
+	_press(KEY_F8)
+	await process_frame
+	_check(not screens.is_open(), "F8 referme l'écran Renseignement")
 
 
 ## Écran Victoire (F7) et panneau de fin de partie : continuer, ou revenir au menu.

@@ -458,13 +458,13 @@ static func propose(state: GameState, from: int, to: int, treaty: String) -> boo
 		_set_cooldown(state, from, to, treaty, days("refusal_cooldown_days", 60) if not ef.is_ai() else days("ai_cooldown_days", 120))
 		if not ef.is_ai():
 			state.add_chronicle("%s décline %s proposé%s par %s. Le messager repart avec une réponse polie et un sourire qui l'est moins." % [
-					et.display_name(), _treaty_phrase(treaty), "e" if treaty != MAPS and treaty != PEACE else "", ef.display_name()])
+					et.display_name(), _treaty_phrase(treaty), "e" if treaty != MAPS and treaty != PEACE else "", ef.display_name()], Espionage.private_to(state, [from, to]))
 		return false
 	state.proposals.append({"id": state.next_proposal_id, "from": from, "to": to, "treaty": treaty, "tick": state.tick})
 	state.next_proposal_id += 1
 	_set_cooldown(state, from, to, treaty, days("proposal_days", 30))
 	state.add_chronicle("%s propose %s à %s. Les chancelleries retiennent leur souffle." % [
-			ef.display_name(), String(treaty_info(treaty).get("verb", treaty)), et.display_name()])
+			ef.display_name(), String(treaty_info(treaty).get("verb", treaty)), et.display_name()], Espionage.private_to(state, [from, to]))
 	return false
 
 
@@ -498,7 +498,7 @@ static func answer(state: GameState, proposal_id: int, accept: bool) -> void:
 		_set_cooldown(state, from, to, String(p["treaty"]), days("ai_cooldown_days", 120))
 		state.add_chronicle("%s repousse %s offert%s par %s." % [state.get_empire(to).display_name(),
 				_treaty_phrase(String(p["treaty"])), "" if String(p["treaty"]) == MAPS or String(p["treaty"]) == PEACE else "e",
-				state.get_empire(from).display_name()])
+				state.get_empire(from).display_name()], Espionage.private_to(state, [from, to]))
 
 
 ## Signe un traité (conditions déjà vérifiées).
@@ -520,27 +520,27 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 			remember(state, b, a, "peace_signed")
 			if was_war:
 				state.add_chronicle("Paix entre %s et %s. On signe en bas, on enterre les morts, et l'on jure que c'était la dernière fois." % [
-						ea.display_name(), eb.display_name()])
+						ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 			else:
 				state.add_chronicle("%s et %s signent un traité de paix. Les frontières restent, les canons se taisent." % [
-						ea.display_name(), eb.display_name()])
+						ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 		ALLIANCE:
 			var r := _rel_w(state, a, b)
 			r["pact"] = ALLIANCE
 			r["since"] = state.tick
 			share_maps(state, a, b)
 			state.add_chronicle("Alliance entre %s et %s : désormais, qui frappe l'un devra compter avec l'autre." % [
-					ea.display_name(), eb.display_name()])
+					ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 		TRADE:
 			_rel_w(state, a, b)["trade"] = 1
 			state.add_chronicle("Accord commercial entre %s et %s. Les cargos partent pleins, les douaniers reviennent riches." % [
-					ea.display_name(), eb.display_name()])
+					ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 		MAPS:
 			share_maps(state, a, b)
 			_set_cooldown(state, a, b, MAPS, days("maps_cooldown_days", 720))
 			_set_cooldown(state, b, a, MAPS, days("maps_cooldown_days", 720))
 			state.add_chronicle("%s et %s échangent leurs cartes. Chacun découvre que l'autre dessine très mal les comètes." % [
-					ea.display_name(), eb.display_name()])
+					ea.display_name(), eb.display_name()], Espionage.private_to(state, [a, b]))
 
 
 static func _drop_proposals(state: GameState, a: int, b: int, treaty: String) -> void:
@@ -609,18 +609,18 @@ static func cancel(state: GameState, player: int, target: int, treaty: String) -
 			r["since"] = state.tick
 			remember(state, target, player, "left_alliance")
 			state.add_chronicle("%s quitte son alliance avec %s. On se serre encore la main, mais avec des gants." % [
-					ep.display_name(), et.display_name()])
+					ep.display_name(), et.display_name()], Espionage.public_to(state, [player, target]))
 		PEACE:
 			r["pact"] = COLD
 			r["trade"] = 0
 			r["since"] = state.tick
 			remember(state, target, player, "denounced")
 			state.add_chronicle("%s dénonce son traité de paix avec %s. Rien n'est encore tiré, mais les tourelles pivotent." % [
-					ep.display_name(), et.display_name()])
+					ep.display_name(), et.display_name()], Espionage.public_to(state, [player, target]))
 		TRADE:
 			r["trade"] = 0
 			state.add_chronicle("%s met fin à son accord commercial avec %s. Les cargos rentrent à vide." % [
-					ep.display_name(), et.display_name()])
+					ep.display_name(), et.display_name()], Espionage.public_to(state, [player, target]))
 
 
 ## Influence, énergie… versées chaque mois par les traités en vigueur (comptées dans Economy.empire_income).
@@ -686,7 +686,7 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 			if e.id != a and e.id != b and not e.eliminated and e.contacts.has(a):
 				remember(state, e.id, a, "oathbreaker")
 		state.add_chronicle("%s rompt son traité avec %s. Les juristes parlent de parjure, les amiraux d'occasion." % [
-				state.get_empire(a).display_name(), state.get_empire(b).display_name()])
+				state.get_empire(a).display_name(), state.get_empire(b).display_name()], Espionage.public_to(state, [a, b]))
 	var cr := ability("crusade")
 	var ea := state.get_empire(a)
 	if has_ability(state, a, "crusade") and FactionTraits.has_fervor(ea.faction()) \
@@ -706,12 +706,12 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 			if not ae.contacts.has(foe) or has_pact(state, ally, foe):
 				if has_pact(state, ally, foe):
 					state.add_chronicle("%s, alliée de %s, reste en dehors : elle a signé avec %s." % [
-							ae.display_name(), state.get_empire(friend).display_name(), state.get_empire(foe).display_name()])
+							ae.display_name(), state.get_empire(friend).display_name(), state.get_empire(foe).display_name()], Espionage.public_to(state, [ally, friend, foe]))
 				continue
 			Combat.start_war(state, ally, foe, false, true)
 			remember(state, friend, ally, "ally_joined")
 			state.add_chronicle("%s honore son alliance et entre en guerre contre %s aux côtés de %s." % [
-					ae.display_name(), state.get_empire(foe).display_name(), state.get_empire(friend).display_name()])
+					ae.display_name(), state.get_empire(foe).display_name(), state.get_empire(friend).display_name()], Espionage.public_to(state, [ally, foe, friend]))
 
 
 static func _drop_all_proposals(state: GameState, a: int, b: int) -> void:
@@ -778,7 +778,7 @@ static func bribe(state: GameState, player: int, target: int) -> void:
 	t.heir_suitor = player
 	remember(state, target, player, "bribed_heir")
 	state.add_chronicle("Des émissaires de %s glissent une bourse à l'héritier de %s. Il jure qu'il ne l'a pas ouverte ; elle est pourtant vide." % [
-			e.display_name(), t.display_name()])
+			e.display_name(), t.display_name()], Espionage.private_to(state, [player, target]))
 
 
 static func check_banquet(state: GameState, player: int) -> String:
@@ -799,7 +799,7 @@ static func banquet(state: GameState, player: int) -> void:
 	var e := state.get_empire(player)
 	Economy.pay(e, h["banquet_cost"])
 	e.heir_loyalty = mini(100, e.heir_loyalty + int(h["banquet_gain"]))
-	state.add_chronicle("Banquet des lignées chez %s : l'héritier reçoit une coupe de cristal chantant et la place d'honneur. Il sourit. Pour l'instant." % e.display_name())
+	state.add_chronicle("Banquet des lignées chez %s : l'héritier reçoit une coupe de cristal chantant et la place d'honneur. Il sourit. Pour l'instant." % e.display_name(), Espionage.private_to(state, [player]))
 
 
 ## Bilan mensuel de l'héritier : loyauté, puis trahison si elle tombe à zéro. Renvoie la chronique.
@@ -858,11 +858,11 @@ static func _betrayal(state: GameState, empire_id: int) -> void:
 		var inf := int(e.resources.get("influence", 0))
 		@warning_ignore("integer_division")
 		e.resources["influence"] = inf - maxi(0, inf / 2)
-		state.add_chronicle("L'héritier de %s s'enfuit sans prévenir, avec la moitié du trésor d'influence et le meilleur navigateur. Un cousin éloigné prend sa place, ravi." % e.display_name())
+		state.add_chronicle("L'héritier de %s s'enfuit sans prévenir, avec la moitié du trésor d'influence et le meilleur navigateur. Un cousin éloigné prend sa place, ravi." % e.display_name(), Espionage.private_to(state, [e.id]))
 		return
 	var sname := state.galaxy.systems[fief].system_name
 	state.add_chronicle("Trahison chez %s ! L'héritier livre le fief de %s à %s, avec les clés, la garnison et le blason retourné." % [
-			e.display_name(), sname, state.get_empire(to).display_name()])
+			e.display_name(), sname, state.get_empire(to).display_name()], Espionage.public_to(state, [e.id, to]))
 	remember(state, to, empire_id, "heir_gift")
 	var at_war := Combat.at_war(state, empire_id, to)
 	Combat.capture_system(state, fief, to)
@@ -906,7 +906,7 @@ static func mediate(state: GameState, player: int, a: int, b: int) -> void:
 	Economy.pay(e, ability("mediation")["cost"])
 	e.mediation_tick = state.tick
 	state.add_chronicle("Les Veilleurs du Seuil de %s descendent entre les flottes de %s et de %s. Personne n'ose tirer à travers une robe de cérémonie." % [
-			e.display_name(), state.get_empire(a).display_name(), state.get_empire(b).display_name()])
+			e.display_name(), state.get_empire(a).display_name(), state.get_empire(b).display_name()], Espionage.public_to(state, [player, a, b]))
 	sign_treaty(state, a, b, PEACE)
 	remember(state, a, player, "mediated")
 	remember(state, b, player, "mediated")
@@ -1000,7 +1000,7 @@ static func sign_contract(state: GameState, merc: int, client: int, target: int)
 	_drop_contract_proposals(state, merc, client)
 	state.add_chronicle("%s loue ses flottes à %s contre %s, pour %s par mois. Les canons sont neutres ; les factures, beaucoup moins." % [
 			state.get_empire(merc).display_name(), state.get_empire(client).display_name(),
-			state.get_empire(target).display_name(), GameData.format_amounts(r["contract"]["fee"])])
+			state.get_empire(target).display_name(), GameData.format_amounts(r["contract"]["fee"])], Espionage.public_to(state, [merc, client, target]))
 	Combat.start_war(state, merc, target, false, true)
 
 
@@ -1020,12 +1020,12 @@ static func end_contract(state: GameState, merc: int, reason: String) -> void:
 	match reason:
 		"unpaid":
 			remember(state, merc, client, "contract_unpaid")
-			state.add_chronicle("%s ne paie plus : les flottes de %s font demi-tour en envoyant la facture." % [ec.display_name(), em.display_name()])
+			state.add_chronicle("%s ne paie plus : les flottes de %s font demi-tour en envoyant la facture." % [ec.display_name(), em.display_name()], Espionage.public_to(state, [merc, client]))
 		"broken":
-			state.add_chronicle("%s abandonne le contrat de %s avant la fin de sa guerre." % [em.display_name(), ec.display_name()])
+			state.add_chronicle("%s abandonne le contrat de %s avant la fin de sa guerre." % [em.display_name(), ec.display_name()], Espionage.public_to(state, [merc, client]))
 		"done":
 			remember(state, client, merc, "contract_honored")
-			state.add_chronicle("Fin du contrat entre %s et %s. Les mercenaires repartent, payés et presque polis." % [em.display_name(), ec.display_name()])
+			state.add_chronicle("Fin du contrat entre %s et %s. Les mercenaires repartent, payés et presque polis." % [em.display_name(), ec.display_name()], Espionage.public_to(state, [merc, client]))
 	# Les mercenaires rentrent : la paix avec leur ancienne cible, sans rancune de métier.
 	if reason != "gone" and Combat.at_war(state, merc, target) and not state.get_empire(target).eliminated \
 			and not no_treaties(state, target) and not em.eliminated:
@@ -1064,14 +1064,14 @@ static func propose_contract(state: GameState, player: int, merc: int, client: i
 			sign_contract(state, merc, client, target)
 			return true
 		_set_cooldown(state, player, other, CONTRACT, days("refusal_cooldown_days", 60))
-		state.add_chronicle("%s décline le contrat de flotte contre %s." % [eo.display_name(), state.get_empire(target).display_name()])
+		state.add_chronicle("%s décline le contrat de flotte contre %s." % [eo.display_name(), state.get_empire(target).display_name()], Espionage.private_to(state, [player, other]))
 		return false
 	state.proposals.append({"id": state.next_proposal_id, "from": player, "to": other, "treaty": CONTRACT,
 			"merc": merc, "client": client, "target": target, "tick": state.tick})
 	state.next_proposal_id += 1
 	_set_cooldown(state, player, other, CONTRACT, days("proposal_days", 30))
 	state.add_chronicle("%s propose un contrat de flotte à %s, contre %s." % [
-			state.get_empire(player).display_name(), eo.display_name(), state.get_empire(target).display_name()])
+			state.get_empire(player).display_name(), eo.display_name(), state.get_empire(target).display_name()], Espionage.private_to(state, [player, other]))
 	return false
 
 

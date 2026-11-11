@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 16
+const FORMAT_VERSION := 17
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -79,6 +79,9 @@ var winner: Dictionary = {}
 ## (Species.build), recopiée au lancement et sauvegardée, pour que la partie ne dépende pas des
 ## fichiers de la bibliothèque (modifiés ou supprimés depuis).
 var custom_factions: Dictionary = {}
+## Réseaux d'espionnage {"a>b": {"a", "b", "cells", "inf"}} (voir Espionage). a == b : cellules de
+## contre-espionnage de a chez lui.
+var networks: Dictionary = {}
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -131,6 +134,8 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	s._setup_colors(options.get("colors", []))
 	s._setup_ai(options)
 	s._setup_advanced_starts(options.get("starts", []))
+	for e in s.empires:
+		e.probes = int(GameData.espionage()["probes"]["start"])
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -211,6 +216,7 @@ func to_dict() -> Dictionary:
 		"ai_scaling": ai_scaling,
 		"winner": winner.duplicate(),
 		"custom_factions": _sorted_values(custom_factions),
+		"networks": Espionage.networks_to_list(self),
 	}
 
 
@@ -280,7 +286,13 @@ static func from_dict(d: Dictionary) -> GameState:
 	s.tick = int(d["tick"])
 	s.rng.state = String(d["rng_state"]).to_int()
 	for e: Dictionary in d["chronicle"]:
-		s.chronicle.append({"tick": int(e["tick"]), "text": String(e["text"])})
+		var entry := {"tick": int(e["tick"]), "text": String(e["text"])}
+		if e.has("who"):
+			var who := []
+			for x in e["who"]:
+				who.append(int(x))
+			entry["who"] = who
+		s.chronicle.append(entry)
 	for o: Dictionary in d["planet_overrides"]:
 		var fields := o.duplicate(true)
 		fields.erase("planet")
@@ -367,6 +379,7 @@ static func from_dict(d: Dictionary) -> GameState:
 		for a in w.get("allies", []):
 			allies.append(int(a))
 		s.winner = {"empire": int(w["empire"]), "victory": String(w["victory"]), "tick": int(w["tick"]), "allies": allies}
+	Espionage.networks_from_list(s, d.get("networks", []))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant la dernière information connue : la mémoire part de l'état réel.
 	if int(d["version"]) < 16:
@@ -381,8 +394,15 @@ func checksum() -> String:
 	return JSON.stringify(to_dict(), "", true, true).sha256_text()
 
 
-func add_chronicle(text: String) -> Dictionary:
+## who : empires qui apprennent la nouvelle (Espionage.public_to / private_to) ; null = tout le monde.
+func add_chronicle(text: String, who: Variant = null) -> Dictionary:
 	var entry := {"tick": tick, "text": text}
+	if who is Array:
+		var ids := []
+		for x in who:
+			ids.append(int(x))
+		ids.sort()
+		entry["who"] = ids
 	chronicle.append(entry)
 	while chronicle.size() > CHRONICLE_MAX:
 		chronicle.pop_front()

@@ -461,7 +461,7 @@ static func union(state: GameState, player: int, target: int) -> void:
 	Diplomacy._rel_w(state, player, target)["union"] = maxi(1, state.tick)
 	Diplomacy.remember(state, target, player, "union")
 	state.add_chronicle("Noces de lignées : %s unit sa maison à celle de %s. Les généalogistes réclament une prime." % [
-			e.display_name(), state.get_empire(target).display_name()])
+			e.display_name(), state.get_empire(target).display_name()], Espionage.public_to(state, [player, target]))
 
 
 ## Cathédrales achevées de l'empire, un système compté une fois : identifiants de systèmes.

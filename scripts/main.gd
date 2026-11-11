@@ -463,7 +463,7 @@ func _start(state: GameState) -> void:
 	_hud.set_state(state, view_empire)
 	select_fleet(-1)
 	_fleets_moving = _moving_fleet_ids()
-	_hud.show_chronicle(state.chronicle.back() if not state.chronicle.is_empty() else {})
+	_hud.show_chronicle({})
 	GameClock.attach(simulation)
 
 
@@ -495,6 +495,7 @@ func follow_empire(empire_id: int) -> void:
 	if _view.fog:
 		Intel.lens = empire_id
 	_hud.follow_empire(simulation.state, empire_id)
+	_hud.show_chronicle({})
 	_view.queue_redraw()
 
 
@@ -505,6 +506,7 @@ func set_spectator_fog(on: bool) -> void:
 	_view.fog = on
 	Intel.lens = view_empire if on else -1
 	_hud.spectator_panel.set_fog(on)
+	_hud.show_chronicle({})
 	_refresh_all()
 	_view.queue_redraw()
 
@@ -517,7 +519,7 @@ func _on_command_applied(_cmd: Dictionary) -> void:
 	_fleets_moving = _moving_fleet_ids()
 	_refresh_all()
 	if not simulation.state.chronicle.is_empty():
-		_hud.show_chronicle(simulation.state.chronicle.back())
+		_hud.show_chronicle({})
 
 
 func _process(delta: float) -> void:
@@ -614,6 +616,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			toggle_empire_screen("shipyard")
 		KEY_F7:
 			toggle_empire_screen("victory")
+		KEY_F8:
+			toggle_empire_screen("intel")
 		KEY_ENTER, KEY_KP_ENTER:
 			if not is_system_view_open() and not is_empire_screen_open():
 				open_system_view(_view.selected_id)

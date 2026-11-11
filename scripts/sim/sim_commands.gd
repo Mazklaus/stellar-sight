@@ -148,6 +148,16 @@ static func research_remove(player: int, tech_id: String) -> Dictionary:
 	return {"type": "research_remove", "player": player, "tech": tech_id}
 
 
+## Affecte n cellules d'espionnage chez target (target == player : contre-espionnage chez soi).
+static func spy_cells(player: int, target: int, n: int) -> Dictionary:
+	return {"type": "spy_cells", "player": player, "target": target, "n": n}
+
+
+## Lance une sonde vers un système connu hors de vue : relevé ponctuel.
+static func probe(player: int, system_id: int) -> Dictionary:
+	return {"type": "probe", "player": player, "system": system_id}
+
+
 ## Renvoie "" si l'ordre est applicable à cet état, sinon la raison du refus.
 static func validate(state: GameState, cmd: Dictionary) -> String:
 	if not cmd.has("type") or not cmd.has("player"):
@@ -215,6 +225,10 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Research.check_queue(state, int(cmd["player"]), String(cmd.get("tech", "")), bool(cmd.get("front", false)))
 		"research_remove":
 			return Research.check_remove(state, int(cmd["player"]), String(cmd.get("tech", "")))
+		"spy_cells":
+			return Espionage.check_cells(state, int(cmd["player"]), int(cmd.get("target", -1)), int(cmd.get("n", -1)))
+		"probe":
+			return Espionage.check_probe(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		_:
 			return "type d'ordre inconnu : %s" % cmd["type"]
 
@@ -227,7 +241,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var old_name := sys.system_name
 			sys.system_name = String(cmd["name"]).strip_edges()
 			if old_name != sys.system_name:
-				state.add_chronicle("Les cartographes rebaptisent %s : on dira désormais %s." % [old_name, sys.system_name])
+				state.add_chronicle("Les cartographes rebaptisent %s : on dira désormais %s." % [old_name, sys.system_name], Espionage.private_to(state, [int(cmd["player"])]))
 		"colonize":
 			var e := state.get_empire(int(cmd["player"]))
 			var pid := int(cmd["planet"])
@@ -315,7 +329,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			e.fervor = mini(int(fv["max"]), e.fervor + FactionTraits.sacrifice_gain(state, e.id))
 			Research.count_stat(state, e.id, "sacrifices")
 			state.add_chronicle("Offrande sur %s : un fidèle rejoint le dieu-machine. Il paraît que c'est un honneur ; il paraît surtout que c'est obligatoire." % [
-					state.galaxy.get_planet(c.planet_id).display_name(state.galaxy)])
+					state.galaxy.get_planet(c.planet_id).display_name(state.galaxy)], Espionage.private_to(state, [e.id], state.galaxy.get_planet(c.planet_id).system_id))
 		"rush":
 			var e := state.get_empire(int(cmd["player"]))
 			var pid := int(cmd["planet"])
@@ -327,6 +341,10 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				c.construction_days = 1
 			else:
 				c.ship_days = 1
+		"spy_cells":
+			Espionage.set_cells(state, int(cmd["player"]), int(cmd["target"]), int(cmd["n"]))
+		"probe":
+			Espionage.probe(state, int(cmd["player"]), int(cmd["system"]))
 		"declare_war":
 			Combat.start_war(state, int(cmd["player"]), int(cmd["target"]))
 		"propose_treaty":
