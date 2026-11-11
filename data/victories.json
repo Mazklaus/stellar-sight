@@ -72,6 +72,15 @@
 			"counter": "Coalition militaire, coloniser plus vite, reprendre les mondes.",
 			"pop_share_pct": 50, "digested": 100, "hold_days": 720, "on_fail": "reset",
 			"chronicle": "La Moisson est faite. %s ne conquiert plus la galaxie : il la digère."
+		},
+		"noosphere": {
+			"kind": "people", "label": "L'Éveil de la Noosphère",
+			"requires": {"gouvernement": ["conscience"]},
+			"tech": "noosphere",
+			"text": "Relier au moins %d colonies peuplées au réseau, sans aucune revendication coupée, et le tenir %d ans : la Noosphère s'éveille.",
+			"counter": "Couper le réseau : blocus, avant-postes sur ses routes, prise d'une colonie.",
+			"nodes": 12, "hold_days": 720, "on_fail": "reset",
+			"chronicle": "La Noosphère s'éveille. %s ne pense plus en colonies mais en galaxie ; sa première pensée commune a duré quatre secondes et réglé trois guerres."
 		}
 	}
 }

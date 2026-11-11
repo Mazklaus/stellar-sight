@@ -1850,6 +1850,24 @@
 			},
 			"victory": "charte"
 		},
+		"noosphere": {
+			"label": "Éveil de la Noosphère",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand au moins douze colonies pensent ensemble, sans un seul nœud coupé, et le tiennent deux ans, la Noosphère s'éveille.",
+			"pre": [
+				"administration2"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conscience"
+					]
+				}
+			},
+			"victory": "noosphere",
+			"flavor": "Douze esprits, et plus un seul silence entre deux pensées."
+		},
 		"grande_moisson": {
 			"label": "La Grande Moisson",
 			"domain": "societe",
