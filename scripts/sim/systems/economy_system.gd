@@ -49,7 +49,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 		if bio.is_empty() and cap > 0 and Research.fx_int(state, c.owner, "migration") > 0:
 			# Spatioports de transit : les colons d'une colonie pleine partent peupler une autre colonie.
 			c.growth += Economy.growth_per_day(state, c)
-			if c.growth >= Economy.growth_threshold(c.population):
+			if c.growth >= Economy.colony_threshold(state, c):
 				c.growth = 0
 				var dest := migration_target(state, c)
 				if dest:
@@ -59,7 +59,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 			c.growth = 0
 			return
 		c.growth += Economy.growth_per_day(state, c)
-		if c.growth >= Economy.growth_threshold(c.population):
+		if c.growth >= Economy.colony_threshold(state, c):
 			c.growth = 0
 			var bg := FactionTraits.biomass_gain(state, c.owner)
 			var gain := int(bg["materials"])
@@ -68,7 +68,14 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 			e.biomass += gain
 		return
 	c.growth += Economy.growth_per_day(state, c)
-	if c.growth >= Economy.growth_threshold(c.population):
+	if c.growth >= Economy.colony_threshold(state, c):
+		# Chaînes d'assemblage : chaque habitant se paie en matériaux ; sans eux, la chaîne attend.
+		var cost := FactionTraits.assembly_cost(e.faction())
+		if cost > 0:
+			if int(e.resources.get("materials", 0)) < cost:
+				c.growth = Economy.colony_threshold(state, c)
+				return
+			e.resources["materials"] = int(e.resources["materials"]) - cost
 		c.growth = 0
 		c.population += 1
 

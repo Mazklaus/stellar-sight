@@ -17,6 +17,7 @@ func run(check: Callable) -> void:
 	_test_library()
 	_test_game()
 	_test_lithoid()
+	_test_synthetic()
 	_test_save()
 	_cleanup()
 
@@ -215,6 +216,37 @@ func _test_lithoid() -> void:
 			barren += 1
 	_ok(not st2.get_empire(1).eliminated, "l'IA lithoïde survit quatre ans")
 	_ok(barren > 0, "l'IA lithoïde colonise des mondes stériles (%d en 4 ans)" % barren)
+
+
+## Archétype synthétique : population assemblée (matériaux, sans ralentir), énergie au lieu de nourriture,
+## mondes toxiques habitables.
+func _test_synthetic() -> void:
+	SpeciesLibrary.dir = TEST_DIR
+	var s := _spec("ossarane", "Noosphère d'Essai")
+	s["archetype"] = "synthetique"
+	s["portrait"] = "synthetique_1"
+	_ok(Species.check(s) == "", "synthétique valide (%s)" % Species.check(s))
+	_ok(SpeciesLibrary.save(s) == "", "synthétique enregistré")
+	var fid := String(s["id"])
+	var f := GameData.faction(fid)
+	_ok(FactionTraits.diet(f) == "energy" and FactionTraits.assembly_cost(f) == 12, "régime d'énergie et chaînes d'assemblage")
+	_ok(Economy.habitability("toxic", f) == 60, "monde toxique habitable")
+	var st := GameState.create(5, 150, 1800.0, fid, {"ai_level": ""})
+	var e := st.get_empire(0)
+	var cap: Colony = st.colonies[e.capital_planet]
+	var y := Economy.colony_yields(st, cap)
+	_ok(int(y["upkeep"].get("food", 0)) == 0 and int(y["upkeep"]["energy"]) >= cap.population, "la capitale consomme de l'énergie, pas de nourriture")
+	_ok(Economy.colony_threshold(st, cap) == Economy.growth_threshold(0), "l'assemblage ne ralentit pas quand la colonie grandit")
+	# Sans matériaux, la chaîne attend ; avec, chaque habitant en coûte 12.
+	e.resources["materials"] = 0
+	e.resources["energy"] = 500
+	var pop0 := cap.population
+	var sim := Simulation.new(st)
+	sim.advance(20)
+	_ok(cap.population == pop0 and cap.growth >= Economy.colony_threshold(st, cap), "sans matériaux, la chaîne attend")
+	e.resources["materials"] = 500
+	sim.advance(30)
+	_ok(cap.population > pop0 and int(e.resources["materials"]) < 500, "avec des matériaux, la chaîne reprend et les dépense")
 
 
 func _test_save() -> void:

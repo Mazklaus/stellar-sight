@@ -563,9 +563,10 @@ static func urgent_needs(ctx: Dictionary, net: Dictionary) -> Array[String]:
 	var out: Array[String] = []
 	var food_margin := 2 + (int(ctx["ai"].get("food_margin", 0)) if _use(ctx) >= 1 else 0)
 	# Un peuple qui mange la roche manque de matériaux, pas de nourriture : des mines, pas des fermes.
-	if FactionTraits.diet(ctx["e"].faction()) == "materials":
-		if int(net.get("materials", 0)) < food_margin:
-			out.append("complexe_minier")
+	var diet := FactionTraits.diet(ctx["e"].faction())
+	if diet != "food":
+		if int(net.get(diet, 0)) < food_margin:
+			out.append({"materials": "complexe_minier", "energy": "centrale_fusion"}.get(diet, "complexe_minier"))
 	elif int(net.get("food", 0)) < food_margin:
 		out.append("ferme_hydroponique")
 	if int(net.get("energy", 0)) < 3:

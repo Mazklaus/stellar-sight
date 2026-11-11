@@ -73,7 +73,7 @@ func _initialize() -> void:
 	for p: Dictionary in Species.portraits():
 		var box := VBoxContainer.new()
 		var arch := String((p["archetypes"] as Array)[0])
-		var col := {"humanoide": Color("#3fb6a8"), "ruche": Color("#c46a2b"), "lithoide": Color("#9aa7b8")}.get(arch, Color("#9b7fd4")) as Color
+		var col := {"humanoide": Color("#3fb6a8"), "ruche": Color("#c46a2b"), "lithoide": Color("#9aa7b8"), "synthetique": Color("#4a90e2")}.get(arch, Color("#9b7fd4")) as Color
 		box.add_child(Widgets.ArtSlot.new("portrait_" + String(p["id"]), Vector2(200, 245), col, "faction"))
 		var l := Label.new()
 		l.text = String(p["label"])

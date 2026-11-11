@@ -76,7 +76,7 @@ static func colony_lines(state: GameState, p: Planet, c: Colony, player: int) ->
 	if c.is_colony():
 		var cap := Economy.max_pop(state, p, c.owner, c.buildings)
 		@warning_ignore("integer_division")
-		var growth := "" if c.population >= cap else ", croissance %d %%" % (100 * c.growth / Economy.growth_threshold(c.population))
+		var growth := "" if c.population >= cap else ", croissance %d %%" % (100 * c.growth / Economy.colony_threshold(state, c))
 		lines.append("%s de %s : %d/%d pop%s" % [kind_label, owner.short_name(), c.population, cap, growth])
 	else:
 		lines.append("%s de %s" % [kind_label, owner.short_name()])

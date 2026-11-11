@@ -30,6 +30,15 @@
 				{"name": "Mangeurs de roche", "text": "Ce que les autres cultivent, ils l'extraient : la nourriture produite par les habitants devient des matériaux, et chacun mange 1 matériau par mois au lieu de nourriture. Sans matériaux, c'est la famine."},
 				{"name": "Lenteur minérale", "text": "Population 25 % plus lente."},
 				{"name": "Roche nue", "text": "Les mondes stériles sont habitables à 50 % (2 matériaux et 1 énergie par habitant)."}
+			]},
+		{"id": "synthetique", "label": "Synthétique", "text": "Des esprits dans des châssis, qui ne naissent pas : on les assemble.",
+			"excludes": {"gouvernement": ["ruche"]},
+			"fields": {"diet": "energy", "assembly": {"materials": 12}, "hab_extra": {"toxic": 60},
+				"ai": {"building_bias": "centrale_fusion", "food_margin": 4, "own_world_bonus": 10}},
+			"traits": [
+				{"name": "Chaînes d'assemblage", "text": "Pas de naissances : chaque nouvel habitant coûte 12 matériaux, et la chaîne ne ralentit pas quand la colonie grandit. Sans matériaux, elle attend."},
+				{"name": "Courant vital", "text": "Ce que les autres cultivent alimente leurs batteries : la nourriture produite par les habitants devient de l'énergie, et chacun consomme 1 énergie par mois au lieu de nourriture. Sans énergie, c'est la panne."},
+				{"name": "Châssis étanches", "text": "Les mondes toxiques sont habitables à 60 %."}
 			]}
 	],
 	"gouvernement": [
@@ -132,7 +141,10 @@
 		{"id": "ruche_4", "look": "colossus", "label": "Colosse chitineux", "archetypes": ["ruche"]},
 		{"id": "lithoide_1", "look": "shards", "label": "Sage aux éclats de quartz", "archetypes": ["lithoide"]},
 		{"id": "lithoide_2", "look": "boulder", "label": "Ancien de basalte", "archetypes": ["lithoide"]},
-		{"id": "lithoide_3", "look": "geode", "label": "Géode éveillée", "archetypes": ["lithoide"]}
+		{"id": "lithoide_3", "look": "geode", "label": "Géode éveillée", "archetypes": ["lithoide"]},
+		{"id": "synthetique_1", "look": "visor", "label": "Unité à visière", "archetypes": ["synthetique"]},
+		{"id": "synthetique_2", "look": "antenna", "label": "Coordinatrice à antennes", "archetypes": ["synthetique"]},
+		{"id": "synthetique_3", "look": "core", "label": "Noyau ouvert", "archetypes": ["synthetique"]}
 	],
 	"ship_styles": ["ossarane", "choeur", "vael", "khthari"],
 	"temperaments": [

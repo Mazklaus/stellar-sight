@@ -327,6 +327,7 @@ class ArtSlot:
 		var look := String(Species.portrait_def(pid).get("look", ""))
 		var hive := pid.begins_with("ruche")
 		var rock := pid.begins_with("lithoide")
+		var synth := pid.begins_with("synthetique")
 		var s := minf(r.size.x, r.size.y * 0.9)
 		var cx := r.size.x * 0.5
 		var base := r.size.y
@@ -340,7 +341,29 @@ class ArtSlot:
 				Vector2(cx + sw * 0.3, sh_y - s * 0.08), Vector2(cx + sw * 0.85, sh_y), Vector2(cx + sw, base)]), fill.darkened(0.2))
 		var head := Vector2(cx, base * 0.48)
 		var hr := s * (0.14 if look == "crown" and hive else 0.17)
-		if rock:
+		if synth:
+			# Tête de châssis : un carré arrondi, des joints, une lumière à la place des yeux.
+			draw_line(head + Vector2(-hr * 0.2, hr), head + Vector2(-hr * 0.2, hr * 1.6), fill, hr * 0.25)
+			draw_line(head + Vector2(hr * 0.2, hr), head + Vector2(hr * 0.2, hr * 1.6), fill, hr * 0.25)
+			var box := Rect2(head - Vector2(hr, hr * 1.05), Vector2(hr * 2, hr * 2.1))
+			draw_rect(box, fill)
+			draw_rect(box, edge, false, 1.5)
+			draw_line(head + Vector2(-hr, hr * 0.45), head + Vector2(hr, hr * 0.45), Color(edge, 0.5), 1.0)
+			match look:
+				"visor":
+					draw_rect(Rect2(head + Vector2(-hr * 0.75, -hr * 0.35), Vector2(hr * 1.5, hr * 0.35)), Color(eye, 0.85))
+				"antenna":
+					for side in [-1.0, 1.0]:
+						var a0 := head + Vector2(side * hr * 0.6, -hr * 1.05)
+						draw_line(a0, a0 + Vector2(side * hr * 0.3, -hr * 0.9), edge, 1.5, true)
+						draw_circle(a0 + Vector2(side * hr * 0.3, -hr * 0.9), 3.0, eye)
+					for side in [-1.0, 1.0]:
+						draw_circle(head + Vector2(side * hr * 0.4, -hr * 0.15), 3.0, eye)
+				"core":
+					draw_circle(head + Vector2(0, -hr * 0.1), hr * 0.45, Color(eye, 0.3))
+					draw_circle(head + Vector2(0, -hr * 0.1), hr * 0.22, eye)
+					draw_arc(head + Vector2(0, -hr * 0.1), hr * 0.45, 0.0, TAU, 24, edge, 1.5, true)
+		elif rock:
 			# Tête à facettes : un polygone irrégulier, des arêtes claires, des yeux comme des braises.
 			var k := 7 if look != "boulder" else 9
 			var rp := PackedVector2Array()
