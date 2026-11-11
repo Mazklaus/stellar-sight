@@ -29,6 +29,9 @@ static func _faction(state: GameState, empire_id: int) -> Dictionary:
 static func production_pct(state: GameState, empire_id: int, resource: String) -> int:
 	var f := _faction(state, empire_id)
 	var pct := int(f.get("production_pct", {}).get(resource, 100))
+	if resource == "knowledge" and has_network(f):
+		@warning_ignore("integer_division")
+		pct = pct * (100 + network_pct(state, empire_id)) / 100
 	@warning_ignore("integer_division")
 	return pct * fervor_pct(state, empire_id) / 100
 
@@ -170,10 +173,70 @@ static func is_far_fief(state: GameState, c: Colony) -> bool:
 	return int(d.get(sid, 9999)) > int(e.faction()["fiefs"]["far_jumps"])
 
 
+# --- Conscience distribuée (Noosphères de Teyl) ------------------------------------------------
+
+static func has_network(faction: Dictionary) -> bool:
+	return faction.has("network")
+
+
+## Systèmes reliés à la capitale : on y va de proche en proche par des systèmes à soi ou à personne,
+## sans traverser un blocus ennemi. Vide sans capitale. Recalculé à chaque appel (pas de cache :
+## un cache survivrait mal à un rechargement en cours de journée et casserait le déterminisme).
+static func network_systems(state: GameState, empire_id: int) -> Dictionary:
+	var e := state.get_empire(empire_id)
+	if e == null or e.capital_planet < 0:
+		return {}
+	var start := state.galaxy.get_planet(e.capital_planet).system_id
+	var seen := {start: true}
+	var queue: Array[int] = [start]
+	while not queue.is_empty():
+		var sid: int = queue.pop_front()
+		for n in state.galaxy.systems[sid].neighbors:
+			if seen.has(n):
+				continue
+			var o := state.system_owner(n)
+			if (o == -1 or o == empire_id) and not Combat.blocks(state, empire_id, n):
+				seen[n] = true
+				queue.append(n)
+	return seen
+
+
+## Une colonie est-elle un nœud relié au réseau ?
+static func is_networked(state: GameState, c: Colony) -> bool:
+	return network_systems(state, c.owner).has(state.galaxy.get_planet(c.planet_id).system_id)
+
+
+## Nœuds du réseau : colonies peuplées reliées à la capitale.
+static func network_nodes(state: GameState, empire_id: int) -> int:
+	var net := network_systems(state, empire_id)
+	var n := 0
+	for pid in state.colonies:
+		var c: Colony = state.colonies[pid]
+		if c.owner == empire_id and c.is_colony() and c.is_established() and net.has(state.galaxy.get_planet(pid).system_id):
+			n += 1
+	return n
+
+
+## Bonus de Savoir du réseau, en % : knowledge_per_node par nœud relié, max_pct au plus.
+static func network_pct(state: GameState, empire_id: int) -> int:
+	var net: Dictionary = _faction(state, empire_id).get("network", {})
+	if net.is_empty():
+		return 0
+	return mini(int(net["max_pct"]), int(net["knowledge_per_node"]) * network_nodes(state, empire_id))
+
+
 ## Ajuste le rendement d'une revendication (Economy.colony_yields) selon les traits de son empire.
 static func adjust_yields(state: GameState, c: Colony, gross: Dictionary, upkeep: Dictionary) -> void:
 	var e := state.get_empire(c.owner)
-	if e == null or not is_fief(state, c):
+	if e == null:
+		return
+	# Conscience distribuée : un nœud coupé du réseau ne pense plus qu'à moitié.
+	if has_network(e.faction()) and c.is_established() and not is_networked(state, c):
+		var cut := int(e.faction()["network"]["cut_pct"])
+		for r in gross:
+			@warning_ignore("integer_division")
+			gross[r] = int(gross[r]) * cut / 100
+	if not is_fief(state, c):
 		return
 	var fi: Dictionary = e.faction()["fiefs"]
 	if c.is_colony():
@@ -423,6 +486,20 @@ static func gauge(state: GameState, empire_id: int) -> Dictionary:
 				"tip": "Ferveur %d / %d (%+d par mois)\n%s\nOffrande : -1 population, +%d ferveur." % [
 					e.fervor, int(fv["max"]), delta, mood, sacrifice_gain(state, empire_id)],
 				"bad": e.fervor <= 0}
+	if has_network(f):
+		var nodes := network_nodes(state, empire_id)
+		var cut := 0
+		for pid in state.colonies:
+			var c: Colony = state.colonies[pid]
+			if c.owner == empire_id and c.is_established() and not is_networked(state, c):
+				cut += 1
+		var tip := "%d nœud%s relié%s à la capitale : +%d %% de Savoir (%d %% au plus)" % [nodes, "s" if nodes > 1 else "", "s" if nodes > 1 else "",
+				network_pct(state, empire_id), int(f["network"]["max_pct"])]
+		if cut > 0:
+			tip += "
+%d revendication%s coupée%s du réseau : production divisée par deux." % [cut, "s" if cut > 1 else "", "s" if cut > 1 else ""]
+		return {"label": "Réseau", "value": "%d" % nodes if cut == 0 else "%d (%d coupé%s)" % [nodes, cut, "s" if cut > 1 else ""],
+				"tip": tip, "bad": cut > 0}
 	if has_fiefs(f):
 		var n := fief_counts(state, empire_id)
 		var tip := "%d fief%s (+%d influence chacun s'il est peuplé)\n%d fief%s lointain%s (plus de %d sauts) : %d cristal par mois chacun" % [
