@@ -55,7 +55,7 @@ static func _hunger(state: GameState, added: Array[Dictionary]) -> void:
 			continue
 		Combat.start_war(state, e.id, prey, true, true)
 		added.append(state.add_chronicle("%s a fini de digérer. Il flaire %s, et se met en chasse : c'est la guerre." % [
-				e.display_name(), state.get_empire(prey).display_name()]))
+				e.display_name(), state.get_empire(prey).display_name()], Espionage.public_to(state, [e.id, prey])))
 
 
 static func _stationary_by_system(state: GameState) -> Dictionary:
@@ -145,7 +145,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 				renewed = true
 		if not renewed:
 			added.append(state.add_chronicle("Bataille à %s : %s ouvrent le feu. Les chroniqueurs taillent leurs crayons." % [
-					state.galaxy.systems[sid].system_name, " et ".join(names)]))
+					state.galaxy.systems[sid].system_name, " et ".join(names)], Espionage.private_to(state, ids, sid)))
 		events.append({"type": "battle_started", "system": sid, "empires": ids, "renewed": renewed})
 	# Cibles possibles de chaque empire : les vaisseaux ennemis présents, chacun avec un poids selon
 	# son rang (écran 3, ligne 2, arrière 0 : l'arrière n'est visé que quand le front est tombé).
@@ -441,17 +441,17 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 		var we := state.get_empire(winner)
 		if not we.is_ai() and not found.is_empty():
 			added.append(state.add_chronicle("Les épaves de %s livrent leurs secrets : %s découvre %s." % [
-					state.galaxy.systems[sid].system_name, we.short_name(), ", ".join(found)]))
+					state.galaxy.systems[sid].system_name, we.short_name(), ", ".join(found)], Espionage.private_to(state, [winner], sid)))
 	var losses := PackedStringArray()
 	for s: Dictionary in b["sides"]:
 		losses.append("%s %d" % [state.get_empire(int(s["empire"])).short_name(), Combat.count_ships(s["lost"])])
 	var sname := state.galaxy.systems[sid].system_name
 	if winner >= 0:
 		added.append(state.add_chronicle("Bataille de %s : victoire de %s. Pertes : %s. Les vainqueurs comptent leurs morts, les vaincus leurs excuses." % [
-				sname, state.get_empire(winner).display_name(), ", ".join(losses)]))
+				sname, state.get_empire(winner).display_name(), ", ".join(losses)], Espionage.private_to(state, Espionage.battle_sides(b), sid)))
 	else:
 		added.append(state.add_chronicle("Bataille de %s : rien n'est décidé après %d jours de feu. Pertes : %s." % [
-				sname, int(b["day"]), ", ".join(losses)]))
+				sname, int(b["day"]), ", ".join(losses)], Espionage.private_to(state, Espionage.battle_sides(b), sid)))
 	events.append({"type": "battle_ended", "report": report})
 
 
@@ -485,7 +485,7 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 			if state.sieges.has(sid):
 				state.sieges.erase(sid)
 				if not fought.has(sid):
-					added.append(state.add_chronicle("Le siège de %s est levé. On rouvre les volets, on recompte les provisions." % state.galaxy.systems[sid].system_name))
+					added.append(state.add_chronicle("Le siège de %s est levé. On rouvre les volets, on recompte les provisions." % state.galaxy.systems[sid].system_name, Espionage.private_to(state, [owner], sid)))
 			if state.garrisons.has(sid):
 				var g := int(state.garrisons[sid]) + int(gcfg["regen_per_day"])
 				if g >= Combat.garrison_max(state, sid):
@@ -497,7 +497,7 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 		if not state.sieges.has(sid):
 			state.sieges[sid] = {"system": sid, "by": lead.owner, "start": state.tick}
 			added.append(state.add_chronicle("%s met le siège devant %s. La garnison serre les dents, la population les rations." % [
-					state.get_empire(lead.owner).display_name(), state.galaxy.systems[sid].system_name]))
+					state.get_empire(lead.owner).display_name(), state.galaxy.systems[sid].system_name], Espionage.private_to(state, [lead.owner, owner], sid)))
 			events.append({"type": "siege_started", "system": sid, "by": lead.owner, "owner": owner})
 			Research.count_stat(state, owner, "besieged")
 		var before := Combat.garrison(state, sid)
@@ -624,7 +624,7 @@ static func _eliminations(state: GameState, added: Array[Dictionary]) -> void:
 		if e.eliminated or alive.has(e.id):
 			continue
 		eliminate(state, e)
-		added.append(state.add_chronicle("%s disparaît de la galaxie. Il en reste des épaves, des chansons, et quelques dettes impayées." % e.display_name()))
+		added.append(state.add_chronicle("%s disparaît de la galaxie. Il en reste des épaves, des chansons, et quelques dettes impayées." % e.display_name(), Espionage.public_to(state, [e.id])))
 
 
 static func eliminate(state: GameState, e: Empire) -> void:

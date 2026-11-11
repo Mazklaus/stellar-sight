@@ -121,7 +121,7 @@ func _test_save_round_trip() -> void:
 		_claim(sim.state, 1, sim.state.galaxy.get_system(y).planet_ids[0])
 	sim.advance(5)
 	var d := sim.state.to_dict()
-	_ok(int(d["version"]) == 16, "format de sauvegarde 16")
+	_ok(int(d["version"]) == GameState.FORMAT_VERSION, "format de sauvegarde à jour")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null, "sauvegarde avec mémoire relue (%s)" % GameState.last_error)
 	if back == null:

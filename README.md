@@ -40,6 +40,8 @@ Premier prototype du 4X spatial Stellar Sigth, pour **Godot 4.7**. Il couvre l'�
 | Recherche : choisir, lancer, mettre en file, retirer | Écran Recherche (F3) : clic sur une technologie pour sa fiche, double-clic pour la lancer tout de suite ; boutons de la fiche ; croix de la file |
 | Diplomatie : proposer un traité, répondre, rompre, déclarer la guerre | Écran Diplomatie (F4) : choisir l'empire sur la table, puis les boutons de la relation (la guerre en deux clics) |
 | Victoires : où en est chaque empire | F7, ou le pictogramme étoile du panneau d'empire |
+| Renseignement : cellules d'espionnage, réseaux, dossiers | F8, ou le pictogramme œil du panneau d'empire |
+| Sonde vers un système connu hors de vue | bouton « Sonde » dans la vue du système |
 | Diplomatie : unir nos lignées (Ossarane) | Écran Diplomatie (F4), bouton « Unir nos lignées » avec un allié de longue date |
 | Construire un vaisseau | « Chantier spatial » dans les ordres d'une colonie, dans la vue système |
 | Coloniser, poser un avant-poste, construire | Section « Ordres » de la fiche de la planète, dans la vue système |
@@ -572,6 +574,7 @@ tools/
   capture_system_view.gd  Captures d'écran de la vue système (rendu réel, voir l'en-tête du fichier)
   capture_ui.gd           Captures des menus et de l'interface
   capture_fleets.gd       Captures des flottes et du brouillard de guerre
+  capture_espionage.gd    Captures de l'espionnage (écran Renseignement, dossier, bouton Sonde)
   capture_intel.gd        Captures de la dernière information connue (mémoire, réalité, mise à jour, flotte aperçue, vision alliée)
   capture_factions.gd     Captures des 4 peuples et de leurs ordres propres
   capture_combat.gd       Captures du combat (bataille, rapport, siège, diplomatie, spectateur en guerre)
@@ -641,7 +644,7 @@ Il affiche `OK : N vérifications passées.` et renvoie le code 0 si tout passe,
 - Pas de conception modulaire des vaisseaux ni de contrôle pendant la bataille (la vue de replay ne fait que la rejouer ; conception modulaire prévue après la V1 dans le GDD), pas d'amiraux ni de héros (les héros de Vael attendent le système de personnages). Les classes du catalogue se débloquent par des technologies (et certaines par un bâtiment) ; l'éditeur de vaisseaux complet viendra avec ses modules.
 - Les vaisseaux colons de l'IA ne tiennent pas encore compte des zones de guerre.
 - Faute d'autre usage, les matériaux s'entassent chez les IA en milieu de partie ; l'Essaim Kh'thari, qui ne paie jamais d'influence, s'étend plus vite que les autres (équilibrage des peuples à revoir).
-- Dernière information connue : la chronique annonce encore à tous les événements des empires lointains, et l'IA juge encore la taille d'un rival (systèmes tenus) sur l'état réel quand elle pèse sa victoire.
+- Dernière information connue : l'IA juge encore la taille d'un rival (systèmes tenus) sur l'état réel quand elle pèse sa victoire.
 - Pas encore de mécaniques signatures des factions : prochaine étape, les factions jouables.
 - Équilibre des peuples bousculé par la recherche (contenu verrouillé, alliances qui attendent les Chancelleries) : sur trois parties d'essai de 9 ans entre IA Normal, Ossarane s'en sort plus mal qu'avant. À surveiller en jouant.
 - Recherche, lot 1 : pas encore de marques d'armes IV-V, de doctrines, d'épaves, d'eurêkas ni de technologies ultimes ; les ères 4 et 5 sont presque vides. Les familles d'armes exclusives des peuples attendent l'éditeur de vaisseaux.

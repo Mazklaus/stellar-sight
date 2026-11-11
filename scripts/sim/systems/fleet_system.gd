@@ -47,7 +47,7 @@ static func _refit_step(state: GameState, f: Fleet) -> Dictionary:
 	if state.get_empire(f.owner).is_ai():
 		return {}
 	return state.add_chronicle("%s sort du chantier de %s avec les dernières marques d'armes. L'équipage trouve que ça sent le neuf, et la facture." % [
-			f.fleet_name, state.galaxy.systems[f.system_id].system_name])
+			f.fleet_name, state.galaxy.systems[f.system_id].system_name], Espionage.private_to(state, [f.owner], f.system_id))
 
 
 ## Une flotte en exploration automatique choisit sa prochaine cible : à l'arrêt, ou dès que sa
@@ -62,7 +62,7 @@ static func explore_step(state: GameState, f: Fleet) -> Dictionary:
 		f.standing_order = ""
 		var e := state.get_empire(f.owner)
 		return state.add_chronicle("%s : le %s a cartographié tout ce que ses routes connues permettaient d'atteindre. L'équipage attend de nouveaux ordres, et des vacances." % [
-				e.short_name(), f.fleet_name])
+				e.short_name(), f.fleet_name], Espionage.private_to(state, [f.owner], f.system_id))
 	f.system_id = int(plan["system"])
 	f.path.assign(plan["path"])
 	f.progress = int(plan["progress"])
@@ -87,10 +87,10 @@ static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictiona
 	c.ship_days = 0
 	var launch := String(GameData.ship(f.ships[0]).get("launch", ""))
 	if launch != "":
-		added.append(state.add_chronicle(launch % [e.display_name(), p.display_name(state.galaxy)]))
+		added.append(state.add_chronicle(launch % [e.display_name(), p.display_name(state.galaxy)], Espionage.private_to(state, [e.id], p.system_id)))
 	else:
 		added.append(state.add_chronicle("%s : le %s sort des chantiers de %s. On a cassé une bouteille sur la coque, et un peu la coque." % [
-				e.short_name(), f.fleet_name, p.display_name(state.galaxy)]))
+				e.short_name(), f.fleet_name, p.display_name(state.galaxy)], Espionage.private_to(state, [e.id], p.system_id)))
 
 
 static func _move(state: GameState, f: Fleet) -> void:
@@ -151,7 +151,7 @@ static func _meet(state: GameState, a: Empire, b: Empire, added: Array[Dictionar
 		b.contacts.append(a.id)
 		b.contacts.sort()
 	added.append(state.add_chronicle("Premier contact entre %s et %s. Chacun trouve l'autre étrange, et se garde bien de le dire." % [
-			a.display_name(), b.display_name()]))
+			a.display_name(), b.display_name()], Espionage.public_to(state, [a.id, b.id])))
 	# L'Essaim Kh'thari ne négocie pas : s'il n'a pas de proie, la rencontre vaut déclaration de guerre.
 	# Il ne chasse qu'une proie à la fois ; les autres attendront leur tour (voir CombatSystem._hunger).
 	for pair in [[a, b], [b, a]]:

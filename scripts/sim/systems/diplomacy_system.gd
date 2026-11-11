@@ -4,7 +4,8 @@ extends RefCounted
 ## - chaque jour : les propositions sans réponse expirent ;
 ## - chaque mois : la confiance monte entre empires liés par un traité et retombe sinon ; les alliés
 ##   partagent leurs cartes ; les souvenirs effacés sont oubliés ; loyauté de l'héritier des dynasties
-##   féodales (et trahison) ; ferveur perdue par les théocraties en paix avec des hérétiques.
+##   féodales (et trahison) ; ferveur perdue par les théocraties en paix avec des hérétiques ;
+##   réseaux d'espionnage et sondes (Espionage.monthly).
 ## Tout dans l'ordre des identifiants : la même partie sur toutes les machines.
 
 
@@ -54,6 +55,7 @@ static func _monthly(state: GameState) -> void:
 			if not state.get_empire(a).eliminated and not state.get_empire(b).eliminated:
 				Diplomacy.share_maps(state, a, b)
 	Diplomacy.prune_memories(state)
+	Espionage.monthly(state)
 	for e in state.empires:
 		if e.eliminated:
 			continue

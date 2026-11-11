@@ -226,6 +226,11 @@ static func diplomacy() -> Dictionary:
 	return _load("diplomacy")
 
 
+## Espionnage (data/espionage.json) : cellules, réseaux, paliers, sondes.
+static func espionage() -> Dictionary:
+	return _load("espionage")
+
+
 ## Technologies (data/technologies.json) : domaines, ères, coûts, arbre.
 static func technologies() -> Dictionary:
 	return _load("technologies")

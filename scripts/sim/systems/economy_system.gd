@@ -26,10 +26,10 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 			if c.is_colony():
 				c.population = maxi(c.population, FactionTraits.colony_start_pop(state, c.owner))
 				added.append(state.add_chronicle(
-						"%s fonde une colonie sur %s. Les premiers colons découvrent la gravité locale, et ses opinions." % [e.display_name(), planet_name]))
+						"%s fonde une colonie sur %s. Les premiers colons découvrent la gravité locale, et ses opinions." % [e.display_name(), planet_name], Espionage.private_to(state, [e.id], state.galaxy.get_planet(c.planet_id).system_id)))
 			else:
 				added.append(state.add_chronicle(
-						"%s plante un avant-poste sur %s. Effectif : trois techniciens et un chat." % [e.display_name(), planet_name]))
+						"%s plante un avant-poste sur %s. Effectif : trois techniciens et un chat." % [e.display_name(), planet_name], Espionage.private_to(state, [e.id], state.galaxy.get_planet(c.planet_id).system_id)))
 		return
 
 	if c.construction != "" and not e.blackout:
@@ -97,7 +97,7 @@ static func _finish_building(state: GameState, c: Colony, e: Empire, planet_name
 		state.override_planet(c.planet_id, {"type": target})
 		e.hab_cache.clear()
 		added.append(state.add_chronicle("%s : %s n'est plus un monde %s, c'est désormais : %s. Les cartes sont à refaire." % [
-				e.short_name(), planet_name, before.to_lower(), p.type_label()]))
+				e.short_name(), planet_name, before.to_lower(), p.type_label()], Espionage.private_to(state, [e.id], p.system_id)))
 		return
 	var base := String(b.get("upgrades", ""))
 	var at := c.buildings.find(base) if base != "" else -1
@@ -107,9 +107,9 @@ static func _finish_building(state: GameState, c: Colony, e: Empire, planet_name
 		c.buildings.append(bid)
 	Economy.clear_wonders()
 	if b.get("galaxy_unique", false):
-		added.append(state.add_chronicle("Merveille : %s achève %s sur %s. Toute la galaxie en parle, certains avec envie." % [e.display_name(), label, planet_name]))
+		added.append(state.add_chronicle("Merveille : %s achève %s sur %s. Toute la galaxie en parle, certains avec envie." % [e.display_name(), label, planet_name], Espionage.public_to(state, [e.id])))
 	else:
-		added.append(state.add_chronicle("%s : chantier achevé sur %s (%s)." % [e.short_name(), planet_name, label]))
+		added.append(state.add_chronicle("%s : chantier achevé sur %s (%s)." % [e.short_name(), planet_name, label], Espionage.private_to(state, [e.id], state.galaxy.get_planet(c.planet_id).system_id)))
 
 
 ## Colonie qui accueille les migrants (Spatioports de transit) : la moins peuplée de l'empire qui a
@@ -151,12 +151,12 @@ static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionar
 			worst.population -= 1
 			worst.growth = 0
 		if not was_starving:
-			added.append(state.add_chronicle("Famine chez %s : on rationne, les cuisiniers démissionnent en bloc." % e.display_name()))
+			added.append(state.add_chronicle("Famine chez %s : on rationne, les cuisiniers démissionnent en bloc." % e.display_name(), Espionage.private_to(state, [e.id])))
 
 	var was_blackout := e.blackout
 	e.blackout = e.resources["energy"] < 0
 	if e.blackout and not was_blackout:
-		added.append(state.add_chronicle("Pénurie d'énergie chez %s : les chantiers s'arrêtent, les bougies se vendent très bien." % e.display_name()))
+		added.append(state.add_chronicle("Pénurie d'énergie chez %s : les chantiers s'arrêtent, les bougies se vendent très bien." % e.display_name(), Espionage.private_to(state, [e.id])))
 
 	# Les stocks ne descendent jamais sous zéro : le manque se paie en famine ou en chantiers arrêtés.
 	for r in e.resources:
@@ -172,9 +172,9 @@ static func _monthly_traits(state: GameState, e: Empire, added: Array[Dictionary
 		var before := e.fervor
 		e.fervor = clampi(e.fervor + FactionTraits.fervor_delta(state, e.id), 0, int(fv["max"]))
 		if e.fervor <= 0 and before > 0:
-			added.append(state.add_chronicle("Le dieu-machine du %s se tait. Les forges ralentissent, les prêtres chantent plus fort, par précaution." % e.short_name()))
+			added.append(state.add_chronicle("Le dieu-machine du %s se tait. Les forges ralentissent, les prêtres chantent plus fort, par précaution." % e.short_name(), Espionage.private_to(state, [e.id])))
 		elif e.fervor >= int(fv["exalted_at"]) and before < int(fv["exalted_at"]):
-			added.append(state.add_chronicle("Exaltation dans l'Hégémonie : le dieu-machine ronronne, les forges flamboient, les hymnes gagnent un couplet."))
+			added.append(state.add_chronicle("Exaltation dans l'Hégémonie : le dieu-machine ronronne, les forges flamboient, les hymnes gagnent un couplet.", Espionage.private_to(state, [e.id])))
 	# Horde : pillage des systèmes ennemis où campent ses flottes armées.
 	for lp in FactionTraits.loot_plan(state, e.id):
 		var victim := state.get_empire(int(lp["victim"]))
@@ -187,7 +187,7 @@ static func _monthly_traits(state: GameState, e: Empire, added: Array[Dictionary
 		Research.count_stat(state, e.id, "looted", total)
 		if not e.is_ai() or not victim.is_ai():
 			added.append(state.add_chronicle("%s pille %s : %s emportés. On appelle ça un impôt, chez eux." % [
-					e.short_name(), state.galaxy.systems[int(lp["system"])].system_name, GameData.format_amounts(am)]))
+					e.short_name(), state.galaxy.systems[int(lp["system"])].system_name, GameData.format_amounts(am)], Espionage.private_to(state, [e.id, int(lp["victim"])], int(lp["system"]))))
 	var levy := FactionTraits.levy_count(state, e.id)
 	if levy > 0:
 		var ship := String(f["fiefs"]["levy"]["ship"])
@@ -197,14 +197,14 @@ static func _monthly_traits(state: GameState, e: Empire, added: Array[Dictionary
 		fl.troops = Combat.max_troops(fl, state)
 		fl.fleet_name = "Ban des vassaux"
 		added.append(state.add_chronicle("Levée du ban chez %s : %d vassaux accourent à la capitale avec leurs corvettes. Ils ne promettent pas de gagner, seulement d'être là." % [
-				e.display_name(), levy]))
+				e.display_name(), levy], Espionage.private_to(state, [e.id])))
 	if FactionTraits.has_fiefs(f):
 		var was := e.dissent
 		e.dissent = int(e.resources.get("crystals", 0)) < 0
 		if e.dissent and not was:
-			added.append(state.add_chronicle("Dissidence chez %s : faute de cristaux, les fiefs lointains découvrent qu'ils ont toujours détesté la capitale." % e.display_name()))
+			added.append(state.add_chronicle("Dissidence chez %s : faute de cristaux, les fiefs lointains découvrent qu'ils ont toujours détesté la capitale." % e.display_name(), Espionage.private_to(state, [e.id])))
 		elif was and not e.dissent:
-			added.append(state.add_chronicle("Les fiefs lointains de %s renouvellent leur serment. Les cristaux sont arrivés, l'affection aussi." % e.short_name()))
+			added.append(state.add_chronicle("Les fiefs lointains de %s renouvellent leur serment. Les cristaux sont arrivés, l'affection aussi." % e.short_name(), Espionage.private_to(state, [e.id])))
 
 
 ## Recherche au bilan mensuel : la file consomme le Savoir stocké (Research.advance).
@@ -221,13 +221,13 @@ static func _monthly_research(state: GameState, e: Empire, income: int, added: A
 		if not e.is_ai():
 			added.append(state.add_chronicle("Eurêka ! Objectif atteint (%s) : les savants de %s font un bond de %d %s sur « %s »." % [
 					Research.eureka_text(tid), e.short_name(), int(Research.data().get("eureka_pct", 40)), "%",
-					String(Research.tech(tid).get("label", tid))]))
+					String(Research.tech(tid).get("label", tid))], Espionage.private_to(state, [e.id])))
 	var done := Research.advance(state, e.id, income)
 	if done.is_empty():
 		return
 	if not e.is_ai():
 		for tid in done:
-			added.append(state.add_chronicle("%s découvre : %s." % [e.short_name(), String(Research.tech(tid).get("label", tid))]))
+			added.append(state.add_chronicle("%s découvre : %s." % [e.short_name(), String(Research.tech(tid).get("label", tid))], Espionage.private_to(state, [e.id])))
 	var era_after := Research.current_era(state, e.id)
 	if era_after > era_before:
-		added.append(state.add_chronicle("%s entre dans l'ère %d. Les savants réclament déjà des crédits pour la suivante." % [e.display_name(), era_after]))
+		added.append(state.add_chronicle("%s entre dans l'ère %d. Les savants réclament déjà des crédits pour la suivante." % [e.display_name(), era_after], Espionage.private_to(state, [e.id])))

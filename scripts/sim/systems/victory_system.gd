@@ -48,7 +48,7 @@ static func _monthly(state: GameState, every: int, added: Array[Dictionary]) -> 
 				if int(rec["pct"]) >= int(warn[i]):
 					level = i + 1
 			if level > int(rec.get("warn", 0)):
-				added.append(state.add_chronicle(_warning(e, id, int(warn[level - 1]))))
+				added.append(state.add_chronicle(_warning(e, id, int(warn[level - 1])), Espionage.public_to(state, [e.id])))
 			rec["warn"] = level
 			e.victory[id] = rec
 			if bool(p["won"]) or (hold > 0 and int(rec.get("held", 0)) >= hold and Victory.has_tech(state, e.id, id)):
@@ -77,7 +77,7 @@ static func _drop_broken_unions(state: GameState, added: Array[Dictionary]) -> v
 			continue
 		r.erase("union")
 		added.append(state.add_chronicle("L'union des lignées de %s et de %s est rompue avec leur alliance. Les cadeaux de noces sont réclamés." % [
-				state.get_empire(a).short_name(), state.get_empire(b).short_name()]))
+				state.get_empire(a).short_name(), state.get_empire(b).short_name()], Espionage.public_to(state, [a, b])))
 
 
 static func _proclaim(state: GameState, empire_id: int, id: String, added: Array[Dictionary]) -> void:

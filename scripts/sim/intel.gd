@@ -116,6 +116,19 @@ static func _record_fleets(state: GameState, seen_by: Array[Dictionary]) -> void
 				e.sightings.erase(fid)
 
 
+## Relevés pris à distance (réseau d'espionnage, sonde) : même règle que record, pour ces systèmes.
+static func record_systems(state: GameState, e: Empire, sids: Array) -> void:
+	var ids := sids.duplicate()
+	ids.sort()
+	for sid in ids:
+		var now := survey(state, int(sid))
+		var known: Dictionary = e.intel.get(int(sid), {})
+		if known.is_empty() or known["info"] != now:
+			e.intel[int(sid)] = {"day": state.tick, "info": now}
+		else:
+			known["day"] = state.tick
+
+
 ## Mémoire tirée de l'état réel pour tous les systèmes explorés (sauvegardes d'avant la mémoire).
 static func seed_from_truth(state: GameState, e: Empire) -> void:
 	for sid in e.sorted_explored():
