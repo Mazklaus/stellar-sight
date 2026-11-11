@@ -200,6 +200,41 @@ static func fief_counts(state: GameState, empire_id: int) -> Dictionary:
 	return {"fiefs": n, "far": far}
 
 
+## Levée du ban (Ossarane) : vaisseaux que les fiefs lèvent aujourd'hui. Seulement aux échéances
+## (levy.every_days) et tant que l'empire est en guerre contre plus fort que lui : un vaisseau par
+## fief, levy.max au plus. 0 sinon.
+static func levy_count(state: GameState, empire_id: int) -> int:
+	var e := state.get_empire(empire_id)
+	if e == null or e.eliminated or e.capital_planet < 0:
+		return 0
+	var f := e.faction()
+	if not has_fiefs(f) or not f["fiefs"].has("levy"):
+		return 0
+	var levy: Dictionary = f["fiefs"]["levy"]
+	if state.tick <= 0 or state.tick % int(levy["every_days"]) != 0 or not outmatched(state, empire_id):
+		return 0
+	return mini(int(fief_counts(state, empire_id)["fiefs"]), int(levy["max"]))
+
+
+## L'empire est-il en guerre contre un empire vivant dont la flotte de guerre dépasse la sienne ?
+static func outmatched(state: GameState, empire_id: int) -> bool:
+	var mine := war_power(state, empire_id)
+	for w in state.get_empire(empire_id).wars:
+		var o := state.get_empire(int(w))
+		if o != null and not o.eliminated and war_power(state, o.id) > mine:
+			return true
+	return false
+
+
+## Puissance totale des flottes de guerre d'un empire.
+static func war_power(state: GameState, empire_id: int) -> int:
+	var p := 0
+	for fl in Fleets.empire_fleets(state, empire_id):
+		if Combat.is_warfleet(fl):
+			p += Combat.fleet_power(fl)
+	return p
+
+
 # --- Colonisation -------------------------------------------------------------------------------
 
 ## Population d'une colonie à sa fondation.

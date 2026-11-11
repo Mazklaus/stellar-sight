@@ -111,6 +111,34 @@ func _test_ossarane() -> void:
 	sim.advance(30)
 	_ok(not e.dissent, "les cristaux revenus, le serment est renouvelé")
 
+	# Levée du ban : en guerre contre plus fort, chaque fief lève une corvette aux échéances.
+	Combat.start_war(st, 0, 1)
+	for f in Fleets.empire_fleets(st, 0):
+		if Combat.is_warfleet(f):
+			st.fleets.erase(f.id)
+	var rival_sys := st.galaxy.get_planet(st.get_empire(1).capital_planet).system_id
+	st.spawn_ship(1, "fregate", rival_sys)
+	_ok(FactionTraits.outmatched(st, 0), "Ossarane en guerre contre une flotte plus forte")
+	var every := int(e.faction()["fiefs"]["levy"]["every_days"])
+	st.tick = every - 1
+	_ok(FactionTraits.levy_count(st, 0) == 0, "pas de levée hors des échéances")
+	var before := FactionTraits.war_power(st, 0)
+	var levies := []
+	sim.chronicle_added.connect(func(entry: Dictionary) -> void:
+		if entry["text"].contains("Levée du ban"):
+			levies.append(entry))
+	sim.advance(1)
+	var levied := 0
+	for f in Fleets.empire_fleets(st, 0):
+		if f.fleet_name == "Ban des vassaux":
+			levied += f.count("corvette")
+	_ok(levied == 2 and levies.size() == 1 and FactionTraits.war_power(st, 0) > before, "levée du ban : une corvette par fief, rassemblée à la capitale")
+	st.spawn_ship(0, "croiseur", st.galaxy.get_planet(e.capital_planet).system_id)
+	for _i in 4:
+		st.spawn_ship(0, "fregate", st.galaxy.get_planet(e.capital_planet).system_id)
+	st.tick = every * 2
+	_ok(not FactionTraits.outmatched(st, 0) and FactionTraits.levy_count(st, 0) == 0, "plus de levée quand la maison reprend le dessus")
+
 	# Les autres peuples n'ont pas de fiefs.
 	var other := _game("vael").state
 	var oc := _plant(other, 0, _planet_at_jumps(other, 0, 5))

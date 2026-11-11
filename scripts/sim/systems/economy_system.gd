@@ -167,6 +167,16 @@ static func _monthly_traits(state: GameState, e: Empire, added: Array[Dictionary
 			added.append(state.add_chronicle("Le dieu-machine du %s se tait. Les forges ralentissent, les prêtres chantent plus fort, par précaution." % e.short_name()))
 		elif e.fervor >= int(fv["exalted_at"]) and before < int(fv["exalted_at"]):
 			added.append(state.add_chronicle("Exaltation dans l'Hégémonie : le dieu-machine ronronne, les forges flamboient, les hymnes gagnent un couplet."))
+	var levy := FactionTraits.levy_count(state, e.id)
+	if levy > 0:
+		var ship := String(f["fiefs"]["levy"]["ship"])
+		var fl := state.spawn_ship(e.id, ship, state.galaxy.get_planet(e.capital_planet).system_id)
+		for _i in levy - 1:
+			fl.add_ship(ship, -1, Research.mark_gen(state, e.id))
+		fl.troops = Combat.max_troops(fl, state)
+		fl.fleet_name = "Ban des vassaux"
+		added.append(state.add_chronicle("Levée du ban chez %s : %d vassaux accourent à la capitale avec leurs corvettes. Ils ne promettent pas de gagner, seulement d'être là." % [
+				e.display_name(), levy]))
 	if FactionTraits.has_fiefs(f):
 		var was := e.dissent
 		e.dissent = int(e.resources.get("crystals", 0)) < 0

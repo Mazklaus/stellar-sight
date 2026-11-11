@@ -1022,6 +1022,17 @@ static func wanted_warships(ctx: Dictionary) -> int:
 	var aggr := AiLevels.aggression(e)
 	if not e.wars.is_empty():
 		n = n * 2 + 2
+		# Armer selon la menace vue : de quoi tenir 80 % de la plus grosse force ennemie estimée.
+		var threat := 0
+		for w in e.wars:
+			threat = maxi(threat, enemy_power(ctx, int(w)))
+		var ships := 0
+		for f in _warfleets(ctx):
+			ships += f.ships.size()
+		@warning_ignore("integer_division")
+		var per_ship := maxi(6, _my_power(ctx) / ships) if ships > 0 else 12
+		@warning_ignore("integer_division")
+		n = maxi(n, mini(threat * 8 / 10 / per_ship, n * 3))
 	elif _swarm_near(ctx) >= 0:
 		@warning_ignore("integer_division")
 		n = n * 3 / 2 + 1  # un Essaim qui chasse à nos portes : on arme sans attendre d'être sa proie
