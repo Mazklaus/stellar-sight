@@ -827,6 +827,15 @@ func _test_navigation_ui(main: Node) -> void:
 	main.chat.close_input()
 	main.leave_network("")
 	clock.turn_timer = ""
+	# Resynchronisation (côté joueur) : la partie reçue remplace la sienne, même vue et même sélection.
+	var keep_sel: int = main._view.selected_id
+	var keep_cam: Vector2 = main._camera.position
+	var from_host := GameState.from_dict(JSON.parse_string(JSON.stringify(main.simulation.state.to_snapshot())))
+	main._on_net_resynced(from_host)
+	_check(main.simulation.state == from_host and main._view.selected_id == keep_sel and main._camera.position == keep_cam and clock.driver == main.net,
+			"resynchronisation : la partie de l'hôte remplace la sienne, la vue ne bouge pas")
+	main.net.close()
+	_check(clock.driver == null, "après la resynchronisation de test, l'horloge locale reprend la main")
 	DirAccess.remove_absolute("user://test_multi_auto.json")
 	clock.set_mode(clock.MODE_REALTIME)
 

@@ -176,6 +176,7 @@ func _ready() -> void:
 	_hud.add_child(chat)
 	chat.bind(net)
 	net.joined.connect(_on_net_joined)
+	net.resynced.connect(_on_net_resynced)
 	net.join_failed.connect(func(reason: String) -> void:
 		if _main_menu.page == "join":
 			_main_menu.show_page("join")
@@ -782,6 +783,24 @@ func _on_net_joined(state: GameState, empire_id: int) -> void:
 		_hud.notify("Vous dirigez %s. Tours simultanés : donnez vos ordres, puis Fin de tour (Espace)." % me.display_name(), "good")
 	else:
 		_hud.notify("Vous dirigez %s. La partie est en pause : Espace pour reprendre." % me.display_name(), "good")
+
+
+## L'hôte a renvoyé son état après un écart de calcul : on reprend sa partie, même vue, même sélection.
+func _on_net_resynced(state: GameState) -> void:
+	var cam_pos := _camera.position
+	var cam_zoom := _camera.zoom
+	var sel := _view.selected_id
+	var fleet := selected_fleet
+	var screen: String = _empire_screens.current if is_empire_screen_open() else ""
+	_start(state)
+	net.bind(simulation)
+	_camera.position = cam_pos
+	_camera.zoom = cam_zoom
+	_select(sel)
+	if fleet >= 0 and state.fleets.has(fleet):
+		select_fleet(fleet)
+	if screen != "":
+		toggle_empire_screen(screen)
 
 
 func _on_net_clock() -> void:
