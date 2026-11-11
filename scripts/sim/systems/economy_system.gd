@@ -175,6 +175,19 @@ static func _monthly_traits(state: GameState, e: Empire, added: Array[Dictionary
 			added.append(state.add_chronicle("Le dieu-machine du %s se tait. Les forges ralentissent, les prêtres chantent plus fort, par précaution." % e.short_name()))
 		elif e.fervor >= int(fv["exalted_at"]) and before < int(fv["exalted_at"]):
 			added.append(state.add_chronicle("Exaltation dans l'Hégémonie : le dieu-machine ronronne, les forges flamboient, les hymnes gagnent un couplet."))
+	# Horde : pillage des systèmes ennemis où campent ses flottes armées.
+	for lp in FactionTraits.loot_plan(state, e.id):
+		var victim := state.get_empire(int(lp["victim"]))
+		var am: Dictionary = lp["amounts"]
+		var total := 0
+		for r in am:
+			victim.resources[r] = int(victim.resources.get(r, 0)) - int(am[r])
+			e.resources[r] = int(e.resources.get(r, 0)) + int(am[r])
+			total += int(am[r])
+		Research.count_stat(state, e.id, "looted", total)
+		if not e.is_ai() or not victim.is_ai():
+			added.append(state.add_chronicle("%s pille %s : %s emportés. On appelle ça un impôt, chez eux." % [
+					e.short_name(), state.galaxy.systems[int(lp["system"])].system_name, GameData.format_amounts(am)]))
 	var levy := FactionTraits.levy_count(state, e.id)
 	if levy > 0:
 		var ship := String(f["fiefs"]["levy"]["ship"])

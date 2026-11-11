@@ -205,7 +205,7 @@ func new_game(seed_value: int) -> void:
 	# On commence chez soi : caméra sur le système d'origine, fiche ouverte.
 	var me := simulation.state.get_empire(view_empire)
 	if me:
-		var home := galaxy.get_planet(me.capital_planet).system_id
+		var home := FactionTraits.capital_system(simulation.state, me.id)
 		_camera.stop_glide()
 		_camera.position = galaxy.get_system(home).position
 		_camera.zoom = Vector2(HOME_ZOOM, HOME_ZOOM)
@@ -232,8 +232,8 @@ func load_game() -> bool:
 	GameClock.apply_settings(SaveGame.last_clock)
 	game_in_progress = true
 	var me := state.get_empire(view_empire)
-	if me:
-		_select(galaxy.get_planet(me.capital_planet).system_id)
+	if me and FactionTraits.capital_system(state, me.id) >= 0:
+		_select(FactionTraits.capital_system(state, me.id))
 		_camera.position = galaxy.get_system(_view.selected_id).position
 	_hud.notify("Partie chargée (%s)" % GameCalendar.date_string(state.tick), "good")
 	return true
@@ -286,7 +286,7 @@ func cycle_system(step: int) -> void:
 func go_to_capital() -> void:
 	var me := simulation.state.get_empire(view_empire)
 	if me:
-		_go_to_system(galaxy.get_planet(me.capital_planet).system_id)
+		_go_to_system(FactionTraits.capital_system(simulation.state, me.id))
 
 
 func _go_to_system(id: int) -> void:

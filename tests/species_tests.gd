@@ -22,6 +22,7 @@ func run(check: Callable) -> void:
 	_test_teyl_game()
 	_test_syndicate()
 	_test_profit()
+	_test_horde()
 	_test_save()
 	_cleanup()
 
@@ -329,6 +330,118 @@ func _test_network() -> void:
 	sim.advance(400)
 	_ok(sim.state.tick == 400, "une partie entre IA tourne avec la conscience distribuée")
 	_ok(not full.is_empty(), "rendements lus")
+
+
+## Horde : la capitale est une flotte-ville qui campe, pille, et dont il ne faut pas trop s'éloigner.
+func _test_horde() -> void:
+	SpeciesLibrary.dir = TEST_DIR
+	var s := _spec("ossarane", "Clans d'Essai")
+	s["gouvernement"] = "horde"
+	_ok(Species.check(s) == "", "horde valide (%s)" % Species.check(s))
+	_ok(SpeciesLibrary.save(s) == "", "horde enregistrée")
+	var fid := String(s["id"])
+	var st := GameState.create(5, 150, 1800.0, fid, {"ai_level": "normal", "rivals": ["vael", "choeur"]})
+	var me := st.get_empire(0)
+	var home: Colony = st.colonies[me.home_planet]
+	var home_sys := st.galaxy.get_planet(me.home_planet).system_id
+	var city := FactionTraits.city_fleet(st, 0)
+	_ok(me.capital_planet == -1 and not home.buildings.has("capitale"), "aucune planète capitale, pas de palais sur le monde natal")
+	_ok(city != null and city.system_id == home_sys and FactionTraits.capital_system(st, 0) == home_sys, "la flotte-ville part du monde natal et sert de capitale")
+	_ok(FactionTraits.city_fleet(st, 1) == null and FactionTraits.capital_system(st, 1) == st.galaxy.get_planet(st.get_empire(1).capital_planet).system_id, "les autres gardent leur capitale")
+	_ok(Combat.is_armed(city) and not Combat.is_warfleet(city), "flotte-ville armée, mais pas une flotte de guerre")
+	# Ce que rapporte la flotte-ville : le palais.
+	var palace: Dictionary = GameData.building("capitale")["yields"]
+	_ok(int(FactionTraits.city_yields(st, 0).get("influence", 0)) == int(palace["influence"]), "la flotte-ville rapporte ce que rapporte un palais")
+	# Campement : +50 % dans le système de la flotte-ville à l'arrêt.
+	var camped: Dictionary = Economy.colony_yields(st, home)["gross"].duplicate()
+	city.path = [st.galaxy.systems[home_sys].neighbors[0]]
+	var moving: Dictionary = Economy.colony_yields(st, home)["gross"].duplicate()
+	city.path = []
+	var r := "materials" if int(moving.get("materials", 0)) >= int(moving.get("energy", 0)) else "energy"
+	_ok(int(moving[r]) > 0 and int(camped[r]) == int(moving[r]) * 150 / 100, "campement : +50 %% (%d contre %d %s)" % [int(camped[r]), int(moving[r]), r])
+	# Le clan suit la flotte : une colonie à plus de 4 sauts produit 30 % de moins.
+	var d := FactionTraits.jumps_from(st.galaxy, home_sys)
+	var far := -1
+	for sid in d:
+		if int(d[sid]) >= 6 and not st.galaxy.systems[sid].planet_ids.is_empty() and st.system_owner(sid) == -1:
+			far = sid
+			break
+	_ok(far >= 0, "système lointain trouvé")
+	var fc := Colony.new()
+	fc.planet_id = st.galaxy.systems[far].planet_ids[0]
+	fc.owner = 0
+	fc.kind = Colony.KIND_COLONY
+	fc.population = 4
+	st.colonies[fc.planet_id] = fc
+	st.rebuild_ownership()
+	_ok(FactionTraits.far_from_clan(st, fc) and not FactionTraits.far_from_clan(st, home), "colonie lointaine repérée, le monde natal non")
+	var far_y: Dictionary = Economy.colony_yields(st, fc)["gross"].duplicate()
+	city.system_id = far
+	_ok(not FactionTraits.far_from_clan(st, fc) and FactionTraits.far_from_clan(st, home), "la flotte-ville déplacée rapproche le clan de la colonie")
+	var near_y: Dictionary = Economy.colony_yields(st, fc)["gross"]
+	var sum_near := 0
+	var sum_far := 0
+	for k in near_y:
+		sum_near += int(near_y[k])
+		sum_far += int(far_y.get(k, 0))
+	_ok(sum_far > 0 and sum_near > sum_far * 2, "campement contre colonie lointaine : %d contre %d" % [sum_near, sum_far])
+	city.system_id = home_sys
+	var g := FactionTraits.gauge(st, 0)
+	_ok(String(g["label"]) == "Flotte-ville" and String(g["value"]).contains("1 loin"), "jauge Flotte-ville (%s)" % g.get("value", ""))
+	_ok(Fleets.check_build_ship(st, 0, me.home_planet, "flotte_ville").contains("un seul"), "une seule flotte-ville à la fois")
+	_ok(Fleets.check_build_ship(st, 1, st.get_empire(1).capital_planet, "flotte_ville") != "", "les autres peuples n'en construisent pas")
+	# Pillage : une corvette à l'arrêt dans un système ennemi, en guerre.
+	var foe := st.get_empire(1)
+	var foe_sys := st.galaxy.get_planet(foe.capital_planet).system_id
+	for a in [0, 1]:
+		for b in [0, 1]:
+			if a != b and not st.get_empire(a).contacts.has(b):
+				st.get_empire(a).contacts.append(b)
+	_ok(FactionTraits.loot_plan(st, 0).is_empty(), "pas de pillage en paix")
+	Combat.start_war(st, 0, 1)
+	var raider := st.spawn_ship(0, "corvette", foe_sys)
+	foe.resources["materials"] = 100
+	foe.resources["energy"] = 2
+	var plan := FactionTraits.loot_plan(st, 0)
+	_ok(plan.size() == 1 and int(plan[0]["fleet"]) == raider.id and int(plan[0]["amounts"]["materials"]) == 6 and int(plan[0]["amounts"]["energy"]) == 2,
+			"pillage : 6 matériaux par vaisseau armé, dans la limite des réserves (%s)" % str(plan))
+	var mat_before := int(me.resources["materials"])
+	var added: Array[Dictionary] = []
+	EconomySystem._monthly_traits(st, me, added)
+	_ok(int(foe.resources["materials"]) == 94 and int(me.resources["materials"]) == mat_before + 6 and int(me.stats.get("looted", 0)) == 8, "le butin change de main")
+	_ok(added.size() == 1 and String(added[0]["text"]).contains("pille"), "chronique du pillage (joueur humain)")
+	# Conquête : la capitale d'une horde, c'est sa flotte-ville.
+	var before := Victory.progress(st, 1, "conquete")["lines"] as Array
+	st.fleets.erase(city.id)
+	var after := Victory.progress(st, 1, "conquete")["lines"] as Array
+	_ok(str(before) != str(after) and str(after).contains("1 / 2"), "flotte-ville abattue : capitale prise pour la conquête (%s)" % str(after))
+	_ok(str(Victory.progress(st, 0, "conquete")["lines"]).contains("PERDUE"), "la horde sans flotte-ville a perdu sa capitale")
+	g = FactionTraits.gauge(st, 0)
+	_ok(bool(g["bad"]) and String(g["value"]) == "détruite" and FactionTraits.far_from_clan(st, home), "sans flotte-ville, tout le clan s'étiole")
+	me.resources["materials"] = 1000
+	me.resources["energy"] = 1000
+	_ok(Fleets.check_build_ship(st, 0, me.home_planet, "flotte_ville") == "", "la flotte-ville se reconstruit (%s)" % Fleets.check_build_ship(st, 0, me.home_planet, "flotte_ville"))
+	# Le clan survit sans planète tant que la flotte-ville vogue.
+	var st2 := GameState.create(6, 150, 1800.0, fid, {"ai_level": "normal", "rivals": ["vael"]})
+	for pid in st2.sorted_colony_ids():
+		if st2.colonies[pid].owner == 0:
+			st2.colonies.erase(pid)
+	st2.rebuild_ownership()
+	var added2: Array[Dictionary] = []
+	CombatSystem._eliminations(st2, added2)
+	_ok(not st2.get_empire(0).eliminated, "sans planète mais avec sa flotte-ville, le clan vit")
+	st2.fleets.erase(FactionTraits.city_fleet(st2, 0).id)
+	CombatSystem._eliminations(st2, added2)
+	_ok(st2.get_empire(0).eliminated, "sans planète ni flotte-ville, le clan disparaît")
+	# Sauvegarde, IA : une partie entre IA tourne, et la flotte-ville campe chez elle.
+	var st3 := GameState.create(9, 150, 1800.0, "", {"rivals": ["choeur", fid], "spectator": true})
+	var loaded := GameState.from_dict(st3.to_dict())
+	_ok(FactionTraits.city_fleet(loaded, 1) != null and loaded.get_empire(1).capital_planet == -1, "la flotte-ville survit au rechargement")
+	var sim := Simulation.new(st3)
+	sim.advance(720)
+	_ok(sim.state.tick == 720 and not sim.state.get_empire(1).eliminated, "une partie entre IA tourne avec une horde")
+	var cf := FactionTraits.city_fleet(sim.state, 1)
+	_ok(cf != null and sim.state.system_owner(cf.destination()) == 1, "l'IA garde sa flotte-ville chez elle")
 
 
 func _test_save() -> void:

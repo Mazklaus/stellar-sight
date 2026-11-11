@@ -42,6 +42,28 @@
 		"hp": 50,
 		"colonizer": true
 	},
+	"flotte_ville": {
+		"label": "Flotte-ville",
+		"plural": "Flottes-villes",
+		"line": "line",
+		"size": "titan",
+		"role": "Capitale",
+		"description": "Des milliers de coques soudées les unes aux autres, des forges, des enclos, des tentes de duralliage et un trône qui ne reste jamais deux saisons au même endroit. C'est la capitale du clan, et elle a des canons.",
+		"requires": {"species": {"gouvernement": ["horde"]}, "unique_per_empire": true},
+		"capital": true,
+		"cost": {"materials": 450, "energy": 150},
+		"days": 240,
+		"upkeep": {},
+		"speed": 18,
+		"vision": 3,
+		"hp": 1600,
+		"armor": 25,
+		"pd": 10,
+		"weapons": {"kinetic": 50, "beam": 25},
+		"troops": 16,
+		"siege": 4,
+		"fleet_barracks": true
+	},
 	"corvette": {
 		"label": "Corvette",
 		"plural": "Corvettes",
