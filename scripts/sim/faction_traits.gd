@@ -217,6 +217,17 @@ static func network_nodes(state: GameState, empire_id: int) -> int:
 	return n
 
 
+## Revendications fondées coupées du réseau (colonies et avant-postes).
+static func network_cut(state: GameState, empire_id: int) -> int:
+	var net := network_systems(state, empire_id)
+	var n := 0
+	for pid in state.colonies:
+		var c: Colony = state.colonies[pid]
+		if c.owner == empire_id and c.is_established() and not net.has(state.galaxy.get_planet(pid).system_id):
+			n += 1
+	return n
+
+
 ## Bonus de Savoir du réseau, en % : knowledge_per_node par nœud relié, max_pct au plus.
 static func network_pct(state: GameState, empire_id: int) -> int:
 	var net: Dictionary = _faction(state, empire_id).get("network", {})
@@ -488,11 +499,7 @@ static func gauge(state: GameState, empire_id: int) -> Dictionary:
 				"bad": e.fervor <= 0}
 	if has_network(f):
 		var nodes := network_nodes(state, empire_id)
-		var cut := 0
-		for pid in state.colonies:
-			var c: Colony = state.colonies[pid]
-			if c.owner == empire_id and c.is_established() and not is_networked(state, c):
-				cut += 1
+		var cut := network_cut(state, empire_id)
 		var tip := "%d nœud%s relié%s à la capitale : +%d %% de Savoir (%d %% au plus)" % [nodes, "s" if nodes > 1 else "", "s" if nodes > 1 else "",
 				network_pct(state, empire_id), int(f["network"]["max_pct"])]
 		if cut > 0:

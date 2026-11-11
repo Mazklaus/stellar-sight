@@ -1,6 +1,6 @@
 extends RefCounted
 ## Tests des victoires : données et couches d'espèce, conquête, domination, score à date limite,
-## les quatre victoires de peuple (Élu des routes, Dernier Couplet, Charte, Moisson), technologie
+## les cinq victoires de peuple (Élu des routes, Dernier Couplet, Charte, Moisson, Noosphère), technologie
 ## requise, visibilité et malus d'opinion, IA qui poursuit sa victoire, sauvegarde, anciennes
 ## sauvegardes et déterminisme. Appelés par smoke_test.gd.
 
@@ -20,6 +20,7 @@ func run(check: Callable) -> void:
 	_test_couplet()
 	_test_charte()
 	_test_moisson()
+	_test_noosphere()
 	_test_visibility_and_threat()
 	_test_ai_pursuit()
 	_test_save()
@@ -32,7 +33,8 @@ func _ok(cond: bool, what: String) -> void:
 
 ## Partie sans IA (rivaux inertes), le peuple voulu en empire 0.
 func _state(faction := "ossarane", options := {}) -> GameState:
-	var o := {"ai_level": ""}
+	# Les quatre peuples de la V1 : les scénarios ci-dessous ont été écrits pour eux.
+	var o := {"ai_level": "", "rivals": ["ossarane", "choeur", "vael", "khthari"]}
 	o.merge(options, true)
 	return GameState.create(4242, 150, 1800.0, faction, o)
 
@@ -90,7 +92,7 @@ func _home_system(st: GameState, id: int) -> int:
 func _test_data() -> void:
 	var ids := Victory.ids()
 	_ok(ids.slice(0, 3) == ["conquete", "domination", "score"], "trois victoires classiques d'abord")
-	var want := {"ossarane": ["elu"], "choeur": ["couplet"], "vael": ["charte"], "khthari": ["moisson"]}
+	var want := {"ossarane": ["elu"], "choeur": ["couplet"], "vael": ["charte"], "khthari": ["moisson"], "teyl": ["noosphere"]}
 	for f in want:
 		_ok(Array(Victory.people_ids_for(GameData.faction(f))) == want[f], "%s : sa victoire de peuple (%s)" % [f, str(Victory.people_ids_for(GameData.faction(f)))])
 	# Un peuple personnalisé y a droit par ses couches, pas par son nom.
@@ -377,6 +379,68 @@ func _test_moisson() -> void:
 	st2.colonies[st2.get_empire(victim).home_planet].population = 9
 	Combat.capture_system(st2, _home_system(st2, victim), 0)
 	_ok(int(st2.get_empire(0).stats.get("digested", 0)) == 8, "Moisson : population digérée à la conquête (%d)" % int(st2.get_empire(0).stats.get("digested", 0)))
+
+
+## Teyl : douze colonies reliées au réseau, aucune revendication coupée, deux ans tenus.
+func _test_noosphere() -> void:
+	var st := _state("teyl")
+	var cap_sys := _home_system(st, 0)
+	var want := int(Victory.info("noosphere")["nodes"])
+	_ok(Array(Victory.ids_for(st, 0)).has("noosphere"), "Noosphère : visée par Teyl")
+	var p := Victory.progress(st, 0, "noosphere")
+	_ok(not p["cond"] and str(p["lines"]).contains("Nœuds reliés : 1 / %d" % want), "Noosphère : la capitale seule (%s)" % str(p["lines"]))
+	# Des colonies de proche en proche autour de la capitale.
+	var d := FactionTraits.jumps_from(st.galaxy, cap_sys)
+	var order: Array = d.keys()
+	order.sort_custom(func(a: int, b: int) -> bool: return int(d[a]) < int(d[b]) or (int(d[a]) == int(d[b]) and a < b))
+	var placed := 1
+	for sid in order:
+		if placed >= want:
+			break
+		if sid == cap_sys or st.system_owner(sid) != -1:
+			continue
+		var c := _claim(st, 0, sid, Colony.KIND_COLONY, 2)
+		if c != null:
+			st.rebuild_ownership()
+			if FactionTraits.is_networked(st, c):
+				placed += 1
+			else:
+				st.colonies.erase(c.planet_id)
+				st.rebuild_ownership()
+	_ok(FactionTraits.network_nodes(st, 0) == want and FactionTraits.network_cut(st, 0) == 0, "Noosphère : %d nœuds reliés (%d)" % [want, FactionTraits.network_nodes(st, 0)])
+	p = Victory.progress(st, 0, "noosphere")
+	_ok(not p["cond"] and str(p["lines"]).contains("Technologie requise"), "Noosphère : rien sans sa technologie")
+	Research.grant(st, 0, ["noosphere"])
+	_months(st, 1)
+	p = Victory.progress(st, 0, "noosphere")
+	_ok(st.winner.is_empty() and p["cond"] and int(p["pct"]) >= Victory.met_at(), "Noosphère : le compte à rebours démarre (%d %%)" % int(p["pct"]))
+	# Un nœud coupé (systèmes ennemis tout autour) arrête et remet à zéro le compte à rebours.
+	var far := -1
+	for sid in order:
+		if int(d[sid]) < 3 or st.galaxy.systems[sid].planet_ids.is_empty() or st.system_owner(sid) != -1:
+			continue
+		var ok := true
+		for n in st.galaxy.systems[sid].neighbors:
+			if st.galaxy.systems[n].planet_ids.is_empty() or st.system_owner(n) != -1:
+				ok = false
+		if ok:
+			far = sid
+			break
+	_ok(far >= 0, "Noosphère : système à couper trouvé")
+	var lone := _claim(st, 0, far, Colony.KIND_COLONY, 2)
+	for n in st.galaxy.systems[far].neighbors:
+		_claim(st, 1, n)
+	st.rebuild_ownership()
+	_ok(not FactionTraits.is_networked(st, lone) and FactionTraits.network_cut(st, 0) >= 1, "Noosphère : un nœud coupé")
+	_months(st, 1)
+	p = Victory.progress(st, 0, "noosphere")
+	_ok(not p["cond"] and int(st.get_empire(0).victory["noosphere"]["held"]) == 0 and str(p["lines"]).contains("coupées"), "Noosphère : la coupure remet le compte à rebours à zéro")
+	# Le nœud est repris par l'ennemi : le réseau est entier à nouveau, deux ans suffisent.
+	st.colonies.erase(lone.planet_id)
+	st.rebuild_ownership()
+	_months(st, 25)
+	_ok(st.winner.get("victory", "") == "noosphere", "Noosphère : éveillée après deux ans tenus")
+	_ok(Victory.chronicle_text("noosphere", st.get_empire(0)).contains("Teyl"), "Noosphère : la chronique nomme Teyl")
 
 
 func _test_visibility_and_threat() -> void:

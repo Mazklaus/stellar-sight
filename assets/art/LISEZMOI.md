@@ -5,7 +5,7 @@ cherche un fichier portant son identifiant et l'affiche à la place du motif des
 
 | Identifiant | Où | Format conseillé |
 | --- | --- | --- |
-| `faction_<id>` (ossarane, choeur, vael, khthari) | Portrait d'un peuple : choix de faction, colonne de l'écran Économie | portrait, 3:4 |
+| `faction_<id>` (ossarane, choeur, vael, khthari, teyl) | Portrait d'un peuple : choix de faction, colonne de l'écran Économie | portrait, 3:4 |
 | `faction_<id>_scene` | Grande illustration à droite du choix de faction | paysage, 16:9 |
 | `faction_random` | Case « Au hasard » du choix de faction | portrait, 3:4 |
 | `new_game_galaxy` | Bandeau du bloc Galaxie de la nouvelle partie | bandeau, 4:1 |

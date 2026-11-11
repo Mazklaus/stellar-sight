@@ -25,8 +25,12 @@ func _ok(cond: bool, what: String) -> void:
 	_check.call(cond, what)
 
 
+## Les quatre peuples de la V1, pour lesquels les attentes de ces tests ont été réglées.
+const V1 := ["ossarane", "choeur", "vael", "khthari"]
+
+
 func _spectator(seed_value: int, level := "normal") -> Simulation:
-	return Simulation.new(GameState.create(seed_value, 150, 1800.0, "", {"spectator": true, "ai_level": level}))
+	return Simulation.new(GameState.create(seed_value, 150, 1800.0, "", {"spectator": true, "ai_level": level, "rivals": V1}))
 
 
 func _total_score(st: GameState) -> int:

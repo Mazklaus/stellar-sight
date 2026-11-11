@@ -65,6 +65,8 @@ static func rule_text(id: String) -> String:
 			return t % [int(v["min_signatories"]), years]
 		"moisson":
 			return t % [int(v["pop_share_pct"]), int(v["digested"]), years]
+		"noosphere":
+			return t % [int(v["nodes"]), years]
 	return t
 
 
@@ -210,6 +212,8 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			_charte(state, e, out)
 		"moisson":
 			_moisson(state, e, out)
+		"noosphere":
+			_noosphere(state, e, out)
 	if is_people(id) and not has_tech(state, empire_id, id):
 		out["lines"].append("Technologie requise : %s" % String(Research.tech(tech_for(id)).get("label", tech_for(id))))
 		out["cond"] = false
@@ -544,6 +548,18 @@ static func _moisson(state: GameState, e: Empire, out: Dictionary) -> void:
 	var r1 := 1000 * mini(share, want_share) / maxi(1, want_share)
 	var r2 := 1000 * mini(dig, want_dig) / maxi(1, want_dig)
 	_timed(out, mini(r1, r2), 1000)
+
+
+## L'Éveil de la Noosphère : assez de nœuds reliés, et pas une seule revendication coupée.
+static func _noosphere(state: GameState, e: Empire, out: Dictionary) -> void:
+	var want := int(info("noosphere")["nodes"])
+	var nodes := FactionTraits.network_nodes(state, e.id)
+	var cut := FactionTraits.network_cut(state, e.id)
+	out["lines"].append("Nœuds reliés : %d / %d" % [nodes, want])
+	if cut > 0:
+		out["lines"].append("Revendications coupées : %d (aucune permise)" % cut)
+	out["cond"] = nodes >= want and cut == 0
+	_timed(out, nodes if cut == 0 else mini(nodes, want - 1), want)
 
 
 # --- Ce que l'on voit des autres ---------------------------------------------------------------

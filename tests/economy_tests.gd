@@ -29,7 +29,7 @@ func _ok(cond: bool, what: String) -> void:
 
 
 func _test_data() -> void:
-	_ok(Array(GameData.faction_ids()) == ["ossarane", "choeur", "vael", "khthari"], "les 4 factions de la V1 sont chargées")
+	_ok(Array(GameData.faction_ids()) == ["ossarane", "choeur", "vael", "khthari", "teyl"], "les 5 peuples officiels sont chargés")
 	_ok(GameData.resource_ids().size() == 6, "4 ressources communes + cristaux de saut + Savoir")
 	for f: Dictionary in GameData.factions():
 		for t in f["preferred"]:
@@ -70,7 +70,7 @@ func _test_planets() -> void:
 
 func _test_start() -> void:
 	var st := GameState.create(42)
-	_ok(st.empires.size() == 4, "4 empires au départ")
+	_ok(st.empires.size() == 5, "5 empires au départ")
 	var homes := {}
 	for e in st.empires:
 		var c: Colony = st.colonies.get(e.capital_planet)
@@ -84,7 +84,7 @@ func _test_start() -> void:
 		var income: Dictionary = Economy.empire_income(st, e.id)["net"]
 		_ok(income["food"] >= 0 and income["energy"] > 0 and income["materials"] > 0 and income["influence"] > 0,
 				"%s : économie de départ viable (%s)" % [e.faction_id, GameData.format_amounts(income, true)])
-	_ok(homes.size() == 4, "4 systèmes d'origine distincts")
+	_ok(homes.size() == 5, "5 systèmes d'origine distincts")
 	var osso := st.empires[0]
 	var has_crystals := false
 	for pid in st.galaxy.systems[st.galaxy.get_planet(osso.capital_planet).system_id].planet_ids:
@@ -222,7 +222,7 @@ func _test_outpost_upgrade() -> void:
 	sim.flush_commands()
 	sim.advance(Economy.claim_days(Colony.KIND_COLONY))
 	_ok(c.is_colony() and c.is_established() and c.population == 1, "avant-poste transformé en colonie")
-	_ok(st.colonies.size() == 5, "pas de colonie en double")
+	_ok(st.colonies.size() == st.empires.size() + 1, "pas de colonie en double")
 
 
 func _test_build() -> void:

@@ -19,6 +19,7 @@ func run(check: Callable) -> void:
 	_test_lithoid()
 	_test_synthetic()
 	_test_network()
+	_test_teyl_game()
 	_test_save()
 	_cleanup()
 
@@ -36,7 +37,7 @@ func _spec(preset: String, name := "Peuple d'essai") -> Dictionary:
 
 
 func _test_presets() -> void:
-	var expect := {"ossarane": [2, 4], "choeur": [2, 4], "vael": [4, 4], "khthari": [1, 5]}
+	var expect := {"ossarane": [2, 4], "choeur": [2, 4], "vael": [4, 4], "khthari": [1, 5], "teyl": [2, 4]}
 	for p in expect:
 		var s := _spec(p)
 		_ok(Species.check(s) == "", "modèle %s valide (%s)" % [p, Species.check(s)])
@@ -69,6 +70,11 @@ func _test_presets_match_officials() -> void:
 	_ok(int(k["production_pct"]["knowledge"]) == 50 and int(k["research"]["knowledge_per_biomass"]) == 2, "Kh'thari : mémoire génétique de ruche")
 	_ok(bool(k["claim_influence_free"]) and (k["ships_excluded"] as Array).has("colony_ship") and (k["start_ships"] as Array).has("spore_ship"), "Kh'thari : essaimage")
 	_ok(bool(k["combat"]["prey"]) and bool(k["combat"]["digest"]) and bool(k["ai"]["temperament"]["never_peace"]), "Kh'thari : faim sans traité")
+	var t := Species.build(_spec("teyl"))
+	var off := GameData.faction("teyl")
+	_ok(t["network"] == off["network"] and t["assembly"] == off["assembly"] and String(t["diet"]) == "energy" and String(off["diet"]) == "energy", "Teyl : réseau, assemblage, énergie")
+	_ok(int(t["production_pct"]["knowledge"]) == int(off["production_pct"]["knowledge"]) and int(t["production_pct"]["materials"]) == int(off["production_pct"]["materials"]) and t["hab_extra"] == off["hab_extra"], "Teyl : érudits, fonderies, châssis étanches")
+	_ok(String(t["home_deposit"]) == String(off["home_deposit"]) and int(t["research"]["peace_knowledge_pct"]) == 5, "Teyl : cœur brûlant, académies")
 	var humain := _spec("")
 	humain["credo"] = "survie"
 	_ok(int(Species.build(humain)["production_pct"]["knowledge"]) == 75, "survie sans ruche : Savoir -25 % seulement")
@@ -160,7 +166,7 @@ func _test_game() -> void:
 	_ok(SpeciesLibrary.save(s) == "", "ruche créée enregistrée")
 	var fid := String(s["id"])
 	var st := GameState.create(5, 150, 1800.0, fid, {"ai_level": ""})
-	_ok(st.empires.size() == 5 and st.empires[0].faction_id == fid, "peuple créé joué par le joueur, 4 officiels en rivaux")
+	_ok(st.empires.size() == 6 and st.empires[0].faction_id == fid, "peuple créé joué par le joueur, 5 officiels en rivaux")
 	_ok(st.custom_factions.has(fid), "fiche recopiée dans la partie")
 	var spores := 0
 	for id in st.fleets:
@@ -356,3 +362,18 @@ func _wipe() -> void:
 		return
 	for n in d.get_files():
 		d.remove(n)
+
+
+## Teyl en 5e peuple officiel : proposé par défaut et joué par l'IA.
+func _test_teyl_game() -> void:
+	_ok(GameData.is_official("teyl") and GameData.portrait_art("teyl") == "faction_teyl", "Teyl : peuple officiel, emplacement d'illustration comme les autres")
+	var sim := Simulation.new(GameState.create(11, 150, 1800.0, "", {"spectator": true, "ai_level": "normal"}))
+	var tid := -1
+	for e in sim.state.empires:
+		if e.faction_id == "teyl":
+			tid = e.id
+	_ok(sim.state.empires.size() == 5 and tid >= 0, "partie par défaut : cinq peuples dont Teyl")
+	sim.advance(720)
+	var e := sim.state.get_empire(tid)
+	var nodes := FactionTraits.network_nodes(sim.state, tid)
+	_ok(not e.eliminated and nodes >= 2, "Teyl (IA) : en vie après deux ans, %d nœuds reliés" % nodes)

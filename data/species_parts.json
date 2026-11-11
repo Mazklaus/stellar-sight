@@ -152,7 +152,7 @@
 		{"id": "synthetique_2", "look": "antenna", "label": "Coordinatrice à antennes", "archetypes": ["synthetique"]},
 		{"id": "synthetique_3", "look": "core", "label": "Noyau ouvert", "archetypes": ["synthetique"]}
 	],
-	"ship_styles": ["ossarane", "choeur", "vael", "khthari"],
+	"ship_styles": ["ossarane", "choeur", "vael", "khthari", "teyl"],
 	"temperaments": [
 		{"id": -1, "label": "Conciliant", "text": "Un cran plus pacifique que le réglage de l'IA."},
 		{"id": 0, "label": "Mesuré", "text": "Ni plus ni moins que le réglage de l'IA."},
@@ -162,6 +162,7 @@
 		"ossarane": {"registre": "Médiéval spatial", "archetype": "humanoide", "gouvernement": "feodalite", "credo": "honneur", "origine": "gisement_cristaux", "biomes": ["desert", "continental"], "traits": ["navigateurs"], "temperament": 0, "portrait": "humanoide_1", "ship_style": "ossarane"},
 		"choeur": {"registre": "Grimdark", "archetype": "humanoide", "gouvernement": "theocratie", "credo": "foi", "origine": "gisement_filons", "biomes": ["arctic", "desert"], "traits": ["forgerons", "pelerins", "lents"], "temperament": 1, "portrait": "humanoide_2", "ship_style": "choeur"},
 		"vael": {"registre": "Space opera héroïque", "archetype": "humanoide", "gouvernement": "republique", "credo": "raison", "origine": "gisement_geothermie", "biomes": ["ocean", "continental"], "traits": ["orateurs", "pluriel"], "temperament": -1, "portrait": "humanoide_3", "ship_style": "vael"},
-		"khthari": {"registre": "Horreur biologique", "archetype": "ruche", "gouvernement": "ruche", "credo": "survie", "origine": "sans_heritage", "biomes": ["toxic", "ocean"], "traits": ["fecondite"], "temperament": 1, "portrait": "ruche_1", "ship_style": "khthari"}
+		"khthari": {"registre": "Horreur biologique", "archetype": "ruche", "gouvernement": "ruche", "credo": "survie", "origine": "sans_heritage", "biomes": ["toxic", "ocean"], "traits": ["fecondite"], "temperament": 1, "portrait": "ruche_1", "ship_style": "khthari"},
+		"teyl": {"registre": "Classique / hard SF", "archetype": "synthetique", "gouvernement": "conscience", "credo": "raison", "origine": "gisement_geothermie", "biomes": ["arctic", "desert"], "traits": ["erudits", "forgerons"], "temperament": 0, "portrait": "synthetique_1", "ship_style": "teyl"}
 	}
 }
