@@ -40,6 +40,8 @@ signal ended(reason: String)
 signal players_changed
 ## Pause ou vitesse partagées ont changé.
 signal clock_changed
+## Hôte : la box a répondu (ou non) à la demande d'ouverture du port (UPnP). Voir upnp_text().
+signal upnp_changed
 ## Discussion : un message reçu (ou envoyé). team : réservé à l'équipe de l'auteur.
 signal chat_received(entry: Dictionary)
 
@@ -87,6 +89,13 @@ var timer_id := ""
 var timer_end_ms := -1
 ## Discussion : derniers messages ({"n": auteur, "t": texte, "e": équipe seulement}), du plus ancien.
 var chat_log: Array[Dictionary] = []
+## Hôte : ouvrir le port sur la box par UPnP (désactivé par les bots de test). État : "" (rien),
+## "busy" (recherche en cours), "ok" (port ouvert, upnp_address = adresse Internet), "fail" (upnp_reason).
+var use_upnp := true
+var upnp_state := ""
+var upnp_address := ""
+var upnp_reason := ""
+var _mapper: PortMapper
 const CHAT_MAX := 200
 const CHAT_KEEP := 60
 ## Identifiant durable du joueur (user://net.cfg) : c'est lui qui retrouve l'empire au retour.
@@ -154,6 +163,7 @@ func host(sim: Simulation, empire_id: int, port := DEFAULT_PORT, seats := {}) ->
 	_port = port
 	_beacon = LanDiscovery.new()
 	_beacon_timer = 0.0
+	_open_upnp(port)
 	core = Lockstep.new(sim, true)
 	core.seats[Lockstep.HOST] = empire_id
 	core.desync_detected.connect(_on_desync)
@@ -210,6 +220,7 @@ func open_lobby(port := DEFAULT_PORT) -> Error:
 	_port = port
 	_beacon = LanDiscovery.new()
 	_beacon_timer = 0.0
+	_open_upnp(port)
 	lobby_open = true
 	if token == "":
 		token = local_token()
@@ -356,6 +367,11 @@ func close() -> void:
 	_leaves.clear()
 	_resyncs.clear()
 	_resume_after_resync = false
+	if _mapper:
+		_mapper.close()
+	upnp_state = ""
+	upnp_address = ""
+	upnp_reason = ""
 	_pausing = false
 	absent = {}
 	chat_log.clear()
@@ -384,6 +400,47 @@ func _end(reason: String) -> void:
 
 
 ## Adresses locales de cette machine (IPv4), à donner aux autres joueurs.
+# --- Ouverture du port sur la box (UPnP) ---------------------------------------------------------
+
+func _open_upnp(port: int) -> void:
+	if not use_upnp:
+		return
+	if _mapper == null:
+		_mapper = PortMapper.new()
+		_mapper.finished.connect(_on_upnp)
+	upnp_state = "busy"
+	_mapper.open(port)
+	upnp_changed.emit()
+
+
+func _on_upnp(ok: bool, address: String, reason: String) -> void:
+	if role != HOST:
+		return
+	upnp_state = "ok" if ok else "fail"
+	upnp_address = address
+	upnp_reason = reason
+	upnp_changed.emit()
+
+
+## Ce qu'il faut dire aux joueurs qui viennent par Internet.
+func upnp_text() -> String:
+	match upnp_state:
+		"busy":
+			return "Par Internet : ouverture du port sur votre box (UPnP)…"
+		"ok":
+			if upnp_address != "":
+				return "Par Internet : %s (port %d ouvert sur votre box par UPnP)." % [upnp_address, _port]
+			return "Par Internet : port %d ouvert sur votre box par UPnP ; donnez votre adresse publique." % _port
+		"fail":
+			return "Par Internet : %s ; redirigez le port %d (UDP) sur votre box, ou utilisez Tailscale." % [upnp_reason, _port]
+	return "Par Internet : votre adresse publique, port %d redirigé (UDP), ou Tailscale." % _port
+
+
+func _exit_tree() -> void:
+	if _mapper:
+		_mapper.shutdown()
+
+
 static func local_addresses() -> Array[String]:
 	var out: Array[String] = []
 	for a in IP.get_local_addresses():

@@ -177,6 +177,7 @@ func _ready() -> void:
 	chat.bind(net)
 	net.joined.connect(_on_net_joined)
 	net.resynced.connect(_on_net_resynced)
+	net.upnp_changed.connect(_on_upnp_changed)
 	net.join_failed.connect(func(reason: String) -> void:
 		if _main_menu.page == "join":
 			_main_menu.show_page("join")
@@ -616,8 +617,8 @@ func host_game(port := NetSession.DEFAULT_PORT, seats := {}) -> bool:
 
 func _hosting_text(port: int) -> String:
 	var addrs := NetSession.local_addresses()
-	return "Partie ouverte au réseau, port %d (UDP). Adresse à donner : %s. Par Internet : votre adresse publique, port redirigé, ou Tailscale." % [
-			port, ", ".join(addrs) if not addrs.is_empty() else "introuvable"]
+	return "Partie ouverte au réseau, port %d (UDP). Sur votre réseau local : %s. %s" % [
+			port, ", ".join(addrs) if not addrs.is_empty() else "adresse introuvable", net.upnp_text()]
 
 
 ## Rejoint une partie (menu principal). La suite arrive par _on_net_joined ou un refus.
@@ -672,8 +673,9 @@ func _lobby_text() -> String:
 		if net.lobby_ready.has(p):
 			tag = " ✓"
 		who.append(String(net.names[p]) + tag)
-	return "Salon ouvert · adresse %s, port %d (UDP) · visible sur votre réseau local · joueurs : %s" % [
-			", ".join(addrs) if not addrs.is_empty() else "?", NetSession.DEFAULT_PORT, ", ".join(who) if not who.is_empty() else "aucun pour l'instant"]
+	return "Salon ouvert · adresse %s, port %d (UDP) · visible sur votre réseau local · joueurs : %s\n%s" % [
+			", ".join(addrs) if not addrs.is_empty() else "?", NetSession.DEFAULT_PORT, ", ".join(who) if not who.is_empty() else "aucun pour l'instant",
+			net.upnp_text()]
 
 
 ## Le salon a changé (réglages, joueurs) : places tenues, texte, état envoyé à tous.
@@ -783,6 +785,14 @@ func _on_net_joined(state: GameState, empire_id: int) -> void:
 		_hud.notify("Vous dirigez %s. Tours simultanés : donnez vos ordres, puis Fin de tour (Espace)." % me.display_name(), "good")
 	else:
 		_hud.notify("Vous dirigez %s. La partie est en pause : Espace pour reprendre." % me.display_name(), "good")
+
+
+## La box a répondu à l'ouverture du port : le salon se met à jour, la partie l'annonce.
+func _on_upnp_changed() -> void:
+	if net.lobby_open:
+		_lobby_sync()
+	elif net.is_host() and net.upnp_state in ["ok", "fail"]:
+		_hud.notify(net.upnp_text(), "good" if net.upnp_state == "ok" else "bad")
 
 
 ## L'hôte a renvoyé son état après un écart de calcul : on reprend sa partie, même vue, même sélection.
