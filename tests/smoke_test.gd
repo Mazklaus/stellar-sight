@@ -811,6 +811,17 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(not menu._continue.visible and menu._items.size() == 8, "accueil : Reprendre remplace Continuer")
 	menu.show_page("join")
 	_check(menu._join_page.visible and not menu._home.visible, "accueil : page Multijoueur")
+	# Réseau local : une partie annoncée apparaît dans la liste, sans adresse à taper.
+	var beacon := LanDiscovery.new()
+	for _i in 30:
+		beacon.announce({"name": "Partie de test", "port": 24570, "players": 2, "turns": true, "date": "1 janvier 2400", "version": GameVersion.fingerprint()})
+		await process_frame
+		if not menu.lan.games.is_empty():
+			break
+	await process_frame
+	var lan_buttons := menu._lan_list.get_children().filter(func(n: Node) -> bool: return n is Button and not n.is_queued_for_deletion())
+	_check(menu.lan.is_listening() and lan_buttons.size() == 1 and String(lan_buttons[0].text).contains("Partie de test") and not lan_buttons[0].disabled,
+			"Multijoueur : une partie du réseau local apparaît toute seule")
 	menu.show_empire_choice([{"id": 1, "name": "Empire libre", "registre": "", "color": "ff8800", "colonies": 2, "player": "", "reserved": "", "free": true},
 			{"id": 2, "name": "Empire pris", "registre": "", "color": "0088ff", "colonies": 1, "player": "Alice", "reserved": "", "free": false}])
 	var choice_buttons := menu._join_choice.get_children().filter(func(n: Node) -> bool: return n is Button and not n.is_queued_for_deletion())

@@ -20,6 +20,11 @@ func _initialize() -> void:
 	menu.show_page("join")
 	menu._join_name.text = "Alice"
 	menu._join_address.text = "192.168.1.20"
+	# Une partie hébergée sur le réseau local apparaît toute seule dans la liste.
+	var beacon := LanDiscovery.new()
+	for _i in 30:
+		beacon.announce({"name": "Maître Sentient", "port": 24570, "players": 2, "turns": true, "date": "14 mars 2403", "version": GameVersion.fingerprint()})
+		await process_frame
 	await _frames(5)
 	await _shot(out + "/reseau-multijoueur.png")
 	# L'hôte : Nouvelle partie en réseau (tours simultanés), lancée et ouverte aussitôt.

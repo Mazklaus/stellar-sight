@@ -306,6 +306,7 @@ func open(can_resume: bool, has_save: bool, save_label := "") -> void:
 
 func close() -> void:
 	visible = false
+	lan.close()
 
 
 func is_open() -> bool:
@@ -319,6 +320,12 @@ func show_page(name: String) -> void:
 	_options_page.visible = name == "options"
 	if _join_page:
 		_join_page.visible = name == "join"
+	if name == "join":
+		if not lan.is_listening():
+			lan.listen()
+			_refresh_lan()
+	elif lan.is_listening():
+		lan.close()
 	if name == "join":
 		_join_choice.visible = false
 		_join_form.visible = true
@@ -352,6 +359,10 @@ var _join_page: Control
 var host_new := false
 var _join_form: Control
 var _join_go: Control
+## Parties du réseau local, entendues sans taper d'adresse.
+var lan := LanDiscovery.new()
+var _lan_list: VBoxContainer
+var _lan_hint: Label
 var _join_choice: VBoxContainer
 var _resume_net: Control
 var _join_name: LineEdit
@@ -406,7 +417,13 @@ func _build_join_page(root: Control) -> void:
 	form.add_theme_constant_override("separation", 12)
 	box.add_child(form)
 	_join_form = form
-	var intro := UiTheme.paragraph("Entrez l'adresse que l'hôte vous donne, puis choisissez votre empire. Si vous avez quitté la partie, même par une coupure, vous retrouvez le vôtre. Il faut la même version du jeu et de Godot.", 520, 14)
+	form.add_child(UiTheme.dim("Parties sur votre réseau", 14))
+	_lan_list = VBoxContainer.new()
+	_lan_list.add_theme_constant_override("separation", 4)
+	form.add_child(_lan_list)
+	_lan_hint = UiTheme.dim("Recherche… (une partie hébergée sur le même réseau apparaît ici toute seule)", 13)
+	_lan_list.add_child(_lan_hint)
+	var intro := UiTheme.paragraph("Ou entrez l'adresse que l'hôte vous donne, puis choisissez votre empire. Si vous avez quitté la partie, même par une coupure, vous retrouvez le vôtre. Il faut la même version du jeu et de Godot.", 520, 14)
 	intro.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 	form.add_child(intro)
 	var grid := GridContainer.new()
@@ -472,6 +489,40 @@ func request_join() -> void:
 func set_join_status(text: String) -> void:
 	if _join_status:
 		_join_status.text = text
+
+
+func _process(_delta: float) -> void:
+	if visible and page == "join" and lan.poll():
+		_refresh_lan()
+
+
+## Liste des parties entendues sur le réseau local : un clic pour les rejoindre.
+func _refresh_lan() -> void:
+	if _lan_list == null:
+		return
+	for c in _lan_list.get_children():
+		if c != _lan_hint:
+			c.queue_free()
+	_lan_hint.visible = lan.games.is_empty()
+	if not lan.is_listening():
+		_lan_hint.text = "Recherche impossible : un autre jeu ouvert sur cette machine écoute déjà le réseau local."
+		_lan_hint.visible = true
+	for addr in lan.games:
+		var g: Dictionary = lan.games[addr]
+		var same := String(g["version"]) == GameVersion.fingerprint()
+		var b := Button.new()
+		b.text = "%s  ·  %s  ·  %d joueur%s  ·  %s%s" % [String(g["name"]), "tours simultanés" if g["turns"] else "temps réel",
+				int(g["players"]), "s" if int(g["players"]) > 1 else "", String(g["date"]), "" if same else "  ·  autre version du jeu"]
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.disabled = not same
+		b.tooltip_text = "%s, port %d" % [addr, int(g["port"])]
+		var a := String(addr)
+		var port := int(g["port"])
+		b.pressed.connect(func() -> void:
+			_join_address.text = a
+			_join_port.text = str(port)
+			request_join())
+		_lan_list.add_child(b)
 
 
 ## Bouton « Nouvelle partie en réseau » : page Nouvelle partie, tours simultanés proposés d'abord.

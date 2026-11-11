@@ -93,6 +93,10 @@ var _delay_timer := 0.0
 var _tokens := {}
 var _picks := {}
 var _ready := {}
+## Hôte : annonce de la partie sur le réseau local (voir LanDiscovery).
+var _beacon: LanDiscovery
+var _beacon_timer := 0.0
+var _port := DEFAULT_PORT
 
 
 func is_active() -> bool:
@@ -118,6 +122,9 @@ func host(sim: Simulation, empire_id: int, port := DEFAULT_PORT, seats := {}) ->
 	_peer.peer_connected.connect(_on_peer_connected)
 	_peer.peer_disconnected.connect(_on_peer_disconnected)
 	role = HOST
+	_port = port
+	_beacon = LanDiscovery.new()
+	_beacon_timer = 0.0
 	core = Lockstep.new(sim, true)
 	core.seats[Lockstep.HOST] = empire_id
 	core.desync_detected.connect(_on_desync)
@@ -184,6 +191,7 @@ func close() -> void:
 	if _peer:
 		_peer.close()
 	_peer = null
+	_beacon = null
 	role = NONE
 	core = null
 	names = {}
@@ -347,6 +355,11 @@ func _set_timeout(id: int) -> void:
 
 
 func _host_clock(delta: float) -> void:
+	_beacon_timer -= delta
+	if _beacon and _beacon_timer <= 0.0:
+		_beacon_timer = 1.0
+		_beacon.announce({"name": player_name, "port": _port, "players": core.seats.size(),
+				"turns": turn_mode, "date": GameCalendar.date_string(core.tick()), "version": GameVersion.fingerprint()})
 	_delay_timer += delta
 	if _delay_timer > 1.0:
 		_delay_timer = 0.0
