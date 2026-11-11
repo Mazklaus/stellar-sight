@@ -159,6 +159,13 @@ static func probe(player: int, system_id: int) -> Dictionary:
 
 
 ## Renvoie "" si l'ordre est applicable à cet état, sinon la raison du refus.
+## Multijoueur : confie un empire à un humain (ai_level "") ou à l'IA (un niveau d'AiLevels), quand un
+## joueur rejoint ou quitte la partie. Seul l'hôte l'émet (la session refuse celui d'un client) ;
+## comme tout ordre, il passe dans le flux commun pour s'appliquer au même jour sur chaque machine.
+static func seat(empire_id: int, ai_level: String) -> Dictionary:
+	return {"type": "seat", "player": empire_id, "ai": ai_level}
+
+
 static func validate(state: GameState, cmd: Dictionary) -> String:
 	if not cmd.has("type") or not cmd.has("player"):
 		return "ordre incomplet"
@@ -229,6 +236,13 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Espionage.check_cells(state, int(cmd["player"]), int(cmd.get("target", -1)), int(cmd.get("n", -1)))
 		"probe":
 			return Espionage.check_probe(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"seat":
+			if state.get_empire(int(cmd["player"])) == null:
+				return "empire inconnu"
+			var lv := String(cmd.get("ai", ""))
+			if lv != "" and not AiLevels.is_valid(lv):
+				return "niveau d'IA inconnu : %s" % lv
+			return ""
 		_:
 			return "type d'ordre inconnu : %s" % cmd["type"]
 
@@ -382,3 +396,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Research.apply_queue(state, int(cmd["player"]), String(cmd["tech"]), bool(cmd.get("front", false)))
 		"research_remove":
 			Research.apply_remove(state, int(cmd["player"]), String(cmd["tech"]))
+		"seat":
+			var e := state.get_empire(int(cmd["player"]))
+			e.ai_level = String(cmd["ai"])
+			if e.ai_level != "" and not AiLevels.is_valid_temperament(e.ai_temperament):
+				e.ai_temperament = AiLevels.default_temperament()

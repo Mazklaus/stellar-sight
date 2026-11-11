@@ -8,6 +8,8 @@ signal resume_requested
 signal save_requested
 signal load_requested
 signal main_menu_requested
+## « Ouvrir en réseau » : la partie en cours accueille d'autres joueurs (NetSession).
+signal host_requested
 signal quit_requested
 
 ## Raccourcis par thème, affichés dans la page « Raccourcis ».
@@ -87,6 +89,7 @@ func _ready() -> void:
 	_item("Reprendre", "Échap", func() -> void: resume_requested.emit())
 	_item("Sauvegarder", "F5", func() -> void: save_requested.emit())
 	_item("Charger", "F9", func() -> void: load_requested.emit())
+	_item("Ouvrir en réseau", "", func() -> void: host_requested.emit())
 	_item("Raccourcis", "", func() -> void: show_page("shortcuts"))
 	_item("Options", "", func() -> void: show_page("options"))
 	_item("Menu principal", "", func() -> void: main_menu_requested.emit())
@@ -159,8 +162,12 @@ func _ready() -> void:
 	show_page("home")
 
 
-func open(date_text: String) -> void:
-	_date.text = "Le temps est suspendu au %s. Les flottes retiennent leur souffle." % date_text
+## online : partie en réseau (le temps n'est pas suspendu pour autant).
+func open(date_text: String, online := false) -> void:
+	if online:
+		_date.text = "Partie en réseau : le temps continue pour tout le monde. Espace met la partie en pause pour tous."
+	else:
+		_date.text = "Le temps est suspendu au %s. Les flottes retiennent leur souffle." % date_text
 	visible = true
 	show_page("home")
 

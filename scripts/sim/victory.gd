@@ -283,9 +283,15 @@ static func _conquest(state: GameState, e: Empire, out: Dictionary) -> void:
 		targets += 1
 		if not o.eliminated:
 			alive += 1
-		if o.home_planet >= 0 and b.has(_owner_of(state, o.home_planet)):
+		if FactionTraits.has_horde(o.faction()):
+			# Horde : sa capitale est la flotte-ville ; elle compte comme prise une fois abattue.
+			if FactionTraits.city_fleet(state, o.id) == null:
+				held_caps += 1
+		elif o.home_planet >= 0 and b.has(_owner_of(state, o.home_planet)):
 			held_caps += 1
 	var own_ok := e.home_planet < 0 or b.has(_owner_of(state, e.home_planet))
+	if FactionTraits.has_horde(e.faction()):
+		own_ok = FactionTraits.city_fleet(state, e.id) != null
 	if b.size() > 1:
 		out["lines"].append("Alliés : %d (leurs conquêtes comptent)" % (b.size() - 1))
 	out["lines"].append("Capitales rivales tenues : %d / %d" % [held_caps, targets])

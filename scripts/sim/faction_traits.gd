@@ -236,6 +236,130 @@ static func network_pct(state: GameState, empire_id: int) -> int:
 	return mini(int(net["max_pct"]), int(net["knowledge_per_node"]) * network_nodes(state, empire_id))
 
 
+# --- Horde (Clans nomades) -----------------------------------------------------------------------
+## Pas de planète capitale : la capitale est une flotte-ville (un vaisseau "capital" unique) qui
+## rapporte ce que rapporte une capitale, enrichit le système où elle campe, et dont s'éloigner coûte.
+
+static func has_horde(faction: Dictionary) -> bool:
+	return faction.has("horde")
+
+
+## Classe du vaisseau-capitale d'une horde ("" sinon).
+static func city_ship(faction: Dictionary) -> String:
+	return String(faction.get("horde", {}).get("ship", ""))
+
+
+## Le vaisseau est-il une capitale mobile (flotte-ville) ?
+static func is_capital_ship(ship_id: String) -> bool:
+	return bool(GameData.ship(ship_id).get("capital", false))
+
+
+## Flotte qui porte la flotte-ville de l'empire (null s'il n'en a pas, ou plus).
+static func city_fleet(state: GameState, empire_id: int) -> Fleet:
+	var e := state.get_empire(empire_id)
+	if e == null or e.eliminated:
+		return null
+	var ship := city_ship(e.faction())
+	if ship == "":
+		return null
+	var best: Fleet = null
+	for fid in state.fleets:
+		var f: Fleet = state.fleets[fid]
+		if f.owner == empire_id and f.ships.has(ship) and (best == null or f.id < best.id):
+			best = f
+	return best
+
+
+## La flotte porte-t-elle une flotte-ville ?
+static func is_city_fleet(f: Fleet) -> bool:
+	for s in f.ships:
+		if is_capital_ship(s):
+			return true
+	return false
+
+
+## Système de la capitale : celui de la planète capitale, sinon celui de la flotte-ville (horde),
+## sinon celui du monde d'origine ; -1 pour un empire disparu.
+static func capital_system(state: GameState, empire_id: int) -> int:
+	var e := state.get_empire(empire_id)
+	if e == null or e.eliminated:
+		return -1
+	if e.capital_planet >= 0:
+		return state.galaxy.get_planet(e.capital_planet).system_id
+	var f := city_fleet(state, empire_id)
+	if f != null:
+		return f.system_id
+	if e.home_planet >= 0:
+		return state.galaxy.get_planet(e.home_planet).system_id
+	return -1
+
+
+## Campement : système où la flotte-ville est à l'arrêt (-1 en route, sans flotte-ville, ou sans horde).
+static func camp_system(state: GameState, empire_id: int) -> int:
+	var f := city_fleet(state, empire_id)
+	return f.system_id if f != null and not f.is_moving() else -1
+
+
+## Revendication loin du clan : à plus de far_jumps sauts de la flotte-ville (ou toutes, si la
+## flotte-ville est détruite). Faux hors horde.
+static func far_from_clan(state: GameState, c: Colony) -> bool:
+	var e := state.get_empire(c.owner)
+	if e == null or not has_horde(e.faction()):
+		return false
+	var f := city_fleet(state, c.owner)
+	if f == null:
+		return true
+	var sys := state.galaxy.get_planet(c.planet_id).system_id
+	var d: Dictionary = jumps_from(state.galaxy, f.system_id)
+	return int(d.get(sys, 999)) > int(e.faction()["horde"]["far_jumps"])
+
+
+## Ce que rapporte la flotte-ville chaque mois : le rendement du bâtiment « capitale ».
+static func city_yields(state: GameState, empire_id: int) -> Dictionary:
+	if city_fleet(state, empire_id) == null:
+		return {}
+	return GameData.building("capitale").get("yields", {})
+
+
+## Pillage du mois : pour chaque flotte armée à l'arrêt dans un système d'un empire en guerre avec la
+## horde, ce qu'elle prend (par vaisseau armé, dans la limite des stocks de la victime).
+## [{"fleet", "victim", "system", "amounts": {res: n}}], flottes par identifiant croissant.
+static func loot_plan(state: GameState, empire_id: int) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var e := state.get_empire(empire_id)
+	if e == null or e.eliminated or not has_horde(e.faction()) or e.wars.is_empty():
+		return out
+	var per: Dictionary = e.faction()["horde"].get("loot", {})
+	var left := {}
+	for f in Fleets.empire_fleets(state, empire_id):
+		if f.is_moving():
+			continue
+		var victim_id := state.system_owner(f.system_id)
+		if victim_id < 0 or not e.wars.has(victim_id):
+			continue
+		var victim := state.get_empire(victim_id)
+		if victim == null or victim.eliminated:
+			continue
+		var armed := 0
+		for s in f.ships:
+			if Combat.is_armed_ship(s):
+				armed += 1
+		if armed == 0:
+			continue
+		if not left.has(victim_id):
+			left[victim_id] = victim.resources.duplicate()
+		var stock: Dictionary = left[victim_id]
+		var amounts := {}
+		for r in per:
+			var n := mini(int(per[r]) * armed, maxi(0, int(stock.get(r, 0))))
+			if n > 0:
+				amounts[r] = n
+				stock[r] = int(stock.get(r, 0)) - n
+		if not amounts.is_empty():
+			out.append({"fleet": f.id, "victim": victim_id, "system": f.system_id, "amounts": amounts})
+	return out
+
+
 ## Ajuste le rendement d'une revendication (Economy.colony_yields) selon les traits de son empire.
 static func adjust_yields(state: GameState, c: Colony, gross: Dictionary, upkeep: Dictionary) -> void:
 	var e := state.get_empire(c.owner)
@@ -247,6 +371,18 @@ static func adjust_yields(state: GameState, c: Colony, gross: Dictionary, upkeep
 		for r in gross:
 			@warning_ignore("integer_division")
 			gross[r] = int(gross[r]) * cut / 100
+	# Horde : le système du campement prospère, les revendications loin du clan s'étiolent.
+	if has_horde(e.faction()) and c.is_established():
+		var hd: Dictionary = e.faction()["horde"]
+		var pct := 100
+		if state.galaxy.get_planet(c.planet_id).system_id == camp_system(state, c.owner):
+			pct = int(hd["camp_pct"])
+		elif far_from_clan(state, c):
+			pct = int(hd["far_pct"])
+		if pct != 100:
+			for r in gross:
+				@warning_ignore("integer_division")
+				gross[r] = int(gross[r]) * pct / 100
 	if not is_fief(state, c):
 		return
 	var fi: Dictionary = e.faction()["fiefs"]
@@ -514,6 +650,23 @@ static func gauge(state: GameState, empire_id: int) -> Dictionary:
 %d revendication%s coupée%s du réseau : production divisée par deux." % [cut, "s" if cut > 1 else "", "s" if cut > 1 else ""]
 		return {"label": "Réseau", "value": "%d" % nodes if cut == 0 else "%d (%d coupé%s)" % [nodes, cut, "s" if cut > 1 else ""],
 				"tip": tip, "bad": cut > 0}
+	if has_horde(f):
+		var hd: Dictionary = f["horde"]
+		var cf := city_fleet(state, empire_id)
+		if cf == null:
+			return {"label": "Flotte-ville", "value": "détruite", "bad": true,
+					"tip": "La flotte-ville est détruite : toutes les revendications produisent %d %% de moins, et plus rien ne rapporte ce que rapportait le palais.\nReconstruisez-la dans un chantier." % (100 - int(hd["far_pct"]))}
+		var far := 0
+		for pid in state.colonies:
+			var c: Colony = state.colonies[pid]
+			if c.owner == empire_id and c.is_established() and far_from_clan(state, c):
+				far += 1
+		var where := state.galaxy.systems[cf.system_id].system_name
+		var tip := ("En route depuis %s : pas de campement." % where) if cf.is_moving() \
+				else ("Campement à %s : les revendications du système produisent +%d %%." % [where, int(hd["camp_pct"]) - 100])
+		tip += "\n%d revendication%s à plus de %d sauts : %d %% de production." % [far, "s" if far > 1 else "", int(hd["far_jumps"]), int(hd["far_pct"]) - 100]
+		return {"label": "Flotte-ville", "value": ("en route" if cf.is_moving() else where) if far == 0 else "%s (%d loin)" % ["en route" if cf.is_moving() else where, far],
+				"tip": tip}
 	if Diplomacy.has_ability(state, empire_id, "mercenary"):
 		var c := Diplomacy.contract_of(state, empire_id)
 		if c.is_empty():

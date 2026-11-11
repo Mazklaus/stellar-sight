@@ -397,7 +397,7 @@ func _test_fleet_ui(main: Node) -> void:
 
 func _test_colony_ui(main: Node) -> void:
 	var st: GameState = main.simulation.state
-	var me: Empire = st.get_empire(main.LOCAL_PLAYER)
+	var me: Empire = st.get_empire(main.local_player)
 	var screen: SystemScreen = main._system_screen
 	_check(me.faction_id == main.player_faction, "le joueur joue sa faction (%s)" % me.faction_id)
 	var home_sys: int = main.galaxy.get_planet(me.capital_planet).system_id
@@ -546,7 +546,7 @@ func _test_empire_report() -> void:
 ## Barre d'empire, menus d'empire, menu pause, menu principal, raccourcis de navigation.
 func _test_navigation_ui(main: Node) -> void:
 	var st: GameState = main.simulation.state
-	var me: Empire = st.get_empire(main.LOCAL_PLAYER)
+	var me: Empire = st.get_empire(main.local_player)
 	var clock: Node = root.get_node("GameClock")
 	var hud: Hud = main._hud
 	var screens: EmpireScreens = main._empire_screens
@@ -772,6 +772,37 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(not main._pause_menu.is_open() and not clock.paused, "Échap referme le menu pause et le temps reprend")
 	clock.set_paused(true)
 
+	# Multijoueur : la partie s'ouvre au réseau ; ordres et pause passent par la session (lockstep).
+	_check(main.host_game(24599) and main.net.is_host() and clock.driver == main.net, "Ouvrir en réseau : la session pilote l'horloge")
+	var sys_id: int = main.galaxy.get_planet(main.simulation.state.get_empire(main.local_player).capital_planet).system_id
+	_check(main._submit(SimCommands.rename_system(main.local_player, sys_id, "Relais-Réseau")), "en réseau, l'ordre part à la session")
+	for _i in 3:
+		await process_frame
+	_check(main.galaxy.get_system(sys_id).system_name == "Relais-Réseau", "en pause, l'ordre de l'hôte s'applique tout de suite")
+	main.open_pause_menu()
+	_check(main._pause_menu.is_open() and main._pause_menu._date.text.contains("réseau"), "menu du jeu en réseau : il ne suspend pas le temps des autres")
+	main.close_pause_menu()
+	main.leave_network("")
+	_check(not main.net.is_active() and clock.driver == null, "quitter le réseau rend la main à l'horloge locale")
+	# Tours simultanés en réseau : l'hôte seul termine son tour, les jours défilent jusqu'au tour suivant.
+	main.net.autosave_path = "user://test_multi_auto.json"
+	clock.set_mode(clock.MODE_TURNS, 5)
+	_check(main.host_game(24599) and main.net.turn_mode and clock.is_turn_based(), "le tour par tour s'ouvre au réseau")
+	_check(main.net.waiting == [Lockstep.HOST] and not clock.net_ready, "en réseau, le tour attend que l'hôte ait terminé")
+	var turn_end: int = (main.simulation.state.tick / 5 + 1) * 5
+	clock.toggle_pause()
+	_check(not main.net.paused and main.net.turn_target == turn_end and clock.is_resolving_turn(), "Fin de tour : seul joueur prêt, les jours du tour défilent")
+	for _i in 120:
+		await process_frame
+		if main.net.paused:
+			break
+	_check(main.net.paused and main.simulation.state.tick == turn_end and not clock.is_resolving_turn(), "tout le monde s'arrête au début du tour suivant")
+	var seats_saved: Dictionary = main.net.seats_record()
+	_check(seats_saved.size() == 1 and int(seats_saved.values()[0]["e"]) == main.local_player and FileAccess.file_exists("user://test_multi_auto.json"), "sauvegarde automatique de fin de tour, avec les places")
+	main.leave_network("")
+	DirAccess.remove_absolute("user://test_multi_auto.json")
+	clock.set_mode(clock.MODE_REALTIME)
+
 	# Menu principal : reprendre, puis nouvelle partie avec une autre faction et une graine choisie.
 	main.open_main_menu()
 	await process_frame
@@ -779,7 +810,37 @@ func _test_navigation_ui(main: Node) -> void:
 	# Les lancements des tests ne remplacent pas la « dernière partie » de l'utilisateur.
 	menu.presets_path = "user://test_new_game_presets.json"
 	_check(menu.is_open() and not hud.visible and menu._resume.visible, "menu principal : la partie en cours peut reprendre")
-	_check(not menu._continue.visible and menu._items.size() == 7, "accueil : Reprendre remplace Continuer")
+	_check(not menu._continue.visible and menu._items.size() == 8, "accueil : Reprendre remplace Continuer")
+	menu.show_page("join")
+	_check(menu._join_page.visible and not menu._home.visible, "accueil : page Multijoueur")
+	# Réseau local : une partie annoncée apparaît dans la liste, sans adresse à taper.
+	var beacon := LanDiscovery.new()
+	for _i in 30:
+		beacon.announce({"name": "Partie de test", "port": 24570, "players": 2, "turns": true, "date": "1 janvier 2400", "version": GameVersion.fingerprint()})
+		await process_frame
+		if not menu.lan.games.is_empty():
+			break
+	await process_frame
+	var lan_buttons := menu._lan_list.get_children().filter(func(n: Node) -> bool: return n is Button and not n.is_queued_for_deletion())
+	_check(menu.lan.is_listening() and lan_buttons.size() == 1 and String(lan_buttons[0].text).contains("Partie de test") and not lan_buttons[0].disabled,
+			"Multijoueur : une partie du réseau local apparaît toute seule")
+	menu.show_empire_choice([{"id": 1, "name": "Empire libre", "registre": "", "color": "ff8800", "colonies": 2, "player": "", "reserved": "", "free": true},
+			{"id": 2, "name": "Empire pris", "registre": "", "color": "0088ff", "colonies": 1, "player": "Alice", "reserved": "", "free": false}])
+	var choice_buttons := menu._join_choice.get_children().filter(func(n: Node) -> bool: return n is Button and not n.is_queued_for_deletion())
+	_check(not menu._join_form.visible and choice_buttons.size() == 2 and not choice_buttons[0].disabled and choice_buttons[1].disabled, "Multijoueur : choix de l'empire, les empires joués sont grisés")
+	menu.show_page("join")
+	_check(menu._join_form.visible and not menu._join_choice.visible, "Multijoueur : la page revient au formulaire")
+	var old_time := menu._time_select.selected
+	menu.open_host_new()
+	_check(menu.page == "new" and menu.host_new and menu.time_mode == clock.MODE_TURNS, "Héberger : page Nouvelle partie, tours simultanés proposés")
+	menu.show_page("home")
+	_check(not menu.host_new, "revenir à l'accueil annule l'hébergement")
+	menu.set_time_choice(old_time)
+	menu.show_page("join")
+	menu._join_address.text = ""
+	menu.request_join()
+	_check(menu._join_status.text.contains("adresse"), "Rejoindre : l'adresse est demandée")
+	menu.show_page("home")
 	menu._layout_home()
 	var geo: Array = menu._planet_geometry()
 	var orbit_r: float = geo[1] + geo[2].y * 0.09

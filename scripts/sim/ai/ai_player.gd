@@ -752,6 +752,12 @@ static func _shipyards(ctx: Dictionary) -> void:
 		var yard := _best_yard(ctx, cls)
 		if yard and _issue(ctx, SimCommands.build_ship(e.id, yard.planet_id, cls)):
 			_intent(ctx, "Prépare une expansion")
+	# Horde : une flotte-ville perdue se reconstruit dès que possible, avant tout le reste.
+	var city := FactionTraits.city_ship(e.faction())
+	if city != "" and Fleets.count_same_hull(state, e.id, city) == 0 and not _forgets(ctx):
+		var cy := _best_yard(ctx, city)
+		if cy and _issue(ctx, SimCommands.build_ship(e.id, cy.planet_id, city)):
+			_intent(ctx, "Reforge la flotte-ville")
 	var scout := scout_class(e)
 	var scouts := int(ctx["lv"].get("scouts", 1)) + (int(ctx["ai"].get("scouts", 0)) if use >= 1 else 0)
 	if scout != "" and _scout_count(state, e, scout) < scouts and _frontier(ctx) and not _forgets(ctx):
@@ -813,8 +819,46 @@ static func _fleets(ctx: Dictionary) -> void:
 			continue  # dissoute par une colonisation plus haut dans la boucle
 		if Fleets.colonizer_ship(f) != "":
 			_colonizer(ctx, f)
+		elif FactionTraits.is_city_fleet(f):
+			_move_city(ctx, f)
 		elif f.is_idle() and not Combat.is_warfleet(f) and _frontier(ctx) and not _forgets(ctx):
 			_issue(ctx, SimCommands.set_fleet_order(e.id, f.id, Fleet.ORDER_EXPLORE))
+
+
+## Horde : la flotte-ville campe dans le système le plus peuplé du clan (le campement y rapporte le
+## plus), loin des flottes ennemies. La Recrue la laisse où elle est née.
+static func _move_city(ctx: Dictionary, f: Fleet) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if f.is_moving() or _use(ctx) <= 0 or _forgets(ctx):
+		return
+	var target := city_camp(ctx)
+	if target >= 0 and target != f.system_id:
+		if _issue(ctx, SimCommands.move_fleet(e.id, f.id, target)):
+			_intent(ctx, "Lève le camp vers %s" % state.galaxy.systems[target].system_name)
+
+
+## Meilleur campement : le système à soi où la population fondée est la plus forte, sans flotte ennemie
+## armée (à égalité, le plus petit identifiant). -1 si aucun.
+static func city_camp(ctx: Dictionary) -> int:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var pops := {}
+	for c in _my_colonies(ctx):
+		var sid := state.galaxy.get_planet(c.planet_id).system_id
+		pops[sid] = int(pops.get(sid, 0)) + c.population * 10 + 1
+	var emap := _enemy_power_map(ctx)
+	var best := -1
+	var best_pop := -1
+	var keys := pops.keys()
+	keys.sort()
+	for sid in keys:
+		if emap.has(sid) or state.system_owner(int(sid)) != e.id:
+			continue
+		if int(pops[sid]) > best_pop:
+			best_pop = int(pops[sid])
+			best = int(sid)
+	return best
 
 
 ## Un vaisseau colon : s'il est arrivé sur sa cible, il fonde ; sinon il part vers la meilleure.
@@ -1405,7 +1449,7 @@ static func _enemy_power_map(ctx: Dictionary) -> Dictionary:
 static func _capital_system(ctx: Dictionary) -> int:
 	var state: GameState = ctx["state"]
 	var e: Empire = ctx["e"]
-	return state.galaxy.get_planet(e.capital_planet).system_id if e.capital_planet >= 0 else -1
+	return FactionTraits.capital_system(state, e.id)
 
 
 static func _command_warfleets(ctx: Dictionary) -> void:

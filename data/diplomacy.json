@@ -68,7 +68,7 @@
 		"gouvernement_pairs": [
 			["feodalite", "republique", -5],
 			["theocratie", "republique", -5],
-			["theocratie", "conscience_distribuee", -5],
+			["theocratie", "conscience", -5],
 			["syndicat", "horde", -5]
 		],
 		"archetype_seen": {"ruche": -10},

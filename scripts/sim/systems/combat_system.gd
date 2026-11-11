@@ -617,6 +617,10 @@ static func _eliminations(state: GameState, added: Array[Dictionary]) -> void:
 	for pid in state.sorted_colony_ids():
 		alive[state.colonies[pid].owner] = true
 	for e in state.empires:
+		# Horde : tant que la flotte-ville vogue, le clan vit, même sans une seule planète.
+		if not e.eliminated and not alive.has(e.id) and FactionTraits.city_fleet(state, e.id) != null:
+			alive[e.id] = true
+	for e in state.empires:
 		if e.eliminated or alive.has(e.id):
 			continue
 		eliminate(state, e)
