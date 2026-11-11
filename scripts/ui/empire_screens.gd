@@ -1248,7 +1248,7 @@ func _relation_block(id: int) -> Control:
 	head.add_child(info)
 	info.add_child(UiTheme.dim(String(e.faction().get("registre", "")), 13))
 	var sl := Label.new()
-	sl.text = ("Disparu" if e.eliminated else Diplomacy.status_label(st)).to_upper()
+	sl.text = ("Disparu" if e.eliminated else Diplomacy.status_text(_state, _player, id)).to_upper()
 	sl.add_theme_font_size_override("font_size", 20)
 	sl.add_theme_color_override("font_color", DiplomacyTable.STATUS_COLORS[st])
 	info.add_child(sl)

@@ -77,6 +77,19 @@ static func allied(state: GameState, a: int, b: int) -> bool:
 	return pact(state, a, b) == ALLIANCE
 
 
+## Équipe commune de a et b (alliance verrouillée choisie à la création de la partie), 0 sinon.
+static func team_of(state: GameState, a: int, b: int) -> int:
+	return int(rel(state, a, b).get("team", 0))
+
+
+## Équipe : alliance verrouillée dès le premier jour (sans trêve ni délai de paix).
+static func form_team(state: GameState, a: int, b: int, team: int) -> void:
+	var r := _rel_w(state, a, b)
+	r["pact"] = ALLIANCE
+	r["since"] = state.tick
+	r["team"] = team
+
+
 static func has_trade(state: GameState, a: int, b: int) -> bool:
 	return int(rel(state, a, b).get("trade", 0)) != 0
 
@@ -112,6 +125,14 @@ static func status(state: GameState, a: int, b: int) -> String:
 static func status_label(st: String) -> String:
 	return {"none": "Aucun contact", "war": "En guerre", "alliance": "Alliance", "peace": "Paix",
 			"cold": "Guerre froide"}.get(st, st)
+
+
+## Statut lisible de a envers b ; une alliance d'équipe s'écrit « Équipe N ».
+static func status_text(state: GameState, a: int, b: int) -> String:
+	var st := status(state, a, b)
+	if st == ALLIANCE and team_of(state, a, b) > 0:
+		return "Équipe %d" % team_of(state, a, b)
+	return status_label(st)
 
 
 ## Alliés d'un empire (encore en jeu), triés.
@@ -585,6 +606,8 @@ static func check_cancel(state: GameState, player: int, target: int, treaty: Str
 		ALLIANCE:
 			if not allied(state, player, target):
 				return "aucune alliance avec cet empire"
+			if team_of(state, player, target) > 0:
+				return "alliance d'équipe : elle dure toute la partie"
 		PEACE:
 			if pact(state, player, target) != PEACE:
 				return "aucun traité de paix avec cet empire"
@@ -660,6 +683,8 @@ static func _add(into: Dictionary, amounts: Dictionary) -> void:
 static func check_war(state: GameState, a: int, b: int) -> String:
 	if in_truce(state, a, b):
 		return "une trêve court encore %d jours" % truce_left(state, a, b)
+	if team_of(state, a, b) > 0:
+		return "même équipe : vous êtes alliés toute la partie"
 	if allied(state, a, b):
 		return "quittez d'abord l'alliance"
 	return ""

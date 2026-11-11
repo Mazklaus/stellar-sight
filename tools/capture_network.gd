@@ -35,6 +35,10 @@ func _initialize() -> void:
 	menu.select_faction("ossarane")
 	menu.set_slot_human(0, true)
 	menu.set_slot_human(1, true)
+	menu.set_player_team(1)
+	menu.set_slot_team(0, 1)
+	menu.set_slot_team(1, 2)
+	menu.set_slot_team(2, 2)
 	menu.remove_slot(menu.slots.size() - 1)  # Teyl reste libre pour Alice
 	var visitor := NetSession.new()
 	visitor.player_name = "Alice"

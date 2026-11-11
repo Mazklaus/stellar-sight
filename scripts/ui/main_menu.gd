@@ -96,6 +96,12 @@ var _slot_adv_index := -1
 var _slot_adv_title: Label
 var _slot_start_select: OptionButton
 var _slot_dist_select: OptionButton
+var _slot_team_select: OptionButton
+## Équipes : 0 = aucune, 1..TEAM_COUNT. Les empires d'une même équipe naissent alliés, voient
+## ensemble et gagnent ensemble ; leur alliance ne se rompt pas.
+const TEAM_COUNT := 4
+var player_team := 0
+var _team_select: OptionButton
 ## Réglages de la galaxie (GalaxySettings) : taille, forme, routes, départs, mondes garantis.
 var galaxy_settings: Dictionary = GalaxySettings.defaults()
 var _galaxy_banner: Widgets.ArtSlot
@@ -568,11 +574,12 @@ func lobby_view() -> Dictionary:
 		var f := GameData.faction(fid)
 		out.append({"i": i, "faction": fid, "name": "Au hasard" if fid == RANDOM_FACTION else String(f.get("name", fid)),
 				"color": String(sl["color"]) if String(sl["color"]) != "" else String(f.get("color", "#888888")),
-				"raw_color": String(sl["color"]), "human": is_slot_human(i), "level": AiLevels.label(String(sl["level"]) if String(sl["level"]) != "" else ai_level)})
+				"raw_color": String(sl["color"]), "human": is_slot_human(i), "level": AiLevels.label(String(sl["level"]) if String(sl["level"]) != "" else ai_level),
+				"team": slot_team(i)})
 	var mine := GameData.faction(selected_faction)
 	var time := "tours simultanés de %d jours" % turn_days if time_mode == GameClock.MODE_TURNS else "temps réel"
 	var size_label := String(GalaxySettings.entry("size", galaxy_settings["size"])["label"])
-	return {"slots": out, "host_faction": "Au hasard" if selected_faction == RANDOM_FACTION else String(mine.get("name", selected_faction)),
+	return {"slots": out, "host_team": player_team, "host_faction": "Au hasard" if selected_faction == RANDOM_FACTION else String(mine.get("name", selected_faction)),
 			"summary": "Galaxie %s · %s · IA %s par défaut · %d empires" % [size_label.to_lower(), time, AiLevels.label(ai_level), slots.size() + 1]}
 
 
@@ -614,7 +621,8 @@ func show_lobby(st: Dictionary) -> void:
 	summary.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 	_guest_lobby.add_child(summary)
 	var host_line := Label.new()
-	host_line.text = "■  %s  ·  %s (hôte)" % [String(st.get("host_faction", "?")), String(st.get("host", ""))]
+	host_line.text = "■  %s  ·  %s (hôte)%s" % [String(st.get("host_faction", "?")), String(st.get("host", "")),
+			"  ·  équipe %d" % int(st.get("host_team", 0)) if int(st.get("host_team", 0)) > 0 else ""]
 	_guest_lobby.add_child(host_line)
 	var mine := -1
 	var my_ready := false
@@ -630,6 +638,10 @@ func show_lobby(st: Dictionary) -> void:
 		name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_l.clip_text = true
 		row.add_child(name_l)
+		if int(sl.get("team", 0)) > 0:
+			var team_l := UiTheme.dim("Équipe %d" % int(sl["team"]), 14)
+			team_l.add_theme_color_override("font_color", UiTheme.ACCENT)
+			row.add_child(team_l)
 		var peer := int(sl.get("peer", 0))
 		if not bool(sl.get("human", false)):
 			row.add_child(UiTheme.dim("IA %s" % String(sl.get("level", "")), 14))
@@ -798,6 +810,38 @@ func is_slot_human(index: int) -> bool:
 	return host_new and index >= 0 and index < slots.size() and bool(slots[index].get("human", false))
 
 
+## Équipe d'un rival (0 = aucune).
+func slot_team(index: int) -> int:
+	if index < 0 or index >= slots.size():
+		return 0
+	return int(slots[index].get("team", 0))
+
+
+## Range un rival dans une équipe (0 = aucune). Absente des places sans équipe, pour que les
+## réglages par défaut restent reconnus.
+func set_slot_team(index: int, team: int) -> bool:
+	if index < 0 or index >= slots.size() or team < 0 or team > TEAM_COUNT:
+		return false
+	if team == 0:
+		slots[index].erase("team")
+	else:
+		slots[index]["team"] = team
+	_refresh_slots()
+	return true
+
+
+## Votre équipe (0 = aucune).
+func set_player_team(team: int) -> void:
+	player_team = clampi(team, 0, TEAM_COUNT)
+	if _team_select:
+		_team_select.select(player_team)
+	_refresh_slots()
+
+
+static func team_label(team: int) -> String:
+	return "Aucune" if team <= 0 else "Équipe %d" % team
+
+
 ## Ajoute un rival (au hasard par défaut). Refuse au-delà de MAX_EMPIRES - 1 rivaux.
 func add_slot(fid := RANDOM_FACTION) -> bool:
 	if slots.size() >= MAX_EMPIRES - 1:
@@ -910,7 +954,8 @@ func empire_setup(player: String, seed_value := 0) -> Dictionary:
 		picked[i] = pool[rng.randi_range(0, pool.size() - 1)]
 		used.append(picked[i])
 	var out := {"rivals": [] as Array[String], "ai_levels": [ai_level], "temperaments": [temperament],
-			"colors": [""], "starts": [""], "distances": [""], "duplicates": allow_duplicates, "slots": []}
+			"colors": [""], "starts": [""], "distances": [""], "duplicates": allow_duplicates, "slots": [],
+			"teams": [0 if spectator else player_team]}
 	for i in slots.size():
 		if picked[i] == "" or (out["rivals"] as Array).size() >= MAX_EMPIRES - 1:
 			continue
@@ -923,6 +968,7 @@ func empire_setup(player: String, seed_value := 0) -> Dictionary:
 		(out["colors"] as Array).append(s["color"])
 		(out["starts"] as Array).append(String(s.get("start", "")))
 		(out["distances"] as Array).append(String(s.get("distance", "")))
+		(out["teams"] as Array).append(int(s.get("team", 0)))
 	# Tous les rivaux retirés : on reprend les officiels plutôt qu'une galaxie vide.
 	if (out["rivals"] as Array).is_empty():
 		for fid in GameData.faction_ids():
@@ -933,6 +979,7 @@ func empire_setup(player: String, seed_value := 0) -> Dictionary:
 				(out["colors"] as Array).append("")
 				(out["starts"] as Array).append("")
 				(out["distances"] as Array).append("")
+				(out["teams"] as Array).append(0)
 	return out
 
 
@@ -953,7 +1000,35 @@ func slots_note() -> String:
 	if slots.size() + 1 > rec:
 		notes.append("Galaxie %s : %d empires conseillés, vous en prévoyez %d. Ça va être serré." % [
 			String(GalaxySettings.entry("size", galaxy_settings["size"])["label"]).to_lower(), rec, slots.size() + 1])
+	var team := _teams_note()
+	if team != "":
+		notes.append(team)
 	return "\n".join(notes)
+
+
+## Équipes qui ne servent à rien : seules, ou rassemblant tout le monde.
+func _teams_note() -> String:
+	var counts := {}
+	var everyone := 0
+	if not spectator and player_team > 0:
+		counts[player_team] = 1
+	for i in slots.size():
+		var t := slot_team(i)
+		if t > 0:
+			counts[t] = int(counts.get(t, 0)) + 1
+	for t: int in counts:
+		everyone = maxi(everyone, int(counts[t]))
+	var total := slots.size() + (0 if spectator else 1)
+	if everyone == total and total > 1:
+		return "Tous les empires sont dans la même équipe : personne à battre."
+	var alone := PackedStringArray()
+	for t: int in counts:
+		if int(counts[t]) == 1:
+			alone.append(str(t))
+	if not alone.is_empty():
+		alone.sort()
+		return "Équipe %s : un seul empire, elle ne change rien." % ", ".join(alone)
+	return ""
 
 
 func _duplicates_note() -> String:
@@ -1569,6 +1644,14 @@ func _build_rivals_block(page_root: Control) -> void:
 	rand_b.tooltip_text = "Chaque rival devient « Au hasard » : vous découvrirez vos voisins en les rencontrant."
 	rand_b.pressed.connect(randomize_slots)
 	actions.add_child(rand_b)
+	_team_select = _team_option()
+	for t in TEAM_COUNT + 1:
+		_team_select.set_item_text(t, "Votre équipe : %s" % team_label(t).to_lower() if t == 0 else "Votre équipe : %d" % t)
+	_team_select.select(player_team)
+	_team_select.focus_mode = Control.FOCUS_NONE
+	_team_select.tooltip_text = "Rangez des rivaux (IA ou joueurs) dans votre équipe avec leur bouton « + » :\nvous naissez alliés, voyez ensemble et gagnez ensemble. Des rivaux peuvent aussi former\nleurs propres équipes entre eux."
+	_team_select.item_selected.connect(set_player_team)
+	actions.add_child(_team_select)
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	actions.add_child(spacer)
@@ -1733,9 +1816,7 @@ func _slot_row(i: int) -> HBoxContainer:
 		who.text = holder if holder != "" else "Place libre"
 		who.add_theme_color_override("font_color", UiTheme.GOOD if holder != "" else UiTheme.TEXT_DIM)
 		row.add_child(who)
-		var more_h := Control.new()
-		more_h.custom_minimum_size = Vector2(26, 0)
-		row.add_child(more_h)
+		row.add_child(_slot_more_button(i))
 		var rm_h := Button.new()
 		rm_h.text = "×"
 		rm_h.focus_mode = Control.FOCUS_NONE
@@ -1760,15 +1841,7 @@ func _slot_row(i: int) -> HBoxContainer:
 	_mark_override(tsel, s["temper"] != "")
 	row.add_child(tsel)
 
-	var more := Button.new()
-	var custom := String(s.get("start", "")) != "" or String(s.get("distance", "")) != ""
-	more.text = "+"
-	more.focus_mode = Control.FOCUS_NONE
-	more.custom_minimum_size = Vector2(26, 0)
-	more.tooltip_text = "Départ : %s\nDistance : %s" % [START_LABELS[String(s.get("start", ""))], DISTANCE_LABELS[String(s.get("distance", ""))]]
-	_mark_button(more, custom)
-	more.pressed.connect(func() -> void: open_slot_advanced(i))
-	row.add_child(more)
+	row.add_child(_slot_more_button(i))
 
 	var rm := Button.new()
 	rm.text = "×"
@@ -1778,6 +1851,22 @@ func _slot_row(i: int) -> HBoxContainer:
 	rm.pressed.connect(func() -> void: remove_slot(i))
 	row.add_child(rm)
 	return row
+
+
+## Bouton « + » d'une place : départ, distance et équipe. Il affiche l'équipe (« É1 ») quand il y en a une.
+func _slot_more_button(i: int) -> Button:
+	var s := slots[i]
+	var more := Button.new()
+	var team := slot_team(i)
+	var custom := String(s.get("start", "")) != "" or String(s.get("distance", "")) != "" or team > 0
+	more.text = "É%d" % team if team > 0 else "+"
+	more.focus_mode = Control.FOCUS_NONE
+	more.custom_minimum_size = Vector2(26, 0)
+	more.tooltip_text = "Départ : %s\nDistance : %s\nÉquipe : %s" % [START_LABELS[String(s.get("start", ""))],
+			DISTANCE_LABELS[String(s.get("distance", ""))], team_label(team)]
+	_mark_button(more, custom)
+	more.pressed.connect(func() -> void: open_slot_advanced(i))
+	return more
 
 
 func _mark_button(b: Button, on: bool) -> void:
@@ -1796,6 +1885,7 @@ func open_slot_advanced(index: int) -> void:
 	_slot_adv_title.text = ("Rival %d : %s" % [index + 1, "au hasard" if fid == RANDOM_FACTION else String(GameData.faction(fid).get("short", fid))]).to_upper()
 	_slot_start_select.select(START_LABELS.keys().find(String(s.get("start", ""))))
 	_slot_dist_select.select(DISTANCE_LABELS.keys().find(String(s.get("distance", ""))))
+	_slot_team_select.select(slot_team(index))
 	_slot_adv.reset_size()
 	_slot_adv.popup_centered()
 
@@ -1821,6 +1911,10 @@ func _build_slot_advanced(page_root: Control) -> void:
 		_slot_dist_select.add_item(String(DISTANCE_LABELS[k]))
 	_slot_dist_select.item_selected.connect(func(i: int) -> void: set_slot(_slot_adv_index, "distance", String(DISTANCE_LABELS.keys()[i])))
 	_labeled_row(box, "Distance", _slot_dist_select)
+	_slot_team_select = _team_option()
+	_slot_team_select.tooltip_text = "Les empires d'une même équipe naissent alliés, se connaissent, voient ensemble\net gagnent ensemble. Leur alliance dure toute la partie."
+	_slot_team_select.item_selected.connect(func(i: int) -> void: set_slot_team(_slot_adv_index, i))
+	_labeled_row(box, "Équipe", _slot_team_select)
 	var note := UiTheme.paragraph("Les départs sont tirés selon le placement de la galaxie. « Sans préférence » : ce rival prend celui qui lui revient ; « Proche de vous » donne à ce rival l'un des départs les plus proches du vôtre, « Loin de vous » l'un des plus éloignés ; « Au hasard » tire l'une de ces trois distances, et vous la découvrirez en jeu.", 460, 13)
 	note.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 	box.add_child(note)
@@ -1830,6 +1924,13 @@ func _build_slot_advanced(page_root: Control) -> void:
 	close.size_flags_horizontal = Control.SIZE_SHRINK_END
 	close.pressed.connect(func() -> void: _slot_adv.hide())
 	box.add_child(close)
+
+
+func _team_option() -> OptionButton:
+	var o := OptionButton.new()
+	for t in TEAM_COUNT + 1:
+		o.add_item(team_label(t))
+	return o
 
 
 func _mark_override(b: OptionButton, on: bool) -> void:
@@ -2025,7 +2126,7 @@ func settings() -> Dictionary:
 	var saved_slots := slots.duplicate(true)
 	for sl in saved_slots:
 		sl.erase("human")  # les places de joueurs ne valent que pour le salon en cours
-	return {"faction": selected_faction, "slots": saved_slots, "duplicates": allow_duplicates,
+	return {"faction": selected_faction, "slots": saved_slots, "duplicates": allow_duplicates, "team": player_team,
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "deadline": deadline_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "galaxy": galaxy_settings.duplicate(),
@@ -2040,7 +2141,7 @@ static func _without_seed(d: Dictionary) -> Dictionary:
 
 ## Réglages par défaut de l'écran (votre peuple choisi gardé).
 func default_settings() -> Dictionary:
-	return {"faction": selected_faction, "slots": default_slots(), "duplicates": false,
+	return {"faction": selected_faction, "slots": default_slots(), "duplicates": false, "team": 0,
 		"ai_level": AiLevels.default_id(), "temperament": AiLevels.default_temperament(), "spectator": false,
 		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "deadline": Victory.default_deadline(), "people": true,
 		"victories": {"conquete": true, "domination": true, "allies": true}, "ai_scaling": false,
@@ -2086,8 +2187,12 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 			slot["start"] = ""
 		if not DISTANCE_LABELS.has(slot["distance"]):
 			slot["distance"] = ""
+		var team := int(src.get("team", 0))
+		if team > 0 and team <= TEAM_COUNT:
+			slot["team"] = team
 		new_slots.append(slot)
 	slots = new_slots if not new_slots.is_empty() else default_slots()
+	set_player_team(int(d.get("team", 0)))
 	set_ai_level(String(d.get("ai_level", base["ai_level"])))
 	set_temperament(String(d.get("temperament", base["temperament"])))
 	set_spectator(bool(d.get("spectator", false)))
