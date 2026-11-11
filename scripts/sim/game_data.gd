@@ -27,6 +27,9 @@ static func factions() -> Array:
 ##   qu'une partie garde son peuple tel qu'il était au lancement même si le fichier a changé depuis.
 static var _library_factions := {}
 static var _game_factions := {}
+## Augmente à chaque changement des peuples créés (bibliothèque ou partie) : Empire.faction() garde sa
+## fiche tant qu'il ne bouge pas.
+static var factions_gen := 0
 
 
 ## Fiche d'un peuple par identifiant : partie en cours, puis bibliothèque, puis officiels. {} si inconnu.
@@ -35,10 +38,13 @@ static func faction(id: String) -> Dictionary:
 		return _game_factions[id]
 	if _library_factions.has(id):
 		return _library_factions[id]
-	for f: Dictionary in factions():
-		if f["id"] == id:
-			return f
-	return {}
+	# Index des peuples officiels (appelé à chaque instant par la simulation : pas de parcours de liste).
+	if not _cache.has("factions_by_id"):
+		var idx := {}
+		for f: Dictionary in factions():
+			idx[f["id"]] = f
+		_cache["factions_by_id"] = idx
+	return _cache["factions_by_id"].get(id, {})
 
 
 ## Identifiants des peuples officiels seulement.
@@ -70,23 +76,28 @@ static func is_official(id: String) -> bool:
 
 static func register_library_faction(f: Dictionary) -> void:
 	_library_factions[String(f["id"])] = f
+	factions_gen += 1
 
 
 static func unregister_library_faction(id: String) -> void:
 	_library_factions.erase(id)
+	factions_gen += 1
 
 
 static func clear_library_factions() -> void:
 	_library_factions.clear()
+	factions_gen += 1
 
 
 ## Peuples créés de la partie en cours (GameState.custom_factions).
 static func set_game_factions(d: Dictionary) -> void:
 	_game_factions = d
+	factions_gen += 1
 
 
 static func clear_game_factions() -> void:
 	_game_factions = {}
+	factions_gen += 1
 
 
 ## Style des vaisseaux d'un peuple (sprites et modèles 3D d'un peuple officiel) : son identifiant
@@ -226,10 +237,13 @@ static func victories() -> Dictionary:
 
 
 static func deposit(id: String) -> Dictionary:
-	for d: Dictionary in rules()["deposits"]:
-		if d["id"] == id:
-			return d
-	return {}
+	if not _cache.has("deposits_by_id"):
+		var idx := {}
+		for d: Dictionary in rules()["deposits"]:
+			if not idx.has(d["id"]):
+				idx[d["id"]] = d
+		_cache["deposits_by_id"] = idx
+	return _cache["deposits_by_id"].get(id, {})
 
 
 static func resource_ids() -> Array[String]:

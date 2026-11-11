@@ -27,6 +27,13 @@ var starving: bool = false
 var blackout: bool = false
 ## Systèmes explorés (vus au moins une fois) : id -> true. Le reste de la galaxie est dans le brouillard.
 var explored: Dictionary = {}
+## Plus courts chemins par les routes connues, depuis chaque système déjà demandé (Fleets._dijkstra) :
+## donnée dérivée, non sauvegardée, valable tant que explored n'a pas grandi.
+var path_cache: Dictionary = {}
+var path_cache_explored := -1
+var _faction_cache: Dictionary = {}
+var _faction_gen := -1
+var _faction_id_cached := ""
 ## Empires rencontrés (identifiants, triés).
 var contacts: Array[int] = []
 ## Empires avec qui il est en guerre (identifiants, triés). La guerre vaut dans les deux sens.
@@ -88,7 +95,12 @@ func is_ai() -> bool:
 
 
 func faction() -> Dictionary:
-	return GameData.faction(faction_id)
+	# Fiche gardée tant que les peuples créés ne changent pas (appelée sans cesse par la simulation).
+	if _faction_gen != GameData.factions_gen or _faction_id_cached != faction_id:
+		_faction_cache = GameData.faction(faction_id)
+		_faction_gen = GameData.factions_gen
+		_faction_id_cached = faction_id
+	return _faction_cache
 
 
 func display_name() -> String:

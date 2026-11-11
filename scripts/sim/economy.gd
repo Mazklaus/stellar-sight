@@ -143,21 +143,22 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 	var fx := Research.effects(state, colony.owner)
 	if colony.is_colony():
 		var e := state.get_empire(colony.owner)
+		var fac: Dictionary = e.faction() if e else {}
 		var py := pop_yields(planet.type)
 		# Un peuple qui ne mange pas de nourriture ne la cultive pas non plus : ce que les habitants
 		# produiraient en nourriture va dans ce qu'ils mangent (lithoïdes : matériaux, synthétiques : énergie).
-		var diet0 := FactionTraits.diet(e.faction()) if e else "food"
+		var diet0 := FactionTraits.diet(fac) if e else "food"
 		if diet0 != "food" and py.has("food"):
 			py = py.duplicate()
 			py[diet0] = int(py.get(diet0, 0)) + int(py["food"])
 			py.erase("food")
 		_add(gross, py, colony.population)
-		var food_pct := int(e.faction().get("food_upkeep_pct", 100)) if e else 100
+		var food_pct := int(fac.get("food_upkeep_pct", 100)) if e else 100
 		# Réplicateurs de matière : la population mange moins.
 		@warning_ignore("integer_division")
 		food_pct = food_pct * maxi(0, 100 + int(fx.get("food_upkeep_pct", 0))) / 100
 		@warning_ignore("integer_division")
-		var diet := FactionTraits.diet(e.faction()) if e else "food"
+		var diet := diet0
 		upkeep[diet] = int(upkeep.get(diet, 0)) + colony.population * int(rules["food_per_pop"]) * food_pct / 100
 	else:
 		_add(gross, ptype.get("outpost_yields", {}))
@@ -493,11 +494,14 @@ static func building_slots_used(colony: Colony) -> int:
 	return n
 
 
+static var _zero_template := {}
+
+
 static func _zero() -> Dictionary:
-	var d := {}
-	for r in GameData.resource_ids():
-		d[r] = 0
-	return d
+	if _zero_template.is_empty():
+		for r in GameData.resource_ids():
+			_zero_template[r] = 0
+	return _zero_template.duplicate()
 
 
 static func _add(into: Dictionary, amounts: Dictionary, times: int = 1) -> void:

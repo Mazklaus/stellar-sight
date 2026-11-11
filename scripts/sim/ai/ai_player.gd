@@ -341,13 +341,13 @@ static func _clumsy_talents(ctx: Dictionary) -> void:
 	var f := e.faction()
 	if FactionTraits.has_fervor(f) and e.fervor <= 0 and not _forgets(ctx):
 		var smallest: Colony = null
-		for c in _own_colonies(state, e.id):
+		for c in _my_colonies(ctx):
 			if FactionTraits.check_sacrifice(state, e.id, c.planet_id) == "" and (smallest == null or c.population < smallest.population):
 				smallest = c
 		if smallest and _issue(ctx, SimCommands.sacrifice(e.id, smallest.planet_id)):
 			_intent(ctx, "Offrande tardive, sur une colonie qui n'en demandait pas tant")
 	if FactionTraits.can_rush(f):
-		for c in _own_colonies(state, e.id):
+		for c in _my_colonies(ctx):
 			if _forgets(ctx):
 				continue
 			if c.construction != "" and c.construction_days <= 8 and _issue(ctx, SimCommands.rush(e.id, c.planet_id, FactionTraits.RUSH_BUILDING)):
@@ -373,7 +373,7 @@ static func _fervor(ctx: Dictionary, use: int) -> void:
 	# regrandit sans rien perdre) ou très peuplée ; contre le Silence du dieu, toute colonie fait l'affaire.
 	var silent := next <= 0
 	var best: Colony = null
-	for c in _own_colonies(state, e.id):
+	for c in _my_colonies(ctx):
 		if not c.is_colony() or c.population < maxi(3, int(fv["sacrifice_min_pop"])):
 			continue
 		if use >= 2 and not silent:
@@ -392,14 +392,14 @@ static func _rush(ctx: Dictionary, use: int) -> void:
 	var state: GameState = ctx["state"]
 	var e: Empire = ctx["e"]
 	var keep := int(Economy.claim_cost(Colony.KIND_COLONY).get("influence", 0)) + (60 if use < 2 else 0)
-	for c in _own_colonies(state, e.id):
+	for c in _my_colonies(ctx):
 		if c.ship_build != "" and c.ship_days > 4 and GameData.ship(c.ship_build).get("colonizer", false):
 			var cost := FactionTraits.rush_cost(state, e.id, c.planet_id, FactionTraits.RUSH_SHIP)
 			if cost >= 0 and _res(ctx, "influence") - cost >= keep and not _forgets(ctx):
 				if _issue(ctx, SimCommands.rush(e.id, c.planet_id, FactionTraits.RUSH_SHIP)):
 					_intent(ctx, "Vote d'urgence : un vaisseau colon de plus")
 	var min_days := 20 if use < 2 else 10
-	for c in _own_colonies(state, e.id):
+	for c in _my_colonies(ctx):
 		if c.construction != "" and c.construction_days > min_days:
 			var cost := FactionTraits.rush_cost(state, e.id, c.planet_id, FactionTraits.RUSH_BUILDING)
 			if cost >= 0 and _res(ctx, "influence") - cost >= keep:
@@ -785,7 +785,7 @@ static func _best_yard(ctx: Dictionary, ship_id: String) -> Colony:
 	var e: Empire = ctx["e"]
 	var best: Colony = null
 	var best_score := -1
-	for c in _own_colonies(state, e.id):
+	for c in _my_colonies(ctx):
 		if not c.is_colony() or c.ship_build != "":
 			continue
 		if Fleets.check_build_ship(state, e.id, c.planet_id, ship_id) != "":
@@ -904,7 +904,8 @@ static func enemy_power(ctx: Dictionary, other: int) -> int:
 		if Combat.is_armed(f) and Fleets.fleet_visible(state, e.id, f, _seen(ctx)):
 			n += Combat.fleet_power(f)
 	if _skill(ctx) >= 1:
-		for sid in e.sorted_explored():
+		# (une somme : l'ordre de parcours ne compte pas, inutile de trier)
+		for sid in e.explored:
 			if state.system_owner(int(sid)) == other:
 				n += 6
 	return n
@@ -1026,7 +1027,7 @@ static func wanted_warships(ctx: Dictionary) -> int:
 	var per := int(mil.get("per_colonies", 0))
 	if per > 0:
 		@warning_ignore("integer_division")
-		n += _own_colonies(state, e.id).size() / per
+		n += _my_colonies(ctx).size() / per
 	var aggr := AiLevels.aggression(e)
 	if not e.wars.is_empty():
 		n = n * 2 + 2
@@ -1069,7 +1070,7 @@ static func _warship_count(ctx: Dictionary) -> int:
 	var n := 0
 	for f in _warfleets(ctx):
 		n += f.ships.size()
-	for c in _own_colonies(ctx["state"], ctx["e"].id):
+	for c in _my_colonies(ctx):
 		if c.ship_build != "" and Combat.is_military(c.ship_build):
 			n += 1
 	return n
@@ -1277,7 +1278,7 @@ static func _buildable_warships(ctx: Dictionary) -> Array[String]:
 	var have := {}
 	var free_yard := false
 	var max_pop := 0
-	for c in _own_colonies(state, e.id):
+	for c in _my_colonies(ctx):
 		if not c.is_colony():
 			continue
 		for b in c.buildings:

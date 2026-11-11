@@ -112,10 +112,7 @@ static func _move(state: GameState, f: Fleet) -> void:
 ## Appelée à chaque tick, et à la création d'une partie. Renvoie les entrées de chronique.
 static func update_exploration(state: GameState) -> Array[Dictionary]:
 	var added: Array[Dictionary] = []
-	var seen_by: Array[Dictionary] = []
-	for e in state.empires:
-		var seen := Fleets.visible_systems(state, e.id)
-		seen_by.append(seen)
+	var seen_by := Fleets.visible_all(state)
 	state.seen_cache = seen_by.duplicate()
 	state.seen_tick = state.tick
 	for e in state.empires:
@@ -137,8 +134,8 @@ static func _sees_empire(state: GameState, seen: Dictionary, other_id: int) -> b
 	for sid in seen:
 		if state.system_owner(sid) == other_id:
 			return true
-	for fid in state.sorted_fleet_ids():
-		var f: Fleet = state.fleets[fid]
+	# (on cherche s'il en existe une : l'ordre de parcours ne change pas la réponse)
+	for f: Fleet in state.fleets.values():
 		if f.owner == other_id and seen.has(Fleets.vision_center(state, f)):
 			return true
 	return false

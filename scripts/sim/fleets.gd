@@ -58,30 +58,68 @@ static func find_path(state: GameState, empire_id: int, from: int, to: int) -> A
 ## Distances (en unités) depuis un système vers tous ceux joignables par des routes connues.
 ## File de priorité (tas binaire) sur la clé distance * 65536 + identifiant : on traite toujours le
 ## système le plus proche, à égalité le plus petit identifiant, comme un parcours linéaire, mais vite.
+##
+## Le résultat ne dépend que des systèmes explorés par l'empire (les routes connues) : il est gardé en
+## cache sur l'empire tant qu'il n'explore rien de nouveau (explored ne fait que grandir). Le résultat
+## est partagé : les appelants le lisent sans le modifier.
 static func _dijkstra(state: GameState, empire_id: int, from: int) -> Dictionary:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return _dijkstra_raw(state, empire_id, from)
+	if e.path_cache_explored != e.explored.size():
+		e.path_cache.clear()
+		e.path_cache_explored = e.explored.size()
+	if not e.path_cache.has(from):
+		e.path_cache[from] = _dijkstra_raw(state, empire_id, from)
+	return e.path_cache[from]
+
+
+static func _dijkstra_raw(state: GameState, empire_id: int, from: int) -> Dictionary:
+	# Tableaux indexés par système pendant le calcul (plus rapides que des dictionnaires), puis les
+	# dictionnaires du résultat, remplis dans l'ordre de découverte, comme avant.
 	var g := state.galaxy
-	var dist := {from: 0}
-	var prev := {}
-	var done := {}
+	var count := g.systems.size()
+	var e := state.get_empire(empire_id)
+	var explored: Dictionary = e.explored if e != null else {}
+	var dist := PackedInt32Array()
+	dist.resize(count)
+	dist.fill(-1)
+	var prev := PackedInt32Array()
+	prev.resize(count)
+	prev.fill(-1)
+	var done := PackedByteArray()
+	done.resize(count)
+	var order: Array[int] = [from]
+	dist[from] = 0
 	var heap: Array[int] = [from]
 	while not heap.is_empty():
 		var key := _heap_pop(heap)
 		var best := key & 0xFFFF
 		var d0 := key >> 16
-		if done.has(best) or d0 != int(dist[best]):
+		if done[best] == 1 or d0 != dist[best]:
 			continue
-		done[best] = true
+		done[best] = 1
+		var best_known := explored.has(best)
+		var pos := g.systems[best].position
 		for n in g.systems[best].neighbors:
-			if done.has(n) or not lane_known(state, empire_id, best, n):
+			if done[n] == 1 or not (best_known or explored.has(n)):
 				continue
-			var d: int = d0 + lane_length(g, best, n)
-			if not dist.has(n) or d < dist[n] or (d == dist[n] and best < int(prev[n])):
-				var improved: bool = not dist.has(n) or d < int(dist[n])
+			var d: int = d0 + maxi(1, roundi(pos.distance_to(g.systems[n].position)))
+			var old := dist[n]
+			if old < 0 or d < old or (d == old and best < prev[n]):
+				if old < 0:
+					order.append(n)
 				dist[n] = d
 				prev[n] = best
-				if improved:
+				if old < 0 or d < old:
 					_heap_push(heap, (d << 16) | n)
-	return {"dist": dist, "prev": prev}
+	var out_dist := {}
+	var out_prev := {}
+	for n in order:
+		out_dist[n] = dist[n]
+		if n != from:
+			out_prev[n] = prev[n]
+	return {"dist": out_dist, "prev": out_prev}
 
 
 static func _heap_push(heap: Array[int], v: int) -> void:
@@ -269,6 +307,39 @@ static func visible_systems(state: GameState, empire_id: int) -> Dictionary:
 	for sid in sources:
 		_flood(state.galaxy, int(sid), int(sources[sid]), seen)
 	return seen
+
+
+## visible_systems de tous les empires (par indice d'empire), en un seul parcours des colonies et des
+## flottes : mêmes résultats, dans le même ordre, que visible_systems appelée pour chacun.
+static func visible_all(state: GameState) -> Array[Dictionary]:
+	var count := state.empires.size()
+	var sources: Array[Dictionary] = []
+	var claim_vision: Array[int] = []
+	var base_vision := int(GameData.rules().get("claim_vision", 1))
+	for e in state.empires:
+		sources.append({})
+		claim_vision.append(base_vision + Research.fx_int(state, e.id, "claim_vision"))
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c.owner < 0 or c.owner >= count:
+			continue
+		var src := sources[c.owner]
+		var sid := state.galaxy.get_planet(pid).system_id
+		src[sid] = maxi(int(src.get(sid, -1)), claim_vision[c.owner])
+	for fid in state.sorted_fleet_ids():
+		var f: Fleet = state.fleets[fid]
+		if f.owner < 0 or f.owner >= count:
+			continue
+		var src := sources[f.owner]
+		var sid := vision_center(state, f)
+		src[sid] = maxi(int(src.get(sid, -1)), vision(f))
+	var out: Array[Dictionary] = []
+	for i in count:
+		var seen := {}
+		for sid in sources[i]:
+			_flood(state.galaxy, int(sid), int(sources[i][sid]), seen)
+		out.append(seen)
+	return out
 
 
 static func _flood(g: Galaxy, start: int, radius: int, seen: Dictionary) -> void:
