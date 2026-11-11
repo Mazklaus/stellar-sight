@@ -81,6 +81,15 @@
 			"counter": "Couper le réseau : blocus, avant-postes sur ses routes, prise d'une colonie.",
 			"nodes": 12, "hold_days": 720, "on_fail": "reset",
 			"chronicle": "La Noosphère s'éveille. %s ne pense plus en colonies mais en galaxie ; sa première pensée commune a duré quatre secondes et réglé trois guerres."
+		},
+		"terre_promise": {
+			"kind": "people", "label": "La Terre promise",
+			"requires": {"gouvernement": ["horde"]},
+			"tech": "terre_promise",
+			"text": "Trouver la Terre promise, un monde caché à au moins %d sauts du berceau du clan (les Chants de la route disent à combien de sauts elle est, puis la nomment à %d sauts), y fonder une colonie et y faire camper la flotte-ville %d an.",
+			"counter": "La coloniser avant eux, la leur reprendre, abattre la flotte-ville.",
+			"min_jumps": 6, "reveal_jumps": 2, "hold_days": 360, "on_fail": "reset",
+			"chronicle": "La flotte-ville de %s se pose enfin sur la Terre promise. Les clans déchargent les tentes, puis se demandent avec inquiétude ce qu'on fait quand on n'a plus nulle part où aller."
 		}
 	}
 }

@@ -16,7 +16,7 @@ const TABS := [["identity", "Identité"], ["layers", "Couches"], ["traits", "Tra
 const COLORS := ["#e8b44a", "#c0392b", "#4a90e2", "#6fcf3a", "#3fb6a8", "#9b7fd4", "#d96fb0", "#c46a2b", "#e0d6b8", "#7f8fa6"]
 const LAYER_LABELS := {"registre": "Registre", "archetype": "Archétype", "gouvernement": "Gouvernement", "credo": "Credo", "origine": "Origine"}
 const BIOME_LABELS := {"continental": "Continental", "ocean": "Océanique", "desert": "Désertique", "arctic": "Glaciaire", "toxic": "Toxique"}
-const STYLE_LABELS := {"ossarane": "Navires d'Ossarane", "choeur": "Cathédrales du Chœur", "vael": "Frégates de Vael", "khthari": "Coques vivantes kh'thari", "teyl": "Nœuds de Teyl"}
+const STYLE_LABELS := {"ossarane": "Navires d'Ossarane", "choeur": "Cathédrales du Chœur", "vael": "Frégates de Vael", "khthari": "Coques vivantes kh'thari", "teyl": "Nœuds de Teyl", "ferrocornes": "Coques-clans ferrocornes"}
 
 ## Peuple en cours d'édition, et identifiant enregistré qu'il remplace ("" = nouveau peuple).
 var spec: Dictionary = {}
