@@ -250,7 +250,15 @@ class ArtSlot:
 			add_child(_caption)
 		_caption.add_theme_font_size_override("font_size", size)
 		_caption.text = text
+		# Bandeau (très large, peu haut) : le motif se range à droite, le libellé s'arrête avant lui.
+		if is_banner():
+			_caption.offset_right = -custom_minimum_size.y * 1.6
+			_caption.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		queue_redraw()
+
+	## Emplacement en bandeau : au moins quatre fois plus large que haut.
+	func is_banner() -> bool:
+		return custom_minimum_size.x >= custom_minimum_size.y * 4.0
 
 	func _load() -> void:
 		var p := art_path(art_id)
@@ -274,6 +282,8 @@ class ArtSlot:
 			x += step
 		var c := size * Vector2(0.62, 0.5)
 		var s := minf(size.x, size.y)
+		if is_banner() and _caption and _caption.text != "":
+			c.x = size.x - size.y * 0.8
 		if art_id.begins_with("portrait_"):
 			_draw_portrait(r)
 			if _caption and _caption.text != "":
@@ -656,6 +666,11 @@ class OrbitMenuItem:
 				draw_line(c + Vector2(0, -s), c + Vector2(0, s * 0.4), col, w, true)
 				draw_polyline(PackedVector2Array([c + Vector2(-s * 0.55, -s * 0.1), c + Vector2(0, s * 0.45), c + Vector2(s * 0.55, -s * 0.1)]), col, w, true)
 				draw_polyline(PackedVector2Array([c + Vector2(-s, s * 0.3), c + Vector2(-s, s), c + Vector2(s, s), c + Vector2(s, s * 0.3)]), col, w, true)
+			"species":
+				# Deux silhouettes : une tête et des épaules, la seconde en retrait.
+				for o: Vector2 in [Vector2(s * 0.45, -s * 0.1), Vector2(-s * 0.25, 0)]:
+					draw_arc(c + o + Vector2(0, -s * 0.45), s * 0.32, 0.0, TAU, 20, col, w, true)
+					draw_arc(c + o + Vector2(0, s * 0.75), s * 0.62, PI * 1.08, PI * 1.92, 20, col, w, true)
 			"quick":
 				for dx in [-s * 0.55, s * 0.25]:
 					draw_polyline(PackedVector2Array([c + Vector2(dx - s * 0.35, -s * 0.8), c + Vector2(dx + s * 0.45, 0), c + Vector2(dx - s * 0.35, s * 0.8)]), col, w, true)
