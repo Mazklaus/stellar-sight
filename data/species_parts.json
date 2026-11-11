@@ -25,7 +25,7 @@
 		{"id": "lithoide", "label": "Lithoïde", "text": "Des corps de pierre et de cristal, qui vivent lentement et mangent la montagne.",
 			"excludes": {"gouvernement": ["ruche"]},
 			"fields": {"diet": "materials", "growth_pct": 75, "hab_extra": {"barren": 50},
-				"ai": {"building_bias": "complexe_minier", "food_margin": 4, "outpost_bonus": 3}},
+				"ai": {"building_bias": "complexe_minier", "food_margin": 4, "outpost_bonus": 3, "own_world_bonus": 12}},
 			"traits": [
 				{"name": "Mangeurs de roche", "text": "Ce que les autres cultivent, ils l'extraient : la nourriture produite par les habitants devient des matériaux, et chacun mange 1 matériau par mois au lieu de nourriture. Sans matériaux, c'est la famine."},
 				{"name": "Lenteur minérale", "text": "Population 25 % plus lente."},

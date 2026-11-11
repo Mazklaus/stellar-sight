@@ -206,15 +206,15 @@ func _test_lithoid() -> void:
 	var sim := Simulation.new(st)
 	sim.advance(int(GameData.rules()["month_days"]) + 1)
 	_ok(st.get_empire(0).starving, "sans matériaux, les lithoïdes ont faim")
-	var st2 := GameState.create(9, 150, 1800.0, "", {"rivals": ["choeur", fid], "spectator": true})
-	Simulation.new(st2).advance(720)
+	var st2 := GameState.create(3, 150, 1800.0, "", {"rivals": ["choeur", fid], "spectator": true})
+	Simulation.new(st2).advance(1440)
 	var barren := 0
 	for pid in st2.colonies:
 		var c: Colony = st2.colonies[pid]
 		if c.owner == 1 and c.is_colony() and st2.galaxy.get_planet(pid).type == "barren":
 			barren += 1
-	_ok(not st2.get_empire(1).eliminated, "l'IA lithoïde survit deux ans")
-	print("  IA lithoïde : %d colonies sur des mondes stériles en 2 ans" % barren)
+	_ok(not st2.get_empire(1).eliminated, "l'IA lithoïde survit quatre ans")
+	_ok(barren > 0, "l'IA lithoïde colonise des mondes stériles (%d en 4 ans)" % barren)
 
 
 func _test_save() -> void:

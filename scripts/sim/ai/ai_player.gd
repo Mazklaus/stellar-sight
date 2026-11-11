@@ -156,6 +156,9 @@ static func planet_value(state: GameState, e: Empire, p: Planet, use := 1) -> Di
 	var value := 0
 	if kind == Colony.KIND_COLONY:
 		value = maxp * 3 + deposits * 6
+		# Mondes que seul son corps peuple (lithoïdes : la roche nue) : personne ne les lui dispute.
+		if use >= 1 and FactionTraits.hab_extra(e.faction(), p.type) > 0:
+			value += int(ai.get("own_world_bonus", 0))
 	else:
 		var y: Dictionary = GameData.planet_type(p.type).get("outpost_yields", {})
 		for r in y:
