@@ -22,6 +22,7 @@
 		"outpost": {"label": "Avant-poste", "cost": {"materials": 60, "influence": 20}, "ship_cost": {"influence": 20}, "days": 45, "upkeep": {"energy": 1}}
 	},
 	"start_ships": ["scout", "colony_ship"],
+	"advanced_start": {"colonies": 2, "pop": 3, "resources": {"materials": 150, "energy": 100, "influence": 30}},
 	"claim_vision": 1,
 	"colony_start_pop": 1,
 	"homeworld": {"size": 4, "pop": 8, "buildings": ["capitale", "ferme_hydroponique", "complexe_minier"]},

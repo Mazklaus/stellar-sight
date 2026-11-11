@@ -7,11 +7,12 @@ extends RefCounted
 ## stockée : elle se régénère à l'identique depuis la graine. Seules les données
 ## qui changent en cours de partie sont sérialisées.
 
-const FORMAT_VERSION := 13
+const FORMAT_VERSION := 14
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
-## de peuples créés).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13]
+## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
+## bonus d'IA fixes).
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -66,9 +67,12 @@ var next_proposal_id: int = 0
 var designs: Dictionary = {}
 var next_design_id: int = 0
 ## Victoires (voir Victory) : règles choisies au lancement {"deadline": jours (0 = sans date limite),
-## "people": victoires de peuple en jeu}, et vainqueur proclamé {"empire", "victory", "tick", "allies":
+## "people": victoires de peuple en jeu, "conquete" / "domination": ces victoires en jeu, "allies": les
+## alliés avancent et gagnent ensemble}, et vainqueur proclamé {"empire", "victory", "tick", "allies":
 ## alliés qui partagent la victoire} ({} = aucun).
-var victory_rules: Dictionary = {"deadline": 0, "people": true}
+var victory_rules: Dictionary = default_victory_rules()
+## Difficulté progressive : les bonus des IA Expert et Légende montent avec le temps (AiLevels).
+var ai_scaling := false
 var winner: Dictionary = {}
 ## Peuples créés dans l'éditeur qui jouent dans cette partie : identifiant -> fiche complète
 ## (Species.build), recopiée au lancement et sauvegardée, pour que la partie ne dépende pas des
@@ -93,6 +97,14 @@ var _system_owner: Dictionary = {}
 ## - "spectator" : aucun joueur humain, l'empire 0 est lui aussi une IA (mode spectateur) ;
 ## - "deadline" : date limite en jours pour la victoire au score (0 = aucune, défaut data/victories.json) ;
 ## - "people_victories" : victoires de peuple en jeu (défaut oui) ;
+## - "victories" : {"conquete", "domination", "allies"} à false pour retirer ces victoires ou faire
+##   jouer chaque allié pour lui-même (défaut : tout en jeu, comme Endless Space 2) ;
+## - "ai_scaling" : difficulté progressive (défaut non) ;
+## - "starts" : départ par indice d'empire ("" = normal, "avance" = une avance de colonies et de
+##   vaisseaux, voir rules.json "advanced_start") ;
+## - "distances" : distance de chaque empire à l'empire 0 ("" = selon le placement, "proche" ou
+##   "lointain" : il reçoit l'un des départs tirés les plus proches ou les plus lointains du vôtre ;
+##   "hasard" : l'un des trois, tiré avec la graine) ;
 ## - "rivals" : peuples des autres empires (officiels ou créés), dans l'ordre ; défaut : les peuples
 ##   officiels autres que celui du joueur ;
 ## - "duplicates" : plusieurs empires peuvent partager un peuple (défaut non : les doublons sont ignorés) ;
@@ -107,13 +119,23 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 		system_count_ = GalaxySettings.system_count(settings)
 		galaxy_radius_ = GalaxySettings.radius(settings)
 	var s := _base(seed_value_, system_count_, galaxy_radius_, settings)
-	s.victory_rules = {"deadline": maxi(0, int(options.get("deadline", Victory.default_deadline()))),
-			"people": bool(options.get("people_victories", true))}
-	s._setup_empires(player_faction, options.get("rivals", null), bool(options.get("duplicates", false)))
+	s.victory_rules = default_victory_rules()
+	s.victory_rules["deadline"] = maxi(0, int(options.get("deadline", Victory.default_deadline())))
+	s.victory_rules["people"] = bool(options.get("people_victories", true))
+	var vic: Dictionary = options.get("victories", {})
+	for k in ["conquete", "domination", "allies"]:
+		s.victory_rules[k] = bool(vic.get(k, true))
+	s.ai_scaling = bool(options.get("ai_scaling", false))
+	s._setup_empires(player_faction, options.get("rivals", null), bool(options.get("duplicates", false)), options.get("distances", []))
 	s._setup_colors(options.get("colors", []))
 	s._setup_ai(options)
+	s._setup_advanced_starts(options.get("starts", []))
 	FleetSystem.update_exploration(s)
 	return s
+
+
+static func default_victory_rules() -> Dictionary:
+	return {"deadline": 0, "people": true, "conquete": true, "domination": true, "allies": true}
 
 
 ## Galaxie et générateur seulement, sans empires (base commune à create() et from_dict()).
@@ -181,6 +203,7 @@ func to_dict() -> Dictionary:
 		"designs": _sorted_designs(),
 		"next_design_id": next_design_id,
 		"victory_rules": victory_rules.duplicate(),
+		"ai_scaling": ai_scaling,
 		"winner": winner.duplicate(),
 		"custom_factions": _sorted_values(custom_factions),
 	}
@@ -313,7 +336,11 @@ static func from_dict(d: Dictionary) -> GameState:
 		s.proposals.append(GameData._to_ints(p))
 	s.next_proposal_id = int(d.get("next_proposal_id", 0))
 	var vr: Dictionary = d.get("victory_rules", {})
-	s.victory_rules = {"deadline": int(vr.get("deadline", 0)), "people": bool(vr.get("people", true))}
+	s.victory_rules = default_victory_rules()
+	s.victory_rules["deadline"] = int(vr.get("deadline", 0))
+	for k in ["people", "conquete", "domination", "allies"]:
+		s.victory_rules[k] = bool(vr.get(k, true))
+	s.ai_scaling = bool(d.get("ai_scaling", false))
 	var w: Dictionary = d.get("winner", {})
 	if not w.is_empty():
 		var allies := []
@@ -429,8 +456,9 @@ func _setup_ai(options: Dictionary) -> void:
 		e.ai_level = lv
 		var tp := String(tempers[e.id]) if e.id < tempers.size() else temper
 		e.ai_temperament = tp if AiLevels.is_valid_temperament(tp) else AiLevels.default_temperament()
-		# Avance de départ des niveaux hauts (affichée dans la description du niveau).
-		var bonus: Dictionary = AiLevels.level(lv).get("start_bonus", {})
+		# Avance de départ des niveaux hauts (affichée dans la description du niveau). En difficulté
+		# progressive, les bonus partent de zéro : pas d'avance au départ.
+		var bonus: Dictionary = {} if ai_scaling else AiLevels.level(lv).get("start_bonus", {})
 		for r in bonus:
 			e.resources[r] = int(e.resources.get(r, 0)) + int(bonus[r])
 
@@ -443,7 +471,7 @@ func is_spectator_game() -> bool:
 	return not empires.is_empty()
 
 
-func _setup_empires(player_faction: String, rivals: Variant = null, duplicates := false) -> void:
+func _setup_empires(player_faction: String, rivals: Variant = null, duplicates := false, distances: Array = []) -> void:
 	var order: Array[String] = []
 	if player_faction != "" and not GameData.faction(player_faction).is_empty():
 		order.append(player_faction)
@@ -456,7 +484,7 @@ func _setup_empires(player_faction: String, rivals: Variant = null, duplicates :
 		if not GameData.is_official(fid):
 			custom_factions[fid] = GameData.faction(fid).duplicate(true)
 	GameData.set_game_factions(custom_factions)
-	var homes := _pick_home_systems(order.size())
+	var homes := _assign_distances(_pick_home_systems(order.size()), distances)
 	var rules := GameData.rules()
 	var hw: Dictionary = rules["homeworld"]
 	for i in mini(order.size(), homes.size()):
@@ -570,6 +598,87 @@ func _guarantee_worlds(e: Empire, home_sys: int, homes: Array[int]) -> void:
 		var sizes: Array = types[t]["sizes"]
 		override_planet(spare[k], {"type": t, "size": int(round((float(sizes[0]) + float(sizes[1])) * 0.5))})
 		_guaranteed[spare[k]] = true
+
+
+## Distance au joueur choisie par rival : les départs tirés ne changent pas, seule leur attribution.
+## Les « proche » prennent, dans l'ordre, les départs les plus proches de celui de l'empire 0, les
+## « lointain » les plus éloignés ; les autres gardent l'ordre du placement.
+func _assign_distances(homes: Array[int], distances: Array) -> Array[int]:
+	var wants := false
+	distances = distances.duplicate()
+	for i in range(1, mini(homes.size(), distances.size())):
+		# « Au hasard » : proche, selon le placement ou lointain, tiré avec la graine.
+		if String(distances[i]) == "hasard":
+			distances[i] = ["proche", "", "lointain"][rng.randi_range(0, 2)]
+		wants = wants or String(distances[i]) in ["proche", "lointain"]
+	if not wants:
+		return homes
+	var origin := galaxy.systems[homes[0]].position
+	var by_dist: Array[int] = homes.slice(1)
+	by_dist.sort_custom(func(a: int, b: int) -> bool:
+		var da := galaxy.systems[a].position.distance_squared_to(origin)
+		var db := galaxy.systems[b].position.distance_squared_to(origin)
+		return da < db or (da == db and a < b))
+	var out: Array[int] = []
+	out.resize(homes.size())
+	out.fill(-1)
+	out[0] = homes[0]
+	var taken := {}
+	for want in ["proche", "lointain"]:
+		for i in range(1, homes.size()):
+			if i < distances.size() and String(distances[i]) == want:
+				var pick: int = by_dist.pop_front() if want == "proche" else by_dist.pop_back()
+				out[i] = pick
+				taken[pick] = true
+	var rest: Array[int] = []
+	for h in homes.slice(1):
+		if not taken.has(h):
+			rest.append(h)
+	for i in range(1, homes.size()):
+		if out[i] < 0:
+			out[i] = rest.pop_front()
+	return out
+
+
+## Départ avancé (par empire) : des colonies fondées autour du monde d'origine, la flotte de départ en
+## double et des ressources (data/rules.json "advanced_start"), comme les départs « avancés » de
+## Stellaris et Distant Worlds 2.
+func _setup_advanced_starts(starts: Array) -> void:
+	var adv: Dictionary = GameData.rules().get("advanced_start", {})
+	var homes := {}
+	for e in empires:
+		homes[galaxy.get_planet(e.home_planet).system_id] = true
+	for e in empires:
+		if e.id >= starts.size() or String(starts[e.id]) != "avance":
+			continue
+		e.advanced_start = true
+		var home_sys := galaxy.get_planet(e.home_planet).system_id
+		var near: Array[int] = [home_sys]
+		near.append_array(galaxy.systems[home_sys].neighbors)
+		var spots: Array[int] = []
+		for sid in near:
+			if sid != home_sys and homes.has(sid):
+				continue
+			for pid in galaxy.systems[sid].planet_ids:
+				if not colonies.has(pid) and Economy.habitability(galaxy.planets[pid].type, e.faction()) > 0:
+					spots.append(pid)
+		spots.sort_custom(func(a: int, b: int) -> bool:
+			var ha := Economy.habitability(galaxy.planets[a].type, e.faction()) * 10 + galaxy.planets[a].size
+			var hb := Economy.habitability(galaxy.planets[b].type, e.faction()) * 10 + galaxy.planets[b].size
+			return ha > hb or (ha == hb and a < b))
+		for k in mini(int(adv.get("colonies", 2)), spots.size()):
+			var c := Colony.new()
+			c.planet_id = spots[k]
+			c.owner = e.id
+			c.kind = Colony.KIND_COLONY
+			c.population = int(adv.get("pop", 3))
+			colonies[spots[k]] = c
+		var res: Dictionary = adv.get("resources", {})
+		for r in res:
+			e.resources[r] = int(e.resources.get(r, 0)) + int(res[r])
+		for ship_id in FactionTraits.start_ships(e.faction_id):
+			spawn_ship(e.id, String(ship_id), home_sys)
+	rebuild_ownership()
 
 
 func _pick_home_systems(count: int) -> Array[int]:

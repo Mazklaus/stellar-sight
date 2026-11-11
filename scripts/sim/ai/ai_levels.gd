@@ -44,7 +44,18 @@ static func production_pct(state: GameState, empire_id: int) -> int:
 	var e := state.get_empire(empire_id)
 	if e == null or not e.is_ai():
 		return 100
-	return int(level(e.ai_level).get("production_pct", 100))
+	var pct := int(level(e.ai_level).get("production_pct", 100))
+	if state.ai_scaling and pct > 100:
+		# Difficulté progressive (Stellaris) : le bonus part de zéro et atteint sa pleine valeur après
+		# scaling_days jours de partie.
+		var ramp := maxi(1, scaling_days())
+		pct = 100 + (pct - 100) * mini(state.tick, ramp) / ramp
+	return pct
+
+
+## Durée de la montée des bonus en difficulté progressive, en jours (data/ai.json).
+static func scaling_days() -> int:
+	return int(GameData.ai().get("scaling_days", 14400))
 
 
 # --- Tempérament ---------------------------------------------------------------------------------
