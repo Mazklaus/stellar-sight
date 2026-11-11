@@ -8,6 +8,11 @@ signal new_game_requested(faction_id: String, seed_value: int)
 signal resume_requested
 signal continue_requested
 signal quit_requested
+## « Rejoindre une partie » : adresse et port de l'hôte, nom du joueur (voir NetSession).
+signal join_requested(address: String, port: int, player_name: String)
+
+## Réglages réseau retenus d'une fois sur l'autre (dernière adresse, nom).
+const NET_SETTINGS := "user://net.cfg"
 
 const TAGLINE := "Chronique d'une galaxie qui n'avait rien demandé"
 const NEWS := "Prototype : galaxie, économie et colonisation jouables. Recherche et diplomatie en préparation."
@@ -210,6 +215,7 @@ func _ready() -> void:
 	_quick = _menu_button("quick", "Partie rapide", "Relancer aussitôt avec les réglages de votre dernière partie, sur une nouvelle galaxie.", quick_game)
 	_menu_button("new", "Nouvelle partie", "Choisir un peuple et lancer une nouvelle galaxie.", func() -> void: show_page("new"))
 	_menu_button("species", "Peuples", "Créer, modifier et ranger vos propres peuples : couches d'espèce, traits, portrait.", func() -> void: open_species("home"))
+	_menu_button("join", "Rejoindre", "Rejoindre une partie en réseau ouverte par un ami (son adresse et son port).", func() -> void: show_page("join"))
 	_menu_button("options", "Options", "Affichage, partie et commandes.", func() -> void: show_page("options"))
 	_menu_button("quit", "Quitter", "Retourner au bureau. La galaxie attendra.", func() -> void: quit_requested.emit())
 	_hint = PanelContainer.new()
@@ -274,6 +280,7 @@ func _ready() -> void:
 	foot.offset_top = -80
 	foot.offset_bottom = -24
 	_options_page.add_child(foot)
+	_build_join_page(root)
 	_species = SpeciesEditor.new()
 	root.add_child(_species)
 	_species.back_requested.connect(func() -> void: show_page(_species_return))
@@ -306,6 +313,8 @@ func show_page(name: String) -> void:
 	_home.visible = name == "home"
 	_new_page.visible = name == "new"
 	_options_page.visible = name == "options"
+	if _join_page:
+		_join_page.visible = name == "join"
 	if _species:
 		_species.visible = name == "species"
 	if name == "options":
@@ -323,6 +332,104 @@ func back() -> bool:
 		show_page("home")
 		return true
 	return false
+
+
+# --- Rejoindre une partie en réseau ---------------------------------------------------------------
+
+var _join_page: Control
+var _join_name: LineEdit
+var _join_address: LineEdit
+var _join_port: LineEdit
+var _join_status: Label
+
+
+func _build_join_page(root: Control) -> void:
+	var cfg := ConfigFile.new()
+	cfg.load(NET_SETTINGS)
+	_join_page = Control.new()
+	_join_page.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_join_page.mouse_filter = Control.MOUSE_FILTER_STOP
+	_join_page.visible = false
+	root.add_child(_join_page)
+	var veil := ColorRect.new()
+	veil.color = Color(0.01, 0.02, 0.035, 0.88)
+	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_join_page.add_child(veil)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_join_page.add_child(center)
+	var panel := PanelContainer.new()
+	panel.theme_type_variation = &"WindowPanel"
+	center.add_child(panel)
+	var box := VBoxContainer.new()
+	box.custom_minimum_size = Vector2(520, 0)
+	box.add_theme_constant_override("separation", 12)
+	panel.add_child(box)
+	var title := UiTheme.title("Rejoindre une partie", 24)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(title)
+	var intro := UiTheme.paragraph("L'hôte ouvre sa partie depuis le menu du jeu (« Ouvrir en réseau ») et vous donne son adresse. Vous prendrez la tête d'un empire tenu par l'IA. Il faut la même version du jeu et de Godot.", 520, 14)
+	intro.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	box.add_child(intro)
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 14)
+	grid.add_theme_constant_override("v_separation", 8)
+	box.add_child(grid)
+	_join_name = _join_field(grid, "Votre nom", String(cfg.get_value("net", "name", "")), "Nom vu par les autres joueurs")
+	_join_name.max_length = 24
+	_join_address = _join_field(grid, "Adresse de l'hôte", String(cfg.get_value("net", "address", "")), "192.168.1.20, adresse Tailscale…")
+	_join_port = _join_field(grid, "Port", str(cfg.get_value("net", "port", NetSession.DEFAULT_PORT)), "")
+	_join_status = UiTheme.dim("", 14)
+	_join_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_join_status.custom_minimum_size = Vector2(520, 0)
+	box.add_child(_join_status)
+	var buttons := HBoxContainer.new()
+	box.add_child(buttons)
+	var back_b := Widgets.RoundButton.new("back", "Retour", 16)
+	back_b.pressed.connect(func() -> void: show_page("home"))
+	buttons.add_child(back_b)
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	buttons.add_child(spacer)
+	var go := Widgets.RoundButton.new("check", "Rejoindre", 16)
+	go.pressed.connect(request_join)
+	buttons.add_child(go)
+	_join_address.text_submitted.connect(func(_t: String) -> void: request_join())
+
+
+func _join_field(grid: GridContainer, label: String, value: String, placeholder: String) -> LineEdit:
+	grid.add_child(UiTheme.dim(label, 15))
+	var e := LineEdit.new()
+	e.text = value
+	e.placeholder_text = placeholder
+	e.custom_minimum_size = Vector2(320, 0)
+	grid.add_child(e)
+	return e
+
+
+## Bouton « Rejoindre » : vérifie la saisie, la retient, et demande la connexion.
+func request_join() -> void:
+	var address := _join_address.text.strip_edges()
+	var port := int(_join_port.text) if _join_port.text.is_valid_int() else 0
+	if address == "":
+		set_join_status("Indiquez l'adresse de l'hôte.")
+		return
+	if port <= 0 or port > 65535:
+		set_join_status("Port invalide.")
+		return
+	var cfg := ConfigFile.new()
+	cfg.set_value("net", "name", _join_name.text.strip_edges())
+	cfg.set_value("net", "address", address)
+	cfg.set_value("net", "port", port)
+	cfg.save(NET_SETTINGS)
+	join_requested.emit(address, port, _join_name.text.strip_edges())
+
+
+func set_join_status(text: String) -> void:
+	if _join_status:
+		_join_status.text = text
 
 
 ## Ouvre l'éditeur de peuples ; Retour (ou Échap) ramène à la page d'où l'on vient.

@@ -476,6 +476,16 @@ Les vaisseaux ont un modèle 3D source (glTF), produit à partir d'un concept Mi
 - **Comparer deux états** : `StateDiff.differences(a, b)` ; en ligne de commande `A=… B=… godot --headless --path . -s res://tools/state_diff.gd`.
 - **Test de déterminisme** à lancer sur chaque système : `godot --headless --path . -s res://tools/determinism_check.gd` (sous Windows, avec l'exécutable `_console`). Il compare la création de 4 galaxies et 3 ans de simulation à la référence Linux (`tools/determinism_reference.txt`, départs dans `tools/determinism_starts/`). « Créations différentes, simulation identique » est sans gravité ; « PARTIES DIFFÉRENTES » est à signaler, avec le fichier `user://determinism.txt`. `WRITE_REFERENCE=1` réécrit la référence.
 
+Lot 2, lockstep minimal (deux machines ou plus jouent la même partie) :
+
+- **Héberger** : en partie, menu du jeu (Échap) → « Ouvrir en réseau ». L'hôte écoute sur le port UDP 24570 (à ouvrir ou rediriger sur la box, ou passer par Tailscale/ZeroTier) ; ses adresses locales s'affichent. La partie passe en pause.
+- **Rejoindre** : accueil → « Rejoindre » : nom, adresse de l'hôte, port. L'hôte vérifie l'empreinte de version, attribue un empire tenu par l'IA et envoie l'instantané compressé de la partie. Le tour par tour n'est pas encore ouvert au réseau (lot 5).
+- **Trames** (`Lockstep`) : chaque ordre passe par l'hôte, qui vérifie que le joueur commande son propre empire et le range dans la trame d'un jour à venir (délai d'un jour ou plus, selon la latence). Une machine ne passe au jour suivant que si la trame du jour est scellée, donc toutes appliquent les mêmes ordres au même jour. L'hôte ne prend jamais plus de 6 jours d'avance sur le client le plus lent.
+- **Pause et vitesse partagées** (`NetSession` pilote `GameClock`) : n'importe qui peut mettre en pause ; tout le monde s'arrête au même jour, les ordres donnés en pause s'appliquent tout de suite chez tous. Seul celui qui a mis en pause, ou l'hôte, reprend. La vitesse est celle de l'hôte.
+- **Sommes de contrôle** tous les 30 jours : en cas d'écart, la partie s'arrête et l'état est écrit dans `user://desync/` (la resynchronisation automatique viendra au lot 4).
+- **Départ d'un joueur** : l'IA (niveau Normal) reprend son empire et l'hôte fait une sauvegarde automatique (`user://saves/multi_auto.json`) pour reprendre la partie à ce point. Si l'hôte part, la partie s'arrête chez les autres.
+- **Tests** : `tests/net_tests.gd` (trames, pause, latence simulée, tricheur détecté) ; `tools/net_selftest.sh [JOURS]` lance un hôte et deux clients headless en local (`tools/net_bot.gd`) et compare leurs empreintes finales (`BRUNO_QUITS_AT=200` teste un départ en cours de partie) ; `tools/capture_network.gd` capture les écrans du réseau.
+
 ## Organisation du code
 
 La simulation et l'affichage sont séparés dès maintenant, pour pouvoir ajouter le multijoueur et passer en 2,5D sans tout réécrire.

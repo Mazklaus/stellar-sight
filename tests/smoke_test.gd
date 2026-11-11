@@ -394,7 +394,7 @@ func _test_fleet_ui(main: Node) -> void:
 
 func _test_colony_ui(main: Node) -> void:
 	var st: GameState = main.simulation.state
-	var me: Empire = st.get_empire(main.LOCAL_PLAYER)
+	var me: Empire = st.get_empire(main.local_player)
 	var screen: SystemScreen = main._system_screen
 	_check(me.faction_id == main.player_faction, "le joueur joue sa faction (%s)" % me.faction_id)
 	var home_sys: int = main.galaxy.get_planet(me.capital_planet).system_id
@@ -543,7 +543,7 @@ func _test_empire_report() -> void:
 ## Barre d'empire, menus d'empire, menu pause, menu principal, raccourcis de navigation.
 func _test_navigation_ui(main: Node) -> void:
 	var st: GameState = main.simulation.state
-	var me: Empire = st.get_empire(main.LOCAL_PLAYER)
+	var me: Empire = st.get_empire(main.local_player)
 	var clock: Node = root.get_node("GameClock")
 	var hud: Hud = main._hud
 	var screens: EmpireScreens = main._empire_screens
@@ -769,6 +769,19 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(not main._pause_menu.is_open() and not clock.paused, "Échap referme le menu pause et le temps reprend")
 	clock.set_paused(true)
 
+	# Multijoueur : la partie s'ouvre au réseau ; ordres et pause passent par la session (lockstep).
+	_check(main.host_game(24599) and main.net.is_host() and clock.driver == main.net, "Ouvrir en réseau : la session pilote l'horloge")
+	var sys_id: int = main.galaxy.get_planet(main.simulation.state.get_empire(main.local_player).capital_planet).system_id
+	_check(main._submit(SimCommands.rename_system(main.local_player, sys_id, "Relais-Réseau")), "en réseau, l'ordre part à la session")
+	for _i in 3:
+		await process_frame
+	_check(main.galaxy.get_system(sys_id).system_name == "Relais-Réseau", "en pause, l'ordre de l'hôte s'applique tout de suite")
+	main.open_pause_menu()
+	_check(main._pause_menu.is_open() and main._pause_menu._date.text.contains("réseau"), "menu du jeu en réseau : il ne suspend pas le temps des autres")
+	main.close_pause_menu()
+	main.leave_network("")
+	_check(not main.net.is_active() and clock.driver == null, "quitter le réseau rend la main à l'horloge locale")
+
 	# Menu principal : reprendre, puis nouvelle partie avec une autre faction et une graine choisie.
 	main.open_main_menu()
 	await process_frame
@@ -776,7 +789,13 @@ func _test_navigation_ui(main: Node) -> void:
 	# Les lancements des tests ne remplacent pas la « dernière partie » de l'utilisateur.
 	menu.presets_path = "user://test_new_game_presets.json"
 	_check(menu.is_open() and not hud.visible and menu._resume.visible, "menu principal : la partie en cours peut reprendre")
-	_check(not menu._continue.visible and menu._items.size() == 7, "accueil : Reprendre remplace Continuer")
+	_check(not menu._continue.visible and menu._items.size() == 8, "accueil : Reprendre remplace Continuer")
+	menu.show_page("join")
+	_check(menu._join_page.visible and not menu._home.visible, "accueil : page Rejoindre une partie")
+	menu._join_address.text = ""
+	menu.request_join()
+	_check(menu._join_status.text.contains("adresse"), "Rejoindre : l'adresse est demandée")
+	menu.show_page("home")
 	menu._layout_home()
 	var geo: Array = menu._planet_geometry()
 	var orbit_r: float = geo[1] + geo[2].y * 0.09
