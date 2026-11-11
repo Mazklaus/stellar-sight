@@ -856,10 +856,10 @@ func _test_species_editor(main: Node, menu: MainMenu) -> void:
 	menu.show_page("new")
 	menu.select_faction("p_ligue_de_sel")
 	_check(menu._scene_name.text == "Ligue de Sel", "le peuple créé se choisit dans Nouvelle partie")
-	_check(menu.toggle_rival("p_ligue_de_sel") and menu.rivals.has("p_ligue_de_sel"), "un peuple créé peut être un rival")
+	_check(menu.toggle_rival("p_ligue_de_sel") and menu.rival_ids().has("p_ligue_de_sel"), "un peuple créé peut être un rival")
 	_check(not menu.rival_ids("p_ligue_de_sel").has("p_ligue_de_sel"), "le peuple joué n'est pas son propre rival")
 	menu.toggle_rival("ossarane")
-	_check(not menu.rival_ids("vael").has("ossarane") and menu._rivals_menu.text.begins_with("4 :"), "rival retiré (%s)" % menu._rivals_menu.text)
+	_check(not menu.rival_ids("vael").has("ossarane") and menu.slots.size() == 4 and menu._slot_count.text.begins_with("4 /"), "rival retiré (%s)" % menu._slot_count.text)
 	menu.open_species("new")
 	_check(ed.editing_id == "p_ligue_de_sel", "depuis Nouvelle partie, le peuple créé choisi s'ouvre dans l'éditeur")
 	ed.duplicate_current()
@@ -876,11 +876,63 @@ func _test_species_editor(main: Node, menu: MainMenu) -> void:
 		fids.append(e.faction_id)
 	_check(fids[0] == "p_ligue_de_sel" and fids.has("vael") and not fids.has("ossarane") and fids.size() == 4, "partie lancée avec le peuple créé et les rivaux choisis (%s)" % [fids])
 	# Remise en état pour la suite des tests.
-	menu.rivals.assign(GameData.faction_ids())
+	menu.slots = MainMenu.default_slots()
 	SpeciesLibrary.delete("p_ligue_de_sel")
 	menu._on_library_changed()
 	SpeciesLibrary.dir = SpeciesLibrary.DEFAULT_DIR
-	main.rivals.clear()
+	await _test_rival_slots(main, menu)
+	main.empire_setup = {}
+	main.open_main_menu()
+	menu.show_page("options")
+	await process_frame
+
+
+## Rivaux réglables un par un : peuple ou au hasard, couleur, niveau, tempérament, doublons, plafond.
+func _test_rival_slots(main: Node, menu: MainMenu) -> void:
+	menu.show_page("new")
+	menu.select_faction("ossarane")
+	await process_frame
+	_check(menu._slot_list.get_child_count() == menu.slots.size(), "une ligne par rival (%d)" % menu._slot_list.get_child_count())
+	_check(menu.slots_note().contains("Ossarane"), "votre peuple parmi les rivaux est signalé (%s)" % menu.slots_note())
+	menu.set_ai_level("normal")
+	menu.set_temperament("normal")
+	_check(menu.set_slot(1, "level", "legende") and menu.set_slot(2, "temper", "belliqueux") and menu.set_slot(3, "color", Empire.PALETTE[4]), "réglages propres à un rival")
+	_check(not menu.set_slot(1, "level", "dieu") and not menu.set_slot(1, "color", "#123456"), "valeurs inconnues refusées")
+	var setup := menu.empire_setup("ossarane", 5)
+	_check(setup["rivals"] == ["choeur", "vael", "khthari"], "votre peuple est retiré des rivaux (%s)" % [setup["rivals"]])
+	_check(setup["ai_levels"] == ["normal", "legende", "normal", "normal"] and setup["temperaments"][2] == "belliqueux" and setup["colors"][3] == Empire.PALETTE[4], "niveaux, tempéraments et couleurs par empire (%s)" % [setup["ai_levels"]])
+	menu.apply_defaults_to_all()
+	_check(menu.slots.all(func(s: Dictionary) -> bool: return s["level"] == "" and s["temper"] == ""), "Appliquer à tous : chaque rival revient au défaut")
+	menu.randomize_slots()
+	var a := menu.empire_setup("ossarane", 9)
+	_check(a == menu.empire_setup("ossarane", 9), "même graine, mêmes rivaux tirés au hasard")
+	_check(not a["rivals"].has("ossarane") and a["rivals"].size() == 3 and a["rivals"].duplicate().all(func(f: String) -> bool: return a["rivals"].count(f) == 1), "au hasard sans doublons (%s)" % [a["rivals"]])
+	# Peuples en double : deux Kh'thari et votre propre peuple en face.
+	menu.slots = MainMenu.default_slots()
+	menu.set_duplicates(true)
+	_check(menu.add_slot("khthari") and menu.slots_note() == "", "doublons permis : rien n'est retiré")
+	menu._seed_edit.text = "404"
+	menu.launch()
+	await process_frame
+	var st: GameState = main.simulation.state
+	var kh: Array = st.empires.filter(func(e: Empire) -> bool: return e.faction_id == "khthari")
+	var os: Array = st.empires.filter(func(e: Empire) -> bool: return e.faction_id == "ossarane")
+	_check(st.empires.size() == 6 and kh.size() == 2 and os.size() == 2, "partie avec des peuples en double (%d empires)" % st.empires.size())
+	_check(kh[1].display_name().ends_with(" II") and kh[0].color() != kh[1].color() and os[0].color() != os[1].color(), "les doubles se distinguent par un numéro et une couleur (%s)" % kh[1].display_name())
+	main.save_game()
+	main.load_game()
+	var kh2: Array = main.simulation.state.empires.filter(func(e: Empire) -> bool: return e.faction_id == "khthari")
+	_check(kh2[1].name_suffix == "II" and kh2[1].color_hex == kh[1].color_hex, "numéro et couleur gardés par la sauvegarde")
+	# Plafond : 11 rivaux au plus.
+	menu.slots = MainMenu.default_slots()
+	while menu.add_slot():
+		pass
+	_check(menu.slots.size() == MainMenu.MAX_EMPIRES - 1 and menu._add_slot.disabled, "11 rivaux au plus (%d)" % menu.slots.size())
+	main.open_main_menu()
+	menu.set_duplicates(false)
+	menu.slots = MainMenu.default_slots()
+	menu._refresh_slots()
+	menu._seed_edit.text = ""
 	main.open_main_menu()
 	menu.show_page("options")
 	await process_frame

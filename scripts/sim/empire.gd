@@ -2,8 +2,19 @@ class_name Empire
 extends RefCounted
 ## Un empire (joueur humain ou IA). Son identifiant est aussi celui du joueur dans les ordres.
 
+## Couleurs proposées aux empires (Nouvelle partie, et automatique quand deux empires se ressemblent).
+const PALETTE := ["#e8b44a", "#c0392b", "#4a90e2", "#6fcf3a", "#9b59b6", "#e67e22", "#1abc9c", "#e84393",
+		"#ecf0f1", "#8d6e63", "#95a5a6", "#c8d64a"]
+## Écart (somme des écarts RVB) sous lequel deux couleurs d'empire se confondent sur la carte.
+const COLOR_MIN_GAP := 0.35
+
 var id: int = -1
 var faction_id: String = ""
+## Couleur propre à cet empire (code html) ; "" = celle de son peuple. Sert quand deux empires partagent
+## un peuple, ou quand le joueur choisit une couleur dans Nouvelle partie.
+var color_hex: String = ""
+## Complément de nom quand plusieurs empires partagent un peuple (« II », « III »…) ; "" sinon.
+var name_suffix: String = ""
 ## Stocks : {"energy": int, "materials": int, ...}.
 var resources: Dictionary = {}
 var capital_planet: int = -1
@@ -79,21 +90,37 @@ func faction() -> Dictionary:
 
 
 func display_name() -> String:
-	return String(faction().get("name", faction_id))
+	return _with_suffix(String(faction().get("name", faction_id)))
 
 
 func short_name() -> String:
-	return String(faction().get("short", faction_id))
+	return _with_suffix(String(faction().get("short", faction_id)))
+
+
+func _with_suffix(base: String) -> String:
+	return base if name_suffix == "" else "%s %s" % [base, name_suffix]
 
 
 func color() -> Color:
+	if color_hex != "" and Color.html_is_valid(color_hex):
+		return Color.html(color_hex)
 	return Color.html(String(faction().get("color", "#ffffff")))
+
+
+## Cette couleur se confond-elle avec l'une de celles déjà prises ?
+static func color_taken(c: Color, used: Array[Color]) -> bool:
+	for u in used:
+		if absf(c.r - u.r) + absf(c.g - u.g) + absf(c.b - u.b) < COLOR_MIN_GAP:
+			return true
+	return false
 
 
 func to_dict() -> Dictionary:
 	return {
 		"id": id,
 		"faction": faction_id,
+		"color": color_hex,
+		"suffix": name_suffix,
 		"resources": resources.duplicate(),
 		"capital": capital_planet,
 		"home": home_planet,
@@ -165,6 +192,8 @@ static func from_dict(d: Dictionary) -> Empire:
 	var e := Empire.new()
 	e.id = int(d["id"])
 	e.faction_id = String(d["faction"])
+	e.color_hex = String(d.get("color", ""))
+	e.name_suffix = String(d.get("suffix", ""))
 	for r in GameData.resource_ids():
 		e.resources[r] = int(d["resources"].get(r, 0))
 	e.capital_planet = int(d["capital"])

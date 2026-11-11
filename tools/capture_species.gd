@@ -3,7 +3,7 @@ extends SceneTree
 ##   xvfb-run -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_species.gd
 ## Écrit dans CAPTURE_DIR (par défaut user://captures) : Nouvelle partie avec deux peuples créés de la
 ## bibliothèque (une féodalité humanoïde, une ruche), l'éditeur de peuples (onglets, refus), le choix des
-## rivaux, et la galerie des portraits provisoires.
+## rivaux (un peuple créé ajouté en rival), et la galerie des portraits provisoires.
 ## Les peuples d'exemple vivent dans un dossier de bibliothèque à part, effacé à la fin.
 
 const DIR := "user://capture_species"
@@ -53,10 +53,9 @@ func _initialize() -> void:
 	await _frames(5)
 	await _shot(out + "/editeur-refus.png")
 	main._main_menu.show_page("new")
-	main._main_menu._rivals_menu.show_popup()
+	main._main_menu.add_slot("p_nuee_de_vor")
 	await _frames(5)
 	await _shot(out + "/nouvelle-partie-rivaux.png")
-	main._main_menu._rivals_menu.get_popup().hide()
 	main.queue_free()
 	await _frames(3)
 
