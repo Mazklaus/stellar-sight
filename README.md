@@ -426,18 +426,31 @@ Le combat garde sa bataille automatique en trois phases ; le catalogue l'enrichi
 
 ![Fin de partie](docs/apercu-fin-de-partie.png)
 
-## Éditeur d'espèces (lot 1 : le moteur)
+## Éditeur d'espèces
 
-Le joueur pourra créer son propre peuple avec les mêmes briques que les 4 officiels. Ce lot pose les règles, la bibliothèque et le jeu des peuples créés ; l'écran de l'éditeur arrive au lot 2. Étude de conception : [Éditeur d'espèces](https://claude.ai/artifact/6hHfLGyBr2iGm5ypxvuaX2), lignes directrices tirées de l'étude d'équilibrage.
+Le joueur pourra créer son propre peuple avec les mêmes briques que les 4 officiels. Le lot 1 pose les règles, la bibliothèque et le jeu des peuples créés ; le lot 2 l'écran. Étude de conception : [Éditeur d'espèces](https://claude.ai/artifact/6hHfLGyBr2iGm5ypxvuaX2), lignes directrices tirées de l'étude d'équilibrage.
 
 - **Six couches, chacune avec un rôle** (`data/species_parts.json`) : registre (ton, opinion), archétype (le corps : la ruche essaime avec des vaisseaux-spores), gouvernement (la mécanique signature avec son défaut : fiefs, ferveur, vote d'urgence, faim sans traité), credo (le style de recherche), origine (gisement garanti, ou +1 point de traits) et deux biomes. Gratuits.
 - **Traits sur un budget** : 4 points, 5 traits, 3 points de défauts au plus. Un trait de croissance (qui grandit avec la population) coûte 1 point de plus et un seul est permis ; un défaut qu'une autre couche annule est refusé (« Orateurs maladroits » avec une ruche qui colonise sans influence). Les 4 officiels recomposés coûtent 0 à 4 points.
-- **Identité** : nom, nom court, histoire, couleur, portrait (galerie filtrée par archétype, portraits provisoires dessinés en attendant les illustrations `assets/art/portrait_<id>.png`), style de vaisseaux d'un officiel, tempérament de l'IA.
+- **Identité** : nom, nom court, histoire, couleur, portrait (toute la galerie au choix, ceux de l'archétype en premier ; portraits provisoires dessinés en attendant les illustrations `assets/art/portrait_<id>.png`), style de vaisseaux d'un officiel, tempérament de l'IA.
 - **Bibliothèque** : chaque peuple est un fichier `user://species/<id>.json`, gardé d'une partie à l'autre et partageable. Au démarrage, chaque fichier est revérifié (un fichier modifié hors règles est écarté) et les peuples valides s'ajoutent aux officiels dans Nouvelle partie.
 - **En partie** : un peuple créé joue comme un officiel (`Species.build` produit une fiche au format de `data/factions.json`), pour le joueur comme pour l'IA, avec les vaisseaux, modules, technologies et victoires de peuple de ses couches. La partie recopie sa fiche dans la sauvegarde (format 12) : elle se recharge même si le fichier a changé ou disparu. `GameState.create` accepte `"rivals"` pour choisir les peuples des autres empires.
 - **Banc court** : `SPECIES=user://species/p_x.json SEEDS=1,...,24 godot --headless --path . -s res://tools/balance_bench.gd`, puis `python3 tools/balance_report.py` affiche si chaque peuple est dans la cible (victoires 10-45 %, morts avant l'an 10 < 25 %). `SPECIES=preset:choeur` essaie une copie d'un officiel.
 
 ![Galerie des portraits provisoires](docs/apercu-portraits.png)
+
+### Lot 2 : l'écran Peuples
+
+L'entrée **Peuples** du menu principal (ou « Créer ou modifier un peuple… » dans Nouvelle partie) ouvre l'éditeur (`scripts/ui/species_editor.gd`) :
+
+- **Bibliothèque** à gauche : partir d'un peuple officiel (ses couches et traits), ouvrir un de vos peuples, Nouveau, Dupliquer, Supprimer (deux clics ; les parties sauvegardées gardent leur copie). Les fichiers écartés au chargement y sont listés avec la raison.
+- **Trois onglets** au centre : Identité (nom, nom court, couleur, style de vaisseaux, tempérament de l'IA, histoire, portrait choisi librement dans toute la galerie, ceux de l'archétype en tête), Couches (une liste par couche, avec ses règles et ce qu'elle demande), Traits (points restants, traits choisis retirables d'un clic, qualités et défauts avec leur coût ; un trait impossible est grisé avec la raison en bulle).
+- **Aperçu** à droite : portrait, budget, raisons qui empêchent d'enregistrer (Enregistrer est grisé tant qu'il en reste), toutes les règles du peuple assemblé, et ce que débloquent ses couches (victoire de peuple, talents diplomatiques, vaisseaux propres).
+- **Nouvelle partie** : les peuples enregistrés apparaissent aussitôt dans la rangée de portraits, et « Empires rivaux » choisit les peuples adverses, officiels ou créés (7 au plus ; le peuple joué n'est jamais son propre rival).
+
+Sources consultées pour la mise en page : la création de civilisation de Galactic Civilizations IV (journal de développement #79 de Stardock, captures : onglets, grille de traits à points, portrait) et la capture de l'écran d'espèce du wiki officiel de Stellaris (compteurs de points et de traits restants, colonnes qualités/défauts avec leur coût). Aucune capture de l'éditeur de faction d'Endless Space 2 n'a été trouvée : le style visuel reste celui du reste du menu.
+
+![Éditeur de peuples, onglet Traits](docs/apercu-editeur-peuples.png)
 
 ## Modèles 3D des vaisseaux
 
@@ -494,6 +507,7 @@ scripts/
     time_dial.gd          Cadran du temps (pause, date, vitesse ; fin de tour au tour par tour)
     empire_screens.gd     Écrans d'empire plein écran : Économie, Colonies, Recherche, Diplomatie, Victoires
     main_menu.gd          Menu principal et choix de la faction
+    species_editor.gd     Écran Peuples : bibliothèque et éditeur des peuples créés
     pause_menu.gd         Menu du jeu et liste des raccourcis
     options_panel.gd      Page Options (partagée)
     ui_settings.gd        Réglages du poste (plein écran, pause automatique)

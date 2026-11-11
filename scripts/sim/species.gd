@@ -63,11 +63,20 @@ static func trait_def(id: String) -> Dictionary:
 	return {}
 
 
-## Portraits proposés pour un archétype (tous si archetype == "").
+## Portraits dessinés pour un archétype (tous si archetype == "").
 static func portraits(archetype := "") -> Array:
 	var out := []
 	for p: Dictionary in parts()["portraits"]:
 		if archetype == "" or (p.get("archetypes", []) as Array).has(archetype):
+			out.append(p)
+	return out
+
+
+## Toute la galerie, ceux de l'archétype en premier : le joueur choisit librement.
+static func gallery(archetype: String) -> Array:
+	var out := portraits(archetype)
+	for p: Dictionary in parts()["portraits"]:
+		if not out.has(p):
 			out.append(p)
 	return out
 
@@ -163,10 +172,9 @@ static func errors(spec: Dictionary) -> Array[String]:
 	if biomes.size() != 2 or String(biomes[0]) == String(biomes[1]) or not allowed.has(String(biomes[0])) or not allowed.has(String(biomes[1])):
 		out.append("il faut deux biomes différents parmi : %s" % ", ".join(PackedStringArray(allowed)))
 	var p := portrait_def(String(spec.get("portrait", "")))
+	# Tout portrait va avec tout peuple : les archétypes d'un portrait ne servent qu'à l'ordre de la galerie.
 	if p.is_empty():
 		out.append("portrait inconnu")
-	elif not (p.get("archetypes", []) as Array).has(String(spec["archetype"])):
-		out.append("ce portrait ne va pas avec l'archétype %s" % brick("archetype", String(spec["archetype"]))["label"])
 	if not (parts()["ship_styles"] as Array).has(String(spec.get("ship_style", ""))):
 		out.append("style de vaisseaux inconnu")
 	if temperament_def(int(spec.get("temperament", 99))).is_empty():

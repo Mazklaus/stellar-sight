@@ -771,7 +771,7 @@ func _test_navigation_ui(main: Node) -> void:
 	await process_frame
 	var menu: MainMenu = main._main_menu
 	_check(menu.is_open() and not hud.visible and menu._resume.visible, "menu principal : la partie en cours peut reprendre")
-	_check(not menu._continue.visible and menu._items.size() == 5, "accueil : Reprendre remplace Continuer")
+	_check(not menu._continue.visible and menu._items.size() == 6, "accueil : Reprendre remplace Continuer")
 	menu._layout_home()
 	var geo: Array = menu._planet_geometry()
 	var orbit_r: float = geo[1] + geo[2].y * 0.09
@@ -791,6 +791,7 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(is_equal_approx(root.content_scale_factor, 1.25) and menu._options._scale.text == "125 %", "options : échelle de l'interface")
 	menu._options.reset_defaults()
 	_check(not UiSettings.auto_pause_menus and is_equal_approx(root.content_scale_factor, 1.0), "options : valeurs par défaut")
+	await _test_species_editor(main, menu)
 	menu.show_page("home")
 	_press(KEY_ESCAPE)
 	_check(not menu.is_open() and hud.visible, "Échap reprend la partie")
@@ -819,6 +820,70 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(hud.bar.gauge_text().begins_with("BIOMASSE"), "le panneau d'empire montre la jauge de la faction (%s)" % hud.bar.gauge_text())
 	await _test_spectator(main, menu, hud, clock)
 	main.player_faction = "ossarane"
+
+
+## Écran Peuples : créer un peuple dans l'éditeur, l'enregistrer, le retrouver dans Nouvelle partie
+## (portrait et rivaux), le jouer, puis le supprimer. Bibliothèque redirigée vers un dossier de test.
+func _test_species_editor(main: Node, menu: MainMenu) -> void:
+	SpeciesLibrary.dir = "user://test_species_ui"
+	var ed: SpeciesEditor = menu._species
+	menu.open_species("home")
+	await process_frame
+	_check(ed.visible and not menu._home.visible and menu.page == "species", "accueil : Peuples ouvre l'éditeur")
+	ed.open_new("ossarane")
+	_check(String(ed.spec["gouvernement"]) == "feodalite" and ed.editing_id == "", "Partir d'Ossarane : ses couches, peuple nouveau")
+	ed._name_edit.text = "Ligue de Sel"
+	ed._name_edit.text_changed.emit("Ligue de Sel")
+	var chosen := String(ed.spec["portrait"])
+	ed.set_layer("archetype", "ruche")
+	_check(String(ed.spec["portrait"]) == chosen and ed._portrait_grid.get_child_count() >= Species.portraits().size(), "changer d'archétype garde le portrait ; toute la galerie reste proposée")
+	_check(ed._preview_errors.text != "" and (ed.get_meta("save_button") as Button).disabled, "ruche sans gouvernement de ruche : enregistrement refusé avec la raison")
+	ed.set_layer("archetype", "humanoide")
+	ed.set_portrait("ruche_2")
+	ed.show_tab("traits")
+	_check(ed._pages["traits"].visible and not ed._pages["identity"].visible, "onglet Traits")
+	var before: int = (ed.spec["traits"] as Array).size()
+	_check(ed.toggle_trait("prolifiques") == "" and (ed.spec["traits"] as Array).size() == before + 1, "ajout d'un trait")
+	_check(ed.toggle_trait("pelerins") != "", "un second trait de croissance est refusé (%s)" % ed.status)
+	ed.toggle_trait("prolifiques")
+	_check(ed._preview_errors.text == "" and not (ed.get_meta("save_button") as Button).disabled, "peuple valide : on peut enregistrer")
+	_check(ed._preview_rules.text.contains("Victoire de peuple"), "l'aperçu montre ce que débloquent les couches")
+	_check(ed.save() == "" and ed.editing_id == "p_ligue_de_sel", "enregistré dans la bibliothèque")
+	_check(FileAccess.file_exists(SpeciesLibrary.path_for("p_ligue_de_sel")), "fichier du peuple écrit")
+	_check(menu._faction_cards.has("p_ligue_de_sel"), "le peuple apparaît dans Nouvelle partie")
+	_press(KEY_ESCAPE)
+	_check(menu.page == "home", "Échap ramène à la page d'où l'on venait")
+	menu.show_page("new")
+	menu.select_faction("p_ligue_de_sel")
+	_check(menu._scene_name.text == "Ligue de Sel", "le peuple créé se choisit dans Nouvelle partie")
+	_check(menu.toggle_rival("p_ligue_de_sel") and menu.rivals.has("p_ligue_de_sel"), "un peuple créé peut être un rival")
+	_check(not menu.rival_ids("p_ligue_de_sel").has("p_ligue_de_sel"), "le peuple joué n'est pas son propre rival")
+	menu.toggle_rival("ossarane")
+	_check(not menu.rival_ids("vael").has("ossarane") and menu._rivals_menu.text.begins_with("4 :"), "rival retiré (%s)" % menu._rivals_menu.text)
+	menu.open_species("new")
+	_check(ed.editing_id == "p_ligue_de_sel", "depuis Nouvelle partie, le peuple créé choisi s'ouvre dans l'éditeur")
+	ed.duplicate_current()
+	_check(ed.save() == "" and GameData.library_faction_ids().size() == 2, "copie enregistrée à part")
+	_check(ed.delete_current() and GameData.library_faction_ids().size() == 1, "suppression de la copie")
+	ed.back_requested.emit()
+	_check(menu.page == "new", "Retour ramène à Nouvelle partie")
+	menu._seed_edit.text = "77"
+	menu.launch()
+	await process_frame
+	var st: GameState = main.simulation.state
+	var fids := []
+	for e in st.empires:
+		fids.append(e.faction_id)
+	_check(fids[0] == "p_ligue_de_sel" and fids.has("vael") and not fids.has("ossarane") and fids.size() == 4, "partie lancée avec le peuple créé et les rivaux choisis (%s)" % [fids])
+	# Remise en état pour la suite des tests.
+	menu.rivals.assign(GameData.faction_ids())
+	SpeciesLibrary.delete("p_ligue_de_sel")
+	menu._on_library_changed()
+	SpeciesLibrary.dir = SpeciesLibrary.DEFAULT_DIR
+	main.rivals.clear()
+	main.open_main_menu()
+	menu.show_page("options")
+	await process_frame
 
 
 ## Mode spectateur : partie sans joueur lancée depuis le menu, tableau des empires, regards, aucun ordre.
