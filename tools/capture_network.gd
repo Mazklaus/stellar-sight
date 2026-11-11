@@ -31,7 +31,10 @@ func _initialize() -> void:
 	# Salon d'avant-partie : deux places « joueur humain », Alice en prend une et se dit prête.
 	main.player_name = "Maître Sentient"
 	main.net.autosave_path = "user://saves/capture_multi_auto.json"
+	main.net.use_upnp = false  # pas de box dans la machine de capture : on montre le cas réussi
 	menu.open_host_new()
+	main.net.upnp_state = "ok"
+	main.net.upnp_address = "203.0.113.7"  # adresse d'exemple (plage de documentation)
 	menu.select_faction("ossarane")
 	menu.set_slot_human(0, true)
 	menu.set_slot_human(1, true)

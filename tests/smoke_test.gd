@@ -773,6 +773,15 @@ func _test_navigation_ui(main: Node) -> void:
 	clock.set_paused(true)
 
 	# Multijoueur : la partie s'ouvre au réseau ; ordres et pause passent par la session (lockstep).
+	# UPnP : l'hôte demande à la box d'ouvrir le port ; ici, pas de box : on explique quoi faire.
+	_check(main.host_game(24599) and main.net.upnp_state == "busy" and main.net.upnp_text().contains("UPnP"), "Ouvrir en réseau : ouverture du port sur la box demandée")
+	var upnp_since := Time.get_ticks_msec()
+	while main.net.upnp_state == "busy" and Time.get_ticks_msec() - upnp_since < 20000:
+		await process_frame
+	_check(main.net.upnp_state == "fail" and main.net.upnp_reason != "" and main.net.upnp_text().contains("Tailscale"), "sans box UPnP, l'hôte sait quoi faire (%s)" % main.net.upnp_text())
+	main.leave_network("")
+	_check(main.net.upnp_state == "", "quitter le réseau referme la demande UPnP")
+	main.net.use_upnp = false  # la suite des tests n'attend pas la box
 	_check(main.host_game(24599) and main.net.is_host() and clock.driver == main.net, "Ouvrir en réseau : la session pilote l'horloge")
 	var sys_id: int = main.galaxy.get_planet(main.simulation.state.get_empire(main.local_player).capital_planet).system_id
 	_check(main._submit(SimCommands.rename_system(main.local_player, sys_id, "Relais-Réseau")), "en réseau, l'ordre part à la session")

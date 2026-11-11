@@ -48,6 +48,7 @@ func _setup() -> void:
 	var port := int(_env("PORT", str(NetSession.DEFAULT_PORT)))
 	rng.seed = hash(_env("NAME", role) + str(Time.get_ticks_usec()))
 	session = NetSession.new()
+	session.use_upnp = false  # pas de box à ouvrir pour des bots en local
 	session.player_name = _env("NAME", role)
 	session.token = "bot-" + _env("NAME", role)
 	root.add_child(session)
