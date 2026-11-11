@@ -552,7 +552,7 @@ static func _drop_proposals(state: GameState, a: int, b: int, treaty: String) ->
 	state.proposals = kept
 
 
-## Chacun reçoit les systèmes explorés par l'autre.
+## Chacun reçoit les systèmes explorés par l'autre, et ses relevés plus récents (voir Intel).
 static func share_maps(state: GameState, a: int, b: int) -> void:
 	var ea := state.get_empire(a)
 	var eb := state.get_empire(b)
@@ -560,6 +560,7 @@ static func share_maps(state: GameState, a: int, b: int) -> void:
 		eb.explored[sid] = true
 	for sid in eb.explored:
 		ea.explored[sid] = true
+	Intel.share(ea, eb)
 
 
 ## Fin d'une guerre (par la paix) : plus aucune hostilité, les sièges se lèveront d'eux-mêmes.

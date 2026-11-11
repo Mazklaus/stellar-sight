@@ -17,13 +17,16 @@ const AVAILABILITY_COLORS := {
 
 
 ## "Colonie d'Ossarane (8 pop)", "Avant-poste de Vael en fondation", "Libre"…
+## Hors de vue, c'est la dernière information connue (voir Intel) : sans durée de fondation.
 static func status_line(state: GameState, p: Planet) -> String:
-	var c: Colony = state.colonies.get(p.id)
+	var c: Colony = Intel.shown_colony(state, p.id)
 	if c == null:
 		return "Libre"
 	var owner := state.get_empire(c.owner)
 	var kind_label := "Colonie" if c.is_colony() else "Avant-poste"
 	if not c.is_established():
+		if not Intel.shown_live(state, p.system_id):
+			return "%s de %s en fondation" % [kind_label, owner.short_name()]
 		return "%s de %s en fondation (%d j)" % [kind_label, owner.short_name(), c.days_left]
 	if c.is_colony():
 		return "%s de %s (%d pop)" % [kind_label, owner.short_name(), c.population]
@@ -33,11 +36,13 @@ static func status_line(state: GameState, p: Planet) -> String:
 ## Version courte pour les listes : "libre", "Vael · 8 pop", "fondation · 30 j"…
 ## Le nom du propriétaire est omis quand c'est viewer (la couleur suffit à le reconnaître).
 static func short_status(state: GameState, p: Planet, viewer := -1) -> String:
-	var c: Colony = state.colonies.get(p.id)
+	var c: Colony = Intel.shown_colony(state, p.id)
 	if c == null:
 		return "libre"
 	var owner := "" if c.owner == viewer else state.get_empire(c.owner).short_name() + " · "
 	if not c.is_established():
+		if not Intel.shown_live(state, p.system_id):
+			return "%sfondation" % owner
 		return "%sfondation · %d j" % [owner, c.days_left]
 	if c.is_colony():
 		return "%s%d pop" % [owner, c.population]
@@ -70,6 +75,11 @@ static func colony_lines(state: GameState, p: Planet, c: Colony, player: int) ->
 	var lines := PackedStringArray()
 	var owner := state.get_empire(c.owner)
 	var kind_label := "Colonie" if c.is_colony() else "Avant-poste"
+	if c.owner != player and not Intel.shown_live(state, p.system_id):
+		# Hors de vue : seulement ce qu'on en a vu, sans bâtiments ni chantiers.
+		lines.append(status_line(state, p))
+		lines.append("Dernière information connue : %s" % Intel.age_label(state, Intel.lens, p.system_id))
+		return lines
 	if not c.is_established():
 		lines.append("%s de %s en fondation : %d j" % [kind_label, owner.short_name(), c.days_left])
 		return lines
@@ -132,14 +142,16 @@ static func potential_label(v: int) -> String:
 ## Ce que la planète représente pour le joueur, en un mot : {"text", "kind"}.
 ## kind : "owned", "foreign", "founding", "colonizable", "outpost", "out_of_range", "claimed".
 static func availability(state: GameState, p: Planet, player: int) -> Dictionary:
-	var c: Colony = state.colonies.get(p.id)
+	var c: Colony = Intel.shown_colony(state, p.id)
 	if c:
 		var mine := c.owner == player
 		if not c.is_established():
+			if not Intel.shown_live(state, p.system_id):
+				return {"text": "En fondation", "kind": "founding"}
 			return {"text": "En fondation (%d j)" % c.days_left, "kind": "founding"}
 		var what := "Colonisée" if c.is_colony() else "Avant-poste"
 		return {"text": what if mine else "%s (%s)" % [what, state.get_empire(c.owner).short_name()], "kind": "owned" if mine else "foreign"}
-	var owner := state.system_owner(p.system_id)
+	var owner := Intel.shown_owner(state, p.system_id)
 	if owner != -1 and owner != player:
 		return {"text": "Revendiquée", "kind": "claimed"}
 	if not Economy.in_range(state, player, p.system_id):

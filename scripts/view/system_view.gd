@@ -337,7 +337,7 @@ func _draw_overlay() -> void:
 	for pid in system.planet_ids:
 		var pos := planet_position(pid)
 		var r := planet_radius(pid)
-		var c: Colony = state.colonies.get(pid)
+		var c: Colony = Intel.shown_colony(state, pid)
 		if c:
 			_draw_claim_ring(pid, c, pos, r + 5.0 * sf)
 		if pid == selected_planet:
@@ -399,8 +399,8 @@ func _draw_card(pid: int, sf: float) -> void:
 		width = maxf(width, _font.get_string_size(l["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, l["size"]).x)
 	# Bilan mensuel d'une revendication établie, une pastille par ressource.
 	var yields: Array[Dictionary] = []
-	var c: Colony = state.colonies.get(pid)
-	if c and c.is_established():
+	var c: Colony = Intel.shown_colony(state, pid)
+	if c and c.is_established() and Intel.shown_live(state, system.id):
 		var yl := Economy.colony_yields(state, c)
 		for res in GameData.resource_ids():
 			var v := int(yl["gross"][res]) - int(yl["upkeep"][res])
@@ -463,7 +463,7 @@ func _draw_card(pid: int, sf: float) -> void:
 func _name_color(pid: int) -> Color:
 	if pid == selected_planet:
 		return SELECT_COLOR
-	var c: Colony = state.colonies.get(pid)
+	var c: Colony = Intel.shown_colony(state, pid)
 	return state.get_empire(c.owner).color().lightened(0.3) if c else UiTheme.TEXT
 
 
@@ -474,7 +474,7 @@ func _draw_brackets(pos: Vector2, r: float, col: Color) -> void:
 
 
 func _owner_of(pid: int) -> Empire:
-	var c: Colony = state.colonies.get(pid)
+	var c: Colony = Intel.shown_colony(state, pid)
 	return state.get_empire(c.owner) if c else null
 
 

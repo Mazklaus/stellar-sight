@@ -29,6 +29,7 @@ func _initialize() -> void:
 	preload("res://tests/galaxy_tests.gd").new().run(_check)
 	preload("res://tests/game_rules_tests.gd").new().run(_check)
 	preload("res://tests/net_tests.gd").new().run(_check)
+	preload("res://tests/intel_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
