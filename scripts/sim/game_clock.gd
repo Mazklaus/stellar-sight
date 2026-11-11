@@ -2,7 +2,8 @@ extends Node
 ## Horloge du jeu (autoload « GameClock ») : le pilote de la simulation.
 ## Elle transforme le temps réel en ticks à pas fixe et appelle Simulation.step().
 ## Elle ne contient aucun état de partie : pause et vitesse sont des réglages locaux.
-## En multijoueur, seul l'hôte fera avancer la simulation ; les clients suivront ses ticks.
+## En multijoueur, une NetSession prend la main (driver) : elle fait avancer la simulation au rythme
+## de l'hôte, et pause et vitesse deviennent des demandes partagées (voir NetSession).
 ##
 ## Deux façons de jouer, au choix à la création de la partie :
 ## - temps réel pausable (MODE_REALTIME) : le temps file, on met en pause quand on veut ;
@@ -45,6 +46,14 @@ var day: int:
 		return simulation.state.tick if simulation else 0
 
 var _accumulator: float = 0.0
+## Multijoueur : la session qui pilote la simulation à la place de l'horloge locale (null en solo).
+## Elle doit offrir clock_process(delta), request_pause(bool), request_speed(int), request_toggle()
+## et day_fraction().
+var driver: Object = null
+## Multijoueur au tour par tour : le joueur local a terminé son tour et attend les autres.
+var net_ready := false
+## Multijoueur au tour par tour : noms des joueurs qui n'ont pas encore terminé leur tour.
+var net_waiting: Array[String] = []
 
 
 ## Branche l'horloge sur une simulation (nouvelle partie ou partie chargée). Le jeu repart en pause.
@@ -56,7 +65,7 @@ func attach(sim: Simulation) -> void:
 		simulation.ticked.connect(_on_ticked)
 	_accumulator = 0.0
 	_turn_target = -1
-	set_paused(true)
+	_set_running(false)
 	day_passed.emit(day)
 
 
@@ -93,6 +102,11 @@ func is_resolving_turn() -> bool:
 ## En multijoueur, l'hôte l'appellera quand tous les joueurs auront terminé leur tour
 ## (tours simultanés, comme Endless Space 2).
 func end_turn() -> bool:
+	if driver != null:
+		if mode != MODE_TURNS or _turn_target >= 0 or net_ready:
+			return false
+		driver.request_toggle()
+		return true
 	if mode != MODE_TURNS or simulation == null or _turn_target >= 0:
 		return false
 	_turn_target = turn() * turn_days
@@ -108,6 +122,9 @@ func turn_progress() -> float:
 
 
 func _process(delta: float) -> void:
+	if driver != null:
+		driver.clock_process(delta)
+		return
 	if simulation == null:
 		return
 	if paused:
@@ -135,6 +152,8 @@ func _process(delta: float) -> void:
 
 ## Fraction du jour en cours déjà écoulée (0 à 1), pour animer les flottes entre deux ticks.
 func day_fraction() -> float:
+	if driver != null:
+		return driver.day_fraction()
 	if paused or simulation == null:
 		return 0.0
 	return clampf(_accumulator / _seconds_per_day(), 0.0, 1.0)
@@ -150,6 +169,10 @@ func _seconds_per_day() -> float:
 func interrupt_turn() -> bool:
 	if mode != MODE_TURNS or _turn_target < 0:
 		return false
+	if driver != null:
+		# En réseau, la pause est commune : tout le monde s'arrête au même jour.
+		driver.request_pause(true)
+		return true
 	_finish_turn()
 	return true
 
@@ -167,6 +190,10 @@ func _on_ticked(tick: int) -> void:
 ## Pause ou reprise. Au tour par tour, reprendre ne fait que continuer un tour déjà lancé
 ## (après un menu, par exemple) : seul end_turn() lance un nouveau tour.
 func set_paused(value: bool) -> void:
+	if driver != null:
+		if value != paused:
+			driver.request_pause(value)
+		return
 	if not value and mode == MODE_TURNS and _turn_target < 0:
 		return
 	_set_running(not value)
@@ -182,6 +209,9 @@ func _set_running(running: bool) -> void:
 
 ## Espace et le centre du cadran : pause / reprise en temps réel, fin de tour au tour par tour.
 func toggle_pause() -> void:
+	if driver != null:
+		driver.request_toggle()
+		return
 	if mode == MODE_TURNS:
 		if paused and _turn_target < 0:
 			end_turn()
@@ -192,11 +222,36 @@ func toggle_pause() -> void:
 
 
 func set_speed(index: int) -> void:
+	if driver != null:
+		driver.request_speed(index)
+		return
 	var clamped := clampi(index, 0, SECONDS_PER_DAY.size() - 1)
 	if clamped == speed_index:
 		return
 	speed_index = clamped
 	speed_changed.emit(speed_index)
+
+
+## Multijoueur : la session impose la pause, la vitesse et la façon de jouer partagées (affichage
+## seulement). net_mode < 0 laisse le mode tel quel ; target : fin du tour en cours de résolution (-1 : aucun).
+func net_sync(is_paused: bool, speed: int, net_mode := -1, days := 0, target := -1) -> void:
+	if net_mode >= 0:
+		if days > 0:
+			turn_days = days
+		var was_resolving := _turn_target >= 0
+		_turn_target = target if net_mode == MODE_TURNS else -1
+		if net_mode != mode:
+			mode = net_mode
+			mode_changed.emit(mode)
+		if was_resolving and _turn_target < 0 and is_paused and day % turn_days == 0:
+			turn_started.emit(turn())
+	if paused != is_paused:
+		paused = is_paused
+		pause_changed.emit(paused)
+	var clamped := clampi(speed, 0, SECONDS_PER_DAY.size() - 1)
+	if clamped != speed_index:
+		speed_index = clamped
+		speed_changed.emit(speed_index)
 
 
 ## Réglages à ranger dans une sauvegarde (voir SaveGame.save_state).

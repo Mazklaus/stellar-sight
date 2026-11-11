@@ -8,6 +8,15 @@ signal new_game_requested(faction_id: String, seed_value: int)
 signal resume_requested
 signal continue_requested
 signal quit_requested
+## « Rejoindre une partie » : adresse et port de l'hôte, nom du joueur (voir NetSession).
+signal join_requested(address: String, port: int, player_name: String)
+## Multijoueur : l'empire choisi dans la liste proposée par l'hôte.
+signal empire_picked(empire_id: int)
+## Multijoueur : reprendre comme hôte la dernière partie en réseau (sauvegarde automatique).
+signal host_resume_requested
+
+## Réglages réseau retenus d'une fois sur l'autre (dernière adresse, nom).
+const NET_SETTINGS := "user://net.cfg"
 
 const TAGLINE := "Chronique d'une galaxie qui n'avait rien demandé"
 const NEWS := "Prototype : galaxie, économie et colonisation jouables. Recherche et diplomatie en préparation."
@@ -210,6 +219,7 @@ func _ready() -> void:
 	_quick = _menu_button("quick", "Partie rapide", "Relancer aussitôt avec les réglages de votre dernière partie, sur une nouvelle galaxie.", quick_game)
 	_menu_button("new", "Nouvelle partie", "Choisir un peuple et lancer une nouvelle galaxie.", func() -> void: show_page("new"))
 	_menu_button("species", "Peuples", "Créer, modifier et ranger vos propres peuples : couches d'espèce, traits, portrait.", func() -> void: open_species("home"))
+	_menu_button("join", "Multijoueur", "Héberger une partie en réseau, la reprendre, ou rejoindre celle d'un ami.", func() -> void: show_page("join"))
 	_menu_button("options", "Options", "Affichage, partie et commandes.", func() -> void: show_page("options"))
 	_menu_button("quit", "Quitter", "Retourner au bureau. La galaxie attendra.", func() -> void: quit_requested.emit())
 	_hint = PanelContainer.new()
@@ -274,6 +284,7 @@ func _ready() -> void:
 	foot.offset_top = -80
 	foot.offset_bottom = -24
 	_options_page.add_child(foot)
+	_build_join_page(root)
 	_species = SpeciesEditor.new()
 	root.add_child(_species)
 	_species.back_requested.connect(func() -> void: show_page(_species_return))
@@ -295,6 +306,7 @@ func open(can_resume: bool, has_save: bool, save_label := "") -> void:
 
 func close() -> void:
 	visible = false
+	lan.close()
 
 
 func is_open() -> bool:
@@ -306,6 +318,21 @@ func show_page(name: String) -> void:
 	_home.visible = name == "home"
 	_new_page.visible = name == "new"
 	_options_page.visible = name == "options"
+	if _join_page:
+		_join_page.visible = name == "join"
+	if name == "join":
+		if not lan.is_listening():
+			lan.listen()
+			_refresh_lan()
+	elif lan.is_listening():
+		lan.close()
+	if name == "join":
+		_join_choice.visible = false
+		_join_form.visible = true
+		_join_go.visible = true
+		_resume_net.visible = FileAccess.file_exists(NetSession.AUTOSAVE_PATH)
+	if name != "new" and name != "species":
+		host_new = false
 	if _species:
 		_species.visible = name == "species"
 	if name == "options":
@@ -323,6 +350,220 @@ func back() -> bool:
 		show_page("home")
 		return true
 	return false
+
+
+# --- Rejoindre une partie en réseau ---------------------------------------------------------------
+
+var _join_page: Control
+## La prochaine partie lancée depuis la page Nouvelle partie s'ouvre au réseau (bouton Héberger).
+var host_new := false
+var _join_form: Control
+var _join_go: Control
+## Parties du réseau local, entendues sans taper d'adresse.
+var lan := LanDiscovery.new()
+var _lan_list: VBoxContainer
+var _lan_hint: Label
+var _join_choice: VBoxContainer
+var _resume_net: Control
+var _join_name: LineEdit
+var _join_address: LineEdit
+var _join_port: LineEdit
+var _join_status: Label
+
+
+func _build_join_page(root: Control) -> void:
+	var cfg := ConfigFile.new()
+	cfg.load(NET_SETTINGS)
+	_join_page = Control.new()
+	_join_page.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_join_page.mouse_filter = Control.MOUSE_FILTER_STOP
+	_join_page.visible = false
+	root.add_child(_join_page)
+	var veil := ColorRect.new()
+	veil.color = Color(0.01, 0.02, 0.035, 0.88)
+	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_join_page.add_child(veil)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_join_page.add_child(center)
+	var panel := PanelContainer.new()
+	panel.theme_type_variation = &"WindowPanel"
+	center.add_child(panel)
+	var box := VBoxContainer.new()
+	box.custom_minimum_size = Vector2(520, 0)
+	box.add_theme_constant_override("separation", 12)
+	panel.add_child(box)
+	var title := UiTheme.title("Multijoueur", 24)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(title)
+	# Héberger : nouvelle partie (tour par tour proposé d'abord) ou reprise de la dernière.
+	box.add_child(UiTheme.section("Héberger"))
+	var host_row := HBoxContainer.new()
+	host_row.add_theme_constant_override("separation", 12)
+	box.add_child(host_row)
+	var host_b := Widgets.RoundButton.new("plus", "Nouvelle partie en réseau", 15)
+	host_b.tooltip_text = "Régler la partie comme en solo ; elle s'ouvrira au réseau dès son lancement. Les tours simultanés sont proposés d'abord."
+	host_b.pressed.connect(open_host_new)
+	host_row.add_child(host_b)
+	var resume_b := Widgets.RoundButton.new("next", "Reprendre la partie en réseau", 15)
+	resume_b.tooltip_text = "Recharger la dernière sauvegarde automatique de la partie que vous hébergiez et la rouvrir : chaque joueur retrouve son empire en rejoignant."
+	resume_b.pressed.connect(func() -> void: host_resume_requested.emit())
+	host_row.add_child(resume_b)
+	_resume_net = resume_b
+	box.add_child(HSeparator.new())
+	box.add_child(UiTheme.section("Rejoindre"))
+	var form := VBoxContainer.new()
+	form.add_theme_constant_override("separation", 12)
+	box.add_child(form)
+	_join_form = form
+	form.add_child(UiTheme.dim("Parties sur votre réseau", 14))
+	_lan_list = VBoxContainer.new()
+	_lan_list.add_theme_constant_override("separation", 4)
+	form.add_child(_lan_list)
+	_lan_hint = UiTheme.dim("Recherche… (une partie hébergée sur le même réseau apparaît ici toute seule)", 13)
+	_lan_list.add_child(_lan_hint)
+	var intro := UiTheme.paragraph("Ou entrez l'adresse que l'hôte vous donne, puis choisissez votre empire. Si vous avez quitté la partie, même par une coupure, vous retrouvez le vôtre. Il faut la même version du jeu et de Godot.", 520, 14)
+	intro.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	form.add_child(intro)
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 14)
+	grid.add_theme_constant_override("v_separation", 8)
+	form.add_child(grid)
+	_join_name = _join_field(grid, "Votre nom", String(cfg.get_value("net", "name", "")), "Nom vu par les autres joueurs")
+	_join_name.max_length = 24
+	_join_address = _join_field(grid, "Adresse de l'hôte", String(cfg.get_value("net", "address", "")), "192.168.1.20, adresse Tailscale…")
+	_join_port = _join_field(grid, "Port", str(cfg.get_value("net", "port", NetSession.DEFAULT_PORT)), "")
+	_join_status = UiTheme.dim("", 14)
+	_join_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_join_status.custom_minimum_size = Vector2(520, 0)
+	box.add_child(_join_status)
+	_join_choice = VBoxContainer.new()
+	_join_choice.add_theme_constant_override("separation", 6)
+	_join_choice.visible = false
+	box.add_child(_join_choice)
+	var buttons := HBoxContainer.new()
+	box.add_child(buttons)
+	var back_b := Widgets.RoundButton.new("back", "Retour", 16)
+	back_b.pressed.connect(func() -> void: show_page("home"))
+	buttons.add_child(back_b)
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	buttons.add_child(spacer)
+	var go := Widgets.RoundButton.new("check", "Rejoindre", 16)
+	go.pressed.connect(request_join)
+	buttons.add_child(go)
+	_join_go = go
+	_join_address.text_submitted.connect(func(_t: String) -> void: request_join())
+
+
+func _join_field(grid: GridContainer, label: String, value: String, placeholder: String) -> LineEdit:
+	grid.add_child(UiTheme.dim(label, 15))
+	var e := LineEdit.new()
+	e.text = value
+	e.placeholder_text = placeholder
+	e.custom_minimum_size = Vector2(320, 0)
+	grid.add_child(e)
+	return e
+
+
+## Bouton « Rejoindre » : vérifie la saisie, la retient, et demande la connexion.
+func request_join() -> void:
+	var address := _join_address.text.strip_edges()
+	var port := int(_join_port.text) if _join_port.text.is_valid_int() else 0
+	if address == "":
+		set_join_status("Indiquez l'adresse de l'hôte.")
+		return
+	if port <= 0 or port > 65535:
+		set_join_status("Port invalide.")
+		return
+	var cfg := ConfigFile.new()
+	cfg.set_value("net", "name", _join_name.text.strip_edges())
+	cfg.set_value("net", "address", address)
+	cfg.set_value("net", "port", port)
+	cfg.save(NET_SETTINGS)
+	join_requested.emit(address, port, _join_name.text.strip_edges())
+
+
+func set_join_status(text: String) -> void:
+	if _join_status:
+		_join_status.text = text
+
+
+func _process(_delta: float) -> void:
+	if visible and page == "join" and lan.poll():
+		_refresh_lan()
+
+
+## Liste des parties entendues sur le réseau local : un clic pour les rejoindre.
+func _refresh_lan() -> void:
+	if _lan_list == null:
+		return
+	for c in _lan_list.get_children():
+		if c != _lan_hint:
+			c.queue_free()
+	_lan_hint.visible = lan.games.is_empty()
+	if not lan.is_listening():
+		_lan_hint.text = "Recherche impossible : un autre jeu ouvert sur cette machine écoute déjà le réseau local."
+		_lan_hint.visible = true
+	for addr in lan.games:
+		var g: Dictionary = lan.games[addr]
+		var same := String(g["version"]) == GameVersion.fingerprint()
+		var b := Button.new()
+		b.text = "%s  ·  %s  ·  %d joueur%s  ·  %s%s" % [String(g["name"]), "tours simultanés" if g["turns"] else "temps réel",
+				int(g["players"]), "s" if int(g["players"]) > 1 else "", String(g["date"]), "" if same else "  ·  autre version du jeu"]
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.disabled = not same
+		b.tooltip_text = "%s, port %d" % [addr, int(g["port"])]
+		var a := String(addr)
+		var port := int(g["port"])
+		b.pressed.connect(func() -> void:
+			_join_address.text = a
+			_join_port.text = str(port)
+			request_join())
+		_lan_list.add_child(b)
+
+
+## Bouton « Nouvelle partie en réseau » : page Nouvelle partie, tours simultanés proposés d'abord.
+func open_host_new() -> void:
+	show_page("new")
+	host_new = true
+	if time_mode != GameClock.MODE_TURNS:
+		set_time_choice(1 + GameClock.TURN_LENGTHS.find(GameClock.DEFAULT_TURN_DAYS))
+
+
+## L'hôte propose ses empires : une ligne par empire, cliquable s'il est libre.
+func show_empire_choice(empires: Array) -> void:
+	show_page("join")
+	_join_form.visible = false
+	_join_go.visible = false
+	for c in _join_choice.get_children():
+		c.queue_free()
+	_join_choice.visible = true
+	_join_choice.add_child(UiTheme.dim("Choisissez votre empire :", 15))
+	for d in empires:
+		if not d is Dictionary:
+			continue
+		var status := "tenu par l'IA"
+		if String(d.get("player", "")) != "":
+			status = "joué par %s" % d["player"]
+		elif String(d.get("reserved", "")) != "":
+			status = "IA en attendant %s" % d["reserved"]
+		var b := Button.new()
+		b.text = "■  %s  ·  %s  ·  %d colonie%s  ·  %s" % [String(d.get("name", "?")), String(d.get("registre", "")),
+				int(d.get("colonies", 0)), "s" if int(d.get("colonies", 0)) > 1 else "", status]
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.disabled = not bool(d.get("free", false))
+		var col := Color.html(String(d.get("color", "ffffff")))
+		b.add_theme_color_override("font_color", col.lightened(0.25))
+		b.add_theme_color_override("font_hover_color", col.lightened(0.5))
+		var id := int(d.get("id", -1))
+		b.pressed.connect(func() -> void:
+			set_join_status("Entrée dans la partie…")
+			empire_picked.emit(id))
+		_join_choice.add_child(b)
+	set_join_status("")
 
 
 ## Ouvre l'éditeur de peuples ; Retour (ou Échap) ramène à la page d'où l'on vient.

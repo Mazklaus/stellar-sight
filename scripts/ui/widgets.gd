@@ -671,6 +671,11 @@ class OrbitMenuItem:
 				for o: Vector2 in [Vector2(s * 0.45, -s * 0.1), Vector2(-s * 0.25, 0)]:
 					draw_arc(c + o + Vector2(0, -s * 0.45), s * 0.32, 0.0, TAU, 20, col, w, true)
 					draw_arc(c + o + Vector2(0, s * 0.75), s * 0.62, PI * 1.08, PI * 1.92, 20, col, w, true)
+			"join":
+				# Deux mondes reliés : l'hôte et le joueur qui le rejoint.
+				draw_arc(c + Vector2(-s * 0.55, s * 0.35), s * 0.42, 0.0, TAU, 20, col, w, true)
+				draw_arc(c + Vector2(s * 0.55, -s * 0.35), s * 0.42, 0.0, TAU, 20, col, w, true)
+				draw_line(c + Vector2(-s * 0.22, s * 0.12), c + Vector2(s * 0.22, -s * 0.12), col, w, true)
 			"quick":
 				for dx in [-s * 0.55, s * 0.25]:
 					draw_polyline(PackedVector2Array([c + Vector2(dx - s * 0.35, -s * 0.8), c + Vector2(dx + s * 0.45, 0), c + Vector2(dx - s * 0.35, s * 0.8)]), col, w, true)

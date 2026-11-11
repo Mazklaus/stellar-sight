@@ -117,14 +117,20 @@ func _draw_turn_dial(c: Vector2) -> void:
 	draw_string(f, c + Vector2(-w * 0.5, 22), date, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, UiTheme.TEXT)
 	# Légende dans la bande entre le disque et l'anneau, comme sous un bouton.
 	var label := "EN COURS…" if resolving else "FIN DE TOUR"
+	# En réseau : on a terminé son tour, on attend les autres.
+	if not resolving and _clock.driver != null and _clock.net_ready:
+		label = "PRÊT · %d EN ATTENTE" % _clock.net_waiting.size() if not _clock.net_waiting.is_empty() else "PRÊT"
+		gcol = UiTheme.ACCENT
 	var lw := cf.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x
 	draw_string(cf, c + Vector2(-lw * 0.5, CORE + 13), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, gcol)
 
 
 func _process(_delta: float) -> void:
-	# L'anneau de progression avance entre deux jours.
-	if _clock and _clock.is_turn_based() and _clock.is_resolving_turn():
+	# L'anneau de progression avance entre deux jours ; en réseau, l'état des autres joueurs change.
+	if _clock and _clock.is_turn_based() and (_clock.is_resolving_turn() or _clock.driver != null):
 		queue_redraw()
+		if _clock.driver != null:
+			tooltip_text = _tip()
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -163,6 +169,13 @@ func _speed_at(pos: Vector2) -> int:
 
 
 func _tip() -> String:
+	if _clock.is_turn_based() and _clock.driver != null:
+		var tip := "Tours simultanés : chacun donne ses ordres puis termine son tour ; les %d jours passent quand tous ont terminé.  (Espace)" % _clock.turn_days
+		if not _clock.net_waiting.is_empty():
+			tip += "\nEn attente : %s" % ", ".join(_clock.net_waiting)
+		if _clock.net_ready:
+			tip += "\nCentre : annuler la fin de votre tour (l'hôte : forcer la fin du tour)."
+		return tip
 	if _clock.is_turn_based():
 		return "Centre : fin de tour, %d jours passent  (Espace)" % _clock.turn_days
 	return "Centre : %s  (Espace)\nCrans : vitesse 1 à 5  (touches 1 à 5)" % ("reprendre" if _clock.paused else "pause")

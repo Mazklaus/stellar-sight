@@ -16,8 +16,15 @@ const HOME_ZOOM := 0.45
 ## Zoom derrière le menu principal, et vitesse de dérive de la caméra.
 const MENU_ZOOM := 0.3
 const MENU_DRIFT := Vector2(14.0, 5.0)
-## Identifiant du joueur local. En multijoueur, chaque machine aura le sien.
-const LOCAL_PLAYER := 0
+## Empire du joueur local : 0 en solo et pour l'hôte, celui que l'hôte a confié à un client en réseau.
+var local_player := 0
+## Multijoueur en réseau (lockstep) : inactive en solo.
+var net: NetSession
+## On est client d'une partie en réseau (pour revenir à la page Multijoueur si elle s'interrompt).
+var _net_client := false
+var _net_turn_target := -1
+## Nom montré aux autres joueurs (modifiable dans « Rejoindre une partie »).
+var player_name := ""
 
 var simulation: Simulation
 ## Fichier de sauvegarde rapide (F5 / F9). Les tests le redirigent ailleurs.
@@ -29,7 +36,7 @@ var ai_level := AiLevels.default_id()
 var temperament := AiLevels.default_temperament()
 var spectator := false
 ## Empire dont l'interface montre les yeux : le joueur local, ou l'empire suivi par le spectateur.
-var view_empire := LOCAL_PLAYER
+var view_empire := 0
 ## Ouvrir le menu principal au lancement (les tests et les captures le désactivent).
 var start_with_menu := true
 ## Vrai dès que le joueur a lancé ou chargé une partie (la galaxie derrière le menu n'en est pas une).
@@ -87,6 +94,9 @@ func _ready() -> void:
 	_camera = GalaxyCamera.new()
 	add_child(_camera)
 	_camera.make_current()
+
+	net = NetSession.new()
+	add_child(net)
 
 	_hud = Hud.new()
 	_hud.layer = 3  # au-dessus de la vue système et des écrans d'empire
@@ -152,6 +162,16 @@ func _ready() -> void:
 		close_victory_panel()
 		open_main_menu())
 
+	net.notice.connect(func(text: String, tone: String) -> void: _hud.notify(text, tone))
+	net.joined.connect(_on_net_joined)
+	net.join_failed.connect(func(reason: String) -> void:
+		_main_menu.set_join_status("Refusé : %s" % reason))
+	net.ended.connect(_on_net_ended)
+	net.clock_changed.connect(_on_net_clock)
+	_pause_menu.host_requested.connect(func() -> void:
+		close_pause_menu()
+		host_game())
+
 	_hud.spectator_panel.empire_followed.connect(follow_empire)
 	_hud.spectator_panel.capital_requested.connect(func(id: int) -> void:
 		follow_empire(id)
@@ -170,10 +190,14 @@ func _ready() -> void:
 		empire_setup = _main_menu.empire_setup(faction_id, seed_value)
 		galaxy_settings = _main_menu.galaxy_settings.duplicate()
 		game_options = _main_menu.game_options()
+		var hosting := _main_menu.host_new
 		new_game(seed_value)
 		GameClock.set_mode(_main_menu.time_mode, _main_menu.turn_days)
 		game_in_progress = true
 		close_main_menu()
+		if hosting:
+			host_game()
+			return
 		if spectator:
 			_hud.notify("Mode spectateur : %d peuples, aucun joueur. Espace pour lancer le temps, V pour changer de regard." % simulation.state.empires.size(), "good")
 		else:
@@ -184,6 +208,12 @@ func _ready() -> void:
 		if load_game():
 			close_main_menu())
 	_main_menu.quit_requested.connect(func() -> void: get_tree().quit())
+	_main_menu.join_requested.connect(func(address: String, port: int, pname: String) -> void:
+		player_name = pname
+		join_game(address, port))
+	_main_menu.empire_picked.connect(func(id: int) -> void: net.pick(id))
+	_main_menu.host_resume_requested.connect(resume_network_game)
+	net.choose_empire.connect(func(list: Array) -> void: _main_menu.show_empire_choice(list))
 
 	UiTheme.apply_to(self)
 	new_game(randi())
@@ -194,6 +224,8 @@ func _ready() -> void:
 
 
 func new_game(seed_value: int) -> void:
+	leave_network("")
+	local_player = 0
 	var options := {"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 			"deadline": victory_deadline if victory_deadline >= 0 else Victory.default_deadline(),
 			"people_victories": people_victories}
@@ -224,10 +256,15 @@ func save_game() -> void:
 
 ## Recharge la sauvegarde rapide. Renvoie false (avec un message) si c'est impossible.
 func load_game() -> bool:
+	leave_network("Vous avez quitté la partie en réseau pour charger une sauvegarde.")
 	var state := SaveGame.load_state(save_path)
 	if state == null:
 		_hud.notify("Chargement impossible : %s" % SaveGame.last_error, "bad")
 		return false
+	# On garde son empire s'il est tenu par un humain dans la sauvegarde (copie d'une partie en réseau).
+	var kept := state.get_empire(local_player)
+	if kept == null or kept.is_ai():
+		local_player = 0
 	_start(state)
 	GameClock.apply_settings(SaveGame.last_clock)
 	game_in_progress = true
@@ -311,7 +348,7 @@ func toggle_empire_screen(screen_id: String) -> void:
 		_hud.notify(String(sc.get("why", "Bientôt.")))
 		_hud.bar.set_open_screen(_empire_screens.current)
 		return
-	if not _empire_screens.is_open() and UiSettings.auto_pause_menus and not GameClock.paused:
+	if not _empire_screens.is_open() and UiSettings.auto_pause_menus and not GameClock.paused and not net.is_active():
 		_auto_paused = true
 		GameClock.set_paused(true)
 	_hud.show_hover(null, Vector2.ZERO)
@@ -344,6 +381,7 @@ func open_main_menu() -> void:
 	close_victory_panel()
 	close_system_view()
 	close_empire_screen()
+	leave_network("Vous avez quitté la partie en réseau.")
 	GameClock.set_paused(true)
 	_hud.visible = false
 	_camera.stop_glide()
@@ -365,9 +403,9 @@ func open_pause_menu() -> void:
 	if _pause_menu.is_open() or _main_menu.is_open():
 		return
 	_paused_before = GameClock.paused
-	GameClock.set_paused(true)
+	_auto_pause(true)
 	_hud.show_hover(null, Vector2.ZERO)
-	_pause_menu.open(GameClock.date_string())
+	_pause_menu.open(GameClock.date_string() if not net.is_active() else "", net.is_active())
 	_update_map_input()
 
 
@@ -375,7 +413,7 @@ func close_pause_menu() -> void:
 	if not _pause_menu.is_open():
 		return
 	_pause_menu.close()
-	GameClock.set_paused(_paused_before)
+	_auto_pause(_paused_before)
 	_update_map_input()
 
 
@@ -385,9 +423,9 @@ func open_victory_panel() -> void:
 		return
 	close_system_view()
 	close_empire_screen()
-	GameClock.set_paused(true)
+	_auto_pause(true)
 	_hud.show_hover(null, Vector2.ZERO)
-	_victory_panel.open(simulation.state, -1 if spectator else LOCAL_PLAYER)
+	_victory_panel.open(simulation.state, -1 if spectator else local_player)
 	_update_map_input()
 
 
@@ -432,7 +470,7 @@ func _start(state: GameState) -> void:
 	close_empire_screen()
 	# Une partie sans aucun joueur humain se regarde (nouvelle partie en spectateur, ou sauvegarde d'une telle partie).
 	spectator = state.is_spectator_game()
-	view_empire = LOCAL_PLAYER
+	view_empire = local_player
 	_hud.set_spectator(spectator)
 	_system_screen.read_only = spectator
 	_view.viewer = view_empire
@@ -448,7 +486,7 @@ func _start(state: GameState) -> void:
 	simulation.combat_event.connect(_on_combat_event)
 	_hud.battle_replay.close_silently()
 	_hud.battle_report.hide_report()
-	_defeat_told = state.get_empire(LOCAL_PLAYER).eliminated
+	_defeat_told = state.get_empire(local_player).eliminated
 	_victory_told = not state.winner.is_empty()
 	close_victory_panel()
 	_empire_screens.see_all = spectator
@@ -477,11 +515,144 @@ func _refresh_all() -> void:
 
 
 ## Tous les ordres du joueur local passent par là. Un spectateur regarde, il ne commande pas.
+## En réseau, l'ordre part à l'hôte et s'appliquera au jour qu'il lui donnera, sur toutes les machines.
 func _submit(cmd: Dictionary) -> bool:
 	if spectator:
 		_hud.notify("Mode spectateur : les peuples se débrouillent seuls.")
 		return false
+	if net.is_active():
+		var why := net.submit(cmd)
+		if why != "":
+			_hud.notify("Ordre refusé : %s" % why, "bad")
+		return why == ""
 	return simulation.submit(cmd)
+
+
+# --- Multijoueur en réseau ------------------------------------------------------------------------
+
+## Pause automatique des menus : en solo seulement (en réseau, la pause arrête tout le monde).
+func _auto_pause(value: bool) -> void:
+	if not net.is_active():
+		GameClock.set_paused(value)
+
+
+## Ouvre la partie en cours au réseau (menu du jeu). Le joueur garde son empire.
+## seats : places d'une partie en réseau sauvegardée, réservées aux joueurs qui reviendront.
+func host_game(port := NetSession.DEFAULT_PORT, seats := {}) -> bool:
+	if net.is_host():
+		_hud.notify(_hosting_text(port), "good")
+		return true
+	if net.is_active():
+		_hud.notify("Vous êtes déjà dans une partie en réseau.", "bad")
+		return false
+	if spectator:
+		_hud.notify("Une partie de spectateur ne s'ouvre pas au réseau : il faut un empire à jouer.", "bad")
+		return false
+	net.player_name = _player_name()
+	_net_client = false
+	var err := net.host(simulation, local_player, port, seats)
+	if err != OK:
+		_hud.notify("Impossible d'ouvrir la partie (port %d) : %s" % [port, error_string(err)], "bad")
+		return false
+	_hud.notify(_hosting_text(port), "good")
+	return true
+
+
+func _hosting_text(port: int) -> String:
+	var addrs := NetSession.local_addresses()
+	return "Partie ouverte au réseau, port %d (UDP). Adresse à donner : %s. Par Internet : votre adresse publique, port redirigé, ou Tailscale." % [
+			port, ", ".join(addrs) if not addrs.is_empty() else "introuvable"]
+
+
+## Rejoint une partie (menu principal). La suite arrive par _on_net_joined ou un refus.
+func join_game(address: String, port := NetSession.DEFAULT_PORT) -> bool:
+	leave_network("")
+	net.player_name = _player_name()
+	var err := net.join(address.strip_edges(), port)
+	if err != OK:
+		_main_menu.set_join_status("Connexion impossible : %s" % error_string(err))
+		return false
+	_main_menu.set_join_status("Connexion à %s…" % address)
+	return true
+
+
+func leave_network(message: String) -> void:
+	if net == null or not net.is_active():
+		return
+	net.close()
+	if message != "":
+		_hud.notify(message)
+
+
+func _player_name() -> String:
+	if player_name.strip_edges() != "":
+		return player_name.strip_edges()
+	var n := OS.get_environment("USERNAME")
+	if n == "":
+		n = OS.get_environment("USER")
+	return n if n != "" else "Joueur"
+
+
+## Reprend comme hôte la dernière partie en réseau (sauvegarde automatique faite à chaque départ,
+## à chaque tour et chaque mois) : chacun retrouve son empire en rejoignant.
+func resume_network_game() -> bool:
+	leave_network("")
+	var state := SaveGame.load_state(NetSession.AUTOSAVE_PATH)
+	if state == null:
+		_main_menu.set_join_status("Reprise impossible : %s" % SaveGame.last_error)
+		return false
+	var clock: Dictionary = SaveGame.last_clock.duplicate()
+	var seats: Dictionary = clock.get("net", {}) if clock.get("net", {}) is Dictionary else {}
+	var mine: Variant = seats.get(NetSession.local_token())
+	local_player = int(mine.get("e", 0)) if mine is Dictionary else 0
+	if state.get_empire(local_player) == null:
+		local_player = 0
+	_start(state)
+	GameClock.apply_settings(clock)
+	game_in_progress = true
+	close_main_menu()
+	var me := state.get_empire(local_player)
+	_select(galaxy.get_planet(me.capital_planet).system_id)
+	_camera.position = galaxy.get_system(_view.selected_id).position
+	return host_game(NetSession.DEFAULT_PORT, seats)
+
+
+## Fin de la session. Un client revient à la page Multijoueur, d'où il retrouve son empire en rejoignant.
+func _on_net_ended(reason: String) -> void:
+	if not _net_client:
+		_hud.notify("Partie en réseau terminée : %s. Vous pouvez sauvegarder (F5) pour la garder." % reason, "bad")
+		return
+	_net_client = false
+	open_main_menu()
+	_main_menu.show_page("join")
+	_main_menu.set_join_status("Partie interrompue : %s. Rejoignez de nouveau pour retrouver votre empire (l'IA le tient en attendant)." % reason)
+
+
+func _on_net_joined(state: GameState, empire_id: int) -> void:
+	_net_client = true
+	local_player = empire_id
+	_start(state)
+	net.bind(simulation)
+	game_in_progress = true
+	close_main_menu()
+	var me := state.get_empire(empire_id)
+	var home := galaxy.get_planet(me.capital_planet).system_id
+	_camera.position = galaxy.get_system(home).position
+	_camera.zoom = Vector2(HOME_ZOOM, HOME_ZOOM)
+	_select(home)
+	if net.turn_mode:
+		_hud.notify("Vous dirigez %s. Tours simultanés : donnez vos ordres, puis Fin de tour (Espace)." % me.display_name(), "good")
+	else:
+		_hud.notify("Vous dirigez %s. La partie est en pause : Espace pour reprendre." % me.display_name(), "good")
+
+
+func _on_net_clock() -> void:
+	if net.paused and net.paused_by != "" and net.paused_by != net.player_name:
+		_hud.notify("Pause demandée par %s." % net.paused_by)
+	# Tours simultanés : le tour vient de se terminer chez tous.
+	if net.turn_mode and _net_turn_target >= 0 and net.turn_target < 0:
+		_hud.notify("Tour %d : donnez vos ordres, puis Fin de tour (Espace)." % GameClock.turn(), "good")
+	_net_turn_target = net.turn_target
 
 
 # --- Mode spectateur ----------------------------------------------------------------------------
@@ -955,6 +1126,6 @@ func _on_combat_event(ev: Dictionary) -> void:
 func _check_defeat() -> void:
 	if spectator or _defeat_told:
 		return
-	if simulation.state.get_empire(LOCAL_PLAYER).eliminated:
+	if simulation.state.get_empire(local_player).eliminated:
 		_defeat_told = true
 		_hud.notify("Votre empire a disparu. La chronique retiendra votre nom, mal orthographié.", "bad")
