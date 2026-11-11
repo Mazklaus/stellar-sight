@@ -289,8 +289,28 @@ static func idle_fleets(state: GameState, empire_id: int) -> Array[Fleet]:
 # --- Brouillard de guerre ----------------------------------------------------------------------
 
 ## Systèmes que l'empire voit en ce moment : autour de ses revendications (1 saut)
-## et de ses flottes (selon leur portée de vision). Dictionnaire id -> true.
+## et de ses flottes (selon leur portée de vision), plus ce que voient ses alliés (vision partagée).
+## Dictionnaire id -> true.
 static func visible_systems(state: GameState, empire_id: int) -> Dictionary:
+	var seen := _own_visible(state, empire_id)
+	for ally in allies_of(state, empire_id):
+		seen.merge(_own_visible(state, ally))
+	return seen
+
+
+## Alliés encore en jeu d'un empire, triés. Ne crée aucune relation (lecture seule, sûre pour l'affichage).
+static func allies_of(state: GameState, empire_id: int) -> Array[int]:
+	var out: Array[int] = []
+	for e in state.empires:
+		if e.id == empire_id or e.eliminated:
+			continue
+		if Diplomacy.allied(state, empire_id, e.id):
+			out.append(e.id)
+	return out
+
+
+## Ce que l'empire voit par ses propres revendications et flottes.
+static func _own_visible(state: GameState, empire_id: int) -> Dictionary:
 	var sources := {}
 	var claim_vision := int(GameData.rules().get("claim_vision", 1)) + Research.fx_int(state, empire_id, "claim_vision")
 	for pid in state.sorted_colony_ids():
@@ -310,7 +330,7 @@ static func visible_systems(state: GameState, empire_id: int) -> Dictionary:
 
 
 ## visible_systems de tous les empires (par indice d'empire), en un seul parcours des colonies et des
-## flottes : mêmes résultats, dans le même ordre, que visible_systems appelée pour chacun.
+## flottes : mêmes résultats que visible_systems appelée pour chacun (vision des alliés comprise).
 static func visible_all(state: GameState) -> Array[Dictionary]:
 	var count := state.empires.size()
 	var sources: Array[Dictionary] = []
@@ -333,11 +353,23 @@ static func visible_all(state: GameState) -> Array[Dictionary]:
 		var src := sources[f.owner]
 		var sid := vision_center(state, f)
 		src[sid] = maxi(int(src.get(sid, -1)), vision(f))
-	var out: Array[Dictionary] = []
+	var own: Array[Dictionary] = []
 	for i in count:
 		var seen := {}
 		for sid in sources[i]:
 			_flood(state.galaxy, int(sid), int(sources[i][sid]), seen)
+		own.append(seen)
+	# Vision partagée : chacun voit aussi ce que voient ses alliés.
+	var out: Array[Dictionary] = []
+	for i in count:
+		var allies := allies_of(state, state.empires[i].id)
+		if allies.is_empty():
+			out.append(own[i])
+			continue
+		var seen: Dictionary = own[i].duplicate()
+		for ally in allies:
+			if ally < count:
+				seen.merge(own[ally])
 		out.append(seen)
 	return out
 

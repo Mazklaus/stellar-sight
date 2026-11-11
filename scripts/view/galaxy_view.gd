@@ -289,6 +289,28 @@ func _draw_fleets(px: float) -> void:
 		_draw_route(state.fleets[selected_fleet], px)
 	for fid in _fleet_pos:
 		_draw_fleet_icon(state.fleets[fid], _fleet_pos[fid], px)
+	if fog:
+		_draw_ghosts(px)
+
+
+## Silhouettes : flottes étrangères perdues de vue, dessinées en creux là où on les a vues (voir Intel).
+func _draw_ghosts(px: float) -> void:
+	var stacked := {}
+	for g in Intel.ghosts(state, viewer):
+		var sid := int(g["sys"])
+		if not is_explored(sid):
+			continue
+		var k := int(stacked.get(sid, 0))
+		stacked[sid] = k + 1
+		var pos: Vector2 = galaxy.systems[sid].position + Vector2(-16.0 - k * 13.0, 10.0) * px
+		var owner := state.get_empire(int(g["owner"]))
+		var col := Color(owner.color() if owner else Color.GRAY, 0.55)
+		var s := (7.0 if int(g["ships"]) > 1 else 6.0) * px
+		var dir := Vector2.LEFT
+		var side := dir.orthogonal()
+		var pts := PackedVector2Array([pos + dir * s, pos - dir * s * 0.7 + side * s * 0.75, pos - dir * s * 0.25,
+				pos - dir * s * 0.7 - side * s * 0.75, pos + dir * s])
+		draw_polyline(pts, col, 1.3 * px, true)
 
 
 ## Position (monde) de chaque flotte visible par le joueur, telle qu'elle est dessinée.

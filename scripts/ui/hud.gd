@@ -776,6 +776,8 @@ func _refresh_card() -> void:
 	if not live:
 		_card_owner.text += "\nHors de vue : %s (%s)" % [Intel.age_label(_state, Intel.lens, s.id),
 				GameCalendar.date_string(Intel.last_seen(_state, Intel.lens, s.id))]
+	for line in Intel.ghost_lines(_state, Intel.lens, s.id):
+		_card_owner.text += "\nFlotte aperçue · " + line
 	_card_lore.text = String(STAR_LORE.get(s.star_type, ""))
 	# Une pastille par planète, à la couleur de son type ; un anneau à la couleur du propriétaire.
 	var dots := _planet_dots.get_children()

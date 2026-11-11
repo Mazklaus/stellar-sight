@@ -85,6 +85,36 @@ func _initialize() -> void:
 	await _frames(15)
 	await _shot(out + "/memoire-vue-systeme.png")
 	main.close_system_view()
+	main.set_process(false)
+
+	# 5. Une flotte rivale aperçue au passage d'un éclaireur : sa silhouette datée reste sur la carte.
+	var mine := st.spawn_ship(0, "scout", target)
+	var war := st.spawn_ship(rival, "corvette", target)
+	war.add_ship("fregate", -1, Research.mark_gen(st, rival))
+	war.add_ship("corvette", -1, Research.mark_gen(st, rival))
+	sim.step()
+	st.fleets.erase(mine.id)
+	st.fleets.erase(war.id)
+	sim.advance(12)
+	main._refresh_all()
+	main._select(target)
+	main._hud.show_hover(null, Vector2.ZERO)
+	main._hud.refresh()
+	await _frames(8)
+	await _shot(out + "/memoire-flotte-apercue.png")
+
+	# 6. Alliance avec le rival : sa vision s'ajoute en direct à la nôtre.
+	Diplomacy._rel_w(st, 0, rival)["pact"] = Diplomacy.ALLIANCE
+	sim.step()
+	main._refresh_all()
+	var their_home: int = st.galaxy.get_planet(st.get_empire(rival).capital_planet).system_id
+	main._camera.position = st.galaxy.systems[their_home].position.lerp(st.galaxy.systems[home].position, 0.5)
+	main._camera.zoom = Vector2(0.45, 0.45)
+	main._select(their_home)
+	main._hud.show_hover(null, Vector2.ZERO)
+	main._hud.refresh()
+	await _frames(8)
+	await _shot(out + "/vision-alliee.png")
 	quit()
 
 
