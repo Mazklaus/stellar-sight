@@ -90,7 +90,7 @@ var _galaxy_adv: PopupPanel
 const MAX_EMPIRES := 12
 ## Départ et distance au joueur d'un rival (réglages derrière le « + » de sa ligne).
 const START_LABELS := {"": "Normal", "avance": "Avancé"}
-const DISTANCE_LABELS := {"": "Selon le placement", "proche": "Proche de vous", "lointain": "Loin de vous", "hasard": "Au hasard"}
+const DISTANCE_LABELS := {"": "Sans préférence", "proche": "Proche de vous", "lointain": "Loin de vous", "hasard": "Au hasard"}
 ## Noms des couleurs de Empire.PALETTE, dans le même ordre.
 const COLOR_NAMES := ["Or", "Pourpre", "Azur", "Vert", "Violet", "Orange", "Turquoise", "Rose", "Blanc",
 	"Brun", "Gris", "Lime"]
@@ -1332,7 +1332,7 @@ func _build_slot_advanced(page_root: Control) -> void:
 		_slot_dist_select.add_item(String(DISTANCE_LABELS[k]))
 	_slot_dist_select.item_selected.connect(func(i: int) -> void: set_slot(_slot_adv_index, "distance", String(DISTANCE_LABELS.keys()[i])))
 	_labeled_row(box, "Distance", _slot_dist_select)
-	var note := UiTheme.paragraph("Les départs sont tirés selon le placement de la galaxie ; « Proche de vous » donne à ce rival l'un des départs les plus proches du vôtre, « Loin de vous » l'un des plus éloignés ; « Au hasard » tire l'une de ces trois distances, et vous la découvrirez en jeu.", 460, 13)
+	var note := UiTheme.paragraph("Les départs sont tirés selon le placement de la galaxie. « Sans préférence » : ce rival prend celui qui lui revient ; « Proche de vous » donne à ce rival l'un des départs les plus proches du vôtre, « Loin de vous » l'un des plus éloignés ; « Au hasard » tire l'une de ces trois distances, et vous la découvrirez en jeu.", 460, 13)
 	note.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 	box.add_child(note)
 	var close := Button.new()
