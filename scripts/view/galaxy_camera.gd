@@ -30,14 +30,17 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _process(delta: float) -> void:
 	var dir := Vector2.ZERO
+	# On écrit dans un champ (discussion, nom) : les lettres ne déplacent pas la carte.
+	var focus := get_viewport().gui_get_focus_owner()
+	var typing := focus is LineEdit or focus is TextEdit
 	# Touches physiques : la même position sur un clavier AZERTY (ZQSD) ou QWERTY (WASD).
-	if Input.is_physical_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
+	if (not typing and Input.is_physical_key_pressed(KEY_A)) or (not typing and Input.is_key_pressed(KEY_LEFT)):
 		dir.x -= 1.0
-	if Input.is_physical_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
+	if (not typing and Input.is_physical_key_pressed(KEY_D)) or (not typing and Input.is_key_pressed(KEY_RIGHT)):
 		dir.x += 1.0
-	if Input.is_physical_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
+	if (not typing and Input.is_physical_key_pressed(KEY_W)) or (not typing and Input.is_key_pressed(KEY_UP)):
 		dir.y -= 1.0
-	if Input.is_physical_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
+	if (not typing and Input.is_physical_key_pressed(KEY_S)) or (not typing and Input.is_key_pressed(KEY_DOWN)):
 		dir.y += 1.0
 	if dir != Vector2.ZERO:
 		stop_glide()

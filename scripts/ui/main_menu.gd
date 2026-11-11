@@ -27,6 +27,8 @@ signal lobby_ready_requested(ready: bool)
 signal slot_removed(index: int)
 
 ## Réglages réseau retenus d'une fois sur l'autre (dernière adresse, nom).
+## Le script de l'horloge, pour ses fonctions statiques (l'autoload GameClock n'est pas nommable partout).
+const ClockScript := preload("res://scripts/sim/game_clock.gd")
 const NET_SETTINGS := "user://net.cfg"
 
 const TAGLINE := "Chronique d'une galaxie qui n'avait rien demandé"
@@ -123,6 +125,10 @@ const COLOR_NAMES := ["Or", "Pourpre", "Azur", "Vert", "Violet", "Orange", "Turq
 ## Façon de jouer choisie pour la nouvelle partie (GameClock.MODE_*), et longueur des tours.
 var time_mode: int = 0
 var turn_days: int = 10
+## Minuteur de tour en réseau (GameClock.TURN_TIMERS) ; la ligne n'apparaît qu'au tour par tour.
+var turn_timer := ""
+var _timer_select: OptionButton
+var _timer_row: Control
 var _time_select: OptionButton
 ## Niveau des empires IA (AiLevels) et mode spectateur (aucun joueur humain : on regarde les IA).
 var ai_level: String = AiLevels.default_id()
@@ -578,6 +584,8 @@ func lobby_view() -> Dictionary:
 				"team": slot_team(i)})
 	var mine := GameData.faction(selected_faction)
 	var time := "tours simultanés de %d jours" % turn_days if time_mode == GameClock.MODE_TURNS else "temps réel"
+	if time_mode == GameClock.MODE_TURNS and turn_timer != "":
+		time += " (%s)" % String(ClockScript.timer_info(turn_timer)["label"]).to_lower()
 	var size_label := String(GalaxySettings.entry("size", galaxy_settings["size"])["label"])
 	return {"slots": out, "host_team": player_team, "host_faction": "Au hasard" if selected_faction == RANDOM_FACTION else String(mine.get("name", selected_faction)),
 			"summary": "Galaxie %s · %s · IA %s par défaut · %d empires" % [size_label.to_lower(), time, AiLevels.label(ai_level), slots.size() + 1]}
@@ -588,6 +596,20 @@ func set_lobby_status(text: String) -> void:
 	if _lobby_label:
 		_lobby_label.text = text
 		_lobby_label.visible = text != ""
+	if _host_chat:
+		_host_chat.visible = text != "" and _host_chat.session != null and _host_chat.session.lobby_open
+		# La discussion prend la place de deux lignes de rivaux (la liste défile).
+		if _slot_scroll:
+			_slot_scroll.custom_minimum_size.y = (4 if _host_chat.visible else 6) * 38
+
+
+## Discussion du salon (hôte et invité) sur la session réseau.
+func bind_chat(s: NetSession) -> void:
+	if _guest_chat == null:
+		_guest_chat = ChatPanel.new(false, 110)
+	_guest_chat.bind(s)
+	if _host_chat:
+		_host_chat.bind(s)
 
 
 ## Bouton « Nouvelle partie en réseau » : page Nouvelle partie, tours simultanés proposés d'abord.
@@ -613,7 +635,8 @@ func show_lobby(st: Dictionary) -> void:
 	_guest_lobby.visible = true
 	for c in _guest_lobby.get_children():
 		_guest_lobby.remove_child(c)
-		c.queue_free()
+		if c != _guest_chat:
+			c.queue_free()
 	var me := int(st.get("you", 0))
 	var head := UiTheme.dim("Salon de %s" % String(st.get("host", "l'hôte")), 16)
 	_guest_lobby.add_child(head)
@@ -673,11 +696,16 @@ func show_lobby(st: Dictionary) -> void:
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	foot.add_child(hint)
+	if _guest_chat:
+		_guest_lobby.add_child(_guest_chat)
 	_guest_mine = mine
 	set_join_status("")
 
 
 var _guest_mine := -1
+var _guest_chat: ChatPanel
+var _host_chat: ChatPanel
+var _slot_scroll: ScrollContainer
 var _guest_faction := ""
 var _guest_color := ""
 
@@ -1102,6 +1130,16 @@ func set_time_choice(index: int) -> void:
 	else:
 		time_mode = GameClock.MODE_TURNS
 		turn_days = GameClock.TURN_LENGTHS[mini(index - 1, GameClock.TURN_LENGTHS.size() - 1)]
+	if _timer_row:
+		_timer_row.visible = time_mode == GameClock.MODE_TURNS
+	_refresh_preset()
+
+
+## Minuteur de tour (parties en réseau au tour par tour).
+func set_turn_timer(id: String) -> void:
+	turn_timer = String(ClockScript.timer_info(id)["id"])
+	if _timer_select:
+		_timer_select.select(GameClock.TURN_TIMERS.find(ClockScript.timer_info(turn_timer)))
 	_refresh_preset()
 
 
@@ -1396,6 +1434,15 @@ func _build_new_page(root: Control) -> void:
 		_time_select.add_item("Tour par tour, %d jours" % d)
 	_time_select.item_selected.connect(set_time_choice)
 	_labeled_row(game, "Temps", _time_select)
+	_timer_select = OptionButton.new()
+	_timer_select.clip_text = true
+	_timer_select.tooltip_text = "En réseau, au tour par tour :\n« par tour » : chaque tour se termine pour tous au bout de ce temps ;\n« dernier joueur » : quand un seul joueur n'a pas terminé son tour, il a ce temps pour finir.\nSans effet en solo."
+	for t in GameClock.TURN_TIMERS:
+		_timer_select.add_item(String(t["label"]))
+	_timer_select.item_selected.connect(func(i: int) -> void: set_turn_timer(String(GameClock.TURN_TIMERS[i]["id"])))
+	_labeled_row(game, "Minuteur", _timer_select)
+	_timer_row = _timer_select.get_parent() as Control
+	_timer_row.visible = time_mode == GameClock.MODE_TURNS
 	_scaling_check = CheckBox.new()
 	_scaling_check.text = "Difficulté progressive"
 	_scaling_check.focus_mode = Control.FOCUS_NONE
@@ -1625,6 +1672,7 @@ func _build_rivals_block(page_root: Control) -> void:
 	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	list_scroll.custom_minimum_size = Vector2(0, 6 * 38)
 	body.add_child(list_scroll)
+	_slot_scroll = list_scroll
 	_slot_list = VBoxContainer.new()
 	_slot_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_slot_list.add_theme_constant_override("separation", 4)
@@ -1668,6 +1716,10 @@ func _build_rivals_block(page_root: Control) -> void:
 	_lobby_label.add_theme_font_size_override("font_size", 13)
 	_lobby_label.visible = false
 	body.add_child(_lobby_label)
+	# Discussion du salon, côté hôte.
+	_host_chat = ChatPanel.new(false, 40)
+	_host_chat.visible = false
+	body.add_child(_host_chat)
 	_slot_note = Label.new()
 	_slot_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_slot_note.add_theme_color_override("font_color", UiTheme.WARN)
@@ -2128,7 +2180,7 @@ func settings() -> Dictionary:
 		sl.erase("human")  # les places de joueurs ne valent que pour le salon en cours
 	return {"faction": selected_faction, "slots": saved_slots, "duplicates": allow_duplicates, "team": player_team,
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
-		"time_mode": time_mode, "turn_days": turn_days, "deadline": deadline_days, "people": people_victories,
+		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "galaxy": galaxy_settings.duplicate(),
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
@@ -2143,7 +2195,7 @@ static func _without_seed(d: Dictionary) -> Dictionary:
 func default_settings() -> Dictionary:
 	return {"faction": selected_faction, "slots": default_slots(), "duplicates": false, "team": 0,
 		"ai_level": AiLevels.default_id(), "temperament": AiLevels.default_temperament(), "spectator": false,
-		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "deadline": Victory.default_deadline(), "people": true,
+		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "timer": "", "deadline": Victory.default_deadline(), "people": true,
 		"victories": {"conquete": true, "domination": true, "allies": true}, "ai_scaling": false,
 		"galaxy": GalaxySettings.defaults()}
 
@@ -2199,6 +2251,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	var turns := int(d.get("time_mode", GameClock.MODE_REALTIME)) == GameClock.MODE_TURNS
 	var ti := GameClock.TURN_LENGTHS.find(int(d.get("turn_days", 10)))
 	set_time_choice(1 + maxi(0, ti) if turns else 0)
+	set_turn_timer(String(d.get("timer", "")))
 	set_deadline(int(d.get("deadline", base["deadline"])))
 	set_people_victories(bool(d.get("people", true)))
 	var vic: Dictionary = d.get("victories", {}) if d.get("victories", {}) is Dictionary else {}

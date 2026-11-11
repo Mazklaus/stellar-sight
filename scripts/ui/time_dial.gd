@@ -100,6 +100,13 @@ func _draw_turn_dial(c: Vector2) -> void:
 	var head := "TOUR %d" % _clock.turn()
 	var hw := cf.get_string_size(head, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 	draw_string(cf, c + Vector2(-hw * 0.5, -18), head, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, UiTheme.TEXT)
+	# Minuteur de tour en réseau, dans la bande au-dessus du disque : le temps qui reste avant que
+	# l'hôte termine le tour pour tous.
+	var left: int = _clock.timer_left() if not resolving else -1
+	if left >= 0:
+		var t := "%d:%02d" % [left / 60, left % 60]
+		var tw := cf.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		draw_string(cf, c + Vector2(-tw * 0.5, -CORE - 5), t, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, UiTheme.BAD if left <= 10 else UiTheme.WARN)
 	# Glyphe : chevron double « suivant », ou sablier stylisé pendant la résolution.
 	var g := c + Vector2(0, -2)
 	var s := 6.0
@@ -175,6 +182,8 @@ func _tip() -> String:
 			tip += "\nEn attente : %s" % ", ".join(_clock.net_waiting)
 		if _clock.net_ready:
 			tip += "\nCentre : annuler la fin de votre tour (l'hôte : forcer la fin du tour)."
+		if _clock.timer_left() >= 0:
+			tip += "\nMinuteur : le tour se termine pour tous dans %d s." % _clock.timer_left()
 		return tip
 	if _clock.is_turn_based():
 		return "Centre : fin de tour, %d jours passent  (Espace)" % _clock.turn_days
