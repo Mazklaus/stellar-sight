@@ -267,9 +267,10 @@ static func _owner_of(state: GameState, planet_id: int) -> int:
 ## partie fait jouer chaque allié pour lui-même.
 static func bloc(state: GameState, empire_id: int) -> Array[int]:
 	var out: Array[int] = [empire_id]
-	if not allies_count(state):
-		return out
 	for a in Diplomacy.allies(state, empire_id):
+		# Les coéquipiers gagnent toujours ensemble ; les autres alliés si la partie le permet.
+		if not allies_count(state) and Diplomacy.team_of(state, empire_id, a) <= 0:
+			continue
 		if not state.get_empire(a).eliminated and not out.has(a):
 			out.append(a)
 	out.sort()
@@ -471,7 +472,7 @@ static func union(state: GameState, player: int, target: int) -> void:
 	Diplomacy._rel_w(state, player, target)["union"] = maxi(1, state.tick)
 	Diplomacy.remember(state, target, player, "union")
 	state.add_chronicle("Noces de lignées : %s unit sa maison à celle de %s. Les généalogistes réclament une prime." % [
-			e.display_name(), state.get_empire(target).display_name()])
+			e.display_name(), state.get_empire(target).display_name()], Espionage.public_to(state, [player, target]))
 
 
 ## Cathédrales achevées de l'empire, un système compté une fois : identifiants de systèmes.

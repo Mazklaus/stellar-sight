@@ -4,7 +4,9 @@ extends RefCounted
 ## - chaque jour : les propositions sans réponse expirent ;
 ## - chaque mois : la confiance monte entre empires liés par un traité et retombe sinon ; les alliés
 ##   partagent leurs cartes ; les souvenirs effacés sont oubliés ; loyauté de l'héritier des dynasties
-##   féodales (et trahison) ; ferveur perdue par les théocraties en paix avec des hérétiques.
+##   féodales (et trahison) ; ferveur perdue par les théocraties en paix avec des hérétiques ;
+##   réseaux d'espionnage, sondes et dividendes du credo Profit (Espionage.monthly) ;
+## - chaque jour aussi : les opérations d'espionnage qui arrivent à leur terme (Espionage.daily).
 ## Tout dans l'ordre des identifiants : la même partie sur toutes les machines.
 
 
@@ -12,6 +14,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 	var start := state.chronicle.size()
 	var last: Variant = state.chronicle.back() if start > 0 else null
 	_expire(state)
+	Espionage.daily(state)
 	if state.tick % int(GameData.rules()["month_days"]) == 0:
 		_monthly(state)
 	# Nouvelles entrées de chronique (la chronique est bornée : on remonte jusqu'à la dernière connue).
@@ -54,10 +57,10 @@ static func _monthly(state: GameState) -> void:
 			if not state.get_empire(a).eliminated and not state.get_empire(b).eliminated:
 				Diplomacy.share_maps(state, a, b)
 	Diplomacy.prune_memories(state)
+	Espionage.monthly(state)
 	for e in state.empires:
 		if e.eliminated:
 			continue
 		Diplomacy.heir_month(state, e.id)
 		Diplomacy.crusade_month(state, e.id)
 		Diplomacy.contract_month(state, e.id)
-		Research.steal_month(state, e.id)

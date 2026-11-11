@@ -82,6 +82,11 @@ var eurekas: Dictionary = {}
 ## Victoires (voir VictorySystem) : id de victoire -> {"pct": avancée au dernier bilan, "held": jours
 ## de compte à rebours déjà tenus, "warn": dernière alerte donnée}.
 var victory: Dictionary = {}
+## Espionnage (voir Espionage) : dossiers de renseignement {empire visé: dossier}, tenus par les
+## réseaux au palier Comptables ou plus ; sondes prêtes et jour de la dernière sonde rendue.
+var dossiers: Dictionary = {}
+var probes: int = 0
+var probe_day: int = 0
 ## Effets cumulés des technologies, recalculés quand tech_fx_n ne correspond plus (jamais sauvegardés).
 var tech_fx: Dictionary = {}
 var tech_fx_exalted: Dictionary = {}
@@ -169,7 +174,21 @@ func to_dict() -> Dictionary:
 		"stats": stats.duplicate(),
 		"eurekas": sorted_eurekas(),
 		"victory": _sorted_victory(),
+		"dossiers": _sorted_dossiers(),
+		"probes": probes,
+		"probe_day": probe_day,
 	}
+
+
+func _sorted_dossiers() -> Array:
+	var ids := dossiers.keys()
+	ids.sort()
+	var out := []
+	for k in ids:
+		var d: Dictionary = (dossiers[k] as Dictionary).duplicate(true)
+		d["about"] = int(k)
+		out.append(d)
+	return out
 
 
 func _sorted_victory() -> Array:
@@ -262,4 +281,11 @@ static func from_dict(d: Dictionary) -> Empire:
 		e.eurekas[String(t)] = true
 	for v: Dictionary in d.get("victory", []):
 		e.victory[String(v["id"])] = {"pct": int(v.get("pct", 0)), "held": int(v.get("held", 0)), "warn": int(v.get("warn", 0))}
+	for dd: Dictionary in d.get("dossiers", []):
+		var dos: Dictionary = GameData._to_ints(dd)
+		var about := int(dos["about"])
+		dos.erase("about")
+		e.dossiers[about] = dos
+	e.probes = int(d.get("probes", int(GameData.espionage()["probes"]["start"])))
+	e.probe_day = int(d.get("probe_day", 0))
 	return e

@@ -14,6 +14,17 @@ signal join_requested(address: String, port: int, player_name: String)
 signal empire_picked(empire_id: int)
 ## Multijoueur : reprendre comme hôte la dernière partie en réseau (sauvegarde automatique).
 signal host_resume_requested
+## Salon d'avant-partie (hôte) : ouvert par « Nouvelle partie en réseau », fermé en quittant la page.
+signal lobby_opened
+signal lobby_closed
+## Un réglage de la nouvelle partie a changé (le salon renvoie son état aux joueurs).
+signal settings_changed
+## Salon, côté invité : prendre une place, régler peuple et couleur de la sienne, se dire prêt.
+signal lobby_take_requested(index: int)
+signal lobby_set_requested(faction: String, color: String)
+signal lobby_ready_requested(ready: bool)
+## Salon (hôte) : une place a été retirée (les places suivantes reculent d'un rang).
+signal slot_removed(index: int)
 
 ## Réglages réseau retenus d'une fois sur l'autre (dernière adresse, nom).
 const NET_SETTINGS := "user://net.cfg"
@@ -85,6 +96,12 @@ var _slot_adv_index := -1
 var _slot_adv_title: Label
 var _slot_start_select: OptionButton
 var _slot_dist_select: OptionButton
+var _slot_team_select: OptionButton
+## Équipes : 0 = aucune, 1..TEAM_COUNT. Les empires d'une même équipe naissent alliés, voient
+## ensemble et gagnent ensemble ; leur alliance ne se rompt pas.
+const TEAM_COUNT := 4
+var player_team := 0
+var _team_select: OptionButton
 ## Réglages de la galaxie (GalaxySettings) : taille, forme, routes, départs, mondes garantis.
 var galaxy_settings: Dictionary = GalaxySettings.defaults()
 var _galaxy_banner: Widgets.ArtSlot
@@ -328,11 +345,16 @@ func show_page(name: String) -> void:
 		lan.close()
 	if name == "join":
 		_join_choice.visible = false
+		_guest_lobby.visible = false
 		_join_form.visible = true
 		_join_go.visible = true
 		_resume_net.visible = FileAccess.file_exists(NetSession.AUTOSAVE_PATH)
-	if name != "new" and name != "species":
+	if name != "new" and name != "species" and host_new:
 		host_new = false
+		for sl in slots:
+			sl.erase("human")
+		set_lobby_status("")
+		lobby_closed.emit()
 	if _species:
 		_species.visible = name == "species"
 	if name == "options":
@@ -357,8 +379,14 @@ func back() -> bool:
 var _join_page: Control
 ## La prochaine partie lancée depuis la page Nouvelle partie s'ouvre au réseau (bouton Héberger).
 var host_new := false
+## Salon (hôte) : place -> « nom du joueur » ou « nom ✓ prêt », pour l'affichage des lignes.
+var lobby_holders := {}
+const HUMAN_SLOT := "__human__"
 var _join_form: Control
 var _join_go: Control
+var _lobby_label: Label
+## Salon côté invité : panneau des places, et mon identifiant de pair.
+var _guest_lobby: VBoxContainer
 ## Parties du réseau local, entendues sans taper d'adresse.
 var lan := LanDiscovery.new()
 var _lan_list: VBoxContainer
@@ -443,6 +471,10 @@ func _build_join_page(root: Control) -> void:
 	_join_choice.add_theme_constant_override("separation", 6)
 	_join_choice.visible = false
 	box.add_child(_join_choice)
+	_guest_lobby = VBoxContainer.new()
+	_guest_lobby.add_theme_constant_override("separation", 6)
+	_guest_lobby.visible = false
+	box.add_child(_guest_lobby)
 	var buttons := HBoxContainer.new()
 	box.add_child(buttons)
 	var back_b := Widgets.RoundButton.new("back", "Retour", 16)
@@ -525,12 +557,169 @@ func _refresh_lan() -> void:
 		_lan_list.add_child(b)
 
 
+var _settings_signal := false
+
+
+func _emit_settings_changed() -> void:
+	_settings_signal = false
+	settings_changed.emit()
+
+
+## Salon : ce que les joueurs voient des places et des réglages de l'hôte.
+func lobby_view() -> Dictionary:
+	var out := []
+	for i in slots.size():
+		var sl := slots[i]
+		var fid := String(sl["faction"])
+		var f := GameData.faction(fid)
+		out.append({"i": i, "faction": fid, "name": "Au hasard" if fid == RANDOM_FACTION else String(f.get("name", fid)),
+				"color": String(sl["color"]) if String(sl["color"]) != "" else String(f.get("color", "#888888")),
+				"raw_color": String(sl["color"]), "human": is_slot_human(i), "level": AiLevels.label(String(sl["level"]) if String(sl["level"]) != "" else ai_level),
+				"team": slot_team(i)})
+	var mine := GameData.faction(selected_faction)
+	var time := "tours simultanés de %d jours" % turn_days if time_mode == GameClock.MODE_TURNS else "temps réel"
+	var size_label := String(GalaxySettings.entry("size", galaxy_settings["size"])["label"])
+	return {"slots": out, "host_team": player_team, "host_faction": "Au hasard" if selected_faction == RANDOM_FACTION else String(mine.get("name", selected_faction)),
+			"summary": "Galaxie %s · %s · IA %s par défaut · %d empires" % [size_label.to_lower(), time, AiLevels.label(ai_level), slots.size() + 1]}
+
+
+## Salon : texte sous les rivaux (adresse à donner, joueurs présents).
+func set_lobby_status(text: String) -> void:
+	if _lobby_label:
+		_lobby_label.text = text
+		_lobby_label.visible = text != ""
+
+
 ## Bouton « Nouvelle partie en réseau » : page Nouvelle partie, tours simultanés proposés d'abord.
 func open_host_new() -> void:
 	show_page("new")
 	host_new = true
+	if spectator:
+		set_spectator(false)
 	if time_mode != GameClock.MODE_TURNS:
 		set_time_choice(1 + GameClock.TURN_LENGTHS.find(GameClock.DEFAULT_TURN_DAYS))
+	lobby_opened.emit()
+	_refresh_slots()
+
+
+## Salon d'avant-partie, côté invité : les places de l'hôte. On prend une place « joueur », on y
+## choisit son peuple et sa couleur, puis on se dit prêt ; l'hôte lance la partie.
+func show_lobby(st: Dictionary) -> void:
+	if page != "join":
+		show_page("join")
+	_join_form.visible = false
+	_join_go.visible = false
+	_join_choice.visible = false
+	_guest_lobby.visible = true
+	for c in _guest_lobby.get_children():
+		_guest_lobby.remove_child(c)
+		c.queue_free()
+	var me := int(st.get("you", 0))
+	var head := UiTheme.dim("Salon de %s" % String(st.get("host", "l'hôte")), 16)
+	_guest_lobby.add_child(head)
+	var summary := UiTheme.paragraph(String(st.get("summary", "")), 520, 13)
+	summary.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	_guest_lobby.add_child(summary)
+	var host_line := Label.new()
+	host_line.text = "■  %s  ·  %s (hôte)%s" % [String(st.get("host_faction", "?")), String(st.get("host", "")),
+			"  ·  équipe %d" % int(st.get("host_team", 0)) if int(st.get("host_team", 0)) > 0 else ""]
+	_guest_lobby.add_child(host_line)
+	var mine := -1
+	var my_ready := false
+	for sl in st.get("slots", []):
+		if not sl is Dictionary:
+			continue
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		var col := Color.html(String(sl.get("color", "#888888")))
+		var name_l := Label.new()
+		name_l.text = "■  %s" % String(sl.get("name", "?"))
+		name_l.add_theme_color_override("font_color", col.lightened(0.25))
+		name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_l.clip_text = true
+		row.add_child(name_l)
+		if int(sl.get("team", 0)) > 0:
+			var team_l := UiTheme.dim("Équipe %d" % int(sl["team"]), 14)
+			team_l.add_theme_color_override("font_color", UiTheme.ACCENT)
+			row.add_child(team_l)
+		var peer := int(sl.get("peer", 0))
+		if not bool(sl.get("human", false)):
+			row.add_child(UiTheme.dim("IA %s" % String(sl.get("level", "")), 14))
+		elif peer == me and me != 0:
+			mine = int(sl["i"])
+			my_ready = bool(sl.get("ready", false))
+			row.add_child(_guest_faction_select(String(sl.get("faction", "")), String(sl.get("raw_color", ""))))
+			row.add_child(_guest_color_select(String(sl.get("faction", "")), String(sl.get("raw_color", ""))))
+		elif peer != 0:
+			row.add_child(UiTheme.dim("%s%s" % [String(sl.get("player", "")), "  ✓ prêt" if sl.get("ready", false) else "  · se prépare"], 14))
+		else:
+			var take := Button.new()
+			take.text = "Prendre cette place"
+			take.focus_mode = Control.FOCUS_NONE
+			var idx := int(sl["i"])
+			take.pressed.connect(func() -> void: lobby_take_requested.emit(idx))
+			row.add_child(take)
+		_guest_lobby.add_child(row)
+	var foot := HBoxContainer.new()
+	_guest_lobby.add_child(foot)
+	var ready_b := CheckButton.new()
+	ready_b.text = "Prêt"
+	ready_b.focus_mode = Control.FOCUS_NONE
+	ready_b.disabled = mine < 0
+	ready_b.button_pressed = my_ready
+	ready_b.toggled.connect(func(on: bool) -> void: lobby_ready_requested.emit(on))
+	foot.add_child(ready_b)
+	var hint := UiTheme.dim("Prenez une place « joueur », choisissez votre peuple et votre couleur, puis Prêt. L'hôte lance la partie." if mine < 0 or not my_ready else "En attente du lancement par l'hôte…", 13)
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	foot.add_child(hint)
+	_guest_mine = mine
+	set_join_status("")
+
+
+var _guest_mine := -1
+var _guest_faction := ""
+var _guest_color := ""
+
+
+func _guest_faction_select(current: String, color: String) -> OptionButton:
+	_guest_faction = current
+	_guest_color = color
+	var fsel := OptionButton.new()
+	fsel.clip_text = true
+	fsel.custom_minimum_size = Vector2(190, 0)
+	fsel.add_item("Au hasard")
+	fsel.set_item_metadata(0, RANDOM_FACTION)
+	var ids := GameData.all_faction_ids()
+	for k in ids.size():
+		if k == GameData.faction_ids().size():
+			fsel.add_separator("Vos peuples")
+		var f := GameData.faction(ids[k])
+		fsel.add_item(String(f.get("name", ids[k])))
+		fsel.set_item_metadata(fsel.item_count - 1, ids[k])
+		if ids[k] == current:
+			fsel.select(fsel.item_count - 1)
+	fsel.item_selected.connect(func(idx: int) -> void:
+		_guest_faction = String(fsel.get_item_metadata(idx))
+		lobby_set_requested.emit(_guest_faction, _guest_color))
+	return fsel
+
+
+func _guest_color_select(_fid: String, color: String) -> OptionButton:
+	var csel := OptionButton.new()
+	csel.clip_text = true
+	csel.custom_minimum_size = Vector2(110, 0)
+	csel.add_item("Auto")
+	csel.set_item_metadata(0, "")
+	for k in Empire.PALETTE.size():
+		csel.add_item(String(COLOR_NAMES[k]))
+		csel.set_item_metadata(k + 1, Empire.PALETTE[k])
+		csel.set_item_icon(k + 1, _swatch(Color.html(Empire.PALETTE[k])))
+		if Empire.PALETTE[k] == color:
+			csel.select(k + 1)
+	csel.item_selected.connect(func(idx: int) -> void:
+		lobby_set_requested.emit(_guest_faction, String(csel.get_item_metadata(idx))))
+	return csel
 
 
 ## L'hôte propose ses empires : une ligne par empire, cliquable s'il est libre.
@@ -603,6 +792,56 @@ static func new_slot(fid: String) -> Dictionary:
 	return {"faction": fid, "color": "", "level": "", "temper": "", "start": "", "distance": ""}
 
 
+## Salon : la place devient (ou cesse d'être) une place de joueur humain.
+func set_slot_human(index: int, on: bool) -> bool:
+	if index < 0 or index >= slots.size() or (on and not host_new):
+		return false
+	slots[index]["human"] = on
+	if on:
+		# Le joueur choisira son peuple ; d'ici là, au hasard.
+		slots[index]["faction"] = RANDOM_FACTION
+		slots[index]["level"] = ""
+		slots[index]["temper"] = ""
+	_refresh_slots()
+	return true
+
+
+func is_slot_human(index: int) -> bool:
+	return host_new and index >= 0 and index < slots.size() and bool(slots[index].get("human", false))
+
+
+## Équipe d'un rival (0 = aucune).
+func slot_team(index: int) -> int:
+	if index < 0 or index >= slots.size():
+		return 0
+	return int(slots[index].get("team", 0))
+
+
+## Range un rival dans une équipe (0 = aucune). Absente des places sans équipe, pour que les
+## réglages par défaut restent reconnus.
+func set_slot_team(index: int, team: int) -> bool:
+	if index < 0 or index >= slots.size() or team < 0 or team > TEAM_COUNT:
+		return false
+	if team == 0:
+		slots[index].erase("team")
+	else:
+		slots[index]["team"] = team
+	_refresh_slots()
+	return true
+
+
+## Votre équipe (0 = aucune).
+func set_player_team(team: int) -> void:
+	player_team = clampi(team, 0, TEAM_COUNT)
+	if _team_select:
+		_team_select.select(player_team)
+	_refresh_slots()
+
+
+static func team_label(team: int) -> String:
+	return "Aucune" if team <= 0 else "Équipe %d" % team
+
+
 ## Ajoute un rival (au hasard par défaut). Refuse au-delà de MAX_EMPIRES - 1 rivaux.
 func add_slot(fid := RANDOM_FACTION) -> bool:
 	if slots.size() >= MAX_EMPIRES - 1:
@@ -617,6 +856,7 @@ func remove_slot(index: int) -> bool:
 	if slots.size() <= 1 or index < 0 or index >= slots.size():
 		return false
 	slots.remove_at(index)
+	slot_removed.emit(index)
 	_refresh_slots()
 	return true
 
@@ -701,7 +941,9 @@ func empire_setup(player: String, seed_value := 0) -> Dictionary:
 			used.append(fid)
 	for i in slots.size():
 		var fid := String(slots[i]["faction"])
-		if fid != RANDOM_FACTION and not GameData.faction(fid).is_empty():
+		# Une place de joueur dont le peuple est déjà pris est tirée au hasard plutôt que retirée.
+		var redraw := is_slot_human(i) and picked[i] == ""
+		if fid != RANDOM_FACTION and not GameData.faction(fid).is_empty() and not redraw:
 			continue
 		var pool: Array[String] = []
 		for f in GameData.all_faction_ids():
@@ -712,17 +954,21 @@ func empire_setup(player: String, seed_value := 0) -> Dictionary:
 		picked[i] = pool[rng.randi_range(0, pool.size() - 1)]
 		used.append(picked[i])
 	var out := {"rivals": [] as Array[String], "ai_levels": [ai_level], "temperaments": [temperament],
-			"colors": [""], "starts": [""], "distances": [""], "duplicates": allow_duplicates}
+			"colors": [""], "starts": [""], "distances": [""], "duplicates": allow_duplicates, "slots": [],
+			"teams": [0 if spectator else player_team]}
 	for i in slots.size():
 		if picked[i] == "" or (out["rivals"] as Array).size() >= MAX_EMPIRES - 1:
 			continue
 		var s := slots[i]
 		(out["rivals"] as Array).append(picked[i])
+		(out["slots"] as Array).append(i)
+		# Place de joueur humain : créée tenue par l'IA ; l'hôte la confie à son joueur au lancement.
 		(out["ai_levels"] as Array).append(s["level"] if s["level"] != "" else ai_level)
 		(out["temperaments"] as Array).append(s["temper"] if s["temper"] != "" else temperament)
 		(out["colors"] as Array).append(s["color"])
 		(out["starts"] as Array).append(String(s.get("start", "")))
 		(out["distances"] as Array).append(String(s.get("distance", "")))
+		(out["teams"] as Array).append(int(s.get("team", 0)))
 	# Tous les rivaux retirés : on reprend les officiels plutôt qu'une galaxie vide.
 	if (out["rivals"] as Array).is_empty():
 		for fid in GameData.faction_ids():
@@ -733,6 +979,7 @@ func empire_setup(player: String, seed_value := 0) -> Dictionary:
 				(out["colors"] as Array).append("")
 				(out["starts"] as Array).append("")
 				(out["distances"] as Array).append("")
+				(out["teams"] as Array).append(0)
 	return out
 
 
@@ -753,7 +1000,35 @@ func slots_note() -> String:
 	if slots.size() + 1 > rec:
 		notes.append("Galaxie %s : %d empires conseillés, vous en prévoyez %d. Ça va être serré." % [
 			String(GalaxySettings.entry("size", galaxy_settings["size"])["label"]).to_lower(), rec, slots.size() + 1])
+	var team := _teams_note()
+	if team != "":
+		notes.append(team)
 	return "\n".join(notes)
+
+
+## Équipes qui ne servent à rien : seules, ou rassemblant tout le monde.
+func _teams_note() -> String:
+	var counts := {}
+	var everyone := 0
+	if not spectator and player_team > 0:
+		counts[player_team] = 1
+	for i in slots.size():
+		var t := slot_team(i)
+		if t > 0:
+			counts[t] = int(counts.get(t, 0)) + 1
+	for t: int in counts:
+		everyone = maxi(everyone, int(counts[t]))
+	var total := slots.size() + (0 if spectator else 1)
+	if everyone == total and total > 1:
+		return "Tous les empires sont dans la même équipe : personne à battre."
+	var alone := PackedStringArray()
+	for t: int in counts:
+		if int(counts[t]) == 1:
+			alone.append(str(t))
+	if not alone.is_empty():
+		alone.sort()
+		return "Équipe %s : un seul empire, elle ne change rien." % ", ".join(alone)
+	return ""
 
 
 func _duplicates_note() -> String:
@@ -763,9 +1038,10 @@ func _duplicates_note() -> String:
 	if selected_faction != "" and selected_faction != RANDOM_FACTION:
 		seen.append(selected_faction)
 	var dropped := PackedStringArray()
-	for s in slots:
+	for k in slots.size():
+		var s := slots[k]
 		var fid := String(s["faction"])
-		if fid == RANDOM_FACTION:
+		if fid == RANDOM_FACTION or is_slot_human(k):
 			continue
 		if seen.has(fid):
 			dropped.append(String(GameData.faction(fid).get("short", fid)))
@@ -1368,6 +1644,14 @@ func _build_rivals_block(page_root: Control) -> void:
 	rand_b.tooltip_text = "Chaque rival devient « Au hasard » : vous découvrirez vos voisins en les rencontrant."
 	rand_b.pressed.connect(randomize_slots)
 	actions.add_child(rand_b)
+	_team_select = _team_option()
+	for t in TEAM_COUNT + 1:
+		_team_select.set_item_text(t, "Votre équipe : %s" % team_label(t).to_lower() if t == 0 else "Votre équipe : %d" % t)
+	_team_select.select(player_team)
+	_team_select.focus_mode = Control.FOCUS_NONE
+	_team_select.tooltip_text = "Rangez des rivaux (IA ou joueurs) dans votre équipe avec leur bouton « + » :\nvous naissez alliés, voyez ensemble et gagnez ensemble. Des rivaux peuvent aussi former\nleurs propres équipes entre eux."
+	_team_select.item_selected.connect(set_player_team)
+	actions.add_child(_team_select)
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	actions.add_child(spacer)
@@ -1378,6 +1662,12 @@ func _build_rivals_block(page_root: Control) -> void:
 	_dup_check.tooltip_text = "Permet à plusieurs empires d'être du même peuple, y compris le vôtre.\nIls se distinguent par leur couleur et un numéro (« Lignées d'Ossarane II »)."
 	_dup_check.toggled.connect(set_duplicates)
 	actions.add_child(_dup_check)
+	_lobby_label = Label.new()
+	_lobby_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_lobby_label.add_theme_color_override("font_color", UiTheme.GOOD)
+	_lobby_label.add_theme_font_size_override("font_size", 13)
+	_lobby_label.visible = false
+	body.add_child(_lobby_label)
 	_slot_note = Label.new()
 	_slot_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_slot_note.add_theme_color_override("font_color", UiTheme.WARN)
@@ -1407,6 +1697,13 @@ func _refresh_slots() -> void:
 	_slot_note.text = slots_note()
 	_slot_note.visible = _slot_note.text != ""
 	_refresh_preset()
+	if not _slots_dirty:
+		_slots_dirty = true
+		_rebuild_slot_rows.call_deferred()
+
+
+## Refait seulement les lignes (le salon a changé qui tient quelle place).
+func refresh_slot_rows() -> void:
 	if not _slots_dirty:
 		_slots_dirty = true
 		_rebuild_slot_rows.call_deferred()
@@ -1490,12 +1787,44 @@ func _slot_row(i: int) -> HBoxContainer:
 	for id in AiLevels.ids():
 		lsel.add_item(AiLevels.label(id))
 		lsel.set_item_metadata(lsel.item_count - 1, id)
-		if id == s["level"]:
+		if id == s["level"] and not is_slot_human(i):
 			lsel.select(lsel.item_count - 1)
 	lsel.tooltip_text = _ai_select.tooltip_text
-	lsel.item_selected.connect(func(idx: int) -> void: set_slot(i, "level", String(lsel.get_item_metadata(idx))))
-	_mark_override(lsel, s["level"] != "")
+	if host_new:
+		# Salon : une place peut être réservée à un joueur, qui y choisira peuple et couleur.
+		lsel.add_separator()
+		lsel.add_item("Joueur humain")
+		lsel.set_item_metadata(lsel.item_count - 1, HUMAN_SLOT)
+		if is_slot_human(i):
+			lsel.select(lsel.item_count - 1)
+		lsel.tooltip_text += "\nJoueur humain : place ouverte à un joueur du salon."
+	lsel.item_selected.connect(func(idx: int) -> void:
+		var v := String(lsel.get_item_metadata(idx))
+		if v == HUMAN_SLOT:
+			set_slot_human(i, true)
+		else:
+			if is_slot_human(i):
+				slots[i].erase("human")
+			set_slot(i, "level", v))
+	_mark_override(lsel, s["level"] != "" or is_slot_human(i))
 	row.add_child(lsel)
+	if is_slot_human(i):
+		var who := Label.new()
+		who.custom_minimum_size = Vector2(SLOT_COL_TEMPER, 0)
+		who.clip_text = true
+		var holder := String(lobby_holders.get(i, ""))
+		who.text = holder if holder != "" else "Place libre"
+		who.add_theme_color_override("font_color", UiTheme.GOOD if holder != "" else UiTheme.TEXT_DIM)
+		row.add_child(who)
+		row.add_child(_slot_more_button(i))
+		var rm_h := Button.new()
+		rm_h.text = "×"
+		rm_h.focus_mode = Control.FOCUS_NONE
+		rm_h.tooltip_text = "Retirer cette place"
+		rm_h.disabled = slots.size() <= 1
+		rm_h.pressed.connect(func() -> void: remove_slot(i))
+		row.add_child(rm_h)
+		return row
 
 	var tsel := OptionButton.new()
 	tsel.clip_text = true
@@ -1512,15 +1841,7 @@ func _slot_row(i: int) -> HBoxContainer:
 	_mark_override(tsel, s["temper"] != "")
 	row.add_child(tsel)
 
-	var more := Button.new()
-	var custom := String(s.get("start", "")) != "" or String(s.get("distance", "")) != ""
-	more.text = "+"
-	more.focus_mode = Control.FOCUS_NONE
-	more.custom_minimum_size = Vector2(26, 0)
-	more.tooltip_text = "Départ : %s\nDistance : %s" % [START_LABELS[String(s.get("start", ""))], DISTANCE_LABELS[String(s.get("distance", ""))]]
-	_mark_button(more, custom)
-	more.pressed.connect(func() -> void: open_slot_advanced(i))
-	row.add_child(more)
+	row.add_child(_slot_more_button(i))
 
 	var rm := Button.new()
 	rm.text = "×"
@@ -1530,6 +1851,22 @@ func _slot_row(i: int) -> HBoxContainer:
 	rm.pressed.connect(func() -> void: remove_slot(i))
 	row.add_child(rm)
 	return row
+
+
+## Bouton « + » d'une place : départ, distance et équipe. Il affiche l'équipe (« É1 ») quand il y en a une.
+func _slot_more_button(i: int) -> Button:
+	var s := slots[i]
+	var more := Button.new()
+	var team := slot_team(i)
+	var custom := String(s.get("start", "")) != "" or String(s.get("distance", "")) != "" or team > 0
+	more.text = "É%d" % team if team > 0 else "+"
+	more.focus_mode = Control.FOCUS_NONE
+	more.custom_minimum_size = Vector2(26, 0)
+	more.tooltip_text = "Départ : %s\nDistance : %s\nÉquipe : %s" % [START_LABELS[String(s.get("start", ""))],
+			DISTANCE_LABELS[String(s.get("distance", ""))], team_label(team)]
+	_mark_button(more, custom)
+	more.pressed.connect(func() -> void: open_slot_advanced(i))
+	return more
 
 
 func _mark_button(b: Button, on: bool) -> void:
@@ -1548,6 +1885,7 @@ func open_slot_advanced(index: int) -> void:
 	_slot_adv_title.text = ("Rival %d : %s" % [index + 1, "au hasard" if fid == RANDOM_FACTION else String(GameData.faction(fid).get("short", fid))]).to_upper()
 	_slot_start_select.select(START_LABELS.keys().find(String(s.get("start", ""))))
 	_slot_dist_select.select(DISTANCE_LABELS.keys().find(String(s.get("distance", ""))))
+	_slot_team_select.select(slot_team(index))
 	_slot_adv.reset_size()
 	_slot_adv.popup_centered()
 
@@ -1573,6 +1911,10 @@ func _build_slot_advanced(page_root: Control) -> void:
 		_slot_dist_select.add_item(String(DISTANCE_LABELS[k]))
 	_slot_dist_select.item_selected.connect(func(i: int) -> void: set_slot(_slot_adv_index, "distance", String(DISTANCE_LABELS.keys()[i])))
 	_labeled_row(box, "Distance", _slot_dist_select)
+	_slot_team_select = _team_option()
+	_slot_team_select.tooltip_text = "Les empires d'une même équipe naissent alliés, se connaissent, voient ensemble\net gagnent ensemble. Leur alliance dure toute la partie."
+	_slot_team_select.item_selected.connect(func(i: int) -> void: set_slot_team(_slot_adv_index, i))
+	_labeled_row(box, "Équipe", _slot_team_select)
 	var note := UiTheme.paragraph("Les départs sont tirés selon le placement de la galaxie. « Sans préférence » : ce rival prend celui qui lui revient ; « Proche de vous » donne à ce rival l'un des départs les plus proches du vôtre, « Loin de vous » l'un des plus éloignés ; « Au hasard » tire l'une de ces trois distances, et vous la découvrirez en jeu.", 460, 13)
 	note.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 	box.add_child(note)
@@ -1582,6 +1924,13 @@ func _build_slot_advanced(page_root: Control) -> void:
 	close.size_flags_horizontal = Control.SIZE_SHRINK_END
 	close.pressed.connect(func() -> void: _slot_adv.hide())
 	box.add_child(close)
+
+
+func _team_option() -> OptionButton:
+	var o := OptionButton.new()
+	for t in TEAM_COUNT + 1:
+		o.add_item(team_label(t))
+	return o
 
 
 func _mark_override(b: OptionButton, on: bool) -> void:
@@ -1774,7 +2123,10 @@ func _draw_orbits() -> void:
 
 ## Tous les réglages de l'écran, en données (préréglages, Partie rapide, code de partie).
 func settings() -> Dictionary:
-	return {"faction": selected_faction, "slots": slots.duplicate(true), "duplicates": allow_duplicates,
+	var saved_slots := slots.duplicate(true)
+	for sl in saved_slots:
+		sl.erase("human")  # les places de joueurs ne valent que pour le salon en cours
+	return {"faction": selected_faction, "slots": saved_slots, "duplicates": allow_duplicates, "team": player_team,
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "deadline": deadline_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "galaxy": galaxy_settings.duplicate(),
@@ -1789,7 +2141,7 @@ static func _without_seed(d: Dictionary) -> Dictionary:
 
 ## Réglages par défaut de l'écran (votre peuple choisi gardé).
 func default_settings() -> Dictionary:
-	return {"faction": selected_faction, "slots": default_slots(), "duplicates": false,
+	return {"faction": selected_faction, "slots": default_slots(), "duplicates": false, "team": 0,
 		"ai_level": AiLevels.default_id(), "temperament": AiLevels.default_temperament(), "spectator": false,
 		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "deadline": Victory.default_deadline(), "people": true,
 		"victories": {"conquete": true, "domination": true, "allies": true}, "ai_scaling": false,
@@ -1835,8 +2187,12 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 			slot["start"] = ""
 		if not DISTANCE_LABELS.has(slot["distance"]):
 			slot["distance"] = ""
+		var team := int(src.get("team", 0))
+		if team > 0 and team <= TEAM_COUNT:
+			slot["team"] = team
 		new_slots.append(slot)
 	slots = new_slots if not new_slots.is_empty() else default_slots()
+	set_player_team(int(d.get("team", 0)))
 	set_ai_level(String(d.get("ai_level", base["ai_level"])))
 	set_temperament(String(d.get("temperament", base["temperament"])))
 	set_spectator(bool(d.get("spectator", false)))
@@ -2154,6 +2510,9 @@ func _rebuild_presets() -> void:
 
 ## Le menu des préréglages montre celui qui correspond à l'écran, ou « Personnalisé ».
 func _refresh_preset() -> void:
+	if host_new and not _settings_signal:
+		_settings_signal = true
+		_emit_settings_changed.call_deferred()
 	if _preset_select == null or _applying or _seed_edit == null:
 		return
 	var cur := current_preset()

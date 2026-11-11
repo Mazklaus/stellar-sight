@@ -17,7 +17,7 @@ extends RefCounted
 ## 6. militaire : déclarations de guerre (tempérament et rapport de forces), vaisseaux de guerre,
 ##    tactiques, défense des systèmes assiégés, offensives, sièges, invasions et retraites ;
 ## 7. diplomatie (AiDiplomacy) : propositions de traités, alliances quittées, talents diplomatiques
-##    du peuple (héritier, arbitrage).
+##    du peuple (héritier, arbitrage) ; puis espionnage (AiEspionage) : où placer ses cellules.
 ##
 ## Règles d'or : la simulation reste déterministe (aucun aléatoire hors de l'état : les « oublis »
 ## des niveaux bas viennent d'un hachage de la graine, du jour et de l'empire), l'IA ne lit que
@@ -1569,6 +1569,7 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 ## Diplomatie : voir AiDiplomacy. L'Essaim Kh'thari n'y entre jamais.
 static func _diplomacy(ctx: Dictionary) -> void:
 	AiDiplomacy.think(ctx)
+	AiEspionage.think(ctx)
 
 
 # --- Recherche ---------------------------------------------------------------------------------

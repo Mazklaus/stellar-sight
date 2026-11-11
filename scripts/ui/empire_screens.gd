@@ -3,7 +3,8 @@ extends CanvasLayer
 ## Écrans d'empire, en plein écran comme dans les 4X « épurés » : la carte s'efface, le panneau
 ## d'empire et le cadran du temps restent en place, un onglet en haut au centre nomme l'écran (et le
 ## ferme), une colonne à gauche résume, et le contenu se range en blocs titrés.
-## Économie, Colonies, Recherche, Diplomatie et Chantier (éditeur de vaisseaux, voir ShipyardScreen).
+## Économie, Colonies, Recherche, Diplomatie, Chantier (éditeur de vaisseaux, voir ShipyardScreen),
+## Victoire et Renseignement (voir IntelScreen).
 ## Les chiffres viennent d'EmpireReport, qui applique les règles de la simulation sans rien modifier.
 ## Les emplacements d'illustration (Widgets.ArtSlot) prendront les images de assets/art/ quand elles existeront.
 
@@ -89,6 +90,14 @@ var see_all := false
 var victory_rows := {}
 var _vict_sig := ""
 var _shipyard_selected := ""
+## Écran Renseignement (IntelScreen) : empire dont on lit le dossier, boutons − / + des cellules par
+## empire visé (pour les tests).
+var intel_selected := -1
+var intel_buttons := {}
+## Boutons LANCER par opération (empire choisi), et EXPULSER / EXIGER RÉPARATION par dossier.
+var intel_op_buttons := {}
+var intel_case_buttons := {}
+var _intel_sig := ""
 var _shipyard_sig := ""
 
 
@@ -202,6 +211,8 @@ func show_screen(screen_id: String) -> void:
 			_build_shipyard()
 		"victory":
 			_build_victory()
+		"intel":
+			IntelScreen.build(self)
 	refresh()
 	screen_changed.emit(screen_id)
 
@@ -221,6 +232,9 @@ func refresh() -> void:
 		"victory":
 			if _victory_sig() != _vict_sig:
 				show_screen("victory")
+		"intel":
+			if IntelScreen.signature(self) != _intel_sig:
+				show_screen("intel")
 		"research":
 			if _research_signature() != _research_sig:
 				_fill_research_side()
@@ -1248,7 +1262,7 @@ func _relation_block(id: int) -> Control:
 	head.add_child(info)
 	info.add_child(UiTheme.dim(String(e.faction().get("registre", "")), 13))
 	var sl := Label.new()
-	sl.text = ("Disparu" if e.eliminated else Diplomacy.status_label(st)).to_upper()
+	sl.text = ("Disparu" if e.eliminated else Diplomacy.status_text(_state, _player, id)).to_upper()
 	sl.add_theme_font_size_override("font_size", 20)
 	sl.add_theme_color_override("font_color", DiplomacyTable.STATUS_COLORS[st])
 	info.add_child(sl)

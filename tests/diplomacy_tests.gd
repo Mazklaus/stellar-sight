@@ -21,6 +21,7 @@ func run(check: Callable) -> void:
 	_test_crusade()
 	_test_war_score()
 	_test_save_roundtrip()
+	_test_teams()
 	_test_ai_diplomacy_game()
 
 
@@ -355,6 +356,29 @@ func _test_save_roundtrip() -> void:
 	_ok(back.checksum() == st.checksum(), "même empreinte après sauvegarde : relations, souvenirs, propositions, héritier")
 	_ok(Diplomacy.status(back, 0, 1) == "peace" and back.proposals.size() == 1 and back.get_empire(0).heir_suitor == 2, "contenu diplomatique conservé")
 	_ok(int(d["version"]) == GameState.FORMAT_VERSION and GameState.FORMAT_VERSION >= 10, "format de sauvegarde à jour")
+
+
+## Équipes : alliés et en contact dès le départ, alliance qui ne se rompt pas, guerre interdite,
+## vision commune, victoire commune même quand les alliances ordinaires ne comptent pas.
+func _test_teams() -> void:
+	var st := GameState.create(4242, 150, 1800.0, "ossarane", {"ai_level": "", "teams": [1, 0, 1, 2, 2]})
+	_ok(Diplomacy.allied(st, 0, 2) and Diplomacy.team_of(st, 0, 2) == 1 and Diplomacy.allied(st, 3, 4) and Diplomacy.team_of(st, 3, 4) == 2,
+			"les coéquipiers naissent alliés")
+	_ok(not Diplomacy.allied(st, 0, 1) and not Diplomacy.allied(st, 0, 3) and Diplomacy.team_of(st, 0, 3) == 0, "pas d'alliance hors de l'équipe")
+	_ok(st.get_empire(0).contacts.has(2) and st.get_empire(2).contacts.has(0), "les coéquipiers se connaissent")
+	_ok(Diplomacy.check_cancel(st, 0, 2, Diplomacy.ALLIANCE) != "", "une alliance d'équipe ne se quitte pas")
+	_ok(SimCommands.validate(st, SimCommands.cancel_treaty(0, 2, Diplomacy.ALLIANCE)) != "", "ordre de rupture refusé")
+	_ok(Combat.check_declare_war(st, 0, 2) != "", "pas de guerre entre coéquipiers")
+	_ok(Diplomacy.status_text(st, 0, 2) == "Équipe 1", "statut affiché : Équipe 1 (%s)" % Diplomacy.status_text(st, 0, 2))
+	var mate_home := st.galaxy.get_planet(st.get_empire(2).capital_planet).system_id
+	_ok(mate_home >= 0 and Fleets.visible_systems(st, 0).has(mate_home), "vision commune : on voit chez son coéquipier")
+	st.victory_rules["allies"] = false
+	_ok(Victory.bloc(st, 0) == [0, 2] and Victory.bloc(st, 3) == [3, 4], "les coéquipiers gagnent ensemble (%s)" % [Victory.bloc(st, 0)])
+	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_dict())))
+	_ok(back != null and Diplomacy.team_of(back, 0, 2) == 1 and back.checksum() == st.checksum(), "équipes gardées par la sauvegarde")
+	var plain := GameState.create(4242, 150, 1800.0, "ossarane", {"ai_level": ""})
+	_ok(plain.checksum() == GameState.create(4242, 150, 1800.0, "ossarane", {"ai_level": "", "teams": [0, 0, 0, 0, 0]}).checksum(),
+			"sans équipe, la partie ne change pas")
 
 
 ## Une vraie partie entre IA : il se signe des traités, et deux parties identiques restent identiques.

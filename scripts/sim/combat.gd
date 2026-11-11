@@ -389,10 +389,10 @@ static func start_war(state: GameState, a: int, b: int, by_nature := false, join
 	var entry: Dictionary
 	if by_nature:
 		entry = state.add_chronicle("%s rencontre %s et ne voit pas l'intérêt de discuter. C'est la guerre : l'Essaim ne signe rien, il digère." % [
-				ea.display_name(), eb.display_name()])
+				ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 	else:
 		entry = state.add_chronicle("%s déclare la guerre à %s. Les amirautés ressortent les cartes, les poètes les hymnes." % [
-				ea.display_name(), eb.display_name()])
+				ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 	Diplomacy.on_war_declared(state, a, b, by_nature, joined)
 	return entry
 
@@ -550,15 +550,15 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 		en.fervor = mini(int(en.faction()["fervor"]["max"]), en.fervor + fervor)
 	if digested > 0:
 		added.append(state.add_chronicle("%s envahit %s. %d population%s digérée%s en biomasse ; les survivants sont priés de se sentir chez eux." % [
-				en.display_name(), sname, digested, "s" if digested > 1 else "", "s" if digested > 1 else ""]))
+				en.display_name(), sname, digested, "s" if digested > 1 else "", "s" if digested > 1 else ""], Espionage.private_to(state, [new_owner, old], system_id)))
 	else:
 		added.append(state.add_chronicle("%s envahit %s et en chasse %s. On repeint les drapeaux ; les habitants, eux, restent." % [
-				en.display_name(), sname, eo.display_name()]))
+				en.display_name(), sname, eo.display_name()], Espionage.private_to(state, [new_owner, old], system_id)))
 	if lost_capital:
 		eo.capital_planet = _new_capital(state, old)
 		if eo.capital_planet >= 0:
 			added.append(state.add_chronicle("%s perd sa capitale et se replie sur %s. La cour emporte les archives, et surtout l'argenterie." % [
-					eo.display_name(), state.galaxy.get_planet(eo.capital_planet).display_name(state.galaxy)]))
+					eo.display_name(), state.galaxy.get_planet(eo.capital_planet).display_name(state.galaxy)], Espionage.public_to(state, [old])))
 	return added
 
 

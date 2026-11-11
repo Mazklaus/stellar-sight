@@ -1,0 +1,68 @@
+{
+	"_sources": [
+		"Étude « l'espionnage comme pilier de Stellar Sigth » (2026-11-11, validée) : https://claude.ai/artifact/Hc6DrQEhz1c7gNez5eKZqc",
+		"Stellaris (Nemesis) : un réseau par empire rival, dont la force (infiltration) ouvre le renseignement passif puis les opérations ; chiffrement contre déchiffrement. https://devtrackers.gg/stellaris/p/431690a8-stellaris-dev-diary-197-operations-and-assets ; https://www.thegamer.com/stellaris-espionage-everything-players-need-know/",
+		"Galactic Civilizations : le renseignement dévoile l'autre empire par paliers (revenus, recherche en cours, technologies, bases). https://galciv.fandom.com/wiki/Espionage",
+		"Civilization V : l'espion posté surveille et révèle les intentions du dirigeant ; contre-espionnage chez soi. https://civilization.fandom.com/wiki/Espionage_(Civ5)",
+		"Endless Space 2 (Penumbra) : sondes de détection, défense qui ralentit le piratage ennemi. https://endless-space-2.fandom.com/wiki/Hacking"
+	],
+	"cells": {
+		"start": 2,
+		"per_era": [0, 0, 1, 1, 2],
+		"_per_era": "cellules en plus selon l'ère atteinte (ère 1 à 5)"
+	},
+	"network": {
+		"max": 100,
+		"growth_per_cell": 4,
+		"decay_without_cells": 3,
+		"trade_bonus": 2,
+		"border_bonus": 1,
+		"war_malus": 2,
+		"counter_per_cell": 2,
+		"crypto_pct": [25, 50, 100, 150, 200],
+		"_crypto_pct": "croissance en % selon déchiffrement de l'espion moins chiffrement de la cible : -2 ou moins, -1, 0, +1, +2 ou plus",
+		"home_cell_encryption": 1
+	},
+	"tiers": [
+		{"id": "cartographes", "at": 20, "label": "Cartographes",
+			"text": "Les relevés de ses systèmes se mettent à jour chaque mois, même hors de vue."},
+		{"id": "comptables", "at": 40, "label": "Comptables",
+			"text": "Ses ressources, sa recherche en cours et ses technologies ; ses affaires intérieures arrivent dans notre chronique."},
+		{"id": "amiraute", "at": 60, "label": "Amirauté",
+			"text": "Ses flottes : combien, où, et combien de vaisseaux de guerre."},
+		{"id": "conseil", "at": 80, "label": "Conseil",
+			"text": "Ce qu'il pense de chacun : ses guerres, ses haines et ses amitiés."}
+	],
+	"operations": [
+		{"id": "rapport", "family": "renseignement", "label": "Rapport complet", "tier": 1,
+			"cost": {"influence": 20}, "days": 30, "success": 85, "discovery": 10, "spend": 5,
+			"text": "Un dossier complet (comme au palier Conseil) et les relevés de tous ses systèmes, une fois."},
+		{"id": "vol_techno", "family": "larcin", "label": "Voler une technologie", "tier": 2,
+			"cost": {"influence": 40}, "days": 60, "success": 70, "discovery": 25, "spend": 15, "steal_pct": 40,
+			"text": "40 % d'une technologie qu'il connaît et pas vous (la plus chère qu'on puisse chercher)."},
+		{"id": "siphon", "family": "larcin", "label": "Siphonner l'énergie", "tier": 2,
+			"cost": {"influence": 25}, "days": 30, "success": 75, "discovery": 20, "spend": 10, "take_pct": 20, "take_max": 150,
+			"text": "20 % de sa réserve d'énergie (150 au plus) passent dans la vôtre."},
+		{"id": "sabotage_chantier", "family": "sabotage", "label": "Saboter un chantier", "tier": 3,
+			"cost": {"influence": 50}, "days": 45, "success": 65, "discovery": 35, "spend": 20, "delay_days": 60,
+			"text": "Le chantier spatial le plus avancé de sa capitale (ou de sa plus grande colonie) prend 60 jours de retard."},
+		{"id": "archives", "family": "sabotage", "label": "Brûler des archives", "tier": 3,
+			"cost": {"influence": 50}, "days": 45, "success": 65, "discovery": 35, "spend": 20, "burn_pct": 50,
+			"text": "La moitié du Savoir déjà accumulé sur sa recherche en cours part en fumée."}
+	],
+	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
+	"chances": {
+		"per_tier": 5, "per_crypto": 10, "counter_per_cell": 10, "era_gap_discovery": 10, "min": 5, "max": 95,
+		"_": "succès + per_tier par palier au-dessus du minimum + per_crypto par point de déchiffrement d'avance ; découverte + counter_per_cell par cellule chez la cible, + era_gap_discovery par ère d'avance de la cible, - per_tier par palier au-dessus"
+	},
+	"discovery": {
+		"infiltration_loss": 30, "answer_days": 30, "reparation": {"influence": 80},
+		"_": "un réseau pris perd 30 ; la victime a 30 jours pour répondre (sinon : expulsion) ; réparation exigée"
+	},
+	"probes": {
+		"max": 3,
+		"regen_days": 90,
+		"start": 2,
+		"cost": {"energy": 10}
+	}
+}

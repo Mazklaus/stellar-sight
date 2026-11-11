@@ -49,6 +49,8 @@ var _title: Label
 var _subtitle: Label
 var _rename_edit: LineEdit
 var _rename_button: Button
+## Lance une sonde vers ce système quand il est connu mais hors de vue (Espionage.probe).
+var probe_button: Button
 var _cards: HBoxContainer
 var _card_ids: Array[int] = []
 var _panel: PanelContainer
@@ -205,6 +207,16 @@ func _build_header() -> void:
 	_rename_button.add_theme_color_override("font_color", Color(ACCENT, 0.8))
 	_rename_button.pressed.connect(_toggle_rename)
 	row.add_child(_rename_button)
+	probe_button = Button.new()
+	probe_button.text = "Sonde"
+	probe_button.flat = true
+	probe_button.focus_mode = Control.FOCUS_NONE
+	probe_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	probe_button.add_theme_color_override("font_color", Color(ACCENT, 0.8))
+	probe_button.pressed.connect(func() -> void:
+		if system_id >= 0:
+			command_requested.emit(SimCommands.probe(_player, system_id)))
+	row.add_child(probe_button)
 	_rename_edit = LineEdit.new()
 	_rename_edit.max_length = SimCommands.NAME_MAX_LENGTH
 	_rename_edit.placeholder_text = "Nouveau nom, puis Entrée"
@@ -251,6 +263,14 @@ func _refresh_header(s: StarSystem) -> void:
 	parts.append("à portée" if Economy.in_range(_state, _player, s.id) else "hors de portée")
 	if not Intel.shown_live(_state, s.id):
 		parts.append("hors de vue, %s" % Intel.age_label(_state, Intel.lens, s.id))
+	# Sonde : seulement pour un système connu hors de vue, et pas en spectateur.
+	probe_button.visible = not read_only and not Intel.is_live(_state, _player, s.id)
+	if probe_button.visible:
+		var why := Espionage.check_probe(_state, _player, s.id)
+		var me := _state.get_empire(_player)
+		probe_button.disabled = why != ""
+		probe_button.text = "Sonde (%d)" % me.probes
+		probe_button.tooltip_text = why if why != "" else "Envoyer une sonde (%s) : un relevé à jour de ce système." % GameData.format_amounts(Espionage.probe_cost())
 	var names := PackedStringArray()
 	for f in Fleets.fleets_at(_state, s.id):
 		if f.owner == _player or Fleets.fleet_visible(_state, _player, f, Fleets.visible_systems(_state, _player)):

@@ -23,6 +23,8 @@ const SCREENS := [
 		"why": "Concevez vos vaisseaux : une coque, des modules dans ses emplacements, un rang et une cible. Les modèles enregistrés rejoignent la liste de construction."},
 	{"id": "victory", "label": "Victoire", "key": "F7", "glyph": "victory", "ready": true,
 		"why": "Toutes les façons de gagner cette partie, et où en est chaque empire. La victoire de peuple d'un rival reste cachée tant qu'il n'est pas à mi-chemin."},
+	{"id": "intel", "label": "Renseignement", "key": "F8", "glyph": "intel", "ready": true,
+		"why": "Affectez vos cellules chez les empires rencontrés : le réseau grandit chaque mois et dévoile, palier après palier, leurs systèmes, leurs comptes, leurs flottes et leurs pensées. Chez vous, elles font du contre-espionnage."},
 ]
 ## Description d'un menu d'empire (entrée de SCREENS), {} s'il n'existe pas.
 static func screen_info(screen_id: String) -> Dictionary:

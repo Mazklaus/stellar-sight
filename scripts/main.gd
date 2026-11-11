@@ -165,7 +165,9 @@ func _ready() -> void:
 	net.notice.connect(func(text: String, tone: String) -> void: _hud.notify(text, tone))
 	net.joined.connect(_on_net_joined)
 	net.join_failed.connect(func(reason: String) -> void:
-		_main_menu.set_join_status("Refusé : %s" % reason))
+		if _main_menu.page == "join":
+			_main_menu.show_page("join")
+		_main_menu.set_join_status("Refusé : %s" % reason if reason != "connexion perdue" else "Connexion perdue ou salon fermé par l'hôte."))
 	net.ended.connect(_on_net_ended)
 	net.clock_changed.connect(_on_net_clock)
 	_pause_menu.host_requested.connect(func() -> void:
@@ -191,12 +193,28 @@ func _ready() -> void:
 		galaxy_settings = _main_menu.galaxy_settings.duplicate()
 		game_options = _main_menu.game_options()
 		var hosting := _main_menu.host_new
-		new_game(seed_value)
+		var seats := {}
+		if hosting and net.lobby_open:
+			if not net.lobby_all_ready():
+				_main_menu.set_lobby_status(_lobby_text() + "\nTous les joueurs du salon doivent avoir une place et être prêts.")
+				return
+			# Chaque joueur prend l'empire créé pour sa place.
+			var placed: Array = empire_setup.get("slots", [])
+			for peer in net.lobby_seats:
+				var pos := placed.find(int(net.lobby_seats[peer]))
+				if pos >= 0:
+					seats[peer] = pos + 1
+		new_game(seed_value, hosting and net.lobby_open)
 		GameClock.set_mode(_main_menu.time_mode, _main_menu.turn_days)
 		game_in_progress = true
 		close_main_menu()
 		if hosting:
-			host_game()
+			if net.lobby_open:
+				_net_client = false
+				net.start_from_lobby(simulation, local_player, seats)
+				_hud.notify(_hosting_text(NetSession.DEFAULT_PORT), "good")
+			else:
+				host_game()
 			return
 		if spectator:
 			_hud.notify("Mode spectateur : %d peuples, aucun joueur. Espace pour lancer le temps, V pour changer de regard." % simulation.state.empires.size(), "good")
@@ -213,6 +231,27 @@ func _ready() -> void:
 		join_game(address, port))
 	_main_menu.empire_picked.connect(func(id: int) -> void: net.pick(id))
 	_main_menu.host_resume_requested.connect(resume_network_game)
+	_main_menu.lobby_opened.connect(open_lobby)
+	_main_menu.lobby_closed.connect(func() -> void:
+		if net.lobby_open:
+			net.close())
+	_main_menu.settings_changed.connect(_lobby_sync)
+	_main_menu.slot_removed.connect(func(index: int) -> void:
+		for peer in net.lobby_seats.keys():
+			var i := int(net.lobby_seats[peer])
+			if i == index:
+				net.lobby_seats.erase(peer)
+				net.lobby_ready.erase(peer)
+			elif i > index:
+				net.lobby_seats[peer] = i - 1)
+	_main_menu.lobby_take_requested.connect(func(i: int) -> void: net.lobby_take(i))
+	_main_menu.lobby_set_requested.connect(func(f: String, c: String) -> void: net.lobby_set(f, c))
+	_main_menu.lobby_ready_requested.connect(func(r: bool) -> void: net.lobby_set_ready(r))
+	net.lobby_changed.connect(func(st: Dictionary) -> void: _main_menu.show_lobby(st))
+	net.lobby_request.connect(_on_lobby_request)
+	net.players_changed.connect(func() -> void:
+		if net.lobby_open:
+			_lobby_sync())
 	net.choose_empire.connect(func(list: Array) -> void: _main_menu.show_empire_choice(list))
 
 	UiTheme.apply_to(self)
@@ -223,8 +262,10 @@ func _ready() -> void:
 		game_in_progress = true
 
 
-func new_game(seed_value: int) -> void:
-	leave_network("")
+## keep_net : la partie naît d'un salon en réseau, qui reste ouvert pour accueillir ses joueurs.
+func new_game(seed_value: int, keep_net := false) -> void:
+	if not keep_net:
+		leave_network("")
 	local_player = 0
 	var options := {"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 			"deadline": victory_deadline if victory_deadline >= 0 else Victory.default_deadline(),
@@ -501,7 +542,7 @@ func _start(state: GameState) -> void:
 	_hud.set_state(state, view_empire)
 	select_fleet(-1)
 	_fleets_moving = _moving_fleet_ids()
-	_hud.show_chronicle(state.chronicle.back() if not state.chronicle.is_empty() else {})
+	_hud.show_chronicle({})
 	GameClock.attach(simulation)
 
 
@@ -593,6 +634,89 @@ func _player_name() -> String:
 	return n if n != "" else "Joueur"
 
 
+# --- Salon d'avant-partie (hôte) ----------------------------------------------------------------
+
+## « Nouvelle partie en réseau » : le salon s'ouvre aussitôt, les joueurs peuvent entrer pendant les réglages.
+func open_lobby() -> void:
+	leave_network("")
+	net.player_name = _player_name()
+	var err := net.open_lobby(NetSession.DEFAULT_PORT)
+	if err != OK:
+		_main_menu.set_lobby_status("Salon impossible à ouvrir (port %d) : %s. La partie s'ouvrira au réseau à son lancement." % [NetSession.DEFAULT_PORT, error_string(err)])
+		return
+	_lobby_sync()
+
+
+func _lobby_text() -> String:
+	var addrs := NetSession.local_addresses()
+	var who := PackedStringArray()
+	for p in net.names:
+		if p == Lockstep.HOST:
+			continue
+		var tag := "" if net.lobby_seats.has(p) else " (sans place)"
+		if net.lobby_ready.has(p):
+			tag = " ✓"
+		who.append(String(net.names[p]) + tag)
+	return "Salon ouvert · adresse %s, port %d (UDP) · visible sur votre réseau local · joueurs : %s" % [
+			", ".join(addrs) if not addrs.is_empty() else "?", NetSession.DEFAULT_PORT, ", ".join(who) if not who.is_empty() else "aucun pour l'instant"]
+
+
+## Le salon a changé (réglages, joueurs) : places tenues, texte, état envoyé à tous.
+func _lobby_sync() -> void:
+	if not net.lobby_open:
+		return
+	for peer in net.lobby_seats.keys():
+		if not _main_menu.is_slot_human(int(net.lobby_seats[peer])):
+			net.lobby_seats.erase(peer)
+			net.lobby_ready.erase(peer)
+	var holders := {}
+	for peer in net.lobby_seats:
+		holders[int(net.lobby_seats[peer])] = String(net.names.get(peer, "?")) + ("  ✓ prêt" if net.lobby_ready.has(peer) else "")
+	if holders != _main_menu.lobby_holders:
+		_main_menu.lobby_holders = holders
+		_main_menu.refresh_slot_rows()
+	_main_menu.set_lobby_status(_lobby_text())
+	net.lobby_update(_main_menu.lobby_view())
+
+
+## Demande d'un joueur du salon : prendre une place, choisir peuple et couleur, se dire prêt.
+func _on_lobby_request(peer: int, kind: String, data: Dictionary) -> void:
+	var menu := _main_menu
+	match kind:
+		"take":
+			var i := int(data.get("i", -1))
+			if menu.is_slot_human(i) and net.lobby_slot_holder(i) == 0:
+				net.lobby_seats[peer] = i
+				net.lobby_ready.erase(peer)
+		"set":
+			var i := int(net.lobby_seats.get(peer, -1))
+			if i < 0:
+				return
+			var fid := String(data.get("f", ""))
+			var def: Variant = data.get("def")
+			if def is Dictionary and String(def.get("id", "")) == fid and not GameData.is_official(fid):
+				# Peuple créé par le joueur : rangé sous un nom propre à ce joueur (pas de collision).
+				var d: Dictionary = def.duplicate(true)
+				fid = "%s@%s" % [fid, String(net._tokens.get(peer, str(peer))).substr(0, 8)]
+				d["id"] = fid
+				GameData.register_library_faction(d)
+			if fid != "" and fid != String(menu.slots[i]["faction"]):
+				if fid != MainMenu.RANDOM_FACTION and not menu.allow_duplicates and menu._taken_factions(i).has(fid):
+					net._send(peer, {"k": "notice", "t": "Ce peuple est déjà pris dans cette partie.", "o": "bad"})
+				else:
+					menu.set_slot(i, "faction", fid)
+			var col := String(data.get("c", ""))
+			if col != String(menu.slots[i]["color"]):
+				menu.set_slot(i, "color", col)
+			net.lobby_ready.erase(peer)
+		"ready":
+			if net.lobby_seats.has(peer) and bool(data.get("r", false)):
+				net.lobby_ready[peer] = true
+			else:
+				net.lobby_ready.erase(peer)
+	_lobby_sync()
+
+
 ## Reprend comme hôte la dernière partie en réseau (sauvegarde automatique faite à chaque départ,
 ## à chaque tour et chaque mois) : chacun retrouve son empire en rejoignant.
 func resume_network_game() -> bool:
@@ -666,6 +790,7 @@ func follow_empire(empire_id: int) -> void:
 	if _view.fog:
 		Intel.lens = empire_id
 	_hud.follow_empire(simulation.state, empire_id)
+	_hud.show_chronicle({})
 	_view.queue_redraw()
 
 
@@ -676,6 +801,7 @@ func set_spectator_fog(on: bool) -> void:
 	_view.fog = on
 	Intel.lens = view_empire if on else -1
 	_hud.spectator_panel.set_fog(on)
+	_hud.show_chronicle({})
 	_refresh_all()
 	_view.queue_redraw()
 
@@ -688,7 +814,7 @@ func _on_command_applied(_cmd: Dictionary) -> void:
 	_fleets_moving = _moving_fleet_ids()
 	_refresh_all()
 	if not simulation.state.chronicle.is_empty():
-		_hud.show_chronicle(simulation.state.chronicle.back())
+		_hud.show_chronicle({})
 
 
 func _process(delta: float) -> void:
@@ -785,6 +911,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			toggle_empire_screen("shipyard")
 		KEY_F7:
 			toggle_empire_screen("victory")
+		KEY_F8:
+			toggle_empire_screen("intel")
 		KEY_ENTER, KEY_KP_ENTER:
 			if not is_system_view_open() and not is_empire_screen_open():
 				open_system_view(_view.selected_id)

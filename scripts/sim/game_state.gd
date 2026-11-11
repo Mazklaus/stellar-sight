@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 16
+const FORMAT_VERSION := 18
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -79,6 +79,14 @@ var winner: Dictionary = {}
 ## (Species.build), recopiée au lancement et sauvegardée, pour que la partie ne dépende pas des
 ## fichiers de la bibliothèque (modifiés ou supprimés depuis).
 var custom_factions: Dictionary = {}
+## Réseaux d'espionnage {"a>b": {"a", "b", "cells", "inf"}} (voir Espionage). a == b : cellules de
+## contre-espionnage de a chez lui.
+var networks: Dictionary = {}
+## Opérations d'espionnage en cours {"id", "a", "b", "op", "start", "end", "success", "discovery"}, et
+## dossiers de découverte en attente de la réponse de la victime {"id", "victim", "spy", "op", "tick"}.
+var operations: Array[Dictionary] = []
+var spy_cases: Array[Dictionary] = []
+var next_spy_id: int = 0
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -112,6 +120,9 @@ var _system_owner: Dictionary = {}
 ## - "colors" : couleur de chaque empire (codes html, par indice d'empire ; "" = automatique). En
 ##   automatique, un empire prend la couleur de son peuple, ou la première couleur libre de
 ##   Empire.PALETTE si elle est déjà prise ;
+## - "teams" : équipe de chaque empire (par indice d'empire ; 0 = aucune). Les empires d'une même
+##   équipe naissent alliés, se connaissent, voient ensemble (vision des alliés) et gagnent ensemble ;
+##   leur alliance ne se rompt pas (Diplomacy.team_of) ;
 ## - "galaxy" : réglages de la galaxie (GalaxySettings) ; ils fixent alors aussi le nombre de systèmes
 ##   et le rayon, à la place de system_count_ et galaxy_radius_.
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
@@ -129,8 +140,11 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	s.ai_scaling = bool(options.get("ai_scaling", false))
 	s._setup_empires(player_faction, options.get("rivals", null), bool(options.get("duplicates", false)), options.get("distances", []))
 	s._setup_colors(options.get("colors", []))
+	s._setup_teams(options.get("teams", []))
 	s._setup_ai(options)
 	s._setup_advanced_starts(options.get("starts", []))
+	for e in s.empires:
+		e.probes = int(GameData.espionage()["probes"]["start"])
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -211,6 +225,10 @@ func to_dict() -> Dictionary:
 		"ai_scaling": ai_scaling,
 		"winner": winner.duplicate(),
 		"custom_factions": _sorted_values(custom_factions),
+		"networks": Espionage.networks_to_list(self),
+		"operations": operations.duplicate(true),
+		"spy_cases": spy_cases.duplicate(true),
+		"next_spy_id": next_spy_id,
 	}
 
 
@@ -280,7 +298,13 @@ static func from_dict(d: Dictionary) -> GameState:
 	s.tick = int(d["tick"])
 	s.rng.state = String(d["rng_state"]).to_int()
 	for e: Dictionary in d["chronicle"]:
-		s.chronicle.append({"tick": int(e["tick"]), "text": String(e["text"])})
+		var entry := {"tick": int(e["tick"]), "text": String(e["text"])}
+		if e.has("who"):
+			var who := []
+			for x in e["who"]:
+				who.append(int(x))
+			entry["who"] = who
+		s.chronicle.append(entry)
 	for o: Dictionary in d["planet_overrides"]:
 		var fields := o.duplicate(true)
 		fields.erase("planet")
@@ -367,6 +391,16 @@ static func from_dict(d: Dictionary) -> GameState:
 		for a in w.get("allies", []):
 			allies.append(int(a))
 		s.winner = {"empire": int(w["empire"]), "victory": String(w["victory"]), "tick": int(w["tick"]), "allies": allies}
+	Espionage.networks_from_list(s, d.get("networks", []))
+	for op: Dictionary in d.get("operations", []):
+		var v: Dictionary = GameData._to_ints(op)
+		v["op"] = String(v["op"])
+		s.operations.append(v)
+	for c: Dictionary in d.get("spy_cases", []):
+		var v: Dictionary = GameData._to_ints(c)
+		v["op"] = String(v["op"])
+		s.spy_cases.append(v)
+	s.next_spy_id = int(d.get("next_spy_id", 0))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant la dernière information connue : la mémoire part de l'état réel.
 	if int(d["version"]) < 16:
@@ -381,8 +415,15 @@ func checksum() -> String:
 	return JSON.stringify(to_dict(), "", true, true).sha256_text()
 
 
-func add_chronicle(text: String) -> Dictionary:
+## who : empires qui apprennent la nouvelle (Espionage.public_to / private_to) ; null = tout le monde.
+func add_chronicle(text: String, who: Variant = null) -> Dictionary:
 	var entry := {"tick": tick, "text": text}
+	if who is Array:
+		var ids := []
+		for x in who:
+			ids.append(int(x))
+		ids.sort()
+		entry["who"] = ids
 	chronicle.append(entry)
 	while chronicle.size() > CHRONICLE_MAX:
 		chronicle.pop_front()
@@ -485,6 +526,22 @@ func _setup_ai(options: Dictionary) -> void:
 		var bonus: Dictionary = {} if ai_scaling else AiLevels.level(lv).get("start_bonus", {})
 		for r in bonus:
 			e.resources[r] = int(e.resources.get(r, 0)) + int(bonus[r])
+
+
+## Équipes : alliances verrouillées dès le départ entre empires d'une même équipe.
+func _setup_teams(teams: Array) -> void:
+	for a in empires:
+		for b in empires:
+			if b.id <= a.id or a.id >= teams.size() or b.id >= teams.size():
+				continue
+			var t := int(teams[a.id])
+			if t <= 0 or int(teams[b.id]) != t:
+				continue
+			if not a.contacts.has(b.id):
+				a.contacts.append(b.id)
+			if not b.contacts.has(a.id):
+				b.contacts.append(a.id)
+			Diplomacy.form_team(self, a.id, b.id, t)
 
 
 ## Aucun empire n'est joué par un humain : la partie se regarde (mode spectateur).

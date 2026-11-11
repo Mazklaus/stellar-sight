@@ -225,7 +225,15 @@ func card_system() -> int:
 
 
 ## Affiche la dernière entrée de chronique ({"tick", "text"}) ; l'infobulle donne les précédentes.
+## Seules comptent les nouvelles que l'empire regardé peut connaître (Espionage.can_read) : une entrée
+## qu'il ne peut pas lire est ignorée, l'encadré garde la précédente.
 func show_chronicle(entry: Dictionary) -> void:
+	if not entry.is_empty() and not Espionage.can_read(entry, Intel.lens):
+		return
+	if entry.is_empty() and _state:
+		var last := Espionage.readable(_state, Intel.lens, 1)
+		if not last.is_empty():
+			entry = last[0]
 	if entry.is_empty():
 		_chronicle_date.text = ""
 		_chronicle_label.text = "La chronique attend son premier scandale."
@@ -235,9 +243,7 @@ func show_chronicle(entry: Dictionary) -> void:
 	_chronicle_label.text = String(entry["text"])
 	if _state:
 		var lines := PackedStringArray(["[b]Chronique galactique[/b]"])
-		var from := maxi(0, _state.chronicle.size() - 6)
-		for i in range(_state.chronicle.size() - 1, from - 1, -1):
-			var e: Dictionary = _state.chronicle[i]
+		for e in Espionage.readable(_state, Intel.lens, 6):
 			lines.append("[color=#%s]%s[/color]  %s" % [UiTheme.TEXT_DIM.to_html(false), GameCalendar.date_string(int(e["tick"])), e["text"]])
 		_chronicle.tooltip_text = "\n".join(lines)
 
