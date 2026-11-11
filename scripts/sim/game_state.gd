@@ -22,6 +22,10 @@ static var last_error := ""
 var seed_value: int = 0
 var system_count: int = 150
 var galaxy_radius: float = 1800.0
+## Réglages de génération de la galaxie (GalaxySettings) : forme, routes, placement des départs…
+var galaxy_settings: Dictionary = GalaxySettings.defaults()
+## Planètes déjà changées pour un empire voisin par les mondes garantis (création seulement).
+var _guaranteed := {}
 ## Jour de jeu courant (un tick = un jour).
 var tick: int = 0
 ## Générateur aléatoire de la simulation. Toute décision aléatoire en cours de partie
@@ -94,9 +98,15 @@ var _system_owner: Dictionary = {}
 ## - "duplicates" : plusieurs empires peuvent partager un peuple (défaut non : les doublons sont ignorés) ;
 ## - "colors" : couleur de chaque empire (codes html, par indice d'empire ; "" = automatique). En
 ##   automatique, un empire prend la couleur de son peuple, ou la première couleur libre de
-##   Empire.PALETTE si elle est déjà prise.
+##   Empire.PALETTE si elle est déjà prise ;
+## - "galaxy" : réglages de la galaxie (GalaxySettings) ; ils fixent alors aussi le nombre de systèmes
+##   et le rayon, à la place de system_count_ et galaxy_radius_.
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
-	var s := _base(seed_value_, system_count_, galaxy_radius_)
+	var settings := GalaxySettings.normalize(options.get("galaxy", {}))
+	if options.has("galaxy"):
+		system_count_ = GalaxySettings.system_count(settings)
+		galaxy_radius_ = GalaxySettings.radius(settings)
+	var s := _base(seed_value_, system_count_, galaxy_radius_, settings)
 	s.victory_rules = {"deadline": maxi(0, int(options.get("deadline", Victory.default_deadline()))),
 			"people": bool(options.get("people_victories", true))}
 	s._setup_empires(player_faction, options.get("rivals", null), bool(options.get("duplicates", false)))
@@ -107,12 +117,13 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 
 
 ## Galaxie et générateur seulement, sans empires (base commune à create() et from_dict()).
-static func _base(seed_value_: int, system_count_: int, galaxy_radius_: float) -> GameState:
+static func _base(seed_value_: int, system_count_: int, galaxy_radius_: float, settings := {}) -> GameState:
 	var s := GameState.new()
 	s.seed_value = seed_value_
 	s.system_count = system_count_
 	s.galaxy_radius = galaxy_radius_
-	s.galaxy = GalaxyGenerator.generate(seed_value_, system_count_, galaxy_radius_)
+	s.galaxy_settings = GalaxySettings.normalize(settings)
+	s.galaxy = GalaxyGenerator.generate(seed_value_, system_count_, galaxy_radius_, GalaxySettings.generator_shape(s.galaxy_settings))
 	# Flux aléatoire distinct de celui de la génération, dérivé de la même graine.
 	s.rng.seed = hash([seed_value_, "simulation"])
 	# Une nouvelle partie (ou un chargement) repart sans les modèles de la précédente.
@@ -146,6 +157,7 @@ func to_dict() -> Dictionary:
 		"seed": seed_value,
 		"system_count": system_count,
 		"galaxy_radius": galaxy_radius,
+		"galaxy_settings": galaxy_settings.duplicate(),
 		"tick": tick,
 		# L'état du générateur tient sur 64 bits : en texte pour survivre au JSON
 		# (dont les nombres sont des flottants, précis seulement jusqu'à 2^53).
@@ -214,7 +226,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	if not READABLE_VERSIONS.has(int(d["version"])):
 		last_error = "version de format %s non prise en charge (attendu %d)" % [d["version"], FORMAT_VERSION]
 		return null
-	var s := GameState._base(int(d["seed"]), int(d["system_count"]), float(d["galaxy_radius"]))
+	var s := GameState._base(int(d["seed"]), int(d["system_count"]), float(d["galaxy_radius"]), d.get("galaxy_settings", {}))
 	var systems: Array = d["systems"]
 	if systems.size() != s.galaxy.systems.size():
 		last_error = "nombre de systèmes incohérent (%d au lieu de %d)" % [systems.size(), s.galaxy.systems.size()]
@@ -481,6 +493,7 @@ func _setup_empires(player_faction: String, rivals: Variant = null, duplicates :
 				var deps := Array(galaxy.planets[target].deposits)
 				deps.append(dep)
 				override_planet(target, {"deposits": deps})
+		_guarantee_worlds(e, sys.id, homes)
 		var c := Colony.new()
 		c.planet_id = home_id
 		c.owner = e.id
@@ -522,7 +535,114 @@ func _setup_colors(wanted: Array) -> void:
 		used.append(e.color())
 
 
+## Mondes habitables garantis (réglage de la galaxie) : à deux sauts au plus du départ, au moins N
+## planètes d'un type préféré du peuple ; il en manque, des planètes rocheuses proches sont changées.
+func _guarantee_worlds(e: Empire, home_sys: int, homes: Array[int]) -> void:
+	var want := int(galaxy_settings.get("guaranteed", 0))
+	var preferred: Array = e.faction().get("preferred", [])
+	if want <= 0 or preferred.is_empty():
+		return
+	var near: Array[int] = []
+	var frontier: Array[int] = [home_sys]
+	var seen := {home_sys: true}
+	for _hop in 2:
+		var next: Array[int] = []
+		for sid in frontier:
+			for nb in galaxy.systems[sid].neighbors:
+				if not seen.has(nb):
+					seen[nb] = true
+					next.append(nb)
+					if not homes.has(nb):
+						near.append(nb)
+		frontier = next
+	var have := 0
+	var spare: Array[int] = []
+	for sid in near:
+		for pid in galaxy.systems[sid].planet_ids:
+			var p := galaxy.planets[pid]
+			if preferred.has(p.type):
+				have += 1
+			elif p.type != "gas_giant" and p.type != "asteroids" and not _guaranteed.has(pid):
+				spare.append(pid)
+	var types := GameData.planet_types()
+	for k in mini(want - have, spare.size()):
+		var t := String(preferred[k % preferred.size()])
+		var sizes: Array = types[t]["sizes"]
+		override_planet(spare[k], {"type": t, "size": int(round((float(sizes[0]) + float(sizes[1])) * 0.5))})
+		_guaranteed[spare[k]] = true
+
+
 func _pick_home_systems(count: int) -> Array[int]:
+	match String(galaxy_settings.get("placement", "standard")):
+		"equilibre":
+			return _pick_homes_balanced(count)
+		"chaotique":
+			return _pick_homes_chaotic(count)
+	return _pick_homes_spread(count)
+
+
+## Départs équilibrés : un secteur angulaire par empire ; dans chacun, le système d'au moins trois
+## planètes le plus proche de l'anneau à mi-chemin du centre et du bord.
+func _pick_homes_balanced(count: int) -> Array[int]:
+	var candidates: Array[int] = []
+	for s in galaxy.systems:
+		var r := s.position.length() / galaxy_radius
+		if s.planet_count >= 3 and s.star_type != "neutron" and s.star_type != "black_hole" and r > 0.3 and r < 0.92:
+			candidates.append(s.id)
+	if candidates.size() < count:
+		return _pick_homes_spread(count)
+	var chosen: Array[int] = []
+	var offset := rng.randf() * TAU
+	var width := TAU / float(count)
+	for k in count:
+		var best := -1
+		var best_score := INF
+		for c in candidates:
+			if chosen.has(c):
+				continue
+			var pos := galaxy.systems[c].position
+			var a := fposmod(pos.angle() - offset, TAU)
+			if a < k * width or a >= (k + 1) * width:
+				continue
+			var score := absf(pos.length() / galaxy_radius - 0.62)
+			if score < best_score:
+				best_score = score
+				best = c
+		if best < 0:
+			# Secteur vide (amas, anneau étroit) : le candidat le plus loin des départs déjà pris.
+			var best_d := -1.0
+			for c in candidates:
+				if chosen.has(c):
+					continue
+				var d := INF
+				for h in chosen:
+					d = minf(d, galaxy.systems[c].position.distance_squared_to(galaxy.systems[h].position))
+				if d > best_d:
+					best_d = d
+					best = c
+		if best >= 0:
+			chosen.append(best)
+	return chosen
+
+
+## Départs chaotiques : tirés au hasard parmi les systèmes habitables.
+func _pick_homes_chaotic(count: int) -> Array[int]:
+	var candidates: Array[int] = []
+	for s in galaxy.systems:
+		if s.planet_count >= 2 and s.star_type != "neutron" and s.star_type != "black_hole":
+			candidates.append(s.id)
+	if candidates.size() < count:
+		return _pick_homes_spread(count)
+	var chosen: Array[int] = []
+	while chosen.size() < count:
+		var c := candidates[rng.randi_range(0, candidates.size() - 1)]
+		if not chosen.has(c):
+			chosen.append(c)
+	return chosen
+
+
+## Départs standard : le plus loin possible les uns des autres (le placement d'origine).
+func _pick_homes_spread(count: int) -> Array[int]:
 	var candidates: Array[int] = []
 	for s in galaxy.systems:
 		if s.planet_count >= 2 and s.star_type != "neutron" and s.star_type != "black_hole":

@@ -26,6 +26,7 @@ func _initialize() -> void:
 	preload("res://tests/late_era_tests.gd").new().run(_check)
 	preload("res://tests/ship_art_tests.gd").new().run(_check)
 	preload("res://tests/species_tests.gd").new().run(_check)
+	preload("res://tests/galaxy_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -882,9 +883,35 @@ func _test_species_editor(main: Node, menu: MainMenu) -> void:
 	SpeciesLibrary.dir = SpeciesLibrary.DEFAULT_DIR
 	await _test_rival_slots(main, menu)
 	main.empire_setup = {}
+	await _test_galaxy_menu(main, menu)
 	main.open_main_menu()
 	menu.show_page("options")
 	await process_frame
+
+
+## Bloc Galaxie de Nouvelle partie : réglages refusés ou retenus, partie lancée avec eux, sauvegarde.
+func _test_galaxy_menu(main: Node, menu: MainMenu) -> void:
+	menu.show_page("new")
+	menu.select_faction("vael")
+	menu.slots = MainMenu.default_slots()
+	_check(not menu.set_galaxy("size", "infinie") and not menu.set_galaxy("guaranteed", 7), "galaxie : réglages inconnus refusés")
+	_check(menu.set_galaxy("size", "petite") and menu.set_galaxy("shape", "anneau") and menu.set_galaxy("placement", "equilibre") and menu.set_galaxy("guaranteed", 2), "galaxie : taille, forme, départs et mondes garantis retenus")
+	for i in 4:
+		menu.add_slot()
+	_check(menu.slots_note().contains("conseillés"), "trop d'empires pour une petite galaxie : signalé (%s)" % menu.slots_note())
+	menu.slots = MainMenu.default_slots()
+	menu._seed_edit.text = "77"
+	menu.launch()
+	await process_frame
+	var st: GameState = main.simulation.state
+	_check(st.galaxy.systems.size() == 90 and st.galaxy_settings["shape"] == "anneau" and st.galaxy_settings["guaranteed"] == 2, "partie lancée avec la galaxie choisie (%d systèmes)" % st.galaxy.systems.size())
+	var sum := st.checksum()
+	main.save_game()
+	main.load_game()
+	_check(main.simulation.state.checksum() == sum and main.simulation.state.galaxy.systems.size() == 90, "galaxie choisie retrouvée au chargement")
+	menu.galaxy_settings = GalaxySettings.defaults()
+	main.galaxy_settings = {}
+	main.open_main_menu()
 
 
 ## Rivaux réglables un par un : peuple ou au hasard, couleur, niveau, tempérament, doublons, plafond.
