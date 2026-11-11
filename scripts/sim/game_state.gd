@@ -7,11 +7,13 @@ extends RefCounted
 ## stockée : elle se régénère à l'identique depuis la graine. Seules les données
 ## qui changent en cours de partie sont sérialisées.
 
-const FORMAT_VERSION := 12
+const FORMAT_VERSION := 13
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés).
-const READABLE_VERSIONS := [9, 10, 11, 12]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13]
+## Compléments de nom des empires qui partagent un peuple.
+const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
@@ -88,12 +90,17 @@ var _system_owner: Dictionary = {}
 ## - "deadline" : date limite en jours pour la victoire au score (0 = aucune, défaut data/victories.json) ;
 ## - "people_victories" : victoires de peuple en jeu (défaut oui) ;
 ## - "rivals" : peuples des autres empires (officiels ou créés), dans l'ordre ; défaut : les peuples
-##   officiels autres que celui du joueur.
+##   officiels autres que celui du joueur ;
+## - "duplicates" : plusieurs empires peuvent partager un peuple (défaut non : les doublons sont ignorés) ;
+## - "colors" : couleur de chaque empire (codes html, par indice d'empire ; "" = automatique). En
+##   automatique, un empire prend la couleur de son peuple, ou la première couleur libre de
+##   Empire.PALETTE si elle est déjà prise.
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
 	var s := _base(seed_value_, system_count_, galaxy_radius_)
 	s.victory_rules = {"deadline": maxi(0, int(options.get("deadline", Victory.default_deadline()))),
 			"people": bool(options.get("people_victories", true))}
-	s._setup_empires(player_faction, options.get("rivals", null))
+	s._setup_empires(player_faction, options.get("rivals", null), bool(options.get("duplicates", false)))
+	s._setup_colors(options.get("colors", []))
 	s._setup_ai(options)
 	FleetSystem.update_exploration(s)
 	return s
@@ -424,13 +431,13 @@ func is_spectator_game() -> bool:
 	return not empires.is_empty()
 
 
-func _setup_empires(player_faction: String, rivals: Variant = null) -> void:
+func _setup_empires(player_faction: String, rivals: Variant = null, duplicates := false) -> void:
 	var order: Array[String] = []
 	if player_faction != "" and not GameData.faction(player_faction).is_empty():
 		order.append(player_faction)
 	var others: Array = rivals if rivals is Array else GameData.faction_ids()
 	for fid in others:
-		if not order.has(String(fid)) and not GameData.faction(String(fid)).is_empty():
+		if (duplicates or not order.has(String(fid))) and not GameData.faction(String(fid)).is_empty():
 			order.append(String(fid))
 	# Les peuples créés sont recopiés dans la partie (et dans sa sauvegarde).
 	for fid in order:
@@ -444,6 +451,10 @@ func _setup_empires(player_faction: String, rivals: Variant = null) -> void:
 		var e := Empire.new()
 		e.id = i
 		e.faction_id = order[i]
+		# Deuxième, troisième… empire du même peuple : « Lignées d'Ossarane II ».
+		var rank := order.slice(0, i).count(order[i])
+		if rank > 0:
+			e.name_suffix = ROMAN[mini(rank, ROMAN.size() - 1)]
 		for r in GameData.resource_ids():
 			e.resources[r] = int(rules["start_resources"].get(r, 0))
 		empires.append(e)
@@ -488,6 +499,29 @@ func _setup_empires(player_faction: String, rivals: Variant = null) -> void:
 
 ## Systèmes d'origine : le premier au hasard (via state.rng), puis chaque suivant le plus loin
 ## possible des précédents. Seulement des étoiles calmes avec au moins deux planètes.
+## Couleurs des empires : celle demandée, sinon celle du peuple, sinon la première libre de la palette.
+func _setup_colors(wanted: Array) -> void:
+	var used: Array[Color] = []
+	# D'abord les couleurs demandées explicitement, pour que l'automatique les évite.
+	for e in empires:
+		var hex := String(wanted[e.id]) if e.id < wanted.size() else ""
+		if hex != "" and Color.html_is_valid(hex):
+			e.color_hex = hex
+			used.append(Color.html(hex))
+	for e in empires:
+		if e.color_hex != "":
+			continue
+		var own := e.color()
+		if not Empire.color_taken(own, used):
+			used.append(own)
+			continue
+		for hex in Empire.PALETTE:
+			if not Empire.color_taken(Color.html(hex), used):
+				e.color_hex = hex
+				break
+		used.append(e.color())
+
+
 func _pick_home_systems(count: int) -> Array[int]:
 	var candidates: Array[int] = []
 	for s in galaxy.systems:
