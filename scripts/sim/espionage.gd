@@ -19,7 +19,10 @@ extends RefCounted
 ## une alliance, et ouvre un « dossier » où la victime choisit : expulser ou exiger réparation.
 ## Le credo Profit (talent "spy" de sa fiche) : +1 cellule, larcins à moitié prix, réseaux deux fois
 ## plus rapides chez un partenaire commercial, dividende semestriel chez ces partenaires.
-## L'intrigue, le réseau retourné et les autres talents de peuple viendront au lot 3.
+## Lot 3 : l'INTRIGUE (semer la discorde, corrompre un héritier), le RÉSEAU RETOURNÉ (la victime
+## d'une découverte peut garder le réseau en vie et lui faire écrire de faux relevés et de faux dossiers,
+## jusqu'à ce que l'espion s'en rende compte), et les TALENTS DE PEUPLE par couche d'espèce
+## (data "talents" : féodalité, république, ruche, conscience distribuée, foi, synthétiques).
 ##
 ## Les SONDES donnent un relevé ponctuel d'un système connu, sans réseau.
 ## La CHRONIQUE ne dit à chacun que ce qu'il peut savoir : voir public_to, private_to et can_read.
@@ -46,12 +49,50 @@ static func cells_total(state: GameState, empire_id: int) -> int:
 	return int(c["start"]) + int(per[clampi(era - 1, 0, per.size() - 1)]) + int(talent(state, empire_id).get("extra_cells", 0))
 
 
-## Talent d'espionnage du peuple (fiche : research.spy), {} s'il n'en a pas.
+## Talents d'espionnage du peuple : celui de sa fiche (research.spy, credo Profit) plus ceux de ses
+## couches d'espèce (data "talents"). Les valeurs s'additionnent, en entiers.
 static func talent(state: GameState, empire_id: int) -> Dictionary:
 	var e := state.get_empire(empire_id)
 	if e == null:
 		return {}
-	return e.faction().get("research", {}).get("spy", {})
+	var out := {}
+	var own: Dictionary = e.faction().get("research", {}).get("spy", {})
+	for k in own:
+		out[k] = int(own[k])
+	var sp: Dictionary = e.faction().get("species", {})
+	var table: Dictionary = data().get("talents", {})
+	for layer in LAYERS:
+		var t: Dictionary = (table.get(layer, {}) as Dictionary).get(String(sp.get(layer, "")), {})
+		for k in t:
+			if k != "label" and k != "text":
+				out[k] = int(out.get(k, 0)) + int(t[k])
+	return out
+
+
+const LAYERS := ["archetype", "gouvernement", "credo"]
+
+
+## Talents à afficher : [[nom, texte], …] (fiche du peuple, puis couches d'espèce).
+static func talent_labels(state: GameState, empire_id: int) -> Array:
+	var e := state.get_empire(empire_id)
+	var out := []
+	if e == null:
+		return out
+	var research: Dictionary = e.faction().get("research", {})
+	if research.has("spy"):
+		out.append([String(research.get("name", "Talent")), String(research.get("text", ""))])
+	var sp: Dictionary = e.faction().get("species", {})
+	var table: Dictionary = data().get("talents", {})
+	for layer in LAYERS:
+		var t: Dictionary = (table.get(layer, {}) as Dictionary).get(String(sp.get(layer, "")), {})
+		if not t.is_empty():
+			out.append([String(t["label"]), String(t["text"])])
+	return out
+
+
+## Cellules de contre-espionnage de b, pondérées (l'Inquisition de la foi les compte double).
+static func counter_weight(state: GameState, b: int) -> int:
+	return home_cells(state, b) * maxi(1, int(talent(state, b).get("counter_x", 1)))
 
 
 ## Cellules affectées par a chez b (chez lui-même quand a == b : contre-espionnage).
@@ -116,12 +157,12 @@ static func infiltration(state: GameState, a: int, b: int) -> int:
 
 
 static func decryption(state: GameState, empire_id: int) -> int:
-	return Research.current_era(state, empire_id)
+	return Research.current_era(state, empire_id) + int(talent(state, empire_id).get("decryption", 0))
 
 
 static func encryption(state: GameState, empire_id: int) -> int:
 	var bonus := int(data()["network"]["home_cell_encryption"]) if home_cells(state, empire_id) > 0 else 0
-	return Research.current_era(state, empire_id) + bonus
+	return Research.current_era(state, empire_id) + bonus + int(talent(state, empire_id).get("encryption", 0))
 
 
 ## Pourcentage de croissance selon déchiffrement de a moins chiffrement de b.
@@ -155,9 +196,14 @@ static func growth_parts(state: GameState, a: int, b: int) -> Array:
 		out.append(["Frontière commune", int(cfg["border_bonus"])])
 	if Combat.at_war(state, a, b):
 		out.append(["En guerre : tout le monde se méfie", -int(cfg["war_malus"])])
+	var open := int(talent(state, b).get("open_nodes", 0))
+	if open != 0:
+		out.append(["Conscience partagée : ses nœuds sont ouverts", open])
 	var counter := home_cells(state, b)
 	if counter > 0:
-		out.append(["Contre-espionnage (%d cellule%s)" % [counter, "s" if counter > 1 else ""], -counter * int(cfg["counter_per_cell"])])
+		var w := counter_weight(state, b)
+		out.append(["Contre-espionnage (%d cellule%s%s)" % [counter, "s" if counter > 1 else "", ", Inquisition" if w > counter else ""],
+				-w * int(cfg["counter_per_cell"])])
 	return out
 
 
@@ -246,11 +292,16 @@ static func monthly(state: GameState) -> void:
 		var t := tier(state, a, b)
 		var spy := state.get_empire(a)
 		if t >= 1:
-			Intel.record_systems(state, spy, EmpireReport.owned_systems(state, b))
+			_record(state, a, b)
 		# Sous le palier Comptables, le dernier dossier reste, daté (dernière information connue).
 		if t >= 2:
-			spy.dossiers[b] = dossier(state, b, t)
-	# 4) Dividendes du credo Profit.
+			spy.dossiers[b] = _report(state, a, b, t)
+	# 4) Réseaux retournés : l'espion finit-il par s'en rendre compte ?
+	for k in ks:
+		var net: Dictionary = state.networks.get(k, {})
+		if not net.is_empty() and int(net.get("turned", 0)) == 1:
+			_spot_turned(state, int(net["a"]), int(net["b"]))
+	# 5) Dividendes du credo Profit.
 	for e in state.empires:
 		if not e.eliminated:
 			_dividends(state, e.id)
@@ -393,7 +444,7 @@ static func private_to(state: GameState, about: Array, system_id := -1) -> Array
 		if not knows:
 			for x in about:
 				var xi := int(x)
-				if Diplomacy.allied(state, e.id, xi) or infiltration(state, e.id, xi) >= need:
+				if Diplomacy.allied(state, e.id, xi) or (infiltration(state, e.id, xi) >= need and not is_turned(state, e.id, xi)):
 					knows = true
 					break
 		if not knows and system_id >= 0 and not e.eliminated:
@@ -453,7 +504,7 @@ static func op_def(op_id: String) -> Dictionary:
 	return {}
 
 
-const FAMILY_LABELS := {"renseignement": "Renseignement", "larcin": "Larcin", "sabotage": "Sabotage"}
+const FAMILY_LABELS := {"renseignement": "Renseignement", "larcin": "Larcin", "sabotage": "Sabotage", "intrigue": "Intrigue"}
 
 
 ## Coût d'une opération pour l'espion (les larcins du credo Profit sont moins chers).
@@ -483,7 +534,7 @@ static func chances(state: GameState, a: int, b: int, op_id: String) -> Dictiona
 		sp.append(["Déchiffrement contre chiffrement", crypto * int(c["per_crypto"])])
 	var dp := [["Base", int(o["discovery"])]]
 	if counter > 0:
-		dp.append(["Contre-espionnage (%d cellule%s)" % [counter, "s" if counter > 1 else ""], counter * int(c["counter_per_cell"])])
+		dp.append(["Contre-espionnage (%d cellule%s)" % [counter, "s" if counter > 1 else ""], counter_weight(state, b) * int(c["counter_per_cell"])])
 	if era_gap > 0:
 		dp.append(["Cible plus avancée", era_gap * int(c["era_gap_discovery"])])
 	if above > 0:
@@ -523,7 +574,18 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		return "il faut un réseau à %d (%s)" % [tier_at(need), tier_info(need)["label"]]
 	if not running(state, a, b).is_empty():
 		return "une opération est déjà en cours chez lui"
+	if String(o.get("family", "")) == "intrigue":
+		if int(talent(state, a).get("no_intrigue", 0)) > 0:
+			return "une ruche ne complote pas : elle dévore"
+		if int(talent(state, b).get("intrigue_immune", 0)) > 0:
+			return "aucune intrigue ne prend sur une ruche : ni cour, ni rumeurs"
 	match op_id:
+		"discorde":
+			if _framed(state, a, b) < 0:
+				return "il n'a aucun ami à brouiller"
+		"heritier":
+			if not Diplomacy.has_heir(state, b):
+				return "cet empire n'a pas d'héritier"
 		"vol_techno":
 			if Research.steal_target(state, a, b) == "":
 				return "il ne connaît rien que vous puissiez lui voler"
@@ -593,6 +655,9 @@ static func _resolve(state: GameState, op: Dictionary) -> void:
 	if ea == null or eb == null or ea.eliminated or eb.eliminated:
 		return
 	var o := op_def(String(op["op"]))
+	if is_turned(state, a, b):
+		_resolve_turned(state, a, b, o)
+		return
 	var ok := _roll(state, op, "succès") < int(op["success"])
 	var seen := _roll(state, op, "découverte") < int(op["discovery"])
 	var what := ""
@@ -652,7 +717,35 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			var burnt := eb.research_progress * int(o["burn_pct"]) / 100
 			eb.research_progress -= burnt
 			return "%d Savoir partent en fumée. Les bibliothécaires accusent la foudre, puis les rats." % burnt
+		"discorde":
+			var c := _framed(state, a, b)
+			if c < 0:
+				return "il n'avait plus d'ami à brouiller. Les fausses preuves finissent au broyeur."
+			Diplomacy.remember(state, b, c, "framed")
+			return "de fausses preuves accusent %s de l'espionner. L'amitié refroidit d'un coup." % state.get_empire(c).short_name()
+		"heritier":
+			if not Diplomacy.has_heir(state, b):
+				return "l'héritier n'est plus là. La bourse reste dans la poche."
+			eb.heir_loyalty = maxi(0, eb.heir_loyalty - int(o["loyalty_loss"]))
+			eb.heir_suitor = a
+			return "l'héritier accepte nos conseils, et notre or (loyauté %d). C'est à nous qu'il pense, désormais." % eb.heir_loyalty
 	return ""
+
+
+## Empire que la discorde accuserait : celui que b aime le plus (hors espion), -1 si aucun.
+static func _framed(state: GameState, a: int, b: int) -> int:
+	var eb := state.get_empire(b)
+	var best := -1
+	var best_op := 0
+	for c in eb.contacts:
+		var ec := state.get_empire(c)
+		if c == a or ec == null or ec.eliminated:
+			continue
+		var op := Diplomacy.opinion(state, b, c)
+		if best < 0 or op > best_op:
+			best = c
+			best_op = op
+	return best
 
 
 ## Colonie dont le chantier serait saboté : la capitale si elle construit, sinon la plus peuplée qui
@@ -677,13 +770,28 @@ static func _discovered(state: GameState, a: int, b: int, o: Dictionary, ok: boo
 	var net: Dictionary = state.networks.get(key(a, b), {})
 	if not net.is_empty():
 		net["inf"] = maxi(0, int(net["inf"]) - int(data()["discovery"]["infiltration_loss"]))
-	Diplomacy.remember(state, b, a, "spy_caught")
+	var tb := talent(state, b)
+	for i in maxi(1, int(tb.get("caught_memory", 1))):
+		Diplomacy.remember(state, b, a, "spy_caught")
 	Diplomacy.remember(state, b, a, "spy_grief")
 	var verdict := "Ils ont réussi quand même : %s" % what if ok else "Ils repartent bredouilles, et repérés."
 	state.add_chronicle("Des agents de %s sont démasqués chez %s (%s). %s" % [ea.display_name(), eb.display_name(), String(o["label"]).to_lower(), verdict],
 			public_to(state, [a, b]))
+	var zeal := int(tb.get("fervor_on_catch", 0))
+	if zeal > 0 and FactionTraits.has_fervor(eb.faction()) and _credo(state, a) != _credo(state, b):
+		eb.fervor = mini(int(eb.faction()["fervor"]["max"]), eb.fervor + zeal)
+		state.add_chronicle("Des espions infidèles ! Les prêcheurs de %s tiennent leur sermon de la semaine (ferveur +%d)." % [eb.short_name(), zeal],
+				private_to(state, [b]))
 	if Diplomacy.allied(state, a, b):
 		Diplomacy.break_alliance_for_spying(state, b, a)
+	if int(tb.get("devour", 0)) > 0:
+		if not net.is_empty():
+			net["inf"] = 0
+		set_cells(state, a, b, 0)
+		Diplomacy.remember(state, a, b, "spy_expelled")
+		state.add_chronicle("La ruche de %s ne pose pas de questions aux agents de %s. Elle les digère. Le réseau s'éteint avec eux." % [
+				eb.display_name(), ea.display_name()], public_to(state, [a, b]))
+		return
 	var case := {"id": state.next_spy_id, "victim": b, "spy": a, "op": String(o["id"]), "tick": state.tick}
 	state.next_spy_id += 1
 	state.spy_cases.append(case)
@@ -700,12 +808,25 @@ static func cases_for(state: GameState, victim: int) -> Array[Dictionary]:
 
 
 static func check_answer(state: GameState, victim: int, case_id: int, choice: String) -> String:
-	if not ["expel", "reparation"].has(choice):
+	if not ["expel", "reparation", "turn"].has(choice):
 		return "réponse inconnue"
 	for c in state.spy_cases:
 		if int(c["id"]) == case_id:
-			return "" if int(c["victim"]) == victim else "ce dossier ne vous concerne pas"
+			if int(c["victim"]) != victim:
+				return "ce dossier ne vous concerne pas"
+			if choice == "turn":
+				return check_turn(state, victim, int(c["spy"]))
+			return ""
 	return "dossier inconnu"
+
+
+## Peut-on retourner le réseau de spy ? Il faut des agents chez soi pour mener des agents doubles.
+static func check_turn(state: GameState, victim: int, spy: int) -> String:
+	if home_cells(state, victim) <= 0:
+		return "il faut au moins une cellule de contre-espionnage pour mener des agents doubles"
+	if infiltration(state, spy, victim) <= 0:
+		return "leur réseau s'est effondré : plus rien à retourner"
+	return ""
 
 
 ## Réponse de la victime à une découverte.
@@ -725,7 +846,15 @@ static func answer(state: GameState, victim: int, case_id: int, choice: String) 
 	var eb := state.get_empire(victim)
 	if ea == null or ea.eliminated:
 		return
-	if choice == "expel":
+	if choice == "turn" and check_turn(state, victim, a) == "":
+		var tn: Dictionary = state.networks[key(a, victim)]
+		tn["turned"] = 1
+		state.add_chronicle("%s relâche les agents de %s sans un mot. Clémence, ou calcul ?" % [eb.display_name(), ea.display_name()],
+				public_to(state, [a, victim]))
+		state.add_chronicle("Les agents de %s travaillent désormais pour nous : leurs relevés et leurs dossiers diront ce que nous voudrons." % ea.short_name(),
+				private_to(state, [victim]))
+		return
+	if choice == "expel" or choice == "turn":
 		var net: Dictionary = state.networks.get(key(a, victim), {})
 		if not net.is_empty():
 			net["inf"] = 0
@@ -785,6 +914,108 @@ static func _dividends(state: GameState, a: int) -> void:
 				e.short_name(), state.get_empire(b).short_name(), String(Research.tech(tid).get("label", tid)), amount], private_to(state, [a]))
 
 
+# --- Réseau retourné (lot 3) -------------------------------------------------------------------
+
+## Le réseau de a chez b a-t-il été retourné par b ?
+static func is_turned(state: GameState, a: int, b: int) -> bool:
+	return int((state.networks.get(key(a, b), {}) as Dictionary).get("turned", 0)) == 1
+
+
+## Réseaux d'autres empires que b a retournés : identifiants des espions, triés.
+static func turned_by(state: GameState, b: int) -> Array[int]:
+	var out: Array[int] = []
+	for e in state.empires:
+		if e.id != b and is_turned(state, e.id, b):
+			out.append(e.id)
+	return out
+
+
+static func _credo(state: GameState, empire_id: int) -> String:
+	return String(state.get_empire(empire_id).faction().get("species", {}).get("credo", ""))
+
+
+## Le réseau rapporte les relevés des systèmes de b ; retourné, une part d'entre eux sont faux
+## (système libre, sans colonie), tirée par hachage pour chaque système et chaque mois.
+static func _record(state: GameState, a: int, b: int) -> void:
+	var spy := state.get_empire(a)
+	var sids := EmpireReport.owned_systems(state, b)
+	if not is_turned(state, a, b):
+		Intel.record_systems(state, spy, sids)
+		return
+	var real := []
+	var fake := []
+	var pct := int(data()["turned"]["false_pct"])
+	@warning_ignore("integer_division")
+	var month := state.tick / 30
+	for sid in sids:
+		if posmod(hash([state.seed_value, "faux", a, b, int(sid), month]), 100) < pct:
+			fake.append(int(sid))
+		else:
+			real.append(int(sid))
+	Intel.record_systems(state, spy, real)
+	fake.sort()
+	for sid in fake:
+		spy.intel[sid] = {"day": state.tick, "info": Intel.EMPTY_SURVEY}
+
+
+## Dossier venu du réseau : vrai, ou arrangé par b s'il est retourné (réserves divisées par deux,
+## aucune flotte, aucune guerre).
+static func _report(state: GameState, a: int, b: int, t: int) -> Dictionary:
+	var d := dossier(state, b, t)
+	if not is_turned(state, a, b):
+		return d
+	var res: Dictionary = d["res"]
+	for r in res:
+		@warning_ignore("integer_division")
+		res[r] = int(res[r]) / 2
+	if d.has("fleets"):
+		d["fleets"] = []
+		d["ships"] = 0
+		d["warships"] = 0
+	if d.has("wars"):
+		d["wars"] = []
+	return d
+
+
+## Une opération lancée par un réseau retourné : b la laisse croire réussie (rapport, faux) ou la fait
+## échouer sans bruit. Jamais de découverte : b a mieux à faire que de démasquer ses propres agents.
+static func _resolve_turned(state: GameState, a: int, b: int, o: Dictionary) -> void:
+	var ea := state.get_empire(a)
+	var eb := state.get_empire(b)
+	if String(o["id"]) == "rapport":
+		ea.dossiers[b] = _report(state, a, b, data()["tiers"].size())
+		_record(state, a, b)
+		state.add_chronicle("%s, chez %s : le dossier complet est sur la table, cartes à jour comprises." % [o["label"], eb.short_name()],
+				private_to(state, [a]))
+	else:
+		state.add_chronicle("%s, chez %s : l'opération échoue sans bruit. Les agents rentrent les mains vides et les pieds secs." % [
+				o["label"], eb.short_name()], private_to(state, [a]))
+	state.add_chronicle("Nos agents doubles ont « aidé » %s à mener son opération (%s). Elle n'a rien donné, sauf à nous." % [
+			ea.short_name(), String(o["label"]).to_lower()], private_to(state, [b]))
+
+
+## Chances (en %) que l'espion découvre ce mois-ci que son réseau est retourné.
+static func spot_chance(state: GameState, a: int, b: int) -> int:
+	var cfg: Dictionary = data()["turned"]
+	var n := int(cfg["spot_pct"]) + int(cfg["spot_per_crypto"]) * (decryption(state, a) - encryption(state, b))
+	return clampi(n, int(cfg["spot_min"]), int(cfg["spot_max"]))
+
+
+static func _spot_turned(state: GameState, a: int, b: int) -> void:
+	if posmod(hash([state.seed_value, "retourné", a, b, state.tick]), 100) >= spot_chance(state, a, b):
+		return
+	var net: Dictionary = state.networks[key(a, b)]
+	net.erase("turned")
+	net["inf"] = 0
+	Diplomacy.remember(state, a, b, "turned_us")
+	var eb := state.get_empire(b)
+	state.add_chronicle("Les relevés venus de chez %s ne collaient plus : notre réseau était retourné depuis des mois. On repart de zéro, avec des agents neufs et des soupçons anciens." % eb.short_name(),
+			private_to(state, [a]))
+	state.add_chronicle("%s a compris que ses agents travaillaient pour nous. La comédie est finie ; elle aura bien duré." % state.get_empire(a).short_name(),
+			private_to(state, [b]))
+	if int(net["cells"]) <= 0:
+		state.networks.erase(key(a, b))
+
 
 # --- Sauvegarde --------------------------------------------------------------------------------
 
@@ -794,7 +1025,7 @@ static func networks_to_list(state: GameState) -> Array:
 	var out := []
 	for k in ks:
 		var net: Dictionary = state.networks[k]
-		out.append([int(net["a"]), int(net["b"]), int(net["cells"]), int(net["inf"])])
+		out.append([int(net["a"]), int(net["b"]), int(net["cells"]), int(net["inf"]), int(net.get("turned", 0))])
 	return out
 
 
@@ -805,3 +1036,5 @@ static func networks_from_list(state: GameState, rows: Array) -> void:
 		var a := int(row[0])
 		var b := int(row[1])
 		state.networks[key(a, b)] = {"a": a, "b": b, "cells": int(row[2]), "inf": int(row[3])}
+		if row.size() >= 5 and int(row[4]) == 1:
+			state.networks[key(a, b)]["turned"] = 1

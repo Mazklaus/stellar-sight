@@ -48,7 +48,13 @@
 			"text": "Le chantier spatial le plus avancé de sa capitale (ou de sa plus grande colonie) prend 60 jours de retard."},
 		{"id": "archives", "family": "sabotage", "label": "Brûler des archives", "tier": 3,
 			"cost": {"influence": 50}, "days": 45, "success": 65, "discovery": 35, "spend": 20, "burn_pct": 50,
-			"text": "La moitié du Savoir déjà accumulé sur sa recherche en cours part en fumée."}
+			"text": "La moitié du Savoir déjà accumulé sur sa recherche en cours part en fumée."},
+		{"id": "discorde", "family": "intrigue", "label": "Semer la discorde", "tier": 3,
+			"cost": {"influence": 50}, "days": 60, "success": 60, "discovery": 35, "spend": 20,
+			"text": "De fausses preuves accusent l'empire qu'il aime le plus de l'espionner : leur amitié en prend un coup pour quatre ans."},
+		{"id": "heritier", "family": "intrigue", "label": "Corrompre l'héritier", "tier": 3,
+			"cost": {"influence": 40}, "days": 45, "success": 70, "discovery": 30, "spend": 15, "loyalty_loss": 30,
+			"text": "Une dynastie seulement : l'héritier perd 30 de loyauté, en secret, et c'est à vous qu'il livrera son fief s'il trahit."}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
 	"chances": {
@@ -58,6 +64,31 @@
 	"discovery": {
 		"infiltration_loss": 30, "answer_days": 30, "reparation": {"influence": 80},
 		"_": "un réseau pris perd 30 ; la victime a 30 jours pour répondre (sinon : expulsion) ; réparation exigée"
+	},
+	"turned": {
+		"spot_pct": 10, "spot_per_crypto": 5, "spot_min": 2, "spot_max": 40, "false_pct": 50,
+		"_": "réseau retourné : chaque mois, l'espion a spot_pct % (+ spot_per_crypto par point de déchiffrement d'avance) de s'en rendre compte ; d'ici là, false_pct % de ses relevés sont faux et ses dossiers mentent"
+	},
+	"talents": {
+		"_": "talents d'espionnage par couche d'espèce ; les entiers s'additionnent (avec le talent research.spy de la fiche, comme celui du credo Profit)",
+		"gouvernement": {
+			"feodalite": {"label": "Maisons méfiantes", "encryption": 1,
+				"text": "Chaque lignée surveille les autres : chiffrement +1."},
+			"republique": {"label": "Assemblées ouvertes", "encryption": -1, "caught_memory": 2,
+				"text": "Les débats sont publics (chiffrement -1), mais un espion pris fait scandale : le souvenir compte double."},
+			"ruche": {"label": "Ni cour ni rumeurs", "intrigue_immune": 1, "no_intrigue": 1, "devour": 1,
+				"text": "Aucune intrigue ne prend sur une ruche et elle n'en mène aucune ; les espions qu'elle prend sont dévorés sur-le-champ."},
+			"conscience": {"label": "Nœuds ouverts", "open_nodes": 2,
+				"text": "Une conscience partagée se lit plus vite qu'elle ne se garde : +2 par mois aux réseaux étrangers chez elle."}
+		},
+		"credo": {
+			"foi": {"label": "Inquisition", "counter_x": 2, "fervor_on_catch": 10,
+				"text": "Les cellules de contre-espionnage comptent double ; un espion infidèle démasqué rallume la ferveur (+10)."}
+		},
+		"archetype": {
+			"synthetique": {"label": "Calculateurs", "encryption": 2, "decryption": 2,
+				"text": "Des esprits de silicium : déchiffrement et chiffrement +2."}
+		}
 	},
 	"probes": {
 		"max": 3,

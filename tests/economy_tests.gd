@@ -279,7 +279,8 @@ func _test_build() -> void:
 
 
 func _test_growth() -> void:
-	var sim := Simulation.new(GameState.create(5))
+	# Les 4 peuples V1 : la croissance de l'Essaim ne doit pas dépendre d'une guerre de voisinage.
+	var sim := Simulation.new(GameState.create(5, 150, 1800.0, "", {"rivals": ["choeur", "vael", "khthari"]}))
 	var st := sim.state
 	var c: Colony = st.colonies[st.empires[0].capital_planet]
 	var start := c.population

@@ -713,5 +713,5 @@ func _test_profit() -> void:
 	var n := int(st.get_empire(0).stats.get("stolen", 0))
 	_ok(n == 2 or Research.knows(st, 0, tid), "deux dividendes en un an (%d)" % n)
 	_ok(Research.progress_of(st, 0, tid) > before or Research.knows(st, 0, tid), "le dividende fait avancer la technologie")
-	_ok(Espionage.talent(st, 1).is_empty(), "Vael n'a pas ce talent")
+	_ok(not Espionage.talent(st, 1).has("dividend_days"), "Vael n'a pas le talent du credo Profit")
 
