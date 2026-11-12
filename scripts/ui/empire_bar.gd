@@ -30,7 +30,7 @@ const SCREENS := [
 	{"id": "order", "label": "Ordre intérieur", "key": "F12", "glyph": "order", "ready": true,
 		"why": "Chaque système a une stabilité de 0 à 100 qui glisse chaque mois vers sa cible. Fidèles, ils produisent plus ; en révolte, ils se figent, puis font sécession au bout d'un an. Les décrets achètent du temps."},
 	{"id": "chronicles", "label": "Chroniques", "key": "J", "glyph": "chronicles", "ready": true,
-		"why": "Les événements qui attendent votre décision, ceux que vous avez tranchés, et les curiosités repérées dans la galaxie. Une curiosité se sonde avec un vaisseau sans armes à l'arrêt (ou une Station d'étude) ; plus votre puissance d'expédition dépasse son niveau, plus c'est rapide."},
+		"why": "Les événements qui attendent votre décision, ceux que vous avez tranchés, les curiosités repérées, le Reliquaire et les fouilles. Une curiosité se sonde avec un vaisseau sans armes à l'arrêt (ou une Station d'étude) ; plus votre puissance d'expédition dépasse son niveau, plus c'est rapide."},
 ]
 ## Description d'un menu d'empire (entrée de SCREENS), {} s'il n'existe pas.
 static func screen_info(screen_id: String) -> Dictionary:

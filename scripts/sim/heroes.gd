@@ -952,6 +952,7 @@ static func _wound(state: GameState, h: Dictionary, out: Array[Dictionary], why:
 			h["jailer"] = captor
 			h["convert"] = 0
 			h["wound"] = 0
+			Relics.on_hero_captured(state, h, captor)
 			if GameState.is_npc(captor):
 				h["ransom"] = state.tick + int(data()["capture"]["ransom"]["days"])
 				out.append(state.add_chronicle("%s est capturé par %s : %s. Ils demandent une rançon (%s), payable dans les deux ans (écran Panthéon)." % [
@@ -1073,6 +1074,7 @@ static func die(state: GameState, h: Dictionary, why: String, out: Array[Diction
 	h["owner"] = owner
 	var e := state.get_empire(owner)
 	state.heroes.erase(int(h["id"]))
+	Relics.on_hero_gone(state, int(h["id"]))
 	var tl := talent(state, owner)
 	var mem: Dictionary = data()["memorial"]
 	var credo := String(e.faction().get("species", {}).get("credo", "")) if e else ""

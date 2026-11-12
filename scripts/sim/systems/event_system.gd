@@ -9,4 +9,5 @@ static func process(state: GameState) -> Array[Dictionary]:
 	var added: Array[Dictionary] = []
 	Curios.daily(state, added)
 	Events.daily(state, added)
+	Relics.daily(state, added)
 	return added

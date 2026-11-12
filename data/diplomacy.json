@@ -95,6 +95,7 @@
 		"ev_snub": {"value": -15, "days": 1080, "label": "Un affront (événement)"},
 		"tones_kin": {"value": 10, "days": 1800, "label": "Des esprits voisins (choc des tons)"},
 		"tones_clash": {"value": -10, "days": 1800, "label": "Tout nous oppose (choc des tons)"},
+		"relic_gift": {"value": 25, "days": 1800, "label": "Nous a offert une relique"},
 		"declared_war": {"value": -30, "days": 1800, "label": "Nous a déclaré la guerre"},
 		"broke_treaty": {"value": -50, "days": 2400, "label": "A rompu un traité avec nous"},
 		"oathbreaker": {"value": -15, "days": 1800, "label": "Parjure : a rompu un traité"},

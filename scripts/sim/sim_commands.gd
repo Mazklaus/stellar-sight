@@ -184,6 +184,40 @@ static func event_choose(player: int, event_id: int, index: int) -> Dictionary:
 	return {"type": "event_choose", "player": player, "event": event_id, "index": index}
 
 
+## Fouilles et reliques (voir Relics).
+static func dig_start(player: int, system_id: int) -> Dictionary:
+	return {"type": "dig_start", "player": player, "system": system_id}
+
+
+static func dig_clue(player: int, system_id: int) -> Dictionary:
+	return {"type": "dig_clue", "player": player, "system": system_id}
+
+
+static func relic_triumph(player: int, relic: String) -> Dictionary:
+	return {"type": "relic_triumph", "player": player, "relic": relic}
+
+
+## Confie une relique à un héros (hero_id = -1 : la rend au Reliquaire).
+static func relic_assign(player: int, relic: String, hero_id: int) -> Dictionary:
+	return {"type": "relic_assign", "player": player, "relic": relic, "hero": hero_id}
+
+
+static func relic_gift(player: int, relic: String, to: int) -> Dictionary:
+	return {"type": "relic_gift", "player": player, "relic": relic, "to": to}
+
+
+static func relic_sell(player: int, relic: String) -> Dictionary:
+	return {"type": "relic_sell", "player": player, "relic": relic}
+
+
+static func fragments_gift(player: int, to: int) -> Dictionary:
+	return {"type": "fragments_gift", "player": player, "to": to}
+
+
+static func fragments_sell(player: int) -> Dictionary:
+	return {"type": "fragments_sell", "player": player}
+
+
 ## Affecte un héros : post = "fleet" (flotte), "system" (système), "council" (siège), "agent" (empire
 ## où l'on a un réseau) ; "" = le rappeler.
 static func hero_assign(player: int, hero_id: int, post: String, target: int) -> Dictionary:
@@ -361,6 +395,22 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Heroes.check_pick(state, int(cmd["player"]), int(cmd.get("index", -2)))
 		"event_choose":
 			return Events.check_choose(state, int(cmd["player"]), int(cmd.get("event", -1)), int(cmd.get("index", -1)))
+		"dig_start":
+			return Relics.check_start(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"dig_clue":
+			return Relics.check_clue(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"relic_triumph":
+			return Relics.check_triumph(state, int(cmd["player"]), String(cmd.get("relic", "")))
+		"relic_assign":
+			return Relics.check_assign(state, int(cmd["player"]), String(cmd.get("relic", "")), int(cmd.get("hero", -1)))
+		"relic_gift":
+			return Relics.check_gift(state, int(cmd["player"]), String(cmd.get("relic", "")), int(cmd.get("to", -1)))
+		"relic_sell":
+			return Relics.check_sell(state, int(cmd["player"]), String(cmd.get("relic", "")))
+		"fragments_gift":
+			return Relics.check_gift_fragments(state, int(cmd["player"]), int(cmd.get("to", -1)))
+		"fragments_sell":
+			return Relics.check_sell_fragments(state, int(cmd["player"]))
 		"hero_assign":
 			return Heroes.check_assign(state, int(cmd["player"]), int(cmd.get("hero", -1)), String(cmd.get("post", "?")), int(cmd.get("target", -1)))
 		"hero_dismiss":
@@ -533,6 +583,25 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 		"event_choose":
 			var ev_added: Array[Dictionary] = []
 			Events.choose(state, int(cmd["player"]), int(cmd["event"]), int(cmd["index"]), ev_added)
+		"dig_start":
+			Relics.start(state, int(cmd["player"]), int(cmd["system"]))
+		"dig_clue":
+			Relics.buy_clue(state, int(cmd["player"]), int(cmd["system"]))
+		"relic_triumph":
+			var rt_added: Array[Dictionary] = []
+			Relics.triumph(state, int(cmd["player"]), String(cmd["relic"]), rt_added)
+		"relic_assign":
+			Relics.assign(state, String(cmd["relic"]), int(cmd["hero"]))
+		"relic_gift":
+			var rg_added: Array[Dictionary] = []
+			Relics.gift(state, int(cmd["player"]), String(cmd["relic"]), int(cmd["to"]), rg_added)
+		"relic_sell":
+			var rs_added: Array[Dictionary] = []
+			Relics.sell(state, int(cmd["player"]), String(cmd["relic"]), rs_added)
+		"fragments_gift":
+			Relics.gift_fragments(state, int(cmd["player"]), int(cmd["to"]))
+		"fragments_sell":
+			Relics.sell_fragments(state, int(cmd["player"]))
 		"hero_assign":
 			Heroes.assign(state, int(cmd["player"]), int(cmd["hero"]), String(cmd["post"]), int(cmd["target"]))
 		"hero_dismiss":

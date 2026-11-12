@@ -35,6 +35,7 @@ func _initialize() -> void:
 	preload("res://tests/stability_tests.gd").new().run(_check)
 	preload("res://tests/pirate_tests.gd").new().run(_check)
 	preload("res://tests/event_tests.gd").new().run(_check)
+	preload("res://tests/relic_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -1599,6 +1600,25 @@ func _test_event_ui(main: Node) -> void:
 	_press(KEY_J, KEY_J)
 	await process_frame
 	_check(not screens.is_open(), "J referme les Chroniques")
+	# Reliquaire : une relique, son Triomphe.
+	for id in Relics.ids():
+		st.relics[id] = {"owner": -1, "hero": -1, "found": -1, "ready": 0}
+	Relics.gain(st, me, "harpe_spheres")
+	st.get_empire(me).resources["influence"] = 300
+	_press(KEY_J, KEY_J)
+	await process_frame
+	_check(_find_label(screens, "Harpe des sphères"), "Chroniques : le Reliquaire montre la relique")
+	var tk := "triumph:harpe_spheres"
+	_check(screens.chronicle_buttons.has(tk) and not (screens.chronicle_buttons[tk] as Button).disabled, "Reliquaire : Triomphe possible")
+	if screens.chronicle_buttons.has(tk):
+		(screens.chronicle_buttons[tk] as Button).pressed.emit()
+		main.simulation.flush_commands()
+	_check(String(Relics.meta(st, me)["tri"]) == "harpe_spheres", "Reliquaire : le Triomphe est célébré")
+	_press(KEY_J, KEY_J)
+	await process_frame
+	st.relics.clear()
+	st.relic_meta.clear()
+	Relics.touch(st)
 	clock.set_paused(true)
 
 

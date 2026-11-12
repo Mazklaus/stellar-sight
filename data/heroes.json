@@ -18,6 +18,14 @@
 			"renown": 12,
 			"cls": "intendant"
 		},
+		"relic_borne": {
+			"renown": 2,
+			"cls": "intendant"
+		},
+		"digs": {
+			"renown": 30,
+			"cls": "intendant"
+		},
 		"colony": {
 			"renown": 20,
 			"cls": "intendant"
