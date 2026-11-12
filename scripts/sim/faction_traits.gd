@@ -616,7 +616,12 @@ static func rush_cost(state: GameState, empire_id: int, planet_id: int, what: St
 	var ru: Dictionary = e.faction()["rush"]
 	var per := maxi(1, int(ru["days_per_influence"]))
 	@warning_ignore("integer_division")
-	return maxi(int(ru["min"]), (days + per - 1) / per)
+	var cost := maxi(int(ru["min"]), (days + per - 1) / per)
+	# Talent de peuple (voir Politics) : quand la Concorde gouverne, l'assemblée vote plus vite.
+	if Politics.concorde_rules(state, empire_id):
+		@warning_ignore("integer_division")
+		cost = maxi(1, cost * (100 - int(Politics.data()["talents"]["rush_concorde_pct"])) / 100)
+	return cost
 
 
 static func check_rush(state: GameState, empire_id: int, planet_id: int, what: String) -> String:

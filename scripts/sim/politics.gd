@@ -212,10 +212,37 @@ static func next_election(state: GameState, empire_id: int) -> int:
 
 static func _sys_w(state: GameState, sid: int, owner: int) -> Dictionary:
 	var en: Dictionary = state.politics["sys"].get(sid, {})
-	if en.is_empty() or int(en.get("o", -1)) != owner:
+	if not en.is_empty() and int(en.get("o", -1)) != owner:
+		en = _conquered(state, sid, en, owner)
+	if en.is_empty():
 		en = {"o": owner, "op": nature(state, owner), "reps": [], "rep": -1, "pop": Stability.system_pop(state, sid, owner)}
 		state.politics["sys"][sid] = en
 	return en
+
+
+## Système passé à un autre maître : il garde l'opinion de l'ancien, et y revient, pendant
+## conquered_days jours (proposition 17). {} si l'ancien maître n'avait pas de vie politique.
+static func _conquered(state: GameState, sid: int, old: Dictionary, owner: int) -> Dictionary:
+	var prev := int(old.get("o", -1))
+	if prev < 0 or GameState.is_npc(prev) or (old.get("op", []) as Array).size() != N:
+		return {}
+	var keep_until := int(old.get("cqe", -1))
+	var nat: Array = old.get("cqn", []) if keep_until > state.tick else nature(state, prev)
+	if nat == nature(state, owner):
+		return {}
+	var en := {"o": owner, "op": (old["op"] as Array).duplicate(), "reps": [], "rep": -1, "pop": Stability.system_pop(state, sid, owner),
+			"cqn": nat.duplicate(), "cqe": keep_until if keep_until > state.tick else state.tick + int(data()["conquered_days"]),
+			"cqo": int(old.get("cqo", prev)) if keep_until > state.tick else prev}
+	state.politics["sys"][sid] = en
+	return en
+
+
+## Penchant vers lequel revient l'opinion d'un système (celui de l'ancien maître, s'il a été conquis).
+static func target_nature(state: GameState, sid: int, owner: int) -> Array:
+	var en := sys_entry(state, sid)
+	if int(en.get("cqe", -1)) > state.tick:
+		return en["cqn"]
+	return nature(state, owner)
 
 
 static func _emp_w(state: GameState, empire_id: int) -> Dictionary:
@@ -248,8 +275,11 @@ static func push(state: GameState, sid: int, i: int, pts: int) -> void:
 static func on_act(state: GameState, empire_id: int, kind: String, n := 1) -> void:
 	if not state.politics_on:
 		return
+	if not applies(state, empire_id):
+		return
+	Grievances.on_act(state, empire_id, kind, n)
 	var a: Dictionary = (data()["acts"] as Dictionary).get(kind, {})
-	if a.is_empty() or not applies(state, empire_id):
+	if a.is_empty():
 		return
 	var i := index_of(String(a["current"]))
 	var pts := int(a["all"]) * maxi(1, n)
@@ -265,6 +295,8 @@ static func push_local(state: GameState, sid: int, current: String, key: String)
 
 ## Bâtiment achevé : la Forge (l'Autel pour une cathédrale) gagne du terrain dans le système.
 static func on_building(state: GameState, sid: int, building_id: String) -> void:
+	if state.politics_on and applies(state, state.system_owner(sid)):
+		Grievances.on_act(state, state.system_owner(sid), "building")
 	if building_id == "cathedrale":
 		push_local(state, sid, "autel", "cathedrale")
 	else:
@@ -304,9 +336,14 @@ static func monthly(state: GameState, empire_id: int, added: Array[Dictionary]) 
 	for sid in Stability.systems_of(state, empire_id):
 		var se := _sys_w(state, sid, empire_id)
 		var op: Array = se["op"]
+		var tn: Array = se["cqn"] if int(se.get("cqe", -1)) > state.tick else nat
+		if se.has("cqe") and int(se["cqe"]) <= state.tick:
+			se.erase("cqe")
+			se.erase("cqn")
+			se.erase("cqo")
 		for i in N:
 			@warning_ignore("integer_division")
-			op[i] = int(op[i]) + (int(nat[i]) - int(op[i])) * drift / 100
+			op[i] = int(op[i]) + (int(tn[i]) - int(op[i])) * drift / 100
 		_normalize(op, _argmax(op))
 		var pop := Stability.system_pop(state, sid, empire_id)
 		if pop > int(se.get("pop", 0)):
@@ -317,8 +354,10 @@ static func monthly(state: GameState, empire_id: int, added: Array[Dictionary]) 
 			push(state, sid, gl, int(loc["attacked"]))
 		if at_peace:
 			push(state, sid, cc, int(data()["peace_monthly"]))
+	Grievances.monthly(state, empire_id, en, added)
 	if mode(state, empire_id) == "continuous":
-		_consensus(state, empire_id, en)
+		if not Grievances.interregnum(state, empire_id):
+			_consensus(state, empire_id, en)
 		return
 	if int(en["next"]) - state.tick == 90 and not e.is_ai():
 		added.append(state.add_chronicle("%s : %s dans trois mois. %s (Sénat, touche P)." % [e.short_name(), "le Conclave se réunit" if mode(state, empire_id) == "appoint" else "élections",
@@ -380,35 +419,11 @@ static func run_election(state: GameState, empire_id: int) -> Array[Dictionary]:
 	var en := _emp_w(state, empire_id)
 	var reg := regime(state, empire_id)
 	var pick := int(en.get("pick", -1))
-	var bonus := int(data()["support_bonus"])
-	# Action électorale et héros du Conseil (voir Laws), en vote libre seulement.
-	var extra: Array = Laws.vote_weights(state, empire_id) if String(reg["mode"]) == "vote" else [0, 0, 0, 0, 0, 0]
-	var votes := [0, 0, 0, 0, 0, 0]
-	var sys_reps := {}
-	for sid in Stability.systems_of(state, empire_id):
-		var se := _sys_w(state, sid, empire_id)
-		var n := reps_count(state, empire_id, sid)
-		var reps := [0, 0, 0, 0, 0, 0]
-		var w: Array = (se["op"] as Array).duplicate()
-		if pick >= 0 and String(reg["mode"]) == "vote":
-			w[pick] = int(w[pick]) + bonus
-		for i in N:
-			w[i] = int(w[i]) + int(extra[i])
-		var total := 0
-		for x in w:
-			total += int(x)
-		for k in n:
-			var r := posmod(hash([state.seed_value, "vote", state.tick, empire_id, sid, k]), maxi(1, total))
-			var acc := 0
-			for i in N:
-				acc += int(w[i])
-				if r < acc:
-					reps[i] += 1
-					break
-		for i in N:
-			votes[i] += reps[i]
-		se["reps"] = reps
-		sys_reps[sid] = reps
+	var t := tally(state, empire_id)
+	var votes: Array = t["votes"]
+	var sys_reps: Dictionary = t["reps"]
+	for sid in sys_reps:
+		_sys_w(state, sid, empire_id)["reps"] = sys_reps[sid]
 	var top := _argmax(votes)
 	var winners: Array
 	var paid := 0
@@ -465,6 +480,7 @@ static func run_election(state: GameState, empire_id: int) -> Array[Dictionary]:
 	en["n"] = int(en.get("n", 0)) + 1
 	en["next"] = state.tick + int(data()["election_days"])
 	en["pick"] = -1
+	en.erase("rig")
 	var fallen := Laws.after_election(state, empire_id)
 	for sid in sys_reps:
 		var se: Dictionary = state.politics["sys"][sid]
@@ -486,6 +502,93 @@ static func run_election(state: GameState, empire_id: int) -> Array[Dictionary]:
 	out.append(state.add_chronicle(line, Espionage.private_to(state, [empire_id], FactionTraits.capital_system(state, empire_id))))
 	state.politics["elected"] = {"empire": empire_id, "tick": state.tick}
 	return out
+
+
+## Dépouillement (pur) : représentants tirés dans chaque système, par hachage de la graine et du
+## jour prévu du vote (donc identique sur toutes les machines, et annoncé à l'avance par les Échos).
+## {"votes": [6 entiers], "reps": {système: [6 entiers]}}.
+static func tally(state: GameState, empire_id: int) -> Dictionary:
+	var en := emp(state, empire_id)
+	var reg := regime(state, empire_id)
+	var pick := int(en.get("pick", -1))
+	var bonus := int(data()["support_bonus"])
+	var day := int(en.get("next", state.tick))
+	# Action électorale, héros du Conseil, élection truquée, talents (voir Laws), en vote libre.
+	var extra: Array = Laws.vote_weights(state, empire_id) if String(reg["mode"]) == "vote" else [0, 0, 0, 0, 0, 0]
+	var votes := [0, 0, 0, 0, 0, 0]
+	var sys_reps := {}
+	for sid in Stability.systems_of(state, empire_id):
+		var n := reps_count(state, empire_id, sid)
+		var reps := [0, 0, 0, 0, 0, 0]
+		var w: Array = opinion(state, sid)
+		if w.is_empty():
+			continue
+		if pick >= 0 and String(reg["mode"]) == "vote":
+			w[pick] = int(w[pick]) + bonus
+		for i in N:
+			w[i] = int(w[i]) + int(extra[i])
+		var total := 0
+		for x in w:
+			total += int(x)
+		for k in n:
+			var r := posmod(hash([state.seed_value, "vote", day, empire_id, sid, k]), maxi(1, total))
+			var acc := 0
+			for i in N:
+				acc += int(w[i])
+				if r < acc:
+					reps[i] += 1
+					break
+		for i in N:
+			votes[i] += reps[i]
+		sys_reps[sid] = reps
+	return {"votes": votes, "reps": sys_reps}
+
+
+## Ce que donnerait le vote si l'on votait aujourd'hui (talent des Échos, registre Cosmique) :
+## {"votes", "ruling"} ; en nomination, le courant nommé (ou le choix du peuple).
+static func forecast(state: GameState, empire_id: int) -> Dictionary:
+	var t := tally(state, empire_id)
+	var votes: Array = t["votes"]
+	var reg := regime(state, empire_id)
+	var r: Array = []
+	if String(reg["mode"]) == "appoint":
+		r = [pick(state, empire_id) if pick(state, empire_id) >= 0 else _argmax(votes)]
+	else:
+		for wi in _top(votes, int(reg["seats"])):
+			if int(votes[int(wi)]) > 0 or r.is_empty():
+				r.append(int(wi))
+	return {"votes": votes, "ruling": r}
+
+
+## Talent des Échos : le registre Cosmique voit le résultat avant le vote.
+static func sees_forecast(state: GameState, empire_id: int) -> bool:
+	var e := state.get_empire(empire_id)
+	return e != null and not e.is_npc() and String(e.faction().get("registre", "")) == "Cosmique / étrange" \
+			and applies(state, empire_id) and mode(state, empire_id) != "continuous"
+
+
+## Proximité idéologique (proposition 16) : ce que pense a de b, en lignes [libellé, valeur].
+static func opinion_parts(state: GameState, a: int, b: int) -> Array:
+	var out := []
+	if not state.politics_on or not applies(state, a) or not applies(state, b):
+		return out
+	var cfg: Dictionary = data()["diplomacy"]
+	var la := lead(state, a)
+	var lb := lead(state, b)
+	if la < 0 or lb < 0:
+		return out
+	if la == lb:
+		out.append(["Même courant au pouvoir (%s)" % short(state, b, lb), int(cfg["same"])])
+	elif opposite(la) == lb:
+		out.append(["Courants opposés au pouvoir (%s contre %s)" % [short(state, a, la), short(state, b, lb)], int(cfg["opposite"])])
+	if current_id(lb) == "glaive" and la != lb:
+		out.append(["%s gouverne chez eux : méfiance" % short(state, b, lb), int(cfg["glaive"])])
+	return out
+
+
+## Courant en tête chez l'empire : la Concorde (paix plus facile à faire accepter) ?
+static func concorde_rules(state: GameState, empire_id: int) -> bool:
+	return state.politics_on and applies(state, empire_id) and current_id(lead(state, empire_id)) == "concorde"
 
 
 ## Courant majoritaire des représentants d'un système (à égalité, celui au pouvoir, puis la roue).
@@ -597,6 +700,26 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 		for k in ["xp", "cm"]:
 			if en.has(k):
 				en[k] = _ints(en[k])
+		for k in ["low", "inter", "grv_next"]:
+			if en.has(k):
+				en[k] = int(en[k])
+		for k in ["grv", "grv2"]:
+			if en.has(k):
+				var g: Dictionary = en[k]
+				for kk in ["c", "need", "got", "end"]:
+					g[kk] = int(g.get(kk, 0))
+				g["f"] = bool(g.get("f", false))
+				var acts := []
+				for x in g.get("acts", []):
+					acts.append(String(x))
+				g["acts"] = acts
+		if en.has("gfx"):
+			var fx := []
+			for f in en["gfx"]:
+				fx.append({"c": int(f["c"]), "v": int(f["v"]), "end": int(f["end"])})
+			en["gfx"] = fx
+		if en.has("rig"):
+			en["rig"] = {"c": int(en["rig"].get("c", -1)), "n": int(en["rig"].get("n", 0))}
 		if en.has("laws"):
 			var ls := []
 			for x in en["laws"]:
@@ -609,18 +732,30 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 			en[k] = int(en.get(k, -1 if k != "pop" else 0))
 		en["op"] = _ints(en.get("op", []))
 		en["reps"] = _ints(en.get("reps", []))
+		if en.has("cqn"):
+			en["cqn"] = _ints(en["cqn"])
+			en["cqe"] = int(en.get("cqe", -1))
+			en["cqo"] = int(en.get("cqo", -1))
 		state.politics["sys"][int(pair[0])] = en
 
 
 ## Entrées de systèmes qui ont changé de mains ou n'ont plus de propriétaire.
 static func prune(state: GameState) -> void:
 	var drop := []
+	var moved := []
 	for k in state.politics["sys"]:
 		var o := state.system_owner(int(k))
-		if o < 0 or GameState.is_npc(o) or int(state.politics["sys"][k].get("o", -1)) != o:
+		if o < 0 or GameState.is_npc(o):
 			drop.append(k)
+		elif int(state.politics["sys"][k].get("o", -1)) != o:
+			moved.append(k)
 	for k in drop:
 		state.politics["sys"].erase(k)
+	moved.sort()
+	for k in moved:
+		var o := state.system_owner(int(k))
+		if not applies(state, o) or _conquered(state, int(k), state.politics["sys"][k], o).is_empty():
+			state.politics["sys"].erase(k)
 
 
 # --- Outils ------------------------------------------------------------------------------------

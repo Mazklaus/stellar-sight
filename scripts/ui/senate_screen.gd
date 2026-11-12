@@ -125,6 +125,7 @@ static func build(es: EmpireScreens) -> void:
 		return
 	col.add_child(_assembly_block(es))
 	col.add_child(_currents_block(es))
+	col.add_child(_grievance_block(es))
 	col.add_child(_laws_block(es))
 	col.add_child(_count_block(es))
 
@@ -150,6 +151,14 @@ static func _assembly_block(es: EmpireScreens) -> Control:
 	var b := Widgets.Block.new(String(reg["label"]))
 	var votes: Array = en.get("votes", [])
 	var continuous := Politics.mode(state, player) == "continuous"
+	if Politics.sees_forecast(state, player):
+		var fc := Politics.forecast(state, player)
+		var fnames := PackedStringArray()
+		for i in fc["ruling"]:
+			fnames.append(Politics.short(state, player, int(i)))
+		var fl := UiTheme.dim("Les Échos ont déjà entendu le prochain vote : au pouvoir, %s (si rien ne change d'ici là)." % ", ".join(fnames), 14)
+		fl.add_theme_color_override("font_color", UiTheme.GOLD)
+		b.body.add_child(fl)
 	if votes.is_empty() or (not continuous and int(en.get("n", 0)) == 0):
 		b.body.add_child(UiTheme.paragraph("Pas encore d'élection : le premier vote aura lieu au jour %d. D'ici là, gouvernent les courants du penchant de votre peuple." % Politics.next_election(state, player), 760.0, 14))
 		return b
@@ -311,6 +320,34 @@ static func _currents_block(es: EmpireScreens) -> Control:
 	return b
 
 
+## Doléances de l'opposition, effets en cours, interrègne, menace de crise de régime.
+static func _grievance_block(es: EmpireScreens) -> Control:
+	var state := es._state
+	var player := es._player
+	var en := Politics.emp(state, player)
+	var b := Widgets.Block.new("Doléances")
+	if Grievances.interregnum(state, player):
+		var il := UiTheme.dim("Interrègne après une crise de régime : aucune loi, pas de loi de pouvoir, jusqu'au %s." % GameCalendar.date_string(int(en["inter"])), 14)
+		il.add_theme_color_override("font_color", UiTheme.delta_color(-1))
+		b.body.add_child(il)
+	var gs := Grievances.current(state, player)
+	if gs.is_empty():
+		b.body.add_child(UiTheme.paragraph("Aucune doléance en cours. Le plus grand courant d'opposition (20 %% de l'opinion ou plus) en formule une de temps en temps : la remplir lui donne du terrain et +%d stabilité là où l'on penche pour lui ; l'ignorer en coûte %d." % [
+				int(Grievances.cfg()["stability"]), absi(int(Grievances.cfg()["stability_fail"]))], 760.0, 13))
+	for g in gs:
+		var l := UiTheme.dim(("Financée par l'étranger : " if bool(g.get("f", false)) else "") + Grievances.text(state, player, g) + ".", 14)
+		l.add_theme_color_override("font_color", Politics.color(int(g["c"])).lightened(0.25))
+		b.body.add_child(l)
+	for f in en.get("gfx", []):
+		if int(f["end"]) > state.tick:
+			b.body.add_child(UiTheme.dim("%s : %+d stabilité là où l'on penche pour lui, jusqu'au %s." % [Politics.short(state, player, int(f["c"])), int(f["v"]), GameCalendar.date_string(int(f["end"]))], 13))
+	var low := int(en.get("low", 0))
+	if low > 0:
+		b.body.add_child(UiTheme.dim("Stabilité d'empire sous %d depuis %d mois : à %d, crise de régime (le courant opposé prend le pouvoir, les lois tombent)." % [
+				int(Grievances.ccfg()["below"]), low, int(Grievances.ccfg()["months"])], 13))
+	return b
+
+
 ## Les lois : loi de pouvoir, lois des courants au pouvoir (par niveau), lois indépendantes.
 static func _laws_block(es: EmpireScreens) -> Control:
 	var state := es._state
@@ -430,6 +467,10 @@ static func _count_block(es: EmpireScreens) -> Control:
 			var ol := Label.new()
 			@warning_ignore("integer_division")
 			ol.text = "penche %s (%d %%)" % [Politics.short(state, player, top), (int(op[top]) + 5) / 10]
+			if int(en.get("cqe", -1)) > state.tick and int(en.get("o", -1)) == player:
+				ol.text += " · conquis"
+				ol.mouse_filter = Control.MOUSE_FILTER_STOP
+				ol.tooltip_text = "Monde conquis : il garde les idées de son ancien maître jusqu'au %s, puis glissera vers le penchant de votre peuple." % GameCalendar.date_string(int(en["cqe"]))
 			ol.custom_minimum_size = Vector2(170, 0)
 			ol.add_theme_font_size_override("font_size", 13)
 			ol.add_theme_color_override("font_color", Politics.color(top).lightened(0.2))

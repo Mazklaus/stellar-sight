@@ -35,6 +35,7 @@ func _initialize() -> void:
 	preload("res://tests/stability_tests.gd").new().run(_check)
 	preload("res://tests/politics_tests.gd").new().run(_check)
 	preload("res://tests/laws_tests.gd").new().run(_check)
+	preload("res://tests/politics_bridges_tests.gd").new().run(_check)
 	preload("res://tests/pirate_tests.gd").new().run(_check)
 	preload("res://tests/event_tests.gd").new().run(_check)
 	preload("res://tests/relic_tests.gd").new().run(_check)
