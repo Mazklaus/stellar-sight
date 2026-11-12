@@ -102,9 +102,19 @@ static func _class_color(cls: String) -> Color:
 	return Color(String(Heroes.class_def(cls).get("color", "#cccccc")))
 
 
-static func _portrait(h: Dictionary) -> Widgets.ArtSlot:
+static func _portrait(h: Dictionary, state: GameState = null) -> Widgets.ArtSlot:
 	var art := Widgets.ArtSlot.new(String(h["portrait"]), PORTRAIT, _class_color(String(h["cls"])), "faction")
+	if state != null:
+		art.set_hero(portrait_info(state, h))
 	return art
+
+
+## Ce que le portrait montre du héros lui-même (voir Widgets.ArtSlot.set_hero).
+static func portrait_info(state: GameState, h: Dictionary) -> Dictionary:
+	var owner := state.get_empire(int(h.get("owner", -1)))
+	return {"seed": int(h.get("id", 0)), "cls": String(h["cls"]), "lvl": int(h.get("lvl", 1)), "age": Heroes.age(state, h),
+			"wound": Heroes.is_wounded(state, h), "prisoner": Heroes.is_prisoner(h), "heir": int(h.get("heir", 0)) > 0,
+			"faction": owner.color() if owner else Color(0.5, 0.5, 0.5)}
 
 
 static func _traits_line(h: Dictionary) -> Control:
@@ -141,7 +151,10 @@ static func _offer_block(es: EmpireScreens, offer: Array) -> Control:
 		var top := HBoxContainer.new()
 		top.add_theme_constant_override("separation", 10)
 		v.add_child(top)
-		top.add_child(_portrait(cand))
+		var cart := _portrait(cand)
+		cart.set_hero({"seed": absi(hash(String(cand["name"]))), "cls": String(cand["cls"]), "lvl": 1, "age": int(cand.get("age", 30)),
+				"faction": state.get_empire(es._player).color()})
+		top.add_child(cart)
 		var info := VBoxContainer.new()
 		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		top.add_child(info)
@@ -279,7 +292,7 @@ static func _hero_card(es: EmpireScreens, h: Dictionary) -> Control:
 	var top := HBoxContainer.new()
 	top.add_theme_constant_override("separation", 10)
 	v.add_child(top)
-	top.add_child(_portrait(h))
+	top.add_child(_portrait(h, state))
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(info)
@@ -426,7 +439,7 @@ static func _prison_block(es: EmpireScreens, held: Array[int]) -> Control:
 		var top := HBoxContainer.new()
 		top.add_theme_constant_override("separation", 10)
 		v.add_child(top)
-		top.add_child(_portrait(h))
+		top.add_child(_portrait(h, state))
 		var info := VBoxContainer.new()
 		top.add_child(info)
 		info.add_child(UiTheme.paragraph(String(h["name"]), CARD_WIDTH - 30.0, 15))
@@ -480,7 +493,7 @@ static func _market_block(es: EmpireScreens, ids: Array[int]) -> Control:
 		var top := HBoxContainer.new()
 		top.add_theme_constant_override("separation", 10)
 		v.add_child(top)
-		top.add_child(_portrait(h))
+		top.add_child(_portrait(h, state))
 		var info := VBoxContainer.new()
 		top.add_child(info)
 		info.add_child(UiTheme.paragraph(String(h["name"]), CARD_WIDTH - PORTRAIT.x - 30.0, 15))
