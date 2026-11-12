@@ -1,8 +1,22 @@
 class_name ChronicleScreen
 extends RefCounted
-## Écran Chroniques (J) : les événements qui attendent une décision (boîte), le journal des décisions
-## prises, et les curiosités repérées dans la galaxie (voir Events et Curios).
-## Construit dans les conteneurs d'EmpireScreens, dont il reprend les aides (_grid, _key_value…).
+## Écran Chroniques (J), à la manière de l'écran « Quêtes et événements » d'Endless Space 2, en trois
+## onglets : Quêtes (quêtes de l'empire et retournement galactique, voir Quests et QuestPanel),
+## Événements (boîte, curiosités repérées, journal ; voir Events et Curios) et Reliquaire (reliques et
+## fouilles, voir Relics). Construit dans les conteneurs d'EmpireScreens (_grid, _key_value…).
+
+const TABS := [["quests", "Quêtes"], ["events", "Événements"], ["relics", "Reliquaire"]]
+
+
+## Onglets offerts dans cette partie (selon les réglages de la Nouvelle partie).
+static func tabs(state: GameState) -> Array[String]:
+	var out: Array[String] = []
+	if Quests.enabled(state):
+		out.append("quests")
+	out.append("events")
+	if not state.relics.is_empty():
+		out.append("relics")
+	return out
 
 
 static func build(es: EmpireScreens) -> void:
@@ -21,6 +35,8 @@ static func build(es: EmpireScreens) -> void:
 	es._key_value(g, "En attente", "%d" % box.size())
 	es._key_value(g, "Décisions prises", "%d" % log.size())
 	es._key_value(g, "Curiosités repérées", "%d" % known.size())
+	if Quests.enabled(state):
+		es._key_value(g, "Quêtes en cours", "%d" % Quests.of(state, player, true).size())
 	if not state.relics.is_empty():
 		var fr := es._key_value(g, "Fragments", "%d" % Relics.fragments(state, player))
 		fr.tooltip_text = "Petite monnaie des reliques : indices de fouille, part du Triomphe, dons. On en trouve dans les curiosités, les fouilles et les épaves."
@@ -36,17 +52,54 @@ static func build(es: EmpireScreens) -> void:
 	es._side_box.add_child(HSeparator.new())
 	es._side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("chronicles").get("why", "")), EmpireScreens.SIDE_WIDTH - 24.0, 13))
 
-	# Contenu défilant.
+	# Onglets, puis contenu défilant.
+	var offered := tabs(state)
+	if not offered.has(es.chron_tab):
+		es.chron_tab = offered[0]
+	var top := VBoxContainer.new()
+	top.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	top.add_theme_constant_override("separation", 12)
+	es._content.add_child(top)
+	var bar := HBoxContainer.new()
+	bar.alignment = BoxContainer.ALIGNMENT_CENTER
+	bar.add_theme_constant_override("separation", 30)
+	top.add_child(bar)
+	for t in TABS:
+		if not offered.has(String(t[0])):
+			continue
+		var tb := Button.new()
+		tb.theme_type_variation = &"TabButton"
+		tb.toggle_mode = true
+		tb.focus_mode = Control.FOCUS_NONE
+		var tid := String(t[0])
+		var label := String(t[1])
+		if tid == "events" and not box.is_empty():
+			label += " (%d)" % box.size()
+		tb.text = label.to_upper()
+		tb.set_pressed_no_signal(tid == es.chron_tab)
+		tb.pressed.connect(func() -> void:
+			es.chron_tab = tid
+			es.show_screen("chronicles"))
+		es.chronicle_buttons["tab:%s" % tid] = tb
+		bar.add_child(tb)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	es._content.add_child(scroll)
+	top.add_child(scroll)
 	var col := VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.add_theme_constant_override("separation", 18)
 	scroll.add_child(col)
 
+	if es.chron_tab == "quests":
+		QuestPanel.build(es, col)
+		return
+	if es.chron_tab == "relics":
+		col.add_child(_reliquary_block(es))
+		col.add_child(_digs_block(es))
+		return
 	if not Events.enabled(state) and state.curio_density == "aucune":
 		col.add_child(UiTheme.dim("Ni événements ni curiosités dans cette partie (réglage de la Nouvelle partie).", 15))
 		return
@@ -101,10 +154,6 @@ static func build(es: EmpireScreens) -> void:
 		cg.add_child(UiTheme.dim("sonde : %d jours" % Curios.duration(state, player, pid), 13))
 		var prog := Curios.progress(state, player, pid)
 		cg.add_child(UiTheme.dim("en cours : %d / %d" % [prog, Curios.duration(state, player, pid)] if prog > 0 else "", 13))
-
-	if not state.relics.is_empty():
-		col.add_child(_reliquary_block(es))
-		col.add_child(_digs_block(es))
 
 	var jr := Widgets.Block.new("Journal")
 	col.add_child(jr)
@@ -317,5 +366,7 @@ static func signature(es: EmpireScreens) -> String:
 		s += "|%d:%d" % [pid, Curios.progress(state, player, pid)]
 	if not state.relics.is_empty():
 		s += str(state.relics) + str(state.relic_meta.get(player, {})) + str(state.digs) + str(state.get_empire(player).resources.get("influence", 0))
+	if Quests.enabled(state):
+		s += QuestPanel.signature(es)
 	@warning_ignore("integer_division")
-	return s + "|%d" % (state.tick / 30)
+	return s + "|%s|%d" % [es.chron_tab, state.tick / 30]

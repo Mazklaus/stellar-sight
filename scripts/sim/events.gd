@@ -619,6 +619,22 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				out.append("Gisement : %s" % String(GameData.deposit(String(fx["what"])).get("label", fx["what"])))
 			"pirates":
 				out.append("Des pirates surgissent")
+			"fragments":
+				if not state.relics.is_empty():
+					out.append("%+d fragments" % int(fx["v"]))
+			"relic":
+				out.append("Relique : %s" % String(Relics.def(String(fx["relic"])).get("name", fx["relic"])))
+			"hero":
+				out.append("Héros unique : %s (%s)" % [String(fx["name"]), String(Heroes.class_def(String(fx["cls"])).get("label", fx["cls"]))])
+			"boon":
+				var bt := Relics.fx_text(fx.get("fx", {}))
+				out.append("%s : %s%s" % [String(fx["label"]), bt, (" pendant %s" % _duration_text(int(fx["days"]))) if int(fx.get("days", 0)) > 0 else ", pour toujours"])
+			"quest":
+				if Quests.enabled(state):
+					out.append("Ouvre la quête « %s »" % String(Quests.tpl(String(fx["q"])).get("title", fx["q"])).replace("{system}", "…").replace("{hero}", "…"))
+			"exploit":
+				if Reputation.has(f):
+					out.append("Un exploit de plus pour la Légende")
 	return out
 
 
@@ -710,6 +726,20 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				var lvl := int((state.curios.get(int(item.get("planet", -1)), {}) as Dictionary).get("lvl", 2))
 				if sid2 >= 0:
 					Curios.spawn_trap(state, sid2, lvl)
+			"fragments":
+				if not state.relics.is_empty():
+					Relics.add_fragments(state, empire_id, int(fx["v"]))
+			"relic":
+				Quests.give_relic(state, empire_id, String(fx["relic"]))
+			"hero":
+				Quests.give_hero(state, empire_id, String(fx["name"]), String(fx["cls"]))
+			"boon":
+				Quests.add_boon(state, empire_id, String(fx["label"]), fx.get("fx", {}), int(fx.get("days", 0)))
+			"quest":
+				if Quests.enabled(state) and not (Quests.meta(state, empire_id)["seen"] as Dictionary).has(String(fx["q"])):
+					Quests.start(state, empire_id, String(fx["q"]), {}, added)
+			"exploit":
+				Reputation.exploit(state, empire_id, String(fx["id"]))
 
 
 static func _colony_in(state: GameState, empire_id: int, sid: int) -> Colony:

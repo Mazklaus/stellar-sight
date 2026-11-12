@@ -36,15 +36,15 @@
 		"trap_days": 120,
 		"types": {
 			"atmo": {"label": "Atmosphérique", "text": "Orages, aurores, nuages qui ne devraient pas exister. Rapporte surtout de l'énergie et du Savoir.", "color": "#7fb6e0",
-				"rewards": {"res_energy": 30, "research": 25, "deposit_geothermal": 10, "card": 20, "nothing": 10, "trap": 5}},
+				"rewards": {"res_energy": 28, "research": 23, "deposit_geothermal": 10, "card": 20, "quest": 5, "nothing": 9, "trap": 5}},
 			"souterraine": {"label": "Souterraine", "text": "Grottes, filons, cavités trop régulières. Rapporte des matériaux, des cristaux et des gisements.", "color": "#c79a5b",
 				"rewards": {"res_materials": 30, "deposit_minerals": 18, "deposit_crystals": 8, "res_crystals": 12, "card": 17, "nothing": 10, "trap": 5}},
 			"vivante": {"label": "Vivante", "text": "Une forme de vie inconnue, parfois polie. Rapporte de la nourriture, du Savoir, parfois de la population.", "color": "#7fc28a",
-				"rewards": {"res_food": 30, "research": 20, "deposit_fertile": 12, "pop": 8, "card": 20, "nothing": 5, "trap": 5}},
+				"rewards": {"res_food": 28, "research": 18, "deposit_fertile": 12, "pop": 8, "card": 20, "quest": 6, "nothing": 5, "trap": 5}},
 			"ruines": {"label": "Ruines", "text": "Les restes d'une civilisation qui n'a pas laissé de mode d'emploi. Rapporte du Savoir et de l'influence.", "color": "#d8c27a",
-				"rewards": {"research": 26, "res_influence": 22, "card": 24, "fragments": 10, "dig": 8, "nothing": 5, "trap": 10}},
+				"rewards": {"research": 24, "res_influence": 20, "card": 22, "fragments": 10, "dig": 8, "quest": 6, "nothing": 5, "trap": 10}},
 			"epave": {"label": "Épave", "text": "Une carcasse dérivante, parfois habitée par ce qui l'a tuée. Rapporte des vaisseaux, des matériaux et de l'énergie.", "color": "#a5a9b3",
-				"rewards": {"ship": 20, "res_materials": 22, "res_energy": 13, "card": 15, "fragments": 10, "nothing": 5, "trap": 15}}
+				"rewards": {"ship": 20, "res_materials": 20, "res_energy": 11, "card": 15, "fragments": 10, "quest": 6, "nothing": 5, "trap": 15}}
 		},
 		"type_weights": {"atmo": 22, "souterraine": 24, "vivante": 18, "ruines": 18, "epave": 18},
 		"amount_by_level": [40, 80, 150, 250],
@@ -413,7 +413,7 @@
 		{"id": "t_contrebande", "title": "Choc des tons : reliques de contrebande", "trigger": "contact",
 			"text": "Premier contact avec {rival}. D'un côté, on vénère des ossements bénis ; de l'autre, on les revend au poids. Une conversation s'engage, très vite commerciale.",
 			"choices": [
-				{"label": "Ouvrir un marché noir des reliques", "fx": [{"k": "res", "res": {"energy": 60}}, {"k": "rep", "v": 3}, {"k": "opinion", "kind": "ev_snub"}]},
+				{"label": "Ouvrir un marché noir des reliques", "fx": [{"k": "res", "res": {"energy": 60}}, {"k": "rep", "v": 3}, {"k": "opinion", "kind": "ev_snub"}, {"k": "quest", "q": "q_contrebande"}]},
 				{"label": "Respecter leurs croyances", "fx": [{"k": "opinion", "kind": "ev_gift"}]},
 				{"label": "Les traiter d'hérétiques, pour la forme", "fx": [{"k": "fervor", "v": 8}, {"k": "opinion", "kind": "ev_snub"}]}
 			], "default": 1},

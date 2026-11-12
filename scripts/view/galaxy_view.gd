@@ -187,6 +187,7 @@ func _draw() -> void:
 	_draw_fleets(px)
 	_draw_conflicts(px)
 	_draw_lairs(px)
+	_draw_quests(px)
 
 	if lens == "economy" and state != null:
 		# Lentille économique : tout s'assombrit sauf les systèmes du joueur, qui affichent leur bilan.
@@ -483,6 +484,63 @@ func _draw_lairs(px: float) -> void:
 		draw_line(Vector2(-3, -3), Vector2(3, -3), gold, 1.4, true)
 		draw_arc(Vector2(0, 1), 4.5, 0.2, PI - 0.2, 10, gold, 1.4, true)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Quêtes galactiques (voir Quests) : l'artéfact du Passage (losange violet, et ses deux prochaines
+## étapes en pointillés), les Phares du Conclave (couleur du camp qui les tient), les tombeaux éveillés.
+func _draw_quests(px: float) -> void:
+	if state == null or state.galactic.is_empty():
+		return
+	var cur := Quests.current(state)
+	if cur.is_empty():
+		return
+	match String(cur["id"]):
+		"passage":
+			var path: Array = cur["path"]
+			var step := int(cur["step"])
+			var vio := Color(0.78, 0.6, 0.98)
+			for i in range(step + 1, mini(step + 3, path.size())):
+				var a: Vector2 = galaxy.systems[int(path[i - 1])].position
+				var b: Vector2 = galaxy.systems[int(path[i])].position
+				draw_dashed_line(a, b, Color(vio, 0.5), 1.5 * px, 6.0 * px, true)
+			if not is_known(int(path[step])):
+				return
+			var sp: Vector2 = galaxy.systems[int(path[step])].position
+			draw_set_transform(sp + Vector2(0, 22.0 * px), 0.0, Vector2(px, px))
+			var pts := PackedVector2Array([Vector2(0, -9), Vector2(7, 0), Vector2(0, 9), Vector2(-7, 0)])
+			draw_colored_polygon(pts, Color(0.12, 0.06, 0.2, 0.9))
+			pts.append(Vector2(0, -9))
+			draw_polyline(pts, vio, 1.6, true)
+			draw_circle(Vector2.ZERO, 2.2, vio)
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		"conclave":
+			var camps: Array = Quests.gdef("conclave")["camps"]
+			for sid in cur.get("phares", []):
+				if not is_known(int(sid)):
+					continue
+				var held := Quests.phare_holders(state, cur, int(sid))
+				var col := Color(0.7, 0.72, 0.76)
+				if held.size() == 1:
+					col = Color(String(camps[int(held[0])]["color"]))
+				draw_set_transform(galaxy.systems[int(sid)].position + Vector2(0, 22.0 * px), 0.0, Vector2(px, px))
+				draw_circle(Vector2.ZERO, 8.5, Color(0.06, 0.05, 0.02, 0.85))
+				draw_arc(Vector2.ZERO, 8.5, 0.0, TAU, 20, col, 1.4, true)
+				draw_colored_polygon(PackedVector2Array([Vector2(-2.5, 5), Vector2(2.5, 5), Vector2(1.5, -3), Vector2(-1.5, -3)]), col)
+				draw_circle(Vector2(0, -5), 2.2, Color(col, 0.9))
+				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		"tombeaux":
+			var green := Color(0.55, 0.9, 0.6)
+			for t: Dictionary in cur.get("tombs", []):
+				if int(t["alive"]) == 0 or not is_known(int(t["sid"])):
+					continue
+				draw_set_transform(galaxy.systems[int(t["sid"])].position + Vector2(0, 22.0 * px), 0.0, Vector2(px, px))
+				draw_circle(Vector2.ZERO, 8.5, Color(0.02, 0.07, 0.03, 0.85))
+				draw_arc(Vector2.ZERO, 8.5, 0.0, TAU, 20, green, 1.4, true)
+				draw_arc(Vector2(0, -0.5), 4.5, PI, TAU, 10, green, 1.4, true)
+				draw_line(Vector2(-4.5, -0.5), Vector2(-4.5, 4.5), green, 1.4, true)
+				draw_line(Vector2(4.5, -0.5), Vector2(4.5, 4.5), green, 1.4, true)
+				draw_line(Vector2(-4.5, 4.5), Vector2(4.5, 4.5), green, 1.4, true)
+				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _draw_stability(s: StarSystem, px: float, mine: bool) -> void:

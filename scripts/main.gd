@@ -111,6 +111,12 @@ func _ready() -> void:
 	add_child(_hud)
 	_hud.open_system_requested.connect(open_system_view)
 	_hud.screen_requested.connect(toggle_empire_screen)
+	_hud.quests_requested.connect(func() -> void:
+		_empire_screens.chron_tab = "quests"
+		if _empire_screens.is_open() and _empire_screens.current == "chronicles":
+			_empire_screens.show_screen("chronicles")
+		else:
+			toggle_empire_screen("chronicles"))
 	_hud.menu_requested.connect(open_pause_menu)
 	_hud.pause_toggled.connect(GameClock.toggle_pause)
 	_hud.speed_requested.connect(GameClock.set_speed)

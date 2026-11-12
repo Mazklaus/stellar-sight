@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 26
+const FORMAT_VERSION := 27
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -118,6 +118,13 @@ var digs: Dictionary = {}
 var relics: Dictionary = {}
 var relic_meta: Dictionary = {}
 var relic_rev: int = 0
+## Quêtes (voir Quests) : quêtes par identifiant, par empire les faveurs et compteurs, la quête
+## galactique en cours ; réglage choisi dans Nouvelle partie.
+var quests: Dictionary = {}
+var quest_meta: Dictionary = {}
+var next_quest_id: int = 0
+var galactic: Dictionary = {}
+var quest_mode: String = "aucunes"
 var _pirates: Empire
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
@@ -160,8 +167,9 @@ var _npc: Empire = null
 ##   et le rayon, à la place de system_count_ et galaxy_radius_ ;
 ## - "pirates" : densité des repaires (Pirates, défaut "aucun") ;
 ## - "curios" : densité des curiosités (Curios, défaut "aucune") ;
-## - "events" : fréquence des événements (Events, défaut "aucun"). Sans ces trois options (tests,
-##   bancs), la partie n'a ni pirates, ni curiosités, ni événements.
+## - "events" : fréquence des événements (Events, défaut "aucun") ;
+## - "quests" : quêtes (Quests.modes, défaut "aucunes"). Sans ces quatre options (tests, bancs), la
+##   partie n'a ni pirates, ni curiosités, ni événements, ni quêtes.
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
 	var settings := GalaxySettings.normalize(options.get("galaxy", {}))
 	if options.has("galaxy"):
@@ -187,6 +195,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Curios.setup(s, String(options.get("curios", "aucune")))
 	s.event_freq = String(options.get("events", "aucun")) if not Events.freq_def(String(options.get("events", "aucun"))).is_empty() else "aucun"
 	Relics.setup(s)
+	Quests.setup(s, String(options.get("quests", "aucunes")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -286,6 +295,7 @@ func to_dict() -> Dictionary:
 		"next_event_id": next_event_id,
 		"event_freq": event_freq,
 		"relics": Relics.to_dict(self),
+		"quests": Quests.to_dict(self),
 	}
 
 
@@ -473,6 +483,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	s.next_event_id = int(d.get("next_event_id", 0))
 	s.event_freq = String(d.get("event_freq", "aucun"))
 	Relics.from_dict(s, d.get("relics", {}))
+	Quests.from_dict(s, d.get("quests", {}))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant les héros : chaque empire reçoit son héros de départ.
 	if int(d["version"]) < 20:

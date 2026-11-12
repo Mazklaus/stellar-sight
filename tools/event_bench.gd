@@ -1,9 +1,10 @@
 extends SceneTree
-## Banc des curiosités, des événements et des reliques : parties de spectateurs (IA Normale) de 5 ans, avec et sans
-## le pilier, sur plusieurs graines. Mesure le temps par jour, les événements tranchés, les curiosités
-## sondées (par qui) et l'écart de score.
+## Banc des curiosités, des événements, des reliques et des quêtes : parties de spectateurs (IA
+## Normale) de 5 ans (YEARS=… pour changer), avec et sans le pilier, sur plusieurs graines. Mesure le
+## temps par jour, les événements tranchés, les curiosités sondées (par qui), les fouilles, les
+## chapitres de quête, les retournements galactiques et l'écart de score.
 ##   godot --headless --path . -s res://tools/event_bench.gd
-const YEARS := 5
+var YEARS := int(OS.get_environment("YEARS")) if OS.get_environment("YEARS") != "" else 5
 const SEEDS := [3, 17, 99]
 
 
@@ -41,13 +42,30 @@ func _run(sd: int, opts: Dictionary) -> Dictionary:
 	var score := 0
 	for e in st.empires:
 		score += EmpireReport.score(st, e.id)
-	return {"ms": ms, "answered": answered, "cards": cards.size(), "probed": probed, "open": open, "score": score, "relics": found, "digs": "%d/%d" % [started, st.digs.size()]}
+	var chapters := 0
+	var done := 0
+	var credo := 0
+	for id in st.quests:
+		var q: Dictionary = st.quests[id]
+		chapters += (q["path"] as Array).size()
+		if String(q["status"]) == "done":
+			done += 1
+			if Quests.is_credo(q):
+				credo += 1
+	var gal := []
+	for l: Dictionary in st.galactic.get("log", []):
+		var w := st.get_empire(int(l["winner"]))
+		gal.append("%s→%s" % [String(l["id"]), w.short_name() if w != null else "personne"])
+	if not Quests.current(st).is_empty():
+		gal.append(String(Quests.current(st)["id"]) + " en cours")
+	return {"ms": ms, "answered": answered, "cards": cards.size(), "probed": probed, "open": open, "score": score, "relics": found, "digs": "%d/%d" % [started, st.digs.size()],
+			"quests": "%d chapitres, %d quêtes achevées dont %d de peuple" % [chapters, done, credo], "galactic": ", ".join(gal)}
 
 
 func _initialize() -> void:
 	for sd in SEEDS:
 		var off := _run(sd, {})
-		var on := _run(sd, {"curios": "normales", "events": "normaux"})
-		print("graine %d : sans %.2f ms/j score %d | avec %.2f ms/j score %d, %d événements tranchés (%d cartes différentes), curiosités sondées %s, %d encore ouvertes, fouilles lancées %s, reliques trouvées %d" % [
-				sd, off["ms"], off["score"], on["ms"], on["score"], on["answered"], on["cards"], str(on["probed"]), on["open"], on["digs"], on["relics"]])
+		var on := _run(sd, {"curios": "normales", "events": "normaux", "quests": "toutes"})
+		print("graine %d : sans %.2f ms/j score %d | avec %.2f ms/j score %d, %d événements tranchés (%d cartes différentes), curiosités sondées %s, %d encore ouvertes, fouilles lancées %s, reliques trouvées %d, quêtes : %s, retournements : %s" % [
+				sd, off["ms"], off["score"], on["ms"], on["score"], on["answered"], on["cards"], str(on["probed"]), on["open"], on["digs"], on["relics"], on["quests"], on["galactic"]])
 	quit()
