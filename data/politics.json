@@ -1,0 +1,95 @@
+{
+	"_doc": "Politique intérieure (étude « Politique des peuples », 2026-11-12, propositions 1 à 5, 9, 14 et 19 pour le lot 1). Six courants sur une roue, une opinion par système en pour mille, que les actes de l'empire déplacent et qui revient lentement vers le penchant naturel du peuple. Tous les 1080 jours, chaque système élit des représentants ; les courants battus donnent leurs voix au voisin le plus proche sur la roue, jamais à l'opposé. Les règles du vote dépendent de la couche gouvernement (la couche ne change pas en cours de partie). Sources : Endless Space 2 (Sénat, partis, régimes), Stellaris (pas de factions pour les consciences collectives).",
+	"_sources": [
+		"https://endless-space-2.fandom.com/wiki/Senate",
+		"https://endless-space-2.fandom.com/wiki/Political_Parties",
+		"https://stellaris.fandom.com/wiki/Factions",
+		"Étude : https://claude.ai/artifact/6VtLYAJxuDdoeXi5BZCoDf"
+	],
+	"currents": [
+		{"id": "forge", "label": "la Forge", "short": "Forge", "color": "#e0884a", "text": "Production, chantiers, matériaux. On mesure un empire à ce qu'il bâtit.", "acts": "Bâtiments achevés, larcins industriels."},
+		{"id": "academie", "label": "l'Académie", "short": "Académie", "color": "#4fc3f7", "text": "Savoir, découvertes, méthode. Tout se discute, de préférence avec des schémas.", "acts": "Technologies, curiosités sondées, fouilles."},
+		{"id": "concorde", "label": "la Concorde", "short": "Concorde", "color": "#a98be0", "text": "Paix, traités, commerce. Les canons coûtent cher et les morts ne votent pas.", "acts": "Traités signés, années de paix, vaisseaux perdus (la lassitude)."},
+		{"id": "seve", "label": "la Sève", "short": "Sève", "color": "#7cc46a", "text": "Le vivant, la croissance, les mondes à faire fleurir. Plus de berceaux, moins de forges.", "acts": "Colonies fondées, population qui grandit."},
+		{"id": "autel", "label": "l'Autel", "short": "Autel", "color": "#e6c45a", "text": "Foi, reliques, destin. Les étoiles sont un texte sacré, et il faut quelqu'un pour le lire.", "acts": "Reliques, quêtes, Triomphes, offrandes, cathédrales."},
+		{"id": "glaive", "label": "le Glaive", "short": "Glaive", "color": "#d9534f", "text": "Guerre, conquête, gloire. La paix n'est qu'un entracte un peu long.", "acts": "Guerres déclarées, batailles gagnées, conquêtes, systèmes attaqués."}
+	],
+	"opposite_offset": 3,
+	"names_by_register": {
+		"Grimdark": {"autel": "l'Ecclésiarchat", "glaive": "la Croisade", "concorde": "les Tièdes"},
+		"Médiéval spatial": {"forge": "les Guildes", "glaive": "les Lames", "autel": "le Synode"},
+		"Picaresque / pulp": {"forge": "les Affaires", "concorde": "les Bons Comptes", "glaive": "les Gros Bras"},
+		"Horreur biologique": {"seve": "la Croissance", "glaive": "la Faim"},
+		"Cosmique / étrange": {"academie": "les Veilleurs", "autel": "le Murmure"}
+	},
+	"lean": {
+		"credo": {"honneur": "glaive", "foi": "autel", "raison": "academie", "profit": "forge", "survie": "seve"},
+		"gouvernement": {"feodalite": "glaive", "horde": "glaive", "theocratie": "autel", "republique": "concorde", "syndicat": "forge", "conscience": "academie"},
+		"principal": 500,
+		"secondary": 300,
+		"_doc": "Penchant naturel du peuple, en pour mille : le credo donne le courant principal, le gouvernement le secondaire (s'ils coïncident, le voisin suivant sur la roue). Le reste se partage entre les quatre autres courants."
+	},
+	"drift_pct": 4,
+	"acts": {
+		"_doc": "Actes de l'empire (clés des compteurs d'actes des héros et de Research.count_stat) : courant poussé, poussée en pour mille sur tous les systèmes de l'empire. Les actes situés (bâtiment, colonie, bataille, attaque) poussent aussi fort dans leur système (local).",
+		"built": {"current": "forge", "all": 3},
+		"stolen": {"current": "forge", "all": 6},
+		"tech": {"current": "academie", "all": 8},
+		"curios": {"current": "academie", "all": 6},
+		"digs": {"current": "academie", "all": 6},
+		"folds": {"current": "academie", "all": 2},
+		"treaty": {"current": "concorde", "all": 15},
+		"ships_lost": {"current": "concorde", "all": 2},
+		"colony": {"current": "seve", "all": 10},
+		"relics": {"current": "autel", "all": 12},
+		"relic_borne": {"current": "autel", "all": 4},
+		"quest_chapter": {"current": "autel", "all": 8},
+		"triumphs": {"current": "autel", "all": 15},
+		"sacrifices": {"current": "autel", "all": 6},
+		"wars": {"current": "glaive", "all": 25},
+		"battles_won": {"current": "glaive", "all": 6},
+		"conquests": {"current": "glaive", "all": 12},
+		"kills": {"current": "glaive", "all": 1},
+		"lair": {"current": "glaive", "all": 8},
+		"looted": {"current": "glaive", "all": 1}
+	},
+	"local": {
+		"built": 30,
+		"warship": 20,
+		"cathedrale": 60,
+		"colony": 80,
+		"battle": 40,
+		"attacked": 30,
+		"growth": 15,
+		"_doc": "Poussées locales en pour mille : bâtiment achevé (Forge, ou Autel pour une cathédrale), vaisseau de guerre lancé (Glaive), colonie fondée (Sève), bataille gagnée sur place (Glaive), système attaqué (Glaive, par mois de siège ou de bataille), population qui a grandi dans le mois (Sève)."
+	},
+	"peace_monthly": 4,
+	"_peace_doc": "Chaque mois sans aucune guerre, la Concorde gagne peace_monthly pour mille partout (après la première année).",
+	"modes": [
+		{"id": "active", "label": "Active", "desc": "Courants, élections tous les 3 ans et représentation au pouvoir (selon votre gouvernement)."},
+		{"id": "aucune", "label": "Aucune", "desc": "Pas de vie politique : ni courants, ni élections."}
+	],
+	"default_mode": "active",
+	"election_days": 1080,
+	"support_bonus": 120,
+	"_support_doc": "Soutien officiel : le courant soutenu reçoit support_bonus pour mille de poids en plus dans chaque tirage de représentant.",
+	"representation": {"in_power": 5, "out": -5, "horde_out": -8},
+	"regimes": {
+		"republique": {"label": "République", "assembly": "Assemblée", "seats": 3, "reps": "pop", "mode": "vote",
+			"text": "Trois courants gouvernent. Chaque système envoie autant de représentants qu'il a d'habitants. Vous ne pouvez qu'apporter votre soutien officiel à un courant."},
+		"feodalite": {"label": "Diète des maisons", "assembly": "Diète", "seats": 2, "reps": "level", "mode": "vote",
+			"text": "Deux courants gouvernent. Chaque fief envoie 1 représentant, plus 1 par colonie et par tranche de 6 habitants : les grandes maisons pèsent plus que le peuple."},
+		"theocratie": {"label": "Conclave", "assembly": "Conclave", "seats": 1, "reps": "level", "mode": "appoint", "fervor_cost": 15,
+			"text": "Un seul courant gouverne, et c'est vous qui le nommez. Le peuple vote quand même : nommer un autre courant que celui qu'il a choisi coûte 15 de ferveur."},
+		"syndicat": {"label": "Assemblée des actionnaires", "assembly": "Actionnaires", "seats": 2, "reps": "production", "mode": "vote",
+			"text": "Deux courants gouvernent. Les voix d'un système se comptent à sa production (énergie et matériaux), pas à ses habitants."},
+		"horde": {"label": "Kurultaï des clans", "assembly": "Kurultaï", "seats": 1, "reps": "level", "mode": "appoint",
+			"text": "Un seul clan gouverne, celui que vous choisissez. Les clans écartés grognent plus fort (-8 stabilité au lieu de -5), sauf là où mouille la flotte-ville."},
+		"conscience": {"label": "Consensus des nœuds", "assembly": "Consensus", "seats": 2, "reps": "pop", "mode": "continuous",
+			"text": "Pas d'élection : chaque mois, les deux courants dominants des nœuds reliés à la capitale gouvernent. Un nœud coupé ne vote plus."},
+		"ruche": {"label": "Instincts", "assembly": "Instincts", "seats": 0, "mode": "none",
+			"text": "Pas de courants, pas de vote : une seule volonté. Ni bonus ni malus de représentation."}
+	},
+	"default_regime": "republique",
+	"ai": {"_doc": "Soutien officiel de l'IA : Belliqueux soutient le Glaive, Pacifique la Concorde, les autres leur courant principal, sauf si ses systèmes non représentés sont nombreux (elle soutient alors le courant le plus fort pour les rallier).", "rally_pct": 40}
+}

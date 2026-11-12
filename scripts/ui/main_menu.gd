@@ -163,6 +163,9 @@ var _curio_select: OptionButton
 ## Quêtes (Quests.modes) : aucune, sans retournements, avec les quêtes galactiques.
 var quests := Quests.default_mode()
 var _quest_select: OptionButton
+## Politique intérieure (Politics.modes) : active ou aucune.
+var politics := Politics.default_mode()
+var _politics_select: OptionButton
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
 const PRESETS_PATH := "user://new_game_presets.json"
@@ -1460,9 +1463,18 @@ func set_quests(id: String) -> void:
 	_refresh_preset()
 
 
+func set_politics(id: String) -> void:
+	politics = id if not Politics.mode_def(id).is_empty() else Politics.default_mode()
+	if _politics_select:
+		for i in Politics.modes().size():
+			if String(Politics.modes()[i]["id"]) == politics:
+				_politics_select.select(i)
+	_refresh_preset()
+
+
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
-	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "events": events, "curios": curios, "quests": quests}
+	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "events": events, "curios": curios, "quests": quests, "politics": politics}
 
 
 func set_spectator(on: bool) -> void:
@@ -1751,6 +1763,16 @@ func _build_new_page(root: Control) -> void:
 	_quest_select.item_selected.connect(func(i: int) -> void: set_quests(String(Quests.modes()[i]["id"])))
 	_labeled_row(game, "Quêtes", _quest_select)
 	set_quests(quests)
+	_politics_select = OptionButton.new()
+	_politics_select.clip_text = true
+	var poltip := PackedStringArray(["Politique intérieure : six courants (Forge, Académie, Concorde, Sève, Autel, Glaive), une opinion par système que vos actes déplacent, et des élections tous les 3 ans dont les règles dépendent de votre gouvernement."])
+	for d: Dictionary in Politics.modes():
+		_politics_select.add_item(String(d["label"]))
+		poltip.append("%s : %s" % [d["label"], d["desc"]])
+	_politics_select.tooltip_text = "\n".join(poltip)
+	_politics_select.item_selected.connect(func(i: int) -> void: set_politics(String(Politics.modes()[i]["id"])))
+	_labeled_row(game, "Politique", _politics_select)
+	set_politics(politics)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2485,7 +2507,7 @@ func settings() -> Dictionary:
 	return {"faction": selected_faction, "slots": saved_slots, "duplicates": allow_duplicates, "team": player_team,
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
-		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "events": events, "curios": curios, "quests": quests, "galaxy": galaxy_settings.duplicate(),
+		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2502,7 +2524,7 @@ func default_settings() -> Dictionary:
 		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "timer": "", "deadline": Victory.default_deadline(), "people": true,
 		"victories": {"conquete": true, "domination": true, "allies": true}, "ai_scaling": false,
 		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "events": Events.default_frequency(), "curios": Curios.default_density(),
-		"quests": Quests.default_mode(), "galaxy": GalaxySettings.defaults()}
+		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -2568,6 +2590,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_events(String(d.get("events", base["events"])))
 	set_curios(String(d.get("curios", base["curios"])))
 	set_quests(String(d.get("quests", base["quests"])))
+	set_politics(String(d.get("politics", base["politics"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

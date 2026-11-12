@@ -210,6 +210,16 @@ func _draw() -> void:
 				_draw_stability(s, px, o == viewer)
 		_draw_lairs(px)
 		return
+	if lens == "politics" and state != null:
+		# Lentille politique : vos systèmes cerclés à la couleur du courant qui domine leur opinion,
+		# trait plein s'ils sont représentés au pouvoir, pointillé sinon.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		for s in galaxy.systems:
+			if owner_of(s.id) == viewer:
+				_draw_system(s, px)
+				_draw_label(s, px, true)
+				_draw_politics(s, px)
+		return
 	var show_all_labels := _zoom() >= LABEL_MIN_ZOOM
 	var show_dots := _zoom() >= PLANET_DOTS_MIN_ZOOM
 	for s in galaxy.systems:
@@ -575,6 +585,30 @@ func _draw_stability(s: StarSystem, px: float, mine: bool) -> void:
 		var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
 		draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
 		draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Lentille politique : courant dominant du système et représentation.
+func _draw_politics(s: StarSystem, px: float) -> void:
+	var op := Politics.opinion(state, s.id)
+	if op.is_empty() or not Politics.applies(state, viewer):
+		return
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	var top := Politics._argmax(op)
+	var col := Politics.color(top)
+	var part := Politics.stability_part(state, s.id, viewer)
+	if part.is_empty() or int(part[1]) >= 0:
+		draw_arc(Vector2.ZERO, 13.0, 0.0, TAU, 28, col, 2.4, true)
+	else:
+		for k in 12:
+			draw_arc(Vector2.ZERO, 13.0, TAU * k / 12.0, TAU * (k + 0.55) / 12.0, 4, col, 2.4, true)
+	@warning_ignore("integer_division")
+	var text := "%s %d %%" % [Politics.short(state, viewer, top), (int(op[top]) + 5) / 10]
+	if not part.is_empty():
+		text += "  %+d" % int(part[1])
+	var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+	draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
+	draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col.lightened(0.2))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

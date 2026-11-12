@@ -62,6 +62,10 @@ var _victory_panel: VictoryPanel
 var _event_panel: EventPanel
 var _events_told := {}
 var _event_paused := false
+## Fenêtre d'élection (voir Politics) : dernière élection du joueur déjà montrée, pause qu'elle a mise.
+var _election_panel: ElectionPanel
+var _election_told := -1
+var _election_paused := false
 ## Le vainqueur a déjà été annoncé (panneau de fin de partie montré, ou partie chargée déjà gagnée).
 var _victory_told := false
 ## Réglages des victoires de la prochaine partie (menu Nouvelle partie) : date limite en jours
@@ -185,6 +189,12 @@ func _ready() -> void:
 	_event_panel.locate_requested.connect(func(sid: int) -> void:
 		close_event_panel()
 		_go_to_system(sid))
+	_election_panel = ElectionPanel.new()
+	add_child(_election_panel)
+	_election_panel.closed.connect(close_election_panel)
+	_election_panel.senate_requested.connect(func() -> void:
+		close_election_panel()
+		toggle_empire_screen("senate"))
 	_empire_screens.event_requested.connect(func(event_id: int) -> void:
 		close_empire_screen()
 		open_event(event_id))
@@ -538,7 +548,7 @@ func _check_victory() -> void:
 
 ## Un menu plein écran (principal, pause, d'empire, de fin de partie ou un événement) recouvre la carte.
 func is_modal_open() -> bool:
-	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open() or is_event_panel_open()
+	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open() or is_event_panel_open() or is_election_panel_open()
 
 
 # --- Événements -------------------------------------------------------------------------------
@@ -589,6 +599,39 @@ func _announce_events() -> void:
 			return
 
 
+## Après l'élection du joueur, la fenêtre d'élection s'ouvre (pause en solo, jamais par-dessus un menu).
+func _announce_election() -> void:
+	if spectator or simulation == null or not Politics.applies(simulation.state, local_player) or Politics.mode(simulation.state, local_player) == "continuous":
+		return
+	var last := int(Politics.emp(simulation.state, local_player).get("last", -1))
+	if last <= _election_told or simulation.state.tick - last > 30:
+		return
+	if _election_panel.is_open() or _event_panel.is_open() or _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open():
+		return
+	_election_told = last
+	close_system_view()
+	_hud.show_hover(null, Vector2.ZERO)
+	if not GameClock.paused and not net.is_active():
+		_election_paused = true
+		GameClock.set_paused(true)
+	_election_panel.open(simulation.state, local_player)
+	_update_map_input()
+
+
+func close_election_panel() -> void:
+	if _election_panel == null or not _election_panel.is_open():
+		return
+	_election_panel.close()
+	if _election_paused:
+		_election_paused = false
+		GameClock.set_paused(false)
+	_update_map_input()
+
+
+func is_election_panel_open() -> bool:
+	return _election_panel != null and _election_panel.is_open()
+
+
 ## La caméra de la carte ne réagit que si la carte est visible et rien ne la recouvre.
 func _update_map_input() -> void:
 	var active := not is_system_view_open() and not is_modal_open()
@@ -627,12 +670,15 @@ func _start(state: GameState) -> void:
 	close_victory_panel()
 	close_event_panel()
 	_events_told.clear()
+	close_election_panel()
+	_election_told = int(Politics.emp(state, local_player).get("last", -1))
 	_empire_screens.see_all = spectator
 	_proposals_told = state.next_proposal_id - 1
 	simulation.ticked.connect(func(_tick: int) -> void:
 		_announce_arrivals()
 		_announce_proposals()
 		_announce_events()
+		_announce_election()
 		_check_defeat()
 		_check_victory()
 		_refresh_all())
@@ -1011,6 +1057,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		if key.keycode == KEY_ESCAPE or key.keycode == KEY_ENTER:
 			close_victory_panel()
 		return
+	if is_election_panel_open():
+		if key.keycode == KEY_ESCAPE or key.keycode == KEY_ENTER:
+			close_election_panel()
+		elif key.physical_keycode == KEY_P:
+			close_election_panel()
+			toggle_empire_screen("senate")
+		return
 	if is_event_panel_open():
 		if key.keycode == KEY_ESCAPE:
 			close_event_panel()
@@ -1105,6 +1158,12 @@ func _unhandled_input(event: InputEvent) -> void:
 				return
 			if key.physical_keycode == KEY_J:
 				toggle_empire_screen("chronicles")
+				return
+			if key.physical_keycode == KEY_P:
+				toggle_empire_screen("senate")
+				return
+			if key.physical_keycode == KEY_O and not is_system_view_open():
+				_hud.set_lens("" if _hud.lens == "politics" else "politics")
 				return
 			if key.physical_keycode == KEY_F and not is_system_view_open() and not is_empire_screen_open():
 				cycle_fleet(-1 if key.shift_pressed else 1)

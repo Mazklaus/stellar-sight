@@ -267,6 +267,12 @@ static func hero_ransom(player: int, hero_id: int) -> Dictionary:
 	return {"type": "hero_ransom", "player": player, "hero": hero_id}
 
 
+## Soutien officiel à un courant pour la prochaine élection (Politics ; -1 retire le soutien).
+## En théocratie et en horde, c'est le courant nommé.
+static func politics_support(player: int, current: int) -> Dictionary:
+	return {"type": "politics_support", "player": player, "current": current}
+
+
 ## Décret de stabilité sur un système (Stability : "loi_martiale", "fetes", "concessions").
 static func decree(player: int, system_id: int, decree_id: String) -> Dictionary:
 	return {"type": "decree", "player": player, "system": system_id, "decree": decree_id}
@@ -355,6 +361,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Fleets.check_merge(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("into", -1)))
 		"split_fleet":
 			return Fleets.check_split(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("ship", "")))
+		"politics_support":
+			return Politics.check_support(state, int(cmd["player"]), int(cmd.get("current", -2)))
 		"decree":
 			return Stability.check_decree(state, int(cmd["player"]), int(cmd.get("system", -1)), String(cmd.get("decree", "")))
 		"stab_offering":
@@ -583,6 +591,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				c.ship_days = 1
 		"fold":
 			Echoes.fold(state, int(cmd["player"]), int(cmd["planet"]), String(cmd["what"]))
+		"politics_support":
+			Politics.support(state, int(cmd["player"]), int(cmd["current"]))
 		"decree":
 			Stability.decree(state, int(cmd["player"]), int(cmd["system"]), String(cmd["decree"]))
 		"stab_offering":

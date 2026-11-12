@@ -3,7 +3,7 @@ extends RefCounted
 ## hostilité selon le tempérament et l'attitude, bataille contre un troupeau, ni siège ni blocus,
 ## migrations autour du nid, repeuplement, destruction d'un nid, attitudes (coûts, étude et bonus,
 ## apprivoisement, chasse et butin), piège de curiosité vivante, contournement des sans-armes, IA,
-## Bestiaire ; sauvegarde 28 et déterminisme. Appelés par smoke_test.gd.
+## Bestiaire ; sauvegarde 29 et déterminisme. Appelés par smoke_test.gd.
 
 var _check: Callable
 
@@ -283,7 +283,7 @@ func _test_save() -> void:
 	Fauna.spawn_trap(st, FactionTraits.capital_system(st, 0), 1)
 	sim.advance(40)
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_snapshot())))
-	_ok(back != null, "sauvegarde 28 relue")
+	_ok(back != null, "sauvegarde 29 relue")
 	if back == null:
 		return
 	_ok(back.checksum() == st.checksum(), "même empreinte après sauvegarde (nids, troupeaux, attitudes)")
