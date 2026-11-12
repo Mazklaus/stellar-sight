@@ -8,15 +8,17 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 21
+const FORMAT_VERSION := 22
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
+## Identifiant des Sans-Bannière (faction neutre, voir npc_empire) : au-delà de tout indice d'empire.
+const NPC_ID := 90
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
 static var last_error := ""
@@ -91,6 +93,10 @@ var next_spy_id: int = 0
 var heroes: Dictionary = {}
 var next_hero_id: int = 0
 var hero_meta: Dictionary = {}
+## Stabilité des systèmes (voir Stability) : identifiant de système -> {"v", "revolt", "hit", "conq",
+## "decree", "decree_end", "offer", "wild"} ; et par empire le dernier pillage et la dernière paix.
+var stability: Dictionary = {}
+var stab_meta: Dictionary = {}
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -98,6 +104,7 @@ var seen_cache: Array[Dictionary] = []
 var seen_tick: int = -1
 ## Propriétaire de chaque système revendiqué (donnée dérivée des colonies, non sauvegardée).
 var _system_owner: Dictionary = {}
+var _npc: Empire = null
 
 
 ## Nouvelle partie : galaxie, puis les empires de la première version placés dans leurs systèmes d'origine.
@@ -237,6 +244,8 @@ func to_dict() -> Dictionary:
 		"heroes": Heroes.to_list(self),
 		"next_hero_id": next_hero_id,
 		"hero_meta": Heroes.meta_to_list(self),
+		"stability": Stability.to_list(self),
+		"stab_meta": Stability.meta_to_dict(self),
 	}
 
 
@@ -411,6 +420,8 @@ static func from_dict(d: Dictionary) -> GameState:
 	s.next_spy_id = int(d.get("next_spy_id", 0))
 	Heroes.from_lists(s, d.get("heroes", []), d.get("hero_meta", []))
 	s.next_hero_id = int(d.get("next_hero_id", 0))
+	s.stability = Stability.from_list(d.get("stability", []))
+	s.stab_meta = Stability.meta_from_dict(d.get("stab_meta", {}))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant les héros : chaque empire reçoit son héros de départ.
 	if int(d["version"]) < 20:
@@ -468,9 +479,31 @@ func spawn_ship(owner_id: int, ship_id: String, system_id: int) -> Fleet:
 
 
 func get_empire(id: int) -> Empire:
+	if id == NPC_ID:
+		return npc_empire()
 	if id < 0 or id >= empires.size():
 		return null
 	return empires[id]
+
+
+## Les Sans-Bannière : faction neutre, hostile à tous, qui possède les mondes libres (sécession) et
+## les rebelles. Hors de la liste des empires (ni IA, ni victoire, ni diplomatie) ; recréée à la
+## demande, rien d'elle n'est sauvegardé hormis ses colonies et ses flottes.
+func npc_empire() -> Empire:
+	if _npc == null:
+		_npc = Empire.new()
+		_npc.id = NPC_ID
+		_npc.faction_id = "sans_banniere"
+		var d: Dictionary = GameData.stability().get("npc", {})
+		_npc.npc_faction = {"id": "sans_banniere", "name": String(d.get("name", "Les Sans-Bannière")),
+				"short": String(d.get("short", "Sans-Bannière")), "color": String(d.get("color", "#8d929b"))}
+		_npc.capital_planet = -1
+		_npc.home_planet = -1
+	return _npc
+
+
+static func is_npc(id: int) -> bool:
+	return id == NPC_ID
 
 
 ## Identifiants des planètes revendiquées, triés : tout parcours qui modifie l'état passe par là,

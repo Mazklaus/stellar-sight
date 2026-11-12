@@ -973,6 +973,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			toggle_empire_screen("intel")
 		KEY_F10:
 			toggle_empire_screen("heroes")
+		KEY_F12:
+			toggle_empire_screen("order")
 		KEY_ENTER, KEY_KP_ENTER:
 			# En réseau, Entrée ouvre la discussion (le système s'ouvre par double clic ou son bouton).
 			if net.core != null and chat:
@@ -982,6 +984,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_L:
 			if not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "economy" else "economy")
+		KEY_K:
+			if not is_system_view_open():
+				_hud.set_lens("" if _hud.lens == "stability" else "stability")
 		KEY_TAB:
 			# Dans la vue système, Tab bascule vue orbitale / gestion ; sur la carte, il passe d'un système à l'autre.
 			if is_system_view_open():

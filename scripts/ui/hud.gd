@@ -47,6 +47,7 @@ var dial: TimeDial
 var _tabs: HBoxContainer
 var _tab_galaxy: Button
 var _tab_economy: Button
+var _tab_stability: Button
 var _tab_orbit: Button
 var _tab_manage: Button
 var _info_panel: PanelContainer
@@ -201,6 +202,7 @@ func set_system_mode(on: bool) -> void:
 	# Dans la vue système, « Vue galaxie » ramène à la carte ; la lentille laisse place aux deux vues du système.
 	_tab_galaxy.set_pressed_no_signal(not on and lens == "")
 	_tab_economy.visible = not on
+	_tab_stability.visible = not on
 	_tab_orbit.visible = on
 	_tab_manage.visible = on
 	if on:
@@ -324,11 +326,12 @@ func planet_row_count() -> int:
 	return _planet_dots.get_child_count()
 
 
-## Lentille de la carte : "" (vue galaxie) ou "economy".
+## Lentille de la carte : "" (vue galaxie), "economy" ou "stability".
 func set_lens(value: String) -> void:
 	lens = value
 	_tab_galaxy.set_pressed_no_signal(value == "")
 	_tab_economy.set_pressed_no_signal(value == "economy")
+	_tab_stability.set_pressed_no_signal(value == "stability")
 	lens_changed.emit(value)
 
 
@@ -355,6 +358,8 @@ func _build_tabs() -> void:
 			set_lens(""))
 	_tab_economy = _tab("Lentille économique", "Bilan mensuel de chacun de vos systèmes, sur la carte  (L)")
 	_tab_economy.pressed.connect(func() -> void: set_lens("" if lens == "economy" else "economy"))
+	_tab_stability = _tab("Lentille de stabilité", "La stabilité de chacun de vos systèmes, et les mondes libres, sur la carte  (K)")
+	_tab_stability.pressed.connect(func() -> void: set_lens("" if lens == "stability" else "stability"))
 	_tab_orbit = _tab("Vue orbitale", "L'étoile et ses planètes en orbite  (Tab)")
 	_tab_orbit.pressed.connect(func() -> void: system_mode_requested.emit(false))
 	_tab_manage = _tab("Gestion du système", "Les planètes côte à côte, pour comparer  (Tab)")
@@ -762,7 +767,7 @@ func _refresh_card() -> void:
 	_card_title.add_theme_color_override("font_color", owner.color().lightened(0.35) if owner else UiTheme.TEXT)
 	_card_kind.text = "Système stellaire (%s)" % GalaxyGenerator.star_label(s.star_type)
 	_card_owner.text = "%s  ·  %s" % [
-		"Système de %s" % owner.short_name() if owner else "Système libre",
+		("Monde libre" if owner.is_npc() else "Système de %s" % owner.short_name()) if owner else "Système libre",
 		"à portée" if Economy.in_range(_state, _player, s.id) else "hors de portée",
 	]
 	if owner and owner.eliminated:
@@ -773,6 +778,10 @@ func _refresh_card() -> void:
 				"  ·  ASSIÉGÉ" if Combat.is_besieged(_state, s.id) else ""]
 	elif owner and Intel.siege_of(_state, Intel.lens, s.id) >= 0:
 		_card_owner.text += "\nAssiégé"
+	if owner and owner.id == _player and Stability.applies(_state, _player):
+		_card_owner.text += "\nStabilité %d (%s)" % [Stability.value(_state, s.id), Stability.tier_label(_state, s.id)]
+	elif owner and owner.is_npc():
+		_card_owner.text += "\nMonde libre : il a fait sécession"
 	if live and not Combat.battle_at(_state, s.id).is_empty():
 		_card_owner.text += "\nBataille en cours"
 	elif not live and Intel.battle_known(_state, Intel.lens, s.id):

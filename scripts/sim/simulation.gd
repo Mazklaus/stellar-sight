@@ -80,6 +80,8 @@ func step() -> void:
 		combat_event.emit(ev)
 	for entry in DiplomacySystem.process(state):
 		chronicle_added.emit(entry)
+	for entry in StabilitySystem.process(state):
+		chronicle_added.emit(entry)
 	for entry in Heroes.daily(state):
 		chronicle_added.emit(entry)
 	for entry in VictorySystem.process(state):

@@ -204,6 +204,7 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 			if hp != 0 and int(gross[r]) > 0:
 				@warning_ignore("integer_division")
 				gross[r] = int(gross[r]) * (100 + hp) / 100
+	Stability.adjust_yields(state, planet.system_id, gross)
 	if Combat.is_besieged(state, planet.system_id):
 		var pct := int(Combat.data().get("besieged_production_pct", 50))
 		for r in gross:
@@ -225,6 +226,8 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 		_add(upkeep, y["upkeep"])
 	_add(upkeep, Fleets.upkeep(state, empire_id))
 	gross["influence"] += FactionTraits.extra_influence(state, empire_id)
+	# Systèmes en Ferveur : +1 influence chacun.
+	gross["influence"] += Stability.extra_influence(state, empire_id)
 	# Horde : la flotte-ville rapporte ce que rapporte une capitale.
 	_add(gross, FactionTraits.city_yields(state, empire_id))
 	# Registre Picaresque : la réputation rapporte des « crédits ».
@@ -251,6 +254,9 @@ static func production_pct(state: GameState, empire_id: int, resource: String) -
 	var bonus := Research.production_bonus(state, empire_id, resource)
 	if resource == "knowledge":
 		bonus += FactionTraits.peace_knowledge_pct(state, empire_id)
+	# Stabilité d'empire : de -15 % à +15 % de Savoir et d'influence.
+	if resource == "knowledge" or resource == "influence":
+		bonus += Stability.empire_pct(state, empire_id)
 	pct = pct * (100 + bonus) / 100
 	return pct * AiLevels.production_pct(state, empire_id) / 100
 

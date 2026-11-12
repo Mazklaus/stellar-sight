@@ -1,0 +1,64 @@
+{
+	"_doc": "Stabilité des systèmes (étude « Pirates et stabilité des colonies », 2026-11-12, propositions 1 à 8 et 14). Chaque système revendiqué a une stabilité de 0 à 100 qui glisse chaque mois vers sa cible (somme des sources). Sources : ES2 (Approval), Stellaris (stabilité, révolte planétaire), Civilization VI (loyauté, cités libres), Humankind (valeur qui tend vers une cible).",
+	"base": 50,
+	"drift_per_month": 2,
+	"tiers": [
+		{"id": "revolte", "label": "Révolte", "min": 0, "prod_pct": -50, "growth": false, "frozen": true, "color": "#d9534f",
+			"text": "Production -50 %, chantiers gelés, pas de croissance. Un an de révolte et le système fait sécession."},
+		{"id": "agitation", "label": "Agitation", "min": 10, "prod_pct": -20, "growth": false, "color": "#e0913a",
+			"text": "Production -20 %, pas de croissance."},
+		{"id": "calme", "label": "Calme", "min": 30, "prod_pct": 0, "color": "#a9b4c2",
+			"text": "Ni bonus ni malus."},
+		{"id": "fidele", "label": "Fidèle", "min": 70, "prod_pct": 10, "color": "#6cc070",
+			"text": "Production +10 %."},
+		{"id": "ferveur", "label": "Ferveur", "min": 85, "prod_pct": 20, "influence": 1, "color": "#4fc3f7",
+			"text": "Production +20 % et +1 influence par mois."}
+	],
+	"sources": {
+		"capital": 10,
+		"distance": {"free_jumps": 4, "per_jump": -2, "max": -10},
+		"overextension": {"threshold": 12, "per_system": -1, "max": -15},
+		"overpop": {"from_pct": 80, "per_pop": -1, "max": -5},
+		"shortage": -20,
+		"attacked": {"value": -15, "days": 90},
+		"war": {"per_quarter": -1, "max": -6},
+		"garrison": 5,
+		"buildings": {"forum": 10, "prefecture": 10, "cathedrale": 5, "capitale": 0},
+		"intendant": {"base": 5, "per_level": 2},
+		"conquered": {"value": -15, "days": 1800}
+	},
+	"empire": {"pct_per_point": 30, "max_pct": 15, "_doc": "Stabilité d'empire (moyenne pondérée par la population) : (stabilité - 50) × 0,30 % de Savoir et d'influence, plafonné à ±15 %."},
+	"decrees": {
+		"loi_martiale": {"label": "Loi martiale", "cost": {"influence": 30}, "days": 180, "stability": 25, "prod_pct": -25, "needs_fleet": true,
+			"text": "+25 stabilité, -25 % de production pendant 6 mois. Une flotte armée doit être dans le système."},
+		"fetes": {"label": "Fêtes publiques", "cost": {"influence": 15, "energy": 60}, "days": 180, "stability": 15,
+			"text": "+15 stabilité pendant 6 mois. Le pain et les jeux se paient en énergie."},
+		"concessions": {"label": "Concessions locales", "cost": {"influence": 20}, "days": 180, "stability": 20, "no_influence": true,
+			"text": "+20 stabilité pendant 6 mois, mais le système ne produit plus d'influence."}
+	},
+	"secession": {"revolt_days": 360, "warn_days": [180, 300], "rebels_every": 120, "rebel_ships": ["corvette", "corvette"], "rebel_extra_every_years": 3},
+	"reintegrate": {"cost_base": 40, "cost_per_planet": 15, "min_empire": 60, "_doc": "Réintégrer un monde libre qui touche votre territoire : influence, stabilité d'empire d'au moins 60, aucune flotte armée des Sans-Bannière sur place."},
+	"offering": {"stability": -20, "fervor": 15, "cooldown_days": 180},
+	"wild": {"far_jumps": 6, "days": 360, "warn_days": 180, "hive_pop": 10, "_doc": "Distance comptée depuis le monde-ruche le plus proche : la capitale ou une colonie d'au moins hive_pop population."},
+	"npc": {"name": "Les Sans-Bannière", "short": "Sans-Bannière", "color": "#8d929b"},
+	"talents": {
+		"gouvernement": {
+			"feodalite": {"label": "Serments des fiefs", "text": "La dissidence (faute de cristaux) coûte 20 de stabilité aux fiefs lointains au lieu de diviser leur production ; un héritier à moins de 30 de loyauté coûte 10 de stabilité partout.", "dissent": -20, "heir_disloyal": -10, "heir_below": 30},
+			"theocratie": {"label": "Ferveur et ordre", "text": "Exaltation : +10 stabilité partout ; ferveur à 0 : -15. Offrande : sacrifier 20 de stabilité d'un système contre 15 de ferveur.", "exalted": 10, "silent": -15, "offering": true},
+			"republique": {"label": "Opinion publique", "text": "La lassitude de guerre compte double ; deux ans sans guerre : +5 partout.", "war_x": 2, "peace": 5, "peace_days": 720},
+			"conscience": {"label": "Réseau sans centre", "text": "Pas de malus de distance à la capitale ; un nœud en révolte coûte 5 de stabilité aux nœuds voisins.", "no_distance": true, "revolt_neighbors": -5},
+			"ruche": {"label": "Une seule volonté", "text": "Pas de stabilité. Mais une colonie à plus de 6 sauts de tout monde-ruche (la capitale, ou une colonie de 10 population ou plus) redevient sauvage au bout d'un an.", "no_stability": true, "wild": true},
+			"horde": {"label": "Les clans aiment le butin", "text": "Pas de malus de distance (les clans suivent la flotte-ville). Un pillage dans les 6 derniers mois : +10 stabilité partout ; rien depuis un an : -5.", "no_distance": true, "loot_recent": 10, "loot_days": 180, "loot_none": -5, "loot_none_days": 360},
+			"syndicat": {"label": "Paix sociale achetée", "text": "Les Fêtes publiques coûtent moitié moins.", "fetes_pct": 50}
+		},
+		"credo": {
+			"honneur": {"label": "Parole donnée", "text": "Un parjure (traité rompu) coûte 10 de stabilité partout pendant un an.", "perjury": -10, "perjury_days": 360},
+			"foi": {"label": "Les infidèles", "text": "Le malus des mondes conquis compte double.", "conquered_x": 2},
+			"profit": {"label": "Les affaires marchent", "text": "Un accord commercial actif : +5 stabilité partout.", "trade": 5},
+			"survie": {"label": "Habitués à la disette", "text": "Famine et coupures d'énergie ne font pas baisser la stabilité.", "no_shortage": true}
+		},
+		"archetype": {
+			"synthetique": {"label": "Châssis empilables", "text": "Pas de malus de surpopulation.", "no_overpop": true}
+		}
+	}
+}

@@ -227,6 +227,10 @@ static func diplomacy() -> Dictionary:
 
 
 ## Espionnage (data/espionage.json) : cellules, réseaux, paliers, sondes.
+static func stability() -> Dictionary:
+	return _load("stability")
+
+
 static func espionage() -> Dictionary:
 	return _load("espionage")
 

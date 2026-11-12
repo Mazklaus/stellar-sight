@@ -27,6 +27,8 @@ const SCREENS := [
 		"why": "Affectez vos cellules chez les empires rencontrés : le réseau grandit chaque mois et dévoile, palier après palier, leurs systèmes, leurs comptes, leurs flottes et leurs pensées. Chez vous, elles font du contre-espionnage."},
 	{"id": "heroes", "label": "Panthéon", "key": "F10", "glyph": "heroes", "ready": true,
 		"why": "Vos héros : un poste chacun (amiral d'une flotte, gouverneur d'un système, siège au conseil, agent d'un réseau). Vos actes font monter votre renom ; au seuil, trois candidats se présentent et vous en choisissez un."},
+	{"id": "order", "label": "Ordre intérieur", "key": "F12", "glyph": "order", "ready": true,
+		"why": "Chaque système a une stabilité de 0 à 100 qui glisse chaque mois vers sa cible. Fidèles, ils produisent plus ; en révolte, ils se figent, puis font sécession au bout d'un an. Les décrets achètent du temps."},
 ]
 ## Description d'un menu d'empire (entrée de SCREENS), {} s'il n'existe pas.
 static func screen_info(screen_id: String) -> Dictionary:
@@ -166,7 +168,10 @@ func refresh() -> void:
 		(chip["delta"] as Label).add_theme_color_override("font_color", UiTheme.delta_color(net))
 		(chip["panel"] as Control).tooltip_text = _resource_tip(r, me)
 	_status.text = _status_line(me)
-	_status.add_theme_color_override("font_color", UiTheme.BAD if me.starving or me.blackout else UiTheme.TEXT_DIM)
+	var revolt := _status.text.begins_with("Révolte")
+	_status.add_theme_color_override("font_color", UiTheme.BAD if me.starving or me.blackout else (UiTheme.WARN if revolt else UiTheme.TEXT_DIM))
+	_status.mouse_filter = Control.MOUSE_FILTER_STOP
+	_status.tooltip_text = _stability_tip(me)
 
 
 ## Traits d'une faction en lignes « Nom : effet » (infobulles, écrans d'empire).
@@ -211,7 +216,25 @@ func _status_line(me: Empire) -> String:
 	for c in EmpireReport.colonies(_state, _player):
 		if c["construction"] != "":
 			works += 1
-	return "%d chantier%s  ·  fondations %d/%d  ·  %d pop" % [works, "s" if works > 1 else "", t["founding"], t["max_projects"], t["population"]]
+	var line := "%d chantier%s  ·  fondations %d/%d  ·  %d pop" % [works, "s" if works > 1 else "", t["founding"], t["max_projects"], t["population"]]
+	if Stability.applies(_state, _player):
+		var revolts := 0
+		for sid in Stability.systems_of(_state, _player):
+			if Stability.tier_id(_state, sid) == "revolte":
+				revolts += 1
+		if revolts > 0:
+			return "Révolte dans %d système%s (F12)  ·  " % [revolts, "s" if revolts > 1 else ""] + line
+		line = "Stabilité %d  ·  " % Stability.empire_value(_state, _player) + line
+	return line
+
+
+## Infobulle de la ligne d'état : stabilité d'empire et son effet.
+func _stability_tip(_me: Empire) -> String:
+	if not Stability.applies(_state, _player):
+		return ""
+	var ev := Stability.empire_value(_state, _player)
+	return "Stabilité d'empire %d (%s) : %+d %% de Savoir et d'influence.\nOrdre intérieur (F12) pour le détail par système." % [
+			ev, String(Stability.tier_for(ev)["label"]), Stability.empire_pct(_state, _player)]
 
 
 func _resource_tip(r: Dictionary, me: Empire) -> String:

@@ -265,6 +265,9 @@ static func shot_damage(weapon: String, power: int, phase: int, shooter_tactic: 
 static func at_war(state: GameState, a: int, b: int) -> bool:
 	if a == b or a < 0 or b < 0:
 		return false
+	# Les Sans-Bannière (rebelles, mondes libres) sont hostiles à tous.
+	if GameState.is_npc(a) or GameState.is_npc(b):
+		return true
 	var e := state.get_empire(a)
 	return e != null and e.wars.has(b)
 
@@ -544,6 +547,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 	state.rebuild_ownership()
 	state.garrisons[system_id] = 0
 	state.sieges.erase(system_id)
+	Stability.on_capture(state, system_id)
 	var sname := state.galaxy.systems[system_id].system_name
 	var fervor := int(trait_value(state, new_owner, "fervor_per_conquest", 0))
 	if fervor > 0 and FactionTraits.has_fervor(en.faction()):
