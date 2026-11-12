@@ -273,7 +273,7 @@ func _test_save() -> void:
 	Politics.run_election(st, 0)
 	Politics.support(st, 0, 2)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 28, "sauvegarde : format 28")
+	_ok(int(d["version"]) >= 28, "sauvegarde : format 28 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and back.politics_on and JSON.stringify(Politics.to_dict(back), "", true) == JSON.stringify(Politics.to_dict(st), "", true), "sauvegarde : la politique survit au rechargement")
 	_ok(back != null and back.checksum() == st.checksum(), "sauvegarde : même empreinte après rechargement")

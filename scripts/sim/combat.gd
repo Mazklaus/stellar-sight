@@ -272,6 +272,16 @@ static func at_war(state: GameState, a: int, b: int) -> bool:
 	return e != null and e.wars.has(b)
 
 
+## Hostilité entre deux flottes : la guerre entre leurs empires, sauf pour la Faune, dont l'humeur
+## dépend de l'espèce et de l'attitude de chaque empire envers elle (Fauna.hostile).
+static func hostile_fleets(state: GameState, a: Fleet, b: Fleet) -> bool:
+	if a.owner == GameState.FAUNA_ID or b.owner == GameState.FAUNA_ID:
+		if a.owner == b.owner:
+			return false
+		return Fauna.hostile(state, a, b.owner) if a.owner == GameState.FAUNA_ID else Fauna.hostile(state, b, a.owner)
+	return at_war(state, a.owner, b.owner)
+
+
 ## Bonus d'arme (technologies), en points de % : marque de la famille (celle du vaisseau, `marks`,
 ## sinon celle de l'empire), weapon_pct de la famille (armes de peuple) et damage_pct.
 static func weapon_bonus(state: GameState, empire_id: int, weapon: String, marks := {}) -> int:
@@ -463,7 +473,7 @@ static func besiegers(state: GameState, system_id: int) -> Array[Fleet]:
 		if f.owner == owner and is_armed(f):
 			return []
 	for f in here:
-		if at_war(state, f.owner, owner) and is_armed(f):
+		if f.owner != GameState.FAUNA_ID and at_war(state, f.owner, owner) and is_armed(f):
 			out.append(f)
 	return out
 
@@ -476,10 +486,11 @@ static func is_besieged(state: GameState, system_id: int) -> bool:
 ## Un ennemi armé à l'arrêt dans ce système arrête les flottes de cet empire qui le traversent (blocus).
 ## Une flotte de coursiers de saut (`runs_blockades`) passe quand même.
 static func blocks(state: GameState, empire_id: int, system_id: int, moving: Fleet = null) -> bool:
-	if runs_blockades(moving):
+	if runs_blockades(moving) or empire_id == GameState.FAUNA_ID:
 		return false
 	for f in Fleets.fleets_at(state, system_id):
-		if at_war(state, f.owner, empire_id) and is_armed(f):
+		# Les créatures ne barrent pas le passage : on traverse leur système sans s'y arrêter.
+		if f.owner != GameState.FAUNA_ID and at_war(state, f.owner, empire_id) and is_armed(f):
 			return true
 	return false
 

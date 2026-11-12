@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 28
+const FORMAT_VERSION := 29
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -21,6 +21,8 @@ const CHRONICLE_MAX := 50
 const NPC_ID := 90
 ## Identifiant des Pirates (repaires et raids, voir Pirates et pirate_empire).
 const PIRATE_ID := 91
+## Identifiant de la Faune (troupeaux et nids de créatures, voir Fauna et fauna_empire).
+const FAUNA_ID := 92
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
 static var last_error := ""
@@ -128,7 +130,11 @@ var quest_mode: String = "aucunes"
 ## Politique intérieure (voir Politics) : entrées par empire et par système, option de partie.
 var politics: Dictionary = {"emp": {}, "sys": {}}
 var politics_on: bool = false
+## Faune (voir Fauna) : densité, nids, troupeaux, et par empire les espèces rencontrées, étudiées,
+## chassées ou apprivoisées.
+var fauna: Dictionary = {}
 var _pirates: Empire
+var _fauna: Empire
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -172,8 +178,9 @@ var _npc: Empire = null
 ## - "curios" : densité des curiosités (Curios, défaut "aucune") ;
 ## - "events" : fréquence des événements (Events, défaut "aucun") ;
 ## - "quests" : quêtes (Quests.modes, défaut "aucunes") ;
-## - "politics" : politique intérieure ("active" ou "aucune", défaut). Sans ces cinq options (tests,
-##   bancs), la partie n'a ni pirates, ni curiosités, ni événements, ni quêtes, ni politique.
+## - "politics" : politique intérieure ("active" ou "aucune", défaut) ;
+## - "creatures" : densité de la faune (Fauna, défaut "aucune"). Sans ces six options (tests, bancs),
+##   la partie n'a ni pirates, ni curiosités, ni événements, ni quêtes, ni politique, ni créatures.
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
 	var settings := GalaxySettings.normalize(options.get("galaxy", {}))
 	if options.has("galaxy"):
@@ -196,6 +203,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 		e.probes = int(GameData.espionage()["probes"]["start"])
 	Heroes.setup(s)
 	Pirates.setup(s, String(options.get("pirates", "aucun")))
+	Fauna.setup(s, String(options.get("creatures", "aucune")))
 	Curios.setup(s, String(options.get("curios", "aucune")))
 	s.event_freq = String(options.get("events", "aucun")) if not Events.freq_def(String(options.get("events", "aucun"))).is_empty() else "aucun"
 	Relics.setup(s)
@@ -302,6 +310,7 @@ func to_dict() -> Dictionary:
 		"relics": Relics.to_dict(self),
 		"quests": Quests.to_dict(self),
 		"politics": Politics.to_dict(self),
+		"fauna": Fauna.to_dict(self),
 	}
 
 
@@ -491,6 +500,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Relics.from_dict(s, d.get("relics", {}))
 	Quests.from_dict(s, d.get("quests", {}))
 	Politics.from_dict(s, d.get("politics", {}))
+	Fauna.from_dict(s, d.get("fauna", {}))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant les héros : chaque empire reçoit son héros de départ.
 	if int(d["version"]) < 20:
@@ -552,6 +562,8 @@ func get_empire(id: int) -> Empire:
 		return npc_empire()
 	if id == PIRATE_ID:
 		return pirate_empire()
+	if id == FAUNA_ID:
+		return fauna_empire()
 	if id < 0 or id >= empires.size():
 		return null
 	return empires[id]
@@ -590,9 +602,27 @@ func pirate_empire() -> Empire:
 	return _pirates
 
 
-## Faction non jouable (Sans-Bannière ou Pirates).
+## La Faune : troupeaux de créatures, hors de la liste des empires (voir Fauna). Elle n'est hostile
+## qu'à qui la chasse ou s'arrête chez une espèce territoriale (Fauna.hostile), connaît toutes les
+## routes ; recréée à la demande.
+func fauna_empire() -> Empire:
+	if _fauna == null:
+		_fauna = Empire.new()
+		_fauna.id = FAUNA_ID
+		_fauna.faction_id = "faune"
+		var d: Dictionary = GameData.creatures().get("npc", {})
+		_fauna.npc_faction = {"id": "faune", "name": String(d.get("name", "La Faune")),
+				"short": String(d.get("short", "Faune")), "color": String(d.get("color", "#5fbf9f"))}
+		_fauna.capital_planet = -1
+		_fauna.home_planet = -1
+		for sys in galaxy.systems:
+			_fauna.explored[sys.id] = true
+	return _fauna
+
+
+## Faction non jouable (Sans-Bannière, Pirates ou Faune).
 static func is_npc(id: int) -> bool:
-	return id == NPC_ID or id == PIRATE_ID
+	return id == NPC_ID or id == PIRATE_ID or id == FAUNA_ID
 
 
 ## Identifiants des planètes revendiquées, triés : tout parcours qui modifie l'état passe par là,
@@ -632,10 +662,12 @@ func override_planet(planet_id: int, fields: Dictionary) -> void:
 		p.size = int(fields["size"])
 		o["size"] = p.size
 	if fields.has("deposits"):
+		# Copie d'abord : l'appelant passe souvent Array(p.deposits), qui est le tableau même de la planète.
+		var deps: Array = Array(fields["deposits"]).duplicate()
 		p.deposits.clear()
-		for dep in fields["deposits"]:
+		for dep in deps:
 			p.deposits.append(String(dep))
-		o["deposits"] = Array(p.deposits)
+		o["deposits"] = Array(p.deposits).duplicate()
 	planet_overrides[planet_id] = o
 
 

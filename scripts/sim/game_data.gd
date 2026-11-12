@@ -183,6 +183,10 @@ static func clear_custom_ships() -> void:
 static func ship(id: String) -> Dictionary:
 	if _custom.has(id):
 		return _custom[id]
+	# Créatures (data/creatures.json, « units ») : elles se lisent comme des classes au combat, sans
+	# figurer parmi les classes que l'on construit.
+	if id.begins_with("bete_"):
+		return creatures().get("units", {}).get(id, {})
 	return ships().get(id, {})
 
 
@@ -234,6 +238,10 @@ static func stability() -> Dictionary:
 ## Pirates (data/pirates.json) : repaires, raids, tribut, contrats, primes.
 static func pirates() -> Dictionary:
 	return _load("pirates")
+
+
+static func creatures() -> Dictionary:
+	return _load("creatures")
 
 
 static func events() -> Dictionary:

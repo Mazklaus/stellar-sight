@@ -20,7 +20,8 @@
 			"vs_size": {"small": 50, "medium": 100, "large": 150, "titan": 200}},
 		"singularity": {"label": "Singularité", "short": "Singularité", "eff": [60, 100, 100], "defense": "none",
 			"vs_size": {"small": 30, "medium": 70, "large": 120, "titan": 160}},
-		"martyr": {"label": "Charge sacrée", "short": "Charge sacrée", "eff": [0, 0, 100], "defense": "armor", "self_destruct": true, "fervor": 5}
+		"martyr": {"label": "Charge sacrée", "short": "Charge sacrée", "eff": [0, 0, 100], "defense": "armor", "self_destruct": true, "fervor": 5},
+		"decharge": {"label": "Décharge vivante", "short": "Décharge", "eff": [60, 90, 90], "defense": "none", "creature": true}
 	},
 	"lines": {
 		"screen": {"label": "Écran", "weight": 3, "desc": "Devant : attire les tirs et protège le reste de la flotte."},
