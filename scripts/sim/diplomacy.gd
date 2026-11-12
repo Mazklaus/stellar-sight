@@ -154,7 +154,7 @@ static func war_score(state: GameState, a: int, b: int) -> int:
 
 ## Enregistre des points de guerre pour winner contre loser (s'ils sont en guerre).
 static func add_war_score(state: GameState, winner: int, loser: int, points: int) -> void:
-	if points <= 0 or not Combat.at_war(state, winner, loser):
+	if points <= 0 or GameState.is_npc(winner) or GameState.is_npc(loser) or not Combat.at_war(state, winner, loser):
 		return
 	var r := _rel_w(state, winner, loser)
 	var s: Array = r["score"]
@@ -164,7 +164,7 @@ static func add_war_score(state: GameState, winner: int, loser: int, points: int
 
 ## Système pris par la force : points de guerre et souvenir chez le vaincu.
 static func note_conquest(state: GameState, conqueror: int, victim: int) -> void:
-	if not Combat.at_war(state, conqueror, victim):
+	if GameState.is_npc(conqueror) or GameState.is_npc(victim) or not Combat.at_war(state, conqueror, victim):
 		return
 	add_war_score(state, conqueror, victim, 20)
 	remember(state, victim, conqueror, "conquest")
@@ -351,7 +351,7 @@ static func common_enemies(state: GameState, a: int, b: int) -> Array[int]:
 ## L'empire who se souvient d'un geste de about. Un souvenir du même genre se rafraîchit
 ## (et s'empile jusqu'à "stack" fois pour certains, comme les conquêtes).
 static func remember(state: GameState, who: int, about: int, kind: String) -> void:
-	if who == about or who < 0 or about < 0:
+	if who == about or who < 0 or about < 0 or GameState.is_npc(who) or GameState.is_npc(about):
 		return
 	var md: Dictionary = data()["memories"].get(kind, {})
 	if md.is_empty():
@@ -604,6 +604,7 @@ static func share_maps(state: GameState, a: int, b: int) -> void:
 static func end_war(state: GameState, a: int, b: int) -> void:
 	state.get_empire(a).wars.erase(b)
 	state.get_empire(b).wars.erase(a)
+	Stability.on_peace(state, a, b)
 	var kept: Array[Dictionary] = []
 	for p in state.proposals:
 		var pair := (int(p["from"]) == a and int(p["to"]) == b) or (int(p["from"]) == b and int(p["to"]) == a)

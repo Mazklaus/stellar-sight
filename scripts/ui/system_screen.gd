@@ -51,6 +51,11 @@ var _rename_edit: LineEdit
 var _rename_button: Button
 ## Lance une sonde vers ce système quand il est connu mais hors de vue (Espionage.probe).
 var probe_button: Button
+## Stabilité du système (voir Stability) : valeur, palier, sources en infobulle ; décrets, offrande,
+## réintégration d'un monde libre.
+var stab_label: Label
+var stab_buttons := {}
+var _stab_row: HBoxContainer
 var _cards: HBoxContainer
 var _card_ids: Array[int] = []
 var _panel: PanelContainer
@@ -228,6 +233,96 @@ func _build_header() -> void:
 	_subtitle = UiTheme.paragraph("", PANEL_WIDTH - 40.0, 13)
 	_subtitle.theme_type_variation = &"Dim"
 	head.add_child(_subtitle)
+	_build_stability(head)
+
+
+func _build_stability(head: VBoxContainer) -> void:
+	_stab_row = HBoxContainer.new()
+	_stab_row.add_theme_constant_override("separation", 6)
+	head.add_child(_stab_row)
+	stab_label = Label.new()
+	stab_label.add_theme_font_size_override("font_size", 14)
+	stab_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	stab_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_stab_row.add_child(stab_label)
+	var ids: Array = Stability.decree_ids()
+	ids.append("offering")
+	ids.append("reintegrate")
+	for id in ids:
+		var b := Button.new()
+		b.flat = true
+		b.focus_mode = Control.FOCUS_NONE
+		b.add_theme_font_size_override("font_size", 12)
+		b.add_theme_color_override("font_color", Color(ACCENT, 0.85))
+		b.text = String(Stability.decree_def(id).get("label", "Offrande" if id == "offering" else "Réintégrer"))
+		var did: String = id
+		b.pressed.connect(func() -> void:
+			if system_id < 0:
+				return
+			if did == "offering":
+				command_requested.emit(SimCommands.stab_offering(_player, system_id))
+			elif did == "reintegrate":
+				command_requested.emit(SimCommands.reintegrate(_player, system_id))
+			else:
+				command_requested.emit(SimCommands.decree(_player, system_id, did)))
+		_stab_row.add_child(b)
+		stab_buttons[id] = b
+
+
+## Ligne de stabilité : votre système (valeur, palier, cible, décrets) ou monde libre (réintégrer).
+func _refresh_stability(s: StarSystem) -> void:
+	var owner := _state.system_owner(s.id)
+	var mine := owner == _player and Stability.applies(_state, _player)
+	var free := GameState.is_npc(owner)
+	_stab_row.visible = mine or free
+	if not _stab_row.visible:
+		return
+	for id in stab_buttons:
+		stab_buttons[id].visible = false
+	if free:
+		stab_label.text = "Monde libre des Sans-Bannière"
+		stab_label.add_theme_color_override("font_color", Color(0.75, 0.77, 0.8))
+		stab_label.tooltip_text = "Ce système a fait sécession. Il se reprend par la force (invasion), ou se réintègre s'il touche votre territoire."
+		var rb: Button = stab_buttons["reintegrate"]
+		rb.visible = not read_only
+		var why := Stability.check_reintegrate(_state, _player, s.id)
+		rb.disabled = why != ""
+		rb.text = "Réintégrer (%s)" % GameData.format_amounts(Stability.reintegrate_cost(_state, s.id))
+		rb.tooltip_text = why if why != "" else "Le monde libre rentre dans votre empire, à 40 de stabilité."
+		return
+	var v := Stability.value(_state, s.id)
+	var en := Stability.entry(_state, s.id)
+	var target := Stability.target(_state, s.id)
+	var revolt := int(en.get("revolt", 0))
+	@warning_ignore("integer_division")
+	stab_label.text = "Stabilité %d · %s%s%s" % [v, Stability.tier_label(_state, s.id),
+			("  (vers %d)" % target) if target != v else "",
+			("  · révolte depuis %d mois" % (revolt / 30)) if revolt > 0 else ""]
+	stab_label.add_theme_color_override("font_color", Stability.tier_color(_state, s.id))
+	var lines := PackedStringArray(["Stabilité %d, palier %s : %s" % [v, Stability.tier_label(_state, s.id), String(Stability.tier(_state, s.id).get("text", ""))], "", "Cible %d :" % target])
+	for p in Stability.parts(_state, s.id):
+		lines.append("  %+d  %s" % [int(p[1]), String(p[0])])
+	lines.append("")
+	lines.append("La stabilité glisse de %d points par mois vers sa cible." % int(Stability.data()["drift_per_month"]))
+	stab_label.tooltip_text = "\n".join(lines)
+	if read_only:
+		return
+	var active := Stability.active_decree(_state, s.id)
+	for id in Stability.decree_ids():
+		var b: Button = stab_buttons[id]
+		b.visible = true
+		var why := Stability.check_decree(_state, _player, s.id, id)
+		b.disabled = why != ""
+		b.text = String(Stability.decree_def(id)["label"]) + ((" (%d j)" % (int(en.get("decree_end", 0)) - _state.tick)) if active == id else "")
+		b.tooltip_text = "%s\nCoût : %s%s" % [String(Stability.decree_def(id)["text"]), GameData.format_amounts(Stability.decree_cost(_state, _player, id)),
+				("\n" + why) if why != "" else ""]
+	if bool(Stability.talent(_state, _player).get("offering", false)):
+		var ob: Button = stab_buttons["offering"]
+		ob.visible = true
+		var why := Stability.check_offering(_state, _player, s.id)
+		ob.disabled = why != ""
+		var od: Dictionary = Stability.data()["offering"]
+		ob.tooltip_text = "Offrande : %d stabilité ici, +%d ferveur.%s" % [int(od["stability"]), int(od["fervor"]), ("\n" + why) if why != "" else ""]
 
 
 ## Flèches de part et d'autre de la scène : système précédent / suivant de l'empire.
@@ -259,7 +354,7 @@ func _refresh_header(s: StarSystem) -> void:
 	_title.add_theme_color_override("font_color", owner.color().lightened(0.35) if owner else Color(0.95, 0.96, 1.0))
 	var parts := PackedStringArray([GalaxyGenerator.star_label(s.star_type)])
 	parts.append("%d planète%s" % [s.planet_count, "s" if s.planet_count > 1 else ""] if s.planet_count > 0 else "aucune planète")
-	parts.append("Système de %s" % owner.display_name() if owner else "Système libre")
+	parts.append(("Monde libre" if owner.is_npc() else "Système de %s" % owner.display_name()) if owner else "Système libre")
 	parts.append("à portée" if Economy.in_range(_state, _player, s.id) else "hors de portée")
 	if not Intel.shown_live(_state, s.id):
 		parts.append("hors de vue, %s" % Intel.age_label(_state, Intel.lens, s.id))
@@ -284,6 +379,7 @@ func _refresh_header(s: StarSystem) -> void:
 		if not gov.is_empty():
 			parts.append("gouverneur ✦ %s" % gov["name"])
 	_subtitle.text = "  ·  ".join(parts)
+	_refresh_stability(s)
 
 
 func _toggle_rename() -> void:

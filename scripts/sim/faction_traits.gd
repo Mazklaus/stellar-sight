@@ -390,7 +390,8 @@ static func adjust_yields(state: GameState, c: Colony, gross: Dictionary, upkeep
 		gross["influence"] = int(gross.get("influence", 0)) + int(fi["influence"]) + Research.fx_int(state, c.owner, "fief_influence")
 	if is_far_fief(state, c):
 		upkeep["crystals"] = int(upkeep.get("crystals", 0)) + int(fi["crystal_upkeep"])
-		if e.dissent:
+		# (Avec la stabilité, la dissidence coûte de la stabilité au lieu de diviser la production.)
+		if e.dissent and int(Stability.talent(state, c.owner).get("dissent", 0)) == 0:
 			for r in gross:
 				@warning_ignore("integer_division")
 				gross[r] = int(gross[r]) * int(fi["dissent_pct"]) / 100

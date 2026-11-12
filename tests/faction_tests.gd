@@ -92,7 +92,7 @@ func _test_ossarane() -> void:
 	_ok(FactionTraits.fief_counts(st, 0) == {"fiefs": 2, "far": 1}, "décompte des fiefs")
 	_ok(String(FactionTraits.gauge(st, 0).get("value", "")) == "2 (1 loin)", "jauge des fiefs dans le panneau d'empire")
 
-	# Pas de cristaux : dissidence au bilan, et le fief lointain produit moitié moins.
+	# Pas de cristaux : dissidence au bilan, et le fief lointain perd de la stabilité.
 	e.resources["crystals"] = 0
 	var events := []
 	sim.chronicle_added.connect(func(entry: Dictionary) -> void:
@@ -100,12 +100,14 @@ func _test_ossarane() -> void:
 			events.append(entry))
 	sim.advance(30)
 	_ok(e.dissent and events.size() == 1, "sans cristaux, les fiefs lointains entrent en dissidence")
-	var y_dissent: Dictionary = Economy.colony_yields(st, c_far)
-	var halved := true
-	for r in y_far["gross"]:
-		if int(y_dissent["gross"][r]) != int(y_far["gross"][r]) * 50 / 100:
-			halved = false
-	_ok(halved, "en dissidence, un fief lointain produit moitié moins")
+	# Depuis la stabilité (Serments des fiefs) : la dissidence coûte 20 de stabilité au fief lointain
+	# au lieu de diviser sa production.
+	var far_sid := st.galaxy.get_planet(c_far.planet_id).system_id
+	var dissent_part := 0
+	for p in Stability.parts(st, far_sid):
+		if String(p[0]) == "Dissidence des fiefs":
+			dissent_part = int(p[1])
+	_ok(dissent_part == -20, "en dissidence, un fief lointain perd 20 de stabilité")
 	_ok(int(Economy.colony_yields(st, c_near)["gross"]["influence"]) == int(y_near["gross"]["influence"]), "les fiefs proches restent loyaux")
 	e.resources["crystals"] = 50
 	sim.advance(30)

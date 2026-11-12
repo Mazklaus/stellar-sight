@@ -18,6 +18,9 @@ static func process(state: GameState) -> Array[Dictionary]:
 
 
 static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary]) -> void:
+	# Mondes libres des Sans-Bannière : ni chantiers ni croissance.
+	if GameState.is_npc(c.owner):
+		return
 	var e := state.get_empire(c.owner)
 	if not c.is_established():
 		var planet_name := state.galaxy.get_planet(c.planet_id).display_name(state.galaxy)
@@ -33,7 +36,8 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 						"%s plante un avant-poste sur %s. Effectif : trois techniciens et un chat." % [e.display_name(), planet_name], Espionage.private_to(state, [e.id], state.galaxy.get_planet(c.planet_id).system_id)))
 		return
 
-	if c.construction != "" and not e.blackout:
+	var sys_id := state.galaxy.get_planet(c.planet_id).system_id
+	if c.construction != "" and not e.blackout and not Stability.frozen(state, sys_id):
 		c.construction_days -= 1
 		if c.construction_days <= 0:
 			_finish_building(state, c, e, state.galaxy.get_planet(c.planet_id).display_name(state.galaxy), added)
@@ -43,6 +47,9 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 	var cap := Economy.max_pop(state, state.galaxy.get_planet(c.planet_id), c.owner, c.buildings)
 	if e.starving:
 		c.growth = 0
+		return
+	# Agitation et révolte : la population ne grandit plus (sans perdre ce qui est acquis).
+	if not Stability.growth_ok(state, sys_id):
 		return
 	if c.population >= cap:
 		# Biomasse (Essaim Kh'thari) : une colonie pleine continue de grandir, le surplus est digéré.
@@ -186,6 +193,7 @@ static func _monthly_traits(state: GameState, e: Empire, added: Array[Dictionary
 			e.resources[r] = int(e.resources.get(r, 0)) + int(am[r])
 			total += int(am[r])
 		Research.count_stat(state, e.id, "looted", total)
+		Stability.on_loot(state, e.id)
 		Heroes.on_loot(state, e.id, int(lp["system"]))
 		if not e.is_ai() or not victim.is_ai():
 			added.append(state.add_chronicle("%s pille %s : %s emportés. On appelle ça un impôt, chez eux." % [

@@ -17,7 +17,8 @@ extends RefCounted
 ## 6. militaire : déclarations de guerre (tempérament et rapport de forces), vaisseaux de guerre,
 ##    tactiques, défense des systèmes assiégés, offensives, sièges, invasions et retraites ;
 ## 7. diplomatie (AiDiplomacy) : propositions de traités, alliances quittées, talents diplomatiques
-##    du peuple (héritier, arbitrage) ; puis espionnage (AiEspionage) : où placer ses cellules.
+##    du peuple (héritier, arbitrage) ; puis espionnage (AiEspionage) : où placer ses cellules ;
+## 8. héros (AiHeroes), puis stabilité (AiStability) : décrets, offrande, mondes libres à réintégrer.
 ##
 ## Règles d'or : la simulation reste déterministe (aucun aléatoire hors de l'état : les « oublis »
 ## des niveaux bas viennent d'un hachage de la graine, du jour et de l'empire), l'IA ne lit que
@@ -55,6 +56,7 @@ static func think(state: GameState, e: Empire) -> void:
 		_military(ctx)
 	_diplomacy(ctx)
 	AiHeroes.think(ctx)
+	AiStability.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 

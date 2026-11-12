@@ -100,6 +100,9 @@ var intel_case_buttons := {}
 var _intel_sig := ""
 ## Écran Panthéon (HeroScreen) : boutons par héros et par candidat (pour les tests).
 var hero_buttons := {}
+## Boutons de l'écran Ordre intérieur (« sid:décret », « free:sid »), pour les tests.
+var order_buttons := {}
+var _order_sig := ""
 var _hero_sig := ""
 var _shipyard_sig := ""
 
@@ -218,6 +221,8 @@ func show_screen(screen_id: String) -> void:
 			IntelScreen.build(self)
 		"heroes":
 			HeroScreen.build(self)
+		"order":
+			OrderScreen.build(self)
 	refresh()
 	screen_changed.emit(screen_id)
 
@@ -243,6 +248,9 @@ func refresh() -> void:
 		"heroes":
 			if HeroScreen.signature(self) != _hero_sig:
 				show_screen("heroes")
+		"order":
+			if OrderScreen.signature(self) != _order_sig:
+				show_screen("order")
 		"research":
 			if _research_signature() != _research_sig:
 				_fill_research_side()

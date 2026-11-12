@@ -82,6 +82,14 @@ class IconButton:
 						draw_circle(c + Vector2(0, -s * 0.1) + Vector2(cos(a), sin(a)) * s * 1.2, s * 0.17, col)
 				draw_circle(c + Vector2(0, -s * 0.35), s * 0.38, col)
 				draw_colored_polygon(PackedVector2Array([c + Vector2(-s * 0.6, s * 0.65), c + Vector2(0, s * 0.1), c + Vector2(s * 0.6, s * 0.65)]), col)
+			"order":
+				# Une balance : fléau, colonne et deux plateaux.
+				draw_line(c + Vector2(0, -s * 1.1), c + Vector2(0, s * 1.0), col, 1.6, true)
+				draw_line(c + Vector2(-s * 1.1, -s * 0.7), c + Vector2(s * 1.1, -s * 0.7), col, 1.6, true)
+				draw_line(c + Vector2(-s * 0.5, s * 1.0), c + Vector2(s * 0.5, s * 1.0), col, 1.6, true)
+				for side in [-1.0, 1.0]:
+					draw_colored_polygon(PackedVector2Array([c + Vector2(side * s * 1.1, -s * 0.6), c + Vector2(side * s * 1.1 - s * 0.45, s * 0.15),
+							c + Vector2(side * s * 1.1 + s * 0.45, s * 0.15)]), col)
 			"victory":
 				# Une étoile à cinq branches.
 				var pts := PackedVector2Array()

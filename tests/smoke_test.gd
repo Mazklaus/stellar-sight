@@ -32,6 +32,7 @@ func _initialize() -> void:
 	preload("res://tests/intel_tests.gd").new().run(_check)
 	preload("res://tests/espionage_tests.gd").new().run(_check)
 	preload("res://tests/hero_tests.gd").new().run(_check)
+	preload("res://tests/stability_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -182,6 +183,7 @@ func _test_main_scene() -> void:
 	await _test_victory_ui(main)
 	await _test_intel_ui(main)
 	await _test_hero_ui(main)
+	await _test_order_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_press(KEY_SPACE)
@@ -1489,6 +1491,45 @@ func _test_hero_ui(main: Node) -> void:
 	_press(KEY_F10)
 	await process_frame
 	_check(not screens.is_open(), "F10 referme le Panthéon")
+
+
+## Écran Ordre intérieur (F12), filtre de stabilité (K), ligne d'état de la barre d'empire.
+func _test_order_ui(main: Node) -> void:
+	var screens: EmpireScreens = main._empire_screens
+	var st: GameState = main.simulation.state
+	var me: int = main.view_empire
+	if not Stability.applies(st, me):
+		_check(true, "Ordre intérieur : peuple sans stabilité, écran non testé")
+		return
+	var home := FactionTraits.capital_system(st, me)
+	st.stability[home] = {"v": 5}
+	st.get_empire(me).resources["influence"] = 200
+	st.get_empire(me).resources["energy"] = 400
+	main._refresh_all()
+	_check(main._hud.bar._status.text.begins_with("Révolte dans 1 système"), "barre d'empire : la révolte est signalée")
+	_press(KEY_F12)
+	await process_frame
+	_check(screens.current == "order", "F12 : écran Ordre intérieur")
+	_check(_find_label(screens, "5 "), "Ordre intérieur : le système en révolte est listé")
+	var key := "%d:fetes" % home
+	_check(screens.order_buttons.has(key) and not (screens.order_buttons[key] as Button).disabled, "Ordre intérieur : Fêtes publiques possibles")
+	if screens.order_buttons.has(key):
+		(screens.order_buttons[key] as Button).pressed.emit()
+		main.simulation.flush_commands()
+	_check(Stability.active_decree(st, home) == "fetes", "Ordre intérieur : le décret est promulgué")
+	screens.refresh()
+	await process_frame
+	_check(_find_label(screens, "Fêtes publiques ("), "Ordre intérieur : le décret en cours s'affiche")
+	_press(KEY_F12)
+	await process_frame
+	_check(not screens.is_open(), "F12 referme l'Ordre intérieur")
+	_press(KEY_K)
+	await process_frame
+	_check(main._hud.lens == "stability", "K : filtre de stabilité")
+	_press(KEY_K)
+	await process_frame
+	_check(main._hud.lens == "", "K referme le filtre de stabilité")
+	st.stability[home] = {"v": 50}
 
 
 func _find_label(n: Node, prefix: String) -> bool:

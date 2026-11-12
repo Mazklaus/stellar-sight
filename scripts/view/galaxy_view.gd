@@ -196,6 +196,17 @@ func _draw() -> void:
 				_draw_label(s, px, true)
 				_draw_yields(s, px)
 		return
+	if lens == "stability" and state != null:
+		# Lentille de stabilité : vos systèmes cerclés à la couleur de leur palier, avec leur stabilité ;
+		# les mondes libres (Sans-Bannière) en gris.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		for s in galaxy.systems:
+			var o := owner_of(s.id)
+			if o == viewer or (o == GameState.NPC_ID and is_explored(s.id)):
+				_draw_system(s, px)
+				_draw_label(s, px, true)
+				_draw_stability(s, px, o == viewer)
+		return
 	var show_all_labels := _zoom() >= LABEL_MIN_ZOOM
 	var show_dots := _zoom() >= PLANET_DOTS_MIN_ZOOM
 	for s in galaxy.systems:
@@ -442,6 +453,24 @@ func _draw_label(s: StarSystem, px: float, dots := true) -> void:
 
 
 ## Lentille économique : bilan mensuel du système (toutes ses revendications), sous l'étoile.
+func _draw_stability(s: StarSystem, px: float, mine: bool) -> void:
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	var col := Stability.tier_color(state, s.id) if mine else Color(0.62, 0.64, 0.68)
+	draw_arc(Vector2.ZERO, 13.0, 0.0, TAU, 28, col, 2.4, true)
+	var text := ""
+	if mine and Stability.applies(state, viewer):
+		text = "%d · %s" % [Stability.value(state, s.id), Stability.tier_label(state, s.id)]
+		if Stability.active_decree(state, s.id) != "":
+			text += " ✦"
+	elif not mine:
+		text = "Monde libre"
+	if text != "":
+		var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
+		draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
 func _draw_yields(s: StarSystem, px: float) -> void:
 	var net := EmpireReport.system_net(state, viewer, s.id)
 	draw_set_transform(s.position, 0.0, Vector2(px, px))

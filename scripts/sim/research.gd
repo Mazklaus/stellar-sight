@@ -809,7 +809,7 @@ static func check_eurekas(state: GameState, empire_id: int) -> Array[String]:
 
 static func count_stat(state: GameState, empire_id: int, key: String, n := 1) -> void:
 	var e := state.get_empire(empire_id)
-	if e:
+	if e and not e.is_npc():
 		e.stats[key] = int(e.stats.get(key, 0)) + n
 		Heroes.act(state, empire_id, key, n)
 

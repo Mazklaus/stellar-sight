@@ -205,6 +205,21 @@ static func hero_prisoner(player: int, hero_id: int, action: String) -> Dictiona
 	return {"type": "hero_prisoner", "player": player, "hero": hero_id, "action": action}
 
 
+## Décret de stabilité sur un système (Stability : "loi_martiale", "fetes", "concessions").
+static func decree(player: int, system_id: int, decree_id: String) -> Dictionary:
+	return {"type": "decree", "player": player, "system": system_id, "decree": decree_id}
+
+
+## Théocratie : sacrifie de la stabilité d'un système contre de la ferveur.
+static func stab_offering(player: int, system_id: int) -> Dictionary:
+	return {"type": "stab_offering", "player": player, "system": system_id}
+
+
+## Réintègre un monde libre des Sans-Bannière qui touche votre territoire, contre de l'influence.
+static func reintegrate(player: int, system_id: int) -> Dictionary:
+	return {"type": "reintegrate", "player": player, "system": system_id}
+
+
 static func spy_answer(player: int, case_id: int, choice: String) -> Dictionary:
 	return {"type": "spy_answer", "player": player, "case": case_id, "choice": choice}
 
@@ -247,6 +262,12 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Fleets.check_merge(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("into", -1)))
 		"split_fleet":
 			return Fleets.check_split(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("ship", "")))
+		"decree":
+			return Stability.check_decree(state, int(cmd["player"]), int(cmd.get("system", -1)), String(cmd.get("decree", "")))
+		"stab_offering":
+			return Stability.check_offering(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"reintegrate":
+			return Stability.check_reintegrate(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"sacrifice":
 			return FactionTraits.check_sacrifice(state, int(cmd["player"]), int(cmd.get("planet", -1)))
 		"rush":
@@ -429,6 +450,12 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				c.ship_days = 1
 		"fold":
 			Echoes.fold(state, int(cmd["player"]), int(cmd["planet"]), String(cmd["what"]))
+		"decree":
+			Stability.decree(state, int(cmd["player"]), int(cmd["system"]), String(cmd["decree"]))
+		"stab_offering":
+			Stability.offering(state, int(cmd["player"]), int(cmd["system"]))
+		"reintegrate":
+			Stability.reintegrate(state, int(cmd["player"]), int(cmd["system"]))
 		"spy_cells":
 			Espionage.set_cells(state, int(cmd["player"]), int(cmd["target"]), int(cmd["n"]))
 		"spy_op":

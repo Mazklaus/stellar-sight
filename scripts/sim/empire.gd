@@ -106,14 +106,24 @@ var tech_marks: Dictionary = {}
 var tech_fx_has_exalted: bool = false
 ## Population logeable par type de planète (pourcentage d'habitabilité, 0 si aucune), même règle.
 var hab_cache: Dictionary = {}
+## Fiche de la faction neutre (Sans-Bannière), vide pour un empire normal.
+var npc_faction: Dictionary = {}
 var hab_cache_n: int = -1
 
 
 func is_ai() -> bool:
-	return ai_level != ""
+	return ai_level != "" or is_npc()
+
+
+## Faction neutre des Sans-Bannière (mondes libres, rebelles ; voir GameState.NPC_ID et Stability).
+## Elle n'est pas dans GameState.empires : ni IA, ni victoire, ni diplomatie.
+func is_npc() -> bool:
+	return not npc_faction.is_empty()
 
 
 func faction() -> Dictionary:
+	if not npc_faction.is_empty():
+		return npc_faction
 	# Fiche gardée tant que les peuples créés ne changent pas (appelée sans cesse par la simulation).
 	if _faction_gen != GameData.factions_gen or _faction_id_cached != faction_id:
 		_faction_cache = GameData.faction(faction_id)

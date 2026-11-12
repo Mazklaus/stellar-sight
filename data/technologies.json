@@ -1185,9 +1185,10 @@
 			"label": "Administration coloniale",
 			"domain": "societe",
 			"era": 1,
-			"text": "+1 colonisation simultanée.",
+			"text": "+1 colonisation simultanée. Seuil de surextension +2 systèmes.",
 			"effects": {
-				"max_projects": 1
+				"max_projects": 1,
+				"stability_threshold": 2
 			},
 			"eureka": {
 				"kind": "colonies",
@@ -1352,14 +1353,15 @@
 			"label": "Propagande",
 			"domain": "societe",
 			"era": 3,
-			"text": "+20 % d'influence.",
+			"text": "+20 % d'influence, +5 stabilité dans tous vos systèmes.",
 			"pre": [
 				"chancelleries"
 			],
 			"effects": {
 				"production_pct": {
 					"influence": 20
-				}
+				},
+				"stability": 5
 			},
 			"eureka": {
 				"kind": "peace",
@@ -1370,13 +1372,14 @@
 			"label": "Gouverneurs de secteur",
 			"domain": "societe",
 			"era": 3,
-			"text": "+1 colonisation simultanée.",
+			"text": "+1 colonisation simultanée. Seuil de surextension +2 systèmes.",
 			"pre": [
 				"administration",
 				"colons_formes"
 			],
 			"effects": {
-				"max_projects": 1
+				"max_projects": 1,
+				"stability_threshold": 2
 			}
 		},
 		"catechisme": {
@@ -2161,9 +2164,10 @@
 			"pre": [
 				"administration2"
 			],
-			"text": "Débloque la Préfecture, une par système, dans une colonie de 10 population ou plus : +3 influence, et six colonies de plus échappent au surcoût de recherche des grands empires. Héros : +1 place.",
+			"text": "Débloque la Préfecture, une par système, dans une colonie de 10 population ou plus : +3 influence, et six colonies de plus échappent au surcoût de recherche des grands empires. Seuil de surextension +3 systèmes. Héros : +1 place.",
 			"effects": {
-				"hero_cap": 1
+				"hero_cap": 1,
+				"stability_threshold": 3
 			},
 			"flavor": "Un gouverneur, un palais, un tampon. L'empire peut grandir : quelqu'un d'autre signera les formulaires.",
 			"eureka": {
