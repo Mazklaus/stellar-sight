@@ -244,6 +244,10 @@ static func relics() -> Dictionary:
 	return _load("relics")
 
 
+static func quests() -> Dictionary:
+	return _load("quests")
+
+
 ## Espionnage (data/espionage.json) : cellules, réseaux, paliers, sondes.
 static func espionage() -> Dictionary:
 	return _load("espionage")

@@ -61,6 +61,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiPirates.think(ctx)
 	AiEvents.think(ctx)
 	AiRelics.think(ctx)
+	AiQuests.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 

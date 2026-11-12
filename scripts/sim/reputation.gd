@@ -64,7 +64,13 @@ static func exploit(state: GameState, empire_id: int, id: String) -> void:
 		return
 	e.exploits[id] = state.tick
 	var label := id
-	if id.begins_with("relique_"):
+	if id == "quete_peuple":
+		label = "Achever la quête de son peuple"
+	elif id == "quete_galactique":
+		label = "Remporter une quête galactique"
+	elif id == "quete_contrebande":
+		label = "Tenir le marché noir des reliques"
+	elif id.begins_with("relique_"):
 		label = "Voler %s" % String(Relics.def(id.trim_prefix("relique_")).get("name", "une relique"))
 	for x in EXPLOITS:
 		if String(x[0]) == id:

@@ -846,6 +846,10 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 		var rfx := Relics.effects(state, empire_id)
 		_merge(base, rfx)
 		_merge(exalted, rfx)
+		# Faveurs des quêtes et quêtes galactiques en cours (voir Quests) : même empreinte relic_rev.
+		var qfx := Quests.effects(state, empire_id)
+		_merge(base, qfx)
+		_merge(exalted, qfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

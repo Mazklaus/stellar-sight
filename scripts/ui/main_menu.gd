@@ -157,6 +157,9 @@ var events := Events.default_frequency()
 var curios := Curios.default_density()
 var _event_select: OptionButton
 var _curio_select: OptionButton
+## Quêtes (Quests.modes) : aucune, sans retournements, avec les quêtes galactiques.
+var quests := Quests.default_mode()
+var _quest_select: OptionButton
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
 const PRESETS_PATH := "user://new_game_presets.json"
@@ -1436,9 +1439,18 @@ func set_curios(id: String) -> void:
 	_refresh_preset()
 
 
+func set_quests(id: String) -> void:
+	quests = id if not Quests.mode_def(id).is_empty() else Quests.default_mode()
+	if _quest_select:
+		for i in Quests.modes().size():
+			if String(Quests.modes()[i]["id"]) == quests:
+				_quest_select.select(i)
+	_refresh_preset()
+
+
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
-	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "events": events, "curios": curios}
+	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "events": events, "curios": curios, "quests": quests}
 
 
 func set_spectator(on: bool) -> void:
@@ -1707,6 +1719,16 @@ func _build_new_page(root: Control) -> void:
 	_curio_select.item_selected.connect(func(i: int) -> void: set_curios(String(Curios.densities()[i]["id"])))
 	_labeled_row(game, "Curiosités", _curio_select)
 	set_curios(curios)
+	_quest_select = OptionButton.new()
+	_quest_select.clip_text = true
+	var qtip := PackedStringArray(["Quêtes : la quête de votre peuple (selon son credo), des quêtes nées des curiosités et des événements, et des retournements galactiques qui concernent tout le monde."])
+	for d: Dictionary in Quests.modes():
+		_quest_select.add_item(String(d["label"]))
+		qtip.append("%s : %s" % [d["label"], d["desc"]])
+	_quest_select.tooltip_text = "\n".join(qtip)
+	_quest_select.item_selected.connect(func(i: int) -> void: set_quests(String(Quests.modes()[i]["id"])))
+	_labeled_row(game, "Quêtes", _quest_select)
+	set_quests(quests)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2441,7 +2463,7 @@ func settings() -> Dictionary:
 	return {"faction": selected_faction, "slots": saved_slots, "duplicates": allow_duplicates, "team": player_team,
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
-		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "events": events, "curios": curios, "galaxy": galaxy_settings.duplicate(),
+		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "events": events, "curios": curios, "quests": quests, "galaxy": galaxy_settings.duplicate(),
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2458,7 +2480,7 @@ func default_settings() -> Dictionary:
 		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "timer": "", "deadline": Victory.default_deadline(), "people": true,
 		"victories": {"conquete": true, "domination": true, "allies": true}, "ai_scaling": false,
 		"pirates": Pirates.default_density(), "events": Events.default_frequency(), "curios": Curios.default_density(),
-		"galaxy": GalaxySettings.defaults()}
+		"quests": Quests.default_mode(), "galaxy": GalaxySettings.defaults()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -2522,6 +2544,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_pirates(String(d.get("pirates", base.get("pirates", Pirates.default_density()))))
 	set_events(String(d.get("events", base["events"])))
 	set_curios(String(d.get("curios", base["curios"])))
+	set_quests(String(d.get("quests", base["quests"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

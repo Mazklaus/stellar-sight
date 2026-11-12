@@ -374,6 +374,13 @@ static func _give(state: GameState, empire_id: int, pid: int, kind: String, adde
 			var nf := 5 * lvl + 5
 			Relics.add_fragments(state, empire_id, nf)
 			return "%d fragments d'artéfacts, soigneusement étiquetés « sans doute important »." % nf
+		"quest":
+			# Départ d'une quête secondaire (proposition 2), selon le type de la curiosité.
+			var qt := String((Quests.data()["origins"]["curio"] as Dictionary).get(String(c["type"]), ""))
+			if qt == "" or not Quests.enabled(state) or (Quests.meta(state, empire_id)["seen"] as Dictionary).has(qt) \
+					or Quests.start(state, empire_id, qt, {}, added) < 0:
+				return _give(state, empire_id, pid, "research", added)
+			return "une piste s'ouvre : la quête « %s » commence." % String(Quests.tpl(qt)["title"])
 		"dig":
 			# Ruines de niveau 3-4 : un chantier de fouilles s'ouvre dans le système.
 			if lvl < 3 or state.relics.is_empty() or not Relics.create_site(state, p.system_id):

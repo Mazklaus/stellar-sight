@@ -218,6 +218,24 @@ static func fragments_sell(player: int) -> Dictionary:
 	return {"type": "fragments_sell", "player": player}
 
 
+## Quêtes (voir Quests) : payer la branche d'un chapitre, financer le remède du fléau, choisir son camp
+## au Conclave, parlementer avec un tombeau (peuple synthétique).
+static func quest_pay(player: int, quest_id: int, branch: int) -> Dictionary:
+	return {"type": "quest_pay", "player": player, "quest": quest_id, "branch": branch}
+
+
+static func quest_contribute(player: int) -> Dictionary:
+	return {"type": "quest_contribute", "player": player}
+
+
+static func quest_camp(player: int, camp: int) -> Dictionary:
+	return {"type": "quest_camp", "player": player, "camp": camp}
+
+
+static func tomb_parley(player: int, system_id: int) -> Dictionary:
+	return {"type": "tomb_parley", "player": player, "system": system_id}
+
+
 ## Affecte un héros : post = "fleet" (flotte), "system" (système), "council" (siège), "agent" (empire
 ## où l'on a un réseau) ; "" = le rappeler.
 static func hero_assign(player: int, hero_id: int, post: String, target: int) -> Dictionary:
@@ -411,6 +429,14 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Relics.check_gift_fragments(state, int(cmd["player"]), int(cmd.get("to", -1)))
 		"fragments_sell":
 			return Relics.check_sell_fragments(state, int(cmd["player"]))
+		"quest_pay":
+			return Quests.check_pay(state, int(cmd["player"]), int(cmd.get("quest", -1)), int(cmd.get("branch", -1)))
+		"quest_contribute":
+			return Quests.check_contribute(state, int(cmd["player"]))
+		"quest_camp":
+			return Quests.check_camp(state, int(cmd["player"]), int(cmd.get("camp", -1)))
+		"tomb_parley":
+			return Quests.check_parley(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"hero_assign":
 			return Heroes.check_assign(state, int(cmd["player"]), int(cmd.get("hero", -1)), String(cmd.get("post", "?")), int(cmd.get("target", -1)))
 		"hero_dismiss":
@@ -602,6 +628,17 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Relics.gift_fragments(state, int(cmd["player"]), int(cmd["to"]))
 		"fragments_sell":
 			Relics.sell_fragments(state, int(cmd["player"]))
+		"quest_pay":
+			var qp_added: Array[Dictionary] = []
+			Quests.pay(state, int(cmd["player"]), int(cmd["quest"]), int(cmd["branch"]), qp_added)
+		"quest_contribute":
+			var qc_added: Array[Dictionary] = []
+			Quests.contribute(state, int(cmd["player"]), qc_added)
+		"quest_camp":
+			Quests.choose_camp(state, int(cmd["player"]), int(cmd["camp"]))
+		"tomb_parley":
+			var tp_added: Array[Dictionary] = []
+			Quests.parley(state, int(cmd["player"]), int(cmd["system"]), tp_added)
 		"hero_assign":
 			Heroes.assign(state, int(cmd["player"]), int(cmd["hero"]), String(cmd["post"]), int(cmd["target"]))
 		"hero_dismiss":

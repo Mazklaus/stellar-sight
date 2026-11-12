@@ -11,6 +11,8 @@ extends CanvasLayer
 signal open_system_requested(system_id: int)
 signal close_system_requested
 signal screen_requested(screen_id: String)
+## Clic sur le suivi des quêtes : ouvrir les Chroniques sur l'onglet Quêtes.
+signal quests_requested
 signal menu_requested
 signal pause_toggled
 signal speed_requested(index: int)
@@ -62,6 +64,7 @@ var _toasts: VBoxContainer
 var _chronicle: Widgets.RichTipPanel
 var _chronicle_label: Label
 var _chronicle_date: Label
+var quest_tracker: QuestTracker
 var _system_mode := false
 var _empire_screen := false
 var _system_id := -1
@@ -95,6 +98,7 @@ func _ready() -> void:
 	_build_card()
 	_build_fleet_card()
 	_build_chronicle()
+	_build_quest_tracker()
 	_build_fleet_list()
 	_build_spectator_panel()
 	_build_dial()
@@ -129,6 +133,7 @@ func set_state(state: GameState, player: int) -> void:
 	_player = player
 	bar.set_state(state, player)
 	fleet_list.set_state(state, player)
+	quest_tracker.set_state(state, player)
 	spectator_panel.set_state(state if spectator else null, player)
 	_hover_id = -1
 	show_system(null, state)
@@ -138,6 +143,7 @@ func set_state(state: GameState, player: int) -> void:
 func refresh() -> void:
 	bar.refresh()
 	fleet_list.refresh()
+	quest_tracker.refresh()
 	if spectator:
 		spectator_panel.refresh()
 	_refresh_idle_button()
@@ -649,6 +655,18 @@ func _build_chronicle() -> void:
 	box.add_child(_chronicle_label)
 
 
+func _build_quest_tracker() -> void:
+	quest_tracker = QuestTracker.new()
+	quest_tracker.anchor_left = 1.0
+	quest_tracker.anchor_right = 1.0
+	quest_tracker.offset_left = -CHRONICLE_WIDTH - MARGIN
+	quest_tracker.offset_right = -MARGIN
+	add_child(quest_tracker)
+	quest_tracker.open_requested.connect(func() -> void: quests_requested.emit())
+	quest_tracker.resized.connect(_place_fleet_list)
+	quest_tracker.visibility_changed.connect(_place_fleet_list)
+
+
 func _build_fleet_list() -> void:
 	fleet_list = FleetListPanel.new()
 	fleet_list.anchor_left = 1.0
@@ -664,7 +682,14 @@ func _build_fleet_list() -> void:
 
 
 func _place_fleet_list() -> void:
-	fleet_list.offset_top = _chronicle.offset_top + _chronicle.size.y + 6.0
+	var below := _chronicle.offset_top + _chronicle.size.y + 6.0
+	if quest_tracker:
+		quest_tracker.offset_top = below
+		if quest_tracker.visible:
+			below += quest_tracker.size.y + 6.0
+	if fleet_list == null:
+		return
+	fleet_list.offset_top = below
 	if spectator_panel:
 		spectator_panel.offset_top = fleet_list.offset_top
 		# Le tableau s'arrête au-dessus du cadran du temps ; ses lignes défilent au-delà.
@@ -686,6 +711,8 @@ func _build_spectator_panel() -> void:
 func _refresh_side_visibility() -> void:
 	if fleet_list:
 		fleet_list.visible = not _system_mode and not _empire_screen and not spectator
+	if quest_tracker:
+		quest_tracker.set_allowed(not _system_mode and not _empire_screen and not spectator)
 	if spectator_panel:
 		spectator_panel.visible = spectator and not _system_mode and not _empire_screen
 	_refresh_idle_button()

@@ -1,10 +1,13 @@
 extends SceneTree
-## Captures des curiosités et des événements (lot 1 de « Événements, quêtes et reliques »), rendu réel :
+## Captures des curiosités, des événements, des reliques et des quêtes (« Événements, quêtes et
+## reliques », lots 1 à 3), rendu réel :
 ##   xvfb-run -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_events.gd
 ## Écrit les images dans le dossier donné par CAPTURE_DIR (par défaut user://captures).
 ## Scénario : réglages Événements et Curiosités dans Nouvelle partie ; un empire du Chœur après deux
 ## ans, une carte avec un choix réservé à la Foi, une autre avec un pari ; l'écran Chroniques ; une
-## curiosité en vue système avec un éclaireur qui la sonde.
+## curiosité en vue système avec un éclaireur qui la sonde ; le Reliquaire et une fouille ; l'onglet
+## Quêtes (quête de peuple, quête secondaire, Conclave des Phares), le suivi des quêtes et les Phares
+## sur la carte.
 
 
 func _initialize() -> void:
@@ -111,6 +114,7 @@ func _initialize() -> void:
 	var tadded: Array[Dictionary] = []
 	Relics.triumph(st, me, "lanterne_morts", tadded)
 	main._refresh_all()
+	main._empire_screens.chron_tab = "relics"
 	main.toggle_empire_screen("chronicles")
 	await _frames(8)
 	var head := _find_text(main._empire_screens, "Reliquaire")
@@ -133,6 +137,54 @@ func _initialize() -> void:
 		await _frames(10)
 		await _shot(out + "/systeme-fouilles.png")
 		main.close_system_view()
+
+	# Lot 3 : quêtes. La quête du peuple (Foi pour le Chœur), une quête secondaire, le Conclave.
+	Quests.setup(st, "toutes")
+	var qadded: Array[Dictionary] = []
+	Quests.daily(st, qadded)
+	Quests.start(st, me, "q_signal", {}, qadded)
+	st.galactic["seen"] = ["passage", "fleau", "tombeaux"]
+	Quests._galactic_start(st, qadded)
+	var cur := Quests.current(st)
+	cur["until"] = st.tick
+	Quests.choose_camp(st, me, 0)
+	Quests.daily(st, qadded)
+	cur["score"] = [142, 96]
+	for sid in cur["phares"]:
+		if st.system_owner(int(sid)) == me:
+			for hid in Heroes.ids_of(st, me):
+				st.heroes[hid]["post"] = "system"
+				st.heroes[hid]["target"] = int(sid)
+				st.heroes[hid]["arrive"] = 0
+				break
+	e.resources["influence"] = 200
+	main._refresh_all()
+	main._empire_screens.chron_tab = "quests"
+	main.toggle_empire_screen("chronicles")
+	await _frames(10)
+	await _shot(out + "/quetes.png")
+	if OS.get_environment("DUMP") != "":
+		_dump(main._empire_screens)
+	main.toggle_empire_screen("chronicles")
+	await _frames(4)
+	# Un Phare à côté de la capitale, tenu par notre héros, pour la carte et le suivi des quêtes.
+	var cap := FactionTraits.capital_system(st, me)
+	var nb := int(st.galaxy.systems[cap].neighbors[0])
+	cur["phares"][0] = nb
+	e.explored[nb] = true
+	var hf := st.spawn_ship(me, "corvette", nb)
+	for hid in Heroes.ids_of(st, me):
+		st.heroes[hid]["post"] = "fleet"
+		st.heroes[hid]["target"] = hf.id
+		st.heroes[hid]["arrive"] = 0
+		break
+	main.close_main_menu()
+	main.set_process(false)
+	main._refresh_all()
+	main._hud.refresh()
+	main._go_to_system(nb)
+	await _frames(12)
+	await _shot(out + "/carte-quetes.png")
 	quit()
 
 

@@ -107,6 +107,9 @@ static func create_site(state: GameState, sid: int) -> bool:
 	var free: Array[String] = []
 	for id in ids():
 		var r: Dictionary = state.relics[id]
+		# Les reliques de quête (tag « quete ») ne s'enfouissent qu'après être passées au marché noir.
+		if int(r["owner"]) == -1 and is_quest(id):
+			continue
 		if (int(r["owner"]) == -1 or int(r["owner"]) == MARKET) and not _buried(state, id):
 			free.append(id)
 	if free.is_empty():
@@ -350,6 +353,10 @@ static func in_reliquary(state: GameState, empire_id: int) -> Array[String]:
 		if int(state.relics[id]["hero"]) < 0:
 			out.append(id)
 	return out
+
+
+static func is_quest(rid: String) -> bool:
+	return (def(rid).get("tags", []) as Array).has("quete")
 
 
 static func is_holy(rid: String) -> bool:

@@ -599,6 +599,9 @@ static func _maybe_offer(state: GameState, empire_id: int) -> bool:
 	var m := meta(state, empire_id)
 	if not (m["offer"] as Array).is_empty() or int(m["renown"]) < renown_needed(state, empire_id):
 		return false
+	# Vaincus du Conclave des Phares (voir Quests) : plus d'offre de héros pendant un temps.
+	if Quests.blocks_offers(state, empire_id):
+		return false
 	m["renown"] = int(m["renown"]) - renown_needed(state, empire_id)
 	var acts: Dictionary = m["acts"]
 	var weights := {}

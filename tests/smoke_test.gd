@@ -36,6 +36,7 @@ func _initialize() -> void:
 	preload("res://tests/pirate_tests.gd").new().run(_check)
 	preload("res://tests/event_tests.gd").new().run(_check)
 	preload("res://tests/relic_tests.gd").new().run(_check)
+	preload("res://tests/quest_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -1580,6 +1581,7 @@ func _test_event_ui(main: Node) -> void:
 	await process_frame
 	_check(not panel.is_open() and Events.inbox(st, me).size() >= 1, "Échap réduit la carte, qui reste dans la boîte")
 	_check(not clock.paused, "la pause de l'événement est levée")
+	screens.chron_tab = "events"
 	_press(KEY_J, KEY_J)
 	await process_frame
 	_check(screens.current == "chronicles", "J : écran Chroniques")
@@ -1607,6 +1609,10 @@ func _test_event_ui(main: Node) -> void:
 	st.get_empire(me).resources["influence"] = 300
 	_press(KEY_J, KEY_J)
 	await process_frame
+	_check(screens.chronicle_buttons.has("tab:relics"), "Chroniques : un onglet Reliquaire quand la partie a des reliques")
+	if screens.chronicle_buttons.has("tab:relics"):
+		(screens.chronicle_buttons["tab:relics"] as Button).pressed.emit()
+	await process_frame
 	_check(_find_label(screens, "Harpe des sphères"), "Chroniques : le Reliquaire montre la relique")
 	var tk := "triumph:harpe_spheres"
 	_check(screens.chronicle_buttons.has(tk) and not (screens.chronicle_buttons[tk] as Button).disabled, "Reliquaire : Triomphe possible")
@@ -1619,6 +1625,30 @@ func _test_event_ui(main: Node) -> void:
 	st.relics.clear()
 	st.relic_meta.clear()
 	Relics.touch(st)
+	# Quêtes : l'onglet Quêtes, une branche à payer, le suivi en haut à droite.
+	Quests.setup(st, "toutes")
+	var qid := Quests.start(st, me, "q_troupeau", {}, added)
+	_check(qid >= 0, "une quête secondaire démarre")
+	main._hud.refresh()
+	await process_frame
+	_check(main._hud.quest_tracker.visible, "le suivi des quêtes s'affiche en haut à droite")
+	main._hud.quest_tracker.open_requested.emit()
+	await process_frame
+	_check(screens.current == "chronicles" and screens.chron_tab == "quests", "un clic sur le suivi ouvre l'onglet Quêtes")
+	_check(_find_label(screens, "Le troupeau migrateur"), "Quêtes : la quête est listée")
+	st.get_empire(me).resources["food"] = 5000
+	screens.show_screen("chronicles")
+	await process_frame
+	var pk := "quest_pay:%d:1" % qid
+	_check(screens.chronicle_buttons.has(pk) and not (screens.chronicle_buttons[pk] as Button).disabled, "Quêtes : bouton Payer")
+	if screens.chronicle_buttons.has(pk):
+		(screens.chronicle_buttons[pk] as Button).pressed.emit()
+		main.simulation.flush_commands()
+	_check(qid >= 0 and String(st.quests[qid]["status"]) == "done", "Quêtes : payer achève la quête")
+	_press(KEY_J, KEY_J)
+	await process_frame
+	Quests.setup(st, "aucunes")
+	main._hud.refresh()
 	clock.set_paused(true)
 
 

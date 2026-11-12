@@ -111,6 +111,8 @@ var _hero_sig := ""
 ## Écran Chroniques : boutons « event:id » et « curio:pid » (pour les tests).
 var chronicle_buttons := {}
 var _chron_sig := ""
+## Onglet ouvert de l'écran Chroniques : "quests", "events" ou "relics".
+var chron_tab := "quests"
 var _shipyard_sig := ""
 
 

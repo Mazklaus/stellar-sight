@@ -22,6 +22,14 @@
 			"renown": 2,
 			"cls": "intendant"
 		},
+		"quest_chapter": {
+			"renown": 15,
+			"cls": "orateur"
+		},
+		"quests": {
+			"renown": 40,
+			"cls": "orateur"
+		},
 		"digs": {
 			"renown": 30,
 			"cls": "intendant"
