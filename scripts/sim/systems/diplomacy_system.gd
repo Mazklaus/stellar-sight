@@ -59,6 +59,7 @@ static func _monthly(state: GameState) -> void:
 	Diplomacy.prune_memories(state)
 	Espionage.monthly(state)
 	Reputation.monthly(state)
+	Echoes.monthly(state)
 	for e in state.empires:
 		if e.eliminated:
 			continue

@@ -196,7 +196,7 @@ func _test_build_ship() -> void:
 	var newest := fleets[-1]
 	_ok(newest.ships == ["scout"] and newest.system_id == _home(st) and newest.fleet_name == "Éclaireur 2", "nouvelle flotte en orbite : %s" % newest.fleet_name)
 	_ok(st.colonies[cap].ship_build == "", "le chantier spatial est libéré")
-	_ok(st.chronicle.back()["text"].contains("Éclaireur 2"), "la chronique annonce le nouveau vaisseau")
+	_ok(st.chronicle.any(func(c: Dictionary) -> bool: return int(c["tick"]) == st.tick and String(c["text"]).contains("Éclaireur 2")), "la chronique annonce le nouveau vaisseau")
 	# Un avant-poste ne construit pas de vaisseaux.
 	var outpost := -1
 	for pid in st.galaxy.systems[_home(st)].planet_ids:

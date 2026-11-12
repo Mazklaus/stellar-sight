@@ -410,8 +410,14 @@ static func lane_known(state: GameState, empire_id: int, a: int, b: int) -> bool
 
 
 ## Une flotte étrangère est visible si le système d'où elle observerait est vu par l'empire.
+## Archétype Énergétique : une flotte voilée reste cachée (voir Veil).
 static func fleet_visible(state: GameState, viewer: int, fleet: Fleet, seen: Dictionary) -> bool:
-	return fleet.owner == viewer or seen.has(vision_center(state, fleet))
+	if fleet.owner == viewer:
+		return true
+	if Echoes.foresees(state, viewer, fleet):
+		return true
+	var sid := vision_center(state, fleet)
+	return seen.has(sid) and not Veil.hides(state, fleet.owner, viewer, sid)
 
 
 # --- Recherches --------------------------------------------------------------------------------

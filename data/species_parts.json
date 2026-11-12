@@ -15,7 +15,12 @@
 				{"name": "On s'y attendait", "text": "Des espions picaresques pris la main dans le sac : personne n'est surpris. Le souvenir laissé à la victime pèse moitié moins (-10 au lieu de -20)."}
 			]},
 		{"id": "Horreur biologique", "label": "Horreur biologique", "text": "Ruches, mutations et faim sans fin. Les autres peuples vous trouveront difficile à aimer."},
-		{"id": "Cosmique / étrange", "label": "Cosmique / étrange", "text": "Entités anciennes et horreur douce. Pas encore de mécanique propre : le ton et l'opinion seulement."}
+		{"id": "Cosmique / étrange", "label": "Cosmique / étrange", "text": "Entités anciennes et horreur douce. Ils ne vivent pas le temps dans l'ordre, et c'est assez désagréable à regarder.",
+			"fields": {"echoes": {"max": 100, "per_month": 2, "per_colony": 1, "fold_cost": 30, "fold_days": 60, "foresight": true}},
+			"traits": [
+				{"name": "Échos", "text": "Des échos s'accumulent chaque mois : 2, plus 1 par colonie peuplée (100 au plus). Replier le temps : 30 échos font avancer de 60 jours le chantier d'une colonie (bâtiment ou vaisseau)."},
+				{"name": "Préscience", "text": "Les flottes étrangères qui font route vers un de vos systèmes sont visibles dès leur départ, où qu'elles soient."}
+			]}
 	],
 	"archetype": [
 		{"id": "humanoide", "label": "Humanoïde", "text": "Deux bras, deux jambes, des opinions sur tout. Colonise avec des vaisseaux colons, selon les règles communes.",
@@ -53,6 +58,15 @@
 				{"name": "Chaînes d'assemblage", "text": "Pas de naissances : chaque nouvel habitant coûte 12 matériaux, et la chaîne ne ralentit pas quand la colonie grandit. Sans matériaux, elle attend."},
 				{"name": "Courant vital", "text": "Ce que les autres cultivent alimente leurs batteries : la nourriture produite par les habitants devient de l'énergie, et chacun consomme 1 énergie par mois au lieu de nourriture. Sans énergie, c'est la panne."},
 				{"name": "Châssis étanches", "text": "Les mondes toxiques sont habitables à 60 %."}
+			]},
+		{"id": "energetique", "label": "Énergétique", "text": "Des êtres de lumière froide et de murmures, qu'on devine plus qu'on ne les voit.",
+			"excludes": {"gouvernement": ["ruche"]},
+			"fields": {"food_upkeep_pct": 0, "growth_pct": 75, "hab_extra": {"barren": 50}, "veil": true, "combat": {"garrison_pct": 50},
+				"ai": {"building_bias": "centrale_fusion", "food_margin": -100, "own_world_bonus": 8}},
+			"traits": [
+				{"name": "Le Voile", "text": "Leurs flottes et leurs revendications n'apparaissent pas aux autres empires, même à portée de vue. Les percent : la technologie Détecteurs d'abysse, les autres peuples voilés, leurs alliés, et quiconque a une flotte à l'arrêt ou une revendication dans le même système."},
+				{"name": "Corps immatériels", "text": "Ils ne mangent pas : aucune nourriture consommée. Mais ils se multiplient lentement (population 25 % plus lente) et tiennent mal le terrain (garnisons moitié moins nombreuses)."},
+				{"name": "Ni air ni sol", "text": "Les mondes stériles leur sont habitables à 50 %."}
 			]}
 	],
 	"gouvernement": [
@@ -179,11 +193,14 @@
 		{"id": "reptilien_1", "look": "frill", "label": "Chef de clan à collerette", "archetypes": ["reptilien"]},
 		{"id": "reptilien_2", "look": "spines", "label": "Chasseuse à piquants", "archetypes": ["reptilien"]},
 		{"id": "reptilien_3", "look": "snout", "label": "Ancien au long museau", "archetypes": ["reptilien"]},
+		{"id": "energetique_1", "look": "wisp", "label": "Flamme qui murmure", "archetypes": ["energetique"]},
+		{"id": "energetique_2", "look": "rings", "label": "Anneaux d'écho", "archetypes": ["energetique"]},
+		{"id": "energetique_3", "look": "veil", "label": "Voilé de l'Abysse", "archetypes": ["energetique"]},
 		{"id": "synthetique_1", "look": "visor", "label": "Unité à visière", "archetypes": ["synthetique"]},
 		{"id": "synthetique_2", "look": "antenna", "label": "Coordinatrice à antennes", "archetypes": ["synthetique"]},
 		{"id": "synthetique_3", "look": "core", "label": "Noyau ouvert", "archetypes": ["synthetique"]}
 	],
-	"ship_styles": ["ossarane", "choeur", "vael", "khthari", "teyl", "ferrocornes", "brisecomete"],
+	"ship_styles": ["ossarane", "choeur", "vael", "khthari", "teyl", "ferrocornes", "brisecomete", "murmurants"],
 	"temperaments": [
 		{"id": -1, "label": "Conciliant", "text": "Un cran plus pacifique que le réglage de l'IA."},
 		{"id": 0, "label": "Mesuré", "text": "Ni plus ni moins que le réglage de l'IA."},
@@ -196,6 +213,7 @@
 		"khthari": {"registre": "Horreur biologique", "archetype": "ruche", "gouvernement": "ruche", "credo": "survie", "origine": "sans_heritage", "biomes": ["toxic", "ocean"], "traits": ["fecondite"], "temperament": 1, "portrait": "ruche_1", "ship_style": "khthari"},
 		"teyl": {"registre": "Classique / hard SF", "archetype": "synthetique", "gouvernement": "conscience", "credo": "raison", "origine": "gisement_geothermie", "biomes": ["arctic", "desert"], "traits": ["erudits", "forgerons"], "temperament": 0, "portrait": "synthetique_1", "ship_style": "teyl"},
 		"ferrocornes": {"registre": "Grimdark", "archetype": "reptilien", "gouvernement": "horde", "credo": "honneur", "origine": "gisement_filons", "biomes": ["desert", "toxic"], "traits": ["canonniers", "tenaces"], "temperament": 1, "portrait": "reptilien_1", "ship_style": "ferrocornes"},
-		"brisecomete": {"registre": "Picaresque / pulp", "archetype": "humanoide", "gouvernement": "syndicat", "credo": "profit", "origine": "sans_heritage", "biomes": ["arctic", "continental"], "traits": ["pluriel", "navigateurs", "canonniers"], "temperament": 0, "portrait": "humanoide_5", "ship_style": "brisecomete"}
+		"brisecomete": {"registre": "Picaresque / pulp", "archetype": "humanoide", "gouvernement": "syndicat", "credo": "profit", "origine": "sans_heritage", "biomes": ["arctic", "continental"], "traits": ["pluriel", "navigateurs", "canonniers"], "temperament": 0, "portrait": "humanoide_5", "ship_style": "brisecomete"},
+		"murmurants": {"registre": "Cosmique / étrange", "archetype": "energetique", "gouvernement": "theocratie", "credo": "raison", "origine": "gisement_cristaux", "biomes": ["arctic", "toxic"], "traits": ["orateurs", "erudits", "pelerins", "casaniers"], "temperament": -1, "portrait": "energetique_3", "ship_style": "murmurants"}
 	}
 }

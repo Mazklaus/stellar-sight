@@ -53,14 +53,27 @@ static func record(state: GameState, seen_by: Array[Dictionary]) -> void:
 	for sid in state.battles:
 		busy[sid] = true
 	var cache := {}
+	# Archétype Énergétique : systèmes où un peuple voilé a une revendication (rare : le plus souvent vide).
+	var veiled := {}
+	for pid in state.colonies:
+		var vc: Colony = state.colonies[pid]
+		if Veil.is_veiled(state, vc.owner):
+			veiled[state.galaxy.get_planet(pid).system_id] = true
 	for e in state.empires:
 		if e.eliminated or e.id >= seen_by.size():
 			continue
+		var near_set := {}
+		var near_done := false
 		for sid in seen_by[e.id]:
 			var now: Dictionary = cache.get(sid, {})
 			if now.is_empty():
 				now = survey(state, sid) if busy.has(sid) else EMPTY_SURVEY
 				cache[sid] = now
+			if veiled.has(sid):
+				if not near_done:
+					near_set = Veil.near(state, e.id)
+					near_done = true
+				now = Veil.filter_survey(state, now, e.id, sid, near_set)
 			var known: Dictionary = e.intel.get(sid, {})
 			if known.is_empty():
 				e.intel[sid] = {"day": state.tick, "info": now}
@@ -87,9 +100,16 @@ static func _record_fleets(state: GameState, seen_by: Array[Dictionary]) -> void
 			continue
 		var seen: Dictionary = seen_by[e.id]
 		var here := {}
+		var near_set: Variant = null
 		for spot in spots:
 			if int(spot[1]) == e.id or not seen.has(spot[2]):
 				continue
+			if Veil.is_veiled(state, int(spot[1])):
+				if near_set == null:
+					near_set = Veil.near(state, e.id)
+				if Veil.hides(state, int(spot[1]), e.id, int(spot[2]), near_set):
+					continue
+				Veil.spot(state, int(spot[1]), e.id)
 			if int(spot[4]) == -1:
 				spot[4] = 1 if Combat.is_armed(spot[5]) else 0
 			var fid: int = spot[0]
