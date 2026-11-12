@@ -62,6 +62,21 @@ const Clock := preload("res://scripts/sim/game_clock.gd")
 const DESYNC_DIR := "user://desync"
 ## Réglages réseau du joueur (nom, dernière adresse, identifiant).
 const NET_SETTINGS := "user://net.cfg"
+## Garde-fous de l'hôte face à Internet : taille maximale d'un message d'un joueur (un peuple créé
+## pèse quelques Ko), délai pour se présenter (mot de passe compris), connexions par adresse, et
+## débit de messages par joueur (au-delà, il est déconnecté).
+const MAX_CLIENT_PACKET := 256 * 1024
+const MAX_HOST_PACKET := 64 * 1024 * 1024
+const HELLO_TIMEOUT_MS := 8000
+const MAX_PER_ADDRESS := 4
+const MAX_PACKETS_PER_SECOND := 400
+const CHAT_BURST := 5
+const CHAT_WINDOW_MS := 5000
+## Mauvais mots de passe : après PASSWORD_TRIES essais ratés, l'adresse attend PASSWORD_LOCK_MS.
+const PASSWORD_TRIES := 5
+## Client : sans le défi de l'hôte dans ce délai, on abandonne (au lieu d'attendre sans fin).
+const CONNECT_TIMEOUT_MS := 10000
+const PASSWORD_LOCK_MS := 60000
 ## Délais de déconnexion ENet (ms) : un joueur coupé est repéré en quelques secondes.
 const TIMEOUT_MIN_MS := 3000
 const TIMEOUT_MAX_MS := 10000
@@ -92,7 +107,26 @@ var chat_log: Array[Dictionary] = []
 ## Hôte : ouvrir le port sur la box par UPnP (désactivé par les bots de test). État : "" (rien),
 ## "busy" (recherche en cours), "ok" (port ouvert, upnp_address = adresse Internet), "fail" (upnp_reason).
 var use_upnp := true
+## Mot de passe de la partie (hôte ; "" : aucun) et celui que le joueur tape pour rejoindre. Il ne
+## circule jamais en clair : l'hôte envoie un défi, le joueur répond par une empreinte SHA-256.
+var password := ""
+var join_password := ""
+## Hôte : pairs connectés pas encore présentés (pair -> instant de connexion), défis envoyés,
+## compte des messages de la seconde en cours et des derniers messages de discussion.
+var _unhelloed := {}
+var _nonces := {}
+var _rate := {}
+var _chat_times := {}
+## Hôte : adresse -> instants des derniers mauvais mots de passe.
+var _fails := {}
+## Client : l'hôte a-t-il répondu (défi reçu) ? Sinon, abandon à _connect_deadline.
+var _greeted := false
+var _connect_deadline := 0
+var _connect_target := ""
 var upnp_state := ""
+## Hôte : adresse Internet de la box (service api.ipify.org), celle à donner aux amis.
+var public_address := ""
+var _ip_request: HTTPRequest
 var upnp_address := ""
 var upnp_reason := ""
 var _mapper: PortMapper
@@ -337,10 +371,12 @@ func join(address: String, port := DEFAULT_PORT) -> Error:
 		return err
 	if token == "":
 		token = local_token()
+	_greeted = false
+	_connect_deadline = Time.get_ticks_msec() + CONNECT_TIMEOUT_MS
+	_connect_target = "%s, port %d" % [address, port]
 	_peer.peer_connected.connect(func(id: int) -> void:
 		if id == Lockstep.HOST:
-			_set_timeout(id)
-			_send(Lockstep.HOST, {"k": "hello", "v": GameVersion.fingerprint(), "n": player_name, "id": token}))
+			_set_timeout(id))  # puis l'hôte envoie son défi (« challenge »), et l'on se présente
 	_peer.peer_disconnected.connect(func(id: int) -> void:
 		if id == Lockstep.HOST:
 			# Pas pendant poll() : fermer le pair au milieu de sa propre boucle le ferait planter.
@@ -362,6 +398,10 @@ func close() -> void:
 	role = NONE
 	core = null
 	names = {}
+	_unhelloed = {}
+	_nonces = {}
+	_rate = {}
+	_chat_times = {}
 	my_empire = -1
 	_joins.clear()
 	_leaves.clear()
@@ -405,6 +445,7 @@ func _end(reason: String) -> void:
 func _open_upnp(port: int) -> void:
 	if not use_upnp:
 		return
+	_lookup_public_address()
 	if _mapper == null:
 		_mapper = PortMapper.new()
 		_mapper.finished.connect(_on_upnp)
@@ -423,6 +464,23 @@ func _on_upnp(ok: bool, address: String, reason: String) -> void:
 
 
 ## Ce qu'il faut dire aux joueurs qui viennent par Internet.
+## Cherche l'adresse Internet (celle à donner aux amis : l'adresse locale ne sert que chez soi).
+func _lookup_public_address() -> void:
+	if public_address != "":
+		return
+	if _ip_request == null:
+		_ip_request = HTTPRequest.new()
+		_ip_request.timeout = 8.0
+		add_child(_ip_request)
+		_ip_request.request_completed.connect(func(result: int, code: int, _h: PackedStringArray, body: PackedByteArray) -> void:
+			var ip := body.get_string_from_utf8().strip_edges()
+			if result == HTTPRequest.RESULT_SUCCESS and code == 200 and ip.is_valid_ip_address():
+				public_address = ip
+				upnp_changed.emit())
+	if _ip_request.get_http_client_status() == HTTPClient.STATUS_DISCONNECTED:
+		_ip_request.request("https://api.ipify.org")
+
+
 func upnp_text() -> String:
 	match upnp_state:
 		"busy":
@@ -432,7 +490,11 @@ func upnp_text() -> String:
 				return "Par Internet : %s (port %d ouvert sur votre box par UPnP)." % [upnp_address, _port]
 			return "Par Internet : port %d ouvert sur votre box par UPnP ; donnez votre adresse publique." % _port
 		"fail":
+			if public_address != "":
+				return "Par Internet : donnez %s (votre adresse Internet), port %d, une fois ce port UDP redirigé sur votre box vers ce PC (UPnP : %s), ou utilisez Tailscale." % [public_address, _port, upnp_reason]
 			return "Par Internet : %s ; redirigez le port %d (UDP) sur votre box, ou utilisez Tailscale." % [upnp_reason, _port]
+	if public_address != "":
+		return "Par Internet : donnez %s (votre adresse Internet), port %d redirigé (UDP), ou Tailscale." % [public_address, _port]
 	return "Par Internet : votre adresse publique, port %d redirigé (UDP), ou Tailscale." % _port
 
 
@@ -538,7 +600,7 @@ func _process(delta: float) -> void:
 			if _beacon_timer <= 0.0:
 				_beacon_timer = 1.0
 				_beacon.announce({"name": player_name, "port": _port, "players": names.size(), "turns": _clock().is_turn_based(),
-						"date": "salon", "version": GameVersion.fingerprint()})
+						"date": "salon", "version": GameVersion.fingerprint(), "pw": password != ""})
 
 
 ## L'horloge du jeu (autoload).
@@ -584,7 +646,7 @@ func _host_clock(delta: float) -> void:
 	if _beacon and _beacon_timer <= 0.0:
 		_beacon_timer = 1.0
 		_beacon.announce({"name": player_name, "port": _port, "players": core.seats.size(),
-				"turns": turn_mode, "date": GameCalendar.date_string(core.tick()), "version": GameVersion.fingerprint()})
+				"turns": turn_mode, "date": GameCalendar.date_string(core.tick()), "version": GameVersion.fingerprint(), "pw": password != ""})
 	_delay_timer += delta
 	if _delay_timer > 1.0:
 		_delay_timer = 0.0
@@ -935,12 +997,82 @@ func _queue_join(id: int) -> void:
 
 
 func _on_peer_connected(id: int) -> void:
-	_set_timeout(id)  # puis on attend son « hello »
+	_set_timeout(id)
+	# Trop de connexions depuis la même adresse : refusée d'emblée.
+	var addr := _address_of(id)
+	var same := 0
+	for p: int in _unhelloed.keys() + names.keys():
+		if p != id and p != Lockstep.HOST and _address_of(p) == addr:
+			same += 1
+	if same >= MAX_PER_ADDRESS:
+		_peer.disconnect_peer(id, true)
+		return
+	if _recent_fails(addr) >= PASSWORD_TRIES:
+		_refuse(id, "trop de mauvais mots de passe : réessayez dans une minute")
+		return
+	# Défi : le joueur doit répondre par un « hello » (avec l'empreinte du mot de passe) à temps.
+	var nonce := Crypto.new().generate_random_bytes(16).hex_encode()
+	_nonces[id] = nonce
+	_unhelloed[id] = Time.get_ticks_msec()
+	_send(id, {"k": "challenge", "c": nonce, "pw": password != ""})
+
+
+func _address_of(id: int) -> String:
+	var p := _peer.get_peer(id) if _peer else null
+	return p.get_remote_address() if p else ""
+
+
+## Empreinte envoyée à la place du mot de passe : SHA-256(défi + mot de passe).
+static func password_proof(nonce: String, pw: String) -> String:
+	var h := HashingContext.new()
+	h.start(HashingContext.HASH_SHA256)
+	h.update((nonce + "|" + pw).to_utf8_buffer())
+	return h.finish().hex_encode()
+
+
+## Hôte : coupe ceux qui ne se présentent pas à temps.
+func _check_unhelloed() -> void:
+	var now := Time.get_ticks_msec()
+	for id: int in _unhelloed.keys():
+		if now - int(_unhelloed[id]) > HELLO_TIMEOUT_MS:
+			_unhelloed.erase(id)
+			_nonces.erase(id)
+			if _peer:
+				_peer.disconnect_peer(id, true)
+
+
+## Hôte : mauvais mots de passe venus de cette adresse dans la dernière minute.
+func _recent_fails(addr: String) -> int:
+	var now := Time.get_ticks_msec()
+	var fails: Array = (_fails.get(addr, []) as Array).filter(func(t: int) -> bool: return now - t < PASSWORD_LOCK_MS)
+	if fails.is_empty():
+		_fails.erase(addr)
+	else:
+		_fails[addr] = fails
+	return fails.size()
+
+
+## Hôte : refuse un joueur avec une raison, puis le déconnecte (une fois la raison partie).
+func _refuse(id: int, reason: String) -> void:
+	_send(id, {"k": "refuse", "r": reason})
+	_flush()
+	# Déconnexion une fois la raison partie (disconnect_peer jetterait le message en attente). Il reste
+	# dans _unhelloed : s'il ne part pas de lui-même, le délai de présentation le coupe.
+	_nonces.erase(id)
+	if not _unhelloed.has(id):
+		_unhelloed[id] = Time.get_ticks_msec()
+	var p := _peer.get_peer(id) if _peer else null
+	if p:
+		p.peer_disconnect_later()
 
 
 func _on_peer_disconnected(id: int) -> void:
 	if role != HOST:
 		return
+	_unhelloed.erase(id)
+	_nonces.erase(id)
+	_rate.erase(id)
+	_chat_times.erase(id)
 	if lobby_open:
 		var who := String(names.get(id, ""))
 		names.erase(id)
@@ -1034,9 +1166,22 @@ func _poll() -> void:
 	if _peer == null:
 		return
 	_peer.poll()
+	if role == HOST:
+		_check_unhelloed()
+	elif role == CLIENT and not _greeted and Time.get_ticks_msec() > _connect_deadline:
+		_end("aucune réponse de %s. Vérifiez l'adresse (son adresse Internet, pas une 192.168 hors de chez lui), la redirection du port UDP sur sa box et le pare-feu Windows de l'hôte ; « Tester » le vérifie sans rejoindre" % _connect_target)
+		return
 	while _peer and _peer.get_available_packet_count() > 0:
 		var from := _peer.get_packet_peer()
 		var data := _peer.get_packet()
+		# Garde-fous : taille, débit, puis décodage sans objets (bytes_to_var ne recrée jamais
+		# d'objet ni de code). Un message mal formé est ignoré.
+		if role == HOST:
+			if data.size() > MAX_CLIENT_PACKET or not _within_rate(from):
+				_peer.disconnect_peer(from, true)
+				continue
+		elif data.size() > MAX_HOST_PACKET:
+			continue
 		var msg: Variant = bytes_to_var(data)
 		if msg is Dictionary:
 			if role == HOST:
@@ -1045,13 +1190,43 @@ func _poll() -> void:
 				_client_message(msg)
 
 
+## Hôte : un joueur qui inonde la partie de messages est déconnecté.
+func _within_rate(id: int) -> bool:
+	var sec := Time.get_ticks_msec() / 1000
+	var r: Array = _rate.get(id, [sec, 0])
+	if int(r[0]) != sec:
+		r = [sec, 0]
+	r[1] = int(r[1]) + 1
+	_rate[id] = r
+	return int(r[1]) <= MAX_PACKETS_PER_SECOND
+
+
+## Lecture prudente d'un nombre venu du réseau (un texte ou une liste donne la valeur par défaut).
+static func _num(v: Variant, d := -1) -> int:
+	return int(v) if v is int or v is float else d
+
+
 func _host_message(from: int, msg: Dictionary) -> void:
-	match String(msg.get("k", "")):
+	var kind := String(msg.get("k", ""))
+	# Tant qu'il ne s'est pas présenté (défi réussi), un pair ne peut rien faire d'autre.
+	if kind != "hello" and not names.has(from):
+		return
+	match kind:
 		"hello":
+			if names.has(from) or not _nonces.has(from):
+				return  # déjà présenté, ou pas de défi en cours
 			if String(msg.get("v", "")) != GameVersion.fingerprint():
-				_send(from, {"k": "refuse", "r": "versions du jeu différentes (la vôtre : %s, l'hôte : %s)" % [msg.get("v", "?"), GameVersion.fingerprint()]})
-				_flush()
+				_refuse(from, "versions du jeu différentes (la vôtre : %s, l'hôte : %s)" % [String(msg.get("v", "?")).substr(0, 24), GameVersion.fingerprint()])
 				return
+			if password != "" and String(msg.get("pw", "")) != password_proof(String(_nonces[from]), password):
+				var fails: Array = _fails.get(_address_of(from), [])
+				fails.append(Time.get_ticks_msec())
+				_fails[_address_of(from)] = fails
+				_refuse(from, "mot de passe incorrect")
+				notice.emit("Connexion refusée : mauvais mot de passe (%s)." % _address_of(from), "bad")
+				return
+			_unhelloed.erase(from)
+			_nonces.erase(from)
 			var pname := String(msg.get("n", "Joueur")).strip_edges().substr(0, 24)
 			var tok := String(msg.get("id", "")).substr(0, 64)
 			if tok == "":
@@ -1078,7 +1253,7 @@ func _host_message(from: int, msg: Dictionary) -> void:
 		"pick":
 			if core == null or not names.has(from) or core.seats.has(from) or _joins.has(from):
 				return
-			var e := int(msg.get("e", -1))
+			var e := _num(msg.get("e"))
 			if not _is_free(e):
 				_send(from, {"k": "choose", "l": _empire_list(), "r": "cet empire n'est pas libre"})
 				return
@@ -1088,24 +1263,26 @@ func _host_message(from: int, msg: Dictionary) -> void:
 			if core and core.seats.has(from):
 				_host_ready(from, bool(msg.get("r", true)))
 		"lobby_take", "lobby_set", "lobby_ready":
-			if lobby_open and names.has(from):
+			if lobby_open and names.has(from) and NetSafe.is_plain(msg, 4, 2048, [1024]):
 				var data := msg.duplicate()
 				data.erase("k")
 				lobby_request.emit(from, String(msg["k"]).trim_prefix("lobby_"), data)
 		"order":
-			if core == null or not core.seats.has(from) or not msg.get("c") is Dictionary:
+			if core == null or not core.seats.has(from):
 				return
-			var why := core.request(from, msg["c"])
+			var why := NetSafe.check_order(msg.get("c"))
+			if why == "":
+				why = core.request(from, msg["c"])
 			if why != "":
 				_send(from, {"k": "notice", "t": "Ordre refusé : %s" % why, "o": "bad"})
 		"ack":
 			if core and core.seats.has(from):
-				core.host_receive_ack(from, int(msg.get("t", 0)), String(msg.get("h", "")))
+				core.host_receive_ack(from, _num(msg.get("t"), 0), String(msg.get("h", "")).substr(0, 128))
 		"pause":
 			if core and core.seats.has(from):
 				_host_pause(from, bool(msg.get("p", true)))
 		"chat":
-			if names.has(from):
+			if names.has(from) and _chat_allowed(from):
 				_host_chat(from, String(msg.get("t", "")), bool(msg.get("e", false)))
 
 
@@ -1135,6 +1312,13 @@ func _client_message(msg: Dictionary) -> void:
 				notice.emit(String(msg["r"]), "bad")
 		"refuse":
 			_end(String(msg.get("r", "refusé par l'hôte")))
+		"challenge":
+			_greeted = true
+			var nonce := String(msg.get("c", ""))
+			var hello := {"k": "hello", "v": GameVersion.fingerprint(), "n": player_name, "id": token}
+			if bool(msg.get("pw", false)):
+				hello["pw"] = password_proof(nonce, join_password)
+			_send(Lockstep.HOST, hello)
 		"frame":
 			if core:
 				core.receive_frame(int(msg["t"]), msg.get("c", []), bool(msg.get("s", false)))
@@ -1222,6 +1406,19 @@ func chat_recipients(by: int, team: bool) -> Array[int]:
 		out.append(p)
 	out.sort()
 	return out
+
+
+## Hôte : pas plus de CHAT_BURST messages par joueur en CHAT_WINDOW_MS (le reste est ignoré).
+func _chat_allowed(id: int) -> bool:
+	var now := Time.get_ticks_msec()
+	var times: Array = _chat_times.get(id, [])
+	times = times.filter(func(t: int) -> bool: return now - t < CHAT_WINDOW_MS)
+	if times.size() >= CHAT_BURST:
+		_chat_times[id] = times
+		return false
+	times.append(now)
+	_chat_times[id] = times
+	return true
 
 
 func _add_chat(entry: Dictionary) -> void:

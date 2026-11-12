@@ -24,8 +24,11 @@ func _initialize() -> void:
 	# Une partie hébergée sur le réseau local apparaît toute seule dans la liste.
 	var beacon := LanDiscovery.new()
 	for _i in 30:
-		beacon.announce({"name": "Maître Sentient", "port": 24570, "players": 2, "turns": true, "date": "14 mars 2403", "version": GameVersion.fingerprint()})
+		beacon.announce({"name": "Maître Sentient", "port": 24570, "players": 2, "turns": true, "date": "14 mars 2403", "version": GameVersion.fingerprint(), "pw": true})
 		await process_frame
+	menu._host_password.text = "nebuleuse"
+	menu._join_password.text = "nebuleuse"
+	menu._set_access(MainMenu.access_text(false, "203.0.113.7", 24570))
 	await _frames(5)
 	await _shot(out + "/reseau-multijoueur.png")
 	# Salon d'avant-partie : deux places « joueur humain », Alice en prend une et se dit prête.

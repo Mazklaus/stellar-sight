@@ -13,6 +13,7 @@ extends SceneTree
 ## empire) ; HOST_QUITS_AT (hôte) : quitte brutalement à ce jour.
 ## LOBBY=1 (hôte) : salon d'avant-partie ; CLIENTS places « joueur humain », chaque client en prend une,
 ## y choisit un peuple (FACTION, sinon au hasard), se dit prêt, et l'hôte lance quand tous sont prêts.
+## PASSWORD : mot de passe de la partie (hôte) ou celui tapé pour rejoindre (client).
 ## Le nom sert d'identifiant : un client relancé avec le même nom retrouve son empire.
 
 var session: NetSession
@@ -51,6 +52,10 @@ func _setup() -> void:
 	session.use_upnp = false  # pas de box à ouvrir pour des bots en local
 	session.player_name = _env("NAME", role)
 	session.token = "bot-" + _env("NAME", role)
+	if role == "host":
+		session.password = _env("PASSWORD", "")
+	else:
+		session.join_password = _env("PASSWORD", "")
 	root.add_child(session)
 	session.notice.connect(func(t: String, _o: String) -> void: print("[%s] %s" % [role, t]))
 	session.ended.connect(func(r: String) -> void:

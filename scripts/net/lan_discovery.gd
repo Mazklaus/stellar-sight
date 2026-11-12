@@ -8,6 +8,10 @@ const PORT := 24569
 ## Une partie disparaît de la liste si on ne l'entend plus pendant ce temps (ms).
 const EXPIRE_MS := 4000
 const MAGIC := "stellar-sigth"
+## Une annonce pèse quelques centaines d'octets ; au-delà, elle est ignorée. Pas plus de MAX_GAMES
+## parties listées (un voisin bruyant ne remplit pas la page).
+const MAX_PACKET := 2048
+const MAX_GAMES := 32
 
 var _udp: PacketPeerUDP
 var _listening := false
@@ -55,13 +59,19 @@ func poll() -> bool:
 	while _udp.get_available_packet_count() > 0:
 		var data := _udp.get_packet()
 		var addr := _udp.get_packet_ip()
+		if data.size() > MAX_PACKET:
+			continue
 		var msg: Variant = bytes_to_var(data)
-		if not msg is Dictionary or String(msg.get("k", "")) != MAGIC:
+		if not msg is Dictionary or not NetSafe.is_plain(msg, 1, 128, [32]) or String(msg.get("k", "")) != MAGIC:
 			continue
 		var known := games.has(addr)
-		var g := {"name": String(msg.get("name", "?")).substr(0, 40), "port": int(msg.get("port", NetSession.DEFAULT_PORT)),
-				"players": int(msg.get("players", 1)), "turns": bool(msg.get("turns", false)),
-				"date": String(msg.get("date", "")), "version": String(msg.get("version", "")), "seen": now}
+		if not known and games.size() >= MAX_GAMES:
+			continue
+		var port := NetSession._num(msg.get("port"), NetSession.DEFAULT_PORT)
+		var g := {"name": String(msg.get("name", "?")).substr(0, 40), "port": port if port > 0 and port < 65536 else NetSession.DEFAULT_PORT,
+				"players": clampi(NetSession._num(msg.get("players"), 1), 0, 99), "turns": bool(msg.get("turns", false)),
+				"locked": bool(msg.get("pw", false)),
+				"date": String(msg.get("date", "")).substr(0, 40), "version": String(msg.get("version", "")).substr(0, 64), "seen": now}
 		if not known or games[addr]["players"] != g["players"] or games[addr]["date"] != g["date"]:
 			changed = true
 		games[addr] = g
