@@ -189,7 +189,7 @@ func _lockstep_world(seed_value: int) -> Array:
 
 
 ## Fait tourner les trois machines `frames` images ; renvoie le nombre d'ordres demandés.
-func _run_world(cores: Array, wire: Wire, frames: int, rng: RandomNumberGenerator, host_runs: Callable) -> int:
+func _run_world(cores: Array, wire: Wire, frames: int, rng: RandomNumberGenerator, host_runs: Callable, ordering := true) -> int:
 	var host: Lockstep = cores[0]
 	var orders := 0
 	for _f in frames:
@@ -213,7 +213,7 @@ func _run_world(cores: Array, wire: Wire, frames: int, rng: RandomNumberGenerato
 		wire.queue = keep
 		# Ordres au hasard (un toutes les 3 images en moyenne par joueur).
 		for i in 3:
-			if rng.randf() < 0.33:
+			if ordering and rng.randf() < 0.33:
 				var c: Lockstep = cores[i]
 				var cmd := _random_order(c.sim.state, i, rng)
 				if SimCommands.validate(c.sim.state, cmd) == "":
@@ -295,6 +295,11 @@ func _test_lockstep_pause() -> void:
 		while h.can_step():
 			h.step()
 		h.flush_paused())
+	# Les derniers ordres donnés en pause sont encore en route : on les laisse arriver, sans en donner d'autres.
+	_run_world(cores, wire, 10, stop_rng, func(h: Lockstep) -> void:
+		while h.can_step():
+			h.step()
+		h.flush_paused(), false)
 	var q := host.tick()
 	var same := true
 	for i in [1, 2]:

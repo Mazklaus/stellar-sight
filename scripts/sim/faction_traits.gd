@@ -682,6 +682,8 @@ static func gauge(state: GameState, empire_id: int) -> Dictionary:
 		tip += "\n%d revendication%s à plus de %d sauts : %d %% de production." % [far, "s" if far > 1 else "", int(hd["far_jumps"]), int(hd["far_pct"]) - 100]
 		return {"label": "Flotte-ville", "value": ("en route" if cf.is_moving() else where) if far == 0 else "%s (%d loin)" % ["en route" if cf.is_moving() else where, far],
 				"tip": tip}
+	if Echoes.has(f):
+		return Echoes.gauge(state, empire_id)
 	if Reputation.has(f):
 		return Reputation.gauge(state, empire_id)
 	if Diplomacy.has_ability(state, empire_id, "mercenary"):

@@ -125,20 +125,24 @@ static func update_exploration(state: GameState) -> Array[Dictionary]:
 		for other in state.empires:
 			if other.id == e.id or e.contacts.has(other.id):
 				continue
-			if _sees_empire(state, seen, other.id):
+			if _sees_empire(state, seen, other.id, e.id):
 				_meet(state, e, other, added)
 	return added
 
 
-## L'empire voit-il un système revendiqué ou une flotte de l'empire other_id ?
-static func _sees_empire(state: GameState, seen: Dictionary, other_id: int) -> bool:
+## L'empire viewer voit-il un système revendiqué ou une flotte de l'empire other_id ? Un peuple voilé
+## (Veil) ne se rencontre pas tant qu'on ne le voit pas ; lui peut aller au-devant des autres.
+static func _sees_empire(state: GameState, seen: Dictionary, other_id: int, viewer := -1) -> bool:
+	var veiled := viewer >= 0 and Veil.is_veiled(state, other_id)
+	var near_set: Variant = Veil.near(state, viewer) if veiled else null
 	for sid in seen:
-		if state.system_owner(sid) == other_id:
+		if state.system_owner(sid) == other_id and not (veiled and Veil.hides(state, other_id, viewer, sid, near_set)):
 			return true
 	# (on cherche s'il en existe une : l'ordre de parcours ne change pas la réponse)
 	for f: Fleet in state.fleets.values():
 		if f.owner == other_id and seen.has(Fleets.vision_center(state, f)):
-			return true
+			if not (veiled and Veil.hides(state, other_id, viewer, Fleets.vision_center(state, f), near_set)):
+				return true
 	return false
 
 

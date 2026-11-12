@@ -332,6 +332,35 @@ static func _faction_talents(ctx: Dictionary) -> void:
 		_fervor(ctx, use)
 	if FactionTraits.can_rush(f):
 		_rush(ctx, use)
+	if Echoes.has(f):
+		_fold(ctx)
+
+
+## Registre Cosmique : replier le temps d'abord sur un vaisseau colon, puis sur le chantier le plus long.
+static func _fold(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if e.echoes < Echoes.fold_cost(state, e.id):
+		return
+	var best := -1
+	var best_what := ""
+	@warning_ignore("integer_division")
+	var best_days := Echoes.fold_days(state, e.id) / 2
+	for c in _my_colonies(ctx):
+		if c.ship_build != "" and GameData.ship(c.ship_build).get("colonizer", false) and c.ship_days > 10:
+			if _issue(ctx, SimCommands.fold(e.id, c.planet_id, Echoes.SHIP)):
+				_intent(ctx, "Replier le temps : un vaisseau colon")
+			return
+		if c.construction != "" and c.construction_days > best_days:
+			best = c.planet_id
+			best_what = Echoes.BUILDING
+			best_days = c.construction_days
+		if c.ship_build != "" and c.ship_days > best_days:
+			best = c.planet_id
+			best_what = Echoes.SHIP
+			best_days = c.ship_days
+	if best >= 0 and _issue(ctx, SimCommands.fold(e.id, best, best_what)):
+		_intent(ctx, "Replier le temps sur un chantier")
 
 
 ## Recrue : elle connaît les talents de son peuple, mais s'en sert très mal.

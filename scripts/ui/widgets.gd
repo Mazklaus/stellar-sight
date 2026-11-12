@@ -354,6 +354,7 @@ class ArtSlot:
 		var rock := pid.begins_with("lithoide")
 		var synth := pid.begins_with("synthetique")
 		var scaly := pid.begins_with("reptilien")
+		var glow := pid.begins_with("energetique")
 		var s := minf(r.size.x, r.size.y * 0.9)
 		var cx := r.size.x * 0.5
 		var base := r.size.y
@@ -364,7 +365,7 @@ class ArtSlot:
 		var sw := s * (0.5 if look == "colossus" or look == "boulder" else 0.4)
 		var sh_y := base * 0.78
 		draw_colored_polygon(PackedVector2Array([Vector2(cx - sw, base), Vector2(cx - sw * 0.85, sh_y), Vector2(cx - sw * 0.3, sh_y - s * 0.08),
-				Vector2(cx + sw * 0.3, sh_y - s * 0.08), Vector2(cx + sw * 0.85, sh_y), Vector2(cx + sw, base)]), fill.darkened(0.2))
+				Vector2(cx + sw * 0.3, sh_y - s * 0.08), Vector2(cx + sw * 0.85, sh_y), Vector2(cx + sw, base)]), Color(fill.darkened(0.2), 0.25 if glow else 1.0))
 		var head := Vector2(cx, base * 0.48)
 		var hr := s * (0.14 if look == "crown" and hive else 0.17)
 		if hero:
@@ -430,6 +431,33 @@ class ArtSlot:
 						draw_arc(head + Vector2(-hr * 0.2, hr * 0.5), hr * (0.25 + 0.15 * i), PI * 1.1, PI * 1.6, 10, Color(edge, 0.6), 1.0, true)
 			for side in [-1.0, 1.0]:
 				draw_line(head + Vector2(side * hr * 0.55, -hr * 0.15), head + Vector2(side * hr * 0.2, -hr * 0.05), eye, 3.0, true)
+		elif glow:
+			# Être d'énergie : un halo en couches, sans contour net, et des yeux comme des trous de lumière.
+			for k in 5:
+				draw_circle(head, hr * (1.7 - 0.25 * k), Color(eye, 0.06 + 0.05 * k))
+			match look:
+				"wisp":
+					var wp := PackedVector2Array()
+					for i in 17:
+						var t := i / 16.0
+						var a := PI * (1.0 + t)
+						wp.append(head + Vector2(cos(a) * hr * 0.9, sin(a) * hr * 1.6 * (0.7 + 0.3 * sin(t * PI * 3.0))))
+					wp.append(head + Vector2(hr * 0.9, hr * 0.6))
+					wp.append(head + Vector2(0, hr * 1.5))
+					wp.append(head + Vector2(-hr * 0.9, hr * 0.6))
+					draw_colored_polygon(wp, Color(edge, 0.35))
+				"rings":
+					for k in 3:
+						draw_arc(head, hr * (0.6 + 0.35 * k), -PI * 0.1 * k, PI * (1.4 - 0.2 * k), 24, Color(eye, 0.7 - 0.15 * k), 1.5, true)
+				"veil":
+					var vp := PackedVector2Array([head + Vector2(-hr * 1.1, hr * 1.4), head + Vector2(-hr * 0.9, -hr * 0.6), head + Vector2(0, -hr * 1.3),
+							head + Vector2(hr * 0.9, -hr * 0.6), head + Vector2(hr * 1.1, hr * 1.4)])
+					draw_colored_polygon(vp, Color(fill, 0.85))
+					vp.append(vp[0])
+					draw_polyline(vp, Color(edge, 0.6), 1.5, true)
+			for side in [-1.0, 1.0]:
+				draw_circle(head + Vector2(side * hr * 0.35, -hr * 0.1), hr * 0.16, Color(1, 1, 1, 0.9))
+				draw_circle(head + Vector2(side * hr * 0.35, -hr * 0.1), hr * 0.3, Color(eye, 0.35))
 		elif scaly:
 			# Tête de reptile : un crâne en coin qui s'affine vers le museau, des écailles, des yeux fendus.
 			draw_line(head + Vector2(0, hr), head + Vector2(0, hr * 1.6), fill, hr * 0.8)

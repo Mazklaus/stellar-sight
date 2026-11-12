@@ -90,6 +90,12 @@ var probe_day: int = 0
 ## Registre Picaresque (voir Reputation) : réputation 0-100 et exploits accomplis {id: jour}.
 var reputation: int = 0
 var exploits: Dictionary = {}
+## Archétype Énergétique (voir Veil) : jour où un empire non allié l'a vu pour la première fois (-1 :
+## jamais) et lequel.
+var spotted_tick: int = -1
+var spotted_by: int = -1
+## Registre Cosmique (voir Echoes) : échos accumulés.
+var echoes: int = 0
 ## Effets cumulés des technologies, recalculés quand tech_fx_n ne correspond plus (jamais sauvegardés).
 var tech_fx: Dictionary = {}
 var tech_fx_exalted: Dictionary = {}
@@ -182,6 +188,9 @@ func to_dict() -> Dictionary:
 		"probe_day": probe_day,
 		"reputation": reputation,
 		"exploits": _sorted_exploits(),
+		"spotted": spotted_tick,
+		"spotted_by": spotted_by,
+		"echoes": echoes,
 	}
 
 
@@ -305,4 +314,7 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.reputation = int(d.get("reputation", 0))
 	for pair in d.get("exploits", []):
 		e.exploits[String(pair[0])] = int(pair[1])
+	e.spotted_tick = int(d.get("spotted", -1))
+	e.spotted_by = int(d.get("spotted_by", -1))
+	e.echoes = int(d.get("echoes", 0))
 	return e

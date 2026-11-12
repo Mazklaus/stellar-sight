@@ -476,6 +476,10 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 			actions.append(_rush_action(p, FactionTraits.RUSH_SHIP))
 		if FactionTraits.has_fervor(f) and c.is_colony():
 			actions.append(_sacrifice_action(p))
+		if Echoes.has(f) and c.construction != "":
+			actions.append(_fold_action(p, Echoes.BUILDING))
+		if Echoes.has(f) and c.ship_build != "":
+			actions.append(_fold_action(p, Echoes.SHIP))
 	if c and c.owner == _player and c.is_established() and c.is_colony():
 		for sid in Designs.buildable_ids(_state, _player):
 			actions.append(_ship_action(p, sid))
@@ -505,6 +509,24 @@ func _rush_action(p: Planet, what: String) -> Dictionary:
 		"detail": "%d influence  »  achevé demain au lieu de dans %d j" % [FactionTraits.rush_cost(_state, _player, p.id, what), days],
 		"reason": reason,
 		"tooltip": reason if reason != "" else "L'Assemblée vote les crédits en séance de nuit. Le discours d'ouverture est, exceptionnellement, court.",
+		"action": func() -> void: command_requested.emit(cmd),
+	}
+
+
+## Replier le temps (registre Cosmique) : un chantier avance d'un coup contre des échos.
+func _fold_action(p: Planet, what: String) -> Dictionary:
+	var c: Colony = _state.colonies[p.id]
+	var me := _state.get_empire(_player)
+	var cmd := SimCommands.fold(_player, p.id, what)
+	var reason := SimCommands.validate(_state, cmd)
+	var label := String(GameData.building(c.construction).get("label", c.construction)) if what == Echoes.BUILDING \
+			else String(GameData.ship(c.ship_build).get("label", c.ship_build))
+	var days := c.construction_days if what == Echoes.BUILDING else c.ship_days
+	return {
+		"text": "Replier le temps : %s" % label,
+		"detail": "%d échos (%d)  »  %d j au lieu de %d" % [Echoes.fold_cost(_state, _player), me.echoes, maxi(1, days - Echoes.fold_days(_state, _player)), days],
+		"reason": reason,
+		"tooltip": reason if reason != "" else "Le chantier se souvient de jours qui n'ont pas encore eu lieu.",
 		"action": func() -> void: command_requested.emit(cmd),
 	}
 

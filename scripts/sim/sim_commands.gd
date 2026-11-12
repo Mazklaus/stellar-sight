@@ -67,6 +67,11 @@ static func rush(player: int, planet_id: int, what: String) -> Dictionary:
 	return {"type": "rush", "player": player, "planet": planet_id, "what": what}
 
 
+## Registre Cosmique : replier le temps sur un chantier ("building" ou "ship"), contre des échos.
+static func fold(player: int, planet_id: int, what: String) -> Dictionary:
+	return {"type": "fold", "player": player, "planet": planet_id, "what": what}
+
+
 ## Déclare la guerre à un empire rencontré (la guerre vaut dans les deux sens).
 static func declare_war(player: int, target: int) -> Dictionary:
 	return {"type": "declare_war", "player": player, "target": target}
@@ -231,6 +236,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return FactionTraits.check_sacrifice(state, int(cmd["player"]), int(cmd.get("planet", -1)))
 		"rush":
 			return FactionTraits.check_rush(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("what", "")))
+		"fold":
+			return Echoes.check_fold(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("what", "")))
 		"declare_war":
 			return Combat.check_declare_war(state, int(cmd["player"]), int(cmd.get("target", -1)))
 		"propose_treaty":
@@ -399,6 +406,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				c.construction_days = 1
 			else:
 				c.ship_days = 1
+		"fold":
+			Echoes.fold(state, int(cmd["player"]), int(cmd["planet"]), String(cmd["what"]))
 		"spy_cells":
 			Espionage.set_cells(state, int(cmd["player"]), int(cmd["target"]), int(cmd["n"]))
 		"spy_op":

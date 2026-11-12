@@ -23,6 +23,7 @@ func run(check: Callable) -> void:
 	_test_noosphere()
 	_test_terre_promise()
 	_test_legende()
+	_test_silence()
 	_test_visibility_and_threat()
 	_test_ai_pursuit()
 	_test_save()
@@ -94,7 +95,7 @@ func _home_system(st: GameState, id: int) -> int:
 func _test_data() -> void:
 	var ids := Victory.ids()
 	_ok(ids.slice(0, 3) == ["conquete", "domination", "score"], "trois victoires classiques d'abord")
-	var want := {"ossarane": ["elu"], "choeur": ["couplet"], "vael": ["charte"], "khthari": ["moisson"], "teyl": ["noosphere"], "ferrocornes": ["terre_promise"], "brisecomete": ["legende"]}
+	var want := {"ossarane": ["elu"], "choeur": ["couplet"], "vael": ["charte"], "khthari": ["moisson"], "teyl": ["noosphere"], "ferrocornes": ["terre_promise"], "brisecomete": ["legende"], "murmurants": ["silence"]}
 	for f in want:
 		_ok(Array(Victory.people_ids_for(GameData.faction(f))) == want[f], "%s : sa victoire de peuple (%s)" % [f, str(Victory.people_ids_for(GameData.faction(f)))])
 	# Un peuple personnalisé y a droit par ses couches, pas par son nom.
@@ -462,6 +463,35 @@ func _test_legende() -> void:
 	e.reputation = 100
 	_months(st, 14)
 	_ok(not st.winner.is_empty(), "un an de Légende : victoire (%s)" % str(st.winner))
+
+
+func _test_silence() -> void:
+	var st := _state("murmurants")
+	var e := st.get_empire(0)
+	_ok(Array(Victory.ids_for(st, 0)).has("silence") and not Array(Victory.ids_for(st, 1)).has("silence"), "Silence parfait : visé par l'archétype Énergétique seulement")
+	var want := int(Victory.info("silence")["colonies"])
+	var d := FactionTraits.jumps_from(st.galaxy, _home_system(st, 0))
+	var order: Array = d.keys()
+	order.sort()
+	var n := 1
+	for sid in order:
+		if n >= want:
+			break
+		if st.system_owner(sid) == -1 and _claim(st, 0, sid, Colony.KIND_COLONY, 2) != null:
+			n += 1
+	st.rebuild_ownership()
+	Research.grant(st, 0, ["silence_parfait"])
+	_months(st, 1)
+	var pr := Victory.progress(st, 0, "silence")
+	_ok(pr["cond"] and str(pr["lines"]).contains("Jamais repéré"), "%d colonies, jamais repérés : le compte à rebours démarre (%s)" % [want, str(pr["lines"])])
+	_months(st, 6)
+	_ok(Victory.held(st, 0, "silence") >= 150, "le silence tient")
+	Veil.spot(st, 0, 1)
+	_ok(e.spotted_by == 1, "repérés par un rival")
+	_months(st, 1)
+	_ok(Victory.held(st, 0, "silence") == 0 and str(Victory.progress(st, 0, "silence")["lines"]).contains("Dernier repérage"), "un repérage : tout est à refaire")
+	_months(st, 38)
+	_ok(not st.winner.is_empty() and String(st.winner["victory"]) == "silence", "trois ans de silence : victoire (%s)" % str(st.winner))
 
 
 func _test_noosphere() -> void:
