@@ -2,10 +2,11 @@ class_name ChronicleScreen
 extends RefCounted
 ## Écran Chroniques (J), à la manière de l'écran « Quêtes et événements » d'Endless Space 2, en trois
 ## onglets : Quêtes (quêtes de l'empire et retournement galactique, voir Quests et QuestPanel),
-## Événements (boîte, curiosités repérées, journal ; voir Events et Curios) et Reliquaire (reliques et
-## fouilles, voir Relics). Construit dans les conteneurs d'EmpireScreens (_grid, _key_value…).
+## Événements (boîte, curiosités repérées, journal ; voir Events et Curios), Reliquaire (reliques et
+## fouilles, voir Relics) et Bestiaire (créatures rencontrées, voir BestiaryPanel).
+## Construit dans les conteneurs d'EmpireScreens (_grid, _key_value…).
 
-const TABS := [["quests", "Quêtes"], ["events", "Événements"], ["relics", "Reliquaire"]]
+const TABS := [["quests", "Quêtes"], ["events", "Événements"], ["relics", "Reliquaire"], ["bestiary", "Bestiaire"]]
 
 
 ## Onglets offerts dans cette partie (selon les réglages de la Nouvelle partie).
@@ -16,6 +17,8 @@ static func tabs(state: GameState) -> Array[String]:
 	out.append("events")
 	if not state.relics.is_empty():
 		out.append("relics")
+	if Fauna.active(state):
+		out.append("bestiary")
 	return out
 
 
@@ -42,6 +45,8 @@ static func build(es: EmpireScreens) -> void:
 		fr.tooltip_text = "Petite monnaie des reliques : indices de fouille, part du Triomphe, dons. On en trouve dans les curiosités, les fouilles et les épaves."
 		fr.mouse_filter = Control.MOUSE_FILTER_STOP
 		es._key_value(g, "Reliques", "%d" % Relics.owned(state, player).size())
+	if Fauna.active(state):
+		es._key_value(g, "Espèces rencontrées", "%d / %d" % [Fauna.known_species(state, player).size(), Fauna.species_ids().size()])
 	if state.curio_density != "aucune":
 		var det := es._key_value(g, "Détection", "niveau %d" % Curios.detect(state, player))
 		det.tooltip_text = "Les curiosités de niveau supérieur restent invisibles. Les capteurs et certaines technologies l'améliorent."
@@ -95,6 +100,9 @@ static func build(es: EmpireScreens) -> void:
 
 	if es.chron_tab == "quests":
 		QuestPanel.build(es, col)
+		return
+	if es.chron_tab == "bestiary":
+		BestiaryPanel.build(es, col)
 		return
 	if es.chron_tab == "relics":
 		col.add_child(_reliquary_block(es))
@@ -368,5 +376,6 @@ static func signature(es: EmpireScreens) -> String:
 		s += str(state.relics) + str(state.relic_meta.get(player, {})) + str(state.digs) + str(state.get_empire(player).resources.get("influence", 0))
 	if Quests.enabled(state):
 		s += QuestPanel.signature(es)
+	s += BestiaryPanel.signature(es)
 	@warning_ignore("integer_division")
 	return s + "|%s|%d" % [es.chron_tab, state.tick / 30]

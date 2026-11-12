@@ -76,7 +76,7 @@ static func _in_conflict(state: GameState, fleets: Array) -> bool:
 		if not Combat.is_armed(a):
 			continue
 		for b: Fleet in fleets:
-			if Combat.at_war(state, a.owner, b.owner):
+			if Combat.hostile_fleets(state, a, b):
 				return true
 	return false
 
@@ -121,7 +121,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 	var fighters: Array[Fleet] = []
 	for f: Fleet in fleets:
 		for g: Fleet in fleets:
-			if Combat.at_war(state, f.owner, g.owner):
+			if Combat.hostile_fleets(state, f, g):
 				fighters.append(f)
 				break
 	for f in fighters:
@@ -158,7 +158,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		var list: Array = []
 		var front := 0
 		for g in fighters:
-			if Combat.at_war(state, f.owner, g.owner):
+			if Combat.hostile_fleets(state, f, g):
 				for i in g.ships.size():
 					var wgt := Combat.line_weight(Combat.ship_line(g.ships[i]))
 					list.append([g, i, wgt])
@@ -180,6 +180,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 			dpct += Research.fx_int(state, f.owner, "first_day_damage_pct")
 		dpct += Heroes.damage_pct(state, f, day, state.system_owner(sid) == f.owner)
 		dpct += Pirates.hunt_pct(state, f, fighters)
+		dpct += Fauna.hunt_pct(state, f, fighters)
 		if dpct != 0:
 			@warning_ignore("integer_division")
 			bonus = bonus * maxi(0, 100 + dpct) / 100
@@ -427,6 +428,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 	Heroes.on_battle(state, b, winner)
 	Relics.on_battle(state, b, winner, added)
 	Quests.on_battle(state, b, winner)
+	Fauna.on_battle(state, b, winner, added)
 	# Épaves : le vainqueur étudie les armes et les doctrines des vaincus.
 	if winner >= 0:
 		Research.count_stat(state, winner, "battles_won")

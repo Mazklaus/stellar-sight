@@ -366,6 +366,11 @@ static func _give(state: GameState, empire_id: int, pid: int, kind: String, adde
 			Events.push(state, empire_id, card, {"system": p.system_id, "planet": pid}, added)
 			return "l'expédition attend vos ordres (fenêtre d'événement)."
 		"trap":
+			# Une curiosité vivante dérange un troupeau quand la faune est en jeu (étude des créatures,
+			# proposition 13) ; les autres cachent des pirates.
+			if String(c["type"]) == "vivante" and String(state.fauna.get("density", "aucune")) != "aucune":
+				var hf := Fauna.spawn_trap(state, p.system_id, pid)
+				return "c'était un nid ! Des %s dérangées surgissent, et elles n'ont pas l'air contentes." % String(Fauna.species(String(Fauna.herd_of(state, hf)["sp"]))["label"])
 			spawn_trap(state, p.system_id, lvl)
 			return "c'était un piège ! Une bande de pirates surgit de sa cachette."
 		"fragments":

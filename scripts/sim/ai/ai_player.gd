@@ -20,6 +20,7 @@ extends RefCounted
 ##    du peuple (héritier, arbitrage) ; puis espionnage (AiEspionage) : où placer ses cellules ;
 ## 8. héros (AiHeroes), stabilité (AiStability) : décrets, offrande, mondes libres à réintégrer ;
 ##    pirates (AiPirates) : tribut, contrats ; la chasse aux repaires passe par les flottes de guerre.
+##    faune (AiFauna) : étude, chasse ou apprivoisement ; les nids hostiles proches sont nettoyés en paix.
 ##
 ## Règles d'or : la simulation reste déterministe (aucun aléatoire hors de l'état : les « oublis »
 ## des niveaux bas viennent d'un hachage de la graine, du jour et de l'empire), l'IA ne lit que
@@ -62,6 +63,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiEvents.think(ctx)
 	AiRelics.think(ctx)
 	AiQuests.think(ctx)
+	AiFauna.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 
@@ -256,6 +258,8 @@ static func colonize_target(ctx: Dictionary, f: Fleet) -> Dictionary:
 		if not Fleets.is_explored(state, e.id, sid) or taken.has(sid) or Economy.has_foothold(state, e.id, sid):
 			continue
 		if _owner(ctx, sid) != -1 or Pirates.guard_fleet(state, sid) != null or Pirates.is_port(state, sid):
+			continue
+		if AiFauna.dangerous(state, e.id, sid):
 			continue
 		var claim := best_claim(state, e, sid, use, _seen(ctx))
 		if claim.is_empty() or int(claim["value"]) < MIN_TARGET_VALUE:
@@ -1585,6 +1589,11 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 		if lair >= 0:
 			if lair != here and _issue(ctx, SimCommands.move_fleet(e.id, f.id, lair)):
 				_intent(ctx, "Part démanteler %s" % Pirates.lair_ref(state, lair))
+			return
+		var nest := AiFauna.nest_target(ctx, f, home)
+		if nest >= 0:
+			if nest != here and _issue(ctx, SimCommands.move_fleet(e.id, f.id, nest)):
+				_intent(ctx, "Part chasser les créatures de %s" % state.galaxy.systems[nest].system_name)
 			return
 	if e.wars.is_empty() or threatened == here:
 		if here != home and threatened < 0:

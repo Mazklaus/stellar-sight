@@ -948,6 +948,8 @@ static func _wound(state: GameState, h: Dictionary, out: Array[Dictionary], why:
 	h["post"] = ""
 	h["target"] = -1
 	h["foe"] = -1
+	if captor == GameState.FAUNA_ID:
+		captor = -1  # les bêtes ne font pas de prisonniers
 	# Capture : chance de base, traits, jamais un Avatar.
 	if captor >= 0 and captor != owner and not is_avatar(state, owner):
 		var pct := int(data()["capture"]["pct"]) + trait_fx(h, "capture_pct")

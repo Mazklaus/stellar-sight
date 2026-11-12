@@ -850,6 +850,10 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 		var qfx := Quests.effects(state, empire_id)
 		_merge(base, qfx)
 		_merge(exalted, qfx)
+		# Espèces de la faune étudiées (voir Fauna) : même empreinte relic_rev.
+		var ffx := Fauna.effects(state, empire_id)
+		_merge(base, ffx)
+		_merge(exalted, ffx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

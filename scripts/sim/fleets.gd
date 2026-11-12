@@ -67,7 +67,7 @@ static func find_path(state: GameState, empire_id: int, from: int, to: int, avoi
 ## l'un d'eux coûte LAIR_DETOUR unités de plus) ; gardée en cache sous la clé -1 - from. Les repaires
 ## ne bougent pas, et un repaire démantelé vide le cache (Pirates.dismantle).
 static func _dijkstra(state: GameState, empire_id: int, from: int, avoid := false) -> Dictionary:
-	avoid = avoid and not state.lairs.is_empty()
+	avoid = avoid and (not state.lairs.is_empty() or Fauna.active(state))
 	var e := state.get_empire(empire_id)
 	if e == null:
 		return _dijkstra_raw(state, empire_id, from, avoid)
@@ -86,7 +86,7 @@ const LAIR_DETOUR := 20000
 
 ## Les vaisseaux de cette flotte contournent-ils les repaires ? (aucune arme, et des repaires en jeu)
 static func avoids_lairs(state: GameState, fleet: Fleet) -> bool:
-	return not state.lairs.is_empty() and not GameState.is_npc(fleet.owner) and not Combat.is_armed(fleet)
+	return (not state.lairs.is_empty() or Fauna.active(state)) and not GameState.is_npc(fleet.owner) and not Combat.is_armed(fleet)
 
 
 static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid := false) -> Dictionary:
@@ -120,7 +120,7 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid := 
 			if done[n] == 1 or not (best_known or explored.has(n)):
 				continue
 			var d: int = d0 + maxi(1, roundi(pos.distance_to(g.systems[n].position)))
-			if avoid and explored.has(n) and Pirates.is_lair(state, n):
+			if avoid and explored.has(n) and (Pirates.is_lair(state, n) or Fauna.avoided(state, empire_id, n)):
 				d += LAIR_DETOUR
 			var old := dist[n]
 			if old < 0 or d < old or (d == old and best < prev[n]):
@@ -507,7 +507,11 @@ static func composition(fleet: Fleet) -> String:
 	var counts := {}
 	for sh in fleet.ships:
 		counts[sh] = int(counts.get(sh, 0)) + 1
-	for sid in GameData.ship_ids():
+	var ids: Array = GameData.ship_ids().duplicate()
+	var extra := counts.keys().filter(func(k: Variant) -> bool: return not ids.has(k))
+	extra.sort()
+	ids.append_array(extra)  # créatures et autres unités hors catalogue
+	for sid in ids:
 		var n := int(counts.get(sid, 0))
 		if n == 1:
 			parts.append(String(GameData.ship(sid)["label"]))

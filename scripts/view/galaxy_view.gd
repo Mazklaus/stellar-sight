@@ -458,6 +458,7 @@ func _draw_label(s: StarSystem, px: float, dots := true) -> void:
 ## Lentille économique : bilan mensuel du système (toutes ses revendications), sous l'étoile.
 ## Repaires pirates connus : deux sabres croisés rouges au-dessus de l'étoile.
 func _draw_lairs(px: float) -> void:
+	_draw_nests(px)
 	if state == null or state.lairs.is_empty():
 		return
 	var col := Color(String(GameData.pirates()["npc"]["color"])).lightened(0.15)
@@ -483,6 +484,22 @@ func _draw_lairs(px: float) -> void:
 		draw_line(Vector2(0, -5), Vector2(0, 5), gold, 1.6, true)
 		draw_line(Vector2(-3, -3), Vector2(3, -3), gold, 1.4, true)
 		draw_arc(Vector2(0, 1), 4.5, 0.2, PI - 0.2, 10, gold, 1.4, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Nids de la Faune (voir Fauna) : trois œufs verts au-dessus du système exploré.
+func _draw_nests(px: float) -> void:
+	if state == null or not Fauna.active(state):
+		return
+	var col := Color(String(GameData.creatures()["npc"]["color"]))
+	for sid in Fauna.nest_ids(state):
+		if not is_explored(sid):
+			continue
+		draw_set_transform(galaxy.systems[sid].position + Vector2(0, -20.0 * px), 0.0, Vector2(px, px))
+		draw_circle(Vector2.ZERO, 8.5, Color(0.02, 0.07, 0.05, 0.85))
+		draw_arc(Vector2.ZERO, 8.5, 0.0, TAU, 20, col, 1.4, true)
+		for c in [Vector2(-3.2, 2.0), Vector2(3.2, 2.0), Vector2(0, -2.8)]:
+			draw_circle(c, 2.4, col)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
