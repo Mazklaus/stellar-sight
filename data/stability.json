@@ -25,7 +25,7 @@
 		"garrison": 5,
 		"buildings": {"forum": 10, "prefecture": 10, "cathedrale": 5, "capitale": 0},
 		"intendant": {"base": 5, "per_level": 2},
-		"conquered": {"value": -15, "days": 1800}
+		"conquered": {"value": -15, "days": 1800}, "counter_network": 5, "agitation": {"value": -15, "days": 360}
 	},
 	"empire": {"pct_per_point": 30, "max_pct": 15, "_doc": "Stabilité d'empire (moyenne pondérée par la population) : (stabilité - 50) × 0,30 % de Savoir et d'influence, plafonné à ±15 %."},
 	"decrees": {

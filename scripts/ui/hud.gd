@@ -790,6 +790,8 @@ func _refresh_card() -> void:
 		_card_owner.text += "\nMonde libre : il a fait sécession"
 	if Pirates.knows(_state, _player, s.id):
 		_card_owner.text += "\nRepaire pirate"
+	elif Pirates.is_port(_state, s.id) and _state.get_empire(_player) != null and _state.get_empire(_player).explored.has(s.id):
+		_card_owner.text += "\nPort franc"
 	if live and not Combat.battle_at(_state, s.id).is_empty():
 		_card_owner.text += "\nBataille en cours"
 	elif not live and Intel.battle_known(_state, Intel.lens, s.id):

@@ -16,13 +16,17 @@
 	"tribute": {"base": 40, "per_energy": 2, "days": 360, "_doc": "Coût en énergie : base + per_energy × production d'énergie mensuelle. Un an sans raid de ce repaire contre vous."},
 	"hire": {"cost": {"energy": 80, "influence": 20}, "range_jumps": 6},
 	"bounty": {"cost": {"energy": 60}, "days": 720, "_doc": "Une prime (anonyme) sur un empire : les raids de tous les repaires visent en priorité l'empire le plus mis à prix."},
+	"port": {"untouched_years": 15, "fleet": {"cost": {"energy": 150, "influence": 20}, "ships": ["fregate", "fregate", "corvette"], "every_days": 360},
+		"hero": {"cost": {"energy": 120, "influence": 40}, "every_days": 720},
+		"_doc": "Port franc (proposition 13) : un repaire que personne n'a attaqué pendant untouched_years ans se range. Plus de garde ni de raids ; tout empire qui le connaît peut y louer une flotte de mercenaires ou y recruter un héros, chacun au plus une fois par every_days pour tout le monde. On ne le colonise pas."},
 	"dismantle": {"loot": {"energy": 80, "materials": 150}, "_doc": "Détruire la garde d'un repaire avec une flotte armée sur place le démantèle : butin, renom des héros."},
 	"talents": {
 		"gouvernement": {
 			"theocratie": {"label": "Croisade", "text": "Démanteler un repaire donne 15 de ferveur.", "crusade_fervor": 15},
 			"republique": {"label": "Le scandale du tribut", "text": "Payer un tribut aux pirates fait scandale : -5 de stabilité partout pendant 6 mois.", "tribute_scandal": -5, "scandal_days": 180},
 			"ruche": {"label": "Rien ne se perd", "text": "Un repaire démantelé est dévoré : sa biomasse vaut trois digestions.", "devour": 3},
-			"syndicat": {"label": "Entre gens du métier", "text": "Tribut et contrats de raid à moitié prix ; touche 25 % du butin des raids qu'il commandite.", "pirate_pct": 50, "loot_share": 25}
+			"syndicat": {"label": "Entre gens du métier", "text": "Tribut et contrats de raid à moitié prix ; touche 25 % du butin des raids qu'il commandite.", "pirate_pct": 50, "loot_share": 25},
+			"horde": {"label": "Les équipages rallient les clans", "text": "Un repaire vaincu ne saute pas tout à fait : ses équipages rejoignent la flotte victorieuse (deux corvettes et une frégate), et ça compte comme un pillage.", "rally": true}
 		},
 		"credo": {
 			"honneur": {"label": "On ne paie pas les forbans", "text": "Payer un tribut coûte 10 de stabilité partout pendant un an ; +20 % de dégâts contre les pirates.", "tribute_shame": -10, "shame_days": 360, "hunt_pct": 20},

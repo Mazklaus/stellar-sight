@@ -943,7 +943,9 @@
 	},
 	"capture": {
 		"pct": 35,
-		"convert_days": 180
+		"convert_days": 180,
+		"_ransom": "héros pris par les pirates ou les rebelles : rançon = energy + per_level × niveau ; sans rançon au bout de days jours, il est exécuté",
+		"ransom": {"energy": 60, "per_level": 40, "days": 720}
 	},
 	"life": {
 		"years": 80,

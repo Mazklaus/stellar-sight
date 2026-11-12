@@ -360,6 +360,8 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 		return "système revendiqué par %s" % state.get_empire(owner).display_name()
 	if Pirates.guard_fleet(state, p.system_id) != null:
 		return "un repaire pirate tient ce système : détruisez d'abord sa garde"
+	if Pirates.is_port(state, p.system_id):
+		return "un port franc n'appartient à personne, et tient à le rester"
 	if not in_range(state, empire_id, p.system_id):
 		return "hors de portée : il faut un vaisseau colon à l'arrêt dans ce système (ou une revendication établie dans le système)"
 	if kind == Colony.KIND_COLONY and max_pop(state, p, empire_id) < 1:

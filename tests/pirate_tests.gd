@@ -1,8 +1,9 @@
 extends RefCounted
 ## Tests des pirates (Pirates, PirateSystem, AiPirates) : placement des repaires, choix de la cible,
 ## raid complet (pillage, stabilité, retour), tribut, contrat, prime, démantèlement, garde qui se
-## reforme et grossit, peuple voilé, talents des couches d'espèce, ordre Patrouille, IA, sauvegarde
-## 23 et déterminisme. Appelés par smoke_test.gd.
+## reforme et grossit, peuple voilé, talents des couches d'espèce, ordre Patrouille, IA ; lot 3 :
+## opérations d'espionnage (dissidence, partisans, pirates incités), réseau intérieur, rançon des
+## héros, ralliement de la Horde, port franc ; sauvegarde 24 et déterminisme. Appelés par smoke_test.gd.
 
 var _check: Callable
 
@@ -19,6 +20,10 @@ func run(check: Callable) -> void:
 	_test_talents()
 	_test_patrol()
 	_test_ai()
+	_test_spy_ops()
+	_test_ransom()
+	_test_rally()
+	_test_port()
 	_test_save()
 	_test_determinism()
 
@@ -328,6 +333,164 @@ func _test_ai() -> void:
 		_ok(true, "IA : peuple trop fier ou agressif pour le tribut, non testé")
 
 
+## Empire qui espionne b avec un réseau au palier 3 (Amirauté).
+func _spy(st: GameState, a: int, b: int) -> void:
+	for pair in [[a, b], [b, a]]:
+		if not st.get_empire(pair[0]).contacts.has(pair[1]):
+			st.get_empire(pair[0]).contacts.append(pair[1])
+	Espionage.set_cells(st, a, b, 2)
+	st.networks[Espionage.key(a, b)]["inf"] = 65
+	st.get_empire(a).resources["influence"] = 500
+
+
+func _has_part(st: GameState, sid: int, label: String, v: int) -> bool:
+	for p in Stability.parts(st, sid):
+		if String(p[0]) == label and int(p[1]) == v:
+			return true
+	return false
+
+
+func _test_spy_ops() -> void:
+	var sim := Simulation.new(_new(11, "vael"))
+	var st := sim.state
+	var b := -1
+	for e in st.empires:
+		if e.id != 0 and Stability.applies(st, e.id):
+			b = e.id
+			break
+	_ok(b > 0, "un rival connaît la stabilité")
+	var lair := _lair(st)
+	_spy(st, 0, b)
+	_ok(Espionage.check_op(st, 0, b, "dissidence") != "", "dissidence : il faut un système hors de la capitale")
+	var sid := _plant_near(st, b, lair, 6)
+	_ok(sid >= 0 and Espionage.check_op(st, 0, b, "dissidence") == "", "dissidence possible contre une colonie (%s)" % Espionage.check_op(st, 0, b, "dissidence"))
+	Espionage._apply(st, 0, b, Espionage.op_def("dissidence"))
+	_ok(_has_part(st, sid, "Agitateurs étrangers", -15), "dissidence : -15 de stabilité dans son système le moins stable")
+	st.stability[sid]["agit"] = st.tick - 1
+	_ok(not _has_part(st, sid, "Agitateurs étrangers", -15), "l'agitation s'éteint au bout d'un an")
+	# Partisans : seulement en Agitation ou en Révolte.
+	st.stability[sid]["v"] = 50
+	_ok(Espionage.check_op(st, 0, b, "partisans") != "", "partisans : rien à soulever dans un système calme")
+	st.stability[sid]["v"] = 20
+	_ok(Espionage.check_op(st, 0, b, "partisans") == "", "partisans possibles en Agitation")
+	var before := Fleets.fleets_at(st, sid, GameState.NPC_ID).size()
+	Espionage._apply(st, 0, b, Espionage.op_def("partisans"))
+	_ok(Fleets.fleets_at(st, sid, GameState.NPC_ID).size() == before + 1, "partisans : des rebelles se lèvent")
+	# Inciter les pirates : un repaire connu, un système de la cible à portée.
+	_ok(Espionage.check_op(st, 0, b, "inciter") != "", "inciter : il faut connaître un repaire")
+	st.get_empire(0).explored[lair] = true
+	_ok(Espionage.check_op(st, 0, b, "inciter") == "", "inciter possible (%s)" % Espionage.check_op(st, 0, b, "inciter"))
+	Espionage._apply(st, 0, b, Espionage.op_def("inciter"))
+	_ok(int(st.lairs[lair]["contract"].get("victim", -1)) == b and int(st.lairs[lair]["contract"].get("by", 0)) == -1, "inciter : contrat anonyme contre la cible")
+	_ok(Espionage.check_op(st, 0, b, "inciter") != "", "un seul contrat à la fois")
+	sim.advance(1)
+	var raid: Dictionary = st.lairs[lair]["raid"]
+	_ok(int(raid.get("victim", -1)) == b and st.system_owner(int(raid.get("target", -1))) == b, "le raid incité part contre la cible")
+	# Réseau intérieur : +5 de stabilité.
+	var cap := _home(st, b)
+	_ok(not _has_part(st, cap, "Réseau intérieur (contre-espionnage)", 5), "sans cellule chez soi : pas de bonus")
+	Espionage.set_cells(st, b, b, 1)
+	_ok(_has_part(st, cap, "Réseau intérieur (contre-espionnage)", 5), "une cellule chez soi : +5 de stabilité")
+	_ok(AiEspionage.WAR_OPS.has("inciter") and AiEspionage.WAR_OPS.has("partisans"), "l'IA en guerre connaît les nouvelles opérations")
+
+
+func _test_ransom() -> void:
+	var sim := Simulation.new(_new())
+	var st := sim.state
+	var id := Heroes.ids_of(st, 0)[0]
+	var h: Dictionary = st.heroes[id]
+	h["jailer"] = GameState.PIRATE_ID
+	h["ransom"] = st.tick + int(Heroes.data()["capture"]["ransom"]["days"])
+	_ok(Heroes.held_for_ransom(st, 0) == [id], "héros retenu par les pirates")
+	_ok(HeroScreen.status_text(st, h).contains("rançon"), "la fiche du héros dit la rançon et l'échéance")
+	var cost := int(Heroes.ransom_cost(h)["energy"])
+	_ok(cost == 60 + 40 * int(h["lvl"]), "rançon : 60 + 40 par niveau (%d)" % cost)
+	st.get_empire(0).resources["energy"] = 0
+	_ok(Heroes.check_ransom(st, 0, id) != "", "rançon refusée sans énergie")
+	_ok(Heroes.check_ransom(st, 1, id) != "", "seul son empire paie la rançon")
+	st.get_empire(0).resources["energy"] = 1000
+	_ok(sim.submit(SimCommands.hero_ransom(0, id)), "rançon acceptée")
+	sim.flush_commands()
+	_ok(not Heroes.is_prisoner(st.heroes[id]) and int(st.get_empire(0).resources["energy"]) == 1000 - cost and not st.heroes[id].has("ransom"), "rançon payée : le héros rentre")
+	# Sans rançon dans les temps, il est exécuté ; jamais converti.
+	h["jailer"] = GameState.NPC_ID
+	h["ransom"] = st.tick + 60
+	var out: Array[Dictionary] = []
+	Heroes._prison_month(st, h, out)
+	_ok(st.heroes.has(id) and int(h["owner"]) == 0, "les rebelles ne convertissent pas : ils attendent")
+	h["ransom"] = st.tick
+	Heroes._prison_month(st, h, out)
+	_ok(not st.heroes.has(id), "rançon jamais payée : le héros est exécuté")
+	# Démanteler le repaire libère les héros que les pirates retenaient.
+	var st2 := _new()
+	var id2 := Heroes.ids_of(st2, 0)[0]
+	st2.heroes[id2]["jailer"] = GameState.PIRATE_ID
+	st2.heroes[id2]["ransom"] = st2.tick + 700
+	Pirates.dismantle(st2, _lair(st2), 0, [])
+	_ok(not Heroes.is_prisoner(st2.heroes[id2]), "démanteler un repaire libère ses prisonniers")
+	# IA : paie la rançon quand l'énergie le permet.
+	var st3 := GameState.create(11, 150, 1800.0, "vael", {"ai_level": "normale", "pirates": "normaux"})
+	var e1 := st3.get_empire(1)
+	var id3 := Heroes.ids_of(st3, 1)[0]
+	st3.heroes[id3]["jailer"] = GameState.PIRATE_ID
+	st3.heroes[id3]["ransom"] = st3.tick + 700
+	e1.resources["energy"] = 5000
+	var sim3 := Simulation.new(st3)
+	sim3.advance(31)
+	_ok(not Heroes.is_prisoner(st3.heroes[id3]), "IA : rançon payée")
+
+
+func _test_rally() -> void:
+	var sim := Simulation.new(_new(11, "ferrocornes"))
+	var st := sim.state
+	var lair := _lair(st)
+	st.fleets.erase(Pirates.guard_fleet(st, lair).id)
+	var fl := st.spawn_ship(0, "fregate", lair)
+	sim.advance(1)
+	_ok(not Pirates.is_lair(st, lair), "Horde : repaire démantelé")
+	_ok(fl.ships.size() == 1 + (Pirates.data()["guard"]["ships"] as Array).size(), "Horde : les équipages rallient la flotte (%d vaisseaux)" % fl.ships.size())
+	_ok(_has_part(st, _home(st), "Butin récent", 10), "Horde : le ralliement compte comme un pillage")
+
+
+func _test_port() -> void:
+	var sim := Simulation.new(_new())
+	var st := sim.state
+	var lair := _lair(st)
+	var years := int(Pirates.data()["port"]["untouched_years"])
+	st.lairs[lair]["calm"] = st.tick - years * 360 + 2
+	sim.advance(1)
+	_ok(Pirates.is_lair(st, lair), "pas encore quinze ans de calme : toujours un repaire")
+	var g := Pirates.guard_fleet(st, lair)
+	sim.advance(1)
+	_ok(Pirates.is_port(st, lair) and not Pirates.is_lair(st, lair), "quinze ans sans être attaqué : le repaire devient port franc")
+	_ok(not st.fleets.has(g.id) and not Pirates.lair_ids(st).has(lair) and Pirates.port_ids(st) == [lair], "plus de garde, plus dans la liste des repaires")
+	st.lairs[lair]["next"] = st.tick + 1
+	_plant_near(st, 0, lair, 3)
+	sim.advance(3)
+	_ok((st.lairs[lair]["raid"] as Dictionary).is_empty(), "un port franc ne pille plus")
+	var e := st.get_empire(0)
+	e.resources["energy"] = 2000
+	e.resources["influence"] = 500
+	e.explored.erase(lair)
+	_ok(Pirates.check_port(st, 0, lair, "fleet") != "", "il faut connaître le port")
+	e.explored[lair] = true
+	_ok(Pirates.known_ports(st, 0) == [lair] and Pirates.known_lairs(st, 0).is_empty(), "port connu, et ce n'est plus un repaire")
+	var n := Fleets.empire_fleets(st, 0).size()
+	_ok(sim.submit(SimCommands.port_deal(0, lair, "fleet")), "mercenaires loués")
+	sim.flush_commands()
+	var merc := Fleets.fleets_at(st, lair, 0)
+	_ok(Fleets.empire_fleets(st, 0).size() == n + 1 and not merc.is_empty() and merc[0].ships.size() == 3, "la flotte de mercenaires apparaît au port")
+	_ok(not sim.submit(SimCommands.port_deal(0, lair, "fleet")), "un seul marché de mercenaires par an")
+	var h := Heroes.ids_of(st, 0).size()
+	if h < Heroes.cap(st, 0):
+		_ok(sim.submit(SimCommands.port_deal(0, lair, "hero")), "héros recruté au port")
+		sim.flush_commands()
+		_ok(Heroes.ids_of(st, 0).size() == h + 1, "le héros rejoint l'empire")
+	var p := st.galaxy.systems[lair]
+	if not p.planet_ids.is_empty():
+		_ok(Economy.check_colonize(st, 0, int(p.planet_ids[0]), Colony.KIND_COLONY).contains("port franc"), "on ne colonise pas un port franc")
+
+
 func _test_save() -> void:
 	var sim := Simulation.new(_new(13))
 	var st := sim.state
@@ -339,12 +502,21 @@ func _test_save() -> void:
 	sim.advance(3)
 	st.pirate_meta["bounty"] = [{"by": 0, "on": 1, "until": st.tick + 50}]
 	Pirates._shame(st, 0, "Scandale du tribut", -5, 100)
+	var other := Pirates.lair_ids(st)[1]
+	st.get_empire(0).explored[other] = true
+	Pirates.make_port(st, other, [])
+	Pirates.port_deal(st, 0, other, "fleet")
+	var hid := Heroes.ids_of(st, 0)[0]
+	st.heroes[hid]["jailer"] = GameState.PIRATE_ID
+	st.heroes[hid]["ransom"] = st.tick + 300
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_snapshot())))
-	_ok(back != null, "sauvegarde 23 relue")
+	_ok(back != null, "sauvegarde 24 relue")
 	if back == null:
 		return
 	_ok(back.checksum() == st.checksum(), "même empreinte après sauvegarde (repaires, raid en cours, primes)")
 	_ok(back.lairs.size() == st.lairs.size() and not (back.lairs[lair]["raid"] as Dictionary).is_empty() and back.pirate_density == "normaux", "repaires et raid relus")
+	_ok(Pirates.is_port(back, other) and Pirates.port_next(back, other, "fleet") > back.tick, "port franc et ses marchés relus")
+	_ok(int(back.heroes[hid].get("ransom", 0)) == st.tick + 300, "échéance de la rançon relue")
 	var a := Simulation.new(st)
 	var b := Simulation.new(back)
 	a.advance(120)

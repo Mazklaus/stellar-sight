@@ -275,11 +275,18 @@ func _refresh_stability(s: StarSystem) -> void:
 	var mine := owner == _player and Stability.applies(_state, _player)
 	var free := owner == GameState.NPC_ID
 	var lair := Pirates.knows(_state, _player, s.id) or (read_only and Pirates.is_lair(_state, s.id))
-	_stab_row.visible = mine or free or lair
+	var pe := _state.get_empire(_player)
+	var port := Pirates.is_port(_state, s.id) and (read_only or (pe != null and pe.explored.has(s.id)))
+	_stab_row.visible = mine or free or lair or port
 	if not _stab_row.visible:
 		return
 	for id in stab_buttons:
 		stab_buttons[id].visible = false
+	if port:
+		stab_label.text = "Port franc · mercenaires et aventuriers"
+		stab_label.add_theme_color_override("font_color", UiTheme.GOLD)
+		stab_label.tooltip_text = "Un ancien repaire rangé : il ne pille plus. On y loue des mercenaires et on y recrute des héros (Ordre intérieur, F12). Personne ne peut le coloniser."
+		return
 	if lair and not mine and not free:
 		var g := Pirates.guard_fleet(_state, s.id)
 		stab_label.text = "Repaire pirate · %s" % (("garde de %d vaisseaux" % g.ships.size()) if g != null else "garde détruite")

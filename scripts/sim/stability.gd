@@ -311,6 +311,9 @@ static func context(state: GameState, empire_id: int) -> Dictionary:
 			global.append(["Les clans s'ennuient (pas de pillage)", int(tal.get("loot_none", 0))])
 	# Pirates : scandale ou honte d'un tribut payé.
 	global.append_array(Pirates.stability_parts(state, empire_id))
+	# Contre-espionnage : un réseau chez soi tient les meneurs à l'œil.
+	if not state.networks.is_empty() and Espionage.home_cells(state, empire_id) > 0:
+		global.append(["Réseau intérieur (contre-espionnage)", int(src["counter_network"])])
 	c["global"] = global
 	# Flottes armées à l'arrêt, par système.
 	var armed := {}
@@ -393,6 +396,9 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 			var v := int(cq["value"]) * (int(cq["days"]) - age) / int(cq["days"]) * maxi(1, int(tal.get("conquered_x", 1)))
 			if v != 0:
 				out.append(["Monde conquis", v])
+	# Agitation semée par des espions étrangers.
+	if en.has("agit") and state.tick < int(en["agit"]):
+		out.append(["Agitateurs étrangers", int(src["agitation"]["value"])])
 	# Dissidence des fiefs lointains (féodalité).
 	if int(tal.get("dissent", 0)) != 0 and state.get_empire(owner).dissent and _far_fief_system(state, owner, sid):
 		out.append(["Dissidence des fiefs", int(tal["dissent"])])
@@ -415,6 +421,29 @@ static func _far_fief_system(state: GameState, owner: int, sid: int) -> bool:
 		if c != null and c.owner == owner and FactionTraits.is_far_fief(state, c):
 			return true
 	return false
+
+
+## Système le moins stable de l'empire (le plus petit identifiant à égalité), -1 si aucun.
+## skip_capital : hors capitale ; below : seulement sous cette valeur (0 = sans limite).
+static func least_stable(state: GameState, empire_id: int, skip_capital: bool, below := 0) -> int:
+	if not applies(state, empire_id):
+		return -1
+	var cap := FactionTraits.capital_system(state, empire_id)
+	var best := -1
+	var best_v := 1000
+	for sid in systems_of(state, empire_id):
+		if skip_capital and sid == cap:
+			continue
+		var v := value(state, sid)
+		if (below <= 0 or v < below) and v < best_v:
+			best = sid
+			best_v = v
+	return best
+
+
+## Agitateurs étrangers (opération Attiser la dissidence) : malus de stabilité pendant un an.
+static func agitate(state: GameState, sid: int) -> void:
+	_entry_w(state, sid)["agit"] = state.tick + int(data()["sources"]["agitation"]["days"])
 
 
 ## Cible vers laquelle glisse la stabilité du système.

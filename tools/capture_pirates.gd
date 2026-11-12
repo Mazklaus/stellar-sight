@@ -77,6 +77,34 @@ func _initialize() -> void:
 	main.open_system_view(lair)
 	await _frames(10)
 	await _shot(out + "/systeme-repaire.png")
+	main.close_system_view()
+	await _frames(4)
+
+	# Lot 3 : le second repaire devenu port franc, un héros retenu contre rançon.
+	var port: int = lairs[1]
+	Pirates.make_port(st, port, [])
+	var hid: int = Heroes.ids_of(st, 0)[0]
+	st.heroes[hid]["post"] = ""
+	st.heroes[hid]["jailer"] = GameState.PIRATE_ID
+	st.heroes[hid]["ransom"] = st.tick + 700
+	main._refresh_all()
+	main.toggle_empire_screen("order")
+	await _frames(10)
+	await _shot(out + "/ordre-interieur-port-franc.png")
+	if OS.get_environment("DUMP") != "":
+		_dump(main._empire_screens)
+	main.toggle_empire_screen("order")
+	await _frames(4)
+	main.toggle_empire_screen("heroes")
+	await _frames(10)
+	await _shot(out + "/pantheon-rancon.png")
+	if OS.get_environment("DUMP") != "":
+		_dump(main._empire_screens)
+	main.toggle_empire_screen("heroes")
+	await _frames(4)
+	main._camera.position = st.galaxy.systems[port].position
+	await _frames(10)
+	await _shot(out + "/carte-port-franc.png")
 	quit()
 
 

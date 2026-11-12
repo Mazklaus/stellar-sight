@@ -621,6 +621,21 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		"exfiltration":
 			if Heroes.exfil_target(state, a, b) < 0:
 				return "il ne retient aucun de vos héros"
+		"dissidence":
+			if not Stability.applies(state, b):
+				return "ce peuple ne connaît pas la dissidence"
+			if Stability.least_stable(state, b, true) < 0:
+				return "il n'a aucun système hors de sa capitale"
+		"partisans":
+			if not Stability.applies(state, b):
+				return "ce peuple ne connaît pas la révolte"
+			if _partisan_site(state, b) < 0:
+				return "aucun de ses systèmes n'est en Agitation ni en Révolte"
+		"inciter":
+			if state.lairs.is_empty():
+				return "il n'y a pas de pirates dans cette galaxie"
+			if _incite_lair(state, a, b) < 0:
+				return "aucun repaire connu de vos agents n'a ses systèmes à portée (ou tous ont déjà un contrat)"
 	var cost := op_cost(state, a, op_id)
 	if not Economy.can_afford(e, cost):
 		return "pas assez de ressources (%s)" % GameData.format_amounts(cost)
@@ -774,7 +789,46 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			return Heroes.exfiltrate(state, a, b)
 		"assassinat":
 			return Heroes.assassinate(state, a, b)
+		"dissidence":
+			var sid := Stability.least_stable(state, b, true)
+			if sid < 0:
+				return "il n'avait plus de province à agiter. Les tracts finissent en papier peint."
+			Stability.agitate(state, sid)
+			return "des meneurs payés agitent %s : -%d de stabilité pendant un an. Les slogans riment, c'est mauvais signe." % [
+					state.galaxy.systems[sid].system_name, absi(int(Stability.data()["sources"]["agitation"]["value"]))]
+		"partisans":
+			var sid := _partisan_site(state, b)
+			if sid < 0:
+				return "le calme est revenu avant les armes. Les caisses de fusils repartent par le même cargo."
+			StabilitySystem._spawn_rebels(state, sid, eb, [] as Array[Dictionary], true)
+			return "des partisans armés par nos soins prennent les armes à %s. Ils ne savent pas qui les paie, et c'est mieux ainsi." % \
+					state.galaxy.systems[sid].system_name
+		"inciter":
+			var lair := _incite_lair(state, a, b)
+			if lair < 0:
+				return "les pirates ont déjà un contrat. Ils promettent de nous rappeler."
+			state.lairs[lair]["contract"] = {"by": -1, "victim": b}
+			return "%s accepte de visiter %s, persuadé que l'idée vient de lui." % [Pirates.lair_name(state, lair), eb.short_name()]
 	return ""
+
+
+## Système où lever des partisans : le moins stable de b, en Agitation ou en Révolte. -1 sinon.
+static func _partisan_site(state: GameState, b: int) -> int:
+	return Stability.least_stable(state, b, false, int(Stability.tiers()[2]["min"]))
+
+
+## Repaire qu'on peut inciter contre b : connu de a, sans contrat ni raid en cours, avec un système de b
+## à portée de raid. Le plus petit identifiant. -1 sinon.
+static func _incite_lair(state: GameState, a: int, b: int) -> int:
+	for sid in Pirates.known_lairs(state, a):
+		var l: Dictionary = state.lairs[sid]
+		if not (l.get("contract", {}) as Dictionary).is_empty() or not (l.get("raid", {}) as Dictionary).is_empty():
+			continue
+		if Pirates.guard_fleet(state, sid) == null:
+			continue
+		if Pirates.pick_target(state, sid, b, int(Pirates.data()["hire"]["range_jumps"])) >= 0:
+			return sid
+	return -1
 
 
 ## Empire que la discorde accuserait : celui que b aime le plus (hors espion), -1 si aucun.

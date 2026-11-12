@@ -952,6 +952,11 @@ static func _wound(state: GameState, h: Dictionary, out: Array[Dictionary], why:
 			h["jailer"] = captor
 			h["convert"] = 0
 			h["wound"] = 0
+			if GameState.is_npc(captor):
+				h["ransom"] = state.tick + int(data()["capture"]["ransom"]["days"])
+				out.append(state.add_chronicle("%s est capturé par %s : %s. Ils demandent une rançon (%s), payable dans les deux ans (écran Panthéon)." % [
+						h["name"], state.get_empire(captor).display_name(), why, GameData.format_amounts(ransom_cost(h))], Espionage.private_to(state, [owner])))
+				return
 			out.append(state.add_chronicle("%s est capturé par %s : %s. Les geôliers ont déjà une cellule à sa taille." % [
 					h["name"], state.get_empire(captor).display_name(), why], Espionage.public_to(state, [owner, captor])))
 			return
@@ -1095,6 +1100,11 @@ static func _prison_month(state: GameState, h: Dictionary, out: Array[Dictionary
 	if je == null or je.eliminated:
 		_free(state, h)
 		return
+	if GameState.is_npc(jailer):
+		# Pirates et rebelles ne convertissent pas : ils attendent la rançon, puis s'impatientent.
+		if oe == null or oe.eliminated or state.tick >= int(h.get("ransom", 0)):
+			die(state, h, "est exécuté par %s : la rançon n'est jamais venue" % je.display_name(), out)
+		return
 	if (oe == null or oe.eliminated) and int(h.get("convert", 0)) == 0:
 		h["convert"] = state.tick
 	if int(h.get("convert", 0)) > 0 and int(h["convert"]) <= state.tick:
@@ -1114,6 +1124,7 @@ static func _prison_month(state: GameState, h: Dictionary, out: Array[Dictionary
 static func _free(state: GameState, h: Dictionary) -> void:
 	h["jailer"] = -1
 	h["convert"] = 0
+	h.erase("ransom")
 	h["post"] = ""
 	h["target"] = -1
 
@@ -1162,6 +1173,56 @@ static func prisoner(state: GameState, player: int, hero_id: int, action: String
 			var out: Array[Dictionary] = []
 			h["owner"] = owner
 			die(state, h, "est exécuté sur ordre de %s. On ne lui pardonnera pas" % je.display_name(), out)
+
+
+## Rançon d'un héros que retiennent les pirates ou les rebelles.
+static func ransom_cost(h: Dictionary) -> Dictionary:
+	var rd: Dictionary = data()["capture"]["ransom"]
+	return {"energy": int(rd["energy"]) + int(rd["per_level"]) * int(h.get("lvl", 1))}
+
+
+## Héros de l'empire que des pirates ou des rebelles retiennent contre rançon (identifiants triés).
+static func held_for_ransom(state: GameState, empire_id: int) -> Array[int]:
+	var out: Array[int] = []
+	for id in ids_of(state, -1):
+		var h: Dictionary = state.heroes[id]
+		if int(h["owner"]) == empire_id and is_prisoner(h) and GameState.is_npc(int(h["jailer"])):
+			out.append(id)
+	return out
+
+
+static func check_ransom(state: GameState, player: int, hero_id: int) -> String:
+	var h := get_hero(state, hero_id)
+	if h.is_empty() or int(h["owner"]) != player:
+		return "héros inconnu"
+	if not is_prisoner(h) or not GameState.is_npc(int(h["jailer"])):
+		return "ce héros n'est pas retenu contre rançon"
+	var e := state.get_empire(player)
+	if e == null or e.eliminated:
+		return "empire inconnu"
+	if not Economy.can_afford(e, ransom_cost(h)):
+		return "pas assez de ressources (%s)" % GameData.format_amounts(ransom_cost(h))
+	return ""
+
+
+static func ransom(state: GameState, player: int, hero_id: int) -> void:
+	var h: Dictionary = state.heroes[hero_id]
+	var je := state.get_empire(int(h["jailer"]))
+	Economy.pay(state.get_empire(player), ransom_cost(h))
+	_free(state, h)
+	state.add_chronicle("%s paie la rançon de %s, que %s relâchent avec ses bottes, mais sans ses médailles." % [
+			state.get_empire(player).display_name(), h["name"], je.display_name()], Espionage.private_to(state, [player]))
+
+
+## Démanteler un repaire libère les héros de cet empire que les pirates retenaient. Renvoie leurs noms.
+static func free_from_pirates(state: GameState, empire_id: int) -> Array[String]:
+	var names: Array[String] = []
+	for id in held_for_ransom(state, empire_id):
+		var h: Dictionary = state.heroes[id]
+		if int(h["jailer"]) == GameState.PIRATE_ID:
+			_free(state, h)
+			names.append(String(h["name"]))
+	return names
 
 
 ## La paix rend les prisonniers que les deux empires se tiennent.
