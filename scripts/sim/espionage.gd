@@ -597,6 +597,15 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		"heritier":
 			if not Diplomacy.has_heir(state, b):
 				return "cet empire n'a pas d'héritier"
+		"truquer", "financer_opposition", "coup":
+			if not Politics.applies(state, b):
+				return "ce peuple ne vote pas"
+			if op_id == "truquer" and Politics.mode(state, b) != "vote":
+				return "ses dirigeants nomment, ils ne votent pas"
+			if op_id == "truquer" and not Politics.emp(state, b).get("rig", {}).is_empty():
+				return "son prochain vote est déjà truqué"
+			if op_id == "coup" and Stability.empire_value(state, b) >= int(Politics.data()["crisis"]["coup_below"]):
+				return "son régime tient encore (stabilité d'empire %d, il faut moins de %d)" % [Stability.empire_value(state, b), int(Politics.data()["crisis"]["coup_below"])]
 		"larcin_relique":
 			if Relics.in_reliquary(state, b).is_empty():
 				return "aucune relique dans son Reliquaire"
@@ -781,6 +790,19 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			Diplomacy.remember(state, b, c, "framed")
 			Reputation.exploit(state, a, "discorde")
 			return "de fausses preuves accusent %s de l'espionner. L'amitié refroidit d'un coup." % state.get_empire(c).short_name()
+		"truquer":
+			var c := Politics.lead(state, a)
+			if c < 0:
+				c = Politics.principal(state, a)
+			Politics._emp_w(state, b)["rig"] = {"c": c, "n": int(Politics.emp(state, b).get("n", 0))}
+			return "au prochain vote, %s pèsera plus lourd dans les urnes. Les scrutateurs ont été très compréhensifs." % Politics.label(state, b, c)
+		"financer_opposition":
+			return Grievances.fund(state, b)
+		"coup":
+			if Stability.empire_value(state, b) >= int(Politics.data()["crisis"]["coup_below"]):
+				return "le régime s'est raffermi avant le jour dit. Les conjurés rentrent chez eux, l'air dégagé."
+			Grievances.crisis(state, b, "coup d'État")
+			return "le régime tombe en une nuit. Ceux qui le défendaient découvrent qu'ils l'avaient toujours combattu."
 		"heritier":
 			if not Diplomacy.has_heir(state, b):
 				return "l'héritier n'est plus là. La bourse reste dans la poche."

@@ -258,6 +258,9 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	_part(out, "Confiance", trust(state, a, b))
 	# Ambassades permanentes de b, et merveilles qui lui valent l'estime de tous (Assemblée interstellaire).
 	_part(out, "Ambassades permanentes", Research.fx_int(state, b, "opinion_all"))
+	# Proximité idéologique (voir Politics).
+	for pp in Politics.opinion_parts(state, a, b):
+		_part(out, String(pp[0]), int(pp[1]))
 	var w := Economy.wonders(state)
 	for key in w:
 		if int(w[key]) == b:

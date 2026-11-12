@@ -67,6 +67,11 @@ static func evaluate(state: GameState, ai_id: int, from_id: int, treaty: String)
 				_p(parts, "Pacte de paix", int(c["peace_cold_base"]))
 				_p(parts, "Opinion", op / 2)
 			_p(parts, "Tempérament", int(c["temperament_peace"]) * aggr)
+			# La Concorde au pouvoir, d'un côté ou de l'autre, fait mieux passer la paix (voir Politics).
+			if Politics.concorde_rules(state, from_id):
+				_p(parts, "La Concorde gouverne chez eux", int(Politics.data()["diplomacy"]["concorde_peace"]))
+			if Politics.concorde_rules(state, ai_id):
+				_p(parts, "Notre Concorde veut la paix", int(Politics.data()["diplomacy"]["concorde_peace"]))
 			if Diplomacy.has_ability(state, ai_id, "crusade") and _credo(state, ai_id) != _credo(state, from_id):
 				_p(parts, "Pas de paix avec les hérétiques", int(c["crusade_peace"]))
 			var ct := Diplomacy.contract_of(state, ai_id)
