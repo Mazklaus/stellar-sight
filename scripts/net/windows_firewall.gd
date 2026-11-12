@@ -7,6 +7,7 @@ extends RefCounted
 ## administrateur (fenêtre de Windows « Voulez-vous autoriser… ? »).
 
 const RULE_NAME := "Stellar Sigth"
+const MANUAL := "À la main : menu Démarrer → « Autoriser une application via le pare-feu Windows » → « Modifier les paramètres », cochez Privé et Public sur chaque ligne Godot (« Autoriser une autre application » si elle manque)."
 
 
 static func available() -> bool:
@@ -23,9 +24,12 @@ static func _ps_quote(s: String) -> String:
 	return "'" + s.replace("'", "''") + "'"
 
 
-## Script de lecture (sans droits) : affiche « allow=N block=N ».
+## Script de lecture (sans droits) : affiche « allow=N block=N ». Une autorisation compte si c'est
+## notre règle (UDP sur le port) ou une règle de Windows qui laisse entrer ce programme en UDP
+## (celle que crée la fenêtre « Autoriser l'accès » quand on accepte).
 static func check_script(program: String, port: int) -> String:
 	return ("$p = %s; $a = @(Get-NetFirewallRule -DisplayName %s -ErrorAction SilentlyContinue | Where-Object { $_.Enabled -eq 'True' -and $_.Action -eq 'Allow' -and $_.Direction -eq 'Inbound' } | Get-NetFirewallPortFilter | Where-Object { $_.Protocol -eq 'UDP' -and $_.LocalPort -eq '%d' }).Count; "
+			+ "$a += @(Get-NetFirewallApplicationFilter -Program $p -ErrorAction SilentlyContinue | Get-NetFirewallRule | Where-Object { $_.Enabled -eq 'True' -and $_.Action -eq 'Allow' -and $_.Direction -eq 'Inbound' } | Get-NetFirewallPortFilter | Where-Object { $_.Protocol -eq 'UDP' -or $_.Protocol -eq 'Any' }).Count; "
 			+ "$b = @(Get-NetFirewallApplicationFilter -Program $p -ErrorAction SilentlyContinue | Get-NetFirewallRule | Where-Object { $_.Enabled -eq 'True' -and $_.Action -eq 'Block' -and $_.Direction -eq 'Inbound' }).Count; "
 			+ "Write-Output \"allow=$a block=$b\"") % [_ps_quote(program), _ps_quote(RULE_NAME), port]
 
@@ -69,15 +73,19 @@ static func fix(port: int) -> Dictionary:
 	var inner := encode(fix_script(program(), port))
 	OS.execute("powershell", ["-NoProfile", "-NonInteractive", "-Command",
 			"Start-Process powershell -Verb RunAs -Wait -WindowStyle Hidden -ArgumentList '-NoProfile -NonInteractive -EncodedCommand %s'" % inner], [], true)
-	return status(port)
+	var st := status(port)
+	st["tried"] = true
+	return st
 
 
 ## Texte pour le joueur.
 static func describe(st: Dictionary) -> String:
 	if String(st.get("error", "")) != "":
-		return "Pare-feu Windows : %s." % st["error"]
+		return "Pare-feu Windows : %s. %s" % [st["error"], MANUAL]
 	if bool(st.get("ok", false)):
-		return "Pare-feu Windows : la règle « %s » laisse entrer les joueurs." % RULE_NAME
+		return "Pare-feu Windows : les joueurs peuvent entrer (règle « %s » ou autorisation donnée à ce programme), rien à faire." % RULE_NAME
+	if bool(st.get("tried", false)):
+		return "Pare-feu Windows : la règle n'a pas pu être créée (accord administrateur refusé, ou compte sans droits d'administrateur). " + MANUAL
 	if int(st.get("block", 0)) > 0:
 		return "Pare-feu Windows : des règles BLOQUENT ce programme (fenêtre « Autoriser l'accès » refusée). Cliquez « Autoriser dans le pare-feu »."
-	return "Pare-feu Windows : aucune règle pour le port. Cliquez « Autoriser dans le pare-feu »."
+	return "Pare-feu Windows : rien ne laisse entrer les joueurs. Cliquez « Autoriser dans le pare-feu »."

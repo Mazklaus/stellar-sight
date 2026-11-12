@@ -49,6 +49,7 @@ func _initialize() -> void:
 	var visitor := NetSession.new()
 	visitor.player_name = "Alice"
 	visitor.token = "capture-alice"
+	visitor.join_password = "nebuleuse"
 	root.add_child(visitor)
 	var lobby_seen := {}
 	visitor.lobby_changed.connect(func(st: Dictionary) -> void: lobby_seen.merge(st, true))
@@ -93,6 +94,7 @@ func _initialize() -> void:
 	var guest := NetSession.new()
 	guest.player_name = "Alice"
 	guest.token = "capture-alice"
+	guest.join_password = "nebuleuse"
 	root.add_child(guest)
 	var offer := []
 	guest.choose_empire.connect(func(list: Array) -> void: offer.assign(list))

@@ -845,6 +845,24 @@ func _test_navigation_ui(main: Node) -> void:
 	clock.set_mode(clock.MODE_TURNS, 5)
 	_check(main.host_game(24599) and main.net.turn_mode and clock.is_turn_based(), "le tour par tour s'ouvre au réseau")
 	_check(main.net.waiting == [Lockstep.HOST] and not clock.net_ready, "en réseau, le tour attend que l'hôte ait terminé")
+	# Liste des joueurs à côté du cadran : qui a terminé son tour (un second joueur simulé).
+	var other_e := 1 if main.local_player != 1 else 2
+	main.net.core.seats[77] = other_e
+	main.net.names[77] = "Alice"
+	main.net._update_waiting()
+	main.net._broadcast_clock()
+	await process_frame
+	_check(clock.net_players.size() == 2 and main._hud.turn_players.visible and not clock.net_players[0]["ready"] and clock.net_players[0]["me"], "tour en réseau : la liste des joueurs s'affiche près du cadran (%s)" % [clock.net_players])
+	main.net._host_ready(Lockstep.HOST, true)
+	await process_frame
+	_check(clock.net_players[0]["ready"] and not clock.net_players[1]["ready"] and String(clock.net_players[1]["name"]) == "Alice" and main.net.paused, "tour en réseau : chacun voit qui a déjà terminé son tour")
+	main.net._host_ready(Lockstep.HOST, false)
+	main.net.core.seats.erase(77)
+	main.net.names.erase(77)
+	main.net._update_waiting()
+	main.net._broadcast_clock()
+	await process_frame
+	_check(not main._hud.turn_players.visible, "seul en réseau : pas de liste")
 	var turn_end: int = (main.simulation.state.tick / 5 + 1) * 5
 	clock.toggle_pause()
 	_check(not main.net.paused and main.net.turn_target == turn_end and clock.is_resolving_turn(), "Fin de tour : seul joueur prêt, les jours du tour défilent")
