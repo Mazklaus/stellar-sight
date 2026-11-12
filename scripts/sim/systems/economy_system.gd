@@ -186,6 +186,7 @@ static func _monthly_traits(state: GameState, e: Empire, added: Array[Dictionary
 			e.resources[r] = int(e.resources.get(r, 0)) + int(am[r])
 			total += int(am[r])
 		Research.count_stat(state, e.id, "looted", total)
+		Heroes.on_loot(state, e.id, int(lp["system"]))
 		if not e.is_ai() or not victim.is_ai():
 			added.append(state.add_chronicle("%s pille %s : %s emportés. On appelle ça un impôt, chez eux." % [
 					e.short_name(), state.galaxy.systems[int(lp["system"])].system_name, GameData.format_amounts(am)], Espionage.private_to(state, [e.id, int(lp["victim"])], int(lp["system"]))))

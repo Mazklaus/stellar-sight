@@ -274,9 +274,15 @@ func _refresh_header(s: StarSystem) -> void:
 	var names := PackedStringArray()
 	for f in Fleets.fleets_at(_state, s.id):
 		if f.owner == _player or Fleets.fleet_visible(_state, _player, f, Fleets.visible_systems(_state, _player)):
-			names.append(f.fleet_name if f.owner == _player else "%s (%s)" % [f.fleet_name, _state.get_empire(f.owner).short_name()])
+			var adm := Heroes.at_post(_state, "fleet", f.id, f.owner)
+			var label := f.fleet_name + ((" ✦ %s" % adm["name"]) if not adm.is_empty() else "")
+			names.append(label if f.owner == _player else "%s (%s)" % [label, _state.get_empire(f.owner).short_name()])
 	if not names.is_empty():
 		parts.append("en orbite : %s" % ", ".join(names))
+	if owner:
+		var gov := Heroes.at_post(_state, "system", s.id, owner.id)
+		if not gov.is_empty():
+			parts.append("gouverneur ✦ %s" % gov["name"])
 	_subtitle.text = "  ·  ".join(parts)
 
 

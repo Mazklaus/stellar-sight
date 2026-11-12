@@ -554,6 +554,7 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 			r["score"] = [0, 0]
 			remember(state, a, b, "peace_signed")
 			remember(state, b, a, "peace_signed")
+			Heroes.release_between(state, a, b)
 			if was_war:
 				state.add_chronicle("Paix entre %s et %s. On signe en bas, on enterre les morts, et l'on jure que c'était la dernière fois." % [
 						ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))

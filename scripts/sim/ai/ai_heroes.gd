@@ -7,6 +7,8 @@ extends RefCounted
 ## Stratège), place chaque héros d'abord au poste de sa classe : Stratège sur la plus forte flotte de
 ## guerre sans amiral, Intendant sur le système le plus peuplé sans gouverneur, Orateur au conseil,
 ## Ombre sur le réseau le plus infiltré ; ce qui reste va au conseil, puis à un système.
+## Prisonniers (Normale et au-dessus) : convertis s'il reste une place, sinon libérés une fois la
+## guerre finie ; la Recrue les oublie dans leur cellule.
 ## Une fois par mois, décalé selon l'empire.
 
 
@@ -20,6 +22,7 @@ static func think(ctx: Dictionary) -> void:
 	var skill := int(ctx["lv"].get("faction_use", 1))
 	_pick(ctx, skill)
 	_assign(ctx, skill)
+	_prisoners(ctx, skill)
 
 
 static func _pick(ctx: Dictionary, skill: int) -> void:
@@ -135,3 +138,21 @@ static func _target(state: GameState, e: Empire, post: String) -> int:
 						best = o
 			return best
 	return -1
+
+
+static func _prisoners(ctx: Dictionary, skill: int) -> void:
+	if skill == 0:
+		return
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var room := Heroes.cap(state, e.id) - Heroes.ids_of(state, e.id).size()
+	for id in Heroes.prisoners_of(state, e.id):
+		var h: Dictionary = state.heroes[id]
+		if int(h.get("convert", 0)) > 0:
+			room -= 1
+			continue
+		if room > 0:
+			if AiPlayer._issue(ctx, SimCommands.hero_prisoner(e.id, id, "convert")):
+				room -= 1
+		elif not Combat.at_war(state, e.id, int(h["owner"])):
+			AiPlayer._issue(ctx, SimCommands.hero_prisoner(e.id, id, "free"))
