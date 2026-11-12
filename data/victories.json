@@ -86,8 +86,8 @@
 			"kind": "people", "label": "La Légende",
 			"requires": {"registre": ["Picaresque / pulp"]},
 			"tech": "legende",
-			"text": "Accomplir %d exploits improbables différents (vaincre une flotte trois fois plus forte, voler une technologie, mener un contrat à terme…), puis garder une réputation d'au moins %d pendant %d an.",
-			"counter": "Les battre : chaque bataille perdue ternit la légende (réputation -8).",
+			"text": "Accomplir %d exploits improbables différents (vaincre une flotte trois fois plus forte, voler une technologie, mener un contrat à terme…), puis garder une réputation d'au moins %d pendant %d an, avec au moins un héros vivant et libre pour porter la légende.",
+			"counter": "Les battre : chaque bataille perdue ternit la légende (réputation -8). Tuer, capturer ou corrompre leurs héros : sans héros, la légende retombe à zéro.",
 			"exploits": 7, "min_reputation": 60, "hold_days": 360, "on_fail": "reset",
 			"chronicle": "On ne raconte plus les exploits de %s : on les chante, on les brode, on les vend en feuilletons. La Légende est entrée dans l'histoire, avec quelques arrangements."
 		},

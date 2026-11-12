@@ -26,6 +26,12 @@ func run(check: Callable) -> void:
 	_test_age_and_memorial()
 	_test_talents()
 	_test_save_v20()
+	# Lot 3 : ombres et Légende.
+	_test_heir()
+	_test_hero_ops()
+	_test_sabotage_and_legend()
+	_test_hire()
+	_test_ai_lot3()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -40,14 +46,16 @@ func _test_start() -> void:
 	var st := GameState.create(21)
 	for e in st.empires:
 		var ids := Heroes.ids_of(st, e.id)
-		_ok(ids.size() == 1, "%s : un héros au départ" % e.short_name())
+		var heir := 1 if Diplomacy.has_heir(st, e.id) else 0
+		_ok(ids.size() == 1 + heir, "%s : un héros au départ (et son héritier pour une dynastie)" % e.short_name())
 		if ids.is_empty():
 			continue
 		var h: Dictionary = st.heroes[ids[0]]
 		_ok(String(h["name"]).length() > 3 and Heroes.CLASSES.has(String(h["cls"])), "%s : héros nommé, avec une classe" % e.short_name())
 		_ok(String(h["portrait"]).begins_with("hero_"), "%s : portrait tiré de la galerie des héros" % e.short_name())
 		_ok(int(h["lvl"]) == 1 and Heroes.age(st, h) >= 25 and Heroes.age(st, h) <= 45, "%s : niveau 1, âge plausible" % e.short_name())
-	_ok(Heroes.cap(st, 0) == 3 and Heroes.seats(st, 0) == 2, "3 places et 2 sièges de conseil au départ")
+	var ch := _emp(st, "choeur")
+	_ok(Heroes.cap(st, ch) == 3 and Heroes.seats(st, ch) == 2, "3 places et 2 sièges de conseil au départ")
 	var st2 := GameState.create(21)
 	_ok(str(st.heroes) == str(st2.heroes), "même graine, mêmes héros de départ")
 
@@ -65,11 +73,12 @@ func _test_portraits() -> void:
 
 func _test_offer() -> void:
 	var st := GameState.create(22)
-	var m := Heroes.meta(st, 0)
+	var p := _emp(st, "choeur")
+	var m := Heroes.meta(st, p)
 	_ok((m["offer"] as Array).is_empty(), "pas d'offre au départ")
-	Heroes.act(st, 0, "battles_won", 20)  # 500 de renom (seuil 350), penche Stratège
-	Heroes._maybe_offer(st, 0)
-	m = Heroes.meta(st, 0)
+	Heroes.act(st, p, "battles_won", 20)  # 500 de renom (seuil 350), penche Stratège
+	Heroes._maybe_offer(st, p)
+	m = Heroes.meta(st, p)
 	var offer: Array = m["offer"]
 	_ok(offer.size() == 3, "renom au seuil : trois candidats (%d)" % offer.size())
 	var classes := {}
@@ -77,38 +86,38 @@ func _test_offer() -> void:
 		classes[String(c["cls"])] = true
 	_ok(classes.size() == 3, "trois classes différentes dans l'offre")
 	var st2 := GameState.create(22)
-	Heroes.act(st2, 0, "battles_won", 20)
-	Heroes._maybe_offer(st2, 0)
-	_ok(str(Heroes.meta(st2, 0)["offer"]) == str(offer), "même graine, même offre")
-	_ok(int(m["renown"]) >= 150 and int(m["renown"]) < Heroes.renown_needed(st, 0), "le seuil est déduit du renom (%d)" % int(m["renown"]))
-	_ok(Heroes.renown_needed(st, 0) == 100 + 250 * 1, "seuil : 100 + 250 × héros obtenus (le héros de départ compte)")
+	Heroes.act(st2, p, "battles_won", 20)
+	Heroes._maybe_offer(st2, p)
+	_ok(str(Heroes.meta(st2, p)["offer"]) == str(offer), "même graine, même offre")
+	_ok(int(m["renown"]) >= 150 and int(m["renown"]) < Heroes.renown_needed(st, p), "le seuil est déduit du renom (%d)" % int(m["renown"]))
+	_ok(Heroes.renown_needed(st, p) == 100 + 250 * 1, "seuil : 100 + 250 × héros obtenus (le héros de départ compte)")
 	var sim := Simulation.new(st)
 	var name := String(offer[1]["name"])
-	_ok(sim.submit(SimCommands.hero_pick(0, 1)), "ordre CHOISIR accepté")
+	_ok(sim.submit(SimCommands.hero_pick(p, 1)), "ordre CHOISIR accepté")
 	sim.flush_commands()
-	var ids := Heroes.ids_of(st, 0)
+	var ids := Heroes.ids_of(st, p)
 	_ok(ids.size() == 2 and String(st.heroes[ids[1]]["name"]) == name, "le candidat choisi rejoint l'empire")
-	_ok((Heroes.meta(st, 0)["offer"] as Array).is_empty(), "l'offre disparaît une fois choisie")
-	_ok(Heroes.renown_needed(st, 0) == 100 + 250 * 2, "seuil relevé après un recrutement")
+	_ok((Heroes.meta(st, p)["offer"] as Array).is_empty(), "l'offre disparaît une fois choisie")
+	_ok(Heroes.renown_needed(st, p) == 100 + 250 * 2, "seuil relevé après un recrutement")
 	# Refus.
-	Heroes.act(st, 0, "conquests", 20)
-	Heroes._maybe_offer(st, 0)
-	_ok(not (Heroes.meta(st, 0)["offer"] as Array).is_empty(), "nouvelle offre")
-	_ok(sim.submit(SimCommands.hero_pick(0, -1)), "ordre DÉCLINER accepté")
+	Heroes.act(st, p, "conquests", 20)
+	Heroes._maybe_offer(st, p)
+	_ok(not (Heroes.meta(st, p)["offer"] as Array).is_empty(), "nouvelle offre")
+	_ok(sim.submit(SimCommands.hero_pick(p, -1)), "ordre DÉCLINER accepté")
 	sim.flush_commands()
-	_ok((Heroes.meta(st, 0)["offer"] as Array).is_empty() and Heroes.ids_of(st, 0).size() == 2, "décliner renvoie les candidats")
+	_ok((Heroes.meta(st, p)["offer"] as Array).is_empty() and Heroes.ids_of(st, p).size() == 2, "décliner renvoie les candidats")
 	# Plus de place.
-	var cand := Heroes.make_candidate(st, 0, "orateur", ["test"])
-	Heroes.recruit(st, 0, cand)
-	Heroes.act(st, 0, "conquests", 40)
-	Heroes._maybe_offer(st, 0)
-	_ok(Heroes.check_pick(st, 0, 0) != "", "toutes les places prises : choisir est refusé")
-	_ok(Heroes.check_pick(st, 0, -1) == "", "décliner reste possible")
-	var last := Heroes.ids_of(st, 0)[2]
-	_ok(sim.submit(SimCommands.hero_dismiss(0, last)), "ordre RENVOYER accepté")
+	var cand := Heroes.make_candidate(st, p, "orateur", ["test"])
+	Heroes.recruit(st, p, cand)
+	Heroes.act(st, p, "conquests", 40)
+	Heroes._maybe_offer(st, p)
+	_ok(Heroes.check_pick(st, p, 0) != "", "toutes les places prises : choisir est refusé")
+	_ok(Heroes.check_pick(st, p, -1) == "", "décliner reste possible")
+	var last := Heroes.ids_of(st, p)[2]
+	_ok(sim.submit(SimCommands.hero_dismiss(p, last)), "ordre RENVOYER accepté")
 	sim.flush_commands()
-	_ok(not st.heroes.has(last) and Heroes.check_pick(st, 0, 0) == "", "renvoyer libère une place")
-	_ok(not sim.submit(SimCommands.hero_pick(1, 0)) or (Heroes.meta(st, 1)["offer"] as Array).is_empty(), "un autre empire ne choisit pas dans notre offre")
+	_ok(not st.heroes.has(last) and Heroes.check_pick(st, p, 0) == "", "renvoyer libère une place")
+	_ok(not sim.submit(SimCommands.hero_pick(p + 1 if p == 0 else 0, 0)) or (Heroes.meta(st, 0 if p != 0 else 1)["offer"] as Array).is_empty(), "un autre empire ne choisit pas dans notre offre")
 
 
 func _test_assign_and_effects() -> void:
@@ -216,7 +225,7 @@ func _test_old_save() -> void:
 	_ok(back != null, "sauvegarde 19 toujours lisible (%s)" % GameState.last_error)
 	if back:
 		for e in back.empires:
-			_ok(Heroes.ids_of(back, e.id).size() == 1, "sauvegarde 19 : %s reçoit son héros de départ" % e.short_name())
+			_ok(Heroes.ids_of(back, e.id).size() == 1 + (1 if Diplomacy.has_heir(back, e.id) else 0), "sauvegarde 19 : %s reçoit son héros de départ" % e.short_name())
 
 
 func _test_determinism() -> void:
@@ -415,7 +424,7 @@ func _test_talents() -> void:
 	var oss := _emp(st, "ossarane")
 	var hid := Heroes.ids_of(st, kh)[0]
 	_ok(Heroes.is_avatar(st, kh) and String(st.heroes[hid]["amb"]) == "", "ruche : des Avatars, sans ambition")
-	_ok(Heroes.cap(st, vael) == Heroes.cap(st, oss) + 1, "Space opera héroïque : +1 place")
+	_ok(Heroes.cap(st, vael) == Heroes.cap(st, _emp(st, "choeur")) + 1, "Space opera héroïque : +1 place")
 	_ok(Heroes.seats(st, vael) == Heroes.seats(st, oss) + 1, "république : +1 siège au conseil")
 	# Un Avatar n'est jamais capturé.
 	var cap: Dictionary = Heroes.data()["capture"]
@@ -478,3 +487,133 @@ func _test_save_v20() -> void:
 			okk = okk and h.has("loy") and h.has("jailer") and int(h["jailer"]) == -1
 		_ok(okk, "sauvegarde 20 : les héros reçoivent loyauté, ambition, espérance de vie")
 		Simulation.new(back).advance(60)
+
+
+func _test_heir() -> void:
+	var st := GameState.create(37)
+	var sim := Simulation.new(st)
+	var oss := _emp(st, "ossarane")
+	var heir := Heroes.heir_of(st, oss)
+	_ok(not heir.is_empty() and String(heir["name"]).ends_with("l'Héritier"), "Ossarane : l'héritier est un héros (%s)" % heir.get("name", "?"))
+	_ok(Heroes.cap(st, oss) == Heroes.cap(st, _emp(st, "choeur")) + 1, "l'héritier occupe une place à part")
+	_ok(Heroes.check_dismiss(st, oss, int(heir["id"])) != "", "on ne renvoie pas l'héritier")
+	var e := st.get_empire(oss)
+	e.heir_loyalty = 12
+	_ok(Heroes.loyalty(st, heir) == 12, "loyauté de l'héritier = celle de la lignée")
+	Heroes.die(st, heir, "tombe de cheval", [] as Array[Dictionary])
+	sim.advance(30 - posmod(st.tick, 30) + 1)
+	var next := Heroes.heir_of(st, oss)
+	_ok(not next.is_empty() and int(next["id"]) != int(heir["id"]), "un nouvel héritier prend son rang")
+	_ok(e.heir_loyalty == int(Diplomacy.ability("heir")["start"]), "la loyauté de la lignée repart de zéro (%d)" % e.heir_loyalty)
+	_ok(Heroes.heir_of(st, _emp(st, "choeur")).is_empty(), "pas d'héritier hors des dynasties")
+
+
+func _test_hero_ops() -> void:
+	var st := GameState.create(38)
+	var a := _emp(st, "vael")
+	var b := _emp(st, "choeur")
+	var ea := st.get_empire(a)
+	if not ea.contacts.has(b):
+		ea.contacts.append(b)
+	for op in ["dossier_heros", "corrompre", "exfiltration", "assassinat"]:
+		_ok(not Espionage.op_def(op).is_empty(), "opération %s définie" % op)
+	# Dossier des héros, vrai puis faux (réseau retourné).
+	var bid := Heroes.ids_of(st, b)[0]
+	st.heroes[bid]["lvl"] = 3
+	Espionage._apply(st, a, b, Espionage.op_def("dossier_heros"))
+	var f := Heroes.hero_file(st, a, b)
+	_ok(not f.is_empty() and int(f["heroes"][0]["lvl"]) == 3, "dossier des héros : niveaux réels")
+	Espionage._resolve_turned(st, a, b, Espionage.op_def("dossier_heros"))
+	f = Heroes.hero_file(st, a, b)
+	_ok(int(f["heroes"][0]["lvl"]) == 1 and (Heroes.meta(st, a)["files"] as Array).size() == 1, "réseau retourné : un faux dossier remplace le vrai")
+	# Corruption : loyauté en baisse, et c'est chez le corrupteur qu'il partirait.
+	var loy := int(st.heroes[bid]["loy"])
+	Espionage._apply(st, a, b, Espionage.op_def("corrompre"))
+	_ok(int(st.heroes[bid]["loy"]) < loy and int(st.heroes[bid]["suitor"]) == a, "corruption : loyauté %d → %d, prétendant désigné" % [loy, int(st.heroes[bid]["loy"])])
+	_ok(Heroes._suitor(st, b, a) == a, "un héros corrompu déserte vers son corrupteur")
+	_ok(Espionage.check_op(st, a, _emp(st, "khthari"), "corrompre") != "" , "on ne corrompt pas un Avatar (ni une ruche)")
+	# Exfiltration : un héros de a, prisonnier chez b, rentre au pays.
+	var pid := Heroes.recruit(st, a, Heroes.make_candidate(st, a, "stratege", ["exfil"]))
+	_ok(Heroes.exfil_target(st, a, b) < 0, "rien à exfiltrer sans prisonnier")
+	st.heroes[pid]["jailer"] = b
+	_ok(Heroes.exfil_target(st, a, b) == pid, "exfiltration : cible trouvée")
+	Espionage._apply(st, a, b, Espionage.op_def("exfiltration"))
+	_ok(not Heroes.is_prisoner(st.heroes[pid]), "exfiltration : le héros est libre")
+	# Assassinat : le meilleur héros meurt, b nous en veut si l'on est démasqué.
+	var n := Heroes.ids_of(st, b).size()
+	Espionage._apply(st, a, b, Espionage.op_def("assassinat"))
+	_ok(not st.heroes.has(bid) and Heroes.ids_of(st, b).size() == n - 1, "assassinat : le héros meurt")
+	_ok(Heroes.op_target(st, b, false) < 0 or not Heroes.ids_of(st, b).is_empty(), "plus de héros : plus de cible")
+	_ok(Diplomacy.data()["memories"].has("hero_assassinated"), "mémoire d'opinion : assassinat d'un héros")
+
+
+func _test_sabotage_and_legend() -> void:
+	var st := GameState.create(39)
+	var a := _emp(st, "vael")
+	var gid := Heroes.ids_of(st, a)[0]
+	var h: Dictionary = st.heroes[gid]
+	h["post"] = "system"
+	h["target"] = _home(st, a)
+	h["arrive"] = st.tick
+	_ok(Heroes.sabotage_governor(st, a, _home(st, a)) == String(h["name"]), "sabotage : le gouverneur du système est touché")
+	_ok(Heroes.is_wounded(st, h) and String(h["post"]) == "", "sabotage : il est blessé et quitte son poste")
+	_ok(Heroes.sabotage_governor(st, a, _home(st, a)) == "", "sabotage sans gouverneur : personne de blessé")
+	# Légende : un héros vivant et libre pour la porter.
+	var e := st.get_empire(a)
+	var out := Victory.progress(st, a, "legende")
+	_ok(Heroes.has_free_hero(st, a) and "\n".join(out["lines"]).contains("porter : oui"), "Légende : un héros vivant la porte")
+	for id in Heroes.ids_of(st, a):
+		st.heroes[id]["jailer"] = _emp(st, "choeur")
+	e.exploits = {}
+	for x in Reputation.EXPLOITS:
+		e.exploits[String(x[0])] = 1
+	e.reputation = 1000
+	out = Victory.progress(st, a, "legende")
+	_ok(not bool(out["cond"]) and "\n".join(out["lines"]).contains("porter : aucun"), "Légende : sans héros libre, pas de victoire, même avec tous les exploits")
+
+
+func _test_hire() -> void:
+	var st := GameState.create(40)
+	var sim := Simulation.new(st)
+	var syn := _emp(st, "brisecomete")
+	var cl := _emp(st, "vael")
+	if syn < 0:
+		_ok(false, "un syndicat dans la partie de test")
+		return
+	for pair in [[syn, cl], [cl, syn]]:
+		if not st.get_empire(pair[0]).contacts.has(pair[1]):
+			st.get_empire(pair[0]).contacts.append(pair[1])
+	var hid := Heroes.recruit(st, syn, Heroes.make_candidate(st, syn, "stratege", ["louer"]))
+	_ok(Heroes.check_for_hire(st, cl, Heroes.ids_of(st, cl)[0], true) != "", "seul un syndicat loue ses héros")
+	sim.submit(SimCommands.hero_for_hire(syn, hid, true))
+	sim.flush_commands()
+	_ok(Heroes.for_hire(st, cl).has(hid), "le héros est sur le marché")
+	st.get_empire(cl).resources["energy"] = 500
+	sim.submit(SimCommands.hero_hire(cl, hid))
+	sim.flush_commands()
+	var h: Dictionary = st.heroes[hid]
+	_ok(int(h["owner"]) == cl and int(h["lender"]) == syn, "engagé : il sert le client, le syndicat reste prêteur")
+	var fee := Heroes.hire_fee(h)
+	_ok(int(Heroes.income(st, cl).get("energy", 0)) <= -fee and int(Heroes.income(st, syn).get("energy", 0)) >= fee, "le client paie %d énergie par mois au syndicat" % fee)
+	_ok(Heroes.check_dismiss(st, cl, hid) != "", "on ne renvoie pas un héros loué")
+	_ok(not Heroes.has_free_hero(st, cl) or Heroes.ids_of(st, cl).size() > 1, "un héros loué ne porte pas la Légende")
+	h["lend_until"] = st.tick
+	sim.advance(30 - posmod(st.tick, 30) + 1)
+	_ok(int(h["owner"]) == syn and int(h.get("lender", -1)) < 0, "au terme, il rentre chez son syndicat")
+	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_dict())))
+	_ok(back != null and int(back.heroes[hid]["owner"]) == syn, "sauvegarde : le contrat se relit")
+
+
+func _test_ai_lot3() -> void:
+	_ok(AiEspionage.HERO_WAR_OPS.has("assassinat") and AiEspionage.HERO_PEACE_OPS.has("exfiltration"), "IA : opérations contre les héros au menu")
+	var sim := Simulation.new(GameState.create(41, 150, 1800.0, "", {"spectator": true}))
+	sim.advance(70)
+	var st := sim.state
+	var syn := _emp(st, "brisecomete")
+	if syn < 0:
+		return
+	var flagged := 0
+	for id in Heroes.ids_of(st, syn):
+		if int(st.heroes[id].get("for_hire", 0)) > 0 or int(st.heroes[id].get("lender", -1)) >= 0 or String(st.heroes[id]["post"]) != "":
+			flagged += 1
+	_ok(flagged > 0 or Heroes.ids_of(st, syn).is_empty(), "IA syndicat : ses héros sont en poste ou à louer")

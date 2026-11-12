@@ -6,7 +6,7 @@
 		"Master of Orion II : 5 tours de trajet pour rejoindre un poste hors du système du Capitole. https://strategywiki.org/wiki/Master_of_Orion_II:_Battle_at_Antares/Hiring_Leaders",
 		"Astra Exodus : l'Opérateur, héros qui mène la guerre de l'ombre. https://www6.slitherine.com/news/astra-exodus-dev-diary-07-heroes-espionage"
 	],
-	"_doc": "Lot 1 (socle). Tous les nombres sont des valeurs de départ, pas un équilibrage (reporté). cap : places au départ, +fx hero_cap des technologies. renown : seuil = base + step × héros déjà obtenus (le héros de départ compte). acts : renom gagné par acte et classe qu'il fait pencher. xp_levels : expérience totale pour chaque niveau (1 à 5). travel_days : trajet vers un poste hors du système capital. wound_days : blessure quand la flotte est anéantie ou le système perdu. Les effets d'un poste sont pleins pour la classe qui en a l'habitude, à moitié pour les autres. Lot 2 (vie et mort) : loyalty (loyauté 0-100, désertion sous min_desert), ambitions (actes qui les servent, grand objectif), capture (chance quand la flotte est anéantie ou le système pris, conversion), life (espérance de vie en années, par archétype ; 0 = sans limite), flaws (défauts avec l'âge), memorial (souvenir laissé par un héros de niveau min_lvl ou plus, selon le credo), talents (par couche d'espèce), people_traits (réserve de traits du peuple, par couche).",
+	"_doc": "Lot 1 (socle). Tous les nombres sont des valeurs de départ, pas un équilibrage (reporté). cap : places au départ, +fx hero_cap des technologies. renown : seuil = base + step × héros déjà obtenus (le héros de départ compte). acts : renom gagné par acte et classe qu'il fait pencher. xp_levels : expérience totale pour chaque niveau (1 à 5). travel_days : trajet vers un poste hors du système capital. wound_days : blessure quand la flotte est anéantie ou le système perdu. Les effets d'un poste sont pleins pour la classe qui en a l'habitude, à moitié pour les autres. Lot 2 (vie et mort) : loyalty (loyauté 0-100, désertion sous min_desert), ambitions (actes qui les servent, grand objectif), capture (chance quand la flotte est anéantie ou le système pris, conversion), life (espérance de vie en années, par archétype ; 0 = sans limite), flaws (défauts avec l'âge), memorial (souvenir laissé par un héros de niveau min_lvl ou plus, selon le credo), talents (par couche d'espèce), people_traits (réserve de traits du peuple, par couche). Lot 3 : hire (location des héros d'un syndicat : durée, prix mensuel en énergie).",
 	"cap": 3,
 	"council_seats": 2,
 	"renown": {
@@ -989,6 +989,11 @@
 				"label": "Champions",
 				"loot_trait": 1,
 				"text": "Un amiral dont la flotte pille gagne un trait (jusqu'à six)."
+			},
+			"syndicat": {
+				"label": "Héros à louer",
+				"hire": 1,
+				"text": "Ses héros sans poste peuvent être mis en location : un empire rencontré les engage pour un an contre de l'énergie chaque mois."
 			}
 		},
 		"registre": {
@@ -1089,5 +1094,10 @@
 			]
 		}
 	},
-	"max_traits": 6
+	"max_traits": 6,
+	"hire": {
+		"days": 360,
+		"fee_base": 4,
+		"fee_per_level": 3
+	}
 }

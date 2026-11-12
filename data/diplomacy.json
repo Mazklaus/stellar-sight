@@ -106,7 +106,7 @@
 		"contract_honored": {"value": 15, "days": 1440, "stack": 2, "label": "A loué ses flottes pour nous, et tenu parole"},
 		"contract_unpaid": {"value": -25, "days": 1440, "label": "N'a pas payé nos flottes"},
 		"tech_stolen": {"value": -20, "days": 1440, "stack": 3, "label": "Nous a volé une technologie"},
-		"hero_freed": {"value": 15, "days": 1080, "stack": 2, "label": "A libéré un de nos héros"}, "hero_executed": {"value": -40, "days": 3600, "stack": 3, "label": "A exécuté un de nos héros"}, "spy_caught": {"value": -20, "days": 1440, "stack": 3, "label": "Ses espions ont été pris chez nous"},
+		"hero_assassinated": {"value": -50, "days": 3600, "stack": 2, "label": "A fait assassiner un de nos héros"}, "hero_hired": {"value": 10, "days": 1080, "stack": 2, "label": "Nous a loué un héros, et l'a bien payé"}, "hero_freed": {"value": 15, "days": 1080, "stack": 2, "label": "A libéré un de nos héros"}, "hero_executed": {"value": -40, "days": 3600, "stack": 3, "label": "A exécuté un de nos héros"}, "spy_caught": {"value": -20, "days": 1440, "stack": 3, "label": "Ses espions ont été pris chez nous"},
 		"rogue_caught": {"value": -10, "days": 1440, "stack": 3, "label": "Ses aventuriers ont été pris chez nous (on s'y attendait)"},
 		"spy_grief": {"value": -5, "days": 360, "label": "Grief : la guerre contre lui ne serait pas un parjure"},
 		"spy_expelled": {"value": -10, "days": 720, "label": "A expulsé nos agents"},

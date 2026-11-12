@@ -14,6 +14,9 @@ extends RefCounted
 ## autres veulent au moins 50 % de succès et, en paix, au plus 40 % de risque d'être prises.
 ## Lot 3 : en guerre, elle corrompt l'héritier d'une dynastie et sème la discorde chez l'ennemi après
 ## les sabotages ; en paix, un tempérament agressif tente aussi l'héritier.
+## Héros (lot 3 des héros) : à partir de Vétéran, en guerre, elle exfiltre d'abord ses héros
+## prisonniers, puis assassine ou corrompt le meilleur héros ennemi ; en paix, elle rachète ses
+## prisonniers par une exfiltration.
 ## Réponse à des espions démasqués : à partir de Vétéran, retourner le réseau quand elle a des agents
 ## chez elle pour le mener ; sinon expulser un ennemi ou un empire mal aimé, sinon exiger réparation.
 ## Registre Picaresque : en paix aussi, le siphon est permis ; les opérations qui donnent un exploit
@@ -54,6 +57,8 @@ const WAR_OPS := ["sabotage_chantier", "archives", "heritier", "discorde", "vol_
 const PEACE_OPS := ["vol_techno", "heritier", "rapport"]
 const CALM_OPS := ["rapport"]
 const ROGUE_PEACE_OPS := ["vol_techno", "siphon", "heritier", "rapport"]
+const HERO_WAR_OPS := ["exfiltration", "assassinat", "corrompre"]
+const HERO_PEACE_OPS := ["exfiltration"]
 ## Exploit de la Légende que donne chaque opération réussie.
 const OP_EXPLOITS := {"vol_techno": "vol", "siphon": "siphon", "sabotage_chantier": "sabotage", "archives": "archives",
 		"discorde": "discorde", "heritier": "heritier", "rapport": "rapport"}
@@ -80,6 +85,8 @@ static func _operation(ctx: Dictionary) -> void:
 		var menu: Array = WAR_OPS if war else (CALM_OPS if calm else PEACE_OPS)
 		if rogue:
 			menu = _rogue_menu(e, WAR_OPS if war else ROGUE_PEACE_OPS)
+		if use >= 2:
+			menu = (HERO_WAR_OPS if war else HERO_PEACE_OPS) + menu
 		for op_id in menu:
 			if Espionage.check_op(state, e.id, b, op_id) != "":
 				continue

@@ -2,7 +2,8 @@ extends SceneTree
 ## Captures des héros, avec le rendu réel :
 ##   xvfb-run -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_heroes.gd
 ## Écrit les images dans le dossier donné par CAPTURE_DIR (par défaut user://captures).
-## Scénario : quelques mois de jeu, une offre « 1 parmi 3 », des héros en poste, puis la galerie
+## Scénario : quelques mois de jeu, une offre « 1 parmi 3 », des héros en poste, le marché des héros à louer,
+## le dossier des héros d'un rival, puis la galerie
 ## de portraits de chaque archétype.
 
 
@@ -78,7 +79,35 @@ func _initialize() -> void:
 	main._empire_screens.show_screen("heroes")
 	await _frames(10)
 	await _shot(out + "/pantheon-vie-et-mort.png")
+
+	# 2 bis bis. Lot 3 : le marché des héros à louer, et le dossier des héros d'un rival.
+	var syn := -1
+	for e in st.empires:
+		if int(Heroes.talent(st, e.id).get("hire", 0)) > 0:
+			syn = e.id
+	if syn >= 0:
+		var lid := Heroes.recruit(st, syn, Heroes.make_candidate(st, syn, "stratege", ["capture", 4]))
+		st.heroes[lid]["lvl"] = 3
+		st.heroes[lid]["for_hire"] = 1
+		if not st.get_empire(0).contacts.has(syn):
+			st.get_empire(0).contacts.append(syn)
+		st.get_empire(0).resources["energy"] = maxi(300, int(st.get_empire(0).resources.get("energy", 0)))
+		st.heroes.erase(pr)
+		while Heroes.ids_of(st, 0).size() >= Heroes.cap(st, 0):
+			st.heroes.erase(Heroes.ids_of(st, 0)[-1])
+	main._empire_screens.show_screen("heroes")
+	await _frames(10)
+	await _shot(out + "/pantheon-marche.png")
 	main.toggle_empire_screen("heroes")
+	await _frames(4)
+	if not st.get_empire(0).contacts.has(rival):
+		st.get_empire(0).contacts.append(rival)
+	Heroes.write_file(st, 0, rival, false)
+	main._empire_screens.intel_selected = rival
+	main.toggle_empire_screen("intel")
+	await _frames(10)
+	await _shot(out + "/renseignement-dossier-heros.png")
+	main.toggle_empire_screen("intel")
 	await _frames(4)
 
 	# 2 ter. Le médaillon d'or sur la carte : une flotte commandée par un héros.

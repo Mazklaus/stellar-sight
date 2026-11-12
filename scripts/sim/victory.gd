@@ -663,8 +663,11 @@ static func _legende(state: GameState, e: Empire, out: Dictionary) -> void:
 		if e.exploits.has(String(x[0])):
 			out["lines"].append("  ✓ %s" % String(x[1]))
 	out["lines"].append("Réputation : %d (%d au moins)" % [e.reputation, min_rep])
-	out["cond"] = e.exploits.size() >= need and e.reputation >= min_rep
-	_timed(out, n + int(e.reputation >= min_rep), need + 1)
+	# Une légende a besoin d'un héros vivant et libre pour la porter (document de game design).
+	var hero := Heroes.has_free_hero(state, e.id)
+	out["lines"].append("Héros vivant pour la porter : %s" % ("oui" if hero else "aucun"))
+	out["cond"] = e.exploits.size() >= need and e.reputation >= min_rep and hero
+	_timed(out, n + int(e.reputation >= min_rep) + int(hero), need + 2)
 
 
 ## Le Silence parfait (archétype Énergétique) : assez de colonies peuplées, et pas un repérage depuis
