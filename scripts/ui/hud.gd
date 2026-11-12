@@ -46,6 +46,7 @@ const STAR_LORE := {
 
 var bar: EmpireBar
 var dial: TimeDial
+var turn_players: TurnPlayersPanel
 var _tabs: HBoxContainer
 var _tab_galaxy: Button
 var _tab_economy: Button
@@ -759,6 +760,19 @@ func _build_dial() -> void:
 	dial.pause_toggled.connect(func() -> void: pause_toggled.emit())
 	dial.speed_requested.connect(func(i: int) -> void: speed_requested.emit(i))
 	add_child(dial)
+	# Réseau au tour par tour : qui a terminé son tour, à gauche du cadran.
+	turn_players = TurnPlayersPanel.new()
+	turn_players.anchor_left = 1.0
+	turn_players.anchor_right = 1.0
+	turn_players.anchor_top = 1.0
+	turn_players.anchor_bottom = 1.0
+	turn_players.offset_right = -TimeDial.SIDE - MARGIN - 8.0
+	turn_players.offset_left = turn_players.offset_right - 230.0
+	turn_players.offset_bottom = -MARGIN
+	turn_players.offset_top = -MARGIN - 40.0
+	turn_players.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	turn_players.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	add_child(turn_players)
 	var menu := Widgets.IconButton.new("menu", 36)
 	menu.theme_type_variation = &""
 	menu.anchor_left = 1.0

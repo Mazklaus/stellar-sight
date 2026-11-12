@@ -66,6 +66,9 @@ var driver: Object = null
 var net_ready := false
 ## Multijoueur au tour par tour : noms des joueurs qui n'ont pas encore terminé leur tour.
 var net_waiting: Array[String] = []
+## Multijoueur au tour par tour : les joueurs de la partie et où ils en sont :
+## [{"name", "color" (Color), "ready" (tour terminé), "me" (le joueur local)}].
+var net_players: Array[Dictionary] = []
 ## Minuteur de tour choisi pour les parties en réseau (TURN_TIMERS), gardé dans la sauvegarde.
 var turn_timer := ""
 ## Multijoueur : instant (Time.get_ticks_msec) où le minuteur force la fin du tour, -1 sans minuteur.
