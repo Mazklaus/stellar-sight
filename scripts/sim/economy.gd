@@ -210,6 +210,12 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		for r in gross:
 			@warning_ignore("integer_division")
 			gross[r] = gross[r] * pct / 100
+	# Étoile rongée par le Mange-soleil, ou étouffée par une opération.
+	var star_pct := Guardians.production_pct(state, planet.system_id)
+	if star_pct != 100:
+		for r in gross:
+			@warning_ignore("integer_division")
+			gross[r] = gross[r] * star_pct / 100
 	return {"gross": gross, "upkeep": upkeep}
 
 
@@ -362,6 +368,9 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 		return "un repaire pirate tient ce système : détruisez d'abord sa garde"
 	if Pirates.is_port(state, p.system_id):
 		return "un port franc n'appartient à personne, et tient à le rester"
+	var watch := Guardians.colony_block(state, p.system_id)
+	if watch != "":
+		return watch
 	if not in_range(state, empire_id, p.system_id):
 		return "hors de portée : il faut un vaisseau colon à l'arrêt dans ce système (ou une revendication établie dans le système)"
 	if kind == Colony.KIND_COLONY and max_pop(state, p, empire_id) < 1:

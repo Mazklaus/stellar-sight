@@ -70,6 +70,10 @@
 			"renown": 0,
 			"cls": "ombre"
 		},
+		"guardian": {
+			"renown": 60,
+			"cls": "stratege"
+		},
 		"lair": {
 			"renown": 30,
 			"cls": "stratege"

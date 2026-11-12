@@ -108,7 +108,7 @@ static func build(es: EmpireScreens) -> void:
 		col.add_child(_reliquary_block(es))
 		col.add_child(_digs_block(es))
 		return
-	if not Events.enabled(state) and state.curio_density == "aucune":
+	if not Events.enabled(state) and state.curio_density == "aucune" and box.is_empty() and Guardians.ids(state).is_empty():
 		col.add_child(UiTheme.dim("Ni événements ni curiosités dans cette partie (réglage de la Nouvelle partie).", 15))
 		return
 

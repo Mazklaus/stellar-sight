@@ -109,7 +109,8 @@ static func _ensure(state: GameState) -> void:
 
 
 static func _empty(density_id: String) -> Dictionary:
-	return {"density": density_id, "per_nest": int(density_def(density_id).get("herds", 0)), "nests": {}, "herds": {}, "meta": {}}
+	return {"density": density_id, "per_nest": int(density_def(density_id).get("herds", 0)), "nests": {}, "herds": {}, "meta": {},
+			"guardians": {}, "choke": {}}
 
 
 ## Place les nids d'une nouvelle partie : un pour `per` systèmes environ, loin des départs et les uns
@@ -245,7 +246,7 @@ static func _meta(state: GameState, empire_id: int) -> Dictionary:
 	_ensure(state)
 	var m: Dictionary = state.fauna["meta"]
 	if not m.has(empire_id):
-		m[empire_id] = {"seen": {}, "study": {}, "stance": {}, "kills": {}}
+		m[empire_id] = {"seen": {}, "study": {}, "stance": {}, "kills": {}, "techs": {}, "unlock": {}}
 	return m[empire_id]
 
 
@@ -291,7 +292,8 @@ static func hostile(state: GameState, beast: Fleet, empire_id: int) -> bool:
 		return false
 	var h := herd_of(state, beast)
 	if h.is_empty():
-		return true
+		var gid := Guardians.of_fleet(state, beast)
+		return Guardians.hostile(state, gid, empire_id) if gid != "" else true
 	var sp := String(h["sp"])
 	match stance(state, empire_id, sp):
 		"apprivoise":
@@ -317,7 +319,10 @@ static func species_hostile(state: GameState, empire_id: int, sp: String) -> boo
 ## les attaquerait)
 static func avoided(state: GameState, empire_id: int, sid: int) -> bool:
 	var n: Dictionary = nests(state).get(sid, {})
-	return not n.is_empty() and species_hostile(state, empire_id, String(n["sp"]))
+	if not n.is_empty() and species_hostile(state, empire_id, String(n["sp"])):
+		return true
+	var gid := Guardians.awake_at(state, sid)
+	return gid != "" and Guardians.hostile(state, gid, empire_id)
 
 
 ## Bonus de dégâts d'une flotte contre les créatures qu'elle chasse, en points de %.
@@ -359,7 +364,7 @@ static func check_attitude(state: GameState, empire_id: int, sp: String, att: St
 				return "cette espèce ne s'apprivoise pas"
 			if stance(state, empire_id, sp) == "apprivoise":
 				return "l'espèce est déjà apprivoisée"
-			if bool(attitude_def("apprivoise").get("needs_study", true)) and not studied(state, empire_id, sp):
+			if bool(attitude_def("apprivoise").get("needs_study", true)) and not studied(state, empire_id, sp) and not Guardians.tame_freed(state, sp):
 				return "il faut d'abord étudier l'espèce"
 		"renoncer":
 			if stance(state, empire_id, sp) == "":
@@ -399,7 +404,7 @@ static func set_attitude(state: GameState, empire_id: int, sp: String, att: Stri
 
 ## Bonus des études terminées (fusionnés dans Research.effects, voir state.relic_rev).
 static func effects(state: GameState, empire_id: int) -> Dictionary:
-	var out := {}
+	var out := Guardians.effects(state, empire_id)
 	var study: Dictionary = _meta_r(state, empire_id).get("study", {})
 	if study.is_empty():
 		return out
@@ -510,7 +515,10 @@ static func to_dict(state: GameState) -> Dictionary:
 	for eid in eids:
 		var m: Dictionary = meta[eid]
 		out["meta"].append({"e": int(eid), "seen": _sorted_pairs(m["seen"]), "study": _sorted_pairs(m["study"]),
-				"stance": _sorted_pairs(m["stance"]), "kills": _sorted_pairs(m["kills"])})
+				"stance": _sorted_pairs(m["stance"]), "kills": _sorted_pairs(m["kills"]),
+				"techs": _sorted_pairs(m.get("techs", {})), "unlock": _sorted_pairs(m.get("unlock", {}))})
+	out["guardians"] = Guardians.to_list(state)
+	out["choke"] = Guardians.choke_list(state)
 	return out
 
 
@@ -525,10 +533,12 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 	for h: Dictionary in d.get("herds", []):
 		herds(state)[int(h["fleet"])] = {"sp": String(h["sp"]), "nest": int(h["nest"]), "next": int(h["next"]), "until": int(h["until"])}
 	for m: Dictionary in d.get("meta", []):
-		var mm := {"seen": {}, "study": {}, "stance": {}, "kills": {}}
-		for k in ["seen", "study", "kills"]:
+		var mm := {"seen": {}, "study": {}, "stance": {}, "kills": {}, "techs": {}, "unlock": {}}
+		for k in ["seen", "study", "kills", "techs", "unlock"]:
 			for p: Array in m.get(k, []):
 				mm[k][String(p[0])] = int(p[1])
 		for p: Array in m.get("stance", []):
 			mm["stance"][String(p[0])] = String(p[1])
 		state.fauna["meta"][int(m["e"])] = mm
+	Guardians.from_list(state, d.get("guardians", []))
+	Guardians.choke_from(state, d.get("choke", []))

@@ -511,6 +511,28 @@ func _draw_nests(px: float) -> void:
 		for c in [Vector2(-3.2, 2.0), Vector2(3.2, 2.0), Vector2(0, -2.8)]:
 			draw_circle(c, 2.4, col)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	_draw_guardians(px)
+
+
+## Gardiens éveillés (voir Guardians) : un crâne pâle à gauche du système exploré.
+func _draw_guardians(px: float) -> void:
+	var bone := Color(0.93, 0.89, 0.8)
+	for gid in Guardians.ids(state):
+		if String(Guardians.list(state)[gid]["status"]) != "awake":
+			continue
+		var sid := Guardians.fleet_system(state, gid)
+		if sid < 0 or not is_explored(sid):
+			continue
+		var off := Vector2(-20.0, 0.0) * px  # à gauche de l'étoile : le nom est au-dessus, les flottes à droite
+		draw_set_transform(galaxy.systems[sid].position + off, 0.0, Vector2(px, px))
+		draw_circle(Vector2.ZERO, 8.5, Color(0.1, 0.02, 0.04, 0.9))
+		draw_arc(Vector2.ZERO, 8.5, 0.0, TAU, 20, Color(0.85, 0.2, 0.25), 1.4, true)
+		draw_circle(Vector2(0, -1), 4.6, bone)
+		draw_rect(Rect2(-2.6, 2.2, 5.2, 3.0), bone)
+		draw_circle(Vector2(-1.8, -1.2), 1.3, Color(0.1, 0.02, 0.04))
+		draw_circle(Vector2(1.8, -1.2), 1.3, Color(0.1, 0.02, 0.04))
+		draw_line(Vector2(0, 2.4), Vector2(0, 5.0), Color(0.1, 0.02, 0.04), 0.8)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## Quêtes galactiques (voir Quests) : l'artéfact du Passage (losange violet, et ses deux prochaines
