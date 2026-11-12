@@ -46,6 +46,8 @@ static func card(id: String) -> Dictionary:
 	if _cards.is_empty():
 		for c: Dictionary in data()["cards"]:
 			_cards[String(c["id"])] = c
+		for c: Dictionary in GameData.guardians().get("cards", []):
+			_cards[String(c["id"])] = c
 	return _cards.get(id, {})
 
 
@@ -635,6 +637,10 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 			"exploit":
 				if Reputation.has(f):
 					out.append("Un exploit de plus pour la Légende")
+			"guardian":
+				var gl := Guardians.fx_line(fx)
+				if gl != "":
+					out.append(gl)
 	return out
 
 
@@ -740,6 +746,8 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 					Quests.start(state, empire_id, String(fx["q"]), {}, added)
 			"exploit":
 				Reputation.exploit(state, empire_id, String(fx["id"]))
+			"guardian":
+				Guardians.card_fx(state, empire_id, item, fx, added)
 
 
 static func _colony_in(state: GameState, empire_id: int, sid: int) -> Colony:

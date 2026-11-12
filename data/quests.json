@@ -300,7 +300,7 @@
 		"tombeaux": {"title": "Le réveil des tombeaux", "kind": "threat",
 			"text": "Des fouilles trop poussées ont réveillé ce qui dormait sous les ruines. Des gardiens anciens se dressent dans plusieurs systèmes ; tant qu'ils veillent, les empires voisins (à 3 sauts) perdent 3 de stabilité. Les détruire rapporte des points ; un peuple synthétique peut aussi parlementer avec eux.",
 			"tombs": 4, "near_jumps": 3, "fx": {"stability": -3}, "days": 1800, "min_digs": 1,
-			"ships": ["croiseur", "croiseur", "fregate", "fregate", "fregate"],
+			"ships": ["bete_machine_tombeau", "bete_machine_tombeau", "bete_machine_tombeau"],
 			"parley_cost": {"influence": 80}, "parley_pct": 30,
 			"win": [{"k": "relic", "relic": "cle_tombeaux"}, {"k": "renown", "v": 40}],
 			"part": [{"k": "fragments", "v": 20}]}

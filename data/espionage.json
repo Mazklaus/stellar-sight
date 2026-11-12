@@ -78,7 +78,10 @@
 			"text": "Une relique de son Reliquaire (pas celles que portent ses héros) passe dans le vôtre. Un coup d'éclat : on en parle longtemps, surtout si l'on est pris."},
 		{"id": "inciter", "family": "intrigue", "label": "Inciter les pirates", "tier": 3,
 			"cost": {"influence": 40}, "days": 45, "success": 65, "discovery": 30, "spend": 15,
-			"text": "Un repaire que vos agents connaissent lance un raid contre lui, à vos frais nuls et à son insu (il faut un de ses systèmes à portée du repaire)."}
+			"text": "Un repaire que vos agents connaissent lance un raid contre lui, à vos frais nuls et à son insu (il faut un de ses systèmes à portée du repaire)."},
+		{"id": "etouffer", "family": "sabotage", "label": "Étouffer une étoile", "tier": 3,
+			"cost": {"influence": 50, "energy": 60}, "days": 60, "success": 60, "discovery": 35, "spend": 20,
+			"text": "Une dent du Mange-soleil glissée dans l'étoile de sa capitale : −50 % de production dans ce système pendant six mois (il faut avoir abattu le Mange-soleil)."}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
 	"chances": {

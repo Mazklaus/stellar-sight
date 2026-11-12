@@ -600,6 +600,11 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		"larcin_relique":
 			if Relics.in_reliquary(state, b).is_empty():
 				return "aucune relique dans son Reliquaire"
+		"etouffer":
+			if not Guardians.unlocked(state, a, "etouffer"):
+				return "il faut avoir abattu le Mange-soleil"
+			if FactionTraits.capital_system(state, b) < 0:
+				return "il n'a pas de capitale"
 		"vol_techno":
 			if Research.steal_target(state, a, b) == "":
 				return "il ne connaît rien que vous puissiez lui voler"
@@ -812,6 +817,13 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			StabilitySystem._spawn_rebels(state, sid, eb, [] as Array[Dictionary], true)
 			return "des partisans armés par nos soins prennent les armes à %s. Ils ne savent pas qui les paie, et c'est mieux ainsi." % \
 					state.galaxy.systems[sid].system_name
+		"etouffer":
+			var cap := FactionTraits.capital_system(state, b)
+			if cap < 0:
+				return "sa capitale n'existe plus. La dent repart dans son écrin."
+			Guardians.choke(state, cap)
+			return "l'étoile de %s pâlit : −%d %% de production pendant six mois. Ses astronomes accusent une éclipse ; ils cherchent encore la Lune." % [
+					state.galaxy.systems[cap].system_name, int(Guardians.data()["choke"]["pct"])]
 		"inciter":
 			var lair := _incite_lair(state, a, b)
 			if lair < 0:

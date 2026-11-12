@@ -8,7 +8,8 @@ extends RefCounted
 ## 3. nids : un nid sans troupeau tenu par une flotte armée hostile est détruit ; sinon, il fait renaître
 ##    un troupeau quand le délai de repeuplement est passé, que personne ne l'en empêche et que le
 ##    système n'a pas été revendiqué (un nid colonisé dort) ;
-## 4. études : celles qui arrivent à terme donnent leur bonus.
+## 4. gardiens (Guardians.daily) : riposte, étoile rongée, réveils, visites de l'Horloger ;
+## 5. études : celles qui arrivent à terme donnent leur bonus.
 ## Aucun aléatoire : les choix de destination suivent un hachage de la graine, du troupeau et du jour.
 
 
@@ -23,6 +24,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 	_contacts(state, added)
 	for sid in Fauna.nest_ids(state):
 		_nest(state, sid, added)
+	Guardians.daily(state, added)
 	_studies(state, added)
 	return added
 

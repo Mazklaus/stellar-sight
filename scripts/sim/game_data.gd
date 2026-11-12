@@ -186,7 +186,8 @@ static func ship(id: String) -> Dictionary:
 	# Créatures (data/creatures.json, « units ») : elles se lisent comme des classes au combat, sans
 	# figurer parmi les classes que l'on construit.
 	if id.begins_with("bete_"):
-		return creatures().get("units", {}).get(id, {})
+		var u: Dictionary = creatures().get("units", {}).get(id, {})
+		return u if not u.is_empty() else guardians().get("units", {}).get(id, {})
 	return ships().get(id, {})
 
 
@@ -242,6 +243,10 @@ static func pirates() -> Dictionary:
 
 static func creatures() -> Dictionary:
 	return _load("creatures")
+
+
+static func guardians() -> Dictionary:
+	return _load("guardians")
 
 
 static func events() -> Dictionary:

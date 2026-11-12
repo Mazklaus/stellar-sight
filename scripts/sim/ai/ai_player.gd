@@ -1593,8 +1593,12 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 			return
 		var nest := AiFauna.nest_target(ctx, f, home)
 		if nest >= 0:
+			var guard := Guardians.awake_at(state, nest)
 			if nest != here and _issue(ctx, SimCommands.move_fleet(e.id, f.id, nest)):
-				_intent(ctx, "Part chasser les créatures de %s" % state.galaxy.systems[nest].system_name)
+				if guard != "":
+					_intent(ctx, "Part abattre %s" % String(Guardians.def(guard)["name"]))
+				else:
+					_intent(ctx, "Part chasser les créatures de %s" % state.galaxy.systems[nest].system_name)
 			return
 	if e.wars.is_empty() or threatened == here:
 		if here != home and threatened < 0:
