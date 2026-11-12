@@ -13,4 +13,6 @@ static func process(state: GameState) -> Array[Dictionary]:
 	for e in state.empires:
 		if Politics.applies(state, e.id):
 			Politics.monthly(state, e.id, added)
+		if Laws.applies(state, e.id):
+			Laws.monthly(state, e.id, added)
 	return added

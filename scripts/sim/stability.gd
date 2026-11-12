@@ -267,7 +267,9 @@ static func context(state: GameState, empire_id: int) -> Dictionary:
 	var longest := 0
 	for w in e.wars:
 		longest = maxi(longest, Diplomacy.pact_days(state, empire_id, int(w)))
-	if longest > 0:
+	if longest > 0 and Laws.no_war_weariness(state, empire_id):
+		pass
+	elif longest > 0:
 		var wd: Dictionary = src["war"]
 		@warning_ignore("integer_division")
 		var v := maxi(int(wd["max"]), longest / 90 * int(wd["per_quarter"])) * maxi(1, int(tal.get("war_x", 1)))
@@ -416,6 +418,7 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 		var rp := Politics.stability_part(state, sid, owner)
 		if not rp.is_empty() and int(rp[1]) != 0:
 			out.append(rp)
+		out.append_array(Laws.stability_parts(state, sid, owner))
 	# Décret.
 	var d := active_decree(state, sid)
 	if d != "":

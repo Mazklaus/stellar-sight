@@ -238,6 +238,12 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 	var treaties := Diplomacy.treaty_income(state, empire_id)
 	for r in treaties:
 		gross[r] += int(treaties[r])
+	if state.politics_on:
+		# Lois : revenu des traités (Dividende de la paix), entretien en influence.
+		var lt := Laws.treaty_income(state, empire_id)
+		for r in lt:
+			gross[r] += int(lt[r])
+		upkeep["influence"] += Laws.upkeep(state, empire_id)
 	var net := _zero()
 	for r in gross:
 		@warning_ignore("integer_division")

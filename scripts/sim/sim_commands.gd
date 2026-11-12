@@ -273,6 +273,20 @@ static func politics_support(player: int, current: int) -> Dictionary:
 	return {"type": "politics_support", "player": player, "current": current}
 
 
+## Adopter une loi (Laws : loi d'un courant au pouvoir ou loi indépendante).
+static func law_adopt(player: int, law: String) -> Dictionary:
+	return {"type": "law_adopt", "player": player, "law": law}
+
+
+static func law_revoke(player: int, law: String) -> Dictionary:
+	return {"type": "law_revoke", "player": player, "law": law}
+
+
+## Action électorale sur le courant soutenu (Laws : "campagne", "intimidation", "rachat").
+static func politics_action(player: int, action: String) -> Dictionary:
+	return {"type": "politics_action", "player": player, "action": action}
+
+
 ## Décret de stabilité sur un système (Stability : "loi_martiale", "fetes", "concessions").
 static func decree(player: int, system_id: int, decree_id: String) -> Dictionary:
 	return {"type": "decree", "player": player, "system": system_id, "decree": decree_id}
@@ -357,6 +371,12 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Fleets.check_split(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("ship", "")))
 		"politics_support":
 			return Politics.check_support(state, int(cmd["player"]), int(cmd.get("current", -2)))
+		"law_adopt":
+			return Laws.check_adopt(state, int(cmd["player"]), String(cmd.get("law", "")))
+		"law_revoke":
+			return Laws.check_revoke(state, int(cmd["player"]), String(cmd.get("law", "")))
+		"politics_action":
+			return Laws.check_action(state, int(cmd["player"]), String(cmd.get("action", "")))
 		"decree":
 			return Stability.check_decree(state, int(cmd["player"]), int(cmd.get("system", -1)), String(cmd.get("decree", "")))
 		"stab_offering":
@@ -507,7 +527,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var b := GameData.building(String(cmd["building"]))
 			Economy.pay(e, Economy.building_cost(state, e.id, String(cmd["building"])))
 			c.construction = String(cmd["building"])
-			c.construction_days = int(b["days"])
+			# Loi « Cadences » : chantiers plus courts.
+			c.construction_days = maxi(1, Research.scaled(int(b["days"]), Research.fx_int(state, e.id, "building_days_pct")))
 		"build_ship":
 			var e := state.get_empire(int(cmd["player"]))
 			var c: Colony = state.colonies[int(cmd["planet"])]
@@ -585,6 +606,12 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Echoes.fold(state, int(cmd["player"]), int(cmd["planet"]), String(cmd["what"]))
 		"politics_support":
 			Politics.support(state, int(cmd["player"]), int(cmd["current"]))
+		"law_adopt":
+			Laws.adopt(state, int(cmd["player"]), String(cmd["law"]))
+		"law_revoke":
+			Laws.revoke(state, int(cmd["player"]), String(cmd["law"]))
+		"politics_action":
+			Laws.do_action(state, int(cmd["player"]), String(cmd["action"]))
 		"decree":
 			Stability.decree(state, int(cmd["player"]), int(cmd["system"]), String(cmd["decree"]))
 		"stab_offering":

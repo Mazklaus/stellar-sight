@@ -107,6 +107,9 @@ var order_buttons := {}
 var _order_sig := ""
 ## Boutons de soutien de l'écran Sénat, par courant (pour les tests).
 var senate_buttons := {}
+## Boutons Adopter/Abroger des lois (id de loi : bouton) et des actions électorales (id : bouton).
+var law_buttons := {}
+var action_buttons := {}
 var _senate_sig := ""
 ## Cible choisie dans l'Ordre intérieur pour les contrats et les primes pirates.
 var order_victim := -1

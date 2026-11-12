@@ -34,6 +34,7 @@ func _initialize() -> void:
 	preload("res://tests/hero_tests.gd").new().run(_check)
 	preload("res://tests/stability_tests.gd").new().run(_check)
 	preload("res://tests/politics_tests.gd").new().run(_check)
+	preload("res://tests/laws_tests.gd").new().run(_check)
 	preload("res://tests/pirate_tests.gd").new().run(_check)
 	preload("res://tests/event_tests.gd").new().run(_check)
 	preload("res://tests/relic_tests.gd").new().run(_check)
@@ -1675,6 +1676,15 @@ func _test_senate_ui(main: Node) -> void:
 		screens.refresh()
 		await process_frame
 		_check(screens.senate_buttons.size() == Politics.N, "Sénat : six boutons de soutien")
+	if Laws.applies(st, me):
+		_check(screens.law_buttons.has("pain_jeux"), "Sénat : bouton d'adoption des lois indépendantes")
+		if screens.law_buttons.has("pain_jeux"):
+			(screens.law_buttons["pain_jeux"] as Button).pressed.emit()
+			main.simulation.flush_commands()
+		_check(Laws.is_enacted(st, me, "pain_jeux"), "Sénat : loi adoptée depuis l'écran")
+		screens.refresh()
+		await process_frame
+		_check(screens.law_buttons.has("pain_jeux") and (screens.law_buttons["pain_jeux"] as Button).text == "Abroger", "Sénat : la loi adoptée propose Abroger")
 	_press(KEY_P)
 	await process_frame
 	_check(not screens.is_open(), "P referme le Sénat")

@@ -430,7 +430,8 @@ static func triumph(state: GameState, empire_id: int, rid: String, added: Array[
 	var split := triumph_split(state, empire_id, rid)
 	e.resources["influence"] = int(e.resources.get("influence", 0)) - split[0]
 	add_fragments(state, empire_id, -split[1])
-	state.relics[rid]["ready"] = state.tick + int(rules()["triumph_cooldown"])
+	# Loi « Processions » : les Triomphes reviennent plus vite.
+	state.relics[rid]["ready"] = state.tick + Research.scaled(int(rules()["triumph_cooldown"]), Research.fx_int(state, empire_id, "triumph_cooldown_pct"))
 	var m := meta(state, empire_id)
 	if int(t.get("days", 0)) > 0:
 		m["tri"] = rid

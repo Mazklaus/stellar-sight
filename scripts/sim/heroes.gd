@@ -393,6 +393,12 @@ static func _council_sum(state: GameState, empire_id: int, key: String) -> int:
 	var n := 0
 	for h in council(state, empire_id):
 		var v := int((per.get(String(h["cls"]), {}) as Dictionary).get(key, 0))
+		if v == 0:
+			continue
+		# Chef de courant (voir Laws) : bonus de Conseil plus fort si son courant gouverne.
+		if state.politics_on:
+			@warning_ignore("integer_division")
+			v = v * (100 + Laws.council_pct(state, h)) / 100
 		@warning_ignore("integer_division")
 		n += v * half_levels(h, "council") / 2
 	return n
@@ -989,6 +995,9 @@ static func _loyalty_month(state: GameState, h: Dictionary, out: Array[Dictionar
 		loy -= int(cfg["neglect_loss"])
 	if String(h["post"]) == "" and not is_wounded(state, h):
 		loy -= int(cfg["idle_loss"])
+	# Au Conseil alors que son courant est dans l'opposition (voir Laws).
+	if String(h["post"]) == "council" and Laws.hero_backing(state, h) < 0:
+		loy -= int(Politics.data()["heroes"]["loyalty_out"])
 	loy = clampi(loy, 0, mini(100, base_loyalty(state, owner, h) + 30))
 	h["loy"] = loy
 	if loy >= int(cfg["min_desert"]):
