@@ -266,11 +266,32 @@ static func resolve(state: GameState, empire_id: int, pid: int, added: Array[Dic
 	c["day"] = state.tick
 	c["prog"] = {}
 	Research.count_stat(state, empire_id, "curios")
+	Research.count_stat(state, empire_id, "collection")
 	var kind := _pick_reward(state, empire_id, pid)
-	var got := _give(state, empire_id, pid, kind, added)
+	var got := _give(state, empire_id, pid, kind, added) + _layer_bonus(state, empire_id, pid)
 	var e := state.get_empire(empire_id)
 	added.append(state.add_chronicle("%s sonde %s sur %s : %s" % [e.short_name(), describe(state, pid),
 			state.galaxy.get_planet(pid).display_name(state.galaxy), got], Espionage.private_to(state, [empire_id], state.galaxy.get_planet(pid).system_id)))
+
+
+## Talents de couche (proposition 15) : une ruche dévore les curiosités vivantes (population), un peuple
+## cosmique en tire des Échos.
+static func _layer_bonus(state: GameState, empire_id: int, pid: int) -> String:
+	var e := state.get_empire(empire_id)
+	var c: Dictionary = state.curios[pid]
+	var out := ""
+	if String(c["type"]) == "vivante" and Events.layer_value(state, empire_id, "archetype") == "ruche":
+		var col := _own_colony_in(state, empire_id, state.galaxy.get_planet(pid).system_id)
+		if col == null:
+			col = state.colonies.get(e.capital_planet)
+		if col != null:
+			col.population += int(Relics.rules()["hive_pop"])
+			out += " L'Essaim dévore ce qui restait : +%d population." % int(Relics.rules()["hive_pop"])
+	if Events.layer_value(state, empire_id, "registre") == "Cosmique / étrange" and Echoes.has(e.faction()):
+		var n := int(Relics.rules()["cosmic_echoes"]) * int(c["lvl"])
+		e.echoes += n
+		out += " Elle résonne encore : +%d Échos." % n
+	return out
 
 
 static func _pick_reward(state: GameState, empire_id: int, pid: int) -> String:
@@ -347,6 +368,17 @@ static func _give(state: GameState, empire_id: int, pid: int, kind: String, adde
 		"trap":
 			spawn_trap(state, p.system_id, lvl)
 			return "c'était un piège ! Une bande de pirates surgit de sa cachette."
+		"fragments":
+			if state.relics.is_empty():
+				return _give(state, empire_id, pid, "research", added)
+			var nf := 5 * lvl + 5
+			Relics.add_fragments(state, empire_id, nf)
+			return "%d fragments d'artéfacts, soigneusement étiquetés « sans doute important »." % nf
+		"dig":
+			# Ruines de niveau 3-4 : un chantier de fouilles s'ouvre dans le système.
+			if lvl < 3 or state.relics.is_empty() or not Relics.create_site(state, p.system_id):
+				return _give(state, empire_id, pid, "fragments", added)
+			return "sous les ruines, un site entier : %s. Il faudra posséder le système pour le fouiller." % Relics.site_name(state, p.system_id)
 	return "rien, sinon une belle photo et un équipage vexé."
 
 

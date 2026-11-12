@@ -829,7 +829,7 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 	var e := state.get_empire(empire_id)
 	if e == null:
 		return {}
-	if e.tech_fx_n != e.techs.size():
+	if e.tech_fx_n != e.techs.size() + 1000 * state.relic_rev:
 		var base := {}
 		var exalted := {}
 		var has_exalted := false
@@ -842,6 +842,10 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			if t.has("effects_exalted"):
 				has_exalted = true
 				_merge(exalted, t["effects_exalted"])
+		# Reliques et Triomphe en cours (voir Relics) : mêmes clés que les technologies.
+		var rfx := Relics.effects(state, empire_id)
+		_merge(base, rfx)
+		_merge(exalted, rfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted
@@ -851,7 +855,7 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 		for fam in md.get("families", []):
 			marks[String(fam)] = mini(int(md.get("max", 5)), 1 + int(bonus.get(fam, 0)))
 		e.tech_marks = marks
-		e.tech_fx_n = e.techs.size()
+		e.tech_fx_n = e.techs.size() + 1000 * state.relic_rev
 	# (appelé des centaines de milliers de fois par partie : l'exaltation n'est testée que si elle compte)
 	if e.tech_fx_has_exalted and FactionTraits.is_exalted(state, empire_id):
 		return e.tech_fx_exalted

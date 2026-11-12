@@ -63,6 +63,19 @@ static func habitability(state: GameState, p: Planet, player: int) -> Dictionary
 	return {"pct": hab, "text": "Habitable à %d %%, jusqu'à %d pop" % [hab, cap]}
 
 
+## Ligne du site de fouilles d'un système (Chroniques, touche J, pour les ordres).
+static func dig_text(state: GameState, sid: int, viewer: int) -> String:
+	var d: Dictionary = state.digs[sid]
+	var t := "Site de fouilles : %s" % Relics.site_name(state, sid)
+	if int(d["done"]) >= 0:
+		return t + ", fouilles terminées"
+	if viewer >= 0 and Relics.hidden_from(state, viewer, sid):
+		return t + ", un voile cache le chantier"
+	if int(d["by"]) >= 0 and int(d["next"]) >= 0:
+		return t + ", chapitre %d / %d (%s)" % [int(d["ch"]) + 1, int(d["chapters"]), state.get_empire(int(d["by"])).short_name()]
+	return t + ", %d chapitres, à ouvrir depuis les Chroniques (J)" % int(d["chapters"])
+
+
 ## Ligne de la curiosité d'une planète : nom, type, niveau, durée de sonde et avancement pour viewer.
 static func curio_text(state: GameState, pid: int, viewer: int) -> String:
 	var t := "Curiosité : %s" % Curios.describe(state, pid)

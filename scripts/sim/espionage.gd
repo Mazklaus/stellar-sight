@@ -597,6 +597,9 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		"heritier":
 			if not Diplomacy.has_heir(state, b):
 				return "cet empire n'a pas d'héritier"
+		"larcin_relique":
+			if Relics.in_reliquary(state, b).is_empty():
+				return "aucune relique dans son Reliquaire"
 		"vol_techno":
 			if Research.steal_target(state, a, b) == "":
 				return "il ne connaît rien que vous puissiez lui voler"
@@ -780,6 +783,12 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			eb.heir_suitor = a
 			Reputation.exploit(state, a, "heritier")
 			return "l'héritier accepte nos conseils, et notre or (loyauté %d). C'est à nous qu'il pense, désormais." % eb.heir_loyalty
+		"larcin_relique":
+			var rid := Relics.pick_reliquary(state, b, ["larcin", a, state.tick])
+			if rid == "":
+				return "le Reliquaire était vide. Les vitrines, elles, sont superbes."
+			Relics.steal(state, a, rid)
+			return "%s quitte son Reliquaire par une fenêtre de service, et rejoint le nôtre par la grande porte." % String(Relics.def(rid)["name"])
 		"dossier_heros":
 			Heroes.write_file(state, a, b, false)
 			return "la liste de ses héros est sur la table : classes, niveaux, postes et humeurs (écran Renseignement)."
@@ -1093,6 +1102,11 @@ static func _resolve_turned(state: GameState, a: int, b: int, o: Dictionary) -> 
 		Heroes.write_file(state, a, b, true)
 		state.add_chronicle("%s, chez %s : la liste de ses héros est sur la table (écran Renseignement)." % [o["label"], eb.short_name()],
 				private_to(state, [a]))
+	elif String(o["id"]) == "larcin_relique" and Relics.give_fake(state, a, b) != "":
+		# Le réseau retourné refile une copie : l'espion croit tenir la relique, elle ne fait rien.
+		var fakes: Array = Relics.meta(state, a)["fakes"]
+		state.add_chronicle("%s, chez %s : %s quitte son Reliquaire par une fenêtre de service, et rejoint le nôtre par la grande porte." % [
+				o["label"], eb.short_name(), String(Relics.def(String(fakes.back()["relic"]))["name"])], private_to(state, [a]))
 	else:
 		state.add_chronicle("%s, chez %s : l'opération échoue sans bruit. Les agents rentrent les mains vides et les pieds secs." % [
 				o["label"], eb.short_name()], private_to(state, [a]))

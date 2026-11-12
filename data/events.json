@@ -42,9 +42,9 @@
 			"vivante": {"label": "Vivante", "text": "Une forme de vie inconnue, parfois polie. Rapporte de la nourriture, du Savoir, parfois de la population.", "color": "#7fc28a",
 				"rewards": {"res_food": 30, "research": 20, "deposit_fertile": 12, "pop": 8, "card": 20, "nothing": 5, "trap": 5}},
 			"ruines": {"label": "Ruines", "text": "Les restes d'une civilisation qui n'a pas laissé de mode d'emploi. Rapporte du Savoir et de l'influence.", "color": "#d8c27a",
-				"rewards": {"research": 30, "res_influence": 25, "card": 30, "nothing": 5, "trap": 10}},
+				"rewards": {"research": 26, "res_influence": 22, "card": 24, "fragments": 10, "dig": 8, "nothing": 5, "trap": 10}},
 			"epave": {"label": "Épave", "text": "Une carcasse dérivante, parfois habitée par ce qui l'a tuée. Rapporte des vaisseaux, des matériaux et de l'énergie.", "color": "#a5a9b3",
-				"rewards": {"ship": 22, "res_materials": 25, "res_energy": 15, "card": 18, "nothing": 5, "trap": 15}}
+				"rewards": {"ship": 20, "res_materials": 22, "res_energy": 13, "card": 15, "fragments": 10, "nothing": 5, "trap": 15}}
 		},
 		"type_weights": {"atmo": 22, "souterraine": 24, "vivante": 18, "ruines": 18, "epave": 18},
 		"amount_by_level": [40, 80, 150, 250],

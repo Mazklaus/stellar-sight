@@ -86,7 +86,64 @@ func _initialize() -> void:
 		await _frames(10)
 		await _shot(out + "/systeme-curiosite.png")
 		main.close_system_view()
+
+	# Lot 2 : un site de fouilles chez nous, deux reliques, un Triomphe en cours.
+	if not st.digs.is_empty():
+		var keys := st.digs.keys()
+		keys.sort()
+		var sid := int(keys[0])
+		var c := Colony.new()
+		c.planet_id = st.galaxy.systems[sid].planet_ids[0]
+		c.owner = me
+		c.kind = Colony.KIND_OUTPOST
+		st.add_colony(c)
+		e.explored[sid] = true
+		e.resources["energy"] = 600
+		e.resources["materials"] = 600
+		sim.submit(SimCommands.dig_start(me, sid))
+		sim.flush_commands()
+		st.digs[sid]["ch"] = 1
+		st.digs[sid]["clues"] = 1
+	Relics.gain(st, me, "graal_vide")
+	Relics.gain(st, me, "lanterne_morts")
+	Relics.add_fragments(st, me, 64)
+	e.resources["influence"] = 200
+	var tadded: Array[Dictionary] = []
+	Relics.triumph(st, me, "lanterne_morts", tadded)
+	main._refresh_all()
+	main.toggle_empire_screen("chronicles")
+	await _frames(8)
+	var head := _find_text(main._empire_screens, "Reliquaire")
+	if head != null:
+		var scroll := head.get_parent()
+		while scroll != null and not scroll is ScrollContainer:
+			scroll = scroll.get_parent()
+		if scroll != null:
+			(scroll as ScrollContainer).scroll_vertical = int(head.position.y + (head.get_parent() as Control).position.y) - 10
+	await _frames(8)
+	await _shot(out + "/reliquaire.png")
+	if OS.get_environment("DUMP") != "":
+		_dump(main._empire_screens)
+	main.toggle_empire_screen("chronicles")
+	await _frames(4)
+	if not st.digs.is_empty():
+		var keys2 := st.digs.keys()
+		keys2.sort()
+		main.open_system_view(int(keys2[0]), st.galaxy.systems[int(keys2[0])].planet_ids[0])
+		await _frames(10)
+		await _shot(out + "/systeme-fouilles.png")
+		main.close_system_view()
 	quit()
+
+
+func _find_text(n: Node, text: String) -> Control:
+	if n is Label and (n as Label).text == text:
+		return n
+	for c in n.get_children():
+		var f := _find_text(c, text)
+		if f != null:
+			return f
+	return null
 
 
 ## Textes visibles d'un écran (vérification sans regarder l'image).

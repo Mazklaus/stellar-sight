@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 25
+const FORMAT_VERSION := 26
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -112,6 +112,12 @@ var curio_density: String = "aucune"
 var ev_meta: Dictionary = {}
 var next_event_id: int = 0
 var event_freq: String = "aucun"
+## Fouilles et reliques (voir Relics) : sites par système, reliques par identifiant, par empire les
+## fragments et le Triomphe en cours. relic_rev : compteur (non sauvegardé) qui vide le cache des effets.
+var digs: Dictionary = {}
+var relics: Dictionary = {}
+var relic_meta: Dictionary = {}
+var relic_rev: int = 0
 var _pirates: Empire
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
@@ -180,6 +186,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Pirates.setup(s, String(options.get("pirates", "aucun")))
 	Curios.setup(s, String(options.get("curios", "aucune")))
 	s.event_freq = String(options.get("events", "aucun")) if not Events.freq_def(String(options.get("events", "aucun"))).is_empty() else "aucun"
+	Relics.setup(s)
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -278,6 +285,7 @@ func to_dict() -> Dictionary:
 		"ev_meta": Events.meta_to_list(self),
 		"next_event_id": next_event_id,
 		"event_freq": event_freq,
+		"relics": Relics.to_dict(self),
 	}
 
 
@@ -464,6 +472,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Events.meta_from_list(s, d.get("ev_meta", []))
 	s.next_event_id = int(d.get("next_event_id", 0))
 	s.event_freq = String(d.get("event_freq", "aucun"))
+	Relics.from_dict(s, d.get("relics", {}))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant les héros : chaque empire reçoit son héros de départ.
 	if int(d["version"]) < 20:

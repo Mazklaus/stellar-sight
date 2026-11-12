@@ -1,5 +1,5 @@
 extends SceneTree
-## Banc des curiosités et des événements : parties de spectateurs (IA Normale) de 5 ans, avec et sans
+## Banc des curiosités, des événements et des reliques : parties de spectateurs (IA Normale) de 5 ans, avec et sans
 ## le pilier, sur plusieurs graines. Mesure le temps par jour, les événements tranchés, les curiosités
 ## sondées (par qui) et l'écart de score.
 ##   godot --headless --path . -s res://tools/event_bench.gd
@@ -30,16 +30,24 @@ func _run(sd: int, opts: Dictionary) -> Dictionary:
 			probed[n] = int(probed.get(n, 0)) + 1
 		else:
 			open += 1
+	var found := 0
+	for id in st.relics:
+		if int(st.relics[id]["owner"]) >= 0:
+			found += 1
+	var started := 0
+	for sid in st.digs:
+		if int(st.digs[sid]["by"]) >= 0:
+			started += 1
 	var score := 0
 	for e in st.empires:
 		score += EmpireReport.score(st, e.id)
-	return {"ms": ms, "answered": answered, "cards": cards.size(), "probed": probed, "open": open, "score": score}
+	return {"ms": ms, "answered": answered, "cards": cards.size(), "probed": probed, "open": open, "score": score, "relics": found, "digs": "%d/%d" % [started, st.digs.size()]}
 
 
 func _initialize() -> void:
 	for sd in SEEDS:
 		var off := _run(sd, {})
 		var on := _run(sd, {"curios": "normales", "events": "normaux"})
-		print("graine %d : sans %.2f ms/j score %d | avec %.2f ms/j score %d, %d événements tranchés (%d cartes différentes), curiosités sondées %s, %d encore ouvertes" % [
-				sd, off["ms"], off["score"], on["ms"], on["score"], on["answered"], on["cards"], str(on["probed"]), on["open"]])
+		print("graine %d : sans %.2f ms/j score %d | avec %.2f ms/j score %d, %d événements tranchés (%d cartes différentes), curiosités sondées %s, %d encore ouvertes, fouilles lancées %s, reliques trouvées %d" % [
+				sd, off["ms"], off["score"], on["ms"], on["score"], on["answered"], on["cards"], str(on["probed"]), on["open"], on["digs"], on["relics"]])
 	quit()

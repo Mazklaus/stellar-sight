@@ -367,6 +367,8 @@ static func score(state: GameState, empire_id: int) -> int:
 			pts += int(GameData.building(String(key).get_slice("#", 0)).get("score", 0))
 	pts += int(e.stats.get("kills", 0)) * int(s.get("kill", 2))
 	pts += int(e.stats.get("conquests", 0)) * int(s.get("conquest", 10))
+	if not state.relics.is_empty():
+		pts += Relics.owned(state, empire_id).size() * int(Relics.rules()["score"])
 	@warning_ignore("integer_division")
 	pts += e.explored.size() / maxi(1, int(s.get("explored_div", 3)))
 	var best := 0
