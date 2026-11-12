@@ -33,6 +33,7 @@ func _initialize() -> void:
 	preload("res://tests/espionage_tests.gd").new().run(_check)
 	preload("res://tests/hero_tests.gd").new().run(_check)
 	preload("res://tests/stability_tests.gd").new().run(_check)
+	preload("res://tests/politics_tests.gd").new().run(_check)
 	preload("res://tests/pirate_tests.gd").new().run(_check)
 	preload("res://tests/event_tests.gd").new().run(_check)
 	preload("res://tests/relic_tests.gd").new().run(_check)
@@ -188,6 +189,7 @@ func _test_main_scene() -> void:
 	await _test_intel_ui(main)
 	await _test_hero_ui(main)
 	await _test_order_ui(main)
+	await _test_senate_ui(main)
 	await _test_event_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
@@ -1650,6 +1652,50 @@ func _test_event_ui(main: Node) -> void:
 	Quests.setup(st, "aucunes")
 	main._hud.refresh()
 	clock.set_paused(true)
+
+
+## Écran Sénat (P), lentille politique (O), fenêtre d'élection.
+func _test_senate_ui(main: Node) -> void:
+	var screens: EmpireScreens = main._empire_screens
+	var st: GameState = main.simulation.state
+	var me: int = main.view_empire
+	_check(st.politics_on, "Sénat : la Nouvelle partie active la politique par défaut")
+	_press(KEY_P)
+	await process_frame
+	_check(screens.current == "senate", "P : écran Sénat")
+	if not Politics.applies(st, me) or Politics.mode(st, me) == "continuous":
+		_check(true, "Sénat : régime sans soutien, boutons non testés")
+	else:
+		var sv := Politics.index_of("seve")
+		_check(screens.senate_buttons.has(sv), "Sénat : un bouton de soutien par courant")
+		if screens.senate_buttons.has(sv):
+			(screens.senate_buttons[sv] as Button).pressed.emit()
+			main.simulation.flush_commands()
+		_check(Politics.pick(st, me) == sv, "Sénat : le soutien officiel est enregistré")
+		screens.refresh()
+		await process_frame
+		_check(screens.senate_buttons.size() == Politics.N, "Sénat : six boutons de soutien")
+	_press(KEY_P)
+	await process_frame
+	_check(not screens.is_open(), "P referme le Sénat")
+	_press(KEY_O)
+	await process_frame
+	_check(main._hud.lens == "politics", "O : lentille politique")
+	_press(KEY_O)
+	await process_frame
+	_check(main._hud.lens == "", "O referme la lentille politique")
+	if Politics.applies(st, me) and Politics.mode(st, me) != "continuous":
+		Politics.run_election(st, me)
+		main._announce_election()
+		await process_frame
+		_check(main.is_election_panel_open(), "élection : la fenêtre s'ouvre après le vote du joueur")
+		var ep: ElectionPanel = main._election_panel
+		ep.show_step(1)
+		ep.show_step(0)
+		_check(ep.step == 0, "élection : les trois étapes se parcourent")
+		_press(KEY_ESCAPE)
+		await process_frame
+		_check(not main.is_election_panel_open(), "Échap referme la fenêtre d'élection")
 
 
 func _find_label(n: Node, prefix: String) -> bool:

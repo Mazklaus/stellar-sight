@@ -29,6 +29,8 @@ const SCREENS := [
 		"why": "Vos héros : un poste chacun (amiral d'une flotte, gouverneur d'un système, siège au conseil, agent d'un réseau). Vos actes font monter votre renom ; au seuil, trois candidats se présentent et vous en choisissez un."},
 	{"id": "order", "label": "Ordre intérieur", "key": "F12", "glyph": "order", "ready": true,
 		"why": "Chaque système a une stabilité de 0 à 100 qui glisse chaque mois vers sa cible. Fidèles, ils produisent plus ; en révolte, ils se figent, puis font sécession au bout d'un an. Les décrets achètent du temps."},
+	{"id": "senate", "label": "Sénat", "key": "P", "glyph": "senate", "ready": true,
+		"why": "Six courants se disputent l'opinion de vos systèmes : la Forge, l'Académie, la Concorde, la Sève, l'Autel et le Glaive. Vos actes les nourrissent ; tous les 3 ans, chaque système élit ses représentants, et les courants au pouvoir dépendent de votre gouvernement. Un système représenté au pouvoir gagne de la stabilité, les autres en perdent. Soutenez un courant avant le vote (ou nommez-le, en théocratie et en horde)."},
 	{"id": "chronicles", "label": "Chroniques", "key": "J", "glyph": "chronicles", "ready": true,
 		"why": "Les quêtes (celle de votre peuple, les quêtes secondaires et les retournements galactiques), les événements qui attendent votre décision, ceux que vous avez tranchés, les curiosités repérées, le Reliquaire et les fouilles. Chaque chapitre de quête a deux branches : la première remplie l'emporte. Une curiosité se sonde avec un vaisseau sans armes à l'arrêt (ou une Station d'étude) ; plus votre puissance d'expédition dépasse son niveau, plus c'est rapide."},
 ]
