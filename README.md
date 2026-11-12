@@ -41,6 +41,7 @@ Premier prototype du 4X spatial Stellar Sigth, pour **Godot 4.7**. Il couvre l'�
 | Diplomatie : proposer un traité, répondre, rompre, déclarer la guerre | Écran Diplomatie (F4) : choisir l'empire sur la table, puis les boutons de la relation (la guerre en deux clics) |
 | Victoires : où en est chaque empire | F7, ou le pictogramme étoile du panneau d'empire |
 | Renseignement : cellules d'espionnage, réseaux, dossiers, opérations, espions démasqués | F8, ou le pictogramme œil du panneau d'empire |
+| Panthéon : héros, offre « 1 parmi 3 », affecter, rappeler, renvoyer | F10, ou le pictogramme lauriers du panneau d'empire |
 | Sonde vers un système connu hors de vue | bouton « Sonde » dans la vue du système |
 | Diplomatie : unir nos lignées (Ossarane) | Écran Diplomatie (F4), bouton « Unir nos lignées » avec un allié de longue date |
 | Construire un vaisseau | « Chantier spatial » dans les ordres d'une colonie, dans la vue système |
@@ -518,6 +519,19 @@ Lot 2, lockstep (deux machines ou plus jouent la même partie), tours simultané
 - **Sauvegarde automatique de l'hôte** (`user://saves/multi_auto.json`, avec les places : qui dirige quel empire) : à chaque départ, à chaque fin de tour, et tous les 30 jours en temps réel. Au départ d'un joueur, l'IA (niveau Normal) reprend son empire ; en temps réel la partie se met en pause, au tour par tour elle continue.
 - **Tests** : `tests/net_tests.gd` (trames, pause, latence simulée, tricheur détecté) ; `tools/net_selftest.sh [JOURS]` lance un hôte et deux clients headless en local (`tools/net_bot.gd`) et compare leurs empreintes finales (`TURNS=10` : tours simultanés ; `BRUNO_QUITS_AT=200` : un départ en cours de partie ; avec `BRUNO_REJOINS=1`, il revient et retrouve son empire ; `LOBBY=1` : la partie naît d'un salon où chaque client prend sa place ; `CHAT=1` : chacun écrit un message, qui doit arriver partout ; `BRUNO_DESYNC_AT=100` : Bruno fausse son état, l'hôte doit le resynchroniser). `net_bot.gd` accepte aussi `HOST_QUITS_AT` puis `RESUME=1` pour couper l'hôte et reprendre la partie depuis sa sauvegarde automatique ; `tools/capture_network.gd` capture les écrans du réseau.
 
+## Héros (lot 1 : le socle)
+
+Étude sourcée (Endless Space 2, Stellaris, Age of Wonders 4, Galactic Civilizations IV, Master of Orion II, Distant Worlds 2, Astra Exodus) : https://claude.ai/artifact/5APG5X6UbHSDoBkeAf2wXj, validée le 12/11/2026. Données dans `data/heroes.json` (valeurs de départ, équilibrage reporté), moteur dans `scripts/sim/heroes.gd` (`Heroes`), IA dans `scripts/sim/ai/ai_heroes.gd`, écran Panthéon (F10) dans `scripts/ui/hero_screen.gd`.
+
+- **Arrivée** : un héros de départ par empire. Les actes de l'empire (colonie, technologie, victoire, conquête, opération, traité, vol…) font monter le **renom** et font pencher la classe du prochain héros. Au seuil (100 + 250 × héros déjà obtenus, comme l'Académie d'ES2), trois candidats de classes différentes se présentent : on en choisit un ou on décline. 3 places au départ, +1 avec les Chancelleries (ère II) et les Capitales de secteur (ère IV).
+- **4 classes, 4 postes** : Stratège (amiral d'une flotte : dégâts), Intendant (gouverneur d'un système : production), Orateur (conseil, 2 sièges, +1 avec les Ambassades permanentes : influence), Ombre (agent d'un réseau d'espionnage : infiltration et succès des opérations). Tout héros peut tenir n'importe quel poste, à moitié d'effet hors de sa classe. Au conseil, chaque classe donne un bonus d'empire. Hors du système capital, 20 jours de trajet.
+- **Niveaux et traits** : niveaux 1 à 5 par l'expérience (le temps, les batailles, les colonies, les opérations, la population gouvernée), un trait de classe au départ et un nouveau à chaque niveau.
+- **Blessure** : flotte anéantie ou système perdu, le héros est blessé 90 jours et perd son poste ; un siège ou un réseau qui disparaît le rappelle.
+- **Galerie de portraits propre aux héros**, par archétype (humanoïde, ruche, lithoïde, reptilien, synthétique), comme celle des peuples ; ruches et consciences appellent leurs héros des Avatars.
+- **Déterminisme** : tirages par hachage de la graine, parcours dans l'ordre des identifiants, ordres `hero_pick`, `hero_assign`, `hero_dismiss`. Sauvegarde 20 (une sauvegarde 19 reçoit ses héros de départ au chargement).
+- **IA** : même accès que le joueur, une fois par mois ; la Recrue prend le premier candidat et place ses héros sans regarder leur classe, les autres choisissent la classe utile et la mettent à son poste.
+- Plus tard : lot 2 (vie et mort : vieillesse, capture, loyauté, ambition, héritier Ossarane), lot 3 (ombres et Légende).
+
 ## Organisation du code
 
 La simulation et l'affichage sont séparés dès maintenant, pour pouvoir ajouter le multijoueur et passer en 2,5D sans tout réécrire.
@@ -592,6 +606,7 @@ tools/
   capture_ui.gd           Captures des menus et de l'interface
   capture_fleets.gd       Captures des flottes et du brouillard de guerre
   capture_espionage.gd    Captures de l'espionnage (écran Renseignement, dossier, bouton Sonde)
+  capture_heroes.gd       Captures des héros (Panthéon avec offre, héros en poste, galerie de portraits)
   capture_intel.gd        Captures de la dernière information connue (mémoire, réalité, mise à jour, flotte aperçue, vision alliée)
   capture_factions.gd     Captures des 4 peuples et de leurs ordres propres
   capture_combat.gd       Captures du combat (bataille, rapport, siège, diplomatie, spectateur en guerre)

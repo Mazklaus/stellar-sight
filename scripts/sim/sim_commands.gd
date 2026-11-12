@@ -174,6 +174,22 @@ static func spy_cancel(player: int, target: int) -> Dictionary:
 
 
 ## Répond à des espions démasqués chez soi : "expel" ou "reparation".
+## Choisit un héros de l'offre en attente (index ; -1 = décline l'offre).
+static func hero_pick(player: int, index: int) -> Dictionary:
+	return {"type": "hero_pick", "player": player, "index": index}
+
+
+## Affecte un héros : post = "fleet" (flotte), "system" (système), "council" (siège), "agent" (empire
+## où l'on a un réseau) ; "" = le rappeler.
+static func hero_assign(player: int, hero_id: int, post: String, target: int) -> Dictionary:
+	return {"type": "hero_assign", "player": player, "hero": hero_id, "post": post, "target": target}
+
+
+## Renvoie un héros (il quitte l'empire).
+static func hero_dismiss(player: int, hero_id: int) -> Dictionary:
+	return {"type": "hero_dismiss", "player": player, "hero": hero_id}
+
+
 static func spy_answer(player: int, case_id: int, choice: String) -> Dictionary:
 	return {"type": "spy_answer", "player": player, "case": case_id, "choice": choice}
 
@@ -260,6 +276,12 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Espionage.check_op(state, int(cmd["player"]), int(cmd.get("target", -1)), String(cmd.get("op", "")))
 		"spy_cancel":
 			return Espionage.check_cancel(state, int(cmd["player"]), int(cmd.get("target", -1)))
+		"hero_pick":
+			return Heroes.check_pick(state, int(cmd["player"]), int(cmd.get("index", -2)))
+		"hero_assign":
+			return Heroes.check_assign(state, int(cmd["player"]), int(cmd.get("hero", -1)), String(cmd.get("post", "?")), int(cmd.get("target", -1)))
+		"hero_dismiss":
+			return Heroes.check_dismiss(state, int(cmd["player"]), int(cmd.get("hero", -1)))
 		"spy_answer":
 			return Espionage.check_answer(state, int(cmd["player"]), int(cmd.get("case", -1)), String(cmd.get("choice", "")))
 		"probe":
@@ -348,6 +370,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			for i in f.ships.size():
 				into.add_ship(f.ships[i], f.hp[i], f.gen[i])
 			into.troops += f.troops
+			Heroes.on_merge(state, f.id, into.id)
 			state.fleets.erase(f.id)
 		"split_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
@@ -391,6 +414,12 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Espionage.launch(state, int(cmd["player"]), int(cmd["target"]), String(cmd["op"]))
 		"spy_cancel":
 			Espionage.cancel(state, int(cmd["player"]), int(cmd["target"]))
+		"hero_pick":
+			Heroes.pick(state, int(cmd["player"]), int(cmd["index"]))
+		"hero_assign":
+			Heroes.assign(state, int(cmd["player"]), int(cmd["hero"]), String(cmd["post"]), int(cmd["target"]))
+		"hero_dismiss":
+			Heroes.dismiss(state, int(cmd["player"]), int(cmd["hero"]))
 		"spy_answer":
 			Espionage.answer(state, int(cmd["player"]), int(cmd["case"]), String(cmd["choice"]))
 		"probe":

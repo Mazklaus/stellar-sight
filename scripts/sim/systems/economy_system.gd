@@ -25,6 +25,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 		if c.is_established():
 			if c.is_colony():
 				c.population = maxi(c.population, FactionTraits.colony_start_pop(state, c.owner))
+				Heroes.on_colony(state, c.owner, state.galaxy.get_planet(c.planet_id).system_id)
 				added.append(state.add_chronicle(
 						"%s fonde une colonie sur %s. Les premiers colons découvrent la gravité locale, et ses opinions." % [e.display_name(), planet_name], Espionage.private_to(state, [e.id], state.galaxy.get_planet(c.planet_id).system_id)))
 			else:

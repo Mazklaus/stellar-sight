@@ -1265,12 +1265,13 @@
 			"label": "Chancelleries",
 			"domain": "societe",
 			"era": 2,
-			"text": "Débloque les alliances.",
+			"text": "Débloque les alliances. Héros : +1 place.",
 			"pre": [
 				"rhetorique"
 			],
 			"effects": {
-				"alliances": 1
+				"alliances": 1,
+				"hero_cap": 1
 			},
 			"eureka": {
 				"kind": "contacts",
@@ -2160,7 +2161,10 @@
 			"pre": [
 				"administration2"
 			],
-			"text": "Débloque la Préfecture, une par système, dans une colonie de 10 population ou plus : +3 influence, et six colonies de plus échappent au surcoût de recherche des grands empires.",
+			"text": "Débloque la Préfecture, une par système, dans une colonie de 10 population ou plus : +3 influence, et six colonies de plus échappent au surcoût de recherche des grands empires. Héros : +1 place.",
+			"effects": {
+				"hero_cap": 1
+			},
 			"flavor": "Un gouverneur, un palais, un tampon. L'empire peut grandir : quelqu'un d'autre signera les formulaires.",
 			"eureka": {
 				"kind": "colonies",
@@ -2174,9 +2178,10 @@
 			"pre": [
 				"propagande"
 			],
-			"text": "+15 d'opinion chez tous les empires rencontrés : la paix, le commerce et les alliances se négocient plus facilement.",
+			"text": "+15 d'opinion chez tous les empires rencontrés : la paix, le commerce et les alliances se négocient plus facilement. Conseil : +1 siège.",
 			"effects": {
-				"opinion_all": 15
+				"opinion_all": 15,
+				"council_seats": 1
 			},
 			"flavor": "Des diplomates à demeure, des réceptions chaque semaine, et un buffet qui fait plus pour la paix que dix traités.",
 			"eureka": {

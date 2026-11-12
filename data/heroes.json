@@ -1,0 +1,105 @@
+{
+	"_sources": [
+		"Étude « Les héros dans Stellar Sigth » (2026-11-11, validée le 2026-11-12) : https://claude.ai/artifact/5APG5X6UbHSDoBkeAf2wXj",
+		"Endless Space 2 : 1 héros au départ, un héros offert « 1 parmi 3 » quand les points de l'Académie atteignent 100 + 400 × héros possédés, classe pondérée par les actes, postes amiral / gouverneur / sénateur, blessure de 20 tours. https://endless-space-2.fandom.com/wiki/Heroes et https://endless-space-2.fandom.com/wiki/Hero_Unlock_Points",
+		"Stellaris 4.5 : classes et classes vétéran, conseil, traits gagnés en montant de niveau. https://stellaris.paradoxwikis.com/Leaders et https://stellaris.paradoxwikis.com/Council",
+		"Master of Orion II : 5 tours de trajet pour rejoindre un poste hors du système du Capitole. https://strategywiki.org/wiki/Master_of_Orion_II:_Battle_at_Antares/Hiring_Leaders",
+		"Astra Exodus : l'Opérateur, héros qui mène la guerre de l'ombre. https://www6.slitherine.com/news/astra-exodus-dev-diary-07-heroes-espionage"
+	],
+	"_doc": "Lot 1 (socle). Tous les nombres sont des valeurs de départ, pas un équilibrage (reporté). cap : places au départ, +fx hero_cap des technologies. renown : seuil = base + step × héros déjà obtenus (le héros de départ compte). acts : renom gagné par acte et classe qu'il fait pencher. xp_levels : expérience totale pour chaque niveau (1 à 5). travel_days : trajet vers un poste hors du système capital. wound_days : blessure quand la flotte est anéantie ou le système perdu. Les effets d'un poste sont pleins pour la classe qui en a l'habitude, à moitié pour les autres.",
+	"cap": 3,
+	"council_seats": 2,
+	"renown": {"base": 100, "step": 250},
+	"acts": {
+		"colony": {"renown": 20, "cls": "intendant"},
+		"tech": {"renown": 6, "cls": "intendant"},
+		"built": {"renown": 4, "cls": "stratege"},
+		"battles_won": {"renown": 25, "cls": "stratege"},
+		"conquests": {"renown": 35, "cls": "stratege"},
+		"operations": {"renown": 15, "cls": "ombre"},
+		"treaty": {"renown": 20, "cls": "orateur"},
+		"stolen": {"renown": 10, "cls": "ombre"}
+	},
+	"offer_size": 3,
+	"class_base_weight": 10,
+	"xp_levels": [0, 120, 300, 560, 900],
+	"xp": {"day": 1, "battle_won": 60, "colony": 25, "operation": 40, "pop_month_div": 3},
+	"travel_days": 20,
+	"wound_days": 90,
+	"age": [25, 45],
+	"classes": {
+		"stratege": {"label": "Stratège", "post": "fleet", "short": "Str", "color": "#e0574a",
+			"text": "Né pour le commandement : à la tête d'une flotte, ses vaisseaux frappent plus fort."},
+		"intendant": {"label": "Intendant", "post": "system", "short": "Int", "color": "#d1aa4c",
+			"text": "Gouverne un système : toutes ses colonies produisent davantage."},
+		"orateur": {"label": "Orateur", "post": "council", "short": "Ora", "color": "#79bb84",
+			"text": "Sa place est au conseil : il fait rayonner l'empire et rapporte de l'influence."},
+		"ombre": {"label": "Ombre", "post": "agent", "short": "Omb", "color": "#8c7ad6",
+			"text": "Agent de l'ombre : attaché à un réseau d'espionnage, il le fait grandir et rend ses opérations plus sûres."}
+	},
+	"posts": {
+		"fleet": {"label": "Amiral", "text": "+%d %% de dégâts pour la flotte."},
+		"system": {"label": "Gouverneur", "text": "+%d %% de production dans les colonies du système."},
+		"council": {"label": "Conseil", "text": "Bonus d'empire selon sa classe."},
+		"agent": {"label": "Agent", "text": "+%d d'infiltration par mois au réseau, +%d %% de succès aux opérations."}
+	},
+	"per_level": {
+		"fleet_damage_pct": 4,
+		"system_prod_pct": 5,
+		"agent_growth": 1,
+		"agent_chance": 3,
+		"council": {
+			"stratege": {"damage_pct": 1, "text": "+%d %% de dégâts pour toutes les flottes."},
+			"intendant": {"prod_pct": 1, "text": "+%d %% de production dans tout l'empire."},
+			"orateur": {"influence": 1, "text": "+%d d'influence par mois."},
+			"ombre": {"encryption_half": 1, "text": "+%d au chiffrement."}
+		}
+	},
+	"traits": {
+		"foudre": {"label": "Foudre de guerre", "cls": "stratege", "text": "+15 % de dégâts le premier jour d'une bataille.", "fx": {"first_day_pct": 15}},
+		"rempart": {"label": "Rempart", "cls": "stratege", "text": "+12 % de dégâts dans les systèmes de l'empire.", "fx": {"home_damage_pct": 12}},
+		"bretteur": {"label": "Bretteur des étoiles", "cls": "stratege", "text": "+6 % de dégâts en toutes circonstances.", "fx": {"damage_pct": 6}},
+		"glorieux": {"label": "Glorieux", "cls": "stratege", "text": "Ses victoires rapportent deux fois plus de renom.", "fx": {"renown_battle_pct": 100}},
+		"maitre_oeuvre": {"label": "Maître d'œuvre", "cls": "intendant", "text": "+15 % de matériaux dans le système qu'il gouverne.", "fx": {"res_pct": {"materials": 15}}},
+		"agronome": {"label": "Agronome", "cls": "intendant", "text": "+20 % de nourriture dans le système qu'il gouverne.", "fx": {"res_pct": {"food": 20}}},
+		"fiscaliste": {"label": "Fiscaliste", "cls": "intendant", "text": "+15 % d'énergie dans le système qu'il gouverne.", "fx": {"res_pct": {"energy": 15}}},
+		"mecene": {"label": "Mécène", "cls": "intendant", "text": "+20 % de Savoir dans le système qu'il gouverne.", "fx": {"res_pct": {"knowledge": 20}}},
+		"tribun": {"label": "Tribun", "cls": "orateur", "text": "+2 d'influence par mois, quel que soit son poste.", "fx": {"income": {"influence": 2}}},
+		"lettre": {"label": "Lettré", "cls": "orateur", "text": "+3 Savoir par mois, quel que soit son poste.", "fx": {"income": {"knowledge": 3}}},
+		"charismatique": {"label": "Charismatique", "cls": "orateur", "text": "Les traités signés rapportent deux fois plus de renom.", "fx": {"renown_treaty_pct": 100}},
+		"discret": {"label": "Discret", "cls": "ombre", "text": "−8 % de risque de découverte pour les opérations de son réseau.", "fx": {"discovery": -8}},
+		"faussaire": {"label": "Faussaire", "cls": "ombre", "text": "+8 % de succès pour les opérations de son réseau.", "fx": {"op_chance": 8}},
+		"tisseur": {"label": "Tisseur de toiles", "cls": "ombre", "text": "+2 d'infiltration par mois pour son réseau.", "fx": {"growth": 2}},
+		"instructeur": {"cls": "", "label": "Prodige", "text": "Gagne 50 % d'expérience en plus.", "fx": {"xp_pct": 50}},
+		"increvable": {"cls": "", "label": "Increvable", "text": "Ses blessures guérissent deux fois plus vite.", "fx": {"wound_pct": -50}}
+	},
+	"names": {
+		"humanoide": {"first": ["Aldric", "Séverine", "Oriane", "Thadée", "Isaure", "Corvin", "Maëlis", "Darius", "Ysolde", "Léandre", "Bérénice", "Cassien"], "last": ["de Vaux-Argent", "Hautecombe", "Sombrelame", "d'Orvanne", "Mercastel", "Brisefer", "de Lunelle", "Valrose"]},
+		"ruche": {"first": ["Kzzrah", "Thikka", "Vrrel", "Ixxa", "Chk'tal", "Zirr", "Ka'rix", "Tthesh"], "last": ["la Neuvième Ponte", "Aile-de-Verre", "Mandibule d'Or", "la Patiente", "Chant-des-Alvéoles", "Fouisseuse"]},
+		"lithoide": {"first": ["Basalte", "Orth", "Quarzel", "Grenat", "Obsis", "Feldar", "Ardoise", "Silex"], "last": ["l'Ancien", "Veine-Claire", "Mille-Strates", "le Lent", "Cœur-de-Géode", "Pierre-qui-Chante"]},
+		"reptilien": {"first": ["Sseraph", "Kaal", "Thessk", "Vyrra", "Grukk", "Ishka", "Zhalor", "Raask"], "last": ["Croc-Noir", "Écaille-d'Ambre", "Sang-Froid", "Queue-Brisée", "l'Affamé", "Œil-Fendu"]},
+		"synthetique": {"first": ["Unité", "Écho", "Axiome", "Vecteur", "Noyau", "Prisme", "Index", "Lambda"], "last": ["7-Oméga", "Δ-12", "Version Finale", "Sans-Défaut", "IV-Bis", "Ré-Initialisé"]}
+	},
+	"portraits": [
+		{"id": "hero_humanoide_1", "look": "helm", "label": "Amirale au heaume ailé", "archetypes": ["humanoide"]},
+		{"id": "hero_humanoide_2", "look": "eyepatch", "label": "Vieux loup au bandeau", "archetypes": ["humanoide"]},
+		{"id": "hero_humanoide_3", "look": "scar", "label": "Duelliste balafrée", "archetypes": ["humanoide"]},
+		{"id": "hero_humanoide_4", "look": "braids", "label": "Tribun aux tresses d'argent", "archetypes": ["humanoide"]},
+		{"id": "hero_humanoide_5", "look": "hood", "label": "Ombre encapuchonnée", "archetypes": ["humanoide"]},
+		{"id": "hero_humanoide_6", "look": "crown", "label": "Intendant à la couronne de fer", "archetypes": ["humanoide"]},
+		{"id": "hero_ruche_1", "look": "mandibles", "label": "Guerrière aux mandibules d'or", "archetypes": ["ruche"]},
+		{"id": "hero_ruche_2", "look": "eyes", "label": "Guetteuse aux cent yeux", "archetypes": ["ruche"]},
+		{"id": "hero_ruche_3", "look": "crown", "label": "Princesse de la ponte", "archetypes": ["ruche"]},
+		{"id": "hero_ruche_4", "look": "colossus", "label": "Gardien chitineux", "archetypes": ["ruche"]},
+		{"id": "hero_lithoide_1", "look": "shards", "label": "Héraut aux éclats", "archetypes": ["lithoide"]},
+		{"id": "hero_lithoide_2", "look": "boulder", "label": "Vétéran de basalte", "archetypes": ["lithoide"]},
+		{"id": "hero_lithoide_3", "look": "geode", "label": "Sage-géode", "archetypes": ["lithoide"]},
+		{"id": "hero_reptilien_1", "look": "frill", "label": "Seigneur de guerre à collerette", "archetypes": ["reptilien"]},
+		{"id": "hero_reptilien_2", "look": "spines", "label": "Pisteuse à piquants", "archetypes": ["reptilien"]},
+		{"id": "hero_reptilien_3", "look": "snout", "label": "Vieux croc rusé", "archetypes": ["reptilien"]},
+		{"id": "hero_synthetique_1", "look": "visor", "label": "Unité de commandement", "archetypes": ["synthetique"]},
+		{"id": "hero_synthetique_2", "look": "antenna", "label": "Sonde d'infiltration", "archetypes": ["synthetique"]},
+		{"id": "hero_synthetique_3", "look": "core", "label": "Cœur-logique gouverneur", "archetypes": ["synthetique"]}
+	],
+	"avatar_governments": ["ruche", "conscience"]
+}

@@ -231,6 +231,11 @@ static func espionage() -> Dictionary:
 	return _load("espionage")
 
 
+## Héros (data/heroes.json) : classes, postes, traits, renom, galerie de portraits.
+static func heroes() -> Dictionary:
+	return _load("heroes")
+
+
 ## Technologies (data/technologies.json) : domaines, ères, coûts, arbre.
 static func technologies() -> Dictionary:
 	return _load("technologies")

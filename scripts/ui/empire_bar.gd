@@ -7,7 +7,7 @@ extends PanelContainer
 
 signal screen_requested(screen_id: String)
 
-const WIDTH := 330.0
+const WIDTH := 360.0
 ## Hauteur réservée au panneau : la colonne de la vue système commence en dessous.
 const HEIGHT := 132.0
 const MARGIN := 10.0
@@ -25,6 +25,8 @@ const SCREENS := [
 		"why": "Toutes les façons de gagner cette partie, et où en est chaque empire. La victoire de peuple d'un rival reste cachée tant qu'il n'est pas à mi-chemin."},
 	{"id": "intel", "label": "Renseignement", "key": "F8", "glyph": "intel", "ready": true,
 		"why": "Affectez vos cellules chez les empires rencontrés : le réseau grandit chaque mois et dévoile, palier après palier, leurs systèmes, leurs comptes, leurs flottes et leurs pensées. Chez vous, elles font du contre-espionnage."},
+	{"id": "heroes", "label": "Panthéon", "key": "F10", "glyph": "heroes", "ready": true,
+		"why": "Vos héros : un poste chacun (amiral d'une flotte, gouverneur d'un système, siège au conseil, agent d'un réseau). Vos actes font monter votre renom ; au seuil, trois candidats se présentent et vous en choisissez un."},
 ]
 ## Description d'un menu d'empire (entrée de SCREENS), {} s'il n'existe pas.
 static func screen_info(screen_id: String) -> Dictionary:
@@ -61,7 +63,7 @@ func _ready() -> void:
 	icons.add_theme_constant_override("separation", 2)
 	box.add_child(icons)
 	for sc in SCREENS:
-		var b := Widgets.IconButton.new(String(sc["glyph"]), 34)
+		var b := Widgets.IconButton.new(String(sc["glyph"]), 29)
 		b.toggle_mode = true
 		b.disabled = not sc["ready"]
 		b.tooltip_text = "%s  (%s)" % [sc["label"], sc["key"]] + ("\nBientôt : l'écran est en place." if sc.get("soon", false) else "")
@@ -69,12 +71,14 @@ func _ready() -> void:
 		b.pressed.connect(func() -> void: screen_requested.emit(id))
 		icons.add_child(b)
 		_screen_buttons[id] = b
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icons.add_child(spacer)
+	# Le nom prend la place qui reste et s'abrège s'il est trop long : la barre garde sa largeur.
 	_name = Label.new()
 	_name.theme_type_variation = &"Section"
+	_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_name.clip_text = true
+	_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_name.custom_minimum_size = Vector2(24, 0)
 	_name.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_name.mouse_filter = Control.MOUSE_FILTER_STOP
 	icons.add_child(_name)
