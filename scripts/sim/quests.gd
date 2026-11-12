@@ -1071,9 +1071,10 @@ static func _place_tombs(state: GameState, d: Dictionary) -> Array:
 			break
 		if state.battles.has(int(sid)):
 			continue
-		var f := state.spawn_ship(GameState.PIRATE_ID, String(ships[0]), int(sid))
+		# De vrais gardiens machines, de la Faune (lot 2 des créatures) : hostiles à tous.
+		var f := state.spawn_ship(GameState.FAUNA_ID, String(ships[0]), int(sid))
 		for i in range(1, ships.size()):
-			f.add_ship(String(ships[i]), -1, 1)
+			f.add_ship(String(ships[i]), -1, -1)
 		f.troops = 0
 		f.fleet_name = "Gardiens du tombeau"
 		out.append({"sid": int(sid), "fleet": f.id, "alive": 1, "by": -1})

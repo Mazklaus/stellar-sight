@@ -102,4 +102,8 @@ static func _fx_value(state: GameState, empire_id: int, fxs: Array, temper: int)
 				v += 1200
 			"pirates":
 				v -= 800
+			"guardian":
+				v += int(fx.get("ai", 0))
+			"boon":
+				v += 1500 if int(fx.get("days", 0)) == 0 else 500
 	return v

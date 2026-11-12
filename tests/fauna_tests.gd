@@ -36,13 +36,13 @@ func _new(seed_value := 11, density := "normales") -> GameState:
 ## Nid d'une espèce de ce tempérament (en crée un dans un système libre s'il n'y en a pas).
 func _nest_of(st: GameState, temper: String) -> int:
 	for sid in Fauna.nest_ids(st):
-		if Fauna.temper(String(Fauna.nests(st)[sid]["sp"])) == temper:
-			return sid
+		if Fauna.temper(String(Fauna.nests(st)[sid]["sp"])) == temper and Guardians.awake_at(st, sid) == "":
+			return sid  # (pas le nid que garde la Matriarche)
 	for sp in Fauna.species_ids():
 		if Fauna.temper(sp) != temper:
 			continue
 		for s in st.galaxy.systems:
-			if st.system_owner(s.id) < 0 and not Fauna.nests(st).has(s.id) and not s.planet_ids.is_empty() and Fleets.fleets_at(st, s.id).is_empty():
+			if st.system_owner(s.id) < 0 and not Fauna.nests(st).has(s.id) and not s.planet_ids.is_empty() and Fleets.fleets_at(st, s.id).is_empty() and Guardians.awake_at(st, s.id) == "":
 				Fauna.create_nest(st, s.id, sp)
 				return s.id
 	return -1

@@ -6,7 +6,8 @@ extends RefCounted
 ## dont un nid est proche (une seule à la fois). Toujours en gardant de quoi payer deux colonies.
 ## Chasse (voir AiPlayer._command_fleet) : en paix, la flotte de guerre attaque le nid ou le troupeau
 ## hostile connu le plus proche de la capitale, à 6 sauts au plus, si elle fait 1,5 fois ce qui s'y
-## trouve (la Recrue ne compte pas et part dès qu'elle fait jeu égal).
+## trouve (la Recrue ne compte pas et part dès qu'elle fait jeu égal). Gardiens (lot 2) : jusqu'à 8
+## sauts ; même en guerre s'il est à 4 sauts au plus et que la flotte fait 2 fois sa force.
 ## Colonisation : un système où se tient un troupeau hostile est laissé de côté.
 
 
@@ -81,8 +82,9 @@ static func _nest_near(ctx: Dictionary, sp: String) -> bool:
 static func nest_target(ctx: Dictionary, f: Fleet, home: int) -> int:
 	var state: GameState = ctx["state"]
 	var e: Empire = ctx["e"]
-	if not Fauna.active(state) or not e.wars.is_empty() or home < 0:
+	if not Fauna.active(state) or home < 0:
 		return -1
+	var war := not e.wars.is_empty()
 	if not ctx.has("home_jumps"):
 		ctx["home_jumps"] = FactionTraits.jumps_from(state.galaxy, home)
 	var jumps: Dictionary = ctx["home_jumps"]
@@ -91,22 +93,42 @@ static func nest_target(ctx: Dictionary, f: Fleet, home: int) -> int:
 	var best := -1
 	var best_j := 7
 	var cands := {}
-	for sid in Fauna.nest_ids(state):
-		cands[sid] = String(Fauna.nests(state)[sid]["sp"])
+	if not war:
+		for sid in Fauna.nest_ids(state):
+			cands[sid] = String(Fauna.nests(state)[sid]["sp"])
 	for fid in Fauna.herd_ids(state):
 		var g: Fleet = state.fleets.get(fid)
+		if war:
+			break  # en guerre, on ne chasse pas la faune
 		if g != null and not g.is_moving() and Fauna.hostile(state, g, e.id):
 			cands[g.system_id] = String(Fauna.herds(state)[fid]["sp"])
+	# Gardiens (lot 2) : vus, éveillés, hostiles ; plus loin (8 sauts), ils gardent les meilleurs systèmes.
+	var guards := {}
+	for gid in Guardians.known(state, e.id):
+		var gsid := Guardians.fleet_system(state, gid)
+		if gsid >= 0 and Guardians.awake_at(state, gsid) == gid and Guardians.hostile(state, gid, e.id):
+			guards[gsid] = gid
+			cands[gsid] = ""
 	var ids := cands.keys()
 	ids.sort()
 	for sid in ids:
 		var sp := String(cands[sid])
-		if not Fauna.knows(state, e.id, sp) or not Fauna.species_hostile(state, e.id, sp):
+		if guards.has(sid):
+			pass
+		elif not Fauna.knows(state, e.id, sp) or not Fauna.species_hostile(state, e.id, sp):
 			continue
 		if not Fleets.is_explored(state, e.id, sid) or state.system_owner(sid) >= 0:
 			continue
 		var j := int(jumps.get(sid, 99))
-		if j < best_j and power * 100 >= need * maxi(1, Fauna.herd_power(state, sid)):
+		var want := need
+		if guards.has(sid):
+			j -= 2  # 8 sauts au plus, comptés comme 6
+			if war:
+				# En guerre : seulement un gardien proche (4 sauts) et avec une large marge.
+				if j > 2:
+					continue
+				want = need + 50
+		if j < best_j and power * 100 >= want * maxi(1, Fauna.herd_power(state, sid)):
 			best = sid
 			best_j = j
 	return best

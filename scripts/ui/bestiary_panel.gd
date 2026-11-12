@@ -21,6 +21,46 @@ static func build(es: EmpireScreens, col: VBoxContainer) -> void:
 		col.add_child(_species_block(es, sp))
 	for i in Fauna.species_ids().size() - known.size():
 		col.add_child(_unknown_block())
+	_guardians(es, col)
+
+
+## Gardiens (lot 2) : ceux que l'empire a vus, avec leur lieu, leur trait et leur sort.
+static func _guardians(es: EmpireScreens, col: VBoxContainer) -> void:
+	var state := es._state
+	var player := es._player
+	if Guardians.ids(state).is_empty():
+		return
+	var seen := Guardians.known(state, player)
+	var intro := Widgets.Block.new("☠ Gardiens")
+	col.add_child(intro)
+	intro.body.add_child(UiTheme.paragraph("Des êtres uniques veillent sur les plus beaux systèmes. On peut traverser leur domaine, pas s'y installer tant qu'ils vivent. Les abattre rapporte un trophée, parfois une technologie hors de l'arbre, et un Triomphe.", 900.0, 14))
+	intro.body.add_child(UiTheme.dim("%d gardien%s repéré%s sur %d dans cette galaxie." % [seen.size(), "s" if seen.size() > 1 else "", "s" if seen.size() > 1 else "", Guardians.ids(state).size()], 13))
+	for gid in seen:
+		var gd := Guardians.def(gid)
+		var g: Dictionary = Guardians.list(state)[gid]
+		var blk := Widgets.Block.new("%s  ·  %s" % [String(gd["name"]), String(gd.get("register", ""))])
+		blk.body.add_child(UiTheme.paragraph(String(gd.get("text", "")), 900.0, 14))
+		blk.body.add_child(UiTheme.dim("Trait : %s" % String(gd.get("trait", "")), 13))
+		var home := int(g["home"])
+		var where := state.galaxy.systems[home].system_name if home >= 0 else "?"
+		var line := "Domaine : %s.  " % where
+		match String(g["status"]):
+			"awake":
+				var f: Fleet = state.fleets.get(int(g["fleet"]))
+				if f != null:
+					var pr := Fauna.power_range(state, player, f)
+					line += "Éveillé, puissance %d à %d, %s." % [pr[0], pr[1], "hostile" if Guardians.hostile(state, gid, player) else "pacifique"]
+			"dormant":
+				line += "Endormi. Mieux vaut ne pas le réveiller."
+			"dead":
+				var by := int(g["by"])
+				line += "Mort%s." % ((" sous les coups de %s" % state.empires[by].display_name()) if by >= 0 and by < state.empires.size() else "")
+			"studied":
+				line += "Étudié, il ne menace plus personne."
+			"pact":
+				line += "Lié par un pacte."
+		blk.body.add_child(UiTheme.dim(line, 13))
+		col.add_child(blk)
 
 
 static func _unknown_block() -> Control:
@@ -109,7 +149,9 @@ static func signature(es: EmpireScreens) -> String:
 	var state := es._state
 	if not Fauna.active(state):
 		return ""
-	var s := str(Fauna._meta_r(state, es._player)) + str(Fauna.nest_ids(state))
+	var s := str(Fauna._meta_r(state, es._player)) + str(Fauna.nest_ids(state)) + str(Guardians.known(state, es._player))
+	for gid in Guardians.ids(state):
+		s += String(Guardians.list(state)[gid]["status"])
 	for sp in Fauna.known_species(state, es._player):
 		for att in Fauna.ATTITUDES:
 			s += Fauna.check_attitude(state, es._player, sp, att)

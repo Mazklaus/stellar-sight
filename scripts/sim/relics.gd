@@ -107,8 +107,9 @@ static func create_site(state: GameState, sid: int) -> bool:
 	var free: Array[String] = []
 	for id in ids():
 		var r: Dictionary = state.relics[id]
-		# Les reliques de quête (tag « quete ») ne s'enfouissent qu'après être passées au marché noir.
-		if int(r["owner"]) == -1 and is_quest(id):
+		# Les reliques de quête (tag « quete ») et les trophées (« trophee ») ne s'enfouissent qu'après être
+		# passés au marché noir.
+		if int(r["owner"]) == -1 and (is_quest(id) or is_trophy(id)):
 			continue
 		if (int(r["owner"]) == -1 or int(r["owner"]) == MARKET) and not _buried(state, id):
 			free.append(id)
@@ -300,6 +301,7 @@ static func _finish(state: GameState, sid: int, added: Array[Dictionary]) -> voi
 	var rid := String(d["relic"])
 	add_fragments(state, eid, int(data()["digs"]["final_fragments"]))
 	gain(state, eid, rid)
+	Guardians.on_dig_finished(state, sid, eid, added)
 	Research.count_stat(state, eid, "digs")
 	added.append(state.add_chronicle("%s achève les fouilles de %s et en remonte %s. Les archéologues pleurent ; les comptables aussi, mais de joie." % [
 			e.display_name(), site_name(state, sid), String(def(rid)["name"])], Espionage.public_to(state, [eid])))
@@ -357,6 +359,11 @@ static func in_reliquary(state: GameState, empire_id: int) -> Array[String]:
 
 static func is_quest(rid: String) -> bool:
 	return (def(rid).get("tags", []) as Array).has("quete")
+
+
+## Trophée de gardien (tag « trophee ») : ne s'obtient qu'en l'abattant.
+static func is_trophy(rid: String) -> bool:
+	return (def(rid).get("tags", []) as Array).has("trophee")
 
 
 static func is_holy(rid: String) -> bool:

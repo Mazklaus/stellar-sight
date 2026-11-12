@@ -552,6 +552,14 @@ func _refresh_fleet_card() -> void:
 		var sp := String(herd["sp"])
 		_fleet_stats.text += "\nPuissance %d à %d  ·  %s  ·  %s" % [pr[0], pr[1], Fauna.temper_label(sp),
 				"hostile" if Fauna.hostile(_state, f, _player) else "vous laisse passer"]
+	elif f.owner == GameState.FAUNA_ID:
+		# Gardiens et machines des tombeaux : un crâne et une fourchette, jamais la force exacte.
+		var pr := Fauna.power_range(_state, _player, f)
+		var gid := Guardians.of_fleet(_state, f)
+		_fleet_stats.text += "\n☠ Gardien  ·  puissance %d à %d  ·  %s" % [pr[0], pr[1],
+				"hostile" if Fauna.hostile(_state, f, _player) else "pacifique, vous laisse passer"]
+		if gid != "":
+			_fleet_stats.text += "\n%s" % String(Guardians.def(gid).get("trait", ""))
 	elif Combat.is_armed(f) or f.total_hp() < f.total_max_hp():
 		@warning_ignore("integer_division")
 		_fleet_stats.text += "\nPuissance %d  ·  coque %d %%  ·  troupes %d/%d  ·  %s" % [Combat.fleet_power(f),
