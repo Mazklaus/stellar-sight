@@ -79,6 +79,9 @@ static func build(es: EmpireScreens) -> void:
 		flow.add_child(_hero_card(es, state.heroes[id]))
 	if ids.is_empty():
 		mine.body.add_child(UiTheme.dim("Aucun héros pour l'instant : le renom en fera venir.", 14))
+	var market := Heroes.for_hire(state, player)
+	if not market.is_empty():
+		col.add_child(_market_block(es, market))
 	var held := Heroes.prisoners_of(state, player)
 	if not held.is_empty():
 		col.add_child(_prison_block(es, held))
@@ -89,7 +92,8 @@ static func signature(es: EmpireScreens) -> String:
 	var state := es._state
 	@warning_ignore("integer_division")
 	return "%s|%s|%d|%d|%s|%d" % [str(Heroes.ids_of(state, es._player).map(func(i: int) -> Dictionary: return state.heroes[i])),
-			str(Heroes.meta(state, es._player)) + str(Heroes.prisoners_of(state, es._player).map(func(i: int) -> Dictionary: return state.heroes[i])),
+			str(Heroes.meta(state, es._player)) + str(Heroes.prisoners_of(state, es._player).map(func(i: int) -> Dictionary: return state.heroes[i]))
+			+ str(Heroes.for_hire(state, es._player)) + str(state.get_empire(es._player).heir_loyalty),
 			state.tick / 30, state.fleets.size(), str(state.networks),
 			Heroes.cap(state, es._player) * 10 + Heroes.seats(state, es._player)]
 
@@ -192,6 +196,16 @@ static func status_text(state: GameState, h: Dictionary) -> String:
 		return "Prisonnier de %s%s." % [je.short_name() if je else "?", (" : on le travaille au corps, ralliement dans %d jours" % maxi(0, conv - state.tick)) if conv > 0 else ""]
 	if Heroes.is_wounded(state, h):
 		return "Blessé : de retour dans %d jours." % (int(h["wound"]) - state.tick)
+	var lent := ""
+	if int(h.get("lender", -1)) >= 0:
+		var le := state.get_empire(int(h["lender"]))
+		lent = "Loué à %s, encore %d jours (%d énergie par mois). " % [le.short_name() if le else "?", maxi(0, int(h.get("lend_until", 0)) - state.tick), Heroes.hire_fee(h)]
+	elif int(h.get("for_hire", 0)) > 0:
+		lent = "À louer (%d énergie par mois). " % Heroes.hire_fee(h)
+	return lent + _post_text(state, h)
+
+
+static func _post_text(state: GameState, h: Dictionary) -> String:
 	var post := String(h["post"])
 	if post == "":
 		return "Sans affectation."
@@ -331,7 +345,19 @@ static func _hero_card(es: EmpireScreens, h: Dictionary) -> Control:
 		dismiss.tooltip_text = dwhy
 	dismiss.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.hero_dismiss(player, id)))
 	orders.add_child(dismiss)
-	es.hero_buttons[id] = {"assign": opt, "recall": recall, "dismiss": dismiss, "choices": ch}
+	var entry := {"assign": opt, "recall": recall, "dismiss": dismiss, "choices": ch}
+	if int(Heroes.talent(state, player).get("hire", 0)) > 0 and int(h.get("lender", -1)) < 0:
+		var on := int(h.get("for_hire", 0)) == 0
+		var rent := Button.new()
+		rent.text = "LOUER" if on else "RETIRER"
+		rent.focus_mode = Control.FOCUS_NONE
+		var rwhy := Heroes.check_for_hire(state, player, id, on)
+		rent.disabled = rwhy != ""
+		rent.tooltip_text = rwhy if rwhy != "" else ("Le mettre en location : un empire rencontré pourra l'engager pour un an, à %d énergie par mois." % Heroes.hire_fee(h) if on else "Le retirer de la location.")
+		rent.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.hero_for_hire(player, id, on)))
+		orders.add_child(rent)
+		entry["rent"] = rent
+	es.hero_buttons[id] = entry
 	return card
 
 
@@ -339,6 +365,17 @@ static func _hero_card(es: EmpireScreens, h: Dictionary) -> Control:
 static func _loyalty_line(state: GameState, h: Dictionary) -> Control:
 	var box := HBoxContainer.new()
 	box.add_theme_constant_override("separation", 10)
+	if int(h.get("heir", 0)) > 0:
+		var loyh := Heroes.loyalty(state, h)
+		var lh := Label.new()
+		lh.add_theme_font_size_override("font_size", 13)
+		lh.text = "Héritier de la lignée · loyauté %d" % loyh
+		lh.tooltip_text = "Sa loyauté est celle de la lignée (écran Diplomatie : banquet, intrigues). Trop basse, il livre un fief à qui le courtise."
+		lh.mouse_filter = Control.MOUSE_FILTER_STOP
+		if loyh < 25:
+			lh.add_theme_color_override("font_color", UiTheme.WARN)
+		box.add_child(lh)
+		return box
 	var ad := Heroes.ambition_def(String(h.get("amb", "")))
 	if ad.is_empty():
 		var l := UiTheme.dim("Avatar : sans ambition propre, d'une loyauté sans faille.", 12)
@@ -421,5 +458,47 @@ static func _prison_block(es: EmpireScreens, held: Array[int]) -> Control:
 			row.add_child(bt)
 			btns[act] = bt
 		es.hero_buttons["prisoner_%d" % id] = btns
+		flow.add_child(card)
+	return b
+
+
+## Héros à louer chez les syndicats rencontrés.
+static func _market_block(es: EmpireScreens, ids: Array[int]) -> Control:
+	var state := es._state
+	var player := es._player
+	var b := Widgets.Block.new("Héros à louer")
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 16)
+	flow.add_theme_constant_override("v_separation", 16)
+	b.body.add_child(flow)
+	for id in ids:
+		var h: Dictionary = state.heroes[id]
+		var card := PanelContainer.new()
+		card.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+		var v := VBoxContainer.new()
+		card.add_child(v)
+		var top := HBoxContainer.new()
+		top.add_theme_constant_override("separation", 10)
+		v.add_child(top)
+		top.add_child(_portrait(h))
+		var info := VBoxContainer.new()
+		top.add_child(info)
+		info.add_child(UiTheme.paragraph(String(h["name"]), CARD_WIDTH - PORTRAIT.x - 30.0, 15))
+		var oe := state.get_empire(int(h["owner"]))
+		var cl := Label.new()
+		cl.text = "%s de %s · niveau %d" % [Heroes.class_def(String(h["cls"]))["label"], oe.short_name(), int(h["lvl"])]
+		cl.add_theme_color_override("font_color", _class_color(String(h["cls"])).lerp(Color.WHITE, 0.3))
+		info.add_child(cl)
+		info.add_child(_traits_line(h))
+		var bt := Button.new()
+		bt.text = "ENGAGER (%d énergie par mois)" % Heroes.hire_fee(h)
+		bt.focus_mode = Control.FOCUS_NONE
+		var why := Heroes.check_hire(state, player, id)
+		bt.disabled = why != ""
+		bt.tooltip_text = why if why != "" else "Il sert chez vous pendant %d jours, puis rentre chez son syndicat." % int(Heroes.data()["hire"]["days"])
+		var hid := id
+		bt.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.hero_hire(player, hid)))
+		v.add_child(bt)
+		es.hero_buttons["hire_%d" % id] = bt
 		flow.add_child(card)
 	return b

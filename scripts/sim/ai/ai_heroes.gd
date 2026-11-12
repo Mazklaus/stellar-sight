@@ -9,6 +9,8 @@ extends RefCounted
 ## Ombre sur le réseau le plus infiltré ; ce qui reste va au conseil, puis à un système.
 ## Prisonniers (Normale et au-dessus) : convertis s'il reste une place, sinon libérés une fois la
 ## guerre finie ; la Recrue les oublie dans leur cellule.
+## Location (syndicat) : ses héros sans poste sont mis en location ; à partir de Vétéran, un empire
+## en guerre qui a de la place et de l'énergie engage un Stratège à louer.
 ## Une fois par mois, décalé selon l'empire.
 
 
@@ -23,6 +25,7 @@ static func think(ctx: Dictionary) -> void:
 	_pick(ctx, skill)
 	_assign(ctx, skill)
 	_prisoners(ctx, skill)
+	_hire(ctx, skill)
 
 
 static func _pick(ctx: Dictionary, skill: int) -> void:
@@ -156,3 +159,19 @@ static func _prisoners(ctx: Dictionary, skill: int) -> void:
 				room -= 1
 		elif not Combat.at_war(state, e.id, int(h["owner"])):
 			AiPlayer._issue(ctx, SimCommands.hero_prisoner(e.id, id, "free"))
+
+
+static func _hire(ctx: Dictionary, skill: int) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if int(Heroes.talent(state, e.id).get("hire", 0)) > 0 and skill > 0:
+		for id in Heroes.ids_of(state, e.id):
+			var h: Dictionary = state.heroes[id]
+			if int(h.get("for_hire", 0)) == 0 and Heroes.check_for_hire(state, e.id, id, true) == "":
+				AiPlayer._issue(ctx, SimCommands.hero_for_hire(e.id, id, true))
+	if skill < 2 or e.wars.is_empty() or int(e.resources.get("energy", 0)) < 200:
+		return
+	for id in Heroes.for_hire(state, e.id):
+		if String(state.heroes[id]["cls"]) == "stratege":
+			if AiPlayer._issue(ctx, SimCommands.hero_hire(e.id, id)):
+				return

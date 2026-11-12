@@ -123,9 +123,9 @@ static func build(es: EmpireScreens) -> void:
 static func signature(es: EmpireScreens) -> String:
 	var me := es._state.get_empire(es._player)
 	@warning_ignore("integer_division")
-	return "%s|%d|%d|%s|%d|%d|%s|%s|%d" % [str(es._state.networks), es._state.tick / 30, me.probes, str(me.contacts), es.intel_selected,
+	return "%s|%d|%d|%s|%d|%d|%s|%s|%d|%s" % [str(es._state.networks), es._state.tick / 30, me.probes, str(me.contacts), es.intel_selected,
 			Research.current_era(es._state, es._player), str(es._state.operations), str(es._state.spy_cases),
-			int(me.resources.get("influence", 0))]
+			int(me.resources.get("influence", 0)), str(Heroes.meta(es._state, es._player).get("files", []))]
 
 
 static func _cells_box(es: EmpireScreens, target: int) -> HBoxContainer:
@@ -232,6 +232,27 @@ static func _network_line(es: EmpireScreens, target: int) -> Control:
 
 
 static func _dossier_block(es: EmpireScreens, target: int) -> Control:
+	var blk := _dossier_core(es, target)
+	_hero_file(es, target, blk)
+	return blk
+
+
+## Le dossier de ses héros, rapporté par l'opération du même nom (peut-être un faux).
+static func _hero_file(es: EmpireScreens, target: int, blk: Widgets.Block) -> void:
+	var f := Heroes.hero_file(es._state, es._player, target)
+	if f.is_empty():
+		return
+	blk.body.add_child(HSeparator.new())
+	blk.body.add_child(UiTheme.dim("Ses héros, au %s" % GameCalendar.date_string(int(f["day"])), 13))
+	var lines := PackedStringArray()
+	for r: Dictionary in f["heroes"]:
+		var post := String(r["post"])
+		lines.append("%s, %s niv. %d%s, loyauté %d" % [r["name"], String(Heroes.class_def(String(r["cls"])).get("label", r["cls"])).to_lower(),
+				int(r["lvl"]), (" (%s)" % Heroes.post_label(post)) if post != "" else "", int(r["loy"])])
+	blk.body.add_child(UiTheme.paragraph("\n".join(lines) if not lines.is_empty() else "Aucun héros libre.", 420, 13))
+
+
+static func _dossier_core(es: EmpireScreens, target: int) -> Widgets.Block:
 	var state := es._state
 	var oe := state.get_empire(target)
 	var me := state.get_empire(es._player)

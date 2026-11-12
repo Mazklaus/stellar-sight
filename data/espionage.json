@@ -54,7 +54,19 @@
 			"text": "De fausses preuves accusent l'empire qu'il aime le plus de l'espionner : leur amitié en prend un coup pour quatre ans."},
 		{"id": "heritier", "family": "intrigue", "label": "Corrompre l'héritier", "tier": 3,
 			"cost": {"influence": 40}, "days": 45, "success": 70, "discovery": 30, "spend": 15, "loyalty_loss": 30,
-			"text": "Une dynastie seulement : l'héritier perd 30 de loyauté, en secret, et c'est à vous qu'il livrera son fief s'il trahit."}
+			"text": "Une dynastie seulement : l'héritier perd 30 de loyauté, en secret, et c'est à vous qu'il livrera son fief s'il trahit."},
+		{"id": "dossier_heros", "family": "renseignement", "label": "Dossier des héros", "tier": 2,
+			"cost": {"influence": 20}, "days": 30, "success": 85, "discovery": 10, "spend": 5,
+			"text": "La liste de ses héros : classe, niveau, poste et loyauté, à la date du dossier."},
+		{"id": "corrompre", "family": "intrigue", "label": "Corrompre un héros", "tier": 3,
+			"cost": {"influence": 40}, "days": 45, "success": 65, "discovery": 30, "spend": 15, "loyalty_loss": 30,
+			"text": "Son meilleur héros (pas un Avatar) perd 30 de loyauté, en secret ; s'il déserte, c'est chez vous qu'il viendra."},
+		{"id": "exfiltration", "family": "larcin", "label": "Exfiltrer un prisonnier", "tier": 3,
+			"cost": {"influence": 50}, "days": 45, "success": 55, "discovery": 35, "spend": 20,
+			"text": "Un de vos héros qu'il retient prisonnier s'évade et rentre chez vous."},
+		{"id": "assassinat", "family": "sabotage", "label": "Assassiner un héros", "tier": 4,
+			"cost": {"influence": 80}, "days": 60, "success": 35, "discovery": 50, "spend": 30,
+			"text": "Son meilleur héros meurt, Avatars compris. Les chances sont minces, le scandale certain si l'on vous prend."}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
 	"chances": {

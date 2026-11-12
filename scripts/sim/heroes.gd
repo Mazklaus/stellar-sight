@@ -32,6 +32,12 @@ extends RefCounted
 ## "jailer" = empire qui le tient (-1 libre), "foe" = dernier ennemi rencontré en bataille, "convert" =
 ## jour où sa conversion s'achève (0 = aucune). Le geôlier libère, convertit ou exécute ; la paix rend
 ## les prisonniers. Un héros de niveau min_lvl qui meurt laisse un souvenir selon le credo.
+##
+## Lot 3 (ombres et Légende) : opérations d'espionnage contre les héros (dossier, corruption,
+## exfiltration, assassinat ; voir Espionage), l'héritier d'une dynastie devient un héros ("heir" : 1 ;
+## sa loyauté reste Empire.heir_loyalty, gérée par Diplomacy), les héros d'un syndicat se louent
+## ("for_hire", puis "lender" = empire qui le prête et "lend_until"), dossiers de héros par empire
+## dans hero_meta[a]["files"] : [{"about", "day", "heroes": [{"name", "cls", "lvl", "post", "loy", "portrait"}]}].
 
 const POSTS := ["fleet", "system", "council", "agent"]
 const CLASSES := ["stratege", "intendant", "orateur", "ombre"]
@@ -150,7 +156,7 @@ static func base_loyalty(state: GameState, empire_id: int, h: Dictionary) -> int
 
 static func meta(state: GameState, empire_id: int) -> Dictionary:
 	if not state.hero_meta.has(empire_id):
-		state.hero_meta[empire_id] = {"renown": 0, "acts": {}, "got": 0, "offer": [], "memorials": [], "election": 0}
+		state.hero_meta[empire_id] = {"renown": 0, "acts": {}, "got": 0, "offer": [], "memorials": [], "election": 0, "files": []}
 	return state.hero_meta[empire_id]
 
 
@@ -238,6 +244,47 @@ static func setup(state: GameState) -> void:
 	for e in state.empires:
 		var cls: String = CLASSES[_h(state, ["start", e.id]) % CLASSES.size()]
 		recruit(state, e.id, make_candidate(state, e.id, cls, ["start", e.id]))
+		ensure_heir(state, e)
+
+
+# --- Héritier (dynastie Ossarane) ---------------------------------------------------------------
+
+## Au moins un héros vivant, libre et à soi (pas loué) : condition de la Légende.
+static func has_free_hero(state: GameState, empire_id: int) -> bool:
+	for id in ids_of(state, empire_id):
+		var h: Dictionary = state.heroes[id]
+		if not is_prisoner(h) and int(h.get("lender", -1)) < 0:
+			return true
+	return false
+
+
+static func heir_of(state: GameState, empire_id: int) -> Dictionary:
+	for id in ids_of(state, empire_id):
+		if int(state.heroes[id].get("heir", 0)) > 0:
+			return state.heroes[id]
+	return {}
+
+
+## Une dynastie a toujours son héritier parmi ses héros (une place à part) : s'il meurt, un autre
+## prend son rang, et la loyauté de la lignée repart de sa valeur de départ.
+static func ensure_heir(state: GameState, e: Empire) -> void:
+	if e.eliminated or not Diplomacy.has_heir(state, e.id) or not heir_of(state, e.id).is_empty():
+		return
+	var gen := int(meta(state, e.id).get("heirs", 0))
+	meta(state, e.id)["heirs"] = gen + 1
+	var cls: String = CLASSES[_h(state, ["heir", e.id, gen]) % CLASSES.size()]
+	var cand := make_candidate(state, e.id, cls, ["heir", e.id, gen])
+	cand["amb"] = ""
+	cand["age"] = 22
+	var id := recruit(state, e.id, cand)
+	meta(state, e.id)["got"] = int(meta(state, e.id)["got"]) - 1  # l'héritier ne compte pas pour le renom
+	var h: Dictionary = state.heroes[id]
+	h["heir"] = 1
+	h["name"] = "%s, l'Héritier" % String(h["name"]).split(" ")[0]
+	if gen > 0:
+		e.heir_loyalty = int(Diplomacy.ability("heir")["start"])
+		state.add_chronicle("%s prend le rang d'héritier de %s. On lui a déjà fait essayer la couronne, pour voir." % [h["name"], e.display_name()],
+				Espionage.private_to(state, [e.id]))
 
 
 # --- Lecture -----------------------------------------------------------------------------------
@@ -258,7 +305,8 @@ static func get_hero(state: GameState, id: int) -> Dictionary:
 
 
 static func cap(state: GameState, empire_id: int) -> int:
-	return int(data()["cap"]) + Research.fx_int(state, empire_id, "hero_cap") + int(talent(state, empire_id).get("cap", 0))
+	var n := int(data()["cap"]) + Research.fx_int(state, empire_id, "hero_cap") + int(talent(state, empire_id).get("cap", 0))
+	return n + (1 if not heir_of(state, empire_id).is_empty() else 0)
 
 
 static func seats(state: GameState, empire_id: int) -> int:
@@ -412,6 +460,17 @@ static func income(state: GameState, empire_id: int) -> Dictionary:
 			var inc: Dictionary = trait_def(String(t)).get("fx", {}).get("income", {})
 			for r in inc:
 				out[r] = int(out.get(r, 0)) + int(inc[r])
+	# Location des héros d'un syndicat : le client paie, le prêteur encaisse.
+	for id in ids_of(state, -1):
+		var h: Dictionary = state.heroes[id]
+		var lender := int(h.get("lender", -1))
+		if lender < 0:
+			continue
+		var fee := hire_fee(h)
+		if int(h["owner"]) == empire_id:
+			out["energy"] = int(out.get("energy", 0)) - fee
+		elif lender == empire_id:
+			out["energy"] = int(out.get("energy", 0)) + fee
 	return out
 
 
@@ -678,6 +737,10 @@ static func check_dismiss(state: GameState, player: int, hero_id: int) -> String
 		return "héros inconnu"
 	if is_prisoner(h):
 		return "prisonnier : il faut d'abord le libérer"
+	if int(h.get("heir", 0)) > 0:
+		return "on ne renvoie pas l'héritier de la lignée"
+	if int(h.get("lender", -1)) >= 0:
+		return "héros loué : il rentrera chez son syndicat au terme du contrat"
 	return ""
 
 
@@ -844,6 +907,13 @@ static func daily(state: GameState) -> Array[Dictionary]:
 			if e.eliminated:
 				continue
 			_election(state, e, out)
+			ensure_heir(state, e)
+	if monthly:
+		_hire_month(state, out)
+	if monthly:
+		for e in state.empires:
+			if e.eliminated:
+				continue
 			if _maybe_offer(state, e.id) and not e.is_ai():
 				out.append(state.add_chronicle("Le renom de %s attire des candidats : trois %s se présentent (écran Panthéon)." % [e.display_name(), noun(state, e.id, true).to_lower()],
 						[e.id]))
@@ -898,7 +968,7 @@ static func _wound(state: GameState, h: Dictionary, out: Array[Dictionary], why:
 ## Loyauté du mois : une ambition servie récemment la nourrit, oubliée elle s'use (un héros sans poste
 ## s'ennuie aussi). Sous min_desert, il peut passer chez un rival qui a de la place, ou partir.
 static func _loyalty_month(state: GameState, h: Dictionary, out: Array[Dictionary]) -> void:
-	if String(h.get("amb", "")) == "":
+	if String(h.get("amb", "")) == "" or int(h.get("lender", -1)) >= 0:
 		return
 	var cfg: Dictionary = data()["loyalty"]
 	var owner := int(h["owner"])
@@ -916,7 +986,7 @@ static func _loyalty_month(state: GameState, h: Dictionary, out: Array[Dictionar
 	var pct := (int(cfg["min_desert"]) - loy) * int(cfg["desert_pct_per_point"])
 	if _h(state, ["desert", int(h["id"]), state.tick]) % 100 >= pct:
 		return
-	var to := _suitor(state, owner)
+	var to := _suitor(state, owner, int(h.get("suitor", -1)))
 	var e := state.get_empire(owner)
 	if to >= 0:
 		var name := String(h["name"])
@@ -935,7 +1005,10 @@ static func _loyalty_month(state: GameState, h: Dictionary, out: Array[Dictionar
 
 ## Le rival qui courtise un héros mécontent : un empire rencontré, pas allié, qui a une place libre,
 ## et le plus de renom.
-static func _suitor(state: GameState, owner: int) -> int:
+static func _suitor(state: GameState, owner: int, prefer := -1) -> int:
+	var pe := state.get_empire(prefer)
+	if pe != null and not pe.eliminated and prefer != owner and ids_of(state, prefer).size() < cap(state, prefer) and not is_avatar(state, prefer):
+		return prefer
 	var best := -1
 	var most := -1
 	for o in state.get_empire(owner).contacts:
@@ -991,7 +1064,8 @@ static func _age_month(state: GameState, h: Dictionary, out: Array[Dictionary]) 
 
 ## Un héros meurt : souvenir (niveau min_lvl ou plus, ou toujours chez les Saints), ferveur des Saints.
 static func die(state: GameState, h: Dictionary, why: String, out: Array[Dictionary]) -> void:
-	var owner := int(h["owner"])
+	var owner := int(h.get("lender", -1)) if int(h.get("lender", -1)) >= 0 else int(h["owner"])
+	h["owner"] = owner
 	var e := state.get_empire(owner)
 	state.heroes.erase(int(h["id"]))
 	var tl := talent(state, owner)
@@ -1152,6 +1226,222 @@ static func on_exploit(state: GameState, empire_id: int) -> void:
 		m["renown"] = int(m["renown"]) + r
 
 
+# --- Ombres : opérations contre les héros ------------------------------------------------------
+
+## Le héros qu'une opération vise chez b : le plus haut niveau (puis le plus ancien), libre ;
+## corruptible : jamais un Avatar.
+static func op_target(state: GameState, b: int, corruptible: bool) -> int:
+	if corruptible and is_avatar(state, b):
+		return -1
+	var best := -1
+	var lvl := -1
+	for id in ids_of(state, b):
+		var h: Dictionary = state.heroes[id]
+		if is_prisoner(h) or int(h.get("lender", -1)) >= 0:
+			continue
+		if int(h["lvl"]) > lvl:
+			lvl = int(h["lvl"])
+			best = id
+	return best
+
+
+## Un héros de a que b retient prisonnier (le plus ancien), -1 sinon.
+static func exfil_target(state: GameState, a: int, b: int) -> int:
+	for id in ids_of(state, a):
+		if int(state.heroes[id].get("jailer", -1)) == b:
+			return id
+	return -1
+
+
+## Dossier des héros de b, tenu par a (fake : réseau retourné, b ne montre que des seconds couteaux).
+static func write_file(state: GameState, a: int, b: int, fake: bool) -> void:
+	var rows := []
+	for id in ids_of(state, b):
+		var h: Dictionary = state.heroes[id]
+		if is_prisoner(h):
+			continue
+		rows.append({"name": String(h["name"]), "cls": String(h["cls"]), "lvl": 1 if fake else int(h["lvl"]),
+				"post": "" if fake else String(h["post"]), "loy": 95 if fake else loyalty(state, h), "portrait": String(h["portrait"])})
+	var m := meta(state, a)
+	var files: Array = m.get("files", [])
+	var kept := []
+	for f: Dictionary in files:
+		if int(f["about"]) != b:
+			kept.append(f)
+	kept.append({"about": b, "day": state.tick, "heroes": rows})
+	m["files"] = kept
+
+
+static func hero_file(state: GameState, a: int, b: int) -> Dictionary:
+	for f: Dictionary in meta(state, a).get("files", []):
+		if int(f["about"]) == b:
+			return f
+	return {}
+
+
+## Loyauté affichée : celle de la lignée pour un héritier, sinon la sienne.
+static func loyalty(state: GameState, h: Dictionary) -> int:
+	if int(h.get("heir", 0)) > 0:
+		return state.get_empire(int(h["owner"])).heir_loyalty
+	return int(h.get("loy", 100))
+
+
+static func corrupt(state: GameState, a: int, b: int, loss: int) -> String:
+	var id := op_target(state, b, true)
+	if id < 0:
+		return "le héros visé n'est plus là. L'enveloppe reste cachetée."
+	var h: Dictionary = state.heroes[id]
+	if int(h.get("heir", 0)) > 0:
+		var eb := state.get_empire(b)
+		eb.heir_loyalty = maxi(0, eb.heir_loyalty - loss)
+		eb.heir_suitor = a
+	else:
+		h["loy"] = maxi(0, int(h.get("loy", 50)) - loss)
+		h["suitor"] = a
+	return "%s accepte nos égards, et notre or (loyauté %d). S'il part, c'est chez nous qu'il viendra." % [h["name"], loyalty(state, h)]
+
+
+static func exfiltrate(state: GameState, a: int, b: int) -> String:
+	var id := exfil_target(state, a, b)
+	if id < 0:
+		return "la cellule était vide : il avait déjà été libéré."
+	var h: Dictionary = state.heroes[id]
+	_free(state, h)
+	return "%s s'évade par les conduits d'aération et rentre au pays, un peu poussiéreux." % h["name"]
+
+
+static func assassinate(state: GameState, a: int, b: int) -> String:
+	var id := op_target(state, b, false)
+	if id < 0:
+		return "la cible avait changé de chambre. Le poison reste dans la carafe."
+	var h: Dictionary = state.heroes[id]
+	var name := String(h["name"])
+	die(state, h, "meurt assassiné. On parle d'un empoisonnement, d'une chute, d'un « accident de chasse »", [] as Array[Dictionary])
+	return "%s ne se relèvera pas. Les nôtres étaient déjà loin quand on a trouvé le corps." % name
+
+
+## Sabotage d'un chantier : le gouverneur du système (s'il y en a un) est blessé dans l'explosion.
+static func sabotage_governor(state: GameState, b: int, system_id: int) -> String:
+	var h := at_post(state, "system", system_id, b)
+	if h.is_empty():
+		return ""
+	var days := int(data()["wound_days"])
+	@warning_ignore("integer_division")
+	h["wound"] = state.tick + days * maxi(10, 100 + trait_fx(h, "wound_pct")) / 200
+	h["post"] = ""
+	h["target"] = -1
+	return String(h["name"])
+
+
+# --- Héros à louer (syndicat) ------------------------------------------------------------------
+
+static func hire_fee(h: Dictionary) -> int:
+	var c: Dictionary = data()["hire"]
+	return int(c["fee_base"]) + int(c["fee_per_level"]) * int(h["lvl"])
+
+
+static func check_for_hire(state: GameState, player: int, hero_id: int, on: bool) -> String:
+	var h := get_hero(state, hero_id)
+	if h.is_empty() or int(h["owner"]) != player:
+		return "héros inconnu"
+	if int(talent(state, player).get("hire", 0)) <= 0:
+		return "seul un syndicat loue ses héros"
+	if on:
+		if is_prisoner(h) or int(h.get("heir", 0)) > 0 or int(h.get("lender", -1)) >= 0:
+			return "ce héros ne peut pas être loué"
+		if String(h["post"]) != "":
+			return "rappelez-le d'abord de son poste"
+	return ""
+
+
+static func set_for_hire(state: GameState, player: int, hero_id: int, on: bool) -> void:
+	state.heroes[hero_id]["for_hire"] = 1 if on else 0
+
+
+## Héros à louer que client peut engager (syndicats rencontrés, pas en guerre avec lui).
+static func for_hire(state: GameState, client: int) -> Array[int]:
+	var out: Array[int] = []
+	for id in ids_of(state, -1):
+		var h: Dictionary = state.heroes[id]
+		if int(h.get("for_hire", 0)) > 0 and check_hire(state, client, id) == "":
+			out.append(id)
+	return out
+
+
+static func check_hire(state: GameState, client: int, hero_id: int) -> String:
+	var h := get_hero(state, hero_id)
+	var ec := state.get_empire(client)
+	if h.is_empty() or ec == null or ec.eliminated:
+		return "héros inconnu"
+	var owner := int(h["owner"])
+	if owner == client:
+		return "c'est déjà le vôtre"
+	if int(h.get("for_hire", 0)) <= 0 or String(h["post"]) != "" or is_prisoner(h) or int(h.get("lender", -1)) >= 0:
+		return "ce héros n'est pas à louer"
+	if not ec.contacts.has(owner):
+		return "empire jamais rencontré"
+	if Combat.at_war(state, client, owner):
+		return "on ne loue pas un héros à un ennemi"
+	if is_avatar(state, client):
+		return "un esprit commun n'engage personne"
+	if ids_of(state, client).size() >= cap(state, client):
+		return "plus de place pour un héros"
+	if int(ec.resources.get("energy", 0)) < hire_fee(h):
+		return "pas assez d'énergie pour le premier mois (%d)" % hire_fee(h)
+	return ""
+
+
+## Le client engage le héros pour hire.days jours ; il rentre chez son syndicat au terme.
+static func hire(state: GameState, client: int, hero_id: int) -> void:
+	var h: Dictionary = state.heroes[hero_id]
+	var owner := int(h["owner"])
+	h["lender"] = owner
+	h["owner"] = client
+	h["for_hire"] = 0
+	h["lend_until"] = state.tick + int(data()["hire"]["days"])
+	h["post"] = ""
+	h["target"] = -1
+	state.add_chronicle("%s engage %s, héros de %s, pour %d énergie par mois. Le contrat tient en une page ; les clauses en petits caractères, en douze." % [
+			state.get_empire(client).display_name(), h["name"], state.get_empire(owner).display_name(), hire_fee(h)],
+			Espionage.public_to(state, [owner, client]))
+
+
+## Fin des contrats de location : terme, guerre entre les deux, client disparu ou à sec.
+static func _hire_month(state: GameState, out: Array[Dictionary]) -> void:
+	for id in ids_of(state, -1):
+		var h: Dictionary = state.heroes[id]
+		var lender := int(h.get("lender", -1))
+		if lender < 0:
+			continue
+		var client := int(h["owner"])
+		var ec := state.get_empire(client)
+		var el := state.get_empire(lender)
+		var why := ""
+		if el == null or el.eliminated:
+			# Le syndicat a disparu : le héros reste chez son client.
+			h["lender"] = -1
+			continue
+		if ec == null or ec.eliminated:
+			why = "son client a disparu"
+		elif Combat.at_war(state, client, lender):
+			why = "la guerre rompt le contrat"
+		elif int(ec.resources.get("energy", 0)) < 0:
+			why = "le client ne paie plus"
+		elif state.tick >= int(h.get("lend_until", 0)):
+			why = "le contrat est arrivé à son terme"
+			Diplomacy.remember(state, lender, client, "hero_hired")
+		if why == "":
+			continue
+		h["owner"] = lender
+		h["lender"] = -1
+		h["post"] = ""
+		h["target"] = -1
+		h["served"] = state.tick
+		if int(h.get("jailer", -1)) == lender:
+			_free(state, h)
+		out.append(state.add_chronicle("%s rentre chez %s : %s." % [h["name"], el.display_name(), why], Espionage.public_to(state, [lender, client])))
+
+
 # --- Sauvegarde --------------------------------------------------------------------------------
 
 static func to_list(state: GameState) -> Array:
@@ -1220,4 +1510,12 @@ static func from_lists(state: GameState, heroes: Array, metas: Array) -> void:
 			mems.append({"name": String(x["name"]), "until": int(x["until"]), "credo": String(x["credo"])})
 		m["memorials"] = mems
 		m["election"] = int(m.get("election", 0))
+		var files := []
+		for f: Dictionary in m.get("files", []):
+			var rows := []
+			for r: Dictionary in f.get("heroes", []):
+				rows.append({"name": String(r["name"]), "cls": String(r["cls"]), "lvl": int(r["lvl"]), "post": String(r["post"]),
+						"loy": int(r["loy"]), "portrait": String(r["portrait"])})
+			files.append({"about": int(f["about"]), "day": int(f["day"]), "heroes": rows})
+		m["files"] = files
 		state.hero_meta[e] = m

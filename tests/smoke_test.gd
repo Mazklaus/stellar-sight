@@ -1454,9 +1454,50 @@ func _test_hero_ui(main: Node) -> void:
 		main.simulation.flush_commands()
 		await process_frame
 		_check(not Heroes.is_prisoner(st.heroes[pid]), "Panthéon : LIBÉRER rend le prisonnier")
+	# Lot 3 : un héros rival à louer, engagé depuis le marché du Panthéon.
+	var lid := Heroes.recruit(st, rival, Heroes.make_candidate(st, rival, "intendant", ["ui_louer"]))
+	st.heroes[lid]["for_hire"] = 1
+	for id in Heroes.ids_of(st, me):
+		if Heroes.ids_of(st, me).size() < Heroes.cap(st, me):
+			break
+		st.heroes.erase(id)
+	st.get_empire(me).resources["energy"] = maxi(500, int(st.get_empire(me).resources.get("energy", 0)))
+	if not st.get_empire(me).contacts.has(rival):
+		st.get_empire(me).contacts.append(rival)
+	if Combat.at_war(st, me, rival):
+		Diplomacy.end_war(st, me, rival)
+	screens.show_screen("heroes")
+	await process_frame
+	var hire_bt: Button = screens.hero_buttons.get("hire_%d" % lid)
+	if Heroes.is_avatar(st, me):  # une ruche n'engage personne (le peuple du joueur est tiré au hasard)
+		_check(hire_bt == null, "Panthéon : une ruche ne voit pas le marché des héros")
+	else:
+		_check(hire_bt != null and not hire_bt.disabled, "Panthéon : un héros à louer, ENGAGER possible (%s)" % Heroes.check_hire(st, me, lid))
+	if hire_bt != null:
+		hire_bt.pressed.emit()
+		main.simulation.flush_commands()
+		await process_frame
+		_check(int(st.heroes[lid]["owner"]) == me and int(st.heroes[lid]["lender"]) == rival, "Panthéon : ENGAGER loue le héros")
+	# Le dossier de ses héros s'affiche dans l'écran Renseignement.
+	Heroes.write_file(st, me, rival, false)
+	screens.intel_selected = rival
+	screens.show_screen("intel")
+	await process_frame
+	_check(_find_label(screens, "Ses héros, au "), "écran Renseignement : le dossier des héros du rival")
+	screens.show_screen("heroes")
+	await process_frame
 	_press(KEY_F10)
 	await process_frame
 	_check(not screens.is_open(), "F10 referme le Panthéon")
+
+
+func _find_label(n: Node, prefix: String) -> bool:
+	if n is Label and (n as Label).text.begins_with(prefix):
+		return true
+	for c in n.get_children():
+		if _find_label(c, prefix):
+			return true
+	return false
 
 
 ## Écran Victoire (F7) et panneau de fin de partie : continuer, ou revenir au menu.

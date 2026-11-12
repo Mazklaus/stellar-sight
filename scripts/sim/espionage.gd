@@ -609,6 +609,18 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		"archives":
 			if t.research_progress <= 0:
 				return "aucune recherche à brûler"
+		"dossier_heros":
+			if Heroes.ids_of(state, b).is_empty():
+				return "cet empire n'a aucun héros"
+		"corrompre":
+			if Heroes.op_target(state, b, true) < 0:
+				return "aucun héros à corrompre (les Avatars ne se vendent pas)"
+		"assassinat":
+			if Heroes.op_target(state, b, false) < 0:
+				return "aucun héros à abattre"
+		"exfiltration":
+			if Heroes.exfil_target(state, a, b) < 0:
+				return "il ne retient aucun de vos héros"
 	var cost := op_cost(state, a, op_id)
 	if not Economy.can_afford(e, cost):
 		return "pas assez de ressources (%s)" % GameData.format_amounts(cost)
@@ -728,8 +740,10 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			else:
 				c.construction_days += int(o["delay_days"])
 			Reputation.exploit(state, a, "sabotage")
-			return "le chantier de %s prend %d jours de retard. Un boulon mal serré, puis mille." % [
-					state.galaxy.get_planet(pid).display_name(state.galaxy), int(o["delay_days"])]
+			var hurt := Heroes.sabotage_governor(state, b, state.galaxy.get_planet(pid).system_id)
+			return "le chantier de %s prend %d jours de retard. Un boulon mal serré, puis mille.%s" % [
+					state.galaxy.get_planet(pid).display_name(state.galaxy), int(o["delay_days"]),
+					(" Le gouverneur %s est blessé dans l'explosion." % hurt) if hurt != "" else ""]
 		"archives":
 			@warning_ignore("integer_division")
 			var burnt := eb.research_progress * int(o["burn_pct"]) / 100
@@ -751,6 +765,15 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			eb.heir_suitor = a
 			Reputation.exploit(state, a, "heritier")
 			return "l'héritier accepte nos conseils, et notre or (loyauté %d). C'est à nous qu'il pense, désormais." % eb.heir_loyalty
+		"dossier_heros":
+			Heroes.write_file(state, a, b, false)
+			return "la liste de ses héros est sur la table : classes, niveaux, postes et humeurs (écran Renseignement)."
+		"corrompre":
+			return Heroes.corrupt(state, a, b, int(o["loyalty_loss"]))
+		"exfiltration":
+			return Heroes.exfiltrate(state, a, b)
+		"assassinat":
+			return Heroes.assassinate(state, a, b)
 	return ""
 
 
@@ -797,6 +820,8 @@ static func _discovered(state: GameState, a: int, b: int, o: Dictionary, ok: boo
 	for i in maxi(1, int(tb.get("caught_memory", 1))):
 		Diplomacy.remember(state, b, a, Reputation.caught_memory(state, a))
 	Diplomacy.remember(state, b, a, "spy_grief")
+	if ok and String(o["id"]) == "assassinat":
+		Diplomacy.remember(state, b, a, "hero_assassinated")
 	var verdict := "Ils ont réussi quand même : %s" % what if ok else "Ils repartent bredouilles, et repérés."
 	state.add_chronicle("Des agents de %s sont démasqués chez %s (%s). %s" % [ea.display_name(), eb.display_name(), String(o["label"]).to_lower(), verdict],
 			public_to(state, [a, b]))
@@ -1009,6 +1034,10 @@ static func _resolve_turned(state: GameState, a: int, b: int, o: Dictionary) -> 
 		ea.dossiers[b] = _report(state, a, b, data()["tiers"].size())
 		_record(state, a, b)
 		state.add_chronicle("%s, chez %s : le dossier complet est sur la table, cartes à jour comprises." % [o["label"], eb.short_name()],
+				private_to(state, [a]))
+	elif String(o["id"]) == "dossier_heros":
+		Heroes.write_file(state, a, b, true)
+		state.add_chronicle("%s, chez %s : la liste de ses héros est sur la table (écran Renseignement)." % [o["label"], eb.short_name()],
 				private_to(state, [a]))
 	else:
 		state.add_chronicle("%s, chez %s : l'opération échoue sans bruit. Les agents rentrent les mains vides et les pieds secs." % [

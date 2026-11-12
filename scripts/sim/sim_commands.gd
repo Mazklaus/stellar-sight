@@ -190,6 +190,16 @@ static func hero_dismiss(player: int, hero_id: int) -> Dictionary:
 	return {"type": "hero_dismiss", "player": player, "hero": hero_id}
 
 
+## Un syndicat met un héros en location (on) ou l'en retire.
+static func hero_for_hire(player: int, hero_id: int, on: bool) -> Dictionary:
+	return {"type": "hero_for_hire", "player": player, "hero": hero_id, "on": on}
+
+
+## Un empire engage un héros à louer.
+static func hero_hire(player: int, hero_id: int) -> Dictionary:
+	return {"type": "hero_hire", "player": player, "hero": hero_id}
+
+
 ## Le geôlier décide du sort d'un prisonnier : "free", "convert" ou "execute".
 static func hero_prisoner(player: int, hero_id: int, action: String) -> Dictionary:
 	return {"type": "hero_prisoner", "player": player, "hero": hero_id, "action": action}
@@ -287,6 +297,10 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Heroes.check_assign(state, int(cmd["player"]), int(cmd.get("hero", -1)), String(cmd.get("post", "?")), int(cmd.get("target", -1)))
 		"hero_dismiss":
 			return Heroes.check_dismiss(state, int(cmd["player"]), int(cmd.get("hero", -1)))
+		"hero_for_hire":
+			return Heroes.check_for_hire(state, int(cmd["player"]), int(cmd.get("hero", -1)), bool(cmd.get("on", false)))
+		"hero_hire":
+			return Heroes.check_hire(state, int(cmd["player"]), int(cmd.get("hero", -1)))
 		"hero_prisoner":
 			return Heroes.check_prisoner(state, int(cmd["player"]), int(cmd.get("hero", -1)), String(cmd.get("action", "")))
 		"spy_answer":
@@ -427,6 +441,10 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Heroes.assign(state, int(cmd["player"]), int(cmd["hero"]), String(cmd["post"]), int(cmd["target"]))
 		"hero_dismiss":
 			Heroes.dismiss(state, int(cmd["player"]), int(cmd["hero"]))
+		"hero_for_hire":
+			Heroes.set_for_hire(state, int(cmd["player"]), int(cmd["hero"]), bool(cmd["on"]))
+		"hero_hire":
+			Heroes.hire(state, int(cmd["player"]), int(cmd["hero"]))
 		"hero_prisoner":
 			Heroes.prisoner(state, int(cmd["player"]), int(cmd["hero"]), String(cmd["action"]))
 		"spy_answer":

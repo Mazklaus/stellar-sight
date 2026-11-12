@@ -543,7 +543,17 @@ Lot 2, lockstep (deux machines ou plus jouent la même partie), tours simultané
 - **Talents de peuple** : féodalité, héros de sang (loyauté +20) ; théocratie, saints (souvenir à chaque mort, ferveur +20) ; république, conseil élu (+1 siège, réélu tous les dix ans) ; ruche et conscience, Avatars (ni ambition, ni désertion, ni capture) ; horde, champions (un trait par pillage) ; Space opera héroïque, +1 place ; Picaresque, chaque exploit rapporte 30 de renom.
 - **IA** : la Normale et au-dessus convertit ses prisonniers s'il reste une place, sinon les libère une fois la guerre finie.
 - Sauvegarde 21 (une sauvegarde 20 donne à ses héros une ambition, une loyauté et une espérance de vie).
-- Reporté : les héros à louer du syndicat (avec les contrats de flotte, lot 3), l'héritier Ossarane en héros, les opérations contre les héros et la Légende (lot 3).
+- Reporté au lot 3 (fait, ci-dessous) : héros à louer, héritier Ossarane, opérations contre les héros, Légende.
+
+### Lot 3 : ombres et Légende
+
+- **Quatre opérations d'espionnage** (`data/espionage.json`) : *Dossier des héros* (renseignement, palier 2 : noms, classes, niveaux, postes et loyautés, affichés dans l'écran Renseignement), *Corruption* (intrigue, palier 3 : −30 de loyauté au meilleur héros, et s'il déserte, c'est chez le corrupteur ; un Avatar ne se vend pas), *Exfiltration* (larcin, palier 3 : libère un de nos héros prisonnier), *Assassinat* (sabotage, palier 4 : le meilleur héros meurt ; démasqué, c'est un grief durable, −50).
+- **Réseau retourné** : un *Dossier des héros* lancé depuis un réseau retourné rapporte un faux (seconds couteaux de niveau 1, sans poste, loyaux). **Sabotage d'un chantier** : le gouverneur du système est blessé (demi-blessure) et quitte son poste.
+- **Héritier Ossarane** : une dynastie a toujours son héritier parmi ses héros, sur une place à part. Sa loyauté est celle de la lignée (`heir_loyalty`, la diplomatie et la victoire de peuple la lisent toujours) ; on ne le renvoie pas ; s'il meurt, un autre prend son rang et la loyauté repart de sa valeur de départ.
+- **Légende** (victoire Picaresque) : il faut aussi un héros vivant et libre pour la porter.
+- **Héros à louer** (talent du syndicat) : le syndicat met en location un héros sans poste (LOUER dans le Panthéon) ; un empire rencontré, pas en guerre avec lui, l'engage depuis le marché du Panthéon pour un an, à 4 + 3 × niveau énergie par mois versés au syndicat. Le contrat finit au terme (souvenir favorable), à la guerre entre eux, ou si le client ne paie plus ; le héros rentre alors chez lui. Ordres `hero_for_hire`, `hero_hire`.
+- **IA** : le Vétéran et au-dessus met les opérations contre les héros en tête de son menu (exfiltration toujours, pour racheter les siens ; assassinat et corruption en guerre). Un syndicat IA loue ses héros inactifs ; un Vétéran en guerre et riche engage un Stratège.
+- Sauvegarde 21 inchangée : les nouveaux champs ont une valeur par défaut, et l'héritier apparaît au premier mois d'une ancienne partie.
 
 ## Organisation du code
 

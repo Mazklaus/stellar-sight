@@ -497,13 +497,20 @@ func _test_ai_war() -> void:
 	_ok(warships > 0, "les IA construisent des vaisseaux de guerre (%d)" % warships)
 	_ok(int(n["declared"]) > 0, "des IA belliqueuses déclarent la guerre (%d)" % n["declared"])
 	_ok(int(n["battles"]) > 0, "des batailles ont lieu entre IA (%d)" % n["battles"])
-	# Tempérament pacifique : aucune déclaration (seul l'Essaim est en guerre, par nature).
+	# Tempérament pacifique : aucune déclaration (seul l'Essaim est en guerre, par nature). Rejoindre la
+	# coalition contre un Essaim conquérant n'est pas une agression : un peuple que son caractère décale
+	# au-dessus de Pacifique le fait (voir AiPlayer._swarm_coalition).
 	var st2 := GameState.create(17, 150, 1800.0, "", {"spectator": true, "ai_level": "normal", "temperament": "pacifique"})
 	var sim2 := Simulation.new(st2)
 	var declared := [0]
 	sim2.chronicle_added.connect(func(entry: Dictionary) -> void:
-		if String(entry["text"]).contains("déclare la guerre"):
-			declared[0] += 1)
+		var t := String(entry["text"])
+		if not t.contains("déclare la guerre"):
+			return
+		for e in st2.empires:
+			if Combat.hunts(st2, e.id) and t.contains("guerre à %s" % e.display_name()):
+				return
+		declared[0] += 1)
 	sim2.advance(360 * 2)
 	_ok(declared[0] == 0, "des IA pacifiques ne déclarent jamais la guerre")
 	for e in st2.empires:
