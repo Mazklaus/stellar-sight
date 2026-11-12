@@ -7,7 +7,8 @@ extends RefCounted
 ## Chasse (voir AiPlayer._command_fleet) : en paix, la flotte de guerre attaque le nid ou le troupeau
 ## hostile connu le plus proche de la capitale, à 6 sauts au plus, si elle fait 1,5 fois ce qui s'y
 ## trouve (la Recrue ne compte pas et part dès qu'elle fait jeu égal). Gardiens (lot 2) : jusqu'à 8
-## sauts ; même en guerre s'il est à 4 sauts au plus et que la flotte fait 2 fois sa force.
+## sauts ; même en guerre s'il est à 4 sauts au plus et que la flotte fait 2 fois sa force. Fléaux
+## errants (lot 3) : comme un gardien, mais aussi chez soi, et en guerre à la marge ordinaire.
 ## Colonisation : un système où se tient un troupeau hostile est laissé de côté.
 
 
@@ -109,6 +110,12 @@ static func nest_target(ctx: Dictionary, f: Fleet, home: int) -> int:
 		if gsid >= 0 and Guardians.awake_at(state, gsid) == gid and Guardians.hostile(state, gid, e.id):
 			guards[gsid] = gid
 			cands[gsid] = ""
+	# Fléaux errants : vus, à l'arrêt. En guerre aussi, s'ils sont à 4 sauts (ils mangent nos colonies).
+	for pid in Plagues.alive(state):
+		var pf := Plagues.fleet_of(state, pid)
+		if pf != null and not pf.is_moving() and (Plagues.list(state)[pid]["seen"] as Dictionary).has(e.id):
+			guards[pf.system_id] = "fleau"
+			cands[pf.system_id] = ""
 	var ids := cands.keys()
 	ids.sort()
 	for sid in ids:
@@ -117,17 +124,20 @@ static func nest_target(ctx: Dictionary, f: Fleet, home: int) -> int:
 			pass
 		elif not Fauna.knows(state, e.id, sp) or not Fauna.species_hostile(state, e.id, sp):
 			continue
-		if not Fleets.is_explored(state, e.id, sid) or state.system_owner(sid) >= 0:
+		var owner := state.system_owner(sid)
+		if not Fleets.is_explored(state, e.id, sid) or (owner >= 0 and not (guards.get(sid, "") == "fleau" and owner == e.id)):
 			continue
 		var j := int(jumps.get(sid, 99))
 		var want := need
 		if guards.has(sid):
 			j -= 2  # 8 sauts au plus, comptés comme 6
 			if war:
-				# En guerre : seulement un gardien proche (4 sauts) et avec une large marge.
+				# En guerre : seulement un gardien proche (4 sauts) et avec une large marge ; un fléau
+				# proche, avec la marge ordinaire (il mange nos colonies).
 				if j > 2:
 					continue
-				want = need + 50
+				if guards[sid] != "fleau":
+					want = need + 50
 		if j < best_j and power * 100 >= want * maxi(1, Fauna.herd_power(state, sid)):
 			best = sid
 			best_j = j

@@ -197,7 +197,7 @@ static func spawn_herd(state: GameState, sp: String, sid: int, nest: int, until 
 		f.add_ship(unit, -1, -1)
 	f.troops = 0
 	f.fleet_name = ("%s dérangées" if nest < 0 else "Troupeau de %s") % String(sd["label"])
-	herds(state)[f.id] = {"sp": sp, "nest": nest, "next": state.tick + int(data()["migrate_days"]) + posmod(f.id * 53, 60), "until": until}
+	herds(state)[f.id] = {"sp": sp, "nest": nest, "next": state.tick + int(data()["migrate_days"]) + posmod(f.id * 53, 60), "until": until, "bait": -1}
 	return f
 
 
@@ -508,7 +508,7 @@ static func to_dict(state: GameState) -> Dictionary:
 		out["nests"].append({"sid": sid, "sp": String(n["sp"]), "born": int(n["born"]), "lost": int(n["lost"])})
 	for fid in herd_ids(state):
 		var h: Dictionary = herds(state)[fid]
-		out["herds"].append({"fleet": fid, "sp": String(h["sp"]), "nest": int(h["nest"]), "next": int(h["next"]), "until": int(h["until"])})
+		out["herds"].append({"fleet": fid, "sp": String(h["sp"]), "nest": int(h["nest"]), "next": int(h["next"]), "until": int(h["until"]), "bait": int(h.get("bait", -1))})
 	var meta: Dictionary = state.fauna.get("meta", {})
 	var eids := meta.keys()
 	eids.sort()
@@ -519,6 +519,7 @@ static func to_dict(state: GameState) -> Dictionary:
 				"techs": _sorted_pairs(m.get("techs", {})), "unlock": _sorted_pairs(m.get("unlock", {}))})
 	out["guardians"] = Guardians.to_list(state)
 	out["choke"] = Guardians.choke_list(state)
+	out["plagues"] = Plagues.to_dict(state)
 	return out
 
 
@@ -531,7 +532,7 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 	for n: Dictionary in d.get("nests", []):
 		nests(state)[int(n["sid"])] = {"sp": String(n["sp"]), "born": int(n["born"]), "lost": int(n["lost"])}
 	for h: Dictionary in d.get("herds", []):
-		herds(state)[int(h["fleet"])] = {"sp": String(h["sp"]), "nest": int(h["nest"]), "next": int(h["next"]), "until": int(h["until"])}
+		herds(state)[int(h["fleet"])] = {"sp": String(h["sp"]), "nest": int(h["nest"]), "next": int(h["next"]), "until": int(h["until"]), "bait": int(h.get("bait", -1))}
 	for m: Dictionary in d.get("meta", []):
 		var mm := {"seen": {}, "study": {}, "stance": {}, "kills": {}, "techs": {}, "unlock": {}}
 		for k in ["seen", "study", "kills", "techs", "unlock"]:
@@ -542,3 +543,4 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 		state.fauna["meta"][int(m["e"])] = mm
 	Guardians.from_list(state, d.get("guardians", []))
 	Guardians.choke_from(state, d.get("choke", []))
+	Plagues.from_dict(state, d.get("plagues", {}))

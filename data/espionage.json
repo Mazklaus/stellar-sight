@@ -81,7 +81,10 @@
 			"text": "Un repaire que vos agents connaissent lance un raid contre lui, à vos frais nuls et à son insu (il faut un de ses systèmes à portée du repaire)."},
 		{"id": "etouffer", "family": "sabotage", "label": "Étouffer une étoile", "tier": 3,
 			"cost": {"influence": 50, "energy": 60}, "days": 60, "success": 60, "discovery": 35, "spend": 20,
-			"text": "Une dent du Mange-soleil glissée dans l'étoile de sa capitale : −50 % de production dans ce système pendant six mois (il faut avoir abattu le Mange-soleil)."}
+			"text": "Une dent du Mange-soleil glissée dans l'étoile de sa capitale : −50 % de production dans ce système pendant six mois (il faut avoir abattu le Mange-soleil)."},
+		{"id": "appat", "family": "sabotage", "label": "Appât", "tier": 2,
+			"cost": {"influence": 40, "energy": 50}, "days": 45, "success": 60, "discovery": 30, "spend": 15,
+			"text": "Des balises odorantes semées chez lui : un fléau errant change de route vers ses colonies, ou, à défaut, un troupeau hostile proche (5 sauts) vient se servir chez lui."}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
 	"chances": {

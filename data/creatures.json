@@ -73,6 +73,23 @@
 			"study_fx": {"production_pct": {"food": 8}}, "study_text": "+8 % de nourriture : leurs pâtures donnent des idées aux agronomes."
 		}
 	},
+	"plagues": {
+		"_doc": "Fléaux errants (proposition 10) : 0 à 2 par partie, pas avant l'an 15. Ils parcourent la carte, visent les colonies (jamais les capitales), y dévorent de la population et repartent au bout d'un an s'ils ne sont pas abattus. Abattus à plusieurs, le Triomphe se partage selon les dégâts. Sources : monstres voyageurs de Master of Orion II, Spectre de Stellaris.",
+		"first_day": 5400, "spread_days": 1080, "gap_days": 720,
+		"count": {"aucune": 0, "rares": 1, "normales": 1, "grouillantes": 2}, "big_galaxy": 220,
+		"_count": "Nombre de fléaux selon la densité de créatures, un de plus si la galaxie a au moins big_galaxy systèmes (2 au plus). En Rares, une partie sur deux n'en a pas.",
+		"life_days": 360, "stay_days": 25, "eat_pop": 3, "eat_stab": -20, "eat_stab_days": 360,
+		"triumph": {"stab": 10, "days": 720, "influence": 60, "min_share": 20},
+		"_triumph": "Partagé selon les dégâts : chaque empire qui a fait au moins min_share % des dégâts reçoit sa part d'influence et de stabilité (au moins 3) ; le premier reçoit le trophée.",
+		"kinds": {
+			"spectre": {"name": "Spectre des pulsars", "units": [["bete_spectre", 1], ["bete_eclat_spectral", 3]], "spawn_star": ["neutron"], "weak_pct": -50, "trophy": "flamme_spectre",
+				"text": "Une lueur qui a la forme d'un vaisseau, et la faim d'une flotte. Il naît des pulsars et porte leur couleur.",
+				"trait": "Affaibli de moitié (dégâts) dans les systèmes dont l'étoile a sa couleur."},
+			"migration": {"name": "Grande Migration", "units": [["bete_belier_fou", 6]], "trophy": "corne_migration",
+				"text": "Un troupeau de Béliers d'écume devenu fou. Quatre fois plus robustes, ils traversent la galaxie en mangeant les colonies.",
+				"trait": "Quatre fois plus robustes qu'un troupeau ordinaire ; on peut les dépecer."}
+		}
+	},
 	"units": {
 		"bete_nacrelle": {"label": "Nacrelle", "plural": "Nacrelles", "line": "line", "size": "medium", "role": "Créature", "hp": 120, "armor": 0, "shield": 60, "weapons": {"kinetic": 20}, "speed": 20, "military": true, "creature": "nacrelles",
 			"description": "Une méduse du vide. Son voile renvoie les rayons ; le reste est mou."},
@@ -83,6 +100,12 @@
 		"bete_nuee": {"label": "Nuée d'orage", "plural": "Nuées d'orage", "line": "screen", "size": "small", "role": "Créature", "hp": 50, "armor": 0, "shield": 50, "weapons": {"decharge": 22}, "speed": 34, "military": true, "creature": "nuees",
 			"description": "Une décharge qui a appris à chasser."},
 		"bete_belier": {"label": "Bélier d'écume", "plural": "Béliers d'écume", "line": "line", "size": "large", "role": "Créature", "hp": 260, "armor": 30, "shield": 0, "weapons": {"kinetic": 22}, "speed": 14, "military": true, "creature": "beliers",
-			"description": "Des cornes de glace, une patience de montagne, un très mauvais caractère quand on touche aux petits."}
+			"description": "Des cornes de glace, une patience de montagne, un très mauvais caractère quand on touche aux petits."},
+		"bete_spectre": {"label": "Spectre des pulsars", "plural": "Spectres des pulsars", "line": "line", "size": "titan", "role": "Fléau", "hp": 5200, "armor": 20, "shield": 70, "weapons": {"beam": 70, "missile": 40}, "speed": 18, "military": true, "plague": "spectre",
+			"description": "Une lueur qui a la forme d'un vaisseau. Les boucliers n'arrêtent pas la nostalgie."},
+		"bete_eclat_spectral": {"label": "Éclat spectral", "plural": "Éclats spectraux", "line": "line", "size": "medium", "role": "Fléau", "hp": 420, "armor": 10, "shield": 40, "weapons": {"beam": 18}, "speed": 18, "military": true, "plague": "spectre",
+			"description": "Des bribes de lumière qui suivent le Spectre comme des mouettes un chalutier."},
+		"bete_belier_fou": {"label": "Bélier fou", "plural": "Béliers fous", "line": "line", "size": "large", "role": "Fléau", "hp": 1040, "armor": 30, "shield": 0, "weapons": {"kinetic": 30}, "speed": 16, "military": true, "creature": "beliers", "plague": "migration",
+			"description": "Le même Bélier d'écume, en quatre fois plus têtu. Il ne s'arrête que pour manger, et il mange des villes."}
 	}
 }

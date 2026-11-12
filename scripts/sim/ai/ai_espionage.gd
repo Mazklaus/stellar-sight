@@ -53,7 +53,7 @@ static func think(ctx: Dictionary) -> void:
 
 
 const OP_RESERVE := 100
-const WAR_OPS := ["sabotage_chantier", "archives", "partisans", "inciter", "larcin_relique", "dissidence", "heritier", "discorde", "vol_techno", "siphon", "rapport", "etouffer"]
+const WAR_OPS := ["sabotage_chantier", "archives", "partisans", "inciter", "larcin_relique", "dissidence", "heritier", "discorde", "vol_techno", "siphon", "rapport", "etouffer", "appat"]
 const PEACE_OPS := ["vol_techno", "heritier", "rapport"]
 const CALM_OPS := ["rapport"]
 const ROGUE_PEACE_OPS := ["vol_techno", "larcin_relique", "siphon", "dissidence", "heritier", "rapport"]

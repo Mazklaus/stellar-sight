@@ -9,6 +9,7 @@ extends RefCounted
 ##    un troupeau quand le délai de repeuplement est passé, que personne ne l'en empêche et que le
 ##    système n'a pas été revendiqué (un nid colonisé dort) ;
 ## 4. gardiens (Guardians.daily) : riposte, étoile rongée, réveils, visites de l'Horloger ;
+##    fléaux errants (Plagues.daily) : naissance à leur date, d'une colonie à l'autre, départ au bout d'un an ;
 ## 5. études : celles qui arrivent à terme donnent leur bonus.
 ## Aucun aléatoire : les choix de destination suivent un hachage de la graine, du troupeau et du jour.
 
@@ -20,16 +21,17 @@ static func process(state: GameState) -> Array[Dictionary]:
 	if not Fauna.active(state) and (state.fauna.get("meta", {}) as Dictionary).is_empty():
 		return added
 	for fid in Fauna.herd_ids(state):
-		_herd(state, fid)
+		_herd(state, fid, added)
 	_contacts(state, added)
 	for sid in Fauna.nest_ids(state):
 		_nest(state, sid, added)
 	Guardians.daily(state, added)
+	Plagues.daily(state, added)
 	_studies(state, added)
 	return added
 
 
-static func _herd(state: GameState, fid: int) -> void:
+static func _herd(state: GameState, fid: int, added: Array[Dictionary]) -> void:
 	var h: Dictionary = Fauna.herds(state)[fid]
 	var f: Fleet = state.fleets.get(fid)
 	var nest := int(h["nest"])
@@ -39,6 +41,13 @@ static func _herd(state: GameState, fid: int) -> void:
 			Fauna.nests(state)[nest]["lost"] = state.tick
 		return
 	if f.is_moving() or state.battles.has(f.system_id):
+		return
+	# Troupeau attiré par un Appât (Plagues.bait) : il se sert à destination, puis rentre.
+	if int(h.get("bait", -1)) >= 0:
+		if f.system_id == int(h["bait"]):
+			Plagues.herd_bait_arrived(state, fid, added)
+		elif not _go(state, f, int(h["bait"])):
+			h["bait"] = -1
 		return
 	if int(h["until"]) > 0:
 		if state.tick >= int(h["until"]):

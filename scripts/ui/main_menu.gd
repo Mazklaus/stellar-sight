@@ -148,6 +148,8 @@ var victories := {"conquete": true, "domination": true, "allies": true}
 var _victory_checks := {}
 ## Difficulté progressive : les bonus des IA Expert et Légende montent avec le temps.
 var ai_scaling := false
+var plagues := true
+var _plague_check: CheckBox
 var _scaling_check: CheckBox
 ## Densité des repaires pirates (voir Pirates.densities).
 var pirates := Pirates.default_density()
@@ -1411,6 +1413,14 @@ func set_victory(key: String, on: bool) -> bool:
 	return true
 
 
+func set_plagues(on: bool) -> void:
+	plagues = on
+	if _plague_check:
+		_plague_check.set_pressed_no_signal(on)
+		_plague_check.disabled = creatures == "aucune"
+	_refresh_preset()
+
+
 func set_ai_scaling(on: bool) -> void:
 	ai_scaling = on
 	if _scaling_check:
@@ -1433,6 +1443,8 @@ func set_creatures(id: String) -> void:
 		for i in Fauna.densities().size():
 			if String(Fauna.densities()[i]["id"]) == creatures:
 				_creature_select.select(i)
+	if _plague_check:
+		_plague_check.disabled = creatures == "aucune"
 	_refresh_preset()
 
 
@@ -1474,7 +1486,7 @@ func set_politics(id: String) -> void:
 
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
-	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "events": events, "curios": curios, "quests": quests, "politics": politics}
+	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics}
 
 
 func set_spectator(on: bool) -> void:
@@ -1732,7 +1744,14 @@ func _build_new_page(root: Control) -> void:
 	_creature_select.tooltip_text = "\n".join(ftip)
 	_creature_select.item_selected.connect(func(i: int) -> void: set_creatures(String(Fauna.densities()[i]["id"])))
 	_labeled_row(game, "Créatures", _creature_select)
+	_plague_check = CheckBox.new()
+	_plague_check.text = "Fléaux errants"
+	_plague_check.focus_mode = Control.FOCUS_NONE
+	_plague_check.tooltip_text = "Avec des créatures : 0 à 2 fléaux par partie, pas avant l'an 15 (Spectre des pulsars, Grande Migration).\nIls vont de colonie en colonie, jamais une capitale, et repartent au bout d'un an s'ils ne sont pas abattus."
+	_plague_check.toggled.connect(set_plagues)
+	game.add_child(_plague_check)
 	set_creatures(creatures)
+	set_plagues(plagues)
 	_event_select = OptionButton.new()
 	_event_select.clip_text = true
 	var etip := PackedStringArray(["Événements : des cartes à trancher (fête, grève, prophète, rival…), avec des choix chiffrés et des choix propres à votre peuple."])
@@ -2507,7 +2526,7 @@ func settings() -> Dictionary:
 	return {"faction": selected_faction, "slots": saved_slots, "duplicates": allow_duplicates, "team": player_team,
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
-		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
+		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2523,7 +2542,7 @@ func default_settings() -> Dictionary:
 		"ai_level": AiLevels.default_id(), "temperament": AiLevels.default_temperament(), "spectator": false,
 		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "timer": "", "deadline": Victory.default_deadline(), "people": true,
 		"victories": {"conquete": true, "domination": true, "allies": true}, "ai_scaling": false,
-		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "events": Events.default_frequency(), "curios": Curios.default_density(),
+		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "plagues": true, "events": Events.default_frequency(), "curios": Curios.default_density(),
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults()}
 
 
@@ -2587,6 +2606,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_ai_scaling(bool(d.get("ai_scaling", false)))
 	set_pirates(String(d.get("pirates", base.get("pirates", Pirates.default_density()))))
 	set_creatures(String(d.get("creatures", base.get("creatures", Fauna.default_density()))))
+	set_plagues(bool(d.get("plagues", true)))
 	set_events(String(d.get("events", base["events"])))
 	set_curios(String(d.get("curios", base["curios"])))
 	set_quests(String(d.get("quests", base["quests"])))

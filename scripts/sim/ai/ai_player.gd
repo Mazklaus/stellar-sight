@@ -1595,8 +1595,14 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 		if nest >= 0:
 			var guard := Guardians.awake_at(state, nest)
 			if nest != here and _issue(ctx, SimCommands.move_fleet(e.id, f.id, nest)):
+				var plague := -1
+				for g in Fleets.fleets_at(state, nest, GameState.FAUNA_ID):
+					if Plagues.of_fleet(state, g) >= 0:
+						plague = Plagues.of_fleet(state, g)
 				if guard != "":
 					_intent(ctx, "Part abattre %s" % String(Guardians.def(guard)["name"]))
+				elif plague >= 0:
+					_intent(ctx, "Part affronter %s" % Plagues.name_of(state, plague))
 				else:
 					_intent(ctx, "Part chasser les créatures de %s" % state.galaxy.systems[nest].system_name)
 			return
