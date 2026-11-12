@@ -309,6 +309,8 @@ static func context(state: GameState, empire_id: int) -> Dictionary:
 			global.append(["Butin récent", int(tal["loot_recent"])])
 		elif state.tick >= int(tal.get("loot_none_days", 360)) and state.tick - last > int(tal.get("loot_none_days", 360)):
 			global.append(["Les clans s'ennuient (pas de pillage)", int(tal.get("loot_none", 0))])
+	# Pirates : scandale ou honte d'un tribut payé.
+	global.append_array(Pirates.stability_parts(state, empire_id))
 	c["global"] = global
 	# Flottes armées à l'arrêt, par système.
 	var armed := {}

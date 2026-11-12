@@ -179,6 +179,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		if day == 1:
 			dpct += Research.fx_int(state, f.owner, "first_day_damage_pct")
 		dpct += Heroes.damage_pct(state, f, day, state.system_owner(sid) == f.owner)
+		dpct += Pirates.hunt_pct(state, f, fighters)
 		if dpct != 0:
 			@warning_ignore("integer_division")
 			bonus = bonus * maxi(0, 100 + dpct) / 100

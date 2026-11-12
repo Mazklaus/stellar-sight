@@ -18,7 +18,8 @@ extends RefCounted
 ##    tactiques, défense des systèmes assiégés, offensives, sièges, invasions et retraites ;
 ## 7. diplomatie (AiDiplomacy) : propositions de traités, alliances quittées, talents diplomatiques
 ##    du peuple (héritier, arbitrage) ; puis espionnage (AiEspionage) : où placer ses cellules ;
-## 8. héros (AiHeroes), puis stabilité (AiStability) : décrets, offrande, mondes libres à réintégrer.
+## 8. héros (AiHeroes), stabilité (AiStability) : décrets, offrande, mondes libres à réintégrer ;
+##    pirates (AiPirates) : tribut, contrats ; la chasse aux repaires passe par les flottes de guerre.
 ##
 ## Règles d'or : la simulation reste déterministe (aucun aléatoire hors de l'état : les « oublis »
 ## des niveaux bas viennent d'un hachage de la graine, du jour et de l'empire), l'IA ne lit que
@@ -57,6 +58,7 @@ static func think(state: GameState, e: Empire) -> void:
 	_diplomacy(ctx)
 	AiHeroes.think(ctx)
 	AiStability.think(ctx)
+	AiPirates.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 
@@ -240,7 +242,7 @@ static func colonize_target(ctx: Dictionary, f: Fleet) -> Dictionary:
 	var use := _use(ctx)
 	var plan := bool(ctx["lv"].get("plan_targets", true))
 	var taken := _targeted(state, e, f.id)
-	var res := Fleets._dijkstra(state, e.id, f.system_id)
+	var res := Fleets._dijkstra(state, e.id, f.system_id, Fleets.avoids_lairs(state, f))
 	var speed := Fleets.speed(f, state)
 	var best := {}
 	var best_score := 0
@@ -250,7 +252,7 @@ static func colonize_target(ctx: Dictionary, f: Fleet) -> Dictionary:
 		var sid := int(k)
 		if not Fleets.is_explored(state, e.id, sid) or taken.has(sid) or Economy.has_foothold(state, e.id, sid):
 			continue
-		if _owner(ctx, sid) != -1:
+		if _owner(ctx, sid) != -1 or Pirates.guard_fleet(state, sid) != null and Fleets.is_explored(state, e.id, sid):
 			continue
 		var claim := best_claim(state, e, sid, use, _seen(ctx))
 		if claim.is_empty() or int(claim["value"]) < MIN_TARGET_VALUE:
@@ -1574,6 +1576,13 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 		if _issue(ctx, SimCommands.move_fleet(e.id, f.id, threatened)):
 			_intent(ctx, "Vole au secours de %s" % state.galaxy.systems[threatened].system_name)
 		return
+	# En paix : démanteler un repaire pirate connu (Vétéran et plus).
+	if threatened < 0:
+		var lair := AiPirates.lair_target(ctx, f, home)
+		if lair >= 0:
+			if lair != here and _issue(ctx, SimCommands.move_fleet(e.id, f.id, lair)):
+				_intent(ctx, "Part démanteler %s" % Pirates.lair_ref(state, lair))
+			return
 	if e.wars.is_empty() or threatened == here:
 		if here != home and threatened < 0:
 			_issue(ctx, SimCommands.move_fleet(e.id, f.id, home))

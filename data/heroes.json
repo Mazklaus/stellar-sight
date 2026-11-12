@@ -49,6 +49,10 @@
 		"exploit": {
 			"renown": 0,
 			"cls": "ombre"
+		},
+		"lair": {
+			"renown": 30,
+			"cls": "stratege"
 		}
 	},
 	"offer_size": 3,

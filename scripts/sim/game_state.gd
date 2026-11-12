@@ -8,17 +8,19 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 22
+const FORMAT_VERSION := 23
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
 ## Identifiant des Sans-Bannière (faction neutre, voir npc_empire) : au-delà de tout indice d'empire.
 const NPC_ID := 90
+## Identifiant des Pirates (repaires et raids, voir Pirates et pirate_empire).
+const PIRATE_ID := 91
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
 static var last_error := ""
@@ -97,6 +99,12 @@ var hero_meta: Dictionary = {}
 ## "decree", "decree_end", "offer", "wild"} ; et par empire le dernier pillage et la dernière paix.
 var stability: Dictionary = {}
 var stab_meta: Dictionary = {}
+## Repaires pirates (voir Pirates) : identifiant de système -> état du repaire ; primes et hontes ;
+## densité choisie dans Nouvelle partie.
+var lairs: Dictionary = {}
+var pirate_meta: Dictionary = {}
+var pirate_density: String = "aucun"
+var _pirates: Empire
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -157,6 +165,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	for e in s.empires:
 		e.probes = int(GameData.espionage()["probes"]["start"])
 	Heroes.setup(s)
+	Pirates.setup(s, String(options.get("pirates", "aucun")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -246,6 +255,9 @@ func to_dict() -> Dictionary:
 		"hero_meta": Heroes.meta_to_list(self),
 		"stability": Stability.to_list(self),
 		"stab_meta": Stability.meta_to_dict(self),
+		"lairs": Pirates.to_list(self),
+		"pirate_meta": Pirates.meta_to_dict(self),
+		"pirate_density": pirate_density,
 	}
 
 
@@ -422,6 +434,9 @@ static func from_dict(d: Dictionary) -> GameState:
 	s.next_hero_id = int(d.get("next_hero_id", 0))
 	s.stability = Stability.from_list(d.get("stability", []))
 	s.stab_meta = Stability.meta_from_dict(d.get("stab_meta", {}))
+	s.lairs = Pirates.from_list(d.get("lairs", []))
+	s.pirate_meta = Pirates.meta_from_dict(d.get("pirate_meta", {}))
+	s.pirate_density = String(d.get("pirate_density", "aucun"))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant les héros : chaque empire reçoit son héros de départ.
 	if int(d["version"]) < 20:
@@ -481,6 +496,8 @@ func spawn_ship(owner_id: int, ship_id: String, system_id: int) -> Fleet:
 func get_empire(id: int) -> Empire:
 	if id == NPC_ID:
 		return npc_empire()
+	if id == PIRATE_ID:
+		return pirate_empire()
 	if id < 0 or id >= empires.size():
 		return null
 	return empires[id]
@@ -502,8 +519,26 @@ func npc_empire() -> Empire:
 	return _npc
 
 
+## Les Pirates : faction hostile à tous, hors de la liste des empires, qui tient les repaires et
+## lance les raids (voir Pirates). Elle connaît toutes les routes ; recréée à la demande.
+func pirate_empire() -> Empire:
+	if _pirates == null:
+		_pirates = Empire.new()
+		_pirates.id = PIRATE_ID
+		_pirates.faction_id = "pirates"
+		var d: Dictionary = GameData.pirates().get("npc", {})
+		_pirates.npc_faction = {"id": "pirates", "name": String(d.get("name", "Les Pirates")),
+				"short": String(d.get("short", "Pirates")), "color": String(d.get("color", "#c75b4a"))}
+		_pirates.capital_planet = -1
+		_pirates.home_planet = -1
+		for sys in galaxy.systems:
+			_pirates.explored[sys.id] = true
+	return _pirates
+
+
+## Faction non jouable (Sans-Bannière ou Pirates).
 static func is_npc(id: int) -> bool:
-	return id == NPC_ID
+	return id == NPC_ID or id == PIRATE_ID
 
 
 ## Identifiants des planètes revendiquées, triés : tout parcours qui modifie l'état passe par là,

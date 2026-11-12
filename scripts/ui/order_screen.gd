@@ -3,7 +3,8 @@ extends RefCounted
 ## Écran Ordre intérieur (F12) : la stabilité de l'empire (voir Stability).
 ## Colonne de gauche : stabilité d'empire et son effet, systèmes par palier, talents du peuple.
 ## Contenu : vos systèmes du moins stable au plus stable (valeur, palier, cible, décret en cours,
-## décrets possibles), puis les mondes libres qui touchent votre territoire (réintégrer).
+## décrets possibles), puis les mondes libres qui touchent votre territoire (réintégrer), puis les
+## repaires pirates connus (tribut, contrat contre un rival, prime ; démanteler = y envoyer une flotte).
 ## Construit dans les conteneurs d'EmpireScreens, dont il reprend les aides (_grid, _key_value…).
 
 
@@ -50,6 +51,12 @@ static func build(es: EmpireScreens) -> void:
 		es._side_box.add_child(UiTheme.dim("Talents de votre peuple", 13))
 		for tl in talents:
 			es._side_box.add_child(UiTheme.paragraph("%s : %s" % [tl[0], tl[1]], EmpireScreens.SIDE_WIDTH - 24.0, 12))
+	var ptal := Pirates.talent_labels(state, player)
+	if not ptal.is_empty():
+		es._side_box.add_child(HSeparator.new())
+		es._side_box.add_child(UiTheme.dim("Face aux pirates", 13))
+		for tl in ptal:
+			es._side_box.add_child(UiTheme.paragraph("%s : %s" % [tl[0], tl[1]], EmpireScreens.SIDE_WIDTH - 24.0, 12))
 	es._side_box.add_child(HSeparator.new())
 	es._side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("order").get("why", "")), EmpireScreens.SIDE_WIDTH - 24.0, 13))
 
@@ -81,6 +88,8 @@ static func build(es: EmpireScreens) -> void:
 		fb.body.add_child(UiTheme.paragraph("Des systèmes qui ont fait sécession et rejoint %s. Ils se reprennent par la force, ou se réintègrent contre de l'influence quand l'empire est assez stable." % String(Stability.data()["npc"]["name"]), 760.0, 13))
 		for sid in free:
 			fb.body.add_child(_free_row(es, sid))
+	if not state.lairs.is_empty() and state.get_empire(player) != null:
+		col.add_child(_lairs_block(es))
 
 
 ## Ce qui change l'écran : mois, systèmes et leurs entrées de stabilité, ressources.
@@ -88,8 +97,9 @@ static func signature(es: EmpireScreens) -> String:
 	var state := es._state
 	var e := state.get_empire(es._player)
 	@warning_ignore("integer_division")
-	return "%d|%s|%s|%s|%d" % [state.tick / 30, str(Stability.systems_of(state, es._player)), str(state.stability),
-			str(free_worlds(state, es._player)), e.resources.get("influence", 0) if e else 0]
+	return "%d|%s|%s|%s|%d|%d|%s|%s|%d" % [state.tick / 30, str(Stability.systems_of(state, es._player)), str(state.stability),
+			str(free_worlds(state, es._player)), e.resources.get("influence", 0) if e else 0, e.resources.get("energy", 0) if e else 0,
+			str(Pirates.known_lairs(state, es._player)), str(state.lairs) + str(state.pirate_meta), es.order_victim]
 
 
 ## Mondes libres (Sans-Bannière) voisins d'un système de l'empire, par identifiant.
@@ -206,3 +216,120 @@ static func _free_row(es: EmpireScreens, sid: int) -> Control:
 ## Observateur (aucun empire) : pas d'ordres.
 static func _ro(es: EmpireScreens) -> bool:
 	return es._state.get_empire(es._player) == null
+
+
+## Repaires pirates connus, et la cible choisie pour les contrats et les primes.
+static func _lairs_block(es: EmpireScreens) -> Control:
+	var state := es._state
+	var player := es._player
+	var e := state.get_empire(player)
+	var b := Widgets.Block.new("Repaires pirates connus")
+	var known := Pirates.known_lairs(state, player)
+	b.body.add_child(UiTheme.paragraph("Les repaires lancent des raids vers le système le moins défendu à %d sauts : ils volent, font baisser la stabilité et ne conquièrent jamais. Une flotte armée ou une batterie sur place détourne les pillards. Pour démanteler un repaire, envoyez une flotte armée détruire sa garde." % int(Pirates.data()["raid"]["range_jumps"]), 760.0, 13))
+	# Cible des contrats et des primes : un empire rencontré.
+	var rivals: Array = e.contacts.filter(func(c: int) -> bool:
+		var o := state.get_empire(c)
+		return o != null and not o.eliminated)
+	rivals.sort()
+	if not rivals.has(es.order_victim):
+		es.order_victim = int(rivals[0]) if not rivals.is_empty() else -1
+	if not rivals.is_empty() and not _ro(es):
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		row.add_child(UiTheme.dim("Cible des contrats et des primes", 14))
+		var pick := OptionButton.new()
+		pick.focus_mode = Control.FOCUS_NONE
+		for i in rivals.size():
+			var o := state.get_empire(int(rivals[i]))
+			var w := Pirates.bounty_weight(state, o.id)
+			pick.add_item(o.short_name() + ("  (%d prime%s)" % [w, "s" if w > 1 else ""] if w > 0 else ""), int(rivals[i]))
+			if int(rivals[i]) == es.order_victim:
+				pick.select(i)
+		pick.item_selected.connect(func(i: int) -> void:
+			es.order_victim = pick.get_item_id(i)
+			es.show_screen("order"))
+		row.add_child(pick)
+		var why := Pirates.check_bounty(state, player, es.order_victim)
+		var bb := Button.new()
+		bb.focus_mode = Control.FOCUS_NONE
+		bb.text = "Mettre une prime (%s)" % GameData.format_amounts(Pirates.bounty_cost(state, player))
+		bb.disabled = why != ""
+		bb.tooltip_text = why if why != "" else "Prime anonyme pendant %d ans : les raids de tous les repaires visent en priorité l'empire le plus mis à prix." % (int(Pirates.data()["bounty"]["days"]) / 360)
+		var victim := es.order_victim
+		bb.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.pirate_bounty(player, victim)))
+		row.add_child(bb)
+		es.order_buttons["bounty"] = bb
+		b.body.add_child(row)
+	if known.is_empty():
+		b.body.add_child(UiTheme.dim("Aucun repaire repéré : explorez la galaxie pour les trouver.", 14))
+	for sid in known:
+		b.body.add_child(_lair_row(es, sid))
+	return b
+
+
+static func _lair_row(es: EmpireScreens, sid: int) -> Control:
+	var state := es._state
+	var player := es._player
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var col := Color(String(Pirates.data()["npc"]["color"])).lightened(0.25)
+	var name_b := Button.new()
+	name_b.flat = true
+	name_b.text = Pirates.lair_name(state, sid)
+	name_b.custom_minimum_size = Vector2(210, 0)
+	name_b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	name_b.clip_text = true
+	name_b.add_theme_font_size_override("font_size", 16)
+	name_b.add_theme_color_override("font_color", col)
+	var planets: Array = state.galaxy.systems[sid].planet_ids
+	if not planets.is_empty():
+		var first := int(planets[0])
+		name_b.tooltip_text = "Ouvrir le système"
+		name_b.pressed.connect(func() -> void: es.planet_requested.emit(first))
+	row.add_child(name_b)
+	var g := Pirates.guard_fleet(state, sid)
+	var info := Label.new()
+	info.text = ("garde : %d vaisseaux" % g.ships.size()) if g != null else "garde détruite, elle se reforme"
+	info.custom_minimum_size = Vector2(190, 0)
+	info.add_theme_font_size_override("font_size", 14)
+	info.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	info.mouse_filter = Control.MOUSE_FILTER_STOP
+	info.tooltip_text = ("Puissance de la garde : %d. Une flotte d'au moins cette force, sur place, démantèle le repaire en la détruisant." % Pirates.guard_power(state, sid)) if g != null else ""
+	row.add_child(info)
+	if _ro(es):
+		return row
+	var until := Pirates.tribute_until(state, sid, player)
+	if until > state.tick:
+		var tl := Label.new()
+		@warning_ignore("integer_division")
+		tl.text = "Tribut payé : encore %d mois" % ((until - state.tick + 29) / 30)
+		tl.add_theme_color_override("font_color", UiTheme.GOLD)
+		tl.add_theme_font_size_override("font_size", 13)
+		tl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(tl)
+	else:
+		var why := Pirates.check_tribute(state, player, sid)
+		var tb := Button.new()
+		tb.flat = true
+		tb.focus_mode = Control.FOCUS_NONE
+		tb.add_theme_font_size_override("font_size", 13)
+		tb.text = "Tribut (%s)" % GameData.format_amounts(Pirates.tribute_cost(state, player))
+		tb.disabled = why != ""
+		tb.tooltip_text = why if why != "" else "Un an sans raid de ce repaire contre vous."
+		tb.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.pirate_tribute(player, sid)))
+		row.add_child(tb)
+		es.order_buttons["tribute:%d" % sid] = tb
+	if es.order_victim >= 0:
+		var why := Pirates.check_hire(state, player, sid, es.order_victim)
+		var hb := Button.new()
+		hb.flat = true
+		hb.focus_mode = Control.FOCUS_NONE
+		hb.add_theme_font_size_override("font_size", 13)
+		hb.text = "Engager contre %s (%s)" % [state.get_empire(es.order_victim).short_name(), GameData.format_amounts(Pirates.hire_cost(state, player))]
+		hb.disabled = why != ""
+		hb.tooltip_text = why if why != "" else "Le repaire lance aussitôt un raid contre cet empire. Personne ne saura qui a payé."
+		var victim := es.order_victim
+		hb.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.pirate_hire(player, sid, victim)))
+		row.add_child(hb)
+		es.order_buttons["hire:%d" % sid] = hb
+	return row
