@@ -10,7 +10,9 @@ extends RefCounted
 ## state.lairs[sid] = {"born": jour de fondation, "next": prochain raid, "guard": flotte de garde
 ##   (-1 si détruite), "lost": jour où la garde est tombée, "raid": {"fleet", "target", "back",
 ##   "by", "victim"} (raid en cours, {} sinon), "contract": {"by", "victim"} (raid commandité en
-##   attente), "tribute": {empire: jour de fin}, "hits": {empire: dernier raid subi}, "grown": navires ajoutés}.
+##   attente), "tribute": {empire: jour de fin}, "hits": {empire: dernier raid subi}, "grown": navires ajoutés,
+##   "calm": dernier jour où on l'a attaqué, "port": jour où il est devenu port franc (0 = repaire),
+##   "deals": {"fleet"|"hero": prochain jour où le port en propose}}.
 ## state.pirate_meta = {"bounty": [{"by", "on", "until"}], "shame": [{"e", "label", "v", "until"}]}.
 
 const LAYERS := ["archetype", "gouvernement", "credo", "registre"]
@@ -130,7 +132,8 @@ static func setup(state: GameState, density_id: String) -> void:
 static func create_lair(state: GameState, sid: int) -> void:
 	var rd: Dictionary = data()["raid"]
 	state.lairs[sid] = {"born": state.tick, "next": maxi(state.tick, int(rd["first_day"])) + posmod(sid * 37, 90),
-			"guard": -1, "lost": -1, "raid": {}, "contract": {}, "tribute": {}, "hits": {}, "grown": 0}
+			"guard": -1, "lost": -1, "raid": {}, "contract": {}, "tribute": {}, "hits": {}, "grown": 0,
+			"calm": state.tick, "port": 0, "deals": {}}
 	spawn_guard(state, sid)
 	for o in state.empires:
 		o.path_cache.clear()
@@ -164,15 +167,46 @@ static func lair_ref(state: GameState, sid: int) -> String:
 	return "le repaire de %s" % state.galaxy.systems[sid].system_name
 
 
+## Repaire actif (un port franc n'en est plus un).
 static func is_lair(state: GameState, sid: int) -> bool:
-	return state.lairs.has(sid)
+	return state.lairs.has(sid) and int(state.lairs[sid].get("port", 0)) <= 0
 
 
+static func is_port(state: GameState, sid: int) -> bool:
+	return state.lairs.has(sid) and int(state.lairs[sid].get("port", 0)) > 0
+
+
+## Repaires actifs, triés (sans les ports francs).
 static func lair_ids(state: GameState) -> Array[int]:
 	var out: Array[int] = []
 	for k in state.lairs:
-		out.append(int(k))
+		if int(state.lairs[k].get("port", 0)) <= 0:
+			out.append(int(k))
 	out.sort()
+	return out
+
+
+static func port_ids(state: GameState) -> Array[int]:
+	var out: Array[int] = []
+	for k in state.lairs:
+		if int(state.lairs[k].get("port", 0)) > 0:
+			out.append(int(k))
+	out.sort()
+	return out
+
+
+static func port_name(state: GameState, sid: int) -> String:
+	return "Port franc de %s" % state.galaxy.systems[sid].system_name
+
+
+static func known_ports(state: GameState, empire_id: int) -> Array[int]:
+	var out: Array[int] = []
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return out
+	for sid in port_ids(state):
+		if e.explored.has(sid):
+			out.append(sid)
 	return out
 
 
@@ -200,6 +234,92 @@ static func known_lairs(state: GameState, empire_id: int) -> Array[int]:
 		if knows(state, empire_id, sid):
 			out.append(sid)
 	return out
+
+
+# --- Port franc --------------------------------------------------------------------------------
+
+## Le repaire se range-t-il ? Personne ne l'a attaqué depuis untouched_years ans, pas de raid ni de
+## contrat en cours, sa garde est là.
+static func ready_for_port(state: GameState, sid: int) -> bool:
+	var l: Dictionary = state.lairs[sid]
+	var years := int(data()["port"]["untouched_years"])
+	return years > 0 and guard_fleet(state, sid) != null and (l["raid"] as Dictionary).is_empty() \
+			and (l["contract"] as Dictionary).is_empty() and state.tick - int(l.get("calm", l["born"])) >= years * GameCalendar.DAYS_PER_YEAR
+
+
+static func make_port(state: GameState, sid: int, added: Array[Dictionary]) -> void:
+	var l: Dictionary = state.lairs[sid]
+	var g := guard_fleet(state, sid)
+	if g != null:
+		state.fleets.erase(g.id)
+	l["guard"] = -1
+	l["port"] = state.tick
+	l["tribute"] = {}
+	l["deals"] = {}
+	for o in state.empires:
+		o.path_cache.clear()
+	var who: Array[int] = []
+	for o in state.empires:
+		if not o.eliminated and o.explored.has(sid):
+			who.append(o.id)
+	if not who.is_empty():
+		added.append(state.add_chronicle("Quinze ans sans qu'on vienne les déloger : les pirates de %s se rangent. Le repaire devient un port franc, où l'on loue des mercenaires et où traînent des aventuriers (écran Ordre intérieur)." % [
+				state.galaxy.systems[sid].system_name], Espionage.public_to(state, who)))
+
+
+const PORT_DEALS := ["fleet", "hero"]
+
+
+static func port_cost(kind: String) -> Dictionary:
+	return (data()["port"][kind]["cost"] as Dictionary).duplicate()
+
+
+## Prochain jour où le port propose ce marché (0 = maintenant).
+static func port_next(state: GameState, sid: int, kind: String) -> int:
+	return int((state.lairs.get(sid, {}).get("deals", {}) as Dictionary).get(kind, 0))
+
+
+static func check_port(state: GameState, empire_id: int, sid: int, kind: String) -> String:
+	var e := state.get_empire(empire_id)
+	if e == null or e.eliminated or e.is_npc():
+		return "empire inconnu"
+	if not is_port(state, sid):
+		return "ce n'est pas un port franc"
+	if not e.explored.has(sid):
+		return "vous ne connaissez pas ce port"
+	if not PORT_DEALS.has(kind):
+		return "marché inconnu"
+	if port_next(state, sid, kind) > state.tick:
+		return "plus rien à louer avant le %s" % GameCalendar.date_string(port_next(state, sid, kind))
+	if kind == "hero" and Heroes.ids_of(state, empire_id).size() >= Heroes.cap(state, empire_id):
+		return "vous avez déjà autant de héros que vous pouvez en entretenir"
+	if not Economy.can_afford(e, port_cost(kind)):
+		return "pas assez de ressources (%s)" % GameData.format_amounts(port_cost(kind))
+	return ""
+
+
+## Louer une flotte de mercenaires (elle apparaît au port, à vous pour de bon) ou recruter un héros.
+static func port_deal(state: GameState, empire_id: int, sid: int, kind: String) -> void:
+	var e := state.get_empire(empire_id)
+	var pd: Dictionary = data()["port"][kind]
+	Economy.pay(e, port_cost(kind))
+	state.lairs[sid]["deals"][kind] = state.tick + int(pd["every_days"])
+	var text := ""
+	if kind == "fleet":
+		var ships: Array = pd["ships"]
+		var f := state.spawn_ship(empire_id, String(ships[0]), sid)
+		for i in range(1, ships.size()):
+			f.add_ship(String(ships[i]), -1, 1)
+		f.fleet_name = "Mercenaires de %s" % state.galaxy.systems[sid].system_name
+		text = "%s loue une flotte de mercenaires au %s : %d vaisseaux, payés d'avance, sans questions." % [
+				e.display_name(), port_name(state, sid), ships.size()]
+	else:
+		var cls: String = Heroes.CLASSES[posmod(sid * 7 + state.tick, Heroes.CLASSES.size())]
+		var id := Heroes.recruit(state, empire_id, Heroes.make_candidate(state, empire_id, cls, ["port", sid, state.tick]))
+		text = "%s recrute %s dans une taverne du %s. Son passé est flou ; ses talents, eux, sont nets." % [
+				e.display_name(), state.heroes[id]["name"], port_name(state, sid)]
+	_reputation(state, empire_id)
+	state.add_chronicle(text, Espionage.private_to(state, [empire_id]))
 
 
 # --- Raids -------------------------------------------------------------------------------------
@@ -484,6 +604,17 @@ static func dismantle(state: GameState, sid: int, empire_id: int, added: Array[D
 			e.resources["materials"] = int(e.resources.get("materials", 0)) + gain
 			e.biomass += gain
 			extra = " Rien ne reste de la station, pas même les rivets."
+	if bool(tal.get("rally", false)):
+		var f := _rally_fleet(state, sid, empire_id)
+		if f != null:
+			for t in data()["guard"]["ships"]:
+				f.add_ship(String(t), -1, 1)
+			Stability.on_loot(state, empire_id)
+			extra += " Les équipages rallient les clans : %d vaisseaux de plus dans %s." % [(data()["guard"]["ships"] as Array).size(), f.fleet_name]
+	if not state.heroes.is_empty():
+		var freed := Heroes.free_from_pirates(state, empire_id)
+		if not freed.is_empty():
+			extra += " Dans les cales, on retrouve %s, vivant%s." % [", ".join(freed), "s" if freed.size() > 1 else ""]
 	_reputation(state, empire_id)
 	Heroes.act(state, empire_id, "lair")
 	var raid: Dictionary = state.lairs[sid]["raid"]
@@ -495,6 +626,14 @@ static func dismantle(state: GameState, sid: int, empire_id: int, added: Array[D
 		(state.fleets[int(raid["fleet"])] as Fleet).fleet_name = "Pillards sans repaire"
 	added.append(state.add_chronicle("%s démantèle %s : la station saute, le butin change de mains (%s).%s" % [
 			e.display_name(), lair_ref(state, sid), GameData.format_amounts(loot), extra], Espionage.public_to(state, [empire_id])))
+
+
+## Flotte armée de l'empire, à l'arrêt au repaire (le plus petit identifiant), null sinon.
+static func _rally_fleet(state: GameState, sid: int, empire_id: int) -> Fleet:
+	for f in Fleets.fleets_at(state, sid, empire_id):
+		if Combat.is_armed(f):
+			return f
+	return null
 
 
 static func _reputation(state: GameState, empire_id: int) -> void:
@@ -563,11 +702,14 @@ static func _ints(d: Dictionary) -> Dictionary:
 
 static func to_list(state: GameState) -> Array:
 	var out := []
-	for sid in lair_ids(state):
+	var ids := state.lairs.keys()
+	ids.sort()
+	for sid in ids:
 		var l: Dictionary = state.lairs[sid]
-		out.append({"sid": sid, "born": int(l["born"]), "next": int(l["next"]), "guard": int(l["guard"]), "lost": int(l["lost"]),
+		out.append({"sid": int(sid), "born": int(l["born"]), "next": int(l["next"]), "guard": int(l["guard"]), "lost": int(l["lost"]),
 				"raid": _ints(l["raid"]), "contract": _ints(l["contract"]), "tribute": _pairs(l["tribute"]), "hits": _pairs(l["hits"]),
-				"grown": int(l.get("grown", 0))})
+				"grown": int(l.get("grown", 0)), "calm": int(l.get("calm", l["born"])), "port": int(l.get("port", 0)),
+				"deals": _ints(l.get("deals", {}))})
 	return out
 
 
@@ -584,7 +726,11 @@ static func from_list(list: Array) -> Dictionary:
 			con[String(k)] = int(c[k])
 		out[int(d["sid"])] = {"born": int(d.get("born", 0)), "next": int(d.get("next", 0)), "guard": int(d.get("guard", -1)),
 				"lost": int(d.get("lost", -1)), "raid": raid, "contract": con, "tribute": _unpairs(d.get("tribute", [])),
-				"hits": _unpairs(d.get("hits", [])), "grown": int(d.get("grown", 0))}
+				"hits": _unpairs(d.get("hits", [])), "grown": int(d.get("grown", 0)),
+				"calm": int(d.get("calm", d.get("born", 0))), "port": int(d.get("port", 0)), "deals": {}}
+		var deals: Dictionary = d.get("deals", {})
+		for k in deals:
+			out[int(d["sid"])]["deals"][String(k)] = int(deals[k])
 	return out
 
 

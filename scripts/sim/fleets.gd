@@ -120,7 +120,7 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid := 
 			if done[n] == 1 or not (best_known or explored.has(n)):
 				continue
 			var d: int = d0 + maxi(1, roundi(pos.distance_to(g.systems[n].position)))
-			if avoid and state.lairs.has(n) and explored.has(n):
+			if avoid and explored.has(n) and Pirates.is_lair(state, n):
 				d += LAIR_DETOUR
 			var old := dist[n]
 			if old < 0 or d < old or (d == old and best < prev[n]):

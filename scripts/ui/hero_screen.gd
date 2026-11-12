@@ -206,6 +206,8 @@ static func status_text(state: GameState, h: Dictionary) -> String:
 	if Heroes.is_prisoner(h):
 		var je := state.get_empire(int(h["jailer"]))
 		var conv := int(h.get("convert", 0))
+		if GameState.is_npc(int(h["jailer"])) and h.has("ransom"):
+			return "Prisonnier de %s : rançon à payer avant le %s, sinon il sera exécuté." % [je.short_name() if je else "?", GameCalendar.date_string(int(h["ransom"]))]
 		return "Prisonnier de %s%s." % [je.short_name() if je else "?", (" : on le travaille au corps, ralliement dans %d jours" % maxi(0, conv - state.tick)) if conv > 0 else ""]
 	if Heroes.is_wounded(state, h):
 		return "Blessé : de retour dans %d jours." % (int(h["wound"]) - state.tick)
@@ -321,6 +323,16 @@ static func _hero_card(es: EmpireScreens, h: Dictionary) -> Control:
 	if Heroes.is_wounded(state, h) or Heroes.is_prisoner(h):
 		st.add_theme_color_override("font_color", UiTheme.WARN)
 	v.add_child(st)
+	if Heroes.is_prisoner(h) and GameState.is_npc(int(h["jailer"])) and int(h["owner"]) == player:
+		var why := Heroes.check_ransom(state, player, id)
+		var rb := Button.new()
+		rb.focus_mode = Control.FOCUS_NONE
+		rb.text = "Payer la rançon (%s)" % GameData.format_amounts(Heroes.ransom_cost(h))
+		rb.disabled = why != ""
+		rb.tooltip_text = why if why != "" else "Il rentre aussitôt, libre de reprendre un poste."
+		rb.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.hero_ransom(player, id)))
+		v.add_child(rb)
+		es.hero_buttons["ransom_%d" % id] = rb
 	if String(h["post"]) != "":
 		var fx := UiTheme.dim(Heroes.post_effect_text(state, h), 13)
 		v.add_child(fx)

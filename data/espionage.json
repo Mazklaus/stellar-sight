@@ -66,7 +66,16 @@
 			"text": "Un de vos héros qu'il retient prisonnier s'évade et rentre chez vous."},
 		{"id": "assassinat", "family": "sabotage", "label": "Assassiner un héros", "tier": 4,
 			"cost": {"influence": 80}, "days": 60, "success": 35, "discovery": 50, "spend": 30,
-			"text": "Son meilleur héros meurt, Avatars compris. Les chances sont minces, le scandale certain si l'on vous prend."}
+			"text": "Son meilleur héros meurt, Avatars compris. Les chances sont minces, le scandale certain si l'on vous prend."},
+		{"id": "dissidence", "family": "intrigue", "label": "Attiser la dissidence", "tier": 2,
+			"cost": {"influence": 35}, "days": 45, "success": 70, "discovery": 25, "spend": 15,
+			"text": "Tracts, rumeurs et meneurs payés : son système le moins stable (hors capitale) perd 15 de stabilité pendant un an."},
+		{"id": "partisans", "family": "sabotage", "label": "Armer des partisans", "tier": 3,
+			"cost": {"influence": 50}, "days": 60, "success": 60, "discovery": 35, "spend": 20,
+			"text": "Des rebelles se lèvent dans son système le moins stable, s'il est en Agitation ou en Révolte."},
+		{"id": "inciter", "family": "intrigue", "label": "Inciter les pirates", "tier": 3,
+			"cost": {"influence": 40}, "days": 45, "success": 65, "discovery": 30, "spend": 15,
+			"text": "Un repaire que vos agents connaissent lance un raid contre lui, à vos frais nuls et à son insu (il faut un de ses systèmes à portée du repaire)."}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
 	"chances": {

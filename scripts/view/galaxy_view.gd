@@ -471,6 +471,18 @@ func _draw_lairs(px: float) -> void:
 		draw_line(Vector2(-6, 1), Vector2(-1, 6), col, 1.4, true)
 		draw_line(Vector2(6, 1), Vector2(1, 6), col, 1.4, true)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	# Ports francs : une ancre dorée.
+	var gold := Color(0.9, 0.76, 0.4)
+	for sid in Pirates.port_ids(state):
+		if not is_explored(sid):
+			continue
+		draw_set_transform(galaxy.systems[sid].position + Vector2(0, -20.0 * px), 0.0, Vector2(px, px))
+		draw_circle(Vector2.ZERO, 8.5, Color(0.08, 0.06, 0.02, 0.85))
+		draw_arc(Vector2.ZERO, 8.5, 0.0, TAU, 20, gold, 1.4, true)
+		draw_line(Vector2(0, -5), Vector2(0, 5), gold, 1.6, true)
+		draw_line(Vector2(-3, -3), Vector2(3, -3), gold, 1.4, true)
+		draw_arc(Vector2(0, 1), 4.5, 0.2, PI - 0.2, 10, gold, 1.4, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _draw_stability(s: StarSystem, px: float, mine: bool) -> void:

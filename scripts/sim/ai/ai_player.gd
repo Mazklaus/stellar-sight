@@ -252,7 +252,7 @@ static func colonize_target(ctx: Dictionary, f: Fleet) -> Dictionary:
 		var sid := int(k)
 		if not Fleets.is_explored(state, e.id, sid) or taken.has(sid) or Economy.has_foothold(state, e.id, sid):
 			continue
-		if _owner(ctx, sid) != -1 or Pirates.guard_fleet(state, sid) != null and Fleets.is_explored(state, e.id, sid):
+		if _owner(ctx, sid) != -1 or Pirates.guard_fleet(state, sid) != null or Pirates.is_port(state, sid):
 			continue
 		var claim := best_claim(state, e, sid, use, _seen(ctx))
 		if claim.is_empty() or int(claim["value"]) < MIN_TARGET_VALUE:

@@ -205,6 +205,11 @@ static func hero_prisoner(player: int, hero_id: int, action: String) -> Dictiona
 	return {"type": "hero_prisoner", "player": player, "hero": hero_id, "action": action}
 
 
+## Payer la rançon d'un héros que retiennent les pirates ou les rebelles.
+static func hero_ransom(player: int, hero_id: int) -> Dictionary:
+	return {"type": "hero_ransom", "player": player, "hero": hero_id}
+
+
 ## Décret de stabilité sur un système (Stability : "loi_martiale", "fetes", "concessions").
 static func decree(player: int, system_id: int, decree_id: String) -> Dictionary:
 	return {"type": "decree", "player": player, "system": system_id, "decree": decree_id}
@@ -236,6 +241,11 @@ static func pirate_hire(player: int, system_id: int, victim: int) -> Dictionary:
 
 
 ## Prime anonyme sur un empire : les raids le visent en priorité.
+## Port franc : louer une flotte de mercenaires ("fleet") ou recruter un héros ("hero").
+static func port_deal(player: int, system_id: int, kind: String) -> Dictionary:
+	return {"type": "port_deal", "player": player, "system": system_id, "kind": kind}
+
+
 static func pirate_bounty(player: int, victim: int) -> Dictionary:
 	return {"type": "pirate_bounty", "player": player, "victim": victim}
 
@@ -294,6 +304,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Pirates.check_tribute(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"pirate_hire":
 			return Pirates.check_hire(state, int(cmd["player"]), int(cmd.get("system", -1)), int(cmd.get("victim", -1)))
+		"port_deal":
+			return Pirates.check_port(state, int(cmd["player"]), int(cmd.get("system", -1)), String(cmd.get("kind", "")))
 		"pirate_bounty":
 			return Pirates.check_bounty(state, int(cmd["player"]), int(cmd.get("victim", -1)))
 		"sacrifice":
@@ -350,6 +362,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Heroes.check_for_hire(state, int(cmd["player"]), int(cmd.get("hero", -1)), bool(cmd.get("on", false)))
 		"hero_hire":
 			return Heroes.check_hire(state, int(cmd["player"]), int(cmd.get("hero", -1)))
+		"hero_ransom":
+			return Heroes.check_ransom(state, int(cmd["player"]), int(cmd.get("hero", -1)))
 		"hero_prisoner":
 			return Heroes.check_prisoner(state, int(cmd["player"]), int(cmd.get("hero", -1)), String(cmd.get("action", "")))
 		"spy_answer":
@@ -497,6 +511,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Pirates.tribute(state, int(cmd["player"]), int(cmd["system"]))
 		"pirate_hire":
 			Pirates.hire(state, int(cmd["player"]), int(cmd["system"]), int(cmd["victim"]))
+		"port_deal":
+			Pirates.port_deal(state, int(cmd["player"]), int(cmd["system"]), String(cmd["kind"]))
 		"pirate_bounty":
 			Pirates.bounty(state, int(cmd["player"]), int(cmd["victim"]))
 		"spy_cells":
@@ -515,6 +531,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Heroes.set_for_hire(state, int(cmd["player"]), int(cmd["hero"]), bool(cmd["on"]))
 		"hero_hire":
 			Heroes.hire(state, int(cmd["player"]), int(cmd["hero"]))
+		"hero_ransom":
+			Heroes.ransom(state, int(cmd["player"]), int(cmd["hero"]))
 		"hero_prisoner":
 			Heroes.prisoner(state, int(cmd["player"]), int(cmd["hero"]), String(cmd["action"]))
 		"spy_answer":

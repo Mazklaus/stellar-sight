@@ -4,7 +4,8 @@ extends RefCounted
 ## - garde : tombée avec une flotte armée d'un empire sur place, le repaire est démantelé ; sinon elle
 ##   se reforme au bout de respawn_days ; elle grossit d'un navire tous les grow_every_days ;
 ## - raid en cours : à l'arrivée il pille puis rentre ; bloqué en chemin, il reprend sa route ;
-## - nouveau raid : un contrat en attente part tout de suite, sinon au jour prévu (pas avant l'an 2).
+## - nouveau raid : un contrat en attente part tout de suite, sinon au jour prévu (pas avant l'an 2) ;
+## - quinze ans sans être attaqué, le repaire devient un port franc (plus de garde ni de raids).
 ## Aucun aléatoire.
 
 
@@ -23,6 +24,11 @@ static func _lair(state: GameState, sid: int, added: Array[Dictionary]) -> void:
 	var lair: Dictionary = state.lairs[sid]
 	var gd: Dictionary = Pirates.data()["guard"]
 	var guard := Pirates.guard_fleet(state, sid)
+	if guard == null or state.battles.has(sid):
+		lair["calm"] = state.tick
+	elif Pirates.ready_for_port(state, sid):
+		Pirates.make_port(state, sid, added)
+		return
 	if guard == null:
 		if int(lair["guard"]) >= 0:
 			lair["guard"] = -1

@@ -97,9 +97,10 @@ static func signature(es: EmpireScreens) -> String:
 	var state := es._state
 	var e := state.get_empire(es._player)
 	@warning_ignore("integer_division")
-	return "%d|%s|%s|%s|%d|%d|%s|%s|%d" % [state.tick / 30, str(Stability.systems_of(state, es._player)), str(state.stability),
+	return "%d|%s|%s|%s|%d|%d|%s|%s|%d|%d" % [state.tick / 30, str(Stability.systems_of(state, es._player)), str(state.stability),
 			str(free_worlds(state, es._player)), e.resources.get("influence", 0) if e else 0, e.resources.get("energy", 0) if e else 0,
-			str(Pirates.known_lairs(state, es._player)), str(state.lairs) + str(state.pirate_meta), es.order_victim]
+			str(Pirates.known_lairs(state, es._player)) + str(Pirates.known_ports(state, es._player)), str(state.lairs) + str(state.pirate_meta),
+			es.order_victim, Heroes.ids_of(state, es._player).size()]
 
 
 ## Mondes libres (Sans-Bannière) voisins d'un système de l'empire, par identifiant.
@@ -264,7 +265,55 @@ static func _lairs_block(es: EmpireScreens) -> Control:
 		b.body.add_child(UiTheme.dim("Aucun repaire repéré : explorez la galaxie pour les trouver.", 14))
 	for sid in known:
 		b.body.add_child(_lair_row(es, sid))
+	var ports := Pirates.known_ports(state, player)
+	if not ports.is_empty():
+		var ph := UiTheme.title("Ports francs", 16)
+		b.body.add_child(ph)
+		b.body.add_child(UiTheme.paragraph("D'anciens repaires que personne n'est venu déloger pendant %d ans : ils ne pillent plus. On y loue des mercenaires et on y recrute des aventuriers ; chaque marché ne revient qu'au bout d'un moment, pour tout le monde." % int(Pirates.data()["port"]["untouched_years"]), 760.0, 13))
+		for sid in ports:
+			b.body.add_child(_port_row(es, sid))
 	return b
+
+
+static func _port_row(es: EmpireScreens, sid: int) -> Control:
+	var state := es._state
+	var player := es._player
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var name_b := Button.new()
+	name_b.flat = true
+	name_b.text = Pirates.port_name(state, sid)
+	name_b.custom_minimum_size = Vector2(250, 0)
+	name_b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	name_b.clip_text = true
+	name_b.add_theme_font_size_override("font_size", 16)
+	name_b.add_theme_color_override("font_color", UiTheme.GOLD)
+	var planets: Array = state.galaxy.systems[sid].planet_ids
+	if not planets.is_empty():
+		var first := int(planets[0])
+		name_b.tooltip_text = "Ouvrir le système"
+		name_b.pressed.connect(func() -> void: es.planet_requested.emit(first))
+	row.add_child(name_b)
+	if _ro(es):
+		return row
+	var pd: Dictionary = Pirates.data()["port"]
+	var tips := {"fleet": "Une flotte de %d vaisseaux apparaît au port, à vous pour de bon." % (pd["fleet"]["ships"] as Array).size(),
+			"hero": "Un héros de niveau 1 rejoint vos rangs (s'il vous reste une place)."}
+	var labels := {"fleet": "Louer des mercenaires", "hero": "Recruter un héros"}
+	for kind in Pirates.PORT_DEALS:
+		var why := Pirates.check_port(state, player, sid, kind)
+		var pb := Button.new()
+		pb.flat = true
+		pb.focus_mode = Control.FOCUS_NONE
+		pb.add_theme_font_size_override("font_size", 13)
+		pb.text = "%s (%s)" % [labels[kind], GameData.format_amounts(Pirates.port_cost(kind))]
+		pb.disabled = why != ""
+		pb.tooltip_text = why if why != "" else String(tips[kind])
+		var k: String = kind
+		pb.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.port_deal(player, sid, k)))
+		row.add_child(pb)
+		es.order_buttons["port_%s:%d" % [kind, sid]] = pb
+	return row
 
 
 static func _lair_row(es: EmpireScreens, sid: int) -> Control:
