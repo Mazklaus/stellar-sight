@@ -854,6 +854,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 		var ffx := Fauna.effects(state, empire_id)
 		_merge(base, ffx)
 		_merge(exalted, ffx)
+		# Lois en vigueur (voir Laws) : même empreinte relic_rev, sans la stabilité (ligne à part).
+		if state.politics_on:
+			var lfx := Laws.research_effects(state, empire_id)
+			_merge(base, lfx)
+			_merge(exalted, lfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

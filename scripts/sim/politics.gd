@@ -14,7 +14,8 @@ extends RefCounted
 ## Entrée d'empire : {"ruling": [courants au pouvoir, le premier en tête], "votes": [représentants
 ##   élus par courant], "final": [voix après redistribution], "next": jour de la prochaine élection,
 ##   "last": jour de la dernière, "n": élections tenues, "pick": courant soutenu (-1 aucun),
-##   "top": courant arrivé en tête du vote populaire, "fervor": ferveur payée au Conclave}.
+##   "top": courant arrivé en tête du vote populaire, "fervor": ferveur payée au Conclave ; lot 2 :
+##   "laws", "xp", "act", "cm", voir Laws}.
 ## Entrée de système : {"o": propriétaire, "op": [6 entiers, somme 1000], "reps": [représentants
 ##   par courant à la dernière élection], "rep": courant majoritaire (-1 sans représentants),
 ##   "pop": population au dernier bilan}.
@@ -342,6 +343,8 @@ static func _consensus(state: GameState, empire_id: int, en: Dictionary) -> void
 			tot[i] += int(op[i]) * p
 		se["rep"] = _argmax(op)
 	var r := _top(tot, seats(state, empire_id))
+	if r != en.get("ruling", []):
+		state.relic_rev += 1  # loi de pouvoir (voir Laws)
 	en["ruling"] = r
 	en["votes"] = tot.duplicate()
 	en["top"] = _argmax(tot)
@@ -378,6 +381,8 @@ static func run_election(state: GameState, empire_id: int) -> Array[Dictionary]:
 	var reg := regime(state, empire_id)
 	var pick := int(en.get("pick", -1))
 	var bonus := int(data()["support_bonus"])
+	# Action électorale et héros du Conseil (voir Laws), en vote libre seulement.
+	var extra: Array = Laws.vote_weights(state, empire_id) if String(reg["mode"]) == "vote" else [0, 0, 0, 0, 0, 0]
 	var votes := [0, 0, 0, 0, 0, 0]
 	var sys_reps := {}
 	for sid in Stability.systems_of(state, empire_id):
@@ -387,6 +392,8 @@ static func run_election(state: GameState, empire_id: int) -> Array[Dictionary]:
 		var w: Array = (se["op"] as Array).duplicate()
 		if pick >= 0 and String(reg["mode"]) == "vote":
 			w[pick] = int(w[pick]) + bonus
+		for i in N:
+			w[i] = int(w[i]) + int(extra[i])
 		var total := 0
 		for x in w:
 			total += int(x)
@@ -412,7 +419,11 @@ static func run_election(state: GameState, empire_id: int) -> Array[Dictionary]:
 			paid = mini(e.fervor, int(reg["fervor_cost"]))
 			e.fervor -= paid
 	else:
-		winners = _top(votes, int(reg["seats"]))
+		# Un courant sans aucun élu ne siège pas (s'il en reste, le gouvernement est plus étroit).
+		winners = []
+		for wi in _top(votes, int(reg["seats"])):
+			if int(votes[int(wi)]) > 0 or winners.is_empty():
+				winners.append(int(wi))
 	var final := [0, 0, 0, 0, 0, 0]
 	for wi in winners:
 		final[int(wi)] = int(votes[int(wi)])
@@ -454,6 +465,7 @@ static func run_election(state: GameState, empire_id: int) -> Array[Dictionary]:
 	en["n"] = int(en.get("n", 0)) + 1
 	en["next"] = state.tick + int(data()["election_days"])
 	en["pick"] = -1
+	var fallen := Laws.after_election(state, empire_id)
 	for sid in sys_reps:
 		var se: Dictionary = state.politics["sys"][sid]
 		se["rep"] = _majority(sys_reps[sid], r)
@@ -469,6 +481,8 @@ static func run_election(state: GameState, empire_id: int) -> Array[Dictionary]:
 		line += " Les banderoles sont prêtes, les hymnes aussi."
 	if paid > 0:
 		line += " (-%d ferveur)" % paid
+	if fallen != "":
+		line += " Lois abrogées avec leurs courants : %s." % fallen
 	out.append(state.add_chronicle(line, Espionage.private_to(state, [empire_id], FactionTraits.capital_system(state, empire_id))))
 	state.politics["elected"] = {"empire": empire_id, "tick": state.tick}
 	return out
@@ -557,6 +571,7 @@ static func setup(state: GameState, option: String) -> void:
 	for e in state.empires:
 		if applies(state, e.id):
 			_emp_w(state, e.id)
+	Laws.setup(state)
 
 
 static func to_dict(state: GameState) -> Dictionary:
@@ -579,6 +594,14 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 				en[k] = int(en[k])
 		for k in ["ruling", "votes", "final"]:
 			en[k] = _ints(en.get(k, []))
+		for k in ["xp", "cm"]:
+			if en.has(k):
+				en[k] = _ints(en[k])
+		if en.has("laws"):
+			var ls := []
+			for x in en["laws"]:
+				ls.append(String(x))
+			en["laws"] = ls
 		state.politics["emp"][int(pair[0])] = en
 	for pair in d.get("sys", []):
 		var en: Dictionary = (pair[1] as Dictionary).duplicate(true)

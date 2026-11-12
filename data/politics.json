@@ -1,18 +1,48 @@
 {
 	"_doc": "Politique intérieure (étude « Politique des peuples », 2026-11-12, propositions 1 à 5, 9, 14 et 19 pour le lot 1). Six courants sur une roue, une opinion par système en pour mille, que les actes de l'empire déplacent et qui revient lentement vers le penchant naturel du peuple. Tous les 1080 jours, chaque système élit des représentants ; les courants battus donnent leurs voix au voisin le plus proche sur la roue, jamais à l'opposé. Les règles du vote dépendent de la couche gouvernement (la couche ne change pas en cours de partie). Sources : Endless Space 2 (Sénat, partis, régimes), Stellaris (pas de factions pour les consciences collectives).",
-	"_sources": [
-		"https://endless-space-2.fandom.com/wiki/Senate",
-		"https://endless-space-2.fandom.com/wiki/Political_Parties",
-		"https://stellaris.fandom.com/wiki/Factions",
-		"Étude : https://claude.ai/artifact/6VtLYAJxuDdoeXi5BZCoDf"
-	],
+	"_sources": ["https://endless-space-2.fandom.com/wiki/Senate", "https://endless-space-2.fandom.com/wiki/Political_Parties", "https://stellaris.fandom.com/wiki/Factions", "Étude : https://claude.ai/artifact/6VtLYAJxuDdoeXi5BZCoDf"],
 	"currents": [
 		{"id": "forge", "label": "la Forge", "short": "Forge", "color": "#e0884a", "text": "Production, chantiers, matériaux. On mesure un empire à ce qu'il bâtit.", "acts": "Bâtiments achevés, larcins industriels."},
-		{"id": "academie", "label": "l'Académie", "short": "Académie", "color": "#4fc3f7", "text": "Savoir, découvertes, méthode. Tout se discute, de préférence avec des schémas.", "acts": "Technologies, curiosités sondées, fouilles."},
-		{"id": "concorde", "label": "la Concorde", "short": "Concorde", "color": "#a98be0", "text": "Paix, traités, commerce. Les canons coûtent cher et les morts ne votent pas.", "acts": "Traités signés, années de paix, vaisseaux perdus (la lassitude)."},
-		{"id": "seve", "label": "la Sève", "short": "Sève", "color": "#7cc46a", "text": "Le vivant, la croissance, les mondes à faire fleurir. Plus de berceaux, moins de forges.", "acts": "Colonies fondées, population qui grandit."},
-		{"id": "autel", "label": "l'Autel", "short": "Autel", "color": "#e6c45a", "text": "Foi, reliques, destin. Les étoiles sont un texte sacré, et il faut quelqu'un pour le lire.", "acts": "Reliques, quêtes, Triomphes, offrandes, cathédrales."},
-		{"id": "glaive", "label": "le Glaive", "short": "Glaive", "color": "#d9534f", "text": "Guerre, conquête, gloire. La paix n'est qu'un entracte un peu long.", "acts": "Guerres déclarées, batailles gagnées, conquêtes, systèmes attaqués."}
+		{
+			"id": "academie",
+			"label": "l'Académie",
+			"short": "Académie",
+			"color": "#4fc3f7",
+			"text": "Savoir, découvertes, méthode. Tout se discute, de préférence avec des schémas.",
+			"acts": "Technologies, curiosités sondées, fouilles."
+		},
+		{
+			"id": "concorde",
+			"label": "la Concorde",
+			"short": "Concorde",
+			"color": "#a98be0",
+			"text": "Paix, traités, commerce. Les canons coûtent cher et les morts ne votent pas.",
+			"acts": "Traités signés, années de paix, vaisseaux perdus (la lassitude)."
+		},
+		{
+			"id": "seve",
+			"label": "la Sève",
+			"short": "Sève",
+			"color": "#7cc46a",
+			"text": "Le vivant, la croissance, les mondes à faire fleurir. Plus de berceaux, moins de forges.",
+			"acts": "Colonies fondées, population qui grandit."
+		},
+		{
+			"id": "autel",
+			"label": "l'Autel",
+			"short": "Autel",
+			"color": "#e6c45a",
+			"text": "Foi, reliques, destin. Les étoiles sont un texte sacré, et il faut quelqu'un pour le lire.",
+			"acts": "Reliques, quêtes, Triomphes, offrandes, cathédrales."
+		},
+		{
+			"id": "glaive",
+			"label": "le Glaive",
+			"short": "Glaive",
+			"color": "#d9534f",
+			"text": "Guerre, conquête, gloire. La paix n'est qu'un entracte un peu long.",
+			"acts": "Guerres déclarées, batailles gagnées, conquêtes, systèmes attaqués."
+		}
 	],
 	"opposite_offset": 3,
 	"names_by_register": {
@@ -75,21 +105,182 @@
 	"_support_doc": "Soutien officiel : le courant soutenu reçoit support_bonus pour mille de poids en plus dans chaque tirage de représentant.",
 	"representation": {"in_power": 5, "out": -5, "horde_out": -8},
 	"regimes": {
-		"republique": {"label": "République", "assembly": "Assemblée", "seats": 3, "reps": "pop", "mode": "vote",
-			"text": "Trois courants gouvernent. Chaque système envoie autant de représentants qu'il a d'habitants. Vous ne pouvez qu'apporter votre soutien officiel à un courant."},
-		"feodalite": {"label": "Diète des maisons", "assembly": "Diète", "seats": 2, "reps": "level", "mode": "vote",
-			"text": "Deux courants gouvernent. Chaque fief envoie 1 représentant, plus 1 par colonie et par tranche de 6 habitants : les grandes maisons pèsent plus que le peuple."},
-		"theocratie": {"label": "Conclave", "assembly": "Conclave", "seats": 1, "reps": "level", "mode": "appoint", "fervor_cost": 15,
-			"text": "Un seul courant gouverne, et c'est vous qui le nommez. Le peuple vote quand même : nommer un autre courant que celui qu'il a choisi coûte 15 de ferveur."},
-		"syndicat": {"label": "Assemblée des actionnaires", "assembly": "Actionnaires", "seats": 2, "reps": "production", "mode": "vote",
-			"text": "Deux courants gouvernent. Les voix d'un système se comptent à sa production (énergie et matériaux), pas à ses habitants."},
-		"horde": {"label": "Kurultaï des clans", "assembly": "Kurultaï", "seats": 1, "reps": "level", "mode": "appoint",
-			"text": "Un seul clan gouverne, celui que vous choisissez. Les clans écartés grognent plus fort (-8 stabilité au lieu de -5), sauf là où mouille la flotte-ville."},
-		"conscience": {"label": "Consensus des nœuds", "assembly": "Consensus", "seats": 2, "reps": "pop", "mode": "continuous",
-			"text": "Pas d'élection : chaque mois, les deux courants dominants des nœuds reliés à la capitale gouvernent. Un nœud coupé ne vote plus."},
-		"ruche": {"label": "Instincts", "assembly": "Instincts", "seats": 0, "mode": "none",
-			"text": "Pas de courants, pas de vote : une seule volonté. Ni bonus ni malus de représentation."}
+		"republique": {
+			"label": "République",
+			"assembly": "Assemblée",
+			"seats": 3,
+			"reps": "pop",
+			"mode": "vote",
+			"text": "Trois courants gouvernent. Chaque système envoie autant de représentants qu'il a d'habitants. Vous ne pouvez qu'apporter votre soutien officiel à un courant."
+		},
+		"feodalite": {
+			"label": "Diète des maisons",
+			"assembly": "Diète",
+			"seats": 2,
+			"reps": "level",
+			"mode": "vote",
+			"text": "Deux courants gouvernent. Chaque fief envoie 1 représentant, plus 1 par colonie et par tranche de 6 habitants : les grandes maisons pèsent plus que le peuple."
+		},
+		"theocratie": {
+			"label": "Conclave",
+			"assembly": "Conclave",
+			"seats": 1,
+			"reps": "level",
+			"mode": "appoint",
+			"fervor_cost": 15,
+			"text": "Un seul courant gouverne, et c'est vous qui le nommez. Le peuple vote quand même : nommer un autre courant que celui qu'il a choisi coûte 15 de ferveur."
+		},
+		"syndicat": {
+			"label": "Assemblée des actionnaires",
+			"assembly": "Actionnaires",
+			"seats": 2,
+			"reps": "production",
+			"mode": "vote",
+			"text": "Deux courants gouvernent. Les voix d'un système se comptent à sa production (énergie et matériaux), pas à ses habitants."
+		},
+		"horde": {
+			"label": "Kurultaï des clans",
+			"assembly": "Kurultaï",
+			"seats": 1,
+			"reps": "level",
+			"mode": "appoint",
+			"text": "Un seul clan gouverne, celui que vous choisissez. Les clans écartés grognent plus fort (-8 stabilité au lieu de -5), sauf là où mouille la flotte-ville."
+		},
+		"conscience": {
+			"label": "Consensus des nœuds",
+			"assembly": "Consensus",
+			"seats": 2,
+			"reps": "pop",
+			"mode": "continuous",
+			"text": "Pas d'élection : chaque mois, les deux courants dominants des nœuds reliés à la capitale gouvernent. Un nœud coupé ne vote plus."
+		},
+		"ruche": {"label": "Instincts", "assembly": "Instincts", "seats": 0, "mode": "none", "text": "Pas de courants, pas de vote : une seule volonté. Ni bonus ni malus de représentation."}
 	},
 	"default_regime": "republique",
-	"ai": {"_doc": "Soutien officiel de l'IA : Belliqueux soutient le Glaive, Pacifique la Concorde, les autres leur courant principal, sauf si ses systèmes non représentés sont nombreux (elle soutient alors le courant le plus fort pour les rallier).", "rally_pct": 40}
+	"ai": {
+		"_doc": "Soutien officiel de l'IA : Belliqueux soutient le Glaive, Pacifique la Concorde, les autres leur courant principal, sauf si ses systèmes non représentés sont nombreux (elle soutient alors le courant le plus fort pour les rallier).",
+		"rally_pct": 40,
+		"laws_doc": "IA des lois : adopte si l'influence restante après coût dépasse reserve et si l'entretien laisse un revenu d'influence d'au moins min_net ; abroge la loi la plus chère quand le stock est vide et le revenu négatif. Campagne à moins de 90 jours du vote si l'influence dépasse campaign_at (Normale et plus).",
+		"reserve": 60,
+		"min_net": 2,
+		"campaign_at": 150
+	},
+	"laws_doc": "Lot 2 (lois, propositions 6 à 8, 10 et 11). Chaque courant a une loi de pouvoir (gratuite, imposée tant qu'il est en tête du gouvernement) et 4 lois de niveau 1 à 4, adoptables tant qu'il est au pouvoir et que son niveau (expérience : 1 par mandat, 4 au plus, gardé dans l'opposition) le permet. Les lois tombent quand leur courant perd le pouvoir. Effets au format des technologies (Research.effects), plus : stability (toutes vos planètes, ligne « Lois » de l'Ordre intérieur), building_days_pct (durée des chantiers de bâtiments), no_war_weariness (pas de lassitude de guerre), per_treaty (revenu par traité en vigueur), triumph_cooldown_pct (délai entre deux Triomphes), stability_pop_div (stabilité -1 par tranche de N habitants du système). Adopter coûte adopt_cost × niveau en influence ; entretien mensuel = niveau × (1 + population de l'empire / upkeep_pop_div). Les lois indépendantes sont gratuites mais ont toujours un défaut ; la ruche n'a qu'elles (Instincts).",
+	"laws": {
+		"forge": {
+			"power": {"id": "plein_emploi", "label": "Plein emploi", "level": 0, "fx": {"production_pct": {"materials": 15}}, "text": "Chaque bras a son marteau. Matériaux +15 %."},
+			"laws": [
+				{"id": "cadences", "label": "Cadences", "level": 1, "fx": {"building_days_pct": -25, "stability": -10}, "text": "Les chantiers vont un quart plus vite. Les ouvriers, eux, ralentissent sur les sourires."},
+				{"id": "normes_serie", "label": "Normes de série", "level": 2, "fx": {"ship_cost_pct": -15}, "text": "Un seul calibre de boulon pour toute la flotte. Les vaisseaux coûtent 15 % de moins."},
+				{"id": "grands_chantiers", "label": "Grands chantiers", "level": 3, "fx": {"building_cost_pct": -20}, "text": "L'État avance l'argent, les entrepreneurs avancent les délais. Bâtiments -20 %."},
+				{"id": "concessions", "label": "Concessions minières", "level": 4, "fx": {"production_pct": {"materials": 25, "energy": 15}}, "text": "Chaque astéroïde a son propriétaire, et chaque propriétaire ses quotas."}
+			]
+		},
+		"academie": {
+			"power": {"id": "recherche_ouverte", "label": "Recherche ouverte", "level": 0, "fx": {"production_pct": {"knowledge": 20}}, "text": "Les publications sont libres, les brevets aussi. Savoir +20 %."},
+			"laws": [
+				{"id": "bourses", "label": "Bourses d'études", "level": 1, "fx": {"production_pct": {"knowledge": 15}}, "text": "Un étudiant nourri est un étudiant qui pense. Savoir +15 %."},
+				{"id": "societes_savantes", "label": "Sociétés savantes", "level": 2, "fx": {"curio_detect": 2, "curio_power": 3}, "text": "Des amateurs éclairés qui partent sonder l'inconnu à leurs frais, ou presque."},
+				{"id": "universites", "label": "Universités", "level": 3, "fx": {"building_slots": 1}, "text": "Un campus dans chaque monde : un emplacement de bâtiment en plus par colonie."},
+				{"id": "age_or", "label": "Âge d'or", "level": 4, "fx": {"production_pct": {"knowledge": 30, "influence": 10}}, "text": "On vient de loin pour écouter vos savants. Savoir +30 %, influence +10 %."}
+			]
+		},
+		"concorde": {
+			"power": {"id": "dividende_paix", "label": "Dividende de la paix", "level": 0, "fx": {"per_treaty": {"energy": 3}}, "text": "Chaque traité en vigueur rapporte 3 énergie par mois : la paix, ça se compte."},
+			"laws": [
+				{"id": "diplomatie_couloir", "label": "Diplomatie de couloir", "level": 1, "fx": {"opinion_all": 10}, "text": "Les petits fours font plus que les canons. Opinion de tous les empires +10."},
+				{"id": "ports_francs", "label": "Ports francs", "level": 2, "fx": {"trade_income_pct": 50}, "text": "Pas de douane, pas de questions. Accords commerciaux +50 %."},
+				{"id": "desarmement", "label": "Désarmement", "level": 3, "fx": {"upkeep_pct": -25}, "text": "On garde les vaisseaux, on renvoie les équipages chez eux. Entretien des flottes -25 %."},
+				{"id": "pax", "label": "Pax stellaris", "level": 4, "fx": {"stability": 6, "growth_pct": 20}, "text": "Les mères ne craignent plus pour leurs fils. Stabilité +6, croissance +20 %."}
+			]
+		},
+		"seve": {
+			"power": {"id": "colons_adaptes", "label": "Colons adaptés", "level": 0, "fx": {"hab_bonus": {"all": 10}}, "text": "On s'habitue à tout, surtout aux mondes hostiles. Habitabilité +10."},
+			"laws": [
+				{"id": "natalite", "label": "Politique nataliste", "level": 1, "fx": {"growth_pct": 25}, "text": "Une prime au berceau. Croissance +25 %."},
+				{"id": "pionniers", "label": "Pionniers", "level": 2, "fx": {"colony_start_pop": 1}, "text": "Les nouvelles colonies partent avec une famille de plus."},
+				{"id": "agronomie", "label": "Agronomie", "level": 3, "fx": {"production_pct": {"food": 25}}, "text": "Des serres sur chaque toit. Nourriture +25 %."},
+				{"id": "mondes_jardins", "label": "Mondes-jardins", "level": 4, "fx": {"stability": 5, "growth_pct": 25}, "text": "Les villes respirent, les gens aussi. Stabilité +5, croissance +25 %."}
+			]
+		},
+		"autel": {
+			"power": {"id": "processions", "label": "Processions", "level": 0, "fx": {"triumph_cooldown_pct": -50}, "text": "Les reliques sortent deux fois plus souvent : un Triomphe tous les 5 ans au lieu de 10."},
+			"laws": [
+				{"id": "dime", "label": "Dîme", "level": 1, "fx": {"production_pct": {"influence": 15}}, "text": "Le dixième de tout, pour le ciel et pour ses intendants. Influence +15 %."},
+				{"id": "pelerinages", "label": "Pèlerinages", "level": 2, "fx": {"stability": 5}, "text": "Les routes sont pleines de fidèles, et les auberges de bonne humeur. Stabilité +5."},
+				{"id": "ordres_missionnaires", "label": "Ordres missionnaires", "level": 3, "fx": {"opinion_all": 5, "curio_power": 3}, "text": "Des moines partent porter la parole, et ramènent des cartes."},
+				{"id": "sanctuaires", "label": "Mondes sanctuaires", "level": 4, "fx": {"stability": 8}, "text": "Chaque monde a son temple, chaque temple son miracle mensuel. Stabilité +8."}
+			]
+		},
+		"glaive": {
+			"power": {"id": "mobilisation", "label": "Mobilisation", "level": 0, "fx": {"no_war_weariness": 1}, "text": "La guerre ne lasse plus personne : pas de lassitude de guerre."},
+			"laws": [
+				{"id": "conscription", "label": "Conscription", "level": 1, "fx": {"troops_pct": 25}, "text": "Tout citoyen est un soldat qui s'ignore. Troupes +25 %."},
+				{"id": "arsenaux", "label": "Arsenaux d'État", "level": 2, "fx": {"ship_days_pct": -20}, "text": "Les chantiers navals tournent jour et nuit. Vaisseaux construits 20 % plus vite."},
+				{"id": "doctrine_offensive", "label": "Doctrine offensive", "level": 3, "fx": {"damage_pct": 10}, "text": "La meilleure défense, etc. Dégâts +10 %."},
+				{
+					"id": "guerre_totale",
+					"label": "Guerre totale",
+					"level": 4,
+					"fx": {"ship_cost_pct": -15, "production_pct": {"materials": 15}, "stability": -5},
+					"text": "Tout pour le front. Vaisseaux -15 %, matériaux +15 %, stabilité -5."
+				}
+			]
+		}
+	},
+	"independent_laws": [
+		{
+			"id": "impot_exceptionnel",
+			"label": "Impôt exceptionnel",
+			"level": 0,
+			"fx": {"production_pct": {"energy": 25}, "stability": -15},
+			"text": "Énergie +25 %. Les contribuables, eux, perdent 15 de stabilité et leur sens de l'humour."
+		},
+		{"id": "examens_forces", "label": "Examens forcés", "level": 0, "fx": {"production_pct": {"knowledge": 20}, "stability_pop_div": 5}, "text": "Savoir +20 %, mais -1 stabilité par tranche de 5 habitants du système."},
+		{"id": "pain_jeux", "label": "Pain et jeux", "level": 0, "fx": {"stability": 15, "production_pct": {"all": -10}}, "text": "Stabilité +15. Pendant les jeux, personne ne travaille : production -10 %."},
+		{
+			"id": "levee_masse",
+			"label": "Levée en masse",
+			"level": 0,
+			"fx": {"troops_pct": 50, "garrison_pct": 50, "growth_pct": -30},
+			"text": "Troupes et garnisons +50 %. Les jeunes partent, les berceaux restent vides : croissance -30 %."
+		},
+		{
+			"id": "couvre_feu",
+			"label": "Couvre-feu",
+			"level": 0,
+			"fx": {"stability": 10, "production_pct": {"influence": -25, "knowledge": -15}},
+			"text": "Stabilité +10. On dort mieux, on pense moins : influence -25 %, Savoir -15 %."
+		},
+		{"id": "libre_echange", "label": "Libre-échange", "level": 0, "fx": {"trade_income_pct": 100, "production_pct": {"materials": -15}}, "text": "Accords commerciaux +100 %. Les forges locales ferment : matériaux -15 %."}
+	],
+	"law_rules": {
+		"slots": {"republique": 4, "feodalite": 3, "theocratie": 2, "syndicat": 3, "horde": 2, "conscience": 3, "ruche": 2},
+		"slot_eras": [3, 5],
+		"adopt_cost": 20,
+		"upkeep_pop_div": 10,
+		"xp_max": 4,
+		"_doc": "Emplacements par gouvernement (+1 à l'ère III et à l'ère V), coût d'adoption par niveau en influence, entretien (voir laws_doc), niveau maximal d'un courant. Une conscience distribuée gagne un niveau par tranche de 36 mois au pouvoir."
+	},
+	"actions": {
+		"_doc": "Actions électorales (proposition 10) : une par élection, sur le courant soutenu. weight : poids en plus dans chaque tirage de représentant (pour mille). intimidation : stabilité en moins jusqu'au vote dans les systèmes où le courant soutenu n'est pas en tête.",
+		"campagne": {"label": "Campagne", "cost": {"influence": 40}, "weight": 150, "regimes": ["republique", "feodalite", "syndicat"], "text": "Affiches, meetings, poignées de main : +15 % de poids au courant soutenu dans chaque tirage."},
+		"intimidation": {
+			"label": "Intimidation",
+			"cost": {"influence": 30},
+			"weight": 300,
+			"stability": -10,
+			"regimes": ["feodalite"],
+			"text": "Les hommes des maisons passent voir les électeurs : +30 % de poids, mais -10 stabilité jusqu'au vote là où le courant soutenu n'est pas en tête."
+		},
+		"rachat": {"label": "Rachat de voix", "cost": {"energy": 150}, "weight": 300, "regimes": ["syndicat"], "text": "Une voix, ça s'achète comme le reste : +30 % de poids au courant soutenu, payé en énergie."}
+	},
+	"heroes": {
+		"_doc": "Héros chefs de courant (proposition 11) : courant par ambition, les Orateurs penchent Concorde. Au Conseil : bonus +council_pct % si son courant gouverne, sinon loyauté -loyalty_out par mois. Chaque héros du Conseil ajoute vote_weight pour mille au poids de son courant dans les tirages (vote libre seulement).",
+		"ambition": {"gloire": "glaive", "vengeance": "glaive", "fortune": "forge", "savoir": "academie", "foi": "autel"},
+		"class": {"orateur": "concorde"},
+		"council_pct": 50,
+		"loyalty_out": 1,
+		"vote_weight": 60
+	}
 }

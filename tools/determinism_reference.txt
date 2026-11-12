@@ -1,20 +1,20 @@
-spirale-standard création c996788350f878db
-spirale-standard an 0 7ea3508b29bc756b
-spirale-standard an 1 4ba2094a88c21e3c
-spirale-standard an 2 701dd70621ba5723
-spirale-standard an 3 73b413c4edd17cc0
-amas-equilibre création 300c8ea9943f4df5
-amas-equilibre an 0 f8ba25d7a687c0d7
-amas-equilibre an 1 735f187db6d275fb
-amas-equilibre an 2 ef3ac41cd82c2e66
-amas-equilibre an 3 f568fc6a11767551
-anneau-chaotique création ba6c274e7ec3f7b0
-anneau-chaotique an 0 d5927cdd3690614b
-anneau-chaotique an 1 577cedfc2e6e51ba
-anneau-chaotique an 2 8614795db2b4e18e
-anneau-chaotique an 3 636e68a2b0547a81
-elliptique-grande création 98e5b2aa955dd360
-elliptique-grande an 0 8fe61570720bf2da
-elliptique-grande an 1 19900acc61257e39
-elliptique-grande an 2 37f45a2a44bd90a2
-elliptique-grande an 3 d96a2b4f23d5ebc0
+spirale-standard création 9f7c978dc6c7d7d7
+spirale-standard an 0 2e4fed3557aaea66
+spirale-standard an 1 df8f76b691eae36c
+spirale-standard an 2 6c682070dda259c5
+spirale-standard an 3 4a0602eed1f707b6
+amas-equilibre création 0b366c672fad3862
+amas-equilibre an 0 5972b8ba11057aeb
+amas-equilibre an 1 48b2b815c3b7b8f1
+amas-equilibre an 2 8e94b802550b8c6b
+amas-equilibre an 3 49f7edd8a5cbb64f
+anneau-chaotique création 3f149e550979e813
+anneau-chaotique an 0 23cdd271b2764654
+anneau-chaotique an 1 7702976ce13ad467
+anneau-chaotique an 2 0b2712f070f70793
+anneau-chaotique an 3 cf0bb90afc42d73f
+elliptique-grande création ed536fe06352f3a6
+elliptique-grande an 0 55d78af0301f6f5f
+elliptique-grande an 1 c62783543f1a3ade
+elliptique-grande an 2 cea562bb9c0c5ab7
+elliptique-grande an 3 01a567c91855e875

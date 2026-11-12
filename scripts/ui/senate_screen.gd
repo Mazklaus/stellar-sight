@@ -4,7 +4,9 @@ extends RefCounted
 ## Colonne de gauche : le régime (selon le gouvernement), les courants au pouvoir, la prochaine
 ## élection et le soutien choisi. Contenu : l'hémicycle de la dernière élection, les six courants
 ## (opinion de l'empire, représentants, au pouvoir, bouton Soutenir ou Nommer), puis le dépouillement
-## par système (représentants, courant majoritaire, effet sur la stabilité).
+## par système (représentants, courant majoritaire, effet sur la stabilité). Lot 2 : niveau des
+## courants, actions électorales, et le bloc des lois (loi de pouvoir, lois des courants au pouvoir,
+## lois indépendantes ; la ruche n'a que ses Instincts).
 ## Construit dans les conteneurs d'EmpireScreens, dont il reprend les aides (_grid, _key_value…).
 
 
@@ -68,6 +70,8 @@ static func build(es: EmpireScreens) -> void:
 	var player := es._player
 	es._senate_sig = signature(es)
 	es.senate_buttons.clear()
+	es.law_buttons.clear()
+	es.action_buttons.clear()
 	es._side_header("screen_senate", "Sénat", Color(0.66, 0.55, 0.88), "faction")
 	var applies := Politics.applies(state, player)
 	var reg := Politics.regime(state, player) if state.get_empire(player) != null else {}
@@ -94,6 +98,9 @@ static func build(es: EmpireScreens) -> void:
 					pl.add_theme_color_override("font_color", Politics.color(pk).lightened(0.2))
 			var n := int(Politics.emp(state, player).get("n", 0))
 			es._key_value(g, "Élections tenues", str(n))
+		if Laws.applies(state, player):
+			es._key_value(g, "Lois", "%d / %d emplacements" % [Laws.used(state, player), Laws.slots(state, player)])
+			es._key_value(g, "Entretien des lois", "%d influence / mois" % Laws.upkeep(state, player))
 		es._side_box.add_child(HSeparator.new())
 		es._side_box.add_child(UiTheme.paragraph(String(reg.get("text", "")), EmpireScreens.SIDE_WIDTH - 24.0, 13))
 	es._side_box.add_child(HSeparator.new())
@@ -113,9 +120,12 @@ static func build(es: EmpireScreens) -> void:
 		col.add_child(b)
 		var why := "Pas de vie politique dans cette partie." if not state.politics_on else String(reg.get("text", "Une seule volonté : pas de courants, pas de vote."))
 		b.body.add_child(UiTheme.paragraph(why, 760.0, 15))
+		if Laws.applies(state, player):
+			col.add_child(_laws_block(es))
 		return
 	col.add_child(_assembly_block(es))
 	col.add_child(_currents_block(es))
+	col.add_child(_laws_block(es))
 	col.add_child(_count_block(es))
 
 
@@ -126,7 +136,9 @@ static func signature(es: EmpireScreens) -> String:
 	for sid in Stability.systems_of(state, es._player):
 		syss.append(Politics.sys_entry(state, sid).get("rep", -1))
 	@warning_ignore("integer_division")
-	return "%d|%s|%s|%s" % [state.tick / 30, str(Politics.emp(state, es._player)), str(syss), str(state.politics_on)]
+	var e := state.get_empire(es._player)
+	var res := str([e.resources.get("influence", 0), e.resources.get("energy", 0), Research.current_era(state, es._player)]) if e != null else ""
+	return "%d|%s|%s|%s|%s" % [state.tick / 30, str(Politics.emp(state, es._player)), str(syss), str(state.politics_on), res]
 
 
 ## L'hémicycle de la dernière élection (ou du consensus du mois), et son résultat.
@@ -238,6 +250,14 @@ static func _currents_block(es: EmpireScreens) -> Control:
 		pl.custom_minimum_size = Vector2(50, 0)
 		pl.add_theme_font_size_override("font_size", 14)
 		row.add_child(pl)
+		var lvl := Label.new()
+		lvl.text = "niv. %d" % Laws.level(state, player, i)
+		lvl.custom_minimum_size = Vector2(46, 0)
+		lvl.add_theme_font_size_override("font_size", 13)
+		lvl.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		lvl.mouse_filter = Control.MOUSE_FILTER_STOP
+		lvl.tooltip_text = "Expérience politique : un niveau par mandat au pouvoir (4 au plus), gardé dans l'opposition.\nLe niveau ouvre les lois du courant."
+		row.add_child(lvl)
 		var vl := Label.new()
 		vl.text = ("%d élu%s" % [int(votes[i]), "s" if int(votes[i]) > 1 else ""]) if not votes.is_empty() and mode != "continuous" else ""
 		vl.custom_minimum_size = Vector2(70, 0)
@@ -269,7 +289,99 @@ static func _currents_block(es: EmpireScreens) -> Control:
 			btn.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.politics_support(player, target)))
 			row.add_child(btn)
 			es.senate_buttons[i] = btn
+	var acts := Laws.actions_for(state, player)
+	if not ro and not acts.is_empty():
+		var ar := HBoxContainer.new()
+		ar.add_theme_constant_override("separation", 10)
+		b.body.add_child(ar)
+		var cur := Laws.action(state, player)
+		ar.add_child(UiTheme.dim("Action électorale :" if cur == "" else "Action électorale en cours : %s" % String(Laws.action_def(cur).get("label", cur)), 14))
+		for a in acts:
+			var ad := Laws.action_def(String(a))
+			var ab := Button.new()
+			ab.focus_mode = Control.FOCUS_NONE
+			ab.text = "%s (%s)" % [String(ad["label"]), GameData.format_amounts(ad.get("cost", {}))]
+			var why := Laws.check_action(state, player, String(a))
+			ab.disabled = why != ""
+			ab.tooltip_text = String(ad.get("text", "")) + ("\n" + why if why != "" else "")
+			var aid := String(a)
+			ab.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.politics_action(player, aid)))
+			ar.add_child(ab)
+			es.action_buttons[aid] = ab
 	return b
+
+
+## Les lois : loi de pouvoir, lois des courants au pouvoir (par niveau), lois indépendantes.
+static func _laws_block(es: EmpireScreens) -> Control:
+	var state := es._state
+	var player := es._player
+	var ro := state.get_empire(player) == null
+	var hive := not Politics.applies(state, player)
+	var b := Widgets.Block.new("Instincts" if hive else "Lois")
+	b.body.add_child(UiTheme.paragraph("%d / %d emplacements, entretien %d influence par mois. Adopter coûte 20 d'influence par niveau ; l'entretien vaut niveau × (1 + population / 10). Les lois d'un courant tombent quand il perd le pouvoir ; les lois indépendantes sont gratuites mais ont un défaut." % [
+			Laws.used(state, player), Laws.slots(state, player), Laws.upkeep(state, player)] if not hive else
+			"%d / %d Instincts. Une seule volonté, pas de courants : seules les lois indépendantes, gratuites, chacune avec son défaut." % [Laws.used(state, player), Laws.slots(state, player)], 760.0, 13))
+	if not hive:
+		var pw := Laws.power_active(state, player)
+		if pw != "":
+			var pd := Laws.law_def(pw)
+			var l := Label.new()
+			l.text = "Loi de pouvoir (%s) : %s" % [Politics.short(state, player, int(pd["current"])), String(pd["label"])]
+			l.add_theme_color_override("font_color", UiTheme.GOLD)
+			l.add_theme_font_size_override("font_size", 15)
+			b.body.add_child(l)
+			b.body.add_child(UiTheme.dim(String(pd["text"]), 13))
+		for i in Politics.ruling(state, player):
+			var h := Label.new()
+			h.text = "%s, niveau %d" % [Politics.short(state, player, int(i)), Laws.level(state, player, int(i))]
+			h.add_theme_color_override("font_color", Politics.color(int(i)).lightened(0.25))
+			h.add_theme_font_size_override("font_size", 15)
+			b.body.add_child(h)
+			for l: Dictionary in Laws.current_laws(int(i)):
+				b.body.add_child(_law_row(es, l, ro))
+	var ih := Label.new()
+	ih.text = "Lois indépendantes"
+	ih.add_theme_font_size_override("font_size", 15)
+	b.body.add_child(ih)
+	for l: Dictionary in Laws.independent():
+		b.body.add_child(_law_row(es, l, ro))
+	return b
+
+
+static func _law_row(es: EmpireScreens, l: Dictionary, ro: bool) -> Control:
+	var state := es._state
+	var player := es._player
+	var id := String(l["id"])
+	var on := Laws.is_enacted(state, player, id)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var nl := Label.new()
+	var lv := int(l.get("level", 0))
+	nl.text = ("%d. %s" % [lv, String(l["label"])]) if lv > 0 else String(l["label"])
+	nl.custom_minimum_size = Vector2(220, 0)
+	nl.add_theme_font_size_override("font_size", 14)
+	if on:
+		nl.add_theme_color_override("font_color", UiTheme.GOLD)
+	row.add_child(nl)
+	var tl := UiTheme.paragraph(String(l["text"]), 380.0, 12)
+	row.add_child(tl)
+	var cl := Label.new()
+	cl.text = ("%d inf., %d / mois" % [int(Laws.adopt_cost(id).get("influence", 0)), Laws.law_upkeep(state, player, id)]) if lv > 0 else "gratuite"
+	cl.custom_minimum_size = Vector2(110, 0)
+	cl.add_theme_font_size_override("font_size", 12)
+	cl.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	row.add_child(cl)
+	if not ro:
+		var btn := Button.new()
+		btn.focus_mode = Control.FOCUS_NONE
+		btn.text = "Abroger" if on else "Adopter"
+		var why := "" if on else Laws.check_adopt(state, player, id)
+		btn.disabled = why != ""
+		btn.tooltip_text = why
+		btn.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.law_revoke(player, id) if on else SimCommands.law_adopt(player, id)))
+		row.add_child(btn)
+		es.law_buttons[id] = btn
+	return row
 
 
 ## Dépouillement par système : représentants, courant majoritaire, effet sur la stabilité.
