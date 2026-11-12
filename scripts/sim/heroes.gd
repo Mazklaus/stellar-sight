@@ -21,7 +21,17 @@ extends RefCounted
 ##   "born" (jour de naissance, négatif avant le début), "post" ("" | fleet | system | council | agent),
 ##   "target" (flotte, système, siège ou empire visé), "arrive" (jour où il prend son poste),
 ##   "wound" (jour de guérison, 0 = valide), "joined"}.
-## Par empire : state.hero_meta[empire] = {"renown", "acts": {classe: points}, "got", "offer": [candidats]}.
+## Par empire : state.hero_meta[empire] = {"renown", "acts": {classe: points}, "got", "offer": [candidats],
+##   "memorials": [{"name", "until", "credo"}], "election": jour de la dernière élection (république)}.
+##
+## Lot 2 (vie et mort) : chaque héros a une ambition ("amb", "" pour un Avatar) que servent certains
+## actes de l'empire ("served" = dernier jour servi, "amb_n" = compte vers le grand objectif,
+## "amb_done"), une loyauté "loy" (0-100 ; sous min_desert il peut déserter vers un rival), une
+## espérance de vie "life" en années (0 = sans limite), des traits de son peuple tirés des couches
+## d'espèce, des défauts avec l'âge. Une flotte anéantie ou un système pris peut le faire capturer :
+## "jailer" = empire qui le tient (-1 libre), "foe" = dernier ennemi rencontré en bataille, "convert" =
+## jour où sa conversion s'achève (0 = aucune). Le geôlier libère, convertit ou exécute ; la paix rend
+## les prisonniers. Un héros de niveau min_lvl qui meurt laisse un souvenir selon le credo.
 
 const POSTS := ["fleet", "system", "council", "agent"]
 const CLASSES := ["stratege", "intendant", "orateur", "ombre"]
@@ -60,11 +70,87 @@ static func noun(state: GameState, empire_id: int, plural := false) -> String:
 	return "Héros"
 
 
+## Talents de héros du peuple, lus dans ses couches d'espèce (data "talents") ; entiers additionnés.
+static func talent(state: GameState, empire_id: int) -> Dictionary:
+	var out := {}
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return out
+	var f := e.faction()
+	var sp: Dictionary = f.get("species", {})
+	var table: Dictionary = data().get("talents", {})
+	for layer in table:
+		var v := String(f.get("registre", "")) if layer == "registre" else String(sp.get(layer, ""))
+		var t: Dictionary = (table[layer] as Dictionary).get(v, {})
+		for k in t:
+			if k != "label" and k != "text":
+				out[k] = int(out.get(k, 0)) + int(t[k])
+	return out
+
+
+## Talents à afficher : [[nom, texte], …].
+static func talent_labels(state: GameState, empire_id: int) -> Array:
+	var out := []
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return out
+	var f := e.faction()
+	var sp: Dictionary = f.get("species", {})
+	var table: Dictionary = data().get("talents", {})
+	for layer in table:
+		var v := String(f.get("registre", "")) if layer == "registre" else String(sp.get(layer, ""))
+		var t: Dictionary = (table[layer] as Dictionary).get(v, {})
+		if not t.is_empty():
+			out.append([String(t["label"]), String(t["text"])])
+	return out
+
+
+static func is_avatar(state: GameState, empire_id: int) -> bool:
+	return int(talent(state, empire_id).get("avatar", 0)) > 0
+
+
+## Réserve de traits du peuple, depuis ses couches (registre, archétype, gouvernement, credo).
+static func people_traits(state: GameState, empire_id: int) -> Array[String]:
+	var out: Array[String] = []
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return out
+	var f := e.faction()
+	var sp: Dictionary = f.get("species", {})
+	var table: Dictionary = data().get("people_traits", {})
+	for layer in ["registre", "archetype", "gouvernement", "credo"]:
+		var v := String(f.get("registre", "")) if layer == "registre" else String(sp.get(layer, ""))
+		for t in (table.get(layer, {}) as Dictionary).get(v, []):
+			if not out.has(String(t)):
+				out.append(String(t))
+	return out
+
+
+## Espérance de vie (années) d'un héros de ce peuple ; 0 = sans limite (synthétiques).
+static func life_years(state: GameState, empire_id: int) -> int:
+	var l: Dictionary = data()["life"]
+	return int((l["archetype"] as Dictionary).get(_archetype_raw(state, empire_id), l["years"]))
+
+
+static func _archetype_raw(state: GameState, empire_id: int) -> String:
+	var e := state.get_empire(empire_id)
+	return String(e.faction().get("species", {}).get("archetype", "humanoide")) if e else "humanoide"
+
+
+static func ambition_def(id: String) -> Dictionary:
+	return (data()["ambitions"] as Dictionary).get(id, {})
+
+
+## Loyauté de départ : base, talent du peuple, traits.
+static func base_loyalty(state: GameState, empire_id: int, h: Dictionary) -> int:
+	return clampi(int(data()["loyalty"]["start"]) + int(talent(state, empire_id).get("loyalty", 0)) + trait_fx(h, "loyalty"), 0, 100)
+
+
 # --- Création ----------------------------------------------------------------------------------
 
 static func meta(state: GameState, empire_id: int) -> Dictionary:
 	if not state.hero_meta.has(empire_id):
-		state.hero_meta[empire_id] = {"renown": 0, "acts": {}, "got": 0, "offer": []}
+		state.hero_meta[empire_id] = {"renown": 0, "acts": {}, "got": 0, "offer": [], "memorials": [], "election": 0}
 	return state.hero_meta[empire_id]
 
 
@@ -102,7 +188,10 @@ static func make_candidate(state: GameState, empire_id: int, cls: String, salt: 
 	var traits: Array[String] = []
 	if not pool.is_empty():
 		traits.append(pool[_h(state, salt + ["trait"]) % pool.size()])
+	var ambs := (data()["ambitions"] as Dictionary).keys()
+	ambs.sort()
 	return {
+		"amb": "" if is_avatar(state, empire_id) else String(ambs[_h(state, salt + ["amb"]) % ambs.size()]),
 		"name": "%s %s" % [first[_h(state, salt + ["first"]) % first.size()], last[_h(state, salt + ["last"]) % last.size()]],
 		"portrait": pics[_h(state, salt + ["pic"]) % pics.size()] if not pics.is_empty() else "",
 		"cls": cls,
@@ -118,7 +207,8 @@ static func class_traits(cls: String) -> Array[String]:
 	ids.sort()
 	for id in ids:
 		var c := String(data()["traits"][id].get("cls", ""))
-		if c == cls or c == "":
+		var td: Dictionary = data()["traits"][id]
+		if c == cls or (c == "" and not td.get("people", false) and not td.get("flaw", false)):
 			out.append(String(id))
 	return out
 
@@ -135,7 +225,10 @@ static func recruit(state: GameState, empire_id: int, cand: Dictionary) -> int:
 		"cls": String(cand["cls"]), "lvl": 1, "xp": 0, "traits": traits,
 		"born": state.tick - int(cand.get("age", 30)) * DAYS_PER_YEAR,
 		"post": "", "target": -1, "arrive": 0, "wound": 0, "joined": state.tick,
+		"amb": String(cand.get("amb", "")), "served": state.tick, "amb_n": 0, "amb_done": 0,
+		"foe": -1, "jailer": -1, "convert": 0, "life": life_years(state, empire_id),
 	}
+	state.heroes[id]["loy"] = base_loyalty(state, empire_id, state.heroes[id])
 	meta(state, empire_id)["got"] = int(meta(state, empire_id)["got"]) + 1
 	return id
 
@@ -165,11 +258,11 @@ static func get_hero(state: GameState, id: int) -> Dictionary:
 
 
 static func cap(state: GameState, empire_id: int) -> int:
-	return int(data()["cap"]) + Research.fx_int(state, empire_id, "hero_cap")
+	return int(data()["cap"]) + Research.fx_int(state, empire_id, "hero_cap") + int(talent(state, empire_id).get("cap", 0))
 
 
 static func seats(state: GameState, empire_id: int) -> int:
-	return int(data()["council_seats"]) + Research.fx_int(state, empire_id, "council_seats")
+	return int(data()["council_seats"]) + Research.fx_int(state, empire_id, "council_seats") + int(talent(state, empire_id).get("seats", 0))
 
 
 static func age(state: GameState, h: Dictionary) -> int:
@@ -183,7 +276,11 @@ static func is_wounded(state: GameState, h: Dictionary) -> bool:
 
 ## Le héros tient son poste (affecté, arrivé, valide).
 static func active(state: GameState, h: Dictionary) -> bool:
-	return String(h["post"]) != "" and int(h["arrive"]) <= state.tick and not is_wounded(state, h)
+	return String(h["post"]) != "" and int(h["arrive"]) <= state.tick and not is_wounded(state, h) and int(h.get("jailer", -1)) < 0
+
+
+static func is_prisoner(h: Dictionary) -> bool:
+	return int(h.get("jailer", -1)) >= 0
 
 
 static func renown_needed(state: GameState, empire_id: int) -> int:
@@ -195,7 +292,10 @@ static func renown_needed(state: GameState, empire_id: int) -> int:
 ## niveau seul pour les autres (moitié d'effet).
 static func half_levels(h: Dictionary, post: String) -> int:
 	var own := String(class_def(String(h["cls"])).get("post", "")) == post
-	return int(h["lvl"]) * (2 if own else 1)
+	if own:
+		return int(h["lvl"]) * 2
+	@warning_ignore("integer_division")
+	return int(h["lvl"]) * 3 / 2 if trait_fx(h, "versatile") > 0 else int(h["lvl"])
 
 
 ## Somme d'un effet de trait (entier) pour un héros.
@@ -254,7 +354,7 @@ static func _council_sum(state: GameState, empire_id: int, key: String) -> int:
 
 ## Bonus de dégâts (%) d'une flotte : son amiral, ses traits, et les Stratèges du conseil.
 static func damage_pct(state: GameState, f: Fleet, day: int, home: bool) -> int:
-	var pct := _council_sum(state, f.owner, "damage_pct")
+	var pct := _council_sum(state, f.owner, "damage_pct") + memorial_fx(state, f.owner, "damage_pct")
 	var h := at_post(state, "fleet", f.id, f.owner)
 	if not h.is_empty():
 		@warning_ignore("integer_division")
@@ -279,7 +379,7 @@ static func production_pct(state: GameState, owner: int, system_id: int, resourc
 ## Les mêmes bonus pour toutes les ressources d'un coup : "*" pour toutes, plus une entrée par
 ## ressource que favorise un trait du gouverneur (un seul parcours des héros par colonie).
 static func production_pcts(state: GameState, owner: int, system_id: int) -> Dictionary:
-	var pct := _council_sum(state, owner, "prod_pct")
+	var pct := _council_sum(state, owner, "prod_pct") + memorial_fx(state, owner, "prod_pct")
 	var out := {}
 	var h := at_post(state, "system", system_id, owner)
 	if not h.is_empty():
@@ -299,6 +399,11 @@ static func income(state: GameState, empire_id: int) -> Dictionary:
 	var inf := _council_sum(state, empire_id, "influence")
 	if inf != 0:
 		out["influence"] = inf
+	for m: Dictionary in meta(state, empire_id).get("memorials", []):
+		if int(m["until"]) > state.tick:
+			var inc0: Dictionary = (data()["memorial"]["credo"] as Dictionary).get(String(m["credo"]), {}).get("fx", {}).get("income", {})
+			for r in inc0:
+				out[r] = int(out.get(r, 0)) + int(inc0[r])
 	for id in ids_of(state, empire_id):
 		var h: Dictionary = state.heroes[id]
 		if not active(state, h):
@@ -397,6 +502,37 @@ static func act(state: GameState, empire_id: int, kind: String, n := 1) -> void:
 	var cls := String(a["cls"])
 	var acts: Dictionary = m["acts"]
 	acts[cls] = int(acts.get(cls, 0)) + pts
+	_serve(state, empire_id, kind, n)
+
+
+## Les actes de l'empire servent l'ambition de ses héros (libres) : loyauté entretenue, et au grand
+## objectif, une récompense unique.
+static func _serve(state: GameState, empire_id: int, kind: String, n: int) -> void:
+	for id in ids_of(state, empire_id):
+		var h: Dictionary = state.heroes[id]
+		var ad := ambition_def(String(h.get("amb", "")))
+		if ad.is_empty() or is_prisoner(h) or not (ad["acts"] as Array).has(kind):
+			continue
+		h["served"] = state.tick
+		h["amb_n"] = int(h.get("amb_n", 0)) + n
+		if int(h.get("amb_done", 0)) == 0 and int(h["amb_n"]) >= int(ad["grand"]):
+			h["amb_done"] = 1
+			var rw: Dictionary = data()["grand_reward"]
+			h["loy"] = mini(100, int(h.get("loy", 50)) + int(rw["loyalty"]))
+			var m := meta(state, empire_id)
+			m["renown"] = int(m["renown"]) + int(rw["renown"])
+			state.add_chronicle("%s a vu son ambition comblée (%s) : %s ne jure plus que par %s." % [h["name"], String(ad["grand_text"]),
+					h["name"], state.get_empire(empire_id).short_name()], Espionage.private_to(state, [empire_id]))
+
+
+## Somme d'un effet des souvenirs encore vivants d'un empire (héros morts de niveau min_lvl).
+static func memorial_fx(state: GameState, empire_id: int, key: String) -> int:
+	var m: Dictionary = state.hero_meta.get(empire_id, {})
+	var n := 0
+	for x: Dictionary in m.get("memorials", []):
+		if int(x["until"]) > state.tick:
+			n += int((data()["memorial"]["credo"] as Dictionary).get(String(x["credo"]), {}).get("fx", {}).get(key, 0))
+	return n
 
 
 ## Prépare une offre « 1 parmi 3 » si le renom atteint le seuil et qu'aucune offre n'attend.
@@ -485,6 +621,8 @@ static func check_assign(state: GameState, player: int, hero_id: int, post: Stri
 	var h := get_hero(state, hero_id)
 	if h.is_empty() or int(h["owner"]) != player:
 		return "héros inconnu"
+	if is_prisoner(h):
+		return "prisonnier de %s" % state.get_empire(int(h["jailer"])).short_name()
 	if is_wounded(state, h):
 		return "blessé"
 	if post == "":
@@ -538,6 +676,8 @@ static func check_dismiss(state: GameState, player: int, hero_id: int) -> String
 	var h := get_hero(state, hero_id)
 	if h.is_empty() or int(h["owner"]) != player:
 		return "héros inconnu"
+	if is_prisoner(h):
+		return "prisonnier : il faut d'abord le libérer"
 	return ""
 
 
@@ -570,13 +710,9 @@ static func gain_xp(state: GameState, h: Dictionary, n: int) -> void:
 	var levels: Array = data()["xp_levels"]
 	while int(h["lvl"]) < levels.size() and int(h["xp"]) >= int(levels[int(h["lvl"])]):
 		h["lvl"] = int(h["lvl"]) + 1
-		var pool := class_traits(String(h["cls"]))
-		var free: Array[String] = []
-		for t in pool:
-			if not (h["traits"] as Array).has(t):
-				free.append(t)
 		var got := ""
-		if not free.is_empty():
+		var free := _free_traits(state, h, posmod(int(h["lvl"]), 2) == 0)
+		if (h["traits"] as Array).size() < int(data()["max_traits"]) and not free.is_empty():
 			got = free[_h(state, ["lvl", int(h["id"]), int(h["lvl"])]) % free.size()]
 			(h["traits"] as Array).append(got)
 		var owner := int(h["owner"])
@@ -584,9 +720,44 @@ static func gain_xp(state: GameState, h: Dictionary, n: int) -> void:
 				(" et gagne le trait « %s »" % trait_def(got)["label"]) if got != "" else ""], Espionage.private_to(state, [owner]))
 
 
+## Traits qu'un héros peut encore gagner : ceux de son peuple (people) ou de sa classe, sinon l'autre réserve.
+static func _free_traits(state: GameState, h: Dictionary, people: bool) -> Array[String]:
+	var pools := [people_traits(state, int(h["owner"])), class_traits(String(h["cls"]))]
+	if not people:
+		pools.reverse()
+	for pool: Array[String] in pools:
+		var free: Array[String] = []
+		for t in pool:
+			if not (h["traits"] as Array).has(t):
+				free.append(t)
+		if not free.is_empty():
+			return free
+	return []
+
+
 ## Une bataille est finie : les amiraux du vainqueur gagnent de l'expérience.
 static func on_battle(state: GameState, b: Dictionary, winner: int) -> void:
-	if winner < 0 or state.heroes.is_empty():
+	if state.heroes.is_empty():
+		return
+	# Les héros des flottes engagées retiennent qui les a combattus (pour une capture éventuelle).
+	var sides := {}
+	for entry: Array in b.get("fleets", []):
+		var f: Fleet = state.fleets.get(int(entry[0]))
+		if f:
+			sides[f.owner] = true
+	for entry: Array in b.get("fleets", []):
+		var h0 := assigned_to(state, "fleet", int(entry[0]))
+		if h0.is_empty():
+			continue
+		var foe := winner if winner >= 0 and winner != int(h0["owner"]) else -1
+		if foe < 0:
+			for o in sides:
+				if int(o) != int(h0["owner"]) and Combat.at_war(state, int(h0["owner"]), int(o)):
+					foe = int(o)
+					break
+		if foe >= 0:
+			h0["foe"] = foe
+	if winner < 0:
 		return
 	for entry: Array in b.get("fleets", []):
 		var h := at_post(state, "fleet", int(entry[0]), winner)
@@ -611,16 +782,23 @@ static func on_operation(state: GameState, a: int, b: int) -> void:
 
 # --- Jour par jour ------------------------------------------------------------------------------
 
-## Chaque jour : postes devenus impossibles (blessure ou rappel) ; chaque mois : expérience, offres.
+## Chaque jour : postes devenus impossibles (blessure, capture ou rappel) ; chaque mois : expérience,
+## loyauté et désertion, conversion des prisonniers, vieillesse et défauts, élections, offres.
 static func daily(state: GameState) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	if state.heroes.is_empty() and state.hero_meta.is_empty():
 		return out
 	var monthly := posmod(state.tick, 30) == 0
 	for id in ids_of(state, -1):
+		if not state.heroes.has(id):
+			continue
 		var h: Dictionary = state.heroes[id]
 		var owner := int(h["owner"])
 		var e := state.get_empire(owner)
+		if is_prisoner(h):
+			if monthly:
+				_prison_month(state, h, out)
+			continue
 		if e == null or e.eliminated:
 			continue
 		var post := String(h["post"])
@@ -629,10 +807,14 @@ static func daily(state: GameState) -> Array[Dictionary]:
 			"fleet":
 				var f: Fleet = state.fleets.get(target)
 				if f == null or f.owner != owner:
-					_wound(state, h, out, "sa flotte a été anéantie")
+					_wound(state, h, out, "sa flotte a été anéantie", _fleet_captor(state, h))
+				else:
+					h["at"] = f.system_id
 			"system":
 				if state.system_owner(target) != owner:
-					_wound(state, h, out, "%s est tombé" % state.galaxy.systems[target].system_name)
+					var captor := state.system_owner(target)
+					_wound(state, h, out, "%s est tombé" % state.galaxy.systems[target].system_name,
+							captor if captor >= 0 and Combat.at_war(state, owner, captor) else -1)
 			"council":
 				if target >= seats(state, owner):
 					h["post"] = ""
@@ -641,7 +823,9 @@ static func daily(state: GameState) -> Array[Dictionary]:
 				if Espionage.cells_on(state, owner, target) <= 0 or state.get_empire(target) == null or state.get_empire(target).eliminated:
 					h["post"] = ""
 					h["target"] = -1
-		if monthly and active(state, h):
+		if not monthly or not state.heroes.has(id):
+			continue
+		if active(state, h):
 			var xp := int(data()["xp"]["day"]) * 30
 			if String(h["post"]) == "system":
 				var pop := 0
@@ -652,24 +836,320 @@ static func daily(state: GameState) -> Array[Dictionary]:
 				@warning_ignore("integer_division")
 				xp += pop / maxi(1, int(data()["xp"]["pop_month_div"]))
 			gain_xp(state, h, xp)
+		if _age_month(state, h, out):
+			continue
+		_loyalty_month(state, h, out)
 	if monthly:
 		for e in state.empires:
-			if not e.eliminated and _maybe_offer(state, e.id) and not e.is_ai():
+			if e.eliminated:
+				continue
+			_election(state, e, out)
+			if _maybe_offer(state, e.id) and not e.is_ai():
 				out.append(state.add_chronicle("Le renom de %s attire des candidats : trois %s se présentent (écran Panthéon)." % [e.display_name(), noun(state, e.id, true).to_lower()],
 						[e.id]))
 	return out
 
 
-static func _wound(state: GameState, h: Dictionary, out: Array[Dictionary], why: String) -> void:
+## Qui capture l'amiral d'une flotte anéantie : son dernier adversaire en bataille s'il est toujours en
+## guerre, sinon l'ennemi qui a le plus de vaisseaux dans le système où la flotte se trouvait.
+static func _fleet_captor(state: GameState, h: Dictionary) -> int:
 	var owner := int(h["owner"])
+	var foe := int(h.get("foe", -1))
+	if foe >= 0 and Combat.at_war(state, owner, foe):
+		return foe
+	var at := int(h.get("at", -1))
+	if at < 0:
+		return -1
+	var best := -1
+	var most := 0
+	for fid in state.sorted_fleet_ids():
+		var f: Fleet = state.fleets[fid]
+		if f.system_id == at and f.owner != owner and Combat.at_war(state, owner, f.owner) and f.ships.size() > most:
+			most = f.ships.size()
+			best = f.owner
+	return best
+
+
+static func _wound(state: GameState, h: Dictionary, out: Array[Dictionary], why: String, captor := -1) -> void:
+	var owner := int(h["owner"])
+	h["post"] = ""
+	h["target"] = -1
+	h["foe"] = -1
+	# Capture : chance de base, traits, jamais un Avatar.
+	if captor >= 0 and captor != owner and not is_avatar(state, owner):
+		var pct := int(data()["capture"]["pct"]) + trait_fx(h, "capture_pct")
+		if pct > 0 and _h(state, ["capture", int(h["id"]), state.tick]) % 100 < pct:
+			h["jailer"] = captor
+			h["convert"] = 0
+			h["wound"] = 0
+			out.append(state.add_chronicle("%s est capturé par %s : %s. Les geôliers ont déjà une cellule à sa taille." % [
+					h["name"], state.get_empire(captor).display_name(), why], Espionage.public_to(state, [owner, captor])))
+			return
 	var days := int(data()["wound_days"])
 	@warning_ignore("integer_division")
 	days = days * maxi(10, 100 + trait_fx(h, "wound_pct")) / 100
 	h["wound"] = state.tick + days
-	h["post"] = ""
-	h["target"] = -1
 	out.append(state.add_chronicle("%s est blessé : %s. Il reprendra du service dans %d jours." % [h["name"], why, days],
 			Espionage.private_to(state, [owner])))
+
+
+# --- Loyauté et désertion ----------------------------------------------------------------------
+
+## Loyauté du mois : une ambition servie récemment la nourrit, oubliée elle s'use (un héros sans poste
+## s'ennuie aussi). Sous min_desert, il peut passer chez un rival qui a de la place, ou partir.
+static func _loyalty_month(state: GameState, h: Dictionary, out: Array[Dictionary]) -> void:
+	if String(h.get("amb", "")) == "":
+		return
+	var cfg: Dictionary = data()["loyalty"]
+	var owner := int(h["owner"])
+	var loy := int(h.get("loy", 50))
+	if state.tick - int(h.get("served", 0)) <= int(cfg["grace_days"]):
+		loy += int(cfg["served_gain"])
+	else:
+		loy -= int(cfg["neglect_loss"])
+	if String(h["post"]) == "" and not is_wounded(state, h):
+		loy -= int(cfg["idle_loss"])
+	loy = clampi(loy, 0, mini(100, base_loyalty(state, owner, h) + 30))
+	h["loy"] = loy
+	if loy >= int(cfg["min_desert"]):
+		return
+	var pct := (int(cfg["min_desert"]) - loy) * int(cfg["desert_pct_per_point"])
+	if _h(state, ["desert", int(h["id"]), state.tick]) % 100 >= pct:
+		return
+	var to := _suitor(state, owner)
+	var e := state.get_empire(owner)
+	if to >= 0:
+		var name := String(h["name"])
+		h["owner"] = to
+		h["post"] = ""
+		h["target"] = -1
+		h["loy"] = int(cfg["defector_value"])
+		h["served"] = state.tick
+		out.append(state.add_chronicle("%s déserte %s et passe au service de %s. On dit qu'on lui avait promis davantage, et qu'on a tenu parole." % [
+				name, e.display_name(), state.get_empire(to).display_name()], Espionage.public_to(state, [owner, to])))
+	elif loy <= int(cfg["leave_at"]):
+		state.heroes.erase(int(h["id"]))
+		out.append(state.add_chronicle("%s quitte le service de %s sans un mot. Sa chaise reste vide, son ardoise aussi." % [h["name"], e.display_name()],
+				Espionage.private_to(state, [owner])))
+
+
+## Le rival qui courtise un héros mécontent : un empire rencontré, pas allié, qui a une place libre,
+## et le plus de renom.
+static func _suitor(state: GameState, owner: int) -> int:
+	var best := -1
+	var most := -1
+	for o in state.get_empire(owner).contacts:
+		var oe := state.get_empire(int(o))
+		if oe == null or oe.eliminated or Diplomacy.allied(state, owner, int(o)) or is_avatar(state, int(o)):
+			continue
+		if ids_of(state, int(o)).size() >= cap(state, int(o)):
+			continue
+		var r := int(meta(state, int(o))["renown"]) + int(meta(state, int(o))["got"]) * 1000
+		if r > most:
+			most = r
+			best = int(o)
+	return best
+
+
+# --- Vieillesse et mort ------------------------------------------------------------------------
+
+## Vieillesse du mois : défauts après from_age, mort possible à l'approche de l'espérance de vie.
+## Renvoie vrai si le héros est mort.
+static func _age_month(state: GameState, h: Dictionary, out: Array[Dictionary]) -> bool:
+	var a := age(state, h)
+	var fl: Dictionary = data()["flaws"]
+	if a >= int(fl["from_age"]) and posmod(state.tick - int(h["born"]), DAYS_PER_YEAR) < 30:
+		var have := 0
+		for t in h["traits"]:
+			if trait_def(String(t)).get("flaw", false):
+				have += 1
+		if have < int(fl["max"]) and _h(state, ["flaw", int(h["id"]), a]) % 100 < int(fl["pct"]):
+			var ids := (data()["traits"] as Dictionary).keys()
+			ids.sort()
+			var free: Array[String] = []
+			for t in ids:
+				if trait_def(String(t)).get("flaw", false) and not (h["traits"] as Array).has(t):
+					free.append(String(t))
+			if not free.is_empty():
+				var got := free[_h(state, ["flaw_pick", int(h["id"]), a]) % free.size()]
+				(h["traits"] as Array).append(got)
+				out.append(state.add_chronicle("%s prend de l'âge : %s." % [h["name"], String(trait_def(got)["label"]).to_lower()],
+						Espionage.private_to(state, [int(h["owner"])])))
+	var life := int(h.get("life", 0))
+	if life <= 0:
+		return false
+	var from := life - int(data()["life"]["warn"])
+	if a < from:
+		return false
+	# Chance mensuelle qui grandit chaque année au-delà du seuil (per_year_pct par an, divisé par 12).
+	var per_mille := (a - from + 1) * int(data()["life"]["per_year_pct"]) * 10 / 12
+	if _h(state, ["death", int(h["id"]), state.tick]) % 1000 >= per_mille:
+		return false
+	die(state, h, "s'éteint à %d ans, entouré de ses souvenirs et de quelques créanciers" % a, out)
+	return true
+
+
+## Un héros meurt : souvenir (niveau min_lvl ou plus, ou toujours chez les Saints), ferveur des Saints.
+static func die(state: GameState, h: Dictionary, why: String, out: Array[Dictionary]) -> void:
+	var owner := int(h["owner"])
+	var e := state.get_empire(owner)
+	state.heroes.erase(int(h["id"]))
+	var tl := talent(state, owner)
+	var mem: Dictionary = data()["memorial"]
+	var credo := String(e.faction().get("species", {}).get("credo", "")) if e else ""
+	var text := "%s %s." % [h["name"], why]
+	if e and (int(h["lvl"]) >= int(mem["min_lvl"]) or int(tl.get("saint", 0)) > 0) and (mem["credo"] as Dictionary).has(credo):
+		var m := meta(state, owner)
+		if not m.has("memorials"):
+			m["memorials"] = []
+		(m["memorials"] as Array).append({"name": String(h["name"]), "until": state.tick + int(mem["years"]) * DAYS_PER_YEAR, "credo": credo})
+		text += " Son souvenir reste : %s pendant %d ans." % [String(mem["credo"][credo]["text"]), int(mem["years"])]
+	if e and int(tl.get("saint_fervor", 0)) > 0 and FactionTraits.has_fervor(e.faction()):
+		e.fervor = mini(int(e.faction()["fervor"]["max"]), e.fervor + int(tl["saint_fervor"]))
+		text += " Un saint de plus : la ferveur monte."
+	out.append(state.add_chronicle(text, Espionage.private_to(state, [owner])))
+
+
+# --- Prisonniers -------------------------------------------------------------------------------
+
+## Mois en prison : conversion qui s'achève, geôlier ou maître disparu.
+static func _prison_month(state: GameState, h: Dictionary, out: Array[Dictionary]) -> void:
+	var jailer := int(h["jailer"])
+	var owner := int(h["owner"])
+	var je := state.get_empire(jailer)
+	var oe := state.get_empire(owner)
+	if je == null or je.eliminated:
+		_free(state, h)
+		return
+	if (oe == null or oe.eliminated) and int(h.get("convert", 0)) == 0:
+		h["convert"] = state.tick
+	if int(h.get("convert", 0)) > 0 and int(h["convert"]) <= state.tick:
+		if ids_of(state, jailer).size() >= cap(state, jailer):
+			return  # pas de place : il attend
+		h["owner"] = jailer
+		h["jailer"] = -1
+		h["convert"] = 0
+		h["post"] = ""
+		h["target"] = -1
+		h["loy"] = int(data()["loyalty"]["convert_value"])
+		h["served"] = state.tick
+		out.append(state.add_chronicle("%s, longtemps prisonnier, prête serment à %s. On ne saura jamais si c'était la conviction ou l'ordinaire de la cantine." % [
+				h["name"], je.display_name()], Espionage.public_to(state, [owner, jailer])))
+
+
+static func _free(state: GameState, h: Dictionary) -> void:
+	h["jailer"] = -1
+	h["convert"] = 0
+	h["post"] = ""
+	h["target"] = -1
+
+
+## Prisonniers que tient un empire (identifiants triés).
+static func prisoners_of(state: GameState, jailer: int) -> Array[int]:
+	var out: Array[int] = []
+	for id in ids_of(state, -1):
+		if int(state.heroes[id].get("jailer", -1)) == jailer:
+			out.append(id)
+	return out
+
+
+const PRISON_ACTIONS := ["free", "convert", "execute"]
+
+
+static func check_prisoner(state: GameState, player: int, hero_id: int, action: String) -> String:
+	var h := get_hero(state, hero_id)
+	if h.is_empty() or int(h.get("jailer", -1)) != player:
+		return "prisonnier inconnu"
+	if not PRISON_ACTIONS.has(action):
+		return "action inconnue"
+	if action == "convert" and int(h.get("convert", 0)) > 0:
+		return "conversion déjà en cours"
+	return ""
+
+
+## Le geôlier décide : libérer (souvenir reconnaissant), convertir (il rejoint nos rangs après
+## convert_days, s'il y a de la place), exécuter (grief durable).
+static func prisoner(state: GameState, player: int, hero_id: int, action: String) -> void:
+	var h: Dictionary = state.heroes[hero_id]
+	var owner := int(h["owner"])
+	var je := state.get_empire(player)
+	match action:
+		"free":
+			_free(state, h)
+			Diplomacy.remember(state, owner, player, "hero_freed")
+			state.add_chronicle("%s libère %s, qui rentre chez %s avec une lettre très polie." % [je.display_name(), h["name"], state.get_empire(owner).display_name()],
+					Espionage.public_to(state, [owner, player]))
+		"convert":
+			h["convert"] = state.tick + int(data()["capture"]["convert_days"])
+			state.add_chronicle("%s entreprend de rallier %s à sa cause : longues conversations, meilleurs repas." % [je.display_name(), h["name"]],
+					Espionage.private_to(state, [player]))
+		"execute":
+			Diplomacy.remember(state, owner, player, "hero_executed")
+			var out: Array[Dictionary] = []
+			h["owner"] = owner
+			die(state, h, "est exécuté sur ordre de %s. On ne lui pardonnera pas" % je.display_name(), out)
+
+
+## La paix rend les prisonniers que les deux empires se tiennent.
+static func release_between(state: GameState, a: int, b: int) -> void:
+	var n := 0
+	for id in ids_of(state, -1):
+		var h: Dictionary = state.heroes[id]
+		var j := int(h.get("jailer", -1))
+		if (j == a and int(h["owner"]) == b) or (j == b and int(h["owner"]) == a):
+			_free(state, h)
+			n += 1
+	if n > 0:
+		state.add_chronicle("La paix rend les prisonniers : %d %s rentrent chez eux." % [n, "héros" if n > 1 else "héros"], Espionage.public_to(state, [a, b]))
+
+
+# --- Talents de peuple --------------------------------------------------------------------------
+
+## République : le conseil est réélu tous les election_years ans ; ses membres rendent leur siège.
+static func _election(state: GameState, e: Empire, out: Array[Dictionary]) -> void:
+	var years := int(talent(state, e.id).get("election_years", 0))
+	if years <= 0:
+		return
+	var m := meta(state, e.id)
+	if state.tick - int(m.get("election", 0)) < years * DAYS_PER_YEAR:
+		return
+	m["election"] = state.tick
+	var n := 0
+	for h in council(state, e.id):
+		h["post"] = ""
+		h["target"] = -1
+		n += 1
+	if n > 0:
+		out.append(state.add_chronicle("Élections chez %s : le conseil est renouvelé. Les sortants rendent leur siège, et leurs clés, en principe." % e.display_name(),
+				Espionage.private_to(state, [e.id])))
+
+
+## Horde : l'amiral d'une flotte qui pille gagne un trait (jusqu'à max_traits).
+static func on_loot(state: GameState, empire_id: int, system_id: int) -> void:
+	if int(talent(state, empire_id).get("loot_trait", 0)) <= 0:
+		return
+	for fid in state.sorted_fleet_ids():
+		var f: Fleet = state.fleets[fid]
+		if f.owner != empire_id or f.system_id != system_id:
+			continue
+		var h := at_post(state, "fleet", f.id, empire_id)
+		if h.is_empty() or (h["traits"] as Array).size() >= int(data()["max_traits"]):
+			continue
+		var free := _free_traits(state, h, false)
+		if free.is_empty():
+			continue
+		var got := free[_h(state, ["loot", int(h["id"]), state.tick]) % free.size()]
+		(h["traits"] as Array).append(got)
+		state.add_chronicle("Le champion %s revient du pillage avec un nouveau titre : %s." % [h["name"], String(trait_def(got)["label"]).to_lower()],
+				Espionage.private_to(state, [empire_id]))
+
+
+## Picaresque : chaque exploit nouveau rapporte du renom.
+static func on_exploit(state: GameState, empire_id: int) -> void:
+	var r := int(talent(state, empire_id).get("exploit_renown", 0))
+	if r > 0 and not (state.heroes.is_empty() and state.hero_meta.is_empty()):
+		var m := meta(state, empire_id)
+		m["renown"] = int(m["renown"]) + r
 
 
 # --- Sauvegarde --------------------------------------------------------------------------------
@@ -701,6 +1181,20 @@ static func from_lists(state: GameState, heroes: Array, metas: Array) -> void:
 		for t in h.get("traits", []):
 			traits.append(String(t))
 		h["traits"] = traits
+		# Sauvegarde 20 (lot 1) : les champs du lot 2 manquent ; ambition tirée par hachage.
+		if not h.has("amb"):
+			var ambs := (data()["ambitions"] as Dictionary).keys()
+			ambs.sort()
+			h["amb"] = "" if is_avatar(state, int(h["owner"])) else String(ambs[_h(state, ["amb_old", int(h["id"])]) % ambs.size()])
+			h["served"] = state.tick
+			h["amb_n"] = 0
+			h["amb_done"] = 0
+			h["foe"] = -1
+			h["jailer"] = -1
+			h["convert"] = 0
+			h["life"] = life_years(state, int(h["owner"]))
+			h["loy"] = base_loyalty(state, int(h["owner"]), h)
+		h["amb"] = String(h["amb"])
 		state.heroes[int(h["id"])] = h
 	for raw: Dictionary in metas:
 		var m: Dictionary = GameData._to_ints(raw)
@@ -713,12 +1207,17 @@ static func from_lists(state: GameState, heroes: Array, metas: Array) -> void:
 		var offer := []
 		for cand: Dictionary in m.get("offer", []):
 			var c2 := cand.duplicate(true)
-			for k in ["name", "portrait", "cls"]:
-				c2[k] = String(c2[k])
+			for k in ["name", "portrait", "cls", "amb"]:
+				c2[k] = String(c2.get(k, ""))
 			var tr: Array[String] = []
 			for t in c2.get("traits", []):
 				tr.append(String(t))
 			c2["traits"] = tr
 			offer.append(c2)
 		m["offer"] = offer
+		var mems := []
+		for x: Dictionary in m.get("memorials", []):
+			mems.append({"name": String(x["name"]), "until": int(x["until"]), "credo": String(x["credo"])})
+		m["memorials"] = mems
+		m["election"] = int(m.get("election", 0))
 		state.hero_meta[e] = m

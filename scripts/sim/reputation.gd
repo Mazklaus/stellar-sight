@@ -71,6 +71,7 @@ static func exploit(state: GameState, empire_id: int, id: String) -> void:
 			e.display_name(), label.to_lower()], Espionage.private_to(state, [empire_id]))
 	if id != "renommee":
 		add(state, empire_id, int(e.faction()["reputation"].get("exploit", 0)))
+	Heroes.on_exploit(state, empire_id)
 
 
 ## Bilan du mois : la réputation s'use (ce qu'elle rapporte passe par Economy.empire_income).

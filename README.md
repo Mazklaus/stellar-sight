@@ -521,7 +521,7 @@ Lot 2, lockstep (deux machines ou plus jouent la même partie), tours simultané
 - **Sauvegarde automatique de l'hôte** (`user://saves/multi_auto.json`, avec les places : qui dirige quel empire) : à chaque départ, à chaque fin de tour, et tous les 30 jours en temps réel. Au départ d'un joueur, l'IA (niveau Normal) reprend son empire ; en temps réel la partie se met en pause, au tour par tour elle continue.
 - **Tests** : `tests/net_tests.gd` (trames, pause, latence simulée, tricheur détecté) ; `tools/net_selftest.sh [JOURS]` lance un hôte et deux clients headless en local (`tools/net_bot.gd`) et compare leurs empreintes finales (`TURNS=10` : tours simultanés ; `BRUNO_QUITS_AT=200` : un départ en cours de partie ; avec `BRUNO_REJOINS=1`, il revient et retrouve son empire ; `LOBBY=1` : la partie naît d'un salon où chaque client prend sa place ; `CHAT=1` : chacun écrit un message, qui doit arriver partout ; `BRUNO_DESYNC_AT=100` : Bruno fausse son état, l'hôte doit le resynchroniser ; `PASSWORD=mot` : partie protégée, un intrus au mauvais mot de passe doit être refusé). `net_bot.gd` accepte aussi `HOST_QUITS_AT` puis `RESUME=1` pour couper l'hôte et reprendre la partie depuis sa sauvegarde automatique ; `tools/capture_network.gd` capture les écrans du réseau.
 
-## Héros (lot 1 : le socle)
+## Héros
 
 Étude sourcée (Endless Space 2, Stellaris, Age of Wonders 4, Galactic Civilizations IV, Master of Orion II, Distant Worlds 2, Astra Exodus) : https://claude.ai/artifact/5APG5X6UbHSDoBkeAf2wXj, validée le 12/11/2026. Données dans `data/heroes.json` (valeurs de départ, équilibrage reporté), moteur dans `scripts/sim/heroes.gd` (`Heroes`), IA dans `scripts/sim/ai/ai_heroes.gd`, écran Panthéon (F10) dans `scripts/ui/hero_screen.gd`.
 
@@ -532,7 +532,18 @@ Lot 2, lockstep (deux machines ou plus jouent la même partie), tours simultané
 - **Galerie de portraits propre aux héros**, par archétype (humanoïde, ruche, lithoïde, reptilien, synthétique), comme celle des peuples ; ruches et consciences appellent leurs héros des Avatars.
 - **Déterminisme** : tirages par hachage de la graine, parcours dans l'ordre des identifiants, ordres `hero_pick`, `hero_assign`, `hero_dismiss`. Sauvegarde 20 (une sauvegarde 19 reçoit ses héros de départ au chargement).
 - **IA** : même accès que le joueur, une fois par mois ; la Recrue prend le premier candidat et place ses héros sans regarder leur classe, les autres choisissent la classe utile et la mettent à son poste.
-- Plus tard : lot 2 (vie et mort : vieillesse, capture, loyauté, ambition, héritier Ossarane), lot 3 (ombres et Légende).
+- Repères : médaillon d'or sur la flotte d'un amiral (carte), amiral et gouverneur nommés dans la fiche de flotte et la vue système.
+
+### Lot 2 : vie et mort
+
+- **Traits de peuple** : une seconde réserve de traits, lue dans les couches d'espèce (registre, archétype, gouvernement, credo ; `people_traits` de `data/heroes.json`). Un héros en gagne un aux niveaux pairs, un de sa classe aux niveaux impairs, six au plus. Les peuples créés dans l'éditeur ont leurs héros sans rien écrire de plus.
+- **Ambition et loyauté** : chaque héros veut la Gloire, la Fortune, le Savoir, la Foi ou la Vengeance. Les actes de l'empire qui la servent entretiennent sa loyauté (0 à 100) ; un grand objectif atteint (huit victoires, douze technologies…) la renforce et donne du renom. Oubliée, ou sans poste, elle s'use ; sous 20, le héros peut passer chez le rival rencontré qui a une place libre, ou partir.
+- **Capture** : flotte anéantie ou système pris, 35 % de risque d'être capturé par l'ennemi (traits Baroudeur, Inébranlable, Insaisissable). Le geôlier le libère (souvenir reconnaissant), le convertit (il le rejoint après 180 jours, s'il reste une place) ou l'exécute (grief durable). La paix rend les prisonniers. Ordre `hero_prisoner`.
+- **Vieillesse** : 80 ans d'espérance de vie, 120 pour un lithoïde, 150 pour un énergétique, sans limite pour un synthétique ; un ou deux défauts après 60 ans. Un héros de niveau 3 ou plus qui meurt laisse un souvenir de cinq ans selon le credo (honneur : dégâts, foi : influence, raison : Savoir, profit : énergie, survie : production).
+- **Talents de peuple** : féodalité, héros de sang (loyauté +20) ; théocratie, saints (souvenir à chaque mort, ferveur +20) ; république, conseil élu (+1 siège, réélu tous les dix ans) ; ruche et conscience, Avatars (ni ambition, ni désertion, ni capture) ; horde, champions (un trait par pillage) ; Space opera héroïque, +1 place ; Picaresque, chaque exploit rapporte 30 de renom.
+- **IA** : la Normale et au-dessus convertit ses prisonniers s'il reste une place, sinon les libère une fois la guerre finie.
+- Sauvegarde 21 (une sauvegarde 20 donne à ses héros une ambition, une loyauté et une espérance de vie).
+- Reporté : les héros à louer du syndicat (avec les contrats de flotte, lot 3), l'héritier Ossarane en héros, les opérations contre les héros et la Légende (lot 3).
 
 ## Organisation du code
 

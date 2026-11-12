@@ -359,6 +359,11 @@ func _draw_fleet_icon(f: Fleet, pos: Vector2, px: float) -> void:
 		draw_set_transform(pos, 0.0, Vector2(px, px))
 		draw_string(_font, Vector2(8, 12), str(f.ships.size()), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 1, 1, 0.85))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	# Médaillon d'or : un héros commande cette flotte.
+	if not Heroes.at_post(state, "fleet", f.id, f.owner).is_empty():
+		var m := pos + Vector2(0, -s * 1.35)
+		draw_circle(m, 3.2 * px, Color(0.02, 0.03, 0.05, 0.9))
+		draw_circle(m, 2.4 * px, Color(0.95, 0.78, 0.36))
 
 
 ## Trajet de la flotte sélectionnée : pointillés jusqu'à destination, et le délai.

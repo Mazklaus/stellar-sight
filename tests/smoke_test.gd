@@ -1441,6 +1441,19 @@ func _test_hero_ui(main: Node) -> void:
 			main.simulation.flush_commands()
 			await process_frame
 			_check(String(st.heroes[hid]["post"]) == "", "Panthéon : RAPPELER retire le poste")
+	# Un héros rival prisonnier : le geôlier le libère depuis le Panthéon.
+	var rival := 1 if me != 1 else 0
+	var pid := Heroes.recruit(st, rival, Heroes.make_candidate(st, rival, "stratege", ["ui_prison"]))
+	st.heroes[pid]["jailer"] = me
+	screens.show_screen("heroes")
+	await process_frame
+	var pb: Dictionary = screens.hero_buttons.get("prisoner_%d" % pid, {})
+	_check(pb.has("free") and pb.has("convert") and pb.has("execute"), "Panthéon : un prisonnier, trois décisions")
+	if pb.has("free"):
+		(pb["free"] as Button).pressed.emit()
+		main.simulation.flush_commands()
+		await process_frame
+		_check(not Heroes.is_prisoner(st.heroes[pid]), "Panthéon : LIBÉRER rend le prisonnier")
 	_press(KEY_F10)
 	await process_frame
 	_check(not screens.is_open(), "F10 referme le Panthéon")

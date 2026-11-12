@@ -33,6 +33,26 @@ static func build(es: EmpireScreens) -> void:
 		var l := UiTheme.paragraph("%s (%s) : %s" % [c["label"], Heroes.post_label(String(c["post"])), c["text"]], EmpireScreens.SIDE_WIDTH - 24.0, 12)
 		l.add_theme_color_override("font_color", Color(String(c["color"])).lerp(Color.WHITE, 0.45))
 		es._side_box.add_child(l)
+	var talents := Heroes.talent_labels(state, player)
+	if not talents.is_empty():
+		es._side_box.add_child(HSeparator.new())
+		es._side_box.add_child(UiTheme.dim("Talents de votre peuple", 13))
+		for tl in talents:
+			es._side_box.add_child(UiTheme.paragraph("%s : %s" % [tl[0], tl[1]], EmpireScreens.SIDE_WIDTH - 24.0, 12))
+	var mems: Array = []
+	for x: Dictionary in m.get("memorials", []):
+		if int(x["until"]) > state.tick:
+			mems.append(x)
+	if not mems.is_empty():
+		es._side_box.add_child(HSeparator.new())
+		es._side_box.add_child(UiTheme.dim("Souvenirs", 13))
+		for x: Dictionary in mems:
+			var cd: Dictionary = Heroes.data()["memorial"]["credo"].get(String(x["credo"]), {})
+			@warning_ignore("integer_division")
+			var ml := UiTheme.paragraph("%s : %s (encore %d ans)." % [x["name"], cd.get("text", ""), (int(x["until"]) - state.tick) / Heroes.DAYS_PER_YEAR + 1],
+					EmpireScreens.SIDE_WIDTH - 24.0, 12)
+			ml.add_theme_color_override("font_color", UiTheme.GOLD)
+			es._side_box.add_child(ml)
 	es._side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("heroes").get("why", "")), EmpireScreens.SIDE_WIDTH - 24.0, 13))
 
 	# Contenu défilant.
@@ -59,6 +79,9 @@ static func build(es: EmpireScreens) -> void:
 		flow.add_child(_hero_card(es, state.heroes[id]))
 	if ids.is_empty():
 		mine.body.add_child(UiTheme.dim("Aucun héros pour l'instant : le renom en fera venir.", 14))
+	var held := Heroes.prisoners_of(state, player)
+	if not held.is_empty():
+		col.add_child(_prison_block(es, held))
 
 
 ## Ce qui change l'écran : héros, renom et offre, mois, flottes et réseaux (cibles possibles).
@@ -66,7 +89,8 @@ static func signature(es: EmpireScreens) -> String:
 	var state := es._state
 	@warning_ignore("integer_division")
 	return "%s|%s|%d|%d|%s|%d" % [str(Heroes.ids_of(state, es._player).map(func(i: int) -> Dictionary: return state.heroes[i])),
-			str(Heroes.meta(state, es._player)), state.tick / 30, state.fleets.size(), str(state.networks),
+			str(Heroes.meta(state, es._player)) + str(Heroes.prisoners_of(state, es._player).map(func(i: int) -> Dictionary: return state.heroes[i])),
+			state.tick / 30, state.fleets.size(), str(state.networks),
 			Heroes.cap(state, es._player) * 10 + Heroes.seats(state, es._player)]
 
 
@@ -124,6 +148,12 @@ static func _offer_block(es: EmpireScreens, offer: Array) -> Control:
 		cl.add_theme_color_override("font_color", _class_color(String(cand["cls"])).lerp(Color.WHITE, 0.3))
 		info.add_child(cl)
 		info.add_child(_traits_line(cand))
+		var cad := Heroes.ambition_def(String(cand.get("amb", "")))
+		if not cad.is_empty():
+			var al := UiTheme.dim("Ambition : %s" % cad["label"], 12)
+			al.tooltip_text = String(cad["text"])
+			al.mouse_filter = Control.MOUSE_FILTER_STOP
+			info.add_child(al)
 		v.add_child(UiTheme.paragraph(String(Heroes.class_def(String(cand["cls"]))["text"]), CARD_WIDTH - 20.0, 12))
 		var pick := Button.new()
 		pick.text = "CHOISIR"
@@ -156,6 +186,10 @@ static func _offer_block(es: EmpireScreens, offer: Array) -> Control:
 
 ## Ce que fait le héros en ce moment, en une ligne.
 static func status_text(state: GameState, h: Dictionary) -> String:
+	if Heroes.is_prisoner(h):
+		var je := state.get_empire(int(h["jailer"]))
+		var conv := int(h.get("convert", 0))
+		return "Prisonnier de %s%s." % [je.short_name() if je else "?", (" : on le travaille au corps, ralliement dans %d jours" % maxi(0, conv - state.tick)) if conv > 0 else ""]
 	if Heroes.is_wounded(state, h):
 		return "Blessé : de retour dans %d jours." % (int(h["wound"]) - state.tick)
 	var post := String(h["post"])
@@ -255,8 +289,9 @@ static func _hero_card(es: EmpireScreens, h: Dictionary) -> Control:
 		xp.tooltip_text = "Niveau maximal."
 	info.add_child(xp)
 	info.add_child(_traits_line(h))
+	v.add_child(_loyalty_line(state, h))
 	var st := UiTheme.paragraph(status_text(state, h), CARD_WIDTH + 60.0, 13)
-	if Heroes.is_wounded(state, h):
+	if Heroes.is_wounded(state, h) or Heroes.is_prisoner(h):
 		st.add_theme_color_override("font_color", UiTheme.WARN)
 	v.add_child(st)
 	if String(h["post"]) != "":
@@ -273,7 +308,7 @@ static func _hero_card(es: EmpireScreens, h: Dictionary) -> Control:
 	var ch := choices(state, player, h)
 	for c in ch:
 		opt.add_item(String(c[2]))
-	opt.disabled = ch.is_empty() or Heroes.is_wounded(state, h)
+	opt.disabled = ch.is_empty() or Heroes.is_wounded(state, h) or Heroes.is_prisoner(h)
 	opt.tooltip_text = "Le poste de sa classe (★) donne l'effet plein, les autres la moitié. Hors du système capital, %d jours de trajet." % int(Heroes.data()["travel_days"])
 	opt.item_selected.connect(func(i: int) -> void:
 		if i > 0:
@@ -290,7 +325,101 @@ static func _hero_card(es: EmpireScreens, h: Dictionary) -> Control:
 	dismiss.text = "RENVOYER"
 	dismiss.focus_mode = Control.FOCUS_NONE
 	dismiss.tooltip_text = "Le héros quitte votre service pour de bon."
+	var dwhy := Heroes.check_dismiss(state, player, id)
+	dismiss.disabled = dwhy != ""
+	if dwhy != "":
+		dismiss.tooltip_text = dwhy
 	dismiss.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.hero_dismiss(player, id)))
 	orders.add_child(dismiss)
 	es.hero_buttons[id] = {"assign": opt, "recall": recall, "dismiss": dismiss, "choices": ch}
 	return card
+
+
+## Ambition et loyauté (rien pour un Avatar), espérance de vie.
+static func _loyalty_line(state: GameState, h: Dictionary) -> Control:
+	var box := HBoxContainer.new()
+	box.add_theme_constant_override("separation", 10)
+	var ad := Heroes.ambition_def(String(h.get("amb", "")))
+	if ad.is_empty():
+		var l := UiTheme.dim("Avatar : sans ambition propre, d'une loyauté sans faille.", 12)
+		box.add_child(l)
+		return box
+	var amb := Label.new()
+	amb.add_theme_font_size_override("font_size", 13)
+	amb.text = "Ambition : %s%s" % [ad["label"], " ✓" if int(h.get("amb_done", 0)) > 0 else " (%d / %d)" % [int(h.get("amb_n", 0)), int(ad["grand"])]]
+	amb.tooltip_text = "%s\nGrand objectif : %s." % [ad["text"], ad["grand_text"]]
+	amb.mouse_filter = Control.MOUSE_FILTER_STOP
+	box.add_child(amb)
+	var loy := int(h.get("loy", 50))
+	var bar := ProgressBar.new()
+	bar.show_percentage = false
+	bar.custom_minimum_size = Vector2(90, 8)
+	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	bar.max_value = 100
+	bar.value = loy
+	var low := loy < int(Heroes.data()["loyalty"]["min_desert"])
+	bar.modulate = UiTheme.WARN if low else Color(0.6, 0.9, 0.7)
+	bar.tooltip_text = "Loyauté %d / 100. Servir son ambition l'entretient ; l'oublier, ou le laisser sans poste, l'use. Sous %d, il peut déserter." % [
+			loy, int(Heroes.data()["loyalty"]["min_desert"])]
+	box.add_child(bar)
+	var ll := Label.new()
+	ll.add_theme_font_size_override("font_size", 13)
+	ll.text = "Loyauté %d" % loy
+	if low:
+		ll.add_theme_color_override("font_color", UiTheme.WARN)
+	box.add_child(ll)
+	return box
+
+
+static func _prison_block(es: EmpireScreens, held: Array[int]) -> Control:
+	var state := es._state
+	var player := es._player
+	var b := Widgets.Block.new("Prisonniers")
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 16)
+	flow.add_theme_constant_override("v_separation", 16)
+	b.body.add_child(flow)
+	for id in held:
+		var h: Dictionary = state.heroes[id]
+		var card := PanelContainer.new()
+		card.custom_minimum_size = Vector2(CARD_WIDTH + 80.0, 0)
+		var v := VBoxContainer.new()
+		v.add_theme_constant_override("separation", 6)
+		card.add_child(v)
+		var top := HBoxContainer.new()
+		top.add_theme_constant_override("separation", 10)
+		v.add_child(top)
+		top.add_child(_portrait(h))
+		var info := VBoxContainer.new()
+		top.add_child(info)
+		info.add_child(UiTheme.paragraph(String(h["name"]), CARD_WIDTH - 30.0, 15))
+		var oe := state.get_empire(int(h["owner"]))
+		var cl := Label.new()
+		cl.text = "%s de %s · niveau %d" % [Heroes.class_def(String(h["cls"]))["label"], oe.short_name() if oe else "?", int(h["lvl"])]
+		cl.add_theme_color_override("font_color", _class_color(String(h["cls"])).lerp(Color.WHITE, 0.3))
+		info.add_child(cl)
+		info.add_child(_traits_line(h))
+		var conv := int(h.get("convert", 0))
+		if conv > 0:
+			v.add_child(UiTheme.dim("Conversion en cours : il nous rejoint dans %d jours (s'il reste une place)." % maxi(0, conv - state.tick), 13))
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		v.add_child(row)
+		var btns := {}
+		for a in [["free", "LIBÉRER", "Il rentre chez lui ; son empire s'en souviendra avec gratitude."],
+				["convert", "CONVERTIR", "Le rallier à notre cause : il nous rejoint après %d jours, s'il reste une place." % int(Heroes.data()["capture"]["convert_days"])],
+				["execute", "EXÉCUTER", "Il meurt. Son empire ne l'oubliera pas (grief durable)."]]:
+			var bt := Button.new()
+			bt.text = String(a[1])
+			bt.focus_mode = Control.FOCUS_NONE
+			var why := Heroes.check_prisoner(state, player, id, String(a[0]))
+			bt.disabled = why != ""
+			bt.tooltip_text = why if why != "" else String(a[2])
+			var act := String(a[0])
+			var hid := id
+			bt.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.hero_prisoner(player, hid, act)))
+			row.add_child(bt)
+			btns[act] = bt
+		es.hero_buttons["prisoner_%d" % id] = btns
+		flow.add_child(card)
+	return b

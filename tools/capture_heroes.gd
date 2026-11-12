@@ -67,8 +67,32 @@ func _initialize() -> void:
 	main._empire_screens.show_screen("heroes")
 	await _frames(10)
 	await _shot(out + "/pantheon-heros.png")
+
+	# 2 bis. Vie et mort : un prisonnier rival, un souvenir, un héros mécontent.
+	var rival := 1
+	var pr := Heroes.recruit(st, rival, Heroes.make_candidate(st, rival, "ombre", ["capture", 3]))
+	st.heroes[pr]["jailer"] = 0
+	st.heroes[pr]["lvl"] = 2
+	Heroes.meta(st, 0)["memorials"].append({"name": "Aldric de Lunelle", "until": st.tick + 4 * Heroes.DAYS_PER_YEAR, "credo": "honneur"})
+	st.heroes[Heroes.ids_of(st, 0)[0]]["loy"] = 17
+	main._empire_screens.show_screen("heroes")
+	await _frames(10)
+	await _shot(out + "/pantheon-vie-et-mort.png")
 	main.toggle_empire_screen("heroes")
 	await _frames(4)
+
+	# 2 ter. Le médaillon d'or sur la carte : une flotte commandée par un héros.
+	var led: Fleet = war
+	for fid in st.sorted_fleet_ids():
+		if not Heroes.at_post(st, "fleet", fid, 0).is_empty():
+			led = st.fleets[fid]
+	main._camera.position = st.galaxy.systems[led.system_id].position
+	main._camera.zoom = Vector2(2.2, 2.2)
+	main.select_fleet(led.id)
+	main._hud.show_hover(null, Vector2.ZERO)
+	main._refresh_all()
+	await _frames(8)
+	await _shot(out + "/medaillon-flotte.png")
 
 	# 3. La galerie de portraits des héros, un archétype par ligne.
 	var layer := CanvasLayer.new()

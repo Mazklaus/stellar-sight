@@ -190,6 +190,11 @@ static func hero_dismiss(player: int, hero_id: int) -> Dictionary:
 	return {"type": "hero_dismiss", "player": player, "hero": hero_id}
 
 
+## Le geôlier décide du sort d'un prisonnier : "free", "convert" ou "execute".
+static func hero_prisoner(player: int, hero_id: int, action: String) -> Dictionary:
+	return {"type": "hero_prisoner", "player": player, "hero": hero_id, "action": action}
+
+
 static func spy_answer(player: int, case_id: int, choice: String) -> Dictionary:
 	return {"type": "spy_answer", "player": player, "case": case_id, "choice": choice}
 
@@ -282,6 +287,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Heroes.check_assign(state, int(cmd["player"]), int(cmd.get("hero", -1)), String(cmd.get("post", "?")), int(cmd.get("target", -1)))
 		"hero_dismiss":
 			return Heroes.check_dismiss(state, int(cmd["player"]), int(cmd.get("hero", -1)))
+		"hero_prisoner":
+			return Heroes.check_prisoner(state, int(cmd["player"]), int(cmd.get("hero", -1)), String(cmd.get("action", "")))
 		"spy_answer":
 			return Espionage.check_answer(state, int(cmd["player"]), int(cmd.get("case", -1)), String(cmd.get("choice", "")))
 		"probe":
@@ -420,6 +427,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Heroes.assign(state, int(cmd["player"]), int(cmd["hero"]), String(cmd["post"]), int(cmd["target"]))
 		"hero_dismiss":
 			Heroes.dismiss(state, int(cmd["player"]), int(cmd["hero"]))
+		"hero_prisoner":
+			Heroes.prisoner(state, int(cmd["player"]), int(cmd["hero"]), String(cmd["action"]))
 		"spy_answer":
 			Espionage.answer(state, int(cmd["player"]), int(cmd["case"]), String(cmd["choice"]))
 		"probe":

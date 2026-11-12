@@ -521,6 +521,10 @@ func _refresh_fleet_card() -> void:
 	else:
 		_fleet_status.text = "En orbite de %s." % _system_label(f.system_id)
 	_fleet_status.text += combat_status(_state, f)
+	var adm := Heroes.assigned_to(_state, "fleet", f.id, f.owner)
+	if not adm.is_empty():
+		_fleet_status.text += "\nAmiral ✦ %s, niveau %d%s." % [adm["name"], int(adm["lvl"]),
+				(" (en route, %d j)" % (int(adm["arrive"]) - _state.tick)) if int(adm["arrive"]) > _state.tick else ""]
 	var v := Fleets.vision(f)
 	_fleet_stats.text = "%d vaisseau%s  ·  vitesse %d  ·  vision %d saut%s" % [f.ships.size(), "x" if f.ships.size() > 1 else "",
 			Fleets.speed(f, _state), v, "s" if v > 1 else ""]
