@@ -90,6 +90,14 @@ class IconButton:
 				for side in [-1.0, 1.0]:
 					draw_colored_polygon(PackedVector2Array([c + Vector2(side * s * 1.1, -s * 0.6), c + Vector2(side * s * 1.1 - s * 0.45, s * 0.15),
 							c + Vector2(side * s * 1.1 + s * 0.45, s * 0.15)]), col)
+			"senate":
+				# Un hémicycle : deux rangées de sièges en demi-cercle et la tribune.
+				for k in 2:
+					var r := s * (0.75 + 0.5 * k)
+					for j in 5 + 2 * k:
+						var a := PI + PI * (float(j) + 0.5) / float(5 + 2 * k)
+						draw_circle(c + Vector2(0, s * 0.55) + Vector2(cos(a), sin(a)) * r, s * 0.16, col)
+				draw_rect(Rect2(c + Vector2(-s * 0.3, s * 0.35), Vector2(s * 0.6, s * 0.45)), col)
 			"chronicles":
 				# Un livre ouvert : deux pages et le dos.
 				for side in [-1.0, 1.0]:

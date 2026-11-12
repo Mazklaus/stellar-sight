@@ -105,6 +105,9 @@ var hero_buttons := {}
 ## Boutons de l'écran Ordre intérieur (« sid:décret », « free:sid »), pour les tests.
 var order_buttons := {}
 var _order_sig := ""
+## Boutons de soutien de l'écran Sénat, par courant (pour les tests).
+var senate_buttons := {}
+var _senate_sig := ""
 ## Cible choisie dans l'Ordre intérieur pour les contrats et les primes pirates.
 var order_victim := -1
 var _hero_sig := ""
@@ -232,6 +235,8 @@ func show_screen(screen_id: String) -> void:
 			HeroScreen.build(self)
 		"order":
 			OrderScreen.build(self)
+		"senate":
+			SenateScreen.build(self)
 		"chronicles":
 			ChronicleScreen.build(self)
 	refresh()
@@ -262,6 +267,9 @@ func refresh() -> void:
 		"order":
 			if OrderScreen.signature(self) != _order_sig:
 				show_screen("order")
+		"senate":
+			if SenateScreen.signature(self) != _senate_sig:
+				show_screen("senate")
 		"chronicles":
 			if ChronicleScreen.signature(self) != _chron_sig:
 				show_screen("chronicles")

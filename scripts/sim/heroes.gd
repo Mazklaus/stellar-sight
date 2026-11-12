@@ -544,6 +544,7 @@ static func post_effect_text(state: GameState, h: Dictionary) -> String:
 
 ## Un acte de l'empire (clé de data "acts", ou statistique de Research.count_stat) fait monter son renom.
 static func act(state: GameState, empire_id: int, kind: String, n := 1) -> void:
+	Politics.on_act(state, empire_id, kind, n)
 	var a: Dictionary = (data()["acts"] as Dictionary).get(kind, {})
 	if a.is_empty() or state.get_empire(empire_id) == null or state.heroes.is_empty() and state.hero_meta.is_empty():
 		return

@@ -29,6 +29,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 			if c.is_colony():
 				c.population = maxi(c.population, FactionTraits.colony_start_pop(state, c.owner))
 				Heroes.on_colony(state, c.owner, state.galaxy.get_planet(c.planet_id).system_id)
+				Politics.on_colony(state, state.galaxy.get_planet(c.planet_id).system_id)
 				added.append(state.add_chronicle(
 						"%s fonde une colonie sur %s. Les premiers colons découvrent la gravité locale, et ses opinions." % [e.display_name(), planet_name], Espionage.private_to(state, [e.id], state.galaxy.get_planet(c.planet_id).system_id)))
 			else:
@@ -114,6 +115,7 @@ static func _finish_building(state: GameState, c: Colony, e: Empire, planet_name
 	else:
 		c.buildings.append(bid)
 	Economy.clear_wonders()
+	Politics.on_building(state, state.galaxy.get_planet(c.planet_id).system_id, bid)
 	if b.get("galaxy_unique", false):
 		added.append(state.add_chronicle("Merveille : %s achève %s sur %s. Toute la galaxie en parle, certains avec envie." % [e.display_name(), label, planet_name], Espionage.public_to(state, [e.id])))
 	else:

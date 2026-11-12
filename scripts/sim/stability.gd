@@ -411,6 +411,11 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 	# Suite d'un événement (voir Events).
 	if en.has("ev_end") and state.tick < int(en["ev_end"]):
 		out.append([String(Events.card(String(en.get("ev_card", ""))).get("title", "Événement")), int(en.get("ev", 0))])
+	# Représentation au pouvoir (voir Politics).
+	if state.politics_on:
+		var rp := Politics.stability_part(state, sid, owner)
+		if not rp.is_empty() and int(rp[1]) != 0:
+			out.append(rp)
 	# Décret.
 	var d := active_decree(state, sid)
 	if d != "":

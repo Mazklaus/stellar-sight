@@ -50,6 +50,7 @@ var _tabs: HBoxContainer
 var _tab_galaxy: Button
 var _tab_economy: Button
 var _tab_stability: Button
+var _tab_politics: Button
 var _tab_orbit: Button
 var _tab_manage: Button
 var _info_panel: PanelContainer
@@ -209,6 +210,7 @@ func set_system_mode(on: bool) -> void:
 	_tab_galaxy.set_pressed_no_signal(not on and lens == "")
 	_tab_economy.visible = not on
 	_tab_stability.visible = not on
+	_tab_politics.visible = not on
 	_tab_orbit.visible = on
 	_tab_manage.visible = on
 	if on:
@@ -332,12 +334,13 @@ func planet_row_count() -> int:
 	return _planet_dots.get_child_count()
 
 
-## Lentille de la carte : "" (vue galaxie), "economy" ou "stability".
+## Lentille de la carte : "" (vue galaxie), "economy", "stability" ou "politics".
 func set_lens(value: String) -> void:
 	lens = value
 	_tab_galaxy.set_pressed_no_signal(value == "")
 	_tab_economy.set_pressed_no_signal(value == "economy")
 	_tab_stability.set_pressed_no_signal(value == "stability")
+	_tab_politics.set_pressed_no_signal(value == "politics")
 	lens_changed.emit(value)
 
 
@@ -366,6 +369,8 @@ func _build_tabs() -> void:
 	_tab_economy.pressed.connect(func() -> void: set_lens("" if lens == "economy" else "economy"))
 	_tab_stability = _tab("Lentille de stabilité", "La stabilité de chacun de vos systèmes, et les mondes libres, sur la carte  (K)")
 	_tab_stability.pressed.connect(func() -> void: set_lens("" if lens == "stability" else "stability"))
+	_tab_politics = _tab("Lentille politique", "Le courant qui domine l'opinion de chacun de vos systèmes, et ses représentants au pouvoir ou non  (O)")
+	_tab_politics.pressed.connect(func() -> void: set_lens("" if lens == "politics" else "politics"))
 	_tab_orbit = _tab("Vue orbitale", "L'étoile et ses planètes en orbite  (Tab)")
 	_tab_orbit.pressed.connect(func() -> void: system_mode_requested.emit(false))
 	_tab_manage = _tab("Gestion du système", "Les planètes côte à côte, pour comparer  (Tab)")

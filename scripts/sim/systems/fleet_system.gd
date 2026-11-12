@@ -104,6 +104,7 @@ static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictiona
 		return
 	var f := state.spawn_ship(c.owner, c.ship_build, p.system_id)
 	Research.count_stat(state, c.owner, "built")
+	Politics.on_ship(state, p.system_id, Combat.is_armed(f))
 	c.ship_build = ""
 	c.ship_days = 0
 	var launch := String(GameData.ship(f.ships[0]).get("launch", ""))

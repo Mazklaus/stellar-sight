@@ -427,6 +427,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 	Heroes.on_battle(state, b, winner)
 	Relics.on_battle(state, b, winner, added)
 	Quests.on_battle(state, b, winner)
+	Politics.on_battle(state, b, winner)
 	# Épaves : le vainqueur étudie les armes et les doctrines des vaincus.
 	if winner >= 0:
 		Research.count_stat(state, winner, "battles_won")
