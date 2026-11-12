@@ -545,7 +545,14 @@ func _refresh_fleet_card() -> void:
 	var v := Fleets.vision(f)
 	_fleet_stats.text = "%d vaisseau%s  ·  vitesse %d  ·  vision %d saut%s" % [f.ships.size(), "x" if f.ships.size() > 1 else "",
 			Fleets.speed(f, _state), v, "s" if v > 1 else ""]
-	if Combat.is_armed(f) or f.total_hp() < f.total_max_hp():
+	var herd := Fauna.herd_of(_state, f)
+	if not herd.is_empty():
+		# Créatures : jamais la force exacte, une fourchette (plus étroite une fois l'espèce étudiée).
+		var pr := Fauna.power_range(_state, _player, f)
+		var sp := String(herd["sp"])
+		_fleet_stats.text += "\nPuissance %d à %d  ·  %s  ·  %s" % [pr[0], pr[1], Fauna.temper_label(sp),
+				"hostile" if Fauna.hostile(_state, f, _player) else "vous laisse passer"]
+	elif Combat.is_armed(f) or f.total_hp() < f.total_max_hp():
 		@warning_ignore("integer_division")
 		_fleet_stats.text += "\nPuissance %d  ·  coque %d %%  ·  troupes %d/%d  ·  %s" % [Combat.fleet_power(f),
 				f.total_hp() * 100 / maxi(1, f.total_max_hp()), f.troops, Combat.max_troops(f, _state), Combat.tactic_label(Combat.fleet_tactic(f))]

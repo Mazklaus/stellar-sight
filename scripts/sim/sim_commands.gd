@@ -327,6 +327,12 @@ static func pirate_bounty(player: int, victim: int) -> Dictionary:
 	return {"type": "pirate_bounty", "player": player, "victim": victim}
 
 
+## Faune : étudier ("etude"), chasser ("chasse"), apprivoiser ("apprivoise") une espèce rencontrée,
+## ou renoncer ("renoncer") à la chasse ou à l'apprivoisement (voir Fauna).
+static func fauna_attitude(player: int, species_id: String, attitude: String) -> Dictionary:
+	return {"type": "fauna_attitude", "player": player, "species": species_id, "attitude": attitude}
+
+
 static func spy_answer(player: int, case_id: int, choice: String) -> Dictionary:
 	return {"type": "spy_answer", "player": player, "case": case_id, "choice": choice}
 
@@ -393,6 +399,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Pirates.check_port(state, int(cmd["player"]), int(cmd.get("system", -1)), String(cmd.get("kind", "")))
 		"pirate_bounty":
 			return Pirates.check_bounty(state, int(cmd["player"]), int(cmd.get("victim", -1)))
+		"fauna_attitude":
+			return Fauna.check_attitude(state, int(cmd["player"]), String(cmd.get("species", "")), String(cmd.get("attitude", "")))
 		"sacrifice":
 			return FactionTraits.check_sacrifice(state, int(cmd["player"]), int(cmd.get("planet", -1)))
 		"rush":
@@ -635,6 +643,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Pirates.port_deal(state, int(cmd["player"]), int(cmd["system"]), String(cmd["kind"]))
 		"pirate_bounty":
 			Pirates.bounty(state, int(cmd["player"]), int(cmd["victim"]))
+		"fauna_attitude":
+			Fauna.set_attitude(state, int(cmd["player"]), String(cmd["species"]), String(cmd["attitude"]))
 		"spy_cells":
 			Espionage.set_cells(state, int(cmd["player"]), int(cmd["target"]), int(cmd["n"]))
 		"spy_op":

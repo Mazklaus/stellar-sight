@@ -2,7 +2,7 @@ extends RefCounted
 ## Tests des lois (Laws, lot 2 de la politique) : données, emplacements, loi de pouvoir, adoption et
 ## abrogation, niveaux des courants, lois qui tombent avec leur courant, lois indépendantes et ruche,
 ## entretien et abrogation faute d'influence, actions électorales, héros chefs de courant, effets
-## branchés (lassitude de guerre, chantiers, Triomphes), IA, sauvegarde 29. Appelés par smoke_test.gd.
+## branchés (lassitude de guerre, chantiers, Triomphes), IA, sauvegarde 30. Appelés par smoke_test.gd.
 
 var _check: Callable
 
@@ -279,7 +279,7 @@ func _test_save() -> void:
 	Politics.support(st, 0, Politics.index_of("forge"))
 	Laws.do_action(st, 0, "campagne")
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 29, "lois : sauvegarde 29")
+	_ok(int(d["version"]) >= 30, "lois : sauvegarde 30 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and Laws.enacted(back, 0) == ["normes_serie", "couvre_feu"], "lois : lois rechargées")
 	_ok(back != null and Laws.level(back, 0, Politics.index_of("forge")) == 2 and Laws.action(back, 0) == "campagne", "lois : niveaux et action rechargés")

@@ -1,0 +1,88 @@
+{
+	"_doc": "Créatures spatiales, lot 1 : la faune (étude « Créatures spatiales et gardiens », 2026-11-12, propositions 1 à 5, 13 en partie, 14 à 16). Une puissance neutre, la Faune (GameState.FAUNA_ID), hors de state.empires : des troupeaux qui vivent autour de leur nid, migrent à quelques sauts, ne colonisent jamais et n'entrent jamais dans un système revendiqué. Chaque espèce a un tempérament et une faiblesse lisible dans le modèle de combat. Après le premier contact, chaque empire peut étudier l'espèce, la chasser ou, pour deux espèces, l'apprivoiser. Sources : Stellaris (faune spatiale : nids, repeuplement, étudier / chasser / pacifier, un contre par espèce), Distant Worlds 2 (tempéraments, réglage du nombre), Master of Orion II (un monstre de début de partie se bat pour le prix d'une colonie).",
+	"npc": {"name": "La Faune", "short": "Faune", "color": "#5fbf9f"},
+	"densities": [
+		{"id": "aucune", "label": "Aucune", "per": 0, "herds": 0, "desc": "Pas de créatures."},
+		{"id": "rares", "label": "Rares", "per": 50, "herds": 2, "desc": "Un nid pour 50 systèmes environ, deux troupeaux par nid."},
+		{"id": "normales", "label": "Normales", "per": 30, "herds": 3, "desc": "Un nid pour 30 systèmes environ, trois troupeaux par nid."},
+		{"id": "grouillantes", "label": "Grouillantes", "per": 20, "herds": 4, "desc": "Un nid pour 20 systèmes environ, quatre troupeaux par nid : on ne s'étend qu'en chassant."}
+	],
+	"default": "normales",
+	"min_jumps_from_start": 4,
+	"min_jumps_between": 3,
+	"roam_jumps": 2,
+	"migrate_days": 240,
+	"_migrate": "Un troupeau à l'arrêt change de système tous les migrate_days (plus un décalage propre au troupeau), vers un système libre à roam_jumps sauts au plus de son nid, jamais revendiqué, sans autre troupeau ni repaire.",
+	"respawn_days": 1080,
+	"_respawn": "Tant que le nid vit, un troupeau tué renaît au nid au bout de respawn_days, si personne ne s'y bat ni n'y stationne une flotte armée hostile.",
+	"prey_every_days": 10,
+	"_prey": "Une espèce prédatrice regarde tous les prey_every_days les systèmes voisins de sa position : un vaisseau sans armes à l'arrêt dans un système libre l'attire.",
+	"trap_days": 120,
+	"_trap": "Le piège d'une curiosité vivante réveille un troupeau dérangé, hostile à tous, qui se disperse au bout de trap_days.",
+	"tempers": {
+		"passive": {"label": "Passive", "text": "Ne se bat que contre ceux qui la chassent."},
+		"territorial": {"label": "Territoriale", "text": "Attaque toute flotte qui s'arrête dans le système où elle se trouve."},
+		"predator": {"label": "Prédatrice", "text": "Territoriale, et va chercher les vaisseaux sans armes arrêtés dans un système voisin."}
+	},
+	"attitudes": {
+		"etude": {"label": "Étudier", "cost": {"energy": 60, "influence": 10}, "days": 360, "text": "Un an d'observation : la faiblesse de l'espèce et un bonus permanent pour l'empire."},
+		"chasse": {"label": "Chasser", "cost": {"influence": 15}, "damage_pct": 33, "loot_pct": 100, "text": "L'espèce devient votre gibier : +33 % de dégâts contre elle et un butin par créature abattue. Elle vous combat même si elle est passive."},
+		"apprivoise": {"label": "Apprivoiser", "cost": {"influence": 40}, "needs_study": true, "text": "L'espèce ne vous attaque plus et vous ne l'attaquez plus (étude terminée requise, deux espèces seulement)."}
+	},
+	"nest_loot": {"materials": 150, "energy": 80},
+	"_nest": "Un nid sans troupeau vivant, tenu par une flotte armée d'un empire hostile à l'espèce, est détruit : butin, plus de repeuplement.",
+	"species": {
+		"nacrelles": {
+			"label": "Nacrelles", "one": "Nacrelle", "temper": "passive", "tamable": true,
+			"text": "Des méduses du vide longues comme des frégates, qui dérivent en troupeaux lumineux et chantent sur les bandes radio. Elles ne demandent rien à personne.",
+			"weakness": "Aucune arme à longue portée et pas de blindage : les missiles les frappent avant qu'elles n'approchent. Leur voile fait office de bouclier contre les rayons.",
+			"unit": "bete_nacrelle", "herd": 3, "deposit": "geothermal",
+			"loot": {"energy": 15, "food": 10},
+			"study_fx": {"production_pct": {"knowledge": 5}}, "study_text": "+5 % de Savoir : leurs chants contiennent des mathématiques."
+		},
+		"rongeroc": {
+			"label": "Ronge-roc", "one": "Ronge-roc", "temper": "territorial", "tamable": true,
+			"text": "Des essaims de mangeurs d'astéroïdes, chacun gros comme une corvette, qui défendent leur ceinture comme d'autres leur garde-manger.",
+			"weakness": "Carapace épaisse mais aucune défense contre les rayons ni les chasseurs, qui passent par-dessus l'essaim.",
+			"unit": "bete_rongeroc", "herd": 5, "deposit": "minerals",
+			"loot": {"materials": 15},
+			"study_fx": {"production_pct": {"materials": 6}}, "study_text": "+6 % de matériaux : on apprend à miner comme eux."
+		},
+		"cristalloides": {
+			"label": "Cristalloïdes", "one": "Cristalloïde", "temper": "territorial", "tamable": false,
+			"text": "Des colonies de cristal qui poussent autour d'un nid fixe et réfractent les rayons en éventail. Elles ne pensent pas ; elles résonnent.",
+			"weakness": "Bouclier naturel contre les rayons, mais aucun blindage : les canons cinétiques les brisent net.",
+			"unit": "bete_cristalloide", "herd": 3, "deposit": "crystals",
+			"loot": {"crystals": 3, "materials": 10},
+			"study_fx": {"defense_pct": {"shield": 10}}, "study_text": "+10 % de boucliers : on copie leur réfraction."
+		},
+		"nuees": {
+			"label": "Nuées d'orage", "one": "Nuée d'orage", "temper": "predator", "tamable": false,
+			"text": "Des décharges vivantes nées près des trous noirs, qui chassent tout ce qui ne riposte pas. Les éclaireurs disent les entendre crépiter avant de les voir.",
+			"weakness": "Leurs décharges traversent boucliers et blindage, mais leur coque est fragile et sans blindage : les missiles et les canons cinétiques les dispersent.",
+			"unit": "bete_nuee", "herd": 4, "deposit": "geothermal",
+			"loot": {"energy": 25},
+			"study_fx": {"production_pct": {"energy": 6}}, "study_text": "+6 % d'énergie : on apprend à boire la foudre."
+		},
+		"beliers": {
+			"label": "Béliers d'écume", "one": "Bélier d'écume", "temper": "passive", "tamable": false,
+			"text": "De grands herbivores de nébuleuse aux cornes de glace. Ils broutent le gaz, élèvent leurs petits et foncent sur ce qui les menace.",
+			"weakness": "Énormes et lents, armés seulement pour le corps-à-corps : l'artillerie et les missiles les usent de loin.",
+			"unit": "bete_belier", "herd": 2, "deposit": "fertile",
+			"loot": {"food": 30, "materials": 10},
+			"study_fx": {"production_pct": {"food": 8}}, "study_text": "+8 % de nourriture : leurs pâtures donnent des idées aux agronomes."
+		}
+	},
+	"units": {
+		"bete_nacrelle": {"label": "Nacrelle", "plural": "Nacrelles", "line": "line", "size": "medium", "role": "Créature", "hp": 120, "armor": 0, "shield": 60, "weapons": {"kinetic": 20}, "speed": 20, "military": true, "creature": "nacrelles",
+			"description": "Une méduse du vide. Son voile renvoie les rayons ; le reste est mou."},
+		"bete_rongeroc": {"label": "Ronge-roc", "plural": "Ronge-roc", "line": "screen", "size": "small", "role": "Créature", "hp": 60, "armor": 50, "shield": 0, "weapons": {"kinetic": 18}, "speed": 22, "military": true, "creature": "rongeroc",
+			"description": "Une mâchoire, une carapace, un appétit."},
+		"bete_cristalloide": {"label": "Cristalloïde", "plural": "Cristalloïdes", "line": "line", "size": "medium", "role": "Créature", "hp": 110, "armor": 0, "shield": 70, "weapons": {"beam": 24}, "speed": 16, "military": true, "creature": "cristalloides",
+			"description": "Une gerbe de cristal qui résonne. Les rayons s'y perdent."},
+		"bete_nuee": {"label": "Nuée d'orage", "plural": "Nuées d'orage", "line": "screen", "size": "small", "role": "Créature", "hp": 50, "armor": 0, "shield": 50, "weapons": {"decharge": 22}, "speed": 34, "military": true, "creature": "nuees",
+			"description": "Une décharge qui a appris à chasser."},
+		"bete_belier": {"label": "Bélier d'écume", "plural": "Béliers d'écume", "line": "line", "size": "large", "role": "Créature", "hp": 260, "armor": 30, "shield": 0, "weapons": {"kinetic": 22}, "speed": 14, "military": true, "creature": "beliers",
+			"description": "Des cornes de glace, une patience de montagne, un très mauvais caractère quand on touche aux petits."}
+	}
+}
