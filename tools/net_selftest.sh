@@ -8,12 +8,14 @@
 # TURNS=<jours> : tours simultanés au lieu du temps réel. LOBBY=1 : la partie naît d'un salon où chacun prend sa place.
 # CHAT=1 : chacun écrit un message ; chaque machine doit avoir reçu les trois.
 # BRUNO_DESYNC_AT=<jour> : Bruno fausse son état à ce jour ; l'hôte doit le resynchroniser.
+# PASSWORD=<mot> : partie protégée ; un intrus qui tape un mauvais mot de passe doit être refusé.
 set -u
 cd "$(dirname "$0")/.."
 GODOT="${GODOT:-godot}"
 DAYS="${1:-1800}"
 PORT="${PORT:-24571}"
 LOG="$(mktemp -d)"
+export PASSWORD="${PASSWORD:-}"
 CHAT="${CHAT:-}" LOBBY="${LOBBY:-}" TURNS="${TURNS:-}" ROLE=host CLIENTS=2 DAYS="$DAYS" PORT="$PORT" NAME=Hote "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/host.txt" 2>&1 &
 sleep 2
 for n in Alice Bruno; do
@@ -30,7 +32,15 @@ for n in Alice Bruno; do
   fi
   sleep 1
 done
+if [ -n "$PASSWORD" ]; then
+  PASSWORD="faux-$PASSWORD" ROLE=client ADDR=127.0.0.1 DAYS="$DAYS" PORT="$PORT" NAME=Intrus "$GODOT" --headless --path . -s res://tools/net_bot.gd >"$LOG/intrus.log" 2>&1 &
+fi
 wait
+if [ -n "$PASSWORD" ] && ! grep -q "refusé : mot de passe incorrect" "$LOG/intrus.log"; then
+  echo "ÉCHEC : l'intrus au mauvais mot de passe n'a pas été refusé (journaux dans $LOG)."
+  exit 1
+fi
+if [ -n "$PASSWORD" ]; then echo "Intrus refusé : $(grep -h "refusé" "$LOG/intrus.log")"; fi
 grep -h "choisit\|entré\|retrouve\|rejoint" "$LOG"/*.txt "$LOG"/*.log 2>/dev/null
 grep -h "FINAL\|Désynchro\|refusé\|quitté\|ERROR" "$LOG"/*.txt
 COUNT=$(grep -h "^FINAL" "$LOG"/*.txt | awk '{print $3, $4}' | sort -u | wc -l)

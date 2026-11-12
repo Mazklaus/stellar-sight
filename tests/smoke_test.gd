@@ -783,6 +783,39 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(main.net.upnp_state == "", "quitter le réseau referme la demande UPnP")
 	main.net.use_upnp = false  # la suite des tests n'attend pas la box
 	_check(main.host_game(24599) and main.net.is_host() and clock.driver == main.net, "Ouvrir en réseau : la session pilote l'horloge")
+	# « Tester » : la partie répond à son adresse (défi reçu), sans la rejoindre ; un port muet est signalé.
+	var probe := PortProbe.new()
+	root.add_child(probe)
+	var probe_res := []
+	probe.finished.connect(func(ok: bool, pw: bool, msg: String) -> void: probe_res.append([ok, pw, msg]))
+	probe.start("127.0.0.1", 24599)
+	var probe_since := Time.get_ticks_msec()
+	while probe_res.is_empty() and Time.get_ticks_msec() - probe_since < 10000:
+		await process_frame
+	_check(not probe_res.is_empty() and probe_res[0][0] and not probe_res[0][1] and main.net.names.size() == 1, "Tester : la partie répond, sans que le testeur y entre (%s)" % [probe_res])
+	probe_res.clear()
+	probe.start("127.0.0.1", 24598)
+	probe_since = Time.get_ticks_msec()
+	while probe_res.is_empty() and Time.get_ticks_msec() - probe_since < 12000:
+		await process_frame
+	_check(not probe_res.is_empty() and not probe_res[0][0] and String(probe_res[0][2]).contains("Aucune réponse"), "Tester : un port muet est signalé (%s)" % [probe_res])
+	probe.queue_free()
+	_check(MainMenu.access_text(false, "203.0.113.7", 24570).contains("CGNAT") and MainMenu.access_text(true, "203.0.113.7", 24570).contains("203.0.113.7"), "test d'accès : textes d'aide (CGNAT, adresse à donner)")
+	var fw_script := WindowsFirewall.fix_script("C:\\Jeux\\l'ami\\godot.exe", 24570)
+	_check(fw_script.contains("'C:\\Jeux\\l''ami\\godot.exe'") and fw_script.contains("-Protocol UDP -LocalPort 24570") and fw_script.contains("Action -eq 'Block'"), "pare-feu Windows : règle UDP pour ce programme, blocages retirés, chemin protégé")
+	_check(Marshalls.base64_to_raw(WindowsFirewall.encode("abc")).size() == 6, "pare-feu Windows : commande encodée en UTF-16")
+	# Rejoindre une adresse muette : au bout du délai, on le dit (plus de « Connexion… » sans fin).
+	var mute := NetSession.new()
+	mute.use_upnp = false
+	root.add_child(mute)
+	var mute_res := []
+	mute.join_failed.connect(func(r: String) -> void: mute_res.append(r))
+	mute.join("127.0.0.1", 24597)
+	var mute_since := Time.get_ticks_msec()
+	while mute_res.is_empty() and Time.get_ticks_msec() - mute_since < 15000:
+		await process_frame
+	_check(not mute_res.is_empty() and String(mute_res[0]).begins_with("aucune réponse"), "rejoindre une adresse muette : abandon expliqué (%s)" % [mute_res])
+	mute.queue_free()
 	var sys_id: int = main.galaxy.get_planet(main.simulation.state.get_empire(main.local_player).capital_planet).system_id
 	_check(main._submit(SimCommands.rename_system(main.local_player, sys_id, "Relais-Réseau")), "en réseau, l'ordre part à la session")
 	for _i in 3:
@@ -887,12 +920,20 @@ func _test_navigation_ui(main: Node) -> void:
 	await process_frame
 	main.net.names[77] = "Alice"
 	main._on_lobby_request(77, "take", {"i": 0})
-	var own_people: Dictionary = GameData.faction("teyl").duplicate(true)
-	own_people["id"] = "peuple_alice"
-	own_people["name"] = "Peuple d'Alice"
-	main._on_lobby_request(77, "set", {"f": "peuple_alice", "c": "", "def": own_people})
+	# Une fiche forgée (sans fiche d'éditeur valide) est refusée : l'hôte ne reprend rien tel quel.
+	var forged: Dictionary = GameData.faction("teyl").duplicate(true)
+	forged["id"] = "p_faux"
+	forged["name"] = "Peuple forgé"
+	main._on_lobby_request(77, "set", {"f": "p_faux", "c": "", "def": forged})
+	_check(not String(menu.slots[0]["faction"]).begins_with("p_faux"), "salon : un peuple sans fiche d'éditeur valide est refusé")
+	var alice_spec := Species.from_preset("teyl")
+	alice_spec["name"] = "Peuple d'Alice"
+	alice_spec["short"] = "Alice"
+	alice_spec["id"] = "p_peuple_alice"
+	var own_people := Species.build(alice_spec)
+	main._on_lobby_request(77, "set", {"f": "p_peuple_alice", "c": "", "def": own_people})
 	var alice_fid := String(menu.slots[0]["faction"])
-	_check(main.net.lobby_seats.get(77, -1) == 0 and alice_fid.begins_with("peuple_alice@") and not main.net.lobby_all_ready(), "salon : le joueur prend sa place et y met son propre peuple")
+	_check(main.net.lobby_seats.get(77, -1) == 0 and alice_fid.begins_with("p_peuple_alice@") and not main.net.lobby_all_ready(), "salon : le joueur prend sa place et y met son propre peuple")
 	_check(String(menu.lobby_holders.get(0, "")) == "Alice" and menu._lobby_label.text.contains("Alice"), "salon : l'hôte voit qui tient la place")
 	menu.launch()
 	await process_frame

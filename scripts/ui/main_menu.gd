@@ -402,6 +402,15 @@ var _resume_net: Control
 var _join_name: LineEdit
 var _join_address: LineEdit
 var _join_port: LineEdit
+var _join_password: LineEdit
+var _access_status: Label
+var _probe: PortProbe
+## Test d'accès de l'hôte : serveur provisoire qui répond au défi quand aucune partie n'est ouverte.
+var _probe_server: ENetMultiplayerPeer
+var _ip_request: HTTPRequest
+## Adresse Internet trouvée par le dernier test.
+var public_address := ""
+var _host_password: LineEdit
 var _join_status: Label
 
 
@@ -445,6 +454,33 @@ func _build_join_page(root: Control) -> void:
 	resume_b.pressed.connect(func() -> void: host_resume_requested.emit())
 	host_row.add_child(resume_b)
 	_resume_net = resume_b
+	var pw_row := HBoxContainer.new()
+	pw_row.add_theme_constant_override("separation", 14)
+	box.add_child(pw_row)
+	pw_row.add_child(UiTheme.dim("Mot de passe de la partie", 15))
+	_host_password = _secret_field(String(cfg.get_value("net", "host_password", "")), "aucun (conseillé si le port est ouvert sur Internet)")
+	_host_password.tooltip_text = "Demandé à ceux qui rejoignent vos parties (nouvelles ou reprises). Il ne circule jamais en clair, mais il est gardé sur ce PC : n'y mettez pas un mot de passe qui vous sert ailleurs."
+	_host_password.text_changed.connect(func(_t: String) -> void: _save_net_value("host_password", _host_password.text))
+	pw_row.add_child(_host_password)
+	var access_row := HBoxContainer.new()
+	access_row.add_theme_constant_override("separation", 12)
+	box.add_child(access_row)
+	if WindowsFirewall.available():
+		var fw := Button.new()
+		fw.text = "Autoriser dans le pare-feu"
+		fw.tooltip_text = "Crée une règle du pare-feu Windows : entrées UDP sur le port %d, pour ce programme seulement (Windows demande votre accord). Retire aussi les blocages que Windows a pu créer pour ce programme." % NetSession.DEFAULT_PORT
+		fw.pressed.connect(fix_firewall)
+		access_row.add_child(fw)
+	var test_b := Button.new()
+	test_b.text = "Tester l'accès depuis Internet"
+	test_b.tooltip_text = "Cherche votre adresse Internet (service api.ipify.org) et essaie de joindre le port %d par elle. Réussi : le port est ouvert. Raté : pas forcément fermé, beaucoup de box ne savent pas se joindre elles-mêmes ; demandez alors à un ami de cliquer « Tester »." % NetSession.DEFAULT_PORT
+	test_b.pressed.connect(test_host_access)
+	access_row.add_child(test_b)
+	_access_status = UiTheme.dim("", 13)
+	_access_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_access_status.custom_minimum_size = Vector2(520, 0)
+	_access_status.visible = false
+	box.add_child(_access_status)
 	box.add_child(HSeparator.new())
 	box.add_child(UiTheme.section("Rejoindre"))
 	var form := VBoxContainer.new()
@@ -469,6 +505,10 @@ func _build_join_page(root: Control) -> void:
 	_join_name.max_length = 24
 	_join_address = _join_field(grid, "Adresse de l'hôte", String(cfg.get_value("net", "address", "")), "192.168.1.20, adresse Tailscale…")
 	_join_port = _join_field(grid, "Port", str(cfg.get_value("net", "port", NetSession.DEFAULT_PORT)), "")
+	grid.add_child(UiTheme.dim("Mot de passe", 15))
+	_join_password = _secret_field(String(cfg.get_value("net", "join_password", "")), "si l'hôte en a mis un")
+	grid.add_child(_join_password)
+	_join_password.text_submitted.connect(func(_t: String) -> void: request_join())
 	_join_status = UiTheme.dim("", 14)
 	_join_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_join_status.custom_minimum_size = Vector2(520, 0)
@@ -489,6 +529,10 @@ func _build_join_page(root: Control) -> void:
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	buttons.add_child(spacer)
+	var probe_b := Widgets.RoundButton.new("reset", "Tester", 16)
+	probe_b.tooltip_text = "Vérifie que la partie répond à cette adresse, sans la rejoindre."
+	probe_b.pressed.connect(test_join_address)
+	buttons.add_child(probe_b)
 	var go := Widgets.RoundButton.new("check", "Rejoindre", 16)
 	go.pressed.connect(request_join)
 	buttons.add_child(go)
@@ -506,6 +550,144 @@ func _join_field(grid: GridContainer, label: String, value: String, placeholder:
 	return e
 
 
+func _secret_field(value: String, placeholder: String) -> LineEdit:
+	var e := LineEdit.new()
+	e.text = value
+	e.secret = true
+	e.max_length = 64
+	e.placeholder_text = placeholder
+	e.custom_minimum_size = Vector2(320, 0)
+	e.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return e
+
+
+## Retient un réglage réseau sans effacer les autres (dont l'identifiant du joueur).
+static func _save_net_value(key: String, value: Variant) -> void:
+	var cfg := ConfigFile.new()
+	cfg.load(NET_SETTINGS)
+	cfg.set_value("net", key, value)
+	cfg.save(NET_SETTINGS)
+
+
+## Mot de passe des parties hébergées ("" : aucun).
+func host_password() -> String:
+	return _host_password.text if _host_password else String(_net_cfg_value("host_password"))
+
+
+## Mot de passe tapé pour rejoindre.
+func join_password() -> String:
+	return _join_password.text if _join_password else ""
+
+
+static func _net_cfg_value(key: String) -> Variant:
+	var cfg := ConfigFile.new()
+	cfg.load(NET_SETTINGS)
+	return cfg.get_value("net", key, "")
+
+
+# --- Accès depuis Internet : pare-feu et tests ---------------------------------------------------
+
+func _set_access(text: String) -> void:
+	if _access_status:
+		_access_status.text = text
+		_access_status.visible = text != ""
+
+
+func _ensure_probe() -> PortProbe:
+	if _probe == null:
+		_probe = PortProbe.new()
+		add_child(_probe)
+	_probe.stop()
+	for c in _probe.finished.get_connections():
+		_probe.finished.disconnect(c["callable"])
+	return _probe
+
+
+## « Autoriser dans le pare-feu » (Windows).
+func fix_firewall() -> void:
+	var st := WindowsFirewall.status(NetSession.DEFAULT_PORT)
+	if not bool(st["ok"]) and String(st["error"]) == "":
+		_set_access("Windows va demander votre accord pour modifier le pare-feu…")
+		await get_tree().process_frame
+		st = WindowsFirewall.fix(NetSession.DEFAULT_PORT)
+	_set_access(WindowsFirewall.describe(st))
+
+
+## Joueur : la partie répond-elle à l'adresse tapée ?
+func test_join_address() -> void:
+	var address := _join_address.text.strip_edges()
+	var port := int(_join_port.text) if _join_port.text.is_valid_int() else 0
+	if address == "" or port <= 0 or port > 65535:
+		set_join_status("Indiquez l'adresse et le port de l'hôte.")
+		return
+	var p := _ensure_probe()
+	p.finished.connect(func(ok: bool, _pw: bool, message: String) -> void:
+		set_join_status(message + ("" if ok else " L'hôte doit avoir ouvert sa partie, rediriger ce port UDP sur sa box vers son PC et l'autoriser dans son pare-feu (bouton « Autoriser dans le pare-feu »). Si sa box partage son adresse avec d'autres abonnés (CGNAT, fréquent en 4G), seul Tailscale marche.")))
+	if p.start(address, port) != OK:
+		set_join_status("Adresse invalide : %s" % address)
+		return
+	set_join_status("Test de %s, port %d…" % [address, port])
+
+
+## Hôte : le port répond-il depuis l'adresse Internet ? (une partie ouverte, ou un répondeur provisoire)
+func test_host_access() -> void:
+	_close_probe_server()
+	var port := NetSession.DEFAULT_PORT
+	var srv := ENetMultiplayerPeer.new()
+	if srv.create_server(port, 4) == OK:
+		_probe_server = srv
+		srv.peer_connected.connect(func(id: int) -> void:
+			srv.set_transfer_mode(MultiplayerPeer.TRANSFER_MODE_RELIABLE)
+			srv.set_target_peer(id)
+			srv.put_packet(var_to_bytes({"k": "challenge", "c": "", "pw": false})))
+	# Sinon le port est déjà pris : la partie ouverte sur ce PC répondra elle-même.
+	_set_access("Recherche de votre adresse Internet…")
+	if _ip_request == null:
+		_ip_request = HTTPRequest.new()
+		_ip_request.timeout = 8.0
+		add_child(_ip_request)
+		_ip_request.request_completed.connect(_on_public_ip)
+	_ip_request.cancel_request()
+	if _ip_request.request("https://api.ipify.org") != OK:
+		_on_public_ip(HTTPRequest.RESULT_CANT_CONNECT, 0, [], PackedByteArray())
+
+
+func _on_public_ip(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+	var ip := body.get_string_from_utf8().strip_edges()
+	if result != HTTPRequest.RESULT_SUCCESS or code != 200 or not ip.is_valid_ip_address():
+		_close_probe_server()
+		_set_access("Adresse Internet introuvable (pas de réseau, ou service api.ipify.org injoignable).")
+		return
+	public_address = ip
+	var p := _ensure_probe()
+	p.finished.connect(func(ok: bool, _pw: bool, _message: String) -> void:
+		_close_probe_server()
+		_set_access(access_text(ok, ip, NetSession.DEFAULT_PORT)))
+	if p.start(ip, NetSession.DEFAULT_PORT) != OK:
+		_close_probe_server()
+		_set_access("Test impossible vers %s." % ip)
+		return
+	_set_access("Votre adresse Internet : %s. Essai du port %d par cette adresse…" % [ip, NetSession.DEFAULT_PORT])
+
+
+static func access_text(ok: bool, ip: String, port: int) -> String:
+	if ok:
+		return "Port ouvert : la partie répond depuis votre adresse Internet %s, port %d (UDP). Donnez cette adresse à vos amis." % [ip, port]
+	return ("Pas de réponse par votre adresse Internet %s, port %d. Ce n'est pas forcément fermé : beaucoup de box ne savent pas se joindre elles-mêmes. "
+			+ "Ouvrez une partie et demandez à un ami de cliquer « Tester ». À vérifier : la redirection UDP %d vers l'adresse locale de ce PC, le pare-feu Windows, "
+			+ "et que l'adresse IP WAN affichée par votre box est bien %s (sinon votre opérateur partage l'adresse, CGNAT : seul Tailscale marche).") % [ip, port, port, ip]
+
+
+func _close_probe_server() -> void:
+	if _probe_server:
+		_probe_server.close()
+	_probe_server = null
+
+
+func _exit_tree() -> void:
+	_close_probe_server()
+
+
 ## Bouton « Rejoindre » : vérifie la saisie, la retient, et demande la connexion.
 func request_join() -> void:
 	var address := _join_address.text.strip_edges()
@@ -516,10 +698,13 @@ func request_join() -> void:
 	if port <= 0 or port > 65535:
 		set_join_status("Port invalide.")
 		return
+	# On relit le fichier d'abord : il garde aussi l'identifiant du joueur (retrouver son empire).
 	var cfg := ConfigFile.new()
+	cfg.load(NET_SETTINGS)
 	cfg.set_value("net", "name", _join_name.text.strip_edges())
 	cfg.set_value("net", "address", address)
 	cfg.set_value("net", "port", port)
+	cfg.set_value("net", "join_password", _join_password.text)
 	cfg.save(NET_SETTINGS)
 	join_requested.emit(address, port, _join_name.text.strip_edges())
 
@@ -532,6 +717,10 @@ func set_join_status(text: String) -> void:
 func _process(_delta: float) -> void:
 	if visible and page == "join" and lan.poll():
 		_refresh_lan()
+	if _probe_server:
+		_probe_server.poll()
+		while _probe_server and _probe_server.get_available_packet_count() > 0:
+			_probe_server.get_packet()
 
 
 ## Liste des parties entendues sur le réseau local : un clic pour les rejoindre.
@@ -549,16 +738,22 @@ func _refresh_lan() -> void:
 		var g: Dictionary = lan.games[addr]
 		var same := String(g["version"]) == GameVersion.fingerprint()
 		var b := Button.new()
-		b.text = "%s  ·  %s  ·  %d joueur%s  ·  %s%s" % [String(g["name"]), "tours simultanés" if g["turns"] else "temps réel",
-				int(g["players"]), "s" if int(g["players"]) > 1 else "", String(g["date"]), "" if same else "  ·  autre version du jeu"]
+		b.text = "%s  ·  %s  ·  %d joueur%s  ·  %s%s%s" % [String(g["name"]), "tours simultanés" if g["turns"] else "temps réel",
+				int(g["players"]), "s" if int(g["players"]) > 1 else "", String(g["date"]),
+				"  ·  mot de passe" if g.get("locked", false) else "", "" if same else "  ·  autre version du jeu"]
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.disabled = not same
 		b.tooltip_text = "%s, port %d" % [addr, int(g["port"])]
 		var a := String(addr)
 		var port := int(g["port"])
+		var locked := bool(g.get("locked", false))
 		b.pressed.connect(func() -> void:
 			_join_address.text = a
 			_join_port.text = str(port)
+			if locked and _join_password.text == "":
+				set_join_status("Cette partie demande un mot de passe : tapez-le puis Rejoindre.")
+				_join_password.grab_focus()
+				return
 			request_join())
 		_lan_list.add_child(b)
 

@@ -181,7 +181,12 @@ func _ready() -> void:
 	net.join_failed.connect(func(reason: String) -> void:
 		if _main_menu.page == "join":
 			_main_menu.show_page("join")
-		_main_menu.set_join_status("Refusé : %s" % reason if reason != "connexion perdue" else "Connexion perdue ou salon fermé par l'hôte."))
+		if reason == "connexion perdue":
+			_main_menu.set_join_status("Connexion perdue ou salon fermé par l'hôte.")
+		elif reason.begins_with("aucune réponse"):
+			_main_menu.set_join_status("Connexion impossible : %s." % reason)
+		else:
+			_main_menu.set_join_status("Refusé : %s" % reason))
 	net.ended.connect(_on_net_ended)
 	net.clock_changed.connect(_on_net_clock)
 	_pause_menu.host_requested.connect(func() -> void:
@@ -607,6 +612,7 @@ func host_game(port := NetSession.DEFAULT_PORT, seats := {}) -> bool:
 		return false
 	net.player_name = _player_name()
 	_net_client = false
+	net.password = _main_menu.host_password()
 	var err := net.host(simulation, local_player, port, seats)
 	if err != OK:
 		_hud.notify("Impossible d'ouvrir la partie (port %d) : %s" % [port, error_string(err)], "bad")
@@ -618,13 +624,14 @@ func host_game(port := NetSession.DEFAULT_PORT, seats := {}) -> bool:
 func _hosting_text(port: int) -> String:
 	var addrs := NetSession.local_addresses()
 	return "Partie ouverte au réseau, port %d (UDP). Sur votre réseau local : %s. %s" % [
-			port, ", ".join(addrs) if not addrs.is_empty() else "adresse introuvable", net.upnp_text()]
+			port, ", ".join(addrs) if not addrs.is_empty() else "adresse introuvable", net.upnp_text()] + (" Mot de passe demandé." if net.password != "" else "")
 
 
 ## Rejoint une partie (menu principal). La suite arrive par _on_net_joined ou un refus.
 func join_game(address: String, port := NetSession.DEFAULT_PORT) -> bool:
 	leave_network("")
 	net.player_name = _player_name()
+	net.join_password = _main_menu.join_password()
 	var err := net.join(address.strip_edges(), port)
 	if err != OK:
 		_main_menu.set_join_status("Connexion impossible : %s" % error_string(err))
@@ -656,6 +663,7 @@ func _player_name() -> String:
 func open_lobby() -> void:
 	leave_network("")
 	net.player_name = _player_name()
+	net.password = _main_menu.host_password()
 	var err := net.open_lobby(NetSession.DEFAULT_PORT)
 	if err != OK:
 		_main_menu.set_lobby_status("Salon impossible à ouvrir (port %d) : %s. La partie s'ouvrira au réseau à son lancement." % [NetSession.DEFAULT_PORT, error_string(err)])
@@ -673,9 +681,9 @@ func _lobby_text() -> String:
 		if net.lobby_ready.has(p):
 			tag = " ✓"
 		who.append(String(net.names[p]) + tag)
-	return "Salon ouvert · adresse %s, port %d (UDP) · visible sur votre réseau local · joueurs : %s\n%s" % [
+	return "Salon ouvert · adresse locale %s, port %d (UDP), pour votre réseau seulement · joueurs : %s\n%s" % [
 			", ".join(addrs) if not addrs.is_empty() else "?", NetSession.DEFAULT_PORT, ", ".join(who) if not who.is_empty() else "aucun pour l'instant",
-			net.upnp_text()]
+			net.upnp_text()] + (" · mot de passe demandé" if net.password != "" else " · sans mot de passe")
 
 
 ## Le salon a changé (réglages, joueurs) : places tenues, texte, état envoyé à tous.
@@ -701,7 +709,7 @@ func _on_lobby_request(peer: int, kind: String, data: Dictionary) -> void:
 	var menu := _main_menu
 	match kind:
 		"take":
-			var i := int(data.get("i", -1))
+			var i := NetSession._num(data.get("i"))
 			if menu.is_slot_human(i) and net.lobby_slot_holder(i) == 0:
 				net.lobby_seats[peer] = i
 				net.lobby_ready.erase(peer)
@@ -712,11 +720,18 @@ func _on_lobby_request(peer: int, kind: String, data: Dictionary) -> void:
 			var fid := String(data.get("f", ""))
 			var def: Variant = data.get("def")
 			if def is Dictionary and String(def.get("id", "")) == fid and not GameData.is_official(fid):
-				# Peuple créé par le joueur : rangé sous un nom propre à ce joueur (pas de collision).
-				var d: Dictionary = def.duplicate(true)
-				fid = "%s@%s" % [fid, String(net._tokens.get(peer, str(peer))).substr(0, 8)]
-				d["id"] = fid
-				GameData.register_library_faction(d)
+				# Peuple créé par le joueur : l'hôte le reconstruit lui-même depuis sa fiche d'éditeur,
+				# vérifiée avec les règles de l'éditeur (rien d'autre n'est repris de ce qu'envoie le
+				# joueur), et le range sous un nom propre à ce joueur (pas de collision).
+				var spec: Variant = def.get("spec")
+				if not NetSafe.species_shape_ok(spec) or String(spec.get("id", "")) != fid or Species.check(spec) != "":
+					net._send(peer, {"k": "notice", "t": "Peuple refusé : sa fiche ne respecte pas les règles de l'éditeur.", "o": "bad"})
+					fid = ""
+				else:
+					var d := Species.build(spec)
+					fid = "%s@%s" % [fid, String(net._tokens.get(peer, str(peer))).substr(0, 8).validate_filename()]
+					d["id"] = fid
+					GameData.register_library_faction(d)
 			if fid != "" and fid != String(menu.slots[i]["faction"]):
 				if fid != MainMenu.RANDOM_FACTION and not menu.allow_duplicates and menu._taken_factions(i).has(fid):
 					net._send(peer, {"k": "notice", "t": "Ce peuple est déjà pris dans cette partie.", "o": "bad"})

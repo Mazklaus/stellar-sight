@@ -21,6 +21,7 @@ func run(check: Callable) -> void:
 	_test_seat_command()
 	_test_lockstep()
 	_test_lockstep_pause()
+	_test_security()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -327,3 +328,77 @@ func _test_lockstep_pause() -> void:
 			h.seal_until(h.tick() + h.delay)
 			h.step())
 	_ok(not desyncs.is_empty() and int(desyncs[0][0]) == 2 and int(desyncs[0][1]) <= 330, "un client qui modifie sa partie est repéré dès le contrôle mensuel suivant (%s)" % [desyncs])
+
+
+## Garde-fous face à Internet : ordres et peuples mal formés écartés, mot de passe par défi,
+## rien d'autre que « hello » tant qu'un joueur ne s'est pas présenté, discussion bridée.
+func _test_security() -> void:
+	var good := SimCommands.move_fleet(1, 3, 4)
+	_ok(NetSafe.check_order(good) == "", "ordre ordinaire accepté par le filtre réseau")
+	_ok(NetSafe.check_order({"type": "move_fleet", "player": "1", "fleet": 3}) != "", "ordre au joueur non entier écarté")
+	_ok(NetSafe.check_order({"type": "move_fleet", "player": 1, "fleet": Vector2(1, 2)}) != "", "ordre avec un type exotique écarté")
+	_ok(NetSafe.check_order({"type": "rename_system", "player": 1, "name": "x".repeat(5000)}) != "", "ordre au texte géant écarté")
+	_ok(NetSafe.check_order({"type": "move_fleet", "player": 1, "fleet": NAN}) != "", "ordre avec NaN écarté")
+	var deep: Variant = 1
+	for i in 10:
+		deep = [deep]
+	_ok(NetSafe.check_order({"type": "save_design", "player": 1, "spec": deep}) != "", "ordre trop imbriqué écarté")
+	var big := []
+	big.resize(1000)
+	big.fill(0)
+	_ok(NetSafe.check_order({"type": "save_design", "player": 1, "spec": {"modules": big}}) != "", "ordre trop gros écarté")
+	_ok(NetSafe.check_order({"type": "save_design", "player": 1, "spec": {"name": "Lance", "hull": "fregate", "modules": ["a", "b"]}}) == "", "modèle de vaisseau ordinaire accepté")
+	# Peuple créé envoyé au salon.
+	var sp := Species.from_preset("vael")
+	sp["name"] = "Peuple réseau"
+	sp["short"] = "Réseau"
+	sp["id"] = Species.make_id("Peuple réseau", [])
+	_ok(NetSafe.species_shape_ok(sp) and Species.check(sp) == "", "peuple créé valide accepté au salon")
+	var bad := sp.duplicate(true)
+	bad["biomes"] = "ocean"
+	_ok(not NetSafe.species_shape_ok(bad), "peuple aux biomes mal formés écarté avant vérification")
+	bad = sp.duplicate(true)
+	bad["traits"] = {"x": 1}
+	_ok(not NetSafe.species_shape_ok(bad), "peuple aux traits mal formés écarté")
+	bad = sp.duplicate(true)
+	bad["name"] = ["liste"]
+	_ok(not NetSafe.species_shape_ok(bad), "peuple au nom mal formé écarté")
+	# Mot de passe : empreinte liée au défi, jamais le mot de passe lui-même.
+	var proof := NetSession.password_proof("abc", "secret")
+	_ok(proof.length() == 64 and not proof.contains("secret"), "empreinte SHA-256, sans le mot de passe")
+	_ok(proof != NetSession.password_proof("abd", "secret") and proof != NetSession.password_proof("abc", "Secret"), "l'empreinte change avec le défi et le mot de passe")
+	# Hôte : rien avant hello, mauvais mot de passe refusé, bon accepté.
+	var s := NetSession.new()
+	s.role = NetSession.HOST
+	s.lobby_open = true
+	s.password = "secret"
+	s._nonces[5] = "n5"
+	s._unhelloed[5] = Time.get_ticks_msec()
+	s._host_message(5, {"k": "chat", "t": "spam"})
+	s._host_message(5, {"k": "lobby_take", "i": 1})
+	_ok(s.chat_log.is_empty() and s.lobby_seats.is_empty(), "un inconnu qui ne s'est pas présenté ne peut rien faire")
+	s._host_message(5, {"k": "hello", "v": GameVersion.fingerprint(), "n": "Intrus", "id": "t", "pw": NetSession.password_proof("n5", "devine")})
+	_ok(not s.names.has(5) and not s._nonces.has(5), "mauvais mot de passe : refusé, sans second essai sur la même connexion")
+	_ok(s._recent_fails("") == 1, "l'essai raté est compté pour son adresse")
+	s._host_message(5, {"k": "hello", "v": GameVersion.fingerprint(), "n": "Intrus", "id": "t", "pw": NetSession.password_proof("n5", "secret")})
+	_ok(not s.names.has(5), "après un refus, même le bon mot de passe ne passe plus sur cette connexion")
+	s._nonces[6] = "n6"
+	s._unhelloed[6] = Time.get_ticks_msec()
+	s._host_message(6, {"k": "hello", "v": GameVersion.fingerprint(), "n": "Alice", "id": "a", "pw": NetSession.password_proof("n6", "secret")})
+	_ok(s.names.has(6) and not s._unhelloed.has(6), "bon mot de passe : le joueur entre au salon")
+	s._host_message(6, {"k": "hello", "v": GameVersion.fingerprint(), "n": "Alice2", "id": "b"})
+	_ok(String(s.names[6]) == "Alice", "un second hello est ignoré")
+	var allowed := 0
+	for i in 20:
+		if s._chat_allowed(6):
+			allowed += 1
+	_ok(allowed == NetSession.CHAT_BURST, "discussion bridée à %d messages par %d s (obtenu %d)" % [NetSession.CHAT_BURST, NetSession.CHAT_WINDOW_MS / 1000, allowed])
+	var within := 0
+	for i in NetSession.MAX_PACKETS_PER_SECOND + 50:
+		if s._within_rate(7):
+			within += 1
+	_ok(within <= NetSession.MAX_PACKETS_PER_SECOND, "débit de messages plafonné par joueur")
+	for i in NetSession.PASSWORD_TRIES:
+		(s._fails.get_or_add("1.2.3.4", []) as Array).append(Time.get_ticks_msec())
+	_ok(s._recent_fails("1.2.3.4") >= NetSession.PASSWORD_TRIES, "après %d mots de passe ratés, l'adresse attend" % NetSession.PASSWORD_TRIES)
+	s.free()
