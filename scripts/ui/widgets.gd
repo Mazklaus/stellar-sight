@@ -73,6 +73,15 @@ class IconButton:
 				draw_arc(c + Vector2(0, s * 0.9), s * 1.5, -PI * 0.78, -PI * 0.22, 16, col, 1.6, true)
 				draw_arc(c + Vector2(0, -s * 0.9), s * 1.5, PI * 0.22, PI * 0.78, 16, col, 1.6, true)
 				draw_circle(c, s * 0.42, col)
+			"heroes":
+				# Une couronne de lauriers autour d'un buste.
+				draw_arc(c + Vector2(0, -s * 0.1), s * 1.2, PI * 0.15, PI * 0.85, 14, col, 1.6, true)
+				for k in 4:
+					for side in [-1.0, 1.0]:
+						var a: float = PI * 0.5 + side * (0.55 + 0.42 * k)
+						draw_circle(c + Vector2(0, -s * 0.1) + Vector2(cos(a), sin(a)) * s * 1.2, s * 0.17, col)
+				draw_circle(c + Vector2(0, -s * 0.35), s * 0.38, col)
+				draw_colored_polygon(PackedVector2Array([c + Vector2(-s * 0.6, s * 0.65), c + Vector2(0, s * 0.1), c + Vector2(s * 0.6, s * 0.65)]), col)
 			"victory":
 				# Une étoile à cinq branches.
 				var pts := PackedVector2Array()
@@ -289,7 +298,7 @@ class ArtSlot:
 		var s := minf(size.x, size.y)
 		if is_banner() and _caption and _caption.text != "":
 			c.x = size.x - size.y * 0.8
-		if art_id.begins_with("portrait_"):
+		if art_id.begins_with("portrait_") or art_id.begins_with("hero_"):
 			_draw_portrait(r)
 			if _caption and _caption.text != "":
 				_shade(r)
@@ -338,8 +347,9 @@ class ArtSlot:
 	## déposée : un buste en silhouette, humanoïde ou insectoïde, avec l'ornement décrit par le champ
 	## "look" du portrait (data/species_parts.json) pour que chaque portrait de la galerie se distingue.
 	func _draw_portrait(r: Rect2) -> void:
-		var pid := art_id.trim_prefix("portrait_")
-		var look := String(Species.portrait_def(pid).get("look", ""))
+		var hero := art_id.begins_with("hero_")
+		var pid := art_id.trim_prefix("hero_") if hero else art_id.trim_prefix("portrait_")
+		var look := String((Heroes.portrait_def(art_id) if hero else Species.portrait_def(pid)).get("look", ""))
 		var hive := pid.begins_with("ruche")
 		var rock := pid.begins_with("lithoide")
 		var synth := pid.begins_with("synthetique")
@@ -357,6 +367,17 @@ class ArtSlot:
 				Vector2(cx + sw * 0.3, sh_y - s * 0.08), Vector2(cx + sw * 0.85, sh_y), Vector2(cx + sw, base)]), fill.darkened(0.2))
 		var head := Vector2(cx, base * 0.48)
 		var hr := s * (0.14 if look == "crown" and hive else 0.17)
+		if hero:
+			# Galerie des héros : une couronne de lauriers derrière la tête et un médaillon d'or sur la poitrine.
+			var gold := Color(0.95, 0.78, 0.36, 0.85)
+			for side in [-1.0, 1.0]:
+				for k in 6:
+					var a: float = PI * 0.5 + side * (0.55 + 0.32 * k)
+					var p0 := head + Vector2(cos(a), sin(a)) * hr * 2.05
+					var leaf: Vector2 = Vector2(cos(a + side * 1.2), sin(a + side * 1.2)) * hr * 0.32
+					draw_line(p0 - leaf * 0.5, p0 + leaf, Color(gold, 0.55), 3.0, true)
+			draw_circle(Vector2(cx, sh_y + s * 0.05), s * 0.045, gold)
+			draw_arc(Vector2(cx, sh_y + s * 0.05), s * 0.045, 0.0, TAU, 20, Color(1, 0.95, 0.7, 0.9), 1.2, true)
 		if synth:
 			# Tête de châssis : un carré arrondi, des joints, une lumière à la place des yeux.
 			draw_line(head + Vector2(-hr * 0.2, hr), head + Vector2(-hr * 0.2, hr * 1.6), fill, hr * 0.25)
@@ -493,9 +514,35 @@ class ArtSlot:
 					for k in 3:
 						draw_arc(head + Vector2(0, -hr * 0.45), hr * (0.25 + 0.12 * k), PI * 1.2, PI * 1.8, 12, edge, 1.0, true)
 					draw_line(head + Vector2(-hr * 0.4, hr * 0.7), head + Vector2(hr * 0.4, hr * 0.7), edge, 1.5, true)
+				"helm":
+					# Heaume d'amirale : calotte, nasal, deux ailes.
+					draw_arc(head, hr * 1.08, PI * 1.0, PI * 2.0, 24, edge, 3.0, true)
+					draw_line(head + Vector2(0, -hr * 1.08), head + Vector2(0, hr * 0.35), edge, 2.5, true)
+					for side in [-1.0, 1.0]:
+						draw_colored_polygon(PackedVector2Array([head + Vector2(side * hr * 0.95, -hr * 0.5), head + Vector2(side * hr * 1.9, -hr * 1.5),
+								head + Vector2(side * hr * 1.5, -hr * 0.6), head + Vector2(side * hr * 1.8, -hr * 0.9), head + Vector2(side * hr * 1.05, -hr * 0.15)]), Color(edge, 0.8))
+				"eyepatch":
+					draw_line(head + Vector2(-hr * 0.95, -hr * 0.45), head + Vector2(hr * 0.95, hr * 0.1), edge, 1.5, true)
+					draw_circle(head + Vector2(hr * 0.38, -hr * 0.05), hr * 0.22, edge.darkened(0.6))
+					for k in 3:
+						draw_line(head + Vector2(-hr * 0.5 + k * hr * 0.5, hr * 0.55), head + Vector2(-hr * 0.4 + k * hr * 0.5, hr * 0.95), Color(edge, 0.6), 1.5, true)
+				"scar":
+					draw_line(head + Vector2(-hr * 0.7, -hr * 0.7), head + Vector2(-hr * 0.05, hr * 0.6), Color(1.0, 0.55, 0.5, 0.85), 2.0, true)
+					for k in 3:
+						var p0 := head + Vector2(-hr * 0.6 + k * hr * 0.22, -hr * 0.45 + k * hr * 0.4)
+						draw_line(p0 + Vector2(-hr * 0.1, -hr * 0.05), p0 + Vector2(hr * 0.1, hr * 0.05), Color(1.0, 0.55, 0.5, 0.7), 1.0, true)
+					draw_arc(head, hr * 1.15, PI * 1.05, PI * 1.95, 20, Color(edge, 0.7), 4.0, true)
+				"braids":
+					for side in [-1.0, 1.0]:
+						var b0 := head + Vector2(side * hr * 0.9, -hr * 0.2)
+						for k in 4:
+							draw_circle(b0 + Vector2(side * hr * 0.12, hr * 0.45 * k), hr * 0.17, edge)
+					draw_arc(head, hr * 1.02, PI * 1.1, PI * 1.9, 20, edge, 3.0, true)
 			if look == "hood":
 				for side in [-1.0, 1.0]:
 					draw_line(head + Vector2(side * hr * 0.5, -hr * 0.05), head + Vector2(side * hr * 0.2, -hr * 0.05), eye, 2.0)
+			elif look == "eyepatch":
+				draw_circle(head + Vector2(-hr * 0.38, -hr * 0.05), 2.2, eye)
 			else:
 				for side in [-1.0, 1.0]:
 					draw_circle(head + Vector2(side * hr * 0.38, -hr * 0.05), 2.2, eye)

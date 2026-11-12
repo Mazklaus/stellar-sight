@@ -956,6 +956,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			toggle_empire_screen("victory")
 		KEY_F8:
 			toggle_empire_screen("intel")
+		KEY_F10:
+			toggle_empire_screen("heroes")
 		KEY_ENTER, KEY_KP_ENTER:
 			# En réseau, Entrée ouvre la discussion (le système s'ouvre par double clic ou son bouton).
 			if net.core != null and chat:

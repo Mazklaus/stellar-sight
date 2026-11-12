@@ -54,6 +54,7 @@ static func think(state: GameState, e: Empire) -> void:
 	if every >= 4 or posmod(state.tick + e.id * 3, 4) < every:
 		_military(ctx)
 	_diplomacy(ctx)
+	AiHeroes.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 

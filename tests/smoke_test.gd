@@ -31,6 +31,7 @@ func _initialize() -> void:
 	preload("res://tests/net_tests.gd").new().run(_check)
 	preload("res://tests/intel_tests.gd").new().run(_check)
 	preload("res://tests/espionage_tests.gd").new().run(_check)
+	preload("res://tests/hero_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -180,6 +181,7 @@ func _test_main_scene() -> void:
 	await _test_replay_ui(main)
 	await _test_victory_ui(main)
 	await _test_intel_ui(main)
+	await _test_hero_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_press(KEY_SPACE)
@@ -1355,6 +1357,52 @@ func _test_intel_ui(main: Node) -> void:
 	_press(KEY_F8)
 	await process_frame
 	_check(not screens.is_open(), "F8 referme l'écran Renseignement")
+
+
+## Écran Panthéon (F10) : offre, choix, affectation, rappel.
+func _test_hero_ui(main: Node) -> void:
+	var screens: EmpireScreens = main._empire_screens
+	var st: GameState = main.simulation.state
+	var me: int = main.view_empire
+	Heroes.act(st, me, "conquests", 60)
+	Heroes.meta(st, me)["offer"] = []
+	Heroes._maybe_offer(st, me)
+	for id in Heroes.ids_of(st, me):
+		if Heroes.ids_of(st, me).size() < Heroes.cap(st, me):
+			break
+		st.heroes.erase(id)
+	_press(KEY_F10)
+	await process_frame
+	_check(screens.current == "heroes", "F10 : écran Panthéon")
+	_check(screens.hero_buttons.has("pick") and (screens.hero_buttons["pick"] as Array).size() == 3, "Panthéon : trois candidats")
+	var n := Heroes.ids_of(st, me).size()
+	if screens.hero_buttons.has("pick"):
+		((screens.hero_buttons["pick"] as Array)[0] as Button).pressed.emit()
+		main.simulation.flush_commands()
+		await process_frame
+		_check(Heroes.ids_of(st, me).size() == n + 1, "Panthéon : CHOISIR recrute le candidat")
+		_check(not screens.hero_buttons.has("pick"), "Panthéon : l'offre disparaît")
+	var hid := Heroes.ids_of(st, me)[0]
+	st.heroes[hid]["wound"] = 0
+	screens.show_screen("heroes")
+	await process_frame
+	var hb: Dictionary = screens.hero_buttons.get(hid, {})
+	_check(not hb.is_empty() and not (hb["choices"] as Array).is_empty(), "Panthéon : postes proposés pour un héros")
+	if not hb.is_empty() and not (hb["choices"] as Array).is_empty():
+		(hb["assign"] as OptionButton).item_selected.emit(1)
+		main.simulation.flush_commands()
+		await process_frame
+		_check(String(st.heroes[hid]["post"]) == String(hb["choices"][0][0]), "Panthéon : Affecter… donne un poste")
+		hb = screens.hero_buttons.get(hid, {})
+		_check(not hb.is_empty() and not (hb["recall"] as Button).disabled, "Panthéon : RAPPELER possible")
+		if not hb.is_empty():
+			(hb["recall"] as Button).pressed.emit()
+			main.simulation.flush_commands()
+			await process_frame
+			_check(String(st.heroes[hid]["post"]) == "", "Panthéon : RAPPELER retire le poste")
+	_press(KEY_F10)
+	await process_frame
+	_check(not screens.is_open(), "F10 referme le Panthéon")
 
 
 ## Écran Victoire (F7) et panneau de fin de partie : continuer, ou revenir au menu.

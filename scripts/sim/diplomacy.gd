@@ -540,6 +540,8 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 	var ea := state.get_empire(a)
 	var eb := state.get_empire(b)
 	_drop_proposals(state, a, b, treaty)
+	Heroes.act(state, a, "treaty")
+	Heroes.act(state, b, "treaty")
 	match treaty:
 		PEACE:
 			var was_war := Combat.at_war(state, a, b)

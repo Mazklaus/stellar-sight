@@ -486,6 +486,7 @@ static func complete(state: GameState, empire_id: int, tid: String) -> void:
 	if e == null or e.techs.has(tid):
 		return
 	e.techs[tid] = true
+	Heroes.act(state, empire_id, "tech")
 	if not e.research_queue.is_empty() and e.research_queue[0] == tid:
 		e.research_queue.remove_at(0)
 		e.research_progress = 0
@@ -810,6 +811,7 @@ static func count_stat(state: GameState, empire_id: int, key: String, n := 1) ->
 	var e := state.get_empire(empire_id)
 	if e:
 		e.stats[key] = int(e.stats.get(key, 0)) + n
+		Heroes.act(state, empire_id, key, n)
 
 
 # --- Effets -------------------------------------------------------------------------------------

@@ -197,6 +197,13 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		@warning_ignore("integer_division")
 		gross["knowledge"] = int(gross["knowledge"]) * (100 + knowledge_pct) / 100
 	FactionTraits.adjust_yields(state, colony, gross, upkeep)
+	if not state.heroes.is_empty():
+		var hps := Heroes.production_pcts(state, colony.owner, planet.system_id)
+		for r in gross:
+			var hp := int(hps.get(r, hps["*"]))
+			if hp != 0 and int(gross[r]) > 0:
+				@warning_ignore("integer_division")
+				gross[r] = int(gross[r]) * (100 + hp) / 100
 	if Combat.is_besieged(state, planet.system_id):
 		var pct := int(Combat.data().get("besieged_production_pct", 50))
 		for r in gross:
@@ -222,6 +229,9 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 	_add(gross, FactionTraits.city_yields(state, empire_id))
 	# Registre Picaresque : la réputation rapporte des « crédits ».
 	gross["energy"] += Reputation.income(state, empire_id)
+	var hero_income := Heroes.income(state, empire_id)
+	for r in hero_income:
+		gross[r] = int(gross.get(r, 0)) + int(hero_income[r])
 	var treaties := Diplomacy.treaty_income(state, empire_id)
 	for r in treaties:
 		gross[r] += int(treaties[r])

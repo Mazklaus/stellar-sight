@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 19
+const FORMAT_VERSION := 20
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -87,6 +87,10 @@ var networks: Dictionary = {}
 var operations: Array[Dictionary] = []
 var spy_cases: Array[Dictionary] = []
 var next_spy_id: int = 0
+## Héros (voir Heroes) : par identifiant, et par empire le renom, les actes et l'offre en attente.
+var heroes: Dictionary = {}
+var next_hero_id: int = 0
+var hero_meta: Dictionary = {}
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -145,6 +149,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	s._setup_advanced_starts(options.get("starts", []))
 	for e in s.empires:
 		e.probes = int(GameData.espionage()["probes"]["start"])
+	Heroes.setup(s)
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -229,6 +234,9 @@ func to_dict() -> Dictionary:
 		"operations": operations.duplicate(true),
 		"spy_cases": spy_cases.duplicate(true),
 		"next_spy_id": next_spy_id,
+		"heroes": Heroes.to_list(self),
+		"next_hero_id": next_hero_id,
+		"hero_meta": Heroes.meta_to_list(self),
 	}
 
 
@@ -401,7 +409,12 @@ static func from_dict(d: Dictionary) -> GameState:
 		v["op"] = String(v["op"])
 		s.spy_cases.append(v)
 	s.next_spy_id = int(d.get("next_spy_id", 0))
+	Heroes.from_lists(s, d.get("heroes", []), d.get("hero_meta", []))
+	s.next_hero_id = int(d.get("next_hero_id", 0))
 	s.rebuild_ownership()
+	# Sauvegardes d'avant les héros : chaque empire reçoit son héros de départ.
+	if int(d["version"]) < 20:
+		Heroes.setup(s)
 	# Sauvegardes d'avant la dernière information connue : la mémoire part de l'état réel.
 	if int(d["version"]) < 16:
 		for e in s.empires:

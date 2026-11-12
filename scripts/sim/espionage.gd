@@ -162,7 +162,7 @@ static func decryption(state: GameState, empire_id: int) -> int:
 
 static func encryption(state: GameState, empire_id: int) -> int:
 	var bonus := int(data()["network"]["home_cell_encryption"]) if home_cells(state, empire_id) > 0 else 0
-	return Research.current_era(state, empire_id) + bonus + int(talent(state, empire_id).get("encryption", 0))
+	return Research.current_era(state, empire_id) + bonus + int(talent(state, empire_id).get("encryption", 0)) + Heroes.encryption(state, empire_id)
 
 
 ## Pourcentage de croissance selon déchiffrement de a moins chiffrement de b.
@@ -196,6 +196,9 @@ static func growth_parts(state: GameState, a: int, b: int) -> Array:
 		out.append(["Frontière commune", int(cfg["border_bonus"])])
 	if Combat.at_war(state, a, b):
 		out.append(["En guerre : tout le monde se méfie", -int(cfg["war_malus"])])
+	var hg := Heroes.agent_growth(state, a, b)
+	if hg != 0:
+		out.append(["Agent : %s" % Heroes.agent(state, a, b)["name"], hg])
 	var open := int(talent(state, b).get("open_nodes", 0))
 	if open != 0:
 		out.append(["Conscience partagée : ses nœuds sont ouverts", open])
@@ -534,7 +537,13 @@ static func chances(state: GameState, a: int, b: int, op_id: String) -> Dictiona
 		sp.append(["Déchiffrement contre chiffrement", crypto * int(c["per_crypto"])])
 	if String(o.get("family", "")) == "intrigue" and Reputation.intrigue_bonus(state, a) > 0:
 		sp.append(["Réputation", Reputation.intrigue_bonus(state, a)])
+	var hc := Heroes.agent_chance(state, a, b)
+	if hc != 0:
+		sp.append(["Agent : %s" % Heroes.agent(state, a, b)["name"], hc])
 	var dp := [["Base", int(o["discovery"])]]
+	var hd := Heroes.agent_discovery(state, a, b)
+	if hd != 0:
+		dp.append(["Agent discret", hd])
 	if counter > 0:
 		dp.append(["Contre-espionnage (%d cellule%s)" % [counter, "s" if counter > 1 else ""], counter_weight(state, b) * int(c["counter_per_cell"])])
 	if era_gap > 0:
@@ -669,6 +678,7 @@ static func _resolve(state: GameState, op: Dictionary) -> void:
 		if not net.is_empty():
 			net["inf"] = maxi(0, int(net["inf"]) - int(o.get("spend", 0)))
 		Research.count_stat(state, a, "operations")
+		Heroes.on_operation(state, a, b)
 		Reputation.gain(state, a, "op_success")
 	if not seen:
 		if ok:
