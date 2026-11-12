@@ -31,11 +31,15 @@ var system_id: int = -1
 var path: Array[int] = []
 ## Distance déjà parcourue sur la route system_id -> path[0].
 var progress: int = 0
-## Ordre permanent : "" (aucun, la flotte attend les ordres) ou ORDER_EXPLORE (exploration automatique).
+## Ordre permanent : "" (aucun, la flotte attend les ordres), ORDER_EXPLORE (exploration automatique)
+## ou ORDER_PATROL (aller-retour entre les deux systèmes de `patrol`).
 var standing_order: String = ""
+## Patrouille : [système de départ, système d'arrivée] (vide sans patrouille).
+var patrol: Array[int] = []
 
 const ORDER_EXPLORE := "explore"
-const STANDING_ORDERS := ["", ORDER_EXPLORE]
+const ORDER_PATROL := "patrol"
+const STANDING_ORDERS := ["", ORDER_EXPLORE, ORDER_PATROL]
 
 
 func is_moving() -> bool:
@@ -54,6 +58,10 @@ func destination() -> int:
 
 func is_exploring() -> bool:
 	return standing_order == ORDER_EXPLORE
+
+
+func is_patrolling() -> bool:
+	return standing_order == ORDER_PATROL and patrol.size() == 2
 
 
 ## À l'arrêt et sans ordre permanent : la flotte attend qu'on lui dise quoi faire.
@@ -136,6 +144,7 @@ func to_dict() -> Dictionary:
 		"tactic": tactic,
 		"gen": Array(gen),
 		"refit": refit_left,
+		"patrol": Array(patrol),
 	}
 
 
@@ -163,5 +172,9 @@ static func from_dict(d: Dictionary) -> Fleet:
 	f.progress = int(d["progress"])
 	f.standing_order = String(d.get("order", ""))  # absent des sauvegardes d'avant l'exploration auto
 	if not STANDING_ORDERS.has(f.standing_order):
+		f.standing_order = ""
+	for s in d.get("patrol", []):
+		f.patrol.append(int(s))
+	if f.standing_order == ORDER_PATROL and f.patrol.size() != 2:
 		f.standing_order = ""
 	return f

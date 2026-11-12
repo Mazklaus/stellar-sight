@@ -3,7 +3,8 @@ extends SceneTree
 ## par an, année de disparition, vainqueur). Fait pour être lancé en parallèle puis agrégé :
 ##   SEEDS=1,2,3 YEARS=25 godot --headless --path . -s res://tools/balance_bench.gd
 ##   python3 tools/balance_report.py fichier.jsonl
-## Variables : SEEDS, YEARS (défaut 25), LEVEL (défaut normal), TEMPER (défaut normal).
+## Variables : SEEDS, YEARS (défaut 25), LEVEL (défaut normal), TEMPER (défaut normal),
+## PIRATES (densité des repaires : aucun par défaut, rares, normaux, infestes).
 ## SPECIES : peuples créés à ajouter aux 4 officiels (éditeur d'espèces), séparés par des virgules :
 ## chemin d'un fichier de peuple (user://species/p_x.json ou chemin absolu) ou « preset:<officiel> »
 ## (peuple créé depuis le modèle d'un officiel). Banc court d'un peuple créé, cibles de l'étude
@@ -36,7 +37,8 @@ func _initialize() -> void:
 		GameData.register_library_faction(Species.build(spec))
 		rivals.append(String(spec["id"]))
 	for sd in seeds:
-		var st := GameState.create(sd, 150, 1800.0, "", {"spectator": true, "ai_level": level, "temperament": temper, "rivals": rivals})
+		var st := GameState.create(sd, 150, 1800.0, "", {"spectator": true, "ai_level": level, "temperament": temper, "rivals": rivals,
+				"pirates": OS.get_environment("PIRATES") if OS.get_environment("PIRATES") != "" else "aucun"})
 		var sim := Simulation.new(st)
 		var rows := {}
 		for e in st.empires:

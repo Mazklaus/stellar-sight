@@ -220,6 +220,26 @@ static func reintegrate(player: int, system_id: int) -> Dictionary:
 	return {"type": "reintegrate", "player": player, "system": system_id}
 
 
+## Patrouille : la flotte fait l'aller-retour entre sa position et system_id.
+static func patrol_fleet(player: int, fleet_id: int, system_id: int) -> Dictionary:
+	return {"type": "patrol_fleet", "player": player, "fleet": fleet_id, "system": system_id}
+
+
+## Tribut à un repaire pirate connu : un an sans raid de ce repaire contre vous.
+static func pirate_tribute(player: int, system_id: int) -> Dictionary:
+	return {"type": "pirate_tribute", "player": player, "system": system_id}
+
+
+## Engage un repaire pirate connu contre un rival (commanditaire caché).
+static func pirate_hire(player: int, system_id: int, victim: int) -> Dictionary:
+	return {"type": "pirate_hire", "player": player, "system": system_id, "victim": victim}
+
+
+## Prime anonyme sur un empire : les raids le visent en priorité.
+static func pirate_bounty(player: int, victim: int) -> Dictionary:
+	return {"type": "pirate_bounty", "player": player, "victim": victim}
+
+
 static func spy_answer(player: int, case_id: int, choice: String) -> Dictionary:
 	return {"type": "spy_answer", "player": player, "case": case_id, "choice": choice}
 
@@ -268,6 +288,14 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Stability.check_offering(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"reintegrate":
 			return Stability.check_reintegrate(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"patrol_fleet":
+			return Fleets.check_patrol(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("system", -1)))
+		"pirate_tribute":
+			return Pirates.check_tribute(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"pirate_hire":
+			return Pirates.check_hire(state, int(cmd["player"]), int(cmd.get("system", -1)), int(cmd.get("victim", -1)))
+		"pirate_bounty":
+			return Pirates.check_bounty(state, int(cmd["player"]), int(cmd.get("victim", -1)))
 		"sacrifice":
 			return FactionTraits.check_sacrifice(state, int(cmd["player"]), int(cmd.get("planet", -1)))
 		"rush":
@@ -456,6 +484,21 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Stability.offering(state, int(cmd["player"]), int(cmd["system"]))
 		"reintegrate":
 			Stability.reintegrate(state, int(cmd["player"]), int(cmd["system"]))
+		"patrol_fleet":
+			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			var start := f.destination()
+			var plan := Fleets.plan_route(state, f, int(cmd["system"]))
+			f.system_id = int(plan["system"])
+			f.path.assign(plan["path"])
+			f.progress = int(plan["progress"])
+			f.standing_order = Fleet.ORDER_PATROL
+			f.patrol.assign([start if start != int(cmd["system"]) else f.system_id, int(cmd["system"])])
+		"pirate_tribute":
+			Pirates.tribute(state, int(cmd["player"]), int(cmd["system"]))
+		"pirate_hire":
+			Pirates.hire(state, int(cmd["player"]), int(cmd["system"]), int(cmd["victim"]))
+		"pirate_bounty":
+			Pirates.bounty(state, int(cmd["player"]), int(cmd["victim"]))
 		"spy_cells":
 			Espionage.set_cells(state, int(cmd["player"]), int(cmd["target"]), int(cmd["n"]))
 		"spy_op":

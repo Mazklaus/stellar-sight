@@ -149,6 +149,9 @@ var _victory_checks := {}
 ## Difficulté progressive : les bonus des IA Expert et Légende montent avec le temps.
 var ai_scaling := false
 var _scaling_check: CheckBox
+## Densité des repaires pirates (voir Pirates.densities).
+var pirates := Pirates.default_density()
+var _pirate_select: OptionButton
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
 const PRESETS_PATH := "user://new_game_presets.json"
@@ -1401,9 +1404,18 @@ func set_ai_scaling(on: bool) -> void:
 	_refresh_preset()
 
 
+func set_pirates(id: String) -> void:
+	pirates = id if not Pirates.density_def(id).is_empty() else Pirates.default_density()
+	if _pirate_select:
+		for i in Pirates.densities().size():
+			if String(Pirates.densities()[i]["id"]) == pirates:
+				_pirate_select.select(i)
+	_refresh_preset()
+
+
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
-	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling}
+	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates}
 
 
 func set_spectator(on: bool) -> void:
@@ -1642,6 +1654,16 @@ func _build_new_page(root: Control) -> void:
 	_scaling_check.text = "Difficulté progressive"
 	_scaling_check.focus_mode = Control.FOCUS_NONE
 	_scaling_check.tooltip_text = "Les bonus des IA Expert et Légende partent de zéro et atteignent leur pleine valeur\naprès %d ans de partie (comme la difficulté progressive de Stellaris).\nPas d'avance de départ : elles vous laissent le temps de vous installer." % (AiLevels.scaling_days() / GameCalendar.DAYS_PER_YEAR)
+	_pirate_select = OptionButton.new()
+	_pirate_select.clip_text = true
+	var ptip := PackedStringArray(["Repaires pirates : ils lancent des raids (vol, stabilité), ne conquièrent jamais. On peut leur payer tribut, les engager contre un rival ou les démanteler."])
+	for d: Dictionary in Pirates.densities():
+		_pirate_select.add_item(String(d["label"]))
+		ptip.append("%s : %s" % [d["label"], d["desc"]])
+	_pirate_select.tooltip_text = "\n".join(ptip)
+	_pirate_select.item_selected.connect(func(i: int) -> void: set_pirates(String(Pirates.densities()[i]["id"])))
+	_labeled_row(game, "Pirates", _pirate_select)
+	set_pirates(pirates)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2376,7 +2398,7 @@ func settings() -> Dictionary:
 	return {"faction": selected_faction, "slots": saved_slots, "duplicates": allow_duplicates, "team": player_team,
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
-		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "galaxy": galaxy_settings.duplicate(),
+		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "galaxy": galaxy_settings.duplicate(),
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2392,7 +2414,7 @@ func default_settings() -> Dictionary:
 		"ai_level": AiLevels.default_id(), "temperament": AiLevels.default_temperament(), "spectator": false,
 		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "timer": "", "deadline": Victory.default_deadline(), "people": true,
 		"victories": {"conquete": true, "domination": true, "allies": true}, "ai_scaling": false,
-		"galaxy": GalaxySettings.defaults()}
+		"pirates": Pirates.default_density(), "galaxy": GalaxySettings.defaults()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -2453,6 +2475,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	for k in victories:
 		set_victory(k, bool(vic.get(k, true)))
 	set_ai_scaling(bool(d.get("ai_scaling", false)))
+	set_pirates(String(d.get("pirates", base.get("pirates", Pirates.default_density()))))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

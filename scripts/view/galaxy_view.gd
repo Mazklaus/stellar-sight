@@ -186,6 +186,7 @@ func _draw() -> void:
 
 	_draw_fleets(px)
 	_draw_conflicts(px)
+	_draw_lairs(px)
 
 	if lens == "economy" and state != null:
 		# Lentille économique : tout s'assombrit sauf les systèmes du joueur, qui affichent leur bilan.
@@ -206,6 +207,7 @@ func _draw() -> void:
 				_draw_system(s, px)
 				_draw_label(s, px, true)
 				_draw_stability(s, px, o == viewer)
+		_draw_lairs(px)
 		return
 	var show_all_labels := _zoom() >= LABEL_MIN_ZOOM
 	var show_dots := _zoom() >= PLANET_DOTS_MIN_ZOOM
@@ -453,6 +455,24 @@ func _draw_label(s: StarSystem, px: float, dots := true) -> void:
 
 
 ## Lentille économique : bilan mensuel du système (toutes ses revendications), sous l'étoile.
+## Repaires pirates connus : deux sabres croisés rouges au-dessus de l'étoile.
+func _draw_lairs(px: float) -> void:
+	if state == null or state.lairs.is_empty():
+		return
+	var col := Color(String(GameData.pirates()["npc"]["color"])).lightened(0.15)
+	for sid in Pirates.lair_ids(state):
+		if not is_explored(sid):
+			continue
+		draw_set_transform(galaxy.systems[sid].position + Vector2(0, -20.0 * px), 0.0, Vector2(px, px))
+		draw_circle(Vector2.ZERO, 8.5, Color(0.08, 0.02, 0.02, 0.85))
+		draw_arc(Vector2.ZERO, 8.5, 0.0, TAU, 20, col, 1.4, true)
+		draw_line(Vector2(-5, 5), Vector2(5, -5), col, 2.0, true)
+		draw_line(Vector2(-5, -5), Vector2(5, 5), col, 2.0, true)
+		draw_line(Vector2(-6, 1), Vector2(-1, 6), col, 1.4, true)
+		draw_line(Vector2(6, 1), Vector2(1, 6), col, 1.4, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
 func _draw_stability(s: StarSystem, px: float, mine: bool) -> void:
 	draw_set_transform(s.position, 0.0, Vector2(px, px))
 	var col := Stability.tier_color(state, s.id) if mine else Color(0.62, 0.64, 0.68)

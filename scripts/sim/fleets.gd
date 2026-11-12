@@ -43,9 +43,9 @@ static func vision(fleet: Fleet) -> int:
 ## Plus court chemin de from à to par les routes connues de l'empire (sans from, avec to).
 ## Vide si to == from ou s'il n'existe aucun chemin connu. Dijkstra à égalités départagées
 ## par l'identifiant : le même résultat sur toutes les machines.
-static func find_path(state: GameState, empire_id: int, from: int, to: int) -> Array[int]:
+static func find_path(state: GameState, empire_id: int, from: int, to: int, avoid := false) -> Array[int]:
 	var out: Array[int] = []
-	var res := _dijkstra(state, empire_id, from)
+	var res := _dijkstra(state, empire_id, from, avoid)
 	if from == to or not res["dist"].has(to):
 		return out
 	var cur := to
@@ -62,19 +62,34 @@ static func find_path(state: GameState, empire_id: int, from: int, to: int) -> A
 ## Le résultat ne dépend que des systèmes explorés par l'empire (les routes connues) : il est gardé en
 ## cache sur l'empire tant qu'il n'explore rien de nouveau (explored ne fait que grandir). Le résultat
 ## est partagé : les appelants le lisent sans le modifier.
-static func _dijkstra(state: GameState, empire_id: int, from: int) -> Dictionary:
+##
+## avoid : variante des vaisseaux sans armes, qui contourne les repaires pirates connus (traverser
+## l'un d'eux coûte LAIR_DETOUR unités de plus) ; gardée en cache sous la clé -1 - from. Les repaires
+## ne bougent pas, et un repaire démantelé vide le cache (Pirates.dismantle).
+static func _dijkstra(state: GameState, empire_id: int, from: int, avoid := false) -> Dictionary:
+	avoid = avoid and not state.lairs.is_empty()
 	var e := state.get_empire(empire_id)
 	if e == null:
-		return _dijkstra_raw(state, empire_id, from)
+		return _dijkstra_raw(state, empire_id, from, avoid)
 	if e.path_cache_explored != e.explored.size():
 		e.path_cache.clear()
 		e.path_cache_explored = e.explored.size()
-	if not e.path_cache.has(from):
-		e.path_cache[from] = _dijkstra_raw(state, empire_id, from)
-	return e.path_cache[from]
+	var key := -1 - from if avoid else from
+	if not e.path_cache.has(key):
+		e.path_cache[key] = _dijkstra_raw(state, empire_id, from, avoid)
+	return e.path_cache[key]
 
 
-static func _dijkstra_raw(state: GameState, empire_id: int, from: int) -> Dictionary:
+## Détour imposé aux vaisseaux sans armes par un repaire pirate connu sur la route.
+const LAIR_DETOUR := 20000
+
+
+## Les vaisseaux de cette flotte contournent-ils les repaires ? (aucune arme, et des repaires en jeu)
+static func avoids_lairs(state: GameState, fleet: Fleet) -> bool:
+	return not state.lairs.is_empty() and not GameState.is_npc(fleet.owner) and not Combat.is_armed(fleet)
+
+
+static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid := false) -> Dictionary:
 	# Tableaux indexés par système pendant le calcul (plus rapides que des dictionnaires), puis les
 	# dictionnaires du résultat, remplis dans l'ordre de découverte, comme avant.
 	var g := state.galaxy
@@ -105,6 +120,8 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int) -> Dictio
 			if done[n] == 1 or not (best_known or explored.has(n)):
 				continue
 			var d: int = d0 + maxi(1, roundi(pos.distance_to(g.systems[n].position)))
+			if avoid and state.lairs.has(n) and explored.has(n):
+				d += LAIR_DETOUR
 			var old := dist[n]
 			if old < 0 or d < old or (d == old and best < prev[n]):
 				if old < 0:
@@ -167,8 +184,9 @@ static func _heap_pop(heap: Array[int]) -> int:
 static func plan_route(state: GameState, fleet: Fleet, to: int) -> Dictionary:
 	if fleet.is_moving() and fleet.progress == 0 and to == fleet.system_id:
 		return {"system": fleet.system_id, "path": [], "progress": 0}  # pas encore parti : on reste
+	var avoid := avoids_lairs(state, fleet)
 	if not fleet.is_moving() or fleet.progress == 0:
-		var p := find_path(state, fleet.owner, fleet.system_id, to)
+		var p := find_path(state, fleet.owner, fleet.system_id, to, avoid)
 		if p.is_empty():
 			return {}
 		return {"system": fleet.system_id, "path": p, "progress": 0}
@@ -177,17 +195,17 @@ static func plan_route(state: GameState, fleet: Fleet, to: int) -> Dictionary:
 	var lane := lane_length(state.galaxy, a, b)
 	var options: Array[Dictionary] = []
 	# Continuer vers b, puis aller jusqu'à to.
-	var res_b := _dijkstra(state, fleet.owner, b)
+	var res_b := _dijkstra(state, fleet.owner, b, avoid)
 	if res_b["dist"].has(to):
 		var pb: Array[int] = [b]
-		pb.append_array(find_path(state, fleet.owner, b, to))
+		pb.append_array(find_path(state, fleet.owner, b, to, avoid))
 		options.append({"cost": lane - fleet.progress + int(res_b["dist"][to]),
 				"plan": {"system": a, "path": pb, "progress": fleet.progress}})
 	# Faire demi-tour vers a.
-	var res_a := _dijkstra(state, fleet.owner, a)
+	var res_a := _dijkstra(state, fleet.owner, a, avoid)
 	if res_a["dist"].has(to):
 		var pa: Array[int] = [a]
-		pa.append_array(find_path(state, fleet.owner, a, to))
+		pa.append_array(find_path(state, fleet.owner, a, to, avoid))
 		options.append({"cost": fleet.progress + int(res_a["dist"][to]),
 				"plan": {"system": b, "path": pa, "progress": lane - fleet.progress}})
 	if options.is_empty():
@@ -255,7 +273,7 @@ static func vision_center(state: GameState, fleet: Fleet) -> int:
 ## Déterministe : égalités départagées par l'identifiant.
 static func explore_target(state: GameState, fleet: Fleet) -> int:
 	var origin := fleet.next_system() if fleet.is_moving() else fleet.system_id
-	var res := _dijkstra(state, fleet.owner, origin)
+	var res := _dijkstra(state, fleet.owner, origin, avoids_lairs(state, fleet))
 	var taken := {}
 	for other in empire_fleets(state, fleet.owner):
 		if other.id != fleet.id and other.is_exploring() and other.is_moving():
@@ -574,6 +592,16 @@ static func check_move(state: GameState, empire_id: int, fleet_id: int, system_i
 	return ""
 
 
+## Patrouille : comme un déplacement, mais la flotte reviendra ; il faut un vrai aller (pas sur place).
+static func check_patrol(state: GameState, empire_id: int, fleet_id: int, system_id: int) -> String:
+	var f: Fleet = state.fleets.get(fleet_id)
+	if f == null or f.owner != empire_id:
+		return "cette flotte ne vous appartient pas"
+	if f.destination() == system_id:
+		return "la patrouille doit aller ailleurs que là où va la flotte"
+	return check_move(state, empire_id, fleet_id, system_id)
+
+
 static func check_stop(state: GameState, empire_id: int, fleet_id: int) -> String:
 	var f: Fleet = state.fleets.get(fleet_id)
 	if f == null or f.owner != empire_id:
@@ -692,6 +720,8 @@ static func check_order(state: GameState, empire_id: int, fleet_id: int, order: 
 		return "ordre inconnu : %s" % order
 	if f.standing_order == order:
 		return "la flotte a déjà cet ordre" if order != "" else "la flotte n'a pas d'ordre permanent"
+	if order == Fleet.ORDER_PATROL:
+		return "une patrouille se donne avec sa destination"
 	if order == Fleet.ORDER_EXPLORE and explore_target(state, f) == -1:
 		return "plus aucun système inexploré joignable par vos routes connues"
 	return ""

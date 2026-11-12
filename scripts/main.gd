@@ -52,6 +52,8 @@ var _hud: Hud
 ## Discussion entre joueurs, en partie en réseau.
 var chat: ChatPanel
 var _system_screen: SystemScreen
+## Le prochain clic droit sur un système met la flotte sélectionnée en patrouille (bouton PATROUILLE).
+var _patrol_pick := false
 var _empire_screens: EmpireScreens
 var _main_menu: MainMenu
 var _pause_menu: PauseMenu
@@ -913,7 +915,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			_right_press = mb.position
 		elif _right_press.x >= 0.0 and mb.position.distance_to(_right_press) <= RIGHT_CLICK_SLOP_PX:
 			_right_press = Vector2(-1, -1)
-			order_fleet_to(_pick_system_at(mb.position))
+			if mb.shift_pressed or _patrol_pick:
+				order_fleet_patrol(_pick_system_at(mb.position))
+			else:
+				order_fleet_to(_pick_system_at(mb.position))
 		return
 
 	var key := event as InputEventKey
@@ -1074,6 +1079,7 @@ func _pick_fleet_at(screen_pos: Vector2) -> int:
 
 ## Sélectionne une flotte (-1 : aucune). Sa fiche s'affiche et son trajet se dessine.
 func select_fleet(fleet_id: int) -> void:
+	_patrol_pick = _patrol_pick and fleet_id == selected_fleet
 	selected_fleet = fleet_id
 	_view.selected_fleet = fleet_id
 	_view.queue_redraw()
@@ -1093,6 +1099,18 @@ func order_fleet_to(system_id: int) -> void:
 			_hud.notify("%s : reste à %s." % [f.fleet_name, where])
 		else:
 			_hud.notify("%s : cap sur %s (%d jour%s)." % [f.fleet_name, where, days, "s" if days > 1 else ""])
+
+
+## Met la flotte sélectionnée en patrouille entre sa position et un système.
+func order_fleet_patrol(system_id: int) -> void:
+	_patrol_pick = false
+	var f: Fleet = simulation.state.fleets.get(selected_fleet)
+	if f == null or f.owner != view_empire or system_id < 0:
+		return
+	var from := galaxy.get_system(f.destination()).system_name
+	if _submit(SimCommands.patrol_fleet(view_empire, f.id, system_id)):
+		_hud.notify("%s : patrouille entre %s et %s." % [f.fleet_name, from, galaxy.get_system(system_id).system_name])
+	_hud.show_fleet(f.id)
 
 
 ## Passe à la flotte suivante (1) ou précédente (-1) du joueur, et y glisse la caméra.
@@ -1186,6 +1204,15 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 			toggle_auto_explore(fleet_id)
 		"stop":
 			_submit(SimCommands.stop_fleet(view_empire, fleet_id))
+		"patrol":
+			if f.is_patrolling():
+				_patrol_pick = false
+				if _submit(SimCommands.set_fleet_order(view_empire, fleet_id, "")):
+					_hud.notify("%s : patrouille interrompue." % f.fleet_name)
+			else:
+				_patrol_pick = true
+				_hud.notify("Patrouille : clic droit sur le système où %s fera l'aller-retour." % f.fleet_name)
+			_hud.show_fleet(fleet_id)
 		"merge":
 			for other in Fleets.fleets_at(st, f.system_id, view_empire):
 				if other.id != fleet_id:

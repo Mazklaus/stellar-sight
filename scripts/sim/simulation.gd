@@ -82,6 +82,8 @@ func step() -> void:
 		chronicle_added.emit(entry)
 	for entry in StabilitySystem.process(state):
 		chronicle_added.emit(entry)
+	for entry in PirateSystem.process(state):
+		chronicle_added.emit(entry)
 	for entry in Heroes.daily(state):
 		chronicle_added.emit(entry)
 	for entry in VictorySystem.process(state):

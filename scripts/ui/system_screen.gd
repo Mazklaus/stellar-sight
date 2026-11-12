@@ -273,12 +273,19 @@ func _build_stability(head: VBoxContainer) -> void:
 func _refresh_stability(s: StarSystem) -> void:
 	var owner := _state.system_owner(s.id)
 	var mine := owner == _player and Stability.applies(_state, _player)
-	var free := GameState.is_npc(owner)
-	_stab_row.visible = mine or free
+	var free := owner == GameState.NPC_ID
+	var lair := Pirates.knows(_state, _player, s.id) or (read_only and Pirates.is_lair(_state, s.id))
+	_stab_row.visible = mine or free or lair
 	if not _stab_row.visible:
 		return
 	for id in stab_buttons:
 		stab_buttons[id].visible = false
+	if lair and not mine and not free:
+		var g := Pirates.guard_fleet(_state, s.id)
+		stab_label.text = "Repaire pirate · %s" % (("garde de %d vaisseaux" % g.ships.size()) if g != null else "garde détruite")
+		stab_label.add_theme_color_override("font_color", Color(String(Pirates.data()["npc"]["color"])).lightened(0.25))
+		stab_label.tooltip_text = "Ce repaire lance des raids vers le système le moins défendu à %d sauts. Détruisez sa garde avec une flotte armée pour le démanteler ; tribut et contrats dans l'Ordre intérieur (F12)." % int(Pirates.data()["raid"]["range_jumps"])
+		return
 	if free:
 		stab_label.text = "Monde libre des Sans-Bannière"
 		stab_label.add_theme_color_override("font_color", Color(0.75, 0.77, 0.8))

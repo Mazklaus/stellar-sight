@@ -469,6 +469,7 @@ func _build_fleet_card() -> void:
 	for a in [["explore", "EXPLORATION AUTO", "La flotte part seule vers les systèmes inexplorés les plus proches, et continue jusqu'à ce qu'il n'y en ait plus  (E)"],
 			["colonize", "COLONISER ICI", "Ouvrir le système pour choisir la planète où fonder la revendication"],
 			["stop", "ARRÊTER", "S'arrêter au système le plus proche sur la route"],
+			["patrol", "PATROUILLE", "Aller-retour permanent entre la position de la flotte et un système : cliquez, puis clic droit sur le système (ou Maj + clic droit). Les pirates évitent les systèmes gardés."],
 			["merge", "RASSEMBLER", "Réunir dans cette flotte les autres flottes à l'arrêt dans ce système"],
 			["split", "DÉTACHER", "Détacher un vaisseau dans une nouvelle flotte"],
 			["report", "RAPPORT", "Dernier rapport de bataille de vos flottes  (B)"],
@@ -482,7 +483,7 @@ func _build_fleet_card() -> void:
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if a[0] == "colonize" or a[0] == "invade":
 			b.theme_type_variation = &"PrimaryButton"
-		if a[0] == "explore":
+		if a[0] == "explore" or a[0] == "patrol":
 			b.toggle_mode = true
 		var action: String = a[0]
 		b.pressed.connect(func() -> void: fleet_action_requested.emit(action, _fleet_id))
@@ -493,7 +494,7 @@ func _build_fleet_card() -> void:
 		else:
 			grid.add_child(b)
 		_fleet_buttons[action] = b
-	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte.  F : flotte suivante.  I : flotte inactive suivante.  T : tactique.", CARD_WIDTH - 26.0, 12)
+	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte (Maj : patrouiller).  F : flotte suivante.  I : flotte inactive suivante.  T : tactique.", CARD_WIDTH - 26.0, 12)
 	_fleet_hint.theme_type_variation = &"Dim"
 	inner.add_child(_fleet_hint)
 
@@ -549,8 +550,13 @@ func _refresh_fleet_card() -> void:
 	_fleet_buttons["colonize"].disabled = not can_colonize
 	_fleet_buttons["explore"].visible = mine
 	_fleet_buttons["explore"].set_pressed_no_signal(f.is_exploring())
+	_fleet_buttons["patrol"].set_pressed_no_signal(f.is_patrolling())
 	_fleet_buttons["explore"].text = "EXPLORATION : ACTIVE" if f.is_exploring() else "EXPLORATION AUTO"
 	_fleet_buttons["explore"].disabled = mine and not f.is_exploring() and Fleets.explore_target(_state, f) == -1
+	_fleet_buttons["patrol"].visible = mine
+	_fleet_buttons["patrol"].text = "PATROUILLE : ACTIVE" if f.is_patrolling() else "PATROUILLE"
+	if f.is_patrolling():
+		_fleet_buttons["patrol"].tooltip_text = "Patrouille entre %s et %s. Clic : l'arrêter." % [g.systems[f.patrol[0]].system_name, g.systems[f.patrol[1]].system_name]
 	_fleet_buttons["stop"].visible = mine
 	_fleet_buttons["stop"].disabled = not f.is_moving()
 	_fleet_buttons["merge"].visible = mine
@@ -782,6 +788,8 @@ func _refresh_card() -> void:
 		_card_owner.text += "\nStabilité %d (%s)" % [Stability.value(_state, s.id), Stability.tier_label(_state, s.id)]
 	elif owner and owner.is_npc():
 		_card_owner.text += "\nMonde libre : il a fait sécession"
+	if Pirates.knows(_state, _player, s.id):
+		_card_owner.text += "\nRepaire pirate"
 	if live and not Combat.battle_at(_state, s.id).is_empty():
 		_card_owner.text += "\nBataille en cours"
 	elif not live and Intel.battle_known(_state, Intel.lens, s.id):

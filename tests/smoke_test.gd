@@ -33,6 +33,7 @@ func _initialize() -> void:
 	preload("res://tests/espionage_tests.gd").new().run(_check)
 	preload("res://tests/hero_tests.gd").new().run(_check)
 	preload("res://tests/stability_tests.gd").new().run(_check)
+	preload("res://tests/pirate_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -1530,6 +1531,28 @@ func _test_order_ui(main: Node) -> void:
 	await process_frame
 	_check(main._hud.lens == "", "K referme le filtre de stabilité")
 	st.stability[home] = {"v": 50}
+	# Repaires pirates connus dans l'Ordre intérieur (la partie de test n'en a pas : on en pose un).
+	var lair := -1
+	for sys in st.galaxy.systems:
+		if st.system_owner(sys.id) < 0 and not sys.planet_ids.is_empty():
+			lair = sys.id
+			break
+	Pirates.create_lair(st, lair)
+	st.get_empire(me).explored[lair] = true
+	st.get_empire(me).resources["energy"] = 3000
+	_press(KEY_F12)
+	await process_frame
+	_check(_find_button(screens, "Repaire de ") != null, "Ordre intérieur : le repaire connu est listé")
+	var tk := "tribute:%d" % lair
+	_check(screens.order_buttons.has(tk) and not (screens.order_buttons[tk] as Button).disabled, "Ordre intérieur : tribut possible")
+	if screens.order_buttons.has(tk):
+		(screens.order_buttons[tk] as Button).pressed.emit()
+		main.simulation.flush_commands()
+	_check(Pirates.pays_tribute(st, lair, me), "Ordre intérieur : tribut payé")
+	_press(KEY_F12)
+	await process_frame
+	st.fleets.erase(Pirates.guard_fleet(st, lair).id)
+	st.lairs.erase(lair)
 
 
 func _find_label(n: Node, prefix: String) -> bool:

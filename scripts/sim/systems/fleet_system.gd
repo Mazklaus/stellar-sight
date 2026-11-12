@@ -6,7 +6,8 @@ extends RefCounted
 ##    dans un système tenu par une flotte armée d'un empire en guerre avec elle s'y arrête (blocus) ;
 ## 3. exploration : chaque empire découvre ce que voient ses revendications et ses flottes,
 ##    et rencontre les empires qu'il aperçoit (premier contact) ;
-## 4. exploration automatique : les flottes qui en ont l'ordre repartent vers la frontière.
+## 4. exploration automatique : les flottes qui en ont l'ordre repartent vers la frontière ;
+##    patrouilles : arrivées à un bout, elles repartent vers l'autre.
 ## Aucun aléatoire, uniquement des entiers, tout est parcouru dans l'ordre des identifiants.
 
 
@@ -27,7 +28,24 @@ static func process(state: GameState) -> Array[Dictionary]:
 			var entry := explore_step(state, f)
 			if not entry.is_empty():
 				added.append(entry)
+		elif f.is_patrolling():
+			patrol_step(state, f)
 	return added
+
+
+## Patrouille : arrivée à un bout, la flotte repart vers l'autre (pas pendant une bataille).
+static func patrol_step(state: GameState, f: Fleet) -> void:
+	if f.is_moving() or state.battles.has(f.system_id):
+		return
+	var to := f.patrol[1] if f.system_id == f.patrol[0] else f.patrol[0]
+	var plan := Fleets.plan_route(state, f, to)
+	if plan.is_empty():
+		f.standing_order = ""
+		f.patrol.clear()
+		return
+	f.system_id = int(plan["system"])
+	f.path.assign(plan["path"])
+	f.progress = int(plan["progress"])
 
 
 ## Remise à niveau au chantier : un jour de plus à quai. Partir ou se battre l'interrompt (le prix

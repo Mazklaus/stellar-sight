@@ -103,6 +103,8 @@ var hero_buttons := {}
 ## Boutons de l'écran Ordre intérieur (« sid:décret », « free:sid »), pour les tests.
 var order_buttons := {}
 var _order_sig := ""
+## Cible choisie dans l'Ordre intérieur pour les contrats et les primes pirates.
+var order_victim := -1
 var _hero_sig := ""
 var _shipyard_sig := ""
 
