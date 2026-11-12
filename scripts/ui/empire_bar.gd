@@ -29,6 +29,8 @@ const SCREENS := [
 		"why": "Vos héros : un poste chacun (amiral d'une flotte, gouverneur d'un système, siège au conseil, agent d'un réseau). Vos actes font monter votre renom ; au seuil, trois candidats se présentent et vous en choisissez un."},
 	{"id": "order", "label": "Ordre intérieur", "key": "F12", "glyph": "order", "ready": true,
 		"why": "Chaque système a une stabilité de 0 à 100 qui glisse chaque mois vers sa cible. Fidèles, ils produisent plus ; en révolte, ils se figent, puis font sécession au bout d'un an. Les décrets achètent du temps."},
+	{"id": "chronicles", "label": "Chroniques", "key": "J", "glyph": "chronicles", "ready": true,
+		"why": "Les événements qui attendent votre décision, ceux que vous avez tranchés, et les curiosités repérées dans la galaxie. Une curiosité se sonde avec un vaisseau sans armes à l'arrêt (ou une Station d'étude) ; plus votre puissance d'expédition dépasse son niveau, plus c'est rapide."},
 ]
 ## Description d'un menu d'empire (entrée de SCREENS), {} s'il n'existe pas.
 static func screen_info(screen_id: String) -> Dictionary:
@@ -65,7 +67,7 @@ func _ready() -> void:
 	icons.add_theme_constant_override("separation", 2)
 	box.add_child(icons)
 	for sc in SCREENS:
-		var b := Widgets.IconButton.new(String(sc["glyph"]), 29)
+		var b := Widgets.IconButton.new(String(sc["glyph"]), 27)
 		b.toggle_mode = true
 		b.disabled = not sc["ready"]
 		b.tooltip_text = "%s  (%s)" % [sc["label"], sc["key"]] + ("\nBientôt : l'écran est en place." if sc.get("soon", false) else "")

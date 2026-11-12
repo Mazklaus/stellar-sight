@@ -34,6 +34,7 @@ func _initialize() -> void:
 	preload("res://tests/hero_tests.gd").new().run(_check)
 	preload("res://tests/stability_tests.gd").new().run(_check)
 	preload("res://tests/pirate_tests.gd").new().run(_check)
+	preload("res://tests/event_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -185,6 +186,7 @@ func _test_main_scene() -> void:
 	await _test_intel_ui(main)
 	await _test_hero_ui(main)
 	await _test_order_ui(main)
+	await _test_event_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_press(KEY_SPACE)
@@ -1553,6 +1555,51 @@ func _test_order_ui(main: Node) -> void:
 	await process_frame
 	st.fleets.erase(Pirates.guard_fleet(st, lair).id)
 	st.lairs.erase(lair)
+
+
+func _test_event_ui(main: Node) -> void:
+	var screens: EmpireScreens = main._empire_screens
+	var st: GameState = main.simulation.state
+	var me: int = main.local_player
+	var clock: Node = root.get_node("GameClock")
+	clock.set_paused(false)
+	st.event_freq = "normaux"
+	st.get_empire(me).resources["food"] = 500
+	st.get_empire(me).resources["energy"] = 500
+	var added: Array[Dictionary] = []
+	Events.push(st, me, "comete", {"system": FactionTraits.capital_system(st, me)}, added)
+	var item: Dictionary = Events.inbox(st, me).back()
+	main._announce_events()
+	await process_frame
+	var panel: EventPanel = main._event_panel
+	_check(panel.is_open() and panel.event_id == int(item["id"]), "une carte arrivée ouvre la fenêtre d'événement")
+	_check(clock.paused or main.net.is_active(), "la fenêtre d'événement met la partie en pause (solo)")
+	_check(panel.choice_buttons.size() == Events.choices(st, me, item).size(), "un bouton par choix possible")
+	_press(KEY_ESCAPE)
+	await process_frame
+	_check(not panel.is_open() and Events.inbox(st, me).size() >= 1, "Échap réduit la carte, qui reste dans la boîte")
+	_check(not clock.paused, "la pause de l'événement est levée")
+	_press(KEY_J, KEY_J)
+	await process_frame
+	_check(screens.current == "chronicles", "J : écran Chroniques")
+	var key := "event:%d" % int(item["id"])
+	_check(screens.chronicle_buttons.has(key), "Chroniques : la carte en attente est listée")
+	if screens.chronicle_buttons.has(key):
+		(screens.chronicle_buttons[key] as Button).pressed.emit()
+	await process_frame
+	_check(panel.is_open() and not screens.is_open(), "Chroniques : Décider rouvre la carte")
+	if panel.choice_buttons.has(0):
+		(panel.choice_buttons[0] as Button).pressed.emit()
+		main.simulation.flush_commands()
+	await process_frame
+	_check(not panel.is_open() and Events.find_item(st, me, int(item["id"])).is_empty(), "le choix est appliqué et la fenêtre se ferme")
+	_press(KEY_J, KEY_J)
+	await process_frame
+	_check(_find_label(screens, GameCalendar.date_string(st.tick)), "Chroniques : la décision figure au journal")
+	_press(KEY_J, KEY_J)
+	await process_frame
+	_check(not screens.is_open(), "J referme les Chroniques")
+	clock.set_paused(true)
 
 
 func _find_label(n: Node, prefix: String) -> bool:

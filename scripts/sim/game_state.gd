@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 24
+const FORMAT_VERSION := 25
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -104,6 +104,14 @@ var stab_meta: Dictionary = {}
 var lairs: Dictionary = {}
 var pirate_meta: Dictionary = {}
 var pirate_density: String = "aucun"
+## Curiosités (voir Curios) : identifiant de planète -> curiosité ; pièges en cours ; densité choisie.
+var curios: Dictionary = {}
+var curio_traps: Array[Dictionary] = []
+var curio_density: String = "aucune"
+## Événements (voir Events) : par empire la boîte, les marques, les cartes vues ; fréquence choisie.
+var ev_meta: Dictionary = {}
+var next_event_id: int = 0
+var event_freq: String = "aucun"
 var _pirates: Empire
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
@@ -143,7 +151,11 @@ var _npc: Empire = null
 ##   équipe naissent alliés, se connaissent, voient ensemble (vision des alliés) et gagnent ensemble ;
 ##   leur alliance ne se rompt pas (Diplomacy.team_of) ;
 ## - "galaxy" : réglages de la galaxie (GalaxySettings) ; ils fixent alors aussi le nombre de systèmes
-##   et le rayon, à la place de system_count_ et galaxy_radius_.
+##   et le rayon, à la place de system_count_ et galaxy_radius_ ;
+## - "pirates" : densité des repaires (Pirates, défaut "aucun") ;
+## - "curios" : densité des curiosités (Curios, défaut "aucune") ;
+## - "events" : fréquence des événements (Events, défaut "aucun"). Sans ces trois options (tests,
+##   bancs), la partie n'a ni pirates, ni curiosités, ni événements.
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
 	var settings := GalaxySettings.normalize(options.get("galaxy", {}))
 	if options.has("galaxy"):
@@ -166,6 +178,8 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 		e.probes = int(GameData.espionage()["probes"]["start"])
 	Heroes.setup(s)
 	Pirates.setup(s, String(options.get("pirates", "aucun")))
+	Curios.setup(s, String(options.get("curios", "aucune")))
+	s.event_freq = String(options.get("events", "aucun")) if not Events.freq_def(String(options.get("events", "aucun"))).is_empty() else "aucun"
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -258,6 +272,12 @@ func to_dict() -> Dictionary:
 		"lairs": Pirates.to_list(self),
 		"pirate_meta": Pirates.meta_to_dict(self),
 		"pirate_density": pirate_density,
+		"curios": Curios.to_list(self),
+		"curio_traps": curio_traps.duplicate(true),
+		"curio_density": curio_density,
+		"ev_meta": Events.meta_to_list(self),
+		"next_event_id": next_event_id,
+		"event_freq": event_freq,
 	}
 
 
@@ -437,6 +457,13 @@ static func from_dict(d: Dictionary) -> GameState:
 	s.lairs = Pirates.from_list(d.get("lairs", []))
 	s.pirate_meta = Pirates.meta_from_dict(d.get("pirate_meta", {}))
 	s.pirate_density = String(d.get("pirate_density", "aucun"))
+	Curios.from_list(s, d.get("curios", []))
+	for t: Dictionary in d.get("curio_traps", []):
+		s.curio_traps.append(GameData._to_ints(t))
+	s.curio_density = String(d.get("curio_density", "aucune"))
+	Events.meta_from_list(s, d.get("ev_meta", []))
+	s.next_event_id = int(d.get("next_event_id", 0))
+	s.event_freq = String(d.get("event_freq", "aucun"))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant les héros : chaque empire reçoit son héros de départ.
 	if int(d["version"]) < 20:

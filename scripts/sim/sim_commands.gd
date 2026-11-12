@@ -179,6 +179,11 @@ static func hero_pick(player: int, index: int) -> Dictionary:
 	return {"type": "hero_pick", "player": player, "index": index}
 
 
+## Répond à un événement de sa boîte (voir Events) : choix index de la carte.
+static func event_choose(player: int, event_id: int, index: int) -> Dictionary:
+	return {"type": "event_choose", "player": player, "event": event_id, "index": index}
+
+
 ## Affecte un héros : post = "fleet" (flotte), "system" (système), "council" (siège), "agent" (empire
 ## où l'on a un réseau) ; "" = le rappeler.
 static func hero_assign(player: int, hero_id: int, post: String, target: int) -> Dictionary:
@@ -354,6 +359,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Espionage.check_cancel(state, int(cmd["player"]), int(cmd.get("target", -1)))
 		"hero_pick":
 			return Heroes.check_pick(state, int(cmd["player"]), int(cmd.get("index", -2)))
+		"event_choose":
+			return Events.check_choose(state, int(cmd["player"]), int(cmd.get("event", -1)), int(cmd.get("index", -1)))
 		"hero_assign":
 			return Heroes.check_assign(state, int(cmd["player"]), int(cmd.get("hero", -1)), String(cmd.get("post", "?")), int(cmd.get("target", -1)))
 		"hero_dismiss":
@@ -523,6 +530,9 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Espionage.cancel(state, int(cmd["player"]), int(cmd["target"]))
 		"hero_pick":
 			Heroes.pick(state, int(cmd["player"]), int(cmd["index"]))
+		"event_choose":
+			var ev_added: Array[Dictionary] = []
+			Events.choose(state, int(cmd["player"]), int(cmd["event"]), int(cmd["index"]), ev_added)
 		"hero_assign":
 			Heroes.assign(state, int(cmd["player"]), int(cmd["hero"]), String(cmd["post"]), int(cmd["target"]))
 		"hero_dismiss":

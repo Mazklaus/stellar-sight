@@ -408,6 +408,9 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 			if state.system_owner(n) == owner and int(entry(state, n).get("v", 50)) < int(tiers()[1]["min"]):
 				out.append(["Nœud voisin en révolte", int(tal["revolt_neighbors"])])
 				break
+	# Suite d'un événement (voir Events).
+	if en.has("ev_end") and state.tick < int(en["ev_end"]):
+		out.append([String(Events.card(String(en.get("ev_card", ""))).get("title", "Événement")), int(en.get("ev", 0))])
 	# Décret.
 	var d := active_decree(state, sid)
 	if d != "":

@@ -15,6 +15,8 @@ signal screen_changed(screen_id: String)
 signal war_requested(empire_id: int)
 ## Un ordre de l'écran Diplomatie (proposer, répondre, rompre, soudoyer, banquet, arbitrer).
 signal command_requested(cmd: Dictionary)
+## Rouvrir une carte d'événement de la boîte (écran Chroniques).
+signal event_requested(event_id: int)
 
 const MARGIN := 10.0
 const SIDE_WIDTH := EmpireBar.WIDTH
@@ -106,6 +108,9 @@ var _order_sig := ""
 ## Cible choisie dans l'Ordre intérieur pour les contrats et les primes pirates.
 var order_victim := -1
 var _hero_sig := ""
+## Écran Chroniques : boutons « event:id » et « curio:pid » (pour les tests).
+var chronicle_buttons := {}
+var _chron_sig := ""
 var _shipyard_sig := ""
 
 
@@ -225,6 +230,8 @@ func show_screen(screen_id: String) -> void:
 			HeroScreen.build(self)
 		"order":
 			OrderScreen.build(self)
+		"chronicles":
+			ChronicleScreen.build(self)
 	refresh()
 	screen_changed.emit(screen_id)
 
@@ -253,6 +260,9 @@ func refresh() -> void:
 		"order":
 			if OrderScreen.signature(self) != _order_sig:
 				show_screen("order")
+		"chronicles":
+			if ChronicleScreen.signature(self) != _chron_sig:
+				show_screen("chronicles")
 		"research":
 			if _research_signature() != _research_sig:
 				_fill_research_side()

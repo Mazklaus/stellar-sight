@@ -394,6 +394,8 @@ func _draw_card(pid: int, sf: float) -> void:
 		{"text": "%s, taille %d" % [p.type_label(), p.size], "size": fs_small, "color": Color(0.8, 0.84, 0.94, 0.85)},
 		{"text": avail["text"], "size": fs_small, "color": PlanetInfo.AVAILABILITY_COLORS.get(avail["kind"], Color.WHITE)},
 	]
+	if (Curios.sees(state, player, pid) if player >= 0 else Curios.is_open(state, pid)):
+		lines.append({"text": "Curiosité : %s" % Curios.describe(state, pid), "size": fs_small, "color": Color(0.95, 0.8, 0.45)})
 	var width := 0.0
 	for l in lines:
 		width = maxf(width, _font.get_string_size(l["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, l["size"]).x)

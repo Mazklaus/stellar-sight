@@ -58,6 +58,10 @@ var _empire_screens: EmpireScreens
 var _main_menu: MainMenu
 var _pause_menu: PauseMenu
 var _victory_panel: VictoryPanel
+## Fenêtre d'événement (cartes de la boîte du joueur), cartes déjà présentées, pause qu'elle a mise.
+var _event_panel: EventPanel
+var _events_told := {}
+var _event_paused := false
 ## Le vainqueur a déjà été annoncé (panneau de fin de partie montré, ou partie chargée déjà gagnée).
 var _victory_told := false
 ## Réglages des victoires de la prochaine partie (menu Nouvelle partie) : date limite en jours
@@ -165,6 +169,19 @@ func _ready() -> void:
 	_victory_panel.main_menu_requested.connect(func() -> void:
 		close_victory_panel()
 		open_main_menu())
+
+	_event_panel = EventPanel.new()
+	add_child(_event_panel)
+	_event_panel.choice_made.connect(func(event_id: int, index: int) -> void:
+		close_event_panel()
+		_submit(SimCommands.event_choose(local_player, event_id, index)))
+	_event_panel.minimized.connect(close_event_panel)
+	_event_panel.locate_requested.connect(func(sid: int) -> void:
+		close_event_panel()
+		_go_to_system(sid))
+	_empire_screens.event_requested.connect(func(event_id: int) -> void:
+		close_empire_screen()
+		open_event(event_id))
 
 	net.notice.connect(func(text: String, tone: String) -> void: _hud.notify(text, tone))
 	# Discussion en partie : en bas, à droite de la fiche du système ; Entrée pour écrire.
@@ -443,6 +460,7 @@ func is_empire_screen_open() -> bool:
 
 func open_main_menu() -> void:
 	close_victory_panel()
+	close_event_panel()
 	close_system_view()
 	close_empire_screen()
 	leave_network("Vous avez quitté la partie en réseau.")
@@ -512,9 +530,57 @@ func _check_victory() -> void:
 	open_victory_panel()
 
 
-## Un menu plein écran (principal, pause, d'empire ou de fin de partie) recouvre la carte.
+## Un menu plein écran (principal, pause, d'empire, de fin de partie ou un événement) recouvre la carte.
 func is_modal_open() -> bool:
-	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open()
+	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open() or is_event_panel_open()
+
+
+# --- Événements -------------------------------------------------------------------------------
+
+## Ouvre la carte event_id de la boîte du joueur (pause automatique en solo).
+func open_event(event_id: int) -> void:
+	if spectator or simulation == null:
+		return
+	var item := Events.find_item(simulation.state, local_player, event_id)
+	if item.is_empty():
+		return
+	_events_told[event_id] = true
+	close_system_view()
+	_hud.show_hover(null, Vector2.ZERO)
+	if not _event_panel.is_open() and not GameClock.paused and not net.is_active():
+		_event_paused = true
+		GameClock.set_paused(true)
+	_event_panel.open(simulation.state, local_player, item)
+	_update_map_input()
+
+
+func close_event_panel() -> void:
+	if _event_panel == null or not _event_panel.is_open():
+		return
+	_event_panel.close()
+	if _event_paused:
+		_event_paused = false
+		GameClock.set_paused(false)
+	_update_map_input()
+
+
+func is_event_panel_open() -> bool:
+	return _event_panel != null and _event_panel.is_open()
+
+
+## Chaque jour : une carte arrivée dans la boîte s'ouvre d'elle-même (une à la fois, jamais par-dessus un menu).
+## Une carte tranchée ailleurs (choix par défaut après 30 jours) ferme sa fenêtre.
+func _announce_events() -> void:
+	if spectator:
+		return
+	if _event_panel.is_open() and Events.find_item(simulation.state, local_player, _event_panel.event_id).is_empty():
+		close_event_panel()
+	if _event_panel.is_open() or _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open():
+		return
+	for item: Dictionary in Events.inbox(simulation.state, local_player):
+		if not _events_told.has(int(item["id"])):
+			open_event(int(item["id"]))
+			return
 
 
 ## La caméra de la carte ne réagit que si la carte est visible et rien ne la recouvre.
@@ -553,11 +619,14 @@ func _start(state: GameState) -> void:
 	_defeat_told = state.get_empire(local_player).eliminated
 	_victory_told = not state.winner.is_empty()
 	close_victory_panel()
+	close_event_panel()
+	_events_told.clear()
 	_empire_screens.see_all = spectator
 	_proposals_told = state.next_proposal_id - 1
 	simulation.ticked.connect(func(_tick: int) -> void:
 		_announce_arrivals()
 		_announce_proposals()
+		_announce_events()
 		_check_defeat()
 		_check_victory()
 		_refresh_all())
@@ -936,6 +1005,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		if key.keycode == KEY_ESCAPE or key.keycode == KEY_ENTER:
 			close_victory_panel()
 		return
+	if is_event_panel_open():
+		if key.keycode == KEY_ESCAPE:
+			close_event_panel()
+		elif key.keycode == KEY_SPACE:
+			GameClock.toggle_pause()
+		return
 	if _pause_menu.is_open():
 		if key.keycode == KEY_ESCAPE and not _pause_menu.back():
 			close_pause_menu()
@@ -1021,6 +1096,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				return
 			if key.physical_keycode == KEY_H:
 				go_to_capital()
+				return
+			if key.physical_keycode == KEY_J:
+				toggle_empire_screen("chronicles")
 				return
 			if key.physical_keycode == KEY_F and not is_system_view_open() and not is_empire_screen_open():
 				cycle_fleet(-1 if key.shift_pressed else 1)
