@@ -90,6 +90,14 @@ class IconButton:
 				for side in [-1.0, 1.0]:
 					draw_colored_polygon(PackedVector2Array([c + Vector2(side * s * 1.1, -s * 0.6), c + Vector2(side * s * 1.1 - s * 0.45, s * 0.15),
 							c + Vector2(side * s * 1.1 + s * 0.45, s * 0.15)]), col)
+			"chronicles":
+				# Un livre ouvert : deux pages et le dos.
+				for side in [-1.0, 1.0]:
+					draw_polyline(PackedVector2Array([c + Vector2(0, -s * 0.7), c + Vector2(side * s * 1.2, -s * 0.95),
+							c + Vector2(side * s * 1.2, s * 0.85), c + Vector2(0, s * 1.05), c + Vector2(0, -s * 0.7)]), col, 1.5, true)
+					for k in 3:
+						var y := -s * 0.45 + k * s * 0.45
+						draw_line(c + Vector2(side * s * 0.25, y), c + Vector2(side * s * 0.95, y - s * 0.15), Color(col, 0.6), 1.0, true)
 			"victory":
 				# Une étoile à cinq branches.
 				var pts := PackedVector2Array()

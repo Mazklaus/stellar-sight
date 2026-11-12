@@ -74,6 +74,9 @@ static func _refit_step(state: GameState, f: Fleet) -> Dictionary:
 static func explore_step(state: GameState, f: Fleet) -> Dictionary:
 	if f.is_moving() and not Fleets.is_explored(state, f.owner, f.destination()):
 		return {}
+	# Un éclaireur s'arrête le temps de sonder une curiosité rapide (voir Curios).
+	if not f.is_moving() and Curios.wants_to_stay(state, f):
+		return {}
 	var target := Fleets.explore_target(state, f)
 	var plan := Fleets.plan_route(state, f, target) if target >= 0 else {}
 	if plan.is_empty():
@@ -182,3 +185,5 @@ static func _meet(state: GameState, a: Empire, b: Empire, added: Array[Dictionar
 		if Combat.hunts(state, swarm.id) and not swarm.wars.has(prey.id) and not Combat.has_live_war(state, swarm.id):
 			added.append(Combat.start_war(state, swarm.id, prey.id, true))
 			break
+	# Choc des tons (voir Events) : la rencontre de deux registres opposés.
+	Events.on_contact(state, a, b, added)

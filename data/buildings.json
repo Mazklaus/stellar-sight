@@ -14,6 +14,7 @@
 		"yields": {"crystals": 2}, "upkeep": {"energy": 2}},
 	"habitats": {"requires_tech": ["habitats"], "label": "Habitats orbitaux", "cost": {"materials": 150}, "days": 120, "unique": true,
 		"max_pop": 4, "yields": {}, "upkeep": {"energy": 2}},
+	"station_etude": {"requires_tech": ["capteurs"], "label": "Station d'étude", "cost": {"materials": 60, "energy": 20}, "days": 45, "unique": true, "outpost_ok": true, "yields": {}, "upkeep": {"energy": 1}, "text": "Sonde chaque jour les curiosités du système, comme un vaisseau d'exploration à l'arrêt (voir Curiosités)."},
 	"bastion": {"requires_tech": ["bastions"], "label": "Bastion orbital", "cost": {"materials": 120, "energy": 20}, "days": 60, "unique": true, "outpost_ok": true,
 		"garrison": 20, "battery": {"kinetic": 20, "missile": 12},
 		"text": "+20 garnison. Ses batteries tirent chaque jour sur les flottes qui assiègent le système, tant que la garnison tient.",

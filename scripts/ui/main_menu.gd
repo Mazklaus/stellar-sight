@@ -152,6 +152,11 @@ var _scaling_check: CheckBox
 ## Densité des repaires pirates (voir Pirates.densities).
 var pirates := Pirates.default_density()
 var _pirate_select: OptionButton
+## Fréquence des événements (Events.frequencies) et densité des curiosités (Curios.densities).
+var events := Events.default_frequency()
+var curios := Curios.default_density()
+var _event_select: OptionButton
+var _curio_select: OptionButton
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
 const PRESETS_PATH := "user://new_game_presets.json"
@@ -1413,9 +1418,27 @@ func set_pirates(id: String) -> void:
 	_refresh_preset()
 
 
+func set_events(id: String) -> void:
+	events = id if not Events.freq_def(id).is_empty() else Events.default_frequency()
+	if _event_select:
+		for i in Events.frequencies().size():
+			if String(Events.frequencies()[i]["id"]) == events:
+				_event_select.select(i)
+	_refresh_preset()
+
+
+func set_curios(id: String) -> void:
+	curios = id if not Curios.density_def(id).is_empty() else Curios.default_density()
+	if _curio_select:
+		for i in Curios.densities().size():
+			if String(Curios.densities()[i]["id"]) == curios:
+				_curio_select.select(i)
+	_refresh_preset()
+
+
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
-	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates}
+	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "events": events, "curios": curios}
 
 
 func set_spectator(on: bool) -> void:
@@ -1664,6 +1687,26 @@ func _build_new_page(root: Control) -> void:
 	_pirate_select.item_selected.connect(func(i: int) -> void: set_pirates(String(Pirates.densities()[i]["id"])))
 	_labeled_row(game, "Pirates", _pirate_select)
 	set_pirates(pirates)
+	_event_select = OptionButton.new()
+	_event_select.clip_text = true
+	var etip := PackedStringArray(["Événements : des cartes à trancher (fête, grève, prophète, rival…), avec des choix chiffrés et des choix propres à votre peuple."])
+	for d: Dictionary in Events.frequencies():
+		_event_select.add_item(String(d["label"]))
+		etip.append("%s : %s" % [d["label"], d["desc"]])
+	_event_select.tooltip_text = "\n".join(etip)
+	_event_select.item_selected.connect(func(i: int) -> void: set_events(String(Events.frequencies()[i]["id"])))
+	_labeled_row(game, "Événements", _event_select)
+	set_events(events)
+	_curio_select = OptionButton.new()
+	_curio_select.clip_text = true
+	var ctip := PackedStringArray(["Curiosités : des planètes à sonder avec un vaisseau sans armes (ressources, Savoir, gisements, vaisseaux… parfois un piège). Premier arrivé, premier servi."])
+	for d: Dictionary in Curios.densities():
+		_curio_select.add_item(String(d["label"]))
+		ctip.append("%s : %s" % [d["label"], d["desc"]])
+	_curio_select.tooltip_text = "\n".join(ctip)
+	_curio_select.item_selected.connect(func(i: int) -> void: set_curios(String(Curios.densities()[i]["id"])))
+	_labeled_row(game, "Curiosités", _curio_select)
+	set_curios(curios)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2398,7 +2441,7 @@ func settings() -> Dictionary:
 	return {"faction": selected_faction, "slots": saved_slots, "duplicates": allow_duplicates, "team": player_team,
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
-		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "galaxy": galaxy_settings.duplicate(),
+		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "events": events, "curios": curios, "galaxy": galaxy_settings.duplicate(),
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2414,7 +2457,8 @@ func default_settings() -> Dictionary:
 		"ai_level": AiLevels.default_id(), "temperament": AiLevels.default_temperament(), "spectator": false,
 		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "timer": "", "deadline": Victory.default_deadline(), "people": true,
 		"victories": {"conquete": true, "domination": true, "allies": true}, "ai_scaling": false,
-		"pirates": Pirates.default_density(), "galaxy": GalaxySettings.defaults()}
+		"pirates": Pirates.default_density(), "events": Events.default_frequency(), "curios": Curios.default_density(),
+		"galaxy": GalaxySettings.defaults()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -2476,6 +2520,8 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 		set_victory(k, bool(vic.get(k, true)))
 	set_ai_scaling(bool(d.get("ai_scaling", false)))
 	set_pirates(String(d.get("pirates", base.get("pirates", Pirates.default_density()))))
+	set_events(String(d.get("events", base["events"])))
+	set_curios(String(d.get("curios", base["curios"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

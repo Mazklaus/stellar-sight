@@ -562,6 +562,8 @@ func _refresh_panel(s: StarSystem) -> void:
 
 	var deps := PlanetInfo.deposit_labels(p)
 	_dep_label.text = ", ".join(deps) if not deps.is_empty() else "Aucun gisement notable"
+	if (Curios.sees(_state, _player, p.id) if _player >= 0 else Curios.is_open(_state, p.id)):
+		_dep_label.text += "\n" + PlanetInfo.curio_text(_state, p.id, _player)
 
 	_status_title.visible = true
 	_status_label.text = "\n".join(PlanetInfo.colony_lines(_state, p, c, _player)) if c else "Aucune revendication. Elle n'attend que vous (ou un voisin plus rapide)."

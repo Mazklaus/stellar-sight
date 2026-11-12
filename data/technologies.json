@@ -469,19 +469,24 @@
 			"label": "Détecteurs d'abysse",
 			"domain": "genie",
 			"era": 2,
-			"text": "Percent le Voile des peuples énergétiques : leurs flottes et leurs revendications apparaissent partout où l'on voit.",
+			"text": "Percent le Voile des peuples énergétiques : leurs flottes et leurs revendications apparaissent partout où l'on voit. Curiosités : +1 détection.",
 			"pre": [
 				"capteurs"
 			],
+			"effects": {
+				"curio_detect": 1
+			},
 			"flavor": "« Il n'y a rien là-bas. » — « Alors pourquoi le rien nous regarde-t-il ? »"
 		},
 		"capteurs": {
 			"label": "Capteurs profonds",
 			"domain": "genie",
 			"era": 1,
-			"text": "Les colonies et avant-postes voient un saut plus loin.",
+			"text": "Les colonies et avant-postes voient un saut plus loin. Curiosités : +1 détection et +1 puissance d'expédition, et la Station d'étude.",
 			"effects": {
-				"claim_vision": 1
+				"claim_vision": 1,
+				"curio_detect": 1,
+				"curio_power": 1
 			},
 			"eureka": {
 				"kind": "explored",
@@ -571,10 +576,13 @@
 			"label": "Baies de lancement",
 			"domain": "genie",
 			"era": 3,
-			"text": "Débloque le Porte-vaisseaux (demande aussi les Escadrilles de chasse et un Arsenal).",
+			"text": "Débloque le Porte-vaisseaux (demande aussi les Escadrilles de chasse et un Arsenal). Les drones des baies sondent mieux : +1 puissance d'expédition.",
 			"pre": [
 				"coques_lourdes"
-			]
+			],
+			"effects": {
+				"curio_power": 1
+			}
 		},
 		"arsenaux": {
 			"label": "Arsenaux orbitaux",

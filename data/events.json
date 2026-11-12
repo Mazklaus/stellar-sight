@@ -1,0 +1,457 @@
+{
+	"_doc": "Curiosités et événements (étude « Événements, quêtes et reliques », 2026-11-12, propositions 1 à 7 et 17). Curiosités : Endless Space 2 (niveaux, détection et puissance d'expédition, types, pièges), Stellaris (durée selon l'écart de niveau, une fois par partie), Civilization VI (premier arrivé, récompenses qui grandissent avec le temps). Événements : un paquet de cartes à la Old World (déclencheur, sujets, conditions, poids, marques), choix chiffrés, choix réservés par couche d'espèce (Stellaris, Humankind). Montants des ressources multipliés par l'ère de l'empire (era_pct).",
+
+	"frequencies": [
+		{"id": "aucun", "label": "Aucun", "pct": 0, "cooldown": 0, "desc": "Pas d'événement."},
+		{"id": "rares", "label": "Rares", "pct": 10, "cooldown": 180, "desc": "Un événement par an environ."},
+		{"id": "normaux", "label": "Normaux", "pct": 20, "cooldown": 90, "desc": "Un événement tous les huit mois environ."},
+		{"id": "frequents", "label": "Fréquents", "pct": 35, "cooldown": 60, "desc": "Un événement tous les quatre ou cinq mois."}
+	],
+	"default_frequency": "normaux",
+	"_cadence": "Chaque mois, après le délai minimal (cooldown, en jours) depuis le dernier événement, un empire a pct % de chances d'en tirer un. Les chocs des tons (premier contact) et les cartes de curiosité ne comptent pas dans ce délai.",
+	"first_day": 180,
+	"answer_days": 30,
+	"log_max": 30,
+	"era_pct": [100, 150, 220, 300, 400],
+
+	"curios": {
+		"densities": [
+			{"id": "aucune", "label": "Aucune", "per": 0, "desc": "Pas de curiosité."},
+			{"id": "rares", "label": "Rares", "per": 10, "desc": "Une planète sur dix environ."},
+			{"id": "normales", "label": "Normales", "per": 6, "desc": "Une planète sur six environ."},
+			{"id": "nombreuses", "label": "Nombreuses", "per": 4, "desc": "Une planète sur quatre environ."}
+		],
+		"default": "normales",
+		"base_detect": 2,
+		"base_power": 1,
+		"talents": {"raison": 1},
+		"_talents": "Bonus de puissance d'expédition par credo (proposition 15 : la Raison sonde plus vite).",
+		"_levels": "Le niveau monte avec la distance au départ le plus proche : au plus 1 à moins de 2 sauts, 2 à moins de 4, 3 à moins de 6, 4 au-delà. Puis tirage pondéré parmi les niveaux permis.",
+		"level_max_by_jumps": [[2, 1], [4, 2], [6, 3], [999, 4]],
+		"level_weights": [40, 32, 18, 10],
+		"days_by_gap": {"-3": 180, "-2": 120, "-1": 60, "0": 30, "1": 15},
+		"_gap": "écart = puissance d'expédition − niveau (borné à -3..1). La station d'étude d'un système sonde comme un vaisseau.",
+		"explore_wait_days": 60,
+		"_explore_wait": "Un éclaireur en exploration automatique s'arrête pour sonder une curiosité qu'il voit si la sonde dure au plus ce nombre de jours.",
+		"trap_days": 120,
+		"types": {
+			"atmo": {"label": "Atmosphérique", "text": "Orages, aurores, nuages qui ne devraient pas exister. Rapporte surtout de l'énergie et du Savoir.", "color": "#7fb6e0",
+				"rewards": {"res_energy": 30, "research": 25, "deposit_geothermal": 10, "card": 20, "nothing": 10, "trap": 5}},
+			"souterraine": {"label": "Souterraine", "text": "Grottes, filons, cavités trop régulières. Rapporte des matériaux, des cristaux et des gisements.", "color": "#c79a5b",
+				"rewards": {"res_materials": 30, "deposit_minerals": 18, "deposit_crystals": 8, "res_crystals": 12, "card": 17, "nothing": 10, "trap": 5}},
+			"vivante": {"label": "Vivante", "text": "Une forme de vie inconnue, parfois polie. Rapporte de la nourriture, du Savoir, parfois de la population.", "color": "#7fc28a",
+				"rewards": {"res_food": 30, "research": 20, "deposit_fertile": 12, "pop": 8, "card": 20, "nothing": 5, "trap": 5}},
+			"ruines": {"label": "Ruines", "text": "Les restes d'une civilisation qui n'a pas laissé de mode d'emploi. Rapporte du Savoir et de l'influence.", "color": "#d8c27a",
+				"rewards": {"research": 30, "res_influence": 25, "card": 30, "nothing": 5, "trap": 10}},
+			"epave": {"label": "Épave", "text": "Une carcasse dérivante, parfois habitée par ce qui l'a tuée. Rapporte des vaisseaux, des matériaux et de l'énergie.", "color": "#a5a9b3",
+				"rewards": {"ship": 22, "res_materials": 25, "res_energy": 15, "card": 18, "nothing": 5, "trap": 15}}
+		},
+		"type_weights": {"atmo": 22, "souterraine": 24, "vivante": 18, "ruines": 18, "epave": 18},
+		"amount_by_level": [40, 80, 150, 250],
+		"research_pct_by_level": [15, 25, 40, 60],
+		"ship_by_level": ["corvette", "fregate", "fregate", "croiseur"],
+		"pop_by_level": [1, 1, 2, 2],
+		"trap_ships_by_level": [["corvette"], ["corvette", "corvette"], ["corvette", "fregate", "fregate"], ["fregate", "fregate", "croiseur"]],
+		"names": {
+			"atmo": ["Aurore inversée", "Orage immobile", "Brume qui chante", "Nuage géométrique", "Pluie ascendante", "Ciel à rayures"],
+			"souterraine": ["Cavernes trop droites", "Filon qui respire", "Puits sans fond", "Galeries murées", "Géode géante", "Écho sous la croûte"],
+			"vivante": ["Forêt qui chante", "Lichen poli", "Récif errant", "Troupeau de verre", "Spores curieuses", "Prairie qui suit le soleil"],
+			"ruines": ["Temple scellé", "Cité engloutie", "Observatoire mort", "Stèles bavardes", "Escalier vers rien", "Archives de poussière"],
+			"epave": ["Vaisseau fantôme", "Carcasse muette", "Croiseur coupé en deux", "Capsule de sauvetage", "Cimetière orbital", "Cargo à la dérive"]
+		},
+		"curio_cards": {"atmo": ["c_tempete"], "souterraine": ["c_puits"], "vivante": ["c_foret"], "ruines": ["c_temple"], "epave": ["c_fantome"]}
+	},
+
+	"tones": {
+		"_doc": "Choc des tons (GDD) : au premier contact entre deux registres de cette liste, chacun reçoit la carte de la paire. kin/clash : souvenir posé d'office des deux côtés (esprits voisins ou tout oppose).",
+		"pairs": [
+			{"a": "Picaresque / pulp", "b": "Grimdark", "card": "t_contrebande", "memory": "tones_clash"},
+			{"a": "Space opera héroïque", "b": "Grimdark", "card": "t_heros_fanatiques", "memory": "tones_clash"},
+			{"a": "Classique / hard SF", "b": "Cosmique / étrange", "card": "t_equations", "memory": "tones_clash"},
+			{"a": "Médiéval spatial", "b": "Classique / hard SF", "card": "t_blasons", "memory": "tones_clash"},
+			{"a": "Horreur biologique", "b": "Space opera héroïque", "card": "t_cauchemar", "memory": "tones_clash"},
+			{"a": "Picaresque / pulp", "b": "Médiéval spatial", "card": "t_chevaliers", "memory": ""}
+		]
+	},
+
+	"cards": [
+		{"id": "prophete_docks", "title": "Le prophète des docks", "trigger": "monthly", "weight": 10,
+			"subjects": {"system": "low_stab"}, "if": {"stability": true, "stab_below": 50},
+			"text": "Sur les quais de {system}, un docker juché sur une caisse annonce la fin des temps pour mardi prochain. La foule grossit. Les dockers, eux, ne travaillent plus : il faut bien finir sa vie en beauté.",
+			"choices": [
+				{"label": "L'écouter et lui offrir une chaire", "fx": [{"k": "res", "res": {"influence": -25}}, {"k": "stab", "v": 12, "days": 360}]},
+				{"label": "Le faire taire discrètement", "fx": [{"k": "stab", "v": -6, "days": 180}, {"k": "res", "res": {"energy": 40}}]},
+				{"label": "Le déclarer saint patron des quais", "if": {"layers": {"credo": ["foi"]}}, "fx": [{"k": "fervor", "v": 10}, {"k": "stab", "v": 15, "days": 360}]}
+			], "default": 1},
+
+		{"id": "greve_cristaux", "title": "Grève des cristalliers", "trigger": "monthly", "weight": 8,
+			"subjects": {"system": "own"}, "if": {"min_year": 2, "stability": true},
+			"text": "Les cristalliers de {system} déposent leurs outils. Ils réclament une prime de risque : les cristaux de saut ont la fâcheuse habitude de sauter.",
+			"choices": [
+				{"label": "Payer la prime", "fx": [{"k": "res", "res": {"energy": -60}}, {"k": "stab", "v": 8, "days": 360}]},
+				{"label": "Faire venir des briseurs de grève", "fx": [{"k": "stab", "v": -10, "days": 360}, {"k": "res", "res": {"crystals": 10}}]},
+				{"label": "Racheter la guilde (et la grève avec)", "if": {"layers": {"credo": ["profit"]}}, "fx": [{"k": "res", "res": {"energy": -30}}, {"k": "stab", "v": 6, "days": 360}, {"k": "res", "res": {"crystals": 10}}]}
+			], "default": 0},
+
+		{"id": "fete_moissons", "title": "La fête des moissons", "trigger": "monthly", "weight": 8,
+			"subjects": {"system": "rich"}, "if": {"stock_above": {"food": 150}, "stability": true},
+			"text": "Les greniers de {system} débordent. Le peuple propose une fête ; le trésor propose de tout revendre. Le peuple a des fourches, mais le trésor a des comptables.",
+			"choices": [
+				{"label": "Que la fête commence", "fx": [{"k": "res", "res": {"food": -80}}, {"k": "stab", "v": 10, "days": 360, "scope": "empire"}]},
+				{"label": "Vendre les surplus", "fx": [{"k": "res", "res": {"food": -80, "energy": 60}}]},
+				{"label": "Stocker pour les jours maigres", "fx": [{"k": "stab", "v": -3, "days": 180}]}
+			], "default": 1},
+
+		{"id": "rumeurs_secession", "title": "Rumeurs de sécession", "trigger": "monthly", "weight": 9,
+			"subjects": {"system": "low_stab"}, "if": {"stability": true, "stab_below": 35},
+			"text": "À {system}, on imprime des drapeaux. Personne n'est d'accord sur les couleurs, ce qui retarde un peu l'indépendance, mais pas indéfiniment.",
+			"choices": [
+				{"label": "Accorder des privilèges locaux", "fx": [{"k": "res", "res": {"influence": -40}}, {"k": "stab", "v": 15, "days": 540}]},
+				{"label": "Envoyer la garde", "fx": [{"k": "stab", "v": 8, "days": 180}, {"k": "rep", "v": -5}]},
+				{"label": "Laisser dire", "fx": [{"k": "stab", "v": -5, "days": 360}]}
+			], "default": 2},
+
+		{"id": "scandale_bal", "title": "Le scandale du bal", "trigger": "monthly", "weight": 6,
+			"subjects": {"hero": "orateur"},
+			"text": "{hero} a dansé avec la mauvaise personne au bal de l'ambassade. Ou avec la bonne : les versions diffèrent selon le journal. Tout le monde en parle, ce qui est déjà une forme de diplomatie.",
+			"choices": [
+				{"label": "Assumer avec panache", "fx": [{"k": "renown", "v": 60}, {"k": "res", "res": {"influence": -15}}]},
+				{"label": "Démentir, tout démentir", "fx": [{"k": "res", "res": {"influence": 20}}, {"k": "hero_xp", "v": -20}]},
+				{"label": "Vendre l'histoire aux feuilletons", "if": {"layers": {"registre": ["Picaresque / pulp"]}}, "fx": [{"k": "rep", "v": 6}, {"k": "res", "res": {"energy": 40}}]}
+			], "default": 1},
+
+		{"id": "duel_honneur", "title": "Un duel d'honneur", "trigger": "monthly", "weight": 6,
+			"subjects": {"hero": "stratege", "rival": "contact"},
+			"text": "Un officier de {rival} a traité {hero} de « pilote du dimanche ». Les témoins sont choisis, les sabres aiguisés, et la date fixée un dimanche, pour l'ironie.",
+			"choices": [
+				{"label": "Relever le défi", "risky": {"pct": 65, "win": [{"k": "renown", "v": 100}, {"k": "hero_xp", "v": 120}], "lose": [{"k": "hero_wound"}]}},
+				{"label": "Refuser avec mépris", "fx": [{"k": "opinion", "kind": "ev_snub"}]},
+				{"label": "Exiger réparation selon le code", "if": {"layers": {"credo": ["honneur"]}}, "fx": [{"k": "renown", "v": 60}, {"k": "res", "res": {"influence": 25}}]}
+			], "default": 1},
+
+		{"id": "memoires_intendant", "title": "Les mémoires d'un intendant", "trigger": "monthly", "weight": 6,
+			"subjects": {"hero": "intendant"},
+			"text": "{hero} veut publier ses mémoires de gestion. Quatre cents pages sur l'optimisation des greniers, et un chapitre étonnamment passionné sur les tuyaux.",
+			"choices": [
+				{"label": "Financer l'édition", "fx": [{"k": "res", "res": {"energy": -30}}, {"k": "hero_xp", "v": 150}, {"k": "research", "pct": 10}]},
+				{"label": "Classer le manuscrit", "fx": [{"k": "hero_xp", "v": 40}]}
+			], "default": 1},
+
+		{"id": "ombre_bavarde", "title": "L'agent qui en savait trop", "trigger": "monthly", "weight": 5,
+			"subjects": {"hero": "ombre"},
+			"text": "{hero} a été vu en train de raconter ses missions dans une cantine. En détail. Avec des dessins.",
+			"choices": [
+				{"label": "Le rappeler à l'ordre", "fx": [{"k": "hero_xp", "v": 60}]},
+				{"label": "Transformer ses récits en désinformation", "risky": {"pct": 60, "win": [{"k": "renown", "v": 80}, {"k": "hero_xp", "v": 120}], "lose": [{"k": "res", "res": {"influence": -40}}]}}
+			], "default": 0},
+
+		{"id": "vocation", "title": "Une vocation tardive", "trigger": "monthly", "weight": 5,
+			"subjects": {"hero": "any"},
+			"text": "{hero} a découvert, à son âge, la poésie de combat. Ses rapports sont désormais en alexandrins. L'état-major hésite entre l'admiration et la migraine.",
+			"choices": [
+				{"label": "Encourager l'artiste", "fx": [{"k": "renown", "v": 50}, {"k": "stab", "v": 4, "days": 360, "scope": "capital"}]},
+				{"label": "Exiger de la prose", "fx": [{"k": "hero_xp", "v": 80}]}
+			], "default": 1},
+
+		{"id": "reconversion_pirate", "title": "Une offre de reconversion", "trigger": "monthly", "weight": 7,
+			"subjects": {"system": "frontier"}, "if": {"lairs_known": true, "min_year": 2},
+			"text": "Un capitaine pirate frappe à la porte de {system}. Il en a assez des raids, des primes et des perroquets. Il propose ses services, et son navire, pour un prix raisonnable et une amnistie qui ne l'est pas.",
+			"choices": [
+				{"label": "Accepter le marché", "fx": [{"k": "res", "res": {"energy": -70}}, {"k": "ship", "ship": "fregate"}, {"k": "stab", "v": -4, "days": 180}]},
+				{"label": "Le livrer à la justice", "fx": [{"k": "stab", "v": 6, "days": 360}, {"k": "rep", "v": -3}]},
+				{"label": "L'engager comme instructeur", "if": {"layers": {"gouvernement": ["syndicat", "horde"]}}, "fx": [{"k": "res", "res": {"energy": -30}}, {"k": "ship", "ship": "fregate"}, {"k": "rep", "v": 5}]}
+			], "default": 1},
+
+		{"id": "douane_ports", "title": "Contrebande à la douane", "trigger": "monthly", "weight": 6,
+			"subjects": {"system": "own"}, "if": {"ports_known": true},
+			"text": "Les douaniers de {system} saisissent une cargaison venue d'un port franc : liqueurs, épices et une caisse qui ronronne. Le propriétaire propose de partager les bénéfices.",
+			"choices": [
+				{"label": "Tout confisquer", "fx": [{"k": "res", "res": {"energy": 50}}, {"k": "stab", "v": -3, "days": 180}]},
+				{"label": "Fermer les yeux contre une commission", "fx": [{"k": "res", "res": {"energy": 80}}, {"k": "rep", "v": 4}, {"k": "stab", "v": -6, "days": 360}]},
+				{"label": "Adopter la caisse qui ronronne", "fx": [{"k": "stab", "v": 6, "days": 360}]}
+			], "default": 0},
+
+		{"id": "deserteurs", "title": "Des déserteurs ennemis", "trigger": "monthly", "weight": 9,
+			"subjects": {"rival": "war", "system": "frontier"}, "if": {"war": true},
+			"text": "Un équipage de {rival} se présente à {system}, drapeau blanc et cale pleine. Ils disent en avoir assez de cette guerre. Ils disent aussi qu'ils mangent beaucoup.",
+			"choices": [
+				{"label": "Les accueillir avec leur navire", "fx": [{"k": "ship", "ship": "corvette"}, {"k": "res", "res": {"food": -40}}]},
+				{"label": "Les renvoyer chez eux, en geste de paix", "fx": [{"k": "opinion", "kind": "ev_gift"}, {"k": "res", "res": {"influence": 15}}]},
+				{"label": "Les interroger d'abord", "fx": [{"k": "research", "pct": 15}, {"k": "opinion", "kind": "ev_snub"}]}
+			], "default": 0},
+
+		{"id": "veteran_mutile", "title": "Le vétéran", "trigger": "monthly", "weight": 7,
+			"subjects": {"system": "capital"}, "if": {"recent_battle": "lost"},
+			"text": "Un vétéran de la dernière bataille perdue parcourt {system} en racontant ce qu'il a vu. Il ne ment pas, et c'est bien le problème.",
+			"choices": [
+				{"label": "Lui offrir une pension et une tribune", "fx": [{"k": "res", "res": {"energy": -40}}, {"k": "stab", "v": 8, "days": 360, "scope": "empire"}]},
+				{"label": "L'envoyer au calme sur une lune lointaine", "fx": [{"k": "stab", "v": -5, "days": 360, "scope": "empire"}]}
+			], "default": 1},
+
+		{"id": "ruee_epaves", "title": "La ruée vers les épaves", "trigger": "monthly", "weight": 7,
+			"subjects": {"system": "capital"}, "if": {"recent_battle": "won"},
+			"text": "Les épaves de la dernière victoire attirent ferrailleurs, savants et touristes. Les trois se battent pour les mêmes morceaux.",
+			"choices": [
+				{"label": "Priorité aux savants", "fx": [{"k": "research", "pct": 20}]},
+				{"label": "Priorité aux ferrailleurs", "fx": [{"k": "res", "res": {"materials": 90}}]},
+				{"label": "Bénir les épaves", "if": {"layers": {"gouvernement": ["theocratie"]}}, "fx": [{"k": "fervor", "v": 12}, {"k": "research", "pct": 10}]}
+			], "default": 1},
+
+		{"id": "decouverte_fortuite", "title": "Une découverte fortuite", "trigger": "monthly", "weight": 9,
+			"if": {"researching": true},
+			"text": "Un stagiaire a renversé son café sur une expérience. L'expérience a mieux marché. On cherche maintenant quel café.",
+			"choices": [
+				{"label": "Publier les résultats", "fx": [{"k": "research", "pct": 20}]},
+				{"label": "Breveter le café", "fx": [{"k": "res", "res": {"energy": 60}}]}
+			], "default": 0},
+
+		{"id": "accident_labo", "title": "L'accident de laboratoire", "trigger": "monthly", "weight": 6,
+			"subjects": {"system": "rich"}, "if": {"researching": true, "min_year": 3},
+			"text": "Une expérience de {system} a ouvert un trou de la taille d'une assiette dans la réalité. Il est encore là. Il fait un petit bruit.",
+			"choices": [
+				{"label": "Étudier le trou", "risky": {"pct": 55, "win": [{"k": "research", "pct": 45}], "lose": [{"k": "stab", "v": -12, "days": 360}, {"k": "pop", "v": -1}]}},
+				{"label": "Le boucher avec du béton", "fx": [{"k": "res", "res": {"materials": -40}}]},
+				{"label": "L'écouter", "if": {"layers": {"registre": ["Cosmique / étrange"]}}, "fx": [{"k": "echoes", "v": 15}, {"k": "research", "pct": 15}]}
+			], "default": 1},
+
+		{"id": "antiquaire", "title": "Le marchand d'antiquités", "trigger": "monthly", "weight": 6,
+			"if": {"min_year": 2},
+			"text": "Un marchand ambulant propose « la boussole de l'Ancien Empire, authentique, garantie, presque pas cassée ». Il propose aussi une garantie, authentique, presque pas cassée.",
+			"choices": [
+				{"label": "Acheter la boussole", "risky": {"pct": 50, "win": [{"k": "research", "pct": 35}], "lose": [{"k": "rep", "v": -3}]}, "fx": [{"k": "res", "res": {"energy": -40}}]},
+				{"label": "Le chasser", "fx": []},
+				{"label": "Lui racheter son stock pour le revendre", "if": {"layers": {"credo": ["profit"]}}, "fx": [{"k": "res", "res": {"energy": 60}}, {"k": "rep", "v": 3}]}
+			], "default": 1},
+
+		{"id": "penurie_pieces", "title": "Pénurie de pièces détachées", "trigger": "monthly", "weight": 7,
+			"if": {"stock_below": {"materials": 60}, "min_year": 1},
+			"text": "Plus une vis dans les entrepôts. Les ingénieurs démontent les chaises pour réparer les vaisseaux, et l'état-major tient ses réunions debout.",
+			"choices": [
+				{"label": "Réquisitionner les mines", "fx": [{"k": "res", "res": {"materials": 80}}, {"k": "stab", "v": -6, "days": 360, "scope": "empire"}]},
+				{"label": "Acheter au prix fort", "fx": [{"k": "res", "res": {"energy": -60, "materials": 80}}]}
+			], "default": 1},
+
+		{"id": "comete", "title": "Une comète en approche", "trigger": "monthly", "weight": 6,
+			"subjects": {"system": "own"},
+			"text": "Une comète frôlera {system} dans trois semaines. Les astronomes parlent de « frôler » ; les assureurs parlent d'autre chose.",
+			"choices": [
+				{"label": "La dévier", "fx": [{"k": "res", "res": {"energy": -50}}]},
+				{"label": "La capturer pour ses glaces", "risky": {"pct": 60, "win": [{"k": "res", "res": {"materials": 120, "food": 60}}], "lose": [{"k": "pop", "v": -1}, {"k": "stab", "v": -10, "days": 360}]}},
+				{"label": "Y voir un signe", "if": {"layers": {"credo": ["foi"]}}, "fx": [{"k": "fervor", "v": 8}, {"k": "stab", "v": 6, "days": 360}]}
+			], "default": 0},
+
+		{"id": "recensement", "title": "Le grand recensement", "trigger": "monthly", "weight": 6,
+			"if": {"min_colonies": 4},
+			"text": "Le bureau du recensement a fini de compter. Il demande s'il faut recommencer, car le résultat ne plaît à personne.",
+			"choices": [
+				{"label": "Publier les chiffres", "fx": [{"k": "res", "res": {"influence": 30}}, {"k": "stab", "v": -4, "days": 360, "scope": "empire"}]},
+				{"label": "Arrondir à la hausse", "fx": [{"k": "stab", "v": 5, "days": 360, "scope": "empire"}, {"k": "rep", "v": -2}]}
+			], "default": 0},
+
+		{"id": "mecene", "title": "Un mécène excentrique", "trigger": "monthly", "weight": 6,
+			"if": {"min_year": 2, "no_marks": ["mecene"]},
+			"text": "Une richissime collectionneuse propose de financer vos chantiers. Elle ne demande presque rien en échange : juste « un petit service, un jour ». Elle sourit beaucoup.",
+			"choices": [
+				{"label": "Accepter l'argent", "fx": [{"k": "res", "res": {"energy": 120}}, {"k": "mark", "m": "mecene"}]},
+				{"label": "Refuser poliment", "fx": [{"k": "res", "res": {"influence": 10}}]}
+			], "default": 1},
+
+		{"id": "mecene_du", "title": "Le mécène réclame son dû", "trigger": "monthly", "weight": 30,
+			"subjects": {"rival": "contact"}, "if": {"marks": ["mecene"], "mark_days": 360},
+			"text": "La collectionneuse est revenue. Le « petit service » : saboter la réception de {rival}, en glissant des limaces dans le buffet. Elle a apporté les limaces.",
+			"choices": [
+				{"label": "Rendre le service", "fx": [{"k": "opinion", "kind": "ev_snub"}, {"k": "unmark", "m": "mecene"}, {"k": "rep", "v": 4}]},
+				{"label": "Rembourser, avec intérêts", "fx": [{"k": "res", "res": {"energy": -150}}, {"k": "unmark", "m": "mecene"}]},
+				{"label": "La dénoncer à {rival}", "fx": [{"k": "opinion", "kind": "ev_gift"}, {"k": "unmark", "m": "mecene"}, {"k": "stab", "v": -6, "days": 360, "scope": "capital"}]}
+			], "default": 1},
+
+		{"id": "echange_culturel", "title": "Un échange culturel", "trigger": "monthly", "weight": 7,
+			"subjects": {"rival": "peace"},
+			"text": "{rival} propose d'échanger des troupes de théâtre. Leur pièce dure onze heures ; la vôtre, trois actes et un entracte. Les diplomates négocient la durée.",
+			"choices": [
+				{"label": "Accepter l'échange", "fx": [{"k": "res", "res": {"influence": -20}}, {"k": "opinion", "kind": "ev_gift"}]},
+				{"label": "Décliner", "fx": []}
+			], "default": 1},
+
+		{"id": "diplomate_egare", "title": "Le diplomate égaré", "trigger": "monthly", "weight": 6,
+			"subjects": {"rival": "contact", "system": "capital"},
+			"text": "Un diplomate de {rival} s'est perdu dans les couloirs de {system} et a ouvert la mauvaise porte. Celle des archives secrètes. Il jure n'avoir rien vu ; il a pris des notes quand même.",
+			"choices": [
+				{"label": "Le raccompagner avec un sourire", "fx": [{"k": "opinion", "kind": "ev_gift"}]},
+				{"label": "Confisquer ses notes", "fx": [{"k": "opinion", "kind": "ev_snub"}, {"k": "research", "pct": 10}]},
+				{"label": "Le retourner", "if": {"layers": {"credo": ["profit", "raison"]}}, "risky": {"pct": 50, "win": [{"k": "research", "pct": 25}], "lose": [{"k": "opinion", "kind": "ev_snub"}, {"k": "res", "res": {"influence": -20}}]}}
+			], "default": 0},
+
+		{"id": "mariage_arrange", "title": "Un mariage arrangé", "trigger": "monthly", "weight": 8,
+			"subjects": {"rival": "peace"}, "if": {"layers": {"gouvernement": ["feodalite"]}},
+			"text": "Une lignée de {rival} propose de marier son cadet à une de vos héritières. Le cadet joue du luth. Mal. Mais il apporte une dot.",
+			"choices": [
+				{"label": "Célébrer les noces", "fx": [{"k": "opinion", "kind": "ev_gift"}, {"k": "res", "res": {"influence": 30, "energy": -40}}]},
+				{"label": "Refuser : ce luth, vraiment", "fx": [{"k": "opinion", "kind": "ev_snub"}]}
+			], "default": 0},
+
+		{"id": "schisme_mineur", "title": "Un schisme mineur", "trigger": "monthly", "weight": 8,
+			"subjects": {"system": "own"}, "if": {"layers": {"gouvernement": ["theocratie"]}},
+			"text": "À {system}, deux chapelles s'opposent sur une question vitale : faut-il chanter le troisième verset debout ou à genoux ? Le ton monte, les genoux aussi.",
+			"choices": [
+				{"label": "Trancher : debout", "fx": [{"k": "fervor", "v": 6}, {"k": "stab", "v": -5, "days": 360}]},
+				{"label": "Autoriser les deux", "fx": [{"k": "fervor", "v": -4}, {"k": "stab", "v": 6, "days": 360}]}
+			], "default": 1},
+
+		{"id": "bug_noosphere", "title": "Une boucle dans la Noosphère", "trigger": "monthly", "weight": 8,
+			"if": {"layers": {"archetype": ["synthetique"]}},
+			"text": "Un sous-processus de la conscience collective est entré en boucle : il calcule la dernière décimale d'un nombre qui n'en a pas. Il est très heureux.",
+			"choices": [
+				{"label": "Le laisser calculer", "fx": [{"k": "research", "pct": 15}, {"k": "stab", "v": -4, "days": 360, "scope": "empire"}]},
+				{"label": "Le redémarrer", "fx": [{"k": "res", "res": {"energy": -30}}]}
+			], "default": 1},
+
+		{"id": "ponte_excessive", "title": "La reine pond trop", "trigger": "monthly", "weight": 8,
+			"subjects": {"system": "capital"}, "if": {"layers": {"archetype": ["ruche"]}},
+			"text": "La reine de {system} a pondu trois fois plus que prévu. Les nurseries débordent, les ouvrières aussi.",
+			"choices": [
+				{"label": "Nourrir la couvée", "fx": [{"k": "res", "res": {"food": -70}}, {"k": "pop", "v": 2}]},
+				{"label": "Digérer l'excédent", "fx": [{"k": "res", "res": {"food": 40}}]}
+			], "default": 0},
+
+		{"id": "horde_ennui", "title": "La horde s'ennuie", "trigger": "monthly", "weight": 8,
+			"if": {"layers": {"gouvernement": ["horde"]}, "war": false, "stability": true},
+			"text": "Pas une bataille depuis des mois. Les guerriers organisent des concours de lancer de moteur. Les moteurs n'apprécient pas.",
+			"choices": [
+				{"label": "Organiser de grands jeux", "fx": [{"k": "res", "res": {"energy": -50}}, {"k": "stab", "v": 8, "days": 360, "scope": "empire"}]},
+				{"label": "Promettre une guerre bientôt", "fx": [{"k": "stab", "v": 4, "days": 180, "scope": "empire"}, {"k": "mark", "m": "promesse_guerre"}]}
+			], "default": 0},
+
+		{"id": "senat_enlise", "title": "Le Sénat s'enlise", "trigger": "monthly", "weight": 8,
+			"if": {"layers": {"gouvernement": ["republique"]}},
+			"text": "Le Sénat débat depuis six semaines de la couleur des nouveaux bancs du Sénat. Une commission a été créée. Puis une sous-commission.",
+			"choices": [
+				{"label": "Forcer un vote", "fx": [{"k": "res", "res": {"influence": -30}}, {"k": "stab", "v": 5, "days": 360, "scope": "empire"}]},
+				{"label": "Laisser le débat suivre son cours", "fx": [{"k": "res", "res": {"influence": 20}}, {"k": "stab", "v": -3, "days": 360, "scope": "empire"}]}
+			], "default": 1},
+
+		{"id": "voile_dechire", "title": "Le Voile frémit", "trigger": "monthly", "weight": 8,
+			"if": {"layers": {"archetype": ["energetique"]}},
+			"text": "Un astronome étranger a photographié quelque chose qui ressemble à vous. La photo est floue, mais il écrit déjà un livre.",
+			"choices": [
+				{"label": "Effacer la photo (et l'astronome de mémoire)", "fx": [{"k": "res", "res": {"influence": -25}}]},
+				{"label": "Lui apparaître en rêve pour le guider", "fx": [{"k": "echoes", "v": 10}, {"k": "rep", "v": 2}]}
+			], "default": 0},
+
+		{"id": "chroniqueur", "title": "Le chroniqueur galactique", "trigger": "monthly", "weight": 5,
+			"if": {"min_year": 1},
+			"text": "Le chroniqueur galactique prépare un chapitre sur votre empire. Il demande sur quel ton l'écrire. Il précise que le tragique se vend mieux.",
+			"choices": [
+				{"label": "Épique, évidemment", "fx": [{"k": "stab", "v": 4, "days": 360, "scope": "empire"}]},
+				{"label": "Picaresque, pour rire", "fx": [{"k": "rep", "v": 5}]},
+				{"label": "Payer pour qu'il nous oublie", "fx": [{"k": "res", "res": {"energy": -30}}, {"k": "research", "pct": 5}]}
+			], "default": 0},
+
+		{"id": "rivalite_chantiers", "title": "Rivalité de chantiers", "trigger": "monthly", "weight": 5,
+			"if": {"min_colonies": 3},
+			"text": "Deux chantiers navals se disputent la commande du prochain vaisseau. L'un promet la vitesse, l'autre la solidité ; les deux promettent un rabais qu'ils n'ont pas.",
+			"choices": [
+				{"label": "Les mettre en concurrence", "fx": [{"k": "ship", "ship": "corvette"}, {"k": "res", "res": {"energy": -40}}]},
+				{"label": "Les fusionner", "fx": [{"k": "res", "res": {"materials": 60}}]}
+			], "default": 1},
+
+		{"id": "bonne_humeur", "title": "Une épidémie de bonne humeur", "trigger": "monthly", "weight": 4,
+			"subjects": {"system": "rich"},
+			"text": "Un virus inoffensif rend toute la population de {system} d'excellente humeur. Le travail n'avance plus, mais personne ne s'en plaint.",
+			"choices": [
+				{"label": "Laisser faire", "fx": [{"k": "stab", "v": 12, "days": 360}, {"k": "res", "res": {"materials": -40}}]},
+				{"label": "Distribuer un vaccin", "fx": [{"k": "res", "res": {"energy": -20}}]}
+			], "default": 1},
+
+		{"id": "promesse_tenue", "title": "Les guerriers réclament leur guerre", "trigger": "monthly", "weight": 30,
+			"if": {"marks": ["promesse_guerre"], "mark_days": 540, "war": false},
+			"text": "On leur avait promis une guerre. Ils ont noté la date. Ils ont aussi noté qui l'avait promise.",
+			"choices": [
+				{"label": "Une guerre viendra (encore un peu de patience)", "fx": [{"k": "stab", "v": -8, "days": 360, "scope": "empire"}, {"k": "unmark", "m": "promesse_guerre"}]},
+				{"label": "Offrir des jeux plus grands encore", "fx": [{"k": "res", "res": {"energy": -90}}, {"k": "unmark", "m": "promesse_guerre"}]}
+			], "default": 1},
+
+		{"id": "c_temple", "title": "Le temple scellé", "trigger": "curio",
+			"text": "Sur {planet}, l'expédition a trouvé une porte. Une vraie porte, avec une serrure, et une inscription que les linguistes traduisent par « Ne pas ouvrir » ou peut-être « Ouvrir ici ».",
+			"choices": [
+				{"label": "Ouvrir la porte", "risky": {"pct": 60, "win": [{"k": "research", "pct": 40}, {"k": "res", "res": {"influence": 30}}], "lose": [{"k": "pirates"}]}},
+				{"label": "La sceller à nouveau", "fx": [{"k": "res", "res": {"influence": 25}}]},
+				{"label": "En faire un lieu saint", "if": {"layers": {"credo": ["foi"]}}, "fx": [{"k": "fervor", "v": 15}, {"k": "stab", "v": 6, "days": 720, "scope": "empire"}]}
+			], "default": 1},
+
+		{"id": "c_fantome", "title": "Le vaisseau fantôme", "trigger": "curio",
+			"text": "Près de {planet}, une épave tourne sur elle-même, lumières allumées, sans équipage. Le journal de bord s'arrête au milieu d'une phrase : « Qui a laissé la... ».",
+			"choices": [
+				{"label": "La remorquer", "risky": {"pct": 70, "win": [{"k": "ship", "ship": "fregate"}], "lose": [{"k": "pirates"}]}},
+				{"label": "L'étudier sur place", "fx": [{"k": "research", "pct": 25}]},
+				{"label": "Rendre les honneurs aux disparus", "if": {"layers": {"credo": ["honneur", "foi"]}}, "fx": [{"k": "stab", "v": 5, "days": 720, "scope": "empire"}, {"k": "renown", "v": 40}]}
+			], "default": 1},
+
+		{"id": "c_foret", "title": "La forêt qui chante", "trigger": "curio",
+			"text": "Les arbres de {planet} chantent au lever du soleil. Faux, mais avec conviction. Les botanistes pleurent, les ingénieurs du son aussi.",
+			"choices": [
+				{"label": "Récolter les graines", "fx": [{"k": "res", "res": {"food": 80}}, {"k": "deposit", "what": "fertile"}]},
+				{"label": "Protéger la forêt", "fx": [{"k": "stab", "v": 5, "days": 720, "scope": "empire"}, {"k": "res", "res": {"influence": 20}}]},
+				{"label": "Dévorer la forêt", "if": {"layers": {"archetype": ["ruche"]}}, "fx": [{"k": "biomass", "v": 30}, {"k": "res", "res": {"food": 120}}]}
+			], "default": 0},
+
+		{"id": "c_tempete", "title": "La tempête figée", "trigger": "curio",
+			"text": "Au-dessus de {planet}, une tempête s'est arrêtée net, éclairs compris. Elle attend quelque chose. Peut-être qu'on la regarde.",
+			"choices": [
+				{"label": "Capter ses éclairs", "fx": [{"k": "res", "res": {"energy": 100}}]},
+				{"label": "L'étudier", "fx": [{"k": "research", "pct": 25}]},
+				{"label": "Lui demander ce qu'elle attend", "if": {"layers": {"registre": ["Cosmique / étrange"]}}, "fx": [{"k": "echoes", "v": 20}]}
+			], "default": 1},
+
+		{"id": "c_puits", "title": "Le puits sans fond", "trigger": "curio",
+			"text": "Sur {planet}, un puits parfaitement rond s'enfonce plus loin que les sondes. On y a jeté un caillou il y a trois jours. On attend encore le bruit.",
+			"choices": [
+				{"label": "Descendre", "risky": {"pct": 55, "win": [{"k": "deposit", "what": "crystals"}, {"k": "res", "res": {"crystals": 15}}], "lose": [{"k": "pirates"}]}},
+				{"label": "Exploiter les parois", "fx": [{"k": "res", "res": {"materials": 100}}]}
+			], "default": 1},
+
+		{"id": "t_contrebande", "title": "Choc des tons : reliques de contrebande", "trigger": "contact",
+			"text": "Premier contact avec {rival}. D'un côté, on vénère des ossements bénis ; de l'autre, on les revend au poids. Une conversation s'engage, très vite commerciale.",
+			"choices": [
+				{"label": "Ouvrir un marché noir des reliques", "fx": [{"k": "res", "res": {"energy": 60}}, {"k": "rep", "v": 3}, {"k": "opinion", "kind": "ev_snub"}]},
+				{"label": "Respecter leurs croyances", "fx": [{"k": "opinion", "kind": "ev_gift"}]},
+				{"label": "Les traiter d'hérétiques, pour la forme", "fx": [{"k": "fervor", "v": 8}, {"k": "opinion", "kind": "ev_snub"}]}
+			], "default": 1},
+
+		{"id": "t_heros_fanatiques", "title": "Choc des tons : héros et fanatiques", "trigger": "contact",
+			"text": "Premier contact avec {rival}. Les uns croient aux héros qui sauvent la galaxie ; les autres croient que la galaxie ne mérite pas d'être sauvée. Les premiers échanges sont polis, au sens où personne n'a encore tiré.",
+			"choices": [
+				{"label": "Tendre la main malgré tout", "fx": [{"k": "opinion", "kind": "ev_gift"}, {"k": "res", "res": {"influence": -15}}]},
+				{"label": "Rester sur ses gardes", "fx": [{"k": "stab", "v": 4, "days": 360, "scope": "empire"}]},
+				{"label": "Leur promettre une épopée (contre eux)", "fx": [{"k": "renown", "v": 60}, {"k": "opinion", "kind": "ev_snub"}]}
+			], "default": 1},
+
+		{"id": "t_equations", "title": "Choc des tons : équations et présages", "trigger": "contact",
+			"text": "Premier contact avec {rival}. L'un parle en équations, l'autre en présages. Les traducteurs démissionnent un par un ; le dernier jure que les deux disent la même chose.",
+			"choices": [
+				{"label": "Échanger savants et devins", "fx": [{"k": "research", "pct": 15}, {"k": "opinion", "kind": "ev_gift"}]},
+				{"label": "Refuser ces superstitions (ou ces chiffres)", "fx": [{"k": "opinion", "kind": "ev_snub"}, {"k": "stab", "v": 3, "days": 360, "scope": "empire"}]}
+			], "default": 0},
+
+		{"id": "t_blasons", "title": "Choc des tons : blasons et algorithmes", "trigger": "contact",
+			"text": "Premier contact avec {rival}. Les uns envoient un héraut avec trompettes ; les autres un fichier compressé. Chacun trouve la réponse de l'autre absolument illisible.",
+			"choices": [
+				{"label": "S'adapter à leurs usages", "fx": [{"k": "opinion", "kind": "ev_gift"}, {"k": "res", "res": {"influence": -10}}]},
+				{"label": "Exiger qu'ils s'adaptent aux nôtres", "fx": [{"k": "res", "res": {"influence": 20}}, {"k": "opinion", "kind": "ev_snub"}]}
+			], "default": 0},
+
+		{"id": "t_cauchemar", "title": "Choc des tons : le cauchemar et l'épopée", "trigger": "contact",
+			"text": "Premier contact avec {rival}. Les uns voient des monstres ; les autres voient de la nourriture qui parle. Personne ne sait encore lequel des deux a tort.",
+			"choices": [
+				{"label": "Proposer un pacte de non-dévoration", "fx": [{"k": "opinion", "kind": "ev_gift"}, {"k": "res", "res": {"influence": -20}}]},
+				{"label": "Fortifier la frontière", "fx": [{"k": "stab", "v": 5, "days": 360, "scope": "empire"}, {"k": "res", "res": {"materials": -40}}]}
+			], "default": 1},
+
+		{"id": "t_chevaliers", "title": "Choc des tons : chevaliers et filous", "trigger": "contact",
+			"text": "Premier contact avec {rival}. Un chevalier offre sa parole d'honneur ; un filou offre une parole d'honneur d'occasion, à moitié prix. Les deux tendent la main ; l'un des deux compte ses doigts après.",
+			"choices": [
+				{"label": "Conclure un marché", "fx": [{"k": "res", "res": {"energy": 50}}, {"k": "opinion", "kind": "ev_gift"}]},
+				{"label": "Se méfier", "fx": [{"k": "stab", "v": 3, "days": 360, "scope": "empire"}]}
+			], "default": 0}
+	]
+}

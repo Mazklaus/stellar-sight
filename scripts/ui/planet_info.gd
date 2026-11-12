@@ -63,6 +63,18 @@ static func habitability(state: GameState, p: Planet, player: int) -> Dictionary
 	return {"pct": hab, "text": "Habitable à %d %%, jusqu'à %d pop" % [hab, cap]}
 
 
+## Ligne de la curiosité d'une planète : nom, type, niveau, durée de sonde et avancement pour viewer.
+static func curio_text(state: GameState, pid: int, viewer: int) -> String:
+	var t := "Curiosité : %s" % Curios.describe(state, pid)
+	if viewer < 0 or state.get_empire(viewer) == null:
+		return t
+	var d := Curios.duration(state, viewer, pid)
+	var prog := Curios.progress(state, viewer, pid)
+	if prog > 0:
+		return t + ", sonde %d / %d jours" % [prog, d]
+	return t + ", %d jours de sonde (vaisseau sans armes à l'arrêt)" % d
+
+
 static func deposit_labels(p: Planet) -> PackedStringArray:
 	var deps := PackedStringArray()
 	for d in p.deposits:
