@@ -165,6 +165,48 @@ func _initialize() -> void:
 			i += 1
 	await _frames(10)
 	await _shot(out + "/galerie-portraits-heros.png")
+
+	# 4. Portraits personnalisés : un même portrait de galerie, porté par des héros différents.
+	for ch in col.get_children():
+		ch.queue_free()
+	col.add_theme_constant_override("separation", 2)
+	var cases := [
+		["Stratège niv. 1, 30 ans", {"cls": "stratege", "lvl": 1, "age": 30}],
+		["Intendant niv. 3, 62 ans", {"cls": "intendant", "lvl": 3, "age": 62}],
+		["Orateur niv. 5, 78 ans", {"cls": "orateur", "lvl": 5, "age": 78}],
+		["Ombre niv. 2, blessée", {"cls": "ombre", "lvl": 2, "age": 41, "wound": true}],
+		["Héritier niv. 1, 22 ans", {"cls": "orateur", "lvl": 1, "age": 22, "heir": true}],
+		["Prisonnier niv. 4", {"cls": "stratege", "lvl": 4, "age": 50, "prisoner": true}],
+	]
+	var fcols := [Color("#3a6fd8"), Color("#c0392b"), Color("#27ae60"), Color("#8e44ad"), Color("#d68910"), Color("#16a085")]
+	for pid in ["hero_humanoide_2", "hero_ruche_1", "hero_lithoide_1", "hero_reptilien_1", "hero_synthetique_1", "hero_energetique_2"]:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		col.add_child(row)
+		var l := Label.new()
+		l.text = String(Heroes.portrait_def(pid).get("label", pid))
+		l.custom_minimum_size = Vector2(130, 0)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		row.add_child(l)
+		var k := 0
+		for c in cases:
+			var info: Dictionary = (c[1] as Dictionary).duplicate()
+			info["seed"] = k * 7 + pid.length()
+			info["faction"] = fcols[k % fcols.size()]
+			var v := VBoxContainer.new()
+			var art := Widgets.ArtSlot.new(pid, Vector2(100, 104), HeroScreen._class_color(String(info["cls"])), "faction")
+			art.set_hero(info)
+			v.add_child(art)
+			var cap := Label.new()
+			cap.text = String(c[0])
+			cap.add_theme_font_size_override("font_size", 10)
+			cap.custom_minimum_size = Vector2(100, 0)
+			cap.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			v.add_child(cap)
+			row.add_child(v)
+			k += 1
+	await _frames(10)
+	await _shot(out + "/portraits-personnalises.png")
 	quit()
 
 

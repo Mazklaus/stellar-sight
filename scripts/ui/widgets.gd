@@ -207,6 +207,8 @@ class ArtSlot:
 	var motif := "none"
 	## Graine du motif (une planète, une étoile…), pour que chaque emplacement ait sa variante.
 	var variant := 0
+	## Portrait d'un héros précis (voir set_hero) : classe, niveau, âge, état, couleur de son empire.
+	var hero := {}
 	var _tex: TextureRect
 	var _caption: Label
 
@@ -245,6 +247,13 @@ class ArtSlot:
 
 	func has_art() -> bool:
 		return _tex.texture != null
+
+	## Personnalise un portrait de la galerie des héros : info = {"seed", "cls", "lvl", "age", "wound",
+	## "prisoner", "heir", "faction": Color}. Le portrait de galerie donne la silhouette ; le héros y met
+	## sa tenue de classe, ses lauriers et ses étoiles, son âge, ses blessures et la cape de son empire.
+	func set_hero(info: Dictionary) -> void:
+		hero = info
+		queue_redraw()
 
 	## Grand libellé posé en bas de l'illustration (comme un titre de carte).
 	func set_caption(text: String, size := 26) -> void:
@@ -347,9 +356,9 @@ class ArtSlot:
 	## déposée : un buste en silhouette, humanoïde ou insectoïde, avec l'ornement décrit par le champ
 	## "look" du portrait (data/species_parts.json) pour que chaque portrait de la galerie se distingue.
 	func _draw_portrait(r: Rect2) -> void:
-		var hero := art_id.begins_with("hero_")
-		var pid := art_id.trim_prefix("hero_") if hero else art_id.trim_prefix("portrait_")
-		var look := String((Heroes.portrait_def(art_id) if hero else Species.portrait_def(pid)).get("look", ""))
+		var hero_ref := art_id.begins_with("hero_")
+		var pid := art_id.trim_prefix("hero_") if hero_ref else art_id.trim_prefix("portrait_")
+		var look := String((Heroes.portrait_def(art_id) if hero_ref else Species.portrait_def(pid)).get("look", ""))
 		var hive := pid.begins_with("ruche")
 		var rock := pid.begins_with("lithoide")
 		var synth := pid.begins_with("synthetique")
@@ -361,24 +370,35 @@ class ArtSlot:
 		var fill := Color(tint.darkened(0.35), 0.95)
 		var edge := Color(tint.lightened(0.35), 0.8)
 		var eye := Color(tint.lightened(0.7), 0.95)
+		var me := hero_ref and not self.hero.is_empty()
+		var hseed := int(self.hero.get("seed", 0))
+		var head_k := 1.0
+		var sw_k := 1.0
+		if me:
+			# Chaque héros a sa carrure, son teint et la couleur de son regard (tirés de son identifiant).
+			head_k = 0.92 + 0.16 * _jit(hseed, 1)
+			sw_k = 0.88 + 0.24 * _jit(hseed, 2)
+			var shade := (_jit(hseed, 3) - 0.5) * 0.35
+			fill = fill.lightened(shade) if shade > 0.0 else fill.darkened(-shade)
+			eye = eye.lerp(Color(1.0, 0.82, 0.45), _jit(hseed, 4) * 0.6)
+			# L'âge grise les contours (cheveux, crête, écailles) à partir de 55 ans.
+			var age := int(self.hero.get("age", 30))
+			if age >= 55:
+				edge = edge.lerp(Color(0.86, 0.86, 0.88, edge.a), clampf((age - 55) / 30.0, 0.15, 0.75))
 		draw_circle(Vector2(cx, base * 0.42), s * 0.42, Color(tint, 0.07))
-		var sw := s * (0.5 if look == "colossus" or look == "boulder" else 0.4)
+		var sw := s * (0.5 if look == "colossus" or look == "boulder" else 0.4) * sw_k
 		var sh_y := base * 0.78
+		if me:
+			# La cape aux couleurs de son empire, derrière les épaules.
+			var fc: Color = self.hero.get("faction", tint)
+			draw_colored_polygon(PackedVector2Array([Vector2(cx - sw * 1.25, base), Vector2(cx - sw * 0.95, sh_y - s * 0.02), Vector2(cx - sw * 0.2, sh_y - s * 0.14),
+					Vector2(cx + sw * 0.2, sh_y - s * 0.14), Vector2(cx + sw * 0.95, sh_y - s * 0.02), Vector2(cx + sw * 1.25, base)]), Color(fc.darkened(0.25), 0.9))
 		draw_colored_polygon(PackedVector2Array([Vector2(cx - sw, base), Vector2(cx - sw * 0.85, sh_y), Vector2(cx - sw * 0.3, sh_y - s * 0.08),
 				Vector2(cx + sw * 0.3, sh_y - s * 0.08), Vector2(cx + sw * 0.85, sh_y), Vector2(cx + sw, base)]), Color(fill.darkened(0.2), 0.25 if glow else 1.0))
 		var head := Vector2(cx, base * 0.48)
-		var hr := s * (0.14 if look == "crown" and hive else 0.17)
-		if hero:
-			# Galerie des héros : une couronne de lauriers derrière la tête et un médaillon d'or sur la poitrine.
-			var gold := Color(0.95, 0.78, 0.36, 0.85)
-			for side in [-1.0, 1.0]:
-				for k in 6:
-					var a: float = PI * 0.5 + side * (0.55 + 0.32 * k)
-					var p0 := head + Vector2(cos(a), sin(a)) * hr * 2.05
-					var leaf: Vector2 = Vector2(cos(a + side * 1.2), sin(a + side * 1.2)) * hr * 0.32
-					draw_line(p0 - leaf * 0.5, p0 + leaf, Color(gold, 0.55), 3.0, true)
-			draw_circle(Vector2(cx, sh_y + s * 0.05), s * 0.045, gold)
-			draw_arc(Vector2(cx, sh_y + s * 0.05), s * 0.045, 0.0, TAU, 20, Color(1, 0.95, 0.7, 0.9), 1.2, true)
+		var hr := s * (0.14 if look == "crown" and hive else 0.17) * head_k
+		if hero_ref:
+			_draw_hero_attire(head, hr, cx, sh_y, sw, s, base, edge, me)
 		if synth:
 			# Tête de châssis : un carré arrondi, des joints, une lumière à la place des yeux.
 			draw_line(head + Vector2(-hr * 0.2, hr), head + Vector2(-hr * 0.2, hr * 1.6), fill, hr * 0.25)
@@ -574,6 +594,91 @@ class ArtSlot:
 			else:
 				for side in [-1.0, 1.0]:
 					draw_circle(head + Vector2(side * hr * 0.38, -hr * 0.05), 2.2, eye)
+		if me:
+			_draw_hero_state(r, head, hr, edge)
+
+	## Tirage stable 0-1 pour les variations d'un héros (même héros, même visage).
+	static func _jit(seed_value: int, k: int) -> float:
+		return float(absi(hash([seed_value, "visage", k])) % 1000) / 1000.0
+
+	## Ce qu'un héros a gagné : lauriers (niveau 3 et plus, plus fournis à chaque niveau) et tenue de sa
+	## classe. Sans héros précis (galerie), les lauriers complets et un médaillon d'or.
+	func _draw_hero_attire(head: Vector2, hr: float, cx: float, sh_y: float, sw: float, s: float, base: float, edge: Color, me: bool) -> void:
+		var gold := Color(0.95, 0.78, 0.36, 0.85)
+		var lvl := int(hero.get("lvl", 5)) if me else 5
+		if lvl >= 3:
+			for side in [-1.0, 1.0]:
+				for k in 2 + lvl:
+					var a: float = PI * 0.5 + side * (0.55 + 0.32 * k)
+					var p0 := head + Vector2(cos(a), sin(a)) * hr * 2.05
+					var leaf: Vector2 = Vector2(cos(a + side * 1.2), sin(a + side * 1.2)) * hr * 0.32
+					draw_line(p0 - leaf * 0.5, p0 + leaf, Color(gold, 0.55), 3.0, true)
+		var chest := Vector2(cx, sh_y + s * 0.05)
+		match String(hero.get("cls", "")) if me else "":
+			"stratege":
+				# Épaulettes à franges et une rangée de décorations.
+				for side in [-1.0, 1.0]:
+					var e0 := Vector2(cx + side * sw * 0.62, sh_y - s * 0.035)
+					draw_rect(Rect2(e0 - Vector2(sw * 0.2, s * 0.02), Vector2(sw * 0.4, s * 0.04)), gold)
+					for k in 5:
+						var x := e0.x - sw * 0.18 + k * sw * 0.09
+						draw_line(Vector2(x, e0.y + s * 0.02), Vector2(x, e0.y + s * 0.065), Color(gold, 0.7), 1.5)
+				for k in mini(lvl, 4):
+					draw_rect(Rect2(chest + Vector2(-sw * 0.5 + k * sw * 0.13, s * 0.02), Vector2(sw * 0.1, s * 0.03)), Color(edge, 0.9))
+			"intendant":
+				# Chaîne d'office et son sceau.
+				for k in 9:
+					var a := PI * (0.15 + 0.7 * k / 8.0)
+					draw_circle(chest + Vector2(cos(a) * sw * 0.45, sin(a) * s * 0.09 - s * 0.06), s * 0.012, gold)
+				draw_rect(Rect2(chest + Vector2(-s * 0.03, s * 0.03), Vector2(s * 0.06, s * 0.06)), gold)
+				draw_rect(Rect2(chest + Vector2(-s * 0.03, s * 0.03), Vector2(s * 0.06, s * 0.06)), Color(1, 0.95, 0.7, 0.9), false, 1.0)
+			"orateur":
+				# Écharpe en travers de la poitrine et col haut.
+				draw_colored_polygon(PackedVector2Array([Vector2(cx - sw * 0.7, sh_y - s * 0.02), Vector2(cx - sw * 0.45, sh_y - s * 0.06),
+						Vector2(cx + sw * 0.85, base), Vector2(cx + sw * 0.5, base)]), Color(tint.lightened(0.25), 0.8))
+				draw_circle(Vector2(cx - sw * 0.05, sh_y + s * 0.07), s * 0.025, gold)
+			"ombre":
+				# Col relevé et une lame qui dépasse de l'épaule.
+				for side in [-1.0, 1.0]:
+					draw_colored_polygon(PackedVector2Array([Vector2(cx + side * sw * 0.18, sh_y - s * 0.07), Vector2(cx + side * sw * 0.55, sh_y - s * 0.22),
+							Vector2(cx + side * sw * 0.6, sh_y - s * 0.02)]), Color(fill_dark(), 0.95))
+				var hilt := Vector2(cx + sw * 0.75, sh_y - s * 0.12)
+				draw_line(hilt, hilt + Vector2(s * 0.05, -s * 0.12), Color(0.85, 0.88, 0.95, 0.9), 2.0, true)
+				draw_line(hilt + Vector2(-s * 0.02, -s * 0.01), hilt + Vector2(s * 0.03, s * 0.01), gold, 2.0, true)
+			_:
+				draw_circle(chest, s * 0.045, gold)
+				draw_arc(chest, s * 0.045, 0.0, TAU, 20, Color(1, 0.95, 0.7, 0.9), 1.2, true)
+
+	func fill_dark() -> Color:
+		return tint.darkened(0.7)
+
+	## L'état du héros, par-dessus : étoiles de niveau, diadème de l'héritier, bandage, barreaux.
+	func _draw_hero_state(r: Rect2, head: Vector2, hr: float, edge: Color) -> void:
+		var gold := Color(0.95, 0.78, 0.36, 0.95)
+		for k in int(hero.get("lvl", 1)):
+			_star(Vector2(10 + k * 12, 11), 4.5, gold)
+		if bool(hero.get("heir", false)):
+			draw_arc(head + Vector2(0, -hr * 0.2), hr * 1.0, PI * 1.2, PI * 1.8, 16, gold, 2.5, true)
+			for k in 3:
+				var a := PI * (1.3 + 0.2 * k)
+				var p0 := head + Vector2(0, -hr * 0.2) + Vector2(cos(a), sin(a)) * hr
+				draw_line(p0, p0 + Vector2(cos(a), sin(a)) * hr * 0.35, gold, 2.0, true)
+		if bool(hero.get("wound", false)):
+			draw_line(head + Vector2(-hr * 1.05, -hr * 0.55), head + Vector2(hr * 1.05, -hr * 0.05), Color(0.92, 0.9, 0.84, 0.95), hr * 0.32, true)
+			draw_circle(head + Vector2(hr * 0.3, -hr * 0.22), hr * 0.1, Color(0.85, 0.2, 0.2, 0.9))
+		if bool(hero.get("prisoner", false)):
+			var x := r.size.x * 0.12
+			while x < r.size.x:
+				draw_line(Vector2(x, 0), Vector2(x, r.size.y), Color(0.05, 0.05, 0.07, 0.75), 4.0)
+				x += r.size.x * 0.19
+			draw_line(Vector2(0, r.size.y * 0.2), Vector2(r.size.x, r.size.y * 0.2), Color(0.05, 0.05, 0.07, 0.75), 4.0)
+
+	func _star(c: Vector2, rad: float, col: Color) -> void:
+		var pts := PackedVector2Array()
+		for i in 10:
+			var a := -PI * 0.5 + PI * i / 5.0
+			pts.append(c + Vector2(cos(a), sin(a)) * (rad if i % 2 == 0 else rad * 0.45))
+		draw_colored_polygon(pts, col)
 
 	## Ombre en bas pour la lisibilité du libellé.
 	func _shade(r: Rect2) -> void:

@@ -664,6 +664,26 @@
 				"IV-Bis",
 				"Ré-Initialisé"
 			]
+		},
+		"energetique": {
+			"first": [
+				"Lueur",
+				"Murmure",
+				"Onde",
+				"Halo",
+				"Braise",
+				"Reflet",
+				"Soupir",
+				"Aurore"
+			],
+			"last": [
+				"des Abysses",
+				"qui-Chante-Bas",
+				"Sans-Ombre",
+				"du Septième Écho",
+				"aux Mille Voix",
+				"d'Avant le Silence"
+			]
 		}
 	},
 	"portraits": [
@@ -817,6 +837,30 @@
 			"label": "Cœur-logique gouverneur",
 			"archetypes": [
 				"synthetique"
+			]
+		},
+		{
+			"id": "hero_energetique_1",
+			"look": "wisp",
+			"label": "Flamme-capitaine",
+			"archetypes": [
+				"energetique"
+			]
+		},
+		{
+			"id": "hero_energetique_2",
+			"look": "rings",
+			"label": "Oracle aux anneaux",
+			"archetypes": [
+				"energetique"
+			]
+		},
+		{
+			"id": "hero_energetique_3",
+			"look": "veil",
+			"label": "Voix voilée",
+			"archetypes": [
+				"energetique"
 			]
 		}
 	],

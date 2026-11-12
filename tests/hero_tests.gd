@@ -69,6 +69,21 @@ func _test_portraits() -> void:
 		_ok(int(by_arch.get(arch, 0)) >= 3, "galerie des héros : au moins 3 portraits %s" % arch)
 		_ok(not Heroes.portraits_for(String(arch)).is_empty(), "portraits_for(%s)" % arch)
 	_ok(not Heroes.portraits_for("inconnu").is_empty(), "archétype inconnu : repli sur les humanoïdes")
+	# Chaque archétype des peuples a sa galerie de héros (les énergétiques aussi).
+	for p: Dictionary in Species.portraits():
+		for a in p.get("archetypes", []):
+			_ok(by_arch.has(a), "galerie des héros : l'archétype %s des peuples est couvert" % a)
+	var st := GameState.create(21)
+	var mu := _emp(st, "murmurants")
+	if mu >= 0:
+		_ok(String(st.heroes[Heroes.ids_of(st, mu)[0]]["portrait"]).begins_with("hero_energetique"), "Murmurants : un héros énergétique")
+	# Portrait personnalisé : ce que l'écran montre du héros lui-même.
+	var id := Heroes.ids_of(st, 0)[0]
+	var h: Dictionary = st.heroes[id]
+	h["wound"] = st.tick + 10
+	var info := HeroScreen.portrait_info(st, h)
+	_ok(int(info["seed"]) == id and bool(info["wound"]) and not bool(info["prisoner"]) and info["faction"] == st.get_empire(0).color(),
+			"portrait personnalisé : identité, blessure et couleur de l'empire")
 
 
 func _test_offer() -> void:
