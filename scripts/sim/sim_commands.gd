@@ -147,6 +147,16 @@ static func deal_cancel(player: int, deal_id: int) -> Dictionary:
 	return {"type": "deal_cancel", "player": player, "deal": deal_id}
 
 
+## Achète un vaisseau d'occasion à la Bourse galactique (livré à la capitale).
+static func used_ship_buy(player: int) -> Dictionary:
+	return {"type": "used_ship_buy", "player": player}
+
+
+## Achète n unités d'un stratégique au marché noir d'un port franc pirate.
+static func black_buy(player: int, system_id: int, res: String, n: int) -> Dictionary:
+	return {"type": "black_buy", "player": player, "system": system_id, "res": res, "n": n}
+
+
 ## Soudoie l'héritier d'une dynastie féodale rivale (sa loyauté baisse).
 static func bribe_heir(player: int, target: int) -> Dictionary:
 	return {"type": "bribe_heir", "player": player, "target": target}
@@ -497,6 +507,10 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Goods.check_answer(state, int(cmd["player"]), int(cmd.get("offer", -1)), bool(cmd.get("accept", false)))
 		"deal_cancel":
 			return Goods.check_cancel_deal(state, int(cmd["player"]), int(cmd.get("deal", -1)))
+		"used_ship_buy":
+			return Goods.check_used(state, int(cmd["player"]))
+		"black_buy":
+			return Goods.check_black(state, int(cmd["player"]), int(cmd.get("system", -1)), String(cmd.get("res", "")), int(cmd.get("n", 0)))
 		"bribe_heir":
 			return Diplomacy.check_bribe(state, int(cmd["player"]), int(cmd.get("target", -1)))
 		"banquet":
@@ -816,6 +830,10 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Goods.answer(state, int(cmd["offer"]), bool(cmd["accept"]))
 		"deal_cancel":
 			Goods.cancel_deal(state, int(cmd["player"]), int(cmd["deal"]))
+		"used_ship_buy":
+			Goods.buy_used(state, int(cmd["player"]))
+		"black_buy":
+			Goods.buy_black(state, int(cmd["player"]), int(cmd["system"]), String(cmd["res"]), int(cmd["n"]))
 		"bribe_heir":
 			Diplomacy.bribe(state, int(cmd["player"]), int(cmd["target"]))
 		"banquet":

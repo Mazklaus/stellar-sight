@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "1.3"
+EDITION = "1.4"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -212,6 +212,40 @@ def gen_ressources():
     return f"<table class='grille'><tr><th>Ressource</th><th>Abrégé</th><th>Stock de départ</th></tr>{lignes}</table>"
 
 
+FX_TEXTE = {"influence": "influence", "food": "nourriture", "energy": "énergie", "materials": "matériaux",
+            "knowledge": "Savoir", "all": "toute production"}
+
+
+def texte_fx(fx):
+    out = []
+    for k, v in fx.items():
+        if k == "production_pct":
+            out += [f"+{n} % {FX_TEXTE.get(r, r)}" for r, n in v.items()]
+        else:
+            out.append({"growth_pct": f"+{v} % croissance", "building_cost_pct": f"{v} % coût des bâtiments",
+                        "ship_days_pct": f"{v} % temps de construction des vaisseaux",
+                        "damage_pct": f"+{v} % dégâts", "upkeep_pct": f"{v} % entretien"}.get(k, k))
+    return ", ".join(out)
+
+
+def gen_luxes():
+    g = charger("goods.json")
+    paliers = {t["id"]: t for t in g["tiers"]}
+    lignes = "".join(f"<tr><td>{esc(x['label'])}</td><td>{esc(paliers[x['tier']]['label'])}</td>"
+                     f"<td>+{paliers[x['tier']]['stability']}</td><td>{esc(texte_fx(x['fx']))}</td></tr>"
+                     for x in g["luxuries"])
+    return (f"<table class='grille'><tr><th>Luxe</th><th>Palier</th><th>Stabilité</th><th>Effet</th></tr>"
+            f"{lignes}</table>")
+
+
+def gen_strategiques():
+    g = charger("goods.json")
+    lignes = "".join(f"<tr><td>{esc(x['label'])}</td><td>{x['era']}</td><td>{x['price']}</td>"
+                     f"<td>{inline(x['text'])}</td></tr>" for x in g["strategic"])
+    return (f"<table class='grille'><tr><th>Stratégique</th><th>Ère</th><th>Prix</th><th>Description</th></tr>"
+            f"{lignes}</table>")
+
+
 def gen_stabilite():
     s = charger("stability.json")
     lignes = "".join(f"<tr><td><span class='pastille' style='background:{t['color']}'></span>{esc(t['label'])}</td>"
@@ -336,6 +370,7 @@ GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
     "peuples": gen_peuples, "prompts": gen_prompts,
+    "luxes": gen_luxes, "strategiques": gen_strategiques,
 }
 
 

@@ -22,7 +22,7 @@ Les pirates guettent aussi les **routes commerciales** qui traversent des systè
 
 Un repaire proche d'un nid de créatures (3 sauts au plus) a **dressé** une bête adulte de l'espèce, qui renforce sa garde.
 
-Un repaire que personne n'a attaqué pendant quinze ans se range et devient un **port franc** : on y loue des flottes et des héros.
+Un repaire que personne n'a attaqué pendant quinze ans se range et devient un **port franc** : on y loue des flottes et des héros, et son marché noir vend des stratégiques sans traité (chapitre 8).
 
 ::: transmission Fréquence pirate ouverte, repaire de Corne-Rouge
 Bonjour aux honnêtes marchands du secteur. Votre cargaison est assurée par nos soins contre tout accident, sauf ceux que nous provoquons. Tarifs sur demande. Paiement à l'abordage.

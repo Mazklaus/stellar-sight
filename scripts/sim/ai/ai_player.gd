@@ -584,7 +584,7 @@ static func late_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Array[St
 	if e.techs.has("prefectures") and c.population >= 10 and mat >= 400:
 		out.append("prefecture")
 	if _is_main_yard(ctx, c):
-		for w in ["bourse_mille_soleils", "assemblee", "nexus_savoir", "collecteur_stellaire"]:
+		for w in ["bourse_galactique", "bourse_mille_soleils", "assemblee", "nexus_savoir", "collecteur_stellaire"]:
 			var need := int(GameData.building(w).get("cost", {}).get("materials", 0)) + 500
 			if Economy.building_unlocked(state, e.id, w) and mat >= need and not _empire_has_building(ctx, w):
 				out.append(w)

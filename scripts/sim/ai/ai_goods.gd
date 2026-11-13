@@ -23,6 +23,9 @@ static func think(ctx: Dictionary) -> void:
 		_licences(ctx)
 	if Goods.market_on(state):
 		_market(ctx)
+	_used_ships(ctx)
+	if Goods.active(state):
+		_black_market(ctx)
 
 
 static func _licences(ctx: Dictionary) -> void:
@@ -81,6 +84,40 @@ static func _market(ctx: Dictionary) -> void:
 		AiPlayer._issue(ctx, SimCommands.market_trade(e.id, "food", -(food - 1200)))
 	elif food < 20 and int(e.resources.get("energy", 0)) > 300:
 		AiPlayer._issue(ctx, SimCommands.market_trade(e.id, "food", 60))
+
+
+## Vaisseaux d'occasion : en guerre et riche, l'IA en prend un à la Bourse.
+static func _used_ships(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if not Combat.has_live_war(state, e.id) or Goods.check_used(state, e.id) != "":
+		return
+	if int(e.resources.get("energy", 0)) < 900 + Goods.used_price(state, e.id):
+		return
+	if AiPlayer._issue(ctx, SimCommands.used_ship_buy(e.id)):
+		AiPlayer._intent(ctx, "Achète un vaisseau d'occasion à la Bourse")
+
+
+## Marché noir : sans marché (ou s'il est hors de prix), l'IA prend au port franc le stratégique
+## de son ère qui lui manque.
+static func _black_market(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var ports := Pirates.known_ports(state, e.id)
+	if ports.is_empty() or int(e.resources.get("energy", 0)) < 800:
+		return
+	var era := Research.current_era(state, e.id)
+	for s in GameData.strategic_ids():
+		if era < int(Goods.strategic(s)["era"]) + 1 or int(e.resources.get(s, 0)) >= 6:
+			continue
+		var n := mini(10, Goods.black_left(state, e.id))
+		if n <= 0:
+			return
+		if Goods.market_on(state) and Goods.buy_cost(state, e.id, s, n) <= Goods.black_price(state, s, n):
+			continue
+		if Goods.check_black(state, e.id, ports[0], s, n) == "" and AiPlayer._issue(ctx, SimCommands.black_buy(e.id, ports[0], s, n)):
+			AiPlayer._intent(ctx, "Se fournit en %s au marché noir" % Goods.label(s).to_lower())
+			return
 
 
 ## Jugement d'un échange proposé à l'IA : {"score", "lines"} (accepté si score >= 0).
