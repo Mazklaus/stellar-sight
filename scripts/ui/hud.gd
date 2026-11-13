@@ -52,6 +52,7 @@ var _tab_galaxy: Button
 var _tab_economy: Button
 var _tab_stability: Button
 var _tab_politics: Button
+var _tab_trade: Button
 var _tab_orbit: Button
 var _tab_manage: Button
 var _info_panel: PanelContainer
@@ -212,6 +213,7 @@ func set_system_mode(on: bool) -> void:
 	_tab_economy.visible = not on
 	_tab_stability.visible = not on
 	_tab_politics.visible = not on
+	_tab_trade.visible = not on
 	_tab_orbit.visible = on
 	_tab_manage.visible = on
 	if on:
@@ -335,13 +337,14 @@ func planet_row_count() -> int:
 	return _planet_dots.get_child_count()
 
 
-## Lentille de la carte : "" (vue galaxie), "economy", "stability" ou "politics".
+## Lentille de la carte : "" (vue galaxie), "economy", "stability", "politics" ou "trade".
 func set_lens(value: String) -> void:
 	lens = value
 	_tab_galaxy.set_pressed_no_signal(value == "")
 	_tab_economy.set_pressed_no_signal(value == "economy")
 	_tab_stability.set_pressed_no_signal(value == "stability")
 	_tab_politics.set_pressed_no_signal(value == "politics")
+	_tab_trade.set_pressed_no_signal(value == "trade")
 	lens_changed.emit(value)
 
 
@@ -366,12 +369,14 @@ func _build_tabs() -> void:
 			close_system_requested.emit()
 		else:
 			set_lens(""))
-	_tab_economy = _tab("Lentille économique", "Bilan mensuel de chacun de vos systèmes, sur la carte  (L)")
+	_tab_economy = _tab("Économie", "Lentille économique : bilan mensuel de chacun de vos systèmes, sur la carte  (L)")
 	_tab_economy.pressed.connect(func() -> void: set_lens("" if lens == "economy" else "economy"))
-	_tab_stability = _tab("Lentille de stabilité", "La stabilité de chacun de vos systèmes, et les mondes libres, sur la carte  (K)")
+	_tab_stability = _tab("Stabilité", "Lentille de stabilité : la stabilité de chacun de vos systèmes, et les mondes libres, sur la carte  (K)")
 	_tab_stability.pressed.connect(func() -> void: set_lens("" if lens == "stability" else "stability"))
-	_tab_politics = _tab("Lentille politique", "Le courant qui domine l'opinion de chacun de vos systèmes, et ses représentants au pouvoir ou non  (O)")
+	_tab_politics = _tab("Politique", "Lentille politique : le courant qui domine l'opinion de chacun de vos systèmes, et ses représentants au pouvoir ou non  (O)")
 	_tab_politics.pressed.connect(func() -> void: set_lens("" if lens == "politics" else "politics"))
+	_tab_trade = _tab("Commerce", "Lentille du commerce : vos routes commerciales (couleur du traité, rouge si bloquée) et le risque pirate le long du chemin  (G)")
+	_tab_trade.pressed.connect(func() -> void: set_lens("" if lens == "trade" else "trade"))
 	_tab_orbit = _tab("Vue orbitale", "L'étoile et ses planètes en orbite  (Tab)")
 	_tab_orbit.pressed.connect(func() -> void: system_mode_requested.emit(false))
 	_tab_manage = _tab("Gestion du système", "Les planètes côte à côte, pour comparer  (Tab)")

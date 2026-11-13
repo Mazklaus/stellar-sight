@@ -960,7 +960,7 @@
 			"label": "Bourses interstellaires",
 			"domain": "economie",
 			"era": 3,
-			"text": "+15 % d'énergie et +10 % d'influence.",
+			"text": "+15 % d'énergie et +10 % d'influence, et une route commerciale de plus.",
 			"pre": [
 				"recyclage"
 			],
@@ -968,7 +968,8 @@
 				"production_pct": {
 					"energy": 15,
 					"influence": 10
-				}
+				},
+				"trade_routes": 1
 			},
 			"eureka": {
 				"kind": "trade",
@@ -2030,9 +2031,10 @@
 			"pre": [
 				"bourses"
 			],
-			"text": "Chaque accord commercial rapporte le double. Un partenaire commercial vaut désormais une colonie.",
+			"text": "Chaque route commerciale rapporte le double, et une route de plus.",
 			"effects": {
-				"trade_income_pct": 100
+				"trade_income_pct": 100,
+				"trade_routes": 1
 			},
 			"flavor": "Elles ont des actionnaires, des flottes et des avis sur la politique étrangère. Surtout des avis.",
 			"eureka": {

@@ -1,0 +1,59 @@
+{
+	"_sources": [
+		"Étude « Le commerce galactique » (2026-11-13, validée) : https://claude.ai/artifact/Ld3mdBtJKAUmTXKvN1DceK",
+		"Endless Space 2 : routes de compagnie qui suivent les couloirs, plus longues = plus rentables, coupées par un blocus ou un système ennemi. https://endless-space-2.fandom.com/wiki/Trade",
+		"Galactic Civilizations : valeur selon la longueur de la route et la population des deux bouts, les deux empires touchent la même somme. https://galciv.fandom.com/wiki/Trade_(game_feature)",
+		"Civilization VI : capacité de routes limitée, routes intérieures qui nourrissent les jeunes villes, pillage. https://civilization.fandom.com/wiki/Trade_Route_(Civ6)",
+		"Humankind et Distant Worlds 2 : traités commerciaux en trois paliers, tarifs. https://humankind.fandom.com/wiki/Trade ; https://www6.slitherine.com/news/distant-worlds-2-dev-diary-6",
+		"Stellaris (3.9) : piraterie qui monte sur les systèmes non protégés d'une route jusqu'à 25 % de sa valeur, patrouilles. https://stellaris.fandom.com/wiki/Trade"
+	],
+	"_doc": "Lot 1 du commerce. Chaque mois, chaque empire envoie ses routes (capacité = base + comptoirs + technologies) vers ses partenaires commerciaux, les plus rentables d'abord, et vers ses jeunes colonies s'il en réserve. Une route étrangère rapporte la même valeur aux deux bouts, moins le tarif du palier.",
+	"tiers": [
+		{"id": 1, "label": "Comptoirs ouverts", "verb": "l'ouverture de comptoirs", "tariff_pct": 20, "bonus_pct": 0, "opinion": 3, "influence": 0,
+			"desc": "Exige la paix. Les marchands circulent, mais la douane prélève 20 % de la valeur des routes. Plus tard, seuls les luxes s'échangeront à ce palier."},
+		{"id": 2, "label": "Accord commercial", "verb": "un accord commercial", "tariff_pct": 10, "bonus_pct": 0, "opinion": 5, "influence": 1,
+			"desc": "Exige des comptoirs ouverts. Tout s'échange, tarif de 10 %, +1 influence par mois."},
+		{"id": 3, "label": "Libre-échange", "verb": "le libre-échange", "tariff_pct": 0, "bonus_pct": 25, "opinion": 8, "influence": 2,
+			"desc": "Exige deux ans d'accord commercial et une opinion d'au moins 20 de part et d'autre. Ni douane ni tarif, routes +25 %, +2 influence par mois.",
+			"after_days": 720, "min_opinion": 20}
+	],
+	"capacity_base": 1,
+	"route": {
+		"base": 2,
+		"pop_div": 10,
+		"max_jumps": 12,
+		"cap": 24,
+		"_doc": "Valeur d'une route étrangère = base + sauts × (population des deux systèmes d'arrivée) / pop_div, plafonnée à cap, avant tarif et bonus. Les sauts comptés vont jusqu'à max_jumps."
+	},
+	"internal": {
+		"young_pop": 6,
+		"yields": {"food": 2, "materials": 2},
+		"growth_per_day": 4,
+		"_doc": "Route intérieure : de la capitale vers une colonie de moins de young_pop habitants. Elle apporte nourriture et matériaux chaque mois, et la colonie grandit plus vite (growth_per_day en plus)."
+	},
+	"blockade": {
+		"_doc": "Une flotte armée hostile (en guerre avec un des deux bouts, pirates, faune) dans un système de la route la bloque : valeur nulle tant qu'elle y reste."
+	},
+	"piracy": {
+		"risk_max": 250,
+		"risk_per_month": 4,
+		"risk_decay": 20,
+		"loss_max": 500,
+		"lair_bonus": 8,
+		"lair_range": 2,
+		"incite_mult": 2,
+		"spawn_at": 250,
+		"spawn_min_jumps": 3,
+		"_doc": "Risque en pour mille (seulement si les pirates sont en jeu), par système de route hors de tout territoire et sans flotte d'un empire : +risk_per_month par mois jusqu'à risk_max (soit environ 5 ans). Une présence le fait baisser de risk_decay par mois. Perte d'une route = risque du système le plus exposé de son chemin (25 % au plus), doublé près d'un repaire sous contrat contre un des bouts (loss_max). Un repaire à lair_range sauts ajoute lair_bonus par mois, doublé contre la victime de son contrat. Au maximum, un nouveau repaire s'installe dans le système (à spawn_min_jumps sauts au moins de tout repaire)."
+	},
+	"opinion": {
+		"per_year": 2,
+		"years_max": 5,
+		"_doc": "Une route active ajoute per_year d'opinion par année de commerce ininterrompu, jusqu'à years_max années."
+	},
+	"cut_rich_value": 10,
+	"embargo": {
+		"ally_join_opinion": 0,
+		"_doc": "Un embargo coupe le commerce avec la cible et interdit d'en signer. Les alliés IA suivent si leur opinion de la cible est inférieure ou égale à ally_join_opinion."
+	}
+}

@@ -191,7 +191,7 @@ static func growth_parts(state: GameState, a: int, b: int) -> Array:
 	out.append(["%d cellule%s (déchiffrement %d contre chiffrement %d : %d %%)" % [
 			cells, "s" if cells > 1 else "", decryption(state, a), encryption(state, b), pct], base])
 	if Diplomacy.has_trade(state, a, b):
-		out.append(["Accord commercial : les cargos cachent bien", int(cfg["trade_bonus"])])
+		out.append(["Commerce : les cargos cachent bien", int(cfg["trade_bonus"])])
 	if Diplomacy.border_systems(state, a, b) > 0 or Diplomacy.border_systems(state, b, a) > 0:
 		out.append(["Frontière commune", int(cfg["border_bonus"])])
 	if Combat.at_war(state, a, b):

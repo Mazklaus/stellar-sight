@@ -103,7 +103,9 @@ func _test_truce_and_alliance() -> void:
 	_apply(st, SimCommands.propose_treaty(0, 1, "trade"))
 	_apply(st, SimCommands.answer_proposal(1, int(Diplomacy.pending(st, 0, 1, "trade")["id"]), true))
 	_ok(Diplomacy.has_trade(st, 0, 1), "accord commercial signé pendant la paix")
-	_ok(int(Economy.empire_income(st, 0)["gross"]["influence"]) > before, "les traités comptent dans les revenus")
+	Trade.compute(st)
+	_ok(int(Diplomacy.treaty_income(st, 0).get("energy", 0)) > 0 and int(Economy.empire_income(st, 0)["gross"]["influence"]) >= before,
+			"les routes commerciales comptent dans les revenus")
 	Diplomacy._rel_w(st, 0, 1)["since"] = st.tick - 200
 	_ok(_apply(st, SimCommands.propose_treaty(1, 0, "alliance")), "alliance proposée après six mois")
 	_apply(st, SimCommands.answer_proposal(0, int(Diplomacy.pending(st, 1, 0, "alliance")["id"]), true))

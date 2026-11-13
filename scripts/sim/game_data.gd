@@ -231,6 +231,11 @@ static func diplomacy() -> Dictionary:
 	return _load("diplomacy")
 
 
+## Commerce (data/trade.json) : paliers de traité, routes, comptoirs, piraterie des routes.
+static func trade() -> Dictionary:
+	return _load("trade")
+
+
 ## Stabilité des systèmes (data/stability.json).
 static func stability() -> Dictionary:
 	return _load("stability")

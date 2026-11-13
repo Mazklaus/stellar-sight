@@ -61,6 +61,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiStability.think(ctx)
 	AiPolitics.think(ctx)
 	AiPirates.think(ctx)
+	AiTrade.think(ctx)
 	AiEvents.think(ctx)
 	AiRelics.think(ctx)
 	AiQuests.think(ctx)
@@ -648,6 +649,9 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 	# les autres niveaux à 500 (sans quoi le Chœur entassait des milliers de matériaux inutiles).
 	if c.is_colony() and _res(ctx, "materials") >= (250 if use >= 2 else 500):
 		out.append("forum")
+	# Plus de partenaires commerciaux que de routes : un comptoir (voir AiTrade).
+	if use >= 1 and AiTrade.wants_comptoir(ctx):
+		out.append("comptoir")
 	# En guerre, les systèmes du front se fortifient (dès le niveau Normal).
 	if not e.wars.is_empty() and _skill(ctx) >= 1 and int(rival_distance(ctx).get(p.system_id, 99)) <= 2 \
 			and Combat.battery(state, p.system_id).is_empty():

@@ -189,7 +189,7 @@
 			"power": {"id": "dividende_paix", "label": "Dividende de la paix", "level": 0, "fx": {"per_treaty": {"energy": 3}}, "text": "Chaque traité en vigueur rapporte 3 énergie par mois : la paix, ça se compte."},
 			"laws": [
 				{"id": "diplomatie_couloir", "label": "Diplomatie de couloir", "level": 1, "fx": {"opinion_all": 10}, "text": "Les petits fours font plus que les canons. Opinion de tous les empires +10."},
-				{"id": "ports_francs", "label": "Ports francs", "level": 2, "fx": {"trade_income_pct": 50}, "text": "Pas de douane, pas de questions. Accords commerciaux +50 %."},
+				{"id": "ports_francs", "label": "Ports francs", "level": 2, "fx": {"trade_income_pct": 50}, "text": "Pas de douane, pas de questions. Routes commerciales +50 %."},
 				{"id": "desarmement", "label": "Désarmement", "level": 3, "fx": {"upkeep_pct": -25}, "text": "On garde les vaisseaux, on renvoie les équipages chez eux. Entretien des flottes -25 %."},
 				{"id": "pax", "label": "Pax stellaris", "level": 4, "fx": {"stability": 6, "growth_pct": 20}, "text": "Les mères ne craignent plus pour leurs fils. Stabilité +6, croissance +20 %."}
 			]
@@ -252,7 +252,7 @@
 			"fx": {"stability": 10, "production_pct": {"influence": -25, "knowledge": -15}},
 			"text": "Stabilité +10. On dort mieux, on pense moins : influence -25 %, Savoir -15 %."
 		},
-		{"id": "libre_echange", "label": "Libre-échange", "level": 0, "fx": {"trade_income_pct": 100, "production_pct": {"materials": -15}}, "text": "Accords commerciaux +100 %. Les forges locales ferment : matériaux -15 %."}
+		{"id": "libre_echange", "label": "Libre-échange", "level": 0, "fx": {"trade_income_pct": 100, "production_pct": {"materials": -15}}, "text": "Routes commerciales +100 %. Les forges locales ferment : matériaux -15 %."}
 	],
 	"law_rules": {
 		"slots": {"republique": 4, "feodalite": 3, "theocratie": 2, "syndicat": 3, "horde": 2, "conscience": 3, "ruche": 2},

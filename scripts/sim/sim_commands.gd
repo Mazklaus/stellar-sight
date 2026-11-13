@@ -93,6 +93,21 @@ static func cancel_treaty(player: int, target: int, treaty: String) -> Dictionar
 	return {"type": "cancel_treaty", "player": player, "target": target, "treaty": treaty}
 
 
+## Embargo contre un empire (voir Trade) : coupe le commerce et interdit d'en signer.
+static func embargo(player: int, target: int) -> Dictionary:
+	return {"type": "embargo", "player": player, "target": target}
+
+
+## Lève l'embargo imposé à un empire.
+static func lift_embargo(player: int, target: int) -> Dictionary:
+	return {"type": "lift_embargo", "player": player, "target": target}
+
+
+## Places de capacité commerciale réservées aux routes intérieures (vers les jeunes colonies).
+static func trade_reserve(player: int, n: int) -> Dictionary:
+	return {"type": "trade_reserve", "player": player, "n": n}
+
+
 ## Soudoie l'héritier d'une dynastie féodale rivale (sa loyauté baisse).
 static func bribe_heir(player: int, target: int) -> Dictionary:
 	return {"type": "bribe_heir", "player": player, "target": target}
@@ -421,6 +436,12 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Diplomacy.check_answer(state, int(cmd["player"]), int(cmd.get("proposal", -1)), bool(cmd.get("accept", false)))
 		"cancel_treaty":
 			return Diplomacy.check_cancel(state, int(cmd["player"]), int(cmd.get("target", -1)), String(cmd.get("treaty", "")))
+		"embargo":
+			return Trade.check_embargo(state, int(cmd["player"]), int(cmd.get("target", -1)))
+		"lift_embargo":
+			return Trade.check_lift(state, int(cmd["player"]), int(cmd.get("target", -1)))
+		"trade_reserve":
+			return Trade.check_reserve(state, int(cmd["player"]), int(cmd.get("n", -1)))
 		"bribe_heir":
 			return Diplomacy.check_bribe(state, int(cmd["player"]), int(cmd.get("target", -1)))
 		"banquet":
@@ -718,6 +739,12 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Diplomacy.answer(state, int(cmd["proposal"]), bool(cmd["accept"]))
 		"cancel_treaty":
 			Diplomacy.cancel(state, int(cmd["player"]), int(cmd["target"]), String(cmd["treaty"]))
+		"embargo":
+			Trade.embargo(state, int(cmd["player"]), int(cmd["target"]))
+		"lift_embargo":
+			Trade.lift(state, int(cmd["player"]), int(cmd["target"]))
+		"trade_reserve":
+			Trade.set_reserve(state, int(cmd["player"]), int(cmd["n"]))
 		"bribe_heir":
 			Diplomacy.bribe(state, int(cmd["player"]), int(cmd["target"]))
 		"banquet":

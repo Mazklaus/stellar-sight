@@ -90,6 +90,15 @@ class IconButton:
 				for side in [-1.0, 1.0]:
 					draw_colored_polygon(PackedVector2Array([c + Vector2(side * s * 1.1, -s * 0.6), c + Vector2(side * s * 1.1 - s * 0.45, s * 0.15),
 							c + Vector2(side * s * 1.1 + s * 0.45, s * 0.15)]), col)
+			"trade":
+				# Deux flèches opposées : l'aller et le retour d'une route.
+				for side in [-1.0, 1.0]:
+					var y: float = side * s * 0.45
+					var x0: float = -side * s * 1.1
+					var x1: float = side * s * 1.1
+					draw_line(c + Vector2(x0, y), c + Vector2(x1, y), col, 1.6, true)
+					draw_colored_polygon(PackedVector2Array([c + Vector2(x1 + side * s * 0.1, y), c + Vector2(x1 - side * s * 0.45, y - s * 0.35),
+							c + Vector2(x1 - side * s * 0.45, y + s * 0.35)]), col)
 			"senate":
 				# Un hémicycle : deux rangées de sièges en demi-cercle et la tribune.
 				for k in 2:

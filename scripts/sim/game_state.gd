@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 34
+const FORMAT_VERSION := 35
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -133,6 +133,9 @@ var politics_on: bool = false
 ## Faune (voir Fauna) : densité, nids, troupeaux, et par empire les espèces rencontrées, étudiées,
 ## chassées ou apprivoisées.
 var fauna: Dictionary = {}
+## Commerce (voir Trade) : routes du mois, risques des pirates par système, places réservées aux
+## routes intérieures, colonies desservies et revenus par empire (calculés au bilan mensuel).
+var trade: Dictionary = {}
 var _pirates: Empire
 var _fauna: Empire
 
@@ -315,6 +318,7 @@ func to_dict() -> Dictionary:
 		"quests": Quests.to_dict(self),
 		"politics": Politics.to_dict(self),
 		"fauna": Fauna.to_dict(self),
+		"trade": Trade.to_dict(self),
 	}
 
 
@@ -505,7 +509,18 @@ static func from_dict(d: Dictionary) -> GameState:
 	Quests.from_dict(s, d.get("quests", {}))
 	Politics.from_dict(s, d.get("politics", {}))
 	Fauna.from_dict(s, d.get("fauna", {}))
+	Trade.from_dict(s, d.get("trade", {}))
 	s.rebuild_ownership()
+	# Sauvegardes d'avant le commerce en paliers : l'ancien accord commercial devient un accord du
+	# 2e palier, et les routes se tracent tout de suite.
+	if int(d["version"]) < 35:
+		for k in s.relations:
+			var r: Dictionary = s.relations[k]
+			if int(r.get("trade", 0)) > 0:
+				r["trade"] = Trade.AGREEMENT
+				r["trade_since"] = s.tick
+				r["tier_since"] = s.tick
+		Trade.compute(s)
 	# Sauvegardes d'avant les héros : chaque empire reçoit son héros de départ.
 	if int(d["version"]) < 20:
 		Heroes.setup(s)

@@ -54,7 +54,7 @@
 		"credo": {
 			"honneur": {"label": "Parole donnée", "text": "Un parjure (traité rompu) coûte 10 de stabilité partout pendant un an.", "perjury": -10, "perjury_days": 360},
 			"foi": {"label": "Les infidèles", "text": "Le malus des mondes conquis compte double.", "conquered_x": 2},
-			"profit": {"label": "Les affaires marchent", "text": "Un accord commercial actif : +5 stabilité partout.", "trade": 5},
+			"profit": {"label": "Les affaires marchent", "text": "Du commerce avec au moins un empire (n'importe quel palier) : +5 stabilité partout.", "trade": 5},
 			"survie": {"label": "Habitués à la disette", "text": "Famine et coupures d'énergie ne font pas baisser la stabilité.", "no_shortage": true}
 		},
 		"archetype": {

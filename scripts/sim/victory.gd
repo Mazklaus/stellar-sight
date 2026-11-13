@@ -513,11 +513,12 @@ static func _couplet(state: GameState, e: Empire, out: Dictionary) -> void:
 	_timed(out, have, sites)
 
 
-## Empires qui ont signé la Charte avec l'empire : paix ou alliance, et commerce.
+## Empires qui ont signé la Charte avec l'empire : paix ou alliance, et commerce au palier Accord
+## commercial ou plus (voir Trade).
 static func signatories(state: GameState, empire_id: int) -> Array[int]:
 	var out: Array[int] = []
 	for o in state.empires:
-		if o.id != empire_id and not o.eliminated and Diplomacy.has_pact(state, empire_id, o.id) and Diplomacy.has_trade(state, empire_id, o.id):
+		if o.id != empire_id and not o.eliminated and Diplomacy.has_pact(state, empire_id, o.id) and Trade.tier(state, empire_id, o.id) >= Trade.AGREEMENT:
 			out.append(o.id)
 	return out
 

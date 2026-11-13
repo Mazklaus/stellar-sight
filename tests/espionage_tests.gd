@@ -81,7 +81,7 @@ func _test_growth() -> void:
 	Espionage.monthly(st)
 	_ok(Espionage.infiltration(st, 0, 1) == g, "l'infiltration monte de la croissance du mois (%d)" % g)
 	Diplomacy._rel_w(st, 0, 1)["trade"] = 1
-	_ok(_part(st, 0, 1, "Accord commercial") == 2, "le commerce aide le réseau")
+	_ok(_part(st, 0, 1, "Commerce") == 2, "le commerce aide le réseau")
 	Diplomacy._rel_w(st, 0, 1)["trade"] = 0
 	# Écart d'ère : la table de chiffrement.
 	var era_before := Espionage.decryption(st, 0)

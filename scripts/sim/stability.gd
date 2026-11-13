@@ -302,7 +302,7 @@ static func context(state: GameState, empire_id: int) -> Dictionary:
 	if int(tal.get("trade", 0)) != 0:
 		for o in state.empires:
 			if o.id != empire_id and not o.eliminated and Diplomacy.has_trade(state, empire_id, o.id):
-				global.append(["Accord commercial", int(tal["trade"])])
+				global.append(["Commerce actif", int(tal["trade"])])
 				break
 	# Butin (horde).
 	if int(tal.get("loot_recent", 0)) != 0:

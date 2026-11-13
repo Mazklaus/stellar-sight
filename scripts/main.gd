@@ -1164,6 +1164,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			if key.physical_keycode == KEY_P:
 				toggle_empire_screen("senate")
 				return
+			if key.physical_keycode == KEY_C:
+				toggle_empire_screen("trade")
+				return
+			if key.physical_keycode == KEY_G and not is_system_view_open():
+				_hud.set_lens("" if _hud.lens == "trade" else "trade")
+				return
 			if key.physical_keycode == KEY_O and not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "politics" else "politics")
 				return
@@ -1434,7 +1440,7 @@ func _announce_proposals() -> void:
 	for p in Diplomacy.proposals_for(st, view_empire):
 		if int(p["id"]) > _proposals_told:
 			_hud.notify("%s vous propose : %s.  (F4 : Diplomatie)" % [st.get_empire(int(p["from"])).short_name(),
-					Diplomacy.treaty_label(String(p["treaty"])).to_lower()], "good")
+					Diplomacy.proposal_label(p).to_lower()], "good")
 	_proposals_told = st.next_proposal_id - 1
 
 
