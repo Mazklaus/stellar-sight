@@ -59,6 +59,24 @@ Une route a ses dangers :
 
 Le commerce rapproche : chaque année de routes ininterrompues ajoute 2 d'opinion, jusqu'à cinq ans. La **lentille du commerce** ([[G]]) montre vos routes sur la carte, à la couleur de leur palier, en rouge si elles sont bloquées, avec le risque pirate des systèmes traversés.
 
+### Luxes, stratégiques et marché
+
+Certaines planètes portent un **gisement** : un luxe ou une ressource stratégique, visible dans la fiche du système. Une colonie ou un avant-poste établi l'exploite. La quantité de gisements se règle dans la nouvelle partie (aucuns, rares, normaux, abondants).
+
+Les **luxes** comptent par variété : le premier exemplaire de chaque luxe donne de la stabilité dans tous vos systèmes, selon son palier, et un petit effet. Chaque gisement de plus du même luxe ne rapporte que 2 énergie par mois.
+
+{{luxes}}
+
+Un luxe que vous n'avez pas s'obtient par **licence** : le vendeur garde son gisement et vous en accorde l'usage, contre un loyer mensuel (le prix du palier, plus 1 par tranche de quatre sauts entre les capitales). Il faut un palier de commerce entre vous. Chaque licence ajoute aussi 2 à la valeur de vos routes avec le vendeur. Vous pouvez fermer vos licences à tout le monde. L'empire qui exploite au moins 60 % des gisements d'un luxe (et au moins deux) en a le **monopole** : 5 à 25 énergie par mois selon sa part, des licences 50 % plus chères, et la réputation d'accapareur chez ceux qui le connaissent.
+
+Les **stratégiques** s'ouvrent avec les ères : un gisement ne produit rien avant que vous ayez atteint son ère, puis 1 unité par mois. Les pièces d'artillerie, les hangars et les modules titanesques en consomment au Chantier, et la Bourse des Mille Soleils demande du ferronoir. Sans gisements en jeu, ces coûts disparaissent.
+
+{{strategiques}}
+
+Le **marché** (onglet Marché de l'écran Commerce) échange matériaux, nourriture, cristaux et stratégiques contre de l'énergie. Les frais sont de 30 %, moins ce que retirent vos technologies, vos lois et vos talents. Chaque achat fait monter le prix et chaque vente le fait baisser, de 0,4 % par tranche de dix unités ; il revient à moitié vers la normale chaque mois. Une **commande mensuelle** achète ou vend la même quantité tous les mois. Le marché peut être coupé dans la nouvelle partie.
+
+Entre empires, un **accord** échange ce que vous voulez : énergie, ressources, stratégiques, en une fois ou chaque mois pendant un à dix ans. L'IA répond aussitôt selon les prix du marché, ses besoins et son opinion de vous ; une proposition qui vous est faite attend votre réponse dans l'onglet Marché. Un accord rompu ou impayé laisse le souvenir d'un contrat rompu.
+
 ::: conseil
 Les routes les plus longues rapportent le plus, mais ce sont aussi celles qui traversent le plus de vide. Une corvette en patrouille sur le bon carrefour vaut parfois mieux qu'un comptoir de plus.
 :::
