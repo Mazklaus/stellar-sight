@@ -231,6 +231,17 @@ func _draw() -> void:
 				_draw_peoples(s, px)
 		_draw_convoys(px)
 		return
+	if lens == "faith" and state != null:
+		# Lentille de la foi : vos systèmes cerclés de la part de chaque croyance, la majoritaire, et
+		# les mondes saints des systèmes explorés.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		for s in galaxy.systems:
+			if owner_of(s.id) == viewer:
+				_draw_system(s, px)
+				_draw_label(s, px, true)
+				_draw_faith(s, px)
+		_draw_holy_worlds(px)
+		return
 	if lens == "trade" and state != null:
 		# Lentille du commerce : vos routes (couleur du palier du traité, verte pour une route
 		# intérieure, rouge si bloquée) et le risque pirate des systèmes traversés.
@@ -756,6 +767,70 @@ func _draw_peoples(s: StarSystem, px: float) -> void:
 	draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
 	draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, tcol.lightened(0.2))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Fidèles de chaque croyance dans un système (colonies du joueur regardé ; "" = cultes natals).
+func system_faiths(sid: int) -> Dictionary:
+	var out := {}
+	for pid in galaxy.systems[sid].planet_ids:
+		var c: Colony = state.colonies.get(pid)
+		if c == null or c.owner != viewer:
+			continue
+		var cnt := Faiths.counts(c)
+		for fid in cnt:
+			out[fid] = int(out.get(fid, 0)) + int(cnt[fid])
+	return out
+
+
+func _draw_faith(s: StarSystem, px: float) -> void:
+	var cnt := system_faiths(s.id)
+	var total := 0
+	for fid in cnt:
+		total += int(cnt[fid])
+	if total <= 0:
+		return
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	var keys := cnt.keys()
+	keys.sort_custom(func(a: String, b: String) -> bool:
+		return int(cnt[a]) > int(cnt[b]) or (int(cnt[a]) == int(cnt[b]) and a < b))
+	var start := -PI * 0.5
+	for fid: String in keys:
+		var span := TAU * float(cnt[fid]) / float(total)
+		var col := Color(0.45, 0.45, 0.42) if fid == Faiths.NATIVE else Faiths.color_of(state, fid)
+		draw_arc(Vector2.ZERO, 13.0, start, start + span, maxi(4, int(28.0 * span / TAU)), col, 3.0, true)
+		start += span
+	var top: String = keys[0]
+	@warning_ignore("integer_division")
+	var text := "%s %d %%" % [Faiths.name_of(state, top), int(cnt[top]) * 100 / total]
+	var tcol := Color(0.7, 0.7, 0.66) if top == Faiths.NATIVE else Faiths.color_of(state, top).lightened(0.2)
+	var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+	draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
+	draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, tcol)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Mondes saints des systèmes explorés : une étoile dorée à huit branches.
+func _draw_holy_worlds(px: float) -> void:
+	if not state.faith_on:
+		return
+	var e := state.get_empire(viewer)
+	for fid in Faiths.ids(state):
+		var sid := galaxy.get_planet(int(Faiths.faith(state, fid)["holy"])).system_id
+		if e != null and not e.explored.has(sid) and owner_of(sid) != viewer:
+			continue
+		var s := galaxy.systems[sid]
+		draw_set_transform(s.position, 0.0, Vector2(px, px))
+		var col := Faiths.color_of(state, fid).lightened(0.3)
+		var pts := PackedVector2Array()
+		for i in 16:
+			var r := 20.0 if i % 2 == 0 else 9.0
+			var a := -PI / 2.0 + i * PI / 8.0
+			pts.append(Vector2(cos(a), sin(a)) * r + Vector2(0, -26))
+		draw_colored_polygon(pts, Color(col, 0.85))
+		var text := Faiths.name_of(state, fid)
+		var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+		draw_string(_font, Vector2(-tw * 0.5, -50), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, col)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _draw_yields(s: StarSystem, px: float) -> void:

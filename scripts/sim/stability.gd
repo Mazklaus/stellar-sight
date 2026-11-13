@@ -428,6 +428,9 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 	if state.peoples_on:
 		out.append_array(Peoples.stability_parts(state, sid, owner))
 		out.append_array(Movements.stability_parts(state, sid, owner))
+	# Religion : foi d'État majoritaire ou non, changement récent (voir Faiths).
+	if state.faith_on:
+		out.append_array(Faiths.stability_parts(state, sid, owner))
 	# Décret.
 	var d := active_decree(state, sid)
 	if d != "":

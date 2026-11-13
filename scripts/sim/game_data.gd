@@ -288,6 +288,11 @@ static func quests() -> Dictionary:
 	return _load("quests")
 
 
+## Religion (data/faiths.json) : cultes natals, noms, dogmes, propagation.
+static func faiths() -> Dictionary:
+	return _load("faiths")
+
+
 static func politics() -> Dictionary:
 	return _load("politics")
 

@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.10
+
+- **Religions** : chaque colonie compte ses fidèles, les cultes natals donnent un bonus par credo, au plus une grande foi par empire et la moitié des empires plus une dans la partie ; Révélations par cinq voies, monde saint, propagation par la proximité, les routes et les migrants, foi d'État, dogmes choisis par le chef de foi, ferveur liée aux mondes fidèles (chapitre 10). Nouvelle option de partie (chapitre 1), écran Foi [[Y]] et lentille de la foi [[N]] (chapitre 2).
+
 ### Édition 1.9
 
 - **Migrations, réfugiés et diasporas** : migration intérieure (nouvelle option de partie), politique d'accueil, convois de réfugiés sur la carte, renaissance des empires disparus, revendications de la diaspora, sécession par affinité, luxe aimé et talents de peuples mêlés (chapitre 3).

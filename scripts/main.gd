@@ -1164,6 +1164,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			if key.physical_keycode == KEY_P:
 				toggle_empire_screen("senate")
 				return
+			if key.physical_keycode == KEY_Y:
+				toggle_empire_screen("faith")
+				return
 			if key.physical_keycode == KEY_C:
 				toggle_empire_screen("trade")
 				return
@@ -1172,6 +1175,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				return
 			if key.physical_keycode == KEY_U and not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "peoples" else "peoples")
+				return
+			if key.physical_keycode == KEY_N and not is_system_view_open():
+				_hud.set_lens("" if _hud.lens == "faith" else "faith")
 				return
 			if key.physical_keycode == KEY_O and not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "politics" else "politics")

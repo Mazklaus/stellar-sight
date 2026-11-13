@@ -79,7 +79,7 @@
 			"subjects": {"system": "low_stab"}, "if": {"stability": true, "stab_below": 50},
 			"text": "Sur les quais de {system}, un docker juché sur une caisse annonce la fin des temps pour mardi prochain. La foule grossit. Les dockers, eux, ne travaillent plus : il faut bien finir sa vie en beauté.",
 			"choices": [
-				{"label": "L'écouter et lui offrir une chaire", "fx": [{"k": "res", "res": {"influence": -25}}, {"k": "stab", "v": 12, "days": 360}]},
+				{"label": "L'écouter et lui offrir une chaire", "fx": [{"k": "res", "res": {"influence": -25}}, {"k": "stab", "v": 12, "days": 360}, {"k": "revelation", "via": "prophete"}]},
 				{"label": "Le faire taire discrètement", "fx": [{"k": "stab", "v": -6, "days": 180}, {"k": "res", "res": {"energy": 40}}]},
 				{"label": "Le déclarer saint patron des quais", "if": {"layers": {"credo": ["foi"]}}, "fx": [{"k": "fervor", "v": 10}, {"k": "stab", "v": 15, "days": 360}]}
 			], "default": 1},

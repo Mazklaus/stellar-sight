@@ -362,6 +362,16 @@ static func peoples_status(player: int, species: String, status: String) -> Dict
 	return {"type": "peoples_status", "player": player, "species": species, "status": status}
 
 
+## Change la foi d'État ("laicite", "incroyance" ou une grande foi, voir Faiths).
+static func faith_state(player: int, faith: String) -> Dictionary:
+	return {"type": "faith_state", "player": player, "faith": faith}
+
+
+## Le chef de foi ajoute un dogme à sa foi (voir Faiths).
+static func faith_dogma(player: int, faith: String, dogma: String) -> Dictionary:
+	return {"type": "faith_dogma", "player": player, "faith": faith, "dogma": dogma}
+
+
 ## Politique d'accueil des réfugiés (voir Movements.POLICIES).
 static func refugee_policy(player: int, policy: String) -> Dictionary:
 	return {"type": "refugee_policy", "player": player, "policy": policy}
@@ -481,6 +491,10 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Politics.check_support(state, int(cmd["player"]), int(cmd.get("current", -2)))
 		"peoples_status":
 			return Peoples.check_status(state, int(cmd["player"]), String(cmd.get("species", "")), String(cmd.get("status", "")))
+		"faith_state":
+			return Faiths.check_state(state, int(cmd["player"]), String(cmd.get("faith", "")))
+		"faith_dogma":
+			return Faiths.check_dogma(state, int(cmd["player"]), String(cmd.get("faith", "")), String(cmd.get("dogma", "")))
 		"refugee_policy":
 			return Movements.check_policy(state, int(cmd["player"]), String(cmd.get("policy", "")))
 		"diaspora_answer":
@@ -760,6 +774,10 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Politics.support(state, int(cmd["player"]), int(cmd["current"]))
 		"peoples_status":
 			Peoples.set_status(state, int(cmd["player"]), String(cmd["species"]), String(cmd["status"]))
+		"faith_state":
+			Faiths.set_state(state, int(cmd["player"]), String(cmd["faith"]))
+		"faith_dogma":
+			Faiths.add_dogma(state, String(cmd["faith"]), String(cmd["dogma"]))
 		"refugee_policy":
 			Movements.set_policy(state, int(cmd["player"]), String(cmd["policy"]))
 		"diaspora_answer":

@@ -135,6 +135,7 @@ static func count_of(state: GameState, c: Colony, fid: String) -> int:
 static func remove_one(state: GameState, c: Colony, fid: String) -> bool:
 	if count_of(state, c, fid) <= 0 or c.population <= 0:
 		return false
+	Faiths.on_leave(state, c)
 	c.population -= 1
 	if fid != Peoples.founder_of(state, c.owner):
 		c.species[fid] = int(c.species[fid]) - 1
@@ -148,6 +149,7 @@ static func remove_one(state: GameState, c: Colony, fid: String) -> bool:
 @warning_ignore("integer_division")
 static func add_one(state: GameState, c: Colony, fid: String, integ: int) -> void:
 	c.population += 1
+	Faiths.on_arrive(state, c)
 	if fid == Peoples.founder_of(state, c.owner) or fid == "":
 		return
 	var n := int(c.species.get(fid, 0))

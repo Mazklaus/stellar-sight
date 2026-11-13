@@ -208,8 +208,8 @@
 			"laws": [
 				{"id": "dime", "label": "Dîme", "level": 1, "fx": {"production_pct": {"influence": 15}}, "text": "Le dixième de tout, pour le ciel et pour ses intendants. Influence +15 %."},
 				{"id": "pelerinages", "label": "Pèlerinages", "level": 2, "fx": {"stability": 5}, "text": "Les routes sont pleines de fidèles, et les auberges de bonne humeur. Stabilité +5."},
-				{"id": "ordres_missionnaires", "label": "Ordres missionnaires", "level": 3, "fx": {"opinion_all": 5, "curio_power": 3}, "text": "Des moines partent porter la parole, et ramènent des cartes."},
-				{"id": "sanctuaires", "label": "Mondes sanctuaires", "level": 4, "fx": {"stability": 8}, "text": "Chaque monde a son temple, chaque temple son miracle mensuel. Stabilité +8."}
+				{"id": "ordres_missionnaires", "label": "Ordres missionnaires", "level": 3, "fx": {"opinion_all": 5, "curio_power": 3, "faith_pressure_pct": 25}, "text": "Des moines partent porter la parole, et ramènent des cartes. Avec les religions : la foi d'État prêche 25 % plus fort."},
+				{"id": "sanctuaires", "label": "Mondes sanctuaires", "level": 4, "fx": {"stability": 8, "faith_resist_pct": 25}, "text": "Chaque monde a son temple, chaque temple son miracle mensuel. Stabilité +8. Avec les religions : les fidèles de la foi d'État résistent 25 % mieux aux autres prêches."}
 			]
 		},
 		"glaive": {

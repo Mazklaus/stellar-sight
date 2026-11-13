@@ -51,6 +51,7 @@ func _initialize() -> void:
 	preload("res://tests/peoples_tests.gd").new().run(_check)
 	preload("res://tests/peoples_status_tests.gd").new().run(_check)
 	preload("res://tests/movements_tests.gd").new().run(_check)
+	preload("res://tests/faiths_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -203,6 +204,7 @@ func _test_main_scene() -> void:
 	await _test_hero_ui(main)
 	await _test_order_ui(main)
 	await _test_senate_ui(main)
+	await _test_faith_ui(main)
 	await _test_event_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
@@ -1686,6 +1688,33 @@ func _test_event_ui(main: Node) -> void:
 
 
 ## Écran Sénat (P), lentille politique (O), fenêtre d'élection.
+func _test_faith_ui(main: Node) -> void:
+	var screens: EmpireScreens = main._empire_screens
+	var st: GameState = main.simulation.state
+	var me: int = main.view_empire
+	_check(st.faith_on, "Foi : la Nouvelle partie active les religions par défaut")
+	_press(KEY_Y)
+	await process_frame
+	_check(screens.current == "faith", "Y : écran Foi")
+	_check(screens.faith_buttons.has("state:" + Faiths.INCROYANCE) or Faiths.state_faith(st, me) == Faiths.INCROYANCE or Faiths.is_hive(st, me), "Foi : bouton Adopter l'incroyance")
+	if screens.faith_buttons.has("state:" + Faiths.INCROYANCE) and not (screens.faith_buttons["state:" + Faiths.INCROYANCE] as Button).disabled:
+		(screens.faith_buttons["state:" + Faiths.INCROYANCE] as Button).pressed.emit()
+		main.simulation.flush_commands()
+		_check(Faiths.state_faith(st, me) == Faiths.INCROYANCE, "Foi : foi d'État changée depuis l'écran")
+		screens.refresh()
+		await process_frame
+		_check(not screens.faith_buttons.has("state:" + Faiths.INCROYANCE), "Foi : l'écran suit le changement")
+	_press(KEY_Y)
+	await process_frame
+	_check(not screens.is_open(), "Y referme l'écran Foi")
+	_press(KEY_N)
+	await process_frame
+	_check(main._hud.lens == "faith", "N : lentille de la foi")
+	_press(KEY_N)
+	await process_frame
+	_check(main._hud.lens == "", "N referme la lentille de la foi")
+
+
 func _test_senate_ui(main: Node) -> void:
 	var screens: EmpireScreens = main._empire_screens
 	var st: GameState = main.simulation.state
