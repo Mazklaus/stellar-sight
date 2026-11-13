@@ -23,7 +23,7 @@ Les **routes de saut** relient les systèmes. Les flottes ne voyagent que le lon
 
 ### Les lentilles
 
-Une lentille assombrit la carte et n'en garde qu'une lecture. La **lentille économique** ([[L]]) montre le bilan de chacun de vos systèmes par ressource. La lentille de **stabilité** ([[K]]) colore vos systèmes selon leur humeur. La lentille **politique** ([[O]]) montre le courant qui domine chaque système. La lentille du **commerce** ([[G]]) trace vos routes commerciales et le risque pirate le long du chemin. La lentille des **peuples** ([[U]]) cercle chaque système de la part de chaque espèce et nomme la majoritaire.
+Une lentille assombrit la carte et n'en garde qu'une lecture. La **lentille économique** ([[L]]) montre le bilan de chacun de vos systèmes par ressource. La lentille de **stabilité** ([[K]]) colore vos systèmes selon leur humeur. La lentille **politique** ([[O]]) montre le courant qui domine chaque système. La lentille du **commerce** ([[G]]) trace vos routes commerciales et le risque pirate le long du chemin. La lentille des **peuples** ([[U]]) cercle chaque système de la part de chaque espèce et nomme la majoritaire. La lentille de la **foi** ([[N]]) fait de même avec les croyances, et marque d'une étoile les mondes saints que vous connaissez.
 
 ### La vue système
 
@@ -50,6 +50,7 @@ Les écrans d'empire s'ouvrent en plein écran, par les pictogrammes du panneau 
 | Panthéon | [[F10]] | Vos héros, leurs postes, les candidats |
 | Ordre intérieur | [[F12]] | Stabilité des systèmes, décrets |
 | Sénat | [[P]] | Courants politiques, élections, lois |
+| Foi | [[Y]] | Foi d'État, grandes fois et dogmes, croyances de vos colonies |
 | Commerce | [[C]] | Quatre onglets : routes (capacité, routes intérieures, risques), ressources (luxes, stratégiques, licences, monopoles), marché (achats, commandes, accords), Savoir (accords de recherche, licences de technologie, diffusion) |
 | Chroniques | [[J]] | Quêtes, événements, Reliquaire, Bestiaire |
 

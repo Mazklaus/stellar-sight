@@ -587,6 +587,9 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				var scope := String(fx.get("scope", "system"))
 				var where := "dans tout l'empire" if scope == "empire" else "à %s" % _sys_name(state, _target_system(state, empire_id, item, scope))
 				out.append("Stabilité %+d %s pendant %s" % [int(fx["v"]), where, _duration_text(int(fx["days"]))])
+			"revelation":
+				if Faiths.can_found(state, empire_id):
+					out.append("Révélation : une grande foi peut naître ici")
 			"fervor":
 				if FactionTraits.has_fervor(f):
 					out.append("Ferveur %+d" % int(fx["v"]))
@@ -675,6 +678,11 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 					en["ev"] = int(fx["v"])
 					en["ev_end"] = state.tick + int(fx["days"])
 					en["ev_card"] = String(item["card"])
+			"revelation":
+				# Révélation (voir Faiths) : la colonie du système de l'événement devient monde saint.
+				if state.faith_on:
+					Faiths.reveal(state, empire_id, String(fx.get("via", "prophete")),
+							Faiths.colony_in_system(state, empire_id, _target_system(state, empire_id, item, "system")), added)
 			"fervor":
 				if FactionTraits.has_fervor(f):
 					e.fervor = clampi(e.fervor + int(fx["v"]), 0, int(f["fervor"].get("max", 100)))

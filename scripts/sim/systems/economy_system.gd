@@ -15,6 +15,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 		Peoples.refresh(state)
 		Peoples.monthly(state, added)
 		Movements.monthly(state, added)
+		Faiths.monthly(state, added)
 		for e in state.empires:
 			_monthly_balance(state, e, added)
 	return added
@@ -32,6 +33,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 			if c.is_colony():
 				c.population = maxi(c.population, FactionTraits.colony_start_pop(state, c.owner))
 				Peoples.on_founded(state, c)
+				Faiths.on_founded(state, c)
 				Heroes.on_colony(state, c.owner, state.galaxy.get_planet(c.planet_id).system_id)
 				Politics.on_colony(state, state.galaxy.get_planet(c.planet_id).system_id)
 				added.append(state.add_chronicle(
@@ -51,6 +53,8 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 		return
 	if not c.species.is_empty():
 		Peoples.normalize(c)
+	if not c.faith.is_empty():
+		Faiths.normalize(c)
 	var cap := Economy.max_pop(state, state.galaxy.get_planet(c.planet_id), c.owner, c.buildings)
 	if e.starving:
 		c.growth = 0
@@ -93,6 +97,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 			e.resources["materials"] = int(e.resources["materials"]) - cost
 		c.growth = 0
 		Peoples.on_birth(state, c)
+		Faiths.on_birth(state, c)
 
 
 ## Fin d'un chantier : un bâtiment s'ajoute, un bâtiment de 2e rang remplace son 1er rang, un projet de

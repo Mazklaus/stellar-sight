@@ -1,0 +1,101 @@
+{
+	"_doc": "Religion (étude « Religion », 2026-11-13, lot 1 : propositions 1 à 10). Chaque colonie compte ses fidèles par foi (Colony.faith) ; le reste de la population suit les cultes natals de son espèce. Au plus floor(empires / 2) + 1 grandes fois par partie, une seule fondée par empire : la Révélation arrive par cinq voies (relique sainte, gardien vaincu, héros à l'ambition Foi au niveau 3, trois technologies de Société de l'ère II, prophète des docks écouté). La foi s'étend chaque mois par la pression des fidèles à 3 sauts au plus, par les routes commerciales et par les migrants. La foi d'État apporte des dogmes (choisis par le chef de foi, l'empire qui compte le plus de fidèles), de la stabilité là où elle est majoritaire et de l'opinion entre coreligionnaires. Le catalogue des dogmes part du répertoire des doctrines et principes de Crusader Kings III, transposé dans l'espace, avec des formes que seules la science-fiction et les peuples non humains permettent.",
+	"_sources": ["https://ck3.paradoxwikis.com/Doctrines", "https://ck3.paradoxwikis.com/Tenets", "https://civilization.fandom.com/wiki/Religion_(Civ6)", "https://humankind.fandom.com/wiki/Religion", "Étude : https://claude.ai/artifact/QQhvRPoXYPVsZbLe4Hgjcw"],
+	"limit": {"div": 2, "plus": 1},
+	"_limit_doc": "Grandes fois : floor(empires / 2) + 1. L'incroyance (foi d'État possible) ne compte pas.",
+	"start": {"credos": ["foi"], "governments": ["theocratie"]},
+	"_start_doc": "Un peuple théocrate ou au credo Foi commence avec sa grande foi déjà fondée : la capitale en est le monde saint, toute sa population la suit et c'est la foi d'État.",
+	"no_faith_governments": ["ruche"],
+	"_no_faith_doc": "Une conscience collective (ruche) n'a pas de foi : ses colonies ne se convertissent pas et ne prêchent pas, et elle ne fonde rien.",
+	"forced_names": {"choeur": "Liturgie du Dieu-Machine", "murmurants": "Le Murmure"},
+	"names_by_register": {
+		"Médiéval spatial": ["Ordre du Serment Stellaire", "Église des Hautes Bannières", "Credo des Sept Lignées", "Confrérie de l'Astre-Roi"],
+		"Grimdark": ["Liturgie de la Cendre", "Culte du Dernier Feu", "Credo de la Pénitence Noire", "Église de la Plaie Sainte"],
+		"Space opera héroïque": ["Voie de l'Aube Commune", "Alliance des Étoiles Sœurs", "Credo du Phare", "Communion des Navigateurs"],
+		"Horreur biologique": ["Culte de la Mue", "Évangile de la Chair Nouvelle", "Credo du Nid Premier", "Liturgie des Spores"],
+		"Classique / hard SF": ["Église du Grand Calcul", "Voie de la Constante", "Credo de l'Horizon", "Confrérie de l'Entropie Lente"],
+		"Picaresque / pulp": ["Église de la Bonne Fortune", "Culte du Jackpot Cosmique", "Credo du Dernier Pari", "Chapelle des Contrebandiers"],
+		"Cosmique / étrange": ["Écho d'Avant les Astres", "Culte du Silence Ourlé", "Voie de l'Angle Dérobé", "Chœur des Profondeurs"],
+		"default": ["Foi des Étoiles", "Credo du Vide", "Voie de la Lumière Lente", "Église de l'Horizon"]
+	},
+	"native": {
+		"_doc": "Cultes natals (proposition 2) : un bonus par credo de l'espèce de l'empire, gardé même s'il adopte une grande foi.",
+		"honneur": {"label": "Serment des ancêtres", "text": "Garnisons +10 %.", "fx": {"garrison_pct": 10}},
+		"foi": {"label": "Liturgie première", "text": "Influence +5 %.", "fx": {"production_pct": {"influence": 5}}},
+		"raison": {"label": "Sagesse des fondateurs", "text": "Savoir +5 %.", "fx": {"production_pct": {"knowledge": 5}}},
+		"profit": {"label": "Fortune des anciens", "text": "Énergie +5 %.", "fx": {"production_pct": {"energy": 5}}},
+		"survie": {"label": "Instinct premier", "text": "Croissance +5 %.", "fx": {"growth_pct": 5}}
+	},
+	"reveal": {"tech_domain": "societe", "tech_era": 2, "tech_n": 3, "hero_amb": "foi", "hero_lvl": 3, "found_share_pct": 50},
+	"vias": {
+		"origine": "fondée aux origines du peuple",
+		"relique": "révélée par une relique sainte",
+		"gardien": "révélée par la chute d'un gardien",
+		"heros": "révélée par un héros",
+		"savoir": "révélée par les sciences de l'âme",
+		"prophete": "révélée par le prophète des docks"
+	},
+	"tiers": [10, 25, 50, 100],
+	"_tiers_doc": "Un dogme fondateur, puis un de plus quand la foi atteint 10, 25, 50 et 100 fidèles dans la galaxie.",
+	"pressure": {"weights": [3, 2, 1, 1], "holy_x": 4, "state_push": 5, "route": 2, "threshold_base": 40, "threshold_per_pop": 10},
+	"_pressure_doc": "Pression mensuelle d'une colonie sur une autre = fidèles x poids (même système 3, 1 saut 2, 2-3 sauts 1), monde saint x4. La foi d'État pousse de 5 sur chaque colonie de l'empire. Les deux bouts d'une route commerciale extérieure se poussent avec le poids 2. Une conversion coûte 40 + 10 x population points.",
+	"state": {"stab_major": 5, "stab_minor": -5, "change_stab": -10, "change_days": 360, "cooldown_days": 1080, "adopt_share_pct": 20},
+	"opinion": {"same": 10, "rival": -10},
+	"pseudo": {
+		"laicite": {"name": "Laïcité", "text": "Aucune foi d'État : ni dogmes, ni bonus, ni malus."},
+		"incroyance": {"name": "Incroyance", "text": "L'empire prêche l'absence de dieux. Ne compte pas parmi les grandes fois et n'a pas de dogmes, mais Savoir +5 %.", "color": "#9aa4ad", "fx": {"production_pct": {"knowledge": 5}}}
+	},
+	"families": [
+		{"id": "culte", "label": "Culte", "text": "Comment on prie : rites, clergé, lieux saints."},
+		{"id": "morale", "label": "Morale", "text": "Ce que la foi demande à chacun."},
+		{"id": "expansion", "label": "Expansion", "text": "Comment la foi grandit et se défend."},
+		{"id": "autres", "label": "Regard sur les autres", "text": "Ce que la foi pense des autres fois et des autres espèces."}
+	],
+	"dogmas": {
+		"liturgie_chantee": {"label": "Liturgie chantée", "family": "culte", "ck3": "tradition cléricale, Célébrations rituelles", "text": "Influence +10 %.", "fx": {"production_pct": {"influence": 10}}},
+		"pelerinage": {"label": "Pèlerinage obligatoire", "family": "culte", "ck3": "doctrine du pèlerinage (obligatoire)", "text": "Le monde saint prêche deux fois plus fort. Revenus du commerce +10 %.", "fx": {"faith_holy_pct": 100, "trade_income_pct": 10}},
+		"monachisme": {"label": "Ordres monastiques", "family": "culte", "ck3": "Monachisme", "text": "Savoir +8 %.", "fx": {"production_pct": {"knowledge": 8}}},
+		"astrologie": {"label": "Astrologie des pulsars", "family": "culte", "ck3": "Astrologie", "text": "Les prêtres lisent le ciel : curiosités détectées de plus loin et mieux exploitées.", "fx": {"curio_detect": 1, "curio_power": 2}},
+		"funerailles": {"label": "Funérailles stellaires", "family": "culte", "ck3": "Inhumations célestes (rites funéraires)", "text": "Les morts partent vers leur étoile : stabilité +2 là où la foi d'État domine.", "fx": {"faith_stab": 2}},
+		"aniconisme": {"label": "Aniconisme", "family": "culte", "ck3": "Aniconisme", "text": "Ni statues ni vitraux : bâtiments -10 % de coût.", "fx": {"building_cost_pct": -10}},
+		"sacrifice": {"label": "Sacrifice rituel", "family": "culte", "ck3": "Sacrifice humain", "text": "Offrandes plus généreuses, prêche +10 %, mais les autres fois s'en offusquent (opinion -5).", "fx": {"sacrifice_gain": 5, "faith_pressure_pct": 10, "faith_others_op": -5}},
+		"resonance": {"label": "Résonance du chœur", "family": "culte", "sf": true, "text": "Forme non humaine : les fidèles prient en vibrant à l'unisson, et la prière fait tourner les génératrices. Énergie +5 %, stabilité +1.", "fx": {"production_pct": {"energy": 5}, "faith_stab": 1}},
+
+		"fondamentalisme": {"label": "Fondamentalisme", "family": "morale", "ck3": "attitude fondamentaliste", "excl": ["pluralisme", "oecumenisme"], "text": "Les fidèles résistent aux autres prêches (+50 %), stabilité +2, mais les fois rivales sont détestées (opinion -10).", "fx": {"faith_resist_pct": 50, "faith_stab": 2, "faith_rival_op": -10}},
+		"pluralisme": {"label": "Pluralisme", "family": "morale", "ck3": "attitude pluraliste", "excl": ["fondamentalisme", "peuple_elu"], "text": "Les mondes d'une autre foi ne coûtent presque plus de stabilité (+4), les fois rivales sont mieux vues (+10), mais la foi se défend moins (-25 %).", "fx": {"faith_minor_stab": 4, "faith_rival_op": 10, "faith_resist_pct": -25}},
+		"pacifisme": {"label": "Pacifisme", "family": "morale", "ck3": "Pacifisme", "excl": ["bellicisme", "pelerins_armes"], "text": "Opinion de tous +5, stabilité +2, dégâts -10 %.", "fx": {"opinion_all": 5, "faith_stab": 2, "damage_pct": -10}},
+		"charite": {"label": "Charité", "family": "morale", "ck3": "Possessions communes", "text": "Croissance +10 %, énergie -5 %.", "fx": {"growth_pct": 10, "production_pct": {"energy": -5}}},
+		"pauvrete": {"label": "Pauvreté sacrée", "family": "morale", "ck3": "Ascétisme", "text": "Entretien des flottes -15 %, revenus du commerce -10 %.", "fx": {"upkeep_pct": -15, "trade_income_pct": -10}},
+		"loi_sacree": {"label": "Loi religieuse", "family": "morale", "ck3": "Légalisme, Prononcés juridiques", "text": "Stabilité +3 là où la foi domine, Savoir -5 %.", "fx": {"faith_stab": 3, "production_pct": {"knowledge": -5}}},
+		"ancetres": {"label": "Mémoire des ancêtres", "family": "morale", "ck3": "Culte des ancêtres", "text": "Garnisons +15 %, stabilité +1.", "fx": {"garrison_pct": 15, "faith_stab": 1}},
+		"patience": {"label": "Patience des pierres", "family": "morale", "sf": true, "text": "Forme non humaine : une foi pensée à l'échelle géologique. Bâtiments -10 % de coût, résistance aux prêches +25 %, croissance -10 %.", "fx": {"building_cost_pct": -10, "faith_resist_pct": 25, "growth_pct": -10}},
+
+		"proselytisme": {"label": "Prosélytisme", "family": "expansion", "ck3": "Prédicateurs mendiants", "text": "Prêche +40 %, mais les fois rivales s'en agacent (opinion -5).", "fx": {"faith_pressure_pct": 40, "faith_others_op": -5}},
+		"croissez": {"label": "Croissez et multipliez", "family": "expansion", "ck3": "Naissance sacrée", "text": "Croissance +15 %, prêche +10 %.", "fx": {"growth_pct": 15, "faith_pressure_pct": 10}},
+		"pelerins_armes": {"label": "Pèlerins armés", "family": "expansion", "ck3": "Pèlerinages armés", "excl": ["pacifisme"], "text": "Dégâts +5 %, vitesse des flottes +10 %.", "fx": {"damage_pct": 5, "fleet_speed_pct": 10}},
+		"bellicisme": {"label": "Guerre sainte", "family": "expansion", "ck3": "Belliciste, Lutte et soumission", "excl": ["pacifisme"], "text": "Dégâts +10 %, troupes +15 %, mais les autres fois s'inquiètent (opinion -5).", "fx": {"damage_pct": 10, "troops_pct": 15, "faith_others_op": -5}},
+		"peuple_elu": {"label": "Peuple élu", "family": "expansion", "ck3": "Identité communautaire, Destinée divine", "excl": ["pluralisme", "xenolatrie"], "text": "Stabilité +3, mais opinion de tous -5 et des fois rivales -10.", "fx": {"faith_stab": 3, "opinion_all": -5, "faith_rival_op": -10}},
+		"dime": {"label": "Dîme des infidèles", "family": "expansion", "ck3": "Imposer les non-croyants", "text": "Énergie +8 %, prêche -20 % (les infidèles rapportent plus que les convertis).", "fx": {"production_pct": {"energy": 8}, "faith_pressure_pct": -20}},
+		"essaimage": {"label": "Essaimage", "family": "expansion", "sf": true, "text": "Forme non humaine : la foi part avec les colons comme un pollen. Colonies fondées +1 population, prêche +10 %.", "fx": {"colony_start_pop": 1, "faith_pressure_pct": 10}},
+		"routes_benies": {"label": "Bénédiction des routes", "family": "expansion", "sf": true, "text": "Chaque cargo emporte un autel : les routes commerciales prêchent deux fois plus fort, commerce +10 %.", "fx": {"faith_route_pct": 100, "trade_income_pct": 10}},
+
+		"dieu_unique": {"label": "Monothéisme strict", "family": "autres", "ck3": "doctrine monothéiste", "excl": ["pantheon"], "text": "Résistance aux prêches +25 %, prêche +10 %, fois rivales -5.", "fx": {"faith_resist_pct": 25, "faith_pressure_pct": 10, "faith_rival_op": -5}},
+		"pantheon": {"label": "Panthéon ouvert", "family": "autres", "ck3": "doctrine polythéiste, Syncrétisme", "excl": ["dieu_unique"], "text": "Fois rivales +5, mondes d'une autre foi +3 stabilité, Savoir +5 %.", "fx": {"faith_rival_op": 5, "faith_minor_stab": 3, "production_pct": {"knowledge": 5}}},
+		"oecumenisme": {"label": "Œcuménisme", "family": "autres", "ck3": "attitude pluraliste, Syncrétisme", "excl": ["fondamentalisme"], "text": "Coreligionnaires +10, fois rivales +5.", "fx": {"faith_same_op": 10, "faith_rival_op": 5}},
+		"hospitalite": {"label": "Hospitalité rituelle", "family": "autres", "ck3": "Hospitalité rituelle", "text": "Croissance +5 %, opinion de tous +5.", "fx": {"growth_pct": 5, "opinion_all": 5}},
+		"voisin": {"label": "Aime ton voisin", "family": "autres", "text": "Opinion de tous +8, garnisons -10 %.", "fx": {"opinion_all": 8, "garrison_pct": -10}},
+		"xenolatrie": {"label": "Xénolâtrie", "family": "autres", "sf": true, "excl": ["peuple_elu"], "text": "Forme non humaine : l'autre espèce est sacrée en elle-même. Fois rivales +10, curiosités mieux exploitées, résistance aux prêches -20 %.", "fx": {"faith_rival_op": 10, "curio_power": 2, "faith_resist_pct": -20}},
+		"dieux_parmi_nous": {"label": "Les dieux sont parmi nous", "family": "autres", "sf": true, "text": "Les gardiens et les anciens sont des dieux qu'on peut toucher : curiosités bien mieux exploitées, stabilité +1.", "fx": {"curio_power": 3, "faith_stab": 1}},
+		"doute_sacre": {"label": "Doute sacré", "family": "autres", "ck3": "Ésotérisme, Gnosticisme", "text": "Une foi qui s'interroge : Savoir +10 %, prêche -10 %, résistance -25 %.", "fx": {"production_pct": {"knowledge": 10}, "faith_pressure_pct": -10, "faith_resist_pct": -25}}
+	},
+	"ai": {
+		"_doc": "Ordre de préférence des dogmes pour un chef de foi IA, selon le credo de son peuple.",
+		"honneur": ["ancetres", "pelerins_armes", "bellicisme", "loi_sacree", "dieu_unique", "funerailles", "fondamentalisme", "croissez", "liturgie_chantee", "aniconisme"],
+		"foi": ["proselytisme", "liturgie_chantee", "fondamentalisme", "loi_sacree", "dieu_unique", "pelerinage", "sacrifice", "croissez", "funerailles", "ancetres"],
+		"raison": ["monachisme", "doute_sacre", "pantheon", "astrologie", "oecumenisme", "pluralisme", "dieux_parmi_nous", "liturgie_chantee", "aniconisme", "hospitalite"],
+		"profit": ["routes_benies", "dime", "pelerinage", "hospitalite", "aniconisme", "pluralisme", "voisin", "oecumenisme", "charite", "liturgie_chantee"],
+		"survie": ["croissez", "essaimage", "charite", "ancetres", "patience", "pauvrete", "resonance", "bellicisme", "funerailles", "aniconisme"],
+		"default": ["liturgie_chantee", "croissez", "monachisme", "funerailles", "hospitalite", "aniconisme", "proselytisme", "ancetres"],
+		"adopt_share_pct": 50
+	}
+}

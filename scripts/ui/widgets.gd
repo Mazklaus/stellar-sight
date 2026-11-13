@@ -99,6 +99,12 @@ class IconButton:
 					draw_line(c + Vector2(x0, y), c + Vector2(x1, y), col, 1.6, true)
 					draw_colored_polygon(PackedVector2Array([c + Vector2(x1 + side * s * 0.1, y), c + Vector2(x1 - side * s * 0.45, y - s * 0.35),
 							c + Vector2(x1 - side * s * 0.45, y + s * 0.35)]), col)
+			"faith":
+				# Une flamme au-dessus d'un autel.
+				draw_colored_polygon(PackedVector2Array([c + Vector2(0, -s * 1.25), c + Vector2(s * 0.55, -s * 0.2), c + Vector2(s * 0.3, s * 0.35),
+						c + Vector2(-s * 0.3, s * 0.35), c + Vector2(-s * 0.55, -s * 0.2)]), col)
+				draw_rect(Rect2(c + Vector2(-s * 0.95, s * 0.5), Vector2(s * 1.9, s * 0.25)), col)
+				draw_rect(Rect2(c + Vector2(-s * 0.6, s * 0.75), Vector2(s * 1.2, s * 0.4)), Color(col, 0.7))
 			"senate":
 				# Un hémicycle : deux rangées de sièges en demi-cercle et la tribune.
 				for k in 2:

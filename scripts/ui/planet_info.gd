@@ -125,6 +125,8 @@ static func colony_lines(state: GameState, p: Planet, c: Colony, player: int) ->
 		lines.append("Bâtiments (%d/%d) : %s" % [Economy.building_slots_used(c), Economy.building_slots(state, c), ", ".join(names)])
 	else:
 		lines.append("Bâtiments : 0/%d" % Economy.building_slots(state, c))
+	if state.faith_on and c.is_colony() and c.population > 0:
+		lines.append("Croyances : %s" % Faiths.colony_text(state, c))
 	if c.construction != "":
 		lines.append("Chantier : %s (%d j)" % [GameData.building(c.construction).get("label", c.construction), c.construction_days])
 	if c.ship_build != "":

@@ -338,6 +338,9 @@ static func gain(state: GameState, empire_id: int, rid: String) -> void:
 	Research.count_stat(state, empire_id, "relics")
 	Research.count_stat(state, empire_id, "collection")
 	touch(state)
+	# Une relique sainte peut révéler une grande foi (voir Faiths).
+	if is_holy(rid) and state.faith_on:
+		Faiths.reveal(state, empire_id, "relique", -1, [] as Array[Dictionary])
 
 
 ## Reliques de l'empire, triées (au Reliquaire ou portées par un héros).

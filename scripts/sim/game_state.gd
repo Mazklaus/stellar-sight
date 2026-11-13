@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 42
+const FORMAT_VERSION := 43
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -145,6 +145,9 @@ var peoples_on: bool = false
 var moves: Dictionary = {}
 ## Migration intérieure (option de partie « migrations »).
 var migrations_on: bool = false
+## Religion (voir Faiths) : grandes fois, fois d'État, progression des conversions.
+var faiths: Dictionary = {}
+var faith_on: bool = false
 var _pirates: Empire
 var _fauna: Empire
 
@@ -196,6 +199,7 @@ var _npc: Empire = null
 ## - "market" : marché intérieur ("actif" ou "aucun", défaut) ;
 ## - "peoples" : populations mixtes ("actifs" ou "aucuns", défaut ; voir Peoples) ;
 ## - "migrations" : migration intérieure ("actives" ou "aucunes", défaut ; voir Movements) ;
+## - "faiths" : religions ("actives" ou "aucunes", défaut ; voir Faiths) ;
 ## - "creatures" : densité de la faune (Fauna, défaut "aucune"). Sans ces six options (tests, bancs),
 ##   la partie n'a ni pirates, ni curiosités, ni événements, ni quêtes, ni politique, ni créatures.
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
@@ -232,6 +236,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Goods.setup(s, String(options.get("goods", "aucuns")), String(options.get("market", "aucun")) == "actif")
 	Peoples.setup(s, String(options.get("peoples", "aucuns")))
 	Movements.setup(s, String(options.get("migrations", "aucunes")))
+	Faiths.setup(s, String(options.get("faiths", "aucunes")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -280,7 +285,7 @@ func to_dict() -> Dictionary:
 	var fleet_list := []
 	for fid in sorted_fleet_ids():
 		fleet_list.append(fleets[fid].to_dict())
-	return {
+	var d := {
 		"version": FORMAT_VERSION,
 		"seed": seed_value,
 		"system_count": system_count,
@@ -339,6 +344,10 @@ func to_dict() -> Dictionary:
 		"peoples": Peoples.to_dict(self),
 		"moves": Movements.to_dict(self),
 	}
+	# Religion : seulement quand l'option est active (une partie sans religions garde la même empreinte).
+	if faith_on:
+		d["faiths"] = Faiths.to_dict(self)
+	return d
 
 
 ## État complet avec la galaxie elle-même (positions, routes, planètes) : ce qu'on sauvegarde et ce
@@ -532,6 +541,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Goods.from_dict(s, d.get("goods", {}))
 	Peoples.from_dict(s, d.get("peoples", {}))
 	Movements.from_dict(s, d.get("moves", {}))
+	Faiths.from_dict(s, d.get("faiths", {}))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant le commerce en paliers : l'ancien accord commercial devient un accord du
 	# 2e palier, et les routes se tracent tout de suite.

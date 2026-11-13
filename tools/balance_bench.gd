@@ -41,7 +41,8 @@ func _initialize() -> void:
 		var st := GameState.create(sd, 150, 1800.0, "", {"spectator": true, "ai_level": level, "temperament": temper, "rivals": rivals,
 				"pirates": OS.get_environment("PIRATES") if OS.get_environment("PIRATES") != "" else "aucun",
 				"politics": OS.get_environment("POLITICS") if OS.get_environment("POLITICS") != "" else "aucune",
-				"peoples": OS.get_environment("PEOPLES") if OS.get_environment("PEOPLES") != "" else "aucuns"})
+				"peoples": OS.get_environment("PEOPLES") if OS.get_environment("PEOPLES") != "" else "aucuns",
+				"faiths": OS.get_environment("FAITHS") if OS.get_environment("FAITHS") != "" else "aucunes"})
 		var sim := Simulation.new(st)
 		var rows := {}
 		for e in st.empires:
@@ -70,7 +71,18 @@ func _initialize() -> void:
 					if c.owner == e.id and not c.species.is_empty() and Peoples.own_count(c) == 0:
 						founded += 1
 				rows[e.id]["foreign_worlds"] = founded
+		if st.faith_on:
+			for e in st.empires:
+				if not e.eliminated:
+					rows[e.id]["faith"] = Faiths.name_of(st, Faiths.state_faith(st, e.id))
 		var out := {"seed": sd, "years": y, "ms": Time.get_ticks_msec() - t0, "empires": rows.values()}
+		if st.faith_on:
+			var fl := []
+			for fid in Faiths.ids(st):
+				var f := Faiths.faith(st, fid)
+				fl.append({"name": Faiths.name_of(st, fid), "founder": st.get_empire(int(f["founder"])).faction_id, "via": String(f["via"]),
+						"founded_year": int(f["founded"]) / 360, "followers": Faiths.followers(st, fid), "dogmas": f["dogmas"]})
+			out["faiths"] = fl
 		if not st.winner.is_empty():
 			var w := st.winner
 			out["winner"] = {"faction": st.get_empire(int(w["empire"])).faction_id, "victory": String(w["victory"]),

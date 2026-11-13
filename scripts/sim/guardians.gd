@@ -485,6 +485,9 @@ static func _reward(state: GameState, gid: String, eid: int, sid: int, added: Ar
 	if String(gd.get("trophy", "")) != "":
 		parts.append("trophée : %s" % Quests.give_relic(state, eid, String(gd["trophy"])))
 	var item := {"id": -1, "card": "", "system": sid, "planet": -1, "rival": -1, "hero": -1}
+	# La chute d'un gardien peut révéler une grande foi, avec un monde saint près du lieu (voir Faiths).
+	if state.faith_on and Faiths.reveal(state, eid, "gardien", Faiths.colony_in_system(state, eid, sid), added) != "":
+		parts.append("une foi est née")
 	var t: Dictionary = d["triumph"]
 	var tri := triumph_scale(state, eid, int(t["stab"]), int(t["influence"]))
 	Events.apply_fx(state, eid, item, [{"k": "stab", "v": int(tri[0]), "days": int(t["days"]), "scope": "capital"},

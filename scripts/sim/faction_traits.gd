@@ -80,7 +80,7 @@ static func fervor_delta(state: GameState, empire_id: int) -> int:
 	var n := 0
 	for pid in state.colonies:
 		var c: Colony = state.colonies[pid]
-		if c.owner == empire_id and c.is_colony() and c.is_established():
+		if c.owner == empire_id and c.is_colony() and c.is_established() and Faiths.is_faithful(state, c):
 			n += 1
 	var delta := n * int(fv["per_colony"]) - int(fv["decay"])
 	# Bâtiments qui chantent (Scriptorium) et catéchisme des grandes colonies (technologies).
@@ -114,6 +114,8 @@ static func check_sacrifice(state: GameState, empire_id: int, planet_id: int) ->
 	var c: Colony = state.colonies.get(planet_id)
 	if c == null or c.owner != empire_id or not c.is_colony() or not c.is_established():
 		return "il faut une de vos colonies fondées"
+	if not Faiths.is_faithful(state, c):
+		return "cette colonie ne suit pas la foi d'État : personne ne monterait à l'autel"
 	var fv: Dictionary = e.faction()["fervor"]
 	if c.population < int(fv["sacrifice_min_pop"]):
 		return "il faut au moins %d population (le dernier fidèle garde la lumière allumée)" % int(fv["sacrifice_min_pop"])

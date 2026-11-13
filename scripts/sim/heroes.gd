@@ -842,6 +842,8 @@ static func gain_xp(state: GameState, h: Dictionary, n: int) -> void:
 		var owner := int(h["owner"])
 		state.add_chronicle("%s passe au niveau %d%s." % [h["name"], int(h["lvl"]),
 				(" et gagne le trait « %s »" % trait_def(got)["label"]) if got != "" else ""], Espionage.private_to(state, [owner]))
+		# Un héros à l'ambition Foi peut révéler une grande foi (voir Faiths).
+		Faiths.on_hero_level(state, h)
 
 
 ## Traits qu'un héros peut encore gagner : ceux de son peuple (people) ou de sa classe, sinon l'autre réserve.

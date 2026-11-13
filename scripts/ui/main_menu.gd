@@ -178,6 +178,8 @@ var peoples := "actifs"
 var _peoples_select: OptionButton
 var migrations := "actives"
 var _migrations_select: OptionButton
+var faiths := "actives"
+var _faiths_select: OptionButton
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
 const PRESETS_PATH := "user://new_game_presets.json"
@@ -1517,6 +1519,13 @@ func set_peoples(id: String) -> void:
 	_refresh_preset()
 
 
+func set_faiths(id: String) -> void:
+	faiths = id if id == "actives" or id == "aucunes" else "actives"
+	if _faiths_select:
+		_faiths_select.select(0 if faiths == "actives" else 1)
+	_refresh_preset()
+
+
 func set_migrations(id: String) -> void:
 	migrations = id if id == "actives" or id == "aucunes" else "actives"
 	if _migrations_select:
@@ -1527,7 +1536,7 @@ func set_migrations(id: String) -> void:
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
 	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
-		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations}
+		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths}
 
 
 func set_spectator(on: bool) -> void:
@@ -1867,8 +1876,16 @@ func _build_new_page(root: Control) -> void:
 	_migrations_select.tooltip_text = "Migrations (avec les peuples mêlés) : chaque trimestre, les colonies pleines, affamées, agitées ou mal adaptées envoient quelques habitants vers les colonies qui attirent leur espèce, à 6 sauts au plus, et vers les empires liés par un traité de migration.\nRéfugiés, convois et diasporas existent dans les deux cas."
 	_migrations_select.item_selected.connect(func(i: int) -> void: set_migrations("actives" if i == 0 else "aucunes"))
 	_labeled_row(game, "Migrations", _migrations_select)
+	_faiths_select = OptionButton.new()
+	_faiths_select.clip_text = true
+	_faiths_select.add_item("Actives")
+	_faiths_select.add_item("Aucunes")
+	_faiths_select.tooltip_text = "Religions : chaque colonie compte ses fidèles. Les peuples théocrates commencent avec leur foi ; les autres grandes fois naissent d'une Révélation (relique sainte, gardien vaincu, héros, sciences de l'âme, prophète). Elles s'étendent de monde en monde, par les routes et avec les migrants ; la foi d'État donne ses dogmes, de la stabilité et des amitiés.\nAucunes : comme avant (ferveur et offrandes sans fidèles)."
+	_faiths_select.item_selected.connect(func(i: int) -> void: set_faiths("actives" if i == 0 else "aucunes"))
+	_labeled_row(game, "Religions", _faiths_select)
 	set_peoples(peoples)
 	set_migrations(migrations)
+	set_faiths(faiths)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2604,7 +2621,7 @@ func settings() -> Dictionary:
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
-		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations,
+		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2622,7 +2639,7 @@ func default_settings() -> Dictionary:
 		"victories": {"conquete": true, "domination": true, "allies": true}, "ai_scaling": false,
 		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "plagues": true, "events": Events.default_frequency(), "curios": Curios.default_density(),
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
-		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives"}
+		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives"}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -2694,6 +2711,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_market(String(d.get("market", base["market"])))
 	set_peoples(String(d.get("peoples", base["peoples"])))
 	set_migrations(String(d.get("migrations", base["migrations"])))
+	set_faiths(String(d.get("faiths", base["faiths"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

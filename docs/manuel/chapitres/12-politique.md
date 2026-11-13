@@ -69,6 +69,32 @@ Les citoyens d'autres espèces votent selon leur propre credo : l'opinion d'un s
 
 Le plus grand courant d'opposition formule une **doléance** à la fois : la satisfaire dans les deux ans le renforce et calme ses fidèles, l'ignorer les agite. Si la stabilité d'empire reste sous 25 pendant un an, c'est la **crise de régime** : le courant opposé à celui qui gouverne prend seul le pouvoir, toutes les lois sont révoquées et six mois passent sans loi.
 
+### La foi
+
+Avec l'option **Religions**, chaque colonie compte ses **fidèles**. Ceux qui ne suivent aucune grande foi gardent les **cultes natals** de leur peuple, qui donnent un petit bonus selon le credo : garnisons +10 % pour l'honneur, influence +5 % pour la foi, Savoir +5 % pour la raison, énergie +5 % pour le profit, croissance +5 % pour la survie. Une conscience collective ne prie pas : ses mondes ne se convertissent pas, et les croyances des mondes qu'elle absorbe se dissolvent.
+
+**Les grandes fois** sont rares : la moitié des empires plus une, et une seule fondée par empire. Le Chœur Éternel et les Murmurants d'Abysse naissent avec la leur. Les autres attendent une **Révélation**, qui vient par cinq voies : une relique sainte trouvée, un gardien vaincu, un héros à l'ambition Foi qui atteint le niveau 3, trois technologies de Société de l'ère II, ou le prophète des docks qu'on écoute. La colonie touchée devient le **monde saint** et la moitié de ses habitants se convertissent.
+
+Chaque mois, les fidèles **prêchent** sur les colonies voisines, jusqu'à trois sauts : poids 3 dans le même système, 2 à un saut, 1 au-delà. Le monde saint prêche quatre fois plus fort, et peu importe qui le possède. Une route commerciale extérieure porte la parole d'un bout à l'autre, et un migrant emporte la croyance de son monde. La foi d'État pousse aussi sur chaque colonie de l'empire. Un habitant se convertit quand la pression accumulée atteint 40 + 10 par habitant de la colonie.
+
+| Foi d'État | Effet |
+| --- | --- |
+| Majoritaire dans un système | Stabilité +5, plus les dogmes qui l'augmentent |
+| Une autre foi majoritaire | Stabilité -5 (sauf en laïcité) |
+| Changer de foi d'État | Stabilité -10 pendant un an ; un changement tous les trois ans |
+| Même foi d'État qu'un autre empire | Opinion +10 |
+| Fois rivales | Opinion -10 (l'incroyance compte comme une foi) |
+
+La **laïcité** n'a ni bonus ni malus ; l'**incroyance** n'a pas de dogmes mais donne Savoir +5 %. Adopter la foi d'un autre empire demande une de vos colonies où elle dépasse 20 %. L'écran Foi ([[Y]]) montre chaque croyance de chaque colonie et les boutons pour changer.
+
+Les **dogmes** s'appliquent à tous les empires qui suivent la foi. Le **chef de foi**, l'empire qui compte le plus de fidèles, choisit le dogme fondateur, puis un de plus à 10, 25, 50 et 100 fidèles. Trente-deux dogmes en quatre familles (culte, morale, expansion, regard sur les autres) reprennent le répertoire de Crusader Kings III, transposé dans l'espace : liturgie chantée, pèlerinage obligatoire, ordres monastiques, fondamentalisme ou pluralisme, pacifisme ou guerre sainte, peuple élu, dîme des infidèles. Certains n'ont pas d'équivalent humain : la résonance du chœur, la patience des pierres, l'essaimage, la xénolâtrie. Quelques-uns s'excluent.
+
+Pour un peuple à la **ferveur**, seules les colonies où la foi d'État domine font monter la jauge, et l'offrande ne se fait que sur un monde fidèle. Les Ordres missionnaires font prêcher la foi d'État 25 % plus fort ; les Mondes sanctuaires rendent ses fidèles 25 % plus résistants.
+
+::: marge
+Le prophète des docks avait raison sur un point : la fin des temps n'est pas venue mardi. Mais son église a trois cents mondes, et moi une seule capitale.
+:::
+
 ::: marge
 J'ai ignoré une doléance une fois. Elle m'a coûté une province, deux préfets et le droit de me montrer en public sur Lenn IV.
 :::

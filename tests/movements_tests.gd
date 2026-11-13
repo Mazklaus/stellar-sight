@@ -467,7 +467,7 @@ func _test_save() -> void:
 	Movements.flee(st, c, "vael", 2, [f], added)
 	Movements.stir(st, _sid(st, c))
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 42, "sauvegarde version 42")
+	_ok(int(d["version"]) >= 42, "sauvegarde version 42 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and back.migrations_on, "option Migrations relue")
 	_ok(back != null and Movements.convoys(back).size() == 1 and Movements.policy(back, v) == "fermee", "convois et politique relus")

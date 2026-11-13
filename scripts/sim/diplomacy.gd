@@ -293,6 +293,9 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	# Sort de nos compatriotes chez b, héros de notre peuple à son service (voir Peoples).
 	for pp in Peoples.opinion_parts(state, a, b):
 		_part(out, String(pp[0]), int(pp[1]))
+	# Religion : coreligionnaires et fois rivales (voir Faiths).
+	for pp in Faiths.opinion_parts(state, a, b):
+		_part(out, String(pp[0]), int(pp[1]))
 	var w := Economy.wonders(state)
 	for key in w:
 		if int(w[key]) == b:

@@ -121,6 +121,9 @@ var senate_buttons := {}
 var law_buttons := {}
 var action_buttons := {}
 var _senate_sig := ""
+## Boutons de l'écran Foi (« state:foi », « dogma:foi:dogme »), pour les tests.
+var faith_buttons := {}
+var _faith_sig := ""
 ## Cible choisie dans l'Ordre intérieur pour les contrats et les primes pirates.
 var order_victim := -1
 var _hero_sig := ""
@@ -266,6 +269,8 @@ func show_screen(screen_id: String) -> void:
 			TradeScreen.build(self)
 		"senate":
 			SenateScreen.build(self)
+		"faith":
+			FaithScreen.build(self)
 		"chronicles":
 			ChronicleScreen.build(self)
 	refresh()
@@ -303,6 +308,9 @@ func refresh() -> void:
 		"senate":
 			if SenateScreen.signature(self) != _senate_sig:
 				show_screen("senate")
+		"faith":
+			if FaithScreen.signature(self) != _faith_sig:
+				show_screen("faith")
 		"chronicles":
 			if ChronicleScreen.signature(self) != _chron_sig:
 				show_screen("chronicles")

@@ -29,6 +29,8 @@ var species: Dictionary = {}
 var founder: String = ""
 ## Intégration (0 à 100 %) de chaque espèce de la mosaïque (voir Peoples.integration ; absente = 100).
 var integ: Dictionary = {}
+## Fidèles de chaque grande foi (voir Faiths) ; le reste de la population suit les cultes natals.
+var faith: Dictionary = {}
 
 
 func is_established() -> bool:
@@ -69,6 +71,13 @@ func to_dict() -> Dictionary:
 		for k in ks:
 			ig[k] = int(integ[k])
 		d["integ"] = ig
+	if not faith.is_empty():
+		var fa := {}
+		var fk := faith.keys()
+		fk.sort()
+		for k in fk:
+			fa[k] = int(faith[k])
+		d["faith"] = fa
 	return d
 
 
@@ -94,4 +103,8 @@ static func from_dict(d: Dictionary) -> Colony:
 	var ig: Dictionary = d.get("integ", {})
 	for k in ig:
 		c.integ[String(k)] = int(ig[k])
+	var fa: Dictionary = d.get("faith", {})
+	for k in fa:
+		if int(fa[k]) > 0:
+			c.faith[String(k)] = int(fa[k])
 	return c
