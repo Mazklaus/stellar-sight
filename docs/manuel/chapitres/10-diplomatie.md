@@ -7,9 +7,6 @@ signature: Ambassadrice Séverine d'Orvanne
 ---
 Les empires qui se rencontrent entrent en **guerre froide** : pas encore de combat, mais chacun peut déclarer la guerre. Tout le reste se négocie dans l'écran Diplomatie ([[F4]]) : votre empire au centre d'un anneau, les autres tout autour, chaque secteur coloré par statut (rouge la guerre, ambre la guerre froide, bleu la paix, cyan l'alliance).
 
-::: capture docs/apercu-diplomatie.png|L'écran Diplomatie
-:::
-
 ### Statuts et traités
 
 | Statut ou traité | Effet |
@@ -24,6 +21,9 @@ Les empires qui se rencontrent entrent en **guerre froide** : pas encore de comb
 Après la trêve, on peut **dénoncer** la paix et revenir à la guerre froide. On peut aussi attaquer sans prévenir : vous voilà **parjure** aux yeux de toute la galaxie, et elle s'en souviendra longtemps.
 
 Une IA répond tout de suite ; un joueur humain a 30 jours pour répondre. Un refus impose un délai avant de reproposer.
+
+::: capture docs/apercu-diplomatie.png|L'écran Diplomatie
+:::
 
 ### L'opinion
 
