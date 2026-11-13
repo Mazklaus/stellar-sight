@@ -424,7 +424,9 @@ static func _routes_of_empire(state: GameState, eid: int, routes: Array, ints: D
 		var p := best_path(state, eid, o)
 		if p.is_empty():
 			continue
-		cands.append([-raw_value(state, p), o, p])
+		# Chaque licence de luxe entre les deux empires enrichit leurs routes (voir Goods).
+		var lic := Goods.licences_between(state, eid, o) * int(Goods.data()["licence"]["route_value"]) if not state.goods.is_empty() else 0
+		cands.append([-(raw_value(state, p) + lic), o, p])
 	cands.sort_custom(func(x: Array, y: Array) -> bool: return x[0] < y[0] or (x[0] == y[0] and x[1] < y[1]))
 	for c in cands:
 		if used >= cap:

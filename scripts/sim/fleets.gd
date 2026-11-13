@@ -488,7 +488,8 @@ static func upkeep(state: GameState, empire_id: int) -> Dictionary:
 
 ## Coût d'un vaisseau pour un empire (technologies de coques comprises ; pendant l'Exaltation aussi).
 static func ship_cost(state: GameState, empire_id: int, ship_id: String) -> Dictionary:
-	return Research.scaled_amounts(GameData.ship(ship_id).get("cost", {}), Research.fx_int(state, empire_id, "ship_cost_pct"))
+	var c := Research.scaled_amounts(GameData.ship(ship_id).get("cost", {}), Research.fx_int(state, empire_id, "ship_cost_pct"))
+	return Goods.with_strategic(state, c, GameData.ship(ship_id).get("strategic", {}))
 
 
 ## Durée de construction d'un vaisseau pour un empire, en jours (au moins 1).

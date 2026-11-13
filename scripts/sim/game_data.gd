@@ -236,6 +236,28 @@ static func trade() -> Dictionary:
 	return _load("trade")
 
 
+static func goods() -> Dictionary:
+	return _load("goods")
+
+
+## Identifiants des ressources stratégiques (Goods) : elles vivent dans le stock de l'empire comme les
+## autres, mais restent hors des bilans et des barres (resource_ids ne les liste pas).
+static func strategic_ids() -> Array[String]:
+	if not _cache.has("strategic_ids"):
+		var ids: Array[String] = []
+		for d: Dictionary in goods()["strategic"]:
+			ids.append(String(d["id"]))
+		_cache["strategic_ids"] = ids
+	return _cache["strategic_ids"]
+
+
+## Toutes les ressources d'un stock : les six de base puis les stratégiques.
+static func stock_ids() -> Array[String]:
+	var ids := resource_ids()
+	ids.append_array(strategic_ids())
+	return ids
+
+
 ## Stabilité des systèmes (data/stability.json).
 static func stability() -> Dictionary:
 	return _load("stability")
@@ -311,13 +333,16 @@ static func resource_label(id: String, short := false) -> String:
 	for r: Dictionary in rules()["resources"]:
 		if r["id"] == id:
 			return r["short"] if short else r["label"]
+	for r: Dictionary in goods()["strategic"]:
+		if r["id"] == id:
+			return r["short"] if short else r["label"]
 	return id
 
 
 ## Coût ou rendement lisible : {"materials": 80, "energy": 30} -> "80 Mat, 30 Én".
 static func format_amounts(amounts: Dictionary, signed := false) -> String:
 	var parts := PackedStringArray()
-	for r in resource_ids():
+	for r in stock_ids():
 		var v := int(amounts.get(r, 0))
 		if v != 0:
 			parts.append(("%+d %s" if signed else "%d %s") % [v, resource_label(r, true)])

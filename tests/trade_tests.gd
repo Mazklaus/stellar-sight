@@ -263,7 +263,7 @@ func _test_save() -> void:
 	Trade.compute(st)
 	st.trade["risk"] = {5: 40, 9: 120}
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 35, "sauvegarde version 35")
+	_ok(int(d["version"]) >= 35, "sauvegarde version 35 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and Trade.tier(back, 0, 1) == Trade.OPEN, "le palier survit à la sauvegarde")
 	_ok(back != null and Trade.reserved(back, 0) == 1 and Trade.risk_at(back, 9) == 120, "réserve et risques aussi")

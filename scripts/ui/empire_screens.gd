@@ -110,6 +110,9 @@ var _order_sig := ""
 ## Boutons de l'écran Commerce (réserve de routes intérieures), pour les tests.
 var trade_buttons := {}
 var _trade_sig := ""
+## Onglet de l'écran Commerce : "routes", "resources" ou "market" ; brouillon d'échange (GoodsScreen).
+var trade_tab := "routes"
+var trade_deal := {}
 ## Boutons de soutien de l'écran Sénat, par courant (pour les tests).
 var senate_buttons := {}
 ## Boutons Adopter/Abroger des lois (id de loi : bouton) et des actions électorales (id : bouton).

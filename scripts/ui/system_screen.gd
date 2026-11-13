@@ -561,6 +561,9 @@ func _refresh_panel(s: StarSystem) -> void:
 	_pot_view.queue_redraw()
 
 	var deps := PlanetInfo.deposit_labels(p)
+	var gd := Goods.deposit_text(_state, p.id) if _state != null and not _state.goods.is_empty() else ""
+	if gd != "":
+		deps.append(gd)
 	_dep_label.text = ", ".join(deps) if not deps.is_empty() else "Aucun gisement notable"
 	if (Curios.sees(_state, _player, p.id) if _player >= 0 else Curios.is_open(_state, p.id)):
 		_dep_label.text += "\n" + PlanetInfo.curio_text(_state, p.id, _player)
