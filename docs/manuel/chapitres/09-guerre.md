@@ -50,7 +50,7 @@ On peut aussi **sonner la retraite** : l'ordre de déplacement s'applique avant 
 
 Une flotte armée ennemie **arrête** toute flotte qui traverse son système. Dans un système ennemi sans défenseur, elle le **met en siège** : la garnison fond chaque jour, la production tombe de moitié, les chantiers spatiaux s'arrêtent. La garnison dépend de la population (5 par habitant, 6 par avant-poste, 30 pour une capitale) ; un **bastion orbital** y ajoute 20 et tire sur les assiégeants. Le siège levé, elle remonte de 2 par jour.
 
-Quand les troupes embarquées dépassent la garnison, le bouton **Envahir** apparaît : toutes les revendications de l'empire dans le système changent de mains. Une capitale perdue est remplacée par la colonie la plus peuplée ; un empire sans aucune revendication disparaît, flottes comprises.
+Quand les troupes embarquées dépassent la garnison, le bouton **Envahir** apparaît : toutes les revendications de l'empire dans le système changent de mains. Avec les **peuples mêlés**, les habitants restent ce qu'ils sont : ils gardent leur espèce et rejoignent la mosaïque de votre empire (voir le chapitre 3). L'Essaim Kh'thari, lui, digère toujours. Une capitale perdue est remplacée par la colonie la plus peuplée ; un empire sans aucune revendication disparaît, flottes comprises.
 
 ::: capture docs/apercu-siege.png|Un système en siège : la garnison fond, l'invasion approche
 :::

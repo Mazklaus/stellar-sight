@@ -212,7 +212,7 @@ func _test_save() -> void:
 	st.goods["smug"] = [{"buyer": 0, "seller": 1, "good": "soie_vide", "until": 400}]
 	st.goods["insider"] = {0: {"tick": 720, "res": "food", "pct": -40}}
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 39, "sauvegarde version 39")
+	_ok(int(d["version"]) >= 39, "sauvegarde version 39 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and JSON.stringify(back.goods["smug"], "", true) == JSON.stringify(st.goods["smug"], "", true), "la contrebande survit")
 	_ok(back != null and TradeLinks.insider_of(back, 0).get("res", "") == "food", "le secret d'initié aussi")

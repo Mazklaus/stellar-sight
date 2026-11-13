@@ -20,7 +20,7 @@ La nouvelle partie tient sur un seul écran, rangé en cinq blocs. Les réglages
 | Empire | Votre peuple (les huit peuples de départ, vos peuples créés, ou « Au hasard »), sa couleur |
 | Rivaux | Le nombre d'empires adverses, et pour chacun : peuple, couleur, niveau d'IA, tempérament, départ avancé, distance, équipe |
 | Galaxie | Taille (de 90 à 420 systèmes), forme (spirale, anneau, amas, elliptique…), routes, départs, mondes garantis, graine |
-| Partie | Temps réel pausable ou tours de 5, 10 ou 30 jours ; spectateur ; pirates, créatures, curiosités, événements, quêtes, politique, luxes et stratégiques, marché |
+| Partie | Temps réel pausable ou tours de 5, 10 ou 30 jours ; spectateur ; pirates, créatures, curiosités, événements, quêtes, politique, luxes et stratégiques, marché, peuples mêlés |
 | Victoire | Victoires actives, alliés vainqueurs ensemble ou non, date limite (30, 60 ou 90 ans, ou aucune) |
 
 Une **graine** (un nombre ou un mot) recrée exactement la même galaxie. Le **code de partie** résume tous les réglages en une ligne à partager. Les **préréglages** enregistrent vos réglages favoris, et **Partie rapide** lance une petite galaxie sans détour.

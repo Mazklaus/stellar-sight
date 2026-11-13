@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.7
+
+- **Peuples mêlés** : une colonie peut abriter plusieurs espèces, chacune avec son corps et ses talents ; les mondes conquis gardent leurs habitants ; coloniser avec un autre peuple de l'empire ; bonus de collection (chapitre 3). Nouvelle option de partie (chapitre 1), lentille des peuples [[U]] (chapitre 2).
+
 ### Édition 1.6
 
 - **Talents commerciaux** des peuples (chapitre 8).

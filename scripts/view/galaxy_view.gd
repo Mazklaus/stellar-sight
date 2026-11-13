@@ -220,6 +220,15 @@ func _draw() -> void:
 				_draw_label(s, px, true)
 				_draw_politics(s, px)
 		return
+	if lens == "peoples" and state != null:
+		# Lentille des peuples : vos systèmes cerclés de la part de chaque espèce, et la majoritaire.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		for s in galaxy.systems:
+			if owner_of(s.id) == viewer:
+				_draw_system(s, px)
+				_draw_label(s, px, true)
+				_draw_peoples(s, px)
+		return
 	if lens == "trade" and state != null:
 		# Lentille du commerce : vos routes (couleur du palier du traité, verte pour une route
 		# intérieure, rouge si bloquée) et le risque pirate des systèmes traversés.
@@ -677,6 +686,48 @@ func _draw_politics(s: StarSystem, px: float) -> void:
 	var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
 	draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
 	draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col.lightened(0.2))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Habitants de chaque espèce dans un système (colonies du joueur regardé).
+func system_peoples(sid: int) -> Dictionary:
+	var out := {}
+	for pid in galaxy.systems[sid].planet_ids:
+		var c: Colony = state.colonies.get(pid)
+		if c == null or c.owner != viewer:
+			continue
+		var cnt := Peoples.counts(state, c)
+		for fid in cnt:
+			out[fid] = int(out.get(fid, 0)) + int(cnt[fid])
+	return out
+
+
+func _draw_peoples(s: StarSystem, px: float) -> void:
+	var cnt := system_peoples(s.id)
+	var total := 0
+	for fid in cnt:
+		total += int(cnt[fid])
+	if total <= 0:
+		return
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	var keys := cnt.keys()
+	keys.sort_custom(func(a: String, b: String) -> bool:
+		return int(cnt[a]) > int(cnt[b]) or (int(cnt[a]) == int(cnt[b]) and a < b))
+	var start := -PI * 0.5
+	for fid: String in keys:
+		var span := TAU * float(cnt[fid]) / float(total)
+		var col := Color.html(String(GameData.faction(fid).get("color", "#cccccc")))
+		draw_arc(Vector2.ZERO, 13.0, start, start + span, maxi(4, int(28.0 * span / TAU)), col, 3.0, true)
+		start += span
+	var top: String = keys[0]
+	@warning_ignore("integer_division")
+	var text := "%s %d %%" % [Peoples.label(top), int(cnt[top]) * 100 / total]
+	if keys.size() > 1:
+		text += "  +%d" % (keys.size() - 1)
+	var tcol := Color.html(String(GameData.faction(top).get("color", "#cccccc")))
+	var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+	draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
+	draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, tcol.lightened(0.2))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

@@ -145,8 +145,8 @@ func _ready() -> void:
 	_hud.system_mode_requested.connect(func(m: bool) -> void: _system_screen.set_manage_mode(m))
 	_system_screen.mode_changed.connect(_hud.set_manage_tab)
 	_system_screen.rename_requested.connect(_on_rename_requested)
-	_system_screen.colonize_requested.connect(func(planet_id: int, kind: String) -> void:
-		_submit(SimCommands.colonize(view_empire, planet_id, kind)))
+	_system_screen.colonize_requested.connect(func(planet_id: int, kind: String, species: String) -> void:
+		_submit(SimCommands.colonize(view_empire, planet_id, kind, species)))
 	_system_screen.build_requested.connect(func(planet_id: int, building_id: String) -> void:
 		_submit(SimCommands.build(view_empire, planet_id, building_id)))
 	_system_screen.build_ship_requested.connect(func(planet_id: int, ship_id: String) -> void:
@@ -1169,6 +1169,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				return
 			if key.physical_keycode == KEY_G and not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "trade" else "trade")
+				return
+			if key.physical_keycode == KEY_U and not is_system_view_open():
+				_hud.set_lens("" if _hud.lens == "peoples" else "peoples")
 				return
 			if key.physical_keycode == KEY_O and not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "politics" else "politics")

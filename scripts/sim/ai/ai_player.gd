@@ -166,6 +166,15 @@ static func planet_value(state: GameState, e: Empire, p: Planet, use := 1) -> Di
 		deposits += 1
 		crystals = crystals or d == "crystals"
 	var maxp := Economy.max_pop(state, p, e.id)
+	# Peuples mêlés : une autre espèce de l'empire peut être mieux adaptée à ce monde.
+	var species := ""
+	if state.peoples_on and Peoples.colonist_species(state, e.id).size() > 1:
+		var best := Peoples.best_colonist(state, e.id, p.type)
+		if best != e.faction_id:
+			var mp := Economy.max_pop(state, p, e.id, [], best)
+			if mp > maxp:
+				maxp = mp
+				species = best
 	var kind := Colony.KIND_COLONY if maxp >= 1 else Colony.KIND_OUTPOST
 	var value := 0
 	if kind == Colony.KIND_COLONY:
@@ -187,6 +196,8 @@ static func planet_value(state: GameState, e: Empire, p: Planet, use := 1) -> Di
 	if use >= 1 and kind == Colony.KIND_COLONY and FactionTraits.has_horde(e.faction()) \
 			and Victory.has_tech(state, e.id, "terre_promise") and p.id == Victory.promised_planet(state, e.id):
 		value += 80
+	if species != "" and kind == Colony.KIND_COLONY:
+		return {"kind": kind, "value": value, "species": species}
 	return {"kind": kind, "value": value}
 
 
@@ -204,14 +215,14 @@ static func best_claim(state: GameState, e: Empire, system_id: int, use: int, vi
 		var v := {}
 		if c == null:
 			v = planet_value(state, e, p, use)
-		elif c.owner == e.id and c.kind == Colony.KIND_OUTPOST and c.is_established() and Economy.max_pop(state, p, e.id) >= 1:
+		elif c.owner == e.id and c.kind == Colony.KIND_OUTPOST and c.is_established():
 			v = planet_value(state, e, p, use)  # un avant-poste habitable peut devenir colonie
 			if v["kind"] != Colony.KIND_COLONY:
 				continue
 		else:
 			continue
 		if best.is_empty() or int(v["value"]) > int(best["value"]):
-			best = {"planet": pid, "kind": v["kind"], "value": v["value"]}
+			best = {"planet": pid, "kind": v["kind"], "value": v["value"], "species": String(v.get("species", ""))}
 	return best
 
 
@@ -744,7 +755,7 @@ static func _foothold_claims(ctx: Dictionary) -> void:
 		var cost := Economy.claim_cost_for(state, e.id, int(claim["planet"]), String(claim["kind"]))
 		if _res(ctx, "influence") - int(cost.get("influence", 0)) < reserve_inf and int(cost.get("influence", 0)) > 0:
 			continue
-		if _issue(ctx, SimCommands.colonize(e.id, int(claim["planet"]), String(claim["kind"]))):
+		if _issue(ctx, SimCommands.colonize(e.id, int(claim["planet"]), String(claim["kind"]), String(claim.get("species", "")))):
 			_intent(ctx, "Développe %s" % state.galaxy.systems[sid].system_name)
 
 
@@ -936,7 +947,7 @@ static func _colonizer(ctx: Dictionary, f: Fleet) -> void:
 		var here := best_claim(state, e, f.system_id, _use(ctx), _seen(ctx))
 		if not here.is_empty() and int(here["value"]) >= MIN_TARGET_VALUE and not Economy.has_foothold(state, e.id, f.system_id):
 			# Le vaisseau colon passe avant les revendications sans vaisseau : il a déjà coûté cher.
-			if _issue(ctx, SimCommands.colonize(e.id, int(here["planet"]), String(here["kind"]))):
+			if _issue(ctx, SimCommands.colonize(e.id, int(here["planet"]), String(here["kind"]), String(here.get("species", "")))):
 				_intent(ctx, "Fonde %s à %s" % ["une colonie" if here["kind"] == Colony.KIND_COLONY else "un avant-poste", state.galaxy.systems[f.system_id].system_name])
 			# Sinon, pas les moyens pour l'instant (influence, chantiers pleins) : on attend sur place.
 			return

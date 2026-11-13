@@ -37,6 +37,21 @@ Un avant-poste ne coûte presque rien et pose un pied dans un système. Posez-en
 
 Une colonie grandit chaque jour, de moins en moins vite à mesure qu'elle se remplit. Sa taille fixe son plafond : quatre habitants par point de taille. Chaque habitant produit selon la planète et ses gisements, mange, et compte pour le Savoir et la garnison.
 
+### Peuples mêlés
+
+Quand l'option **Peuples mêlés** est active (c'est le cas par défaut), une colonie peut abriter plusieurs espèces. Un monde conquis garde ses habitants : six Kh'thari pris par la Concorde restent six Kh'thari, avec leur corps, leurs biomes et leurs talents. La fiche de la colonie affiche sa mosaïque (« 7 Vael · 3 Kh'thari »).
+
+- **Chacun selon son corps.** Chaque espèce mange selon son régime (les synthétiques consomment de l'énergie, les reptiliens mangent moins) et produit selon ses pourcentages de peuple. Le plafond d'une planète est celui de l'espèce présente la mieux adaptée.
+- **Qui naît ?** Le nouvel habitant est tiré parmi les espèces présentes, selon leur nombre et leur habitabilité, deux fois plus souvent sur leur monde natal. Une espèce sous 40 % d'habitabilité ne naît plus là où une autre est à l'aise.
+- **Coloniser avec un autre peuple.** Une espèce qui compte au moins deux habitants chez vous peut fonder des colonies : la vue système propose « Coloniser avec les… » sur les mondes où elle peut vivre. Un empire reptilien qui a gagné un peuple océanique peuple enfin les océans.
+- **Bonus de collection.** À 10, 25 puis 50 habitants dans l'empire, une espèce donne +5, +10 puis +15 % de la ressource où elle excelle (le Savoir, à défaut).
+
+L'écran Colonies ([[F2]]) liste les peuples de l'empire, leur nombre et leurs bonus ; la lentille des peuples ([[U]]) montre la mosaïque sur la carte. Si l'option est désactivée, les habitants d'un monde conquis prennent l'espèce du conquérant, comme dans les éditions précédentes.
+
+::: marge
+Le premier jour, ils vous détestent. Le deuxième, ils vous apprennent à cultiver les marais. Gardez-les.
+:::
+
 ### Bâtiments
 
 Chaque colonie bâtit dans ses emplacements : fermes, centrales, mines, forums pour l'influence, bâtiments de recherche, bastions, arsenaux et chantiers titanesques. Les technologies en ouvrent de meilleurs, qui remplacent les premiers sur place sans prendre d'emplacement de plus. Plus tard viennent les **mégastructures** (une par empire), les **merveilles** (une par galaxie, au premier qui la lance) et les **projets** planétaires : terraformation, monde-jardin, écuménopole.

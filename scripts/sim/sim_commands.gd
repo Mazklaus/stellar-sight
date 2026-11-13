@@ -17,8 +17,12 @@ static func rename_system(player: int, system_id: int, new_name: String) -> Dict
 
 ## Lance une colonie ("colony") ou un avant-poste ("outpost") sur une planète.
 ## Une colonie sur un de ses propres avant-postes le transforme en colonie.
-static func colonize(player: int, planet_id: int, kind: String = Colony.KIND_COLONY) -> Dictionary:
-	return {"type": "colonize", "player": player, "planet": planet_id, "kind": kind}
+## species : peuple de l'empire qui fondera la colonie (voir Peoples) ; "" = celui de l'empire.
+static func colonize(player: int, planet_id: int, kind: String = Colony.KIND_COLONY, species := "") -> Dictionary:
+	var cmd := {"type": "colonize", "player": player, "planet": planet_id, "kind": kind}
+	if species != "":
+		cmd["species"] = species
+	return cmd
 
 
 ## Lance la construction d'un bâtiment sur une colonie ou un avant-poste.
@@ -443,7 +447,7 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 				return "nom trop long (%d caractères max)" % NAME_MAX_LENGTH
 			return ""
 		"colonize":
-			return Economy.check_colonize(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("kind", "")))
+			return Economy.check_colonize(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("kind", "")), String(cmd.get("species", "")))
 		"build":
 			return Economy.check_build(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("building", "")))
 		"build_ship":
@@ -645,6 +649,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				c.owner = e.id
 			c.kind = kind
 			c.days_left = Economy.claim_days(kind)
+			var sp := String(cmd.get("species", ""))
+			c.founder = sp if kind == Colony.KIND_COLONY and sp != e.faction_id else ""
 			state.add_colony(c)
 		"build":
 			var e := state.get_empire(int(cmd["player"]))

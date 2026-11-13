@@ -173,6 +173,9 @@ var goods := String(GameData.goods()["default_mode"])
 var market := String(GameData.goods()["default_market"])
 var _goods_select: OptionButton
 var _market_select: OptionButton
+## Populations mixtes (Peoples) : "actifs" ou "aucuns".
+var peoples := "actifs"
+var _peoples_select: OptionButton
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
 const PRESETS_PATH := "user://new_game_presets.json"
@@ -1503,10 +1506,17 @@ func set_market(id: String) -> void:
 	_refresh_preset()
 
 
+func set_peoples(id: String) -> void:
+	peoples = id if id == "actifs" or id == "aucuns" else "actifs"
+	if _peoples_select:
+		_peoples_select.select(0 if peoples == "actifs" else 1)
+	_refresh_preset()
+
+
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
 	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
-		"goods": goods, "market": market}
+		"goods": goods, "market": market, "peoples": peoples}
 
 
 func set_spectator(on: bool) -> void:
@@ -1832,6 +1842,14 @@ func _build_new_page(root: Control) -> void:
 	_market_select.item_selected.connect(func(i: int) -> void: set_market("actif" if i == 0 else "aucun"))
 	_labeled_row(game, "Marché", _market_select)
 	set_market(market)
+	_peoples_select = OptionButton.new()
+	_peoples_select.clip_text = true
+	_peoples_select.add_item("Actifs")
+	_peoples_select.add_item("Aucuns")
+	_peoples_select.tooltip_text = "Peuples mêlés : une colonie peut abriter plusieurs espèces. Les peuples conquis gardent leur espèce, leurs biomes et leurs talents, et vous pouvez fonder des colonies avec eux.\nActifs : les peuples se mêlent.\nAucuns : comme avant, les habitants d'un monde conquis prennent l'espèce du conquérant."
+	_peoples_select.item_selected.connect(func(i: int) -> void: set_peoples("actifs" if i == 0 else "aucuns"))
+	_labeled_row(game, "Peuples mêlés", _peoples_select)
+	set_peoples(peoples)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2567,7 +2585,7 @@ func settings() -> Dictionary:
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
-		"goods": goods, "market": market,
+		"goods": goods, "market": market, "peoples": peoples,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2585,7 +2603,7 @@ func default_settings() -> Dictionary:
 		"victories": {"conquete": true, "domination": true, "allies": true}, "ai_scaling": false,
 		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "plagues": true, "events": Events.default_frequency(), "curios": Curios.default_density(),
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
-		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"])}
+		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs"}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -2655,6 +2673,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_politics(String(d.get("politics", base["politics"])))
 	set_goods(String(d.get("goods", base["goods"])))
 	set_market(String(d.get("market", base["market"])))
+	set_peoples(String(d.get("peoples", base["peoples"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

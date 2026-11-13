@@ -22,6 +22,11 @@ var construction_days: int = 0
 ## Le chantier spatial est indépendant de celui des bâtiments.
 var ship_build: String = ""
 var ship_days: int = 0
+## Populations mixtes (voir Peoples) : habitants qui ne sont pas de l'espèce du propriétaire, par
+## identifiant de peuple. Vide pour une colonie d'une seule espèce.
+var species: Dictionary = {}
+## Espèce qui fondera la colonie quand elle sera établie ("" = celle du propriétaire).
+var founder: String = ""
 
 
 func is_established() -> bool:
@@ -33,7 +38,7 @@ func is_colony() -> bool:
 
 
 func to_dict() -> Dictionary:
-	return {
+	var d := {
 		"planet": planet_id,
 		"owner": owner,
 		"kind": kind,
@@ -46,6 +51,16 @@ func to_dict() -> Dictionary:
 		"ship_build": ship_build,
 		"ship_days": ship_days,
 	}
+	if not species.is_empty():
+		var sp := {}
+		var keys := species.keys()
+		keys.sort()
+		for k in keys:
+			sp[k] = int(species[k])
+		d["species"] = sp
+	if founder != "":
+		d["founder"] = founder
+	return d
 
 
 static func from_dict(d: Dictionary) -> Colony:
@@ -62,4 +77,9 @@ static func from_dict(d: Dictionary) -> Colony:
 	c.construction_days = int(d["construction_days"])
 	c.ship_build = String(d["ship_build"])
 	c.ship_days = int(d["ship_days"])
+	var sp: Dictionary = d.get("species", {})
+	for k in sp:
+		if int(sp[k]) > 0:
+			c.species[String(k)] = int(sp[k])
+	c.founder = String(d.get("founder", ""))
 	return c

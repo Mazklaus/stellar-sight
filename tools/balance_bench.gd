@@ -5,7 +5,7 @@ extends SceneTree
 ##   python3 tools/balance_report.py fichier.jsonl
 ## Variables : SEEDS, YEARS (défaut 25), LEVEL (défaut normal), TEMPER (défaut normal),
 ## PIRATES (densité des repaires : aucun par défaut, rares, normaux, infestes), POLITICS (politique
-## intérieure : aucune par défaut, active).
+## intérieure : aucune par défaut, active), PEOPLES (peuples mêlés : aucuns par défaut, actifs).
 ## SPECIES : peuples créés à ajouter aux 4 officiels (éditeur d'espèces), séparés par des virgules :
 ## chemin d'un fichier de peuple (user://species/p_x.json ou chemin absolu) ou « preset:<officiel> »
 ## (peuple créé depuis le modèle d'un officiel). Banc court d'un peuple créé, cibles de l'étude
@@ -40,7 +40,8 @@ func _initialize() -> void:
 	for sd in seeds:
 		var st := GameState.create(sd, 150, 1800.0, "", {"spectator": true, "ai_level": level, "temperament": temper, "rivals": rivals,
 				"pirates": OS.get_environment("PIRATES") if OS.get_environment("PIRATES") != "" else "aucun",
-				"politics": OS.get_environment("POLITICS") if OS.get_environment("POLITICS") != "" else "aucune"})
+				"politics": OS.get_environment("POLITICS") if OS.get_environment("POLITICS") != "" else "aucune",
+				"peoples": OS.get_environment("PEOPLES") if OS.get_environment("PEOPLES") != "" else "aucuns"})
 		var sim := Simulation.new(st)
 		var rows := {}
 		for e in st.empires:
@@ -61,6 +62,14 @@ func _initialize() -> void:
 					r["first_war"] = y
 		for e in st.empires:
 			rows[e.id]["pop"] = 0 if e.eliminated else int(EmpireReport.totals(st, e.id)["population"])
+			if st.peoples_on and not e.eliminated:
+				rows[e.id]["peoples"] = Peoples.empire_counts(st, e.id)
+				var founded := 0
+				for pid in st.sorted_colony_ids():
+					var c: Colony = st.colonies[pid]
+					if c.owner == e.id and not c.species.is_empty() and Peoples.own_count(c) == 0:
+						founded += 1
+				rows[e.id]["foreign_worlds"] = founded
 		var out := {"seed": sd, "years": y, "ms": Time.get_ticks_msec() - t0, "empires": rows.values()}
 		if not st.winner.is_empty():
 			var w := st.winner

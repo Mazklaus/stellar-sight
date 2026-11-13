@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 39
+const FORMAT_VERSION := 40
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -138,6 +138,9 @@ var fauna: Dictionary = {}
 var trade: Dictionary = {}
 ## Luxes, stratégiques, licences, monopoles, marché et contrats d'échange (voir Goods).
 var goods: Dictionary = {}
+## Populations mixtes (voir Peoples) : option de partie et bonus de collection par empire.
+var peoples: Dictionary = {}
+var peoples_on: bool = false
 var _pirates: Empire
 var _fauna: Empire
 
@@ -187,6 +190,7 @@ var _npc: Empire = null
 ## - "plagues" : fléaux errants (Plagues) quand il y a des créatures (défaut vrai) ;
 ## - "goods" : densité des luxes et stratégiques (Goods, défaut "aucuns") ;
 ## - "market" : marché intérieur ("actif" ou "aucun", défaut) ;
+## - "peoples" : populations mixtes ("actifs" ou "aucuns", défaut ; voir Peoples) ;
 ## - "creatures" : densité de la faune (Fauna, défaut "aucune"). Sans ces six options (tests, bancs),
 ##   la partie n'a ni pirates, ni curiosités, ni événements, ni quêtes, ni politique, ni créatures.
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
@@ -221,6 +225,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Plagues.setup(s, bool(options.get("plagues", true)))
 	Politics.setup(s, String(options.get("politics", "aucune")))
 	Goods.setup(s, String(options.get("goods", "aucuns")), String(options.get("market", "aucun")) == "actif")
+	Peoples.setup(s, String(options.get("peoples", "aucuns")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -325,6 +330,7 @@ func to_dict() -> Dictionary:
 		"fauna": Fauna.to_dict(self),
 		"trade": Trade.to_dict(self),
 		"goods": Goods.to_dict(self),
+		"peoples": Peoples.to_dict(self),
 	}
 
 
@@ -517,6 +523,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Fauna.from_dict(s, d.get("fauna", {}))
 	Trade.from_dict(s, d.get("trade", {}))
 	Goods.from_dict(s, d.get("goods", {}))
+	Peoples.from_dict(s, d.get("peoples", {}))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant le commerce en paliers : l'ancien accord commercial devient un accord du
 	# 2e palier, et les routes se tracent tout de suite.
