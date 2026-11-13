@@ -614,6 +614,9 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 				return "il faut avoir abattu le Mange-soleil"
 			if FactionTraits.capital_system(state, b) < 0:
 				return "il n'a pas de capitale"
+		"appat":
+			if Plagues.bait_pick(state, b).is_empty():
+				return "rien à attirer : ni fléau, ni troupeau hostile près de ses colonies"
 		"vol_techno":
 			if Research.steal_target(state, a, b) == "":
 				return "il ne connaît rien que vous puissiez lui voler"
@@ -846,6 +849,9 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			Guardians.choke(state, cap)
 			return "l'étoile de %s pâlit : −%d %% de production pendant six mois. Ses astronomes accusent une éclipse ; ils cherchent encore la Lune." % [
 					state.galaxy.systems[cap].system_name, int(Guardians.data()["choke"]["pct"])]
+		"appat":
+			var txt := Plagues.bait(state, b)
+			return txt if txt != "" else "les balises sentent bon, mais rien n'a mordu. Les bêtes ont dû trouver mieux ailleurs."
 		"inciter":
 			var lair := _incite_lair(state, a, b)
 			if lair < 0:

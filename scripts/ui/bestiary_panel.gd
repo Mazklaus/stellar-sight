@@ -22,6 +22,46 @@ static func build(es: EmpireScreens, col: VBoxContainer) -> void:
 	for i in Fauna.species_ids().size() - known.size():
 		col.add_child(_unknown_block())
 	_guardians(es, col)
+	_plagues(es, col)
+
+
+## Fléaux errants (lot 3) : ceux que l'empire a vus, et ce qu'ils sont devenus.
+static func _plagues(es: EmpireScreens, col: VBoxContainer) -> void:
+	var state := es._state
+	var player := es._player
+	var seen := Plagues.known(state, player)
+	if Plagues.ids(state).is_empty() and Plagues.plan(state).is_empty():
+		return
+	var intro := Widgets.Block.new("☠ Fléaux errants")
+	col.add_child(intro)
+	intro.body.add_child(UiTheme.paragraph("Pas avant l'an 15, un fléau peut se lever : il va de colonie en colonie (jamais une capitale), dévore la population et repart au bout d'un an s'il n'est pas abattu. Abattu à plusieurs, son Triomphe se partage selon les dégâts.", 900.0, 14))
+	if seen.is_empty():
+		intro.body.add_child(UiTheme.dim("Aucun fléau en vue. Pour l'instant.", 13))
+	for pid in seen:
+		var p: Dictionary = Plagues.list(state)[pid]
+		var kd := Plagues.kind_def(String(p["kind"]))
+		var blk := Widgets.Block.new(String(kd.get("name", "Fléau")))
+		blk.body.add_child(UiTheme.paragraph(String(kd.get("text", "")), 900.0, 14))
+		var tr := "Trait : %s" % String(kd.get("trait", ""))
+		if String(p["star"]) != "":
+			tr += " Sa couleur : %s." % GalaxyGenerator.star_label(String(p["star"])).to_lower()
+		blk.body.add_child(UiTheme.dim(tr, 13))
+		var line := ""
+		match String(p["status"]):
+			"alive":
+				var f := Plagues.fleet_of(state, pid)
+				var pr := Fauna.power_range(state, player, f) if f != null else [0, 0]
+				@warning_ignore("integer_division")
+				line = "En maraude, puissance %d à %d. %d colonie%s ravagée%s ; il repart dans %d jours." % [pr[0], pr[1], int(p["eaten"]),
+						"s" if int(p["eaten"]) > 1 else "", "s" if int(p["eaten"]) > 1 else "",
+						maxi(0, int(p["born"]) + int(Plagues.data()["life_days"]) - state.tick)]
+			"dead":
+				var by := int(p["by"])
+				line = "Abattu%s." % ((" ; la plus belle part revient à %s" % state.empires[by].display_name()) if by >= 0 and by < state.empires.size() else "")
+			"gone":
+				line = "Reparti, repu, après %d colonie%s ravagée%s." % [int(p["eaten"]), "s" if int(p["eaten"]) > 1 else "", "s" if int(p["eaten"]) > 1 else ""]
+		blk.body.add_child(UiTheme.dim(line, 13))
+		col.add_child(blk)
 
 
 ## Gardiens (lot 2) : ceux que l'empire a vus, avec leur lieu, leur trait et leur sort.
@@ -152,6 +192,9 @@ static func signature(es: EmpireScreens) -> String:
 	var s := str(Fauna._meta_r(state, es._player)) + str(Fauna.nest_ids(state)) + str(Guardians.known(state, es._player))
 	for gid in Guardians.ids(state):
 		s += String(Guardians.list(state)[gid]["status"])
+	s += str(Plagues.known(state, es._player))
+	for pid in Plagues.ids(state):
+		s += String(Plagues.list(state)[pid]["status"]) + str(Plagues.list(state)[pid]["eaten"])
 	for sp in Fauna.known_species(state, es._player):
 		for att in Fauna.ATTITUDES:
 			s += Fauna.check_attitude(state, es._player, sp, att)

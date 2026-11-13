@@ -557,10 +557,16 @@ func _refresh_fleet_card() -> void:
 		# Gardiens et machines des tombeaux : un crâne et une fourchette, jamais la force exacte.
 		var pr := Fauna.power_range(_state, _player, f)
 		var gid := Guardians.of_fleet(_state, f)
-		_fleet_stats.text += "\n☠ Gardien  ·  puissance %d à %d  ·  %s" % [pr[0], pr[1],
+		var pid := Plagues.of_fleet(_state, f)
+		_fleet_stats.text += "\n☠ %s  ·  puissance %d à %d  ·  %s" % ["Fléau errant" if pid >= 0 else "Gardien", pr[0], pr[1],
 				"hostile" if Fauna.hostile(_state, f, _player) else "pacifique, vous laisse passer"]
 		if gid != "":
 			_fleet_stats.text += "\n%s" % String(Guardians.def(gid).get("trait", ""))
+		elif pid >= 0:
+			var pd: Dictionary = Plagues.list(_state)[pid]
+			_fleet_stats.text += "\n%s" % String(Plagues.kind_def(String(pd["kind"])).get("trait", ""))
+			if String(pd["star"]) != "":
+				_fleet_stats.text += " Sa couleur : %s." % GalaxyGenerator.star_label(String(pd["star"])).to_lower()
 	elif Combat.is_armed(f) or f.total_hp() < f.total_max_hp():
 		@warning_ignore("integer_division")
 		_fleet_stats.text += "\nPuissance %d  ·  coque %d %%  ·  troupes %d/%d  ·  %s" % [Combat.fleet_power(f),
