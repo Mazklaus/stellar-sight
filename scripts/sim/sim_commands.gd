@@ -157,6 +157,21 @@ static func black_buy(player: int, system_id: int, res: String, n: int) -> Dicti
 	return {"type": "black_buy", "player": player, "system": system_id, "res": res, "n": n}
 
 
+## Propose un accord de recherche (l'IA répond aussitôt, un joueur reçoit la proposition).
+static func research_pact(player: int, target: int) -> Dictionary:
+	return {"type": "research_pact", "player": player, "target": target}
+
+
+## Demande une licence de technologie à un partenaire commercial.
+static func tech_licence(player: int, seller: int, tech: String) -> Dictionary:
+	return {"type": "tech_licence", "player": player, "target": seller, "tech": tech}
+
+
+## Répond à une proposition d'accord de recherche ou à une demande de licence de technologie.
+static func tech_answer(player: int, offer_id: int, accept: bool) -> Dictionary:
+	return {"type": "tech_answer", "player": player, "offer": offer_id, "accept": accept}
+
+
 ## Soudoie l'héritier d'une dynastie féodale rivale (sa loyauté baisse).
 static func bribe_heir(player: int, target: int) -> Dictionary:
 	return {"type": "bribe_heir", "player": player, "target": target}
@@ -509,6 +524,12 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Goods.check_cancel_deal(state, int(cmd["player"]), int(cmd.get("deal", -1)))
 		"used_ship_buy":
 			return Goods.check_used(state, int(cmd["player"]))
+		"research_pact":
+			return TechTrade.check_pact(state, int(cmd["player"]), int(cmd.get("target", -1)))
+		"tech_licence":
+			return TechTrade.check_licence(state, int(cmd["player"]), int(cmd.get("target", -1)), String(cmd.get("tech", "")))
+		"tech_answer":
+			return TechTrade.check_answer(state, int(cmd["player"]), int(cmd.get("offer", -1)), bool(cmd.get("accept", false)))
 		"black_buy":
 			return Goods.check_black(state, int(cmd["player"]), int(cmd.get("system", -1)), String(cmd.get("res", "")), int(cmd.get("n", 0)))
 		"bribe_heir":
@@ -832,6 +853,12 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Goods.cancel_deal(state, int(cmd["player"]), int(cmd["deal"]))
 		"used_ship_buy":
 			Goods.buy_used(state, int(cmd["player"]))
+		"research_pact":
+			TechTrade.propose_pact(state, int(cmd["player"]), int(cmd["target"]))
+		"tech_licence":
+			TechTrade.request_licence(state, int(cmd["player"]), int(cmd["target"]), String(cmd["tech"]))
+		"tech_answer":
+			TechTrade.answer(state, int(cmd["offer"]), bool(cmd["accept"]))
 		"black_buy":
 			Goods.buy_black(state, int(cmd["player"]), int(cmd["system"]), String(cmd["res"]), int(cmd["n"]))
 		"bribe_heir":

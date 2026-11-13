@@ -263,6 +263,86 @@ static func _black_market(es: EmpireScreens, col: VBoxContainer) -> void:
 		kb.body.add_child(row)
 
 
+# --- Savoir (lot 3A : accords de recherche, licences de technologie, diffusion) ----------------
+
+const LICENCES_SHOWN := 6
+
+
+static func _tech_label(tid: String) -> String:
+	return String(Research.tech(tid).get("label", tid))
+
+
+static func build_knowledge(es: EmpireScreens, col: VBoxContainer) -> void:
+	var state := es._state
+	var player := es._player
+	var me := state.get_empire(player)
+	if me == null or state.goods.is_empty():
+		col.add_child(UiTheme.paragraph("Rien à afficher.", 760.0, 14))
+		return
+	# Propositions reçues.
+	var inbox := TechTrade.offers_to(state, player)
+	if not inbox.is_empty():
+		var ib := Widgets.Block.new("Propositions reçues")
+		col.add_child(ib)
+		for o: Dictionary in inbox:
+			var row := _row()
+			var who := _name(state, int(o["from"]))
+			var text := "%s propose un accord de recherche (%d énergie chacun)" % [who, TechTrade.pact_cost(state, int(o["from"]), player)] if String(o["kind"]) == "pact" \
+					else "%s demande une licence de %s : il vous paierait %d énergie" % [who, _tech_label(String(o["tech"])), TechTrade.licence_price(state, int(o["from"]), String(o["tech"]))]
+			row.add_child(_label(text, 600.0, 14))
+			row.add_child(_btn(es, "Accepter", TechTrade.check_answer(state, player, int(o["id"]), true), SimCommands.tech_answer(player, int(o["id"]), true), "tech_accept_%d" % int(o["id"])))
+			row.add_child(_btn(es, "Refuser", "", SimCommands.tech_answer(player, int(o["id"]), false), "tech_refuse_%d" % int(o["id"])))
+			ib.body.add_child(row)
+	# Accords de recherche.
+	var pb := Widgets.Block.new("Accords de recherche (%d / %d)" % [TechTrade.pacts_of(state, player).size(), int(TechTrade.data()["pact_max"])])
+	col.add_child(pb)
+	pb.body.add_child(UiTheme.paragraph("Deux empires en paix depuis un an versent chacun de l'énergie ; trois ans plus tard, chacun reçoit un bond de Savoir sur sa recherche en cours (%d pour vous aujourd'hui). Une guerre entre vous annule l'accord et l'énergie est perdue." % TechTrade.pact_bonus(state, player), 760.0, 13))
+	for p: Dictionary in TechTrade.pacts_of(state, player):
+		var other := int(p["b"]) if int(p["a"]) == player else int(p["a"])
+		pb.body.add_child(_label("En cours avec %s, jusqu'au %s" % [_name(state, other), GameCalendar.date_string(int(p["end"]))], 0.0, 14, UiTheme.GOLD))
+	for o in me.contacts:
+		var oe := state.get_empire(int(o))
+		if oe == null or oe.eliminated or oe.is_npc() or not TechTrade.pact_between(state, player, int(o)).is_empty():
+			continue
+		var row := _row()
+		row.add_child(_label(oe.display_name(), 260.0, 14))
+		row.add_child(_label("%d énergie chacun" % TechTrade.pact_cost(state, player, int(o)), 160.0, 13, UiTheme.TEXT_DIM))
+		var why := TechTrade.check_pact(state, player, int(o))
+		row.add_child(_btn(es, "Proposer", why, SimCommands.research_pact(player, int(o)), "pact_%d" % int(o)))
+		if why != "":
+			row.add_child(_label(why, 320.0, 12, UiTheme.TEXT_DIM))
+		pb.body.add_child(row)
+	# Licences de technologie.
+	var lb := Widgets.Block.new("Licences de technologie")
+	col.add_child(lb)
+	lb.body.add_child(UiTheme.paragraph("Un partenaire commercial peut vous vendre une technologie qu'il a trouvée lui-même (ni de peuple, ni de méga-vaisseau, une ère d'avance au plus) : vous recevez %d %% de son coût en Savoir et le payez en énergie. Une technologie achetée ne se revend pas." % int(TechTrade.data()["licence_share_pct"]), 760.0, 13))
+	var any := false
+	for o in Trade.partners(state, player):
+		var offered := TechTrade.licences_offered(state, player, o)
+		if offered.is_empty():
+			continue
+		any = true
+		lb.body.add_child(_label(_name(state, o), 0.0, 15, UiTheme.GOLD))
+		offered.sort_custom(func(x: String, y: String) -> bool: return TechTrade.licence_price(state, player, x) < TechTrade.licence_price(state, player, y))
+		for tid in offered.slice(0, LICENCES_SHOWN):
+			var row := _row()
+			row.add_child(_label(_tech_label(tid), 260.0, 14))
+			row.add_child(_label("%d Savoir pour %d énergie" % [TechTrade.licence_knowledge(state, player, tid), TechTrade.licence_price(state, player, tid)], 220.0, 13, UiTheme.TEXT_DIM))
+			row.add_child(_btn(es, "Acheter", TechTrade.check_licence(state, player, o, tid), SimCommands.tech_licence(player, o, tid), "tlic_%d_%s" % [o, tid]))
+			lb.body.add_child(row)
+	if not any:
+		lb.body.add_child(_label("Aucun partenaire commercial n'a de technologie à vous vendre.", 0.0, 13, UiTheme.TEXT_DIM))
+	for o2: Dictionary in TechTrade.offers_from(state, player):
+		lb.body.add_child(_label("En attente : %s auprès de %s" % ["accord de recherche" if String(o2["kind"]) == "pact" else "licence de " + _tech_label(String(o2["tech"])), _name(state, int(o2["to"]))], 0.0, 13, UiTheme.TEXT_DIM))
+	# Diffusion.
+	var db := Widgets.Block.new("Diffusion : %d Savoir ce mois-ci" % int(Trade.income(state, player).get("knowledge", 0)))
+	col.add_child(db)
+	db.body.add_child(UiTheme.paragraph("Chaque route active vers un empire qui connaît plus de technologies que vous rapporte 1 Savoir par technologie d'écart, au plus %d par route et %d en tout." % [int(TechTrade.data()["diffusion_route_max"]), int(TechTrade.data()["diffusion_max"])], 760.0, 13))
+	for o in Trade.partners(state, player):
+		var gap := TechTrade.tech_gap(state, player, o)
+		db.body.add_child(_label("%s : %d technologie%s d'avance sur vous%s" % [_name(state, o), gap, "s" if gap > 1 else "", (", +%d par route" % TechTrade.route_diffusion(state, player, o)) if gap > 0 else ""], 0.0, 13, UiTheme.TEXT if gap > 0 else UiTheme.TEXT_DIM))
+
+
 static func _amounts(a: Dictionary) -> String:
 	return GameData.format_amounts(a) if not a.is_empty() else "rien"
 
@@ -368,4 +448,4 @@ static func signature(es: EmpireScreens) -> String:
 		res += str(e.resources.get("energy", 0))
 	return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % [es.trade_tab, str(state.goods.get("own", {})), str(state.goods.get("lic", [])), str(state.goods.get("mono", {})),
 			str(state.goods.get("mkt", {}).get(Goods.market_key(state, es._player), {})), str(state.goods.get("trend", {})), str(state.goods.get("used", {})), str(state.goods.get("bm", {}).get(es._player, 0)), Goods.bourse_host(state), str(state.goods.get("orders", {}).get(es._player, {})), str(state.goods.get("offers", [])),
-			str(state.goods.get("deals", [])), res if es.trade_tab != "routes" else "", str(state.goods.get("closed", {}))]
+			str(state.goods.get("deals", [])), res if es.trade_tab != "routes" else "", str(state.goods.get("closed", {})) + str(state.goods.get("pacts", [])) + str(state.goods.get("toff", [])) + str(state.goods.get("tlic", {})) + str(Trade.income(state, es._player).get("knowledge", 0))]

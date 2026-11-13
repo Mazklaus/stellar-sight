@@ -50,7 +50,7 @@ Les écrans d'empire s'ouvrent en plein écran, par les pictogrammes du panneau 
 | Panthéon | [[F10]] | Vos héros, leurs postes, les candidats |
 | Ordre intérieur | [[F12]] | Stabilité des systèmes, décrets |
 | Sénat | [[P]] | Courants politiques, élections, lois |
-| Commerce | [[C]] | Trois onglets : routes (capacité, routes intérieures, risques), ressources (luxes, stratégiques, licences, monopoles), marché (achats, commandes, accords) |
+| Commerce | [[C]] | Quatre onglets : routes (capacité, routes intérieures, risques), ressources (luxes, stratégiques, licences, monopoles), marché (achats, commandes, accords), Savoir (accords de recherche, licences de technologie, diffusion) |
 | Chroniques | [[J]] | Quêtes, événements, Reliquaire, Bestiaire |
 
 ::: marge

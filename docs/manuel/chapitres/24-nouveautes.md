@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.5
+
+- **Accords de recherche**, **licences de technologie** et **diffusion** du Savoir le long des routes (chapitre 8). L'écran Commerce gagne l'onglet Savoir (chapitre 2).
+
 ### Édition 1.4
 
 - **Luxes et stratégiques** : gisements, douze luxes en trois paliers, licences, monopoles, trois stratégiques par ère consommés au Chantier (chapitre 8).

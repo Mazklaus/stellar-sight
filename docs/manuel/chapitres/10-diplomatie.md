@@ -83,6 +83,12 @@ La **Bourse galactique** est une merveille unique (Bourses interstellaires, ère
 
 Un **port franc** pirate que vous connaissez tient un **marché noir** : des stratégiques sans traité ni marché, au double du prix, trente unités par mois au plus. Ceux qui vous connaissent s'en souviennent un temps.
 
+Le **Savoir** circule aussi, mais on n'échange jamais une technologie toute faite (onglet Savoir de l'écran Commerce) :
+
+- un **accord de recherche** se signe entre deux empires en paix depuis un an. Chacun verse de l'énergie (80, plus 60 par ère du plus avancé). Trois ans plus tard, chacun reçoit un bond de Savoir sur sa recherche en cours (150, plus 150 par ère). Une guerre entre eux l'annule, et l'énergie est perdue. Deux accords à la fois au plus ;
+- une **licence de technologie** s'achète à un partenaire commercial. Il doit avoir trouvé la technologie lui-même : ni technologie de peuple, ni méga-vaisseau, une ère d'avance au plus. Vous recevez 60 % de son coût en Savoir et payez deux énergie par point de Savoir. Une technologie obtenue ainsi ne se revend pas ;
+- la **diffusion** : chaque route active vers un empire qui connaît plus de technologies que vous rapporte 1 Savoir par technologie d'écart, au plus 5 par route et 12 en tout.
+
 ::: conseil
 Les routes les plus longues rapportent le plus, mais ce sont aussi celles qui traversent le plus de vide. Une corvette en patrouille sur le bon carrefour vaut parfois mieux qu'un comptoir de plus.
 :::
