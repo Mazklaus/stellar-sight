@@ -13,6 +13,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 		_process_colony(state, state.colonies[pid], added)
 	if state.tick % int(GameData.rules()["month_days"]) == 0:
 		Peoples.refresh(state)
+		Peoples.monthly(state, added)
 		for e in state.empires:
 			_monthly_balance(state, e, added)
 	return added

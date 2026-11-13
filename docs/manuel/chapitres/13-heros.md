@@ -12,7 +12,7 @@ Chaque empire commence avec un héros. Les autres viennent avec la gloire, et le
 
 ### Le renom
 
-Les actes de l'empire font monter son **renom** : fonder une colonie, découvrir une technologie, gagner une bataille, conquérir, signer un traité, réussir une opération, sonder une curiosité, abattre un gardien. Au seuil, **trois candidats** de classes différentes se présentent : vous en prenez un, ou vous les renvoyez tous. Chaque acte fait aussi pencher la classe du prochain : un empire qui guerroie attire les stratèges.
+Les actes de l'empire font monter son **renom** : fonder une colonie, découvrir une technologie, gagner une bataille, conquérir, signer un traité, réussir une opération, sonder une curiosité, abattre un gardien. Au seuil, **trois candidats** de classes différentes se présentent : vous en prenez un, ou vous les renvoyez tous. Chaque acte fait aussi pencher la classe du prochain : un empire qui guerroie attire les stratèges. Avec les peuples mêlés, le dernier candidat peut appartenir à une autre espèce **citoyenne** de l'empire, au prorata de ses habitants : il porte un trait de son peuple, et l'empire de cette espèce apprécie de voir l'un des siens servir chez vous (+5 d'opinion).
 
 Vous avez trois places au départ ; deux technologies en ajoutent une chacune.
 

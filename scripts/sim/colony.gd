@@ -27,6 +27,8 @@ var ship_days: int = 0
 var species: Dictionary = {}
 ## Espèce qui fondera la colonie quand elle sera établie ("" = celle du propriétaire).
 var founder: String = ""
+## Intégration (0 à 100 %) de chaque espèce de la mosaïque (voir Peoples.integration ; absente = 100).
+var integ: Dictionary = {}
 
 
 func is_established() -> bool:
@@ -60,6 +62,13 @@ func to_dict() -> Dictionary:
 		d["species"] = sp
 	if founder != "":
 		d["founder"] = founder
+	if not integ.is_empty():
+		var ig := {}
+		var ks := integ.keys()
+		ks.sort()
+		for k in ks:
+			ig[k] = int(integ[k])
+		d["integ"] = ig
 	return d
 
 
@@ -82,4 +91,7 @@ static func from_dict(d: Dictionary) -> Colony:
 		if int(sp[k]) > 0:
 			c.species[String(k)] = int(sp[k])
 	c.founder = String(d.get("founder", ""))
+	var ig: Dictionary = d.get("integ", {})
+	for k in ig:
+		c.integ[String(k)] = int(ig[k])
 	return c

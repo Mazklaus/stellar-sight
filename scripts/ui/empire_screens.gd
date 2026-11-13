@@ -378,13 +378,62 @@ func _build_peoples_side() -> void:
 					GameData.resource_label(String(en["resource"])).to_lower()])
 		var shown := "%d" % int(cnt[fid])
 		if coll.has(fid):
-			shown += "  · %s" % ["I", "II", "III"][clampi(int(coll[fid]["tier"]) - 1, 0, 2)]
+			shown += "  · +%d %% %s" % [int(coll[fid]["pct"]), GameData.resource_label(String(coll[fid]["resource"])).to_lower()]
 		var v := _key_value(g, Peoples.label(fid), shown)
 		v.tooltip_text = ", ".join(bits) if not bits.is_empty() else "Moins de %d habitants : ni colons ni collection." % int(Peoples.data().get("colonize_min", 2))
 		v.mouse_filter = Control.MOUSE_FILTER_STOP
+	_build_status_rows(keys)
 	_side_box.add_child(UiTheme.paragraph("Chaque espèce garde son corps, ses biomes et ses talents. Avec %d habitants, elle peut fonder des colonies ; à %s, elle donne un bonus de collection." % [
 			int(Peoples.data().get("colonize_min", 2)), "/".join(PackedStringArray(Array(Peoples.data().get("collection_tiers", [10, 25, 50])).map(func(x: Variant) -> String: return str(int(x)))))],
 			SIDE_WIDTH - 24.0, 12))
+
+
+## Statut de chaque autre espèce (lot 2) : un menu par espèce, l'intégration moyenne, la doléance.
+@warning_ignore("integer_division")
+func _build_status_rows(keys: Array) -> void:
+	var own := Peoples.founder_of(_state, _player)
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 4)
+	for fid: String in keys:
+		if fid == own:
+			continue
+		var row := HBoxContainer.new()
+		var name_l := Label.new()
+		var integ := Peoples.empire_integration(_state, _player, fid)
+		name_l.text = "%s · %d %%" % [Peoples.label(fid), integ] if integ >= 0 else Peoples.label(fid)
+		name_l.tooltip_text = "Intégration moyenne des %s dans l'empire : elle monte chaque année, sauf pour les assujettis et les expulsés. Sous 50 %%, ils produisent moins et pèsent sur la stabilité." % Peoples.label(fid)
+		name_l.mouse_filter = Control.MOUSE_FILTER_STOP
+		name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(name_l)
+		var ob := OptionButton.new()
+		ob.custom_minimum_size = Vector2(130, 0)
+		var cur := Peoples.status(_state, _player, fid)
+		var allowed := Peoples.allowed_statuses(_state, _player, fid)
+		var ids: Array[String] = []
+		for st in allowed:
+			ob.add_item(Peoples.status_label(st))
+			ob.set_item_tooltip(ids.size(), String(Peoples.status_def(st).get("text", "")))
+			ids.append(st)
+		ob.selected = ids.find(cur)
+		var nx := Peoples.next_change(_state, _player, fid)
+		if _state.tick < nx:
+			ob.disabled = true
+			ob.tooltip_text = "Statut changé récemment : prochain changement le %s." % GameCalendar.date_string(nx)
+		else:
+			ob.tooltip_text = "Statut des %s (modifiable tous les %d ans)." % [Peoples.label(fid), int(Peoples.data().get("status_days", 1800)) / 360]
+		ob.item_selected.connect(func(i: int) -> void:
+			if ids[i] != cur:
+				command_requested.emit(SimCommands.peoples_status(_player, fid, ids[i]))
+				ob.disabled = true)
+		row.add_child(ob)
+		rows.add_child(row)
+	if rows.get_child_count() == 0:
+		return
+	_side_box.add_child(UiTheme.section("Statuts"))
+	_side_box.add_child(rows)
+	var d := Peoples.rights_demand(_state, _player)
+	if not d.is_empty():
+		_side_box.add_child(UiTheme.paragraph("Doléance : les %s réclament la citoyenneté avant le %s." % [Peoples.label(String(d["fid"])), GameCalendar.date_string(int(d["end"]))], SIDE_WIDTH - 24.0, 12))
 
 
 func _key_value(grid: GridContainer, key: String, value := "") -> Label:

@@ -52,6 +52,31 @@ L'écran Colonies ([[F2]]) liste les peuples de l'empire, leur nombre et leurs b
 Le premier jour, ils vous détestent. Le deuxième, ils vous apprennent à cultiver les marais. Gardez-les.
 :::
 
+### Statuts, intégration et frictions
+
+Chaque autre espèce de l'empire a un **statut**, que vous choisissez dans l'écran Colonies et que vous ne pouvez changer que tous les cinq ans. Votre propre peuple est toujours citoyen.
+
+| Statut | Ce qu'il fait |
+| --- | --- |
+| Citoyens | Votent, comptent pour l'opinion, peuvent devenir des héros. |
+| Résidents | Libres, sans vote ni héros. -3 de stabilité là où ils sont majoritaires. |
+| Assujettis | +25 % de production pour leur part, -10 de stabilité où ils vivent, intégration bloquée, leur empire d'origine vous en veut. |
+| À assimiler | Citoyens que l'on convertit : un habitant par colonie et par an devient de votre espèce. -5 de stabilité où cela se fait. |
+| Expulsés | Quittent l'empire, un habitant par colonie et par trimestre. |
+| Exterminés | Disparaissent, un habitant par colonie et par mois. -15 de stabilité, et toute la galaxie s'en souvient longtemps. |
+
+Tous les statuts ne sont pas permis à tous. Une **ruche** n'a que des assujettis (ou les chasse) ; une **conscience** synthétique n'a pas de citoyens ; les habitants d'une ruche ne deviennent jamais citoyens d'un empire ordinaire ; la **république** n'assujettit personne. L'Essaim Kh'thari, lui, digère toujours ses proies : l'extermination est un choix de plus, pas un remplacement.
+
+- **Intégration.** Chaque espèce a, dans chaque colonie, une intégration de 0 à 100 %. Un monde conquis repart de zéro, des colons d'une autre espèce partent à 75 %. Elle monte de 5 % par an, plus 2 pour des citoyens, pour un credo partagé avec le vôtre, un Forum impérial dans la colonie ou un gouverneur dans le système. Sous 50 %, l'espèce produit jusqu'à 25 % de moins et la colonie perd jusqu'à 10 de stabilité. Des assujettis et des expulsés ne s'intègrent pas.
+- **Affinités et frictions.** Deux espèces qui pèsent chacune au moins 15 % d'un système s'apprécient ou se supportent mal, selon leurs couches : même credo, même archétype, credos opposés sur la roue politique, ruche face à non-ruche, synthétiques face aux organiques. Jusqu'à ±5 de stabilité.
+- **La doléance des droits.** Quand des résidents ou des assujettis dépassent 20 % de la population de l'empire, ils réclament la citoyenneté. Accordée dans les deux ans, ils vous en sont reconnaissants (+5 de stabilité là où ils vivent pendant un an) ; refusée, -5.
+
+La fiche d'une colonie montre le statut et l'intégration de chaque espèce (« 4 Kh'thari (résidents, 25 %) ») ; l'Ordre intérieur du système détaille chaque ligne de stabilité.
+
+::: marge
+« Résidents, citoyens, assujettis… » Le conseiller juridique a demandé une augmentation. Il l'a obtenue, avec le statut de résident.
+:::
+
 ### Bâtiments
 
 Chaque colonie bâtit dans ses emplacements : fermes, centrales, mines, forums pour l'influence, bâtiments de recherche, bastions, arsenaux et chantiers titanesques. Les technologies en ouvrent de meilleurs, qui remplacent les premiers sur place sans prendre d'emplacement de plus. Plus tard viennent les **mégastructures** (une par empire), les **merveilles** (une par galaxie, au premier qui la lance) et les **projets** planétaires : terraformation, monde-jardin, écuménopole.

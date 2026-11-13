@@ -162,6 +162,8 @@ static func _offer_block(es: EmpireScreens, offer: Array) -> Control:
 		info.add_child(name)
 		var cl := Label.new()
 		cl.text = "%s · %d ans" % [Heroes.class_def(String(cand["cls"]))["label"], int(cand.get("age", 30))]
+		if String(cand.get("sp", "")) != "":
+			cl.text += " · %s" % Peoples.label(String(cand["sp"]))
 		cl.add_theme_color_override("font_color", _class_color(String(cand["cls"])).lerp(Color.WHITE, 0.3))
 		info.add_child(cl)
 		info.add_child(_traits_line(cand))
@@ -301,6 +303,8 @@ static func _hero_card(es: EmpireScreens, h: Dictionary) -> Control:
 	info.add_child(UiTheme.paragraph(String(h["name"]), CARD_WIDTH - 30.0, 15))
 	var cl := Label.new()
 	cl.text = "%s · niveau %d · %d ans" % [Heroes.class_def(String(h["cls"]))["label"], int(h["lvl"]), Heroes.age(state, h)]
+	if String(h.get("sp", "")) != "":
+		cl.text += " · %s" % Peoples.label(String(h["sp"]))
 	cl.add_theme_color_override("font_color", _class_color(String(h["cls"])).lerp(Color.WHITE, 0.3))
 	info.add_child(cl)
 	var levels: Array = Heroes.data()["xp_levels"]

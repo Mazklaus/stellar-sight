@@ -121,7 +121,12 @@ static func people_traits(state: GameState, empire_id: int) -> Array[String]:
 	var e := state.get_empire(empire_id)
 	if e == null:
 		return out
-	var f := e.faction()
+	return people_traits_of(e.faction())
+
+
+## Réserve de traits d'une fiche de peuple (héros d'une autre espèce : voir Peoples).
+static func people_traits_of(f: Dictionary) -> Array[String]:
+	var out: Array[String] = []
 	var sp: Dictionary = f.get("species", {})
 	var table: Dictionary = data().get("people_traits", {})
 	for layer in ["registre", "archetype", "gouvernement", "credo"]:
@@ -182,8 +187,13 @@ static func portraits_for(archetype: String) -> Array[String]:
 
 
 ## Un candidat tiré par hachage : nom, portrait, âge, classe et un premier trait de sa classe.
-static func make_candidate(state: GameState, empire_id: int, cls: String, salt: Array) -> Dictionary:
+## sp : espèce citoyenne d'un autre peuple (voir Peoples.hero_species) ; "" = celle de l'empire.
+static func make_candidate(state: GameState, empire_id: int, cls: String, salt: Array, sp := "") -> Dictionary:
 	var arch := _archetype(state, empire_id)
+	if sp != "":
+		arch = String(GameData.faction(sp).get("species", {}).get("archetype", "humanoide"))
+		if not (data()["names"] as Dictionary).has(arch):
+			arch = "humanoide"
 	var names: Dictionary = data()["names"][arch]
 	var first: Array = names["first"]
 	var last: Array = names["last"]
@@ -194,9 +204,18 @@ static func make_candidate(state: GameState, empire_id: int, cls: String, salt: 
 	var traits: Array[String] = []
 	if not pool.is_empty():
 		traits.append(pool[_h(state, salt + ["trait"]) % pool.size()])
+	if sp != "":
+		# Un talent lié aux traits de son peuple.
+		var pt := people_traits_of(GameData.faction(sp))
+		var free: Array[String] = []
+		for t in pt:
+			if not traits.has(t):
+				free.append(t)
+		if not free.is_empty():
+			traits.append(free[_h(state, salt + ["sp_trait"]) % free.size()])
 	var ambs := (data()["ambitions"] as Dictionary).keys()
 	ambs.sort()
-	return {
+	var cand := {
 		"amb": "" if is_avatar(state, empire_id) else String(ambs[_h(state, salt + ["amb"]) % ambs.size()]),
 		"name": "%s %s" % [first[_h(state, salt + ["first"]) % first.size()], last[_h(state, salt + ["last"]) % last.size()]],
 		"portrait": pics[_h(state, salt + ["pic"]) % pics.size()] if not pics.is_empty() else "",
@@ -204,6 +223,9 @@ static func make_candidate(state: GameState, empire_id: int, cls: String, salt: 
 		"age": age,
 		"traits": traits,
 	}
+	if sp != "":
+		cand["sp"] = sp
+	return cand
 
 
 ## Traits que peut tirer un héros de cette classe (ceux de la classe, puis ceux de toutes les classes).
@@ -236,6 +258,11 @@ static func recruit(state: GameState, empire_id: int, cand: Dictionary) -> int:
 		"amb": String(cand.get("amb", "")), "served": state.tick, "amb_n": 0, "amb_done": 0,
 		"foe": -1, "jailer": -1, "convert": 0, "life": life_years(state, empire_id),
 	}
+	var sp := String(cand.get("sp", ""))
+	if sp != "":
+		state.heroes[id]["sp"] = sp
+		var l: Dictionary = data()["life"]
+		state.heroes[id]["life"] = int((l["archetype"] as Dictionary).get(String(GameData.faction(sp).get("species", {}).get("archetype", "")), l["years"]))
 	state.heroes[id]["loy"] = base_loyalty(state, empire_id, state.heroes[id])
 	meta(state, empire_id)["got"] = int(meta(state, empire_id)["got"]) + 1
 	return id
@@ -632,10 +659,32 @@ static func _maybe_offer(state: GameState, empire_id: int) -> bool:
 				pick = c
 				break
 		weights[pick] = 0  # trois classes différentes tant que possible
-		offer.append(make_candidate(state, empire_id, pick, ["offer", empire_id, got, i]))
+		var salt := ["offer", empire_id, got, i]
+		offer.append(make_candidate(state, empire_id, pick, salt, _offer_species(state, empire_id, salt) if i == int(data()["offer_size"]) - 1 else ""))
 	m["offer"] = offer
 	m["acts"] = {}
 	return true
+
+
+## Peuples mêlés : le dernier candidat d'une offre peut être d'une autre espèce citoyenne, au prorata
+## des habitants (voir Peoples.hero_species). "" = l'espèce de l'empire.
+static func _offer_species(state: GameState, empire_id: int, salt: Array) -> String:
+	var hs := Peoples.hero_species(state, empire_id)
+	if hs.is_empty():
+		return ""
+	var total := Laws.empire_pop(state, empire_id)
+	var others := 0
+	for fid in hs:
+		others += int(hs[fid])
+	total = maxi(total, others + 1)
+	var roll := _h(state, salt + ["species"]) % total
+	var keys := hs.keys()
+	keys.sort()
+	for fid in keys:
+		roll -= int(hs[fid])
+		if roll < 0:
+			return String(fid)
+	return ""
 
 
 static func check_pick(state: GameState, player: int, index: int) -> String:
@@ -797,7 +846,8 @@ static func gain_xp(state: GameState, h: Dictionary, n: int) -> void:
 
 ## Traits qu'un héros peut encore gagner : ceux de son peuple (people) ou de sa classe, sinon l'autre réserve.
 static func _free_traits(state: GameState, h: Dictionary, people: bool) -> Array[String]:
-	var pools := [people_traits(state, int(h["owner"])), class_traits(String(h["cls"]))]
+	var own_pool := people_traits_of(GameData.faction(String(h["sp"]))) if String(h.get("sp", "")) != "" else people_traits(state, int(h["owner"]))
+	var pools := [own_pool, class_traits(String(h["cls"]))]
 	if not people:
 		pools.reverse()
 	for pool: Array[String] in pools:
@@ -1547,6 +1597,8 @@ static func from_lists(state: GameState, heroes: Array, metas: Array) -> void:
 		var h: Dictionary = GameData._to_ints(raw)
 		for k in ["name", "portrait", "cls", "post"]:
 			h[k] = String(h.get(k, ""))
+		if h.has("sp"):
+			h["sp"] = String(h["sp"])
 		var traits: Array = []
 		for t in h.get("traits", []):
 			traits.append(String(t))

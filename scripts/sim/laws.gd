@@ -228,6 +228,8 @@ static func check_adopt(state: GameState, empire_id: int, id: String) -> String:
 		return "loi inconnue : %s" % id
 	if bool(d["power"]):
 		return "une loi de pouvoir s'impose d'elle-même quand son courant est en tête"
+	if bool(d.get("peoples", false)) and not state.peoples_on:
+		return "les peuples mêlés ne sont pas actifs dans cette partie"
 	if Grievances.interregnum(state, empire_id):
 		return "interrègne : aucune loi jusqu'au %s" % GameCalendar.date_string(int(Politics.emp(state, empire_id)["inter"]))
 	if is_enacted(state, empire_id, id):

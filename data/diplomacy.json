@@ -98,7 +98,7 @@
 		"declared_war": {"value": -30, "days": 1800, "label": "Nous a déclaré la guerre"},
 		"broke_treaty": {"value": -50, "days": 2400, "label": "A rompu un traité avec nous"},
 		"oathbreaker": {"value": -15, "days": 1800, "label": "Parjure : a rompu un traité"},
-		"conquest": {"value": -8, "days": 1800, "stack": 5, "label": "Nous a pris des systèmes"},
+		"conquest": {"value": -8, "days": 1800, "stack": 5, "label": "Nous a pris des systèmes"}, "exterminator": {"value": -15, "days": 1800, "stack": 2, "label": "Extermine des peuples entiers"}, "kin_exterminated": {"value": -40, "days": 3600, "stack": 1, "label": "Extermine les nôtres"},
 		"peace_signed": {"value": 10, "days": 720, "label": "A signé la paix avec nous"},
 		"left_alliance": {"value": -20, "days": 1080, "label": "A quitté notre alliance"},
 		"denounced": {"value": -15, "days": 720, "label": "A dénoncé notre traité"},

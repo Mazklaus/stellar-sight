@@ -424,6 +424,9 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 			out.append(rp)
 		out.append_array(Laws.stability_parts(state, sid, owner))
 		out.append_array(Grievances.stability_parts(state, sid, owner))
+	# Peuples mêlés : statuts, intégration, frictions, Préférence native, droits (voir Peoples).
+	if state.peoples_on:
+		out.append_array(Peoples.stability_parts(state, sid, owner))
 	# Décret.
 	var d := active_decree(state, sid)
 	if d != "":
