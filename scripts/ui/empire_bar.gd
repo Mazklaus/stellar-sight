@@ -162,7 +162,7 @@ func refresh() -> void:
 	if not g.is_empty():
 		var delta := " (%+d)" % int(g["delta"]) if g.has("delta") else ""
 		_gauge_label.text = "%s %s%s" % [String(g["label"]).to_upper(), g["value"], delta]
-		_gauge_label.add_theme_color_override("font_color", UiTheme.BAD if g["bad"] else me.color().lightened(0.35))
+		_gauge_label.add_theme_color_override("font_color", UiTheme.BAD if bool(g.get("bad", false)) else me.color().lightened(0.35))
 		_gauge.tooltip_text = String(g["tip"])
 	for r: Dictionary in EmpireReport.resources(_state, _player):
 		var chip: Dictionary = _chips[r["id"]]

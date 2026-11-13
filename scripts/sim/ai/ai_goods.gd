@@ -113,7 +113,7 @@ static func _black_market(ctx: Dictionary) -> void:
 		var n := mini(10, Goods.black_left(state, e.id))
 		if n <= 0:
 			return
-		if Goods.market_on(state) and Goods.buy_cost(state, e.id, s, n) <= Goods.black_price(state, s, n):
+		if Goods.market_on(state) and Goods.buy_cost(state, e.id, s, n) <= Goods.black_price(state, s, n, e.id):
 			continue
 		if Goods.check_black(state, e.id, ports[0], s, n) == "" and AiPlayer._issue(ctx, SimCommands.black_buy(e.id, ports[0], s, n)):
 			AiPlayer._intent(ctx, "Se fournit en %s au marché noir" % Goods.label(s).to_lower())

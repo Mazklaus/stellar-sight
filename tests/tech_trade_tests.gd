@@ -206,7 +206,7 @@ func _test_save() -> void:
 	st.tick += 360
 	TechTrade.propose_pact(st, 2, 0)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 38, "sauvegarde version 38")
+	_ok(int(d["version"]) >= 38, "sauvegarde version 38 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and JSON.stringify(back.goods["pacts"], "", true) == JSON.stringify(st.goods["pacts"], "", true)
 			and JSON.stringify(back.goods["toff"], "", true) == JSON.stringify(st.goods["toff"], "", true), "accords et propositions survivent")

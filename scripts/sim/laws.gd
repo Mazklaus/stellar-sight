@@ -232,6 +232,9 @@ static func check_adopt(state: GameState, empire_id: int, id: String) -> String:
 		return "interrègne : aucune loi jusqu'au %s" % GameCalendar.date_string(int(Politics.emp(state, empire_id)["inter"]))
 	if is_enacted(state, empire_id, id):
 		return "déjà en vigueur"
+	for x in d.get("excludes", []):
+		if is_enacted(state, empire_id, String(x)):
+			return "incompatible avec %s" % String(law_def(String(x)).get("label", x))
 	if used(state, empire_id) >= slots(state, empire_id):
 		return "plus d'emplacement libre (%d)" % slots(state, empire_id)
 	var i := int(d["current"])

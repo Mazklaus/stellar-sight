@@ -61,6 +61,8 @@ Une fois par élection, une **action électorale** appuie le courant que vous so
 
 Chaque courant au pouvoir impose sa **loi de pouvoir**, gratuite, et ouvre quatre lois de niveau 1 à 4, que vous adoptez contre de l'influence dans vos emplacements (de 2 à 4 selon le gouvernement, un de plus aux ères III et V). Un courant gagne un niveau par mandat. Quand il perd le pouvoir, ses lois tombent avec lui.
 
+Quelques lois n'appartiennent à aucun courant : Impôt exceptionnel, Examens forcés, Pain et jeux, Levée en masse, Couvre-feu, et trois lois du commerce. Le **Libre-échange** double le revenu des routes mais coûte 15 % de matériaux. Le **Protectionnisme**, son contraire, double tarifs et douanes et rend 10 % de matériaux ; les deux ne vont pas ensemble. Les **Compagnies à charte** ajoutent une route commerciale contre 3 de stabilité. Signer un libre-échange plaît à la Concorde ; décréter un embargo plaît au Glaive.
+
 ### Doléances et crises
 
 Le plus grand courant d'opposition formule une **doléance** à la fois : la satisfaire dans les deux ans le renforce et calme ses fidèles, l'ignorer les agite. Si la stabilité d'empire reste sous 25 pendant un an, c'est la **crise de régime** : le courant opposé à celui qui gouverne prend seul le pouvoir, toutes les lois sont révoquées et six mois passent sans loi.

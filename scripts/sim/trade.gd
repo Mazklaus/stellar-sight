@@ -85,6 +85,10 @@ static func raise_tier(state: GameState, a: int, b: int) -> int:
 		r["trade_since"] = state.tick
 	r["trade"] = t
 	r["tier_since"] = state.tick
+	# Acte politique : signer le libre-échange plaît à la Concorde (voir Politics, actes).
+	if t == FREE:
+		Heroes.act(state, a, "free_trade")
+		Heroes.act(state, b, "free_trade")
 	return t
 
 
@@ -131,6 +135,7 @@ static func embargo(state: GameState, player: int, target: int, joined := false)
 	r["emb"] = emb
 	r["trade"] = 0
 	Diplomacy.remember(state, target, player, "embargo")
+	Heroes.act(state, player, "embargo")
 	var ep := state.get_empire(player)
 	var et := state.get_empire(target)
 	if joined:
@@ -213,7 +218,7 @@ static func capacity(state: GameState, empire_id: int) -> int:
 	for pid in comptoirs(state, empire_id):
 		for b in (state.colonies[pid] as Colony).buildings:
 			n += int(GameData.building(b).get("trade_routes", 0))
-	return n + Research.fx_int(state, empire_id, "trade_routes")
+	return n + Research.fx_int(state, empire_id, "trade_routes") + TradeLinks.talent_int(state, empire_id, "trade_routes")
 
 
 ## Places de capacité réservées aux routes intérieures.
@@ -381,13 +386,25 @@ static func compute(state: GameState) -> Array[Dictionary]:
 			for who in [int(r["from"]), int(r["to"])]:
 				var inc: Dictionary = income.get(who, {})
 				@warning_ignore("integer_division")
-				inc["energy"] = int(inc.get("energy", 0)) + int(r["net"]) * maxi(0, 100 + Research.fx_int(state, who, "trade_income_pct")) / 100
+				inc["energy"] = int(inc.get("energy", 0)) + int(r["net"]) * maxi(0, 100 + Research.fx_int(state, who, "trade_income_pct") + TradeLinks.talent_int(state, who, "ext_route_pct")) / 100
+				# Foi : une route vers un empire du même credo est un pèlerinage.
+				var pil := TradeLinks.talent_int(state, who, "pilgrim_influence")
+				if pil > 0 and not bool(r["blocked"]) and TradeLinks.same_credo(state, int(r["from"]), int(r["to"])):
+					inc["influence"] = int(inc.get("influence", 0)) + pil
 				income[who] = inc
+			# Horde : la flotte qui bloque la route rançonne le convoi.
+			var by := int(r.get("by", -1))
+			if bool(r["blocked"]) and by >= 0 and TradeLinks.has_talent(state, by, "convoy_raid"):
+				var inc_h: Dictionary = income.get(by, {})
+				@warning_ignore("integer_division")
+				inc_h["energy"] = int(inc_h.get("energy", 0)) + int(r["value"]) * int(TradeLinks.data()["horde_raid_pct"]) / 100
+				income[by] = inc_h
 		else:
 			var inc: Dictionary = income.get(int(r["from"]), {})
 			if not bool(r["blocked"]):
+				var mult := maxi(1, TradeLinks.talent_int(state, int(r["from"]), "internal_mult"))
 				for res in data()["internal"]["yields"]:
-					inc[res] = int(inc.get(res, 0)) + int(data()["internal"]["yields"][res])
+					inc[res] = int(inc.get(res, 0)) + int(data()["internal"]["yields"][res]) * mult
 			income[int(r["from"])] = inc
 	# Diffusion : les routes vers un empire plus avancé rapportent du Savoir (voir TechTrade).
 	var diff := TechTrade.diffusion(state, routes)
@@ -508,7 +525,11 @@ static func _finish_route(state: GameState, r: Dictionary, armed: Dictionary) ->
 		r["net"] = 0
 		return
 	var ti := tier_info(int(r["tier"]))
-	var pct := 100 - int(ti.get("tariff_pct", 0)) + int(ti.get("bonus_pct", 0))
+	# Protectionnisme (loi) chez l'un des deux bouts : tarif et douane doublés.
+	var tariff := int(ti.get("tariff_pct", 0))
+	if Research.fx_int(state, a, "tariff_double") > 0 or Research.fx_int(state, b, "tariff_double") > 0:
+		tariff *= 2
+	var pct := 100 - tariff + int(ti.get("bonus_pct", 0))
 	@warning_ignore("integer_division")
 	r["net"] = int(r["value"]) * (1000 - loss) / 1000 * pct / 100
 

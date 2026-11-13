@@ -48,7 +48,7 @@ static func setup(state: GameState, mode: String, market: bool) -> void:
 	state.goods = {"mode": mode, "market": market, "dep": {}, "lic": [], "closed": {}, "mono": {}, "own": {},
 			"inc": {}, "mkt": {}, "orders": {}, "deals": [], "offers": [], "next": 1,
 			"bourse": 0, "vol": 0, "trend": {}, "shock": {}, "used": {}, "bm": {},
-			"pacts": [], "toff": [], "tlic": {}}
+			"pacts": [], "toff": [], "tlic": {}, "smug": [], "insider": {}}
 	var md := mode_def(mode)
 	if int(md.get("luxury_chance", 0)) <= 0 and int(md.get("strategic_chance", 0)) <= 0:
 		return
@@ -202,6 +202,7 @@ static func luxuries_of(state: GameState, eid: int) -> Array[String]:
 	var out: Array[String] = []
 	var own := owned(state, eid)
 	var bought := licences_bought(state, eid)
+	bought.append_array(TradeLinks.smuggled(state, eid))
 	for g in luxury_ids():
 		if int(own.get(g, 0)) > 0 or bought.has(g):
 			out.append(g)
@@ -482,7 +483,8 @@ static func _check_licences(state: GameState, added: Array[Dictionary]) -> void:
 static func _licence_income(state: GameState, inc: Dictionary) -> void:
 	for l: Dictionary in state.goods.get("lic", []):
 		var p := licence_price(state, int(l["seller"]), int(l["buyer"]), String(l["good"]))
-		_add_inc(inc, int(l["seller"]), p)
+		@warning_ignore("integer_division")
+		_add_inc(inc, int(l["seller"]), p * (100 + TradeLinks.talent_int(state, int(l["seller"]), "lux_licence_income_pct")) / 100)
 		_add_inc(inc, int(l["buyer"]), -p)
 
 
@@ -558,7 +560,7 @@ static func unit_price_milli(state: GameState, eid: int, res: String) -> int:
 
 static func fee_pct(state: GameState, eid: int) -> int:
 	var md: Dictionary = data()["market"]
-	var f := int(md["base_fee_pct"]) + Research.fx_int(state, eid, "market_fee_pct")
+	var f := int(md["base_fee_pct"]) + Research.fx_int(state, eid, "market_fee_pct") + TradeLinks.talent_int(state, eid, "market_fee_pct")
 	if eid >= 0 and eid == bourse_host(state):
 		f += int(data()["bourse"]["host_fee_pct"])
 	return maxi(int(md["min_fee_pct"]), f)
@@ -812,9 +814,11 @@ static func buy_used(state: GameState, eid: int) -> void:
 
 # --- Marché noir du port franc -----------------------------------------------------------------
 
-static func black_price(state: GameState, res: String, n: int) -> int:
+@warning_ignore("integer_division")
+static func black_price(state: GameState, res: String, n: int, eid := -1) -> int:
+	var pct := int(data()["black_market"]["price_pct"]) + TradeLinks.talent_int(state, eid, "black_market_pct") * int(data()["black_market"]["price_pct"]) / 100
 	@warning_ignore("integer_division")
-	return maxi(1, n * base_price(res) * int(data()["black_market"]["price_pct"]) / 100 * (100 + trend_pct(state, res)) / 100)
+	return maxi(1, n * base_price(res) * pct / 100 * (100 + trend_pct(state, res)) / 100)
 
 
 static func black_left(state: GameState, eid: int) -> int:
@@ -833,20 +837,20 @@ static func check_black(state: GameState, eid: int, sid: int, res: String, n: in
 		return "vous ne connaissez pas ce port franc"
 	if n <= 0 or n > black_left(state, eid):
 		return "plus que %d unités ce mois-ci" % maxi(0, black_left(state, eid))
-	if int(e.resources.get("energy", 0)) < black_price(state, res, n):
-		return "pas assez d'énergie (%d)" % black_price(state, res, n)
+	if int(e.resources.get("energy", 0)) < black_price(state, res, n, eid):
+		return "pas assez d'énergie (%d)" % black_price(state, res, n, eid)
 	return ""
 
 
 static func buy_black(state: GameState, eid: int, sid: int, res: String, n: int) -> void:
 	var e := state.get_empire(eid)
-	e.resources["energy"] = int(e.resources.get("energy", 0)) - black_price(state, res, n)
+	e.resources["energy"] = int(e.resources.get("energy", 0)) - black_price(state, res, n, eid)
 	e.resources[res] = int(e.resources.get(res, 0)) + n
 	var bm: Dictionary = state.goods.get("bm", {})
 	bm[eid] = int(bm.get(eid, 0)) + n
 	state.goods["bm"] = bm
 	for o in state.empires:
-		if o.id != eid and not o.eliminated and o.contacts.has(eid):
+		if o.id != eid and not o.eliminated and o.contacts.has(eid) and not TradeLinks.has_talent(state, eid, "no_smuggler"):
 			Diplomacy.remember(state, o.id, eid, "smuggler")
 	state.add_chronicle("%s se fournit en %s au %s. Les caisses n'ont pas d'étiquette." % [
 			e.display_name(), label(res).to_lower(), Pirates.port_name(state, sid)], Espionage.private_to(state, [eid]))
@@ -869,6 +873,18 @@ static func wars_count(state: GameState) -> int:
 ## Raisons de la tendance d'une ressource ce mois : [[texte, %], …] (pour l'infobulle).
 static func trend_parts(state: GameState, res: String) -> Array:
 	return (state.goods.get("trend_why", {}) as Dictionary).get(res, [])
+
+
+## Tirage du krach ou de l'envolée de l'année k (hachage de la graine) : {tick, res, pct} ou {}.
+@warning_ignore("integer_division")
+static func shock_roll(state: GameState, k: int) -> Dictionary:
+	var sd: Dictionary = data()["trends"]["shock"]
+	var h := absi(hash([state.seed_value, "krach", k]))
+	var ids := market_ids(state)
+	if k <= 0 or h % 100 >= int(sd["chance_pct"]) or ids.is_empty():
+		return {}
+	var boom := (h / 10000) % 2 == 0
+	return {"tick": k * int(sd["every_days"]), "res": ids[(h / 100) % ids.size()], "pct": int(sd["boom_pct"]) if boom else int(sd["crash_pct"])}
 
 
 static func _trends(state: GameState, ex: Dictionary, added: Array[Dictionary]) -> void:
@@ -902,12 +918,11 @@ static func _trends(state: GameState, ex: Dictionary, added: Array[Dictionary]) 
 	var sd: Dictionary = td["shock"]
 	var every := int(sd["every_days"])
 	if market_on(state) and state.tick > 0 and every > 0 and state.tick % every < int(GameData.rules()["month_days"]):
-		var h := absi(hash([state.seed_value, "krach", state.tick / every]))
-		var ids := market_ids(state)
-		if h % 100 < int(sd["chance_pct"]) and not ids.is_empty():
-			var res := ids[(h / 100) % ids.size()]
-			var boom := (h / 10000) % 2 == 0
-			var pct := int(sd["boom_pct"]) if boom else int(sd["crash_pct"])
+		var roll := shock_roll(state, state.tick / every)
+		if not roll.is_empty():
+			var res := String(roll["res"])
+			var pct := int(roll["pct"])
+			var boom := pct > 0
 			state.goods["shock"] = {"res": res, "pct": pct, "start": state.tick, "until": state.tick + int(sd["months"]) * int(GameData.rules()["month_days"])}
 			added.append(state.add_chronicle(("Envolée sur %s : les courtiers s'arrachent la moindre cargaison (+%d %%)." if boom else "Krach sur %s : les entrepôts débordent, les prix s'effondrent (%d %%).") % [
 					label(res).to_lower(), pct]))
@@ -1148,7 +1163,7 @@ static func to_dict(state: GameState) -> Dictionary:
 			"deals": (g.get("deals", []) as Array).duplicate(true), "offers": (g.get("offers", []) as Array).duplicate(true), "next": int(g.get("next", 1)),
 			"bourse": int(g.get("bourse", 0)), "vol": int(g.get("vol", 0)), "trend": _sorted(g.get("trend", {})),
 			"shock": (g.get("shock", {}) as Dictionary).duplicate(), "used": (g.get("used", {}) as Dictionary).duplicate(),
-			"bm": _pairs(g.get("bm", {})), "tech": TechTrade.to_dict(g)}
+			"bm": _pairs(g.get("bm", {})), "tech": TechTrade.to_dict(g), "links": TradeLinks.to_dict(g)}
 
 
 static func from_dict(state: GameState, d: Dictionary) -> void:
@@ -1182,6 +1197,7 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 	for p in d.get("bm", []):
 		g["bm"][int(p[0])] = int(p[1])
 	TechTrade.from_dict(g, d.get("tech", {}))
+	TradeLinks.from_dict(g, d.get("links", {}))
 	for k in ["lic", "deals", "offers"]:
 		var out := []
 		for it: Dictionary in d.get(k, []):

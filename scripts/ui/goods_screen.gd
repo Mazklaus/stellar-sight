@@ -59,11 +59,14 @@ static func build_resources(es: EmpireScreens, col: VBoxContainer) -> void:
 	if state.goods.is_empty() or not Goods.active(state):
 		col.add_child(UiTheme.paragraph("Cette partie se joue sans luxes ni stratégiques (réglage de Nouvelle partie).", 760.0, 14))
 		return
+	_talents(es, col)
 	var mine := Widgets.Block.new("Vos luxes (%d sur %d)" % [Goods.luxuries_of(state, player).size(), Goods.luxury_ids().size()])
 	col.add_child(mine)
 	mine.body.add_child(UiTheme.paragraph("Le premier exemplaire de chaque luxe, gisement ou licence, donne de la stabilité dans tous vos systèmes et son effet ; chaque gisement de plus rapporte %d énergie par mois." % int(Goods.data()["extra_energy"]), 760.0, 13))
 	var own := Goods.owned(state, player)
 	var bought := Goods.licences_bought(state, player)
+	var smug := TradeLinks.smuggled(state, player)
+	bought.append_array(smug)
 	for g in Goods.luxury_ids():
 		var n := int(own.get(g, 0))
 		if n <= 0 and not bought.has(g):
@@ -76,7 +79,7 @@ static func build_resources(es: EmpireScreens, col: VBoxContainer) -> void:
 		row.add_child(nl)
 		row.add_child(_label(String(Goods.tier_def(int(d["tier"]))["label"]), 100.0, 13, UiTheme.TEXT_DIM))
 		row.add_child(_label(Relics.fx_text(d.get("fx", {})), 220.0, 13))
-		var src := ("%d gisement%s" % [n, "s" if n > 1 else ""]) if n > 0 else "licence"
+		var src := ("%d gisement%s" % [n, "s" if n > 1 else ""]) if n > 0 else ("contrebande" if smug.has(g) else "licence")
 		if Goods.monopoly_of(state, g) == player:
 			src += " · MONOPOLE"
 		row.add_child(_label(src, 170.0, 13, UiTheme.GOLD if Goods.monopoly_of(state, g) == player else UiTheme.TEXT))
@@ -160,6 +163,10 @@ static func build_market(es: EmpireScreens, col: VBoxContainer) -> void:
 		mb.body.add_child(UiTheme.paragraph(("Achetez et vendez contre de l'énergie, frais compris. Depuis la Bourse galactique, les prix sont les mêmes pour tous : l'achat d'un autre empire renchérit aussi pour vous." if common else
 				"Achetez et vendez contre de l'énergie, frais compris. Votre achat fait monter votre prix, votre vente le fait baisser ; chaque mois il revient à moitié vers son prix de base.")
 				+ " Guerres, paix, fléaux, monopoles, krachs et envolées font aussi bouger les prix (survolez la tendance).", 760.0, 13))
+		var ins := TradeLinks.insider_of(state, player)
+		if not ins.is_empty():
+			mb.body.add_child(_label("Vos espions l'ont appris : %s sur %s vers le %s (%+d %%)." % ["envolée" if int(ins["pct"]) > 0 else "krach",
+					Goods.label(String(ins["res"])).to_lower(), GameCalendar.date_string(int(ins["tick"])), int(ins["pct"])], 0.0, 14, UiTheme.GOLD))
 		for res in Goods.market_ids(state):
 			var row := _row()
 			row.add_child(_label(GameData.resource_label(res), 150.0, 15))
@@ -258,7 +265,7 @@ static func _black_market(es: EmpireScreens, col: VBoxContainer) -> void:
 	for res in GameData.strategic_ids():
 		var row := _row()
 		row.add_child(_label(Goods.label(res), 150.0, 15))
-		row.add_child(_label("10 pour %d énergie" % Goods.black_price(state, res, 10), 200.0, 13, UiTheme.TEXT_DIM))
+		row.add_child(_label("10 pour %d énergie" % Goods.black_price(state, res, 10, player), 200.0, 13, UiTheme.TEXT_DIM))
 		row.add_child(_btn(es, "+10", Goods.check_black(state, player, sid, res, 10), SimCommands.black_buy(player, sid, res, 10), "black_%s" % res))
 		kb.body.add_child(row)
 
@@ -341,6 +348,17 @@ static func build_knowledge(es: EmpireScreens, col: VBoxContainer) -> void:
 	for o in Trade.partners(state, player):
 		var gap := TechTrade.tech_gap(state, player, o)
 		db.body.add_child(_label("%s : %d technologie%s d'avance sur vous%s" % [_name(state, o), gap, "s" if gap > 1 else "", (", +%d par route" % TechTrade.route_diffusion(state, player, o)) if gap > 0 else ""], 0.0, 13, UiTheme.TEXT if gap > 0 else UiTheme.TEXT_DIM))
+
+
+## Talents commerciaux du peuple (couches d'espèce), en une ligne chacun.
+static func _talents(es: EmpireScreens, col: VBoxContainer) -> void:
+	var tl := TradeLinks.talent_labels(es._state, es._player)
+	if tl.is_empty():
+		return
+	var tb := Widgets.Block.new("Talents commerciaux de votre peuple")
+	col.add_child(tb)
+	for t in tl:
+		tb.body.add_child(UiTheme.paragraph("%s : %s" % [String(t[0]), String(t[1])], 760.0, 13))
 
 
 static func _amounts(a: Dictionary) -> String:
@@ -448,4 +466,4 @@ static func signature(es: EmpireScreens) -> String:
 		res += str(e.resources.get("energy", 0))
 	return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % [es.trade_tab, str(state.goods.get("own", {})), str(state.goods.get("lic", [])), str(state.goods.get("mono", {})),
 			str(state.goods.get("mkt", {}).get(Goods.market_key(state, es._player), {})), str(state.goods.get("trend", {})), str(state.goods.get("used", {})), str(state.goods.get("bm", {}).get(es._player, 0)), Goods.bourse_host(state), str(state.goods.get("orders", {}).get(es._player, {})), str(state.goods.get("offers", [])),
-			str(state.goods.get("deals", [])), res if es.trade_tab != "routes" else "", str(state.goods.get("closed", {})) + str(state.goods.get("pacts", [])) + str(state.goods.get("toff", [])) + str(state.goods.get("tlic", {})) + str(Trade.income(state, es._player).get("knowledge", 0))]
+			str(state.goods.get("deals", [])), res if es.trade_tab != "routes" else "", str(state.goods.get("closed", {})) + str(state.goods.get("pacts", [])) + str(state.goods.get("toff", [])) + str(state.goods.get("tlic", {})) + str(state.goods.get("smug", [])) + str(state.goods.get("insider", {}).get(es._player, {})) + str(Trade.income(state, es._player).get("knowledge", 0))]

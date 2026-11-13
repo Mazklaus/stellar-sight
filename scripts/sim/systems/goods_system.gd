@@ -11,4 +11,5 @@ static func process(state: GameState) -> Array[Dictionary]:
 		return []
 	var added := Goods.monthly(state)
 	added.append_array(TechTrade.monthly(state))
+	added.append_array(TradeLinks.monthly(state))
 	return added
