@@ -61,7 +61,7 @@ Une fois par élection, une **action électorale** appuie le courant que vous so
 
 Chaque courant au pouvoir impose sa **loi de pouvoir**, gratuite, et ouvre quatre lois de niveau 1 à 4, que vous adoptez contre de l'influence dans vos emplacements (de 2 à 4 selon le gouvernement, un de plus aux ères III et V). Un courant gagne un niveau par mandat. Quand il perd le pouvoir, ses lois tombent avec lui.
 
-Quelques lois n'appartiennent à aucun courant : Impôt exceptionnel, Examens forcés, Pain et jeux, Levée en masse, Couvre-feu, et trois lois du commerce. Le **Libre-échange** double le revenu des routes mais coûte 15 % de matériaux. Le **Protectionnisme**, son contraire, double tarifs et douanes et rend 10 % de matériaux ; les deux ne vont pas ensemble. Les **Compagnies à charte** ajoutent une route commerciale contre 3 de stabilité. Signer un libre-échange plaît à la Concorde ; décréter un embargo plaît au Glaive. Avec les peuples mêlés viennent deux lois de plus, incompatibles entre elles : l'**Hospitalité** (les autres espèces s'intègrent 50 % plus vite, la Concorde gagne du terrain, mais -2 de stabilité là où votre peuple est majoritaire) et la **Préférence native** (+5 de stabilité là où votre peuple est majoritaire, -5 ailleurs, le Glaive et l'Autel en profitent).
+Quelques lois n'appartiennent à aucun courant : Impôt exceptionnel, Examens forcés, Pain et jeux, Levée en masse, Couvre-feu, et trois lois du commerce. Le **Libre-échange** double le revenu des routes mais coûte 15 % de matériaux. Le **Protectionnisme**, son contraire, double tarifs et douanes et rend 10 % de matériaux ; les deux ne vont pas ensemble. Les **Compagnies à charte** ajoutent une route commerciale contre 3 de stabilité. Signer un libre-échange plaît à la Concorde ; décréter un embargo plaît au Glaive. Avec les peuples mêlés viennent deux lois de plus, incompatibles entre elles : l'**Hospitalité** (les autres espèces s'intègrent 50 % plus vite, la Concorde gagne du terrain, mais -2 de stabilité là où votre peuple est majoritaire) et la **Préférence native** (+5 de stabilité là où votre peuple est majoritaire, -5 ailleurs, le Glaive et l'Autel en profitent). Avec les religions, deux lois de culte encore, elles aussi incompatibles : la **Tolérance** et l'**Inquisition** (voir « La foi » plus bas).
 
 Les citoyens d'autres espèces votent selon leur propre credo : l'opinion d'un système mêlé glisse vers le penchant de ses habitants, au prorata. Un empire de la foi qui accueille des peuples de raison verra l'Académie monter. Les résidents et les assujettis, eux, ne votent pas.
 
@@ -80,16 +80,46 @@ Chaque mois, les fidèles **prêchent** sur les colonies voisines, jusqu'à troi
 | Foi d'État | Effet |
 | --- | --- |
 | Majoritaire dans un système | Stabilité +5, plus les dogmes qui l'augmentent |
-| Une autre foi majoritaire | Stabilité -5 (sauf en laïcité) |
+| Une autre foi majoritaire | Stabilité -5 (sauf en laïcité, sous la Tolérance, ou si c'est un culte caché que vous n'avez pas découvert) |
 | Changer de foi d'État | Stabilité -10 pendant un an ; un changement tous les trois ans |
 | Même foi d'État qu'un autre empire | Opinion +10 |
 | Fois rivales | Opinion -10 (l'incroyance compte comme une foi) |
 
 La **laïcité** n'a ni bonus ni malus ; l'**incroyance** n'a pas de dogmes mais donne Savoir +5 %. Adopter la foi d'un autre empire demande une de vos colonies où elle dépasse 20 %. L'écran Foi ([[Y]]) montre chaque croyance de chaque colonie et les boutons pour changer.
 
-Les **dogmes** s'appliquent à tous les empires qui suivent la foi. Le **chef de foi**, l'empire qui compte le plus de fidèles, choisit le dogme fondateur, puis un de plus à 10, 25, 50 et 100 fidèles. Trente-deux dogmes en quatre familles (culte, morale, expansion, regard sur les autres) reprennent le répertoire de Crusader Kings III, transposé dans l'espace : liturgie chantée, pèlerinage obligatoire, ordres monastiques, fondamentalisme ou pluralisme, pacifisme ou guerre sainte, peuple élu, dîme des infidèles. Certains n'ont pas d'équivalent humain : la résonance du chœur, la patience des pierres, l'essaimage, la xénolâtrie. Quelques-uns s'excluent.
+Les **dogmes** s'appliquent à tous les empires qui suivent la foi. Le **chef de foi**, parmi les empires qui l'ont pour foi d'État celui qui compte le plus de fidèles, choisit le dogme fondateur, puis un de plus à 10, 25, 50 et 100 fidèles. Trente-trois dogmes en quatre familles (culte, morale, expansion, regard sur les autres) reprennent le répertoire de Crusader Kings III, transposé dans l'espace : liturgie chantée, pèlerinage obligatoire, ordres monastiques, fondamentalisme ou pluralisme, pacifisme ou guerre sainte, peuple élu, dîme des infidèles. Certains n'ont pas d'équivalent humain : la résonance du chœur, la patience des pierres, l'essaimage, la xénolâtrie, le secret. Quelques-uns s'excluent.
 
 Pour un peuple à la **ferveur**, seules les colonies où la foi d'État domine font monter la jauge, et l'offrande ne se fait que sur un monde fidèle. Les Ordres missionnaires font prêcher la foi d'État 25 % plus fort ; les Mondes sanctuaires rendent ses fidèles 25 % plus résistants.
+
+**Le zèle.** Chaque grande foi a un zèle de 0 à 100 (50 à sa naissance) : à 0 elle prêche moitié moins fort, à 100 moitié plus. Il monte quand un empire de la foi tient le monde saint (+2 par mois), quand elle proclame une guerre sainte (+5), triomphe d'une croisade (+15) ou voit une prophétie s'accomplir (+5). Il baisse quand le monde saint est aux mains d'un autre (-3), quand plus de la moitié des fidèles vit à plus de six sauts du monde saint, ou chez d'autres peuples que le fondateur (-1 chacun). Au-delà de 75 ou sous 25, il revient lentement vers le milieu.
+
+**Hérésies et schismes.** Sous 40 de zèle, une foi peut voir naître une **hérésie** (8 % par mois, deux vivantes au plus) sur une colonie lointaine (quatre sauts au moins) d'un autre peuple ou d'un empire qui ne la suit pas : la moitié de ses fidèles passe à la foi fille, qui change un dogme et part avec 70 de zèle. Une hérésie ne compte pas dans la limite des grandes fois. Quand elle réunit le tiers des fidèles des deux fois (et au moins 10), c'est le **schisme** : elle devient une grande foi à part entière, et les empires des deux camps se détestent (opinion -10). Une hérésie sans fidèles ni empire s'éteint.
+
+**Les natures de foi.** En plus de ses dogmes, chaque grande foi naît avec une **nature**, tirée selon le registre de son peuple :
+
+| Nature | Ce qu'elle change |
+| --- | --- |
+| Code saint (Chœur Éternel) | La foi est un programme : le chef de foi peut réécrire le plus ancien dogme (300 Savoir), et réunir une hérésie en concile (200 Savoir) au lieu de la combattre |
+| Mème (Murmurants d'Abysse) | Les routes commerciales prêchent deux fois plus fort ; chaque réseau d'espionnage porte la foi dans les deux sens jusqu'à la capitale ; les dogmes mutent seuls tous les cinq ans |
+| Parasite saint | Ne prêche que dans son propre système, mais voyage avec les flottes (chaque flotte d'un empire de la foi prêche là où elle stationne) et les invasions (un monde conquis se convertit à moitié) ; croissance -10 % là où il domine |
+| Précurseurs | La capitale d'un empire de la foi prêche deux fois plus fort avec une relique, trois fois avec trois ; trois reliques tenues par les fidèles font monter le zèle |
+| Voies sacrées | Le monde saint prêche moitié plus fort ; les empires de la foi déplacent leurs flottes 15 % plus vite |
+
+**Lois de culte.** Deux lois indépendantes, incompatibles, arrivent au Sénat avec les religions. La **Tolérance** supprime le malus d'une autre foi majoritaire et plaît à la Concorde. L'**Inquisition** (il faut une foi d'État) convertit de force, tous les trois mois, un fidèle d'une autre foi par colonie, coûte 3 de stabilité, plaît à l'Autel et au Glaive, et les fois persécutées s'en souviennent (opinion -10, motif de guerre sainte). Quand plus d'un quart de la population suit une autre foi que la foi d'État, la doléance **« Liberté de culte »** s'ouvre : adoptez la Tolérance dans les deux ans (stabilité +5 pendant un an), sinon les fidèles prient avec rancune (stabilité -5 pendant un an).
+
+**Missions.** Avec une foi d'État, envoyez une **mission** prêcher dans un système exploré pendant un an (60 Inf, deux à la fois) : +40 de pression sur chaque colonie du système, mais son maître n'aime pas les missionnaires (opinion -5). Le maître peut les chasser par une **mission d'inquisition** (40 Inf), qui protège le système deux ans.
+
+**Guerre sainte et croisade.** Une foi a un **motif de guerre sainte** contre l'empire qui tient son monde saint, qui persécute ses fidèles sous l'Inquisition, ou qui suit son schisme. Déclarer la guerre avec ce motif en fait une guerre sainte : le zèle monte, et les autres empires de la foi applaudissent (opinion +10). Le chef de foi peut prêcher une **croisade** (100 Inf, une tous les dix ans) : la guerre est déclarée et chaque empire de la foi qui le peut entre en guerre à ses côtés. Elle triomphe quand le monde saint revient à la foi ou que la cible disparaît.
+
+**Cultes cachés.** Une foi au dogme **Secret** (le Murmure le choisit d'emblée) prêche 10 % moins fort, mais chez un empire d'une autre foi ses fidèles sont invisibles et ne troublent pas sa stabilité. Chaque mois, un culte caché d'au moins trois fidèles a 8 % de chances d'être découvert. Quand une flotte de la foi, en guerre contre le maître, arrive dans un système où le culte domine, les fidèles se **soulèvent** : stabilité -25 pendant un an, et le culte est démasqué.
+
+**Prophétie plantée.** L'intrigue « Semer une prophétie » (chapitre 9) annonce la venue d'un héros de votre foi sur la colonie la plus peuplée de la cible. Quand un de vos héros amiraux y stationne avec sa flotte, dans les dix ans, la planète entière se convertit à votre foi et sa stabilité vacille (-20 pendant un an).
+
+**Le Culte du Je.** Une ruche ne prie pas, mais parfois un drone pense « je ». Sur une colonie de six habitants au moins, des **drones dissidents** apparaissent et grossissent d'un tous les deux mois. À 4, la ponte s'arrête ; à 12, la colonie se détache de la ruche. Les **écraser** coûte un drone pour trois dissidents et rien ne repousse pendant trois ans ; les **tolérer** plafonne le culte à 8, et ces esprits libres rapportent du Savoir chaque mois.
+
+::: marge
+Mon inquisiteur me dit que le culte est éradiqué. Mon inquisiteur ne voit pas les caves. Les caves, elles, le voient très bien.
+:::
 
 ::: marge
 Le prophète des docks avait raison sur un point : la fin des temps n'est pas venue mardi. Mais son église a trois cents mondes, et moi une seule capitale.

@@ -52,6 +52,7 @@ func _initialize() -> void:
 	preload("res://tests/peoples_status_tests.gd").new().run(_check)
 	preload("res://tests/movements_tests.gd").new().run(_check)
 	preload("res://tests/faiths_tests.gd").new().run(_check)
+	preload("res://tests/faith_wars_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -1697,6 +1698,28 @@ func _test_faith_ui(main: Node) -> void:
 	await process_frame
 	_check(screens.current == "faith", "Y : écran Foi")
 	_check(screens.faith_buttons.has("state:" + Faiths.INCROYANCE) or Faiths.state_faith(st, me) == Faiths.INCROYANCE or Faiths.is_hive(st, me), "Foi : bouton Adopter l'incroyance")
+	# Lot 2 : missions depuis l'écran, avec une grande foi pour foi d'État.
+	if not Faiths.ids(st).is_empty() and not Faiths.is_hive(st, me):
+		var keep_sf := Faiths.state_faith(st, me)
+		var fid := String(Faiths.ids(st)[0])
+		st.faiths["state"][str(me)] = fid
+		var targets := FaithWars.mission_targets(st, me, fid, 6)
+		screens.refresh()
+		await process_frame
+		_check(targets.is_empty() or screens.faith_buttons.has("mission:%d" % int(targets[0])), "Foi : boutons de mission")
+		var pressed := false
+		for sid in targets:
+			var btn: Button = screens.faith_buttons.get("mission:%d" % int(sid))
+			if btn != null and not btn.disabled:
+				btn.pressed.emit()
+				main.simulation.flush_commands()
+				pressed = true
+				break
+		_check(not pressed or FaithWars.missions_by(st, me).size() == 1, "Foi : mission envoyée depuis l'écran")
+		st.faiths["missions"] = {"list": []}
+		st.faiths["state"][str(me)] = keep_sf
+		screens.refresh()
+		await process_frame
 	if screens.faith_buttons.has("state:" + Faiths.INCROYANCE) and not (screens.faith_buttons["state:" + Faiths.INCROYANCE] as Button).disabled:
 		(screens.faith_buttons["state:" + Faiths.INCROYANCE] as Button).pressed.emit()
 		main.simulation.flush_commands()

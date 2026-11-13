@@ -372,6 +372,36 @@ static func faith_dogma(player: int, faith: String, dogma: String) -> Dictionary
 	return {"type": "faith_dogma", "player": player, "faith": faith, "dogma": dogma}
 
 
+## Envoie une mission de prêche dans un système (voir FaithWars).
+static func faith_mission(player: int, system_id: int) -> Dictionary:
+	return {"type": "faith_mission", "player": player, "system": system_id}
+
+
+## Chasse les missions étrangères d'un de ses systèmes (mission d'inquisition).
+static func faith_ward(player: int, system_id: int) -> Dictionary:
+	return {"type": "faith_ward", "player": player, "system": system_id}
+
+
+## Le chef de foi appelle à la croisade contre un empire.
+static func faith_crusade(player: int, target: int) -> Dictionary:
+	return {"type": "faith_crusade", "player": player, "target": target}
+
+
+## Concile (Code saint) : une hérésie rentre dans la foi mère.
+static func faith_council(player: int, heresy: String) -> Dictionary:
+	return {"type": "faith_council", "player": player, "faith": heresy}
+
+
+## Réécriture (Code saint) : le plus ancien dogme est remplacé.
+static func faith_rewrite(player: int, faith: String, dogma: String) -> Dictionary:
+	return {"type": "faith_rewrite", "player": player, "faith": faith, "dogma": dogma}
+
+
+## Culte du Je : "ecraser" ou "tolerer" les drones dissidents d'une colonie de ruche.
+static func faith_je(player: int, planet_id: int, what: String) -> Dictionary:
+	return {"type": "faith_je", "player": player, "planet": planet_id, "what": what}
+
+
 ## Politique d'accueil des réfugiés (voir Movements.POLICIES).
 static func refugee_policy(player: int, policy: String) -> Dictionary:
 	return {"type": "refugee_policy", "player": player, "policy": policy}
@@ -495,6 +525,18 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Faiths.check_state(state, int(cmd["player"]), String(cmd.get("faith", "")))
 		"faith_dogma":
 			return Faiths.check_dogma(state, int(cmd["player"]), String(cmd.get("faith", "")), String(cmd.get("dogma", "")))
+		"faith_mission":
+			return FaithWars.check_mission(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"faith_ward":
+			return FaithWars.check_ward(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"faith_crusade":
+			return FaithWars.check_crusade(state, int(cmd["player"]), int(cmd.get("target", -1)))
+		"faith_council":
+			return FaithWars.check_council(state, int(cmd["player"]), String(cmd.get("faith", "")))
+		"faith_rewrite":
+			return FaithWars.check_rewrite(state, int(cmd["player"]), String(cmd.get("faith", "")), String(cmd.get("dogma", "")))
+		"faith_je":
+			return FaithWars.check_je(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("what", "")))
 		"refugee_policy":
 			return Movements.check_policy(state, int(cmd["player"]), String(cmd.get("policy", "")))
 		"diaspora_answer":
@@ -778,6 +820,18 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Faiths.set_state(state, int(cmd["player"]), String(cmd["faith"]))
 		"faith_dogma":
 			Faiths.add_dogma(state, String(cmd["faith"]), String(cmd["dogma"]))
+		"faith_mission":
+			FaithWars.mission(state, int(cmd["player"]), int(cmd["system"]))
+		"faith_ward":
+			FaithWars.ward(state, int(cmd["player"]), int(cmd["system"]))
+		"faith_crusade":
+			FaithWars.crusade(state, int(cmd["player"]), int(cmd["target"]))
+		"faith_council":
+			FaithWars.council(state, int(cmd["player"]), String(cmd["faith"]))
+		"faith_rewrite":
+			FaithWars.rewrite(state, int(cmd["player"]), String(cmd["faith"]), String(cmd["dogma"]))
+		"faith_je":
+			FaithWars.je_act(state, int(cmd["player"]), int(cmd["planet"]), String(cmd["what"]))
 		"refugee_policy":
 			Movements.set_policy(state, int(cmd["player"]), String(cmd["policy"]))
 		"diaspora_answer":

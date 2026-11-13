@@ -545,6 +545,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 			c.population = 1
 		Peoples.on_owner_change(state, c, old, new_owner)
 		c.owner = new_owner
+		FaithWars.on_conquest(state, c, new_owner)
 		c.construction = ""
 		c.construction_days = 0
 		c.ship_build = ""

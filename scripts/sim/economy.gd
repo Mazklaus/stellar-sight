@@ -121,7 +121,7 @@ static func growth_per_day(state: GameState, colony: Colony) -> int:
 	if e == null:
 		return int(GameData.rules()["growth_per_day"])
 	var pct := int(e.faction().get("growth_pct", 100))
-	pct = pct * maxi(10, 100 + Research.fx_int(state, colony.owner, "growth_pct")) / 100
+	pct = pct * maxi(10, 100 + Research.fx_int(state, colony.owner, "growth_pct") + FaithWars.growth_pct(state, colony)) / 100
 	# Route intérieure (voir Trade) : la jeune colonie desservie grandit plus vite.
 	return int(GameData.rules()["growth_per_day"]) * pct / 100 + Trade.internal_growth(state, colony.planet_id)
 

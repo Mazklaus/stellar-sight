@@ -21,7 +21,7 @@ const LAICITE := "laicite"
 const INCROYANCE := "incroyance"
 ## Foi d'un habitant qui suit les cultes natals (clé utilisée par majority()).
 const NATIVE := ""
-const KEYS := ["list", "state", "changed", "prog"]
+const KEYS := ["list", "state", "changed", "prog", "missions", "wards", "crusades", "holy_wars", "seen", "prophecies", "je", "stab", "demands"]
 
 ## Croyance emportée par le dernier habitant retiré (Movements.remove_one → add_one).
 static var carry := ""
@@ -42,6 +42,8 @@ static func setup(state: GameState, mode: String) -> void:
 	state.faiths = {"next": 1}
 	for k in KEYS:
 		state.faiths[k] = {}
+	state.faiths["missions"] = {"list": []}
+	state.faiths["holy_wars"] = {"list": []}
 	if not state.faith_on:
 		return
 	for e in state.empires:
@@ -79,6 +81,10 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 		var f: Dictionary = state.faiths["list"][fid]
 		for k in ["founder", "holy", "founded", "slots"]:
 			f[k] = int(f.get(k, 0))
+		f["zeal"] = int(f.get("zeal", int(data()["zeal"]["start"])))
+		f["nature"] = String(f.get("nature", ""))
+		if String(f["nature"]) == "":
+			f["nature"] = FaithWars.pick_nature(state, int(f["founder"]), String(fid))
 		var dg: Array = []
 		for x in f.get("dogmas", []):
 			dg.append(String(x))
@@ -89,6 +95,7 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 		var m: Dictionary = state.faiths["prog"][pid]
 		for fid in m:
 			m[fid] = int(m[fid])
+	FaithWars.fix_ints(state)
 
 
 # --- Lecture -------------------------------------------------------------------------------------
@@ -148,6 +155,19 @@ static func counts(c: Colony) -> Dictionary:
 	return out
 
 
+## Fidèles vus par un empire (-1 : tout) : un culte caché qu'il n'a pas découvert compte dans les
+## cultes natals (voir FaithWars, dogme « Secret »).
+static func visible_counts(state: GameState, c: Colony, viewer: int) -> Dictionary:
+	var cnt := counts(c)
+	if viewer < 0:
+		return cnt
+	for fid in c.faith:
+		if not FaithWars.visible_to(state, fid, viewer):
+			cnt[NATIVE] = int(cnt.get(NATIVE, 0)) + int(cnt.get(fid, 0))
+			cnt.erase(fid)
+	return cnt
+
+
 ## Croyance la plus suivie sur une colonie (NATIVE pour les cultes natals ; à égalité, la grande foi
 ## d'identifiant le plus petit, les cultes natals en dernier).
 static func majority(c: Colony) -> String:
@@ -180,7 +200,7 @@ static func followers_by_owner(state: GameState, fid: String) -> Dictionary:
 	return out
 
 
-## Chef de foi : l'empire qui compte le plus de fidèles (à égalité, le fondateur, puis le plus petit
+## Chef de foi : parmi les empires qui l'ont pour foi d'État, celui qui compte le plus de fidèles (à égalité, le fondateur, puis le plus petit
 ## identifiant). -1 si personne ne la suit plus.
 static func head(state: GameState, fid: String) -> int:
 	var f := faith(state, fid)
@@ -192,14 +212,21 @@ static func head(state: GameState, fid: String) -> int:
 	var founder := int(f["founder"])
 	var keys := by.keys()
 	keys.sort()
-	for eid in keys:
-		var n := int(by[eid])
-		var e := state.get_empire(int(eid))
-		if e == null or e.eliminated or is_hive(state, int(eid)):
-			continue
-		if n > best_n or (n == best_n and int(eid) == founder):
-			best = int(eid)
-			best_n = n
+	# D'abord parmi les empires qui l'ont pour foi d'État (un conquérant mécréant qui tient le monde
+	# saint n'en devient pas le chef), sinon parmi tous.
+	for pass_i in 2:
+		for eid in keys:
+			var n := int(by[eid])
+			var e := state.get_empire(int(eid))
+			if e == null or e.eliminated or is_hive(state, int(eid)):
+				continue
+			if pass_i == 0 and state_faith(state, int(eid)) != fid:
+				continue
+			if n > best_n or (n == best_n and int(eid) == founder):
+				best = int(eid)
+				best_n = n
+		if best >= 0:
+			return best
 	return best
 
 
@@ -213,9 +240,24 @@ static func limit(state: GameState) -> int:
 ## Foi fondée par un empire ("" s'il n'en a pas).
 static func founded_by(state: GameState, eid: int) -> String:
 	for fid in ids(state):
-		if int(state.faiths["list"][fid]["founder"]) == eid:
+		var f: Dictionary = state.faiths["list"][fid]
+		if int(f["founder"]) == eid and not ["heresie", "schisme"].has(String(f["via"])):
 			return fid
 	return ""
+
+
+## Grandes fois révélées (hérésies et schismes à part : un schisme dépasse la limite).
+static func revealed_count(state: GameState) -> int:
+	var n := 0
+	for fid in ids(state):
+		if not ["heresie", "schisme"].has(String(state.faiths["list"][fid]["via"])):
+			n += 1
+	return n
+
+
+## Une hérésie (foi fille pas encore schismatique) : identifiant de sa foi mère, "" sinon.
+static func parent_of(state: GameState, fid: String) -> String:
+	return String(faith(state, fid).get("parent", ""))
 
 
 static func is_hive(state: GameState, eid: int) -> bool:
@@ -236,7 +278,7 @@ static func can_found(state: GameState, eid: int) -> bool:
 		return false
 	if founded_by(state, eid) != "":
 		return false
-	return ids(state).size() < limit(state)
+	return revealed_count(state) < limit(state)
 
 
 # --- Révélation et fondation ---------------------------------------------------------------------
@@ -270,6 +312,7 @@ static func found(state: GameState, eid: int, via: String, planet_id: int, added
 	state.faiths["list"][fid] = {
 		"name": _pick_name(state, eid), "founder": eid, "holy": holy, "founded": state.tick, "via": via,
 		"dogmas": [], "slots": 1, "color": "#" + e.color().to_html(false),
+		"zeal": int(data()["zeal"]["start"]), "nature": FaithWars.pick_nature(state, eid, "f%d" % (int(state.faiths["next"]) - 1)),
 	}
 	if not has_state_faith(state, eid):
 		state.faiths["state"][str(eid)] = fid
@@ -503,7 +546,10 @@ static func pressures(state: GameState) -> Dictionary:
 			var f := faith(state, fid)
 			if not f.is_empty() and int(f["holy"]) == pid:
 				n *= int(pd["holy_x"])
-				n = n * (100 + _fx_for_faith(state, fid, "faith_holy_pct")) / 100
+				n = n * (100 + _fx_for_faith(state, fid, "faith_holy_pct") + FaithWars.nature_holy_pct(state, fid)) / 100
+			elif not f.is_empty():
+				# Précurseurs : la capitale d'un empire de la foi qui tient des reliques prêche comme un monde saint.
+				n *= FaithWars.secondary_holy_x(state, fid, c)
 			if not GameState.is_npc(c.owner) and state_faith(state, c.owner) == fid:
 				n = n * maxi(0, 100 + Research.fx_int(state, c.owner, "faith_pressure_pct")) / 100
 			m[fid] = int(m.get(fid, 0)) + n
@@ -522,6 +568,9 @@ static func pressures(state: GameState) -> Dictionary:
 			for pid in targets_by_sys[t]:
 				var pm: Dictionary = out.get(pid, {})
 				for fid in sm:
+					# Parasite saint : pas de prêche de voisinage hors de son système.
+					if int(dist[t]) > 0 and FaithWars.nature(state, fid) == "parasite":
+						continue
 					pm[fid] = int(pm.get(fid, 0)) + int(sm[fid]) * wt
 				out[pid] = pm
 	# Routes commerciales extérieures : les deux bouts se poussent.
@@ -541,7 +590,7 @@ static func pressures(state: GameState) -> Dictionary:
 				var pm: Dictionary = out.get(pid, {})
 				for fid in sm:
 					var v := int(sm[fid]) * int(pd["route"])
-					v = v * (100 + _fx_for_faith(state, fid, "faith_route_pct")) / 100
+					v = v * (100 + _fx_for_faith(state, fid, "faith_route_pct") + FaithWars.nature_route_pct(state, fid)) / 100
 					pm[fid] = int(pm.get(fid, 0)) + v
 				out[pid] = pm
 	# Poussée de la foi d'État sur chaque colonie de l'empire.
@@ -556,11 +605,13 @@ static func pressures(state: GameState) -> Dictionary:
 		var v := int(pd["state_push"]) * 100 * maxi(0, 100 + Research.fx_int(state, c.owner, "faith_pressure_pct")) / 100
 		pm[sf] = int(pm.get(sf, 0)) + v
 		out[pid] = pm
-	# (points en centièmes)
+	# Lot 2 : missions, flottes (parasite saint), réseaux d'espionnage (mème).
+	FaithWars.extra_pressures(state, out, targets_by_sys)
+	# Zèle : la pression varie de (zèle - 50) %. (points en centièmes)
 	for pid in out:
 		var pm: Dictionary = out[pid]
 		for fid in pm:
-			pm[fid] = int(pm[fid]) / 100
+			pm[fid] = int(pm[fid]) * maxi(0, 50 + FaithWars.zeal(state, fid)) / 100 / 100
 	return out
 
 
@@ -592,6 +643,7 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 		if not e.eliminated and can_found(state, e.id) and _knows_soul_sciences(state, e.id):
 			reveal(state, e.id, "savoir", -1, added)
 	_spread(state)
+	FaithWars.monthly(state, added)
 	_update_slots(state)
 	_ai(state)
 
@@ -749,6 +801,7 @@ static func effects(state: GameState, eid: int) -> Dictionary:
 	elif sf != LAICITE:
 		for d in faith(state, sf).get("dogmas", []):
 			Research._merge(out, dogma_def(String(d)).get("fx", {}))
+		Research._merge(out, FaithWars.nature_fx(state, sf))
 	return out
 
 
@@ -768,12 +821,13 @@ static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 	var last := int(state.faiths["changed"].get(str(owner), -100000))
 	if state.tick - last < int(sd["change_days"]):
 		out.append(["Changement de foi d'État", int(sd["change_stab"])])
+	out.append_array(FaithWars.stability_parts(state, sid, owner))
 	if sf == LAICITE:
 		return out
 	var m := system_majority(state, sid, owner)
 	if m == sf:
 		out.append(["Foi d'État majoritaire", int(sd["stab_major"]) + Research.fx_int(state, owner, "faith_stab")])
-	elif m != NATIVE:
+	elif m != NATIVE and Research.fx_int(state, owner, "faith_tolerance") <= 0 and FaithWars.visible_to(state, m, owner):
 		var v := mini(0, int(sd["stab_minor"]) + Research.fx_int(state, owner, "faith_minor_stab"))
 		if v != 0:
 			out.append(["Autre foi majoritaire (%s)" % name_of(state, m), v])
@@ -806,6 +860,7 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array:
 		return out
 	var fa := state_faith(state, a)
 	var fb := state_faith(state, b)
+	out.append_array(FaithWars.opinion_parts(state, a, b))
 	if fa == LAICITE or fb == LAICITE:
 		return out
 	var od: Dictionary = data()["opinion"]
@@ -853,6 +908,9 @@ static func _ai(state: GameState) -> void:
 static func ai_pick_dogma(state: GameState, eid: int, fid: String) -> String:
 	var ai: Dictionary = data()["ai"]
 	var pref: Array = ai.get(Events.layer_value(state, eid, "credo"), ai["default"])
+	var emp := state.get_empire(eid)
+	if emp != null and ai.get("factions", {}).has(emp.faction_id):
+		pref = ai["factions"][emp.faction_id]
 	# Parmi les trois premiers dogmes possibles de la liste, un tirage haché : deux fois d'un même
 	# credo ne finissent pas avec les mêmes dogmes.
 	var ok: Array = []
@@ -907,11 +965,12 @@ static func _ai_state(state: GameState, eid: int) -> void:
 # --- Divers --------------------------------------------------------------------------------------
 
 ## Libellé court d'une colonie pour les fiches : « Liturgie 4, cultes natals 2 ».
-static func colony_text(state: GameState, c: Colony) -> String:
-	var cnt := counts(c)
+static func colony_text(state: GameState, c: Colony, viewer := -1) -> String:
+	var cnt := visible_counts(state, c, viewer)
 	var parts: Array[String] = []
 	for fid in _sorted_keys(c.faith):
-		parts.append("%s %d" % [name_of(state, fid), int(cnt.get(fid, 0))])
+		if cnt.has(fid):
+			parts.append("%s %d" % [name_of(state, fid), int(cnt.get(fid, 0))])
 	if int(cnt.get(NATIVE, 0)) > 0:
 		parts.append("cultes natals %d" % int(cnt[NATIVE]))
 	return ", ".join(parts)

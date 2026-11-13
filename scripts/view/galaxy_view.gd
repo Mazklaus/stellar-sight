@@ -776,7 +776,7 @@ func system_faiths(sid: int) -> Dictionary:
 		var c: Colony = state.colonies.get(pid)
 		if c == null or c.owner != viewer:
 			continue
-		var cnt := Faiths.counts(c)
+		var cnt := Faiths.visible_counts(state, c, viewer)
 		for fid in cnt:
 			out[fid] = int(out.get(fid, 0)) + int(cnt[fid])
 	return out

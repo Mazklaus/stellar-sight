@@ -417,7 +417,7 @@ func _test_save() -> void:
 	Faiths.add_dogma(st, fv, "monachisme")
 	st.faiths["prog"][str(_cap(st, v).planet_id)] = {fv: 17}
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 43, "sauvegarde version 43")
+	_ok(int(d["version"]) == 44, "sauvegarde version 44")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and back.faith_on and Faiths.founded_by(back, v) == fv, "fois relues")
 	_ok(back != null and int(_cap(back, v).faith.get(fv, 0)) == int(_cap(st, v).faith.get(fv, 0)), "fidèles des colonies relus")

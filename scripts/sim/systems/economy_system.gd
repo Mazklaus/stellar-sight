@@ -62,6 +62,9 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 	# Agitation et révolte : la population ne grandit plus (sans perdre ce qui est acquis).
 	if not Stability.growth_ok(state, sys_id):
 		return
+	# Culte du Je (ruches) : les drones dissidents non tolérés arrêtent la ponte.
+	if FaithWars.je_blocks_growth(state, c):
+		return
 	if c.population >= cap:
 		# Biomasse (Essaim Kh'thari) : une colonie pleine continue de grandir, le surplus est digéré.
 		var bio: Dictionary = e.faction().get("biomass", {})
