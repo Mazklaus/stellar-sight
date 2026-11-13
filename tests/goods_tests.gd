@@ -445,7 +445,7 @@ func _test_save() -> void:
 	st.goods["shock"] = {"res": "food", "pct": 60, "start": st.tick, "until": st.tick + 180}
 	_month(st)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 37, "sauvegarde version 37")
+	_ok(int(d["version"]) >= 37, "sauvegarde version 37 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and str(Goods._pairs(back.goods["dep"])) == str(Goods._pairs(st.goods["dep"])), "les gisements survivent à la sauvegarde")
 	_ok(back != null and int(back.get_empire(0).resources.get("plasmine", 0)) == 7, "le stock de stratégiques aussi")

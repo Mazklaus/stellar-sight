@@ -47,7 +47,8 @@ static func setup(state: GameState, mode: String, market: bool) -> void:
 		mode = "aucuns"
 	state.goods = {"mode": mode, "market": market, "dep": {}, "lic": [], "closed": {}, "mono": {}, "own": {},
 			"inc": {}, "mkt": {}, "orders": {}, "deals": [], "offers": [], "next": 1,
-			"bourse": 0, "vol": 0, "trend": {}, "shock": {}, "used": {}, "bm": {}}
+			"bourse": 0, "vol": 0, "trend": {}, "shock": {}, "used": {}, "bm": {},
+			"pacts": [], "toff": [], "tlic": {}}
 	var md := mode_def(mode)
 	if int(md.get("luxury_chance", 0)) <= 0 and int(md.get("strategic_chance", 0)) <= 0:
 		return
@@ -1147,7 +1148,7 @@ static func to_dict(state: GameState) -> Dictionary:
 			"deals": (g.get("deals", []) as Array).duplicate(true), "offers": (g.get("offers", []) as Array).duplicate(true), "next": int(g.get("next", 1)),
 			"bourse": int(g.get("bourse", 0)), "vol": int(g.get("vol", 0)), "trend": _sorted(g.get("trend", {})),
 			"shock": (g.get("shock", {}) as Dictionary).duplicate(), "used": (g.get("used", {}) as Dictionary).duplicate(),
-			"bm": _pairs(g.get("bm", {}))}
+			"bm": _pairs(g.get("bm", {})), "tech": TechTrade.to_dict(g)}
 
 
 static func from_dict(state: GameState, d: Dictionary) -> void:
@@ -1180,6 +1181,7 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 	g["bm"] = {}
 	for p in d.get("bm", []):
 		g["bm"][int(p[0])] = int(p[1])
+	TechTrade.from_dict(g, d.get("tech", {}))
 	for k in ["lic", "deals", "offers"]:
 		var out := []
 		for it: Dictionary in d.get(k, []):

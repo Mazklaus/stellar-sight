@@ -389,6 +389,12 @@ static func compute(state: GameState) -> Array[Dictionary]:
 				for res in data()["internal"]["yields"]:
 					inc[res] = int(inc.get(res, 0)) + int(data()["internal"]["yields"][res])
 			income[int(r["from"])] = inc
+	# Diffusion : les routes vers un empire plus avancé rapportent du Savoir (voir TechTrade).
+	var diff := TechTrade.diffusion(state, routes)
+	for eid in diff:
+		var inc: Dictionary = income.get(int(eid), {})
+		inc["knowledge"] = int(inc.get("knowledge", 0)) + int(diff[eid])
+		income[int(eid)] = inc
 	# Influence des traités : par partenaire, selon le palier.
 	for e in state.empires:
 		if e.eliminated or e.is_npc():

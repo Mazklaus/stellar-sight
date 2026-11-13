@@ -55,5 +55,21 @@
 	"embargo": {
 		"ally_join_opinion": 0,
 		"_doc": "Un embargo coupe le commerce avec la cible et interdit d'en signer. Les alliés IA suivent si leur opinion de la cible est inférieure ou égale à ally_join_opinion."
+	},
+	"research": {
+		"pact_peace_days": 360,
+		"pact_days": 1080,
+		"pact_cost": {"base": 80, "per_era": 60},
+		"pact_bonus": {"base": 150, "per_era": 150},
+		"pact_max": 2,
+		"offer_days": 30,
+		"licence_share_pct": 60,
+		"licence_energy_per_knowledge_pct": 200,
+		"licence_max_era_gap": 1,
+		"licence_banned": ["leviathans", "nefs_mondes"],
+		"diffusion_per_tech": 1,
+		"diffusion_route_max": 5,
+		"diffusion_max": 12,
+		"_doc": "Lot 3A du commerce (propositions 17 à 19). Accord de recherche (Civilization V) : deux empires en paix depuis pact_peace_days jours paient chacun pact_cost (base + per_era × ère du plus avancé) en énergie ; après pact_days jours, chacun reçoit pact_bonus Savoir (base + per_era × son ère) sur sa recherche en cours. Une guerre entre eux l'annule, l'énergie est perdue. Au plus pact_max accords à la fois. Licence de technologie (Civilization IV sans courtage) : un partenaire commercial vend une technologie qu'il a trouvée lui-même (ni de peuple, ni licence_banned, au plus licence_max_era_gap ère au-dessus de l'acheteur) ; l'acheteur reçoit licence_share_pct % de son coût en Savoir et paie au vendeur ce Savoir en énergie (× licence_energy_per_knowledge_pct %). Diffusion (Civilization VI) : chaque route active vers un empire qui connaît plus de technologies rapporte diffusion_per_tech Savoir par technologie d'écart, au plus diffusion_route_max par route et diffusion_max en tout."
 	}
 }

@@ -83,7 +83,7 @@ static func build(es: EmpireScreens) -> void:
 	var tabs := HBoxContainer.new()
 	tabs.add_theme_constant_override("separation", 2)
 	root.add_child(tabs)
-	for t in [["routes", "Routes"], ["resources", "Ressources"], ["market", "Marché"]]:
+	for t in [["routes", "Routes"], ["resources", "Ressources"], ["market", "Marché"], ["knowledge", "Savoir"]]:
 		var tb := Button.new()
 		tb.theme_type_variation = &"TabButton"
 		tb.text = String(t[1]).to_upper()
@@ -110,6 +110,9 @@ static func build(es: EmpireScreens) -> void:
 		return
 	if es.trade_tab == "market":
 		GoodsScreen.build_market(es, col)
+		return
+	if es.trade_tab == "knowledge":
+		GoodsScreen.build_knowledge(es, col)
 		return
 
 	var sent := Widgets.Block.new("Vos routes (%d / %d)" % [Trade.sent_by(state, player).size(), cap])
