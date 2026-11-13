@@ -1,6 +1,6 @@
 # Vaisseaux 3D : cahier des charges d'asset
 
-Ce document fixe ce qu'un modèle de vaisseau doit respecter pour entrer dans Stellar Sigth, et comment
+Ce document fixe ce qu'un modèle de vaisseau doit respecter pour entrer dans Stellar Sight, et comment
 le produire. Il découle de l'étude « Vaisseaux 3D à partir d'images 2D » et du test Tripo du 2026-11-10
 (scénario 2 retenu : Tripo pour la forme, Blender pour la cuisson).
 

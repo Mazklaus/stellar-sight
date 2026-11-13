@@ -1,4 +1,4 @@
-# Cuisson d'un vaisseau pour Stellar Sigth (scénario 2 de l'étude des vaisseaux 3D).
+# Cuisson d'un vaisseau pour Stellar Sight (scénario 2 de l'étude des vaisseaux 3D).
 #
 # Prend la version HD et la version basse d'un vaisseau (exports Tripo), refait les UV de la
 # version basse, y cuit les cartes de la HD (couleur, normale OpenGL, ORM), pose les points
