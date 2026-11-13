@@ -772,7 +772,7 @@ static func eureka_text(tid: String) -> String:
 		"explored": return "explorer %d systèmes" % n
 		"techs": return "connaître %d technologies" % n
 		"exalted": return "atteindre l'Exaltation"
-		"trade": return "signer un accord commercial"
+		"trade": return "commercer (signer un palier de commerce)"
 		"peace": return "signer une paix"
 		"colonies": return "fonder %d colonies" % n
 		"pop": return "atteindre %d de population" % n

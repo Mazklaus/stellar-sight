@@ -318,9 +318,11 @@ func _test_upkeep_and_trade() -> void:
 	e.contacts.append(1)
 	st.get_empire(1).contacts.append(0)
 	Diplomacy.sign_treaty(st, 0, 1, Diplomacy.TRADE)
-	var t0: Dictionary = Diplomacy.treaty_income(st, 0)
+	Trade.compute(st)
+	var t0: Dictionary = Trade.income(st, 0)
 	Research.grant(st, 0, ["compagnies"])
-	var t1: Dictionary = Diplomacy.treaty_income(st, 0)
+	Trade.compute(st)
+	var t1: Dictionary = Trade.income(st, 0)
 	var sum0 := 0
 	var sum1 := 0
 	for r in t0:

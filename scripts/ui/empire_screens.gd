@@ -77,6 +77,8 @@ var diplo_selected := -1
 var diplo_table: DiplomacyTable
 var treaty_buttons := {}
 var cancel_buttons := {}
+## Boutons Embargo / Lever l'embargo, par empire (pour les tests).
+var embargo_buttons := {}
 var proposal_buttons := {}
 var ability_buttons := {}
 ## Écran Recherche : arbre, technologie choisie, boutons de la technologie choisie ("front", "queue", "remove").
@@ -105,6 +107,9 @@ var hero_buttons := {}
 ## Boutons de l'écran Ordre intérieur (« sid:décret », « free:sid »), pour les tests.
 var order_buttons := {}
 var _order_sig := ""
+## Boutons de l'écran Commerce (réserve de routes intérieures), pour les tests.
+var trade_buttons := {}
+var _trade_sig := ""
 ## Boutons de soutien de l'écran Sénat, par courant (pour les tests).
 var senate_buttons := {}
 ## Boutons Adopter/Abroger des lois (id de loi : bouton) et des actions électorales (id : bouton).
@@ -238,6 +243,8 @@ func show_screen(screen_id: String) -> void:
 			HeroScreen.build(self)
 		"order":
 			OrderScreen.build(self)
+		"trade":
+			TradeScreen.build(self)
 		"senate":
 			SenateScreen.build(self)
 		"chronicles":
@@ -270,6 +277,9 @@ func refresh() -> void:
 		"order":
 			if OrderScreen.signature(self) != _order_sig:
 				show_screen("order")
+		"trade":
+			if TradeScreen.signature(self) != _trade_sig:
+				show_screen("trade")
 		"senate":
 			if SenateScreen.signature(self) != _senate_sig:
 				show_screen("senate")
@@ -1148,6 +1158,7 @@ func _build_diplomacy() -> void:
 	war_buttons.clear()
 	treaty_buttons.clear()
 	cancel_buttons.clear()
+	embargo_buttons.clear()
 	proposal_buttons.clear()
 	ability_buttons.clear()
 	var me := _state.get_empire(_player)
@@ -1260,7 +1271,7 @@ func _proposals_block(props: Array[Dictionary]) -> Control:
 		var from := _state.get_empire(int(p["from"]))
 		var left := Diplomacy.days("proposal_days", 30) - (_state.tick - int(p["tick"]))
 		var l := Label.new()
-		l.text = "%s propose : %s  (encore %d j)" % [from.short_name(), Diplomacy.treaty_label(String(p["treaty"])), left]
+		l.text = "%s propose : %s  (encore %d j)" % [from.short_name(), Diplomacy.proposal_label(p), left]
 		l.add_theme_color_override("font_color", from.color().lerp(Color.WHITE, 0.4))
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		l.tooltip_text = String(Diplomacy.treaty_info(String(p["treaty"])).get("desc", ""))
@@ -1313,7 +1324,11 @@ func _relation_block(id: int) -> Control:
 	if st == "peace" or st == "alliance":
 		extra.append("Signé il y a %d jours" % Diplomacy.pact_days(_state, _player, id))
 	if Diplomacy.has_trade(_state, _player, id):
-		extra.append("Accord commercial")
+		extra.append("Commerce : %s (routes %+d énergie ce mois)" % [Trade.tier_label(Trade.tier(_state, _player, id)), Trade.value_between(_state, _player, id)])
+	if Trade.embargo_by(_state, _player, id):
+		extra.append("Vous lui imposez un embargo")
+	if Trade.embargo_by(_state, id, _player):
+		extra.append("Il vous impose un embargo")
 	if st == "war":
 		extra.append("Guerre depuis %d jours, score %+d" % [Diplomacy.pact_days(_state, _player, id), Diplomacy.war_score(_state, _player, id)])
 	if e.is_ai():
@@ -1345,12 +1360,12 @@ func _relation_block(id: int) -> Control:
 	blk.body.add_child(grid)
 	for t in Diplomacy.TREATY_IDS:
 		var b := Button.new()
-		b.text = Diplomacy.treaty_label(t).to_upper()
+		b.text = Diplomacy.offer_label(_state, _player, id, t).to_upper()
 		b.focus_mode = Control.FOCUS_NONE
 		b.custom_minimum_size = Vector2(220, 0)
 		var why := Diplomacy.check_propose(_state, _player, id, t)
 		b.disabled = why != ""
-		var desc := String(Diplomacy.treaty_info(t).get("desc", ""))
+		var desc := Diplomacy.offer_desc(_state, _player, id, t)
 		b.tooltip_text = (why + "\n\n" + desc) if why != "" else desc
 		var treaty := t
 		b.pressed.connect(func() -> void: command_requested.emit(SimCommands.propose_treaty(_player, id, treaty)))
@@ -1384,7 +1399,7 @@ func _relation_block(id: int) -> Control:
 	acts.add_theme_constant_override("v_separation", 6)
 	blk.body.add_child(acts)
 	for t in [Diplomacy.ALLIANCE, Diplomacy.PEACE, Diplomacy.TRADE]:
-		var label: String = {"alliance": "QUITTER L'ALLIANCE", "peace": "DÉNONCER LA PAIX", "trade": "ROMPRE L'ACCORD"}[t]
+		var label: String = {"alliance": "QUITTER L'ALLIANCE", "peace": "DÉNONCER LA PAIX", "trade": "ROMPRE LE COMMERCE"}[t]
 		var shown: bool = (t == Diplomacy.ALLIANCE and Diplomacy.allied(_state, _player, id)) \
 				or (t == Diplomacy.PEACE and Diplomacy.pact(_state, _player, id) == Diplomacy.PEACE) \
 				or (t == Diplomacy.TRADE and Diplomacy.has_trade(_state, _player, id))
@@ -1400,6 +1415,21 @@ func _relation_block(id: int) -> Control:
 		b.pressed.connect(func() -> void: command_requested.emit(SimCommands.cancel_treaty(_player, id, treaty)))
 		acts.add_child(b)
 		cancel_buttons[t] = b
+	# Embargo (voir Trade) : couper le commerce, ou le rouvrir.
+	if not e.eliminated:
+		var emb := Button.new()
+		var lifting := Trade.embargo_by(_state, _player, id)
+		emb.text = "LEVER L'EMBARGO" if lifting else "EMBARGO"
+		emb.focus_mode = Control.FOCUS_NONE
+		var ewhy := Trade.check_lift(_state, _player, id) if lifting else Trade.check_embargo(_state, _player, id)
+		emb.disabled = ewhy != ""
+		emb.tooltip_text = ewhy if ewhy != "" else ("Le commerce pourra reprendre (il faudra le signer de nouveau)." if lifting \
+				else "Coupe tout commerce avec cet empire et interdit d'en signer. Vos alliés IA qui ne l'aiment pas suivront. Il s'en souviendra.")
+		var etarget := id
+		emb.pressed.connect(func() -> void:
+			command_requested.emit(SimCommands.lift_embargo(_player, etarget) if lifting else SimCommands.embargo(_player, etarget)))
+		acts.add_child(emb)
+		embargo_buttons[id] = emb
 	if not e.eliminated and not Combat.at_war(_state, _player, id):
 		var war := Button.new()
 		var label := "ROMPRE ET DÉCLARER LA GUERRE" if Diplomacy.has_pact(_state, _player, id) else "DÉCLARER LA GUERRE"

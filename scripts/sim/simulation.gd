@@ -86,6 +86,8 @@ func step() -> void:
 		chronicle_added.emit(entry)
 	for entry in PirateSystem.process(state):
 		chronicle_added.emit(entry)
+	for entry in TradeSystem.process(state):
+		chronicle_added.emit(entry)
 	for entry in FaunaSystem.process(state):
 		chronicle_added.emit(entry)
 	for entry in EventSystem.process(state):

@@ -16,7 +16,7 @@ extends RefCounted
 ## - guerre (Empire.wars, géré par Combat) ;
 ## - paix (traité) : aucune attaque ; une trêve d'un an suit la signature ;
 ## - alliance (traité, après six mois de paix) : les guerres et les cartes se partagent.
-## L'accord commercial s'ajoute à la paix ou à l'alliance ; l'échange de cartes est ponctuel.
+## Le commerce (trois paliers, voir Trade) s'ajoute à la paix ou à l'alliance ; l'échange de cartes est ponctuel.
 ##
 ## Tout est déterministe : entiers, parcours dans l'ordre des identifiants, aucun aléatoire.
 
@@ -38,6 +38,28 @@ static func treaty_info(treaty: String) -> Dictionary:
 
 static func treaty_label(treaty: String) -> String:
 	return String(treaty_info(treaty).get("label", treaty))
+
+
+## Libellé d'un traité proposable entre a et b : pour le commerce, le palier suivant (voir Trade).
+static func offer_label(state: GameState, a: int, b: int, treaty: String) -> String:
+	if treaty == TRADE:
+		var n := Trade.next_label(state, a, b)
+		return n if n != "" else Trade.tier_label(Trade.FREE)
+	return treaty_label(treaty)
+
+
+## Description d'un traité proposable entre a et b (le palier suivant pour le commerce).
+static func offer_desc(state: GameState, a: int, b: int, treaty: String) -> String:
+	if treaty == TRADE:
+		return String(Trade.tier_info(mini(Trade.FREE, Trade.tier(state, a, b) + 1)).get("desc", ""))
+	return String(treaty_info(treaty).get("desc", ""))
+
+
+## Libellé d'une proposition en attente (le palier proposé pour le commerce).
+static func proposal_label(p: Dictionary) -> String:
+	if String(p["treaty"]) == TRADE and p.has("tier"):
+		return Trade.tier_label(int(p["tier"]))
+	return treaty_label(String(p["treaty"]))
 
 
 static func days(key: String, default := 0) -> int:
@@ -253,8 +275,8 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 		_part(out, "En guerre", int(cfg["at_war"]))
 	elif st == ALLIANCE or st == PEACE:
 		_part(out, "Traité : %s" % treaty_label(st), int(cfg[st]))
-	if has_trade(state, a, b):
-		_part(out, "Accord commercial", int(cfg["trade"]))
+	for tp in Trade.opinion_parts(state, a, b):
+		_part(out, String(tp[0]), int(tp[1]))
 	_part(out, "Confiance", trust(state, a, b))
 	# Ambassades permanentes de b, et merveilles qui lui valent l'estime de tous (Assemblée interstellaire).
 	_part(out, "Ambassades permanentes", Research.fx_int(state, b, "opinion_all"))
@@ -457,10 +479,8 @@ static func check_terms(state: GameState, a: int, b: int, treaty: String) -> Str
 				return "une alliance exige %d jours de paix (encore %d)" % [days("alliance_after_days", 180),
 						days("alliance_after_days", 180) - pact_days(state, a, b)]
 		TRADE:
-			if not has_pact(state, a, b):
-				return "un accord commercial exige la paix"
-			if has_trade(state, a, b):
-				return "un accord commercial est déjà en vigueur"
+			# Paliers du commerce (voir Trade) : le traité fait monter d'un palier.
+			return Trade.check_next_tier(state, a, b)
 		MAPS:
 			if at_war:
 				return "on n'échange pas ses cartes avec un ennemi"
@@ -497,16 +517,22 @@ static func propose(state: GameState, from: int, to: int, treaty: String) -> boo
 			state.add_chronicle("%s décline %s proposé%s par %s. Le messager repart avec une réponse polie et un sourire qui l'est moins." % [
 					et.display_name(), _treaty_phrase(treaty), "e" if treaty != MAPS and treaty != PEACE else "", ef.display_name()], Espionage.private_to(state, [from, to]))
 		return false
-	state.proposals.append({"id": state.next_proposal_id, "from": from, "to": to, "treaty": treaty, "tick": state.tick})
+	var prop := {"id": state.next_proposal_id, "from": from, "to": to, "treaty": treaty, "tick": state.tick}
+	if treaty == TRADE:
+		prop["tier"] = Trade.tier(state, from, to) + 1
+	state.proposals.append(prop)
 	state.next_proposal_id += 1
 	_set_cooldown(state, from, to, treaty, days("proposal_days", 30))
+	var verb := String(treaty_info(treaty).get("verb", treaty))
+	if treaty == TRADE:
+		verb = String(Trade.tier_info(int(prop["tier"])).get("verb", verb))
 	state.add_chronicle("%s propose %s à %s. Les chancelleries retiennent leur souffle." % [
-			ef.display_name(), String(treaty_info(treaty).get("verb", treaty)), et.display_name()], Espionage.private_to(state, [from, to]))
+			ef.display_name(), verb, et.display_name()], Espionage.private_to(state, [from, to]))
 	return false
 
 
 static func _treaty_phrase(treaty: String) -> String:
-	return {"peace": "la paix", "alliance": "l'alliance", "trade": "l'accord commercial", "maps": "l'échange de cartes", "contract": "le contrat de flotte"}.get(treaty, treaty)
+	return {"peace": "la paix", "alliance": "l'alliance", "trade": "le commerce", "maps": "l'échange de cartes", "contract": "le contrat de flotte"}.get(treaty, treaty)
 
 
 static func check_answer(state: GameState, player: int, proposal_id: int, accept: bool) -> String:
@@ -572,9 +598,11 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 			state.add_chronicle("Alliance entre %s et %s : désormais, qui frappe l'un devra compter avec l'autre." % [
 					ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 		TRADE:
-			_rel_w(state, a, b)["trade"] = 1
-			state.add_chronicle("Accord commercial entre %s et %s. Les cargos partent pleins, les douaniers reviennent riches." % [
-					ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
+			var t := Trade.raise_tier(state, a, b)
+			var lines := ["%s et %s ouvrent leurs comptoirs l'un à l'autre. Les premiers cargos partent à moitié pleins, par prudence.",
+					"Accord commercial entre %s et %s. Les cargos partent pleins, les douaniers reviennent riches.",
+					"Libre-échange entre %s et %s : plus de douane, plus de tarifs. Les contrebandiers cherchent un nouveau métier."]
+			state.add_chronicle(String(lines[clampi(t - 1, 0, 2)]) % [ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 		MAPS:
 			share_maps(state, a, b)
 			_set_cooldown(state, a, b, MAPS, days("maps_cooldown_days", 720))
@@ -635,7 +663,7 @@ static func check_cancel(state: GameState, player: int, target: int, treaty: Str
 				return "la trêve court encore %d jours" % truce_left(state, player, target)
 		TRADE:
 			if not has_trade(state, player, target):
-				return "aucun accord commercial avec cet empire"
+				return "aucun commerce avec cet empire"
 		_:
 			return "traité inconnu : %s" % treaty
 	return ""
@@ -661,8 +689,9 @@ static func cancel(state: GameState, player: int, target: int, treaty: String) -
 			state.add_chronicle("%s dénonce son traité de paix avec %s. Rien n'est encore tiré, mais les tourelles pivotent." % [
 					ep.display_name(), et.display_name()], Espionage.public_to(state, [player, target]))
 		TRADE:
+			Trade.on_cut(state, player, target)
 			r["trade"] = 0
-			state.add_chronicle("%s met fin à son accord commercial avec %s. Les cargos rentrent à vide." % [
+			state.add_chronicle("%s rompt tout commerce avec %s. Les cargos rentrent à vide." % [
 					ep.display_name(), et.display_name()], Espionage.public_to(state, [player, target]))
 
 
@@ -679,9 +708,8 @@ static func treaty_income(state: GameState, empire_id: int) -> Dictionary:
 			continue
 		if p != COLD:
 			_add(out, treaty_info(p).get("income", {}))
-		if has_trade(state, empire_id, other):
-			# Compagnies marchandes : chaque accord commercial rapporte plus.
-			_add(out, Research.scaled_amounts(treaty_info(TRADE).get("income", {}), Research.fx_int(state, empire_id, "trade_income_pct")))
+	# Commerce (voir Trade) : routes et influence des paliers, calculées au dernier bilan.
+	_add(out, Trade.income(state, empire_id))
 	# Contrats de flotte : le client paie, le mercenaire encaisse.
 	var c := contract_of(state, empire_id)
 	if not c.is_empty():

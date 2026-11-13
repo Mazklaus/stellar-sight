@@ -115,7 +115,8 @@ static func growth_per_day(state: GameState, colony: Colony) -> int:
 		return int(GameData.rules()["growth_per_day"])
 	var pct := int(e.faction().get("growth_pct", 100))
 	pct = pct * maxi(10, 100 + Research.fx_int(state, colony.owner, "growth_pct")) / 100
-	return int(GameData.rules()["growth_per_day"]) * pct / 100
+	# Route intérieure (voir Trade) : la jeune colonie desservie grandit plus vite.
+	return int(GameData.rules()["growth_per_day"]) * pct / 100 + Trade.internal_growth(state, colony.planet_id)
 
 
 static func growth_threshold(population: int) -> int:

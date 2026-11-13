@@ -23,6 +23,8 @@ const SCREENS := [
 		"why": "Concevez vos vaisseaux : une coque, des modules dans ses emplacements, un rang et une cible. Les modèles enregistrés rejoignent la liste de construction."},
 	{"id": "victory", "label": "Victoire", "key": "F7", "glyph": "victory", "ready": true,
 		"why": "Toutes les façons de gagner cette partie, et où en est chaque empire. La victoire de peuple d'un rival reste cachée tant qu'il n'est pas à mi-chemin."},
+	{"id": "trade", "label": "Commerce", "key": "C", "glyph": "trade", "ready": true,
+		"why": "Chaque mois, vos routes partent vers vos partenaires commerciaux, les plus rentables d'abord. Une route vaut plus quand elle est longue et relie des systèmes peuplés ; les deux bouts touchent la même somme, moins le tarif du traité. Une flotte hostile la bloque, les pirates en volent une part sur les systèmes sans présence. Comptoirs et technologies ajoutent des routes."},
 	{"id": "intel", "label": "Renseignement", "key": "F8", "glyph": "intel", "ready": true,
 		"why": "Affectez vos cellules chez les empires rencontrés : le réseau grandit chaque mois et dévoile, palier après palier, leurs systèmes, leurs comptes, leurs flottes et leurs pensées. Chez vous, elles font du contre-espionnage."},
 	{"id": "heroes", "label": "Panthéon", "key": "F10", "glyph": "heroes", "ready": true,
@@ -69,7 +71,7 @@ func _ready() -> void:
 	icons.add_theme_constant_override("separation", 2)
 	box.add_child(icons)
 	for sc in SCREENS:
-		var b := Widgets.IconButton.new(String(sc["glyph"]), 27)
+		var b := Widgets.IconButton.new(String(sc["glyph"]), 25)
 		b.toggle_mode = true
 		b.disabled = not sc["ready"]
 		b.tooltip_text = "%s  (%s)" % [sc["label"], sc["key"]] + ("\nBientôt : l'écran est en place." if sc.get("soon", false) else "")

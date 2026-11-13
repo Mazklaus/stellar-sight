@@ -340,7 +340,8 @@ func _test_charte() -> void:
 		_meet(st, 0, o)
 		Diplomacy.sign_treaty(st, 0, o, Diplomacy.PEACE)
 		Diplomacy.sign_treaty(st, 0, o, Diplomacy.TRADE)
-	_ok(Victory.signatories(st, 0) == [oss, choeur], "Charte : deux signataires")
+		Diplomacy.sign_treaty(st, 0, o, Diplomacy.TRADE)
+	_ok(Victory.signatories(st, 0) == [oss, choeur], "Charte : deux signataires (accord commercial au moins)")
 	var p := Victory.progress(st, 0, "charte")
 	_ok(not p["cond"] and str(p["lines"]).contains("Ne signera jamais"), "Charte : l'Essaim la bloque tant qu'il existe")
 	for pid in st.colonies.keys():
@@ -354,6 +355,7 @@ func _test_charte() -> void:
 	Diplomacy.cancel(st, oss, 0, Diplomacy.TRADE)
 	_months(st, 1)
 	_ok(Victory.held(st, 0, "charte") == 0, "Charte : une défection, la ratification repart de zéro")
+	Diplomacy.sign_treaty(st, 0, oss, Diplomacy.TRADE)
 	Diplomacy.sign_treaty(st, 0, oss, Diplomacy.TRADE)
 	_months(st, 24)
 	_ok(st.winner.get("victory", "") == "charte" and int(st.winner["empire"]) == 0, "Charte : deux ans de ratification, victoire")

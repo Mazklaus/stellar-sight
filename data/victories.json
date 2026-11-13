@@ -59,7 +59,7 @@
 			"kind": "people", "label": "La Charte des Quarante et Un",
 			"requires": {"gouvernement": ["republique"]},
 			"tech": "charte",
-			"text": "Faire signer la Charte à chaque empire survivant (paix ou alliance, et commerce ; au moins %d signataires), puis la ratifier %d ans sans défection. Un empire qui ne signe rien la bloque tant qu'il existe.",
+			"text": "Faire signer la Charte à chaque empire survivant (paix ou alliance, et accord commercial ou libre-échange ; au moins %d signataires), puis la ratifier %d ans sans défection. Un empire qui ne signe rien la bloque tant qu'il existe.",
 			"counter": "Refuser ou annuler le commerce, rompre la paix.",
 			"min_signatories": 2, "hold_days": 720, "on_fail": "reset",
 			"chronicle": "La Charte des Quarante et Un est ratifiée. %s préside désormais l'assemblée de la galaxie ; la première séance a duré onze jours."

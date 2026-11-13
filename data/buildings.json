@@ -9,6 +9,7 @@
 		"yields": {"materials": 6}, "upkeep": {"energy": 1}},
 	"forum": {"label": "Forum impérial", "cost": {"materials": 120}, "days": 90, "unique": true,
 		"yields": {"influence": 2}, "upkeep": {"energy": 2}},
+	"comptoir": {"label": "Comptoir", "cost": {"materials": 150, "energy": 50}, "days": 90, "unique": true, "per_system": true, "outpost_ok": true, "trade_routes": 1, "text": "Un par système. Docks, entrepôts et douaniers : +1 route commerciale, et un point de départ plus proche des partenaires.", "yields": {}, "upkeep": {"energy": 1}},
 	"raffinerie": {"requires_tech": ["raffinage"], "label": "Raffinerie de cristaux", "cost": {"materials": 100, "energy": 50}, "days": 90, "unique": true,
 		"requires_deposit": "crystals", "outpost_ok": true,
 		"yields": {"crystals": 2}, "upkeep": {"energy": 2}},

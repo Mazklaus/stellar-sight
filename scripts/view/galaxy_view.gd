@@ -220,6 +220,12 @@ func _draw() -> void:
 				_draw_label(s, px, true)
 				_draw_politics(s, px)
 		return
+	if lens == "trade" and state != null:
+		# Lentille du commerce : vos routes (couleur du palier du traité, verte pour une route
+		# intérieure, rouge si bloquée) et le risque pirate des systèmes traversés.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		_draw_trade(px)
+		return
 	var show_all_labels := _zoom() >= LABEL_MIN_ZOOM
 	var show_dots := _zoom() >= PLANET_DOTS_MIN_ZOOM
 	for s in galaxy.systems:
@@ -228,6 +234,46 @@ func _draw() -> void:
 		var key := s.id == selected_id or s.id == hovered_id or (state != null and owner_of(s.id) >= 0)
 		if show_all_labels or key:
 			_draw_label(s, px, show_dots or key)
+
+
+const TRADE_TIER_COLORS := [Color(0.6, 0.6, 0.6), Color(0.75, 0.62, 0.35), Color(0.95, 0.8, 0.35), Color(0.55, 0.9, 1.0)]
+const TRADE_INTERNAL_COLOR := Color(0.5, 0.88, 0.55)
+
+
+func _draw_trade(px: float) -> void:
+	var shown := {}
+	var routes := Trade.routes_of(state, viewer)
+	for r in routes:
+		var p: Array = r["path"]
+		var col: Color = TRADE_INTERNAL_COLOR if String(r["kind"]) != "ext" else TRADE_TIER_COLORS[clampi(int(r["tier"]), 0, 3)]
+		if bool(r.get("blocked", false)):
+			col = BATTLE_COLOR
+		var w := (2.5 if int(r["from"]) == viewer else 1.5) * px
+		for i in range(p.size() - 1):
+			var a := galaxy.systems[int(p[i])].position
+			var b := galaxy.systems[int(p[i + 1])].position
+			draw_line(a, b, Color(col, 0.85), w, true)
+			# Sens de la route : une pointe au milieu de chaque saut.
+			var m := (a + b) * 0.5
+			var d := (b - a).normalized()
+			var n := Vector2(-d.y, d.x)
+			draw_colored_polygon(PackedVector2Array([m + d * 5.0 * px, m - d * 3.0 * px + n * 3.5 * px, m - d * 3.0 * px - n * 3.5 * px]), col)
+		for sid in p:
+			shown[int(sid)] = true
+	for s in galaxy.systems:
+		if owner_of(s.id) == viewer:
+			shown[s.id] = true
+	for sid in shown:
+		var s: StarSystem = galaxy.systems[sid]
+		if not is_explored(s.id):
+			continue
+		_draw_system(s, px)
+		_draw_label(s, px, true)
+		var risk := Trade.risk_at(state, s.id)
+		if risk > 0:
+			var f := clampf(float(risk) / float(Trade.data()["piracy"]["risk_max"]), 0.0, 1.0)
+			draw_arc(s.position, 13.0 * px, -PI / 2.0, -PI / 2.0 + TAU * f, 24, Color(0.95, 0.45, 0.3, 0.9), 2.2 * px, true)
+	_draw_lairs(px)
 
 
 ## Combats visibles : deux lames croisées au-dessus d'un système en bataille, un anneau rouge

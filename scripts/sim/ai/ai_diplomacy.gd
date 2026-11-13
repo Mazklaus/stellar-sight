@@ -90,9 +90,16 @@ static func evaluate(state: GameState, ai_id: int, from_id: int, treaty: String)
 						unwanted += 1
 				_p(parts, "Ses guerres ne sont pas les nôtres", -20 * unwanted)
 		Diplomacy.TRADE:
-			_p(parts, "Commerce", int(c["trade_base"]))
+			var nt := Trade.tier(state, ai_id, from_id) + 1
+			_p(parts, "Commerce : %s" % Trade.tier_label(nt), int(c["trade_base"]))
 			_p(parts, "Opinion", op / 2)
 			_p(parts, "Tempérament", int(c["temperament_other"]) * maxi(0, aggr))
+			# Ce que rapporterait la route (Vétéran et au-delà comptent mieux : la route réelle).
+			if skill >= 1:
+				@warning_ignore("integer_division")
+				_p(parts, "Ce que rapporteraient les routes", mini(int(c.get("trade_value_max", 15)), Trade.estimate(state, ai_id, from_id) / 2))
+			if nt == Trade.FREE:
+				_p(parts, "Ouvrir nos marchés sans douane", int(c.get("free_trade_base", -5)))
 		Diplomacy.MAPS:
 			_p(parts, "Révéler ses routes", int(c["maps_base"]))
 			_p(parts, "Opinion", op / 2)
@@ -234,7 +241,7 @@ static func _propose(ctx: Dictionary) -> bool:
 			wishes.append(Diplomacy.PEACE)
 		elif Diplomacy.pact(state, e.id, other) == Diplomacy.PEACE:
 			wishes.append(Diplomacy.ALLIANCE)
-		if Diplomacy.has_pact(state, e.id, other) and not Diplomacy.has_trade(state, e.id, other):
+		if Diplomacy.has_pact(state, e.id, other) and Trade.tier(state, e.id, other) < Trade.FREE:
 			wishes.append(Diplomacy.TRADE)
 		if not Combat.at_war(state, e.id, other) and AiPlayer._skill(ctx) >= 1:
 			wishes.append(Diplomacy.MAPS)
@@ -244,11 +251,13 @@ static func _propose(ctx: Dictionary) -> bool:
 			# L'IA ne propose que ce qu'elle accepterait elle-même, avec une marge.
 			if int(evaluate(state, e.id, other, t)["score"]) < want or AiPlayer._forgets(ctx):
 				continue
+			var before_tier := Trade.tier(state, e.id, other)
+			var label := Diplomacy.offer_label(state, e.id, other, t)
 			if _issue(ctx, SimCommands.propose_treaty(e.id, other, t)):
-				var signed := Diplomacy.has_pact(state, e.id, other) if t != Diplomacy.TRADE else Diplomacy.has_trade(state, e.id, other)
+				var signed := Diplomacy.has_pact(state, e.id, other) if t != Diplomacy.TRADE else Trade.tier(state, e.id, other) > before_tier
 				if t == Diplomacy.ALLIANCE:
 					signed = Diplomacy.allied(state, e.id, other)
-				AiPlayer._intent(ctx, "%s %s avec %s" % ["Signe" if signed else "Propose", Diplomacy.treaty_label(t).to_lower(), o.short_name()])
+				AiPlayer._intent(ctx, "%s %s avec %s" % ["Signe" if signed else "Propose", label.to_lower(), o.short_name()])
 				return true
 	return false
 
