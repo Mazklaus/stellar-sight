@@ -3,6 +3,15 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.1
+
+- **Bêtes de guerre** : le Vivarium, le Chalutier du vide et le filet gravitationnel ; les bêtes grandissent puis rejoignent vos flottes (chapitre 16).
+- **Talents de peuple face aux créatures**, par credo et par archétype (chapitre 16).
+- **Repaires dresseurs** : les pirates proches d'un nid ont leur bête (chapitre 12).
+- **Opération Appât** : détourner un fléau ou un troupeau vers un rival (chapitre 9).
+- **Tueur de monstres**, trait des amiraux qui abattent un gardien ou un fléau (chapitre 11).
+- Gardiens machines et langage machine des synthétiques (chapitre 17).
+
 ### Édition 1.0
 
 Première édition du Codex de l'Archonte. Elle couvre :

@@ -28,8 +28,10 @@ Un réseau assez avancé peut agir. Chaque opération coûte de l'influence, pre
 | --- | --- |
 | Renseignement | Rapport complet, dossier des héros |
 | Larcin | Voler 40 % d'une technologie, siphonner l'énergie, exfiltrer un prisonnier, larcin de relique |
-| Sabotage | Saboter un chantier (60 jours de retard), brûler des archives, assassiner un héros, armer des partisans |
+| Sabotage | Saboter un chantier (60 jours de retard), brûler des archives, assassiner un héros, armer des partisans, appât |
 | Intrigue | Semer la discorde, corrompre l'héritier ou un héros, attiser la dissidence, truquer une élection, fomenter un coup d'État |
+
+L'**appât** sème des balises odorantes chez la cible : un fléau errant change de route vers ses colonies, ou, à défaut, un troupeau hostile proche vient se servir chez elle.
 
 Chaque palier au-dessus du minimum améliore les chances ; chaque cellule de la cible chez elle les dégrade.
 

@@ -29,7 +29,7 @@ Tout héros peut tenir n'importe quel poste, à moitié d'effet hors de sa class
 
 ### Niveaux et traits
 
-L'expérience vient avec le temps, les batailles, les colonies, les opérations et la population gouvernée. Un héros monte jusqu'au **niveau 5** et gagne un trait à chaque niveau : un de sa classe (Foudre de guerre, Maître d'œuvre, Agronome…) ou un de son peuple, tiré du registre, de l'archétype, du gouvernement et du credo. Six traits au plus.
+L'expérience vient avec le temps, les batailles, les colonies, les opérations et la population gouvernée. Un héros monte jusqu'au **niveau 5** et gagne un trait à chaque niveau : un de sa classe (Foudre de guerre, Maître d'œuvre, Agronome…) ou un de son peuple, tiré du registre, de l'archétype, du gouvernement et du credo. Six traits au plus. Un trait se gagne autrement : **Tueur de monstres**, pour l'amiral dont la flotte abat un gardien ou un fléau (+25 % de dégâts contre les créatures).
 
 ::: chronique Éloge funèbre de l'amirale Isaure Hautecombe|Grand-amiral Teodh Varn, Concorde de Vael
 « Elle a gagné onze batailles, perdu deux flottes, refusé trois promotions et tous les conseils que je lui ai donnés. Elle avait raison pour les promotions. Pour les conseils, je n'ai jamais eu le courage de vérifier. »
