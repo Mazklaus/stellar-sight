@@ -17,6 +17,7 @@ Les empires qui se rencontrent entrent en **guerre froide** : pas encore de comb
 | Alliance | Après six mois de paix. Guerres, cartes et vision partagées. +2 influence par mois |
 | Commerce | Avec la paix, en trois paliers : voir plus bas |
 | Échange de cartes | Chacun reçoit les systèmes explorés par l'autre ; une fois tous les deux ans |
+| Migration | Avec la paix et les peuples mêlés : les habitants circulent entre les deux empires, chacun colonise avec l'espèce de l'autre ; un accord commercial double le flux |
 
 Après la trêve, on peut **dénoncer** la paix et revenir à la guerre froide. On peut aussi attaquer sans prévenir : vous voilà **parjure** aux yeux de toute la galaxie, et elle s'en souviendra longtemps.
 

@@ -1464,6 +1464,8 @@ func diplomacy_command(cmd: Dictionary) -> void:
 				var signed := Diplomacy.has_trade(st, view_empire, target) if t == Diplomacy.TRADE else Diplomacy.has_pact(st, view_empire, target)
 				if t == Diplomacy.ALLIANCE:
 					signed = Diplomacy.allied(st, view_empire, target)
+				elif t == Diplomacy.MIGRATION:
+					signed = Diplomacy.has_migration(st, view_empire, target)
 				if t != Diplomacy.MAPS:
 					kind = "good" if signed else ("info" if not st.get_empire(target).is_ai() else "bad")
 		_hud.notify(String(st.chronicle.back()["text"]), kind)

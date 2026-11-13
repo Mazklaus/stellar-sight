@@ -73,9 +73,10 @@ func _test_conquest() -> void:
 	var sid := st.galaxy.get_planet(c.planet_id).system_id
 	Combat.capture_system(st, sid, v)
 	_ok(c.owner == v, "monde pris par la Concorde")
-	_ok(int(c.species.get("khthari", 0)) == 6 and c.population == 6, "les 6 Kh'thari gardent leur espèce")
+	# Un habitant sur cinq fuit la conquête (réfugiés, lot 3) : 5 Kh'thari restent.
+	_ok(int(c.species.get("khthari", 0)) == 5 and c.population == 5, "les Kh'thari restés gardent leur espèce")
 	var cnt := Peoples.counts(st, c)
-	_ok(cnt.size() == 1 and int(cnt.get("khthari", 0)) == 6 and Peoples.own_count(c) == 0, "aucun Vael dans la mosaïque")
+	_ok(cnt.size() == 1 and int(cnt.get("khthari", 0)) == 5 and Peoples.own_count(c) == 0, "aucun Vael dans la mosaïque")
 	# Reprise par l'Essaim : les Kh'thari redeviennent l'espèce du propriétaire.
 	Combat.capture_system(st, sid, k)
 	_ok(c.species.is_empty(), "repris par l'Essaim : plus de mosaïque")

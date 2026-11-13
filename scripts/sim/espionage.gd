@@ -590,10 +590,23 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 			return "une ruche ne complote pas : elle dévore"
 		if int(talent(state, b).get("intrigue_immune", 0)) > 0:
 			return "aucune intrigue ne prend sur une ruche : ni cour, ni rumeurs"
+	if bool(o.get("peoples", false)) and not state.peoples_on:
+		return "les peuples mêlés ne sont pas actifs dans cette partie"
 	match op_id:
 		"discorde":
 			if _framed(state, a, b) < 0:
 				return "il n'a aucun ami à brouiller"
+		"frictions":
+			if Movements.most_mixed(state, b) < 0:
+				return "ses systèmes n'abritent qu'un seul peuple"
+		"appel_retour":
+			if int(Peoples.foreign_pop(state, b).get(e.faction_id, 0)) <= 0:
+				return "aucun des vôtres ne vit chez lui"
+		"propagande":
+			if Peoples.foreign_pop(state, b).is_empty():
+				return "aucun peuple venu d'ailleurs ne vit chez lui"
+			if Movements.xeno_left(state, b) > 0:
+				return "sa propagande tourne déjà à plein"
 		"heritier":
 			if not Diplomacy.has_heir(state, b):
 				return "cet empire n'a pas d'héritier"
@@ -826,6 +839,21 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			return "au prochain vote, %s pèsera plus lourd dans les urnes. Les scrutateurs ont été très compréhensifs." % Politics.label(state, b, c)
 		"financer_opposition":
 			return Grievances.fund(state, b)
+		"frictions":
+			var sid := Movements.most_mixed(state, b)
+			if sid < 0:
+				return "ses peuples se sont séparés d'eux-mêmes. Les provocateurs rentrent bredouilles."
+			Movements.stir(state, sid)
+			return "des provocateurs montent les peuples de %s les uns contre les autres : -%d de stabilité pendant un an. Personne ne se souvient qui a commencé, et c'est voulu." % [
+					state.galaxy.systems[sid].system_name, absi(int(Movements.data().get("stir_stability", -15)))]
+		"appel_retour":
+			var n := Movements.call_home(state, a, b)
+			if n <= 0:
+				return "personne n'a voulu partir. Les tracts parlaient pourtant du pays avec beaucoup d'émotion."
+			return "%d des nôtres quittent %s et rentrent au pays. Ils ramènent des recettes, des accents, et quelques secrets." % [n, eb.short_name()]
+		"propagande":
+			Movements.xeno(state, b)
+			return "des tracts dénoncent « ceux d'ailleurs » chez %s. Pendant deux ans, ses peuples venus d'ailleurs s'intègrent deux fois moins vite, et le Glaive et l'Autel recrutent." % eb.short_name()
 		"coup":
 			if Stability.empire_value(state, b) >= int(Politics.data()["crisis"]["coup_below"]):
 				return "le régime s'est raffermi avant le jour dit. Les conjurés rentrent chez eux, l'air dégagé."

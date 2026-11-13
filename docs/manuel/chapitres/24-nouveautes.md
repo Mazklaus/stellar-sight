@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.9
+
+- **Migrations, réfugiés et diasporas** : migration intérieure (nouvelle option de partie), politique d'accueil, convois de réfugiés sur la carte, renaissance des empires disparus, revendications de la diaspora, sécession par affinité, luxe aimé et talents de peuples mêlés (chapitre 3).
+- **Traité de migration** (chapitre 8) et trois intrigues des peuples mêlés (chapitre 9).
+
 ### Édition 1.8
 
 - **Statut des peuples** : citoyens, résidents, assujettis, à assimiler, expulsés ou exterminés ; intégration de 0 à 100 % ; affinités et frictions entre espèces ; doléance « Des droits pour mon peuple » (chapitre 3).

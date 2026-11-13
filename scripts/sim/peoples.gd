@@ -199,6 +199,9 @@ static func birth_weights(state: GameState, c: Colony) -> Dictionary:
 		var v := int(cnt[fid]) * h
 		if _is_homeworld(state, fid, c.planet_id):
 			v *= 2
+		# Luxe aimé servi (proposition 23) : les naissances doublent.
+		if fid != founder_of(state, c.owner) and Movements.loved_served(state, c.owner, fid):
+			v *= 2
 		w[fid] = v
 	return w
 
@@ -293,12 +296,16 @@ static func adjust_yields(state: GameState, c: Colony, gross: Dictionary) -> voi
 	var cnt := counts(state, c)
 	var own_f := GameData.faction(founder_of(state, c.owner))
 	var own_pct: Dictionary = own_f.get("production_pct", {})
+	# Une fois par espèce (et non par ressource) : nombre, pourcentages de son peuple, modificateur.
+	var info := []
+	for fid in cnt:
+		info.append([int(cnt[fid]), GameData.faction(fid).get("production_pct", {}), species_prod_mod(state, c, fid)])
 	for r in gross:
 		var base := int(own_pct.get(r, 100))
 		var acc := 0
-		for fid in cnt:
-			var p := int(GameData.faction(fid).get("production_pct", {}).get(r, 100)) * species_prod_mod(state, c, fid) / 100
-			acc += int(cnt[fid]) * p * 100 / maxi(1, base)
+		for x: Array in info:
+			var p := int((x[1] as Dictionary).get(r, 100)) * int(x[2]) / 100
+			acc += int(x[0]) * p * 100 / maxi(1, base)
 		var factor := acc / maxi(1, c.population)
 		if factor != 100 and int(gross[r]) > 0:
 			gross[r] = int(gross[r]) * factor / 100
@@ -352,6 +359,12 @@ static func refresh(state: GameState) -> void:
 		for fid in _sorted_keys(cnt):
 			if fid != e.faction_id and fid != "" and int(cnt[fid]) >= need:
 				cs.append(fid)
+		# Traité de migration : on colonise aussi avec l'espèce du partenaire.
+		for o in Movements.partners(state, e.id):
+			var of := state.get_empire(o).faction_id
+			if o != e.id and of != e.faction_id and not cs.has(of):
+				cs.append(of)
+		cs.sort()
 		if not cs.is_empty():
 			colonists[str(e.id)] = cs
 		var entry := {}
@@ -551,8 +564,14 @@ static func integration_rate(state: GameState, c: Colony, fid: String) -> int:
 		var sid := state.galaxy.get_planet(c.planet_id).system_id
 		if not Heroes.at_post(state, "system", sid, c.owner).is_empty():
 			v += int(ig.get("intendant", 2))
-	var pct := int(Laws.effects(state, c.owner).get("integration_pct", 0))
-	return v * (100 + pct) / 100
+	var tl := Movements.talent(state, c.owner)
+	v += int(tl.get("integ_yearly", 0))
+	var pct := int(Laws.effects(state, c.owner).get("integration_pct", 0)) + int(tl.get("integ_pct", 0))
+	v = v * (100 + pct) / 100
+	# Propagande xénophobe d'un rival : moitié moins vite.
+	if Movements.xeno_left(state, c.owner) > 0:
+		v /= 2
+	return v
 
 
 ## Modificateur de production (en %) d'une espèce sur une colonie : statut et intégration.
@@ -560,7 +579,11 @@ static func integration_rate(state: GameState, c: Colony, fid: String) -> int:
 static func species_prod_mod(state: GameState, c: Colony, fid: String) -> int:
 	if fid == founder_of(state, c.owner):
 		return 100
-	var mod := 100 + int(status_def(status(state, c.owner, fid)).get("prod_pct", 0))
+	var st := status(state, c.owner, fid)
+	var mod := 100 + int(status_def(st).get("prod_pct", 0))
+	# Conscience : les esprits organiques invités travaillent mieux (talent guest_prod_pct).
+	if (st == "residents" or st == "assujettis") and _layer(fid, "archetype") != "synthetique":
+		mod += int(Movements.talent(state, c.owner).get("guest_prod_pct", 0))
 	var ig: Dictionary = data().get("integration", {})
 	var below := int(ig.get("low_below", 50))
 	var i := integration(c, fid)
@@ -639,6 +662,8 @@ static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 			var v := int(sd.get("stability", 0))
 			if st == "residents" and int(cnt[fid]) * 2 > total:
 				v = int(sd.get("stability_major", 0))
+			if st == "assimiler" and int(Movements.talent(state, owner).get("assim_free", 0)) > 0:
+				v = 0
 			if v == 0:
 				continue
 			if not by.has(st):
@@ -672,6 +697,13 @@ static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 		af = clampi(af, -int(fr.get("max", 5)), int(fr.get("max", 5)))
 		if af != 0:
 			out.append(["Affinités entre peuples" if af > 0 else "Frictions entre peuples", af])
+		# Luxe aimé servi (proposition 23) : une ligne, quel que soit le nombre d'espèces comblées.
+		var fed: Array = []
+		for fid in big:
+			if fid != own and Movements.loved_served(state, owner, String(fid)):
+				fed.append(label(String(fid)))
+		if not fed.is_empty():
+			out.append(["Luxe aimé servi (%s)" % ", ".join(fed), int(Movements.data().get("loved_stability", 5))])
 	# Lois.
 	var fx := Laws.effects(state, owner)
 	var native := own_n * 2 > total
@@ -749,6 +781,9 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 					continue
 				c.species[fid] = n - 1
 				c.population -= 1
+				# Les expulsés deviennent des réfugiés ; un exterminé sur deux parvient à fuir.
+				if st == "expulses" or posmod(m + pid, 2) == 0:
+					Movements.flee_from(state, state.galaxy.get_planet(pid).system_id, fid, 1, c.owner, added)
 				if st == "extermines":
 					if not killers.has(c.owner):
 						killers[c.owner] = {}
@@ -865,6 +900,8 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array:
 	if int(foreign_pop(state, b).get(fa, 0)) > 0:
 		var st := status(state, b, fa)
 		var v := int(status_def(st).get("opinion", 0))
+		if st == "citoyens":
+			v = int(Movements.data().get("citizen_opinion", 3))
 		if v != 0:
 			out.append(["Les nôtres chez eux : %s" % status_label(st).to_lower(), v])
 	if not state.heroes.is_empty():

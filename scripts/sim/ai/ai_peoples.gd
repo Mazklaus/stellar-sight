@@ -7,6 +7,8 @@ extends RefCounted
 ## cède à une doléance « Des droits pour mon peuple » si elle n'est pas belliqueuse. La Recrue laisse
 ## le statut par défaut. L'IA n'expulse ni n'extermine jamais (choix réservés aux joueurs et, plus
 ## tard, aux peuples dont la vision du monde l'exige).
+## Lot 3 : politique d'accueil (ouverte si pacifique, fermée si belliqueuse) et réponse aux
+## revendications de diaspora (voir claim_answer).
 ## Lois : Hospitalité si elle est pacifique et compte d'autres peuples, Préférence native si elle est
 ## belliqueuse et que son peuple domine ses systèmes.
 
@@ -31,6 +33,33 @@ static func think(ctx: Dictionary) -> void:
 		var want := desired(state, e, String(fid), ag, demand)
 		if want != "" and want != Peoples.status(state, e.id, String(fid)):
 			AiPlayer._issue(ctx, SimCommands.peoples_status(e.id, String(fid), want))
+	# Lot 3 : politique d'accueil selon le tempérament, réponse aux diasporas.
+	var pol := policy_for(ag)
+	if pol != Movements.policy(state, e.id):
+		AiPlayer._issue(ctx, SimCommands.refugee_policy(e.id, pol))
+	if not Movements.claim(state, e.id).is_empty():
+		AiPlayer._issue(ctx, SimCommands.diaspora_answer(e.id, claim_answer(state, e.id, ag)))
+
+
+## Politique d'accueil voulue : ouverte si pacifique, fermée si belliqueuse, sinon les peuples citoyens.
+static func policy_for(ag: int) -> String:
+	if ag <= -1:
+		return "ouverte"
+	if ag >= 2:
+		return "fermee"
+	return "citoyens"
+
+
+## Réponse à une diaspora : un monde libre si elle n'est pas agressive, un système si elle est très
+## pacifique et qu'aucun monde libre n'est à offrir, un refus sinon.
+static func claim_answer(state: GameState, empire_id: int, ag: int) -> String:
+	if ag >= 1:
+		return "refus"
+	if Movements.check_claim(state, empire_id, "neutre") == "":
+		return "neutre"
+	if ag <= -2 and Movements.check_claim(state, empire_id, "systeme") == "":
+		return "systeme"
+	return "refus"
 
 
 ## Statut voulu pour une espèce ("" = ne rien changer).
