@@ -1,0 +1,215 @@
+/* Codex de l'Archonte : feuille de style du manuel (Paged.js, A4). */
+@font-face { font-family: Cinzel; src: url("fonts/Cinzel.ttf"); font-weight: 400 900; }
+@font-face { font-family: Garamond; src: url("fonts/EBGaramond.ttf"); font-weight: 400 800; }
+@font-face { font-family: Garamond; font-style: italic; src: url("fonts/EBGaramond-Italic.ttf"); font-weight: 400 800; }
+@font-face { font-family: Raj; src: url("fonts/Rajdhani-Medium.ttf"); font-weight: 500; }
+@font-face { font-family: Raj; src: url("fonts/Rajdhani-SemiBold.ttf"); font-weight: 600; }
+@font-face { font-family: Raj; src: url("fonts/Rajdhani-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: Main; src: url("fonts/Caveat.ttf"); font-weight: 400 700; }
+
+:root {
+  --ink: #0a0f1c; --ink2: #111a2d; --ink3: #18233b; --line: #33415e; --line2: #243049;
+  --gold: #d8b46a; --gold2: #b8964f; --cyan: #7fd3e6; --paper: #ebe3cf; --paper-ink: #2b2418;
+  --txt: #d6dbe5; --dim: #8b95aa; --title: #f3ead6; --accent: #d8b46a;
+}
+body.clair {
+  --ink: #f4f0e6; --ink2: #ebe5d6; --ink3: #e2dac6; --line: #b6a888; --line2: #cfc3a6;
+  --gold: #8a6420; --gold2: #a07a35; --cyan: #1f6f86; --txt: #2a2620; --dim: #6c6454; --title: #1d1a14;
+}
+
+@page {
+  size: A4;
+  margin: 22mm 18mm 20mm 20mm;
+  @top-left { content: string(chap); font-family: Raj; font-weight: 600; font-size: 7.5pt; letter-spacing: .32em; text-transform: uppercase; color: #8b95aa; vertical-align: bottom; padding-bottom: 4mm; }
+  @top-right { content: "Stellar Sight · Codex de l'Archonte"; font-family: Raj; font-weight: 600; font-size: 7.5pt; letter-spacing: .32em; text-transform: uppercase; color: #b8964f; vertical-align: bottom; padding-bottom: 4mm; }
+  @bottom-right { content: counter(page); font-family: Raj; font-weight: 600; font-size: 8pt; letter-spacing: .3em; color: #8b95aa; }
+  @bottom-left { content: string(partie); font-family: Raj; font-weight: 600; font-size: 7pt; letter-spacing: .3em; text-transform: uppercase; color: #5d6780; }
+}
+@page plein { margin: 0; @top-left { content: none; } @top-right { content: none; } @bottom-right { content: none; } @bottom-left { content: none; } }
+@page :first { margin: 0; @top-left { content: none; } @top-right { content: none; } @bottom-right { content: none; } @bottom-left { content: none; } }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: Garamond, serif; font-size: 10.6pt; line-height: 1.5; color: var(--txt); hyphens: auto; }
+p { margin: 0 0 .6em; text-align: justify; orphans: 2; widows: 2; }
+strong { color: var(--title); font-weight: 600; }
+em { color: inherit; }
+code { font-family: Raj; font-weight: 600; font-size: .95em; color: var(--cyan); }
+.kbd { font-family: Raj; font-weight: 700; font-size: .85em; color: var(--title); border: 1px solid var(--line); background: var(--ink3); padding: 0 .4em; border-radius: 2px; letter-spacing: .05em; white-space: nowrap; }
+h3 { font-family: Cinzel; font-weight: 600; font-size: 13.5pt; letter-spacing: .05em; color: var(--title); margin: 1.1em 0 .4em; break-after: avoid; }
+h4 { font-family: Raj; font-weight: 700; font-size: 9.5pt; letter-spacing: .28em; text-transform: uppercase; color: var(--gold); margin: 1em 0 .3em; break-after: avoid; }
+ul, ol { margin: 0 0 .7em; padding-left: 1.3em; }
+li { margin-bottom: .25em; }
+ul li::marker { color: var(--gold); content: "▪  "; font-size: .8em; }
+ol li::marker { color: var(--gold); font-family: Raj; font-weight: 700; }
+.kicker { font-family: Raj; font-weight: 600; letter-spacing: .5em; text-transform: uppercase; color: var(--gold); font-size: 9pt; text-align: center; }
+.rule { height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 4mm auto; width: 70%; }
+.saut { break-after: page; }
+
+/* --- Couverture -------------------------------------------------------- */
+.couverture { page: plein; position: relative; width: 210mm; height: 297mm; overflow: hidden; break-after: page;
+  background: radial-gradient(ellipse at 70% 30%, #1d2b4f 0%, #0a0f1c 55%, #05070d 100%); }
+.couv-image { position: absolute; inset: 0; }
+.couv-image .mj { width: 100% !important; height: 100% !important; aspect-ratio: auto !important; margin: 0; padding: 0; background: none; clip-path: none; }
+.couv-image .mj .cadre { clip-path: none; border-radius: 0; }
+.couv-voile { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,7,13,.85) 0%, rgba(5,7,13,.1) 38%, rgba(5,7,13,.1) 70%, rgba(5,7,13,.9) 100%); }
+.coin { position: absolute; width: 14mm; height: 14mm; border-color: var(--gold); border-style: solid; opacity: .75; }
+.c1 { top: 9mm; left: 9mm; border-width: 1px 0 0 1px; } .c2 { top: 9mm; right: 9mm; border-width: 1px 1px 0 0; }
+.c3 { bottom: 9mm; left: 9mm; border-width: 0 0 1px 1px; } .c4 { bottom: 9mm; right: 9mm; border-width: 0 1px 1px 0; }
+.couv-haut { position: absolute; top: 26mm; left: 0; right: 0; }
+.couv-titre { font-family: Cinzel; font-weight: 700; font-size: 56pt; line-height: 1.05; letter-spacing: .14em; text-align: center; color: #f3ead6; text-shadow: 0 0 18px rgba(216,180,106,.35); }
+.couv-sous { font-style: italic; font-size: 16pt; color: #d6ccb2; text-align: center; }
+.couv-bas { position: absolute; bottom: 20mm; left: 0; right: 0; text-align: center; font-family: Raj; font-weight: 600; letter-spacing: .35em; text-transform: uppercase; font-size: 8pt; color: #9aa4b8; }
+
+/* --- Page de garde, sommaire ------------------------------------------- */
+.garde { break-after: page; display: flex; flex-direction: column; justify-content: space-between; height: 250mm; }
+.garde-titre { font-family: Cinzel; font-weight: 600; font-size: 26pt; letter-spacing: .1em; text-align: center; color: var(--title); margin-top: 5mm; }
+.garde-sous { font-style: italic; text-align: center; color: var(--dim); margin-top: 3mm; font-size: 11pt; }
+.garde-mot { border-top: 1px solid var(--gold2); border-bottom: 1px solid var(--gold2); padding: 6mm 10mm; margin: 0 6mm; }
+.garde-mot h4 { text-align: center; margin-top: 0; }
+.garde-bas { font-family: Raj; font-weight: 500; font-size: 8.5pt; color: var(--dim); text-align: center; letter-spacing: .05em; line-height: 1.6; }
+.sommaire { break-after: page; }
+.sommaire-titre { font-family: Cinzel; font-weight: 600; font-size: 24pt; letter-spacing: .12em; color: var(--title); text-align: center; margin: 0 0 8mm; string-set: chap "Sommaire"; }
+.toc { list-style: none; padding: 0; margin: 0 8mm; }
+.toc li::marker { content: none; }
+.toc a { color: inherit; text-decoration: none; display: flex; align-items: baseline; }
+.toc a::after { content: target-counter(attr(href), page); margin-left: auto; font-family: Raj; font-weight: 600; color: var(--gold); padding-left: 3mm; }
+.toc-partie { margin: 6mm 0 2mm; font-family: Raj; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; font-size: 9pt; color: var(--gold); border-bottom: 1px solid var(--line); padding-bottom: 1.2mm; }
+.toc-chap { margin: 1.6mm 0; font-size: 11.5pt; }
+.toc-chap .n { font-family: Raj; font-weight: 700; color: var(--dim); width: 9mm; flex: none; }
+.toc-chap .t { flex: 1; border-bottom: 1px dotted var(--line); margin-right: 2mm; }
+
+/* --- Parties ------------------------------------------------------------- */
+.partie { page: plein; position: relative; width: 210mm; height: 297mm; overflow: hidden; break-before: page; break-after: page; background: #05070d; }
+.partie-fond { position: absolute; inset: 0; }
+.partie-fond .mj { width: 100% !important; height: 100% !important; aspect-ratio: auto !important; padding: 0; background: none; clip-path: none; margin: 0; }
+.partie-fond .mj .cadre { clip-path: none; border-radius: 0; }
+.partie-texte { position: absolute; left: 0; right: 0; bottom: 0; padding: 30mm 24mm 26mm; background: linear-gradient(180deg, rgba(5,7,13,0) 0%, rgba(5,7,13,.92) 30%, #05070d 100%); }
+.partie-titre { font-family: Cinzel; font-weight: 700; font-size: 34pt; letter-spacing: .08em; color: #f3ead6; text-align: center; margin: 2mm 0 0; string-set: partie attr(data-partie); }
+.partie-intro p { text-align: center; font-style: italic; font-size: 12pt; color: #cfc6b0; }
+
+/* --- Chapitres ----------------------------------------------------------- */
+.chapitre { break-before: page; }
+.chap-tete { margin-bottom: 6mm; }
+.chap-tete .mj.bandeau { margin: 0 0 6mm; }
+.chap-num { font-family: Raj; font-weight: 700; letter-spacing: .45em; text-transform: uppercase; font-size: 9pt; color: var(--gold); }
+.chap-titre { font-family: Cinzel; font-weight: 600; font-size: 25pt; letter-spacing: .05em; color: var(--title); line-height: 1.1; margin: 1mm 0 4mm; string-set: chap content(text); }
+.epigraphe { margin: 0 0 2mm 18mm; padding-left: 5mm; border-left: 1px solid var(--gold2); }
+.epigraphe p { font-style: italic; color: #cfc6b0; text-align: left; margin: 0; font-size: 11pt; }
+.epigraphe cite { display: block; font-style: normal; font-family: Raj; font-weight: 600; font-size: 8pt; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); margin-top: 1.5mm; }
+.chap-corps > p:first-of-type::first-letter { font-family: Cinzel; float: left; font-size: 38pt; line-height: .85; padding: 1.2mm 2mm 0 0; color: var(--gold); }
+.colonnes { column-count: 2; column-gap: 7mm; }
+.colonnes p { text-align: left; }
+
+/* --- Encarts ------------------------------------------------------------- */
+aside { break-inside: avoid; margin: 4mm 0 5mm; }
+aside .lbl { font-family: Raj; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; font-size: 7.5pt; margin-bottom: 1.5mm; }
+aside p:last-child { margin-bottom: 0; }
+.chronique { background: var(--paper); color: var(--paper-ink); padding: 5mm 7mm 4mm; box-shadow: 0 0 0 .3mm #b9a77f inset, 0 0 0 1.4mm var(--paper), 0 0 0 1.7mm #b9a77f; margin: 6mm 1.8mm; }
+.chronique .lbl { color: #7a2a1f; }
+.chronique p { font-style: italic; font-size: 11pt; line-height: 1.45; text-align: left; }
+.chronique strong { color: #1d160c; }
+.chronique .sig { text-align: right; font-size: 9.5pt; margin-top: 1.5mm; color: #5a4a33; }
+.transmission { background: #06121a; border: 1px solid #1c4a5a; padding: 4mm 5mm; font-family: Raj; font-weight: 500; color: #9fe3f2; font-size: 10pt; position: relative; }
+.transmission::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(127,211,230,.05) 0 1px, transparent 1px 3px); }
+.transmission .lbl { color: #4fc3f7; }
+.transmission p { text-align: left; letter-spacing: .02em; }
+.marge { font-family: Main; font-size: 14pt; line-height: 1.15; color: #e4b860; transform: rotate(-1.2deg); margin: 3mm 6mm 4mm 22mm; padding-left: 4mm; border-left: 2px solid rgba(228,184,96,.5); }
+.marge p { text-align: left; margin-bottom: .2em; }
+.marge .sig { font-size: 12pt; text-align: right; opacity: .85; }
+body.clair .marge { color: #8a3b12; border-color: rgba(138,59,18,.5); }
+.conseil { border-left: 2px solid var(--cyan); padding: .5mm 0 .5mm 4mm; font-family: Raj; font-weight: 500; font-size: 10.5pt; color: var(--cyan); }
+.conseil .lbl { color: var(--cyan); }
+.conseil p { text-align: left; }
+.attention { border: 1px solid #a8452f; background: rgba(168,69,47,.08); padding: 3.5mm 5mm; }
+.attention .lbl { color: #e07a5f; }
+.encadre { border: 1px solid var(--line); background: var(--ink2); padding: 4mm 5mm; }
+.encadre .lbl { color: var(--ink); background: var(--gold); display: inline-block; padding: .6mm 2.5mm; }
+.donnee { font-family: Raj; font-weight: 500; color: var(--dim); font-size: 10pt; }
+
+/* --- Tableaux ------------------------------------------------------------ */
+table.grille { width: 100%; border-collapse: collapse; margin: 3mm 0 5mm; font-size: 9.6pt; break-inside: auto; }
+table.grille th { font-family: Raj; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; font-size: 7.5pt; color: var(--gold); text-align: left; border-bottom: 1px solid var(--gold2); padding: 1.6mm 2mm; }
+table.grille td { border-bottom: 1px solid var(--line2); padding: 1.6mm 2mm; vertical-align: top; line-height: 1.35; }
+table.grille tr:nth-child(even) td { background: rgba(127,211,230,.03); }
+table.grille td:first-child { font-family: Raj; font-weight: 600; color: var(--title); font-size: 10pt; white-space: nowrap; }
+.pastille { display: inline-block; width: 2.4mm; height: 2.4mm; border-radius: 50%; margin-right: 2mm; vertical-align: middle; }
+.court { color: var(--dim); }
+
+/* --- Fiches (faune, gardiens) ------------------------------------------- */
+.fiches { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin: 3mm 0 5mm; }
+.fiche { border: 1px solid var(--line); background: var(--ink2); padding: 3mm 4mm; break-inside: avoid; }
+.fiche-t { font-family: Raj; font-weight: 700; font-size: 11pt; letter-spacing: .08em; text-transform: uppercase; color: var(--title); border-bottom: 1px solid var(--gold2); padding-bottom: 1mm; margin-bottom: 2mm; }
+.fiche-t span { display: block; font-size: 7.5pt; letter-spacing: .25em; color: var(--gold); }
+.fiche p { font-size: 9.6pt; text-align: left; line-height: 1.4; }
+.fiche .faible { color: var(--dim); }
+.fiche .faible b { font-family: Raj; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; font-size: 7.5pt; color: var(--cyan); margin-right: 1.5mm; }
+
+/* --- Peuples ------------------------------------------------------------- */
+.peuple { break-before: page; position: relative; padding-left: 5mm; border-left: 2.2mm solid var(--accent); }
+.peuple .reg { font-family: Raj; font-weight: 700; letter-spacing: .3em; color: var(--accent); font-size: 8pt; text-transform: uppercase; }
+.peuple-nom { font-family: Cinzel; font-weight: 600; font-size: 23pt; letter-spacing: .05em; color: var(--title); line-height: 1.1; margin: 1mm 0 1.5mm; }
+.devise { font-style: italic; color: var(--gold); font-size: 12pt; margin-bottom: 4mm; }
+.peuple-grille { display: grid; grid-template-columns: 1.3fr 1fr; gap: 6mm; }
+.peuple-texte .lettrine::first-letter { font-family: Cinzel; float: left; font-size: 36pt; line-height: .85; padding: 1mm 2mm 0 0; color: var(--accent); }
+.peuple-cote .mj { margin: 0 0 4mm; }
+.data { border: 1px solid var(--line); background: var(--ink2); }
+.data .row { display: flex; border-bottom: 1px solid var(--line2); }
+.data .row:last-child { border-bottom: none; }
+.data .k { width: 42%; padding: 1.3mm 2.5mm; font-family: Raj; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; font-size: 6.8pt; color: var(--dim); border-right: 1px solid var(--line2); display: flex; align-items: center; }
+.data .v { padding: 1.3mm 2.5mm; font-family: Raj; font-weight: 600; font-size: 9.5pt; color: var(--title); }
+.boxtitle { font-family: Raj; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; font-size: 7.5pt; color: var(--ink); background: var(--gold); display: inline-block; padding: .7mm 3mm; margin-top: 5mm; }
+.traits { border-top: 1px solid var(--gold); padding-top: 2.5mm; column-count: 2; column-gap: 6mm; }
+.trait { margin-bottom: 2mm; font-size: 9.8pt; break-inside: avoid; line-height: 1.38; }
+.trait b { font-family: Raj; font-weight: 700; font-size: 9.8pt; letter-spacing: .06em; color: var(--title); text-transform: uppercase; margin-right: 1.5mm; }
+.victoire-peuple { border-top: 1px solid var(--gold); padding-top: 2mm; }
+
+/* --- Encarts d'image ----------------------------------------------------- */
+figure { margin: 0; }
+.mj { position: relative; width: 100%; padding: .45mm; background: var(--gold2); margin: 4mm 0; break-inside: avoid; }
+.mj .cadre { position: relative; width: 100%; height: 100%; overflow: hidden; background: #070b16; }
+.mj img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mj .vide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 6mm;
+  background: radial-gradient(ellipse at 28% 32%, rgba(201,119,74,.55) 0%, rgba(107,47,79,.45) 22%, rgba(29,43,95,.55) 50%, #070b16 82%),
+              repeating-linear-gradient(135deg, rgba(127,211,230,.05) 0 3mm, transparent 3mm 6mm), #070b16; }
+.mj .vide b { font-family: Raj; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; font-size: 9pt; color: var(--cyan); }
+.mj .vide span { font-family: Raj; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; font-size: 7.5pt; color: #b9d7e0; margin-top: 1mm; }
+.mj .vide i { font-family: Garamond; font-size: 9pt; color: #a8b6c8; margin-top: 2mm; max-width: 85%; line-height: 1.35; }
+.mj.plein .vide b { font-size: 11pt; }
+.forme-droit, .forme-droit .cadre { clip-path: none; }
+.forme-arrondi { border-radius: 5mm; } .forme-arrondi .cadre { border-radius: 4.6mm; }
+.forme-coupe { clip-path: polygon(6mm 0, calc(100% - 6mm) 0, 100% 6mm, 100% calc(100% - 6mm), calc(100% - 6mm) 100%, 6mm 100%, 0 calc(100% - 6mm), 0 6mm); }
+.forme-coupe .cadre { clip-path: polygon(5.8mm 0, calc(100% - 5.8mm) 0, 100% 5.8mm, 100% calc(100% - 5.8mm), calc(100% - 5.8mm) 100%, 5.8mm 100%, 0 calc(100% - 5.8mm), 0 5.8mm); }
+.forme-asym { clip-path: polygon(0 0, calc(100% - 9mm) 0, 100% 9mm, 100% 100%, 9mm 100%, 0 calc(100% - 9mm)); }
+.forme-asym .cadre { clip-path: polygon(0 0, calc(100% - 8.8mm) 0, 100% 8.8mm, 100% 100%, 8.8mm 100%, 0 calc(100% - 8.8mm)); }
+.forme-arche { border-radius: 50% 50% 1.5mm 1.5mm / 30% 30% 1.5mm 1.5mm; }
+.forme-arche .cadre { border-radius: 50% 50% 1.2mm 1.2mm / 30% 30% 1.2mm 1.2mm; }
+.forme-medaillon { width: 42mm; margin-left: auto; margin-right: auto; padding: .8mm; clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
+.forme-medaillon .cadre { clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
+.forme-medaillon .vide span, .forme-medaillon .vide i { display: none; }
+.mj.flottant-d { float: right; width: 42mm; margin: 1mm 0 3mm 5mm; }
+.mj.flottant-g { float: left; width: 42mm; margin: 1mm 5mm 3mm 0; }
+
+/* --- Captures annotées --------------------------------------------------- */
+.capture { margin: 4mm 0 5mm; break-inside: avoid; }
+.capture .cadre { position: relative; border: 1px solid var(--line); }
+.capture img { width: 100%; display: block; }
+.pin { position: absolute; transform: translate(-50%, -50%); width: 5.4mm; height: 5.4mm; border-radius: 50%; background: var(--cyan); color: #06121a; font-family: Raj; font-weight: 700; font-size: 8.5pt; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 .6mm rgba(6,18,26,.9), 0 0 3mm rgba(127,211,230,.6); }
+.capture figcaption { font-family: Raj; font-weight: 600; font-size: 8pt; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); margin-top: 1.5mm; }
+.pins { columns: 2; column-gap: 6mm; margin: 2mm 0 0; padding-left: 5mm; font-size: 9.6pt; }
+.pins li { break-inside: avoid; }
+.pins li::marker { color: var(--cyan); font-family: Raj; font-weight: 700; }
+
+/* --- Annexes ------------------------------------------------------------- */
+.prompt { border-bottom: 1px solid var(--line2); padding: 2mm 0 2.5mm; break-inside: avoid; }
+.prompt-t { font-family: Raj; font-weight: 600; font-size: 10pt; color: var(--title); }
+.prompt-t b { color: var(--cyan); margin-right: 2mm; }
+.prompt-t span { float: right; color: var(--dim); font-size: 8pt; letter-spacing: .1em; }
+.prompt-en { font-family: Raj; font-weight: 500; font-size: 8.6pt; color: var(--dim); line-height: 1.35; text-align: left; margin: 1mm 0 0; }
+.colophon { break-before: page; padding-top: 120mm; text-align: center; color: var(--dim); }
+.colophon p { text-align: center; font-size: 9.5pt; }
+.colophon .fin { font-style: italic; color: var(--gold); margin-top: 8mm; font-size: 11pt; }
+
+/* Pas de titre orphelin en bas de page */
+h2, h3, h4, .boxtitle, .chap-num { break-after: avoid; page-break-after: avoid; }
+.victoire-peuple, .fiche, aside, figure, table.grille tr { break-inside: avoid; }

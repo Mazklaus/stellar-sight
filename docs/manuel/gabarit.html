@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Stellar Sight · Codex de l'Archonte</title>
+<style>
+{{CSS}}
+@page { background: {{FOND}}; }
+</style>
+<script>window.PagedConfig = { auto: true, after: () => { window.__pagine = true; } };</script>
+<script src="vendor/paged.polyfill.js"></script>
+</head>
+<body class="{{CLASSE}}">
+
+<section class="couverture">
+  <div class="couv-image">{{COUVERTURE}}</div>
+  <div class="couv-voile"></div>
+  <div class="coin c1"></div><div class="coin c2"></div><div class="coin c3"></div><div class="coin c4"></div>
+  <div class="couv-haut">
+    <div class="kicker">Codex de l'Archonte</div>
+    <div class="rule"></div>
+    <div class="couv-titre">Stellar<br>Sight</div>
+    <div class="rule"></div>
+    <div class="couv-sous">Manuel de commandement, chroniques et mises en garde</div>
+  </div>
+  <div class="couv-bas">Édition {{EDITION}} · {{DATE}} · Usage privé</div>
+</section>
+
+<section class="garde">
+  <div class="garde-haut">
+    <div class="kicker">Archives de la Concorde de Vael</div>
+    <div class="garde-titre">Codex de l'Archonte</div>
+    <div class="garde-sous">à l'usage des souverains, régents, prophètes, directeurs de syndicat,<br>reines-mères et autres personnes qui se croient aux commandes</div>
+  </div>
+  <div class="garde-mot">
+    <h4>Avertissement de l'éditeur</h4>
+    <p>Le présent codex a été compilé par le Bureau des Archives de la Concorde de Vael, à partir de rapports d'amirauté, de minutes de traités, de confessions de pirates et d'au moins un hymne du Chœur Éternel, dont nous n'avons publié que le premier couplet par égard pour nos lecteurs.</p>
+    <p>Il expose les règles connues de la galaxie : comment on la parcourt, comment on la gouverne et comment on y survit. Les Archives déclinent toute responsabilité quant aux empires perdus par excès de confiance, aux héros égarés dans une nébuleuse et aux traités signés sans avoir été lus.</p>
+    <p>Un ancien propriétaire de cet exemplaire, le commandant Varrek, l'a abondamment annoté. Nous avons laissé ses notes en marge. Elles sont parfois utiles et toujours de mauvaise foi.</p>
+  </div>
+  <div class="garde-bas">
+    <div>Édition {{EDITION}} · {{DATE}} · version du jeu {{COMMIT}}</div>
+    <div>Stellar Sight est un jeu privé et non commercial. Tous les peuples, lieux et personnages sont originaux.</div>
+  </div>
+</section>
+
+<section class="sommaire">
+  <h2 class="sommaire-titre">Sommaire</h2>
+  <ol class="toc">{{SOMMAIRE}}</ol>
+</section>
+
+{{CORPS}}
+
+<section class="colophon">
+  <div class="rule"></div>
+  <p>Ce codex a été composé en Cinzel, EB Garamond, Rajdhani et Caveat, polices libres sous licence SIL Open Font License. Mise en page par Paged.js (licence MIT), imprimé par Chromium.</p>
+  <p>Il est généré depuis le dépôt du jeu : ses tableaux sont lus dans les données de la partie et changent avec elles. Édition {{EDITION}}, version {{COMMIT}}.</p>
+  <p class="fin">« Fin du codex. Si vous lisez ceci en pleine bataille, il est probablement trop tard. »</p>
+</section>
+</body>
+</html>
