@@ -555,6 +555,10 @@ Lot 2, lockstep (deux machines ou plus jouent la même partie), tours simultané
 - **IA** : le Vétéran et au-dessus met les opérations contre les héros en tête de son menu (exfiltration toujours, pour racheter les siens ; assassinat et corruption en guerre). Un syndicat IA loue ses héros inactifs ; un Vétéran en guerre et riche engage un Stratège.
 - Sauvegarde 21 inchangée : les nouveaux champs ont une valeur par défaut, et l'héritier apparaît au premier mois d'une ancienne partie.
 
+## Manuel du jeu
+
+Le *Codex de l'Archonte*, manuel PDF illustré du jeu : [docs/manuel/manuel.pdf](docs/manuel/manuel.pdf). Il se régénère depuis les données du jeu ; mode d'emploi dans [docs/manuel/LISEZMOI.md](docs/manuel/LISEZMOI.md).
+
 ## Organisation du code
 
 La simulation et l'affichage sont séparés dès maintenant, pour pouvoir ajouter le multijoueur et passer en 2,5D sans tout réécrire.
