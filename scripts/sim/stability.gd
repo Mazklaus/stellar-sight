@@ -421,6 +421,7 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 		if not rp.is_empty() and int(rp[1]) != 0:
 			out.append(rp)
 		out.append_array(Laws.stability_parts(state, sid, owner))
+		out.append_array(Grievances.stability_parts(state, sid, owner))
 	# Décret.
 	var d := active_decree(state, sid)
 	if d != "":

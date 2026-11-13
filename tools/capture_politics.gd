@@ -99,6 +99,24 @@ func _scene(main: Node, faction: String, out: String, suffix: String) -> void:
 			sc.scroll_vertical = int((sc.get_child(0).get_child(2) as Control).position.y)
 			await _frames(6)
 		await _shot(out + "/lois-suite.png")
+		# Lot 3 : une doléance en cours, une autre financée par l'étranger, une écoutée.
+		main.toggle_empire_screen("senate")
+		await _frames(4)
+		st.tick = maxi(st.tick, 400)
+		var opp := Grievances.opposition(st, 0, true)
+		var pen := Politics.emp(st, 0)
+		pen["grv"] = Grievances._make(st, opp, false)
+		pen["grv"]["got"] = 1
+		Grievances.fund(st, 0)
+		Grievances._fx(pen, int(r[0]), 5, st.tick + 300)
+		main._refresh_all()
+		main.toggle_empire_screen("senate")
+		await _frames(10)
+		sc = _find_scroll(main._empire_screens._content)
+		if sc != null:
+			sc.scroll_vertical = int((sc.get_child(0).get_child(2) as Control).position.y) - 40
+			await _frames(6)
+		await _shot(out + "/doleances.png")
 		main.toggle_empire_screen("senate")
 		await _frames(4)
 		main._hud.set_lens("politics")

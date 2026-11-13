@@ -99,6 +99,8 @@ var turn_mode := false
 var turn_days := 10
 var turn_target := -1
 var waiting: Array = []
+## Client : qui dirige quel empire (pair -> empire), reçu de l'hôte avec l'horloge.
+var seat_map := {}
 ## Minuteur de tour (GameClock.TURN_TIMERS) et instant local où il force la fin du tour (-1 : arrêté).
 var timer_id := ""
 var timer_end_ms := -1
@@ -419,12 +421,14 @@ func close() -> void:
 	_picks = {}
 	_ready = {}
 	waiting = []
+	seat_map = {}
 	turn_target = -1
 	timer_end_ms = -1
 	if _clock().driver == self:
 		_clock().driver = null
 		_clock().net_ready = false
 		_clock().net_waiting.clear()
+		_clock().net_players.clear()
 		_clock().net_timer_end_ms = -1
 
 
@@ -632,6 +636,16 @@ func _sync_clock() -> void:
 	for p in waiting:
 		who.append(String(names.get(p, "?")))
 	c.net_waiting = who
+	var players: Array[Dictionary] = []
+	if turn_mode and core:
+		var seat_of: Dictionary = core.seats if role == HOST else seat_map
+		var ids := seat_of.keys()
+		ids.sort()
+		for p in ids:
+			var e := core.sim.state.get_empire(int(seat_of[p]))
+			players.append({"name": String(names.get(p, "?")), "color": e.color() if e else Color.GRAY,
+					"ready": not waiting.has(p), "me": int(p) == _my_id()})
+	c.net_players = players
 	c.net_timer_end_ms = timer_end_ms if turn_mode and stopped else -1
 
 
@@ -1150,7 +1164,7 @@ func _announce(text: String, tone: String) -> void:
 
 func _clock_msg() -> Dictionary:
 	return {"k": "clock", "p": paused or _pausing, "s": speed, "b": paused_by, "d": delay,
-			"tm": turn_mode, "td": turn_days, "tt": turn_target, "w": waiting, "names": names, "ti": timer_id,
+			"tm": turn_mode, "td": turn_days, "tt": turn_target, "w": waiting, "names": names, "sp": core.seats if core else {}, "ti": timer_id,
 			"tl": timer_end_ms - Time.get_ticks_msec() if timer_end_ms >= 0 else -1}
 
 
@@ -1336,6 +1350,8 @@ func _client_message(msg: Dictionary) -> void:
 			timer_end_ms = Time.get_ticks_msec() + left if left >= 0 else -1
 			if msg.get("names") is Dictionary:
 				names = msg["names"]
+			if msg.get("sp") is Dictionary:
+				seat_map = msg["sp"]
 			if core:
 				_sync_clock()
 			clock_changed.emit()

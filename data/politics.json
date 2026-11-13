@@ -282,5 +282,49 @@
 		"council_pct": 50,
 		"loyalty_out": 1,
 		"vote_weight": 60
+	},
+	"grievances": {
+		"_doc": "Doléances (proposition 12) : le plus grand courant d'opposition (min_pmille pour mille de l'opinion de l'empire ou plus) formule une doléance à la fois, tirée de ce qui le nourrit, à remplir en days jours. Satisfaite : il gagne push pour mille partout et +stability dans les systèmes qui penchent pour lui pendant fx_days. Ignorée : stability_fail dans ces systèmes pendant fx_days. Puis cooldown jours avant la suivante. Une doléance financée par des espions étrangers (« Financer l'opposition ») demande funded_x fois plus.",
+		"min_pmille": 200,
+		"days": 720,
+		"cooldown": 180,
+		"push": 40,
+		"stability": 5,
+		"stability_fail": -5,
+		"fx_days": 360,
+		"funded_x": 2,
+		"by_current": {
+			"forge": {"acts": ["building"], "need": 3, "label": "achever %d bâtiments"},
+			"academie": {"acts": ["tech"], "need": 2, "label": "découvrir %d technologies"},
+			"concorde": {"acts": ["treaty"], "need": 1, "label": "signer un traité"},
+			"seve": {"acts": ["colony"], "need": 1, "label": "fonder une colonie"},
+			"autel": {"acts": ["relics", "relic_borne", "quest_chapter", "sacrifices", "triumphs"], "need": 1, "label": "honorer le ciel (relique, chapitre de quête, offrande ou Triomphe)"},
+			"glaive": {"acts": ["battles_won"], "need": 1, "label": "gagner une bataille"}
+		}
+	},
+	"crisis": {
+		"_doc": "Crise de régime (proposition 13) : stabilité d'empire sous below pendant months mois de suite : le courant opposé au courant en tête prend seul le pouvoir, toutes les lois sont révoquées, interregnum_days jours sans lois. Un coup d'État (espionnage) la déclenche si la stabilité d'empire de la cible est sous coup_below. La ruche y échappe.",
+		"below": 25,
+		"months": 12,
+		"interregnum_days": 180,
+		"coup_below": 35
+	},
+	"diplomacy": {
+		"_doc": "Proximité idéologique (proposition 16), dans l'opinion entre empires : même courant en tête, courants en tête opposés, Glaive au pouvoir chez l'autre (méfiance). Concorde au pouvoir : la paix se vend mieux (jugement des traités de l'IA).",
+		"same": 10,
+		"opposite": -10,
+		"glaive": -5,
+		"concorde_peace": 10
+	},
+	"conquered_days": 3600,
+	"_conquered_doc": "Mondes conquis (proposition 17) : un système qui change de mains garde l'opinion de son ancien maître, et y revient chaque mois, pendant conquered_days jours ; puis il glisse vers le penchant de son nouveau maître.",
+	"rig_weight": 200,
+	"_rig_doc": "Espionnage « Truquer l'élection » (proposition 15) : poids en plus (pour mille) pour le courant en tête de l'espion, au prochain vote de la cible.",
+	"talents": {
+		"_doc": "Talents de peuple (proposition 18) : registre Picaresque, la réputation compte comme soutien en campagne (rep_weight_pct % de la réputation, au plus rep_weight_max pour mille) ; registre Cosmique, les Échos annoncent le résultat avant le vote (écran Sénat) ; Vael, le vote d'urgence coûte rush_concorde_pct % de moins quand la Concorde gouverne ; féodalité, un héritier déloyal soutient le plus fort courant d'opposition à la Diète (heir_weight pour mille).",
+		"rep_weight_pct": 100,
+		"rep_weight_max": 150,
+		"rush_concorde_pct": 25,
+		"heir_weight": 150
 	}
 }

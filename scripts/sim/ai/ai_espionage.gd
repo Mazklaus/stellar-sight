@@ -53,10 +53,10 @@ static func think(ctx: Dictionary) -> void:
 
 
 const OP_RESERVE := 100
-const WAR_OPS := ["sabotage_chantier", "archives", "partisans", "inciter", "larcin_relique", "dissidence", "heritier", "discorde", "vol_techno", "siphon", "rapport", "etouffer", "appat"]
+const WAR_OPS := ["coup", "sabotage_chantier", "archives", "partisans", "inciter", "larcin_relique", "dissidence", "financer_opposition", "heritier", "discorde", "truquer", "vol_techno", "siphon", "rapport", "etouffer", "appat"]
 const PEACE_OPS := ["vol_techno", "heritier", "rapport"]
 const CALM_OPS := ["rapport"]
-const ROGUE_PEACE_OPS := ["vol_techno", "larcin_relique", "siphon", "dissidence", "heritier", "rapport"]
+const ROGUE_PEACE_OPS := ["vol_techno", "larcin_relique", "siphon", "dissidence", "truquer", "heritier", "rapport"]
 const HERO_WAR_OPS := ["exfiltration", "assassinat", "corrompre"]
 const HERO_PEACE_OPS := ["exfiltration"]
 ## Exploit de la Légende que donne chaque opération réussie.

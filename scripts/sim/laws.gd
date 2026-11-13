@@ -84,7 +84,7 @@ static func level(state: GameState, empire_id: int, i: int) -> int:
 
 ## Loi de pouvoir en vigueur (celle du courant en tête), "" sans courant.
 static func power_active(state: GameState, empire_id: int) -> String:
-	if not Politics.applies(state, empire_id):
+	if not Politics.applies(state, empire_id) or Grievances.interregnum(state, empire_id):
 		return ""
 	var l := Politics.lead(state, empire_id)
 	return String(power_law(l).get("id", "")) if l >= 0 else ""
@@ -228,6 +228,8 @@ static func check_adopt(state: GameState, empire_id: int, id: String) -> String:
 		return "loi inconnue : %s" % id
 	if bool(d["power"]):
 		return "une loi de pouvoir s'impose d'elle-même quand son courant est en tête"
+	if Grievances.interregnum(state, empire_id):
+		return "interrègne : aucune loi jusqu'au %s" % GameCalendar.date_string(int(Politics.emp(state, empire_id)["inter"]))
 	if is_enacted(state, empire_id, id):
 		return "déjà en vigueur"
 	if used(state, empire_id) >= slots(state, empire_id):
@@ -321,6 +323,23 @@ static func vote_weights(state: GameState, empire_id: int) -> Array:
 	var act := String(en.get("act", ""))
 	if pick >= 0 and act != "":
 		w[pick] += int(action_def(act).get("weight", 0))
+		# Registre Picaresque : la réputation fait campagne aussi.
+		var e := state.get_empire(empire_id)
+		var tl: Dictionary = data()["talents"]
+		if act == "campagne" and e != null and Reputation.has(e.faction()):
+			@warning_ignore("integer_division")
+			w[pick] += mini(int(tl["rep_weight_max"]), e.reputation * int(tl["rep_weight_pct"]) / 100)
+	# Élection truquée par des espions étrangers (opération « Truquer l'élection »).
+	var rig: Dictionary = en.get("rig", {})
+	if not rig.is_empty() and int(rig.get("c", -1)) >= 0:
+		w[int(rig["c"])] += int(data()["rig_weight"])
+	# Héritier déloyal (féodalité) : il soutient le plus fort courant d'opposition à la Diète.
+	var eh := state.get_empire(empire_id)
+	if eh != null and Diplomacy.has_heir(state, empire_id) and eh.heir_loyalty >= 0 \
+			and eh.heir_loyalty < int(Stability.talent(state, empire_id).get("heir_below", 30)):
+		var opp := Grievances.opposition(state, empire_id, true)
+		if opp >= 0:
+			w[opp] += int(data()["talents"]["heir_weight"])
 	if not state.heroes.is_empty():
 		var hw := int(data()["heroes"]["vote_weight"])
 		for h in Heroes.council(state, empire_id):

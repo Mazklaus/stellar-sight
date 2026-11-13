@@ -3,7 +3,7 @@ extends RefCounted
 ## réglage et la taille de la galaxie ; naissance (Spectre et sa couleur, Grande Migration) ; faiblesse
 ## du Spectre sous sa couleur ; festin (population, colonie rayée, jamais une capitale) ; maraude d'une
 ## colonie à l'autre ; départ au bout d'un an ; Triomphe partagé selon les dégâts ; Appât (fléau ou
-## troupeau) ; IA ; sauvegarde 32 ; déterminisme. Appelés par smoke_test.gd.
+## troupeau) ; IA ; sauvegarde 33 ; déterminisme. Appelés par smoke_test.gd.
 
 var _check: Callable
 
@@ -229,7 +229,7 @@ func _test_save() -> void:
 	Plagues.list(st)[pid]["dmg"] = {1: 120}
 	sim.advance(30)
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_snapshot())))
-	_ok(back != null, "sauvegarde 32 relue")
+	_ok(back != null, "sauvegarde 33 relue")
 	if back == null:
 		return
 	_ok(back.checksum() == st.checksum(), "même empreinte après sauvegarde (fléaux)")
