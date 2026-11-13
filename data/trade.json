@@ -71,5 +71,24 @@
 		"diffusion_route_max": 5,
 		"diffusion_max": 12,
 		"_doc": "Lot 3A du commerce (propositions 17 à 19). Accord de recherche (Civilization V) : deux empires en paix depuis pact_peace_days jours paient chacun pact_cost (base + per_era × ère du plus avancé) en énergie ; après pact_days jours, chacun reçoit pact_bonus Savoir (base + per_era × son ère) sur sa recherche en cours. Une guerre entre eux l'annule, l'énergie est perdue. Au plus pact_max accords à la fois. Licence de technologie (Civilization IV sans courtage) : un partenaire commercial vend une technologie qu'il a trouvée lui-même (ni de peuple, ni licence_banned, au plus licence_max_era_gap ère au-dessus de l'acheteur) ; l'acheteur reçoit licence_share_pct % de son coût en Savoir et paie au vendeur ce Savoir en énergie (× licence_energy_per_knowledge_pct %). Diffusion (Civilization VI) : chaque route active vers un empire qui connaît plus de technologies rapporte diffusion_per_tech Savoir par technologie d'écart, au plus diffusion_route_max par route et diffusion_max en tout."
+	},
+	"links": {
+		"smuggle_days": 360,
+		"convoy_max": 200,
+		"horde_raid_pct": 50,
+		"insider_years": 3,
+		"_doc": "Lot 3B du commerce (propositions 22 à 24). Contrebande : un luxe de la cible, sans traité ni loyer, pendant smuggle_days jours. Détourner un convoi : le revenu des routes de la cible du dernier bilan, au plus convoy_max énergie. Horde : une flotte armée qui bloque une route ennemie en touche horde_raid_pct % de la valeur. Délit d'initié : le prochain krach ou la prochaine envolée dans les insider_years ans."
+	},
+	"talents": {
+		"credo": {
+			"profit": {"label": "Le flair du courtier", "text": "Frais du marché -10 points ; vos licences de luxe vendues rapportent 25 % de plus.", "market_fee_pct": -10, "lux_licence_income_pct": 25},
+			"foi": {"label": "Routes de pèlerinage", "text": "Chaque route active vers un empire du même credo rapporte 2 influence par mois.", "pilgrim_influence": 2},
+			"survie": {"label": "Tout se troque", "text": "Le marché noir vous vend au prix de base, et personne ne vous en tient rigueur.", "black_market_pct": -50, "no_smuggler": true}
+		},
+		"gouvernement": {
+			"syndicat": {"label": "Comptoirs associés", "text": "Une route commerciale de plus.", "trade_routes": 1},
+			"horde": {"label": "Rançonner les convois", "text": "Une flotte armée qui bloque une route ennemie en touche la moitié de la valeur.", "convoy_raid": true},
+			"ruche": {"label": "Pas de commerce civil", "text": "Routes vers les autres empires -50 %, mais les routes intérieures nourrissent deux fois plus les jeunes colonies.", "ext_route_pct": -50, "internal_mult": 2}
+		}
 	}
 }

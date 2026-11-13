@@ -26,8 +26,8 @@ Un réseau assez avancé peut agir. Chaque opération coûte de l'influence, pre
 
 | Famille | Exemples |
 | --- | --- |
-| Renseignement | Rapport complet, dossier des héros |
-| Larcin | Voler 40 % d'une technologie, siphonner l'énergie, exfiltrer un prisonnier, larcin de relique |
+| Renseignement | Rapport complet, dossier des héros, délit d'initié (le prochain krach ou la prochaine envolée du marché) |
+| Larcin | Voler 40 % d'une technologie, siphonner l'énergie, détourner un convoi (un mois de ses routes), contrebande (un de ses luxes pendant un an), exfiltrer un prisonnier, larcin de relique |
 | Sabotage | Saboter un chantier (60 jours de retard), brûler des archives, assassiner un héros, armer des partisans, appât |
 | Intrigue | Semer la discorde, corrompre l'héritier ou un héros, attiser la dissidence, truquer une élection, fomenter un coup d'État |
 

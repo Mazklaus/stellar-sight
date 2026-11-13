@@ -89,6 +89,17 @@ Le **Savoir** circule aussi, mais on n'échange jamais une technologie toute fai
 - une **licence de technologie** s'achète à un partenaire commercial. Il doit avoir trouvé la technologie lui-même : ni technologie de peuple, ni méga-vaisseau, une ère d'avance au plus. Vous recevez 60 % de son coût en Savoir et payez deux énergie par point de Savoir. Une technologie obtenue ainsi ne se revend pas ;
 - la **diffusion** : chaque route active vers un empire qui connaît plus de technologies que vous rapporte 1 Savoir par technologie d'écart, au plus 5 par route et 12 en tout.
 
+Chaque peuple commerce à sa façon. Ces **talents commerciaux** suivent les couches d'espèce, et les peuples que vous créez en héritent aussi (onglet Ressources) :
+
+| Couche | Talent |
+| --- | --- |
+| Credo Profit | Frais du marché -10 points, licences de luxe vendues +25 % |
+| Credo Foi | Chaque route vers un empire du même credo : +2 influence par mois |
+| Credo Survie | Marché noir au prix de base, sans mauvaise réputation |
+| Gouvernement Syndicat | Une route commerciale de plus |
+| Gouvernement Horde | Une flotte armée qui bloque une route ennemie en touche la moitié de la valeur |
+| Gouvernement Ruche | Routes vers les autres empires -50 %, routes intérieures doublées |
+
 ::: conseil
 Les routes les plus longues rapportent le plus, mais ce sont aussi celles qui traversent le plus de vide. Une corvette en patrouille sur le bon carrefour vaut parfois mieux qu'un comptoir de plus.
 :::

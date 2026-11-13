@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.6
+
+- **Talents commerciaux** des peuples (chapitre 8).
+- Lois **Protectionnisme** et **Compagnies à charte** ; actes du libre-échange et de l'embargo (chapitre 10).
+- Opérations **Détourner un convoi**, **Contrebande** et **Délit d'initié** (chapitre 9).
+
 ### Édition 1.5
 
 - **Accords de recherche**, **licences de technologie** et **diffusion** du Savoir le long des routes (chapitre 8). L'écran Commerce gagne l'onglet Savoir (chapitre 2).

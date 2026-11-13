@@ -81,7 +81,7 @@
 		"conquests": {"current": "glaive", "all": 12},
 		"kills": {"current": "glaive", "all": 1},
 		"lair": {"current": "glaive", "all": 8},
-		"looted": {"current": "glaive", "all": 1}
+		"looted": {"current": "glaive", "all": 1}, "free_trade": {"current": "concorde", "all": 15}, "embargo": {"current": "glaive", "all": 10}
 	},
 	"local": {
 		"built": 30,
@@ -252,7 +252,7 @@
 			"fx": {"stability": 10, "production_pct": {"influence": -25, "knowledge": -15}},
 			"text": "Stabilité +10. On dort mieux, on pense moins : influence -25 %, Savoir -15 %."
 		},
-		{"id": "libre_echange", "label": "Libre-échange", "level": 0, "fx": {"trade_income_pct": 100, "production_pct": {"materials": -15}}, "text": "Routes commerciales +100 %. Les forges locales ferment : matériaux -15 %."}
+		{"id": "libre_echange", "label": "Libre-échange", "level": 0, "fx": {"trade_income_pct": 100, "production_pct": {"materials": -15}}, "text": "Routes commerciales +100 %. Les forges locales ferment : matériaux -15 %.", "excludes": ["protectionnisme"]}, {"id": "protectionnisme", "label": "Protectionnisme", "level": 0, "fx": {"tariff_double": 1, "production_pct": {"materials": 10}}, "excludes": ["libre_echange"], "text": "Tarifs et douanes doublés sur toutes vos routes. Les forges locales, elles, respirent : matériaux +10 %."}, {"id": "compagnies_charte", "label": "Compagnies à charte", "level": 0, "fx": {"trade_routes": 1, "stability": -3}, "text": "Une route commerciale de plus. Dans les ports, les compagnies font la loi : stabilité -3."}
 	],
 	"law_rules": {
 		"slots": {"republique": 4, "feodalite": 3, "theocratie": 2, "syndicat": 3, "horde": 2, "conscience": 3, "ruche": 2},

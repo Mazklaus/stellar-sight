@@ -623,6 +623,15 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		"siphon":
 			if int(t.resources.get("energy", 0)) <= 0:
 				return "ses réserves d'énergie sont vides"
+		"convoi":
+			if TradeLinks.convoy_value(state, b) <= 0:
+				return "ses routes ne lui rapportent rien en ce moment"
+		"contrebande":
+			if TradeLinks.smuggle_pick(state, a, b) == "":
+				return "il n'exploite aucun luxe qui vous manque"
+		"initie":
+			if not Goods.market_on(state):
+				return "pas de marché dans cette partie"
 		"sabotage_chantier":
 			if _sabotage_site(state, b) < 0:
 				return "aucun chantier en cours chez lui"
@@ -765,6 +774,22 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			if take > 0:
 				Reputation.exploit(state, a, "siphon")
 			return "%d énergie détournée. Les compteurs de la cible tournent, les nôtres aussi." % take
+		"convoi":
+			var take := TradeLinks.convoy_value(state, b)
+			eb.resources["energy"] = int(eb.resources.get("energy", 0)) - take
+			ea.resources["energy"] = int(ea.resources.get("energy", 0)) + take
+			return "un convoi entier change de route : %d énergie. Les assureurs de la cible font grise mine." % take
+		"contrebande":
+			var g := TradeLinks.smuggle(state, a, b)
+			if g == "":
+				return "les cales étaient vides. Le capitaine jure qu'elles étaient pleines au départ."
+			return "%s arrive dans nos ports sous de fausses étiquettes, pour un an." % Goods.label(g)
+		"initie":
+			var sh := TradeLinks.learn_insider(state, a)
+			if sh.is_empty():
+				return "ses courtiers ne prévoient rien d'ici trois ans. Ou ils mentent bien."
+			return "ses courtiers l'annoncent : %s sur %s vers le %s (%+d %%)." % ["une envolée" if int(sh["pct"]) > 0 else "un krach",
+					Goods.label(String(sh["res"])).to_lower(), GameCalendar.date_string(int(sh["tick"])), int(sh["pct"])]
 		"sabotage_chantier":
 			var pid := _sabotage_site(state, b)
 			if pid < 0:
