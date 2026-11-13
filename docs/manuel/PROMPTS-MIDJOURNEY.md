@@ -149,10 +149,10 @@ a vast crowd gathered on the esplanade of an alien capital city, banners of six 
 
 - Format : 2:1 · Forme du cadre : coupe
 - Emplacement : Bandeau du chapitre 11
-- Sujet : Quatre héros de classes différentes en portrait de groupe
+- Sujet : Quatre héros de classes différentes en portrait de groupe, femmes et hommes, de plusieurs espèces
 
 ```
-group portrait of four legendary heroes of a space empire, a scarred fleet admiral, a stern governor with a chain of office, a charismatic orator, a hooded spy with a blade, heroic poses, painted like a classical group portrait epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+group portrait of four legendary heroes of a space empire, two women and two men of different human and alien species, a scarred female fleet admiral in a winged helm, a stern male reptilian governor with a chain of office, a charismatic female orator with silver braids, a hooded male spy with a blade, heroic poses, painted like a classical group portrait epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
 
 ## MJ-16 · Pirates, événements et reliques
@@ -249,10 +249,10 @@ portrait of an insectoid hive queen in a dark organic chamber, glistening chitin
 
 - Format : 3:4 · Forme du cadre : arche
 - Emplacement : Fiche des Noosphères de Teyl
-- Sujet : Un esprit synthétique dans un châssis élégant, réseau de lumière
+- Sujet : Un châssis Teyl assemblé, non humanoïde, cœur de lumière dans une cage de céramique, relié par des fils lumineux à d'autres châssis de formes diverses
 
 ```
-portrait of an elegant synthetic mind housed in a sleek ceramic and silver chassis, glowing network lines spreading from its head into the background like a constellation, calm and analytical, clean hard science fiction epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+portrait of a strange non-humanoid synthetic being, an asymmetric chassis assembled from mismatched ceramic and silver plates on slender jointed legs, its head an open lattice cage holding a bright pulsing core of light, a cluster of small lenses instead of a face, no human features, thin threads of light running from its core to other chassis of very different shapes behind it, a floating ring drone, a tall many-armed builder, a small crawler, all linked like one mind, inside a vast vaulted machine sanctuary, curious and serene, clean hard science fiction epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
 ```
 
 ## MJ-26 · Portrait · Clans Ferrocornes
@@ -279,10 +279,10 @@ portrait of a swaggering mercenary starship captain of an unknown alien species,
 
 - Format : 3:4 · Forme du cadre : arche
 - Emplacement : Fiche des Murmurants d'Abysse
-- Sujet : Un être d'énergie, anneaux de lumière dans le noir
+- Sujet : Une présence d'énergie presque invisible, onde de chant figée dans l'espace, visible seulement par les étoiles qu'elle déforme
 
 ```
-portrait of a being made of pale violet energy, a faint face suggested within concentric rings of light and drifting veils, floating in deep darkness with distant stars, ghostly, silent, cosmic mystery epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+portrait of an almost invisible being of energy, a towering shape made of standing sound waves and shimmering interference ripples of faint violet light, like a cymatics pattern hanging in space, no face, no body, no human features, visible only where it bends the starlight and stirs the dust around it, above the night side of a quiet planet, a tiny silhouette of a lone scout ship for scale, eerie and sacred, cosmic mystery epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
 ```
 
 ## MJ-29 · Médaillon · Héroïne de la Concorde

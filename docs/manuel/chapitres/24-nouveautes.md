@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.3
+
+- **Le Codex est illustré** : les 30 tableaux sont en place, des bandeaux de chapitre aux portraits des huit peuples et aux médaillons.
+- Fiche des Noosphères de Teyl : une redite sur « l'hiver » retirée.
+
 ### Édition 1.2
 
 - **Commerce, routes et traités** : trois paliers (comptoirs ouverts, accord commercial, libre-échange), routes commerciales, comptoirs, routes intérieures, blocus, piraterie des routes et embargo (chapitre 8).
