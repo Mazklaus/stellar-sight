@@ -3,7 +3,9 @@ extends RefCounted
 ## Sauvegarde et chargement d'une partie, au format JSON lisible.
 ## Le fichier contient l'état complet et son empreinte, vérifiée au chargement.
 
-const FORMAT_ID := "stellar-sigth-save"
+const FORMAT_ID := "stellar-sight-save"
+## Identifiant des sauvegardes écrites avant la correction du nom du jeu (« Sigth »), toujours lues.
+const LEGACY_FORMAT_IDS := ["stellar-sigth-save"]
 const SAVE_DIR := "user://saves"
 const QUICKSAVE_PATH := "user://saves/quicksave.json"
 
@@ -56,7 +58,7 @@ static func load_state(path: String = QUICKSAVE_PATH) -> GameState:
 	var text := FileAccess.get_file_as_string(path)
 	var json := JSON.new()
 	var parsed: Variant = json.data if json.parse(text) == OK else null
-	if not parsed is Dictionary or parsed.get("format", "") != FORMAT_ID or not parsed.get("state") is Dictionary:
+	if not parsed is Dictionary or not _known_format(parsed.get("format", "")) or not parsed.get("state") is Dictionary:
 		last_error = "fichier de sauvegarde illisible"
 		return null
 	var state := GameState.from_dict(parsed["state"])
@@ -73,3 +75,7 @@ static func load_state(path: String = QUICKSAVE_PATH) -> GameState:
 
 static func exists(path: String = QUICKSAVE_PATH) -> bool:
 	return FileAccess.file_exists(path)
+
+
+static func _known_format(id: Variant) -> bool:
+	return id == FORMAT_ID or LEGACY_FORMAT_IDS.has(id)

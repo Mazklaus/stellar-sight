@@ -26,7 +26,7 @@ static func fingerprint() -> String:
 static func label() -> String:
 	var v := str(ProjectSettings.get_setting("application/config/version", ""))
 	return "%s%s · Godot %s · %s" % [
-		ProjectSettings.get_setting("application/config/name", "Stellar Sigth"),
+		ProjectSettings.get_setting("application/config/name", "Stellar Sight"),
 		(" " + v) if v != "" else "",
 		Engine.get_version_info().get("string", "?"),
 		fingerprint(),
