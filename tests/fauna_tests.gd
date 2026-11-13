@@ -216,7 +216,11 @@ func _test_attitudes() -> void:
 			herd = st.fleets[fid]
 	if herd != null:
 		var f := st.spawn_ship(0, "fregate", ter)
-		_ok(Fauna.hunt_pct(st, f, [herd]) == 33 and Fauna.hunt_pct(st, st.spawn_ship(1, "fregate", ter), [herd]) == 0, "chasse : +33 % de dégâts pour le seul chasseur")
+		# Un autre empire sans le talent d'honneur (qui chasse tout) ne gagne rien.
+		var other := 1
+		while bool(Fauna.talent(st, other).get("hunt_all", false)):
+			other += 1
+		_ok(Fauna.hunt_pct(st, f, [herd]) == 33 and Fauna.hunt_pct(st, st.spawn_ship(other, "fregate", ter), [herd]) == 0, "chasse : +33 % de dégâts pour le seul chasseur")
 	var pr := Fauna.power_range(st, 0, st.fleets[Fauna.herd_ids(st)[0]])
 	_ok(pr[0] < pr[1], "force des créatures affichée en fourchette")
 

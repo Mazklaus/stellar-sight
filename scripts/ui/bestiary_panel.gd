@@ -17,6 +17,10 @@ static func build(es: EmpireScreens, col: VBoxContainer) -> void:
 	col.add_child(intro)
 	intro.body.add_child(UiTheme.paragraph("Les créatures ne colonisent rien et n'entrent jamais dans un système revendiqué : elles vivent autour de leur nid et migrent à quelques sauts. Tant que le nid vit, un troupeau abattu renaît au bout de trois ans. On ne lit jamais leur force exacte, seulement une fourchette, plus précise une fois l'espèce étudiée.", 900.0, 14))
 	intro.body.add_child(UiTheme.dim("%d espèce%s rencontrée%s sur %d." % [known.size(), "s" if known.size() > 1 else "", "s" if known.size() > 1 else "", Fauna.species_ids().size()], 13))
+	var tl := Fauna.talent_labels(state, player)
+	for t: Array in tl:
+		intro.body.add_child(UiTheme.dim("Talent du peuple : %s. %s" % [t[0], t[1]], 13))
+	_vivarium(es, col)
 	for sp in known:
 		col.add_child(_species_block(es, sp))
 	for i in Fauna.species_ids().size() - known.size():
@@ -103,6 +107,46 @@ static func _guardians(es: EmpireScreens, col: VBoxContainer) -> void:
 		col.add_child(blk)
 
 
+## Vivarium (lot 3) : bêtes capturées au filet gravitationnel, leur stade, et le bouton pour les lâcher.
+static func _vivarium(es: EmpireScreens, col: VBoxContainer) -> void:
+	var state := es._state
+	var player := es._player
+	var cap := WarBeasts.capacity(state, player)
+	var l := WarBeasts.beasts(state, player)
+	if cap == 0 and l.is_empty():
+		return
+	var blk := Widgets.Block.new("Vivarium")
+	col.add_child(blk)
+	blk.body.add_child(UiTheme.dim("%d bête%s sur %d place%s. Un Chalutier du vide (ou un modèle à filet gravitationnel) à l'arrêt près d'un troupeau apprivoisé en capture une par mois." % [
+			l.size(), "s" if l.size() > 1 else "", cap, "s" if cap > 1 else ""], 13))
+	var d := WarBeasts.data()
+	for i in l.size():
+		var b: Dictionary = l[i]
+		var st := WarBeasts.stage(state, b)
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 12)
+		var age := state.tick - int(b["born"])
+		var next := ""
+		if st == "jeune":
+			next = " (adulte dans %d jours)" % (int(d["adult_days"]) - age)
+		elif st == "adulte":
+			next = " (ancienne dans %d jours)" % (int(d["elder_days"]) - age)
+		row.add_child(UiTheme.title("%s · %s%s" % [String(Fauna.species(String(b["sp"]))["label"]), WarBeasts.stage_label(st), next], 14))
+		var btn := Button.new()
+		btn.focus_mode = Control.FOCUS_NONE
+		btn.text = "Lâcher dans une flotte"
+		btn.theme_type_variation = &"PrimaryButton"
+		var why := WarBeasts.check_release(state, player, i)
+		btn.disabled = why != ""
+		var unit := WarBeasts.unit_for(String(b["sp"]), st)
+		btn.tooltip_text = ("Devient : %s (vivres au lieu de matériaux)." % String(GameData.ship(unit).get("label", unit))) + ("\n" + why if why != "" else "")
+		var idx: int = i
+		btn.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.beast_release(player, idx)))
+		es.chronicle_buttons["beast:%d" % i] = btn
+		row.add_child(btn)
+		blk.body.add_child(row)
+
+
 static func _unknown_block() -> Control:
 	var blk := Widgets.Block.new("Espèce inconnue")
 	blk.body.add_child(UiTheme.dim("Des éclaireurs parlent de formes dans le vide. Rencontrez-la pour l'inscrire au Bestiaire.", 14))
@@ -148,7 +192,7 @@ static func _species_block(es: EmpireScreens, sp: String) -> Control:
 	var orders := HBoxContainer.new()
 	orders.add_theme_constant_override("separation", 10)
 	for att in ["etude", "chasse", "apprivoise", "renoncer"]:
-		if att == "apprivoise" and not bool(sd.get("tamable", false)):
+		if att == "apprivoise" and not Fauna.tamable(state, player, sp):
 			continue
 		if att == "renoncer" and Fauna.stance(state, player, sp) == "":
 			continue
@@ -159,7 +203,7 @@ static func _species_block(es: EmpireScreens, sp: String) -> Control:
 		var b := Button.new()
 		b.focus_mode = Control.FOCUS_NONE
 		var ad := Fauna.attitude_def(att)
-		var cost := Fauna.attitude_cost(att)
+		var cost := Fauna.attitude_cost_for(state, player, att)
 		b.text = String(ad.get("label", "Renoncer")) + ((" (%s)" % GameData.format_amounts(cost)) if not cost.is_empty() else "")
 		if att != "renoncer":
 			b.theme_type_variation = &"PrimaryButton"
@@ -192,7 +236,7 @@ static func signature(es: EmpireScreens) -> String:
 	var s := str(Fauna._meta_r(state, es._player)) + str(Fauna.nest_ids(state)) + str(Guardians.known(state, es._player))
 	for gid in Guardians.ids(state):
 		s += String(Guardians.list(state)[gid]["status"])
-	s += str(Plagues.known(state, es._player))
+	s += str(Plagues.known(state, es._player)) + str(WarBeasts.beasts(state, es._player)) + str(WarBeasts.capacity(state, es._player)) + str(state.tick / 30)
 	for pid in Plagues.ids(state):
 		s += String(Plagues.list(state)[pid]["status"]) + str(Plagues.list(state)[pid]["eaten"])
 	for sp in Fauna.known_species(state, es._player):

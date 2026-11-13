@@ -18,10 +18,105 @@ extends RefCounted
 ##     "stance": {sp: "chasse" | "apprivoise"}, "kills": {sp: créatures abattues}}}}
 
 const ATTITUDES := ["etude", "chasse", "apprivoise", "renoncer"]
+const LAYERS := ["archetype", "gouvernement", "credo", "registre"]
+
+static var _talent_cache := {}
 
 
 static func data() -> Dictionary:
 	return GameData.creatures()
+
+
+## Talents du peuple face aux créatures (data/creatures.json, "talents"), couches d'espèce
+## additionnées (les booléens restent vrais), comme Pirates.talent.
+static func talent(state: GameState, empire_id: int) -> Dictionary:
+	var e := state.get_empire(empire_id)
+	if e == null or e.is_npc():
+		return {}
+	var ck := "%s:%d" % [e.faction_id, GameData.factions_gen]
+	if _talent_cache.has(ck):
+		return _talent_cache[ck]
+	var out := {}
+	var sp: Dictionary = e.faction().get("species", {})
+	var table: Dictionary = data().get("talents", {})
+	for layer in LAYERS:
+		var t: Dictionary = (table.get(layer, {}) as Dictionary).get(String(sp.get(layer, "")), {})
+		for k in t:
+			if k == "label" or k == "text":
+				continue
+			var v: Variant = t[k]
+			out[k] = v if v is bool else int(out.get(k, 0)) + int(v)
+	_talent_cache[ck] = out
+	return out
+
+
+## Talents à afficher : [[nom, texte], …].
+static func talent_labels(state: GameState, empire_id: int) -> Array:
+	var e := state.get_empire(empire_id)
+	var out := []
+	if e == null or e.is_npc():
+		return out
+	var sp: Dictionary = e.faction().get("species", {})
+	var table: Dictionary = data().get("talents", {})
+	for layer in LAYERS:
+		var t: Dictionary = (table.get(layer, {}) as Dictionary).get(String(sp.get(layer, "")), {})
+		if not t.is_empty():
+			out.append([String(t["label"]), String(t["text"])])
+	return out
+
+
+## Revenu des safaris (credo du profit) : énergie par mois pour chaque colonie à 2 sauts d'un nid vivant.
+static func safari_income(state: GameState, empire_id: int) -> int:
+	var per := int(talent(state, empire_id).get("safari", 0))
+	if per <= 0 or nests(state).is_empty():
+		return 0
+	var near := {}
+	for sid in nest_ids(state):
+		near[sid] = true
+		for n in state.galaxy.systems[sid].neighbors:
+			near[int(n)] = true
+			for n2 in state.galaxy.systems[int(n)].neighbors:
+				near[int(n2)] = true
+	var count := 0
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c.owner == empire_id and near.has(state.galaxy.get_planet(pid).system_id):
+			count += 1
+	return count * per
+
+
+## Gardiens vénérés (credo de la foi) : gardiens éveillés à 3 sauts au plus d'une colonie de l'empire.
+static func venerated(state: GameState, empire_id: int) -> int:
+	var tal := talent(state, empire_id)
+	if int(tal.get("venerate_stab", 0)) == 0 and int(tal.get("venerate_influence", 0)) == 0:
+		return 0
+	var mine := {}
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c.owner == empire_id:
+			mine[state.galaxy.get_planet(pid).system_id] = true
+	if mine.is_empty():
+		return 0
+	var n := 0
+	for gid in Guardians.ids(state):
+		var gsid := Guardians.fleet_system(state, gid)
+		if gsid < 0 or String(Guardians.list(state)[gid]["status"]) != "awake":
+			continue
+		var j := FactionTraits.jumps_from(state.galaxy, gsid)
+		for sid in mine:
+			if int(j.get(sid, 99)) <= 3:
+				n += 1
+				break
+	return mini(n, int(tal.get("venerate_max", 3)))
+
+
+## Parts de stabilité de la Faune (credo de la foi : gardiens vénérés).
+static func stability_parts(state: GameState, empire_id: int) -> Array:
+	var v := int(talent(state, empire_id).get("venerate_stab", 0))
+	if v == 0 or state.fauna.is_empty():
+		return []
+	var n := venerated(state, empire_id)
+	return [["Gardiens vénérés (%d)" % n, v * n]] if n > 0 else []
 
 
 static func species(sp: String) -> Dictionary:
@@ -293,8 +388,15 @@ static func hostile(state: GameState, beast: Fleet, empire_id: int) -> bool:
 	var h := herd_of(state, beast)
 	if h.is_empty():
 		var gid := Guardians.of_fleet(state, beast)
-		return Guardians.hostile(state, gid, empire_id) if gid != "" else true
+		if gid != "":
+			return Guardians.hostile(state, gid, empire_id)
+		# Machines des tombeaux : elles parlementent avec un peuple synthétique.
+		if not beast.ships.is_empty() and String(beast.ships[0]) == "bete_machine_tombeau" and bool(talent(state, empire_id).get("parley", false)):
+			return false
+		return true
 	var sp := String(h["sp"])
+	if sp == "nuees" and bool(talent(state, empire_id).get("storm_veil", false)):
+		return false
 	match stance(state, empire_id, sp):
 		"apprivoise":
 			return false
@@ -307,6 +409,8 @@ static func hostile(state: GameState, beast: Fleet, empire_id: int) -> bool:
 
 ## L'espèce est-elle hostile à cet empire par nature (sans regarder un troupeau précis) ?
 static func species_hostile(state: GameState, empire_id: int, sp: String) -> bool:
+	if sp == "nuees" and bool(talent(state, empire_id).get("storm_veil", false)):
+		return false
 	match stance(state, empire_id, sp):
 		"apprivoise":
 			return false
@@ -329,11 +433,37 @@ static func avoided(state: GameState, empire_id: int, sid: int) -> bool:
 static func hunt_pct(state: GameState, f: Fleet, fighters: Array) -> int:
 	if GameState.is_npc(f.owner) or not active(state):
 		return 0
+	var vs_fauna := false
+	var hunted := false
 	for g in fighters:
+		if (g as Fleet).owner != GameState.FAUNA_ID:
+			continue
+		vs_fauna = true
 		var h := herd_of(state, g as Fleet)
 		if not h.is_empty() and stance(state, f.owner, String(h["sp"])) == "chasse":
-			return int(attitude_def("chasse").get("damage_pct", 0))
-	return 0
+			hunted = true
+	if not vs_fauna:
+		return 0
+	var pct := 0
+	# Honneur : le bonus de chasse vaut contre toutes les créatures (gardiens et fléaux compris).
+	if hunted or bool(talent(state, f.owner).get("hunt_all", false)):
+		pct += int(attitude_def("chasse").get("damage_pct", 0))
+	# Amiral « Tueur de monstres ».
+	if not state.heroes.is_empty():
+		var adm := Heroes.at_post(state, "fleet", f.id, f.owner)
+		if not adm.is_empty():
+			pct += Heroes.trait_fx(adm, "fauna_damage_pct")
+	return pct
+
+
+## Coût d'une attitude pour cet empire (credo de la raison : étude moins chère).
+static func attitude_cost_for(state: GameState, empire_id: int, att: String) -> Dictionary:
+	var cost := attitude_cost(att)
+	if att == "etude":
+		var pct := int(talent(state, empire_id).get("study_pct", 0))
+		if pct != 0:
+			return Research.scaled_amounts(cost, pct)
+	return cost
 
 
 static func attitude_cost(att: String) -> Dictionary:
@@ -360,7 +490,7 @@ static func check_attitude(state: GameState, empire_id: int, sp: String, att: St
 			if stance(state, empire_id, sp) == "chasse":
 				return "vous chassez déjà cette espèce"
 		"apprivoise":
-			if not bool(species(sp).get("tamable", false)):
+			if not tamable(state, empire_id, sp):
 				return "cette espèce ne s'apprivoise pas"
 			if stance(state, empire_id, sp) == "apprivoise":
 				return "l'espèce est déjà apprivoisée"
@@ -370,9 +500,14 @@ static func check_attitude(state: GameState, empire_id: int, sp: String, att: St
 			if stance(state, empire_id, sp) == "":
 				return "ni chasse ni apprivoisement en cours"
 			return ""
-	if not Economy.can_afford(e, attitude_cost(att)):
-		return "pas assez de ressources (%s)" % GameData.format_amounts(attitude_cost(att))
+	if not Economy.can_afford(e, attitude_cost_for(state, empire_id, att)):
+		return "pas assez de ressources (%s)" % GameData.format_amounts(attitude_cost_for(state, empire_id, att))
 	return ""
+
+
+## L'espèce s'apprivoise-t-elle pour cet empire ? (credo de la survie : toutes)
+static func tamable(state: GameState, empire_id: int, sp: String) -> bool:
+	return bool(species(sp).get("tamable", false)) or bool(talent(state, empire_id).get("tame_all", false))
 
 
 static func set_attitude(state: GameState, empire_id: int, sp: String, att: String) -> void:
@@ -382,7 +517,7 @@ static func set_attitude(state: GameState, empire_id: int, sp: String, att: Stri
 	var text := ""
 	match att:
 		"etude":
-			Economy.pay(e, attitude_cost(att))
+			Economy.pay(e, attitude_cost_for(state, empire_id, att))
 			m["study"][sp] = state.tick + int(attitude_def("etude").get("days", 360))
 			text = "%s lance l'étude des %s. Les xénobiologistes promettent des résultats dans l'année, et des croquis dès demain." % [e.display_name(), String(sd["label"])]
 		"chasse":
@@ -520,6 +655,7 @@ static func to_dict(state: GameState) -> Dictionary:
 	out["guardians"] = Guardians.to_list(state)
 	out["choke"] = Guardians.choke_list(state)
 	out["plagues"] = Plagues.to_dict(state)
+	out["beasts"] = WarBeasts.to_dict(state)
 	return out
 
 
@@ -544,3 +680,4 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 	Guardians.from_list(state, d.get("guardians", []))
 	Guardians.choke_from(state, d.get("choke", []))
 	Plagues.from_dict(state, d.get("plagues", {}))
+	WarBeasts.from_dict(state, d.get("beasts", {}))
