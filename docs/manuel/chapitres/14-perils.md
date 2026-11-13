@@ -18,6 +18,8 @@ Des **repaires** sont cachés loin des points de départ, chacun gardé par une 
 | Engager | Lancer leurs raids contre un rival (80 énergie, 20 influence) |
 | Prime | Mettre à prix un empire : tous les repaires le visent en priorité |
 
+Un repaire proche d'un nid de créatures (3 sauts au plus) a **dressé** une bête adulte de l'espèce, qui renforce sa garde.
+
 Un repaire que personne n'a attaqué pendant quinze ans se range et devient un **port franc** : on y loue des flottes et des héros.
 
 ::: transmission Fréquence pirate ouverte, repaire de Corne-Rouge

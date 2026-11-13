@@ -23,7 +23,9 @@ Vaincre un gardien rapporte un **trophée** (une relique), un **Triomphe** autom
 
 ### Les fléaux errants
 
-Passé la quinzième année, un ou deux **fléaux** peuvent apparaître : le **Spectre des pulsars**, lueur à forme de vaisseau née des étoiles à neutrons, ou la **Grande Migration**, troupeau de béliers d'écume devenu fou. Ils parcourent la carte, visent les colonies (jamais les capitales), y dévorent de la population et repartent au bout d'un an s'ils ne sont pas abattus. Abattus à plusieurs, leur Triomphe se partage selon les dégâts infligés.
+Passé la quinzième année, un ou deux **fléaux** peuvent apparaître : le **Spectre des pulsars**, lueur à forme de vaisseau née des étoiles à neutrons, ou la **Grande Migration**, troupeau de béliers d'écume devenu fou. Ils parcourent la carte, visent les colonies (jamais les capitales), y dévorent de la population et repartent au bout d'un an s'ils ne sont pas abattus. Abattus à plusieurs, leur Triomphe se partage selon les dégâts infligés. Un espion habile peut même, avec l'opération **Appât**, détourner un fléau vers les colonies d'un rival.
+
+L'amiral dont la flotte abat un gardien ou un fléau gagne le trait **Tueur de monstres**. Les peuples synthétiques, eux, parlementent avec les gardiens machines (le Veilleur, la Citadelle, le Ferrailleur), qui les laissent coloniser en paix.
 
 ::: marge
 Le Spectre est deux fois plus faible près d'une étoile de sa couleur. Je l'ai appris en le poursuivant jusqu'à une étoile d'une autre couleur.

@@ -84,7 +84,7 @@ ol li::marker { color: var(--gold); font-family: Raj; font-weight: 700; }
 .partie-fond { position: absolute; inset: 0; }
 .partie-fond .mj { width: 100% !important; height: 100% !important; aspect-ratio: auto !important; padding: 0; background: none; clip-path: none; margin: 0; }
 .partie-fond .mj .cadre { clip-path: none; border-radius: 0; }
-.partie-texte { position: absolute; left: 0; right: 0; bottom: 0; padding: 30mm 24mm 26mm; background: linear-gradient(180deg, rgba(5,7,13,0) 0%, rgba(5,7,13,.92) 30%, #05070d 100%); }
+.partie-texte { position: absolute; left: 0; right: 0; bottom: 0; padding: 22mm 24mm 14mm; background: linear-gradient(180deg, rgba(5,7,13,0) 0%, rgba(5,7,13,.85) 35%, #05070d 100%); }
 .partie-titre { font-family: Cinzel; font-weight: 700; font-size: 34pt; letter-spacing: .08em; color: #f3ead6; text-align: center; margin: 2mm 0 0; string-set: partie attr(data-partie); }
 .partie-intro p { text-align: center; font-style: italic; font-size: 12pt; color: #cfc6b0; }
 
