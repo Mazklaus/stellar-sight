@@ -23,7 +23,7 @@ Les **routes de saut** relient les systèmes. Les flottes ne voyagent que le lon
 
 ### Les lentilles
 
-Une lentille assombrit la carte et n'en garde qu'une lecture. La **lentille économique** ([[L]]) montre le bilan de chacun de vos systèmes par ressource. La lentille de **stabilité** ([[K]]) colore vos systèmes selon leur humeur. La lentille **politique** ([[O]]) montre le courant qui domine chaque système.
+Une lentille assombrit la carte et n'en garde qu'une lecture. La **lentille économique** ([[L]]) montre le bilan de chacun de vos systèmes par ressource. La lentille de **stabilité** ([[K]]) colore vos systèmes selon leur humeur. La lentille **politique** ([[O]]) montre le courant qui domine chaque système. La lentille du **commerce** ([[G]]) trace vos routes commerciales et le risque pirate le long du chemin.
 
 ### La vue système
 
@@ -50,6 +50,7 @@ Les écrans d'empire s'ouvrent en plein écran, par les pictogrammes du panneau 
 | Panthéon | [[F10]] | Vos héros, leurs postes, les candidats |
 | Ordre intérieur | [[F12]] | Stabilité des systèmes, décrets |
 | Sénat | [[P]] | Courants politiques, élections, lois |
+| Commerce | [[C]] | Routes commerciales, capacité, routes intérieures, risques |
 | Chroniques | [[J]] | Quêtes, événements, Reliquaire, Bestiaire |
 
 ::: marge
