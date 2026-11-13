@@ -636,6 +636,7 @@ static func _transfer(state: GameState, sid: int, from: int, to: int) -> void:
 		var c: Colony = state.colonies.get(pid)
 		if c == null or c.owner != from:
 			continue
+		Peoples.on_owner_change(state, c, from, to)
 		c.owner = to
 		c.construction = ""
 		c.construction_days = 0

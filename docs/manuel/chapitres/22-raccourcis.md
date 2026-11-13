@@ -10,7 +10,7 @@ etiquette: Annexe
 | Pause, reprise (au tour par tour : fin de tour) | [[Espace]] |
 | Vitesse 1 à 5 | [[1]] à [[5]] |
 | Lentille économique | [[L]] |
-| Lentilles de stabilité, politique, du commerce | [[K]], [[O]], [[G]] |
+| Lentilles de stabilité, politique, du commerce, des peuples | [[K]], [[O]], [[G]], [[U]] |
 | Ouvrir la vue système | Double-clic, ou [[Entrée]] |
 | Système suivant, précédent de l'empire | [[Tab]], [[Maj]]+[[Tab]] |
 | Revenir à la capitale | [[H]] |

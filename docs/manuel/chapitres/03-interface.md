@@ -23,7 +23,7 @@ Les **routes de saut** relient les systèmes. Les flottes ne voyagent que le lon
 
 ### Les lentilles
 
-Une lentille assombrit la carte et n'en garde qu'une lecture. La **lentille économique** ([[L]]) montre le bilan de chacun de vos systèmes par ressource. La lentille de **stabilité** ([[K]]) colore vos systèmes selon leur humeur. La lentille **politique** ([[O]]) montre le courant qui domine chaque système. La lentille du **commerce** ([[G]]) trace vos routes commerciales et le risque pirate le long du chemin.
+Une lentille assombrit la carte et n'en garde qu'une lecture. La **lentille économique** ([[L]]) montre le bilan de chacun de vos systèmes par ressource. La lentille de **stabilité** ([[K]]) colore vos systèmes selon leur humeur. La lentille **politique** ([[O]]) montre le courant qui domine chaque système. La lentille du **commerce** ([[G]]) trace vos routes commerciales et le risque pirate le long du chemin. La lentille des **peuples** ([[U]]) cercle chaque système de la part de chaque espèce et nomme la majoritaire.
 
 ### La vue système
 

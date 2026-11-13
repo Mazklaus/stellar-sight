@@ -347,6 +347,46 @@ func _side_header(art_id: String, caption: String, tint: Color, motif: String) -
 	return art
 
 
+## Peuples mêlés (voir Peoples) : les espèces de l'empire, leur nombre, si elles peuvent fonder une
+## colonie, et leur bonus de collection.
+func _build_peoples_side() -> void:
+	if not _state.peoples_on:
+		return
+	var cnt := Peoples.empire_counts(_state, _player)
+	if cnt.size() <= 1:
+		return
+	_side_box.add_child(HSeparator.new())
+	_side_box.add_child(UiTheme.section("Peuples de l'empire"))
+	var g := _grid()
+	_side_box.add_child(g)
+	var keys := cnt.keys()
+	keys.sort_custom(func(a: String, b: String) -> bool:
+		return int(cnt[a]) > int(cnt[b]) or (int(cnt[a]) == int(cnt[b]) and a < b))
+	var colonists := Peoples.colonist_species(_state, _player)
+	var coll := {}
+	for entry: Dictionary in Peoples.collections(_state, _player):
+		coll[entry["species"]] = entry
+	for fid: String in keys:
+		var bits := PackedStringArray()
+		if fid == Peoples.founder_of(_state, _player):
+			bits.append("fondateurs")
+		elif colonists.has(fid):
+			bits.append("colons")
+		if coll.has(fid):
+			var en: Dictionary = coll[fid]
+			bits.append("collection %s : +%d %% %s" % [["I", "II", "III"][clampi(int(en["tier"]) - 1, 0, 2)], int(en["pct"]),
+					GameData.resource_label(String(en["resource"])).to_lower()])
+		var shown := "%d" % int(cnt[fid])
+		if coll.has(fid):
+			shown += "  · %s" % ["I", "II", "III"][clampi(int(coll[fid]["tier"]) - 1, 0, 2)]
+		var v := _key_value(g, Peoples.label(fid), shown)
+		v.tooltip_text = ", ".join(bits) if not bits.is_empty() else "Moins de %d habitants : ni colons ni collection." % int(Peoples.data().get("colonize_min", 2))
+		v.mouse_filter = Control.MOUSE_FILTER_STOP
+	_side_box.add_child(UiTheme.paragraph("Chaque espèce garde son corps, ses biomes et ses talents. Avec %d habitants, elle peut fonder des colonies ; à %s, elle donne un bonus de collection." % [
+			int(Peoples.data().get("colonize_min", 2)), "/".join(PackedStringArray(Array(Peoples.data().get("collection_tiers", [10, 25, 50])).map(func(x: Variant) -> String: return str(int(x)))))],
+			SIDE_WIDTH - 24.0, 12))
+
+
 func _key_value(grid: GridContainer, key: String, value := "") -> Label:
 	var k := Label.new()
 	k.text = key
@@ -670,6 +710,7 @@ func _build_colonies() -> void:
 	_col_counts["population"] = _key_value(g, "Population")
 	_col_counts["systems"] = _key_value(g, "Systèmes")
 	_col_counts["max_projects"] = _key_value(g, "Fondations simultanées")
+	_build_peoples_side()
 
 	var rows := VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 22)

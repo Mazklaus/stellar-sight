@@ -11,7 +11,7 @@ extends CanvasLayer
 
 signal close_requested
 signal rename_requested(system_id: int, new_name: String)
-signal colonize_requested(planet_id: int, kind: String)
+signal colonize_requested(planet_id: int, kind: String, species: String)
 signal build_requested(planet_id: int, building_id: String)
 signal build_ship_requested(planet_id: int, ship_id: String)
 ## Ordre de trait de faction déjà formé (offrande, vote d'urgence) : main.gd le soumet tel quel.
@@ -588,6 +588,11 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 	var livable := Economy.max_pop(_state, p, _player) > 0
 	if livable and (c == null or (c.owner == _player and not c.is_colony())):
 		actions.append(_claim_action(p, Colony.KIND_COLONY))
+	# Peuples mêlés : coloniser avec une autre espèce de l'empire, là où elle peut vivre.
+	if c == null or (c.owner == _player and not c.is_colony()):
+		for fid in Peoples.colonist_species(_state, _player):
+			if fid != Peoples.founder_of(_state, _player) and Economy.max_pop(_state, p, _player, [], fid) > 0:
+				actions.append(_claim_action(p, Colony.KIND_COLONY, fid))
 	if c == null:
 		actions.append(_claim_action(p, Colony.KIND_OUTPOST))
 	var me := _state.get_empire(_player)
@@ -710,14 +715,19 @@ func _draw_potential() -> void:
 		y += 16.0
 
 
-func _claim_action(p: Planet, kind: String) -> Dictionary:
+func _claim_action(p: Planet, kind: String, species := "") -> Dictionary:
 	var upgrade: bool = _state.colonies.has(p.id)
 	var label := "Fonder une colonie" if upgrade else ("Coloniser" if kind == Colony.KIND_COLONY else "Poser un avant-poste")
-	var reason := SimCommands.validate(_state, SimCommands.colonize(_player, p.id, kind))
+	if species != "":
+		label += " avec les %s" % Peoples.label(species)
+	var reason := SimCommands.validate(_state, SimCommands.colonize(_player, p.id, kind, species))
 	var pid := p.id
 	var by_ship := Economy.needs_ship(_state, _player, p.id)
 	var tip := "Une colonie accueille une population." if kind == Colony.KIND_COLONY \
 			else "Un avant-poste revendique le système et exploite la planète, sans population."
+	if species != "":
+		tip = "Les colons seront des %s (habitabilité %d %%) : ils grandiront selon leur corps et leurs biomes." % [
+				Peoples.label(species), Peoples.hab(_state, _player, species, p.type)]
 	if by_ship:
 		tip += "\nLe vaisseau colon en orbite se démonte pour la fonder."
 	return {
@@ -725,7 +735,7 @@ func _claim_action(p: Planet, kind: String) -> Dictionary:
 				" + vaisseau colon" if by_ship else "", Economy.claim_days(kind)],
 		"reason": reason,
 		"tooltip": reason if reason != "" else tip,
-		"action": func() -> void: colonize_requested.emit(pid, kind),
+		"action": func() -> void: colonize_requested.emit(pid, kind, species),
 	}
 
 

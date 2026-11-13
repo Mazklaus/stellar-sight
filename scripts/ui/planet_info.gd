@@ -113,6 +113,9 @@ static func colony_lines(state: GameState, p: Planet, c: Colony, player: int) ->
 		@warning_ignore("integer_division")
 		var growth := "" if c.population >= cap else ", croissance %d %%" % (100 * c.growth / Economy.colony_threshold(state, c))
 		lines.append("%s de %s : %d/%d pop%s" % [kind_label, owner.short_name(), c.population, cap, growth])
+		var mix := mosaic_label(state, c)
+		if mix != "":
+			lines.append("Peuples : %s" % mix)
 	else:
 		lines.append("%s de %s" % [kind_label, owner.short_name()])
 	if not c.buildings.is_empty():
@@ -129,6 +132,20 @@ static func colony_lines(state: GameState, p: Planet, c: Colony, player: int) ->
 	if c.owner == player:
 		lines.append("Par mois (avant bonus) : %s" % GameData.format_amounts(net_yields(state, c), true))
 	return lines
+
+
+## Mosaïque d'une colonie mêlée (« 7 Vael · 3 Kh'thari »), "" pour une seule espèce.
+static func mosaic_label(state: GameState, c: Colony) -> String:
+	if c.species.is_empty():
+		return ""
+	var cnt := Peoples.counts(state, c)
+	var keys := cnt.keys()
+	keys.sort_custom(func(a: String, b: String) -> bool:
+		return int(cnt[a]) > int(cnt[b]) or (int(cnt[a]) == int(cnt[b]) and a < b))
+	var parts := PackedStringArray()
+	for fid in keys:
+		parts.append("%d %s" % [int(cnt[fid]), Peoples.label(fid)])
+	return " · ".join(parts)
 
 
 static func net_yields(state: GameState, c: Colony) -> Dictionary:

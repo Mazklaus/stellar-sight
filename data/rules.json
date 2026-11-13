@@ -12,6 +12,7 @@
 	"food_per_pop": 1,
 	"pop_per_knowledge": 5,
 	"pop_per_size": 4,
+	"peoples": {"_doc": "Populations mixtes (voir Peoples) : habitants d'une espèce requis pour fonder une colonie avec elle, paliers de collection (habitants dans l'empire) et bonus de production de chaque palier, en %.", "colonize_min": 2, "collection_tiers": [10, 25, 50], "collection_pct": [5, 10, 15]},
 	"growth_per_day": 10,
 	"growth_threshold_base": 100,
 	"growth_threshold_per_pop": 20,

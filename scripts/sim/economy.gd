@@ -29,11 +29,12 @@ static func habitability(planet_type: String, faction: Dictionary) -> int:
 ## Habitabilité pour un empire, technologies comprises : un type rendu habitable (hab_set) prend la
 ## meilleure des deux valeurs, puis hab_bonus s'ajoute sur les mondes habitables qui ne sont pas le
 ## monde d'origine du peuple (100 % au plus).
-static func habitability_for(state: GameState, empire_id: int, planet_type: String) -> int:
+## fac : fiche d'une autre espèce vivant dans l'empire (populations mixtes) ; vide = celle de l'empire.
+static func habitability_for(state: GameState, empire_id: int, planet_type: String, fac := {}) -> int:
 	var e := state.get_empire(empire_id)
 	if e == null:
 		return 0
-	var f := e.faction()
+	var f := fac if not fac.is_empty() else e.faction()
 	var hab := habitability(planet_type, f)
 	var fx := Research.effects(state, empire_id)
 	var set_to := int(fx.get("hab_set", {}).get(planet_type, 0))
@@ -51,11 +52,11 @@ static func habitability_for(state: GameState, empire_id: int, planet_type: Stri
 
 ## Le type de planète peut-il accueillir une population de cet empire ? Les types sans population
 ## (géantes gazeuses) le deviennent avec une technologie qui les rend habitables (cités flottantes).
-static func houses_pop(state: GameState, empire_id: int, planet_type: String) -> bool:
+static func houses_pop(state: GameState, empire_id: int, planet_type: String, fac := {}) -> bool:
 	if not GameData.planet_type(planet_type).get("pop_yields", {}).is_empty():
 		return true
 	var e := state.get_empire(empire_id)
-	if e and FactionTraits.hab_extra(e.faction(), planet_type) > 0:
+	if e and FactionTraits.hab_extra(fac if not fac.is_empty() else e.faction(), planet_type) > 0:
 		return true
 	return Research.fx_sub(state, empire_id, "hab_set", planet_type) > 0
 
@@ -86,9 +87,15 @@ static func _pop_hab(state: GameState, empire_id: int, planet_type: String) -> i
 static var _dense_types := {}
 
 
-## Population maximale d'une planète pour un empire, bâtiments compris.
-static func max_pop(state: GameState, planet: Planet, empire_id: int, buildings: Array[String] = []) -> int:
-	var hab := _pop_hab(state, empire_id, planet.type)
+## Population maximale d'une planète pour un empire, bâtiments compris. Sur une colonie mêlée, la
+## meilleure habitabilité des espèces présentes compte (voir Peoples) ; species : plafond pour une
+## espèce précise de l'empire (colonisation par une autre espèce).
+static func max_pop(state: GameState, planet: Planet, empire_id: int, buildings: Array[String] = [], species := "") -> int:
+	var hab := _pop_hab(state, empire_id, planet.type) if species == "" else Peoples.hab(state, empire_id, species, planet.type)
+	if species == "" and state.peoples_on:
+		var col: Colony = state.colonies.get(planet.id)
+		if col != null and col.owner == empire_id and not col.species.is_empty():
+			hab = maxi(0, Peoples.best_hab(state, col, planet.type))
 	if hab <= 0:
 		return 0
 	@warning_ignore("integer_division")
@@ -149,21 +156,24 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		var e := state.get_empire(colony.owner)
 		var fac: Dictionary = e.faction() if e else {}
 		var py := pop_yields(planet.type)
-		# Un peuple qui ne mange pas de nourriture ne la cultive pas non plus : ce que les habitants
-		# produiraient en nourriture va dans ce qu'ils mangent (lithoïdes : matériaux, synthétiques : énergie).
-		var diet0 := FactionTraits.diet(fac) if e else "food"
-		if diet0 != "food" and py.has("food"):
-			py = py.duplicate()
-			py[diet0] = int(py.get(diet0, 0)) + int(py["food"])
-			py.erase("food")
-		_add(gross, py, colony.population)
-		var food_pct := int(fac.get("food_upkeep_pct", 100)) if e else 100
-		# Réplicateurs de matière : la population mange moins.
-		@warning_ignore("integer_division")
-		food_pct = food_pct * maxi(0, 100 + int(fx.get("food_upkeep_pct", 0))) / 100
-		@warning_ignore("integer_division")
-		var diet := diet0
-		upkeep[diet] = int(upkeep.get(diet, 0)) + colony.population * int(rules["food_per_pop"]) * food_pct / 100
+		if not colony.species.is_empty():
+			# Colonie mêlée (voir Peoples) : chaque espèce produit et mange selon son corps.
+			_mixed_pop_yields(state, colony, py, fx, gross, upkeep)
+		else:
+			# Un peuple qui ne mange pas de nourriture ne la cultive pas non plus : ce que les habitants
+			# produiraient en nourriture va dans ce qu'ils mangent (lithoïdes : matériaux, synthétiques : énergie).
+			var diet := FactionTraits.diet(fac) if e else "food"
+			if diet != "food" and py.has("food"):
+				py = py.duplicate()
+				py[diet] = int(py.get(diet, 0)) + int(py["food"])
+				py.erase("food")
+			_add(gross, py, colony.population)
+			var food_pct := int(fac.get("food_upkeep_pct", 100)) if e else 100
+			# Réplicateurs de matière : la population mange moins.
+			@warning_ignore("integer_division")
+			food_pct = food_pct * maxi(0, 100 + int(fx.get("food_upkeep_pct", 0))) / 100
+			@warning_ignore("integer_division")
+			upkeep[diet] = int(upkeep.get(diet, 0)) + colony.population * int(rules["food_per_pop"]) * food_pct / 100
 	else:
 		_add(gross, ptype.get("outpost_yields", {}))
 		# Syndicats : chaque avant-poste est un comptoir.
@@ -198,6 +208,8 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		@warning_ignore("integer_division")
 		gross["knowledge"] = int(gross["knowledge"]) * (100 + knowledge_pct) / 100
 	FactionTraits.adjust_yields(state, colony, gross, upkeep)
+	if not colony.species.is_empty():
+		Peoples.adjust_yields(state, colony, gross)
 	if not state.heroes.is_empty():
 		var hps := Heroes.production_pcts(state, colony.owner, planet.system_id)
 		for r in gross:
@@ -218,6 +230,25 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 			@warning_ignore("integer_division")
 			gross[r] = gross[r] * star_pct / 100
 	return {"gross": gross, "upkeep": upkeep}
+
+
+## Colonie mêlée : chaque espèce produit et mange selon son corps (régime, consommation).
+@warning_ignore("integer_division")
+static func _mixed_pop_yields(state: GameState, colony: Colony, py: Dictionary, fx: Dictionary, gross: Dictionary, upkeep: Dictionary) -> void:
+	var rules := GameData.rules()
+	var cnt := Peoples.counts(state, colony)
+	for fid in cnt:
+		var n := int(cnt[fid])
+		var f := GameData.faction(fid)
+		var diet := FactionTraits.diet(f)
+		var y := py
+		if diet != "food" and py.has("food"):
+			y = py.duplicate()
+			y[diet] = int(y.get(diet, 0)) + int(py["food"])
+			y.erase("food")
+		_add(gross, y, n)
+		var food_pct := int(f.get("food_upkeep_pct", 100)) * maxi(0, 100 + int(fx.get("food_upkeep_pct", 0))) / 100
+		upkeep[diet] = int(upkeep.get(diet, 0)) + n * int(rules["food_per_pop"]) * food_pct / 100
 
 
 ## Bilan mensuel d'un empire : {"gross", "upkeep", "net"}, bonus de faction appliqués au brut.
@@ -274,6 +305,8 @@ static func production_pct(state: GameState, empire_id: int, resource: String) -
 	# Stabilité d'empire : de -15 % à +15 % de Savoir et d'influence.
 	if resource == "knowledge" or resource == "influence":
 		bonus += Stability.empire_pct(state, empire_id)
+	# Bonus de collection des espèces de l'empire (voir Peoples).
+	bonus += Peoples.collection_pct(state, empire_id, resource)
 	pct = pct * (100 + bonus) / 100
 	return pct * AiLevels.production_pct(state, empire_id) / 100
 
@@ -356,7 +389,7 @@ static func active_projects(state: GameState, empire_id: int) -> int:
 
 
 ## "" si l'empire peut lancer cette colonisation, sinon la raison du refus (affichée telle quelle).
-static func check_colonize(state: GameState, empire_id: int, planet_id: int, kind: String) -> String:
+static func check_colonize(state: GameState, empire_id: int, planet_id: int, kind: String, species := "") -> String:
 	var e := state.get_empire(empire_id)
 	if e == null:
 		return "empire inconnu : %d" % empire_id
@@ -385,7 +418,13 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 		return watch
 	if not in_range(state, empire_id, p.system_id):
 		return "hors de portée : il faut un vaisseau colon à l'arrêt dans ce système (ou une revendication établie dans le système)"
-	if kind == Colony.KIND_COLONY and max_pop(state, p, empire_id) < 1:
+	if kind == Colony.KIND_COLONY and species != "" and species != Peoples.founder_of(state, empire_id):
+		var why := Peoples.check_colonist(state, empire_id, p, species)
+		if why != "":
+			return why
+		if max_pop(state, p, empire_id, [], species) < 1:
+			return "planète inhabitable pour les %s" % Peoples.label(species)
+	elif kind == Colony.KIND_COLONY and max_pop(state, p, empire_id) < 1:
 		return "planète inhabitable pour votre espèce"
 	var max_projects := max_projects_for(state, empire_id)
 	if active_projects(state, empire_id) >= max_projects:

@@ -53,6 +53,7 @@ var _tab_economy: Button
 var _tab_stability: Button
 var _tab_politics: Button
 var _tab_trade: Button
+var _tab_peoples: Button
 var _tab_orbit: Button
 var _tab_manage: Button
 var _info_panel: PanelContainer
@@ -214,6 +215,7 @@ func set_system_mode(on: bool) -> void:
 	_tab_stability.visible = not on
 	_tab_politics.visible = not on
 	_tab_trade.visible = not on
+	_tab_peoples.visible = not on
 	_tab_orbit.visible = on
 	_tab_manage.visible = on
 	if on:
@@ -337,7 +339,7 @@ func planet_row_count() -> int:
 	return _planet_dots.get_child_count()
 
 
-## Lentille de la carte : "" (vue galaxie), "economy", "stability", "politics" ou "trade".
+## Lentille de la carte : "" (vue galaxie), "economy", "stability", "politics", "trade" ou "peoples".
 func set_lens(value: String) -> void:
 	lens = value
 	_tab_galaxy.set_pressed_no_signal(value == "")
@@ -345,6 +347,7 @@ func set_lens(value: String) -> void:
 	_tab_stability.set_pressed_no_signal(value == "stability")
 	_tab_politics.set_pressed_no_signal(value == "politics")
 	_tab_trade.set_pressed_no_signal(value == "trade")
+	_tab_peoples.set_pressed_no_signal(value == "peoples")
 	lens_changed.emit(value)
 
 
@@ -377,6 +380,8 @@ func _build_tabs() -> void:
 	_tab_politics.pressed.connect(func() -> void: set_lens("" if lens == "politics" else "politics"))
 	_tab_trade = _tab("Commerce", "Lentille du commerce : vos routes commerciales (couleur du traité, rouge si bloquée) et le risque pirate le long du chemin  (G)")
 	_tab_trade.pressed.connect(func() -> void: set_lens("" if lens == "trade" else "trade"))
+	_tab_peoples = _tab("Peuples", "Lentille des peuples : la part de chaque espèce dans vos systèmes, et l'espèce majoritaire  (U)")
+	_tab_peoples.pressed.connect(func() -> void: set_lens("" if lens == "peoples" else "peoples"))
 	_tab_orbit = _tab("Vue orbitale", "L'étoile et ses planètes en orbite  (Tab)")
 	_tab_orbit.pressed.connect(func() -> void: system_mode_requested.emit(false))
 	_tab_manage = _tab("Gestion du système", "Les planètes côte à côte, pour comparer  (Tab)")
