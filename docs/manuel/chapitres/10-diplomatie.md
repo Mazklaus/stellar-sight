@@ -77,6 +77,12 @@ Le **marché** (onglet Marché de l'écran Commerce) échange matériaux, nourri
 
 Entre empires, un **accord** échange ce que vous voulez : énergie, ressources, stratégiques, en une fois ou chaque mois pendant un à dix ans. L'IA répond aussitôt selon les prix du marché, ses besoins et son opinion de vous ; une proposition qui vous est faite attend votre réponse dans l'onglet Marché. Un accord rompu ou impayé laisse le souvenir d'un contrat rompu.
 
+Les prix **vivent** avec la galaxie. Chaque guerre en cours renchérit les stratégiques de 6 % (jusqu'à 40 %) ; une galaxie entièrement en paix paie les licences de luxe 25 % plus cher ; un fléau errant fait monter nourriture et matériaux ; un empire qui tient 60 % des gisements d'un stratégique le fait grimper de 25 %. Une fois l'an, il peut survenir un **krach** ou une **envolée** sur une ressource, qui s'efface en six mois. Dans l'onglet Marché, la flèche à côté de chaque prix en donne les raisons.
+
+La **Bourse galactique** est une merveille unique (Bourses interstellaires, ère III). Le premier empire qui la bâtit fonde le **marché commun** : dès lors, tout le monde partage les mêmes prix, et l'achat de l'un renchérit pour tous. L'hôte paie 10 % de frais en moins et gagne jusqu'à 8 influence par mois sur les échanges des autres. Tous les six mois, la Bourse met en vente trois **vaisseaux d'occasion** d'une même classe, même sans la technologie, remis en état à 70 % et livrés à la capitale, pour l'hôte et ceux qui commercent avec lui. L'hôte touche un cinquième du prix. Conquérir la planète, c'est prendre la Bourse.
+
+Un **port franc** pirate que vous connaissez tient un **marché noir** : des stratégiques sans traité ni marché, au double du prix, trente unités par mois au plus. Ceux qui vous connaissent s'en souviennent un temps.
+
 ::: conseil
 Les routes les plus longues rapportent le plus, mais ce sont aussi celles qui traversent le plus de vide. Une corvette en patrouille sur le bon carrefour vaut parfois mieux qu'un comptoir de plus.
 :::

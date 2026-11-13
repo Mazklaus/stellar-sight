@@ -2,7 +2,9 @@ extends RefCounted
 ## Tests du commerce, lot 2A (Goods, GoodsSystem, AiGoods) : gisements posés sans toucher la galaxie,
 ## luxes (effet, stabilité, exemplaires en plus), stratégiques (ère, coûts des modules), licences
 ## (achat, fin, valeur des routes), monopoles, marché intérieur (prix, frais, retour, ordres),
-## contrats d'échange (en une fois, mensuels, rupture), IA et sauvegarde 36. Appelés par smoke_test.gd.
+## contrats d'échange (en une fois, mensuels, rupture), IA et sauvegarde 36 ; lot 2B : Bourse galactique
+## (marché commun, hôte, conquête), prix vivants, vaisseaux d'occasion, marché noir, sauvegarde 37.
+## Appelés par smoke_test.gd.
 
 var _check: Callable
 
@@ -17,6 +19,10 @@ func run(check: Callable) -> void:
 	_test_monopoly()
 	_test_market()
 	_test_deals()
+	_test_bourse()
+	_test_trends()
+	_test_used()
+	_test_black()
 	_test_ai()
 	_test_save()
 
@@ -290,6 +296,125 @@ func _test_deals() -> void:
 	_ok(int(good["score"]) > int(bad["score"]) and int(bad["score"]) < 0, "l'IA accepte une bonne affaire, refuse une mauvaise (%d / %d)" % [int(good["score"]), int(bad["score"])])
 
 
+## Bâtit d'un coup la Bourse galactique sur la capitale de l'empire.
+func _found(st: GameState, eid: int) -> int:
+	var pid := st.get_empire(eid).capital_planet
+	(st.colonies[pid] as Colony).buildings.append("bourse_galactique")
+	Economy.clear_wonders()
+	return pid
+
+
+func _test_bourse() -> void:
+	var st := _state()
+	for e in st.empires:
+		e.resources["energy"] = 5000
+	_partners(st)
+	_ok(Goods.bourse_host(st) < 0 and not Goods.common_market(st), "pas de Bourse au départ")
+	_apply(st, SimCommands.market_trade(1, "materials", 200))
+	_ok(Goods.price_mult(st, 0, "materials") == 1000, "sans marché commun, l'achat d'un autre ne change pas vos prix")
+	var why := Economy.check_build(st, 0, st.get_empire(0).capital_planet, "bourse_galactique")
+	_ok(why != "", "la Bourse demande les Bourses interstellaires (%s)" % why)
+	var fee0 := Goods.fee_pct(st, 0)
+	var pid := _found(st, 0)
+	_ok(Goods.bourse_host(st) == 0, "l'empire qui la bâtit en est l'hôte")
+	_ok(Goods.fee_pct(st, 0) == fee0 - 10, "l'hôte paie 10 %% de frais en moins (%d contre %d)" % [Goods.fee_pct(st, 0), fee0])
+	_month(st)
+	_ok(Goods.common_market(st), "au bilan, le marché commun est fondé")
+	var m0 := Goods.price_mult(st, 0, "crystals")
+	_apply(st, SimCommands.market_trade(1, "crystals", 200))
+	_ok(Goods.price_mult(st, 0, "crystals") > m0 and Goods.price_mult(st, 0, "crystals") == Goods.price_mult(st, 1, "crystals"), "marché commun : l'achat de l'un renchérit pour tous")
+	_apply(st, SimCommands.market_trade(1, "materials", 1000))
+	_month(st)
+	_ok(int(Goods.income(st, 0).get("influence", 0)) > 0, "l'hôte gagne de l'influence sur les échanges des autres (%d)" % int(Goods.income(st, 0).get("influence", 0)))
+	(st.colonies[pid] as Colony).owner = 1
+	Economy.clear_wonders()
+	_ok(Goods.bourse_host(st) == 1 and Goods.common_market(st), "conquise, la Bourse change d'hôte et le marché commun demeure")
+
+
+func _test_trends() -> void:
+	var st := _state()
+	var p0 := Goods.buy_cost(st, 0, "plasmine", 10)
+	_month(st)
+	_ok(Goods.trend_pct(st, "_lic") > 0, "paix générale : les licences de luxe renchérissent (%d %%)" % Goods.trend_pct(st, "_lic"))
+	_meet(st, 0, 1)
+	Combat.start_war(st, 0, 1)
+	_month(st)
+	_ok(Goods.trend_pct(st, "plasmine") > 0 and Goods.trend_pct(st, "_lic") == 0, "une guerre : les stratégiques montent, la prime de paix tombe")
+	_ok(Goods.buy_cost(st, 0, "plasmine", 10) > p0, "et coûtent plus cher au marché (%d -> %d)" % [p0, Goods.buy_cost(st, 0, "plasmine", 10)])
+	_ok(not Goods.trend_parts(st, "plasmine").is_empty(), "la hausse dit pourquoi")
+	st.goods["shock"] = {"res": "food", "pct": -40, "start": st.tick, "until": st.tick + 180}
+	_month(st)
+	var t1 := Goods.trend_pct(st, "food")
+	_ok(t1 < 0, "un krach fait chuter le prix (%d %%)" % t1)
+	for i in 6:
+		st.tick += 30
+		_month(st)
+	_ok(Goods.trend_pct(st, "food") == 0 and st.goods["shock"].is_empty(), "et s'efface en six mois")
+	# Krachs et envolées : tirés sur la graine, les mêmes à chaque partie de même graine.
+	var a := _state()
+	var b := _state()
+	var seen := 0
+	for y in 12:
+		a.tick = (y + 1) * 360
+		b.tick = a.tick
+		_month(a)
+		_month(b)
+		if not a.goods["shock"].is_empty():
+			seen += 1
+	_ok(str(a.goods["trend"]) == str(b.goods["trend"]), "les chocs sont déterministes")
+	_ok(seen > 0, "en douze ans, au moins un krach ou une envolée (%d)" % seen)
+
+
+func _test_used() -> void:
+	var st := _state()
+	for e in st.empires:
+		e.resources["energy"] = 5000
+	_ok(_apply(st, SimCommands.used_ship_buy(0)) != "", "pas de vaisseaux d'occasion sans Bourse")
+	_found(st, 0)
+	_month(st)
+	var u := Goods.used_offer(st)
+	_ok(not u.is_empty() and int(u["left"]) == 3, "la Bourse met trois vaisseaux d'occasion en vente (%s)" % str(u))
+	var fleets := st.fleets.size()
+	var en := int(st.get_empire(0).resources["energy"])
+	var price := Goods.used_price(st, 0)
+	_ok(_apply(st, SimCommands.used_ship_buy(0)) == "", "l'hôte en achète un")
+	_ok(st.fleets.size() == fleets + 1 and int(st.get_empire(0).resources["energy"]) == en - price, "livré à la capitale, payé %d énergie" % price)
+	var f: Fleet = st.fleets[st.next_fleet_id - 1]
+	_ok(f.owner == 0 and int(f.hp[0]) < Fleet.max_hp_of(f.ships[0]), "il arrive un peu cabossé")
+	_ok(_apply(st, SimCommands.used_ship_buy(1)) != "", "un empire sans commerce avec l'hôte ne peut pas acheter")
+	_partners(st)
+	var host_en := int(st.get_empire(0).resources["energy"])
+	_ok(_apply(st, SimCommands.used_ship_buy(1)) == "", "avec un palier de commerce, il peut")
+	_ok(int(st.get_empire(0).resources["energy"]) > host_en, "et l'hôte touche sa part")
+
+
+func _test_black() -> void:
+	var st := GameState.create(13, 150, 1800.0, "vael", {"ai_level": "", "goods": "normaux", "market": "aucun", "pirates": "normaux"})
+	var e := st.get_empire(0)
+	e.resources["energy"] = 5000
+	var sid := Pirates.lair_ids(st)[0]
+	_ok(_apply(st, SimCommands.black_buy(0, sid, "plasmine", 10)) != "", "un repaire n'est pas un marché noir")
+	st.tick = 30
+	Pirates.make_port(st, sid, [])
+	_ok(_apply(st, SimCommands.black_buy(0, sid, "plasmine", 10)) != "", "il faut connaître le port")
+	e.explored[sid] = true
+	_meet(st, 0, 1)
+	var cost := Goods.black_price(st, "plasmine", 10)
+	_ok(cost == 200, "10 plasmine au marché noir : 200 énergie, le double du prix (%d)" % cost)
+	var bw := _apply(st, SimCommands.black_buy(0, sid, "plasmine", 10))
+	_ok(bw == "", "sans marché ni traité, le port franc vend des stratégiques (%s)" % bw)
+	_ok(int(e.resources.get("plasmine", 0)) == 10 and int(e.resources["energy"]) == 5000 - cost, "livrés et payés")
+	var bad := false
+	for m in st.memories:
+		if int(m["who"]) == 1 and int(m["about"]) == 0 and String(m["kind"]) == "smuggler":
+			bad = true
+	_ok(bad, "et ceux qui vous connaissent s'en souviennent")
+	_ok(_apply(st, SimCommands.black_buy(0, sid, "materials", 10)) != "", "rien que des stratégiques")
+	_ok(_apply(st, SimCommands.black_buy(0, sid, "ferronoir", 25)) != "", "au plus 30 unités par mois")
+	_month(st)
+	_ok(_apply(st, SimCommands.black_buy(0, sid, "ferronoir", 25)) == "", "le mois suivant, le port rouvre ses caisses")
+
+
 func _test_ai() -> void:
 	var st := GameState.create(4242, 150, 1800.0, "", {"spectator": true, "ai_level": "normal", "goods": "normaux", "market": "actif"})
 	var sim := Simulation.new(st)
@@ -315,13 +440,19 @@ func _test_save() -> void:
 	_apply(st, SimCommands.market_trade(0, "food", -20))
 	_apply(st, SimCommands.market_order(0, "materials", 10))
 	Goods.set_closed(st, 0, "soie_vide", true)
+	_found(st, 0)
+	_month(st)
+	st.goods["shock"] = {"res": "food", "pct": 60, "start": st.tick, "until": st.tick + 180}
+	_month(st)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 36, "sauvegarde version 36")
+	_ok(int(d["version"]) == 37, "sauvegarde version 37")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and str(Goods._pairs(back.goods["dep"])) == str(Goods._pairs(st.goods["dep"])), "les gisements survivent à la sauvegarde")
 	_ok(back != null and int(back.get_empire(0).resources.get("plasmine", 0)) == 7, "le stock de stratégiques aussi")
 	_ok(back != null and Goods.luxuries_of(back, 0) == Goods.luxuries_of(st, 0) and not Goods.sells_licence(back, 0, "soie_vide"), "luxes et ventes fermées aussi")
 	_ok(back != null and Goods.price_mult(back, 0, "food") == Goods.price_mult(st, 0, "food") and Goods.order_of(back, 0, "materials") == 10, "prix et ordres aussi")
+	_ok(back != null and Goods.common_market(back) and str(back.goods["trend"]) == str(st.goods["trend"]) and str(back.goods["used"]) == str(st.goods["used"])
+			and str(back.goods["shock"]) == str(st.goods["shock"]), "Bourse, tendances, krach et occasions aussi")
 	_ok(back != null and back.checksum() == GameState.from_dict(JSON.parse_string(JSON.stringify(back.to_dict()))).checksum(), "deux allers-retours, même empreinte")
 	var old := d.duplicate(true)
 	old["version"] = 35

@@ -82,6 +82,39 @@
 		"recover_pct": 50,
 		"_doc": "Prix en énergie par unité, multiplié par un facteur en pour mille (1000 = prix de base). Chaque tranche de impact_per unités achetées le monte de impact_per_mille ‰ (vendues : le baisse), entre min_mult et max_mult ; chaque mois il revient de recover_pct % vers 1000. Frais : base_fee_pct % (ajoutés à l'achat, retirés à la vente), réduits par market_fee_pct (technologies, lois, talents), au moins min_fee_pct %."
 	},
+	"bourse": {
+		"building": "bourse_galactique",
+		"host_fee_pct": -10,
+		"influence_per_energy": 100,
+		"max_influence": 8,
+		"_doc": "Lot 2B, proposition 11 : la première Bourse galactique fonde le marché commun (state.goods.bourse = jour de fondation). Dès lors, tout le monde partage les mêmes prix ; l'hôte (propriétaire de la planète) paie host_fee_pct de frais et gagne 1 influence par influence_per_energy énergie échangée au marché par les autres empires dans le mois (au plus max_influence)."
+	},
+	"trends": {
+		"war_strategic_pct": 6,
+		"war_cap_pct": 40,
+		"peace_licence_pct": 25,
+		"plague_pct": 20,
+		"plague_goods": ["food", "materials"],
+		"monopoly_strategic_pct": 25,
+		"shock": {"every_days": 360, "chance_pct": 35, "crash_pct": -40, "boom_pct": 60, "months": 6},
+		"min_pct": -60,
+		"max_pct": 150,
+		"_doc": "Lot 2B, proposition 12 : prix qui réagissent à la galaxie, recalculés chaque mois (state.goods.trend = {ressource: %}, \"_lic\" pour les licences). Guerres en cours : stratégiques +war_strategic_pct % par guerre (au plus war_cap_pct). Aucune guerre dans la galaxie : licences +peace_licence_pct %. Fléau errant en vie : plague_goods +plague_pct %. Un empire qui exploite 60 % des gisements d'un stratégique : +monopoly_strategic_pct %. Chaque année, un hachage de la graine décide d'un krach ou d'une envolée (chance_pct) sur une ressource du marché, qui s'efface en months mois."
+	},
+	"used_ships": {
+		"every_days": 180,
+		"ships": ["corvette", "escorteur", "fregate", "fregate", "torpilleur", "bombarde", "croiseur", "cuirasse"],
+		"count": 3,
+		"price_pct": 60,
+		"hp_pct": 70,
+		"host_pct": 20,
+		"_doc": "Lot 2B, proposition 13 : tant qu'une Bourse galactique existe, elle met en vente tous les every_days jours count vaisseaux d'occasion d'une classe (hachage de la graine), même sans la technologie. Prix : price_pct % de la valeur de la coque en énergie ; ils arrivent à hp_pct % de leur coque, de première marque, à la capitale de l'acheteur. L'hôte touche host_pct % du prix. Il faut être l'hôte ou avoir un palier de commerce avec lui, et ne pas être en guerre avec lui."
+	},
+	"black_market": {
+		"price_pct": 200,
+		"max_per_month": 30,
+		"_doc": "Lot 2B, proposition 13 : un port franc pirate connu vend des stratégiques sans traité ni marché, à price_pct % de leur prix de base (sans frais), au plus max_per_month unités par empire et par mois. Chaque achat laisse le souvenir « se fournit au marché noir » chez les empires qui vous connaissent."
+	},
 	"deals": {
 		"max_months": 120,
 		"proposal_days": 30,

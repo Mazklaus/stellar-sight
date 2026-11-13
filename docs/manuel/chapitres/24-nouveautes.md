@@ -3,10 +3,11 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
-### Édition 1.3
+### Édition 1.4
 
 - **Luxes et stratégiques** : gisements, douze luxes en trois paliers, licences, monopoles, trois stratégiques par ère consommés au Chantier (chapitre 8).
 - **Marché** et **accords** entre empires, avec commandes mensuelles (chapitre 8).
+- **Prix vivants** (guerres, paix, fléaux, monopoles, krachs et envolées), **Bourse galactique** et marché commun, **vaisseaux d'occasion**, **marché noir** des ports francs (chapitre 8).
 - Nouvelle partie : quantité de gisements et marché (chapitre 1). L'écran Commerce gagne les onglets Ressources et Marché (chapitre 2).
 
 ### Édition 1.2

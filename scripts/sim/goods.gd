@@ -11,7 +11,14 @@ extends RefCounted
 ##   own : {empire: {bien: gisements exploités}} (calculé chaque mois) ;
 ##   inc : {empire: {"energy": n}} revenu du mois (licences, monopoles, exemplaires en plus) ;
 ##   mkt : {empire: {ressource: facteur ‰}} ; orders : {empire: {ressource: n par mois}} ;
-##   deals : contrats en cours ; offers : propositions en attente ; next : prochain identifiant.
+##   deals : contrats en cours ; offers : propositions en attente ; next : prochain identifiant ;
+## lot 2B :
+##   bourse : jour de fondation du marché commun (0 = pas encore ; mkt a alors une seule clé, -1) ;
+##   vol : énergie échangée au marché ce mois par les empires autres que l'hôte ;
+##   trend : {ressource: %} variation des prix du mois (« _lic » pour les licences) ;
+##   shock : krach ou envolée en cours {res, pct, start, until} ;
+##   used : vaisseaux d'occasion à la Bourse {ship, left, next} ;
+##   bm : {empire: unités achetées au marché noir ce mois}.
 
 
 static func data() -> Dictionary:
@@ -39,7 +46,8 @@ static func setup(state: GameState, mode: String, market: bool) -> void:
 	if mode_def(mode).is_empty():
 		mode = "aucuns"
 	state.goods = {"mode": mode, "market": market, "dep": {}, "lic": [], "closed": {}, "mono": {}, "own": {},
-			"inc": {}, "mkt": {}, "orders": {}, "deals": [], "offers": [], "next": 1}
+			"inc": {}, "mkt": {}, "orders": {}, "deals": [], "offers": [], "next": 1,
+			"bourse": 0, "vol": 0, "trend": {}, "shock": {}, "used": {}, "bm": {}}
 	var md := mode_def(mode)
 	if int(md.get("luxury_chance", 0)) <= 0 and int(md.get("strategic_chance", 0)) <= 0:
 		return
@@ -269,6 +277,9 @@ static func monthly(state: GameState) -> Array[Dictionary]:
 					n += maxi(0, int(own[eid][g]) - 1)
 			if n > 0:
 				_add_inc(inc, int(eid), n * int(data()["extra_energy"]))
+	_bourse_month(state, inc, added)
+	_trends(state, ex, added)
+	state.goods["bm"] = {}
 	state.goods["inc"] = inc
 	_run_deals(state, added)
 	_expire_offers(state)
@@ -368,7 +379,8 @@ static func licence_price(state: GameState, seller: int, buyer: int, good: Strin
 	if monopoly_of(state, good) == seller:
 		@warning_ignore("integer_division")
 		p = p * int(data()["monopoly"]["licence_mult_pct"]) / 100
-	return p
+	@warning_ignore("integer_division")
+	return maxi(1, p * (100 + trend_pct(state, "_lic")) / 100)
 
 
 static func sells_licence(state: GameState, seller: int, good: String) -> bool:
@@ -523,13 +535,32 @@ static func base_price(res: String) -> int:
 	return int(strategic(res).get("price", 0))
 
 
+## Clé des prix de l'empire : la sienne, ou -1 (tout le monde) une fois le marché commun fondé.
+static func market_key(state: GameState, eid: int) -> int:
+	return -1 if common_market(state) else eid
+
+
 static func price_mult(state: GameState, eid: int, res: String) -> int:
-	return int(state.goods.get("mkt", {}).get(eid, {}).get(res, 1000))
+	return int(state.goods.get("mkt", {}).get(market_key(state, eid), {}).get(res, 1000))
+
+
+## Variation du mois (en %) due à la galaxie : guerres, paix, fléaux, monopoles, krachs.
+static func trend_pct(state: GameState, res: String) -> int:
+	return int(state.goods.get("trend", {}).get(res, 0))
+
+
+## Prix unitaire courant en énergie, ×1000 (facteur d'échanges et tendance compris).
+@warning_ignore("integer_division")
+static func unit_price_milli(state: GameState, eid: int, res: String) -> int:
+	return base_price(res) * price_mult(state, eid, res) * (100 + trend_pct(state, res)) / 100
 
 
 static func fee_pct(state: GameState, eid: int) -> int:
 	var md: Dictionary = data()["market"]
-	return maxi(int(md["min_fee_pct"]), int(md["base_fee_pct"]) + Research.fx_int(state, eid, "market_fee_pct"))
+	var f := int(md["base_fee_pct"]) + Research.fx_int(state, eid, "market_fee_pct")
+	if eid >= 0 and eid == bourse_host(state):
+		f += int(data()["bourse"]["host_fee_pct"])
+	return maxi(int(md["min_fee_pct"]), f)
 
 
 ## Facteur de prix après un échange de n unités (n > 0 achat, n < 0 vente).
@@ -546,7 +577,7 @@ static func _moved(mult: int, n: int) -> int:
 static func _raw(state: GameState, eid: int, res: String, n: int) -> int:
 	var m0 := price_mult(state, eid, res)
 	var m1 := _moved(m0, n)
-	return absi(n) * base_price(res) * (m0 + m1) / 2 / 1000
+	return absi(n) * base_price(res) * (m0 + m1) / 2 * (100 + trend_pct(state, res)) / 100 / 1000
 
 
 ## Coût en énergie de n unités achetées (frais compris).
@@ -585,10 +616,14 @@ static func trade_market(state: GameState, eid: int, res: String, n: int) -> voi
 	else:
 		e.resources["energy"] = int(e.resources.get("energy", 0)) + sell_gain(state, eid, res, -n)
 	e.resources[res] = int(e.resources.get(res, 0)) + n
+	var energy := buy_cost(state, eid, res, n) if n > 0 else sell_gain(state, eid, res, -n)
+	if common_market(state) and eid != bourse_host(state):
+		state.goods["vol"] = int(state.goods.get("vol", 0)) + energy
+	var key := market_key(state, eid)
 	var mk: Dictionary = state.goods.get("mkt", {})
-	var m: Dictionary = mk.get(eid, {})
+	var m: Dictionary = mk.get(key, {})
 	m[res] = _moved(price_mult(state, eid, res), n)
-	mk[eid] = m
+	mk[key] = m
 	state.goods["mkt"] = mk
 
 
@@ -651,6 +686,250 @@ static func _market_month(state: GameState, added: Array[Dictionary]) -> void:
 				trade_market(state, int(eid), String(res), n)
 
 
+# --- Bourse galactique (lot 2B) ----------------------------------------------------------------
+
+## Planète qui porte la Bourse galactique (-1 si aucune n'est bâtie).
+static func bourse_planet(state: GameState) -> int:
+	var bid := String(data()["bourse"]["building"])
+	var w := Economy.wonders(state)
+	for k in w:
+		var parts := String(k).split("#")
+		if parts[0] == bid:
+			return int(parts[1])
+	return -1
+
+
+## Empire hôte de la Bourse (le propriétaire de la planète), -1 sinon.
+static func bourse_host(state: GameState) -> int:
+	var pid := bourse_planet(state)
+	if pid < 0:
+		return -1
+	var c: Colony = state.colonies.get(pid)
+	return c.owner if c != null and not GameState.is_npc(c.owner) else -1
+
+
+static func common_market(state: GameState) -> bool:
+	return int(state.goods.get("bourse", 0)) > 0
+
+
+static func _add_res(inc: Dictionary, eid: int, res: String, n: int) -> void:
+	var m: Dictionary = inc.get(eid, {})
+	m[res] = int(m.get(res, 0)) + n
+	inc[eid] = m
+
+
+static func _bourse_month(state: GameState, inc: Dictionary, added: Array[Dictionary]) -> void:
+	var bd: Dictionary = data()["bourse"]
+	var host := bourse_host(state)
+	if host >= 0 and not common_market(state):
+		state.goods["bourse"] = maxi(1, state.tick)
+		state.goods["mkt"] = {}
+		var pid := bourse_planet(state)
+		var sname := String(state.galaxy.systems[state.galaxy.get_planet(pid).system_id].system_name)
+		added.append(state.add_chronicle("La Bourse galactique de %s ouvre ses portes : le marché commun est fondé. Désormais, un même prix pour tous, et chaque achat se sent jusqu'aux confins." % sname))
+	var vol := int(state.goods.get("vol", 0))
+	state.goods["vol"] = 0
+	if host >= 0 and vol > 0:
+		@warning_ignore("integer_division")
+		var n := mini(int(bd["max_influence"]), vol / maxi(1, int(bd["influence_per_energy"])))
+		if n > 0:
+			_add_res(inc, host, "influence", n)
+	_restock_used(state, host)
+
+
+# --- Vaisseaux d'occasion ----------------------------------------------------------------------
+
+static func _restock_used(state: GameState, host: int) -> void:
+	var ud: Dictionary = data()["used_ships"]
+	if host < 0:
+		state.goods["used"] = {}
+		return
+	var u: Dictionary = state.goods.get("used", {})
+	if not u.is_empty() and int(u["next"]) > state.tick:
+		return
+	var ships: Array = ud["ships"]
+	var h := absi(hash([state.seed_value, "occasion", state.tick]))
+	state.goods["used"] = {"ship": String(ships[h % ships.size()]), "left": int(ud["count"]), "next": state.tick + int(ud["every_days"])}
+
+
+static func used_offer(state: GameState) -> Dictionary:
+	return state.goods.get("used", {})
+
+
+## Prix d'un vaisseau d'occasion en énergie.
+static func used_price(state: GameState, eid: int) -> int:
+	var u := used_offer(state)
+	if u.is_empty():
+		return 0
+	var cost := Fleets.ship_cost(state, eid, String(u["ship"]))
+	@warning_ignore("integer_division")
+	return maxi(20, value_of(state, eid, cost) * int(data()["used_ships"]["price_pct"]) / 100)
+
+
+static func check_used(state: GameState, eid: int) -> String:
+	var e := state.get_empire(eid)
+	if e == null or e.eliminated or e.is_npc():
+		return "empire inconnu"
+	var host := bourse_host(state)
+	if host < 0:
+		return "aucune Bourse galactique"
+	var u := used_offer(state)
+	if u.is_empty() or int(u["left"]) <= 0:
+		return "plus rien à vendre avant le %s" % GameCalendar.date_string(int(u.get("next", state.tick)))
+	if eid != host:
+		if Combat.at_war(state, eid, host):
+			return "en guerre avec l'hôte de la Bourse"
+		if Trade.tier(state, eid, host) <= 0:
+			return "il faut un palier de commerce avec l'hôte de la Bourse"
+	if FactionTraits.capital_system(state, eid) < 0:
+		return "pas de capitale où livrer"
+	if int(e.resources.get("energy", 0)) < used_price(state, eid):
+		return "pas assez d'énergie (%d)" % used_price(state, eid)
+	return ""
+
+
+static func buy_used(state: GameState, eid: int) -> void:
+	var e := state.get_empire(eid)
+	var ud: Dictionary = data()["used_ships"]
+	var u := used_offer(state)
+	var price := used_price(state, eid)
+	var host := bourse_host(state)
+	e.resources["energy"] = int(e.resources.get("energy", 0)) - price
+	if host >= 0 and host != eid:
+		var he := state.get_empire(host)
+		@warning_ignore("integer_division")
+		he.resources["energy"] = int(he.resources.get("energy", 0)) + price * int(ud["host_pct"]) / 100
+	u["left"] = int(u["left"]) - 1
+	var ship := String(u["ship"])
+	var f := state.spawn_ship(eid, ship, FactionTraits.capital_system(state, eid))
+	@warning_ignore("integer_division")
+	f.hp[0] = maxi(1, int(f.hp[0]) * int(ud["hp_pct"]) / 100)
+	f.fleet_name = "%s d'occasion" % String(GameData.ship(ship).get("label", ship))
+	state.add_chronicle("%s achète un %s d'occasion à la Bourse galactique. Repeint de frais, il ne grince presque pas." % [
+			e.display_name(), String(GameData.ship(ship).get("label", ship)).to_lower()], Espionage.private_to(state, [eid]))
+
+
+# --- Marché noir du port franc -----------------------------------------------------------------
+
+static func black_price(state: GameState, res: String, n: int) -> int:
+	@warning_ignore("integer_division")
+	return maxi(1, n * base_price(res) * int(data()["black_market"]["price_pct"]) / 100 * (100 + trend_pct(state, res)) / 100)
+
+
+static func black_left(state: GameState, eid: int) -> int:
+	return int(data()["black_market"]["max_per_month"]) - int(state.goods.get("bm", {}).get(eid, 0))
+
+
+static func check_black(state: GameState, eid: int, sid: int, res: String, n: int) -> String:
+	var e := state.get_empire(eid)
+	if e == null or e.eliminated or e.is_npc():
+		return "empire inconnu"
+	if not active(state):
+		return "pas de stratégiques dans cette partie"
+	if not GameData.strategic_ids().has(res):
+		return "le marché noir ne vend que des stratégiques"
+	if not Pirates.known_ports(state, eid).has(sid):
+		return "vous ne connaissez pas ce port franc"
+	if n <= 0 or n > black_left(state, eid):
+		return "plus que %d unités ce mois-ci" % maxi(0, black_left(state, eid))
+	if int(e.resources.get("energy", 0)) < black_price(state, res, n):
+		return "pas assez d'énergie (%d)" % black_price(state, res, n)
+	return ""
+
+
+static func buy_black(state: GameState, eid: int, sid: int, res: String, n: int) -> void:
+	var e := state.get_empire(eid)
+	e.resources["energy"] = int(e.resources.get("energy", 0)) - black_price(state, res, n)
+	e.resources[res] = int(e.resources.get(res, 0)) + n
+	var bm: Dictionary = state.goods.get("bm", {})
+	bm[eid] = int(bm.get(eid, 0)) + n
+	state.goods["bm"] = bm
+	for o in state.empires:
+		if o.id != eid and not o.eliminated and o.contacts.has(eid):
+			Diplomacy.remember(state, o.id, eid, "smuggler")
+	state.add_chronicle("%s se fournit en %s au %s. Les caisses n'ont pas d'étiquette." % [
+			e.display_name(), label(res).to_lower(), Pirates.port_name(state, sid)], Espionage.private_to(state, [eid]))
+
+
+# --- Prix vivants ------------------------------------------------------------------------------
+
+## Nombre de guerres en cours entre empires.
+static func wars_count(state: GameState) -> int:
+	var n := 0
+	for e in state.empires:
+		if e.eliminated:
+			continue
+		for w in e.wars:
+			if int(w) > e.id and not GameState.is_npc(int(w)):
+				n += 1
+	return n
+
+
+## Raisons de la tendance d'une ressource ce mois : [[texte, %], …] (pour l'infobulle).
+static func trend_parts(state: GameState, res: String) -> Array:
+	return (state.goods.get("trend_why", {}) as Dictionary).get(res, [])
+
+
+static func _trends(state: GameState, ex: Dictionary, added: Array[Dictionary]) -> void:
+	var td: Dictionary = data()["trends"]
+	var why := {}
+	var push := func(res: String, text: String, pct: int) -> void:
+		if pct == 0:
+			return
+		var l: Array = why.get(res, [])
+		l.append([text, pct])
+		why[res] = l
+	var wars := wars_count(state)
+	if active(state):
+		var wp := mini(int(td["war_cap_pct"]), wars * int(td["war_strategic_pct"]))
+		for s in GameData.strategic_ids():
+			push.call(s, "%d guerre%s en cours" % [wars, "s" if wars > 1 else ""], wp)
+			var m: Dictionary = ex.get(s, {})
+			var total := 0
+			for eid in m:
+				total += int(m[eid])
+			for eid in m:
+				@warning_ignore("integer_division")
+				if total >= int(data()["monopoly"]["min_deposits"]) and int(m[eid]) * 100 / total >= int(data()["monopoly"]["share_pct"]):
+					push.call(s, "Monopole de %s" % state.get_empire(int(eid)).short_name(), int(td["monopoly_strategic_pct"]))
+		if wars == 0:
+			push.call("_lic", "Paix générale : le luxe se paie", int(td["peace_licence_pct"]))
+	if not Plagues.alive(state).is_empty():
+		for r in td["plague_goods"]:
+			push.call(String(r), "Fléau errant", int(td["plague_pct"]))
+	# Krach ou envolée : un tirage par an, sur la graine.
+	var sd: Dictionary = td["shock"]
+	var every := int(sd["every_days"])
+	if market_on(state) and state.tick > 0 and every > 0 and state.tick % every < int(GameData.rules()["month_days"]):
+		var h := absi(hash([state.seed_value, "krach", state.tick / every]))
+		var ids := market_ids(state)
+		if h % 100 < int(sd["chance_pct"]) and not ids.is_empty():
+			var res := ids[(h / 100) % ids.size()]
+			var boom := (h / 10000) % 2 == 0
+			var pct := int(sd["boom_pct"]) if boom else int(sd["crash_pct"])
+			state.goods["shock"] = {"res": res, "pct": pct, "start": state.tick, "until": state.tick + int(sd["months"]) * int(GameData.rules()["month_days"])}
+			added.append(state.add_chronicle(("Envolée sur %s : les courtiers s'arrachent la moindre cargaison (+%d %%)." if boom else "Krach sur %s : les entrepôts débordent, les prix s'effondrent (%d %%).") % [
+					label(res).to_lower(), pct]))
+	var sh: Dictionary = state.goods.get("shock", {})
+	if not sh.is_empty():
+		if int(sh["until"]) <= state.tick:
+			state.goods["shock"] = {}
+		else:
+			@warning_ignore("integer_division")
+			var left := int(sh["pct"]) * (int(sh["until"]) - state.tick) / maxi(1, int(sh["until"]) - int(sh["start"]))
+			push.call(String(sh["res"]), "Envolée" if int(sh["pct"]) > 0 else "Krach", left)
+	var trend := {}
+	var keys := why.keys()
+	keys.sort()
+	for r in keys:
+		var t := 0
+		for l in why[r]:
+			t += int(l[1])
+		trend[r] = clampi(t, int(td["min_pct"]), int(td["max_pct"]))
+	state.goods["trend"] = trend
+	state.goods["trend_why"] = why
+
+
 # --- Contrats d'échange entre empires ----------------------------------------------------------
 
 ## Valeur en énergie d'un lot de ressources, aux prix du marché de l'empire.
@@ -665,7 +944,7 @@ static func value_of(state: GameState, eid: int, amounts: Dictionary) -> int:
 		elif String(r) == "knowledge":
 			p = 2
 		@warning_ignore("integer_division")
-		v += int(amounts[r]) * p * price_mult(state, eid, String(r)) / 1000
+		v += int(amounts[r]) * p * price_mult(state, eid, String(r)) / 1000 * (100 + trend_pct(state, String(r))) / 100
 	return v
 
 
@@ -865,7 +1144,10 @@ static func to_dict(state: GameState) -> Dictionary:
 	return {"mode": g.get("mode", "aucuns"), "market": g.get("market", false), "dep": _pairs(g.get("dep", {})),
 			"lic": (g.get("lic", []) as Array).duplicate(true), "closed": _pairs(g.get("closed", {})), "mono": _pairs(g.get("mono", {})),
 			"own": _pairs(g.get("own", {})), "inc": _pairs(g.get("inc", {})), "mkt": _pairs(g.get("mkt", {})), "orders": _pairs(g.get("orders", {})),
-			"deals": (g.get("deals", []) as Array).duplicate(true), "offers": (g.get("offers", []) as Array).duplicate(true), "next": int(g.get("next", 1))}
+			"deals": (g.get("deals", []) as Array).duplicate(true), "offers": (g.get("offers", []) as Array).duplicate(true), "next": int(g.get("next", 1)),
+			"bourse": int(g.get("bourse", 0)), "vol": int(g.get("vol", 0)), "trend": _sorted(g.get("trend", {})),
+			"shock": (g.get("shock", {}) as Dictionary).duplicate(), "used": (g.get("used", {}) as Dictionary).duplicate(),
+			"bm": _pairs(g.get("bm", {}))}
 
 
 static func from_dict(state: GameState, d: Dictionary) -> void:
@@ -882,6 +1164,22 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 	g["inc"] = _unpairs(d.get("inc", []), true)
 	g["mkt"] = _unpairs(d.get("mkt", []), true)
 	g["orders"] = _unpairs(d.get("orders", []), true)
+	g["bourse"] = int(d.get("bourse", 0))
+	g["vol"] = int(d.get("vol", 0))
+	g["trend"] = {}
+	for r in d.get("trend", {}):
+		g["trend"][String(r)] = int(d["trend"][r])
+	g["shock"] = {}
+	var sh: Dictionary = d.get("shock", {})
+	if not sh.is_empty():
+		g["shock"] = {"res": String(sh["res"]), "pct": int(sh["pct"]), "start": int(sh["start"]), "until": int(sh["until"])}
+	g["used"] = {}
+	var us: Dictionary = d.get("used", {})
+	if not us.is_empty():
+		g["used"] = {"ship": String(us["ship"]), "left": int(us["left"]), "next": int(us["next"])}
+	g["bm"] = {}
+	for p in d.get("bm", []):
+		g["bm"][int(p[0])] = int(p[1])
 	for k in ["lic", "deals", "offers"]:
 		var out := []
 		for it: Dictionary in d.get(k, []):
@@ -897,6 +1195,15 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 			out.append(v)
 		g[k] = out
 	state.goods = g
+
+
+static func _sorted(d: Dictionary) -> Dictionary:
+	var ks := d.keys()
+	ks.sort()
+	var out := {}
+	for k in ks:
+		out[k] = d[k]
+	return out
 
 
 ## {int: valeur} -> [[clé, valeur], …] trié, pour le JSON.

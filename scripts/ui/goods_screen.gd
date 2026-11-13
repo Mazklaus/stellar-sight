@@ -4,7 +4,9 @@ extends RefCounted
 ## Ressources : vos luxes (effet, gisements ou licence, monopole, vente de licences ouverte ou fermée),
 ## les licences vendues et achetées, les luxes à acheter chez vos partenaires, vos stratégiques et les
 ## monopoles de la galaxie. Marché : achats et ventes contre de l'énergie, ordres mensuels, puis les
-## échanges avec les empires (propositions reçues, contrats en cours, brouillon d'une proposition).
+## échanges avec les empires (propositions reçues, contrats en cours, brouillon d'une proposition) ;
+## lot 2B : tendances des prix, Bourse galactique (marché commun, vaisseaux d'occasion) et marché noir
+## des ports francs pirates.
 
 const DURATIONS := [[0, "En une fois"], [12, "Chaque mois, 1 an"], [60, "Chaque mois, 5 ans"], [120, "Chaque mois, 10 ans"]]
 const STEPS := [10, 100]
@@ -152,14 +154,18 @@ static func build_market(es: EmpireScreens, col: VBoxContainer) -> void:
 	var player := es._player
 	var me := state.get_empire(player)
 	if not state.goods.is_empty() and Goods.market_on(state) and me != null:
-		var mb := Widgets.Block.new("Marché intérieur (frais %d %%)" % Goods.fee_pct(state, player))
+		var common := Goods.common_market(state)
+		var mb := Widgets.Block.new("%s (frais %d %%)" % ["Marché commun" if common else "Marché intérieur", Goods.fee_pct(state, player)])
 		col.add_child(mb)
-		mb.body.add_child(UiTheme.paragraph("Achetez et vendez contre de l'énergie, frais compris. Votre achat fait monter votre prix, votre vente le fait baisser ; chaque mois il revient à moitié vers son prix de base.", 760.0, 13))
+		mb.body.add_child(UiTheme.paragraph(("Achetez et vendez contre de l'énergie, frais compris. Depuis la Bourse galactique, les prix sont les mêmes pour tous : l'achat d'un autre empire renchérit aussi pour vous." if common else
+				"Achetez et vendez contre de l'énergie, frais compris. Votre achat fait monter votre prix, votre vente le fait baisser ; chaque mois il revient à moitié vers son prix de base.")
+				+ " Guerres, paix, fléaux, monopoles, krachs et envolées font aussi bouger les prix (survolez la tendance).", 760.0, 13))
 		for res in Goods.market_ids(state):
 			var row := _row()
 			row.add_child(_label(GameData.resource_label(res), 150.0, 15))
 			row.add_child(_label("stock %d" % int(me.resources.get(res, 0)), 110.0, 13))
 			row.add_child(_label("achat %d · vente %d (les 10)" % [Goods.buy_cost(state, player, res, 10), Goods.sell_gain(state, player, res, 10)], 230.0, 13, UiTheme.TEXT_DIM))
+			row.add_child(_trend(state, res))
 			for n in STEPS:
 				row.add_child(_btn(es, "+%d" % n, Goods.check_market(state, player, res, n), SimCommands.market_trade(player, res, n), "buy_%s_%d" % [res, n]))
 			for n in STEPS:
@@ -173,6 +179,8 @@ static func build_market(es: EmpireScreens, col: VBoxContainer) -> void:
 		col.add_child(UiTheme.paragraph("Cette partie se joue sans marché intérieur (réglage de Nouvelle partie). Les échanges avec les autres empires restent possibles.", 760.0, 14))
 	if me == null or state.goods.is_empty():
 		return
+	_bourse(es, col)
+	_black_market(es, col)
 	var inbox := Goods.offers_to(state, player)
 	if not inbox.is_empty():
 		var ib := Widgets.Block.new("Échanges proposés")
@@ -195,6 +203,64 @@ static func build_market(es: EmpireScreens, col: VBoxContainer) -> void:
 			row.add_child(_btn(es, "Rompre", "", SimCommands.deal_cancel(player, int(d["id"])), "break_%d" % int(d["id"])))
 			db.body.add_child(row)
 	_deal_builder(es, col)
+
+
+## Tendance du mois d'une ressource (flèche et %), avec ses raisons en infobulle.
+static func _trend(state: GameState, res: String) -> Label:
+	var t := Goods.trend_pct(state, res)
+	var l := _label("—" if t == 0 else ("▲ +%d %%" % t if t > 0 else "▼ %d %%" % t), 80.0, 13,
+			UiTheme.TEXT_DIM if t == 0 else (UiTheme.BAD if t > 0 else UiTheme.GOOD))
+	var lines := []
+	for p in Goods.trend_parts(state, res):
+		lines.append("%s : %+d %%" % [String(p[0]), int(p[1])])
+	l.tooltip_text = "Prix stable ce mois-ci." if lines.is_empty() else "\n".join(lines)
+	l.mouse_filter = Control.MOUSE_FILTER_STOP
+	return l
+
+
+static func _bourse(es: EmpireScreens, col: VBoxContainer) -> void:
+	var state := es._state
+	var player := es._player
+	var host := Goods.bourse_host(state)
+	var bb := Widgets.Block.new("Bourse galactique")
+	col.add_child(bb)
+	if host < 0:
+		bb.body.add_child(UiTheme.paragraph("Aucune Bourse galactique n'est encore bâtie. Le premier empire qui l'élève (Bourses interstellaires, ère III) fonde le marché commun, en devient l'hôte et y vend des vaisseaux d'occasion." if not Goods.common_market(state)
+				else "La Bourse galactique est tombée aux mains de personne : le marché commun tient, mais plus aucun vaisseau d'occasion n'est en vente.", 760.0, 13))
+		return
+	var lic := Goods.trend_pct(state, "_lic")
+	bb.body.add_child(UiTheme.paragraph("Hôte : %s%s. Vaisseaux d'occasion livrés à votre capitale, remis en état à 70 %%, pour l'hôte et ceux qui commercent avec lui.%s" % [
+			_name(state, host), " (vous : frais réduits, influence sur les échanges des autres)" if host == player else "",
+			"" if lic == 0 else " Licences de luxe : %+d %% ce mois-ci." % lic], 760.0, 13))
+	var u := Goods.used_offer(state)
+	if u.is_empty():
+		return
+	var row := _row()
+	var ship := String(u["ship"])
+	row.add_child(_label("%s d'occasion · encore %d · %d énergie" % [String(GameData.ship(ship).get("label", ship)), int(u["left"]), Goods.used_price(state, player)], 420.0, 14))
+	row.add_child(_label("prochain arrivage le %s" % GameCalendar.date_string(int(u["next"])), 220.0, 13, UiTheme.TEXT_DIM))
+	row.add_child(_btn(es, "Acheter", Goods.check_used(state, player), SimCommands.used_ship_buy(player), "used_buy"))
+	bb.body.add_child(row)
+
+
+static func _black_market(es: EmpireScreens, col: VBoxContainer) -> void:
+	var state := es._state
+	var player := es._player
+	if not Goods.active(state):
+		return
+	var ports := Pirates.known_ports(state, player)
+	if ports.is_empty():
+		return
+	var sid := ports[0]
+	var kb := Widgets.Block.new("Marché noir · %s" % Pirates.port_name(state, sid))
+	col.add_child(kb)
+	kb.body.add_child(UiTheme.paragraph("Des stratégiques sans traité ni marché, au double du prix et sans frais, %d unités au plus ce mois-ci. Ceux qui vous connaissent finiront par l'apprendre." % maxi(0, Goods.black_left(state, player)), 760.0, 13))
+	for res in GameData.strategic_ids():
+		var row := _row()
+		row.add_child(_label(Goods.label(res), 150.0, 15))
+		row.add_child(_label("10 pour %d énergie" % Goods.black_price(state, res, 10), 200.0, 13, UiTheme.TEXT_DIM))
+		row.add_child(_btn(es, "+10", Goods.check_black(state, player, sid, res, 10), SimCommands.black_buy(player, sid, res, 10), "black_%s" % res))
+		kb.body.add_child(row)
 
 
 static func _amounts(a: Dictionary) -> String:
@@ -300,6 +366,6 @@ static func signature(es: EmpireScreens) -> String:
 		for r in Goods.market_ids(state):
 			res += "%d," % int(e.resources.get(r, 0))
 		res += str(e.resources.get("energy", 0))
-	return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % [es.trade_tab, str(state.goods.get("own", {})), str(state.goods.get("lic", [])), str(state.goods.get("mono", {})),
-			str(state.goods.get("mkt", {}).get(es._player, {})), str(state.goods.get("orders", {}).get(es._player, {})), str(state.goods.get("offers", [])),
+	return "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % [es.trade_tab, str(state.goods.get("own", {})), str(state.goods.get("lic", [])), str(state.goods.get("mono", {})),
+			str(state.goods.get("mkt", {}).get(Goods.market_key(state, es._player), {})), str(state.goods.get("trend", {})), str(state.goods.get("used", {})), str(state.goods.get("bm", {}).get(es._player, 0)), Goods.bourse_host(state), str(state.goods.get("orders", {}).get(es._player, {})), str(state.goods.get("offers", [])),
 			str(state.goods.get("deals", [])), res if es.trade_tab != "routes" else "", str(state.goods.get("closed", {}))]
