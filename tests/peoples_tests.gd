@@ -243,7 +243,7 @@ func _test_save() -> void:
 	c.founder = ""
 	Peoples.refresh(st)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 40, "sauvegarde version 40")
+	_ok(int(d["version"]) >= 40, "sauvegarde version 40 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and back.peoples_on, "option des peuples mêlés relue")
 	var bc: Colony = back.colonies[c.planet_id]

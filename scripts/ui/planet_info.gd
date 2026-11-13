@@ -143,8 +143,20 @@ static func mosaic_label(state: GameState, c: Colony) -> String:
 	keys.sort_custom(func(a: String, b: String) -> bool:
 		return int(cnt[a]) > int(cnt[b]) or (int(cnt[a]) == int(cnt[b]) and a < b))
 	var parts := PackedStringArray()
+	var own := Peoples.founder_of(state, c.owner)
 	for fid in keys:
-		parts.append("%d %s" % [int(cnt[fid]), Peoples.label(fid)])
+		var txt := "%d %s" % [int(cnt[fid]), Peoples.label(fid)]
+		if fid != own and not GameState.is_npc(c.owner):
+			# Statut (s'il n'est pas citoyen) et intégration (si elle n'est pas complète).
+			var bits := PackedStringArray()
+			var st := Peoples.status(state, c.owner, fid)
+			if st != "citoyens":
+				bits.append(Peoples.status_label(st).to_lower())
+			if Peoples.integration(c, fid) < 100:
+				bits.append("%d %%" % Peoples.integration(c, fid))
+			if not bits.is_empty():
+				txt += " (%s)" % ", ".join(bits)
+		parts.append(txt)
 	return " · ".join(parts)
 
 

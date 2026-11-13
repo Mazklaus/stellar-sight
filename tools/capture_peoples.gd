@@ -4,6 +4,7 @@ extends SceneTree
 ## Écrit les images dans le dossier donné par CAPTURE_DIR (par défaut user://captures).
 ## Scénario : la Concorde de Vael a conquis des mondes kh'thari, ferrocornes et teyl ; écran Colonies
 ## (peuples de l'empire et collections), lentille des peuples, vue système d'une colonie mêlée.
+## Lot 2 : statuts (Kh'thari résidents, Ferrocornes à assimiler), intégration partielle, doléance.
 
 
 func _initialize() -> void:
@@ -30,6 +31,15 @@ func _initialize() -> void:
 			mixed_sid = sid
 	sim.advance(40)
 	Peoples.refresh(st)
+	var v := 0
+	Peoples.set_status(st, v, "teyl", "residents")
+	Peoples.set_status(st, v, "khthari", "residents")
+	Peoples.set_status(st, v, "ferrocornes", "assimiler")
+	for pid in st.sorted_colony_ids():
+		var c: Colony = st.colonies[pid]
+		for fid in c.species:
+			c.integ[fid] = 20 + (pid * 7) % 60
+	st.peoples["rights"] = {str(v): {"fid": "teyl", "end": st.tick + 600}}
 	main.set_process(false)
 	for t in main._hud._toasts.get_children():
 		t.queue_free()

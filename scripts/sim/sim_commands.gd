@@ -357,6 +357,11 @@ static func politics_support(player: int, current: int) -> Dictionary:
 
 
 ## Adopter une loi (Laws : loi d'un courant au pouvoir ou loi indépendante).
+## Fixe le statut d'une espèce dans l'empire (voir Peoples.STATUSES).
+static func peoples_status(player: int, species: String, status: String) -> Dictionary:
+	return {"type": "peoples_status", "player": player, "species": species, "status": status}
+
+
 static func law_adopt(player: int, law: String) -> Dictionary:
 	return {"type": "law_adopt", "player": player, "law": law}
 
@@ -464,6 +469,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Fleets.check_split(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("ship", "")))
 		"politics_support":
 			return Politics.check_support(state, int(cmd["player"]), int(cmd.get("current", -2)))
+		"peoples_status":
+			return Peoples.check_status(state, int(cmd["player"]), String(cmd.get("species", "")), String(cmd.get("status", "")))
 		"law_adopt":
 			return Laws.check_adopt(state, int(cmd["player"]), String(cmd.get("law", "")))
 		"law_revoke":
@@ -737,6 +744,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Echoes.fold(state, int(cmd["player"]), int(cmd["planet"]), String(cmd["what"]))
 		"politics_support":
 			Politics.support(state, int(cmd["player"]), int(cmd["current"]))
+		"peoples_status":
+			Peoples.set_status(state, int(cmd["player"]), String(cmd["species"]), String(cmd["status"]))
 		"law_adopt":
 			Laws.adopt(state, int(cmd["player"]), String(cmd["law"]))
 		"law_revoke":

@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.8
+
+- **Statut des peuples** : citoyens, résidents, assujettis, à assimiler, expulsés ou exterminés ; intégration de 0 à 100 % ; affinités et frictions entre espèces ; doléance « Des droits pour mon peuple » (chapitre 3).
+- Lois **Hospitalité** et **Préférence native** ; les citoyens d'autres espèces votent selon leur credo (chapitre 10).
+- Des **héros d'autres espèces** citoyennes (chapitre 11).
+
 ### Édition 1.7
 
 - **Peuples mêlés** : une colonie peut abriter plusieurs espèces, chacune avec son corps et ses talents ; les mondes conquis gardent leurs habitants ; coloniser avec un autre peuple de l'empire ; bonus de collection (chapitre 3). Nouvelle option de partie (chapitre 1), lentille des peuples [[U]] (chapitre 2).

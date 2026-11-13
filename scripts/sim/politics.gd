@@ -126,8 +126,13 @@ static func applies(state: GameState, empire_id: int) -> bool:
 ## Penchant naturel du peuple, en pour mille (somme 1000).
 static func nature(state: GameState, empire_id: int) -> Array:
 	var e := state.get_empire(empire_id)
+	return nature_of(e.faction() if e != null and not e.is_npc() else {})
+
+
+## Penchant naturel d'une fiche de peuple (voir nature ; Peoples mêle ceux des citoyens).
+static func nature_of(f: Dictionary) -> Array:
 	var ld: Dictionary = data()["lean"]
-	var sp: Dictionary = e.faction().get("species", {}) if e != null and not e.is_npc() else {}
+	var sp: Dictionary = f.get("species", {})
 	var p := index_of(String((ld["credo"] as Dictionary).get(String(sp.get("credo", "")), "")))
 	var s := index_of(String((ld["gouvernement"] as Dictionary).get(String(sp.get("gouvernement", "")), "")))
 	if p < 0:
@@ -242,7 +247,7 @@ static func target_nature(state: GameState, sid: int, owner: int) -> Array:
 	var en := sys_entry(state, sid)
 	if int(en.get("cqe", -1)) > state.tick:
 		return en["cqn"]
-	return nature(state, owner)
+	return Peoples.system_nature(state, sid, owner, nature(state, owner))
 
 
 static func _emp_w(state: GameState, empire_id: int) -> Dictionary:
@@ -336,7 +341,7 @@ static func monthly(state: GameState, empire_id: int, added: Array[Dictionary]) 
 	for sid in Stability.systems_of(state, empire_id):
 		var se := _sys_w(state, sid, empire_id)
 		var op: Array = se["op"]
-		var tn: Array = se["cqn"] if int(se.get("cqe", -1)) > state.tick else nat
+		var tn: Array = se["cqn"] if int(se.get("cqe", -1)) > state.tick else Peoples.system_nature(state, sid, empire_id, nat)
 		if se.has("cqe") and int(se["cqe"]) <= state.tick:
 			se.erase("cqe")
 			se.erase("cqn")
