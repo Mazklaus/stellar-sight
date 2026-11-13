@@ -6,7 +6,9 @@ extends RefCounted
 ## toute autorisation : on les retire, sur ce programme seulement. Créer la règle demande les droits
 ## administrateur (fenêtre de Windows « Voulez-vous autoriser… ? »).
 
-const RULE_NAME := "Stellar Sigth"
+const RULE_NAME := "Stellar Sight"
+## Nom de la règle créée avant la correction du nom du jeu : retirée quand on recrée la règle.
+const LEGACY_RULE_NAME := "Stellar Sigth"
 const MANUAL := "À la main : menu Démarrer → « Autoriser une application via le pare-feu Windows » → « Modifier les paramètres », cochez Privé et Public sur chaque ligne Godot (« Autoriser une autre application » si elle manque)."
 
 
@@ -38,8 +40,9 @@ static func check_script(program: String, port: int) -> String:
 static func fix_script(program: String, port: int) -> String:
 	return ("$p = %s; Get-NetFirewallApplicationFilter -Program $p -ErrorAction SilentlyContinue | Get-NetFirewallRule | Where-Object { $_.Action -eq 'Block' -and $_.Direction -eq 'Inbound' } | Remove-NetFirewallRule; "
 			+ "Remove-NetFirewallRule -DisplayName %s -ErrorAction SilentlyContinue; "
+			+ "Remove-NetFirewallRule -DisplayName %s -ErrorAction SilentlyContinue; "
 			+ "New-NetFirewallRule -DisplayName %s -Direction Inbound -Action Allow -Protocol UDP -LocalPort %d -Program $p -Profile Any | Out-Null") % [
-			_ps_quote(program), _ps_quote(RULE_NAME), _ps_quote(RULE_NAME), port]
+			_ps_quote(program), _ps_quote(LEGACY_RULE_NAME), _ps_quote(RULE_NAME), _ps_quote(RULE_NAME), port]
 
 
 ## Commande encodée pour powershell -EncodedCommand (UTF-16LE en base64 : aucun souci de guillemets).

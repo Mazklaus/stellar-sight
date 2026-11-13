@@ -942,7 +942,7 @@ class OrbitMenuItem:
 ## un petit cercle satellite autour du nom du jeu en lettres très espacées.
 class TitleRing:
 	extends Control
-	var lines: Array[String] = ["STELLAR", "SIGTH"]
+	var lines: Array[String] = ["STELLAR", "SIGHT"]
 	var radius := 180.0
 	var _t := 0.0
 

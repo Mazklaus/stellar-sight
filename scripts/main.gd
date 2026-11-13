@@ -95,6 +95,8 @@ var _proposals_told := -1
 
 func _ready() -> void:
 	randomize()
+	# Avant toute lecture de user:// : reprend les données de l'ancien nom du jeu (« Sigth »).
+	UserDataMigration.run()
 	# Peuples créés dans l'éditeur d'espèces (user://species/), proposés en Nouvelle partie.
 	SpeciesLibrary.load_all()
 	UiSettings.load_settings()

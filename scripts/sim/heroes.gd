@@ -1,6 +1,6 @@
 class_name Heroes
 extends RefCounted
-## Héros, lot 1 (socle) : voir data/heroes.json et l'étude « Les héros dans Stellar Sigth ».
+## Héros, lot 1 (socle) : voir data/heroes.json et l'étude « Les héros dans Stellar Sight ».
 ##
 ## Un héros est un personnage unique (nom, portrait de la galerie des héros, âge, classe, niveau 1 à
 ## 5, traits). Chaque empire en a un au départ. Ses actes (coloniser, gagner une bataille, réussir une

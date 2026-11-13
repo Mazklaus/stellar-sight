@@ -4,7 +4,7 @@ extends RefCounted
 ## nourrissent la victoire de la Légende. Règles dans le champ "reputation" de la fiche (couche
 ## registre de data/species_parts.json).
 ##
-## Inspiration : étude « l'espionnage comme pilier de Stellar Sigth » (proposition 9, validée le
+## Inspiration : étude « l'espionnage comme pilier de Stellar Sight » (proposition 9, validée le
 ## 2026-11-11) : chaque opération réussie ou découverte fait monter la réputation, qui renchérit les
 ## contrats de flotte et facilite les intrigues ; être pris coûte moins d'estime. Le document de game
 ## design donne au registre « contrats, réputation, vol de technologies, coups de chance » et au

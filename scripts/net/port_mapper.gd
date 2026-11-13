@@ -8,7 +8,7 @@ extends RefCounted
 
 signal finished(ok: bool, external_address: String, reason: String)
 
-const DESCRIPTION := "Stellar Sigth"
+const DESCRIPTION := "Stellar Sight"
 const DISCOVER_MS := 2000
 
 var port := 0

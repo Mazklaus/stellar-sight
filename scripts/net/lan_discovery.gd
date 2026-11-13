@@ -7,7 +7,7 @@ extends RefCounted
 const PORT := 24569
 ## Une partie disparaît de la liste si on ne l'entend plus pendant ce temps (ms).
 const EXPIRE_MS := 4000
-const MAGIC := "stellar-sigth"
+const MAGIC := "stellar-sight"
 ## Une annonce pèse quelques centaines d'octets ; au-delà, elle est ignorée. Pas plus de MAX_GAMES
 ## parties listées (un voisin bruyant ne remplit pas la page).
 const MAX_PACKET := 2048
