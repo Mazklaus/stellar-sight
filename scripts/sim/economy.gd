@@ -238,6 +238,10 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 	_add(gross, FactionTraits.city_yields(state, empire_id))
 	# Registre Picaresque : la réputation rapporte des « crédits ».
 	gross["energy"] += Reputation.income(state, empire_id)
+	# Créatures : safaris (profit), gardiens vénérés (foi).
+	if not state.fauna.is_empty():
+		gross["energy"] += Fauna.safari_income(state, empire_id)
+		gross["influence"] += Fauna.venerated(state, empire_id) * int(Fauna.talent(state, empire_id).get("venerate_influence", 0))
 	var hero_income := Heroes.income(state, empire_id)
 	for r in hero_income:
 		gross[r] = int(gross.get(r, 0)) + int(hero_income[r])
@@ -374,7 +378,7 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 		return "un repaire pirate tient ce système : détruisez d'abord sa garde"
 	if Pirates.is_port(state, p.system_id):
 		return "un port franc n'appartient à personne, et tient à le rester"
-	var watch := Guardians.colony_block(state, p.system_id)
+	var watch := Guardians.colony_block(state, p.system_id, empire_id)
 	if watch != "":
 		return watch
 	if not in_range(state, empire_id, p.system_id):
@@ -447,6 +451,10 @@ static func building_slots(state: GameState, colony: Colony) -> int:
 ## minimale, un par système (Préfecture), un par empire (mégastructures), un dans la galaxie (merveilles).
 static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet, building_id: String) -> String:
 	var b := GameData.building(building_id)
+	if b.get("requires_study", false):
+		var why := WarBeasts.check_vivarium(state, empire_id)
+		if why != "":
+			return why
 	var base := String(b.get("upgrades", ""))
 	if base != "" and not c.buildings.has(base):
 		return "remplace un bâtiment de 1er rang : %s" % String(GameData.building(base).get("label", base))

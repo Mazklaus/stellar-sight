@@ -21,7 +21,7 @@ const STATS := ["hp", "armor", "shield", "pd", "pd_fleet", "shield_fleet", "flee
 ## Drapeaux qu'un module transmet au vaisseau (fleet_repair : la flotte se répare partout comme chez
 ## elle ; fleet_barracks : ses troupes se reforment partout ; anchor : les ennemis ne quittent pas la
 ## bataille ; reliquary : ferveur à chaque victoire ; digester : épaves changées en matériaux).
-const FLAGS := ["blockade_runner", "adaptive", "fleet_repair", "fleet_barracks", "anchor", "reliquary", "digester"]
+const FLAGS := ["blockade_runner", "adaptive", "fleet_repair", "fleet_barracks", "anchor", "reliquary", "digester", "net"]
 const LINES := ["screen", "line", "rear"]
 const TARGETS := ["nearest", "largest", "smallest", "rear"]
 const NAME_MAX := 32

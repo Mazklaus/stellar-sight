@@ -27,12 +27,13 @@ static func think(ctx: Dictionary) -> void:
 	var known := Fauna.known_species(state, e.id)
 	if known.is_empty():
 		return
+	_beasts(ctx, known)
 	for sp in known:
 		if Fauna.study_end(state, e.id, sp) > 0:
 			return  # une étude à la fois
 	var aggr := AiLevels.aggression(e)
 	for sp in known:
-		if Fauna.study_end(state, e.id, sp) == 0 and _nest_near(ctx, sp) and _rich(e, Fauna.attitude_cost("etude"), 1):
+		if Fauna.study_end(state, e.id, sp) == 0 and _nest_near(ctx, sp) and _rich(e, Fauna.attitude_cost_for(state, e.id, "etude"), 1):
 			if AiPlayer._issue(ctx, SimCommands.fauna_attitude(e.id, sp, "etude")):
 				AiPlayer._intent(ctx, "Étudie les %s" % String(Fauna.species(sp)["label"]))
 				return
@@ -44,14 +45,78 @@ static func think(ctx: Dictionary) -> void:
 		if Fauna.stance(state, e.id, sp) != "":
 			continue
 		var att := ""
-		if aggr <= 0 and bool(Fauna.species(sp).get("tamable", false)) and Fauna.studied(state, e.id, sp):
+		if aggr <= 0 and Fauna.tamable(state, e.id, sp) and Fauna.studied(state, e.id, sp):
 			att = "apprivoise"
 		elif aggr > 0 and hunts == 0 and Fauna.temper(sp) != "passive" and _nest_near(ctx, sp):
 			att = "chasse"
-		if att != "" and _rich(e, Fauna.attitude_cost(att), 1):
+		if att != "" and _rich(e, Fauna.attitude_cost_for(state, e.id, att), 1):
 			if AiPlayer._issue(ctx, SimCommands.fauna_attitude(e.id, sp, att)):
 				AiPlayer._intent(ctx, ("Apprivoise les %s" if att == "apprivoise" else "Chasse les %s") % String(Fauna.species(sp)["label"]))
 				return
+
+
+## Bêtes de guerre (lot 3) : avec un troupeau d'une espèce apprivoisée à 6 sauts au plus, bâtit un Vivarium à la
+## colonie la plus peuplée qui a de la place, arme un Chalutier du vide, l'envoie au nid le plus proche et lâche les bêtes adultes.
+static func _beasts(ctx: Dictionary, known: Array[String]) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var tamed: Array[String] = []
+	for sp in known:
+		if Fauna.stance(state, e.id, sp) == "apprivoise" and _nest_near(ctx, sp):
+			tamed.append(sp)
+	if tamed.is_empty() or e.capital_planet < 0:
+		return
+	var l := WarBeasts.beasts(state, e.id)
+	for i in l.size():
+		if WarBeasts.check_release(state, e.id, i) == "":
+			if AiPlayer._issue(ctx, SimCommands.beast_release(e.id, i)):
+				AiPlayer._intent(ctx, "Lâche une bête de guerre")
+			return
+	# Troupeau d'une espèce apprivoisée le plus proche (un nid dans un système colonisé ne repousse plus).
+	var home := AiPlayer._capital_system(ctx)
+	if not ctx.has("home_jumps"):
+		ctx["home_jumps"] = FactionTraits.jumps_from(state.galaxy, home)
+	var jumps: Dictionary = ctx["home_jumps"]
+	var best := -1
+	var best_j := 7
+	for fid in Fauna.herd_ids(state):
+		var g: Fleet = state.fleets.get(fid)
+		if g == null or g.is_moving() or not tamed.has(String(Fauna.herds(state)[fid]["sp"])):
+			continue
+		if int(jumps.get(g.system_id, 99)) < best_j:
+			best_j = int(jumps.get(g.system_id, 99))
+			best = g.system_id
+	if best < 0:
+		return
+	if WarBeasts.vivarium_system(state, e.id) < 0:
+		if AiPlayer._res(ctx, "materials") < 250:
+			return
+		var site := -1
+		var best_pop := -1
+		for pid in state.sorted_colony_ids():
+			var c: Colony = state.colonies[pid]
+			if c.owner == e.id and c.population > best_pop and Economy.check_build(state, e.id, pid, "vivarium") == "":
+				site = pid
+				best_pop = c.population
+		if site >= 0 and AiPlayer._issue(ctx, SimCommands.build(e.id, site, "vivarium")):
+			AiPlayer._intent(ctx, "Bâtit un Vivarium")
+		return
+	var net: Fleet = null
+	for f in Fleets.empire_fleets(state, e.id):
+		if WarBeasts.has_net(f) and not Combat.is_armed(f):
+			net = f
+			break
+	if net == null:
+		if AiPlayer._res(ctx, "materials") >= 200:
+			for pid in state.sorted_colony_ids():
+				var c: Colony = state.colonies[pid]
+				if c.owner == e.id and AiPlayer._issue(ctx, SimCommands.build_ship(e.id, pid, "chalutier")):
+					break
+		return
+	if net.is_moving() or WarBeasts._catchable(state, net) != "":
+		return
+	if best != net.system_id and AiPlayer._issue(ctx, SimCommands.move_fleet(e.id, net.id, best)):
+		AiPlayer._intent(ctx, "Part capturer des bêtes à %s" % state.galaxy.systems[best].system_name)
 
 
 ## Assez riche, en gardant de quoi payer deux colonies (l'influence sert d'abord à s'étendre).

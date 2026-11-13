@@ -429,9 +429,9 @@ static func _reward(state: GameState, pid: int, winner: int, sid: int, added: Ar
 			continue
 		var item := {"id": -1, "card": "", "system": sid, "planet": -1, "rival": -1, "hero": -1}
 		@warning_ignore("integer_division")
-		var stab := maxi(3, int(t["stab"]) * pct / 100)
-		@warning_ignore("integer_division")
-		var infl := int(t["influence"]) * pct / 100
+		var tri := Guardians.triumph_scale(state, eid, maxi(3, int(t["stab"]) * pct / 100), int(t["influence"]) * pct / 100)
+		var stab := int(tri[0])
+		var infl := int(tri[1])
 		Events.apply_fx(state, eid, item, [{"k": "stab", "v": stab, "days": int(t["days"]), "scope": "capital"},
 				{"k": "res", "res": {"influence": infl}}], added)
 		var part := "%s (%d %%)" % [e.short_name(), pct]
@@ -441,6 +441,11 @@ static func _reward(state: GameState, pid: int, winner: int, sid: int, added: Ar
 			if trophy != "":
 				part += ", trophée : %s" % Quests.give_relic(state, eid, trophy)
 			Heroes.act(state, eid, "guardian")
+			if not state.heroes.is_empty() and sid >= 0:
+				for f in Fleets.fleets_at(state, sid, eid):
+					var adm := Heroes.assigned_to(state, "fleet", f.id, eid)
+					if not adm.is_empty():
+						Guardians.monster_slayer(state, adm, added)
 			first = false
 		Research.count_stat(state, eid, "plagues")
 		names.append(part)

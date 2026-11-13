@@ -214,6 +214,8 @@ static func class_traits(cls: String) -> Array[String]:
 	for id in ids:
 		var c := String(data()["traits"][id].get("cls", ""))
 		var td: Dictionary = data()["traits"][id]
+		if td.get("earned", false):
+			continue  # gagné par un exploit, jamais tiré au sort
 		if c == cls or (c == "" and not td.get("people", false) and not td.get("flaw", false)):
 			out.append(String(id))
 	return out

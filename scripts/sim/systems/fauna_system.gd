@@ -10,6 +10,7 @@ extends RefCounted
 ##    système n'a pas été revendiqué (un nid colonisé dort) ;
 ## 4. gardiens (Guardians.daily) : riposte, étoile rongée, réveils, visites de l'Horloger ;
 ##    fléaux errants (Plagues.daily) : naissance à leur date, d'une colonie à l'autre, départ au bout d'un an ;
+##    filets gravitationnels (WarBeasts.daily) : captures pour le Vivarium ;
 ## 5. études : celles qui arrivent à terme donnent leur bonus.
 ## Aucun aléatoire : les choix de destination suivent un hachage de la graine, du troupeau et du jour.
 
@@ -27,6 +28,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 		_nest(state, sid, added)
 	Guardians.daily(state, added)
 	Plagues.daily(state, added)
+	WarBeasts.daily(state, added)
 	_studies(state, added)
 	return added
 

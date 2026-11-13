@@ -90,6 +90,27 @@
 				"trait": "Quatre fois plus robustes qu'un troupeau ordinaire ; on peut les dépecer."}
 		}
 	},
+	"war_beasts": {
+		"_doc": "Bêtes de guerre (proposition 11) : un vaisseau à filet gravitationnel (Chalutier du vide, ou le module sur un modèle) à l'arrêt près d'un troupeau d'une espèce apprivoisée capture une bête tous les net_days, si un Vivarium a de la place (cap par Vivarium). Elle grandit au Vivarium : jeune, puis adulte à adult_days, ancienne à elder_days. On la lâche adulte ou ancienne : elle rejoint une flotte au système du Vivarium et coûte des vivres au lieu de matériaux. Socle des futures Hardes de Kraal. Source : Stellaris (Grand Archive : vivarium, stades de croissance).",
+		"net_days": 30, "vivarium_cap": 3, "adult_days": 360, "elder_days": 1080,
+		"stages": {"jeune": "Jeune", "adulte": "Adulte", "ancien": "Ancienne"}
+	},
+	"talents": {
+		"_doc": "Talents du peuple face aux créatures (proposition 12), couches d'espèce additionnées, comme les talents pirates : marchent pour les 8 peuples et les peuples de l'éditeur.",
+		"credo": {
+			"honneur": {"label": "Gloire de la grande chasse", "text": "Triomphe doublé (gardiens et fléaux) ; le bonus de chasse vaut contre toutes les créatures, sans déclarer la chasse.", "triumph_pct": 100, "hunt_all": true},
+			"foi": {"label": "Les gardiens sont sacrés", "text": "Chaque gardien vivant à 3 sauts de vos colonies est vénéré : +2 de stabilité partout et +2 d'influence par mois (au plus 3 gardiens).", "venerate_stab": 2, "venerate_influence": 2, "venerate_max": 3},
+			"raison": {"label": "Muséum du vide", "text": "Étudier une espèce coûte moitié moins.", "study_pct": -50},
+			"profit": {"label": "Safaris", "text": "+3 d'énergie par mois pour chaque colonie à 2 sauts d'un nid vivant ; les trophées se paient plus cher en Triomphe (+50 % d'influence).", "safari": 3, "trophy_influence_pct": 50},
+			"survie": {"label": "Tout ce qui vit se dresse", "text": "Toutes les espèces s'apprivoisent (pas seulement les Nacrelles et les Ronge-roc).", "tame_all": true}
+		},
+		"archetype": {
+			"ruche": {"label": "Vivarium inné", "text": "Le Vivarium se bâtit dès le départ, sans étude préalable.", "vivarium_free": true},
+			"reptilien": {"label": "Couvées", "text": "Le Vivarium se bâtit dès le départ, sans étude préalable.", "vivarium_free": true},
+			"synthetique": {"label": "Langage machine", "text": "Les gardiens machines (Veilleur, Citadelle, Ferrailleur) et les machines des tombeaux parlementent : ils ne vous attaquent pas et vous laissent coloniser leur système.", "parley": true},
+			"energetique": {"label": "Même fréquence", "text": "Les Nuées d'orage ne vous voient pas : elles ne vous attaquent jamais.", "storm_veil": true}
+		}
+	},
 	"units": {
 		"bete_nacrelle": {"label": "Nacrelle", "plural": "Nacrelles", "line": "line", "size": "medium", "role": "Créature", "hp": 120, "armor": 0, "shield": 60, "weapons": {"kinetic": 20}, "speed": 20, "military": true, "creature": "nacrelles",
 			"description": "Une méduse du vide. Son voile renvoie les rayons ; le reste est mou."},
@@ -106,6 +127,16 @@
 		"bete_eclat_spectral": {"label": "Éclat spectral", "plural": "Éclats spectraux", "line": "line", "size": "medium", "role": "Fléau", "hp": 420, "armor": 10, "shield": 40, "weapons": {"beam": 18}, "speed": 18, "military": true, "plague": "spectre",
 			"description": "Des bribes de lumière qui suivent le Spectre comme des mouettes un chalutier."},
 		"bete_belier_fou": {"label": "Bélier fou", "plural": "Béliers fous", "line": "line", "size": "large", "role": "Fléau", "hp": 1040, "armor": 30, "shield": 0, "weapons": {"kinetic": 30}, "speed": 16, "military": true, "creature": "beliers", "plague": "migration",
-			"description": "Le même Bélier d'écume, en quatre fois plus têtu. Il ne s'arrête que pour manger, et il mange des villes."}
+			"description": "Le même Bélier d'écume, en quatre fois plus têtu. Il ne s'arrête que pour manger, et il mange des villes."},
+		"bete_nacrelle_adulte": {"label": "Nacrelle dressée", "plural": "Nacrelles dressées", "line": "line", "size": "medium", "role": "Bête de guerre", "hp": 156, "armor": 0, "shield": 60, "weapons": {"kinetic": 26}, "speed": 20, "military": true, "tamed": "nacrelles", "stage": "adulte", "upkeep": {"food": 2}, "description": "Élevée au Vivarium, elle se bat dans vos flottes et se nourrit de vivres plutôt que de matériaux."},
+		"bete_nacrelle_ancien": {"label": "Nacrelle ancienne", "plural": "Nacrelles anciennes", "line": "line", "size": "medium", "role": "Bête de guerre", "hp": 216, "armor": 0, "shield": 60, "weapons": {"kinetic": 36}, "speed": 20, "military": true, "tamed": "nacrelles", "stage": "ancien", "upkeep": {"food": 3}, "description": "Élevée au Vivarium, elle se bat dans vos flottes et se nourrit de vivres plutôt que de matériaux."},
+		"bete_rongeroc_adulte": {"label": "Ronge-roc dressé", "plural": "Ronge-rocs dressés", "line": "screen", "size": "small", "role": "Bête de guerre", "hp": 78, "armor": 50, "shield": 0, "weapons": {"kinetic": 23}, "speed": 22, "military": true, "tamed": "rongeroc", "stage": "adulte", "upkeep": {"food": 2}, "description": "Élevée au Vivarium, elle se bat dans vos flottes et se nourrit de vivres plutôt que de matériaux."},
+		"bete_rongeroc_ancien": {"label": "Ronge-roc ancien", "plural": "Ronge-rocs anciens", "line": "screen", "size": "small", "role": "Bête de guerre", "hp": 108, "armor": 50, "shield": 0, "weapons": {"kinetic": 32}, "speed": 22, "military": true, "tamed": "rongeroc", "stage": "ancien", "upkeep": {"food": 3}, "description": "Élevée au Vivarium, elle se bat dans vos flottes et se nourrit de vivres plutôt que de matériaux."},
+		"bete_cristalloide_adulte": {"label": "Cristalloïde dressé", "plural": "Cristalloïdes dressés", "line": "line", "size": "medium", "role": "Bête de guerre", "hp": 143, "armor": 0, "shield": 70, "weapons": {"beam": 31}, "speed": 16, "military": true, "tamed": "cristalloides", "stage": "adulte", "upkeep": {"food": 2}, "description": "Élevée au Vivarium, elle se bat dans vos flottes et se nourrit de vivres plutôt que de matériaux."},
+		"bete_cristalloide_ancien": {"label": "Cristalloïde ancien", "plural": "Cristalloïdes anciens", "line": "line", "size": "medium", "role": "Bête de guerre", "hp": 198, "armor": 0, "shield": 70, "weapons": {"beam": 43}, "speed": 16, "military": true, "tamed": "cristalloides", "stage": "ancien", "upkeep": {"food": 3}, "description": "Élevée au Vivarium, elle se bat dans vos flottes et se nourrit de vivres plutôt que de matériaux."},
+		"bete_nuee_adulte": {"label": "Nuée dressée", "plural": "Nuées dressées", "line": "screen", "size": "small", "role": "Bête de guerre", "hp": 65, "armor": 0, "shield": 50, "weapons": {"decharge": 28}, "speed": 34, "military": true, "tamed": "nuees", "stage": "adulte", "upkeep": {"food": 2}, "description": "Élevée au Vivarium, elle se bat dans vos flottes et se nourrit de vivres plutôt que de matériaux."},
+		"bete_nuee_ancien": {"label": "Nuée ancienne", "plural": "Nuées anciennes", "line": "screen", "size": "small", "role": "Bête de guerre", "hp": 90, "armor": 0, "shield": 50, "weapons": {"decharge": 39}, "speed": 34, "military": true, "tamed": "nuees", "stage": "ancien", "upkeep": {"food": 3}, "description": "Élevée au Vivarium, elle se bat dans vos flottes et se nourrit de vivres plutôt que de matériaux."},
+		"bete_belier_adulte": {"label": "Bélier dressé", "plural": "Béliers dressés", "line": "line", "size": "large", "role": "Bête de guerre", "hp": 338, "armor": 30, "shield": 0, "weapons": {"kinetic": 28}, "speed": 14, "military": true, "tamed": "beliers", "stage": "adulte", "upkeep": {"food": 2}, "description": "Élevée au Vivarium, elle se bat dans vos flottes et se nourrit de vivres plutôt que de matériaux."},
+		"bete_belier_ancien": {"label": "Bélier ancien", "plural": "Béliers anciens", "line": "line", "size": "large", "role": "Bête de guerre", "hp": 468, "armor": 30, "shield": 0, "weapons": {"kinetic": 39}, "speed": 14, "military": true, "tamed": "beliers", "stage": "ancien", "upkeep": {"food": 3}, "description": "Élevée au Vivarium, elle se bat dans vos flottes et se nourrit de vivres plutôt que de matériaux."}
 	}
 }

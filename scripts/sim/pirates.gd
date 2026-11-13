@@ -148,6 +148,10 @@ static func spawn_guard(state: GameState, sid: int) -> Fleet:
 	for i in int(lair.get("grown", 0)):
 		ships.append(grow[i % grow.size()])
 	ships = ships.slice(0, int(gd["max_ships"]))
+	# Repaire dresseur (créatures, lot 3) : un nid à 3 sauts au plus, et les pirates ont dressé une bête.
+	var beast := tamed_beast(state, sid)
+	if beast != "":
+		ships.append(beast)
 	var f := state.spawn_ship(GameState.PIRATE_ID, String(ships[0]), sid)
 	for i in range(1, ships.size()):
 		f.add_ship(String(ships[i]), -1, 1)
@@ -156,6 +160,30 @@ static func spawn_guard(state: GameState, sid: int) -> Fleet:
 	lair["guard"] = f.id
 	lair["lost"] = -1
 	return f
+
+
+## Bête dressée par un repaire proche d'un nid (à 3 sauts au plus), "" sinon : l'adulte de l'espèce du
+## nid le plus proche.
+static func tamed_beast(state: GameState, sid: int) -> String:
+	if state.fauna.is_empty() or Fauna.nests(state).is_empty():
+		return ""
+	var j := FactionTraits.jumps_from(state.galaxy, sid)
+	var best := ""
+	var best_j := 4
+	for nsid in Fauna.nest_ids(state):
+		if int(j.get(nsid, 99)) < best_j:
+			best_j = int(j.get(nsid, 99))
+			best = WarBeasts.unit_for(String(Fauna.nests(state)[nsid]["sp"]), "adulte")
+	return best
+
+
+## Après le placement des nids (nouvelle partie) : les gardes des repaires proches d'un nid reçoivent leur bête.
+static func tame_guards(state: GameState) -> void:
+	for sid in lair_ids(state):
+		var beast := tamed_beast(state, sid)
+		var g := guard_fleet(state, sid)
+		if beast != "" and g != null:
+			g.add_ship(beast, -1, 1)
 
 
 static func lair_name(state: GameState, sid: int) -> String:

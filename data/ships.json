@@ -12,6 +12,20 @@
 		"vision": 2,
 		"hp": 30
 	},
+	"chalutier": {
+		"label": "Chalutier du vide",
+		"plural": "Chalutiers du vide",
+		"line": "rear",
+		"size": "small",
+		"description": "Une coque d'éclaireur qui traîne un filet gravitationnel. À l'arrêt près d'un troupeau apprivoisé, elle ramène une bête par mois au Vivarium, si on lui a gardé de la place.",
+		"cost": {"materials": 50, "energy": 10},
+		"days": 20,
+		"upkeep": {"energy": 1},
+		"speed": 30,
+		"vision": 1,
+		"hp": 40,
+		"net": true
+	},
 	"colony_ship": {
 		"label": "Vaisseau colon",
 		"plural": "Vaisseaux colons",

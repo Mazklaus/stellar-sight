@@ -231,14 +231,23 @@ static func awake_at(state: GameState, sid: int) -> String:
 static func hostile(state: GameState, gid: String, empire_id: int) -> bool:
 	if empire_id < 0 or GameState.is_npc(empire_id):
 		return false
+	if parley(state, gid, empire_id):
+		return false
 	if bool(def(gid).get("pacific", false)):
 		return (list(state)[gid]["hostile"] as Array).has(empire_id)
 	return true
 
 
 ## Raison pour laquelle on ne peut pas coloniser ce système ("" si rien).
-static func colony_block(state: GameState, sid: int) -> String:
+## Un peuple synthétique parlemente avec les gardiens machines (talent « Langage machine »).
+static func parley(state: GameState, gid: String, empire_id: int) -> bool:
+	return bool(def(gid).get("machine", false)) and bool(Fauna.talent(state, empire_id).get("parley", false))
+
+
+static func colony_block(state: GameState, sid: int, empire_id := -1) -> String:
 	var gid := awake_at(state, sid)
+	if gid != "" and empire_id >= 0 and parley(state, gid, empire_id):
+		return ""
 	return ("%s veille sur ce système : il faut d'abord l'abattre" % String(def(gid)["name"])) if gid != "" else ""
 
 
@@ -477,8 +486,9 @@ static func _reward(state: GameState, gid: String, eid: int, sid: int, added: Ar
 		parts.append("trophée : %s" % Quests.give_relic(state, eid, String(gd["trophy"])))
 	var item := {"id": -1, "card": "", "system": sid, "planet": -1, "rival": -1, "hero": -1}
 	var t: Dictionary = d["triumph"]
-	Events.apply_fx(state, eid, item, [{"k": "stab", "v": int(t["stab"]), "days": int(t["days"]), "scope": "capital"},
-			{"k": "res", "res": {"influence": int(t["influence"])}}], added)
+	var tri := triumph_scale(state, eid, int(t["stab"]), int(t["influence"]))
+	Events.apply_fx(state, eid, item, [{"k": "stab", "v": int(tri[0]), "days": int(t["days"]), "scope": "capital"},
+			{"k": "res", "res": {"influence": int(tri[1])}}], added)
 	var loot: Dictionary = gd.get("loot", {})
 	for r in loot:
 		e.resources[r] = int(e.resources.get(r, 0)) + int(loot[r])
@@ -499,6 +509,7 @@ static func _reward(state: GameState, gid: String, eid: int, sid: int, added: Ar
 			var adm := Heroes.assigned_to(state, "fleet", f.id, eid)
 			if not adm.is_empty():
 				Heroes.gain_xp(state, adm, 60)
+				monster_slayer(state, adm, added)
 	Research.count_stat(state, eid, "guardians")
 	if gid == "matriarche":
 		for o in state.empires:
@@ -512,6 +523,26 @@ static func _reward(state: GameState, gid: String, eid: int, sid: int, added: Ar
 			("Au tableau : " + ", ".join(parts)) if not parts.is_empty() else "La gloire suffit"], Espionage.public_to(state, who)))
 	if String(gd.get("card", "")) != "":
 		Events.push(state, eid, String(gd["card"]), {"system": sid}, added)
+
+
+## Triomphe selon les talents : [stabilité, influence] (honneur : doublé ; profit : +50 % d'influence).
+static func triumph_scale(state: GameState, eid: int, stab: int, infl: int) -> Array:
+	var tal := Fauna.talent(state, eid)
+	@warning_ignore("integer_division")
+	var s := stab * (100 + int(tal.get("triumph_pct", 0))) / 100
+	@warning_ignore("integer_division")
+	var i := infl * (100 + int(tal.get("triumph_pct", 0)) + int(tal.get("trophy_influence_pct", 0))) / 100
+	return [s, i]
+
+
+## L'amiral qui commandait gagne le trait « Tueur de monstres » (une fois).
+static func monster_slayer(state: GameState, adm: Dictionary, added: Array[Dictionary]) -> void:
+	var h := adm
+	if h.is_empty() or (h["traits"] as Array).has("tueur_monstres"):
+		return
+	(h["traits"] as Array).append("tueur_monstres")
+	added.append(state.add_chronicle("%s gagne le trait « Tueur de monstres » : les créatures n'ont qu'à bien se tenir." % String(h["name"]),
+			Espionage.private_to(state, [int(h["owner"])])))
 
 
 # --- Récits (cartes « guardian ») -----------------------------------------------------------------

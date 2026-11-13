@@ -329,6 +329,10 @@ static func pirate_bounty(player: int, victim: int) -> Dictionary:
 
 ## Faune : étudier ("etude"), chasser ("chasse"), apprivoiser ("apprivoise") une espèce rencontrée,
 ## ou renoncer ("renoncer") à la chasse ou à l'apprivoisement (voir Fauna).
+static func beast_release(player: int, index: int) -> Dictionary:
+	return {"type": "beast_release", "player": player, "index": index}
+
+
 static func fauna_attitude(player: int, species_id: String, attitude: String) -> Dictionary:
 	return {"type": "fauna_attitude", "player": player, "species": species_id, "attitude": attitude}
 
@@ -399,6 +403,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Pirates.check_port(state, int(cmd["player"]), int(cmd.get("system", -1)), String(cmd.get("kind", "")))
 		"pirate_bounty":
 			return Pirates.check_bounty(state, int(cmd["player"]), int(cmd.get("victim", -1)))
+		"beast_release":
+			return WarBeasts.check_release(state, int(cmd["player"]), int(cmd.get("index", -1)))
 		"fauna_attitude":
 			return Fauna.check_attitude(state, int(cmd["player"]), String(cmd.get("species", "")), String(cmd.get("attitude", "")))
 		"sacrifice":
@@ -645,6 +651,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Pirates.bounty(state, int(cmd["player"]), int(cmd["victim"]))
 		"fauna_attitude":
 			Fauna.set_attitude(state, int(cmd["player"]), String(cmd["species"]), String(cmd["attitude"]))
+		"beast_release":
+			WarBeasts.release(state, int(cmd["player"]), int(cmd["index"]))
 		"spy_cells":
 			Espionage.set_cells(state, int(cmd["player"]), int(cmd["target"]), int(cmd["n"]))
 		"spy_op":
