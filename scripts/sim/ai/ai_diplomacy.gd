@@ -105,6 +105,14 @@ static func evaluate(state: GameState, ai_id: int, from_id: int, treaty: String)
 			_p(parts, "Opinion", op / 2)
 			if skill >= 2 and Diplomacy.border_systems(state, ai_id, from_id) > 0:
 				_p(parts, "Un voisin n'a pas à tout savoir", -10)
+		Diplomacy.MIGRATION:
+			_p(parts, "Ouvrir nos frontières aux familles", int(c.get("migration_base", -5)))
+			_p(parts, "Opinion", op / 2)
+			_p(parts, "Tempérament", int(c["temperament_other"]) * maxi(0, aggr))
+			if Laws.is_enacted(state, ai_id, "preference_native"):
+				_p(parts, "Préférence native", -15)
+			if Laws.is_enacted(state, ai_id, "hospitalite"):
+				_p(parts, "Hospitalité", 10)
 	if skill == 0 and e.is_ai():
 		_p(parts, "Humeur du jour", _mood(state, ai_id, from_id, treaty))
 	var score := 0
@@ -245,6 +253,8 @@ static func _propose(ctx: Dictionary) -> bool:
 			wishes.append(Diplomacy.TRADE)
 		if not Combat.at_war(state, e.id, other) and AiPlayer._skill(ctx) >= 1:
 			wishes.append(Diplomacy.MAPS)
+		if state.peoples_on and Diplomacy.has_pact(state, e.id, other) and not Diplomacy.has_migration(state, e.id, other):
+			wishes.append(Diplomacy.MIGRATION)
 		for t in wishes:
 			if SimCommands.validate(state, SimCommands.propose_treaty(e.id, other, t)) != "":
 				continue
@@ -257,6 +267,8 @@ static func _propose(ctx: Dictionary) -> bool:
 				var signed := Diplomacy.has_pact(state, e.id, other) if t != Diplomacy.TRADE else Trade.tier(state, e.id, other) > before_tier
 				if t == Diplomacy.ALLIANCE:
 					signed = Diplomacy.allied(state, e.id, other)
+				elif t == Diplomacy.MIGRATION:
+					signed = Diplomacy.has_migration(state, e.id, other)
 				AiPlayer._intent(ctx, "%s %s avec %s" % ["Signe" if signed else "Propose", label.to_lower(), o.short_name()])
 				return true
 	return false

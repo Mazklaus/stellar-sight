@@ -29,7 +29,9 @@ Un réseau assez avancé peut agir. Chaque opération coûte de l'influence, pre
 | Renseignement | Rapport complet, dossier des héros, délit d'initié (le prochain krach ou la prochaine envolée du marché) |
 | Larcin | Voler 40 % d'une technologie, siphonner l'énergie, détourner un convoi (un mois de ses routes), contrebande (un de ses luxes pendant un an), exfiltrer un prisonnier, larcin de relique |
 | Sabotage | Saboter un chantier (60 jours de retard), brûler des archives, assassiner un héros, armer des partisans, appât |
-| Intrigue | Semer la discorde, corrompre l'héritier ou un héros, attiser la dissidence, truquer une élection, fomenter un coup d'État |
+| Intrigue | Semer la discorde, corrompre l'héritier ou un héros, attiser la dissidence, truquer une élection, fomenter un coup d'État ; avec les peuples mêlés, attiser les frictions, appel au retour, propagande xénophobe |
+
+Les trois intrigues des peuples mêlés jouent sur la mosaïque de la cible. **Attiser les frictions** coûte 15 de stabilité pendant un an à son système le plus mêlé. L'**appel au retour** ramène chez vous trois des vôtres qui vivent chez elle. La **propagande xénophobe** divise par deux, pendant deux ans, l'intégration de ses peuples venus d'ailleurs, et le Glaive et l'Autel y gagnent des voix.
 
 L'**appât** sème des balises odorantes chez la cible : un fléau errant change de route vers ses colonies, ou, à défaut, un troupeau hostile proche vient se servir chez elle.
 

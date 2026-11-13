@@ -77,6 +77,26 @@ La fiche d'une colonie montre le statut et l'intégration de chaque espèce (« 
 « Résidents, citoyens, assujettis… » Le conseiller juridique a demandé une augmentation. Il l'a obtenue, avec le statut de résident.
 :::
 
+### Migrations, réfugiés et diasporas
+
+Les peuples ne restent pas en place. L'option **Migrations** (active par défaut avec les peuples mêlés) fait circuler les habitants à l'intérieur de l'empire ; les réfugiés, les convois et les diasporas existent dans tous les cas.
+
+- **Migration intérieure.** Chaque trimestre, une colonie qui pousse ses habitants dehors (pleine, affamée, agitée, ou mal adaptée à l'une de ses espèces) en envoie quelques-uns vers la colonie qui attire le plus leur espèce, à 6 sauts au plus : de la place, une bonne habitabilité, de la stabilité, et un bonus pour les jeunes colonies. Le **traité de migration** (chapitre 8) ouvre le même chemin vers un empire voisin.
+- **Réfugiés.** Ils fuient la conquête (un habitant sur cinq qui n'est pas de l'espèce du vainqueur), la Révolte (un par colonie et par mois), l'expulsion, l'extermination (un sur deux en réchappe), la famine longue et la sécession. Ils gagnent la colonie la plus proche d'un empire qui les accepte : d'abord à 70 % d'habitabilité avec de la place, puis à 70 %, puis à 50 % avec de la place, puis à 50 %.
+- **Politique d'accueil.** Dans l'écran Colonies : **fermée**, **peuples citoyens seulement** (par défaut : votre peuple et les espèces citoyennes) ou **ouverte**. Chaque réfugié accueilli arrive intégré à 50 %, rapporte 2 d'influence, coûte 5 de nourriture, et son empire d'origine vous en sait gré ; les réfugiés restent reconnaissants dix ans (jusqu'à +10 de stabilité selon leur part).
+- **Convois.** Sans refuge, les réfugiés partent en convoi, un petit cercle bleu sous l'étoile, qui erre de saut en saut. Un empire qui ouvre ses portes les accueille d'un coup ; des pirates sans escorte en face les capturent ; au bout de trois ans, ils fondent une colonie libre des Sans-Bannière.
+- **Diaspora et renaissance.** Le peuple d'un empire disparu vit en diaspora. Quand elle compte au moins 15 habitants dans la galaxie, elle fait renaître son empire sur un monde où elle est majoritaire et qui est en Révolte, ou déjà libre.
+- **Les revendications de la diaspora.** Une diaspora d'au moins 15 habitants et 10 % de votre population vous demande une terre : un de vos systèmes (celui où elle est la plus nombreuse, jamais la capitale) ou le droit de s'installer sur un monde libre à 3 sauts au plus. Accepter fait renaître son empire, en paix avec vous et reconnaissant (+5 de stabilité là où elle vit) ; refuser, ou laisser passer deux ans, coûte 5 de stabilité et rapproche sa renaissance.
+- **Sécession par affinité.** Un système qui fait sécession et dont la majorité est d'une autre espèce rejoint l'empire de cette espèce s'il touche sa frontière, au lieu des Sans-Bannière.
+
+Deux ponts de plus avec le reste du jeu. Chaque peuple aime un **luxe** (les Vael, le vin de nébuleuse ; un peuple créé en reçoit un) : servi, il donne +5 de stabilité là où ce peuple vit chez vous et double ses naissances. Et chaque empire voit d'un bon œil les siens devenus **citoyens** chez vous (+3 d'opinion).
+
+Enfin, chaque peuple a un **talent de peuples mêlés**, tiré de ses couches et affiché dans l'écran Colonies : les Pluriels s'intègrent 50 % plus vite, le Syndicat reçoit des réfugiés intégrés à 75 %, la Conscience fait produire 15 % de plus à ses invités organiques, la Horde ramène deux vaincus à sa capitale après chaque conquête, la Féodalité intègre 2 % de plus par an, la Foi assimile sans perte de stabilité, et le chant des énergétiques attire les réfugiés.
+
+::: marge
+Le convoi avait emporté des couvertures, des souvenirs, et très peu de carburant. Il a tout de même trouvé le chemin. Les réfugiés le trouvent presque toujours.
+:::
+
 ### Bâtiments
 
 Chaque colonie bâtit dans ses emplacements : fermes, centrales, mines, forums pour l'influence, bâtiments de recherche, bastions, arsenaux et chantiers titanesques. Les technologies en ouvrent de meilleurs, qui remplacent les premiers sur place sans prendre d'emplacement de plus. Plus tard viennent les **mégastructures** (une par empire), les **merveilles** (une par galaxie, au premier qui la lance) et les **projets** planétaires : terraformation, monde-jardin, écuménopole.

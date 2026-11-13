@@ -44,6 +44,8 @@ var _root: Control
 var _tab: Button
 var _side: PanelContainer
 var _side_box: VBoxContainer
+## Défilement de la colonne de gauche quand elle dépasse l'écran (beaucoup de peuples, par exemple).
+var _side_scroll: ScrollContainer
 var _content: MarginContainer
 # Économie
 var _res_rows := {}
@@ -174,9 +176,13 @@ func _ready() -> void:
 	_side.position = Vector2(MARGIN, SIDE_TOP)
 	_side.custom_minimum_size = Vector2(SIDE_WIDTH, 0)
 	_root.add_child(_side)
+	_side_scroll = ScrollContainer.new()
+	_side_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_side.add_child(_side_scroll)
 	_side_box = VBoxContainer.new()
 	_side_box.add_theme_constant_override("separation", 10)
-	_side.add_child(_side_box)
+	_side_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_side_scroll.add_child(_side_box)
 
 	_content = MarginContainer.new()
 	_content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -204,6 +210,16 @@ func close() -> void:
 	if _tech_panel and is_instance_valid(_tech_panel):
 		_tech_panel.queue_free()
 		_tech_panel = null
+
+
+## La colonne de gauche prend la hauteur de son contenu, sans dépasser le bas de l'écran.
+func _fit_side() -> void:
+	if _side_scroll == null or not is_instance_valid(_side_scroll):
+		return
+	var avail := _root.get_viewport_rect().size.y - SIDE_TOP - 24.0
+	var need := _side_box.get_combined_minimum_size().y
+	_side_scroll.custom_minimum_size.y = minf(need, maxf(120.0, avail))
+	_side.reset_size()
 
 
 func is_open() -> bool:
@@ -260,6 +276,7 @@ func show_screen(screen_id: String) -> void:
 func refresh() -> void:
 	if not is_open() or _state == null:
 		return
+	_fit_side.call_deferred()
 	match current:
 		"economy":
 			_refresh_economy()
@@ -354,6 +371,7 @@ func _build_peoples_side() -> void:
 		return
 	var cnt := Peoples.empire_counts(_state, _player)
 	if cnt.size() <= 1:
+		_build_moves_side()
 		return
 	_side_box.add_child(HSeparator.new())
 	_side_box.add_child(UiTheme.section("Peuples de l'empire"))
@@ -386,6 +404,61 @@ func _build_peoples_side() -> void:
 	_side_box.add_child(UiTheme.paragraph("Chaque espèce garde son corps, ses biomes et ses talents. Avec %d habitants, elle peut fonder des colonies ; à %s, elle donne un bonus de collection." % [
 			int(Peoples.data().get("colonize_min", 2)), "/".join(PackedStringArray(Array(Peoples.data().get("collection_tiers", [10, 25, 50])).map(func(x: Variant) -> String: return str(int(x)))))],
 			SIDE_WIDTH - 24.0, 12))
+	_build_moves_side()
+
+
+## Mouvements (lot 3) : politique d'accueil, revendication d'une diaspora, talents de peuples mêlés.
+func _build_moves_side() -> void:
+	_side_box.add_child(HSeparator.new())
+	_side_box.add_child(UiTheme.section("Accueil et diasporas"))
+	var row := HBoxContainer.new()
+	var l := Label.new()
+	l.text = "Réfugiés"
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	l.tooltip_text = "Politique d'accueil : chaque réfugié rapporte de l'influence et de l'opinion chez son peuple, coûte de la nourriture, et reste reconnaissant (stabilité) dix ans."
+	l.mouse_filter = Control.MOUSE_FILTER_STOP
+	row.add_child(l)
+	var ob := OptionButton.new()
+	ob.custom_minimum_size = Vector2(170, 0)
+	var cur := Movements.policy(_state, _player)
+	for i in Movements.POLICIES.size():
+		ob.add_item(String(Movements.POLICY_LABELS[Movements.POLICIES[i]]))
+	ob.selected = Movements.POLICIES.find(cur)
+	ob.item_selected.connect(func(i: int) -> void:
+		if Movements.POLICIES[i] != cur:
+			command_requested.emit(SimCommands.refugee_policy(_player, Movements.POLICIES[i])))
+	row.add_child(ob)
+	_side_box.add_child(row)
+	var cl := Movements.claim(_state, _player)
+	if not cl.is_empty():
+		var fid := String(cl["fid"])
+		_side_box.add_child(UiTheme.paragraph("La diaspora %s (%d habitants) réclame une terre avant le %s. Accepter : leur empire renaît, en paix avec vous, et ils vous en sont reconnaissants. Refuser : ils s'en souviendront." % [
+				Peoples.label(fid), int(Peoples.foreign_pop(_state, _player).get(fid, 0)), GameCalendar.date_string(int(cl["end"]))], SIDE_WIDTH - 24.0, 12))
+		var acts := HFlowContainer.new()
+		acts.add_theme_constant_override("h_separation", 6)
+		for choice in [["systeme", "CÉDER UN SYSTÈME"], ["neutre", "UN MONDE LIBRE"], ["refus", "REFUSER"]]:
+			var b := Button.new()
+			b.text = String(choice[1])
+			b.focus_mode = Control.FOCUS_NONE
+			var why := Movements.check_claim(_state, _player, String(choice[0]))
+			b.disabled = why != ""
+			if choice[0] == "systeme":
+				var sid := Movements.claim_system(_state, _player, fid)
+				b.tooltip_text = why if why != "" else "Céder %s, où vivent le plus de %s." % [_state.galaxy.systems[sid].system_name, Peoples.label(fid)]
+			elif choice[0] == "neutre":
+				var pid := Movements.claim_planet(_state, _player, fid)
+				b.tooltip_text = why if why != "" else "Les laisser s'installer sur %s (%d colons partent)." % [_state.galaxy.get_planet(pid).display_name(_state.galaxy), int(Movements.data().get("claim_settlers", 5))]
+			else:
+				b.tooltip_text = "-5 de stabilité là où ils vivent pendant deux ans, et leur renaissance se rapproche."
+			var ch := String(choice[0])
+			b.pressed.connect(func() -> void: command_requested.emit(SimCommands.diaspora_answer(_player, ch)))
+			acts.add_child(b)
+		_side_box.add_child(acts)
+	var tl := Movements.talent_labels(_state, _player)
+	for t: Array in tl:
+		var p := UiTheme.paragraph("%s. %s" % [t[0], t[1]], SIDE_WIDTH - 24.0, 12)
+		p.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		_side_box.add_child(p)
 
 
 ## Statut de chaque autre espèce (lot 2) : un menu par espèce, l'intégration moyenne, la doléance.
@@ -1452,6 +1525,8 @@ func _relation_block(id: int) -> Control:
 	grid.add_theme_constant_override("v_separation", 6)
 	blk.body.add_child(grid)
 	for t in Diplomacy.TREATY_IDS:
+		if t == Diplomacy.MIGRATION and not _state.peoples_on:
+			continue
 		var b := Button.new()
 		b.text = Diplomacy.offer_label(_state, _player, id, t).to_upper()
 		b.focus_mode = Control.FOCUS_NONE
@@ -1491,11 +1566,12 @@ func _relation_block(id: int) -> Control:
 	acts.add_theme_constant_override("h_separation", 10)
 	acts.add_theme_constant_override("v_separation", 6)
 	blk.body.add_child(acts)
-	for t in [Diplomacy.ALLIANCE, Diplomacy.PEACE, Diplomacy.TRADE]:
-		var label: String = {"alliance": "QUITTER L'ALLIANCE", "peace": "DÉNONCER LA PAIX", "trade": "ROMPRE LE COMMERCE"}[t]
+	for t in [Diplomacy.ALLIANCE, Diplomacy.PEACE, Diplomacy.TRADE, Diplomacy.MIGRATION]:
+		var label: String = {"alliance": "QUITTER L'ALLIANCE", "peace": "DÉNONCER LA PAIX", "trade": "ROMPRE LE COMMERCE", "migration": "FERMER LA MIGRATION"}[t]
 		var shown: bool = (t == Diplomacy.ALLIANCE and Diplomacy.allied(_state, _player, id)) \
 				or (t == Diplomacy.PEACE and Diplomacy.pact(_state, _player, id) == Diplomacy.PEACE) \
-				or (t == Diplomacy.TRADE and Diplomacy.has_trade(_state, _player, id))
+				or (t == Diplomacy.TRADE and Diplomacy.has_trade(_state, _player, id)) \
+				or (t == Diplomacy.MIGRATION and Diplomacy.has_migration(_state, _player, id))
 		if not shown:
 			continue
 		var b := Button.new()

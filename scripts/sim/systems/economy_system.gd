@@ -14,6 +14,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 	if state.tick % int(GameData.rules()["month_days"]) == 0:
 		Peoples.refresh(state)
 		Peoples.monthly(state, added)
+		Movements.monthly(state, added)
 		for e in state.empires:
 			_monthly_balance(state, e, added)
 	return added
@@ -163,7 +164,9 @@ static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionar
 					and (worst == null or c.population > worst.population):
 				worst = c
 		if worst:
-			worst.population -= 1
+			# Famine longue (peuples mêlés) : l'habitant perdu s'enfuit au lieu de mourir.
+			if not (was_starving and Movements.on_famine(state, worst, added)):
+				worst.population -= 1
 			worst.growth = 0
 		if not was_starving:
 			added.append(state.add_chronicle("Famine chez %s : on rationne, les cuisiniers démissionnent en bloc." % e.display_name(), Espionage.private_to(state, [e.id])))

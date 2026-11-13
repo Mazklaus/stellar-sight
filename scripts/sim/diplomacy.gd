@@ -25,7 +25,10 @@ const PEACE := "peace"
 const ALLIANCE := "alliance"
 const TRADE := "trade"
 const MAPS := "maps"
-const TREATY_IDS: Array[String] = ["peace", "alliance", "trade", "maps"]
+## Traité de migration (peuples mêlés, voir Movements) : les habitants circulent entre les deux
+## empires et chacun peut coloniser avec l'espèce de l'autre.
+const MIGRATION := "migration"
+const TREATY_IDS: Array[String] = ["peace", "alliance", "trade", "maps", "migration"]
 
 
 static func data() -> Dictionary:
@@ -114,6 +117,10 @@ static func form_team(state: GameState, a: int, b: int, team: int) -> void:
 
 static func has_trade(state: GameState, a: int, b: int) -> bool:
 	return int(rel(state, a, b).get("trade", 0)) != 0
+
+
+static func has_migration(state: GameState, a: int, b: int) -> bool:
+	return int(rel(state, a, b).get("migr", 0)) != 0
 
 
 static func in_truce(state: GameState, a: int, b: int) -> bool:
@@ -487,6 +494,13 @@ static func check_terms(state: GameState, a: int, b: int, treaty: String) -> Str
 		MAPS:
 			if at_war:
 				return "on n'échange pas ses cartes avec un ennemi"
+		MIGRATION:
+			if not state.peoples_on:
+				return "les peuples mêlés ne sont pas actifs dans cette partie"
+			if has_migration(state, a, b):
+				return "un traité de migration est déjà en vigueur"
+			if not has_pact(state, a, b):
+				return "il faut d'abord signer la paix"
 	return ""
 
 
@@ -535,7 +549,7 @@ static func propose(state: GameState, from: int, to: int, treaty: String) -> boo
 
 
 static func _treaty_phrase(treaty: String) -> String:
-	return {"peace": "la paix", "alliance": "l'alliance", "trade": "le commerce", "maps": "l'échange de cartes", "contract": "le contrat de flotte"}.get(treaty, treaty)
+	return {"peace": "la paix", "alliance": "l'alliance", "trade": "le commerce", "maps": "l'échange de cartes", "contract": "le contrat de flotte", "migration": "le traité de migration"}.get(treaty, treaty)
 
 
 static func check_answer(state: GameState, player: int, proposal_id: int, accept: bool) -> String:
@@ -612,6 +626,10 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 			_set_cooldown(state, b, a, MAPS, days("maps_cooldown_days", 720))
 			state.add_chronicle("%s et %s échangent leurs cartes. Chacun découvre que l'autre dessine très mal les comètes." % [
 					ea.display_name(), eb.display_name()], Espionage.private_to(state, [a, b]))
+		MIGRATION:
+			_rel_w(state, a, b)["migr"] = 1
+			state.add_chronicle("Traité de migration entre %s et %s : les frontières s'ouvrent aux familles. Les douaniers apprennent deux nouvelles langues, et trois façons de dire « bagage »." % [
+					ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 
 
 static func _drop_proposals(state: GameState, a: int, b: int, treaty: String) -> void:
@@ -667,6 +685,9 @@ static func check_cancel(state: GameState, player: int, target: int, treaty: Str
 		TRADE:
 			if not has_trade(state, player, target):
 				return "aucun commerce avec cet empire"
+		MIGRATION:
+			if not has_migration(state, player, target):
+				return "aucun traité de migration avec cet empire"
 		_:
 			return "traité inconnu : %s" % treaty
 	return ""
@@ -680,6 +701,7 @@ static func cancel(state: GameState, player: int, target: int, treaty: String) -
 		ALLIANCE:
 			r["pact"] = COLD
 			r["trade"] = 0
+			r.erase("migr")
 			r["since"] = state.tick
 			remember(state, target, player, "left_alliance")
 			state.add_chronicle("%s quitte son alliance avec %s. On se serre encore la main, mais avec des gants." % [
@@ -687,6 +709,7 @@ static func cancel(state: GameState, player: int, target: int, treaty: String) -
 		PEACE:
 			r["pact"] = COLD
 			r["trade"] = 0
+			r.erase("migr")
 			r["since"] = state.tick
 			remember(state, target, player, "denounced")
 			state.add_chronicle("%s dénonce son traité de paix avec %s. Rien n'est encore tiré, mais les tourelles pivotent." % [
@@ -695,6 +718,10 @@ static func cancel(state: GameState, player: int, target: int, treaty: String) -
 			Trade.on_cut(state, player, target)
 			r["trade"] = 0
 			state.add_chronicle("%s rompt tout commerce avec %s. Les cargos rentrent à vide." % [
+					ep.display_name(), et.display_name()], Espionage.public_to(state, [player, target]))
+		MIGRATION:
+			r.erase("migr")
+			state.add_chronicle("%s ferme ses frontières aux migrants de %s. Ceux qui sont déjà là restent ; les autres attendront." % [
 					ep.display_name(), et.display_name()], Espionage.public_to(state, [player, target]))
 
 
@@ -751,6 +778,7 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 	var broke := String(r["pact"]) != COLD
 	r["pact"] = COLD
 	r["trade"] = 0
+	r.erase("migr")
 	r["since"] = state.tick
 	r["trust"] = 0
 	r["score"] = [0, 0]
@@ -801,6 +829,7 @@ static func break_alliance_for_spying(state: GameState, victim: int, spy: int) -
 	var r := _rel_w(state, victim, spy)
 	r["pact"] = COLD
 	r["trade"] = 0
+	r.erase("migr")
 	r["since"] = state.tick
 	remember(state, victim, spy, "broke_treaty")
 	state.add_chronicle("%s rompt son alliance avec %s : on n'espionne pas ses amis, ou alors on ne se fait pas prendre." % [

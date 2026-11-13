@@ -188,6 +188,7 @@ func _draw() -> void:
 	_draw_conflicts(px)
 	_draw_lairs(px)
 	_draw_quests(px)
+	_draw_convoys(px)
 
 	if lens == "economy" and state != null:
 		# Lentille économique : tout s'assombrit sauf les systèmes du joueur, qui affichent leur bilan.
@@ -228,6 +229,7 @@ func _draw() -> void:
 				_draw_system(s, px)
 				_draw_label(s, px, true)
 				_draw_peoples(s, px)
+		_draw_convoys(px)
 		return
 	if lens == "trade" and state != null:
 		# Lentille du commerce : vos routes (couleur du palier du traité, verte pour une route
@@ -549,6 +551,31 @@ func _draw_lairs(px: float) -> void:
 		draw_line(Vector2(0, -5), Vector2(0, 5), gold, 1.6, true)
 		draw_line(Vector2(-3, -3), Vector2(3, -3), gold, 1.4, true)
 		draw_arc(Vector2(0, 1), 4.5, 0.2, PI - 0.2, 10, gold, 1.4, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Convois de réfugiés (voir Movements) : un cercle bleu pâle sous l'étoile, avec leur nombre.
+func _draw_convoys(px: float) -> void:
+	if state == null or state.moves.is_empty() or not state.moves.has("convoys"):
+		return
+	var col := Color(0.62, 0.8, 0.95)
+	var seen := {}
+	for cv: Dictionary in Movements.convoys(state):
+		var sid := int(cv["sid"])
+		if seen.has(sid) or (fog and not _seen.has(sid)):
+			continue
+		seen[sid] = true
+		var n := 0
+		for x: Dictionary in Movements.convoys_at(state, sid):
+			n += int(x["n"])
+		draw_set_transform(galaxy.systems[sid].position + Vector2(-20.0, 16.0) * px, 0.0, Vector2(px, px))
+		draw_circle(Vector2.ZERO, 8.5, Color(0.02, 0.05, 0.09, 0.9))
+		draw_arc(Vector2.ZERO, 8.5, 0.0, TAU, 20, col, 1.4, true)
+		# Trois silhouettes : une famille en route.
+		for c in [Vector2(-3.4, 1.0), Vector2(0, -0.6), Vector2(3.4, 1.0)]:
+			draw_circle(c + Vector2(0, -2.2), 1.4, col)
+			draw_line(c + Vector2(0, -0.6), c + Vector2(0, 3.6), col, 1.6, true)
+		draw_string(_font, Vector2(10, 4), str(n), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, col)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

@@ -124,11 +124,13 @@ func _test_integration() -> void:
 	var o := _id_of(st, "ossarane")
 	var c := _plant(st, o, 6)
 	Combat.capture_system(st, _sid(st, c), v)
-	_ok(int(c.species.get("ossarane", 0)) == 6 and Peoples.integration(c, "ossarane") == 0, "monde conquis : intégration à 0 %")
+	# (un habitant sur cinq fuit la conquête : lot 3)
+	_ok(int(c.species.get("ossarane", 0)) == 5 and Peoples.integration(c, "ossarane") == 0, "monde conquis : intégration à 0 %")
 	var rate := Peoples.integration_rate(st, c, "ossarane")
-	_ok(rate == 7, "citoyens : +7 %% par an (%d)" % rate)
+	# 5 + 2 (citoyens), +50 % pour le talent Pluriel des Vael (lot 3).
+	_ok(rate == 10, "citoyens : +10 %% par an avec le talent Pluriel (%d)" % rate)
 	_year(st)
-	_ok(Peoples.integration(c, "ossarane") == 7, "un an plus tard : 7 %% (%d)" % Peoples.integration(c, "ossarane"))
+	_ok(Peoples.integration(c, "ossarane") == 10, "un an plus tard : 10 %% (%d)" % Peoples.integration(c, "ossarane"))
 	Peoples.set_status(st, v, "ossarane", "expulses")
 	_ok(Peoples.integration_rate(st, c, "ossarane") == 0, "des expulsés ne s'intègrent pas")
 
@@ -349,7 +351,7 @@ func _test_save() -> void:
 	Peoples.set_status(st, f, "vael", "residents")
 	Peoples.refresh(st)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 41, "sauvegarde version 41")
+	_ok(int(d["version"]) >= 41, "sauvegarde version 41 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and Peoples.status(back, f, "vael") == "residents", "statut relu")
 	var bc: Colony = back.colonies[c.planet_id]

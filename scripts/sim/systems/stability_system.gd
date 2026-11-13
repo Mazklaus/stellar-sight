@@ -128,9 +128,21 @@ static func _monthly_wild(state: GameState, e: Empire, month: int, added: Array[
 ## Sécession : les revendications de l'empire dans le système passent aux Sans-Bannière.
 static func secede(state: GameState, sid: int, empire_id: int, added: Array[Dictionary], wild := false) -> void:
 	var e := state.get_empire(empire_id)
+	var sname := state.galaxy.systems[sid].system_name
+	# Sécession par affinité (peuples mêlés) : la majorité d'une autre espèce rejoint son empire voisin.
+	var kin := -1 if wild else Movements.affinity_target(state, sid, empire_id)
+	if kin >= 0:
+		var ek := state.get_empire(kin)
+		Stability._transfer(state, sid, empire_id, kin)
+		state.stability.erase(sid)
+		added.append(state.add_chronicle("Sécession ! %s rompt avec %s et rejoint %s, l'empire de son peuple. On change de drapeau, de langue officielle et, pour certains, de cousins." % [
+				sname, e.display_name(), ek.display_name()], Espionage.public_to(state, [empire_id, kin])))
+		Movements.on_secession(state, sid, empire_id, kin, added)
+		return
 	Stability._transfer(state, sid, empire_id, GameState.NPC_ID)
 	state.stability.erase(sid)
-	var sname := state.galaxy.systems[sid].system_name
+	if not wild:
+		Movements.on_secession(state, sid, empire_id, GameState.NPC_ID, added)
 	if wild:
 		added.append(state.add_chronicle("La colonie de %s rompt avec %s et redevient sauvage : un essaim sans maître, qui ne reconnaît plus personne." % [
 				sname, e.display_name()], Espionage.public_to(state, [empire_id])))

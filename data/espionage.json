@@ -94,6 +94,9 @@
 		{"id": "financer_opposition", "family": "intrigue", "label": "Financer l'opposition", "tier": 2,
 			"cost": {"influence": 35}, "days": 45, "success": 70, "discovery": 25, "spend": 15,
 			"text": "Le plus grand courant d'opposition reçoit de l'argent et formule une doléance de plus, deux fois plus exigeante. S'il n'est pas écouté, ses systèmes grognent."},
+		{"id": "frictions", "family": "intrigue", "label": "Attiser les frictions", "tier": 2, "cost": {"influence": 35}, "days": 45, "success": 70, "discovery": 25, "spend": 15, "peoples": true, "text": "Peuples mêlés : rumeurs et provocations dans son système le plus mêlé, -15 de stabilité pendant un an."},
+		{"id": "appel_retour", "family": "intrigue", "label": "Appel au retour", "tier": 2, "cost": {"influence": 30}, "days": 45, "success": 75, "discovery": 20, "spend": 10, "peoples": true, "text": "Peuples mêlés : 3 des vôtres qui vivent chez lui rentrent au pays, avec leurs savoir-faire."},
+		{"id": "propagande", "family": "intrigue", "label": "Propagande xénophobe", "tier": 3, "cost": {"influence": 45}, "days": 60, "success": 65, "discovery": 30, "spend": 15, "peoples": true, "text": "Peuples mêlés : pendant deux ans, ses peuples venus d'ailleurs ne s'intègrent plus qu'à moitié et le Glaive et l'Autel gagnent des voix chez lui."},
 		{"id": "coup", "family": "intrigue", "label": "Fomenter un coup d'État", "tier": 3,
 			"cost": {"influence": 60}, "days": 90, "success": 45, "discovery": 45, "spend": 25,
 			"text": "Si sa stabilité d'empire est sous 35 : crise de régime, le courant opposé prend le pouvoir, ses lois tombent, six mois sans lois."}

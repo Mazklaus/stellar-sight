@@ -362,6 +362,16 @@ static func peoples_status(player: int, species: String, status: String) -> Dict
 	return {"type": "peoples_status", "player": player, "species": species, "status": status}
 
 
+## Politique d'accueil des réfugiés (voir Movements.POLICIES).
+static func refugee_policy(player: int, policy: String) -> Dictionary:
+	return {"type": "refugee_policy", "player": player, "policy": policy}
+
+
+## Réponse à la revendication d'une diaspora : "systeme", "neutre" ou "refus" (voir Movements).
+static func diaspora_answer(player: int, choice: String) -> Dictionary:
+	return {"type": "diaspora_answer", "player": player, "choice": choice}
+
+
 static func law_adopt(player: int, law: String) -> Dictionary:
 	return {"type": "law_adopt", "player": player, "law": law}
 
@@ -471,6 +481,10 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Politics.check_support(state, int(cmd["player"]), int(cmd.get("current", -2)))
 		"peoples_status":
 			return Peoples.check_status(state, int(cmd["player"]), String(cmd.get("species", "")), String(cmd.get("status", "")))
+		"refugee_policy":
+			return Movements.check_policy(state, int(cmd["player"]), String(cmd.get("policy", "")))
+		"diaspora_answer":
+			return Movements.check_claim(state, int(cmd["player"]), String(cmd.get("choice", "")))
 		"law_adopt":
 			return Laws.check_adopt(state, int(cmd["player"]), String(cmd.get("law", "")))
 		"law_revoke":
@@ -746,6 +760,10 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Politics.support(state, int(cmd["player"]), int(cmd["current"]))
 		"peoples_status":
 			Peoples.set_status(state, int(cmd["player"]), String(cmd["species"]), String(cmd["status"]))
+		"refugee_policy":
+			Movements.set_policy(state, int(cmd["player"]), String(cmd["policy"]))
+		"diaspora_answer":
+			Movements.answer_claim(state, int(cmd["player"]), String(cmd["choice"]), [] as Array[Dictionary])
 		"law_adopt":
 			Laws.adopt(state, int(cmd["player"]), String(cmd["law"]))
 		"law_revoke":
