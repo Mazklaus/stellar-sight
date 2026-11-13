@@ -854,6 +854,10 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 		var ffx := Fauna.effects(state, empire_id)
 		_merge(base, ffx)
 		_merge(exalted, ffx)
+		# Luxes dont l'empire profite (voir Goods) : même empreinte relic_rev.
+		var gfx := Goods.effects(state, empire_id)
+		_merge(base, gfx)
+		_merge(exalted, gfx)
 		# Lois en vigueur (voir Laws) : même empreinte relic_rev, sans la stabilité (ligne à part).
 		if state.politics_on:
 			var lfx := Laws.research_effects(state, empire_id)

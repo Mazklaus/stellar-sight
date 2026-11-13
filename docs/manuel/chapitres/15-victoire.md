@@ -25,7 +25,7 @@ Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie 
 | --- | --- | --- |
 | L'Élu des routes | Ossarane | Unions de lignées, héritier loyal, 2 ans |
 | Le Dernier Couplet | Chœur Éternel | 3 cathédrales-chœurs, 2 ans en Exaltation |
-| La Charte des Quarante et Un | Vael | Paix et commerce avec tous, 2 ans |
+| La Charte des Quarante et Un | Vael | Paix et accord commercial (au moins) avec tous, 2 ans |
 | La Moisson | Kh'thari | La moitié de la population galactique, 2 ans |
 | L'Éveil de la Noosphère | Teyl | 12 colonies reliées sans coupure, 2 ans |
 | La Terre promise | Ferrocornes | Le monde caché colonisé, la flotte-ville y campe 1 an |

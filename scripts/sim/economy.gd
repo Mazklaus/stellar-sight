@@ -336,7 +336,8 @@ static func max_projects_for(state: GameState, empire_id: int) -> int:
 
 ## Coût d'un bâtiment pour un empire (technologies de nanofabrication comprises).
 static func building_cost(state: GameState, empire_id: int, building_id: String) -> Dictionary:
-	return Research.scaled_amounts(GameData.building(building_id).get("cost", {}), Research.fx_int(state, empire_id, "building_cost_pct"))
+	var c := Research.scaled_amounts(GameData.building(building_id).get("cost", {}), Research.fx_int(state, empire_id, "building_cost_pct"))
+	return Goods.with_strategic(state, c, Goods.building_strategic(building_id))
 
 
 ## Bâtiment débloqué par les technologies de l'empire ?

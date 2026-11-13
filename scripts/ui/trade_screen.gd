@@ -24,7 +24,10 @@ static func build(es: EmpireScreens) -> void:
 	cl.mouse_filter = Control.MOUSE_FILTER_STOP
 	es._key_value(g, "Routes envoyées", str(Trade.sent_by(state, player).size()))
 	es._key_value(g, "Partenaires", str(Trade.partners(state, player).size()))
-	var inc := Trade.income(state, player)
+	var inc := Trade.income(state, player).duplicate()
+	if not state.goods.is_empty():
+		for r in Goods.income(state, player):
+			inc[r] = int(inc.get(r, 0)) + int(Goods.income(state, player)[r])
 	var parts := PackedStringArray()
 	for r in GameData.resource_ids():
 		if int(inc.get(r, 0)) != 0:
@@ -72,15 +75,42 @@ static func build(es: EmpireScreens) -> void:
 	es._side_box.add_child(HSeparator.new())
 	es._side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("trade").get("why", "")), EmpireScreens.SIDE_WIDTH - 24.0, 13))
 
+	var root := VBoxContainer.new()
+	root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_theme_constant_override("separation", 10)
+	es._content.add_child(root)
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 2)
+	root.add_child(tabs)
+	for t in [["routes", "Routes"], ["resources", "Ressources"], ["market", "Marché"]]:
+		var tb := Button.new()
+		tb.theme_type_variation = &"TabButton"
+		tb.text = String(t[1]).to_upper()
+		tb.toggle_mode = true
+		tb.focus_mode = Control.FOCUS_NONE
+		tb.button_pressed = es.trade_tab == String(t[0])
+		var tid: String = t[0]
+		tb.pressed.connect(func() -> void:
+			es.trade_tab = tid
+			es.show_screen("trade"))
+		tabs.add_child(tb)
+		es.trade_buttons["tab_" + tid] = tb
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	es._content.add_child(scroll)
+	root.add_child(scroll)
 	var col := VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.add_theme_constant_override("separation", 18)
 	scroll.add_child(col)
+	if es.trade_tab == "resources":
+		GoodsScreen.build_resources(es, col)
+		return
+	if es.trade_tab == "market":
+		GoodsScreen.build_market(es, col)
+		return
 
 	var sent := Widgets.Block.new("Vos routes (%d / %d)" % [Trade.sent_by(state, player).size(), cap])
 	col.add_child(sent)
@@ -220,5 +250,5 @@ static func _route_row(es: EmpireScreens, r: Dictionary, mine: bool) -> Control:
 static func signature(es: EmpireScreens) -> String:
 	var state := es._state
 	@warning_ignore("integer_division")
-	return "%d|%d|%s|%s|%d" % [state.tick / 30, Trade.reserved(state, es._player), str(Trade.embargoes_of(state, es._player)),
-			str(Trade.sent_by(state, es._player).size()), Trade.capacity(state, es._player)]
+	return "%d|%d|%s|%s|%d|%s" % [state.tick / 30, Trade.reserved(state, es._player), str(Trade.embargoes_of(state, es._player)),
+			str(Trade.sent_by(state, es._player).size()), Trade.capacity(state, es._player), GoodsScreen.signature(es)]

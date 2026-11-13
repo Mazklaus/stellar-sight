@@ -1,0 +1,115 @@
+{
+	"_sources": [
+		"Étude « Le commerce galactique » (2026-11-13, validée), propositions 6 à 10 et 15 : https://claude.ai/artifact/Ld3mdBtJKAUmTXKvN1DceK",
+		"Humankind : luxes, bonus de diversité (le premier exemplaire compte), licences d'accès vendues sans transférer le stock. https://humankind.fandom.com/wiki/Luxury_Resource",
+		"Endless Space 2 : ressources de luxe en paliers, ressources stratégiques consommées par les modules avancés. https://endless-space-2.fandom.com/wiki/Strategic_Resources",
+		"Civilization VI : monopoles (60 % des ressources d'un type). https://civilization.fandom.com/wiki/Monopolies_and_Corporations_(Civ6)",
+		"Stellaris : marché intérieur, frais, prix qui montent à l'achat et reviennent, achats mensuels ; accords commerciaux sur la durée. https://stellaris.fandom.com/wiki/Trade"
+	],
+	"_doc": "Lot 2A du commerce. Les gisements de luxe et de stratégiques sont posés à la création de la partie (flux aléatoire à part, la galaxie ne change pas) et exploités par une colonie ou un avant-poste établi. Luxes : le premier exemplaire de chaque luxe (gisement ou licence) donne de la stabilité dans tous les systèmes et un petit effet ; chaque exemplaire de plus donne extra_energy. Stratégiques : +1 par gisement et par mois, une fois l'ère du gisement atteinte ; les modules et bâtiments avancés en consomment.",
+	"modes": [
+		{"id": "aucuns", "label": "Aucuns", "luxury_chance": 0, "strategic_chance": 0, "desc": "Ni luxes ni stratégiques : les modules avancés n'en demandent pas."},
+		{"id": "rares", "label": "Rares", "luxury_chance": 4, "strategic_chance": 3, "desc": "Peu de gisements : chaque luxe se dispute, les monopoles viennent vite."},
+		{"id": "normaux", "label": "Normaux", "luxury_chance": 7, "strategic_chance": 5, "desc": "Environ une planète sur huit porte un luxe ou un stratégique."},
+		{"id": "abondants", "label": "Abondants", "luxury_chance": 11, "strategic_chance": 8, "desc": "Des gisements partout : la diversité est facile, les monopoles rares."}
+	],
+	"default_mode": "normaux",
+	"market_modes": [
+		{"id": "actif", "label": "Actif", "desc": "Acheter et vendre matériaux, nourriture, cristaux et stratégiques contre de l'énergie, frais de 30 %."},
+		{"id": "aucun", "label": "Aucun", "desc": "Pas de marché : chacun vit de ce qu'il produit et de ce qu'il échange."}
+	],
+	"default_market": "actif",
+	"tiers": [
+		{"id": 1, "label": "Commun", "weight": 6, "stability": 1, "licence_price": 3},
+		{"id": 2, "label": "Peu commun", "weight": 3, "stability": 2, "licence_price": 5},
+		{"id": 3, "label": "Rare", "weight": 1, "stability": 3, "licence_price": 8}
+	],
+	"extra_energy": 2,
+	"luxuries": [
+		{"id": "soie_vide", "label": "Soie du vide", "tier": 1, "fx": {"production_pct": {"influence": 5}},
+			"text": "Tissée par des araignées qui n'ont jamais vu le sol. Les diplomates en portent ; les autres en rêvent."},
+		{"id": "epices_kesh", "label": "Épices de Kesh", "tier": 1, "fx": {"production_pct": {"food": 5}},
+			"text": "Une pincée relève un banquet, deux font pleurer un amiral."},
+		{"id": "vin_nebuleuse", "label": "Vin de nébuleuse", "tier": 1, "fx": {"growth_pct": 5},
+			"text": "Vieilli dans le froid d'un nuage de gaz. On dit qu'il rend fécond ; on dit beaucoup de choses après trois verres."},
+		{"id": "ambre_chantant", "label": "Ambre chantant", "tier": 1, "fx": {"production_pct": {"energy": 5}},
+			"text": "Une résine fossile qui fredonne quand on la chauffe. Les centrales l'aiment pour des raisons que personne n'explique."},
+		{"id": "perles_glace", "label": "Perles de lune glacée", "tier": 2, "fx": {"building_cost_pct": -5},
+			"text": "Arrachées aux geysers d'une lune morte. Les architectes paient leurs maçons en perles, et les maçons travaillent plus vite."},
+		{"id": "encens_fossile", "label": "Encens fossile", "tier": 2, "fx": {"production_pct": {"knowledge": 5}},
+			"text": "La fumée d'une forêt disparue depuis cent millions d'années. Elle éclaircit l'esprit, et les bibliothèques sentent bon."},
+		{"id": "bois_coeur", "label": "Bois-cœur stellaire", "tier": 2, "fx": {"ship_days_pct": -5},
+			"text": "Un bois qui pousse dans l'ombre des naines rouges, plus dur que l'acier. Les charpentiers de coques se le disputent."},
+		{"id": "corail_orage", "label": "Corail d'orage", "tier": 2, "fx": {"production_pct": {"materials": 5}},
+			"text": "Il pousse dans les océans foudroyés et retient l'électricité. Les mineurs s'en servent comme amorce, avec plus ou moins de prudence."},
+		{"id": "larmes_quasar", "label": "Larmes de quasar", "tier": 3, "fx": {"damage_pct": 5},
+			"text": "Des gouttes de lumière figée, éjectées par un astre mourant. Montées sur un canon, elles le rendent un peu plus convaincant."},
+		{"id": "plumes_phenix", "label": "Plumes de phénix solaire", "tier": 3, "fx": {"upkeep_pct": -5},
+			"text": "Laissées par des créatures qui nichent dans les couronnes stellaires. Un équipage qui en porte ne réclame plus sa solde à l'heure."},
+		{"id": "cristal_memoire", "label": "Cristal de mémoire", "tier": 3, "fx": {"production_pct": {"knowledge": 8}},
+			"text": "Il garde ce qu'on lui confie, et parfois ce qu'on ne lui a pas confié. Les archivistes ne dorment plus."},
+		{"id": "lait_etoile", "label": "Lait d'étoile", "tier": 3, "fx": {"production_pct": {"all": 3}},
+			"text": "Un fluide nacré qu'on récolte au bord des naines blanches. Personne ne sait vraiment ce que c'est. Tout le monde en veut."}
+	],
+	"strategic": [
+		{"id": "plasmine", "label": "Plasmine", "short": "Plas", "era": 2, "price": 10,
+			"text": "Un plasma stable qu'on transporte en bouteille magnétique. Les armes lourdes et les hangars en consomment."},
+		{"id": "ferronoir", "label": "Ferronoir", "short": "Fer", "era": 3, "price": 15,
+			"text": "Un métal qui absorbe la lumière et presque tout le reste. Les modules titanesques en sont bardés."},
+		{"id": "etherine", "label": "Éthérine", "short": "Éth", "era": 4, "price": 25,
+			"text": "On ne la voit qu'en coin d'œil. Les ingénieurs qui la travaillent finissent par parler doucement, et les nefs-mondes par en dépendre."}
+	],
+	"monopoly": {
+		"share_pct": 60,
+		"min_deposits": 2,
+		"income": [[60, 5], [75, 10], [100, 25]],
+		"licence_mult_pct": 150,
+		"_doc": "Un empire qui exploite au moins share_pct % des gisements exploités d'un luxe (et au moins min_deposits) en a le monopole : énergie par mois selon sa part, licences plus chères, souvenir « accapareur » chez les autres empires qui le connaissent."
+	},
+	"licence": {
+		"per_jumps": 4,
+		"route_value": 2,
+		"_doc": "Prix mensuel d'une licence, payé par l'acheteur au vendeur : prix du palier + 1 par per_jumps sauts entre les capitales (× licence_mult_pct en monopole). Chaque licence ajoute route_value à la valeur des routes entre les deux empires. Il faut un palier de commerce et que le vendeur exploite toujours le luxe."
+	},
+	"market": {
+		"base_fee_pct": 30,
+		"min_fee_pct": 5,
+		"prices": {"materials": 1, "food": 1, "crystals": 8},
+		"impact_per_mille": 4,
+		"impact_per": 10,
+		"min_mult": 400,
+		"max_mult": 3000,
+		"recover_pct": 50,
+		"_doc": "Prix en énergie par unité, multiplié par un facteur en pour mille (1000 = prix de base). Chaque tranche de impact_per unités achetées le monte de impact_per_mille ‰ (vendues : le baisse), entre min_mult et max_mult ; chaque mois il revient de recover_pct % vers 1000. Frais : base_fee_pct % (ajoutés à l'achat, retirés à la vente), réduits par market_fee_pct (technologies, lois, talents), au moins min_fee_pct %."
+	},
+	"deals": {
+		"max_months": 120,
+		"proposal_days": 30,
+		"_doc": "Échange entre deux empires : ce que chacun donne, en une fois (months 0) ou chaque mois pendant months mois (12 à max_months). Un don impayé ou une rupture laissent le souvenir « contrat rompu ». L'IA juge selon les prix du marché, ses besoins et son opinion."
+	},
+	"strategic_costs": {
+		"_doc": "Coûts en stratégiques, seulement si les luxes et stratégiques sont en jeu (sinon ces coûts disparaissent). Modules : par taille de coque.",
+		"modules": {
+			"piece_artillerie": {"large": {"plasmine": 2}, "titan": {"plasmine": 4}},
+			"hangar_chasseurs": {"medium": {"plasmine": 1}, "large": {"plasmine": 2}, "titan": {"plasmine": 4}},
+			"hangar_intercepteurs": {"medium": {"plasmine": 1}, "large": {"plasmine": 2}, "titan": {"plasmine": 4}},
+			"hangar_bombardiers": {"medium": {"plasmine": 1}, "large": {"plasmine": 2}, "titan": {"plasmine": 4}},
+			"canon_siege": {"titan": {"ferronoir": 6}},
+			"bouclier_flotte": {"titan": {"ferronoir": 5}},
+			"oeil_titan": {"titan": {"ferronoir": 4}},
+			"dome_antimissile": {"titan": {"ferronoir": 4}},
+			"lance_stellaire": {"titan": {"etherine": 6}},
+			"hangar_geant": {"titan": {"ferronoir": 6}},
+			"ancre_gravitationnelle": {"titan": {"etherine": 8}},
+			"canon_singularite": {"titan": {"etherine": 10}},
+			"forge_mobile": {"titan": {"ferronoir": 8}},
+			"soleil_captif": {"titan": {"etherine": 15}},
+			"coeur_etoile": {"titan": {"etherine": 10}},
+			"moteur_trame": {"titan": {"etherine": 12}},
+			"brise_monde": {"titan": {"etherine": 12}}
+		},
+		"buildings": {
+			"bourse_mille_soleils": {"ferronoir": 20}
+		}
+	}
+}

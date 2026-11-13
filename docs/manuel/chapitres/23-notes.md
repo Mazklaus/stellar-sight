@@ -17,7 +17,7 @@ Stellar Sight est un 4X spatial en temps réel pausable, jouable aussi au tour p
 
 ### Ce qui viendra
 
-Le jeu évolue encore. Sont prévus, entre autres : le commerce galactique, les migrations et les réfugiés, les populations mixtes, les peuples mineurs, le conseil galactique, des puissances anciennes endormies, les coques propres à chaque peuple et des vaisseaux en 3D. L'équilibre entre les peuples sera réglé quand le jeu sera plus figé : les chiffres de ce manuel sont ceux de la version indiquée en page de garde, pas une promesse.
+Le jeu évolue encore. Sont prévus, entre autres : la suite du commerce galactique (ressources de luxe et stratégiques, marché, échange de technologies), les migrations et les réfugiés, les populations mixtes, les peuples mineurs, le conseil galactique, des puissances anciennes endormies, les coques propres à chaque peuple et des vaisseaux en 3D. L'équilibre entre les peuples sera réglé quand le jeu sera plus figé : les chiffres de ce manuel sont ceux de la version indiquée en page de garde, pas une promesse.
 
 ::: image MJ-30 flottant-d
 :::

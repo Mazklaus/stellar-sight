@@ -271,6 +271,9 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.advanced_start = bool(d.get("advanced", false))
 	for r in GameData.resource_ids():
 		e.resources[r] = int(d["resources"].get(r, 0))
+	for r in GameData.strategic_ids():
+		if int(d["resources"].get(r, 0)) != 0:
+			e.resources[r] = int(d["resources"][r])
 	e.capital_planet = int(d["capital"])
 	e.home_planet = int(d.get("home", e.capital_planet))
 	e.starving = bool(d["starving"])

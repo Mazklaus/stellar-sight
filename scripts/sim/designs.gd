@@ -84,6 +84,8 @@ static func compute(hull_id: String, modules: Array) -> Dictionary:
 	for k in STATS:
 		out[k] = int(h.get(k, 0))
 	out["cost"] = (h.get("cost", {}) as Dictionary).duplicate()
+	# Stratégiques (voir Goods) : à part, ajoutés au coût seulement quand ils sont en jeu.
+	var strat := {}
 	out["upkeep"] = (h.get("upkeep", {}) as Dictionary).duplicate()
 	out["days"] = int(h.get("days", 1))
 	var weapons := {}
@@ -103,6 +105,9 @@ static func compute(hull_id: String, modules: Array) -> Dictionary:
 		var cost: Dictionary = raw.get(size, {}) if raw.has(size) else raw
 		for r in cost:
 			out["cost"][r] = int(out["cost"].get(r, 0)) + int(cost[r])
+		var sc := Goods.module_strategic(String(mid), size)
+		for r in sc:
+			strat[r] = int(strat.get(r, 0)) + int(sc[r])
 		# Méga-coques des échelons supérieurs : leurs équipes posent plusieurs modules à la fois.
 		@warning_ignore("integer_division")
 		out["days"] = int(out["days"]) + int(_sized(m.get("days", 0), size)) * int(h.get("module_days_pct", 100)) / 100
@@ -125,6 +130,8 @@ static func compute(hull_id: String, modules: Array) -> Dictionary:
 		if int(out["cost"][r]) > 0:
 			cost_out[r] = int(out["cost"][r])
 	out["cost"] = cost_out
+	if not strat.is_empty():
+		out["strategic"] = strat
 	return out
 
 

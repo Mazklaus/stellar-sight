@@ -108,6 +108,45 @@ static func trade_reserve(player: int, n: int) -> Dictionary:
 	return {"type": "trade_reserve", "player": player, "n": n}
 
 
+## Achète une licence d'un luxe à un partenaire commercial (voir Goods) : payée chaque mois.
+static func licence_buy(player: int, seller: int, good: String) -> Dictionary:
+	return {"type": "licence_buy", "player": player, "target": seller, "good": good}
+
+
+## Met fin à une licence (achetée ou vendue) entre l'empire et un autre.
+static func licence_cancel(player: int, other: int, good: String) -> Dictionary:
+	return {"type": "licence_cancel", "player": player, "target": other, "good": good}
+
+
+## Ferme (ou rouvre) la vente de licences d'un luxe.
+static func licence_close(player: int, good: String, closed: bool) -> Dictionary:
+	return {"type": "licence_close", "player": player, "good": good, "closed": closed}
+
+
+## Achète (n > 0) ou vend (n < 0) au marché intérieur, contre de l'énergie.
+static func market_trade(player: int, res: String, n: int) -> Dictionary:
+	return {"type": "market_trade", "player": player, "res": res, "n": n}
+
+
+## Ordre mensuel au marché : n unités achetées (n > 0) ou vendues (n < 0) à chaque bilan ; 0 l'annule.
+static func market_order(player: int, res: String, n: int) -> Dictionary:
+	return {"type": "market_order", "player": player, "res": res, "n": n}
+
+
+## Propose un échange de ressources à un empire, en une fois (months 0) ou chaque mois.
+static func deal_offer(player: int, target: int, give: Dictionary, get_: Dictionary, months: int) -> Dictionary:
+	return {"type": "deal_offer", "player": player, "target": target, "give": give, "get": get_, "months": months}
+
+
+static func deal_answer(player: int, offer_id: int, accept: bool) -> Dictionary:
+	return {"type": "deal_answer", "player": player, "offer": offer_id, "accept": accept}
+
+
+## Rompt un contrat d'échange en cours (souvenir « contrat rompu » chez l'autre).
+static func deal_cancel(player: int, deal_id: int) -> Dictionary:
+	return {"type": "deal_cancel", "player": player, "deal": deal_id}
+
+
 ## Soudoie l'héritier d'une dynastie féodale rivale (sa loyauté baisse).
 static func bribe_heir(player: int, target: int) -> Dictionary:
 	return {"type": "bribe_heir", "player": player, "target": target}
@@ -442,6 +481,22 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Trade.check_lift(state, int(cmd["player"]), int(cmd.get("target", -1)))
 		"trade_reserve":
 			return Trade.check_reserve(state, int(cmd["player"]), int(cmd.get("n", -1)))
+		"licence_buy":
+			return Goods.check_licence(state, int(cmd["player"]), int(cmd.get("target", -1)), String(cmd.get("good", "")))
+		"licence_cancel":
+			return Goods.check_cancel_licence(state, int(cmd["player"]), int(cmd.get("target", -1)), String(cmd.get("good", "")))
+		"licence_close":
+			return "" if state.get_empire(int(cmd["player"])) != null and Goods.is_luxury(String(cmd.get("good", ""))) else "luxe inconnu"
+		"market_trade":
+			return Goods.check_market(state, int(cmd["player"]), String(cmd.get("res", "")), int(cmd.get("n", 0)))
+		"market_order":
+			return Goods.check_order(state, int(cmd["player"]), String(cmd.get("res", "")), int(cmd.get("n", 0)))
+		"deal_offer":
+			return Goods.check_offer(state, int(cmd["player"]), int(cmd.get("target", -1)), cmd.get("give", {}), cmd.get("get", {}), int(cmd.get("months", 0)))
+		"deal_answer":
+			return Goods.check_answer(state, int(cmd["player"]), int(cmd.get("offer", -1)), bool(cmd.get("accept", false)))
+		"deal_cancel":
+			return Goods.check_cancel_deal(state, int(cmd["player"]), int(cmd.get("deal", -1)))
 		"bribe_heir":
 			return Diplomacy.check_bribe(state, int(cmd["player"]), int(cmd.get("target", -1)))
 		"banquet":
@@ -745,6 +800,22 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Trade.lift(state, int(cmd["player"]), int(cmd["target"]))
 		"trade_reserve":
 			Trade.set_reserve(state, int(cmd["player"]), int(cmd["n"]))
+		"licence_buy":
+			Goods.buy_licence(state, int(cmd["player"]), int(cmd["target"]), String(cmd["good"]))
+		"licence_cancel":
+			Goods.cancel_licence(state, int(cmd["player"]), int(cmd["target"]), String(cmd["good"]))
+		"licence_close":
+			Goods.set_closed(state, int(cmd["player"]), String(cmd["good"]), bool(cmd["closed"]))
+		"market_trade":
+			Goods.trade_market(state, int(cmd["player"]), String(cmd["res"]), int(cmd["n"]))
+		"market_order":
+			Goods.set_order(state, int(cmd["player"]), String(cmd["res"]), int(cmd["n"]))
+		"deal_offer":
+			Goods.offer(state, int(cmd["player"]), int(cmd["target"]), cmd["give"], cmd["get"], int(cmd["months"]))
+		"deal_answer":
+			Goods.answer(state, int(cmd["offer"]), bool(cmd["accept"]))
+		"deal_cancel":
+			Goods.cancel_deal(state, int(cmd["player"]), int(cmd["deal"]))
 		"bribe_heir":
 			Diplomacy.bribe(state, int(cmd["player"]), int(cmd["target"]))
 		"banquet":

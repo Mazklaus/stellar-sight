@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.2
+
+- **Commerce, routes et traités** : trois paliers (comptoirs ouverts, accord commercial, libre-échange), routes commerciales, comptoirs, routes intérieures, blocus, piraterie des routes et embargo (chapitre 8).
+- Écran Commerce ([[C]]) et lentille du commerce ([[G]]) (chapitre 2).
+- La Charte des Quarante et Un demande désormais un accord commercial (chapitre 13).
+
 ### Édition 1.1
 
 - **Bêtes de guerre** : le Vivarium, le Chalutier du vide et le filet gravitationnel ; les bêtes grandissent puis rejoignent vos flottes (chapitre 16).

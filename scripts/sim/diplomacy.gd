@@ -710,6 +710,8 @@ static func treaty_income(state: GameState, empire_id: int) -> Dictionary:
 			_add(out, treaty_info(p).get("income", {}))
 	# Commerce (voir Trade) : routes et influence des paliers, calculées au dernier bilan.
 	_add(out, Trade.income(state, empire_id))
+	# Luxes (voir Goods) : licences vendues ou achetées, monopoles, exemplaires en plus.
+	_add(out, Goods.income(state, empire_id))
 	# Contrats de flotte : le client paie, le mercenaire encaisse.
 	var c := contract_of(state, empire_id)
 	if not c.is_empty():
