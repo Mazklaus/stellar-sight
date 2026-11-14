@@ -452,7 +452,7 @@ func _test_save() -> void:
 	Amphictyony.propose(st, ms[1], "step", "foi" if Amphictyony.family_available(st, "foi") else "savoir", 1, -1, "")
 	AmphInst.freeze(st, AmphInst.arbiter(st), int(Amphictyony.proposal_of(st, ms[1])["id"]))
 	var d: Dictionary = JSON.parse_string(JSON.stringify(st.to_snapshot()))
-	_ok(int(d["version"]) == 51, "Sauvegarde : version 51")
+	_ok(int(d["version"]) == 52, "Sauvegarde : version 52")
 	var back := GameState.from_dict(d)
 	_ok(AmphInst.councillors(back) == AmphInst.councillors(st) and AmphInst.arbiter(back) == AmphInst.arbiter(st), "Sauvegarde : Haute Voûte et Arbitre gardés")
 	_ok(AmphInst.work_total(back) == 100 and AmphInst.favors(back, ms[1], ms[0]) == AmphInst.favors(st, ms[1], ms[0]) and AmphInst.favors(st, ms[1], ms[0]) >= 3, "Sauvegarde : chantier et faveurs gardés")

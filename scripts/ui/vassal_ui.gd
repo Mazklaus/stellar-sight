@@ -34,6 +34,9 @@ static func side(state: GameState, player: int, width: float) -> Control:
 	box.add_theme_constant_override("separation", 4)
 	var lord := Vassals.lord_of(state, player)
 	var subs := Vassals.subjects_of(state, player)
+	if state.vassals_on or state.koinon_on:
+		for t in Vassals.talent_labels(state, player):
+			box.add_child(UiTheme.paragraph("%s. %s" % [t[0], t[1]], width, 13))
 	if lord < 0 and subs.is_empty():
 		return box
 	box.add_child(HSeparator.new())
@@ -242,6 +245,13 @@ static func _subject_panel(state: GameState, player: int, id: int, emit: Callabl
 	box.add_child(ll)
 	var est := Vassals.tribute_estimate(state, id)
 	box.add_child(UiTheme.dim("Lié depuis %d jours. Tribut ce mois : %s" % [Vassals.bond_days(state, id), GameData.format_amounts(est) if not est.is_empty() else "rien"], 13))
+	var sp := Vassals.spec_of(state, id)
+	if sp != "":
+		box.add_child(UiTheme.dim("Spécialité : %s, rang %s%s" % [String(Vassals.opt_def("spec", sp).get("label", sp)), ["0", "I", "II", "III"][clampi(Vassals.spec_rank(state, id), 0, 3)],
+				"  (sans effet tant qu'il est déloyal)" if Vassals.spec_rank(state, id) == 0 else ""], 13))
+	if not Heroes.at_post(state, "resident", id, player).is_empty():
+		var fy := int(Vassals.link(state, id).get("fealty", -1))
+		box.add_child(UiTheme.dim("Votre Résident : %s" % ("allégeance secrète envers %s !" % state.get_empire(fy).short_name() if fy >= 0 else "aucune allégeance secrète"), 13))
 	if int(Vassals.link(state, id)["integ"]) >= 0:
 		box.add_child(UiTheme.dim("Intégration en cours : %d / %d mois" % [int(Vassals.link(state, id)["imo"]), int(Vassals.data()["integration"]["months"])], 13))
 	if Vassals.locked(state, id):
@@ -268,6 +278,8 @@ static func _subject_panel(state: GameState, player: int, id: int, emit: Callabl
 		b.tooltip_text = why if why != "" else "Assouplir est gratuit à tout moment ; durcir coûte de l'influence, une fois tous les 5 ans."
 	for c in Vassals.clause_defs():
 		var cid := String(c["id"])
+		if bool(c.get("faiths", false)) and not state.faith_on:
+			continue
 		g.add_child(UiTheme.dim(String(c["label"]), 13))
 		var ob := OptionButton.new()
 		ob.focus_mode = Control.FOCUS_NONE
@@ -275,6 +287,9 @@ static func _subject_panel(state: GameState, player: int, id: int, emit: Callabl
 		for i in opts.size():
 			ob.add_item("%s (%+.0f, %+.1f/mois)" % [String(opts[i]["label"]), int(opts[i]["now"]) / 10.0, int(opts[i]["m10"]) / 10.0], i)
 			ob.set_item_tooltip(i, String(opts[i]["text"]))
+			var req := String(opts[i].get("requires_lord", ""))
+			if req != "" and not bool(Vassals.talent(state, player).get(req, false)):
+				ob.set_item_disabled(i, true)
 			if String(opts[i]["id"]) == String(cl.get(cid, "")):
 				ob.selected = i
 		ob.item_selected.connect(func(i: int) -> void:
@@ -326,6 +341,18 @@ static func _subject_panel(state: GameState, player: int, id: int, emit: Callabl
 			func() -> void: emit.call(SimCommands.vas_act(player, "release", id)))
 	acts.add_child(rb)
 	buttons["release"] = rb
+	# Possessions bâties chez le sujet.
+	var pf := _flow()
+	box.add_child(pf)
+	for pd in Vassals.pos_defs():
+		var pid := String(pd["id"])
+		if Vassals.has_pos(state, id, pid):
+			pf.add_child(UiTheme.dim("✓ %s" % String(pd["label"]), 13))
+			continue
+		var pb := _btn("BÂTIR : %s (%s)" % [String(pd["label"]).to_upper(), GameData.format_amounts(pd.get("cost", {}))], Vassals.check_build_pos(state, player, id, pid), String(pd.get("text", "")),
+				func() -> void: emit.call(SimCommands.vas_act(player, "build", id, pid)))
+		pf.add_child(pb)
+		buttons["pos_" + pid] = pb
 	return box
 
 

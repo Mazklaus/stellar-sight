@@ -393,7 +393,7 @@ static func compute(state: GameState) -> Array[Dictionary]:
 			for who in [int(r["from"]), int(r["to"])]:
 				var inc: Dictionary = income.get(who, {})
 				@warning_ignore("integer_division")
-				inc["energy"] = int(inc.get("energy", 0)) + int(r["net"]) * maxi(0, 100 + Research.fx_int(state, who, "trade_income_pct") + TradeLinks.talent_int(state, who, "ext_route_pct") + Koinon.route_pct(state, int(r["from"]), int(r["to"]))) / 100
+				inc["energy"] = int(inc.get("energy", 0)) + int(r["net"]) * maxi(0, 100 + Research.fx_int(state, who, "trade_income_pct") + TradeLinks.talent_int(state, who, "ext_route_pct") + Koinon.route_pct(state, int(r["from"]), int(r["to"])) + Vassals.route_pct(state, who)) / 100
 				# Foi : une route vers un empire du même credo est un pèlerinage.
 				var pil := TradeLinks.talent_int(state, who, "pilgrim_influence")
 				if pil > 0 and not bool(r["blocked"]) and TradeLinks.same_credo(state, int(r["from"]), int(r["to"])):

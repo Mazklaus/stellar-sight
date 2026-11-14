@@ -1,5 +1,5 @@
 {
-	"_doc": "Fédérations et vassaux, lot 1 (étude du 2026-11-14, propositions 1 à 9) : fin des guerres à conditions payées en score de guerre, reddition, et un lien de sujet unique réglé par clauses (préréglages Vassal, Tributaire, Protectorat ; la Cour impériale de l'Amphictyonie est un préréglage verrouillé). Loyauté en dixièmes de point (-1000 à 1000, affichée de -100 à +100). Catalogues ouverts : clauses, options et préréglages se lisent ici.",
+	"_doc": "Fédérations et vassaux, lots 1 et 3 (étude du 2026-11-14, propositions 1 à 9) : fin des guerres à conditions payées en score de guerre, reddition, et un lien de sujet unique réglé par clauses (préréglages Vassal, Tributaire, Protectorat ; la Cour impériale de l'Amphictyonie est un préréglage verrouillé). Loyauté en dixièmes de point (-1000 à 1000, affichée de -100 à +100). Catalogues ouverts : clauses, options et préréglages se lisent ici.",
 	"_sources": [
 		"Stellaris, sujets et loyauté (wiki stellaris.fandom.com « Subject », journal de développement n° 247) : préréglages puis clauses, effet immédiat et mensuel de chaque clause sur la loyauté, patronage divisé, allégeance secrète, intégration après 10 ans, soutien à l'indépendance.",
 		"Humankind (wiki « Vassal ») : la vassalité naît d'une reddition, le vassal paie tribut, peut exiger sa liberté, un refus déclenche la guerre.",
@@ -8,6 +8,36 @@
 	"default_mode": "aucuns",
 	"modes": ["actifs", "aucuns"],
 	"trade_floor": 1,
+	"specs": {
+		"_doc": "Sujets spécialisés (prop. 10) : rang 1 à 3 selon la loyauté (dixièmes, seuils rank_loyalty) ; un sujet déloyal n'a plus de rang. sub : bonus du sujet, lord : bonus du suzerain, trib : tribut en plus (points de %).",
+		"rank_loyalty": [0, 300, 600],
+		"rempart": {"sub": {"defense_pct": [10, 15, 20]}, "lord": {"defense_pct": [3, 5, 7]}, "trib": {"energy": [5, 10, 15]}},
+		"prospecteur": {"sub": {"materials_pct": [10, 15, 20]}, "lord": {"materials_pct": [3, 5, 7]}, "trib": {"materials": [5, 10, 15]}},
+		"erudit": {"sub": {"knowledge_pct": [10, 15, 20]}, "lord": {"knowledge_pct": [3, 5, 7]}, "trib": {"knowledge": [5, 10, 15]}},
+		"satrapie": {"every_days": 360, "ships": ["croiseur", "fregate", "corvette"]},
+		"filiale": {"trib": {"energy": [10, 10, 10]}, "route_pct": 15}
+	},
+	"possessions": [
+		{"id": "comptoir", "label": "Comptoir de tribut", "cost": {"materials": 150, "influence": 20}, "trib_pct": 10, "text": "Des percepteurs à demeure : le tribut du sujet augmente d'un dixième."},
+		{"id": "garnison", "label": "Garnison", "cost": {"materials": 200}, "defense_pct": 10, "m10_same": 3, "m10_other": -5, "text": "Vos troupes chez lui : ses vaisseaux sont mieux protégés (+10 %). Un sujet de même credo est rassuré (+0,3 de loyauté par mois), les autres irrités (-0,5)."},
+		{"id": "mission", "label": "Mission", "cost": {"influence": 40}, "opinion": 10, "m10": 2, "convert_days": 180, "text": "Votre culture, et votre foi s'il y en a une : +10 d'opinion du sujet envers vous, +0,2 de loyauté par mois ; avec les religions, un fidèle de votre foi d'État tous les six mois dans sa capitale."}
+	],
+	"stability": {"_doc": "Prop. 28 : un sujet loyal (loyauté >= loyal_at, dixièmes) apaise les mouvements chez le suzerain, un sujet déloyal les nourrit ; un sujet humilié (diplomatie Aucune ou expansion Interdite, et déloyal) perd de la stabilité.", "loyal_at": 500, "loyal": 1, "loyal_max": 3, "disloyal": -2, "humiliated": -3},
+	"resident": {"m10_per_half_level": 3},
+	"talents": {
+		"_doc": "Talents de peuple (prop. 31), par couche d'espèce : valables pour les peuples personnalisés. requires : autres couches exigées. Clés lues par Vassals et Koinon.",
+		"gouvernement": {
+			"feodalite": {"label": "Allégeance des fiefs", "text": "Pas de patronage divisé jusqu'à trois sujets ; un héritier déloyal livre son fief à votre sujet le plus loyal plutôt qu'à un rival.", "patronage_free": 3, "heir_vassal": true},
+			"republique": {"label": "Fédéralisme", "text": "Fonde un Koinon sans deux ans d'alliance ; peut être réélu Stratège.", "quick_found": true, "reelect": true},
+			"theocratie": {"label": "Foi unificatrice", "text": "Impose son culte à ses sujets sans perte de loyauté ; dans une Communion qu'elle préside, les credos différents ne coûtent pas de cohésion.", "cult_free": true, "communion_free": true},
+			"horde": {"label": "Satrapies", "text": "Ses sujets peuvent être des satrapies, qui livrent chaque année un vaisseau de guerre.", "satrapy": true},
+			"syndicat": {"label": "Filiales", "text": "Ses sujets peuvent être des filiales : 10 % d'énergie de plus au tribut, routes commerciales du sujet +15 %.", "filiale": true},
+			"conscience": {"label": "Revues partagées", "text": "Dans une Ligue savante, son bonus de Savoir compte un rang de plus.", "savante_rank": 1}
+		},
+		"archetype": {
+			"ruche": {"requires": {"credo": "survie"}, "label": "Ni maîtres ni pairs", "text": "Ni Koinon ni sujets ; mais nul ne se rend devant elle.", "no_koinon": true, "no_subjects": true, "no_surrender_to": true}
+		}
+	},
 	"amph_voix_pct": -50,
 	"terms": {
 		"min_war_days": 60,
@@ -97,6 +127,18 @@
 		{"id": "integ", "label": "Intégration", "opts": [
 			{"id": "permise", "label": "Permise", "now": -100, "m10": -5, "text": "Après dix ans de lien, un sujet loyal peut être intégré à l'empire du suzerain."},
 			{"id": "interdite", "label": "Interdite", "now": 50, "m10": 5, "text": "Le sujet ne sera jamais absorbé."}
+		]},
+		{"id": "spec", "label": "Spécialité", "opts": [
+			{"id": "aucune", "label": "Aucune", "now": 0, "m10": 0, "text": "Le sujet n'a pas de rôle particulier."},
+			{"id": "rempart", "label": "Rempart", "now": -30, "m10": 0, "spec": true, "text": "Le sujet garde la frontière : ses vaisseaux sont mieux protégés (+10 à +20 %), les vôtres un peu aussi (+3 à +7 %) ; il verse en plus 5 à 15 % de son énergie. Le rang monte avec sa loyauté."},
+			{"id": "prospecteur", "label": "Prospecteur", "now": -30, "m10": 0, "spec": true, "text": "Le sujet fouille ses mondes : +10 à +20 % de matériaux chez lui, +3 à +7 % chez vous ; il verse en plus 5 à 15 % de ses matériaux. Le rang monte avec sa loyauté."},
+			{"id": "erudit", "label": "Érudit", "now": -30, "m10": 0, "spec": true, "text": "Le sujet tient vos académies : +10 à +20 % de Savoir chez lui, +3 à +7 % chez vous ; il verse en plus 5 à 15 % de son Savoir. Le rang monte avec sa loyauté."},
+			{"id": "satrapie", "label": "Satrapie", "now": -50, "m10": -3, "spec": true, "requires_lord": "satrapy", "text": "Talent de la horde : chaque année, le sujet livre à son suzerain un vaisseau de guerre qu'il paie de ses matériaux."},
+			{"id": "filiale", "label": "Filiale", "now": 0, "m10": 0, "spec": true, "requires_lord": "filiale", "text": "Talent du syndicat : le sujet verse 10 % de son énergie en plus, mais ses routes commerciales rapportent 15 % de plus."}
+		]},
+		{"id": "cult", "label": "Culte", "faiths": true, "opts": [
+			{"id": "libre", "label": "Libre", "now": 0, "m10": 0, "text": "Le sujet garde sa foi."},
+			{"id": "impose", "label": "Culte imposé", "now": -100, "m10": -5, "cult": true, "text": "Votre foi d'État devient la sienne, et le reste tant que la clause tient. Il ne l'oublie pas (une théocratie l'impose sans rancœur)."}
 		]}
 	],
 	"presets": [

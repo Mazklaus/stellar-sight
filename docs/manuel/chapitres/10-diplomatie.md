@@ -181,6 +181,29 @@ Le suzerain défend toujours son sujet. Ni l'un ni l'autre ne peut déclarer la 
 Un vaincu à 100 points de score contre lui n'a plus rien à perdre en se rendant. Si vous menez, proposez vos conditions avant : un vassal vivant vous rapporte un tribut, un empire mort ne vous rapporte que ses ruines.
 :::
 
+**Spécialités.** Une clause de plus, **Spécialité**, donne un rôle au sujet : **Rempart** (ses vaisseaux mieux protégés, les vôtres un peu aussi), **Prospecteur** (matériaux) ou **Érudit** (Savoir). Le sujet gagne de +10 à +20 %, vous de +3 à +7 %, et il verse en plus de 5 à 15 % de la ressource. Le **rang** (I à III) suit sa loyauté : déloyal, il n'en a plus. Imposer une spécialité coûte 3 de loyauté sur-le-champ.
+
+**Possessions.** Chez un sujet, vous pouvez bâtir un **comptoir de tribut** (150 matériaux et 20 influence : tribut +10 %), une **garnison** (200 matériaux : ses vaisseaux +10 % ; un sujet de même credo est rassuré, les autres irrités) ou une **mission** (40 influence : +10 d'opinion envers vous, un peu de loyauté, et avec les religions un fidèle de votre foi tous les six mois dans sa capitale).
+
+**Culte imposé.** Avec les religions, la clause **Culte** peut imposer votre foi d'État au sujet tant qu'elle tient. C'est cher en loyauté (-10 tout de suite, -0,5 par mois), sauf pour une théocratie.
+
+**Résidents, stabilité et ombres.** Un héros **résident** auprès d'un sujet (nouveau poste, chapitre 11) lui donne de la loyauté chaque mois et révèle une allégeance secrète. Un sujet loyal apaise les mouvements de votre empire (+1 de stabilité chacun, +3 au plus), un sujet déloyal les nourrit (-2) ; et un sujet humilié et déloyal perd lui-même 3 de stabilité. Prendre un sujet pousse le Glaive. Deux intrigues visent les sujets des autres (chapitre 9) : **attiser l'indépendance** (-15 de loyauté) et **acheter une allégeance** (le sujet change de camp si vous attaquez son suzerain).
+
+**Talents de suzerain.** Comme les autres talents, ils suivent les couches d'espèce, et un peuple créé en profite aussi :
+
+| Talent | Couche | Effet |
+| --- | --- | --- |
+| Allégeance des fiefs | féodalité (Ossarane) | Pas de patronage divisé jusqu'à trois sujets ; un héritier déloyal livre son fief à votre sujet le plus loyal |
+| Fédéralisme | république (Vael) | Fonde un Koinon sans deux ans d'alliance ; peut être réélu Stratège |
+| Foi unificatrice | théocratie (Chœur) | Culte imposé sans perte de loyauté ; dans une Communion qu'elle préside, les credos différents ne coûtent pas de cohésion |
+| Ni maîtres ni pairs | ruche au credo de survie (Kh'thari) | Ni Koinon ni sujets ; mais nul ne se rend devant elle |
+| Revues partagées | conscience (Teyl) | Dans une Ligue savante, son bonus de Savoir compte un rang de plus |
+| Satrapies | horde (Ferrocornes) | Spécialité **Satrapie** : le sujet livre chaque année un vaisseau de guerre payé de ses matériaux |
+| Filiales | syndicat (Brisecomète) | Spécialité **Filiale** : 10 % d'énergie de plus au tribut, routes du sujet +15 % |
+
+::: capture docs/apercu-sujet-specialise.png|Un sujet Prospecteur au rang III, avec un comptoir de tribut bâti chez lui
+:::
+
 ### Le Koinon
 
 Avec l'option **Koinon** (active par défaut), des alliés peuvent aller plus loin que l'alliance : fonder une **ligue** de deux à six empires, avec un synode qui vote, un chef élu et des lois communes. Le nom vient des ligues de cités grecques ; la ligue achéenne élisait chaque année un stratège, jamais deux fois de suite.
@@ -218,6 +241,15 @@ La **Communion** exige une même foi (ou, sans religions, un même credo). L'**H
 **Partir.** Hors Hégémonie, on part librement : une trêve de deux ans suit avec chaque membre, qui s'en souviendra. En Hégémonie, il faut l'accord du Stratège ; s'il refuse, c'est la **guerre de sécession**. Une ligue réduite à un membre se dissout ; un membre qui devient sujet en sort.
 
 **Victoire.** Après cinq ans dans la même ligue, les membres avancent ensemble vers la conquête et la domination, comme des alliés. Ce délai de grâce empêche les ligues de la dernière heure.
+
+**La flotte fédérale.** Une quatrième loi, **Flotte fédérale**, fait verser à chaque membre 10 % (rang I) puis 20 % (rang II) de ses matériaux nets dans un **arsenal** commun. Dès qu'il suffit, un vaisseau de guerre sort du chantier de la capitale du Stratège (le meilleur modèle qu'un membre sait construire, quatre par rang au plus). La flotte fédérale ne coûte d'entretien à personne et suit toujours le Stratège en exercice : changer de chef, c'est changer d'amiral. Elle disparaît avec la ligue.
+
+**Les opérations communes.** Une fois par décennie, au rang II et en paix, le Stratège peut lancer une **opération commune** (150 énergie du trésor, six mois). Ses chances tiennent à la cohésion (de 15 à 90 %). Réussie, elle ressoude la ligue (+15 de cohésion, +40 d'expérience) et rapporte selon la forme : un relevé d'anomalie (150 Savoir pour chacun) pour la Ligue savante, de grandes manœuvres (expérience pour les flottes) pour la martiale, une norme de fret (150 énergie) pour la marchande, un concile (30 influence) pour la Communion, et pour l'Hégémonie un monument au Stratège (60 influence, pour lui seul). Ratée, chacun accuse l'autre (-10 de cohésion).
+
+**Délégués, foi et lois.** Un héros peut devenir **délégué au Koinon** (nouveau poste, chapitre 11) : il ajoute un peu de cohésion chaque mois selon son niveau. Une Communion accepte aussi des empires de fois différentes si tous deux ont la loi **Tolérance**. La nouvelle loi indépendante **Hégémonie** (chapitre 10) fait monter la centralisation d'un rang plus tôt, sans coût de cohésion, dans une ligue que vous présidez. Fonder une ligue ou y admettre un membre pousse la Concorde ; un réseau d'espions peut **semer la discorde au synode** d'une ligue rivale (-15 de cohésion, chapitre 9).
+
+::: capture docs/apercu-koinon-flotte.png|Le Stratège voit la flotte fédérale, son arsenal et l'opération commune en cours
+:::
 
 ::: capture docs/apercu-koinon.png|Le bloc de la ligue : rang, cohésion, Stratège, lois, vote en cours, trésor
 :::

@@ -316,6 +316,7 @@ static func context(state: GameState, empire_id: int) -> Dictionary:
 	global.append_array(Fauna.stability_parts(state, empire_id))
 	global.append_array(Goods.stability_parts(state, empire_id))
 	global.append_array(AmphPower.stability_parts(state, empire_id))
+	global.append_array(Vassals.stability_parts(state, empire_id))
 	# Contre-espionnage : un réseau chez soi tient les meneurs à l'œil.
 	if not state.networks.is_empty() and Espionage.home_cells(state, empire_id) > 0:
 		global.append(["Réseau intérieur (contre-espionnage)", int(src["counter_network"])])

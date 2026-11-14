@@ -1,5 +1,5 @@
 extends SceneTree
-## Captures du pilier fédérations et vassaux, lot 2 (le Koinon), avec le rendu réel :
+## Captures du pilier fédérations et vassaux, lots 2 et 3 (le Koinon, sujets spécialisés), avec le rendu réel :
 ##   xvfb-run -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_koinon.gd
 ## Écrit les images dans le dossier donné par CAPTURE_DIR (par défaut user://captures).
 ## Scénario : Vael (joueur) a fondé une Ligue savante avec un allié, un troisième empire y est entré ;
@@ -83,6 +83,34 @@ func _initialize() -> void:
 	await _frames(10)
 	await _scroll_to(main, "Politique commerciale")
 	await _shot(out + "/ecran-koinon.png")
+	# Lot 3 : flotte fédérale et opération commune en cours, vues par le Stratège.
+	l["strat"] = me
+	l["laws"]["fleet"] = 1
+	l["ffund"] = 260
+	l["joint"] = {"until": st.tick + 120, "form": String(l["form"])}
+	l["joint_last"] = st.tick - 60
+	Koinon._federal_month(st, lid)
+	screens.show_screen("diplomacy")
+	await _frames(10)
+	await _scroll_to(main, "Flotte fédérale")
+	await _shot(out + "/ecran-koinon-flotte.png")
+	# Lot 3 : un sujet spécialisé (Prospecteur) avec ses possessions.
+	var d := others[3] if others.size() > 3 else b
+	if Koinon.league_of(st, d) >= 0:
+		Koinon.leave(st, d)
+	if Combat.at_war(st, me, d):
+		Diplomacy.sign_treaty(st, me, d, Diplomacy.PEACE)
+	var cl := Vassals.preset_clauses("vassal")
+	cl["spec"] = "prospecteur"
+	Vassals.bind(st, me, d, "vassal", cl, 650)
+	Vassals.link(st, d)["loy"] = 650
+	(Vassals.link(st, d)["pos"] as Array).append("comptoir")
+	st.get_empire(me).resources["materials"] = 900
+	screens.diplo_selected = d
+	screens.show_screen("diplomacy")
+	await _frames(10)
+	await _scroll_to(main, "Spécialité")
+	await _shot(out + "/ecran-sujet-specialise.png")
 	quit()
 
 

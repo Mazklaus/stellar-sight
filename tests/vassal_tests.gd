@@ -413,7 +413,7 @@ func _test_save() -> void:
 	Vassals.link(st, ms[2])["fealty"] = ms[3]
 	(st.vassals["trib"] as Array).append({"from": ms[3], "to": 0, "until": st.tick + 100, "pct": 20})
 	var d: Dictionary = JSON.parse_string(JSON.stringify(st.to_snapshot()))
-	_ok(int(d["version"]) == 51, "Sauvegarde : version 51")
+	_ok(int(d["version"]) == 52, "Sauvegarde : version 52")
 	var back := GameState.from_dict(d)
 	_ok(back.vassals_on and Vassals.lord_of(back, ms[2]) == ms[1] and Vassals.loyalty(back, ms[2]) == Vassals.loyalty(st, ms[2]), "Sauvegarde : liens et loyauté gardés")
 	_ok(int(Vassals.link(back, ms[2])["fealty"]) == ms[3] and (back.vassals["trib"] as Array).size() == 1, "Sauvegarde : allégeance secrète et tributs gardés")

@@ -306,6 +306,7 @@ static func production_pct(state: GameState, empire_id: int, resource: String) -
 		bonus += FactionTraits.peace_knowledge_pct(state, empire_id)
 		bonus += Vassals.knowledge_pct(state, empire_id)
 	bonus += Koinon.knowledge_pct(state, empire_id) if resource == "knowledge" else 0
+	bonus += Vassals.production_pct(state, empire_id, resource)
 	bonus += Koinon.influence_pct(state, empire_id) if resource == "influence" else 0
 	# Stabilité d'empire : de -15 % à +15 % de Savoir et d'influence.
 	if resource == "knowledge" or resource == "influence":

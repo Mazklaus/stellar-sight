@@ -868,6 +868,9 @@ static func conclave(state: GameState, a: int, b: int) -> bool:
 	var eb := state.get_empire(b)
 	if ea == null or eb == null:
 		return false
+	# Le Conclave se tient aussi au sein d'une Communion (Koinon).
+	if Koinon.same_league(state, a, b) and bool(Koinon.form(String(Koinon.league(state, Koinon.league_of(state, a)).get("form", ""))).get("faith", false)):
+		return true
 	if String(FactionTraits.species(ea.faction()).get("gouvernement", "")) != "theocratie" or String(FactionTraits.species(eb.faction()).get("gouvernement", "")) != "theocratie":
 		return false
 	return Faiths.has_state_faith(state, a) and Faiths.state_faith(state, a) == Faiths.state_faith(state, b)

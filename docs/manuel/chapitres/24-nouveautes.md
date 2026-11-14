@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.19
+
+- **Fédérations et vassaux, lot 3** (chapitre 8) : sujets **spécialisés** (Rempart, Prospecteur, Érudit) à trois rangs selon la loyauté ; **possessions** bâties chez un sujet (comptoir de tribut, garnison, mission) ; **culte imposé** ; sujets loyaux ou déloyaux dans la stabilité ; sept **talents de suzerain**, un par peuple, Satrapies et Filiales comprises.
+- Koinon : loi **Flotte fédérale** et son arsenal, **opérations communes** selon la forme, Communion ouverte par la Tolérance.
+- Deux postes de héros, **délégué au Koinon** et **résident** (chapitre 11) ; loi indépendante **Hégémonie** (chapitre 10) ; trois intrigues (chapitre 9) : attiser l'indépendance, acheter une allégeance, semer la discorde au synode.
+
 ### Édition 1.18
 
 - **Le Koinon**, nouvelle option de partie, active par défaut (chapitre 8) : ligues de deux à six empires fondées par des alliés de longue date, cinq **formes** (marchande, savante, martiale, Hégémonie, Communion) à trois **rangs** gagnés par l'expérience, **cohésion**, **synode** (admission, exclusion, guerre commune, lois, forme), **Stratège** élu pour cinq ans et jamais deux fois de suite, **lois** communes (commerce, impôt fédéral, centralisation), **trésor**, membres **associés**, consigne de vote à l'Amphictyonie, défense mutuelle, sortie et guerre de sécession.

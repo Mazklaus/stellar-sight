@@ -176,6 +176,39 @@ static func _lord(ctx: Dictionary) -> void:
 		var th: Array = c.get("integrate_loyalty", [9999, 0, 200])
 		if Vassals.loyalty(state, s) >= int(th[clampi(use, 0, th.size() - 1)]):
 			AiPlayer._issue(ctx, SimCommands.vas_act(e.id, "integrate", s))
+		_specialize(ctx, s)
+		_possessions(ctx, s)
+
+
+## Lot 3 : donne une spécialité à un sujet loyal qui n'en a pas (talent de peuple d'abord).
+static func _specialize(ctx: Dictionary, s: int) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if Vassals.spec_of(state, s) != "" or Vassals.loyalty(state, s) < 100 or AiPlayer._use(ctx) <= 0:
+		return
+	var tal := Vassals.talent(state, e.id)
+	var want := "satrapie" if bool(tal.get("satrapy", false)) else ("filiale" if bool(tal.get("filiale", false)) else ("rempart" if not e.wars.is_empty() else "prospecteur"))
+	var cl: Dictionary = (Vassals.link(state, s)["cl"] as Dictionary).duplicate(true)
+	cl["spec"] = want
+	AiPlayer._issue(ctx, SimCommands.vas_act(e.id, "set_terms", s, "", cl))
+
+
+## Lot 3 : comptoir quand le sujet paie tribut, mission chez un sujet peu loyal, garnison chez un sujet de même credo.
+static func _possessions(ctx: Dictionary, s: int) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if AiPlayer._use(ctx) < 2:
+		return
+	var order: Array[String] = []
+	if Vassals.loyalty(state, s) < 200:
+		order.append("mission")
+	if not Vassals.tribute_of(state, s).is_empty():
+		order.append("comptoir")
+	if TradeLinks.same_credo(state, e.id, s):
+		order.append("garnison")
+	for pid in order:
+		if AiPlayer._issue(ctx, SimCommands.vas_act(e.id, "build", s, pid)):
+			return
 
 
 ## Un cran plus souple : tribut d'abord, puis diplomatie, guerres, expansion ({} si déjà au plus souple).

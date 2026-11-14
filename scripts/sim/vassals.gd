@@ -164,8 +164,9 @@ static func normalize(cl: Dictionary) -> Dictionary:
 static func check_clauses(cl: Dictionary) -> String:
 	for c in clause_defs():
 		var cid := String(c["id"])
-		if not cl.has(cid) or opt_def(cid, String(cl[cid])).is_empty():
-			return "clause « %s » inconnue ou absente" % String(c.get("label", cid))
+		# Une clause absente prend sa première option (clauses ajoutées après coup : spécialité, culte).
+		if cl.has(cid) and opt_def(cid, String(cl[cid])).is_empty():
+			return "clause « %s » inconnue" % String(c.get("label", cid))
 	var trib: Dictionary = cl.get("trib", {})
 	for f in trib:
 		if not families().has(f):
@@ -293,9 +294,10 @@ static func bind(state: GameState, lord: int, sub: int, pid: String, cl: Diction
 		unbind(state, s, "son suzerain %s devient lui-même sujet" % _name(state, sub))
 	var c := normalize(cl)
 	var lc := _cfg("loyalty")
-	var loy := clampi(loy0 + clauses_now(c), int(lc.get("min", -1000)), int(lc.get("max", 1000)))
+	var loy := clampi(loy0 + clauses_now(c) + _free_now(state, lord, c), int(lc.get("min", -1000)), int(lc.get("max", 1000)))
 	_subs(state)[str(sub)] = {"lord": lord, "since": state.tick, "preset": pid, "cl": c, "loy": loy,
-			"next": state.tick + int(_cfg("renegotiate").get("first_days", 360)), "fealty": -1, "integ": -1, "imo": 0, "sup": []}
+			"next": state.tick + int(_cfg("renegotiate").get("first_days", 360)), "fealty": -1, "integ": -1, "imo": 0, "sup": [], "pos": []}
+	Politics.on_act(state, lord, "allegeance", 1)
 	if Combat.at_war(state, lord, sub):
 		Diplomacy.end_war(state, lord, sub)
 	var r := Diplomacy._rel_w(state, lord, sub)
@@ -555,6 +557,8 @@ static func check_surrender(state: GameState, loser: int, winner: int) -> String
 		return "vous êtes déjà le sujet d'un autre"
 	if is_subject(state, winner):
 		return "un sujet ne prend pas de sujets"
+	if bool(talent(state, winner).get("no_surrender_to", false)) or bool(talent(state, winner).get("no_subjects", false)):
+		return "nul ne se rend devant %s" % _name(state, winner)
 	return _check_pending(state, loser, winner, "surrender")
 
 
@@ -577,6 +581,8 @@ static func check_protect(state: GameState, weak: int, strong: int) -> String:
 		return "vous êtes déjà le sujet d'un autre"
 	if is_subject(state, strong):
 		return "un sujet ne protège personne"
+	if bool(talent(state, strong).get("no_subjects", false)) or bool(talent(state, weak).get("no_subjects", false)):
+		return "ce peuple n'a ni maîtres ni protégés"
 	if not subjects_of(state, weak).is_empty():
 		return "libérez d'abord vos propres sujets"
 	var pc := _cfg("protect")
@@ -625,6 +631,8 @@ static func check_set_terms(state: GameState, lord: int, sub: int, cl: Dictionar
 	if locked(state, sub):
 		return "clauses imposées par l'Amphictyonie : non négociables"
 	var why := check_clauses(cl)
+	if why == "":
+		why = check_clauses_for(state, lord, cl)
 	if why != "":
 		return why
 	var old: Dictionary = link(state, sub)["cl"]
@@ -652,8 +660,9 @@ static func set_terms(state: GameState, lord: int, sub: int, cl: Dictionary) -> 
 		state.get_empire(lord).resources["influence"] = int(state.get_empire(lord).resources.get("influence", 0)) - renegotiate_cost(state, sub, n)
 		l["next"] = state.tick + reneg_days(state)
 	var lc := _cfg("loyalty")
-	l["loy"] = clampi(int(l["loy"]) + clauses_now(n) - clauses_now(old), int(lc["min"]), int(lc["max"]))
+	l["loy"] = clampi(int(l["loy"]) + clauses_now(n) - clauses_now(old) + _free_now(state, lord, n) - _free_now(state, lord, old), int(lc["min"]), int(lc["max"]))
 	l["cl"] = n
+	_enforce_cult(state, sub)
 	l["preset"] = _matching_preset(n)
 	state.add_chronicle("%s %s les clauses de %s : %s." % [_name(state, lord), "assouplit" if soft else "renégocie", _name(state, sub), clauses_text(n)],
 			Espionage.private_to(state, [lord, sub]))
@@ -1031,10 +1040,25 @@ static func loyalty_parts(state: GameState, sub: int) -> Array[Dictionary]:
 	elif pp >= 100:
 		_part(out, "Suzerain plus faible que nous", int(lc["power_weak"]))
 	var others := subjects_of(state, lord).size() - 1
+	if subjects_of(state, lord).size() <= int(talent(state, lord).get("patronage_free", 0)):
+		others = 0
 	if others > 0:
 		_part(out, "Patronage divisé (%d autre%s sujet%s)" % [others, "s" if others > 1 else "", "s" if others > 1 else ""], int(lc["patronage"]) * mini(others, 3))
 	if is_protectorate(state, sub):
 		_part(out, "Protection", int(lc["protectorate"]))
+	# Lot 3 : culte imposé par une théocratie, possessions, Résident.
+	if clause(state, sub, "cult") == "impose" and bool(talent(state, lord).get("cult_free", false)):
+		_part(out, "Culte imposé par une théocratie (sans rancœur)", -int(opt_def("cult", "impose").get("m10", 0)))
+	for pd in pos_defs():
+		if has_pos(state, sub, String(pd["id"])):
+			match String(pd["id"]):
+				"garnison":
+					_part(out, "Garnison (même credo)" if TradeLinks.same_credo(state, sub, lord) else "Garnison étrangère", int(pd["m10_same"]) if TradeLinks.same_credo(state, sub, lord) else int(pd["m10_other"]))
+				"mission":
+					_part(out, "Mission", int(pd.get("m10", 0)))
+	var rh := Heroes.at_post(state, "resident", sub, lord)
+	if not rh.is_empty():
+		_part(out, "Résident : %s" % String(rh["name"]), Heroes.half_levels(rh, "resident") * int(_cfg("resident").get("m10_per_half_level", 3)))
 	# Résolution de l'Amphictyonie « Souveraineté garantie ».
 	_part(out, "Souveraineté garantie (Amphictyonie)", Amphictyony.level_sum(state, "subject_loyalty_m10") if state.amph_on else 0)
 	var le := state.get_empire(lord)
@@ -1075,7 +1099,8 @@ static func monthly(state: GameState) -> void:
 			unbind(state, s, "son suzerain a disparu")
 			continue
 		l["loy"] = clampi(int(l["loy"]) + loyalty_trend(state, s), int(lc["min"]), int(lc["max"]))
-		_pay_tribute(state, s, lord, l["cl"].get("trib", {}))
+		_pay_tribute(state, s, lord, tribute_of(state, s))
+		_monthly_lot3(state, s, lord)
 		if is_protectorate(state, s):
 			var inc: Dictionary = _cfg("protectorate").get("lord_income", {})
 			for r in inc:
@@ -1130,7 +1155,7 @@ static func _pay_tribute(state: GameState, from: int, to: int, trib: Dictionary)
 ## Tribut mensuel estimé que verse un sujet (pour l'interface).
 static func tribute_estimate(state: GameState, sub: int) -> Dictionary:
 	var out := {}
-	var trib: Dictionary = link(state, sub).get("cl", {}).get("trib", {})
+	var trib := tribute_of(state, sub)
 	if trib.is_empty():
 		return out
 	var net: Dictionary = Economy.empire_income(state, sub)["net"]
@@ -1324,6 +1349,8 @@ static func check_act(state: GameState, player: int, act: String, x: int, s: Str
 			return check_support(state, player, x)
 		"fealty":
 			return check_fealty(state, player, x)
+		"build":
+			return check_build_pos(state, player, x, s)
 	return "action inconnue : %s" % act
 
 
@@ -1343,3 +1370,326 @@ static func act(state: GameState, player: int, act_id: String, x: int, s: String
 			support(state, player, x)
 		"fealty":
 			set_fealty(state, player, x)
+		"build":
+			build_pos(state, player, x, s)
+
+
+# --- Lot 3 : talents de peuple (prop. 31) ------------------------------------------------------------
+
+static var _talent_cache := {}
+
+
+## Talents de peuple du pilier (couches d'espèce, data/vassals.json « talents ») ; lus aussi par Koinon.
+static func talent(state: GameState, eid: int) -> Dictionary:
+	var e := state.get_empire(eid)
+	if e == null or e.is_npc():
+		return {}
+	var ck := "%s:%d" % [e.faction_id, GameData.factions_gen]
+	if _talent_cache.has(ck):
+		return _talent_cache[ck]
+	var out := {}
+	var sp: Dictionary = e.faction().get("species", {})
+	var table: Dictionary = data().get("talents", {})
+	for layer in TradeLinks.LAYERS:
+		var t: Dictionary = (table.get(layer, {}) as Dictionary).get(String(sp.get(layer, "")), {})
+		if t.is_empty():
+			continue
+		var ok := true
+		var req: Dictionary = t.get("requires", {})
+		for rk in req:
+			if String(sp.get(rk, "")) != String(req[rk]):
+				ok = false
+		if not ok:
+			continue
+		for k in t:
+			if k == "label" or k == "text" or k == "requires":
+				continue
+			var v: Variant = t[k]
+			out[k] = v if v is bool else int(out.get(k, 0)) + int(v)
+	_talent_cache[ck] = out
+	return out
+
+
+## Talents à afficher : [[nom, texte], …].
+static func talent_labels(state: GameState, eid: int) -> Array:
+	var out := []
+	var e := state.get_empire(eid)
+	if e == null or e.is_npc():
+		return out
+	var sp: Dictionary = e.faction().get("species", {})
+	var table: Dictionary = data().get("talents", {})
+	for layer in TradeLinks.LAYERS:
+		var t: Dictionary = (table.get(layer, {}) as Dictionary).get(String(sp.get(layer, "")), {})
+		if t.is_empty():
+			continue
+		var ok := true
+		var req: Dictionary = t.get("requires", {})
+		for rk in req:
+			if String(sp.get(rk, "")) != String(req[rk]):
+				ok = false
+		if ok:
+			out.append([String(t["label"]), String(t["text"])])
+	return out
+
+
+## Clauses exigeant un contexte : talent du suzerain (Satrapie, Filiale), religions (culte imposé).
+static func check_clauses_for(state: GameState, lord: int, cl: Dictionary) -> String:
+	for c in clause_defs():
+		var cid := String(c["id"])
+		var od := opt_def(cid, String(cl.get(cid, "")))
+		var req := String(od.get("requires_lord", ""))
+		if req != "" and not bool(talent(state, lord).get(req, false)):
+			return "« %s » est un talent d'un autre peuple" % String(od.get("label", ""))
+		if bool(od.get("cult", false)) and (not state.faith_on or not Faiths.has_state_faith(state, lord)):
+			return "pour imposer un culte, il faut une foi d'État"
+	return ""
+
+
+## Compensation immédiate des clauses sans rancœur (culte imposé par une théocratie).
+static func _free_now(state: GameState, lord: int, cl: Dictionary) -> int:
+	if String(cl.get("cult", "")) == "impose" and bool(talent(state, lord).get("cult_free", false)):
+		return -int(opt_def("cult", "impose").get("now", 0))
+	return 0
+
+
+# --- Lot 3 : sujets spécialisés (prop. 10) -----------------------------------------------------------
+
+static func spec_of(state: GameState, sub: int) -> String:
+	var sp := clause(state, sub, "spec")
+	return "" if sp == "" or sp == "aucune" else sp
+
+
+## Rang de la spécialité (0 si le sujet est déloyal ou sans spécialité).
+static func spec_rank(state: GameState, sub: int) -> int:
+	if spec_of(state, sub) == "":
+		return 0
+	var r := 0
+	for t in _cfg("specs").get("rank_loyalty", [0, 300, 600]):
+		if loyalty(state, sub) >= int(t):
+			r += 1
+	return r
+
+
+static func _spec_val(spec: String, side: String, key: String, rank: int) -> int:
+	if rank <= 0:
+		return 0
+	var arr: Array = (_cfg("specs").get(spec, {}).get(side, {}) as Dictionary).get(key, [])
+	return int(arr[mini(rank, arr.size()) - 1]) if not arr.is_empty() else 0
+
+
+## Bonus de spécialité pour eid (comme sujet, et comme suzerain de ses sujets spécialisés).
+static func spec_fx(state: GameState, eid: int, key: String) -> int:
+	if state.vassals.is_empty():
+		return 0
+	var n := 0
+	if is_subject(state, eid):
+		n += _spec_val(spec_of(state, eid), "sub", key, spec_rank(state, eid))
+	for s in subjects_of(state, eid):
+		n += _spec_val(spec_of(state, s), "lord", key, spec_rank(state, s))
+	return n
+
+
+## Production : matériaux et Savoir des spécialités.
+static func production_pct(state: GameState, eid: int, resource: String) -> int:
+	match resource:
+		"materials":
+			return spec_fx(state, eid, "materials_pct")
+		"knowledge":
+			return spec_fx(state, eid, "knowledge_pct")
+	return 0
+
+
+## Protection des vaisseaux : Rempart, garnison du suzerain chez le sujet.
+static func defense_pct(state: GameState, eid: int) -> int:
+	if state.vassals.is_empty():
+		return 0
+	var n := spec_fx(state, eid, "defense_pct")
+	if is_subject(state, eid) and has_pos(state, eid, "garnison"):
+		n += int(pos_def("garnison").get("defense_pct", 0))
+	return n
+
+
+## Routes commerciales du sujet (Filiale).
+static func route_pct(state: GameState, eid: int) -> int:
+	if state.vassals.is_empty() or spec_of(state, eid) != "filiale":
+		return 0
+	return int(_cfg("specs").get("filiale", {}).get("route_pct", 0))
+
+
+## Tribut effectif : clauses, plus la spécialité, le tout majoré du comptoir.
+static func tribute_of(state: GameState, sub: int) -> Dictionary:
+	var out: Dictionary = (link(state, sub).get("cl", {}).get("trib", {}) as Dictionary).duplicate()
+	var sp := spec_of(state, sub)
+	if sp != "":
+		var r := maxi(1, spec_rank(state, sub)) if sp == "filiale" else spec_rank(state, sub)
+		var tr: Dictionary = _cfg("specs").get(sp, {}).get("trib", {})
+		for f in tr:
+			var v := _spec_val(sp, "trib", String(f), r)
+			if v > 0:
+				out[f] = int(out.get(f, 0)) + v
+	if has_pos(state, sub, "comptoir"):
+		var pct := int(pos_def("comptoir").get("trib_pct", 0))
+		for f in out:
+			@warning_ignore("integer_division")
+			out[f] = int(out[f]) * (100 + pct) / 100
+	return out
+
+
+# --- Lot 3 : possessions du suzerain (prop. 11) ----------------------------------------------------
+
+static func pos_defs() -> Array:
+	return data().get("possessions", [])
+
+
+static func pos_def(pid: String) -> Dictionary:
+	for p in pos_defs():
+		if String(p["id"]) == pid:
+			return p
+	return {}
+
+
+static func has_pos(state: GameState, sub: int, pid: String) -> bool:
+	return (link(state, sub).get("pos", []) as Array).has(pid)
+
+
+static func check_build_pos(state: GameState, lord: int, sub: int, pid: String) -> String:
+	if lord_of(state, sub) != lord or lord < 0:
+		return "ce n'est pas votre sujet"
+	var pd := pos_def(pid)
+	if pd.is_empty():
+		return "possession inconnue"
+	if has_pos(state, sub, pid):
+		return "déjà bâtie"
+	if not Economy.can_afford(state.get_empire(lord), pd.get("cost", {})):
+		return "il faut %s" % GameData.format_amounts(pd.get("cost", {}))
+	return ""
+
+
+static func build_pos(state: GameState, lord: int, sub: int, pid: String) -> void:
+	var pd := pos_def(pid)
+	Economy.pay(state.get_empire(lord), pd.get("cost", {}))
+	var l := link(state, sub)
+	if not l.has("pos"):
+		l["pos"] = []
+	(l["pos"] as Array).append(pid)
+	state.add_chronicle("%s bâtit chez son sujet %s : %s." % [_name(state, lord), _name(state, sub), String(pd["label"]).to_lower()], Espionage.private_to(state, [lord, sub]))
+
+
+## Opinion du sujet a envers son suzerain b (Mission).
+static func opinion_bonus(state: GameState, a: int, b: int) -> int:
+	if state.vassals.is_empty() or lord_of(state, a) != b or not has_pos(state, a, "mission"):
+		return 0
+	return int(pos_def("mission").get("opinion", 0))
+
+
+## Chaque mois : satrapie, culte imposé, conversions de la mission.
+static func _monthly_lot3(state: GameState, s: int, lord: int) -> void:
+	var l := link(state, s)
+	if spec_of(state, s) == "satrapie":
+		var sc: Dictionary = _cfg("specs").get("satrapie", {})
+		if bond_days(state, s) > 0 and posmod(bond_days(state, s), int(sc.get("every_days", 360))) < 30:
+			_satrap_ship(state, s, lord, sc)
+	_enforce_cult(state, s)
+	if has_pos(state, s, "mission") and state.faith_on and Faiths.has_state_faith(state, lord):
+		var every := int(pos_def("mission").get("convert_days", 180))
+		if posmod(state.tick - int(l.get("since", 0)), every) < 30:
+			var es := state.get_empire(s)
+			var c: Colony = state.colonies.get(es.capital_planet)
+			if c != null and c.owner == s:
+				Faiths._convert_one(c, Faiths.state_faith(state, lord))
+
+
+static func _satrap_ship(state: GameState, s: int, lord: int, sc: Dictionary) -> void:
+	var es := state.get_empire(s)
+	var el := state.get_empire(lord)
+	if el.capital_planet < 0:
+		return
+	for sid in sc.get("ships", []):
+		var ship := String(sid)
+		if not Fleets.ship_unlocked(state, s, ship) and not Fleets.ship_unlocked(state, lord, ship):
+			continue
+		var cost := Fleets.ship_cost(state, s, ship)
+		if not Economy.can_afford(es, cost):
+			return
+		Economy.pay(es, cost)
+		var f := state.spawn_ship(lord, ship, state.galaxy.get_planet(el.capital_planet).system_id)
+		f.fleet_name = "Tribut de %s" % es.short_name()
+		state.add_chronicle("La satrapie %s livre un vaisseau à %s : %s." % [es.short_name(), el.short_name(), String(GameData.ship(ship).get("label", ship))], Espionage.private_to(state, [s, lord]))
+		return
+
+
+## Culte imposé : la foi d'État du suzerain devient celle du sujet.
+static func _enforce_cult(state: GameState, s: int) -> void:
+	if not state.faith_on or clause(state, s, "cult") != "impose":
+		return
+	var lord := lord_of(state, s)
+	if lord < 0 or not Faiths.has_state_faith(state, lord):
+		return
+	var fid := Faiths.state_faith(state, lord)
+	if Faiths.state_faith(state, s) != fid:
+		state.faiths["state"][str(s)] = fid
+		state.add_chronicle("%s impose sa foi à %s : les temples changent d'enseigne." % [_name(state, lord), _name(state, s)], Espionage.public_to(state, [lord, s]))
+
+
+# --- Lot 3 : stabilité (prop. 28) ------------------------------------------------------------------
+
+static func stability_parts(state: GameState, eid: int) -> Array:
+	var out := []
+	if state.vassals.is_empty():
+		return out
+	var sc := _cfg("stability")
+	var loyal := 0
+	var dis := 0
+	for s in subjects_of(state, eid):
+		if loyalty(state, s) >= int(sc.get("loyal_at", 500)):
+			loyal += 1
+		elif disloyal(state, s):
+			dis += 1
+	if loyal > 0:
+		out.append(["Sujets loyaux (%d)" % loyal, mini(loyal * int(sc.get("loyal", 1)), int(sc.get("loyal_max", 3)))])
+	if dis > 0:
+		out.append(["Sujets déloyaux (%d)" % dis, dis * int(sc.get("disloyal", -2))])
+	if is_subject(state, eid) and disloyal(state, eid) and (clause(state, eid, "dip") == "aucune" or clause(state, eid, "exp") == "interdite"):
+		out.append(["Sujet humilié", int(sc.get("humiliated", -3))])
+	return out
+
+
+# --- Lot 3 : espionnage (prop. 29) -----------------------------------------------------------------
+
+static func spy_check(state: GameState, a: int, b: int, op_id: String) -> String:
+	match op_id:
+		"attiser_independance":
+			if not is_subject(state, b) or lord_of(state, b) == a:
+				return "la cible doit être le sujet d'un autre"
+			if is_court(state, b):
+				return "la Cour impériale se garde elle-même"
+		"acheter_allegeance":
+			if not is_subject(state, b) or lord_of(state, b) == a:
+				return "la cible doit être le sujet d'un autre"
+			if int(link(state, b).get("fealty", -1)) >= 0:
+				return "son allégeance secrète est déjà donnée"
+			if is_subject(state, a):
+				return "un sujet n'achète pas d'allégeance"
+		"discorde_synode":
+			return Koinon.spy_check(state, a, b)
+	return ""
+
+
+static func spy_apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
+	match String(o["id"]):
+		"attiser_independance":
+			var l := link(state, b)
+			if l.is_empty():
+				return "le lien était déjà rompu."
+			var lc := _cfg("loyalty")
+			l["loy"] = clampi(int(l["loy"]) - int(o.get("loyalty", 150)), int(lc["min"]), int(lc["max"]))
+			return "pamphlets, banquets et vieux griefs : la loyauté de %s envers son suzerain s'effrite." % _name(state, b)
+		"acheter_allegeance":
+			var l2 := link(state, b)
+			if l2.is_empty():
+				return "le lien était déjà rompu."
+			l2["fealty"] = a
+			return "%s nous jure fidélité en secret. Son suzerain n'en sait rien, pour l'instant." % _name(state, b)
+		"discorde_synode":
+			return Koinon.spy_apply(state, a, b, o)
+	return ""

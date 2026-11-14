@@ -193,7 +193,14 @@ static func fx_int(state: GameState, eid: int, key: String) -> int:
 
 
 static func knowledge_pct(state: GameState, eid: int) -> int:
-	return fx_int(state, eid, "knowledge_pct")
+	var n := fx_int(state, eid, "knowledge_pct")
+	var up := int(talent(state, eid).get("savante_rank", 0))
+	if n > 0 and up > 0:
+		var lid := league_of(state, eid)
+		var rs: Array = form(String(league(state, lid)["form"])).get("ranks", [])
+		var r := mini(rank(state, lid) + up, rs.size())
+		n = int(rs[r - 1].get("knowledge_pct", n))
+	return n
 
 
 static func weapon_pct(state: GameState, eid: int) -> int:
@@ -237,6 +244,13 @@ static func _faith_key(state: GameState, eid: int) -> String:
 	return "c:" + String(Diplomacy._species(state, eid).get("credo", ""))
 
 
+## Même foi, ou la loi de Tolérance des deux côtés (religion, prop. 27).
+static func _faith_ok(state: GameState, a: int, b: int) -> bool:
+	if _faith_key(state, a) == _faith_key(state, b):
+		return true
+	return state.politics_on and Laws.is_enacted(state, a, "tolerance") and Laws.is_enacted(state, b, "tolerance")
+
+
 static func _ok_empire(state: GameState, eid: int) -> String:
 	var e := state.get_empire(eid)
 	if e == null or e.eliminated or GameState.is_npc(eid):
@@ -245,6 +259,8 @@ static func _ok_empire(state: GameState, eid: int) -> String:
 		return "l'Essaim ne signe rien : il digère"
 	if Vassals.is_subject(state, eid):
 		return "%s est un sujet : son suzerain parle pour lui" % e.short_name()
+	if bool(talent(state, eid).get("no_koinon", false)):
+		return "%s n'a ni maîtres ni pairs" % e.short_name()
 	return ""
 
 
@@ -266,8 +282,8 @@ static func check_found(state: GameState, a: int, b: int, fid: String) -> String
 	var need := int(data()["found"]["alliance_days"])
 	if Diplomacy.team_of(state, a, b) <= 0 and Diplomacy.pact_days(state, a, b) < need and not bool(talent(state, a).get("quick_found", false)):
 		return "il faut %d ans d'alliance (encore %d jours)" % [need / GameCalendar.DAYS_PER_YEAR, need - Diplomacy.pact_days(state, a, b)]
-	if bool(form(fid).get("faith", false)) and _faith_key(state, a) != _faith_key(state, b):
-		return "une Communion exige une même foi"
+	if bool(form(fid).get("faith", false)) and not _faith_ok(state, a, b):
+		return "une Communion exige une même foi (ou la Tolérance des deux côtés)"
 	if state.get_empire(b).is_ai() and Diplomacy.opinion(state, b, a) < 0:
 		return "%s ne veut pas lier son sort au vôtre (opinion négative)" % state.get_empire(b).short_name()
 	var cost: Dictionary = data()["found"]["cost"]
@@ -277,9 +293,9 @@ static func check_found(state: GameState, a: int, b: int, fid: String) -> String
 	return ""
 
 
-## Talent de peuple pour le Koinon (lot 3 : couches d'espèce) ; {} sans talent.
-static func talent(_state: GameState, _eid: int) -> Dictionary:
-	return {}
+## Talent de peuple pour le Koinon (couches d'espèce, table commune avec les sujets : voir Vassals.talent).
+static func talent(state: GameState, eid: int) -> Dictionary:
+	return Vassals.talent(state, eid)
 
 
 static func found(state: GameState, a: int, b: int, fid: String) -> int:
@@ -297,6 +313,8 @@ static func found(state: GameState, a: int, b: int, fid: String) -> int:
 	_leagues(state)[str(lid)] = l
 	if hegemony(state, lid):
 		l["strat"] = _strongest(state, lid)
+	Politics.on_act(state, a, "koinon")
+	Politics.on_act(state, b, "koinon")
 	state.relic_rev += 1
 	state.add_chronicle("%s et %s fondent un Koinon : %s. Un synode, un Stratège, et des serments plus longs que les traités." % [
 			_name(state, a), _name(state, b), String(l["name"])], Espionage.public_to(state, [a, b]))
@@ -364,8 +382,8 @@ static func check_propose(state: GameState, by: int, kind: String, x: int, s: St
 		if not any:
 			return "vous ne connaissez aucun membre"
 		var l := league(state, lid)
-		if s == "member" and bool(form(String(l["form"])).get("faith", false)) and _faith_key(state, by) != _faith_key(state, int(l["members"][0])):
-			return "une Communion exige une même foi"
+		if s == "member" and bool(form(String(l["form"])).get("faith", false)) and not _faith_ok(state, by, int(l["members"][0])):
+			return "une Communion exige une même foi (ou la Tolérance des deux côtés)"
 		if s == "member" and not Economy.can_afford(state.get_empire(by), data()["join_cost"]):
 			return "il faut %s" % GameData.format_amounts(data()["join_cost"])
 		if pending_kind(state, lid, "admit", by, s):
@@ -397,16 +415,18 @@ static func check_propose(state: GameState, by: int, kind: String, x: int, s: St
 				return "cran invalide"
 			if absi(x - law_step(state, lid, s)) != 1:
 				return "un cran à la fois"
-			if x > law_step(state, lid, s) and rank(state, lid) < int(steps[x].get("rank", 1)):
-				return "il faut le rang %d" % int(steps[x].get("rank", 1))
+			var need := int(steps[x].get("rank", 1))
+			if s == "central" and state.politics_on and Laws.is_enacted(state, by, "hegemonie"):
+				need -= 1
+			if x > law_step(state, lid, s) and rank(state, lid) < need:
+				return "il faut le rang %d" % need
 		"form":
 			if form(s).is_empty() or s == String(league(state, lid)["form"]):
 				return "forme invalide"
 			if bool(form(s).get("faith", false)):
-				var k := _faith_key(state, by)
 				for m in members_of(state, lid):
-					if _faith_key(state, m) != k:
-						return "une Communion exige une même foi"
+					if not _faith_ok(state, by, m):
+						return "une Communion exige une même foi (ou la Tolérance des deux côtés)"
 		_:
 			return "proposition inconnue"
 	return ""
@@ -550,6 +570,7 @@ static func _close(state: GameState, lid: int, v: Dictionary) -> void:
 				(l["assoc"] as Array).append(x)
 			l["joined"][str(x)] = state.tick
 			_coh(state, lid, int(data()["cohesion"]["join"]))
+			Politics.on_act(state, x, "koinon")
 			for m in all_of(state, lid):
 				if m != x and Combat.at_war(state, m, x):
 					Diplomacy.sign_treaty(state, m, x, Diplomacy.PEACE)
@@ -724,6 +745,8 @@ static func _remove(state: GameState, lid: int, eid: int, why: String) -> void:
 static func _dissolve(state: GameState, lid: int) -> void:
 	var l := league(state, lid)
 	var who := all_of(state, lid)
+	for fid in federal_fleets(state, lid):
+		state.fleets.erase(fid)
 	_leagues(state).erase(str(lid))
 	state.relic_rev += 1
 	state.add_chronicle("%s est dissous : il ne reste plus assez de membres pour tenir un synode." % String(l["name"]), Espionage.public_to(state, who))
@@ -759,9 +782,20 @@ static func cohesion_parts(state: GameState, lid: int) -> Array[Dictionary]:
 		var sp := Diplomacy._species(state, m)
 		credos[String(sp.get("credo", ""))] = true
 		govs[String(sp.get("gouvernement", ""))] = true
-	_part(out, "Credos différents", int(c["per_credo"]) * maxi(0, credos.size() - 1))
+	var strat := int(l.get("strat", -1))
+	var faith_free := bool(form(String(l["form"])).get("faith", false)) and bool(talent(state, strat).get("communion_free", false))
+	_part(out, "Credos différents", 0 if faith_free else int(c["per_credo"]) * maxi(0, credos.size() - 1))
 	_part(out, "Gouvernements différents", int(c["per_gov"]) * maxi(0, govs.size() - 1))
-	_part(out, "Centralisation", int(c["per_central"]) * law_step(state, lid, "central"))
+	var heg_law := state.politics_on and strat >= 0 and Laws.is_enacted(state, strat, "hegemonie")
+	_part(out, "Centralisation", 0 if heg_law else int(c["per_central"]) * law_step(state, lid, "central"))
+	# Délégués au Koinon (héros) : selon leur niveau.
+	var dl := 0
+	for m in ms:
+		var h := Heroes.at_post(state, "koinon", 0, m)
+		if not h.is_empty():
+			@warning_ignore("integer_division")
+			dl += maxi(1, Heroes.half_levels(h, "koinon") / 2)
+	_part(out, "Délégués au Koinon", dl)
 	var common := false
 	for m in ms:
 		for w in state.get_empire(m).wars:
@@ -839,6 +873,9 @@ static func monthly(state: GameState) -> void:
 					Diplomacy.share_maps(state, ms[i], ms[j])
 		for v in (l["votes"] as Array).duplicate():
 			_try_close(state, lid, v)
+		if not league(state, lid).is_empty():
+			_federal_month(state, lid)
+			_joint_month(state, lid)
 
 
 # --- Guerres -----------------------------------------------------------------------------------------
@@ -1022,6 +1059,8 @@ static func check_act(state: GameState, player: int, act: String, x: int, s: Str
 			return check_grant(state, player, x, n)
 		"consigne":
 			return check_consigne(state, player, x)
+		"joint":
+			return check_joint(state, player)
 	return "action inconnue : %s" % act
 
 
@@ -1042,3 +1081,178 @@ static func act(state: GameState, player: int, act_id: String, x: int, s: String
 			grant(state, player, x, n)
 		"consigne":
 			set_consigne(state, player, x)
+		"joint":
+			joint(state, player)
+
+
+# --- Lot 3 : flotte fédérale (prop. 22) -------------------------------------------------------------
+
+## Flottes fédérales encore vivantes d'une ligue (le Stratège les commande).
+static func federal_fleets(state: GameState, lid: int) -> Array[int]:
+	var out: Array[int] = []
+	for fid in league(state, lid).get("fleet", []):
+		if state.fleets.has(int(fid)):
+			out.append(int(fid))
+	return out
+
+
+static func is_federal(state: GameState, fleet_id: int) -> bool:
+	if not state.koinon_on:
+		return false
+	for lid in league_ids(state):
+		if (league(state, lid).get("fleet", []) as Array).has(fleet_id):
+			return true
+	return false
+
+
+static func federal_ships(state: GameState, lid: int) -> int:
+	var n := 0
+	for fid in federal_fleets(state, lid):
+		n += (state.fleets[fid] as Fleet).ships.size()
+	return n
+
+
+## Modèle de la flotte fédérale : le premier de la liste qu'un membre sait construire ("" sinon).
+static func federal_model(state: GameState, lid: int) -> String:
+	for sid in data().get("federal", {}).get("ships", []):
+		for m in members_of(state, lid):
+			if Fleets.ship_unlocked(state, m, String(sid)):
+				return String(sid)
+	return ""
+
+
+static func _federal_month(state: GameState, lid: int) -> void:
+	var l := league(state, lid)
+	var pct := int(law_step_def(state, lid, "fleet").get("fleet_pct", 0))
+	var strat := int(l["strat"])
+	# Le Stratège commande : les flottes fédérales le suivent.
+	var alive := federal_fleets(state, lid)
+	for fid in alive:
+		(state.fleets[fid] as Fleet).owner = strat
+	l["fleet"] = alive
+	if pct <= 0:
+		return
+	for m in members_of(state, lid):
+		var em := state.get_empire(m)
+		@warning_ignore("integer_division")
+		var n := maxi(0, int(Economy.empire_income(state, m)["net"].get("materials", 0))) * pct / 100
+		n = mini(n, maxi(0, int(em.resources.get("materials", 0))))
+		em.resources["materials"] = int(em.resources.get("materials", 0)) - n
+		l["ffund"] = int(l.get("ffund", 0)) + n
+	var model := federal_model(state, lid)
+	var es := state.get_empire(strat)
+	if model == "" or es == null or es.capital_planet < 0:
+		return
+	if federal_ships(state, lid) >= int(data().get("federal", {}).get("max_per_rank", 4)) * rank(state, lid):
+		return
+	var cost := int(Fleets.ship_cost(state, strat, model).get("materials", 0))
+	if cost <= 0 or int(l.get("ffund", 0)) < cost:
+		return
+	l["ffund"] = int(l["ffund"]) - cost
+	var sid: int = state.galaxy.get_planet(es.capital_planet).system_id
+	var f: Fleet = null
+	for fid in federal_fleets(state, lid):
+		var ff: Fleet = state.fleets[fid]
+		if ff.system_id == sid and not ff.is_moving():
+			f = ff
+			break
+	if f == null:
+		f = state.spawn_ship(strat, model, sid)
+		f.fleet_name = "Flotte fédérale de %s" % String(l["name"])
+		(l["fleet"] as Array).append(f.id)
+	else:
+		f.add_ship(model, -1, Research.mark_gen(state, strat))
+	state.add_chronicle("L'arsenal de %s livre un vaisseau à la flotte fédérale : %s." % [String(l["name"]), String(GameData.ship(model).get("label", model))], Espionage.private_to(state, all_of(state, lid)))
+
+
+# --- Lot 3 : opérations communes (prop. 23) ---------------------------------------------------------
+
+static func joint_def(state: GameState, lid: int) -> Dictionary:
+	return data().get("joint", {}).get("forms", {}).get(String(league(state, lid).get("form", "")), {})
+
+
+static func check_joint(state: GameState, eid: int) -> String:
+	var lid := league_of(state, eid)
+	if lid < 0 or strategos(state, lid) != eid:
+		return "seul le Stratège lance une opération commune"
+	var jc: Dictionary = data().get("joint", {})
+	var l := league(state, lid)
+	if joint_def(state, lid).is_empty():
+		return "cette forme n'a pas d'opération commune"
+	if rank(state, lid) < int(jc.get("rank", 2)):
+		return "il faut le rang %d" % int(jc.get("rank", 2))
+	if not (l.get("joint", {}) as Dictionary).is_empty():
+		return "une opération est déjà en cours"
+	var last := int(l.get("joint_last", -100000))
+	if state.tick - last < int(jc.get("every_days", 3600)):
+		return "une par décennie (encore %d jours)" % (int(jc.get("every_days", 3600)) - (state.tick - last))
+	if not state.get_empire(eid).wars.is_empty():
+		return "il faut être en paix"
+	if int(l["treasury"]) < int(jc.get("cost", 150)):
+		return "le trésor n'a que %d énergie (il en faut %d)" % [int(l["treasury"]), int(jc.get("cost", 150))]
+	return ""
+
+
+static func joint_chance(state: GameState, lid: int) -> int:
+	var jc: Dictionary = data().get("joint", {})
+	@warning_ignore("integer_division")
+	return clampi(int(jc.get("base", 50)) + cohesion(state, lid) / 2, int(jc.get("min", 15)), int(jc.get("max", 90)))
+
+
+static func joint(state: GameState, eid: int) -> void:
+	var lid := league_of(state, eid)
+	var l := league(state, lid)
+	var jc: Dictionary = data().get("joint", {})
+	l["treasury"] = int(l["treasury"]) - int(jc.get("cost", 150))
+	l["joint"] = {"until": state.tick + int(jc.get("days", 180)), "form": String(l["form"])}
+	l["joint_last"] = state.tick
+	state.add_chronicle("%s lance une opération commune : %s." % [String(l["name"]), String(joint_def(state, lid).get("label", ""))], Espionage.private_to(state, all_of(state, lid)))
+
+
+static func _joint_month(state: GameState, lid: int) -> void:
+	var l := league(state, lid)
+	var j: Dictionary = l.get("joint", {})
+	if j.is_empty() or state.tick < int(j["until"]):
+		return
+	l["joint"] = {}
+	var jc: Dictionary = data().get("joint", {})
+	var jd: Dictionary = data().get("joint", {}).get("forms", {}).get(String(j["form"]), {})
+	var roll := posmod(hash([state.seed_value, "koi_joint", lid, int(j["until"])]), 100)
+	if roll >= joint_chance(state, lid):
+		_coh(state, lid, int(jc.get("fail_coh", -10)))
+		state.add_chronicle("L'opération commune de %s échoue (%s) : chacun accuse l'autre." % [String(l["name"]), String(jd.get("label", ""))], Espionage.private_to(state, all_of(state, lid)))
+		return
+	_coh(state, lid, int(jc.get("coh", 15)))
+	l["xp"] = int(l["xp"]) + int(jc.get("xp", 40))
+	var rw: Dictionary = jd.get("reward", {})
+	for m in members_of(state, lid):
+		var em := state.get_empire(m)
+		for k in rw:
+			match String(k):
+				"xp":
+					l["xp"] = int(l["xp"]) + int(rw[k])
+				"strat_influence":
+					if m == int(l["strat"]):
+						em.resources["influence"] = int(em.resources.get("influence", 0)) + int(rw[k])
+				_:
+					em.resources[String(k)] = int(em.resources.get(String(k), 0)) + int(rw[k])
+	state.add_chronicle("L'opération commune de %s réussit (%s) : la ligue en sort soudée." % [String(l["name"]), String(jd.get("label", ""))], Espionage.private_to(state, all_of(state, lid)))
+
+
+# --- Lot 3 : espionnage (prop. 29) ------------------------------------------------------------------
+
+static func spy_check(state: GameState, a: int, b: int) -> String:
+	var lid := league_of(state, b)
+	if lid < 0:
+		return "la cible n'est dans aucun Koinon"
+	if same_league(state, a, b):
+		return "pas dans son propre Koinon"
+	return ""
+
+
+static func spy_apply(state: GameState, _a: int, b: int, o: Dictionary) -> String:
+	var lid := league_of(state, b)
+	if lid < 0:
+		return "le Koinon s'était déjà dissous."
+	_coh(state, lid, int(o.get("cohesion", -15)))
+	return "des rumeurs circulent entre les délégués de %s : la cohésion s'effrite." % String(league(state, lid)["name"])

@@ -429,7 +429,7 @@ func _test_save() -> void:
 	Amphictyony.buy(st, ms[0])
 	Amphictyony.on_atrocity(st, ms[1])
 	var d: Dictionary = JSON.parse_string(JSON.stringify(st.to_snapshot()))
-	_ok(int(d["version"]) == 51, "Sauvegarde : version 51")
+	_ok(int(d["version"]) == 52, "Sauvegarde : version 52")
 	var back := GameState.from_dict(d)
 	_ok(back.amph_on and Amphictyony.founded(back), "Sauvegarde : l'Amphictyonie revient")
 	_ok(Amphictyony.members(back) == Amphictyony.members(st), "Sauvegarde : mêmes membres")

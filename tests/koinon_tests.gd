@@ -402,7 +402,7 @@ func _test_save() -> void:
 	Koinon.league(st, lid)["treasury"] = 77
 	Koinon.league(st, lid)["laws"]["trade"] = 1
 	var d: Dictionary = JSON.parse_string(JSON.stringify(st.to_snapshot()))
-	_ok(int(d["version"]) == 51, "Sauvegarde : version 51")
+	_ok(int(d["version"]) == 52, "Sauvegarde : version 52")
 	var back := GameState.from_dict(d)
 	_ok(back.koinon_on and Koinon.same_league(back, ms[1], ms[2]) and int(Koinon.league(back, lid)["treasury"]) == 77, "Sauvegarde : ligue, membres et trésor gardés")
 	_ok(Koinon.law_step(back, lid, "trade") == 1 and String(Koinon.league(back, lid)["form"]) == "savante", "Sauvegarde : lois et forme gardées")

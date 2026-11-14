@@ -89,7 +89,10 @@ static func _assign(ctx: Dictionary, skill: int) -> void:
 		else:
 			tries = [own, "council", "system", "fleet"]
 			if String(h["cls"]) == "orateur":
+				tries.push_front("koinon")
 				tries.push_front("amph")
+			elif skill >= 2:
+				tries.push_front("resident")
 		for post in tries:
 			var target := _target(state, e, String(post))
 			if target >= 0 and AiPlayer._issue(ctx, SimCommands.hero_assign(e.id, id, String(post), target)):
@@ -101,6 +104,15 @@ static func _target(state: GameState, e: Empire, post: String) -> int:
 	match post:
 		"amph":
 			return 0 if Amphictyony.is_member(state, e.id) and Heroes.assigned_to(state, "amph", 0, e.id).is_empty() else -1
+		"koinon":
+			return 0 if Koinon.is_member(state, e.id) and Heroes.assigned_to(state, "koinon", 0, e.id).is_empty() else -1
+		"resident":
+			# Le sujet le moins loyal qui n'a pas encore de Résident (sous 30 de loyauté).
+			var worst := -1
+			for s in Vassals.subjects_of(state, e.id):
+				if Vassals.loyalty(state, s) < 300 and Heroes.assigned_to(state, "resident", s, e.id).is_empty() and (worst < 0 or Vassals.loyalty(state, s) < Vassals.loyalty(state, worst)):
+					worst = s
+			return worst
 		"fleet":
 			var best := -1
 			var power := 0

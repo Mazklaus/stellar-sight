@@ -39,7 +39,7 @@ extends RefCounted
 ## ("for_hire", puis "lender" = empire qui le prête et "lend_until"), dossiers de héros par empire
 ## dans hero_meta[a]["files"] : [{"about", "day", "heroes": [{"name", "cls", "lvl", "post", "loy", "portrait"}]}].
 
-const POSTS := ["fleet", "system", "council", "agent", "amph"]
+const POSTS := ["fleet", "system", "council", "agent", "amph", "koinon", "resident"]
 const CLASSES := ["stratege", "intendant", "orateur", "ombre"]
 const DAYS_PER_YEAR := 360
 
@@ -574,6 +574,11 @@ static func post_effect_text(state: GameState, h: Dictionary) -> String:
 			return String(c.get("text", "")) % amount
 		"amph":
 			return txt % AmphInst.ambassador_pct(state, int(h["owner"]))
+		"koinon":
+			@warning_ignore("integer_division")
+			return txt % maxi(1, hl / 2)
+		"resident":
+			return txt % (hl * int(Vassals.data().get("resident", {}).get("m10_per_half_level", 3)) / 10.0)
 	return ""
 
 
@@ -771,6 +776,12 @@ static func check_assign(state: GameState, player: int, hero_id: int, post: Stri
 		"amph":
 			if target != 0 or not Amphictyony.is_member(state, player):
 				return "il faut siéger à l'Amphictyonie"
+		"koinon":
+			if target != 0 or not Koinon.is_member(state, player):
+				return "il faut être membre d'un Koinon"
+		"resident":
+			if Vassals.lord_of(state, target) != player:
+				return "il faut un de vos sujets"
 	return ""
 
 

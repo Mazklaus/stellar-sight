@@ -282,6 +282,7 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	var touching := 0 if Koinon.same_league(state, a, b) else border_systems(state, a, b)
 	_part(out, "Frontières communes (%d)" % touching, maxi(int(cfg["border_max"]), touching * int(cfg["border_per_system"])))
 	_part(out, "Même Koinon", Koinon.opinion_bonus(state, a, b))
+	_part(out, "Mission de notre suzerain", Vassals.opinion_bonus(state, a, b))
 	# Statut et confiance.
 	var st := status(state, a, b)
 	if st == "war":
@@ -1002,6 +1003,14 @@ static func heir_fief(state: GameState, empire_id: int) -> int:
 ## Qui recevrait le fief : celui qui a acheté l'héritier, sinon un ennemi (le premier), sinon personne.
 static func heir_recipient(state: GameState, empire_id: int) -> int:
 	var e := state.get_empire(empire_id)
+	# Allégeance des fiefs (talent) : le fief va au sujet le plus loyal, et reste dans la mouvance.
+	if bool(Vassals.talent(state, empire_id).get("heir_vassal", false)):
+		var best := -1
+		for s in Vassals.subjects_of(state, empire_id):
+			if not state.get_empire(s).eliminated and (best < 0 or Vassals.loyalty(state, s) > Vassals.loyalty(state, best)):
+				best = s
+		if best >= 0:
+			return best
 	var s := state.get_empire(e.heir_suitor)
 	if s != null and not s.eliminated and s.contacts.has(empire_id):
 		return s.id

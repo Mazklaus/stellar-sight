@@ -135,9 +135,11 @@ static func _strategos(ctx: Dictionary, lid: int) -> void:
 		var mine := int((Amphictyony.session(state)["votes"] as Dictionary).get(str(e.id), 0))
 		if mine != 0 and Koinon.consigne(state, e.id) != mine:
 			AiPlayer._issue(ctx, SimCommands.koi_act(e.id, "consigne", mine))
+	# Opération commune, quand elle est possible.
+	AiPlayer._issue(ctx, SimCommands.koi_act(e.id, "joint"))
 	# Lois : un cran de plus quand la cohésion le permet.
 	if Koinon.cohesion(state, lid) >= int(cfg()["law_cohesion"]):
-		for fam in ["trade", "tax", "central"]:
+		for fam in ["trade", "tax", "fleet", "central"]:
 			var step := Koinon.law_step(state, lid, fam) + 1
 			if AiPlayer._issue(ctx, SimCommands.koi_act(e.id, "propose", step, "law:" + fam)):
 				return

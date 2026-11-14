@@ -136,6 +136,13 @@ static func league_block(state: GameState, player: int, emit: Callable, buttons:
 	blk.body.add_child(UiTheme.dim("Membres : %s%s" % [", ".join(names), ("  ·  associés : " + ", ".join(assoc)) if not assoc.is_empty() else ""], 13))
 	if not member:
 		blk.body.add_child(UiTheme.dim("Associé : vous suivez les lois et payez l'impôt réduit, sans voter.", 13))
+	if Koinon.law_step(state, lid, "fleet") > 0 or not Koinon.federal_fleets(state, lid).is_empty():
+		var model := Koinon.federal_model(state, lid)
+		blk.body.add_child(UiTheme.dim("Flotte fédérale : %d vaisseau(x), arsenal %d matériaux%s" % [Koinon.federal_ships(state, lid), int(l.get("ffund", 0)),
+				(", prochain : %s" % String(GameData.ship(model).get("label", model))) if model != "" else ""], 13))
+	var jo: Dictionary = l.get("joint", {})
+	if not jo.is_empty():
+		blk.body.add_child(UiTheme.dim("Opération commune en cours : %s (encore %d jours, %d %% de chances)" % [String(Koinon.joint_def(state, lid).get("label", "")), maxi(0, int(jo["until"]) - state.tick), Koinon.joint_chance(state, lid)], 13))
 	# Lois.
 	blk.body.add_child(UiTheme.section("Lois"))
 	var lg := GridContainer.new()
@@ -195,7 +202,14 @@ static func league_block(state: GameState, player: int, emit: Callable, buttons:
 				"Changer de forme remet l'expérience à zéro.", func() -> void: emit.call(SimCommands.koi_act(player, "propose", -1, "form:" + nf)))
 		acts.add_child(bf)
 		buttons["form"] = bf
-	# Stratège : trésor et consigne.
+	# Stratège : opération commune, trésor et consigne.
+	if strat == player and not Koinon.joint_def(state, lid).is_empty():
+		var jd := Koinon.joint_def(state, lid)
+		var bj := _btn("OPÉRATION COMMUNE : %s" % String(jd.get("label", "")).to_upper(), Koinon.check_joint(state, player),
+				"%s Une par décennie, au rang II, en paix ; %d énergie du trésor ; six mois ; %d %% de chances (cohésion). Réussite : cohésion et expérience, plus une récompense ; échec : cohésion perdue." % [String(jd.get("text", "")), int(Koinon.data()["joint"]["cost"]), Koinon.joint_chance(state, lid)],
+				func() -> void: emit.call(SimCommands.koi_act(player, "joint")))
+		acts.add_child(bj)
+		buttons["joint"] = bj
 	if strat == player:
 		var n := mini(int(Koinon.data()["grant_max"]), int(l["treasury"]))
 		for m in Koinon.all_of(state, lid):

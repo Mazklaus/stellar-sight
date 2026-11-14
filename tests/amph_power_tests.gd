@@ -485,7 +485,7 @@ func _test_save() -> void:
 	st.amph["share"][str(imp)] = 55
 	st.amph["dip"] = {"eid": imp, "loser": sub, "until": st.tick + 60, "voters": [sub], "war": 0, "won": 0}
 	var d: Dictionary = JSON.parse_string(JSON.stringify(st.to_snapshot()))
-	_ok(int(d["version"]) == 51, "Sauvegarde : version 51")
+	_ok(int(d["version"]) == 52, "Sauvegarde : version 52")
 	var back := GameState.from_dict(d)
 	_ok(AmphPower.imperator(back) == imp and AmphPower.submitted(back, sub) and AmphPower.authority(back) == AmphPower.authority(st), "Sauvegarde : Impérateur, vassaux et autorité gardés")
 	_ok(AmphPower.sovereign(back, sub, "commerce") and AmphPower.pending_verdict(back) and int(back.amph["share"][str(imp)]) == 55, "Sauvegarde : souveraineté, verdict et scores gardés")

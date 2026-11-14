@@ -20,6 +20,15 @@
 	"exclude_pct": 67,
 	"assoc_tax_pct": 50,
 	"grant_max": 200,
+	"federal": {"_doc": "Flotte fédérale (prop. 22) : modèles essayés dans l'ordre (le premier qu'un membre sait construire), au plus max_per_rank vaisseaux par rang ; dissoute avec le Koinon.", "ships": ["croiseur", "fregate", "corvette"], "max_per_rank": 4},
+	"joint": {"_doc": "Opérations communes (prop. 23) : une par décennie, au rang II, Stratège en paix ; payée par le trésor ; réussite selon la cohésion (base + cohésion / 2, bornée).", "every_days": 3600, "days": 180, "rank": 2, "cost": 150, "base": 50, "min": 15, "max": 90, "coh": 15, "xp": 40, "fail_coh": -10,
+		"forms": {
+			"savante": {"label": "Relevé d'une anomalie", "text": "Les académies de la ligue relèvent ensemble une anomalie lointaine.", "reward": {"knowledge": 150}},
+			"martiale": {"label": "Grandes manœuvres", "text": "Les flottes de la ligue s'exercent contre une flotte factice.", "reward": {"xp": 40}},
+			"marchande": {"label": "Norme de fret", "text": "Les armateurs s'accordent sur une norme de conteneurs.", "reward": {"energy": 150}},
+			"hegemonie": {"label": "Monument au Stratège", "text": "Les membres élèvent un monument au Stratège. Ils sourient sur les photographies.", "reward": {"strat_influence": 60}},
+			"communion": {"label": "Concile", "text": "Les clergés de la ligue se réunissent en concile.", "reward": {"influence": 30}}
+		}},
 	"refused_days": 360,
 	"forms": [
 		{"id": "marchande", "label": "Ligue marchande", "text": "Le commerce d'abord : les routes entre membres rapportent davantage.",
@@ -45,7 +54,11 @@
 		{"id": "tax", "label": "Impôt fédéral", "steps": [
 			{"label": "0 %", "text": "Pas d'impôt.", "pct": 0},
 			{"label": "5 %", "text": "5 % du revenu net en énergie de chaque membre vont au trésor (moitié pour les associés).", "pct": 5, "rank": 1},
-			{"label": "10 %", "text": "10 % du revenu net en énergie de chaque membre vont au trésor (moitié pour les associés). Exige le rang II.", "pct": 10, "rank": 2}]}
+			{"label": "10 %", "text": "10 % du revenu net en énergie de chaque membre vont au trésor (moitié pour les associés). Exige le rang II.", "pct": 10, "rank": 2}]},
+		{"id": "fleet", "label": "Flotte fédérale", "steps": [
+			{"label": "Aucune", "text": "Chaque membre garde ses vaisseaux."},
+			{"label": "10 %", "text": "Chaque membre verse 10 % de son revenu net en matériaux à l'arsenal commun ; quand il y a de quoi, un vaisseau rejoint la flotte fédérale, que commande le Stratège et qui ne coûte d'entretien à personne.", "fleet_pct": 10, "rank": 1},
+			{"label": "20 %", "text": "Comme ci-dessus, avec 20 %. Exige le rang II.", "fleet_pct": 20, "rank": 2}]}
 	],
 	"ai": {"found_opinion": 30, "join_opinion": 20, "admit_opinion": 0, "exclude_opinion": -30, "war_opinion": -20, "leave_cohesion": -50, "law_cohesion": 40, "grant_below": 100}
 }
