@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.12
+
+- **Religions, lot 3** : neuf natures de foi classiques (chapitre 10). **Église universelle** : Collège, Primat, bulles, Réforme. **Patriarcats** : autorité, icônes, métropolite. **Loi et Extase** : piété, écoles. **Karma**. **Harmonie** : harmoniser une foi. **Panthéon** : présages, dieux accueillis, apothéose. **Culte des ancêtres** : mausolée, profanation. **Dette de sang** : offrandes, sacrifice. **Dieu présent** : dominion, déicide. Nouveau bâtiment : **mausolée**.
+
 ### Édition 1.11
 
 - **Religions, refonte** : une foi se fixe à la Révélation par une nature choisie parmi trois, quatre axes de doctrine (chef, regard, clergé, diffusion) et des préceptes (vingt, en quatre familles, un seul détenteur par précepte) qui remplacent les dogmes ; concile, excommunication, temple, Réforme des cultes natals (6e voie), hostilité graduée entre fois (chapitre 10).

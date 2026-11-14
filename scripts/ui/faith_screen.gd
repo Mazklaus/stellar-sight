@@ -60,6 +60,9 @@ static func build(es: EmpireScreens) -> void:
 		col.add_child(_je_block(es))
 	else:
 		col.add_child(_state_block(es))
+		var nb := FaithNaturePanel.build(es)
+		if nb != null:
+			col.add_child(nb)
 		col.add_child(_missions_block(es))
 	col.add_child(_faiths_block(es))
 	col.add_child(_colonies_block(es))
@@ -76,7 +79,7 @@ static func signature(es: EmpireScreens) -> String:
 		if c.owner == es._player:
 			mine.append(c.faith)
 	var lot2 := []
-	for k in ["missions", "wards", "crusades", "seen", "je", "demands", "blessed", "quarantine"]:
+	for k in ["missions", "wards", "crusades", "seen", "je", "demands", "blessed", "quarantine", "nat"]:
 		lot2.append(state.faiths.get(k, {}))
 	@warning_ignore("integer_division")
 	return "%d|%s|%s|%s|%s" % [state.tick / 30, str(state.faiths["list"]), str(state.faiths["state"]), str(mine), str(lot2)]
@@ -526,7 +529,7 @@ static func _concile_row(es: EmpireScreens, fid: String) -> Control:
 	for a in Faiths.AXES:
 		var opts: Dictionary = Faiths.data()["doctrines"][a]["options"]
 		for k in opts:
-			if Faiths.doctrine(state, fid, a) == String(k):
+			if Faiths.doctrine(state, fid, a) == String(k) or FaithNatures.doctrine_block(FaithWars.nature(state, fid), a, String(k)) != "":
 				continue
 			opt.add_item("%s : %s" % [String(Faiths.data()["doctrines"][a]["label"]), String(opts[k]["label"])])
 			opt.set_item_tooltip(choices.size(), String(opts[k]["text"]))

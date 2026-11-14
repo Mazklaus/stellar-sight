@@ -663,6 +663,8 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 	if state.faith_on and c.is_colony() and c.population >= 5 and not c.buildings.has("temple") and _res(ctx, "materials") >= 300 \
 			and not Faiths.is_hive(state, e.id) and (Faiths.has_state_faith(state, e.id) or Faiths.founded_by(state, e.id) == ""):
 		out.append("temple")
+	if state.faith_on and FaithNatures.check_mausoleum(state, e.id, c.planet_id) == "" and _res(ctx, "materials") >= 200:
+		out.append("mausolee")
 	# Lire son goulot : quand les matériaux s'entassent, c'est l'influence qui freine l'expansion
 	# (chaque revendication en coûte) ; les forums passent alors devant. Le Vétéran le voit dès 250,
 	# les autres niveaux à 500 (sans quoi le Chœur entassait des milliers de matériaux inutiles).

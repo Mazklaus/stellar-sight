@@ -383,6 +383,8 @@ static func building_unlocked(state: GameState, empire_id: int, building_id: Str
 	var b := GameData.building(building_id)
 	if bool(b.get("faiths", false)) and not state.faith_on:
 		return false  # temples : seulement avec les religions
+	if String(b.get("nature", "")) != "" and not FaithNatures.follows(state, empire_id, String(b["nature"])):
+		return false  # mausolée : seulement pour sa nature de foi
 	return Research.knows_all(state, empire_id, b.get("requires_tech", []))
 
 
@@ -458,6 +460,10 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 		return "bâtiment inconnu : %s" % building_id
 	if bool(b.get("faiths", false)) and not state.faith_on:
 		return "les religions ne sont pas actives dans cette partie"
+	if building_id == "mausolee":
+		var mw := FaithNatures.check_mausoleum(state, empire_id, planet_id)
+		if mw != "":
+			return mw
 	if not building_unlocked(state, empire_id, building_id):
 		return "technologie requise : %s" % Research.missing_text(state, empire_id, b.get("requires_tech", []))
 	if c.construction != "":

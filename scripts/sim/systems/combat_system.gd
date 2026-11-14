@@ -182,6 +182,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		dpct += Pirates.hunt_pct(state, f, fighters)
 		dpct += Fauna.hunt_pct(state, f, fighters)
 		dpct += Plagues.damage_pct(state, f, sid)
+		dpct += FaithNatures.damage_pct(state, f, sid)
 		if dpct != 0:
 			@warning_ignore("integer_division")
 			bonus = bonus * maxi(0, 100 + dpct) / 100
@@ -433,6 +434,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 	Fauna.on_battle(state, b, winner, added)
 	Guardians.on_battle(state, b, winner, added)
 	Plagues.on_battle(state, b, winner, added)
+	FaithNatures.on_battle(state, b)
 	# Épaves : le vainqueur étudie les armes et les doctrines des vaincus.
 	if winner >= 0:
 		Research.count_stat(state, winner, "battles_won")

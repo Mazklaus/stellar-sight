@@ -591,6 +591,7 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 	_drop_proposals(state, a, b, treaty)
 	Heroes.act(state, a, "treaty")
 	Heroes.act(state, b, "treaty")
+	FaithNatures.on_treaty(state, a, b, treaty)
 	match treaty:
 		PEACE:
 			var was_war := Combat.at_war(state, a, b)
@@ -806,6 +807,7 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 			and String(_species(state, a).get("credo", "")) != String(_species(state, b).get("credo", "")):
 		ea.fervor = mini(int(ea.faction()["fervor"]["max"]), ea.fervor + int(cr.get("war_fervor", 0)))
 	FaithWars.on_war(state, a, b)
+	FaithNatures.on_war(state, a, b, joined)
 	if joined:
 		return
 	# Les alliés partagent les guerres (Endless Space 2) : ceux de la cible défendent, ceux de
