@@ -271,7 +271,7 @@
 	},
 	"_prophecy_doc": "Prophétie plantée (proposition 17, opération d'intrigue de deux ans) : semée sur le monde le plus peuplé de la cible, elle attend qu'un héros amiral de l'empire qui l'a plantée y arrive avec sa flotte. Le monde se convertit d'un coup à la foi d'État du planteur, et vacille pour son maître (-20 pendant un an). Elle s'éteint au bout de 10 ans.",
 	"natures": {
-		"_doc": "Natures de foi : la mécanique propre d'une foi, choisie par le fondateur parmi 3 (préférée de son peuple, liée à la voie de la Révélation, une tirée). Catalogue ouvert : les lots 3 et 4 ajoutent les natures classiques et les natures SF lourdes.",
+		"_doc": "Natures de foi : la mécanique propre d'une foi, choisie par le fondateur parmi 3 (préférée de son peuple, liée à la voie de la Révélation, une tirée). Catalogue ouvert : 5 natures SF (lot 2) et 9 classiques (lot 3, bloc « classic ») ; le lot 4 ajoute les natures SF lourdes. Une nature peut imposer (forces) ou interdire (forbids) une position de doctrine.",
 		"list": {
 			"code_saint": {
 				"label": "Code saint",
@@ -292,6 +292,65 @@
 			"voies_sacrees": {
 				"label": "Voies sacrées",
 				"text": "L'hyperespace est sacré : le chef de foi bénit des routes de saut (6 au plus). Les flottes des fidèles y vont 50 % plus vite et la foi prêche le long de ces routes ; le chef peut fermer une route bénie aux infidèles (ils y vont deux fois moins vite) ou la taxer (5 d'énergie par passage)."
+			},
+			"eglise_universelle": {
+				"label": "Église universelle",
+				"forces": {
+					"chef": "elu"
+				},
+				"text": "Une Église unique au-dessus des empires : un Collège de 12 sièges que les empires fidèles achètent avec de l'influence. Le Primat, empire qui tient le plus de sièges, est élu tous les 10 ans et dirige la foi ; il émet des bulles (décret de 5 ans : indulgence, dîme, mandat missionnaire ou appel à la croisade). Le désir de réforme monte avec les fidèles et les bulles ; à 100, la Réforme : un schisme certain.",
+				"src": "Curie, cardinaux et désir de réforme, Europa Universalis IV"
+			},
+			"patriarcats": {
+				"label": "Patriarcats",
+				"forces": {
+					"chef": "aucun"
+				},
+				"text": "Des Églises sœurs, chacune maîtresse chez elle : pas de chef unique. Chaque empire fidèle a une autorité patriarcale (0 à 100) qui monte avec ses temples et le monde saint tenu, et baisse quand il convertit de force. Il la dépense en icônes (un bonus de 20 ans à la fois) ou pour consacrer un métropolite (une colonie qui prêche comme un petit monde saint). Hérésies plus rares ; chaque empire mène ses propres guerres saintes.",
+				"src": "Autorité du patriarche et icônes, Europa Universalis IV ; foi sans chef, CK3"
+			},
+			"loi_extase": {
+				"label": "Voie de la Loi et de l'Extase",
+				"text": "Une même foi tirée entre la règle et l'expérience mystique : chaque empire fidèle a une piété de -100 (Extase) à +100 (Loi). Aux extrêmes, un bonus fort (Loi : stabilité, lois moins chères ; Extase : missions à moitié prix, héros qui progressent plus vite), au centre rien. Inquisition, guerres saintes et missions d'inquisition tirent vers la Loi ; missions, pèlerinages et prophéties vers l'Extase. Chaque empire suit aussi une école d'interprétation, qui estime une école et en rejette une autre.",
+				"src": "Piété mystique-légaliste et écoles de droit, Europa Universalis IV"
+			},
+			"karma": {
+				"label": "Roue du karma",
+				"text": "Chaque acte revient vers l'empire : une jauge de karma de -100 à +100. Faire la paix, s'allier, honorer une alliance, libérer un peuple : karma en hausse. Déclarer une guerre, conquérir, exterminer : en baisse. Le meilleur état est l'équilibre (stabilité et opinion des fidèles) ; un karma haut rend la diplomatie facile mais la guerre coûteuse, un karma bas l'inverse. La roue revient lentement vers le centre.",
+				"src": "Karma, Europa Universalis IV"
+			},
+			"harmonie": {
+				"label": "Harmonie",
+				"forbids": {
+					"regard": [
+						"fondamentaliste"
+					]
+				},
+				"text": "Une foi qui n'exclut pas, elle absorbe : une harmonie de 0 à 100 par empire. Tant qu'elle reste à 50 ou plus, les autres fois de l'empire ne coûtent aucune stabilité. Harmoniser une foi présente dans l'empire (10 ans, 40 d'harmonie) lui prend un de ses préceptes, qui s'ajoute aux 3 de la foi (2 de plus au plus) ; la foi harmonisée n'est plus une rivale chez vous. Le regard Fondamentaliste est interdit.",
+				"src": "Harmonie et harmoniser une religion, Europa Universalis IV ; syncrétisme, EU4 et CK3"
+			},
+			"pantheon": {
+				"label": "Panthéon",
+				"text": "Plusieurs dieux, chacun pour un domaine : 4 dieux actifs parmi 8 domaines, chacun avec un effet permanent. Tous les 5 ans, le chef de foi peut invoquer un présage (l'effet d'un dieu triplé pendant un an, contre 10 de zèle). Changer un dieu coûte de la stabilité. Accueillir le dieu d'une autre foi rend ses fidèles paisibles chez vous, mais ralentit leur conversion. Apothéose : un héros mort au sommet de sa carrière (niveau 5) rejoint le panthéon.",
+				"src": "Panthéon, présages et apothéose, Imperator ; divinité choisie, EU4"
+			},
+			"ancetres": {
+				"label": "Culte des ancêtres",
+				"text": "Les morts de l'empire veillent sur les vivants : chaque héros mort devient un ancêtre, gardé dans un mausolée (bâtiment de la capitale ou du monde saint). Les 3 derniers ancêtres sont actifs, chacun prolonge le premier trait du héros. Perdre le monde du mausolée est une profanation (zèle et stabilité en chute, motif de guerre sainte). Tuer un héros de cette foi coûte de l'opinion chez tous ses fidèles.",
+				"src": "Totems des souverains morts, Europa Universalis IV ; culte des ancêtres, CK3"
+			},
+			"dette_sang": {
+				"label": "Dette de sang",
+				"text": "Le dieu a fait vivre le monde ; il faut le rembourser. Une Dette monte chaque mois. Les vaisseaux ennemis détruits, les mondes envahis et les fidèles offerts la font baisser. Dette basse : dégâts +10 % et zèle en hausse ; dette à 100 : un héros est sacrifié et la stabilité s'effondre. Dans une théocratie, l'Offrande paie aussi la dette.",
+				"src": "Compte à rebours des Nahuatl, Europa Universalis IV ; sacrifices, CK3"
+			},
+			"dieu_present": {
+				"label": "Dieu présent",
+				"forces": {
+					"chef": "temporel"
+				},
+				"text": "Le dieu marche parmi ses fidèles : il est sur la carte et se déplace d'un saut par mois. Il projette un dominion jusqu'à 2 sauts (prêche fort, flottes ennemies affaiblies de 20 %). Deux dominions qui se touchent s'usent l'un l'autre. Tué par une flotte ennemie qui le trouve sans escorte, il revient au monde saint 5 ans plus tard, et la foi perd 25 de zèle. Le chef de foi est l'empire où réside le dieu.",
+				"src": "Dieu prétendant et dominion, Dominions ; dieux réels de l'étude v1"
 			}
 		},
 		"fleet_pressure": 20,
@@ -534,7 +593,73 @@
 		"ward_influence": 120,
 		"council_knowledge": 600,
 		"excom_influence": 300,
-		"bless_influence": 150
+		"bless_influence": 150,
+		"classic": {
+			"_doc": "Choix de l'IA pour les natures classiques.",
+			"bull_by_credo": {
+				"honneur": "croisade",
+				"foi": "mandat",
+				"raison": "indulgence",
+				"profit": "dime",
+				"survie": "indulgence",
+				"default": "mandat"
+			},
+			"icon_by_credo": {
+				"honneur": "guerre",
+				"foi": "stabilite",
+				"raison": "savoir",
+				"profit": "croissance",
+				"survie": "croissance",
+				"default": "stabilite"
+			},
+			"school_by_credo": {
+				"honneur": "litterale",
+				"foi": "litterale",
+				"raison": "allegorique",
+				"profit": "allegorique",
+				"survie": "mystique",
+				"default": "mystique"
+			},
+			"gods_by_credo": {
+				"honneur": [
+					"guerre",
+					"mort",
+					"forge",
+					"mer_etoiles"
+				],
+				"foi": [
+					"fecondite",
+					"guerre",
+					"savoir",
+					"ruse"
+				],
+				"raison": [
+					"savoir",
+					"commerce",
+					"forge",
+					"mer_etoiles"
+				],
+				"profit": [
+					"commerce",
+					"ruse",
+					"mer_etoiles",
+					"forge"
+				],
+				"survie": [
+					"fecondite",
+					"forge",
+					"mort",
+					"savoir"
+				],
+				"default": [
+					"savoir",
+					"fecondite",
+					"forge",
+					"guerre"
+				]
+			},
+			"seat_reserve": 100
+		}
 	},
 	"reform": {
 		"colonies": 3,
@@ -936,5 +1061,268 @@
 			"id": "guerre",
 			"label": "Guerre"
 		}
-	]
+	],
+	"classic": {
+		"_doc": "Natures classiques (lot 3, étude v2) : jauges par empire et structures par foi ; tous les chiffres sont des points de départ (équilibrage reporté).",
+		"eglise": {
+			"seats": 12,
+			"seat_cost": {
+				"influence": 40
+			},
+			"seat_cost_step": 20,
+			"term_days": 3600,
+			"bull_days": 1800,
+			"bulls": {
+				"indulgence": {
+					"label": "Indulgence",
+					"text": "Stabilité +3 dans les systèmes des empires de la foi."
+				},
+				"dime": {
+					"label": "Dîme",
+					"text": "Le Primat reçoit 2 d'influence par mois pour chaque autre empire de la foi."
+				},
+				"mandat": {
+					"label": "Mandat missionnaire",
+					"text": "La foi prêche 25 % plus fort."
+				},
+				"croisade": {
+					"label": "Appel à la croisade",
+					"text": "La prochaine croisade est gratuite et ignore le délai entre deux croisades."
+				}
+			},
+			"indulgence_stab": 3,
+			"dime_influence": 2,
+			"mandat_pct": 25,
+			"reform_per_followers": 40,
+			"reform_month_max": 3,
+			"reform_bull": 10,
+			"reform_max": 100
+		},
+		"patriarcats": {
+			"start": 30,
+			"temple": 1,
+			"temple_max": 3,
+			"holy": 2,
+			"forced": -5,
+			"icon_cost": 50,
+			"icon_days": 7200,
+			"metro_cost": 40,
+			"metro_x": 2,
+			"heresy_pct": 50,
+			"icons": {
+				"guerre": {
+					"label": "Icône de guerre",
+					"fx": {
+						"damage_pct": 10
+					}
+				},
+				"croissance": {
+					"label": "Icône de croissance",
+					"fx": {
+						"growth_pct": 10
+					}
+				},
+				"stabilite": {
+					"label": "Icône de paix",
+					"stab": 3
+				},
+				"savoir": {
+					"label": "Icône de sagesse",
+					"fx": {
+						"production_pct": {
+							"knowledge": 10
+						}
+					}
+				}
+			}
+		},
+		"loi_extase": {
+			"threshold": 50,
+			"inquisition": 2,
+			"ward": 3,
+			"holy_war": 5,
+			"mission": -3,
+			"pilgrim": -1,
+			"prophecy": -10,
+			"loi_stab": 2,
+			"loi_fx": {
+				"law_upkeep_pct": -25
+			},
+			"extase_mission_pct": -50,
+			"extase_xp_pct": 25,
+			"school_change_days": 3600,
+			"school_op": 10,
+			"schools": {
+				"litterale": {
+					"label": "École littérale",
+					"text": "La Loi dit ce qu'elle dit.",
+					"esteems": "allegorique",
+					"rejects": "mystique"
+				},
+				"allegorique": {
+					"label": "École allégorique",
+					"text": "Chaque verset cache un autre verset.",
+					"esteems": "mystique",
+					"rejects": "litterale"
+				},
+				"mystique": {
+					"label": "École mystique",
+					"text": "Le texte n'est qu'une porte.",
+					"esteems": "litterale",
+					"rejects": "allegorique"
+				}
+			}
+		},
+		"karma": {
+			"peace": 10,
+			"alliance": 5,
+			"honor": 5,
+			"liberate": 10,
+			"war": -15,
+			"conquest": -5,
+			"exterminate": -25,
+			"drift": 1,
+			"balance": 33,
+			"balance_stab": 2,
+			"balance_op": 5,
+			"high_op": 10,
+			"high_war_stab": -3,
+			"low_op": -10,
+			"low_fx": {
+				"damage_pct": 10
+			}
+		},
+		"harmonie": {
+			"start": 50,
+			"month": 2,
+			"threshold": 50,
+			"cost": 40,
+			"days": 3600,
+			"extra_max": 2
+		},
+		"pantheon": {
+			"gods": 4,
+			"omen_days": 1800,
+			"omen_zeal": -10,
+			"omen_x": 3,
+			"swap_stab": -5,
+			"welcome_max": 2,
+			"welcome_threshold_pct": 50,
+			"apotheosis_lvl": 5,
+			"domains": {
+				"guerre": {
+					"label": "Dieu de la guerre",
+					"fx": {
+						"damage_pct": 5
+					}
+				},
+				"savoir": {
+					"label": "Dieu du savoir",
+					"fx": {
+						"production_pct": {
+							"knowledge": 5
+						}
+					}
+				},
+				"commerce": {
+					"label": "Dieu du commerce",
+					"fx": {
+						"production_pct": {
+							"energy": 5
+						}
+					}
+				},
+				"fecondite": {
+					"label": "Déesse de la fécondité",
+					"fx": {
+						"growth_pct": 5
+					}
+				},
+				"mer_etoiles": {
+					"label": "Dieu de la mer d'étoiles",
+					"fx": {
+						"fleet_speed_pct": 5
+					}
+				},
+				"forge": {
+					"label": "Dieu de la forge",
+					"fx": {
+						"production_pct": {
+							"materials": 5
+						}
+					}
+				},
+				"mort": {
+					"label": "Dieu de la mort",
+					"fx": {
+						"troops_pct": 10
+					}
+				},
+				"ruse": {
+					"label": "Dieu de la ruse",
+					"fx": {
+						"production_pct": {
+							"influence": 5
+						}
+					}
+				}
+			},
+			"hero_fx": {
+				"stratege": {
+					"damage_pct": 5
+				},
+				"intendant": {
+					"production_pct": {
+						"materials": 3,
+						"energy": 3
+					}
+				},
+				"orateur": {
+					"production_pct": {
+						"influence": 5
+					}
+				},
+				"ombre": {
+					"production_pct": {
+						"knowledge": 5
+					}
+				}
+			}
+		},
+		"ancetres": {
+			"active": 3,
+			"profane_zeal": -20,
+			"profane_stab": -10,
+			"profane_days": 360,
+			"profane_casus_days": 3600,
+			"slain_memory": "faith_hero_slain",
+			"trait_pct": 50
+		},
+		"dette": {
+			"start": 30,
+			"month": 1,
+			"ship": -1,
+			"battle_max": -10,
+			"invasion": -5,
+			"offer": -8,
+			"low": 30,
+			"low_fx": {
+				"damage_pct": 10
+			},
+			"low_zeal": 1,
+			"max": 100,
+			"reset": 50,
+			"crash_stab": -15,
+			"crash_days": 360
+		},
+		"dieu": {
+			"move_days": 30,
+			"dominion": 2,
+			"pressure": 30,
+			"enemy_damage_pct": -20,
+			"clash_zeal": -1,
+			"respawn_days": 1800,
+			"death_zeal": -25
+		}
+	}
 }

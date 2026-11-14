@@ -514,6 +514,7 @@ static func check_status(state: GameState, empire_id: int, fid: String, st: Stri
 
 static func set_status(state: GameState, empire_id: int, fid: String, st: String) -> void:
 	var key := str(empire_id)
+	FaithNatures.on_status(state, empire_id, status(state, empire_id, fid), st)
 	for k in ["status", "changed"]:
 		if not state.peoples.has(k):
 			state.peoples[k] = {}

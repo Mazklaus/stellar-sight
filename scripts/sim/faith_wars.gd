@@ -526,6 +526,7 @@ static func _cult_month(state: GameState, e: Empire, added: Array[Dictionary]) -
 				if int(c.faith[victim]) <= 0:
 					c.faith.erase(victim)
 				c.faith[sf] = int(c.faith.get(sf, 0)) + 1
+		FaithNatures.on_inquisition(state, e.id)
 	# Doléance « Liberté de culte » (avec la politique intérieure).
 	if not state.politics_on or not Politics.applies(state, e.id):
 		return
@@ -571,6 +572,8 @@ static func _heresy_month(state: GameState, fid: String, added: Array[Dictionary
 	if Faiths.doctrine(state, fid, "chef") == "aucun":
 		@warning_ignore("integer_division")
 		ch = ch * int(data()["doctrine_nums"]["aucun_heresy_pct"]) / 100
+	@warning_ignore("integer_division")
+	ch = ch * FaithNatures.heresy_pct(state, fid) / 100
 	if _h(state, ["heresy", fid, state.tick]) % 1000 >= ch:
 		return
 	var hsid := state.galaxy.get_planet(int(f["holy"])).system_id
@@ -751,6 +754,9 @@ static func check_concile(state: GameState, player: int, fid: String, axis: Stri
 		return "seul le chef de foi réunit un concile"
 	if Faiths.doctrine_def(axis, opt).is_empty():
 		return "doctrine inconnue"
+	var blk := FaithNatures.doctrine_block(nature(state, fid), axis, opt)
+	if blk != "":
+		return blk
 	if Faiths.doctrine(state, fid, axis) == opt:
 		return "c'est déjà la doctrine de la foi"
 	if int(f.get("council_next", 0)) > state.tick:
@@ -986,6 +992,9 @@ static func check_mission(state: GameState, player: int, sid: int) -> String:
 ## Coût d'une mission : à moitié prix pour une foi Missionnaire.
 static func mission_cost(state: GameState, player: int) -> Dictionary:
 	var c: Dictionary = data()["missions"]["cost"]
+	# Extase (Voie de la Loi et de l'Extase) : moitié prix.
+	if FaithNatures.mission_pct(state, player) != 0:
+		c = Research.scaled_amounts(c, FaithNatures.mission_pct(state, player))
 	if Faiths.doctrine(state, Faiths.state_faith(state, player), "diffusion") == "missionnaire" and Faiths.has_state_faith(state, player) \
 			and not Faiths.faith(state, Faiths.state_faith(state, player)).is_empty():
 		return Research.scaled_amounts(c, int(data()["doctrine_nums"]["missionnaire_mission_pct"]) - 100)
@@ -997,6 +1006,7 @@ static func mission(state: GameState, player: int, sid: int) -> void:
 	var l: Array = _missions(state).duplicate()
 	l.append({"by": player, "sid": sid, "fid": Faiths.state_faith(state, player), "end": state.tick + int(data()["missions"]["days"])})
 	state.faiths["missions"] = {"list": l}
+	FaithNatures.on_mission(state, player)
 
 
 static func missions_by(state: GameState, eid: int) -> Array:
@@ -1029,6 +1039,7 @@ static func ward(state: GameState, player: int, sid: int) -> void:
 			keep.append(m)
 	state.faiths["missions"] = {"list": keep}
 	state.faiths["wards"][str(sid)] = state.tick + int(data()["missions"]["ward_days"])
+	FaithNatures.on_ward(state, player)
 
 
 # --- Guerre sainte et croisade (proposition 15) --------------------------------------------------
@@ -1041,6 +1052,9 @@ static func casus(state: GameState, a: int, b: int) -> String:
 	if fa == Faiths.LAICITE or fa == Faiths.INCROYANCE:
 		return ""
 	var fb := Faiths.state_faith(state, b)
+	var nc := FaithNatures.casus(state, a, b)
+	if nc != "":
+		return nc
 	if fa == fb:
 		return "il est excommunié" if excommunicated(state, fa, b) else ""
 	var holy_c: Colony = state.colonies.get(int(Faiths.faith(state, fa)["holy"]))
@@ -1095,7 +1109,7 @@ static func check_crusade(state: GameState, player: int, target: int) -> String:
 	var cr: Dictionary = state.faiths["crusades"].get(fid, {})
 	if int(cr.get("end", 0)) > state.tick:
 		return "une croisade est déjà en cours"
-	if int(cr.get("next", 0)) > state.tick:
+	if int(cr.get("next", 0)) > state.tick and not FaithNatures.free_crusade(state, fid):
 		return "la dernière croisade est trop récente (encore %d jours)" % (int(cr["next"]) - state.tick)
 	if not Combat.at_war(state, player, target):
 		var w := SimCommands.validate(state, SimCommands.declare_war(player, target))
@@ -1107,6 +1121,8 @@ static func check_crusade(state: GameState, player: int, target: int) -> String:
 ## Coût d'une croisade : à moitié prix pour un chef Temporel.
 static func crusade_cost(state: GameState, fid: String) -> Dictionary:
 	var c: Dictionary = data()["holy_war"]["crusade_cost"]
+	if FaithNatures.free_crusade(state, fid):
+		return {}
 	if Faiths.doctrine(state, fid, "chef") == "temporel":
 		return Research.scaled_amounts(c, int(data()["doctrine_nums"]["temporel_crusade_pct"]) - 100)
 	return c
@@ -1116,6 +1132,7 @@ static func crusade(state: GameState, player: int, target: int) -> void:
 	var hd: Dictionary = data()["holy_war"]
 	_pay(state, player, crusade_cost(state, Faiths.state_faith(state, player)))
 	var fid := Faiths.state_faith(state, player)
+	FaithNatures.use_free_crusade(state, fid)
 	state.faiths["crusades"][fid] = {"target": target, "end": state.tick + int(hd["crusade_days"]), "next": state.tick + int(hd["crusade_cooldown"])}
 	if not Combat.at_war(state, player, target):
 		Combat.start_war(state, player, target)
@@ -1215,6 +1232,7 @@ static func _prophecy_month(state: GameState, added: Array[Dictionary]) -> void:
 		c.faith[fid] = c.population
 		add_stab(state, sid, "Prophétie accomplie", int(pd["stab"]), int(pd["stab_days"]))
 		add_zeal(state, fid, int(data()["zeal"]["prophecy"]))
+		FaithNatures.on_prophecy(state, int(p["by"]))
 		state.faiths["prophecies"].erase(k)
 		added.append(state.add_chronicle("La prophétie s'accomplit sur %s : %s descend de son vaisseau, et la foule tombe à genoux. Tout le monde se convertit à %s." % [
 				state.galaxy.get_planet(pid).display_name(state.galaxy), String(hero["name"]), Faiths.name_of(state, fid)], Espionage.public_to(state, [c.owner, int(p["by"])])))

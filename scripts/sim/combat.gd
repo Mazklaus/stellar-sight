@@ -575,6 +575,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 		added.append(state.add_chronicle("%s envahit %s et en chasse %s. On repeint les drapeaux ; les habitants, eux, restent." % [
 				en.display_name(), sname, eo.display_name()], Espionage.private_to(state, [new_owner, old], system_id)))
 	Movements.on_conquest(state, system_id, new_owner, added)
+	FaithNatures.on_capture(state, system_id, old, new_owner, added)
 	if lost_capital:
 		Relics.on_capital_lost(state, old, new_owner, added)
 		eo.capital_planet = _new_capital(state, old)

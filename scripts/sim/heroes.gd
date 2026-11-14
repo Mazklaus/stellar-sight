@@ -830,7 +830,7 @@ static func gain_xp(state: GameState, h: Dictionary, n: int) -> void:
 	if n <= 0:
 		return
 	@warning_ignore("integer_division")
-	h["xp"] = int(h["xp"]) + n * (100 + trait_fx(h, "xp_pct")) / 100
+	h["xp"] = int(h["xp"]) + n * (100 + trait_fx(h, "xp_pct") + FaithNatures.hero_xp_pct(state, int(h["owner"]))) / 100
 	var levels: Array = data()["xp_levels"]
 	while int(h["lvl"]) < levels.size() and int(h["xp"]) >= int(levels[int(h["lvl"])]):
 		h["lvl"] = int(h["lvl"]) + 1
@@ -1138,7 +1138,8 @@ static func _age_month(state: GameState, h: Dictionary, out: Array[Dictionary]) 
 
 
 ## Un héros meurt : souvenir (niveau min_lvl ou plus, ou toujours chez les Saints), ferveur des Saints.
-static func die(state: GameState, h: Dictionary, why: String, out: Array[Dictionary]) -> void:
+## killer : l'empire qui l'a tué (exécution, assassinat), -1 sinon.
+static func die(state: GameState, h: Dictionary, why: String, out: Array[Dictionary], killer := -1) -> void:
 	# Parasite saint : un héros de cette foi ressuscite une fois.
 	if FaithWars.try_resurrect(state, h, out):
 		return
@@ -1147,6 +1148,7 @@ static func die(state: GameState, h: Dictionary, why: String, out: Array[Diction
 	var e := state.get_empire(owner)
 	state.heroes.erase(int(h["id"]))
 	Relics.on_hero_gone(state, int(h["id"]))
+	FaithNatures.on_hero_death(state, h, killer, out)
 	var tl := talent(state, owner)
 	var mem: Dictionary = data()["memorial"]
 	var credo := String(e.faction().get("species", {}).get("credo", "")) if e else ""
@@ -1246,7 +1248,7 @@ static func prisoner(state: GameState, player: int, hero_id: int, action: String
 			Diplomacy.remember(state, owner, player, "hero_executed")
 			var out: Array[Dictionary] = []
 			h["owner"] = owner
-			die(state, h, "est exécuté sur ordre de %s. On ne lui pardonnera pas" % je.display_name(), out)
+			die(state, h, "est exécuté sur ordre de %s. On ne lui pardonnera pas" % je.display_name(), out, player)
 
 
 ## Rançon d'un héros que retiennent les pirates ou les rebelles.
@@ -1451,7 +1453,7 @@ static func assassinate(state: GameState, a: int, b: int) -> String:
 		return "la cible avait changé de chambre. Le poison reste dans la carafe."
 	var h: Dictionary = state.heroes[id]
 	var name := String(h["name"])
-	die(state, h, "meurt assassiné. On parle d'un empoisonnement, d'une chute, d'un « accident de chasse »", [] as Array[Dictionary])
+	die(state, h, "meurt assassiné. On parle d'un empoisonnement, d'une chute, d'un « accident de chasse »", [] as Array[Dictionary], a)
 	return "%s ne se relèvera pas. Les nôtres étaient déjà loin quand on a trouvé le corps." % name
 
 

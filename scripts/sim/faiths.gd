@@ -23,7 +23,7 @@ const LAICITE := "laicite"
 const INCROYANCE := "incroyance"
 ## Foi d'un habitant qui suit les cultes natals (clé utilisée par majority()).
 const NATIVE := ""
-const KEYS := ["list", "state", "changed", "prog", "missions", "wards", "crusades", "holy_wars", "seen", "prophecies", "je", "stab", "demands", "blessed", "quarantine"]
+const KEYS := ["list", "state", "changed", "prog", "missions", "wards", "crusades", "holy_wars", "seen", "prophecies", "je", "stab", "demands", "blessed", "quarantine", "nat"]
 const AXES := ["chef", "regard", "clerge", "diffusion"]
 ## Position par défaut de chaque axe (foi dont le fondateur n'a pas encore choisi).
 const DEFAULT_DOCTRINES := {"chef": "elu", "regard": "juste", "clerge": "theocratique", "diffusion": "missionnaire"}
@@ -117,6 +117,7 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 		for fid in m:
 			m[fid] = int(m[fid])
 	FaithWars.fix_ints(state)
+	FaithNatures.fix(state)
 
 
 ## Sauvegarde d'avant l'étude v2 (dogmes) : chaque dogme devient le précepte ou la doctrine la plus proche.
@@ -250,6 +251,10 @@ static func head(state: GameState, fid: String) -> int:
 	var f := faith(state, fid)
 	if f.is_empty():
 		return -1
+	# Natures classiques : le Primat (Église universelle), l'hôte du dieu (Dieu présent).
+	var ov := FaithNatures.head_override(state, fid)
+	if ov != -2:
+		return ov
 	if doctrine(state, fid, "chef") == "temporel":
 		var hc: Colony = state.colonies.get(int(f["holy"]))
 		if hc != null and not GameState.is_npc(hc.owner) and state_faith(state, hc.owner) == fid and not is_hive(state, hc.owner):
@@ -636,6 +641,8 @@ static func pressures(state: GameState) -> Dictionary:
 			elif not f.is_empty():
 				# Précurseurs : la capitale d'un empire de la foi qui tient des reliques prêche comme un monde saint.
 				n *= FaithWars.secondary_holy_x(state, fid, c)
+				# Patriarcats : le métropolite prêche comme un petit monde saint.
+				n *= FaithNatures.source_x(state, c, fid)
 			if not GameState.is_npc(c.owner) and state_faith(state, c.owner) == fid:
 				n = n * maxi(0, 100 + Research.fx_int(state, c.owner, "faith_pressure_pct")) / 100
 			m[fid] = int(m.get(fid, 0)) + n
@@ -700,11 +707,12 @@ static func pressures(state: GameState) -> Dictionary:
 		out[pid] = pm
 	# Lot 2 : missions, flottes (parasite saint), réseaux d'espionnage (mème).
 	FaithWars.extra_pressures(state, out, targets_by_sys, src)
+	FaithNatures.extra_pressures(state, out, targets_by_sys)
 	# Zèle : la pression varie de (zèle - 50) % ; doctrines (Missionnaire, Secrète, Pluraliste). (points en centièmes)
 	for pid in out:
 		var pm: Dictionary = out[pid]
 		for fid in pm:
-			var dp := 100 + (doctrine_pressure_pct(state, fid) if not faith(state, fid).is_empty() else 0)
+			var dp := 100 + (doctrine_pressure_pct(state, fid) + FaithNatures.pressure_pct(state, fid) if not faith(state, fid).is_empty() else 0)
 			pm[fid] = int(pm[fid]) * maxi(0, 50 + FaithWars.zeal(state, fid)) / 100 * maxi(0, dp) / 100 / 100
 	return out
 
@@ -758,6 +766,8 @@ static func threshold(state: GameState, c: Colony, fid: String) -> int:
 	var sf := state_faith(state, c.owner)
 	if sf != fid and sf != LAICITE and int(c.faith.get(sf, 0)) > 0:
 		t = t * maxi(25, 100 + Research.fx_int(state, c.owner, "faith_resist_pct")) / 100
+	# Panthéon : les fidèles d'un dieu accueilli se convertissent plus lentement.
+	t = t * (100 + FaithNatures.threshold_pct(state, c, fid)) / 100
 	return t
 
 
@@ -776,7 +786,9 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 	_spread(state)
 	FaithWars.monthly(state, added)
 	_update_slots(state)
+	FaithNatures.monthly(state, added)
 	_ai(state)
+	FaithNatures.ai(state)
 
 
 static func _spread(state: GameState) -> void:
@@ -999,6 +1011,9 @@ static func check_choose(state: GameState, player: int, fid: String, nat: String
 		for a in AXES:
 			if doctrine_def(a, String(doctrines.get(a, ""))).is_empty():
 				return "doctrine manquante : %s" % String(data()["doctrines"][a]["label"])
+			var blk := FaithNatures.doctrine_block(nat, a, String(doctrines.get(a, "")))
+			if blk != "":
+				return blk
 		if precept_def(pid).is_empty():
 			return "premier précepte manquant"
 		var why := _precept_free(state, fid, pid)
@@ -1018,6 +1033,7 @@ static func choose(state: GameState, fid: String, nat: String, doctrines: Dictio
 		if pid != "" and _precept_free(state, fid, pid) == "":
 			(f["precepts"] as Array).append(pid)
 	f["pending"] = 0
+	FaithNatures.on_chosen(state, fid)
 	Relics.touch(state)
 
 
@@ -1092,6 +1108,7 @@ static func effects(state: GameState, eid: int) -> Dictionary:
 		for d in faith(state, sf).get("precepts", []):
 			Research._merge(out, precept_def(String(d)).get("fx", {}))
 		Research._merge(out, FaithWars.nature_fx(state, sf))
+		Research._merge(out, FaithNatures.fx(state, eid, sf))
 	return out
 
 
@@ -1117,11 +1134,13 @@ static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 	var m := system_majority(state, sid, owner)
 	if m == sf:
 		out.append(["Foi d'État majoritaire", int(sd["stab_major"]) + Research.fx_int(state, owner, "faith_stab")])
-	elif m != NATIVE and Research.fx_int(state, owner, "faith_tolerance") <= 0 and FaithWars.visible_to(state, m, owner):
+	elif m != NATIVE and Research.fx_int(state, owner, "faith_tolerance") <= 0 and FaithWars.visible_to(state, m, owner) \
+			and not FaithNatures.minor_exempt(state, owner, m):
 		var v := minor_stab(state, owner, sf, m)
 		if v != 0:
 			out.append(["Autre foi majoritaire (%s)" % name_of(state, m), v])
 	out.append_array(_precept_stab(state, sid, owner, sf))
+	out.append_array(FaithNatures.stability_parts(state, sid, owner))
 	return out
 
 
@@ -1214,11 +1233,15 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array:
 	var fa := state_faith(state, a)
 	var fb := state_faith(state, b)
 	out.append_array(FaithWars.opinion_parts(state, a, b))
+	out.append_array(FaithNatures.opinion_parts(state, a, b))
 	if fa == LAICITE or fb == LAICITE:
 		return out
 	var hd: Dictionary = data()["hostility"]
 	if fa == fb:
 		out.append(["Même foi (%s)" % name_of(state, fa), int(hd["same"]) + Research.fx_int(state, a, "faith_same_op")])
+		return out
+	# Harmonie : une foi harmonisée n'est plus une rivale.
+	if FaithNatures.no_hostility(state, a, fb):
 		return out
 	# Hostilité selon le lien entre les fois et le regard de a (incroyance d'État : regard juste).
 	var rg := doctrine(state, fa, "regard") if not faith(state, fa).is_empty() else "juste"

@@ -434,6 +434,11 @@ static func faith_rewrite(player: int, faith: String, precept: String) -> Dictio
 
 
 ## Culte du Je : "ecraser" ou "tolerer" les drones dissidents d'une colonie de ruche.
+## Action d'une nature classique de foi (FaithNatures.check / apply) : act et ses arguments.
+static func faith_nat(player: int, act: String, args := {}) -> Dictionary:
+	return {"type": "faith_nat", "player": player, "act": act, "args": args}
+
+
 static func faith_je(player: int, planet_id: int, what: String) -> Dictionary:
 	return {"type": "faith_je", "player": player, "planet": planet_id, "what": what}
 
@@ -587,6 +592,9 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return FaithWars.check_council(state, int(cmd["player"]), String(cmd.get("faith", "")))
 		"faith_rewrite":
 			return FaithWars.check_rewrite(state, int(cmd["player"]), String(cmd.get("faith", "")), String(cmd.get("precept", "")))
+		"faith_nat":
+			var na: Variant = cmd.get("args", {})
+			return FaithNatures.check(state, int(cmd["player"]), String(cmd.get("act", "")), na if na is Dictionary else {})
 		"faith_je":
 			return FaithWars.check_je(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("what", "")))
 		"refugee_policy":
@@ -849,6 +857,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			c.growth = 0
 			e.fervor = mini(int(fv["max"]), e.fervor + FactionTraits.sacrifice_gain(state, e.id))
 			Research.count_stat(state, e.id, "sacrifices")
+			FaithNatures.on_offering(state, e.id)
 			state.add_chronicle("Offrande sur %s : un fidèle rejoint le dieu-machine. Il paraît que c'est un honneur ; il paraît surtout que c'est obligatoire." % [
 					state.galaxy.get_planet(c.planet_id).display_name(state.galaxy)], Espionage.private_to(state, [e.id], state.galaxy.get_planet(c.planet_id).system_id))
 		"rush":
@@ -896,6 +905,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			FaithWars.council(state, int(cmd["player"]), String(cmd["faith"]))
 		"faith_rewrite":
 			FaithWars.rewrite(state, int(cmd["player"]), String(cmd["faith"]), String(cmd["precept"]))
+		"faith_nat":
+			FaithNatures.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("args", {}))
 		"faith_je":
 			FaithWars.je_act(state, int(cmd["player"]), int(cmd["planet"]), String(cmd["what"]))
 		"refugee_policy":
