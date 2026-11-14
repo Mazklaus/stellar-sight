@@ -225,6 +225,12 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		for r in gross:
 			@warning_ignore("integer_division")
 			gross[r] = gross[r] * pct / 100
+	# Occupé (buts de guerre) : l'occupant prélève sa part.
+	var occ_pct := WarPeace.owner_pct(state, planet.system_id)
+	if occ_pct != 100:
+		for r in gross:
+			@warning_ignore("integer_division")
+			gross[r] = gross[r] * occ_pct / 100
 	# Étoile rongée par le Mange-soleil, ou étouffée par une opération.
 	var star_pct := Guardians.production_pct(state, planet.system_id)
 	if star_pct != 100:
@@ -279,6 +285,11 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 	var hero_income := Heroes.income(state, empire_id)
 	for r in hero_income:
 		gross[r] = int(gross.get(r, 0)) + int(hero_income[r])
+	# Occupation : la part des systèmes occupés (buts de guerre).
+	if state.wars_on:
+		var oi := WarPeace.occupation_income(state, empire_id)
+		for r in oi:
+			gross[r] = int(gross.get(r, 0)) + int(oi[r])
 	var treaties := Diplomacy.treaty_income(state, empire_id)
 	for r in treaties:
 		gross[r] += int(treaties[r])
@@ -307,6 +318,8 @@ static func production_pct(state: GameState, empire_id: int, resource: String) -
 		bonus += Vassals.knowledge_pct(state, empire_id)
 	bonus += Koinon.knowledge_pct(state, empire_id) if resource == "knowledge" else 0
 	bonus += Vassals.production_pct(state, empire_id, resource)
+	if resource == "materials" or resource == "energy":
+		bonus += WarPeace.revanche_pct(state, empire_id)
 	bonus += Koinon.influence_pct(state, empire_id) if resource == "influence" else 0
 	# Stabilité d'empire : de -15 % à +15 % de Savoir et d'influence.
 	if resource == "knowledge" or resource == "influence":

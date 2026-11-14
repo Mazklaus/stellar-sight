@@ -44,7 +44,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 		return
 
 	var sys_id := state.galaxy.get_planet(c.planet_id).system_id
-	if c.construction != "" and not e.blackout and not Stability.frozen(state, sys_id):
+	if c.construction != "" and not e.blackout and not Stability.frozen(state, sys_id) and WarPeace.occupier(state, sys_id) < 0:
 		c.construction_days -= 1
 		if c.construction_days <= 0:
 			_finish_building(state, c, e, state.galaxy.get_planet(c.planet_id).display_name(state.galaxy), added)

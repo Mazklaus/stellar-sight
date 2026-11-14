@@ -421,6 +421,9 @@ static func way_interest(state: GameState, e: Empire, fid: String, way: String) 
 			a = (2 if ag <= 0 else -1) - (3 if credo == "profit" else 0)
 		"perils":
 			a = (3 if Fauna.active(state) and Fauna.venerated(state, e.id) > 0 else -1) - (2 if state.pirate_density != "aucun" else 0)
+		"droit":
+			# Lois de la guerre : les pacifiques et les plus faibles ; Raison d'État : les belliqueux.
+			a = 2 - ag * 2 + (1 if Diplomacy.warships(state, e.id) < _avg_warships(state) else -1)
 	return clampi(a if way == "a" else -a, -10, 10)
 
 

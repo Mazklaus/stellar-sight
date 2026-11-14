@@ -1389,6 +1389,7 @@ func _build_diplomacy() -> void:
 	if Diplomacy.faction_abilities(me.faction()).is_empty():
 		_side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("diplomacy").get("why", "")), SIDE_WIDTH - 24.0, 14))
 	_side_box.add_child(VassalUi.side(_state, _player, SIDE_WIDTH - 24.0))
+	_side_box.add_child(WarsUi.side(_state, _player, SIDE_WIDTH - 24.0))
 
 	# Contenu : la table à gauche, la relation choisie et les propositions à droite.
 	var row := HBoxContainer.new()

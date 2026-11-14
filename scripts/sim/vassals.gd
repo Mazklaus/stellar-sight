@@ -379,22 +379,38 @@ static func vassal_price(state: GameState, loser: int) -> int:
 	return int(t["vassal_base"]) + int(t["vassal_per_system"]) * EmpireReport.owned_systems(state, loser).size()
 
 
-## Prix d'un ensemble de conditions, en points de score de guerre.
-static func price(state: GameState, loser: int, terms: Dictionary) -> int:
+## Prix d'un ensemble de conditions, en points de score de guerre (en % avec les buts de guerre).
+## winner connu et buts de guerre actifs : clauses du traité étendu (WarPeace), et prix doublé pour
+## chaque clause que le but annoncé ne justifie pas.
+static func price(state: GameState, loser: int, terms: Dictionary, winner := -1) -> int:
 	var t := _cfg("terms")
-	var n := 0
+	var parts := {}
 	for sid in terms.get("cede", []):
-		n += cede_price(state, loser, int(sid))
+		parts["cede"] = int(parts.get("cede", 0)) + cede_price(state, loser, int(sid))
 	if bool(terms.get("trib", false)):
-		n += int(t["tribute_price"])
+		parts["trib"] = int(t["tribute_price"])
 	if bool(terms.get("repar", false)):
-		n += int(t["repar_price"])
+		parts["repar"] = int(t["repar_price"])
 	if bool(terms.get("break", false)):
-		n += int(t["break_price"])
+		parts["break"] = int(t["break_price"])
 	if bool(terms.get("free", false)):
-		n += int(t["break_price"]) * maxi(1, subjects_of(state, loser).size())
+		parts["free"] = int(t["break_price"]) * maxi(1, subjects_of(state, loser).size())
 	if String(terms.get("vassal", "")) != "":
-		n += vassal_price(state, loser)
+		parts["vassal"] = vassal_price(state, loser)
+	if state.wars_on:
+		for k in WarPeace.CLAUSES:
+			if bool(terms.get(k, false)):
+				parts[k] = WarPeace.clause_price(k)
+	var n := 0
+	for k in parts:
+		var v := int(parts[k])
+		if winner >= 0 and state.wars_on and not WarPeace.justified(state, winner, loser, String(k)):
+			v *= 2
+		n += v
+	# Un orateur au conseil du vainqueur négocie : clauses moins chères (lot 3 des buts de guerre).
+	if winner >= 0 and state.wars_on:
+		@warning_ignore("integer_division")
+		n -= n * WarLaws.diplomat_pct(state, winner) / 100
 	return n
 
 
@@ -413,6 +429,9 @@ static func terms_text(state: GameState, loser: int, terms: Dictionary) -> Strin
 		parts.append("libérer ses sujets")
 	if String(terms.get("vassal", "")) != "":
 		parts.append("devenir %s" % preset_label(String(terms["vassal"])).to_lower())
+	for k in WarPeace.CLAUSES:
+		if bool(terms.get(k, false)):
+			parts.append(String(WarPeace.clause_def(k).get("label", k)).to_lower())
 	return ", ".join(parts) if not parts.is_empty() else "rien"
 
 
@@ -420,6 +439,13 @@ static func terms_text(state: GameState, loser: int, terms: Dictionary) -> Strin
 static func check_terms_set(state: GameState, winner: int, loser: int, terms: Dictionary) -> String:
 	var any := false
 	for k in terms:
+		if WarPeace.is_clause(String(k)) and state.wars_on:
+			if bool(terms[k]):
+				var cw := WarPeace.check_clause(state, winner, loser, String(k))
+				if cw != "":
+					return cw
+				any = true
+			continue
 		if not TERM_KEYS.has(String(k)):
 			return "condition inconnue : %s" % k
 	var cede: Array = terms.get("cede", [])
@@ -441,6 +467,8 @@ static func check_terms_set(state: GameState, winner: int, loser: int, terms: Di
 		return "le vaincu n'a aucune alliance à rompre"
 	var vp := String(terms.get("vassal", ""))
 	if vp != "":
+		if not state.vassals_on:
+			return "les sujets ne sont pas actifs dans cette partie"
 		if not free_presets().has(vp):
 			return "préréglage inconnu : %s" % vp
 		if is_subject(state, loser):
@@ -458,7 +486,7 @@ static func check_offer_terms(state: GameState, winner: int, loser: int, terms: 
 	var why := _check_pair(state, winner, loser)
 	if why != "":
 		return why
-	if not state.vassals_on:
+	if not state.vassals_on and not state.wars_on:
 		return "les conditions de paix ne sont pas actives dans cette partie"
 	if not Combat.at_war(state, winner, loser):
 		return "vous n'êtes pas en guerre"
@@ -495,12 +523,22 @@ static func _check_pending(state: GameState, from: int, to: int, kind: String) -
 
 ## Applique des conditions acceptées : paix, puis chaque condition.
 static func apply_terms(state: GameState, winner: int, loser: int, terms: Dictionary) -> void:
+	var paid := price(state, loser, terms, winner)
+	var unjust := WarPeace.unjust(state, winner, loser, terms) if state.wars_on else []
+	var war_name := String(Wars.war(state, winner, loser).get("name", ""))
+	if state.wars_on:
+		Wars._w(state)["vic"] = true
 	Diplomacy.sign_treaty(state, winner, loser, Diplomacy.PEACE)
+	if state.wars_on:
+		Wars._w(state)["vic"] = false
 	var t := _cfg("terms")
 	var text := terms_text(state, loser, terms)
+	var first := -1
 	for sid in terms.get("cede", []):
 		if state.system_owner(int(sid)) == loser:
 			Combat.capture_system(state, int(sid), winner)
+			if first < 0:
+				first = int(sid)
 	if bool(terms.get("trib", false)):
 		(state.vassals["trib"] as Array).append({"from": loser, "to": winner, "until": state.tick + int(t["tribute_days"]), "pct": int(t["tribute_pct"])})
 	if bool(terms.get("repar", false)):
@@ -525,6 +563,18 @@ static func apply_terms(state: GameState, winner: int, loser: int, terms: Dictio
 	if vp != "":
 		bind(state, winner, loser, vp, preset_clauses(vp), int(_cfg("loyalty")["start_terms"]), true)
 	Diplomacy.remember(state, loser, winner, "harsh_terms")
+	if state.wars_on:
+		# Traité étendu, registre, revanchisme, exigences injustifiées (buts de guerre, lot 2).
+		var cl := WarPeace.apply_clauses(state, winner, loser, terms)
+		for k in terms:
+			if not WarPeace.is_clause(String(k)) and WarPeace._clause_on(terms, String(k)):
+				cl[String(k)] = state.tick + int(t["tribute_days"]) if String(k) == "trib" else -1
+		WarPeace.register(state, winner, loser, winner, "conditions", cl, war_name, first)
+		Wars.set_truce(state, winner, loser, paid)
+		if first >= 0:
+			WarPeace.on_ceded(state, loser, paid)
+		if not unjust.is_empty():
+			Diplomacy.remember(state, loser, winner, "unjust_demand")
 	state.add_chronicle("Paix à conditions : %s impose à %s %s. On signe, et l'on compte ce qu'il reste." % [
 			_name(state, winner), _name(state, loser), text], Espionage.public_to(state, [winner, loser]))
 
@@ -1216,7 +1266,7 @@ static func kind_text(state: GameState, p: Dictionary) -> String:
 	match String(p["treaty"]):
 		"terms":
 			return "Conditions : %s (prix %d, score %d)." % [terms_text(state, int(p["to"]), p.get("terms", {})),
-					price(state, int(p["to"]), p.get("terms", {})), Diplomacy.war_score(state, int(p["from"]), int(p["to"]))]
+					price(state, int(p["to"]), p.get("terms", {}), int(p["from"])), Diplomacy.war_score(state, int(p["from"]), int(p["to"]))]
 		"surrender":
 			return "Il deviendrait votre vassal (clauses du préréglage Vassal)."
 		"protect":
@@ -1247,7 +1297,7 @@ static func ai_accepts(state: GameState, kind: String, from: int, to: int, terms
 	var ai := _cfg("ai")
 	match kind:
 		"terms":
-			return price(state, to, terms) <= Diplomacy.war_score(state, from, to)
+			return price(state, to, terms, from) <= Diplomacy.war_score(state, from, to)
 		"surrender":
 			var et := state.get_empire(to)
 			return not bool(AiLevels.personality(et).get("temperament", {}).get("never_peace", false))

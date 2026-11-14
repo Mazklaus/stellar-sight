@@ -651,6 +651,8 @@ static func _elect(state: GameState, lid: int, v: Dictionary) -> void:
 static func check_leave(state: GameState, eid: int) -> String:
 	if league_of(state, eid) < 0:
 		return "vous n'êtes dans aucun Koinon"
+	if state.wars_on and WarLaws.retained_left(state, eid) > 0:
+		return "retenu après une sécession manquée : encore %d jours" % WarLaws.retained_left(state, eid)
 	return ""
 
 
@@ -700,6 +702,7 @@ static func _secede(state: GameState, lid: int, eid: int) -> void:
 	r["pact"] = Diplomacy.COLD
 	r["truce"] = 0
 	if not Combat.at_war(state, eid, strat):
+		WarLaws.on_secession(state, eid, strat)
 		Combat.start_war(state, eid, strat)
 
 

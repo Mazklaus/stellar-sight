@@ -189,6 +189,8 @@ var koinon := "actif"
 var _koinon_select: OptionButton
 var wargoals := "actifs"
 var _wargoals_select: OptionButton
+var occupation := "occupation"
+var _occupation_select: OptionButton
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
 const PRESETS_PATH := "user://new_game_presets.json"
@@ -1539,6 +1541,15 @@ func set_wargoals(id: String) -> void:
 	wargoals = id if id == "actifs" or id == "aucuns" else "actifs"
 	if _wargoals_select:
 		_wargoals_select.select(0 if wargoals == "actifs" else 1)
+	if _occupation_select:
+		_occupation_select.disabled = wargoals != "actifs"
+
+
+func set_occupation(id: String) -> void:
+	occupation = id if id == "occupation" or id == "immediate" else "occupation"
+	if _occupation_select:
+		_occupation_select.select(0 if occupation == "occupation" else 1)
+		_occupation_select.disabled = wargoals != "actifs"
 
 
 func set_koinon(id: String) -> void:
@@ -1572,7 +1583,7 @@ func set_migrations(id: String) -> void:
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
 	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
-		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals}
+		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation}
 
 
 func set_spectator(on: bool) -> void:
@@ -1947,6 +1958,13 @@ func _build_new_page(root: Control) -> void:
 	_wargoals_select.tooltip_text = "Buts de guerre : on déclare la guerre avec un motif (revendication achetée en influence, reconquête, représailles, rivalité, guerre sainte…) et un but annoncé (conquête, soumission, humiliation, rançon, libération…). Le score se compte en %, le vaincu se rend au but du vainqueur, la trêve dure selon la victoire et peut être rompue, à grands frais. Sans motif, c'est une agression.\nAucuns : guerres libres, score en points, trêve fixe."
 	_wargoals_select.item_selected.connect(func(i: int) -> void: set_wargoals("actifs" if i == 0 else "aucuns"))
 	_labeled_row(game, "Buts de guerre", _wargoals_select)
+	_occupation_select = OptionButton.new()
+	_occupation_select.clip_text = true
+	_occupation_select.add_item("Occupation")
+	_occupation_select.add_item("Conquête immédiate")
+	_occupation_select.tooltip_text = "Occupation (avec les buts de guerre) : envahir un système l'occupe ; son propriétaire n'y construit plus et l'occupant prélève la moitié de sa production. La propriété change au traité de paix ; le statu quo rend ce qui n'est pas revendiqué. Un empire entièrement occupé se rend.\nConquête immédiate : envahir un système le prend aussitôt, comme sans buts de guerre."
+	_occupation_select.item_selected.connect(func(i: int) -> void: set_occupation("occupation" if i == 0 else "immediate"))
+	_labeled_row(game, "Occupation", _occupation_select)
 	set_peoples(peoples)
 	set_migrations(migrations)
 	set_faiths(faiths)
@@ -1954,6 +1972,7 @@ func _build_new_page(root: Control) -> void:
 	set_vassals(vassals)
 	set_koinon(koinon)
 	set_wargoals(wargoals)
+	set_occupation(occupation)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2693,7 +2712,7 @@ func settings() -> Dictionary:
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
-		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals,
+		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2711,7 +2730,7 @@ func default_settings() -> Dictionary:
 		"victories": {"conquete": true, "domination": true, "allies": true, "spirituelle": false, "diplomatique": true}, "ai_scaling": false,
 		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "plagues": true, "events": Events.default_frequency(), "curios": Curios.default_density(),
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
-		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives", "amphictyony": "active", "vassals": "actifs", "koinon": "actif", "wargoals": "actifs"}
+		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives", "amphictyony": "active", "vassals": "actifs", "koinon": "actif", "wargoals": "actifs", "occupation": "occupation"}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -2788,6 +2807,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_vassals(String(d.get("vassals", base["vassals"])))
 	set_koinon(String(d.get("koinon", base["koinon"])))
 	set_wargoals(String(d.get("wargoals", base["wargoals"])))
+	set_occupation(String(d.get("occupation", base["occupation"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

@@ -1177,6 +1177,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			if key.physical_keycode == KEY_C:
 				toggle_empire_screen("trade")
 				return
+			# Lentille de guerre : touche physique Z du QWERTY (le W de l'AZERTY), libre des deux côtés.
+			if key.physical_keycode == KEY_Z and not is_system_view_open():
+				_hud.set_lens("" if _hud.lens == "war" else "war")
+				get_viewport().set_input_as_handled()
+				return
 			if key.physical_keycode == KEY_G and not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "trade" else "trade")
 				return

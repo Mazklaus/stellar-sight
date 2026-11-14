@@ -62,6 +62,8 @@ func _initialize() -> void:
 	preload("res://tests/koinon_tests.gd").new().run(_check)
 	preload("res://tests/fed3_tests.gd").new().run(_check)
 	preload("res://tests/war_goals_tests.gd").new().run(_check)
+	preload("res://tests/war_peace_tests.gd").new().run(_check)
+	preload("res://tests/war_laws_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -1524,6 +1526,8 @@ func _test_war_goals_ui(main: Node) -> void:
 	await process_frame
 	var ob: OptionButton = screens.war_goal_buttons.get("casus")
 	_check(ob != null and ob.item_count >= 1, "Buts de guerre : choix du motif et du but avant de déclarer")
+	_check(screens.war_goal_buttons.has("crisis") and screens.war_goal_buttons.keys().any(func(k: Variant) -> bool: return String(k).begins_with("ult_")),
+			"Buts de guerre, lot 3 : ouvrir une crise, adresser un ultimatum")
 	var war: Button = screens.war_buttons.get(foe)
 	if war and not war.disabled:
 		war.pressed.emit()
@@ -1540,6 +1544,7 @@ func _test_war_goals_ui(main: Node) -> void:
 	_check(sc != null and sc.text.contains("%"), "Panneau de guerre : score en %% (%s)" % (sc.text if sc else "?"))
 	var dm: Button = screens.war_goal_buttons.get("demand")
 	_check(dm != null and screens.war_goal_buttons.has("yield"), "Panneau de guerre : exiger la reddition, se rendre")
+	_check(screens.war_goal_buttons.has("exhaustion") and screens.war_goal_buttons.has("status"), "Panneau de guerre : lassitude des deux camps, statu quo")
 	if dm and not dm.disabled:
 		dm.pressed.emit()
 		main.simulation.flush_commands()

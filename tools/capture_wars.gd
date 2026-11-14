@@ -4,7 +4,8 @@ extends SceneTree
 ## Écrit les images dans le dossier donné par CAPTURE_DIR (par défaut user://captures).
 ## Scénario : Vael (joueur) revendique un système d'un voisin (écran Diplomatie : motifs, revendications),
 ## lui déclare la guerre pour une conquête, gagne batailles et système (panneau de guerre : score en %,
-## buts, reddition exigée avec l'avis de l'adversaire).
+## buts, reddition exigée avec l'avis de l'adversaire). Lot 2 : lentille de guerre, registre des traités.
+## Lot 3 : crise diplomatique (ralliés, préavis, ultimatums, talents) et kanly.
 
 
 func _initialize() -> void:
@@ -18,7 +19,7 @@ func _initialize() -> void:
 	root.add_child(main)
 	await _frames(10)
 	main.player_faction = "vael"
-	main.game_options = {"vassals": "actifs", "koinon": "actif", "wargoals": "actifs"}
+	main.game_options = {"vassals": "actifs", "koinon": "actif", "wargoals": "actifs", "occupation": "occupation"}
 	main.new_game(4242)
 	await _frames(5)
 	var sim: Simulation = main.simulation
@@ -75,6 +76,80 @@ func _initialize() -> void:
 	await _frames(10)
 	await _scroll_to(main, "Score de guerre")
 	await _shot(out + "/ecran-guerre-score.png")
+	# Lot 2 : la riposte occupe un de vos systèmes ; la lassitude monte. La lentille de guerre.
+	var home := FactionTraits.capital_system(st, me)
+	for sid in EmpireReport.owned_systems(st, me):
+		if sid != home and WarPeace.occupier(st, sid) < 0:
+			WarPeace.invade(st, sid, foe)
+			break
+	rec["ex"] = [22, 47]
+	main.toggle_empire_screen("diplomacy")
+	await _frames(4)
+	main._hud.set_lens("war")
+	main._view.queue_redraw()
+	var occd := WarPeace.occupied_of(st, me)
+	if not occd.is_empty():
+		st.get_empire(me).explored[occd[0]] = true
+		main._go_to_system(occd[0])
+	await _frames(60)
+	await _shot(out + "/lentille-guerre.png")
+	main._hud.set_lens("")
+	# Traité à conditions : zone démilitarisée et limite de flotte, inscrits au registre.
+	Wars.data()["treaty"]["dmz_jumps"] = 99
+	Vassals.apply_terms(st, me, foe, {"dmz": true, "fleet": true, "trib": true})
+	main._refresh_all()
+	screens.diplo_selected = foe
+	main.toggle_empire_screen("diplomacy")
+	await _frames(10)
+	await _scroll_to(main, "Traités signés")
+	await _shot(out + "/ecran-registre-traites.png")
+	# Lot 3 : crise diplomatique avec un second voisin (un tiers rallié), préavis repéré par les espions.
+	if others.size() >= 3:
+		var foe2 := others[1]
+		var spy_on := others[2]
+		main.toggle_empire_screen("diplomacy")
+		await _frames(4)
+		var cap2 := FactionTraits.capital_system(st, foe2)
+		var cand2: Array = Wars.claim_candidates(st, me, foe2, 8).filter(func(x: Array) -> bool: return int(x[0]) != cap2)
+		st.get_empire(me).resources["influence"] = 600
+		var s := "agression|humiliation"
+		if not cand2.is_empty():
+			Wars.claim(st, me, int(cand2[0][0]))
+			s = "revendication|conquete"
+		WarLaws.open_crisis(st, me, foe2, s)
+		var cr := WarLaws.crisis_between(st, me, foe2)
+		if not cr.is_empty():
+			cr["end"] = st.tick + 18
+			for t3 in WarLaws.rally_candidates(st, cr, foe2):
+				(cr["rd"] as Array).append(t3)
+				break
+		st.networks[Espionage.key(me, foe2)] = {"a": me, "b": foe2, "inf": 100, "cells": 1}
+		WarLaws.prepare(st, foe2, me)
+		main._refresh_all()
+		screens.diplo_selected = foe2
+		main.toggle_empire_screen("diplomacy")
+		await _frames(10)
+		await _scroll_to(main, "Crise diplomatique")
+		await _shot(out + "/ecran-crise-diplomatique.png")
+	# Kanly : une maison féodale lance une querelle limitée.
+	var oss := -1
+	for e in st.empires:
+		if WarLaws.has_talent(st, e.id, "kanly") and e.id != me and not Combat.at_war(st, e.id, me):
+			oss = e.id
+	if oss >= 0:
+		main.toggle_empire_screen("diplomacy")
+		await _frames(4)
+		Diplomacy._rel_w(st, me, oss)["truce"] = 0
+		Wars.set_pending(st, oss, me, "kanly", "kanly", true)
+		Combat.start_war(st, oss, me)
+		Wars.on_battle(st, oss, me, 80)
+		Wars.on_battle(st, me, oss, 120)
+		main._refresh_all()
+		screens.diplo_selected = oss
+		main.toggle_empire_screen("diplomacy")
+		await _frames(10)
+		await _scroll_to(main, "Guerre limitée")
+		await _shot(out + "/ecran-kanly.png")
 	quit()
 
 

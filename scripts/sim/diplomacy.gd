@@ -632,6 +632,7 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 			var was_war := Combat.at_war(state, a, b)
 			var score_a := war_score(state, a, b) if was_war else 0
 			if was_war:
+				WarPeace.before_peace(state, a, b)
 				end_war(state, a, b)
 			var r := _rel_w(state, a, b)
 			r["pact"] = PEACE
@@ -640,7 +641,9 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 			r["score"] = [0, 0]
 			remember(state, a, b, "peace_signed")
 			remember(state, b, a, "peace_signed")
-			Heroes.release_between(state, a, b)
+			# Buts de guerre : après une reddition, chaque camp ne rend que ce que le traité prévoit (WarLaws).
+			if not (state.wars_on and was_war and bool(Wars._w(state).get("vic", false))):
+				Heroes.release_between(state, a, b)
 			Vassals.on_peace(state, a, b)
 			if was_war:
 				Koinon.on_peace(state, a, b, score_a)
@@ -833,6 +836,9 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 	r["score"] = [0, 0]
 	_drop_all_proposals(state, a, b)
 	Wars.on_war_declared(state, a, b, by_nature, joined)
+	# Kanly : une querelle formelle n'est pas un parjure.
+	if broke and state.wars_on and WarLaws.is_kanly(state, a, b):
+		broke = false
 	r["truce"] = 0
 	Vassals.on_war_declared(state, a, b, joined or by_nature)
 	Koinon.on_war_declared(state, a, b, joined or by_nature)

@@ -181,6 +181,7 @@ func _draw() -> void:
 	for s in galaxy.systems:
 		if is_explored(s.id):
 			_draw_system(s, px)
+			_draw_occupation(s, px)
 		elif is_known(s.id):
 			_draw_unknown_system(s, px)
 
@@ -253,6 +254,18 @@ func _draw() -> void:
 			_draw_system(s, px)
 			_draw_label(s, px, true)
 			_draw_amph(s, px, o)
+		return
+	if lens == "war" and state != null:
+		# Lentille de guerre : les systèmes des empires en guerre avec vous (cercle rouge), vos
+		# revendications (pointillé or), les systèmes occupés hachurés à la couleur de l'occupant.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		for s in galaxy.systems:
+			var o := owner_of(s.id)
+			if o < 0 or GameState.is_npc(o) or not is_explored(s.id):
+				continue
+			_draw_system(s, px)
+			_draw_label(s, px, true)
+			_draw_war(s, px, o)
 		return
 	if lens == "trade" and state != null:
 		# Lentille du commerce : vos routes (couleur du palier du traité, verte pour une route
@@ -729,6 +742,41 @@ func _draw_amph(s: StarSystem, px: float, o: int) -> void:
 		var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
 		draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
 		draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Lentille de guerre : ennemi, revendication, occupation.
+func _draw_war(s: StarSystem, px: float, o: int) -> void:
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	var me := state.get_empire(viewer)
+	if me != null and me.wars.has(o):
+		draw_arc(Vector2.ZERO, 13.0, 0.0, TAU, 28, Color(0.86, 0.33, 0.3), 2.4, true)
+	if state.wars_on and viewer >= 0 and Wars.has_claim(state, viewer, s.id):
+		for k in 10:
+			draw_arc(Vector2.ZERO, 17.0, TAU * k / 10.0, TAU * (k + 0.5) / 10.0, 4, Color(0.95, 0.8, 0.35), 2.0, true)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	_draw_occupation(s, px)
+
+
+## Système occupé : hachures à la couleur de l'occupant (aussi sur la carte ordinaire).
+func _draw_occupation(s: StarSystem, px: float) -> void:
+	if state == null or not state.wars_on:
+		return
+	var occ := WarPeace.occupier(state, s.id)
+	if occ < 0 or not is_explored(s.id):
+		return
+	var e := state.get_empire(occ)
+	if e == null:
+		return
+	var col := Color(e.color(), 0.9)
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	var r := 15.0
+	draw_circle(Vector2.ZERO, r, Color(col, 0.18))
+	for i in range(-3, 4):
+		var x := i * 4.5
+		var h := sqrt(maxf(0.0, r * r - x * x)) * 0.9
+		draw_line(Vector2(x - h * 0.4, h), Vector2(x + h * 0.4, -h), col, 1.8, true)
+	draw_arc(Vector2.ZERO, r, 0.0, TAU, 32, col, 2.0, true)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

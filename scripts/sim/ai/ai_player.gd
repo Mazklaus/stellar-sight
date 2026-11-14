@@ -1123,6 +1123,20 @@ static func _declare_wars(ctx: Dictionary) -> void:
 			need_here = need_here * 2 / 3
 		if mine * 100 < need_here * maxi(10, enemy_power(ctx, other)) or _forgets(ctx):
 			continue
+		if state.wars_on and not Diplomacy.no_treaties(state, e.id):
+			# Préavis : l'IA masse d'abord ses flottes (les espions de ses voisins le voient venir).
+			if not WarLaws.prepared(state, e.id, other, clampi(_skill(ctx), 0, 2)):
+				if _issue(ctx, SimCommands.war_act(e.id, "prep", other)):
+					_intent(ctx, "Masse ses flottes face à %s" % o.short_name())
+				return
+			# Vétéran et au-delà : une crise diplomatique d'abord, quand le motif est avouable.
+			var ch := Wars.auto_choice(state, e.id, other)
+			var s := "%s|%s" % [ch[0], ch[1]]
+			if _skill(ctx) >= 2 and not bool(Wars.casus_def(String(ch[0])).get("aggression", false)) \
+					and WarLaws.check_crisis(state, e.id, other, s) == "":
+				if _issue(ctx, SimCommands.war_act(e.id, "crisis", other, s)):
+					_intent(ctx, "Ouvre une crise avec %s" % o.short_name())
+				return
 		if _issue(ctx, SimCommands.declare_war(e.id, other)):
 			_intent(ctx, "Déclare la guerre à %s" % o.short_name())
 			return
@@ -1506,11 +1520,15 @@ static func _war_target(ctx: Dictionary, from: int) -> int:
 	for k in ids:
 		var sid := int(k)
 		var owner := _owner(ctx, sid)
-		if owner < 0 or not e.wars.has(owner) or not e.explored.has(sid):
+		if owner < 0 or not e.wars.has(owner) or not e.explored.has(sid) or WarPeace.occupier(state, sid) == e.id:
 			continue
 		var defense := Intel.garrison_in(state, e, _seen(ctx), sid) + _defense_at(ctx, sid) * 2
 		@warning_ignore("integer_division")
 		var score := defense * 10 + int(res["dist"][k]) / 20
+		# Buts de guerre : on va d'abord chercher ce qu'on revendique (sauf la Recrue).
+		if state.wars_on and _skill(ctx) >= 1 and Wars.has_claim(state, e.id, sid):
+			@warning_ignore("integer_division")
+			score = score / 2
 		if best == -1 or score < best_score:
 			best = sid
 			best_score = score
@@ -1576,6 +1594,10 @@ static func _command_warfleets(ctx: Dictionary) -> void:
 	for k in state.sieges:
 		if state.system_owner(int(k)) == e.id and (threatened == -1 or int(k) < threatened):
 			threatened = int(k)
+	if threatened == -1 and state.wars_on:
+		var occd := WarPeace.occupied_of(state, e.id)
+		if not occd.is_empty():
+			threatened = occd[0]  # un système occupé à libérer
 	if threatened == -1:
 		var emap := _enemy_power_map(ctx)
 		var keys := emap.keys()
@@ -1606,7 +1628,12 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 		return
 	# Sur un système ennemi : invasion si possible, sinon on tient le siège.
 	var owner := state.system_owner(here)
-	if owner >= 0 and e.wars.has(owner):
+	var occ := WarPeace.occupier(state, here)
+	if owner == e.id and occ >= 0:
+		if _issue(ctx, SimCommands.invade(e.id, f.id)):
+			_intent(ctx, "Libère %s" % state.galaxy.systems[here].system_name)
+		return
+	if owner >= 0 and e.wars.has(owner) and occ != e.id:
 		if _issue(ctx, SimCommands.invade(e.id, f.id)):
 			_intent(ctx, "Envahit %s" % state.galaxy.systems[here].system_name)
 		return

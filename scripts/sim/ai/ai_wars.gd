@@ -38,11 +38,51 @@ static func run(ctx: Dictionary) -> void:
 		return
 	if _end_wars(ctx):
 		return
+	if _mediate(ctx):
+		return
+	if _ultimatum(ctx):
+		return
 	_claims(ctx)
 
 
 static func _level(ctx: Dictionary) -> int:
 	return clampi(AiPlayer._skill(ctx), 0, 2)
+
+
+## Médiation (talent des républiques) : la première guerre qui s'y prête, quand on a de l'influence.
+static func _mediate(ctx: Dictionary) -> bool:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if _level(ctx) < 1 or int(e.resources.get("influence", 0)) < 100:
+		return false
+	for pair in WarLaws.mediable(state, e.id):
+		if AiPlayer._issue(ctx, SimCommands.war_act(e.id, "mediate", int(pair[0]), str(pair[1]))):
+			AiPlayer._intent(ctx, "Médiation entre %s et %s" % [state.get_empire(int(pair[0])).short_name(), state.get_empire(int(pair[1])).short_name()])
+			return true
+	return false
+
+
+## Ultimatum : sans guerre en cours, contre un voisin mal aimé deux fois plus faible ; un système
+## revendiqué d'abord, sinon un tribut.
+static func _ultimatum(ctx: Dictionary) -> bool:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var c := cfg()
+	if _level(ctx) < 1 or not e.wars.is_empty() or posmod(state.tick + e.id * 53, int(c.get("ultimatum_every", 360))) >= 30:
+		return false
+	var send := int(Wars.data().get("ultimatum", {}).get("ai_send_pct", 200))
+	for other in e.contacts:
+		var o := state.get_empire(int(other))
+		if o == null or o.eliminated or o.is_npc() or Diplomacy.opinion(state, e.id, o.id) > 0 or Vassals.power_pct(state, e.id, o.id) < send:
+			continue
+		var whats := WarLaws.ult_whats(state, e.id, o.id)
+		var what := String(whats[0])
+		if not what.begins_with("cede:") and Diplomacy.opinion(state, e.id, o.id) > -25:
+			continue
+		if WarLaws.check_ultimatum(state, e.id, o.id, what) == "" and AiPlayer._issue(ctx, SimCommands.war_act(e.id, "ultimatum", o.id, what)):
+			AiPlayer._intent(ctx, "Adresse un ultimatum à %s (%s)" % [o.short_name(), WarLaws.what_label(state, what)])
+			return true
+	return false
 
 
 ## Revendications : une par fenêtre de claim_days, sur le voisin le moins aimé.
@@ -109,6 +149,16 @@ static func _end_wars(ctx: Dictionary) -> bool:
 				and Wars.check_demand(state, e.id, o) == "" and not AiPlayer._forgets(ctx):
 			if AiPlayer._issue(ctx, SimCommands.war_act(e.id, "demand", o)):
 				AiPlayer._intent(ctx, "Exige la reddition de %s" % state.get_empire(o).short_name())
+				return true
+		# Statu quo imposable : l'adversaire est épuisé depuis un an.
+		if WarPeace.check_impose(state, e.id, o) == "" and Wars.score(state, e.id, o) >= 0 and not AiPlayer._forgets(ctx):
+			if AiPlayer._issue(ctx, SimCommands.war_act(e.id, "status", o)):
+				AiPlayer._intent(ctx, "Impose le statu quo à %s" % state.get_empire(o).short_name())
+				return true
+		# Allié épuisé : il achète une paix séparée.
+		if WarPeace.exhaustion(state, e.id, o) >= int(c.get("separate_at", 60)) and WarPeace.check_separate(state, e.id, o) == "" and not never:
+			if AiPlayer._issue(ctx, SimCommands.war_act(e.id, "separate", o)):
+				AiPlayer._intent(ctx, "Signe une paix séparée avec %s" % state.get_empire(o).short_name())
 				return true
 		# Vaincu : se rend quand la défaite est nette.
 		if not never and Wars.acceptance(state, o, e.id) >= int(c.get("yield_at", 25)) and Wars.check_yield(state, e.id, o) == "":

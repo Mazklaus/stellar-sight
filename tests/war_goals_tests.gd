@@ -195,7 +195,7 @@ func _test_defense_goal() -> void:
 	var st := _new()
 	var ms := _majors(st)
 	var a := ms[1]
-	SimCommands.apply(st, SimCommands.declare_war(a, 0))
+	SimCommands.apply(st, SimCommands.declare_war(a, 0, "agression", "humiliation"))
 	var rec := Wars.war(st, a, 0)
 	var defs := Wars.defense_goals(st, rec)
 	_ok(String(rec["gd"]) == "" and defs.has("humiliation"), "Défenseur humain : il choisit son but (%s)" % [defs])
@@ -426,7 +426,7 @@ func _test_save() -> void:
 	SimCommands.apply(st, SimCommands.declare_war(a, b, "revendication", "conquete"))
 	Wars.on_battle(st, a, b, 50)
 	var d: Dictionary = JSON.parse_string(JSON.stringify(st.to_snapshot()))
-	_ok(int(d["version"]) == 53, "Sauvegarde : version 53")
+	_ok(int(d["version"]) >= 53, "Sauvegarde : version 53 ou plus")
 	var back := GameState.from_dict(d)
 	_ok(back.wars_on and String(Wars.war(back, a, b).get("name", "")) == String(Wars.war(st, a, b)["name"]), "Sauvegarde : guerre et nom gardés")
 	_ok(Wars.score(back, a, b) == Wars.score(st, a, b) and Wars.bought_claims(back, a) == Wars.bought_claims(st, a), "Sauvegarde : score et revendications gardés")

@@ -489,7 +489,7 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 	for k in ids:
 		var sid := int(k)
 		var owner := state.system_owner(sid)
-		if owner < 0:
+		if owner < 0 or WarPeace.occupier(state, sid) >= 0:
 			state.garrisons.erase(sid)
 			state.sieges.erase(sid)
 			continue

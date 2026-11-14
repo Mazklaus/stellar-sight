@@ -33,26 +33,35 @@ static func _cfg(k: String) -> Dictionary:
 
 
 static func _blank() -> Dictionary:
-	return {"claims": {}, "lost": {}, "list": {}, "pending": {}, "mods": [], "cd": {}}
+	return {"claims": {}, "lost": {}, "list": {}, "pending": {}, "mods": [], "cd": {}, "occ": {}, "treaties": [], "tid": 1, "occ_on": false,
+			"ult": {}, "inc": {}, "crises": {}, "prep": {}, "retain": {}}
 
 
-static func setup(state: GameState, mode: String) -> void:
+## mode : "actifs" ou "aucuns" ; occ : "occupation" (lot 2) ou "immediate" (conquête immédiate).
+static func setup(state: GameState, mode: String, occ := "immediate") -> void:
 	state.wars_on = mode == "actifs"
 	state.wars = _blank()
+	state.wars["occ_on"] = occ == "occupation"
 
 
 static func to_dict(state: GameState) -> Dictionary:
 	var d: Dictionary = state.wars.duplicate(true)
 	d["on"] = state.wars_on
+	d.erase("vic")
 	return d
 
 
 static func from_dict(state: GameState, d: Dictionary) -> void:
 	state.wars_on = bool(d.get("on", false))
 	state.wars = _blank()
-	for k in ["claims", "lost", "list", "cd"]:
+	for k in ["claims", "lost", "list", "cd", "occ"]:
 		state.wars[k] = Vassals._ints(d.get(k, {}))
 	state.wars["mods"] = Vassals._ints(d.get("mods", []))
+	state.wars["treaties"] = Vassals._ints(d.get("treaties", []))
+	state.wars["tid"] = int(d.get("tid", 1))
+	state.wars["occ_on"] = bool(d.get("occ_on", false))
+	for k in WarLaws.STORES:
+		state.wars[k] = Vassals._ints(d.get(k, {}))
 
 
 static func worth_saving(state: GameState) -> bool:
@@ -183,7 +192,8 @@ static func claim_cost(state: GameState, a: int, sid: int) -> int:
 	if Diplomacy.opinion(state, a, owner) <= int(c["rival_opinion"]):
 		@warning_ignore("integer_division")
 		n -= n * int(c["rival_pct"]) / 100
-	return n
+	@warning_ignore("integer_division")
+	return n * WarLaws.claim_pct(state, a) / 100
 
 
 static func check_claim(state: GameState, a: int, sid: int) -> String:
@@ -255,7 +265,7 @@ static func _req_ok(state: GameState, req: String, a: int, b: int) -> bool:
 			if Espionage.has_grief(state, a, b):
 				return true
 			for m in state.memories:
-				if int(m["who"]) == a and int(m["about"]) == b and (String(m["kind"]) == "broke_treaty" or String(m["kind"]) == "truce_broken") \
+				if int(m["who"]) == a and int(m["about"]) == b and (String(m["kind"]) == "broke_treaty" or String(m["kind"]) == "truce_broken" or String(m["kind"]) == "treaty_violated") \
 						and Diplomacy.memory_value(state, m) != 0:
 					return true
 			return false
@@ -272,6 +282,12 @@ static func _req_ok(state: GameState, req: String, a: int, b: int) -> bool:
 					and Vassals.power_pct(state, a, b) >= 150
 		"total":
 			return Diplomacy.no_treaties(state, a)
+		"ultimatum":
+			return WarLaws.has_ult_casus(state, a, b)
+		"incident":
+			return WarLaws.has_incident(state, a, b)
+		"kanly":
+			return WarLaws.kanly_ok(state, a, b)
 	return false
 
 
@@ -335,7 +351,7 @@ static func auto_choice(state: GameState, a: int, b: int) -> Array:
 	var e := state.get_empire(a)
 	if e != null and e.is_ai() and int(AiLevels.level(e.ai_level).get("military", {}).get("skill", 1)) <= 0:
 		return ch[(a * 7 + b * 13 + state.tick / 30) % ch.size()]
-	var rank := ["totale", "independance", "conquete", "soumission", "liberer", "rancon", "demanteler", "humiliation"]
+	var rank := ["totale", "independance", "quitter", "conquete", "soumission", "liberer", "rancon", "demanteler", "humiliation", "kanly"]
 	var best: Array = ch[0]
 	for c in ch:
 		var better := rank.find(String(c[1])) < rank.find(String(best[1]))
@@ -343,6 +359,11 @@ static func auto_choice(state: GameState, a: int, b: int) -> Array:
 		# À but égal, un motif qui n'est pas une agression.
 		if better or (same and bool(casus_def(String(best[0])).get("aggression", false)) and not bool(casus_def(String(c[0])).get("aggression", false))):
 			best = c
+	# Sans motif avouable, une maison féodale préfère le kanly à l'agression.
+	if e != null and e.is_ai() and bool(casus_def(String(best[0])).get("aggression", false)):
+		for c in ch:
+			if String(c[0]) == "kanly":
+				return c
 	return best
 
 
@@ -363,6 +384,10 @@ static func defense_goals(state: GameState, rec: Dictionary) -> Array[String]:
 
 
 # --- Guerres en cours -----------------------------------------------------------------------------
+
+static func war_by_key(state: GameState, k: String) -> Dictionary:
+	return (_w(state)["list"] as Dictionary).get(k, {})
+
 
 static func war(state: GameState, a: int, b: int) -> Dictionary:
 	return (_w(state)["list"] as Dictionary).get(Diplomacy.key(a, b), {})
@@ -422,6 +447,7 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 			"bat": [0, 0], "took": {}, "hold": [0, 0], "val": [_total_value(state, a), _total_value(state, b)],
 			"cap": [FactionTraits.capital_system(state, a), FactionTraits.capital_system(state, b)],
 			"tgt": [claims_on(state, a, b), claims_on(state, b, a)], "ex": [0, 0],
+			"pw": [Vassals.power(state, a), Vassals.power(state, b)], "e100": [-1, -1],
 			"agg": bool(casus_def(cid).get("aggression", false)), "brk": broke}
 	if rec["agg"]:
 		rec["ex"][0] = int(data()["aggressor_exhaustion"])
@@ -432,7 +458,9 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 	if defs.size() == 1 or state.get_empire(b).is_ai():
 		rec["gd"] = _ai_defense_goal(state, rec, defs)
 	w["list"][Diplomacy.key(a, b)] = rec
+	WarLaws.on_declared(state, rec, joined)
 	if joined:
+		WarPeace.link_joined(state, rec)
 		return
 	# Réprobation des tiers selon le motif ; agression et trêve rompue.
 	var mem := String(casus_def(cid).get("memory", ""))
@@ -502,6 +530,24 @@ static func on_war_ended(state: GameState, a: int, b: int) -> void:
 	(_w(state)["list"] as Dictionary).erase(Diplomacy.key(a, b))
 
 
+## Système pris ou occupé pendant la guerre : il compte au score de taker tant qu'il le tient.
+static func _took(state: GameState, sid: int, taker: int, old: int) -> void:
+	var rec := war(state, taker, old)
+	if rec.is_empty():
+		return
+	var t: Dictionary = rec["took"]
+	if t.has(str(sid)) and int(t[str(sid)][0]) == old:
+		t.erase(str(sid))  # repris : il redevient sien
+	else:
+		t[str(sid)] = [taker, _value(state, sid, old), 1 if has_claim(state, taker, sid) else 0]
+
+
+## Système occupé (lot 2) : la revendication reste, la propriété changera au traité.
+static func on_occupy(state: GameState, sid: int, taker: int, old: int) -> void:
+	WarLaws.on_invaded(state, sid, taker, old)
+	_took(state, sid, taker, old)
+
+
 # --- Score (prop. 7) ---------------------------------------------------------------------------------
 
 ## Points de bataille (puissance détruite) gagnés par winner contre loser.
@@ -511,21 +557,18 @@ static func on_battle(state: GameState, winner: int, loser: int, pts: int) -> vo
 		return
 	var i := side(rec, winner)
 	rec["bat"][i] = int(rec["bat"][i]) + pts
+	WarPeace.on_losses(state, rec, loser, pts)
 
 
 ## Système pris par la force (appelé par Combat.capture_system avant le changement de propriétaire).
 static func on_capture(state: GameState, sid: int, taker: int, old: int) -> void:
 	if not state.wars_on or GameState.is_npc(taker) or GameState.is_npc(old) or taker == old:
 		return
+	WarPeace.release(state, sid)
 	if Combat.at_war(state, taker, old):
+		WarLaws.on_invaded(state, sid, taker, old)
 		_map(state, "lost", old)[str(sid)] = state.tick
-		var rec := war(state, taker, old)
-		if not rec.is_empty():
-			var t: Dictionary = rec["took"]
-			if t.has(str(sid)) and int(t[str(sid)][0]) == old:
-				t.erase(str(sid))  # repris : il redevient sien
-			else:
-				t[str(sid)] = [taker, _value(state, sid, old)]
+		_took(state, sid, taker, old)
 	(_map(state, "claims", taker) as Dictionary).erase(str(sid))
 	(_map(state, "lost", taker) as Dictionary).erase(str(sid))
 
@@ -549,7 +592,7 @@ static func score_parts(state: GameState, a: int, b: int) -> Dictionary:
 	for k in rec["took"]:
 		var t: Array = rec["took"][k]
 		var taker := int(t[0])
-		if state.system_owner(int(k)) == taker:
+		if WarPeace.holder(state, int(k)) == taker:
 			took[0 if taker == a else 1] += int(t[1])
 	var occ_cap := int(sc["occ_cap"])
 	@warning_ignore("integer_division")
@@ -562,10 +605,16 @@ static func score_parts(state: GameState, a: int, b: int) -> Dictionary:
 		parts.append(["Systèmes perdus", -ob])
 	var cap_b := int(rec["cap"][ib])
 	var cap_a := int(rec["cap"][ia])
-	if cap_b >= 0 and state.system_owner(cap_b) == a:
+	if cap_b >= 0 and WarPeace.holder(state, cap_b) == a:
 		parts.append(["Sa capitale est à vous", int(sc["capital"])])
-	if cap_a >= 0 and state.system_owner(cap_a) == b:
+	if cap_a >= 0 and WarPeace.holder(state, cap_a) == b:
 		parts.append(["Votre capitale est à lui", -int(sc["capital"])])
+	var hca := mini(int(sc.get("hero_cap", 20)), WarLaws.captives(state, a, b) * int(sc.get("hero_each", 8)))
+	var hcb := mini(int(sc.get("hero_cap", 20)), WarLaws.captives(state, b, a) * int(sc.get("hero_each", 8)))
+	if hca != 0:
+		parts.append(["Ses héros captifs", hca])
+	if hcb != 0:
+		parts.append(["Vos héros captifs", -hcb])
 	var ha := mini(int(sc["hold_cap"]), int(rec["hold"][ia]) * int(sc["hold_per_month"]))
 	var hb := mini(int(sc["hold_cap"]), int(rec["hold"][ib]) * int(sc["hold_per_month"]))
 	if ha != 0:
@@ -597,7 +646,7 @@ static func objective_held(state: GameState, rec: Dictionary, eid: int) -> bool:
 				obj = "capital"
 			else:
 				for sid in tgt:
-					if state.system_owner(int(sid)) != eid:
+					if WarPeace.holder(state, int(sid)) != eid:
 						return false
 				return true
 		"battles":
@@ -608,11 +657,11 @@ static func objective_held(state: GameState, rec: Dictionary, eid: int) -> bool:
 			return false
 		"keep":
 			for k in rec["took"]:
-				if int(rec["took"][k][0]) == other and state.system_owner(int(k)) == other:
+				if int(rec["took"][k][0]) == other and WarPeace.holder(state, int(k)) == other:
 					return false
 			return state.tick - int(rec["t"]) >= 30
 	var cap := int(rec["cap"][1 - i])
-	return cap >= 0 and state.system_owner(cap) == eid
+	return cap >= 0 and WarPeace.holder(state, cap) == eid
 
 
 ## Chaque mois : objectifs tenus, but du défenseur échu, fins de malus.
@@ -639,6 +688,8 @@ static func monthly(state: GameState) -> void:
 		if int(m["until"]) > state.tick:
 			kept.append(m)
 	w["mods"] = kept
+	WarPeace.monthly(state)
+	WarLaws.monthly(state)
 
 
 # --- Reddition (prop. 12) ----------------------------------------------------------------------------
@@ -656,6 +707,11 @@ static func accept_parts(state: GameState, winner: int, loser: int) -> Dictionar
 	var fleet := clampi((Vassals.power_pct(state, winner, loser) - 100) / int(sc["fleet_div"]), 0, int(sc["fleet_max"]))
 	if fleet > 0:
 		parts.append(["Rapport de forces", fleet])
+	var ex := int(rec.get("ex", [0, 0])[side(rec, loser)])
+	@warning_ignore("integer_division")
+	var exv := ex / maxi(1, int(_cfg("exhaustion").get("accept_div", 2)))
+	if exv > 0:
+		parts.append(["Sa lassitude (%d %%)" % ex, exv])
 	parts.append(["But : %s" % String(g.get("label", "?")), int(g.get("accept", 0))])
 	var t := 0
 	for p in parts:
@@ -673,6 +729,8 @@ static func _check_end(state: GameState, winner: int, loser: int) -> String:
 	var rec := war(state, winner, loser)
 	if rec.is_empty():
 		return "vous n'êtes pas en guerre"
+	if rec.has("lead") and not war_by_key(state, String(rec["lead"])).is_empty():
+		return "les chefs de guerre négocient pour leur camp (paix séparée possible)"
 	var gid := goal_of(rec, winner)
 	if gid == "":
 		return "le but de %s n'est pas encore fixé" % _short(state, winner)
@@ -718,15 +776,33 @@ static func apply_victory(state: GameState, winner: int, loser: int) -> void:
 	var gid := goal_of(rec, winner)
 	var sc := score(state, winner, loser)
 	var name := String(rec.get("name", "la guerre"))
+	# Camps (lot 2) : le butin des alliés selon leur contribution, avant que leurs guerres ne finissent.
+	var shares := WarPeace.contributions(state, war(state, winner, loser), winner) if not rec.is_empty() else {winner: 1}
+	var tot_share := 0
+	for k in shares:
+		tot_share += maxi(0, int(shares[k]))
+	if tot_share <= 0:
+		shares = {winner: 1}
+	var spoils := WarPeace.allied_spoils(state, winner, loser)
+	var w := _w(state)
+	w["vic"] = true
 	Diplomacy.sign_treaty(state, winner, loser, Diplomacy.PEACE)
+	w["vic"] = false
 	var ceded: Array[String] = []
+	var first_ceded := -1
 	# Toujours : les revendications du vainqueur (sauf la capitale du vaincu).
 	var home := FactionTraits.capital_system(state, loser)
-	for sid in claims_on(state, winner, loser):
+	var limited := bool(goal_def(gid).get("limited", false))
+	var to_cede: Array[int] = []
+	if not limited:
+		to_cede = claims_on(state, winner, loser)
+	for sid in to_cede:
 		if sid != home:
 			Combat.capture_system(state, sid, winner)
 			ceded.append(state.galaxy.systems[sid].system_name)
-	var ew := state.get_empire(winner)
+			if first_ceded < 0:
+				first_ceded = sid
+	ceded.append_array(spoils)
 	var el := state.get_empire(loser)
 	match gid:
 		"soumission":
@@ -734,7 +810,7 @@ static func apply_victory(state: GameState, winner: int, loser: int) -> void:
 				Vassals.bind(state, winner, loser, "vassal", Vassals.preset_clauses("vassal"), int(Vassals.data()["loyalty"].get("start_terms", 0)), true)
 		"humiliation":
 			var h := _cfg("humiliation")
-			ew.resources["influence"] = int(ew.resources.get("influence", 0)) + int(h["influence"])
+			_share(state, shares, "influence", int(h["influence"]))
 			@warning_ignore("integer_division")
 			el.resources["influence"] = int(el.resources.get("influence", 0)) - maxi(0, int(el.resources.get("influence", 0))) / 2
 			(_w(state)["mods"] as Array).append({"e": loser, "kind": "humil", "until": state.tick + int(h["days"])})
@@ -743,9 +819,9 @@ static func apply_victory(state: GameState, winner: int, loser: int) -> void:
 			var rc := _cfg("ransom")
 			for r in ["materials", "energy", "influence"]:
 				@warning_ignore("integer_division")
-				var n := maxi(0, int(el.resources.get(r, 0))) * int(rc["repar_pct"]) / 100
+				var n := maxi(0, int(el.resources.get(r, 0))) * int(rc["repar_pct"]) * (100 + int(WarLaws.talent(state, winner).get("ransom_pct", 0))) / 10000
 				el.resources[r] = int(el.resources.get(r, 0)) - n
-				ew.resources[r] = int(ew.resources.get(r, 0)) + n
+				_share(state, shares, r, n)
 			if not state.vassals.has("trib"):
 				state.vassals["trib"] = []
 			(state.vassals["trib"] as Array).append({"from": loser, "to": winner, "until": state.tick + int(rc["tribute_days"]), "pct": int(rc["tribute_pct"])})
@@ -772,11 +848,46 @@ static func apply_victory(state: GameState, winner: int, loser: int) -> void:
 			if not Vassals.is_subject(state, loser) and not Vassals.is_subject(state, winner):
 				Vassals.bind(state, winner, loser, "vassal", Vassals.preset_clauses("vassal"), int(_cfg("affirm")["loyalty"]), true)
 				Diplomacy._set_cooldown(state, loser, winner, "freedom", int(_cfg("affirm")["freedom_cd_days"]))
-	set_truce(state, winner, loser, maxi(sc, int(_cfg("truce")["victory_min_pct"])))
-	Diplomacy.remember(state, loser, winner, "harsh_terms")
+		"kanly":
+			var n := mini(maxi(0, int(el.resources.get("influence", 0))), int(_cfg("kanly").get("influence", 60)))
+			el.resources["influence"] = int(el.resources.get("influence", 0)) - n
+			_share(state, shares, "influence", n)
+			Diplomacy.remember(state, loser, winner, "kanly_lost")
+		"quitter", "retenir":
+			WarLaws.apply_secession(state, winner, loser, gid)
+	WarLaws.release_one_way(state, loser, winner)
+	var spent := maxi(sc, int(_cfg("truce")["victory_min_pct"]))
+	set_truce(state, winner, loser, spent)
+	if not limited:
+		Diplomacy.remember(state, loser, winner, "harsh_terms")
+	if not ceded.is_empty():
+		WarPeace.on_ceded(state, loser, spent)
+	WarPeace.register(state, winner, loser, winner, "reddition : " + goal_label(gid).to_lower(), {}, name, first_ceded)
 	var extra := (" Systèmes cédés : %s." % ", ".join(ceded)) if not ceded.is_empty() else ""
 	state.add_chronicle("Fin de la %s : %s se rend à %s, qui obtient son but (%s).%s Les vainqueurs écrivent l'histoire ; les vaincus, des mémoires." % [
 			name, _name(state, loser), _name(state, winner), goal_label(gid).to_lower(), extra], Espionage.public_to(state, [winner, loser]))
+
+
+## Répartit n unités de r entre les membres du camp vainqueur selon leur contribution.
+static func _share(state: GameState, shares: Dictionary, r: String, n: int) -> void:
+	var tot := 0
+	var ids := shares.keys()
+	ids.sort()
+	for k in ids:
+		tot += maxi(0, int(shares[k]))
+	var given := 0
+	for i in ids.size():
+		var eid := int(ids[i])
+		var part := n - given
+		if tot > 0 and i < ids.size() - 1:
+			@warning_ignore("integer_division")
+			part = n * maxi(0, int(shares[eid])) / tot
+		elif tot <= 0:
+			part = n if i == 0 else 0
+		given += part
+		var e := state.get_empire(eid)
+		if e != null:
+			e.resources[r] = int(e.resources.get(r, 0)) + part
 
 
 ## Trêve selon le score dépensé (prop. 14).
@@ -834,6 +945,12 @@ static func stability_parts(state: GameState, eid: int) -> Array:
 			agg = true
 	if agg:
 		out.append(["Guerre d'agression", int(_cfg("aggression")["stability"])])
+	else:
+		for k in w["list"]:
+			var rec: Dictionary = w["list"][k]
+			if int(rec["a"]) == eid and bool(casus_def(String(rec["cb"])).get("just", false)) and not rec.has("lead"):
+				out.append(["Guerre juste", int(_cfg("just").get("stability", 1))])
+				break
 	var truce := false
 	var humil := false
 	for m in w["mods"]:
@@ -850,10 +967,12 @@ static func stability_parts(state: GameState, eid: int) -> Array:
 # --- Propositions ------------------------------------------------------------------------------------
 
 static func is_kind(kind: String) -> bool:
-	return KINDS.has(kind)
+	return KINDS.has(kind) or WarLaws.KINDS.has(kind)
 
 
 static func kind_label(p: Dictionary) -> String:
+	if WarLaws.KINDS.has(String(p["treaty"])):
+		return WarLaws.kind_label(p)
 	match String(p["treaty"]):
 		"wdemand":
 			return "Exige votre reddition"
@@ -863,6 +982,8 @@ static func kind_label(p: Dictionary) -> String:
 
 
 static func kind_text(state: GameState, p: Dictionary) -> String:
+	if WarLaws.KINDS.has(String(p["treaty"])):
+		return WarLaws.kind_text(state, p)
 	var from := int(p["from"])
 	var to := int(p["to"])
 	match String(p["treaty"]):
@@ -876,6 +997,8 @@ static func kind_text(state: GameState, p: Dictionary) -> String:
 
 
 static func check_accept(state: GameState, p: Dictionary) -> String:
+	if WarLaws.KINDS.has(String(p["treaty"])):
+		return WarLaws.check_accept(state, p)
 	var from := int(p["from"])
 	var to := int(p["to"])
 	match String(p["treaty"]):
@@ -887,6 +1010,9 @@ static func check_accept(state: GameState, p: Dictionary) -> String:
 
 
 static func answer(state: GameState, p: Dictionary, accept: bool) -> void:
+	if WarLaws.KINDS.has(String(p["treaty"])):
+		WarLaws.answer(state, p, accept)
+		return
 	_resolve(state, String(p["treaty"]), int(p["from"]), int(p["to"]), accept)
 
 
@@ -946,7 +1072,11 @@ static func check_act(state: GameState, player: int, act: String, x: int, s: Str
 			return check_demand(state, player, x)
 		"yield":
 			return check_yield(state, player, x)
-	return "ordre inconnu : %s" % act
+		"status":
+			return WarPeace.check_impose(state, player, x)
+		"separate":
+			return WarPeace.check_separate(state, player, x)
+	return WarLaws.check_act(state, player, act, x, s)
 
 
 static func act(state: GameState, player: int, act_id: String, x: int, s: String) -> void:
@@ -959,3 +1089,9 @@ static func act(state: GameState, player: int, act_id: String, x: int, s: String
 			propose(state, "wdemand", player, x)
 		"yield":
 			propose(state, "wyield", player, x)
+		"status":
+			WarPeace.impose(state, player, x)
+		"separate":
+			WarPeace.separate(state, player, x)
+		_:
+			WarLaws.act(state, player, act_id, x, s)

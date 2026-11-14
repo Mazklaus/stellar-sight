@@ -1262,6 +1262,7 @@ static func prisoner(state: GameState, player: int, hero_id: int, action: String
 					Espionage.private_to(state, [player]))
 		"execute":
 			Diplomacy.remember(state, owner, player, "hero_executed")
+			WarLaws.on_execute(state, player, owner)
 			var out: Array[Dictionary] = []
 			h["owner"] = owner
 			die(state, h, "est exécuté sur ordre de %s. On ne lui pardonnera pas" % je.display_name(), out, player)

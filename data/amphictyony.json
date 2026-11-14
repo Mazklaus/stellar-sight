@@ -34,7 +34,7 @@
 			"_doc": "Faveurs : voter pour la proposition d'un autre membre qui passe, c'est une faveur qu'il vous doit ; secourir un membre aussi (une par tranche d'aide). En séance, appeler une faveur fait voter 10 % des voix du débiteur avec vous."},
 		"crisis": {"keep_days": 360, "convene_cost": {"influence": 50}, "vote_days": 60, "coalition_days": 1800, "fx": {"ship_days_pct": -20}, "win": {"influence": 60}, "fail": {"influence": 100}, "moisson_pct": 50,
 			"_doc": "Session extraordinaire : après une capitale prise, une atrocité, une guerre sainte ou la Moisson de l'Essaim à mi-course, un membre (ou la victime, même simple observatrice) la convoque. Vote de 60 jours ; si elle passe, ceux qui ont voté pour et la victime forment une coalition contre le fautif : droit de guerre sans parjure, chantiers 20 % plus rapides, 5 ans pour atteindre le but. Réussite : 60 influence chacun ; échec : 100 influence au fautif.",
-			"labels": {"capital": "%s a pris la capitale de %s", "atrocity": "%s a commis une atrocité", "holy_war": "%s a lancé une guerre sainte contre %s", "moisson": "la Moisson de %s avance (%s)", "anathema": "%s a été frappé d'anathème par %s"},
+			"labels": {"capital": "%s a pris la capitale de %s", "atrocity": "%s a commis une atrocité", "holy_war": "%s a lancé une guerre sainte contre %s", "moisson": "la Moisson de %s avance (%s)", "anathema": "%s a été frappé d'anathème par %s", "war_crime": "%s a commis un crime de guerre contre %s"},
 			"goals": {"capital": "lui prendre sa capitale", "half": "lui arracher la moitié de ses systèmes"}},
 		"aid": {"below": 100, "need": 300, "days": 180, "step": 50, "cd": 1800, "res": ["energy", "materials"],
 			"_doc": "Aide d'urgence : un membre ou un observateur à court d'énergie ou de matériaux (moins de 100) lance un appel de 300 sur 6 mois ; chaque tranche de 50 donnée vaut une faveur et un bon souvenir."},
@@ -61,7 +61,7 @@
 		"_doc": "Lot 3, politique (proposition 25). Siéger pousse la Concorde chaque mois (acte amph_member) ; une résolution adoptée pousse, chez ceux qui l'ont votée, le courant de sa voie (way_current, pour mille). Une résolution qui contredit une loi d'un membre (law_conflicts) coûte de la stabilité dans tout son empire tant que les deux tiennent, sauf s'il a invoqué sa souveraineté sur cette famille (loi Souveraineté : une fois par an, il échappe un an aux effets et aux interdits d'une famille ; les autres membres lui en veulent).",
 		"push": 30,
 		"way_current": {"commerce:a": "concorde", "commerce:b": "forge", "savoir:a": "academie", "savoir:b": "forge", "guerre:a": "concorde", "guerre:b": "glaive", "foi:a": "concorde", "foi:b": "autel",
-			"peuples:a": "concorde", "peuples:b": "glaive", "ombres:a": "concorde", "ombres:b": "glaive", "perils:a": "seve", "perils:b": "glaive"},
+			"peuples:a": "concorde", "peuples:b": "glaive", "ombres:a": "concorde", "ombres:b": "glaive", "perils:a": "seve", "perils:b": "glaive", "droit:a": "concorde", "droit:b": "glaive"},
 		"law_conflicts": [
 			{"law": "hospitalite", "fam": "peuples", "way": "b"},
 			{"law": "preference_native", "fam": "peuples", "way": "a"},
@@ -101,7 +101,10 @@
 		"tech_theft": "vol de technologie démasqué (Brevets galactiques)",
 		"treaty_war": "traité rompu pour attaquer un membre (Conventions de guerre)",
 		"aggression": "guerre d'agression contre un membre",
-		"nest": "nid de créatures détruit (Sanctuaires)"
+		"nest": "nid de créatures détruit (Sanctuaires)",
+		"hero_execution": "héros prisonnier exécuté (Convention des prisonniers)",
+		"invade_populated": "monde peuplé envahi (Mondes protégés)",
+		"war_limits": "monde peuplé envahi dans une guerre réglée (Guerre réglée)"
 	},
 	"families": [
 		{"id": "commerce", "label": "Commerce", "glyph": "trade",
@@ -210,6 +213,19 @@
 					{"name": "Droit de révision", "fx": {}, "reneg_days_pct": -20},
 					{"name": "Droit des suzerains", "fx": {}, "reneg_days_pct": -15},
 					{"name": "Pleine suzeraineté", "fx": {}, "reneg_days_pct": -15}
+				]}},
+		{"id": "droit", "label": "Droit de la guerre", "glyph": "war", "requires": "wars",
+			"a": {"label": "Lois de la guerre", "text": "La guerre a ses règles : prisonniers épargnés, mondes peuplés protégés, puis guerres limitées entre amphictyons. Les enfreindre est un crime de guerre.",
+				"levels": [
+					{"name": "Convention des prisonniers", "fx": {}, "bans": ["hero_execution"]},
+					{"name": "Mondes protégés", "fx": {}, "bans": ["invade_populated"]},
+					{"name": "Guerre réglée", "fx": {}, "limited_members": true}
+				]},
+			"b": {"label": "Raison d'État", "text": "Chacun mène ses guerres comme il l'entend : les peuples s'y résignent mieux (lassitude réduite de 10 % par niveau).",
+				"levels": [
+					{"name": "Raison d'État", "fx": {}, "war_ex_pct": -10},
+					{"name": "Nécessité fait loi", "fx": {}, "war_ex_pct": -10},
+					{"name": "Guerre sans entraves", "fx": {}, "war_ex_pct": -10}
 				]}}
 	],
 	"sanctions": [

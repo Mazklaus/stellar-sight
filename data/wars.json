@@ -1,5 +1,5 @@
 {
-	"_doc": "Buts de guerre et traités de paix (étude du 2026-11-14, 33 propositions validées). Lot 1 : motifs de guerre (casus belli), revendications, buts annoncés, score de guerre en pourcentage, reddition sur but, trêve proportionnelle, noms de guerre. Catalogues ouverts : motifs, buts et noms s'ajoutent ici sans toucher au code (les conditions 'req' et 'objective' renvoient à des tests codés dans Wars).",
+	"_doc": "Buts de guerre et traités de paix (étude du 2026-11-14, 33 propositions validées). Lot 1 : motifs de guerre (casus belli), revendications, buts annoncés, score de guerre en pourcentage, reddition sur but, trêve proportionnelle, noms de guerre. Catalogues ouverts : motifs, buts et noms s'ajoutent ici sans toucher au code (les conditions 'req' et 'objective' renvoient à des tests codés dans Wars). Lot 3 (avant-guerre, lois et ponts) : ultimatums, crise diplomatique de 30 jours, préavis de guerre, kanly (guerre limitée), droit de la guerre au Nomos, talents de peuple, Arbitre (statu quo, garantie, condamnation), sécession du Koinon, opérations d'espionnage, courants politiques, héros captifs et diplomates.",
 	"_sources": [
 		"Stellaris, Warfare (stellaris.paradoxwikis.com) : motif qui ouvre des buts, revendications payées en influence (50 +25 par saut, +25 si colonisé, x2 en guerre offensive, -20 % contre un rival), un système perdu donne des revendications, le défenseur choisit son but, buts appariés, guerre totale.",
 		"Europa Universalis IV, Warfare (eu4.paradoxwikis.com) : score borné à 100 %, batailles plafonnées à 40 %, but tenu +25 % au plus, trêve de 5 ans + 0,1 an par point de score dépensé, rompre une trêve (stabilité -5, lassitude +5), guerre sans motif (stabilité -2).",
@@ -7,7 +7,10 @@
 		"Humankind, War (humankind.fandom.com) et Civilization VI, Casus Belli : guerre surprise mal vue, motifs qui réduisent la réprobation."
 	],
 	"default_mode": "aucuns",
-	"modes": ["actifs", "aucuns"],
+	"modes": [
+		"actifs",
+		"aucuns"
+	],
 	"score": {
 		"_doc": "Score de a contre b, de -100 à +100. Batailles : battle_cap x (points de a - points de b) / (points de a + points de b + battle_base). Systèmes pris pendant la guerre et encore tenus : valeur (1 + population) en % de la valeur de l'adversaire au début, plafond occ_cap ; capitale d'origine tenue : capital. But tenu : hold_per_month par mois d'affilée, plafond hold_cap.",
 		"battle_cap": 40,
@@ -16,7 +19,9 @@
 		"capital": 10,
 		"hold_per_month": 1,
 		"hold_cap": 25,
-		"battles_objective": 10
+		"battles_objective": 10,
+		"hero_each": 8,
+		"hero_cap": 20
 	},
 	"claims": {
 		"_doc": "Revendications (prop. 3), payées en influence : base + per_jump par saut au-delà du premier (depuis le système possédé le plus proche) + colonized si peuplé ; x offensive_mult pendant une guerre que l'on mène en agresseur contre le propriétaire, gratuites pour le défenseur ; rival_pct de réduction si l'opinion envers le propriétaire est sous rival_opinion. Un système pris par la force laisse à l'ancien propriétaire une revendication gratuite pendant lost_days (motif Reconquête).",
@@ -40,7 +45,10 @@
 		"break_exhaustion": 20,
 		"victory_min_pct": 50
 	},
-	"aggression": {"stability": -2, "memory": "aggressor"},
+	"aggression": {
+		"stability": -2,
+		"memory": "aggressor"
+	},
 	"surrender": {
 		"_doc": "Reddition (prop. 12) : le perdant accepte le but du vainqueur si score du vainqueur + bonus de flotte + 'accept' du but >= 0. Bonus de flotte : (puissance du vainqueur en % de celle du perdant - 100) / fleet_div, entre 0 et fleet_max.",
 		"fleet_div": 4,
@@ -48,53 +56,695 @@
 		"min_days": 60,
 		"cooldown_days": 90
 	},
-	"humiliation": {"influence": 100, "stability": -5, "days": 1800},
-	"ransom": {"repar_pct": 33, "tribute_pct": 15, "tribute_days": 1800},
-	"affirm": {"loyalty": 300, "freedom_cd_days": 1800},
+	"humiliation": {
+		"influence": 100,
+		"stability": -5,
+		"days": 1800
+	},
+	"ransom": {
+		"repar_pct": 33,
+		"tribute_pct": 15,
+		"tribute_days": 1800
+	},
+	"affirm": {
+		"loyalty": 300,
+		"freedom_cd_days": 1800
+	},
+	"occupation": {
+		"_doc": "Occupation avant annexion (prop. 8, option « Occupation »). Envahir un système ennemi l'occupe : il reste à son propriétaire, qui n'y construit plus et n'en touche que (100 - income_pct) % ; l'occupant touche income_pct %. La propriété change au traité. Le propriétaire (ou un allié en guerre contre l'occupant) le libère en y débarquant des troupes quand plus aucune flotte armée de l'occupant ne tient l'orbite. Tous les systèmes d'un empire occupés : reddition automatique au principal occupant.",
+		"default_mode": "immediate",
+		"modes": [
+			"occupation",
+			"immediate"
+		],
+		"income_pct": 50
+	},
+	"exhaustion": {
+		"_doc": "Lassitude par camp (prop. 9), de 0 à 100 %. Chaque mois : per_month, plus 1 par tranche de occ_div % de sa valeur occupée ou prise. Vaisseaux perdus : loss_pct x points perdus / puissance au début de la guerre. Multipliée par attacker_pct quand on se bat pour un but de conquête (revendications, soumission), par defender_pct quand on défend sa survie. La stabilité suit la lassitude : stability_max à 100 %.",
+		"per_month": 1,
+		"occ_div": 10,
+		"loss_pct": 60,
+		"attacker_pct": 125,
+		"defender_pct": 75,
+		"stability_max": -6,
+		"accept_div": 2
+	},
+	"status_quo": {
+		"_doc": "Statu quo (prop. 11) : la paix ordinaire en guerre. Chacun garde les systèmes occupés (ou pris) qu'il revendique, le reste revient. Imposable impose_days après que l'adversaire a atteint 100 % de lassitude ; automatique quand les deux y sont depuis auto_days.",
+		"impose_days": 360,
+		"auto_days": 360
+	},
+	"sides": {
+		"_doc": "Camps et chef de guerre (prop. 16). Le déclarant et la cible mènent leur camp : un allié entré à leurs côtés ne négocie pas seul, sa guerre finit avec celle du chef (statu quo) ; il peut acheter une paix séparée (separate_influence, souvenir chez son chef). Le butin suit la contribution : les revendications qu'un allié du vainqueur tient sur le vaincu lui reviennent, l'influence et la rançon se partagent selon les points de bataille et la valeur prise. Un allié inactif idle_days : souvenir chez le chef.",
+		"separate_influence": 50,
+		"idle_days": 720
+	},
+	"treaty": {
+		"_doc": "Traités (prop. 13 et 15). Chaque paix entre au registre, nommée d'après la capitale du vaincu (ou un système cédé). Clauses du traité à la carte : prix en points de score (%), doublé pour une clause que le but annoncé ne justifie pas (« exigence injustifiée », souvenir chez le vaincu). Violer une clause (flotte en zone démilitarisée, flotte au-delà de la limite) : la victime gagne le motif Représailles, les tiers parlent de parjure.",
+		"names": [
+			"Traité de {s}",
+			"Paix de {s}",
+			"Accords de {s}",
+			"Convention de {s}"
+		],
+		"dmz_jumps": 2,
+		"fleet_pct": 50,
+		"clauses": {
+			"cede": {
+				"label": "Céder des systèmes",
+				"goals": [
+					"conquete",
+					"soumission",
+					"totale"
+				]
+			},
+			"trib": {
+				"label": "Tribut",
+				"goals": [
+					"rancon"
+				]
+			},
+			"repar": {
+				"label": "Réparations",
+				"goals": [
+					"rancon"
+				]
+			},
+			"break": {
+				"label": "Rompre ses alliances",
+				"goals": [
+					"demanteler"
+				]
+			},
+			"free": {
+				"label": "Libérer ses sujets",
+				"goals": [
+					"liberer"
+				]
+			},
+			"vassal": {
+				"label": "Devenir sujet",
+				"goals": [
+					"soumission"
+				]
+			},
+			"dmz": {
+				"label": "Zone démilitarisée",
+				"price": 15,
+				"days": 1800,
+				"goals": [
+					"humiliation",
+					"conquete"
+				],
+				"text": "Ses systèmes à 2 sauts des vôtres ou moins sont interdits à ses flottes de guerre pendant 5 ans."
+			},
+			"fleet": {
+				"label": "Limite de flotte",
+				"price": 25,
+				"days": 3600,
+				"goals": [
+					"humiliation",
+					"demanteler"
+				],
+				"text": "Pendant 10 ans, ses chantiers ne lancent plus de vaisseaux de guerre tant que sa flotte dépasse la moitié de la vôtre."
+			},
+			"pass": {
+				"label": "Passage imposé",
+				"price": 10,
+				"days": 1800,
+				"goals": [
+					"conquete",
+					"liberer"
+				],
+				"text": "Il vous ouvre ses cartes et ses systèmes à vos flottes pendant 5 ans (consigné au registre)."
+			},
+			"heroes": {
+				"label": "Rendre héros et reliques",
+				"price": 10,
+				"goals": [
+					"humiliation",
+					"rancon",
+					"liberer"
+				],
+				"text": "Il rend vos héros prisonniers et vous cède une de ses reliques."
+			},
+			"convert": {
+				"label": "Conversion",
+				"price": 30,
+				"goals": [
+					"soumission",
+					"humiliation"
+				],
+				"text": "Il adopte votre foi d'État.",
+				"casus": [
+					"guerre_sainte"
+				]
+			},
+			"regime": {
+				"label": "Changement de régime",
+				"price": 35,
+				"goals": [
+					"soumission",
+					"demanteler"
+				],
+				"text": "Le courant qui vous gouverne prend la tête de son gouvernement (jusqu'à ce que ses électeurs en décident autrement)."
+			},
+			"transfer": {
+				"label": "Transfert d'un sujet",
+				"price": 30,
+				"goals": [
+					"soumission",
+					"demanteler",
+					"liberer"
+				],
+				"text": "Son sujet le plus puissant devient le vôtre, avec les mêmes clauses."
+			},
+			"koinon": {
+				"label": "Sortie du Koinon",
+				"price": 20,
+				"goals": [
+					"demanteler"
+				],
+				"text": "Il quitte son Koinon."
+			},
+			"people": {
+				"label": "Libération d'un peuple",
+				"price": 15,
+				"goals": [
+					"liberer",
+					"humiliation"
+				],
+				"text": "Votre peuple, chez lui, reçoit le meilleur statut qu'il puisse accorder."
+			}
+		}
+	},
+	"revanche": {
+		"_doc": "Revanchisme (prop. 17). Céder des systèmes au traité donne au vaincu un bonus de production (matériaux, énergie) et de garnisons égal au score cédé / div, plafonné à max_pct, qui baisse de 10 % de sa valeur chaque année (nul après years ans).",
+		"div": 4,
+		"max_pct": 20,
+		"years": 10
+	},
 	"casus": [
-		{"id": "revendication", "label": "Revendication", "req": "claims", "goals": ["conquete", "humiliation", "rancon"], "memory": "", "text": "Vous revendiquez certains de ses systèmes : la galaxie comprend, sans approuver."},
-		{"id": "reconquete", "label": "Reconquête", "req": "lost", "goals": ["conquete", "humiliation"], "memory": "", "text": "Il tient des systèmes qu'il vous a pris par la force : personne ne vous reprochera de les reprendre."},
-		{"id": "liberation", "label": "Libération", "req": "liberation", "goals": ["liberer", "humiliation"], "memory": "", "text": "Il tient des systèmes pris à un allié ou à un sujet : vous venez les rendre."},
-		{"id": "represailles", "label": "Représailles", "req": "reprisal", "goals": ["humiliation", "rancon", "demanteler"], "memory": "", "text": "Il a rompu un traité avec vous, ou ses espions ont été pris chez vous."},
-		{"id": "humiliation", "label": "Rivalité", "req": "rival", "goals": ["humiliation"], "memory": "", "text": "Vous le détestez (opinion -50 ou moins) : une guerre pour l'honneur, sans conquête."},
-		{"id": "guerre_sainte", "label": "Guerre sainte", "req": "holy", "goals": ["conquete", "humiliation", "rancon"], "memory": "", "text": "Votre foi vous en donne le droit (voir l'écran Foi)."},
-		{"id": "defense_commune", "label": "Défense commune", "req": "amph", "goals": ["humiliation", "rancon", "demanteler"], "memory": "", "text": "L'Amphictyonie couvre cette guerre (charte des atrocités, défense mutuelle, coalition)."},
-		{"id": "independance", "label": "Indépendance", "req": "subject", "goals": ["independance"], "memory": "", "text": "Vous êtes son sujet : vous vous battez pour votre liberté."},
-		{"id": "soumission", "label": "Soumission", "req": "power", "goals": ["soumission", "humiliation"], "memory": "war_claim", "text": "Vous êtes au moins une fois et demie plus puissant : vous pouvez exiger qu'il plie le genou."},
-		{"id": "totale", "label": "Guerre totale", "req": "total", "goals": ["totale"], "memory": "", "text": "Votre peuple ne négocie pas : la guerre ne finit que par la disparition de l'un des deux."},
-		{"id": "agression", "label": "Agression (sans motif)", "req": "always", "goals": ["conquete", "humiliation", "rancon"], "memory": "aggressor", "aggression": true, "text": "Aucune raison avouable : toute la galaxie s'en souviendra, votre peuple doute (stabilité -2 pendant la guerre), la lassitude part de 10 %."}
+		{
+			"id": "revendication",
+			"label": "Revendication",
+			"req": "claims",
+			"goals": [
+				"conquete",
+				"humiliation",
+				"rancon"
+			],
+			"memory": "",
+			"text": "Vous revendiquez certains de ses systèmes : la galaxie comprend, sans approuver."
+		},
+		{
+			"id": "reconquete",
+			"label": "Reconquête",
+			"req": "lost",
+			"goals": [
+				"conquete",
+				"humiliation"
+			],
+			"memory": "",
+			"text": "Il tient des systèmes qu'il vous a pris par la force : personne ne vous reprochera de les reprendre.",
+			"just": true
+		},
+		{
+			"id": "liberation",
+			"label": "Libération",
+			"req": "liberation",
+			"goals": [
+				"liberer",
+				"humiliation"
+			],
+			"memory": "",
+			"text": "Il tient des systèmes pris à un allié ou à un sujet : vous venez les rendre.",
+			"just": true
+		},
+		{
+			"id": "represailles",
+			"label": "Représailles",
+			"req": "reprisal",
+			"goals": [
+				"humiliation",
+				"rancon",
+				"demanteler"
+			],
+			"memory": "",
+			"text": "Il a rompu un traité avec vous, ou ses espions ont été pris chez vous.",
+			"just": true
+		},
+		{
+			"id": "humiliation",
+			"label": "Rivalité",
+			"req": "rival",
+			"goals": [
+				"humiliation"
+			],
+			"memory": "",
+			"text": "Vous le détestez (opinion -50 ou moins) : une guerre pour l'honneur, sans conquête."
+		},
+		{
+			"id": "guerre_sainte",
+			"label": "Guerre sainte",
+			"req": "holy",
+			"goals": [
+				"conquete",
+				"humiliation",
+				"rancon"
+			],
+			"memory": "",
+			"text": "Votre foi vous en donne le droit (voir l'écran Foi)."
+		},
+		{
+			"id": "defense_commune",
+			"label": "Défense commune",
+			"req": "amph",
+			"goals": [
+				"humiliation",
+				"rancon",
+				"demanteler"
+			],
+			"memory": "",
+			"text": "L'Amphictyonie couvre cette guerre (charte des atrocités, défense mutuelle, coalition).",
+			"just": true
+		},
+		{
+			"id": "independance",
+			"label": "Indépendance",
+			"req": "subject",
+			"goals": [
+				"independance"
+			],
+			"memory": "",
+			"text": "Vous êtes son sujet : vous vous battez pour votre liberté.",
+			"just": true
+		},
+		{
+			"id": "soumission",
+			"label": "Soumission",
+			"req": "power",
+			"goals": [
+				"soumission",
+				"humiliation"
+			],
+			"memory": "war_claim",
+			"text": "Vous êtes au moins une fois et demie plus puissant : vous pouvez exiger qu'il plie le genou."
+		},
+		{
+			"id": "totale",
+			"label": "Guerre totale",
+			"req": "total",
+			"goals": [
+				"totale"
+			],
+			"memory": "",
+			"text": "Votre peuple ne négocie pas : la guerre ne finit que par la disparition de l'un des deux."
+		},
+		{
+			"id": "ultimatum",
+			"label": "Ultimatum refusé",
+			"req": "ultimatum",
+			"goals": [
+				"conquete",
+				"humiliation",
+				"rancon"
+			],
+			"memory": "",
+			"just": true,
+			"text": "Il a repoussé votre ultimatum : la galaxie trouve votre colère légitime (pendant 5 ans)."
+		},
+		{
+			"id": "incident",
+			"label": "Incident de frontière",
+			"req": "incident",
+			"goals": [
+				"humiliation",
+				"rancon"
+			],
+			"memory": "",
+			"just": true,
+			"text": "Un incident (peut-être provoqué par vos espions) vous donne un motif pendant 5 ans."
+		},
+		{
+			"id": "kanly",
+			"label": "Kanly",
+			"req": "kanly",
+			"goals": [
+				"kanly"
+			],
+			"memory": "",
+			"limited": true,
+			"text": "Querelle formelle entre maisons : guerre limitée aux flottes et aux avant-postes, sans parjure ni réprobation."
+		},
+		{
+			"id": "secession",
+			"label": "Sécession",
+			"req": "never",
+			"goals": [
+				"quitter"
+			],
+			"memory": "",
+			"just": true,
+			"text": "Le Stratège vous a refusé la sortie du Koinon : vous la prenez par les armes."
+		},
+		{
+			"id": "agression",
+			"label": "Agression (sans motif)",
+			"req": "always",
+			"goals": [
+				"conquete",
+				"humiliation",
+				"rancon"
+			],
+			"memory": "aggressor",
+			"aggression": true,
+			"text": "Aucune raison avouable : toute la galaxie s'en souviendra, votre peuple doute (stabilité -2 pendant la guerre), la lassitude part de 10 %."
+		}
 	],
-	"defense_goals": ["humiliation", "rancon", "conquete"],
+	"defense_goals": [
+		"humiliation",
+		"rancon",
+		"conquete"
+	],
 	"goals": [
-		{"id": "conquete", "label": "Conquête", "accept": 0, "objective": "claims", "req": "", "price": 0, "text": "Le vaincu cède tous les systèmes que vous revendiquez (sauf sa capitale)."},
-		{"id": "soumission", "label": "Soumission", "accept": -100, "objective": "capital", "req": "vassals", "price": 60, "text": "Le vaincu devient votre vassal (préréglage Vassal), en plus de céder vos revendications."},
-		{"id": "humiliation", "label": "Humiliation", "accept": -25, "objective": "battles", "req": "", "price": 30, "text": "Vous gagnez 100 influence ; le vaincu perd la moitié de la sienne et 5 de stabilité pendant 5 ans, et s'en souvient."},
-		{"id": "rancon", "label": "Rançon", "accept": -25, "objective": "battles", "req": "", "price": 40, "text": "Le vaincu vous verse un tiers de ses réserves, puis un tribut de 15 % pendant 5 ans."},
-		{"id": "liberer", "label": "Libération", "accept": -50, "objective": "capital", "req": "", "price": 40, "text": "Le vaincu rend les systèmes pris à vos alliés et à vos sujets, et libère ses propres sujets."},
-		{"id": "demanteler", "label": "Démantèlement", "accept": -50, "objective": "capital", "req": "", "price": 40, "text": "Le vaincu rompt ses alliances et quitte son Koinon."},
-		{"id": "independance", "label": "Indépendance", "accept": 0, "objective": "keep", "req": "", "price": 30, "text": "Votre suzerain vous rend votre liberté.", "pair": "affirmer"},
-		{"id": "affirmer", "label": "Affirmer la suzeraineté", "accept": -25, "objective": "capital", "req": "", "price": 30, "defense_only": true, "text": "Le sujet rebelle rentre dans le rang : sa loyauté remonte de 30 et il ne pourra plus exiger sa liberté avant 5 ans."},
-		{"id": "totale", "label": "Guerre totale", "accept": -1000, "objective": "capital", "req": "", "price": 0, "total": true, "text": "Pas de reddition possible : la guerre finit par la paix blanche ou par la disparition d'un camp."}
+		{
+			"id": "conquete",
+			"label": "Conquête",
+			"accept": 0,
+			"objective": "claims",
+			"req": "",
+			"price": 0,
+			"text": "Le vaincu cède tous les systèmes que vous revendiquez (sauf sa capitale)."
+		},
+		{
+			"id": "soumission",
+			"label": "Soumission",
+			"accept": -100,
+			"objective": "capital",
+			"req": "vassals",
+			"price": 60,
+			"text": "Le vaincu devient votre vassal (préréglage Vassal), en plus de céder vos revendications."
+		},
+		{
+			"id": "humiliation",
+			"label": "Humiliation",
+			"accept": -25,
+			"objective": "battles",
+			"req": "",
+			"price": 30,
+			"text": "Vous gagnez 100 influence ; le vaincu perd la moitié de la sienne et 5 de stabilité pendant 5 ans, et s'en souvient."
+		},
+		{
+			"id": "rancon",
+			"label": "Rançon",
+			"accept": -25,
+			"objective": "battles",
+			"req": "",
+			"price": 40,
+			"text": "Le vaincu vous verse un tiers de ses réserves, puis un tribut de 15 % pendant 5 ans."
+		},
+		{
+			"id": "liberer",
+			"label": "Libération",
+			"accept": -50,
+			"objective": "capital",
+			"req": "",
+			"price": 40,
+			"text": "Le vaincu rend les systèmes pris à vos alliés et à vos sujets, et libère ses propres sujets."
+		},
+		{
+			"id": "demanteler",
+			"label": "Démantèlement",
+			"accept": -50,
+			"objective": "capital",
+			"req": "",
+			"price": 40,
+			"text": "Le vaincu rompt ses alliances et quitte son Koinon."
+		},
+		{
+			"id": "independance",
+			"label": "Indépendance",
+			"accept": 0,
+			"objective": "keep",
+			"req": "",
+			"price": 30,
+			"text": "Votre suzerain vous rend votre liberté.",
+			"pair": "affirmer"
+		},
+		{
+			"id": "affirmer",
+			"label": "Affirmer la suzeraineté",
+			"accept": -25,
+			"objective": "capital",
+			"req": "",
+			"price": 30,
+			"defense_only": true,
+			"text": "Le sujet rebelle rentre dans le rang : sa loyauté remonte de 30 et il ne pourra plus exiger sa liberté avant 5 ans."
+		},
+		{
+			"id": "totale",
+			"label": "Guerre totale",
+			"accept": -1000,
+			"objective": "capital",
+			"req": "",
+			"price": 0,
+			"total": true,
+			"text": "Pas de reddition possible : la guerre finit par la paix blanche ou par la disparition d'un camp."
+		},
+		{
+			"id": "kanly",
+			"label": "Querelle (kanly)",
+			"accept": 0,
+			"objective": "battles",
+			"req": "",
+			"price": 0,
+			"pair": "kanly",
+			"limited": true,
+			"text": "Guerre limitée : aucun monde peuplé envahi, peu de lassitude. Le vaincu verse 60 influence au vainqueur et s'en souvient ; rien n'est cédé."
+		},
+		{
+			"id": "quitter",
+			"label": "Quitter le Koinon",
+			"accept": 0,
+			"objective": "keep",
+			"req": "",
+			"price": 30,
+			"pair": "retenir",
+			"text": "Le Koinon reconnaît votre départ : pas de rancune des membres, et 50 influence prises au trésor de l'orgueil fédéral."
+		},
+		{
+			"id": "retenir",
+			"label": "Retenir dans le Koinon",
+			"accept": -25,
+			"objective": "capital",
+			"req": "",
+			"price": 30,
+			"defense_only": true,
+			"text": "Le sécessionniste rentre dans le Koinon et ne pourra plus le quitter avant 5 ans."
+		}
 	],
 	"names": {
 		"_doc": "Noms de guerre (prop. 18) : {a} = l'agresseur, {d} = le défenseur (noms courts). Un modèle tiré de façon déterministe selon le but de l'agresseur ; 'any' sert de réserve.",
-		"conquete": ["Guerre de conquête de {a}", "Invasion de {d}", "Grande Annexion de {a}", "Guerre des Frontières entre {a} et {d}"],
-		"soumission": ["Guerre de soumission de {a}", "Campagne du Genou plié", "Guerre de l'Allégeance"],
-		"humiliation": ["Expédition punitive de {a}", "Guerre de l'Honneur froissé", "Querelle de {a} et de {d}", "Guerre du Mot de trop"],
-		"rancon": ["Guerre de la Rançon", "Raid des Coffres de {d}", "Guerre des Créances de {a}"],
-		"liberer": ["Guerre de libération de {a}", "Croisade des Mondes rendus"],
-		"demanteler": ["Guerre des Alliances brisées", "Démantèlement de {d}"],
-		"independance": ["Guerre d'indépendance de {a}", "Révolte de {a}", "Guerre des Chaînes rompues"],
-		"totale": ["Grande Moisson de {a}", "Guerre d'extermination de {a}", "La Faim de {a}"],
-		"any": ["Guerre de {a} contre {d}"]
+		"conquete": [
+			"Guerre de conquête de {a}",
+			"Invasion de {d}",
+			"Grande Annexion de {a}",
+			"Guerre des Frontières entre {a} et {d}"
+		],
+		"soumission": [
+			"Guerre de soumission de {a}",
+			"Campagne du Genou plié",
+			"Guerre de l'Allégeance"
+		],
+		"humiliation": [
+			"Expédition punitive de {a}",
+			"Guerre de l'Honneur froissé",
+			"Querelle de {a} et de {d}",
+			"Guerre du Mot de trop"
+		],
+		"rancon": [
+			"Guerre de la Rançon",
+			"Raid des Coffres de {d}",
+			"Guerre des Créances de {a}"
+		],
+		"liberer": [
+			"Guerre de libération de {a}",
+			"Croisade des Mondes rendus"
+		],
+		"demanteler": [
+			"Guerre des Alliances brisées",
+			"Démantèlement de {d}"
+		],
+		"independance": [
+			"Guerre d'indépendance de {a}",
+			"Révolte de {a}",
+			"Guerre des Chaînes rompues"
+		],
+		"totale": [
+			"Grande Moisson de {a}",
+			"Guerre d'extermination de {a}",
+			"La Faim de {a}"
+		],
+		"any": [
+			"Guerre de {a} contre {d}"
+		],
+		"kanly": [
+			"Kanly de {a} et {d}",
+			"Querelle des maisons {a} et {d}",
+			"Duel des bannières de {a} et {d}"
+		],
+		"quitter": [
+			"Sécession de {a}",
+			"Guerre du serment rompu ({a})"
+		]
 	},
 	"ai": {
-		"_doc": "IA (prop. 31). claim_days : délai entre deux revendications achetées selon le niveau (0 Recrue, 1 Normal, 2 Vétéran et au-delà) ; reserve : influence gardée en plus du prix ; aggression_extra_pct : supériorité de plus exigée pour une guerre sans motif ; yield_at / demand_at : marge d'acceptation à partir de laquelle l'IA se rend ou exige la reddition.",
-		"claim_days": [720, 360, 180],
+		"_doc": "IA (prop. 31). claim_days : délai entre deux revendications achetées selon le niveau (0 Recrue, 1 Normal, 2 Vétéran et au-delà) ; reserve : influence gardée en plus du prix ; aggression_extra_pct : supériorité de plus exigée pour une guerre sans motif ; separate_at : lassitude à partir de laquelle un allié achète sa paix séparée ; yield_at / demand_at : marge d'acceptation à partir de laquelle l'IA se rend ou exige la reddition.",
+		"claim_days": [
+			720,
+			360,
+			180
+		],
 		"reserve": 60,
 		"demand_at": 0,
 		"yield_at": 25,
 		"demand_min_days": 120,
-		"aggression_extra_pct": 25
+		"aggression_extra_pct": 25,
+		"separate_at": 60,
+		"ultimatum_every": 360
+	},
+	"ultimatum": {
+		"_doc": "Prop. 19. Exiger sans faire la guerre : céder un système revendiqué, un tribut, ou rompre ses alliances. Accepter évite la guerre (souvenir d'humiliation) ; refuser donne à l'exigeant le motif « Ultimatum refusé » pendant casus_days, sans réprobation. L'IA cède si l'exigeant est au moins ai_power_pct % plus puissant.",
+		"cost": {
+			"influence": 20
+		},
+		"casus_days": 1800,
+		"cd_days": 720,
+		"ai_power_pct": 150,
+		"ai_send_pct": 200,
+		"tribute_pct": 10,
+		"tribute_days": 1800,
+		"whats": {
+			"cede": {
+				"label": "Céder un système revendiqué",
+				"text": "Il vous cède un système que vous revendiquez (jamais sa capitale)."
+			},
+			"tribut": {
+				"label": "Payer tribut",
+				"text": "Il vous verse 10 % de ses revenus pendant 5 ans."
+			},
+			"rupture": {
+				"label": "Rompre ses alliances",
+				"text": "Il rompt toutes ses alliances."
+			}
+		}
+	},
+	"crisis": {
+		"_doc": "Prop. 20. Variante courte des crises de Victoria 3 : ouvrir une crise annonce un motif et un but ; 30 jours d'escalade où chaque camp rallie des tiers (ils entreront en guerre à ses côtés et toucheront leur part du butin). Avant l'échéance, un camp peut reculer : le défenseur cède le but principal (revendications, rançon ou humiliation), l'agresseur abandonne ses revendications et perd du prestige. Sinon, la guerre commence.",
+		"days": 30,
+		"cost": {
+			"influence": 30
+		},
+		"backdown_influence": 50,
+		"ai_backdown_pct": 150,
+		"rally_opinion": 25,
+		"rally_max": 3,
+		"repar_pct": 20
+	},
+	"prep": {
+		"_doc": "Prop. 21. Une IA masse ses flottes avant de déclarer (days par niveau : Recrue, Normale, au-delà) ; qui a un réseau d'espions chez elle (palier tier ou plus) ou le talent Prévision en est averti. La préparation s'oublie après expire_days.",
+		"days": [
+			45,
+			30,
+			20
+		],
+		"expire_days": 150,
+		"tier": 1
+	},
+	"kanly": {
+		"_doc": "Prop. 22. Guerre limitée : flottes et avant-postes seulement, aucun monde peuplé envahi, lassitude de moitié, ni parjure (un traité de paix n'empêche pas le kanly) ni réprobation. La guerre réglée du Nomos rend limitées toutes les guerres entre amphictyons.",
+		"exhaustion_pct": 50,
+		"influence": 60,
+		"max_opinion": 25
+	},
+	"laws": {
+		"_doc": "Prop. 23. Famille « Droit de la guerre » du Nomos (data/amphictyony.json) : interdits hero_execution et invade_populated, guerre réglée. Un crime de guerre rend le coupable hors-la-loi (si membre), ouvre une session extraordinaire et donne à tous les amphictyons le motif Défense commune.",
+		"exhaustion_pct_per_level": -10
+	},
+	"talents": {
+		"_doc": "Prop. 24. Talents de guerre par couche d'espèce : valables pour les peuples personnalisés. requires : autres couches exigées.",
+		"gouvernement": {
+			"feodalite": {
+				"label": "Querelles de maisons",
+				"text": "Peut déclarer un kanly (guerre limitée, sans parjure) ; son héritier fait valoir des droits : revendications à moitié prix.",
+				"kanly": true,
+				"claim_pct": -50
+			},
+			"theocratie": {
+				"label": "Croisade",
+				"text": "Dans une guerre sainte, lassitude de moitié ; les empires de même foi d'État se rallient d'eux-mêmes à ses crises.",
+				"crusade": true
+			},
+			"republique": {
+				"label": "Médiation",
+				"text": "Peut proposer sa médiation entre deux empires en guerre depuis six mois : statu quo imposé, et la reconnaissance des deux camps.",
+				"mediate": true
+			},
+			"horde": {
+				"label": "Razzias",
+				"text": "Ses rançons prennent moitié plus.",
+				"ransom_pct": 50
+			},
+			"syndicat": {
+				"label": "Économie de guerre",
+				"text": "Les systèmes qu'il occupe lui rapportent moitié plus.",
+				"occ_income_pct": 50
+			},
+			"conscience": {
+				"label": "Prévision",
+				"text": "Voit venir toutes les guerres : chaque préparation d'une IA lui est signalée, espions ou pas.",
+				"foresight": true
+			}
+		},
+		"archetype": {
+			"ruche": {
+				"requires": {
+					"credo": "survie"
+				},
+				"label": "Guerre totale",
+				"text": "Ne signe rien : ses guerres ne finissent que par la disparition d'un camp.",
+				"total": true
+			}
+		}
+	},
+	"mediation": {
+		"cost": {
+			"influence": 40
+		},
+		"min_days": 180,
+		"cd_days": 720,
+		"max_score": 30
+	},
+	"arbiter": {
+		"_doc": "Prop. 25. L'Arbitre des étoiles impose une trêve entre deux membres : avec les buts de guerre, c'est un statu quo. Il peut garantir un traité du registre : le violer donne à tous les amphictyons le motif Défense commune. Une agression sans motif contre un membre (ou par un membre) est condamnée d'office.",
+		"guarantee_cost": {
+			"influence": 30
+		}
+	},
+	"secession": {
+		"influence": 50,
+		"retain_days": 1800
+	},
+	"heroes": {
+		"diplomat_pct": 5,
+		"diplomat_max": 30
+	},
+	"incident": {
+		"days": 1800
+	},
+	"just": {
+		"_doc": "Prop. 28. Une guerre au motif juste (Reconquête, Libération, Représailles, Défense commune, Indépendance, Ultimatum refusé, Incident, Sécession) : stabilité +1 pour l'attaquant et poussée du Glaive ; une agression pousse la Concorde.",
+		"stability": 1
 	}
 }

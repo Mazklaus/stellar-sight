@@ -269,6 +269,11 @@ static func context(state: GameState, empire_id: int) -> Dictionary:
 		longest = maxi(longest, Diplomacy.pact_days(state, empire_id, int(w)))
 	if longest > 0 and Laws.no_war_weariness(state, empire_id):
 		pass
+	elif longest > 0 and state.wars_on:
+		# Buts de guerre : la lassitude du camp, de 0 à 100 %, remplace la durée.
+		var wv := WarPeace.stability_value(state, empire_id) * maxi(1, int(tal.get("war_x", 1)))
+		if wv != 0:
+			global.append(["Lassitude de guerre (%d %%)" % WarPeace.max_exhaustion(state, empire_id), wv])
 	elif longest > 0:
 		var wd: Dictionary = src["war"]
 		@warning_ignore("integer_division")

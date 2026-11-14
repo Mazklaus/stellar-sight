@@ -1203,7 +1203,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var sid := f.system_id
 			f.troops -= Combat.garrison(state, sid)  # les défenseurs se battent jusqu'au dernier
-			Combat.capture_system(state, sid, f.owner)
+			if not WarPeace.invade(state, sid, f.owner):  # occupation (buts de guerre), sinon conquête
+				Combat.capture_system(state, sid, f.owner)
 		"research_queue":
 			Research.apply_queue(state, int(cmd["player"]), String(cmd["tech"]), bool(cmd.get("front", false)))
 		"research_remove":
