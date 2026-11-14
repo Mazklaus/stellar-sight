@@ -524,7 +524,9 @@ static func _check_pending(state: GameState, from: int, to: int, kind: String) -
 ## Applique des conditions acceptées : paix, puis chaque condition.
 static func apply_terms(state: GameState, winner: int, loser: int, terms: Dictionary) -> void:
 	var paid := price(state, loser, terms, winner)
-	var unjust := WarPeace.unjust(state, winner, loser, terms) if state.wars_on else []
+	var unjust: Array[String] = []
+	if state.wars_on:
+		unjust = WarPeace.unjust(state, winner, loser, terms)
 	var war_name := String(Wars.war(state, winner, loser).get("name", ""))
 	if state.wars_on:
 		Wars._w(state)["vic"] = true
