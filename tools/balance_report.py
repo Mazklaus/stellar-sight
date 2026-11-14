@@ -67,3 +67,28 @@ for f, s in sorted(stats.items()):
     wp, ep = 100.0 * won / n, 100.0 * early / n
     ok = 10 <= wp <= 45 and ep < 25
     print("%-24s victoires %4.0f %%  morts <an10 %4.0f %%  %s" % (f, wp, ep, "dans la cible" if ok else "HORS CIBLE"))
+
+# Sujets (option VASSALS=actifs) : qui devient sujet, quand, sous quel préréglage, et qui l'est encore.
+subj = defaultdict(list)
+for g in games:
+    for e in g["empires"]:
+        if e.get("subject_year", -1) >= 0:
+            subj[e["faction"]].append((e["subject_year"], e.get("subject_preset", "?"), e.get("lord_end", ""), e.get("loyalty_end")))
+if subj:
+    print()
+    print("Sujets : peuple, nombre de parties où il l'a été, (année, préréglage, suzerain à la fin, loyauté)")
+    for f, v in sorted(subj.items()):
+        print("%-24s %d : %s" % (f, len(v), ", ".join("an %d %s%s" % (y, p, (" sous " + l + " %+d" % lo) if l else " (libre à la fin)") for y, p, l, lo in sorted(v))))
+
+# Koinon (option KOINON=actif) : qui entre dans une ligue, quand, et les ligues encore debout à la fin.
+koi = defaultdict(list)
+for g in games:
+    for e in g["empires"]:
+        if e.get("koinon_year", -1) >= 0:
+            koi[e["faction"]].append((e["koinon_year"], e.get("koinon_form", "?")))
+if koi:
+    print()
+    print("Koinon : peuple, nombre de parties où il en a été membre, (année d'entrée, forme)")
+    for f, v in sorted(koi.items()):
+        print("%-24s %d : %s" % (f, len(v), ", ".join("an %d %s" % (y, fo) for y, fo in sorted(v))))
+    print("Ligues à la fin : " + "; ".join("%s rang %d coh %+d (%s, %d ans)" % (l["form"], l["rank"], l["coh"], "/".join(l["members"]), l["age"]) for g in games for l in g.get("leagues", [])))

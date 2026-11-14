@@ -236,6 +236,8 @@ static func check_adopt(state: GameState, empire_id: int, id: String) -> String:
 		return "les religions ne sont pas actives dans cette partie"
 	if bool(d.get("amph", false)) and not state.amph_on:
 		return "pas d'Amphictyonie dans cette partie"
+	if bool(d.get("koinon", false)) and not state.koinon_on:
+		return "pas de Koinon dans cette partie"
 	if bool(d.get("faiths", false)) and id == "inquisition" and not Faiths.has_state_faith(state, empire_id):
 		return "pas d'Inquisition sans foi d'État"
 	if bool(d.get("faiths", false)) and id == "tolerance" and Faiths.doctrine(state, Faiths.state_faith(state, empire_id), "regard") == "fondamentaliste" \

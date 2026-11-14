@@ -479,6 +479,9 @@ static func colonizer_ship(fleet: Fleet) -> String:
 static func upkeep(state: GameState, empire_id: int) -> Dictionary:
 	var out := {}
 	for f in empire_fleets(state, empire_id):
+		# Flotte fédérale du Koinon : sans entretien pour personne.
+		if Koinon.is_federal(state, f.id):
+			continue
 		for s in f.ships:
 			var u: Dictionary = GameData.ship(s).get("upkeep", {})
 			for r in u:

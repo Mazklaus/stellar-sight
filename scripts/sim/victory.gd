@@ -296,11 +296,36 @@ static func bloc(state: GameState, empire_id: int) -> Array[int]:
 			continue
 		if not state.get_empire(a).eliminated and not out.has(a):
 			out.append(a)
+	# Délai de grâce (Koinon) : pas d'alliés de la dernière heure qui offrent une victoire commune.
+	var grace := int(Koinon.data().get("grace_days", 0))
+	# Les membres d'un même Koinon avancent ensemble, une fois le délai passé pour les deux.
+	if state.koinon_on and allies_count(state) and Koinon.member_days(state, empire_id) >= grace:
+		for m in Koinon.members_of(state, Koinon.league_of(state, empire_id)):
+			if not out.has(m) and not state.get_empire(m).eliminated and Koinon.member_days(state, m) >= grace:
+				out.append(m)
+	# Les sujets avancent avec leur suzerain (et ne comptent pas comme cibles), une fois le lien ancien.
+	for s in Vassals.subjects_of(state, empire_id):
+		if not state.get_empire(s).eliminated and not out.has(s) and (Vassals.bond_days(state, s) >= grace or Vassals.is_court(state, s)):
+			out.append(s)
 	out.sort()
 	return out
 
 
+## Un sujet ne gagne ni conquête ni domination : la victoire revient à son suzerain.
+static func _subject_line(state: GameState, e: Empire, out: Dictionary) -> bool:
+	var lord := Vassals.lord_of(state, e.id)
+	if lord < 0:
+		return false
+	out["lines"].append("Sujet de %s : cette victoire revient au suzerain" % state.get_empire(lord).display_name())
+	out["cond"] = false
+	out["won"] = false
+	out["pct"] = 0
+	return true
+
+
 static func _conquest(state: GameState, e: Empire, out: Dictionary) -> void:
+	if _subject_line(state, e, out):
+		return
 	var b := bloc(state, e.id)
 	var targets := 0
 	var held_caps := 0
@@ -335,23 +360,36 @@ static func _conquest(state: GameState, e: Empire, out: Dictionary) -> void:
 ## Systèmes où l'empire (ou, avec with_allies, son bloc) a une revendication fondée.
 static func systems_held(state: GameState, empire_id: int, with_allies := false) -> int:
 	var b: Array[int] = bloc(state, empire_id) if with_allies else ([empire_id] as Array[int])
+	# Les systèmes d'un sujet comptent pour moitié (poids 1 sur 2).
 	var seen := {}
 	for pid in state.colonies:
 		var c: Colony = state.colonies[pid]
 		if b.has(c.owner) and c.is_established():
-			seen[state.galaxy.get_planet(pid).system_id] = true
-	return seen.size()
+			var sid: int = state.galaxy.get_planet(pid).system_id
+			var w := 1 if c.owner != empire_id and Vassals.lord_of(state, c.owner) == empire_id else 2
+			seen[sid] = maxi(int(seen.get(sid, 0)), w)
+	var total := 0
+	for sid in seen:
+		total += int(seen[sid])
+	@warning_ignore("integer_division")
+	return (total + 1) / 2
 
 
 ## Systèmes à tenir pour la domination : la part de base, plus ally_pct par allié (au plus max_pct).
 static func domination_needed(state: GameState, empire_id := -1) -> int:
 	var v := info("domination")
-	var allies := bloc(state, empire_id).size() - 1 if empire_id >= 0 else 0
+	var allies := 0
+	if empire_id >= 0:
+		for m in bloc(state, empire_id):
+			if m != empire_id and Vassals.lord_of(state, m) != empire_id:
+				allies += 1
 	var pct := mini(int(v.get("max_pct", 100)), int(v["systems_pct"]) + allies * int(v.get("ally_pct", 0)))
 	return ceili(state.galaxy.systems.size() * pct / 100.0)
 
 
 static func _domination(state: GameState, e: Empire, out: Dictionary) -> void:
+	if _subject_line(state, e, out):
+		return
 	var have := systems_held(state, e.id, true)
 	var need := domination_needed(state, e.id)
 	if bloc(state, e.id).size() > 1:
