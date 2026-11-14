@@ -60,6 +60,7 @@ static func _monthly(state: GameState) -> void:
 	Espionage.monthly(state)
 	Vassals.monthly(state)
 	Koinon.monthly(state)
+	Wars.monthly(state)
 	Reputation.monthly(state)
 	Echoes.monthly(state)
 	for e in state.empires:

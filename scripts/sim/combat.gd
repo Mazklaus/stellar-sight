@@ -367,7 +367,7 @@ static func nearest_prey(state: GameState, empire_id: int) -> int:
 	return best
 
 
-static func check_declare_war(state: GameState, empire_id: int, target: int) -> String:
+static func check_declare_war(state: GameState, empire_id: int, target: int, break_truce := false) -> String:
 	var e := state.get_empire(empire_id)
 	var t := state.get_empire(target)
 	if e == null or t == null:
@@ -380,7 +380,7 @@ static func check_declare_war(state: GameState, empire_id: int, target: int) -> 
 		return "vous n'avez jamais rencontré cet empire"
 	if e.wars.has(target):
 		return "vous êtes déjà en guerre"
-	return Diplomacy.check_war(state, empire_id, target)
+	return Diplomacy.check_war(state, empire_id, target, break_truce)
 
 
 ## Déclare la guerre, dans les deux sens, puis ses suites diplomatiques (traité rompu, griefs,
@@ -534,6 +534,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 	var old := state.system_owner(system_id)
 	var eo := state.get_empire(old)
 	var en := state.get_empire(new_owner)
+	Wars.on_capture(state, system_id, new_owner, old)
 	Diplomacy.note_conquest(state, new_owner, old)
 	Research.count_stat(state, new_owner, "conquests")
 	var digest := bool(trait_value(state, new_owner, "digest", false))

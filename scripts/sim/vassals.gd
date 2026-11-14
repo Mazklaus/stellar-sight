@@ -548,6 +548,8 @@ static func check_surrender(state: GameState, loser: int, winner: int) -> String
 		return why
 	if not state.vassals_on:
 		return "la reddition n'est pas active dans cette partie"
+	if state.wars_on:
+		return "avec les buts de guerre, on se rend au but de l'adversaire (panneau Guerre)"
 	if not Combat.at_war(state, loser, winner):
 		return "vous n'êtes pas en guerre"
 	var sc := _cfg("surrender")
@@ -808,6 +810,7 @@ static func freedom_war(state: GameState, sub: int) -> void:
 	Diplomacy.remember(state, lord, sub, "vassal_rebelled")
 	state.add_chronicle("%s refuse l'indépendance à %s : c'est la guerre de libération." % [_name(state, lord), _name(state, sub)],
 			Espionage.public_to(state, [lord, sub]))
+	Wars.set_pending(state, sub, lord, "independance", "independance", true)
 	Combat.start_war(state, sub, lord)
 	for s in sup:
 		var x := int(s)

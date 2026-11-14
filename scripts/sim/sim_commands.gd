@@ -76,9 +76,22 @@ static func fold(player: int, planet_id: int, what: String) -> Dictionary:
 	return {"type": "fold", "player": player, "planet": planet_id, "what": what}
 
 
-## Déclare la guerre à un empire rencontré (la guerre vaut dans les deux sens).
-static func declare_war(player: int, target: int) -> Dictionary:
-	return {"type": "declare_war", "player": player, "target": target}
+## Déclare la guerre à un empire rencontré (la guerre vaut dans les deux sens). Avec les buts de
+## guerre (voir Wars) : motif et but annoncés (vides : choisis au mieux), brk pour rompre une trêve.
+static func declare_war(player: int, target: int, casus := "", goal := "", brk := false) -> Dictionary:
+	var c := {"type": "declare_war", "player": player, "target": target}
+	if casus != "":
+		c["cb"] = casus
+		c["goal"] = goal
+	if brk:
+		c["brk"] = true
+	return c
+
+
+## Buts de guerre (voir Wars.check_act) : "claim" (x = système), "goal" (x = ennemi, s = but du
+## défenseur), "demand" (x = ennemi : exiger la reddition), "yield" (x = ennemi : se rendre).
+static func war_act(player: int, act: String, x := -1, s := "") -> Dictionary:
+	return {"type": "war_act", "player": player, "act": act, "x": x, "s": s}
 
 
 ## Propose un traité (Diplomacy.TREATY_IDS) à un empire rencontré. Une IA répond tout de suite,
@@ -723,7 +736,12 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 		"fold":
 			return Echoes.check_fold(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("what", "")))
 		"declare_war":
-			return Combat.check_declare_war(state, int(cmd["player"]), int(cmd.get("target", -1)))
+			var dw := Combat.check_declare_war(state, int(cmd["player"]), int(cmd.get("target", -1)), bool(cmd.get("brk", false)))
+			if dw == "" and state.wars_on and String(cmd.get("cb", "")) != "":
+				dw = Wars.check_choice(state, int(cmd["player"]), int(cmd["target"]), String(cmd["cb"]), String(cmd.get("goal", "")))
+			return dw
+		"war_act":
+			return Wars.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")))
 		"propose_treaty":
 			return Diplomacy.check_propose(state, int(cmd["player"]), int(cmd.get("target", -1)), String(cmd.get("treaty", "")))
 		"answer_proposal":
@@ -1118,7 +1136,11 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 		"probe":
 			Espionage.probe(state, int(cmd["player"]), int(cmd["system"]))
 		"declare_war":
+			if state.wars_on and String(cmd.get("cb", "")) != "":
+				Wars.set_pending(state, int(cmd["player"]), int(cmd["target"]), String(cmd["cb"]), String(cmd.get("goal", "")))
 			Combat.start_war(state, int(cmd["player"]), int(cmd["target"]))
+		"war_act":
+			Wars.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")))
 		"propose_treaty":
 			Diplomacy.propose(state, int(cmd["player"]), int(cmd["target"]), String(cmd["treaty"]))
 		"answer_proposal":

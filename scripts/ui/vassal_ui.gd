@@ -208,6 +208,8 @@ static func _terms_panel(state: GameState, player: int, id: int, emit: Callable,
 	srow.add_child(send)
 	buttons["terms"] = send
 	refresh.call()
+	if state.wars_on:
+		return box  # la reddition passe par le but de guerre (voir WarsUi)
 	var sur := _btn("SE RENDRE", Vassals.check_surrender(state, player, id),
 			"Vous devenez son vassal (préréglage Vassal) : la guerre cesse, votre empire survit. Possible à %d points de score contre vous, ou capitale perdue." % int(Vassals.data()["surrender"]["score"]),
 			func() -> void: emit.call(SimCommands.vas_act(player, "surrender", id)))

@@ -308,6 +308,10 @@ static func vassals() -> Dictionary:
 
 
 ## Le Koinon : ligues d'empires (voir Koinon).
+static func wars() -> Dictionary:
+	return _load("wars")
+
+
 static func koinon() -> Dictionary:
 	return _load("koinon")
 

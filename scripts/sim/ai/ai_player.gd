@@ -63,6 +63,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiAmphictyony.think(ctx)
 	AiVassals.think(ctx)
 	AiKoinon.think(ctx)
+	AiWars.think(ctx)
 	AiPeoples.think(ctx)
 	AiPirates.think(ctx)
 	AiTrade.think(ctx)
@@ -1111,6 +1112,10 @@ static func _declare_wars(ctx: Dictionary) -> void:
 		if Diplomacy.has_pact(state, e.id, other) and (aggr < 2 or op > -20):
 			continue
 		var need_here := need + maxi(0, op) * 2
+		# Buts de guerre : sans motif avouable, l'agression coûte (stabilité, réprobation) ; on la réserve
+		# à une nette supériorité, sauf la Recrue qui n'y pense pas.
+		if state.wars_on and _skill(ctx) >= 1 and Wars.auto_choice(state, e.id, other)[0] == "agression":
+			need_here += int(Wars.data().get("ai", {}).get("aggression_extra_pct", 25))
 		# Un empire dont le compte à rebours de victoire tourne : on l'attaque même un peu plus fort que soi.
 		var threat := Victory.best_cached(state, other)
 		if String(threat["id"]) != "" and Victory.visible_pct(state, e.id, other, String(threat["id"])) >= Victory.met_at() and _skill(ctx) >= 1:

@@ -61,6 +61,7 @@ func _initialize() -> void:
 	preload("res://tests/vassal_tests.gd").new().run(_check)
 	preload("res://tests/koinon_tests.gd").new().run(_check)
 	preload("res://tests/fed3_tests.gd").new().run(_check)
+	preload("res://tests/war_goals_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -217,6 +218,7 @@ func _test_main_scene() -> void:
 	await _test_event_ui(main)
 	await _test_vassal_ui(main)
 	await _test_koinon_ui(main)
+	await _test_war_goals_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_press(KEY_SPACE)
@@ -1438,6 +1440,8 @@ func _test_vassal_ui(main: Node) -> void:
 	var st: GameState = main.simulation.state
 	var me := _treaty_viewer(main)
 	st.vassals_on = true
+	var goals_were := st.wars_on
+	st.wars_on = false  # conditions payées en points : l'ancien chemin, sans buts de guerre
 	var others: Array[int] = []
 	for e in st.empires:
 		if e.id != me and not e.is_npc() and not e.eliminated and not Diplomacy.no_treaties(st, e.id) and not Vassals.is_subject(st, e.id):
@@ -1483,6 +1487,65 @@ func _test_vassal_ui(main: Node) -> void:
 		main.simulation.flush_commands()
 		await process_frame
 		_check(not Vassals.is_subject(st, sub), "panneau du sujet : LIBÉRER rend sa liberté")
+	st.wars_on = goals_were
+	screens.close()
+	await process_frame
+
+
+## Écran Diplomatie, buts de guerre : motif choisi à la déclaration, puis panneau de guerre (score en %,
+## but du défenseur, reddition exigée).
+func _test_war_goals_ui(main: Node) -> void:
+	var screens: EmpireScreens = main._empire_screens
+	var st: GameState = main.simulation.state
+	var me := _treaty_viewer(main)
+	var goals_were := st.wars_on
+	st.wars_on = true
+	if st.wars.is_empty():
+		Wars.setup(st, "actifs")
+	var foe := -1
+	for e in st.empires:
+		if e.id != me and not e.is_npc() and not e.eliminated and not Diplomacy.no_treaties(st, e.id) and not Vassals.is_subject(st, e.id) \
+				and Vassals.lord_of(st, me) != e.id and not Diplomacy.allied(st, me, e.id) and Diplomacy.team_of(st, me, e.id) <= 0:
+			foe = e.id
+			break
+	if foe < 0:
+		st.wars_on = goals_were
+		return
+	for pair in [[me, foe], [foe, me]]:
+		if not st.get_empire(pair[0]).contacts.has(pair[1]):
+			st.get_empire(pair[0]).contacts.append(pair[1])
+			st.get_empire(pair[0]).contacts.sort()
+	if Combat.at_war(st, me, foe):
+		Diplomacy.sign_treaty(st, me, foe, Diplomacy.PEACE)
+	Diplomacy._rel_w(st, me, foe)["truce"] = 0
+	Diplomacy._rel_w(st, me, foe)["pact"] = Diplomacy.COLD
+	screens.diplo_selected = foe
+	screens.open("diplomacy", st, me)
+	await process_frame
+	var ob: OptionButton = screens.war_goal_buttons.get("casus")
+	_check(ob != null and ob.item_count >= 1, "Buts de guerre : choix du motif et du but avant de déclarer")
+	var war: Button = screens.war_buttons.get(foe)
+	if war and not war.disabled:
+		war.pressed.emit()
+		war.pressed.emit()
+		main.simulation.flush_commands()
+		await process_frame
+	_check(Combat.at_war(st, me, foe) and not Wars.war(st, me, foe).is_empty(), "Buts de guerre : la déclaration porte motif et but")
+	Wars.war(st, me, foe)["t"] = st.tick - 200
+	Wars.on_battle(st, me, foe, 100000)
+	screens.diplo_selected = foe
+	screens.open("diplomacy", st, me)
+	await process_frame
+	var sc: Label = screens.war_goal_buttons.get("score")
+	_check(sc != null and sc.text.contains("%"), "Panneau de guerre : score en %% (%s)" % (sc.text if sc else "?"))
+	var dm: Button = screens.war_goal_buttons.get("demand")
+	_check(dm != null and screens.war_goal_buttons.has("yield"), "Panneau de guerre : exiger la reddition, se rendre")
+	if dm and not dm.disabled:
+		dm.pressed.emit()
+		main.simulation.flush_commands()
+		await process_frame
+		_check(not Combat.at_war(st, me, foe), "EXIGER SA REDDITION : l'IA écrasée se rend")
+	st.wars_on = goals_were
 	screens.close()
 	await process_frame
 
