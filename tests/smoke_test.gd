@@ -1420,11 +1420,23 @@ func _test_replay_ui(main: Node) -> void:
 	hud.battle_report.hide_report()
 
 
+## Empire qui regarde l'écran Diplomatie : le joueur, sauf s'il est l'Essaim (qui ne signe rien) ;
+## un test précédent peut avoir lancé une partie en Kh'thari.
+func _treaty_viewer(main: Node) -> int:
+	var st: GameState = main.simulation.state
+	if not Diplomacy.no_treaties(st, main.view_empire):
+		return main.view_empire
+	for e in st.empires:
+		if not e.is_npc() and not e.eliminated and not Diplomacy.no_treaties(st, e.id):
+			return e.id
+	return main.view_empire
+
+
 ## Écran Diplomatie, sujets : conditions de paix en guerre, panneau d'un sujet (clauses, libération).
 func _test_vassal_ui(main: Node) -> void:
 	var screens: EmpireScreens = main._empire_screens
 	var st: GameState = main.simulation.state
-	var me: int = main.view_empire
+	var me := _treaty_viewer(main)
 	st.vassals_on = true
 	var others: Array[int] = []
 	for e in st.empires:
@@ -1479,7 +1491,7 @@ func _test_vassal_ui(main: Node) -> void:
 func _test_koinon_ui(main: Node) -> void:
 	var screens: EmpireScreens = main._empire_screens
 	var st: GameState = main.simulation.state
-	var me: int = main.view_empire
+	var me := _treaty_viewer(main)
 	st.koinon_on = true
 	if Koinon.league_of(st, me) >= 0:
 		return
