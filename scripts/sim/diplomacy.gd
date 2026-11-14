@@ -805,6 +805,7 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 	if has_ability(state, a, "crusade") and FactionTraits.has_fervor(ea.faction()) \
 			and String(_species(state, a).get("credo", "")) != String(_species(state, b).get("credo", "")):
 		ea.fervor = mini(int(ea.faction()["fervor"]["max"]), ea.fervor + int(cr.get("war_fervor", 0)))
+	FaithWars.on_war(state, a, b)
 	if joined:
 		return
 	# Les alliés partagent les guerres (Endless Space 2) : ceux de la cible défendent, ceux de

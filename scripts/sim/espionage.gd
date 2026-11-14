@@ -592,7 +592,13 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 			return "aucune intrigue ne prend sur une ruche : ni cour, ni rumeurs"
 	if bool(o.get("peoples", false)) and not state.peoples_on:
 		return "les peuples mêlés ne sont pas actifs dans cette partie"
+	if bool(o.get("faiths", false)) and not state.faith_on:
+		return "les religions ne sont pas actives dans cette partie"
 	match op_id:
+		"prophetie":
+			var why := FaithWars.check_prophecy(state, a, b)
+			if why != "":
+				return why
 		"discorde":
 			if _framed(state, a, b) < 0:
 				return "il n'a aucun ami à brouiller"
@@ -854,6 +860,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		"propagande":
 			Movements.xeno(state, b)
 			return "des tracts dénoncent « ceux d'ailleurs » chez %s. Pendant deux ans, ses peuples venus d'ailleurs s'intègrent deux fois moins vite, et le Glaive et l'Autel recrutent." % eb.short_name()
+		"prophetie":
+			return FaithWars.plant(state, a, b)
 		"coup":
 			if Stability.empire_value(state, b) >= int(Politics.data()["crisis"]["coup_below"]):
 				return "le régime s'est raffermi avant le jour dit. Les conjurés rentrent chez eux, l'air dégagé."

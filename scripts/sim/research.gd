@@ -672,6 +672,8 @@ static func study_wrecks(state: GameState, winner: int, loser: int) -> Array:
 	for tid in targets:
 		var amount := maxi(1, cost(state, winner, tid) * pct / 100)
 		out.append([tid, amount, add_progress(state, winner, tid, amount)])
+	if not targets.is_empty():
+		FaithWars.on_wreck(state, winner)
 	return out
 
 
@@ -863,7 +865,7 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var lfx := Laws.research_effects(state, empire_id)
 			_merge(base, lfx)
 			_merge(exalted, lfx)
-		# Culte natal et dogmes de la foi d'État (voir Faiths) : même empreinte relic_rev.
+		# Culte natal, doctrines et préceptes de la foi d'État (voir Faiths) : même empreinte relic_rev.
 		if state.faith_on:
 			var rfx2 := Faiths.effects(state, empire_id)
 			_merge(base, rfx2)

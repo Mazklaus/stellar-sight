@@ -118,12 +118,19 @@ static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictiona
 static func _move(state: GameState, f: Fleet) -> void:
 	if not f.is_moving():
 		return
-	f.progress += Fleets.speed(f, state)
+	var sp := Fleets.speed(f, state)
+	if state.faith_on:
+		# Voies sacrées : routes bénies plus rapides pour les fidèles, fermées (ralenties) aux autres.
+		@warning_ignore("integer_division")
+		sp = maxi(1, sp * FaithWars.lane_pct(state, f.owner, f.system_id, f.path[0]) / 100)
+	f.progress += sp
 	while f.is_moving():
 		var lane := Fleets.lane_length(state.galaxy, f.system_id, f.path[0])
 		if f.progress < lane:
 			return
 		f.progress -= lane
+		if state.faith_on:
+			FaithWars.on_lane_crossed(state, f.owner, f.system_id, f.path[0])
 		f.system_id = f.path.pop_front()
 		if f.is_moving() and Combat.blocks(state, f.owner, f.system_id, f):
 			f.path.clear()  # blocus : impossible de passer sans livrer bataille

@@ -1139,6 +1139,9 @@ static func _age_month(state: GameState, h: Dictionary, out: Array[Dictionary]) 
 
 ## Un héros meurt : souvenir (niveau min_lvl ou plus, ou toujours chez les Saints), ferveur des Saints.
 static func die(state: GameState, h: Dictionary, why: String, out: Array[Dictionary]) -> void:
+	# Parasite saint : un héros de cette foi ressuscite une fois.
+	if FaithWars.try_resurrect(state, h, out):
+		return
 	var owner := int(h.get("lender", -1)) if int(h.get("lender", -1)) >= 0 else int(h["owner"])
 	h["owner"] = owner
 	var e := state.get_empire(owner)

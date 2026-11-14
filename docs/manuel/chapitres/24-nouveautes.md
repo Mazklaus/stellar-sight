@@ -3,9 +3,15 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.11
+
+- **Religions, refonte** : une foi se fixe à la Révélation par une nature choisie parmi trois, quatre axes de doctrine (chef, regard, clergé, diffusion) et des préceptes (vingt, en quatre familles, un seul détenteur par précepte) qui remplacent les dogmes ; concile, excommunication, temple, Réforme des cultes natals (6e voie), hostilité graduée entre fois (chapitre 10).
+- **Religions, lot 2** : zèle des fois, hérésies et schismes, cinq natures de foi (Code saint, Mème, Parasite saint, Précurseurs, Voies sacrées avec routes bénies, quarantaine contre le Parasite, pare-feu contre le Mème), lois **Tolérance** et **Inquisition** et doléance « Liberté de culte », missions et missions d'inquisition, guerre sainte et croisade, cultes cachés et soulèvements, Culte du Je des ruches (chapitre 10).
+- Intrigue **Semer une prophétie** (chapitre 9).
+
 ### Édition 1.10
 
-- **Religions** : chaque colonie compte ses fidèles, les cultes natals donnent un bonus par credo, au plus une grande foi par empire et la moitié des empires plus une dans la partie ; Révélations par cinq voies, monde saint, propagation par la proximité, les routes et les migrants, foi d'État, dogmes choisis par le chef de foi, ferveur liée aux mondes fidèles (chapitre 10). Nouvelle option de partie (chapitre 1), écran Foi [[Y]] et lentille de la foi [[N]] (chapitre 2).
+- **Religions** : chaque colonie compte ses fidèles, les cultes natals donnent un bonus par credo, au plus une grande foi par empire et la moitié des empires plus une dans la partie ; Révélations par cinq voies, monde saint, propagation par la proximité, les routes et les migrants, foi d'État, dogmes choisis par le chef de foi (remplacés par les préceptes en 1.11), ferveur liée aux mondes fidèles (chapitre 10). Nouvelle option de partie (chapitre 1), écran Foi [[Y]] et lentille de la foi [[N]] (chapitre 2).
 
 ### Édition 1.9
 

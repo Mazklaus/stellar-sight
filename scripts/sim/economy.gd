@@ -121,7 +121,7 @@ static func growth_per_day(state: GameState, colony: Colony) -> int:
 	if e == null:
 		return int(GameData.rules()["growth_per_day"])
 	var pct := int(e.faction().get("growth_pct", 100))
-	pct = pct * maxi(10, 100 + Research.fx_int(state, colony.owner, "growth_pct")) / 100
+	pct = pct * maxi(10, 100 + Research.fx_int(state, colony.owner, "growth_pct") + FaithWars.growth_pct(state, colony)) / 100
 	# Route intérieure (voir Trade) : la jeune colonie desservie grandit plus vite.
 	return int(GameData.rules()["growth_per_day"]) * pct / 100 + Trade.internal_growth(state, colony.planet_id)
 
@@ -207,6 +207,8 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 	if knowledge_pct != 0:
 		@warning_ignore("integer_division")
 		gross["knowledge"] = int(gross["knowledge"]) * (100 + knowledge_pct) / 100
+	if state.faith_on:
+		Faiths.temple_yields(state, colony, gross)
 	FactionTraits.adjust_yields(state, colony, gross, upkeep)
 	if not colony.species.is_empty():
 		Peoples.adjust_yields(state, colony, gross)
@@ -369,13 +371,19 @@ static func max_projects_for(state: GameState, empire_id: int) -> int:
 
 ## Coût d'un bâtiment pour un empire (technologies de nanofabrication comprises).
 static func building_cost(state: GameState, empire_id: int, building_id: String) -> Dictionary:
-	var c := Research.scaled_amounts(GameData.building(building_id).get("cost", {}), Research.fx_int(state, empire_id, "building_cost_pct"))
+	var pct := Research.fx_int(state, empire_id, "building_cost_pct")
+	if building_id == "temple":
+		pct += Research.fx_int(state, empire_id, "temple_cost_pct")  # Aniconisme
+	var c := Research.scaled_amounts(GameData.building(building_id).get("cost", {}), pct)
 	return Goods.with_strategic(state, c, Goods.building_strategic(building_id))
 
 
 ## Bâtiment débloqué par les technologies de l'empire ?
 static func building_unlocked(state: GameState, empire_id: int, building_id: String) -> bool:
-	return Research.knows_all(state, empire_id, GameData.building(building_id).get("requires_tech", []))
+	var b := GameData.building(building_id)
+	if bool(b.get("faiths", false)) and not state.faith_on:
+		return false  # temples : seulement avec les religions
+	return Research.knows_all(state, empire_id, b.get("requires_tech", []))
 
 
 ## Nombre de colonisations en cours (pas encore fondées) d'un empire.
@@ -448,6 +456,8 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 	var b := GameData.building(building_id)
 	if b.is_empty() or not b.get("buildable", true):
 		return "bâtiment inconnu : %s" % building_id
+	if bool(b.get("faiths", false)) and not state.faith_on:
+		return "les religions ne sont pas actives dans cette partie"
 	if not building_unlocked(state, empire_id, building_id):
 		return "technologie requise : %s" % Research.missing_text(state, empire_id, b.get("requires_tech", []))
 	if c.construction != "":

@@ -81,8 +81,19 @@ func _initialize() -> void:
 			for fid in Faiths.ids(st):
 				var f := Faiths.faith(st, fid)
 				fl.append({"name": Faiths.name_of(st, fid), "founder": st.get_empire(int(f["founder"])).faction_id, "via": String(f["via"]),
-						"founded_year": int(f["founded"]) / 360, "followers": Faiths.followers(st, fid), "dogmas": f["dogmas"]})
+						"founded_year": int(f["founded"]) / 360, "followers": Faiths.followers(st, fid), "precepts": f["precepts"], "doctrines": f["doctrines"],
+						"zeal": FaithWars.zeal(st, fid), "nature": FaithWars.nature(st, fid), "parent": Faiths.parent_of(st, fid),
+						"schism_of": String(f.get("schism_of", ""))})
 			out["faiths"] = fl
+			var holy := 0
+			for w in FaithWars._holy_wars(st):
+				holy += 1
+			var je := 0
+			for k in st.faiths["je"]:
+				if not String(k).begins_with("block:"):
+					je += 1
+			out["faith_lot2"] = {"missions": FaithWars._missions(st).size(), "holy_wars": holy, "crusades": st.faiths["crusades"].size(),
+					"seen": st.faiths["seen"].size(), "prophecies": st.faiths["prophecies"].size(), "je": je, "demands": st.faiths["demands"].size()}
 		if not st.winner.is_empty():
 			var w := st.winner
 			out["winner"] = {"faction": st.get_empire(int(w["empire"])).faction_id, "victory": String(w["victory"]),

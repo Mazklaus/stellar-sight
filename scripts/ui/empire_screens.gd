@@ -121,7 +121,7 @@ var senate_buttons := {}
 var law_buttons := {}
 var action_buttons := {}
 var _senate_sig := ""
-## Boutons de l'écran Foi (« state:foi », « dogma:foi:dogme »), pour les tests.
+## Boutons de l'écran Foi (« state:foi », « precept:foi:précepte », « choose:foi »), pour les tests.
 var faith_buttons := {}
 var _faith_sig := ""
 ## Cible choisie dans l'Ordre intérieur pour les contrats et les primes pirates.
