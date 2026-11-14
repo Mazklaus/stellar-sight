@@ -1,112 +1,235 @@
 {
 	"_sources": "Étude des conditions de victoire : https://claude.ai/artifact/TYX252JaLg64V6qQhUpXm2. Conquête des capitales en gardant la sienne : Civilization VI (gamepressure.com/sidmeierscivilization6/ways-to-achieve-victory/zb959d). Part de la galaxie tenue un temps : Galactic Civilizations III (wiki.galciv.com/index.php/Victory). Alertes à la moitié et aux trois quarts, victoires choisies au lancement : Endless Space 2. Score à date limite : Civilization VI, Endless Space 2, Stellaris. Victoires de peuple : tableau des victoires uniques du document de game design (https://claude.ai/artifact/XhrEUfPjjpkz4vcmL12tBK).",
 	"visible_at": 50,
-	"warn_at": [50, 75],
+	"warn_at": [
+		50,
+		75
+	],
 	"met_at": 75,
 	"check_days": 30,
-	"threat_opinion": [[50, -15], [75, -30]],
+	"threat_opinion": [
+		[
+			50,
+			-15
+		],
+		[
+			75,
+			-30
+		]
+	],
 	"deadlines": [
-		{"id": "courte", "label": "Courte (30 ans)", "days": 10800},
-		{"id": "normale", "label": "Normale (60 ans)", "days": 21600},
-		{"id": "longue", "label": "Longue (90 ans)", "days": 32400},
-		{"id": "aucune", "label": "Sans date limite", "days": 0}
+		{
+			"id": "courte",
+			"label": "Courte (30 ans)",
+			"days": 10800
+		},
+		{
+			"id": "normale",
+			"label": "Normale (60 ans)",
+			"days": 21600
+		},
+		{
+			"id": "longue",
+			"label": "Longue (90 ans)",
+			"days": 32400
+		},
+		{
+			"id": "aucune",
+			"label": "Sans date limite",
+			"days": 0
+		}
 	],
 	"default_deadline": "normale",
 	"score": {
-		"pop": 2, "colony": 10, "outpost": 4, "tech": 5, "kill": 2, "conquest": 10,
-		"explored_div": 3, "people_pct_div": 2, "people_max": 50
+		"pop": 2,
+		"colony": 10,
+		"outpost": 4,
+		"tech": 5,
+		"kill": 2,
+		"conquest": 10,
+		"explored_div": 3,
+		"people_pct_div": 2,
+		"people_max": 50
 	},
 	"victories": {
 		"conquete": {
-			"kind": "classic", "label": "Conquête",
+			"kind": "classic",
+			"label": "Conquête",
 			"text": "Tenir, avec ses alliés, la capitale d'origine de chaque rival hors de l'alliance, en gardant la sienne (une horde : abattre sa flotte-ville, et garder la sienne). Rester seuls en vie suffit aussi. Les alliés gagnent ensemble.",
 			"counter": "Défendre sa capitale, reprendre la sienne.",
 			"chronicle": "%s tient toutes les capitales de la galaxie. Les autres trônes servent désormais de porte-manteaux."
 		},
 		"domination": {
-			"kind": "classic", "label": "Domination",
+			"kind": "classic",
+			"label": "Domination",
 			"text": "Revendiquer, avec ses alliés, %d %% des systèmes de la galaxie (+%d points par allié), et les tenir %d ans. Les alliés gagnent ensemble.",
 			"counter": "Prendre ou reprendre des systèmes pendant le compte à rebours.",
-			"systems_pct": 50, "ally_pct": 10, "max_pct": 90, "hold_days": 1080, "on_fail": "reset",
+			"systems_pct": 50,
+			"ally_pct": 10,
+			"max_pct": 90,
+			"hold_days": 1080,
+			"on_fail": "reset",
 			"chronicle": "%s tient la galaxie : ses cartographes n'ont plus besoin d'autre couleur."
 		},
 		"score": {
-			"kind": "classic", "label": "Score",
+			"kind": "classic",
+			"label": "Score",
 			"text": "Avoir le plus haut score à la date limite.",
 			"counter": "Faire mieux.",
 			"chronicle": "La date limite sonne : %s a le plus beau bilan de la galaxie, et le fait encadrer."
 		},
+		"spirituelle": {
+			"kind": "classic",
+			"label": "Spirituelle",
+			"option": true,
+			"faiths": true,
+			"text": "Que sa foi d'État soit majoritaire dans plus de %d %% des colonies de chaque empire survivant (le sien compris), et le tenir %d ans.",
+			"counter": "Garder sa propre foi chez soi : une seule colonie de trop suffit à arrêter le compte à rebours.",
+			"share_pct": 50,
+			"hold_days": 1800,
+			"on_fail": "reset",
+			"chronicle": "La galaxie prie dans une seule langue : %s a gagné les âmes, et les cartes du ciel ne portent plus qu'un nom de dieu.",
+			"src": "Victoire religieuse, Civilization VI"
+		},
 		"elu": {
-			"kind": "people", "label": "L'Élu des routes",
-			"requires": {"gouvernement": ["feodalite"]},
+			"kind": "people",
+			"label": "L'Élu des routes",
+			"requires": {
+				"gouvernement": [
+					"feodalite"
+				]
+			},
 			"tech": "lignees_croisees",
 			"text": "Unir ses lignées à toutes les dynasties rivales qui signent des traités, puis faire naître l'Élu : %d ans, unions intactes et héritier loyal (%d ou plus).",
 			"counter": "Soudoyer l'héritier, rompre l'alliance, déclarer la guerre.",
-			"min_unions": 1, "alliance_days": 180, "union_cost": {"influence": 50, "crystals": 10},
-			"heir_min": 50, "hold_days": 720, "on_fail": "reset",
+			"min_unions": 1,
+			"alliance_days": 180,
+			"union_cost": {
+				"influence": 50,
+				"crystals": 10
+			},
+			"heir_min": 50,
+			"hold_days": 720,
+			"on_fail": "reset",
 			"chronicle": "L'Élu des routes est né : il a les yeux de quatre dynasties et le sens de l'orientation d'un navigateur. %s règne sur toutes les lignées."
 		},
 		"couplet": {
-			"kind": "people", "label": "Le Dernier Couplet",
-			"requires": {"gouvernement": ["theocratie"], "credo": ["foi"]},
+			"kind": "people",
+			"label": "Le Dernier Couplet",
+			"requires": {
+				"gouvernement": [
+					"theocratie"
+				],
+				"credo": [
+					"foi"
+				]
+			},
 			"tech": "dernier_couplet",
 			"text": "Bâtir %d Cathédrales-chœurs dans %d systèmes différents, puis chanter %d ans en Exaltation. Le chant s'interrompt sous l'Exaltation et repart de zéro si une cathédrale tombe.",
 			"counter": "Prendre une cathédrale, faire retomber la ferveur.",
-			"building": "cathedrale", "sites": 3, "hold_days": 720, "on_fail": "pause",
+			"building": "cathedrale",
+			"sites": 3,
+			"hold_days": 720,
+			"on_fail": "pause",
 			"chronicle": "Le deuxième couplet s'achève enfin. %s entonne le troisième : la galaxie entière doit désormais le connaître par cœur."
 		},
 		"charte": {
-			"kind": "people", "label": "La Charte des Quarante et Un",
-			"requires": {"gouvernement": ["republique"]},
+			"kind": "people",
+			"label": "La Charte des Quarante et Un",
+			"requires": {
+				"gouvernement": [
+					"republique"
+				]
+			},
 			"tech": "charte",
 			"text": "Faire signer la Charte à chaque empire survivant (paix ou alliance, et accord commercial ou libre-échange ; au moins %d signataires), puis la ratifier %d ans sans défection. Un empire qui ne signe rien la bloque tant qu'il existe.",
 			"counter": "Refuser ou annuler le commerce, rompre la paix.",
-			"min_signatories": 2, "hold_days": 720, "on_fail": "reset",
+			"min_signatories": 2,
+			"hold_days": 720,
+			"on_fail": "reset",
 			"chronicle": "La Charte des Quarante et Un est ratifiée. %s préside désormais l'assemblée de la galaxie ; la première séance a duré onze jours."
 		},
 		"moisson": {
-			"kind": "people", "label": "La Moisson",
-			"requires": {"archetype": ["ruche"]},
+			"kind": "people",
+			"label": "La Moisson",
+			"requires": {
+				"archetype": [
+					"ruche"
+				]
+			},
 			"tech": "grande_moisson",
 			"text": "Porter %d %% de toute la population de la galaxie, avoir digéré au moins %d population conquise, et tenir ainsi %d ans.",
 			"counter": "Coalition militaire, coloniser plus vite, reprendre les mondes.",
-			"pop_share_pct": 50, "digested": 100, "hold_days": 720, "on_fail": "reset",
+			"pop_share_pct": 50,
+			"digested": 100,
+			"hold_days": 720,
+			"on_fail": "reset",
 			"chronicle": "La Moisson est faite. %s ne conquiert plus la galaxie : il la digère."
 		},
 		"noosphere": {
-			"kind": "people", "label": "L'Éveil de la Noosphère",
-			"requires": {"gouvernement": ["conscience"]},
+			"kind": "people",
+			"label": "L'Éveil de la Noosphère",
+			"requires": {
+				"gouvernement": [
+					"conscience"
+				]
+			},
 			"tech": "noosphere",
 			"text": "Relier au moins %d colonies peuplées au réseau, sans aucune revendication coupée, et le tenir %d ans : la Noosphère s'éveille.",
 			"counter": "Couper le réseau : blocus, avant-postes sur ses routes, prise d'une colonie.",
-			"nodes": 12, "hold_days": 720, "on_fail": "reset",
+			"nodes": 12,
+			"hold_days": 720,
+			"on_fail": "reset",
 			"chronicle": "La Noosphère s'éveille. %s ne pense plus en colonies mais en galaxie ; sa première pensée commune a duré quatre secondes et réglé trois guerres."
 		},
 		"legende": {
-			"kind": "people", "label": "La Légende",
-			"requires": {"registre": ["Picaresque / pulp"]},
+			"kind": "people",
+			"label": "La Légende",
+			"requires": {
+				"registre": [
+					"Picaresque / pulp"
+				]
+			},
 			"tech": "legende",
 			"text": "Accomplir %d exploits improbables différents (vaincre une flotte trois fois plus forte, voler une technologie, mener un contrat à terme…), puis garder une réputation d'au moins %d pendant %d an, avec au moins un héros vivant et libre pour porter la légende.",
 			"counter": "Les battre : chaque bataille perdue ternit la légende (réputation -8). Tuer, capturer ou corrompre leurs héros : sans héros, la légende retombe à zéro.",
-			"exploits": 7, "min_reputation": 60, "hold_days": 360, "on_fail": "reset",
+			"exploits": 7,
+			"min_reputation": 60,
+			"hold_days": 360,
+			"on_fail": "reset",
 			"chronicle": "On ne raconte plus les exploits de %s : on les chante, on les brode, on les vend en feuilletons. La Légende est entrée dans l'histoire, avec quelques arrangements."
 		},
 		"terre_promise": {
-			"kind": "people", "label": "La Terre promise",
-			"requires": {"gouvernement": ["horde"]},
+			"kind": "people",
+			"label": "La Terre promise",
+			"requires": {
+				"gouvernement": [
+					"horde"
+				]
+			},
 			"tech": "terre_promise",
 			"text": "Trouver la Terre promise, un monde caché à au moins %d sauts du berceau du clan (les Chants de la route disent à combien de sauts elle est, puis la nomment à %d sauts), y fonder une colonie et y faire camper la flotte-ville %d an.",
 			"counter": "La coloniser avant eux, la leur reprendre, abattre la flotte-ville.",
-			"min_jumps": 6, "reveal_jumps": 2, "hold_days": 360, "on_fail": "reset",
+			"min_jumps": 6,
+			"reveal_jumps": 2,
+			"hold_days": 360,
+			"on_fail": "reset",
 			"chronicle": "La flotte-ville de %s se pose enfin sur la Terre promise. Les clans déchargent les tentes, puis se demandent avec inquiétude ce qu'on fait quand on n'a plus nulle part où aller."
 		},
 		"silence": {
-			"kind": "people", "label": "Le Silence parfait",
-			"requires": {"archetype": ["energetique"]},
+			"kind": "people",
+			"label": "Le Silence parfait",
+			"requires": {
+				"archetype": [
+					"energetique"
+				]
+			},
 			"tech": "silence_parfait",
 			"text": "Tenir au moins %d colonies peuplées pendant %d ans sans être repéré une seule fois par un empire non allié. Chaque repérage remet le compte à rebours à zéro.",
 			"counter": "Rechercher les Détecteurs d'abysse et garder l'œil sur leurs systèmes, ou y laisser une flotte à l'arrêt.",
-			"colonies": 8, "hold_days": 1080, "on_fail": "reset",
+			"colonies": 8,
+			"hold_days": 1080,
+			"on_fail": "reset",
 			"chronicle": "Trois ans sans un bruit. On cherche %s dans les archives pour le proclamer vainqueur, mais personne ne se souvient l'avoir jamais rencontré."
 		}
 	}

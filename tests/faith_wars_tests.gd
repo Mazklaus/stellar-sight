@@ -40,12 +40,16 @@ func _state(on := true, ai := "", politics := false) -> GameState:
 		e.resources["materials"] = 5000
 		e.resources["food"] = 5000
 		e.resources["knowledge"] = 5000
-	# Fondateurs sans IA (tests) : le choix par défaut, comme si le délai était échu.
+	# Fondateurs sans IA (tests) : le choix par défaut, comme si le délai était échu. Les tests du lot 2
+	# gardent le Chœur en Code saint et le Murmure en Mème (depuis le lot 4, leurs natures préférées
+	# sont le Dieu en chantier et la Chronolâtrie).
+	var lot2 := {"choeur": "code_saint", "murmurants": "meme"}
 	for fid in Faiths.ids(st):
 		var f := Faiths.faith(st, fid)
 		if int(f["pending"]) > 0:
 			var ch := Faiths.default_choice(st, int(f["founder"]), fid)
-			Faiths.choose(st, fid, String(ch["nature"]), ch["doctrines"], String(ch["precept"]))
+			var nat := String(lot2.get(st.get_empire(int(f["founder"])).faction_id, ch["nature"]))
+			Faiths.choose(st, fid, nat, ch["doctrines"], String(ch["precept"]))
 	return st
 
 
@@ -128,8 +132,8 @@ func _test_natures() -> void:
 	var mu := _id_of(st, "murmurants")
 	var fc := Faiths.founded_by(st, ch)
 	var fm := Faiths.founded_by(st, mu)
-	_ok(FaithWars.nature(st, fc) == "code_saint" and FaithWars.nature(st, fm) == "meme", "natures préférées : Code saint (Chœur), Mème (Murmurants)")
-	_ok(FaithWars.data()["natures"]["list"].size() == 14, "quatorze natures de foi (5 SF + 9 classiques)")
+	_ok(String(Faiths.faith(st, fc)["offer"][0]) == "dieu_en_chantier" and String(Faiths.faith(st, fm)["offer"][0]) == "chronolatrie", "natures préférées : Dieu en chantier (Chœur), Chronolâtrie (Murmurants)")
+	_ok(FaithWars.data()["natures"]["list"].size() == 19, "dix-neuf natures de foi (10 SF + 9 classiques)")
 	var v := _id_of(st, "vael")
 	var fv := Faiths.reveal(st, v, "relique", -1, _added())
 	_ok(FaithWars.nature(st, fv) == "" and (Faiths.faith(st, fv)["offer"] as Array).has("precurseurs"), "Révélation par relique : les Précurseurs parmi les trois natures proposées")
@@ -571,7 +575,7 @@ func _test_save() -> void:
 	FaithWars.add_stab(st, tsid, "Soulèvement de test", -25, 100)
 	FaithWars.plant(st, ch, t)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 45, "sauvegarde version 45")
+	_ok(int(d["version"]) == 46, "sauvegarde version 46")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and FaithWars.zeal(back, fc) == 63, "zèle relu")
 	_ok(back != null and FaithWars.missions_by(back, ch).size() == 1, "missions relues")

@@ -695,7 +695,7 @@ static func launch(state: GameState, a: int, b: int, op_id: String) -> void:
 	Economy.pay(state.get_empire(a), op_cost(state, a, op_id))
 	var ch := chances(state, a, b, op_id)
 	state.operations.append({"id": state.next_spy_id, "a": a, "b": b, "op": op_id, "start": state.tick,
-			"end": state.tick + int(o["days"]), "success": int(ch["success"]), "discovery": int(ch["discovery"])})
+			"end": state.tick + int(o["days"]) * (100 + FaithHeavy.op_days_pct(state, a, op_id)) / 100, "success": int(ch["success"]), "discovery": int(ch["discovery"])})
 	state.next_spy_id += 1
 
 

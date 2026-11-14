@@ -439,6 +439,11 @@ static func faith_nat(player: int, act: String, args := {}) -> Dictionary:
 	return {"type": "faith_nat", "player": player, "act": act, "args": args}
 
 
+## Religion, lot 4 : vocation de foi d'un héros (prophete, inquisiteur, martyr).
+static func faith_voc(player: int, hero_id: int, voc: String) -> Dictionary:
+	return {"type": "faith_voc", "player": player, "hero": hero_id, "voc": voc}
+
+
 static func faith_je(player: int, planet_id: int, what: String) -> Dictionary:
 	return {"type": "faith_je", "player": player, "planet": planet_id, "what": what}
 
@@ -595,6 +600,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 		"faith_nat":
 			var na: Variant = cmd.get("args", {})
 			return FaithNatures.check(state, int(cmd["player"]), String(cmd.get("act", "")), na if na is Dictionary else {})
+		"faith_voc":
+			return FaithBridges.check_voc(state, int(cmd["player"]), int(cmd.get("hero", -1)), String(cmd.get("voc", "")))
 		"faith_je":
 			return FaithWars.check_je(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("what", "")))
 		"refugee_policy":
@@ -907,6 +914,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			FaithWars.rewrite(state, int(cmd["player"]), String(cmd["faith"]), String(cmd["precept"]))
 		"faith_nat":
 			FaithNatures.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("args", {}))
+		"faith_voc":
+			FaithBridges.apply_voc(state, int(cmd["player"]), int(cmd["hero"]), String(cmd["voc"]))
 		"faith_je":
 			FaithWars.je_act(state, int(cmd["player"]), int(cmd["planet"]), String(cmd["what"]))
 		"refugee_policy":

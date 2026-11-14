@@ -53,16 +53,20 @@ static func build(es: EmpireScreens) -> void:
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.add_theme_constant_override("separation", 18)
 	scroll.add_child(col)
-	if Faiths.is_hive(state, player):
+	if Faiths.closed(state, player):
 		var b := Widgets.Block.new("Conscience collective")
-		b.body.add_child(UiTheme.paragraph("Une seule pensée ne prie pas : vos colonies n'ont pas de foi, ne prêchent pas et ne se convertissent pas.", 760.0, 15))
+		b.body.add_child(UiTheme.paragraph("Une seule pensée ne prie pas : vos colonies n'ont pas de foi, ne prêchent pas et ne se convertissent pas. Seule une foi de Communion peut l'accueillir tout entière.", 760.0, 15))
 		col.add_child(b)
+		col.add_child(_state_block(es))
 		col.add_child(_je_block(es))
 	else:
 		col.add_child(_state_block(es))
 		var nb := FaithNaturePanel.build(es)
 		if nb != null:
 			col.add_child(nb)
+		var vb := FaithNaturePanel.vocations(es)
+		if vb != null:
+			col.add_child(vb)
 		col.add_child(_missions_block(es))
 	col.add_child(_faiths_block(es))
 	col.add_child(_colonies_block(es))
@@ -81,8 +85,11 @@ static func signature(es: EmpireScreens) -> String:
 	var lot2 := []
 	for k in ["missions", "wards", "crusades", "seen", "je", "demands", "blessed", "quarantine", "nat"]:
 		lot2.append(state.faiths.get(k, {}))
+	var vocs := []
+	for hid in Heroes.ids_of(state, es._player):
+		vocs.append(String(state.heroes[hid].get("voc", "")))
 	@warning_ignore("integer_division")
-	return "%d|%s|%s|%s|%s" % [state.tick / 30, str(state.faiths["list"]), str(state.faiths["state"]), str(mine), str(lot2)]
+	return "%d|%s|%s|%s|%s|%s" % [state.tick / 30, str(state.faiths["list"]), str(state.faiths["state"]), str(mine), str(lot2), str(vocs)]
 
 
 static func _state_block(es: EmpireScreens) -> Control:
@@ -430,6 +437,11 @@ static func _faith_tags(es: EmpireScreens, fid: String) -> Control:
 		nl.mouse_filter = Control.MOUSE_FILTER_PASS
 		row.add_child(nl)
 	row.add_child(UiTheme.dim("Zèle %d" % FaithWars.zeal(state, fid), 13))
+	if FaithWars.nature(state, fid) == "entropisme":
+		var ge := int(FaithNatures._peek_faith(state, fid).get("glory_end", 0))
+		var cl := UiTheme.dim("Fin du cycle jusqu'au %s" % GameCalendar.date_string(ge) if ge > 0 else "Horloge de la fin %d / %d" % [FaithHeavy.clock(state, fid), int(FaithHeavy.hd()["entropie"]["end"])], 13)
+		cl.add_theme_color_override("font_color", UiTheme.WARN)
+		row.add_child(cl)
 	var pf := Faiths.parent_of(state, fid)
 	if pf != "":
 		row.add_child(UiTheme.dim("hérésie de %s" % Faiths.name_of(state, pf), 13))

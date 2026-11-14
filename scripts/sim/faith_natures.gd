@@ -84,7 +84,7 @@ static func follows(state: GameState, eid: int, nature: String) -> bool:
 static func members(state: GameState, fid: String) -> Array[int]:
 	var out: Array[int] = []
 	for e in state.empires:
-		if not e.eliminated and not GameState.is_npc(e.id) and Faiths.state_faith(state, e.id) == fid and not Faiths.is_hive(state, e.id):
+		if not e.eliminated and not GameState.is_npc(e.id) and Faiths.state_faith(state, e.id) == fid and not Faiths.closed(state, e.id):
 			out.append(e.id)
 	return out
 
@@ -153,6 +153,7 @@ static func on_chosen(state: GameState, fid: String) -> void:
 		"dieu_present":
 			if not d.has("god"):
 				d["god"] = _new_god(state, fid)
+	FaithHeavy.on_chosen(state, fid)
 	Relics.touch(state)
 
 
@@ -224,10 +225,11 @@ static func fx(state: GameState, eid: int, sf: String) -> Dictionary:
 		"ancetres":
 			if has_mausoleum(state, eid):
 				for a in active_ancestors(state, eid):
-					Research._merge(out, ancestor_fx(a))
+					Research._merge(out, ancestor_fx(a, int(FaithHeavy.talent(state, eid).get("ancestor_pct", cd()["ancetres"]["trait_pct"]))))
 		"dette_sang":
 			if int(fd.get("debt", 0)) <= int(c["dette"]["low"]):
 				Research._merge(out, c["dette"]["low_fx"])
+	FaithHeavy.fx(state, eid, sf, out)
 	return out
 
 
@@ -258,6 +260,7 @@ static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 			elif k > int(kd["balance"]) and Combat.has_live_war(state, owner):
 				out.append(["Karma trahi par la guerre", int(kd["high_war_stab"])])
 	# Profanation du mausolée, dette effondrée : lignes temporaires (FaithWars.add_stab).
+	FaithHeavy.stability_parts(state, sid, owner, out)
 	return out
 
 
@@ -286,6 +289,8 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array:
 			out.append(["École estimée (%s)" % String(c["loi_extase"]["schools"][sb]["label"]), int(c["loi_extase"]["school_op"])])
 		elif sb != "" and String(sd.get("rejects", "")) == sb:
 			out.append(["École rejetée (%s)" % String(c["loi_extase"]["schools"][sb]["label"]), -int(c["loi_extase"]["school_op"])])
+	FaithHeavy.opinion_parts(state, a, b, out)
+	FaithBridges.opinion_parts(state, a, b, out)
 	return out
 
 
@@ -326,13 +331,15 @@ static func pressure_pct(state: GameState, fid: String) -> int:
 
 ## Multiplicateur de prêche d'une colonie source (métropolite des Patriarcats).
 static func source_x(state: GameState, c: Colony, fid: String) -> int:
+	var x := FaithBridges.source_x(state, c, fid)
 	if FaithWars.nature(state, fid) == "patriarcats" and int(_peek_emp(state, c.owner).get("metro", -1)) == c.planet_id:
-		return int(cd()["patriarcats"]["metro_x"])
-	return 1
+		return maxi(x, int(cd()["patriarcats"]["metro_x"]))
+	return x
 
 
 ## Pression du dominion d'un dieu présent (Faiths.pressures, via FaithWars.extra_pressures).
 static func extra_pressures(state: GameState, out: Dictionary, targets_by_sys: Dictionary) -> void:
+	FaithHeavy.extra_pressures(state, out, targets_by_sys)
 	var dd: Dictionary = cd()["dieu"]
 	for fid in Faiths.ids(state):
 		var g := live_god(state, fid)
@@ -357,8 +364,8 @@ static func damage_pct(state: GameState, f: Fleet, sid: int) -> int:
 		var g := live_god(state, fid)
 		if g.is_empty() or Faiths.state_faith(state, f.owner) == fid:
 			continue
-		var host := head_override(state, fid)
-		if host < 0 or not Combat.at_war(state, host, f.owner):
+		var host := head_override(state, fid) if FaithWars.nature(state, fid) == "dieu_present" else Faiths.head(state, fid)
+		if FaithHeavy.disobeys(state, fid) or host < 0 or not Combat.at_war(state, host, f.owner):
 			continue
 		if int(FactionTraits.jumps_from(state.galaxy, int(g["sid"])).get(sid, 99)) <= int(cd()["dieu"]["dominion"]):
 			v += int(cd()["dieu"]["enemy_damage_pct"])
@@ -476,6 +483,7 @@ static func on_capture(state: GameState, sid: int, old: int, new_owner: int, add
 			_profane(state, old, new_owner, pid, added)
 	if pop:
 		add_debt(state, nf, int(cd()["dette"]["invasion"]))
+		FaithHeavy.on_capture(state, new_owner)
 
 
 static func _profane(state: GameState, victim: int, by: int, pid: int, added: Array[Dictionary]) -> void:
@@ -499,7 +507,7 @@ static func casus(state: GameState, a: int, b: int) -> String:
 	var fa := Faiths.state_faith(state, a)
 	if FaithWars.nature(state, fa) == "ancetres" and int(_peek_faith(state, fa).get("profaned", {}).get(str(b), 0)) > state.tick:
 		return "il a profané le mausolée de nos ancêtres"
-	return ""
+	return FaithHeavy.casus(state, a, b)
 
 
 ## Statut d'un peuple changé (Peoples.set_status).
@@ -517,6 +525,7 @@ static func on_status(state: GameState, eid: int, old: String, now: String) -> v
 static func on_battle(state: GameState, b: Dictionary) -> void:
 	if not state.faith_on:
 		return
+	FaithHeavy.on_battle(state, b)
 	var paid := {}
 	for s: Dictionary in b["sides"]:
 		var eid := int(s["empire"])
@@ -590,6 +599,7 @@ static func heresy_pct(state: GameState, fid: String) -> int:
 static func on_hero_death(state: GameState, h: Dictionary, killer: int, out: Array[Dictionary]) -> void:
 	if not state.faith_on:
 		return
+	FaithBridges.on_hero_death(state, h, killer, out)
 	var owner := int(h.get("owner", -1))
 	var nat := emp_nature(state, owner)
 	var sf := Faiths.state_faith(state, owner)
@@ -617,7 +627,7 @@ static func on_hero_death(state: GameState, h: Dictionary, killer: int, out: Arr
 
 static func active_ancestors(state: GameState, eid: int) -> Array:
 	var all: Array = _peek_emp(state, eid).get("ancestors", [])
-	var n := int(cd()["ancetres"]["active"])
+	var n := int(FaithHeavy.talent(state, eid).get("ancestors", cd()["ancetres"]["active"]))
 	return all.slice(maxi(0, all.size() - n))
 
 
@@ -631,8 +641,9 @@ static func has_mausoleum(state: GameState, eid: int) -> bool:
 
 ## Effet d'un ancêtre : son premier trait étendu à l'empire, à moitié (production d'un système →
 ## production de l'empire ; dégâts de flotte → toutes les flottes), sinon un effet de sa classe.
-static func ancestor_fx(a: Dictionary) -> Dictionary:
-	var pct := int(cd()["ancetres"]["trait_pct"])
+static func ancestor_fx(a: Dictionary, pct := -1) -> Dictionary:
+	if pct < 0:
+		pct = int(cd()["ancetres"]["trait_pct"])
 	var tfx: Dictionary = Heroes.trait_def(String(a.get("trait", ""))).get("fx", {})
 	var out := {}
 	for k in tfx:
@@ -668,7 +679,8 @@ static func check_mausoleum(state: GameState, eid: int, pid: int) -> String:
 
 ## Le dieu d'une foi, s'il est vivant ({} sinon).
 static func live_god(state: GameState, fid: String) -> Dictionary:
-	if FaithWars.nature(state, fid) != "dieu_present":
+	var nat := FaithWars.nature(state, fid)
+	if nat != "dieu_present" and not (nat == "dieu_en_chantier" and FaithHeavy.stage(state, fid) >= (FaithHeavy.hd()["chantier"]["stages"] as Array).size()):
 		return {}
 	var g: Dictionary = _peek_faith(state, fid).get("god", {})
 	if g.is_empty() or int(g.get("dead_until", 0)) > state.tick:
@@ -705,7 +717,7 @@ static func _god_month(state: GameState, fid: String, added: Array[Dictionary]) 
 		g["next"] = state.tick + int(dd["move_days"])
 		sid = best
 	# Mort : une flotte de guerre d'un ennemi de son hôte le trouve sans escorte de la foi.
-	var host := head_override(state, fid)
+	var host := head_override(state, fid) if FaithWars.nature(state, fid) == "dieu_present" else Faiths.head(state, fid)
 	var guarded := false
 	var killer := -1
 	for fl: Fleet in _fleets_at(state, sid):
@@ -771,6 +783,8 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 				if not om.is_empty() and int(om["end"]) <= state.tick:
 					fdat(state, fid).erase("omen")
 					Relics.touch(state)
+			_:
+				FaithHeavy.monthly(state, fid, added)
 	_clash_month(state)
 	for e in state.empires:
 		if e.eliminated or GameState.is_npc(e.id):
@@ -827,7 +841,7 @@ static func _harmony_month(state: GameState, e: Empire, added: Array[Dictionary]
 		if not fd.has("extra"):
 			fd["extra"] = []
 		var pid := String(h["pid"])
-		if (fd["extra"] as Array).size() < int(hd["extra_max"]) and not (fd["extra"] as Array).has(pid) and not (Faiths.faith(state, sf)["precepts"] as Array).has(pid):
+		if (fd["extra"] as Array).size() < harm_max(state, e.id) and not (fd["extra"] as Array).has(pid) and not (Faiths.faith(state, sf)["precepts"] as Array).has(pid):
 			(fd["extra"] as Array).append(pid)
 		if not ed.has("harmed"):
 			ed["harmed"] = []
@@ -926,25 +940,36 @@ static func _reformation(state: GameState, fid: String, added: Array[Dictionary]
 	fdat(state, fid)["reform"] = 0
 	if best == null:
 		return
-	var hid := FaithWars.spawn_heresy(state, fid, best.planet_id, added)
+	var hid := make_schism(state, fid, best.planet_id, added, "patriarcats")
 	if hid == "":
 		return
+	added.append(state.add_chronicle("La Réforme ! Sur %s, les fidèles de %s clouent leurs thèses à la porte du Collège : %s naît. Le Primat excommunie, les imprimeurs se frottent les mains." % [
+			state.galaxy.get_planet(best.planet_id).display_name(state.galaxy), Faiths.name_of(state, fid), Faiths.name_of(state, hid)]))
+
+
+## Schisme immédiat sur une colonie (Réforme, prophétie empêchée) : une hérésie qui devient tout de
+## suite une grande foi sœur et choisit sa nature parmi 3 (with : nature toujours proposée).
+static func make_schism(state: GameState, fid: String, pid: int, added: Array[Dictionary], with := "") -> String:
+	var hid := FaithWars.spawn_heresy(state, fid, pid, added)
+	if hid == "":
+		return ""
+	var c: Colony = state.colonies[pid]
 	var h := Faiths.faith(state, hid)
 	h.erase("parent")
 	h["via"] = "schisme"
 	h["schism_of"] = fid
-	h["founder"] = best.owner
-	var off := Faiths.offer_natures(state, best.owner, hid, "schisme")
-	if not off.has("patriarcats"):
-		off[0] = "patriarcats"
+	h["founder"] = c.owner
+	var off := Faiths.offer_natures(state, c.owner, hid, "schisme")
+	if with != "" and not off.has(with):
+		off[0] = with
 	h["offer"] = off
 	h["pending"] = state.tick + int(Faiths.data()["choice"]["days"])
-	var fe := state.get_empire(best.owner)
+	var fe := state.get_empire(c.owner)
 	if fe == null or fe.is_ai():
-		Faiths.choose(state, hid, "patriarcats", {}, "")
+		Faiths.choose(state, hid, with if with != "" else String(off[0]), {}, "")
+	FaithBridges.on_schism(state, fid, hid)
 	Relics.touch(state)
-	added.append(state.add_chronicle("La Réforme ! Sur %s, les fidèles de %s clouent leurs thèses à la porte du Collège : %s naît. Le Primat excommunie, les imprimeurs se frottent les mains." % [
-			state.galaxy.get_planet(best.planet_id).display_name(state.galaxy), Faiths.name_of(state, fid), Faiths.name_of(state, hid)]))
+	return hid
 
 
 # --- Actions (commande faith_nat) --------------------------------------------------------------
@@ -1031,12 +1056,12 @@ static func check(state: GameState, player: int, act: String, args: Dictionary) 
 				if String(h["fid"]) == tf:
 					return "harmonisation déjà en cours"
 			var extra: Array = _peek_faith(state, sf).get("extra", [])
-			if extra.size() + (ed.get("harm", []) as Array).size() >= int(c["harmonie"]["extra_max"]):
-				return "au plus %d préceptes harmonisés" % int(c["harmonie"]["extra_max"])
+			if extra.size() + (ed.get("harm", []) as Array).size() >= harm_max(state, player):
+				return "au plus %d préceptes harmonisés" % harm_max(state, player)
 			if (Faiths.faith(state, sf)["precepts"] as Array).has(pid) or extra.has(pid):
 				return "votre foi suit déjà ce précepte"
-			if harmony(state, player) < int(c["harmonie"]["cost"]):
-				return "il faut %d d'harmonie" % int(c["harmonie"]["cost"])
+			if harmony(state, player) < harm_cost(state, player):
+				return "il faut %d d'harmonie" % harm_cost(state, player)
 			return ""
 		"god_swap":
 			if nat != "pantheon":
@@ -1085,8 +1110,8 @@ static func check(state: GameState, player: int, act: String, args: Dictionary) 
 				return "la dette est payée"
 			return ""
 		"god_move":
-			if nat != "dieu_present":
-				return "il faut une foi d'État du Dieu présent"
+			if nat != "dieu_present" and nat != "dieu_en_chantier":
+				return "il faut une foi d'État du Dieu présent ou d'un dieu achevé"
 			var g := live_god(state, sf)
 			if g.is_empty():
 				return "le dieu n'est pas parmi nous"
@@ -1097,8 +1122,10 @@ static func check(state: GameState, player: int, act: String, args: Dictionary) 
 				return "destination inconnue"
 			if not e.explored.has(t):
 				return "système inexploré"
+			if FaithHeavy.disobeys(state, sf):
+				return "le dieu n'obéit plus : il faut ranimer le zèle (30 ou plus)"
 			return ""
-	return "action inconnue"
+	return FaithHeavy.check(state, player, act, args)
 
 
 static func apply(state: GameState, player: int, act: String, args: Dictionary) -> void:
@@ -1131,7 +1158,7 @@ static func apply(state: GameState, player: int, act: String, args: Dictionary) 
 			emp(state, player)["school_at"] = state.tick
 		"harmonize":
 			var ed := emp(state, player)
-			ed["harmony"] = harmony(state, player) - int(c["harmonie"]["cost"])
+			ed["harmony"] = harmony(state, player) - harm_cost(state, player)
 			if not ed.has("harm"):
 				ed["harm"] = []
 			(ed["harm"] as Array).append({"fid": String(args["faith"]), "pid": String(args["precept"]), "end": state.tick + int(c["harmonie"]["days"])})
@@ -1163,7 +1190,18 @@ static func apply(state: GameState, player: int, act: String, args: Dictionary) 
 					state.galaxy.get_planet(col.planet_id).display_name(state.galaxy), Faiths.name_of(state, sf)], Espionage.private_to(state, [player]))
 		"god_move":
 			fdat(state, sf)["god"]["target"] = int(args["system"])
+		_:
+			FaithHeavy.apply(state, player, act, args)
 	Relics.touch(state)
+
+
+## Harmonie : coût d'une harmonisation et préceptes harmonisés au plus (talent des Vael).
+static func harm_cost(state: GameState, eid: int) -> int:
+	return int(FaithHeavy.talent(state, eid).get("harm_cost", cd()["harmonie"]["cost"]))
+
+
+static func harm_max(state: GameState, eid: int) -> int:
+	return int(cd()["harmonie"]["extra_max"]) + int(FaithHeavy.talent(state, eid).get("harm_extra", 0))
 
 
 static func seats_taken(state: GameState, fid: String) -> int:
@@ -1202,6 +1240,7 @@ static func ai(state: GameState) -> void:
 		var sf := Faiths.state_faith(state, e.id)
 		var nat := emp_nature(state, e.id)
 		var res := int(e.resources.get("influence", 0))
+		FaithHeavy.ai(state, e)
 		match nat:
 			"eglise_universelle":
 				if res >= int(ac["seat_reserve"]) + int(seat_cost(state, sf, e.id).get("influence", 0)) and check(state, e.id, "seat", {}) == "":
@@ -1241,7 +1280,7 @@ static func ai(state: GameState) -> void:
 						if col.owner == e.id and col.population >= 6 and check(state, e.id, "offer", {"planet": pid}) == "":
 							apply(state, e.id, "offer", {"planet": pid})
 							break
-			"dieu_present":
+			"dieu_present", "dieu_en_chantier":
 				# Le dieu reste près de la capitale, à l'abri.
 				var g := live_god(state, sf)
 				if not g.is_empty() and Faiths.head(state, sf) == e.id:
@@ -1280,3 +1319,4 @@ static func fix(state: GameState) -> void:
 			d["profaned"][p] = int(d["profaned"][p])
 		if d.has("free_crusade"):
 			d["free_crusade"] = bool(d["free_crusade"])
+		FaithHeavy.fix(d)

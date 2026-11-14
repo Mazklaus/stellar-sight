@@ -363,7 +363,7 @@ func _test_save() -> void:
 	var ch: int = r[1]
 	FaithNatures.add_karma(st, ch, -40)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 45, "sauvegarde version 45")
+	_ok(int(d["version"]) == 46, "sauvegarde version 46")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and FaithNatures.karma(back, ch) == -40, "karma relu")
 	_ok(back != null and back.checksum() == st.checksum(), "même empreinte après relecture (lot 3)")

@@ -54,6 +54,7 @@ func _initialize() -> void:
 	preload("res://tests/faiths_tests.gd").new().run(_check)
 	preload("res://tests/faith_wars_tests.gd").new().run(_check)
 	preload("res://tests/faith_natures_tests.gd").new().run(_check)
+	preload("res://tests/faith_heavy_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -1717,6 +1718,21 @@ func _test_faith_ui(main: Node) -> void:
 				pressed = true
 				break
 		_check(not pressed or FaithWars.missions_by(st, me).size() == 1, "Foi : mission envoyée depuis l'écran")
+		# Lot 4 : bloc d'une nature lourde et vocations des héros de foi.
+		var keep_nat := String(Faiths.faith(st, fid)["nature"])
+		Faiths.faith(st, fid)["nature"] = "dieu_en_chantier"
+		FaithNatures.on_chosen(st, fid)
+		var cand := Heroes.make_candidate(st, me, "orateur", ["smoke_voc"])
+		cand["amb"] = "foi"
+		var vh := Heroes.recruit(st, me, cand)
+		screens.refresh()
+		await process_frame
+		_check(screens.faith_buttons.has("nat:stage"), "Foi : bouton Bâtir un étage du dieu en chantier")
+		_check(screens.faith_buttons.has("voc:%d:prophete" % vh), "Foi : boutons de vocation d'un héros de foi")
+		st.heroes.erase(vh)
+		Faiths.faith(st, fid)["nature"] = keep_nat
+		FaithNatures._nat(st)["faith"].erase(fid)
+		FaithNatures.on_chosen(st, fid)
 		st.faiths["missions"] = {"list": []}
 		st.faiths["state"][str(me)] = keep_sf
 		screens.refresh()

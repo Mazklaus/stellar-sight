@@ -23,7 +23,7 @@ const LAICITE := "laicite"
 const INCROYANCE := "incroyance"
 ## Foi d'un habitant qui suit les cultes natals (clé utilisée par majority()).
 const NATIVE := ""
-const KEYS := ["list", "state", "changed", "prog", "missions", "wards", "crusades", "holy_wars", "seen", "prophecies", "je", "stab", "demands", "blessed", "quarantine", "nat"]
+const KEYS := ["list", "state", "changed", "prog", "missions", "wards", "crusades", "holy_wars", "seen", "prophecies", "je", "stab", "demands", "blessed", "quarantine", "nat", "dissident"]
 const AXES := ["chef", "regard", "clerge", "diffusion"]
 ## Position par défaut de chaque axe (foi dont le fondateur n'a pas encore choisi).
 const DEFAULT_DOCTRINES := {"chef": "elu", "regard": "juste", "clerge": "theocratique", "diffusion": "missionnaire"}
@@ -257,7 +257,7 @@ static func head(state: GameState, fid: String) -> int:
 		return ov
 	if doctrine(state, fid, "chef") == "temporel":
 		var hc: Colony = state.colonies.get(int(f["holy"]))
-		if hc != null and not GameState.is_npc(hc.owner) and state_faith(state, hc.owner) == fid and not is_hive(state, hc.owner):
+		if hc != null and not GameState.is_npc(hc.owner) and state_faith(state, hc.owner) == fid and not closed(state, hc.owner):
 			return hc.owner
 		return -1
 	var by := followers_by_owner(state, fid)
@@ -272,7 +272,7 @@ static func head(state: GameState, fid: String) -> int:
 		for eid in keys:
 			var n := int(by[eid])
 			var e := state.get_empire(int(eid))
-			if e == null or e.eliminated or is_hive(state, int(eid)):
+			if e == null or e.eliminated or closed(state, int(eid)):
 				continue
 			if pass_i == 0 and state_faith(state, int(eid)) != fid:
 				continue
@@ -323,12 +323,30 @@ static func is_hive(state: GameState, eid: int) -> bool:
 	return (data()["no_faith_governments"] as Array).has(Events.layer_value(state, eid, "gouvernement"))
 
 
+## Une conscience collective fermée à la foi : toute ruche, sauf celle qui suit une foi de Communion
+## (lot 4), dont les colonies croient d'un seul esprit.
+static func closed(state: GameState, eid: int) -> bool:
+	if not is_hive(state, eid):
+		return false
+	var sf := state_faith(state, eid)
+	return faith(state, sf).is_empty() or String(faith(state, sf).get("nature", "")) != "communion"
+
+
+## Une ruche entre en Communion : toutes ses colonies suivent la foi d'un coup.
+static func hive_join(state: GameState, eid: int, fid: String) -> void:
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c.owner == eid and c.is_colony() and c.population > 0:
+			c.faith = {fid: c.population}
+	Relics.touch(state)
+
+
 ## Un empire peut-il encore fonder une grande foi ?
 static func can_found(state: GameState, eid: int) -> bool:
 	if not state.faith_on or GameState.is_npc(eid):
 		return false
 	var e := state.get_empire(eid)
-	if e == null or e.eliminated or is_hive(state, eid):
+	if e == null or e.eliminated:
 		return false
 	if founded_by(state, eid) != "":
 		return false
@@ -338,7 +356,7 @@ static func can_found(state: GameState, eid: int) -> bool:
 ## Réforme d'un culte natal (6e voie) : pas de foi d'État, au moins 3 colonies, un temple, et une
 ## capitale qui suit encore ses cultes natals.
 static func can_reform(state: GameState, eid: int) -> bool:
-	if not can_found(state, eid) or state_faith(state, eid) != LAICITE:
+	if not can_found(state, eid) or state_faith(state, eid) != LAICITE or is_hive(state, eid):
 		return false
 	var e := state.get_empire(eid)
 	var cap: Colony = state.colonies.get(e.capital_planet)
@@ -512,7 +530,7 @@ static func on_founded(state: GameState, c: Colony) -> void:
 		return
 	var sf := state_faith(state, c.owner)
 	c.faith.clear()
-	if sf != LAICITE and not is_hive(state, c.owner):
+	if sf != LAICITE and not closed(state, c.owner):
 		c.faith[sf] = c.population
 
 
@@ -546,7 +564,7 @@ static func on_leave(state: GameState, c: Colony) -> void:
 static func on_arrive(state: GameState, c: Colony) -> void:
 	var m := carry
 	carry = NATIVE
-	if not state.faith_on or m == NATIVE or is_hive(state, c.owner):
+	if not state.faith_on or m == NATIVE or closed(state, c.owner):
 		return
 	if m != INCROYANCE and faith(state, m).is_empty():
 		return
@@ -621,13 +639,13 @@ static func pressures(state: GameState) -> Dictionary:
 		if not c.is_colony() or not c.is_established() or c.population <= 0:
 			continue
 		var sid := state.galaxy.get_planet(pid).system_id
-		if not GameState.is_npc(c.owner) and not is_hive(state, c.owner):
+		if not GameState.is_npc(c.owner) and not closed(state, c.owner):
 			if not targets_by_sys.has(sid):
 				targets_by_sys[sid] = []
 			targets_by_sys[sid].append(pid)
 		if c.faith.is_empty():
 			continue
-		if is_hive(state, c.owner):
+		if closed(state, c.owner):
 			# La conscience collective dissout les croyances des mondes qu'elle absorbe.
 			c.faith.clear()
 			continue
@@ -643,6 +661,9 @@ static func pressures(state: GameState) -> Dictionary:
 				n *= FaithWars.secondary_holy_x(state, fid, c)
 				# Patriarcats : le métropolite prêche comme un petit monde saint.
 				n *= FaithNatures.source_x(state, c, fid)
+			elif fid == INCROYANCE:
+				# Teyl : le doute est contagieux.
+				n = n * (100 + FaithBridges.unbelief_pct(state, c.owner)) / 100
 			if not GameState.is_npc(c.owner) and state_faith(state, c.owner) == fid:
 				n = n * maxi(0, 100 + Research.fx_int(state, c.owner, "faith_pressure_pct")) / 100
 			m[fid] = int(m.get(fid, 0)) + n
@@ -696,7 +717,7 @@ static func pressures(state: GameState) -> Dictionary:
 	# Poussée de la foi d'État sur chaque colonie de l'empire.
 	for pid in state.sorted_colony_ids():
 		var c: Colony = state.colonies[pid]
-		if not c.is_colony() or not c.is_established() or GameState.is_npc(c.owner) or is_hive(state, c.owner):
+		if not c.is_colony() or not c.is_established() or GameState.is_npc(c.owner) or closed(state, c.owner):
 			continue
 		var sf := state_faith(state, c.owner)
 		if sf == LAICITE:
@@ -787,8 +808,10 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 	FaithWars.monthly(state, added)
 	_update_slots(state)
 	FaithNatures.monthly(state, added)
+	FaithBridges.monthly(state, added)
 	_ai(state)
 	FaithNatures.ai(state)
+	FaithBridges.ai(state)
 
 
 static func _spread(state: GameState) -> void:
@@ -946,6 +969,8 @@ static func nature_ids() -> Array:
 
 ## Les 3 natures proposées à la Révélation : la préférée du peuple fondateur, celle de la voie, une tirée.
 static func offer_natures(state: GameState, eid: int, fid: String, via: String) -> Array:
+	if is_hive(state, eid) and nature_ids().has("communion"):
+		return ["communion"]
 	var nd: Dictionary = data()["natures"]
 	var avail := nature_ids()
 	var out: Array = []
@@ -1065,8 +1090,8 @@ static func check_state(state: GameState, player: int, fid: String) -> String:
 	var e := state.get_empire(player)
 	if e == null or e.eliminated:
 		return "empire inconnu"
-	if is_hive(state, player):
-		return "une conscience collective n'a pas de foi"
+	if is_hive(state, player) and fid != LAICITE and String(faith(state, fid).get("nature", "")) != "communion":
+		return "une conscience collective ne peut croire qu'en Communion"
 	if fid == state_faith(state, player):
 		return "c'est déjà votre foi d'État"
 	if fid != LAICITE and fid != INCROYANCE and faith(state, fid).is_empty():
@@ -1075,15 +1100,25 @@ static func check_state(state: GameState, player: int, fid: String) -> String:
 	var cd := int(data()["state"]["cooldown_days"])
 	if state.tick - last < cd:
 		return "le clergé n'a pas digéré le dernier changement (encore %d jours)" % (cd - (state.tick - last))
-	if fid != LAICITE and fid != INCROYANCE and founded_by(state, player) != fid:
+	if fid != LAICITE and fid != INCROYANCE and founded_by(state, player) != fid and not is_hive(state, player):
 		var need := int(data()["state"]["adopt_share_pct"])
 		if best_share(state, player, fid) < need:
-			return "il faut une de vos colonies où cette foi dépasse %d %%" % need
+			# Foi à vendre (Brisecomète) : on peut l'acheter sans fidèles.
+			var price := FaithBridges.sale_price(state, player, fid)
+			if price.is_empty():
+				return "il faut une de vos colonies où cette foi dépasse %d %%" % need
+			if not Economy.can_afford(e, price):
+				return "il faut une colonie où cette foi dépasse %d %%, ou l'acheter (%s)" % [need, GameData.format_amounts(price)]
 	return ""
 
 
 static func set_state(state: GameState, player: int, fid: String) -> void:
+	if fid != LAICITE and fid != INCROYANCE and founded_by(state, player) != fid and not is_hive(state, player) \
+			and best_share(state, player, fid) < int(data()["state"]["adopt_share_pct"]):
+		FaithBridges.buy_faith(state, player, fid)
 	state.faiths["state"][str(player)] = fid
+	if is_hive(state, player) and fid != LAICITE:
+		hive_join(state, player, fid)
 	state.faiths["changed"][str(player)] = state.tick
 	Relics.touch(state)
 
@@ -1121,7 +1156,7 @@ static func native_def(state: GameState, eid: int) -> Dictionary:
 ## Stabilité d'un système (Stability.parts).
 static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 	var out := []
-	if not state.faith_on or GameState.is_npc(owner) or is_hive(state, owner):
+	if not state.faith_on or GameState.is_npc(owner) or closed(state, owner):
 		return out
 	var sd: Dictionary = data()["state"]
 	var sf := state_faith(state, owner)
@@ -1141,6 +1176,7 @@ static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 			out.append(["Autre foi majoritaire (%s)" % name_of(state, m), v])
 	out.append_array(_precept_stab(state, sid, owner, sf))
 	out.append_array(FaithNatures.stability_parts(state, sid, owner))
+	FaithBridges.stability_parts(state, sid, owner, out)
 	return out
 
 

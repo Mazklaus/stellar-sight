@@ -15,6 +15,8 @@ Trois victoires sont ouvertes à tous, et chaque peuple a la sienne. L'écran Vi
 | Domination | Revendiquer 50 % des systèmes de la galaxie pendant 3 ans. Les systèmes des alliés comptent, mais chaque allié ajoute 10 points au seuil |
 | Score | Avoir le plus haut score à la date limite choisie (30, 60 ou 90 ans, ou aucune) |
 
+**Victoire spirituelle** (option de partie, avec les religions) : votre foi d'État doit être majoritaire dans plus de la moitié des colonies de chaque empire survivant, le vôtre compris, pendant 5 ans.
+
 Conquête et Domination se gagnent **en alliance** : les alliés partagent la victoire. Le score compte la population, les colonies, les avant-postes, les technologies, les vaisseaux détruits, les conquêtes, l'exploration et les peuples rencontrés.
 
 ### Les victoires de peuple
