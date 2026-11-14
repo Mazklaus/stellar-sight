@@ -1179,7 +1179,7 @@ static func _prison_month(state: GameState, h: Dictionary, out: Array[Dictionary
 	if GameState.is_npc(jailer):
 		# Pirates et rebelles ne convertissent pas : ils attendent la rançon, puis s'impatientent.
 		if oe == null or oe.eliminated or state.tick >= int(h.get("ransom", 0)):
-			die(state, h, "est exécuté par %s : la rançon n'est jamais venue" % je.display_name(), out)
+			die(state, h, "est exécuté par %s : la rançon n'est jamais venue" % je.display_name(), out, je.id)
 		return
 	if (oe == null or oe.eliminated) and int(h.get("convert", 0)) == 0:
 		h["convert"] = state.tick

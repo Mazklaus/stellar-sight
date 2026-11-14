@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.13
+
+- **Religions, lot 4** : cinq natures de science-fiction lourdes (chapitre 10). **Chronolâtrie** : oracles et sécession. **Dieu en chantier** : cinq étages, Éveil, désobéissance. **Entropisme** : horloge de la fin, Fin du cycle, effondrement. **Communion** : fonds commun, ouverte aux ruches. **Astres vivants** : systèmes sacrés, avatars, profanation.
+- **Héros de foi** : Prophète, Inquisiteur, Martyr. **Pèlerinages** par les routes commerciales. Autel dissident, Autel coupé au schisme, Conclave nommé par le zèle. Un talent de foi par peuple. Événements religieux (chapitre 10).
+- **Victoire spirituelle**, nouvelle option de partie (chapitre 13).
+
 ### Édition 1.12
 
 - **Religions, lot 3** : neuf natures de foi classiques (chapitre 10). **Église universelle** : Collège, Primat, bulles, Réforme. **Patriarcats** : autorité, icônes, métropolite. **Loi et Extase** : piété, écoles. **Karma**. **Harmonie** : harmoniser une foi. **Panthéon** : présages, dieux accueillis, apothéose. **Culte des ancêtres** : mausolée, profanation. **Dette de sang** : offrandes, sacrifice. **Dieu présent** : dominion, déicide. Nouveau bâtiment : **mausolée**.

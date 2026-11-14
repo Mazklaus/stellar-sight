@@ -498,7 +498,7 @@ static func run_election(state: GameState, empire_id: int) -> Array[Dictionary]:
 	var names := PackedStringArray()
 	for wi in r:
 		names.append(label(state, empire_id, int(wi)))
-	var line := "%s : %s se réunit. Au pouvoir : %s." % [e.short_name(), String(reg["assembly"]), ", ".join(names)]
+	var line := "%s : %s se réunit. Au pouvoir : %s." % [e.short_name(), FaithBridges.conclave_name(state, empire_id, String(reg["assembly"])), ", ".join(names)]
 	if String(reg["mode"]) == "appoint" and int(r[0]) != top:
 		line += " Le peuple avait voté pour %s ; on lui a expliqué qu'il s'était trompé." % label(state, empire_id, top)
 	elif names.size() > 1:

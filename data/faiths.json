@@ -271,7 +271,7 @@
 	},
 	"_prophecy_doc": "Prophétie plantée (proposition 17, opération d'intrigue de deux ans) : semée sur le monde le plus peuplé de la cible, elle attend qu'un héros amiral de l'empire qui l'a plantée y arrive avec sa flotte. Le monde se convertit d'un coup à la foi d'État du planteur, et vacille pour son maître (-20 pendant un an). Elle s'éteint au bout de 10 ans.",
 	"natures": {
-		"_doc": "Natures de foi : la mécanique propre d'une foi, choisie par le fondateur parmi 3 (préférée de son peuple, liée à la voie de la Révélation, une tirée). Catalogue ouvert : 5 natures SF (lot 2) et 9 classiques (lot 3, bloc « classic ») ; le lot 4 ajoute les natures SF lourdes. Une nature peut imposer (forces) ou interdire (forbids) une position de doctrine.",
+		"_doc": "Natures de foi : la mécanique propre d'une foi, choisie par le fondateur parmi 3 (préférée de son peuple, liée à la voie de la Révélation, une tirée). Catalogue ouvert : 5 natures SF (lot 2) et 9 classiques (lot 3, bloc « classic ») ; 5 natures SF lourdes (lot 4, bloc « heavy »). Une nature peut imposer (forces) ou interdire (forbids) une position de doctrine.",
 		"list": {
 			"code_saint": {
 				"label": "Code saint",
@@ -351,6 +351,31 @@
 				},
 				"text": "Le dieu marche parmi ses fidèles : il est sur la carte et se déplace d'un saut par mois. Il projette un dominion jusqu'à 2 sauts (prêche fort, flottes ennemies affaiblies de 20 %). Deux dominions qui se touchent s'usent l'un l'autre. Tué par une flotte ennemie qui le trouve sans escorte, il revient au monde saint 5 ans plus tard, et la foi perd 25 de zèle. Le chef de foi est l'empire où réside le dieu.",
 				"src": "Dieu prétendant et dominion, Dominions ; dieux réels de l'étude v1"
+			},
+			"chronolatrie": {
+				"label": "Chronolâtrie",
+				"text": "Le temps lui-même est dieu, et ses prophéties sont vraies. Chaque année, les oracles annoncent un fait à venir (une élection, l'arrivée d'une flotte en route) que le moteur sait déjà. Accomplie, la prophétie donne 10 de zèle ; un empire qui l'empêche (en détournant sa flotte, en faisant mentir son élection) provoque un schisme chez lui. Les prophéties plantées par l'espionnage mûrissent deux fois plus vite.",
+				"src": "Prophètes et Orbes de Deep Space Nine, étude v1"
+			},
+			"dieu_en_chantier": {
+				"label": "Dieu en chantier",
+				"text": "Un dieu qu'on construit : un grand projet en 5 étages, payé en matériaux et en Savoir par le chef de foi, chaque étage donnant un pouvoir à tous les fidèles. Achevé, le dieu existe sur la carte, avec un dominion comme celui du Dieu présent ; si le zèle tombe sous 30, il désobéit (il erre, et son dominion pèse sur ses propres fidèles). Pour le Chœur Éternel, le dernier étage demande une Cathédrale-chœur.",
+				"src": "Invention de l'étude v1, à partir du Dieu-Machine du Chœur"
+			},
+			"entropisme": {
+				"label": "Entropisme",
+				"text": "La mort thermique de l'univers est une promesse. La foi gagne du zèle par la destruction (vaisseaux abattus, créatures tuées, mondes conquis) et une horloge de la fin, visible de tous, avance d'un cran par mois et plus vite à chaque massacre. À 100 : la Fin du cycle, deux ans de puissance immense pour ses fidèles (dégâts +50 %, production +25 %), puis l'effondrement : la foi disparaît et ses mondes vacillent.",
+				"src": "Fin du Cycle de Stellaris, étude v1"
+			},
+			"communion": {
+				"label": "Communion",
+				"text": "Croire, c'est se fondre. Chaque mois, les empires de la foi versent 10 % de leur production brute (énergie, matériaux, nourriture) dans un fonds partagé à parts égales, et la stabilité de leurs systèmes tire vers la moyenne de la communion. Seule nature qui permet à une conscience collective de croire : une ruche peut fonder ou adopter une foi de Communion, et toutes ses colonies la suivent d'un coup.",
+				"src": "Invention de l'étude v1 ; ruches particulières (12 bis)"
+			},
+			"astres_vivants": {
+				"label": "Astres vivants",
+				"text": "Les étoiles, les nébuleuses et les anomalies sont des dieux. À sa fondation, la foi tient pour sacrés le système de son monde saint et les deux systèmes les plus remarquables à portée : ils prêchent comme des mondes saints jusqu'à 2 sauts. Un empire qui y pose un avant-poste ou un complexe minier fâche tous les fidèles de la galaxie (opinion -15) ; un gardien qui y vit en devient l'avatar (prêche doublé), et l'abattre est une profanation.",
+				"src": "Invention de l'étude v1 ; dieux réels (proposition 19)"
 			}
 		},
 		"fleet_pressure": 20,
@@ -397,7 +422,8 @@
 					"voies_sacrees"
 				],
 				"Grimdark": [
-					"dette_de_sang",
+					"dette_sang",
+					"entropisme",
 					"code_saint"
 				],
 				"Space opera héroïque": [
@@ -430,7 +456,7 @@
 			],
 			"heros": [
 				"pantheon",
-				"dette_de_sang",
+				"dette_sang",
 				"voies_sacrees"
 			],
 			"savoir": [
@@ -659,6 +685,17 @@
 				]
 			},
 			"seat_reserve": 100
+		},
+		"heavy": {
+			"stage_reserve": 200,
+			"vocation_by_credo": {
+				"honneur": "martyr",
+				"foi": "prophete",
+				"raison": "inquisiteur",
+				"profit": "prophete",
+				"survie": "inquisiteur",
+				"default": "prophete"
+			}
 		}
 	},
 	"reform": {
@@ -1323,6 +1360,263 @@
 			"clash_zeal": -1,
 			"respawn_days": 1800,
 			"death_zeal": -25
+		}
+	},
+	"heavy": {
+		"_doc": "Natures SF lourdes (lot 4). Chiffres de départ, équilibrage reporté.",
+		"chrono": {
+			"oracle_days": 360,
+			"window_days": 360,
+			"fulfilled_zeal": 10,
+			"failed_zeal": -5,
+			"prevented_zeal": -10,
+			"planted_pct": -50
+		},
+		"chantier": {
+			"obey_zeal": 30,
+			"wander_stab": -2,
+			"choir_building": "cathedrale",
+			"choir_faction": "choeur",
+			"stages": [
+				{
+					"label": "Fondations",
+					"cost": {
+						"materials": 200,
+						"knowledge": 100
+					},
+					"days": 360,
+					"fx": {
+						"production_pct": {
+							"knowledge": 5
+						}
+					},
+					"text": "Savoir +5 %."
+				},
+				{
+					"label": "Ossature",
+					"cost": {
+						"materials": 300,
+						"knowledge": 200
+					},
+					"days": 540,
+					"fx": {
+						"faith_pressure_pct": 15
+					},
+					"text": "La foi prêche 15 % plus fort."
+				},
+				{
+					"label": "Cœur",
+					"cost": {
+						"materials": 400,
+						"knowledge": 300
+					},
+					"days": 720,
+					"fx": {
+						"damage_pct": 5
+					},
+					"text": "Dégâts +5 %."
+				},
+				{
+					"label": "Voix",
+					"cost": {
+						"materials": 500,
+						"knowledge": 400
+					},
+					"days": 720,
+					"fx": {
+						"stability": 2
+					},
+					"text": "Stabilité +2."
+				},
+				{
+					"label": "Éveil",
+					"cost": {
+						"materials": 800,
+						"knowledge": 600
+					},
+					"days": 1080,
+					"fx": {
+						"production_pct": {
+							"materials": 5,
+							"energy": 5
+						}
+					},
+					"text": "Le dieu s'éveille sur la carte (dominion de 2 sauts) ; matériaux et énergie +5 %."
+				}
+			]
+		},
+		"entropie": {
+			"month": 1,
+			"ships_per_tick": 10,
+			"ship_zeal_per": 5,
+			"creature_tick": 1,
+			"creature_zeal": 1,
+			"conquest_tick": 3,
+			"conquest_zeal": 2,
+			"end": 100,
+			"warn": [
+				50,
+				75,
+				90
+			],
+			"glory_days": 720,
+			"glory_fx": {
+				"damage_pct": 50,
+				"production_pct": {
+					"energy": 25,
+					"materials": 25,
+					"food": 25,
+					"knowledge": 25
+				}
+			},
+			"collapse_stab": -20,
+			"collapse_days": 360
+		},
+		"communion": {
+			"share_pct": 10,
+			"resources": [
+				"energy",
+				"materials",
+				"food"
+			],
+			"stab_pull_pct": 50,
+			"stab_max": 10
+		},
+		"astres": {
+			"sacred": 3,
+			"range": 4,
+			"pressure": 25,
+			"reach": 2,
+			"avatar_x": 2,
+			"profane_op": -15,
+			"profane_zeal": -1,
+			"avatar_kill_zeal": -20,
+			"avatar_casus_days": 3600,
+			"star_score": {
+				"black_hole": 5,
+				"neutron": 4,
+				"blue_giant": 3,
+				"white": 2,
+				"red": 1,
+				"yellow": 1
+			},
+			"site_score": 2
+		}
+	},
+	"bridges": {
+		"_doc": "Ponts du lot 4 : héros de foi, pèlerinages, politique, talents des peuples, victoire spirituelle, événements.",
+		"vocations": {
+			"prophete": {
+				"label": "Prophète",
+				"text": "Les missions de l'empire prêchent 50 % plus fort ; la foi d'État débloque tout de suite son prochain précepte (une fois par foi) ; gouverneur d'un système, il y prêche comme un monde saint.",
+				"mission_pct": 50,
+				"source_x": 4
+			},
+			"inquisiteur": {
+				"label": "Inquisiteur",
+				"text": "Missions d'inquisition gratuites et deux fois plus longues ; l'Inquisition convertit deux fidèles au lieu d'un ; hérésies deux fois plus rares chez vous.",
+				"ward_x": 2,
+				"inquisition_x": 2,
+				"heresy_pct": 50
+			},
+			"martyr": {
+				"label": "Martyr",
+				"text": "S'il est exécuté ou assassiné : zèle +15 pour la foi, 3 fragments de relique, et le Bouclier du martyr s'il est encore sans maître.",
+				"zeal": 15,
+				"fragments": 3,
+				"relic": "bouclier_martyr"
+			}
+		},
+		"vocation_amb": "foi",
+		"vocation_cost": {
+			"influence": 30
+		},
+		"pilgrims": {
+			"op": 5,
+			"_doc": "Pèlerins : chaque autre empire de la foi relié par une route commerciale non bloquée au maître du monde saint envoie ses pèlerins (influence du précepte Pèlerinage, opinion +5). Un blocus les coupe."
+		},
+		"politics": {
+			"dissident_push": 2,
+			"dissident_stab": -2,
+			"schism_split_pct": 50,
+			"conclave": [
+				[
+					75,
+					"Conclave ardent"
+				],
+				[
+					40,
+					"Conclave"
+				],
+				[
+					0,
+					"Conclave tiède"
+				]
+			]
+		},
+		"talents": {
+			"_doc": "Talents de peuple autour des natures préférées (étude v2, proposition 11).",
+			"choeur": {
+				"label": "Bâtisseurs de dieu",
+				"text": "Dieu en chantier : étages 25 % moins chers.",
+				"stage_cost_pct": -25
+			},
+			"murmurants": {
+				"label": "Échos de l'avenir",
+				"text": "Chronolâtrie : un oracle tous les six mois ; cultes cachés deux fois plus durs à découvrir.",
+				"oracle_days": 180,
+				"secret_discover_pct": -50
+			},
+			"ossarane": {
+				"label": "Pèlerins des routes",
+				"text": "Voies sacrées : deux routes bénies de plus, bénir coûte moitié moins.",
+				"voies_extra": 2,
+				"bless_cost_pct": -50
+			},
+			"vael": {
+				"label": "Concorde des cieux",
+				"text": "Harmonie : harmoniser coûte 25 d'harmonie au lieu de 40, et un précepte harmonisé de plus.",
+				"harm_cost": 25,
+				"harm_extra": 1
+			},
+			"khthari": {
+				"label": "Culte de la Faim",
+				"text": "Communion : leur foi est toujours un culte caché (diffusion Secrète) chez leurs proies ; une ruche Kh'thari peut la fonder.",
+				"force": {
+					"diffusion": "secrete"
+				}
+			},
+			"teyl": {
+				"label": "Doute contagieux",
+				"text": "Code saint ; l'incroyance d'État des Teyl prêche comme une foi (à moitié force) chez leurs voisins.",
+				"unbelief_pressure_pct": 50
+			},
+			"ferrocornes": {
+				"label": "Mémoire des clans",
+				"text": "Culte des ancêtres : quatre ancêtres actifs au lieu de trois, et ils donnent leur trait en entier.",
+				"ancestors": 4,
+				"ancestor_pct": 100
+			},
+			"brisecomete": {
+				"label": "Foi à vendre",
+				"text": "Mème : un empire peut adopter leur foi sans y avoir de fidèles, contre 100 d'énergie versés aux Brisecomète.",
+				"sell_price": {
+					"energy": 100
+				}
+			}
+		},
+		"victory": {
+			"share_pct": 50,
+			"hold_days": 1800
+		},
+		"events": {
+			"days": 720,
+			"pmille": 250,
+			"miracle_zeal": 5,
+			"miracle_stab": 3,
+			"miracle_days": 360,
+			"pilgrim_wave_influence": 20,
+			"prophet_xp": 40
 		}
 	}
 }

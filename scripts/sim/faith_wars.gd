@@ -276,7 +276,7 @@ static func extra_pressures(state: GameState, out: Dictionary, targets_by_sys: D
 			continue
 		for pid in targets_by_sys[sid]:
 			var pm: Dictionary = out.get(pid, {})
-			pm[String(m["fid"])] = int(pm.get(String(m["fid"]), 0)) + int(md["pressure"]) * 100
+			pm[String(m["fid"])] = int(pm.get(String(m["fid"]), 0)) + int(md["pressure"]) * (100 + FaithBridges.mission_pct(state, int(m["by"])))
 			out[pid] = pm
 	# Parasite saint : chaque flotte d'un empire de la foi porte l'organisme là où elle stationne.
 	var fp := int(data()["natures"]["fleet_pressure"]) * 100
@@ -325,7 +325,7 @@ static func extra_pressures(state: GameState, out: Dictionary, targets_by_sys: D
 			if to == null or to.eliminated:
 				continue
 			var cap: Colony = state.colonies.get(to.capital_planet)
-			if cap == null or cap.owner != to.id or Faiths.is_hive(state, to.id) or Research.fx_int(state, to.id, "meme_firewall") > 0:
+			if cap == null or cap.owner != to.id or Faiths.closed(state, to.id) or Research.fx_int(state, to.id, "meme_firewall") > 0:
 				continue
 			for fid in memes:
 				var n := int(memes[fid].get(from, 0))
@@ -377,7 +377,10 @@ static func _secret_month(state: GameState, added: Array[Dictionary]) -> void:
 		var parts := k.split("|")
 		var owner := int(parts[0])
 		var fid := parts[1]
-		if int(hidden[k]) >= 3 and _h(state, ["secret", k, state.tick]) % 1000 < int(sd["discover_pmille"]):
+		var dp := int(sd["discover_pmille"])
+		@warning_ignore("integer_division")
+		dp = dp * (100 + int(FaithHeavy.talent(state, int(Faiths.faith(state, fid).get("founder", -1))).get("secret_discover_pct", 0))) / 100
+		if int(hidden[k]) >= 3 and _h(state, ["secret", k, state.tick]) % 1000 < dp:
 			reveal_secret(state, fid, owner, added)
 	# Soulèvements : une flotte de la foi, en guerre contre le maître, là où la foi domine.
 	for pid in state.sorted_colony_ids():
@@ -522,10 +525,11 @@ static func _cult_month(state: GameState, e: Empire, added: Array[Dictionary]) -
 				if fid != sf and (victim == "" or int(c.faith[fid]) > int(c.faith[victim])):
 					victim = fid
 			if victim != "":
-				c.faith[victim] = int(c.faith[victim]) - 1
+				var nconv := mini(int(c.faith[victim]), FaithBridges.inquisition_x(state, e.id))
+				c.faith[victim] = int(c.faith[victim]) - nconv
 				if int(c.faith[victim]) <= 0:
 					c.faith.erase(victim)
-				c.faith[sf] = int(c.faith.get(sf, 0)) + 1
+				c.faith[sf] = int(c.faith.get(sf, 0)) + nconv
 		FaithNatures.on_inquisition(state, e.id)
 	# Doléance « Liberté de culte » (avec la politique intérieure).
 	if not state.politics_on or not Politics.applies(state, e.id):
@@ -587,6 +591,8 @@ static func _heresy_month(state: GameState, fid: String, added: Array[Dictionary
 		if int(dist.get(state.galaxy.get_planet(pid).system_id, 99)) < int(hd["min_jumps"]):
 			continue
 		if Peoples.founder_of(state, c.owner) == founder_f and Faiths.state_faith(state, c.owner) == fid:
+			continue
+		if FaithBridges.heresy_blocked(state, c):
 			continue
 		cands.append(pid)
 	if cands.is_empty():
@@ -866,13 +872,22 @@ static func check_bless(state: GameState, player: int, a: int, b: int) -> String
 			mine = true
 	if not mine:
 		return "un bout de la route doit appartenir à un empire de la foi"
-	if blessed_of(state, fid).size() >= int(data()["natures"]["voies_max"]):
-		return "au plus %d routes bénies" % int(data()["natures"]["voies_max"])
-	return _afford(state, player, data()["natures"]["voies_bless_cost"])
+	if blessed_of(state, fid).size() >= voies_max(state, player):
+		return "au plus %d routes bénies" % voies_max(state, player)
+	return _afford(state, player, bless_cost(state, player))
+
+
+## Routes bénies au plus, et coût d'une bénédiction (talent des Ossarane : plus de routes, moins cher).
+static func voies_max(state: GameState, player: int) -> int:
+	return int(data()["natures"]["voies_max"]) + int(FaithHeavy.talent(state, player).get("voies_extra", 0))
+
+
+static func bless_cost(state: GameState, player: int) -> Dictionary:
+	return Research.scaled_amounts(data()["natures"]["voies_bless_cost"], int(FaithHeavy.talent(state, player).get("bless_cost_pct", 0)))
 
 
 static func bless(state: GameState, player: int, a: int, b: int) -> void:
-	_pay(state, player, data()["natures"]["voies_bless_cost"])
+	_pay(state, player, bless_cost(state, player))
 	state.faiths["blessed"][lane_key(a, b)] = {"fid": Faiths.state_faith(state, player), "mode": "open"}
 
 
@@ -972,7 +987,7 @@ static func check_mission(state: GameState, player: int, sid: int) -> String:
 	var any := false
 	for pid in state.galaxy.systems[sid].planet_ids:
 		var c: Colony = state.colonies.get(pid)
-		if c != null and c.is_colony() and c.is_established() and not Faiths.is_hive(state, c.owner) and not GameState.is_npc(c.owner):
+		if c != null and c.is_colony() and c.is_established() and not Faiths.closed(state, c.owner) and not GameState.is_npc(c.owner):
 			any = true
 	if not any:
 		return "personne à convertir dans ce système"
@@ -1028,17 +1043,20 @@ static func check_ward(state: GameState, player: int, sid: int) -> String:
 			foreign = true
 	if not foreign:
 		return "aucune mission étrangère à chasser"
+	if FaithBridges.ward_free(state, player):
+		return ""
 	return _afford(state, player, data()["missions"]["ward_cost"])
 
 
 static func ward(state: GameState, player: int, sid: int) -> void:
-	_pay(state, player, data()["missions"]["ward_cost"])
+	if not FaithBridges.ward_free(state, player):
+		_pay(state, player, data()["missions"]["ward_cost"])
 	var keep: Array = []
 	for m in _missions(state):
 		if int(m["sid"]) != sid or int(m["by"]) == player:
 			keep.append(m)
 	state.faiths["missions"] = {"list": keep}
-	state.faiths["wards"][str(sid)] = state.tick + int(data()["missions"]["ward_days"])
+	state.faiths["wards"][str(sid)] = state.tick + int(data()["missions"]["ward_days"]) * FaithBridges.ward_x(state, player)
 	FaithNatures.on_ward(state, player)
 
 
@@ -1183,7 +1201,7 @@ static func check_prophecy(state: GameState, a: int, b: int) -> String:
 		return "les religions ne sont pas actives dans cette partie"
 	if Faiths.state_faith(state, a) == Faiths.LAICITE:
 		return "il faut une foi d'État pour semer une prophétie"
-	if Faiths.is_hive(state, b):
+	if Faiths.closed(state, b):
 		return "une ruche n'écoute pas les prophètes"
 	if prophecy_target(state, b) < 0:
 		return "aucun monde où semer la prophétie"
@@ -1415,10 +1433,8 @@ static func _doctrine_month(state: GameState) -> void:
 		var pil := Faiths._fx_for_faith(state, fid, "pilgrims")
 		var hc: Colony = state.colonies.get(int(f["holy"]))
 		if pil > 0 and hc != null and not GameState.is_npc(hc.owner):
-			var others := 0
-			for e in state.empires:
-				if not e.eliminated and e.id != hc.owner and Faiths.state_faith(state, e.id) == fid:
-					others += 1
+			# Les pèlerins viennent par les routes commerciales ; un blocus les coupe (lot 4).
+			var others := FaithBridges.pilgrims_to(state, fid, hc.owner).size()
 			var ho := state.get_empire(hc.owner)
 			ho.resources["influence"] = int(ho.resources.get("influence", 0)) + pil * others
 		var ex: Dictionary = f.get("excom", {})
@@ -1512,7 +1528,7 @@ static func mission_targets(state: GameState, eid: int, sf: String, n: int) -> A
 		var v := 0
 		for pid in s.planet_ids:
 			var c: Colony = state.colonies.get(pid)
-			if c == null or not c.is_colony() or GameState.is_npc(c.owner) or Faiths.is_hive(state, c.owner):
+			if c == null or not c.is_colony() or GameState.is_npc(c.owner) or Faiths.closed(state, c.owner):
 				continue
 			v += c.population - int(c.faith.get(sf, 0))
 		if v >= 4:

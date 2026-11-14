@@ -144,7 +144,7 @@ var people_victories := true
 var _deadline_select: OptionButton
 var _people_check: CheckBox
 ## Victoires classiques en jeu et alliés qui gagnent ensemble (GameState.victory_rules).
-var victories := {"conquete": true, "domination": true, "allies": true}
+var victories := {"conquete": true, "domination": true, "allies": true, "spirituelle": false}
 var _victory_checks := {}
 ## Difficulté progressive : les bonus des IA Expert et Légende montent avec le temps.
 var ai_scaling := false
@@ -1913,12 +1913,14 @@ func _build_new_page(root: Control) -> void:
 		"conquete": ["Conquête", "Prendre et tenir toutes les capitales d'origine rivales (ou rester seul en vie)."],
 		"domination": ["Domination", "Tenir une grande part des systèmes de la galaxie pendant un temps."],
 		"allies": ["Alliés ensemble", "Les alliés additionnent leurs conquêtes et leurs systèmes, et gagnent ensemble\n(Endless Space 2). Décoché : chacun pour soi, même allié."],
+		"spirituelle": ["Spirituelle", "Avec les religions : votre foi d'État majoritaire dans plus de la moitié des colonies\nde chaque empire survivant, tenue 5 ans (Civilization VI). En option, décochée par défaut."],
 	}
 	for key in ["conquete", "domination"]:
 		grid.add_child(_victory_check(key, vtips[key]))
 	grid.add_child(_people_check)
 	_people_check.text = "De peuple"
 	grid.add_child(_victory_check("allies", vtips["allies"]))
+	grid.add_child(_victory_check("spirituelle", vtips["spirituelle"]))
 	set_deadline(deadline_days)
 	var back_b := Widgets.RoundButton.new("back", "Retour")
 	back_b.tooltip_text = "Échap"
@@ -2636,7 +2638,7 @@ func default_settings() -> Dictionary:
 	return {"faction": selected_faction, "slots": default_slots(), "duplicates": false, "team": 0,
 		"ai_level": AiLevels.default_id(), "temperament": AiLevels.default_temperament(), "spectator": false,
 		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "timer": "", "deadline": Victory.default_deadline(), "people": true,
-		"victories": {"conquete": true, "domination": true, "allies": true}, "ai_scaling": false,
+		"victories": {"conquete": true, "domination": true, "allies": true, "spirituelle": false}, "ai_scaling": false,
 		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "plagues": true, "events": Events.default_frequency(), "curios": Curios.default_density(),
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
 		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives"}

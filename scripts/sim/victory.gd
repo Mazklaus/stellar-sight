@@ -73,6 +73,8 @@ static func rule_text(id: String) -> String:
 			return t % [int(v["exploits"]), int(v["min_reputation"]), maxi(1, years)]
 		"silence":
 			return t % [int(v["colonies"]), years]
+		"spirituelle":
+			return t % [int(v["share_pct"]), years]
 	return t
 
 
@@ -110,7 +112,10 @@ static func enabled(state: GameState, id: String) -> bool:
 		return deadline(state) > 0
 	if is_people(id):
 		return people_enabled(state)
-	return bool(state.victory_rules.get(id, true))
+	# Victoire en option (spirituelle) : décochée par défaut, et seulement avec les religions.
+	if bool(info(id).get("faiths", false)) and not state.faith_on:
+		return false
+	return bool(state.victory_rules.get(id, not bool(info(id).get("option", false))))
 
 
 ## Les alliés avancent-ils ensemble vers la conquête et la domination (réglage de la partie) ?
@@ -226,6 +231,8 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			_legende(state, e, out)
 		"silence":
 			_silence(state, e, out)
+		"spirituelle":
+			FaithBridges.spiritual(state, e, out)
 	if is_people(id) and not has_tech(state, empire_id, id):
 		out["lines"].append("Technologie requise : %s" % String(Research.tech(tech_for(id)).get("label", tech_for(id))))
 		out["cond"] = false

@@ -119,7 +119,8 @@ func _test_setup() -> void:
 	_ok(int(_cap(st, ch).faith.get(fc, 0)) == _cap(st, ch).population, "toute la capitale suit la foi")
 	_ok(Faiths.state_faith(st, ch) == fc and Faiths.state_faith(st, v) == Faiths.LAICITE, "foi d'État : la leur ; laïcité pour les autres")
 	_ok(String(Faiths.faith(st, fc)["via"]) == "origine" and st.chronicle.filter(func(x): return String(x["text"]).begins_with("Révélation")).is_empty(), "fondation d'origine : pas de chronique")
-	_ok(Faiths.is_hive(st, _id_of(st, "khthari")) and not Faiths.can_found(st, _id_of(st, "khthari")), "la ruche ne fonde rien")
+	var kh := _id_of(st, "khthari")
+	_ok(Faiths.is_hive(st, kh) and Faiths.closed(st, kh) and Faiths.offer_natures(st, kh, "x", "relique") == ["communion"], "la ruche ne croit qu'en Communion")
 	_ok(Faiths.head(st, fc) == ch, "chef de foi : le fondateur")
 
 
@@ -477,7 +478,7 @@ func _test_save() -> void:
 	Faiths.choose(st, fv, String(Faiths.faith(st, fv)["offer"][0]), {"chef": "temporel", "regard": "fondamentaliste", "clerge": "laic", "diffusion": "peuple_elu"}, "ascetisme")
 	st.faiths["prog"][str(_cap(st, v).planet_id)] = {fv: 17}
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 45, "sauvegarde version 45")
+	_ok(int(d["version"]) == 46, "sauvegarde version 46")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and back.faith_on and Faiths.founded_by(back, v) == fv, "fois relues")
 	_ok(back != null and int(_cap(back, v).faith.get(fv, 0)) == int(_cap(st, v).faith.get(fv, 0)), "fidèles des colonies relus")
