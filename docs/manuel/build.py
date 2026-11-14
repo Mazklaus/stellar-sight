@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "1.19"
+EDITION = "2.0"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -290,6 +290,64 @@ def gen_technologies():
             f"{len(dom_l)} domaines ({esc(', '.join(dom_l))}) sur cinq ères.</p>")
 
 
+def _signe(v):
+    return f"+{v}" if v > 0 else f"{v}"
+
+
+def texte_fx_relique(fx):
+    out = []
+    for k, v in fx.items():
+        if k == "production_pct":
+            out += [f"{FX_TEXTE.get(r, r).capitalize()} {_signe(n)} %" for r, n in v.items()]
+        elif k == "defense_pct":
+            noms = {"armor": "blindage", "shield": "boucliers", "pd": "défense ponctuelle"}
+            out += [f"{noms.get(r, r).capitalize()} {_signe(n)} %" for r, n in v.items()]
+        elif k == "hab_bonus":
+            out.append(f"Habitabilité {_signe(list(v.values())[0])} %")
+        else:
+            lib = {"stability": ("Stabilité", ""), "growth_pct": ("Croissance", " %"), "damage_pct": ("Dégâts", " %"),
+                   "garrison_pct": ("Garnisons", " %"), "fleet_speed_pct": ("Vitesse des flottes", " %"),
+                   "repair_pct": ("Réparations", " %"), "troops_pct": ("Troupes", " %"),
+                   "upkeep_pct": ("Entretien", " %"), "building_cost_pct": ("Coût des bâtiments", " %"),
+                   "ship_cost_pct": ("Coût des vaisseaux", " %"), "ship_days_pct": ("Temps de construction", " %"),
+                   "trade_income_pct": ("Routes commerciales", " %"), "opinion_all": ("Opinion de tous", ""),
+                   "council_seats": ("Sièges au conseil", ""), "curio_power": ("Puissance d'expédition", ""),
+                   "curio_detect": ("Curiosités repérées de plus loin", ""), "claim_vision": ("Vision autour des revendications", "")}
+            nom, unite = lib.get(k, (k, ""))
+            out.append(f"{nom} {_signe(v)}{unite}" if isinstance(v, (int, float)) and not isinstance(v, bool) else nom)
+    return ", ".join(out)
+
+
+def gen_reliques():
+    r = charger("relics.json")
+    lignes = ""
+    for x in sorted(r["relics"], key=lambda x: x["name"]):
+        t = x.get("triumph", {})
+        tri = esc(t.get("label", ""))
+        fx_t = texte_fx_relique(t.get("fx", {}))
+        lignes += (f"<tr><td><b>{esc(x['name'])}</b><br><i>{inline(x.get('text', ''))}</i></td>"
+                   f"<td>{esc(texte_fx_relique(x.get('fx', {})) or '—')}</td>"
+                   f"<td>{tri}{(' : ' + esc(fx_t)) if fx_t else ''} ({t.get('cost', '?')} influence)</td></tr>")
+    return (f"<table class='grille reliques'><tr><th>Relique</th><th>Effet permanent</th><th>Triomphe</th></tr>"
+            f"{lignes}</table>")
+
+
+def gen_lois():
+    p = charger("politics.json")
+    courants = {c["id"]: c for c in p["currents"]}
+    lignes = ""
+    for cid, bloc_l in p["laws"].items():
+        c = courants.get(cid, {"short": cid, "color": "#888"})
+        tete = f"<span class='pastille' style='background:{c['color']}'></span>{esc(c['short'])}"
+        pw = bloc_l["power"]
+        lignes += f"<tr><td>{tete}</td><td>Pouvoir</td><td><b>{esc(pw['label'])}</b> {inline(pw['text'])}</td></tr>"
+        for l in bloc_l["laws"]:
+            lignes += f"<tr><td></td><td>{l['level']}</td><td><b>{esc(l['label'])}</b> {inline(l['text'])}</td></tr>"
+    for l in p["independent_laws"]:
+        lignes += f"<tr><td>Indépendante</td><td>—</td><td><b>{esc(l['label'])}</b> {inline(l['text'])}</td></tr>"
+    return (f"<table class='grille lois'><tr><th>Courant</th><th>Niveau</th><th>Loi</th></tr>{lignes}</table>")
+
+
 PEUPLES_EXTRA = json.load(open(os.path.join(ICI, "peuples.json"), encoding="utf-8"))
 REGISTRE_COULEUR = {
     "Grimdark": "#c0392b", "Médiéval spatial": "#d8b46a", "Space opera héroïque": "#4fa3e0",
@@ -305,6 +363,65 @@ NOMS_COUCHE = {
 BIOMES = {"arctic": "Glaciaire", "desert": "Désert", "ocean": "Océan", "jungle": "Jungle", "toxic": "Toxique",
           "barren": "Stérile", "terran": "Tempéré", "tundra": "Toundra", "gas": "Géante gazeuse", "volcanic": "Volcanique",
           "arid": "Aride", "continental": "Continental", "savanna": "Savane", "tropical": "Tropical", "glacial": "Glaciaire"}
+
+
+# --- Talents de chaque peuple, lus dans les données (couches d'espèce) -------
+def _couches(f):
+    sp = f.get("species", {})
+    return {"archetype": sp.get("archetype", ""), "gouvernement": sp.get("gouvernement", ""),
+            "credo": sp.get("credo", ""), "registre": f.get("registre", ""), "traits": sp.get("traits", [])}
+
+
+def _exige(c, req):
+    for couche, voulu in (req or {}).items():
+        voulu = voulu if isinstance(voulu, list) else [voulu]
+        val = c.get(couche, "")
+        if couche == "traits":
+            if not any(t in voulu for t in val):
+                return False
+        elif val not in voulu:
+            return False
+    return True
+
+
+def _par_couche(c, bloc_t):
+    """Talents rangés par couche : {couche: {valeur: {label, text, requires?}}}."""
+    out = []
+    for couche, valeurs in bloc_t.items():
+        if couche.startswith("_") or not isinstance(valeurs, dict):
+            continue
+        for val, t in valeurs.items():
+            if not isinstance(t, dict) or "label" not in t:
+                continue
+            ok = (val in c["traits"]) if couche == "traits" else (c.get(couche) == val)
+            if ok and _exige(c, t.get("requires")):
+                out.append(t)
+    return out
+
+
+def talents_du_peuple(f):
+    c = _couches(f)
+    res = []
+
+    def ajoute(cat, liste):
+        for t in liste:
+            lab = re.sub(r"^[^:]+ : ", "", t["label"]) if cat == "Peuples mêlés" else t["label"]
+            lab = lab[:1].upper() + lab[1:]
+            res.append((cat, lab, t.get("text", "")))
+    ajoute("Diplomatie", [t for t in charger("diplomacy.json")["abilities"].values()
+                          if isinstance(t, dict) and _exige(c, t.get("requires"))])
+    ajoute("Commerce", _par_couche(c, charger("trade.json").get("talents", {})))
+    ajoute("Stabilité", _par_couche(c, charger("stability.json").get("talents", {})))
+    ajoute("Peuples mêlés", _par_couche(c, charger("rules.json")["movements"].get("talents", {})))
+    ajoute("Héros", _par_couche(c, charger("heroes.json").get("talents", {})))
+    ajoute("Ombres", _par_couche(c, charger("espionage.json").get("talents", {})))
+    foi = charger("faiths.json").get("bridges", {}).get("talents", {}).get(f["id"])
+    ajoute("Foi", [foi] if isinstance(foi, dict) else [])
+    ajoute("Amphictyonie", [t for t in charger("amphictyony.json").get("talents", []) if _exige(c, t.get("requires"))])
+    ajoute("Suzerain", _par_couche(c, charger("vassals.json").get("talents", {})))
+    ajoute("Pirates", _par_couche(c, charger("pirates.json").get("talents", {})))
+    ajoute("Créatures", _par_couche(c, charger("creatures.json").get("talents", {})))
+    return res
 
 
 def gen_peuples():
@@ -347,6 +464,8 @@ def gen_peuples():
   </div>
   <div class="boxtitle">Traits du peuple</div>
   <div class="traits">{traits}</div>
+  <div class="boxtitle">Talents à travers la galaxie</div>
+  <div class="talents-peuple">{''.join(f"<div class='tp'><span class='tp-cat'>{esc(cat)}</span><b>{esc(lab)}</b> {inline(txt)}</div>" for cat, lab, txt in talents_du_peuple(f))}</div>
   {f'<div class="boxtitle">Victoire de peuple</div><p class="victoire-peuple">{inline(victoire)}</p>' if victoire else ''}
   {bloc('chronique', x['chronique_source'], x['chronique']) if x.get('chronique') else ''}
   {bloc('conseil', '', x['conseil']) if x.get('conseil') else ''}
@@ -371,6 +490,7 @@ GENERATEURS = {
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
     "peuples": gen_peuples, "prompts": gen_prompts,
     "luxes": gen_luxes, "strategiques": gen_strategiques,
+    "lois": gen_lois, "reliques": gen_reliques,
 }
 
 

@@ -163,6 +163,17 @@ table.grille td:first-child { font-family: Raj; font-weight: 600; color: var(--t
 .trait { margin-bottom: 2mm; font-size: 9.8pt; break-inside: avoid; line-height: 1.38; }
 .trait b { font-family: Raj; font-weight: 700; font-size: 9.8pt; letter-spacing: .06em; color: var(--title); text-transform: uppercase; margin-right: 1.5mm; }
 .victoire-peuple { border-top: 1px solid var(--gold); padding-top: 2mm; }
+.talents-peuple { border-top: 1px solid var(--gold); padding-top: 2.5mm; column-count: 2; column-gap: 6mm; }
+.tp { margin-bottom: 1.8mm; font-size: 9pt; break-inside: avoid; line-height: 1.34; }
+.tp b { font-family: Raj; font-weight: 700; font-size: 9pt; letter-spacing: .05em; color: var(--title); margin-right: 1.2mm; }
+.tp-cat { display: inline-block; font-family: Raj; font-size: 7.4pt; letter-spacing: .12em; text-transform: uppercase; color: var(--accent, var(--gold)); margin-right: 1.5mm; }
+table.reliques { table-layout: fixed; }
+table.reliques td:first-child, table.reliques th:first-child { width: 44%; white-space: normal; }
+table.reliques td:nth-child(2), table.reliques th:nth-child(2) { width: 22%; }
+table.reliques td:nth-child(3), table.reliques th:nth-child(3) { width: 34%; }
+table.reliques i { font-size: 8.6pt; opacity: .85; }
+table.lois td:first-child { white-space: nowrap; width: 18%; }
+table.lois td:nth-child(2) { width: 9%; text-align: center; }
 
 /* --- Encarts d'image ----------------------------------------------------- */
 figure { margin: 0; }

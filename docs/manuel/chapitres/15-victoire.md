@@ -1,29 +1,31 @@
 ---
 titre: La victoire
-numero: 13
+numero: 18
 image: MJ-17
 epigraphe: On ne gagne pas une galaxie. On attend simplement que les autres aient fini de la perdre.
 signature: Proverbe des Lignées d'Ossarane
 ---
-Trois victoires sont ouvertes à tous, et chaque peuple a la sienne. L'écran Victoires ([[F7]]) montre où en est chaque empire.
+Cinq victoires sont ouvertes à tous, et chaque peuple a la sienne. Le bloc Victoire de la nouvelle partie dit lesquelles sont en jeu ; l'écran Victoires ([[F7]]) montre où en est chaque empire.
 
-### Les trois victoires communes
+### Les victoires communes
 
-| Victoire | Condition |
-| --- | --- |
-| Conquête | Tenir la capitale d'origine de chaque rival hors de votre alliance, en gardant la vôtre. Rester seuls en vie suffit aussi |
-| Domination | Revendiquer 50 % des systèmes de la galaxie pendant 3 ans. Les systèmes des alliés comptent, mais chaque allié ajoute 10 points au seuil |
-| Score | Avoir le plus haut score à la date limite choisie (30, 60 ou 90 ans, ou aucune) |
+| Victoire | En jeu | Condition |
+| --- | --- | --- |
+| Conquête | Par défaut | Tenir la capitale d'origine de chaque rival hors de votre camp, en gardant la vôtre. Rester seuls en vie suffit aussi |
+| Domination | Par défaut | Revendiquer 50 % des systèmes de la galaxie pendant 3 ans. Les systèmes des alliés comptent, mais chaque allié ajoute 10 points au seuil |
+| Score | Si une date limite est choisie | Avoir le plus haut score à la date limite (30, 60 ou 90 ans ; 60 par défaut) |
+| Spirituelle | En option, avec les religions | Votre foi d'État majoritaire dans plus de la moitié des colonies de chaque empire survivant, le vôtre compris, pendant 5 ans |
+| Diplomatique | Par défaut, avec l'Amphictyonie | Être élu **Chancelier des étoiles** par l'Amphictyonie, puis faire accepter le verdict |
 
-**Victoire spirituelle** (option de partie, avec les religions) : votre foi d'État doit être majoritaire dans plus de la moitié des colonies de chaque empire survivant, le vôtre compris, pendant 5 ans.
+**Le camp.** Conquête et Domination se gagnent en camp, si l'option « alliés vainqueurs ensemble » est cochée (c'est le cas par défaut) : les alliés partagent la victoire. Les membres d'un même **Koinon** comptent comme des alliés après cinq ans dans la ligue ; un **sujet** compte pour son suzerain après cinq ans de lien (ses systèmes pour moitié), mais ne peut gagner ni la conquête ni la domination pour lui-même. Ces délais de grâce empêchent les ralliements de la dernière heure.
 
-**Victoire diplomatique** (avec l'Amphictyonie, en jeu par défaut, décochable) : être élu **Chancelier des étoiles**. L'élection a lieu tous les dix ans à partir de l'an 30, entre les deux plus fortes voix de l'assemblée. Il faut **67 % de toutes les voix**, abstentions comprises, dans une assemblée d'au moins quatre membres qui réunit au moins 75 % des empires vivants. Le candidat battu peut refuser le verdict dans les 60 jours : c'est la **Dernière Guerre**, où ceux qui ont voté pour l'élu marchent sur lui. L'élu gagne quand le battu s'incline, laisse passer le délai, ou perd sa capitale ; s'il la tient dix ans, le titre retourne aux archives. Les alliés de l'élu gagnent avec lui. Le détail est au chapitre 8.
+**Le Chancelier des étoiles.** L'élection a lieu tous les dix ans à partir de l'an 30, entre les deux plus fortes voix de l'assemblée. Il faut **67 % de toutes les voix**, abstentions comprises, dans une assemblée d'au moins quatre membres qui réunit au moins 75 % des empires vivants. Le candidat battu peut refuser le verdict dans les 60 jours : c'est la **Dernière Guerre**, où ceux qui ont voté pour l'élu marchent sur lui. L'élu gagne quand le battu s'incline, laisse passer le délai, ou perd sa capitale ; s'il la tient dix ans, le titre retourne aux archives. Les alliés de l'élu gagnent avec lui. Le détail est au chapitre 12.
 
-Conquête et Domination se gagnent **en alliance** : les alliés partagent la victoire. Le score compte la population, les colonies, les avant-postes, les technologies, les vaisseaux détruits, les conquêtes, l'exploration et les peuples rencontrés.
+**Le score** compte, pour chaque empire : 2 points par habitant, 10 par colonie, 4 par avant-poste, 5 par technologie, 2 par vaisseau ennemi détruit, 10 par conquête, 1 pour trois systèmes explorés, 15 par relique tenue, la valeur de vos merveilles et mégastructures, 10 par quête achevée (30 pour la quête de votre credo), et la moitié de votre avancée vers votre victoire de peuple (50 au plus).
 
 ### Les victoires de peuple
 
-Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie de Société de l'ère IV. Elle tient à ses couches d'espèce : un peuple créé dans l'éditeur reçoit celle de sa combinaison. Le chapitre 14 les présente une à une.
+Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie de Société de l'ère IV. Elle tient à ses couches d'espèce : un peuple créé dans l'éditeur reçoit celle de sa combinaison. Le chapitre 19 les présente une à une.
 
 | Victoire | Peuple | En bref |
 | --- | --- | --- |
@@ -38,7 +40,7 @@ Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie 
 
 ### L'avancée
 
-Chaque victoire a une **avancée** de 0 à 100 %. À 75 %, la condition est remplie et le **compte à rebours** commence. Sans la technologie de sa victoire de peuple, l'avancée plafonne à 74 %. Les autres empires voient votre avancée dès 50 %, le chroniqueur l'annonce à 50 et à 75 %, et les IA prennent le meneur en grippe : il devient plus facile de lui déclarer la guerre.
+Chaque victoire a une **avancée** de 0 à 100 %. À 75 %, la condition est remplie et le **compte à rebours** commence. Sans la technologie de sa victoire de peuple, l'avancée plafonne à 74 %. Les autres empires voient votre avancée dès 50 %, le chroniqueur l'annonce à 50 et à 75 %, et les IA prennent le meneur en grippe (-15 d'opinion à 50 %, -30 à 75 %) : il devient plus facile de lui déclarer la guerre.
 
 ::: capture docs/apercu-victoire.png|L'écran Victoires
 :::

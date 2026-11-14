@@ -1,6 +1,6 @@
 ---
 titre: Le renseignement
-numero: 9
+numero: 13
 image: MJ-13
 epigraphe: Nous ne savons pas tout. Mais nous savons qui sait.
 signature: Directoire du Syndicat Brisecomète, note interne
@@ -29,7 +29,7 @@ Un réseau assez avancé peut agir. Chaque opération coûte de l'influence, pre
 | Renseignement | Rapport complet, dossier des héros, délit d'initié (le prochain krach ou la prochaine envolée du marché) |
 | Larcin | Voler 40 % d'une technologie, siphonner l'énergie, détourner un convoi (un mois de ses routes), contrebande (un de ses luxes pendant un an), exfiltrer un prisonnier, larcin de relique |
 | Sabotage | Saboter un chantier (60 jours de retard), brûler des archives, assassiner un héros, armer des partisans, appât |
-| Intrigue | Semer la discorde, corrompre l'héritier ou un héros, attiser la dissidence, truquer une élection, fomenter un coup d'État ; avec les peuples mêlés, attiser les frictions, appel au retour, propagande xénophobe ; avec les religions, semer une prophétie (chapitre 10) ; avec l'Amphictyonie, acheter un délégué, faire fuiter un dossier, monter un scandale, et contre une Cour impériale chancelante, saper l'autorité ou allumer la rébellion (chapitre 8) ; avec les vassaux et le Koinon, attiser l'indépendance d'un sujet, acheter une allégeance, semer la discorde au synode (chapitre 8) |
+| Intrigue | Semer la discorde, corrompre l'héritier ou un héros, attiser la dissidence, truquer une élection, fomenter un coup d'État ; avec les peuples mêlés, attiser les frictions, appel au retour, propagande xénophobe ; avec les religions, semer une prophétie (chapitre 15) ; avec l'Amphictyonie, acheter un délégué, faire fuiter un dossier, monter un scandale, et contre une Cour impériale chancelante, saper l'autorité ou allumer la rébellion (chapitre 12) ; avec les vassaux et le Koinon, attiser l'indépendance d'un sujet, acheter une allégeance (chapitre 10), semer la discorde au synode (chapitre 11) |
 
 Les trois intrigues des peuples mêlés jouent sur la mosaïque de la cible. **Attiser les frictions** coûte 15 de stabilité pendant un an à son système le plus mêlé. L'**appel au retour** ramène chez vous trois des vôtres qui vivent chez elle. La **propagande xénophobe** divise par deux, pendant deux ans, l'intégration de ses peuples venus d'ailleurs, et le Glaive et l'Autel y gagnent des voix.
 
@@ -43,7 +43,7 @@ Les archives de la Concorde occupent trois étages. Nous en avons brûlé la moi
 
 ### Être découvert
 
-Un espion pris coûte 30 d'infiltration au réseau et un mauvais souvenir à la victime. Celle-ci a 30 jours pour répondre : exiger réparation (80 influence) ou **expulser** vos agents. Refuser de réparer laisse une trace ; payer apaise.
+Un espion pris coûte 30 d'infiltration au réseau et un mauvais souvenir à la victime. Pendant un an, elle tient aussi un **grief** contre vous : vous déclarer la guerre, même sous traité, ne fera pas d'elle une parjure. Un allié pris à vous espionner perd l'alliance sur-le-champ. Celle-ci a 30 jours pour répondre : exiger réparation (80 influence) ou **expulser** vos agents. Refuser de réparer laisse une trace ; payer apaise.
 
 Plus vicieux : un réseau peut être **retourné**. L'espion continue de recevoir des rapports, mais la moitié est fausse, et il n'a chaque mois qu'une petite chance de s'en rendre compte.
 
@@ -54,6 +54,19 @@ Si votre réseau vous annonce que l'ennemi n'a plus de flotte, envoyez une sonde
 ### Les sondes
 
 Depuis la vue d'un système connu mais hors de vue, une **sonde** (10 énergie) rafraîchit son relevé. Vous en avez trois au plus, et elles se refont tous les 90 jours.
+
+### Talents de l'ombre
+
+Chaque peuple espionne, et se garde, à sa façon. Ces talents suivent les couches d'espèce :
+
+| Couche | Talent |
+| --- | --- |
+| Féodalité | **Maisons méfiantes** : chaque lignée surveille les autres, chiffrement +1 |
+| République | **Assemblées ouvertes** : débats publics (chiffrement -1), mais un espion pris fait scandale, son souvenir compte double |
+| Ruche | **Ni cour ni rumeurs** : aucune intrigue ne prend sur une ruche et elle n'en mène aucune ; les espions qu'elle prend sont dévorés sur-le-champ |
+| Conscience | **Nœuds ouverts** : une conscience partagée se lit plus vite qu'elle ne se garde, +2 par mois aux réseaux étrangers chez elle |
+| Credo Foi | **Inquisition** : les cellules de contre-espionnage comptent double ; un espion infidèle démasqué rallume la ferveur (+10) |
+| Synthétique | **Calculateurs** : chiffrement et déchiffrement +2 |
 
 ::: conseil
 Gardez toujours une cellule chez vous : elle contre les réseaux rivaux et rend leurs opérations plus risquées. Un empire qui ne surveille rien ne voit pas venir le coup d'État.

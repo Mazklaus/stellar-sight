@@ -36,9 +36,10 @@ Stellar Sight est un jeu de stratégie à quatre verbes : **explorer**, **s'éte
 - fonder des colonies et des avant-postes, et les faire grandir ;
 - produire de l'énergie, des matériaux, de la nourriture, de l'influence et du Savoir ;
 - rechercher des technologies, concevoir des vaisseaux, recruter des héros ;
-- négocier, espionner, faire la guerre ou l'éviter ;
-- tenir vos colonies, qui ont leurs humeurs, et votre peuple, qui a ses courants politiques ;
-- et l'emporter, par la conquête, la domination, le score ou la victoire propre à votre peuple.
+- commercer, négocier, espionner, faire la guerre ou l'éviter ;
+- tenir des vassaux, fonder une ligue avec vos alliés, peser dans l'assemblée de la galaxie ;
+- tenir vos colonies, qui ont leurs humeurs, leurs peuples mêlés et leurs croyances, et votre peuple, qui a ses courants politiques ;
+- et l'emporter, par la conquête, la domination, le score, la foi, l'élection au rang de Chancelier des étoiles ou la victoire propre à votre peuple.
 
 La partie se joue en **temps réel pausable** ou au **tour par tour**, au choix. Dans les deux cas, ce sont exactement les mêmes règles.
 
