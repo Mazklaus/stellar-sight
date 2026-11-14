@@ -75,6 +75,9 @@ static func rule_text(id: String) -> String:
 			return t % [int(v["colonies"]), years]
 		"spirituelle":
 			return t % [int(v["share_pct"]), years]
+		"diplomatique":
+			var cd: Dictionary = Amphictyony.data()["chancellor"]
+			return t % [int(cd["win_pct"]), int(cd["cover_pct"])]
 	return t
 
 
@@ -114,6 +117,9 @@ static func enabled(state: GameState, id: String) -> bool:
 		return people_enabled(state)
 	# Victoire en option (spirituelle) : décochée par défaut, et seulement avec les religions.
 	if bool(info(id).get("faiths", false)) and not state.faith_on:
+		return false
+	# Victoire diplomatique : seulement avec l'Amphictyonie.
+	if bool(info(id).get("amph", false)) and not state.amph_on:
 		return false
 	return bool(state.victory_rules.get(id, not bool(info(id).get("option", false))))
 
@@ -233,6 +239,8 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			_silence(state, e, out)
 		"spirituelle":
 			FaithBridges.spiritual(state, e, out)
+		"diplomatique":
+			AmphPower.victory(state, e, out)
 	if is_people(id) and not has_tech(state, empire_id, id):
 		out["lines"].append("Technologie requise : %s" % String(Research.tech(tech_for(id)).get("label", tech_for(id))))
 		out["cond"] = false

@@ -414,7 +414,7 @@ func _test_save() -> void:
 	FaithNatures.fdat(st, fc)["stage"] = 2
 	FaithNatures.fdat(st, fc)["build"] = {"end": st.tick + 50}
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 48, "sauvegarde version 48")
+	_ok(int(d["version"]) == 49, "sauvegarde version 49")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and FaithHeavy.stage(back, fc) == 2, "étage du dieu relu")
 	_ok(back != null and back.checksum() == st.checksum(), "même empreinte après relecture (lot 4)")

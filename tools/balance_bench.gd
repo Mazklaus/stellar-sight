@@ -6,7 +6,8 @@ extends SceneTree
 ## Variables : SEEDS, YEARS (défaut 25), LEVEL (défaut normal), TEMPER (défaut normal),
 ## PIRATES (densité des repaires : aucun par défaut, rares, normaux, infestes), POLITICS (politique
 ## intérieure : aucune par défaut, active), PEOPLES (peuples mêlés : aucuns par défaut, actifs),
-## AMPH (Amphictyonie : aucune par défaut, active).
+## AMPH (Amphictyonie : aucune par défaut, active), VICTORIES (« diplo » : sans conquête ni domination,
+## pour régler la victoire diplomatique sur de longues parties).
 ## SPECIES : peuples créés à ajouter aux 4 officiels (éditeur d'espèces), séparés par des virgules :
 ## chemin d'un fichier de peuple (user://species/p_x.json ou chemin absolu) ou « preset:<officiel> »
 ## (peuple créé depuis le modèle d'un officiel). Banc court d'un peuple créé, cibles de l'étude
@@ -44,12 +45,14 @@ func _initialize() -> void:
 				"politics": OS.get_environment("POLITICS") if OS.get_environment("POLITICS") != "" else "aucune",
 				"peoples": OS.get_environment("PEOPLES") if OS.get_environment("PEOPLES") != "" else "aucuns",
 				"faiths": OS.get_environment("FAITHS") if OS.get_environment("FAITHS") != "" else "aucunes",
-				"amphictyony": OS.get_environment("AMPH") if OS.get_environment("AMPH") != "" else "aucune"})
+				"amphictyony": OS.get_environment("AMPH") if OS.get_environment("AMPH") != "" else "aucune",
+				"victories": {"conquete": false, "domination": false} if OS.get_environment("VICTORIES") == "diplo" else {}})
 		var sim := Simulation.new(st)
 		var rows := {}
 		for e in st.empires:
 			rows[e.id] = {"faction": e.faction_id, "systems": [], "dead": -1, "first_war": -1, "pop": 0}
 		var t0 := Time.get_ticks_msec()
+		var amph_years := []
 		var y := 0
 		while y < years and st.winner.is_empty():
 			sim.advance(360)
@@ -63,6 +66,12 @@ func _initialize() -> void:
 					r["killer"] = taker.faction_id if taker != null else ""
 				if int(r["first_war"]) < 0 and not e.wars.is_empty():
 					r["first_war"] = y
+			if st.amph_on and Amphictyony.founded(st):
+				var smax := 0
+				for k in st.amph["share"]:
+					smax = maxi(smax, int(st.amph["share"][k]))
+				amph_years.append({"y": y, "m": Amphictyony.members(st).size(), "cov": AmphPower.coverage(st), "share": smax, "imp": AmphPower.imperator(st),
+						"auth": AmphPower.authority(st), "life": AmphPower.life(st), "dip": (st.amph["dip"] as Dictionary).duplicate(), "chan": AmphPower.chan_on(st)})
 		for e in st.empires:
 			rows[e.id]["pop"] = 0 if e.eliminated else int(EmpireReport.totals(st, e.id)["population"])
 			if st.peoples_on and not e.eliminated:
@@ -109,7 +118,7 @@ func _initialize() -> void:
 					"queue": (st.amph["queue"] as Array).size(), "council": AmphInst.councillors(st).size(), "arbiter": AmphInst.arbiter(st),
 					"works": (st.amph["done"] as Array).size(), "work_on": AmphInst.work_on(st), "coal": AmphInst.coal_on(st), "special": AmphInst.special_on(st),
 					"observers": AmphInst.observers(st).size(), "favors": (st.amph["favors"] as Dictionary).size(), "aid": (st.amph["aid"] as Dictionary).size(),
-					"trig": (st.amph["trig"] as Array).size()}
+					"trig": (st.amph["trig"] as Array).size(), "years": amph_years}
 		if not st.winner.is_empty():
 			var w := st.winner
 			out["winner"] = {"faction": st.get_empire(int(w["empire"])).faction_id, "victory": String(w["victory"]),

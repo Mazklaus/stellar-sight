@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.16
+
+- **Amphictyonie, lot 3** (chapitre 8) : les **pleins pouvoirs** (mandat à vie de l'Arbitre, puis l'**Impérateur**, ses vassaux, ses rebelles et son autorité) ; l'élection du **Chancelier des étoiles** et la **Dernière Guerre** ; l'assemblée et la vie intérieure (courants poussés, résolutions qui heurtent les lois, loi **Souveraineté**) ; zèle de la foi galactique, guerres saintes et **Conclave** ; huit **talents d'assemblée**, un par peuple.
+- **Victoire diplomatique** (chapitre 15), en jeu par défaut avec l'Amphictyonie.
+- Deux opérations d'espionnage contre une Cour chancelante (chapitre 9).
+
 ### Édition 1.15
 
 - **Amphictyonie, lot 2** (chapitre 8) : un troisième niveau pour chaque voie des résolutions ; la **Haute Voûte** (haut conseil : veto, urgence, dénonciation) et l'**Arbitre des étoiles** (gel, clôture, trêve imposée) ; les **faveurs** entre membres ; le **banc des observateurs** ; les **crises**, sessions extraordinaires et **coalitions** ; l'**aide d'urgence** ; quatre **grands chantiers** et leurs médailles.

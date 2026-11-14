@@ -9,6 +9,8 @@ extends RefCounted
 ## atrocités, sanctions en 3 degrés, bannissement, marché commun réservé aux membres.
 ## Lot 2 (AmphInst) : troisième niveau des voies, Haute Voûte, Arbitre des étoiles, faveurs, observateurs,
 ## sessions extraordinaires et coalitions, aide d'urgence, grands travaux, ambassadeurs.
+## Lot 3 (AmphPower) : pleins pouvoirs (Impérateur), victoire diplomatique (Chancelier des étoiles),
+## ponts avec la politique et la religion, talents d'assemblée des peuples.
 ##
 ## state.amph (clés d'empire en texte, pour la sauvegarde) :
 ## - "founded" : jour de fondation (-1 avant) ; "offer" : {"since", "yes": [empires]} (offre de fonder) ;
@@ -31,6 +33,8 @@ const LISTS := ["members", "queue", "presided", "hist"]
 ## Clés du lot 2 (voir AmphInst), relues telles quelles (nombres remis en entiers).
 const KEYS2 := ["council", "arbiter", "favors", "special", "coal", "aid", "work", "den", "cd"]
 const LISTS2 := ["observers", "trig", "done"]
+## Clés du lot 3 (voir AmphPower).
+const KEYS3 := ["imp", "chan", "dip", "share", "sov"]
 const HIST_MAX := 12
 
 
@@ -67,6 +71,8 @@ static func _blank() -> Dictionary:
 		d[k] = {}
 	for k in LISTS2:
 		d[k] = []
+	for k in KEYS3:
+		d[k] = {}
 	return d
 
 
@@ -92,6 +98,8 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 		state.amph[k] = _intify((d.get(k, {}) as Dictionary).duplicate(true))
 	for k in LISTS2:
 		state.amph[k] = _intify((d.get(k, []) as Array).duplicate(true))
+	for k in KEYS3:
+		state.amph[k] = _intify((d.get(k, {}) as Dictionary).duplicate(true))
 	var a: Dictionary = state.amph
 	a["members"] = _ints(a["members"])
 	a["presided"] = _ints(a["presided"])
@@ -408,7 +416,7 @@ static func voix_pct(state: GameState, eid: int) -> int:
 			pct += int(m[0])
 	if galactic_follower(state, eid):
 		pct += level_sum(state, "faith_voix_pct")
-	return pct + AmphInst.voix_pct(state, eid)
+	return pct + AmphInst.voix_pct(state, eid) + AmphPower.voix_pct(state, eid)
 
 
 ## Voix effectives d'un membre (0 pour un non-membre).
@@ -443,6 +451,7 @@ static func components(state: GameState, eid: int) -> Dictionary:
 	var fleet := 0
 	for f in Fleets.empire_fleets(state, eid):
 		fleet += Combat.fleet_power(f)
+	fleet *= AmphPower.fleet_x(state, eid)
 	return {"pop": pop, "eco": eco, "tech": e.techs.size(), "fleet": fleet}
 
 
@@ -598,6 +607,7 @@ static func _remove_member(state: GameState, eid: int, ban_days: int) -> void:
 	if not s.is_empty():
 		(s["votes"] as Dictionary).erase(str(eid))
 	AmphInst.on_remove(state, eid)
+	AmphPower.on_remove(state, eid)
 	state.relic_rev += 1
 
 
@@ -626,16 +636,32 @@ static func step_cost(from: int, to: int) -> Dictionary:
 	return {"influence": int(cl[clampi(absi(to) - 1, 0, cl.size() - 1)])}
 
 
-static func prop_cost(state: GameState, kind: String, fid: String, dir: int) -> Dictionary:
+## eid : le proposant (talents de peuple : Tribune, Anathème), -1 pour le prix de base.
+static func prop_cost(state: GameState, kind: String, fid: String, dir: int, eid := -1) -> Dictionary:
+	var base := {}
 	match kind:
 		"sanction":
-			return {"influence": int(data()["sanction_cost"])}
+			base = {"influence": int(data()["sanction_cost"])}
 		"expel":
-			return {"influence": int(data()["expel_cost"])}
-	if AmphInst.INST_KINDS.has(kind):
-		return AmphInst.prop_cost(kind)
-	var st := step_to(state, fid, dir)
-	return step_cost(fam_value(state, fid), int(st[1]))
+			base = {"influence": int(data()["expel_cost"])}
+		_:
+			if AmphInst.INST_KINDS.has(kind):
+				base = AmphInst.prop_cost(kind)
+			else:
+				var st := step_to(state, fid, dir)
+				base = step_cost(fam_value(state, fid), int(st[1]))
+	return AmphPower.cost_for(state, eid, kind, fid, base)
+
+
+static func proposals_count(state: GameState, eid: int) -> int:
+	var n := 0
+	for p: Dictionary in state.amph["queue"]:
+		if int(p["by"]) == eid:
+			n += 1
+	var s: Dictionary = state.amph["session"]
+	if not s.is_empty() and int(s["prop"]["by"]) == eid:
+		n += 1
+	return n
 
 
 static func proposal_of(state: GameState, eid: int) -> Dictionary:
@@ -653,8 +679,8 @@ static func check_propose(state: GameState, eid: int, kind: String, fid: String,
 		return "l'Amphictyonie n'est pas fondée"
 	if not is_member(state, eid):
 		return "seuls les amphictyons proposent"
-	if not proposal_of(state, eid).is_empty():
-		return "vous avez déjà une proposition en cours"
+	if proposals_count(state, eid) >= AmphPower.max_props(state, eid):
+		return "vous avez déjà une proposition en cours" if AmphPower.max_props(state, eid) <= 1 else "vous avez déjà %d propositions en cours" % AmphPower.max_props(state, eid)
 	match kind:
 		"step":
 			if family_def(fid).is_empty() or not family_available(state, fid):
@@ -677,6 +703,8 @@ static func check_propose(state: GameState, eid: int, kind: String, fid: String,
 				return "seul un hors-la-loi ou un empire dénoncé peut être sanctionné"
 			if target == eid:
 				return "on ne se sanctionne pas soi-même"
+			if AmphPower.immune(state, target):
+				return "les sanctions glissent sur la ruche (Hors du concert)"
 			if sanction_degree(state, target, sanc) >= (sanction_def(sanc)["degrees"] as Array).size():
 				return "déjà au degré le plus dur"
 		"expel":
@@ -688,13 +716,13 @@ static func check_propose(state: GameState, eid: int, kind: String, fid: String,
 			var why := AmphInst.check_prop(state, eid, kind, fid, dir, target)
 			if why != "":
 				return why
-	if not Economy.can_afford(state.get_empire(eid), prop_cost(state, kind, fid, dir)):
-		return "il faut %s" % GameData.format_amounts(prop_cost(state, kind, fid, dir))
+	if not Economy.can_afford(state.get_empire(eid), prop_cost(state, kind, fid, dir, eid)):
+		return "il faut %s" % GameData.format_amounts(prop_cost(state, kind, fid, dir, eid))
 	return ""
 
 
 static func propose(state: GameState, eid: int, kind: String, fid: String, dir: int, target: int, sanc: String) -> void:
-	var cost := prop_cost(state, kind, fid, dir)
+	var cost := prop_cost(state, kind, fid, dir, eid)
 	Economy.pay(state.get_empire(eid), cost)
 	var from := fam_value(state, fid) if kind == "step" else 0
 	var to := int(step_to(state, fid, dir)[1]) if kind == "step" else 0
@@ -863,7 +891,7 @@ static func bought(state: GameState, eid: int) -> int:
 
 static func buy_cost(state: GameState, eid: int) -> Dictionary:
 	var bd: Dictionary = data()["buy"]
-	return {"influence": int(bd["base"]) + int(bd["step"]) * bought(state, eid)}
+	return AmphPower.buy_cost(state, eid, {"influence": int(bd["base"]) + int(bd["step"]) * bought(state, eid)})
 
 
 @warning_ignore("integer_division")
@@ -889,6 +917,7 @@ static func buy(state: GameState, eid: int) -> void:
 	Economy.pay(state.get_empire(eid), cost)
 	var b: Dictionary = session(state)["buy"]
 	b[str(eid)] = int(b.get(str(eid), 0)) + 1
+	AmphPower.on_buy(state, eid)
 
 
 ## Dépouillement : {"pour", "contre", "abst"} en voix (voix achetées comprises).
@@ -907,6 +936,8 @@ static func tally(state: GameState) -> Dictionary:
 			out["contre"] = int(out["contre"]) + w
 		else:
 			out["abst"] = int(out["abst"]) + weight(state, m)
+	# Landsraad : les lignées unies qui votent pareil.
+	AmphPower.tally_bonus(state, s["votes"], out)
 	# Faveurs appelées : une part des voix du débiteur rejoint le camp du créancier.
 	var calls: Dictionary = s.get("calls", {})
 	for d in calls:
@@ -1017,7 +1048,7 @@ static func _close_session(state: GameState, added: Array[Dictionary], veto_by :
 	# Souvenirs : voter pour plaît au proposant, voter contre le froisse.
 	for k in s["votes"]:
 		var who := int(k)
-		if who == by:
+		if who == by or AmphPower.veiled(state, who):
 			continue
 		Diplomacy.remember(state, by, who, "amph_backed" if int(s["votes"][k]) > 0 else "amph_opposed")
 	# Voix achetées du camp perdant : remboursées à moitié.
@@ -1046,6 +1077,7 @@ static func _close_session(state: GameState, added: Array[Dictionary], veto_by :
 	while hist.size() > HIST_MAX:
 		hist.pop_front()
 	var label := prop_label(state, p)
+	AmphPower.on_close(state, p, s["votes"], passed)
 	if passed:
 		_apply(state, p, added)
 	var verdict := "adopte" if passed else ("rejette" if valid else "classe sans suite")
@@ -1084,7 +1116,7 @@ static func breach_label(kind: String) -> String:
 
 ## Un membre enfreint le Nomos (si l'interdit est en vigueur) : hors-la-loi, souvenir chez tous.
 static func breach(state: GameState, eid: int, kind: String) -> void:
-	if not founded(state) or not is_member(state, eid) or not banned(state, kind):
+	if not founded(state) or not is_member(state, eid) or not banned(state, kind) or AmphPower.exempt_kind(state, eid, kind):
 		return
 	_make_outlaw(state, eid, kind)
 
@@ -1198,7 +1230,7 @@ static func effects(state: GameState, eid: int) -> Dictionary:
 		var gf := galactic_follower(state, eid)
 		for f: Dictionary in family_defs():
 			var fid := String(f["id"])
-			if not family_available(state, fid):
+			if not family_available(state, fid) or AmphPower.sovereign(state, eid, fid):
 				continue
 			for l: Dictionary in _levels_in_force(state, fid):
 				Research._merge(out, l.get("fx", {}))
@@ -1206,7 +1238,7 @@ static func effects(state: GameState, eid: int) -> Dictionary:
 					Research._merge(out, l.get("faith_fx", {}))
 	AmphInst.effects(state, eid, out)
 	var sc: Dictionary = (state.amph["sanc"] as Dictionary).get(str(eid), {})
-	if not sc.is_empty() and sanctionable(state, eid):
+	if not sc.is_empty() and sanctionable(state, eid) and not AmphPower.immune(state, eid):
 		for sid in sc:
 			var degs: Array = sanction_def(String(sid)).get("degrees", [])
 			var d := clampi(int(sc[sid]), 0, degs.size())
@@ -1276,6 +1308,7 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 			a["mods"][key] = kept
 	_galactic_faith(state, added)
 	AmphInst.monthly(state, added)
+	AmphPower.monthly(state, added)
 
 
 static func _check_offer(state: GameState, added: Array[Dictionary]) -> void:
@@ -1329,6 +1362,7 @@ static func daily(state: GameState, added: Array[Dictionary]) -> void:
 	if not founded(state):
 		return
 	AmphInst.daily(state, added)
+	AmphPower.daily(state, added)
 	if in_session(state):
 		if state.tick >= int(session(state)["end"]):
 			_close_session(state, added)

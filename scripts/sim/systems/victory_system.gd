@@ -84,7 +84,7 @@ static func _proclaim(state: GameState, empire_id: int, id: String, added: Array
 	var e := state.get_empire(empire_id)
 	state.winner = {"empire": empire_id, "victory": id, "tick": state.tick, "allies": []}
 	# Conquête et domination se gagnent en alliance (Endless Space 2) : les alliés partagent la victoire.
-	if id == "conquete" or id == "domination":
+	if id == "conquete" or id == "domination" or id == "diplomatique":
 		var b := Victory.bloc(state, empire_id)
 		b.erase(empire_id)
 		state.winner["allies"] = Array(b)

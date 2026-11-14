@@ -657,7 +657,7 @@ func _test_save() -> void:
 	var d := st.to_dict()
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and back.checksum() == st.checksum(), "sauvegarde : victoires relues à l'identique")
-	_ok(back.victory_rules == {"deadline": 10800, "people": true, "conquete": true, "domination": true, "allies": true, "spirituelle": false} and back.winner == st.winner, "sauvegarde : règles et vainqueur")
+	_ok(back.victory_rules == {"deadline": 10800, "people": true, "conquete": true, "domination": true, "allies": true, "spirituelle": false, "diplomatique": true} and back.winner == st.winner, "sauvegarde : règles et vainqueur")
 	_ok(Victory.united(back, 0, vael) and Victory.held(back, 0, "elu") == 60, "sauvegarde : union et compte à rebours")
 	# Ancienne sauvegarde (version 10, sans victoires) : sans date limite, capitale d'origine = capitale.
 	var old: Dictionary = JSON.parse_string(JSON.stringify(_state("vael").to_dict()))

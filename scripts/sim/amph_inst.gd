@@ -18,7 +18,7 @@ extends RefCounted
 ## - "done" : [{"id", "day", "medals": [or, argent, bronze]}] (grands travaux achevés).
 ## - en séance : "calls" {débiteur: créancier} (faveurs appelées), "bribe" {cible: espion} (délégué acheté).
 
-const INST_KINDS := ["council", "council_size", "arbiter", "extend", "defiance", "work"]
+const INST_KINDS := ["council", "council_size", "arbiter", "extend", "defiance", "work", "term_lift", "full_powers"]
 
 
 static func idata() -> Dictionary:
@@ -183,7 +183,7 @@ static func arbiter(state: GameState) -> int:
 	if not council_on(state):
 		return -1
 	var ar: Dictionary = _a(state)["arbiter"]
-	if ar.is_empty() or int(ar.get("until", 0)) <= state.tick:
+	if ar.is_empty() or (int(ar.get("until", 0)) <= state.tick and int(ar.get("life", 0)) == 0):
 		return -1
 	return int(ar["eid"])
 
@@ -356,6 +356,8 @@ static func observe(state: GameState, eid: int) -> void:
 
 static func crisis_label(state: GameState, t: Dictionary) -> String:
 	var fmt := String(idata()["crisis"]["labels"].get(String(t["kind"]), "%s"))
+	if String(t["kind"]) == "moisson":
+		return fmt % [_name(state, int(t["a"])), "%d %%" % (int(t["b"]) if int(t["b"]) > 0 else 50)]
 	if fmt.count("%s") >= 2:
 		return fmt % [_name(state, int(t["a"])), _name(state, int(t["b"]))]
 	return fmt % _name(state, int(t["a"]))
@@ -378,6 +380,7 @@ static func on_capital(state: GameState, taker: int, victim: int) -> void:
 
 static func on_holy_war(state: GameState, a: int, b: int) -> void:
 	add_trig(state, "holy_war", a, b)
+	AmphPower.on_holy_war(state, a, b)
 
 
 static func trig(state: GameState, tid: int) -> Dictionary:
@@ -435,15 +438,21 @@ static func check_convene(state: GameState, eid: int, tid: int) -> String:
 
 static func convene(state: GameState, eid: int, tid: int) -> void:
 	Economy.pay(state.get_empire(eid), convene_cost())
-	var t := trig(state, tid)
+	open_special(state, trig(state, tid), eid)
+
+
+## Ouvre la session extraordinaire sur une crise (by : qui convoque, -1 = elle se réunit d'elle-même).
+static func open_special(state: GameState, t: Dictionary, by: int) -> void:
 	t["used"] = true
 	var votes := {}
-	if Amphictyony.is_member(state, eid):
-		votes[str(eid)] = 1
-	_a(state)["special"] = {"trig": tid, "kind": String(t["kind"]), "target": int(t["a"]), "victim": int(t["b"]), "by": eid,
+	if by >= 0 and Amphictyony.is_member(state, by):
+		votes[str(by)] = 1
+	var victim := int(t["b"]) if String(t["kind"]) != "moisson" else -1
+	_a(state)["special"] = {"trig": int(t["id"]), "kind": String(t["kind"]), "target": int(t["a"]), "victim": victim, "by": by,
 			"start": state.tick, "end": state.tick + int(idata()["crisis"]["vote_days"]), "votes": votes}
-	state.add_chronicle("Session extraordinaire de %s, convoquée par %s : %s. Faut-il former une coalition ? Vote en 2 mois ; voter pour, c'est s'engager." % [
-			Amphictyony.name_short(), _name(state, eid), crisis_label(state, t)], Espionage.public_to(state, _audience(state, [int(t["a"])])))
+	var who := ("convoquée par %s" % _name(state, by)) if by >= 0 else "réunie d'elle-même"
+	state.add_chronicle("Session extraordinaire de %s, %s : %s. Faut-il former une coalition ? Vote en 2 mois ; voter pour, c'est s'engager." % [
+			Amphictyony.name_short(), who, crisis_label(state, t)], Espionage.public_to(state, _audience(state, [int(t["a"])])))
 
 
 static func special(state: GameState) -> Dictionary:
@@ -771,7 +780,7 @@ static func prop_cost(kind: String) -> Dictionary:
 			return {"influence": int(ad["defiance_cost"])}
 		"work":
 			return {"influence": int(idata()["work_cost"])}
-	return {}
+	return AmphPower.prop_cost(kind)
 
 
 static func check_prop(state: GameState, eid: int, kind: String, fam: String, dir: int, target: int) -> String:
@@ -805,6 +814,10 @@ static func check_prop(state: GameState, eid: int, kind: String, fam: String, di
 				return "il n'y a pas d'Arbitre des étoiles"
 			if kind == "defiance" and arbiter(state) == eid:
 				return "démissionnez plutôt"
+			if kind == "extend" and AmphPower.life(state):
+				return "son mandat est déjà à vie"
+			if kind == "defiance" and AmphPower.imp_on(state):
+				return "contre l'Impérateur, plus de motion : il faut se soulever"
 		"work":
 			var w := work_def(fam)
 			if w.is_empty():
@@ -813,6 +826,10 @@ static func check_prop(state: GameState, eid: int, kind: String, fam: String, di
 				return "déjà bâti"
 			if work_on(state):
 				return "un grand chantier est déjà ouvert"
+		"term_lift", "full_powers":
+			var why := AmphPower.check_prop(state, eid, kind)
+			if why != "":
+				return why
 		_:
 			return "proposition inconnue"
 	var pending: Array = (_a(state)["queue"] as Array).duplicate()
@@ -832,7 +849,7 @@ static func make_fields(state: GameState, kind: String, fam: String, dir: int, t
 			return {"from": seats(state), "to": seats(state) + signi(dir), "fam": "", "target": -1}
 		"arbiter":
 			return {"from": 0, "to": 0, "fam": "", "target": target}
-		"extend", "defiance":
+		"extend", "defiance", "term_lift", "full_powers":
 			return {"from": 0, "to": 0, "fam": "", "target": arbiter(state)}
 		"work":
 			return {"from": 0, "to": 0, "fam": fam, "target": -1}
@@ -853,7 +870,7 @@ static func prop_label(state: GameState, p: Dictionary) -> String:
 			return "motion de défiance contre l'Arbitre (%s)" % _name(state, int(p["target"]))
 		"work":
 			return "grand chantier : %s" % String(work_def(String(p["fam"])).get("label", "?"))
-	return "?"
+	return AmphPower.prop_label(state, p)
 
 
 static func prop_text(_state: GameState, p: Dictionary) -> String:
@@ -871,7 +888,7 @@ static func prop_text(_state: GameState, p: Dictionary) -> String:
 		"work":
 			var w := work_def(String(p["fam"]))
 			return "%s Il faudra %d %s en 5 ans ; les trois plus gros donateurs reçoivent une médaille (voix en plus)." % [String(w.get("text", "")), int(w.get("need", 0)), GameData.resource_label(String(w.get("res", "")))]
-	return ""
+	return AmphPower.prop_text(p)
 
 
 static func still_valid(state: GameState, p: Dictionary) -> bool:
@@ -886,7 +903,7 @@ static func still_valid(state: GameState, p: Dictionary) -> bool:
 			return arbiter(state) >= 0 and arbiter(state) == int(p["target"])
 		"work":
 			return not work_on(state) and not work_done(state, String(p["fam"]))
-	return false
+	return AmphPower.still_valid(state, p)
 
 
 static func apply_prop(state: GameState, p: Dictionary, added: Array[Dictionary]) -> void:
@@ -909,6 +926,8 @@ static func apply_prop(state: GameState, p: Dictionary, added: Array[Dictionary]
 			a["arbiter"] = {}
 		"work":
 			a["work"] = {"id": String(p["fam"]), "start": state.tick, "end": state.tick + int(idata()["work_days"]), "got": {}}
+		_:
+			AmphPower.apply_prop(state, p, added)
 
 
 static func _names(state: GameState, ids: Array) -> String:
@@ -940,6 +959,8 @@ static func spy_check(state: GameState, a: int, b: int, op_id: String) -> String
 					mine = true
 			if not mine:
 				return "il n'a aucune proposition dans la file"
+		"saper_autorite", "allumer_rebellion":
+			return AmphPower.spy_check(state, a, b, op_id)
 	return ""
 
 
@@ -968,7 +989,7 @@ static func spy_apply(state: GameState, a: int, b: int, o: Dictionary) -> String
 			kept.append([int(o.get("voix_pct", -10)), state.tick + int(o.get("voix_days", 2160))])
 			_a(state)["mods"][str(b)] = kept
 			return "le scandale éclate sous la voûte : ses voix fondent, ses amis l'évitent dans les couloirs."
-	return ""
+	return AmphPower.spy_apply(state, a, b, o)
 
 
 # --- Effets, départs, mois et jours ----------------------------------------------------------------
@@ -1024,16 +1045,20 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 	if not (a["arbiter"] as Dictionary).is_empty() and arbiter(state) < 0:
 		added.append(state.add_chronicle("Le mandat de l'Arbitre des étoiles (%s) s'achève. La toge retourne au vestiaire." % _name(state, int(a["arbiter"]["eid"])), Espionage.public_to(state, _audience(state))))
 		a["arbiter"] = {}
-	# La Moisson de l'Essaim à mi-course : une crise pour l'assemblée.
+	# La Moisson de l'Essaim à mi-course (à 25, 50 et 75 % pour une ruche Hors du concert) : une crise.
 	for e in state.empires:
-		if e.eliminated or e.is_npc() or Victory.cached_pct(state, e.id, "moisson") < int(cd["moisson_pct"]):
+		if e.eliminated or e.is_npc():
 			continue
-		var seen := false
-		for t: Dictionary in a["trig"]:
-			if String(t["kind"]) == "moisson" and int(t["a"]) == e.id:
-				seen = true
-		if not seen:
-			add_trig(state, "moisson", e.id, -1)
+		var pct := Victory.cached_pct(state, e.id, "moisson")
+		for th in AmphPower.moisson_steps(state, e.id):
+			if pct < int(th):
+				continue
+			var seen := false
+			for t: Dictionary in a["trig"]:
+				if String(t["kind"]) == "moisson" and int(t["a"]) == e.id and (int(t["b"]) == int(th) or (int(t["b"]) < 0 and int(th) == 50)):
+					seen = true
+			if not seen:
+				add_trig(state, "moisson", e.id, int(th))
 	var kept: Array = []
 	for t: Dictionary in a["trig"]:
 		if state.tick - int(t["day"]) < int(cd["keep_days"]) or String(t["kind"]) == "moisson":
@@ -1089,7 +1114,7 @@ static func check_act(state: GameState, eid: int, act: String, x: int, y: int, s
 			return check_aid_give(state, eid, x, y)
 		"work_give":
 			return check_work_give(state, eid, x)
-	return "ordre inconnu"
+	return AmphPower.check_act(state, eid, act, x, y, s)
 
 
 static func act(state: GameState, eid: int, act_id: String, x: int, y: int, s: String) -> void:
@@ -1120,3 +1145,5 @@ static func act(state: GameState, eid: int, act_id: String, x: int, y: int, s: S
 			aid_give(state, eid, x, y)
 		"work_give":
 			work_give(state, eid, x)
+		_:
+			AmphPower.act(state, eid, act_id, x, y, s)

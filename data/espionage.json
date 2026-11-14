@@ -109,7 +109,13 @@
 			"text": "Des pièces embarrassantes sur la proposition que la cible a déposée à l'Amphictyonie : elle doit la retirer de la file, frais perdus."},
 		{"id": "scandale", "family": "intrigue", "label": "Monter un scandale", "tier": 3, "amph": true,
 			"cost": {"influence": 50}, "days": 60, "success": 55, "discovery": 35, "spend": 20, "voix_pct": -10, "voix_days": 2160,
-			"text": "Un scandale à l'Amphictyonie : la cible perd ses bonus de voix de proposant et 10 % de voix pendant 6 ans."}
+			"text": "Un scandale à l'Amphictyonie : la cible perd ses bonus de voix de proposant et 10 % de voix pendant 6 ans."},
+		{"id": "saper_autorite", "family": "intrigue", "label": "Saper l'autorité", "tier": 3, "amph": true,
+			"cost": {"influence": 50}, "days": 45, "success": 60, "discovery": 35, "spend": 15, "auth": 15,
+			"text": "Pamphlets, rumeurs de cour et caricatures : l'autorité de l'Impérateur perd 15 points. Seulement contre un Impérateur dont l'autorité est sous 50."},
+		{"id": "allumer_rebellion", "family": "intrigue", "label": "Allumer la rébellion", "tier": 3, "amph": true,
+			"cost": {"influence": 60}, "days": 60, "success": 50, "discovery": 40, "spend": 20,
+			"text": "Des agents persuadent un membre soumis de se soulever : il quitte l'Amphictyonie et entre en guerre contre la Cour. Seulement quand l'autorité de l'Impérateur est sous 50."}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
 	"chances": {
