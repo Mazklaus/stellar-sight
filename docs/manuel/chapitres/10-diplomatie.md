@@ -165,7 +165,7 @@ Avec l'option **Vassaux** (active par défaut), une guerre ne finit plus seuleme
 | Tributaire | Libre de sa diplomatie et de ses guerres, mais 20 % des matériaux et de l'énergie |
 | Protectorat | Vote lié, défense, dîme, intégration permise ; +50 % de Savoir tant qu'il connaît moins de technologies que son protecteur ; pas d'accord de recherche ; 1 influence par mois au protecteur |
 
-Le suzerain défend toujours son sujet. Ni l'un ni l'autre ne peut déclarer la guerre à l'autre. Quand le suzerain signe la paix, ses sujets la signent aussi. Un sujet avance vers la conquête et la domination avec son suzerain, mais ne les gagne pas pour lui-même.
+Le suzerain défend toujours son sujet. Ni l'un ni l'autre ne peut déclarer la guerre à l'autre. Quand le suzerain signe la paix, ses sujets la signent aussi. Le lien vaut au moins un accord commercial. Après cinq ans de lien, un sujet avance vers la conquête et la domination avec son suzerain (ses systèmes comptent pour moitié), mais ne les gagne pas pour lui-même. À l'Amphictyonie, un sujet a moitié moins de voix, et s'il n'est pas libre de sa diplomatie il vote comme son suzerain ; la famille de résolutions **Suzerains et sujets** garantit la souveraineté des sujets (loyauté, pas d'intégration) ou le droit des suzerains (renégociations plus fréquentes).
 
 **La loyauté.** Chaque sujet a une loyauté de -100 à +100. Chaque clause la touche deux fois : tout de suite, puis chaque mois (l'infobulle du menu le dit : « Toutes (-10, -0,5/mois) »). S'y ajoutent l'habitude du lien (+1 par mois), l'opinion du sujet, un credo commun, la puissance du suzerain (un suzerain fort rassure, un plus faible que son sujet inquiète), le **patronage divisé** (-0,5 par mois pour chaque autre sujet, jusqu'à -1,5) et un suzerain qui perd une guerre. Un sujet **déloyal** (sous zéro) ne suit plus que les guerres défensives.
 
@@ -179,6 +179,51 @@ Le suzerain défend toujours son sujet. Ni l'un ni l'autre ne peut déclarer la 
 
 ::: conseil
 Un vaincu à 100 points de score contre lui n'a plus rien à perdre en se rendant. Si vous menez, proposez vos conditions avant : un vassal vivant vous rapporte un tribut, un empire mort ne vous rapporte que ses ruines.
+:::
+
+### Le Koinon
+
+Avec l'option **Koinon** (active par défaut), des alliés peuvent aller plus loin que l'alliance : fonder une **ligue** de deux à six empires, avec un synode qui vote, un chef élu et des lois communes. Le nom vient des ligues de cités grecques ; la ligue achéenne élisait chaque année un stratège, jamais deux fois de suite.
+
+**Fonder.** Deux alliés depuis au moins deux ans fondent le Koinon depuis l'écran Diplomatie (100 influence chacun), en choisissant sa **forme**. Une IA accepte si elle vous apprécie ; un joueur répond lui-même.
+
+| Forme | Rang I | Rang II | Rang III |
+| --- | --- | --- | --- |
+| Ligue marchande | Routes entre membres +10 % | +15 %, +1 influence par mois | +20 %, +1 influence |
+| Ligue savante | +5 % de Savoir | +10 % | +15 % |
+| Ligue martiale | Armes +5 % | +10 % | +15 % |
+| Hégémonie | Le Stratège gagne 2 influence par mois | 3, et +1 pour chacun | 4, et +1 pour chacun |
+| Communion | +10 d'opinion entre membres | +15, +1 influence | +20, +1 influence |
+
+La **Communion** exige une même foi (ou, sans religions, un même credo). L'**Hégémonie** est la ligue d'un seul : le plus puissant y préside à vie, les voix du synode se pèsent à la population, et l'on ne part pas sans son accord.
+
+**Entrer.** Un empire demande à entrer depuis la relation avec un membre : **membre** de plein droit (50 influence), ou **associé**, gratuit, protégé et soumis aux lois (impôt réduit de moitié) mais sans voix ni bonus de la forme. Le synode vote. Une demande rejetée ne se représente qu'un an plus tard ; il en va de même pour toute proposition rejetée.
+
+**Le synode.** Chaque membre peut proposer : admettre, **exclure** un membre (aux deux tiers des voix), la **guerre commune** contre un ennemi (ceux qui votent pour la déclarent ensemble), un cran de **loi**, une autre **forme** (l'expérience repart de zéro). Un vote dure trente jours ; les IA votent tout de suite.
+
+**Le Stratège.** Le fondateur préside d'abord. Le Stratège est élu pour **cinq ans** et ne peut pas se succéder à lui-même. Il dispose du **trésor commun** (jusqu'à 200 énergie par versement, pour secourir un membre) et donne la **consigne de vote** à l'Amphictyonie : les membres qui la suivent soudent la ligue, ceux qui votent contre l'abîment.
+
+**Les lois.** Trois familles, un cran à la fois, chacun exigeant un rang :
+
+| Loi | Crans |
+| --- | --- |
+| Politique commerciale | Aucune, **Routes privilégiées** (le commerce entre membres vaut au moins un accord commercial), **Marché commun** (il vaut le libre-échange, rang II) |
+| Impôt fédéral | 0 %, **5 %** du revenu net en énergie au trésor, **10 %** (rang II) |
+| Centralisation | Autonomie, **Union** (cartes partagées, +5 d'opinion, rang II), **Fusion** (+5 % d'influence, rang III) |
+
+**Cohésion et rangs.** La cohésion va de -100 à +100 et part de 30. Chaque mois, la vie commune la fait monter, les membres nombreux, les credos et gouvernements différents et la centralisation la font baisser ; une guerre commune la soutient. Une entrée, un départ, un vote perdu, une loi de plus la font chuter ; une guerre gagnée ensemble la relève. Tant qu'elle est positive, la ligue gagne de l'**expérience** chaque mois, et passe au **rang II** à 120, au **rang III** à 360 ; négative, elle en perd.
+
+**Défense et paix.** Les membres ne peuvent pas se faire la guerre. Quand on attaque un membre, les autres entrent en guerre à ses côtés. Entre membres, la frontière ne crée plus de friction.
+
+**Partir.** Hors Hégémonie, on part librement : une trêve de deux ans suit avec chaque membre, qui s'en souviendra. En Hégémonie, il faut l'accord du Stratège ; s'il refuse, c'est la **guerre de sécession**. Une ligue réduite à un membre se dissout ; un membre qui devient sujet en sort.
+
+**Victoire.** Après cinq ans dans la même ligue, les membres avancent ensemble vers la conquête et la domination, comme des alliés. Ce délai de grâce empêche les ligues de la dernière heure.
+
+::: capture docs/apercu-koinon.png|Le bloc de la ligue : rang, cohésion, Stratège, lois, vote en cours, trésor
+:::
+
+::: conseil
+Une loi de plus coûte 10 de cohésion. Montez les lois quand la ligue est soudée (à partir de 30 de cohésion, les IA votent pour), et gardez une guerre commune ou deux pour la ressouder.
 :::
 
 ### L'Amphictyonie

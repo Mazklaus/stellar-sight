@@ -307,6 +307,11 @@ static func vassals() -> Dictionary:
 	return _load("vassals")
 
 
+## Le Koinon : ligues d'empires (voir Koinon).
+static func koinon() -> Dictionary:
+	return _load("koinon")
+
+
 ## Espionnage (data/espionage.json) : cellules, réseaux, paliers, sondes.
 static func espionage() -> Dictionary:
 	return _load("espionage")

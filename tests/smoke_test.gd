@@ -59,6 +59,7 @@ func _initialize() -> void:
 	preload("res://tests/amph_inst_tests.gd").new().run(_check)
 	preload("res://tests/amph_power_tests.gd").new().run(_check)
 	preload("res://tests/vassal_tests.gd").new().run(_check)
+	preload("res://tests/koinon_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -214,6 +215,7 @@ func _test_main_scene() -> void:
 	await _test_faith_ui(main)
 	await _test_event_ui(main)
 	await _test_vassal_ui(main)
+	await _test_koinon_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_press(KEY_SPACE)
@@ -1443,14 +1445,14 @@ func _test_vassal_ui(main: Node) -> void:
 	Diplomacy._rel_w(st, me, foe)["since"] = st.tick - 200
 	Diplomacy.add_war_score(st, me, foe, 500)
 	screens.diplo_selected = foe
-	screens.show_screen("diplomacy")
+	screens.open("diplomacy", st, me)
 	await process_frame
 	_check(screens.vassal_buttons.has("terms") and screens.vassal_buttons.has("surrender"), "Diplomatie en guerre : conditions de paix et reddition")
 	var cb: CheckBox = screens.vassal_buttons.get("term_trib")
 	if cb:
 		cb.button_pressed = true
 		var send: Button = screens.vassal_buttons["terms"]
-		_check(not send.disabled, "conditions : le tribut coché se propose")
+		_check(not send.disabled, "conditions : le tribut coché se propose (%s)" % send.tooltip_text)
 		send.pressed.emit()
 		main.simulation.flush_commands()
 		await process_frame
@@ -1459,7 +1461,7 @@ func _test_vassal_ui(main: Node) -> void:
 		Diplomacy.sign_treaty(st, me, sub, Diplomacy.PEACE)
 	Vassals.bind(st, me, sub, "vassal", Vassals.preset_clauses("vassal"), 300)
 	screens.diplo_selected = sub
-	screens.show_screen("diplomacy")
+	screens.open("diplomacy", st, me)
 	await process_frame
 	_check(screens.vassal_buttons.has("set_terms") and screens.vassal_buttons.has("clause_dip") and screens.vassal_buttons.has("release"), "panneau du sujet : clauses, application, libération")
 	var rel: Button = screens.vassal_buttons.get("release")
@@ -1468,7 +1470,61 @@ func _test_vassal_ui(main: Node) -> void:
 		main.simulation.flush_commands()
 		await process_frame
 		_check(not Vassals.is_subject(st, sub), "panneau du sujet : LIBÉRER rend sa liberté")
-	_press(KEY_F4)
+	screens.close()
+	await process_frame
+
+
+## Écran Diplomatie, Koinon : fonder avec un allié, puis le bloc de la ligue (lois, sortie).
+func _test_koinon_ui(main: Node) -> void:
+	var screens: EmpireScreens = main._empire_screens
+	var st: GameState = main.simulation.state
+	var me: int = main.view_empire
+	st.koinon_on = true
+	if Koinon.league_of(st, me) >= 0:
+		return
+	var ally := -1
+	for e in st.empires:
+		if e.id != me and e.is_ai() and not e.is_npc() and not e.eliminated and not Diplomacy.no_treaties(st, e.id) and not Vassals.is_subject(st, e.id) and Koinon.league_of(st, e.id) < 0:
+			ally = e.id
+			break
+	if ally < 0:
+		return
+	for pair in [[me, ally], [ally, me]]:
+		if not st.get_empire(pair[0]).contacts.has(pair[1]):
+			st.get_empire(pair[0]).contacts.append(pair[1])
+			st.get_empire(pair[0]).contacts.sort()
+	if Combat.at_war(st, me, ally):
+		Diplomacy.sign_treaty(st, me, ally, Diplomacy.PEACE)
+	Diplomacy.sign_treaty(st, me, ally, Diplomacy.ALLIANCE)
+	var r := Diplomacy._rel_w(st, me, ally)
+	r["since"] = st.tick - 800
+	r["trust"] = 100
+	for x in [me, ally]:
+		st.get_empire(x).resources["influence"] = maxi(500, int(st.get_empire(x).resources.get("influence", 0)))
+	screens.diplo_selected = ally
+	screens.open("diplomacy", st, me)
+	await process_frame
+	var found: Button = screens.koinon_buttons.get("found")
+	_check(found != null and screens.koinon_buttons.has("found_form"), "Diplomatie : fonder un Koinon avec un allié ancien")
+	if found == null:
+		screens.close()
+		return
+	_check(not found.disabled, "Koinon : bouton FONDER actif (%s)" % found.tooltip_text)
+	found.pressed.emit()
+	main.simulation.flush_commands()
+	await process_frame
+	_check(Koinon.same_league(st, me, ally), "Koinon : l'allié IA accepte, la ligue naît")
+	screens.open("diplomacy", st, me)
+	await process_frame
+	_check(screens.koinon_buttons.has("leave") and screens.koinon_buttons.has("law_trade_up"), "Koinon : bloc de la ligue (lois, sortie)")
+	var leave: Button = screens.koinon_buttons.get("leave")
+	if leave and not leave.disabled:
+		leave.pressed.emit()
+		main.simulation.flush_commands()
+		await process_frame
+		_check(Koinon.league_of(st, me) < 0, "Koinon : QUITTER dissout une ligue de deux")
+	st.koinon_on = false
+	screens.close()
 	await process_frame
 
 

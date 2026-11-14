@@ -650,13 +650,36 @@ static func set_terms(state: GameState, lord: int, sub: int, cl: Dictionary) -> 
 	var soft := loosens(old, n)
 	if not soft:
 		state.get_empire(lord).resources["influence"] = int(state.get_empire(lord).resources.get("influence", 0)) - renegotiate_cost(state, sub, n)
-		l["next"] = state.tick + int(_cfg("renegotiate")["every_days"])
+		l["next"] = state.tick + reneg_days(state)
 	var lc := _cfg("loyalty")
 	l["loy"] = clampi(int(l["loy"]) + clauses_now(n) - clauses_now(old), int(lc["min"]), int(lc["max"]))
 	l["cl"] = n
 	l["preset"] = _matching_preset(n)
 	state.add_chronicle("%s %s les clauses de %s : %s." % [_name(state, lord), "assouplit" if soft else "renégocie", _name(state, sub), clauses_text(n)],
 			Espionage.private_to(state, [lord, sub]))
+
+
+## Délai entre deux renégociations (raccourci par la résolution « Droit des suzerains »).
+@warning_ignore("integer_division")
+static func reneg_days(state: GameState) -> int:
+	var pct := Amphictyony.level_sum(state, "reneg_days_pct") if state.amph_on else 0
+	return maxi(30, int(_cfg("renegotiate")["every_days"]) * maxi(0, 100 + pct) / 100)
+
+
+## Voix d'un sujet à l'Amphictyonie (hors Cour impériale, réglée par AmphPower).
+static func voix_pct(state: GameState, eid: int) -> int:
+	if not is_subject(state, eid) or is_court(state, eid):
+		return 0
+	return int(data().get("amph_voix_pct", 0))
+
+
+## Vote d'un sujet sans diplomatie libre : celui de son suzerain, s'il a voté.
+static func bound_vote(state: GameState, eid: int, votes: Dictionary) -> int:
+	var own := int(votes.get(str(eid), 0))
+	if state.vassals.is_empty() or not is_subject(state, eid) or is_court(state, eid) or clause(state, eid, "dip") == "libre":
+		return own
+	var lv := int(votes.get(str(lord_of(state, eid)), 0))
+	return lv if lv != 0 else own
 
 
 static func _matching_preset(cl: Dictionary) -> String:
@@ -675,6 +698,8 @@ static func check_integrate(state: GameState, lord: int, sub: int) -> String:
 		return "ce n'est pas votre sujet"
 	if clause(state, sub, "integ") != "permise":
 		return "les clauses interdisent l'intégration"
+	if state.amph_on and Amphictyony.level_sum(state, "no_integration") > 0:
+		return "l'Amphictyonie garantit la souveraineté des sujets : pas d'intégration"
 	if int(link(state, sub)["integ"]) >= 0:
 		return "intégration déjà en cours"
 	var ic := _cfg("integration")
@@ -968,6 +993,13 @@ static func knowledge_pct(state: GameState, eid: int) -> int:
 	return int(_cfg("protectorate").get("knowledge_pct", 0))
 
 
+## Palier commercial minimal entre un sujet et son suzerain (le lien vaut un accord commercial).
+static func trade_floor(state: GameState, a: int, b: int) -> int:
+	if state.vassals.is_empty() or (lord_of(state, a) != b and lord_of(state, b) != a):
+		return 0
+	return int(data().get("trade_floor", 0))
+
+
 ## Accord de recherche interdit aux protectorats.
 static func check_pact(state: GameState, a: int, b: int) -> String:
 	for x in [a, b]:
@@ -1003,6 +1035,8 @@ static func loyalty_parts(state: GameState, sub: int) -> Array[Dictionary]:
 		_part(out, "Patronage divisé (%d autre%s sujet%s)" % [others, "s" if others > 1 else "", "s" if others > 1 else ""], int(lc["patronage"]) * mini(others, 3))
 	if is_protectorate(state, sub):
 		_part(out, "Protection", int(lc["protectorate"]))
+	# Résolution de l'Amphictyonie « Souveraineté garantie ».
+	_part(out, "Souveraineté garantie (Amphictyonie)", Amphictyony.level_sum(state, "subject_loyalty_m10") if state.amph_on else 0)
 	var le := state.get_empire(lord)
 	for w in le.wars:
 		if Diplomacy.war_score(state, lord, int(w)) <= -50:

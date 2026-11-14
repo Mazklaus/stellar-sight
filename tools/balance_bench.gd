@@ -8,7 +8,7 @@ extends SceneTree
 ## intérieure : aucune par défaut, active), PEOPLES (peuples mêlés : aucuns par défaut, actifs),
 ## AMPH (Amphictyonie : aucune par défaut, active), VICTORIES (« diplo » : sans conquête ni domination,
 ## pour régler la victoire diplomatique sur de longues parties), VASSALS (paix à conditions et sujets :
-## aucuns par défaut, actifs).
+## aucuns par défaut, actifs), KOINON (ligues d'empires : aucun par défaut, actif).
 ## SPECIES : peuples créés à ajouter aux 4 officiels (éditeur d'espèces), séparés par des virgules :
 ## chemin d'un fichier de peuple (user://species/p_x.json ou chemin absolu) ou « preset:<officiel> »
 ## (peuple créé depuis le modèle d'un officiel). Banc court d'un peuple créé, cibles de l'étude
@@ -48,6 +48,7 @@ func _initialize() -> void:
 				"faiths": OS.get_environment("FAITHS") if OS.get_environment("FAITHS") != "" else "aucunes",
 				"amphictyony": OS.get_environment("AMPH") if OS.get_environment("AMPH") != "" else "aucune",
 				"vassals": OS.get_environment("VASSALS") if OS.get_environment("VASSALS") != "" else "aucuns",
+				"koinon": OS.get_environment("KOINON") if OS.get_environment("KOINON") != "" else "aucun",
 				"victories": {"conquete": false, "domination": false} if OS.get_environment("VICTORIES") == "diplo" else {}})
 		var sim := Simulation.new(st)
 		var rows := {}
@@ -71,6 +72,9 @@ func _initialize() -> void:
 				if Vassals.is_subject(st, e.id) and int(r.get("subject_year", -1)) < 0:
 					r["subject_year"] = y
 					r["subject_preset"] = Vassals.preset_of(st, e.id)
+				if st.koinon_on and Koinon.league_of(st, e.id) >= 0 and int(r.get("koinon_year", -1)) < 0:
+					r["koinon_year"] = y
+					r["koinon_form"] = String(Koinon.league(st, Koinon.league_of(st, e.id))["form"])
 			if st.amph_on and Amphictyony.founded(st):
 				var smax := 0
 				for k in st.amph["share"]:
@@ -95,7 +99,15 @@ func _initialize() -> void:
 			if Vassals.is_subject(st, e.id):
 				rows[e.id]["lord_end"] = st.get_empire(Vassals.lord_of(st, e.id)).faction_id
 				rows[e.id]["loyalty_end"] = Vassals.loyalty_points(st, e.id)
-		var out := {"seed": sd, "years": y, "ms": Time.get_ticks_msec() - t0, "empires": rows.values()}
+		var leagues := []
+		if st.koinon_on:
+			for lid in Koinon.league_ids(st):
+				var lg := Koinon.league(st, lid)
+				var fs := []
+				for m in Koinon.all_of(st, lid):
+					fs.append(st.get_empire(m).faction_id)
+				leagues.append({"form": String(lg["form"]), "members": fs, "rank": Koinon.rank(st, lid), "coh": int(lg["coh"]), "age": (st.tick - int(lg["founded"])) / 360})
+		var out := {"seed": sd, "years": y, "leagues": leagues, "ms": Time.get_ticks_msec() - t0, "empires": rows.values()}
 		if st.faith_on:
 			var fl := []
 			for fid in Faiths.ids(st):

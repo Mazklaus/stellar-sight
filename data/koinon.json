@@ -1,0 +1,51 @@
+{
+	"_doc": "Le Koinon, lot 2 du pilier fédérations et vassaux (étude du 2026-11-14, propositions 12 à 21) : ligue de 2 à 6 empires au-dessus des alliances, formes (catalogue ouvert), trois rangs gagnés par l'expérience, cohésion (-100 à 100), Stratège élu 5 ans et jamais deux fois de suite (règle achéenne), synode, lois, trésor commun, sortie, exclusion, membres associés. Catalogues ouverts : formes, lois et crans se lisent ici.",
+	"_sources": [
+		"Stellaris, fédérations (wiki stellaris.fandom.com « Federations ») : types de fédération, niveaux gagnés par l'expérience, cohésion, président, lois de fédération, membres associés.",
+		"Ligue achéenne (Wikipédia « Achaean League ») : stratège élu chaque année, non rééligible deux années de suite, synode des cités.",
+		"Endless Space 2 (forum officiel, résultats de recherche) : victoire d'alliance détournée par des alliés de dernière minute, d'où le délai de grâce."
+	],
+	"default_mode": "aucun",
+	"modes": ["actif", "aucun"],
+	"found": {"alliance_days": 720, "cost": {"influence": 100}, "max_members": 6},
+	"join_cost": {"influence": 50},
+	"vote_days": 30,
+	"term_days": 1800,
+	"grace_days": 1800,
+	"ranks": [0, 120, 360],
+	"cohesion": {"start": 30, "min": -100, "max": 100, "habit": 3, "per_member": -1, "per_credo": -1, "per_gov": -1, "per_central": -1,
+		"common_war": 1, "join": -10, "leave": -15, "failed_vote": -5, "war_won": 10, "consigne_kept": 2, "consigne_broken": -2, "law_step": -10},
+	"xp": {"base": 1, "coh_div": 10, "loss": 5},
+	"leave": {"truce_days": 720},
+	"exclude_pct": 67,
+	"assoc_tax_pct": 50,
+	"grant_max": 200,
+	"refused_days": 360,
+	"forms": [
+		{"id": "marchande", "label": "Ligue marchande", "text": "Le commerce d'abord : les routes entre membres rapportent davantage.",
+			"ranks": [{"route_pct": 10}, {"route_pct": 15, "influence": 1}, {"route_pct": 20, "influence": 1}]},
+		{"id": "savante", "label": "Ligue savante", "text": "Les académies mettent leurs revues en commun : le Savoir des membres progresse plus vite.",
+			"ranks": [{"knowledge_pct": 5}, {"knowledge_pct": 10}, {"knowledge_pct": 15}]},
+		{"id": "martiale", "label": "Ligue martiale", "text": "Des doctrines et des arsenaux partagés : les armes des membres frappent plus fort.",
+			"ranks": [{"weapon_pct": 5}, {"weapon_pct": 10}, {"weapon_pct": 15}]},
+		{"id": "hegemonie", "label": "Hégémonie", "hegemony": true, "text": "Le plus puissant préside, à vie ; les voix du synode se pèsent à la population ; on ne part pas sans son accord.",
+			"ranks": [{"strat_influence": 2}, {"strat_influence": 3, "influence": 1}, {"strat_influence": 4, "influence": 1}]},
+		{"id": "communion", "label": "Communion", "faith": true, "text": "Une même foi (ou, sans religions, un même credo) : les membres s'aiment davantage, et prient ensemble.",
+			"ranks": [{"opinion": 10}, {"opinion": 15, "influence": 1}, {"opinion": 20, "influence": 1}]}
+	],
+	"laws": [
+		{"id": "central", "label": "Centralisation", "steps": [
+			{"label": "Autonomie", "text": "Chacun chez soi."},
+			{"label": "Union", "text": "Cartes partagées chaque mois, +5 d'opinion entre membres. Exige le rang II.", "opinion": 5, "maps": true, "rank": 2},
+			{"label": "Fusion", "text": "Comme l'Union, et +5 % d'influence pour chaque membre. Exige le rang III.", "opinion": 5, "maps": true, "influence_pct": 5, "rank": 3}]},
+		{"id": "trade", "label": "Politique commerciale", "steps": [
+			{"label": "Aucune", "text": "Les traités commerciaux se signent un par un."},
+			{"label": "Routes privilégiées", "text": "Entre membres, le commerce vaut au moins un accord commercial (2e palier).", "tier": 2, "rank": 1},
+			{"label": "Marché commun", "text": "Entre membres, le commerce vaut le libre-échange (3e palier). Exige le rang II.", "tier": 3, "rank": 2}]},
+		{"id": "tax", "label": "Impôt fédéral", "steps": [
+			{"label": "0 %", "text": "Pas d'impôt.", "pct": 0},
+			{"label": "5 %", "text": "5 % du revenu net en énergie de chaque membre vont au trésor (moitié pour les associés).", "pct": 5, "rank": 1},
+			{"label": "10 %", "text": "10 % du revenu net en énergie de chaque membre vont au trésor (moitié pour les associés). Exige le rang II.", "pct": 10, "rank": 2}]}
+	],
+	"ai": {"found_opinion": 30, "join_opinion": 20, "admit_opinion": 0, "exclude_opinion": -30, "war_opinion": -20, "leave_cohesion": -50, "law_cohesion": 40, "grant_below": 100}
+}

@@ -289,7 +289,7 @@ static func weapon_bonus(state: GameState, empire_id: int, weapon: String, marks
 		marks = Research.marks(state, empire_id)
 	var fam := String(data()["weapons"].get(weapon, {}).get("mark_family", weapon))
 	return Research.mark_bonus(int(marks.get(fam, 1))) + Research.fx_sub(state, empire_id, "weapon_pct", weapon) \
-			+ Research.fx_int(state, empire_id, "damage_pct")
+			+ Research.fx_int(state, empire_id, "damage_pct") + Koinon.weapon_pct(state, empire_id)
 
 
 ## Bonus de protection (technologies) : {armor, shield, pd} en points de %, marques du vaisseau

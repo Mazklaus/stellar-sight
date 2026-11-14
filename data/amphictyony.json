@@ -197,6 +197,19 @@
 					{"name": "Primes de chasse", "fx": {}, "bounty": 1},
 					{"name": "Patrouilles communes", "fx": {}, "bounty": 2},
 					{"name": "Grande Battue", "fx": {}, "bounty": 1}
+				]}},
+		{"id": "suzerains", "label": "Suzerains et sujets", "glyph": "diplomacy", "requires": "vassals",
+			"a": {"label": "Souveraineté garantie", "text": "Les sujets sont protégés : leur loyauté monte, et dès le deuxième niveau nul ne peut plus les intégrer.",
+				"levels": [
+					{"name": "Charte des sujets", "fx": {}, "subject_loyalty_m10": 5},
+					{"name": "Souveraineté garantie", "fx": {}, "subject_loyalty_m10": 5, "no_integration": 1},
+					{"name": "Égalité des couronnes", "fx": {}, "subject_loyalty_m10": 5}
+				]},
+			"b": {"label": "Droit des suzerains", "text": "Les suzerains renégocient plus souvent les clauses de leurs sujets (délai réduit de moitié au troisième niveau).",
+				"levels": [
+					{"name": "Droit de révision", "fx": {}, "reneg_days_pct": -20},
+					{"name": "Droit des suzerains", "fx": {}, "reneg_days_pct": -15},
+					{"name": "Pleine suzeraineté", "fx": {}, "reneg_days_pct": -15}
 				]}}
 	],
 	"sanctions": [

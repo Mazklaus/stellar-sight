@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.18
+
+- **Le Koinon**, nouvelle option de partie, active par défaut (chapitre 8) : ligues de deux à six empires fondées par des alliés de longue date, cinq **formes** (marchande, savante, martiale, Hégémonie, Communion) à trois **rangs** gagnés par l'expérience, **cohésion**, **synode** (admission, exclusion, guerre commune, lois, forme), **Stratège** élu pour cinq ans et jamais deux fois de suite, **lois** communes (commerce, impôt fédéral, centralisation), **trésor**, membres **associés**, consigne de vote à l'Amphictyonie, défense mutuelle, sortie et guerre de sécession.
+- Sujets : le lien vaut un accord commercial ; délai de cinq ans avant qu'un sujet avance vers la victoire avec son suzerain, ses systèmes comptant pour moitié ; à l'Amphictyonie, voix réduites de moitié, vote lié, et nouvelle famille de résolutions **Suzerains et sujets**.
+- L'écran Diplomatie défile désormais dans sa colonne de droite.
+
 ### Édition 1.17
 
 - **Fin des guerres à conditions et sujets**, nouvelle option de partie **Vassaux**, active par défaut (chapitre 8) : paix à conditions payées en score de guerre (systèmes, tribut, réparations, alliances, sujets, vassalité) ; **reddition** au lieu de la mort ; demande de **protection**.

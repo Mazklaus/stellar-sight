@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 50
+const FORMAT_VERSION := 51
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -154,6 +154,9 @@ var amph_on: bool = false
 ## Fin des guerres à conditions et sujets (voir Vassals) : liens de sujet, tributs, option de partie.
 var vassals: Dictionary = {}
 var vassals_on: bool = false
+## Le Koinon (voir Koinon) : ligues d'empires, option de partie.
+var koinon: Dictionary = {}
+var koinon_on: bool = false
 var _pirates: Empire
 var _fauna: Empire
 
@@ -247,6 +250,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Faiths.setup(s, String(options.get("faiths", "aucunes")))
 	Amphictyony.setup(s, String(options.get("amphictyony", "aucune")))
 	Vassals.setup(s, String(options.get("vassals", "aucuns")))
+	Koinon.setup(s, String(options.get("koinon", "aucun")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -363,6 +367,9 @@ func to_dict() -> Dictionary:
 	# Sujets : option active, ou liens de la Cour impériale (même empreinte sans eux).
 	if Vassals.worth_saving(self):
 		d["vassals"] = Vassals.to_dict(self)
+	# Koinon : seulement quand l'option est active (même empreinte sans elle).
+	if koinon_on:
+		d["koinon"] = Koinon.to_dict(self)
 	return d
 
 
@@ -562,6 +569,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Faiths.from_dict(s, d.get("faiths", {}))
 	Amphictyony.from_dict(s, d.get("amph", {}))
 	Vassals.from_dict(s, d.get("vassals", {}))
+	Koinon.from_dict(s, d.get("koinon", {}))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant le commerce en paliers : l'ancien accord commercial devient un accord du
 	# 2e palier, et les routes se tracent tout de suite.

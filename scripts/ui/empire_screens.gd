@@ -86,6 +86,9 @@ var ability_buttons := {}
 ## Sujets et paix à conditions (VassalUi) : boutons par rôle, brouillons de conditions et de clauses.
 var vassal_buttons: Dictionary = {}
 var vassal_draft: Dictionary = {}
+## Koinon (KoinonUi) : boutons par rôle, brouillons de forme.
+var koinon_buttons: Dictionary = {}
+var koinon_draft: Dictionary = {}
 ## Écran Recherche : arbre, technologie choisie, boutons de la technologie choisie ("front", "queue", "remove").
 var research_tree: ResearchTree
 var research_selected := ""
@@ -1347,6 +1350,7 @@ func _build_diplomacy() -> void:
 	proposal_buttons.clear()
 	ability_buttons.clear()
 	vassal_buttons.clear()
+	koinon_buttons.clear()
 	var me := _state.get_empire(_player)
 	if diplo_selected < 0 or _state.get_empire(diplo_selected) == null or diplo_selected == _player:
 		diplo_selected = -1
@@ -1406,15 +1410,24 @@ func _build_diplomacy() -> void:
 		legend.add_child(pair)
 	left.body.add_child(legend)
 
+	# Colonne de droite défilante : relation, sujets, Koinon peuvent dépasser l'écran.
+	var right_scroll := ScrollContainer.new()
+	right_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	right_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.add_child(right_scroll)
 	var right := VBoxContainer.new()
 	right.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	right.add_theme_constant_override("separation", 18)
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(right)
+	right_scroll.add_child(right)
 	var props := Diplomacy.proposals_for(_state, _player)
 	if not props.is_empty():
 		right.add_child(_proposals_block(props))
 	right.add_child(_relation_block(diplo_selected))
+	var kb := KoinonUi.league_block(_state, _player, _vassal_emit, koinon_buttons, koinon_draft)
+	if kb != null:
+		right.add_child(kb)
 
 
 func _heir_box(me: Empire) -> Control:
@@ -1583,6 +1596,8 @@ func _relation_block(id: int) -> Control:
 		grid.add_child(verdict)
 	# Paix à conditions, reddition, protection, sujets (voir VassalUi).
 	blk.body.add_child(VassalUi.relation(_state, _player, id, _vassal_emit, vassal_buttons, vassal_draft))
+	# Koinon : fonder, entrer, guerre commune, exclusion (voir KoinonUi).
+	blk.body.add_child(KoinonUi.relation(_state, _player, id, _vassal_emit, koinon_buttons, koinon_draft))
 
 	# Rompre, déclarer, intriguer, arbitrer.
 	var acts := HFlowContainer.new()
@@ -1732,6 +1747,8 @@ func _diplomacy_sig() -> String:
 	parts.append(str(_state.proposals.size()) + ":" + str(_state.next_proposal_id))
 	parts.append(str(_state.get_empire(_player).resources.get("influence", 0)))
 	parts.append(str(_state.vassals.get("subs", {})))
+	if _state.koinon_on:
+		parts.append(str(_state.koinon))
 	return "|".join(parts)
 
 

@@ -377,6 +377,8 @@ func _test_victory() -> void:
 	var lord := ms[1]
 	var sub := ms[2]
 	Vassals.bind(st, lord, sub, "vassal", Vassals.preset_clauses("vassal"), 300)
+	_ok(not Victory.bloc(st, lord).has(sub), "Victoire : un sujet tout neuf n'avance pas encore avec son suzerain (délai de grâce)")
+	Vassals.link(st, sub)["since"] = st.tick - int(Koinon.data()["grace_days"])
 	_ok(Victory.bloc(st, lord).has(sub), "Victoire : le sujet avance avec son suzerain")
 	var pr := Victory.progress(st, sub, "conquest")
 	_ok(not bool(pr.get("won", false)) and int(pr.get("pct", 0)) == 0, "Victoire : un sujet ne gagne pas la conquête")
@@ -411,7 +413,7 @@ func _test_save() -> void:
 	Vassals.link(st, ms[2])["fealty"] = ms[3]
 	(st.vassals["trib"] as Array).append({"from": ms[3], "to": 0, "until": st.tick + 100, "pct": 20})
 	var d: Dictionary = JSON.parse_string(JSON.stringify(st.to_snapshot()))
-	_ok(int(d["version"]) == 50, "Sauvegarde : version 50")
+	_ok(int(d["version"]) == 51, "Sauvegarde : version 51")
 	var back := GameState.from_dict(d)
 	_ok(back.vassals_on and Vassals.lord_of(back, ms[2]) == ms[1] and Vassals.loyalty(back, ms[2]) == Vassals.loyalty(st, ms[2]), "Sauvegarde : liens et loyauté gardés")
 	_ok(int(Vassals.link(back, ms[2])["fealty"]) == ms[3] and (back.vassals["trib"] as Array).size() == 1, "Sauvegarde : allégeance secrète et tributs gardés")

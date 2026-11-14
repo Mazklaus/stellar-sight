@@ -7,6 +7,8 @@
 	],
 	"default_mode": "aucuns",
 	"modes": ["actifs", "aucuns"],
+	"trade_floor": 1,
+	"amph_voix_pct": -50,
 	"terms": {
 		"min_war_days": 60,
 		"cooldown_days": 60,

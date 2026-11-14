@@ -64,6 +64,8 @@ static func proposal_label(p: Dictionary) -> String:
 		return Trade.tier_label(int(p["tier"]))
 	if Vassals.is_kind(String(p["treaty"])):
 		return Vassals.kind_label(p)
+	if Koinon.is_kind(String(p["treaty"])):
+		return Koinon.kind_label(p)
 	return treaty_label(String(p["treaty"]))
 
 
@@ -276,8 +278,10 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 			v += int(to["other_credo"])
 		_part(out, String(to.get("label", t)), v)
 	# Frontières (friction de Stellaris, pression de frontière d'Endless Space 2).
-	var touching := border_systems(state, a, b)
+	# Entre membres d'un même Koinon, la frontière est commune et non disputée.
+	var touching := 0 if Koinon.same_league(state, a, b) else border_systems(state, a, b)
 	_part(out, "Frontières communes (%d)" % touching, maxi(int(cfg["border_max"]), touching * int(cfg["border_per_system"])))
+	_part(out, "Même Koinon", Koinon.opinion_bonus(state, a, b))
 	# Statut et confiance.
 	var st := status(state, a, b)
 	if st == "war":
@@ -571,6 +575,8 @@ static func check_answer(state: GameState, player: int, proposal_id: int, accept
 			return check_contract(state, int(p["merc"]), int(p["client"]), int(p["target"]))
 		if Vassals.is_kind(String(p["treaty"])):
 			return Vassals.check_accept(state, p)
+		if Koinon.is_kind(String(p["treaty"])):
+			return Koinon.check_accept(state, p)
 		return check_terms(state, player, int(p["from"]), String(p["treaty"]))
 	return ""
 
@@ -582,6 +588,9 @@ static func answer(state: GameState, proposal_id: int, accept: bool) -> void:
 	var to := int(p["to"])
 	if Vassals.is_kind(String(p["treaty"])):
 		Vassals.answer(state, p, accept)
+		return
+	if Koinon.is_kind(String(p["treaty"])):
+		Koinon.answer(state, p, accept)
 		return
 	if accept and String(p["treaty"]) == CONTRACT:
 		sign_contract(state, int(p["merc"]), int(p["client"]), int(p["target"]))
@@ -605,6 +614,7 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 	match treaty:
 		PEACE:
 			var was_war := Combat.at_war(state, a, b)
+			var score_a := war_score(state, a, b) if was_war else 0
 			if was_war:
 				end_war(state, a, b)
 			var r := _rel_w(state, a, b)
@@ -616,6 +626,9 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 			remember(state, b, a, "peace_signed")
 			Heroes.release_between(state, a, b)
 			Vassals.on_peace(state, a, b)
+			if was_war:
+				Koinon.on_peace(state, a, b, score_a)
+				Koinon.on_peace(state, b, a, -score_a)
 			if was_war:
 				state.add_chronicle("Paix entre %s et %s. On signe en bas, on enterre les morts, et l'on jure que c'était la dernière fois." % [
 						ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
@@ -782,6 +795,9 @@ static func check_war(state: GameState, a: int, b: int) -> String:
 		return "même équipe : vous êtes alliés toute la partie"
 	if allied(state, a, b):
 		return "quittez d'abord l'alliance"
+	var kw := Koinon.check_war(state, a, b)
+	if kw != "":
+		return kw
 	return Vassals.check_war(state, a, b)
 
 
@@ -799,6 +815,7 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 	r["score"] = [0, 0]
 	_drop_all_proposals(state, a, b)
 	Vassals.on_war_declared(state, a, b, joined or by_nature)
+	Koinon.on_war_declared(state, a, b, joined or by_nature)
 	if by_nature:
 		return
 	remember(state, b, a, "declared_war")
