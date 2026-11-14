@@ -289,7 +289,7 @@ static func weapon_bonus(state: GameState, empire_id: int, weapon: String, marks
 		marks = Research.marks(state, empire_id)
 	var fam := String(data()["weapons"].get(weapon, {}).get("mark_family", weapon))
 	return Research.mark_bonus(int(marks.get(fam, 1))) + Research.fx_sub(state, empire_id, "weapon_pct", weapon) \
-			+ Research.fx_int(state, empire_id, "damage_pct")
+			+ Research.fx_int(state, empire_id, "damage_pct") + Koinon.weapon_pct(state, empire_id)
 
 
 ## Bonus de protection (technologies) : {armor, shield, pd} en points de %, marques du vaisseau
@@ -299,8 +299,9 @@ static func defense_bonus(state: GameState, empire_id: int, marks := {}) -> Dict
 		marks = Research.marks(state, empire_id)
 	var extra: Dictionary = Research.effects(state, empire_id).get("defense_pct", {})
 	var out := {}
+	var fed := Vassals.defense_pct(state, empire_id)
 	for k in ["armor", "shield", "pd"]:
-		out[k] = Research.mark_bonus(int(marks.get(k, 1))) + int(extra.get(k, 0))
+		out[k] = Research.mark_bonus(int(marks.get(k, 1))) + int(extra.get(k, 0)) + fed
 	return out
 
 
@@ -578,6 +579,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 	FaithNatures.on_capture(state, system_id, old, new_owner, added)
 	if lost_capital:
 		Relics.on_capital_lost(state, old, new_owner, added)
+		Vassals.on_capital_lost(state, old, new_owner)
 		AmphInst.on_capital(state, new_owner, old)
 		eo.capital_planet = _new_capital(state, old)
 		if eo.capital_planet >= 0:

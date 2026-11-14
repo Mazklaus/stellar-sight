@@ -254,6 +254,8 @@ static func family_available(state: GameState, fid: String) -> bool:
 			return state.faith_on
 		"perils":
 			return Fauna.active(state) or state.pirate_density != "aucun"
+		"vassals":
+			return state.vassals_on
 	return true
 
 
@@ -416,7 +418,7 @@ static func voix_pct(state: GameState, eid: int) -> int:
 			pct += int(m[0])
 	if galactic_follower(state, eid):
 		pct += level_sum(state, "faith_voix_pct")
-	return pct + AmphInst.voix_pct(state, eid) + AmphPower.voix_pct(state, eid)
+	return pct + AmphInst.voix_pct(state, eid) + AmphPower.voix_pct(state, eid) + Vassals.voix_pct(state, eid)
 
 
 ## Voix effectives d'un membre (0 pour un non-membre).
@@ -928,7 +930,8 @@ static func tally(state: GameState) -> Dictionary:
 	var s := session(state)
 	var bv := buy_voix(state)
 	for m in members(state):
-		var v := int((s["votes"] as Dictionary).get(str(m), 0))
+		# Vote lié : un sujet vote comme son suzerain.
+		var v := Vassals.bound_vote(state, m, s["votes"])
 		var w := weight(state, m) + bv * int((s["buy"] as Dictionary).get(str(m), 0))
 		if v > 0:
 			out["pour"] = int(out["pour"]) + w
@@ -1036,6 +1039,7 @@ static func _close_session(state: GameState, added: Array[Dictionary], veto_by :
 	var pour := int(t["pour"])
 	var contre := int(t["contre"])
 	var pres := int(s["pres"])
+	Koinon.on_amph_close(state, s["votes"])
 	var passed := pour > contre or (pour == contre and pour > 0 and int((s["votes"] as Dictionary).get(str(pres), 0)) > 0)
 	var valid := still_valid(state, p)
 	passed = passed and valid and veto_by < 0

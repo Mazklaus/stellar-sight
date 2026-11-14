@@ -127,6 +127,137 @@ Le banquet des lignées coûte 20 influence et 3 cristaux. L'héritier qui vous 
 Une alliance entraîne ses membres dans les guerres l'un de l'autre. Avant de signer, regardez les cordes rouges qui partent de votre futur allié sur l'anneau : elles deviennent les vôtres.
 :::
 
+### Fin des guerres et sujets
+
+Avec l'option **Vassaux** (active par défaut), une guerre ne finit plus seulement par la paix blanche.
+
+**La paix à conditions.** Après 60 jours de guerre, le camp qui mène propose ses conditions depuis l'écran Diplomatie, en cochant ce qu'il exige. Chaque condition a un **prix en points de score de guerre** ; une IA vaincue accepte si le prix ne dépasse pas votre score, un joueur répond lui-même.
+
+| Condition | Prix | Effet |
+| --- | --- | --- |
+| Céder un système | 15 + 3 par population | Le système passe au vainqueur (trois au plus, jamais la capitale) |
+| Tribut | 30 | 20 % du revenu net en matériaux et en énergie pendant cinq ans |
+| Réparations | 20 | 25 % des réserves de matériaux, d'énergie et d'influence, tout de suite |
+| Rompre ses alliances | 15 | Le vaincu quitte ses alliances |
+| Libérer ses sujets | 15 par sujet | Ses sujets redeviennent libres |
+| Devenir sujet | 40 + 10 par système | Le vaincu devient votre sujet, au préréglage choisi |
+
+**La reddition.** Un empire qui a 100 points de score contre lui, ou qui a perdu sa capitale, peut **se rendre** : il devient le **vassal** de son vainqueur, la guerre cesse et son empire survit. Une IA à bout (deux systèmes ou moins) le fait plutôt que de disparaître. On ne se rend pas à l'Essaim : il ne signe rien.
+
+**La protection.** Un empire faible (moins de 40 % de la puissance de l'autre) peut **demander sa protection** : il devient son **protégé**.
+
+::: capture docs/apercu-vassaux.png|Paix à conditions : chaque case a son prix, le total se compare au score
+:::
+
+**Le lien de sujet.** Il n'y a qu'un lien, réglé par **clauses** ; trois préréglages en donnent des versions toutes faites, et le suzerain peut tout ajuster.
+
+| Clause | Options |
+| --- | --- |
+| Diplomatie | **Aucune** (aucun traité, aucune guerre), **Vote lié** (traités, mais guerre seulement aux ennemis du suzerain), **Libre** |
+| Guerres suivies | **Aucune**, **Défense** (quand on attaque le suzerain), **Toutes** (même celles qu'il déclare) |
+| Expansion | **Interdite**, **Dîme** (la moitié du coût en influence de chaque fondation part au suzerain), **Libre** |
+| Intégration | **Permise** (après dix ans), **Interdite** |
+| Tribut | 0, 10, 20 ou 30 % du revenu net, pour chaque famille : matériaux, énergie, influence, Savoir |
+
+| Préréglage | Clauses |
+| --- | --- |
+| Vassal | Vote lié, toutes les guerres, dîme, 10 % des matériaux et de l'énergie |
+| Tributaire | Libre de sa diplomatie et de ses guerres, mais 20 % des matériaux et de l'énergie |
+| Protectorat | Vote lié, défense, dîme, intégration permise ; +50 % de Savoir tant qu'il connaît moins de technologies que son protecteur ; pas d'accord de recherche ; 1 influence par mois au protecteur |
+
+Le suzerain défend toujours son sujet. Ni l'un ni l'autre ne peut déclarer la guerre à l'autre. Quand le suzerain signe la paix, ses sujets la signent aussi. Le lien vaut au moins un accord commercial. Après cinq ans de lien, un sujet avance vers la conquête et la domination avec son suzerain (ses systèmes comptent pour moitié), mais ne les gagne pas pour lui-même. À l'Amphictyonie, un sujet a moitié moins de voix, et s'il n'est pas libre de sa diplomatie il vote comme son suzerain ; la famille de résolutions **Suzerains et sujets** garantit la souveraineté des sujets (loyauté, pas d'intégration) ou le droit des suzerains (renégociations plus fréquentes).
+
+**La loyauté.** Chaque sujet a une loyauté de -100 à +100. Chaque clause la touche deux fois : tout de suite, puis chaque mois (l'infobulle du menu le dit : « Toutes (-10, -0,5/mois) »). S'y ajoutent l'habitude du lien (+1 par mois), l'opinion du sujet, un credo commun, la puissance du suzerain (un suzerain fort rassure, un plus faible que son sujet inquiète), le **patronage divisé** (-0,5 par mois pour chaque autre sujet, jusqu'à -1,5) et un suzerain qui perd une guerre. Un sujet **déloyal** (sous zéro) ne suit plus que les guerres défensives.
+
+**Renégocier.** **Assouplir** est gratuit et possible à tout moment. **Durcir** n'est possible qu'un an après le lien puis tous les cinq ans, coûte 30 influence plus 3 par point de loyauté perdu, et un sujet sous -20 refuse de discuter.
+
+**Intégrer.** Après dix ans, un sujet loyal dont les clauses le permettent peut être **intégré** : un an à 5 influence par mois, puis ses colonies et ses flottes deviennent les vôtres et son empire disparaît. Un joueur intégré a perdu.
+
+**L'indépendance.** Le suzerain peut **libérer** son sujet : dix ans de trêve suivent, et beaucoup de gratitude. Le sujet peut **exiger son indépendance** : le suzerain cède, ou c'est la guerre de libération. Un tiers peut **soutenir l'indépendance** d'un sujet (20 influence) : sa puissance compte dans le rapport de forces, et il entre en guerre aux côtés du sujet si le suzerain refuse. Le suzerain le saura.
+
+**L'allégeance secrète.** Un sujet peut jurer en secret fidélité à un rival de son suzerain. Si ce rival entre en guerre contre le suzerain, le sujet rompt son lien et passe dans son camp.
+
+::: conseil
+Un vaincu à 100 points de score contre lui n'a plus rien à perdre en se rendant. Si vous menez, proposez vos conditions avant : un vassal vivant vous rapporte un tribut, un empire mort ne vous rapporte que ses ruines.
+:::
+
+**Spécialités.** Une clause de plus, **Spécialité**, donne un rôle au sujet : **Rempart** (ses vaisseaux mieux protégés, les vôtres un peu aussi), **Prospecteur** (matériaux) ou **Érudit** (Savoir). Le sujet gagne de +10 à +20 %, vous de +3 à +7 %, et il verse en plus de 5 à 15 % de la ressource. Le **rang** (I à III) suit sa loyauté : déloyal, il n'en a plus. Imposer une spécialité coûte 3 de loyauté sur-le-champ.
+
+**Possessions.** Chez un sujet, vous pouvez bâtir un **comptoir de tribut** (150 matériaux et 20 influence : tribut +10 %), une **garnison** (200 matériaux : ses vaisseaux +10 % ; un sujet de même credo est rassuré, les autres irrités) ou une **mission** (40 influence : +10 d'opinion envers vous, un peu de loyauté, et avec les religions un fidèle de votre foi tous les six mois dans sa capitale).
+
+**Culte imposé.** Avec les religions, la clause **Culte** peut imposer votre foi d'État au sujet tant qu'elle tient. C'est cher en loyauté (-10 tout de suite, -0,5 par mois), sauf pour une théocratie.
+
+**Résidents, stabilité et ombres.** Un héros **résident** auprès d'un sujet (nouveau poste, chapitre 11) lui donne de la loyauté chaque mois et révèle une allégeance secrète. Un sujet loyal apaise les mouvements de votre empire (+1 de stabilité chacun, +3 au plus), un sujet déloyal les nourrit (-2) ; et un sujet humilié et déloyal perd lui-même 3 de stabilité. Prendre un sujet pousse le Glaive. Deux intrigues visent les sujets des autres (chapitre 9) : **attiser l'indépendance** (-15 de loyauté) et **acheter une allégeance** (le sujet change de camp si vous attaquez son suzerain).
+
+**Talents de suzerain.** Comme les autres talents, ils suivent les couches d'espèce, et un peuple créé en profite aussi :
+
+| Talent | Couche | Effet |
+| --- | --- | --- |
+| Allégeance des fiefs | féodalité (Ossarane) | Pas de patronage divisé jusqu'à trois sujets ; un héritier déloyal livre son fief à votre sujet le plus loyal |
+| Fédéralisme | république (Vael) | Fonde un Koinon sans deux ans d'alliance ; peut être réélu Stratège |
+| Foi unificatrice | théocratie (Chœur) | Culte imposé sans perte de loyauté ; dans une Communion qu'elle préside, les credos différents ne coûtent pas de cohésion |
+| Ni maîtres ni pairs | ruche au credo de survie (Kh'thari) | Ni Koinon ni sujets ; mais nul ne se rend devant elle |
+| Revues partagées | conscience (Teyl) | Dans une Ligue savante, son bonus de Savoir compte un rang de plus |
+| Satrapies | horde (Ferrocornes) | Spécialité **Satrapie** : le sujet livre chaque année un vaisseau de guerre payé de ses matériaux |
+| Filiales | syndicat (Brisecomète) | Spécialité **Filiale** : 10 % d'énergie de plus au tribut, routes du sujet +15 % |
+
+::: capture docs/apercu-sujet-specialise.png|Un sujet Prospecteur au rang III, avec un comptoir de tribut bâti chez lui
+:::
+
+### Le Koinon
+
+Avec l'option **Koinon** (active par défaut), des alliés peuvent aller plus loin que l'alliance : fonder une **ligue** de deux à six empires, avec un synode qui vote, un chef élu et des lois communes. Le nom vient des ligues de cités grecques ; la ligue achéenne élisait chaque année un stratège, jamais deux fois de suite.
+
+**Fonder.** Deux alliés depuis au moins deux ans fondent le Koinon depuis l'écran Diplomatie (100 influence chacun), en choisissant sa **forme**. Une IA accepte si elle vous apprécie ; un joueur répond lui-même.
+
+| Forme | Rang I | Rang II | Rang III |
+| --- | --- | --- | --- |
+| Ligue marchande | Routes entre membres +10 % | +15 %, +1 influence par mois | +20 %, +1 influence |
+| Ligue savante | +5 % de Savoir | +10 % | +15 % |
+| Ligue martiale | Armes +5 % | +10 % | +15 % |
+| Hégémonie | Le Stratège gagne 2 influence par mois | 3, et +1 pour chacun | 4, et +1 pour chacun |
+| Communion | +10 d'opinion entre membres | +15, +1 influence | +20, +1 influence |
+
+La **Communion** exige une même foi (ou, sans religions, un même credo). L'**Hégémonie** est la ligue d'un seul : le plus puissant y préside à vie, les voix du synode se pèsent à la population, et l'on ne part pas sans son accord.
+
+**Entrer.** Un empire demande à entrer depuis la relation avec un membre : **membre** de plein droit (50 influence), ou **associé**, gratuit, protégé et soumis aux lois (impôt réduit de moitié) mais sans voix ni bonus de la forme. Le synode vote. Une demande rejetée ne se représente qu'un an plus tard ; il en va de même pour toute proposition rejetée.
+
+**Le synode.** Chaque membre peut proposer : admettre, **exclure** un membre (aux deux tiers des voix), la **guerre commune** contre un ennemi (ceux qui votent pour la déclarent ensemble), un cran de **loi**, une autre **forme** (l'expérience repart de zéro). Un vote dure trente jours ; les IA votent tout de suite.
+
+**Le Stratège.** Le fondateur préside d'abord. Le Stratège est élu pour **cinq ans** et ne peut pas se succéder à lui-même. Il dispose du **trésor commun** (jusqu'à 200 énergie par versement, pour secourir un membre) et donne la **consigne de vote** à l'Amphictyonie : les membres qui la suivent soudent la ligue, ceux qui votent contre l'abîment.
+
+**Les lois.** Trois familles, un cran à la fois, chacun exigeant un rang :
+
+| Loi | Crans |
+| --- | --- |
+| Politique commerciale | Aucune, **Routes privilégiées** (le commerce entre membres vaut au moins un accord commercial), **Marché commun** (il vaut le libre-échange, rang II) |
+| Impôt fédéral | 0 %, **5 %** du revenu net en énergie au trésor, **10 %** (rang II) |
+| Centralisation | Autonomie, **Union** (cartes partagées, +5 d'opinion, rang II), **Fusion** (+5 % d'influence, rang III) |
+
+**Cohésion et rangs.** La cohésion va de -100 à +100 et part de 30. Chaque mois, la vie commune la fait monter, les membres nombreux, les credos et gouvernements différents et la centralisation la font baisser ; une guerre commune la soutient. Une entrée, un départ, un vote perdu, une loi de plus la font chuter ; une guerre gagnée ensemble la relève. Tant qu'elle est positive, la ligue gagne de l'**expérience** chaque mois, et passe au **rang II** à 120, au **rang III** à 360 ; négative, elle en perd.
+
+**Défense et paix.** Les membres ne peuvent pas se faire la guerre. Quand on attaque un membre, les autres entrent en guerre à ses côtés. Entre membres, la frontière ne crée plus de friction.
+
+**Partir.** Hors Hégémonie, on part librement : une trêve de deux ans suit avec chaque membre, qui s'en souviendra. En Hégémonie, il faut l'accord du Stratège ; s'il refuse, c'est la **guerre de sécession**. Une ligue réduite à un membre se dissout ; un membre qui devient sujet en sort.
+
+**Victoire.** Après cinq ans dans la même ligue, les membres avancent ensemble vers la conquête et la domination, comme des alliés. Ce délai de grâce empêche les ligues de la dernière heure.
+
+**La flotte fédérale.** Une quatrième loi, **Flotte fédérale**, fait verser à chaque membre 10 % (rang I) puis 20 % (rang II) de ses matériaux nets dans un **arsenal** commun. Dès qu'il suffit, un vaisseau de guerre sort du chantier de la capitale du Stratège (le meilleur modèle qu'un membre sait construire, quatre par rang au plus). La flotte fédérale ne coûte d'entretien à personne et suit toujours le Stratège en exercice : changer de chef, c'est changer d'amiral. Elle disparaît avec la ligue.
+
+**Les opérations communes.** Une fois par décennie, au rang II et en paix, le Stratège peut lancer une **opération commune** (150 énergie du trésor, six mois). Ses chances tiennent à la cohésion (de 15 à 90 %). Réussie, elle ressoude la ligue (+15 de cohésion, +40 d'expérience) et rapporte selon la forme : un relevé d'anomalie (150 Savoir pour chacun) pour la Ligue savante, de grandes manœuvres (expérience pour les flottes) pour la martiale, une norme de fret (150 énergie) pour la marchande, un concile (30 influence) pour la Communion, et pour l'Hégémonie un monument au Stratège (60 influence, pour lui seul). Ratée, chacun accuse l'autre (-10 de cohésion).
+
+**Délégués, foi et lois.** Un héros peut devenir **délégué au Koinon** (nouveau poste, chapitre 11) : il ajoute un peu de cohésion chaque mois selon son niveau. Une Communion accepte aussi des empires de fois différentes si tous deux ont la loi **Tolérance**. La nouvelle loi indépendante **Hégémonie** (chapitre 10) fait monter la centralisation d'un rang plus tôt, sans coût de cohésion, dans une ligue que vous présidez. Fonder une ligue ou y admettre un membre pousse la Concorde ; un réseau d'espions peut **semer la discorde au synode** d'une ligue rivale (-15 de cohésion, chapitre 9).
+
+::: capture docs/apercu-koinon-flotte.png|Le Stratège voit la flotte fédérale, son arsenal et l'opération commune en cours
+:::
+
+::: capture docs/apercu-koinon.png|Le bloc de la ligue : rang, cohésion, Stratège, lois, vote en cours, trésor
+:::
+
+::: conseil
+Une loi de plus coûte 10 de cohésion. Montez les lois quand la ligue est soudée (à partir de 30 de cohésion, les IA votent pour), et gardez une guerre commune ou deux pour la ressouder.
+:::
+
 ### L'Amphictyonie
 
 Avec l'option **Amphictyonie** (active par défaut), la galaxie finit par se donner une assemblée : la **Grande Amphictyonie Galactique**, que tout le monde appelle l'Amphictyonie, et dont les membres sont les **amphictyons**. Elle ne s'ouvre pas au premier jour. Quand un empire a rencontré au moins **70 %** des autres, et pas avant l'an 8, son acte de fondation circule : il faut **trois signatures**, données dans les deux ans. Les signataires y siègent d'office. Une ruche sans diplomatie ne siège jamais, mais les résolutions et la charte la concernent quand même.
@@ -210,6 +341,8 @@ Les réseaux d'espions ont aussi leurs coups d'assemblée (chapitre 9) : **achet
 
 - **se soumettre** : il paie un tribut de 3 influence par mois, et entre en guerre aux côtés de la Cour quand on l'attaque ;
 - **se soulever** : il quitte l'Amphictyonie (retour interdit pendant dix ans) et entre en guerre contre l'Impérateur et ses vassaux.
+
+Un soumis devient un **sujet** de l'Impérateur, au préréglage verrouillé **Cour impériale** (voir plus haut, « Fin des guerres et sujets ») : clauses imposées et non négociables (vote lié, défense, expansion libre, pas d'intégration), tribut fixé par l'Amphictyonie. On n'en sort pas en exigeant l'indépendance : on se soulève.
 
 Qui ne répond pas s'est soumis. L'**autorité** de l'Impérateur part de 60 sur 100 : chaque mois, +1 par vassal (+3 au plus) et -3 par rebelle encore en guerre contre lui ; +10 pour chaque rebelle abattu. Sous 50, les réseaux d'espions peuvent **saper l'autorité** (-15) ou **allumer la rébellion** d'un vassal. À zéro, la Cour s'effondre : plus d'Impérateur, plus d'Arbitre. Contre un Impérateur, plus de motion de défiance : il faut prendre les armes.
 

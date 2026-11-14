@@ -151,6 +151,14 @@
 		"amph": {
 			"label": "Ambassadeur",
 			"text": "+%d %% de voix à l'Amphictyonie (5 % par niveau, 10 % pour un orateur, 30 % au plus)."
+		},
+		"koinon": {
+			"label": "Délégué au Koinon",
+			"text": "+%d de cohésion par mois pour votre Koinon."
+		},
+		"resident": {
+			"label": "Résident",
+			"text": "+%.1f de loyauté par mois chez ce sujet ; révèle son allégeance secrète."
 		}
 	},
 	"per_level": {

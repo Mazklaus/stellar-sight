@@ -3,6 +3,23 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.19
+
+- **Fédérations et vassaux, lot 3** (chapitre 8) : sujets **spécialisés** (Rempart, Prospecteur, Érudit) à trois rangs selon la loyauté ; **possessions** bâties chez un sujet (comptoir de tribut, garnison, mission) ; **culte imposé** ; sujets loyaux ou déloyaux dans la stabilité ; sept **talents de suzerain**, un par peuple, Satrapies et Filiales comprises.
+- Koinon : loi **Flotte fédérale** et son arsenal, **opérations communes** selon la forme, Communion ouverte par la Tolérance.
+- Deux postes de héros, **délégué au Koinon** et **résident** (chapitre 11) ; loi indépendante **Hégémonie** (chapitre 10) ; trois intrigues (chapitre 9) : attiser l'indépendance, acheter une allégeance, semer la discorde au synode.
+
+### Édition 1.18
+
+- **Le Koinon**, nouvelle option de partie, active par défaut (chapitre 8) : ligues de deux à six empires fondées par des alliés de longue date, cinq **formes** (marchande, savante, martiale, Hégémonie, Communion) à trois **rangs** gagnés par l'expérience, **cohésion**, **synode** (admission, exclusion, guerre commune, lois, forme), **Stratège** élu pour cinq ans et jamais deux fois de suite, **lois** communes (commerce, impôt fédéral, centralisation), **trésor**, membres **associés**, consigne de vote à l'Amphictyonie, défense mutuelle, sortie et guerre de sécession.
+- Sujets : le lien vaut un accord commercial ; délai de cinq ans avant qu'un sujet avance vers la victoire avec son suzerain, ses systèmes comptant pour moitié ; à l'Amphictyonie, voix réduites de moitié, vote lié, et nouvelle famille de résolutions **Suzerains et sujets**.
+- L'écran Diplomatie défile désormais dans sa colonne de droite.
+
+### Édition 1.17
+
+- **Fin des guerres à conditions et sujets**, nouvelle option de partie **Vassaux**, active par défaut (chapitre 8) : paix à conditions payées en score de guerre (systèmes, tribut, réparations, alliances, sujets, vassalité) ; **reddition** au lieu de la mort ; demande de **protection**.
+- Un **lien de sujet** unique réglé par clauses (diplomatie, guerres suivies, expansion, intégration, tribut) ; préréglages Vassal, Tributaire et Protectorat ; **loyauté** et ses causes, patronage divisé, **allégeance secrète** ; intégration après dix ans ; libération, indépendance exigée, soutiens. La **Cour impériale** de l'Amphictyonie devient un préréglage verrouillé.
+
 ### Édition 1.16
 
 - **Amphictyonie, lot 3** (chapitre 8) : les **pleins pouvoirs** (mandat à vie de l'Arbitre, puis l'**Impérateur**, ses vassaux, ses rebelles et son autorité) ; l'élection du **Chancelier des étoiles** et la **Dernière Guerre** ; l'assemblée et la vie intérieure (courants poussés, résolutions qui heurtent les lois, loi **Souveraineté**) ; zèle de la foi galactique, guerres saintes et **Conclave** ; huit **talents d'assemblée**, un par peuple.

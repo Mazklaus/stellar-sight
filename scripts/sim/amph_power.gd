@@ -369,6 +369,7 @@ static func check_submit(state: GameState, eid: int) -> String:
 
 static func submit(state: GameState, eid: int) -> void:
 	(_a(state)["imp"]["sub"] as Array).append(eid)
+	Vassals.sync_court(state)
 	Diplomacy.remember(state, imperator(state), eid, "amph_submitted")
 	state.add_chronicle("%s ploie le genou devant l'Impérateur (%s)." % [_name(state, eid), _name(state, imperator(state))], Espionage.public_to(state, _audience(state)))
 
@@ -386,6 +387,7 @@ static func rise(state: GameState, eid: int) -> void:
 	var imp := imperator(state)
 	var im: Dictionary = _a(state)["imp"]
 	(im["sub"] as Array).erase(eid)
+	Vassals.sync_court(state)
 	if not (im["reb"] as Array).has(eid):
 		(im["reb"] as Array).append(eid)
 	Amphictyony._remove_member(state, eid, int(pdata()["rebel_ban"]))
@@ -866,6 +868,9 @@ static func conclave(state: GameState, a: int, b: int) -> bool:
 	var eb := state.get_empire(b)
 	if ea == null or eb == null:
 		return false
+	# Le Conclave se tient aussi au sein d'une Communion (Koinon).
+	if Koinon.same_league(state, a, b) and bool(Koinon.form(String(Koinon.league(state, Koinon.league_of(state, a)).get("form", ""))).get("faith", false)):
+		return true
 	if String(FactionTraits.species(ea.faction()).get("gouvernement", "")) != "theocratie" or String(FactionTraits.species(eb.faction()).get("gouvernement", "")) != "theocratie":
 		return false
 	return Faiths.has_state_faith(state, a) and Faiths.state_faith(state, a) == Faiths.state_faith(state, b)

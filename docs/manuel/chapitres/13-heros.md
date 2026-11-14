@@ -25,7 +25,7 @@ Vous avez trois places au départ ; deux technologies en ajoutent une chacune.
 | Orateur | Conseil (2 sièges) | Influence, ou un bonus d'empire selon sa classe |
 | Ombre | Agent d'un réseau | Infiltration et chances des opérations |
 
-Avec l'Amphictyonie, un cinquième poste s'ajoute : **ambassadeur** auprès de l'assemblée (+5 % de voix par niveau, le double pour un orateur, 30 % au plus ; chapitre 8).
+Avec l'Amphictyonie, un cinquième poste s'ajoute : **ambassadeur** auprès de l'assemblée (+5 % de voix par niveau, le double pour un orateur, 30 % au plus ; chapitre 8). Avec le Koinon, le **délégué au Koinon** soude votre ligue (de la cohésion chaque mois, selon son niveau) ; avec les vassaux, le **résident** auprès d'un de vos sujets lui donne de la loyauté chaque mois et révèle une allégeance secrète (chapitre 8).
 
 Tout héros peut tenir n'importe quel poste, à moitié d'effet hors de sa classe. Hors du système capital, il lui faut 20 jours pour rejoindre son poste.
 

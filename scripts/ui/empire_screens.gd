@@ -83,6 +83,12 @@ var cancel_buttons := {}
 var embargo_buttons := {}
 var proposal_buttons := {}
 var ability_buttons := {}
+## Sujets et paix à conditions (VassalUi) : boutons par rôle, brouillons de conditions et de clauses.
+var vassal_buttons: Dictionary = {}
+var vassal_draft: Dictionary = {}
+## Koinon (KoinonUi) : boutons par rôle, brouillons de forme.
+var koinon_buttons: Dictionary = {}
+var koinon_draft: Dictionary = {}
 ## Écran Recherche : arbre, technologie choisie, boutons de la technologie choisie ("front", "queue", "remove").
 var research_tree: ResearchTree
 var research_selected := ""
@@ -1343,6 +1349,8 @@ func _build_diplomacy() -> void:
 	embargo_buttons.clear()
 	proposal_buttons.clear()
 	ability_buttons.clear()
+	vassal_buttons.clear()
+	koinon_buttons.clear()
 	var me := _state.get_empire(_player)
 	if diplo_selected < 0 or _state.get_empire(diplo_selected) == null or diplo_selected == _player:
 		diplo_selected = -1
@@ -1377,6 +1385,7 @@ func _build_diplomacy() -> void:
 		_side_box.add_child(_heir_box(me))
 	if Diplomacy.faction_abilities(me.faction()).is_empty():
 		_side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("diplomacy").get("why", "")), SIDE_WIDTH - 24.0, 14))
+	_side_box.add_child(VassalUi.side(_state, _player, SIDE_WIDTH - 24.0))
 
 	# Contenu : la table à gauche, la relation choisie et les propositions à droite.
 	var row := HBoxContainer.new()
@@ -1401,15 +1410,24 @@ func _build_diplomacy() -> void:
 		legend.add_child(pair)
 	left.body.add_child(legend)
 
+	# Colonne de droite défilante : relation, sujets, Koinon peuvent dépasser l'écran.
+	var right_scroll := ScrollContainer.new()
+	right_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	right_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.add_child(right_scroll)
 	var right := VBoxContainer.new()
 	right.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	right.add_theme_constant_override("separation", 18)
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(right)
+	right_scroll.add_child(right)
 	var props := Diplomacy.proposals_for(_state, _player)
 	if not props.is_empty():
 		right.add_child(_proposals_block(props))
 	right.add_child(_relation_block(diplo_selected))
+	var kb := KoinonUi.league_block(_state, _player, _vassal_emit, koinon_buttons, koinon_draft)
+	if kb != null:
+		right.add_child(kb)
 
 
 func _heir_box(me: Empire) -> Control:
@@ -1456,7 +1474,7 @@ func _proposals_block(props: Array[Dictionary]) -> Control:
 		l.text = "%s propose : %s  (encore %d j)" % [from.short_name(), Diplomacy.proposal_label(p), left]
 		l.add_theme_color_override("font_color", from.color().lerp(Color.WHITE, 0.4))
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		l.tooltip_text = String(Diplomacy.treaty_info(String(p["treaty"])).get("desc", ""))
+		l.tooltip_text = Vassals.kind_text(_state, p) if Vassals.is_kind(String(p["treaty"])) else String(Diplomacy.treaty_info(String(p["treaty"])).get("desc", ""))
 		l.mouse_filter = Control.MOUSE_FILTER_STOP
 		line.add_child(l)
 		var pid := int(p["id"])
@@ -1576,6 +1594,10 @@ func _relation_block(id: int) -> Control:
 		verdict.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		verdict.custom_minimum_size = Vector2(240, 0)
 		grid.add_child(verdict)
+	# Paix à conditions, reddition, protection, sujets (voir VassalUi).
+	blk.body.add_child(VassalUi.relation(_state, _player, id, _vassal_emit, vassal_buttons, vassal_draft))
+	# Koinon : fonder, entrer, guerre commune, exclusion (voir KoinonUi).
+	blk.body.add_child(KoinonUi.relation(_state, _player, id, _vassal_emit, koinon_buttons, koinon_draft))
 
 	# Rompre, déclarer, intriguer, arbitrer.
 	var acts := HFlowContainer.new()
@@ -1724,7 +1746,18 @@ func _diplomacy_sig() -> String:
 	parts.append(str(_state.relations))
 	parts.append(str(_state.proposals.size()) + ":" + str(_state.next_proposal_id))
 	parts.append(str(_state.get_empire(_player).resources.get("influence", 0)))
+	parts.append(str(_state.vassals.get("subs", {})))
+	if _state.koinon_on:
+		parts.append(str(_state.koinon))
 	return "|".join(parts)
+
+
+## Ordre venu de VassalUi ; un ordre vide redessine l'écran (brouillon changé).
+func _vassal_emit(cmd: Dictionary) -> void:
+	if cmd.is_empty():
+		show_screen("diplomacy")
+	else:
+		command_requested.emit(cmd)
 
 
 func _spacer(parent: Control) -> void:

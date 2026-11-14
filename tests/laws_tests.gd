@@ -69,10 +69,10 @@ func _test_data() -> void:
 			n += 1
 		_ok(lv == [1, 2, 3, 4], "lois : 4 lois de niveau 1 à 4 pour %s" % Politics.current_id(i))
 	_ok(n == 30, "lois : 30 lois de courant (6 de pouvoir + 24)")
-	_ok(Laws.independent().size() == 13, "lois : 13 lois indépendantes (dont 2 de culte et la Souveraineté)")
+	_ok(Laws.independent().size() == 14, "lois : 14 lois indépendantes (dont 2 de culte, la Souveraineté et l’Hégémonie)")
 	for l: Dictionary in Laws.independent():
 		ids[String(l["id"])] = true
-	_ok(ids.size() == 43, "lois : identifiants uniques")
+	_ok(ids.size() == 44, "lois : identifiants uniques")
 	_ok(int(Laws.law_def("cadences")["current"]) == Politics.index_of("forge") and not bool(Laws.law_def("cadences")["power"]), "lois : courant d'une loi")
 	_ok(bool(Laws.law_def("mobilisation")["power"]) and int(Laws.law_def("pain_jeux")["current"]) == -1, "lois : loi de pouvoir, loi indépendante")
 

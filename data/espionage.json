@@ -115,7 +115,10 @@
 			"text": "Pamphlets, rumeurs de cour et caricatures : l'autorité de l'Impérateur perd 15 points. Seulement contre un Impérateur dont l'autorité est sous 50."},
 		{"id": "allumer_rebellion", "family": "intrigue", "label": "Allumer la rébellion", "tier": 3, "amph": true,
 			"cost": {"influence": 60}, "days": 60, "success": 50, "discovery": 40, "spend": 20,
-			"text": "Des agents persuadent un membre soumis de se soulever : il quitte l'Amphictyonie et entre en guerre contre la Cour. Seulement quand l'autorité de l'Impérateur est sous 50."}
+			"text": "Des agents persuadent un membre soumis de se soulever : il quitte l'Amphictyonie et entre en guerre contre la Cour. Seulement quand l'autorité de l'Impérateur est sous 50."},
+		{"id": "attiser_independance", "family": "intrigue", "label": "Attiser l'indépendance", "tier": 2, "fed": true, "cost": {"influence": 40}, "days": 60, "success": 60, "discovery": 30, "spend": 15, "loyalty": 150, "text": "Pamphlets et banquets chez le sujet d'un rival : sa loyauté envers son suzerain perd 15 points."},
+		{"id": "acheter_allegeance", "family": "intrigue", "label": "Acheter une allégeance", "tier": 3, "fed": true, "cost": {"influence": 70}, "days": 90, "success": 45, "discovery": 35, "spend": 20, "text": "Le sujet d'un rival vous jure fidélité en secret : si vous entrez en guerre contre son suzerain, il change de camp."},
+		{"id": "discorde_synode", "family": "intrigue", "label": "Semer la discorde au synode", "tier": 2, "fed": true, "cost": {"influence": 40}, "days": 60, "success": 55, "discovery": 30, "spend": 15, "cohesion": -15, "text": "Rumeurs entre les délégués d'un Koinon dont vous n'êtes pas : sa cohésion perd 15 points."}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
 	"chances": {

@@ -92,6 +92,12 @@
 		]
 	},
 	"memories": {
+		"harsh_terms": {"value": -20, "days": 1800, "label": "Nous a imposé une paix à conditions"},
+		"vassal_freed": {"value": 25, "days": 1800, "label": "Nous a rendu notre liberté"},
+		"protected_us": {"value": 15, "days": 1800, "label": "Nous a pris sous sa protection"},
+		"rebel_supported": {"value": -30, "days": 1800, "label": "Soutient la révolte de notre sujet"},
+		"vassal_rebelled": {"value": -30, "days": 1800, "label": "S'est soulevé contre nous"},
+		"left_koinon": {"value": -15, "days": 1440, "label": "A quitté notre Koinon"},
 		"ev_gift": {"value": 15, "days": 1080, "label": "Un geste apprécié (événement)"},
 		"ev_snub": {"value": -15, "days": 1080, "label": "Un affront (événement)"},
 		"tones_kin": {"value": 10, "days": 1800, "label": "Des esprits voisins (choc des tons)"},

@@ -69,6 +69,10 @@ static func _vote(ctx: Dictionary, skill: int) -> void:
 		else:
 			var th: Dictionary = Amphictyony.data()["ai"]
 			want = 1 if sc >= int(th["support"]) else (-1 if sc <= int(th["oppose"]) else 0)
+		# Consigne du Stratège de son Koinon : suivie sauf si l'enjeu la heurte de front.
+		var kc := Koinon.consigne(state, e.id)
+		if kc != 0 and (want != -kc or absi(sc) < 6):
+			want = kc
 	if Amphictyony.vote_of(state, e.id) != want:
 		AiPlayer._issue(ctx, SimCommands.amph_vote(e.id, want))
 	# Voix achetées : enjeu fort, camp en retard, de quoi payer.

@@ -88,6 +88,9 @@ static func check_pact(state: GameState, a: int, b: int, offer := true) -> Strin
 		return "pas de contact"
 	if Combat.at_war(state, a, b) or not Diplomacy.has_pact(state, a, b):
 		return "il faut la paix"
+	var vp := Vassals.check_pact(state, a, b)
+	if vp != "":
+		return vp
 	var need := int(data()["pact_peace_days"])
 	if Diplomacy.pact_days(state, a, b) < need:
 		return "il faut un an de paix (encore %d jours)" % (need - Diplomacy.pact_days(state, a, b))
