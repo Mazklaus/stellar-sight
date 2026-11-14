@@ -350,6 +350,44 @@ static func hero_ransom(player: int, hero_id: int) -> Dictionary:
 	return {"type": "hero_ransom", "player": player, "hero": hero_id}
 
 
+## Amphictyonie (voir Amphictyony) : signer l'acte de fondation, adhérer, partir.
+static func amph_found(player: int) -> Dictionary:
+	return {"type": "amph_found", "player": player}
+
+
+static func amph_join(player: int) -> Dictionary:
+	return {"type": "amph_join", "player": player}
+
+
+static func amph_leave(player: int) -> Dictionary:
+	return {"type": "amph_leave", "player": player}
+
+
+## Déposer une proposition : kind "step" (famille fam, direction dir +1 voie A / -1 voie B),
+## "sanction" (sanc contre target) ou "expel" (bannir target).
+static func amph_propose(player: int, kind: String, fam := "", dir := 0, target := -1, sanc := "") -> Dictionary:
+	return {"type": "amph_propose", "player": player, "kind": kind, "fam": fam, "dir": dir, "target": target, "sanc": sanc}
+
+
+## Soutenir une proposition de la file (ou retirer son soutien).
+static func amph_support(player: int, prop_id: int) -> Dictionary:
+	return {"type": "amph_support", "player": player, "prop": prop_id}
+
+
+static func amph_withdraw(player: int) -> Dictionary:
+	return {"type": "amph_withdraw", "player": player}
+
+
+## Vote en séance : 1 pour, -1 contre, 0 abstention (modifiable jusqu'à la clôture).
+static func amph_vote(player: int, v: int) -> Dictionary:
+	return {"type": "amph_vote", "player": player, "v": v}
+
+
+## Acheter une tranche de voix pour le vote en cours (camp de son vote).
+static func amph_buy(player: int) -> Dictionary:
+	return {"type": "amph_buy", "player": player}
+
+
 ## Soutien officiel à un courant pour la prochaine élection (Politics ; -1 retire le soutien).
 ## En théocratie et en horde, c'est le courant nommé.
 static func politics_support(player: int, current: int) -> Dictionary:
@@ -563,6 +601,22 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Fleets.check_merge(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("into", -1)))
 		"split_fleet":
 			return Fleets.check_split(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("ship", "")))
+		"amph_found":
+			return Amphictyony.check_found(state, int(cmd["player"]))
+		"amph_join":
+			return Amphictyony.check_join(state, int(cmd["player"]))
+		"amph_leave":
+			return Amphictyony.check_leave(state, int(cmd["player"]))
+		"amph_propose":
+			return Amphictyony.check_propose(state, int(cmd["player"]), String(cmd.get("kind", "")), String(cmd.get("fam", "")), int(cmd.get("dir", 0)), int(cmd.get("target", -1)), String(cmd.get("sanc", "")))
+		"amph_support":
+			return Amphictyony.check_support(state, int(cmd["player"]), int(cmd.get("prop", -1)))
+		"amph_withdraw":
+			return Amphictyony.check_withdraw(state, int(cmd["player"]))
+		"amph_vote":
+			return Amphictyony.check_vote(state, int(cmd["player"]), int(cmd.get("v", 9)))
+		"amph_buy":
+			return Amphictyony.check_buy(state, int(cmd["player"]))
 		"politics_support":
 			return Politics.check_support(state, int(cmd["player"]), int(cmd.get("current", -2)))
 		"peoples_status":
@@ -880,6 +934,22 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				c.ship_days = 1
 		"fold":
 			Echoes.fold(state, int(cmd["player"]), int(cmd["planet"]), String(cmd["what"]))
+		"amph_found":
+			Amphictyony.found_sign(state, int(cmd["player"]))
+		"amph_join":
+			Amphictyony.join(state, int(cmd["player"]))
+		"amph_leave":
+			Amphictyony.leave(state, int(cmd["player"]))
+		"amph_propose":
+			Amphictyony.propose(state, int(cmd["player"]), String(cmd["kind"]), String(cmd.get("fam", "")), int(cmd.get("dir", 0)), int(cmd.get("target", -1)), String(cmd.get("sanc", "")))
+		"amph_support":
+			Amphictyony.support(state, int(cmd["player"]), int(cmd["prop"]))
+		"amph_withdraw":
+			Amphictyony.withdraw(state, int(cmd["player"]))
+		"amph_vote":
+			Amphictyony.vote(state, int(cmd["player"]), int(cmd["v"]))
+		"amph_buy":
+			Amphictyony.buy(state, int(cmd["player"]))
 		"politics_support":
 			Politics.support(state, int(cmd["player"]), int(cmd["current"]))
 		"peoples_status":

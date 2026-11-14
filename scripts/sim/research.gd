@@ -870,6 +870,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var rfx2 := Faiths.effects(state, empire_id)
 			_merge(base, rfx2)
 			_merge(exalted, rfx2)
+		# Résolutions de l'Amphictyonie et sanctions (voir Amphictyony) : même empreinte relic_rev.
+		if state.amph_on:
+			var afx := Amphictyony.effects(state, empire_id)
+			_merge(base, afx)
+			_merge(exalted, afx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

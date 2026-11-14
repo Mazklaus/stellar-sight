@@ -126,3 +126,44 @@ Le banquet des lignées coûte 20 influence et 3 cristaux. L'héritier qui vous 
 ::: conseil
 Une alliance entraîne ses membres dans les guerres l'un de l'autre. Avant de signer, regardez les cordes rouges qui partent de votre futur allié sur l'anneau : elles deviennent les vôtres.
 :::
+
+### L'Amphictyonie
+
+Avec l'option **Amphictyonie** (active par défaut), la galaxie finit par se donner une assemblée : la **Grande Amphictyonie Galactique**, que tout le monde appelle l'Amphictyonie, et dont les membres sont les **amphictyons**. Elle ne s'ouvre pas au premier jour. Quand un empire a rencontré au moins **70 %** des autres, et pas avant l'an 8, son acte de fondation circule : il faut **trois signatures**, données dans les deux ans. Les signataires y siègent d'office. Une ruche sans diplomatie ne siège jamais, mais les résolutions et la charte la concernent quand même.
+
+Les autres empires peuvent **adhérer** plus tard (60 influence) s'ils connaissent un membre. **Partir** coûte 40 influence plus 4 par système, et interdit le retour pendant dix ans. Seuls les membres votent et profitent des résolutions ; seuls eux accèdent au **marché commun** de la Bourse galactique. En échange, ils sont liés par la loi commune, le **Nomos**.
+
+L'écran Amphictyonie ([[M]]) montre la séance en cours, la file des propositions, un pupitre pour proposer, les résolutions en vigueur, le Nomos et les amphictyons. Un empire que vous n'avez jamais rencontré y apparaît comme « monde inconnu ».
+
+::: capture docs/apercu-amphictyonie.png|L'écran Amphictyonie : la séance, l'hémicycle du dernier vote, la file
+:::
+
+**Les voix.** Chaque mois, l'assemblée pèse ses membres sur 1000 voix : population pondérée par la stabilité (40 %), économie (25 %), technologies connues (20 %), puissance de flotte (15 %). Une proposition adoptée donne à son auteur +5 % de voix pendant six ans, une proposition rejetée -5 %.
+
+**Les séances.** Chaque membre peut déposer une proposition (une à la fois). Elle coûte de l'influence selon son niveau : 40 pour un premier niveau, 70 pour un deuxième, 40 pour une abrogation, 25 pour une sanction, 50 pour un bannissement. Les autres membres la **soutiennent** ou non. Tous les **deux ans**, la plus soutenue passe en séance ; la première séance s'ouvre un an après la fondation. Le vote dure **six mois**, chacun peut changer d'avis jusqu'à la clôture, et il reste secret jusque-là. La proposition passe si les voix pour dépassent les voix contre ; l'abstention ne compte pas. Chaque séance a un **président**, le membre le plus lourd qui n'a pas encore présidé : s'il a une proposition dans la file, elle passe en premier et sans frais, et il tranche les égalités.
+
+Pendant une séance, on peut **acheter des voix** pour ce seul vote, dans le camp de son vote : chaque tranche ajoute 3 % du total, coûte 15 influence la première fois puis 10 de plus à chaque fois (cinq tranches au plus). Si votre camp perd, la moitié est remboursée. Voter pour la proposition d'un empire lui plaît, voter contre le froisse (±8 d'opinion, jusqu'à trois fois).
+
+::: marge
+La présidence n'a presque aucun pouvoir. C'est précisément pour cela que tout le monde la veut : le fauteuil est magnifique.
+:::
+
+**Les résolutions.** Elles vont par familles de deux voies opposées, en niveaux à voter dans l'ordre. Un pas vers la voie opposée abroge d'abord le dernier niveau en vigueur. Une résolution reste en vigueur jusqu'à son abrogation, et ne vaut que pour les membres.
+
+| Famille | Voie A | Voie B |
+| --- | --- | --- |
+| Commerce | **Routes franches**, puis Grand-Route des Mondes : routes +10 % puis +20 %, frais du marché réduits | **Préférence impériale**, puis Murs de douane : matériaux +4 % puis +8 %, routes -10 % puis -20 % |
+| Savoir | **Savoir sans frontières**, puis Bibliothèque des Étoiles : Savoir +5 % puis +10 % | **Brevets galactiques** : vol de technologie démasqué interdit ; puis Office des brevets, énergie +5 % |
+| Guerre | **Conventions de guerre** : garnisons +10 %, rompre un traité pour attaquer un membre interdit ; puis Paix armée : toute guerre d'agression contre un membre interdite | **Défense mutuelle** : défense des mondes natals ; un membre attaqué sans motif ouvre à tous un droit de guerre contre l'agresseur pendant cinq ans ; puis Bouclier commun |
+| Foi (avec les religions) | **Liberté de culte**, puis Chemins des pèlerins : pression des fois +15 % puis +30 % | **Foi galactique** : la foi la plus suivie chez les membres est proclamée foi galactique ; les membres qui l'ont pour foi d'État gagnent des voix et du rayonnement |
+| Peuples | **Droit d'asile**, puis Terre d'accueil : croissance et un peu de stabilité | **Frontières closes**, puis Rideau stellaire : stabilité, mais moins de croissance |
+| Ombres | **Charte du renseignement** : un espion pris chez un membre est une infraction ; puis Bureau des chiffres : découverte +15 % entre membres | **Concurrence des ombres**, puis Marché des secrets : opérations -15 % puis -30 % |
+| Faune et périls (avec créatures ou pirates) | **Sanctuaires** : détruire un nid est une infraction ; stabilité | **Primes et patrouilles** : chaque repaire démantelé ou nid détruit rapporte 15 puis 30 influence |
+
+**Le Nomos et les hors-la-loi.** Ce qu'une résolution interdit devient loi pour les membres. Celui qui l'enfreint est déclaré **hors-la-loi** pour cinq ans : tous les membres s'en souviennent (-30 d'opinion), et l'assemblée peut voter contre lui des **sanctions** en trois degrés (économiques : routes -20, -35 puis -50 %, et exclusion du marché commun au troisième degré ; scientifiques : Savoir -10 à -30 % ; militaires : entretien et chantiers +10 à +30 %), puis le **bannir** pour dix ans. Les sanctions tombent avec la fin de la peine.
+
+La première ligne du Nomos tient dès la fondation : la **charte des atrocités**. Exterminer une population, membre ou non, rend hors-la-loi avec des sanctions économiques et scientifiques automatiques. À la seconde atrocité, chaque amphictyon peut déclarer la guerre au coupable **sans être parjure**, même s'il avait signé la paix avec lui.
+
+::: conseil
+Une résolution ne s'impose qu'aux membres : un empire belliqueux a parfois intérêt à rester dehors. Mais dehors, il n'a ni voix, ni marché commun, et s'il frappe un membre sous la Défense mutuelle, c'est toute l'assemblée qui peut lui répondre.
+:::

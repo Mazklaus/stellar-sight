@@ -180,6 +180,9 @@ var migrations := "actives"
 var _migrations_select: OptionButton
 var faiths := "actives"
 var _faiths_select: OptionButton
+## L'Amphictyonie (assemblée galactique) : "active" (défaut) ou "aucune".
+var amphictyony := "active"
+var _amph_select: OptionButton
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
 const PRESETS_PATH := "user://new_game_presets.json"
@@ -1526,6 +1529,13 @@ func set_faiths(id: String) -> void:
 	_refresh_preset()
 
 
+func set_amphictyony(id: String) -> void:
+	amphictyony = id if id == "active" or id == "aucune" else "active"
+	if _amph_select:
+		_amph_select.select(0 if amphictyony == "active" else 1)
+	_refresh_preset()
+
+
 func set_migrations(id: String) -> void:
 	migrations = id if id == "actives" or id == "aucunes" else "actives"
 	if _migrations_select:
@@ -1536,7 +1546,7 @@ func set_migrations(id: String) -> void:
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
 	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
-		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths}
+		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony}
 
 
 func set_spectator(on: bool) -> void:
@@ -1883,9 +1893,17 @@ func _build_new_page(root: Control) -> void:
 	_faiths_select.tooltip_text = "Religions : chaque colonie compte ses fidèles. Les peuples théocrates commencent avec leur foi ; les autres grandes fois naissent d'une Révélation (relique sainte, gardien vaincu, héros, sciences de l'âme, prophète). Elles s'étendent de monde en monde, par les routes et avec les migrants ; chaque foi a une nature, quatre doctrines et jusqu'à trois préceptes ; la foi d'État donne ses préceptes, de la stabilité et des amitiés.\nAucunes : comme avant (ferveur et offrandes sans fidèles)."
 	_faiths_select.item_selected.connect(func(i: int) -> void: set_faiths("actives" if i == 0 else "aucunes"))
 	_labeled_row(game, "Religions", _faiths_select)
+	_amph_select = OptionButton.new()
+	_amph_select.clip_text = true
+	_amph_select.add_item("Active")
+	_amph_select.add_item("Aucune")
+	_amph_select.tooltip_text = "Amphictyonie : une assemblée galactique naît quand un empire a rencontré 70 % des autres (pas avant l'an 8) et que trois empires signent son acte. Ses membres pèsent selon leur population heureuse, leur économie, leur savoir et leur flotte, votent des résolutions qui tordent les règles du commerce, du savoir, de la guerre, de la foi, des peuples, des ombres et des périls, et une loi commune, le Nomos, dont la première ligne interdit les atrocités.\nAucune : pas d'assemblée."
+	_amph_select.item_selected.connect(func(i: int) -> void: set_amphictyony("active" if i == 0 else "aucune"))
+	_labeled_row(game, "Amphictyonie", _amph_select)
 	set_peoples(peoples)
 	set_migrations(migrations)
 	set_faiths(faiths)
+	set_amphictyony(amphictyony)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2623,7 +2641,7 @@ func settings() -> Dictionary:
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
-		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths,
+		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2641,7 +2659,7 @@ func default_settings() -> Dictionary:
 		"victories": {"conquete": true, "domination": true, "allies": true, "spirituelle": false}, "ai_scaling": false,
 		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "plagues": true, "events": Events.default_frequency(), "curios": Curios.default_density(),
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
-		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives"}
+		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives", "amphictyony": "active"}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -2714,6 +2732,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_peoples(String(d.get("peoples", base["peoples"])))
 	set_migrations(String(d.get("migrations", base["migrations"])))
 	set_faiths(String(d.get("faiths", base["faiths"])))
+	set_amphictyony(String(d.get("amphictyony", base["amphictyony"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

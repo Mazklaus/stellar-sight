@@ -515,6 +515,8 @@ static func op_cost(state: GameState, a: int, op_id: String) -> Dictionary:
 	var o := op_def(op_id)
 	var cost: Dictionary = (o.get("cost", {}) as Dictionary).duplicate()
 	var pct := int(talent(state, a).get("%s_cost_pct" % String(o.get("family", "")), 100))
+	if state.amph_on:
+		pct += Amphictyony.op_cost_pct(state, a)
 	if pct != 100:
 		for r in cost:
 			@warning_ignore("integer_division")
@@ -548,6 +550,8 @@ static func chances(state: GameState, a: int, b: int, op_id: String) -> Dictiona
 		dp.append(["Contre-espionnage (%d cellule%s)" % [counter, "s" if counter > 1 else ""], counter_weight(state, b) * int(c["counter_per_cell"])])
 	if era_gap > 0:
 		dp.append(["Cible plus avancée", era_gap * int(c["era_gap_discovery"])])
+	if state.amph_on and Amphictyony.discovery_bonus(state, a, b) != 0:
+		dp.append(["Bureau des chiffres (Amphictyonie)", Amphictyony.discovery_bonus(state, a, b)])
 	if above > 0:
 		dp.append(["Réseau bien implanté", -above * int(c["per_tier"])])
 	var succ := 0
@@ -984,6 +988,8 @@ static func _discovered(state: GameState, a: int, b: int, o: Dictionary, ok: boo
 	for i in maxi(1, int(tb.get("caught_memory", 1))):
 		Diplomacy.remember(state, b, a, Reputation.caught_memory(state, a))
 	Diplomacy.remember(state, b, a, "spy_grief")
+	if state.amph_on:
+		Amphictyony.on_spy_caught(state, a, b, String(o["id"]))
 	if ok and String(o["id"]) == "assassinat":
 		Diplomacy.remember(state, b, a, "hero_assassinated")
 	var verdict := "Ils ont réussi quand même : %s" % what if ok else "Ils repartent bredouilles, et repérés."

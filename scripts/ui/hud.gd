@@ -55,6 +55,7 @@ var _tab_politics: Button
 var _tab_trade: Button
 var _tab_peoples: Button
 var _tab_faith: Button
+var _tab_amph: Button
 var _tab_orbit: Button
 var _tab_manage: Button
 var _info_panel: PanelContainer
@@ -218,6 +219,7 @@ func set_system_mode(on: bool) -> void:
 	_tab_trade.visible = not on
 	_tab_peoples.visible = not on
 	_tab_faith.visible = not on
+	_tab_amph.visible = not on
 	_tab_orbit.visible = on
 	_tab_manage.visible = on
 	if on:
@@ -341,7 +343,7 @@ func planet_row_count() -> int:
 	return _planet_dots.get_child_count()
 
 
-## Lentille de la carte : "" (vue galaxie), "economy", "stability", "politics", "trade", "peoples" ou "faith".
+## Lentille de la carte : "" (vue galaxie), "economy", "stability", "politics", "trade", "peoples", "faith" ou "amph".
 func set_lens(value: String) -> void:
 	lens = value
 	_tab_galaxy.set_pressed_no_signal(value == "")
@@ -351,6 +353,7 @@ func set_lens(value: String) -> void:
 	_tab_trade.set_pressed_no_signal(value == "trade")
 	_tab_peoples.set_pressed_no_signal(value == "peoples")
 	_tab_faith.set_pressed_no_signal(value == "faith")
+	_tab_amph.set_pressed_no_signal(value == "amph")
 	lens_changed.emit(value)
 
 
@@ -387,6 +390,8 @@ func _build_tabs() -> void:
 	_tab_peoples.pressed.connect(func() -> void: set_lens("" if lens == "peoples" else "peoples"))
 	_tab_faith = _tab("Foi", "Lentille de la foi : la part de chaque croyance dans vos systèmes, la majoritaire, et les mondes saints connus  (N)")
 	_tab_faith.pressed.connect(func() -> void: set_lens("" if lens == "faith" else "faith"))
+	_tab_amph = _tab("Assemblée", "Lentille de l'Amphictyonie : les empires membres (or), les hors-la-loi (rouge) et ceux qui restent dehors (gris), avec leurs voix  (X)")
+	_tab_amph.pressed.connect(func() -> void: set_lens("" if lens == "amph" else "amph"))
 	_tab_orbit = _tab("Vue orbitale", "L'étoile et ses planètes en orbite  (Tab)")
 	_tab_orbit.pressed.connect(func() -> void: system_mode_requested.emit(false))
 	_tab_manage = _tab("Gestion du système", "Les planètes côte à côte, pour comparer  (Tab)")
@@ -398,7 +403,7 @@ func _build_tabs() -> void:
 
 func _tab(text: String, tip: String) -> Button:
 	var b := Button.new()
-	b.theme_type_variation = &"TabButton"
+	b.theme_type_variation = &"LensTab"
 	b.text = text.to_upper()
 	b.toggle_mode = true
 	b.focus_mode = Control.FOCUS_NONE

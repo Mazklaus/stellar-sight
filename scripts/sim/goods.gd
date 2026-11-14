@@ -540,7 +540,7 @@ static func base_price(res: String) -> int:
 
 ## Clé des prix de l'empire : la sienne, ou -1 (tout le monde) une fois le marché commun fondé.
 static func market_key(state: GameState, eid: int) -> int:
-	return -1 if common_market(state) else eid
+	return -1 if common_market(state) and (not state.amph_on or Amphictyony.in_common_market(state, eid)) else eid
 
 
 static func price_mult(state: GameState, eid: int, res: String) -> int:
@@ -620,7 +620,7 @@ static func trade_market(state: GameState, eid: int, res: String, n: int) -> voi
 		e.resources["energy"] = int(e.resources.get("energy", 0)) + sell_gain(state, eid, res, -n)
 	e.resources[res] = int(e.resources.get(res, 0)) + n
 	var energy := buy_cost(state, eid, res, n) if n > 0 else sell_gain(state, eid, res, -n)
-	if common_market(state) and eid != bourse_host(state):
+	if market_key(state, eid) < 0 and eid != bourse_host(state):
 		state.goods["vol"] = int(state.goods.get("vol", 0)) + energy
 	var key := market_key(state, eid)
 	var mk: Dictionary = state.goods.get("mkt", {})

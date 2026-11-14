@@ -5,7 +5,8 @@ extends SceneTree
 ##   python3 tools/balance_report.py fichier.jsonl
 ## Variables : SEEDS, YEARS (défaut 25), LEVEL (défaut normal), TEMPER (défaut normal),
 ## PIRATES (densité des repaires : aucun par défaut, rares, normaux, infestes), POLITICS (politique
-## intérieure : aucune par défaut, active), PEOPLES (peuples mêlés : aucuns par défaut, actifs).
+## intérieure : aucune par défaut, active), PEOPLES (peuples mêlés : aucuns par défaut, actifs),
+## AMPH (Amphictyonie : aucune par défaut, active).
 ## SPECIES : peuples créés à ajouter aux 4 officiels (éditeur d'espèces), séparés par des virgules :
 ## chemin d'un fichier de peuple (user://species/p_x.json ou chemin absolu) ou « preset:<officiel> »
 ## (peuple créé depuis le modèle d'un officiel). Banc court d'un peuple créé, cibles de l'étude
@@ -42,7 +43,8 @@ func _initialize() -> void:
 				"pirates": OS.get_environment("PIRATES") if OS.get_environment("PIRATES") != "" else "aucun",
 				"politics": OS.get_environment("POLITICS") if OS.get_environment("POLITICS") != "" else "aucune",
 				"peoples": OS.get_environment("PEOPLES") if OS.get_environment("PEOPLES") != "" else "aucuns",
-				"faiths": OS.get_environment("FAITHS") if OS.get_environment("FAITHS") != "" else "aucunes"})
+				"faiths": OS.get_environment("FAITHS") if OS.get_environment("FAITHS") != "" else "aucunes",
+				"amphictyony": OS.get_environment("AMPH") if OS.get_environment("AMPH") != "" else "aucune"})
 		var sim := Simulation.new(st)
 		var rows := {}
 		for e in st.empires:
@@ -94,6 +96,17 @@ func _initialize() -> void:
 					je += 1
 			out["faith_lot2"] = {"missions": FaithWars._missions(st).size(), "holy_wars": holy, "crusades": st.faiths["crusades"].size(),
 					"seen": st.faiths["seen"].size(), "prophecies": st.faiths["prophecies"].size(), "je": je, "demands": st.faiths["demands"].size()}
+		if st.amph_on:
+			var fams := {}
+			for r in Amphictyony.active(st):
+				fams[String(r["fam"])] = int(r["v"])
+			var passed := 0
+			for h in st.amph["hist"]:
+				if bool(h["pass"]):
+					passed += 1
+			out["amph"] = {"founded_year": int(st.amph["founded"]) / 360 if Amphictyony.founded(st) else -1, "members": Amphictyony.members(st).size(),
+					"resolutions": fams, "outlaws": Amphictyony.outlaws(st).size(), "hist": (st.amph["hist"] as Array).size(), "passed": passed,
+					"queue": (st.amph["queue"] as Array).size()}
 		if not st.winner.is_empty():
 			var w := st.winner
 			out["winner"] = {"faction": st.get_empire(int(w["empire"])).faction_id, "victory": String(w["victory"]),

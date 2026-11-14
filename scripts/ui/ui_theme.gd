@@ -238,6 +238,13 @@ static func _build() -> Theme:
 	t.set_color("font_pressed_color", "TabButton", TEXT)
 	t.set_color("font_hover_pressed_color", "TabButton", TEXT)
 	t.set_color("font_disabled_color", "TabButton", Color(TEXT_DIM, 0.4))
+	# Onglets des lentilles de la carte : plus serrés (huit onglets entre le panneau d'empire et la chronique).
+	t.set_type_variation("LensTab", "TabButton")
+	for st in [["normal", tab], ["hover", tab_hover], ["pressed", tab_on], ["hover_pressed", tab_on], ["disabled", tab_off]]:
+		var sb: StyleBoxFlat = (st[1] as StyleBoxFlat).duplicate()
+		sb.content_margin_left = 13
+		sb.content_margin_right = 13
+		t.set_stylebox(String(st[0]), "LensTab", sb)
 
 	t.set_type_variation("PrimaryButton", "Button")
 	t.set_stylebox("normal", "PrimaryButton", box(Color(ACCENT, 0.12), Color(ACCENT, 0.6), 10))

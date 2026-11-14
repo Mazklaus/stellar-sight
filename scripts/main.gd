@@ -1167,6 +1167,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			if key.physical_keycode == KEY_Y:
 				toggle_empire_screen("faith")
 				return
+			# M d'Amphictyonie : touche logique (la lettre M de l'AZERTY comme du QWERTY).
+			if key.keycode == KEY_M:
+				toggle_empire_screen("amphictyony")
+				return
+			if key.physical_keycode == KEY_X and not is_system_view_open():
+				_hud.set_lens("" if _hud.lens == "amph" else "amph")
+				return
 			if key.physical_keycode == KEY_C:
 				toggle_empire_screen("trade")
 				return

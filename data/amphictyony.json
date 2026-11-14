@@ -1,0 +1,133 @@
+{
+	"_doc": "La Grande Amphictyonie Galactique, dite l'Amphictyonie (étude « Conseil galactique », 2026-11-14, propositions validées). Lot 1 : fondation, adhésion, voix, séances, propositions, voix achetées, résolutions en familles de deux voies (catalogue ouvert), Nomos (loi galactique), hors-la-loi, charte des atrocités, sanctions, bannissement, marché commun réservé aux membres. Les jours sont des jours de jeu, l'influence se paie comme ailleurs. Sources : Stellaris (communauté galactique), Civilization VI (Congrès mondial), Alpha Centauri (conseil planétaire, charte des atrocités), Master of Orion (conseil galactique).",
+	"_sources": ["https://stellaris.fandom.com/wiki/Galactic_community", "https://civilization.fandom.com/wiki/World_Congress_(Civ6)", "https://civilization.fandom.com/wiki/Planetary_Council_(SMAC)", "Étude : https://claude.ai/artifact/WZ3cd5Pv8Y2S59xBfU1p4s"],
+	"name": "la Grande Amphictyonie Galactique",
+	"short": "l'Amphictyonie",
+	"member_word": "amphictyon",
+	"found": {"met_pct": 70, "min_day": 2880, "founders": 3, "offer_days": 720,
+		"_doc": "Quand un empire éligible a rencontré au moins 70 % des autres empires vivants, et pas avant l'an 8, chaque empire éligible reçoit l'offre de fonder : il faut 3 fondateurs. Une ruche sans diplomatie classique n'est pas éligible. Sans 3 signatures en 2 ans, l'offre se rouvre plus tard."},
+	"join_cost": {"influence": 60},
+	"leave": {"influence": 40, "per_system": 4, "ban_days": 3600},
+	"voix": {"total": 1000, "weights": {"pop": 40, "eco": 25, "tech": 20, "fleet": 15},
+		"_doc": "Poids d'un membre, recalculé chaque mois : population pondérée par la stabilité de ses systèmes, économie (énergie, matériaux et Savoir du mois), technologies connues, puissance de flotte ; chaque part est rapportée au total des membres, le tout sur 1000 voix."},
+	"session_days": 720,
+	"first_session_days": 360,
+	"vote_days": 180,
+	"cost_by_level": [40, 70, 100, 140, 180],
+	"repeal_cost": 40,
+	"sanction_cost": 25,
+	"expel_cost": 50,
+	"proposer_mod": {"pct": 5, "days": 2160},
+	"buy": {"voix_pct": 3, "base": 15, "step": 10, "max": 5,
+		"_doc": "Voix achetées pendant une séance : chaque tranche ajoute 3 % du total des voix au camp choisi ; 15 influence la première, puis 10 de plus à chaque tranche. Remboursées à moitié si le camp perd."},
+	"outlaw_days": 1800,
+	"casus_days": 1800,
+	"expel_ban_days": 3600,
+	"bounty": {"1": {"influence": 15}, "2": {"influence": 30}},
+	"ai": {"support": 3, "oppose": -3, "propose_every": 360},
+	"breaches": {
+		"exterminate": "extermination d'une population (charte des atrocités)",
+		"spy": "espion pris chez un membre (Charte du renseignement)",
+		"tech_theft": "vol de technologie démasqué (Brevets galactiques)",
+		"treaty_war": "traité rompu pour attaquer un membre (Conventions de guerre)",
+		"aggression": "guerre d'agression contre un membre",
+		"nest": "nid de créatures détruit (Sanctuaires)"
+	},
+	"families": [
+		{"id": "commerce", "label": "Commerce", "glyph": "trade",
+			"a": {"label": "Routes franches", "text": "Routes entre membres renforcées, marché commun moins cher.",
+				"levels": [
+					{"name": "Routes franches", "fx": {"trade_income_pct": 10, "market_fee_pct": -2}},
+					{"name": "Grand-Route des Mondes", "fx": {"trade_income_pct": 10, "market_fee_pct": -2}}
+				]},
+			"b": {"label": "Préférence impériale", "text": "Chacun chez soi : l'industrie intérieure d'abord, les routes entre empires taxées.",
+				"levels": [
+					{"name": "Préférence impériale", "fx": {"production_pct": {"materials": 4}, "trade_income_pct": -10}},
+					{"name": "Murs de douane", "fx": {"production_pct": {"materials": 4}, "trade_income_pct": -10}}
+				]}},
+		{"id": "savoir", "label": "Savoir", "glyph": "research",
+			"a": {"label": "Savoir sans frontières", "text": "Les savants circulent, les revues aussi : le Savoir des membres progresse plus vite.",
+				"levels": [
+					{"name": "Savoir sans frontières", "fx": {"production_pct": {"knowledge": 5}}},
+					{"name": "Bibliothèque des Étoiles", "fx": {"production_pct": {"knowledge": 5}}}
+				]},
+			"b": {"label": "Brevets galactiques", "text": "Le vol de technologie démasqué est une infraction ; les inventeurs vendent leurs licences.",
+				"bans": ["tech_theft"],
+				"levels": [
+					{"name": "Brevets galactiques", "fx": {}},
+					{"name": "Office des brevets", "fx": {"production_pct": {"energy": 5}}}
+				]}},
+		{"id": "guerre", "label": "Guerre", "glyph": "war",
+			"a": {"label": "Conventions de guerre", "text": "Pas de guerre sans préavis : rompre un traité pour attaquer un membre est une infraction ; au second niveau, toute guerre d'agression contre un membre.",
+				"levels": [
+					{"name": "Conventions de guerre", "fx": {"garrison_pct": 10}, "bans": ["treaty_war"]},
+					{"name": "Paix armée", "fx": {"garrison_pct": 10}, "bans": ["aggression"]}
+				]},
+			"b": {"label": "Défense mutuelle", "text": "Un membre attaqué sans motif ouvre à tous les membres un droit de guerre contre l'agresseur, sans parjure.",
+				"levels": [
+					{"name": "Défense mutuelle", "fx": {"home_damage_pct": 10}, "defense": true},
+					{"name": "Bouclier commun", "fx": {"home_damage_pct": 10, "garrison_pct": 15}, "defense": true}
+				]}},
+		{"id": "foi", "label": "Foi", "glyph": "faith", "requires": "faiths",
+			"a": {"label": "Liberté de culte", "text": "Missions et pèlerins circulent librement chez les membres.",
+				"levels": [
+					{"name": "Liberté de culte", "fx": {"faith_pressure_pct": 15}},
+					{"name": "Chemins des pèlerins", "fx": {"faith_pressure_pct": 15}}
+				]},
+			"b": {"label": "Foi galactique", "text": "La foi la plus suivie chez les membres devient foi galactique : ses fidèles d'État gagnent des voix et du rayonnement.",
+				"levels": [
+					{"name": "Foi galactique", "faith_fx": {"faith_pressure_pct": 10}, "faith_voix_pct": 10},
+					{"name": "Credo des Mondes", "faith_fx": {"faith_pressure_pct": 10, "faith_resist_pct": 15}, "faith_voix_pct": 10}
+				]}},
+		{"id": "peuples", "label": "Peuples", "glyph": "peoples",
+			"a": {"label": "Droit d'asile", "text": "Les réfugiés sont accueillis : les mondes grandissent, la conscience est tranquille.",
+				"levels": [
+					{"name": "Droit d'asile", "fx": {"growth_pct": 5, "stability": 1}},
+					{"name": "Terre d'accueil", "fx": {"growth_pct": 5, "stability": 1}}
+				]},
+			"b": {"label": "Frontières closes", "text": "Les migrations sont freinées : moins de berceaux, moins de remous.",
+				"levels": [
+					{"name": "Frontières closes", "fx": {"growth_pct": -5, "stability": 3}},
+					{"name": "Rideau stellaire", "fx": {"growth_pct": -5, "stability": 2}}
+				]}},
+		{"id": "ombres", "label": "Ombres", "glyph": "intel",
+			"a": {"label": "Charte du renseignement", "text": "Un espion pris chez un membre est une infraction ; au second niveau, les membres traquent mieux les espions.",
+				"bans": ["spy"],
+				"levels": [
+					{"name": "Charte du renseignement", "fx": {}},
+					{"name": "Bureau des chiffres", "fx": {}, "discovery": 15}
+				]},
+			"b": {"label": "Concurrence des ombres", "text": "Tout le monde espionne, autant que ce soit bon marché : opérations moins chères pour les membres.",
+				"levels": [
+					{"name": "Concurrence des ombres", "fx": {}, "op_cost_pct": -15},
+					{"name": "Marché des secrets", "fx": {}, "op_cost_pct": -15}
+				]}},
+		{"id": "perils", "label": "Faune et périls", "glyph": "fauna", "requires": "perils",
+			"a": {"label": "Sanctuaires", "text": "Les créatures sont protégées : détruire un nid est une infraction.",
+				"bans": ["nest"],
+				"levels": [
+					{"name": "Sanctuaires", "fx": {"stability": 1}},
+					{"name": "Réserves des Abysses", "fx": {"stability": 1, "growth_pct": 3}}
+				]},
+			"b": {"label": "Primes et patrouilles", "text": "Chaque repaire pirate démantelé ou nid détruit rapporte une prime en influence.",
+				"levels": [
+					{"name": "Primes de chasse", "fx": {}, "bounty": 1},
+					{"name": "Patrouilles communes", "fx": {}, "bounty": 2}
+				]}}
+	],
+	"sanctions": [
+		{"id": "eco", "label": "Sanctions économiques", "text": "Routes et marché : revenus des routes amputés ; au 3e degré, exclu du marché commun.",
+			"degrees": [{"trade_income_pct": -20}, {"trade_income_pct": -35}, {"trade_income_pct": -50}]},
+		{"id": "sci", "label": "Sanctions scientifiques", "text": "Savants refoulés, revues interdites : Savoir en baisse.",
+			"degrees": [{"production_pct": {"knowledge": -10}}, {"production_pct": {"knowledge": -20}}, {"production_pct": {"knowledge": -30}}]},
+		{"id": "mil", "label": "Sanctions militaires", "text": "Pièces détachées introuvables : entretien plus cher, chantiers plus lents.",
+			"degrees": [{"upkeep_pct": 10, "ship_days_pct": 10}, {"upkeep_pct": 20, "ship_days_pct": 20}, {"upkeep_pct": 30, "ship_days_pct": 30}]}
+	],
+	"atrocity": {"auto_sanctions": ["eco", "sci"]},
+	"presidency_lines": [
+		"%s préside la séance. Personne ne sait très bien à quoi sert la fonction, mais le fauteuil est magnifique.",
+		"%s reçoit le marteau de la présidence. Il paraît qu'il est en bois de comète.",
+		"%s préside : son premier acte est de faire repeindre la salle à ses couleurs.",
+		"%s monte au perchoir. Les interprètes soupirent : il faudra traduire ses plaisanteries."
+	]
+}

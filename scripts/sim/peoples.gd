@@ -806,6 +806,8 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 			Diplomacy.remember(state, o.id, killer, "exterminator")
 			if (killers[k] as Dictionary).has(o.faction_id):
 				Diplomacy.remember(state, o.id, killer, "kin_exterminated")
+		if state.amph_on:
+			Amphictyony.on_atrocity(state, killer)
 	for e in state.empires:
 		if e.eliminated or e.is_npc():
 			continue

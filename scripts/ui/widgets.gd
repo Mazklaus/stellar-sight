@@ -105,6 +105,13 @@ class IconButton:
 						c + Vector2(-s * 0.3, s * 0.35), c + Vector2(-s * 0.55, -s * 0.2)]), col)
 				draw_rect(Rect2(c + Vector2(-s * 0.95, s * 0.5), Vector2(s * 1.9, s * 0.25)), col)
 				draw_rect(Rect2(c + Vector2(-s * 0.6, s * 0.75), Vector2(s * 1.2, s * 0.4)), Color(col, 0.7))
+			"amphictyony":
+				# Un fronton à colonnes : la tribune de l'Amphictyonie.
+				draw_colored_polygon(PackedVector2Array([c + Vector2(-s * 1.2, -s * 0.45), c + Vector2(0, -s * 1.15), c + Vector2(s * 1.2, -s * 0.45)]), col)
+				for k in 4:
+					var x := -s * 0.9 + k * s * 0.6
+					draw_rect(Rect2(c + Vector2(x - s * 0.12, -s * 0.3), Vector2(s * 0.24, s * 1.05)), col)
+				draw_rect(Rect2(c + Vector2(-s * 1.2, s * 0.8), Vector2(s * 2.4, s * 0.25)), col)
 			"senate":
 				# Un hémicycle : deux rangées de sièges en demi-cercle et la tribune.
 				for k in 2:
