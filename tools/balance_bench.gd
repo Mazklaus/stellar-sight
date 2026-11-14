@@ -106,7 +106,10 @@ func _initialize() -> void:
 					passed += 1
 			out["amph"] = {"founded_year": int(st.amph["founded"]) / 360 if Amphictyony.founded(st) else -1, "members": Amphictyony.members(st).size(),
 					"resolutions": fams, "outlaws": Amphictyony.outlaws(st).size(), "hist": (st.amph["hist"] as Array).size(), "passed": passed,
-					"queue": (st.amph["queue"] as Array).size()}
+					"queue": (st.amph["queue"] as Array).size(), "council": AmphInst.councillors(st).size(), "arbiter": AmphInst.arbiter(st),
+					"works": (st.amph["done"] as Array).size(), "work_on": AmphInst.work_on(st), "coal": AmphInst.coal_on(st), "special": AmphInst.special_on(st),
+					"observers": AmphInst.observers(st).size(), "favors": (st.amph["favors"] as Dictionary).size(), "aid": (st.amph["aid"] as Dictionary).size(),
+					"trig": (st.amph["trig"] as Array).size()}
 		if not st.winner.is_empty():
 			var w := st.winner
 			out["winner"] = {"faction": st.get_empire(int(w["empire"])).faction_id, "victory": String(w["victory"]),

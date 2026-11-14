@@ -147,6 +147,10 @@
 		"agent": {
 			"label": "Agent",
 			"text": "+%d d'infiltration par mois au réseau, +%d %% de succès aux opérations."
+		},
+		"amph": {
+			"label": "Ambassadeur",
+			"text": "+%d %% de voix à l'Amphictyonie (5 % par niveau, 10 % pour un orateur, 30 % au plus)."
 		}
 	},
 	"per_level": {

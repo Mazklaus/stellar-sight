@@ -245,6 +245,8 @@ static func target_name(state: GameState, post: String, target: int) -> String:
 		"agent":
 			var e := state.get_empire(target)
 			return "réseau chez %s" % e.short_name() if e else "?"
+		"amph":
+			return Amphictyony.name_short()
 	return ""
 
 
@@ -252,7 +254,7 @@ static func target_name(state: GameState, post: String, target: int) -> String:
 static func choices(state: GameState, player: int, h: Dictionary) -> Array:
 	var own := String(Heroes.class_def(String(h["cls"])).get("post", ""))
 	var order: Array[String] = [own]
-	for p in ["fleet", "system", "council", "agent"]:
+	for p in ["fleet", "system", "council", "agent", "amph"]:
 		if p != own:
 			order.append(p)
 	var out := []
@@ -274,6 +276,8 @@ static func choices(state: GameState, player: int, h: Dictionary) -> Array:
 			"agent":
 				for o in state.get_empire(player).contacts:
 					targets.append(int(o))
+			"amph":
+				targets.append(0)
 		for t in targets:
 			if int(h["target"]) == t and String(h["post"]) == post:
 				continue

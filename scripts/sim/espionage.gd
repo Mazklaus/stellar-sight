@@ -598,6 +598,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		return "les peuples mêlés ne sont pas actifs dans cette partie"
 	if bool(o.get("faiths", false)) and not state.faith_on:
 		return "les religions ne sont pas actives dans cette partie"
+	if bool(o.get("amph", false)):
+		var why_a := AmphInst.spy_check(state, a, b, op_id)
+		if why_a != "":
+			return why_a
 	match op_id:
 		"prophetie":
 			var why := FaithWars.check_prophecy(state, a, b)
@@ -773,6 +777,8 @@ static func _resolve(state: GameState, op: Dictionary) -> void:
 static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 	var ea := state.get_empire(a)
 	var eb := state.get_empire(b)
+	if bool(o.get("amph", false)):
+		return AmphInst.spy_apply(state, a, b, o)
 	match String(o["id"]):
 		"rapport":
 			ea.dossiers[b] = dossier(state, b, data()["tiers"].size())

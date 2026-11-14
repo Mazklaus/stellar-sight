@@ -148,7 +148,7 @@ Pendant une séance, on peut **acheter des voix** pour ce seul vote, dans le cam
 La présidence n'a presque aucun pouvoir. C'est précisément pour cela que tout le monde la veut : le fauteuil est magnifique.
 :::
 
-**Les résolutions.** Elles vont par familles de deux voies opposées, en niveaux à voter dans l'ordre. Un pas vers la voie opposée abroge d'abord le dernier niveau en vigueur. Une résolution reste en vigueur jusqu'à son abrogation, et ne vaut que pour les membres.
+**Les résolutions.** Elles vont par familles de deux voies opposées, en trois niveaux à voter dans l'ordre (le troisième coûte 100 influence et prolonge les effets du deuxième). Un pas vers la voie opposée abroge d'abord le dernier niveau en vigueur. Une résolution reste en vigueur jusqu'à son abrogation, et ne vaut que pour les membres.
 
 | Famille | Voie A | Voie B |
 | --- | --- | --- |
@@ -167,3 +167,41 @@ La première ligne du Nomos tient dès la fondation : la **charte des atrocités
 ::: conseil
 Une résolution ne s'impose qu'aux membres : un empire belliqueux a parfois intérêt à rester dehors. Mais dehors, il n'a ni voix, ni marché commun, et s'il frappe un membre sous la Défense mutuelle, c'est toute l'assemblée qui peut lui répondre.
 :::
+
+**La Haute Voûte et l'Arbitre des étoiles.** Après dix ans d'existence, l'assemblée peut voter la création de la **Haute Voûte**, son haut conseil (100 influence). Ses **trois sièges** vont aux plus fortes voix de base, et sont redistribués tous les dix ans ; un hors-la-loi n'y siège pas. Une résolution peut porter le conseil de un à cinq sièges (60 influence). Chaque conseiller gagne **+20 % de voix** et trois pouvoirs :
+
+- le **veto**, une fois par décennie : la proposition au vote tombe sur-le-champ, quelles que soient les voix ;
+- l'**urgence**, une fois par décennie : une proposition de la file passe tout de suite en séance ;
+- la **dénonciation** (30 influence, une fois tous les cinq ans) : pendant cinq ans, l'empire dénoncé, membre ou non, est passible de sanctions comme un hors-la-loi. Il s'en souvient (-15 d'opinion).
+
+Un conseiller peut proposer l'élection d'un autre conseiller (ou de lui-même) comme **Arbitre des étoiles** (80 influence). Le mandat dure quinze ans et donne **+30 % de voix** ; il se prolonge par une résolution (60 influence), et une **motion de défiance** (50 influence) y met fin. Une fois tous les deux ans, l'Arbitre peut **geler** une proposition de la file pendant deux ans, **clore** un vote plus tôt, ou **imposer une trêve** à deux membres en guerre (40 influence).
+
+**Faveurs, observateurs et ambassadeurs.** Voter pour la proposition d'un autre membre, quand elle passe, c'est une **faveur** qu'il vous doit (dix au plus par débiteur). Secourir un membre en détresse en rapporte aussi. Pendant un vote, **appeler une faveur** fait voter 10 % des voix du débiteur dans votre camp, pour ce vote seulement.
+
+Un empire qui ne veut pas, ou ne peut pas, adhérer peut prendre place au **banc des observateurs** s'il connaît un membre. Il ne vote pas et ne profite pas des résolutions, mais il peut appeler à l'aide et, s'il est victime d'une crise, convoquer une session extraordinaire.
+
+Un héros peut devenir **ambassadeur** auprès de l'Amphictyonie (nouveau poste, chapitre 11) : +5 % de voix par niveau, +10 % pour un orateur, 30 % au plus.
+
+**Crises, sessions extraordinaires et coalitions.** Certains événements ouvrent une **crise** pendant un an : une capitale prise, une atrocité, une guerre sainte, ou la Moisson de l'Essaim arrivée à mi-course. Un membre, ou la victime elle-même si elle observe, peut alors **convoquer une session extraordinaire** (50 influence). Le vote dure deux mois, et le fautif ne vote pas.
+
+Si elle passe, ceux qui ont voté pour forment avec la victime une **coalition** contre le fautif : ils lui déclarent la guerre sans parjure (sauf trêve en cours), leurs chantiers vont 20 % plus vite, et ils ont cinq ans pour atteindre leur but : lui prendre sa capitale (après une capitale prise) ou la moitié de ses systèmes. Réussite : 60 influence pour chaque coalisé, et des souvenirs de fraternité d'armes. Échec : le fautif gagne 100 influence. Une seule coalition à la fois.
+
+::: capture docs/apercu-amphictyonie-lot2.png|Un conseiller de la Haute Voûte en séance : veto, faveurs à appeler, et une session extraordinaire
+:::
+
+::: attention
+Voter pour une coalition, c'est entrer en guerre. Regardez votre flotte avant de lever la main.
+:::
+
+**Entraide et grands travaux.** Un membre ou un observateur presque à sec (moins de 100 énergie ou matériaux) peut **appeler à l'aide** une fois tous les cinq ans : les membres ont six mois pour lui envoyer 300 de la ressource, par tranches de 50. Chaque tranche vaut une faveur et un bon souvenir (+10 d'opinion).
+
+L'assemblée peut aussi voter un **grand chantier** (60 influence) ; les membres ont cinq ans pour le financer. Achevé, il profite à tous les membres, et les trois plus gros donateurs reçoivent une **médaille** pour toujours : +6 %, +4 % et +2 % de voix.
+
+| Grand chantier | Coût | Effet pour les membres |
+| --- | --- | --- |
+| Voile des Courants | 1 200 énergie | Flottes +10 % plus rapides |
+| Phare des Chantiers | 1 500 matériaux | Chantiers navals 10 % plus rapides |
+| Grand Recensement | 1 000 énergie | Croissance +5 %, stabilité +1 |
+| Archives des Mondes | 1 200 matériaux | Savoir +5 % |
+
+Les réseaux d'espions ont aussi leurs coups d'assemblée (chapitre 9) : **acheter un délégué** (un quart des voix de la cible change de camp pour le vote en cours), **faire fuiter un dossier** (la proposition de la cible quitte la file) et **monter un scandale** (la cible perd ses bonus de voix et 10 % de voix pendant six ans).

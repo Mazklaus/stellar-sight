@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.15
+
+- **Amphictyonie, lot 2** (chapitre 8) : un troisième niveau pour chaque voie des résolutions ; la **Haute Voûte** (haut conseil : veto, urgence, dénonciation) et l'**Arbitre des étoiles** (gel, clôture, trêve imposée) ; les **faveurs** entre membres ; le **banc des observateurs** ; les **crises**, sessions extraordinaires et **coalitions** ; l'**aide d'urgence** ; quatre **grands chantiers** et leurs médailles.
+- Nouveau poste de héros : **ambassadeur** (chapitre 11). Trois intrigues d'assemblée : acheter un délégué, faire fuiter un dossier, monter un scandale (chapitre 9).
+
 ### Édition 1.14
 
 - **L'Amphictyonie**, nouvelle option de partie active par défaut (chapitre 8) : la Grande Amphictyonie Galactique naît en cours de partie, avec trois fondateurs. Adhésion et départ, voix pesées (population heureuse, économie, savoir, flotte), file des propositions classée par le soutien, séance tous les deux ans avec vote de six mois, présidence tournante, voix achetées.

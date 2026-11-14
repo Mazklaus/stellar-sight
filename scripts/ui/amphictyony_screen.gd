@@ -6,6 +6,8 @@ extends RefCounted
 ## vote secret jusqu'à la clôture, voix achetées) avec l'hémicycle du dernier vote ; la file des
 ## propositions classée par soutien ; le pupitre pour proposer (familles à deux voies, sanctions et
 ## bannissement contre les hors-la-loi) ; les résolutions en vigueur et le Nomos ; les membres.
+## Lot 2 : la Haute Voûte et l'Arbitre des étoiles (veto, urgence, dénonciation, gel, clôture, trêve),
+## les faveurs, le banc des observateurs, les crises et la coalition, l'aide d'urgence, les grands travaux.
 ## Un empire jamais rencontré apparaît comme « monde inconnu ».
 ## Construit dans les conteneurs d'EmpireScreens, dont il reprend les aides (_grid, _key_value…).
 
@@ -93,6 +95,23 @@ static func build(es: EmpireScreens) -> void:
 		if Amphictyony.outlaw(state, player):
 			var ol := es._key_value(g, "Statut", "HORS-LA-LOI")
 			ol.add_theme_color_override("font_color", CONTRE)
+		elif AmphInst.denounced(state, player):
+			var dl := es._key_value(g, "Statut", "dénoncé")
+			dl.add_theme_color_override("font_color", CONTRE)
+		if AmphInst.arbiter(state) == player:
+			es._key_value(g, "Charge", "Arbitre des étoiles")
+		elif AmphInst.is_councillor(state, player):
+			es._key_value(g, "Charge", "conseiller de la Haute Voûte")
+		elif AmphInst.is_observer(state, player):
+			es._key_value(g, "Banc", "observateur")
+		if member:
+			var amb := AmphInst.ambassador(state, player)
+			es._key_value(g, "Ambassadeur", "%s (+%d %%)" % [String(amb["name"]), AmphInst.ambassador_pct(state, player)] if not amb.is_empty() else "aucun (écran Héros)")
+			var owed := 0
+			for d in AmphInst.debtors(state, player):
+				owed += int(d[1])
+			if owed > 0:
+				es._key_value(g, "Faveurs dues", str(owed))
 		if not ro:
 			if member:
 				_action(es, "leave", "Quitter l'Amphictyonie (%s)" % GameData.format_amounts(Amphictyony.leave_cost(state, player)), Amphictyony.check_leave(state, player),
@@ -100,6 +119,9 @@ static func build(es: EmpireScreens) -> void:
 			else:
 				_action(es, "join", "Adhérer (%s)" % GameData.format_amounts(Amphictyony.join_cost(state, player)), Amphictyony.check_join(state, player),
 						SimCommands.amph_join(player), "Seuls les membres votent, profitent des résolutions et accèdent au marché commun ; mais ils sont liés par le Nomos.")
+				var obs := AmphInst.is_observer(state, player)
+				_action(es, "observe", "Quitter le banc des observateurs" if obs else "Observer les séances", AmphInst.check_observe(state, player),
+						SimCommands.amph_act(player, "observe"), "Un observateur ne vote pas, mais il suit les séances, peut appeler à l'aide et, s'il est victime, convoquer une session extraordinaire.")
 	es._side_box.add_child(HSeparator.new())
 	es._side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("amphictyony").get("why", "")), w, 13))
 
@@ -119,9 +141,13 @@ static func build(es: EmpireScreens) -> void:
 				else "Pas d'assemblée galactique dans cette partie.", 760.0, 15))
 		return
 	col.add_child(_session_block(es))
+	if AmphInst.special_on(state) or AmphInst.coal_on(state) or not AmphInst.open_trigs(state).is_empty():
+		col.add_child(_crisis_block(es))
 	col.add_child(_queue_block(es))
 	if Amphictyony.is_member(state, player) and not ro:
 		col.add_child(_propose_block(es))
+	col.add_child(_inst_block(es))
+	col.add_child(_mutual_block(es))
 	col.add_child(_law_block(es))
 	col.add_child(_members_block(es))
 
@@ -203,6 +229,20 @@ static func _session_block(es: EmpireScreens) -> Control:
 			row.add_child(buy)
 			if Amphictyony.bought(state, player) > 0:
 				row.add_child(UiTheme.dim("%d tranche%s achetée%s" % [Amphictyony.bought(state, player), "s" if Amphictyony.bought(state, player) > 1 else "", "s" if Amphictyony.bought(state, player) > 1 else ""], 13))
+			# Haute Voûte, Arbitre, faveurs.
+			var row3 := HFlowContainer.new()
+			row3.add_theme_constant_override("h_separation", 8)
+			if AmphInst.is_councillor(state, player):
+				row3.add_child(_btn(es, "veto", "Veto", AmphInst.check_veto(state, player), SimCommands.amph_act(player, "veto"),
+						"La proposition tombe sur-le-champ, quel que soit le vote. Un veto par décennie et par conseiller."))
+			if AmphInst.arbiter(state) == player:
+				row3.add_child(_btn(es, "close", "Clore le vote", AmphInst.check_close(state, player), SimCommands.amph_act(player, "close"),
+						"L'Arbitre clôt le vote tout de suite ; on compte les voix telles qu'elles sont."))
+			for d in AmphInst.debtors(state, player):
+				row3.add_child(_btn(es, "call:%d" % int(d[0]), "Appeler la faveur de %s (%d)" % [who(state, player, int(d[0])), int(d[1])], AmphInst.check_call(state, player, int(d[0])),
+						SimCommands.amph_act(player, "call", int(d[0])), "10 % de ses voix votent comme vous pour ce seul vote ; la faveur est consommée."))
+			if row3.get_child_count() > 0:
+				b.body.add_child(row3)
 	else:
 		var q := (state.amph["queue"] as Array).size()
 		b.body.add_child(UiTheme.paragraph("Pas de séance en cours. La prochaine s'ouvrira le %s avec la proposition la plus soutenue de la file (%d en attente) ; son président peut y placer la sienne, sans frais." % [
@@ -271,8 +311,18 @@ static func _queue_block(es: EmpireScreens) -> Control:
 		var sup := UiTheme.dim("soutien %d voix" % Amphictyony.support_weight(state, p), 13)
 		sup.custom_minimum_size = Vector2(120, 0)
 		row.add_child(sup)
+		if int(p.get("frozen", 0)) > state.tick:
+			var fz := UiTheme.dim("gelée jusqu'au %s" % GameCalendar.date_string(int(p["frozen"])), 13)
+			fz.add_theme_color_override("font_color", Color(0.55, 0.75, 0.95))
+			row.add_child(fz)
 		if not member:
 			continue
+		if AmphInst.is_councillor(state, player):
+			row.add_child(_btn(es, "urgent:%d" % int(p["id"]), "Urgence", AmphInst.check_urgent(state, player, int(p["id"])), SimCommands.amph_act(player, "urgent", int(p["id"])),
+					"Ouvre la séance tout de suite sur cette proposition. Une fois par décennie et par conseiller."))
+		if AmphInst.arbiter(state) == player:
+			row.add_child(_btn(es, "freeze:%d" % int(p["id"]), "Geler", AmphInst.check_freeze(state, player, int(p["id"])), SimCommands.amph_act(player, "freeze", int(p["id"])),
+					"La proposition ne peut pas passer en séance pendant deux ans."))
 		if int(p["by"]) == player:
 			row.add_child(_btn(es, "withdraw", "Retirer", Amphictyony.check_withdraw(state, player), SimCommands.amph_withdraw(player), "Sans remboursement."))
 		else:
@@ -321,7 +371,8 @@ static func _propose_block(es: EmpireScreens) -> Control:
 				text += " (%s)" % GameData.format_amounts(cost)
 			row.add_child(_btn(es, "propose:%s:%d" % [fid, dir], text, Amphictyony.check_propose(state, player, "step", fid, dir, -1, ""),
 					SimCommands.amph_propose(player, "step", fid, dir), String(f[way].get("text", ""))))
-	for t in Amphictyony.outlaws(state):
+	_inst_props(es, b)
+	for t in Amphictyony.sanctionables(state):
 		if t == player:
 			continue
 		var row2 := HBoxContainer.new()
@@ -336,7 +387,7 @@ static func _propose_block(es: EmpireScreens) -> Control:
 			var sid := String(s["id"])
 			row2.add_child(_btn(es, "sanction:%d:%s" % [t, sid], "%s %d" % [String(s["label"]), Amphictyony.sanction_degree(state, t, sid) + 1],
 					Amphictyony.check_propose(state, player, "sanction", "", 0, t, sid), SimCommands.amph_propose(player, "sanction", "", 0, t, sid), String(s.get("text", ""))))
-		if Amphictyony.is_member(state, t):
+		if Amphictyony.is_member(state, t) and Amphictyony.outlaw(state, t):
 			row2.add_child(_btn(es, "expel:%d" % t, "Bannir", Amphictyony.check_propose(state, player, "expel", "", 0, t, ""),
 					SimCommands.amph_propose(player, "expel", "", 0, t), "Il perd son siège pour 10 ans."))
 	return b
@@ -395,11 +446,233 @@ static func _members_block(es: EmpireScreens) -> Control:
 		vl.custom_minimum_size = Vector2(90, 0)
 		row.add_child(vl)
 		var tags := PackedStringArray()
+		if AmphInst.arbiter(state) == m:
+			tags.append("Arbitre des étoiles")
+		elif AmphInst.is_councillor(state, m):
+			tags.append("Haute Voûte")
 		if Amphictyony.president(state) == m:
 			tags.append("président de séance")
 		if Amphictyony.outlaw(state, m):
 			tags.append("hors-la-loi")
 		if Amphictyony.galactic_follower(state, m):
 			tags.append("foi galactique")
+		if AmphInst.medal_pct(state, m) > 0:
+			tags.append("médaillé")
 		row.add_child(UiTheme.dim(", ".join(tags), 13))
+	var obs := AmphInst.observers(state)
+	if not obs.is_empty():
+		var names := PackedStringArray()
+		for o in obs:
+			names.append(who(state, player, o))
+		b.body.add_child(UiTheme.dim("Au banc des observateurs : %s." % ", ".join(names), 13))
+	return b
+
+
+## Propositions d'institutions et de grands travaux (dans le pupitre « Proposer »).
+static func _inst_props(es: EmpireScreens, b: Widgets.Block) -> void:
+	var state := es._state
+	var player := es._player
+	var row := HFlowContainer.new()
+	row.add_theme_constant_override("h_separation", 8)
+	row.add_theme_constant_override("v_separation", 6)
+	b.body.add_child(row)
+	var fl := Label.new()
+	fl.text = "Institutions"
+	fl.custom_minimum_size = Vector2(140, 0)
+	fl.add_theme_font_size_override("font_size", 15)
+	row.add_child(fl)
+	var opts: Array = []
+	if not AmphInst.council_on(state):
+		opts.append(["council", "", 0, -1])
+	else:
+		opts.append(["council_size", "", 1, -1])
+		opts.append(["council_size", "", -1, -1])
+		if AmphInst.arbiter(state) < 0:
+			for c in AmphInst.councillors(state):
+				opts.append(["arbiter", "", 0, c])
+		else:
+			opts.append(["extend", "", 0, -1])
+			opts.append(["defiance", "", 0, -1])
+	for o in opts:
+		var p := {"kind": o[0], "by": player}
+		p.merge(AmphInst.make_fields(state, String(o[0]), String(o[1]), int(o[2]), int(o[3])), true)
+		var why := Amphictyony.check_propose(state, player, String(o[0]), String(o[1]), int(o[2]), int(o[3]), "")
+		if String(o[0]) == "council_size" and why.begins_with("entre"):
+			continue
+		row.add_child(_btn(es, "inst:%s:%d:%d" % [String(o[0]), int(o[2]), int(o[3])], "%s (%s)" % [Amphictyony.cap(AmphInst.prop_label(state, p)), GameData.format_amounts(AmphInst.prop_cost(String(o[0])))],
+				why, SimCommands.amph_propose(player, String(o[0]), String(o[1]), int(o[2]), int(o[3])), AmphInst.prop_text(state, p)))
+	var row2 := HFlowContainer.new()
+	row2.add_theme_constant_override("h_separation", 8)
+	b.body.add_child(row2)
+	var wl := Label.new()
+	wl.text = "Grands travaux"
+	wl.custom_minimum_size = Vector2(140, 0)
+	wl.add_theme_font_size_override("font_size", 15)
+	row2.add_child(wl)
+	for w: Dictionary in AmphInst.work_defs():
+		var wid := String(w["id"])
+		if AmphInst.work_done(state, wid):
+			continue
+		var p2 := {"kind": "work", "fam": wid, "by": player}
+		row2.add_child(_btn(es, "work:%s" % wid, "%s (%s)" % [String(w["label"]), GameData.format_amounts(AmphInst.prop_cost("work"))],
+				Amphictyony.check_propose(state, player, "work", wid, 0, -1, ""), SimCommands.amph_propose(player, "work", wid), AmphInst.prop_text(state, p2)))
+
+
+## La Haute Voûte et l'Arbitre des étoiles.
+static func _inst_block(es: EmpireScreens) -> Control:
+	var state := es._state
+	var player := es._player
+	var b := Widgets.Block.new("Haute Voûte et Arbitre des étoiles")
+	if not AmphInst.council_on(state):
+		var left := int(state.amph["founded"]) + int(AmphInst.idata()["council"]["after_days"]) - state.tick
+		@warning_ignore("integer_division")
+		var months := (left + 29) / 30
+		b.body.add_child(UiTheme.paragraph("Pas encore de Haute Voûte. Après 10 ans d'Amphictyonie, une résolution peut la bâtir : ses sièges iront aux plus fortes voix, avec un veto, une procédure d'urgence et le droit de dénoncer%s." % (
+				" (encore %d mois)" % months if left > 0 else ""), 760.0, 14))
+		return b
+	var cs := AmphInst.councillors(state)
+	var names := PackedStringArray()
+	for c in cs:
+		names.append(who(state, player, c))
+	b.body.add_child(UiTheme.paragraph("%d siège%s : %s. Sièges redistribués le %s." % [AmphInst.seats(state), "s" if AmphInst.seats(state) > 1 else "",
+			", ".join(names) if not names.is_empty() else "personne", GameCalendar.date_string(int(state.amph["council"]["reseat"]))], 760.0, 14))
+	var arb := AmphInst.arbiter(state)
+	b.body.add_child(UiTheme.dim("Arbitre des étoiles : %s" % ("%s, jusqu'au %s" % [who(state, player, arb), GameCalendar.date_string(AmphInst.arbiter_until(state))] if arb >= 0 else "aucun"), 14))
+	var den := PackedStringArray()
+	for k in state.amph["den"]:
+		if AmphInst.denounced(state, int(k)):
+			den.append(who(state, player, int(k)))
+	if not den.is_empty():
+		var dl := UiTheme.dim("Dénoncés : %s." % ", ".join(den), 14)
+		dl.add_theme_color_override("font_color", CONTRE)
+		b.body.add_child(dl)
+	var e := state.get_empire(player)
+	if e == null:
+		return b
+	if AmphInst.is_councillor(state, player):
+		var row := HFlowContainer.new()
+		row.add_theme_constant_override("h_separation", 8)
+		row.add_theme_constant_override("v_separation", 6)
+		b.body.add_child(row)
+		row.add_child(UiTheme.dim("Dénoncer (%s) :" % GameData.format_amounts(AmphInst.denounce_cost()), 14))
+		var ks: Array = e.contacts.duplicate()
+		ks.sort()
+		for o in ks:
+			var oe := state.get_empire(int(o))
+			if oe == null or oe.eliminated or oe.is_npc() or AmphInst.denounced(state, int(o)):
+				continue
+			row.add_child(_btn(es, "denounce:%d" % int(o), oe.short_name(), AmphInst.check_denounce(state, player, int(o)), SimCommands.amph_act(player, "denounce", int(o)),
+					"Pendant 5 ans, il devient passible de sanctions. Il ne vous le pardonnera pas de sitôt."))
+	if arb == player:
+		var ms := Amphictyony.members(state)
+		for a in ms:
+			for c in ms:
+				if a < c and Combat.at_war(state, a, c):
+					b.body.add_child(_btn(es, "truce:%d:%d" % [a, c], "Imposer une trêve à %s et %s (%s)" % [who(state, player, a), who(state, player, c), GameData.format_amounts(AmphInst.truce_cost())],
+							AmphInst.check_truce(state, player, a, c), SimCommands.amph_act(player, "truce", a, c), "La guerre cesse : paix et trêve habituelle."))
+	return b
+
+
+## Crises, session extraordinaire et coalition.
+static func _crisis_block(es: EmpireScreens) -> Control:
+	var state := es._state
+	var player := es._player
+	var b := Widgets.Block.new("Crises")
+	var live := state.get_empire(player) != null
+	if AmphInst.special_on(state):
+		var s := AmphInst.special(state)
+		var t := AmphInst.trig(state, int(s["trig"]))
+		var tl := Label.new()
+		tl.text = "Session extraordinaire : faut-il une coalition contre %s ?" % who(state, player, int(s["target"]))
+		tl.add_theme_font_size_override("font_size", 18)
+		tl.add_theme_color_override("font_color", CONTRE)
+		b.body.add_child(tl)
+		var st := AmphInst.stally(state)
+		b.body.add_child(UiTheme.dim("%s · convoquée par %s · clôture le %s · %d voix pour, %d contre" % [Amphictyony.cap(AmphInst.crisis_label(state, t)) if not t.is_empty() else "",
+				who(state, player, int(s["by"])), GameCalendar.date_string(int(s["end"])), int(st["pour"]), int(st["contre"])], 13))
+		if live and Amphictyony.is_member(state, player) and player != int(s["target"]):
+			var row := HBoxContainer.new()
+			row.add_theme_constant_override("separation", 8)
+			b.body.add_child(row)
+			var mine := AmphInst.svote_of(state, player)
+			for v in [1, -1, 0]:
+				var lab := "Pour (rejoindre la coalition)" if v == 1 else ("Contre" if v == -1 else "Abstention")
+				row.add_child(_btn(es, "svote:%d" % v, ("● " if mine == v else "") + lab, AmphInst.check_svote(state, player, v), SimCommands.amph_act(player, "svote", v),
+						"Si la coalition est votée, ceux qui ont voté pour entrent en guerre contre le fautif, sans parjure."))
+	if AmphInst.coal_on(state):
+		var c := AmphInst.coal(state)
+		var names := PackedStringArray()
+		for m in c["members"]:
+			names.append(who(state, player, int(m)))
+		b.body.add_child(UiTheme.paragraph("Coalition contre %s : %s. But : %s, avant le %s. Chantiers des coalisés 20 %% plus rapides." % [who(state, player, int(c["target"])), ", ".join(names),
+				String(AmphInst.idata()["crisis"]["goals"][String(c["goal"])]), GameCalendar.date_string(int(c["end"]))], 760.0, 14))
+	for t2: Dictionary in AmphInst.open_trigs(state):
+		var row2 := HBoxContainer.new()
+		row2.add_theme_constant_override("separation", 10)
+		b.body.add_child(row2)
+		var l := Label.new()
+		l.text = Amphictyony.cap(AmphInst.crisis_label(state, t2))
+		l.custom_minimum_size = Vector2(420, 0)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		row2.add_child(l)
+		if live:
+			row2.add_child(_btn(es, "convene:%d" % int(t2["id"]), "Convoquer (%s)" % GameData.format_amounts(AmphInst.convene_cost()), AmphInst.check_convene(state, player, int(t2["id"])),
+					SimCommands.amph_act(player, "convene", int(t2["id"])), "Session extraordinaire de 2 mois : faut-il former une coalition contre le fautif ?"))
+	return b
+
+
+## Aide d'urgence et grands travaux.
+static func _mutual_block(es: EmpireScreens) -> Control:
+	var state := es._state
+	var player := es._player
+	var b := Widgets.Block.new("Entraide et grands travaux")
+	var e := state.get_empire(player)
+	var member := Amphictyony.is_member(state, player)
+	var step := int(AmphInst.idata()["aid"]["step"])
+	var ks := (state.amph["aid"] as Dictionary).keys()
+	ks.sort()
+	for k in ks:
+		var ai := AmphInst.aid_of(state, int(k))
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		b.body.add_child(row)
+		var l := Label.new()
+		l.text = "Appel de %s : %d / %d %s (jusqu'au %s)" % [who(state, player, int(k)), int(ai["got"]), int(ai["need"]), GameData.resource_label(String(ai["res"])), GameCalendar.date_string(int(ai["end"]))]
+		l.custom_minimum_size = Vector2(480, 0)
+		row.add_child(l)
+		if member and e != null and int(k) != player:
+			row.add_child(_btn(es, "aid:%s" % k, "Donner %d" % step, AmphInst.check_aid_give(state, player, int(k), step), SimCommands.amph_act(player, "aid_give", int(k), step),
+					"Chaque tranche vaut une faveur, et un bon souvenir."))
+	if e != null and (member or AmphInst.is_observer(state, player)):
+		var row2 := HBoxContainer.new()
+		row2.add_theme_constant_override("separation", 8)
+		b.body.add_child(row2)
+		for res in AmphInst.idata()["aid"]["res"]:
+			row2.add_child(_btn(es, "ask:%s" % String(res), "Appeler à l'aide (%s)" % GameData.resource_label(String(res)), AmphInst.check_aid_ask(state, player, String(res)),
+					SimCommands.amph_act(player, "aid_ask", -1, -1, String(res)), "Quand vous êtes presque à sec : les membres peuvent vous envoyer 300 en 6 mois."))
+	if AmphInst.work_on(state):
+		var wk := AmphInst.work(state)
+		var w := AmphInst.work_def(String(wk["id"]))
+		var row3 := HBoxContainer.new()
+		row3.add_theme_constant_override("separation", 10)
+		b.body.add_child(row3)
+		var wl := Label.new()
+		wl.text = "Grand chantier : %s, %d / %d %s (jusqu'au %s)" % [String(w["label"]), AmphInst.work_total(state), int(w["need"]), GameData.resource_label(String(w["res"])), GameCalendar.date_string(int(wk["end"]))]
+		wl.custom_minimum_size = Vector2(480, 0)
+		wl.tooltip_text = String(w.get("text", ""))
+		wl.mouse_filter = Control.MOUSE_FILTER_STOP
+		row3.add_child(wl)
+		if member and e != null:
+			for n in [step, step * 4]:
+				row3.add_child(_btn(es, "give:%d" % n, "Donner %d" % n, AmphInst.check_work_give(state, player, n), SimCommands.amph_act(player, "work_give", n),
+						"Les trois plus gros donateurs reçoivent une médaille : des voix en plus, pour toujours."))
+	for d: Dictionary in state.amph["done"]:
+		var w2 := AmphInst.work_def(String(d["id"]))
+		var md := PackedStringArray()
+		var metals := ["or", "argent", "bronze"]
+		for i in (d["medals"] as Array).size():
+			md.append("%s %s" % [metals[i], who(state, player, int(d["medals"][i]))])
+		b.body.add_child(UiTheme.dim("%s, achevé le %s (%s)" % [String(w2.get("label", "?")), GameCalendar.date_string(int(d["day"])), ", ".join(md)], 14))
+	if b.body.get_child_count() == 0:
+		b.body.add_child(UiTheme.dim("Aucun appel à l'aide, aucun grand chantier.", 14))
 	return b

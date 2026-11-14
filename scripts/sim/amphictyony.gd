@@ -7,6 +7,8 @@ extends RefCounted
 ## votes modifiables), présidence tournante, voix achetées, résolutions en familles de deux voies
 ## (catalogue ouvert, niveaux dans l'ordre, abrogation), Nomos (loi galactique), hors-la-loi, charte des
 ## atrocités, sanctions en 3 degrés, bannissement, marché commun réservé aux membres.
+## Lot 2 (AmphInst) : troisième niveau des voies, Haute Voûte, Arbitre des étoiles, faveurs, observateurs,
+## sessions extraordinaires et coalitions, aide d'urgence, grands travaux, ambassadeurs.
 ##
 ## state.amph (clés d'empire en texte, pour la sauvegarde) :
 ## - "founded" : jour de fondation (-1 avant) ; "offer" : {"since", "yes": [empires]} (offre de fonder) ;
@@ -26,6 +28,9 @@ extends RefCounted
 
 const KEYS := ["offer", "joined", "banned", "voix", "fam", "session", "mods", "outlaw", "atroc", "casus", "sanc"]
 const LISTS := ["members", "queue", "presided", "hist"]
+## Clés du lot 2 (voir AmphInst), relues telles quelles (nombres remis en entiers).
+const KEYS2 := ["council", "arbiter", "favors", "special", "coal", "aid", "work", "den", "cd"]
+const LISTS2 := ["observers", "trig", "done"]
 const HIST_MAX := 12
 
 
@@ -58,6 +63,10 @@ static func _blank() -> Dictionary:
 		d[k] = {}
 	for k in LISTS:
 		d[k] = []
+	for k in KEYS2:
+		d[k] = {}
+	for k in LISTS2:
+		d[k] = []
 	return d
 
 
@@ -79,6 +88,10 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 		state.amph[k] = (d.get(k, {}) as Dictionary).duplicate(true)
 	for k in LISTS:
 		state.amph[k] = (d.get(k, []) as Array).duplicate(true)
+	for k in KEYS2:
+		state.amph[k] = _intify((d.get(k, {}) as Dictionary).duplicate(true))
+	for k in LISTS2:
+		state.amph[k] = _intify((d.get(k, []) as Array).duplicate(true))
 	var a: Dictionary = state.amph
 	a["members"] = _ints(a["members"])
 	a["presided"] = _ints(a["presided"])
@@ -99,6 +112,9 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 			s["votes"][x] = int(s["votes"][x])
 		for x in s["buy"]:
 			s["buy"][x] = int(s["buy"][x])
+		for k in ["calls", "bribe"]:
+			if s.has(k):
+				s[k] = _intify(s[k])
 	for x in a["mods"]:
 		var l: Array = []
 		for m in a["mods"][x]:
@@ -131,6 +147,21 @@ static func _fix_prop(p: Dictionary) -> void:
 	p["fam"] = String(p.get("fam", ""))
 	p["sanc"] = String(p.get("sanc", ""))
 	p["sup"] = _ints(p.get("sup", []))
+	if p.has("frozen"):
+		p["frozen"] = int(p["frozen"])
+
+
+## Nombres relus d'une sauvegarde (flottants JSON) remis en entiers, en profondeur.
+static func _intify(v: Variant) -> Variant:
+	if v is float:
+		return int(v)
+	if v is Dictionary:
+		for k in (v as Dictionary).keys():
+			v[k] = _intify(v[k])
+	elif v is Array:
+		for i in (v as Array).size():
+			v[i] = _intify(v[i])
+	return v
 
 
 static func _ints(l: Array) -> Array:
@@ -332,6 +363,21 @@ static func outlaws(state: GameState) -> Array[int]:
 	return out
 
 
+## Passible de sanctions : hors-la-loi, ou dénoncé par un conseiller de la Haute Voûte.
+static func sanctionable(state: GameState, eid: int) -> bool:
+	return outlaw(state, eid) or AmphInst.denounced(state, eid)
+
+
+static func sanctionables(state: GameState) -> Array[int]:
+	var out: Array[int] = []
+	if not state.amph_on:
+		return out
+	for e in state.empires:
+		if not e.eliminated and not e.is_npc() and sanctionable(state, e.id):
+			out.append(e.id)
+	return out
+
+
 static func sanction_degree(state: GameState, target: int, sanc: String) -> int:
 	return int((state.amph["sanc"] as Dictionary).get(str(target), {}).get(sanc, 0))
 
@@ -362,7 +408,7 @@ static func voix_pct(state: GameState, eid: int) -> int:
 			pct += int(m[0])
 	if galactic_follower(state, eid):
 		pct += level_sum(state, "faith_voix_pct")
-	return pct
+	return pct + AmphInst.voix_pct(state, eid)
 
 
 ## Voix effectives d'un membre (0 pour un non-membre).
@@ -551,6 +597,7 @@ static func _remove_member(state: GameState, eid: int, ban_days: int) -> void:
 	var s: Dictionary = a["session"]
 	if not s.is_empty():
 		(s["votes"] as Dictionary).erase(str(eid))
+	AmphInst.on_remove(state, eid)
 	state.relic_rev += 1
 
 
@@ -585,6 +632,8 @@ static func prop_cost(state: GameState, kind: String, fid: String, dir: int) -> 
 			return {"influence": int(data()["sanction_cost"])}
 		"expel":
 			return {"influence": int(data()["expel_cost"])}
+	if AmphInst.INST_KINDS.has(kind):
+		return AmphInst.prop_cost(kind)
 	var st := step_to(state, fid, dir)
 	return step_cost(fam_value(state, fid), int(st[1]))
 
@@ -624,8 +673,8 @@ static func check_propose(state: GameState, eid: int, kind: String, fid: String,
 		"sanction":
 			if sanction_def(sanc).is_empty():
 				return "sanction inconnue"
-			if not outlaw(state, target):
-				return "seul un hors-la-loi peut être sanctionné"
+			if not sanctionable(state, target):
+				return "seul un hors-la-loi ou un empire dénoncé peut être sanctionné"
 			if target == eid:
 				return "on ne se sanctionne pas soi-même"
 			if sanction_degree(state, target, sanc) >= (sanction_def(sanc)["degrees"] as Array).size():
@@ -636,7 +685,9 @@ static func check_propose(state: GameState, eid: int, kind: String, fid: String,
 			if target == eid:
 				return "partez plutôt"
 		_:
-			return "proposition inconnue"
+			var why := AmphInst.check_prop(state, eid, kind, fid, dir, target)
+			if why != "":
+				return why
 	if not Economy.can_afford(state.get_empire(eid), prop_cost(state, kind, fid, dir)):
 		return "il faut %s" % GameData.format_amounts(prop_cost(state, kind, fid, dir))
 	return ""
@@ -650,6 +701,8 @@ static func propose(state: GameState, eid: int, kind: String, fid: String, dir: 
 	var p := {"id": int(state.amph["next_id"]), "by": eid, "kind": kind, "fam": fid if kind == "step" else "", "from": from, "to": to,
 			"target": target if kind != "step" else -1, "sanc": sanc if kind == "sanction" else "", "day": state.tick,
 			"paid": int(cost.get("influence", 0)), "sup": [eid]}
+	if AmphInst.INST_KINDS.has(kind):
+		p.merge(AmphInst.make_fields(state, kind, fid, dir, target), true)
 	state.amph["next_id"] = int(state.amph["next_id"]) + 1
 	(state.amph["queue"] as Array).append(p)
 	state.add_chronicle("%s dépose une proposition devant %s : %s." % [state.get_empire(eid).display_name(), name_short(), prop_label(state, p)], Espionage.public_to(state, members(state)))
@@ -676,7 +729,7 @@ static func prop_label(state: GameState, p: Dictionary) -> String:
 		"expel":
 			var t2 := state.get_empire(int(p["target"]))
 			return "bannir %s de %s" % [t2.display_name() if t2 != null else "?", name_short()]
-	return "?"
+	return AmphInst.prop_label(state, p)
 
 
 ## Texte des effets d'une proposition (infobulle).
@@ -692,7 +745,7 @@ static func prop_text(state: GameState, p: Dictionary) -> String:
 			return String(sanction_def(String(p["sanc"])).get("text", ""))
 		"expel":
 			return "L'empire hors-la-loi perd son siège et ne pourra pas revenir avant 10 ans."
-	return ""
+	return AmphInst.prop_text(state, p)
 
 
 static func check_support(state: GameState, eid: int, pid: int) -> String:
@@ -762,10 +815,10 @@ static func still_valid(state: GameState, p: Dictionary) -> bool:
 		"step":
 			return family_available(state, String(p["fam"])) and fam_value(state, String(p["fam"])) == int(p["from"])
 		"sanction":
-			return outlaw(state, int(p["target"])) and sanction_degree(state, int(p["target"]), String(p["sanc"])) < (sanction_def(String(p["sanc"]))["degrees"] as Array).size()
+			return sanctionable(state, int(p["target"])) and sanction_degree(state, int(p["target"]), String(p["sanc"])) < (sanction_def(String(p["sanc"]))["degrees"] as Array).size()
 		"expel":
 			return is_member(state, int(p["target"])) and outlaw(state, int(p["target"]))
-	return false
+	return AmphInst.still_valid(state, p)
 
 
 # --- Séances ---------------------------------------------------------------------------------------
@@ -854,6 +907,26 @@ static func tally(state: GameState) -> Dictionary:
 			out["contre"] = int(out["contre"]) + w
 		else:
 			out["abst"] = int(out["abst"]) + weight(state, m)
+	# Faveurs appelées : une part des voix du débiteur rejoint le camp du créancier.
+	var calls: Dictionary = s.get("calls", {})
+	for d in calls:
+		var side := int((s["votes"] as Dictionary).get(str(int(calls[d])), 0))
+		if side != 0:
+			@warning_ignore("integer_division")
+			var cw := weight(state, int(d)) * int(data()["institutions"]["favors"]["call_pct"]) / 100
+			out["pour" if side > 0 else "contre"] = int(out["pour" if side > 0 else "contre"]) + cw
+	# Délégués achetés par des espions : une part des voix de la cible change de camp.
+	var bribe: Dictionary = s.get("bribe", {})
+	for t in bribe:
+		var spy_side := int((s["votes"] as Dictionary).get(str(int(bribe[t])), 0))
+		if spy_side == 0 or not is_member(state, int(t)):
+			continue
+		@warning_ignore("integer_division")
+		var bw := weight(state, int(t)) * int(Espionage.op_def("acheter_delegue").get("voix_pct", 25)) / 100
+		var t_side := int((s["votes"] as Dictionary).get(str(int(t)), 0))
+		var from_key := "pour" if t_side > 0 else ("contre" if t_side < 0 else "abst")
+		out[from_key] = maxi(0, int(out[from_key]) - bw)
+		out["pour" if spy_side > 0 else "contre"] = int(out["pour" if spy_side > 0 else "contre"]) + bw
 	return out
 
 
@@ -880,24 +953,36 @@ static func _choose_president(state: GameState) -> int:
 	return best
 
 
-static func _open_session(state: GameState, added: Array[Dictionary]) -> void:
+## force_pid : procédure d'urgence d'un conseiller (cette proposition, tout de suite).
+static func _open_session(state: GameState, added: Array[Dictionary], force_pid := -1) -> void:
 	var a: Dictionary = state.amph
 	var kept: Array = []
 	for p: Dictionary in a["queue"]:
 		if still_valid(state, p):
 			kept.append(p)
 	a["queue"] = kept
-	if kept.is_empty():
+	# Les propositions gelées par l'Arbitre attendent leur tour.
+	var ready: Array = []
+	for p: Dictionary in sorted_queue(state):
+		if int(p.get("frozen", 0)) <= state.tick or int(p["id"]) == force_pid:
+			ready.append(p)
+	if ready.is_empty():
 		a["next"] = state.tick + 30
 		return
 	var pres := _choose_president(state)
 	var pick: Dictionary = {}
-	for p: Dictionary in kept:
-		if int(p["by"]) == pres:
-			pick = p
-	var free := not pick.is_empty()
+	var free := false
+	if force_pid >= 0:
+		for p: Dictionary in ready:
+			if int(p["id"]) == force_pid:
+				pick = p
 	if pick.is_empty():
-		pick = sorted_queue(state)[0]
+		for p: Dictionary in ready:
+			if int(p["by"]) == pres:
+				pick = p
+		free = not pick.is_empty()
+	if pick.is_empty():
+		pick = ready[0]
 	(a["queue"] as Array).erase(pick)
 	if free and int(pick["paid"]) > 0:
 		var pe := state.get_empire(pres)
@@ -911,7 +996,8 @@ static func _open_session(state: GameState, added: Array[Dictionary]) -> void:
 			state.get_empire(int(pick["by"])).display_name(), " (le président la met en tête de file, sans frais)" if free else ""], Espionage.public_to(state, members(state))))
 
 
-static func _close_session(state: GameState, added: Array[Dictionary]) -> void:
+## veto_by : conseiller de la Haute Voûte qui oppose son veto (la proposition tombe).
+static func _close_session(state: GameState, added: Array[Dictionary], veto_by := -1) -> void:
 	var a: Dictionary = state.amph
 	var s: Dictionary = a["session"]
 	var p: Dictionary = s["prop"]
@@ -921,8 +1007,13 @@ static func _close_session(state: GameState, added: Array[Dictionary]) -> void:
 	var pres := int(s["pres"])
 	var passed := pour > contre or (pour == contre and pour > 0 and int((s["votes"] as Dictionary).get(str(pres), 0)) > 0)
 	var valid := still_valid(state, p)
-	passed = passed and valid
+	passed = passed and valid and veto_by < 0
 	var by := int(p["by"])
+	# Faveurs : qui a voté pour une proposition adoptée, son auteur lui en doit une.
+	if passed:
+		for k in s["votes"]:
+			if int(k) != by and int(s["votes"][k]) > 0:
+				AmphInst.add_favor(state, int(k), by, 1)
 	# Souvenirs : voter pour plaît au proposant, voter contre le froisse.
 	for k in s["votes"]:
 		var who := int(k)
@@ -957,7 +1048,10 @@ static func _close_session(state: GameState, added: Array[Dictionary]) -> void:
 	var label := prop_label(state, p)
 	if passed:
 		_apply(state, p, added)
-	added.append(state.add_chronicle("%s %s : %s (%d voix pour, %d contre)." % [cap(name_short()), "adopte" if passed else ("rejette" if valid else "classe sans suite"), label, pour, contre],
+	var verdict := "adopte" if passed else ("rejette" if valid else "classe sans suite")
+	if veto_by >= 0:
+		verdict = "rejette, sur le veto de %s," % state.get_empire(veto_by).display_name()
+	added.append(state.add_chronicle("%s %s : %s (%d voix pour, %d contre)." % [cap(name_short()), verdict, label, pour, contre],
 			Espionage.public_to(state, members(state))))
 
 
@@ -977,6 +1071,8 @@ static func _apply(state: GameState, p: Dictionary, added: Array[Dictionary]) ->
 			var t := int(p["target"])
 			_remove_member(state, t, int(data()["expel_ban_days"]))
 			added.append(state.add_chronicle("%s est banni de %s : son siège reste vide, et le restera dix ans." % [state.get_empire(t).display_name(), name_short()]))
+		_:
+			AmphInst.apply_prop(state, p, added)
 	state.relic_rev += 1
 
 
@@ -1025,6 +1121,7 @@ static func on_atrocity(state: GameState, eid: int) -> void:
 		m[String(sid)] = maxi(int(m.get(String(sid), 0)), 1)
 	a["sanc"][key] = m
 	state.relic_rev += 1
+	AmphInst.add_trig(state, "atrocity", eid, -1)
 	if n >= 2:
 		state.add_chronicle("Seconde atrocité de %s : selon la charte, chaque amphictyon peut lui déclarer la guerre sans se parjurer." % state.get_empire(eid).display_name(),
 				Espionage.public_to(state, members(state) + [eid]))
@@ -1075,7 +1172,7 @@ static func on_hunt(state: GameState, eid: int, nest: bool) -> void:
 	var lvl := level_sum(state, "bounty")
 	if lvl <= 0:
 		return
-	var reward: Dictionary = data()["bounty"].get(str(mini(lvl, 2)), {})
+	var reward: Dictionary = data()["bounty"].get(str(mini(lvl, 3)), {})
 	var e := state.get_empire(eid)
 	for r in reward:
 		e.resources[r] = int(e.resources.get(r, 0)) + int(reward[r])
@@ -1107,8 +1204,9 @@ static func effects(state: GameState, eid: int) -> Dictionary:
 				Research._merge(out, l.get("fx", {}))
 				if gf:
 					Research._merge(out, l.get("faith_fx", {}))
+	AmphInst.effects(state, eid, out)
 	var sc: Dictionary = (state.amph["sanc"] as Dictionary).get(str(eid), {})
-	if not sc.is_empty() and outlaw(state, eid):
+	if not sc.is_empty() and sanctionable(state, eid):
 		for sid in sc:
 			var degs: Array = sanction_def(String(sid)).get("degrees", [])
 			var d := clampi(int(sc[sid]), 0, degs.size())
@@ -1134,7 +1232,7 @@ static func in_common_market(state: GameState, eid: int) -> bool:
 		return true
 	if not is_member(state, eid):
 		return false
-	return not (outlaw(state, eid) and sanction_degree(state, eid, "eco") >= 3)
+	return not (sanctionable(state, eid) and sanction_degree(state, eid, "eco") >= 3)
 
 
 # --- Mois et jours ---------------------------------------------------------------------------------
@@ -1156,12 +1254,17 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 	for key in (a["outlaw"] as Dictionary).keys():
 		if int(a["outlaw"][key]["until"]) <= state.tick:
 			(a["outlaw"] as Dictionary).erase(key)
-			if (a["sanc"] as Dictionary).has(key):
+			if (a["sanc"] as Dictionary).has(key) and not AmphInst.denounced(state, int(key)):
 				(a["sanc"] as Dictionary).erase(key)
 				state.relic_rev += 1
 			var e := state.get_empire(int(key))
 			if e != null and not e.eliminated:
 				added.append(state.add_chronicle("%s purge sa peine : il n'est plus hors-la-loi, et les sanctions tombent." % e.display_name(), Espionage.public_to(state, members(state) + [int(key)])))
+	# Sanctions d'un empire qui n'est plus ni hors-la-loi ni dénoncé : elles tombent aussi.
+	for key in (a["sanc"] as Dictionary).keys():
+		if not sanctionable(state, int(key)):
+			(a["sanc"] as Dictionary).erase(key)
+			state.relic_rev += 1
 	for key in (a["mods"] as Dictionary).keys():
 		var kept: Array = []
 		for m in a["mods"][key]:
@@ -1172,6 +1275,7 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 		else:
 			a["mods"][key] = kept
 	_galactic_faith(state, added)
+	AmphInst.monthly(state, added)
 
 
 static func _check_offer(state: GameState, added: Array[Dictionary]) -> void:
@@ -1224,6 +1328,7 @@ static func _galactic_faith(state: GameState, added: Array[Dictionary]) -> void:
 static func daily(state: GameState, added: Array[Dictionary]) -> void:
 	if not founded(state):
 		return
+	AmphInst.daily(state, added)
 	if in_session(state):
 		if state.tick >= int(session(state)["end"]):
 			_close_session(state, added)
