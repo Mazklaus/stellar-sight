@@ -242,6 +242,18 @@ func _draw() -> void:
 				_draw_faith(s, px)
 		_draw_holy_worlds(px)
 		return
+	if lens == "amph" and state != null:
+		# Lentille de l'Amphictyonie : les systèmes explorés des empires, cerclés d'or pour les membres,
+		# de rouge pour les hors-la-loi, de gris pour ceux qui restent dehors ; les voix à la capitale.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		for s in galaxy.systems:
+			var o := owner_of(s.id)
+			if o < 0 or GameState.is_npc(o) or not is_explored(s.id):
+				continue
+			_draw_system(s, px)
+			_draw_label(s, px, true)
+			_draw_amph(s, px, o)
+		return
 	if lens == "trade" and state != null:
 		# Lentille du commerce : vos routes (couleur du palier du traité, verte pour une route
 		# intérieure, rouge si bloquée) et le risque pirate des systèmes traversés.
@@ -697,6 +709,23 @@ func _draw_stability(s: StarSystem, px: float, mine: bool) -> void:
 	elif not mine:
 		text = "Monde libre"
 	if text != "":
+		var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
+		draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Lentille de l'Amphictyonie : statut du propriétaire, et ses voix sur son système capitale.
+func _draw_amph(s: StarSystem, px: float, o: int) -> void:
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	var col := Color(0.86, 0.36, 0.33) if Amphictyony.outlaw(state, o) else (Color(0.92, 0.76, 0.36) if Amphictyony.is_member(state, o) else Color(0.55, 0.58, 0.62))
+	draw_arc(Vector2.ZERO, 13.0, 0.0, TAU, 28, col, 2.4, true)
+	if FactionTraits.capital_system(state, o) == s.id:
+		var text := "Hors de l'Amphictyonie"
+		if Amphictyony.outlaw(state, o):
+			text = "Hors-la-loi"
+		if Amphictyony.is_member(state, o):
+			text = ("%d voix" % Amphictyony.weight(state, o)) + (" · hors-la-loi" if Amphictyony.outlaw(state, o) else "")
 		var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
 		draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
 		draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)

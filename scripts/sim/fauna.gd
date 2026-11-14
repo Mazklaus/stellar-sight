@@ -608,6 +608,8 @@ static func destroy_nest(state: GameState, sid: int, empire_id: int, added: Arra
 	for r in loot:
 		e.resources[r] = int(e.resources.get(r, 0)) + int(loot[r])
 	nests(state).erase(sid)
+	if state.amph_on:
+		Amphictyony.on_hunt(state, empire_id, true)
 	for o in state.empires:
 		o.path_cache.clear()
 	var who: Array[int] = [empire_id]

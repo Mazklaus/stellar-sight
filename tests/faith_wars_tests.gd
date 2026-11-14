@@ -575,7 +575,7 @@ func _test_save() -> void:
 	FaithWars.add_stab(st, tsid, "Soulèvement de test", -25, 100)
 	FaithWars.plant(st, ch, t)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 46, "sauvegarde version 46")
+	_ok(int(d["version"]) == 47, "sauvegarde version 47")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and FaithWars.zeal(back, fc) == 63, "zèle relu")
 	_ok(back != null and FaithWars.missions_by(back, ch).size() == 1, "missions relues")

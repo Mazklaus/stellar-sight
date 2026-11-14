@@ -297,6 +297,11 @@ static func politics() -> Dictionary:
 	return _load("politics")
 
 
+## L'Amphictyonie (data/amphictyony.json) : fondation, voix, séances, familles de résolutions.
+static func amphictyony() -> Dictionary:
+	return _load("amphictyony")
+
+
 ## Espionnage (data/espionage.json) : cellules, réseaux, paliers, sondes.
 static func espionage() -> Dictionary:
 	return _load("espionage")

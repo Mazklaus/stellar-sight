@@ -646,6 +646,8 @@ static func dismantle(state: GameState, sid: int, empire_id: int, added: Array[D
 	_reputation(state, empire_id)
 	Heroes.act(state, empire_id, "lair")
 	Quests.on_lair(state, sid, empire_id)
+	if state.amph_on:
+		Amphictyony.on_hunt(state, empire_id, false)
 	var raid: Dictionary = state.lairs[sid]["raid"]
 	state.lairs.erase(sid)
 	# Les routes des vaisseaux sans armes ne contournent plus ce repaire.

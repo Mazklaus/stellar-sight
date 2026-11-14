@@ -10,7 +10,7 @@ etiquette: Annexe
 | Pause, reprise (au tour par tour : fin de tour) | [[Espace]] |
 | Vitesse 1 à 5 | [[1]] à [[5]] |
 | Lentille économique | [[L]] |
-| Lentilles de stabilité, politique, du commerce, des peuples, de la foi | [[K]], [[O]], [[G]], [[U]], [[N]] |
+| Lentilles de stabilité, politique, du commerce, des peuples, de la foi, de l'Amphictyonie | [[K]], [[O]], [[G]], [[U]], [[N]], [[X]] |
 | Ouvrir la vue système | Double-clic, ou [[Entrée]] |
 | Système suivant, précédent de l'empire | [[Tab]], [[Maj]]+[[Tab]] |
 | Revenir à la capitale | [[H]] |
@@ -45,6 +45,7 @@ etiquette: Annexe
 | Ordre intérieur | [[F12]] |
 | Sénat | [[P]] |
 | Foi | [[Y]] |
+| Amphictyonie | [[M]] |
 | Commerce | [[C]] |
 | Chroniques | [[J]] |
 

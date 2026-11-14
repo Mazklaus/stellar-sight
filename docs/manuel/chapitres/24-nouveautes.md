@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.14
+
+- **L'Amphictyonie**, nouvelle option de partie active par défaut (chapitre 8) : la Grande Amphictyonie Galactique naît en cours de partie, avec trois fondateurs. Adhésion et départ, voix pesées (population heureuse, économie, savoir, flotte), file des propositions classée par le soutien, séance tous les deux ans avec vote de six mois, présidence tournante, voix achetées.
+- **Résolutions** en sept familles à deux voies (Commerce, Savoir, Guerre, Foi, Peuples, Ombres, Faune et périls), deux niveaux chacune, et leurs abrogations. Le **Nomos** : charte des atrocités, hors-la-loi, sanctions en trois degrés, bannissement, droit de guerre sans parjure. Le marché commun de la Bourse galactique est réservé aux membres.
+- Écran Amphictyonie [[M]] et lentille [[X]] (chapitre 2).
+
 ### Édition 1.13
 
 - **Religions, lot 4** : cinq natures de science-fiction lourdes (chapitre 10). **Chronolâtrie** : oracles et sécession. **Dieu en chantier** : cinq étages, Éveil, désobéissance. **Entropisme** : horloge de la fin, Fin du cycle, effondrement. **Communion** : fonds commun, ouverte aux ruches. **Astres vivants** : systèmes sacrés, avatars, profanation.

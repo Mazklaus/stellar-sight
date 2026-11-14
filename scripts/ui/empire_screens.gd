@@ -124,6 +124,9 @@ var _senate_sig := ""
 ## Boutons de l'écran Foi (« state:foi », « precept:foi:précepte », « choose:foi »), pour les tests.
 var faith_buttons := {}
 var _faith_sig := ""
+## Boutons de l'écran Amphictyonie (« found », « join », « vote:1 », « propose:fam:dir »…), pour les tests.
+var amph_buttons := {}
+var _amph_sig := ""
 ## Cible choisie dans l'Ordre intérieur pour les contrats et les primes pirates.
 var order_victim := -1
 var _hero_sig := ""
@@ -271,6 +274,8 @@ func show_screen(screen_id: String) -> void:
 			SenateScreen.build(self)
 		"faith":
 			FaithScreen.build(self)
+		"amphictyony":
+			AmphictyonyScreen.build(self)
 		"chronicles":
 			ChronicleScreen.build(self)
 	refresh()
@@ -311,6 +316,9 @@ func refresh() -> void:
 		"faith":
 			if FaithScreen.signature(self) != _faith_sig:
 				show_screen("faith")
+		"amphictyony":
+			if AmphictyonyScreen.signature(self) != _amph_sig:
+				show_screen("amphictyony")
 		"chronicles":
 			if ChronicleScreen.signature(self) != _chron_sig:
 				show_screen("chronicles")
