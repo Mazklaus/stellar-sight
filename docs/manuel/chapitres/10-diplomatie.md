@@ -80,6 +80,32 @@ Le **score de guerre** (chapitre 7) compte les vaisseaux détruits et les systè
 ::: capture docs/apercu-vassaux.png|Paix à conditions : chaque case a son prix, le total se compare au score
 :::
 
+**Avec les buts de guerre.** L'option Buts de guerre (chapitre « La guerre ») change trois choses :
+
+- Le score est un **pourcentage**, et les prix ci-dessus se lisent en points de pourcentage. L'ancienne reddition en vassal disparaît : on **se rend au but** de l'autre (soumission comprise), et la paix à conditions reste ouverte même sans l'option Vassaux.
+- Le traité à la carte s'enrichit de clauses, chacune justifiée par certains buts. Une clause **injustifiée** par le but annoncé coûte le **double**, et le vaincu s'en souvient (-15 pendant dix ans).
+- Chaque paix s'inscrit au **registre des traités** (colonne de gauche de l'écran Diplomatie), avec ses clauses et leur échéance ; une clause violée y est marquée, et donne le motif Représailles.
+
+| Clause | Prix | Justifiée par | Effet |
+| --- | --- | --- | --- |
+| Céder des systèmes, devenir sujet | Comme plus haut | Conquête, soumission | Comme plus haut |
+| Tribut, réparations | Comme plus haut | Rançon | Comme plus haut |
+| Rompre ses alliances / libérer ses sujets | Comme plus haut | Démantèlement / libération | Comme plus haut |
+| Zone démilitarisée | 15 | Humiliation, conquête | Ses systèmes à 2 sauts des vôtres interdits à ses flottes de guerre pendant 5 ans (une flotte armée qui s'y arrête viole le traité) |
+| Limite de flotte | 25 | Humiliation, démantèlement | Pendant 10 ans, plus de vaisseau de guerre tant que sa flotte dépasse la moitié de la vôtre |
+| Passage imposé | 10 | Conquête, libération | Cartes ouvertes à vos flottes pendant 5 ans (consigné ; les frontières viendront plus tard) |
+| Rendre héros et reliques | 10 | Humiliation, rançon, libération | Vos héros prisonniers rentrent ; une de ses reliques est à vous |
+| Conversion | 30 | Soumission, humiliation, et toute guerre sainte | Il adopte votre foi d'État |
+| Changement de régime | 35 | Soumission, démantèlement | Votre courant prend la tête de son gouvernement, jusqu'aux prochaines élections |
+| Transfert d'un sujet | 30 | Soumission, démantèlement, libération | Son sujet le plus puissant devient le vôtre |
+| Sortie du Koinon | 20 | Démantèlement | Il quitte son Koinon |
+| Libération d'un peuple | 15 | Libération, humiliation | Votre peuple, chez lui, reçoit le meilleur statut possible |
+
+Un **orateur** au conseil du vainqueur rabat le prix total de 5 % par niveau (30 % au plus).
+
+::: capture docs/apercu-registre-traites.png|Le registre des traités : chaque clause et son échéance
+:::
+
 Un sujet garde ses colonies et ses flottes ; tout ce qui règle sa vie (clauses, tribut, loyauté, intégration, indépendance) fait l'objet du chapitre 10.
 
 ::: conseil
