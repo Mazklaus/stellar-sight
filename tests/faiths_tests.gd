@@ -1,7 +1,7 @@
 extends RefCounted
 ## Tests de la religion, lot 1 (propositions 1 à 10) : option coupée, fois de départ, cultes natals,
 ## Révélations par les cinq voies et limite, propagation (proximité, routes, ruches), naissances,
-## fondations et migrants, dogmes (chef de foi, paliers, exclusions, effets), foi d'État (stabilité,
+## fondations et migrants, préceptes et doctrines (chef de foi, paliers, réservation, effets, choix du fondateur), foi d'État (stabilité,
 ## opinion, délai), ferveur, ordres, IA, sauvegarde 43, déterminisme.
 ## Appelés par smoke_test.gd.
 
@@ -10,7 +10,7 @@ var _check: Callable
 
 func run(check: Callable) -> void:
 	_check = check
-	print("Religion (fidèles, grandes fois, Révélations, dogmes, propagation, foi d'État)…")
+	print("Religion (fidèles, grandes fois, Révélations, préceptes, propagation, foi d'État)…")
 	_test_off()
 	_test_setup()
 	_test_native()
@@ -18,7 +18,8 @@ func run(check: Callable) -> void:
 	_test_hooks()
 	_test_spread()
 	_test_population()
-	_test_dogmas()
+	_test_precepts()
+	_test_choice()
 	_test_state()
 	_test_fervor()
 	_test_commands()
@@ -37,6 +38,12 @@ func _state(on := true, ai := "") -> GameState:
 		e.resources["influence"] = 5000
 		e.resources["materials"] = 5000
 		e.resources["food"] = 5000
+	# Fondateurs sans IA (tests) : le choix par défaut, comme si le délai était échu.
+	for fid in Faiths.ids(st):
+		var f := Faiths.faith(st, fid)
+		if int(f["pending"]) > 0:
+			var ch := Faiths.default_choice(st, int(f["founder"]), fid)
+			Faiths.choose(st, fid, String(ch["nature"]), ch["doctrines"], String(ch["precept"]))
 	return st
 
 
@@ -213,8 +220,9 @@ func _test_spread() -> void:
 	var hive := _plant(st, _id_of(st, "khthari"), 5, csid, 1)
 	_ok(near != null and far != null and hive != null, "colonies d'essai plantées")
 	var p := Faiths.pressures(st)
-	var expect := cap.population * 2 * 4
-	_ok(int(p.get(near.planet_id, {}).get(fc, 0)) == expect, "pression à 1 saut : fidèles x 2 x 4 (monde saint)")
+	_ok(Faiths.doctrine(st, fc, "diffusion") == "missionnaire", "le Chœur est missionnaire (prêche +25 %)")
+	var expect := cap.population * 2 * 4 * 125 / 100
+	_ok(int(p.get(near.planet_id, {}).get(fc, 0)) == expect, "pression à 1 saut : fidèles x 2 x 4 (monde saint), +25 % (Missionnaire)")
 	_ok(int(p.get(far.planet_id, {}).get(fc, 0)) == 0, "pas de pression à 5 sauts")
 	_ok(not p.has(hive.planet_id), "une ruche ne subit aucune pression")
 	_ok(Faiths.threshold(st, near, fc) == 40 + 10 * 5, "seuil de conversion : 40 + 10 x population")
@@ -225,14 +233,14 @@ func _test_spread() -> void:
 	# Route commerciale extérieure : les deux bouts se poussent.
 	st.trade["routes"] = [{"from": ch, "to": v, "kind": "ext", "path": [csid, _sid(st, far)], "blocked": false}]
 	p = Faiths.pressures(st)
-	_ok(int(p.get(far.planet_id, {}).get(fc, 0)) == cap.population * 4 * 2, "route commerciale : poids 2 jusqu'au bout")
+	_ok(int(p.get(far.planet_id, {}).get(fc, 0)) == cap.population * 4 * 2 * 125 / 100, "route commerciale : poids 2 jusqu'au bout")
 	st.trade["routes"][0]["blocked"] = true
 	p = Faiths.pressures(st)
 	_ok(int(p.get(far.planet_id, {}).get(fc, 0)) == 0, "route bloquée : plus de prêche")
 	# Poussée de la foi d'État.
 	Faiths.set_state(st, v, fc)
 	p = Faiths.pressures(st)
-	_ok(int(p.get(far.planet_id, {}).get(fc, 0)) == 5, "foi d'État : poussée de 5 sur chaque colonie")
+	_ok(int(p.get(far.planet_id, {}).get(fc, 0)) == 5 * 125 / 100, "foi d'État : poussée de 5 sur chaque colonie")
 	# Loi Ordres missionnaires : prêche +25 %.
 	_ok(Laws.law_def("ordres_missionnaires").get("fx", {}).has("faith_pressure_pct"), "Ordres missionnaires : prêche renforcé")
 
@@ -277,47 +285,90 @@ func _test_population() -> void:
 	_ok(int(dest.faith.get(fc, 0)) == 1, "conquête : les fidèles gardent leur foi")
 
 
-func _test_dogmas() -> void:
+func _test_precepts() -> void:
 	var st := _state()
 	var v := _id_of(st, "vael")
 	var ch := _id_of(st, "choeur")
+	var mu := _id_of(st, "murmurants")
 	var fc := Faiths.founded_by(st, ch)
-	_ok(Faiths.dogma_ids().size() >= 30, "catalogue d'au moins 30 dogmes")
+	var fm := Faiths.founded_by(st, mu)
+	_ok(Faiths.precept_ids().size() == 20, "catalogue de 20 préceptes")
 	var fam := {}
-	var sf := 0
-	for did in Faiths.dogma_ids():
-		fam[String(Faiths.dogma_def(did)["family"])] = true
-		if bool(Faiths.dogma_def(did).get("sf", false)):
-			sf += 1
-	_ok(fam.size() == 4 and sf >= 6, "4 familles, dont des formes SF et non humaines")
-	_ok(Faiths.free_slots(st, fc) == 1, "un dogme fondateur à choisir")
-	_ok(Faiths.check_dogma(st, v, fc, "liturgie_chantee") != "", "seul le chef de foi choisit")
-	_ok(Faiths.check_dogma(st, ch, fc, "inconnu") != "", "dogme inconnu refusé")
-	var before := Research.production_bonus(st, ch, "influence")
-	Faiths.add_dogma(st, fc, "pacifisme")
-	_ok(Research.production_bonus(st, ch, "influence") == before and Research.fx_int(st, ch, "opinion_all") >= 5, "dogme appliqué à la foi d'État")
-	_ok(Faiths.check_dogma(st, ch, fc, "liturgie_chantee") != "", "plus de place : il faut des fidèles")
-	# Paliers : 10 fidèles, puis 25.
-	_cap(st, ch).faith[fc] = 12
-	_cap(st, ch).population = 12
+	for pid in Faiths.precept_ids():
+		fam[String(Faiths.precept_def(pid)["family"])] = true
+	_ok(fam.size() == 4, "4 familles de préceptes")
+	# L'IA fondatrice a fixé sa foi tout de suite : nature proposée, doctrines, premier précepte.
+	var f := Faiths.faith(st, fc)
+	_ok(int(f["pending"]) == 0 and (f["offer"] as Array).has(String(f["nature"])), "l'IA fixe sa foi dès la Révélation, nature parmi les trois proposées")
+	_ok((f["precepts"] as Array) == ["liturgie"], "credo Foi : la Liturgie d'abord")
+	_ok(Faiths.free_slots(st, fc) == 0, "un seul précepte à la fondation")
+	_ok(Faiths.check_precept(st, v, fc, "ethique_travail") != "", "seul le chef de foi choisit")
+	_ok(Faiths.check_precept(st, ch, fc, "inconnu") != "", "précepte inconnu refusé")
+	_ok(Faiths.check_precept(st, ch, fc, "ethique_travail").contains("25"), "plus de place : il faut 25 fidèles")
+	# Palier de 25 fidèles.
+	_cap(st, ch).faith[fc] = 30
+	_cap(st, ch).population = 30
 	Faiths._update_slots(st)
-	_ok(Faiths.free_slots(st, fc) == 1, "palier de 10 fidèles : un dogme de plus")
-	_ok(Faiths.check_dogma(st, ch, fc, "bellicisme") != "", "Guerre sainte exclue par le Pacifisme")
-	_ok(Faiths.check_dogma(st, ch, fc, "pacifisme") != "", "pas deux fois le même dogme")
-	_ok(Faiths.check_dogma(st, ch, fc, "liturgie_chantee") == "", "dogme compatible accepté")
-	Faiths.add_dogma(st, fc, "liturgie_chantee")
-	_ok(Research.production_bonus(st, ch, "influence") == before + 10, "Liturgie chantée : influence +10 %")
-	# Un coreligionnaire profite des dogmes, pas un laïque.
-	var vb := Research.production_bonus(st, v, "influence")
+	_ok(Faiths.free_slots(st, fc) == 1, "palier de 25 fidèles : un précepte de plus")
+	_ok(Faiths.check_precept(st, ch, fc, "liturgie") != "", "pas deux fois le même précepte")
+	var taken := String(Faiths.faith(st, fm)["precepts"][0])
+	_ok(Faiths.check_precept(st, ch, fc, taken).contains("déjà pris"), "un précepte n'appartient qu'à une foi dans la galaxie")
+	var before := Research.production_bonus(st, ch, "materials")
+	_ok(Faiths.check_precept(st, ch, fc, "ethique_travail") == "", "précepte libre accepté")
+	Faiths.add_precept(st, fc, "ethique_travail")
+	_ok(Research.production_bonus(st, ch, "materials") == before + 8, "Éthique du travail : matériaux +8 %")
+	# Un coreligionnaire profite des préceptes.
+	var vb := Research.production_bonus(st, v, "materials")
 	Faiths.set_state(st, v, fc)
-	_ok(Research.production_bonus(st, v, "influence") == vb + 10, "les dogmes s'appliquent à tous les empires de cette foi")
+	_ok(Research.production_bonus(st, v, "materials") == vb + 8, "les préceptes s'appliquent à tous les empires de cette foi")
 	_cap(st, ch).population = 1
 	_cap(st, ch).faith[fc] = 1
 	Faiths._update_slots(st)
-	_ok(int(Faiths.faith(st, fc)["slots"]) == 2, "les places de dogme ne se reperdent pas")
-	# Chef de foi : celui qui a le plus de fidèles.
+	_ok(int(Faiths.faith(st, fc)["slots"]) == 2, "les places de précepte ne se reperdent pas")
+	# Chef de foi : celui qui a le plus de fidèles (doctrine Élu, par défaut).
 	_cap(st, v).faith[fc] = _cap(st, v).population
-	_ok(Faiths.head(st, fc) == v, "chef de foi : l'empire qui compte le plus de fidèles")
+	Faiths.faith(st, fc)["doctrines"]["chef"] = "elu"
+	_ok(Faiths.head(st, fc) == v and Faiths.has_head(st, fc), "chef Élu : l'empire qui compte le plus de fidèles")
+	Faiths.faith(st, fc)["doctrines"]["chef"] = "aucun"
+	_ok(not Faiths.has_head(st, fc), "doctrine Aucun : pas de vrai chef de foi")
+	Faiths.faith(st, fc)["doctrines"]["chef"] = "temporel"
+	_ok(Faiths.head(st, fc) == ch, "chef Temporel : le maître du monde saint")
+
+
+## Le fondateur humain fixe sa foi (nature parmi trois, doctrines, premier précepte), ou le délai tranche.
+func _test_choice() -> void:
+	var st := _state()
+	var v := _id_of(st, "vael")
+	var ch := _id_of(st, "choeur")
+	var fv := Faiths.reveal(st, v, "relique", -1, [] as Array[Dictionary])
+	var f := Faiths.faith(st, fv)
+	var offer: Array = f["offer"]
+	_ok(offer.size() == 3 and int(f["pending"]) > st.tick, "trois natures proposées, le choix attend le joueur")
+	_ok(Faiths.free_slots(st, fv) == 0, "pas de précepte tant que la foi n'est pas fixée")
+	var dc := {"chef": "aucun", "regard": "pluraliste", "clerge": "laic", "diffusion": "secrete"}
+	_ok(Faiths.check_choose(st, ch, fv, String(offer[0]), dc, "doute_sacre") != "", "seul le fondateur fixe la foi")
+	var other := ""
+	for n in Faiths.nature_ids():
+		if not offer.has(n):
+			other = n
+	_ok(other == "" or Faiths.check_choose(st, v, fv, other, dc, "doute_sacre") != "", "nature non proposée refusée")
+	_ok(Faiths.check_choose(st, v, fv, String(offer[1]), {"chef": "aucun"}, "doute_sacre") != "", "il faut une position sur chaque axe")
+	_ok(Faiths.check_choose(st, v, fv, String(offer[1]), dc, "liturgie").contains("déjà pris"), "premier précepte déjà pris refusé")
+	_ok(SimCommands.validate(st, SimCommands.faith_choose(v, fv, String(offer[1]), dc, "doute_sacre")) == "", "ordre de choix valide")
+	SimCommands.apply(st, SimCommands.faith_choose(v, fv, String(offer[1]), dc, "doute_sacre"))
+	f = Faiths.faith(st, fv)
+	_ok(String(f["nature"]) == String(offer[1]) and int(f["pending"]) == 0, "nature fixée")
+	_ok(Faiths.doctrine(st, fv, "diffusion") == "secrete" and FaithWars.is_secret(st, fv), "doctrine Secrète : culte caché")
+	_ok((f["precepts"] as Array) == ["doute_sacre"], "premier précepte fixé")
+	_ok(Faiths.check_choose(st, v, fv, String(offer[0]), dc, "charite") != "", "une foi fixée ne se refixe pas")
+	# Délai échu : le clergé choisit.
+	var st2 := _state()
+	var v2 := _id_of(st2, "vael")
+	var fv2 := Faiths.reveal(st2, v2, "relique", -1, [] as Array[Dictionary])
+	st2.tick = int(Faiths.faith(st2, fv2)["pending"])
+	Faiths.monthly(st2, [] as Array[Dictionary])
+	var f2 := Faiths.faith(st2, fv2)
+	_ok(int(f2["pending"]) == 0 and String(f2["nature"]) == String(f2["offer"][0]) and (f2["precepts"] as Array).size() == 1, "délai échu : choix par défaut")
 
 
 func _test_state() -> void:
@@ -328,6 +379,8 @@ func _test_state() -> void:
 	var fc := Faiths.founded_by(st, ch)
 	var fm := Faiths.founded_by(st, mu)
 	var cap := _cap(st, v)
+	Faiths.faith(st, fc)["doctrines"]["regard"] = "juste"
+	Faiths.faith(st, fm)["doctrines"]["diffusion"] = "missionnaire"
 	_ok(Faiths.check_state(st, v, fc).contains("20"), "adopter une foi étrangère : 20 % sur une colonie")
 	cap.faith = {fc: cap.population}
 	_ok(Faiths.check_state(st, v, fc) == "", "adoption possible")
@@ -342,14 +395,20 @@ func _test_state() -> void:
 	_ok(_part(parts, "Changement de foi d'État") == 0, "le malus de changement s'efface après un an")
 	cap.faith = {fm: cap.population}
 	parts = Stability.parts(st, _sid(st, cap))
-	_ok(_part(parts, "Autre foi majoritaire") == -5, "une autre foi majoritaire : -5")
+	_ok(_part(parts, "Autre foi majoritaire") == -5, "une autre foi majoritaire : -5 (regard Juste)")
+	Faiths.faith(st, fc)["doctrines"]["regard"] = "fondamentaliste"
+	_ok(_part(Stability.parts(st, _sid(st, cap)), "Autre foi majoritaire") == -8, "Fondamentaliste : -8")
+	_ok(_part(Diplomacy.opinion_parts(st, v, mu), "Autre foi") == -20, "Fondamentaliste : autre foi -20")
+	Faiths.faith(st, fc)["doctrines"]["regard"] = "pluraliste"
+	_ok(_part(Stability.parts(st, _sid(st, cap)), "Autre foi majoritaire") == -2, "Pluraliste : -2")
+	Faiths.faith(st, fc)["doctrines"]["regard"] = "juste"
 	# Opinion.
 	_ok(_part(Diplomacy.opinion_parts(st, v, ch), "Même foi") == 10, "même foi d'État : opinion +10")
-	_ok(_part(Diplomacy.opinion_parts(st, v, mu), "Fois rivales") == -10, "fois rivales : opinion -10")
-	_ok(_part(Diplomacy.opinion_parts(st, v, _id_of(st, "teyl")), "Fois rivales") == 0, "pas d'avis religieux envers un laïque")
+	_ok(_part(Diplomacy.opinion_parts(st, v, mu), "Autre foi") == -10, "autre foi, regard Juste : opinion -10")
+	_ok(_part(Diplomacy.opinion_parts(st, v, _id_of(st, "teyl")), "Autre") == 0, "pas d'avis religieux envers un laïque")
 	# Incroyance.
 	Faiths.set_state(st, v, Faiths.INCROYANCE)
-	_ok(Faiths.name_of(st, Faiths.INCROYANCE) == "Incroyance" and _part(Diplomacy.opinion_parts(st, v, ch), "Fois rivales") == -10, "l'incroyance est une foi rivale")
+	_ok(Faiths.name_of(st, Faiths.INCROYANCE) == "Incroyance" and _part(Diplomacy.opinion_parts(st, v, ch), "Incroyance") == -5, "l'incroyance, vue par un regard juste : -5")
 	# Une conscience collective n'a pas de foi.
 	_ok(Faiths.check_state(st, _id_of(st, "khthari"), fc) != "", "la ruche refuse toute foi")
 
@@ -377,10 +436,11 @@ func _test_commands() -> void:
 	_ok(SimCommands.validate(st, SimCommands.faith_state(v, Faiths.INCROYANCE)) == "", "ordre : adopter l'incroyance")
 	SimCommands.apply(st, SimCommands.faith_state(v, Faiths.INCROYANCE))
 	_ok(Faiths.state_faith(st, v) == Faiths.INCROYANCE, "ordre appliqué")
-	_ok(SimCommands.validate(st, SimCommands.faith_dogma(v, fc, "monachisme")) != "", "ordre de dogme refusé hors chef")
-	_ok(SimCommands.validate(st, SimCommands.faith_dogma(ch, fc, "monachisme")) == "", "ordre de dogme du chef")
-	SimCommands.apply(st, SimCommands.faith_dogma(ch, fc, "monachisme"))
-	_ok((Faiths.faith(st, fc)["dogmas"] as Array).has("monachisme"), "dogme ajouté")
+	Faiths.faith(st, fc)["slots"] = 2
+	_ok(SimCommands.validate(st, SimCommands.faith_precept(v, fc, "ascetisme")) != "", "ordre de précepte refusé hors chef")
+	_ok(SimCommands.validate(st, SimCommands.faith_precept(ch, fc, "ascetisme")) == "", "ordre de précepte du chef")
+	SimCommands.apply(st, SimCommands.faith_precept(ch, fc, "ascetisme"))
+	_ok((Faiths.faith(st, fc)["precepts"] as Array).has("ascetisme"), "précepte ajouté")
 	_ok(SimCommands.validate(_state(false), SimCommands.faith_state(v, Faiths.INCROYANCE)) != "", "ordre refusé sans l'option")
 
 
@@ -389,9 +449,9 @@ func _test_ai() -> void:
 	var ch := _id_of(st, "choeur")
 	var fc := Faiths.founded_by(st, ch)
 	var added: Array[Dictionary] = []
+	Faiths.faith(st, fc)["slots"] = 2
 	Faiths.monthly(st, added)
-	_ok((Faiths.faith(st, fc)["dogmas"] as Array).size() == 1, "l'IA choisit le dogme fondateur")
-	_ok(String(Faiths.faith(st, fc)["dogmas"][0]) == "proselytisme", "credo Foi : le Prosélytisme d'abord")
+	_ok((Faiths.faith(st, fc)["precepts"] as Array).size() == 2, "l'IA choisit un précepte à chaque palier")
 	var t := _id_of(st, "teyl")
 	var tc := _cap(st, t)
 	tc.faith = {fc: tc.population}
@@ -414,14 +474,23 @@ func _test_save() -> void:
 	var st := _state()
 	var v := _id_of(st, "vael")
 	var fv := Faiths.reveal(st, v, "relique", -1, [] as Array[Dictionary])
-	Faiths.add_dogma(st, fv, "monachisme")
+	Faiths.choose(st, fv, String(Faiths.faith(st, fv)["offer"][0]), {"chef": "temporel", "regard": "fondamentaliste", "clerge": "laic", "diffusion": "peuple_elu"}, "ascetisme")
 	st.faiths["prog"][str(_cap(st, v).planet_id)] = {fv: 17}
 	var d := st.to_dict()
 	_ok(int(d["version"]) == 44, "sauvegarde version 44")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and back.faith_on and Faiths.founded_by(back, v) == fv, "fois relues")
 	_ok(back != null and int(_cap(back, v).faith.get(fv, 0)) == int(_cap(st, v).faith.get(fv, 0)), "fidèles des colonies relus")
-	_ok(back != null and (Faiths.faith(back, fv)["dogmas"] as Array) == ["monachisme"], "dogmes relus")
+	_ok(back != null and (Faiths.faith(back, fv)["precepts"] as Array) == ["ascetisme"], "préceptes relus")
+	_ok(back != null and Faiths.doctrine(back, fv, "diffusion") == "peuple_elu" and FaithWars.nature(back, fv) == FaithWars.nature(st, fv), "doctrines et nature relues")
+	# Une foi du premier lot 2 (dogmes) se relit en préceptes et doctrines.
+	var od := st.to_dict()
+	var of: Dictionary = od["faiths"]["list"][fv]
+	of.erase("precepts")
+	of.erase("doctrines")
+	of["dogmas"] = ["monachisme", "secret", "pacifisme"]
+	var back3 := GameState.from_dict(JSON.parse_string(JSON.stringify(od)))
+	_ok(back3 != null and (Faiths.faith(back3, fv)["precepts"] as Array) == ["ascetisme", "pacifisme"] and Faiths.doctrine(back3, fv, "diffusion") == "secrete", "anciens dogmes convertis")
 	_ok(back != null and back.checksum() == st.checksum(), "même empreinte après relecture")
 	var old := d.duplicate(true)
 	old.erase("faiths")

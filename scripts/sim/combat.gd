@@ -434,6 +434,9 @@ static func garrison_max(state: GameState, system_id: int) -> int:
 	# Ban des vassaux (technologie) : les fiefs, hors du système capital, gardent mieux.
 	if e.capital_planet >= 0 and state.galaxy.get_planet(e.capital_planet).system_id != system_id:
 		pct += Research.fx_int(state, owner, "garrison_pct")
+	# Moines guerriers (précepte) : les systèmes dotés d'un temple gardent mieux.
+	if state.faith_on and Faiths.system_has_temple(state, system_id, owner):
+		pct += Research.fx_int(state, owner, "temple_garrison")
 	@warning_ignore("integer_division")
 	return n * pct / 100
 

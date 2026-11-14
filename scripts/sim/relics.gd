@@ -301,6 +301,7 @@ static func _finish(state: GameState, sid: int, added: Array[Dictionary]) -> voi
 	var rid := String(d["relic"])
 	add_fragments(state, eid, int(data()["digs"]["final_fragments"]))
 	gain(state, eid, rid)
+	FaithWars.on_dig(state, eid)
 	Guardians.on_dig_finished(state, sid, eid, added)
 	Research.count_stat(state, eid, "digs")
 	added.append(state.add_chronicle("%s achève les fouilles de %s et en remonte %s. Les archéologues pleurent ; les comptables aussi, mais de joie." % [

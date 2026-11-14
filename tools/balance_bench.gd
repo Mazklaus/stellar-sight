@@ -81,7 +81,7 @@ func _initialize() -> void:
 			for fid in Faiths.ids(st):
 				var f := Faiths.faith(st, fid)
 				fl.append({"name": Faiths.name_of(st, fid), "founder": st.get_empire(int(f["founder"])).faction_id, "via": String(f["via"]),
-						"founded_year": int(f["founded"]) / 360, "followers": Faiths.followers(st, fid), "dogmas": f["dogmas"],
+						"founded_year": int(f["founded"]) / 360, "followers": Faiths.followers(st, fid), "precepts": f["precepts"], "doctrines": f["doctrines"],
 						"zeal": FaithWars.zeal(st, fid), "nature": FaithWars.nature(st, fid), "parent": Faiths.parent_of(st, fid),
 						"schism_of": String(f.get("schism_of", ""))})
 			out["faiths"] = fl

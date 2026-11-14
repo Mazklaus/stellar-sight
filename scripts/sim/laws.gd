@@ -130,7 +130,9 @@ static func law_upkeep(state: GameState, empire_id: int, id: String, pop := -1) 
 	if pop < 0:
 		pop = empire_pop(state, empire_id)
 	@warning_ignore("integer_division")
-	return lv * (1 + pop / maxi(1, int(rules()["upkeep_pop_div"])))
+	var v := lv * (1 + pop / maxi(1, int(rules()["upkeep_pop_div"])))
+	var lp := Research.fx_int(state, empire_id, "law_upkeep_pct")  # Loi sacrée (précepte)
+	return Research.scaled(v, lp) if lp != 0 else v
 
 
 static func upkeep(state: GameState, empire_id: int) -> int:
@@ -234,6 +236,9 @@ static func check_adopt(state: GameState, empire_id: int, id: String) -> String:
 		return "les religions ne sont pas actives dans cette partie"
 	if bool(d.get("faiths", false)) and id == "inquisition" and not Faiths.has_state_faith(state, empire_id):
 		return "pas d'Inquisition sans foi d'État"
+	if bool(d.get("faiths", false)) and id == "tolerance" and Faiths.doctrine(state, Faiths.state_faith(state, empire_id), "regard") == "fondamentaliste" \
+			and not Faiths.faith(state, Faiths.state_faith(state, empire_id)).is_empty():
+		return "une foi d'État fondamentaliste interdit la Tolérance"
 	if Grievances.interregnum(state, empire_id):
 		return "interrègne : aucune loi jusqu'au %s" % GameCalendar.date_string(int(Politics.emp(state, empire_id)["inter"]))
 	if is_enacted(state, empire_id, id):

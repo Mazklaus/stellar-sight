@@ -1362,11 +1362,12 @@
 			"label": "Propagande",
 			"domain": "societe",
 			"era": 3,
-			"text": "+20 % d'influence, +5 stabilité dans tous vos systèmes.",
+			"text": "+20 % d'influence, +5 stabilité dans tous vos systèmes. Avec les religions : pare-feu culturel, les fois de nature Mème ne passent plus chez vous par les routes commerciales ni par les réseaux d'espionnage.",
 			"pre": [
 				"chancelleries"
 			],
 			"effects": {
+				"meme_firewall": 1,
 				"production_pct": {
 					"influence": 20
 				},

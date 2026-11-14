@@ -304,6 +304,11 @@ static func on_building(state: GameState, sid: int, building_id: String) -> void
 		Grievances.on_act(state, state.system_owner(sid), "building")
 	if building_id == "cathedrale":
 		push_local(state, sid, "autel", "cathedrale")
+	elif building_id == "temple":
+		# Temple : l'Autel gagne du terrain, plus ou moins selon le clergé de la foi d'État.
+		if state.politics_on:
+			@warning_ignore("integer_division")
+			push(state, sid, index_of("autel"), int((data()["local"] as Dictionary).get("built", 0)) * Faiths.altar_temple_pct(state, state.system_owner(sid)) / 100)
 	else:
 		push_local(state, sid, "forge", "built")
 

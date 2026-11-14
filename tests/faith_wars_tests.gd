@@ -21,6 +21,7 @@ func run(check: Callable) -> void:
 	_test_secret()
 	_test_prophecy()
 	_test_je()
+	_test_v2()
 	_test_commands()
 	_test_ai()
 	_test_save()
@@ -39,6 +40,12 @@ func _state(on := true, ai := "", politics := false) -> GameState:
 		e.resources["materials"] = 5000
 		e.resources["food"] = 5000
 		e.resources["knowledge"] = 5000
+	# Fondateurs sans IA (tests) : le choix par défaut, comme si le délai était échu.
+	for fid in Faiths.ids(st):
+		var f := Faiths.faith(st, fid)
+		if int(f["pending"]) > 0:
+			var ch := Faiths.default_choice(st, int(f["founder"]), fid)
+			Faiths.choose(st, fid, String(ch["nature"]), ch["doctrines"], String(ch["precept"]))
 	return st
 
 
@@ -121,15 +128,32 @@ func _test_natures() -> void:
 	var mu := _id_of(st, "murmurants")
 	var fc := Faiths.founded_by(st, ch)
 	var fm := Faiths.founded_by(st, mu)
-	_ok(FaithWars.nature(st, fc) == "code_saint" and FaithWars.nature(st, fm) == "meme", "natures imposées : Code saint (Chœur), Mème (Murmurants)")
+	_ok(FaithWars.nature(st, fc) == "code_saint" and FaithWars.nature(st, fm) == "meme", "natures préférées : Code saint (Chœur), Mème (Murmurants)")
 	_ok(FaithWars.data()["natures"]["list"].size() == 5, "cinq natures de foi")
 	var v := _id_of(st, "vael")
 	var fv := Faiths.reveal(st, v, "relique", -1, _added())
-	_ok(FaithWars.data()["natures"]["list"].has(FaithWars.nature(st, fv)), "une nature tirée à la Révélation (%s)" % FaithWars.nature(st, fv))
+	_ok(FaithWars.nature(st, fv) == "" and (Faiths.faith(st, fv)["offer"] as Array).has("precurseurs"), "Révélation par relique : les Précurseurs parmi les trois natures proposées")
+	Faiths.choose(st, fv, "precurseurs", Faiths.DEFAULT_DOCTRINES, "charite")
+	_ok(FaithWars.nature(st, fv) == "precurseurs", "nature choisie par le fondateur")
 	# Voies sacrées : vitesse des flottes.
 	Faiths.faith(st, fv)["nature"] = "voies_sacrees"
+	Faiths.faith(st, fv)["doctrines"]["chef"] = "elu"
+	st.faiths["state"][str(v)] = fv
 	Relics.touch(st)
-	_ok(Research.fx_int(st, v, "fleet_speed_pct") >= 15, "Voies sacrées : flottes +15 %")
+	var vs := _sid(st, _cap(st, v))
+	var nb := int(st.galaxy.systems[vs].neighbors[0])
+	_ok(FaithWars.check_bless(st, v, vs, nb) == "", "Voies sacrées : le chef de foi bénit une route")
+	FaithWars.bless(st, v, vs, nb)
+	var t0 := _id_of(st, "teyl")
+	_ok(FaithWars.lane_pct(st, v, vs, nb) == 150 and FaithWars.lane_pct(st, t0, nb, vs) == 100, "route bénie : fidèles +50 %, infidèles normaux")
+	var key := FaithWars.lane_key(vs, nb)
+	FaithWars.set_lane_mode(st, key, "closed")
+	_ok(FaithWars.lane_pct(st, t0, vs, nb) == 50, "route fermée : infidèles à moitié vitesse")
+	FaithWars.set_lane_mode(st, key, "toll")
+	var e0 := int(st.get_empire(t0).resources["energy"])
+	FaithWars.on_lane_crossed(st, t0, vs, nb)
+	_ok(int(st.get_empire(t0).resources["energy"]) == e0 - 5, "route à péage : 5 d'énergie au chef de foi")
+	st.faiths["blessed"].clear()
 	# Parasite saint : ne prêche que dans son système, croissance -10 %, conquête à moitié convertie.
 	Faiths.faith(st, fv)["nature"] = "parasite"
 	Relics.touch(st)
@@ -193,7 +217,10 @@ func _test_heresy() -> void:
 	FaithWars._schism_month(st, hid, _added())
 	_ok(Faiths.parent_of(st, hid) == "" and String(Faiths.faith(st, hid).get("schism_of", "")) == fc, "schisme : l'hérésie devient grande foi")
 	Faiths.set_state(st, v, hid)
-	_ok(_part(Faiths.opinion_parts(st, v, ch), "Schisme") == -10, "foi mère et schisme se détestent (-10)")
+	var rg := Faiths.doctrine(st, hid, "regard")
+	_ok(_part(Faiths.opinion_parts(st, v, ch), "Foi sœur") == int(Faiths.data()["hostility"]["sister"][rg]) and rg == Faiths.doctrine(st, fc, "regard"), "foi mère et schisme : fois sœurs, hostilité selon le regard (hérité)")
+	_ok(int(Faiths.faith(st, hid)["pending"]) > 0 and (Faiths.faith(st, hid)["offer"] as Array).size() == 3, "schisme : trois natures proposées à son fondateur")
+	_ok(Faiths.check_choose(st, v, hid, String(Faiths.faith(st, hid)["offer"][0]), {}, "") == "", "un schisme ne choisit que sa nature")
 	_ok(FaithWars.casus(st, ch, v) != "", "le schisme est un motif de guerre sainte")
 
 
@@ -213,13 +240,13 @@ func _test_code_saint() -> void:
 	FaithWars.council(st, ch, hid)
 	_ok(Faiths.faith(st, hid).is_empty() and Faiths.followers(st, fc) == total, "concile : l'hérésie rentre dans la foi mère")
 	_ok(int(st.get_empire(ch).resources["knowledge"]) == k - 200, "concile : 200 Savoir")
-	Faiths.add_dogma(st, fc, "pacifisme")
-	_ok(FaithWars.check_rewrite(st, ch, fc, "bellicisme") == "", "réécriture : même un dogme exclu par l'ancien, qui part")
-	FaithWars.rewrite(st, ch, fc, "bellicisme")
-	_ok((Faiths.faith(st, fc)["dogmas"] as Array) == ["bellicisme"], "réécriture : le plus ancien dogme est remplacé")
+	_ok(FaithWars.check_rewrite(st, ch, fc, String(Faiths.faith(st, Faiths.founded_by(st, _id_of(st, "murmurants")))["precepts"][0])).contains("déjà pris"), "réécriture : pas un précepte d'une autre foi")
+	_ok(FaithWars.check_rewrite(st, ch, fc, "charite") == "", "réécriture d'un précepte libre")
+	FaithWars.rewrite(st, ch, fc, "charite")
+	_ok((Faiths.faith(st, fc)["precepts"] as Array) == ["charite"], "réécriture : le plus ancien précepte est remplacé")
 	var fv := Faiths.reveal(st, v, "relique", -1, _added())
 	Faiths.faith(st, fv)["nature"] = "meme"
-	_ok(FaithWars.check_rewrite(st, v, fv, "monachisme") != "", "réécriture : seulement le Code saint")
+	_ok(FaithWars.check_rewrite(st, v, fv, "ascetisme") != "", "réécriture : seulement le Code saint")
 
 
 func _test_laws() -> void:
@@ -328,8 +355,8 @@ func _test_secret() -> void:
 	var mu := _id_of(st, "murmurants")
 	var v := _id_of(st, "vael")
 	var fm := Faiths.founded_by(st, mu)
-	(Faiths.faith(st, fm)["dogmas"] as Array).append("secret")
-	_ok(FaithWars.is_secret(st, fm), "le Murmure se cache (dogme Secret)")
+	Faiths.faith(st, fm)["doctrines"]["diffusion"] = "secrete"
+	_ok(FaithWars.is_secret(st, fm), "le Murmure se cache (diffusion Secrète)")
 	var vc := _cap(st, v)
 	vc.population = 10
 	vc.faith = {fm: 6}
@@ -402,6 +429,97 @@ func _test_je() -> void:
 	_ok(FaithWars.check_je(st, v, _cap(st, v).planet_id, "ecraser") != "", "le Culte du Je ne touche que les ruches")
 
 
+## Refonte v2 : excommunication, concile, quarantaine, sacrifices, Peuple élu, Réforme, chef « Aucun »,
+## temple et Liturgie, pare-feu du Mème, Précurseurs, résurrection du Parasite, Tolérance interdite.
+func _test_v2() -> void:
+	var st := _state()
+	var ch := _id_of(st, "choeur")
+	var v := _id_of(st, "vael")
+	var t := _id_of(st, "teyl")
+	var fc := Faiths.founded_by(st, ch)
+	_ok(Faiths.has_head(st, fc) and Faiths.head(st, fc) == ch, "le Chœur, chef de sa foi")
+	# Excommunication.
+	_ok(FaithWars.check_excom(st, ch, v) != "", "on n'excommunie qu'un empire de sa foi")
+	Faiths.set_state(st, v, fc)
+	_ok(FaithWars.check_excom(st, v, ch) != "", "seul le chef de foi excommunie")
+	_ok(FaithWars.check_excom(st, ch, v) == "", "excommunication possible")
+	FaithWars.excommunicate(st, ch, v)
+	_ok(FaithWars.excommunicated(st, fc, v), "Vael excommunié")
+	_ok(_part(Faiths.opinion_parts(st, ch, v), "Excommunié") == -20, "excommunié : opinion -20 des fidèles")
+	_ok(_part(FaithWars.stability_parts(st, _sid(st, _cap(st, v)), v), "Excommunié") == -5, "excommunié : stabilité -5 chez lui")
+	_ok(FaithWars.casus(st, ch, v).contains("excommunié"), "excommunié : cible légitime de croisade")
+	st.tick += 3601
+	_ok(not FaithWars.excommunicated(st, fc, v), "l'excommunication tombe après dix ans")
+	# Concile : changer une doctrine, puis attendre cinq ans.
+	var inf := int(st.get_empire(ch).resources["influence"])
+	var cost := FaithWars.concile_cost(st, fc)
+	_ok(FaithWars.check_concile(st, v, fc, "regard", "pluraliste") != "", "concile : seul le chef de foi")
+	_ok(FaithWars.check_concile(st, ch, fc, "regard", Faiths.doctrine(st, fc, "regard")) != "", "concile : pas pour la doctrine actuelle")
+	var target := "pluraliste" if Faiths.doctrine(st, fc, "regard") != "pluraliste" else "juste"
+	_ok(FaithWars.check_concile(st, ch, fc, "regard", target) == "", "concile possible")
+	SimCommands.apply(st, SimCommands.faith_concile(ch, fc, "regard", target))
+	_ok(Faiths.doctrine(st, fc, "regard") == target, "concile : la doctrine change")
+	_ok(cost.has("knowledge") or int(st.get_empire(ch).resources["influence"]) == inf - int(cost.get("influence", 0)), "concile payé")
+	_ok(FaithWars.check_concile(st, ch, fc, "regard", "juste" if target != "juste" else "fondamentaliste").contains("récent"), "un concile tous les cinq ans")
+	# Chef « Aucun » : pas de croisade ni d'excommunication.
+	Faiths.faith(st, fc)["doctrines"]["chef"] = "aucun"
+	_ok(FaithWars.check_crusade(st, ch, t).contains("sans chef"), "sans chef, pas de croisade")
+	_ok(FaithWars.check_excom(st, ch, v) != "", "sans chef, pas d'excommunication")
+	Faiths.faith(st, fc)["doctrines"]["chef"] = "elu"
+	# Tolérance interdite sous une foi d'État fondamentaliste.
+	var sp := _state(true, "", true)
+	Faiths.faith(sp, Faiths.founded_by(sp, ch))["doctrines"]["regard"] = "fondamentaliste"
+	_ok(Laws.check_adopt(sp, ch, "tolerance").contains("fondamentaliste"), "Fondamentaliste : pas de Tolérance (%s)" % Laws.check_adopt(sp, ch, "tolerance"))
+	# Quarantaine.
+	SimCommands.apply(st, SimCommands.faith_quarantine(t))
+	_ok(FaithWars.quarantined(st, t) and _part(FaithWars.stability_parts(st, _sid(st, _cap(st, t)), t), "Quarantaine") == -2, "quarantaine : -2 de stabilité")
+	SimCommands.apply(st, SimCommands.faith_quarantine(t))
+	_ok(not FaithWars.quarantined(st, t), "quarantaine levée")
+	# Sacrifices.
+	var cc := _cap(st, ch)
+	_ok(FaithWars.check_sacrifice(st, ch, cc.planet_id) != "", "sans le précepte, pas de sacrifice")
+	Faiths.faith(st, fc)["precepts"] = ["sacrifices"]
+	Relics.touch(st)
+	cc.faith = {fc: cc.population}
+	var z := FaithWars.zeal(st, fc)
+	var pop := cc.population
+	_ok(FaithWars.check_sacrifice(st, ch, cc.planet_id) == "", "sacrifice possible")
+	SimCommands.apply(st, SimCommands.faith_sacrifice(ch, cc.planet_id))
+	_ok(cc.population == pop - 1 and FaithWars.zeal(st, fc) == mini(100, z + 5), "sacrifice : un habitant de moins, zèle +5")
+	# Liturgie : stabilité des systèmes à temple.
+	Faiths.faith(st, fc)["precepts"] = ["liturgie"]
+	Relics.touch(st)
+	cc.buildings.append("temple")
+	_ok(_part(Faiths.stability_parts(st, _sid(st, cc), ch), "Temple") == 3, "Liturgie : temple +3 de stabilité")
+	# Peuple élu : seuls les habitants du peuple d'origine se convertissent.
+	Faiths.faith(st, fc)["doctrines"]["diffusion"] = "peuple_elu"
+	_ok(Faiths.chosen_people(st, fc) == Peoples.founder_of(st, ch), "Peuple élu : le peuple du fondateur")
+	_ok(Faiths.cap_in(st, _cap(st, t), fc) == int(Peoples.counts(st, _cap(st, t)).get(Peoples.founder_of(st, ch), 0)), "Peuple élu : plafond des fidèles chez les autres")
+	Faiths.faith(st, fc)["doctrines"]["diffusion"] = "missionnaire"
+	_ok(Faiths.cap_in(st, _cap(st, t), fc) == _cap(st, t).population, "Missionnaire : tout le monde peut se convertir")
+	# Réforme d'un culte natal.
+	_ok(not Faiths.can_reform(st, t), "Réforme : il faut trois colonies et un temple")
+	_ok(Faiths.native_name(st, t) != "", "cultes natals nommés selon le registre (%s)" % Faiths.native_name(st, t))
+	# Mème : le pare-feu (Propagande) coupe ses routes.
+	var fm := Faiths.founded_by(st, _id_of(st, "murmurants"))
+	Faiths.faith(st, fm)["nature"] = "meme"
+	var tsid := _sid(st, _cap(st, t))
+	_ok(not FaithWars.firewalled(st, fm, tsid), "sans Propagande, pas de pare-feu")
+	Research.grant(st, t, ["propagande"])
+	Relics.touch(st)
+	_ok(FaithWars.firewalled(st, fm, tsid), "Propagande : pare-feu contre le Mème")
+	# Précurseurs : une fouille donne du zèle.
+	Faiths.faith(st, fc)["nature"] = "precurseurs"
+	z = FaithWars.zeal(st, fc)
+	FaithWars.on_dig(st, ch)
+	_ok(FaithWars.zeal(st, fc) == mini(100, z + 3), "Précurseurs : fouille, zèle +3")
+	# Parasite saint : un héros ressuscite une fois.
+	Faiths.faith(st, fc)["nature"] = "parasite"
+	var h := {"name": "Essai", "owner": ch}
+	_ok(FaithWars.try_resurrect(st, h, _added()), "Parasite saint : le héros se relève")
+	_ok(not FaithWars.try_resurrect(st, h, _added()), "une seule fois")
+
+
 func _test_commands() -> void:
 	var st := _state()
 	var ch := _id_of(st, "choeur")
@@ -422,7 +540,7 @@ func _test_ai() -> void:
 	var mu := _id_of(st, "murmurants")
 	var fm := Faiths.founded_by(st, mu)
 	Faiths.monthly(st, _added())
-	_ok((Faiths.faith(st, fm)["dogmas"] as Array).has("secret"), "l'IA murmurante choisit le Secret")
+	_ok(Faiths.doctrine(st, fm, "diffusion") == "secrete", "l'IA murmurante choisit la diffusion Secrète")
 	var opts := {"ai_level": "normal", "faiths": "actives"}
 	var a := Simulation.new(GameState.create(4242, 150, 1800.0, "vael", opts))
 	var b := Simulation.new(GameState.create(4242, 150, 1800.0, "vael", opts))

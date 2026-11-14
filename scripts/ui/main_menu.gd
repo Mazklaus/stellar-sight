@@ -1880,7 +1880,7 @@ func _build_new_page(root: Control) -> void:
 	_faiths_select.clip_text = true
 	_faiths_select.add_item("Actives")
 	_faiths_select.add_item("Aucunes")
-	_faiths_select.tooltip_text = "Religions : chaque colonie compte ses fidèles. Les peuples théocrates commencent avec leur foi ; les autres grandes fois naissent d'une Révélation (relique sainte, gardien vaincu, héros, sciences de l'âme, prophète). Elles s'étendent de monde en monde, par les routes et avec les migrants ; la foi d'État donne ses dogmes, de la stabilité et des amitiés.\nAucunes : comme avant (ferveur et offrandes sans fidèles)."
+	_faiths_select.tooltip_text = "Religions : chaque colonie compte ses fidèles. Les peuples théocrates commencent avec leur foi ; les autres grandes fois naissent d'une Révélation (relique sainte, gardien vaincu, héros, sciences de l'âme, prophète). Elles s'étendent de monde en monde, par les routes et avec les migrants ; chaque foi a une nature, quatre doctrines et jusqu'à trois préceptes ; la foi d'État donne ses préceptes, de la stabilité et des amitiés.\nAucunes : comme avant (ferveur et offrandes sans fidèles)."
 	_faiths_select.item_selected.connect(func(i: int) -> void: set_faiths("actives" if i == 0 else "aucunes"))
 	_labeled_row(game, "Religions", _faiths_select)
 	set_peoples(peoples)

@@ -1,134 +1,940 @@
 {
-	"_doc": "Religion (étude « Religion », 2026-11-13, lot 1 : propositions 1 à 10 ; lot 2 : 11 à 17 et 25, plus le Culte du Je). Chaque colonie compte ses fidèles par foi (Colony.faith) ; le reste de la population suit les cultes natals de son espèce. Au plus floor(empires / 2) + 1 grandes fois par partie, une seule fondée par empire : la Révélation arrive par cinq voies (relique sainte, gardien vaincu, héros à l'ambition Foi au niveau 3, trois technologies de Société de l'ère II, prophète des docks écouté). La foi s'étend chaque mois par la pression des fidèles à 3 sauts au plus, par les routes commerciales et par les migrants. La foi d'État apporte des dogmes (choisis par le chef de foi, l'empire qui compte le plus de fidèles), de la stabilité là où elle est majoritaire et de l'opinion entre coreligionnaires. Le catalogue des dogmes part du répertoire des doctrines et principes de Crusader Kings III, transposé dans l'espace, avec des formes que seules la science-fiction et les peuples non humains permettent.",
-	"_sources": ["https://ck3.paradoxwikis.com/Doctrines", "https://ck3.paradoxwikis.com/Tenets", "https://civilization.fandom.com/wiki/Religion_(Civ6)", "https://humankind.fandom.com/wiki/Religion", "Étude : https://claude.ai/artifact/QQhvRPoXYPVsZbLe4Hgjcw"],
-	"limit": {"div": 2, "plus": 1},
+	"_doc": "Religion (étude « Religion », version 2 du 14 novembre 2026 ; lots 1 et 2). Chaque colonie compte ses fidèles par foi (Colony.faith) ; le reste de la population suit les cultes natals de son espèce. Une grande foi = une nature (sa mécanique propre, choisie par le fondateur parmi 3), 4 doctrines (chef de foi, regard sur les autres, clergé, diffusion), 3 préceptes (fondation, 25 et 100 fidèles, chacun réservé dans toute la galaxie) et un zèle. Au plus floor(empires / 2) + 1 grandes fois par partie, une seule fondée par empire. Catalogues ouverts : natures, positions de doctrine et préceptes s'ajoutent ici.",
+	"_sources": [
+		"https://eu4.paradoxwikis.com/Religion",
+		"https://ck3.paradoxwikis.com/Doctrines",
+		"https://ck3.paradoxwikis.com/Tenets",
+		"https://ck3.paradoxwikis.com/Religion",
+		"https://civilization.fandom.com/wiki/Beliefs_(Civ6)",
+		"https://imperator.paradoxwikis.com/Religion",
+		"https://illwiki.com/dom5/dominion",
+		"https://wiki.hoodedhorse.com/Old_World/Religion",
+		"https://humankind.fandom.com/wiki/Religion",
+		"Étude : https://claude.ai/artifact/QQhvRPoXYPVsZbLe4Hgjcw"
+	],
+	"limit": {
+		"div": 2,
+		"plus": 1
+	},
 	"_limit_doc": "Grandes fois : floor(empires / 2) + 1. L'incroyance (foi d'État possible) ne compte pas.",
-	"start": {"credos": ["foi"], "governments": ["theocratie"]},
+	"start": {
+		"credos": [
+			"foi"
+		],
+		"governments": [
+			"theocratie"
+		]
+	},
 	"_start_doc": "Un peuple théocrate ou au credo Foi commence avec sa grande foi déjà fondée : la capitale en est le monde saint, toute sa population la suit et c'est la foi d'État.",
-	"no_faith_governments": ["ruche"],
+	"no_faith_governments": [
+		"ruche"
+	],
 	"_no_faith_doc": "Une conscience collective (ruche) n'a pas de foi : ses colonies ne se convertissent pas et ne prêchent pas, et elle ne fonde rien.",
-	"forced_names": {"choeur": "Liturgie du Dieu-Machine", "murmurants": "Le Murmure"},
+	"forced_names": {
+		"choeur": "Liturgie du Dieu-Machine",
+		"murmurants": "Le Murmure"
+	},
 	"names_by_register": {
-		"Médiéval spatial": ["Ordre du Serment Stellaire", "Église des Hautes Bannières", "Credo des Sept Lignées", "Confrérie de l'Astre-Roi"],
-		"Grimdark": ["Liturgie de la Cendre", "Culte du Dernier Feu", "Credo de la Pénitence Noire", "Église de la Plaie Sainte"],
-		"Space opera héroïque": ["Voie de l'Aube Commune", "Alliance des Étoiles Sœurs", "Credo du Phare", "Communion des Navigateurs"],
-		"Horreur biologique": ["Culte de la Mue", "Évangile de la Chair Nouvelle", "Credo du Nid Premier", "Liturgie des Spores"],
-		"Classique / hard SF": ["Église du Grand Calcul", "Voie de la Constante", "Credo de l'Horizon", "Confrérie de l'Entropie Lente"],
-		"Picaresque / pulp": ["Église de la Bonne Fortune", "Culte du Jackpot Cosmique", "Credo du Dernier Pari", "Chapelle des Contrebandiers"],
-		"Cosmique / étrange": ["Écho d'Avant les Astres", "Culte du Silence Ourlé", "Voie de l'Angle Dérobé", "Chœur des Profondeurs"],
-		"default": ["Foi des Étoiles", "Credo du Vide", "Voie de la Lumière Lente", "Église de l'Horizon"]
+		"Médiéval spatial": [
+			"Ordre du Serment Stellaire",
+			"Église des Hautes Bannières",
+			"Credo des Sept Lignées",
+			"Confrérie de l'Astre-Roi"
+		],
+		"Grimdark": [
+			"Liturgie de la Cendre",
+			"Culte du Dernier Feu",
+			"Credo de la Pénitence Noire",
+			"Église de la Plaie Sainte"
+		],
+		"Space opera héroïque": [
+			"Voie de l'Aube Commune",
+			"Alliance des Étoiles Sœurs",
+			"Credo du Phare",
+			"Communion des Navigateurs"
+		],
+		"Horreur biologique": [
+			"Culte de la Mue",
+			"Évangile de la Chair Nouvelle",
+			"Credo du Nid Premier",
+			"Liturgie des Spores"
+		],
+		"Classique / hard SF": [
+			"Église du Grand Calcul",
+			"Voie de la Constante",
+			"Credo de l'Horizon",
+			"Confrérie de l'Entropie Lente"
+		],
+		"Picaresque / pulp": [
+			"Église de la Bonne Fortune",
+			"Culte du Jackpot Cosmique",
+			"Credo du Dernier Pari",
+			"Chapelle des Contrebandiers"
+		],
+		"Cosmique / étrange": [
+			"Écho d'Avant les Astres",
+			"Culte du Silence Ourlé",
+			"Voie de l'Angle Dérobé",
+			"Chœur des Profondeurs"
+		],
+		"default": [
+			"Foi des Étoiles",
+			"Credo du Vide",
+			"Voie de la Lumière Lente",
+			"Église de l'Horizon"
+		]
 	},
 	"native": {
 		"_doc": "Cultes natals (proposition 2) : un bonus par credo de l'espèce de l'empire, gardé même s'il adopte une grande foi.",
-		"honneur": {"label": "Serment des ancêtres", "text": "Garnisons +10 %.", "fx": {"garrison_pct": 10}},
-		"foi": {"label": "Liturgie première", "text": "Influence +5 %.", "fx": {"production_pct": {"influence": 5}}},
-		"raison": {"label": "Sagesse des fondateurs", "text": "Savoir +5 %.", "fx": {"production_pct": {"knowledge": 5}}},
-		"profit": {"label": "Fortune des anciens", "text": "Énergie +5 %.", "fx": {"production_pct": {"energy": 5}}},
-		"survie": {"label": "Instinct premier", "text": "Croissance +5 %.", "fx": {"growth_pct": 5}}
+		"honneur": {
+			"label": "Serment des ancêtres",
+			"text": "Garnisons +10 %.",
+			"fx": {
+				"garrison_pct": 10
+			}
+		},
+		"foi": {
+			"label": "Liturgie première",
+			"text": "Influence +5 %.",
+			"fx": {
+				"production_pct": {
+					"influence": 5
+				}
+			}
+		},
+		"raison": {
+			"label": "Sagesse des fondateurs",
+			"text": "Savoir +5 %.",
+			"fx": {
+				"production_pct": {
+					"knowledge": 5
+				}
+			}
+		},
+		"profit": {
+			"label": "Fortune des anciens",
+			"text": "Énergie +5 %.",
+			"fx": {
+				"production_pct": {
+					"energy": 5
+				}
+			}
+		},
+		"survie": {
+			"label": "Instinct premier",
+			"text": "Croissance +5 %.",
+			"fx": {
+				"growth_pct": 5
+			}
+		}
 	},
-	"reveal": {"tech_domain": "societe", "tech_era": 2, "tech_n": 3, "hero_amb": "foi", "hero_lvl": 3, "found_share_pct": 50},
+	"reveal": {
+		"tech_domain": "societe",
+		"tech_era": 2,
+		"tech_n": 3,
+		"hero_amb": "foi",
+		"hero_lvl": 3,
+		"found_share_pct": 50
+	},
 	"vias": {
 		"origine": "fondée aux origines du peuple",
 		"relique": "révélée par une relique sainte",
 		"gardien": "révélée par la chute d'un gardien",
 		"heros": "révélée par un héros",
 		"savoir": "révélée par les sciences de l'âme",
-		"prophete": "révélée par le prophète des docks"
+		"prophete": "révélée par le prophète des docks",
+		"reforme": "née de la Réforme d'un culte natal"
 	},
-	"tiers": [10, 25, 50, 100],
-	"_tiers_doc": "Un dogme fondateur, puis un de plus quand la foi atteint 10, 25, 50 et 100 fidèles dans la galaxie.",
-	"pressure": {"weights": [3, 2, 1, 1], "holy_x": 4, "state_push": 5, "route": 2, "threshold_base": 40, "threshold_per_pop": 10},
-	"_pressure_doc": "Pression mensuelle d'une colonie sur une autre = fidèles x poids (même système 3, 1 saut 2, 2-3 sauts 1), monde saint x4. La foi d'État pousse de 5 sur chaque colonie de l'empire. Les deux bouts d'une route commerciale extérieure se poussent avec le poids 2. Une conversion coûte 40 + 10 x population points.",
-	"state": {"stab_major": 5, "stab_minor": -5, "change_stab": -10, "change_days": 360, "cooldown_days": 1080, "adopt_share_pct": 20},
-	"opinion": {"same": 10, "rival": -10},
-	"pseudo": {
-		"laicite": {"name": "Laïcité", "text": "Aucune foi d'État : ni dogmes, ni bonus, ni malus."},
-		"incroyance": {"name": "Incroyance", "text": "L'empire prêche l'absence de dieux. Ne compte pas parmi les grandes fois et n'a pas de dogmes, mais Savoir +5 %.", "color": "#9aa4ad", "fx": {"production_pct": {"knowledge": 5}}}
-	},
-	"families": [
-		{"id": "culte", "label": "Culte", "text": "Comment on prie : rites, clergé, lieux saints."},
-		{"id": "morale", "label": "Morale", "text": "Ce que la foi demande à chacun."},
-		{"id": "expansion", "label": "Expansion", "text": "Comment la foi grandit et se défend."},
-		{"id": "autres", "label": "Regard sur les autres", "text": "Ce que la foi pense des autres fois et des autres espèces."}
+	"tiers": [
+		25,
+		100
 	],
-	"dogmas": {
-		"liturgie_chantee": {"label": "Liturgie chantée", "family": "culte", "ck3": "tradition cléricale, Célébrations rituelles", "text": "Influence +10 %.", "fx": {"production_pct": {"influence": 10}}},
-		"pelerinage": {"label": "Pèlerinage obligatoire", "family": "culte", "ck3": "doctrine du pèlerinage (obligatoire)", "text": "Le monde saint prêche deux fois plus fort. Revenus du commerce +10 %.", "fx": {"faith_holy_pct": 100, "trade_income_pct": 10}},
-		"monachisme": {"label": "Ordres monastiques", "family": "culte", "ck3": "Monachisme", "text": "Savoir +8 %.", "fx": {"production_pct": {"knowledge": 8}}},
-		"astrologie": {"label": "Astrologie des pulsars", "family": "culte", "ck3": "Astrologie", "text": "Les prêtres lisent le ciel : curiosités détectées de plus loin et mieux exploitées.", "fx": {"curio_detect": 1, "curio_power": 2}},
-		"funerailles": {"label": "Funérailles stellaires", "family": "culte", "ck3": "Inhumations célestes (rites funéraires)", "text": "Les morts partent vers leur étoile : stabilité +2 là où la foi d'État domine.", "fx": {"faith_stab": 2}},
-		"aniconisme": {"label": "Aniconisme", "family": "culte", "ck3": "Aniconisme", "text": "Ni statues ni vitraux : bâtiments -10 % de coût.", "fx": {"building_cost_pct": -10}},
-		"sacrifice": {"label": "Sacrifice rituel", "family": "culte", "ck3": "Sacrifice humain", "text": "Offrandes plus généreuses, prêche +10 %, mais les autres fois s'en offusquent (opinion -5).", "fx": {"sacrifice_gain": 5, "faith_pressure_pct": 10, "faith_others_op": -5}},
-		"resonance": {"label": "Résonance du chœur", "family": "culte", "sf": true, "text": "Forme non humaine : les fidèles prient en vibrant à l'unisson, et la prière fait tourner les génératrices. Énergie +5 %, stabilité +1.", "fx": {"production_pct": {"energy": 5}, "faith_stab": 1}},
-
-		"fondamentalisme": {"label": "Fondamentalisme", "family": "morale", "ck3": "attitude fondamentaliste", "excl": ["pluralisme", "oecumenisme"], "text": "Les fidèles résistent aux autres prêches (+50 %), stabilité +2, mais les fois rivales sont détestées (opinion -10).", "fx": {"faith_resist_pct": 50, "faith_stab": 2, "faith_rival_op": -10}},
-		"pluralisme": {"label": "Pluralisme", "family": "morale", "ck3": "attitude pluraliste", "excl": ["fondamentalisme", "peuple_elu"], "text": "Les mondes d'une autre foi ne coûtent presque plus de stabilité (+4), les fois rivales sont mieux vues (+10), mais la foi se défend moins (-25 %).", "fx": {"faith_minor_stab": 4, "faith_rival_op": 10, "faith_resist_pct": -25}},
-		"pacifisme": {"label": "Pacifisme", "family": "morale", "ck3": "Pacifisme", "excl": ["bellicisme", "pelerins_armes"], "text": "Opinion de tous +5, stabilité +2, dégâts -10 %.", "fx": {"opinion_all": 5, "faith_stab": 2, "damage_pct": -10}},
-		"charite": {"label": "Charité", "family": "morale", "ck3": "Possessions communes", "text": "Croissance +10 %, énergie -5 %.", "fx": {"growth_pct": 10, "production_pct": {"energy": -5}}},
-		"pauvrete": {"label": "Pauvreté sacrée", "family": "morale", "ck3": "Ascétisme", "text": "Entretien des flottes -15 %, revenus du commerce -10 %.", "fx": {"upkeep_pct": -15, "trade_income_pct": -10}},
-		"loi_sacree": {"label": "Loi religieuse", "family": "morale", "ck3": "Légalisme, Prononcés juridiques", "text": "Stabilité +3 là où la foi domine, Savoir -5 %.", "fx": {"faith_stab": 3, "production_pct": {"knowledge": -5}}},
-		"ancetres": {"label": "Mémoire des ancêtres", "family": "morale", "ck3": "Culte des ancêtres", "text": "Garnisons +15 %, stabilité +1.", "fx": {"garrison_pct": 15, "faith_stab": 1}},
-		"patience": {"label": "Patience des pierres", "family": "morale", "sf": true, "text": "Forme non humaine : une foi pensée à l'échelle géologique. Bâtiments -10 % de coût, résistance aux prêches +25 %, croissance -10 %.", "fx": {"building_cost_pct": -10, "faith_resist_pct": 25, "growth_pct": -10}},
-
-		"proselytisme": {"label": "Prosélytisme", "family": "expansion", "ck3": "Prédicateurs mendiants", "text": "Prêche +40 %, mais les fois rivales s'en agacent (opinion -5).", "fx": {"faith_pressure_pct": 40, "faith_others_op": -5}},
-		"croissez": {"label": "Croissez et multipliez", "family": "expansion", "ck3": "Naissance sacrée", "text": "Croissance +15 %, prêche +10 %.", "fx": {"growth_pct": 15, "faith_pressure_pct": 10}},
-		"pelerins_armes": {"label": "Pèlerins armés", "family": "expansion", "ck3": "Pèlerinages armés", "excl": ["pacifisme"], "text": "Dégâts +5 %, vitesse des flottes +10 %.", "fx": {"damage_pct": 5, "fleet_speed_pct": 10}},
-		"bellicisme": {"label": "Guerre sainte", "family": "expansion", "ck3": "Belliciste, Lutte et soumission", "excl": ["pacifisme"], "text": "Dégâts +10 %, troupes +15 %, mais les autres fois s'inquiètent (opinion -5).", "fx": {"damage_pct": 10, "troops_pct": 15, "faith_others_op": -5}},
-		"peuple_elu": {"label": "Peuple élu", "family": "expansion", "ck3": "Identité communautaire, Destinée divine", "excl": ["pluralisme", "xenolatrie"], "text": "Stabilité +3, mais opinion de tous -5 et des fois rivales -10.", "fx": {"faith_stab": 3, "opinion_all": -5, "faith_rival_op": -10}},
-		"dime": {"label": "Dîme des infidèles", "family": "expansion", "ck3": "Imposer les non-croyants", "text": "Énergie +8 %, prêche -20 % (les infidèles rapportent plus que les convertis).", "fx": {"production_pct": {"energy": 8}, "faith_pressure_pct": -20}},
-		"essaimage": {"label": "Essaimage", "family": "expansion", "sf": true, "text": "Forme non humaine : la foi part avec les colons comme un pollen. Colonies fondées +1 population, prêche +10 %.", "fx": {"colony_start_pop": 1, "faith_pressure_pct": 10}},
-		"secret": {"label": "Secret", "family": "expansion", "w40k": "cultes Genestealer", "text": "La foi se cache : chez un empire d'une autre foi, ses fidèles sont invisibles tant qu'il ne l'a pas découverte. Quand une flotte de la foi, en guerre contre le maître, arrive là où elle domine, le monde se soulève. Prêche -10 %.", "fx": {"faith_pressure_pct": -10}},
-		"routes_benies": {"label": "Bénédiction des routes", "family": "expansion", "sf": true, "text": "Chaque cargo emporte un autel : les routes commerciales prêchent deux fois plus fort, commerce +10 %.", "fx": {"faith_route_pct": 100, "trade_income_pct": 10}},
-
-		"dieu_unique": {"label": "Monothéisme strict", "family": "autres", "ck3": "doctrine monothéiste", "excl": ["pantheon"], "text": "Résistance aux prêches +25 %, prêche +10 %, fois rivales -5.", "fx": {"faith_resist_pct": 25, "faith_pressure_pct": 10, "faith_rival_op": -5}},
-		"pantheon": {"label": "Panthéon ouvert", "family": "autres", "ck3": "doctrine polythéiste, Syncrétisme", "excl": ["dieu_unique"], "text": "Fois rivales +5, mondes d'une autre foi +3 stabilité, Savoir +5 %.", "fx": {"faith_rival_op": 5, "faith_minor_stab": 3, "production_pct": {"knowledge": 5}}},
-		"oecumenisme": {"label": "Œcuménisme", "family": "autres", "ck3": "attitude pluraliste, Syncrétisme", "excl": ["fondamentalisme"], "text": "Coreligionnaires +10, fois rivales +5.", "fx": {"faith_same_op": 10, "faith_rival_op": 5}},
-		"hospitalite": {"label": "Hospitalité rituelle", "family": "autres", "ck3": "Hospitalité rituelle", "text": "Croissance +5 %, opinion de tous +5.", "fx": {"growth_pct": 5, "opinion_all": 5}},
-		"voisin": {"label": "Aime ton voisin", "family": "autres", "text": "Opinion de tous +8, garnisons -10 %.", "fx": {"opinion_all": 8, "garrison_pct": -10}},
-		"xenolatrie": {"label": "Xénolâtrie", "family": "autres", "sf": true, "excl": ["peuple_elu"], "text": "Forme non humaine : l'autre espèce est sacrée en elle-même. Fois rivales +10, curiosités mieux exploitées, résistance aux prêches -20 %.", "fx": {"faith_rival_op": 10, "curio_power": 2, "faith_resist_pct": -20}},
-		"dieux_parmi_nous": {"label": "Les dieux sont parmi nous", "family": "autres", "sf": true, "text": "Les gardiens et les anciens sont des dieux qu'on peut toucher : curiosités bien mieux exploitées, stabilité +1.", "fx": {"curio_power": 3, "faith_stab": 1}},
-		"doute_sacre": {"label": "Doute sacré", "family": "autres", "ck3": "Ésotérisme, Gnosticisme", "text": "Une foi qui s'interroge : Savoir +10 %, prêche -10 %, résistance -25 %.", "fx": {"production_pct": {"knowledge": 10}, "faith_pressure_pct": -10, "faith_resist_pct": -25}}
+	"_tiers_doc": "Un précepte à la fondation, puis un de plus quand la foi atteint 25 puis 100 fidèles dans la galaxie.",
+	"pressure": {
+		"weights": [
+			3,
+			2,
+			1,
+			1
+		],
+		"holy_x": 4,
+		"state_push": 5,
+		"route": 2,
+		"threshold_base": 40,
+		"threshold_per_pop": 10
 	},
-
-	"zeal": {"start": 50, "holy_held": 2, "holy_lost": -3, "far_jumps": 6, "far_share_pct": 50, "far": -1, "foreign_share_pct": 50, "foreign": -1, "drift_above": 75, "drift_below": 25, "holy_war": 5, "crusade_won": 15, "prophecy": 5, "relics_n": 3, "relics": 1},
+	"_pressure_doc": "Pression mensuelle d'une colonie sur une autre = fidèles x poids (même système 3, 1 saut 2, 2-3 sauts 1), monde saint x4. La foi d'État pousse de 5 sur chaque colonie de l'empire. Les deux bouts d'une route commerciale extérieure se poussent avec le poids 2. Une conversion coûte 40 + 10 x population points.",
+	"state": {
+		"stab_major": 5,
+		"stab_minor": -5,
+		"change_stab": -10,
+		"change_days": 360,
+		"cooldown_days": 1080,
+		"adopt_share_pct": 20
+	},
+	"pseudo": {
+		"laicite": {
+			"name": "Laïcité",
+			"text": "Aucune foi d'État : ni préceptes, ni bonus, ni malus."
+		},
+		"incroyance": {
+			"name": "Incroyance",
+			"text": "L'empire prêche l'absence de dieux. Ne compte pas parmi les grandes fois et n'a pas de préceptes, mais Savoir +5 %.",
+			"color": "#9aa4ad",
+			"fx": {
+				"production_pct": {
+					"knowledge": 5
+				}
+			}
+		}
+	},
+	"zeal": {
+		"start": 50,
+		"holy_held": 2,
+		"holy_lost": -3,
+		"far_jumps": 6,
+		"far_share_pct": 50,
+		"far": -1,
+		"foreign_share_pct": 50,
+		"foreign": -1,
+		"drift_above": 75,
+		"drift_below": 25,
+		"holy_war": 5,
+		"crusade_won": 15,
+		"prophecy": 5,
+		"relics_n": 3,
+		"relics": 1
+	},
 	"_zeal_doc": "Zèle (proposition 11), de 0 à 100 par grande foi, distinct de la ferveur : +2 par mois si le monde saint est tenu par un empire de cette foi, -3 s'il est tenu par un autre ; -1 si plus de la moitié des fidèles vivent à plus de 6 sauts du monde saint, -1 si plus de la moitié vivent chez un autre peuple que celui du fondateur ; il revient d'un point vers 50 au-delà de 75 ou en deçà de 25. Guerre sainte déclarée +5, croisade victorieuse +15, prophétie accomplie +5. La pression des fidèles varie de (zèle - 50) %.",
-	"heresy": {"zeal_below": 40, "max_children": 2, "min_followers": 4, "min_jumps": 4, "chance_pmille": 80, "convert_pct": 50, "schism_share_pct": 33, "schism_min": 10, "schism_op": -10, "council_cost": {"knowledge": 200}, "rewrite_cost": {"knowledge": 300}},
-	"_heresy_doc": "Hérésies et schismes (proposition 12) : chaque mois, une foi au zèle sous 40 (et qui a moins de 2 hérésies vivantes) a 8 % de chances de voir naître une hérésie sur une colonie d'au moins 4 fidèles, à 4 sauts ou plus du monde saint, chez un autre peuple ou un empire d'une autre foi. L'hérésie est une foi fille (un dogme changé) qui prend la moitié des fidèles de la colonie. Quand elle dépasse le tiers des fidèles des deux fois (et 10 fidèles), c'est le schisme : une grande foi à part entière, hors de la limite, et -10 d'opinion entre les deux. Code saint : le chef de foi peut refusionner une hérésie par un concile (200 Savoir) ou réécrire un dogme (300 Savoir).",
-	"cult": {"inquisition_every": 3, "inquisition_op": -10, "demand_share_pct": 25, "demand_days": 720, "demand_cooldown": 1080, "demand_ok": 5, "demand_fail": -5, "demand_fx_days": 360},
+	"heresy": {
+		"zeal_below": 40,
+		"max_children": 2,
+		"min_followers": 4,
+		"min_jumps": 4,
+		"chance_pmille": 80,
+		"convert_pct": 50,
+		"schism_share_pct": 33,
+		"schism_min": 10,
+		"schism_op": -10,
+		"council_cost": {
+			"knowledge": 200
+		},
+		"rewrite_cost": {
+			"knowledge": 300
+		}
+	},
+	"_heresy_doc": "Hérésies et schismes (proposition 12) : chaque mois, une foi au zèle sous 40 (et qui a moins de 2 hérésies vivantes) a 8 % de chances de voir naître une hérésie sur une colonie d'au moins 4 fidèles, à 4 sauts ou plus du monde saint, chez un autre peuple ou un empire d'une autre foi. L'hérésie est une foi fille (un précepte ou une doctrine changés) qui prend la moitié des fidèles de la colonie. Quand elle dépasse le tiers des fidèles des deux fois (et 10 fidèles), c'est le schisme : une grande foi à part entière, hors de la limite, fois sœurs (hostilité selon le regard). Code saint : le chef de foi peut refusionner une hérésie par un concile (200 Savoir) ou réécrire un précepte (300 Savoir).",
+	"cult": {
+		"inquisition_every": 3,
+		"inquisition_op": -10,
+		"demand_share_pct": 25,
+		"demand_days": 720,
+		"demand_cooldown": 1080,
+		"demand_ok": 5,
+		"demand_fail": -5,
+		"demand_fx_days": 360
+	},
 	"_cult_doc": "Lois de culte (proposition 13, avec la politique intérieure) : Tolérance (les minorités religieuses ne coûtent plus de stabilité) et Inquisition (tous les 3 mois, chaque colonie perd un fidèle d'une autre foi au profit de la foi d'État ; -3 stabilité ; -10 d'opinion chez les empires dont la foi est persécutée). Doléance « Liberté de culte » : quand les autres fois dépassent 25 % de la population et qu'il n'y a pas de Tolérance, deux ans pour l'adopter (+5 de stabilité pendant un an) ou -5 pendant un an.",
-	"missions": {"cost": {"influence": 60}, "days": 360, "pressure": 40, "max": 2, "op": -5, "ward_cost": {"influence": 40}, "ward_days": 720},
+	"missions": {
+		"cost": {
+			"influence": 60
+		},
+		"days": 360,
+		"pressure": 40,
+		"max": 2,
+		"op": -5,
+		"ward_cost": {
+			"influence": 40
+		},
+		"ward_days": 720
+	},
 	"_missions_doc": "Missions (proposition 14) : pas de missionnaires à piloter. Une mission sur un système exploré (60 influence, un an, deux à la fois) ajoute 40 points de prêche par mois à chacune de ses colonies, pour la foi d'État. Le maître du système la chasse par une mission d'inquisition (40 influence), qui le protège deux ans. -5 d'opinion envers l'empire qui prêche chez nous.",
-	"holy_war": {"op": 10, "crusade_cost": {"influence": 100}, "crusade_days": 1800, "crusade_cooldown": 3600},
+	"holy_war": {
+		"op": 10,
+		"crusade_cost": {
+			"influence": 100
+		},
+		"crusade_days": 1800,
+		"crusade_cooldown": 3600
+	},
 	"_holy_war_doc": "Guerre sainte et croisade (proposition 15) : motif contre qui tient votre monde saint, persécute vos fidèles (Inquisition) ou suit le schisme de votre foi. Déclarer une guerre sainte donne +5 de zèle et +10 d'opinion chez les coreligionnaires pendant la guerre. Le chef de foi peut appeler une croisade (100 influence, une fois tous les 10 ans) : les empires de même foi en contact entrent en guerre sans traité ; elle dure 5 ans ou jusqu'au monde saint repris (+15 de zèle).",
-	"secret": {"discover_pmille": 80, "uprising": -25, "uprising_days": 360},
-	"_secret_doc": "Cultes cachés (proposition 16) : une foi au dogme « Secret » est invisible chez un empire d'une autre foi tant qu'il ne l'a pas découverte (8 % de chances par mois dès 3 fidèles cachés chez lui). Quand une flotte d'un empire de cette foi, en guerre contre le maître, arrive dans un système où elle est majoritaire, le monde se soulève : -25 de stabilité pendant un an.",
-	"prophecy": {"expire_days": 3600, "stab": -20, "stab_days": 360},
+	"secret": {
+		"discover_pmille": 80,
+		"uprising": -25,
+		"uprising_days": 360
+	},
+	"_secret_doc": "Cultes cachés (proposition 16) : une foi à la diffusion « Secrète » est invisible chez un empire d'une autre foi tant qu'il ne l'a pas découverte (8 % de chances par mois dès 3 fidèles cachés chez lui). Quand une flotte d'un empire de cette foi, en guerre contre le maître, arrive dans un système où elle est majoritaire, le monde se soulève : -25 de stabilité pendant un an.",
+	"prophecy": {
+		"expire_days": 3600,
+		"stab": -20,
+		"stab_days": 360
+	},
 	"_prophecy_doc": "Prophétie plantée (proposition 17, opération d'intrigue de deux ans) : semée sur le monde le plus peuplé de la cible, elle attend qu'un héros amiral de l'empire qui l'a plantée y arrive avec sa flotte. Le monde se convertit d'un coup à la foi d'État du planteur, et vacille pour son maître (-20 pendant un an). Elle s'éteint au bout de 10 ans.",
 	"natures": {
-		"_doc": "Natures de foi (proposition 25, premier jeu de 5) : tirées à la Révélation, EN PLUS des dogmes. Le registre du fondateur oriente le tirage.",
+		"_doc": "Natures de foi : la mécanique propre d'une foi, choisie par le fondateur parmi 3 (préférée de son peuple, liée à la voie de la Révélation, une tirée). Catalogue ouvert : les lots 3 et 4 ajoutent les natures classiques et les natures SF lourdes.",
 		"list": {
-			"code_saint": {"label": "Code saint", "text": "La foi est un programme, ses dogmes des versions. Le chef de foi peut réécrire un dogme (300 Savoir) et refusionner une hérésie par un concile (200 Savoir) au lieu d'en faire une guerre."},
-			"meme": {"label": "Mème", "text": "Une idée qui se recopie d'esprit en esprit : les routes commerciales prêchent deux fois plus fort, et chaque réseau d'espionnage la porte dans les deux sens. Ses dogmes mutent seuls tous les cinq ans."},
-			"parasite": {"label": "Parasite saint", "text": "Un organisme que portent les fidèles : il ne prêche que dans son propre système, mais voyage avec les flottes, les migrants et les invasions (un monde conquis se convertit à moitié). Les colonies où il domine grandissent 10 % moins vite."},
-			"precurseurs": {"label": "Précurseurs", "text": "Une civilisation disparue : chaque relique tenue par un empire de cette foi fait de sa capitale un monde saint secondaire (prêche doublé, triplé dès 3 reliques), et 3 reliques tenues nourrissent le zèle."},
-			"voies_sacrees": {"label": "Voies sacrées", "text": "L'hyperespace est sacré : les flottes des empires de cette foi vont 15 % plus vite, et le monde saint prêche 50 % plus fort le long des routes de saut."}
+			"code_saint": {
+				"label": "Code saint",
+				"text": "La foi est un programme, ses préceptes des versions. Le chef de foi peut réécrire un précepte (300 Savoir), changer une doctrine par un concile payé en Savoir, et refusionner une hérésie (200 Savoir) au lieu d'en faire une guerre."
+			},
+			"meme": {
+				"label": "Mème",
+				"text": "Une idée qui se recopie d'esprit en esprit : les routes commerciales prêchent deux fois plus fort, et chaque réseau d'espionnage la porte dans les deux sens, sans limite de distance. Ses préceptes mutent seuls tous les cinq ans. Contre : le pare-feu culturel (technologie Propagande)."
+			},
+			"parasite": {
+				"label": "Parasite saint",
+				"text": "Un organisme que portent les fidèles : il ne prêche que dans son propre système, mais voyage avec les flottes, les migrants et les invasions (un monde conquis se convertit à moitié). Les colonies où il domine grandissent 10 % moins vite ; chaque héros d'un empire de cette foi ressuscite une fois. Contre : la quarantaine."
+			},
+			"precurseurs": {
+				"label": "Précurseurs",
+				"text": "Une civilisation disparue : chaque relique tenue fait d'une colonie de l'empire un monde saint secondaire (prêche doublé ; la capitale d'abord, puis les plus peuplées). Achever des fouilles est un pèlerinage (zèle +3) ; étudier une épave sans le rite (20 d'influence) coûte 3 de zèle. 3 reliques tenues nourrissent le zèle."
+			},
+			"voies_sacrees": {
+				"label": "Voies sacrées",
+				"text": "L'hyperespace est sacré : le chef de foi bénit des routes de saut (6 au plus). Les flottes des fidèles y vont 50 % plus vite et la foi prêche le long de ces routes ; le chef peut fermer une route bénie aux infidèles (ils y vont deux fois moins vite) ou la taxer (5 d'énergie par passage)."
+			}
 		},
-		"by_register": {"Médiéval spatial": "voies_sacrees", "Grimdark": "code_saint", "Picaresque / pulp": "meme", "Horreur biologique": "parasite", "Classique / hard SF": "precurseurs", "Cosmique / étrange": "meme"},
-		"forced": {"choeur": "code_saint", "murmurants": "meme"},
-		"fleet_pressure": 20, "parasite_conquest_pct": 50, "parasite_growth_pct": -10, "meme_route_pct": 100, "meme_mutate_days": 1800, "voies_speed": 15, "voies_holy_pct": 50
+		"fleet_pressure": 20,
+		"parasite_conquest_pct": 50,
+		"parasite_growth_pct": -10,
+		"meme_route_pct": 100,
+		"meme_mutate_days": 1800,
+		"prefs": {
+			"_doc": "Nature préférée : par peuple, puis par credo, puis par registre ; la première disponible dans la liste.",
+			"factions": {
+				"choeur": [
+					"dieu_en_chantier",
+					"code_saint"
+				],
+				"murmurants": [
+					"chronolatrie",
+					"meme"
+				],
+				"ossarane": [
+					"voies_sacrees"
+				],
+				"vael": [
+					"harmonie",
+					"code_saint"
+				],
+				"khthari": [
+					"communion",
+					"parasite"
+				],
+				"teyl": [
+					"code_saint"
+				],
+				"ferrocornes": [
+					"ancetres",
+					"precurseurs"
+				],
+				"brisecomete": [
+					"meme"
+				]
+			},
+			"registers": {
+				"Médiéval spatial": [
+					"eglise_universelle",
+					"voies_sacrees"
+				],
+				"Grimdark": [
+					"dette_de_sang",
+					"code_saint"
+				],
+				"Space opera héroïque": [
+					"patriarcats",
+					"voies_sacrees"
+				],
+				"Horreur biologique": [
+					"parasite"
+				],
+				"Classique / hard SF": [
+					"precurseurs"
+				],
+				"Picaresque / pulp": [
+					"meme"
+				],
+				"Cosmique / étrange": [
+					"astres_vivants",
+					"meme"
+				]
+			}
+		},
+		"by_via": {
+			"relique": [
+				"precurseurs"
+			],
+			"gardien": [
+				"dieu_present",
+				"astres_vivants",
+				"precurseurs"
+			],
+			"heros": [
+				"pantheon",
+				"dette_de_sang",
+				"voies_sacrees"
+			],
+			"savoir": [
+				"code_saint"
+			],
+			"prophete": [
+				"meme",
+				"chronolatrie"
+			],
+			"reforme": [
+				"ancetres",
+				"pantheon",
+				"voies_sacrees"
+			],
+			"origine": [],
+			"heresie": [],
+			"schisme": []
+		},
+		"voies_max": 6,
+		"voies_bless_cost": {
+			"influence": 40
+		},
+		"voies_speed_pct": 150,
+		"voies_closed_pct": 50,
+		"voies_toll": 5,
+		"voies_route_x": 2,
+		"parasite_quarantine_stab": -2,
+		"precursor_dig_zeal": 3,
+		"precursor_rite": {
+			"influence": 20
+		},
+		"precursor_wreck_zeal": -3,
+		"precursor_secondary_x": 2
 	},
-	"je": {"chance_pmille": 15, "min_pop": 6, "grow_every": 2, "max": 12, "tolerated_max": 8, "stop_growth_at": 4, "knowledge_div": 2, "crush_pop_div": 3, "block_days": 1080, "ai_crush_at": 4},
+	"je": {
+		"chance_pmille": 15,
+		"min_pop": 6,
+		"grow_every": 2,
+		"max": 12,
+		"tolerated_max": 8,
+		"stop_growth_at": 4,
+		"knowledge_div": 2,
+		"crush_pop_div": 3,
+		"block_days": 1080,
+		"ai_crush_at": 4
+	},
 	"_je_doc": "Culte du Je (réserve « fois non humaines », lot 2) : une ruche n'a pas de foi, mais des drones qui pensent « je » peuvent apparaître sur ses colonies de 6 habitants ou plus (1,5 % par mois). Ils sont un de plus tous les deux mois. Ignorés, ils arrêtent la ponte dès 4 et, à 12, la colonie redevient sauvage. Écrasés, ils emportent un tiers de leur nombre en population et ne reviennent pas avant 3 ans. Tolérés, ils plafonnent à 8 et apportent leur nombre / 2 en Savoir chaque mois : l'individu invente.",
 	"ai": {
-		"_doc": "Ordre de préférence des dogmes pour un chef de foi IA, selon le credo de son peuple.",
-		"honneur": ["ancetres", "pelerins_armes", "bellicisme", "loi_sacree", "dieu_unique", "funerailles", "fondamentalisme", "croissez", "liturgie_chantee", "aniconisme"],
-		"foi": ["proselytisme", "liturgie_chantee", "fondamentalisme", "loi_sacree", "dieu_unique", "pelerinage", "sacrifice", "croissez", "funerailles", "ancetres"],
-		"raison": ["monachisme", "doute_sacre", "pantheon", "astrologie", "oecumenisme", "pluralisme", "dieux_parmi_nous", "liturgie_chantee", "aniconisme", "hospitalite"],
-		"profit": ["routes_benies", "dime", "pelerinage", "hospitalite", "aniconisme", "pluralisme", "voisin", "oecumenisme", "charite", "liturgie_chantee"],
-		"survie": ["croissez", "essaimage", "charite", "ancetres", "patience", "pauvrete", "resonance", "bellicisme", "funerailles", "aniconisme"],
-		"default": ["liturgie_chantee", "croissez", "monachisme", "funerailles", "hospitalite", "aniconisme", "proselytisme", "ancetres"],
+		"_doc": "Préférences de l'IA : préceptes par credo de son peuple (par peuple si présent), doctrines par credo.",
+		"precepts": {
+			"honneur": [
+				"moines_guerriers",
+				"pelerins_armes",
+				"loi_sacree",
+				"liturgie",
+				"croissez",
+				"ethique_travail"
+			],
+			"foi": [
+				"liturgie",
+				"pelerinage",
+				"sacrifices",
+				"dime",
+				"loi_sacree",
+				"croissez"
+			],
+			"raison": [
+				"astrologie",
+				"doute_sacre",
+				"preservation",
+				"liturgie",
+				"ethique_travail",
+				"charite"
+			],
+			"profit": [
+				"dime",
+				"pelerinage",
+				"propriete_eglise",
+				"ethique_travail",
+				"aniconisme",
+				"charite"
+			],
+			"survie": [
+				"croissez",
+				"ascetisme",
+				"resonance",
+				"charite",
+				"moines_guerriers",
+				"ethique_travail"
+			],
+			"default": [
+				"liturgie",
+				"croissez",
+				"ethique_travail",
+				"charite",
+				"aniconisme",
+				"astrologie"
+			]
+		},
+		"precept_factions": {
+			"murmurants": [
+				"astrologie",
+				"doute_sacre",
+				"sacrifices"
+			],
+			"teyl": [
+				"doute_sacre",
+				"astrologie",
+				"preservation"
+			]
+		},
+		"doctrines": {
+			"honneur": {
+				"chef": "temporel",
+				"regard": "fondamentaliste",
+				"clerge": "theocratique",
+				"diffusion": "missionnaire"
+			},
+			"foi": {
+				"chef": "elu",
+				"regard": "fondamentaliste",
+				"clerge": "theocratique",
+				"diffusion": "missionnaire"
+			},
+			"raison": {
+				"chef": "aucun",
+				"regard": "pluraliste",
+				"clerge": "laic",
+				"diffusion": "missionnaire"
+			},
+			"profit": {
+				"chef": "elu",
+				"regard": "pluraliste",
+				"clerge": "laic",
+				"diffusion": "missionnaire"
+			},
+			"survie": {
+				"chef": "aucun",
+				"regard": "juste",
+				"clerge": "laic",
+				"diffusion": "peuple_elu"
+			},
+			"default": {
+				"chef": "elu",
+				"regard": "juste",
+				"clerge": "theocratique",
+				"diffusion": "missionnaire"
+			}
+		},
+		"doctrine_factions": {
+			"murmurants": {
+				"diffusion": "secrete"
+			},
+			"ferrocornes": {
+				"diffusion": "peuple_elu"
+			}
+		},
 		"adopt_share_pct": 50,
-		"factions": {"murmurants": ["secret", "monachisme", "doute_sacre", "astrologie"]},
-		"mission_influence": 220, "ward_influence": 120, "council_knowledge": 600
-	}
+		"mission_influence": 220,
+		"ward_influence": 120,
+		"council_knowledge": 600,
+		"excom_influence": 300,
+		"bless_influence": 150
+	},
+	"reform": {
+		"colonies": 3,
+		"temple": true,
+		"_doc": "6e voie : un empire sans foi d'État (laïcité) dont les colonies suivent encore leurs cultes natals réforme son culte natal en grande foi quand il a 3 colonies et un temple."
+	},
+	"native_names": {
+		"Médiéval spatial": "Rites des Hautes Lignées",
+		"Grimdark": "Cultes de la Cendre première",
+		"Space opera héroïque": "Traditions de l'Aube",
+		"Horreur biologique": "Rites de la Mue",
+		"Classique / hard SF": "Coutumes des Fondateurs",
+		"Picaresque / pulp": "Superstitions de bord",
+		"Cosmique / étrange": "Murmures anciens",
+		"default": "Cultes natals"
+	},
+	"choice": {
+		"days": 90,
+		"_doc": "Le fondateur choisit nature, doctrines et premier précepte ; sans réponse au bout de 90 jours, le choix proposé par défaut s'applique."
+	},
+	"doctrines": {
+		"chef": {
+			"label": "Chef de foi",
+			"options": {
+				"aucun": {
+					"label": "Aucun",
+					"text": "Pas de chef : zèle +1 par an, hérésies deux fois plus rares, mais ni croisade ni excommunication. Les préceptes suivants reviennent à l'empire qui compte le plus de fidèles.",
+					"fx": {}
+				},
+				"elu": {
+					"label": "Élu",
+					"text": "Le chef de foi est l'empire qui compte le plus de fidèles (parmi ceux qui l'ont pour foi d'État).",
+					"fx": {}
+				},
+				"temporel": {
+					"label": "Temporel",
+					"text": "Le chef de foi est l'empire qui tient le monde saint (s'il a cette foi pour foi d'État) : croisade à moitié prix, mais perdre le monde saint retire la charge.",
+					"fx": {}
+				}
+			}
+		},
+		"regard": {
+			"label": "Regard sur les autres",
+			"options": {
+				"fondamentaliste": {
+					"label": "Fondamentaliste",
+					"text": "Les autres fois sont hostiles (opinion -20) ; un monde d'une autre foi coûte 8 de stabilité ; la Tolérance est interdite, l'Inquisition ne coûte pas de stabilité ; les fidèles résistent 25 % mieux aux autres prêches.",
+					"fx": {
+						"faith_resist_pct": 25
+					}
+				},
+				"juste": {
+					"label": "Juste",
+					"text": "Hostilité modérée (opinion -10 envers les autres grandes fois, -5 envers une foi sœur) ; un monde d'une autre foi coûte 5 de stabilité.",
+					"fx": {}
+				},
+				"pluraliste": {
+					"label": "Pluraliste",
+					"text": "Les autres fois ne coûtent presque rien (opinion -5 au plus, stabilité -2) ; en échange, la foi prêche 25 % moins fort.",
+					"fx": {}
+				}
+			}
+		},
+		"clerge": {
+			"label": "Clergé",
+			"options": {
+				"theocratique": {
+					"label": "Théocratique",
+					"text": "Le clergé gouverne avec l'empire : influence +5 %, et chaque temple achevé fait gagner deux fois plus de terrain à l'Autel.",
+					"fx": {
+						"production_pct": {
+							"influence": 5
+						}
+					}
+				},
+				"laic": {
+					"label": "Laïc",
+					"text": "Le clergé reste à sa place : Savoir +5 %, et un temple ne fait gagner que la moitié du terrain habituel à l'Autel.",
+					"fx": {
+						"production_pct": {
+							"knowledge": 5
+						}
+					}
+				}
+			}
+		},
+		"diffusion": {
+			"label": "Diffusion",
+			"options": {
+				"missionnaire": {
+					"label": "Missionnaire",
+					"text": "Prêche +25 %, missions à moitié prix.",
+					"fx": {}
+				},
+				"peuple_elu": {
+					"label": "Peuple élu",
+					"text": "Ne convertit que les habitants du peuple d'origine (et suit ses migrants) ; stabilité +2 là où elle domine, et pas de perte de zèle pour s'étendre chez d'autres peuples.",
+					"fx": {
+						"faith_stab": 2
+					}
+				},
+				"secrete": {
+					"label": "Secrète",
+					"text": "Invisible chez les autres empires tant que leur contre-espionnage ne l'a pas découverte ; à l'arrivée d'une flotte fidèle en guerre, un monde converti en secret se soulève. Prêche -10 %.",
+					"fx": {}
+				}
+			}
+		}
+	},
+	"doctrine_nums": {
+		"aucun_zeal_year": 1,
+		"aucun_heresy_pct": 50,
+		"temporel_crusade_pct": 50,
+		"pluraliste_pressure_pct": -25,
+		"missionnaire_pressure_pct": 25,
+		"missionnaire_mission_pct": 50,
+		"secrete_pressure_pct": -10,
+		"minor_stab": {
+			"fondamentaliste": -8,
+			"juste": -5,
+			"pluraliste": -2
+		},
+		"altar_temple_pct": {
+			"theocratique": 200,
+			"laic": 50
+		}
+	},
+	"hostility": {
+		"_doc": "Opinion d'un empire envers un autre selon le lien entre leurs fois d'État et le regard du premier (niveaux d'hostilité de CK3).",
+		"same": 10,
+		"sister": {
+			"fondamentaliste": -20,
+			"juste": -5,
+			"pluraliste": 0
+		},
+		"other": {
+			"fondamentaliste": -20,
+			"juste": -10,
+			"pluraliste": -5
+		},
+		"native": {
+			"fondamentaliste": -10,
+			"juste": -5,
+			"pluraliste": 0
+		}
+	},
+	"excommunication": {
+		"cost": {
+			"influence": 80
+		},
+		"days": 3600,
+		"op": -20,
+		"stab": -5,
+		"_doc": "Un chef Élu ou Temporel excommunie un empire de sa foi pour 10 ans : opinion -20 de tous les fidèles, stabilité -5 chez lui, cible légitime de croisade."
+	},
+	"concile": {
+		"cost": {
+			"influence": 150
+		},
+		"code_saint_cost": {
+			"knowledge": 250
+		},
+		"cooldown_days": 1800,
+		"_doc": "Le chef de foi change une position de doctrine (Code saint : payé en Savoir)."
+	},
+	"temple": {
+		"pressure": 2,
+		"_doc": "Un temple ajoute 2 fidèles pondérés au prêche de la foi majoritaire de sa colonie, et une petite poussée à la foi d'État du propriétaire."
+	},
+	"precepts": {
+		"liturgie": {
+			"family": "culte",
+			"label": "Liturgie chantée",
+			"text": "Chaque système doté d'un temple gagne 3 de stabilité.",
+			"fx": {
+				"temple_stab": 3
+			},
+			"src": "Musique chorale, Civ VI"
+		},
+		"pelerinage": {
+			"family": "culte",
+			"label": "Pèlerinage",
+			"text": "Le monde saint prêche deux fois plus fort ; l'empire qui le tient reçoit 2 d'influence par mois pour chaque autre empire de la foi ; opinion +5 entre fidèles.",
+			"fx": {
+				"faith_holy_pct": 100,
+				"pilgrims": 2,
+				"faith_same_op": 5
+			},
+			"src": "Pèlerinage, Civ VI ; doctrine des pèlerinages, CK3"
+		},
+		"reliquaires": {
+			"family": "culte",
+			"label": "Reliquaires",
+			"text": "Zèle +1 par mois tant que les empires de la foi tiennent au moins 2 reliques ; fouilles plus fructueuses.",
+			"fx": {
+				"relic_zeal": 1,
+				"curio_power": 2
+			},
+			"src": "Reliquaires, Civ VI"
+		},
+		"aniconisme": {
+			"family": "culte",
+			"label": "Aniconisme",
+			"text": "Temples à moitié prix et bâtiments 10 % moins chers, mais prêche -10 %.",
+			"fx": {
+				"temple_cost_pct": -50,
+				"building_cost_pct": -10,
+				"faith_pressure_pct": -10
+			},
+			"src": "Aniconisme, CK3"
+		},
+		"astrologie": {
+			"family": "culte",
+			"label": "Astrologie",
+			"text": "Les astres guident : curiosités repérées plus loin, fouilles plus fructueuses, Savoir +5 %.",
+			"fx": {
+				"curio_detect": 1,
+				"curio_power": 2,
+				"production_pct": {
+					"knowledge": 5
+				}
+			},
+			"src": "Astrologie, CK3"
+		},
+		"sacrifices": {
+			"family": "culte",
+			"label": "Sacrifices",
+			"text": "Offrande possible hors théocratie : sacrifier un fidèle donne 5 de zèle à la foi. Prêche +10 %.",
+			"fx": {
+				"faith_sacrifice": 5,
+				"faith_pressure_pct": 10
+			},
+			"src": "Cérémonies sacrificielles, CK3"
+		},
+		"resonance": {
+			"family": "culte",
+			"label": "Résonance",
+			"text": "Un système fidèle voisin d'un autre système fidèle gagne 2 de stabilité ; prêche +10 %.",
+			"fx": {
+				"resonance_stab": 2,
+				"faith_pressure_pct": 10
+			},
+			"src": "Invention (réserve non humaine, Énergétiques)"
+		},
+		"ascetisme": {
+			"family": "morale",
+			"label": "Ascétisme",
+			"text": "Entretien -10 %, stabilité +2 là où la foi domine, croissance -10 %.",
+			"fx": {
+				"upkeep_pct": -10,
+				"faith_stab": 2,
+				"growth_pct": -10
+			},
+			"src": "Ascétisme, CK3"
+		},
+		"charite": {
+			"family": "morale",
+			"label": "Charité",
+			"text": "Les petits mondes (3 habitants ou moins) gagnent 3 de stabilité ; influence -5 %.",
+			"fx": {
+				"poor_stab": 3,
+				"production_pct": {
+					"influence": -5
+				}
+			},
+			"src": "Aumônes, CK3 ; Nourrir le monde, Civ VI"
+		},
+		"pacifisme": {
+			"family": "morale",
+			"label": "Pacifisme",
+			"text": "Opinion +5 de tous, stabilité +2 là où la foi domine, dégâts -10 %.",
+			"fx": {
+				"opinion_all": 5,
+				"faith_stab": 2,
+				"damage_pct": -10
+			},
+			"src": "Pacifisme, CK3"
+		},
+		"loi_sacree": {
+			"family": "morale",
+			"label": "Loi sacrée",
+			"text": "Entretien des lois -25 %, stabilité +1 là où la foi domine.",
+			"fx": {
+				"law_upkeep_pct": -25,
+				"faith_stab": 1
+			},
+			"src": "Légalisme, CK3 ; piété légaliste, EU4"
+		},
+		"preservation": {
+			"family": "morale",
+			"label": "Préservation",
+			"text": "Savoir +5 %, fouilles plus fructueuses, fidèles 25 % plus résistants aux autres prêches.",
+			"fx": {
+				"production_pct": {
+					"knowledge": 5
+				},
+				"curio_power": 2,
+				"faith_resist_pct": 25
+			},
+			"src": "Préservation, CK3"
+		},
+		"doute_sacre": {
+			"family": "morale",
+			"label": "Doute sacré",
+			"text": "Douter est un devoir : Savoir +10 %, une foi sœur majoritaire ne coûte aucune stabilité, prêche -10 %.",
+			"fx": {
+				"production_pct": {
+					"knowledge": 10
+				},
+				"sister_no_stab": 1,
+				"faith_pressure_pct": -10
+			},
+			"src": "Invention (Teyl)"
+		},
+		"dime": {
+			"family": "societe",
+			"label": "Dîme",
+			"text": "Le chef de foi reçoit 1 d'influence par mois pour 3 colonies où la foi domine, chez lui comme chez les autres.",
+			"fx": {
+				"tithe": 3
+			},
+			"src": "Dîme, Civ VI"
+		},
+		"ethique_travail": {
+			"family": "societe",
+			"label": "Éthique du travail",
+			"text": "Matériaux +8 %.",
+			"fx": {
+				"production_pct": {
+					"materials": 8
+				}
+			},
+			"src": "Éthique du travail, Civ VI"
+		},
+		"croissez": {
+			"family": "societe",
+			"label": "Croissez et multipliez",
+			"text": "Croissance +10 %.",
+			"fx": {
+				"growth_pct": 10
+			},
+			"src": "Fécondité, Imperator ; Nourrir le monde, Civ VI"
+		},
+		"propriete_eglise": {
+			"family": "societe",
+			"label": "Propriété de l'Église",
+			"text": "Chaque temple rapporte 2 d'énergie.",
+			"fx": {
+				"temple_energy": 2
+			},
+			"src": "Propriété de l'Église, Civ VI"
+		},
+		"moines_guerriers": {
+			"family": "guerre",
+			"label": "Moines guerriers",
+			"text": "Garnisons +10 % dans les systèmes dotés d'un temple, troupes d'invasion +10 %.",
+			"fx": {
+				"temple_garrison": 10,
+				"troops_pct": 10
+			},
+			"src": "Moines guerriers, Civ VI"
+		},
+		"pelerins_armes": {
+			"family": "guerre",
+			"label": "Pèlerins armés",
+			"text": "Motif de guerre sainte contre qui tient au moins 3 de vos fidèles sans suivre votre foi ; zèle +3 par système conquis.",
+			"fx": {
+				"armed_pilgrims": 3
+			},
+			"src": "Pèlerinages armés, CK3"
+		},
+		"xenolatrie": {
+			"family": "guerre",
+			"label": "Xénolâtrie",
+			"text": "Les autres espèces sont des dieux : opinion +10 envers les empires d'une autre espèce, Savoir +5 % ; zèle -10 quand l'un d'eux vous déclare la guerre.",
+			"fx": {
+				"xeno_op": 10,
+				"production_pct": {
+					"knowledge": 5
+				}
+			},
+			"src": "Invention (réserve non humaine)"
+		}
+	},
+	"precept_families": [
+		{
+			"id": "culte",
+			"label": "Culte"
+		},
+		{
+			"id": "morale",
+			"label": "Morale"
+		},
+		{
+			"id": "societe",
+			"label": "Société"
+		},
+		{
+			"id": "guerre",
+			"label": "Guerre"
+		}
+	]
 }

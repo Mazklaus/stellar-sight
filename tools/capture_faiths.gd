@@ -3,7 +3,8 @@ extends SceneTree
 ##   xvfb-run -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_faiths.gd
 ## Écrit les images dans le dossier donné par CAPTURE_DIR (par défaut user://captures).
 ## Scénario : les Murmurants d'Abysse (joueur) après un an et demi ; le Murmure a gagné des colonies, Vael a eu sa
-## Révélation, un dogme attend le choix du chef de foi. Écran Foi, lentille de la foi, vue système.
+## Révélation, un précepte attend le choix du chef de foi. Écran Foi (d'abord le choix du fondateur : nature,
+## doctrines, premier précepte), lentille de la foi, vue système.
 
 
 func _initialize() -> void:
@@ -24,7 +25,18 @@ func _initialize() -> void:
 	var st: GameState = sim.state
 	var me: int = main.view_empire
 	var fc := Faiths.founded_by(st, me)
-	Faiths.add_dogma(st, fc, "doute_sacre")
+	# Le fondateur fixe sa foi : capture du choix, puis choix par défaut.
+	main.set_process(false)
+	main._refresh_all()
+	await _frames(6)
+	main.toggle_empire_screen("faith")
+	await _frames(10)
+	await _shot(out + "/ecran-foi-fondation.png")
+	main.toggle_empire_screen("faith")
+	await _frames(4)
+	main.set_process(true)
+	var dch := Faiths.default_choice(st, me, fc)
+	Faiths.choose(st, fc, String(dch["nature"]), dch["doctrines"], String(dch["precept"]))
 	for e in st.empires:
 		if e.faction_id == "vael" and Faiths.founded_by(st, e.id) == "":
 			Faiths.reveal(st, e.id, "relique", -1, [] as Array[Dictionary])
@@ -41,9 +53,9 @@ func _initialize() -> void:
 		_plant(st, me, cap0, 1 + i % 2, 7, mixes[i])
 	for s in st.galaxy.systems:
 		st.get_empire(me).explored[s.id] = true
-	# Une place de dogme libre, pour montrer le choix du chef de foi.
+	# Une place de précepte libre, pour montrer le choix du chef de foi.
 	var f: Dictionary = st.faiths["list"][fc]
-	f["slots"] = maxi(int(f["slots"]), (f["dogmas"] as Array).size() + 1)
+	f["slots"] = maxi(int(f["slots"]), (f["precepts"] as Array).size() + 1)
 	for e in st.empires:
 		for s in st.galaxy.systems:
 			if st.system_owner(s.id) == me:

@@ -658,6 +658,11 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 	var lab: String = ctx["lab"]
 	if lab != "" and c.is_colony() and c.population >= 4 and not c.buildings.has(lab) and int(ctx["lab_count"]) <= int(ctx["lab_quota"]):
 		out.append(lab)
+	# Religions : un temple sur les colonies peuplées d'un empire qui a une foi d'État (ou qui peut
+	# réformer son culte natal), quand les matériaux le permettent.
+	if state.faith_on and c.is_colony() and c.population >= 5 and not c.buildings.has("temple") and _res(ctx, "materials") >= 300 \
+			and not Faiths.is_hive(state, e.id) and (Faiths.has_state_faith(state, e.id) or Faiths.founded_by(state, e.id) == ""):
+		out.append("temple")
 	# Lire son goulot : quand les matériaux s'entassent, c'est l'influence qui freine l'expansion
 	# (chaque revendication en coûte) ; les forums passent alors devant. Le Vétéran le voit dès 250,
 	# les autres niveaux à 500 (sans quoi le Chœur entassait des milliers de matériaux inutiles).

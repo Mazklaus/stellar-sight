@@ -1,8 +1,8 @@
 class_name FaithWars
 extends RefCounted
-## Religion, lot 2 (étude « Religion », propositions 11 à 17 et 25, plus le Culte du Je) : zèle,
-## hérésies et schismes, lois de culte et doléance « Liberté de culte », missions, guerre sainte et
-## croisade, cultes cachés, prophétie plantée, natures de foi, drones dissidents des ruches.
+## Religion, lot 2 repris (étude « Religion », version 2) : zèle, hérésies et schismes, lois de culte et
+## doléance « Liberté de culte », missions, guerre sainte et croisade, excommunication, conciles, cultes
+## cachés (Diffusion « Secrète »), prophétie plantée, les 5 premières natures SF, drones dissidents.
 ## Règles : data/faiths.json (zeal, heresy, cult, missions, holy_war, secret, prophecy, natures, je).
 ##
 ## Clés de state.faiths ajoutées par ce lot :
@@ -14,7 +14,9 @@ extends RefCounted
 ## - "prophecies" : {planète: {"by", "fid", "at"}} ;
 ## - "je" : {planète: {"n", "tol"}} drones dissidents, et {"block:planète": jour} ;
 ## - "stab" : {système: [{"label", "v", "end"}]} lignes de stabilité temporaires ;
-## - "demands" : {empire: {"end", "next", "ok_end", "fail_end"}} doléance « Liberté de culte ».
+## - "demands" : {empire: {"end", "next", "ok_end", "fail_end"}} doléance « Liberté de culte » ;
+## - "blessed" : {"a-b" (a < b): {"fid", "mode" ("open", "closed", "toll")}} routes de saut bénies (Voies sacrées) ;
+## - "quarantine" : {empire: true} quarantaine contre le Parasite saint.
 
 
 static func data() -> Dictionary:
@@ -55,6 +57,12 @@ static func fix_ints(state: GameState) -> void:
 		var d: Dictionary = state.faiths["demands"][k]
 		for f in d:
 			d[f] = int(d[f])
+	for k in state.faiths["blessed"]:
+		var b: Dictionary = state.faiths["blessed"][k]
+		b["fid"] = String(b["fid"])
+		b["mode"] = String(b.get("mode", "open"))
+	for k in state.faiths["quarantine"]:
+		state.faiths["quarantine"][k] = true
 
 
 static func _missions(state: GameState) -> Array:
@@ -113,7 +121,7 @@ static func _zeal_month(state: GameState, fid: String) -> void:
 	if total > 0:
 		if far * 100 > total * int(zd["far_share_pct"]):
 			v += int(zd["far"])
-		if foreign * 100 > total * int(zd["foreign_share_pct"]):
+		if foreign * 100 > total * int(zd["foreign_share_pct"]) and Faiths.doctrine(state, fid, "diffusion") != "peuple_elu":
 			v += int(zd["foreign"])
 	if nature(state, fid) == "precurseurs" and _relics_of_faith(state, fid) >= int(zd["relics_n"]):
 		v += int(zd["relics"])
@@ -135,32 +143,19 @@ static func nature_def(nid: String) -> Dictionary:
 	return data()["natures"]["list"].get(nid, {})
 
 
-static func pick_nature(state: GameState, eid: int, fid: String) -> String:
-	var nd: Dictionary = data()["natures"]
-	var e := state.get_empire(eid)
-	if e != null and nd["forced"].has(e.faction_id):
-		return String(nd["forced"][e.faction_id])
-	var reg := Events.layer_value(state, eid, "registre") if e != null else ""
-	if nd["by_register"].has(reg):
-		return String(nd["by_register"][reg])
-	var ks: Array = (nd["list"] as Dictionary).keys()
-	ks.sort()
-	return String(ks[_h(state, ["nature", fid]) % ks.size()])
-
-
-static func nature_holy_pct(state: GameState, fid: String) -> int:
-	return int(data()["natures"]["voies_holy_pct"]) if nature(state, fid) == "voies_sacrees" else 0
-
-
 static func nature_route_pct(state: GameState, fid: String) -> int:
 	return int(data()["natures"]["meme_route_pct"]) if nature(state, fid) == "meme" else 0
 
 
-## Effets de la nature pour les empires de cette foi (mêmes clés que les technologies).
-static func nature_fx(state: GameState, fid: String) -> Dictionary:
-	if nature(state, fid) == "voies_sacrees":
-		return {"fleet_speed_pct": int(data()["natures"]["voies_speed"])}
+## Effets de la nature pour les empires de cette foi (mêmes clés que les technologies). Les natures du
+## lot 2 agissent par leurs propres règles ; la clé reste pour les natures à venir.
+static func nature_fx(_state: GameState, _fid: String) -> Dictionary:
 	return {}
+
+
+## Effet passif sur la foi venu de la nature (le monde saint n'est plus renforcé par les Voies sacrées).
+static func nature_holy_pct(_state: GameState, _fid: String) -> int:
+	return 0
 
 
 static func _relics_of_faith(state: GameState, fid: String) -> int:
@@ -171,15 +166,77 @@ static func _relics_of_faith(state: GameState, fid: String) -> int:
 	return n
 
 
-## Précurseurs : multiplicateur de prêche de la capitale d'un empire de la foi qui tient des reliques.
+## Précurseurs : chaque relique tenue fait d'une colonie de l'empire un monde saint secondaire
+## (la capitale d'abord, puis les plus peuplées) : multiplicateur de prêche de cette colonie.
 static func secondary_holy_x(state: GameState, fid: String, c: Colony) -> int:
-	if nature(state, fid) != "precurseurs" or GameState.is_npc(c.owner):
+	if nature(state, fid) != "precurseurs" or GameState.is_npc(c.owner) or Faiths.state_faith(state, c.owner) != fid:
 		return 1
-	var e := state.get_empire(c.owner)
-	if e == null or e.capital_planet != c.planet_id or Faiths.state_faith(state, c.owner) != fid:
-		return 1
-	var n := Relics.owned(state, c.owner).size()
-	return 1 if n <= 0 else (2 if n < 3 else 3)
+	return int(data()["natures"]["precursor_secondary_x"]) if secondary_holy(state, c.owner).has(c.planet_id) else 1
+
+
+## Mondes saints secondaires d'un empire Précurseurs : autant que de reliques tenues.
+static func secondary_holy(state: GameState, eid: int) -> Array:
+	var n := Relics.owned(state, eid).size()
+	var out: Array = []
+	if n <= 0:
+		return out
+	var e := state.get_empire(eid)
+	var cands: Array = []
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c.owner == eid and c.is_colony() and c.is_established():
+			cands.append([0 if pid == e.capital_planet else 1, -c.population, pid])
+	cands.sort()
+	for i in mini(n, cands.size()):
+		out.append(int(cands[i][2]))
+	return out
+
+
+## Précurseurs : fouilles achevées = pèlerinage (Relics._finish).
+static func on_dig(state: GameState, eid: int) -> void:
+	if not state.faith_on or GameState.is_npc(eid):
+		return
+	var sf := Faiths.state_faith(state, eid)
+	if nature(state, sf) == "precurseurs":
+		add_zeal(state, sf, int(data()["natures"]["precursor_dig_zeal"]))
+
+
+## Précurseurs : étudier une épave demande le rite (influence), sinon la foi perd du zèle (Research.study_wrecks).
+static func on_wreck(state: GameState, eid: int) -> void:
+	if not state.faith_on or GameState.is_npc(eid):
+		return
+	var sf := Faiths.state_faith(state, eid)
+	if nature(state, sf) != "precurseurs":
+		return
+	var nd: Dictionary = data()["natures"]
+	if _afford(state, eid, nd["precursor_rite"]) == "":
+		_pay(state, eid, nd["precursor_rite"])
+	else:
+		add_zeal(state, sf, int(nd["precursor_wreck_zeal"]))
+
+
+## Parasite saint : un héros d'un empire de cette foi ressuscite une fois (Heroes.die). true s'il revient.
+static func try_resurrect(state: GameState, h: Dictionary, out: Array[Dictionary]) -> bool:
+	if not state.faith_on or bool(h.get("revived", false)):
+		return false
+	var owner := int(h.get("owner", -1))
+	if GameState.is_npc(owner) or int(h.get("lender", -1)) >= 0:
+		return false
+	if nature(state, Faiths.state_faith(state, owner)) != "parasite":
+		return false
+	h["revived"] = true
+	out.append(state.add_chronicle("%s se relève : l'organisme saint referme ses plaies. On ne meurt qu'une fois chez %s ; la deuxième sera la bonne." % [
+			String(h["name"]), Faiths.name_of(state, Faiths.state_faith(state, owner))], Espionage.private_to(state, [owner])))
+	return true
+
+
+## Mème : le pare-feu culturel (technologie Propagande) arrête ses routes et ses réseaux chez l'empire
+## maître du système visé.
+static func firewalled(state: GameState, fid: String, sid: int) -> bool:
+	if nature(state, fid) != "meme":
+		return false
+	var o := state.system_owner(sid)
+	return o >= 0 and not GameState.is_npc(o) and Research.fx_int(state, o, "meme_firewall") > 0
 
 
 ## Parasite saint : croissance des colonies où il domine.
@@ -198,6 +255,8 @@ static func on_conquest(state: GameState, c: Colony, conqueror: int) -> void:
 	if not state.faith_on or not c.is_colony() or GameState.is_npc(conqueror):
 		return
 	var sf := Faiths.state_faith(state, conqueror)
+	if sf != Faiths.LAICITE and Research.fx_int(state, conqueror, "armed_pilgrims") > 0:
+		add_zeal(state, sf, 3)
 	if sf == Faiths.LAICITE or nature(state, sf) != "parasite":
 		return
 	var n := c.population * int(data()["natures"]["parasite_conquest_pct"]) / 100
@@ -207,8 +266,9 @@ static func on_conquest(state: GameState, c: Colony, conqueror: int) -> void:
 
 
 ## Pressions du lot 2 ajoutées à Faiths.pressures (en centièmes) : missions, flottes du parasite
-## saint, réseaux d'espionnage du mème.
-static func extra_pressures(state: GameState, out: Dictionary, targets_by_sys: Dictionary) -> void:
+## saint (sauf quarantaine), réseaux d'espionnage du mème (sauf pare-feu), routes bénies des Voies sacrées.
+## src : {système: {foi: fidèles pondérés}} (sources de Faiths.pressures).
+static func extra_pressures(state: GameState, out: Dictionary, targets_by_sys: Dictionary, src := {}) -> void:
 	var md: Dictionary = data()["missions"]
 	for m in _missions(state):
 		var sid := int(m["sid"])
@@ -225,12 +285,28 @@ static func extra_pressures(state: GameState, out: Dictionary, targets_by_sys: D
 		if GameState.is_npc(fl.owner) or fl.is_moving() or not targets_by_sys.has(fl.system_id):
 			continue
 		var sf := Faiths.state_faith(state, fl.owner)
-		if sf == Faiths.LAICITE or nature(state, sf) != "parasite":
+		if sf == Faiths.LAICITE or nature(state, sf) != "parasite" or quarantined(state, state.system_owner(fl.system_id)):
 			continue
 		for pid in targets_by_sys[fl.system_id]:
 			var pm: Dictionary = out.get(pid, {})
 			pm[sf] = int(pm.get(sf, 0)) + fp
 			out[pid] = pm
+	# Voies sacrées : la foi prêche le long de ses routes bénies (d'un bout à l'autre, dans les deux sens).
+	var vx := int(data()["natures"]["voies_route_x"])
+	for k in Faiths._sorted_keys(state.faiths["blessed"]):
+		var bl: Dictionary = state.faiths["blessed"][k]
+		var fid := String(bl["fid"])
+		if nature(state, fid) != "voies_sacrees":
+			continue
+		var ends := String(k).split("-")
+		for pair in [[int(ends[0]), int(ends[1])], [int(ends[1]), int(ends[0])]]:
+			var v := int(src.get(pair[0], {}).get(fid, 0))
+			if v <= 0 or not targets_by_sys.has(pair[1]):
+				continue
+			for pid in targets_by_sys[pair[1]]:
+				var pm: Dictionary = out.get(pid, {})
+				pm[fid] = int(pm.get(fid, 0)) + v * vx
+				out[pid] = pm
 	# Mème : un réseau d'espionnage porte la foi dans les deux sens, jusqu'aux capitales.
 	var memes := {}
 	for fid in Faiths.ids(state):
@@ -249,7 +325,7 @@ static func extra_pressures(state: GameState, out: Dictionary, targets_by_sys: D
 			if to == null or to.eliminated:
 				continue
 			var cap: Colony = state.colonies.get(to.capital_planet)
-			if cap == null or cap.owner != to.id or Faiths.is_hive(state, to.id):
+			if cap == null or cap.owner != to.id or Faiths.is_hive(state, to.id) or Research.fx_int(state, to.id, "meme_firewall") > 0:
 				continue
 			for fid in memes:
 				var n := int(memes[fid].get(from, 0))
@@ -263,7 +339,7 @@ static func extra_pressures(state: GameState, out: Dictionary, targets_by_sys: D
 # --- Cultes cachés (proposition 16) --------------------------------------------------------------
 
 static func is_secret(state: GameState, fid: String) -> bool:
-	return (Faiths.faith(state, fid).get("dogmas", []) as Array).has("secret")
+	return not Faiths.faith(state, fid).is_empty() and Faiths.doctrine(state, fid, "diffusion") == "secrete"
 
 
 ## Un empire voit-il les fidèles de cette foi chez lui ?
@@ -350,6 +426,17 @@ static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 		out.append(["Liberté de culte accordée", int(cd["demand_ok"])])
 	if int(d.get("fail_end", 0)) > state.tick:
 		out.append(["Liberté de culte refusée", int(cd["demand_fail"])])
+	if GameState.is_npc(owner):
+		return out
+	var sf := Faiths.state_faith(state, owner)
+	if not Faiths.faith(state, sf).is_empty():
+		if excommunicated(state, sf, owner):
+			out.append(["Excommunié par %s" % Faiths.name_of(state, sf), int(data()["excommunication"]["stab"])])
+		# Fondamentalistes : l'Inquisition ne coûte pas de stabilité (compense la loi).
+		if Faiths.doctrine(state, sf, "regard") == "fondamentaliste" and Research.fx_int(state, owner, "faith_inquisition") > 0:
+			out.append(["Inquisition consacrée", 3])
+	if quarantined(state, owner):
+		out.append(["Quarantaine", int(data()["natures"]["parasite_quarantine_stab"])])
 	return out
 
 
@@ -359,10 +446,13 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array:
 	var out := []
 	var fa := Faiths.state_faith(state, a)
 	var fb := Faiths.state_faith(state, b)
-	# Schisme : la foi mère et la foi schismatique se détestent.
-	if fa != Faiths.LAICITE and fb != Faiths.LAICITE and fa != fb:
-		if String(Faiths.faith(state, fa).get("schism_of", "")) == fb or String(Faiths.faith(state, fb).get("schism_of", "")) == fa:
-			out.append(["Schisme", int(data()["heresy"]["schism_op"])])
+	# Excommunié : les fidèles de la foi le tiennent pour un paria.
+	if fa != Faiths.LAICITE and fa == fb and excommunicated(state, fa, b):
+		out.append(["Excommunié", int(data()["excommunication"]["op"])])
+	# Xénolâtrie : les autres espèces sont des dieux.
+	var xo := Research.fx_int(state, a, "xeno_op")
+	if xo != 0 and Peoples.founder_of(state, a) != Peoples.founder_of(state, b):
+		out.append(["Xénolâtrie", xo])
 	# Persécution : b a l'Inquisition et des fidèles de la foi de a.
 	if fa != Faiths.LAICITE and fa != fb and Research.fx_int(state, b, "faith_inquisition") > 0 \
 			and int(Faiths.followers_by_owner(state, fa).get(b, 0)) > 0:
@@ -388,6 +478,8 @@ static func law_score(state: GameState, e: Empire, id: String, ag: int) -> int:
 		return -1
 	var minor := minority_share(state, e.id)
 	if id == "tolerance":
+		if Faiths.doctrine(state, Faiths.state_faith(state, e.id), "regard") == "fondamentaliste" and Faiths.has_state_faith(state, e.id):
+			return -1
 		var d: Dictionary = state.faiths["demands"].get(str(e.id), {})
 		if int(d.get("end", 0)) > state.tick:
 			return 60
@@ -475,7 +567,11 @@ static func _heresy_month(state: GameState, fid: String, added: Array[Dictionary
 			kids += 1
 	if kids >= int(hd.get("max_children", 2)):
 		return
-	if _h(state, ["heresy", fid, state.tick]) % 1000 >= int(hd["chance_pmille"]):
+	var ch := int(hd["chance_pmille"])
+	if Faiths.doctrine(state, fid, "chef") == "aucun":
+		@warning_ignore("integer_division")
+		ch = ch * int(data()["doctrine_nums"]["aucun_heresy_pct"]) / 100
+	if _h(state, ["heresy", fid, state.tick]) % 1000 >= ch:
 		return
 	var hsid := state.galaxy.get_planet(int(f["holy"])).system_id
 	var dist := FactionTraits.jumps_from(state.galaxy, hsid)
@@ -496,13 +592,14 @@ static func _heresy_month(state: GameState, fid: String, added: Array[Dictionary
 	spawn_heresy(state, fid, pid, added)
 
 
-## Une hérésie naît sur une colonie : foi fille, un dogme changé, la moitié des fidèles.
+## Une hérésie naît sur une colonie : foi fille (mêmes nature et doctrines), un précepte changé, la
+## moitié des fidèles.
 static func spawn_heresy(state: GameState, fid: String, pid: int, added: Array[Dictionary]) -> String:
 	var f := Faiths.faith(state, fid)
 	var c: Colony = state.colonies[pid]
 	var hid := "f%d" % int(state.faiths["next"])
 	state.faiths["next"] = int(state.faiths["next"]) + 1
-	var dg: Array = (f["dogmas"] as Array).duplicate()
+	var dg: Array = (f["precepts"] as Array).duplicate()
 	var sname := state.galaxy.systems[state.galaxy.get_planet(pid).system_id].system_name
 	var hname := "%s %s" % [String(f["name"]).split(" ")[0], _de(sname)]
 	var taken := {}
@@ -517,8 +614,9 @@ static func spawn_heresy(state: GameState, fid: String, pid: int, added: Array[D
 	col.h = fposmod(col.h + 0.08, 1.0)
 	state.faiths["list"][hid] = {
 		"name": hname, "founder": c.owner, "holy": pid, "founded": state.tick,
-		"via": "heresie", "parent": fid, "dogmas": dg, "slots": int(f["slots"]), "color": "#" + col.to_html(false),
-		"zeal": 70, "nature": String(f.get("nature", "")),
+		"via": "heresie", "parent": fid, "precepts": dg, "slots": int(f["slots"]), "color": "#" + col.to_html(false),
+		"zeal": 70, "nature": String(f.get("nature", "")), "doctrines": (f.get("doctrines", Faiths.DEFAULT_DOCTRINES) as Dictionary).duplicate(),
+		"offer": [], "pending": 0, "excom": {}, "council_next": 0,
 	}
 	_mutate_one(state, hid)
 	@warning_ignore("integer_division")
@@ -537,25 +635,19 @@ static func _de(word: String) -> String:
 	return ("d'" if "AEIOUYÂÉÈÊÎÔÛaeiouyâéèêîôû".contains(word.left(1)) else "de ") + word
 
 
-## Remplace un dogme (tirage haché) par un autre compatible.
+## Remplace un précepte (tirage haché) par un autre libre (Mème, hérésies).
 static func _mutate_one(state: GameState, fid: String) -> void:
 	var f := Faiths.faith(state, fid)
-	var dg: Array = f["dogmas"]
+	var dg: Array = f["precepts"]
 	if dg.is_empty():
 		return
 	var i := _h(state, ["mutate", fid, state.tick]) % dg.size()
 	var old := String(dg[i])
 	dg.remove_at(i)
 	var cands: Array = []
-	for did in Faiths.dogma_ids():
-		if did == old or dg.has(did):
-			continue
-		var ok := true
-		for h in dg:
-			if (Faiths.dogma_def(did).get("excl", []) as Array).has(h) or (Faiths.dogma_def(String(h)).get("excl", []) as Array).has(did):
-				ok = false
-		if ok:
-			cands.append(did)
+	for pid in Faiths.precept_ids():
+		if pid != old and Faiths._precept_free(state, fid, pid) == "":
+			cands.append(pid)
 	if cands.is_empty():
 		dg.insert(i, old)
 		return
@@ -574,6 +666,17 @@ static func _schism_month(state: GameState, hid: String, added: Array[Dictionary
 		f.erase("parent")
 		f["via"] = "schisme"
 		f["schism_of"] = pf
+		# La foi schismatique choisit sa nature parmi 3 (son fondateur : l'empire qui tient son monde saint).
+		var hc: Colony = state.colonies.get(int(f["holy"]))
+		if hc != null and not GameState.is_npc(hc.owner):
+			f["founder"] = hc.owner
+		f["offer"] = Faiths.offer_natures(state, int(f["founder"]), hid, "schisme")
+		if not (f["offer"] as Array).has(String(f["nature"])) and String(f["nature"]) != "":
+			(f["offer"] as Array)[(f["offer"] as Array).size() - 1] = String(f["nature"])
+		f["pending"] = state.tick + int(data()["choice"]["days"])
+		var fe := state.get_empire(int(f["founder"]))
+		if fe == null or fe.is_ai():
+			Faiths.choose(state, hid, String(f["offer"][0]), {}, "")
 		Relics.touch(state)
 		added.append(state.add_chronicle("Schisme ! %s se sépare de %s et devient une grande foi. L'Autel se coupe en deux, et chaque moitié jure que l'autre est l'hérésie." % [
 				Faiths.name_of(state, hid), Faiths.name_of(state, pf)]))
@@ -610,32 +713,239 @@ static func council(state: GameState, player: int, hid: String) -> void:
 	state.add_chronicle("Concile : %s refusionne sa branche dissidente. Le code est recompilé, les hérétiques reçoivent un correctif." % Faiths.name_of(state, pf))
 
 
-## Réécriture d'un dogme (Code saint) : le plus ancien est remplacé.
-static func check_rewrite(state: GameState, player: int, fid: String, did: String) -> String:
+## Réécriture d'un précepte (Code saint) : le plus ancien est remplacé par un précepte libre.
+static func check_rewrite(state: GameState, player: int, fid: String, pid: String) -> String:
 	if not state.faith_on:
 		return "les religions ne sont pas actives dans cette partie"
 	if nature(state, fid) != "code_saint":
-		return "seule une foi de nature Code saint réécrit ses dogmes"
+		return "seule une foi de nature Code saint réécrit ses préceptes"
 	if Faiths.head(state, fid) != player:
-		return "seul le chef de foi réécrit les dogmes"
-	var dg: Array = Faiths.faith(state, fid)["dogmas"]
+		return "seul le chef de foi réécrit les préceptes"
+	var dg: Array = Faiths.faith(state, fid)["precepts"]
 	if dg.is_empty():
-		return "aucun dogme à réécrire"
-	if Faiths.dogma_def(did).is_empty() or dg.has(did):
-		return "dogme inconnu ou déjà suivi"
-	for i in range(1, dg.size()):
-		var h := String(dg[i])
-		if (Faiths.dogma_def(did).get("excl", []) as Array).has(h) or (Faiths.dogma_def(h).get("excl", []) as Array).has(did):
-			return "incompatible avec « %s »" % String(Faiths.dogma_def(h)["label"])
+		return "aucun précepte à réécrire"
+	if Faiths.precept_def(pid).is_empty():
+		return "précepte inconnu"
+	var why := Faiths._precept_free(state, fid, pid)
+	if why != "":
+		return why
 	return _afford(state, player, data()["heresy"]["rewrite_cost"])
 
 
-static func rewrite(state: GameState, player: int, fid: String, did: String) -> void:
+static func rewrite(state: GameState, player: int, fid: String, pid: String) -> void:
 	_pay(state, player, data()["heresy"]["rewrite_cost"])
-	var dg: Array = Faiths.faith(state, fid)["dogmas"]
+	var dg: Array = Faiths.faith(state, fid)["precepts"]
 	dg.remove_at(0)
-	dg.append(did)
+	dg.append(pid)
 	Relics.touch(state)
+
+
+## Concile : le chef de foi change une position de doctrine (Code saint : payé en Savoir).
+static func check_concile(state: GameState, player: int, fid: String, axis: String, opt: String) -> String:
+	if not state.faith_on:
+		return "les religions ne sont pas actives dans cette partie"
+	var f := Faiths.faith(state, fid)
+	if f.is_empty():
+		return "foi inconnue"
+	if Faiths.head(state, fid) != player:
+		return "seul le chef de foi réunit un concile"
+	if Faiths.doctrine_def(axis, opt).is_empty():
+		return "doctrine inconnue"
+	if Faiths.doctrine(state, fid, axis) == opt:
+		return "c'est déjà la doctrine de la foi"
+	if int(f.get("council_next", 0)) > state.tick:
+		return "le dernier concile est trop récent (encore %d jours)" % (int(f["council_next"]) - state.tick)
+	return _afford(state, player, concile_cost(state, fid))
+
+
+static func concile_cost(state: GameState, fid: String) -> Dictionary:
+	var cd: Dictionary = data()["concile"]
+	return cd["code_saint_cost"] if nature(state, fid) == "code_saint" else cd["cost"]
+
+
+static func concile(state: GameState, player: int, fid: String, axis: String, opt: String) -> void:
+	_pay(state, player, concile_cost(state, fid))
+	var f := Faiths.faith(state, fid)
+	f["doctrines"][axis] = opt
+	f["council_next"] = state.tick + int(data()["concile"]["cooldown_days"])
+	Relics.touch(state)
+	state.add_chronicle("Concile de %s : la foi adopte la doctrine « %s » (%s). Les copistes refont tous les livres, en râlant." % [
+			Faiths.name_of(state, fid), String(Faiths.doctrine_def(axis, opt)["label"]), String(data()["doctrines"][axis]["label"]).to_lower()])
+
+
+# --- Excommunication (étude v2, proposition 6) ---------------------------------------------------
+
+static func excommunicated(state: GameState, fid: String, eid: int) -> bool:
+	return int(Faiths.faith(state, fid).get("excom", {}).get(str(eid), 0)) > state.tick
+
+
+static func check_excom(state: GameState, player: int, target: int) -> String:
+	if not state.faith_on:
+		return "les religions ne sont pas actives dans cette partie"
+	var fid := Faiths.state_faith(state, player)
+	if Faiths.faith(state, fid).is_empty():
+		return "il faut une grande foi pour excommunier"
+	if not Faiths.has_head(state, fid) or Faiths.head(state, fid) != player:
+		return "seul le chef de foi excommunie (pas avec la doctrine « Aucun »)"
+	if target == player or Faiths.state_faith(state, target) != fid:
+		return "on n'excommunie qu'un autre empire de sa foi"
+	if excommunicated(state, fid, target):
+		return "déjà excommunié"
+	return _afford(state, player, data()["excommunication"]["cost"])
+
+
+static func excommunicate(state: GameState, player: int, target: int) -> void:
+	var xd: Dictionary = data()["excommunication"]
+	_pay(state, player, xd["cost"])
+	var fid := Faiths.state_faith(state, player)
+	Faiths.faith(state, fid)["excom"][str(target)] = state.tick + int(xd["days"])
+	state.add_chronicle("%s excommunie %s : les fidèles de %s ne lui doivent plus rien, pas même un salut." % [
+			state.get_empire(player).display_name(), state.get_empire(target).display_name(), Faiths.name_of(state, fid)])
+
+
+# --- Quarantaine (Parasite saint) ----------------------------------------------------------------
+
+static func quarantined(state: GameState, eid: int) -> bool:
+	return eid >= 0 and bool(state.faiths.get("quarantine", {}).get(str(eid), false))
+
+
+static func check_quarantine(state: GameState, player: int) -> String:
+	if not state.faith_on:
+		return "les religions ne sont pas actives dans cette partie"
+	var e := state.get_empire(player)
+	if e == null or e.eliminated:
+		return "empire inconnu"
+	return ""
+
+
+## Met en place ou lève la quarantaine : les flottes et les migrants ne portent plus le Parasite saint
+## chez vous, contre 2 de stabilité par système.
+static func toggle_quarantine(state: GameState, player: int) -> void:
+	if quarantined(state, player):
+		state.faiths["quarantine"].erase(str(player))
+	else:
+		state.faiths["quarantine"][str(player)] = true
+
+
+# --- Routes bénies (Voies sacrées) ---------------------------------------------------------------
+
+static func lane_key(a: int, b: int) -> String:
+	return "%d-%d" % [mini(a, b), maxi(a, b)]
+
+
+static func blessed_of(state: GameState, fid: String) -> Array:
+	var out: Array = []
+	for k in Faiths._sorted_keys(state.faiths["blessed"]):
+		if String(state.faiths["blessed"][k]["fid"]) == fid:
+			out.append(k)
+	return out
+
+
+static func check_bless(state: GameState, player: int, a: int, b: int) -> String:
+	if not state.faith_on:
+		return "les religions ne sont pas actives dans cette partie"
+	var fid := Faiths.state_faith(state, player)
+	if nature(state, fid) != "voies_sacrees":
+		return "seule une foi des Voies sacrées bénit des routes"
+	if Faiths.head(state, fid) != player:
+		return "seul le chef de foi bénit les routes"
+	if a < 0 or b < 0 or a >= state.galaxy.systems.size() or not state.galaxy.systems[a].neighbors.has(b):
+		return "ces systèmes ne sont pas reliés"
+	if state.faiths["blessed"].has(lane_key(a, b)):
+		return "route déjà bénie"
+	var mine := false
+	for sid in [a, b]:
+		var o := state.system_owner(sid)
+		if o >= 0 and not GameState.is_npc(o) and Faiths.state_faith(state, o) == fid:
+			mine = true
+	if not mine:
+		return "un bout de la route doit appartenir à un empire de la foi"
+	if blessed_of(state, fid).size() >= int(data()["natures"]["voies_max"]):
+		return "au plus %d routes bénies" % int(data()["natures"]["voies_max"])
+	return _afford(state, player, data()["natures"]["voies_bless_cost"])
+
+
+static func bless(state: GameState, player: int, a: int, b: int) -> void:
+	_pay(state, player, data()["natures"]["voies_bless_cost"])
+	state.faiths["blessed"][lane_key(a, b)] = {"fid": Faiths.state_faith(state, player), "mode": "open"}
+
+
+static func check_lane_mode(state: GameState, player: int, key: String, mode: String) -> String:
+	if not state.faith_on:
+		return "les religions ne sont pas actives dans cette partie"
+	var bl: Dictionary = state.faiths["blessed"].get(key, {})
+	if bl.is_empty():
+		return "route non bénie"
+	if Faiths.head(state, String(bl["fid"])) != player:
+		return "seul le chef de foi règle la route"
+	if not ["open", "closed", "toll"].has(mode):
+		return "réglage inconnu"
+	return ""
+
+
+static func set_lane_mode(state: GameState, key: String, mode: String) -> void:
+	state.faiths["blessed"][key]["mode"] = mode
+
+
+## Vitesse d'une flotte sur la route a-b, en % (FleetSystem._move) : fidèles plus rapides sur une route
+## bénie, infidèles ralentis sur une route fermée.
+static func lane_pct(state: GameState, owner: int, a: int, b: int) -> int:
+	if not state.faith_on or state.faiths.get("blessed", {}).is_empty():
+		return 100
+	var bl: Dictionary = state.faiths["blessed"].get(lane_key(a, b), {})
+	if bl.is_empty() or nature(state, String(bl["fid"])) != "voies_sacrees" or GameState.is_npc(owner):
+		return 100
+	if Faiths.state_faith(state, owner) == String(bl["fid"]):
+		return int(data()["natures"]["voies_speed_pct"])
+	return int(data()["natures"]["voies_closed_pct"]) if String(bl["mode"]) == "closed" else 100
+
+
+## Passage d'une flotte sur une route bénie taxée : un infidèle paie le péage au chef de foi.
+static func on_lane_crossed(state: GameState, owner: int, a: int, b: int) -> void:
+	if not state.faith_on or state.faiths.get("blessed", {}).is_empty() or GameState.is_npc(owner):
+		return
+	var bl: Dictionary = state.faiths["blessed"].get(lane_key(a, b), {})
+	if bl.is_empty() or String(bl["mode"]) != "toll" or Faiths.state_faith(state, owner) == String(bl["fid"]):
+		return
+	var h := Faiths.head(state, String(bl["fid"]))
+	var e := state.get_empire(owner)
+	var he := state.get_empire(h)
+	if he == null or e == null:
+		return
+	var toll := mini(int(data()["natures"]["voies_toll"]), int(e.resources.get("energy", 0)))
+	if toll > 0:
+		e.resources["energy"] = int(e.resources.get("energy", 0)) - toll
+		he.resources["energy"] = int(he.resources.get("energy", 0)) + toll
+
+
+# --- Sacrifices (précepte) -----------------------------------------------------------------------
+
+static func check_sacrifice(state: GameState, player: int, pid: int) -> String:
+	if not state.faith_on:
+		return "les religions ne sont pas actives dans cette partie"
+	var sf := Faiths.state_faith(state, player)
+	if Research.fx_int(state, player, "faith_sacrifice") <= 0 or Faiths.faith(state, sf).is_empty():
+		return "il faut une foi d'État qui suit le précepte Sacrifices"
+	var c: Colony = state.colonies.get(pid)
+	if c == null or c.owner != player or not c.is_colony() or c.population < 2:
+		return "il faut une de vos colonies d'au moins 2 habitants"
+	if int(c.faith.get(sf, 0)) <= 0:
+		return "aucun fidèle à offrir ici"
+	return ""
+
+
+static func sacrifice(state: GameState, player: int, pid: int) -> void:
+	var sf := Faiths.state_faith(state, player)
+	var c: Colony = state.colonies[pid]
+	c.faith[sf] = int(c.faith[sf]) - 1
+	if int(c.faith[sf]) <= 0:
+		c.faith.erase(sf)
+	c.population -= 1
+	c.growth = 0
+	Faiths.normalize(c)
+	add_zeal(state, sf, Research.fx_int(state, player, "faith_sacrifice"))
+	state.add_chronicle("Sacrifice sur %s : un fidèle de %s monte à l'autel. Le zèle grimpe ; la démographie, moins." % [
+			state.galaxy.get_planet(pid).display_name(state.galaxy), Faiths.name_of(state, sf)], Espionage.private_to(state, [player]))
 
 
 # --- Missions (proposition 14) -------------------------------------------------------------------
@@ -670,11 +980,20 @@ static func check_mission(state: GameState, player: int, sid: int) -> String:
 				return "une mission prêche déjà ici"
 	if n >= int(data()["missions"]["max"]):
 		return "au plus %d missions à la fois" % int(data()["missions"]["max"])
-	return _afford(state, player, data()["missions"]["cost"])
+	return _afford(state, player, mission_cost(state, player))
+
+
+## Coût d'une mission : à moitié prix pour une foi Missionnaire.
+static func mission_cost(state: GameState, player: int) -> Dictionary:
+	var c: Dictionary = data()["missions"]["cost"]
+	if Faiths.doctrine(state, Faiths.state_faith(state, player), "diffusion") == "missionnaire" and Faiths.has_state_faith(state, player) \
+			and not Faiths.faith(state, Faiths.state_faith(state, player)).is_empty():
+		return Research.scaled_amounts(c, int(data()["doctrine_nums"]["missionnaire_mission_pct"]) - 100)
+	return c
 
 
 static func mission(state: GameState, player: int, sid: int) -> void:
-	_pay(state, player, data()["missions"]["cost"])
+	_pay(state, player, mission_cost(state, player))
 	var l: Array = _missions(state).duplicate()
 	l.append({"by": player, "sid": sid, "fid": Faiths.state_faith(state, player), "end": state.tick + int(data()["missions"]["days"])})
 	state.faiths["missions"] = {"list": l}
@@ -723,7 +1042,7 @@ static func casus(state: GameState, a: int, b: int) -> String:
 		return ""
 	var fb := Faiths.state_faith(state, b)
 	if fa == fb:
-		return ""
+		return "il est excommunié" if excommunicated(state, fa, b) else ""
 	var holy_c: Colony = state.colonies.get(int(Faiths.faith(state, fa)["holy"]))
 	if holy_c != null and holy_c.owner == b:
 		return "il tient notre monde saint"
@@ -731,6 +1050,10 @@ static func casus(state: GameState, a: int, b: int) -> String:
 		return "il persécute nos fidèles"
 	if String(Faiths.faith(state, fb).get("schism_of", "")) == fa or String(Faiths.faith(state, fa).get("schism_of", "")) == fb:
 		return "il suit le schisme"
+	# Pèlerins armés : il tient des fidèles de notre foi sans la suivre.
+	var ap := Research.fx_int(state, a, "armed_pilgrims")
+	if ap > 0 and int(Faiths.followers_by_owner(state, fa).get(b, 0)) >= ap:
+		return "il tient nos fidèles sous son joug"
 	return ""
 
 
@@ -738,6 +1061,10 @@ static func casus(state: GameState, a: int, b: int) -> String:
 static func on_war(state: GameState, a: int, b: int) -> void:
 	if not state.faith_on:
 		return
+	# Xénolâtrie : un « dieu » d'une autre espèce qui nous attaque, c'est une crise de foi.
+	if not GameState.is_npc(b) and not GameState.is_npc(a) and Research.fx_int(state, b, "xeno_op") > 0 \
+			and Peoples.founder_of(state, a) != Peoples.founder_of(state, b):
+		add_zeal(state, Faiths.state_faith(state, b), -10)
 	var why := casus(state, a, b)
 	if why == "":
 		return
@@ -756,6 +1083,8 @@ static func check_crusade(state: GameState, player: int, target: int) -> String:
 	var fid := Faiths.state_faith(state, player)
 	if fid == Faiths.LAICITE or Faiths.faith(state, fid).is_empty():
 		return "il faut une grande foi pour prêcher la croisade"
+	if Faiths.doctrine(state, fid, "chef") == "aucun":
+		return "une foi sans chef ne prêche pas de croisade"
 	if Faiths.head(state, fid) != player:
 		return "seul le chef de foi appelle à la croisade"
 	var te := state.get_empire(target)
@@ -772,12 +1101,20 @@ static func check_crusade(state: GameState, player: int, target: int) -> String:
 		var w := SimCommands.validate(state, SimCommands.declare_war(player, target))
 		if w != "":
 			return w
-	return _afford(state, player, data()["holy_war"]["crusade_cost"])
+	return _afford(state, player, crusade_cost(state, fid))
+
+
+## Coût d'une croisade : à moitié prix pour un chef Temporel.
+static func crusade_cost(state: GameState, fid: String) -> Dictionary:
+	var c: Dictionary = data()["holy_war"]["crusade_cost"]
+	if Faiths.doctrine(state, fid, "chef") == "temporel":
+		return Research.scaled_amounts(c, int(data()["doctrine_nums"]["temporel_crusade_pct"]) - 100)
+	return c
 
 
 static func crusade(state: GameState, player: int, target: int) -> void:
 	var hd: Dictionary = data()["holy_war"]
-	_pay(state, player, hd["crusade_cost"])
+	_pay(state, player, crusade_cost(state, Faiths.state_faith(state, player)))
 	var fid := Faiths.state_faith(state, player)
 	state.faiths["crusades"][fid] = {"target": target, "end": state.tick + int(hd["crusade_days"]), "next": state.tick + int(hd["crusade_cooldown"])}
 	if not Combat.at_war(state, player, target):
@@ -995,7 +1332,8 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 				used = true
 		if not used:
 			state.faiths["list"].erase(fid)
-	# Mème : les dogmes mutent seuls.
+	_doctrine_month(state)
+	# Mème : les préceptes mutent seuls.
 	var md := int(data()["natures"]["meme_mutate_days"])
 	for fid in Faiths.ids(state):
 		var f := Faiths.faith(state, fid)
@@ -1033,6 +1371,44 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 	_ai(state)
 
 
+## Effets mensuels des doctrines et des préceptes : zèle d'une foi sans chef (+1 par an), Reliquaires,
+## Dîme (au chef de foi), Pèlerinage (à qui tient le monde saint), excommunications échues.
+@warning_ignore("integer_division")
+static func _doctrine_month(state: GameState) -> void:
+	var md := int(GameData.rules()["month_days"])
+	var month := state.tick / md
+	for fid in Faiths.ids(state):
+		var f := Faiths.faith(state, fid)
+		if Faiths.doctrine(state, fid, "chef") == "aucun" and month % 12 == 0 and month > 0:
+			add_zeal(state, fid, int(data()["doctrine_nums"]["aucun_zeal_year"]))
+		var rz := Faiths._fx_for_faith(state, fid, "relic_zeal")
+		if rz > 0 and _relics_of_faith(state, fid) >= 2:
+			add_zeal(state, fid, rz)
+		var tithe := Faiths._fx_for_faith(state, fid, "tithe")
+		var h := Faiths.head(state, fid)
+		if tithe > 0 and h >= 0:
+			var n := 0
+			for pid in state.colonies:
+				var c: Colony = state.colonies[pid]
+				if c.is_colony() and Faiths.majority(c) == fid:
+					n += 1
+			var he := state.get_empire(h)
+			he.resources["influence"] = int(he.resources.get("influence", 0)) + n / tithe
+		var pil := Faiths._fx_for_faith(state, fid, "pilgrims")
+		var hc: Colony = state.colonies.get(int(f["holy"]))
+		if pil > 0 and hc != null and not GameState.is_npc(hc.owner):
+			var others := 0
+			for e in state.empires:
+				if not e.eliminated and e.id != hc.owner and Faiths.state_faith(state, e.id) == fid:
+					others += 1
+			var ho := state.get_empire(hc.owner)
+			ho.resources["influence"] = int(ho.resources.get("influence", 0)) + pil * others
+		var ex: Dictionary = f.get("excom", {})
+		for k in ex.keys():
+			if int(ex[k]) <= state.tick:
+				ex.erase(k)
+
+
 # --- IA ------------------------------------------------------------------------------------------
 
 static func _ai(state: GameState) -> void:
@@ -1068,6 +1444,29 @@ static func _ai(state: GameState) -> void:
 			if holy_c != null and not GameState.is_npc(holy_c.owner) and holy_c.owner != e.id \
 					and check_crusade(state, e.id, holy_c.owner) == "":
 				crusade(state, e.id, holy_c.owner)
+		# Voies sacrées : le chef bénit les routes qui partent de sa capitale.
+		if sf != Faiths.LAICITE and nature(state, sf) == "voies_sacrees" and Faiths.head(state, sf) == e.id \
+				and int(e.resources.get("influence", 0)) >= int(ai["bless_influence"]):
+			var capc: Colony = state.colonies.get(e.capital_planet)
+			if capc != null and capc.owner == e.id:
+				var cap := state.galaxy.get_planet(e.capital_planet)
+				for n in state.galaxy.systems[cap.system_id].neighbors:
+					if check_bless(state, e.id, cap.system_id, n) == "":
+						bless(state, e.id, cap.system_id, n)
+						break
+		# Quarantaine : quand un Parasite saint étranger gagne un dixième de l'empire.
+		var para := 0
+		var tot := 0
+		for pid in state.colonies:
+			var c: Colony = state.colonies[pid]
+			if c.owner != e.id or not c.is_colony():
+				continue
+			tot += c.population
+			for fid in c.faith:
+				if fid != sf and nature(state, fid) == "parasite":
+					para += int(c.faith[fid])
+		if tot > 0 and (para * 10 >= tot) != quarantined(state, e.id) and nature(state, sf) != "parasite":
+			toggle_quarantine(state, e.id)
 		# Missions : vers le système voisin le plus peuplé qui ne suit pas la foi.
 		if sf != Faiths.LAICITE and inf >= int(ai["mission_influence"]) and missions_by(state, e.id).size() < int(data()["missions"]["max"]) \
 				and _h(state, ["ai_mission", e.id, state.tick]) % 3 == 0:

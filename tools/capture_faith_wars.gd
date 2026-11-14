@@ -43,7 +43,9 @@ func _choeur(out: String) -> void:
 	var st: GameState = sim.state
 	var me: int = main.view_empire
 	var fc := Faiths.founded_by(st, me)
-	Faiths.add_dogma(st, fc, "liturgie_chantee")
+	var dch := Faiths.default_choice(st, me, fc)
+	if int(Faiths.faith(st, fc)["pending"]) > 0:
+		Faiths.choose(st, fc, String(dch["nature"]), dch["doctrines"], String(dch["precept"]))
 	sim.advance(360)
 	var v := _id_of(st, "vael")
 	var t := _id_of(st, "teyl")
