@@ -578,6 +578,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 	FaithNatures.on_capture(state, system_id, old, new_owner, added)
 	if lost_capital:
 		Relics.on_capital_lost(state, old, new_owner, added)
+		AmphInst.on_capital(state, new_owner, old)
 		eo.capital_planet = _new_capital(state, old)
 		if eo.capital_planet >= 0:
 			added.append(state.add_chronicle("%s perd sa capitale et se replie sur %s. La cour emporte les archives, et surtout l'argenterie." % [

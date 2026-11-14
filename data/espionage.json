@@ -100,7 +100,16 @@
 		{"id": "prophetie", "family": "intrigue", "label": "Semer une prophétie", "tier": 3, "cost": {"influence": 60}, "days": 720, "success": 70, "discovery": 20, "spend": 15, "faiths": true, "text": "Religions : de faux prophètes annoncent la venue d'un héros de votre foi sur sa colonie la plus peuplée. Quand un de vos héros amiraux y stationne, la planète entière se convertit."},
 		{"id": "coup", "family": "intrigue", "label": "Fomenter un coup d'État", "tier": 3,
 			"cost": {"influence": 60}, "days": 90, "success": 45, "discovery": 45, "spend": 25,
-			"text": "Si sa stabilité d'empire est sous 35 : crise de régime, le courant opposé prend le pouvoir, ses lois tombent, six mois sans lois."}
+			"text": "Si sa stabilité d'empire est sous 35 : crise de régime, le courant opposé prend le pouvoir, ses lois tombent, six mois sans lois."},
+		{"id": "acheter_delegue", "family": "intrigue", "label": "Acheter un délégué", "tier": 2, "amph": true,
+			"cost": {"influence": 35}, "days": 20, "success": 65, "discovery": 30, "spend": 10, "voix_pct": 25,
+			"text": "Pendant le vote en cours de l'Amphictyonie, un quart des voix de la cible passe dans votre camp."},
+		{"id": "fuite_dossier", "family": "intrigue", "label": "Faire fuiter un dossier", "tier": 2, "amph": true,
+			"cost": {"influence": 30}, "days": 30, "success": 70, "discovery": 25, "spend": 10,
+			"text": "Des pièces embarrassantes sur la proposition que la cible a déposée à l'Amphictyonie : elle doit la retirer de la file, frais perdus."},
+		{"id": "scandale", "family": "intrigue", "label": "Monter un scandale", "tier": 3, "amph": true,
+			"cost": {"influence": 50}, "days": 60, "success": 55, "discovery": 35, "spend": 20, "voix_pct": -10, "voix_days": 2160,
+			"text": "Un scandale à l'Amphictyonie : la cible perd ses bonus de voix de proposant et 10 % de voix pendant 6 ans."}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
 	"chances": {

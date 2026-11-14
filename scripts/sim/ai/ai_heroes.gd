@@ -88,6 +88,8 @@ static func _assign(ctx: Dictionary, skill: int) -> void:
 			tries = ["system", "fleet", "council"]
 		else:
 			tries = [own, "council", "system", "fleet"]
+			if String(h["cls"]) == "orateur":
+				tries.push_front("amph")
 		for post in tries:
 			var target := _target(state, e, String(post))
 			if target >= 0 and AiPlayer._issue(ctx, SimCommands.hero_assign(e.id, id, String(post), target)):
@@ -97,6 +99,8 @@ static func _assign(ctx: Dictionary, skill: int) -> void:
 ## Meilleure cible libre pour un poste, -1 s'il n'y en a pas.
 static func _target(state: GameState, e: Empire, post: String) -> int:
 	match post:
+		"amph":
+			return 0 if Amphictyony.is_member(state, e.id) and Heroes.assigned_to(state, "amph", 0, e.id).is_empty() else -1
 		"fleet":
 			var best := -1
 			var power := 0

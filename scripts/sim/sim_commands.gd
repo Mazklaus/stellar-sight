@@ -388,6 +388,13 @@ static func amph_buy(player: int) -> Dictionary:
 	return {"type": "amph_buy", "player": player}
 
 
+## Acte d'Amphictyonie du lot 2 (voir AmphInst.check_act) : veto, urgent (x = proposition), denounce (x),
+## freeze (x), close, truce (x, y), call (x = débiteur), observe, convene (x = crise), svote (x = vote),
+## aid_ask (s = ressource), aid_give (x = empire, y = quantité), work_give (x = quantité).
+static func amph_act(player: int, act: String, x := -1, y := -1, s := "") -> Dictionary:
+	return {"type": "amph_act", "player": player, "act": act, "x": x, "y": y, "s": s}
+
+
 ## Soutien officiel à un courant pour la prochaine élection (Politics ; -1 retire le soutien).
 ## En théocratie et en horde, c'est le courant nommé.
 static func politics_support(player: int, current: int) -> Dictionary:
@@ -617,6 +624,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Amphictyony.check_vote(state, int(cmd["player"]), int(cmd.get("v", 9)))
 		"amph_buy":
 			return Amphictyony.check_buy(state, int(cmd["player"]))
+		"amph_act":
+			return AmphInst.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), int(cmd.get("y", -1)), String(cmd.get("s", "")))
 		"politics_support":
 			return Politics.check_support(state, int(cmd["player"]), int(cmd.get("current", -2)))
 		"peoples_status":
@@ -950,6 +959,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Amphictyony.vote(state, int(cmd["player"]), int(cmd["v"]))
 		"amph_buy":
 			Amphictyony.buy(state, int(cmd["player"]))
+		"amph_act":
+			AmphInst.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), int(cmd.get("y", -1)), String(cmd.get("s", "")))
 		"politics_support":
 			Politics.support(state, int(cmd["player"]), int(cmd["current"]))
 		"peoples_status":

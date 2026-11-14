@@ -39,7 +39,7 @@ extends RefCounted
 ## ("for_hire", puis "lender" = empire qui le prête et "lend_until"), dossiers de héros par empire
 ## dans hero_meta[a]["files"] : [{"about", "day", "heroes": [{"name", "cls", "lvl", "post", "loy", "portrait"}]}].
 
-const POSTS := ["fleet", "system", "council", "agent"]
+const POSTS := ["fleet", "system", "council", "agent", "amph"]
 const CLASSES := ["stratege", "intendant", "orateur", "ombre"]
 const DAYS_PER_YEAR := 360
 
@@ -572,6 +572,8 @@ static func post_effect_text(state: GameState, h: Dictionary) -> String:
 			@warning_ignore("integer_division")
 			var amount := (hl + 1) / 2 if c.has("encryption_half") else v * hl / 2
 			return String(c.get("text", "")) % amount
+		"amph":
+			return txt % AmphInst.ambassador_pct(state, int(h["owner"]))
 	return ""
 
 
@@ -766,6 +768,9 @@ static func check_assign(state: GameState, player: int, hero_id: int, post: Stri
 		"agent":
 			if target == player or Espionage.cells_on(state, player, target) <= 0:
 				return "aucun réseau chez cet empire"
+		"amph":
+			if target != 0 or not Amphictyony.is_member(state, player):
+				return "il faut siéger à l'Amphictyonie"
 	return ""
 
 

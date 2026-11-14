@@ -1103,6 +1103,7 @@ static func on_war(state: GameState, a: int, b: int) -> void:
 	var fa := Faiths.state_faith(state, a)
 	var l: Array = _holy_wars(state).duplicate()
 	l.append({"a": a, "b": b, "fid": fa})
+	AmphInst.on_holy_war(state, a, b)
 	state.faiths["holy_wars"] = {"list": l}
 	add_zeal(state, fa, int(data()["zeal"]["holy_war"]))
 	state.add_chronicle("%s proclame la guerre sainte contre %s : %s. Les fidèles de %s applaudissent." % [

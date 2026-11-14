@@ -7,6 +7,10 @@ extends RefCounted
 ## seuil elle vote pour, en dessous contre, sinon elle s'abstient. Elle propose ce qui l'avantage le plus,
 ## achète des voix si l'enjeu est fort et son camp en retard (Vétéran et au-dessus).
 ## Recrue : elle vote mal (intérêt brouillé), mais elle vote toujours.
+## Lot 2 : elle observe quand elle ne peut pas siéger, appelle à l'aide quand elle est à sec, secourt
+## ses amis, finance les grands travaux, use de son veto, de l'urgence et de la dénonciation à la Haute
+## Voûte, arbitre en Arbitre des étoiles, appelle ses faveurs, convoque et vote les sessions
+## extraordinaires (Vétéran et au-dessus pour les manœuvres fines).
 
 
 static func think(ctx: Dictionary) -> void:
@@ -26,15 +30,24 @@ static func think(ctx: Dictionary) -> void:
 		return
 	if not Amphictyony.founded(state):
 		return
+	var skill := int(ctx["lv"].get("faction_use", 1))
+	_aid_ask(ctx)
 	if not Amphictyony.is_member(state, e.id):
 		var reserve := 40 if ag < 2 else 120
 		if int(e.resources.get("influence", 0)) >= int(Amphictyony.join_cost(state, e.id).get("influence", 0)) + reserve and Amphictyony.check_join(state, e.id) == "":
 			AiPlayer._issue(ctx, SimCommands.amph_join(e.id))
+		elif not AmphInst.is_observer(state, e.id) and AmphInst.check_observe(state, e.id) == "":
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "observe"))
+		_convene(ctx, skill)
 		return
-	var skill := int(ctx["lv"].get("faction_use", 1))
+	_council(ctx, skill)
 	_vote(ctx, skill)
 	_support(ctx)
 	_propose(ctx)
+	_arbiter(ctx, skill)
+	_convene(ctx, skill)
+	_svote(ctx, skill)
+	_give(ctx)
 
 
 static func _vote(ctx: Dictionary, skill: int) -> void:
@@ -64,6 +77,11 @@ static func _vote(ctx: Dictionary, skill: int) -> void:
 		var cost := int(Amphictyony.buy_cost(state, e.id).get("influence", 0))
 		if behind and int(e.resources.get("influence", 0)) >= cost + 80 and Amphictyony.check_buy(state, e.id) == "":
 			AiPlayer._issue(ctx, SimCommands.amph_buy(e.id))
+		# Faveurs : on les appelle quand le camp est en retard (gratuit, mais elles s'épuisent).
+		if behind:
+			for d in AmphInst.debtors(state, e.id):
+				if AmphInst.check_call(state, e.id, int(d[0])) == "":
+					AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "call", int(d[0])))
 
 
 static func _support(ctx: Dictionary) -> void:
@@ -115,14 +133,30 @@ static func candidates(state: GameState, eid: int) -> Array[Dictionary]:
 			var st := Amphictyony.step_to(state, fid, dir)
 			if bool(st[0]):
 				out.append({"kind": "step", "fam": fid, "dir": dir, "from": Amphictyony.fam_value(state, fid), "to": int(st[1]), "target": -1, "sanc": "", "by": eid})
-	for t in Amphictyony.outlaws(state):
+	for t in Amphictyony.sanctionables(state):
 		if t == eid:
 			continue
 		for s: Dictionary in Amphictyony.sanction_defs():
 			out.append({"kind": "sanction", "fam": "", "dir": 0, "from": 0, "to": 0, "target": t, "sanc": String(s["id"]), "by": eid})
-		if Amphictyony.is_member(state, t):
+		if Amphictyony.is_member(state, t) and Amphictyony.outlaw(state, t):
 			out.append({"kind": "expel", "fam": "", "dir": 0, "from": 0, "to": 0, "target": t, "sanc": "", "by": eid})
+	# Institutions (lot 2).
+	out.append(_inst(state, eid, "council", "", 0, -1))
+	for dir in [1, -1]:
+		out.append(_inst(state, eid, "council_size", "", dir, -1))
+	for c in AmphInst.councillors(state):
+		out.append(_inst(state, eid, "arbiter", "", 0, c))
+	out.append(_inst(state, eid, "extend", "", 0, -1))
+	out.append(_inst(state, eid, "defiance", "", 0, -1))
+	for w: Dictionary in AmphInst.work_defs():
+		out.append(_inst(state, eid, "work", String(w["id"]), 0, -1))
 	return out
+
+
+static func _inst(state: GameState, eid: int, kind: String, fam: String, dir: int, target: int) -> Dictionary:
+	var p := {"kind": kind, "fam": fam, "dir": dir, "from": 0, "to": 0, "target": target, "sanc": "", "by": eid}
+	p.merge(AmphInst.make_fields(state, kind, fam, dir, target), true)
+	return p
 
 
 ## Note de vote : intérêt × opinion du proposant (de ×0,5 à ×1,3).
@@ -154,7 +188,182 @@ static func interest(state: GameState, e: Empire, p: Dictionary) -> int:
 				return -6
 			@warning_ignore("integer_division")
 			return clampi(4 - Diplomacy.opinion(state, e.id, t) / 20, -8, 10)
+		"council":
+			return 6 if _rank(state, e.id) < int(AmphInst.idata()["council"]["seats"]) else -2
+		"council_size":
+			var r := _rank(state, e.id)
+			var seated := r < AmphInst.seats(state)
+			var after := r < int(p["to"])
+			return 5 if after and not seated else (-5 if seated and not after else (1 if int(p["to"]) > int(p["from"]) else -1))
+		"arbiter", "extend":
+			var t2 := int(p["target"])
+			if t2 == e.id:
+				return 9
+			@warning_ignore("integer_division")
+			return clampi(Diplomacy.opinion(state, e.id, t2) / 15 - 1, -8, 8)
+		"defiance":
+			var t3 := int(p["target"])
+			if t3 == e.id:
+				return -10
+			@warning_ignore("integer_division")
+			return clampi(-Diplomacy.opinion(state, e.id, t3) / 15, -8, 8)
+		"work":
+			var w := AmphInst.work_def(String(p["fam"]))
+			@warning_ignore("integer_division")
+			return 4 + (1 if int(e.resources.get(String(w.get("res", "")), 0)) >= int(w.get("need", 0)) / 4 else -1)
 	return 0
+
+
+## Rang d'un membre par ses voix de base (0 = le plus fort).
+static func _rank(state: GameState, eid: int) -> int:
+	var mine := Amphictyony.base_voix(state, eid)
+	var r := 0
+	for m in Amphictyony.members(state):
+		var v := Amphictyony.base_voix(state, m)
+		if m != eid and (v > mine or (v == mine and m < eid)):
+			r += 1
+	return r
+
+
+# --- Lot 2 : Haute Voûte, Arbitre, crises, aide, grands travaux ------------------------------------
+
+static func _council(ctx: Dictionary, skill: int) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if not AmphInst.is_councillor(state, e.id):
+		return
+	# Veto : contre une proposition qui nous nuit vraiment et qui risque de passer.
+	if Amphictyony.in_session(state) and AmphInst.check_veto(state, e.id) == "":
+		var sc := score(state, e, Amphictyony.session(state)["prop"])
+		var t := Amphictyony.tally(state)
+		if sc <= -6 and int(t["pour"]) >= int(t["contre"]):
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "veto"))
+			return
+	# Urgence : pour sa propre proposition, quand rien ne siège.
+	var mine := Amphictyony.proposal_of(state, e.id)
+	if skill >= 1 and not mine.is_empty() and not Amphictyony.in_session(state) and AmphInst.check_urgent(state, e.id, int(mine["id"])) == "":
+		AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "urgent", int(mine["id"])))
+		return
+	# Dénonciation : l'empire le plus détesté, s'il l'est vraiment.
+	if int(e.resources.get("influence", 0)) < 130:
+		return
+	var worst := -1
+	var low := -40
+	for o in e.contacts:
+		var op := Diplomacy.opinion(state, e.id, int(o))
+		if op < low and AmphInst.check_denounce(state, e.id, int(o)) == "" and not Diplomacy.allied(state, e.id, int(o)):
+			low = op
+			worst = int(o)
+	if worst >= 0:
+		AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "denounce", worst))
+
+
+static func _arbiter(ctx: Dictionary, skill: int) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if AmphInst.arbiter(state) != e.id or skill <= 0:
+		return
+	# Trêve entre deux membres en guerre qu'il apprécie.
+	var ms := Amphictyony.members(state)
+	for a in ms:
+		for b in ms:
+			if a < b and a != e.id and b != e.id and AmphInst.check_truce(state, e.id, a, b) == "" \
+					and Diplomacy.opinion(state, e.id, a) >= 0 and Diplomacy.opinion(state, e.id, b) >= 0 \
+					and int(e.resources.get("influence", 0)) >= 120:
+				AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "truce", a, b))
+				return
+	# Clôture anticipée quand le vote penche comme il le souhaite sur un enjeu fort.
+	if Amphictyony.in_session(state) and AmphInst.check_close(state, e.id) == "":
+		var p: Dictionary = Amphictyony.session(state)["prop"]
+		var sc := score(state, e, p)
+		var t := Amphictyony.tally(state)
+		if (sc >= 6 and int(t["pour"]) > int(t["contre"])) or (sc <= -6 and int(t["contre"]) > int(t["pour"])):
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "close"))
+			return
+	# Gel de la proposition la mieux soutenue si elle lui nuit.
+	var q := Amphictyony.sorted_queue(state)
+	if not q.is_empty():
+		var top: Dictionary = q[0]
+		if score(state, e, top) <= -6 and AmphInst.check_freeze(state, e.id, int(top["id"])) == "":
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "freeze", int(top["id"])))
+
+
+## Intérêt d'une coalition contre la cible : victime, haine, tempérament, alliance.
+@warning_ignore("integer_division")
+static func coalition_interest(state: GameState, e: Empire, target: int, victim: int) -> int:
+	if target == e.id:
+		return -10
+	if Diplomacy.allied(state, e.id, target):
+		return -8
+	var sc := -Diplomacy.opinion(state, e.id, target) / 10 + AiLevels.aggression(e)
+	if victim == e.id:
+		sc += 8
+	elif victim >= 0 and Diplomacy.allied(state, e.id, victim):
+		sc += 4
+	if Combat.at_war(state, e.id, target):
+		sc += 3
+	if Diplomacy.warships(state, e.id) * 2 < Diplomacy.warships(state, target):
+		sc -= 2
+	return clampi(sc, -10, 10)
+
+
+static func _convene(ctx: Dictionary, skill: int) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if int(e.resources.get("influence", 0)) < 130:
+		return
+	for t: Dictionary in AmphInst.open_trigs(state):
+		var need := 3 if int(t["b"]) == e.id else (5 if skill >= 1 else 99)
+		if coalition_interest(state, e, int(t["a"]), int(t["b"])) >= need and AmphInst.check_convene(state, e.id, int(t["id"])) == "":
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "convene", int(t["id"])))
+			return
+
+
+static func _svote(ctx: Dictionary, skill: int) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if not AmphInst.special_on(state):
+		return
+	var s := AmphInst.special(state)
+	var sc := coalition_interest(state, e, int(s["target"]), int(s["victim"]))
+	if skill <= 0:
+		sc += posmod(hash([state.seed_value, "amph_svote", e.id, int(s["trig"])]), 7) - 3
+	var want := 1 if sc >= 2 else (-1 if sc <= -2 else 0)
+	if AmphInst.svote_of(state, e.id) != want and AmphInst.check_svote(state, e.id, want) == "":
+		AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "svote", want))
+
+
+static func _aid_ask(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	for res in AmphInst.idata()["aid"]["res"]:
+		if AmphInst.check_aid_ask(state, e.id, String(res)) == "":
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "aid_ask", -1, -1, String(res)))
+			return
+
+
+static func _give(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var step := int(AmphInst.idata()["aid"]["step"])
+	# Aide d'urgence : à ceux qu'on apprécie, quand on a de quoi.
+	var ks := (state.amph["aid"] as Dictionary).keys()
+	ks.sort()
+	for k in ks:
+		var t := int(k)
+		var ai := AmphInst.aid_of(state, t)
+		if t == e.id or Diplomacy.opinion(state, e.id, t) < 10:
+			continue
+		if int(e.resources.get(String(ai["res"]), 0)) >= 600 and AmphInst.check_aid_give(state, e.id, t, step) == "":
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "aid_give", t, step))
+			return
+	# Grands travaux : une à quatre tranches par mois quand on est riche dans la ressource.
+	if AmphInst.work_on(state):
+		var w := AmphInst.work_def(String(AmphInst.work(state)["id"]))
+		var have := int(e.resources.get(String(w["res"]), 0))
+		var n := step * (4 if have >= 2000 else (2 if have >= 1000 else 1))
+		if have >= 500 and AmphInst.check_work_give(state, e.id, n) == "":
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "work_give", n))
 
 
 static func _credo(state: GameState, eid: int) -> String:

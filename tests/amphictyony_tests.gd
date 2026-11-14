@@ -294,8 +294,8 @@ func _test_repeal() -> void:
 	_ok(bool(stp[0]) and int(stp[1]) == 0, "Abrogation : un pas vers l'autre voie retire le dernier niveau")
 	_ok(Amphictyony.is_repeal(1, 0), "Abrogation : reconnue comme telle")
 	_ok(int(Amphictyony.step_cost(1, 0)["influence"]) == int(Amphictyony.data()["repeal_cost"]), "Abrogation : prix fixe")
-	st.amph["fam"]["commerce"] = 2
-	_ok(not bool(Amphictyony.step_to(st, "commerce", 1)[0]), "Niveaux : pas au-delà du dernier niveau")
+	st.amph["fam"]["commerce"] = 3
+	_ok(not bool(Amphictyony.step_to(st, "commerce", 1)[0]), "Niveaux : pas au-delà du dernier niveau (III)")
 	_ok(Amphictyony.level_name("commerce", 2) != "", "Niveaux : chaque niveau a son nom")
 	st.amph["fam"]["commerce"] = -1
 	_ok(int(Amphictyony.step_to(st, "commerce", -1)[1]) == -2, "Niveaux : la voie B monte aussi dans l'ordre")
@@ -426,7 +426,7 @@ func _test_save() -> void:
 	Amphictyony.buy(st, ms[0])
 	Amphictyony.on_atrocity(st, ms[1])
 	var d: Dictionary = JSON.parse_string(JSON.stringify(st.to_snapshot()))
-	_ok(int(d["version"]) == 47, "Sauvegarde : version 47")
+	_ok(int(d["version"]) == 48, "Sauvegarde : version 48")
 	var back := GameState.from_dict(d)
 	_ok(back.amph_on and Amphictyony.founded(back), "Sauvegarde : l'Amphictyonie revient")
 	_ok(Amphictyony.members(back) == Amphictyony.members(st), "Sauvegarde : mêmes membres")
