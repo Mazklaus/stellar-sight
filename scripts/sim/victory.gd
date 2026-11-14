@@ -296,11 +296,29 @@ static func bloc(state: GameState, empire_id: int) -> Array[int]:
 			continue
 		if not state.get_empire(a).eliminated and not out.has(a):
 			out.append(a)
+	# Les sujets avancent avec leur suzerain (et ne comptent pas comme cibles).
+	for s in Vassals.subjects_of(state, empire_id):
+		if not state.get_empire(s).eliminated and not out.has(s):
+			out.append(s)
 	out.sort()
 	return out
 
 
+## Un sujet ne gagne ni conquête ni domination : la victoire revient à son suzerain.
+static func _subject_line(state: GameState, e: Empire, out: Dictionary) -> bool:
+	var lord := Vassals.lord_of(state, e.id)
+	if lord < 0:
+		return false
+	out["lines"].append("Sujet de %s : cette victoire revient au suzerain" % state.get_empire(lord).display_name())
+	out["cond"] = false
+	out["won"] = false
+	out["pct"] = 0
+	return true
+
+
 static func _conquest(state: GameState, e: Empire, out: Dictionary) -> void:
+	if _subject_line(state, e, out):
+		return
 	var b := bloc(state, e.id)
 	var targets := 0
 	var held_caps := 0
@@ -352,6 +370,8 @@ static func domination_needed(state: GameState, empire_id := -1) -> int:
 
 
 static func _domination(state: GameState, e: Empire, out: Dictionary) -> void:
+	if _subject_line(state, e, out):
+		return
 	var have := systems_held(state, e.id, true)
 	var need := domination_needed(state, e.id)
 	if bloc(state, e.id).size() > 1:

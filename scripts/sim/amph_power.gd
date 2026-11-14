@@ -369,6 +369,7 @@ static func check_submit(state: GameState, eid: int) -> String:
 
 static func submit(state: GameState, eid: int) -> void:
 	(_a(state)["imp"]["sub"] as Array).append(eid)
+	Vassals.sync_court(state)
 	Diplomacy.remember(state, imperator(state), eid, "amph_submitted")
 	state.add_chronicle("%s ploie le genou devant l'Impérateur (%s)." % [_name(state, eid), _name(state, imperator(state))], Espionage.public_to(state, _audience(state)))
 
@@ -386,6 +387,7 @@ static func rise(state: GameState, eid: int) -> void:
 	var imp := imperator(state)
 	var im: Dictionary = _a(state)["imp"]
 	(im["sub"] as Array).erase(eid)
+	Vassals.sync_court(state)
 	if not (im["reb"] as Array).has(eid):
 		(im["reb"] as Array).append(eid)
 	Amphictyony._remove_member(state, eid, int(pdata()["rebel_ban"]))

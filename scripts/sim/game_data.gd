@@ -302,6 +302,11 @@ static func amphictyony() -> Dictionary:
 	return _load("amphictyony")
 
 
+## Fin des guerres à conditions et sujets (voir Vassals).
+static func vassals() -> Dictionary:
+	return _load("vassals")
+
+
 ## Espionnage (data/espionage.json) : cellules, réseaux, paliers, sondes.
 static func espionage() -> Dictionary:
 	return _load("espionage")

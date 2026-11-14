@@ -395,6 +395,13 @@ static func amph_act(player: int, act: String, x := -1, y := -1, s := "") -> Dic
 	return {"type": "amph_act", "player": player, "act": act, "x": x, "y": y, "s": s}
 
 
+## Sujets et paix à conditions (voir Vassals.check_act) : "terms" (x = vaincu, terms = conditions),
+## "surrender" / "protect" (x = vainqueur / protecteur), "freedom", "set_terms" (x = sujet, terms =
+## clauses ou s = préréglage), "release", "integrate", "support" (x = sujet), "fealty" (x = rival, -1 retire).
+static func vas_act(player: int, act: String, x := -1, s := "", terms := {}) -> Dictionary:
+	return {"type": "vas_act", "player": player, "act": act, "x": x, "s": s, "terms": terms}
+
+
 ## Soutien officiel à un courant pour la prochaine élection (Politics ; -1 retire le soutien).
 ## En théocratie et en horde, c'est le courant nommé.
 static func politics_support(player: int, current: int) -> Dictionary:
@@ -624,6 +631,9 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Amphictyony.check_vote(state, int(cmd["player"]), int(cmd.get("v", 9)))
 		"amph_buy":
 			return Amphictyony.check_buy(state, int(cmd["player"]))
+		"vas_act":
+			var vt: Variant = cmd.get("terms", {})
+			return Vassals.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")), vt if vt is Dictionary else {})
 		"amph_act":
 			return AmphInst.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), int(cmd.get("y", -1)), String(cmd.get("s", "")))
 		"politics_support":
@@ -842,6 +852,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var pid := int(cmd["planet"])
 			var kind := String(cmd["kind"])
 			Economy.pay(e, Economy.claim_cost_for(state, e.id, pid, kind))
+			Vassals.on_found(state, e.id, Economy.claim_cost_for(state, e.id, pid, kind))
 			var p := state.galaxy.get_planet(pid)
 			if Economy.needs_ship(state, e.id, pid):
 				# Le vaisseau colon se démonte : ses modules deviennent les premiers bâtiments.
@@ -959,6 +970,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Amphictyony.vote(state, int(cmd["player"]), int(cmd["v"]))
 		"amph_buy":
 			Amphictyony.buy(state, int(cmd["player"]))
+		"vas_act":
+			Vassals.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")), cmd.get("terms", {}))
 		"amph_act":
 			AmphInst.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), int(cmd.get("y", -1)), String(cmd.get("s", "")))
 		"politics_support":

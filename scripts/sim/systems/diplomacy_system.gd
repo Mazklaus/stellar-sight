@@ -58,6 +58,7 @@ static func _monthly(state: GameState) -> void:
 				Diplomacy.share_maps(state, a, b)
 	Diplomacy.prune_memories(state)
 	Espionage.monthly(state)
+	Vassals.monthly(state)
 	Reputation.monthly(state)
 	Echoes.monthly(state)
 	for e in state.empires:

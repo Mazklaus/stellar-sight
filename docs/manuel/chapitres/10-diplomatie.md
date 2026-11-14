@@ -127,6 +127,60 @@ Le banquet des lignées coûte 20 influence et 3 cristaux. L'héritier qui vous 
 Une alliance entraîne ses membres dans les guerres l'un de l'autre. Avant de signer, regardez les cordes rouges qui partent de votre futur allié sur l'anneau : elles deviennent les vôtres.
 :::
 
+### Fin des guerres et sujets
+
+Avec l'option **Vassaux** (active par défaut), une guerre ne finit plus seulement par la paix blanche.
+
+**La paix à conditions.** Après 60 jours de guerre, le camp qui mène propose ses conditions depuis l'écran Diplomatie, en cochant ce qu'il exige. Chaque condition a un **prix en points de score de guerre** ; une IA vaincue accepte si le prix ne dépasse pas votre score, un joueur répond lui-même.
+
+| Condition | Prix | Effet |
+| --- | --- | --- |
+| Céder un système | 15 + 3 par population | Le système passe au vainqueur (trois au plus, jamais la capitale) |
+| Tribut | 30 | 20 % du revenu net en matériaux et en énergie pendant cinq ans |
+| Réparations | 20 | 25 % des réserves de matériaux, d'énergie et d'influence, tout de suite |
+| Rompre ses alliances | 15 | Le vaincu quitte ses alliances |
+| Libérer ses sujets | 15 par sujet | Ses sujets redeviennent libres |
+| Devenir sujet | 40 + 10 par système | Le vaincu devient votre sujet, au préréglage choisi |
+
+**La reddition.** Un empire qui a 100 points de score contre lui, ou qui a perdu sa capitale, peut **se rendre** : il devient le **vassal** de son vainqueur, la guerre cesse et son empire survit. Une IA à bout (deux systèmes ou moins) le fait plutôt que de disparaître. On ne se rend pas à l'Essaim : il ne signe rien.
+
+**La protection.** Un empire faible (moins de 40 % de la puissance de l'autre) peut **demander sa protection** : il devient son **protégé**.
+
+::: capture docs/apercu-vassaux.png|Paix à conditions : chaque case a son prix, le total se compare au score
+:::
+
+**Le lien de sujet.** Il n'y a qu'un lien, réglé par **clauses** ; trois préréglages en donnent des versions toutes faites, et le suzerain peut tout ajuster.
+
+| Clause | Options |
+| --- | --- |
+| Diplomatie | **Aucune** (aucun traité, aucune guerre), **Vote lié** (traités, mais guerre seulement aux ennemis du suzerain), **Libre** |
+| Guerres suivies | **Aucune**, **Défense** (quand on attaque le suzerain), **Toutes** (même celles qu'il déclare) |
+| Expansion | **Interdite**, **Dîme** (la moitié du coût en influence de chaque fondation part au suzerain), **Libre** |
+| Intégration | **Permise** (après dix ans), **Interdite** |
+| Tribut | 0, 10, 20 ou 30 % du revenu net, pour chaque famille : matériaux, énergie, influence, Savoir |
+
+| Préréglage | Clauses |
+| --- | --- |
+| Vassal | Vote lié, toutes les guerres, dîme, 10 % des matériaux et de l'énergie |
+| Tributaire | Libre de sa diplomatie et de ses guerres, mais 20 % des matériaux et de l'énergie |
+| Protectorat | Vote lié, défense, dîme, intégration permise ; +50 % de Savoir tant qu'il connaît moins de technologies que son protecteur ; pas d'accord de recherche ; 1 influence par mois au protecteur |
+
+Le suzerain défend toujours son sujet. Ni l'un ni l'autre ne peut déclarer la guerre à l'autre. Quand le suzerain signe la paix, ses sujets la signent aussi. Un sujet avance vers la conquête et la domination avec son suzerain, mais ne les gagne pas pour lui-même.
+
+**La loyauté.** Chaque sujet a une loyauté de -100 à +100. Chaque clause la touche deux fois : tout de suite, puis chaque mois (l'infobulle du menu le dit : « Toutes (-10, -0,5/mois) »). S'y ajoutent l'habitude du lien (+1 par mois), l'opinion du sujet, un credo commun, la puissance du suzerain (un suzerain fort rassure, un plus faible que son sujet inquiète), le **patronage divisé** (-0,5 par mois pour chaque autre sujet, jusqu'à -1,5) et un suzerain qui perd une guerre. Un sujet **déloyal** (sous zéro) ne suit plus que les guerres défensives.
+
+**Renégocier.** **Assouplir** est gratuit et possible à tout moment. **Durcir** n'est possible qu'un an après le lien puis tous les cinq ans, coûte 30 influence plus 3 par point de loyauté perdu, et un sujet sous -20 refuse de discuter.
+
+**Intégrer.** Après dix ans, un sujet loyal dont les clauses le permettent peut être **intégré** : un an à 5 influence par mois, puis ses colonies et ses flottes deviennent les vôtres et son empire disparaît. Un joueur intégré a perdu.
+
+**L'indépendance.** Le suzerain peut **libérer** son sujet : dix ans de trêve suivent, et beaucoup de gratitude. Le sujet peut **exiger son indépendance** : le suzerain cède, ou c'est la guerre de libération. Un tiers peut **soutenir l'indépendance** d'un sujet (20 influence) : sa puissance compte dans le rapport de forces, et il entre en guerre aux côtés du sujet si le suzerain refuse. Le suzerain le saura.
+
+**L'allégeance secrète.** Un sujet peut jurer en secret fidélité à un rival de son suzerain. Si ce rival entre en guerre contre le suzerain, le sujet rompt son lien et passe dans son camp.
+
+::: conseil
+Un vaincu à 100 points de score contre lui n'a plus rien à perdre en se rendant. Si vous menez, proposez vos conditions avant : un vassal vivant vous rapporte un tribut, un empire mort ne vous rapporte que ses ruines.
+:::
+
 ### L'Amphictyonie
 
 Avec l'option **Amphictyonie** (active par défaut), la galaxie finit par se donner une assemblée : la **Grande Amphictyonie Galactique**, que tout le monde appelle l'Amphictyonie, et dont les membres sont les **amphictyons**. Elle ne s'ouvre pas au premier jour. Quand un empire a rencontré au moins **70 %** des autres, et pas avant l'an 8, son acte de fondation circule : il faut **trois signatures**, données dans les deux ans. Les signataires y siègent d'office. Une ruche sans diplomatie ne siège jamais, mais les résolutions et la charte la concernent quand même.
@@ -210,6 +264,8 @@ Les réseaux d'espions ont aussi leurs coups d'assemblée (chapitre 9) : **achet
 
 - **se soumettre** : il paie un tribut de 3 influence par mois, et entre en guerre aux côtés de la Cour quand on l'attaque ;
 - **se soulever** : il quitte l'Amphictyonie (retour interdit pendant dix ans) et entre en guerre contre l'Impérateur et ses vassaux.
+
+Un soumis devient un **sujet** de l'Impérateur, au préréglage verrouillé **Cour impériale** (voir plus haut, « Fin des guerres et sujets ») : clauses imposées et non négociables (vote lié, défense, expansion libre, pas d'intégration), tribut fixé par l'Amphictyonie. On n'en sort pas en exigeant l'indépendance : on se soulève.
 
 Qui ne répond pas s'est soumis. L'**autorité** de l'Impérateur part de 60 sur 100 : chaque mois, +1 par vassal (+3 au plus) et -3 par rebelle encore en guerre contre lui ; +10 pour chaque rebelle abattu. Sous 50, les réseaux d'espions peuvent **saper l'autorité** (-15) ou **allumer la rébellion** d'un vassal. À zéro, la Cour s'effondre : plus d'Impérateur, plus d'Arbitre. Contre un Impérateur, plus de motion de défiance : il faut prendre les armes.
 

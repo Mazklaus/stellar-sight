@@ -304,6 +304,7 @@ static func production_pct(state: GameState, empire_id: int, resource: String) -
 	var bonus := Research.production_bonus(state, empire_id, resource)
 	if resource == "knowledge":
 		bonus += FactionTraits.peace_knowledge_pct(state, empire_id)
+		bonus += Vassals.knowledge_pct(state, empire_id)
 	# Stabilité d'empire : de -15 % à +15 % de Savoir et d'influence.
 	if resource == "knowledge" or resource == "influence":
 		bonus += Stability.empire_pct(state, empire_id)
@@ -423,6 +424,9 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 		return "un repaire pirate tient ce système : détruisez d'abord sa garde"
 	if Pirates.is_port(state, p.system_id):
 		return "un port franc n'appartient à personne, et tient à le rester"
+	var vf := Vassals.check_found(state, empire_id)
+	if vf != "":
+		return vf
 	var watch := Guardians.colony_block(state, p.system_id, empire_id)
 	if watch != "":
 		return watch

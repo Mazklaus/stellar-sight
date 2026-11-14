@@ -61,6 +61,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiStability.think(ctx)
 	AiPolitics.think(ctx)
 	AiAmphictyony.think(ctx)
+	AiVassals.think(ctx)
 	AiPeoples.think(ctx)
 	AiPirates.think(ctx)
 	AiTrade.think(ctx)

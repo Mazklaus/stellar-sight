@@ -183,6 +183,8 @@ var _faiths_select: OptionButton
 ## L'Amphictyonie (assemblée galactique) : "active" (défaut) ou "aucune".
 var amphictyony := "active"
 var _amph_select: OptionButton
+var vassals := "actifs"
+var _vassals_select: OptionButton
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
 const PRESETS_PATH := "user://new_game_presets.json"
@@ -1529,6 +1531,13 @@ func set_faiths(id: String) -> void:
 	_refresh_preset()
 
 
+func set_vassals(id: String) -> void:
+	vassals = id if id == "actifs" or id == "aucuns" else "actifs"
+	if _vassals_select:
+		_vassals_select.select(0 if vassals == "actifs" else 1)
+	_refresh_preset()
+
+
 func set_amphictyony(id: String) -> void:
 	amphictyony = id if id == "active" or id == "aucune" else "active"
 	if _amph_select:
@@ -1546,7 +1555,7 @@ func set_migrations(id: String) -> void:
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
 	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
-		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony}
+		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals}
 
 
 func set_spectator(on: bool) -> void:
@@ -1900,10 +1909,18 @@ func _build_new_page(root: Control) -> void:
 	_amph_select.tooltip_text = "Amphictyonie : une assemblée galactique naît quand un empire a rencontré 70 % des autres (pas avant l'an 8) et que trois empires signent son acte. Ses membres pèsent selon leur population heureuse, leur économie, leur savoir et leur flotte, votent des résolutions qui tordent les règles du commerce, du savoir, de la guerre, de la foi, des peuples, des ombres et des périls, et une loi commune, le Nomos, dont la première ligne interdit les atrocités.\nAucune : pas d'assemblée."
 	_amph_select.item_selected.connect(func(i: int) -> void: set_amphictyony("active" if i == 0 else "aucune"))
 	_labeled_row(game, "Amphictyonie", _amph_select)
+	_vassals_select = OptionButton.new()
+	_vassals_select.clip_text = true
+	_vassals_select.add_item("Actifs")
+	_vassals_select.add_item("Aucuns")
+	_vassals_select.tooltip_text = "Vassaux : une guerre peut finir par une paix à conditions, payée en score de guerre (systèmes cédés, tribut, réparations, vassalité) ; un vaincu à bout peut se rendre et devenir vassal plutôt que de disparaître ; un faible peut demander protection. Un sujet est lié par des clauses (diplomatie, guerres suivies, expansion, intégration, tribut) et a une loyauté ; il peut exiger son indépendance.\nAucuns : les guerres ne finissent que par la paix blanche (la Cour impériale de l'Amphictyonie reste)."
+	_vassals_select.item_selected.connect(func(i: int) -> void: set_vassals("actifs" if i == 0 else "aucuns"))
+	_labeled_row(game, "Vassaux", _vassals_select)
 	set_peoples(peoples)
 	set_migrations(migrations)
 	set_faiths(faiths)
 	set_amphictyony(amphictyony)
+	set_vassals(vassals)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2643,7 +2660,7 @@ func settings() -> Dictionary:
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
-		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony,
+		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2661,7 +2678,7 @@ func default_settings() -> Dictionary:
 		"victories": {"conquete": true, "domination": true, "allies": true, "spirituelle": false, "diplomatique": true}, "ai_scaling": false,
 		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "plagues": true, "events": Events.default_frequency(), "curios": Curios.default_density(),
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
-		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives", "amphictyony": "active"}
+		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives", "amphictyony": "active", "vassals": "actifs"}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -2735,6 +2752,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_migrations(String(d.get("migrations", base["migrations"])))
 	set_faiths(String(d.get("faiths", base["faiths"])))
 	set_amphictyony(String(d.get("amphictyony", base["amphictyony"])))
+	set_vassals(String(d.get("vassals", base["vassals"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

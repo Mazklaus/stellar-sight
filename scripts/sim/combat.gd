@@ -578,6 +578,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 	FaithNatures.on_capture(state, system_id, old, new_owner, added)
 	if lost_capital:
 		Relics.on_capital_lost(state, old, new_owner, added)
+		Vassals.on_capital_lost(state, old, new_owner)
 		AmphInst.on_capital(state, new_owner, old)
 		eo.capital_planet = _new_capital(state, old)
 		if eo.capital_planet >= 0:

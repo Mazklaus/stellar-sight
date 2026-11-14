@@ -62,6 +62,8 @@ static func offer_desc(state: GameState, a: int, b: int, treaty: String) -> Stri
 static func proposal_label(p: Dictionary) -> String:
 	if String(p["treaty"]) == TRADE and p.has("tier"):
 		return Trade.tier_label(int(p["tier"]))
+	if Vassals.is_kind(String(p["treaty"])):
+		return Vassals.kind_label(p)
 	return treaty_label(String(p["treaty"]))
 
 
@@ -472,6 +474,9 @@ static func check_terms(state: GameState, a: int, b: int, treaty: String) -> Str
 		return "traité inconnu : %s" % treaty
 	if no_treaties(state, a) or no_treaties(state, b):
 		return "l'Essaim ne signe rien : il digère"
+	var vw := Vassals.check_treaty(state, a, b, treaty)
+	if vw != "":
+		return vw
 	var at_war := Combat.at_war(state, a, b)
 	match treaty:
 		PEACE:
@@ -564,6 +569,8 @@ static func check_answer(state: GameState, player: int, proposal_id: int, accept
 	if accept:
 		if String(p["treaty"]) == CONTRACT:
 			return check_contract(state, int(p["merc"]), int(p["client"]), int(p["target"]))
+		if Vassals.is_kind(String(p["treaty"])):
+			return Vassals.check_accept(state, p)
 		return check_terms(state, player, int(p["from"]), String(p["treaty"]))
 	return ""
 
@@ -573,6 +580,9 @@ static func answer(state: GameState, proposal_id: int, accept: bool) -> void:
 	state.proposals.erase(p)
 	var from := int(p["from"])
 	var to := int(p["to"])
+	if Vassals.is_kind(String(p["treaty"])):
+		Vassals.answer(state, p, accept)
+		return
 	if accept and String(p["treaty"]) == CONTRACT:
 		sign_contract(state, int(p["merc"]), int(p["client"]), int(p["target"]))
 	elif accept:
@@ -605,6 +615,7 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 			remember(state, a, b, "peace_signed")
 			remember(state, b, a, "peace_signed")
 			Heroes.release_between(state, a, b)
+			Vassals.on_peace(state, a, b)
 			if was_war:
 				state.add_chronicle("Paix entre %s et %s. On signe en bas, on enterre les morts, et l'on jure que c'était la dernière fois." % [
 						ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
@@ -771,7 +782,7 @@ static func check_war(state: GameState, a: int, b: int) -> String:
 		return "même équipe : vous êtes alliés toute la partie"
 	if allied(state, a, b):
 		return "quittez d'abord l'alliance"
-	return ""
+	return Vassals.check_war(state, a, b)
 
 
 ## Conséquences d'une déclaration de guerre (appelé par Combat.start_war, après l'avoir enregistrée) :
@@ -787,6 +798,7 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 	r["trust"] = 0
 	r["score"] = [0, 0]
 	_drop_all_proposals(state, a, b)
+	Vassals.on_war_declared(state, a, b, joined or by_nature)
 	if by_nature:
 		return
 	remember(state, b, a, "declared_war")

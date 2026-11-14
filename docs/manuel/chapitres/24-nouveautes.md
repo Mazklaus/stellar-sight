@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: C
 etiquette: Annexe
 ---
+### Édition 1.17
+
+- **Fin des guerres à conditions et sujets**, nouvelle option de partie **Vassaux**, active par défaut (chapitre 8) : paix à conditions payées en score de guerre (systèmes, tribut, réparations, alliances, sujets, vassalité) ; **reddition** au lieu de la mort ; demande de **protection**.
+- Un **lien de sujet** unique réglé par clauses (diplomatie, guerres suivies, expansion, intégration, tribut) ; préréglages Vassal, Tributaire et Protectorat ; **loyauté** et ses causes, patronage divisé, **allégeance secrète** ; intégration après dix ans ; libération, indépendance exigée, soutiens. La **Cour impériale** de l'Amphictyonie devient un préréglage verrouillé.
+
 ### Édition 1.16
 
 - **Amphictyonie, lot 3** (chapitre 8) : les **pleins pouvoirs** (mandat à vie de l'Arbitre, puis l'**Impérateur**, ses vassaux, ses rebelles et son autorité) ; l'élection du **Chancelier des étoiles** et la **Dernière Guerre** ; l'assemblée et la vie intérieure (courants poussés, résolutions qui heurtent les lois, loi **Souveraineté**) ; zèle de la foi galactique, guerres saintes et **Conclave** ; huit **talents d'assemblée**, un par peuple.

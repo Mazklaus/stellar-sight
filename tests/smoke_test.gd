@@ -58,6 +58,7 @@ func _initialize() -> void:
 	preload("res://tests/amphictyony_tests.gd").new().run(_check)
 	preload("res://tests/amph_inst_tests.gd").new().run(_check)
 	preload("res://tests/amph_power_tests.gd").new().run(_check)
+	preload("res://tests/vassal_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -212,6 +213,7 @@ func _test_main_scene() -> void:
 	await _test_senate_ui(main)
 	await _test_faith_ui(main)
 	await _test_event_ui(main)
+	await _test_vassal_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_press(KEY_SPACE)
@@ -1413,6 +1415,61 @@ func _test_replay_ui(main: Node) -> void:
 	hud.battle_report.show_report(sim.state, 0, old)
 	_check(not hud.battle_report._replay_btn.visible, "replay : pas de bouton pour un rapport sans journal")
 	hud.battle_report.hide_report()
+
+
+## Écran Diplomatie, sujets : conditions de paix en guerre, panneau d'un sujet (clauses, libération).
+func _test_vassal_ui(main: Node) -> void:
+	var screens: EmpireScreens = main._empire_screens
+	var st: GameState = main.simulation.state
+	var me: int = main.view_empire
+	st.vassals_on = true
+	var others: Array[int] = []
+	for e in st.empires:
+		if e.id != me and not e.is_npc() and not e.eliminated and not Diplomacy.no_treaties(st, e.id) and not Vassals.is_subject(st, e.id):
+			others.append(e.id)
+	if others.size() < 2:
+		return
+	var foe := others[0]
+	var sub := others[1]
+	for o in [foe, sub]:
+		for pair in [[me, o], [o, me]]:
+			if not st.get_empire(pair[0]).contacts.has(pair[1]):
+				st.get_empire(pair[0]).contacts.append(pair[1])
+				st.get_empire(pair[0]).contacts.sort()
+	if not Combat.at_war(st, me, foe):
+		Diplomacy._rel_w(st, me, foe)["truce"] = 0
+		Diplomacy._rel_w(st, me, foe)["pact"] = Diplomacy.COLD
+		Combat.start_war(st, me, foe)
+	Diplomacy._rel_w(st, me, foe)["since"] = st.tick - 200
+	Diplomacy.add_war_score(st, me, foe, 500)
+	screens.diplo_selected = foe
+	screens.show_screen("diplomacy")
+	await process_frame
+	_check(screens.vassal_buttons.has("terms") and screens.vassal_buttons.has("surrender"), "Diplomatie en guerre : conditions de paix et reddition")
+	var cb: CheckBox = screens.vassal_buttons.get("term_trib")
+	if cb:
+		cb.button_pressed = true
+		var send: Button = screens.vassal_buttons["terms"]
+		_check(not send.disabled, "conditions : le tribut coché se propose")
+		send.pressed.emit()
+		main.simulation.flush_commands()
+		await process_frame
+		_check(not Combat.at_war(st, me, foe), "conditions : l'IA vaincue accepte un prix sous le score")
+	if Combat.at_war(st, me, sub):
+		Diplomacy.sign_treaty(st, me, sub, Diplomacy.PEACE)
+	Vassals.bind(st, me, sub, "vassal", Vassals.preset_clauses("vassal"), 300)
+	screens.diplo_selected = sub
+	screens.show_screen("diplomacy")
+	await process_frame
+	_check(screens.vassal_buttons.has("set_terms") and screens.vassal_buttons.has("clause_dip") and screens.vassal_buttons.has("release"), "panneau du sujet : clauses, application, libération")
+	var rel: Button = screens.vassal_buttons.get("release")
+	if rel and not rel.disabled:
+		rel.pressed.emit()
+		main.simulation.flush_commands()
+		await process_frame
+		_check(not Vassals.is_subject(st, sub), "panneau du sujet : LIBÉRER rend sa liberté")
+	_press(KEY_F4)
+	await process_frame
 
 
 ## Écran Renseignement (F8) : une ligne par empire rencontré, cellules affectées par les boutons.

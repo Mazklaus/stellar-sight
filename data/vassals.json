@@ -1,0 +1,123 @@
+{
+	"_doc": "Fédérations et vassaux, lot 1 (étude du 2026-11-14, propositions 1 à 9) : fin des guerres à conditions payées en score de guerre, reddition, et un lien de sujet unique réglé par clauses (préréglages Vassal, Tributaire, Protectorat ; la Cour impériale de l'Amphictyonie est un préréglage verrouillé). Loyauté en dixièmes de point (-1000 à 1000, affichée de -100 à +100). Catalogues ouverts : clauses, options et préréglages se lisent ici.",
+	"_sources": [
+		"Stellaris, sujets et loyauté (wiki stellaris.fandom.com « Subject », journal de développement n° 247) : préréglages puis clauses, effet immédiat et mensuel de chaque clause sur la loyauté, patronage divisé, allégeance secrète, intégration après 10 ans, soutien à l'indépendance.",
+		"Humankind (wiki « Vassal ») : la vassalité naît d'une reddition, le vassal paie tribut, peut exiger sa liberté, un refus déclenche la guerre.",
+		"Civilization VI (wiki « Suzerain ») : le protecteur entre en guerre contre qui attaque son protégé."
+	],
+	"default_mode": "aucuns",
+	"modes": ["actifs", "aucuns"],
+	"terms": {
+		"min_war_days": 60,
+		"cooldown_days": 60,
+		"cede_base": 15,
+		"cede_per_pop": 3,
+		"cede_max": 3,
+		"tribute_price": 30,
+		"tribute_days": 1800,
+		"tribute_pct": 20,
+		"repar_price": 20,
+		"repar_pct": 25,
+		"break_price": 15,
+		"vassal_base": 40,
+		"vassal_per_system": 10
+	},
+	"surrender": {
+		"score": 100,
+		"capital": true,
+		"loyalty": 150
+	},
+	"protect": {
+		"power_pct": 40,
+		"loyalty": 400,
+		"cooldown_days": 360
+	},
+	"loyalty": {
+		"start_terms": 300,
+		"start_surrender": 0,
+		"start_court": 200,
+		"min": -1000,
+		"max": 1000,
+		"opinion_div": 20,
+		"same_credo": 5,
+		"power_strong": 5,
+		"power_weak": -10,
+		"patronage": -5,
+		"habit": 10,
+		"protectorate": 5,
+		"at_war_lost": -10,
+		"disloyal_below": 0
+	},
+	"renegotiate": {
+		"first_days": 360,
+		"every_days": 1800,
+		"base_cost": 30,
+		"cost_per_point": 3,
+		"refuse_below": -200
+	},
+	"integration": {
+		"after_days": 3600,
+		"months": 12,
+		"cost": {"influence": 5},
+		"min_loyalty": 0
+	},
+	"release": {
+		"truce_days": 3600
+	},
+	"independence": {
+		"support_cost": {"influence": 20}
+	},
+	"protectorate": {
+		"knowledge_pct": 50,
+		"lord_income": {"influence": 1}
+	},
+	"dime_pct": 50,
+	"tribute_families": ["materials", "energy", "influence", "knowledge"],
+	"tribute_steps": [0, 10, 20, 30],
+	"tribute_step_now": -30,
+	"tribute_step_m10": -3,
+	"clauses": [
+		{"id": "dip", "label": "Diplomatie", "opts": [
+			{"id": "aucune", "label": "Aucune", "now": -150, "m10": -10, "text": "Le sujet ne signe aucun traité et ne déclare aucune guerre."},
+			{"id": "liee", "label": "Vote lié", "now": -50, "m10": 0, "text": "Le sujet signe ses traités, mais ne déclare la guerre qu'aux ennemis de son suzerain (et votera comme lui à l'Amphictyonie)."},
+			{"id": "libre", "label": "Libre", "now": 50, "m10": 5, "text": "Le sujet mène sa diplomatie comme il l'entend."}
+		]},
+		{"id": "war", "label": "Guerres suivies", "opts": [
+			{"id": "aucune", "label": "Aucune", "now": 50, "m10": 5, "text": "Le sujet n'entre dans aucune guerre de son suzerain."},
+			{"id": "def", "label": "Défense", "now": 0, "m10": 0, "text": "Le sujet entre en guerre quand on attaque son suzerain."},
+			{"id": "toutes", "label": "Toutes", "now": -100, "m10": -5, "text": "Le sujet suit toutes les guerres de son suzerain, même celles qu'il déclare (un sujet déloyal ne suit plus que les guerres défensives)."}
+		]},
+		{"id": "exp", "label": "Expansion", "opts": [
+			{"id": "interdite", "label": "Interdite", "now": -150, "m10": -10, "text": "Le sujet ne fonde plus ni colonie ni avant-poste."},
+			{"id": "dime", "label": "Dîme", "now": -50, "m10": 0, "text": "Le sujet verse à son suzerain la moitié du coût en influence de chaque fondation, en plus."},
+			{"id": "libre", "label": "Libre", "now": 50, "m10": 5, "text": "Le sujet s'étend librement."}
+		]},
+		{"id": "integ", "label": "Intégration", "opts": [
+			{"id": "permise", "label": "Permise", "now": -100, "m10": -5, "text": "Après dix ans de lien, un sujet loyal peut être intégré à l'empire du suzerain."},
+			{"id": "interdite", "label": "Interdite", "now": 50, "m10": 5, "text": "Le sujet ne sera jamais absorbé."}
+		]}
+	],
+	"presets": [
+		{"id": "vassal", "label": "Vassal", "text": "Le lien classique : vote lié, toutes les guerres, 10 % des matériaux et de l'énergie, dîme sur l'expansion.",
+			"cl": {"dip": "liee", "war": "toutes", "exp": "dime", "integ": "interdite", "trib": {"materials": 10, "energy": 10}}},
+		{"id": "tributaire", "label": "Tributaire", "text": "Libre de sa diplomatie et de ses guerres, il paie pour qu'on le laisse tranquille : 20 % des matériaux et de l'énergie.",
+			"cl": {"dip": "libre", "war": "aucune", "exp": "libre", "integ": "interdite", "trib": {"materials": 20, "energy": 20}}},
+		{"id": "protectorat", "label": "Protectorat", "text": "Un protégé bien plus faible : il rattrape son retard (+50 % de Savoir tant qu'il connaît moins de technologies que son protecteur), ne signe pas d'accord de recherche, et verse 1 influence par mois.",
+			"protect": true, "cl": {"dip": "liee", "war": "def", "exp": "dime", "integ": "permise", "trib": {}}},
+		{"id": "cour", "label": "Cour impériale", "text": "Soumis à l'Impérateur de l'Amphictyonie : clauses imposées, non négociables ; le tribut de la Cour est fixé par l'Amphictyonie.",
+			"locked": true, "cl": {"dip": "liee", "war": "def", "exp": "libre", "integ": "interdite", "trib": {}}}
+	],
+	"ai": {
+		"terms_min_score": 40,
+		"terms_min_days": 120,
+		"surrender_systems": 2,
+		"protect_opinion": 20,
+		"protect_lose_score": -60,
+		"loosen_below": -200,
+		"freedom_below": -300,
+		"freedom_power_pct": 60,
+		"fealty_opinion": 10,
+		"support_opinion": -30,
+		"integrate_loyalty": [9999, 0, 200]
+	}
+}
