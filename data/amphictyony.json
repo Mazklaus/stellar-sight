@@ -1,5 +1,5 @@
 {
-	"_doc": "La Grande Amphictyonie Galactique, dite l'Amphictyonie (étude « Conseil galactique », 2026-11-14, propositions validées). Lot 1 : fondation, adhésion, voix, séances, propositions, voix achetées, résolutions en familles de deux voies (catalogue ouvert), Nomos (loi galactique), hors-la-loi, charte des atrocités, sanctions, bannissement, marché commun réservé aux membres. Lot 2 : troisième niveau de chaque voie, Haute Voûte (Haut Conseil), Arbitre des étoiles, faveurs, observateurs, sessions extraordinaires et coalitions, aide d'urgence, grands travaux, ambassadeurs, opérations d'espionnage. Les jours sont des jours de jeu, l'influence se paie comme ailleurs. Sources : Stellaris (communauté galactique), Civilization VI (Congrès mondial), Alpha Centauri (conseil planétaire, charte des atrocités), Master of Orion (conseil galactique).",
+	"_doc": "La Grande Amphictyonie Galactique, dite l'Amphictyonie (étude « Conseil galactique », 2026-11-14, propositions validées). Lot 1 : fondation, adhésion, voix, séances, propositions, voix achetées, résolutions en familles de deux voies (catalogue ouvert), Nomos (loi galactique), hors-la-loi, charte des atrocités, sanctions, bannissement, marché commun réservé aux membres. Lot 2 : troisième niveau de chaque voie, Haute Voûte (Haut Conseil), Arbitre des étoiles, faveurs, observateurs, sessions extraordinaires et coalitions, aide d'urgence, grands travaux, ambassadeurs, opérations d'espionnage. Les jours sont des jours de jeu, l'influence se paie comme ailleurs. Sources : Stellaris (communauté galactique), Civilization VI (Congrès mondial), Alpha Centauri (conseil planétaire, charte des atrocités), Master of Orion (conseil galactique). Lot 3 : pleins pouvoirs (Impérateur), victoire diplomatique (Chancelier des étoiles), ponts avec la politique et la religion, talents d'assemblée des peuples.",
 	"_sources": ["https://stellaris.fandom.com/wiki/Galactic_community", "https://civilization.fandom.com/wiki/World_Congress_(Civ6)", "https://civilization.fandom.com/wiki/Planetary_Council_(SMAC)", "Étude : https://claude.ai/artifact/WZ3cd5Pv8Y2S59xBfU1p4s"],
 	"name": "la Grande Amphictyonie Galactique",
 	"short": "l'Amphictyonie",
@@ -34,7 +34,7 @@
 			"_doc": "Faveurs : voter pour la proposition d'un autre membre qui passe, c'est une faveur qu'il vous doit ; secourir un membre aussi (une par tranche d'aide). En séance, appeler une faveur fait voter 10 % des voix du débiteur avec vous."},
 		"crisis": {"keep_days": 360, "convene_cost": {"influence": 50}, "vote_days": 60, "coalition_days": 1800, "fx": {"ship_days_pct": -20}, "win": {"influence": 60}, "fail": {"influence": 100}, "moisson_pct": 50,
 			"_doc": "Session extraordinaire : après une capitale prise, une atrocité, une guerre sainte ou la Moisson de l'Essaim à mi-course, un membre (ou la victime, même simple observatrice) la convoque. Vote de 60 jours ; si elle passe, ceux qui ont voté pour et la victime forment une coalition contre le fautif : droit de guerre sans parjure, chantiers 20 % plus rapides, 5 ans pour atteindre le but. Réussite : 60 influence chacun ; échec : 100 influence au fautif.",
-			"labels": {"capital": "%s a pris la capitale de %s", "atrocity": "%s a commis une atrocité", "holy_war": "%s a lancé une guerre sainte contre %s", "moisson": "la Moisson de %s a passé la moitié de son cours"},
+			"labels": {"capital": "%s a pris la capitale de %s", "atrocity": "%s a commis une atrocité", "holy_war": "%s a lancé une guerre sainte contre %s", "moisson": "la Moisson de %s avance (%s)", "anathema": "%s a été frappé d'anathème par %s"},
 			"goals": {"capital": "lui prendre sa capitale", "half": "lui arracher la moitié de ses systèmes"}},
 		"aid": {"below": 100, "need": 300, "days": 180, "step": 50, "cd": 1800, "res": ["energy", "materials"],
 			"_doc": "Aide d'urgence : un membre ou un observateur à court d'énergie ou de matériaux (moins de 100) lance un appel de 300 sur 6 mois ; chaque tranche de 50 donnée vaut une faveur et un bon souvenir."},
@@ -47,6 +47,53 @@
 		{"id": "phare", "label": "Phare des Chantiers", "res": "materials", "need": 1500, "fx": {"ship_days_pct": -10}, "text": "Des plans standard et des pièces communes : chantiers des membres plus rapides."},
 		{"id": "recensement", "label": "Grand Recensement", "res": "energy", "need": 1000, "fx": {"growth_pct": 5, "stability": 1}, "text": "Compter les peuples, c'est déjà les servir : croissance et stabilité chez les membres."},
 		{"id": "archives", "label": "Archives des Mondes", "res": "materials", "need": 1200, "fx": {"production_pct": {"knowledge": 5}}, "text": "Toutes les bibliothèques sous une même voûte : Savoir des membres en hausse."}
+	],
+	"power": {
+		"_doc": "Lot 3, pleins pouvoirs (proposition 21). Une résolution rend le mandat de l'Arbitre des étoiles illimité ; une seconde, que seul cet Arbitre peut déposer, lui donne les pleins pouvoirs : il devient l'Impérateur. Chaque autre membre a 90 jours pour se soumettre ou se soulever (sans réponse, il se soumet). Le soumis paie un tribut mensuel, et entre en guerre aux côtés de la Cour quand on l'attaque ; le rebelle quitte l'Amphictyonie (bannissement de 10 ans) et entre en guerre contre l'Impérateur. L'autorité part de 60 : +1 par mois et par soumis (3 au plus), -3 par mois et par rebelle encore debout, +10 par rebelle abattu, -15 par sabotage d'espions ; à 0, la Cour s'effondre (plus d'Impérateur ni d'Arbitre). Les espions ne peuvent la saper ou allumer une rébellion que sous 50.",
+		"lift_cost": 90, "full_cost": 150, "choice_days": 90, "auth0": 60, "auth_max": 100, "tribute": {"influence": 3},
+		"voix_pct": 50, "auth_sub": 1, "auth_sub_max": 3, "auth_reb": -3, "auth_kill": 10, "spy_below": 50, "rebel_ban": 3600
+	},
+	"chancellor": {
+		"_doc": "Lot 3, victoire diplomatique (proposition 22, à régler finement). À partir de l'an 30 et tous les 10 ans, si la victoire diplomatique est en jeu, l'Amphictyonie élit un Chancelier des étoiles entre les deux plus fortes voix (vote de 6 mois). Il faut au moins 67 % de TOUTES les voix de l'assemblée (les abstentions comptent contre), une assemblée d'au moins 4 membres qui réunit au moins 75 % des empires vivants. Le second peut refuser le verdict dans les 60 jours : c'est la Dernière Guerre, où ceux qui ont voté pour l'élu marchent contre lui ; la victoire tombe quand il perd sa capitale ou disparaît, en 10 ans au plus. Sinon, l'élu gagne (avec ses alliés).",
+		"from_day": 10800, "every": 3600, "vote_days": 180, "win_pct": 67, "cover_pct": 75, "min_members": 4, "refuse_days": 60, "war_days": 3600
+	},
+	"politics": {
+		"_doc": "Lot 3, politique (proposition 25). Siéger pousse la Concorde chaque mois (acte amph_member) ; une résolution adoptée pousse, chez ceux qui l'ont votée, le courant de sa voie (way_current, pour mille). Une résolution qui contredit une loi d'un membre (law_conflicts) coûte de la stabilité dans tout son empire tant que les deux tiennent, sauf s'il a invoqué sa souveraineté sur cette famille (loi Souveraineté : une fois par an, il échappe un an aux effets et aux interdits d'une famille ; les autres membres lui en veulent).",
+		"push": 30,
+		"way_current": {"commerce:a": "concorde", "commerce:b": "forge", "savoir:a": "academie", "savoir:b": "forge", "guerre:a": "concorde", "guerre:b": "glaive", "foi:a": "concorde", "foi:b": "autel",
+			"peuples:a": "concorde", "peuples:b": "glaive", "ombres:a": "concorde", "ombres:b": "glaive", "perils:a": "seve", "perils:b": "glaive"},
+		"law_conflicts": [
+			{"law": "hospitalite", "fam": "peuples", "way": "b"},
+			{"law": "preference_native", "fam": "peuples", "way": "a"},
+			{"law": "inquisition", "fam": "foi", "way": "a"},
+			{"law": "tolerance", "fam": "foi", "way": "b"},
+			{"law": "libre_echange", "fam": "commerce", "way": "b"},
+			{"law": "protectionnisme", "fam": "commerce", "way": "a"}
+		],
+		"conflict_stability": -4,
+		"sovereign": {"cd": 360, "days": 360}
+	},
+	"religion": {
+		"_doc": "Lot 3, religion (proposition 27). La foi galactique gagne 1 de zèle par mois. Une guerre sainte réunit d'elle-même une session extraordinaire si aucune ne siège. Les théocraties de même foi d'État forment un Conclave : voter pareil leur laisse un bon souvenir.",
+		"zeal_month": 1
+	},
+	"talents": [
+		{"id": "landsraad", "label": "Landsraad", "requires": {"gouvernement": ["feodalite"]}, "union_pct": 25,
+			"text": "Chaque lignée unie à la vôtre (union des lignées) qui vote comme vous ajoute 25 % de ses voix à votre camp."},
+		{"id": "anatheme", "label": "Anathème", "requires": {"credo": ["foi"]}, "foi_cost_pct": 50, "cd": 3600, "cost": {"influence": 25},
+			"text": "Les résolutions de la famille Foi vous coûtent moitié moins. Une fois par décennie, frapper d'anathème un empire d'une autre foi d'État : une session extraordinaire s'ouvre contre lui."},
+		{"id": "tribune", "label": "Tribune", "requires": {"gouvernement": ["republique"]}, "cost_pct": -25, "props": 2,
+			"text": "Vos propositions coûtent 25 % de moins, et vous pouvez en avoir deux en même temps. Les autres vous voient volontiers Arbitre."},
+		{"id": "hors_concert", "label": "Hors du concert", "requires": {"gouvernement": ["ruche"]}, "moisson": [25, 50, 75],
+			"text": "Les sanctions glissent sur la ruche. Mais sa Moisson inquiète : elle déclenche une crise à 25, 50 et 75 %."},
+		{"id": "consensus", "label": "Consensus calculé", "requires": {"gouvernement": ["conscience"]}, "days": 30,
+			"text": "Dans les 30 derniers jours d'un vote, vous voyez le vrai décompte, délégués achetés et faveurs compris."},
+		{"id": "plus_fort", "label": "Droit du plus fort", "requires": {"gouvernement": ["horde"]}, "fleet_x": 2, "cd": 3600, "cost": {"influence": 40}, "days": 360,
+			"text": "Votre flotte compte double dans vos voix. Une fois par décennie, un duel de champions contre l'auteur d'une résolution adoptée depuis moins d'un an, que vous aviez votée contre : si votre flotte pèse plus que la sienne, elle est abrogée."},
+		{"id": "lobby", "label": "Lobby", "requires": {"gouvernement": ["syndicat"]}, "energy_x": 4, "commission": 5,
+			"text": "Vous achetez les voix en énergie (4 énergie par influence), et touchez 5 énergie de commission sur chaque tranche achetée par un autre."},
+		{"id": "siege_voile", "label": "Siège voilé", "requires": {"archetype": ["energetique"]},
+			"text": "Votre siège reste voilé : votre nom n'apparaît pas sur vos propositions, et vos votes ne laissent aucun souvenir chez les autres."}
 	],
 	"breaches": {
 		"exterminate": "extermination d'une population (charte des atrocités)",

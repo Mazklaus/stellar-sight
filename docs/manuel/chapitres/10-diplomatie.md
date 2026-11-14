@@ -205,3 +205,42 @@ L'assemblée peut aussi voter un **grand chantier** (60 influence) ; les membres
 | Archives des Mondes | 1 200 matériaux | Savoir +5 % |
 
 Les réseaux d'espions ont aussi leurs coups d'assemblée (chapitre 9) : **acheter un délégué** (un quart des voix de la cible change de camp pour le vote en cours), **faire fuiter un dossier** (la proposition de la cible quitte la file) et **monter un scandale** (la cible perd ses bonus de voix et 10 % de voix pendant six ans).
+
+**Les pleins pouvoirs.** Une résolution (90 influence) peut rendre le mandat de l'Arbitre des étoiles **illimité**. Une fois l'Arbitre à vie, lui seul peut proposer qu'on lui donne les **pleins pouvoirs** (150 influence). Si l'assemblée y consent, il devient l'**Impérateur** (+50 % de voix), et chaque autre membre a **90 jours** pour choisir :
+
+- **se soumettre** : il paie un tribut de 3 influence par mois, et entre en guerre aux côtés de la Cour quand on l'attaque ;
+- **se soulever** : il quitte l'Amphictyonie (retour interdit pendant dix ans) et entre en guerre contre l'Impérateur et ses vassaux.
+
+Qui ne répond pas s'est soumis. L'**autorité** de l'Impérateur part de 60 sur 100 : chaque mois, +1 par vassal (+3 au plus) et -3 par rebelle encore en guerre contre lui ; +10 pour chaque rebelle abattu. Sous 50, les réseaux d'espions peuvent **saper l'autorité** (-15) ou **allumer la rébellion** d'un vassal. À zéro, la Cour s'effondre : plus d'Impérateur, plus d'Arbitre. Contre un Impérateur, plus de motion de défiance : il faut prendre les armes.
+
+::: marge
+Les juristes de l'Amphictyonie ont longtemps débattu du titre. « Empereur » faisait vulgaire, « Président » faisait faible. « Impérateur » a mis tout le monde d'accord : personne ne sait exactement ce que ça veut dire.
+:::
+
+**Le Chancelier des étoiles.** Si la victoire diplomatique est en jeu (chapitre 15), l'assemblée élit tous les dix ans, à partir de l'an 30, un **Chancelier des étoiles** entre ses deux plus fortes voix. Le vote dure six mois ; les deux candidats votent pour eux-mêmes, les autres choisissent ou s'abstiennent. L'élu doit réunir **67 % de toutes les voix**, et les abstentions comptent contre lui. L'assemblée doit aussi parler pour la galaxie : au moins quatre membres, et au moins 75 % des empires vivants. Sinon, pas d'élection cette décennie.
+
+Élu, le Chancelier attend 60 jours : le candidat battu peut **s'incliner**, et l'élu gagne la partie avec ses alliés, ou **refuser le verdict**. Alors commence la **Dernière Guerre** : l'élu et tous ceux qui ont voté pour lui déclarent la guerre au refusant. L'élu gagne quand celui-ci perd sa capitale ; si elle tient dix ans, le titre retourne aux archives.
+
+::: conseil
+Les 67 % sont durs à atteindre : il faut que presque toute l'assemblée vote pour vous, alors que votre rival vote pour lui-même. Les faveurs, les alliances et un rival plus faible que vous font la différence. Pour bloquer un favori, il suffit souvent de s'abstenir, ou de rester hors de l'assemblée pour qu'elle ne représente plus 75 % de la galaxie.
+:::
+
+**L'assemblée et la vie intérieure.** Avec la politique intérieure, siéger pousse chaque mois la **Concorde**. Une résolution adoptée pousse aussi, chez ceux qui l'ont votée, le courant de sa voie : Routes franches et Conventions de guerre la Concorde, Préférence impériale la Forge, Savoir sans frontières l'Académie, Foi galactique l'Autel, Défense mutuelle et Frontières closes le Glaive, Sanctuaires la Sève, et ainsi de suite. Une résolution peut heurter une loi de votre empire : Libre-échange contre Préférence impériale, Protectionnisme contre Routes franches, Hospitalité contre Frontières closes, Préférence native contre Droit d'asile, Inquisition contre Liberté de culte, Tolérance contre Foi galactique. Tant que les deux tiennent, tout l'empire perd 4 de stabilité. La loi **Souveraineté** (chapitre 12) permet, une fois par an, de se soustraire pour un an aux effets et aux interdits d'une famille de résolutions ; les autres membres vous en veulent (-10 d'opinion).
+
+Avec les religions, la foi galactique gagne **1 de zèle par mois** ; une **guerre sainte** réunit d'elle-même une session extraordinaire si aucune ne siège ; et deux théocraties de même foi d'État forment un **Conclave** : voter pareil leur laisse un bon souvenir (+6 d'opinion).
+
+**Les talents d'assemblée.** Chaque peuple a sa manière de siéger. Comme les talents diplomatiques, ils suivent les couches d'espèce : un peuple créé qui a la bonne couche en profite aussi.
+
+| Talent | Couche | Effet |
+| --- | --- | --- |
+| Landsraad | féodalité (Ossarane) | Chaque lignée unie à la vôtre qui vote comme vous ajoute 25 % de ses voix à votre camp |
+| Anathème | credo de foi (Chœur) | Résolutions Foi à moitié prix ; une fois par décennie, frapper d'anathème un empire d'une autre foi d'État (25 influence) : une session extraordinaire s'ouvre contre lui |
+| Tribune | république (Vael) | Propositions 25 % moins chères, deux à la fois ; on vous voit volontiers Arbitre |
+| Hors du concert | ruche (Kh'thari) | Les sanctions glissent sur la ruche ; mais sa Moisson déclenche une crise à 25, 50 et 75 % |
+| Consensus calculé | conscience (Teyl) | Dans les 30 derniers jours d'un vote, vous voyez le vrai décompte, délégués achetés et faveurs compris |
+| Droit du plus fort | horde (Ferrocornes) | Votre flotte compte double dans vos voix ; une fois par décennie, un duel de champions (40 influence) contre l'auteur d'une résolution adoptée depuis moins d'un an que vous aviez votée contre : si votre flotte pèse plus que la sienne, elle est abrogée |
+| Lobby | syndicat (Brisecomète) | Voix achetées en énergie (4 pour 1 influence) ; 5 énergie de commission sur chaque tranche achetée par un autre |
+| Siège voilé | archétype énergétique (Murmurants) | Votre nom n'apparaît pas sur vos propositions, et vos votes ne laissent aucun souvenir |
+
+::: capture docs/apercu-amphictyonie-lot3.png|Pouvoir et légitimité : la Cour impériale attend votre réponse, et l'élection du Chancelier des étoiles est ouverte
+:::

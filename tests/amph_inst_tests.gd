@@ -306,8 +306,7 @@ func _test_crisis() -> void:
 	var st2 := _founded()
 	var m2 := Amphictyony.members(st2)
 	AmphInst.on_holy_war(st2, m2[1], m2[0])
-	var t2 := int(AmphInst.open_trigs(st2)[0]["id"])
-	AmphInst.convene(st2, m2[0], t2)
+	_ok(AmphInst.special_on(st2), "Religion : une guerre sainte réunit d'elle-même une session extraordinaire")
 	for m in m2:
 		if m != m2[1]:
 			AmphInst.svote(st2, m, 1)
@@ -453,7 +452,7 @@ func _test_save() -> void:
 	Amphictyony.propose(st, ms[1], "step", "foi" if Amphictyony.family_available(st, "foi") else "savoir", 1, -1, "")
 	AmphInst.freeze(st, AmphInst.arbiter(st), int(Amphictyony.proposal_of(st, ms[1])["id"]))
 	var d: Dictionary = JSON.parse_string(JSON.stringify(st.to_snapshot()))
-	_ok(int(d["version"]) == 48, "Sauvegarde : version 48")
+	_ok(int(d["version"]) == 49, "Sauvegarde : version 49")
 	var back := GameState.from_dict(d)
 	_ok(AmphInst.councillors(back) == AmphInst.councillors(st) and AmphInst.arbiter(back) == AmphInst.arbiter(st), "Sauvegarde : Haute Voûte et Arbitre gardés")
 	_ok(AmphInst.work_total(back) == 100 and AmphInst.favors(back, ms[1], ms[0]) == AmphInst.favors(st, ms[1], ms[0]) and AmphInst.favors(st, ms[1], ms[0]) >= 3, "Sauvegarde : chantier et faveurs gardés")

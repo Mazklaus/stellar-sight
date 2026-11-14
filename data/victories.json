@@ -91,6 +91,16 @@
 			"chronicle": "La galaxie prie dans une seule langue : %s a gagné les âmes, et les cartes du ciel ne portent plus qu'un nom de dieu.",
 			"src": "Victoire religieuse, Civilization VI"
 		},
+		"diplomatique": {
+			"kind": "classic",
+			"label": "Diplomatique",
+			"option": true,
+			"amph": true,
+			"text": "Être élu Chancelier des étoiles par l'Amphictyonie (élection tous les 10 ans dès l'an 30) avec au moins %d %% de toutes les voix, dans une assemblée qui réunit au moins %d %% des empires ; et que le battu s'incline, ou perde la Dernière Guerre. Les alliés gagnent ensemble.",
+			"counter": "Rester hors de l'Amphictyonie pour lui retirer sa légitimité, voter contre, ou refuser le verdict et tenir sa capitale.",
+			"chronicle": "%s est proclamé Chancelier des étoiles : la galaxie a voté, et pour une fois elle s'en souviendra.",
+			"src": "Victoire diplomatique : Civilization V (Congrès mondial, élection du dirigeant mondial), Stellaris (Communauté galactique, Custodian et Empire galactique)"
+		},
 		"elu": {
 			"kind": "people",
 			"label": "L'Élu des routes",

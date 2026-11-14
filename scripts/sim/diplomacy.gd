@@ -792,6 +792,7 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 	remember(state, b, a, "declared_war")
 	var grief := Espionage.has_grief(state, a, b)
 	Amphictyony.on_war(state, a, b, broke, grief)
+	AmphPower.on_war_declared(state, a, b, joined)
 	if broke and not grief and Amphictyony.casus(state, a, b):
 		# Charte des atrocités ou défense mutuelle : l'Amphictyonie couvre la rupture.
 		state.add_chronicle("%s rompt son traité avec %s, au nom de %s. Personne n'ose parler de parjure." % [

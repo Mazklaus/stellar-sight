@@ -180,8 +180,11 @@ func _test_session() -> void:
 	var cmd := SimCommands.amph_propose(a, "step", "commerce", 1)
 	_ok(SimCommands.validate(st, cmd) == "", "Proposition : un membre propose Routes franches")
 	SimCommands.apply(st, cmd)
-	_ok(int(st.get_empire(a).resources["influence"]) == inf - int(Amphictyony.data()["cost_by_level"][0]), "Proposition : coûte de l'influence selon le niveau")
-	_ok(SimCommands.validate(st, SimCommands.amph_propose(a, "step", "savoir", 1)) != "", "Proposition : une seule par membre")
+	_ok(int(st.get_empire(a).resources["influence"]) == inf - int(Amphictyony.prop_cost(st, "step", "commerce", 1, a)["influence"]) \
+			and int(Amphictyony.prop_cost(st, "step", "commerce", 1)["influence"]) == int(Amphictyony.data()["cost_by_level"][0]), "Proposition : coûte de l'influence selon le niveau")
+	if AmphPower.max_props(st, a) > 1:
+		SimCommands.apply(st, SimCommands.amph_propose(a, "step", "savoir", 1))
+	_ok(SimCommands.validate(st, SimCommands.amph_propose(a, "step", "ombres", 1)) != "", "Proposition : une seule par membre (deux pour une Tribune)")
 	var nm := -1
 	for x in _eligible(st):
 		if not Amphictyony.is_member(st, x):
@@ -426,7 +429,7 @@ func _test_save() -> void:
 	Amphictyony.buy(st, ms[0])
 	Amphictyony.on_atrocity(st, ms[1])
 	var d: Dictionary = JSON.parse_string(JSON.stringify(st.to_snapshot()))
-	_ok(int(d["version"]) == 48, "Sauvegarde : version 48")
+	_ok(int(d["version"]) == 49, "Sauvegarde : version 49")
 	var back := GameState.from_dict(d)
 	_ok(back.amph_on and Amphictyony.founded(back), "Sauvegarde : l'Amphictyonie revient")
 	_ok(Amphictyony.members(back) == Amphictyony.members(st), "Sauvegarde : mêmes membres")

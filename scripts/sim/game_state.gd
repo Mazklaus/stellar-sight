@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 48
+const FORMAT_VERSION := 49
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -218,6 +218,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	for k in ["conquete", "domination", "allies"]:
 		s.victory_rules[k] = bool(vic.get(k, true))
 	s.victory_rules["spirituelle"] = bool(vic.get("spirituelle", false))
+	s.victory_rules["diplomatique"] = bool(vic.get("diplomatique", true))
 	s.ai_scaling = bool(options.get("ai_scaling", false))
 	s._setup_empires(player_faction, options.get("rivals", null), bool(options.get("duplicates", false)), options.get("distances", []))
 	s._setup_colors(options.get("colors", []))
@@ -247,7 +248,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 
 
 static func default_victory_rules() -> Dictionary:
-	return {"deadline": 0, "people": true, "conquete": true, "domination": true, "allies": true, "spirituelle": false}
+	return {"deadline": 0, "people": true, "conquete": true, "domination": true, "allies": true, "spirituelle": false, "diplomatique": true}
 
 
 ## Galaxie et générateur seulement, sans empires (base commune à create() et from_dict()).
@@ -511,6 +512,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	for k in ["people", "conquete", "domination", "allies"]:
 		s.victory_rules[k] = bool(vr.get(k, true))
 	s.victory_rules["spirituelle"] = bool(vr.get("spirituelle", false))
+	s.victory_rules["diplomatique"] = bool(vr.get("diplomatique", true))
 	s.ai_scaling = bool(d.get("ai_scaling", false))
 	var w: Dictionary = d.get("winner", {})
 	if not w.is_empty():

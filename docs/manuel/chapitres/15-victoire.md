@@ -17,6 +17,8 @@ Trois victoires sont ouvertes à tous, et chaque peuple a la sienne. L'écran Vi
 
 **Victoire spirituelle** (option de partie, avec les religions) : votre foi d'État doit être majoritaire dans plus de la moitié des colonies de chaque empire survivant, le vôtre compris, pendant 5 ans.
 
+**Victoire diplomatique** (avec l'Amphictyonie, en jeu par défaut, décochable) : être élu **Chancelier des étoiles**. L'élection a lieu tous les dix ans à partir de l'an 30, entre les deux plus fortes voix de l'assemblée. Il faut **67 % de toutes les voix**, abstentions comprises, dans une assemblée d'au moins quatre membres qui réunit au moins 75 % des empires vivants. Le candidat battu peut refuser le verdict dans les 60 jours : c'est la **Dernière Guerre**, où ceux qui ont voté pour l'élu marchent sur lui. L'élu gagne quand le battu s'incline, laisse passer le délai, ou perd sa capitale ; s'il la tient dix ans, le titre retourne aux archives. Les alliés de l'élu gagnent avec lui. Le détail est au chapitre 8.
+
 Conquête et Domination se gagnent **en alliance** : les alliés partagent la victoire. Le score compte la population, les colonies, les avant-postes, les technologies, les vaisseaux détruits, les conquêtes, l'exploration et les peuples rencontrés.
 
 ### Les victoires de peuple

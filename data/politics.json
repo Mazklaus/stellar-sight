@@ -81,7 +81,8 @@
 		"conquests": {"current": "glaive", "all": 12},
 		"kills": {"current": "glaive", "all": 1},
 		"lair": {"current": "glaive", "all": 8},
-		"looted": {"current": "glaive", "all": 1}, "free_trade": {"current": "concorde", "all": 15}, "embargo": {"current": "glaive", "all": 10}
+		"looted": {"current": "glaive", "all": 1}, "free_trade": {"current": "concorde", "all": 15}, "embargo": {"current": "glaive", "all": 10},
+		"amph_member": {"current": "concorde", "all": 2}
 	},
 	"local": {
 		"built": 30,
@@ -256,7 +257,8 @@
 		{"id": "hospitalite", "label": "Hospitalité", "level": 0, "peoples": true, "fx": {"integration_pct": 50, "lean": {"concorde": 4}, "stability_native": -2}, "excludes": ["preference_native"], "text": "Les nouveaux venus s'intègrent 50 % plus vite et la Concorde applaudit. Les vôtres, eux, trouvent qu'on en fait beaucoup : -2 de stabilité là où votre peuple est majoritaire."},
 		{"id": "tolerance", "label": "Tolérance", "level": 0, "faiths": true, "fx": {"faith_tolerance": 1, "lean": {"concorde": 3}}, "excludes": ["inquisition"], "text": "Religions : les mondes d'une autre foi ne coûtent plus de stabilité, et la Concorde gagne du terrain. Répond à la doléance « Liberté de culte »."},
 		{"id": "inquisition", "label": "Inquisition", "level": 0, "faiths": true, "fx": {"faith_inquisition": 1, "stability": -3, "lean": {"autel": 3, "glaive": 1}}, "excludes": ["tolerance"], "text": "Religions : tous les trois mois, chaque colonie perd un fidèle d'une autre foi au profit de la foi d'État. Stabilité -3, et les empires dont la foi est persécutée vous en veulent (-10)."},
-		{"id": "preference_native", "label": "Préférence native", "level": 0, "peoples": true, "fx": {"native_pref": 5, "lean": {"glaive": 2, "autel": 2}}, "excludes": ["hospitalite"], "text": "+5 de stabilité là où votre peuple est majoritaire, -5 partout ailleurs. Le Glaive et l'Autel y voient l'ordre naturel des choses."}
+		{"id": "preference_native", "label": "Préférence native", "level": 0, "peoples": true, "fx": {"native_pref": 5, "lean": {"glaive": 2, "autel": 2}}, "excludes": ["hospitalite"], "text": "+5 de stabilité là où votre peuple est majoritaire, -5 partout ailleurs. Le Glaive et l'Autel y voient l'ordre naturel des choses."},
+		{"id": "souverainete", "label": "Souveraineté", "level": 0, "amph": true, "fx": {"lean": {"glaive": 2}}, "text": "Amphictyonie : une fois par an, invoquer sa souveraineté sur une famille de résolutions (écran Amphictyonie) : pendant un an, ni ses effets ni ses interdits ne vous lient, et vos lois ne s'y heurtent plus. Les autres membres vous en veulent (-10). Le Glaive applaudit."}
 	],
 	"law_rules": {
 		"slots": {"republique": 4, "feodalite": 3, "theocratie": 2, "syndicat": 3, "horde": 2, "conscience": 3, "ruche": 2},

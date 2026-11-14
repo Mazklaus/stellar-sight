@@ -48,6 +48,7 @@ static func think(ctx: Dictionary) -> void:
 	_convene(ctx, skill)
 	_svote(ctx, skill)
 	_give(ctx)
+	_power(ctx, skill)
 
 
 static func _vote(ctx: Dictionary, skill: int) -> void:
@@ -111,7 +112,7 @@ static func _propose(ctx: Dictionary) -> void:
 	for cand in candidates(state, e.id):
 		if Amphictyony.check_propose(state, e.id, String(cand["kind"]), String(cand["fam"]), int(cand["dir"]), int(cand["target"]), String(cand["sanc"])) != "":
 			continue
-		var cost := int(Amphictyony.prop_cost(state, String(cand["kind"]), String(cand["fam"]), int(cand["dir"])).get("influence", 0))
+		var cost := int(Amphictyony.prop_cost(state, String(cand["kind"]), String(cand["fam"]), int(cand["dir"]), e.id).get("influence", 0))
 		if int(e.resources.get("influence", 0)) < cost + 50:
 			continue
 		var sc := interest(state, e, cand)
@@ -150,6 +151,9 @@ static func candidates(state: GameState, eid: int) -> Array[Dictionary]:
 	out.append(_inst(state, eid, "defiance", "", 0, -1))
 	for w: Dictionary in AmphInst.work_defs():
 		out.append(_inst(state, eid, "work", String(w["id"]), 0, -1))
+	# Pleins pouvoirs (lot 3).
+	out.append(_inst(state, eid, "term_lift", "", 0, -1))
+	out.append(_inst(state, eid, "full_powers", "", 0, -1))
 	return out
 
 
@@ -199,8 +203,23 @@ static func interest(state: GameState, e: Empire, p: Dictionary) -> int:
 			var t2 := int(p["target"])
 			if t2 == e.id:
 				return 9
+			# Tribune : on voit volontiers une république à l'arbitrage.
+			var trib := 3 if AmphPower.has_talent(state, t2, "tribune") else 0
 			@warning_ignore("integer_division")
-			return clampi(Diplomacy.opinion(state, e.id, t2) / 15 - 1, -8, 8)
+			return clampi(Diplomacy.opinion(state, e.id, t2) / 15 - 1 + trib, -8, 8)
+		"term_lift":
+			var t4 := int(p["target"])
+			if t4 == e.id:
+				return 9
+			@warning_ignore("integer_division")
+			return clampi(Diplomacy.opinion(state, e.id, t4) / 15 - 3, -8, 6)
+		"full_powers":
+			var t5 := int(p["target"])
+			if t5 == e.id:
+				return 10
+			# Nul n'aime un maître : seuls les amis très proches et les faibles s'y résignent.
+			@warning_ignore("integer_division")
+			return clampi(Diplomacy.opinion(state, e.id, t5) / 12 - 5 - AiLevels.aggression(e), -10, 6)
 		"defiance":
 			var t3 := int(p["target"])
 			if t3 == e.id:
@@ -429,3 +448,62 @@ static func _top_faith(state: GameState) -> String:
 		if best == "" or int(cnt[k]) > int(cnt[best]):
 			best = String(k)
 	return best
+
+
+# --- Lot 3 : pleins pouvoirs, Chancelier, souveraineté, talents --------------------------------------
+
+static func _power(ctx: Dictionary, skill: int) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var ag := AiLevels.aggression(e)
+	# La Cour impériale attend une réponse : se soulever si l'on est fort, belliqueux ou hostile.
+	if AmphPower.choosing(state) and AmphPower.check_submit(state, e.id) == "":
+		var imp := AmphPower.imperator(state)
+		@warning_ignore("integer_division")
+		var strong := AmphPower._fleet(state, e.id) * 3 >= AmphPower._fleet(state, imp) * 2
+		if (ag >= 2 and strong) or Diplomacy.opinion(state, e.id, imp) < -30:
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "rebel"))
+			return
+		AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "submit"))
+	# Élection du Chancelier : le candidat qu'on préfère, ou l'abstention.
+	if AmphPower.chan_on(state) and not (AmphPower.chan(state)["cands"] as Array).has(e.id):
+		var best := -1
+		var best_sc := -2
+		for c in AmphPower.chan(state)["cands"]:
+			@warning_ignore("integer_division")
+			var sc := Diplomacy.opinion(state, e.id, int(c)) / 10 + (4 if Diplomacy.allied(state, e.id, int(c)) else 0)
+			if skill <= 0:
+				sc += posmod(hash([state.seed_value, "chan", e.id, int(c)]), 5) - 2
+			if sc > best_sc:
+				best_sc = sc
+				best = int(c)
+		if AmphPower.cvote_of(state, e.id) != best and AmphPower.check_cvote(state, e.id, best) == "":
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "cvote", best))
+	# Verdict du Chancelier : refuser si l'on est belliqueux ou de force à tenir.
+	if AmphPower.check_refuse(state, e.id) == "":
+		var w := int(AmphPower.dip(state)["eid"])
+		@warning_ignore("integer_division")
+		if ag >= 2 or AmphPower._fleet(state, e.id) * 3 >= AmphPower._fleet(state, w) * 2:
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "refuse"))
+	# Souveraineté : contre une résolution qui heurte nos lois.
+	var cf := AmphPower.conflicts(state, e.id)
+	if not cf.is_empty() and AmphPower.check_sovereign(state, e.id, String(cf[0]["fam"])) == "":
+		AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "sovereign", -1, -1, String(cf[0]["fam"])))
+	if skill <= 0:
+		return
+	# Anathème : contre l'empire d'une autre foi qu'on déteste le plus.
+	if AmphPower.has_talent(state, e.id, "anatheme"):
+		var worst := -1
+		var low := -25
+		for o in e.contacts:
+			var op := Diplomacy.opinion(state, e.id, int(o))
+			if op < low and AmphPower.check_anathema(state, e.id, int(o)) == "":
+				low = op
+				worst = int(o)
+		if worst >= 0 and int(e.resources.get("influence", 0)) >= 100:
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "anathema", worst))
+	# Duel de champions : seulement quand on est sûr de gagner.
+	if AmphPower.check_duel(state, e.id) == "":
+		var h := AmphPower.duel_target(state, e.id)
+		if AmphPower._fleet(state, e.id) > AmphPower._fleet(state, int(h["prop"]["by"])) and score(state, e, h["prop"]) <= -3:
+			AiPlayer._issue(ctx, SimCommands.amph_act(e.id, "duel"))
