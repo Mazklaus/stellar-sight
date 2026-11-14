@@ -17,11 +17,32 @@ La nouvelle partie tient sur un seul écran, rangé en cinq blocs. Les réglages
 
 | Bloc | Ce qu'on y règle |
 | --- | --- |
-| Empire | Votre peuple (les huit peuples de départ, vos peuples créés, ou « Au hasard »), sa couleur |
-| Rivaux | Le nombre d'empires adverses, et pour chacun : peuple, couleur, niveau d'IA, tempérament, départ avancé, distance, équipe |
-| Galaxie | Taille (de 90 à 420 systèmes), forme (spirale, anneau, amas, elliptique…), routes, départs, mondes garantis, graine |
-| Partie | Temps réel pausable ou tours de 5, 10 ou 30 jours ; spectateur ; pirates, créatures, curiosités, événements, quêtes, politique, luxes et stratégiques, marché, peuples mêlés, migrations, religions, Amphictyonie |
-| Victoire | Victoires actives, alliés vainqueurs ensemble ou non, date limite (30, 60 ou 90 ans, ou aucune) |
+| Empire | Votre peuple (les huit peuples de départ, vos peuples créés, ou « Au hasard »), sa couleur, et l'accès à l'éditeur de peuples |
+| Rivaux | Le nombre d'empires adverses, et pour chacun : peuple, couleur, niveau d'IA, tempérament, départ avancé, distance, équipe ; la difficulté progressive |
+| Galaxie | Taille (de 90 à 420 systèmes), forme (spirale de 2 à 6 bras, elliptique, anneau, amas), routes, départs, mondes garantis, graine |
+| Partie | Le mode (jouer ou regarder en spectateur), le temps (temps réel pausable ou tours de 5, 10 ou 30 jours), et les mécaniques en jeu, détaillées ci-dessous |
+| Victoire | Victoires actives, alliés vainqueurs ensemble ou non, date limite du score (30, 60 ou 90 ans, ou aucune) |
+
+Chaque mécanique peut être retirée de la partie. Une partie sans elle se joue exactement comme si elle n'existait pas. Par défaut, tout est en jeu :
+
+| Réglage | Choix (défaut en gras) | Chapitre |
+| --- | --- | --- |
+| Pirates | Aucun, rares, **normaux**, infestés | 17 |
+| Créatures | Aucune, rares, **normales**, grouillantes ; fléaux errants oui ou non | 21 |
+| Curiosités | Aucune, rares, **normales**, nombreuses | 17 |
+| Événements | Aucun, rares, **normaux**, fréquents | 17 |
+| Quêtes | Aucune, sans retournements, **avec retournements** | 17 |
+| Politique intérieure | **Active**, aucune | 14 |
+| Luxes et stratégiques | Aucuns, rares, **normaux**, abondants | 9 |
+| Marché | **Actif**, aucun | 9 |
+| Peuples mêlés | **Actifs**, aucuns | 3 |
+| Migrations | **Actives**, aucunes | 3 |
+| Religions | **Actives**, aucunes | 15 |
+| Amphictyonie | **Active**, aucune | 12 |
+| Vassaux | **Actifs**, aucuns | 10 |
+| Koinon | **Actif**, aucun | 11 |
+
+Côté victoire, la conquête, la domination et la victoire diplomatique sont cochées par défaut, la victoire spirituelle ne l'est pas (chapitre 18).
 
 Une **graine** (un nombre ou un mot) recrée exactement la même galaxie. Le **code de partie** résume tous les réglages en une ligne à partager. Les **préréglages** enregistrent vos réglages favoris, et **Partie rapide** lance une petite galaxie sans détour.
 

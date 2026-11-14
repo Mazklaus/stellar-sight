@@ -1,6 +1,6 @@
 ---
 titre: Notes des concepteurs
-numero: B
+numero: C
 etiquette: Annexe
 ---
 Stellar Sight est un 4X spatial en temps réel pausable, jouable aussi au tour par tour, en solo contre l'IA ou à plusieurs en réseau. Il est fait par un développeur seul, avec l'aide de Claude, pour un cercle d'amis. Il n'est pas vendu et ne le sera pas.
@@ -17,7 +17,18 @@ Stellar Sight est un 4X spatial en temps réel pausable, jouable aussi au tour p
 
 ### Ce qui viendra
 
-Le jeu évolue encore. Sont prévus, entre autres : la suite du commerce galactique (ressources de luxe et stratégiques, marché, échange de technologies), des ruches plus étranges, les peuples mineurs, le conseil galactique, des puissances anciennes endormies, les coques propres à chaque peuple et des vaisseaux en 3D. L'équilibre entre les peuples sera réglé quand le jeu sera plus figé : les chiffres de ce manuel sont ceux de la version indiquée en page de garde, pas une promesse.
+Le jeu évolue encore. Depuis la première édition de ce codex sont arrivés le commerce galactique, les peuples mêlés et les migrations, les religions, l'Amphictyonie, les vassaux et le Koinon. Sont prévus, entre autres :
+
+- des **buts de guerre et des traités de paix** plus riches (motifs de guerre, exigences, lassitude) ;
+- les **frontières et le droit de passage** : faut-il un traité pour traverser les systèmes d'un autre empire ?
+- les **crises de fin de partie**, les **puissances anciennes endormies** et les **peuples mineurs** ;
+- le **rayonnement culturel** porté par les routes, une **économie privée** de marchands indépendants ;
+- l'**ingénierie des espèces** en cours de partie, des **ruches plus étranges** et des **pouvoirs psioniques** ;
+- la **mort des héros au combat** ;
+- les coques propres à chaque peuple, et des vaisseaux en 3D ;
+- une refonte d'ensemble de l'interface, et un glossaire consultable en jeu.
+
+L'équilibre entre les peuples sera réglé quand le jeu sera plus figé : les chiffres de ce manuel sont ceux de la version indiquée en page de garde, pas une promesse.
 
 ::: image MJ-30 flottant-d
 :::

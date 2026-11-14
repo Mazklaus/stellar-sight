@@ -41,9 +41,9 @@ Les écrans d'empire s'ouvrent en plein écran, par les pictogrammes du panneau 
 | Écran | Touche | Contenu |
 | --- | --- | --- |
 | Économie | [[F1]] | Bilan des ressources, production par système, alertes |
-| Colonies | [[F2]] | Toutes vos colonies et avant-postes, filtrables |
+| Colonies | [[F2]] | Toutes vos colonies et avant-postes, filtrables ; les peuples de l'empire, leur statut et la politique d'accueil |
 | Recherche | [[F3]] | L'arbre des technologies, la file d'attente |
-| Diplomatie | [[F4]] | Statuts, traités, opinions, propositions reçues |
+| Diplomatie | [[F4]] | L'anneau des relations ; pour chaque empire : statut, traités, opinion et ses raisons, propositions ; les blocs des sujets (clauses, loyauté, possessions) et de votre Koinon (rang, cohésion, lois, synode) |
 | Chantier | [[F6]] | Conception des modèles de vaisseaux |
 | Victoires | [[F7]] | L'avancée de chaque empire vers chaque victoire |
 | Renseignement | [[F8]] | Cellules d'espionnage, réseaux, dossiers, opérations |

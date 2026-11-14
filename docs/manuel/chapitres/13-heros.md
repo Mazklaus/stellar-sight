@@ -1,6 +1,6 @@
 ---
 titre: Les héros
-numero: 11
+numero: 16
 image: MJ-15
 epigraphe: Un empire, ce sont des milliards de vies. Une légende, c'est une seule, et on ne la choisit pas toujours.
 signature: Chroniqueur anonyme, Syndicat Brisecomète
@@ -12,7 +12,7 @@ Chaque empire commence avec un héros. Les autres viennent avec la gloire, et le
 
 ### Le renom
 
-Les actes de l'empire font monter son **renom** : fonder une colonie, découvrir une technologie, gagner une bataille, conquérir, signer un traité, réussir une opération, sonder une curiosité, abattre un gardien. Au seuil, **trois candidats** de classes différentes se présentent : vous en prenez un, ou vous les renvoyez tous. Chaque acte fait aussi pencher la classe du prochain : un empire qui guerroie attire les stratèges. Avec les peuples mêlés, le dernier candidat peut appartenir à une autre espèce **citoyenne** de l'empire, au prorata de ses habitants : il porte un trait de son peuple, et l'empire de cette espèce apprécie de voir l'un des siens servir chez vous (+5 d'opinion).
+Les actes de l'empire font monter son **renom** : fonder une colonie, découvrir une technologie, gagner une bataille, conquérir, signer un traité, réussir une opération, sonder une curiosité, abattre un gardien. Au seuil (100 de renom pour le premier, puis 250 de plus à chaque fois), **trois candidats** de classes différentes se présentent : vous en prenez un, ou vous les renvoyez tous. Chaque acte fait aussi pencher la classe du prochain : un empire qui guerroie attire les stratèges. Avec les peuples mêlés, le dernier candidat peut appartenir à une autre espèce **citoyenne** de l'empire, au prorata de ses habitants : il porte un trait de son peuple, et l'empire de cette espèce apprécie de voir l'un des siens servir chez vous (+5 d'opinion).
 
 Vous avez trois places au départ ; deux technologies en ajoutent une chacune.
 
@@ -25,13 +25,21 @@ Vous avez trois places au départ ; deux technologies en ajoutent une chacune.
 | Orateur | Conseil (2 sièges) | Influence, ou un bonus d'empire selon sa classe |
 | Ombre | Agent d'un réseau | Infiltration et chances des opérations |
 
-Avec l'Amphictyonie, un cinquième poste s'ajoute : **ambassadeur** auprès de l'assemblée (+5 % de voix par niveau, le double pour un orateur, 30 % au plus ; chapitre 8). Avec le Koinon, le **délégué au Koinon** soude votre ligue (de la cohésion chaque mois, selon son niveau) ; avec les vassaux, le **résident** auprès d'un de vos sujets lui donne de la loyauté chaque mois et révèle une allégeance secrète (chapitre 8).
+D'autres postes viennent avec les grandes institutions :
+
+| Poste | Quand | Effet |
+| --- | --- | --- |
+| Ambassadeur | Avec l'Amphictyonie | +5 % de voix par niveau, +10 % pour un orateur, 30 % au plus (chapitre 12) |
+| Délégué au Koinon | Avec un Koinon | De la cohésion chaque mois pour votre ligue, selon son niveau (chapitre 11) |
+| Résident | Auprès d'un de vos sujets | De la loyauté chaque mois chez ce sujet ; révèle son allégeance secrète (chapitre 10) |
+
+Avec les religions, un héros à l'ambition Foi peut aussi recevoir une **vocation** de **Prophète**, d'**Inquisiteur** ou de **Martyr** (chapitre 15), qui n'agit que tant qu'il est en poste.
 
 Tout héros peut tenir n'importe quel poste, à moitié d'effet hors de sa classe. Hors du système capital, il lui faut 20 jours pour rejoindre son poste.
 
 ### Niveaux et traits
 
-L'expérience vient avec le temps, les batailles, les colonies, les opérations et la population gouvernée. Un héros monte jusqu'au **niveau 5** et gagne un trait à chaque niveau : un de sa classe (Foudre de guerre, Maître d'œuvre, Agronome…) ou un de son peuple, tiré du registre, de l'archétype, du gouvernement et du credo. Six traits au plus. Un trait se gagne autrement : **Tueur de monstres**, pour l'amiral dont la flotte abat un gardien ou un fléau (+25 % de dégâts contre les créatures).
+L'expérience vient avec le temps, les batailles, les colonies, les opérations et la population gouvernée. Un héros monte jusqu'au **niveau 5** (120, 300, 560 puis 900 points d'expérience) et gagne un trait à chaque niveau : un de sa classe (Foudre de guerre, Maître d'œuvre, Agronome…) ou un de son peuple, tiré du registre, de l'archétype, du gouvernement et du credo. Six traits au plus. Un trait se gagne autrement : **Tueur de monstres**, pour l'amiral dont la flotte abat un gardien ou un fléau (+25 % de dégâts contre les créatures).
 
 ::: chronique Éloge funèbre de l'amirale Isaure Hautecombe|Grand-amiral Teodh Varn, Concorde de Vael
 « Elle a gagné onze batailles, perdu deux flottes, refusé trois promotions et tous les conseils que je lui ai donnés. Elle avait raison pour les promotions. Pour les conseils, je n'ai jamais eu le courage de vérifier. »
@@ -39,17 +47,19 @@ L'expérience vient avec le temps, les batailles, les colonies, les opérations 
 
 ### Ambition et loyauté
 
-Chaque héros veut quelque chose : la **Gloire**, la **Fortune**, le **Savoir**, la **Foi** ou la **Vengeance**. Les actes de l'empire qui servent son ambition entretiennent sa loyauté, de 0 à 100 ; un grand objectif atteint (huit victoires, douze technologies…) la renforce d'un coup. Oublié ou laissé sans poste, il se lasse. Sous 20, il peut passer chez un rival qui a une place libre, ou partir sans un mot.
+Chaque héros veut quelque chose : la **Gloire** (batailles gagnées, conquêtes), la **Fortune** (traités, larcins, chantiers), le **Savoir**, la **Foi** ou la **Vengeance**. Il arrive avec 60 de loyauté, sur 100. Les actes de l'empire qui servent son ambition l'entretiennent ; un grand objectif atteint (huit victoires, vingt-cinq affaires, douze technologies…) lui ajoute 25 de loyauté et 60 de renom à l'empire. Oublié ou laissé sans poste plus de trois mois, il se lasse. Sous 20, chaque point de moins lui donne 4 % de chances par mois de passer chez un rival qui a une place libre ; à 5 ou moins, s'il ne trouve pas preneur, il part sans un mot.
 
 ### Blessure, capture et vieillesse
 
-Quand sa flotte est anéantie ou son système perdu, le héros est **blessé** 90 jours et quitte son poste, avec 35 % de risque d'être **capturé**. Le geôlier choisit : le libérer (on s'en souviendra avec gratitude), le **convertir** (il le rejoint au bout de six mois) ou l'exécuter (on s'en souviendra autrement). La paix rend les prisonniers.
+Quand sa flotte est anéantie ou son système perdu, le héros est **blessé** 90 jours et quitte son poste, avec 35 % de risque d'être **capturé**. Le geôlier choisit : le libérer (on s'en souviendra avec gratitude), le **convertir** (il le rejoint au bout de six mois) ou l'exécuter (on s'en souviendra autrement). La paix rend les prisonniers. Un héros pris par des pirates ou des rebelles se rachète (60 énergie, plus 40 par niveau) ; sans rançon au bout de deux ans, il est exécuté.
 
-Les héros vieillissent : 80 ans d'espérance de vie, davantage pour les lithoïdes et les énergétiques, sans limite pour les synthétiques. Passé 60 ans, ils prennent un ou deux défauts. Un héros de niveau 3 ou plus laisse en mourant un **souvenir** de cinq ans, selon votre credo.
+Un héros **ne meurt pas au combat** : il est blessé, parfois capturé. Il meurt de vieillesse, exécuté par son geôlier ou assassiné par un réseau d'espions. C'est pourquoi le Martyr d'une foi ne compte que dans ces deux derniers cas.
+
+Les héros arrivent entre 25 et 45 ans et vieillissent : 80 ans d'espérance de vie, 120 pour les lithoïdes, 150 pour les énergétiques, moins pour les reptiliens (75) et les ruches (70), sans limite pour les synthétiques. Passé 60 ans, ils prennent un ou deux défauts. Un héros de niveau 3 ou plus laisse en mourant un **souvenir** de cinq ans, selon votre credo : +5 % de dégâts (honneur), +2 influence par mois (foi), +3 Savoir par mois (raison), +3 énergie par mois (profit), +3 % de production (survie).
 
 ### Particularités de peuple
 
-| Peuple | Talent |
+| Couche | Talent |
 | --- | --- |
 | Féodalité | Héros de sang : loyauté +20. L'héritier de la dynastie siège parmi les héros |
 | Théocratie | Saints : chaque mort laisse un souvenir et rallume la ferveur |
@@ -57,6 +67,8 @@ Les héros vieillissent : 80 ans d'espérance de vie, davantage pour les lithoï
 | Ruche, conscience | Avatars : ni ambition, ni désertion, ni capture |
 | Horde | Champions : un amiral qui pille gagne un trait |
 | Syndicat | Héros à louer : un héros sans poste se loue un an à un empire rencontré |
+| Registre space opera héroïque | Destins : une place de héros de plus, et des traits psioniques |
+| Registre picaresque | Héros malgré eux : chaque exploit nouveau rapporte 30 de renom |
 
 ::: marge
 Mon meilleur stratège avait l'ambition « Vengeance ». Contre qui, il ne l'a jamais dit. J'ai dormi avec mon arme pendant six ans.

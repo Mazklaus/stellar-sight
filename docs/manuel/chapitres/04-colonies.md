@@ -46,7 +46,10 @@ Quand l'option **Peuples mêlés** est active (c'est le cas par défaut), une co
 - **Coloniser avec un autre peuple.** Une espèce qui compte au moins deux habitants chez vous peut fonder des colonies : la vue système propose « Coloniser avec les… » sur les mondes où elle peut vivre. Un empire reptilien qui a gagné un peuple océanique peuple enfin les océans.
 - **Bonus de collection.** À 10, 25 puis 50 habitants dans l'empire, une espèce donne +5, +10 puis +15 % de la ressource où elle excelle (le Savoir, à défaut).
 
-L'écran Colonies ([[F2]]) liste les peuples de l'empire, leur nombre et leurs bonus ; la lentille des peuples ([[U]]) montre la mosaïque sur la carte. Si l'option est désactivée, les habitants d'un monde conquis prennent l'espèce du conquérant, comme dans les éditions précédentes.
+L'écran Colonies ([[F2]]) liste les peuples de l'empire, leur nombre et leurs bonus ; la lentille des peuples ([[U]]) montre la mosaïque sur la carte.
+
+::: capture docs/apercu-peuples.png|L'écran Colonies : dans la colonne de gauche, les peuples de l'empire, leurs bonus de collection et leurs statuts, avec la doléance des droits en cours
+::: Si l'option est désactivée, les habitants d'un monde conquis prennent l'espèce du conquérant, comme dans les éditions précédentes.
 
 ::: marge
 Le premier jour, ils vous détestent. Le deuxième, ils vous apprennent à cultiver les marais. Gardez-les.

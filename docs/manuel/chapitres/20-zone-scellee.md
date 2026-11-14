@@ -1,6 +1,6 @@
 ---
 titre: Zone scellée
-numero: 17
+numero: 22
 image: MJ-19
 epigraphe: Ici sont les dragons. Nous avons vérifié. Ils y sont toujours.
 signature: Inscription au bord d'une carte d'Ossarane
@@ -34,3 +34,11 @@ Le Spectre est deux fois plus faible près d'une étoile de sa couleur. Je l'ai 
 ::: conseil
 Un gardien endormi ne fait rien tant qu'on ne le dérange pas. Avant de coloniser autour, lisez sa fiche : ce qui le réveille y est presque toujours écrit.
 :::
+
+---saut---
+
+### Le Reliquaire complet
+
+Les Archives tiennent l'inventaire de toutes les reliques connues : celles qu'on déterre au bout des fouilles et des quêtes, et les trophées pris aux gardiens. Chacune a un effet permanent pour qui la tient, et un **Triomphe** : une grande cérémonie, une fois tous les dix ans, payée en influence (les fragments aident), dont l'effet dure en général un an. Une relique sainte compte une fois et demie pour un peuple au credo de foi, et son Triomphe rallume la ferveur ; un larcin bien mené en change le propriétaire (chapitre 13). Ceux qui préfèrent la surprise tourneront la page.
+
+{{reliques}}

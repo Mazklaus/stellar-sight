@@ -58,7 +58,7 @@ an immense floating archive library inside a space station, endless shelves of g
 ## MJ-06 · Votre première partie
 
 - Format : 2:1 · Forme du cadre : coupe
-- Emplacement : Bandeau du chapitre 1
+- Emplacement : Bandeau du chapitre « Votre première partie »
 - Sujet : Un vaisseau colon et un éclaireur quittent l'orbite de la planète natale
 
 ```
@@ -68,7 +68,7 @@ a bulky colony ship and a slender scout ship leaving the orbit of a homeworld, t
 ## MJ-07 · Ressources et colonies
 
 - Format : 2:1 · Forme du cadre : coupe
-- Emplacement : Bandeau du chapitre 3
+- Emplacement : Bandeau du chapitre « Ressources et colonies »
 - Sujet : Une jeune colonie sur un monde désertique, dômes et foreuses sous deux soleils
 
 ```
@@ -78,7 +78,7 @@ a young frontier colony on a desert world under two suns, domes, landing pads, m
 ## MJ-08 · Exploration et flottes
 
 - Format : 2:1 · Forme du cadre : coupe
-- Emplacement : Bandeau du chapitre 4
+- Emplacement : Bandeau du chapitre « Exploration et flottes »
 - Sujet : Un éclaireur au bord d'un brouillard d'étoiles inconnues
 
 ```
@@ -88,7 +88,7 @@ a tiny scout starship at the edge of a dark uncharted region of space, a wall of
 ## MJ-09 · La recherche
 
 - Format : 2:1 · Forme du cadre : coupe
-- Emplacement : Bandeau du chapitre 5
+- Emplacement : Bandeau du chapitre « La recherche »
 - Sujet : Un laboratoire orbital où l'on étudie un artefact cristallin
 
 ```
@@ -98,7 +98,7 @@ an orbital research laboratory, scientists of several alien species studying a f
 ## MJ-10 · Le Chantier
 
 - Format : 2:1 · Forme du cadre : coupe
-- Emplacement : Bandeau du chapitre 6
+- Emplacement : Bandeau du chapitre « Le Chantier »
 - Sujet : Un titan en construction dans un chantier orbital titanesque
 
 ```
@@ -108,7 +108,7 @@ a colossal warship under construction inside a gigantic orbital shipyard frame, 
 ## MJ-11 · La guerre
 
 - Format : 2:1 · Forme du cadre : coupe
-- Emplacement : Bandeau du chapitre 7
+- Emplacement : Bandeau du chapitre « La guerre »
 - Sujet : Deux flottes en ligne de bataille, missiles et rayons se croisent
 
 ```
@@ -118,7 +118,7 @@ two opposing space fleets in battle lines, missile trails curving across the voi
 ## MJ-12 · La diplomatie
 
 - Format : 2:1 · Forme du cadre : coupe
-- Emplacement : Bandeau du chapitre 8
+- Emplacement : Bandeau du chapitre « La diplomatie »
 - Sujet : Deux ambassadeurs de peuples très différents se serrent la main sous un dôme
 
 ```
@@ -128,7 +128,7 @@ two ambassadors of very different alien species, one humanoid in ceremonial robe
 ## MJ-13 · Le renseignement
 
 - Format : 2:1 · Forme du cadre : coupe
-- Emplacement : Bandeau du chapitre 9
+- Emplacement : Bandeau du chapitre « Le renseignement »
 - Sujet : Une espionne dans une salle d'archives éclairée par un seul terminal
 
 ```
@@ -138,7 +138,7 @@ a cloaked spy in a dark archive room lit only by the glow of a single data termi
 ## MJ-14 · Politique intérieure et stabilité
 
 - Format : 2:1 · Forme du cadre : coupe
-- Emplacement : Bandeau du chapitre 10
+- Emplacement : Bandeau du chapitre « Stabilité et politique »
 - Sujet : Une foule sur l'esplanade d'une capitale, bannières de six couleurs
 
 ```
@@ -148,7 +148,7 @@ a vast crowd gathered on the esplanade of an alien capital city, banners of six 
 ## MJ-15 · Les héros
 
 - Format : 2:1 · Forme du cadre : coupe
-- Emplacement : Bandeau du chapitre 11
+- Emplacement : Bandeau du chapitre « Les héros »
 - Sujet : Quatre héros de classes différentes en portrait de groupe, femmes et hommes, de plusieurs espèces
 
 ```
@@ -158,7 +158,7 @@ group portrait of four legendary heroes of a space empire, two women and two men
 ## MJ-16 · Pirates, événements et reliques
 
 - Format : 2:1 · Forme du cadre : coupe
-- Emplacement : Bandeau du chapitre 12
+- Emplacement : Bandeau du chapitre « Pirates, événements et reliques »
 - Sujet : Un repaire pirate creusé dans un astéroïde, néons et carcasses de vaisseaux
 
 ```
@@ -168,7 +168,7 @@ a pirate lair carved into a huge asteroid, makeshift docks, neon lights, the hul
 ## MJ-17 · La victoire
 
 - Format : 2:1 · Forme du cadre : coupe
-- Emplacement : Bandeau du chapitre 13
+- Emplacement : Bandeau du chapitre « La victoire »
 - Sujet : Un couronnement sous une voûte d'étoiles, une flotte en parade
 
 ```
@@ -303,4 +303,54 @@ bust portrait of a decorated fleet admiral with a laurel wreath insignia, medals
 
 ```
 bust portrait of an old sarcastic starship commander with a scar across one eyebrow, a cigar, a battered officer's cap and a raised eyebrow, amused and unimpressed, centered composition on dark background epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 1:1
+```
+
+## MJ-31 · Le commerce
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Le commerce »
+- Sujet : Un grand port orbital où convergent des convois marchands de peuples très différents, sous la lumière d'une géante gazeuse
+
+```
+a colossal orbital trade port above a banded gas giant, long convoys of cargo ships of very different alien designs converging along glowing trade lanes, docking arms and cargo containers, a bustling interstellar marketplace seen from afar epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```
+
+## MJ-32 · Suzerains et sujets
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Suzerains et sujets »
+- Sujet : Dans une salle du trône stellaire, les envoyés d'un monde vassal, hommes et femmes, déposent un tribut au pied d'un suzerain
+
+```
+a vast stellar throne hall, envoys of a vassal world, both men and women in travel-worn ceremonial garb, laying chests of tribute and a banner at the foot of a towering overlord's dais, guards in ornate armor, starfield beyond tall windows, solemn feudal atmosphere epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```
+
+## MJ-33 · Le Koinon
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Le Koinon »
+- Sujet : Les flottes de plusieurs empires alliés, chacune à ses couleurs, croisent ensemble sous une même bannière fédérale
+
+```
+a combined fleet of several allied alien empires flying in formation, each squadron in its own colors and ship style, a single shared federal banner projected as light above the flagship, a sense of fragile unity, nebula backdrop epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```
+
+## MJ-34 · L'Amphictyonie
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « L'Amphictyonie »
+- Sujet : Un immense hémicycle galactique où siègent des délégations de peuples très différents, dont une ruche insectoïde et une onde d'énergie
+
+```
+an immense galactic assembly hemicycle under a dome, tiers of delegations of radically different species, an insectoid hive delegation, a shimmering wave of pure energy with no body, robotic assembled chassis linked by cables, humanoid delegates of all genders, a speaker at the central rostrum under a holographic galaxy epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```
+
+## MJ-35 · La foi
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « La foi »
+- Sujet : Des pèlerins de plusieurs peuples gravissent les marches d'un temple taillé dans un astéroïde, face à un monde saint
+
+```
+pilgrims of several alien species climbing the endless stairs of a temple carved into an asteroid, a radiant holy world rising behind it, incense smoke drifting into space through a shimmering veil, devotional and awe-inspiring epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```

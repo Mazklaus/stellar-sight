@@ -1,8 +1,22 @@
 ---
 titre: Nouveautés de l'édition
-numero: C
+numero: D
 etiquette: Annexe
 ---
+### Édition 2.0
+
+Une refonte du codex plutôt qu'un ajout : chaque chapitre a été relu contre le code du jeu, et les plus chargés ont été partagés.
+
+- **Cinq nouveaux chapitres**, tirés de la diplomatie et de la politique qui débordaient : **Le commerce** (9), **Suzerains et sujets** (10), **Le Koinon** (11), **L'Amphictyonie** (12) et **La foi** (15). Les chapitres suivants sont renumérotés : le renseignement devient le 13, la politique le 14, les héros le 16, les périls le 17, la victoire le 18, et le grand livre commence au 19.
+- **Des chiffres là où il n'y avait que des mots** : la valeur exacte d'une route commerciale et des monopoles, chaque ligne de la stabilité, la loyauté d'un sujet clause par clause, la cohésion et l'expérience du Koinon, les trois niveaux de chaque résolution de l'Amphictyonie et leur effet cumulé, les raids, tributs, primes et ports francs des pirates, le renom, l'expérience, l'âge et la désertion des héros, le calcul du score.
+- **Ce qui manquait** : comment on entre en guerre (parjure, grief, alliés, Koinon, sujets, guerre sainte, coalitions, guerres de rupture), le score de guerre et la lassitude (chapitre 7) ; les quêtes de credo et les quatre quêtes galactiques (chapitre 17) ; les talents de stabilité (chapitre 14), de l'ombre (chapitre 13), face aux pirates (chapitre 17) et des héros selon le registre (chapitre 16) ; la rançon des héros, et le fait qu'ils ne meurent pas au combat ; tous les réglages de la nouvelle partie avec leur valeur par défaut (chapitre 1).
+- **Corrections** : le score ne compte pas les peuples rencontrés mais l'avancée vers la victoire de peuple, les reliques et les merveilles ; la troisième marche d'une résolution ajoute ses propres effets ; la Défense mutuelle frappe dans vos propres systèmes ; la liste des victoires communes en compte cinq.
+- **Nouveaux tableaux tirés des données** : toutes les lois du Sénat (chapitre 14), le Reliquaire complet en zone scellée (chapitre 22), et pour chaque peuple, ses **talents à travers la galaxie** (chapitre 19), qui se mettent à jour d'eux-mêmes.
+- **Un lexique** (annexe B) de plus de quatre-vingts termes, avec leur chapitre.
+- **Nouvelles captures** : l'écran Commerce, l'écran Foi et une nature de foi, les peuples de l'écran Colonies. **Cinq nouveaux encarts** à illustrer, MJ-31 à MJ-35, en tête des nouveaux chapitres.
+
+Dans les éditions plus anciennes, ci-dessous, les numéros de chapitre cités sont ceux de leur époque.
+
 ### Édition 1.19
 
 - **Fédérations et vassaux, lot 3** (chapitre 8) : sujets **spécialisés** (Rempart, Prospecteur, Érudit) à trois rangs selon la loyauté ; **possessions** bâties chez un sujet (comptoir de tribut, garnison, mission) ; **culte imposé** ; sujets loyaux ou déloyaux dans la stabilité ; sept **talents de suzerain**, un par peuple, Satrapies et Filiales comprises.

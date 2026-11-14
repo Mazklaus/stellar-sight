@@ -7,6 +7,28 @@ signature: Archiviste Ilen-Ka, Concorde de Vael
 ---
 On ne fait pas la guerre par accident : il faut la déclarer, depuis l'écran Diplomatie ([[F4]]), à un empire déjà rencontré. Elle vaut alors dans les deux sens. Seul l'Essaim Kh'thari se passe de formalités : il choisit une proie et ne la lâche plus.
 
+### Déclarer, rejoindre, être entraîné
+
+Une guerre commence toujours par une déclaration, mais pas toujours par la vôtre. Voici toutes les manières d'y entrer :
+
+| Comment | Ce qu'il faut savoir |
+| --- | --- |
+| Déclarer depuis la guerre froide | Aucun traité n'est rompu : la cible s'en souvient (-30 d'opinion pendant cinq ans), personne d'autre |
+| Attaquer sous traité | La paix signée est rompue, et le commerce avec elle : vous voilà **parjure**. La victime ne l'oublie pas (-50 pendant près de sept ans), toute la galaxie qui vous connaît non plus (-15 pendant cinq ans). Une trêve en cours, une alliance (il faut d'abord la quitter), un Koinon commun ou un lien de sujet interdisent tout simplement la déclaration |
+| Le grief | Un empire dont vous avez pris un espion vous laisse un an de **grief** : l'attaquer n'est pas un parjure |
+| Les alliés | Les alliés de la cible la défendent, ceux de l'agresseur le suivent, sauf ceux qui ont signé avec l'autre camp |
+| Koinon et sujets | Les membres d'un Koinon défendent le membre attaqué et votent des guerres communes (chapitre 11) ; un sujet suit les guerres de son suzerain selon ses clauses, et le suzerain défend toujours son sujet (chapitre 10) |
+| Guerre sainte et croisade | Un motif de guerre sainte rend la guerre sainte ; une croisade y entraîne toute la foi (chapitre 15) |
+| L'Amphictyonie | Une coalition votée en session extraordinaire, la Défense mutuelle ou la charte des atrocités permettent de déclarer la guerre sans parjure (chapitre 12) |
+| Les guerres de rupture | Guerre de libération (un sujet dont on refuse l'indépendance), guerre de sécession (quitter une Hégémonie), soulèvement contre l'Impérateur, Dernière Guerre contre qui refuse le Chancelier des étoiles |
+| L'Essaim | L'Essaim Kh'thari ne déclare rien : il choisit une proie et ne la lâche plus |
+
+On peut aussi faire la guerre par procuration : louer les flottes du Syndicat Brisecomète, des mercenaires dans un port franc pirate (chapitre 17), ou engager un repaire contre un rival.
+
+**Le score de guerre.** Chaque camp marque des points : la puissance des vaisseaux ennemis qu'il détruit (un dixième de leurs dégâts et de leur coque) et 20 points par système pris. Le score affiché est la différence entre les deux. Il paie les conditions de paix et ouvre la reddition (chapitre 8).
+
+**La lassitude.** Une guerre qui dure pèse sur votre peuple : -1 de stabilité partout par trimestre de la plus longue guerre en cours, jusqu'à -6 (le double pour une république). Elle pèse aussi sur l'IA : chaque mois de guerre la rend plus disposée à signer la paix, et le verdict du bouton Paix l'affiche.
+
 ### La bataille en six jours
 
 Quand des flottes d'empires en guerre se retrouvent dans le même système, la bataille s'engage d'elle-même. Elle dure **six jours** : deux à longue portée, deux à moyenne, deux à courte. Chaque jour, chaque vaisseau tire sur une cible et les dégâts s'appliquent ensemble. Au bout des six jours, un rapport est rédigé ([[B]]) ; si les deux camps sont encore là, une nouvelle bataille commence. Les flottes qui arrivent en route rejoignent la mêlée.
@@ -50,7 +72,7 @@ On peut aussi **sonner la retraite** : l'ordre de déplacement s'applique avant 
 
 Une flotte armée ennemie **arrête** toute flotte qui traverse son système. Dans un système ennemi sans défenseur, elle le **met en siège** : la garnison fond chaque jour, la production tombe de moitié, les chantiers spatiaux s'arrêtent. La garnison dépend de la population (5 par habitant, 6 par avant-poste, 30 pour une capitale) ; un **bastion orbital** y ajoute 20 et tire sur les assiégeants. Le siège levé, elle remonte de 2 par jour.
 
-Quand les troupes embarquées dépassent la garnison, le bouton **Envahir** apparaît : toutes les revendications de l'empire dans le système changent de mains. Avec les **peuples mêlés**, les habitants restent ce qu'ils sont : ils gardent leur espèce et rejoignent la mosaïque de votre empire (voir le chapitre 3). L'Essaim Kh'thari, lui, digère toujours. Une capitale perdue est remplacée par la colonie la plus peuplée ; un empire sans aucune revendication disparaît, flottes comprises.
+Quand les troupes embarquées dépassent la garnison, le bouton **Envahir** apparaît : toutes les revendications de l'empire dans le système changent de mains. Avec les **peuples mêlés**, les habitants restent ce qu'ils sont : ils gardent leur espèce et rejoignent la mosaïque de votre empire (chapitre 3). L'Essaim Kh'thari, lui, digère toujours. Une capitale perdue est remplacée par la colonie la plus peuplée ; un empire sans aucune revendication disparaît, flottes comprises.
 
 ::: capture docs/apercu-siege.png|Un système en siège : la garnison fond, l'invasion approche
 :::
