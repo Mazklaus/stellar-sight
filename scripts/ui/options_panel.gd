@@ -18,6 +18,7 @@ var _tabs := {}
 var _pages := {}
 var _fullscreen: Button
 var _auto_pause: Button
+var _detail: Button
 var _scale: Button
 
 
@@ -57,6 +58,13 @@ func _ready() -> void:
 		UiSettings.cycle_ui_scale()
 		sync())
 	srow.add_child(_scale)
+	var drow := _row(display, "Détail des vues de bataille", "Décors, débris et fumées des replays. Sobre pour les petites machines.")
+	_detail = _value_box("", false) as Button
+	_detail.tooltip_text = "Clic : Sobre, Normal, Riche"
+	_detail.pressed.connect(func() -> void:
+		UiSettings.cycle_replay_detail()
+		sync())
+	drow.add_child(_detail)
 	var game := _page("game")
 	_auto_pause = _toggle_row(game, "Pause automatique dans les écrans d'empire",
 			"Le temps s'arrête quand vous consultez l'économie ou vos colonies, et repart à la fermeture.", func() -> void:
@@ -111,6 +119,7 @@ func reset_defaults() -> void:
 	UiSettings.ui_scale = 1.0
 	UiSettings.apply()
 	UiSettings.auto_pause_menus = false
+	UiSettings.replay_detail = "normal"
 	UiSettings.save_settings()
 	sync()
 
@@ -122,6 +131,7 @@ func sync() -> void:
 	_set_toggle(_fullscreen, UiSettings.fullscreen)
 	_set_toggle(_auto_pause, UiSettings.auto_pause_menus)
 	_scale.text = "%d %%" % roundi(UiSettings.ui_scale * 100.0)
+	_detail.text = String(GameData.battle_visuals().get("detail", {}).get("labels", {}).get(UiSettings.replay_detail, UiSettings.replay_detail))
 
 
 func _page(id: String) -> VBoxContainer:

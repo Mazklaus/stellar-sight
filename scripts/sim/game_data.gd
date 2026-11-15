@@ -317,6 +317,11 @@ static func wars() -> Dictionary:
 	return _load("wars")
 
 
+## Habillage des vues de bataille (voir BattleScene, BattleBackdrop) : purement visuel.
+static func battle_visuals() -> Dictionary:
+	return _load("battle_visuals")
+
+
 ## Combat au sol et armées (voir Ground).
 static func ground() -> Dictionary:
 	return _load("ground")

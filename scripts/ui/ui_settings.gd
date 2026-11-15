@@ -11,6 +11,9 @@ static var auto_pause_menus := false
 ## Échelle de toute l'interface (lisibilité sur grands écrans).
 static var ui_scale := 1.0
 const UI_SCALES := [1.0, 1.25, 1.5]
+## Détail des vues de bataille (visuel des combats, prop. 5) : "sobre", "normal" ou "riche".
+static var replay_detail := "normal"
+const REPLAY_DETAILS := ["sobre", "normal", "riche"]
 static var _loaded := false
 
 
@@ -22,6 +25,9 @@ static func load_settings() -> void:
 	fullscreen = bool(cfg.get_value("display", "fullscreen", false))
 	auto_pause_menus = bool(cfg.get_value("game", "auto_pause_menus", false))
 	ui_scale = float(cfg.get_value("display", "ui_scale", 1.0))
+	replay_detail = String(cfg.get_value("display", "replay_detail", "normal"))
+	if not REPLAY_DETAILS.has(replay_detail):
+		replay_detail = "normal"
 
 
 static func save_settings() -> void:
@@ -29,6 +35,7 @@ static func save_settings() -> void:
 	cfg.set_value("display", "fullscreen", fullscreen)
 	cfg.set_value("game", "auto_pause_menus", auto_pause_menus)
 	cfg.set_value("display", "ui_scale", ui_scale)
+	cfg.set_value("display", "replay_detail", replay_detail)
 	cfg.save(PATH)
 
 
@@ -52,4 +59,14 @@ static func cycle_ui_scale() -> void:
 	var i := UI_SCALES.find(ui_scale)
 	ui_scale = UI_SCALES[(i + 1) % UI_SCALES.size()]
 	apply()
+	save_settings()
+
+
+## Indice du détail des replays (0 sobre, 1 normal, 2 riche).
+static func replay_detail_level() -> int:
+	return maxi(0, REPLAY_DETAILS.find(replay_detail))
+
+
+static func cycle_replay_detail() -> void:
+	replay_detail = REPLAY_DETAILS[(replay_detail_level() + 1) % REPLAY_DETAILS.size()]
 	save_settings()

@@ -1,0 +1,47 @@
+{
+	"_doc": "Habillage des vues de bataille (étude visuel des combats, 2026-11-15). Purement visuel : rien ici ne touche aux règles. Chaque élément peut être remplacé par un fichier posé dans assets/battle/ (voir \"art\") ; sans fichier, le jeu dessine lui-même. Ajouter un type d'étoile, de planète ou d'objet = ajouter une entrée.",
+	"art": {
+		"_doc": "Emplacements des assets finaux. %s = identifiant (type d'étoile, de planète…). Un PNG présent à ce chemin remplace le dessin procédural correspondant.",
+		"space_background": "res://assets/battle/space/fond_%s.png",
+		"planet": "res://assets/battle/space/planete_%s.png",
+		"station": "res://assets/battle/space/station_%s.png",
+		"wreck": "res://assets/battle/space/epave_%s.png"
+	},
+	"stars": {
+		"_doc": "light : couleur de la lumière portée sur les vaisseaux ; power : intensité (1 = soleil jaune) ; size : rayon de l'étoile à l'écran (pixels pour 900 px de haut) ; ambient : lumière d'ambiance ; nebula : deux couleurs de nébuleuse.",
+		"yellow": {"light": [1.0, 0.93, 0.78], "power": 1.0, "size": 46, "ambient": 0.46, "nebula": [[0.32, 0.18, 0.46], [0.75, 0.55, 0.3]]},
+		"red": {"light": [1.0, 0.55, 0.38], "power": 0.8, "size": 40, "ambient": 0.44, "nebula": [[0.42, 0.1, 0.16], [0.6, 0.25, 0.2]]},
+		"white": {"light": [0.92, 0.96, 1.0], "power": 1.05, "size": 24, "ambient": 0.46, "nebula": [[0.16, 0.22, 0.42], [0.55, 0.6, 0.75]]},
+		"blue_giant": {"light": [0.62, 0.78, 1.0], "power": 1.3, "size": 70, "ambient": 0.48, "nebula": [[0.1, 0.18, 0.5], [0.3, 0.55, 0.85]]},
+		"neutron": {"light": [0.75, 0.85, 1.0], "power": 0.7, "size": 12, "ambient": 0.42, "nebula": [[0.2, 0.12, 0.42], [0.45, 0.4, 0.8]]},
+		"black_hole": {"light": [1.0, 0.7, 0.45], "power": 0.55, "size": 30, "ambient": 0.4, "nebula": [[0.25, 0.08, 0.3], [0.85, 0.45, 0.2]]}
+	},
+	"planet": {
+		"_doc": "Planète montrée en fond : celle du défenseur la plus peuplée, sinon la plus grande. radius : rayon (fraction de la hauteur d'écran) selon la taille 1 à 5 ; siege_radius : rayon pendant un siège (planète au premier plan).",
+		"radius": [0.22, 0.27, 0.32, 0.38, 0.44],
+		"siege_radius": 0.62,
+		"moons_max": 2
+	},
+	"objects": {
+		"_doc": "Objets du système dessinés dans l'arène. belt : astéroïdes si le système compte une ceinture ; station : bastion ou avant-poste du défenseur ; wrecks_max : épaves du cimetière dessinées au plus ; defenses : plates-formes orbitales pendant un siège.",
+		"belt": {"count": [26, 40, 60]},
+		"wrecks_max": [6, 14, 24],
+		"wrecks_cap": 60,
+		"defenses": 4
+	},
+	"detail": {
+		"_doc": "Réglage « Détail des replays » (Options > Affichage). Chaque niveau fixe l'indice utilisé dans les listes de \"objects\" et des effets.",
+		"levels": ["sobre", "normal", "riche"],
+		"labels": {"sobre": "Sobre", "normal": "Normal", "riche": "Riche"},
+		"default": "normal",
+		"parallax": [0.0, 1.0, 1.0],
+		"debris": [4, 9, 16],
+		"smoke": [0, 4, 8]
+	},
+	"effects": {
+		"_doc": "shield_min : bouclier (stat du vaisseau) au-delà duquel les impacts allument une bulle ; burn_below : part de coque sous laquelle le vaisseau fume et brûle ; mega_sizes : tailles qui explosent en plusieurs temps.",
+		"shield_min": 1,
+		"burn_below": 0.5,
+		"mega_sizes": ["titan"]
+	}
+}

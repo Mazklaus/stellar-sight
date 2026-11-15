@@ -86,6 +86,7 @@ static func _in_conflict(state: GameState, fleets: Array) -> bool:
 static func _new_battle(state: GameState, sid: int) -> Dictionary:
 	var b := {"id": state.next_battle_id, "system": sid, "start": state.tick, "day": 0,
 			"fleets": [], "sides": [], "units": [], "slots": [], "log": []}
+	b["scene"] = BattleScene.capture(state, sid, int(b["id"]))  # décor de la vue de replay (visuel)
 	state.next_battle_id += 1
 	state.battles[sid] = b
 	return b
@@ -415,6 +416,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 	report["winner"] = winner
 	report["system_name"] = state.galaxy.systems[sid].system_name
 	report.erase("slots")
+	BattleScene.finish(state, sid, report)
 	state.battle_reports.append(report)
 	var keep := int(Combat.data().get("reports_max", 12))
 	while state.battle_reports.size() > keep:
