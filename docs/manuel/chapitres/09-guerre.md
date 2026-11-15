@@ -366,3 +366,18 @@ Jour 4 de la bataille de Thessa. Boucliers à 30 %. L'ennemi est passé en court
 ::: conseil
 Regardez le rapport de la première bataille avant de construire la suivante : si l'ennemi aligne des boucliers, vos rayons s'y briseront, et le Chantier peut concevoir pour vous un modèle qui le contre.
 :::
+
+### Regarder une bataille
+
+La vue de replay ne se contente plus de pions : elle montre le vrai lieu de la bataille. Rien de ce qu'elle dessine ne change les règles, et une même bataille se rejoue toujours à l'identique.
+
+- **Dans l'espace** : l'étoile du système éclaire les vaisseaux, la planète du défenseur occupe le bas de l'écran (en grand pendant un siège), les épaves des batailles passées dérivent au cimetière. Le **terrain** se voit : nuées teintées des nébuleuses et des tempêtes, éclairs du plasma et de la tempête ionique, disque d'ombre du trou noir, faisceaux du pulsar, halo de la géante bleue, rocs du champ d'astéroïdes.
+- **Les coques** prennent la forme de leur modèle (le porte-vaisseaux a son hangar, le léviathan de siège son canon) et le style de leur peuple : fuseaux héroïques, nefs à voiles, briques grimdark, treillis de la hard SF, bricolages pulp, chair de l'Essaim, cristaux des Murmurants, rocs des Ferrocornes.
+- **Les manœuvres** suivent la portée et la **tactique** : à l'Assaut, la flotte fonce vers le centre ; au Tir à distance, elle reste au large ; au Rempart, elle serre les rangs. Les porte-vaisseaux s'entourent d'un **essaim de chasseurs** qui plonge sur les cibles, sauf dans un nuage de plasma.
+- **Au sol** : le champ de bataille en légère plongée, avec ses collines, la ville du défenseur et ses retranchements. Chaque régiment devient une troupe de figurines. Leur corps vient de l'**archétype** du peuple (bipèdes, insectes, blocs de pierre, reptiles, robots, feux follets), leurs armes et véhicules de son **registre**, leur couleur de l'empire. La **ville** prend le style de bâtiments du peuple majoritaire (citadelle, cathédrale, ruche, circuits, cristaux…), s'adapte au biome (pilotis sur l'océan, dômes sur un monde toxique) et grandit avec la population.
+
+Le réglage **Options > Affichage > Échelle des batailles au sol** choisit la taille des armées : Escarmouche, Bataille ou Grande bataille, jusqu'à plusieurs milliers de figurines. **Détail des vues de bataille** allège ou enrichit les effets. [[T]] revient à la vue tactique d'origine, sans décor.
+
+::: conseil
+La vue tactique ([[T]]) est la plus lisible pour comprendre qui a tiré sur qui ; la vue habillée, pour savoir où et contre qui vous vous battiez.
+:::
