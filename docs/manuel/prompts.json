@@ -115,6 +115,9 @@
      "prompt": "a tiny young exploration ship halting at the edge of a pocket of ancient star systems, perfect ring-worlds and cathedral-like megastructures asleep under dust, colossal motionless fleets drifting in silent formation for millennia, a single golden eye-like beacon slowly opening, reverent dread and wonder"},
     {"id": "MJ-38", "titre": "Les peuples mineurs", "format": "2:1", "forme": "grande", "emplacement": "Bandeau du chapitre « Les peuples mineurs »",
      "sujet": "Depuis une colline au crépuscule, des villageois d'un âge féodal lèvent les yeux vers un vaisseau d'observation discret, tandis qu'au loin brillent les lumières d'une cité-État spatiale en orbite",
-     "prompt": "a small medieval-like alien village on a hill at dusk, curious villagers with lanterns looking up at a faint cloaked observation starship hovering above the clouds, a bustling independent space city-state glittering in orbit high in the sky with tiny trade ships, gentle wonder and quiet mischief"}
+     "prompt": "a small medieval-like alien village on a hill at dusk, curious villagers with lanterns looking up at a faint cloaked observation starship hovering above the clouds, a bustling independent space city-state glittering in orbit high in the sky with tiny trade ships, gentle wonder and quiet mischief"},
+    {"id": "MJ-39", "titre": "Le rayonnement", "format": "2:1", "forme": "grande", "emplacement": "Bandeau du chapitre « Le rayonnement »",
+     "sujet": "Sur la place d'une colonie de la frontière, la foule de plusieurs espèces chante sous un opéra holographique géant projeté depuis un vaisseau-théâtre, pendant qu'un vieux préfet regarde du balcon",
+     "prompt": "a crowded alien city square at night on a frontier colony world, citizens of several species gathered under a giant floating holographic opera projected from an orbiting theatre ship, foreign banners and fashion everywhere, a lone old official watching from a balcony as the crowd sings, wistful wonder and gentle irony"}
   ]
 }

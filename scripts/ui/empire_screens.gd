@@ -147,6 +147,9 @@ var _hero_sig := ""
 var chronicle_buttons := {}
 var _chron_sig := ""
 var _armies_sig := ""
+## Écran Rayonnement : boutons « osmose:1 », « savoir:tech », « ambassade:empire », « troupe:empire » (tests).
+var culture_buttons := {}
+var _culture_sig := ""
 ## Onglet ouvert de l'écran Chroniques : "quests", "events" ou "relics".
 var chron_tab := "quests"
 var _shipyard_sig := ""
@@ -294,6 +297,9 @@ func show_screen(screen_id: String) -> void:
 			ChronicleScreen.build(self)
 		"armies":
 			ArmiesScreen.build(self)
+		"culture":
+			culture_buttons.clear()
+			CultureScreen.build(self)
 	refresh()
 	screen_changed.emit(screen_id)
 
@@ -341,6 +347,9 @@ func refresh() -> void:
 		"armies":
 			if ArmiesScreen.signature(self) != _armies_sig:
 				show_screen("armies")
+		"culture":
+			if CultureScreen.signature(self) != _culture_sig:
+				show_screen("culture")
 		"research":
 			if _research_signature() != _research_sig:
 				_fill_research_side()

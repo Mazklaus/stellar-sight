@@ -79,6 +79,10 @@ static func rule_text(id: String) -> String:
 			return t % [int(v["colonies"]), years]
 		"spirituelle":
 			return t % [int(v["share_pct"]), years]
+		"rayonnement":
+			return t % [int(v["min_rivals"]), years]
+		"idole":
+			return t % [int(v["pct"]), maxi(1, years)]
 		"diplomatique":
 			var cd: Dictionary = Amphictyony.data()["chancellor"]
 			return t % [int(cd["win_pct"]), int(cd["cover_pct"])]
@@ -118,6 +122,9 @@ static func enabled(state: GameState, id: String) -> bool:
 		return false
 	if id == SCORE:
 		return deadline(state) > 0
+	# Le Grand Rayonnement et l'Idole des étoiles : seulement avec le rayonnement culturel.
+	if bool(info(id).get("culture", false)) and not Culture.enabled(state):
+		return false
 	if is_people(id):
 		return people_enabled(state)
 	# Victoire en option (spirituelle) : décochée par défaut, et seulement avec les religions.
@@ -246,6 +253,10 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			FaithBridges.spiritual(state, e, out)
 		"diplomatique":
 			AmphPower.victory(state, e, out)
+		"rayonnement":
+			CultureLife.victory_rayonnement(state, e, out)
+		"idole":
+			CultureLife.victory_idole(state, e, out)
 	if is_people(id) and not has_tech(state, empire_id, id):
 		out["lines"].append("Technologie requise : %s" % String(Research.tech(tech_for(id)).get("label", tech_for(id))))
 		out["cond"] = false
@@ -437,6 +448,7 @@ static func score(state: GameState, empire_id: int) -> int:
 	if not state.relics.is_empty():
 		pts += Relics.owned(state, empire_id).size() * int(Relics.rules()["score"])
 	pts += Quests.score(state, empire_id)
+	pts += Culture.score(state, empire_id)
 	@warning_ignore("integer_division")
 	pts += e.explored.size() / maxi(1, int(s.get("explored_div", 3)))
 	var best := 0

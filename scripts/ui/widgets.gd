@@ -113,6 +113,15 @@ class IconButton:
 						c + Vector2(-s * 0.3, s * 0.35), c + Vector2(-s * 0.55, -s * 0.2)]), col)
 				draw_rect(Rect2(c + Vector2(-s * 0.95, s * 0.5), Vector2(s * 1.9, s * 0.25)), col)
 				draw_rect(Rect2(c + Vector2(-s * 0.6, s * 0.75), Vector2(s * 1.2, s * 0.4)), Color(col, 0.7))
+			"culture":
+				# Un masque de théâtre et ses rayons : le rayonnement culturel.
+				for k in 8:
+					var a := TAU * float(k) / 8.0
+					draw_line(c + Vector2(cos(a), sin(a)) * s * 0.95, c + Vector2(cos(a), sin(a)) * s * 1.3, Color(col, 0.75), 1.3, true)
+				draw_circle(c, s * 0.78, col)
+				draw_circle(c + Vector2(-s * 0.3, -s * 0.15), s * 0.14, Color(0.05, 0.07, 0.1))
+				draw_circle(c + Vector2(s * 0.3, -s * 0.15), s * 0.14, Color(0.05, 0.07, 0.1))
+				draw_arc(c + Vector2(0, s * 0.12), s * 0.38, PI * 0.15, PI * 0.85, 12, Color(0.05, 0.07, 0.1), 1.6, true)
 			"amphictyony":
 				# Un fronton à colonnes : la tribune de l'Amphictyonie.
 				draw_colored_polygon(PackedVector2Array([c + Vector2(-s * 1.2, -s * 0.45), c + Vector2(0, -s * 1.15), c + Vector2(s * 1.2, -s * 0.45)]), col)

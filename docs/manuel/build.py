@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.15"
+EDITION = "2.18"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -359,6 +359,7 @@ NOMS_COUCHE = {
     "energetique": "Énergétique", "lithoide": "Lithoïde", "feodalite": "Féodalité", "theocratie": "Théocratie",
     "republique": "République", "conscience": "Conscience distribuée", "horde": "Horde", "syndicat": "Syndicat",
     "honneur": "Honneur", "foi": "Foi", "raison": "Raison", "survie": "Survie", "profit": "Profit",
+    "plaisir": "Plaisir",
 }
 BIOMES = {"arctic": "Glaciaire", "desert": "Désert", "ocean": "Océan", "jungle": "Jungle", "toxic": "Toxique",
           "barren": "Stérile", "terran": "Tempéré", "tundra": "Toundra", "gas": "Géante gazeuse", "volcanic": "Volcanique",
@@ -422,6 +423,9 @@ def talents_du_peuple(f):
     ajoute("Pirates", _par_couche(c, charger("pirates.json").get("talents", {})))
     ajoute("Créatures", _par_couche(c, charger("creatures.json").get("talents", {})))
     ajoute("Logistique", _par_couche(c, charger("logistics.json").get("talents", {})))
+    cu = charger("culture.json").get("talents", {})
+    peuple = cu.get("peoples", {}).get(f["id"])
+    ajoute("Rayonnement", _par_couche(c, {k: v for k, v in cu.items() if k != "peoples"}) + ([peuple] if isinstance(peuple, dict) else []))
     return res
 
 
@@ -609,6 +613,51 @@ def gen_mineurs_talents():
     return (f"<table class='grille'><tr><th>Couche</th><th>Talent</th><th>Effet</th></tr>{lignes}</table>")
 
 
+def gen_rayonnement_modes():
+    """Réglages Rayonnement culturel et Défection culturelle (data/culture.json)."""
+    d = charger("culture.json")
+    lignes = "".join(f"<tr><td>Rayonnement culturel</td><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>"
+                     for m in d.get("modes", []))
+    lignes += "".join(f"<tr><td>Défection culturelle</td><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_defect') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>"
+                      for m in d.get("defect_modes", []))
+    return f"<table class='grille'><tr><th>Réglage</th><th>Choix</th><th>Effet</th></tr>{lignes}</table>"
+
+
+def gen_rayonnement_paliers():
+    """Les six paliers (data/culture.json, tiers)."""
+    lignes = "".join(f"<tr><td><b>{esc(t['label'])}</b></td><td>{t['min']} %</td><td>{inline(t.get('text', ''))}</td></tr>"
+                     for t in charger("culture.json").get("tiers", []))
+    return f"<table class='grille'><tr><th>Palier</th><th>Cumul ÷ Patrimoine</th><th>Ce qu'on en dit</th></tr>{lignes}</table>"
+
+
+def gen_rayonnement_merveilles():
+    """Musée, villégiature et merveilles culturelles (data/buildings.json, champ culture)."""
+    tech = charger("technologies.json")["technologies"]
+    lignes = ""
+    for bid, b in charger("buildings.json").items():
+        if not isinstance(b, dict) or not b.get("culture"):
+            continue
+        req = ", ".join(tech.get(t, {}).get("label", t) for t in b.get("requires_tech", []))
+        cout = ", ".join(f"{v} {k}" for k, v in b.get("cost", {}).items())
+        lignes += f"<tr><td><b>{esc(b['label'])}</b></td><td>{esc(req)}</td><td>{esc(cout)}</td><td>{inline(b.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Bâtiment</th><th>Technologie</th><th>Coût</th><th>Effet</th></tr>{lignes}</table>"
+
+
+def gen_rayonnement_talents():
+    """Talents de rayonnement par couche et par peuple (data/culture.json, talents)."""
+    noms = {"gouvernement": "Gouvernement", "credo": "Credo", "archetype": "Archétype", "registre": "Registre", "traits": "Trait", "peoples": "Peuple"}
+    peuples = {f["id"]: f.get("name", f["id"]) for f in charger("factions.json")}
+    lignes = ""
+    for couche, valeurs in charger("culture.json").get("talents", {}).items():
+        if couche.startswith("_") or not isinstance(valeurs, dict):
+            continue
+        for val, t in valeurs.items():
+            nom = peuples.get(val, val) if couche == "peoples" else NOMS_COUCHE.get(val, val.replace("_", " ").capitalize())
+            lignes += (f"<tr><td>{esc(noms.get(couche, couche))} {esc(nom)}</td><td><b>{esc(t['label'])}</b></td>"
+                       f"<td>{inline(t['text'])}</td></tr>")
+    return (f"<table class='grille'><tr><th>Couche</th><th>Talent</th><th>Effet</th></tr>{lignes}</table>")
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -620,6 +669,8 @@ GENERATEURS = {
     "mineurs_modes": gen_mineurs_modes, "mineurs": gen_mineurs, "mineurs_quetes": gen_mineurs_quetes,
     "mineurs_accords": gen_mineurs_accords, "mineurs_programmes": gen_mineurs_programmes,
     "mineurs_talents": gen_mineurs_talents,
+    "rayonnement_modes": gen_rayonnement_modes, "rayonnement_paliers": gen_rayonnement_paliers,
+    "rayonnement_merveilles": gen_rayonnement_merveilles, "rayonnement_talents": gen_rayonnement_talents,
 }
 
 

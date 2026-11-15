@@ -345,6 +345,10 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 			if int(best["pct"]) >= int(step[0]):
 				malus = int(step[1])
 		_part(out, "Menace pour la galaxie : %s" % Victory.label(String(best["id"])), malus)
+	# Rayonnement culturel : la culture de b, Familière ou mieux chez a (voir Culture).
+	if not state.culture.is_empty():
+		for pp in Culture.opinion_parts(state, a, b):
+			_part(out, String(pp[0]), int(pp[1]))
 	# Histoire commune : les souvenirs qui ne sont pas encore effacés.
 	for m in state.memories:
 		if int(m["who"]) == a and int(m["about"]) == b:

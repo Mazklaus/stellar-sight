@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 71
+const FORMAT_VERSION := 72
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -186,6 +186,8 @@ var crisis: Dictionary = {}
 var ancients: Dictionary = {}
 ## Peuples mineurs (voir Minors) ; {} = aucun dans la partie.
 var minors: Dictionary = {}
+## Rayonnement culturel (voir Culture) ; {} = pas de rayonnement dans la partie.
+var culture: Dictionary = {}
 ## Zones de ravitaillement et lignes du jour (dérivé de l'état, non sauvegardé, recalculé chaque tick).
 var log_cache: Dictionary = {}
 var _pirates: Empire
@@ -264,6 +266,8 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 		s.victory_rules[k] = bool(vic.get(k, true))
 	s.victory_rules["spirituelle"] = bool(vic.get("spirituelle", false))
 	s.victory_rules["diplomatique"] = bool(vic.get("diplomatique", true))
+	if vic.has("rayonnement"):
+		s.victory_rules["rayonnement"] = bool(vic["rayonnement"])  # Grand Rayonnement (voir Culture)
 	s.ai_scaling = bool(options.get("ai_scaling", false))
 	s._setup_empires(player_faction, options.get("rivals", null), bool(options.get("duplicates", false)), options.get("distances", []))
 	s._setup_colors(options.get("colors", []))
@@ -302,6 +306,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	AncientsBridges.setup_scions(s)  # origine « Rejeton » : une petite ancienne, même sans l'option
 	AncientsBridges.place_relics(s)
 	Minors.setup(s, String(options.get("minors", "aucun")))
+	Culture.setup(s, String(options.get("culture", "aucun")), String(options.get("culture_defect", "")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -445,6 +450,9 @@ func to_dict() -> Dictionary:
 	# Peuples mineurs : seulement s'il y en a (même empreinte sans eux).
 	if Minors.worth_saving(self):
 		d["minors"] = Minors.to_dict(self)
+	# Rayonnement culturel : seulement s'il est en jeu (même empreinte sans lui).
+	if Culture.worth_saving(self):
+		d["culture"] = Culture.to_dict(self)
 	return d
 
 
@@ -550,6 +558,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	# Puissances anciennes avant les colonies et les flottes : leurs propriétaires doivent exister.
 	Ancients.from_dict(s, d.get("ancients", {}))
 	Minors.from_dict(s, d.get("minors", {}))
+	Culture.from_dict(s, d.get("culture", {}))
 	for c: Dictionary in d["colonies"]:
 		var colony := Colony.from_dict(c)
 		if s.galaxy.get_planet(colony.planet_id) == null or s.get_empire(colony.owner) == null:

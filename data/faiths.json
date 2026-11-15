@@ -126,6 +126,13 @@
 			"fx": {
 				"growth_pct": 5
 			}
+		},
+		"plaisir": {
+			"label": "Fête des origines",
+			"text": "Stabilité +3.",
+			"fx": {
+				"stability": 3
+			}
 		}
 	},
 	"reveal": {

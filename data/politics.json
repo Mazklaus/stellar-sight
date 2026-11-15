@@ -53,7 +53,7 @@
 		"Cosmique / étrange": {"academie": "les Veilleurs", "autel": "le Murmure"}
 	},
 	"lean": {
-		"credo": {"honneur": "glaive", "foi": "autel", "raison": "academie", "profit": "forge", "survie": "seve"},
+		"credo": {"honneur": "glaive", "foi": "autel", "raison": "academie", "profit": "forge", "survie": "seve", "plaisir": "concorde"},
 		"gouvernement": {"feodalite": "glaive", "horde": "glaive", "theocratie": "autel", "republique": "concorde", "syndicat": "forge", "conscience": "academie"},
 		"principal": 500,
 		"secondary": 300,
@@ -258,6 +258,8 @@
 			"text": "Stabilité +10. On dort mieux, on pense moins : influence -25 %, Savoir -15 %."
 		},
 		{"id": "libre_echange", "label": "Libre-échange", "level": 0, "fx": {"trade_income_pct": 100, "production_pct": {"materials": -15}}, "text": "Routes commerciales +100 %. Les forges locales ferment : matériaux -15 %.", "excludes": ["protectionnisme"]}, {"id": "protectionnisme", "label": "Protectionnisme", "level": 0, "fx": {"tariff_double": 1, "production_pct": {"materials": 10}}, "excludes": ["libre_echange"], "text": "Tarifs et douanes doublés sur toutes vos routes. Les forges locales, elles, respirent : matériaux +10 %."}, {"id": "compagnies_charte", "label": "Compagnies à charte", "level": 0, "fx": {"trade_routes": 1, "stability": -3}, "text": "Une route commerciale de plus. Dans les ports, les compagnies font la loi : stabilité -3."},
+		{"id": "exception_culturelle", "label": "Exception culturelle", "level": 0, "culture": true, "fx": {"culture_heritage_pct": 25, "culture_foreign_pct": -25, "trade_income_pct": -10}, "excludes": ["ouverture_culturelle"], "text": "Rayonnement culturel : Patrimoine +25 %, cultures étrangères -25 % chez vous. Quotas, doublages obligatoires et douanes tatillonnes : routes commerciales -10 %."},
+		{"id": "ouverture_culturelle", "label": "Ouverture culturelle", "level": 0, "culture": true, "fx": {"culture_heritage_pct": -15, "culture_foreign_pct": 25, "trade_income_pct": 10}, "excludes": ["exception_culturelle"], "text": "Rayonnement culturel : les cultures étrangères entrent librement (+25 %), Patrimoine -15 %. Les marchands, eux, adorent : routes commerciales +10 %."},
 		{"id": "hospitalite", "label": "Hospitalité", "level": 0, "peoples": true, "fx": {"integration_pct": 50, "lean": {"concorde": 4}, "stability_native": -2}, "excludes": ["preference_native"], "text": "Les nouveaux venus s'intègrent 50 % plus vite et la Concorde applaudit. Les vôtres, eux, trouvent qu'on en fait beaucoup : -2 de stabilité là où votre peuple est majoritaire."},
 		{"id": "tolerance", "label": "Tolérance", "level": 0, "faiths": true, "fx": {"faith_tolerance": 1, "lean": {"concorde": 3}}, "excludes": ["inquisition"], "text": "Religions : les mondes d'une autre foi ne coûtent plus de stabilité, et la Concorde gagne du terrain. Répond à la doléance « Liberté de culte »."},
 		{"id": "inquisition", "label": "Inquisition", "level": 0, "faiths": true, "fx": {"faith_inquisition": 1, "stability": -3, "lean": {"autel": 3, "glaive": 1}}, "excludes": ["tolerance"], "text": "Religions : tous les trois mois, chaque colonie perd un fidèle d'une autre foi au profit de la foi d'État. Stabilité -3, et les empires dont la foi est persécutée vous en veulent (-10)."},

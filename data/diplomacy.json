@@ -67,7 +67,9 @@
 			["honneur", "profit", -10],
 			["foi", "profit", -5],
 			["transcendance", "survie", -5],
-			["raison", "transcendance", -5]
+			["raison", "transcendance", -5],
+			["foi", "plaisir", -10],
+			["survie", "plaisir", -5]
 		],
 		"gouvernement_same": 5,
 		"gouvernement_pairs": [
@@ -132,6 +134,10 @@
 		"left_koinon": {"value": -15, "days": 1440, "label": "A quitté notre Koinon"},
 		"ev_gift": {"value": 15, "days": 1080, "label": "Un geste apprécié (événement)"},
 		"ev_snub": {"value": -15, "days": 1080, "label": "Un affront (événement)"},
+		"culture_osmose": {"value": 10, "days": 1080, "label": "A adopté une de nos lois (osmose culturelle)"},
+		"culture_refus": {"value": -5, "days": 720, "label": "A refusé notre modèle (osmose culturelle)"},
+		"culture_scandale": {"value": -10, "days": 720, "label": "Un spectacle scandaleux (troupe)"},
+		"culture_denigre": {"value": -15, "days": 1080, "label": "A dénigré notre culture (espionnage)"},
 		"tones_kin": {"value": 10, "days": 1800, "label": "Des esprits voisins (choc des tons)"},
 		"tones_clash": {"value": -10, "days": 1800, "label": "Tout nous oppose (choc des tons)"},
 		"relic_gift": {"value": 25, "days": 1800, "label": "Nous a offert une relique"},

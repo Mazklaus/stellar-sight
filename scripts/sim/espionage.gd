@@ -630,6 +630,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_l := Logistics.spy_check(state, a, b, op_id)
 		if why_l != "":
 			return why_l
+	if bool(o.get("culture", false)):
+		var why_c := CultureBridges.spy_check(state, a, b, op_id)
+		if why_c != "":
+			return why_c
 	match op_id:
 		"prophetie":
 			var why := FaithWars.check_prophecy(state, a, b)
@@ -731,7 +735,7 @@ static func launch(state: GameState, a: int, b: int, op_id: String) -> void:
 	Economy.pay(state.get_empire(a), op_cost(state, a, op_id))
 	var ch := chances(state, a, b, op_id)
 	state.operations.append({"id": state.next_spy_id, "a": a, "b": b, "op": op_id, "start": state.tick,
-			"end": state.tick + int(o["days"]) * (100 + FaithHeavy.op_days_pct(state, a, op_id)) / 100, "success": int(ch["success"]), "discovery": int(ch["discovery"])})
+			"end": state.tick + int(o["days"]) * (100 + FaithHeavy.op_days_pct(state, a, op_id) + CultureLife.spy_days_pct(state, a, b)) / 100, "success": int(ch["success"]), "discovery": int(ch["discovery"])})
 	state.next_spy_id += 1
 
 
@@ -817,6 +821,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return GroundOccupation.spy_apply(state, a, b, o)
 	if bool(o.get("logistics", false)):
 		return Logistics.spy_apply(state, a, b, o)
+	if bool(o.get("culture", false)):
+		return CultureBridges.spy_apply(state, a, b, o)
 	match String(o["id"]):
 		"rapport":
 			ea.dossiers[b] = dossier(state, b, data()["tiers"].size())

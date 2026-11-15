@@ -101,6 +101,18 @@
 			"chronicle": "%s est proclamé Chancelier des étoiles : la galaxie a voté, et pour une fois elle s'en souviendra.",
 			"src": "Victoire diplomatique : Civilization V (Congrès mondial, élection du dirigeant mondial), Stellaris (Communauté galactique, Custodian et Empire galactique)"
 		},
+		"rayonnement": {
+			"kind": "classic",
+			"label": "Le Grand Rayonnement",
+			"culture": true,
+			"text": "Que sa culture soit au moins « Influente » chez chaque empire survivant rencontré (au moins %d), et le tenir %d ans. Alertes à toute la galaxie à la moitié et aux trois quarts des empires.",
+			"counter": "Fermer ses frontières, voter l'Exception culturelle, couper les routes, déclarer la guerre (elle coupe la diffusion) ou dénigrer sa culture par l'espionnage.",
+			"min_rivals": 2,
+			"hold_days": 720,
+			"on_fail": "pause",
+			"chronicle": "Le Grand Rayonnement : de bord en bord de la galaxie, on chante les chansons de %s, on porte ses modes et on rit de ses blagues. Plus besoin de flottes quand tout le monde vous imite.",
+			"src": "Victoire culturelle, Civilization VI (touristes étrangers) et Civilization V (Influent sur toutes les civilisations)"
+		},
 		"elu": {
 			"kind": "people",
 			"label": "L'Élu des routes",
@@ -241,6 +253,23 @@
 			"hold_days": 1080,
 			"on_fail": "reset",
 			"chronicle": "Trois ans sans un bruit. On cherche %s dans les archives pour le proclamer vainqueur, mais personne ne se souvient l'avoir jamais rencontré."
+		},
+		"idole": {
+			"kind": "people",
+			"label": "L'Idole des étoiles",
+			"culture": true,
+			"requires": {
+				"credo": [
+					"plaisir"
+				]
+			},
+			"tech": "idole",
+			"text": "Que sa culture soit au moins « Influente » chez des empires qui réunissent %d %% de la population étrangère rencontrée, et le tenir %d an.",
+			"counter": "Garder sa population à l'abri de ses fêtes : Exception culturelle, frontières fermées, embargo, ou la guerre.",
+			"pct": 60,
+			"hold_days": 360,
+			"on_fail": "reset",
+			"chronicle": "L'Idole des étoiles : %s ne gouverne personne, mais tout le monde danse sur sa musique. Les autres empires ont encore des drapeaux ; plus personne ne se souvient de leurs hymnes."
 		}
 	}
 }

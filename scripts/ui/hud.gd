@@ -58,6 +58,7 @@ var _tab_faith: Button
 var _tab_amph: Button
 var _tab_war: Button
 var _tab_borders: Button
+var _tab_culture: Button
 var _tab_orbit: Button
 var _tab_manage: Button
 var _info_panel: PanelContainer
@@ -148,6 +149,8 @@ func set_state(state: GameState, player: int) -> void:
 	spectator_panel.set_state(state if spectator else null, player)
 	if _tab_borders:
 		_tab_borders.visible = not _system_mode and Borders.active(state)
+	if _tab_culture:
+		_tab_culture.visible = not _system_mode and Culture.enabled(state)
 	_hover_id = -1
 	show_system(null, state)
 
@@ -230,6 +233,8 @@ func set_system_mode(on: bool) -> void:
 	_tab_war.visible = not on
 	if _tab_borders:
 		_tab_borders.visible = not on and _state != null and Borders.active(_state)
+	if _tab_culture:
+		_tab_culture.visible = not on and _state != null and Culture.enabled(_state)
 	_tab_orbit.visible = on
 	_tab_manage.visible = on
 	if on:
@@ -368,6 +373,8 @@ func set_lens(value: String) -> void:
 		_tab_war.set_pressed_no_signal(value == "war")
 	if _tab_borders:
 		_tab_borders.set_pressed_no_signal(value == "borders")
+	if _tab_culture:
+		_tab_culture.set_pressed_no_signal(value == "culture")
 	lens_changed.emit(value)
 
 
@@ -410,6 +417,9 @@ func _build_tabs() -> void:
 	_tab_war.pressed.connect(func() -> void: set_lens("" if lens == "war" else "war"))
 	_tab_borders = _tab("Frontières", "Lentille des frontières : votre droit de passage chez chaque voisin (vert : vos flottes de guerre passent, ambre : vaisseaux sans armes seulement, rouge : frontière close) et les intrus chez vous  (A ; Q en QWERTY)")
 	_tab_borders.pressed.connect(func() -> void: set_lens("" if lens == "borders" else "borders"))
+	_tab_culture = _tab("Culture", "Lentille du rayonnement : chez chaque empire, le palier de votre culture (gris Inconnu, bleu Exotique, vert Familier, or En vogue, orange Influent, rouge Dominant) ; chez vous, la culture étrangère dominante et les défections en cours")
+	_tab_culture.pressed.connect(func() -> void: set_lens("" if lens == "culture" else "culture"))
+	_tab_culture.visible = false
 	_tab_orbit = _tab("Vue orbitale", "L'étoile et ses planètes en orbite  (Tab)")
 	_tab_orbit.pressed.connect(func() -> void: system_mode_requested.emit(false))
 	_tab_manage = _tab("Gestion du système", "Les planètes côte à côte, pour comparer  (Tab)")

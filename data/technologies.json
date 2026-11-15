@@ -2488,6 +2488,77 @@
 			"effects": {
 				"precision_siege_pct": 50
 			}
+		},
+		"arts_holographiques": {
+			"label": "Arts holographiques",
+			"domain": "societe",
+			"era": 2,
+			"text": "Débloque le Musée galactique, les stations de villégiature et la Bibliothèque des Mille Mondes. Rayonnement : chaque relique exposée compte.",
+			"flavor": "La sculpture en lumière dure a ruiné deux siècles de marbriers, et enrichi les vendeurs de lunettes.",
+			"pre": [
+				"rhetorique"
+			],
+			"effects": {
+				"culture_museum": 1
+			}
+		},
+		"holovision": {
+			"label": "Holovision",
+			"domain": "societe",
+			"era": 3,
+			"text": "Rayonnement +25 %. Débloque l'Holothéâtre éternel et les Troupes de spectacle.",
+			"flavor": "Douze mille chaînes, et toujours rien à regarder. Sauf, curieusement, les feuilletons du voisin.",
+			"pre": [
+				"arts_holographiques"
+			],
+			"effects": {
+				"culture_pct": 25,
+				"culture_troupe": 1
+			}
+		},
+		"reseau_mondes": {
+			"label": "Réseau des mondes",
+			"domain": "societe",
+			"era": 4,
+			"text": "Rayonnement +25 %. Débloque le Phare des Civilisations.",
+			"pre": [
+				"holovision",
+				"propagande"
+			],
+			"effects": {
+				"culture_pct": 25
+			}
+		},
+		"idole": {
+			"label": "Idole des étoiles",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : la grande tournée commence. Influente chez des empires qui réunissent 60 % de la population étrangère rencontrée, tenu un an, et la galaxie entière danse sur votre musique.",
+			"pre": [
+				"holovision"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"plaisir"
+					]
+				}
+			},
+			"victory": "idole",
+			"flavor": "Ils ont des flottes, des armées et des lois. Nous avons le refrain."
+		},
+		"conversion_culturelle": {
+			"label": "Conversion culturelle",
+			"domain": "societe",
+			"era": 4,
+			"text": "Vos voisins instables et largement rayonnés par vous peuvent faire défection et rejoindre votre empire (selon le réglage de la partie).",
+			"flavor": "On ne prend plus les mondes : on les invite.",
+			"pre": [
+				"holovision"
+			],
+			"effects": {
+				"culture_defect": 1
+			}
 		}
 	},
 	"marks": {

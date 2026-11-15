@@ -5,7 +5,7 @@ image: MJ-17
 epigraphe: On ne gagne pas une galaxie. On attend simplement que les autres aient fini de la perdre.
 signature: Proverbe des Lignées d'Ossarane
 ---
-Cinq victoires sont ouvertes à tous, et chaque peuple a la sienne. Le bloc Victoire de la nouvelle partie dit lesquelles sont en jeu ; l'écran Victoires ([[F7]]) montre où en est chaque empire.
+Six victoires sont ouvertes à tous, et chaque peuple a la sienne. Le bloc Victoire de la nouvelle partie dit lesquelles sont en jeu ; l'écran Victoires ([[F7]]) montre où en est chaque empire.
 
 ### Les victoires communes
 
@@ -16,6 +16,7 @@ Cinq victoires sont ouvertes à tous, et chaque peuple a la sienne. Le bloc Vict
 | Score | Si une date limite est choisie | Avoir le plus haut score à la date limite (30, 60 ou 90 ans ; 60 par défaut) |
 | Spirituelle | En option, avec les religions | Votre foi d'État majoritaire dans plus de la moitié des colonies de chaque empire survivant, le vôtre compris, pendant 5 ans |
 | Diplomatique | Par défaut, avec l'Amphictyonie | Être élu **Chancelier des étoiles** par l'Amphictyonie, puis faire accepter le verdict |
+| Le Grand Rayonnement | Par défaut, avec le rayonnement culturel | Être au moins **Influent** chez chaque empire survivant rencontré (au moins deux), pendant 2 ans (chapitre 22) |
 
 **Le camp.** Conquête et Domination se gagnent en camp, si l'option « alliés vainqueurs ensemble » est cochée (c'est le cas par défaut) : les alliés partagent la victoire. Les membres d'un même **Koinon** comptent comme des alliés après cinq ans dans la ligue ; un **sujet** compte pour son suzerain après cinq ans de lien (ses systèmes pour moitié), mais ne peut gagner ni la conquête ni la domination pour lui-même. Ces délais de grâce empêchent les ralliements de la dernière heure.
 
@@ -23,11 +24,11 @@ Cinq victoires sont ouvertes à tous, et chaque peuple a la sienne. Le bloc Vict
 
 **Avec les crises de fin de partie** (chapitre 19), deux fins de plus : la **défaite commune**, quand une crise tient la moitié des mondes et que personne ne gagne, et la **Victoire du Fléau**, pour l'empire qui a pris la voie de l'Ambition démesurée et achève la Couronne du Néant.
 
-**Le score** compte, pour chaque empire : 2 points par habitant, 10 par colonie, 4 par avant-poste, 5 par technologie, 2 par vaisseau ennemi détruit, 10 par conquête, 1 pour trois systèmes explorés, 15 par relique tenue, la valeur de vos merveilles et mégastructures, 10 par quête achevée (30 pour la quête de votre credo), et la moitié de votre avancée vers votre victoire de peuple (50 au plus).
+**Le score** compte, pour chaque empire : 2 points par habitant, 10 par colonie, 4 par avant-poste, 5 par technologie, 2 par vaisseau ennemi détruit, 10 par conquête, 1 pour trois systèmes explorés, 15 par relique tenue, la valeur de vos merveilles et mégastructures, 10 par quête achevée (30 pour la quête de votre credo), la moitié de votre avancée vers votre victoire de peuple (50 au plus) et, avec le rayonnement culturel, 5 points par palier atteint chez chaque empire plus un dixième de votre Rayonnement mensuel.
 
 ### Les victoires de peuple
 
-Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie de Société de l'ère IV. Elle tient à ses couches d'espèce : un peuple créé dans l'éditeur reçoit celle de sa combinaison. Le chapitre 22 les présente une à une.
+Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie de Société de l'ère IV. Elle tient à ses couches d'espèce : un peuple créé dans l'éditeur reçoit celle de sa combinaison. Le chapitre 23 les présente une à une.
 
 | Victoire | Peuple | En bref |
 | --- | --- | --- |
@@ -39,6 +40,7 @@ Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie 
 | La Terre promise | Ferrocornes | Le monde caché colonisé, la flotte-ville y campe 1 an |
 | La Légende | Brisecomète | 7 exploits sur 11, réputation de 60, 1 an |
 | Le Silence parfait | Murmurants | 8 colonies, 3 ans sans être repéré |
+| L'Idole des étoiles | Credo Plaisir (éditeur) | Influent chez 60 % de la population étrangère rencontrée, 1 an |
 
 ### L'avancée
 

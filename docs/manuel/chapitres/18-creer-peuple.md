@@ -1,6 +1,6 @@
 ---
 titre: Créer son peuple
-numero: 23
+numero: 24
 image: MJ-20
 epigraphe: Les dieux ont mis sept jours. Vous avez quatre points de traits. Soyez raisonnable.
 signature: Note de l'éditeur
@@ -14,7 +14,7 @@ L'entrée **Peuples** du menu principal ouvre l'éditeur d'espèces. Votre peupl
 | Registre | Le ton, et l'opinion qu'il inspire aux autres | 7 registres, du Médiéval spatial au Cosmique |
 | Archétype | Le corps : comment il colonise et se nourrit | Humanoïde, ruche, lithoïde, reptilien, synthétique, énergétique |
 | Gouvernement | La mécanique signature, avec son défaut | Féodalité, théocratie, république, conscience, syndicat, horde, ruche |
-| Credo | Le style de recherche et de diplomatie | Honneur, foi, raison, profit, survie |
+| Credo | Le style de recherche et de diplomatie | Honneur, foi, raison, profit, survie, plaisir |
 | Origine | Un gisement garanti au berceau, ou +1 point de traits | 4 origines |
 | Biomes | Les deux types de planètes où il se sent chez lui | 5 biomes |
 
