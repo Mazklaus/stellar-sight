@@ -812,6 +812,7 @@ static func start_battle(state: GameState, sid: int, eid: int, defender: int, mi
 			"land": state.tick + _landing_days(state, eid, ta), "mil": mil,
 			"units": [], "ux": {}, "shots": [], "lost": [0, 0], "dsp": Peoples.founder_of(state, defender),
 			"ter": terrain_of(state, sid, defender), "ta": ta, "td": td, "dev0": GroundSiege.dev(state, sid)}
+	b["sc"] = BattleScene.ground_capture(state, sid, eid, defender, bid, ta)  # décor de la vue (visuel)
 	state.ground["b"][str(sid)] = b
 	_note(b, state)
 	return b
@@ -828,8 +829,18 @@ static func _note(b: Dictionary, state: GameState) -> void:
 		var k := "r%d" % int(r["id"])
 		if not ux.has(k):
 			ux[k] = units.size()
-			units.append({"k": k, "side": 0 if o == int(b["a"]) else 1, "t": String(r["t"]), "sp": String(r.get("sp", "")),
-					"hp": max_hp(r), "n": label(state, r)})
+			var entry := {"k": k, "side": 0 if o == int(b["a"]) else 1, "t": String(r["t"]), "sp": String(r.get("sp", "")),
+					"hp": max_hp(r), "n": label(state, r), "vet": String(rank(r).get("id", ""))}
+			# Visuel : le premier régiment d'un camp porte le général présent (prop. 27).
+			var has_side := false
+			for u0: Dictionary in units:
+				if int(u0["side"]) == int(entry["side"]) and String(u0["t"]) != "milice":
+					has_side = true
+			if not has_side:
+				var gens := generals_at(state, o, int(b["s"]))
+				if not gens.is_empty():
+					entry["gen"] = String(gens[0].get("name", ""))
+			units.append(entry)
 	var mil: Array = b["mil"]
 	for i in mil.size():
 		var k := "m%d" % i
@@ -1127,6 +1138,8 @@ static func _fight(state: GameState, b: Dictionary) -> void:
 		var mdmg := dmg * int(type_def(String(src0["t"])).get("morale_dmg_pct", 100)) / 100
 		if not bool(type_def(String(tu["t"])).get("no_morale", false)):
 			tu["mo"] = maxi(0, int(tu["mo"]) - mdmg)
+			if int(tu["mo"]) == 0 and int(tu["hp"]) > 0:
+				_note_rout(b, day, int(ux.get(String(tu["k"]), -1)))
 		lost[int(h[0])] = int(lost[int(h[0])]) + dmg
 		var src: Dictionary = h[3]
 		if shots.size() < SHOTS_MAX:
@@ -1230,6 +1243,18 @@ static func _end(state: GameState, b: Dictionary, winner: int) -> void:
 		_finish(state, b, d, "held")
 
 
+## Visuel (prop. 25) : jour où un régiment se débande, une fois par régiment.
+static func _note_rout(b: Dictionary, day: int, idx: int) -> void:
+	if idx < 0:
+		return
+	if not b.has("routs"):
+		b["routs"] = []
+	for r0: Array in b["routs"]:
+		if int(r0[1]) == idx:
+			return
+	b["routs"].append([day, idx])
+
+
 ## Archive le rapport et clôt la bataille.
 static func _finish(state: GameState, b: Dictionary, winner: int, how: String) -> void:
 	var sid := int(b["s"])
@@ -1241,6 +1266,11 @@ static func _finish(state: GameState, b: Dictionary, winner: int, how: String) -
 			"end": state.tick, "w": winner, "how": how, "units": (b["units"] as Array).duplicate(true),
 			"shots": (b["shots"] as Array).duplicate(true), "lost": (b["lost"] as Array).duplicate(),
 			"ter": String(b.get("ter", "")), "ta": String(b.get("ta", "")), "td": String(b.get("td", ""))}
+	if b.has("sc"):
+		var sc: Dictionary = (b["sc"] as Dictionary).duplicate()
+		sc["dev1"] = GroundSiege.dev(state, sid)
+		rep["sc"] = sc
+	rep["routs"] = (b.get("routs", []) as Array).duplicate(true)
 	var reps: Array = _g(state)["rep"]
 	reps.append(rep)
 	var keep := int(_cfg("battle").get("report_keep", 12))

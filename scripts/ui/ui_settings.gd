@@ -14,6 +14,9 @@ const UI_SCALES := [1.0, 1.25, 1.5]
 ## Détail des vues de bataille (visuel des combats, prop. 5) : "sobre", "normal" ou "riche".
 static var replay_detail := "normal"
 const REPLAY_DETAILS := ["sobre", "normal", "riche"]
+## Échelle des batailles au sol (visuel des combats, prop. 23 amendée) : figurines par régiment.
+static var battle_scale := "escarmouche"
+const BATTLE_SCALES := ["escarmouche", "bataille", "grande"]
 static var _loaded := false
 
 
@@ -28,6 +31,9 @@ static func load_settings() -> void:
 	replay_detail = String(cfg.get_value("display", "replay_detail", "normal"))
 	if not REPLAY_DETAILS.has(replay_detail):
 		replay_detail = "normal"
+	battle_scale = String(cfg.get_value("display", "battle_scale", "escarmouche"))
+	if not BATTLE_SCALES.has(battle_scale):
+		battle_scale = "escarmouche"
 
 
 static func save_settings() -> void:
@@ -36,6 +42,7 @@ static func save_settings() -> void:
 	cfg.set_value("game", "auto_pause_menus", auto_pause_menus)
 	cfg.set_value("display", "ui_scale", ui_scale)
 	cfg.set_value("display", "replay_detail", replay_detail)
+	cfg.set_value("display", "battle_scale", battle_scale)
 	cfg.save(PATH)
 
 
@@ -69,4 +76,13 @@ static func replay_detail_level() -> int:
 
 static func cycle_replay_detail() -> void:
 	replay_detail = REPLAY_DETAILS[(replay_detail_level() + 1) % REPLAY_DETAILS.size()]
+	save_settings()
+
+
+static func battle_scale_level() -> int:
+	return maxi(0, BATTLE_SCALES.find(battle_scale))
+
+
+static func cycle_battle_scale() -> void:
+	battle_scale = BATTLE_SCALES[(battle_scale_level() + 1) % BATTLE_SCALES.size()]
 	save_settings()

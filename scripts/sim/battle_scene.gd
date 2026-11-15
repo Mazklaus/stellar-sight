@@ -62,3 +62,28 @@ static func finish(state: GameState, sid: int, report: Dictionary) -> void:
 	if lost > 0:
 		var cap := int(GameData.battle_visuals().get("objects", {}).get("wrecks_cap", 60))
 		state.battle_wrecks[sid] = mini(cap, int(state.battle_wrecks.get(sid, 0)) + lost)
+
+
+## Décor d'une bataille au sol (visuel des combats, lot 2, prop. 18 à 22) : relevé à l'ouverture de la
+## bataille dans b["sc"], recopié dans le rapport (avec la dévastation finale "dev1").
+## {"seed", "star", "ter", "pop", "fort", "fort_max", "citadel", "bastion", "dev0", "orbit", "bombard"}
+static func ground_capture(state: GameState, sid: int, attacker: int, defender: int, battle_id: int, tactic: String) -> Dictionary:
+	var s: StarSystem = state.galaxy.systems[sid]
+	var pop := 0
+	var bastion := false
+	for pid in s.planet_ids:
+		var c: Colony = state.colonies.get(pid)
+		if c != null and c.owner == defender:
+			pop += c.population if c.is_colony() else 0
+			if c.buildings.has("bastion"):
+				bastion = true
+	var orbit := 0
+	var bombard := tactic == "bombardement"
+	for f in Fleets.fleets_at(state, sid, attacker):
+		orbit += f.ships.size()
+		if GroundSiege.posture(state, f.id) != "":
+			bombard = true
+	return {"seed": battle_id * 6151 + sid * 17, "star": s.star_type, "ter": Ground.terrain_of(state, sid, defender), "pop": pop,
+			"fort": GroundSiege.fort(state, sid), "fort_max": GroundSiege.fort_max(state, sid),
+			"citadel": GroundSiege.has_citadel(state, sid), "bastion": bastion, "dev0": GroundSiege.dev(state, sid),
+			"orbit": mini(orbit, 40), "bombard": bombard}
