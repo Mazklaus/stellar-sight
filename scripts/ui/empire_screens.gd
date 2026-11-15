@@ -17,6 +17,8 @@ signal war_requested(empire_id: int)
 signal command_requested(cmd: Dictionary)
 ## Rouvrir une carte d'événement de la boîte (écran Chroniques).
 signal event_requested(event_id: int)
+## Revoir une bataille au sol (écran Armées).
+signal ground_replay_requested(report_id: int)
 
 const MARGIN := 10.0
 const SIDE_WIDTH := EmpireBar.WIDTH
@@ -144,6 +146,7 @@ var _hero_sig := ""
 ## Écran Chroniques : boutons « event:id » et « curio:pid » (pour les tests).
 var chronicle_buttons := {}
 var _chron_sig := ""
+var _armies_sig := ""
 ## Onglet ouvert de l'écran Chroniques : "quests", "events" ou "relics".
 var chron_tab := "quests"
 var _shipyard_sig := ""
@@ -289,6 +292,8 @@ func show_screen(screen_id: String) -> void:
 			AmphictyonyScreen.build(self)
 		"chronicles":
 			ChronicleScreen.build(self)
+		"armies":
+			ArmiesScreen.build(self)
 	refresh()
 	screen_changed.emit(screen_id)
 
@@ -333,6 +338,9 @@ func refresh() -> void:
 		"chronicles":
 			if ChronicleScreen.signature(self) != _chron_sig:
 				show_screen("chronicles")
+		"armies":
+			if ArmiesScreen.signature(self) != _armies_sig:
+				show_screen("armies")
 		"research":
 			if _research_signature() != _research_sig:
 				_fill_research_side()

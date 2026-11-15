@@ -527,6 +527,8 @@ static func check_invade(state: GameState, empire_id: int, fleet_id: int) -> Str
 	for other in Fleets.fleets_at(state, f.system_id, owner):
 		if is_armed(other):
 			return "une flotte de défense tient encore l'orbite"
+	if Ground.full(state):
+		return Ground.check_land(state, empire_id, f)
 	if f.troops <= 0:
 		return "aucune troupe à bord (les croiseurs en emportent le plus)"
 	var g := garrison(state, f.system_id)

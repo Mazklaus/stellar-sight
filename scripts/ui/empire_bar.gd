@@ -21,6 +21,8 @@ const SCREENS := [
 		"why": "Guerre froide à la rencontre, puis la paix, l'alliance, le commerce ou la guerre. Survolez une opinion pour en voir les raisons, et une proposition pour savoir ce que l'autre en pense."},
 	{"id": "shipyard", "label": "Chantier", "key": "F6", "glyph": "shipyard", "ready": true,
 		"why": "Concevez vos vaisseaux : une coque, des modules dans ses emplacements, un rang et une cible. Les modèles enregistrés rejoignent la liste de construction."},
+	{"id": "armies", "label": "Armées", "key": "", "glyph": "armies", "ready": true,
+		"why": "Vos régiments : la réserve de recrues, l'entretien, les troupes en formation, où se trouve chaque régiment, les batailles au sol en cours et leurs rapports."},
 	{"id": "victory", "label": "Victoire", "key": "F7", "glyph": "victory", "ready": true,
 		"why": "Toutes les façons de gagner cette partie, et où en est chaque empire. La victoire de peuple d'un rival reste cachée tant qu'il n'est pas à mi-chemin."},
 	{"id": "trade", "label": "Commerce", "key": "C", "glyph": "trade", "ready": true,
@@ -78,7 +80,7 @@ func _ready() -> void:
 		var b := Widgets.IconButton.new(String(sc["glyph"]), 25)
 		b.toggle_mode = true
 		b.disabled = not sc["ready"]
-		b.tooltip_text = "%s  (%s)" % [sc["label"], sc["key"]] + ("\nBientôt : l'écran est en place." if sc.get("soon", false) else "")
+		b.tooltip_text = ("%s  (%s)" % [sc["label"], sc["key"]] if String(sc["key"]) != "" else String(sc["label"])) + ("\nBientôt : l'écran est en place." if sc.get("soon", false) else "")
 		var id: String = sc["id"]
 		b.pressed.connect(func() -> void: screen_requested.emit(id))
 		icons.add_child(b)

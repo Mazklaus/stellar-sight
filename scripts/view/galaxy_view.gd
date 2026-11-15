@@ -46,6 +46,7 @@ var _last_zoom := -1.0
 
 
 const BATTLE_COLOR := Color(1.0, 0.42, 0.36)
+const GROUND_BATTLE_COLOR := Color(0.95, 0.68, 0.32)
 
 
 func _ready() -> void:
@@ -361,6 +362,18 @@ func _draw_conflicts(px: float) -> void:
 		draw_arc(c, s * 1.6, 0.0, TAU, 20, BATTLE_COLOR, 1.2 * px, true)
 		draw_line(c + Vector2(-s, -s), c + Vector2(s, s), BATTLE_COLOR, 1.8 * px, true)
 		draw_line(c + Vector2(s, -s), c + Vector2(-s, s), BATTLE_COLOR, 1.8 * px, true)
+	# Batailles au sol (combat au sol complet) : un chevron sous le système.
+	for k in state.ground.get("b", {}):
+		var sid := int(k)
+		if fog and not _seen.has(sid):
+			continue
+		var c := galaxy.systems[sid].position + Vector2(0, 18.0) * px
+		var s := 6.0 * px
+		draw_circle(c, s * 1.6, Color(0.02, 0.03, 0.05, 0.85))
+		draw_arc(c, s * 1.6, 0.0, TAU, 20, GROUND_BATTLE_COLOR, 1.2 * px, true)
+		for j in 2:
+			var y := (j * 4.0 - 3.0) * px
+			draw_polyline(PackedVector2Array([c + Vector2(-s, y - s * 0.4), c + Vector2(0, y + s * 0.4), c + Vector2(s, y - s * 0.4)]), GROUND_BATTLE_COLOR, 1.6 * px, true)
 
 
 ## Territoire : une zone à la couleur de l'empire autour de ses systèmes et le long de ses routes.

@@ -193,6 +193,8 @@ var occupation := "occupation"
 var _occupation_select: OptionButton
 var borders := "souples"
 var _borders_select: OptionButton
+var ground := "complet"
+var _ground_select: OptionButton
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
 const PRESETS_PATH := "user://new_game_presets.json"
@@ -1547,6 +1549,12 @@ func set_wargoals(id: String) -> void:
 		_occupation_select.disabled = wargoals != "actifs"
 
 
+func set_ground(id: String) -> void:
+	ground = id if Ground.MODES.has(id) else Ground.SIMPLE
+	if _ground_select:
+		_ground_select.select(Ground.MODES.find(ground))
+
+
 func set_borders(id: String) -> void:
 	borders = id if Borders.MODES.has(id) else "souples"
 	if _borders_select:
@@ -1591,7 +1599,7 @@ func set_migrations(id: String) -> void:
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
 	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
-		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders}
+		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground}
 
 
 func set_spectator(on: bool) -> void:
@@ -1982,6 +1990,15 @@ func _build_new_page(root: Control) -> void:
 	_borders_select.tooltip_text = "Frontières et droit de passage.\n" + "\n".join(btip)
 	_borders_select.item_selected.connect(func(i: int) -> void: set_borders(Borders.MODES[i]))
 	_labeled_row(game, "Frontières", _borders_select)
+	_ground_select = OptionButton.new()
+	_ground_select.clip_text = true
+	var grtip := PackedStringArray()
+	for m in Ground.mode_defs():
+		_ground_select.add_item(String(m["label"]))
+		grtip.append("%s : %s" % [String(m["label"]), String(m["desc"])])
+	_ground_select.tooltip_text = "Combat au sol et armées.\n" + "\n".join(grtip)
+	_ground_select.item_selected.connect(func(i: int) -> void: set_ground(Ground.MODES[i]))
+	_labeled_row(game, "Combat au sol", _ground_select)
 	set_peoples(peoples)
 	set_migrations(migrations)
 	set_faiths(faiths)
@@ -1991,6 +2008,7 @@ func _build_new_page(root: Control) -> void:
 	set_wargoals(wargoals)
 	set_occupation(occupation)
 	set_borders(borders)
+	set_ground(ground)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2730,7 +2748,7 @@ func settings() -> Dictionary:
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
-		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders,
+		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2748,7 +2766,7 @@ func default_settings() -> Dictionary:
 		"victories": {"conquete": true, "domination": true, "allies": true, "spirituelle": false, "diplomatique": true}, "ai_scaling": false,
 		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "plagues": true, "events": Events.default_frequency(), "curios": Curios.default_density(),
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
-		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives", "amphictyony": "active", "vassals": "actifs", "koinon": "actif", "wargoals": "actifs", "occupation": "occupation", "borders": String(GameData.borders()["default_mode"])}
+		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives", "amphictyony": "active", "vassals": "actifs", "koinon": "actif", "wargoals": "actifs", "occupation": "occupation", "borders": String(GameData.borders()["default_mode"]), "ground": String(GameData.ground()["default_mode"])}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -2827,6 +2845,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_wargoals(String(d.get("wargoals", base["wargoals"])))
 	set_occupation(String(d.get("occupation", base["occupation"])))
 	set_borders(String(d.get("borders", base["borders"])))
+	set_ground(String(d.get("ground", base["ground"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

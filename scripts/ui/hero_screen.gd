@@ -252,6 +252,9 @@ static func target_name(state: GameState, post: String, target: int) -> String:
 		"resident":
 			var es := state.get_empire(target)
 			return "auprès de %s" % es.short_name() if es else "?"
+		"army":
+			var fa: Fleet = state.fleets.get(target)
+			return "régiments de %s" % fa.fleet_name if fa else "?"
 	return ""
 
 
@@ -259,14 +262,14 @@ static func target_name(state: GameState, post: String, target: int) -> String:
 static func choices(state: GameState, player: int, h: Dictionary) -> Array:
 	var own := String(Heroes.class_def(String(h["cls"])).get("post", ""))
 	var order: Array[String] = [own]
-	for p in ["fleet", "system", "council", "agent", "amph", "koinon", "resident"]:
+	for p in ["fleet", "system", "council", "agent", "amph", "koinon", "resident", "army"]:
 		if p != own:
 			order.append(p)
 	var out := []
 	for post in order:
 		var targets: Array[int] = []
 		match post:
-			"fleet":
+			"fleet", "army":
 				for fid in state.sorted_fleet_ids():
 					var f: Fleet = state.fleets[fid]
 					if f.owner == player:

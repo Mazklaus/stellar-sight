@@ -1052,10 +1052,11 @@
 		"moines_guerriers": {
 			"family": "guerre",
 			"label": "Moines guerriers",
-			"text": "Garnisons +10 % dans les systèmes dotés d'un temple, troupes d'invasion +10 %.",
+			"text": "Garnisons +10 % dans les systèmes dotés d'un temple, troupes d'invasion +10 % (combat au sol complet : +10 % de dégâts pour les régiments).",
 			"fx": {
 				"temple_garrison": 10,
-				"troops_pct": 10
+				"troops_pct": 10,
+				"ground_damage_pct": 10
 			},
 			"src": "Moines guerriers, Civ VI"
 		},

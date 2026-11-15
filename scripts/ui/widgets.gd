@@ -82,6 +82,14 @@ class IconButton:
 						draw_circle(c + Vector2(0, -s * 0.1) + Vector2(cos(a), sin(a)) * s * 1.2, s * 0.17, col)
 				draw_circle(c + Vector2(0, -s * 0.35), s * 0.38, col)
 				draw_colored_polygon(PackedVector2Array([c + Vector2(-s * 0.6, s * 0.65), c + Vector2(0, s * 0.1), c + Vector2(s * 0.6, s * 0.65)]), col)
+			"armies":
+				# Un casque à cimier au-dessus de deux lances croisées.
+				draw_line(c + Vector2(-s * 1.1, s * 1.1), c + Vector2(s * 1.1, -s * 0.2), Color(col, 0.75), 1.5, true)
+				draw_line(c + Vector2(s * 1.1, s * 1.1), c + Vector2(-s * 1.1, -s * 0.2), Color(col, 0.75), 1.5, true)
+				draw_arc(c + Vector2(0, -s * 0.15), s * 0.7, PI, TAU, 14, col, 2.2, true)
+				draw_colored_polygon(PackedVector2Array([c + Vector2(-s * 0.7, -s * 0.15), c + Vector2(s * 0.7, -s * 0.15),
+						c + Vector2(s * 0.45, s * 0.5), c + Vector2(-s * 0.45, s * 0.5)]), col)
+				draw_line(c + Vector2(0, -s * 0.85), c + Vector2(0, -s * 1.25), col, 2.0, true)
 			"order":
 				# Une balance : fléau, colonne et deux plateaux.
 				draw_line(c + Vector2(0, -s * 1.1), c + Vector2(0, s * 1.0), col, 1.6, true)

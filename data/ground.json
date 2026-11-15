@@ -1,0 +1,141 @@
+{
+	"_sources": "Étude « Combat au sol et armées » (2026-11-15) : https://claude.ai/artifact/WAcrxysitfXvHFoBwMK289. Régiments recrutés sur les colonies, chacun avec son transport, front limité par la taille du monde, réserve, dégâts quotidiens en santé et en moral, retraite risquée : wiki Stellaris, Land warfare (version 4.5). Réserve de recrues tirée de la population et triangle infanterie / blindés / aérien (infanterie 60 PV 6-12, blindés 240 PV 10-15, aérien 300 PV 35-45, « +50 % contre ») : Endless Space 2 (guide gamepressure Armies and ground battles, écran de gestion des troupes ; Community GDD 14). Entretien des troupes une fois formées, troupes en garnison : guide Distant Worlds 2 (MagicGameWorld). Milice qui fond pendant un siège : wiki Humankind, Combat. Les chiffres sont des points de départ (équilibrage reporté).",
+	"modes": [
+		{"id": "simplifie", "label": "Simplifié", "desc": "Les troupes sont un nombre porté par les vaisseaux ; une invasion réussit dès qu'elles dépassent la garnison (règles d'avant les armées)."},
+		{"id": "complet", "label": "Complet", "desc": "Régiments recrutés sur les colonies, transportés par les flottes et engagés dans une bataille au sol de plusieurs jours, avec moral, renforts et retraite."}
+	],
+	"default_mode": "complet",
+	"recruits": {
+		"_doc": "Réserve de recrues de l'empire : chaque mois, une recrue pour every_pop population (au moins 1 par colonie peuplée) ; plafond : cap_per_pop par population (au moins cap_min).",
+		"every_pop": 4,
+		"cap_per_pop": 1,
+		"cap_min": 6,
+		"start": 6,
+		"demob_refund_pct": 50
+	},
+	"upkeep": {
+		"_doc": "Entretien (prop. 6, gardé simple) : free_base régiments, plus un par free_every_pop population, ne coûtent rien ; les suivants coûtent leur « upkeep ». Les couches guerrières multiplient la part gratuite (combat.army_free_pct des couches d'espèce).",
+		"free_base": 2,
+		"free_every_pop": 6
+	},
+	"types": {
+		"milice": {"label": "Milice", "short": "Mil", "family": "infanterie", "hp": 60, "dmg": [3, 6], "morale": 120, "size": 0, "recruitable": false, "text": "Les habitants en armes : la garnison du système, qui fond pendant un siège."},
+		"infanterie": {"label": "Infanterie", "short": "Inf", "family": "infanterie", "hp": 100, "dmg": [6, 12], "morale": 200, "size": 4, "recruits": 2, "days": 30, "cost": {"materials": 20, "food": 10}, "upkeep": {"food": 1}, "vs": {}, "text": "Le gros des troupes : bon marché, tient le terrain."},
+		"blindes": {"label": "Blindés", "short": "Bli", "family": "blindes", "hp": 240, "dmg": [10, 15], "morale": 200, "size": 8, "recruits": 3, "days": 45, "cost": {"materials": 55, "energy": 10}, "upkeep": {"energy": 1}, "vs": {"infanterie": 150}, "requires_tech": ["blindes_assaut"], "text": "Encaissent et écrasent l'infanterie, mais craignent l'aérien."},
+		"aerien": {"label": "Aérien", "short": "Aér", "family": "aerien", "hp": 200, "dmg": [14, 22], "morale": 220, "size": 8, "recruits": 3, "days": 50, "cost": {"materials": 60, "energy": 20}, "upkeep": {"energy": 2}, "vs": {"blindes": 150}, "requires_tech": ["assaut_aeroporte"], "text": "Cher et redoutable : détruit les blindés."},
+		"commandos": {"label": "Forces spéciales", "short": "FS", "family": "infanterie", "hp": 80, "dmg": [8, 14], "morale": 240, "size": 4, "recruits": 2, "days": 40, "cost": {"materials": 40, "energy": 15}, "upkeep": {"energy": 1}, "vs": {}, "abilities": {"sabotage": 1}, "requires_tech": ["forces_speciales"], "text": "Sabotent milice et batteries au débarquement ; ceux du défenseur contrent ceux d'en face."},
+		"genie": {"label": "Génie de siège", "short": "Gén", "family": "infanterie", "hp": 120, "dmg": [4, 8], "morale": 180, "size": 6, "recruits": 2, "days": 40, "cost": {"materials": 45, "energy": 10}, "upkeep": {"energy": 1}, "vs": {"milice": 150}, "abilities": {"siege": 4}, "requires_tech": ["genie_siege"], "text": "À bord d'une flotte qui assiège, use les fortifications ; au sol, démolit la milice."},
+		"essaims": {"label": "Essaim de guerre", "short": "Ess", "family": "infanterie", "hp": 70, "dmg": [6, 10], "morale": 100, "no_morale": true, "size": 2, "recruits": 1, "days": 20, "cost": {"food": 25}, "upkeep": {"food": 1}, "vs": {}, "requires": {"species": {"archetype": ["ruche"]}}, "text": "Ruche : des milliers de corps et une seule volonté. Peu chers, deux par place, et ils ne connaissent pas la peur."},
+		"automates": {"label": "Légion d'automates", "short": "Aut", "family": "blindes", "hp": 180, "dmg": [8, 13], "morale": 100, "no_morale": true, "size": 6, "recruits": 1, "days": 40, "cost": {"materials": 55, "energy": 10}, "upkeep": {"energy": 1}, "vs": {}, "requires": {"species": {"archetype": ["synthetique"]}}, "text": "Synthétiques : des machines de guerre sans moral à briser, et presque sans recrues."},
+		"colosses": {"label": "Colosses de roche", "short": "Col", "family": "blindes", "hp": 380, "dmg": [10, 16], "morale": 260, "size": 10, "recruits": 3, "days": 60, "cost": {"materials": 75}, "upkeep": {"materials": 1}, "vs": {"infanterie": 130}, "requires": {"species": {"archetype": ["lithoide"]}}, "text": "Lithoïdes : lents à former et à loger, presque impossibles à abattre."},
+		"possedes": {"label": "Possédés", "short": "Pos", "family": "infanterie", "hp": 110, "dmg": [6, 11], "morale": 300, "morale_dmg_pct": 250, "size": 4, "recruits": 2, "days": 35, "cost": {"materials": 30, "energy": 20}, "upkeep": {"energy": 1}, "vs": {}, "requires": {"species": {"archetype": ["energetique"]}}, "text": "Énergétiques : des corps habités qui frappent l'esprit plus que la chair (dégâts de moral ×2,5)."},
+		"fanatiques": {"label": "Fanatiques", "short": "Fan", "family": "infanterie", "hp": 110, "dmg": [7, 12], "morale": 320, "home_dmg_pct": 130, "size": 4, "recruits": 2, "days": 30, "cost": {"materials": 25, "food": 10}, "upkeep": {"food": 1}, "vs": {}, "requires": {"species": {"credo": ["foi"]}}, "text": "Credo de la Foi : +30 % de dégâts en défense, un moral à toute épreuve."},
+		"troupes_choc": {"label": "Troupes de choc", "short": "Cho", "family": "infanterie", "hp": 120, "dmg": [10, 16], "morale": 200, "first_days_pct": 30, "first_days": 3, "size": 4, "recruits": 2, "days": 30, "cost": {"materials": 35, "food": 10}, "upkeep": {"food": 1}, "vs": {}, "requires": {"species": {"gouvernement": ["horde"]}}, "text": "Horde : le premier assaut est terrible (+30 % de dégâts les trois premiers jours)."},
+		"marcheur": {"label": "Marcheur de siège", "short": "Mar", "family": "blindes", "hp": 1500, "dmg": [30, 45], "morale": 600, "no_morale": true, "size": 40, "recruits": 10, "days": 180, "unique": 1, "cost": {"materials": 900, "energy": 200, "crystals": 30}, "upkeep": {"energy": 5}, "vs": {"milice": 200}, "abilities": {"siege": 10}, "requires_tech": ["chantier_titanesque"], "text": "Régiment titanesque, un seul par empire : une forteresse sur pattes. Il faut 40 places pour le transporter."},
+		"mercenaires": {"label": "Mercenaires", "short": "Mer", "family": "infanterie", "hp": 110, "dmg": [8, 13], "morale": 140, "size": 4, "recruitable": false, "upkeep": {"energy": 3}, "vs": {}, "text": "Loués aux pirates ou au Syndicat : tout de suite, sans recrues, mais chers, peu fiables et pilleurs."}
+	},
+	"battle": {
+		"_doc": "Bataille au sol (prop. 12-13, 17) : débarquement de landing_days jours, front de front_base + front_per_colony par colonie établie du système (au plus front_max) régiments par camp, le reste en réserve. Chaque jour, chaque régiment du front frappe un ennemi du front au hasard (ceux sous 50 % de santé deux fois plus souvent) : dégâts en santé et en moral. Sous 50 % de moral : dégâts à low_morale_pct ; à 0, le régiment quitte le front (broken_pct s'il est encore frappé en réserve). Retraite possible après retreat_min_days, chaque régiment risquant retreat_loss_pct % de sa santé perdue de périr au rembarquement.",
+		"landing_days": 3,
+		"front_base": 3,
+		"front_per_colony": 1,
+		"front_max": 10,
+		"wounded_weight": 2,
+		"low_morale_pct": 75,
+		"broken_pct": 25,
+		"retreat_min_days": 10,
+		"retreat_loss_pct": 60,
+		"militia_per_unit": 15,
+		"militia_max": 30,
+		"score_per_hp": 10,
+		"fauna_militia": 2,
+		"report_keep": 12
+	},
+	"siege": {
+		"_doc": "Lot 2 (prop. 19, 22, 23) : fortifications = fort_per_colony par colonie établie (fort_per_outpost par avant-poste) + « fort » des bâtiments ; le siège les use avant la milice ; fort_regen par jour hors siège. Reddition après surrender_days de bombardement sans défense. Sortie : une passe d'armes contre les régiments à bord des assiégeants (dégâts à sortie_pct), recharge sortie_cooldown jours. Tir au débarquement : « landing_fire » des bâtiments (+ technologie landing_fire_pct), en % de la santé de chaque régiment qui débarque ; chaque commando de l'assaillant l'annule pour sabotage_pct.",
+		"fort_per_colony": 20,
+		"fort_per_outpost": 5,
+		"fort_regen": 2,
+		"surrender_days": 10,
+		"sortie_cooldown": 30,
+		"sortie_pct": 150,
+		"sabotage_pct": 20,
+		"sabotage_max": 3
+	},
+	"bombard": {
+		"_doc": "Prop. 20 : posture de bombardement d'une flotte qui assiège (siege_pct : puissance de siège ; dev_per_day : dévastation ; pop_every_days : une population tuée en moyenne tous les N jours ; crime : crime de guerre). Le Rasant exige combat.orbital_raze (couches d'espèce).",
+		"postures": {
+			"selectif": {"label": "Sélectif", "siege_pct": 150, "dev_per_day": 0, "pop_every_days": 0, "text": "Cibles militaires seulement : le siège avance plus vite, la population est épargnée."},
+			"indiscrimine": {"label": "Indiscriminé", "siege_pct": 200, "dev_per_day": 1, "pop_every_days": 15, "text": "Tout ce qui ressemble à une cible : le siège avance deux fois plus vite, mais tue des habitants et dévaste le système."},
+			"rasant": {"label": "Rasant", "siege_pct": 300, "dev_per_day": 3, "pop_every_days": 4, "crime": true, "text": "On ne laisse rien debout. Crime de guerre que la victime n'oubliera pas ; réservé aux peuples qui s'y résolvent."}
+		}
+	},
+	"devastation": {
+		"_doc": "Prop. 21 : dévastation de 0 à 100 par système. Production -production_pct_per_point/100 % par point, croissance -growth_pct_per_point/100 % par point, stabilité -1 par points_per_stability points ; baisse de decay_per_month par mois hors siège et hors bataille. Une bataille au sol en ajoute battle_per_day par jour (fois le « collateral » du terrain et des tactiques, en %).",
+		"production_pct_per_point": 50,
+		"growth_pct_per_point": 100,
+		"points_per_stability": 5,
+		"decay_per_month": 3,
+		"battle_per_day": 1
+	},
+	"terrain": {
+		"_doc": "Prop. 14 : terrain de la bataille = type de la planète la plus peuplée du défenseur dans le système. mods : dégâts par famille (en %) ; defender : dégâts du défenseur ; collateral : dévastation des combats (en %).",
+		"continental": {"label": "Continental", "mods": {}, "text": "Terrain neutre."},
+		"ocean": {"label": "Océanique", "mods": {"aerien": 120, "blindes": 80}, "text": "Archipels : l'aérien domine, les blindés s'embourbent."},
+		"gas_giant": {"label": "Géante gazeuse", "mods": {"aerien": 125, "blindes": 70}, "text": "Plates-formes flottantes : tout se joue dans les airs."},
+		"desert": {"label": "Désertique", "mods": {"blindes": 120}, "text": "Grands espaces : terrain de chasse des blindés."},
+		"arctic": {"label": "Arctique", "mods": {"blindes": 115, "infanterie": 90}, "text": "Plaines gelées : les blindés roulent, l'infanterie gèle."},
+		"toxic": {"label": "Toxique", "mods": {"infanterie": 90}, "text": "Atmosphère corrosive : l'infanterie s'épuise."},
+		"barren": {"label": "Aride", "mods": {"blindes": 110}, "text": "Rocaille nue : avantage aux blindés."},
+		"asteroids": {"label": "Astéroïdes", "mods": {"infanterie": 120, "blindes": 75}, "defender": 110, "text": "Galeries et coursives : l'infanterie et le défenseur sont chez eux."},
+		"ecumenopole": {"label": "Écuménopole", "mods": {"infanterie": 120, "aerien": 90}, "defender": 115, "collateral": 200, "text": "Une ville-monde : combats de rue, le défenseur tient chaque immeuble, et chaque immeuble brûle."},
+		"gaia": {"label": "Monde-jardin", "mods": {}, "collateral": 50, "text": "On se bat avec précaution : peu de dégâts collatéraux."}
+	},
+	"tactics": {
+		"_doc": "Prop. 15 : une tactique par camp, choisie avant la fin du débarquement (par défaut celle de l'empire). militia_pct : santé de la milice au premier jour ; dmg_pct / taken_pct : dégâts infligés / subis (dmg_days : les N premiers jours seulement) ; landing_days : durée du débarquement ; no_landing_fire ; collateral (%) ; dev : dévastation immédiate ; surrender : le défenseur se rend sans combattre s'il n'a plus de régiment.",
+		"attack": {
+			"assaut": {"label": "Assaut", "text": "Débarquement classique."},
+			"bombardement": {"label": "Bombardement préventif", "militia_pct": -30, "dev": 10, "collateral": 200, "text": "La flotte pilonne la zone avant l'assaut : la milice est affaiblie, le système dévasté."},
+			"infiltration": {"label": "Infiltration", "dmg_pct": 25, "dmg_days": 5, "no_landing_fire": true, "landing_days": 5, "text": "Débarquement discret, plus long : pas de tir au débarquement, et les premiers jours frappent fort."},
+			"blitz": {"label": "Blitz", "landing_days": 1, "dmg_pct": 20, "taken_pct": 20, "text": "Tout de suite et tous ensemble : plus de dégâts, mais plus de pertes."}
+		},
+		"defense": {
+			"defense": {"label": "Défense", "text": "On tient les positions."},
+			"resistance": {"label": "Résistance locale", "militia_pct": 50, "collateral": 150, "text": "Toute la population prend les armes : milice renforcée, mais le système souffre."},
+			"civils": {"label": "Protéger les civils", "dmg_pct": -10, "collateral": 0, "text": "On évacue et on épargne les quartiers : aucune dévastation, mais les défenseurs frappent moins fort."},
+			"capitulation": {"label": "Capitulation", "surrender": true, "text": "Sans régiment pour le défendre, le monde se rend dès le débarquement, sans pertes ni dévastation."}
+		}
+	},
+	"veterancy": {
+		"_doc": "Prop. 16 : rangs selon l'expérience (2 par coup porté) ; pct : dégâts et moral en plus. L'expérience reste au régiment, quels que soient ses renforts.",
+		"ranks": [
+			{"id": "regulier", "label": "Régulier", "xp": 0, "pct": 0},
+			{"id": "aguerri", "label": "Aguerri", "xp": 30, "pct": 10},
+			{"id": "veteran", "label": "Vétéran", "xp": 80, "pct": 20},
+			{"id": "elite", "label": "Élite", "xp": 160, "pct": 30}
+		]
+	},
+	"occupation": {
+		"_doc": "Lot 3 (prop. 24-26) : un système occupé sans régiment de l'occupant au sol ne lui rapporte que unheld_income_pct % de sa part ; résistance +unheld_res_per_month par mois (−held_res_per_month s'il est tenu) ; à 100, insurrection : 1 régiment rebelle + 1 par rebel_per_pop population (au plus rebel_max). Une bataille au sol tue un habitant par dev_per_civilian points de dévastation causés.",
+		"unheld_income_pct": 50,
+		"held_res_per_month": 10,
+		"unheld_res_per_month": 25,
+		"rebel_per_pop": 4,
+		"rebel_max": 6,
+		"dev_per_civilian": 10
+	},
+	"mercenaries": {
+		"_doc": "Prop. 11 : compagnies louées (type « mercenaires ») dans un de ses systèmes, s'il y a des pirates ou le Syndicat Brisecomète ; au plus max à la fois ; entretien toujours payé ; le Syndicat touche syndicate_pct % du contrat (et paie moitié prix les siennes). Vainqueurs, ils pillent : loot par compagnie et loot_dev de dévastation.",
+		"cost": {"energy": 90, "influence": 10},
+		"max": 4,
+		"syndicate": "brisecomete",
+		"syndicate_pct": 50,
+		"loot": {"materials": 30, "energy": 15},
+		"loot_dev": 5
+	},
+	"recovery": {
+		"_doc": "Hors bataille : santé et moral reviennent de home_pct % par jour dans un système de l'empire, de away_pct % ailleurs ou à bord.",
+		"home_pct": 10,
+		"away_pct": 3
+	}
+}

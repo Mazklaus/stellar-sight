@@ -134,6 +134,10 @@ static func unlocks(faction: Dictionary, tid: String) -> PackedStringArray:
 		var m := Designs.module(mid)
 		if m.get("requires_tech", []).has(tid) and Designs.module_allowed_for(mid, faction):
 			out.append("module %s" % String(m.get("label", mid)))
+	for t in Ground.type_ids():
+		var gd := Ground.type_def(t)
+		if gd.get("requires_tech", []).has(tid) and FactionTraits.species_matches(faction, gd.get("requires", {}).get("species", {})):
+			out.append("régiment %s" % String(gd.get("label", t)))
 	return out
 
 

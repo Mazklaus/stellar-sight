@@ -317,6 +317,11 @@ static func wars() -> Dictionary:
 	return _load("wars")
 
 
+## Combat au sol et armées (voir Ground).
+static func ground() -> Dictionary:
+	return _load("ground")
+
+
 static func koinon() -> Dictionary:
 	return _load("koinon")
 

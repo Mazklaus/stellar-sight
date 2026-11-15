@@ -39,7 +39,7 @@ extends RefCounted
 ## ("for_hire", puis "lender" = empire qui le prête et "lend_until"), dossiers de héros par empire
 ## dans hero_meta[a]["files"] : [{"about", "day", "heroes": [{"name", "cls", "lvl", "post", "loy", "portrait"}]}].
 
-const POSTS := ["fleet", "system", "council", "agent", "amph", "koinon", "resident"]
+const POSTS := ["fleet", "system", "council", "agent", "amph", "koinon", "resident", "army"]
 const CLASSES := ["stratege", "intendant", "orateur", "ombre"]
 const DAYS_PER_YEAR := 360
 
@@ -579,6 +579,9 @@ static func post_effect_text(state: GameState, h: Dictionary) -> String:
 			return txt % maxi(1, hl / 2)
 		"resident":
 			return txt % (hl * int(Vassals.data().get("resident", {}).get("m10_per_half_level", 3)) / 10.0)
+		"army":
+			@warning_ignore("integer_division")
+			return txt % (int(per.get("army_damage_pct", 5)) * hl / 2 + trait_fx(h, "ground_damage_pct"))
 	return ""
 
 
@@ -648,19 +651,23 @@ static func _maybe_offer(state: GameState, empire_id: int) -> bool:
 	m["renown"] = int(m["renown"]) - renown_needed(state, empire_id)
 	var acts: Dictionary = m["acts"]
 	var weights := {}
-	for c in CLASSES:
+	# Combat au sol complet : le Général rejoint les classes proposées.
+	var classes: Array = CLASSES.duplicate()
+	if Ground.full(state):
+		classes.append("general")
+	for c in classes:
 		weights[c] = int(data()["class_base_weight"]) + int(acts.get(c, 0))
 	var offer := []
 	var got := int(m["got"])
 	for i in int(data()["offer_size"]):
 		var total := 0
-		for c in CLASSES:
+		for c in classes:
 			total += int(weights[c])
 		if total <= 0:
 			break
 		var roll := _h(state, ["offer", empire_id, got, i]) % total
-		var pick := CLASSES[0]
-		for c in CLASSES:
+		var pick: String = classes[0]
+		for c in classes:
 			roll -= int(weights[c])
 			if roll < 0:
 				pick = c
@@ -731,6 +738,8 @@ static func _flavor(h: Dictionary) -> String:
 			return "ses discours durent moins d'une heure, ce qui est déjà un exploit"
 		"ombre":
 			return "personne ne se souvient de l'avoir vu arriver"
+		"general":
+			return "ses soldats disent qu'il dort debout, la carte d'état-major sous le bras"
 	return "la galaxie retient son souffle"
 
 
@@ -782,6 +791,14 @@ static func check_assign(state: GameState, player: int, hero_id: int, post: Stri
 		"resident":
 			if Vassals.lord_of(state, target) != player:
 				return "il faut un de vos sujets"
+		"army":
+			var fa: Fleet = state.fleets.get(target)
+			if not Ground.full(state):
+				return "les armées ne sont pas en jeu"
+			if fa == null or fa.owner != player:
+				return "flotte inconnue"
+			if Ground.capacity(state, fa) <= 0:
+				return "cette flotte n'emporte pas de troupes"
 	return ""
 
 

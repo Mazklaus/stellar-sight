@@ -611,6 +611,20 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 	if c and c.owner == _player and c.is_established() and c.is_colony():
 		for sid in Designs.buildable_ids(_state, _player):
 			actions.append(_ship_action(p, sid))
+		if Ground.full(_state):
+			for t in Ground.type_ids():
+				var techs: Array = Ground.type_def(t).get("requires_tech", [])
+				var visible := true
+				for tech in techs:
+					if not Research.is_visible(me.faction(), String(tech)):
+						visible = false
+				var req: Dictionary = Ground.type_def(t).get("requires", {})
+				if req.has("species") and not FactionTraits.species_matches(GameData.faction(Ground.colony_species(_state, c)), req["species"]):
+					visible = false
+				if visible:
+					actions.append(_recruit_action(p, t))
+			if not _state.lairs.is_empty() or GroundOccupation.syndicate(_state) >= 0:
+				actions.append(_hire_action(p))
 	if c and c.owner == _player and c.is_established():
 		for bid in GameData.buildings():
 			var b := GameData.building(bid)
@@ -696,6 +710,45 @@ func _ship_action(p: Planet, ship_id: String) -> Dictionary:
 		"reason": reason,
 		"tooltip": ("%s\n\n%s" % [reason, tip]) if reason != "" else tip,
 		"action": func() -> void: build_ship_requested.emit(pid, ship_id),
+	}
+
+
+## Lever un régiment (combat au sol complet) dans le système, de l'espèce la plus nombreuse de la colonie.
+func _recruit_action(p: Planet, t: String) -> Dictionary:
+	var c: Colony = _state.colonies[p.id]
+	var sp := Ground.colony_species(_state, c)
+	var cmd := SimCommands.ground_act(_player, "recruit", p.system_id, t, sp)
+	var reason := SimCommands.validate(_state, cmd)
+	var d := Ground.type_def(t)
+	var dmg: Array = d.get("dmg", [0, 0])
+	var detail := "%s, %d recrues, %d j  »  %d PV, dégâts %d-%d, %d places" % [GameData.format_amounts(d.get("cost", {})),
+			int(d.get("recruits", 2)), Ground.recruit_days(_state, _player, t), int(d.get("hp", 0)), int(dmg[0]), int(dmg[1]), Ground.size_of(t)]
+	var tip := "%s\n\nEspèce : %s. Réserve de recrues : %d." % [String(d.get("text", "")), Peoples.label(sp), Ground.recruits(_state, _player)]
+	var up := GameData.format_amounts(d.get("upkeep", {}))
+	if up != "":
+		tip += "\nEntretien au-delà des régiments gratuits : %s par mois." % up
+	return {
+		"text": "Lever un régiment : %s" % Ground.type_label(t),
+		"detail": detail,
+		"reason": reason,
+		"tooltip": ("%s\n\n%s" % [reason, tip]) if reason != "" else tip,
+		"action": func() -> void: command_requested.emit(cmd),
+	}
+
+
+## Louer une compagnie de mercenaires (combat au sol complet).
+func _hire_action(p: Planet) -> Dictionary:
+	var cmd := SimCommands.ground_act(_player, "hire", p.system_id)
+	var reason := SimCommands.validate(_state, cmd)
+	var d := Ground.type_def("mercenaires")
+	var tip := "%s\n\nEntretien : %s par mois, toujours payé. Vainqueurs, ils pillent le monde pris." % [String(d.get("text", "")),
+			GameData.format_amounts(d.get("upkeep", {}))]
+	return {
+		"text": "Louer des mercenaires",
+		"detail": "%s, tout de suite  »  %d PV, moral fragile" % [GameData.format_amounts(GroundOccupation.hire_cost(_state, _player)), int(d.get("hp", 0))],
+		"reason": reason,
+		"tooltip": ("%s\n\n%s" % [reason, tip]) if reason != "" else tip,
+		"action": func() -> void: command_requested.emit(cmd),
 	}
 
 

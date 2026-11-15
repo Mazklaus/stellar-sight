@@ -156,6 +156,13 @@ func _ready() -> void:
 	_empire_screens = EmpireScreens.new()
 	add_child(_empire_screens)
 	_empire_screens.close_requested.connect(close_empire_screen)
+	_empire_screens.ground_replay_requested.connect(func(rid: int) -> void:
+		var rep := Ground.report(simulation.state, rid)
+		if rep.is_empty():
+			return
+		close_empire_screen()
+		_hud.ground_replay.show_replay(simulation.state, view_empire, rep))
+	_hud.ground_replay.closed.connect(func() -> void: toggle_empire_screen("armies"))
 	_empire_screens.war_requested.connect(declare_war)
 	_empire_screens.command_requested.connect(diplomacy_command)
 	_empire_screens.screen_changed.connect(func(id: String) -> void: _hud.bar.set_open_screen(id))
@@ -666,6 +673,7 @@ func _start(state: GameState) -> void:
 	simulation.chronicle_added.connect(_hud.show_chronicle)
 	simulation.combat_event.connect(_on_combat_event)
 	_hud.battle_replay.close_silently()
+	_hud.ground_replay.close_silently()
 	_hud.battle_report.hide_report()
 	_defeat_told = state.get_empire(local_player).eliminated
 	_victory_told = not state.winner.is_empty()
@@ -1084,7 +1092,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	match key.keycode:
 		KEY_ESCAPE:
-			if _hud.battle_replay.visible:
+			if _hud.ground_replay.visible:
+				_hud.ground_replay.hide_replay()
+			elif _hud.battle_replay.visible:
 				_hud.battle_replay.hide_replay()
 			elif _hud.battle_report.visible:
 				_hud.battle_report.hide_report()
@@ -1410,7 +1420,22 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 		"invade":
 			var sname := galaxy.get_system(f.system_id).system_name
 			if _submit(SimCommands.invade(view_empire, fleet_id)):
-				_hud.notify("%s : les troupes débarquent sur %s." % [f.fleet_name, sname], "good")
+				if Ground.full(st):
+					_hud.notify("%s : les régiments débarquent sur %s ; la bataille au sol commence dans %d jours." % [f.fleet_name, sname, int(Ground.data()["battle"]["landing_days"])], "good")
+				else:
+					_hud.notify("%s : les troupes débarquent sur %s." % [f.fleet_name, sname], "good")
+		"bomb":
+			var nxt := GroundSiege.next_posture(st, view_empire, GroundSiege.posture(st, fleet_id))
+			if _submit(SimCommands.ground_act(view_empire, "bomb", fleet_id, nxt)):
+				_hud.notify("%s : bombardement %s." % [f.fleet_name, GroundSiege.posture_label(nxt).to_lower()], "good")
+			_hud.show_fleet(fleet_id)
+		"embark", "disembark":
+			var cmd := SimCommands.ground_act(view_empire, action, fleet_id)
+			var why := SimCommands.validate(st, cmd)
+			if why != "":
+				_hud.notify("%s : %s." % [f.fleet_name, why], "warn")
+			elif _submit(cmd):
+				_hud.notify("%s : régiments %s." % [f.fleet_name, "embarqués" if action == "embark" else "déposés"], "good")
 		"refit":
 			var why := SimCommands.validate(simulation.state, SimCommands.refit(view_empire, fleet_id))
 			if why != "":

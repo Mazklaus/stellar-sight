@@ -96,6 +96,7 @@ var spectator := false
 var spectator_panel: SpectatorPanel
 var battle_report: BattleReportPanel
 var battle_replay: BattleReplayPanel
+var ground_replay: GroundReplayPanel
 
 
 func _ready() -> void:
@@ -123,6 +124,8 @@ func _ready() -> void:
 	add_child(battle_report)
 	battle_replay = BattleReplayPanel.new()
 	add_child(battle_replay)
+	ground_replay = GroundReplayPanel.new()
+	add_child(ground_replay)
 	battle_report.replay_requested.connect(func(r: Dictionary) -> void:
 		var state := battle_report._state
 		var viewer := battle_report._viewer
@@ -522,6 +525,9 @@ func _build_fleet_card() -> void:
 			["report", "RAPPORT", "Dernier rapport de bataille de vos flottes  (B)"],
 			["tactic", "TACTIQUE", "Changer de tactique de combat (choisie avant la bataille, appliquée sans votre intervention)  (T)"],
 			["refit", "REMISE À NIVEAU", "Donner aux vaisseaux les dernières marques d'armes et de défenses, dans le chantier d'une de vos colonies"],
+			["embark", "EMBARQUER", "Faire monter à bord les régiments qui attendent dans ce système, dans la limite des places des transports"],
+			["disembark", "DÉPOSER", "Déposer les régiments à bord dans un de vos systèmes"],
+			["bomb", "BOMBARDEMENT", "Posture de bombardement pendant un siège (combat au sol complet)"],
 			["invade", "ENVAHIR", "Débarquer les troupes : le système change de mains si elles sont plus nombreuses que la garnison"]]:
 		var b := Button.new()
 		b.text = a[1]
@@ -535,7 +541,7 @@ func _build_fleet_card() -> void:
 		var action: String = a[0]
 		b.pressed.connect(func() -> void: fleet_action_requested.emit(action, _fleet_id))
 		# Tactique et invasion prennent toute la largeur, sous la grille.
-		if action == "tactic" or action == "invade" or action == "refit":
+		if action == "tactic" or action == "invade" or action == "refit" or action == "bomb":
 			b.clip_text = true
 			inner.add_child(b)
 		else:
@@ -604,8 +610,14 @@ func _refresh_fleet_card() -> void:
 				_fleet_stats.text += " Sa couleur : %s." % GalaxyGenerator.star_label(String(pd["star"])).to_lower()
 	elif Combat.is_armed(f) or f.total_hp() < f.total_max_hp():
 		@warning_ignore("integer_division")
-		_fleet_stats.text += "\nPuissance %d  ·  coque %d %%  ·  troupes %d/%d  ·  %s" % [Combat.fleet_power(f),
-				f.total_hp() * 100 / maxi(1, f.total_max_hp()), f.troops, Combat.max_troops(f, _state), Combat.tactic_label(Combat.fleet_tactic(f))]
+		if Ground.full(_state):
+			_fleet_stats.text += "\nPuissance %d  ·  coque %d %%  ·  %s" % [Combat.fleet_power(f),
+					f.total_hp() * 100 / maxi(1, f.total_max_hp()), Combat.tactic_label(Combat.fleet_tactic(f))]
+		else:
+			_fleet_stats.text += "\nPuissance %d  ·  coque %d %%  ·  troupes %d/%d  ·  %s" % [Combat.fleet_power(f),
+					f.total_hp() * 100 / maxi(1, f.total_max_hp()), f.troops, Combat.max_troops(f, _state), Combat.tactic_label(Combat.fleet_tactic(f))]
+	if Ground.full(_state) and Ground.capacity(_state, f) > 0 and (mine or Fleets.is_explored(_state, _player, f.system_id)):
+		_fleet_stats.text += "\n" + ground_line(_state, f)
 	var can_colonize := mine and not f.is_moving() and Fleets.colonizer_ship(f) != ""
 	if can_colonize:
 		can_colonize = false
@@ -650,22 +662,68 @@ func _refresh_fleet_card() -> void:
 	var invade_why := Combat.check_invade(_state, _player, f.id) if mine else "x"
 	_fleet_buttons["invade"].visible = mine and not f.is_moving() and enemy_owner >= 0 and Combat.at_war(_state, _player, enemy_owner)
 	_fleet_buttons["invade"].disabled = invade_why != ""
-	_fleet_buttons["invade"].tooltip_text = "Débarquer les troupes : le système change de mains.\n%s" % (invade_why if invade_why != "" else "%d troupes contre une garnison de %d : la place est à vous." % [f.troops, Combat.garrison(_state, f.system_id)])
+	var full := Ground.full(_state)
+	if full:
+		var mine_str := Ground.strength(Ground.aboard(_state, f.id))
+		var def_str := Ground.militia_strength(_state, f.system_id) + Ground.strength(Ground.on_ground(_state, f.system_id, enemy_owner))
+		_fleet_buttons["invade"].tooltip_text = "Débarquer les régiments : une bataille au sol de plusieurs jours s'engage contre la milice et les troupes du défenseur.\n%s" % (
+				invade_why if invade_why != "" else "Force de vos régiments %d contre une défense estimée à %d." % [mine_str, def_str])
+	else:
+		_fleet_buttons["invade"].tooltip_text = "Débarquer les troupes : le système change de mains.\n%s" % (invade_why if invade_why != "" else "%d troupes contre une garnison de %d : la place est à vous." % [f.troops, Combat.garrison(_state, f.system_id)])
+	var waiting := Ground.on_ground(_state, f.system_id, _player).size() if full and mine else 0
+	var aboard := Ground.aboard(_state, f.id).size() if full and mine else 0
+	var cap := Ground.capacity(_state, f) if full else 0
+	_fleet_buttons["embark"].visible = mine and full and cap > 0 and not f.is_moving() and waiting > 0
+	var emb_why := Ground.check_embark(_state, _player, f.id) if _fleet_buttons["embark"].visible else "x"
+	_fleet_buttons["embark"].disabled = emb_why != ""
+	_fleet_buttons["embark"].text = "EMBARQUER (%d)" % waiting
+	_fleet_buttons["embark"].tooltip_text = "Faire monter à bord les régiments qui attendent dans ce système (%d place%s libre%s)." % [
+			Ground.free_places(_state, f), "s" if Ground.free_places(_state, f) > 1 else "", "s" if Ground.free_places(_state, f) > 1 else ""] + (("\n" + emb_why) if emb_why != "" and emb_why != "x" else "")
+	_fleet_buttons["bomb"].visible = mine and full and armed
+	var bp := GroundSiege.posture(_state, f.id) if full else ""
+	_fleet_buttons["bomb"].text = "BOMBARDEMENT : %s" % GroundSiege.posture_label(bp).to_upper()
+	var nxt := GroundSiege.next_posture(_state, _player, bp) if full else ""
+	_fleet_buttons["bomb"].tooltip_text = "%s\n\nClic : %s." % [
+			String(GroundSiege.posture_def(bp).get("text", "Pas de bombardement : le siège use seulement fortifications et milice.")),
+			GroundSiege.posture_label(nxt).to_lower() if nxt != "" else "aucun"]
+	_fleet_buttons["disembark"].visible = mine and full and not f.is_moving() and aboard > 0
+	var dis_why := Ground.check_disembark(_state, _player, f.id) if _fleet_buttons["disembark"].visible else "x"
+	_fleet_buttons["disembark"].disabled = dis_why != ""
+	_fleet_buttons["disembark"].tooltip_text = "Déposer les régiments à bord dans ce système (un des vôtres) ; ils y défendent et y récupèrent plus vite." + (("\n" + dis_why) if dis_why != "" and dis_why != "x" else "")
 	_fleet_buttons["report"].visible = mine and armed
 	_fleet_buttons["report"].disabled = last_report(_state, _player).is_empty()
 	_fleet_hint.visible = mine
+
+
+## Régiments à bord d'une flotte (combat au sol complet) : nombre, places, force.
+static func ground_line(state: GameState, f: Fleet) -> String:
+	var regs := Ground.aboard(state, f.id)
+	if regs.is_empty():
+		return "Transports : %d places libres, aucun régiment à bord." % Ground.capacity(state, f)
+	return "%d régiment%s à bord  ·  places %d/%d  ·  force %d" % [regs.size(), "s" if regs.size() > 1 else "",
+			Ground.used_places(state, f.id), Ground.capacity(state, f), Ground.strength(regs)]
 
 
 ## Ligne de combat d'une flotte à l'arrêt : bataille en cours, siège mené.
 static func combat_status(state: GameState, f: Fleet) -> String:
 	if f.is_moving():
 		return ""
+	var gb := Ground.battle(state, f.system_id) if Ground.full(state) else {}
+	if not gb.is_empty():
+		return "\nBATAILLE AU SOL : " + Ground.battle_text(state, gb) + "."
 	var b := Combat.battle_at(state, f.system_id)
 	if not b.is_empty():
 		var day := int(b["day"])
 		return "\nEN BATAILLE : jour %d sur %d, %s." % [day, Combat.battle_days(), Combat.phase_label(Combat.phase_index(day)).to_lower()]
 	var owner := state.system_owner(f.system_id)
 	if owner >= 0 and Combat.at_war(state, f.owner, owner) and Combat.is_besieged(state, f.system_id) and Combat.is_armed(f):
+		if Ground.full(state):
+			var line := "\nSIÈGE : fortifications %d / %d, milice %d / %d" % [GroundSiege.fort(state, f.system_id), GroundSiege.fort_max(state, f.system_id),
+					Combat.garrison(state, f.system_id), Combat.garrison_max(state, f.system_id)]
+			var left := GroundSiege.surrender_left(state, f.system_id)
+			if left > 0:
+				line += ", reddition dans %d j" % left
+			return line + "."
 		return "\nSIÈGE : garnison %d / %d." % [Combat.garrison(state, f.system_id), Combat.garrison_max(state, f.system_id)]
 	return ""
 
