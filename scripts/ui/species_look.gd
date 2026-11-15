@@ -66,3 +66,16 @@ static func city_style(fid: String) -> Dictionary:
 
 static func city_biome(ter: String) -> Dictionary:
 	return _pick(_cfg("cities").get("biomes", {}), ter)
+
+
+## Style de coque d'un peuple (prop. 14) : peuple, sinon archétype marqué, sinon registre.
+static func hull_style(fid: String) -> String:
+	var sp := _cfg("species")
+	var people: Dictionary = sp.get("peoples", {})
+	if people.has(fid) and people[fid].has("hull"):
+		return String(people[fid]["hull"])
+	var arch: Dictionary = sp.get("hull_archetypes", {})
+	if arch.has(archetype_of(fid)):
+		return String(arch[archetype_of(fid)])
+	var reg: Dictionary = sp.get("registres", {})
+	return String(reg.get(registre_of(fid), reg.get("_default", {})).get("hull", "fuseau"))

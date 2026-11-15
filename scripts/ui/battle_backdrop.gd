@@ -41,6 +41,16 @@ var _planet_center := Vector2.ZERO
 var _planet_radius := 0.0
 var _fg_rocks: Array = []
 var _base := {}              # position de repos de chaque couche
+## Lot 3 : terrain du système (data/terrain.json, blocs "visual") : nuées, éclairs, trou noir, pulsar…
+var terrain_visuals: Array = []   # [{id, family, visual}]
+var time := 0.0:
+	set(v):
+		time = v
+		if _fx_layer and _animated:
+			_fx_layer.queue_redraw()
+var _fx_layer: Control
+var _clouds: Array = []      # [position, rayon, couleur, graine]
+var _animated := false
 
 
 func _ready() -> void:
@@ -128,6 +138,20 @@ func setup(value: Dictionary, detail_level: int) -> void:
 	_objects.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_objects.draw.connect(_draw_objects.bind(_objects))
 	add_child(_objects)
+	terrain_visuals.clear()
+	for tid in scene.get("terrain", []):
+		var td := Terrain.def(String(tid))
+		if not td.is_empty():
+			terrain_visuals.append({"id": String(tid), "family": String(td.get("family", "")), "visual": td.get("visual", {})})
+	_animated = false
+	for tv: Dictionary in terrain_visuals:
+		var v: Dictionary = tv["visual"]
+		if v.get("lightning", false) or v.get("pulses", false) or v.get("lens", false) or v.has("density"):
+			_animated = true
+	_fx_layer = Control.new()
+	_fx_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fx_layer.draw.connect(_draw_terrain.bind(_fx_layer))
+	add_child(_fx_layer)
 	_layout()
 
 
@@ -199,17 +223,21 @@ func _layout() -> void:
 		_place_body(_moons[i], mpos, mr)
 	# Objets : ceinture, station, épaves du cimetière.
 	_asteroids.clear()
-	if bool(scene.get("belt", false)):
+	var rocks := float(_terrain_flag("rocks", 0.0))
+	if bool(scene.get("belt", false)) or rocks > 0.0:
 		var counts: Array = cfg().get("objects", {}).get("belt", {}).get("count", [20, 40, 60])
-		var n := int(counts[clampi(detail, 0, counts.size() - 1)])
+		var n := int(int(counts[clampi(detail, 0, counts.size() - 1)]) * maxf(1.0, rocks))
 		var band_y := h * rng.randf_range(0.3, 0.42)
 		for k in n:
 			var x := rng.randf_range(-40.0, w + 40.0)
-			var y := band_y + rng.randf_range(-h * 0.07, h * 0.07) + sin(x / w * PI * 2.0) * h * 0.03
+			var spread := 0.07 if rocks <= 0.0 else 0.2  # champ d'astéroïdes : tout l'écran en est semé
+			var y := band_y + rng.randf_range(-h * spread, h * spread) + sin(x / w * PI * 2.0) * h * 0.03
 			_asteroids.append([Vector2(x, y), rng.randf_range(2.0, 9.0) * h / 900.0, rng.randi(), rng.randf_range(0.6, 1.0)])
 	_wrecks.clear()
 	var wmax: Array = cfg().get("objects", {}).get("wrecks_max", [6, 14, 24])
 	var nw := mini(int(scene.get("wrecks", 0)), int(wmax[clampi(detail, 0, wmax.size() - 1)]))
+	if _terrain_flag("wrecks", false):
+		nw = maxi(nw, int(wmax[clampi(detail, 0, wmax.size() - 1)]))  # cimetière d'épaves : il y en a partout
 	for k in nw:
 		_wrecks.append([Vector2(rng.randf_range(w * 0.05, w * 0.95), rng.randf_range(h * 0.22, h * 0.86)),
 				rng.randf_range(10.0, 26.0) * h / 900.0, rng.randf_range(0.0, TAU), rng.randi()])
@@ -224,6 +252,17 @@ func _layout() -> void:
 			var left := k % 2 == 0
 			_fg_rocks.append([Vector2(w * (rng.randf_range(-0.04, 0.1) if left else rng.randf_range(0.9, 1.04)), h * rng.randf_range(0.9, 1.04)),
 					rng.randf_range(12.0, 34.0) * h / 900.0, rng.randi()])
+	# Nuées du terrain (nébuleuses, tempêtes, plasma) : grandes taches teintées.
+	_clouds.clear()
+	for tv: Dictionary in terrain_visuals:
+		var v: Dictionary = tv["visual"]
+		if not v.has("density"):
+			continue
+		var tc: Array = v.get("tint", [0.5, 0.4, 0.7])
+		var nc := int((8 + 6 * detail) * float(v["density"]))
+		for k in nc:
+			_clouds.append([Vector2(rng.randf_range(-0.1, 1.1) * w, rng.randf_range(0.05, 1.0) * h), rng.randf_range(0.12, 0.32) * h,
+					Color(float(tc[0]), float(tc[1]), float(tc[2])), rng.randi()])
 	_base = {"bg": _bg.position, "star": _star.position, "planet": _planet.position if _planet else Vector2.ZERO}
 	for i in _moons.size():
 		_base["moon%d" % i] = _moons[i].position
@@ -255,6 +294,9 @@ func _apply_cam() -> void:
 		_planet.position = _base["planet"] + cam * PARALLAX["planet"] * k
 	_objects.position = cam * PARALLAX["objects"] * k
 	_objects.queue_redraw()
+	if _fx_layer:
+		_fx_layer.position = cam * PARALLAX["moons"] * k
+		_fx_layer.queue_redraw()
 	if foreground:
 		foreground.position = cam * PARALLAX["fg"] * k
 		foreground.queue_redraw()
@@ -334,8 +376,132 @@ func _draw_platform(ci: Control, p: Vector2) -> void:
 
 
 func _draw_foreground() -> void:
+	# Nuées épaisses : quelques volutes passent devant les vaisseaux.
+	for k in mini(3, _clouds.size() / 6):
+		var cl: Array = _clouds[k]
+		var c: Color = cl[2]
+		var p: Vector2 = Vector2(cl[0]) + Vector2(time * 6.0, 0.0)
+		blob(foreground, p, float(cl[1]) * 0.8, Color(c.r, c.g, c.b, 0.1))
 	for r: Array in _fg_rocks:
 		var pts := rock(r[0], float(r[1]), int(r[2]), 12)
 		foreground.draw_colored_polygon(pts, Color(0.035, 0.035, 0.045, 0.92))
 		var edge := (star_pos - Vector2(r[0])).normalized() * float(r[1]) * 0.12
 		foreground.draw_polyline(rock(Vector2(r[0]) + edge, float(r[1]) * 0.98, int(r[2]), 12), Color(0.5, 0.45, 0.4, 0.25), 1.5)
+
+
+# --- Terrain du système (lot 3) ------------------------------------------------------------------
+
+## Valeur d'un champ "visual" du terrain (le premier qui l'a), sinon def.
+func _terrain_flag(key: String, def: Variant) -> Variant:
+	for tv: Dictionary in terrain_visuals:
+		if (tv["visual"] as Dictionary).has(key):
+			return tv["visual"][key]
+	return def
+
+
+## Lumière de l'arène : celle de l'étoile, teintée par la lumière du terrain s'il en a une.
+func light_color() -> Color:
+	var c: Color = star_light(String(scene.get("star", "yellow")))["color"]
+	var l: Variant = _terrain_flag("light", null)
+	if l is Array:
+		c = c.lerp(Color(float(l[0]), float(l[1]), float(l[2])), 0.6)
+	return c
+
+
+static var _soft_tex: GradientTexture2D
+
+## Tache ronde aux bords fondus (dégradé radial, gardé en cache).
+static func soft() -> GradientTexture2D:
+	if _soft_tex == null:
+		var g := Gradient.new()
+		g.set_color(0, Color(1, 1, 1, 1))
+		g.set_color(1, Color(1, 1, 1, 0))
+		g.add_point(0.45, Color(1, 1, 1, 0.55))
+		_soft_tex = GradientTexture2D.new()
+		_soft_tex.gradient = g
+		_soft_tex.fill = GradientTexture2D.FILL_RADIAL
+		_soft_tex.fill_from = Vector2(0.5, 0.5)
+		_soft_tex.fill_to = Vector2(1.0, 0.5)
+		_soft_tex.width = 128
+		_soft_tex.height = 128
+	return _soft_tex
+
+
+static func blob(ci: CanvasItem, p: Vector2, r: float, c: Color) -> void:
+	ci.draw_texture_rect(soft(), Rect2(p - Vector2(r, r), Vector2(r, r) * 2.0), false, c)
+
+
+func _h(k: int, j: int) -> float:
+	return fposmod(sin(float(k) * 12.9898 + float(j) * 78.233 + float(scene.get("seed", 1)) * 0.37) * 43758.5453, 1.0)
+
+
+func _draw_terrain(ci: Control) -> void:
+	if terrain_visuals.is_empty():
+		return
+	var w := size.x if size.x > 0 else 1600.0
+	var h := size.y if size.y > 0 else 900.0
+	var sp := star_pos - ci.position  # l'étoile suit sa propre couche
+	# Voile de couleur sur toute l'arène.
+	var tint: Variant = _terrain_flag("tint", null)
+	if tint is Array:
+		ci.draw_rect(Rect2(-ci.position - Vector2(60, 60), Vector2(w, h) + Vector2(120, 120)), Color(float(tint[0]), float(tint[1]), float(tint[2]), 0.07))
+	# Nuées : trois disques fondus par tache, qui dérivent lentement.
+	for cl: Array in _clouds:
+		var c: Color = cl[2]
+		var p: Vector2 = Vector2(cl[0]) + Vector2(sin(time * 0.05 + float(cl[3] % 7)) * 14.0, 0.0)
+		blob(ci, p, float(cl[1]) * 1.3, Color(c.r, c.g, c.b, 0.16))
+	for tv: Dictionary in terrain_visuals:
+		var v: Dictionary = tv["visual"]
+		var tc: Array = v.get("tint", [1, 1, 1])
+		var col := Color(float(tc[0]), float(tc[1]), float(tc[2]))
+		if v.get("glare", false):
+			# Géante bleue : halo immense et traînée anamorphique.
+			blob(ci, sp, h * 0.7, Color(col.r, col.g, col.b, 0.35))
+			ci.draw_set_transform(sp, 0.0, Vector2(1.0, 0.035))
+			blob(ci, Vector2.ZERO, w * 0.7, Color(0.85, 0.92, 1.0, 0.5))
+			ci.draw_set_transform(Vector2.ZERO)
+		if v.get("pulses", false):
+			# Étoile à neutrons : ondes qui partent de l'étoile et faisceaux tournants du pulsar.
+			for k in 3:
+				var q := fposmod(time * 0.3 + float(k) / 3.0, 1.0)
+				ci.draw_arc(sp, q * w * 0.8, 0.0, TAU, 64, Color(col.r, col.g, col.b, (1.0 - q) * 0.3), 2.0, true)
+			var ang := time * 0.9
+			for sgn in [1.0, -1.0]:
+				var d := Vector2(cos(ang), sin(ang)) * float(sgn)
+				ci.draw_line(sp, sp + d * w * 1.2, Color(col.r, col.g, col.b, 0.22), 5.0)
+				ci.draw_line(sp, sp + d * w * 1.2, Color(1, 1, 1, 0.25), 1.2)
+		if v.get("lens", false):
+			if String(tv["family"]) == "star":
+				# Trou noir : disque d'ombre, disque d'accrétion incliné et anneau de lumière déviée.
+				var r := h * 0.06
+				ci.draw_set_transform(sp, -0.25, Vector2(1.0, 0.32))
+				for j in 3:
+					ci.draw_arc(Vector2.ZERO, r * (2.0 + j * 0.5), 0.0, TAU, 64, Color(1.0, 0.65 - j * 0.12, 0.3, 0.55 - j * 0.15), 5.0 - j, true)
+				ci.draw_set_transform(Vector2.ZERO)
+				ci.draw_circle(sp, r, Color(0.0, 0.0, 0.0, 1.0))
+				ci.draw_arc(sp, r * 1.12, 0.0, TAU, 64, Color(1.0, 0.85, 0.6, 0.8), 2.0, true)
+			else:
+				# Tempête gravitationnelle : rides qui se propagent depuis le centre de l'arène.
+				var c0 := Vector2(w * 0.5, h * 0.55) - ci.position
+				for k in 4:
+					var q := fposmod(time * 0.2 + float(k) / 4.0, 1.0)
+					ci.draw_arc(c0, q * h * 0.9, 0.0, TAU, 72, Color(col.r, col.g, col.b, (1.0 - q) * 0.18), 3.0, true)
+		if v.get("lightning", false):
+			# Éclairs : un créneau sur trois s'illumine, tiré du temps du replay (rejouable à l'identique).
+			var slot := int(floor(time * 1.6))
+			for b in 2:
+				var sk := slot * 2 + b
+				if _h(sk, 1) > 0.4:
+					continue
+				var age := fposmod(time * 1.6, 1.0)
+				if age > 0.35:
+					continue
+				var alpha := 1.0 - age / 0.35
+				var p := Vector2(_h(sk, 2) * w, _h(sk, 3) * h * 0.8 + h * 0.1)
+				var pts := PackedVector2Array([p])
+				for j in 7:
+					p += Vector2((_h(sk, j + 10) - 0.5) * 60.0, 18.0 + _h(sk, j + 20) * 26.0)
+					pts.append(p)
+				blob(ci, pts[3], h * 0.2, Color(col.r, col.g, col.b, 0.3 * alpha))
+				ci.draw_polyline(pts, Color(col.r, col.g, col.b, 0.5 * alpha), 4.0, true)
+				ci.draw_polyline(pts, Color(1, 1, 1, 0.85 * alpha), 1.4, true)

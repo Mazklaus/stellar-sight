@@ -747,7 +747,8 @@
 					1.0,
 					0.78,
 					0.35
-				]
+				],
+				"hull": "nef"
 			},
 			"Space opera héroïque": {
 				"gear": "blaster",
@@ -757,7 +758,8 @@
 					0.45,
 					0.8,
 					1.0
-				]
+				],
+				"hull": "fuseau"
 			},
 			"Grimdark": {
 				"gear": "lourd",
@@ -767,7 +769,8 @@
 					1.0,
 					0.45,
 					0.25
-				]
+				],
+				"hull": "brique"
 			},
 			"Classique / hard SF": {
 				"gear": "exo",
@@ -777,7 +780,8 @@
 					1.0,
 					0.92,
 					0.62
-				]
+				],
+				"hull": "treillis"
 			},
 			"Picaresque / pulp": {
 				"gear": "brocante",
@@ -787,7 +791,8 @@
 					1.0,
 					0.8,
 					0.3
-				]
+				],
+				"hull": "bricole"
 			},
 			"Horreur biologique": {
 				"gear": "epines",
@@ -797,7 +802,8 @@
 					0.6,
 					1.0,
 					0.3
-				]
+				],
+				"hull": "organique"
 			},
 			"Cosmique / étrange": {
 				"gear": "halo",
@@ -807,7 +813,8 @@
 					0.82,
 					0.6,
 					1.0
-				]
+				],
+				"hull": "cristal"
 			},
 			"_default": {
 				"gear": "blaster",
@@ -817,7 +824,8 @@
 					1.0,
 					0.86,
 					0.45
-				]
+				],
+				"hull": "fuseau"
 			}
 		},
 		"peoples": {
@@ -828,7 +836,8 @@
 					0.55,
 					1.0,
 					0.25
-				]
+				],
+				"hull": "organique"
 			},
 			"ferrocornes": {
 				"vehicle": "pierre",
@@ -837,7 +846,8 @@
 					1.0,
 					0.55,
 					0.25
-				]
+				],
+				"hull": "roc"
 			},
 			"teyl": {
 				"vehicle": "glisseur",
@@ -846,7 +856,8 @@
 					0.3,
 					1.0,
 					0.85
-				]
+				],
+				"hull": "treillis"
 			},
 			"murmurants": {
 				"vehicle": "orbe",
@@ -855,7 +866,8 @@
 					0.8,
 					0.55,
 					1.0
-				]
+				],
+				"hull": "cristal"
 			},
 			"choeur": {
 				"gear": "banniere"
@@ -889,6 +901,12 @@
 			"genie": {
 				"gear": "exo"
 			}
+		},
+		"hull_archetypes": {
+			"_doc": "Prop. 14 : un archétype marqué impose son style de coque avant le registre (un peuple créé lithoïde vole dans des rocs).",
+			"ruche": "organique",
+			"lithoide": "roc",
+			"energetique": "cristal"
 		}
 	},
 	"cities": {
@@ -1243,5 +1261,300 @@
 			"pop_large": 20,
 			"landmark_pop": 10
 		}
+	},
+	"hulls": {
+		"_doc": "Prop. 14 : silhouettes 2D des coques, dessinées par le jeu selon le style du peuple (species) et la coque du modèle. Remplacées par assets/battle/hulls/<style>_<coque>.png (+ _n.png pour les normales) quand le fichier existe. length : longueur en pixels de l'image ; width : demi-largeur relative ; parts : éléments ajoutés.",
+		"art": "res://assets/battle/hulls/%s.png",
+		"sizes": {
+			"small": 56,
+			"medium": 80,
+			"large": 112,
+			"titan": 168
+		},
+		"shapes": {
+			"corvette": {
+				"width": 0.2,
+				"parts": []
+			},
+			"coursier": {
+				"width": 0.16,
+				"parts": [
+					"ailerons"
+				]
+			},
+			"fregate": {
+				"width": 0.24,
+				"parts": [
+					"tourelles"
+				]
+			},
+			"fregate_quarante": {
+				"width": 0.26,
+				"parts": [
+					"tourelles",
+					"antenne"
+				]
+			},
+			"croiseur": {
+				"width": 0.26,
+				"parts": [
+					"tourelles",
+					"tour"
+				]
+			},
+			"cuirasse": {
+				"width": 0.3,
+				"parts": [
+					"tourelles",
+					"tour",
+					"blindage"
+				]
+			},
+			"porte_vaisseaux": {
+				"width": 0.34,
+				"parts": [
+					"hangar",
+					"tour"
+				]
+			},
+			"titan": {
+				"width": 0.3,
+				"parts": [
+					"tourelles",
+					"tour",
+					"blindage"
+				]
+			},
+			"titan_porteur": {
+				"width": 0.34,
+				"parts": [
+					"hangar",
+					"tour"
+				]
+			},
+			"titan_bastion": {
+				"width": 0.34,
+				"parts": [
+					"tourelles",
+					"blindage",
+					"bouclier"
+				]
+			},
+			"leviathan": {
+				"width": 0.3,
+				"parts": [
+					"tourelles",
+					"tour",
+					"blindage",
+					"antenne"
+				]
+			},
+			"leviathan_porteur": {
+				"width": 0.36,
+				"parts": [
+					"hangar",
+					"tour"
+				]
+			},
+			"leviathan_siege": {
+				"width": 0.28,
+				"parts": [
+					"canon",
+					"blindage"
+				]
+			},
+			"nef_monde": {
+				"width": 0.4,
+				"parts": [
+					"ville",
+					"tour"
+				]
+			},
+			"nef_porteuse": {
+				"width": 0.42,
+				"parts": [
+					"hangar",
+					"ville"
+				]
+			},
+			"nef_bastion": {
+				"width": 0.42,
+				"parts": [
+					"ville",
+					"bouclier",
+					"tourelles"
+				]
+			},
+			"martyr": {
+				"width": 0.18,
+				"parts": [
+					"eperon"
+				]
+			},
+			"ruche_mere": {
+				"width": 0.4,
+				"parts": [
+					"hangar"
+				]
+			},
+			"_default": {
+				"width": 0.24,
+				"parts": []
+			}
+		},
+		"roles": {
+			"_doc": "Pièce ajoutée selon le rôle d'une classe sans coque de modèle.",
+			"Artillerie": "canon",
+			"Siège": "canon",
+			"Chasseurs": "hangar",
+			"Invasion": "soute",
+			"Écran": "bouclier",
+			"Sacrifice": "eperon"
+		},
+		"styles": {
+			"fuseau": {
+				"metal": [
+					0.72,
+					0.75,
+					0.8
+				],
+				"engine": [
+					0.45,
+					0.8,
+					1.0
+				],
+				"trim": 0.35
+			},
+			"nef": {
+				"metal": [
+					0.62,
+					0.55,
+					0.45
+				],
+				"engine": [
+					1.0,
+					0.75,
+					0.4
+				],
+				"trim": 0.4,
+				"sails": true
+			},
+			"brique": {
+				"metal": [
+					0.38,
+					0.37,
+					0.38
+				],
+				"engine": [
+					1.0,
+					0.45,
+					0.25
+				],
+				"trim": 0.3
+			},
+			"treillis": {
+				"metal": [
+					0.78,
+					0.78,
+					0.74
+				],
+				"engine": [
+					0.7,
+					0.85,
+					1.0
+				],
+				"trim": 0.3
+			},
+			"bricole": {
+				"metal": [
+					0.58,
+					0.48,
+					0.38
+				],
+				"engine": [
+					1.0,
+					0.7,
+					0.3
+				],
+				"trim": 0.45
+			},
+			"organique": {
+				"metal": [
+					0.48,
+					0.36,
+					0.32
+				],
+				"engine": [
+					0.6,
+					1.0,
+					0.35
+				],
+				"trim": 0.4
+			},
+			"cristal": {
+				"metal": [
+					0.66,
+					0.6,
+					0.85
+				],
+				"engine": [
+					0.85,
+					0.6,
+					1.0
+				],
+				"trim": 0.45
+			},
+			"roc": {
+				"metal": [
+					0.46,
+					0.42,
+					0.38
+				],
+				"engine": [
+					1.0,
+					0.55,
+					0.25
+				],
+				"trim": 0.3
+			}
+		}
+	},
+	"maneuvers": {
+		"_doc": "Prop. 13 : avance des lignes vers le centre selon la phase (longue, moyenne, courte portée), en pixels, multipliée par la tactique du camp ; l'arrière avance moitié moins. Rempart serre les rangs (squeeze).",
+		"advance": [
+			0,
+			45,
+			90
+		],
+		"tactics": {
+			"equilibre": 0.6,
+			"assaut": 1.0,
+			"distance": 0.15,
+			"rempart": 0.3,
+			"adaptatif": 0.75
+		},
+		"squeeze": {
+			"rempart": 0.85
+		},
+		"sway": 5
+	},
+	"swarms": {
+		"_doc": "Prop. 17 : chasseurs en essaim autour des porteurs (un appareil pour per_wing points de chasseurs, au plus max), qui orbitent puis plongent vers les cibles. Rien ne décolle si le terrain coupe les chasseurs.",
+		"per_wing": 2,
+		"max": 8,
+		"orbit": [
+			1.6,
+			2.6
+		]
+	},
+	"sounds": {
+		"_doc": "Prop. 37 : points d'accroche du son. Chaque repère joue le fichier indiqué s'il existe (sinon rien) ; la vue émet aussi le signal sound_cue(id, position) pour un futur mixeur. Repères : tir_<arme>, impact_bouclier, impact_coque, explosion, explosion_titan, phase, fin ; au sol : salve, obus, roquette, bombardement, deroute.",
+		"dir": "res://assets/sounds/battle/",
+		"ext": [
+			"ogg",
+			"wav"
+		],
+		"voices": 12,
+		"volume_db": -6
 	}
 }

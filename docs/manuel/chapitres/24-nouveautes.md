@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.8
+
+- **Vues de bataille habillées** (chapitre « La guerre », « Regarder une bataille ») : décor du vrai système dans l'espace (étoile, planète, cimetière d'épaves, terrain), champ de bataille au sol avec reliefs, ville et retranchements, troupes de figurines rangées selon la tactique.
+- **Par peuple** : coques dessinées selon le modèle et le style du peuple, figurines selon l'archétype et le registre, villes au style du peuple adaptées au biome et à la population.
+- **Manœuvres** selon la portée et la tactique, **essaims de chasseurs**, réglages **Échelle des batailles au sol** et **Détail des vues de bataille**.
+
 ### Édition 2.7
 
 - **Terrain galactique et environnements de bataille**, nouvelle option de partie, **Normal** par défaut (chapitre « La guerre ») : nébuleuses nommées en nappes, étoiles à neutrons, trous noirs, géantes bleues, champs d'astéroïdes, nuages de plasma, champs de radiations et **cimetières d'épaves** nés des batailles. Chaque terrain a un inconvénient et un avantage.

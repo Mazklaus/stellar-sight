@@ -42,6 +42,7 @@ var _tactical_btn: Button
 var tactical := false
 var backdrop: GroundBackdrop
 var army: ArmyLayer
+var sounds: BattleSounds       # points d'accroche du son (lot 3, prop. 37)
 var _scale := 0
 var _slow_time := 0.0
 var _shot_cols: Array = [Color(1.0, 0.86, 0.45), Color(0.55, 0.85, 1.0)]  # couleur des tirs de chaque camp (registre, peuple)          # secondes passées sous le plancher d'images par seconde
@@ -64,6 +65,8 @@ func _ready() -> void:
 	army = ArmyLayer.new()
 	army.show_behind_parent = true
 	add_child(army)
+	sounds = BattleSounds.new()
+	add_child(sounds)
 	add_child(bar)
 	_button(bar, "◀ JOUR", "Revenir au début du jour précédent", func() -> void: _seek_day(-1))
 	_play_btn = _button(bar, "PAUSE", "Lecture ou pause  (Espace)", toggle_play)
@@ -197,11 +200,13 @@ func _process(delta: float) -> void:
 	if not visible:
 		return
 	if playing:
+		var t0 := t
 		t += delta * float(SPEEDS[_speed_i])
 		if t >= _days * DAY_SECONDS:
 			t = _days * DAY_SECONDS
 			playing = false
 			_refresh_buttons()
+		emit_cues(t0, t)
 	if not tactical:
 		army.update(t, backdrop.tint)
 		if playing:
@@ -625,3 +630,31 @@ func _draw_weather() -> void:
 				draw_line(Vector2(x, y), Vector2(x + 22, y + 2), Color(0.9, 0.75, 0.5, 0.3), 1.2)
 	if w == "sand":
 		draw_rect(Rect2(Vector2.ZERO, size), Color(0.85, 0.65, 0.4, 0.12))
+
+
+## Repères sonores passés entre t0 et t1 (prop. 37) : salves, obus des blindés, bombardement, déroutes.
+func emit_cues(t0: float, t1: float) -> void:
+	if sounds == null or t1 <= t0 or army == null:
+		return
+	var d0 := clampi(int(t0 / DAY_SECONDS), 0, maxi(0, _by_day.size() - 1))
+	var d1 := clampi(int(t1 / DAY_SECONDS), 0, maxi(0, _by_day.size() - 1))
+	for d in range(d0, d1 + 1):
+		if d >= _by_day.size():
+			break
+		var shots: Array = _by_day[d]
+		var n := shots.size()
+		for k in n:
+			var at := (d + 0.04 + 0.62 * float(k) / float(maxi(1, n))) * DAY_SECONDS
+			var a := int(shots[k][1])
+			if at <= t0 or at > t1 or a < 0 or a >= army.units.size():
+				continue
+			var fam := String(army.units[a]["fam"])
+			sounds.play("obus" if fam == "blindes" else ("roquette" if fam == "aerien" else "salve"))
+		if bool(report.get("sc", {}).get("bombard", false)):
+			var bt := (d + 0.5) * DAY_SECONDS
+			if bt > t0 and bt <= t1:
+				sounds.play("bombardement")
+	for i in army.units.size():
+		var rt := float(army.units[i].get("rout_t", -1.0))
+		if rt > t0 and rt <= t1:
+			sounds.play("deroute")
