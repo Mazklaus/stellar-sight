@@ -454,6 +454,9 @@ static func daily(state: GameState) -> void:
 static func _sees(state: GameState, o: int, f: Fleet) -> bool:
 	if o >= state.seen_cache.size():
 		return false
+	# Terrain : dans une nébuleuse, seule une présence sur place repère l'intruse.
+	if Terrain.stealthy(state, f.system_id) and not Terrain.present(state, o, f.system_id):
+		return false
 	return Fleets.fleet_visible(state, o, f, state.seen_cache[o])
 
 

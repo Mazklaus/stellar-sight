@@ -230,8 +230,9 @@ static func weapon_eff(weapon: String, phase: int) -> int:
 ## escorteurs de sa flotte (`fleet_pd`), plafonnée à "pd_cap" %.
 ## Une arme sans effet à cette phase (efficacité 0) ne tire pas : 0 dégât.
 ## target_def : bonus de protection des technologies de la cible, {armor, shield, pd} en points de %.
+## shield_pct : part des boucliers qui fonctionne (terrain, voir Terrain ; 100 = tous).
 static func shot_damage(weapon: String, power: int, phase: int, shooter_tactic: String, bonus_pct: int,
-		target_ship: String, target_tactic: String, target_fleet_pd := 0, target_def := {}, target_fleet_shield := 0) -> int:
+		target_ship: String, target_tactic: String, target_fleet_pd := 0, target_def := {}, target_fleet_shield := 0, shield_pct := 100) -> int:
 	var wd: Dictionary = data()["weapons"].get(weapon, {})
 	var eff := weapon_eff(weapon, phase)
 	if eff <= 0:
@@ -241,6 +242,9 @@ static func shot_damage(weapon: String, power: int, phase: int, shooter_tactic: 
 	var defense := int(sd.get(def_kind, 0))
 	if def_kind == "shield":
 		defense += target_fleet_shield
+		if shield_pct < 100:
+			@warning_ignore("integer_division")
+			defense = defense * maxi(0, shield_pct) / 100  # terrain : pulsar, nébuleuse ionisée, tempête
 	# Blindage et boucliers empilés plafonnent ("defense_cap") ; les technologies montent jusqu'à 90.
 	defense = mini(defense, int(data().get("defense_cap", 75)))
 	if defense > 0 and target_def.has(def_kind):

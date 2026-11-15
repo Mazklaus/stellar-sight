@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.6"
+EDITION = "2.7"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -501,12 +501,40 @@ def gen_logistique():
     return (f"<table class='grille'><tr><th>Couche</th><th>Talent</th><th>Effet</th></tr>{lignes}</table>")
 
 
+def gen_terrains():
+    """Catalogue des terrains et des tempêtes (data/terrain.json)."""
+    familles = {"star": "Étoile", "zone": "Zone", "dynamic": "Né des batailles", "storm": "Tempête"}
+    lignes = ""
+    for tid, t in charger("terrain.json").get("terrains", {}).items():
+        if tid.startswith("_"):
+            continue
+        lignes += (f"<tr><td><b>{esc(t['label'])}</b><br><small>{esc(familles.get(t.get('family', ''), ''))}</small></td>"
+                   f"<td>{inline(t.get('bad', ''))}</td><td>{inline(t.get('good', ''))}</td></tr>")
+    return (f"<table class='grille'><tr><th>Terrain</th><th>Inconvénient</th><th>Avantage</th></tr>{lignes}</table>")
+
+
+def gen_terrain_talents():
+    """Talents de terrain par couche d'espèce (data/terrain.json)."""
+    noms = {"traits": "Trait", "archetype": "Archétype", "gouvernement": "Gouvernement",
+            "credo": "Credo", "registre": "Registre"}
+    lignes = ""
+    for couche, valeurs in charger("terrain.json").get("talents", {}).items():
+        if couche.startswith("_") or not isinstance(valeurs, dict):
+            continue
+        for val, t in valeurs.items():
+            nom = val if couche == "registre" else NOMS_COUCHE.get(val, val.replace("_", " ").capitalize())
+            lignes += (f"<tr><td>{esc(noms.get(couche, couche))} {esc(nom)}</td><td><b>{esc(t['label'])}</b></td>"
+                       f"<td>{inline(t['text'])}</td></tr>")
+    return (f"<table class='grille'><tr><th>Couche</th><th>Talent</th><th>Effet</th></tr>{lignes}</table>")
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
     "peuples": gen_peuples, "prompts": gen_prompts,
     "luxes": gen_luxes, "strategiques": gen_strategiques,
     "lois": gen_lois, "reliques": gen_reliques, "logistique": gen_logistique,
+    "terrains": gen_terrains, "terrain_talents": gen_terrain_talents,
 }
 
 

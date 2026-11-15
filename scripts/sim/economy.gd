@@ -208,6 +208,7 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 	if knowledge_pct != 0:
 		@warning_ignore("integer_division")
 		gross["knowledge"] = int(gross["knowledge"]) * (100 + knowledge_pct) / 100
+	Terrain.adjust_yields(state, planet.system_id, colony.owner, gross)  # étoile, nébuleuse, plasma…
 	if state.faith_on:
 		Faiths.temple_yields(state, colony, gross)
 	FactionTraits.adjust_yields(state, colony, gross, upkeep)
@@ -553,6 +554,11 @@ static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet
 		var target := terraform_target(state, empire_id, p, building_id)
 		if target == "":
 			return "impossible sur ce monde (%s)" % p.type_label()
+	var need_terrain: Array = b.get("requires_terrain", [])
+	if not need_terrain.is_empty():
+		var here := Terrain.at(state, p.system_id)
+		if not need_terrain.any(func(t): return here.has(t)):
+			return "seulement dans un système : %s" % ", ".join(need_terrain.map(func(t): return Terrain.label(String(t)).to_lower()))
 	var min_pop := int(b.get("min_pop", 0))
 	if min_pop > 0 and c.population < min_pop:
 		return "il faut %d population (%d)" % [min_pop, c.population]

@@ -157,6 +157,8 @@
 			"fields": {"combat": {"garrison_pct": 150}}},
 		{"id": "canonniers", "label": "Canonniers", "cost": 1, "text": "+10 % de dégâts au combat.", "opposes": ["piètres_soldats"],
 			"fields": {"combat": {"damage_pct": 110}}},
+		{"id": "enfants_du_vide", "label": "Enfants du vide", "cost": 1, "text": "Avec le terrain : aucun malus de transit ni de combat dans les nébuleuses, astéroïdes, plasma, radiations et cimetières d'épaves.",
+			"fields": {}},
 		{"id": "pelerins", "label": "Pèlerins zélés", "cost": 1, "growth": true, "text": "Les nouvelles colonies démarrent avec 2 population au lieu de 1.",
 			"fields": {"colony_start_pop": 2}},
 		{"id": "prolifiques", "label": "Prolifiques", "cost": 1, "growth": true, "text": "Population 50 % plus rapide.", "opposes": ["lents", "fecondite"],

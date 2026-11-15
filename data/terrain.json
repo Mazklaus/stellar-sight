@@ -1,0 +1,99 @@
+{
+	"_doc": "Terrain galactique et environnements de bataille (étude du 2026-11-15, 32 propositions validées). Chaque système a au plus un terrain de zone, en plus de son étoile, et peut être pris dans une tempête. Un terrain combine des leviers fermés (fx) : transit_pct (routes qui touchent le système plus longues de x %), veil (la vision n'y entre pas de l'extérieur), shield_pct (boucliers en bataille, 0 = coupés), weapon_pct (efficacité d'une arme), phase_pct (dégâts par phase longue/moyenne/courte), taken_pct (dégâts subis), pin (impossible de quitter une bataille), no_repair (aucune réparation), yields (rendement de chaque revendication du système), deposits (chance de gisement en %, en plus, à la création), stealth (discrétion : intrusions et espionnage), supply_block (la zone de ravitaillement ne le traverse pas), trade_block (les routes commerciales qui le traversent sont suspendues), research (Savoir et eurêka pour une flotte qui y stationne). Deux effets sur le même levier ne s'additionnent pas : le plus fort compte. Ajouter un terrain = ajouter une entrée ; \"visual\" est lu par le décor des batailles (tint et light optionnels, [r, g, b]).",
+	"_sources": "Stellaris wiki (Celestial body, Exploration), Distant Worlds 2 dev diary 4, Sins of a Solar Empire wiki (Planet Types), Master of Orion II (LP Archive, partie 16), GalCiv IV dev journal 110. Étude : https://claude.ai/artifact/Y1ARb87A2HHtRGFm25iHTw",
+	"densities": [
+		{"id": "aucun", "label": "Aucun", "share": 0, "desc": "L'espace est plat : aucune étoile ni nébuleuse ne change les règles (la galaxie d'avant le terrain)."},
+		{"id": "clairseme", "label": "Clairsemé", "share": 10, "desc": "Environ un système sur dix porte un terrain : quelques nébuleuses."},
+		{"id": "normal", "label": "Normal", "share": 20, "desc": "Environ un système sur cinq porte un terrain : nébuleuses nommées, champs d'astéroïdes, nuages de plasma."},
+		{"id": "dense", "label": "Dense", "share": 32, "desc": "Un système sur trois : de vraies chaînes de nébuleuses, des goulets à tenir."}
+	],
+	"default_density": "normal",
+	"storm_modes": [
+		{"id": "actives", "label": "Actives", "desc": "Des tempêtes cosmiques naissent dans les nébuleuses à partir de l'an 10 et dérivent de système en système."},
+		{"id": "aucunes", "label": "Aucune", "desc": "Le terrain reste fixe : pas de tempête."}
+	],
+	"default_storms": "actives",
+	"nebula": {
+		"_doc": "Part des terrains de zone faite de nébuleuses (le reste : terrains isolés), taille d'une nappe en systèmes, chance qu'une nappe ait un cœur ionisé (%), noms.",
+		"share": 60,
+		"size": [3, 8],
+		"ionized_chance": 35,
+		"prefixes": ["Voile de", "Nuée de", "Brume de", "Nébuleuse de", "Linceul de", "Mer de"]
+	},
+	"singles": {"_doc": "Terrains isolés et leur poids au tirage (asteroides : x3 si le système a une ceinture).", "asteroides": 50, "plasma": 25, "radiations": 25},
+	"placement": {"_doc": "Prop. 6 : aucun terrain de zone au départ ni à safe_radius saut, au plus max_ring à 2 sauts.", "safe_radius": 1, "max_ring": 1},
+	"graveyard": {"_doc": "Prop. 12 : un système sans terrain de zone qui accumule wrecks épaves (state.battle_wrecks) devient un cimetière.", "wrecks": 30},
+	"familiarity": {"_doc": "Prop. 15 : le camp qui tient le système depuis days jours subit pct % des malus de combat du terrain.", "days": 720, "pct": 50},
+	"terrains": {
+		"neutron": {"family": "star", "label": "Étoile à neutrons", "bad": "Boucliers coupés en bataille", "good": "Savoir +2 par revendication du système",
+			"fx": {"shield_pct": 0, "yields": {"knowledge": 2}}, "visual": {"tint": [0.55, 0.85, 1.0], "light": [0.75, 0.9, 1.0], "pulses": true}},
+		"black_hole": {"family": "star", "label": "Trou noir", "bad": "Routes 50 % plus longues, impossible de quitter une bataille", "good": "Savoir +3 par revendication du système",
+			"fx": {"transit_pct": 50, "pin": true, "yields": {"knowledge": 3}}, "visual": {"tint": [0.45, 0.2, 0.6], "light": [1.0, 0.7, 0.45], "lens": true}},
+		"blue_giant": {"family": "star", "label": "Géante bleue", "bad": "Missiles et torpilles -25 % (têtes chercheuses aveuglées)", "good": "Énergie +2 par revendication du système",
+			"fx": {"weapon_pct": {"missile": 75, "torpedo": 75}, "yields": {"energy": 2}}, "visual": {"tint": [0.4, 0.6, 1.0], "light": [0.7, 0.82, 1.0], "glare": true}},
+		"nebuleuse": {"family": "zone", "label": "Nébuleuse", "bad": "Transit 50 % plus long, vision bloquée, longue portée -50 %", "good": "Discrétion, cristaux de saut plus fréquents",
+			"fx": {"transit_pct": 50, "veil": true, "phase_pct": [50, 100, 100], "stealth": true, "deposits": {"crystals": 6}},
+			"map": [0.52, 0.32, 0.72], "visual": {"tint": [0.5, 0.3, 0.7], "density": 0.8}},
+		"nebuleuse_ionisee": {"family": "zone", "label": "Nébuleuse ionisée", "bad": "Boucliers coupés, transit doublé, vision bloquée", "good": "Dégâts subis -15 % (esquive)",
+			"fx": {"transit_pct": 100, "veil": true, "shield_pct": 0, "taken_pct": 85, "stealth": true, "supply_block": true},
+			"map": [0.3, 0.75, 0.95], "visual": {"tint": [0.25, 0.7, 0.95], "density": 0.9, "lightning": true}},
+		"asteroides": {"family": "zone", "label": "Champ d'astéroïdes", "bad": "Longue portée -50 % pour toutes les armes", "good": "Filons riches plus fréquents, dégâts subis -10 % (couvert)",
+			"fx": {"phase_pct": [50, 100, 100], "taken_pct": 90, "deposits": {"minerals": 18}},
+			"map": [0.62, 0.5, 0.36], "visual": {"tint": [0.6, 0.48, 0.34], "rocks": 2.0}},
+		"plasma": {"family": "zone", "label": "Nuage de plasma", "bad": "Les chasseurs ne décollent pas", "good": "Énergie +2 par revendication du système",
+			"fx": {"weapon_pct": {"fighters": 0}, "yields": {"energy": 2}},
+			"map": [0.95, 0.45, 0.3], "visual": {"tint": [0.95, 0.42, 0.28], "density": 0.6, "lightning": true}},
+		"radiations": {"family": "zone", "label": "Champ de radiations", "bad": "Aucune réparation", "good": "Savoir +2 par revendication du système",
+			"fx": {"no_repair": true, "yields": {"knowledge": 2}},
+			"map": [0.6, 0.9, 0.35], "visual": {"tint": [0.55, 0.9, 0.3], "density": 0.45}},
+		"cimetiere": {"family": "dynamic", "label": "Cimetière d'épaves", "bad": "Transit 25 % plus long", "good": "Dégâts subis -10 % (couvert), Matériaux +2 par revendication (récupération)",
+			"fx": {"transit_pct": 25, "taken_pct": 90, "yields": {"materials": 2}},
+			"map": [0.6, 0.6, 0.62], "visual": {"tint": [0.55, 0.55, 0.6], "wrecks": true}},
+		"tempete_ionique": {"family": "storm", "label": "Tempête ionique", "bad": "Boucliers coupés, ravitaillement et commerce coupés", "good": "Savoir et eurêka pour qui l'étudie",
+			"fx": {"shield_pct": 0, "supply_block": true, "trade_block": true, "research": true},
+			"map": [0.35, 0.85, 1.0], "visual": {"tint": [0.3, 0.8, 1.0], "density": 0.7, "lightning": true}},
+		"tempete_gravitationnelle": {"family": "storm", "label": "Tempête gravitationnelle", "bad": "Transit doublé, impossible de quitter une bataille, commerce coupé", "good": "Savoir et eurêka pour qui l'étudie",
+			"fx": {"transit_pct": 100, "pin": true, "supply_block": true, "trade_block": true, "research": true},
+			"map": [0.75, 0.45, 1.0], "visual": {"tint": [0.7, 0.4, 1.0], "density": 0.6, "lens": true}},
+		"tempete_radiations": {"family": "storm", "label": "Tempête de radiations", "bad": "Vision réduite au système, aucune réparation, commerce coupé", "good": "Savoir et eurêka pour qui l'étudie",
+			"fx": {"blind": true, "no_repair": true, "supply_block": true, "trade_block": true, "research": true},
+			"map": [0.75, 1.0, 0.35], "visual": {"tint": [0.7, 1.0, 0.3], "density": 0.6}}
+	},
+	"storms": {
+		"_doc": "Prop. 18-21. start_day : pas de tempête avant ; per_systems : une tempête au plus pour ce nombre de systèmes (1 à max) ; spawn_chance : chance par mois (sur 1000) qu'une tempête naisse s'il en manque ; step_days : jours entre deux sauts ; life_days : durée de vie [min, max] ; radius : sauts couverts autour du centre ; research : Savoir par jour d'une flotte qui stationne dans la tempête, eureka_chance : chance par mois (sur 100) d'un eurêka.",
+		"start_day": 3600,
+		"per_systems": 70,
+		"max": 3,
+		"spawn_chance": 250,
+		"step_days": 60,
+		"life_days": [360, 1080],
+		"radius": 1,
+		"kinds": ["tempete_ionique", "tempete_gravitationnelle", "tempete_radiations"],
+		"research": 2,
+		"eureka_chance": 10
+	},
+	"counters": {
+		"_doc": "Prop. 25. Contre-mesures : module hardened_shields (boucliers à shield_floor % au lieu de 0), effet de technologie terrain_transit_pct (malus de transit en %, -50 = divisé par 2), terrain_pierce (voir dans les nébuleuses à 1 saut).",
+		"shield_floor": 50
+	},
+	"talents": {
+		"_doc": "Prop. 28-29. Talents de terrain par couche d'espèce (catalogue ouvert, valables pour les peuples personnalisés) : transit_pct (malus de transit en %), pierce (voir dans les nébuleuses), stealth_x2, immune (terrains dont le peuple ignore les malus de combat), yields_in (rendement en plus dans un terrain), storm_fervor (ferveur quand une tempête passe sur ses mondes).",
+		"traits": {
+			"navigateurs": {"label": "Pilotes des brumes", "text": "Ils lisent les courants des nébuleuses : malus de transit du terrain divisés par deux.", "transit_pct": -50},
+			"enfants_du_vide": {"label": "Enfants du vide", "text": "Nés entre les étoiles : aucun malus de transit ni de combat dans les terrains de zone.", "transit_pct": -100, "immune": ["nebuleuse", "nebuleuse_ionisee", "asteroides", "plasma", "radiations", "cimetiere"]}
+		},
+		"archetype": {
+			"energetique": {"label": "Chant de la nébuleuse", "text": "Ce peuple d'onde est chez lui dans les nébuleuses : il y voit à travers et y passe deux fois plus inaperçu.", "pierce": true, "stealth_x2": true},
+			"ruche": {"label": "Chair qui se refait", "text": "La biomasse se recoud même sous les radiations : réparations normales.", "immune": ["radiations", "tempete_radiations"]}
+		},
+		"gouvernement": {
+			"syndicat": {"label": "Mineurs du vide", "text": "Les champs d'astéroïdes sont leurs ateliers : aucun malus de combat et Matériaux +2 par revendication.", "immune": ["asteroides"], "yields_in": {"asteroides": {"materials": 2}}}
+		},
+		"credo": {
+			"foi": {"label": "Signes du ciel", "text": "Une tempête qui passe sur ses mondes est un message divin : +5 de ferveur.", "storm_fervor": 5}
+		},
+		"registre": {}
+	},
+	"hero_trait": {"_doc": "Prop. 27 : trait d'amiral (data/heroes.json) qui ignore les malus de transit du terrain.", "id": "pilote_nebuleuse"},
+	"ai": {"_doc": "Prop. 30 : à partir de ce savoir-faire militaire (data/ai.json, military.skill : 2 = Vétéran et plus), l'IA évite d'attaquer dans un terrain qui la désavantage de plus de avoid_pct %.", "min_skill": 2, "avoid_pct": 10}
+}

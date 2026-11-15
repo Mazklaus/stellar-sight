@@ -554,6 +554,9 @@ static func chances(state: GameState, a: int, b: int, op_id: String) -> Dictiona
 		dp.append(["Bureau des chiffres (Amphictyonie)", Amphictyony.discovery_bonus(state, a, b)])
 	if above > 0:
 		dp.append(["Réseau bien implanté", -above * int(c["per_tier"])])
+	var brume := Terrain.empire_spy_bonus(state, a, b)
+	if brume != 0:
+		dp.append(["Nébuleuses chez la cible", -brume])
 	var succ := 0
 	for p in sp:
 		succ += int(p[1])

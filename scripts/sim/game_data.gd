@@ -332,6 +332,11 @@ static func logistics() -> Dictionary:
 	return _load("logistics")
 
 
+## Terrain galactique et environnements de bataille (voir Terrain).
+static func terrain() -> Dictionary:
+	return _load("terrain")
+
+
 static func koinon() -> Dictionary:
 	return _load("koinon")
 
