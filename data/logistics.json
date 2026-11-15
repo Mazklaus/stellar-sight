@@ -1,0 +1,54 @@
+{
+	"_sources": "Étude Logistique et ravitaillement (2026-11-15, 30 propositions validées) : https://claude.ai/artifact/LEjbkUYDLaJxXV4ZVgfkgu. Zone comptée en sauts depuis les colonies et les bases : portée de Galactic Civilizations IV (wiki.galciv.com, Ship & Sensor Range) et de Master of Orion. Réserves qui s'épuisent loin des bases, flottes à quai sans frais : Stellaris 4.0 (dev diary #369, extraits). Têtes de pont et dépôts : Europa Universalis V (PCGamesN). Lignes de ravitaillement à couper : Victoria 3 (dev diary #39). Écartés : carburant et ravitailleurs à piloter de Distant Worlds 2, surcoût d'entretien à distance et capacité navale de Stellaris (consigne : ne pas pénaliser les empires guerriers).",
+	"modes": [
+		{"id": "aucune", "label": "Désactivée", "desc": "Comme avant : une flotte reste aussi forte au fond du territoire ennemi que chez elle."},
+		{"id": "simple", "label": "Simple", "desc": "Zone de ravitaillement autour de vos systèmes et de ceux de vos alliés, réserves de 120 jours au-delà, puis malus doux (plus de réparation, dégâts réduits). Têtes de pont, ravitailleurs et dépôts de flotte prolongent la portée."},
+		{"id": "complete", "label": "Complète", "desc": "Comme Simple, plus les lignes coupées par l'ennemi, les batailles et sièges qui consomment double, la réquisition, l'encerclement des planètes assiégées et le ravitaillement des régiments."}
+	],
+	"default_mode": "simple",
+	"states": {
+		"ok": {"label": "Ravitaillée", "text": "Dans la zone de ravitaillement : réserves pleines, réparations normales."},
+		"out": {"label": "Étirée", "text": "Hors de la zone : la flotte vit sur ses réserves embarquées."},
+		"cut": {"label": "Coupée", "text": "Plus aucun chemin libre vers la zone : les réserves fondent deux fois plus vite."}
+	},
+	"range": 2,
+	"autonomy_days": 120,
+	"refill_per_day": 10,
+	"exhausted": {"damage_pct_per_week": 2, "damage_pct_max": 30},
+	"docked_upkeep_pct": -25,
+	"low_reserve_pct": 25,
+	"cut_mult": 2,
+	"battle_mult": 2,
+	"bridge_days": 30,
+	"depot": {"range": 1, "repair_pct": 8},
+	"supply_hold": {"autonomy_pct": 100, "repair_pct": 1},
+	"ground": {"morale_loss": 2, "cut_morale_mult": 2},
+	"encircled": {"garrison_loss": 1, "fort_loss": 1},
+	"requisition": {"stability": -10, "devastation": 10, "cooldown_days": 180, "grievance": 1},
+	"sabotage": {"reserve_pct": 50, "depot_days": 60},
+	"closed_mult": 2,
+	"weariness": {"after_days": 60, "points": 1},
+	"free_port_cost": {"energy": 2},
+	"talents": {
+		"_doc": "Prop. 25. Talents de logistique par couche d'espèce (catalogue ouvert, valables pour les peuples personnalisés) : autonomy_pct, range, requisition_free, mobile_depot, never_cut, free_ports.",
+		"traits": {
+			"navigateurs": {"label": "Routes du large", "text": "Ils connaissent les chemins de traverse : zone de ravitaillement +1 saut.", "range": 1},
+			"casaniers": {"label": "Mal du pays", "text": "Loin de chez eux, ils comptent les jours : réserves -25 %.", "autonomy_pct": -25}
+		},
+		"archetype": {
+			"lithoide": {"label": "Ventres de pierre", "text": "Ils ne mangent presque rien : réserves doublées.", "autonomy_pct": 100},
+			"synthetique": {"label": "Sans ration", "text": "Des pièces de rechange et de l'énergie suffisent : réserves doublées.", "autonomy_pct": 100},
+			"ruche": {"label": "La Moisson nourrit", "text": "L'essaim se sert sur place : la réquisition ne laisse ni grief ni crime de guerre.", "requisition_free": true},
+			"energetique": {"label": "Fil d'onde", "text": "Ce peuple d'énergie n'a pas de ligne à couper : ses flottes ne sont jamais Coupées.", "never_cut": true}
+		},
+		"gouvernement": {
+			"horde": {"label": "Le camp suit la horde", "text": "La flotte-ville est un dépôt mobile : zone de ravitaillement autour d'elle.", "mobile_depot": true}
+		},
+		"credo": {
+			"survie": {"label": "Économie de survie", "text": "On rationne avant d'avoir faim : réserves +25 %.", "autonomy_pct": 25}
+		},
+		"registre": {
+			"Picaresque / pulp": {"label": "Amis des ports francs", "text": "Les ports francs les ravitaillent gratuitement : on y a ses habitudes.", "free_ports": true}
+		}
+	}
+}

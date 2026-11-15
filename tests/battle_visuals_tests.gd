@@ -1,6 +1,6 @@
 extends RefCounted
 ## Tests du visuel des combats, lot 1 (décors spatiaux) : décor relevé au début de la bataille et
-## recopié dans le rapport, cimetière d'épaves, siège, sauvegarde 62, déterminisme, vue de replay
+## recopié dans le rapport, cimetière d'épaves, siège, sauvegarde 63, déterminisme, vue de replay
 ## habillée (décor, sprites éclairés, vue tactique, détail). Appelés par smoke_test.gd.
 
 var _check: Callable
@@ -80,9 +80,9 @@ func _test_scene() -> void:
 	st.battle_wrecks[target] = 59
 	BattleScene.finish(st, target, {"scene": {"siege": false}, "sides": [{"lost": {"fregate": 5}}]})
 	_ok(int(st.battle_wrecks[target]) == int(GameData.battle_visuals()["objects"]["wrecks_cap"]), "Visuel : cimetière plafonné")
-	# Sauvegarde 62 et déterminisme.
+	# Sauvegarde 63 et déterminisme.
 	var d := st.to_dict()
-	_ok(int(d["version"]) == GameState.FORMAT_VERSION and GameState.FORMAT_VERSION >= 62, "Visuel : sauvegarde 62")
+	_ok(int(d["version"]) == GameState.FORMAT_VERSION and GameState.FORMAT_VERSION >= 63, "Visuel : sauvegarde 63")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and int(back.battle_wrecks.get(target, 0)) == int(st.battle_wrecks[target]), "Visuel : cimetière sauvegardé")
 	_ok(back != null and back.checksum() == st.checksum(), "Visuel : partie identique après rechargement")

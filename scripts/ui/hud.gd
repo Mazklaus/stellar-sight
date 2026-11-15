@@ -528,6 +528,7 @@ func _build_fleet_card() -> void:
 			["embark", "EMBARQUER", "Faire monter à bord les régiments qui attendent dans ce système, dans la limite des places des transports"],
 			["disembark", "DÉPOSER", "Déposer les régiments à bord dans un de vos systèmes"],
 			["bomb", "BOMBARDEMENT", "Posture de bombardement pendant un siège (combat au sol complet)"],
+			["requisition", "RÉQUISITIONNER", "Logistique complète : refaire le plein sur le système ennemi peuplé qu'on assiège (dévastation, stabilité, rancune, crime de guerre sous les Mondes protégés)"],
 			["invade", "ENVAHIR", "Débarquer les troupes : le système change de mains si elles sont plus nombreuses que la garnison"]]:
 		var b := Button.new()
 		b.text = a[1]
@@ -618,6 +619,13 @@ func _refresh_fleet_card() -> void:
 					f.total_hp() * 100 / maxi(1, f.total_max_hp()), f.troops, Combat.max_troops(f, _state), Combat.tactic_label(Combat.fleet_tactic(f))]
 	if Ground.full(_state) and Ground.capacity(_state, f) > 0 and (mine or Fleets.is_explored(_state, _player, f.system_id)):
 		_fleet_stats.text += "\n" + ground_line(_state, f)
+	# Logistique : état de ravitaillement et réserves (prop. 28).
+	if mine and Logistics.applies(_state, f):
+		_fleet_stats.text += "\n" + Logistics.status_line(_state, f)
+		_fleet_stats.tooltip_text = Logistics.status_tooltip(_state, f)
+		_fleet_stats.mouse_filter = Control.MOUSE_FILTER_PASS
+	else:
+		_fleet_stats.tooltip_text = ""
 	var can_colonize := mine and not f.is_moving() and Fleets.colonizer_ship(f) != ""
 	if can_colonize:
 		can_colonize = false
@@ -690,6 +698,12 @@ func _refresh_fleet_card() -> void:
 	var dis_why := Ground.check_disembark(_state, _player, f.id) if _fleet_buttons["disembark"].visible else "x"
 	_fleet_buttons["disembark"].disabled = dis_why != ""
 	_fleet_buttons["disembark"].tooltip_text = "Déposer les régiments à bord dans ce système (un des vôtres) ; ils y défendent et y récupèrent plus vite." + (("\n" + dis_why) if dis_why != "" and dis_why != "x" else "")
+	var rq_vis := mine and armed and Logistics.full(_state) and Logistics._besieging(_state, f)
+	_fleet_buttons["requisition"].visible = rq_vis
+	var rq_why := Logistics.check_requisition(_state, _player, f.id) if rq_vis else "x"
+	_fleet_buttons["requisition"].disabled = rq_why != ""
+	if rq_vis:
+		_fleet_buttons["requisition"].tooltip_text = "Refaire le plein sur le système assiégé : dévastation, stabilité -10, rancune du propriétaire, crime de guerre sous les Mondes protégés." + (("\n" + rq_why) if rq_why != "" else "")
 	_fleet_buttons["report"].visible = mine and armed
 	_fleet_buttons["report"].disabled = last_report(_state, _player).is_empty()
 	_fleet_hint.visible = mine

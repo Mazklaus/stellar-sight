@@ -184,6 +184,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		dpct += Fauna.hunt_pct(state, f, fighters)
 		dpct += Plagues.damage_pct(state, f, sid)
 		dpct += FaithNatures.damage_pct(state, f, sid)
+		dpct += Logistics.damage_pct(state, f)  # réserves épuisées loin des bases
 		if dpct != 0:
 			@warning_ignore("integer_division")
 			bonus = bonus * maxi(0, 100 + dpct) / 100
@@ -503,7 +504,7 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 				state.sieges.erase(sid)
 				if not fought.has(sid):
 					added.append(state.add_chronicle("Le siège de %s est levé. On rouvre les volets, on recompte les provisions." % state.galaxy.systems[sid].system_name, Espionage.private_to(state, [owner], sid)))
-			if state.garrisons.has(sid):
+			if state.garrisons.has(sid) and not Logistics.encircled(state, sid):
 				var g := int(state.garrisons[sid]) + int(gcfg["regen_per_day"])
 				if g >= Combat.garrison_max(state, sid):
 					state.garrisons.erase(sid)
@@ -529,6 +530,11 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 			GroundSiege.on_siege(state, sid, by, power)  # fortifications d'abord, bombardement, reddition
 		else:
 			state.garrisons[sid] = maxi(0, before - power)
+		# Encerclement (logistique complète) : coupée de tout, la place s'use plus vite.
+		if Logistics.encircled(state, sid):
+			state.garrisons[sid] = maxi(0, Combat.garrison(state, sid) - Logistics.encircled_loss("garrison_loss"))
+			if Ground.full(state) and GroundSiege.fort(state, sid) > 0:
+				GroundSiege._sub(state, "fort")[str(sid)] = maxi(0, GroundSiege.fort(state, sid) - Logistics.encircled_loss("fort_loss"))
 
 
 ## Les batteries des bastions tirent à moyenne portée sur les assiégeants.
@@ -617,7 +623,10 @@ static func _repairs(state: GameState, fought: Dictionary) -> void:
 			# Forge mobile (Léviathan) : la flotte se répare partout comme chez elle.
 			var anywhere := at_home or bool(Combat.trait_value(state, f.owner, "repair_anywhere", false)) or Combat._fleet_has_flag(f, "fleet_repair")
 			var pct := home if anywhere else away
+			pct = Logistics.repair_pct(state, f, pct)  # dépôt de flotte, réserves épuisées
 			pct = Research.scaled(pct, Research.fx_int(state, f.owner, "repair_pct"))  # guerre d'usure
+			if pct <= 0:
+				continue  # à sec : plus aucune réparation
 			for i in f.ships.size():
 				var mx := Fleet.max_hp_of(f.ships[i])
 				if f.hp[i] < mx:

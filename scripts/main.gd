@@ -1290,6 +1290,10 @@ func order_fleet_to(system_id: int) -> void:
 		var warn := Borders.route_warning(simulation.state, f, plan.get("path", []))
 		if warn != "":
 			_hud.notify("%s : %s" % [f.fleet_name, warn])
+		# Logistique : destination hors de la zone de ravitaillement.
+		var lwarn := Logistics.route_warning(simulation.state, f, plan.get("path", []), days)
+		if lwarn != "":
+			_hud.notify("%s : %s." % [f.fleet_name, lwarn], "warn")
 
 
 ## Met la flotte sélectionnée en patrouille entre sa position et un système.
@@ -1424,6 +1428,14 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 					_hud.notify("%s : les régiments débarquent sur %s ; la bataille au sol commence dans %d jours." % [f.fleet_name, sname, int(Ground.data()["battle"]["landing_days"])], "good")
 				else:
 					_hud.notify("%s : les troupes débarquent sur %s." % [f.fleet_name, sname], "good")
+		"requisition":
+			var rq := SimCommands.requisition(view_empire, fleet_id)
+			var rwhy := SimCommands.validate(st, rq)
+			if rwhy != "":
+				_hud.notify("%s : %s." % [f.fleet_name, rwhy], "warn")
+			elif _submit(rq):
+				_hud.notify("%s : réquisition, les soutes sont pleines." % f.fleet_name, "good")
+			_hud.show_fleet(fleet_id)
 		"bomb":
 			var nxt := GroundSiege.next_posture(st, view_empire, GroundSiege.posture(st, fleet_id))
 			if _submit(SimCommands.ground_act(view_empire, "bomb", fleet_id, nxt)):

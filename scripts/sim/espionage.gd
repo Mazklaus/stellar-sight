@@ -618,6 +618,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_g := GroundOccupation.spy_check(state, a, b, op_id)
 		if why_g != "":
 			return why_g
+	if bool(o.get("logistics", false)):
+		var why_l := Logistics.spy_check(state, a, b, op_id)
+		if why_l != "":
+			return why_l
 	match op_id:
 		"prophetie":
 			var why := FaithWars.check_prophecy(state, a, b)
@@ -803,6 +807,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return Borders.spy_apply(state, a, b, o)
 	if bool(o.get("ground", false)):
 		return GroundOccupation.spy_apply(state, a, b, o)
+	if bool(o.get("logistics", false)):
+		return Logistics.spy_apply(state, a, b, o)
 	match String(o["id"]):
 		"rapport":
 			ea.dossiers[b] = dossier(state, b, data()["tiers"].size())

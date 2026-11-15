@@ -429,6 +429,7 @@ func _draw_unknown_system(s: StarSystem, px: float) -> void:
 func _draw_fleets(px: float) -> void:
 	_fleet_pos = fleet_positions(px)
 	if selected_fleet >= 0 and _fleet_pos.has(selected_fleet):
+		_draw_supply_zone(state.fleets[selected_fleet], px)
 		_draw_route(state.fleets[selected_fleet], px)
 	for fid in _fleet_pos:
 		_draw_fleet_icon(state.fleets[fid], _fleet_pos[fid], px)
@@ -509,6 +510,24 @@ func _draw_fleet_icon(f: Fleet, pos: Vector2, px: float) -> void:
 		draw_circle(m, 2.4 * px, Color(0.95, 0.78, 0.36))
 
 
+const SUPPLY_COLOR := Color(0.45, 0.85, 0.55)
+
+
+## Logistique : zone de ravitaillement de la flotte sélectionnée (une des vôtres, armée) : un halo
+## vert sur chaque système connu de la zone, plus pâle sur ses bords. Pas de lentille de plus.
+func _draw_supply_zone(f: Fleet, px: float) -> void:
+	if f.owner != viewer or not Logistics.applies(state, f):
+		return
+	var z := Logistics.zone(state, f.owner)
+	for sid in z:
+		if not is_known(int(sid)):
+			continue
+		var p: Vector2 = galaxy.systems[int(sid)].position
+		var edge := int(z[sid]) == 0
+		draw_circle(p, 26.0 * px, Color(SUPPLY_COLOR, 0.07 if edge else 0.13))
+		draw_arc(p, 26.0 * px, 0.0, TAU, 28, Color(SUPPLY_COLOR, 0.32 if edge else 0.55), 1.5 * px, true)
+
+
 ## Trajet de la flotte sélectionnée : pointillés jusqu'à destination, et le délai.
 func _draw_route(f: Fleet, px: float) -> void:
 	if not f.is_moving():
@@ -527,6 +546,10 @@ func _draw_route(f: Fleet, px: float) -> void:
 	if f.owner == viewer and Borders.route_warning(state, f, f.path) != "":
 		text += " · intrusion"
 		col = BORDER_CLOSED_COLOR
+	# Logistique : destination hors de la zone de ravitaillement.
+	if f.owner == viewer and Logistics.route_warning(state, f, f.path) != "":
+		text += " · hors ravitaillement"
+		col = BORDER_GUARDED_COLOR if col == SELECT_COLOR else col
 	draw_rect(Rect2(Vector2(14, -8), Vector2(_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
 	draw_string(_font, Vector2(19, 6), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
