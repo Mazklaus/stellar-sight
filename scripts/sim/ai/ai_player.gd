@@ -1535,6 +1535,11 @@ static func _war_target(ctx: Dictionary, from: int) -> int:
 		if state.wars_on and _skill(ctx) >= 1 and Wars.has_claim(state, e.id, sid):
 			@warning_ignore("integer_division")
 			score = score / 2
+		# Terrain : le Vétéran et au-dessus évitent d'attaquer là où le terrain les désavantage.
+		var tai: Dictionary = Terrain.data().get("ai", {})
+		if Terrain.active(state) and _skill(ctx) >= int(tai.get("min_skill", 2)) \
+				and Terrain.ai_handicap(state, sid, e.id, owner) > int(tai.get("avoid_pct", 20)):
+			score = score * 2 + 50
 		if best == -1 or score < best_score:
 			best = sid
 			best_score = score

@@ -310,6 +310,48 @@ Inventaire au jour 97 : rations pour vingt-trois jours, munitions pour deux bata
 Avant une offensive lointaine, posez un dépôt de flotte sur un avant-poste de la frontière, et tenez chaque conquête trente jours avant de pousser plus loin. Une flotte qui avance de tête de pont en tête de pont ne manque jamais de rien.
 :::
 
+### Le terrain galactique
+
+L'option de partie **Terrain** règle la part de systèmes qui changent les règles : **Aucun** (l'espace est plat, comme avant), **Clairsemé** (un système sur dix), **Normal**, le réglage du menu (un sur cinq), **Dense** (un sur trois, avec de vraies chaînes de nébuleuses et des goulets à tenir). Chaque terrain a toujours **un inconvénient et un avantage** : un trou noir ralentit et piège les flottes, mais il fait progresser la science de ceux qui s'y installent.
+
+**Sur la carte.** Les nébuleuses forment des nappes colorées qui portent un nom (« Nuée de Morsel »), visibles dès le départ, comme sur une carte marine. Les autres terrains apparaissent une fois le système exploré : rochers pour les champs d'astéroïdes, éclairs pour le plasma. La fiche du système (survol) donne une ligne par terrain, inconvénient puis avantage, et votre talent de terrain s'il y en a un. Aucun terrain de zone ne touche votre système de départ ni ses voisins.
+
+{{terrains}}
+
+**Déplacements.** Le **transit** allonge les routes qui touchent un système à terrain : +50 % pour une nébuleuse ou un trou noir, le double pour une nébuleuse ionisée. Le tracé d'un ordre en tient compte et contourne quand c'est plus court. **Le voile** d'une nébuleuse arrête la vue : on ne voit pas à l'intérieur depuis l'extérieur, et une flotte qui y entre ne voit que son système. Un trou noir ou une tempête gravitationnelle **retiennent** les flottes en bataille : impossible de fuir tant qu'elle dure.
+
+**En bataille.** Le terrain du système s'applique aux deux camps, sauf à un peuple **immunisé** par son talent. Boucliers coupés (étoile à neutrons, nébuleuse ionisée, tempête ionique), longue portée divisée par deux (nébuleuse, astéroïdes), missiles affaiblis (géante bleue), chasseurs cloués au sol (plasma), dégâts subis réduits par le couvert (astéroïdes, épaves), aucune réparation (radiations). Le rapport de bataille rappelle le terrain du combat. **Connaître le terrain** : un empire qui tient un système depuis deux ans n'y subit plus que la moitié des malus de combat. Défendre chez soi paie.
+
+**Cimetières d'épaves.** Un système sans terrain où s'accumulent trente épaves devient un cimetière : on y navigue moins vite, on s'y abrite, et ses revendications récupèrent 2 matériaux.
+
+**Les tempêtes cosmiques.** L'option **Tempêtes** (Actives par défaut, réglable seulement avec un terrain) fait naître des tempêtes **à partir de la 10e année** : une pour 70 systèmes, trois au plus. Chacune couvre son système et ses voisins, se déplace d'un saut tous les deux mois et dure d'un à trois ans. La carte montre son anneau et une flèche vers son prochain système : on la voit venir. Toutes coupent le **ravitaillement** et les **routes commerciales** qui la traversent (la route reprend après son passage). Chacune ajoute un malus : **ionique** (boucliers coupés), **gravitationnelle** (transit doublé, bataille qu'on ne quitte pas), **de radiations** (vision réduite au système, aucune réparation). Mais une flotte qui stationne dans une tempête l'étudie : **+2 Savoir par jour**, et parfois un eurêka sur la recherche en cours.
+
+**Contre-mesures.**
+
+- **Navigation stellaire** (Génie, ère II) : malus de transit divisés par deux.
+- **Senseurs gravitationnels** (Génie, ère II) : on voit à un saut dans les nébuleuses. Débloque l'**Observatoire stellaire** (80 matériaux, 30 énergie, un par système, avant-poste possible) : +6 Savoir, seulement près d'un trou noir ou d'une étoile à neutrons.
+- **Boucliers durcis** (Armement, ère II) : le module de défense du même nom (Chantier) protège moins qu'un bouclier ordinaire, mais garde la moitié de sa force là où le terrain coupe les boucliers.
+- L'amiral au trait **Pilote des nébuleuses** ignore tous les malus de transit.
+
+**Ponts.** Une nébuleuse ionisée arrête la zone de ravitaillement. Les nébuleuses cachent : sans présence du propriétaire, une flotte n'y laisse pas de trace de violation de frontière, et un empire dont un quart des systèmes est en nébuleuse est plus dur à espionner (-10 % de découverte, -20 % pour un peuple au talent doublé). Trois événements naissent du terrain : un signal dans une nébuleuse, une tempête aux portes, une plongée vers un astre dangereux.
+
+**Les talents de terrain.** Comme pour la logistique, certains peuples ont un talent selon leurs couches d'espèce. Ils valent aussi pour les peuples créés dans l'éditeur, qui propose le trait **Enfants du vide** (1 point).
+
+{{terrain_talents}}
+
+**L'IA.** Les IA Vétéran et plus évitent d'attaquer un système où le terrain les désavantage plus que leur cible : un peuple immunisé chez lui, ou un défenseur qui connaît son terrain depuis longtemps.
+
+::: capture docs/apercu-terrain.png|Une nébuleuse nommée, une tempête et sa flèche de route, la fiche d'un système à terrain
+:::
+
+::: transmission Pilote de l'escadre Brume-Lente, Murmurants d'Abysse
+Les autres appellent ça une nébuleuse. Nous, on appelle ça la maison. Ils entrent en tâtonnant, les boucliers qui grésillent et les capteurs qui crient. Nous, on fredonne.
+:::
+
+::: conseil
+Tenez les nébuleuses de votre frontière deux ans avant la guerre : vos flottes y combattront à moitié de malus, l'ennemi à plein. Et gardez une frégate dans chaque tempête qui passe chez vous : c'est de la science gratuite.
+:::
+
 ### Réparer, revoir, recommencer
 
 Les vaisseaux se réparent vite chez vous (5 % de la coque par jour) et lentement ailleurs (1 %), plus du tout quand leurs réserves sont vides (logistique). Les troupes (et les régiments, en combat au sol complet) se refont dans vos systèmes. Le **rapport de bataille** détaille pertes et dégâts ; **Revoir la bataille** ([[R]]) la rejoue en 2D, jour par jour, chaque camp rangé en écran, ligne et arrière. La partie continue pendant ce temps.

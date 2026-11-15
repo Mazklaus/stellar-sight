@@ -62,8 +62,8 @@ static func _stationary_by_system(state: GameState) -> Dictionary:
 	var out := {}
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
-		if f.is_moving():
-			continue
+		if f.is_moving() and not Terrain.pinned(state, f):
+			continue  # (une flotte retenue par la gravité du lieu reste dans la bataille)
 		if not out.has(f.system_id):
 			out[f.system_id] = []
 		out[f.system_id].append(f)
@@ -87,6 +87,10 @@ static func _new_battle(state: GameState, sid: int) -> Dictionary:
 	var b := {"id": state.next_battle_id, "system": sid, "start": state.tick, "day": 0,
 			"fleets": [], "sides": [], "units": [], "slots": [], "log": []}
 	b["scene"] = BattleScene.capture(state, sid, int(b["id"]))  # décor de la vue de replay (visuel)
+	# Terrain (voir Terrain) : relevé au début, valable pour toute la bataille, affiché dans le rapport.
+	var terr := Terrain.at(state, sid)
+	if not terr.is_empty():
+		b["terrain"] = terr
 	state.next_battle_id += 1
 	state.battles[sid] = b
 	return b
@@ -166,6 +170,12 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 					front += wgt
 		raw[f.owner] = [list, front]
 		targets[f.owner] = {"nearest": {"lined": _cumulate(list, front == 0), "any": _cumulate(list, true)}}
+	# Terrain : effets par camp (immunités de peuple, connaissance du terrain).
+	var tfx := {}
+	if b.has("terrain"):
+		for f in fighters:
+			if not tfx.has(f.owner):
+				tfx[f.owner] = Terrain.battle_fx(state, sid, f.owner)
 	# Tirs simultanés : on cumule, puis on applique.
 	var pending := {}
 	var martyrs: Array = []
@@ -201,10 +211,14 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 			var lists: Dictionary = targets[f.owner][prio]
 			var keys := w.keys()
 			keys.sort()
+			var my_fx: Dictionary = tfx.get(f.owner, {})
 			for k in keys:
 				var wd: Dictionary = Combat.data()["weapons"].get(k, {})
 				if Combat.weapon_eff(String(k), phase) <= 0:
 					continue
+				var tpct := Terrain.shot_pct(my_fx, String(k), phase)
+				if tpct <= 0:
+					continue  # chasseurs cloués par le plasma
 				var any: bool = wd.get("ignores_lines", false)
 				if not any and deep > 0 and state.rng.randi_range(0, 99) < deep:
 					any = true
@@ -214,8 +228,13 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 				var ti: int = pick[1]
 				@warning_ignore("integer_division")
 				var wbonus := bonus * (100 + Combat.weapon_bonus(state, f.owner, String(k), my_marks)) / 100
+				var tg_fx: Dictionary = tfx.get(tg.owner, {})
 				var dmg := Combat.shot_damage(String(k), int(w[k]), phase, tac, wbonus, tg.ships[ti], Combat.fleet_tactic(tg),
-						Combat.fleet_pd(tg), Combat.defense_bonus(state, tg.owner, Combat.ship_marks(state, tg, ti)), Combat.fleet_shield(tg))
+						Combat.fleet_pd(tg), Combat.defense_bonus(state, tg.owner, Combat.ship_marks(state, tg, ti)), Combat.fleet_shield(tg),
+						Terrain.shield_pct(tg_fx, tg.ships[ti]) if not tg_fx.is_empty() else 100)
+				if tpct != 100 or tg_fx.has("taken_pct"):
+					@warning_ignore("integer_division")
+					dmg = maxi(1, dmg * tpct / 100 * int(tg_fx.get("taken_pct", 100)) / 100)
 				var screen := Research.fx_int(state, tg.owner, "screen_taken_pct")
 				if screen != 0 and Combat.ship_line(tg.ships[ti]) == "screen":
 					@warning_ignore("integer_division")
@@ -418,6 +437,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 	report["system_name"] = state.galaxy.systems[sid].system_name
 	report.erase("slots")
 	BattleScene.finish(state, sid, report)
+	Terrain.on_battle_end(state, sid, added)
 	state.battle_reports.append(report)
 	var keep := int(Combat.data().get("reports_max", 12))
 	while state.battle_reports.size() > keep:
@@ -624,6 +644,8 @@ static func _repairs(state: GameState, fought: Dictionary) -> void:
 			var anywhere := at_home or bool(Combat.trait_value(state, f.owner, "repair_anywhere", false)) or Combat._fleet_has_flag(f, "fleet_repair")
 			var pct := home if anywhere else away
 			pct = Logistics.repair_pct(state, f, pct)  # dépôt de flotte, réserves épuisées
+			if Terrain.no_repair(state, f):
+				pct = 0  # radiations
 			pct = Research.scaled(pct, Research.fx_int(state, f.owner, "repair_pct"))  # guerre d'usure
 			if pct <= 0:
 				continue  # à sec : plus aucune réparation

@@ -11,3 +11,10 @@ var planet_count: int = 0
 var neighbors: Array[int] = []
 ## Identifiants des planètes du système (dans Galaxy.planets), de la plus proche à la plus lointaine.
 var planet_ids: Array[int] = []
+## Terrain (voir Terrain, dérivé de state.terrain, non sauvegardé ici) : terrain de zone ("" aucun),
+## malus de transit des routes qui touchent le système (%), vision bloquée de l'extérieur (nébuleuse),
+## vision réduite au système pour qui s'y trouve (tempête de radiations).
+var terrain: String = ""
+var transit_pct: int = 0
+var veiled: bool = false
+var blind: bool = false

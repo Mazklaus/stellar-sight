@@ -118,6 +118,16 @@
 				}
 			}
 		},
+		"boucliers_durcis": {
+			"label": "Boucliers durcis",
+			"domain": "armement",
+			"era": 2,
+			"pre": [
+				"boucliers_phase"
+			],
+			"text": "Terrain en jeu : débloque le module Boucliers durcis, qui garde la moitié de sa protection là où le terrain coupe les boucliers.",
+			"flavor": "« Le champ magnétique de l'étoile éteint nos boucliers. » — « Alors on en fabrique qui ne l'écoutent pas. »"
+		},
 		"interception": {
 			"label": "Tourelles d'interception",
 			"domain": "armement",
@@ -504,6 +514,19 @@
 			},
 			"flavor": "« Il n'y a rien là-bas. » — « Alors pourquoi le rien nous regarde-t-il ? »"
 		},
+		"senseurs_gravitationnels": {
+			"label": "Senseurs gravitationnels",
+			"domain": "genie",
+			"era": 2,
+			"pre": [
+				"capteurs"
+			],
+			"text": "Terrain en jeu : vos flottes et colonies voient à un saut dans les nébuleuses. Débloque l'Observatoire (systèmes à trou noir ou étoile à neutrons).",
+			"effects": {
+				"terrain_pierce": 1
+			},
+			"flavor": "On ne voit rien dans la nébuleuse. On sent, en revanche, très bien ce qui pèse."
+		},
 		"capteurs": {
 			"label": "Capteurs profonds",
 			"domain": "genie",
@@ -713,6 +736,23 @@
 			"effects": {
 				"upkeep_pct": -20
 			}
+		},
+		"navigation_stellaire": {
+			"label": "Navigation stellaire",
+			"domain": "genie",
+			"era": 2,
+			"pre": [
+				"propulseurs"
+			],
+			"text": "Terrain en jeu : malus de transit du terrain (nébuleuses, trous noirs, champs d'astéroïdes) divisés par deux pour toutes vos flottes.",
+			"effects": {
+				"terrain_transit_pct": -50
+			},
+			"eureka": {
+				"kind": "explored",
+				"n": 30
+			},
+			"flavor": "Une carte des courants, un pilote qui sait la lire, et le brouillard devient une autoroute."
 		},
 		"chantier_titanesque": {
 			"label": "Chantier titanesque",

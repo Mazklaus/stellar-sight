@@ -164,6 +164,7 @@ func _draw() -> void:
 	_seen = Fleets.visible_systems(state, viewer) if state != null and fog else {}
 
 	_draw_territory()
+	_draw_terrain(px)
 
 	for p in _background:
 		draw_circle(p, 1.1 * px, Color(1, 1, 1, 0.22))
@@ -411,6 +412,71 @@ func _draw_system(s: StarSystem, px: float) -> void:
 		draw_arc(s.position, r * 2.4, 0.0, TAU, 32, Color(1, 1, 1, 0.55), 1.5 * px, true)
 	if s.id == selected_id:
 		draw_arc(s.position, r * 2.8, 0.0, TAU, 40, SELECT_COLOR, 2.0 * px, true)
+
+
+# --- Terrain (voir Terrain) -------------------------------------------------------------------------
+
+## Nappes translucides derrière les étoiles : nébuleuses (connues dès le début, comme dans Stellaris),
+## autres terrains de zone une fois explorés, tempêtes (nuage, éclairs et flèche du prochain saut),
+## noms des nébuleuses. Pas de lentille dédiée : le terrain s'affiche toujours, discret.
+func _draw_terrain(px: float) -> void:
+	if state == null or not Terrain.active(state):
+		return
+	for s in galaxy.systems:
+		var z := s.terrain
+		if z == "":
+			continue
+		var nebula := z == "nebuleuse" or z == "nebuleuse_ionisee"
+		if not nebula and not is_explored(s.id):
+			continue
+		var rgb: Array = Terrain.def(z).get("map", [0.5, 0.5, 0.5])
+		var col := Color(float(rgb[0]), float(rgb[1]), float(rgb[2]))
+		var h := absi(hash([s.id, "nappe"]))
+		for i in 4:
+			var ang := float((h >> (i * 4)) % 16) / 16.0 * TAU
+			var off := Vector2.from_angle(ang) * (18.0 + float((h >> (i * 3)) % 20))
+			draw_circle(s.position + off, 58.0 + float((h >> (i * 5)) % 30), Color(col, 0.055 if nebula else 0.07))
+		if z == "asteroides" or z == "cimetiere":
+			for i in 7:
+				var a2 := float((h >> i) % 64) / 64.0 * TAU
+				draw_circle(s.position + Vector2.from_angle(a2) * (22.0 + float((h >> (i + 2)) % 18)), 1.6 * px, Color(col, 0.6))
+		elif z == "nebuleuse_ionisee" or z == "plasma":
+			var a3 := float(h % 360) / 360.0 * TAU
+			var p0 := s.position + Vector2.from_angle(a3) * 30.0
+			draw_polyline(PackedVector2Array([p0, p0 + Vector2(6, 9), p0 + Vector2(1, 12), p0 + Vector2(8, 22)]), Color(col.lightened(0.4), 0.55), 1.3 * px)
+	for r: Array in state.terrain.get("rg", []):
+		var ids: Array = r[1]
+		var c := Vector2.ZERO
+		for sid in ids:
+			c += galaxy.systems[int(sid)].position
+		c /= maxf(1.0, float(ids.size()))
+		draw_set_transform(c + Vector2(0, 46), 0.0, Vector2(px, px))
+		var nm := String(r[0])
+		var w := _font.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		draw_string(_font, Vector2(-w * 0.5, 0), nm, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.78, 0.7, 0.95, 0.42))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	for st: Dictionary in Terrain.storms(state):
+		var cov := Terrain.storm_systems(state, st)
+		var known := false
+		for sid in cov:
+			if is_explored(sid):
+				known = true
+		if not known:
+			continue
+		var rgb2: Array = Terrain.def(String(st["k"])).get("map", [0.6, 0.8, 1.0])
+		var sc := Color(float(rgb2[0]), float(rgb2[1]), float(rgb2[2]))
+		for sid in cov:
+			draw_circle(galaxy.systems[sid].position, 48.0, Color(sc, 0.06))
+		var cp := galaxy.systems[int(st["c"])].position
+		for i in 3:
+			draw_arc(cp, 26.0 + i * 12.0, float(i) * 1.7, float(i) * 1.7 + 4.2, 24, Color(sc, 0.5 - i * 0.12), 2.0 * px, true)
+		var np := galaxy.systems[int(st["nx"])].position
+		if np != cp:
+			var dir := (np - cp).normalized()
+			var tip := cp + dir * minf(cp.distance_to(np) * 0.6, 70.0)
+			draw_line(cp + dir * 30.0, tip, Color(sc, 0.6), 1.6 * px, true)
+			draw_line(tip, tip - dir.rotated(0.5) * 9.0 * px * 1.5, Color(sc, 0.6), 1.6 * px, true)
+			draw_line(tip, tip - dir.rotated(-0.5) * 9.0 * px * 1.5, Color(sc, 0.6), 1.6 * px, true)
 
 
 ## Système connu mais inexploré : une petite lueur grise, sans nom ni planètes.

@@ -975,6 +975,19 @@ func _refresh_card() -> void:
 				GameCalendar.date_string(Intel.last_seen(_state, Intel.lens, s.id))]
 	for line in Intel.ghost_lines(_state, Intel.lens, s.id):
 		_card_owner.text += "\nFlotte aperçue · " + line
+	# Terrain (voir Terrain) : une ligne par terrain, inconvénient · avantage.
+	var reg := Terrain.region_name(_state, s.id)
+	if reg != "":
+		_card_kind.text += "  ·  " + reg
+	var tlines := Terrain.lines(_state, s.id)
+	for line in tlines:
+		_card_owner.text += "\n" + line
+	if not tlines.is_empty():
+		var tal: Array = []
+		for t in Terrain.talent_labels(_state, Intel.lens):
+			tal.append(String(t[0]))
+		if not tal.is_empty():
+			_card_owner.text += "\nTalent de terrain : " + ", ".join(tal)
 	_card_lore.text = String(STAR_LORE.get(s.star_type, ""))
 	# Une pastille par planète, à la couleur de son type ; un anneau à la couleur du propriétaire.
 	var dots := _planet_dots.get_children()

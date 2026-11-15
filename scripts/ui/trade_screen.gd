@@ -235,7 +235,7 @@ static func _route_row(es: EmpireScreens, r: Dictionary, mine: bool) -> Control:
 	nv.theme_type_variation = &"Numbers"
 	if bool(r.get("blocked", false)):
 		var by := int(r.get("by", -1))
-		var who := "faune" if by == GameState.FAUNA_ID else ("pirates" if GameState.is_npc(by) else _name(state, by))
+		var who := "tempête" if bool(r.get("storm", false)) else ("faune" if by == GameState.FAUNA_ID else ("pirates" if GameState.is_npc(by) else _name(state, by)))
 		nv.text = "BLOQUÉE (%s à %s)" % [who, state.galaxy.systems[int(r.get("at", p[0]))].system_name]
 		nv.add_theme_color_override("font_color", Color(0.95, 0.4, 0.35))
 	elif ext:
