@@ -9,6 +9,13 @@ extends Control
 ## dure DAY_SECONDS à vitesse 1 : les tirs du jour partent en décalé (missiles en courbe, rayons,
 ## traçantes des canons, torpilles, obus d'artillerie, essaims de chasseurs), puis les vaisseaux
 ## détruits s'éteignent.
+##
+## Habillage (étude visuel des combats, lot 1) : le décor du vrai système (BattleBackdrop) passe
+## derrière, les sprites de vaisseaux sont éclairés par son étoile (shaders/ship_lit.gdshader), et les
+## effets suivent la famille d'arme : bulles de bouclier, étincelles, fumée et feux sous la moitié de
+## la coque, explosions (en plusieurs temps pour les méga-vaisseaux), débris qui dérivent jusqu'à la
+## fin. Tout est fonction du temps du replay `t`, jamais du temps réel : une même image se rejoue
+## à l'identique. La touche T bascule sur la vue tactique d'origine (fond uni, sans décor).
 
 signal closed
 
@@ -40,6 +47,15 @@ var _dead_day: Array = []   # jour (indice du journal) où l'unité est détruit
 var _play_btn: Button
 var _speed_btn: Button
 var cinematic: BattleCinematic  # la même bataille en 3D, par-dessus cette vue
+## Vue tactique : fond uni et pions, sans décor ni effets (T).
+var tactical := false
+var backdrop: BattleBackdrop
+var _ships: Node2D             # sprites éclairés, derrière le dessin de la vue
+var _sprites := {}             # unité -> Sprite2D
+var _lit: ShaderMaterial
+var _detail := 1
+var _tactical_btn: Button
+const LIT_SHADER := preload("res://shaders/ship_lit.gdshader")
 
 
 func _ready() -> void:
@@ -58,8 +74,23 @@ func _ready() -> void:
 	_play_btn = _button(bar, "PAUSE", "Lecture ou pause  (Espace)", toggle_play)
 	_speed_btn = _button(bar, "VITESSE ×1", "Changer la vitesse de lecture", _cycle_speed)
 	_button(bar, "JOUR ▶", "Passer au jour suivant", func() -> void: _seek_day(1))
+	_tactical_btn = _button(bar, "VUE TACTIQUE", "Basculer entre le décor et la vue tactique, sans fioritures  (T)", toggle_tactical)
 	_button(bar, "CINÉMATIQUE 3D", "Regarder la bataille en 3D, sous plusieurs plans de caméra (prototype)", open_cinematic)
 	_button(bar, "PASSER", "Fermer la vue et revenir au rapport  (Échap)", hide_replay)
+	# Décor et vaisseaux passent sous le dessin de la vue (show_behind_parent) ; le premier plan
+	# (rochers, poussière) passe au-dessus des vaisseaux mais sous les boutons.
+	backdrop = BattleBackdrop.new()
+	backdrop.show_behind_parent = true
+	add_child(backdrop)
+	move_child(backdrop, 0)
+	_ships = Node2D.new()
+	_ships.show_behind_parent = true
+	add_child(_ships)
+	move_child(_ships, 1)
+	add_child(backdrop.foreground)
+	move_child(backdrop.foreground, 2)
+	_lit = ShaderMaterial.new()
+	_lit.shader = LIT_SHADER
 	cinematic = BattleCinematic.new()
 	add_child(cinematic)
 	cinematic.closed.connect(func() -> void: queue_redraw())
@@ -93,7 +124,16 @@ func show_replay(state: GameState, viewer: int, r: Dictionary) -> void:
 	var first := int(r["sides"][0]["empire"])
 	var anchor := viewer if BattleReportPanel._fought(r, viewer) else first
 	_left[anchor] = true
+	_detail = UiSettings.replay_detail_level()
+	backdrop.size = size
+	backdrop.setup(r.get("scene", {}), _detail)
+	var light := BattleBackdrop.star_light(String(backdrop.scene.get("star", "yellow")))
+	_lit.set_shader_parameter("light_color", light["color"])
+	_lit.set_shader_parameter("power", light["power"])
+	_lit.set_shader_parameter("ambient", light["ambient"])
 	_prepare()
+	_build_sprites()
+	_apply_tactical()
 	_refresh_buttons()
 	visible = true
 	modulate.a = 0.0
@@ -126,6 +166,7 @@ func close_silently() -> void:
 	visible = false
 	_state = null
 	report = {}
+	_clear_sprites()
 
 
 func toggle_play() -> void:
@@ -133,6 +174,19 @@ func toggle_play() -> void:
 		t = 0.0
 	playing = not playing
 	_refresh_buttons()
+
+
+func toggle_tactical() -> void:
+	tactical = not tactical
+	_apply_tactical()
+	_refresh_buttons()
+	queue_redraw()
+
+
+func _apply_tactical() -> void:
+	backdrop.visible = not tactical
+	backdrop.foreground.visible = not tactical
+	_ships.visible = not tactical
 
 
 func day_count() -> int:
@@ -159,6 +213,7 @@ func _refresh_buttons() -> void:
 	if _play_btn:
 		_play_btn.text = "PAUSE" if playing else "LECTURE"
 		_speed_btn.text = "VITESSE ×%d" % int(SPEEDS[_speed_i])
+		_tactical_btn.text = "VUE DÉCOR" if tactical else "VUE TACTIQUE"
 
 
 func _process(delta: float) -> void:
@@ -171,12 +226,16 @@ func _process(delta: float) -> void:
 			t = end
 			playing = false
 			_refresh_buttons()
+	_update_scene()
 	queue_redraw()
 
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE:
 		toggle_play()
+		accept_event()
+	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_T:
+		toggle_tactical()
 		accept_event()
 
 
@@ -257,6 +316,7 @@ func _layout() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED and visible and not report.is_empty():
 		_layout()
+		_update_scene()
 
 
 # --- Dessin ------------------------------------------------------------------------------------
@@ -264,7 +324,14 @@ func _notification(what: int) -> void:
 func _draw() -> void:
 	if report.is_empty():
 		return
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.01, 0.015, 0.03, 0.985))
+	if tactical:
+		draw_rect(Rect2(Vector2.ZERO, size), Color(0.01, 0.015, 0.03, 0.985))
+	else:
+		# Bandeau sombre en haut : le titre reste lisible sur le décor.
+		var band := PackedColorArray([Color(0, 0, 0, 0.72), Color(0, 0, 0, 0.72), Color(0, 0, 0, 0), Color(0, 0, 0, 0)])
+		draw_polygon(PackedVector2Array([Vector2(0, 0), Vector2(size.x, 0), Vector2(size.x, 210), Vector2(0, 210)]), band)
+		draw_polygon(PackedVector2Array([Vector2(0, size.y - 130), Vector2(size.x, size.y - 130), Vector2(size.x, size.y), Vector2(0, size.y)]),
+				PackedColorArray([Color(0, 0, 0, 0), Color(0, 0, 0, 0), Color(0, 0, 0, 0.6), Color(0, 0, 0, 0.6)]))
 	for cl: Array in _col_labels:
 		_centered(UiTheme.caps_font(), cl[0], String(cl[1]).to_upper(), 12, UiTheme.TEXT_DIM)
 	var font := UiTheme.body_font()
@@ -297,7 +364,20 @@ func _draw() -> void:
 		var b := int(sh[1])
 		if a < 0 or b < 0 or a >= _pos.size() or b >= _pos.size():
 			continue
-		_draw_shot(String(sh[2]), _pos[a], _pos[b], clampf(p, 0.0, 1.0), p > 1.0, k)
+		var w := String(sh[2])
+		var stopped := int(sh[3]) <= 0 and (w == "missile" or w == "torpedo")
+		if stopped and not tactical:
+			# Défense ponctuelle : le missile éclate en route.
+			if p < 0.7:
+				_draw_shot(w, _pos[a], _pos[b], p, false, k)
+			elif p < 0.95:
+				var q := (p - 0.7) / 0.25
+				var c: Vector2 = _bezier(_pos[a], _pos[b], Vector2(0, -60.0 if k % 2 == 0 else 60.0), 0.7) if w == "missile" else _pos[a].lerp(_pos[b], 0.7)
+				draw_circle(c, 3.0 + q * 9.0, Color(1.0, 0.85, 0.5, 1.0 - q))
+			continue
+		_draw_shot(w, _pos[a], _pos[b], clampf(p, 0.0, 1.0), p > 1.0, k)
+		if p > 1.0 and not tactical:
+			_draw_impact(b, _pos[b], (p - 1.0) / 0.15, k)
 
 
 func _draw_sides_names(font: Font) -> void:
@@ -350,11 +430,14 @@ func _draw_unit(i: int, d: int, frac: float) -> void:
 	var r := float(SIZE_PX.get(Combat.ship_size(String(u[1])), 10.0))
 	var dd := int(_dead_day[i])
 	var dead := dd >= 0 and (dd < d or (dd == d and frac > 0.85))
-	var dying := dd == d and frac > 0.7 and frac <= 0.85
+	var dying := dd == d and frac > 0.6 and frac <= 0.85
 	var dir := 1.0 if left else -1.0
 	var pts := PackedVector2Array([pos + Vector2(r * 1.2 * dir, 0), pos + Vector2(-r * 0.8 * dir, -r * 0.75),
 			pos + Vector2(-r * 0.45 * dir, 0), pos + Vector2(-r * 0.8 * dir, r * 0.75)])
-	var art := ShipArt.texture(e.faction_id, String(u[1]), col) if e else null
+	var has_sprite := not tactical and _sprites.has(i)
+	var art: Texture2D = null
+	if not has_sprite and e:
+		art = ShipArt.texture(e.faction_id, String(u[1]), col)
 	if art:
 		# Sprite tiré du modèle 3D : nez vers la droite, retourné pour le camp de droite.
 		var long := r * SPRITE_SCALE
@@ -363,23 +446,165 @@ func _draw_unit(i: int, d: int, frac: float) -> void:
 		draw_texture_rect(art, Rect2(-ext * 0.5, ext), false, Color(0.4, 0.4, 0.42, 0.4) if dead else Color.WHITE)
 		draw_set_transform(Vector2.ZERO)
 	if dead:
-		if not art:
-			draw_colored_polygon(pts, Color(0.35, 0.35, 0.38, 0.35))
-		draw_line(pos + Vector2(-r, -r), pos + Vector2(r, r), Color(1, 0.4, 0.35, 0.5), 1.5)
-		draw_line(pos + Vector2(-r, r), pos + Vector2(r, -r), Color(1, 0.4, 0.35, 0.5), 1.5)
+		if tactical:
+			if not art:
+				draw_colored_polygon(pts, Color(0.35, 0.35, 0.38, 0.35))
+			draw_line(pos + Vector2(-r, -r), pos + Vector2(r, r), Color(1, 0.4, 0.35, 0.5), 1.5)
+			draw_line(pos + Vector2(-r, r), pos + Vector2(r, -r), Color(1, 0.4, 0.35, 0.5), 1.5)
+		else:
+			if not has_sprite:
+				draw_colored_polygon(pts, Color(0.18, 0.18, 0.2, 0.6))
+			_draw_debris(i, pos, r, dd)
 		return
-	if dying:
+	if dying and not tactical:
+		_draw_explosion(i, pos, r, (frac - 0.6) / 0.25)
+	elif dying:
 		draw_circle(pos, r * 2.2 * (frac - 0.7) / 0.15 + r, Color(1, 0.7, 0.3, 0.55))
-	if not art:
+	if not art and not has_sprite:
 		draw_colored_polygon(pts, col)
 		draw_polyline(pts + PackedVector2Array([pts[0]]), col.lightened(0.4), 1.0)
 	# Coque : dégâts appliqués à la fin de chaque jour.
-	var dmg := int(_dmg_until[d][i]) if frac < 0.8 else int(_dmg_until[mini(d + 1, _dmg_until.size() - 1)][i])
-	var hp_frac := clampf(1.0 - float(dmg) / float(_max_hp[i]), 0.0, 1.0)
+	var hp_frac := _hp_frac(i, d, frac)
+	if not tactical and hp_frac < float(_fx().get("burn_below", 0.5)):
+		_draw_smoke(i, pos, r, hp_frac)
 	var bw := r * 2.2
 	draw_rect(Rect2(pos + Vector2(-bw * 0.5, r + 4), Vector2(bw, 4)), Color(1, 1, 1, 0.12))
 	draw_rect(Rect2(pos + Vector2(-bw * 0.5, r + 4), Vector2(bw * hp_frac, 4)), UiTheme.GOOD if hp_frac > 0.5 else (UiTheme.WARN if hp_frac > 0.25 else UiTheme.BAD))
 	_centered(UiTheme.body_font(), pos + Vector2(0, r + 20), String(GameData.ship(String(u[1])).get("label", u[1])), 11, UiTheme.TEXT_DIM)
+
+
+func _hp_frac(i: int, d: int, frac: float) -> float:
+	var dmg := int(_dmg_until[d][i]) if frac < 0.8 else int(_dmg_until[mini(d + 1, _dmg_until.size() - 1)][i])
+	return clampf(1.0 - float(dmg) / float(_max_hp[i]), 0.0, 1.0)
+
+
+func _fx() -> Dictionary:
+	return GameData.battle_visuals().get("effects", {})
+
+
+## Nombre aléatoire fixe pour (unité, k) : les effets se rejouent à l'identique.
+static func _h(i: int, k: int) -> float:
+	return fposmod(sin(float(i) * 12.9898 + float(k) * 78.233) * 43758.5453, 1.0)
+
+
+## Instant (en secondes de replay) de la destruction d'une unité.
+func _death_time(dd: int) -> float:
+	return (float(dd) + 0.78) * DAY_SECONDS
+
+
+## Explosion : éclair, boule de feu et onde de choc ; les méga-vaisseaux sautent en trois temps.
+func _draw_explosion(i: int, pos: Vector2, r: float, q: float) -> void:
+	var u: Array = report["units"][i]
+	var mega := (_fx().get("mega_sizes", ["titan"]) as Array).has(Combat.ship_size(String(u[1])))
+	var bursts := 3 if mega else 1
+	for k in bursts:
+		var qk := clampf(q * float(bursts) - float(k) * 0.6, 0.0, 1.0) if mega else q
+		if qk <= 0.0 or qk >= 1.0:
+			continue
+		var c := pos + (Vector2(_h(i, k) - 0.5, _h(i, k + 7) - 0.5) * r * 2.0 if mega else Vector2.ZERO)
+		var rr := r * (1.0 + 2.4 * qk) * (1.4 if k == bursts - 1 else 1.0)
+		draw_circle(c, rr * 0.55, Color(1.0, 0.95, 0.8, (1.0 - qk) * 0.9))
+		draw_circle(c, rr, Color(1.0, 0.55, 0.2, (1.0 - qk) * 0.55))
+		draw_arc(c, rr * 1.5, 0.0, TAU, 32, Color(1.0, 0.8, 0.5, (1.0 - qk) * 0.6), 2.0, true)
+
+
+## Débris d'un vaisseau détruit : éclats qui dérivent et tournent jusqu'à la fin du replay.
+func _draw_debris(i: int, pos: Vector2, r: float, dd: int) -> void:
+	var counts: Array = GameData.battle_visuals().get("detail", {}).get("debris", [4, 9, 16])
+	var n := int(counts[clampi(_detail, 0, counts.size() - 1)])
+	var age := maxf(0.0, t - _death_time(dd))
+	for k in n:
+		var a := _h(i, k) * TAU
+		var v := 6.0 + _h(i, k + 31) * 16.0
+		var p := pos + Vector2(cos(a), sin(a)) * (r * 0.4 + v * sqrt(age + 0.2))
+		var s := r * (0.15 + 0.3 * _h(i, k + 53))
+		var rot := age * (_h(i, k + 71) - 0.5) * 3.0 + a
+		var shard := PackedVector2Array([p + Vector2(cos(rot), sin(rot)) * s, p + Vector2(cos(rot + 2.3), sin(rot + 2.3)) * s * 0.6,
+				p + Vector2(cos(rot + 4.0), sin(rot + 4.0)) * s * 0.8])
+		var glow := clampf(1.0 - age / 3.0, 0.0, 1.0)
+		draw_colored_polygon(shard, Color(0.3 + 0.6 * glow, 0.28 + 0.25 * glow, 0.26, 0.85))
+
+
+## Coque endommagée : panaches de fumée qui montent et feux qui vacillent.
+func _draw_smoke(i: int, pos: Vector2, r: float, hp_frac: float) -> void:
+	var counts: Array = GameData.battle_visuals().get("detail", {}).get("smoke", [0, 4, 8])
+	var n := int(counts[clampi(_detail, 0, counts.size() - 1)])
+	var heavy := hp_frac < 0.25
+	for k in n:
+		var phase := fposmod(t * 0.6 + _h(i, k), 1.0)
+		var origin := pos + Vector2((_h(i, k + 3) - 0.5) * r * 1.6, (_h(i, k + 5) - 0.5) * r * 0.8)
+		var p := origin + Vector2(-8.0, -22.0) * phase
+		draw_circle(p, r * (0.2 + 0.5 * phase), Color(0.22, 0.22, 0.24, (1.0 - phase) * (0.55 if heavy else 0.35)))
+	var fires := 2 if heavy else 1
+	for k in fires:
+		var fp := pos + Vector2((_h(i, k + 11) - 0.5) * r * 1.4, (_h(i, k + 13) - 0.5) * r * 0.6)
+		var fl := 0.6 + 0.4 * sin(t * 17.0 + float(k) * 2.1 + float(i))
+		draw_circle(fp, r * 0.16 * fl + 1.0, Color(1.0, 0.6, 0.2, 0.9))
+		draw_circle(fp, r * 0.3 * fl + 1.5, Color(1.0, 0.35, 0.1, 0.35))
+
+
+# --- Sprites éclairés --------------------------------------------------------------------------
+
+func _clear_sprites() -> void:
+	for s in _sprites.values():
+		(s as Node).queue_free()
+	_sprites.clear()
+
+
+func _build_sprites() -> void:
+	_clear_sprites()
+	var units: Array = report["units"]
+	for i in units.size():
+		var u: Array = units[i]
+		var e := _state.get_empire(int(u[0])) if _state else null
+		if e == null:
+			continue
+		var tex := ShipArt.lit_texture(e.faction_id, String(u[1]), e.color())
+		if tex == null:
+			continue
+		var sp := Sprite2D.new()
+		sp.texture = tex
+		sp.material = _lit
+		sp.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		_ships.add_child(sp)
+		_sprites[i] = sp
+	_update_scene()
+
+
+## Caméra qui dérive doucement (parallaxe), lumière de l'étoile et sprites à leur place.
+func _update_scene() -> void:
+	if report.is_empty() or backdrop == null:
+		return
+	backdrop.cam = Vector2(sin(t * 0.21) * 36.0, cos(t * 0.15) * 16.0)
+	var to_star := backdrop.star_pos - size * 0.5
+	var ld := Vector3(to_star.x, to_star.y, 0.0).normalized()
+	ld.z = 0.65
+	_lit.set_shader_parameter("light_dir", ld)
+	var d := current_day()
+	var frac := clampf((t - d * DAY_SECONDS) / DAY_SECONDS, 0.0, 1.0)
+	var log: Array = report["log"]
+	var today := int(log[d]["day"]) if d < log.size() else 0
+	for i in _sprites:
+		var sp: Sprite2D = _sprites[i]
+		var u: Array = report["units"][i]
+		var r := float(SIZE_PX.get(Combat.ship_size(String(u[1])), 10.0))
+		var dir := 1.0 if _on_left(int(u[0])) else -1.0
+		var long := r * SPRITE_SCALE
+		var k := long / float(sp.texture.get_width())
+		var dd := int(_dead_day[i])
+		var dead := dd >= 0 and (dd < d or (dd == d and frac > 0.85))
+		sp.visible = int(u[3]) <= today
+		sp.position = _pos[i] if i < _pos.size() and _pos[i] != null else Vector2.ZERO
+		if dead:
+			# Carcasse : assombrie, elle dérive et tourne lentement.
+			var age := maxf(0.0, t - _death_time(dd))
+			sp.position += Vector2(_h(i, 1) - 0.5, _h(i, 2) - 0.5) * age * 8.0
+			sp.rotation = (_h(i, 3) - 0.5) * age * 0.25
+			sp.modulate = Color(0.3, 0.28, 0.28, 0.55)
+		else:
+			sp.rotation = 0.0
+			sp.modulate = Color.WHITE
+		sp.scale = Vector2(k * dir, k)
 
 
 ## Un tir, de `a` vers `b`, avancé de p (0 à 1) ; `hit` : l'impact (court éclair après l'arrivée).
@@ -425,6 +650,22 @@ func _draw_shot(weapon: String, a: Vector2, b: Vector2, p: float, hit: bool, k: 
 			draw_circle(a.lerp(b, p), 6.0, col)
 		_:
 			draw_circle(a.lerp(b, p), 2.0, col)
+
+
+## Impact : bulle de bouclier si la cible en a un, sinon gerbe d'étincelles sur le blindage.
+func _draw_impact(target: int, at: Vector2, q: float, k: int) -> void:
+	var u: Array = report["units"][target]
+	var r := float(SIZE_PX.get(Combat.ship_size(String(u[1])), 10.0))
+	var q2 := clampf(q, 0.0, 1.0)
+	if int(GameData.ship(String(u[1])).get("shield", 0)) >= int(_fx().get("shield_min", 1)):
+		var c := Color(0.45, 0.8, 1.0, 0.55 * (1.0 - q2))
+		draw_arc(at, r * 2.0, 0.0, TAU, 40, c, 2.5, true)
+		draw_circle(at, r * 2.0, Color(0.45, 0.8, 1.0, 0.12 * (1.0 - q2)))
+		return
+	for j in 5:
+		var a := _h(target * 31 + k, j) * TAU
+		var p0 := at + Vector2(cos(a), sin(a)) * r * 0.3
+		draw_line(p0, p0 + Vector2(cos(a), sin(a)) * (4.0 + 10.0 * q2), Color(1.0, 0.85, 0.5, 1.0 - q2), 1.3)
 
 
 static func _bezier(a: Vector2, b: Vector2, bend: Vector2, q: float) -> Vector2:

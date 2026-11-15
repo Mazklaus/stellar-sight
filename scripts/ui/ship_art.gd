@@ -44,6 +44,29 @@ static func texture(faction_id: String, ship_id: String, tint: Color) -> Texture
 	return _teinte(faction_id, ship_id, tint, "sprite")
 
 
+## Sprite teint avec ses normales (CanvasTexture), pour l'éclairer par l'étoile de l'arène
+## (visuel des combats, prop. 12 ; shaders/ship_lit.gdshader), ou null sans sprite.
+static func lit_texture(faction_id: String, ship_id: String, tint: Color) -> Texture2D:
+	var diffuse := texture(faction_id, ship_id, tint)
+	if diffuse == null:
+		return null
+	var key := "%s|lit|%s" % [base_name(faction_id, ship_id), tint.to_html(false)]
+	if _cache.has(key):
+		return _cache[key]
+	var ct := CanvasTexture.new()
+	ct.diffuse_texture = diffuse
+	var npath := "%s%s_sprite_n.png" % [DIR, base_name(faction_id, ship_id)]
+	var nimg := _image(npath)
+	if nimg:
+		var n := nimg.duplicate() as Image
+		if n.is_compressed():
+			n.decompress()
+		n.generate_mipmaps()
+		ct.normal_texture = ImageTexture.create_from_image(n)
+	_cache[key] = ct
+	return ct
+
+
 ## Portrait 3/4 teint aux couleurs de l'empire (gardé en cache), ou null.
 static func portrait(faction_id: String, ship_id: String, tint: Color) -> Texture2D:
 	return _teinte(faction_id, ship_id, tint, "portrait")

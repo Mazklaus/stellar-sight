@@ -404,7 +404,7 @@ func _test_save() -> void:
 	var f := st.spawn_ship(0, "corvette", _far(st, 0, 4))
 	Simulation.new(st).advance(5)
 	var snap := st.to_dict()
-	_ok(int(snap["version"]) == 62, "sauvegarde au format 62")
+	_ok(int(snap["version"]) == GameState.FORMAT_VERSION and GameState.FORMAT_VERSION >= 62, "sauvegarde au format 62 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(snap)))
 	_ok(back != null and Logistics.full(back) and Logistics.reserves(back, back.fleets[f.id]) == Logistics.reserves(st, f), "la logistique revient au chargement")
 	_ok(back.checksum() == st.checksum(), "même empreinte après rechargement")

@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 62
+const FORMAT_VERSION := 63
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -63,6 +63,9 @@ var battles: Dictionary = {}
 ## Derniers rapports de bataille, du plus ancien au plus récent.
 var battle_reports: Array[Dictionary] = []
 var next_battle_id: int = 0
+## Cimetière d'épaves (visuel des combats, prop. 9) : identifiant de système -> vaisseaux détruits
+## qui y restent visibles dans les vues de bataille suivantes. Purement décoratif.
+var battle_wrecks: Dictionary = {}
 ## Diplomatie (voir Diplomacy) : relations par paire d'empires ("a-b", a < b) -> {"pact", "since",
 ## "truce", "trade", "trust", "score", "cool"} ; souvenirs (griefs et gestes) qui s'effacent avec le
 ## temps ; propositions de traité en attente d'une réponse humaine.
@@ -337,6 +340,7 @@ func to_dict() -> Dictionary:
 		"battles": _sorted_values(battles),
 		"battle_reports": battle_reports.duplicate(true),
 		"next_battle_id": next_battle_id,
+		"battle_wrecks": _int_map_to_list(battle_wrecks, "n"),
 		"relations": _sorted_values(relations),
 		"memories": memories.duplicate(true),
 		"proposals": proposals.duplicate(true),
@@ -540,6 +544,8 @@ static func from_dict(d: Dictionary) -> GameState:
 	for r: Dictionary in d.get("battle_reports", []):
 		s.battle_reports.append(GameData._to_ints(r))
 	s.next_battle_id = int(d.get("next_battle_id", 0))
+	for w: Dictionary in d.get("battle_wrecks", []):
+		s.battle_wrecks[int(w["system"])] = int(w["n"])
 	for r: Dictionary in d.get("relations", []):
 		var v: Dictionary = GameData._to_ints(r)
 		s.relations[String(v["key"])] = v
