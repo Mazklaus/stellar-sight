@@ -30,12 +30,11 @@ static func process(state: GameState) -> Array[Dictionary]:
 static func _expire(state: GameState) -> void:
 	if state.proposals.is_empty():
 		return
-	var limit := Diplomacy.days("proposal_days", 30)
 	var kept: Array[Dictionary] = []
 	for p in state.proposals:
 		var from := state.get_empire(int(p["from"]))
 		var to := state.get_empire(int(p["to"]))
-		if state.tick - int(p["tick"]) >= limit or from.eliminated or to.eliminated:
+		if state.tick - int(p["tick"]) >= Diplomacy.proposal_limit(p) or from.eliminated or to.eliminated:
 			continue
 		kept.append(p)
 	state.proposals = kept

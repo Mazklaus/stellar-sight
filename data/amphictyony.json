@@ -226,6 +226,19 @@
 					{"name": "Raison d'État", "fx": {}, "war_ex_pct": -10},
 					{"name": "Nécessité fait loi", "fx": {}, "war_ex_pct": -10},
 					{"name": "Guerre sans entraves", "fx": {}, "war_ex_pct": -10}
+				]}},
+		{"id": "navigation", "label": "Navigation", "glyph": "diplomacy", "requires": "borders",
+			"a": {"label": "Libre navigation", "text": "Les étoiles sont à tous : pas de frontière close entre amphictyons, puis aucun péage entre eux, enfin libre-passage des flottes de guerre de chacun chez tous.",
+				"levels": [
+					{"name": "Mer ouverte", "fx": {}, "free_nav": true},
+					{"name": "Routes franches", "fx": {}, "toll_free": true},
+					{"name": "Libre navigation", "fx": {}, "nav_open": true}
+				]},
+			"b": {"label": "Espaces souverains", "text": "Chacun est maître chez soi : sommations en 15 jours, puis fermer ses frontières à un amphictyon ne froisse personne, enfin intrusions comptées double entre amphictyons.",
+				"levels": [
+					{"name": "Eaux territoriales", "fx": {}, "sov_fast": true},
+					{"name": "Souveraineté", "fx": {}, "sov_close_free": true},
+					{"name": "Espaces souverains", "fx": {}, "sov_double": true}
 				]}}
 	],
 	"sanctions": [

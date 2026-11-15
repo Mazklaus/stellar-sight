@@ -141,6 +141,14 @@ Le bloc affiche aussi, dans les deux sens, ce que chacun peut faire chez l'autre
 
 **L'intrusion.** Une flotte en intrusion que le propriétaire **voit** lui laisse un souvenir (-5, jusqu'à quatre fois, effacé en deux ans), une seule fois tant qu'elle reste. Si elle **stationne** plus de 30 jours, chaque mois ajoute -1. Pendant une **trêve**, l'intrusion compte double. Quand un droit prend fin (politique retirée, traité échu, alliance rompue), vos flottes ont **60 jours** pour sortir sans faute.
 
+**La sommation.** Contre un empire dont vous voyez les flottes en intrusion, le bloc Frontières propose **Sommer de partir** : il a **30 jours** pour retirer ses flottes. S'il obéit, l'incident est clos. S'il ignore la sommation, il en garde la marque (-15 auprès de vous), et vous tenez contre lui pour **cinq ans** le motif de guerre **Violation de frontière** (chapitre 7). Pendant ce temps, si vous êtes en **guerre froide**, vos flottes armées **ripostent** : elles attaquent ses intrus chez vous, sans déclaration de guerre. En paix, jamais : la paix protège, il vous reste l'opinion et le motif. Une nouvelle sommation attend 60 jours.
+
+**Le laissez-passer.** Pour une flotte précise, demandez le passage chez un empire pendant **90 jours** (15 influence ; gratuit pour la République de Vael). Une IA répond aussitôt, selon son opinion, son tempérament et la taille de la flotte ; un joueur humain a 15 jours. Accorder un laissez-passer plaît (+3).
+
+**Le péage.** Dans la colonne de gauche, fixez ce que paie chaque flotte de guerre étrangère **de passage avec un droit** à chaque saut dans vos systèmes : 0, 2, 5 ou 10 énergie. Alliés, sujets et membres de votre Koinon ne paient pas ; les lignées féodales d'Ossarane touchent le double.
+
+**Les liens.** Un traité de libre-passage divise par deux la friction des frontières communes. À l'inverse, une flotte de quatre vaisseaux armés ou plus, stationnée à un saut de chez vous sans droit d'y entrer, pèse -5 sur l'opinion tant qu'elle reste : **ses flottes à nos portes**.
+
 L'itinéraire d'une flotte évite de lui-même l'espace où elle n'a pas le droit d'aller quand un détour existe ; s'il le traverse quand même, son délai s'affiche en rouge, « intrusion », et l'ordre vous prévient.
 
 La **lentille des frontières** ([[A]], [[Q]] en QWERTY) cercle chaque système étranger que vous connaissez selon votre droit : vert, vos flottes de guerre passent ; ambre, vaisseaux sans armes seulement ; rouge, frontière close. Le nom de la politique s'inscrit sous chaque capitale, et un losange rouge marque les intrus chez vous.
@@ -148,7 +156,7 @@ La **lentille des frontières** ([[A]], [[Q]] en QWERTY) cercle chaque système 
 ::: capture docs/apercu-frontieres.png|Le bloc Frontières de l'écran Diplomatie
 :::
 
-**Les IA** ouvrent leurs frontières à qui elles aiment (opinion 40 et plus), les ferment à qui elles détestent (-30 et moins), et gardent le reste ; elles proposent le libre-passage à leurs voisins quand elles s'y retrouvent, et contournent l'espace qui leur est interdit.
+**Les IA** ouvrent leurs frontières à qui elles aiment (opinion 40 et plus), les ferment à qui elles détestent (-30 et moins), et gardent le reste ; elles proposent le libre-passage à leurs voisins quand elles s'y retrouvent, et contournent l'espace qui leur est interdit. Elles somment les intrus qu'elles n'aiment pas ; les pacifiques obéissent aux sommations, les belliqueux seulement face à plus fort qu'eux, et ripostent. Les plus agressives fixent un péage.
 
 ::: conseil
 Un éclaireur passe partout, sauf derrière une frontière close. Fermer vos frontières à un voisin curieux lui coûte ses yeux ; mais il le prendra mal.

@@ -71,7 +71,16 @@ static func proposal_label(p: Dictionary) -> String:
 		return Koinon.kind_label(p)
 	if Wars.is_kind(String(p["treaty"])):
 		return Wars.kind_label(p)
+	if Borders.is_kind(String(p["treaty"])):
+		return Borders.kind_label(p)
 	return treaty_label(String(p["treaty"]))
+
+
+## Délai de réponse d'une proposition (15 jours pour un laissez-passer).
+static func proposal_limit(p: Dictionary) -> int:
+	if Borders.is_kind(String(p["treaty"])):
+		return Borders.answer_days()
+	return days("proposal_days", 30)
 
 
 static func days(key: String, default := 0) -> int:
@@ -293,7 +302,10 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	# Frontières (friction de Stellaris, pression de frontière d'Endless Space 2).
 	# Entre membres d'un même Koinon, la frontière est commune et non disputée.
 	var touching := 0 if Koinon.same_league(state, a, b) else border_systems(state, a, b)
-	_part(out, "Frontières communes (%d)" % touching, maxi(int(cfg["border_max"]), touching * int(cfg["border_per_system"])))
+	@warning_ignore("integer_division")
+	_part(out, "Frontières communes (%d)" % touching, maxi(int(cfg["border_max"]), touching * int(cfg["border_per_system"])) * Borders.friction_pct(state, a, b) / 100)
+	for x in Borders.opinion_parts(state, a, b):
+		_part(out, String(x[0]), int(x[1]))
 	_part(out, "Même Koinon", Koinon.opinion_bonus(state, a, b))
 	_part(out, "Mission de notre suzerain", Vassals.opinion_bonus(state, a, b))
 	# Statut et confiance.
@@ -596,6 +608,8 @@ static func check_answer(state: GameState, player: int, proposal_id: int, accept
 			return Koinon.check_accept(state, p)
 		if Wars.is_kind(String(p["treaty"])):
 			return Wars.check_accept(state, p)
+		if Borders.is_kind(String(p["treaty"])):
+			return Borders.check_accept(state, p)
 		return check_terms(state, player, int(p["from"]), String(p["treaty"]))
 	return ""
 
@@ -613,6 +627,9 @@ static func answer(state: GameState, proposal_id: int, accept: bool) -> void:
 		return
 	if Wars.is_kind(String(p["treaty"])):
 		Wars.answer(state, p, accept)
+		return
+	if Borders.is_kind(String(p["treaty"])):
+		Borders.answer(state, p, accept)
 		return
 	if accept and String(p["treaty"]) == CONTRACT:
 		sign_contract(state, int(p["merc"]), int(p["client"]), int(p["target"]))

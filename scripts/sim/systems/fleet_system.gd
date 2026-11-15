@@ -143,6 +143,7 @@ static func _move(state: GameState, f: Fleet) -> void:
 		if state.faith_on:
 			FaithWars.on_lane_crossed(state, f.owner, f.system_id, f.path[0])
 		f.system_id = f.path.pop_front()
+		Borders.charge_toll(state, f, f.system_id)
 		if f.is_moving() and Combat.blocks(state, f.owner, f.system_id, f):
 			f.path.clear()  # blocus : impossible de passer sans livrer bataille
 	f.progress = 0  # arrivée : le reste du trajet du jour est perdu

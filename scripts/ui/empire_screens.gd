@@ -1392,7 +1392,7 @@ func _build_diplomacy() -> void:
 		_side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("diplomacy").get("why", "")), SIDE_WIDTH - 24.0, 14))
 	_side_box.add_child(VassalUi.side(_state, _player, SIDE_WIDTH - 24.0))
 	_side_box.add_child(WarsUi.side(_state, _player, SIDE_WIDTH - 24.0))
-	_side_box.add_child(BordersUi.side(_state, _player, SIDE_WIDTH - 24.0))
+	_side_box.add_child(BordersUi.side(_state, _player, SIDE_WIDTH - 24.0, _vassal_emit, border_buttons))
 
 	# Contenu : la table à gauche, la relation choisie et les propositions à droite.
 	var row := HBoxContainer.new()
@@ -1476,13 +1476,13 @@ func _proposals_block(props: Array[Dictionary]) -> Control:
 		line.add_theme_constant_override("separation", 10)
 		blk.body.add_child(line)
 		var from := _state.get_empire(int(p["from"]))
-		var left := Diplomacy.days("proposal_days", 30) - (_state.tick - int(p["tick"]))
+		var left := Diplomacy.proposal_limit(p) - (_state.tick - int(p["tick"]))
 		var l := Label.new()
 		l.text = "%s propose : %s  (encore %d j)" % [from.short_name(), Diplomacy.proposal_label(p), left]
 		l.add_theme_color_override("font_color", from.color().lerp(Color.WHITE, 0.4))
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		l.tooltip_text = Vassals.kind_text(_state, p) if Vassals.is_kind(String(p["treaty"])) else (Wars.kind_text(_state, p) if Wars.is_kind(String(p["treaty"])) \
-				else String(Diplomacy.treaty_info(String(p["treaty"])).get("desc", "")))
+				else (Borders.kind_text(_state, p) if Borders.is_kind(String(p["treaty"])) else String(Diplomacy.treaty_info(String(p["treaty"])).get("desc", ""))))
 		l.mouse_filter = Control.MOUSE_FILTER_STOP
 		line.add_child(l)
 		var pid := int(p["id"])

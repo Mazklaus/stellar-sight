@@ -59,6 +59,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Kanly | Guerre limitée des peuples féodaux : ni monde peuplé envahi, ni parjure | 7 |
 | Koinon | Ligue de deux à six empires, avec synode, Stratège et lois | 11 |
 | Lassitude | Ce que coûte une guerre qui dure ; avec les buts de guerre, de 0 à 100 % par camp (stabilité, reddition, statu quo) | 7 |
+| Laissez-passer | Droit de passage d'une flotte précise pendant 90 jours, demandé contre 15 influence | 8 |
 | Lentille | Lecture de la carte : économie, stabilité, politique, commerce, peuples, foi, Amphictyonie, guerre, frontières | 2 |
 | Libre-échange | Troisième palier du commerce ; et une loi qui double le revenu des routes | 9, 14 |
 | Libre-passage | Traité réciproque qui ouvre à chacun l'espace de l'autre ; dénoncé avec 90 jours de préavis | 8 |
@@ -78,6 +79,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Parjure | Celui qui rompt un traité pour attaquer | 7, 8 |
 | Passage inoffensif | Le droit des vaisseaux sans armes de traverser un espace étranger, sauf frontière close | 8 |
 | Patronage divisé | Ce que coûte en loyauté chaque sujet de plus | 10 |
+| Péage | Énergie payée à chaque saut par les flottes de guerre étrangères de passage | 8 |
 | Port franc | Repaire pirate rangé : mercenaires, héros et marché noir | 17 |
 | Préavis | L'IA masse ses flottes avant de déclarer ; les espions le voient | 7 |
 | Précepte | Règle partagée par tous les empires d'une foi | 15 |
@@ -89,10 +91,12 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Renom | La gloire d'un empire, qui attire les héros | 16 |
 | Révélation | La naissance d'une grande foi | 15 |
 | Revendication | Droit acheté en influence sur un système d'un autre empire | 7 |
+| Riposte | Combat sans guerre contre l'intrus qui a ignoré votre sommation, en guerre froide seulement | 8 |
 | Route commerciale | Lien mensuel entre deux empires qui commercent, payé aux deux bouts | 9 |
 | Sans-Bannière | Les mondes libres, nés des sécessions et des convois | 14, 3 |
 | Score de guerre | Les vaisseaux détruits et les systèmes pris, qui paient la paix | 7 |
 | Session extraordinaire | Vote d'urgence de l'Amphictyonie après une crise | 12 |
+| Sommation | Ordre à un intrus de quitter votre espace sous 30 jours ; ignorée, elle donne un motif de guerre | 8 |
 | Stabilité | L'humeur d'un système, de 0 à 100 | 14 |
 | Statu quo | Paix où chacun garde ce qu'il tient et revendique | 7 |
 | Stratège | Une classe de héros ; et le chef élu d'un Koinon | 16, 11 |

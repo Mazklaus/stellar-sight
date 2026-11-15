@@ -258,6 +258,8 @@ static func family_available(state: GameState, fid: String) -> bool:
 			return state.vassals_on
 		"wars":
 			return state.wars_on
+		"borders":
+			return Borders.active(state)
 	return true
 
 

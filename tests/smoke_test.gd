@@ -65,6 +65,7 @@ func _initialize() -> void:
 	preload("res://tests/war_peace_tests.gd").new().run(_check)
 	preload("res://tests/war_laws_tests.gd").new().run(_check)
 	preload("res://tests/borders_tests.gd").new().run(_check)
+	preload("res://tests/borders2_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()

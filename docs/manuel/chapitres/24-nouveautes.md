@@ -3,6 +3,13 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.3
+
+- **Frontières, suite** (chapitre « La diplomatie ») : **sommation** de 30 jours, souvenir et motif de guerre **Violation de frontière** si elle est ignorée (chapitre « La guerre »), **riposte** en guerre froide contre les intrus, jamais en paix.
+- **Laissez-passer** d'une flotte pour 90 jours, demandé contre 15 influence, que l'IA accorde selon son opinion et la taille de la flotte ; entre humains, par les propositions.
+- **Péage** par saut, double pour les lignées féodales ; friction des frontières communes divisée par deux sous libre-passage ; « ses flottes à nos portes ».
+- Amphictyonie : famille **Navigation** (Libre navigation ou Espaces souverains) ; l'Arbitre peut **imposer le libre-passage** entre deux membres.
+
 ### Édition 2.2
 
 - **Frontières et droit de passage**, nouvelle option de partie, **Souples** par défaut (chapitre « La diplomatie ») : hors guerre, une flotte armée a besoin d'un droit de passage chez un empire rencontré ; les vaisseaux sans armes ont le passage inoffensif. Politique **Ouverte, Gardée ou Close** envers chaque empire, **intrusions** et leurs souvenirs, délai de sortie de 60 jours, option **Strictes** qui bloque et reconduit.
