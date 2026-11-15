@@ -299,6 +299,9 @@ L'option de partie **Logistique** a trois réglages. **Désactivée** garde les 
 
 {{logistique}}
 
+::: capture docs/apercu-logistique.png|Une flotte Étirée loin de ses bases : sa fiche et, en vert, la zone de ravitaillement
+:::
+
 ::: transmission Intendance de la 3e flotte, Concorde de Vael
 Inventaire au jour 97 : rations pour vingt-trois jours, munitions pour deux batailles, café pour quatre heures. Je recommande respectueusement de régler cette guerre avant la fin du café.
 :::

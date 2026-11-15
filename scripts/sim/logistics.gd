@@ -427,7 +427,6 @@ static func daily(state: GameState) -> Array[Dictionary]:
 	if not active(state):
 		return added
 	var l := _l(state)
-	var start := state.chronicle.size()
 	_update_holds(state)
 	state.log_cache.clear()  # zones du jour recalculées avec les têtes de pont à jour
 	var res: Dictionary = l["res"]
@@ -460,8 +459,8 @@ static func daily(state: GameState) -> Array[Dictionary]:
 			if st == CUT:
 				use *= int(_cfg("cut_mult"))
 				if not cut.has(k):
-					state.add_chronicle("La %s est coupée de ses arrières à %s : plus aucun convoi ne passe, les rations fondent deux fois plus vite." % [
-							f.fleet_name, _sys(state, f.system_id)], [f.owner])
+					added.append(state.add_chronicle("La %s est coupée de ses arrières à %s : plus aucun convoi ne passe, les rations fondent deux fois plus vite." % [
+							f.fleet_name, _sys(state, f.system_id)], [f.owner]))
 				cut[k] = int(cut.get(k, 0)) + 1
 				_weariness(state, f, int(cut[k]))
 			else:
@@ -474,8 +473,8 @@ static func daily(state: GameState) -> Array[Dictionary]:
 			cur = maxi(0, cur - use)
 			if cur <= 0:
 				if before > 0:
-					state.add_chronicle("La %s a vidé ses soutes à %s : plus de pièces de rechange, plus de munitions de réserve. Il faut rentrer, ou tenir avec ce qu'on a." % [
-							f.fleet_name, _sys(state, f.system_id)], [f.owner])
+					added.append(state.add_chronicle("La %s a vidé ses soutes à %s : plus de pièces de rechange, plus de munitions de réserve. Il faut rentrer, ou tenir avec ce qu'on a." % [
+							f.fleet_name, _sys(state, f.system_id)], [f.owner]))
 				ex[k] = int(ex.get(k, 0)) + 1
 		if cur >= aut:
 			res.erase(k)
@@ -487,8 +486,6 @@ static func daily(state: GameState) -> Array[Dictionary]:
 				d.erase(k)
 	if full(state) and Ground.full(state):
 		_ground_supply(state)
-	for i in range(start, state.chronicle.size()):
-		added.append(state.chronicle[i])
 	return added
 
 

@@ -23,7 +23,8 @@ func _initialize() -> void:
 	var sim: Simulation = main.simulation
 	var st: GameState = sim.state
 	var me: int = main.view_empire
-	sim.advance(900)
+	main.set_process(false)
+	sim.advance(450)
 	for sys in st.galaxy.systems:
 		st.get_empire(me).explored[sys.id] = true
 	var home := FactionTraits.capital_system(st, me)
@@ -50,6 +51,7 @@ func _initialize() -> void:
 	main._refresh_all()
 	main.select_fleet(f.id)
 	main._select(-1)
+	main._hud.show_hover(null, Vector2.ZERO)
 	main._camera.position = (st.galaxy.get_system(home).position + st.galaxy.get_system(far).position) / 2.0
 	main._camera.zoom = Vector2(0.55, 0.55)
 	main._view.queue_redraw()
@@ -64,6 +66,7 @@ func _initialize() -> void:
 	main._refresh_all()
 	main.select_fleet(g.id)
 	main._select(-1)
+	main._hud.show_hover(null, Vector2.ZERO)
 	main._camera.position = st.galaxy.get_system(home).position
 	main._camera.zoom = Vector2(0.8, 0.8)
 	main._view.queue_redraw()
