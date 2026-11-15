@@ -267,6 +267,19 @@ func _draw() -> void:
 			_draw_label(s, px, true)
 			_draw_war(s, px, o)
 		return
+	if lens == "borders" and state != null:
+		# Lentille des frontières : votre droit de passage chez chaque voisin (vert : vos flottes de guerre
+		# passent, ambre : vos vaisseaux sans armes seulement, rouge : frontière close), vos systèmes en
+		# blanc, et les intrus repérés chez vous marqués d'un losange rouge.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		for s in galaxy.systems:
+			var o := owner_of(s.id)
+			if o < 0 or GameState.is_npc(o) or not is_explored(s.id):
+				continue
+			_draw_system(s, px)
+			_draw_label(s, px, true)
+			_draw_borders(s, px, o)
+		return
 	if lens == "trade" and state != null:
 		# Lentille du commerce : vos routes (couleur du palier du traité, verte pour une route
 		# intérieure, rouge si bloquée) et le risque pirate des systèmes traversés.
@@ -496,8 +509,13 @@ func _draw_route(f: Fleet, px: float) -> void:
 	draw_arc(end, 11.0 * px, 0.0, TAU, 24, Color(SELECT_COLOR, 0.8), 1.5 * px, true)
 	draw_set_transform(end, 0.0, Vector2(px, px))
 	var text := "%d j" % Fleets.eta_days(state, f)
+	# Frontières : le trajet passe par un espace interdit (intrusion).
+	var col := SELECT_COLOR
+	if f.owner == viewer and Borders.route_warning(state, f, f.path) != "":
+		text += " · intrusion"
+		col = BORDER_CLOSED_COLOR
 	draw_rect(Rect2(Vector2(14, -8), Vector2(_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
-	draw_string(_font, Vector2(19, 6), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, SELECT_COLOR)
+	draw_string(_font, Vector2(19, 6), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
@@ -742,6 +760,42 @@ func _draw_amph(s: StarSystem, px: float, o: int) -> void:
 		var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
 		draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
 		draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+const BORDER_OPEN_COLOR := Color(0.45, 0.85, 0.5)
+const BORDER_GUARDED_COLOR := Color(0.92, 0.72, 0.35)
+const BORDER_CLOSED_COLOR := Color(0.88, 0.33, 0.3)
+
+
+## Lentille des frontières : accès du joueur chez le propriétaire, intrus chez le joueur.
+func _draw_borders(s: StarSystem, px: float, o: int) -> void:
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	if o == viewer:
+		draw_arc(Vector2.ZERO, 13.0, 0.0, TAU, 28, Color(0.85, 0.88, 0.92), 1.6, true)
+		var n := 0
+		for it in Borders.intrusions_in(state, viewer):
+			var f: Fleet = state.fleets.get(int(it[0]))
+			if f != null and f.system_id == s.id:
+				n += 1
+		if n > 0:
+			var pts := PackedVector2Array([Vector2(0, 17), Vector2(6, 23), Vector2(0, 29), Vector2(-6, 23)])
+			draw_colored_polygon(pts, BORDER_CLOSED_COLOR)
+			draw_string(_font, Vector2(9, 28), "intrus" if n == 1 else "%d intrus" % n, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, BORDER_CLOSED_COLOR)
+	elif viewer >= 0:
+		var col := BORDER_GUARDED_COLOR
+		if Borders.grants(state, o, viewer):
+			col = BORDER_OPEN_COLOR
+		elif not Borders.civil_ok(state, o, viewer):
+			col = BORDER_CLOSED_COLOR
+		draw_arc(Vector2.ZERO, 13.0, 0.0, TAU, 28, col, 2.4, true)
+		if FactionTraits.capital_system(state, o) == s.id:
+			var text := Borders.policy_label(Borders.policy(state, o, viewer))
+			if Borders.grants(state, o, viewer):
+				text = "Libre-passage"
+			var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+			draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
+			draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

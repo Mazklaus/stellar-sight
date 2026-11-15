@@ -43,6 +43,7 @@ Chaque mécanique peut être retirée de la partie. Une partie sans elle se joue
 | Koinon | **Actif**, aucun | 11 |
 | Buts de guerre | **Actifs**, aucuns | 7 |
 | Occupation | **Occupation**, conquête immédiate (sans buts de guerre : conquête immédiate) | 7 |
+| Frontières | Libres, **Souples**, Strictes | 8 |
 
 Côté victoire, la conquête, la domination et la victoire diplomatique sont cochées par défaut, la victoire spirituelle ne l'est pas (chapitre 18).
 

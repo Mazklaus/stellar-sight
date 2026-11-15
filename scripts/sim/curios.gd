@@ -199,6 +199,9 @@ static func target_in(state: GameState, empire_id: int, sid: int) -> int:
 static func can_probe(state: GameState, f: Fleet) -> bool:
 	if f.is_moving() or GameState.is_npc(f.owner) or Combat.is_armed(f) or state.battles.has(f.system_id):
 		return false
+	# Frontières : prospecter chez autrui n'est pas un passage inoffensif (traité de prospection).
+	if not Borders.may_probe(state, f.owner, f.system_id):
+		return false
 	return target_in(state, f.owner, f.system_id) >= 0
 
 

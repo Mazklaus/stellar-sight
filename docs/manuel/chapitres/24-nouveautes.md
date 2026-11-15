@@ -3,6 +3,13 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.2
+
+- **Frontières et droit de passage**, nouvelle option de partie, **Souples** par défaut (chapitre « La diplomatie ») : hors guerre, une flotte armée a besoin d'un droit de passage chez un empire rencontré ; les vaisseaux sans armes ont le passage inoffensif. Politique **Ouverte, Gardée ou Close** envers chaque empire, **intrusions** et leurs souvenirs, délai de sortie de 60 jours, option **Strictes** qui bloque et reconduit.
+- Deux traités : **libre-passage** (préavis de 90 jours) et **prospection** des curiosités. Liens forts et clause Passage imposé ouvrent les frontières.
+- Itinéraires qui contournent l'espace interdit, avertissement d'intrusion, **lentille des frontières** ([[A]]).
+- Nouvelle capture : le bloc Frontières de l'écran Diplomatie.
+
 ### Édition 2.1
 
 - **Buts de guerre et traités de paix**, nouvelle option de partie active par défaut, avec l'option **Occupation** (chapitre « La guerre ») : quatorze **motifs de guerre** et l'agression sans motif, **revendications** payées en influence, **buts** annoncés et appariés, **score en pourcentage**, **reddition sur but**, trêve proportionnelle au score, trêve rompue, noms de guerre.

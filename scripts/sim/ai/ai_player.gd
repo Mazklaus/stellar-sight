@@ -64,6 +64,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiVassals.think(ctx)
 	AiKoinon.think(ctx)
 	AiWars.think(ctx)
+	AiBorders.think(ctx)
 	AiPeoples.think(ctx)
 	AiPirates.think(ctx)
 	AiTrade.think(ctx)
@@ -267,7 +268,7 @@ static func colonize_target(ctx: Dictionary, f: Fleet) -> Dictionary:
 	var use := _use(ctx)
 	var plan := bool(ctx["lv"].get("plan_targets", true))
 	var taken := _targeted(state, e, f.id)
-	var res := Fleets._dijkstra(state, e.id, f.system_id, Fleets.avoids_lairs(state, f))
+	var res := Fleets._dijkstra(state, e.id, f.system_id, Borders.path_flags(state, f))
 	var speed := Fleets.speed(f, state)
 	var best := {}
 	var best_score := 0

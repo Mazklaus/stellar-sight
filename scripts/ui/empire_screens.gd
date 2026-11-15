@@ -92,6 +92,8 @@ var koinon_draft: Dictionary = {}
 ## Buts de guerre (WarsUi) : boutons par rôle, motif choisi par empire.
 var war_goal_buttons: Dictionary = {}
 var war_draft: Dictionary = {}
+## Frontières (BordersUi) : boutons par rôle.
+var border_buttons: Dictionary = {}
 ## Écran Recherche : arbre, technologie choisie, boutons de la technologie choisie ("front", "queue", "remove").
 var research_tree: ResearchTree
 var research_selected := ""
@@ -1390,6 +1392,7 @@ func _build_diplomacy() -> void:
 		_side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("diplomacy").get("why", "")), SIDE_WIDTH - 24.0, 14))
 	_side_box.add_child(VassalUi.side(_state, _player, SIDE_WIDTH - 24.0))
 	_side_box.add_child(WarsUi.side(_state, _player, SIDE_WIDTH - 24.0))
+	_side_box.add_child(BordersUi.side(_state, _player, SIDE_WIDTH - 24.0))
 
 	# Contenu : la table à gauche, la relation choisie et les propositions à droite.
 	var row := HBoxContainer.new()
@@ -1567,6 +1570,10 @@ func _relation_block(id: int) -> Control:
 	for t in Diplomacy.TREATY_IDS:
 		if t == Diplomacy.MIGRATION and not _state.peoples_on:
 			continue
+		if (t == Diplomacy.PASSAGE or t == Diplomacy.PROSP) and not Borders.active(_state):
+			continue
+		if t == Diplomacy.PROSP and _state.curios.is_empty():
+			continue
 		var b := Button.new()
 		b.text = Diplomacy.offer_label(_state, _player, id, t).to_upper()
 		b.focus_mode = Control.FOCUS_NONE
@@ -1600,6 +1607,8 @@ func _relation_block(id: int) -> Control:
 		verdict.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		verdict.custom_minimum_size = Vector2(240, 0)
 		grid.add_child(verdict)
+	# Frontières : accès dans les deux sens, politique, intrus (voir BordersUi).
+	blk.body.add_child(BordersUi.relation(_state, _player, id, _vassal_emit, border_buttons))
 	# Buts de guerre : motifs, revendications, score en %, reddition sur but (voir WarsUi).
 	blk.body.add_child(WarsUi.relation(_state, _player, id, _vassal_emit, war_goal_buttons, war_draft))
 	# Paix à conditions, reddition, protection, sujets (voir VassalUi).
@@ -1612,12 +1621,15 @@ func _relation_block(id: int) -> Control:
 	acts.add_theme_constant_override("h_separation", 10)
 	acts.add_theme_constant_override("v_separation", 6)
 	blk.body.add_child(acts)
-	for t in [Diplomacy.ALLIANCE, Diplomacy.PEACE, Diplomacy.TRADE, Diplomacy.MIGRATION]:
-		var label: String = {"alliance": "QUITTER L'ALLIANCE", "peace": "DÉNONCER LA PAIX", "trade": "ROMPRE LE COMMERCE", "migration": "FERMER LA MIGRATION"}[t]
+	for t in [Diplomacy.ALLIANCE, Diplomacy.PEACE, Diplomacy.TRADE, Diplomacy.MIGRATION, Diplomacy.PASSAGE, Diplomacy.PROSP]:
+		var label: String = {"alliance": "QUITTER L'ALLIANCE", "peace": "DÉNONCER LA PAIX", "trade": "ROMPRE LE COMMERCE", "migration": "FERMER LA MIGRATION",
+				"passage": "DÉNONCER LE LIBRE-PASSAGE", "prosp": "FIN DE LA PROSPECTION"}[t]
 		var shown: bool = (t == Diplomacy.ALLIANCE and Diplomacy.allied(_state, _player, id)) \
 				or (t == Diplomacy.PEACE and Diplomacy.pact(_state, _player, id) == Diplomacy.PEACE) \
 				or (t == Diplomacy.TRADE and Diplomacy.has_trade(_state, _player, id)) \
-				or (t == Diplomacy.MIGRATION and Diplomacy.has_migration(_state, _player, id))
+				or (t == Diplomacy.MIGRATION and Diplomacy.has_migration(_state, _player, id)) \
+				or (t == Diplomacy.PASSAGE and Borders.has_treaty(_state, _player, id)) \
+				or (t == Diplomacy.PROSP and Borders.has_prosp(_state, _player, id))
 		if not shown:
 			continue
 		var b := Button.new()
@@ -1766,6 +1778,8 @@ func _diplomacy_sig() -> String:
 		parts.append(str(_state.koinon))
 	if _state.wars_on:
 		parts.append(str(_state.wars))
+	if Borders.active(_state):
+		parts.append(str(_state.borders))
 	return "|".join(parts)
 
 

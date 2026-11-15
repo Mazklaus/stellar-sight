@@ -1,0 +1,62 @@
+{
+	"_doc": "Frontières et droit de passage (étude du 2026-11-15, 32 propositions validées). Frontière souple : hors guerre, une flotte armée a besoin d'un droit de passage pour entrer dans les systèmes d'un empire rencontré ; rien ne la bloque, mais entrer sans droit est une intrusion (souvenir, sommation, motif de guerre, riposte en guerre froide). Les vaisseaux sans armes ont le passage inoffensif, sauf frontières closes. Option Strictes : blocage dur. Tout ce qui suit est réglable ici ; l'équilibrage reste à faire.",
+	"_sources": [
+		"Stellaris : frontières ouvertes ou closes par empire, -25 % d'opinion, jamais closes pendant une trêve, sujets toujours ouverts, statut initial des frontières (politique). https://stellaris.paradoxwikis.com/Diplomacy",
+		"Endless Space 2 : espace ouvert par défaut, fermer nuit à la relation, au commerce et à la science ; en guerre froide on peut attaquer chez soi. https://www.gamepressure.com/endless-space-2/diplomacy/z49cce",
+		"Humankind : entrer sans traité crée un grief ponctuel, dont on réclame compensation ; l'ambition Expansionniste ignore les frontières closes. https://www.gamepressure.com/humankind/diplomacy/z1fa46",
+		"Civilization VII : frontières ouvertes pour 15 tours, unités expulsées à la fin ; le patch 1.3.0 laisse traverser sans accord.",
+		"Distant Worlds 2 : traités d'exploration, de prospection minière et de ravitaillement. https://ftp.matrixgames.com/pub/DistantWorlds2/DW2%20Manual%20EBOOK.pdf",
+		"Droit de la mer (CNUDM art. 19) : passage inoffensif ; la prospection et l'espionnage le rendent non inoffensif. https://en.wikipedia.org/wiki/Innocent_passage",
+		"Convention de Montreux : passage notifié, plafonné, à durée limitée. https://en.wikipedia.org/wiki/Montreux_Convention_Regarding_the_Regime_of_the_Straits",
+		"Dune (Guilde spatiale, péages), The Expanse (Transport Union), Star Trek (zone neutre) : inspirations d'ambiance."
+	],
+	"default_mode": "souples",
+	"modes": [
+		{"id": "libres", "label": "Libres", "desc": "Comme avant : toute flotte va partout, seule la guerre compte."},
+		{"id": "souples", "label": "Souples", "desc": "Hors guerre, une flotte armée a besoin d'un droit de passage chez un autre empire. Rien ne la bloque, mais entrer sans droit est une intrusion : opinion, sommation, motif de guerre, riposte en guerre froide."},
+		{"id": "strictes", "label": "Strictes", "desc": "Comme Souples, mais l'espace interdit est infranchissable : les itinéraires le contournent, les flottes s'arrêtent à la frontière, et celles qui restent sans droit sont repoussées."}
+	],
+	"policies": [
+		{"id": "open", "label": "Ouverte", "text": "Libre-passage accordé : ses flottes de guerre peuvent traverser vos systèmes."},
+		{"id": "guarded", "label": "Gardée", "text": "Ses vaisseaux sans armes passent ; ses flottes de guerre ont besoin d'un traité ou d'un laissez-passer."},
+		{"id": "closed", "label": "Close", "text": "Même ses éclaireurs, colons et convois sont en intrusion chez vous. Cela lui déplaît."}
+	],
+	"grace_days": 60,
+	"stay_days": 30,
+	"detour": 20000,
+	"truce_mult": 2,
+	"treaty": {"notice_days": 90},
+	"pass": {"days": 90, "answer_days": 15, "cost": {"influence": 15}},
+	"summons": {"days": 30, "cb_days": 1800, "cooldown_days": 60},
+	"toll": {"steps": [0, 2, 5, 10], "max": 10},
+	"gates": {"min_ships": 4},
+	"friction_pct": 50,
+	"trade_closed_pct": -25,
+	"corridor_days": 90,
+	"arbiter": {"days": 1800, "cost": {"influence": 60}},
+	"doctrine": {"doctrine_close": "closed", "doctrine_ouverte": "open"},
+	"talents": {
+		"_doc": "Prop. 26. Talents de frontière par couche d'espèce (valables pour les peuples personnalisés).",
+		"traits": {
+			"navigateurs": {"label": "Gens du voyage", "text": "Leur première intrusion chez chaque empire ne compte pas : on les prend pour des égarés.", "first_free": true}
+		},
+		"archetype": {
+			"ruche": {"label": "Ruche close", "text": "Ses frontières sont closes à tous dès la rencontre, sans que personne s'en offusque : on n'en attendait pas moins.", "default": "closed", "close_free": true}
+		},
+		"gouvernement": {
+			"syndicat": {"label": "Contrebandiers", "text": "Leurs intrusions ne coûtent que moitié, et leurs convois passent même les frontières closes.", "intr_pct": -50, "civil_always": true},
+			"republique": {"label": "Laissez-passer de la République", "text": "Ses demandes de laissez-passer sont gratuites, et les IA les acceptent volontiers.", "pass_free": true, "pass_bonus": 25},
+			"feodalite": {"label": "Droit de péage", "text": "Ses péages rapportent le double.", "toll_x": 2}
+		}
+	},
+	"ai": {
+		"open_at": 40,
+		"close_at": -30,
+		"passage_base": -10,
+		"prosp_base": -15,
+		"pass_base": 10,
+		"pass_size_div": 3,
+		"riposte_aggr": 1,
+		"toll_at_aggr": 1
+	}
+}

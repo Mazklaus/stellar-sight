@@ -32,7 +32,7 @@ Chaque empire pense quelque chose de chacun des autres, de -100 à 100, et l'inf
 
 - le **choc des tons** : deux registres qui s'opposent se détestent d'instinct (le grimdark face au space opera héroïque, -15) ;
 - les **credos** et les **gouvernements** (foi contre raison, féodalité contre république…), l'archétype (une ruche inspire l'horreur) ;
-- les **frontières communes** (-3 par système voisin, jusqu'à -15) ;
+- les **frontières communes** (-3 par système voisin, jusqu'à -15), les frontières fermées ou ouvertes et les **intrusions** (voir plus bas) ;
 - le statut, la **confiance** qui monte de 2 par mois sous traité, l'**ennemi commun** (+15) ;
 - l'**histoire commune** : des souvenirs qui s'effacent avec les années, du traité rompu (-50) à l'allié venu à la rescousse (+15).
 
@@ -93,7 +93,7 @@ Le **score de guerre** (chapitre 7) compte les vaisseaux détruits et les systè
 | Rompre ses alliances / libérer ses sujets | Comme plus haut | Démantèlement / libération | Comme plus haut |
 | Zone démilitarisée | 15 | Humiliation, conquête | Ses systèmes à 2 sauts des vôtres interdits à ses flottes de guerre pendant 5 ans (une flotte armée qui s'y arrête viole le traité) |
 | Limite de flotte | 25 | Humiliation, démantèlement | Pendant 10 ans, plus de vaisseau de guerre tant que sa flotte dépasse la moitié de la vôtre |
-| Passage imposé | 10 | Conquête, libération | Cartes ouvertes à vos flottes pendant 5 ans (consigné ; les frontières viendront plus tard) |
+| Passage imposé | 10 | Conquête, libération | Droit de passage de vos flottes chez lui pendant 5 ans (avec l'option Frontières) |
 | Rendre héros et reliques | 10 | Humiliation, rançon, libération | Vos héros prisonniers rentrent ; une de ses reliques est à vous |
 | Conversion | 30 | Soumission, humiliation, et toute guerre sainte | Il adopte votre foi d'État |
 | Changement de régime | 35 | Soumission, démantèlement | Votre courant prend la tête de son gouvernement, jusqu'aux prochaines élections |
@@ -110,6 +110,48 @@ Un sujet garde ses colonies et ses flottes ; tout ce qui règle sa vie (clauses,
 
 ::: conseil
 Un vaincu à 100 points de score contre lui n'a plus rien à perdre en se rendant. Si vous menez, proposez vos conditions avant : un vassal vivant vous rapporte un tribut, un empire mort ne vous rapporte que ses ruines.
+:::
+
+### Frontières et droit de passage
+
+Avec l'option **Frontières** (Souples par défaut), le territoire d'un empire, c'est-à-dire chaque système où il a une colonie ou un avant-poste, n'est plus une simple couleur sur la carte. Hors guerre, une **flotte armée** a besoin d'un **droit de passage** pour entrer chez un empire que vous avez rencontré. Les vaisseaux **sans armes** (éclaireurs, colons, transports) ont le **passage inoffensif**, comme les navires du droit de la mer, sauf chez qui a fermé ses frontières.
+
+| Option | Ce qui se passe sans droit |
+| --- | --- |
+| Libres | Rien : seule la guerre compte, comme dans les éditions précédentes |
+| **Souples** | Rien ne vous arrête, mais entrer est une **intrusion** : le propriétaire s'en souvient, et l'opinion le paie |
+| Strictes | L'espace interdit est infranchissable : les itinéraires le contournent, les flottes s'arrêtent à la frontière, et celles qui s'y trouvent sans droit sont reconduites au système permis le plus proche |
+
+**Votre politique** envers chaque empire se règle dans le bloc **Frontières** de l'écran Diplomatie :
+
+| Politique | Ses flottes de guerre | Ses vaisseaux sans armes | Effet |
+| --- | --- | --- | --- |
+| Ouverte | Passent | Passent | Il s'en souvient (+5) |
+| **Gardée** (défaut) | Intrusion | Passent | Aucun |
+| Close | Intrusion | Intrusion | Il s'en offusque (-10) |
+
+Le bloc affiche aussi, dans les deux sens, ce que chacun peut faire chez l'autre, et ses flottes en intrusion chez vous.
+
+**Ont toujours le droit de passer** : les alliés et les équipes, un suzerain et ses sujets (et les sujets d'un même suzerain), les membres d'un même Koinon, d'une même coalition de l'Amphictyonie, et le vainqueur d'une paix qui a obtenu la clause **Passage imposé**. En guerre, aucune frontière ne tient : on se bat. Avant le premier contact non plus, il n'y a pas encore de frontière.
+
+**Deux nouveaux traités** se proposent comme les autres :
+
+- le **libre-passage**, réciproque : les flottes de guerre de chacun traversent l'espace de l'autre. Il se dénonce avec un **préavis de 90 jours**, et la guerre le déchire ;
+- le **traité de prospection**, si la partie compte des curiosités : vos éclaireurs peuvent sonder celles de l'autre. Sans lui, une curiosité dans un système étranger ne se sonde pas.
+
+**L'intrusion.** Une flotte en intrusion que le propriétaire **voit** lui laisse un souvenir (-5, jusqu'à quatre fois, effacé en deux ans), une seule fois tant qu'elle reste. Si elle **stationne** plus de 30 jours, chaque mois ajoute -1. Pendant une **trêve**, l'intrusion compte double. Quand un droit prend fin (politique retirée, traité échu, alliance rompue), vos flottes ont **60 jours** pour sortir sans faute.
+
+L'itinéraire d'une flotte évite de lui-même l'espace où elle n'a pas le droit d'aller quand un détour existe ; s'il le traverse quand même, son délai s'affiche en rouge, « intrusion », et l'ordre vous prévient.
+
+La **lentille des frontières** ([[A]], [[Q]] en QWERTY) cercle chaque système étranger que vous connaissez selon votre droit : vert, vos flottes de guerre passent ; ambre, vaisseaux sans armes seulement ; rouge, frontière close. Le nom de la politique s'inscrit sous chaque capitale, et un losange rouge marque les intrus chez vous.
+
+::: capture docs/apercu-frontieres.png|Le bloc Frontières de l'écran Diplomatie
+:::
+
+**Les IA** ouvrent leurs frontières à qui elles aiment (opinion 40 et plus), les ferment à qui elles détestent (-30 et moins), et gardent le reste ; elles proposent le libre-passage à leurs voisins quand elles s'y retrouvent, et contournent l'espace qui leur est interdit.
+
+::: conseil
+Un éclaireur passe partout, sauf derrière une frontière close. Fermer vos frontières à un voisin curieux lui coûte ses yeux ; mais il le prendra mal.
 :::
 
 ### Au-delà des traités

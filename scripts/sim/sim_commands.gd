@@ -94,6 +94,13 @@ static func war_act(player: int, act: String, x := -1, s := "") -> Dictionary:
 	return {"type": "war_act", "player": player, "act": act, "x": x, "s": s}
 
 
+## Frontières (voir Borders.check_act) : "policy" (x = empire, s = politique), "summon" (x = intrus),
+## "pass" (x = propriétaire, y = flotte : laissez-passer), "toll" (x = péage), "arbiter" (x, y : libre-passage
+## imposé par l'Arbitre), "answer_pass" (x = demande, y = 1 accepter / 0 refuser).
+static func border_act(player: int, act: String, x := -1, y := -1, s := "") -> Dictionary:
+	return {"type": "border_act", "player": player, "act": act, "x": x, "y": y, "s": s}
+
+
 ## Propose un traité (Diplomacy.TREATY_IDS) à un empire rencontré. Une IA répond tout de suite,
 ## un joueur humain reçoit la proposition.
 static func propose_treaty(player: int, target: int, treaty: String) -> Dictionary:
@@ -740,6 +747,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			if dw == "" and state.wars_on and String(cmd.get("cb", "")) != "":
 				dw = Wars.check_choice(state, int(cmd["player"]), int(cmd["target"]), String(cmd["cb"]), String(cmd.get("goal", "")))
 			return dw
+		"border_act":
+			return Borders.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), int(cmd.get("y", -1)), String(cmd.get("s", "")))
 		"war_act":
 			return Wars.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")))
 		"propose_treaty":
@@ -1139,6 +1148,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			if state.wars_on and String(cmd.get("cb", "")) != "":
 				Wars.set_pending(state, int(cmd["player"]), int(cmd["target"]), String(cmd["cb"]), String(cmd.get("goal", "")))
 			Combat.start_war(state, int(cmd["player"]), int(cmd["target"]))
+		"border_act":
+			Borders.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), int(cmd.get("y", -1)), String(cmd.get("s", "")))
 		"war_act":
 			Wars.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")))
 		"propose_treaty":

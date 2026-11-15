@@ -6,6 +6,7 @@ extends RefCounted
 ##    dans un système tenu par une flotte armée d'un empire en guerre avec elle s'y arrête (blocus) ;
 ## 3. exploration : chaque empire découvre ce que voient ses revendications et ses flottes,
 ##    et rencontre les empires qu'il aperçoit (premier contact) ;
+## 3 bis. frontières : intrusions (voir Borders) ;
 ## 4. exploration automatique : les flottes qui en ont l'ordre repartent vers la frontière ;
 ##    patrouilles : arrivées à un bout, elles repartent vers l'autre.
 ## Aucun aléatoire, uniquement des entiers, tout est parcouru dans l'ordre des identifiants.
@@ -22,6 +23,10 @@ static func process(state: GameState) -> Array[Dictionary]:
 		if not entry.is_empty():
 			added.append(entry)
 	added.append_array(update_exploration(state))
+	# Frontières (voir Borders) : traités échus, intrusions constatées, flottes repoussées.
+	if Borders.active(state):
+		Borders.treaties_daily(state)
+		Borders.daily(state)
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
 		if f.is_exploring():
@@ -130,6 +135,10 @@ static func _move(state: GameState, f: Fleet) -> void:
 		var lane := Fleets.lane_length(state.galaxy, f.system_id, f.path[0])
 		if f.progress < lane:
 			return
+		# Frontières strictes (voir Borders) : l'espace interdit ne se franchit pas.
+		if not Borders.can_enter(state, f, f.path[0]):
+			f.path.clear()
+			break
 		f.progress -= lane
 		if state.faith_on:
 			FaithWars.on_lane_crossed(state, f.owner, f.system_id, f.path[0])
