@@ -1277,7 +1277,7 @@ func order_fleet_to(system_id: int) -> void:
 		else:
 			_hud.notify("%s : cap sur %s (%d jour%s)." % [f.fleet_name, where, days, "s" if days > 1 else ""])
 		# Frontières : le trajet traverse l'espace d'un empire sans droit de passage.
-		var warn := Borders.route_warning(simulation.state, f, plan)
+		var warn := Borders.route_warning(simulation.state, f, plan.get("path", []))
 		if warn != "":
 			_hud.notify("%s : %s" % [f.fleet_name, warn])
 
