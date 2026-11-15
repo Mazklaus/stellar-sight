@@ -43,7 +43,7 @@ static func vision(fleet: Fleet) -> int:
 ## Plus court chemin de from à to par les routes connues de l'empire (sans from, avec to).
 ## Vide si to == from ou s'il n'existe aucun chemin connu. Dijkstra à égalités départagées
 ## par l'identifiant : le même résultat sur toutes les machines.
-static func find_path(state: GameState, empire_id: int, from: int, to: int, avoid := false) -> Array[int]:
+static func find_path(state: GameState, empire_id: int, from: int, to: int, avoid: Variant = false) -> Array[int]:
 	var out: Array[int] = []
 	var res := _dijkstra(state, empire_id, from, avoid)
 	if from == to or not res["dist"].has(to):
@@ -66,17 +66,34 @@ static func find_path(state: GameState, empire_id: int, from: int, to: int, avoi
 ## avoid : variante des vaisseaux sans armes, qui contourne les repaires pirates connus (traverser
 ## l'un d'eux coûte LAIR_DETOUR unités de plus) ; gardée en cache sous la clé -1 - from. Les repaires
 ## ne bougent pas, et un repaire démantelé vide le cache (Pirates.dismantle).
-static func _dijkstra(state: GameState, empire_id: int, from: int, avoid := false) -> Dictionary:
-	avoid = avoid and (not state.lairs.is_empty() or Fauna.active(state))
+##
+## Frontières (voir Borders) : avoid peut aussi être un entier de drapeaux (Borders.PATH_*) ; les
+## variantes qui contournent l'espace interdit dépendent des traités et des propriétaires, elles sont
+## gardées dans un cache à part, vidé chaque jour.
+static func _dijkstra(state: GameState, empire_id: int, from: int, avoid: Variant = false) -> Dictionary:
+	var flags := int(avoid)
+	if flags & Borders.PATH_LAIRS and state.lairs.is_empty() and not Fauna.active(state):
+		flags &= ~Borders.PATH_LAIRS
+	if not Borders.active(state):
+		flags &= Borders.PATH_LAIRS
 	var e := state.get_empire(empire_id)
 	if e == null:
-		return _dijkstra_raw(state, empire_id, from, avoid)
+		return _dijkstra_raw(state, empire_id, from, flags)
 	if e.path_cache_explored != e.explored.size():
 		e.path_cache.clear()
+		e.border_cache.clear()
 		e.path_cache_explored = e.explored.size()
-	var key := -1 - from if avoid else from
+	if flags & (Borders.PATH_ARMED | Borders.PATH_CIVIL):
+		if e.border_cache_tick != state.tick:
+			e.border_cache.clear()
+			e.border_cache_tick = state.tick
+		var bkey := from * 8 + flags
+		if not e.border_cache.has(bkey):
+			e.border_cache[bkey] = _dijkstra_raw(state, empire_id, from, flags)
+		return e.border_cache[bkey]
+	var key := -1 - from if flags else from
 	if not e.path_cache.has(key):
-		e.path_cache[key] = _dijkstra_raw(state, empire_id, from, avoid)
+		e.path_cache[key] = _dijkstra_raw(state, empire_id, from, flags)
 	return e.path_cache[key]
 
 
@@ -89,7 +106,15 @@ static func avoids_lairs(state: GameState, fleet: Fleet) -> bool:
 	return (not state.lairs.is_empty() or Fauna.active(state)) and not GameState.is_npc(fleet.owner) and not Combat.is_armed(fleet)
 
 
-static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid := false) -> Dictionary:
+static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid: Variant = false) -> Dictionary:
+	var flags := int(avoid)
+	var lairs := flags & Borders.PATH_LAIRS != 0
+	# Frontières : espace interdit infranchissable (Strictes) ou coûteux (Souples), par propriétaire.
+	var border := flags & (Borders.PATH_ARMED | Borders.PATH_CIVIL) != 0
+	var strict := border and Borders.strict(state)
+	var armed := flags & Borders.PATH_ARMED != 0
+	var detour := int(Borders.data().get("detour", 20000))
+	var blocked_by := {}
 	# Tableaux indexés par système pendant le calcul (plus rapides que des dictionnaires), puis les
 	# dictionnaires du résultat, remplis dans l'ordre de découverte, comme avant.
 	var g := state.galaxy
@@ -120,8 +145,17 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid := 
 			if done[n] == 1 or not (best_known or explored.has(n)):
 				continue
 			var d: int = d0 + maxi(1, roundi(pos.distance_to(g.systems[n].position)))
-			if avoid and explored.has(n) and (Pirates.is_lair(state, n) or Fauna.avoided(state, empire_id, n)):
+			if lairs and explored.has(n) and (Pirates.is_lair(state, n) or Fauna.avoided(state, empire_id, n)):
 				d += LAIR_DETOUR
+			if border:
+				var o := state.system_owner(n)
+				if o >= 0 and o != empire_id:
+					if not blocked_by.has(o):
+						blocked_by[o] = Borders.blocks_path(state, empire_id, o, armed)
+					if blocked_by[o]:
+						if strict:
+							continue
+						d += detour
 			var old := dist[n]
 			if old < 0 or d < old or (d == old and best < prev[n]):
 				if old < 0:
@@ -184,7 +218,7 @@ static func _heap_pop(heap: Array[int]) -> int:
 static func plan_route(state: GameState, fleet: Fleet, to: int) -> Dictionary:
 	if fleet.is_moving() and fleet.progress == 0 and to == fleet.system_id:
 		return {"system": fleet.system_id, "path": [], "progress": 0}  # pas encore parti : on reste
-	var avoid := avoids_lairs(state, fleet)
+	var avoid := Borders.path_flags(state, fleet)
 	if not fleet.is_moving() or fleet.progress == 0:
 		var p := find_path(state, fleet.owner, fleet.system_id, to, avoid)
 		if p.is_empty():
@@ -273,7 +307,7 @@ static func vision_center(state: GameState, fleet: Fleet) -> int:
 ## Déterministe : égalités départagées par l'identifiant.
 static func explore_target(state: GameState, fleet: Fleet) -> int:
 	var origin := fleet.next_system() if fleet.is_moving() else fleet.system_id
-	var res := _dijkstra(state, fleet.owner, origin, avoids_lairs(state, fleet))
+	var res := _dijkstra(state, fleet.owner, origin, Borders.path_flags(state, fleet))
 	var taken := {}
 	for other in empire_fleets(state, fleet.owner):
 		if other.id != fleet.id and other.is_exploring() and other.is_moving():

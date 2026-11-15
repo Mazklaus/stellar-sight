@@ -83,6 +83,8 @@ static func _score(state: GameState, e: Empire, id: String, stab: int, ag: int, 
 		return AiPeoples.law_score(state, e, id, ag)
 	if bool(d.get("faiths", false)):
 		return FaithWars.law_score(state, e, id, ag)
+	if bool(d.get("borders", false)):
+		return AiBorders.law_score(state, e, id, ag)
 	var st := int(fx.get("stability", 0)) - (3 if fx.has("stability_pop_div") else 0)
 	if st < 0 and stab + st < 50:
 		return -1

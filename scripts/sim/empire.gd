@@ -36,6 +36,9 @@ var sightings: Dictionary = {}
 ## donnée dérivée, non sauvegardée, valable tant que explored n'a pas grandi.
 var path_cache: Dictionary = {}
 var path_cache_explored := -1
+## Itinéraires qui contournent l'espace interdit (voir Borders) : vidés chaque jour.
+var border_cache: Dictionary = {}
+var border_cache_tick := -1
 var _faction_cache: Dictionary = {}
 var _faction_gen := -1
 var _faction_id_cached := ""

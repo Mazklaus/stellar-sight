@@ -9,7 +9,7 @@ Au début de la partie, presque toute la galaxie est cachée. Vos flottes la dé
 
 ### Déplacer une flotte
 
-Sélectionnez une flotte d'un clic sur son chevron (ou [[F]] et [[Maj]]+[[F]] pour passer de l'une à l'autre), puis cliquez droit sur un système. La flotte prend le plus court chemin connu et avance chaque jour à la vitesse de son vaisseau le plus lent. Le trajet et le délai s'affichent en pointillés. Un contre-ordre en plein trajet est accepté : la flotte finit sa route ou fait demi-tour, selon ce qui est le plus court. **Arrêter** la pose au système le plus proche.
+Sélectionnez une flotte d'un clic sur son chevron (ou [[F]] et [[Maj]]+[[F]] pour passer de l'une à l'autre), puis cliquez droit sur un système. La flotte prend le plus court chemin connu et avance chaque jour à la vitesse de son vaisseau le plus lent. Le trajet et le délai s'affichent en pointillés. Avec l'option Frontières, le chemin contourne l'espace où la flotte n'a pas le droit d'aller, et prévient d'une **intrusion** s'il ne peut l'éviter (chapitre 8). Un contre-ordre en plein trajet est accepté : la flotte finit sa route ou fait demi-tour, selon ce qui est le plus court. **Arrêter** la pose au système le plus proche.
 
 La fiche de flotte, en bas à gauche, permet aussi de **rassembler** les flottes à l'arrêt dans un même système, d'en **détacher** un vaisseau, de **coloniser** avec un vaisseau colon et de mettre la flotte en **patrouille** ([[Maj]]+clic droit) entre deux systèmes.
 

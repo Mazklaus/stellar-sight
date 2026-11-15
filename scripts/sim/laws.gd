@@ -238,6 +238,8 @@ static func check_adopt(state: GameState, empire_id: int, id: String) -> String:
 		return "pas d'Amphictyonie dans cette partie"
 	if bool(d.get("koinon", false)) and not state.koinon_on:
 		return "pas de Koinon dans cette partie"
+	if bool(d.get("borders", false)) and not Borders.active(state):
+		return "les frontières sont libres dans cette partie"
 	if bool(d.get("faiths", false)) and id == "inquisition" and not Faiths.has_state_faith(state, empire_id):
 		return "pas d'Inquisition sans foi d'État"
 	if bool(d.get("faiths", false)) and id == "tolerance" and Faiths.doctrine(state, Faiths.state_faith(state, empire_id), "regard") == "fondamentaliste" \
@@ -271,8 +273,11 @@ static func adopt(state: GameState, empire_id: int, id: String) -> void:
 	if not cost.is_empty():
 		Economy.pay(state.get_empire(empire_id), cost)
 	var en := _w(state, empire_id)
+	var before := Borders.default_policy(state, empire_id) if Borders.active(state) else ""
 	(en["laws"] as Array).append(id)
 	state.relic_rev += 1
+	if before != "":
+		Borders.on_default_change(state, empire_id, before)
 
 
 static func check_revoke(state: GameState, empire_id: int, id: String) -> String:
@@ -284,8 +289,11 @@ static func check_revoke(state: GameState, empire_id: int, id: String) -> String
 
 
 static func revoke(state: GameState, empire_id: int, id: String) -> void:
+	var before := Borders.default_policy(state, empire_id) if Borders.active(state) else ""
 	(_w(state, empire_id)["laws"] as Array).erase(id)
 	state.relic_rev += 1
+	if before != "":
+		Borders.on_default_change(state, empire_id, before)
 
 
 # --- Actions électorales (ordres) ---------------------------------------------------------------

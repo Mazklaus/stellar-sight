@@ -1182,6 +1182,11 @@ func _unhandled_input(event: InputEvent) -> void:
 				_hud.set_lens("" if _hud.lens == "war" else "war")
 				get_viewport().set_input_as_handled()
 				return
+			# Lentille des frontières : touche physique Q du QWERTY (le A de l'AZERTY).
+			if key.physical_keycode == KEY_Q and not is_system_view_open() and simulation != null and Borders.active(simulation.state):
+				_hud.set_lens("" if _hud.lens == "borders" else "borders")
+				get_viewport().set_input_as_handled()
+				return
 			if key.physical_keycode == KEY_G and not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "trade" else "trade")
 				return
@@ -1271,6 +1276,10 @@ func order_fleet_to(system_id: int) -> void:
 			_hud.notify("%s : reste à %s." % [f.fleet_name, where])
 		else:
 			_hud.notify("%s : cap sur %s (%d jour%s)." % [f.fleet_name, where, days, "s" if days > 1 else ""])
+		# Frontières : le trajet traverse l'espace d'un empire sans droit de passage.
+		var warn := Borders.route_warning(simulation.state, f, plan.get("path", []))
+		if warn != "":
+			_hud.notify("%s : %s" % [f.fleet_name, warn])
 
 
 ## Met la flotte sélectionnée en patrouille entre sa position et un système.

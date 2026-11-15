@@ -32,7 +32,7 @@ Chaque empire pense quelque chose de chacun des autres, de -100 à 100, et l'inf
 
 - le **choc des tons** : deux registres qui s'opposent se détestent d'instinct (le grimdark face au space opera héroïque, -15) ;
 - les **credos** et les **gouvernements** (foi contre raison, féodalité contre république…), l'archétype (une ruche inspire l'horreur) ;
-- les **frontières communes** (-3 par système voisin, jusqu'à -15) ;
+- les **frontières communes** (-3 par système voisin, jusqu'à -15), les frontières fermées ou ouvertes et les **intrusions** (voir plus bas) ;
 - le statut, la **confiance** qui monte de 2 par mois sous traité, l'**ennemi commun** (+15) ;
 - l'**histoire commune** : des souvenirs qui s'effacent avec les années, du traité rompu (-50) à l'allié venu à la rescousse (+15).
 
@@ -93,7 +93,7 @@ Le **score de guerre** (chapitre 7) compte les vaisseaux détruits et les systè
 | Rompre ses alliances / libérer ses sujets | Comme plus haut | Démantèlement / libération | Comme plus haut |
 | Zone démilitarisée | 15 | Humiliation, conquête | Ses systèmes à 2 sauts des vôtres interdits à ses flottes de guerre pendant 5 ans (une flotte armée qui s'y arrête viole le traité) |
 | Limite de flotte | 25 | Humiliation, démantèlement | Pendant 10 ans, plus de vaisseau de guerre tant que sa flotte dépasse la moitié de la vôtre |
-| Passage imposé | 10 | Conquête, libération | Cartes ouvertes à vos flottes pendant 5 ans (consigné ; les frontières viendront plus tard) |
+| Passage imposé | 10 | Conquête, libération | Droit de passage de vos flottes chez lui pendant 5 ans (avec l'option Frontières) |
 | Rendre héros et reliques | 10 | Humiliation, rançon, libération | Vos héros prisonniers rentrent ; une de ses reliques est à vous |
 | Conversion | 30 | Soumission, humiliation, et toute guerre sainte | Il adopte votre foi d'État |
 | Changement de régime | 35 | Soumission, démantèlement | Votre courant prend la tête de son gouvernement, jusqu'aux prochaines élections |
@@ -110,6 +110,74 @@ Un sujet garde ses colonies et ses flottes ; tout ce qui règle sa vie (clauses,
 
 ::: conseil
 Un vaincu à 100 points de score contre lui n'a plus rien à perdre en se rendant. Si vous menez, proposez vos conditions avant : un vassal vivant vous rapporte un tribut, un empire mort ne vous rapporte que ses ruines.
+:::
+
+### Frontières et droit de passage
+
+Avec l'option **Frontières** (Souples par défaut), le territoire d'un empire, c'est-à-dire chaque système où il a une colonie ou un avant-poste, n'est plus une simple couleur sur la carte. Hors guerre, une **flotte armée** a besoin d'un **droit de passage** pour entrer chez un empire que vous avez rencontré. Les vaisseaux **sans armes** (éclaireurs, colons, transports) ont le **passage inoffensif**, comme les navires du droit de la mer, sauf chez qui a fermé ses frontières.
+
+| Option | Ce qui se passe sans droit |
+| --- | --- |
+| Libres | Rien : seule la guerre compte, comme dans les éditions précédentes |
+| **Souples** | Rien ne vous arrête, mais entrer est une **intrusion** : le propriétaire s'en souvient, et l'opinion le paie |
+| Strictes | L'espace interdit est infranchissable : les itinéraires le contournent, les flottes s'arrêtent à la frontière, et celles qui s'y trouvent sans droit sont reconduites au système permis le plus proche |
+
+**Votre politique** envers chaque empire se règle dans le bloc **Frontières** de l'écran Diplomatie :
+
+| Politique | Ses flottes de guerre | Ses vaisseaux sans armes | Effet |
+| --- | --- | --- | --- |
+| Ouverte | Passent | Passent | Il s'en souvient (+5) |
+| **Gardée** (défaut) | Intrusion | Passent | Aucun |
+| Close | Intrusion | Intrusion | Il s'en offusque (-10) |
+
+Le bloc affiche aussi, dans les deux sens, ce que chacun peut faire chez l'autre, et ses flottes en intrusion chez vous.
+
+**Ont toujours le droit de passer** : les alliés et les équipes, un suzerain et ses sujets (et les sujets d'un même suzerain), les membres d'un même Koinon, d'une même coalition de l'Amphictyonie, et le vainqueur d'une paix qui a obtenu la clause **Passage imposé**. En guerre, aucune frontière ne tient : on se bat. Avant le premier contact non plus, il n'y a pas encore de frontière.
+
+**Deux nouveaux traités** se proposent comme les autres :
+
+- le **libre-passage**, réciproque : les flottes de guerre de chacun traversent l'espace de l'autre. Il se dénonce avec un **préavis de 90 jours**, et la guerre le déchire ;
+- le **traité de prospection**, si la partie compte des curiosités : vos éclaireurs peuvent sonder celles de l'autre. Sans lui, une curiosité dans un système étranger ne se sonde pas.
+
+**L'intrusion.** Une flotte en intrusion que le propriétaire **voit** lui laisse un souvenir (-5, jusqu'à quatre fois, effacé en deux ans), une seule fois tant qu'elle reste. Si elle **stationne** plus de 30 jours, chaque mois ajoute -1. Pendant une **trêve**, l'intrusion compte double. Quand un droit prend fin (politique retirée, traité échu, alliance rompue), vos flottes ont **60 jours** pour sortir sans faute.
+
+**La sommation.** Contre un empire dont vous voyez les flottes en intrusion, le bloc Frontières propose **Sommer de partir** : il a **30 jours** pour retirer ses flottes. S'il obéit, l'incident est clos. S'il ignore la sommation, il en garde la marque (-15 auprès de vous), et vous tenez contre lui pour **cinq ans** le motif de guerre **Violation de frontière** (chapitre 7). Pendant ce temps, si vous êtes en **guerre froide**, vos flottes armées **ripostent** : elles attaquent ses intrus chez vous, sans déclaration de guerre. En paix, jamais : la paix protège, il vous reste l'opinion et le motif. Une nouvelle sommation attend 60 jours.
+
+**Le laissez-passer.** Pour une flotte précise, demandez le passage chez un empire pendant **90 jours** (15 influence ; gratuit pour la République de Vael). Une IA répond aussitôt, selon son opinion, son tempérament et la taille de la flotte ; un joueur humain a 15 jours. Accorder un laissez-passer plaît (+3).
+
+**Le péage.** Dans la colonne de gauche, fixez ce que paie chaque flotte de guerre étrangère **de passage avec un droit** à chaque saut dans vos systèmes : 0, 2, 5 ou 10 énergie. Alliés, sujets et membres de votre Koinon ne paient pas ; les lignées féodales d'Ossarane touchent le double.
+
+**Les liens.** Un traité de libre-passage divise par deux la friction des frontières communes. À l'inverse, une flotte de quatre vaisseaux armés ou plus, stationnée à un saut de chez vous sans droit d'y entrer, pèse -5 sur l'opinion tant qu'elle reste : **ses flottes à nos portes**.
+
+**Les ponts.** Les frontières touchent le reste du jeu :
+
+- **commerce** : une route qui traverse les systèmes d'un empire qui a fermé ses frontières à l'un de ses deux bouts perd **25 %** de sa valeur (chapitre 9) ;
+- **renseignement** : l'opération **Corridor discret** (palier 2, 30 influence) ouvre pour **90 jours** l'espace d'un empire à vos flottes, sans qu'aucune intrusion soit constatée (chapitre 13) ;
+- **foi** : les flottes d'un empire de **même foi d'État** ont le passage inoffensif, même armées ; le précepte **Sanctuaire** permet de fermer ses frontières aux empires d'une autre foi sans leur laisser de grief (chapitre 15) ;
+- **héros** : un stratège au trait **Amiral discret** fait entrer sa flotte sans laisser de souvenir ; un **ambassadeur** auprès de l'Amphictyonie rend les laissez-passer plus faciles à obtenir, un orateur davantage (chapitre 16) ;
+- **politique** : deux lois indépendantes, **Doctrine des frontières closes** et **Doctrine des frontières ouvertes**, changent votre politique par défaut envers tous ceux à qui vous n'en avez pas fixé d'autre (chapitre 14).
+
+| Talent de frontière | Couche | Effet |
+| --- | --- | --- |
+| Gens du voyage | trait Navigateurs (Ossarane, Brisecomète) | La première intrusion chez chaque empire ne compte pas |
+| Ruche close | archétype ruche (Kh'thari) | Frontières closes à tous dès la rencontre, sans offusquer personne |
+| Contrebandiers | syndicat (Brisecomète) | Intrusions à moitié prix ; leurs vaisseaux sans armes passent même les frontières closes |
+| Laissez-passer de la République | république (Vael) | Laissez-passer gratuits, que les IA accordent volontiers |
+| Droit de péage | féodalité (Ossarane) | Péages au double |
+
+Comme les autres talents, ils tiennent aux couches d'espèce et valent pour les peuples créés dans l'éditeur.
+
+L'itinéraire d'une flotte évite de lui-même l'espace où elle n'a pas le droit d'aller quand un détour existe ; s'il le traverse quand même, son délai s'affiche en rouge, « intrusion », et l'ordre vous prévient.
+
+La **lentille des frontières** ([[A]], [[Q]] en QWERTY) cercle chaque système étranger que vous connaissez selon votre droit : vert, vos flottes de guerre passent ; ambre, vaisseaux sans armes seulement ; rouge, frontière close. Le nom de la politique s'inscrit sous chaque capitale, et un losange rouge marque les intrus chez vous.
+
+::: capture docs/apercu-frontieres.png|Le bloc Frontières de l'écran Diplomatie
+:::
+
+**Les IA** ouvrent leurs frontières à qui elles aiment (opinion 40 et plus), les ferment à qui elles détestent (-30 et moins), et gardent le reste ; elles proposent le libre-passage à leurs voisins quand elles s'y retrouvent, et contournent l'espace qui leur est interdit. Elles somment les intrus qu'elles n'aiment pas ; les pacifiques obéissent aux sommations, les belliqueux seulement face à plus fort qu'eux, et ripostent. Les plus agressives fixent un péage.
+
+::: conseil
+Un éclaireur passe partout, sauf derrière une frontière close. Fermer vos frontières à un voisin curieux lui coûte ses yeux ; mais il le prendra mal.
 :::
 
 ### Au-delà des traités

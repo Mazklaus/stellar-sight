@@ -60,7 +60,7 @@ Les **préceptes** s'appliquent à tous les empires qui suivent la foi. Le premi
 | Culte | Liturgie chantée (temples +3 de stabilité), Pèlerinage (monde saint deux fois plus prêcheur, influence pour qui le tient), Reliquaires, Aniconisme (temples à moitié prix), Astrologie, Sacrifices (un fidèle sacrifié donne 5 de zèle), Résonance |
 | Morale | Ascétisme, Charité (petits mondes +3 de stabilité), Pacifisme, Loi sacrée (entretien des lois -25 %), Préservation, Doute sacré (Savoir +10 %) |
 | Société | Dîme (influence pour le chef de foi), Éthique du travail (matériaux +8 %), Croissez et multipliez (croissance +10 %), Propriété de l'Église (temples +2 énergie) |
-| Guerre | Moines guerriers (garnisons des temples +10 %, troupes +10 %), Pèlerins armés (motif de guerre sainte pour libérer vos fidèles), Xénolâtrie (opinion +10 envers les autres espèces) |
+| Guerre | Moines guerriers (garnisons des temples +10 %, troupes +10 %), Pèlerins armés (motif de guerre sainte pour libérer vos fidèles), Xénolâtrie (opinion +10 envers les autres espèces), Sanctuaire (avec les frontières : les fermer aux autres fois ne leur laisse aucun grief) |
 
 **L'excommunication.** Un chef Élu ou Temporel peut excommunier un autre empire de sa foi pour dix ans (80 Inf) : opinion -20 de tous les fidèles, stabilité -5 chez lui, et il devient une cible légitime de croisade.
 

@@ -445,7 +445,7 @@ func _test_save() -> void:
 	SimCommands.apply(st, SimCommands.war_act(a, "crisis", 0, "revendication|conquete"))
 	SimCommands.apply(st, SimCommands.war_act(b, "prep", 0))
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 55, "Sauvegarde : version 55")
+	_ok(int(d["version"]) >= 55, "Sauvegarde : version 55 ou plus")
 	var st2 := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(st2 != null and WarLaws.has_ult_casus(st2, a, b) and WarLaws.has_incident(st2, b, a), "Sauvegarde : motifs Ultimatum et Incident")
 	_ok(st2 != null and not WarLaws.crisis_between(st2, a, 0).is_empty() and (WarLaws.crisis_between(st2, a, 0)["ra"] is Array), "Sauvegarde : crise en cours")

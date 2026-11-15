@@ -26,6 +26,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Concile | Réunion qui permet au chef de foi de changer une doctrine | 15 |
 | Conclave | L'assemblée d'une théocratie ; à l'Amphictyonie, deux théocraties de même foi qui votent ensemble | 14, 12 |
 | Convoi | Réfugiés sans refuge qui errent de saut en saut | 3 |
+| Corridor discret | Opération d'espionnage : 90 jours sans intrusion constatée chez un empire | 8, 13 |
 | Cour impériale | Les sujets de l'Impérateur, sous un préréglage verrouillé | 10, 12 |
 | Courant | L'une des six familles politiques de la roue : Forge, Académie, Concorde, Sève, Autel, Glaive | 14 |
 | Credo | Ce en quoi un peuple croit : honneur, foi, raison, profit, survie | 19 |
@@ -38,6 +39,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Diaspora | Le peuple d'un empire disparu, qui peut le faire renaître | 3 |
 | Doctrine | En recherche, un choix exclusif d'Armement ; en religion, une position sur l'un des quatre axes d'une foi | 5, 15 |
 | Doléance | Ce que réclame un courant d'opposition, ou un peuple sans droits | 14, 3 |
+| Droit de passage | Ce qui permet à une flotte de guerre d'entrer chez un autre empire hors guerre : lien fort, traité, politique Ouverte | 8 |
 | Embargo | Coupure de tout commerce avec un empire | 9 |
 | Eurêka | Objectif en jeu qui paie 40 % d'une technologie | 5 |
 | Faveur | Dette de vote à l'Amphictyonie, que l'on appelle pendant une séance | 12 |
@@ -45,6 +47,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 22 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
 | Fouille | Site exploré en plusieurs chapitres, avec une relique au bout | 17 |
+| Frontière | Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe | 8 |
 | Gardien | Créature unique assise sur un des meilleurs systèmes | 22 |
 | Grief | Un an pendant lequel attaquer celui qui vous espionnait n'est pas un parjure | 13, 7 |
 | Guerre froide | Le statut de départ entre deux empires qui se rencontrent | 8 |
@@ -53,11 +56,14 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Hors-la-loi | Celui qui a enfreint le Nomos : sanctions, puis bannissement | 12 |
 | Impérateur | L'Arbitre à vie qui a reçu les pleins pouvoirs | 12 |
 | Intégration | L'adaptation d'une espèce dans une colonie, de 0 à 100 % ; ou l'absorption d'un sujet | 3, 10 |
+| Intrusion | Flotte entrée sans droit de passage chez un empire rencontré : souvenir, puis -1 par mois si elle reste | 8 |
 | Kanly | Guerre limitée des peuples féodaux : ni monde peuplé envahi, ni parjure | 7 |
 | Koinon | Ligue de deux à six empires, avec synode, Stratège et lois | 11 |
 | Lassitude | Ce que coûte une guerre qui dure ; avec les buts de guerre, de 0 à 100 % par camp (stabilité, reddition, statu quo) | 7 |
-| Lentille | Lecture de la carte : économie, stabilité, politique, commerce, peuples, foi, Amphictyonie | 2 |
+| Laissez-passer | Droit de passage d'une flotte précise pendant 90 jours, demandé contre 15 influence | 8 |
+| Lentille | Lecture de la carte : économie, stabilité, politique, commerce, peuples, foi, Amphictyonie, guerre, frontières | 2 |
 | Libre-échange | Troisième palier du commerce ; et une loi qui double le revenu des routes | 9, 14 |
+| Libre-passage | Traité réciproque qui ouvre à chacun l'espace de l'autre ; dénoncé avec 90 jours de préavis | 8 |
 | Licence | Droit d'usage d'un luxe, ou achat d'une part de technologie | 9 |
 | Loyauté | Celle d'un héros, d'un sujet, ou de l'héritier d'Ossarane | 16, 10, 8 |
 | Luxe | Ressource rare qui compte par variété : stabilité et petit effet | 9 |
@@ -72,7 +78,9 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Observateur | Empire hors de l'Amphictyonie, admis au banc des observateurs | 12 |
 | Occupation | Système envahi qui reste à son propriétaire jusqu'au traité | 7 |
 | Parjure | Celui qui rompt un traité pour attaquer | 7, 8 |
+| Passage inoffensif | Le droit des vaisseaux sans armes de traverser un espace étranger, sauf frontière close | 8 |
 | Patronage divisé | Ce que coûte en loyauté chaque sujet de plus | 10 |
+| Péage | Énergie payée à chaque saut par les flottes de guerre étrangères de passage | 8 |
 | Port franc | Repaire pirate rangé : mercenaires, héros et marché noir | 17 |
 | Préavis | L'IA masse ses flottes avant de déclarer ; les espions le voient | 7 |
 | Précepte | Règle partagée par tous les empires d'une foi | 15 |
@@ -84,10 +92,12 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Renom | La gloire d'un empire, qui attire les héros | 16 |
 | Révélation | La naissance d'une grande foi | 15 |
 | Revendication | Droit acheté en influence sur un système d'un autre empire | 7 |
+| Riposte | Combat sans guerre contre l'intrus qui a ignoré votre sommation, en guerre froide seulement | 8 |
 | Route commerciale | Lien mensuel entre deux empires qui commercent, payé aux deux bouts | 9 |
 | Sans-Bannière | Les mondes libres, nés des sécessions et des convois | 14, 3 |
 | Score de guerre | Les vaisseaux détruits et les systèmes pris, qui paient la paix | 7 |
 | Session extraordinaire | Vote d'urgence de l'Amphictyonie après une crise | 12 |
+| Sommation | Ordre à un intrus de quitter votre espace sous 30 jours ; ignorée, elle donne un motif de guerre | 8 |
 | Stabilité | L'humeur d'un système, de 0 à 100 | 14 |
 | Statu quo | Paix où chacun garde ce qu'il tient et revendique | 7 |
 | Stratège | Une classe de héros ; et le chef élu d'un Koinon | 16, 11 |

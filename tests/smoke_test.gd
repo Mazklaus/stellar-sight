@@ -64,6 +64,9 @@ func _initialize() -> void:
 	preload("res://tests/war_goals_tests.gd").new().run(_check)
 	preload("res://tests/war_peace_tests.gd").new().run(_check)
 	preload("res://tests/war_laws_tests.gd").new().run(_check)
+	preload("res://tests/borders_tests.gd").new().run(_check)
+	preload("res://tests/borders2_tests.gd").new().run(_check)
+	preload("res://tests/borders3_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -697,7 +700,9 @@ func _test_navigation_ui(main: Node) -> void:
 	screens.show_screen("diplomacy")
 	await process_frame
 	_check(screens.diplo_table != null and screens.diplo_table.buttons.has(other), "table diplomatique : un bouton par empire")
-	_check(screens.treaty_buttons.size() == Diplomacy.TREATY_IDS.size() - (0 if main.simulation.state.peoples_on else 1), "un bouton par traité (migration : avec les peuples mêlés)")
+	var st_b: GameState = main.simulation.state
+	var hidden := (0 if st_b.peoples_on else 1) + (0 if Borders.active(st_b) else 2) + (1 if Borders.active(st_b) and st_b.curios.is_empty() else 0)
+	_check(screens.treaty_buttons.size() == Diplomacy.TREATY_IDS.size() - hidden, "un bouton par traité (migration : avec les peuples mêlés ; libre-passage et prospection : avec les frontières)")
 	var maps_btn: Button = screens.treaty_buttons.get("maps")
 	_check(maps_btn != null and not maps_btn.disabled, "échange de cartes proposable en guerre froide")
 	if maps_btn and not maps_btn.disabled:

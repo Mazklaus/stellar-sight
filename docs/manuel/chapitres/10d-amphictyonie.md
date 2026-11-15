@@ -78,6 +78,8 @@ Elles vont par **familles de deux voies opposées**, en trois niveaux à voter d
 | | B | Primes de chasse, Patrouilles communes, Grande Battue | Chaque repaire démantelé ou nid détruit rapporte 15 influence, puis 45 |
 | Suzerains et sujets (vassaux) | A | Charte des sujets, Souveraineté garantie, Égalité des couronnes | Loyauté des sujets +0,5, +1, +1,5 par mois ; plus d'intégration dès le II |
 | | B | Droit de révision, Droit des suzerains, Pleine suzeraineté | Délai entre deux durcissements -20, -35, -50 % |
+| Navigation (frontières) | A | Mer ouverte, Routes franches, Libre navigation | Pas de frontière close entre membres ; puis aucun péage entre eux ; enfin libre-passage des flottes de guerre de chacun chez tous |
+| | B | Eaux territoriales, Souveraineté, Espaces souverains | Sommations en 15 jours ; puis fermer ses frontières à un membre ne froisse personne ; enfin intrusions comptées double entre membres |
 
 ### Le Nomos et les hors-la-loi
 
@@ -110,7 +112,7 @@ Après dix ans d'existence, l'assemblée peut voter la création de la **Haute V
 
 ### L'Arbitre des étoiles
 
-Un conseiller peut proposer l'élection d'un autre conseiller (ou de lui-même) comme **Arbitre des étoiles** (80 influence). Le mandat dure quinze ans et donne **+30 % de voix** ; il se prolonge par une résolution (60 influence), et une **motion de défiance** (50 influence) y met fin. Une fois tous les deux ans, l'Arbitre peut **geler** une proposition de la file pendant deux ans, **clore** un vote plus tôt, ou **imposer une trêve** à deux membres en guerre (40 influence).
+Un conseiller peut proposer l'élection d'un autre conseiller (ou de lui-même) comme **Arbitre des étoiles** (80 influence). Le mandat dure quinze ans et donne **+30 % de voix** ; il se prolonge par une résolution (60 influence), et une **motion de défiance** (50 influence) y met fin. Une fois tous les deux ans, l'Arbitre peut **geler** une proposition de la file pendant deux ans, **clore** un vote plus tôt, ou **imposer une trêve** à deux membres en guerre (40 influence). Avec l'option Frontières, il peut aussi **imposer le libre-passage** entre deux membres pendant cinq ans (60 influence), depuis le bloc Frontières de l'écran Diplomatie.
 
 Un héros peut devenir **ambassadeur** auprès de l'Amphictyonie (chapitre 16) : +5 % de voix par niveau, +10 % pour un orateur, 30 % au plus.
 

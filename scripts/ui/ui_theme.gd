@@ -242,8 +242,8 @@ static func _build() -> Theme:
 	t.set_type_variation("LensTab", "TabButton")
 	for st in [["normal", tab], ["hover", tab_hover], ["pressed", tab_on], ["hover_pressed", tab_on], ["disabled", tab_off]]:
 		var sb: StyleBoxFlat = (st[1] as StyleBoxFlat).duplicate()
-		sb.content_margin_left = 13
-		sb.content_margin_right = 13
+		sb.content_margin_left = 6
+		sb.content_margin_right = 6
 		t.set_stylebox(String(st[0]), "LensTab", sb)
 
 	t.set_type_variation("PrimaryButton", "Button")

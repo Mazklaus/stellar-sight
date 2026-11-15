@@ -537,6 +537,8 @@ static func _finish_route(state: GameState, r: Dictionary, armed: Dictionary) ->
 	if Research.fx_int(state, a, "tariff_double") > 0 or Research.fx_int(state, b, "tariff_double") > 0:
 		tariff *= 2
 	var pct := 100 - tariff + int(ti.get("bonus_pct", 0))
+	# Frontières : la route traverse l'espace d'un empire qui a fermé ses frontières à l'un des bouts.
+	pct += Borders.trade_pct(state, a, b, p)
 	@warning_ignore("integer_division")
 	r["net"] = int(r["value"]) * (1000 - loss) / 1000 * pct / 100
 

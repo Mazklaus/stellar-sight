@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 55
+const FORMAT_VERSION := 58
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -160,6 +160,8 @@ var koinon_on: bool = false
 ## Buts de guerre et traités de paix (voir Wars) : motifs, revendications, score en %, option de partie.
 var wars: Dictionary = {}
 var wars_on: bool = false
+## Frontières et droit de passage (voir Borders) : politiques, intrusions, option de partie.
+var borders: Dictionary = {}
 var _pirates: Empire
 var _fauna: Empire
 
@@ -255,6 +257,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Vassals.setup(s, String(options.get("vassals", "aucuns")))
 	Koinon.setup(s, String(options.get("koinon", "aucun")))
 	Wars.setup(s, String(options.get("wargoals", "aucuns")), String(options.get("occupation", "immediate")))
+	Borders.setup(s, String(options.get("borders", "libres")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -377,6 +380,9 @@ func to_dict() -> Dictionary:
 	# Buts de guerre : seulement quand l'option est active (même empreinte sans elle).
 	if Wars.worth_saving(self):
 		d["wars"] = Wars.to_dict(self)
+	# Frontières : seulement quand l'option est active (même empreinte sans elle).
+	if Borders.worth_saving(self):
+		d["borders"] = Borders.to_dict(self)
 	return d
 
 
@@ -578,6 +584,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Vassals.from_dict(s, d.get("vassals", {}))
 	Koinon.from_dict(s, d.get("koinon", {}))
 	Wars.from_dict(s, d.get("wars", {}))
+	Borders.from_dict(s, d.get("borders", {}))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant le commerce en paliers : l'ancien accord commercial devient un accord du
 	# 2e palier, et les routes se tracent tout de suite.

@@ -286,6 +286,8 @@ static func _req_ok(state: GameState, req: String, a: int, b: int) -> bool:
 			return WarLaws.has_ult_casus(state, a, b)
 		"incident":
 			return WarLaws.has_incident(state, a, b)
+		"border":
+			return Borders.has_cb(state, a, b)
 		"kanly":
 			return WarLaws.kanly_ok(state, a, b)
 	return false

@@ -117,6 +117,23 @@ static func evaluate(state: GameState, ai_id: int, from_id: int, treaty: String)
 				_p(parts, "Préférence native", -15)
 			if Laws.is_enacted(state, ai_id, "hospitalite"):
 				_p(parts, "Hospitalité", 10)
+		Diplomacy.PASSAGE:
+			var bc: Dictionary = Borders.data()["ai"]
+			_p(parts, "Laisser passer ses flottes de guerre", int(bc["passage_base"]))
+			_p(parts, "Opinion", op / 2)
+			_p(parts, "Tempérament", int(c["temperament_other"]) * maxi(0, aggr))
+			if skill >= 1:
+				# Un voisin plus fort qui traverse librement inquiète ; un plus faible, beaucoup moins.
+				@warning_ignore("integer_division")
+				var ratio := own_power(state, state.get_empire(from_id)) * 100 / maxi(1, own_power(state, e))
+				if ratio > 150:
+					_p(parts, "Ses flottes sont plus fortes que les nôtres", -15)
+				if Diplomacy.border_systems(state, ai_id, from_id) > 0:
+					_p(parts, "Voisins : nos flottes y gagnent aussi", 5)
+		Diplomacy.PROSP:
+			var bc2: Dictionary = Borders.data()["ai"]
+			_p(parts, "Ouvrir nos curiosités à ses éclaireurs", int(bc2["prosp_base"]))
+			_p(parts, "Opinion", op / 2)
 	if skill == 0 and e.is_ai():
 		_p(parts, "Humeur du jour", _mood(state, ai_id, from_id, treaty))
 	var score := 0
@@ -259,6 +276,11 @@ static func _propose(ctx: Dictionary) -> bool:
 			wishes.append(Diplomacy.MAPS)
 		if state.peoples_on and Diplomacy.has_pact(state, e.id, other) and not Diplomacy.has_migration(state, e.id, other):
 			wishes.append(Diplomacy.MIGRATION)
+		if Borders.active(state) and AiPlayer._skill(ctx) >= 1 and not Borders.has_treaty(state, e.id, other) \
+				and Diplomacy.border_systems(state, e.id, other) > 0:
+			wishes.append(Diplomacy.PASSAGE)
+		if Borders.active(state) and AiPlayer._skill(ctx) >= 2 and not state.curios.is_empty() and not Borders.has_prosp(state, e.id, other):
+			wishes.append(Diplomacy.PROSP)
 		for t in wishes:
 			if SimCommands.validate(state, SimCommands.propose_treaty(e.id, other, t)) != "":
 				continue
@@ -273,6 +295,10 @@ static func _propose(ctx: Dictionary) -> bool:
 					signed = Diplomacy.allied(state, e.id, other)
 				elif t == Diplomacy.MIGRATION:
 					signed = Diplomacy.has_migration(state, e.id, other)
+				elif t == Diplomacy.PASSAGE:
+					signed = Borders.has_treaty(state, e.id, other)
+				elif t == Diplomacy.PROSP:
+					signed = Borders.has_prosp(state, e.id, other)
 				AiPlayer._intent(ctx, "%s %s avec %s" % ["Signe" if signed else "Propose", label.to_lower(), o.short_name()])
 				return true
 	return false

@@ -26,7 +26,7 @@ Un réseau assez avancé peut agir. Chaque opération coûte de l'influence, pre
 
 | Famille | Exemples |
 | --- | --- |
-| Renseignement | Rapport complet, dossier des héros, délit d'initié (le prochain krach ou la prochaine envolée du marché) |
+| Renseignement | Rapport complet, dossier des héros, délit d'initié (le prochain krach ou la prochaine envolée du marché) ; avec les frontières, le **corridor discret** (90 jours sans intrusion constatée chez la cible) |
 | Larcin | Voler 40 % d'une technologie, siphonner l'énergie, détourner un convoi (un mois de ses routes), contrebande (un de ses luxes pendant un an), exfiltrer un prisonnier, larcin de relique |
 | Sabotage | Saboter un chantier (60 jours de retard), brûler des archives, assassiner un héros, armer des partisans, appât |
 | Intrigue | Semer la discorde, corrompre l'héritier ou un héros, attiser la dissidence, truquer une élection, fomenter un coup d'État ; avec les peuples mêlés, attiser les frictions, appel au retour, propagande xénophobe ; avec les religions, semer une prophétie (chapitre 15) ; avec l'Amphictyonie, acheter un délégué, faire fuiter un dossier, monter un scandale, et contre une Cour impériale chancelante, saper l'autorité ou allumer la rébellion (chapitre 12) ; avec les vassaux et le Koinon, attiser l'indépendance d'un sujet, acheter une allégeance (chapitre 10), semer la discorde au synode (chapitre 11) ; avec les buts de guerre, fabriquer une revendication et provoquer un incident (chapitre 7) |

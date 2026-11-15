@@ -279,7 +279,8 @@ static func hostile_fleets(state: GameState, a: Fleet, b: Fleet) -> bool:
 		if a.owner == b.owner:
 			return false
 		return Fauna.hostile(state, a, b.owner) if a.owner == GameState.FAUNA_ID else Fauna.hostile(state, b, a.owner)
-	return at_war(state, a.owner, b.owner)
+	# Frontières : riposte contre un intrus qui a ignoré la sommation, en guerre froide (voir Borders).
+	return at_war(state, a.owner, b.owner) or Borders.riposte(state, a, b)
 
 
 ## Bonus d'arme (technologies), en points de % : marque de la famille (celle du vaisseau, `marks`,

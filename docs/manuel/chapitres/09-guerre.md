@@ -48,6 +48,7 @@ Avec l'option **Buts de guerre** (active par défaut, voir « Première partie �
 | Soumission | Une fois et demie plus puissant (avec les vassaux) | Soumission, humiliation | Elle s'inquiète (-5 d'opinion) |
 | Ultimatum refusé | Il a repoussé votre ultimatum (5 ans) | Conquête, humiliation, rançon | Guerre juste |
 | Incident de frontière | Un incident, peut-être provoqué par vos espions (5 ans) | Humiliation, rançon | Guerre juste |
+| Violation de frontière | Il a ignoré votre sommation de retirer ses flottes (5 ans, option Frontières) | Humiliation, rançon | Guerre juste |
 | Kanly | Talent des peuples féodaux | Querelle | Personne n'y trouve à redire |
 | Sécession | Le Stratège vous a refusé la sortie du Koinon | Quitter le Koinon | Guerre juste |
 | Agression | Rien : aucune raison avouable | Conquête, humiliation, rançon | Tous s'en souviennent (-10, cumulable), stabilité -2 pendant la guerre, lassitude de départ 10 % |

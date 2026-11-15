@@ -308,6 +308,11 @@ static func vassals() -> Dictionary:
 
 
 ## Le Koinon : ligues d'empires (voir Koinon).
+## Frontières et droit de passage (voir Borders).
+static func borders() -> Dictionary:
+	return _load("borders")
+
+
 static func wars() -> Dictionary:
 	return _load("wars")
 

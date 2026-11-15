@@ -387,6 +387,18 @@
 			"text": "Un incident (peut-être provoqué par vos espions) vous donne un motif pendant 5 ans."
 		},
 		{
+			"id": "violation",
+			"label": "Violation de frontière",
+			"req": "border",
+			"goals": [
+				"humiliation",
+				"rancon"
+			],
+			"memory": "",
+			"just": true,
+			"text": "Ses flottes de guerre sont restées chez vous malgré votre sommation : un motif pendant 5 ans (frontières)."
+		},
+		{
 			"id": "kanly",
 			"label": "Kanly",
 			"req": "kanly",

@@ -11,6 +11,7 @@ etiquette: Annexe
 | Vitesse 1 à 5 | [[1]] à [[5]] |
 | Lentille économique | [[L]] |
 | Lentilles de stabilité, politique, du commerce, des peuples, de la foi, de l'Amphictyonie | [[K]], [[O]], [[G]], [[U]], [[N]], [[X]] |
+| Lentille des frontières (avec l'option Frontières) | [[A]] ([[Q]] en QWERTY) |
 | Ouvrir la vue système | Double-clic, ou [[Entrée]] |
 | Système suivant, précédent de l'empire | [[Tab]], [[Maj]]+[[Tab]] |
 | Revenir à la capitale | [[H]] |

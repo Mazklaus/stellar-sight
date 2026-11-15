@@ -28,7 +28,10 @@ const MAPS := "maps"
 ## Traité de migration (peuples mêlés, voir Movements) : les habitants circulent entre les deux
 ## empires et chacun peut coloniser avec l'espèce de l'autre.
 const MIGRATION := "migration"
-const TREATY_IDS: Array[String] = ["peace", "alliance", "trade", "maps", "migration"]
+## Frontières (voir Borders) : libre-passage réciproque et droit de prospection.
+const PASSAGE := "passage"
+const PROSP := "prosp"
+const TREATY_IDS: Array[String] = ["peace", "alliance", "trade", "maps", "migration", "passage", "prosp"]
 
 
 static func data() -> Dictionary:
@@ -68,7 +71,16 @@ static func proposal_label(p: Dictionary) -> String:
 		return Koinon.kind_label(p)
 	if Wars.is_kind(String(p["treaty"])):
 		return Wars.kind_label(p)
+	if Borders.is_kind(String(p["treaty"])):
+		return Borders.kind_label(p)
 	return treaty_label(String(p["treaty"]))
+
+
+## Délai de réponse d'une proposition (15 jours pour un laissez-passer).
+static func proposal_limit(p: Dictionary) -> int:
+	if Borders.is_kind(String(p["treaty"])):
+		return Borders.answer_days()
+	return days("proposal_days", 30)
 
 
 static func days(key: String, default := 0) -> int:
@@ -290,7 +302,10 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	# Frontières (friction de Stellaris, pression de frontière d'Endless Space 2).
 	# Entre membres d'un même Koinon, la frontière est commune et non disputée.
 	var touching := 0 if Koinon.same_league(state, a, b) else border_systems(state, a, b)
-	_part(out, "Frontières communes (%d)" % touching, maxi(int(cfg["border_max"]), touching * int(cfg["border_per_system"])))
+	@warning_ignore("integer_division")
+	_part(out, "Frontières communes (%d)" % touching, maxi(int(cfg["border_max"]), touching * int(cfg["border_per_system"])) * Borders.friction_pct(state, a, b) / 100)
+	for x in Borders.opinion_parts(state, a, b):
+		_part(out, String(x[0]), int(x[1]))
 	_part(out, "Même Koinon", Koinon.opinion_bonus(state, a, b))
 	_part(out, "Mission de notre suzerain", Vassals.opinion_bonus(state, a, b))
 	# Statut et confiance.
@@ -524,6 +539,8 @@ static func check_terms(state: GameState, a: int, b: int, treaty: String) -> Str
 				return "un traité de migration est déjà en vigueur"
 			if not has_pact(state, a, b):
 				return "il faut d'abord signer la paix"
+		PASSAGE, PROSP:
+			return Borders.check_treaty_terms(state, a, b, treaty)
 	return ""
 
 
@@ -555,7 +572,7 @@ static func propose(state: GameState, from: int, to: int, treaty: String) -> boo
 		_set_cooldown(state, from, to, treaty, days("refusal_cooldown_days", 60) if not ef.is_ai() else days("ai_cooldown_days", 120))
 		if not ef.is_ai():
 			state.add_chronicle("%s décline %s proposé%s par %s. Le messager repart avec une réponse polie et un sourire qui l'est moins." % [
-					et.display_name(), _treaty_phrase(treaty), "e" if treaty != MAPS and treaty != PEACE else "", ef.display_name()], Espionage.private_to(state, [from, to]))
+					et.display_name(), _treaty_phrase(treaty), "e" if treaty != MAPS and treaty != PEACE and treaty != PASSAGE and treaty != PROSP else "", ef.display_name()], Espionage.private_to(state, [from, to]))
 		return false
 	var prop := {"id": state.next_proposal_id, "from": from, "to": to, "treaty": treaty, "tick": state.tick}
 	if treaty == TRADE:
@@ -572,7 +589,8 @@ static func propose(state: GameState, from: int, to: int, treaty: String) -> boo
 
 
 static func _treaty_phrase(treaty: String) -> String:
-	return {"peace": "la paix", "alliance": "l'alliance", "trade": "le commerce", "maps": "l'échange de cartes", "contract": "le contrat de flotte", "migration": "le traité de migration"}.get(treaty, treaty)
+	return {"peace": "la paix", "alliance": "l'alliance", "trade": "le commerce", "maps": "l'échange de cartes", "contract": "le contrat de flotte", "migration": "le traité de migration",
+			"passage": "le libre-passage", "prosp": "le traité de prospection"}.get(treaty, treaty)
 
 
 static func check_answer(state: GameState, player: int, proposal_id: int, accept: bool) -> String:
@@ -590,6 +608,8 @@ static func check_answer(state: GameState, player: int, proposal_id: int, accept
 			return Koinon.check_accept(state, p)
 		if Wars.is_kind(String(p["treaty"])):
 			return Wars.check_accept(state, p)
+		if Borders.is_kind(String(p["treaty"])):
+			return Borders.check_accept(state, p)
 		return check_terms(state, player, int(p["from"]), String(p["treaty"]))
 	return ""
 
@@ -608,6 +628,9 @@ static func answer(state: GameState, proposal_id: int, accept: bool) -> void:
 	if Wars.is_kind(String(p["treaty"])):
 		Wars.answer(state, p, accept)
 		return
+	if Borders.is_kind(String(p["treaty"])):
+		Borders.answer(state, p, accept)
+		return
 	if accept and String(p["treaty"]) == CONTRACT:
 		sign_contract(state, int(p["merc"]), int(p["client"]), int(p["target"]))
 	elif accept:
@@ -615,7 +638,7 @@ static func answer(state: GameState, proposal_id: int, accept: bool) -> void:
 	else:
 		_set_cooldown(state, from, to, String(p["treaty"]), days("ai_cooldown_days", 120))
 		state.add_chronicle("%s repousse %s offert%s par %s." % [state.get_empire(to).display_name(),
-				_treaty_phrase(String(p["treaty"])), "" if String(p["treaty"]) == MAPS or String(p["treaty"]) == PEACE else "e",
+				_treaty_phrase(String(p["treaty"])), "" if [MAPS, PEACE, PASSAGE, PROSP].has(String(p["treaty"])) else "e",
 				state.get_empire(from).display_name()], Espionage.private_to(state, [from, to]))
 
 
@@ -673,6 +696,8 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 			_set_cooldown(state, b, a, MAPS, days("maps_cooldown_days", 720))
 			state.add_chronicle("%s et %s échangent leurs cartes. Chacun découvre que l'autre dessine très mal les comètes." % [
 					ea.display_name(), eb.display_name()], Espionage.private_to(state, [a, b]))
+		PASSAGE, PROSP:
+			Borders.sign(state, a, b, treaty)
 		MIGRATION:
 			_rel_w(state, a, b)["migr"] = 1
 			state.add_chronicle("Traité de migration entre %s et %s : les frontières s'ouvrent aux familles. Les douaniers apprennent deux nouvelles langues, et trois façons de dire « bagage »." % [
@@ -736,6 +761,8 @@ static func check_cancel(state: GameState, player: int, target: int, treaty: Str
 		MIGRATION:
 			if not has_migration(state, player, target):
 				return "aucun traité de migration avec cet empire"
+		PASSAGE, PROSP:
+			return Borders.check_cancel(state, player, target, treaty)
 		_:
 			return "traité inconnu : %s" % treaty
 	return ""
@@ -767,6 +794,8 @@ static func cancel(state: GameState, player: int, target: int, treaty: String) -
 			r["trade"] = 0
 			state.add_chronicle("%s rompt tout commerce avec %s. Les cargos rentrent à vide." % [
 					ep.display_name(), et.display_name()], Espionage.public_to(state, [player, target]))
+		PASSAGE, PROSP:
+			Borders.cancel(state, player, target, treaty)
 		MIGRATION:
 			r.erase("migr")
 			state.add_chronicle("%s ferme ses frontières aux migrants de %s. Ceux qui sont déjà là restent ; les autres attendront." % [
@@ -831,6 +860,7 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 	r["pact"] = COLD
 	r["trade"] = 0
 	r.erase("migr")
+	Borders.on_war(state, a, b)
 	r["since"] = state.tick
 	r["trust"] = 0
 	r["score"] = [0, 0]

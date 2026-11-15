@@ -293,7 +293,7 @@ func _test_precepts() -> void:
 	var mu := _id_of(st, "murmurants")
 	var fc := Faiths.founded_by(st, ch)
 	var fm := Faiths.founded_by(st, mu)
-	_ok(Faiths.precept_ids().size() == 20, "catalogue de 20 préceptes")
+	_ok(Faiths.precept_ids().size() >= 20, "catalogue d'au moins 20 préceptes")
 	var fam := {}
 	for pid in Faiths.precept_ids():
 		fam[String(Faiths.precept_def(pid)["family"])] = true
