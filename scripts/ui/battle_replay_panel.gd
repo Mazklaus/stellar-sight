@@ -56,6 +56,11 @@ var _lit: ShaderMaterial
 var _detail := 1
 var _tactical_btn: Button
 const LIT_SHADER := preload("res://shaders/ship_lit.gdshader")
+## Lot 3 : positions de repos (le rangement), les manœuvres les déplacent selon la phase et la tactique.
+var _base_pos: Array = []
+var _carriers := {}            # unité -> nombre d'appareils de son essaim
+var _no_fighters := false      # terrain qui cloue les chasseurs au hangar
+var sounds: BattleSounds
 
 
 func _ready() -> void:
@@ -91,6 +96,8 @@ func _ready() -> void:
 	move_child(backdrop.foreground, 2)
 	_lit = ShaderMaterial.new()
 	_lit.shader = LIT_SHADER
+	sounds = BattleSounds.new()
+	add_child(sounds)
 	cinematic = BattleCinematic.new()
 	add_child(cinematic)
 	cinematic.closed.connect(func() -> void: queue_redraw())
@@ -128,7 +135,7 @@ func show_replay(state: GameState, viewer: int, r: Dictionary) -> void:
 	backdrop.size = size
 	backdrop.setup(r.get("scene", {}), _detail)
 	var light := BattleBackdrop.star_light(String(backdrop.scene.get("star", "yellow")))
-	_lit.set_shader_parameter("light_color", light["color"])
+	_lit.set_shader_parameter("light_color", backdrop.light_color())
 	_lit.set_shader_parameter("power", light["power"])
 	_lit.set_shader_parameter("ambient", light["ambient"])
 	_prepare()
@@ -220,12 +227,14 @@ func _process(delta: float) -> void:
 	if not visible:
 		return
 	if playing:
+		var t0 := t
 		t += delta * float(SPEEDS[_speed_i])
 		var end := day_count() * DAY_SECONDS
 		if t >= end:
 			t = end
 			playing = false
 			_refresh_buttons()
+		emit_cues(t0, t)
 	_update_scene()
 	queue_redraw()
 
@@ -254,6 +263,18 @@ func _prepare() -> void:
 	acc.resize(n)
 	acc.fill(0)
 	_dmg_until.append(acc.duplicate())
+	_carriers.clear()
+	var sw: Dictionary = GameData.battle_visuals().get("swarms", {})
+	for i in n:
+		var wp := Combat.weapons(String(units[i][1]))
+		var pts := int(wp.get("fighters", 0)) + int(wp.get("bombers", 0))
+		if pts > 0:
+			_carriers[i] = clampi(int(ceil(float(pts) / float(sw.get("per_wing", 2)))), 1, int(sw.get("max", 8)))
+	_no_fighters = false
+	for tid in report.get("scene", {}).get("terrain", []):
+		var wpct: Dictionary = Terrain.def(String(tid)).get("fx", {}).get("weapon_pct", {})
+		if wpct.has("fighters") and int(wpct["fighters"]) == 0:
+			_no_fighters = true
 	var log: Array = report["log"]
 	for d in log.size():
 		var day: Dictionary = log[d]
@@ -311,6 +332,8 @@ func _layout() -> void:
 			var lx := 120.0 + li * COL_GAP + (cols - 1) * step * 0.5
 			_col_labels.append([Vector2(col_x - lx if side else col_x + lx, bottom + 30.0), Combat.line_label(String(lines[li]))])
 			col_x += (-1.0 if side else 1.0) * (cols - 1) * step
+	_base_pos = _pos.duplicate()
+	_maneuver()
 
 
 func _notification(what: int) -> void:
@@ -324,6 +347,7 @@ func _notification(what: int) -> void:
 func _draw() -> void:
 	if report.is_empty():
 		return
+	_maneuver()
 	if tactical:
 		draw_rect(Rect2(Vector2.ZERO, size), Color(0.01, 0.015, 0.03, 0.985))
 	else:
@@ -351,6 +375,8 @@ func _draw() -> void:
 	var units: Array = report["units"]
 	for i in units.size():
 		_draw_unit(i, d, frac)
+	if not tactical:
+		_draw_swarms(d, frac)
 	# Tirs du jour, en décalé.
 	var shots: Array = day.get("shots", [])
 	var n := shots.size()
@@ -561,7 +587,8 @@ func _build_sprites() -> void:
 			continue
 		var tex := ShipArt.lit_texture(e.faction_id, String(u[1]), e.color())
 		if tex == null:
-			continue
+			# Pas de sprite pré-rendu : silhouette dessinée selon la coque et le style du peuple (prop. 14).
+			tex = HullArt.lit_texture(SpeciesLook.hull_style(e.faction_id), String(u[1]), e.color())
 		var sp := Sprite2D.new()
 		sp.texture = tex
 		sp.material = _lit
@@ -575,7 +602,9 @@ func _build_sprites() -> void:
 func _update_scene() -> void:
 	if report.is_empty() or backdrop == null:
 		return
+	_maneuver()
 	backdrop.cam = Vector2(sin(t * 0.21) * 36.0, cos(t * 0.15) * 16.0)
+	backdrop.time = t
 	var to_star := backdrop.star_pos - size * 0.5
 	var ld := Vector3(to_star.x, to_star.y, 0.0).normalized()
 	ld.z = 0.65
@@ -671,3 +700,153 @@ func _draw_impact(target: int, at: Vector2, q: float, k: int) -> void:
 static func _bezier(a: Vector2, b: Vector2, bend: Vector2, q: float) -> Vector2:
 	var c := (a + b) * 0.5 + bend
 	return a.lerp(c, q).lerp(c.lerp(b, q), q)
+
+
+# --- Lot 3 : manœuvres, essaims, son ------------------------------------------------------------
+
+## Tactique d'un camp (gauche ou droite) relevée par la bataille ; "equilibre" pour un ancien rapport.
+func side_tactic(left: bool) -> String:
+	for sd: Dictionary in report.get("sides", []):
+		if _on_left(int(sd["empire"])) == left and sd.has("tac"):
+			return String(sd["tac"])
+	return "equilibre"
+
+
+## Avance d'un camp vers le centre (pixels) à l'instant tt : la phase du jour, lissée au changement,
+## multipliée par la tactique (prop. 13).
+func advance_at(left: bool, tt: float) -> float:
+	var mv: Dictionary = GameData.battle_visuals().get("maneuvers", {})
+	var adv: Array = mv.get("advance", [0, 45, 90])
+	var log: Array = report.get("log", [])
+	if log.is_empty():
+		return 0.0
+	var d := clampi(int(tt / DAY_SECONDS), 0, log.size() - 1)
+	var frac := clampf((tt - d * DAY_SECONDS) / DAY_SECONDS, 0.0, 1.0)
+	var ph := clampi(int(log[d].get("phase", 0)), 0, adv.size() - 1)
+	var prev := clampi(int(log[maxi(0, d - 1)].get("phase", 0)), 0, adv.size() - 1)
+	var a := lerpf(float(adv[prev]), float(adv[ph]), smoothstep(0.0, 0.35, frac))
+	var tac := side_tactic(left)
+	var k := float(mv.get("tactics", {}).get(tac, 0.6))
+	if tac == "adaptatif":
+		k = [0.3, 0.75, 1.0][ph]
+	return a * k
+
+
+## Positions du moment : repos + avance selon la phase et la tactique, rangs serrés en Rempart,
+## léger tangage. Un vaisseau détruit reste où il est mort ; la vue tactique garde le rangement.
+func _maneuver() -> void:
+	if _base_pos.size() != _pos.size():
+		return
+	var units: Array = report.get("units", [])
+	if tactical:
+		for i in _base_pos.size():
+			_pos[i] = _base_pos[i]
+		return
+	var mv: Dictionary = GameData.battle_visuals().get("maneuvers", {})
+	var sway := float(mv.get("sway", 5.0))
+	var h := size.y if size.y > 0 else 900.0
+	var cy := (200.0 + h - 150.0) * 0.5
+	for i in _base_pos.size():
+		if _base_pos[i] == null:
+			continue
+		var left := _on_left(int(units[i][0]))
+		var tt := t
+		var dd := int(_dead_day[i]) if i < _dead_day.size() else -1
+		if dd >= 0:
+			tt = minf(t, _death_time(dd))
+		var k := 0.5 if String(units[i][2]) == "rear" else 1.0
+		var base: Vector2 = _base_pos[i]
+		var sq := float(mv.get("squeeze", {}).get(side_tactic(left), 1.0))
+		var p := Vector2(base.x + (1.0 if left else -1.0) * advance_at(left, tt) * k, cy + (base.y - cy) * sq)
+		p += Vector2(sin(tt * 0.9 + _h(i, 41) * TAU), cos(tt * 0.7 + _h(i, 43) * TAU)) * sway
+		# Les deux flottes ne se traversent jamais : chacune garde sa moitié de l'arène.
+		var mid := (size.x if size.x > 0 else 1600.0) * 0.5
+		p.x = minf(p.x, maxf(base.x, mid - 40.0)) if left else maxf(p.x, minf(base.x, mid + 40.0))
+		_pos[i] = p
+
+
+## Essaims de chasseurs autour des porteurs (prop. 17) : ils orbitent, et plongent vers la cible les
+## jours où le porteur lance ses chasseurs. Rien ne décolle si le terrain les cloue au hangar.
+func _draw_swarms(d: int, frac: float) -> void:
+	if _no_fighters or _carriers.is_empty():
+		return
+	var sw: Dictionary = GameData.battle_visuals().get("swarms", {})
+	var orbit: Array = sw.get("orbit", [1.6, 2.6])
+	var log: Array = report["log"]
+	var day: Dictionary = log[d] if d < log.size() else {}
+	var today := int(day.get("day", 0))
+	var strikes := {}
+	for sh: Array in day.get("shots", []):
+		if String(sh[2]) in ["fighters", "bombers"] and not strikes.has(int(sh[0])):
+			strikes[int(sh[0])] = int(sh[1])
+	for i in _carriers:
+		var u: Array = report["units"][i]
+		if int(u[3]) > today:
+			continue
+		var dd := int(_dead_day[i])
+		if dd >= 0 and (dd < d or (dd == d and frac > 0.85)):
+			continue
+		var e := _state.get_empire(int(u[0])) if _state else null
+		var col := (e.color() if e else Color.WHITE).lightened(0.35)
+		var r := float(SIZE_PX.get(Combat.ship_size(String(u[1])), 10.0))
+		var c: Vector2 = _pos[i]
+		var dir := 1.0 if _on_left(int(u[0])) else -1.0
+		var tg := int(strikes.get(i, -1))
+		for j in int(_carriers[i]):
+			var spd := 1.4 + _h(i, j + 90) * 0.8
+			var a := t * spd * dir + _h(i, j + 60) * TAU
+			var rad := r * lerpf(float(orbit[0]), float(orbit[1]), _h(i, j + 70))
+			var p := c + Vector2(cos(a) * rad * 1.3, sin(a) * rad * 0.6)
+			var vel := Vector2(-sin(a) * 1.3, cos(a) * 0.6) * dir
+			if tg >= 0 and tg < _pos.size():
+				# Plongée : départ, passage sur la cible, retour au porteur.
+				var q := clampf((frac - 0.08 - 0.05 * _h(i, j)) / 0.6, 0.0, 1.0)
+				var arc := sin(q * PI)
+				var dest: Vector2 = _pos[tg] + Vector2((_h(i, j + 5) - 0.5) * 30.0, (_h(i, j + 6) - 0.5) * 30.0)
+				var np := p.lerp(dest, arc)
+				vel = (np - p).normalized() if q < 0.5 else (p - np).normalized()
+				if vel == Vector2.ZERO:
+					vel = Vector2(dir, 0)
+				p = np
+			vel = vel.normalized()
+			var nrm := vel.orthogonal()
+			draw_colored_polygon(PackedVector2Array([p + vel * 4.0, p - vel * 3.0 + nrm * 2.5, p - vel * 3.0 - nrm * 2.5]), col)
+			draw_circle(p - vel * 3.5, 1.2, Color(1.0, 0.8, 0.5, 0.8))
+
+
+## Repères sonores des événements passés entre t0 et t1 (prop. 37) : tirs, impacts, explosions, phases.
+func emit_cues(t0: float, t1: float) -> void:
+	if sounds == null or t1 <= t0:
+		return
+	var log: Array = report.get("log", [])
+	var d0 := clampi(int(t0 / DAY_SECONDS), 0, maxi(0, log.size() - 1))
+	var d1 := clampi(int(t1 / DAY_SECONDS), 0, maxi(0, log.size() - 1))
+	for d in range(d0, d1 + 1):
+		var day: Dictionary = log[d]
+		var ts := d * DAY_SECONDS
+		if d > 0 and ts > t0 and ts <= t1 and int(day.get("phase", 0)) != int(log[d - 1].get("phase", 0)):
+			sounds.play("phase", size * 0.5)
+		var shots: Array = day.get("shots", [])
+		var n := shots.size()
+		for k in n:
+			var sh: Array = shots[k]
+			var start := ts + (0.04 + 0.66 * float(k) / float(maxi(1, n))) * DAY_SECONDS
+			var a := int(sh[0])
+			var b := int(sh[1])
+			if a < 0 or b < 0 or a >= _pos.size() or b >= _pos.size():
+				continue
+			if start > t0 and start <= t1:
+				sounds.play("tir_" + String(sh[2]), _pos[a])
+			var hit := start + 0.3 * DAY_SECONDS
+			if hit > t0 and hit <= t1 and int(sh[3]) > 0:
+				var shielded := int(GameData.ship(String(report["units"][b][1])).get("shield", 0)) >= int(_fx().get("shield_min", 1))
+				sounds.play("impact_bouclier" if shielded else "impact_coque", _pos[b])
+		for kk in day.get("kills", []):
+			var ki := int(kk)
+			var bt := ts + 0.6 * DAY_SECONDS
+			if ki >= 0 and ki < _pos.size() and bt > t0 and bt <= t1:
+				var mega := (_fx().get("mega_sizes", ["titan"]) as Array).has(Combat.ship_size(String(report["units"][ki][1])))
+				sounds.play("explosion_titan" if mega else "explosion", _pos[ki])
+	var end := log.size() * DAY_SECONDS
+	if end > t0 and end <= t1:
+		sounds.play("fin", size * 0.5)

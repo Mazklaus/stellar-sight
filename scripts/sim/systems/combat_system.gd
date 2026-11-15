@@ -183,6 +183,9 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		if targets[f.owner]["nearest"]["any"][1] <= 0:
 			continue
 		var tac := Combat.fleet_tactic(f)
+		var sd := _side(b, f.owner)
+		if not sd.has("tac"):
+			sd["tac"] = tac  # pour la vue qui rejoue la bataille (manœuvres) ; aucune règle ne le lit
 		var bonus := _damage_bonus(state, b, f, sid)
 		# Doctrines : portée préférée, premier jour (guerre éclair), frappe en profondeur.
 		var pfx: Dictionary = Research.effects(state, f.owner).get("phase_damage_pct", {})

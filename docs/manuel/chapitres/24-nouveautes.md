@@ -3,7 +3,7 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
-### Édition 2.8
+### Édition 2.9
 
 - **Crises de fin de partie**, nouveau chapitre et nouvelle option de partie, **Une** par défaut : à partir de l'an 30 (réglable : 20, 30, 40), une puissance hostile à tous peut se lever, tirée tous les deux ans à chance croissante, de force réglable (**Faible, Normale, Terrible, Cauchemar**) et calée sur les flottes du moment. Réglage **Toutes** pour les enchaîner.
 - Trois crises : le **Récif chantant** (corail, Mondes-Récifs), l'**Inspection Générale** (scellés, amendes, confiscations, Registre central) et la **Déchirure** (une faille dans une tempête, ses ancres, les Pâles).
@@ -14,6 +14,12 @@ etiquette: Annexe
 - **Pactes** avec la crise, **trêve sacrée** entre membres du Front, **mesures d'urgence** en trois décrets, **convois** à intercepter, **armes du désespoir**, **cicatrices** et restes sauvages après la victoire.
 - **Talents de peuple** face aux crises (six, par couche d'espèce), **gardiens** qui chassent la crise et faune qui fuit, **Commandant du Front**, traits **Tueur de crise** et **Vétéran du Front**, gouverneurs enlevés.
 - **Devenir la crise**, nouvelle option : la voie de l'**Ambition démesurée**, trois paliers de Menace, le **Fléau des étoiles** contre toute la galaxie, et la **Couronne du Néant** pour une victoire nouvelle, la **Victoire du Fléau**.
+
+### Édition 2.8
+
+- **Vues de bataille habillées** (chapitre « La guerre », « Regarder une bataille ») : décor du vrai système dans l'espace (étoile, planète, cimetière d'épaves, terrain), champ de bataille au sol avec reliefs, ville et retranchements, troupes de figurines rangées selon la tactique.
+- **Par peuple** : coques dessinées selon le modèle et le style du peuple, figurines selon l'archétype et le registre, villes au style du peuple adaptées au biome et à la population.
+- **Manœuvres** selon la portée et la tactique, **essaims de chasseurs**, réglages **Échelle des batailles au sol** et **Détail des vues de bataille**.
 
 ### Édition 2.7
 

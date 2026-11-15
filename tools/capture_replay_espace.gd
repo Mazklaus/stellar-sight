@@ -50,6 +50,10 @@ func _initialize() -> void:
 		return
 	print("décor : ", rep.get("scene", {}))
 	var panel: BattleReplayPanel = main._hud.battle_replay
+	if OS.get_environment("GALLERY") != "":
+		await _gallery(panel, st, rep, out)
+		quit()
+		return
 	panel.show_replay(st, 0, rep)
 	panel.playing = false
 	await _frames(10)
@@ -112,6 +116,34 @@ func _initialize() -> void:
 		await _shot(out + "/decor-siege.png")
 	print("images de la vidéo : %d" % n)
 	quit()
+
+
+## Galerie du lot 3 (GALLERY=1) : la même bataille avec d'autres peuples (coques par style) et dans
+## chaque terrain (nébuleuse, tempêtes, trou noir, pulsar, géante bleue…) : CAPTURE_DIR/espace-*.png.
+func _gallery(panel: BattleReplayPanel, st: GameState, rep: Dictionary, out: String) -> void:
+	var combos := [["vael", "choeur", "nebuleuse", "yellow"], ["teyl", "ferrocornes", "asteroides", "red"],
+			["murmurants", "brisecomete", "black_hole", "black_hole"], ["ossarane", "khthari", "neutron", "neutron"],
+			["choeur", "vael", "blue_giant", "blue_giant"], ["ferrocornes", "teyl", "tempete_ionique", "red"],
+			["brisecomete", "murmurants", "plasma", "yellow"], ["khthari", "ossarane", "cimetiere", "white"],
+			["vael", "teyl", "tempete_gravitationnelle", "yellow"]]
+	var f0 := st.get_empire(0).faction_id
+	var f1 := st.get_empire(1).faction_id
+	for c in combos:
+		st.get_empire(0).faction_id = String(c[0])
+		st.get_empire(1).faction_id = String(c[1])
+		var r: Dictionary = rep.duplicate(true)
+		r["scene"]["terrain"] = [String(c[2])]
+		r["scene"]["star"] = String(c[3])
+		panel.show_replay(st, 0, r)
+		panel.playing = false
+		panel.modulate.a = 1.0
+		panel.t = panel.day_count() * BattleReplayPanel.DAY_SECONDS * 0.42
+		panel._update_scene()
+		panel.queue_redraw()
+		await _frames(3)
+		await _shot(out + "/espace-%s-%s-%s.png" % [String(c[0]), String(c[1]), String(c[2])])
+	st.get_empire(0).faction_id = f0
+	st.get_empire(1).faction_id = f1
 
 
 func _report_at(st: GameState, sid: int) -> Dictionary:
