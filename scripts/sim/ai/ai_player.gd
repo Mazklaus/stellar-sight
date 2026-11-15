@@ -682,6 +682,10 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 	if not e.wars.is_empty() and _skill(ctx) >= 1 and int(rival_distance(ctx).get(p.system_id, 99)) <= 2 \
 			and Combat.battery(state, p.system_id).is_empty():
 		out.push_front("bastion")
+	# Logistique : un dépôt de flotte près du front prolonge la zone de ravitaillement (Normal et plus).
+	if Logistics.active(state) and not e.wars.is_empty() and _skill(ctx) >= 1 and int(rival_distance(ctx).get(p.system_id, 99)) <= 2 \
+			and not _empire_has_building(ctx, Logistics.DEPOT) and _res(ctx, "materials") >= 150:
+		out.append(Logistics.DEPOT)
 	# Arsenal (cuirassés, porte-vaisseaux) puis chantier titanesque, sur la plus grande colonie seulement.
 	if c.is_colony() and _skill(ctx) >= 1 and _is_main_yard(ctx, c):
 		if not _empire_has_building(ctx, "arsenal") and (not e.wars.is_empty() or _res(ctx, "materials") >= 400):
@@ -1628,6 +1632,13 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 			return
 	if f.is_moving():
 		return
+	# Logistique : réserves presque vides loin des bases, on rentre refaire le plein (Normal et plus ;
+	# la Recrue l'ignore et s'épuise).
+	if Logistics.should_resupply(state, f, _skill(ctx)):
+		var dock := Logistics.nearest_supply(state, f)
+		if dock >= 0 and _issue(ctx, SimCommands.move_fleet(e.id, f.id, dock)):
+			_intent(ctx, "Rentre se ravitailler à %s" % state.galaxy.systems[dock].system_name)
+			return
 	# Sur un système ennemi : invasion si possible, sinon on tient le siège.
 	var owner := state.system_owner(here)
 	var occ := WarPeace.occupier(state, here)
@@ -1679,6 +1690,13 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 	var target := war_target(ctx, home)
 	if target < 0 or _forgets(ctx):
 		return
+	# Logistique complète (Vétéran et plus) : couper une flotte ennemie étirée de ses arrières.
+	if _skill(ctx) >= 2 and Logistics.full(state):
+		var cp := _cut_target(ctx, f)
+		if cp >= 0:
+			if cp != here and _issue(ctx, SimCommands.move_fleet(e.id, f.id, cp)):
+				_intent(ctx, "Coupe les arrières ennemis à %s" % state.galaxy.systems[cp].system_name)
+			return
 	var need := int(mil.get("attack_ratio_pct", 130))
 	@warning_ignore("integer_division")
 	var defense := _defense_at(ctx, target) + Intel.garrison_in(state, e, _seen(ctx), target) / 4
@@ -1688,6 +1706,32 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 		return
 	if _issue(ctx, SimCommands.move_fleet(e.id, f.id, target)):
 		_intent(ctx, "Lance une offensive sur %s" % state.galaxy.systems[target].system_name)
+
+
+## Point où couper une flotte ennemie étirée et visible, si cette flotte est assez forte pour tenir
+## le système (-1 sinon). Le plus proche d'abord, puis le plus petit identifiant.
+static func _cut_target(ctx: Dictionary, f: Fleet) -> int:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var seen := _seen(ctx)
+	var best := -1
+	var best_d := 1 << 30
+	for fid in state.sorted_fleet_ids():
+		var o: Fleet = state.fleets[fid]
+		if not e.wars.has(o.owner) or not seen.has(o.system_id):
+			continue
+		var cp := Logistics.cut_point(state, o)
+		if cp < 0 or _defense_at(ctx, cp) * 100 > Combat.fleet_power(f) * 80:
+			continue
+		var d := Fleets.find_path(state, e.id, f.system_id, cp).size()
+		if cp == f.system_id:
+			d = 0
+		elif d == 0:
+			continue
+		if d < best_d:
+			best = cp
+			best_d = d
+	return best
 
 
 # --- 7. Diplomatie -----------------------------------------------------------------------------

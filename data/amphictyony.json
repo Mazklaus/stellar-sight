@@ -105,6 +105,7 @@
 		"hero_execution": "héros prisonnier exécuté (Convention des prisonniers)",
 		"invade_populated": "monde peuplé envahi (Mondes protégés)",
 		"orbital_bombing": "monde peuplé bombardé sans discernement (Mondes protégés)",
+		"requisition": "monde peuplé réquisitionné pour nourrir une flotte (Mondes protégés)",
 		"war_limits": "monde peuplé envahi dans une guerre réglée (Guerre réglée)"
 	},
 	"families": [
@@ -219,7 +220,7 @@
 			"a": {"label": "Lois de la guerre", "text": "La guerre a ses règles : prisonniers épargnés, mondes peuplés protégés, puis guerres limitées entre amphictyons. Les enfreindre est un crime de guerre.",
 				"levels": [
 					{"name": "Convention des prisonniers", "fx": {}, "bans": ["hero_execution"]},
-					{"name": "Mondes protégés", "fx": {}, "bans": ["invade_populated", "orbital_bombing"]},
+					{"name": "Mondes protégés", "fx": {}, "bans": ["invade_populated", "orbital_bombing", "requisition"]},
 					{"name": "Guerre réglée", "fx": {}, "limited_members": true}
 				]},
 			"b": {"label": "Raison d'État", "text": "Chacun mène ses guerres comme il l'entend : les peuples s'y résignent mieux (lassitude réduite de 10 % par niveau).",
@@ -229,10 +230,10 @@
 					{"name": "Guerre sans entraves", "fx": {}, "war_ex_pct": -10}
 				]}},
 		{"id": "navigation", "label": "Navigation", "glyph": "diplomacy", "requires": "borders",
-			"a": {"label": "Libre navigation", "text": "Les étoiles sont à tous : pas de frontière close entre amphictyons, puis aucun péage entre eux, enfin libre-passage des flottes de guerre de chacun chez tous.",
+			"a": {"label": "Libre navigation", "text": "Les étoiles sont à tous : pas de frontière close entre amphictyons, puis aucun péage entre eux (et, avec la logistique, Convention de ravitaillement : leurs flottes sont ravitaillées dans tout l'espace neutre), enfin libre-passage des flottes de guerre de chacun chez tous.",
 				"levels": [
 					{"name": "Mer ouverte", "fx": {}, "free_nav": true},
-					{"name": "Routes franches", "fx": {}, "toll_free": true},
+					{"name": "Routes franches", "fx": {}, "toll_free": true, "supply_neutral": true},
 					{"name": "Libre navigation", "fx": {}, "nav_open": true}
 				]},
 			"b": {"label": "Espaces souverains", "text": "Chacun est maître chez soi : sommations en 15 jours, puis fermer ses frontières à un amphictyon ne froisse personne, enfin intrusions comptées double entre amphictyons.",

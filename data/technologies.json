@@ -699,6 +699,9 @@
 				"ship_days_pct": -10
 			}
 		},
+		"lignes_ravitaillement": {"label": "Lignes de ravitaillement", "domain": "genie", "era": 2, "pre": ["propulseurs"], "text": "Logistique en jeu : la zone de ravitaillement s'étend d'un saut de plus autour de vos systèmes.", "effects": {"supply_range": 1}, "flavor": "Une balise tous les trois sauts, un entrepôt tous les dix, et un comptable partout."},
+		"soutes_profondes": {"label": "Soutes profondes", "domain": "genie", "era": 3, "pre": ["coques_series"], "text": "Logistique en jeu : les flottes emportent 50 % de réserves en plus.", "effects": {"autonomy_pct": 50}},
+		"logistique_campagne": {"label": "Logistique de campagne", "domain": "genie", "era": 4, "pre": ["soutes_profondes"], "text": "Logistique en jeu : un système pris ou occupé devient une tête de pont en 15 jours au lieu de 30.", "effects": {"bridge_days_pct": -50}},
 		"ravitaillement": {
 			"label": "Ravitaillement en vol",
 			"domain": "genie",

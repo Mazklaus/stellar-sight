@@ -217,6 +217,7 @@
 			}
 		},
 		"amiral_discret": {"label": "Amiral discret", "cls": "stratege", "text": "Avec l'option Frontières : les intrusions de sa flotte ne laissent aucun souvenir chez le propriétaire (sommation et reconduite restent possibles).", "fx": {"discreet": 1}},
+		"intendant_flotte": {"label": "Intendant", "cls": "stratege", "text": "Avec la logistique : réserves de sa flotte +50 %, et un seul système ennemi ne suffit pas à la couper.", "fx": {"autonomy_pct": 50, "supply_pass": 1}},
 		"bretteur": {
 			"label": "Bretteur des étoiles",
 			"cls": "stratege",

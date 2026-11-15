@@ -322,6 +322,11 @@ static func ground() -> Dictionary:
 	return _load("ground")
 
 
+## Logistique et ravitaillement (data/logistics.json) : zone, réserves, dépôts, talents.
+static func logistics() -> Dictionary:
+	return _load("logistics")
+
+
 static func koinon() -> Dictionary:
 	return _load("koinon")
 
