@@ -44,17 +44,17 @@ static func think(ctx: Dictionary) -> void:
 ## Valeur d'un choix pour l'IA (plus c'est haut, mieux c'est). temper : -2 pacifique … +2 belliqueux.
 static func value(state: GameState, empire_id: int, item: Dictionary, index: int, temper: int) -> int:
 	var ch: Dictionary = (Events.card(String(item["card"]))["choices"] as Array)[index]
-	var v := _fx_value(state, empire_id, ch.get("fx", []), temper)
+	var v := _fx_value(state, empire_id, ch.get("fx", []), temper, item)
 	if ch.has("risky"):
 		var rk: Dictionary = ch["risky"]
 		var pct := int(rk["pct"])
 		@warning_ignore("integer_division")
-		v += (_fx_value(state, empire_id, rk["win"], temper) * pct + _fx_value(state, empire_id, rk["lose"], temper) * (100 - pct)) / 100
+		v += (_fx_value(state, empire_id, rk["win"], temper, item) * pct + _fx_value(state, empire_id, rk["lose"], temper, item) * (100 - pct)) / 100
 		v += temper * 30  # les belliqueux aiment les paris
 	return v
 
 
-static func _fx_value(state: GameState, empire_id: int, fxs: Array, temper: int) -> int:
+static func _fx_value(state: GameState, empire_id: int, fxs: Array, temper: int, item := {}) -> int:
 	var e := state.get_empire(empire_id)
 	var f := e.faction()
 	var v := 0
@@ -62,6 +62,8 @@ static func _fx_value(state: GameState, empire_id: int, fxs: Array, temper: int)
 		match String(fx["k"]):
 			"crisis":
 				v += Crisis.ai_value(fx, temper, state, empire_id)
+			"ancient":
+				v += Ancients.ai_value(state, empire_id, item, fx, temper)
 			"res":
 				for r in fx["res"]:
 					v += Events.era_scaled(state, empire_id, int(fx["res"][r])) * int(RES_VALUE.get(r, 10))

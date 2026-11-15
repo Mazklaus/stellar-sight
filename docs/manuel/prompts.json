@@ -109,6 +109,9 @@
      "prompt": "pilgrims of several alien species climbing the endless stairs of a temple carved into an asteroid, a radiant holy world rising behind it, incense smoke drifting into space through a shimmering veil, devotional and awe-inspiring"},
     {"id": "MJ-36", "titre": "Les crises de fin de partie", "format": "2:1", "forme": "grande", "emplacement": "Bandeau du chapitre « Les crises de fin de partie »",
      "sujet": "Les flottes de tous les empires, rivales hier, font front ensemble devant une menace immense qui surgit de la bordure de la galaxie",
-     "prompt": "the fleets of many rival alien empires side by side for the first time, facing a colossal alien threat rising from the dark rim of the galaxy, a vast singing coral reef of crystal drifting between stars, small ships against an overwhelming presence, desperate courage and awe"}
+     "prompt": "the fleets of many rival alien empires side by side for the first time, facing a colossal alien threat rising from the dark rim of the galaxy, a vast singing coral reef of crystal drifting between stars, small ships against an overwhelming presence, desperate courage and awe"},
+    {"id": "MJ-37", "titre": "Les puissances anciennes", "format": "2:1", "forme": "grande", "emplacement": "Bandeau du chapitre « Les puissances anciennes »",
+     "sujet": "Un jeune vaisseau d'exploration s'arrête, minuscule, devant une poche d'étoiles où dorment des mondes achevés et des flottes immobiles depuis des millénaires",
+     "prompt": "a tiny young exploration ship halting at the edge of a pocket of ancient star systems, perfect ring-worlds and cathedral-like megastructures asleep under dust, colossal motionless fleets drifting in silent formation for millennia, a single golden eye-like beacon slowly opening, reverent dread and wonder"}
   ]
 }

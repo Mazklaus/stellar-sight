@@ -1443,6 +1443,9 @@ func _build_diplomacy() -> void:
 	var kb := KoinonUi.league_block(_state, _player, _vassal_emit, koinon_buttons, koinon_draft)
 	if kb != null:
 		right.add_child(kb)
+	var ab := AncientsUi.block(_state, _player, _vassal_emit, koinon_buttons, koinon_draft)
+	if ab != null:
+		right.add_child(ab)
 
 
 func _heir_box(me: Empire) -> Control:

@@ -364,3 +364,13 @@ pilgrims of several alien species climbing the endless stairs of a temple carved
 ```
 the fleets of many rival alien empires side by side for the first time, facing a colossal alien threat rising from the dark rim of the galaxy, a vast singing coral reef of crystal drifting between stars, small ships against an overwhelming presence, desperate courage and awe epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-37 · Les puissances anciennes
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Les puissances anciennes »
+- Sujet : Un jeune vaisseau d'exploration s'arrête, minuscule, devant une poche d'étoiles où dorment des mondes achevés et des flottes immobiles depuis des millénaires
+
+```
+a tiny young exploration ship halting at the edge of a pocket of ancient star systems, perfect ring-worlds and cathedral-like megastructures asleep under dust, colossal motionless fleets drifting in silent formation for millennia, a single golden eye-like beacon slowly opening, reverent dread and wonder epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

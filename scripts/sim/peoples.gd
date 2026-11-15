@@ -809,6 +809,7 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 		if state.amph_on:
 			Amphictyony.on_atrocity(state, killer)
 		Crisis.on_atrocity(state, killer)  # une atrocité attire ce qui attend dehors
+		Ancients.on_atrocity(state, killer)  # et réveille la colère des anciennes
 	for e in state.empires:
 		if e.eliminated or e.is_npc():
 			continue

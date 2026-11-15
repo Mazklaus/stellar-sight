@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 65
+const FORMAT_VERSION := 68
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -25,6 +25,9 @@ const PIRATE_ID := 91
 const FAUNA_ID := 92
 ## Identifiant de la Crise de fin de partie (voir Crisis et crisis_empire).
 const CRISIS_ID := 93
+## Identifiants des puissances anciennes (voir Ancients et ancient_empire) : ANCIENT_BASE + rang (0 à 4).
+const ANCIENT_BASE := 94
+const ANCIENT_MAX := 5
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
 static var last_error := ""
@@ -175,11 +178,14 @@ var logistics: Dictionary = {}
 var terrain: Dictionary = {}
 ## Crises de fin de partie (voir Crisis) : réglages, crise en cours, bilans ; {} sans crise.
 var crisis: Dictionary = {}
+## Puissances anciennes endormies (voir Ancients) ; {} = aucune dans la partie.
+var ancients: Dictionary = {}
 ## Zones de ravitaillement et lignes du jour (dérivé de l'état, non sauvegardé, recalculé chaque tick).
 var log_cache: Dictionary = {}
 var _pirates: Empire
 var _fauna: Empire
 var _crisis_e: Empire
+var _ancient_e: Dictionary = {}
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -285,6 +291,9 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Crisis.setup(s, String(options.get("crises", "aucune")), String(options.get("crisis_start", "")),
 			String(options.get("crisis_strength", "")), options.get("crisis_kinds", []))
 	CrisisNemesis.setup(s, bool(options.get("crisis_nemesis", false)))
+	Ancients.setup(s, String(options.get("ancients", "aucune")), bool(options.get("awakenings", true)))
+	AncientsBridges.setup_scions(s)  # origine « Rejeton » : une petite ancienne, même sans l'option
+	AncientsBridges.place_relics(s)
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -422,6 +431,9 @@ func to_dict() -> Dictionary:
 	# Crises : seulement quand elles sont prévues (même empreinte sans elles).
 	if Crisis.enabled(self):
 		d["crisis"] = Crisis.to_dict(self)
+	# Puissances anciennes : seulement s'il y en a (même empreinte sans elles).
+	if Ancients.enabled(self):
+		d["ancients"] = Ancients.to_dict(self)
 	return d
 
 
@@ -524,6 +536,8 @@ static func from_dict(d: Dictionary) -> GameState:
 			last_error = "tempérament d'IA inconnu : %s" % e["temper"]
 			return null
 		s.empires.append(Empire.from_dict(e))
+	# Puissances anciennes avant les colonies et les flottes : leurs propriétaires doivent exister.
+	Ancients.from_dict(s, d.get("ancients", {}))
 	for c: Dictionary in d["colonies"]:
 		var colony := Colony.from_dict(c)
 		if s.galaxy.get_planet(colony.planet_id) == null or s.get_empire(colony.owner) == null:
@@ -705,6 +719,8 @@ func get_empire(id: int) -> Empire:
 		return fauna_empire()
 	if id == CRISIS_ID:
 		return crisis_empire()
+	if is_ancient(id):
+		return ancient_empire(id)
 	if id < 0 or id >= empires.size():
 		return null
 	return empires[id]
@@ -779,9 +795,35 @@ func crisis_empire() -> Empire:
 	return _crisis_e
 
 
-## Faction non jouable (Sans-Bannière, Pirates, Faune ou Crise).
+## Une puissance ancienne (voir Ancients) : hors de la liste des empires, recréée à la demande ;
+## son nom et sa couleur viennent de sa sorte (data/ancients.json). null si elle n'existe pas.
+func ancient_empire(id: int) -> Empire:
+	var a: Dictionary = Ancients.get_a(self, id)
+	if a.is_empty():
+		return null
+	var e: Empire = _ancient_e.get(id)
+	if e == null:
+		e = Empire.new()
+		e.id = id
+		e.faction_id = "ancienne"
+		e.capital_planet = -1
+		e.home_planet = -1
+		for sys in galaxy.systems:
+			e.explored[sys.id] = true
+		_ancient_e[id] = e
+	var kd := Ancients.kind_def(String(a["kind"]))
+	e.npc_faction = {"id": "ancienne", "name": String(kd.get("name", "Une ancienne")), "short": String(kd.get("short", "Ancienne")),
+			"color": String(kd.get("color", "#d8c890")), "registre": String(kd.get("register", ""))}
+	return e
+
+
+static func is_ancient(id: int) -> bool:
+	return id >= ANCIENT_BASE and id < ANCIENT_BASE + ANCIENT_MAX
+
+
+## Faction non jouable (Sans-Bannière, Pirates, Faune, Crise ou puissance ancienne).
 static func is_npc(id: int) -> bool:
-	return id == NPC_ID or id == PIRATE_ID or id == FAUNA_ID or id == CRISIS_ID
+	return id == NPC_ID or id == PIRATE_ID or id == FAUNA_ID or id == CRISIS_ID or is_ancient(id)
 
 
 ## Identifiants des planètes revendiquées, triés : tout parcours qui modifie l'état passe par là,

@@ -456,6 +456,12 @@ static func koi_act(player: int, act: String, x := -1, s := "", n := 0) -> Dicti
 	return {"type": "koi_act", "player": player, "act": act, "x": x, "s": s, "n": n}
 
 
+## Puissances anciennes (voir Ancients.check_act) : "give" (x = ancienne, s = ressource), "war",
+## "peace", "ask" (n = empire visé), et les actes de l'Éveil.
+static func anc_act(player: int, act: String, x := -1, s := "", n := -1) -> Dictionary:
+	return {"type": "anc_act", "player": player, "act": act, "x": x, "s": s, "n": n}
+
+
 ## Soutien officiel à un courant pour la prochaine élection (Politics ; -1 retire le soutien).
 ## En théocratie et en horde, c'est le courant nommé.
 static func politics_support(player: int, current: int) -> Dictionary:
@@ -685,6 +691,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Amphictyony.check_vote(state, int(cmd["player"]), int(cmd.get("v", 9)))
 		"amph_buy":
 			return Amphictyony.check_buy(state, int(cmd["player"]))
+		"anc_act":
+			return Ancients.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", -1)))
 		"koi_act":
 			return Koinon.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", 0)))
 		"vas_act":
@@ -943,6 +951,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var sp := String(cmd.get("species", ""))
 			c.founder = sp if kind == Colony.KIND_COLONY and sp != e.faction_id else ""
 			state.add_colony(c)
+			AncientsBridges.on_colonize(state, e.id, pid)  # Monde saint : guerre sainte
 		"build":
 			var e := state.get_empire(int(cmd["player"]))
 			var c: Colony = state.colonies[int(cmd["planet"])]
@@ -1047,6 +1056,9 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Amphictyony.vote(state, int(cmd["player"]), int(cmd["v"]))
 		"amph_buy":
 			Amphictyony.buy(state, int(cmd["player"]))
+		"anc_act":
+			var an_added: Array[Dictionary] = []
+			Ancients.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", -1)), an_added)
 		"koi_act":
 			Koinon.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", 0)))
 		"vas_act":

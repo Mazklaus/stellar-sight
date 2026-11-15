@@ -936,6 +936,8 @@ static func tally(state: GameState) -> Dictionary:
 	for m in members(state):
 		# Vote lié : un sujet vote comme son suzerain.
 		var v := Vassals.bound_vote(state, m, s["votes"])
+		if AncientsWake.dominion_of(state, m) >= 0:
+			v = 0  # Dominion d'une ancienne éveillée : sa voix se tait
 		var w := weight(state, m) + bv * int((s["buy"] as Dictionary).get(str(m), 0))
 		if v > 0:
 			out["pour"] = int(out["pour"]) + w

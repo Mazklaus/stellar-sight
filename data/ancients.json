@@ -1,0 +1,1720 @@
+{
+ "_doc": "Puissances anciennes endormies (étude du 2026-11-15, 30 propositions validées). Catalogue ouvert : chaque entrée de « kinds » est une ancienne (une au plus par partie), avec sa rivale (Guerre au ciel), ses rôles à l'Éveil, ses colères, ses requêtes (cartes), sa mission, son exigence, ses deux postes honorifiques, ses unités et ses bâtiments uniques. Les anciennes sont des puissances neutres à identifiant réservé (GameState.ANCIENT_BASE + rang), hors de la liste des empires.",
+ "_sources": "Stellaris Wiki, Fallen empire et Enclaves (consultés le 2026-11-15) ; Steam, Endless Space 2 l'Éveil (Académie : contributions et postes) ; Slitherine, Distant Worlds 2 (coffres des Gardiens anciens) ; Babylon 5 Wiki, First Ones ; Warhammer 40k Wiki, Necrons.",
+ "npc": {
+  "name": "Les Anciennes",
+  "short": "Ancienne"
+ },
+ "modes": [
+  {
+   "id": "aucune",
+   "label": "Aucune",
+   "delta": -99,
+   "text": "Pas de puissance ancienne dans la galaxie."
+  },
+  {
+   "id": "peu",
+   "label": "Peu",
+   "delta": -1,
+   "text": "Une de moins que la normale (au moins une)."
+  },
+  {
+   "id": "normal",
+   "label": "Normal",
+   "delta": 0,
+   "text": "Une en petite galaxie, deux en moyenne, trois en grande, quatre en immense."
+  },
+  {
+   "id": "beaucoup",
+   "label": "Beaucoup",
+   "delta": 1,
+   "text": "Une de plus que la normale (cinq au plus)."
+  }
+ ],
+ "default_mode": "normal",
+ "count": {
+  "per_systems": 75,
+  "min": 1,
+  "max": 5,
+  "_doc": "Prop. 2 : nombre normal = systèmes / per_systems arrondi, entre min et max (4 au plus en « Normal »)."
+ },
+ "place": {
+  "min_jumps": 5,
+  "apart": 6,
+  "pocket": [
+   3,
+   5
+  ],
+  "_doc": "Poche de 3 à 5 systèmes reliés, à min_jumps sauts au moins de tout départ et à apart sauts des autres anciennes."
+ },
+ "power": {
+  "sleep_x": 5,
+  "min": 1600,
+  "fleets": 2,
+  "home_pct": 40,
+  "reinf_days": 360,
+  "reinf_below_pct": 60,
+  "garrison": 60,
+  "_doc": "Prop. 3 : puissance totale = flotte de départ militaire d'un empire × sleep_x (au moins min), en fleets flottes ; la capitale garde une station de home_pct % en plus. Une fois par reinf_days jours, en paix et sous reinf_below_pct % de sa force, elle reçoit une flotte de renfort. Garnison de chaque système (troupes)."
+ },
+ "opinion": {
+  "min": -200,
+  "max": 200,
+  "drift_month": 2,
+  "contact_card": true,
+  "intrusion_month": -15,
+  "atrocity": -60,
+  "request_yes": 100,
+  "request_no": -50,
+  "mission_ok": 100,
+  "mission_fail": -100,
+  "mission_refuse": -25,
+  "gift_yes": 50,
+  "demand_yes": 25,
+  "demand_below": -100,
+  "_doc": "Prop. 6-12. L'opinion d'une ancienne envers chaque empire va de min à max ; la part due aux requêtes, cadeaux et colères revient vers sa valeur de départ de drift_month par mois."
+ },
+ "attitudes": [
+  {
+   "id": "dedaigneuse",
+   "label": "Dédaigneuse",
+   "below": 0,
+   "text": "Elle vous regarde comme on regarde un insecte sur une vitre."
+  },
+  {
+   "id": "condescendante",
+   "label": "Condescendante",
+   "below": 100,
+   "text": "Elle vous tolère, avec un sourire qui en dit long."
+  },
+  {
+   "id": "bienveillante",
+   "label": "Bienveillante",
+   "below": 9999,
+   "text": "Elle vous trouve presque attendrissant. Presque."
+  }
+ ],
+ "force_words": [
+  [
+   0.25,
+   "Ce serait un massacre. Le vôtre."
+  ],
+  [
+   0.5,
+   "Vous l'agaceriez, sans plus."
+  ],
+  [
+   0.9,
+   "Peut-être, avec toute votre flotte, beaucoup de chance et quelques prières."
+  ],
+  [
+   1.4,
+   "Ce serait un combat d'égal à égal, de ceux dont on fait des chansons."
+  ],
+  [
+   999,
+   "Vos flottes l'impressionneraient. Elle ne l'avouera jamais."
+  ]
+ ],
+ "requests": {
+  "every_days": 1800,
+  "first_days": 540,
+  "_doc": "Prop. 7 : environ une requête tous les every_days jours par empire en contact (décalée par hachage), la première pas avant first_days jours de contact."
+ },
+ "missions": {
+  "every_days": 2700,
+  "first_days": 1080,
+  "days": 3600
+ },
+ "gifts": {
+  "check_days": 180,
+  "base_pct": 4,
+  "bonus_pct": 6,
+  "_doc": "Prop. 10 : tous les check_days jours, base_pct % de chances d'un cadeau (+ bonus_pct si Bienveillante, + bonus_pct si une requête ou mission a été acceptée depuis le dernier cadeau)."
+ },
+ "gift_table": [
+  {
+   "id": "res",
+   "w": 50,
+   "res": {
+    "energy": 300,
+    "materials": 300,
+    "knowledge": 200
+   },
+   "text": "une cargaison d'énergie, de matériaux et de Savoir"
+  },
+  {
+   "id": "tech",
+   "w": 20,
+   "text": "une technologie, livrée toute faite"
+  },
+  {
+   "id": "boon",
+   "w": 15,
+   "label": "Faveur ancienne",
+   "fx": {
+    "production_pct": {
+     "knowledge": 20
+    }
+   },
+   "days": 1800,
+   "text": "un savoir ancien (+20 % de Savoir pendant 5 ans)"
+  },
+  {
+   "id": "ship",
+   "w": 10,
+   "days": 3600,
+   "text": "le prêt d'un vaisseau ancien pour dix ans"
+  },
+  {
+   "id": "hero",
+   "w": 5,
+   "text": "un héros ancien, venu de l'autre bout des âges"
+  }
+ ],
+ "contrib": {
+  "options": {
+   "energy": 100,
+   "influence": 25,
+   "knowledge": 100
+  },
+  "points": {
+   "energy": 1,
+   "influence": 4,
+   "knowledge": 1
+  },
+  "term_days": 1800,
+  "min_points": 100,
+  "op_per": 50,
+  "_doc": "Prop. 11 : un versement = options[r] de la ressource r, compté points[r] par unité ; +1 d'opinion par op_per points. Tous les term_days jours, les deux plus gros contributeurs (au moins min_points) reçoivent ses deux postes, puis les compteurs repartent à zéro."
+ },
+ "demand": {
+  "days": 60,
+  "war_days": 1440,
+  "war_take": 2,
+  "_doc": "Prop. 9 : l'ultimatum se décide en days jours ; refusé, il donne à l'ancienne une guerre de Punition d'au plus war_days jours, qui s'arrête dès qu'elle a pris war_take systèmes au fautif."
+ },
+ "buildings": {
+  "forge_etoile": {
+   "label": "Forge-étoile",
+   "text": "Une forge qui boit une étoile à la paille. Personne ne sait plus la construire."
+  },
+  "archive_vivante": {
+   "label": "Archive vivante",
+   "text": "Une bibliothèque qui se souvient d'elle-même, et de vous."
+  },
+  "sanctuaire_eternel": {
+   "label": "Sanctuaire éternel",
+   "text": "On y prie depuis si longtemps que les murs répondent."
+  },
+  "crypte_stase": {
+   "label": "Crypte de stase",
+   "text": "Des millions de cercueils de métal, alignés, patients."
+  },
+  "jardin_des_especes": {
+   "label": "Jardin des espèces",
+   "text": "Un monde-zoo : des espèces disparues partout ailleurs y vivent sous cloche."
+  },
+  "bergerie_orbitale": {
+   "label": "Bergerie orbitale",
+   "text": "Un anneau qui surveille quelque chose. Nul ne sait quoi, ni pour qui."
+  }
+ },
+ "loot": {
+  "res": {
+   "energy": 800,
+   "materials": 800,
+   "knowledge": 600
+  },
+  "stab": 10,
+  "stab_days": 1440,
+  "_doc": "Prop. 4 : prendre un monde ancien rapporte un butin (par monde bâti) et un triomphe."
+ },
+ "posts_shared": {
+  "fx_days": 1800
+ },
+ "kinds": {
+  "conservatoire": {
+   "name": "Le Conservatoire d'Ylm",
+   "short": "Conservatoire",
+   "color": "#6fd3c7",
+   "register": "Space opera",
+   "blurb": "Un musée vivant aussi vieux que les étoiles. Le Conservatoire collectionne les espèces, les catalogue, et vous regarde avec l'intérêt poli d'un conservateur devant une vitrine.",
+   "rival": "kheb",
+   "roles": [
+    "parvenue",
+    "gardienne"
+   ],
+   "start_op": 0,
+   "angers": [
+    "atrocity",
+    "intrusion"
+   ],
+   "angers_text": "L'extermination et les déportations, les flottes armées chez lui.",
+   "wants_text": "Des spécimens pour sa Réserve, et que personne n'extermine personne.",
+   "requests": [
+    "anc_conservatoire_specimen",
+    "anc_conservatoire_purges"
+   ],
+   "mission": {
+    "stat": "curios",
+    "n": 2,
+    "text": "Explorer deux curiosités et lui en rapporter le catalogue."
+   },
+   "demand": "anc_conservatoire_exige",
+   "posts": [
+    {
+     "id": "conservateur",
+     "label": "Conservateur honoraire",
+     "fx": {
+      "growth_pct": 15,
+      "stability": 2
+     },
+     "ship": "ancien_conservatoire_arche",
+     "ship_name": "Arche des Espèces",
+     "text": "Croissance +15 %, stabilité +2, et l'Arche des Espèces pour cinq ans."
+    },
+    {
+     "id": "naturaliste",
+     "label": "Naturaliste en chef",
+     "fx": {
+      "production_pct": {
+       "food": 15
+      }
+     },
+     "intel": "fauna",
+     "text": "Nourriture +15 % ; peut demander où dorment les gardiens et les nids."
+    }
+   ],
+   "units": {
+    "line": "ancien_conservatoire_vigie",
+    "flag": "ancien_conservatoire_arche"
+   },
+   "buildings": [
+    "jardin_des_especes",
+    "archive_vivante"
+   ],
+   "home_name": "Ylm",
+   "fleet_name": "Vitrine"
+  },
+  "kheb": {
+   "name": "La Dynastie Sépulcrale de Kheb",
+   "short": "Kheb",
+   "color": "#b8a24a",
+   "register": "Grimdark",
+   "blurb": "Des machines endormies dans des mondes-tombeaux depuis soixante millions d'années. Le protocole de réveil dure trois ans, et le Pharaon se réveillera avec la migraine.",
+   "rival": "conservatoire",
+   "roles": [
+    "parvenue"
+   ],
+   "start_op": -20,
+   "angers": [
+    "neighbor",
+    "intrusion"
+   ],
+   "angers_text": "Posséder un système voisin de ses tombeaux, les flottes armées chez elle.",
+   "wants_text": "Rien. Qu'on s'en aille.",
+   "requests": [
+    "anc_kheb_silence",
+    "anc_kheb_offrande"
+   ],
+   "mission": {
+    "stat": "conquests",
+    "n": 1,
+    "text": "Rappeler aux jeunes peuples que la galaxie a des maîtres : conquérir un système."
+   },
+   "demand": "anc_kheb_exige",
+   "posts": [
+    {
+     "id": "main_pharaon",
+     "label": "Main du Pharaon",
+     "fx": {
+      "damage_pct": 10,
+      "troops_pct": 15
+     },
+     "ship": "ancien_kheb_sarcophage",
+     "ship_name": "Sarcophage de l'Aube",
+     "text": "Dégâts +10 %, troupes +15 %, et le Sarcophage de l'Aube pour cinq ans."
+    },
+    {
+     "id": "embaumeur",
+     "label": "Grand Embaumeur",
+     "fx": {
+      "repair_pct": 25,
+      "upkeep_pct": -10
+     },
+     "text": "Réparations +25 %, entretien -10 %."
+    }
+   ],
+   "units": {
+    "line": "ancien_kheb_scarabee",
+    "flag": "ancien_kheb_sarcophage"
+   },
+   "buildings": [
+    "crypte_stase",
+    "forge_etoile"
+   ],
+   "home_name": "Kheb",
+   "fleet_name": "Légion",
+   "tombs": true
+  },
+  "hierophantes": {
+   "name": "Les Hiérophantes de l'Aube Première",
+   "short": "Hiérophantes",
+   "color": "#e8c97a",
+   "register": "Médiéval spatial",
+   "blurb": "Une théocratie psionique qui prie depuis l'aube de la galaxie. Autour d'elle, des Mondes saints superbes et libres, qu'il est formellement interdit de toucher.",
+   "rival": "bibliotheque",
+   "roles": [
+    "parvenue"
+   ],
+   "start_op": 0,
+   "angers": [
+    "holy",
+    "synthetic",
+    "intrusion"
+   ],
+   "angers_text": "Coloniser un Monde saint, être un peuple de machines, les flottes armées chez eux.",
+   "wants_text": "Que les Mondes saints restent purs, et que les machines pensantes se taisent.",
+   "requests": [
+    "anc_hierophantes_pelerinage",
+    "anc_hierophantes_machines"
+   ],
+   "mission": {
+    "stat": "battles_won",
+    "n": 3,
+    "text": "Prouver votre ferveur : gagner trois batailles."
+   },
+   "demand": "anc_hierophantes_exige",
+   "holy_worlds": [
+    3,
+    4
+   ],
+   "posts": [
+    {
+     "id": "oracle",
+     "label": "Oracle de l'Aube",
+     "fx": {
+      "stability": 4,
+      "opinion_all": 5
+     },
+     "ship": "ancien_hierophantes_cathedrale",
+     "ship_name": "Cathédrale de l'Aube",
+     "text": "Stabilité +4, opinion de tous +5, et la Cathédrale de l'Aube pour cinq ans."
+    },
+    {
+     "id": "inquisiteur",
+     "label": "Inquisiteur des Étoiles",
+     "fx": {
+      "garrison_pct": 30,
+      "damage_pct": 5
+     },
+     "text": "Garnisons +30 %, dégâts +5 %."
+    }
+   ],
+   "units": {
+    "line": "ancien_hierophantes_psaume",
+    "flag": "ancien_hierophantes_cathedrale"
+   },
+   "buildings": [
+    "sanctuaire_eternel",
+    "forge_etoile"
+   ],
+   "home_name": "Aube Première",
+   "fleet_name": "Chœur"
+  },
+  "bibliotheque": {
+   "name": "La Grande Bibliothèque d'Aster",
+   "short": "Bibliothèque",
+   "color": "#8fa8e8",
+   "register": "Hard SF",
+   "blurb": "Des archivistes cyborgs qui ont lu tout ce qui a été écrit, deux fois. Ils prêtent volontiers leur savoir, et facturent les retards au millénaire.",
+   "rival": "hierophantes",
+   "roles": [
+    "parvenue",
+    "gardienne"
+   ],
+   "start_op": 0,
+   "angers": [
+    "atrocity",
+    "intrusion"
+   ],
+   "angers_text": "Les atrocités (qui brûle les gens brûle les livres), les flottes armées chez elle.",
+   "wants_text": "Des héros savants à interroger, des reliques à étudier, et le silence dans la salle de lecture.",
+   "requests": [
+    "anc_bibliotheque_savant",
+    "anc_bibliotheque_relique"
+   ],
+   "mission": {
+    "stat": "digs",
+    "n": 1,
+    "text": "Achever une fouille et lui en confier les notes."
+   },
+   "demand": "anc_bibliotheque_exige",
+   "posts": [
+    {
+     "id": "bibliothecaire",
+     "label": "Bibliothécaire",
+     "fx": {
+      "production_pct": {
+       "knowledge": 15
+      }
+     },
+     "intel": "empire",
+     "ship": "ancien_bibliotheque_index",
+     "ship_name": "Gardien du Savoir",
+     "text": "Savoir +15 %, peut acheter des réponses (la vraie flotte d'un empire, la date de la fin de partie), et le Gardien du Savoir pour cinq ans."
+    },
+    {
+     "id": "copiste",
+     "label": "Premier Copiste",
+     "fx": {
+      "building_cost_pct": -10,
+      "ship_days_pct": -10
+     },
+     "text": "Coût des bâtiments -10 %, construction des vaisseaux 10 % plus rapide."
+    }
+   ],
+   "units": {
+    "line": "ancien_bibliotheque_lecteur",
+    "flag": "ancien_bibliotheque_index"
+   },
+   "buildings": [
+    "archive_vivante",
+    "forge_etoile"
+   ],
+   "home_name": "Aster",
+   "fleet_name": "Étagère"
+  },
+  "bergers": {
+   "name": "Les Bergers d'Orrhë",
+   "short": "Bergers",
+   "color": "#c08ae0",
+   "register": "Cosmique / étrange",
+   "blurb": "Des machines-bergères qui veillent sur un troupeau dont personne ne connaît la nature. Elles n'ont pas d'opinion. Elles ont des plans.",
+   "rival": "",
+   "roles": [
+    "gardienne"
+   ],
+   "start_op": 0,
+   "no_opinion": true,
+   "angers": [],
+   "angers_text": "Rien de prévisible.",
+   "wants_text": "On ne sait pas. Elles proposent des paris.",
+   "requests": [
+    "anc_bergers_greffe",
+    "anc_bergers_recensement"
+   ],
+   "mission": {
+    "stat": "guardians",
+    "n": 1,
+    "text": "Abattre un gardien qui s'est écarté du troupeau."
+   },
+   "demand": "",
+   "posts": [
+    {
+     "id": "berger",
+     "label": "Berger adjoint",
+     "fx": {
+      "growth_pct": 10,
+      "fleet_speed_pct": 10
+     },
+     "ship": "ancien_bergers_houlette",
+     "ship_name": "Houlette d'Orrhë",
+     "text": "Croissance +10 %, vitesse des flottes +10 %, et la Houlette d'Orrhë pour cinq ans."
+    },
+    {
+     "id": "chien",
+     "label": "Chien de berger",
+     "fx": {
+      "damage_pct": 8,
+      "repair_pct": 15
+     },
+     "text": "Dégâts +8 %, réparations +15 %."
+    }
+   ],
+   "units": {
+    "line": "ancien_bergers_veilleur",
+    "flag": "ancien_bergers_houlette"
+   },
+   "buildings": [
+    "bergerie_orbitale",
+    "archive_vivante"
+   ],
+   "home_name": "Orrhë",
+   "fleet_name": "Houle"
+  }
+ },
+ "units": {
+  "ancien_conservatoire_vigie": {
+   "label": "Vigie du Conservatoire",
+   "plural": "Vigies du Conservatoire",
+   "line": "line",
+   "size": "large",
+   "role": "Ancienne",
+   "hp": 1400,
+   "armor": 40,
+   "shield": 60,
+   "weapons": {
+    "beam": 60,
+    "missile": 30
+   },
+   "speed": 24,
+   "vision": 3,
+   "military": true,
+   "ancient": "conservatoire",
+   "description": "Une vitrine armée. Ne pas toucher : elle mord."
+  },
+  "ancien_conservatoire_arche": {
+   "label": "Arche des Espèces",
+   "plural": "Arches des Espèces",
+   "line": "line",
+   "size": "titan",
+   "role": "Vaisseau ancien",
+   "hp": 4800,
+   "armor": 50,
+   "shield": 65,
+   "weapons": {
+    "beam": 110,
+    "missile": 60
+   },
+   "speed": 18,
+   "vision": 4,
+   "military": true,
+   "ancient": "conservatoire",
+   "description": "Mille espèces dorment à bord, chacune sous sa cloche, chacune avec son étiquette."
+  },
+  "ancien_kheb_scarabee": {
+   "label": "Scarabée de Kheb",
+   "plural": "Scarabées de Kheb",
+   "line": "line",
+   "size": "large",
+   "role": "Ancienne",
+   "hp": 1600,
+   "armor": 65,
+   "shield": 20,
+   "weapons": {
+    "kinetic": 50,
+    "beam": 40
+   },
+   "speed": 20,
+   "vision": 2,
+   "military": true,
+   "ancient": "kheb",
+   "description": "Il se répare en marchant. Il marche depuis soixante millions d'années."
+  },
+  "ancien_kheb_sarcophage": {
+   "label": "Sarcophage de l'Aube",
+   "plural": "Sarcophages de l'Aube",
+   "line": "line",
+   "size": "titan",
+   "role": "Vaisseau ancien",
+   "hp": 5200,
+   "armor": 70,
+   "shield": 30,
+   "weapons": {
+    "kinetic": 90,
+    "artillery": 80
+   },
+   "speed": 14,
+   "vision": 3,
+   "military": true,
+   "ancient": "kheb",
+   "description": "Un tombeau volant. Ce qu'il y a dedans n'est pas tout à fait mort."
+  },
+  "ancien_hierophantes_psaume": {
+   "label": "Psaume ardent",
+   "plural": "Psaumes ardents",
+   "line": "line",
+   "size": "large",
+   "role": "Ancienne",
+   "hp": 1300,
+   "armor": 45,
+   "shield": 55,
+   "weapons": {
+    "beam": 70,
+    "missile": 20
+   },
+   "speed": 24,
+   "vision": 3,
+   "military": true,
+   "ancient": "hierophantes",
+   "description": "Il chante en tirant. Les deux sont insupportables."
+  },
+  "ancien_hierophantes_cathedrale": {
+   "label": "Cathédrale de l'Aube",
+   "plural": "Cathédrales de l'Aube",
+   "line": "line",
+   "size": "titan",
+   "role": "Vaisseau ancien",
+   "hp": 4600,
+   "armor": 55,
+   "shield": 70,
+   "weapons": {
+    "beam": 120,
+    "missile": 40
+   },
+   "speed": 16,
+   "vision": 4,
+   "military": true,
+   "ancient": "hierophantes",
+   "description": "Une nef de prière de trente kilomètres. Les fidèles y entrent à genoux, les ennemis aussi."
+  },
+  "ancien_bibliotheque_lecteur": {
+   "label": "Lecteur d'Aster",
+   "plural": "Lecteurs d'Aster",
+   "line": "line",
+   "size": "large",
+   "role": "Ancienne",
+   "hp": 1250,
+   "armor": 40,
+   "shield": 60,
+   "weapons": {
+    "beam": 55,
+    "missile": 45
+   },
+   "speed": 26,
+   "vision": 4,
+   "military": true,
+   "ancient": "bibliotheque",
+   "description": "Il a lu votre doctrine militaire. Il a pris des notes dans la marge."
+  },
+  "ancien_bibliotheque_index": {
+   "label": "Gardien du Savoir",
+   "plural": "Gardiens du Savoir",
+   "line": "line",
+   "size": "titan",
+   "role": "Vaisseau ancien",
+   "hp": 4400,
+   "armor": 50,
+   "shield": 70,
+   "weapons": {
+    "beam": 100,
+    "artillery": 70
+   },
+   "speed": 18,
+   "vision": 5,
+   "military": true,
+   "ancient": "bibliotheque",
+   "description": "Un index de toutes choses, armé pour défendre ses fiches."
+  },
+  "ancien_bergers_veilleur": {
+   "label": "Veilleur d'Orrhë",
+   "plural": "Veilleurs d'Orrhë",
+   "line": "line",
+   "size": "large",
+   "role": "Ancienne",
+   "hp": 1450,
+   "armor": 50,
+   "shield": 50,
+   "weapons": {
+    "beam": 50,
+    "kinetic": 45
+   },
+   "speed": 28,
+   "vision": 4,
+   "military": true,
+   "ancient": "bergers",
+   "description": "Il compte. On ignore quoi."
+  },
+  "ancien_bergers_houlette": {
+   "label": "Houlette d'Orrhë",
+   "plural": "Houlettes d'Orrhë",
+   "line": "line",
+   "size": "titan",
+   "role": "Vaisseau ancien",
+   "hp": 5000,
+   "armor": 60,
+   "shield": 60,
+   "weapons": {
+    "beam": 100,
+    "kinetic": 80
+   },
+   "speed": 20,
+   "vision": 5,
+   "military": true,
+   "ancient": "bergers",
+   "description": "Un bâton de berger long comme un continent. Le troupeau, c'est peut-être vous."
+  }
+ },
+ "cards": [
+  {
+   "id": "anc_contact",
+   "title": "{anc} vous a remarqué",
+   "text": "{anc_blurb}\n\nCe qui la fâche : {anc_angers}\nCe qu'elle attend : {anc_wants}\nRapport de force : {anc_force}",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Saluer bien bas",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": 10,
+       "ai": 10
+      }
+     ]
+    },
+    {
+     "label": "Prendre note",
+     "fx": []
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_conservatoire_specimen",
+   "title": "Le Conservatoire demande un spécimen",
+   "text": "Une sonde du Conservatoire d'Ylm se pose sur votre monde le plus peuplé avec une cloche de verre et une étiquette déjà remplie. Elle voudrait « un individu représentatif, en bon état ». Il paraît que la Réserve est très confortable.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Offrir un volontaire (population -1)",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "pop",
+       "v": -1
+      },
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": 100,
+       "yes": true,
+       "ai": 30
+      }
+     ]
+    },
+    {
+     "label": "Refuser poliment",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": -50,
+       "ai": -10
+      }
+     ]
+    }
+   ],
+   "default": 1
+  },
+  {
+   "id": "anc_conservatoire_purges",
+   "title": "Le Conservatoire veut une galaxie sans purges",
+   "text": "Le Conservatoire d'Ylm vous demande de signer la Charte des Espèces : renoncer pour toujours à l'extermination. Il tient à ses vitrines.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Signer la Charte (influence -40)",
+     "fx": [
+      {
+       "k": "res",
+       "res": {
+        "influence": -40
+       }
+      },
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": 100,
+       "yes": true,
+       "ai": 40
+      }
+     ]
+    },
+    {
+     "label": "Garder les mains libres",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": -50,
+       "ai": -10
+      }
+     ]
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_kheb_silence",
+   "title": "Kheb exige le silence",
+   "text": "Une voix sèche comme un caveau sort de tous vos récepteurs : « Vos émissions troublent le sommeil de la Dynastie. Baissez le son. » Il faudrait couper les grandes antennes un an.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Couper les antennes (commerce -15 % un an)",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "boon",
+       "label": "Silence radio",
+       "fx": {
+        "trade_income_pct": -15
+       },
+       "days": 360
+      },
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": 100,
+       "yes": true,
+       "ai": 30
+      }
+     ]
+    },
+    {
+     "label": "Monter le volume",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": -50,
+       "ai": -20
+      }
+     ]
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_kheb_offrande",
+   "title": "Une offrande pour les tombeaux",
+   "text": "Des prêtres-machines de Kheb tendent une coupe vide vers vos chantiers. Ils veulent des matériaux, beaucoup, pour « entretenir les cryptes ». Personne n'ose demander ce qu'il y a dans les cryptes.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Verser l'offrande (matériaux -200)",
+     "fx": [
+      {
+       "k": "res",
+       "res": {
+        "materials": -200
+       }
+      },
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": 100,
+       "yes": true,
+       "ai": 30
+      }
+     ]
+    },
+    {
+     "label": "La coupe restera vide",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": -50,
+       "ai": -10
+      }
+     ]
+    }
+   ],
+   "default": 1
+  },
+  {
+   "id": "anc_hierophantes_pelerinage",
+   "title": "Les Hiérophantes invitent au pèlerinage",
+   "text": "Les Hiérophantes de l'Aube Première acceptent, une fois par millénaire, qu'une délégation étrangère vienne prier sur leurs Mondes saints. C'est votre tour. Les frais de voyage sont à votre charge, la révélation est offerte.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Envoyer la délégation (énergie -150, stabilité +3 un an)",
+     "fx": [
+      {
+       "k": "res",
+       "res": {
+        "energy": -150
+       }
+      },
+      {
+       "k": "ancient",
+       "act": "boon",
+       "label": "Retour de pèlerinage",
+       "fx": {
+        "stability": 3
+       },
+       "days": 360
+      },
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": 100,
+       "yes": true,
+       "ai": 30
+      }
+     ]
+    },
+    {
+     "label": "Nous prierons chez nous",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": -50,
+       "ai": -10
+      }
+     ]
+    }
+   ],
+   "default": 1
+  },
+  {
+   "id": "anc_hierophantes_machines",
+   "title": "Bannir les machines pensantes",
+   "text": "Les Hiérophantes vous demandent de débrancher vos intelligences artificielles, « avant qu'elles ne se mettent à prier ». Vos ingénieurs pleurent ; vos prêtres applaudissent.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Débrancher (vaisseaux 10 % plus lents à construire, 3 ans)",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "boon",
+       "label": "Calculs à la main",
+       "fx": {
+        "ship_days_pct": 10
+       },
+       "days": 1080
+      },
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": 100,
+       "yes": true,
+       "ai": 20
+      }
+     ]
+    },
+    {
+     "label": "Nos machines restent allumées",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": -50,
+       "ai": -10
+      }
+     ]
+    }
+   ],
+   "default": 1
+  },
+  {
+   "id": "anc_bibliotheque_savant",
+   "title": "La Bibliothèque voudrait un savant",
+   "text": "La Grande Bibliothèque d'Aster aimerait « emprunter » un de vos héros pour cinq ans, le temps de lui poser quelques questions. Elle promet de le rendre en bon état, avec un marque-page.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "subjects": {
+    "hero": "any"
+   },
+   "choices": [
+    {
+     "label": "Prêter {hero} (absent cinq ans, revient plus savant)",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "lend_hero",
+       "days": 1800
+      },
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": 100,
+       "yes": true,
+       "ai": 20
+      }
+     ]
+    },
+    {
+     "label": "Nos héros ne se prêtent pas",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": -50,
+       "ai": -10
+      }
+     ]
+    }
+   ],
+   "default": 1
+  },
+  {
+   "id": "anc_bibliotheque_relique",
+   "title": "Une relique à étudier",
+   "text": "La Bibliothèque a entendu parler de vos reliques. Elle propose de verser une grosse somme de Savoir pour en étudier les traces, sans rien emporter. Juste une photocopie.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Ouvrir le Reliquaire (Savoir +250)",
+     "fx": [
+      {
+       "k": "res",
+       "res": {
+        "knowledge": 250
+       }
+      },
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": 100,
+       "yes": true,
+       "ai": 40
+      }
+     ]
+    },
+    {
+     "label": "Le Reliquaire reste fermé",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": -50,
+       "ai": -10
+      }
+     ]
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_bergers_greffe",
+   "title": "Les Bergers proposent une greffe",
+   "text": "Les Bergers d'Orrhë offrent d'« ajuster » vos populations. Ils ne disent pas comment. Ils ne disent pas pourquoi. Ils attendent.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Accepter la greffe",
+     "fx": [],
+     "risky": {
+      "pct": 60,
+      "win": [
+       {
+        "k": "ancient",
+        "act": "boon",
+        "label": "Greffe d'Orrhë",
+        "fx": {
+         "growth_pct": 10
+        },
+        "days": -1
+       }
+      ],
+      "lose": [
+       {
+        "k": "ancient",
+        "act": "boon",
+        "label": "Greffe ratée",
+        "fx": {
+         "growth_pct": -15,
+         "stability": -3
+        },
+        "days": 1800
+       }
+      ]
+     }
+    },
+    {
+     "label": "Décliner",
+     "fx": []
+    }
+   ],
+   "default": 1
+  },
+  {
+   "id": "anc_bergers_recensement",
+   "title": "Recensement d'Orrhë",
+   "text": "Une flotte de Veilleurs compte vos vaisseaux, un par un, en silence. Ils proposent d'en réparer quelques-uns pendant qu'ils y sont. Ou d'en garder quelques-uns. Ce n'est pas très clair.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Laisser compter",
+     "fx": [],
+     "risky": {
+      "pct": 65,
+      "win": [
+       {
+        "k": "ancient",
+        "act": "boon",
+        "label": "Coques comptées",
+        "fx": {
+         "repair_pct": 30,
+         "damage_pct": 5
+        },
+        "days": 1800
+       }
+      ],
+      "lose": [
+       {
+        "k": "res",
+        "res": {
+         "materials": -250
+        }
+       }
+      ]
+     }
+    },
+    {
+     "label": "Fermer les hangars",
+     "fx": []
+    }
+   ],
+   "default": 1
+  },
+  {
+   "id": "anc_mission",
+   "title": "{anc} vous confie une mission",
+   "text": "{anc_mission}\n\nVous avez dix ans. L'ancienne précise qu'elle n'aime pas attendre, mais qu'elle a l'habitude.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Accepter la mission",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "mission",
+       "ai": 25
+      }
+     ]
+    },
+    {
+     "label": "Décliner",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": -25,
+       "ai": -5
+      }
+     ]
+    }
+   ],
+   "default": 1
+  },
+  {
+   "id": "anc_cadeau",
+   "title": "Un cadeau de {anc}",
+   "text": "{anc} vous fait parvenir {anc_gift}. Refuser serait très mal vu.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Remercier humblement",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "gift",
+       "ai": 60
+      }
+     ]
+    },
+    {
+     "label": "Refuser (par fierté)",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "op",
+       "v": -50,
+       "ai": -20
+      }
+     ]
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_conservatoire_exige",
+   "title": "Ultimatum du Conservatoire",
+   "text": "Le Conservatoire d'Ylm a classé votre empire parmi les « espèces nuisibles ». Il exige réparation : une forte amende, et vos excuses publiques. Sinon, il viendra mettre de l'ordre dans sa collection.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Payer et s'excuser (influence -80, énergie -300)",
+     "fx": [
+      {
+       "k": "res",
+       "res": {
+        "influence": -80,
+        "energy": -300
+       }
+      },
+      {
+       "k": "ancient",
+       "act": "submit",
+       "ai": 0
+      }
+     ]
+    },
+    {
+     "label": "Refuser l'ultimatum",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "defy",
+       "ai": 0
+      }
+     ]
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_kheb_exige",
+   "title": "Ultimatum de Kheb",
+   "text": "« Vos colonies campent sur le seuil de nos tombeaux. Retirez-vous. » La Dynastie exige un des systèmes voisins de sa poche ; il lui reviendra.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Rendre un système voisin",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "submit",
+       "ai": 0
+      }
+     ]
+    },
+    {
+     "label": "Nous restons",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "defy",
+       "ai": 0
+      }
+     ]
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_hierophantes_exige",
+   "title": "Ultimatum des Hiérophantes",
+   "text": "« Vous avez souillé l'Aube. » Les Hiérophantes exigent que vous abandonniez les Mondes saints que vous occupez, et que vos machines se taisent.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Abandonner les Mondes saints (influence -40)",
+     "fx": [
+      {
+       "k": "res",
+       "res": {
+        "influence": -40
+       }
+      },
+      {
+       "k": "ancient",
+       "act": "submit",
+       "ai": 0
+      }
+     ]
+    },
+    {
+     "label": "Nous gardons ces mondes",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "defy",
+       "ai": 0
+      }
+     ]
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_bibliotheque_exige",
+   "title": "Ultimatum de la Bibliothèque",
+   "text": "La Grande Bibliothèque d'Aster vous adresse une facture de retard de quatre mille ans. Elle exige le règlement en Savoir, ou l'une de vos reliques en gage.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Payer la facture (Savoir -400 ou une relique)",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "submit",
+       "ai": 0
+      }
+     ]
+    },
+    {
+     "label": "Contester la facture",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "defy",
+       "ai": 0
+      }
+     ]
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_postes",
+   "title": "{anc} distribue ses postes",
+   "text": "{anc_posts}",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Bien noté",
+     "fx": []
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_punition",
+   "title": "{anc} vous déclare la guerre",
+   "text": "{anc} a épuisé sa patience. Ses flottes quittent leur sommeil pour vous punir. Elle s'arrêtera quand elle aura pris ce qui lui revient, ou dans quatre ans.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Aux armes !",
+     "fx": []
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_eveil_preavis",
+   "title": "{anc} remue dans son sommeil",
+   "text": "Les étoiles autour de la poche {anc_de} changent de couleur. Les observatoires parlent d'une respiration. {anc_why}\n\nDans un an, elle sera éveillée, et elle voudra régner.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Renforcer les garnisons (énergie -60)",
+     "fx": [
+      {
+       "k": "res",
+       "res": {
+        "energy": -60
+       }
+      },
+      {
+       "k": "ancient",
+       "act": "boon",
+       "label": "Garnisons en alerte",
+       "fx": {
+        "garrison_pct": 30
+       },
+       "days": 1440,
+       "ai": 20
+      }
+     ]
+    },
+    {
+     "label": "Prier pour qu'elle se rendorme",
+     "fx": []
+    }
+   ],
+   "default": 1
+  },
+  {
+   "id": "anc_eveil",
+   "title": "{anc} s'éveille",
+   "text": "{anc} est debout. Ses chantiers rouvrent, ses flottes se comptent par dizaines, et ses hérauts parcourent déjà la galaxie avec des traités de soumission tout prêts.\n\nToute la galaxie peut la combattre sans motif : c'est l'Endiguement. Ceux qui s'y joignent reçoivent +10 % de dégâts tant qu'ils la combattent{anc_aid}.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Rejoindre l'Endiguement (guerre contre elle)",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "contain",
+       "ai": 0
+      }
+     ]
+    },
+    {
+     "label": "Attendre de voir",
+     "fx": []
+    }
+   ],
+   "default": 1
+  },
+  {
+   "id": "anc_dominion",
+   "title": "{anc} exige votre soumission",
+   "text": "Un héraut {anc_de} dépose un traité sur votre table. Devenir son Dominion : un tribut chaque mois (5 % de votre énergie et de votre Savoir), votre voix à l'Amphictyonie se tait (elle ne reconnaît pas l'assemblée), mais sa protection contre ses ennemis. Refuser, c'est la guerre.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Signer (devenir son Dominion)",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "dominion",
+       "ai": 0
+      }
+     ]
+    },
+    {
+     "label": "Déchirer le traité",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "refuse_dom",
+       "ai": 0
+      }
+     ]
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_decadence",
+   "title": "{anc} décline",
+   "text": "{anc} a trop grandi, trop vite, après trop longtemps. Ses flottes rouillent, ses gouverneurs dorment debout. Ses Dominions peuvent se libérer, et elle redevient conquérable comme un autre empire.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Enfin",
+     "fx": []
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_gardienne",
+   "title": "{anc} se lève contre la crise",
+   "text": "{anc} ouvre les yeux et regarde la crise qui ronge la galaxie. Elle n'aime pas qu'on abîme sa vitrine. Ses flottes rejoignent le Front commun ; elle retournera au repos quand la crise sera vaincue.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Enfin du renfort",
+     "fx": []
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_guerre_ciel",
+   "title": "Guerre au ciel",
+   "text": "{anc} s'éveille à son tour pour affronter {anc_rival}. Deux puissances d'avant se battent, et la galaxie entière est leur champ de bataille.\n\nChoisir un camp, c'est sa protection pendant dix ans et une part du butin, mais l'autre vous tiendra pour ennemi. Les neutres forment la Ligue des non-alignés.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Rejoindre {anc}",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "side",
+       "v": 1,
+       "ai": 0
+      }
+     ]
+    },
+    {
+     "label": "Rejoindre {anc_rival}",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "side",
+       "v": 2,
+       "ai": 0
+      }
+     ]
+    },
+    {
+     "label": "Rester neutre (Ligue des non-alignés)",
+     "fx": [
+      {
+       "k": "ancient",
+       "act": "side",
+       "v": 0,
+       "ai": 0
+      }
+     ]
+    }
+   ],
+   "default": 2
+  },
+  {
+   "id": "anc_tombeau",
+   "title": "Un tombeau s'ouvre",
+   "text": "Sur {system}, un tombeau {anc_de} ouvre les yeux. {anc_tomb}",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Bien noté",
+     "fx": []
+    }
+   ],
+   "default": 0
+  },
+  {
+   "id": "anc_guerre_sainte",
+   "title": "Guerre sainte",
+   "text": "Vous avez touché à un Monde saint. {anc} se lève d'un bond, et ses prêtres ont déjà écrit le sermon de votre chute.",
+   "trigger": "ancient",
+   "art": "ancient",
+   "choices": [
+    {
+     "label": "Que les dieux reconnaissent les leurs",
+     "fx": []
+    }
+   ],
+   "default": 0
+  }
+ ],
+ "talents": [
+  {
+   "layer": "credo",
+   "value": "foi",
+   "label": "Frères dans la foi",
+   "text": "Les Hiérophantes partent à +50 d'opinion.",
+   "op": {
+    "hierophantes": 50
+   }
+  },
+  {
+   "layer": "credo",
+   "value": "raison",
+   "label": "Lecteurs assidus",
+   "text": "La Grande Bibliothèque part à +50 d'opinion.",
+   "op": {
+    "bibliotheque": 50
+   }
+  },
+  {
+   "layer": "archetype",
+   "value": "synthetique",
+   "label": "Machines pensantes",
+   "text": "Les Bergers parient toujours en votre faveur ; les Hiérophantes vous détestent (déjà -50 au départ).",
+   "bets": true
+  },
+  {
+   "layer": "gouvernement",
+   "value": "ruche",
+   "label": "Nuée",
+   "text": "Aucune requête : « les anciennes ne parlent pas aux nuées ».",
+   "deaf": true
+  },
+  {
+   "layer": "archetype",
+   "value": "ruche",
+   "label": "Nuée",
+   "text": "Aucune requête : « les anciennes ne parlent pas aux nuées ».",
+   "deaf": true
+  },
+  {
+   "layer": "credo",
+   "value": "profit",
+   "label": "Bons clients",
+   "text": "Contributions 25 % moins chères.",
+   "contrib_pct": -25
+  },
+  {
+   "layer": "credo",
+   "value": "honneur",
+   "label": "Parole tenue",
+   "text": "Récompenses de mission doublées.",
+   "mission_mult": 200
+  }
+ ],
+ "ai": {
+  "demand_accept_ratio": 50,
+  "contrib_reserve": {
+   "energy": 600,
+   "influence": 120,
+   "knowledge": 600
+  },
+  "contrib_every": 120,
+  "_doc": "Prop. 28 : une IA accepte un ultimatum si sa flotte vaut moins de demand_accept_ratio % de celle de l'ancienne ; elle verse une contribution tous les contrib_every jours environ si elle garde la réserve indiquée."
+ },
+ "wake": {
+  "_doc": "Lot 2, l'Éveil. Parvenue (prop. 13) : à partir de parvenue_from jours, une fois par an, si un bloc (empire, alliés, Koinon) dépasse ratio_pct % de la puissance moyenne des empires, roll_pct % de chances qu'une parvenue s'éveille (une seule à la fois) ; prendre un de ses mondes l'éveille aussitôt. Préavis de notice_days jours. Éveillée (prop. 14) : awake_fleets flottes de plus à awake_power_pct % de sa puissance endormie, une colonie de plus par expand_days jours ; elle somme ses voisins (à dominion_jumps sauts) de devenir ses Dominions tous les dominion_cd jours ; tribut tribute_pct % de l'énergie et du Savoir chaque mois. Endiguement (prop. 15) : boon contain_fx pour qui la combat, aide d'urgence aid_res aux membres de l'Amphictyonie. Décadence (prop. 16) : decay_after jours après l'éveil, +1 par mois et +1 par decay_worlds mondes ; à 100, ses flottes perdent decay_ships_pct % de leurs vaisseaux et ne se renforcent plus. Gardiennes (prop. 17) : crise arrivée depuis guardian_after jours, une seule fois, guardian_pct % de chances. Guerre au ciel (prop. 18) : la rivale d'une parvenue éveillée, heaven_pct % tous les heaven_every jours ; un camp protège side_days jours, butin heaven_loot. Tombeaux (prop. 20) : un monde de Kheb s'ouvre tous les tomb_days jours, un sur tomb_mad fou.",
+  "parvenue_from": 7200,
+  "ratio_pct": 200,
+  "roll_pct": 50,
+  "notice_days": 360,
+  "awake_fleets": 2,
+  "awake_power_pct": 100,
+  "expand_days": 360,
+  "dominion_jumps": 8,
+  "dominion_cd": 1440,
+  "tribute_pct": 5,
+  "contain_fx": {
+   "damage_pct": 10
+  },
+  "aid_res": {
+   "energy": 200,
+   "materials": 200
+  },
+  "decay_after": 7200,
+  "decay_worlds": 5,
+  "decay_ships_pct": 25,
+  "guardian_after": 1800,
+  "guardian_pct": 60,
+  "guardian_fleets": 2,
+  "heaven_every": 1800,
+  "heaven_pct": 50,
+  "side_days": 3600,
+  "heaven_loot": {
+   "energy": 600,
+   "materials": 600,
+   "knowledge": 400
+  },
+  "tomb_days": 360,
+  "tomb_mad": 5,
+  "tomb_power_pct": 40
+ },
+ "bridges": {
+  "_doc": "Lot 3. Guerre sainte (prop. 19) : coloniser, bombarder ou prendre un Monde saint réveille les Hiérophantes. Religion (21) : la nature Précurseurs gagne pilgrim_zeal de zèle par mois avec une flotte sur un Monde saint ; consacrer un Monde saint (consecrate_cost, flotte sur place) donne consecrate_op aux Hiérophantes pour toute la foi. Reliques (22) : la relique-clé d'une ancienne (tag « ancienne ») est cachée dans une fouille à relic_jumps sauts de sa poche ; la tenir donne relic_op et permet de refuser ultimatum et soumission sans guerre. Héritage (23) : une ancienne abattue laisse vaults fouilles (la dernière ne s'ouvre que pendant une crise), chacune avec une technologie en plus. Héros (25) : trait ami_anciens (+friend_op). Rejeton (27) : petite ancienne d'un système à scion_jumps sauts, scion_op d'opinion, rivale à rival_op, cadeau tous les scion_gift_days, tribut scion_tribute_pct %.",
+  "pilgrim_zeal": 2,
+  "consecrate_cost": {
+   "influence": 50
+  },
+  "consecrate_op": 30,
+  "relic_jumps": [
+   2,
+   4
+  ],
+  "relic_op": 50,
+  "vaults": [
+   2,
+   3
+  ],
+  "friend_op": 25,
+  "scion_jumps": [
+   3,
+   5
+  ],
+  "scion_op": 150,
+  "rival_op": -100,
+  "scion_gift_days": 720,
+  "scion_tribute_pct": 2,
+  "scion_power_pct": 35
+ }
+}

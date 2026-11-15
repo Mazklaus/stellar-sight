@@ -215,6 +215,11 @@ var crisis_kinds: Array[String] = []
 var crisis_nemesis := true
 var _crisis_nemesis_check: CheckBox
 var _crisis_kinds_button: MenuButton
+## Puissances anciennes endormies (voir Ancients) : nombre, et réveils permis ou non.
+var ancients := "normal"
+var _ancients_select: OptionButton
+var awakenings := true
+var _awakenings_check: CheckBox
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
 const PRESETS_PATH := "user://new_game_presets.json"
@@ -1649,6 +1654,23 @@ func set_crisis_kinds(kinds: Array) -> void:
 	_refresh_preset()
 
 
+func set_ancients(id: String) -> void:
+	var ids := _ids_of(Ancients.mode_defs())
+	ancients = id if ids.has(id) else "aucune"
+	if _ancients_select:
+		_ancients_select.select(ids.find(ancients))
+	if _awakenings_check:
+		_awakenings_check.disabled = ancients == "aucune"
+	_refresh_preset()
+
+
+func set_awakenings(on: bool) -> void:
+	awakenings = on
+	if _awakenings_check:
+		_awakenings_check.set_pressed_no_signal(on)
+	_refresh_preset()
+
+
 func set_crisis_nemesis(on: bool) -> void:
 	crisis_nemesis = on
 	if _crisis_nemesis_check:
@@ -1720,7 +1742,8 @@ func set_migrations(id: String) -> void:
 func game_options() -> Dictionary:
 	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
-		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis}
+		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
+		"ancients": ancients, "awakenings": awakenings}
 
 
 func set_spectator(on: bool) -> void:
@@ -2189,6 +2212,20 @@ func _build_new_page(root: Control) -> void:
 	_crisis_nemesis_check.tooltip_text = "Un empire, joueur ou IA, peut prendre la voie de l'Ambition démesurée : sa Menace monte avec ses conquêtes et ses atrocités ; au dernier palier, toute la galaxie lui fait la guerre, et un grand œuvre lui donne la victoire s'il l'achève."
 	_crisis_nemesis_check.toggled.connect(set_crisis_nemesis)
 	game.add_child(_crisis_nemesis_check)
+	_ancients_select = OptionButton.new()
+	_ancients_select.clip_text = true
+	var antip := PackedStringArray()
+	for m: Dictionary in Ancients.mode_defs():
+		_ancients_select.add_item(String(m["label"]))
+		antip.append("%s : %s" % [String(m["label"]), String(m["text"])])
+	_ancients_select.tooltip_text = "Puissances anciennes endormies : des civilisations d'avant, immensément fortes, repliées dans leur poche d'étoiles. Elles demandent, offrent, s'offusquent, et certaines se réveillent.\n" + "\n".join(antip)
+	_ancients_select.item_selected.connect(func(i: int) -> void: set_ancients(String(Ancients.mode_defs()[i]["id"])))
+	_labeled_row(game, "Puissances anciennes", _ancients_select)
+	_awakenings_check = CheckBox.new()
+	_awakenings_check.text = "Réveils des anciennes"
+	_awakenings_check.tooltip_text = "Les anciennes peuvent s'éveiller (parvenue qui veut régner, gardienne face à la crise, Guerre au ciel). Décoché, elles restent endormies toute la partie."
+	_awakenings_check.toggled.connect(set_awakenings)
+	game.add_child(_awakenings_check)
 	set_peoples(peoples)
 	set_migrations(migrations)
 	set_faiths(faiths)
@@ -2207,6 +2244,8 @@ func _build_new_page(root: Control) -> void:
 	set_crisis_strength(crisis_strength)
 	set_crisis_kinds(crisis_kinds)
 	set_crisis_nemesis(crisis_nemesis)
+	set_ancients(ancients)
+	set_awakenings(awakenings)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2948,6 +2987,7 @@ func settings() -> Dictionary:
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
+		"ancients": ancients, "awakenings": awakenings,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2967,7 +3007,8 @@ func default_settings() -> Dictionary:
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
 		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives", "amphictyony": "active", "vassals": "actifs", "koinon": "actif", "wargoals": "actifs", "occupation": "occupation", "borders": String(GameData.borders()["default_mode"]), "ground": String(GameData.ground()["default_mode"]), "logistics": String(GameData.logistics()["default_mode"]),
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
-		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true}
+		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true,
+		"ancients": Ancients.default_mode(), "awakenings": true}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -3055,6 +3096,8 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_crisis_strength(String(d.get("crisis_strength", base["crisis_strength"])))
 	set_crisis_kinds(d.get("crisis_kinds", base["crisis_kinds"]))
 	set_crisis_nemesis(bool(d.get("crisis_nemesis", base["crisis_nemesis"])))
+	set_ancients(String(d.get("ancients", base["ancients"])))
+	set_awakenings(bool(d.get("awakenings", base["awakenings"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

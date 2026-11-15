@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.9"
+EDITION = "2.12"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -528,6 +528,25 @@ def gen_terrain_talents():
     return (f"<table class='grille'><tr><th>Couche</th><th>Talent</th><th>Effet</th></tr>{lignes}</table>")
 
 
+def gen_anciennes():
+    """Catalogue des puissances anciennes (data/ancients.json)."""
+    d = charger("ancients.json")
+    lignes = ""
+    for k in d.get("kinds", {}).values():
+        postes = "<br>".join(f"<b>{esc(p['label'])}</b> : {inline(p.get('text', ''))}" for p in k.get("posts", []))
+        lignes += (f"<tr><td><b>{esc(k['name'])}</b><br><small>{esc(k.get('register', ''))}</small></td>"
+                   f"<td>{inline(k.get('angers_text', ''))}</td><td>{inline(k.get('wants_text', ''))}<br><small>Mission : {inline(k.get('mission', {}).get('text', ''))}</small></td>"
+                   f"<td>{postes}</td></tr>")
+    return (f"<table class='grille'><tr><th>Ancienne</th><th>Ce qui la fâche</th><th>Ce qu'elle veut</th><th>Ses postes</th></tr>{lignes}</table>")
+
+
+def gen_anciennes_batiments():
+    """Bâtiments uniques des mondes anciens (data/ancients.json)."""
+    lignes = "".join(f"<tr><td><b>{esc(b['label'])}</b></td><td>{inline(b.get('text', ''))}</td></tr>"
+                     for bid, b in charger("ancients.json").get("buildings", {}).items() if not bid.startswith("_"))
+    return f"<table class='grille'><tr><th>Bâtiment</th><th>Ce qu'on en dit</th></tr>{lignes}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -535,6 +554,7 @@ GENERATEURS = {
     "luxes": gen_luxes, "strategiques": gen_strategiques,
     "lois": gen_lois, "reliques": gen_reliques, "logistique": gen_logistique,
     "terrains": gen_terrains, "terrain_talents": gen_terrain_talents,
+    "anciennes": gen_anciennes, "anciennes_batiments": gen_anciennes_batiments,
 }
 
 

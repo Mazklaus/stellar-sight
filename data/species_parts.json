@@ -139,7 +139,8 @@
 		{"id": "gisement_cristaux", "label": "Veine de cristaux", "text": "Un gisement de cristaux de saut garanti dans le système d'origine.", "fields": {"home_deposit": "crystals"}},
 		{"id": "gisement_filons", "label": "Filons du berceau", "text": "Un gisement de filons riches garanti dans le système d'origine.", "fields": {"home_deposit": "minerals"}},
 		{"id": "gisement_geothermie", "label": "Cœur brûlant", "text": "Un gisement géothermique garanti dans le système d'origine.", "fields": {"home_deposit": "geothermal"}},
-		{"id": "sans_heritage", "label": "Partis de rien", "text": "Aucun gisement garanti, mais un peuple qui a appris à se débrouiller : +1 point de traits.", "points": 1}
+		{"id": "sans_heritage", "label": "Partis de rien", "text": "Aucun gisement garanti, mais un peuple qui a appris à se débrouiller : +1 point de traits.", "points": 1},
+		{"id": "rejeton", "label": "Rejeton d'une ancienne", "text": "Votre peuple a grandi sous l'aile d'une puissance ancienne, qui tient un système près de chez vous : cadeaux réguliers, tribut léger (2 % de votre énergie chaque mois), et la rivale de votre protectrice vous déteste d'office. Elle existe même si les puissances anciennes sont sur Aucune.", "fields": {"ancient_scion": true}}
 	],
 	"biomes": ["continental", "ocean", "desert", "arctic", "toxic"],
 	"traits": [

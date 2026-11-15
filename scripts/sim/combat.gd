@@ -269,6 +269,9 @@ static func shot_damage(weapon: String, power: int, phase: int, shooter_tactic: 
 static func at_war(state: GameState, a: int, b: int) -> bool:
 	if a == b or a < 0 or b < 0:
 		return false
+	# Les puissances anciennes ont leurs propres humeurs (Ancients.at_war).
+	if GameState.is_ancient(a) or GameState.is_ancient(b):
+		return Ancients.at_war(state, a, b)
 	# Les Sans-Bannière (rebelles, mondes libres) sont hostiles à tous.
 	if GameState.is_npc(a) or GameState.is_npc(b):
 		return true
@@ -595,6 +598,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 		added.append(state.add_chronicle("%s envahit %s et en chasse %s. On repeint les drapeaux ; les habitants, eux, restent." % [
 				en.display_name(), sname, eo.display_name()], Espionage.private_to(state, [new_owner, old], system_id)))
 	Movements.on_conquest(state, system_id, new_owner, added)
+	Ancients.on_capture(state, system_id, new_owner, old, added)
 	FaithNatures.on_capture(state, system_id, old, new_owner, added)
 	if lost_capital:
 		Relics.on_capital_lost(state, old, new_owner, added)
