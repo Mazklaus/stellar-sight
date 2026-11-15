@@ -43,7 +43,8 @@ var tactical := false
 var backdrop: GroundBackdrop
 var army: ArmyLayer
 var _scale := 0
-var _slow_time := 0.0          # secondes passées sous le plancher d'images par seconde
+var _slow_time := 0.0
+var _shot_cols: Array = [Color(1.0, 0.86, 0.45), Color(0.55, 0.85, 1.0)]  # couleur des tirs de chaque camp (registre, peuple)          # secondes passées sous le plancher d'images par seconde
 
 
 func _ready() -> void:
@@ -129,6 +130,12 @@ func _apply_tactical() -> void:
 	army.visible = not tactical
 
 
+## Peuple d'un camp : celui de l'empire (les habitants d'un système sans maître n'en ont pas).
+func _side_fid(side: int) -> String:
+	var e := _state.get_empire(int(report["a"]) if side == 0 else int(report["d"])) if _state else null
+	return e.faction_id if e else ""
+
+
 func _side_color(side: int) -> Color:
 	var e := _state.get_empire(int(report["a"]) if side == 0 else int(report["d"])) if _state else null
 	if e:
@@ -142,8 +149,14 @@ func _setup_scene() -> void:
 	_slow_time = 0.0
 	army.reduced = false
 	backdrop.size = size if size.x > 0 else Vector2(1600, 900)
-	backdrop.setup(report.get("sc", {}), UiSettings.replay_detail_level())
-	army.setup(report, backdrop, _scale, _dmg_until, _dead_day, [_side_color(0), _side_color(1)])
+	var sc: Dictionary = report.get("sc", {}).duplicate()
+	if not sc.is_empty() and not sc.has("csp"):
+		sc["csp"] = _side_fid(1)  # rapport d'avant le lot 3 : la ville du défenseur prend son peuple
+	backdrop.setup(sc, UiSettings.replay_detail_level())
+	army.setup(report, backdrop, _scale, _dmg_until, _dead_day, [_side_color(0), _side_color(1)], [_side_fid(0), _side_fid(1)])
+	_shot_cols = [SpeciesLook.shot_color(_side_fid(0)), SpeciesLook.shot_color(_side_fid(1))]
+	if (_shot_cols[0] as Color).is_equal_approx(_shot_cols[1]):
+		_shot_cols[1] = (_shot_cols[1] as Color).lerp(Color(0.55, 0.85, 1.0), 0.6)  # même peuple des deux côtés : tirs distincts
 	army.update(t, backdrop.tint)
 	_apply_tactical()
 
@@ -556,7 +569,7 @@ func _draw_field_shots(d: int, frac: float) -> void:
 		if a < 0 or b < 0 or a >= army.units.size() or b >= army.units.size():
 			continue
 		var side := int((units[a] as Dictionary)["side"])
-		var col := Color(1.0, 0.86, 0.45) if side == 0 else Color(0.55, 0.85, 1.0)
+		var col: Color = _shot_cols[side]
 		var fam := String(army.units[a]["fam"])
 		var seed_k := d * 131 + k * 17
 		var vol := 3 if fam == "infanterie" or fam == "milice" else 1

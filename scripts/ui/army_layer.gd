@@ -10,9 +10,9 @@ extends Node2D
 ## reste (bannières, chevrons, général, traçantes) est dessiné par la vue.
 
 const DAY_SECONDS := 1.6
-const KINDS := ["corpse", "wreck", "shadow", "mil", "inf", "tank", "big", "air"]
-const SIZES := {"corpse": Vector2(12, 5), "wreck": Vector2(22, 10), "shadow": Vector2(22, 6), "mil": Vector2(9, 13),
-		"inf": Vector2(9, 14), "tank": Vector2(22, 12), "big": Vector2(30, 40), "air": Vector2(24, 10)}
+const MASK_SHADER := preload("res://shaders/figure_mask.gdshader")
+## Ordre de dessin des lots : corps et épaves, ombres, fantassins, véhicules, grandes figures, aérien.
+const LAYERS := ["corpse", "wreck", "shadow", "mil", "inf", "tank", "big", "air"]
 
 var backdrop: GroundBackdrop
 var report: Dictionary = {}
@@ -23,25 +23,21 @@ var units: Array = []          # par unité : {fam, kind, n, side, offsets, rank
 var total := 0
 var cap_hit := false
 
-var _mm: Dictionary = {}       # kind -> MultiMeshInstance2D
-var _buf: Dictionary = {}      # kind -> PackedFloat32Array (12 flottants par figurine)
+var side_fids: Array = ["", ""]  # peuple de chaque camp (allure par défaut de ses régiments)
+var _mm: Dictionary = {}       # clé d'allure -> MultiMeshInstance2D
+var _buf: Dictionary = {}      # clé d'allure -> PackedFloat32Array (12 flottants par figurine)
+var _size: Dictionary = {}     # clé d'allure -> taille à l'écran (échelle 1)
+var _mat: ShaderMaterial
 var _dmg_until: Array = []
 var _dead_day: Array = []
 var _days := 1
+var _works: Array = []         # positions défensives : [genre, gx, gz0, gz1, graine]
+var _t := 0.0
 
 
 func _ready() -> void:
-	for k: String in KINDS:
-		var mi := MultiMeshInstance2D.new()
-		var mm := MultiMesh.new()
-		mm.transform_format = MultiMesh.TRANSFORM_2D
-		mm.use_colors = true
-		mm.mesh = _quad()
-		mi.multimesh = mm
-		mi.texture = _texture(k)
-		mi.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-		add_child(mi)
-		_mm[k] = mi
+	_mat = ShaderMaterial.new()
+	_mat.shader = MASK_SHADER
 
 
 static func cfg() -> Dictionary:
@@ -58,68 +54,6 @@ static func _quad() -> ArrayMesh:
 	var m := ArrayMesh.new()
 	m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
 	return m
-
-
-## Silhouettes dessinées pixel par pixel (en gris, teintées par la couleur de l'empire), tournées vers la droite.
-static func _texture(kind: String) -> ImageTexture:
-	var sz: Vector2 = SIZES[kind] * 2.0
-	var img := Image.create(int(sz.x), int(sz.y), false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))
-	var w := img.get_width()
-	var h := img.get_height()
-	var dark := Color(0.35, 0.35, 0.38)
-	var mid := Color(0.75, 0.75, 0.78)
-	var light := Color(1, 1, 1)
-	match kind:
-		"inf", "mil":
-			# Casque, buste, jambes, arme pointée vers l'avant.
-			_disc(img, Vector2(w * 0.45, h * 0.13), w * 0.2, dark if kind == "inf" else mid)
-			img.fill_rect(Rect2i(int(w * 0.25), int(h * 0.24), int(w * 0.45), int(h * 0.38)), light)
-			img.fill_rect(Rect2i(int(w * 0.25), int(h * 0.62), int(w * 0.18), int(h * 0.38)), mid)
-			img.fill_rect(Rect2i(int(w * 0.52), int(h * 0.62), int(w * 0.18), int(h * 0.38)), mid)
-			if kind == "inf":
-				img.fill_rect(Rect2i(int(w * 0.5), int(h * 0.3), int(w * 0.5), 2), dark)
-		"corpse":
-			img.fill_rect(Rect2i(int(w * 0.1), int(h * 0.35), int(w * 0.7), int(h * 0.5)), mid)
-			_disc(img, Vector2(w * 0.85, h * 0.6), h * 0.3, dark)
-		"tank", "wreck":
-			img.fill_rect(Rect2i(0, int(h * 0.55), w, int(h * 0.45)), dark)
-			for k in 5:
-				_disc(img, Vector2(w * (0.12 + k * 0.19), h * 0.78), h * 0.13, mid)
-			img.fill_rect(Rect2i(int(w * 0.08), int(h * 0.3), int(w * 0.8), int(h * 0.3)), light if kind == "tank" else mid)
-			img.fill_rect(Rect2i(int(w * 0.3), int(h * 0.05), int(w * 0.35), int(h * 0.3)), light if kind == "tank" else dark)
-			if kind == "tank":
-				img.fill_rect(Rect2i(int(w * 0.6), int(h * 0.14), int(w * 0.4), int(h * 0.1)), mid)
-		"big":
-			# Colosse ou marcheur : deux pattes, une caisse, une tête.
-			img.fill_rect(Rect2i(int(w * 0.2), int(h * 0.55), int(w * 0.16), int(h * 0.45)), dark)
-			img.fill_rect(Rect2i(int(w * 0.62), int(h * 0.55), int(w * 0.16), int(h * 0.45)), dark)
-			img.fill_rect(Rect2i(int(w * 0.1), int(h * 0.22), int(w * 0.8), int(h * 0.36)), light)
-			img.fill_rect(Rect2i(int(w * 0.6), int(h * 0.08), int(w * 0.3), int(h * 0.16)), mid)
-			img.fill_rect(Rect2i(int(w * 0.8), int(h * 0.3), int(w * 0.2), int(h * 0.06)), dark)
-		"air":
-			img.fill_rect(Rect2i(0, int(h * 0.4), w, int(h * 0.25)), light)
-			img.fill_rect(Rect2i(int(w * 0.3), 0, int(w * 0.25), h), mid)
-			img.fill_rect(Rect2i(0, int(h * 0.15), int(w * 0.12), int(h * 0.5)), mid)
-		"shadow":
-			_ellipse(img, Color(0, 0, 0, 0.45))
-	return ImageTexture.create_from_image(img)
-
-
-static func _disc(img: Image, c: Vector2, r: float, col: Color) -> void:
-	for y in range(int(c.y - r), int(c.y + r) + 1):
-		for x in range(int(c.x - r), int(c.x + r) + 1):
-			if x >= 0 and y >= 0 and x < img.get_width() and y < img.get_height() and Vector2(x, y).distance_to(c) <= r:
-				img.set_pixel(x, y, col)
-
-
-static func _ellipse(img: Image, col: Color) -> void:
-	var c := Vector2(img.get_width(), img.get_height()) * 0.5
-	for y in img.get_height():
-		for x in img.get_width():
-			var d := Vector2((x - c.x) / c.x, (y - c.y) / c.y)
-			if d.length() <= 1.0:
-				img.set_pixel(x, y, col)
 
 
 static func family_of(ty: String) -> String:
@@ -140,8 +74,25 @@ static func figures_for(ty: String, level: int) -> int:
 	return n
 
 
-func setup(r: Dictionary, bd: GroundBackdrop, level: int, dmg_until: Array, dead_day: Array, side_colors: Array) -> void:
+## Clés d'allure (vivant, mort) d'un régiment : corps et équipement pour les fantassins, véhicule,
+## appareil ou grande figure ; corps, éboulis ou épave une fois tombé.
+static func look_keys(kind: String, ty: String, lk: Dictionary) -> Array:
+	match kind:
+		"mil", "inf":
+			return ["%s|%s|%s" % [kind, lk.get("body", "bipede"), lk.get("gear", "aucun")], "corpse|%s" % lk.get("corpse", "corps")]
+		"tank":
+			return ["tank|%s" % lk.get("vehicle", "chenilles"), "wreck|%s" % lk.get("vehicle", "chenilles")]
+		"big":
+			var b := "colosse" if ty == "colosses" else "marcheur"
+			return ["big|" + b, "corpse|eboulis" if b == "colosse" else "wreck|chenilles"]
+		"air":
+			return ["air|%s" % lk.get("air", "chasseur"), "wreck|chenilles"]
+	return ["inf|bipede|aucun", "corpse|corps"]
+
+
+func setup(r: Dictionary, bd: GroundBackdrop, level: int, dmg_until: Array, dead_day: Array, side_colors: Array, fids: Array = ["", ""]) -> void:
 	report = r
+	side_fids = fids
 	backdrop = bd
 	scale_level = level
 	_dmg_until = dmg_until
@@ -193,13 +144,20 @@ func _build() -> void:
 			"milice": kind = "mil"
 			"blindes": kind = "big" if ty in cfg().get("big", []) else "tank"
 			"aerien": kind = "air"
+		var fid := String(u.get("sp", ""))
+		if fid == "" or GameData.faction(fid).is_empty():
+			fid = String(side_fids[side])
+		var lk := SpeciesLook.look(fid, ty)
+		var keys := look_keys(kind, ty, lk)
 		var e := {"fam": fam, "kind": kind, "n": n, "side": side, "base": anchors[i], "tactic": tac,
+				"key": keys[0], "dkey": keys[1], "gait": float(lk.get("gait", 9.0)), "lscale": float(lk.get("scale", 1.0)),
 				"rout_t": -1.0 if not routs.has(i) else (float(routs[i]) + 0.85) * DAY_SECONDS}
 		_formation(e, i)
 		_deaths(e, i)
 		units.append(e)
 		total += n
 	_alloc()
+	_plan_works()
 
 
 ## Ancres des régiments sur le terrain : colonnes depuis la ligne de front (le centre) vers l'arrière,
@@ -322,7 +280,7 @@ func _dmg(d: int, idx: int, mh: int) -> int:
 
 
 ## Ancre d'un régiment au temps t : l'assaillant débarque près des barges et avance, le défenseur tient
-## (ou avance un peu s'il n'est pas retranché) ; un régiment en déroute repart vers l'arrière.
+## ses positions ; un régiment en déroute repart vers l'arrière.
 func anchor(i: int, t: float) -> Vector2:
 	var e: Dictionary = units[i]
 	var b: Vector3 = e["base"]
@@ -331,8 +289,6 @@ func anchor(i: int, t: float) -> Vector2:
 	if side == 0:
 		x -= 220.0 * (1.0 - smoothstep(0.0, DAY_SECONDS * 1.3, t))
 		x += 60.0 * smoothstep(DAY_SECONDS, _days * DAY_SECONDS, t)
-	elif not String(e["tactic"]) in ["defense", "civils"] and String(e["fam"]) != "milice":
-		x -= 26.0 * smoothstep(0.0, DAY_SECONDS * 2.0, t)
 	var rt := float(e["rout_t"])
 	if rt >= 0.0 and t > rt:
 		var p := (t - rt) / DAY_SECONDS
@@ -380,32 +336,49 @@ func figure_pos(i: int, k: int, t: float) -> Vector2:
 	var gz := a.y + o.y
 	var p := backdrop.project(a.x + o.x, gz)
 	var lift := 34.0 * backdrop.scale_at(gz) if String(e["kind"]) == "air" else 0.0
-	return p - Vector2(0, (SIZES[e["kind"]] as Vector2).y * 0.5 * backdrop.scale_at(gz) + lift)
+	return p - Vector2(0, FigureArt.size_of(String(e["key"])).y * 0.5 * backdrop.scale_at(gz) + lift)
 
 
-## Capacité de chaque lot (figurines debout, corps, épaves, ombres), fixée au montage.
+## Lots de figurines (un par clé d'allure, rangés par couche de dessin) et leur capacité, fixés au montage.
 func _alloc() -> void:
+	for mi in _mm.values():
+		(mi as Node).queue_free()
+	_mm.clear()
+	_buf.clear()
+	_size.clear()
 	var cap := {}
-	for k: String in KINDS:
-		cap[k] = 0
 	for e: Dictionary in units:
-		var kind := String(e["kind"])
 		var n := int(e["n"])
-		cap[kind] = int(cap[kind]) + n
-		cap[_dead_kind(kind)] = int(cap[_dead_kind(kind)]) + n
-		if kind == "air":
-			cap["shadow"] = int(cap["shadow"]) + n
-	for k: String in KINDS:
-		var mm := (_mm[k] as MultiMeshInstance2D).multimesh
+		for k: String in [String(e["key"]), String(e["dkey"])]:
+			cap[k] = int(cap.get(k, 0)) + n
+		if String(e["kind"]) == "air":
+			cap["shadow"] = int(cap.get("shadow", 0)) + n
+	var keys: Array = cap.keys()
+	keys.sort_custom(func(x: String, y: String) -> bool:
+		var lx := LAYERS.find(x.split("|")[0])
+		var ly := LAYERS.find(y.split("|")[0])
+		return lx < ly if lx != ly else x < y)
+	for k: String in keys:
+		var mi := MultiMeshInstance2D.new()
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_2D
+		mm.use_colors = true
+		mm.mesh = _quad()
 		mm.instance_count = maxi(1, int(cap[k]))
 		mm.visible_instance_count = 0
+		mi.multimesh = mm
+		var tex: Array = FigureArt.textures(k)
+		mi.texture = tex[0]
+		var mat := _mat.duplicate() as ShaderMaterial
+		mat.set_shader_parameter("mask_tex", tex[1])
+		mi.material = mat
+		mi.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		add_child(mi)
+		_mm[k] = mi
+		_size[k] = FigureArt.size_of(k)
 		var b := PackedFloat32Array()
 		b.resize(mm.instance_count * 12)
 		_buf[k] = b
-
-
-static func _dead_kind(kind: String) -> String:
-	return "wreck" if kind in ["tank", "big", "air"] else "corpse"
 
 
 ## Écrit une figurine dans le lot (transformation 2D sur 8 flottants, puis la couleur).
@@ -430,22 +403,24 @@ func update(t: float, tint: Color) -> void:
 	if backdrop == null or _buf.is_empty():
 		return
 	var cnt := {}
-	for k: String in KINDS:
+	for k: String in _buf:
 		cnt[k] = 0
 	for i in units.size():
 		var e: Dictionary = units[i]
 		var side := int(e["side"])
-		var col: Color = (colors[side] as Color) * tint
+		var col: Color = colors[side]
 		col.a = 1.0
 		var dcol := Color(col.darkened(0.55), 0.85)
 		var kind := String(e["kind"])
-		var dk := _dead_kind(kind)
-		var sz: Vector2 = SIZES[kind]
-		var dsz: Vector2 = SIZES[dk] * (1.4 if kind == "big" else 1.0)
-		var shz: Vector2 = SIZES["shadow"]
-		var buf: PackedFloat32Array = _buf[kind]
+		var key := String(e["key"])
+		var dk := String(e["dkey"])
+		var ls := float(e.get("lscale", 1.0))
+		var sz: Vector2 = _size[key] * ls
+		var dsz: Vector2 = _size[dk] * ls * (1.4 if kind == "big" else 1.0)
+		var shz: Vector2 = FigureArt.size_of("shadow")
+		var buf: PackedFloat32Array = _buf[key]
 		var dbuf: PackedFloat32Array = _buf[dk]
-		var sbuf: PackedFloat32Array = _buf["shadow"]
+		var sbuf: PackedFloat32Array = _buf.get("shadow", PackedFloat32Array())
 		var fig_k := float(e.get("fig", 1.0))
 		var a := anchor(i, t)
 		var mv := moving(i, t)
@@ -459,7 +434,7 @@ func update(t: float, tint: Color) -> void:
 			fade = clampf(1.0 - (t - float(e["rout_t"])) / (DAY_SECONDS * 1.6), 0.0, 1.0)
 		var lcol := Color(col, fade)
 		var scol := Color(1, 1, 1, 0.6 * fade)
-		var bob := 9.0 if kind != "big" else 3.0
+		var bob := float(e.get("gait", 9.0))
 		var bob_h := 1.6 if kind != "big" else 2.0
 		for j in offs.size():
 			var o: Vector3 = offs[j]
@@ -484,12 +459,26 @@ func update(t: float, tint: Color) -> void:
 				p.y -= 34.0 * s + sin(t * 2.0 + o.z) * 3.0
 			elif mv:
 				p.y -= absf(sin(t * bob + o.z)) * bob_h * s
-			_put(buf, cnt[kind], p, sz.x * s * dirx, sz.y * s, lcol)
-			cnt[kind] = int(cnt[kind]) + 1
-	for k: String in KINDS:
-		var mm := (_mm[k] as MultiMeshInstance2D).multimesh
+			_put(buf, cnt[key], p, sz.x * s * dirx, sz.y * s, lcol)
+			cnt[key] = int(cnt[key]) + 1
+	for k: String in _buf:
+		var mi: MultiMeshInstance2D = _mm[k]
+		var mm := mi.multimesh
 		mm.buffer = _buf[k]
 		mm.visible_instance_count = int(cnt[k])
+		(mi.material as ShaderMaterial).set_shader_parameter("tint", tint)
+	_t = t
+	queue_redraw()
+
+
+## Premier lot de figurines dont la clé d'allure commence par prefix (corpse, inf, tank…).
+func batch(prefix: String) -> MultiMesh:
+	var keys: Array = _mm.keys()
+	keys.sort()
+	for k: String in keys:
+		if k.begins_with(prefix):
+			return (_mm[k] as MultiMeshInstance2D).multimesh
+	return null
 
 
 func living_total(t: float) -> int:
@@ -497,3 +486,203 @@ func living_total(t: float) -> int:
 	for i in units.size():
 		c += alive_count(i, t)
 	return c
+
+
+# --- Positions défensives ----------------------------------------------------------------------
+
+## Retranchements du défenseur devant chaque régiment, choisis selon ce qu'il a : fortifications
+## (tranchées, casemates), citadelle (mur d'énergie), bastion (tourelles), tactique (défense,
+## civils, résistance), famille (blindés à l'abri d'un talus, aérien sur une aire). Obstacles
+## (hérissons, barbelés) dans le no man's land si la place est fortifiée.
+func _plan_works() -> void:
+	_works.clear()
+	var sc: Dictionary = report.get("sc", {})
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(sc.get("seed", 1)) * 13 + 5
+	var fortified := int(sc.get("fort_max", 0)) > 0
+	var pool: Array = ["sacs", "sacs"]
+	if fortified:
+		pool += ["tranchee", "casemate", "tranchee"]
+	if bool(sc.get("citadel", false)):
+		pool += ["bouclier", "bouclier"]
+	if bool(sc.get("bastion", false)):
+		pool += ["tourelle", "tourelle"]
+	var td := String(report.get("td", ""))
+	match td:
+		"defense":
+			pool += ["tranchee", "casemate", "sacs"]
+		"civils":
+			pool += ["barricade", "barricade"]
+		"resistance":
+			pool += ["ruines", "trous"]
+	var front := INF
+	var z0 := 1.0
+	var z1 := 0.0
+	for i in units.size():
+		var e: Dictionary = units[i]
+		if int(e["side"]) != 1:
+			continue
+		var ext := _extent(e)
+		var b: Vector3 = e["base"]
+		var gx := b.x + float(ext.x) - 8.0
+		var a0 := b.y + float(ext.y)
+		var a1 := b.y + float(ext.z)
+		var kind: String
+		match String(e["fam"]):
+			"milice":
+				kind = ["barricade", "trous", "sacs"][rng.randi() % 3]
+			"blindes":
+				kind = "talus"
+			"aerien":
+				kind = "aire"
+				gx = b.x
+			_:
+				kind = String(pool[rng.randi() % pool.size()])
+		_works.append([kind, gx, a0 - 0.02, a1 + 0.02, rng.randi()])
+		front = minf(front, gx)
+		z0 = minf(z0, a0)
+		z1 = maxf(z1, a1)
+	if front < INF and (fortified or td == "defense"):
+		var z := z0
+		while z < z1:
+			var len_z := rng.randf_range(0.06, 0.14)
+			_works.append(["herissons" if rng.randf() < 0.5 else "barbeles", front - rng.randf_range(40.0, 70.0), z, minf(z1, z + len_z), rng.randi()])
+			z += len_z + rng.randf_range(0.04, 0.1)
+	_works.sort_custom(func(a: Array, b: Array) -> bool: return float(a[2]) < float(b[2]))
+
+
+## Emprise d'un régiment autour de son ancre : (dx min, dz min, dz max).
+func _extent(e: Dictionary) -> Vector3:
+	var mnx := 0.0
+	var mnz := 0.0
+	var mxz := 0.0
+	for o: Vector3 in e["offsets"]:
+		mnx = minf(mnx, o.x)
+		mnz = minf(mnz, o.y)
+		mxz = maxf(mxz, o.y)
+	return Vector3(mnx, mnz, mxz)
+
+
+func _draw() -> void:
+	if backdrop == null:
+		return
+	var tint := backdrop.tint
+	for wk: Array in _works:
+		_draw_work(String(wk[0]), float(wk[1]), float(wk[2]), float(wk[3]), int(wk[4]), tint)
+
+
+func _draw_work(kind: String, gx: float, z0: float, z1: float, seed_value: int, tint: Color) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	var a := backdrop.project(gx, z0)
+	var b := backdrop.project(gx, z1)
+	var zm := (z0 + z1) * 0.5
+	var s := backdrop.scale_at(zm)
+	var earth := Color(0.42, 0.36, 0.28) * tint
+	var sand := Color(0.66, 0.6, 0.46) * tint
+	var concrete := Color(0.55, 0.55, 0.56) * tint
+	var steps := maxi(2, int(a.distance_to(b) / (7.0 * s)))
+	match kind:
+		"sacs":
+			for layer in 2:
+				for k in steps:
+					var p := a.lerp(b, (k + 0.5 * layer) / steps) - Vector2(0, layer * 3.5 * s)
+					_oval(p, 4.2 * s, 2.4 * s, sand.darkened(0.1 * layer))
+		"tranchee":
+			var off := Vector2(10.0 * s, 0)
+			draw_colored_polygon(PackedVector2Array([a, b, b + off, a + off]), Color(0.12, 0.1, 0.08, 0.75))
+			draw_line(a - Vector2(2 * s, 2 * s), b - Vector2(2 * s, 2 * s), earth.lightened(0.15), 3.0 * s)
+			for k in steps / 2:
+				var p := a.lerp(b, (k + 0.5) / (steps / 2.0)) + Vector2(5 * s, 0)
+				draw_line(p - Vector2(0, 3 * s), p + Vector2(0, 1 * s), Color(0.3, 0.24, 0.16) * tint, 1.0)
+		"casemate":
+			_draw_work("sacs", gx, z0, z1, seed_value, tint)
+			var c := backdrop.project(gx + 4.0, zm)
+			var bw := 26.0 * s
+			var bh := 13.0 * s
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-bw * 0.5, 0), c + Vector2(-bw * 0.42, -bh), c + Vector2(bw * 0.42, -bh), c + Vector2(bw * 0.5, 0)]), concrete)
+			draw_colored_polygon(_half_dome(c + Vector2(0, -bh), bw * 0.3, bh * 0.5), concrete.lightened(0.1))
+			draw_line(c + Vector2(-bw * 0.4, -bh * 0.55), c + Vector2(bw * 0.05, -bh * 0.55), Color(0.05, 0.05, 0.06), 2.0 * s)
+			draw_line(c + Vector2(-bw * 0.42, -bh * 0.55), c + Vector2(-bw * 0.75, -bh * 0.6), Color(0.2, 0.2, 0.22), 2.0 * s)
+		"tourelle":
+			for q in [0.25, 0.75]:
+				var c: Vector2 = a.lerp(b, q)
+				_oval(c, 9.0 * s, 4.0 * s, concrete.darkened(0.2))
+				draw_colored_polygon(_half_dome(c - Vector2(0, 2 * s), 7.0 * s, 6.0 * s), concrete)
+				var ang := PI + sin(_t * 0.9 + q * 7.0) * 0.25
+				var mz := c - Vector2(0, 6 * s)
+				draw_line(mz, mz + Vector2(cos(ang), sin(ang) * 0.4) * 14.0 * s, Color(0.25, 0.25, 0.28), 2.5 * s)
+				draw_circle(mz, 1.6 * s, Color(0.45, 0.9, 1.0, 0.9))
+		"bouclier":
+			var hh := 30.0 * s
+			var pulse := 0.5 + 0.5 * sin(_t * 2.2 + seed_value % 7)
+			draw_colored_polygon(PackedVector2Array([a, b, b - Vector2(0, hh), a - Vector2(0, hh)]), Color(0.45, 0.75, 1.0, 0.1 + 0.06 * pulse))
+			draw_line(a - Vector2(0, hh), b - Vector2(0, hh), Color(0.6, 0.85, 1.0, 0.55 + 0.3 * pulse), 1.6)
+			for k in 4:
+				var q := fposmod(_t * 0.25 + k * 0.25, 1.0)
+				draw_line(a.lerp(b, q), a.lerp(b, q) - Vector2(0, hh), Color(0.7, 0.9, 1.0, 0.25), 1.0)
+			_oval(a, 3 * s, 2 * s, concrete)
+			_oval(b, 3 * s, 2 * s, concrete)
+		"barricade":
+			for k in steps / 2 + 1:
+				var p := a.lerp(b, float(k) / maxf(1.0, steps / 2.0)) + Vector2(rng.randf_range(-4, 4) * s, 0)
+				var bw := rng.randf_range(6.0, 12.0) * s
+				var bh := rng.randf_range(4.0, 8.0) * s
+				var col := [Color(0.5, 0.3, 0.22), Color(0.35, 0.38, 0.42), Color(0.6, 0.55, 0.3)][rng.randi() % 3] as Color
+				draw_set_transform(p, rng.randf_range(-0.4, 0.4), Vector2.ONE)
+				draw_rect(Rect2(Vector2(-bw * 0.5, -bh), Vector2(bw, bh)), col * tint)
+				draw_set_transform(Vector2.ZERO)
+		"ruines":
+			for k in steps / 2 + 1:
+				var p := a.lerp(b, float(k) / maxf(1.0, steps / 2.0))
+				if k % 2 == 0:
+					var hh := rng.randf_range(6.0, 16.0) * s
+					draw_colored_polygon(PackedVector2Array([p + Vector2(-5 * s, 0), p + Vector2(-5 * s, -hh), p + Vector2(0, -hh * 0.7), p + Vector2(4 * s, -hh * 0.9), p + Vector2(4 * s, 0)]), concrete.darkened(0.15))
+				else:
+					draw_colored_polygon(BattleBackdrop.rock(p - Vector2(0, 2 * s), 4.0 * s, rng.randi(), 6), concrete.darkened(0.3))
+		"trous":
+			for k in steps / 2 + 1:
+				var p := a.lerp(b, float(k) / maxf(1.0, steps / 2.0)) + Vector2(rng.randf_range(-6, 6) * s, 0)
+				_oval(p, 6.0 * s, 2.6 * s, Color(0.1, 0.08, 0.07, 0.7))
+				draw_arc(p, 6.0 * s, PI, TAU, 10, earth.lightened(0.1), 1.5)
+		"talus":
+			var off := Vector2(-14.0 * s, 0)
+			draw_colored_polygon(PackedVector2Array([a + off, b + off, b - Vector2(0, 7 * s), a - Vector2(0, 7 * s)]), earth)
+			draw_line(a - Vector2(0, 7 * s), b - Vector2(0, 7 * s), earth.lightened(0.2), 1.5)
+		"aire":
+			var c := backdrop.project(gx, zm)
+			_oval(c, 38.0 * s, 13.0 * s, Color(concrete.darkened(0.3), 0.8))
+			draw_set_transform(c, 0.0, Vector2(1.0, 0.34))
+			draw_arc(Vector2.ZERO, 30.0 * s, 0.0, TAU, 24, Color(1.0, 0.8, 0.3, 0.6), 1.5)
+			draw_set_transform(Vector2.ZERO)
+		"herissons":
+			for k in steps / 2 + 1:
+				var p := a.lerp(b, float(k) / maxf(1.0, steps / 2.0)) + Vector2(rng.randf_range(-8, 8) * s, 0)
+				var r := 5.0 * s
+				var col := Color(0.25, 0.24, 0.24) * tint
+				draw_line(p + Vector2(-r, 0), p + Vector2(r, -r * 1.4), col, 1.5)
+				draw_line(p + Vector2(r, 0), p + Vector2(-r, -r * 1.4), col, 1.5)
+				draw_line(p + Vector2(0, 0.5 * r), p + Vector2(0, -r * 1.2), col, 1.5)
+		"barbeles":
+			var pts := PackedVector2Array()
+			for k in steps * 2 + 1:
+				var q := float(k) / (steps * 2)
+				pts.append(a.lerp(b, q) + Vector2((3.0 if k % 2 == 0 else -3.0) * s, -3.0 * s))
+			draw_polyline(pts, Color(0.35, 0.33, 0.3, 0.85) * tint, 1.0)
+			for k in steps + 1:
+				var p := a.lerp(b, float(k) / steps)
+				draw_line(p, p - Vector2(0, 7 * s), Color(0.3, 0.22, 0.14) * tint, 1.2)
+
+
+func _oval(c: Vector2, rx: float, ry: float, col: Color) -> void:
+	draw_set_transform(c, 0.0, Vector2(1.0, ry / maxf(0.01, rx)))
+	draw_circle(Vector2.ZERO, rx, col)
+	draw_set_transform(Vector2.ZERO)
+
+
+func _half_dome(c: Vector2, rx: float, ry: float) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	for k in 13:
+		var ang := PI + PI * float(k) / 12.0
+		pts.append(c + Vector2(cos(ang) * rx, sin(ang) * ry))
+	return pts

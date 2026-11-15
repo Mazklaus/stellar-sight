@@ -696,7 +696,552 @@
 		"city": {
 			"_doc": "Ville du défenseur : bâtiments selon la population.",
 			"per_pop": 3,
-			"max": 34
+			"max": 56
+		}
+	},
+	"species": {
+		"_doc": "Lot 3 (prop. 29 à 33) : allure des troupes selon les couches d'espèce. Ordre de priorité : troupe dédiée (troops) > peuple (peoples) > archétype (body) et registre (gear, véhicules, tirs). Un peuple créé dans l'éditeur hérite de son archétype et de son registre. body : bipede, insecte, bloc, reptile, robot, feu_follet ; gear : bouclier, blaster, lourd, exo, brocante, epines, halo, banniere, cape ; vehicle : chenilles, glisseur, roues, bricole, rampant, pierre, orbe ; air : chasseur, voilier, canonniere, drone, coucou, volant_bio, orbe ; corpse : corps, eboulis, aucun ; shot : couleur des tirs.",
+		"archetypes": {
+			"humanoide": {
+				"body": "bipede",
+				"gait": 9,
+				"corpse": "corps"
+			},
+			"ruche": {
+				"body": "insecte",
+				"gait": 14,
+				"corpse": "corps"
+			},
+			"lithoide": {
+				"body": "bloc",
+				"gait": 3,
+				"corpse": "eboulis"
+			},
+			"reptilien": {
+				"body": "reptile",
+				"gait": 8,
+				"corpse": "corps"
+			},
+			"synthetique": {
+				"body": "robot",
+				"gait": 7,
+				"corpse": "eboulis"
+			},
+			"energetique": {
+				"body": "feu_follet",
+				"gait": 2,
+				"corpse": "aucun"
+			},
+			"_default": {
+				"body": "bipede",
+				"gait": 9,
+				"corpse": "corps"
+			}
+		},
+		"registres": {
+			"Médiéval spatial": {
+				"gear": "bouclier",
+				"vehicle": "glisseur",
+				"air": "voilier",
+				"shot": [
+					1.0,
+					0.78,
+					0.35
+				]
+			},
+			"Space opera héroïque": {
+				"gear": "blaster",
+				"vehicle": "glisseur",
+				"air": "chasseur",
+				"shot": [
+					0.45,
+					0.8,
+					1.0
+				]
+			},
+			"Grimdark": {
+				"gear": "lourd",
+				"vehicle": "chenilles",
+				"air": "canonniere",
+				"shot": [
+					1.0,
+					0.45,
+					0.25
+				]
+			},
+			"Classique / hard SF": {
+				"gear": "exo",
+				"vehicle": "roues",
+				"air": "drone",
+				"shot": [
+					1.0,
+					0.92,
+					0.62
+				]
+			},
+			"Picaresque / pulp": {
+				"gear": "brocante",
+				"vehicle": "bricole",
+				"air": "coucou",
+				"shot": [
+					1.0,
+					0.8,
+					0.3
+				]
+			},
+			"Horreur biologique": {
+				"gear": "epines",
+				"vehicle": "rampant",
+				"air": "volant_bio",
+				"shot": [
+					0.6,
+					1.0,
+					0.3
+				]
+			},
+			"Cosmique / étrange": {
+				"gear": "halo",
+				"vehicle": "orbe",
+				"air": "orbe",
+				"shot": [
+					0.82,
+					0.6,
+					1.0
+				]
+			},
+			"_default": {
+				"gear": "blaster",
+				"vehicle": "chenilles",
+				"air": "chasseur",
+				"shot": [
+					1.0,
+					0.86,
+					0.45
+				]
+			}
+		},
+		"peoples": {
+			"khthari": {
+				"vehicle": "rampant",
+				"air": "volant_bio",
+				"shot": [
+					0.55,
+					1.0,
+					0.25
+				]
+			},
+			"ferrocornes": {
+				"vehicle": "pierre",
+				"gear": "lourd",
+				"shot": [
+					1.0,
+					0.55,
+					0.25
+				]
+			},
+			"teyl": {
+				"vehicle": "glisseur",
+				"air": "drone",
+				"shot": [
+					0.3,
+					1.0,
+					0.85
+				]
+			},
+			"murmurants": {
+				"vehicle": "orbe",
+				"air": "orbe",
+				"shot": [
+					0.8,
+					0.55,
+					1.0
+				]
+			},
+			"choeur": {
+				"gear": "banniere"
+			}
+		},
+		"troops": {
+			"essaims": {
+				"body": "insecte",
+				"scale": 0.7
+			},
+			"automates": {
+				"body": "robot",
+				"corpse": "eboulis"
+			},
+			"possedes": {
+				"gear": "halo",
+				"glow": true
+			},
+			"fanatiques": {
+				"gear": "banniere"
+			},
+			"troupes_choc": {
+				"gear": "lourd"
+			},
+			"mercenaires": {
+				"gear": "brocante"
+			},
+			"commandos": {
+				"gear": "cape"
+			},
+			"genie": {
+				"gear": "exo"
+			}
+		}
+	},
+	"cities": {
+		"_doc": "Villes du défenseur (lot 3) : style selon le peuple (peoples), sinon l'archétype (archetypes), sinon le registre (registres) ; adaptations selon le biome ; taille selon la population. Chaque style tire ses bâtiments dans kinds (formes dessinées par le jeu : donjon, fleche, dome, tour, aiguille, passerelle, cathedrale, cheminee, module, habitat, radiateur, antenne, baraque, enseigne, grue, tertre, cocon, tour_organique, cristal, anneau, obelisque, monolithe, forge, arche, bloc, gradins) ; landmark : grand édifice au-delà de size.landmark_pop.",
+		"styles": {
+			"citadelle": {
+				"kinds": [
+					"donjon",
+					"fleche",
+					"tour",
+					"dome",
+					"passerelle"
+				],
+				"landmark": "donjon",
+				"body": [
+					0.52,
+					0.49,
+					0.46
+				],
+				"roof": [
+					0.34,
+					0.22,
+					0.46
+				],
+				"accent": [
+					1.0,
+					0.75,
+					0.4
+				]
+			},
+			"heroique": {
+				"kinds": [
+					"tour",
+					"dome",
+					"aiguille",
+					"passerelle",
+					"gradins"
+				],
+				"landmark": "aiguille",
+				"body": [
+					0.8,
+					0.83,
+					0.88
+				],
+				"roof": [
+					0.6,
+					0.7,
+					0.85
+				],
+				"accent": [
+					0.4,
+					0.8,
+					1.0
+				]
+			},
+			"cathedrale": {
+				"kinds": [
+					"cathedrale",
+					"fleche",
+					"cheminee",
+					"tour",
+					"gradins"
+				],
+				"landmark": "cathedrale",
+				"body": [
+					0.3,
+					0.28,
+					0.29
+				],
+				"roof": [
+					0.2,
+					0.17,
+					0.17
+				],
+				"accent": [
+					1.0,
+					0.45,
+					0.2
+				]
+			},
+			"modules": {
+				"kinds": [
+					"module",
+					"habitat",
+					"radiateur",
+					"antenne",
+					"tour"
+				],
+				"landmark": "habitat",
+				"body": [
+					0.62,
+					0.64,
+					0.66
+				],
+				"roof": [
+					0.45,
+					0.47,
+					0.5
+				],
+				"accent": [
+					1.0,
+					0.85,
+					0.4
+				]
+			},
+			"bidonville": {
+				"kinds": [
+					"baraque",
+					"enseigne",
+					"grue",
+					"baraque",
+					"tour"
+				],
+				"landmark": "grue",
+				"body": [
+					0.52,
+					0.43,
+					0.34
+				],
+				"roof": [
+					0.4,
+					0.3,
+					0.22
+				],
+				"accent": [
+					1.0,
+					0.4,
+					0.7
+				]
+			},
+			"ruche": {
+				"kinds": [
+					"tertre",
+					"cocon",
+					"tour_organique",
+					"tertre"
+				],
+				"landmark": "tour_organique",
+				"body": [
+					0.34,
+					0.4,
+					0.22
+				],
+				"roof": [
+					0.26,
+					0.3,
+					0.16
+				],
+				"accent": [
+					0.7,
+					1.0,
+					0.3
+				]
+			},
+			"cristaux": {
+				"kinds": [
+					"cristal",
+					"anneau",
+					"obelisque",
+					"dome"
+				],
+				"landmark": "cristal",
+				"body": [
+					0.46,
+					0.42,
+					0.62
+				],
+				"roof": [
+					0.6,
+					0.55,
+					0.8
+				],
+				"accent": [
+					0.82,
+					0.6,
+					1.0
+				]
+			},
+			"monolithes": {
+				"kinds": [
+					"monolithe",
+					"forge",
+					"arche",
+					"donjon"
+				],
+				"landmark": "arche",
+				"body": [
+					0.46,
+					0.37,
+					0.31
+				],
+				"roof": [
+					0.34,
+					0.27,
+					0.22
+				],
+				"accent": [
+					1.0,
+					0.55,
+					0.25
+				]
+			},
+			"circuits": {
+				"kinds": [
+					"bloc",
+					"aiguille",
+					"anneau",
+					"module"
+				],
+				"landmark": "aiguille",
+				"body": [
+					0.3,
+					0.35,
+					0.4
+				],
+				"roof": [
+					0.22,
+					0.26,
+					0.3
+				],
+				"accent": [
+					0.3,
+					1.0,
+					0.85
+				]
+			}
+		},
+		"peoples": {
+			"ossarane": "citadelle",
+			"vael": "heroique",
+			"choeur": "cathedrale",
+			"khthari": "ruche",
+			"teyl": "circuits",
+			"ferrocornes": "monolithes",
+			"brisecomete": "bidonville",
+			"murmurants": "cristaux"
+		},
+		"archetypes": {
+			"ruche": "ruche",
+			"lithoide": "monolithes",
+			"synthetique": "circuits",
+			"energetique": "cristaux"
+		},
+		"registres": {
+			"Médiéval spatial": "citadelle",
+			"Space opera héroïque": "heroique",
+			"Grimdark": "cathedrale",
+			"Classique / hard SF": "modules",
+			"Picaresque / pulp": "bidonville",
+			"Horreur biologique": "ruche",
+			"Cosmique / étrange": "cristaux",
+			"_default": "heroique"
+		},
+		"biomes": {
+			"_doc": "domes : part des bâtiments remplacés par des dômes scellés ; snow : neige sur les toits ; stilts : sur pilotis au-dessus de l'eau ; platforms : posée sur des plates-formes suspendues ; green : toits végétalisés ; extra : édicule ajouté (capteur_vent, cheminee_filtre, aire, jardin) ; tint : teinte des matériaux ; density, height : multiplicateurs.",
+			"arctic": {
+				"domes": 0.35,
+				"snow": true,
+				"tint": [
+					0.92,
+					0.96,
+					1.05
+				]
+			},
+			"ocean": {
+				"stilts": true,
+				"tint": [
+					0.95,
+					1.0,
+					1.05
+				]
+			},
+			"desert": {
+				"extra": "capteur_vent",
+				"tint": [
+					1.12,
+					0.98,
+					0.8
+				]
+			},
+			"toxic": {
+				"domes": 0.5,
+				"extra": "cheminee_filtre",
+				"tint": [
+					0.95,
+					1.05,
+					0.85
+				]
+			},
+			"gas_giant": {
+				"platforms": true,
+				"tint": [
+					1.05,
+					0.95,
+					0.9
+				]
+			},
+			"barren": {
+				"domes": 0.6,
+				"extra": "aire",
+				"tint": [
+					0.95,
+					0.93,
+					0.92
+				]
+			},
+			"asteroids": {
+				"domes": 0.7,
+				"extra": "aire",
+				"tint": [
+					0.9,
+					0.9,
+					0.92
+				]
+			},
+			"gaia": {
+				"green": true,
+				"extra": "jardin",
+				"tint": [
+					1.0,
+					1.05,
+					0.98
+				]
+			},
+			"ecumenopole": {
+				"density": 2.2,
+				"height": 1.6,
+				"tint": [
+					1.0,
+					0.98,
+					0.96
+				]
+			},
+			"continental": {
+				"green": true,
+				"tint": [
+					1.0,
+					1.0,
+					1.0
+				]
+			},
+			"_default": {
+				"tint": [
+					1.0,
+					1.0,
+					1.0
+				]
+			}
+		},
+		"size": {
+			"pop_small": 4,
+			"pop_large": 20,
+			"landmark_pop": 10
 		}
 	}
 }
