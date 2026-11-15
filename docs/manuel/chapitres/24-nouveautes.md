@@ -3,6 +3,13 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.6
+
+- **Logistique et ravitaillement**, nouvelle option de partie, **Simple** par défaut (chapitre « La guerre ») : **zone de ravitaillement** à 2 sauts de vos systèmes et de ceux qui vous ravitaillent, **réserves** de 120 jours pour les flottes de guerre, malus doux à sec (plus de réparation, dégâts jusqu'à -30 %, jamais de vaisseau perdu), civils exemptés, flotte **à quai** à -25 % d'entretien.
+- Réglage **Complète** : lignes **coupées** par les flottes ennemies, batailles et sièges qui consomment double, **réquisition**, **encerclement** des planètes assiégées, ravitaillement des **régiments**, lassitude des flottes coupées.
+- Portée : **têtes de pont** tenues 30 jours, **Dépôt de flotte**, module **Soute de ravitaillement**, trois technologies de Génie, amiral **Intendant de flotte**, ports francs, routes commerciales, niveau **Routes franches** de l'Amphictyonie.
+- Ponts : opération **Saboter les dépôts**, frontières closes qui épuisent les intrus, IA qui rentre refaire le plein et coupe les lignes, zone en vert sur la carte, **talents de logistique** par couche d'espèce.
+
 ### Édition 2.5
 
 - **Combat au sol et armées**, nouvelle option de partie, **Complet** par défaut (chapitre « La guerre ») : réserve de **recrues**, **régiments** recrutés sur les colonies avec l'espèce et les traits de leur peuple, entretien qui épargne les peuples guerriers, transport à bord des flottes, **bataille au sol** de plusieurs jours avec milice, front, moral, renforts et retraite, écran **Armées**.

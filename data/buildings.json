@@ -25,6 +25,7 @@
 		"garrison": 30, "fort": 120, "landing_fire": 20, "citadel": true,
 		"text": "+30 garnison. En combat au sol complet : +120 fortifications, tir sur les régiments qui débarquent, et tant qu'elle tient, le bombardement n'atteint ni la population ni les bâtiments.",
 		"yields": {}, "upkeep": {"energy": 2}},
+	"depot_flotte": {"label": "Dépôt de flotte", "cost": {"materials": 120, "energy": 30}, "days": 50, "unique": true, "outpost_ok": true, "logistics": true, "text": "Logistique en jeu : la zone de ravitaillement s'étend d'un saut de plus autour de ce système, les flottes y réparent 8 % par jour et y sont à quai (entretien -25 %).", "yields": {}, "upkeep": {"energy": 1}},
 	"arsenal": {"requires_tech": ["arsenaux"], "label": "Arsenal orbital", "cost": {"materials": 150, "energy": 40}, "days": 70, "unique": true,
 		"text": "Cales géantes et grues orbitales : permet de construire cuirassés et porte-vaisseaux dans cette colonie.",
 		"yields": {}, "upkeep": {"energy": 2}},

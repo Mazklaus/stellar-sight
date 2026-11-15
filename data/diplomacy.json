@@ -115,6 +115,7 @@
 		"crisis_backdown": {"value": -15, "days": 1800, "label": "Nous a fait reculer dans une crise"},
 		"mediated": {"value": 15, "days": 1800, "label": "A ramené la paix entre nous et notre ennemi"},
 		"amph_condemned": {"value": -15, "days": 1800, "stack": 2, "label": "Condamné par l'Amphictyonie pour agression"},
+		"requisitioned": {"value": -10, "days": 1440, "stack": 3, "label": "A pillé nos mondes pour nourrir sa flotte"},
 		"war_crime": {"value": -30, "days": 3600, "label": "Criminel de guerre"},
 		"kanly_lost": {"value": -10, "days": 1800, "label": "Nous a battus dans un kanly"},
 		"rallied": {"value": 10, "days": 1800, "label": "S'est rangé à nos côtés dans une crise"},

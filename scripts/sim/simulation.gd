@@ -57,6 +57,7 @@ func flush_commands() -> void:
 			continue
 		cmd["tick"] = state.tick
 		SimCommands.apply(state, cmd)
+		state.log_cache.clear()
 		command_log.append(cmd)
 		command_applied.emit(cmd)
 
@@ -69,6 +70,7 @@ func has_pending_commands() -> bool:
 func step() -> void:
 	flush_commands()
 	state.tick += 1
+	state.log_cache.clear()
 	for entry in EconomySystem.process(state):
 		chronicle_added.emit(entry)
 	for entry in FleetSystem.process(state):
@@ -78,6 +80,8 @@ func step() -> void:
 		chronicle_added.emit(entry)
 	for ev in events:
 		combat_event.emit(ev)
+	for entry in Logistics.daily(state):
+		chronicle_added.emit(entry)
 	for entry in Ground.daily(state):
 		chronicle_added.emit(entry)
 	for entry in DiplomacySystem.process(state):

@@ -512,14 +512,22 @@ static func colonizer_ship(fleet: Fleet) -> String:
 ## Entretien mensuel de toutes les flottes d'un empire.
 static func upkeep(state: GameState, empire_id: int) -> Dictionary:
 	var out := {}
+	var dock := {}
 	for f in empire_fleets(state, empire_id):
 		# Flotte fédérale du Koinon : sans entretien pour personne.
 		if Koinon.is_federal(state, f.id):
 			continue
+		# Logistique : une flotte à quai coûte moins cher (jamais plus cher loin de chez elle).
+		var bucket := dock if Logistics.docked(state, f) else out
 		for s in f.ships:
 			var u: Dictionary = GameData.ship(s).get("upkeep", {})
 			for r in u:
-				out[r] = int(out.get(r, 0)) + int(u[r])
+				bucket[r] = int(bucket.get(r, 0)) + int(u[r])
+	if not dock.is_empty():
+		var pct := 100 + Logistics.docked_upkeep_pct()
+		for r in dock:
+			@warning_ignore("integer_division")
+			out[r] = int(out.get(r, 0)) + int(dock[r]) * pct / 100
 	return Research.scaled_amounts(out, Research.fx_int(state, empire_id, "upkeep_pct"))
 
 

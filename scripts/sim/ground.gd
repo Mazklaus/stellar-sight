@@ -968,6 +968,8 @@ static func _recover(state: GameState) -> void:
 		var sid := int(r["s"])
 		if int(r["f"]) < 0 and fighting.has(sid):
 			continue
+		if int(r["f"]) < 0 and Logistics.ground_unsupplied(state, int(r["o"]), sid):
+			continue  # logistique complète : régiments sans ravitaillement, aucun renfort
 		var home := int(r["f"]) < 0 and WarPeace.holder(state, sid) == int(r["o"])
 		var pct := int(rc.get("home_pct", 10)) if home else int(rc.get("away_pct", 3))
 		@warning_ignore("integer_division")

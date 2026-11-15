@@ -278,7 +278,7 @@ static func daily(state: GameState) -> void:
 	keys.sort()
 	for k in keys:
 		var sid := int(k)
-		if Combat.is_besieged(state, sid):
+		if Combat.is_besieged(state, sid) or Logistics.encircled(state, sid):
 			continue
 		var v := int(fo[k]) + int(_cfg("siege").get("fort_regen", 2))
 		if v >= fort_max(state, sid):
