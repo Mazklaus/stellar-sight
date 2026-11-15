@@ -33,6 +33,7 @@ var _barges: Array = []     # [gx, gz]
 var _ridges: Array = []     # polylignes de l'horizon
 var _ships: Array = []      # silhouettes dans le ciel
 var _stars: Array = []
+var _hills: Array = []      # [gx, gz, rayon (px), hauteur (px)] : reliefs du champ
 
 
 func _ready() -> void:
@@ -76,10 +77,31 @@ func scale_at(gz: float) -> float:
 	return lerpf(FAR_SCALE, NEAR_SCALE, clampf(gz, -0.2, 1.2))
 
 
-## Point du terrain (gx, gz) à l'écran.
+## Point du terrain (gx, gz) à l'écran, relief compris.
 func project(gx: float, gz: float) -> Vector2:
+	var p := flat(gx, gz)
+	p.y -= elev(gx, gz) * scale_at(gz)
+	return p
+
+
+## Point du terrain à l'écran, sans relief (pied des collines).
+func flat(gx: float, gz: float) -> Vector2:
 	var cx := size.x * 0.5
 	return Vector2(cx + (gx - cx) * scale_at(gz), lerpf(horizon_y + 14.0, near_y, gz))
+
+
+## Hauteur du terrain en (gx, gz), en pixels à l'échelle 1 : somme de collines en cloche.
+func elev(gx: float, gz: float) -> float:
+	var e := 0.0
+	var depth := near_y - horizon_y
+	for h: Array in _hills:
+		var dx := (gx - float(h[0])) / float(h[2])
+		var dz := (gz - float(h[1])) * depth / (float(h[2]) * 0.6)
+		var q := dx * dx + dz * dz
+		if q < 6.0:
+			e += float(h[3]) * exp(-q)
+	# Collines qui se chevauchent : la hauteur plafonne en douceur.
+	return 55.0 * tanh(e / 55.0)
 
 
 func _layout() -> void:
@@ -102,15 +124,28 @@ func _layout() -> void:
 			gz = rng.randf_range(0.0, 0.14) if rng.randf() < 0.6 else rng.randf_range(0.93, 1.08)
 		_props.append([kind, gx, gz, rng.randf_range(0.6, 1.4), rng.randi()])
 	_props.sort_custom(func(a: Array, b: Array) -> bool: return float(a[2]) < float(b[2]))
-	# Ville du défenseur : bâtiments au fond à droite, d'autant plus nombreux que la population est grande.
+	# Reliefs : quelques collines, plus douces sur les océans et les géantes gazeuses ; une hauteur
+	# derrière les lignes du défenseur, et le centre du champ reste assez dégagé.
+	_hills.clear()
+	var flatness := 0.35 if ter in ["ocean", "gas_giant"] else (0.6 if ter == "ecumenopole" else 1.0)
+	var nh := 3 + rng.randi() % 4
+	for k in nh:
+		var hx := rng.randf_range(-w * 0.05, w * 1.05)
+		if absf(hx - w * 0.5) < w * 0.1:
+			hx += w * 0.18 * (1.0 if rng.randf() < 0.5 else -1.0)
+		_hills.append([hx, rng.randf_range(0.05, 0.95), rng.randf_range(90.0, 220.0), rng.randf_range(14.0, 42.0) * flatness])
+	_hills.append([w * 0.8, rng.randf_range(0.3, 0.7), rng.randf_range(140.0, 200.0), rng.randf_range(18.0, 30.0) * flatness])
+	_hills.sort_custom(func(a: Array, b: Array) -> bool: return float(a[1]) < float(b[1]))
+	# Ville du défenseur : au fond à droite, posée sur le sol (jamais au-delà de l'horizon), d'autant plus
+	# étendue que la population est grande.
 	_city.clear()
 	var cc: Dictionary = cfg().get("city", {})
 	var nb := mini(int(cc.get("max", 34)), 4 + int(scene.get("pop", 0)) * int(cc.get("per_pop", 3)))
 	if ter == "ecumenopole":
 		nb = int(cc.get("max", 34))
 	for k in nb:
-		_city.append([rng.randf_range(w * 0.72, w * 1.12), rng.randf_range(-0.08, 0.12), rng.randf_range(14.0, 34.0),
-				rng.randf_range(24.0, 90.0) * (1.6 if ter == "ecumenopole" else 1.0), rng.randi()])
+		_city.append([rng.randf_range(w * 0.7, w * 0.99), rng.randf_range(0.02, 0.2), rng.randf_range(16.0, 34.0),
+				rng.randf_range(30.0, 80.0) * (1.4 if ter == "ecumenopole" else 1.0), rng.randi(), rng.randi() % 5])
 	_city.sort_custom(func(a: Array, b: Array) -> bool: return float(a[1]) < float(b[1]))
 	# Fortifications : un rempart en tranches devant les lignes du défenseur ; plus les défenses sont
 	# entamées, plus les brèches sont larges.
@@ -190,6 +225,7 @@ func _draw() -> void:
 	var y0 := horizon_y + 6.0
 	draw_polygon(PackedVector2Array([Vector2(0, y0), Vector2(w, y0), Vector2(w, size.y), Vector2(0, size.y)]),
 			PackedColorArray([far_c, far_c, near_c, near_c]))
+	_draw_relief(far_c, near_c)
 	if ter == "gas_giant":
 		_draw_cloud_sea(w)
 	# Taches du sol, pour la matière.
@@ -266,23 +302,103 @@ func _draw_prop(kind: String, gx: float, gz: float, k: float, seed_value: int) -
 				draw_rect(Rect2(p + Vector2(-5 * s, (-55 + j * 11) * s), Vector2(10 * s, 3 * s)), Color(1.0, 0.8, 0.45, 0.6))
 
 
+## Le relief : une grille du sol projetée avec sa hauteur, ombrée selon la pente et le côté du soleil.
+func _draw_relief(far_c: Color, near_c: Color) -> void:
+	if _hills.is_empty():
+		return
+	var w := size.x
+	var nx := 40
+	var nz := 24
+	var sun_side := -1.0 if int(scene.get("seed", 1)) % 2 == 0 else 1.0
+	var pts: Array = []
+	var cols: Array = []
+	for j in nz + 1:
+		var gz := float(j) / nz * 1.08
+		var row_p := PackedVector2Array()
+		var row_c := PackedColorArray()
+		for i in nx + 1:
+			var gx := lerpf(-w * 0.3, w * 1.3, float(i) / nx)
+			var e := elev(gx, gz)
+			var dx := elev(gx + 12.0, gz) - elev(gx - 12.0, gz)
+			var dz := elev(gx, gz + 0.03) - elev(gx, gz - 0.03)
+			var base := far_c.lerp(near_c, clampf(gz, 0.0, 1.0))
+			var light := clampf(-dx * sun_side * 0.09 + dz * 0.04 + e * 0.005, -0.4, 0.32)
+			row_p.append(project(gx, gz))
+			row_c.append(base.lightened(light) if light > 0.0 else base.darkened(-light))
+		pts.append(row_p)
+		cols.append(row_c)
+	for j in nz:
+		var a: PackedVector2Array = pts[j]
+		var b: PackedVector2Array = pts[j + 1]
+		var ca: PackedColorArray = cols[j]
+		var cb: PackedColorArray = cols[j + 1]
+		for i in nx:
+			draw_polygon(PackedVector2Array([a[i], a[i + 1], b[i + 1], b[i]]), PackedColorArray([ca[i], ca[i + 1], cb[i + 1], cb[i]]))
+
+
+## Ville futuriste : tours effilées à flèche, dômes d'habitat, tours jumelles reliées par une passerelle,
+## arcologies en gradins, aiguilles à anneau ; bandeaux lumineux, plus vifs la nuit.
 func _draw_city() -> void:
 	var night := time_of_day != "day"
+	var neon := Color(0.45, 0.9, 1.0) if int(scene.get("seed", 1)) % 3 != 0 else Color(1.0, 0.55, 0.85)
 	for b in _city:
 		var p := project(float(b[0]), float(b[1]))
 		var s := scale_at(float(b[1]))
 		var bw := float(b[2]) * s
 		var bh := float(b[3]) * s
-		var r := Rect2(p - Vector2(bw * 0.5, bh), Vector2(bw, bh))
-		draw_rect(r, Color(0.3, 0.31, 0.35) * tint)
-		draw_rect(Rect2(r.position, Vector2(bw * 0.25, bh)), Color(0.22, 0.23, 0.27) * tint)
-		var rng := RandomNumberGenerator.new()
-		rng.seed = int(b[4])
-		var rows := int(bh / (6.0 * s))
-		for j in rows:
-			if rng.randf() < (0.55 if night else 0.3):
-				draw_rect(Rect2(r.position + Vector2(bw * 0.4, 3.0 * s + j * 6.0 * s), Vector2(bw * 0.4, 2.0 * s)),
-						Color(1.0, 0.82, 0.45, 0.85) if night else Color(0.55, 0.65, 0.75, 0.6))
+		var kind := int(b[5]) if b.size() > 5 else 0
+		var body := Color(0.34, 0.36, 0.42) * tint
+		var dark := Color(0.24, 0.25, 0.3) * tint
+		var glow := Color(neon, 0.95 if night else 0.55)
+		match kind:
+			0:
+				# Tour effilée et sa flèche.
+				var poly := PackedVector2Array([p + Vector2(-bw * 0.5, 0), p + Vector2(-bw * 0.28, -bh), p + Vector2(bw * 0.28, -bh), p + Vector2(bw * 0.5, 0)])
+				draw_colored_polygon(poly, body)
+				draw_colored_polygon(PackedVector2Array([p + Vector2(-bw * 0.5, 0), p + Vector2(-bw * 0.28, -bh), p + Vector2(-bw * 0.1, -bh), p + Vector2(-bw * 0.15, 0)]), dark)
+				draw_line(p + Vector2(0, -bh), p + Vector2(0, -bh - bh * 0.35), body.lightened(0.2), maxf(1.0, 1.5 * s))
+				draw_circle(p + Vector2(0, -bh - bh * 0.35), 1.5 * s, Color(1, 0.3, 0.25, 0.9))
+				for j in 3:
+					var y := -bh * (0.25 + j * 0.25)
+					var hw := lerpf(bw * 0.5, bw * 0.28, 0.25 + j * 0.25)
+					draw_line(p + Vector2(-hw, y), p + Vector2(hw, y), glow, maxf(1.0, 1.4 * s))
+			1:
+				# Dôme d'habitat.
+				var r := bw * 0.9
+				draw_colored_polygon(_dome(p, r, r * 0.75), body.lightened(0.05))
+				draw_arc(p, r, PI, TAU, 16, Color(0.75, 0.9, 1.0, 0.45) * tint, maxf(1.0, 1.4 * s))
+				draw_line(p + Vector2(-r, 0), p + Vector2(r, 0), glow, maxf(1.0, 1.6 * s))
+			2:
+				# Tours jumelles et passerelle.
+				var tw := bw * 0.36
+				draw_rect(Rect2(p + Vector2(-bw * 0.5, -bh), Vector2(tw, bh)), body)
+				draw_rect(Rect2(p + Vector2(bw * 0.5 - tw, -bh * 0.85), Vector2(tw, bh * 0.85)), dark.lightened(0.08))
+				draw_rect(Rect2(p + Vector2(-bw * 0.5 + tw, -bh * 0.62), Vector2(bw - 2.0 * tw, 3.0 * s)), body.lightened(0.15))
+				draw_line(p + Vector2(-bw * 0.5 + tw, -bh * 0.62 + 1.5 * s), p + Vector2(bw * 0.5 - tw, -bh * 0.62 + 1.5 * s), glow, maxf(1.0, s))
+				for j in int(bh / (9.0 * s)):
+					draw_line(p + Vector2(-bw * 0.5 + 2 * s, -j * 9.0 * s - 4 * s), p + Vector2(-bw * 0.5 + tw - 2 * s, -j * 9.0 * s - 4 * s), Color(glow, glow.a * 0.5), 1.0)
+			3:
+				# Arcologie en gradins.
+				for j in 3:
+					var fw := bw * (1.4 - j * 0.38)
+					var fy := -bh * 0.3 * j
+					draw_rect(Rect2(p + Vector2(-fw * 0.5, fy - bh * 0.3), Vector2(fw, bh * 0.3)), body.darkened(0.05 * j))
+					draw_line(p + Vector2(-fw * 0.5, fy - bh * 0.3), p + Vector2(fw * 0.5, fy - bh * 0.3), glow, maxf(1.0, 1.2 * s))
+					draw_rect(Rect2(p + Vector2(-fw * 0.5, fy - bh * 0.3), Vector2(fw, 2.0 * s)), Color(0.4, 0.7, 0.35, 0.5) * tint)
+			_:
+				# Aiguille et son anneau.
+				draw_colored_polygon(PackedVector2Array([p + Vector2(-bw * 0.22, 0), p + Vector2(0, -bh * 1.25), p + Vector2(bw * 0.22, 0)]), body)
+				draw_set_transform(p + Vector2(0, -bh * 0.7), 0.0, Vector2(1.0, 0.3))
+				draw_arc(Vector2.ZERO, bw * 0.6, 0.0, TAU, 20, glow, maxf(1.5, 2.0 * s))
+				draw_set_transform(Vector2.ZERO)
+		if night and kind != 1:
+			var rng := RandomNumberGenerator.new()
+			rng.seed = int(b[4])
+			for j in 4:
+				draw_rect(Rect2(p + Vector2(rng.randf_range(-bw * 0.25, bw * 0.15), -rng.randf_range(0.1, 0.9) * bh), Vector2(2.0 * s, 1.5 * s)),
+						Color(1.0, 0.85, 0.55, 0.9))
+
+
 	if bool(scene.get("citadel", false)):
 		var c := project(size.x * 0.88, 0.05)
 		draw_arc(c, 70.0 * scale_at(0.05), PI, TAU, 32, Color(0.5, 0.75, 1.0, 0.7), 3.0, true)
@@ -324,3 +440,11 @@ func _draw_barge(gx: float, gz: float) -> void:
 	draw_colored_polygon(hull, Color(0.46, 0.48, 0.52) * tint)
 	draw_line(p + Vector2(-18 * s, -16 * s), p + Vector2(20 * s, -16 * s), Color(0.7, 0.72, 0.76) * tint, 1.5)
 	draw_rect(Rect2(p + Vector2(22 * s, -10 * s), Vector2(6 * s, 3 * s)), Color(1.0, 0.6, 0.3, 0.6))
+
+
+func _dome(c: Vector2, rx: float, ry: float) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	for k in 17:
+		var a := PI + PI * float(k) / 16.0
+		pts.append(c + Vector2(cos(a) * rx, sin(a) * ry))
+	return pts

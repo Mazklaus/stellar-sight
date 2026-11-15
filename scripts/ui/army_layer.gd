@@ -28,6 +28,8 @@ var _buf: Dictionary = {}      # kind -> PackedFloat32Array (12 flottants par fi
 var _dmg_until: Array = []
 var _dead_day: Array = []
 var _days := 1
+var _works: Array = []         # positions défensives : [genre, gx, gz0, gz1, graine]
+var _t := 0.0
 
 
 func _ready() -> void:
@@ -200,6 +202,7 @@ func _build() -> void:
 		units.append(e)
 		total += n
 	_alloc()
+	_plan_works()
 
 
 ## Ancres des régiments sur le terrain : colonnes depuis la ligne de front (le centre) vers l'arrière,
@@ -322,7 +325,7 @@ func _dmg(d: int, idx: int, mh: int) -> int:
 
 
 ## Ancre d'un régiment au temps t : l'assaillant débarque près des barges et avance, le défenseur tient
-## (ou avance un peu s'il n'est pas retranché) ; un régiment en déroute repart vers l'arrière.
+## ses positions ; un régiment en déroute repart vers l'arrière.
 func anchor(i: int, t: float) -> Vector2:
 	var e: Dictionary = units[i]
 	var b: Vector3 = e["base"]
@@ -331,8 +334,6 @@ func anchor(i: int, t: float) -> Vector2:
 	if side == 0:
 		x -= 220.0 * (1.0 - smoothstep(0.0, DAY_SECONDS * 1.3, t))
 		x += 60.0 * smoothstep(DAY_SECONDS, _days * DAY_SECONDS, t)
-	elif not String(e["tactic"]) in ["defense", "civils"] and String(e["fam"]) != "milice":
-		x -= 26.0 * smoothstep(0.0, DAY_SECONDS * 2.0, t)
 	var rt := float(e["rout_t"])
 	if rt >= 0.0 and t > rt:
 		var p := (t - rt) / DAY_SECONDS
@@ -490,6 +491,8 @@ func update(t: float, tint: Color) -> void:
 		var mm := (_mm[k] as MultiMeshInstance2D).multimesh
 		mm.buffer = _buf[k]
 		mm.visible_instance_count = int(cnt[k])
+	_t = t
+	queue_redraw()
 
 
 func living_total(t: float) -> int:
@@ -497,3 +500,203 @@ func living_total(t: float) -> int:
 	for i in units.size():
 		c += alive_count(i, t)
 	return c
+
+
+# --- Positions défensives ----------------------------------------------------------------------
+
+## Retranchements du défenseur devant chaque régiment, choisis selon ce qu'il a : fortifications
+## (tranchées, casemates), citadelle (mur d'énergie), bastion (tourelles), tactique (défense,
+## civils, résistance), famille (blindés à l'abri d'un talus, aérien sur une aire). Obstacles
+## (hérissons, barbelés) dans le no man's land si la place est fortifiée.
+func _plan_works() -> void:
+	_works.clear()
+	var sc: Dictionary = report.get("sc", {})
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(sc.get("seed", 1)) * 13 + 5
+	var fortified := int(sc.get("fort_max", 0)) > 0
+	var pool: Array = ["sacs", "sacs"]
+	if fortified:
+		pool += ["tranchee", "casemate", "tranchee"]
+	if bool(sc.get("citadel", false)):
+		pool += ["bouclier", "bouclier"]
+	if bool(sc.get("bastion", false)):
+		pool += ["tourelle", "tourelle"]
+	var td := String(report.get("td", ""))
+	match td:
+		"defense":
+			pool += ["tranchee", "casemate", "sacs"]
+		"civils":
+			pool += ["barricade", "barricade"]
+		"resistance":
+			pool += ["ruines", "trous"]
+	var front := INF
+	var z0 := 1.0
+	var z1 := 0.0
+	for i in units.size():
+		var e: Dictionary = units[i]
+		if int(e["side"]) != 1:
+			continue
+		var ext := _extent(e)
+		var b: Vector3 = e["base"]
+		var gx := b.x + float(ext.x) - 8.0
+		var a0 := b.y + float(ext.y)
+		var a1 := b.y + float(ext.z)
+		var kind: String
+		match String(e["fam"]):
+			"milice":
+				kind = ["barricade", "trous", "sacs"][rng.randi() % 3]
+			"blindes":
+				kind = "talus"
+			"aerien":
+				kind = "aire"
+				gx = b.x
+			_:
+				kind = String(pool[rng.randi() % pool.size()])
+		_works.append([kind, gx, a0 - 0.02, a1 + 0.02, rng.randi()])
+		front = minf(front, gx)
+		z0 = minf(z0, a0)
+		z1 = maxf(z1, a1)
+	if front < INF and (fortified or td == "defense"):
+		var z := z0
+		while z < z1:
+			var len_z := rng.randf_range(0.06, 0.14)
+			_works.append(["herissons" if rng.randf() < 0.5 else "barbeles", front - rng.randf_range(40.0, 70.0), z, minf(z1, z + len_z), rng.randi()])
+			z += len_z + rng.randf_range(0.04, 0.1)
+	_works.sort_custom(func(a: Array, b: Array) -> bool: return float(a[2]) < float(b[2]))
+
+
+## Emprise d'un régiment autour de son ancre : (dx min, dz min, dz max).
+func _extent(e: Dictionary) -> Vector3:
+	var mnx := 0.0
+	var mnz := 0.0
+	var mxz := 0.0
+	for o: Vector3 in e["offsets"]:
+		mnx = minf(mnx, o.x)
+		mnz = minf(mnz, o.y)
+		mxz = maxf(mxz, o.y)
+	return Vector3(mnx, mnz, mxz)
+
+
+func _draw() -> void:
+	if backdrop == null:
+		return
+	var tint := backdrop.tint
+	for wk: Array in _works:
+		_draw_work(String(wk[0]), float(wk[1]), float(wk[2]), float(wk[3]), int(wk[4]), tint)
+
+
+func _draw_work(kind: String, gx: float, z0: float, z1: float, seed_value: int, tint: Color) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	var a := backdrop.project(gx, z0)
+	var b := backdrop.project(gx, z1)
+	var zm := (z0 + z1) * 0.5
+	var s := backdrop.scale_at(zm)
+	var earth := Color(0.42, 0.36, 0.28) * tint
+	var sand := Color(0.66, 0.6, 0.46) * tint
+	var concrete := Color(0.55, 0.55, 0.56) * tint
+	var steps := maxi(2, int(a.distance_to(b) / (7.0 * s)))
+	match kind:
+		"sacs":
+			for layer in 2:
+				for k in steps:
+					var p := a.lerp(b, (k + 0.5 * layer) / steps) - Vector2(0, layer * 3.5 * s)
+					_oval(p, 4.2 * s, 2.4 * s, sand.darkened(0.1 * layer))
+		"tranchee":
+			var off := Vector2(10.0 * s, 0)
+			draw_colored_polygon(PackedVector2Array([a, b, b + off, a + off]), Color(0.12, 0.1, 0.08, 0.75))
+			draw_line(a - Vector2(2 * s, 2 * s), b - Vector2(2 * s, 2 * s), earth.lightened(0.15), 3.0 * s)
+			for k in steps / 2:
+				var p := a.lerp(b, (k + 0.5) / (steps / 2.0)) + Vector2(5 * s, 0)
+				draw_line(p - Vector2(0, 3 * s), p + Vector2(0, 1 * s), Color(0.3, 0.24, 0.16) * tint, 1.0)
+		"casemate":
+			_draw_work("sacs", gx, z0, z1, seed_value, tint)
+			var c := backdrop.project(gx + 4.0, zm)
+			var bw := 26.0 * s
+			var bh := 13.0 * s
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-bw * 0.5, 0), c + Vector2(-bw * 0.42, -bh), c + Vector2(bw * 0.42, -bh), c + Vector2(bw * 0.5, 0)]), concrete)
+			draw_colored_polygon(_half_dome(c + Vector2(0, -bh), bw * 0.3, bh * 0.5), concrete.lightened(0.1))
+			draw_line(c + Vector2(-bw * 0.4, -bh * 0.55), c + Vector2(bw * 0.05, -bh * 0.55), Color(0.05, 0.05, 0.06), 2.0 * s)
+			draw_line(c + Vector2(-bw * 0.42, -bh * 0.55), c + Vector2(-bw * 0.75, -bh * 0.6), Color(0.2, 0.2, 0.22), 2.0 * s)
+		"tourelle":
+			for q in [0.25, 0.75]:
+				var c: Vector2 = a.lerp(b, q)
+				_oval(c, 9.0 * s, 4.0 * s, concrete.darkened(0.2))
+				draw_colored_polygon(_half_dome(c - Vector2(0, 2 * s), 7.0 * s, 6.0 * s), concrete)
+				var ang := PI + sin(_t * 0.9 + q * 7.0) * 0.25
+				var mz := c - Vector2(0, 6 * s)
+				draw_line(mz, mz + Vector2(cos(ang), sin(ang) * 0.4) * 14.0 * s, Color(0.25, 0.25, 0.28), 2.5 * s)
+				draw_circle(mz, 1.6 * s, Color(0.45, 0.9, 1.0, 0.9))
+		"bouclier":
+			var hh := 30.0 * s
+			var pulse := 0.5 + 0.5 * sin(_t * 2.2 + seed_value % 7)
+			draw_colored_polygon(PackedVector2Array([a, b, b - Vector2(0, hh), a - Vector2(0, hh)]), Color(0.45, 0.75, 1.0, 0.1 + 0.06 * pulse))
+			draw_line(a - Vector2(0, hh), b - Vector2(0, hh), Color(0.6, 0.85, 1.0, 0.55 + 0.3 * pulse), 1.6)
+			for k in 4:
+				var q := fposmod(_t * 0.25 + k * 0.25, 1.0)
+				draw_line(a.lerp(b, q), a.lerp(b, q) - Vector2(0, hh), Color(0.7, 0.9, 1.0, 0.25), 1.0)
+			_oval(a, 3 * s, 2 * s, concrete)
+			_oval(b, 3 * s, 2 * s, concrete)
+		"barricade":
+			for k in steps / 2 + 1:
+				var p := a.lerp(b, float(k) / maxf(1.0, steps / 2.0)) + Vector2(rng.randf_range(-4, 4) * s, 0)
+				var bw := rng.randf_range(6.0, 12.0) * s
+				var bh := rng.randf_range(4.0, 8.0) * s
+				var col := [Color(0.5, 0.3, 0.22), Color(0.35, 0.38, 0.42), Color(0.6, 0.55, 0.3)][rng.randi() % 3] as Color
+				draw_set_transform(p, rng.randf_range(-0.4, 0.4), Vector2.ONE)
+				draw_rect(Rect2(Vector2(-bw * 0.5, -bh), Vector2(bw, bh)), col * tint)
+				draw_set_transform(Vector2.ZERO)
+		"ruines":
+			for k in steps / 2 + 1:
+				var p := a.lerp(b, float(k) / maxf(1.0, steps / 2.0))
+				if k % 2 == 0:
+					var hh := rng.randf_range(6.0, 16.0) * s
+					draw_colored_polygon(PackedVector2Array([p + Vector2(-5 * s, 0), p + Vector2(-5 * s, -hh), p + Vector2(0, -hh * 0.7), p + Vector2(4 * s, -hh * 0.9), p + Vector2(4 * s, 0)]), concrete.darkened(0.15))
+				else:
+					draw_colored_polygon(BattleBackdrop.rock(p - Vector2(0, 2 * s), 4.0 * s, rng.randi(), 6), concrete.darkened(0.3))
+		"trous":
+			for k in steps / 2 + 1:
+				var p := a.lerp(b, float(k) / maxf(1.0, steps / 2.0)) + Vector2(rng.randf_range(-6, 6) * s, 0)
+				_oval(p, 6.0 * s, 2.6 * s, Color(0.1, 0.08, 0.07, 0.7))
+				draw_arc(p, 6.0 * s, PI, TAU, 10, earth.lightened(0.1), 1.5)
+		"talus":
+			var off := Vector2(-14.0 * s, 0)
+			draw_colored_polygon(PackedVector2Array([a + off, b + off, b - Vector2(0, 7 * s), a - Vector2(0, 7 * s)]), earth)
+			draw_line(a - Vector2(0, 7 * s), b - Vector2(0, 7 * s), earth.lightened(0.2), 1.5)
+		"aire":
+			var c := backdrop.project(gx, zm)
+			_oval(c, 38.0 * s, 13.0 * s, Color(concrete.darkened(0.3), 0.8))
+			draw_set_transform(c, 0.0, Vector2(1.0, 0.34))
+			draw_arc(Vector2.ZERO, 30.0 * s, 0.0, TAU, 24, Color(1.0, 0.8, 0.3, 0.6), 1.5)
+			draw_set_transform(Vector2.ZERO)
+		"herissons":
+			for k in steps / 2 + 1:
+				var p := a.lerp(b, float(k) / maxf(1.0, steps / 2.0)) + Vector2(rng.randf_range(-8, 8) * s, 0)
+				var r := 5.0 * s
+				var col := Color(0.25, 0.24, 0.24) * tint
+				draw_line(p + Vector2(-r, 0), p + Vector2(r, -r * 1.4), col, 1.5)
+				draw_line(p + Vector2(r, 0), p + Vector2(-r, -r * 1.4), col, 1.5)
+				draw_line(p + Vector2(0, 0.5 * r), p + Vector2(0, -r * 1.2), col, 1.5)
+		"barbeles":
+			var pts := PackedVector2Array()
+			for k in steps * 2 + 1:
+				var q := float(k) / (steps * 2)
+				pts.append(a.lerp(b, q) + Vector2((3.0 if k % 2 == 0 else -3.0) * s, -3.0 * s))
+			draw_polyline(pts, Color(0.35, 0.33, 0.3, 0.85) * tint, 1.0)
+			for k in steps + 1:
+				var p := a.lerp(b, float(k) / steps)
+				draw_line(p, p - Vector2(0, 7 * s), Color(0.3, 0.22, 0.14) * tint, 1.2)
+
+
+func _oval(c: Vector2, rx: float, ry: float, col: Color) -> void:
+	draw_set_transform(c, 0.0, Vector2(1.0, ry / maxf(0.01, rx)))
+	draw_circle(Vector2.ZERO, rx, col)
+	draw_set_transform(Vector2.ZERO)
+
+
+func _half_dome(c: Vector2, rx: float, ry: float) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	for k in 13:
+		var ang := PI + PI * float(k) / 12.0
+		pts.append(c + Vector2(cos(ang) * rx, sin(ang) * ry))
+	return pts

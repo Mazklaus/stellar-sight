@@ -135,6 +135,25 @@ func _test_army(rep: Dictionary) -> void:
 			break
 	_ok(first >= 0 and army.anchor(first, end).x > army.anchor(first, 0.0).x, "Visuel sol : l'assaillant avance")
 	_ok(panel.backdrop.visible and panel.backdrop.horizon_y > 0.0, "Visuel sol : champ de bataille monté")
+	var bd := panel.backdrop
+	var relief := 0.0
+	for k in 40:
+		relief = maxf(relief, bd.elev(1600.0 * k / 40.0, 0.5))
+	_ok(relief > 3.0, "Visuel sol : le terrain a du relief (%.0f px)" % relief)
+	var grounded := true
+	for bb: Array in bd._city:
+		if float(bb[1]) < 0.0 or float(bb[0]) > bd.size.x:
+			grounded = false
+	_ok(grounded and not bd._city.is_empty(), "Visuel sol : la ville est posée sur le sol, dans le cadre")
+	var works := 0
+	for wk: Array in army._works:
+		if String(wk[0]) != "herissons" and String(wk[0]) != "barbeles":
+			works += 1
+	var defenders := 0
+	for u: Dictionary in rep["units"]:
+		if int(u["side"]) == 1:
+			defenders += 1
+	_ok(works == defenders, "Visuel sol : chaque régiment du défenseur a sa position défensive (%d)" % works)
 	panel.toggle_tactical()
 	_ok(not panel.backdrop.visible and not panel.army.visible, "Visuel sol : la vue tactique revient aux pions")
 	panel.toggle_tactical()
