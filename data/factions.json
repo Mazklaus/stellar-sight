@@ -8,7 +8,7 @@
 		"lore": "Les Lignées d'Ossarane tracent leurs routes de saut comme d'autres tracent des arbres généalogiques : avec soin, avec orgueil, et en effaçant discrètement les branches qui ont mal tourné. Chaque maison garde un navigateur façonné dès l'enfance pour sentir les cristaux. On dit qu'il en existe de très doués. On le dit surtout dans les maisons qui en ont.",
 		"fleet_speed_pct": 130,
 		"ai": {"style": "Maison prudente : tient ses fiefs proches, garde un œil sur les cristaux.", "crystal_bonus": 25, "building_bias": "raffinerie", "research_bias": {"genie": 3}, "temperament": {"label": "Fière", "aggression": 0, "text": "Ni plus ni moins que le réglage choisi ; elle défendra ses fiefs quand viendra la guerre."}},
-		"combat": {"home_damage_pct": 115, "garrison_pct": 150},
+		"combat": {"home_damage_pct": 115, "garrison_pct": 150, "army_free_pct": 150, "no_surrender": 1},
 		"fiefs": {"influence": 1, "far_jumps": 4, "crystal_upkeep": 1, "dissent_pct": 50, "levy": {"every_days": 180, "max": 4, "ship": "corvette"}},
 		"trait": "Navigateurs façonnés et fiefs : flottes plus rapides, monopole des cristaux, tribut des fiefs.",
 		"traits": [
@@ -65,7 +65,7 @@
 		"ai": {"style": "Essaimage : des colonies pleines qui crachent des spores, sans jamais compter l'influence.", "colony_bonus": 10, "outpost_bonus": 5, "building_bias": "ferme_hydroponique", "food_margin": 4, "research_bias": {"societe": 2, "armement": 2, "economie": -2}, "temperament": {"label": "Vorace", "aggression": 1, "never_peace": true, "text": "Un cran plus agressif que le réglage, et ne fera jamais la paix (quand la diplomatie existera)."}},
 		"start_ships": ["scout", "spore_ship"],
 		"ships_excluded": ["colony_ship"],
-		"combat": {"prey": true, "digest": true, "repair_anywhere": true, "garrison_pct": 150},
+		"combat": {"prey": true, "digest": true, "repair_anywhere": true, "garrison_pct": 150, "army_free_pct": 150, "orbital_raze": 1, "no_surrender": 1},
 		"biomass": {"materials": 15},
 		"trait": "Croissance explosive, essaimage et biomasse : l'Essaim ne négocie pas, il grandit.",
 		"traits": [
@@ -122,7 +122,7 @@
 		"migration": true,
 		"horde": {"camp_pct": 150, "far_jumps": 4, "far_pct": 70, "loot": {"energy": 4, "materials": 6}, "ship": "flotte_ville"},
 		"ai": {"colony_bonus": 4, "extra_warships": 2, "research_bias": {"armement": 2, "genie": 4}, "style": "Horde en marche : la flotte-ville campe là où le clan est le plus nombreux, les escadres pillent chez l'ennemi et rentrent au camp.", "temperament": {"label": "Belliqueux", "aggression": 1, "text": "Un cran plus agressif que le réglage de l'IA."}},
-		"combat": {"damage_pct": 110, "garrison_pct": 150},
+		"combat": {"damage_pct": 110, "garrison_pct": 150, "army_free_pct": 300, "orbital_raze": 1, "no_surrender": 1},
 		"ship_style": "ferrocornes",
 		"trait": "Reptiliens nomades : la capitale est une flotte-ville, le clan prospère où elle campe et se sert chez l'ennemi.",
 		"traits": [
@@ -132,6 +132,7 @@
 			{"name": "Campement", "text": "Les revendications du système où la flotte-ville est à l'arrêt produisent 50 % de plus."},
 			{"name": "Le clan suit la flotte", "text": "Les revendications à plus de 4 sauts de la flotte-ville produisent 30 % de moins ; toutes, si elle est détruite."},
 			{"name": "Pillage", "text": "En guerre, chaque vaisseau armé à l'arrêt dans un système ennemi y pille chaque mois 6 matériaux et 4 énergie, pris dans les réserves de l'empire visé."},
+			{"name": "Tout clan est une armée", "text": "Combat au sol complet : deux fois plus de régiments sans entretien, et les flottes peuvent bombarder en Rasant."},
 			{"name": "Canonniers", "text": "+10 % de dégâts au combat."},
 			{"name": "Garnisons tenaces", "text": "Garnisons 50 % plus nombreuses."},
 			{"name": "Filons du berceau", "text": "Un gisement de filons riches garanti dans le système d'origine."}

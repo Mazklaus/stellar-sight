@@ -195,14 +195,70 @@ On peut aussi **sonner la retraite** : l'ordre de déplacement s'applique avant 
 
 Une flotte armée ennemie **arrête** toute flotte qui traverse son système. Dans un système ennemi sans défenseur, elle le **met en siège** : la garnison fond chaque jour, la production tombe de moitié, les chantiers spatiaux s'arrêtent. La garnison dépend de la population (5 par habitant, 6 par avant-poste, 30 pour une capitale) ; un **bastion orbital** y ajoute 20 et tire sur les assiégeants. Le siège levé, elle remonte de 2 par jour.
 
-Quand les troupes embarquées dépassent la garnison, le bouton **Envahir** apparaît : toutes les revendications de l'empire dans le système changent de mains. Avec les **peuples mêlés**, les habitants restent ce qu'ils sont : ils gardent leur espèce et rejoignent la mosaïque de votre empire (chapitre 3). L'Essaim Kh'thari, lui, digère toujours. Une capitale perdue est remplacée par la colonie la plus peuplée ; un empire sans aucune revendication disparaît, flottes comprises.
+Avec le combat au sol **simplifié**, quand les troupes embarquées dépassent la garnison, le bouton **Envahir** apparaît : toutes les revendications de l'empire dans le système changent de mains. Avec le combat au sol **complet** (par défaut), Envahir débarque des régiments et ouvre une bataille au sol (section suivante). Avec les **peuples mêlés**, les habitants restent ce qu'ils sont : ils gardent leur espèce et rejoignent la mosaïque de votre empire (chapitre 3). L'Essaim Kh'thari, lui, digère toujours. Une capitale perdue est remplacée par la colonie la plus peuplée ; un empire sans aucune revendication disparaît, flottes comprises.
 
 ::: capture docs/apercu-siege.png|Un système en siège : la garnison fond, l'invasion approche
 :::
 
+### Combat au sol et armées
+
+L'option de partie **Combat au sol** a deux réglages. **Simplifié** garde les règles d'avant : les troupes sont un nombre porté par les vaisseaux. **Complet**, le réglage par défaut, remplace ce nombre par de vrais **régiments**. On les recrute sur les colonies, les flottes les transportent, et ils se battent au sol pendant plusieurs jours. Tout se pilote depuis l'écran **Armées** (l'icône du casque dans la barre d'empire), l'écran d'un système et la fiche de flotte. Les types de régiments, les terrains et les tactiques sont des données ouvertes : de futurs peuples en ajouteront.
+
+**Les recrues.** Chaque mois, vos colonies versent des recrues à la réserve de l'empire : une pour 4 habitants, au moins une par colonie peuplée. La réserve plafonne à une recrue par habitant (6 au moins), et l'on commence avec 6. Les **Registres de conscription** (technologie) et la loi **Conscription** du Glaive en donnent chacun 25 % de plus.
+
+**Recruter.** Dans l'écran d'un système peuplé, **Lever un régiment** coûte des ressources, des recrues et un délai de formation. Le régiment prend l'espèce la plus nombreuse de la colonie, avec ses traits (Canonniers, Tenaces, Piètres soldats…). Une fois formé, il attend au sol, défend le système et s'y remet de ses blessures (10 % par jour chez vous, 3 % ailleurs ou à bord). **Démobiliser** un régiment dans un de vos systèmes rend la moitié de ses recrues.
+
+| Régiment | Santé | Dégâts | Places | Coût | Il faut | Atout |
+| --- | --- | --- | --- | --- | --- | --- |
+| Infanterie | 100 | 6-12 | 4 | 20 matériaux, 10 nourriture, 2 recrues, 30 j | Rien | Bon marché |
+| Blindés | 240 | 10-15 | 8 | 55 matériaux, 10 énergie, 3 recrues, 45 j | Blindés d'assaut | +50 % contre l'infanterie |
+| Aérien | 200 | 14-22 | 8 | 60 matériaux, 20 énergie, 3 recrues, 50 j | Assaut aéroporté | +50 % contre les blindés |
+| Forces spéciales | 80 | 8-14 | 4 | 40 matériaux, 15 énergie, 2 recrues | Forces spéciales | Sabotent milice et batteries |
+| Génie de siège | 120 | 4-8 | 6 | 45 matériaux, 10 énergie, 2 recrues | Génie de siège | Usent les remparts, +50 % contre la milice |
+| Marcheur de siège | 1 500 | 30-45 | 40 | 900 matériaux, 200 énergie, 30 cristaux, 10 recrues, 180 j | Chantier titanesque | Un seul par empire |
+
+Chaque peuple peut aussi lever un **régiment de peuple**, selon ses couches d'espèce : **essaims de guerre** pour la ruche (sans moral, deux par place), **légions d'automates** pour les synthétiques (sans moral), **colosses de roche** pour les lithoïdes, **possédés** pour les énergétiques (ils frappent le moral), **fanatiques** pour le credo de la Foi (+30 % en défense) et **troupes de choc** pour la horde (+30 % les trois premiers jours).
+
+**L'entretien.** Les premiers régiments ne coûtent rien : 2, plus 1 pour 6 habitants. Les peuples guerriers en ont davantage : le double pour la horde et les Ferrocornes (le triple), une fois et demie pour la ruche, l'Honneur, Ossarane et l'Essaim. Les suivants coûtent leur entretien (1 nourriture pour l'infanterie, 1 ou 2 énergie pour les autres).
+
+**Embarquer.** Une flotte emporte autant de places que la valeur « troupes » de ses coques et de ses Soutes à troupes ; un transport en a 30. **Embarquer** fait monter les régiments qui attendent dans le système, **Déposer** les fait descendre dans un de vos systèmes. Un transport détruit emporte ses passagers.
+
+**La bataille au sol.** Une fois l'orbite dégagée, **Envahir** débarque tous les régiments de la flotte. Après trois jours de débarquement, ils affrontent la **milice** du système (une unité pour 15 de garnison, 30 au plus) et les régiments du défenseur. Le front compte 3 régiments par camp, plus un par colonie établie (10 au plus) ; le reste attend en réserve. Chaque jour, chaque régiment du front frappe un ennemi au hasard, les blessés deux fois plus souvent. Les dégâts entament la santé et le moral : sous 50 % de moral, un régiment ne frappe plus qu'à 75 %, et à 0 il quitte le front. Les renforts des deux camps entrent dans la bataille à leur arrivée. La bataille finit quand un camp n'a plus personne : la victoire prend le système, ou l'occupe avec les buts de guerre. Chaque régiment perdu compte au score et à la lassitude.
+
+| Terrain | Effet |
+| --- | --- |
+| Océanique | Aérien +20 %, blindés -20 % |
+| Géante gazeuse | Aérien +25 %, blindés -30 % |
+| Désertique, aride | Blindés +20 %, +10 % |
+| Arctique | Blindés +15 %, infanterie -10 % |
+| Toxique | Infanterie -10 % |
+| Astéroïdes | Infanterie +20 %, blindés -25 %, défenseur +10 % |
+| Écuménopole | Infanterie +20 %, aérien -10 %, défenseur +15 %, double dévastation |
+| Monde-jardin | Moitié moins de dévastation |
+
+**Les tactiques.** Chaque camp choisit sa tactique pendant le débarquement, ou garde celle fixée par défaut dans l'écran Armées. À l'assaut : **Assaut** ; **Bombardement préventif** (la milice commence à -30 %, mais le système est dévasté) ; **Infiltration** (cinq jours de débarquement, pas de tir des batteries, +25 % de dégâts les cinq premiers jours) ; **Blitz** (un seul jour de débarquement, +20 % de dégâts infligés et subis). En défense : **Défense** ; **Résistance locale** (la milice grossit de moitié, le système souffre davantage) ; **Protéger les civils** (aucune dévastation, -10 % de dégâts) ; **Capitulation** (sans régiment pour le défendre, le monde se rend au débarquement, sans pertes).
+
+**La vétérance.** Chaque coup porté rapporte de l'expérience : **Aguerri** à 30 (+10 % de dégâts et de moral), **Vétéran** à 80 (+20 %), **Élite** à 160 (+30 %).
+
+**Les sièges.** Une flotte qui assiège use d'abord les **fortifications** (20 par colonie, 5 par avant-poste, 60 par Bastion, 120 par Citadelle), puis la milice. Le génie à bord ajoute 4 de puissance de siège par régiment. Hors siège, les fortifications se relèvent de 2 par jour. Bastion et Citadelle tirent sur les régiments qui débarquent (10 % et 20 % de leur santé ; +10 % avec la Défense planétaire) ; chaque régiment de forces spéciales annule 20 points de ce tir. Le défenseur peut tenter une **sortie** depuis l'écran Armées : ses régiments au sol frappent les troupes à bord des assiégeants, puis la garnison se remet pendant trente jours.
+
+**Le bombardement.** Une flotte armée choisit sa posture (bouton **Bombardement** de la fiche de flotte). **Sélectif** : siège une fois et demie plus fort, population épargnée. **Indiscriminé** : siège deux fois plus fort, mais des habitants meurent et le système est dévasté. **Rasant** : siège triple, dévastation massive, crime de guerre que la victime n'oublie pas, réservé à la horde et à la ruche. Avec l'Amphictyonie, le niveau **Mondes protégés** fait de tout bombardement sans discernement d'un monde peuplé un crime de guerre. Une **Citadelle** debout protège population et bâtiments. Un monde bombardé sans remparts, sans milice ni régiment **capitule** au bout de dix jours, sauf les peuples qui ne se rendent jamais (Honneur, Ossarane, ruche, Essaim).
+
+**La dévastation.** Chaque système a un taux de dévastation de 0 à 100 : -1 % de production pour 2 points, autant de croissance en moins, -1 de stabilité pour 5 points. Le bombardement et les combats au sol la font monter ; elle baisse de 3 par mois une fois la paix revenue sur place. Chaque tranche de 10 points causée par une bataille coûte un habitant.
+
+**Après la prise.** Un système **occupé** sans régiment de l'occupant au sol ne lui rapporte que la moitié de sa part, et la **résistance** y monte de 25 par mois (elle baisse de 10 s'il est tenu). À 100, une **insurrection** lève des régiments de partisans pour le propriétaire ; s'ils l'emportent, le système est libéré. Le propriétaire et ses alliés **libèrent** un système en y débarquant : ils n'affrontent que les régiments de l'occupant.
+
+**Mercenaires et généraux.** S'il y a des pirates ou le Syndicat Brisecomète dans la partie, l'écran d'un système propose de **louer des mercenaires** : 90 énergie et 10 influence, sans recrues ni délai, quatre compagnies au plus. Leur entretien (3 énergie) est toujours payé, leur moral est fragile, et quand ils prennent un monde ils le pillent. Le Syndicat touche la moitié du contrat et paie les siens moitié prix. Le **Général**, une classe de héros proposée en combat complet, commande les régiments d'une flotte : +5 % de dégâts par niveau là où se trouve sa flotte. Défait au sol, il peut être pris.
+
+**Revoir une bataille au sol.** L'écran Armées garde les derniers rapports. **Revoir** rejoue la bataille jour par jour : l'assaillant débarque à gauche, le défenseur tient la droite, et chaque régiment est un pion à symbole militaire avec sa barre de santé.
+
+::: conseil
+Assiégez avant de débarquer : chaque jour de siège use les remparts, puis la milice. Un génie à bord abrège l'attente, et des forces spéciales font taire les batteries. Gardez ensuite un régiment dans chaque système occupé, sinon la résistance finira par s'en charger.
+:::
+
 ### Réparer, revoir, recommencer
 
-Les vaisseaux se réparent vite chez vous (5 % de la coque par jour) et lentement ailleurs (1 %). Les troupes se refont dans vos systèmes. Le **rapport de bataille** détaille pertes et dégâts ; **Revoir la bataille** ([[R]]) la rejoue en 2D, jour par jour, chaque camp rangé en écran, ligne et arrière. La partie continue pendant ce temps.
+Les vaisseaux se réparent vite chez vous (5 % de la coque par jour) et lentement ailleurs (1 %). Les troupes (et les régiments, en combat au sol complet) se refont dans vos systèmes. Le **rapport de bataille** détaille pertes et dégâts ; **Revoir la bataille** ([[R]]) la rejoue en 2D, jour par jour, chaque camp rangé en écran, ligne et arrière. La partie continue pendant ce temps.
 
 ::: capture docs/apercu-replay.png|La vue de replay
 :::

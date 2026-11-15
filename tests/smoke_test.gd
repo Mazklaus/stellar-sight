@@ -67,6 +67,9 @@ func _initialize() -> void:
 	preload("res://tests/borders_tests.gd").new().run(_check)
 	preload("res://tests/borders2_tests.gd").new().run(_check)
 	preload("res://tests/borders3_tests.gd").new().run(_check)
+	preload("res://tests/ground_tests.gd").new().run(_check)
+	preload("res://tests/ground2_tests.gd").new().run(_check)
+	preload("res://tests/ground3_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()
 	await _test_main_scene()
@@ -1688,6 +1691,18 @@ func _test_hero_ui(main: Node) -> void:
 			main.simulation.flush_commands()
 			await process_frame
 			_check(String(st.heroes[hid]["post"]) == "", "Panthéon : RAPPELER retire le poste")
+	# Combat au sol : l'écran Armées (régiments, démobiliser) s'ouvre depuis la barre d'empire.
+	screens.show_screen("armies")
+	await process_frame
+	_check(screens.current == "armies" and screens._side_box.get_child_count() > 0, "écran Armées (%s)" % ("complet" if Ground.full(st) else "simplifié"))
+	if Ground.full(st):
+		var gr := Ground._new_regiment(st, me, "infanterie", Peoples.founder_of(st, me), FactionTraits.capital_system(st, me))
+		screens.show_screen("armies")
+		await process_frame
+		_check(screens._content.get_child_count() > 0 and Ground.regiments_of(st, me).size() >= 1, "écran Armées : le régiment apparaît")
+		main.simulation.submit(SimCommands.ground_act(me, "demob", int(gr["id"])))
+		main.simulation.flush_commands()
+		_check(Ground.regiment(st, int(gr["id"])).is_empty(), "écran Armées : démobiliser")
 	# Un héros rival prisonnier : le geôlier le libère depuis le Panthéon.
 	var rival := 1 if me != 1 else 0
 	var pid := Heroes.recruit(st, rival, Heroes.make_candidate(st, rival, "stratege", ["ui_prison"]))

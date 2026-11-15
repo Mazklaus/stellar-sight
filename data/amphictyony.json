@@ -104,6 +104,7 @@
 		"nest": "nid de créatures détruit (Sanctuaires)",
 		"hero_execution": "héros prisonnier exécuté (Convention des prisonniers)",
 		"invade_populated": "monde peuplé envahi (Mondes protégés)",
+		"orbital_bombing": "monde peuplé bombardé sans discernement (Mondes protégés)",
 		"war_limits": "monde peuplé envahi dans une guerre réglée (Guerre réglée)"
 	},
 	"families": [
@@ -218,7 +219,7 @@
 			"a": {"label": "Lois de la guerre", "text": "La guerre a ses règles : prisonniers épargnés, mondes peuplés protégés, puis guerres limitées entre amphictyons. Les enfreindre est un crime de guerre.",
 				"levels": [
 					{"name": "Convention des prisonniers", "fx": {}, "bans": ["hero_execution"]},
-					{"name": "Mondes protégés", "fx": {}, "bans": ["invade_populated"]},
+					{"name": "Mondes protégés", "fx": {}, "bans": ["invade_populated", "orbital_bombing"]},
 					{"name": "Guerre réglée", "fx": {}, "limited_members": true}
 				]},
 			"b": {"label": "Raison d'État", "text": "Chacun mène ses guerres comme il l'entend : les peuples s'y résignent mieux (lassitude réduite de 10 % par niveau).",

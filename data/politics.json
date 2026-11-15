@@ -220,7 +220,7 @@
 		"glaive": {
 			"power": {"id": "mobilisation", "label": "Mobilisation", "level": 0, "fx": {"no_war_weariness": 1}, "text": "La guerre ne lasse plus personne : pas de lassitude de guerre."},
 			"laws": [
-				{"id": "conscription", "label": "Conscription", "level": 1, "fx": {"troops_pct": 25}, "text": "Tout citoyen est un soldat qui s'ignore. Troupes +25 %."},
+				{"id": "conscription", "label": "Conscription", "level": 1, "fx": {"troops_pct": 25, "recruits_pct": 25}, "text": "Tout citoyen est un soldat qui s'ignore. Troupes +25 % (combat au sol complet : +25 % de recrues)."},
 				{"id": "arsenaux", "label": "Arsenaux d'État", "level": 2, "fx": {"ship_days_pct": -20}, "text": "Les chantiers navals tournent jour et nuit. Vaisseaux construits 20 % plus vite."},
 				{"id": "doctrine_offensive", "label": "Doctrine offensive", "level": 3, "fx": {"damage_pct": 10}, "text": "La meilleure défense, etc. Dégâts +10 %."},
 				{

@@ -523,7 +523,10 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 		for f: Fleet in by:
 			if state.fleets.has(f.id):
 				power += Combat.siege_power(f, state)
-		state.garrisons[sid] = maxi(0, before - power)
+		if Ground.full(state):
+			GroundSiege.on_siege(state, sid, by, power)  # fortifications d'abord, bombardement, reddition
+		else:
+			state.garrisons[sid] = maxi(0, before - power)
 
 
 ## Les batteries des bastions tirent à moyenne portée sur les assiégeants.
@@ -618,6 +621,8 @@ static func _repairs(state: GameState, fought: Dictionary) -> void:
 				if f.hp[i] < mx:
 					@warning_ignore("integer_division")
 					f.hp[i] = mini(mx, f.hp[i] + maxi(1, mx * pct / 100))
+		if Ground.full(state):
+			continue  # armées : les régiments se recrutent sur les colonies (voir Ground)
 		var tmax := Combat.max_troops(f, state)
 		# Cité de bord (Nef-monde) : les troupes se reforment même loin de chez elles.
 		if f.troops < tmax and (at_home or Combat._fleet_has_flag(f, "fleet_barracks")):

@@ -107,21 +107,22 @@
 				{"name": "Pas de racines", "text": "Fonder une vraie colonie coûte deux fois plus d'influence."},
 				{"name": "Flotte de départ", "text": "Deux corvettes en plus au départ : un syndicat commence par ce qu'il loue."}]},
 		{"id": "horde", "label": "Horde des clans", "text": "Pas de palais, pas de frontières : des clans qui vont où va la flotte-ville, et qui se servent en route.",
-			"fields": {"horde": {"ship": "flotte_ville", "camp_pct": 150, "far_jumps": 4, "far_pct": 70, "loot": {"materials": 6, "energy": 4}}, "ai": {"extra_warships": 2, "research_bias": {"armement": 2, "genie": 1}}},
+			"fields": {"combat": {"army_free_pct": 200, "orbital_raze": 1}, "horde": {"ship": "flotte_ville", "camp_pct": 150, "far_jumps": 4, "far_pct": 70, "loot": {"materials": 6, "energy": 4}}, "ai": {"extra_warships": 2, "research_bias": {"armement": 2, "genie": 1}}},
 			"traits": [{"name": "Flotte-ville", "text": "Aucune planète capitale : la capitale est une flotte-ville, une coque titanesque armée qui rapporte ce que rapporte un palais (3 énergie, 3 matériaux, 5 influence, 8 Savoir) et qui se déplace. Le monde natal n'a ni palais ni garnison de capitale. Détruite, elle se reconstruit dans un chantier (une seule à la fois) ; tant qu'elle vogue, le clan ne disparaît pas."},
 				{"name": "Campement", "text": "Les revendications du système où la flotte-ville est à l'arrêt produisent 50 % de plus."},
 				{"name": "Le clan suit la flotte", "text": "Les revendications à plus de 4 sauts de la flotte-ville produisent 30 % de moins ; toutes, si elle est détruite."},
-				{"name": "Pillage", "text": "En guerre, chaque vaisseau armé à l'arrêt dans un système ennemi y pille chaque mois 6 matériaux et 4 énergie, pris dans les réserves de l'empire visé."}]},
+				{"name": "Pillage", "text": "En guerre, chaque vaisseau armé à l'arrêt dans un système ennemi y pille chaque mois 6 matériaux et 4 énergie, pris dans les réserves de l'empire visé."},
+				{"name": "Tout clan est une armée", "text": "Combat au sol complet : deux fois plus de régiments sans entretien, et les flottes peuvent bombarder en Rasant."}]},
 		{"id": "ruche", "label": "Esprit de ruche", "text": "Pas de chefs, pas de débats : une seule volonté, qui a faim.",
 			"requires": {"archetype": ["ruche"]},
-			"fields": {"combat": {"prey": true, "digest": true, "garrison_pct": 150}, "ai": {"research_bias": {"armement": 2}, "temperament": {"never_peace": true}}},
+			"fields": {"combat": {"prey": true, "digest": true, "garrison_pct": 150, "army_free_pct": 150, "orbital_raze": 1, "no_surrender": 1}, "ai": {"research_bias": {"armement": 2}, "temperament": {"never_peace": true}}},
 			"traits": [
-				{"name": "Faim sans traité", "text": "La ruche chasse une proie à la fois : sans guerre, elle attaque le premier empire rencontré, puis le plus proche. Les colonies conquises sont digérées. Chaque larve défend la ruche : garnisons 50 % plus nombreuses."}
+				{"name": "Faim sans traité", "text": "La ruche chasse une proie à la fois : sans guerre, elle attaque le premier empire rencontré, puis le plus proche. Les colonies conquises sont digérées. Chaque larve défend la ruche : garnisons 50 % plus nombreuses, et 50 % de régiments sans entretien en plus (combat au sol complet). La ruche ne capitule jamais, et rase sans état d'âme."}
 			]}
 	],
 	"credo": [
 		{"id": "honneur", "label": "Honneur", "text": "Un serment vaut plus qu'une flotte. En théorie.",
-			"fields": {"research": {"name": "Secrets de maison", "text": "Les technologies de saut coûtent 25 % de moins : chaque maison garde ses routes.", "tag_cost_pct": {"saut": 75}}, "ai": {"research_bias": {"genie": 3}}}},
+			"fields": {"combat": {"army_free_pct": 150, "no_surrender": 1}, "research": {"name": "Secrets de maison", "text": "Les technologies de saut coûtent 25 % de moins : chaque maison garde ses routes.", "tag_cost_pct": {"saut": 75}}, "ai": {"research_bias": {"genie": 3}}}},
 		{"id": "foi", "label": "Foi", "text": "Les étoiles sont un texte sacré. Les hérétiques, des fautes de frappe.",
 			"fields": {"production_pct": {"knowledge": 80}, "research": {"name": "Reliques saintes", "text": "Savoir -20 % et technologies de société 25 % plus chères (l'innovation est suspecte). Chaque vaisseau ennemi détruit rapporte 4 Savoir, et les épaves livrent deux fois plus de secrets. Avec une théocratie, chaque technologie d'armement donne +5 ferveur.", "domain_cost_pct": {"societe": 125}, "fervor_per_domain": {"armement": 5}, "knowledge_per_kill": 4, "wreck_pct": 200},
 				"ai": {"research_bias": {"armement": 3, "societe": -2}}}},

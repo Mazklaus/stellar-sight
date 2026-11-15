@@ -101,6 +101,12 @@ static func border_act(player: int, act: String, x := -1, y := -1, s := "") -> D
 	return {"type": "border_act", "player": player, "act": act, "x": x, "y": y, "s": s}
 
 
+## Armées (voir Ground.check_act) : "recruit" (x = système, s = type, s2 = espèce), "embark" et
+## "disembark" (x = flotte), "demob" (x = régiment), "retreat" (x = système de la bataille au sol).
+static func ground_act(player: int, act: String, x := -1, s := "", s2 := "") -> Dictionary:
+	return {"type": "ground_act", "player": player, "act": act, "x": x, "s": s, "s2": s2}
+
+
 ## Propose un traité (Diplomacy.TREATY_IDS) à un empire rencontré. Une IA répond tout de suite,
 ## un joueur humain reçoit la proposition.
 static func propose_treaty(player: int, target: int, treaty: String) -> Dictionary:
@@ -747,6 +753,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			if dw == "" and state.wars_on and String(cmd.get("cb", "")) != "":
 				dw = Wars.check_choice(state, int(cmd["player"]), int(cmd["target"]), String(cmd["cb"]), String(cmd.get("goal", "")))
 			return dw
+		"ground_act":
+			return Ground.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")), String(cmd.get("s2", "")))
 		"border_act":
 			return Borders.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), int(cmd.get("y", -1)), String(cmd.get("s", "")))
 		"war_act":
@@ -952,6 +960,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				into.add_ship(f.ships[i], f.hp[i], f.gen[i])
 			into.troops += f.troops
 			Heroes.on_merge(state, f.id, into.id)
+			Ground.on_merge(state, f.id, into.id)
 			state.fleets.erase(f.id)
 		"split_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
@@ -966,6 +975,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			@warning_ignore("integer_division")
 			nf.troops = f.troops * Combat.max_troops(nf, state) / maxi(1, before)
 			f.troops -= nf.troops
+			Ground.on_split(state, f, nf)
 		"sacrifice":
 			var e := state.get_empire(int(cmd["player"]))
 			var c: Colony = state.colonies[int(cmd["planet"])]
@@ -1148,6 +1158,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			if state.wars_on and String(cmd.get("cb", "")) != "":
 				Wars.set_pending(state, int(cmd["player"]), int(cmd["target"]), String(cmd["cb"]), String(cmd.get("goal", "")))
 			Combat.start_war(state, int(cmd["player"]), int(cmd["target"]))
+		"ground_act":
+			Ground.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")), String(cmd.get("s2", "")))
 		"border_act":
 			Borders.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), int(cmd.get("y", -1)), String(cmd.get("s", "")))
 		"war_act":
@@ -1213,6 +1225,9 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 		"invade":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var sid := f.system_id
+			if Ground.full(state):
+				Ground.land(state, f)  # bataille au sol (voir Ground)
+				return
 			f.troops -= Combat.garrison(state, sid)  # les défenseurs se battent jusqu'au dernier
 			if not WarPeace.invade(state, sid, f.owner):  # occupation (buts de guerre), sinon conquête
 				Combat.capture_system(state, sid, f.owner)

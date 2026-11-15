@@ -121,7 +121,8 @@ static func growth_per_day(state: GameState, colony: Colony) -> int:
 	if e == null:
 		return int(GameData.rules()["growth_per_day"])
 	var pct := int(e.faction().get("growth_pct", 100))
-	pct = pct * maxi(10, 100 + Research.fx_int(state, colony.owner, "growth_pct") + FaithWars.growth_pct(state, colony)) / 100
+	pct = pct * maxi(10, 100 + Research.fx_int(state, colony.owner, "growth_pct") + FaithWars.growth_pct(state, colony)
+			+ GroundSiege.growth_pct(state, state.galaxy.get_planet(colony.planet_id).system_id)) / 100
 	# Route intérieure (voir Trade) : la jeune colonie desservie grandit plus vite.
 	return int(GameData.rules()["growth_per_day"]) * pct / 100 + Trade.internal_growth(state, colony.planet_id)
 
@@ -225,6 +226,12 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		for r in gross:
 			@warning_ignore("integer_division")
 			gross[r] = gross[r] * pct / 100
+	# Dévastation (combat au sol complet) : production réduite.
+	var dev_pct := GroundSiege.production_pct(state, planet.system_id)
+	if dev_pct != 100:
+		for r in gross:
+			@warning_ignore("integer_division")
+			gross[r] = gross[r] * dev_pct / 100
 	# Occupé (buts de guerre) : l'occupant prélève sa part.
 	var occ_pct := WarPeace.owner_pct(state, planet.system_id)
 	if occ_pct != 100:
@@ -271,6 +278,7 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 		_add(gross, y["gross"])
 		_add(upkeep, y["upkeep"])
 	_add(upkeep, Fleets.upkeep(state, empire_id))
+	_add(upkeep, Ground.upkeep(state, empire_id))
 	gross["influence"] += FactionTraits.extra_influence(state, empire_id)
 	# Systèmes en Ferveur : +1 influence chacun.
 	gross["influence"] += Stability.extra_influence(state, empire_id)

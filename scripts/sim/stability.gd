@@ -384,6 +384,9 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 		out.append(["Surpopulation", maxi(int(op["max"]), crowd * int(op["per_pop"]))])
 	if bld != 0:
 		out.append(["Bâtiments (forum, préfecture…)", bld])
+	var dv := GroundSiege.stability_malus(state, sid)
+	if dv != 0:
+		out.append(["Dévastation", dv])
 	# Garnison.
 	if (cx["armed"] as Dictionary).has(sid):
 		out.append(["Flotte armée en orbite", int(src["garrison"])])

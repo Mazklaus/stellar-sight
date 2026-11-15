@@ -36,6 +36,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Cultes natals | Les croyances d'origine d'un peuple, avant toute grande foi | 15 |
 | Curiosité | Épave, signal, ruine ou anomalie à sonder sur une planète | 17 |
 | Dernière Guerre | La guerre contre qui refuse l'élection du Chancelier des étoiles | 12 |
+| Dévastation | Taux de 0 à 100 par système, né du bombardement et des combats au sol : moins de production, de croissance et de stabilité | 7 |
 | Diaspora | Le peuple d'un empire disparu, qui peut le faire renaître | 3 |
 | Doctrine | En recherche, un choix exclusif d'Armement ; en religion, une position sur l'un des quatre axes d'une foi | 5, 15 |
 | Doléance | Ce que réclame un courant d'opposition, ou un peuple sans droits | 14, 3 |
@@ -46,6 +47,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Ferveur | Jauge propre aux théocraties du Chœur et des Murmurants | 19 |
 | Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 22 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
+| Fortifications | Remparts d'un système, que le siège use avant la milice (combat au sol complet) | 7 |
 | Fouille | Site exploré en plusieurs chapitres, avec une relique au bout | 17 |
 | Frontière | Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe | 8 |
 | Gardien | Créature unique assise sur un des meilleurs systèmes | 22 |
@@ -59,8 +61,8 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Intrusion | Flotte entrée sans droit de passage chez un empire rencontré : souvenir, puis -1 par mois si elle reste | 8 |
 | Kanly | Guerre limitée des peuples féodaux : ni monde peuplé envahi, ni parjure | 7 |
 | Koinon | Ligue de deux à six empires, avec synode, Stratège et lois | 11 |
-| Lassitude | Ce que coûte une guerre qui dure ; avec les buts de guerre, de 0 à 100 % par camp (stabilité, reddition, statu quo) | 7 |
 | Laissez-passer | Droit de passage d'une flotte précise pendant 90 jours, demandé contre 15 influence | 8 |
+| Lassitude | Ce que coûte une guerre qui dure ; avec les buts de guerre, de 0 à 100 % par camp (stabilité, reddition, statu quo) | 7 |
 | Lentille | Lecture de la carte : économie, stabilité, politique, commerce, peuples, foi, Amphictyonie, guerre, frontières | 2 |
 | Libre-échange | Troisième palier du commerce ; et une loi qui double le revenu des routes | 9, 14 |
 | Libre-passage | Traité réciproque qui ouvre à chacun l'espace de l'autre ; dénoncé avec 90 jours de préavis | 8 |
@@ -70,6 +72,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Marché commun | Prix partagés par toute la galaxie, une fois la Bourse fondée | 9 |
 | Marque | Niveau d'une famille d'armes ou de défenses, de I à V | 5 |
 | Merveille | Bâtiment unique dans la galaxie, au premier qui l'achève | 3 |
+| Milice | Les habitants en armes : la garnison, qui se bat au sol contre les régiments qui débarquent | 7 |
 | Monde saint | Le monde où une foi est née, qui prêche quatre fois plus fort | 15 |
 | Monopole | 60 % des gisements d'un luxe ou d'un stratégique | 9 |
 | Motif de guerre | La raison avouée d'une guerre (casus belli) ; sans motif, c'est une agression | 7 |
@@ -85,7 +88,9 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Préavis | L'IA masse ses flottes avant de déclarer ; les espions le voient | 7 |
 | Précepte | Règle partagée par tous les empires d'une foi | 15 |
 | Protectorat | Lien de sujet d'un empire faible qui a demandé protection | 10 |
+| Recrues | Réserve d'hommes de l'empire, versée chaque mois par les colonies, que coûte chaque régiment | 7 |
 | Reddition | Devenir vassal au lieu de disparaître | 8 |
+| Régiment | Unité de combat au sol, recrutée sur une colonie, transportée par les flottes | 7 |
 | Registre | Le ton d'un peuple : grimdark, médiéval spatial, space opera héroïque… | 19 |
 | Registre des traités | Toutes les paix signées, leurs clauses et leurs échéances | 8 |
 | Relique | Objet ancien à effet permanent, et son Triomphe | 17, 22 |

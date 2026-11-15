@@ -130,6 +130,7 @@ static func occupation_income(state: GameState, eid: int) -> Dictionary:
 		return out
 	for sid in occupied_by(state, eid):
 		var owner := state.system_owner(sid)
+		var held_pct := GroundOccupation.income_pct(state, sid)  # combat au sol : occupation tenue ou non
 		for pid in state.galaxy.systems[sid].planet_ids:
 			var c: Colony = state.colonies.get(pid)
 			if c == null or c.owner != owner:
@@ -138,7 +139,7 @@ static func occupation_income(state: GameState, eid: int) -> Dictionary:
 			for r in g:
 				if int(g[r]) > 0 and r != "knowledge":
 					@warning_ignore("integer_division")
-					out[r] = int(out.get(r, 0)) + int(g[r]) * pct / (100 - pct)
+					out[r] = int(out.get(r, 0)) + int(g[r]) * pct / (100 - pct) * held_pct / 100
 	var bonus := int(WarLaws.talent(state, eid).get("occ_income_pct", 0))
 	if bonus != 0:
 		for r in out:

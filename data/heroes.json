@@ -129,9 +129,20 @@
 			"short": "Omb",
 			"color": "#8c7ad6",
 			"text": "Agent de l'ombre : attaché à un réseau d'espionnage, il le fait grandir et rend ses opérations plus sûres."
+		},
+		"general": {
+			"label": "Général",
+			"post": "army",
+			"short": "Gén",
+			"color": "#c98a4a",
+			"text": "Commande les régiments d'une flotte (combat au sol complet) : ils frappent plus fort quand sa flotte est là. Défait au sol, il peut être pris."
 		}
 	},
 	"posts": {
+		"army": {
+			"label": "Général",
+			"text": "+%d %% de dégâts pour les régiments au sol là où est sa flotte."
+		},
 		"fleet": {
 			"label": "Amiral",
 			"text": "+%d %% de dégâts pour la flotte."
@@ -162,6 +173,7 @@
 		}
 	},
 	"per_level": {
+		"army_damage_pct": 5,
 		"fleet_damage_pct": 4,
 		"system_prod_pct": 5,
 		"agent_growth": 1,
@@ -186,6 +198,7 @@
 		}
 	},
 	"traits": {
+		"meneur_hommes": {"label": "Meneur d'hommes", "cls": "general", "text": "+10 % de dégâts au sol pour les régiments qu'il commande.", "fx": {"ground_damage_pct": 10}},
 		"tueur_monstres": {"label": "Tueur de monstres", "cls": "stratege", "earned": true, "text": "Gagné en abattant un gardien ou un fléau : +25 % de dégâts contre les créatures.", "fx": {"fauna_damage_pct": 25}},
 		"foudre": {
 			"label": "Foudre de guerre",

@@ -1073,6 +1073,7 @@ static func _borders(ctx: Dictionary, other: int, reach := 2) -> bool:
 static func _military(ctx: Dictionary) -> void:
 	_declare_wars(ctx)
 	_build_warships(ctx)
+	AiGround.think(ctx)
 	_command_warfleets(ctx)
 
 
@@ -1355,7 +1356,7 @@ static func _pick_warship(ctx: Dictionary) -> String:
 	var mine := {}
 	var total := 0
 	for f in _warfleets(ctx):
-		troops += f.troops
+		troops += Combat.max_troops(f, state) if Ground.full(state) else f.troops
 		for sh in f.ships:
 			mine[Combat.ship_line(sh)] = int(mine.get(Combat.ship_line(sh), 0)) + 1
 			total += 1
@@ -1635,7 +1636,7 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 			_intent(ctx, "Libère %s" % state.galaxy.systems[here].system_name)
 		return
 	if owner >= 0 and e.wars.has(owner) and occ != e.id:
-		if _issue(ctx, SimCommands.invade(e.id, f.id)):
+		if AiGround.should_land(ctx, f) and _issue(ctx, SimCommands.invade(e.id, f.id)):
 			_intent(ctx, "Envahit %s" % state.galaxy.systems[here].system_name)
 		return
 	if not Combat.battle_at(state, here).is_empty():

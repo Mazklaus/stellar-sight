@@ -3,6 +3,14 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.5
+
+- **Combat au sol et armées**, nouvelle option de partie, **Complet** par défaut (chapitre « La guerre ») : réserve de **recrues**, **régiments** recrutés sur les colonies avec l'espèce et les traits de leur peuple, entretien qui épargne les peuples guerriers, transport à bord des flottes, **bataille au sol** de plusieurs jours avec milice, front, moral, renforts et retraite, écran **Armées**.
+- **Siège en deux temps** (fortifications, puis milice), **sortie** de la garnison, **postures de bombardement**, **dévastation**, **Citadelle**, **reddition**.
+- **Spécialistes** (forces spéciales, génie de siège), **terrain**, **tactiques** des deux camps, **vétérance**, onze technologies au sol, **vue de la bataille au sol**.
+- **Régiments de peuple** et **marcheur de siège**, **mercenaires**, **occupation tenue** et **insurrection**, sort des civils, libération, héros **Général**.
+- Ponts : opération **Saboter les défenses**, loi **Conscription**, précepte **Moines guerriers**, Nomos **Mondes protégés** contre les bombardements, la faune qui défend ses mondes.
+
 ### Édition 2.4
 
 - **Frontières, ponts** (chapitre « La diplomatie ») : routes commerciales à travers une frontière close (-25 %), opération **Corridor discret**, passage inoffensif des flottes de même foi et précepte **Sanctuaire**, trait d'**Amiral discret** et ambassadeurs qui obtiennent les laissez-passer, lois **Doctrine des frontières closes / ouvertes**.
