@@ -9,12 +9,13 @@ Vers la fin de la partie, quelque chose arrive du dehors. Une **crise** est une 
 
 ### Le réglage
 
-Le bloc Règles de la nouvelle partie propose quatre réglages :
+Le bloc Règles de la nouvelle partie propose cinq réglages :
 
 | Réglage | Choix | Effet |
 | --- | --- | --- |
 | Crises de fin de partie | **Une** (défaut), Toutes, Aucune | Une grande crise par partie ; ou toutes les crises autorisées l'une après l'autre, dix ans d'écart au moins, chacune une fois et demie plus forte que la précédente |
 | Crises autorisées | Les six, cochées par défaut | Celles qui peuvent se lever ; il en reste toujours une cochée |
+| Devenir la crise | **Oui** (défaut), Non | Un empire peut prendre la voie de l'Ambition démesurée (voir plus bas) |
 | Fin de partie | An 20, **An 30** (défaut), An 40 | Date à partir de laquelle une crise peut se lever |
 | Force de la crise | Faible, **Normale** (défaut), Terrible, Cauchemar | 1, 2, 3 ou 5 fois la moyenne des forces armées des trois empires les plus armés, au moment de son arrivée |
 
@@ -112,9 +113,48 @@ Dès l'arrivée, une fenêtre propose à chaque empire de rejoindre le **Front c
 Lisez la fiche de la crise dans les Chroniques : elle dit ce qu'elle veut, où elle est faible et quelle arme la blesse. Une flotte construite pour vos rivaux n'est pas forcément celle qui arrêtera un récif chantant.
 :::
 
+### Les alliés inattendus
+
+**Votre peuple face aux crises.** Chaque crise réagit à certaines couches d'espèce, peuples créés compris. L'onglet Crise dit lesquelles jouent pour vous.
+
+| Talent | Qui | Contre | Effet |
+| --- | --- | --- | --- |
+| Protocole commun | Archétype synthétique | Inspection Générale | Amendes divisées par deux ; se mettre en conformité ne coûte ni stabilité ni réputation |
+| Sourds au chant | Gouvernement de ruche | Récif chantant | Un monde englouti garde la moitié de ce que le Récif lui prend (production et habitants) |
+| Ceux qui sentent la Faille | Credo de la foi | Déchirure | Présage pour eux seuls un an avant l'ouverture (qui attend alors un an pour tous) ; +10 % de dégâts contre les Pâles |
+| Amortisseurs | Credo du profit | Grand Krach | Contagion deux fois moins probable ; inflation et perte de commerce divisées par deux |
+| Tentés par le pavillon noir | Féodalité ou horde | Roi-Corsaire | Se soumettre ne coûte ni stabilité ni réputation ; tribut divisé par deux |
+| Veilleurs du ciel | Archétype énergétique | Nuit lente | Chaque versement au Phare des Âges compte double |
+
+**Les gardiens se réveillent.** Les gardiens éveillés (sauf l'Horloger, pacifique, et le Mange-soleil, qui a mieux à faire) sortent de leur tanière pour fondre sur les flottes de la crise qui passent à trois sauts ou moins, puis rentrent chez eux. Les troupeaux de la faune, eux, fuient les systèmes où elle se tient.
+
+**Les héros.** Un membre du Front commun peut nommer un **Commandant du Front** (onglet Héros) : toutes ses flottes frappent la crise plus fort, 4 % par niveau (8 % pour un stratège). L'amiral présent quand tombe un point faible ou le cœur gagne le trait **Tueur de crise** (+20 % de dégâts contre les crises). À la victoire, tous les amiraux qui l'ont combattue deviennent **Vétérans du Front** (+5 % de dégâts). Attention à vos gouverneurs : l'Inspection « convoque » celui d'un système qui tombe, les Pâles l'emportent. Il est blessé, ou capturé contre rançon.
+
+### Devenir la crise
+
+Pourquoi combattre la crise quand on peut la devenir ? Dès l'an 10, un empire, joueur ou IA, peut prendre la voie de l'**Ambition démesurée** (bouton dans l'onglet Crise). Un seul à la fois, et personne n'en est averti. Sa **Menace** monte avec ses actes :
+
+| Acte | Menace |
+| --- | --- |
+| Système conquis | 15 |
+| Guerre déclarée | 10 |
+| Bataille gagnée | 2 |
+| Atrocité | 60 |
+| Technologie interdite | 30 |
+
+| Palier | Menace | Effets (cumulés) |
+| --- | --- | --- |
+| Ambition démesurée | 150 | Dégâts +5 %, vaisseaux 10 % plus vite |
+| Ombre sur la galaxie | 400 | Dégâts +10 %, vaisseaux 15 % plus vite, troupes +20 % ; tous les autres empires s'en souviennent |
+| Fléau des étoiles | 800 | Dégâts +15 %, vaisseaux 20 % plus vite, troupes +30 %, +5 stabilité |
+
+Le dernier palier est un **point de non-retour**. Toute la galaxie déclare la guerre au Fléau, et personne ne peut plus faire la paix avec lui. Les autres empires frappent ses flottes **10 % plus fort**. Le Fléau doit alors bâtir **la Couronne du Néant**, en y versant 200 énergie ou matériaux à la fois (1 200 par empire rival, 2 400 au moins). S'il l'achève, c'est la **Victoire du Fléau**. S'il perd sa capitale, la voie est **brisée** : sa Menace retombe à rien et il ne pourra jamais la reprendre.
+
+L'IA ne prend cette voie que si elle est très belliqueuse.
+
 ### L'onglet Crise
 
-L'onglet **Crise** des Chroniques suit la crise de la partie : avant la fin de partie, sa date et vos réglages ; pendant le préavis, les présages ; pendant la crise, sa **fiche lisible** (ce qu'elle veut, son point faible, l'arme conseillée, le sort des systèmes tombés), vos préparatifs en cours, la **barre de la défaite commune**, la part de gloire de chacun, les membres du Front et la liste de ses points faibles ; après, le bilan de chaque crise passée.
+L'onglet **Crise** des Chroniques suit la crise de la partie : avant la fin de partie, sa date et vos réglages ; pendant le préavis, les présages ; pendant la crise, sa **fiche lisible** (ce qu'elle veut, son point faible, l'arme conseillée, le sort des systèmes tombés), vos préparatifs en cours, la **barre de la défaite commune**, la part de gloire de chacun, les membres du Front et la liste de ses points faibles ; après, le bilan de chaque crise passée. Il montre aussi les talents de votre peuple face aux crises et, si l'option est en jeu, la voie de l'Ambition démesurée.
 
 ### Les empires IA
 

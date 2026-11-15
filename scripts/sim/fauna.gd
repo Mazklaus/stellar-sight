@@ -383,6 +383,8 @@ static func kills(state: GameState, empire_id: int, sp: String) -> int:
 ## apprivoisé l'espèce ; toujours un chasseur de l'espèce et un troupeau dérangé ; sinon selon le
 ## tempérament (une espèce passive laisse passer).
 static func hostile(state: GameState, beast: Fleet, empire_id: int) -> bool:
+	if empire_id == GameState.CRISIS_ID:
+		return CrisisAllies.guardian_hunts(state, beast)  # les gardiens se dressent contre la crise
 	if empire_id < 0 or GameState.is_npc(empire_id):
 		return false
 	var h := herd_of(state, beast)

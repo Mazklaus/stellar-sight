@@ -309,6 +309,16 @@ static func crisis_fund(player: int, res: String) -> Dictionary:
 	return {"type": "crisis_fund", "player": player, "res": res}
 
 
+## Devenir la crise : prendre la voie de l'Ambition démesurée.
+static func crisis_ambition(player: int) -> Dictionary:
+	return {"type": "crisis_ambition", "player": player}
+
+
+## Le Fléau des étoiles verse au grand œuvre.
+static func crisis_oeuvre(player: int, res: String) -> Dictionary:
+	return {"type": "crisis_oeuvre", "player": player, "res": res}
+
+
 static func dig_clue(player: int, system_id: int) -> Dictionary:
 	return {"type": "dig_clue", "player": player, "system": system_id}
 
@@ -850,6 +860,10 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Relics.check_clue(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"crisis_fund":
 			return CrisisKinds.check_fund(state, int(cmd["player"]), String(cmd.get("res", "")))
+		"crisis_ambition":
+			return CrisisNemesis.check_ambition(state, int(cmd["player"]))
+		"crisis_oeuvre":
+			return CrisisNemesis.check_oeuvre(state, int(cmd["player"]), String(cmd.get("res", "")))
 		"relic_triumph":
 			return Relics.check_triumph(state, int(cmd["player"]), String(cmd.get("relic", "")))
 		"relic_assign":
@@ -1132,6 +1146,12 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 		"crisis_fund":
 			var cf_added: Array[Dictionary] = []
 			CrisisKinds.fund(state, int(cmd["player"]), String(cmd["res"]), cf_added)
+		"crisis_ambition":
+			var ca_added: Array[Dictionary] = []
+			CrisisNemesis.take(state, int(cmd["player"]), ca_added)
+		"crisis_oeuvre":
+			var co_added: Array[Dictionary] = []
+			CrisisNemesis.fund(state, int(cmd["player"]), String(cmd["res"]), co_added)
 		"relic_triumph":
 			var rt_added: Array[Dictionary] = []
 			Relics.triumph(state, int(cmd["player"]), String(cmd["relic"]), rt_added)

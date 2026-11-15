@@ -140,7 +140,7 @@ func _test_notice() -> void:
 	Crisis._notice(st, added)
 	_ok(Crisis.active(st) and _cards(st, 0, "crise_arrivee") == 1, "arrivée au bout de deux ans, avec sa fenêtre")
 	# La Déchirure n'a pas de préavis.
-	var st2 := _new(12)
+	var st2 := _new(12, "une", {"rivals": ["ossarane", "khthari", "teyl"]})  # sans peuple de foi (présage, lot 3)
 	st2.tick = 10800
 	var a2: Array[Dictionary] = []
 	Crisis.begin(st2, "dechirure", a2)

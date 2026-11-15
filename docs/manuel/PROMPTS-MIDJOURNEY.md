@@ -354,3 +354,13 @@ an immense galactic assembly hemicycle under a dome, tiers of delegations of rad
 ```
 pilgrims of several alien species climbing the endless stairs of a temple carved into an asteroid, a radiant holy world rising behind it, incense smoke drifting into space through a shimmering veil, devotional and awe-inspiring epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-36 · Les crises de fin de partie
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Les crises de fin de partie »
+- Sujet : Les flottes de tous les empires, rivales hier, font front ensemble devant une menace immense qui surgit de la bordure de la galaxie
+
+```
+the fleets of many rival alien empires side by side for the first time, facing a colossal alien threat rising from the dark rim of the galaxy, a vast singing coral reef of crystal drifting between stars, small ships against an overwhelming presence, desperate courage and awe epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

@@ -170,9 +170,14 @@
 		"resident": {
 			"label": "Résident",
 			"text": "+%.1f de loyauté par mois chez ce sujet ; révèle son allégeance secrète."
+		},
+		"front": {
+			"label": "Commandant du Front",
+			"text": "+%d %% de dégâts contre la crise pour toutes les flottes de l'empire (membre du Front commun)."
 		}
 	},
 	"per_level": {
+		"front_damage_pct": 4,
 		"army_damage_pct": 5,
 		"fleet_damage_pct": 4,
 		"system_prod_pct": 5,
@@ -199,6 +204,8 @@
 	},
 	"traits": {
 		"meneur_hommes": {"label": "Meneur d'hommes", "cls": "general", "text": "+10 % de dégâts au sol pour les régiments qu'il commande.", "fx": {"ground_damage_pct": 10}},
+		"tueur_crise": {"label": "Tueur de crise", "cls": "stratege", "earned": true, "text": "Gagné en abattant un point faible ou le cœur d'une crise de fin de partie : +20 % de dégâts contre les crises.", "fx": {"crisis_damage_pct": 20}},
+		"veteran_front": {"label": "Vétéran du Front", "cls": "stratege", "earned": true, "text": "A combattu une crise de fin de partie jusqu'à la victoire : +5 % de dégâts, et l'on paie ses verres.", "fx": {"damage_pct": 5}},
 		"tueur_monstres": {"label": "Tueur de monstres", "cls": "stratege", "earned": true, "text": "Gagné en abattant un gardien ou un fléau : +25 % de dégâts contre les créatures.", "fx": {"fauna_damage_pct": 25}},
 		"foudre": {
 			"label": "Foudre de guerre",

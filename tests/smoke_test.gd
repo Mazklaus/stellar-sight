@@ -74,6 +74,7 @@ func _initialize() -> void:
 	preload("res://tests/terrain_tests.gd").new().run(_check)
 	preload("res://tests/crisis_tests.gd").new().run(_check)
 	preload("res://tests/crisis2_tests.gd").new().run(_check)
+	preload("res://tests/crisis3_tests.gd").new().run(_check)
 	preload("res://tests/battle_visuals_tests.gd").new().run(_check)
 	_test_clock()
 	_test_empire_report()

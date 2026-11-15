@@ -819,6 +819,7 @@ static func count_stat(state: GameState, empire_id: int, key: String, n := 1) ->
 	if e and not e.is_npc():
 		e.stats[key] = int(e.stats.get(key, 0)) + n
 		Heroes.act(state, empire_id, key, n)
+		CrisisNemesis.on_stat(state, empire_id, key, n)
 
 
 # --- Effets -------------------------------------------------------------------------------------

@@ -498,6 +498,8 @@ static func check_terms(state: GameState, a: int, b: int, treaty: String) -> Str
 		return "empire inconnu"
 	if ea.eliminated or eb.eliminated:
 		return "cet empire a disparu"
+	if treaty == PEACE and (CrisisNemesis.is_scourge(state, a) or CrisisNemesis.is_scourge(state, b)):
+		return "le Fléau des étoiles ne fait pas la paix"
 	if not ea.contacts.has(b):
 		return "vous n'avez jamais rencontré cet empire"
 	if not TREATY_IDS.has(treaty):

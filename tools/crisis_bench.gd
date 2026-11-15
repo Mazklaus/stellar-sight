@@ -29,7 +29,7 @@ func _initialize() -> void:
 func _run(sd: int, k: String, strength: String, start: int, years: int, level: String) -> void:
 	var t0 := Time.get_ticks_msec()
 	var st := GameState.create(sd, 150, 1800.0, "", {"spectator": true, "ai_level": level, "crises": "une",
-			"crisis_strength": strength, "crisis_kinds": [k], "terrain": "normal"})
+			"crisis_strength": strength, "crisis_kinds": [k], "terrain": "normal", "creatures": "normales", "crisis_nemesis": _env("NEMESIS", "") != ""})
 	st.crisis["start"] = start * 360
 	var sim := Simulation.new(st)
 	var month := int(GameData.rules()["month_days"])
@@ -59,5 +59,5 @@ func _run(sd: int, k: String, strength: String, start: int, years: int, level: S
 	print("CRISE " + JSON.stringify({"seed": sd, "kind": k, "str": strength, "arrived": arrived, "power": int(Crisis.cur(st).get("power", 0)),
 			"result": String(res.get("result", "en cours" if Crisis.active(st) else "aucune")), "end": int(res.get("tick", st.tick)),
 			"fallen": int(res.get("fallen", Crisis.cur(st).get("fallen", 0))), "freed": int(res.get("freed", Crisis.cur(st).get("freed", 0))),
-			"shares": res.get("shares", Crisis.shares(st)), "front": front, "winner": st.winner, "curve": curve,
+			"shares": res.get("shares", Crisis.shares(st)), "front": front, "winner": st.winner, "nem": CrisisNemesis.nem(st), "curve": curve,
 			"alive": st.empires.filter(func(e: Empire) -> bool: return not e.eliminated).size(), "secs": (Time.get_ticks_msec() - t0) / 1000}))

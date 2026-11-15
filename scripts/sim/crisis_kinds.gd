@@ -170,10 +170,10 @@ static func _krach_day(state: GameState, added: Array[Dictionary]) -> void:
 				continue
 			# Inflation : les réserves d'énergie fondent.
 			@warning_ignore("integer_division")
-			e.resources["energy"] = maxi(0, int(e.resources.get("energy", 0)) * (100 - int(kr["inflation_pct"])) / 100)
+			e.resources["energy"] = maxi(0, int(e.resources.get("energy", 0)) * (100 - CrisisAllies.scaled(int(kr["inflation_pct"]), CrisisAllies.tal(state, eid, "inflation_pct"))) / 100)
 			# Contagion par les routes commerciales (couper ses traités protège).
 			for o in Trade.partners(state, eid):
-				if not inf.has(o) and Crisis._h(state, ["krach", eid, o, state.tick]) % 100 < int(kr["spread_pct"]):
+				if not inf.has(o) and Crisis._h(state, ["krach", eid, o, state.tick]) % 100 < CrisisAllies.scaled(int(kr["spread_pct"]), CrisisAllies.tal(state, o, "spread_pct")):
 					_infect(state, o, eid, added)
 	# Les ruinés rejoignent les pirates.
 	var pd := maxi(1, int(kr["pirates_days"]))
@@ -213,7 +213,7 @@ static func trade_pct(state: GameState, eid: int) -> int:
 	if state.crisis.is_empty():
 		return 100
 	if infected(state, eid):
-		return int(_kd(state)["krach"]["trade_pct"])
+		return 100 - CrisisAllies.scaled(100 - int(_kd(state)["krach"]["trade_pct"]), CrisisAllies.tal(state, eid, "trade_cut_pct"))
 	var dep: Dictionary = state.crisis.get("dep", {})
 	if not dep.is_empty() and state.tick < int(dep["until"]) and (dep["who"] as Array).has(eid):
 		return int(dep["trade_pct"])
@@ -267,8 +267,9 @@ static func fund(state: GameState, eid: int, res: String, added: Array[Dictionar
 	var e := state.get_empire(eid)
 	e.resources[res] = int(e.resources.get(res, 0)) - pack
 	var c := _cur(state)
-	c["fund"] = int(c.get("fund", 0)) + pack
-	Crisis.add_contrib(state, eid, pack)
+	var worth := CrisisAllies.scaled(pack, CrisisAllies.tal(state, eid, "fund_pct"))  # Veilleurs du ciel : double
+	c["fund"] = int(c.get("fund", 0)) + worth
+	Crisis.add_contrib(state, eid, worth)
 	if int(c["fund"]) >= int(c["need"]):
 		added.append(state.add_chronicle("%s est achevé ! %s" % [String(pj.get("name", "Le grand chantier")),
 				"Il s'allume, et la Nuit recule d'un pas, puis d'un autre." if String(c["kind"]) == "nuit" else "Les guichets ouvrent, la confiance revient, les files d'attente se dispersent."]))
@@ -364,7 +365,7 @@ static func pact(state: GameState, eid: int, added: Array[Dictionary]) -> void:
 	(c["pact"] as Dictionary)[eid] = state.tick
 	(c["front"] as Dictionary).erase(eid)
 	for e in state.empires:
-		if not e.eliminated and e.id != eid:
+		if not e.eliminated and e.id != eid and not CrisisAllies.tal_flag(state, eid, "pact_free"):
 			Diplomacy.remember(state, e.id, eid, "crisis_pact")
 	# La crise rend les systèmes qu'elle tenait chez son nouvel allié.
 	for sid in (c["held"] as Dictionary).keys():
@@ -373,7 +374,7 @@ static func pact(state: GameState, eid: int, added: Array[Dictionary]) -> void:
 	Relics.touch(state)
 	for e in state.empires:
 		e.path_cache.clear()
-	added.append(state.add_chronicle("%s pactise avec %s. Les autres empires s'en souviendront." % [state.get_empire(eid).display_name(), Crisis.name_of(Crisis.kind(state))]))
+	added.append(state.add_chronicle("%s pactise avec %s. Les autres empires s'en souviendront." % [state.get_empire(eid).display_name(), Crisis.obj_name(Crisis.name_of(Crisis.kind(state)))]))
 
 
 ## Tribut mensuel des empires soumis (Roi-Corsaire).
@@ -388,7 +389,7 @@ static func pacts_day(state: GameState, _added: Array[Dictionary]) -> void:
 		var e := state.get_empire(int(k))
 		if e != null and not e.eliminated:
 			@warning_ignore("integer_division")
-			e.resources["energy"] = maxi(0, int(e.resources.get("energy", 0)) * (100 - pct) / 100)
+			e.resources["energy"] = maxi(0, int(e.resources.get("energy", 0)) * (100 - CrisisAllies.scaled(pct, CrisisAllies.tal(state, e.id, "tribute_pct"))) / 100)
 
 
 # --- Convois (prop. 20) -----------------------------------------------------------------------------
@@ -431,7 +432,7 @@ static func convoys_day(state: GameState, added: Array[Dictionary]) -> void:
 		return
 	f.path.assign(route["path"])
 	conv[f.id] = b.system_id
-	added.append(state.add_chronicle("Un convoi de %s part de %s vers %s : l'intercepter rapporterait gros." % [Crisis.name_of(Crisis.kind(state)),
+	added.append(state.add_chronicle("Un convoi %s part de %s vers %s : l'intercepter rapporterait gros." % [Crisis.de_name(Crisis.name_of(Crisis.kind(state))),
 			state.galaxy.systems[a.system_id].system_name, state.galaxy.systems[b.system_id].system_name]))
 
 
@@ -452,7 +453,7 @@ static func on_battle_convoys(state: GameState, top: int, added: Array[Dictionar
 		for r in cfg.get("loot", {}):
 			e.resources[r] = int(e.resources.get(r, 0)) + Events.era_scaled(state, top, int(cfg["loot"][r]))
 		Crisis.add_contrib(state, top, int(cfg.get("contrib", 80)))
-		added.append(state.add_chronicle("%s intercepte un convoi de %s et se sert dans ses cales." % [e.display_name(), Crisis.name_of(Crisis.kind(state))]))
+		added.append(state.add_chronicle("%s intercepte un convoi %s et se sert dans ses cales." % [e.display_name(), Crisis.de_name(Crisis.name_of(Crisis.kind(state)))]))
 
 
 static func is_convoy(state: GameState, fid: int) -> bool:
@@ -536,7 +537,7 @@ static func on_finish(state: GameState, result: String, added: Array[Dictionary]
 			n += 1
 		state.crisis["remnants"] = rem
 		if n > 0:
-			added.append(state.add_chronicle("Quelques débris de %s n'ont pas compris que c'était fini : ils errent encore, sauvages et dangereux." % Crisis.name_of(k)))
+			added.append(state.add_chronicle("Quelques débris %s n'ont pas compris que c'était fini : ils errent encore, sauvages et dangereux." % Crisis.de_name(Crisis.name_of(k))))
 
 
 static func traces_day(state: GameState, added: Array[Dictionary]) -> void:

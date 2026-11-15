@@ -211,6 +211,9 @@ var crisis_strength := "normale"
 var _crisis_strength_select: OptionButton
 ## Sortes de crise autorisées (vide = toutes).
 var crisis_kinds: Array[String] = []
+## Devenir la crise : un empire peut prendre la voie de l'Ambition démesurée.
+var crisis_nemesis := true
+var _crisis_nemesis_check: CheckBox
 var _crisis_kinds_button: MenuButton
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
@@ -1606,6 +1609,8 @@ func set_crises(id: String) -> void:
 		_crisis_strength_select.disabled = crises == "aucune"
 	if _crisis_kinds_button:
 		_crisis_kinds_button.disabled = crises == "aucune"
+	if _crisis_nemesis_check:
+		_crisis_nemesis_check.disabled = crises == "aucune"
 	_refresh_preset()
 
 
@@ -1641,6 +1646,13 @@ func set_crisis_kinds(kinds: Array) -> void:
 		for i in all.size():
 			pop.set_item_checked(i, crisis_kinds.is_empty() or crisis_kinds.has(all[i]))
 		_crisis_kinds_button.text = "Toutes" if crisis_kinds.is_empty() else "%d sur %d" % [crisis_kinds.size(), all.size()]
+	_refresh_preset()
+
+
+func set_crisis_nemesis(on: bool) -> void:
+	crisis_nemesis = on
+	if _crisis_nemesis_check:
+		_crisis_nemesis_check.set_pressed_no_signal(on)
 	_refresh_preset()
 
 
@@ -1708,7 +1720,7 @@ func set_migrations(id: String) -> void:
 func game_options() -> Dictionary:
 	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
-		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate()}
+		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis}
 
 
 func set_spectator(on: bool) -> void:
@@ -2172,6 +2184,11 @@ func _build_new_page(root: Control) -> void:
 	kpop.id_pressed.connect(_toggle_crisis_kind)
 	_crisis_kinds_button.tooltip_text = "Crises qui peuvent se lever dans la partie (au moins une).\n" + "\n".join(ktip)
 	_labeled_row(game, "Crises autorisées", _crisis_kinds_button)
+	_crisis_nemesis_check = CheckBox.new()
+	_crisis_nemesis_check.text = "Devenir la crise"
+	_crisis_nemesis_check.tooltip_text = "Un empire, joueur ou IA, peut prendre la voie de l'Ambition démesurée : sa Menace monte avec ses conquêtes et ses atrocités ; au dernier palier, toute la galaxie lui fait la guerre, et un grand œuvre lui donne la victoire s'il l'achève."
+	_crisis_nemesis_check.toggled.connect(set_crisis_nemesis)
+	game.add_child(_crisis_nemesis_check)
 	set_peoples(peoples)
 	set_migrations(migrations)
 	set_faiths(faiths)
@@ -2189,6 +2206,7 @@ func _build_new_page(root: Control) -> void:
 	set_crisis_start(crisis_start)
 	set_crisis_strength(crisis_strength)
 	set_crisis_kinds(crisis_kinds)
+	set_crisis_nemesis(crisis_nemesis)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2929,7 +2947,7 @@ func settings() -> Dictionary:
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
-		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(),
+		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2949,7 +2967,7 @@ func default_settings() -> Dictionary:
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
 		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives", "amphictyony": "active", "vassals": "actifs", "koinon": "actif", "wargoals": "actifs", "occupation": "occupation", "borders": String(GameData.borders()["default_mode"]), "ground": String(GameData.ground()["default_mode"]), "logistics": String(GameData.logistics()["default_mode"]),
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
-		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": []}
+		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -3036,6 +3054,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_crisis_start(String(d.get("crisis_start", base["crisis_start"])))
 	set_crisis_strength(String(d.get("crisis_strength", base["crisis_strength"])))
 	set_crisis_kinds(d.get("crisis_kinds", base["crisis_kinds"]))
+	set_crisis_nemesis(bool(d.get("crisis_nemesis", base["crisis_nemesis"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

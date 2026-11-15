@@ -106,6 +106,7 @@
 		"war_claim": {"value": -5, "days": 1080, "label": "Exige la soumission de ses voisins"},
 		"truce_breaker": {"value": -20, "days": 3600, "label": "A rompu une trêve"},
 		"crisis_pact": {"value": -30, "days": 3600, "label": "A pactisé avec la crise"},
+		"nemesis": {"value": -25, "days": 7200, "label": "Nourrit une ambition démesurée"},
 		"truce_broken": {"value": -40, "days": 3600, "label": "A rompu la trêve signée avec nous"},
 		"humiliated": {"value": -25, "days": 1800, "label": "Nous a humiliés à la guerre"},
 		"unjust_demand": {"value": -15, "days": 3600, "label": "Nous a imposé des exigences injustifiées"},

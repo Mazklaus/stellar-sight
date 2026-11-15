@@ -6,10 +6,10 @@ extends RefCounted
 
 
 ## Navires de guerre voulus : n, ajusté selon la crise.
-static func wanted(state: GameState, n: int) -> int:
+static func wanted(state: GameState, n: int, eid := -1) -> int:
 	if Crisis.active(state):
 		return n * 2 + 2
-	if Crisis.ongoing(state):
+	if Crisis.ongoing(state) and (eid < 0 or Crisis.known(state, eid)):
 		@warning_ignore("integer_division")
 		return n * 3 / 2 + 1
 	return n
@@ -75,7 +75,10 @@ static func _first_station(state: GameState, sid: int) -> int:
 ## permettent largement ; la Recrue oublie souvent).
 static func think(ctx: Dictionary) -> void:
 	var state: GameState = ctx["state"]
-	if state.crisis.is_empty() or not Crisis.active(state):
+	if state.crisis.is_empty():
+		return
+	_nemesis(ctx)
+	if not Crisis.active(state):
 		return
 	var e: Empire = ctx["e"]
 	var pj := CrisisKinds.project(state)
@@ -93,3 +96,24 @@ static func think(ctx: Dictionary) -> void:
 		return
 	if AiPlayer._issue(ctx, SimCommands.crisis_fund(e.id, res)):
 		AiPlayer._intent(ctx, "Verse au %s" % String(pj.get("name", "grand chantier")))
+
+
+## Devenir la crise (prop. 23) : un empire très belliqueux, assez habile, peut prendre la voie ; devenu le
+## Fléau, il verse à son grand œuvre dès que ses réserves le permettent.
+static func _nemesis(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	if not CrisisNemesis.enabled(state):
+		return
+	var e: Empire = ctx["e"]
+	if CrisisNemesis.who(state) < 0:
+		if AiLevels.aggression(e) >= 2 and int(ctx["lv"].get("faction_use", 1)) >= 1 and CrisisNemesis.check_ambition(state, e.id) == "" \
+				and Crisis._h(state, ["ambition", e.id, state.tick / 360]) % 4 == 0:
+			if AiPlayer._issue(ctx, SimCommands.crisis_ambition(e.id)):
+				AiPlayer._intent(ctx, "Nourrit une ambition démesurée")
+		return
+	if not CrisisNemesis.is_scourge(state, e.id):
+		return
+	var pack := int(CrisisNemesis.data()["oeuvre"].get("pack", 200))
+	var res := "energy" if int(e.resources.get("energy", 0)) >= int(e.resources.get("materials", 0)) else "materials"
+	if int(e.resources.get(res, 0)) >= pack * 2 and AiPlayer._issue(ctx, SimCommands.crisis_oeuvre(e.id, res)):
+		AiPlayer._intent(ctx, "Bâtit %s" % String(CrisisNemesis.data()["oeuvre"].get("name", "son grand œuvre")))

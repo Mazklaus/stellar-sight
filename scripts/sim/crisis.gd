@@ -89,6 +89,16 @@ static func ongoing(state: GameState) -> bool:
 	return not cur(state).is_empty()
 
 
+## L'empire sait-il qu'une crise approche ? Pendant le présage privé (talent), seuls ceux qui la sentent.
+static func known(state: GameState, eid: int) -> bool:
+	var c := cur(state)
+	if c.is_empty():
+		return false
+	if String(c["stage"]) == "notice" and c.has("seers") and int(c["step"]) <= 1:
+		return (c["seers"] as Array).has(eid)
+	return true
+
+
 ## Une crise est-elle arrivée et encore en vie ?
 static func active(state: GameState) -> bool:
 	return String(cur(state).get("stage", "")) == "active"
@@ -197,7 +207,7 @@ static func production_pct(state: GameState, sid: int) -> int:
 	var pct := CrisisKinds.trace_pct(state, sid)  # traces durables, nuit, faillites du Krach
 	if active(state) and is_held(state, sid):
 		@warning_ignore("integer_division")
-		pct = pct * int(fate_of(state).get("prod_pct", 100)) / 100
+		pct = pct * CrisisAllies.fate_prod(state, state.system_owner(sid), int(fate_of(state).get("prod_pct", 100))) / 100
 	return pct
 
 
@@ -245,7 +255,7 @@ static func colony_block(state: GameState, sid: int) -> String:
 		return "%s tient ce système : libérez-le d'abord" % name_of(kind(state))
 	for f in stations(state):
 		if f.system_id == sid:
-			return "un point faible de %s occupe ce système : détruisez-le d'abord" % name_of(kind(state))
+			return "un point faible %s occupe ce système : détruisez-le d'abord" % de_name(name_of(kind(state)))
 	return ""
 
 
@@ -287,6 +297,7 @@ static func daily(state: GameState) -> Array[Dictionary]:
 		return added
 	_expire_boons(state)
 	CrisisKinds.traces_day(state, added)
+	CrisisNemesis.daily(state, added)
 	var c := cur(state)
 	if c.is_empty():
 		_maybe_start(state, added)
@@ -378,11 +389,17 @@ static func _era5_total(state: GameState) -> int:
 static func begin(state: GameState, k: String, added: Array[Dictionary]) -> void:
 	var kd := kind_def(k)
 	var steps: Array = []
+	var seers := CrisisAllies.foreseers(state, k)
+	var ahead := CrisisAllies.foresight_days(k) if not seers.is_empty() and (kd.get("notice", [0]) as Array).size() <= 1 else 0
 	for d in kd.get("notice", [0]):
-		steps.append(state.tick + int(d))
+		steps.append(state.tick + ahead + int(d))
+	if ahead > 0:
+		steps.push_front(state.tick)  # présage privé des peuples qui sentent la crise (prop. 27)
 	state.crisis["cur"] = {"kind": k, "stage": "notice", "since": state.tick, "steps": steps, "step": 0, "origin": _origin(state, k),
 			"power": 0, "base_owned": 0, "war": [], "st": {}, "held": {}, "contrib": {}, "front": {}, "aloof": {}, "reinf": 0, "fallen": 0, "freed": 0,
 			"pact": {}, "convoys": {}, "arms": {}, "fund": 0, "measures": []}
+	if ahead > 0:
+		cur(state)["seers"] = seers
 	if String(kd.get("origin", "")) == "trade":
 		var oe := CrisisKinds.krach_origin(state)
 		cur(state)["origin_e"] = oe
@@ -400,13 +417,31 @@ static func _notice(state: GameState, added: Array[Dictionary]) -> void:
 		var i := int(c["step"])
 		c["step"] = i + 1
 		var last := i == steps.size() - 1
-		var text := step_text(state, i)
+		if i == 0 and c.has("seers"):
+			_omen(state, c, added)
+			continue
+		var text := step_text(state, i - (1 if c.has("seers") else 0))
 		added.append(state.add_chronicle(("CRISE. " if last else "Présage. ") + text))
 		var card := "crise_arrivee" if last else ("crise_alerte_1" if i == 0 else "crise_alerte_2")
 		_push_all(state, card, int(c["origin"]), added)
 		if last:
 			arrive(state, added)
 			return
+
+
+## Présage privé (talent « Ceux qui sentent la Faille ») : une chronique et une fenêtre pour eux seuls.
+static func _omen(state: GameState, c: Dictionary, added: Array[Dictionary]) -> void:
+	var o := int(c.get("origin", -1))
+	for eid in c["seers"]:
+		var omen := ""
+		for t in CrisisAllies.talents_of(state, int(eid), String(c["kind"])):
+			if t.has("omen"):
+				omen = String(t["omen"])
+		if omen == "":
+			continue
+		omen = omen.replace("{empire}", state.get_empire(int(eid)).display_name()).replace("{origin}", state.galaxy.systems[o].system_name if o >= 0 else "la bordure")
+		added.append(state.add_chronicle("Présage. " + omen, Espionage.private_to(state, [int(eid)], -1)))
+		Events.push(state, int(eid), "crise_alerte_1", {"system": o}, added)
 
 
 static func step_text(state: GameState, i: int) -> String:
@@ -689,6 +724,7 @@ static func _active_day(state: GameState, added: Array[Dictionary]) -> void:
 	_orders(state)
 	_reinforce(state, added)
 	CrisisKinds.convoys_day(state, added)
+	CrisisAllies.fauna_day(state, added)
 	_core_rules(state, added)
 	if String(cur(state).get("stage", "")) != "active":
 		return
@@ -752,7 +788,7 @@ static func _fate_day(state: GameState, sid: int, en: Dictionary, fate: Dictiona
 	if fid == "seal":
 		var month := int(GameData.rules()["month_days"])
 		if (state.tick - int(en["since"])) % month == 0 and state.tick > int(en["since"]):
-			_fine(state, sid, int(fate.get("fine_pct", 5)))
+			_fine(state, sid, CrisisAllies.scaled(int(fate.get("fine_pct", 5)), CrisisAllies.tal(state, state.system_owner(sid), "fine_pct")))
 		var cd := int(fate.get("confiscate_days", 0))
 		if cd > 0 and state.tick - int(en["since"]) == cd:
 			_confiscate(state, sid, added)
@@ -768,6 +804,8 @@ static func _drain(state: GameState, sid: int, pop: int, erase: bool, station: S
 			continue
 		var e := state.get_empire(col.owner)
 		var capital := e != null and e.capital_planet == pid
+		if CrisisAllies.resists_drain(state, col.owner, sid):
+			continue  # ruche sourde au chant du Récif
 		if col.population > pop or capital or not erase:
 			col.population = maxi(1, col.population - pop)
 		else:
@@ -848,6 +886,7 @@ static func fall(state: GameState, sid: int, added: Array[Dictionary]) -> void:
 	var fate := fate_of(state)
 	var text := String(fate.get("fall", "%s tombe.")) % state.galaxy.systems[sid].system_name
 	added.append(state.add_chronicle(text))
+	CrisisAllies.on_fall(state, sid, owner, added)
 	if Stability.applies(state, owner):
 		var en := Stability._entry_w(state, sid)
 		en["hit"] = state.tick
@@ -866,8 +905,8 @@ static func _liberate(state: GameState, sid: int, added: Array[Dictionary]) -> v
 	for eid in by:
 		add_contrib(state, eid, pts)
 	if state.system_owner(sid) >= 0:
-		added.append(state.add_chronicle("%s est libéré de %s. On enlève les scellés, on balaie le corail, on recompte les vivants." % [
-				state.galaxy.systems[sid].system_name, name_of(kind(state))]))
+		added.append(state.add_chronicle("%s est libéré %s. On enlève les scellés, on balaie le corail, on recompte les vivants." % [
+				state.galaxy.systems[sid].system_name, de_name(name_of(kind(state)))]))
 
 
 static func add_contrib(state: GameState, eid: int, pts: int) -> void:
@@ -1056,6 +1095,7 @@ static func on_battle(state: GameState, b: Dictionary, winner: int, added: Array
 			crisis_side = s
 	if crisis_side.is_empty():
 		return
+	CrisisAllies.on_battle(state, b)
 	var lost := 0
 	for ship in crisis_side["lost"]:
 		lost += Combat.ship_strength(String(ship)) * int(crisis_side["lost"][ship])
@@ -1098,24 +1138,28 @@ static func on_battle(state: GameState, b: Dictionary, winner: int, added: Array
 			continue  # le Roi-Corsaire s'échappe (une fois)
 		var pts := int(data()["contrib"]["heart" if role == ROLE_HEART else "station"])
 		add_contrib(state, top, pts)
+		CrisisAllies.slayer(state, b, top, added)
 		if role == ROLE_HEART:
 			c["last_hit"] = top
 		var who := state.get_empire(top).display_name() if top >= 0 and not GameState.is_npc(top) else "on ne sait qui"
-		added.append(state.add_chronicle("%s détruit %s à %s. %s" % [who, "le cœur de la crise" if role == ROLE_HEART else "un point faible de %s" % name_of(String(c["kind"])),
+		added.append(state.add_chronicle("%s détruit %s à %s. %s" % [who, "le cœur de la crise" if role == ROLE_HEART else "un point faible %s" % de_name(name_of(String(c["kind"]))),
 				state.galaxy.systems[sid].system_name, "La galaxie retient son souffle." if role == ROLE_HEART else "Elle faiblit."]))
 	for e in state.empires:
 		e.path_cache.clear()
 	CrisisKinds.arms_check(state, added)
 
 
-## Bonus de dégâts contre la crise (Front commun).
+## Bonus de dégâts contre la crise : Front commun, talents de peuple, Commandant du Front, traits.
 static func damage_pct(state: GameState, f: Fleet, sid: int) -> int:
-	if not active(state) or GameState.is_npc(f.owner) or not in_front(state, f.owner):
+	if state.crisis.is_empty():
 		return 0
+	var nem := CrisisNemesis.damage_pct(state, f, sid)  # contre le Fléau des étoiles (prop. 23)
+	if not active(state) or GameState.is_npc(f.owner):
+		return nem
 	for g in Fleets.fleets_at(state, sid, GameState.CRISIS_ID):
 		if not g.ships.is_empty():
-			return int(data()["front"]["damage_pct"])
-	return 0
+			return (int(data()["front"]["damage_pct"]) if in_front(state, f.owner) else 0) + CrisisAllies.damage_pct(state, f) + nem
+	return nem
 
 
 # --- Fin de crise -----------------------------------------------------------------------------------
@@ -1147,6 +1191,7 @@ static func _finish(state: GameState, result: String, by: int, added: Array[Dict
 	CrisisKinds.on_finish(state, result, added)
 	match result:
 		"victoire":
+			CrisisAllies.on_victory(state, added)
 			var v: Dictionary = data()["victory"]
 			state.crisis["post"] = {"until": state.tick + int(v["days"]), "stab": int(v["stab"]), "kind": k}
 			var parts: Array[String] = []
@@ -1213,9 +1258,9 @@ static func stability_parts(state: GameState, eid: int) -> Array:
 		return out
 	var post: Dictionary = state.crisis.get("post", {})
 	if not post.is_empty() and state.tick < int(post["until"]):
-		out.append(["Victoire sur %s" % name_of(String(post.get("kind", ""))), int(post["stab"])])
-	if pacted(state, eid):
-		out.append(["Pacte avec %s (factions hostiles)" % name_of(kind(state)), int(data().get("pact_stab", -5))])
+		out.append(["Victoire sur %s" % obj_name(name_of(String(post.get("kind", "")))), int(post["stab"])])
+	if pacted(state, eid) and not CrisisAllies.tal_flag(state, eid, "pact_free"):
+		out.append(["Pacte avec %s (factions hostiles)" % obj_name(name_of(kind(state))), int(data().get("pact_stab", -5))])
 	out.append_array(CrisisKinds.stability_parts(state, eid))
 	return out
 
@@ -1229,6 +1274,7 @@ static func effects(state: GameState, eid: int) -> Dictionary:
 		Research._merge(out, b["fx"])
 	if pacted(state, eid):
 		Research._merge(out, kind_def(kind(state)).get("pact", {}).get("fx", {}))
+	Research._merge(out, CrisisNemesis.effects(state, eid))
 	return out
 
 
@@ -1278,7 +1324,7 @@ static func card_fx(state: GameState, eid: int, _item: Dictionary, fx: Dictionar
 		"front":
 			if active(state):
 				(cur(state)["front"] as Dictionary)[eid] = state.tick
-				added.append(state.add_chronicle("%s rejoint le Front commun contre %s." % [state.get_empire(eid).display_name(), name_of(kind(state))]))
+				added.append(state.add_chronicle("%s rejoint le Front commun contre %s." % [state.get_empire(eid).display_name(), obj_name(name_of(kind(state)))]))
 				for e in state.empires:
 					e.path_cache.clear()
 		"aloof":
@@ -1351,15 +1397,35 @@ static func fill(state: GameState, s: String) -> String:
 	out = out.replace("{crisis_tip}", String(kd.get("tip", "")))
 	out = out.replace("{crisis_wants}", String(kd.get("wants", "")))
 	out = out.replace("{crisis_end}", String(state.crisis.get("end_text", "")))
-	var front := "Les chancelleries proposent une coalition contre %s." % name_of(k)
+	var front := "Les chancelleries proposent une coalition contre %s." % obj_name(name_of(k))
 	if state.amph_on and not state.amph.is_empty():
-		front = "L'Amphictyonie se réunit en session extraordinaire, sans frais pour personne : elle propose un Front commun contre %s." % name_of(k)
+		front = "L'Amphictyonie se réunit en session extraordinaire, sans frais pour personne : elle propose un Front commun contre %s." % obj_name(name_of(k))
 	out = out.replace("{crisis_front}", front)
 	var pd: Dictionary = kd.get("pact", {})
 	out = out.replace("{crisis_pact_label}", String(pd.get("label", "Pactiser")))
 	out = out.replace("{crisis_pact}", String(pd.get("text", "")))
+	out = out.replace("{crisis_de}", de_name(name_of(k)))
 	out = out.replace("{crisis}", name_of(k))
 	return out
+
+
+## Nom après une préposition (contre, avec, sur) : l'article passe en minuscule.
+static func obj_name(n: String) -> String:
+	for art in ["Le ", "La ", "Les ", "L'"]:
+		if n.begins_with(art):
+			return art.to_lower() + n.substr(art.length())
+	return n
+
+
+## « de » + nom, avec l'article contracté : du Récif chantant, de la Déchirure, de l'Inspection Générale.
+static func de_name(n: String) -> String:
+	if n.begins_with("Le "):
+		return "du " + n.substr(3)
+	if n.begins_with("Les "):
+		return "des " + n.substr(4)
+	if n.begins_with("La ") or n.begins_with("L'"):
+		return "de " + n.substr(0, 1).to_lower() + n.substr(1)
+	return "de " + n
 
 
 # --- Déclencheurs précoces (prop. 4) ----------------------------------------------------------------
@@ -1383,6 +1449,7 @@ static func pull(state: GameState, trigger: String, eid: int) -> void:
 static func on_tech(state: GameState, eid: int, tid: String) -> void:
 	if enabled(state) and (data()["early"]["techs"] as Array).has(tid):
 		pull(state, "tech:" + tid, eid)
+		CrisisNemesis.gain(state, eid, int(CrisisNemesis.data().get("gain", {}).get("tech", 0)))
 
 
 static func is_forbidden_tech(tid: String) -> bool:
@@ -1396,12 +1463,13 @@ static func on_relic(state: GameState, eid: int, rid: String) -> void:
 
 static func on_atrocity(state: GameState, eid: int) -> void:
 	pull(state, "atrocite", eid)
+	CrisisNemesis.gain(state, eid, int(CrisisNemesis.data().get("gain", {}).get("atrocity", 0)))
 
 
 # --- Sauvegarde -------------------------------------------------------------------------------------
 
 ## Tables {entier: entier} de la crise en cours et de l'état général, sauvegardées en paires triées.
-const CUR_PAIRS := ["contrib", "front", "aloof", "pact", "convoys", "arms", "arks", "dark", "infected", "siege"]
+const CUR_PAIRS := ["contrib", "front", "aloof", "pact", "convoys", "arms", "arks", "dark", "infected", "siege", "vets", "woke"]
 const TOP_PAIRS := ["remnants", "dark_after"]
 
 

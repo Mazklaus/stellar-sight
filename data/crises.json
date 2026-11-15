@@ -65,6 +65,38 @@
 		"crise_convoi_pale": {"label": "Essaim pâle", "plural": "Essaims pâles", "line": "screen", "size": "small", "role": "Convoi", "hp": 240, "armor": 0, "shield": 30, "weapons": {"beam": 10}, "speed": 24, "vision": 1, "military": true, "crisis": "dechirure", "convoy": true, "description": "Des Pâles repus qui rapportent à la Faille ce qu'ils ont bu."},
 		"crise_convoi_cors": {"label": "Convoi de butin", "plural": "Convois de butin", "line": "screen", "size": "small", "role": "Convoi", "hp": 320, "armor": 20, "shield": 10, "weapons": {"kinetic": 10}, "speed": 22, "vision": 1, "military": true, "crisis": "corsaire", "convoy": true, "description": "Des cales pleines de ce que la Horde a pris. Un peu de ce que vous avez perdu, sans doute."}
 	},
+	"talents": [
+		{"id": "protocole", "label": "Protocole commun", "kind": "inspection", "requires": {"archetype": ["synthetique"]}, "fine_pct": -50, "pact_free": true,
+			"text": "Les machines parlent la langue de l'Inspection : amendes divisées par deux, et se mettre en conformité ne coûte ni stabilité ni réputation."},
+		{"id": "sourds_chant", "label": "Sourds au chant", "kind": "recif", "requires": {"gouvernement": ["ruche"]}, "fate_resist_pct": 50,
+			"text": "Une conscience de ruche n'entend pas le chant du Récif : ses mondes engloutis gardent la moitié de ce qu'il leur prend (production, habitants)."},
+		{"id": "presage_faille", "label": "Ceux qui sentent la Faille", "kind": "dechirure", "requires": {"credo": ["foi"]}, "foresight_days": 360, "damage_pct": 10,
+			"omen": "Les mystiques de {empire} se réveillent tous la même nuit, en sueur : dans un an, l'espace se déchirera près de {origin}. Personne d'autre ne le sait.",
+			"text": "Les peuples de foi sentent la Déchirure un an avant qu'elle s'ouvre (présage pour eux seuls), et frappent les Pâles 10 % plus fort."},
+		{"id": "amortisseurs", "label": "Amortisseurs", "kind": "krach", "requires": {"credo": ["profit"]}, "spread_pct": -50, "inflation_pct": -50, "trade_cut_pct": -50,
+			"text": "Les marchands ont vu d'autres krachs : la panique a deux fois moins de chances de les gagner, et l'inflation comme les pertes de commerce sont divisées par deux."},
+		{"id": "pavillon_noir", "label": "Tentés par le pavillon noir", "kind": "corsaire", "requires": {"gouvernement": ["feodalite", "horde"]}, "pact_free": true, "tribute_pct": -50,
+			"text": "Seigneurs et chefs de horde comprennent le Roi-Corsaire : se soumettre ne leur coûte ni stabilité ni réputation, et le tribut est divisé par deux."},
+		{"id": "veilleurs", "label": "Veilleurs du ciel", "kind": "nuit", "requires": {"archetype": ["energetique"]}, "fund_pct": 100,
+			"text": "Les peuples d'énergie savent ce qu'est une étoile : chacun de leurs versements au Phare des Âges compte double."}
+	],
+	"_talents": "Prop. 27 : talents par couche d'espèce (FactionTraits.species_matches), chacun contre une sorte de crise. Clés : fine_pct, pact_free, fate_resist_pct, foresight_days (+ omen), damage_pct, spread_pct, inflation_pct, trade_cut_pct, tribute_pct, fund_pct.",
+	"guardians": {"reach": 3, "text": "%s sort de sa tanière et fond sur %s. Même les gardiens savent reconnaître une menace commune.",
+		"_doc": "Prop. 19 : les gardiens éveillés (sauf pacifiques et Mange-soleil) chassent les flottes de la crise à reach sauts de leur tanière, puis rentrent ; les troupeaux fuient."},
+	"nemesis": {
+		"from_day": 3600, "name": "Ambition démesurée",
+		"text": "Pourquoi combattre la crise quand on peut le devenir ? Un empire peut prendre la voie de l'Ambition démesurée : chaque conquête, chaque guerre, chaque atrocité et chaque technologie interdite nourrit sa Menace. Au dernier palier, il n'y a plus de retour : la galaxie entière lui fait la guerre, et il lui reste à achever son grand œuvre.",
+		"gain": {"conquests": 15, "wars": 10, "battles_won": 2, "atrocity": 60, "tech": 30},
+		"tiers": [
+			{"at": 150, "label": "Ambition démesurée", "fx": {"damage_pct": 5, "ship_days_pct": -10}, "text": "On murmure le nom de {empire} dans les chancelleries, et pas pour s'en réjouir."},
+			{"at": 400, "label": "Ombre sur la galaxie", "fx": {"damage_pct": 10, "ship_days_pct": -15, "troops_pct": 20}, "text": "{empire} n'est plus une puissance parmi d'autres : c'est une ombre qui s'étend. Les autres empires s'en souviendront."},
+			{"at": 800, "label": "Fléau des étoiles", "fx": {"damage_pct": 15, "ship_days_pct": -20, "troops_pct": 30, "stability": 5}, "final": true, "text": "{empire} se proclame Fléau des étoiles. Il n'y a plus de retour possible : toute la galaxie lui déclare la guerre, et il entreprend {oeuvre}."}
+		],
+		"foes_damage_pct": 10,
+		"oeuvre": {"name": "la Couronne du Néant", "need_per_empire": 1200, "min": 2400, "pack": 200, "text": "Un trône bâti dans le vide entre les étoiles, d'où l'on règne sur tout ce qui reste. Une fois achevé, la partie est gagnée pour le Fléau."},
+		"broken_text": "{empire} a perdu sa capitale : le Fléau des étoiles est brisé. Sa Menace retombe à rien, et il ne pourra plus jamais la reprendre.",
+		"_doc": "Prop. 23 : option « Devenir la crise » (crisis_nemesis). Un seul empire à la fois prend la voie (commande crisis_ambition, dès from_day) ; sa Menace monte par gain (Research.count_stat, atrocités, technologies interdites) ; paliers cumulés en effets ; le dernier = guerre de tous contre lui (pas de paix), +foes_damage_pct % de dégâts contre ses flottes, grand œuvre (commande crisis_oeuvre) qui donne la victoire « fleau ». Perdre sa capitale brise la voie."
+	},
 	"kinds": {
 		"recif": {
 			"name": "Le Récif chantant", "short": "Récif", "lot": 1, "register": "Invasion organique",
@@ -86,6 +118,7 @@
 		},
 		"inspection": {
 			"name": "L'Inspection Générale", "short": "Inspection", "lot": 1, "register": "Machine bureaucrate",
+			"hero_fate": "convoqué par l'Inspection Générale « pour une simple vérification »",
 			"text": "Une antique machine juge les civilisations trop avancées. Elle ne détruit pas : elle contrôle, met sous scellés, confisque. Ses Contrôleurs commencent par les empires les plus en avance. Il paraît que les amendes sont déductibles.",
 			"wants": "Que chaque civilisation reste dans les limites réglementaires de développement. Formulaire 27-B en annexe.",
 			"weak": "Fermez ses Bureaux de contrôle, dispersés dans la galaxie ; le Registre central apparaîtra alors. Détruisez-le.",
@@ -104,6 +137,7 @@
 		},
 		"dechirure": {
 			"name": "La Déchirure", "short": "Déchirure", "lot": 1, "register": "Outre-réalité",
+			"hero_fate": "emporté par les Pâles au-delà de la Faille",
 			"text": "Une faille s'ouvre dans l'espace, au cœur d'une tempête. Par elle passent les Pâles, qui boivent la vie des mondes qu'ils survolent. Trois ancres la gardent ouverte.",
 			"wants": "Boire. Encore. Et que la faille reste ouverte.",
 			"weak": "Tant que ses trois ancres tiennent, la Faille se répare : détruisez les ancres, puis la Faille.",
@@ -127,7 +161,7 @@
 			"scar": {"pct": 85, "days": 1800, "label": "Ruines du pillage"}, "pact": {"label": "Se soumettre au Roi-Corsaire", "text": "Devenir son tributaire : la Horde vous épargne contre 10 % de vos réserves d'énergie chaque mois, et vous laisse un peu du butin pris aux autres.", "tribute_pct": 10, "fx": {"trade_income_pct": 10}}, "convoy": {"unit": "crise_convoi_cors"}, "weapons": [{"at": 400, "label": "Cartes des repaires", "fx": {"damage_pct": 10}}, {"at": 1500, "label": "Grappins d'abordage", "fx": {"damage_pct": 8, "repair_pct": 15}}], "steps": ["Les repaires pirates cessent de se battre entre eux. Ce n'est jamais bon signe. Un nom circule près de {origin} : le Roi-Corsaire.", "Le Roi-Corsaire proclame la Horde près de {origin}. Il promet le butin de la galaxie à quiconque le suit, et la paix à quiconque paie."]}
 	},
 	"cards": [
-		{"id": "crise_alerte_1", "title": "Un signe dans le ciel", "text": "{crisis_step}\n\nLes savants parlent de {crisis}. Les généraux, de budget.", "trigger": "crisis", "art": "crisis",
+		{"id": "crise_alerte_1", "title": "Un signe dans le ciel", "text": "{crisis_step}\n\nLes savants parlent {crisis_de}. Les généraux, de budget.", "trigger": "crisis", "art": "crisis",
 			"choices": [
 				{"label": "Mobiliser les chantiers", "fx": [{"k": "res", "res": {"materials": -60}}, {"k": "crisis", "act": "boon", "label": "Mobilisation", "fx": {"ship_days_pct": -20}, "days": 720, "ai": 40}]},
 				{"label": "Prendre note et attendre", "fx": []}

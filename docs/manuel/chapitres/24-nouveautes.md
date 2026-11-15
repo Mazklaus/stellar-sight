@@ -12,6 +12,8 @@ etiquette: Annexe
 - Onglet **Crise** des Chroniques, marques sur la carte, IA qui s'arme et attaque ses points faibles.
 - Trois autres crises : la **Nuit lente** (des étoiles qui s'éteignent, le Phare des Âges, les Arches), le **Grand Krach** (une panique qui suit les routes commerciales, la Banque des Étoiles, la Grande Dépression) et le **Roi-Corsaire** (une horde pirate possible dès l'an 15, qui s'échappe une fois et laisse des héritiers). Choix des **crises autorisées** dans la nouvelle partie.
 - **Pactes** avec la crise, **trêve sacrée** entre membres du Front, **mesures d'urgence** en trois décrets, **convois** à intercepter, **armes du désespoir**, **cicatrices** et restes sauvages après la victoire.
+- **Talents de peuple** face aux crises (six, par couche d'espèce), **gardiens** qui chassent la crise et faune qui fuit, **Commandant du Front**, traits **Tueur de crise** et **Vétéran du Front**, gouverneurs enlevés.
+- **Devenir la crise**, nouvelle option : la voie de l'**Ambition démesurée**, trois paliers de Menace, le **Fléau des étoiles** contre toute la galaxie, et la **Couronne du Néant** pour une victoire nouvelle, la **Victoire du Fléau**.
 
 ### Édition 2.7
 

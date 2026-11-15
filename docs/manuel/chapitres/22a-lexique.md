@@ -11,6 +11,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Accord commercial | Deuxième palier du commerce : tarif de 10 %, +1 influence par mois | 9 |
 | Accord de recherche | Deux empires en paix versent de l'énergie ; trois ans plus tard, chacun reçoit un bond de Savoir | 9 |
 | Alliance | Traité signé après six mois de paix : guerres, cartes et vision partagées | 8 |
+| Ambition démesurée | La voie d'un empire qui veut devenir la crise : la Menace, trois paliers, le Fléau des étoiles | 19 |
 | Amphictyonie, amphictyon | L'assemblée galactique et ses membres | 12 |
 | Arbitre des étoiles | Conseiller élu de la Haute Voûte, qui peut geler, clore ou imposer une trêve | 12 |
 | Archétype | Le corps d'un peuple : humanoïde, ruche, synthétique, reptilien, énergétique, lithoïde | 20, 21 |
@@ -23,6 +24,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Clause | Une règle du lien de sujet : diplomatie, guerres, expansion, intégration, tribut, spécialité, culte | 10 |
 | Coalition | Les membres qui ont voté une session extraordinaire contre un fautif, et lui font la guerre sans parjure | 12 |
 | Cohésion | L'unité d'un Koinon, de -100 à +100 ; elle nourrit l'expérience de la ligue | 11 |
+| Commandant du Front | Poste de héros d'un membre du Front commun : ses flottes frappent la crise plus fort | 19 |
 | Communion | Une forme de Koinon (même foi) ; et une nature de foi qui met les productions en commun | 11, 15 |
 | Comptoir | Point de départ supplémentaire des routes commerciales ; chez un sujet, comptoir de tribut | 9, 10 |
 | Concile | Réunion qui permet au chef de foi de changer une doctrine | 15 |
@@ -54,6 +56,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Faveur | Dette de vote à l'Amphictyonie, que l'on appelle pendant une séance | 12 |
 | Ferveur | Jauge propre aux théocraties du Chœur et des Murmurants | 20 |
 | Fin de partie | Date à partir de laquelle une crise peut se lever, avancée par les actes imprudents | 19 |
+| Fléau des étoiles | Le dernier palier de l'Ambition démesurée : guerre de toute la galaxie, et la Couronne du Néant à bâtir | 19 |
 | Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 23 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
 | Fortifications | Remparts d'un système, que le siège use avant la milice (combat au sol complet) | 7 |
@@ -84,6 +87,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Marché commun | Prix partagés par toute la galaxie, une fois la Bourse fondée | 9 |
 | Marque | Niveau d'une famille d'armes ou de défenses, de I à V | 5 |
 | Mesures d'urgence | Trois décrets pris pendant une crise, qui durent jusqu'à sa fin | 19 |
+| Menace | La jauge de l'empire qui a pris la voie de l'Ambition démesurée : trois paliers, jusqu'au Fléau des étoiles | 19 |
 | Merveille | Bâtiment unique dans la galaxie, au premier qui l'achève | 3 |
 | Milice | Les habitants en armes : la garnison, qui se bat au sol contre les régiments qui débarquent | 7 |
 | Monde saint | Le monde où une foi est née, qui prêche quatre fois plus fort | 15 |

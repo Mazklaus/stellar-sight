@@ -132,7 +132,6 @@ func _test_pact() -> void:
 	Crisis.card_fx(st, 0, {}, {"act": "front"}, added)
 	Crisis.card_fx(st, 0, {}, {"act": "pact"}, added)
 	_ok(Crisis.pacted(st, 0) and not Crisis.in_front(st, 0), "pacte : l'empire quitte le Front")
-	_ok(Diplomacy.opinion(st, 1, 0) < Diplomacy.opinion(st, 1, 2) or true, "souvenir chez les autres")
 	var mem := false
 	for m in st.memories:
 		if int(m["about"]) == 0 and String(m["kind"]) == "crisis_pact":

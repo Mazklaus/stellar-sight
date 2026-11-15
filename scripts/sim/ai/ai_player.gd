@@ -1208,10 +1208,10 @@ static func wanted_warships(ctx: Dictionary) -> int:
 	elif _swarm_near(ctx) >= 0:
 		@warning_ignore("integer_division")
 		n = n * 3 / 2 + 1  # un Essaim qui chasse à nos portes : on arme sans attendre d'être sa proie
-	elif aggr < 0 and not Crisis.ongoing(state):
+	elif aggr < 0 and not Crisis.known(state, e.id):
 		@warning_ignore("integer_division")
 		n = maxi(1, n * 2 / 3)
-	n = AiCrisis.wanted(state, n)  # crise de fin de partie annoncée ou arrivée
+	n = AiCrisis.wanted(state, n, e.id)  # crise de fin de partie annoncée ou arrivée
 	return n + maxi(0, aggr)
 
 

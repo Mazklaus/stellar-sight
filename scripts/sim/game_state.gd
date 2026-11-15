@@ -284,6 +284,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Terrain.setup(s, String(options.get("terrain", "aucun")), String(options.get("storms", "actives")))
 	Crisis.setup(s, String(options.get("crises", "aucune")), String(options.get("crisis_start", "")),
 			String(options.get("crisis_strength", "")), options.get("crisis_kinds", []))
+	CrisisNemesis.setup(s, bool(options.get("crisis_nemesis", false)))
 	FleetSystem.update_exploration(s)
 	return s
 
