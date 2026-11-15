@@ -1,6 +1,6 @@
 ---
 titre: Zone scellée
-numero: 24
+numero: 25
 image: MJ-19
 epigraphe: Ici sont les dragons. Nous avons vérifié. Ils y sont toujours.
 signature: Inscription au bord d'une carte d'Ossarane

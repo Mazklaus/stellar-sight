@@ -272,6 +272,9 @@ static func at_war(state: GameState, a: int, b: int) -> bool:
 	# Les puissances anciennes ont leurs propres humeurs (Ancients.at_war).
 	if GameState.is_ancient(a) or GameState.is_ancient(b):
 		return Ancients.at_war(state, a, b)
+	# Les peuples mineurs : guerre peuple par peuple (Minors.at_war).
+	if GameState.is_minor(a) or GameState.is_minor(b):
+		return Minors.at_war(state, a, b)
 	# Les Sans-Bannière (rebelles, mondes libres) sont hostiles à tous.
 	if GameState.is_npc(a) or GameState.is_npc(b):
 		return true
@@ -442,6 +445,8 @@ static func garrison_max(state: GameState, system_id: int) -> int:
 			n += int(g["capital"])
 		for b in c.buildings:
 			n += int(GameData.building(b).get("garrison", 0))
+	if GameState.is_minor(owner):
+		n += Minors.troops(state, owner)  # régiments de l'âge du peuple mineur
 	var pct := int(trait_value(state, owner, "garrison_pct", 100))
 	# Ban des vassaux (technologie) : les fiefs, hors du système capital, gardent mieux.
 	if e.capital_planet >= 0 and state.galaxy.get_planet(e.capital_planet).system_id != system_id:
@@ -599,6 +604,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 				en.display_name(), sname, eo.display_name()], Espionage.private_to(state, [new_owner, old], system_id)))
 	Movements.on_conquest(state, system_id, new_owner, added)
 	Ancients.on_capture(state, system_id, new_owner, old, added)
+	Minors.on_capture(state, system_id, new_owner, old, added)
 	FaithNatures.on_capture(state, system_id, old, new_owner, added)
 	if lost_capital:
 		Relics.on_capital_lost(state, old, new_owner, added)

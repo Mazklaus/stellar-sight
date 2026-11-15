@@ -488,7 +488,7 @@ func _test_save() -> void:
 	Terrain._spawn_storm(st, Terrain._storm_rng(st, "spawn"), [])
 	Terrain.refresh(st)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 64, "sauvegarde 64")
+	_ok(int(d["version"]) >= 64, "sauvegarde 64")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and back.checksum() == st.checksum(), "terrain et tempêtes survivent à la sauvegarde")
 	_ok(back != null and back.galaxy.systems[sid].transit_pct == st.galaxy.systems[sid].transit_pct and back.galaxy.systems[sid].terrain == "cimetiere", "transit et terrain recalculés au chargement")

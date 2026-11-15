@@ -210,6 +210,8 @@ static func on_default_change(state: GameState, o: int, before: String) -> void:
 
 ## Politique de o envers v.
 static func policy(state: GameState, o: int, v: int) -> String:
+	if GameState.is_minor(o):
+		return CLOSED if MinorsLife.hostile_to(state, o, v) else OPEN  # enclave d'un peuple mineur
 	var p := String((state.borders.get("pol", {}) as Dictionary).get(_pk(o, v), ""))
 	return p if p != "" else default_policy(state, o)
 

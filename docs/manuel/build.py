@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.12"
+EDITION = "2.15"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -547,6 +547,68 @@ def gen_anciennes_batiments():
     return f"<table class='grille'><tr><th>Bâtiment</th><th>Ce qu'on en dit</th></tr>{lignes}</table>"
 
 
+def gen_mineurs_modes():
+    """Réglage Peuples mineurs (data/minors.json, modes)."""
+    d = charger("minors.json")
+    lignes = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>"
+                     for m in d.get("modes", []))
+    return f"<table class='grille'><tr><th>Choix</th><th>Effet</th></tr>{lignes}</table>"
+
+
+def gen_mineurs():
+    """Catalogue des peuples mineurs (data/minors.json, kinds)."""
+    d = charger("minors.json")
+    ori = d.get("orientations", {})
+    fam = {"pre": "Pré-spatial", "space": "Cité-État spatiale"}
+    lignes = ""
+    for k in d.get("kinds", {}).values():
+        if not isinstance(k, dict):
+            continue
+        g, t = k.get("gift", {}), k.get("trait", {})
+        lignes += (f"<tr><td><b>{esc(k['name'])}</b><br><small>{esc(fam.get(k.get('family'), ''))} · {esc(ori.get(k.get('orientation'), {}).get('label', ''))}</small></td>"
+                   f"<td>{inline(k.get('blurb', ''))}</td>"
+                   f"<td><b>{esc(g.get('label', ''))}</b> : {inline(g.get('text', ''))}</td>"
+                   f"<td><b>{esc(t.get('label', ''))}</b> : {inline(t.get('text', ''))}</td></tr>")
+    return (f"<table class='grille'><tr><th>Peuple</th><th>Qui ils sont</th><th>Cadeau de suzerain</th><th>Trait d'assimilation</th></tr>{lignes}</table>")
+
+
+def gen_mineurs_quetes():
+    """Quêtes des peuples mineurs."""
+    lignes = "".join(f"<tr><td><b>{esc(q['label'])}</b></td><td>{inline(q.get('text', ''))}</td></tr>"
+                     for q in charger("minors.json").get("quests", {}).get("list", []))
+    return f"<table class='grille'><tr><th>Quête</th><th>Ce qu'ils demandent</th></tr>{lignes}</table>"
+
+
+def _mineurs_liste(cle):
+    lignes = "".join(f"<tr><td><b>{esc(v['label'])}</b></td><td>{inline(v.get('text', ''))}</td></tr>"
+                     for k, v in charger("minors.json").get(cle, {}).items() if not k.startswith("_") and isinstance(v, dict))
+    return f"<table class='grille'><tr><th>Nom</th><th>Effet</th></tr>{lignes}</table>"
+
+
+def gen_mineurs_accords():
+    """Accords avec les pré-spatiaux."""
+    return _mineurs_liste("accords")
+
+
+def gen_mineurs_programmes():
+    """Programmes avec les cités-États."""
+    return _mineurs_liste("programs")
+
+
+def gen_mineurs_talents():
+    """Talents de peuple face aux peuples mineurs, par couche."""
+    noms = {"gouvernement": "Gouvernement", "credo": "Credo", "archetype": "Archétype", "registre": "Registre"}
+    lignes = ""
+    for couche, valeurs in charger("minors.json").get("talents", {}).items():
+        if couche.startswith("_") or not isinstance(valeurs, dict):
+            continue
+        for val, t in valeurs.items():
+            nom = val if couche == "registre" else NOMS_COUCHE.get(val, val.replace("_", " ").capitalize())
+            lignes += (f"<tr><td>{esc(noms.get(couche, couche))} {esc(nom)}</td><td><b>{esc(t['label'])}</b></td>"
+                       f"<td>{inline(t['text'])}</td></tr>")
+    return (f"<table class='grille'><tr><th>Couche</th><th>Talent</th><th>Effet</th></tr>{lignes}</table>")
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -555,6 +617,9 @@ GENERATEURS = {
     "lois": gen_lois, "reliques": gen_reliques, "logistique": gen_logistique,
     "terrains": gen_terrains, "terrain_talents": gen_terrain_talents,
     "anciennes": gen_anciennes, "anciennes_batiments": gen_anciennes_batiments,
+    "mineurs_modes": gen_mineurs_modes, "mineurs": gen_mineurs, "mineurs_quetes": gen_mineurs_quetes,
+    "mineurs_accords": gen_mineurs_accords, "mineurs_programmes": gen_mineurs_programmes,
+    "mineurs_talents": gen_mineurs_talents,
 }
 
 

@@ -46,7 +46,8 @@ static func cells_total(state: GameState, empire_id: int) -> int:
 	var c: Dictionary = data()["cells"]
 	var per: Array = c["per_era"]
 	var era := Research.current_era(state, empire_id)
-	return int(c["start"]) + int(per[clampi(era - 1, 0, per.size() - 1)]) + int(talent(state, empire_id).get("extra_cells", 0))
+	return int(c["start"]) + int(per[clampi(era - 1, 0, per.size() - 1)]) + int(talent(state, empire_id).get("extra_cells", 0)) \
+			+ Research.fx_int(state, empire_id, "spy_cells")  # Oreilles de Nadir (peuple mineur)
 
 
 ## Talents d'espionnage du peuple : celui de sa fiche (research.spy, credo Profit) plus ceux de ses
@@ -517,6 +518,7 @@ static func op_cost(state: GameState, a: int, op_id: String) -> Dictionary:
 	var pct := int(talent(state, a).get("%s_cost_pct" % String(o.get("family", "")), 100))
 	if state.amph_on:
 		pct += Amphictyony.op_cost_pct(state, a)
+	pct += Research.fx_int(state, a, "spy_cost_pct")  # contrebandiers du Bazar (peuple mineur)
 	if pct != 100:
 		for r in cost:
 			@warning_ignore("integer_division")
@@ -554,6 +556,9 @@ static func chances(state: GameState, a: int, b: int, op_id: String) -> Dictiona
 		dp.append(["Bureau des chiffres (Amphictyonie)", Amphictyony.discovery_bonus(state, a, b)])
 	if above > 0:
 		dp.append(["Réseau bien implanté", -above * int(c["per_tier"])])
+	var mdp := Research.fx_int(state, a, "spy_discovery_pct")
+	if mdp != 0:
+		dp.append(["Peuple mineur absorbé", mdp])
 	var brume := Terrain.empire_spy_bonus(state, a, b)
 	if brume != 0:
 		dp.append(["Nébuleuses chez la cible", -brume])

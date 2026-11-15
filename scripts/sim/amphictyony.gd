@@ -260,6 +260,8 @@ static func family_available(state: GameState, fid: String) -> bool:
 			return state.wars_on
 		"borders":
 			return Borders.active(state)
+		"minors":
+			return Minors.enabled(state)
 	return true
 
 
@@ -422,7 +424,7 @@ static func voix_pct(state: GameState, eid: int) -> int:
 			pct += int(m[0])
 	if galactic_follower(state, eid):
 		pct += level_sum(state, "faith_voix_pct")
-	return pct + AmphInst.voix_pct(state, eid) + AmphPower.voix_pct(state, eid) + Vassals.voix_pct(state, eid)
+	return pct + AmphInst.voix_pct(state, eid) + AmphPower.voix_pct(state, eid) + Vassals.voix_pct(state, eid) + MinorsBridges.voix_pct(state, eid)
 
 
 ## Voix effectives d'un membre (0 pour un non-membre).

@@ -401,6 +401,10 @@ static func _domination(state: GameState, e: Empire, out: Dictionary) -> void:
 	if _subject_line(state, e, out):
 		return
 	var have := systems_held(state, e.id, true)
+	var prot := MinorsBridges.domination_bonus(state, e.id)
+	if prot > 0:
+		have += prot
+		out["lines"].append("Protégés (peuples mineurs, comptés à moitié) : +%d" % prot)
 	var need := domination_needed(state, e.id)
 	if bloc(state, e.id).size() > 1:
 		out["lines"].append("Avec %d allié%s : il en faut davantage" % [bloc(state, e.id).size() - 1, "s" if bloc(state, e.id).size() > 2 else ""])

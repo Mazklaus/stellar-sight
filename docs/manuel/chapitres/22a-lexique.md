@@ -14,13 +14,14 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Ambition démesurée | La voie d'un empire qui veut devenir la crise : la Menace, trois paliers, le Fléau des étoiles | 19 |
 | Amphictyonie, amphictyon | L'assemblée galactique et ses membres | 12 |
 | Arbitre des étoiles | Conseiller élu de la Haute Voûte, qui peut geler, clore ou imposer une trêve | 12 |
-| Archétype | Le corps d'un peuple : humanoïde, ruche, synthétique, reptilien, énergétique, lithoïde | 20, 21 |
+| Archétype | Le corps d'un peuple : humanoïde, ruche, synthétique, reptilien, énergétique, lithoïde | 20, 22 |
 | Associé | Membre d'un Koinon sans voix ni bonus de forme, protégé et soumis aux lois | 11 |
 | Avant-poste | Revendication sans habitants, qui exploite les gisements et étend la vision | 3 |
 | Avatar | Le héros d'une ruche ou d'une conscience : ni ambition, ni désertion, ni capture | 16 |
 | Bourse galactique | Merveille unique qui fonde le marché commun | 9 |
 | Chancelier des étoiles | Le titre que l'Amphictyonie décerne, et qui donne la victoire diplomatique | 12, 18 |
 | Cimetière d'épaves | Système où se sont accumulées trente épaves : transit plus long, couvert, matériaux récupérés (terrain) | 7 |
+| Cité-État | Peuple mineur qui a ses vaisseaux et tient un système, avec une flotte | 21 |
 | Clause | Une règle du lien de sujet : diplomatie, guerres, expansion, intégration, tribut, spécialité, culte | 10 |
 | Coalition | Les membres qui ont voté une session extraordinaire contre un fautif, et lui font la guerre sans parjure | 12 |
 | Cohésion | L'unité d'un Koinon, de -100 à +100 ; elle nourrit l'expérience de la ligue | 11 |
@@ -30,6 +31,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Concile | Réunion qui permet au chef de foi de changer une doctrine | 15 |
 | Conclave | L'assemblée d'une théocratie ; à l'Amphictyonie, deux théocraties de même foi qui votent ensemble | 14, 12 |
 | Connaissance du terrain | Un système tenu deux ans : son propriétaire n'y subit plus que la moitié des malus de combat | 7 |
+| Conscience | Ce qu'un pré-spatial sait des empires : Ignorants, Rumeurs, Soupçons, Savent | 21 |
 | Convoi | Réfugiés sans refuge qui errent de saut en saut | 3 |
 | Corridor discret | Opération d'espionnage : 90 jours sans intrusion constatée chez un empire | 8, 13 |
 | Coupée | Flotte hors de sa zone de ravitaillement dont tous les chemins de retour sont barrés par l'ennemi : réserves deux fois plus vite épuisées (logistique complète) | 7 |
@@ -57,13 +59,13 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Ferveur | Jauge propre aux théocraties du Chœur et des Murmurants | 20 |
 | Fin de partie | Date à partir de laquelle une crise peut se lever, avancée par les actes imprudents | 19 |
 | Fléau des étoiles | Le dernier palier de l'Ambition démesurée : guerre de toute la galaxie, et la Couronne du Néant à bâtir | 19 |
-| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 23 |
+| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 24 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
 | Fortifications | Remparts d'un système, que le siège use avant la milice (combat au sol complet) | 7 |
 | Fouille | Site exploré en plusieurs chapitres, avec une relique au bout | 17 |
 | Front commun | Coalition contre la crise : vision partagée, passage libre, +10 % de dégâts contre elle | 19 |
 | Frontière | Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe | 8 |
-| Gardien | Créature unique assise sur un des meilleurs systèmes | 23 |
+| Gardien | Créature unique assise sur un des meilleurs systèmes | 24 |
 | Grand chantier commun | Phare des Âges ou Banque des Étoiles : le projet que tous financent pour arrêter une crise sans flotte | 19 |
 | Grief | Un an pendant lequel attaquer celui qui vous espionnait n'est pas un parjure | 13, 7 |
 | Guerre froide | Le statut de départ entre deux empires qui se rencontrent | 8 |
@@ -103,8 +105,10 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Passage inoffensif | Le droit des vaisseaux sans armes de traverser un espace étranger, sauf frontière close | 8 |
 | Patronage divisé | Ce que coûte en loyauté chaque sujet de plus | 10 |
 | Péage | Énergie payée à chaque saut par les flottes de guerre étrangères de passage | 8 |
+| Peuple mineur | Petite civilisation neutre qu'on courtise par la faveur, protège, intègre ou conquiert | 21 |
 | Point faible | Station immobile d'une crise (Monde-Récif, Bureau de contrôle, ancre, Repaire de la Horde) : la détruire l'affaiblit | 19 |
 | Port franc | Repaire pirate rangé : mercenaires, héros et marché noir | 17 |
+| Pré-spatial | Peuple mineur qui n'a pas quitté son monde et traverse six âges | 21 |
 | Préavis | L'IA masse ses flottes avant de déclarer ; les espions le voient | 7 |
 | Précepte | Règle partagée par tous les empires d'une foi | 15 |
 | Protectorat | Lien de sujet d'un empire faible qui a demandé protection | 10 |
@@ -113,7 +117,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Régiment | Unité de combat au sol, recrutée sur une colonie, transportée par les flottes | 7 |
 | Registre | Le ton d'un peuple : grimdark, médiéval spatial, space opera héroïque… | 20 |
 | Registre des traités | Toutes les paix signées, leurs clauses et leurs échéances | 8 |
-| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 23 |
+| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 24 |
 | Renom | La gloire d'un empire, qui attire les héros | 16 |
 | Réquisition | Refaire les réserves d'une flotte sur le dos d'un système assiégé : crime de guerre (logistique complète) | 7 |
 | Réserves | Les jours de ravitaillement qu'emporte une flotte de guerre loin de ses bases, 120 au départ | 7 |
@@ -135,6 +139,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Tempête cosmique | Zone mobile dès la 10e année, qui coupe ravitaillement et commerce mais rapporte du Savoir | 7 |
 | Terrain | Ce qu'un système change aux règles : un inconvénient et un avantage (option de partie) | 7 |
 | Tête de pont | Système conquis ou occupé, qui ne ravitaille qu'après 30 jours tenus | 7 |
+| Trait d'assimilation | Bonus laissé par un peuple mineur intégré ou conquis, à activer | 21 |
 | Transit | Allongement d'une route par le terrain des systèmes qu'elle relie | 7 |
 | Trêve | L'année sans guerre qui suit une paix | 8 |
 | Trêve sacrée | L'interdiction de guerre entre membres du Front commun ; la rompre coûte cher | 19 |

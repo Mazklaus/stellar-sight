@@ -462,6 +462,12 @@ static func anc_act(player: int, act: String, x := -1, s := "", n := -1) -> Dict
 	return {"type": "anc_act", "player": player, "act": act, "x": x, "s": s, "n": n}
 
 
+## Peuples mineurs (voir Minors.check_act) : "envoy" (n = intensité), "gift" (s = ressource), "post",
+## "levy", "integrate", "war", "peace", "deliver", "trait" (s = sorte), et les actes des lots 2 et 3.
+static func min_act(player: int, act: String, x := -1, s := "", n := -1) -> Dictionary:
+	return {"type": "min_act", "player": player, "act": act, "x": x, "s": s, "n": n}
+
+
 ## Soutien officiel à un courant pour la prochaine élection (Politics ; -1 retire le soutien).
 ## En théocratie et en horde, c'est le courant nommé.
 static func politics_support(player: int, current: int) -> Dictionary:
@@ -693,6 +699,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Amphictyony.check_buy(state, int(cmd["player"]))
 		"anc_act":
 			return Ancients.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", -1)))
+		"min_act":
+			return Minors.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", -1)))
 		"koi_act":
 			return Koinon.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", 0)))
 		"vas_act":
@@ -1059,6 +1067,9 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 		"anc_act":
 			var an_added: Array[Dictionary] = []
 			Ancients.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", -1)), an_added)
+		"min_act":
+			var mi_added: Array[Dictionary] = []
+			Minors.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", -1)), mi_added)
 		"koi_act":
 			Koinon.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", 0)))
 		"vas_act":

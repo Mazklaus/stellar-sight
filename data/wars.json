@@ -432,6 +432,19 @@
 			"memory": "aggressor",
 			"aggression": true,
 			"text": "Aucune raison avouable : toute la galaxie s'en souviendra, votre peuple doute (stabilité -2 pendant la guerre), la lassitude part de 10 %."
+		},
+		{
+			"id": "protection",
+			"label": "Protection",
+			"req": "protection",
+			"goals": [
+				"conquete",
+				"humiliation",
+				"rancon"
+			],
+			"memory": "",
+			"text": "Il a conquis le peuple mineur dont vous étiez le suzerain : vous venez le libérer. Reprendre son monde fait de vous son suzerain.",
+			"just": true
 		}
 	],
 	"defense_goals": [

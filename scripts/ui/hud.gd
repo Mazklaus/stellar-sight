@@ -617,6 +617,11 @@ func _refresh_fleet_card() -> void:
 		_fleet_stats.text += "
 ☄ %s  ·  puissance %d  ·  coque %d %%\n%s" % [Crisis.name_of(Crisis.kind(_state)), Combat.fleet_power(f),
 				f.total_hp() * 100 / maxi(1, f.total_max_hp()), what]
+	elif GameState.is_minor(f.owner):
+		# Peuple mineur : votre faveur et votre palier (prop. 34).
+		var mid := f.owner
+		_fleet_stats.text += "\n◆ %s  ·  %s  ·  %s" % [Minors.name_of(_state, mid), "en guerre avec vous" if Combat.at_war(_state, mid, _player) else "faveur %d" % Minors.fav(_state, mid, _player),
+				String(Minors.TIER_LABELS.get(Minors.tier(_state, mid, _player), ""))]
 	elif GameState.is_ancient(f.owner):
 		# Puissance ancienne : son humeur envers vous et le rapport de force en mots (prop. 6).
 		var aid := f.owner

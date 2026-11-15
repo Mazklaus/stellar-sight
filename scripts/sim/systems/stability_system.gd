@@ -139,6 +139,10 @@ static func secede(state: GameState, sid: int, empire_id: int, added: Array[Dict
 				sname, e.display_name(), ek.display_name()], Espionage.public_to(state, [empire_id, kin])))
 		Movements.on_secession(state, sid, empire_id, kin, added)
 		return
+	# Avec les peuples mineurs, le système devient un peuple libre de son espèce (prop. 25 des mineurs).
+	if not wild and MinorsLife.secession(state, sid, empire_id, added):
+		state.stability.erase(sid)
+		return
 	Stability._transfer(state, sid, empire_id, GameState.NPC_ID)
 	state.stability.erase(sid)
 	if not wild:

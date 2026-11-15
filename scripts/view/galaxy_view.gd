@@ -190,6 +190,7 @@ func _draw() -> void:
 	_draw_fleets(px)
 	_draw_conflicts(px)
 	_draw_lairs(px)
+	_draw_minors(px)
 	_draw_quests(px)
 	_draw_crisis(px)
 	_draw_convoys(px)
@@ -708,6 +709,34 @@ func _draw_lairs(px: float) -> void:
 		draw_line(Vector2(0, -5), Vector2(0, 5), gold, 1.6, true)
 		draw_line(Vector2(-3, -3), Vector2(3, -3), gold, 1.4, true)
 		draw_arc(Vector2(0, 1), 4.5, 0.2, PI - 0.2, 10, gold, 1.4, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Peuples mineurs (voir Minors, prop. 34) : un losange à la couleur du peuple au-dessus de son système,
+## cerclé d'or si vous êtes son suzerain, de rouge si vous êtes en guerre avec lui.
+func _draw_minors(px: float) -> void:
+	if state == null or state.minors.is_empty():
+		return
+	for id in Minors.ids(state):
+		var sid := Minors.system_of(state, id)
+		if sid < 0 or not is_explored(sid):
+			continue
+		var col := Color(String(Minors.kind_def(Minors.kind_of(state, id)).get("color", "#b0b0b0")))
+		draw_set_transform(galaxy.systems[sid].position + Vector2(18.0, 6.0) * px, 0.0, Vector2(px, px))
+		var pts := PackedVector2Array([Vector2(0, -8), Vector2(7, 0), Vector2(0, 8), Vector2(-7, 0)])
+		draw_colored_polygon(pts, Color(0.04, 0.04, 0.06, 0.9))
+		var ring := col
+		if Minors.suzerain(state, id) == viewer:
+			ring = Color(0.95, 0.8, 0.35)
+		elif Minors.at_war_with(state, id, viewer):
+			ring = Color(0.9, 0.3, 0.25)
+		pts.append(Vector2(0, -8))
+		draw_polyline(pts, ring, 1.6, true)
+		if Minors.is_pre(state, id):
+			draw_circle(Vector2.ZERO, 2.2, col)
+		else:
+			draw_line(Vector2(-3, 0), Vector2(3, 0), col, 1.6, true)
+			draw_line(Vector2(0, -3), Vector2(0, 3), col, 1.6, true)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

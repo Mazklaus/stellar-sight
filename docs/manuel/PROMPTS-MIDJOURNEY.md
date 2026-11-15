@@ -374,3 +374,13 @@ the fleets of many rival alien empires side by side for the first time, facing a
 ```
 a tiny young exploration ship halting at the edge of a pocket of ancient star systems, perfect ring-worlds and cathedral-like megastructures asleep under dust, colossal motionless fleets drifting in silent formation for millennia, a single golden eye-like beacon slowly opening, reverent dread and wonder epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-38 · Les peuples mineurs
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Les peuples mineurs »
+- Sujet : Depuis une colline au crépuscule, des villageois d'un âge féodal lèvent les yeux vers un vaisseau d'observation discret, tandis qu'au loin brillent les lumières d'une cité-État spatiale en orbite
+
+```
+a small medieval-like alien village on a hill at dusk, curious villagers with lanterns looking up at a faint cloaked observation starship hovering above the clouds, a bustling independent space city-state glittering in orbit high in the sky with tiny trade ships, gentle wonder and quiet mischief epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

@@ -277,6 +277,8 @@ static func _req_ok(state: GameState, req: String, a: int, b: int) -> bool:
 			return Amphictyony.casus(state, a, b)
 		"subject":
 			return Vassals.lord_of(state, a) == b
+		"protection":
+			return Minors.protection_casus(state, a, b)
 		"power":
 			return state.vassals_on and not Vassals.is_subject(state, b) and not Vassals.is_subject(state, a) \
 					and Vassals.power_pct(state, a, b) >= 150

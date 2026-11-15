@@ -96,6 +96,9 @@
 		]
 	},
 	"memories": {
+		"vol_protege": {"value": -20, "days": 1800, "label": "Nous a volé notre protégé (peuple mineur intégré)"},
+		"conquete_mineur": {"value": -10, "days": 1800, "stack": 3, "label": "A conquis un peuple mineur que nous aimions"},
+		"ingerence_mineur": {"value": -15, "days": 1440, "stack": 2, "label": "Ses agents intriguent chez nos protégés"},
 		"intrusion": {"value": -5, "days": 720, "stack": 4, "label": "Ses flottes de guerre entrent chez nous sans droit"},
 		"intr_stay": {"value": -1, "days": 360, "stack": 12, "label": "Ses flottes stationnent chez nous sans droit"},
 		"borders_closed": {"value": -10, "days": 1080, "label": "Nous a fermé ses frontières"},

@@ -76,6 +76,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiFauna.think(ctx)
 	AiCrisis.think(ctx)
 	AiAncients.think(ctx)
+	AiMinors.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 
@@ -1656,7 +1657,7 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 		if _issue(ctx, SimCommands.invade(e.id, f.id)):
 			_intent(ctx, "Libère %s" % state.galaxy.systems[here].system_name)
 		return
-	if owner >= 0 and e.wars.has(owner) and occ != e.id:
+	if owner >= 0 and (e.wars.has(owner) or (GameState.is_minor(owner) and Minors.at_war_with(state, owner, e.id))) and occ != e.id:
 		if AiGround.should_land(ctx, f) and _issue(ctx, SimCommands.invade(e.id, f.id)):
 			_intent(ctx, "Envahit %s" % state.galaxy.systems[here].system_name)
 		return
@@ -1676,6 +1677,12 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 			return
 	# En paix : démanteler un repaire pirate connu (Vétéran et plus).
 	if threatened < 0:
+		# Guerre contre un peuple mineur : aller assiéger son monde (prop. 33 des mineurs).
+		var mt := AiMinors.conquest_target(state, e, f)
+		if mt >= 0:
+			if mt != here and _issue(ctx, SimCommands.move_fleet(e.id, f.id, mt)):
+				_intent(ctx, "Part assiéger %s" % state.galaxy.systems[mt].system_name)
+			return
 		var lair := AiPirates.lair_target(ctx, f, home)
 		if lair >= 0:
 			if lair != here and _issue(ctx, SimCommands.move_fleet(e.id, f.id, lair)):
