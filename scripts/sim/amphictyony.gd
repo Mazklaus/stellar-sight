@@ -262,6 +262,8 @@ static func family_available(state: GameState, fid: String) -> bool:
 			return Borders.active(state)
 		"minors":
 			return Minors.enabled(state)
+		"culture":
+			return Culture.enabled(state)
 	return true
 
 

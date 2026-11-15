@@ -14,7 +14,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Ambition démesurée | La voie d'un empire qui veut devenir la crise : la Menace, trois paliers, le Fléau des étoiles | 19 |
 | Amphictyonie, amphictyon | L'assemblée galactique et ses membres | 12 |
 | Arbitre des étoiles | Conseiller élu de la Haute Voûte, qui peut geler, clore ou imposer une trêve | 12 |
-| Archétype | Le corps d'un peuple : humanoïde, ruche, synthétique, reptilien, énergétique, lithoïde | 20, 22 |
+| Archétype | Le corps d'un peuple : humanoïde, ruche, synthétique, reptilien, énergétique, lithoïde | 23, 24 |
 | Associé | Membre d'un Koinon sans voix ni bonus de forme, protégé et soumis aux lois | 11 |
 | Avant-poste | Revendication sans habitants, qui exploite les gisements et étend la vision | 3 |
 | Avatar | Le héros d'une ruche ou d'une conscience : ni ambition, ni désertion, ni capture | 16 |
@@ -45,6 +45,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Cultes natals | Les croyances d'origine d'un peuple, avant toute grande foi | 15 |
 | Curiosité | Épave, signal, ruine ou anomalie à sonder sur une planète | 17 |
 | Défaite commune | Fin de partie sans vainqueur : la crise tient la moitié des systèmes habités | 19 |
+| Défection culturelle | Système instable d'un voisin qui passe chez vous après deux ans, sans un coup de feu, si votre culture l'écrase | 22 |
 | Dépôt de flotte | Bâtiment qui prolonge d'un saut la zone de ravitaillement et répare les flottes à 8 % par jour | 7 |
 | Dernière Guerre | La guerre contre qui refuse l'élection du Chancelier des étoiles | 12 |
 | Dévastation | Taux de 0 à 100 par système, né du bombardement et des combats au sol : moins de production, de croissance et de stabilité | 7 |
@@ -59,20 +60,22 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Ferveur | Jauge propre aux théocraties du Chœur et des Murmurants | 20 |
 | Fin de partie | Date à partir de laquelle une crise peut se lever, avancée par les actes imprudents | 19 |
 | Fléau des étoiles | Le dernier palier de l'Ambition démesurée : guerre de toute la galaxie, et la Couronne du Néant à bâtir | 19 |
-| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 24 |
+| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 25 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
 | Fortifications | Remparts d'un système, que le siège use avant la milice (combat au sol complet) | 7 |
 | Fouille | Site exploré en plusieurs chapitres, avec une relique au bout | 17 |
 | Front commun | Coalition contre la crise : vision partagée, passage libre, +10 % de dégâts contre elle | 19 |
 | Frontière | Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe | 8 |
-| Gardien | Créature unique assise sur un des meilleurs systèmes | 24 |
+| Gardien | Créature unique assise sur un des meilleurs systèmes | 25 |
 | Grand chantier commun | Phare des Âges ou Banque des Étoiles : le projet que tous financent pour arrêter une crise sans flotte | 19 |
+| Grand Rayonnement | Victoire classique : être Influent chez chaque empire rencontré pendant deux ans | 22 |
 | Grief | Un an pendant lequel attaquer celui qui vous espionnait n'est pas un parjure | 13, 7 |
 | Guerre froide | Le statut de départ entre deux empires qui se rencontrent | 8 |
 | Haute Voûte | Le haut conseil de l'Amphictyonie : veto, urgence, dénonciation | 12 |
-| Héritiers | Les repaires pirates qui naissent de la mort du Roi-Corsaire | 19 |
 | Hérésie, schisme | Une foi fille née d'une foi faible ; devenue assez grande, elle fait schisme | 15 |
+| Héritiers | Les repaires pirates qui naissent de la mort du Roi-Corsaire | 19 |
 | Hors-la-loi | Celui qui a enfreint le Nomos : sanctions, puis bannissement | 12 |
+| Idole des étoiles | Victoire du credo Plaisir : Influent chez 60 % de la population étrangère | 22 |
 | Impérateur | L'Arbitre à vie qui a reçu les pleins pouvoirs | 12 |
 | Intégration | L'adaptation d'une espèce dans une colonie, de 0 à 100 % ; ou l'absorption d'un sujet | 3, 10 |
 | Intrusion | Flotte entrée sans droit de passage chez un empire rencontré : souvenir, puis -1 par mois si elle reste | 8 |
@@ -88,21 +91,25 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Luxe | Ressource rare qui compte par variété : stabilité et petit effet | 9 |
 | Marché commun | Prix partagés par toute la galaxie, une fois la Bourse fondée | 9 |
 | Marque | Niveau d'une famille d'armes ou de défenses, de I à V | 5 |
-| Mesures d'urgence | Trois décrets pris pendant une crise, qui durent jusqu'à sa fin | 19 |
 | Menace | La jauge de l'empire qui a pris la voie de l'Ambition démesurée : trois paliers, jusqu'au Fléau des étoiles | 19 |
 | Merveille | Bâtiment unique dans la galaxie, au premier qui l'achève | 3 |
+| Mesures d'urgence | Trois décrets pris pendant une crise, qui durent jusqu'à sa fin | 19 |
 | Milice | Les habitants en armes : la garnison, qui se bat au sol contre les régiments qui débarquent | 7 |
 | Monde saint | Le monde où une foi est née, qui prêche quatre fois plus fort | 15 |
 | Monopole | 60 % des gisements d'un luxe ou d'un stratégique | 9 |
 | Motif de guerre | La raison avouée d'une guerre (casus belli) ; sans motif, c'est une agression | 7 |
+| Musée galactique | Bâtiment unique qui expose trois reliques et nourrit le Rayonnement | 22 |
 | Nature | La mécanique propre d'une foi, parmi dix-neuf | 15 |
 | Nébuleuse | Nappe nommée de la carte : transit plus long, voile qui arrête la vue, longue portée réduite (terrain) | 7 |
 | Nomos | La loi commune de l'Amphictyonie | 12 |
 | Observateur | Empire hors de l'Amphictyonie, admis au banc des observateurs | 12 |
 | Occupation | Système envahi qui reste à son propriétaire jusqu'au traité | 7 |
+| Osmose | Une culture En vogue chez vous fait réclamer une de ses lois, ou vous vend ses technologies contre de l'énergie | 22 |
 | Pacte (de crise) | Le marché qu'offre une crise : être épargné contre un prix et la défiance de tous | 19 |
+| Palier culturel | Votre culture chez un empire : Inconnue, Exotique, Familière, En vogue, Influente, Dominante | 22 |
 | Parjure | Celui qui rompt un traité pour attaquer | 7, 8 |
 | Passage inoffensif | Le droit des vaisseaux sans armes de traverser un espace étranger, sauf frontière close | 8 |
+| Patrimoine | Ce que la culture des autres doit surmonter chez vous ; il grandit avec votre influence, vos lois et vos reliques | 22 |
 | Patronage divisé | Ce que coûte en loyauté chaque sujet de plus | 10 |
 | Péage | Énergie payée à chaque saut par les flottes de guerre étrangères de passage | 8 |
 | Peuple mineur | Petite civilisation neutre qu'on courtise par la faveur, protège, intègre ou conquiert | 21 |
@@ -112,12 +119,13 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Préavis | L'IA masse ses flottes avant de déclarer ; les espions le voient | 7 |
 | Précepte | Règle partagée par tous les empires d'une foi | 15 |
 | Protectorat | Lien de sujet d'un empire faible qui a demandé protection | 10 |
+| Rayonnement | Points de culture par mois qui partent vers chaque empire rencontré et s'y cumulent | 22 |
 | Recrues | Réserve d'hommes de l'empire, versée chaque mois par les colonies, que coûte chaque régiment | 7 |
 | Reddition | Devenir vassal au lieu de disparaître | 8 |
 | Régiment | Unité de combat au sol, recrutée sur une colonie, transportée par les flottes | 7 |
 | Registre | Le ton d'un peuple : grimdark, médiéval spatial, space opera héroïque… | 20 |
 | Registre des traités | Toutes les paix signées, leurs clauses et leurs échéances | 8 |
-| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 24 |
+| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 26 |
 | Renom | La gloire d'un empire, qui attire les héros | 16 |
 | Réquisition | Refaire les réserves d'une flotte sur le dos d'un système assiégé : crime de guerre (logistique complète) | 7 |
 | Réserves | Les jours de ravitaillement qu'emporte une flotte de guerre loin de ses bases, 120 au départ | 7 |
@@ -146,6 +154,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Tribut | Part du revenu versée par un sujet, ou par un vaincu ; ou rançon payée aux pirates, ou au Roi-Corsaire | 10, 8, 17, 19 |
 | Triomphe | La grande cérémonie d'une relique, une fois tous les dix ans | 17 |
 | Ultimatum | Exiger sans tirer ; refusé, il donne un motif de guerre | 7 |
+| Villégiature | Station qui fait rayonner la beauté d'un système | 22 |
 | Voile | Une nébuleuse arrête la vue : on n'y voit pas de l'extérieur, et on n'y voit que son système | 7 |
 | Zèle | La vigueur d'une grande foi, de 0 à 100 | 15 |
 | Zone de ravitaillement | Vos systèmes et ceux qui vous ravitaillent, plus 2 sauts autour : les flottes y refont leurs réserves | 7 |

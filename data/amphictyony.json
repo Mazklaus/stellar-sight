@@ -256,6 +256,19 @@
 					{"name": "Exploitation", "fx": {}, "minor_post_pct": 50},
 					{"name": "Égalité des échanges", "fx": {}, "minor_equal": 1},
 					{"name": "Tutelle galactique", "fx": {"production_pct": {"influence": 5}}}
+				]}},
+		{"id": "culture", "label": "Culture", "glyph": "culture", "requires": "culture",
+			"a": {"label": "Patrimoine galactique", "text": "Chacun garde son âme : Patrimoine accru, puis une Exception culturelle commune qui freine les cultures étrangères chez tous les membres.",
+				"levels": [
+					{"name": "Patrimoine galactique", "fx": {"culture_heritage_pct": 10}},
+					{"name": "Exception culturelle commune", "fx": {"culture_heritage_pct": 10, "culture_foreign_pct": -25}},
+					{"name": "Gardiens des œuvres", "fx": {"culture_heritage_pct": 15, "culture_foreign_pct": -25, "stability": 1}}
+				]},
+			"b": {"label": "Grande Exposition", "text": "Les œuvres circulent : Rayonnement accru, puis une Grande Exposition annuelle chez le membre qui rayonne le plus (+50 % pendant un an).",
+				"levels": [
+					{"name": "Libre circulation des œuvres", "fx": {"culture_radiance_pct": 10}},
+					{"name": "Grande Exposition", "fx": {"culture_radiance_pct": 10}, "culture_expo": 1},
+					{"name": "Culture galactique", "fx": {"culture_radiance_pct": 20}, "culture_expo": 1}
 				]}}
 	],
 	"sanctions": [

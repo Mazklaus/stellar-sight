@@ -77,6 +77,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiCrisis.think(ctx)
 	AiAncients.think(ctx)
 	AiMinors.think(ctx)
+	AiCulture.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 
@@ -542,7 +543,7 @@ static func _buildings(ctx: Dictionary) -> void:
 	var e: Empire = ctx["e"]
 	var net := _net(ctx).duplicate()
 	var reserve := _material_reserve(ctx)
-	var late := _knows_late(ctx)
+	var late := _knows_late(ctx) or AiCulture.wants_late(ctx)
 	for c in _my_colonies(ctx):
 		if c.construction != "" or _forgets(ctx):
 			continue
@@ -594,6 +595,7 @@ static func late_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Array[St
 	if not c.is_colony():
 		if e.techs.has("collecteur_stellaire") and mat >= 1700 and not _empire_has_building(ctx, "collecteur_stellaire"):
 			out.append("collecteur_stellaire")
+		out.append_array(AiCulture.late_wishes(ctx, c))
 		return out
 	if e.techs.has("arcologies_productives") and mat >= 350:
 		if c.buildings.has("complexe_minier"):
@@ -609,6 +611,7 @@ static func late_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Array[St
 			var need := int(GameData.building(w).get("cost", {}).get("materials", 0)) + 500
 			if Economy.building_unlocked(state, e.id, w) and mat >= need and not _empire_has_building(ctx, w):
 				out.append(w)
+	out.append_array(AiCulture.late_wishes(ctx, c))
 	if mat >= 1500:
 		var p := state.galaxy.get_planet(c.planet_id)
 		var cap := Economy.max_pop(state, p, e.id, c.buildings)

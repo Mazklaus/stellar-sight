@@ -289,6 +289,11 @@ static func minors() -> Dictionary:
 	return _load("minors")
 
 
+## Rayonnement culturel (data/culture.json) : réglages, paliers, sources, modificateurs, talents.
+static func culture() -> Dictionary:
+	return _load("culture")
+
+
 ## Puissances anciennes (data/ancients.json) : catalogue, réglages, unités, cartes.
 static func ancients() -> Dictionary:
 	return _load("ancients")

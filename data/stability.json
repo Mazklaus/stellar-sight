@@ -23,7 +23,7 @@
 		"attacked": {"value": -15, "days": 90},
 		"war": {"per_quarter": -1, "max": -6},
 		"garrison": 5,
-		"buildings": {"forum": 10, "prefecture": 10, "cathedrale": 5, "capitale": 0},
+		"buildings": {"forum": 10, "prefecture": 10, "cathedrale": 5, "colisee_etoiles": 5, "capitale": 0},
 		"intendant": {"base": 5, "per_level": 2},
 		"conquered": {"value": -15, "days": 1800}, "counter_network": 5, "agitation": {"value": -15, "days": 360}
 	},

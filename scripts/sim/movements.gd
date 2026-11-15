@@ -246,6 +246,7 @@ static func migration_dest(state: GameState, src: Colony, fid: String, owners: A
 		# Partir à l'étranger (traité de migration) : seulement pour bien mieux qu'à la maison.
 		if c.owner != src.owner:
 			s -= int(data().get("abroad_penalty", 150))
+			s += CultureLife.migrant_pull(state, src.owner, c.owner)
 		if s > bs:
 			bs = s
 			best = c

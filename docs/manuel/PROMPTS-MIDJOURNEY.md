@@ -384,3 +384,13 @@ a tiny young exploration ship halting at the edge of a pocket of ancient star sy
 ```
 a small medieval-like alien village on a hill at dusk, curious villagers with lanterns looking up at a faint cloaked observation starship hovering above the clouds, a bustling independent space city-state glittering in orbit high in the sky with tiny trade ships, gentle wonder and quiet mischief epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-39 · Le rayonnement
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Le rayonnement »
+- Sujet : Sur la place d'une colonie de la frontière, la foule de plusieurs espèces chante sous un opéra holographique géant projeté depuis un vaisseau-théâtre, pendant qu'un vieux préfet regarde du balcon
+
+```
+a crowded alien city square at night on a frontier colony world, citizens of several species gathered under a giant floating holographic opera projected from an orbiting theatre ship, foreign banners and fashion everywhere, a lone old official watching from a balcony as the crowd sings, wistful wonder and gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

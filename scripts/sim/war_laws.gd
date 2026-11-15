@@ -158,6 +158,8 @@ static func _ex_pct(state: GameState, rec: Dictionary, eid: int) -> int:
 		pct /= 2
 	if Amphictyony.founded(state) and Amphictyony.is_member(state, eid):
 		pct = pct * maxi(0, 100 + Amphictyony.level_sum(state, "war_ex_pct")) / 100
+	# Rayonnement : attaquer un empire dont la culture est Influente chez soi lasse plus vite.
+	pct = pct * (100 + CultureLife.war_ex_pct(state, rec, eid)) / 100
 	return maxi(0, pct)
 
 

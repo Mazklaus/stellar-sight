@@ -605,6 +605,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 	Movements.on_conquest(state, system_id, new_owner, added)
 	Ancients.on_capture(state, system_id, new_owner, old, added)
 	Minors.on_capture(state, system_id, new_owner, old, added)
+	Culture.on_capture(state, system_id, new_owner, old, added)
 	FaithNatures.on_capture(state, system_id, old, new_owner, added)
 	if lost_capital:
 		Relics.on_capital_lost(state, old, new_owner, added)

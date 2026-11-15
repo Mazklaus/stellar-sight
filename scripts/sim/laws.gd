@@ -240,6 +240,8 @@ static func check_adopt(state: GameState, empire_id: int, id: String) -> String:
 		return "pas de Koinon dans cette partie"
 	if bool(d.get("borders", false)) and not Borders.active(state):
 		return "les frontières sont libres dans cette partie"
+	if bool(d.get("culture", false)) and not Culture.enabled(state):
+		return "pas de rayonnement culturel dans cette partie"
 	if bool(d.get("faiths", false)) and id == "inquisition" and not Faiths.has_state_faith(state, empire_id):
 		return "pas d'Inquisition sans foi d'État"
 	if bool(d.get("faiths", false)) and id == "tolerance" and Faiths.doctrine(state, Faiths.state_faith(state, empire_id), "regard") == "fondamentaliste" \

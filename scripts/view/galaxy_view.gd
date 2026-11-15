@@ -284,6 +284,18 @@ func _draw() -> void:
 			_draw_label(s, px, true)
 			_draw_borders(s, px, o)
 		return
+	if lens == "culture" and state != null:
+		# Lentille du rayonnement : chez chaque empire exploré, le palier de votre culture ; chez vous,
+		# la culture étrangère dominante et les systèmes en route vers une défection.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		for s in galaxy.systems:
+			var o := owner_of(s.id)
+			if o < 0 or GameState.is_npc(o) or not is_explored(s.id):
+				continue
+			_draw_system(s, px)
+			_draw_label(s, px, true)
+			_draw_culture(s, px, o)
+		return
 	if lens == "trade" and state != null:
 		# Lentille du commerce : vos routes (couleur du palier du traité, verte pour une route
 		# intérieure, rouge si bloquée) et le risque pirate des systèmes traversés.
@@ -918,6 +930,35 @@ func _draw_amph(s: StarSystem, px: float, o: int) -> void:
 			text = "Hors-la-loi"
 		if Amphictyony.is_member(state, o):
 			text = ("%d voix" % Amphictyony.weight(state, o)) + (" · hors-la-loi" if Amphictyony.outlaw(state, o) else "")
+		var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
+		draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Lentille du rayonnement : palier de la culture du joueur chez le propriétaire, ou défection en cours.
+func _draw_culture(s: StarSystem, px: float, o: int) -> void:
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	var text := ""
+	var col := Color(0.85, 0.88, 0.92)
+	if o == viewer:
+		var top := Culture.top_influencer(state, viewer)
+		if int(top[1]) >= 0:
+			col = Culture.tier_color(int(top[0]))
+		draw_arc(Vector2.ZERO, 13.0, 0.0, TAU, 28, col, 1.6, true)
+		if FactionTraits.capital_system(state, o) == s.id and int(top[1]) >= 0:
+			text = "Chez vous : %s (%s)" % [state.get_empire(int(top[1])).short_name(), Culture.tier_label(int(top[0]))]
+	else:
+		var t := Culture.tier(state, viewer, o)
+		col = Culture.tier_color(t)
+		draw_arc(Vector2.ZERO, 13.0, 0.0, TAU, 28, col, 1.4 + 0.5 * t, true)
+		if FactionTraits.capital_system(state, o) == s.id:
+			text = "%s · %d %%" % [Culture.tier_label(t), Culture.ratio_pct(state, viewer, o)]
+	for d in CultureLife.defections_of(state, viewer):
+		if int(d[0]) == s.id:
+			draw_arc(Vector2.ZERO, 17.0, 0.0, TAU, 28, Color(0.95, 0.5, 0.9), 2.0, true)
+			text = "Défection : %d mois" % int(int(d[2]) / 30.0)
+	if text != "":
 		var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
 		draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
 		draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)

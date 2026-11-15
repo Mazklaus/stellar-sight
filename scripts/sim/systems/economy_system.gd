@@ -152,7 +152,9 @@ static func migration_target(state: GameState, from: Colony) -> Colony:
 
 
 static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionary]) -> void:
-	var net: Dictionary = Economy.empire_income(state, e.id)["net"]
+	var inc_all := Economy.empire_income(state, e.id)
+	var net: Dictionary = inc_all["net"]
+	Culture.note_influence(state, e.id, int(inc_all["gross"].get("influence", 0)))
 	for r in net:
 		e.resources[r] = int(e.resources.get(r, 0)) + int(net[r])
 

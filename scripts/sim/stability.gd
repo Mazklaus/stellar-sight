@@ -443,6 +443,9 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 	# Religion : foi d'État majoritaire ou non, changement récent (voir Faiths).
 	if state.faith_on:
 		out.append_array(Faiths.stability_parts(state, sid, owner))
+	# Rayonnement culturel : refus d'une osmose, « Vivre comme eux » (voir CultureLife).
+	if not state.culture.is_empty():
+		out.append_array(CultureLife.stability_parts(state, sid, owner))
 	# Décret.
 	var d := active_decree(state, sid)
 	if d != "":

@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.18
+
+- **Le rayonnement culturel** (chapitre 22), nouveau réglage **Rayonnement culturel** et **Défections culturelles** : Rayonnement et **Patrimoine**, diffusion portée par les routes, la foi, le droit de passage et les licences de luxe, six **paliers** (Inconnu à Dominant) et leurs effets, **Musée galactique** et ses reliques exposées, **stations de villégiature** et beauté des systèmes, huit **merveilles culturelles**, **osmose des lois** et **des savoirs**, **défection culturelle**, lentille **Culture**, écran **Rayonnement**.
+- **Agir** : **ambassade culturelle**, **Troupe de spectacle**, lois **Exception culturelle** et **Ouverture culturelle**, opérations **Campagne de propagande culturelle**, **Dénigrement culturel** et **Vol d'œuvre**, famille **Culture** de l'Amphictyonie (Patrimoine galactique, Grande Exposition).
+- **Victoires** : **Le Grand Rayonnement** (classique) et **L'Idole des étoiles**, victoire du nouveau credo **Plaisir** de l'éditeur d'espèces ; le rayonnement compte au score. Cinq technologies nouvelles (Arts holographiques, Holovision, Réseau des mondes, Conversion culturelle, L'Idole), un **talent de rayonnement** par couche.
+
 ### Édition 2.15
 
 - **Ponts des peuples mineurs** (chapitre 21) : famille **Peuples mineurs** de l'Amphictyonie (voies **Non-ingérence** et **Exploitation**, deux infractions au Nomos), foi partagée, prêche et quête de conversion, **comptoirs** chez les cités-États, opérations d'**ingérence**, d'**incitation** et d'**infiltration**, héros demandé à un protégé, humeur du Conservatoire d'Ylm, préscience de Quellis, renforts au Front commun et recrues du Roi-Corsaire, protégés comptés pour la domination, six **talents de peuple** par couche.

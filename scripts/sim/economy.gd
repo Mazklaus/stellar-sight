@@ -305,6 +305,11 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 		var oi := WarPeace.occupation_income(state, empire_id)
 		for r in oi:
 			gross[r] = int(gross.get(r, 0)) + int(oi[r])
+	# Rayonnement culturel : Savoir des routes, énergie des stations de villégiature (voir CultureLife).
+	if not state.culture.is_empty():
+		var ci := Culture.income(state, empire_id)
+		for r in ci:
+			gross[r] = int(gross.get(r, 0)) + int(ci[r])
 	var treaties := Diplomacy.treaty_income(state, empire_id)
 	for r in treaties:
 		gross[r] += int(treaties[r])
@@ -417,6 +422,8 @@ static func building_unlocked(state: GameState, empire_id: int, building_id: Str
 		return false  # temples : seulement avec les religions
 	if bool(b.get("logistics", false)) and not Logistics.active(state):
 		return false  # dépôt de flotte : seulement avec la logistique
+	if bool(b.get("culture", false)) and not Culture.enabled(state):
+		return false  # musée, villégiature, merveilles culturelles : seulement avec le rayonnement
 	if String(b.get("nature", "")) != "" and not FaithNatures.follows(state, empire_id, String(b["nature"])):
 		return false  # mausolée : seulement pour sa nature de foi
 	return Research.knows_all(state, empire_id, b.get("requires_tech", []))
@@ -502,6 +509,8 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 		return "les religions ne sont pas actives dans cette partie"
 	if bool(b.get("logistics", false)) and not Logistics.active(state):
 		return "la logistique n'est pas en jeu dans cette partie"
+	if bool(b.get("culture", false)) and not Culture.enabled(state):
+		return "le rayonnement culturel n'est pas en jeu dans cette partie"
 	if building_id == "mausolee":
 		var mw := FaithNatures.check_mausoleum(state, empire_id, planet_id)
 		if mw != "":

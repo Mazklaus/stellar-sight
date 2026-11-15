@@ -1064,6 +1064,15 @@
 					"prod_pct": 3
 				},
 				"text": "+3 % de production dans tout l'empire"
+			},
+			"plaisir": {
+				"fx": {
+					"income": {
+						"influence": 1,
+						"energy": 2
+					}
+				},
+				"text": "+1 d'influence et +2 énergie par mois"
 			}
 		}
 	},
@@ -1202,6 +1211,9 @@
 			],
 			"survie": [
 				"survivant"
+			],
+			"plaisir": [
+				"charismatique"
 			]
 		}
 	},

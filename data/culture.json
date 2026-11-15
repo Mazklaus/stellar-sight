@@ -1,0 +1,149 @@
+{
+	"_doc": "Rayonnement culturel (étude « Rayonnement culturel », 2026-11-15, 36 propositions validées). Chaque empire produit un Rayonnement mensuel (population sereine, Musée galactique et reliques exposées, merveilles culturelles, stations de villégiature et beauté, foi, Conservateurs, héros). Ce Rayonnement se diffuse vers chaque empire rencontré, modulé par les liens (routes commerciales, passage, foi, gouvernements, credos, luxes exportés), et se cumule cible par cible. Il se compare au Patrimoine de la cible (influence cumulée, œuvres, lois, âge des colonies) : le rapport donne six paliers à la Civilization V (Inconnu, Exotique 10 %, Familier 30 %, En vogue 60 %, Influent 100 %, Dominant 200 %). Les paliers ouvrent des effets (Savoir par route, opinion, osmoses, pression sur les courants, défection culturelle) et une victoire « Le Grand Rayonnement ».",
+	"_sources": "Civilization Wiki : Tourism (Civ6), Culture victory (Civ6), Great Work (Civ6), National Park (Civ6), Rock Band (Civ6), Tourism (Civ5, paliers 10/30/60/100/200 %), Ideology (Civ5) ; Civilization VII : Victory, Legacy Path ; Humankind Wiki : Influence (diffusion par les routes de l'exportateur, osmose), Fame ; Endless Space 2 Wiki : Influence, Conversion ; Galactic Civilizations Wiki : Culture (défection à 4×) ; manuel de Distant Worlds 2 (p. 55 et 77 : stations de villégiature, beauté) ; Wikipédia : Soft power, Foundation (consultés le 2026-11-15).",
+	"modes": [
+		{"id": "actif", "label": "Actif", "text": "Chaque empire rayonne vers les autres : paliers, effets, défection culturelle selon le réglage."},
+		{"id": "aucun", "label": "Aucun", "text": "Pas de rayonnement : la partie est identique à celle d'avant le pilier."}
+	],
+	"default_mode": "actif",
+	"defect_modes": [
+		{"id": "active", "label": "Active", "text": "Un système instable, rayonné au moins quatre fois plus par un voisin que par son maître, peut faire défection après un compte à rebours de deux ans."},
+		{"id": "rare", "label": "Rare", "text": "Comme « Active », mais il faut six fois plus de rayonnement et une stabilité en révolte : la défection reste un événement."},
+		{"id": "aucune", "label": "Aucune", "text": "Jamais de défection culturelle."}
+	],
+	"default_defect": "rare",
+	"defect": {"active": {"ratio": 4, "max_stab": 29}, "rare": {"ratio": 6, "max_stab": 9}, "jumps": 2, "days": 720, "tech": "conversion_culturelle", "per_year": 1},
+	"tiers": [
+		{"id": "inconnu", "label": "Inconnu", "min": 0, "color": "#7f8c8d", "text": "Leur culture vous reste étrangère."},
+		{"id": "exotique", "label": "Exotique", "min": 10, "color": "#a3c4dc", "text": "Une curiosité dont on parle dans les salons."},
+		{"id": "familier", "label": "Familier", "min": 30, "color": "#6fcf97", "text": "On connaît leurs chansons, on cite leurs proverbes."},
+		{"id": "vogue", "label": "En vogue", "min": 60, "color": "#f2c94c", "text": "Leur mode, leur cuisine et leurs feuilletons s'arrachent."},
+		{"id": "influent", "label": "Influent", "min": 100, "color": "#f2994a", "text": "Leur culture pèse plus lourd que la vôtre dans vos propres foyers."},
+		{"id": "dominant", "label": "Dominant", "min": 200, "color": "#eb5757", "text": "Vos enfants rêvent dans leur langue."}
+	],
+	"start_heritage": 60,
+	"sources": {
+		"pop_pct": 15,
+		"pop_tense_pct": 50,
+		"museum": 3,
+		"relic": 3,
+		"museum_slots": 3,
+		"theme_mult": 2,
+		"wonder_era_bonus": 1,
+		"station_per_beauty": 1,
+		"governor_level": 1,
+		"conservator_mult": 2,
+		"holy_seat": 4,
+		"holy_relic": 2,
+		"other_faith_pct": 50
+	},
+	"heritage": {
+		"per_law": 1,
+		"per_relic": 1,
+		"colony_years": 10,
+		"per_old_colony": 1,
+		"per_wonder": 2,
+		"wonder_bonus": 40
+	},
+	"mods": {
+		"route": 25, "route_max": 75,
+		"passage": 25,
+		"same_faith": 25,
+		"gov_diff": -20, "gov_opposed": -40,
+		"credo_opposed": -33,
+		"luxury": 10, "luxury_max": 30,
+		"closed": -50,
+		"no_link_pct": 50,
+		"minor_pct": 50
+	},
+	"beauty": {
+		"max": 10,
+		"stars": {"blue_giant": 2, "neutron": 2, "black_hole": 3, "white": 1},
+		"terrains": {"nebuleuse": 2, "nebuleuse_ionisee": 3, "plasma": 1, "cimetiere": 1},
+		"planets": {"gaia": 3, "ocean": 1, "continental": 1},
+		"curio": 1,
+		"guardian": 2
+	},
+	"station": {"jumps": 3, "pop_div": 8, "energy_max": 10},
+	"effects": {
+		"knowledge_route_from": 2,
+		"knowledge_per_tier": 1,
+		"route_energy_from": 4,
+		"route_energy_pct": 25,
+		"spy_fast_from": 4,
+		"spy_fast_pct": 50,
+		"opinion_from": 2,
+		"opinion_per_tier": 3,
+		"war_lassitude_from": 4,
+		"war_lassitude_pct": 50,
+		"law_osmosis_from": 3,
+		"law_refuse_stability": -10,
+		"law_refuse_days": 360,
+		"law_osmosis_cd": 360,
+		"tech_osmosis_from": 3,
+		"tech_osmosis_pct": 50,
+		"tech_osmosis_knowledge_pct": 20,
+		"current_push_from": 3,
+		"current_push": 2,
+		"live_like_them_from": 5,
+		"live_like_them_stab": 40,
+		"live_like_them": -6,
+		"migrant_pull_from": 3,
+		"minor_favor_from": 4,
+		"minor_favor": 1,
+		"score_div": 10
+	},
+	"victory": {"hold_days": 720, "tier": 4, "alerts": [50, 75]},
+	"idole": {"pct": 60, "hold_days": 360},
+	"troupe": {
+		"ship": "troupe",
+		"days": 90,
+		"burst": 30,
+		"outcomes": [
+			{"id": "triomphe", "weight": 3, "mult": 3, "text": "Triomphe : salles combles et rappels sans fin."},
+			{"id": "succes", "weight": 5, "mult": 2, "text": "Succès honnête : on fredonne leurs airs dans les spatioports."},
+			{"id": "four", "weight": 2, "mult": 0, "text": "Four retentissant : le public a lancé des tomates, en apesanteur."},
+			{"id": "scandale", "weight": 1, "mult": 1, "opinion": -10, "text": "Scandale : un numéro jugé blasphématoire. On en parle, mais pas en bien."}
+		]
+	},
+	"embassy": {"cost": {"influence": 80}, "pct": 25, "max": 1},
+	"laws": {"exception_culturelle": {"heritage_pct": 25, "foreign_pct": -25, "route_pct": -10}, "ouverture_culturelle": {"heritage_pct": -15, "foreign_pct": 25, "route_pct": 10}},
+	"firewall_pct": -50,
+	"alliance_pct": 20,
+	"talents": {
+		"archetype": {
+			"ruche": {"label": "Une seule voix", "text": "La Ruche ne rayonne pas, mais son Patrimoine compte double : rien ne la pénètre.", "no_radiance": true, "heritage_mult": 2},
+			"synthetique": {"label": "Archives parfaites", "text": "Patrimoine +20 %.", "heritage_pct": 20}
+		},
+		"gouvernement": {
+			"theocratie": {"label": "Le chant des fidèles", "text": "Rayonnement religieux +50 %.", "faith_pct": 50},
+			"republique": {"label": "Diplomatie culturelle", "text": "Une ambassade culturelle de plus.", "embassies": 1},
+			"feodalite": {"label": "Cours et tournois", "text": "Les merveilles culturelles rayonnent +1 de plus.", "wonder_bonus": 1},
+			"horde": {"label": "Les chants de la horde", "text": "Les conquêtes rapportent du Patrimoine (+20 par système pris).", "conquest_heritage": 20}
+		},
+		"credo": {
+			"profit": {"label": "Tout s'exporte", "text": "Chaque luxe exporté porte votre culture : +10 % de plus par licence vendue.", "luxury_extra": 10},
+			"plaisir": {"label": "Fête perpétuelle", "text": "Rayonnement +25 %, Troupes de spectacle deux fois plus efficaces.", "radiance_pct": 25, "troupe_mult": 2},
+			"raison": {"label": "Sociétés savantes", "text": "Osmose des savoirs moins chère (-25 %).", "tech_osmosis_cost_pct": -25}
+		},
+		"traits": {
+			"orateurs": {"label": "Orateurs", "text": "Rayonnement +15 %.", "radiance_pct": 15}
+		},
+		"peoples": {
+			"ossarane": {"label": "Les sagas des maisons", "text": "Les reliques royales exposées rayonnent double.", "royal_x2": true},
+			"choeur": {"label": "Le Chœur se fait entendre", "text": "Rayonnement religieux +25 %.", "faith_pct": 25},
+			"vael": {"label": "La conversation galactique", "text": "Diffusion +10 % par empire allié ou en commerce.", "link_pct": 10},
+			"khthari": {"label": "Les ruines parlent pour lui", "text": "L'Essaim n'a pas d'art, mais chaque système conquis ajoute 20 à son Patrimoine : on se souvient de lui.", "conquest_heritage": 20},
+			"teyl": {"label": "Bibliothèque infinie", "text": "Osmose des savoirs à moitié prix.", "tech_osmosis_cost_pct": -50},
+			"ferrocornes": {"label": "Les arènes", "text": "Les victoires en bataille rapportent 5 de Rayonnement le mois suivant.", "battle_radiance": 5},
+			"brisecomete": {"label": "Contrebande de feuilletons", "text": "Ignore les embargos pour la diffusion culturelle.", "ignore_embargo": true},
+			"murmurants": {"label": "Le murmure des abysses", "text": "Rayonnement +20 % vers les empires de credo différent.", "other_credo_pct": 20}
+		}
+	},
+	"ai": {
+		"museum_era": 2,
+		"troupe_from": "neutre",
+		"embassy_from": "pacifique",
+		"spy_from": "belliqueux"
+	}
+}
