@@ -491,6 +491,7 @@ static func complete(state: GameState, empire_id: int, tid: String) -> void:
 		return
 	e.techs[tid] = true
 	Heroes.act(state, empire_id, "tech")
+	Crisis.on_tech(state, empire_id, tid)  # technologie interdite : la fin de partie approche
 	if not e.research_queue.is_empty() and e.research_queue[0] == tid:
 		e.research_queue.remove_at(0)
 		e.research_progress = 0
@@ -818,6 +819,7 @@ static func count_stat(state: GameState, empire_id: int, key: String, n := 1) ->
 	if e and not e.is_npc():
 		e.stats[key] = int(e.stats.get(key, 0)) + n
 		Heroes.act(state, empire_id, key, n)
+		CrisisNemesis.on_stat(state, empire_id, key, n)
 
 
 # --- Effets -------------------------------------------------------------------------------------
@@ -879,6 +881,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var afx := Amphictyony.effects(state, empire_id)
 			_merge(base, afx)
 			_merge(exalted, afx)
+		# Préparatifs contre la crise de fin de partie (voir Crisis) : même empreinte relic_rev.
+		if not state.crisis.is_empty():
+			var cfx := Crisis.effects(state, empire_id)
+			_merge(base, cfx)
+			_merge(exalted, cfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

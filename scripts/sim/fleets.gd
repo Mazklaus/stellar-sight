@@ -361,7 +361,7 @@ static func allies_of(state: GameState, empire_id: int) -> Array[int]:
 	for e in state.empires:
 		if e.id == empire_id or e.eliminated:
 			continue
-		if Diplomacy.allied(state, empire_id, e.id):
+		if Diplomacy.allied(state, empire_id, e.id) or Crisis.front_pair(state, empire_id, e.id):
 			out.append(e.id)
 	return out
 

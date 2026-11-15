@@ -336,6 +336,7 @@ static func gain(state: GameState, empire_id: int, rid: String) -> void:
 	r["hero"] = -1
 	r["found"] = state.tick
 	r["ready"] = 0
+	Crisis.on_relic(state, empire_id, rid)
 	Research.count_stat(state, empire_id, "relics")
 	Research.count_stat(state, empire_id, "collection")
 	touch(state)
@@ -779,6 +780,11 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 	var rel: Dictionary = d.get("relics", {})
 	for id in rel:
 		state.relics[String(id)] = GameData._to_ints(rel[id])
+	# Reliques ajoutées aux données depuis la sauvegarde (trophées des crises…) : encore sans maître.
+	if not state.relics.is_empty():
+		for id in ids():
+			if not state.relics.has(id):
+				state.relics[id] = {"owner": -1, "hero": -1, "found": -1, "ready": 0}
 	for x: Dictionary in d.get("meta", []):
 		var fakes: Array = []
 		for f: Dictionary in x.get("fakes", []):

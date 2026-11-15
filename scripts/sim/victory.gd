@@ -25,6 +25,10 @@ static func info(id: String) -> Dictionary:
 
 
 static func label(id: String) -> String:
+	if id == "crise":
+		return "Défaite commune"  # la crise de fin de partie l'emporte (voir Crisis)
+	if id == "fleau":
+		return "Victoire du Fléau"  # un empire devenu la crise achève son grand œuvre (CrisisNemesis)
 	return String(info(id).get("label", id))
 
 
@@ -100,7 +104,8 @@ static func default_deadline() -> int:
 
 ## Date limite de la partie en jours (0 = sans date limite).
 static func deadline(state: GameState) -> int:
-	return int(state.victory_rules.get("deadline", 0))
+	# Une crise de fin de partie arrivée repousse la date limite (voir Crisis.deadline).
+	return Crisis.deadline(state, int(state.victory_rules.get("deadline", 0)))
 
 
 static func people_enabled(state: GameState) -> bool:
@@ -776,6 +781,10 @@ static func chronicle_text(id: String, e: Empire, allies: Array = [], state: Gam
 		for a in allies:
 			names.append(state.get_empire(int(a)).short_name())
 		who += " (avec %s)" % ", ".join(names)
+	if id == "fleau":
+		return "%s achève %s et monte sur son trône de vide. La galaxie n'a pas su arrêter le Fléau des étoiles : elle lui appartient." % [who, String(CrisisNemesis.data().get("oeuvre", {}).get("name", "son grand œuvre"))]
+	if id == "crise":
+		return "%s tient la moitié des mondes de la galaxie. Personne n'a su l'arrêter%s." % [who, "" if allies.is_empty() else " ; ceux qui ont pactisé avec elle partagent sa victoire"]
 	var t := String(info(id).get("chronicle", "%s l'emporte."))
 	return t % who if t.contains("%s") else t
 

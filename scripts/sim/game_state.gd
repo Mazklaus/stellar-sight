@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 64
+const FORMAT_VERSION := 65
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -23,6 +23,8 @@ const NPC_ID := 90
 const PIRATE_ID := 91
 ## Identifiant de la Faune (troupeaux et nids de créatures, voir Fauna et fauna_empire).
 const FAUNA_ID := 92
+## Identifiant de la Crise de fin de partie (voir Crisis et crisis_empire).
+const CRISIS_ID := 93
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
 static var last_error := ""
@@ -171,10 +173,13 @@ var ground: Dictionary = {}
 var logistics: Dictionary = {}
 ## Terrain galactique (voir Terrain) : terrains de zone, nébuleuses nommées, tenants, tempêtes.
 var terrain: Dictionary = {}
+## Crises de fin de partie (voir Crisis) : réglages, crise en cours, bilans ; {} sans crise.
+var crisis: Dictionary = {}
 ## Zones de ravitaillement et lignes du jour (dérivé de l'état, non sauvegardé, recalculé chaque tick).
 var log_cache: Dictionary = {}
 var _pirates: Empire
 var _fauna: Empire
+var _crisis_e: Empire
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -228,6 +233,8 @@ var _npc: Empire = null
 ## - "logistics" : logistique et ravitaillement ("aucune", défaut, "simple" ou "complete" ; voir Logistics) ;
 ## - "terrain" : terrain galactique ("aucun", défaut, "clairseme", "normal" ou "dense" ; voir Terrain) et
 ##   "storms" : tempêtes cosmiques ("actives", défaut, ou "aucunes") ;
+## - "crises" : crises de fin de partie ("aucune", défaut, "une" ou "toutes" ; voir Crisis), avec
+##   "crisis_start" (an20, an30, an40), "crisis_strength" (faible … cauchemar) et "crisis_kinds" (sortes) ;
 ## - "creatures" : densité de la faune (Fauna, défaut "aucune"). Sans ces six options (tests, bancs),
 ##   la partie n'a ni pirates, ni curiosités, ni événements, ni quêtes, ni politique, ni créatures.
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
@@ -275,6 +282,9 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Ground.setup(s, String(options.get("ground", "simplifie")))
 	Logistics.setup(s, String(options.get("logistics", "aucune")))
 	Terrain.setup(s, String(options.get("terrain", "aucun")), String(options.get("storms", "actives")))
+	Crisis.setup(s, String(options.get("crises", "aucune")), String(options.get("crisis_start", "")),
+			String(options.get("crisis_strength", "")), options.get("crisis_kinds", []))
+	CrisisNemesis.setup(s, bool(options.get("crisis_nemesis", false)))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -409,6 +419,9 @@ func to_dict() -> Dictionary:
 		d["logistics"] = Logistics.to_dict(self)
 	if Terrain.worth_saving(self):
 		d["terrain"] = Terrain.to_dict(self)
+	# Crises : seulement quand elles sont prévues (même empreinte sans elles).
+	if Crisis.enabled(self):
+		d["crisis"] = Crisis.to_dict(self)
 	return d
 
 
@@ -616,6 +629,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Ground.from_dict(s, d.get("ground", {}))
 	Logistics.from_dict(s, d.get("logistics", {}))
 	Terrain.from_dict(s, d.get("terrain", {}))
+	Crisis.from_dict(s, d.get("crisis", {}))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant le commerce en paliers : l'ancien accord commercial devient un accord du
 	# 2e palier, et les routes se tracent tout de suite.
@@ -689,6 +703,8 @@ func get_empire(id: int) -> Empire:
 		return pirate_empire()
 	if id == FAUNA_ID:
 		return fauna_empire()
+	if id == CRISIS_ID:
+		return crisis_empire()
 	if id < 0 or id >= empires.size():
 		return null
 	return empires[id]
@@ -745,9 +761,27 @@ func fauna_empire() -> Empire:
 	return _fauna
 
 
-## Faction non jouable (Sans-Bannière, Pirates ou Faune).
+## La Crise de fin de partie : hostile à tous, hors de la liste des empires (voir Crisis). Elle
+## connaît toutes les routes ; recréée à la demande, son nom suit la crise en cours.
+func crisis_empire() -> Empire:
+	if _crisis_e == null:
+		_crisis_e = Empire.new()
+		_crisis_e.id = CRISIS_ID
+		_crisis_e.faction_id = "crise"
+		_crisis_e.capital_planet = -1
+		_crisis_e.home_planet = -1
+		for sys in galaxy.systems:
+			_crisis_e.explored[sys.id] = true
+	var d: Dictionary = GameData.crises().get("npc", {})
+	var k := Crisis.kind(self)
+	_crisis_e.npc_faction = {"id": "crise", "name": Crisis.name_of(k) if k != "" else String(d.get("name", "La Crise")),
+			"short": String(Crisis.kind_def(k).get("short", d.get("short", "Crise"))), "color": String(d.get("color", "#d0457f"))}
+	return _crisis_e
+
+
+## Faction non jouable (Sans-Bannière, Pirates, Faune ou Crise).
 static func is_npc(id: int) -> bool:
-	return id == NPC_ID or id == PIRATE_ID or id == FAUNA_ID
+	return id == NPC_ID or id == PIRATE_ID or id == FAUNA_ID or id == CRISIS_ID
 
 
 ## Identifiants des planètes revendiquées, triés : tout parcours qui modifie l'état passe par là,

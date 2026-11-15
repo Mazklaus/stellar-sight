@@ -185,6 +185,8 @@ static func ship(id: String) -> Dictionary:
 		return _custom[id]
 	# Créatures (data/creatures.json, « units ») : elles se lisent comme des classes au combat, sans
 	# figurer parmi les classes que l'on construit.
+	if id.begins_with("crise_"):
+		return crises().get("units", {}).get(id, {})
 	if id.begins_with("bete_"):
 		var u: Dictionary = creatures().get("units", {}).get(id, {})
 		return u if not u.is_empty() else guardians().get("units", {}).get(id, {})
@@ -266,6 +268,11 @@ static func stability() -> Dictionary:
 ## Pirates (data/pirates.json) : repaires, raids, tribut, contrats, primes.
 static func pirates() -> Dictionary:
 	return _load("pirates")
+
+
+## Crises de fin de partie (data/crises.json) : réglages, sortes de crise, unités, cartes.
+static func crises() -> Dictionary:
+	return _load("crises")
 
 
 static func creatures() -> Dictionary:

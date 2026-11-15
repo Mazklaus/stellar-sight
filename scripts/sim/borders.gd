@@ -310,6 +310,8 @@ static func grants(state: GameState, o: int, v: int) -> bool:
 		return true
 	if strong_link(state, o, v) or has_treaty(state, o, v) or policy(state, o, v) == OPEN:
 		return true
+	if Crisis.front_pair(state, o, v):
+		return true  # Front commun contre la crise : passage libre
 	return forced(state, o, v)
 
 

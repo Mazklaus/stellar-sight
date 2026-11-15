@@ -39,7 +39,7 @@ extends RefCounted
 ## ("for_hire", puis "lender" = empire qui le prête et "lend_until"), dossiers de héros par empire
 ## dans hero_meta[a]["files"] : [{"about", "day", "heroes": [{"name", "cls", "lvl", "post", "loy", "portrait"}]}].
 
-const POSTS := ["fleet", "system", "council", "agent", "amph", "koinon", "resident", "army"]
+const POSTS := ["fleet", "system", "council", "agent", "amph", "koinon", "resident", "army", "front"]
 const CLASSES := ["stratege", "intendant", "orateur", "ombre"]
 const DAYS_PER_YEAR := 360
 
@@ -582,6 +582,9 @@ static func post_effect_text(state: GameState, h: Dictionary) -> String:
 		"army":
 			@warning_ignore("integer_division")
 			return txt % (int(per.get("army_damage_pct", 5)) * hl / 2 + trait_fx(h, "ground_damage_pct"))
+		"front":
+			@warning_ignore("integer_division")
+			return txt % (int(per.get("front_damage_pct", 4)) * hl / 2)
 	return ""
 
 
@@ -791,6 +794,8 @@ static func check_assign(state: GameState, player: int, hero_id: int, post: Stri
 		"resident":
 			if Vassals.lord_of(state, target) != player:
 				return "il faut un de vos sujets"
+		"front":
+			return CrisisAllies.check_front_post(state, player, target)
 		"army":
 			var fa: Fleet = state.fleets.get(target)
 			if not Ground.full(state):

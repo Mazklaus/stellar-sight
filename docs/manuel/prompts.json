@@ -106,6 +106,9 @@
      "prompt": "an immense galactic assembly hemicycle under a dome, tiers of delegations of radically different species, an insectoid hive delegation, a shimmering wave of pure energy with no body, robotic assembled chassis linked by cables, humanoid delegates of all genders, a speaker at the central rostrum under a holographic galaxy"},
     {"id": "MJ-35", "titre": "La foi", "format": "2:1", "forme": "grande", "emplacement": "Bandeau du chapitre « La foi »",
      "sujet": "Des pèlerins de plusieurs peuples gravissent les marches d'un temple taillé dans un astéroïde, face à un monde saint",
-     "prompt": "pilgrims of several alien species climbing the endless stairs of a temple carved into an asteroid, a radiant holy world rising behind it, incense smoke drifting into space through a shimmering veil, devotional and awe-inspiring"}
+     "prompt": "pilgrims of several alien species climbing the endless stairs of a temple carved into an asteroid, a radiant holy world rising behind it, incense smoke drifting into space through a shimmering veil, devotional and awe-inspiring"},
+    {"id": "MJ-36", "titre": "Les crises de fin de partie", "format": "2:1", "forme": "grande", "emplacement": "Bandeau du chapitre « Les crises de fin de partie »",
+     "sujet": "Les flottes de tous les empires, rivales hier, font front ensemble devant une menace immense qui surgit de la bordure de la galaxie",
+     "prompt": "the fleets of many rival alien empires side by side for the first time, facing a colossal alien threat rising from the dark rim of the galaxy, a vast singing coral reef of crystal drifting between stars, small ships against an overwhelming presence, desperate courage and awe"}
   ]
 }

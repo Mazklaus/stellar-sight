@@ -808,6 +808,7 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 				Diplomacy.remember(state, o.id, killer, "kin_exterminated")
 		if state.amph_on:
 			Amphictyony.on_atrocity(state, killer)
+		Crisis.on_atrocity(state, killer)  # une atrocité attire ce qui attend dehors
 	for e in state.empires:
 		if e.eliminated or e.is_npc():
 			continue

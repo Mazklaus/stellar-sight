@@ -3,15 +3,18 @@ extends RefCounted
 ## Écran Chroniques (J), à la manière de l'écran « Quêtes et événements » d'Endless Space 2, en trois
 ## onglets : Quêtes (quêtes de l'empire et retournement galactique, voir Quests et QuestPanel),
 ## Événements (boîte, curiosités repérées, journal ; voir Events et Curios), Reliquaire (reliques et
-## fouilles, voir Relics) et Bestiaire (créatures rencontrées, voir BestiaryPanel).
+## fouilles, voir Relics), Bestiaire (créatures rencontrées, voir BestiaryPanel) et Crise (crise de fin de
+## partie, dès son premier présage, voir CrisisPanel).
 ## Construit dans les conteneurs d'EmpireScreens (_grid, _key_value…).
 
-const TABS := [["quests", "Quêtes"], ["events", "Événements"], ["relics", "Reliquaire"], ["bestiary", "Bestiaire"]]
+const TABS := [["crisis", "Crise"], ["quests", "Quêtes"], ["events", "Événements"], ["relics", "Reliquaire"], ["bestiary", "Bestiaire"]]
 
 
 ## Onglets offerts dans cette partie (selon les réglages de la Nouvelle partie).
 static func tabs(state: GameState) -> Array[String]:
 	var out: Array[String] = []
+	if Crisis.enabled(state):
+		out.append("crisis")  # crise de fin de partie : date, présages, fiche lisible, bilans
 	if Quests.enabled(state):
 		out.append("quests")
 	out.append("events")
@@ -103,6 +106,9 @@ static func build(es: EmpireScreens) -> void:
 		return
 	if es.chron_tab == "bestiary":
 		BestiaryPanel.build(es, col)
+		return
+	if es.chron_tab == "crisis":
+		CrisisPanel.build(es, col)
 		return
 	if es.chron_tab == "relics":
 		col.add_child(_reliquary_block(es))
@@ -377,5 +383,6 @@ static func signature(es: EmpireScreens) -> String:
 	if Quests.enabled(state):
 		s += QuestPanel.signature(es)
 	s += BestiaryPanel.signature(es)
+	s += CrisisPanel.signature(es)
 	@warning_ignore("integer_division")
 	return s + "|%s|%d" % [es.chron_tab, state.tick / 30]

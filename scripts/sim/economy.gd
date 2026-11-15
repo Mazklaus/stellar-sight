@@ -245,6 +245,12 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		for r in gross:
 			@warning_ignore("integer_division")
 			gross[r] = gross[r] * star_pct / 100
+	# Système tombé aux mains de la crise de fin de partie (corail, scellés, population bue).
+	var cr_pct := Crisis.production_pct(state, planet.system_id)
+	if cr_pct != 100:
+		for r in gross:
+			@warning_ignore("integer_division")
+			gross[r] = gross[r] * cr_pct / 100
 	return {"gross": gross, "upkeep": upkeep}
 
 
@@ -457,6 +463,9 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 	var watch := Guardians.colony_block(state, p.system_id, empire_id)
 	if watch != "":
 		return watch
+	var cblock := Crisis.colony_block(state, p.system_id)
+	if cblock != "":
+		return cblock
 	if not in_range(state, empire_id, p.system_id):
 		return "hors de portée : il faut un vaisseau colon à l'arrêt dans ce système (ou une revendication établie dans le système)"
 	if kind == Colony.KIND_COLONY and species != "" and species != Peoples.founder_of(state, empire_id):

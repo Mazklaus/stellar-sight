@@ -255,6 +255,8 @@ static func target_name(state: GameState, post: String, target: int) -> String:
 		"army":
 			var fa: Fleet = state.fleets.get(target)
 			return "régiments de %s" % fa.fleet_name if fa else "?"
+		"front":
+			return "contre %s" % Crisis.obj_name(Crisis.name_of(Crisis.kind(state)))
 	return ""
 
 
@@ -262,7 +264,7 @@ static func target_name(state: GameState, post: String, target: int) -> String:
 static func choices(state: GameState, player: int, h: Dictionary) -> Array:
 	var own := String(Heroes.class_def(String(h["cls"])).get("post", ""))
 	var order: Array[String] = [own]
-	for p in ["fleet", "system", "council", "agent", "amph", "koinon", "resident", "army"]:
+	for p in Heroes.POSTS:
 		if p != own:
 			order.append(p)
 	var out := []
@@ -284,7 +286,7 @@ static func choices(state: GameState, player: int, h: Dictionary) -> Array:
 			"agent":
 				for o in state.get_empire(player).contacts:
 					targets.append(int(o))
-			"amph", "koinon":
+			"amph", "koinon", "front":
 				targets.append(0)
 			"resident":
 				for s in Vassals.subjects_of(state, player):

@@ -60,6 +60,8 @@ static func _fx_value(state: GameState, empire_id: int, fxs: Array, temper: int)
 	var v := 0
 	for fx: Dictionary in fxs:
 		match String(fx["k"]):
+			"crisis":
+				v += Crisis.ai_value(fx, temper, state, empire_id)
 			"res":
 				for r in fx["res"]:
 					v += Events.era_scaled(state, empire_id, int(fx["res"][r])) * int(RES_VALUE.get(r, 10))

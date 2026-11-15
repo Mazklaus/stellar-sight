@@ -93,6 +93,8 @@ static func _assign(ctx: Dictionary, skill: int) -> void:
 				tries.push_front("amph")
 			elif skill >= 2:
 				tries.push_front("resident")
+			if String(h["cls"]) == "stratege" and Crisis.active(state) and Crisis.in_front(state, e.id):
+				tries.push_front("front")  # Commandant du Front contre la crise
 		for post in tries:
 			var target := _target(state, e, String(post))
 			if target >= 0 and AiPlayer._issue(ctx, SimCommands.hero_assign(e.id, id, String(post), target)):
@@ -102,6 +104,8 @@ static func _assign(ctx: Dictionary, skill: int) -> void:
 ## Meilleure cible libre pour un poste, -1 s'il n'y en a pas.
 static func _target(state: GameState, e: Empire, post: String) -> int:
 	match post:
+		"front":
+			return 0 if CrisisAllies.check_front_post(state, e.id, 0) == "" and Heroes.assigned_to(state, "front", 0, e.id).is_empty() else -1
 		"amph":
 			return 0 if Amphictyony.is_member(state, e.id) and Heroes.assigned_to(state, "amph", 0, e.id).is_empty() else -1
 		"koinon":
