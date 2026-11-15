@@ -256,9 +256,60 @@ Chaque peuple peut aussi lever un **régiment de peuple**, selon ses couches d'e
 Assiégez avant de débarquer : chaque jour de siège use les remparts, puis la milice. Un génie à bord abrège l'attente, et des forces spéciales font taire les batteries. Gardez ensuite un régiment dans chaque système occupé, sinon la résistance finira par s'en charger.
 :::
 
+### Logistique et ravitaillement
+
+L'option de partie **Logistique** a trois réglages. **Désactivée** garde les règles d'avant : une flotte est aussi forte au fond du territoire ennemi que chez elle. **Simple**, le réglage par défaut, donne aux flottes armées des **réserves** qui s'épuisent loin de leurs bases. **Complète** ajoute les lignes que l'ennemi peut couper, les batailles qui consomment double, la réquisition, l'encerclement et le ravitaillement des régiments. La logistique ne touche ni les éclaireurs, ni les colons, ni les transports sans armes, ni la faune et les pirates. Elle ne coûte rien de plus aux empires qui font la guerre : pas d'entretien plus cher loin de chez soi, pas de plafond de flotte.
+
+**La zone de ravitaillement.** Vos systèmes, colonies et avant-postes, ravitaillent vos flottes jusqu'à **2 sauts** autour. Ceux de vos alliés, de votre Koinon, de vos sujets et de votre suzerain aussi, de même que ceux d'un empire qui vous accorde le libre-passage ou vous ouvre ses frontières. Un empire en guerre contre vous ne vous ravitaille jamais. Les routes commerciales libres prolongent la zone sur tout leur chemin. Sélectionnez une flotte : la carte entoure en vert les systèmes de sa zone, et le tracé d'un ordre de déplacement signale « hors ravitaillement » quand il en sort.
+
+**Trois états.** La fiche de flotte affiche l'état, les réserves et le malus éventuel (survolez la ligne pour le détail).
+
+| État | Où | Réserves |
+| --- | --- | --- |
+| Ravitaillée | Dans la zone | +10 jours par jour jusqu'au plein, réparations normales |
+| Étirée | Hors de la zone | -1 jour par jour |
+| Coupée (Complète) | Hors de la zone, sans chemin libre pour y revenir | -2 jours par jour |
+
+**Les réserves.** Une flotte de guerre emporte **120 jours** de réserves. En logistique complète, chaque jour de bataille ou de siège en compte deux. Une flotte sans droit dans un territoire qui lui est clos en compte aussi deux. Quand les soutes sont vides, la flotte ne se répare plus du tout et ses dégâts baissent de **2 % par semaine**, jusqu'à **-30 %**. Elle ne perd jamais un vaisseau pour autant : il suffit de rentrer dans la zone pour que le malus tombe dès le premier jour. La chronique prévient quand une flotte vide ses soutes.
+
+**Couper les lignes (Complète).** Un système où stationne une flotte armée ennemie, sans flotte amie pour la contester, barre le passage aux convois. Une flotte hors zone dont tous les chemins de retour passent par de tels systèmes est **Coupée** : ses réserves fondent deux fois plus vite. Après 60 jours coupée, elle ajoute 1 point de **lassitude** à votre camp. Les IA Vétéran et plus cherchent à se placer sur le chemin du retour de vos flottes étirées.
+
+**Têtes de pont.** Un système conquis ou occupé ne ravitaille qu'après avoir été tenu **30 jours**. Une bataille dans le système pendant ce délai le remet à zéro. Les systèmes de départ et les colonies fondées ravitaillent d'emblée.
+
+**Prolonger la portée.**
+
+- Le **Dépôt de flotte** (120 matériaux, 30 énergie, 50 jours, 1 énergie d'entretien, un par système, bâtissable sur un avant-poste) ajoute 1 saut de zone autour de son système. Il y répare les flottes à 8 % par jour, même loin de la capitale.
+- Le module de soutien **Soute de ravitaillement** (Chantier) double les réserves de la flotte qui le porte. Même à sec, elle se répare encore de 1 % par jour.
+- Trois technologies de Génie : **Lignes de ravitaillement** (ère II, +1 saut), **Soutes profondes** (ère III, réserves +50 %), **Logistique de campagne** (ère IV, têtes de pont tenues en 15 jours).
+- L'amiral au trait **Intendant de flotte** donne +50 % de réserves à sa flotte. Un seul système ennemi ne suffit plus à la couper.
+- Un **port franc** des pirates refait le plein d'une flotte qui y stationne contre 2 énergie par jour.
+- Avec l'Amphictyonie, le niveau **Routes franches** ravitaille les membres dans tout l'espace neutre.
+
+**À quai.** Une flotte armée immobile dans un système doté de votre chantier, ou d'un dépôt de flotte qui la ravitaille, est **à quai** : son entretien baisse de 25 %. Garder une flotte de réserve au port coûte donc moins cher que la laisser patrouiller.
+
+**Réquisitionner (Complète).** Une flotte qui assiège un système ennemi peuplé peut **réquisitionner** (bouton de la fiche de flotte) : ses réserves sont refaites d'un coup. Le système perd 10 de stabilité et prend 10 de dévastation, la victime s'en souvient et c'est un crime de guerre, interdit aussi par le niveau **Mondes protégés** de l'Amphictyonie. Un même système ne peut être pressé qu'une fois tous les six mois.
+
+**Encerclement (Complète).** Une planète assiégée dont tous les systèmes voisins sont tenus par l'ennemi, ou barrés par ses flottes, est **encerclée** : sa garnison et ses fortifications ne se relèvent plus, et le siège les use chaque jour d'un point de plus.
+
+**Régiments (Complète, avec le combat au sol complet).** Des régiments au sol hors de la zone de leur empire tiennent 120 jours. Ensuite ils ne se remettent plus de leurs blessures et perdent 2 de moral par jour, le double s'ils sont coupés : ils finissent par quitter le front.
+
+**Espionnage.** L'opération **Saboter les dépôts** (rang 2, 25 influence, 40 jours) coûte la moitié de leurs réserves aux flottes de la cible qui sont loin de leurs bases. Elle ferme aussi ses dépôts de flotte pendant deux mois.
+
+**L'IA.** Dès le niveau Normal, l'IA ramène vers sa zone une flotte qui descend sous 25 % de réserves, et bâtit un dépôt de flotte près du front en temps de guerre. La Recrue n'y pense pas.
+
+{{logistique}}
+
+::: transmission Intendance de la 3e flotte, Concorde de Vael
+Inventaire au jour 97 : rations pour vingt-trois jours, munitions pour deux batailles, café pour quatre heures. Je recommande respectueusement de régler cette guerre avant la fin du café.
+:::
+
+::: conseil
+Avant une offensive lointaine, posez un dépôt de flotte sur un avant-poste de la frontière, et tenez chaque conquête trente jours avant de pousser plus loin. Une flotte qui avance de tête de pont en tête de pont ne manque jamais de rien.
+:::
+
 ### Réparer, revoir, recommencer
 
-Les vaisseaux se réparent vite chez vous (5 % de la coque par jour) et lentement ailleurs (1 %). Les troupes (et les régiments, en combat au sol complet) se refont dans vos systèmes. Le **rapport de bataille** détaille pertes et dégâts ; **Revoir la bataille** ([[R]]) la rejoue en 2D, jour par jour, chaque camp rangé en écran, ligne et arrière. La partie continue pendant ce temps.
+Les vaisseaux se réparent vite chez vous (5 % de la coque par jour) et lentement ailleurs (1 %), plus du tout quand leurs réserves sont vides (logistique). Les troupes (et les régiments, en combat au sol complet) se refont dans vos systèmes. Le **rapport de bataille** détaille pertes et dégâts ; **Revoir la bataille** ([[R]]) la rejoue en 2D, jour par jour, chaque camp rangé en écran, ligne et arrière. La partie continue pendant ce temps.
 
 ::: capture docs/apercu-replay.png|La vue de replay
 :::

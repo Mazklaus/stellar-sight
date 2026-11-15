@@ -7,6 +7,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 
 | Terme | En bref | Ch. |
 | --- | --- | --- |
+| À quai | Flotte armée immobile à votre chantier ou à un dépôt de flotte : entretien -25 % (logistique) | 7 |
 | Accord commercial | Deuxième palier du commerce : tarif de 10 %, +1 influence par mois | 9 |
 | Accord de recherche | Deux empires en paix versent de l'énergie ; trois ans plus tard, chacun reçoit un bond de Savoir | 9 |
 | Alliance | Traité signé après six mois de paix : guerres, cartes et vision partagées | 8 |
@@ -27,6 +28,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Conclave | L'assemblée d'une théocratie ; à l'Amphictyonie, deux théocraties de même foi qui votent ensemble | 14, 12 |
 | Convoi | Réfugiés sans refuge qui errent de saut en saut | 3 |
 | Corridor discret | Opération d'espionnage : 90 jours sans intrusion constatée chez un empire | 8, 13 |
+| Coupée | Flotte hors de sa zone de ravitaillement dont tous les chemins de retour sont barrés par l'ennemi : réserves deux fois plus vite épuisées (logistique complète) | 7 |
 | Cour impériale | Les sujets de l'Impérateur, sous un préréglage verrouillé | 10, 12 |
 | Courant | L'une des six familles politiques de la roue : Forge, Académie, Concorde, Sève, Autel, Glaive | 14 |
 | Credo | Ce en quoi un peuple croit : honneur, foi, raison, profit, survie | 19 |
@@ -36,12 +38,14 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Cultes natals | Les croyances d'origine d'un peuple, avant toute grande foi | 15 |
 | Curiosité | Épave, signal, ruine ou anomalie à sonder sur une planète | 17 |
 | Dernière Guerre | La guerre contre qui refuse l'élection du Chancelier des étoiles | 12 |
+| Dépôt de flotte | Bâtiment qui prolonge d'un saut la zone de ravitaillement et répare les flottes à 8 % par jour | 7 |
 | Dévastation | Taux de 0 à 100 par système, né du bombardement et des combats au sol : moins de production, de croissance et de stabilité | 7 |
 | Diaspora | Le peuple d'un empire disparu, qui peut le faire renaître | 3 |
 | Doctrine | En recherche, un choix exclusif d'Armement ; en religion, une position sur l'un des quatre axes d'une foi | 5, 15 |
 | Doléance | Ce que réclame un courant d'opposition, ou un peuple sans droits | 14, 3 |
 | Droit de passage | Ce qui permet à une flotte de guerre d'entrer chez un autre empire hors guerre : lien fort, traité, politique Ouverte | 8 |
 | Embargo | Coupure de tout commerce avec un empire | 9 |
+| Encerclement | Planète assiégée cernée de systèmes ennemis : garnison et remparts ne se relèvent plus (logistique complète) | 7 |
 | Eurêka | Objectif en jeu qui paie 40 % d'une technologie | 5 |
 | Faveur | Dette de vote à l'Amphictyonie, que l'on appelle pendant une séance | 12 |
 | Ferveur | Jauge propre aux théocraties du Chœur et des Murmurants | 19 |
@@ -93,6 +97,8 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Régiment | Unité de combat au sol, recrutée sur une colonie, transportée par les flottes | 7 |
 | Registre | Le ton d'un peuple : grimdark, médiéval spatial, space opera héroïque… | 19 |
 | Registre des traités | Toutes les paix signées, leurs clauses et leurs échéances | 8 |
+| Réquisition | Refaire les réserves d'une flotte sur le dos d'un système assiégé : crime de guerre (logistique complète) | 7 |
+| Réserves | Les jours de ravitaillement qu'emporte une flotte de guerre loin de ses bases, 120 au départ | 7 |
 | Relique | Objet ancien à effet permanent, et son Triomphe | 17, 22 |
 | Renom | La gloire d'un empire, qui attire les héros | 16 |
 | Révélation | La naissance d'une grande foi | 15 |
@@ -110,11 +116,13 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Sujet, suzerain | L'empire lié par clauses, et celui qui le tient | 10 |
 | Synode | L'assemblée d'un Koinon | 11 |
 | Talent | Ce que donne une couche d'espèce dans un domaine du jeu | 19 |
+| Tête de pont | Système conquis ou occupé, qui ne ravitaille qu'après 30 jours tenus | 7 |
 | Trêve | L'année sans guerre qui suit une paix | 8 |
 | Tribut | Part du revenu versée par un sujet, ou par un vaincu ; ou rançon payée aux pirates | 10, 8, 17 |
 | Triomphe | La grande cérémonie d'une relique, une fois tous les dix ans | 17 |
 | Ultimatum | Exiger sans tirer ; refusé, il donne un motif de guerre | 7 |
 | Zèle | La vigueur d'une grande foi, de 0 à 100 | 15 |
+| Zone de ravitaillement | Vos systèmes et ceux qui vous ravitaillent, plus 2 sauts autour : les flottes y refont leurs réserves | 7 |
 
 ::: marge
 Il manque un mot : « bureaucratie ». Les Archives ont demandé qu'on l'ajoute. La demande est en cours d'examen.

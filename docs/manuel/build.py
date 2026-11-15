@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.5"
+EDITION = "2.6"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -421,6 +421,7 @@ def talents_du_peuple(f):
     ajoute("Suzerain", _par_couche(c, charger("vassals.json").get("talents", {})))
     ajoute("Pirates", _par_couche(c, charger("pirates.json").get("talents", {})))
     ajoute("Créatures", _par_couche(c, charger("creatures.json").get("talents", {})))
+    ajoute("Logistique", _par_couche(c, charger("logistics.json").get("talents", {})))
     return res
 
 
@@ -485,12 +486,27 @@ def gen_prompts():
 
 STYLE_MJ = json.load(open(os.path.join(ICI, "prompts.json"), encoding="utf-8"))["style_commun"]
 
+def gen_logistique():
+    """Talents de logistique par couche d'espèce (data/logistics.json)."""
+    noms = {"traits": "Trait", "archetype": "Archétype", "gouvernement": "Gouvernement",
+            "credo": "Credo", "registre": "Registre"}
+    lignes = ""
+    for couche, valeurs in charger("logistics.json").get("talents", {}).items():
+        if couche.startswith("_") or not isinstance(valeurs, dict):
+            continue
+        for val, t in valeurs.items():
+            nom = val if couche == "registre" else NOMS_COUCHE.get(val, val.capitalize())
+            lignes += (f"<tr><td>{esc(noms.get(couche, couche))} {esc(nom)}</td><td><b>{esc(t['label'])}</b></td>"
+                       f"<td>{inline(t['text'])}</td></tr>")
+    return (f"<table class='grille'><tr><th>Couche</th><th>Talent</th><th>Effet</th></tr>{lignes}</table>")
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
     "peuples": gen_peuples, "prompts": gen_prompts,
     "luxes": gen_luxes, "strategiques": gen_strategiques,
-    "lois": gen_lois, "reliques": gen_reliques,
+    "lois": gen_lois, "reliques": gen_reliques, "logistique": gen_logistique,
 }
 
 
