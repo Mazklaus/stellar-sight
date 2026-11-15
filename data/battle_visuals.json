@@ -9,39 +9,1239 @@
 	},
 	"stars": {
 		"_doc": "light : couleur de la lumière portée sur les vaisseaux ; power : intensité (1 = soleil jaune) ; size : rayon de l'étoile à l'écran (pixels pour 900 px de haut) ; ambient : lumière d'ambiance ; nebula : deux couleurs de nébuleuse.",
-		"yellow": {"light": [1.0, 0.93, 0.78], "power": 1.0, "size": 46, "ambient": 0.46, "nebula": [[0.32, 0.18, 0.46], [0.75, 0.55, 0.3]]},
-		"red": {"light": [1.0, 0.55, 0.38], "power": 0.8, "size": 40, "ambient": 0.44, "nebula": [[0.42, 0.1, 0.16], [0.6, 0.25, 0.2]]},
-		"white": {"light": [0.92, 0.96, 1.0], "power": 1.05, "size": 24, "ambient": 0.46, "nebula": [[0.16, 0.22, 0.42], [0.55, 0.6, 0.75]]},
-		"blue_giant": {"light": [0.62, 0.78, 1.0], "power": 1.3, "size": 70, "ambient": 0.48, "nebula": [[0.1, 0.18, 0.5], [0.3, 0.55, 0.85]]},
-		"neutron": {"light": [0.75, 0.85, 1.0], "power": 0.7, "size": 12, "ambient": 0.42, "nebula": [[0.2, 0.12, 0.42], [0.45, 0.4, 0.8]]},
-		"black_hole": {"light": [1.0, 0.7, 0.45], "power": 0.55, "size": 30, "ambient": 0.4, "nebula": [[0.25, 0.08, 0.3], [0.85, 0.45, 0.2]]}
+		"yellow": {
+			"light": [
+				1.0,
+				0.93,
+				0.78
+			],
+			"power": 1.0,
+			"size": 46,
+			"ambient": 0.46,
+			"nebula": [
+				[
+					0.32,
+					0.18,
+					0.46
+				],
+				[
+					0.75,
+					0.55,
+					0.3
+				]
+			]
+		},
+		"red": {
+			"light": [
+				1.0,
+				0.55,
+				0.38
+			],
+			"power": 0.8,
+			"size": 40,
+			"ambient": 0.44,
+			"nebula": [
+				[
+					0.42,
+					0.1,
+					0.16
+				],
+				[
+					0.6,
+					0.25,
+					0.2
+				]
+			]
+		},
+		"white": {
+			"light": [
+				0.92,
+				0.96,
+				1.0
+			],
+			"power": 1.05,
+			"size": 24,
+			"ambient": 0.46,
+			"nebula": [
+				[
+					0.16,
+					0.22,
+					0.42
+				],
+				[
+					0.55,
+					0.6,
+					0.75
+				]
+			]
+		},
+		"blue_giant": {
+			"light": [
+				0.62,
+				0.78,
+				1.0
+			],
+			"power": 1.3,
+			"size": 70,
+			"ambient": 0.48,
+			"nebula": [
+				[
+					0.1,
+					0.18,
+					0.5
+				],
+				[
+					0.3,
+					0.55,
+					0.85
+				]
+			]
+		},
+		"neutron": {
+			"light": [
+				0.75,
+				0.85,
+				1.0
+			],
+			"power": 0.7,
+			"size": 12,
+			"ambient": 0.42,
+			"nebula": [
+				[
+					0.2,
+					0.12,
+					0.42
+				],
+				[
+					0.45,
+					0.4,
+					0.8
+				]
+			]
+		},
+		"black_hole": {
+			"light": [
+				1.0,
+				0.7,
+				0.45
+			],
+			"power": 0.55,
+			"size": 30,
+			"ambient": 0.4,
+			"nebula": [
+				[
+					0.25,
+					0.08,
+					0.3
+				],
+				[
+					0.85,
+					0.45,
+					0.2
+				]
+			]
+		}
 	},
 	"planet": {
 		"_doc": "Planète montrée en fond : celle du défenseur la plus peuplée, sinon la plus grande. radius : rayon (fraction de la hauteur d'écran) selon la taille 1 à 5 ; siege_radius : rayon pendant un siège (planète au premier plan).",
-		"radius": [0.22, 0.27, 0.32, 0.38, 0.44],
+		"radius": [
+			0.22,
+			0.27,
+			0.32,
+			0.38,
+			0.44
+		],
 		"siege_radius": 0.62,
 		"moons_max": 2
 	},
 	"objects": {
 		"_doc": "Objets du système dessinés dans l'arène. belt : astéroïdes si le système compte une ceinture ; station : bastion ou avant-poste du défenseur ; wrecks_max : épaves du cimetière dessinées au plus ; defenses : plates-formes orbitales pendant un siège.",
-		"belt": {"count": [26, 40, 60]},
-		"wrecks_max": [6, 14, 24],
+		"belt": {
+			"count": [
+				26,
+				40,
+				60
+			]
+		},
+		"wrecks_max": [
+			6,
+			14,
+			24
+		],
 		"wrecks_cap": 60,
 		"defenses": 4
 	},
 	"detail": {
 		"_doc": "Réglage « Détail des replays » (Options > Affichage). Chaque niveau fixe l'indice utilisé dans les listes de \"objects\" et des effets.",
-		"levels": ["sobre", "normal", "riche"],
-		"labels": {"sobre": "Sobre", "normal": "Normal", "riche": "Riche"},
+		"levels": [
+			"sobre",
+			"normal",
+			"riche"
+		],
+		"labels": {
+			"sobre": "Sobre",
+			"normal": "Normal",
+			"riche": "Riche"
+		},
 		"default": "normal",
-		"parallax": [0.0, 1.0, 1.0],
-		"debris": [4, 9, 16],
-		"smoke": [0, 4, 8]
+		"parallax": [
+			0.0,
+			1.0,
+			1.0
+		],
+		"debris": [
+			4,
+			9,
+			16
+		],
+		"smoke": [
+			0,
+			4,
+			8
+		]
 	},
 	"effects": {
 		"_doc": "shield_min : bouclier (stat du vaisseau) au-delà duquel les impacts allument une bulle ; burn_below : part de coque sous laquelle le vaisseau fume et brûle ; mega_sizes : tailles qui explosent en plusieurs temps.",
 		"shield_min": 1,
 		"burn_below": 0.5,
-		"mega_sizes": ["titan"]
+		"mega_sizes": [
+			"titan"
+		]
+	},
+	"ground": {
+		"_doc": "Bataille au sol (lot 2, prop. 18 à 28). Purement visuel. scales : réglage « Échelle des batailles » (Options > Affichage) ; figures : figurines par régiment selon la famille et l'échelle (indice 0 escarmouche, 1 bataille, 2 grande) ; cap : plafond de figurines de toute la bataille (au-delà, chaque régiment est réduit en proportion) ; fps_floor : sous ce nombre d'images par seconde, la vue divise les figurines par deux (une fois).",
+		"scales": [
+			"escarmouche",
+			"bataille",
+			"grande"
+		],
+		"scale_labels": {
+			"escarmouche": "Escarmouche",
+			"bataille": "Bataille",
+			"grande": "Grande bataille"
+		},
+		"scale_default": "escarmouche",
+		"figures": {
+			"infanterie": [
+				20,
+				70,
+				250
+			],
+			"blindes": [
+				4,
+				10,
+				30
+			],
+			"aerien": [
+				3,
+				6,
+				16
+			],
+			"milice": [
+				12,
+				40,
+				150
+			]
+		},
+		"big": [
+			"colosses",
+			"marcheur"
+		],
+		"cap": [
+			1500,
+			4500,
+			9000
+		],
+		"fps_floor": 30,
+		"formations": {
+			"_doc": "Formation selon la tactique de bataille au sol (data/ground.json, tactics). shape : ligne, colonne, disperse, coin, retranche ; spread : écart entre figurines (multiplie l'écart de la famille).",
+			"assaut": {
+				"shape": "ligne",
+				"spread": 1.0
+			},
+			"bombardement": {
+				"shape": "ligne",
+				"spread": 1.1
+			},
+			"infiltration": {
+				"shape": "disperse",
+				"spread": 1.8
+			},
+			"blitz": {
+				"shape": "coin",
+				"spread": 0.8
+			},
+			"defense": {
+				"shape": "retranche",
+				"spread": 1.0
+			},
+			"resistance": {
+				"shape": "disperse",
+				"spread": 1.4
+			},
+			"civils": {
+				"shape": "retranche",
+				"spread": 1.2
+			},
+			"_default": {
+				"shape": "ligne",
+				"spread": 1.0
+			}
+		},
+		"spacing": {
+			"infanterie": 9,
+			"blindes": 28,
+			"aerien": 34,
+			"milice": 10
+		},
+		"biomes": {
+			"_doc": "Palette et décor par type de planète. sky : haut et horizon du ciel ; ground : près et loin ; props : éléments semés (trees, dunes, ice, water, pools, rocks, craters, platforms, towers, flowers) ; weather : météos possibles (rain, snow, sand, acid, none).",
+			"continental": {
+				"sky": [
+					[
+						0.22,
+						0.38,
+						0.62
+					],
+					[
+						0.62,
+						0.74,
+						0.86
+					]
+				],
+				"ground": [
+					[
+						0.24,
+						0.36,
+						0.16
+					],
+					[
+						0.36,
+						0.44,
+						0.26
+					]
+				],
+				"props": [
+					"trees",
+					"rocks",
+					"water"
+				],
+				"weather": [
+					"none",
+					"none",
+					"rain"
+				]
+			},
+			"ocean": {
+				"sky": [
+					[
+						0.2,
+						0.4,
+						0.66
+					],
+					[
+						0.66,
+						0.8,
+						0.9
+					]
+				],
+				"ground": [
+					[
+						0.72,
+						0.66,
+						0.46
+					],
+					[
+						0.2,
+						0.46,
+						0.6
+					]
+				],
+				"props": [
+					"water",
+					"trees",
+					"rocks"
+				],
+				"weather": [
+					"none",
+					"rain",
+					"rain"
+				]
+			},
+			"desert": {
+				"sky": [
+					[
+						0.5,
+						0.48,
+						0.56
+					],
+					[
+						0.94,
+						0.76,
+						0.52
+					]
+				],
+				"ground": [
+					[
+						0.7,
+						0.5,
+						0.28
+					],
+					[
+						0.84,
+						0.66,
+						0.42
+					]
+				],
+				"props": [
+					"dunes",
+					"rocks"
+				],
+				"weather": [
+					"none",
+					"none",
+					"sand"
+				]
+			},
+			"arctic": {
+				"sky": [
+					[
+						0.42,
+						0.52,
+						0.66
+					],
+					[
+						0.82,
+						0.88,
+						0.94
+					]
+				],
+				"ground": [
+					[
+						0.8,
+						0.86,
+						0.92
+					],
+					[
+						0.64,
+						0.72,
+						0.8
+					]
+				],
+				"props": [
+					"ice",
+					"rocks"
+				],
+				"weather": [
+					"none",
+					"snow",
+					"snow"
+				]
+			},
+			"toxic": {
+				"sky": [
+					[
+						0.3,
+						0.34,
+						0.12
+					],
+					[
+						0.66,
+						0.7,
+						0.3
+					]
+				],
+				"ground": [
+					[
+						0.3,
+						0.34,
+						0.1
+					],
+					[
+						0.44,
+						0.46,
+						0.16
+					]
+				],
+				"props": [
+					"pools",
+					"trees",
+					"rocks"
+				],
+				"weather": [
+					"none",
+					"acid",
+					"acid"
+				]
+			},
+			"gas_giant": {
+				"sky": [
+					[
+						0.42,
+						0.3,
+						0.24
+					],
+					[
+						0.9,
+						0.74,
+						0.52
+					]
+				],
+				"ground": [
+					[
+						0.42,
+						0.4,
+						0.4
+					],
+					[
+						0.62,
+						0.52,
+						0.42
+					]
+				],
+				"props": [
+					"platforms"
+				],
+				"weather": [
+					"none",
+					"none"
+				]
+			},
+			"barren": {
+				"sky": [
+					[
+						0.03,
+						0.03,
+						0.06
+					],
+					[
+						0.2,
+						0.18,
+						0.2
+					]
+				],
+				"ground": [
+					[
+						0.36,
+						0.32,
+						0.3
+					],
+					[
+						0.46,
+						0.42,
+						0.38
+					]
+				],
+				"props": [
+					"craters",
+					"rocks"
+				],
+				"weather": [
+					"none"
+				]
+			},
+			"asteroids": {
+				"sky": [
+					[
+						0.02,
+						0.02,
+						0.05
+					],
+					[
+						0.12,
+						0.12,
+						0.16
+					]
+				],
+				"ground": [
+					[
+						0.3,
+						0.28,
+						0.26
+					],
+					[
+						0.4,
+						0.37,
+						0.34
+					]
+				],
+				"props": [
+					"craters",
+					"rocks"
+				],
+				"weather": [
+					"none"
+				]
+			},
+			"gaia": {
+				"sky": [
+					[
+						0.2,
+						0.44,
+						0.7
+					],
+					[
+						0.66,
+						0.84,
+						0.88
+					]
+				],
+				"ground": [
+					[
+						0.2,
+						0.44,
+						0.18
+					],
+					[
+						0.34,
+						0.56,
+						0.26
+					]
+				],
+				"props": [
+					"trees",
+					"flowers",
+					"water"
+				],
+				"weather": [
+					"none",
+					"none",
+					"rain"
+				]
+			},
+			"ecumenopole": {
+				"sky": [
+					[
+						0.26,
+						0.24,
+						0.3
+					],
+					[
+						0.7,
+						0.58,
+						0.44
+					]
+				],
+				"ground": [
+					[
+						0.3,
+						0.29,
+						0.31
+					],
+					[
+						0.42,
+						0.4,
+						0.4
+					]
+				],
+				"props": [
+					"towers"
+				],
+				"weather": [
+					"none",
+					"rain"
+				]
+			},
+			"_default": {
+				"sky": [
+					[
+						0.2,
+						0.3,
+						0.5
+					],
+					[
+						0.6,
+						0.7,
+						0.8
+					]
+				],
+				"ground": [
+					[
+						0.3,
+						0.3,
+						0.25
+					],
+					[
+						0.4,
+						0.4,
+						0.33
+					]
+				],
+				"props": [
+					"rocks"
+				],
+				"weather": [
+					"none"
+				]
+			}
+		},
+		"times": {
+			"_doc": "Heure du jour tirée de la graine : tint multiplie le ciel, le sol et les figurines.",
+			"day": [
+				1.0,
+				1.0,
+				1.0
+			],
+			"dusk": [
+				1.0,
+				0.72,
+				0.6
+			],
+			"night": [
+				0.38,
+				0.42,
+				0.6
+			]
+		},
+		"city": {
+			"_doc": "Ville du défenseur : bâtiments selon la population.",
+			"per_pop": 3,
+			"max": 56
+		}
+	},
+	"species": {
+		"_doc": "Lot 3 (prop. 29 à 33) : allure des troupes selon les couches d'espèce. Ordre de priorité : troupe dédiée (troops) > peuple (peoples) > archétype (body) et registre (gear, véhicules, tirs). Un peuple créé dans l'éditeur hérite de son archétype et de son registre. body : bipede, insecte, bloc, reptile, robot, feu_follet ; gear : bouclier, blaster, lourd, exo, brocante, epines, halo, banniere, cape ; vehicle : chenilles, glisseur, roues, bricole, rampant, pierre, orbe ; air : chasseur, voilier, canonniere, drone, coucou, volant_bio, orbe ; corpse : corps, eboulis, aucun ; shot : couleur des tirs.",
+		"archetypes": {
+			"humanoide": {
+				"body": "bipede",
+				"gait": 9,
+				"corpse": "corps"
+			},
+			"ruche": {
+				"body": "insecte",
+				"gait": 14,
+				"corpse": "corps"
+			},
+			"lithoide": {
+				"body": "bloc",
+				"gait": 3,
+				"corpse": "eboulis"
+			},
+			"reptilien": {
+				"body": "reptile",
+				"gait": 8,
+				"corpse": "corps"
+			},
+			"synthetique": {
+				"body": "robot",
+				"gait": 7,
+				"corpse": "eboulis"
+			},
+			"energetique": {
+				"body": "feu_follet",
+				"gait": 2,
+				"corpse": "aucun"
+			},
+			"_default": {
+				"body": "bipede",
+				"gait": 9,
+				"corpse": "corps"
+			}
+		},
+		"registres": {
+			"Médiéval spatial": {
+				"gear": "bouclier",
+				"vehicle": "glisseur",
+				"air": "voilier",
+				"shot": [
+					1.0,
+					0.78,
+					0.35
+				]
+			},
+			"Space opera héroïque": {
+				"gear": "blaster",
+				"vehicle": "glisseur",
+				"air": "chasseur",
+				"shot": [
+					0.45,
+					0.8,
+					1.0
+				]
+			},
+			"Grimdark": {
+				"gear": "lourd",
+				"vehicle": "chenilles",
+				"air": "canonniere",
+				"shot": [
+					1.0,
+					0.45,
+					0.25
+				]
+			},
+			"Classique / hard SF": {
+				"gear": "exo",
+				"vehicle": "roues",
+				"air": "drone",
+				"shot": [
+					1.0,
+					0.92,
+					0.62
+				]
+			},
+			"Picaresque / pulp": {
+				"gear": "brocante",
+				"vehicle": "bricole",
+				"air": "coucou",
+				"shot": [
+					1.0,
+					0.8,
+					0.3
+				]
+			},
+			"Horreur biologique": {
+				"gear": "epines",
+				"vehicle": "rampant",
+				"air": "volant_bio",
+				"shot": [
+					0.6,
+					1.0,
+					0.3
+				]
+			},
+			"Cosmique / étrange": {
+				"gear": "halo",
+				"vehicle": "orbe",
+				"air": "orbe",
+				"shot": [
+					0.82,
+					0.6,
+					1.0
+				]
+			},
+			"_default": {
+				"gear": "blaster",
+				"vehicle": "chenilles",
+				"air": "chasseur",
+				"shot": [
+					1.0,
+					0.86,
+					0.45
+				]
+			}
+		},
+		"peoples": {
+			"khthari": {
+				"vehicle": "rampant",
+				"air": "volant_bio",
+				"shot": [
+					0.55,
+					1.0,
+					0.25
+				]
+			},
+			"ferrocornes": {
+				"vehicle": "pierre",
+				"gear": "lourd",
+				"shot": [
+					1.0,
+					0.55,
+					0.25
+				]
+			},
+			"teyl": {
+				"vehicle": "glisseur",
+				"air": "drone",
+				"shot": [
+					0.3,
+					1.0,
+					0.85
+				]
+			},
+			"murmurants": {
+				"vehicle": "orbe",
+				"air": "orbe",
+				"shot": [
+					0.8,
+					0.55,
+					1.0
+				]
+			},
+			"choeur": {
+				"gear": "banniere"
+			}
+		},
+		"troops": {
+			"essaims": {
+				"body": "insecte",
+				"scale": 0.7
+			},
+			"automates": {
+				"body": "robot",
+				"corpse": "eboulis"
+			},
+			"possedes": {
+				"gear": "halo",
+				"glow": true
+			},
+			"fanatiques": {
+				"gear": "banniere"
+			},
+			"troupes_choc": {
+				"gear": "lourd"
+			},
+			"mercenaires": {
+				"gear": "brocante"
+			},
+			"commandos": {
+				"gear": "cape"
+			},
+			"genie": {
+				"gear": "exo"
+			}
+		}
+	},
+	"cities": {
+		"_doc": "Villes du défenseur (lot 3) : style selon le peuple (peoples), sinon l'archétype (archetypes), sinon le registre (registres) ; adaptations selon le biome ; taille selon la population. Chaque style tire ses bâtiments dans kinds (formes dessinées par le jeu : donjon, fleche, dome, tour, aiguille, passerelle, cathedrale, cheminee, module, habitat, radiateur, antenne, baraque, enseigne, grue, tertre, cocon, tour_organique, cristal, anneau, obelisque, monolithe, forge, arche, bloc, gradins) ; landmark : grand édifice au-delà de size.landmark_pop.",
+		"styles": {
+			"citadelle": {
+				"kinds": [
+					"donjon",
+					"fleche",
+					"tour",
+					"dome",
+					"passerelle"
+				],
+				"landmark": "donjon",
+				"body": [
+					0.52,
+					0.49,
+					0.46
+				],
+				"roof": [
+					0.34,
+					0.22,
+					0.46
+				],
+				"accent": [
+					1.0,
+					0.75,
+					0.4
+				]
+			},
+			"heroique": {
+				"kinds": [
+					"tour",
+					"dome",
+					"aiguille",
+					"passerelle",
+					"gradins"
+				],
+				"landmark": "aiguille",
+				"body": [
+					0.8,
+					0.83,
+					0.88
+				],
+				"roof": [
+					0.6,
+					0.7,
+					0.85
+				],
+				"accent": [
+					0.4,
+					0.8,
+					1.0
+				]
+			},
+			"cathedrale": {
+				"kinds": [
+					"cathedrale",
+					"fleche",
+					"cheminee",
+					"tour",
+					"gradins"
+				],
+				"landmark": "cathedrale",
+				"body": [
+					0.3,
+					0.28,
+					0.29
+				],
+				"roof": [
+					0.2,
+					0.17,
+					0.17
+				],
+				"accent": [
+					1.0,
+					0.45,
+					0.2
+				]
+			},
+			"modules": {
+				"kinds": [
+					"module",
+					"habitat",
+					"radiateur",
+					"antenne",
+					"tour"
+				],
+				"landmark": "habitat",
+				"body": [
+					0.62,
+					0.64,
+					0.66
+				],
+				"roof": [
+					0.45,
+					0.47,
+					0.5
+				],
+				"accent": [
+					1.0,
+					0.85,
+					0.4
+				]
+			},
+			"bidonville": {
+				"kinds": [
+					"baraque",
+					"enseigne",
+					"grue",
+					"baraque",
+					"tour"
+				],
+				"landmark": "grue",
+				"body": [
+					0.52,
+					0.43,
+					0.34
+				],
+				"roof": [
+					0.4,
+					0.3,
+					0.22
+				],
+				"accent": [
+					1.0,
+					0.4,
+					0.7
+				]
+			},
+			"ruche": {
+				"kinds": [
+					"tertre",
+					"cocon",
+					"tour_organique",
+					"tertre"
+				],
+				"landmark": "tour_organique",
+				"body": [
+					0.34,
+					0.4,
+					0.22
+				],
+				"roof": [
+					0.26,
+					0.3,
+					0.16
+				],
+				"accent": [
+					0.7,
+					1.0,
+					0.3
+				]
+			},
+			"cristaux": {
+				"kinds": [
+					"cristal",
+					"anneau",
+					"obelisque",
+					"dome"
+				],
+				"landmark": "cristal",
+				"body": [
+					0.46,
+					0.42,
+					0.62
+				],
+				"roof": [
+					0.6,
+					0.55,
+					0.8
+				],
+				"accent": [
+					0.82,
+					0.6,
+					1.0
+				]
+			},
+			"monolithes": {
+				"kinds": [
+					"monolithe",
+					"forge",
+					"arche",
+					"donjon"
+				],
+				"landmark": "arche",
+				"body": [
+					0.46,
+					0.37,
+					0.31
+				],
+				"roof": [
+					0.34,
+					0.27,
+					0.22
+				],
+				"accent": [
+					1.0,
+					0.55,
+					0.25
+				]
+			},
+			"circuits": {
+				"kinds": [
+					"bloc",
+					"aiguille",
+					"anneau",
+					"module"
+				],
+				"landmark": "aiguille",
+				"body": [
+					0.3,
+					0.35,
+					0.4
+				],
+				"roof": [
+					0.22,
+					0.26,
+					0.3
+				],
+				"accent": [
+					0.3,
+					1.0,
+					0.85
+				]
+			}
+		},
+		"peoples": {
+			"ossarane": "citadelle",
+			"vael": "heroique",
+			"choeur": "cathedrale",
+			"khthari": "ruche",
+			"teyl": "circuits",
+			"ferrocornes": "monolithes",
+			"brisecomete": "bidonville",
+			"murmurants": "cristaux"
+		},
+		"archetypes": {
+			"ruche": "ruche",
+			"lithoide": "monolithes",
+			"synthetique": "circuits",
+			"energetique": "cristaux"
+		},
+		"registres": {
+			"Médiéval spatial": "citadelle",
+			"Space opera héroïque": "heroique",
+			"Grimdark": "cathedrale",
+			"Classique / hard SF": "modules",
+			"Picaresque / pulp": "bidonville",
+			"Horreur biologique": "ruche",
+			"Cosmique / étrange": "cristaux",
+			"_default": "heroique"
+		},
+		"biomes": {
+			"_doc": "domes : part des bâtiments remplacés par des dômes scellés ; snow : neige sur les toits ; stilts : sur pilotis au-dessus de l'eau ; platforms : posée sur des plates-formes suspendues ; green : toits végétalisés ; extra : édicule ajouté (capteur_vent, cheminee_filtre, aire, jardin) ; tint : teinte des matériaux ; density, height : multiplicateurs.",
+			"arctic": {
+				"domes": 0.35,
+				"snow": true,
+				"tint": [
+					0.92,
+					0.96,
+					1.05
+				]
+			},
+			"ocean": {
+				"stilts": true,
+				"tint": [
+					0.95,
+					1.0,
+					1.05
+				]
+			},
+			"desert": {
+				"extra": "capteur_vent",
+				"tint": [
+					1.12,
+					0.98,
+					0.8
+				]
+			},
+			"toxic": {
+				"domes": 0.5,
+				"extra": "cheminee_filtre",
+				"tint": [
+					0.95,
+					1.05,
+					0.85
+				]
+			},
+			"gas_giant": {
+				"platforms": true,
+				"tint": [
+					1.05,
+					0.95,
+					0.9
+				]
+			},
+			"barren": {
+				"domes": 0.6,
+				"extra": "aire",
+				"tint": [
+					0.95,
+					0.93,
+					0.92
+				]
+			},
+			"asteroids": {
+				"domes": 0.7,
+				"extra": "aire",
+				"tint": [
+					0.9,
+					0.9,
+					0.92
+				]
+			},
+			"gaia": {
+				"green": true,
+				"extra": "jardin",
+				"tint": [
+					1.0,
+					1.05,
+					0.98
+				]
+			},
+			"ecumenopole": {
+				"density": 2.2,
+				"height": 1.6,
+				"tint": [
+					1.0,
+					0.98,
+					0.96
+				]
+			},
+			"continental": {
+				"green": true,
+				"tint": [
+					1.0,
+					1.0,
+					1.0
+				]
+			},
+			"_default": {
+				"tint": [
+					1.0,
+					1.0,
+					1.0
+				]
+			}
+		},
+		"size": {
+			"pop_small": 4,
+			"pop_large": 20,
+			"landmark_pop": 10
+		}
 	}
 }

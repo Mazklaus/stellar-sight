@@ -19,6 +19,7 @@ var _pages := {}
 var _fullscreen: Button
 var _auto_pause: Button
 var _detail: Button
+var _scale_b: Button
 var _scale: Button
 
 
@@ -65,6 +66,13 @@ func _ready() -> void:
 		UiSettings.cycle_replay_detail()
 		sync())
 	drow.add_child(_detail)
+	var brow := _row(display, "Échelle des batailles au sol", "Nombre de figurines par régiment : de l'escarmouche à la grande bataille.")
+	_scale_b = _value_box("", false) as Button
+	_scale_b.tooltip_text = "Clic : Escarmouche, Bataille, Grande bataille"
+	_scale_b.pressed.connect(func() -> void:
+		UiSettings.cycle_battle_scale()
+		sync())
+	brow.add_child(_scale_b)
 	var game := _page("game")
 	_auto_pause = _toggle_row(game, "Pause automatique dans les écrans d'empire",
 			"Le temps s'arrête quand vous consultez l'économie ou vos colonies, et repart à la fermeture.", func() -> void:
@@ -120,6 +128,7 @@ func reset_defaults() -> void:
 	UiSettings.apply()
 	UiSettings.auto_pause_menus = false
 	UiSettings.replay_detail = "normal"
+	UiSettings.battle_scale = "escarmouche"
 	UiSettings.save_settings()
 	sync()
 
@@ -132,6 +141,7 @@ func sync() -> void:
 	_set_toggle(_auto_pause, UiSettings.auto_pause_menus)
 	_scale.text = "%d %%" % roundi(UiSettings.ui_scale * 100.0)
 	_detail.text = String(GameData.battle_visuals().get("detail", {}).get("labels", {}).get(UiSettings.replay_detail, UiSettings.replay_detail))
+	_scale_b.text = String(GameData.battle_visuals().get("ground", {}).get("scale_labels", {}).get(UiSettings.battle_scale, UiSettings.battle_scale))
 
 
 func _page(id: String) -> VBoxContainer:
