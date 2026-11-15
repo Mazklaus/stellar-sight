@@ -54,6 +54,8 @@ static func card(id: String) -> Dictionary:
 			_cards[String(c["id"])] = c
 		for c: Dictionary in GameData.minors().get("cards", []):
 			_cards[String(c["id"])] = c
+		for c: Dictionary in GameData.wonders().get("cards", []):
+			_cards[String(c["id"])] = c
 	return _cards.get(id, {})
 
 
@@ -824,6 +826,7 @@ static func fill(state: GameState, empire_id: int, item: Dictionary, s: String) 
 	out = Crisis.fill(state, out)  # jetons des cartes de crise de fin de partie
 	out = Ancients.fill(state, empire_id, item, out)  # jetons des puissances anciennes
 	out = Minors.fill(state, empire_id, item, out)  # jetons des peuples mineurs
+	out = Wonders.fill(state, empire_id, item, out)  # jetons des merveilles
 	return out
 
 

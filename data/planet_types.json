@@ -28,5 +28,8 @@
 		"weights": {}},
 	"ecumenopole": {"label": "Écuménopole", "base_hab": 100, "sizes": [3, 5], "terraformed": true, "pop_per_size_pct": 200,
 		"pop_yields": {"energy": 3, "materials": 3, "knowledge": 1}, "outpost_yields": {"energy": 2},
+		"weights": {}},
+	"anneau": {"label": "Segment d'anneau", "base_hab": 100, "sizes": [4, 5], "terraformed": true, "pop_per_size_pct": 150,
+		"pop_yields": {"food": 2, "energy": 2, "materials": 2, "knowledge": 1}, "outpost_yields": {"energy": 2},
 		"weights": {}}
 }

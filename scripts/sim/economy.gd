@@ -195,7 +195,7 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 	var bld_upkeep := maxi(0, 100 + int(fx.get("building_upkeep_pct", 0)))
 	for b in colony.buildings:
 		var bd := GameData.building(b)
-		_add(gross, bd.get("yields", {}))
+		_add(gross, Wonders.yields_of(state, colony.planet_id, b) if bd.has("family") else bd.get("yields", {}))
 		if bld_upkeep == 100:
 			_add(upkeep, bd.get("upkeep", {}))
 		elif bld_upkeep > 0:
@@ -398,6 +398,9 @@ static func claim_cost_for(state: GameState, empire_id: int, planet_id: int, kin
 	var cost := claim_cost(kind)
 	if needs_ship(state, empire_id, planet_id):
 		cost = GameData.rules()["claims"][kind].get("ship_cost", cost)
+		var cp := Research.fx_int(state, empire_id, "claim_cost_pct")  # Arche-Semencière
+		if cp != 0:
+			cost = Research.scaled_amounts(cost, cp)
 	return FactionTraits.adjust_claim_cost(state, empire_id, cost, kind)
 
 
@@ -417,6 +420,8 @@ static func building_cost(state: GameState, empire_id: int, building_id: String)
 
 ## Bâtiment débloqué par les technologies de l'empire ?
 static func building_unlocked(state: GameState, empire_id: int, building_id: String) -> bool:
+	if Wonders.is_wonder(building_id):
+		return Wonders.unlocked(state, empire_id, building_id)
 	var b := GameData.building(building_id)
 	if bool(b.get("faiths", false)) and not state.faith_on:
 		return false  # temples : seulement avec les religions
@@ -502,6 +507,8 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 		return "cette planète ne vous appartient pas"
 	if not c.is_established():
 		return "la colonie n'est pas encore fondée"
+	if Wonders.is_wonder(building_id):
+		return Wonders.check_start(state, empire_id, planet_id, building_id)  # grand chantier à part
 	var b := GameData.building(building_id)
 	if b.is_empty() or not b.get("buildable", true):
 		return "bâtiment inconnu : %s" % building_id
@@ -603,7 +610,7 @@ static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet
 ## ni les projets (terraformation).
 static func takes_slot(building_id: String) -> bool:
 	var b := GameData.building(building_id)
-	return not b.has("upgrades") and not b.get("project", false)
+	return not b.has("upgrades") and not b.get("project", false) and not b.has("family")
 
 
 ## Type de planète obtenu par un projet de terraformation ("" s'il ne s'applique pas à ce monde) :
@@ -646,7 +653,7 @@ static func wonders(state: GameState) -> Dictionary:
 			var c: Colony = state.colonies[pid]
 			for b in c.buildings:
 				var bd := GameData.building(b)
-				if bd.get("galaxy_unique", false) or bd.has("score") or bd.has("opinion"):
+				if bd.has("family") or bd.has("score") or bd.has("opinion"):
 					_wonders[b + "#" + str(pid)] = c.owner
 		_wonders_tick = month
 		_wonders_state = state
@@ -656,7 +663,8 @@ static func wonders(state: GameState) -> Dictionary:
 static func building_slots_used(colony: Colony) -> int:
 	var n := 0
 	for b in colony.buildings:
-		if GameData.building(b).get("buildable", true):
+		var bd := GameData.building(b)
+		if bd.get("buildable", true) and not bd.has("family"):
 			n += 1
 	return n
 

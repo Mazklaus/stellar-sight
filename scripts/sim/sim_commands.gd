@@ -468,6 +468,12 @@ static func min_act(player: int, act: String, x := -1, s := "", n := -1) -> Dict
 	return {"type": "min_act", "player": player, "act": act, "x": x, "s": s, "n": n}
 
 
+## Merveilles galactiques (WondersBridges.check_act) : start (s = merveille, x = planète), cancel,
+## contribute (x = colonie qui verse), rush, restore (x = planète en ruine), plans, tribunal, join.
+static func won_act(player: int, act: String, s := "", x := -1, n := -1) -> Dictionary:
+	return {"type": "won_act", "player": player, "act": act, "s": s, "x": x, "n": n}
+
+
 ## Rayonnement culturel (CultureBridges.check_act) : osmose, savoir, ambassade, fermer, troupe.
 static func cul_act(player: int, act: String, x := -1, s := "", n := -1) -> Dictionary:
 	return {"type": "cul_act", "player": player, "act": act, "x": x, "s": s, "n": n}
@@ -706,6 +712,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Ancients.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", -1)))
 		"min_act":
 			return Minors.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", -1)))
+		"won_act":
+			return WondersBridges.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), String(cmd.get("s", "")), int(cmd.get("x", -1)), int(cmd.get("n", -1)))
 		"cul_act":
 			return CultureBridges.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", -1)))
 		"koi_act":
@@ -968,6 +976,10 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			state.add_colony(c)
 			AncientsBridges.on_colonize(state, e.id, pid)  # Monde saint : guerre sainte
 		"build":
+			if Wonders.is_wonder(String(cmd["building"])):
+				var wb_added: Array[Dictionary] = []
+				Wonders.start(state, int(cmd["player"]), int(cmd["planet"]), String(cmd["building"]), wb_added)
+				return
 			var e := state.get_empire(int(cmd["player"]))
 			var c: Colony = state.colonies[int(cmd["planet"])]
 			var b := GameData.building(String(cmd["building"]))
@@ -1077,6 +1089,9 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 		"min_act":
 			var mi_added: Array[Dictionary] = []
 			Minors.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", -1)), mi_added)
+		"won_act":
+			var wo_added: Array[Dictionary] = []
+			WondersBridges.act(state, int(cmd["player"]), String(cmd["act"]), String(cmd.get("s", "")), int(cmd.get("x", -1)), int(cmd.get("n", -1)), wo_added)
 		"cul_act":
 			var cu_added: Array[Dictionary] = []
 			CultureBridges.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")), int(cmd.get("n", -1)), cu_added)

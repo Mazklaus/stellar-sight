@@ -25,15 +25,6 @@ static func late_wishes(ctx: Dictionary, c: Colony) -> Array[String]:
 	if c.is_colony() and AiPlayer._is_main_yard(ctx, c):
 		if Economy.building_unlocked(state, e.id, "musee_galactique") and mat >= 450 and not AiPlayer._empire_has_building(ctx, "musee_galactique"):
 			out.append("musee_galactique")
-		var all := GameData.buildings().keys()
-		all.sort()
-		for bid in all:
-			var bd := GameData.building(String(bid))
-			if int(bd.get("culture_wonder", 0)) <= 0:
-				continue
-			var need := int(bd.get("cost", {}).get("materials", 0)) + 600
-			if Economy.building_unlocked(state, e.id, String(bid)) and mat >= need and not AiPlayer._empire_has_building(ctx, String(bid)):
-				out.append(String(bid))
 	if Economy.building_unlocked(state, e.id, "villegiature") and mat >= 350:
 		var sid := state.galaxy.get_planet(c.planet_id).system_id
 		if Culture.beauty(state, sid) >= 3:

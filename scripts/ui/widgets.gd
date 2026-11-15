@@ -122,6 +122,12 @@ class IconButton:
 				draw_circle(c + Vector2(-s * 0.3, -s * 0.15), s * 0.14, Color(0.05, 0.07, 0.1))
 				draw_circle(c + Vector2(s * 0.3, -s * 0.15), s * 0.14, Color(0.05, 0.07, 0.1))
 				draw_arc(c + Vector2(0, s * 0.12), s * 0.38, PI * 0.15, PI * 0.85, 12, Color(0.05, 0.07, 0.1), 1.6, true)
+			"wonders":
+				# Une pyramide à degrés sous une étoile : les grands œuvres.
+				for k in 3:
+					var w := s * (1.2 - 0.38 * k)
+					draw_rect(Rect2(c + Vector2(-w, s * (0.75 - 0.5 * k)), Vector2(w * 2.0, s * 0.42)), col)
+				draw_circle(c + Vector2(0, -s * 0.95), s * 0.22, col)
 			"amphictyony":
 				# Un fronton à colonnes : la tribune de l'Amphictyonie.
 				draw_colored_polygon(PackedVector2Array([c + Vector2(-s * 1.2, -s * 0.45), c + Vector2(0, -s * 1.15), c + Vector2(s * 1.2, -s * 0.45)]), col)

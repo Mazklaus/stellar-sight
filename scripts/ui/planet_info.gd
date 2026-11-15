@@ -131,6 +131,10 @@ static func colony_lines(state: GameState, p: Planet, c: Colony, player: int) ->
 		lines.append("Culte du Je : %d drones dissidents" % int(FaithWars.je(state, c.planet_id)["n"]))
 	if c.construction != "":
 		lines.append("Chantier : %s (%d j)" % [GameData.building(c.construction).get("label", c.construction), c.construction_days])
+	if not state.wonders.is_empty():
+		for pair in Wonders.builds_by(state, player):
+			if int(pair[1]["p"]) == c.planet_id:
+				lines.append("Grand chantier : %s (%d %%)" % [Wonders.label(String(pair[0])), Wonders.pct(pair[1])])
 	if c.ship_build != "":
 		lines.append("Chantier spatial : %s (%d j)" % [GameData.ship(c.ship_build).get("label", c.ship_build), c.ship_days])
 	if c.owner == player:

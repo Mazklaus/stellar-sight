@@ -123,6 +123,9 @@ static func unlocks(faction: Dictionary, tid: String) -> PackedStringArray:
 	for bid in GameData.buildings():
 		if GameData.building(bid).get("requires_tech", []).has(tid):
 			out.append(String(GameData.building(bid).get("label", bid)))
+	for wid in Wonders.all_ids():
+		if Wonders.def(wid).get("requires_tech", []).has(tid):
+			out.append("%s (merveille)" % Wonders.label(wid))
 	for sid in FactionTraits.ship_ids_for(String(faction.get("id", ""))):
 		if GameData.ship(sid).get("requires_tech", []).has(tid):
 			out.append(String(GameData.ship(sid).get("label", sid)))
@@ -900,6 +903,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var mfx := Minors.effects(state, empire_id)
 			_merge(base, mfx)
 			_merge(exalted, mfx)
+		# Merveilles tenues (voir Wonders) : même empreinte relic_rev.
+		if not state.wonders.is_empty():
+			var wfx := Wonders.effects(state, empire_id)
+			_merge(base, wfx)
+			_merge(exalted, wfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

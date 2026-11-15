@@ -367,7 +367,10 @@ static func wonder_value(state: GameState, eid: int, bid: String) -> int:
 	var b := GameData.building(bid)
 	var v := int(b.get("culture_wonder", 0))
 	if v <= 0:
-		return 0
+		# Toute merveille rayonne un peu (prop. 17 des merveilles) : base + 1 par ère de la merveille.
+		if not Wonders.is_wonder(bid):
+			return 0
+		v = Wonders.r_int("radiance_base") + int(b.get("era", 1)) * Wonders.r_int("radiance_per_era")
 	v += maxi(0, Research.current_era(state, eid) - int(b.get("era", 1))) * int(data()["sources"]["wonder_era_bonus"])
 	return v + tal(state, eid, "wonder_bonus")
 
@@ -663,7 +666,7 @@ static func _heritage(state: GameState, ids: Array[int]) -> void:
 			var c: Colony = state.colonies[pid]
 			if c.owner == eid:
 				for bid in c.buildings:
-					if int(GameData.building(bid).get("culture_wonder", 0)) > 0:
+					if int(GameData.building(bid).get("culture_wonder", 0)) > 0 or Wonders.is_wonder(bid):
 						n += int(hd["per_wonder"])
 		@warning_ignore("integer_division")
 		n = n * maxi(0, 100 + tal(state, eid, "heritage_pct") + CultureBridges.law_pct(state, eid, "heritage_pct")) / 100

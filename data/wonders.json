@@ -1,0 +1,1610 @@
+{
+	"_doc": "Merveilles galactiques (étude du 2026-11-15, 30 propositions validées le 2026-11-16). Catalogue ouvert : chaque entrée de « wonders » est une merveille (famille, ère, déblocage, site, coût, durée, étapes, effets, texte et citation du chroniqueur). Les effets « fx » s'ajoutent à ceux des technologies du propriétaire (Research.effects) ; « special » nomme un effet codé dans Wonders/WondersBridges. Une merveille achevée entre dans les bâtiments de sa colonie (score, opinion, Rayonnement, changement de mains) ; ses chantiers sont dans state.wonders. Tous les nombres sont des valeurs de départ (équilibrage reporté).",
+	"_sources": "Course et dédommagement de 50 % : Civilization VI (civilization.fandom.com/wiki/Wonder_(Civ6)) ; course visible et ennemi qui bloque le chantier : Civilization VII (/wiki/Wonder_(Civ7)) ; projet partagé et merveilles pillées : Humankind (humankind.fandom.com/wiki/Cultural_Wonder) ; mégastructures à étapes, une à la fois, ruines : Stellaris (stellaris.fandom.com/wiki/Megastructures) ; victoire Merveille et haut fait Bâtisseur : Endless Space 2 (endless-space-2.fandom.com/wiki/Victory_Conditions, /Builder_of_Wonders) ; merveilles d'alignement : Galactic Civilizations II (galciv.fandom.com/wiki/Galactic_Achievements) ; tirage par partie : Old World (designer-notes.com). Étude : https://claude.ai/artifact/8uD2tMy1D1Mg3T1w15YumM",
+	"modes": [
+		{
+			"id": "toutes",
+			"label": "Toutes",
+			"text": "Tout le catalogue est en jeu."
+		},
+		{
+			"id": "tirage",
+			"label": "Tirage",
+			"text": "Environ 60 % du catalogue, tiré au début de la partie."
+		},
+		{
+			"id": "aucune",
+			"label": "Aucune",
+			"text": "Pas de merveilles ni de mégastructures."
+		}
+	],
+	"default_mode": "toutes",
+	"draw_pct": 60,
+	"families": {
+		"galactique": "Merveille galactique",
+		"mega": "Mégastructure",
+		"registre": "Merveille de registre",
+		"credo": "Merveille de credo",
+		"collective": "Œuvre collective",
+		"oeuvre": "Grand Œuvre"
+	},
+	"rules": {
+		"advance_pct": 20,
+		"refund_pct": 50,
+		"carry_days": 90,
+		"max_builds": 1,
+		"contrib_jumps": 3,
+		"contrib_pct": 5,
+		"contrib_rate": 2,
+		"rush_from_pct": 75,
+		"rush_influence_per_pct": 3,
+		"governor_pct": 10,
+		"trait_pct": {
+			"maitre_oeuvre": 20,
+			"architecte": 30
+		},
+		"own_registre_speed": 130,
+		"quarter": 25,
+		"warn_gap": 25,
+		"radiance_base": 2,
+		"radiance_per_era": 1,
+		"plans_cost_pct": -25,
+		"sabotage_days": 60,
+		"ruin_days": 180,
+		"oeuvre_step_pct": 50,
+		"oeuvre_by_size": [
+			[
+				0,
+				2
+			],
+			[
+				100,
+				3
+			],
+			[
+				200,
+				4
+			],
+			[
+				300,
+				5
+			]
+		],
+		"restore_pct": 60,
+		"ruins_by_size": [
+			[
+				0,
+				1
+			],
+			[
+				150,
+				2
+			],
+			[
+				300,
+				3
+			]
+		],
+		"deed_count": 3,
+		"deed_opinion": 10,
+		"tribunal_cooldown": 3600,
+		"tribunal_delay": 360,
+		"toll_influence": 1,
+		"pirate_tribute": 10,
+		"bulwark_fleet": 6
+	},
+	"cards": [
+		{
+			"id": "wonder_done",
+			"title": "{wonder}",
+			"text": "{wonder_text}\n\n« {wonder_quote} »\n\n{wonder_effect}",
+			"trigger": "wonder",
+			"art": "wonder",
+			"choices": [
+				{
+					"label": "Que la galaxie admire !",
+					"fx": []
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "wonder_lost",
+			"title": "{wonder} : la course est perdue",
+			"text": "{rival} a achevé {wonder} avant nous. Nos ouvriers rangent les échafaudages en maugréant ; une partie des fonds est récupérée.\n\n{wonder_refund}",
+			"trigger": "wonder",
+			"art": "wonder",
+			"choices": [
+				{
+					"label": "Prendre note",
+					"fx": []
+				}
+			],
+			"default": 0
+		}
+	],
+	"wonders": {
+		"bourse_galactique": {
+			"requires_tech": [
+				"bourses"
+			],
+			"label": "Bourse galactique",
+			"cost": {
+				"materials": 500,
+				"energy": 250,
+				"influence": 40
+			},
+			"days": 240,
+			"score": 20,
+			"text": "Merveille unique dans la galaxie : le premier empire qui la bâtit fonde le marché commun. Les prix du marché deviennent les mêmes pour tous (l'achat de l'un renchérit pour tous) ; l'hôte paie 10 % de frais en moins et gagne de l'influence sur les échanges des autres. On y achète aussi des vaisseaux d'occasion. Elle change de mains avec la planète.",
+			"yields": {
+				"influence": 3
+			},
+			"upkeep": {},
+			"family": "galactique",
+			"era": 3,
+			"site": {
+				"building": "comptoir"
+			},
+			"quote": "Tout se vend, même la confiance. Surtout la confiance."
+		},
+		"bourse_mille_soleils": {
+			"requires_tech": [
+				"abondance"
+			],
+			"label": "Bourse des Mille Soleils",
+			"cost": {
+				"materials": 2000,
+				"energy": 800,
+				"crystals": 60
+			},
+			"days": 480,
+			"score": 60,
+			"text": "Merveille unique dans la galaxie : le premier empire qui la lance est le seul à l'avoir. +50 énergie et +12 influence par mois, et des points de score. Elle change de mains avec la planète.",
+			"yields": {
+				"energy": 50,
+				"influence": 12
+			},
+			"upkeep": {},
+			"family": "galactique",
+			"era": 5,
+			"site": {
+				"capital": true
+			},
+			"quote": "Ici, on cote les étoiles à la seconde."
+		},
+		"assemblee": {
+			"requires_tech": [
+				"assemblee"
+			],
+			"label": "Assemblée interstellaire",
+			"cost": {
+				"materials": 1500,
+				"energy": 300,
+				"influence": 200
+			},
+			"days": 480,
+			"score": 50,
+			"opinion": 20,
+			"text": "Merveille unique dans la galaxie : +8 influence par mois, +20 d'opinion chez tous les empires envers son propriétaire, et des points de score. Elle change de mains avec la planète.",
+			"yields": {
+				"influence": 8
+			},
+			"upkeep": {
+				"energy": 4
+			},
+			"family": "galactique",
+			"era": 5,
+			"site": {
+				"capital": true
+			},
+			"quote": "Mille voix, une salle, et pas une seule horloge à l'heure."
+		},
+		"bibliotheque_mondes": {
+			"requires_tech": [
+				"arts_holographiques"
+			],
+			"label": "Bibliothèque des Mille Mondes",
+			"culture": true,
+			"culture_wonder": 4,
+			"era": 2,
+			"cost": {
+				"materials": 700,
+				"energy": 200,
+				"influence": 60
+			},
+			"days": 300,
+			"score": 20,
+			"text": "Merveille culturelle unique dans la galaxie : Rayonnement +4, +1 par ère franchie depuis l'ère II ; Patrimoine accru. Savoir +4.",
+			"yields": {
+				"knowledge": 4
+			},
+			"upkeep": {
+				"energy": 3
+			},
+			"family": "galactique",
+			"site": {
+				"min_pop": 8
+			}
+		},
+		"opera_orbital": {
+			"requires_tech": [
+				"chancelleries"
+			],
+			"label": "Grand Opéra orbital",
+			"culture": true,
+			"culture_wonder": 4,
+			"era": 2,
+			"cost": {
+				"materials": 700,
+				"energy": 250,
+				"influence": 60
+			},
+			"days": 300,
+			"score": 20,
+			"text": "Merveille culturelle unique dans la galaxie : Rayonnement +4, +1 par ère franchie depuis l'ère II ; Patrimoine accru. Influence +2.",
+			"yields": {
+				"influence": 2
+			},
+			"upkeep": {
+				"energy": 3
+			},
+			"family": "galactique",
+			"site": {
+				"min_size": 3
+			}
+		},
+		"jardins_helion": {
+			"requires_tech": [
+				"habitats"
+			],
+			"label": "Jardins suspendus d'Hélion",
+			"culture": true,
+			"culture_wonder": 5,
+			"era": 3,
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"text": "Merveille culturelle unique dans la galaxie : Rayonnement +5, +1 par ère franchie depuis l'ère III ; Patrimoine accru. Nourriture +6.",
+			"yields": {
+				"food": 6
+			},
+			"upkeep": {
+				"energy": 3
+			},
+			"family": "galactique",
+			"site": {
+				"planet": [
+					"continental",
+					"ocean",
+					"gaia",
+					"arctic",
+					"desert"
+				]
+			}
+		},
+		"colisee_etoiles": {
+			"requires_tech": [
+				"propagande"
+			],
+			"label": "Colisée des Étoiles",
+			"culture": true,
+			"culture_wonder": 5,
+			"era": 3,
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"text": "Merveille culturelle unique dans la galaxie : Rayonnement +5, +1 par ère franchie depuis l'ère III ; Patrimoine accru. Les jeux apaisent : +5 stabilité dans son système.",
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"family": "galactique",
+			"site": {
+				"min_pop": 10
+			}
+		},
+		"holotheatre": {
+			"requires_tech": [
+				"holovision"
+			],
+			"label": "Holothéâtre éternel",
+			"culture": true,
+			"culture_wonder": 5,
+			"era": 3,
+			"cost": {
+				"materials": 900,
+				"energy": 350,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"text": "Merveille culturelle unique dans la galaxie : Rayonnement +5, +1 par ère franchie depuis l'ère III ; Patrimoine accru. Énergie +4.",
+			"yields": {
+				"energy": 4
+			},
+			"upkeep": {
+				"energy": 2
+			},
+			"family": "galactique",
+			"site": {
+				"crossroads": 3
+			}
+		},
+		"archive_premier_chant": {
+			"requires_tech": [
+				"ambassades"
+			],
+			"label": "Archive du Premier Chant",
+			"culture": true,
+			"culture_wonder": 6,
+			"era": 4,
+			"cost": {
+				"materials": 1100,
+				"energy": 400,
+				"influence": 100
+			},
+			"days": 420,
+			"score": 30,
+			"text": "Merveille culturelle unique dans la galaxie : Rayonnement +6, +1 par ère franchie depuis l'ère IV ; Patrimoine accru. Influence +3.",
+			"yields": {
+				"influence": 3
+			},
+			"upkeep": {
+				"energy": 3
+			},
+			"family": "galactique",
+			"site": {
+				"capital": true
+			}
+		},
+		"phare_civilisations": {
+			"requires_tech": [
+				"reseau_mondes"
+			],
+			"label": "Phare des Civilisations",
+			"culture": true,
+			"culture_wonder": 6,
+			"era": 4,
+			"cost": {
+				"materials": 1100,
+				"energy": 400,
+				"influence": 100
+			},
+			"days": 420,
+			"score": 30,
+			"text": "Merveille culturelle unique dans la galaxie : Rayonnement +6, +1 par ère franchie depuis l'ère IV ; Patrimoine accru. Savoir +5.",
+			"yields": {
+				"knowledge": 5
+			},
+			"upkeep": {
+				"energy": 3
+			},
+			"family": "galactique",
+			"site": {
+				"border": true
+			}
+		},
+		"pantheon_galactique": {
+			"requires_tech": [
+				"mondes_jardins"
+			],
+			"label": "Panthéon galactique",
+			"culture": true,
+			"culture_wonder": 8,
+			"era": 5,
+			"cost": {
+				"materials": 1400,
+				"energy": 500,
+				"influence": 150
+			},
+			"days": 480,
+			"score": 40,
+			"text": "Merveille culturelle unique dans la galaxie : Rayonnement +8 ; Patrimoine accru. Toutes les cultures y ont leur autel : +10 d'opinion chez tous les empires envers son propriétaire.",
+			"opinion": 10,
+			"yields": {
+				"influence": 3
+			},
+			"upkeep": {
+				"energy": 4
+			},
+			"family": "galactique",
+			"site": {
+				"capital": true
+			},
+			"quote": "Tous les dieux ont leur autel ; certains se plaignent de la vue."
+		},
+		"arche_semenciere": {
+			"label": "Arche-Semencière",
+			"family": "galactique",
+			"era": 1,
+			"requires_tech": [
+				"administration"
+			],
+			"site": {
+				"capital": true
+			},
+			"cost": {
+				"materials": 400,
+				"energy": 150,
+				"influence": 30
+			},
+			"days": 200,
+			"score": 15,
+			"yields": {},
+			"upkeep": {
+				"energy": 2
+			},
+			"fx": {
+				"claim_cost_pct": -30,
+				"colony_start_pop": 1
+			},
+			"text": "Les vaisseaux colons coûtent 30 % de moins et les nouvelles colonies naissent avec un habitant de plus.",
+			"quote": "Dans ses soutes, mille mondes attendent qu'on leur dise où pousser."
+		},
+		"cartotheque_vents": {
+			"label": "Cartothèque des Vents stellaires",
+			"family": "galactique",
+			"era": 1,
+			"requires_tech": [
+				"capteurs"
+			],
+			"site": {
+				"star": [
+					"blue_giant"
+				]
+			},
+			"cost": {
+				"materials": 400,
+				"energy": 150,
+				"influence": 30
+			},
+			"days": 200,
+			"score": 15,
+			"yields": {},
+			"upkeep": {
+				"energy": 2
+			},
+			"fx": {
+				"curio_detect": 2
+			},
+			"special": "reveal",
+			"text": "À l'achèvement, révèle tous les systèmes à 6 sauts ou moins ; ensuite, les curiosités se repèrent mieux (+2 détection).",
+			"quote": "Les cartographes jurent que les vents stellaires soufflent. Personne n'ose les contredire."
+		},
+		"phare_premiere_route": {
+			"label": "Phare de la Première Route",
+			"family": "galactique",
+			"era": 1,
+			"requires_tech": [
+				"cales_rapides"
+			],
+			"site": {
+				"building": "comptoir"
+			},
+			"cost": {
+				"materials": 400,
+				"energy": 150,
+				"influence": 30
+			},
+			"days": 200,
+			"score": 15,
+			"yields": {},
+			"upkeep": {
+				"energy": 2
+			},
+			"fx": {
+				"trade_routes": 1,
+				"route_pct": 15
+			},
+			"text": "+1 route commerciale ; vos routes rapportent 15 % de plus.",
+			"quote": "On l'allume pour les marchands ; les pirates en profitent aussi."
+		},
+		"grand_caravanserail": {
+			"label": "Grand Caravansérail",
+			"family": "galactique",
+			"era": 2,
+			"requires_tech": [
+				"logistique"
+			],
+			"site": {
+				"crossroads": 4
+			},
+			"cost": {
+				"materials": 700,
+				"energy": 250,
+				"influence": 60
+			},
+			"days": 300,
+			"score": 20,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"special": "toll",
+			"text": "Chaque route commerciale étrangère qui traverse le système vous paie un péage : +1 influence par mois et par route.",
+			"quote": "Tout le monde s'arrête ici. Personne ne repart avec ce qu'il avait en arrivant."
+		},
+		"observatoire_horizon": {
+			"label": "Observatoire de l'Horizon",
+			"family": "galactique",
+			"era": 2,
+			"requires_tech": [
+				"senseurs_gravitationnels"
+			],
+			"site": {
+				"star": [
+					"black_hole"
+				]
+			},
+			"cost": {
+				"materials": 700,
+				"energy": 250,
+				"influence": 60
+			},
+			"days": 300,
+			"score": 20,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"claim_vision": 1
+			},
+			"special": "eureka",
+			"text": "À chaque ère franchie, une technologie de cette ère reçoit son eurêka (coût réduit) ; votre vision s'étend d'un saut.",
+			"quote": "On y regarde le bord du monde. Le bord du monde regarde en retour."
+		},
+		"toile_silence": {
+			"label": "Toile du Silence",
+			"family": "galactique",
+			"era": 2,
+			"requires_tech": [
+				"detecteurs_abysse"
+			],
+			"site": {
+				"terrain": [
+					"nebuleuse",
+					"nebuleuse_ionisee"
+				]
+			},
+			"cost": {
+				"materials": 700,
+				"energy": 250,
+				"influence": 60
+			},
+			"days": 300,
+			"score": 20,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"spy_cells": 1
+			},
+			"special": "sees_all",
+			"text": "+1 réseau d'espionnage ; vous voyez tous les chantiers de merveille de la galaxie et leur avancement.",
+			"quote": "Dans la nébuleuse, même les secrets ont de l'écho."
+		},
+		"champ_mars": {
+			"label": "Champ de Mars orbital",
+			"family": "galactique",
+			"era": 2,
+			"requires_tech": [
+				"conscription_planetaire"
+			],
+			"site": {
+				"min_size": 3
+			},
+			"cost": {
+				"materials": 700,
+				"energy": 250,
+				"influence": 60
+			},
+			"days": 300,
+			"score": 20,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"recruit_days_pct": -30,
+				"ground_damage_pct": 10
+			},
+			"text": "Les régiments se recrutent 30 % plus vite et frappent 10 % plus fort.",
+			"quote": "On y défile en apesanteur. Le pas cadencé y est un art de haute précision."
+		},
+		"forge_etoile": {
+			"label": "Forge-Étoile",
+			"family": "galactique",
+			"era": 3,
+			"requires_tech": [
+				"arsenaux"
+			],
+			"site": {
+				"star": [
+					"blue_giant"
+				]
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"ship_cost_pct": -10,
+				"ship_days_pct": -15
+			},
+			"text": "Les vaisseaux coûtent 10 % de moins et sortent 15 % plus vite des chantiers.",
+			"quote": "Elle boit la lumière d'une géante et recrache des coques."
+		},
+		"entrepot_confins": {
+			"label": "Entrepôt des Confins",
+			"family": "galactique",
+			"era": 3,
+			"requires_tech": [
+				"soutes_profondes"
+			],
+			"site": {
+				"border": true
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"supply_range": 2
+			},
+			"text": "Portée de ravitaillement +2 sauts dans tout l'empire.",
+			"quote": "Aux confins, un entrepôt vaut une flotte. Deux entrepôts valent une guerre."
+		},
+		"brise_tempetes": {
+			"label": "Brise-Tempêtes",
+			"family": "galactique",
+			"era": 3,
+			"requires_tech": [
+				"ia_bord"
+			],
+			"site": {
+				"storm_or_terrain": true
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"terrain_transit_pct": -50
+			},
+			"special": "calm",
+			"text": "Plus aucune tempête à 5 sauts ou moins ; vos flottes traversent les terrains difficiles moitié plus vite.",
+			"quote": "Les tempêtes contournent la tour. On ne sait pas si c'est la physique ou la politesse."
+		},
+		"arche_exiles": {
+			"label": "Arche des Exilés",
+			"family": "galactique",
+			"era": 3,
+			"requires_tech": [
+				"cites_flottantes"
+			],
+			"site": {
+				"planet": [
+					"gaia"
+				],
+				"or_building": "habitats"
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"migration": 1,
+				"stability": 1
+			},
+			"special": "refuge",
+			"text": "Les réfugiés et migrants choisissent vos mondes en premier ; +1 stabilité dans tout l'empire.",
+			"quote": "Ici, personne n'est étranger plus de trois jours."
+		},
+		"rade_franche": {
+			"label": "Rade franche",
+			"family": "galactique",
+			"era": 3,
+			"requires_tech": [
+				"abordage"
+			],
+			"site": {
+				"terrain": [
+					"asteroides"
+				]
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"special": "pirate_peace",
+			"text": "Les pirates épargnent vos flottes et vos routes, et vous versent un tribut de 10 énergie par repaire chaque mois.",
+			"quote": "Entre deux abordages, même un pirate a besoin d'un bon mouillage."
+		},
+		"tribunal_etoiles": {
+			"label": "Tribunal des Étoiles",
+			"family": "galactique",
+			"era": 3,
+			"requires_tech": [
+				"administration2"
+			],
+			"site": {
+				"capital": true,
+				"amph": true
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"special": "tribunal",
+			"text": "+2 voix à l'Amphictyonie ; une fois par décennie, vous pouvez retarder d'un an la prochaine séance.",
+			"quote": "La justice est aveugle. Ici, elle est aussi très patiente."
+		},
+		"menagerie_celeste": {
+			"label": "Ménagerie céleste",
+			"family": "galactique",
+			"era": 3,
+			"requires_tech": [
+				"genetique"
+			],
+			"site": {
+				"nest": true
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"damage_pct": 5
+			},
+			"special": "tamer",
+			"text": "Les créatures spatiales n'attaquent plus vos flottes ni vos colonies ; vos amiraux connaissent leurs points faibles (+10 % de dégâts).",
+			"quote": "Les gardiens appellent ça une prison. Les créatures appellent ça le buffet."
+		},
+		"academie_amiraute": {
+			"label": "Académie de l'Amirauté",
+			"family": "galactique",
+			"era": 4,
+			"requires_tech": [
+				"logistique_campagne"
+			],
+			"site": {
+				"building": "arsenal"
+			},
+			"cost": {
+				"materials": 1100,
+				"energy": 400,
+				"influence": 100
+			},
+			"days": 420,
+			"score": 30,
+			"yields": {},
+			"upkeep": {
+				"energy": 4
+			},
+			"fx": {
+				"hero_cap": 1
+			},
+			"special": "veterans",
+			"text": "+1 place de héros ; les héros recrutés commencent avec un niveau de plus.",
+			"quote": "On y apprend à perdre des batailles. Pour gagner les guerres."
+		},
+		"palais_doleances": {
+			"label": "Palais des Doléances",
+			"family": "galactique",
+			"era": 4,
+			"requires_tech": [
+				"prefectures"
+			],
+			"site": {
+				"capital": true
+			},
+			"cost": {
+				"materials": 1100,
+				"energy": 400,
+				"influence": 100
+			},
+			"days": 420,
+			"score": 30,
+			"yields": {},
+			"upkeep": {
+				"energy": 4
+			},
+			"fx": {
+				"stability": 1
+			},
+			"special": "grievances",
+			"text": "Les systèmes non représentés au pouvoir perdent moitié moins de stabilité ; +1 stabilité.",
+			"quote": "Chaque plainte y est entendue, classée et archivée. Parfois même lue."
+		},
+		"moteur_babel": {
+			"label": "Moteur de Babel",
+			"family": "galactique",
+			"era": 4,
+			"requires_tech": [
+				"conversion_culturelle"
+			],
+			"site": {
+				"min_species": 2
+			},
+			"cost": {
+				"materials": 1100,
+				"energy": 400,
+				"influence": 100
+			},
+			"days": 420,
+			"score": 30,
+			"yields": {},
+			"upkeep": {
+				"energy": 4
+			},
+			"fx": {
+				"integration_pct": 100,
+				"opinion_all": 10
+			},
+			"text": "Les peuples mineurs s'intègrent deux fois plus vite ; +10 d'opinion chez tous les empires rencontrés.",
+			"quote": "Il traduit tout. Les insultes aussi, hélas."
+		},
+		"rempart_aube": {
+			"label": "Rempart de l'Aube",
+			"family": "galactique",
+			"era": 5,
+			"requires_tech": [
+				"puits_gravite"
+			],
+			"site": {
+				"capital": true
+			},
+			"cost": {
+				"materials": 1400,
+				"energy": 500,
+				"influence": 150
+			},
+			"days": 480,
+			"score": 40,
+			"yields": {},
+			"upkeep": {
+				"energy": 4
+			},
+			"special": "bulwark",
+			"collective": "crisis",
+			"text": "Pendant une crise de fin de partie : une flotte de défense se lève à l'achèvement ou au début de la crise, et la crise vous vise en dernier. Peut être bâti à plusieurs par le Front commun.",
+			"quote": "On l'a bâti pour un ennemi qu'on espérait ne jamais voir."
+		},
+		"miroir_anciens": {
+			"label": "Miroir des Anciens",
+			"family": "galactique",
+			"era": 5,
+			"requires_tech": [
+				"symbiose"
+			],
+			"site": {
+				"ancient_near": 4
+			},
+			"cost": {
+				"materials": 1400,
+				"energy": 500,
+				"influence": 150
+			},
+			"days": 480,
+			"score": 40,
+			"yields": {},
+			"upkeep": {
+				"energy": 4
+			},
+			"special": "ancient_friend",
+			"text": "Les puissances anciennes ne s'irritent plus contre vous ; à leur Éveil, elles vous comptent parmi leurs amis.",
+			"quote": "Ils s'y regardent et, pour une fois, s'y trouvent jeunes."
+		},
+		"oeil_demiurge": {
+			"label": "Œil du Démiurge",
+			"family": "galactique",
+			"era": 5,
+			"requires_tech": [
+				"etoiles_captives"
+			],
+			"site": {
+				"star": [
+					"black_hole"
+				]
+			},
+			"cost": {
+				"materials": 1400,
+				"energy": 500,
+				"influence": 150
+			},
+			"days": 480,
+			"score": 40,
+			"yields": {},
+			"upkeep": {
+				"energy": 4
+			},
+			"special": "all_seeing",
+			"text": "Vous voyez toute la galaxie.",
+			"quote": "Il voit tout. On lui a demandé de fermer les yeux ; il n'en a pas."
+		},
+		"collecteur_stellaire": {
+			"label": "Sphère de Dyson",
+			"family": "mega",
+			"era": 5,
+			"requires_tech": [
+				"collecteur_stellaire"
+			],
+			"site": {
+				"outpost_ok": true
+			},
+			"cost": {
+				"materials": 1200,
+				"energy": 200,
+				"crystals": 40
+			},
+			"days": 360,
+			"score": 30,
+			"upkeep": {},
+			"stages": [
+				{
+					"label": "Essaim de miroirs",
+					"pct": 30,
+					"yields": {
+						"energy": 20
+					}
+				},
+				{
+					"label": "Anneaux collecteurs",
+					"pct": 30,
+					"yields": {
+						"energy": 40
+					}
+				},
+				{
+					"label": "Sphère achevée",
+					"pct": 40,
+					"yields": {
+						"energy": 80
+					}
+				}
+			],
+			"yields": {
+				"energy": 80
+			},
+			"text": "Mégastructure, une par empire (colonie ou avant-poste), en trois étapes : +20, +40 puis +80 énergie par mois.",
+			"quote": "Une étoile emmaillotée. Elle n'a pas été consultée."
+		},
+		"nexus_savoir": {
+			"label": "Nexus du savoir",
+			"family": "mega",
+			"era": 5,
+			"requires_tech": [
+				"nexus_savoir"
+			],
+			"site": {},
+			"cost": {
+				"materials": 1100,
+				"energy": 300
+			},
+			"days": 360,
+			"score": 30,
+			"upkeep": {
+				"energy": 5
+			},
+			"stages": [
+				{
+					"label": "Noyau de calcul",
+					"pct": 30,
+					"yields": {
+						"knowledge": 15
+					}
+				},
+				{
+					"label": "Couronnes savantes",
+					"pct": 30,
+					"yields": {
+						"knowledge": 25
+					}
+				},
+				{
+					"label": "Nexus achevé",
+					"pct": 40,
+					"yields": {
+						"knowledge": 40
+					}
+				}
+			],
+			"yields": {
+				"knowledge": 40
+			},
+			"text": "Mégastructure, une par empire, en trois étapes : +15, +25 puis +40 Savoir par mois.",
+			"quote": "Une ville qui pense. Elle pense surtout que vous devriez l'agrandir."
+		},
+		"monde_anneau": {
+			"label": "Monde-anneau",
+			"family": "mega",
+			"era": 5,
+			"requires_tech": [
+				"spatioports"
+			],
+			"site": {
+				"no_habitable": true
+			},
+			"cost": {
+				"materials": 2400,
+				"energy": 800,
+				"influence": 120
+			},
+			"days": 720,
+			"score": 50,
+			"upkeep": {
+				"energy": 6
+			},
+			"stages": [
+				{
+					"label": "Ossature",
+					"pct": 25,
+					"ring": 1
+				},
+				{
+					"label": "Premier segment",
+					"pct": 25,
+					"ring": 1
+				},
+				{
+					"label": "Deuxième segment",
+					"pct": 25,
+					"ring": 1
+				},
+				{
+					"label": "Anneau fermé",
+					"pct": 25,
+					"ring": 1
+				}
+			],
+			"yields": {},
+			"text": "Mégastructure, une par empire, autour d'une étoile sans monde habitable, en quatre étapes : chaque étape change une planète du système en segment d'anneau, habitable à 100 % pour tous les peuples.",
+			"quote": "Une planète, ce n'était pas assez. Alors on a déroulé le sol."
+		},
+		"porte_stellaire": {
+			"label": "Porte stellaire",
+			"family": "mega",
+			"era": 4,
+			"requires_tech": [
+				"saut_precision"
+			],
+			"site": {
+				"outpost_ok": true
+			},
+			"repeat": true,
+			"cost": {
+				"materials": 800,
+				"energy": 300
+			},
+			"days": 360,
+			"score": 10,
+			"upkeep": {
+				"energy": 3
+			},
+			"stages": [
+				{
+					"label": "Chantier de la porte",
+					"pct": 40
+				},
+				{
+					"label": "Porte ouverte",
+					"pct": 60,
+					"gate": true
+				}
+			],
+			"yields": {},
+			"text": "Mégastructure qu'un empire peut bâtir plusieurs fois (une par système) : vos flottes sautent d'une porte à l'autre en un jour, et passent aussi par celles des empires qui vous accordent le droit de passage.",
+			"quote": "Le voyage dure un battement de cils. La paperasse aux deux bouts, beaucoup plus."
+		},
+		"citadelle_bannieres": {
+			"label": "Citadelle des Mille Bannières",
+			"family": "registre",
+			"era": 2,
+			"requires_tech": [
+				"bastions"
+			],
+			"site": {
+				"capital": true
+			},
+			"cost": {
+				"materials": 700,
+				"energy": 250,
+				"influence": 60
+			},
+			"days": 300,
+			"score": 20,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"hero_cap": 1,
+				"fief_influence": 2
+			},
+			"registre": "Médiéval spatial",
+			"text": "+1 place de héros ; chaque fief rapporte +2 influence.",
+			"quote": "Mille bannières, mille serments, une seule clé."
+		},
+		"bastion_fer": {
+			"label": "Bastion de Fer éternel",
+			"family": "registre",
+			"era": 2,
+			"requires_tech": [
+				"defense_planetaire"
+			],
+			"site": {
+				"building": "bastion",
+				"or_building": "citadelle"
+			},
+			"cost": {
+				"materials": 700,
+				"energy": 250,
+				"influence": 60
+			},
+			"days": 300,
+			"score": 20,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"garrison_pct": 50,
+				"fort_pct": 25,
+				"ground_damage_pct": 10
+			},
+			"registre": "Grimdark",
+			"text": "Garnisons +50 %, fortifications +25 %, régiments +10 % de dégâts.",
+			"quote": "Il n'a jamais été pris. Il a été assiégé quarante fois, par principe."
+		},
+		"senat_etoiles": {
+			"label": "Sénat des Étoiles libres",
+			"family": "registre",
+			"era": 3,
+			"requires_tech": [
+				"chancelleries"
+			],
+			"site": {
+				"capital": true
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"opinion_all": 10
+			},
+			"special": "amph_voice",
+			"registre": "Space opera héroïque",
+			"text": "+1 voix à l'Amphictyonie (pondération) et +10 d'opinion chez tous les empires rencontrés.",
+			"quote": "Libres de parler. Libres, surtout, de parler longtemps."
+		},
+		"bassin_couvee": {
+			"label": "Bassin de la Mère-Couvée",
+			"family": "registre",
+			"era": 2,
+			"requires_tech": [
+				"mondes_toxiques"
+			],
+			"site": {
+				"planet": [
+					"toxic",
+					"ocean"
+				]
+			},
+			"cost": {
+				"materials": 700,
+				"energy": 250,
+				"influence": 60
+			},
+			"days": 300,
+			"score": 20,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"growth_pct": 25,
+				"recruit_days_pct": -30
+			},
+			"registre": "Horreur biologique",
+			"text": "Croissance +25 % dans tout l'empire ; les régiments se recrutent 30 % plus vite.",
+			"quote": "Elle couve. Personne ne veut savoir quoi."
+		},
+		"calculateur_raison": {
+			"label": "Calculateur d'Ultime Raison",
+			"family": "registre",
+			"era": 3,
+			"requires_tech": [
+				"reseaux_savants"
+			],
+			"site": {
+				"planet": [
+					"arctic",
+					"barren"
+				]
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"special": "free_tech",
+			"registre": "Classique / hard SF",
+			"text": "À l'achèvement puis à chaque ère franchie : la technologie disponible la moins chère est apprise d'office.",
+			"quote": "Il a calculé la réponse. Il attend qu'on lui pose la question."
+		},
+		"tripot_lunes": {
+			"label": "Tripot des Sept Lunes",
+			"family": "registre",
+			"era": 2,
+			"requires_tech": [
+				"banques_donnees"
+			],
+			"site": {
+				"trade_route": true
+			},
+			"cost": {
+				"materials": 700,
+				"energy": 250,
+				"influence": 60
+			},
+			"days": 300,
+			"score": 20,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"spy_cost_pct": -25,
+				"trade_income_pct": 10
+			},
+			"special": "pirate_peace",
+			"registre": "Picaresque / pulp",
+			"text": "Opérations d'espionnage 25 % moins chères, routes +10 % ; les pirates vous laissent tranquille.",
+			"quote": "La maison gagne toujours. Sauf quand la maison est assiégée."
+		},
+		"resonateur_vide": {
+			"label": "Résonateur du Vide",
+			"family": "registre",
+			"era": 3,
+			"requires_tech": [
+				"cristallographie"
+			],
+			"site": {
+				"terrain": [
+					"nebuleuse",
+					"nebuleuse_ionisee"
+				],
+				"or_star": [
+					"black_hole"
+				]
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"fx": {
+				"terrain_pierce": 1,
+				"spy_discovery_pct": 25
+			},
+			"registre": "Cosmique / étrange",
+			"text": "Vous voyez à travers les voiles des nébuleuses ; les agents étrangers chez vous sont 25 % plus souvent démasqués.",
+			"quote": "Il chante une note que seul le vide entend. Le vide répond parfois."
+		},
+		"arene_serments": {
+			"label": "Arène des Serments",
+			"family": "credo",
+			"era": 3,
+			"credo": "honneur",
+			"unlock_era": 3,
+			"site": {
+				"capital": true
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"text": "+1 place de héros ; vos flottes frappent 5 % plus fort et la lassitude de guerre ne vous touche plus.",
+			"fx": {
+				"hero_cap": 1,
+				"damage_pct": 5,
+				"no_war_weariness": 1
+			},
+			"quote": "On y prête serment devant mille témoins. On y meurt devant dix mille."
+		},
+		"reliquaire_celeste": {
+			"label": "Reliquaire céleste",
+			"family": "credo",
+			"era": 3,
+			"credo": "foi",
+			"unlock_era": 3,
+			"site": {
+				"holy": true
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"holy": true,
+			"fx": {
+				"faith_pressure_pct": 25,
+				"faith_stab": 1
+			},
+			"text": "Votre foi d'État prêche 25 % plus fort ; +1 stabilité là où elle domine. Compte comme un second monde saint.",
+			"quote": "Chaque relique y a sa chapelle, et chaque chapelle ses pèlerins."
+		},
+		"college_universel": {
+			"label": "Collège universel",
+			"family": "credo",
+			"era": 3,
+			"credo": "raison",
+			"unlock_era": 3,
+			"site": {
+				"building": "universite",
+				"or_building": "academie"
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"text": "Les technologies déjà connues d'un empire rencontré vous coûtent 40 % de moins.",
+			"special": "known_tech",
+			"quote": "On n'y invente rien. On y comprend tout, très vite."
+		},
+		"banque_lunes": {
+			"label": "Banque des Lunes franches",
+			"family": "credo",
+			"era": 3,
+			"credo": "profit",
+			"unlock_era": 3,
+			"site": {
+				"building": "comptoir"
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"text": "Frais du marché divisés par deux ; vos routes rapportent 20 % de plus.",
+			"fx": {
+				"market_fee_pct": -50,
+				"trade_income_pct": 20
+			},
+			"quote": "Elle prête à tout le monde. Surtout à ceux qui ne pourront pas rembourser."
+		},
+		"arche_forteresse": {
+			"label": "Arche-Forteresse",
+			"family": "credo",
+			"era": 3,
+			"credo": "survie",
+			"unlock_era": 3,
+			"site": {
+				"capital": true
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"text": "Vos flottes frappent 25 % plus fort chez vous ; fortifications +50 %, garnisons +50 %.",
+			"fx": {
+				"home_damage_pct": 25,
+				"fort_pct": 50,
+				"garrison_pct": 50
+			},
+			"quote": "Elle a été bâtie pour la fin du monde. Elle s'ennuie un peu en attendant."
+		},
+		"palais_delices": {
+			"label": "Palais des Délices infinis",
+			"family": "credo",
+			"era": 3,
+			"credo": "plaisir",
+			"unlock_era": 3,
+			"site": {
+				"planet": [
+					"gaia"
+				],
+				"or_building": "villegiature"
+			},
+			"cost": {
+				"materials": 900,
+				"energy": 300,
+				"influence": 80
+			},
+			"days": 360,
+			"score": 25,
+			"yields": {},
+			"upkeep": {
+				"energy": 3
+			},
+			"text": "Rayonnement +50 % ; la victoire de l'Idole des étoiles en profite.",
+			"fx": {
+				"culture_pct": 50
+			},
+			"quote": "On y entre pour une soirée. On en ressort pour l'enterrement de sa jeunesse."
+		},
+		"grand_oeuvre_koinon": {
+			"label": "Grand Œuvre du Koinon",
+			"family": "collective",
+			"era": 4,
+			"unlock_era": 4,
+			"collective": "koinon",
+			"site": {},
+			"cost": {
+				"materials": 2000,
+				"energy": 600,
+				"influence": 100
+			},
+			"days": 480,
+			"score": 20,
+			"yields": {
+				"energy": 30,
+				"knowledge": 30
+			},
+			"upkeep": {},
+			"text": "Œuvre collective d'un Koinon : chaque membre peut verser au chantier ; achevée, elle produit 30 énergie et 30 Savoir par mois, partagés entre les membres au prorata de ce qu'ils ont versé.",
+			"quote": "Chacun y a posé une pierre. Chacun prétend avoir posé la première."
+		},
+		"phare_concorde": {
+			"label": "Phare de la Concorde",
+			"family": "collective",
+			"era": 5,
+			"unlock_era": 5,
+			"collective": "amph",
+			"site": {
+				"amph_seat": true
+			},
+			"cost": {
+				"materials": 2400,
+				"energy": 800,
+				"influence": 200
+			},
+			"days": 540,
+			"score": 30,
+			"yields": {
+				"influence": 4
+			},
+			"upkeep": {},
+			"text": "Œuvre collective de l'Amphictyonie, bâtie au siège : chaque membre peut verser ; achevée, déclarer la guerre à un autre membre coûte deux fois plus d'influence, et chaque contributeur gagne de l'opinion chez les autres membres.",
+			"quote": "Sa lumière dit : ici, on parle. Les canons se taisent par politesse."
+		},
+		"grand_oeuvre": {
+			"label": "Grand Œuvre",
+			"family": "oeuvre",
+			"era": 5,
+			"unlock_era": 5,
+			"site": {
+				"distinct_system": true
+			},
+			"repeat": true,
+			"cost": {
+				"materials": 3000,
+				"energy": 1000,
+				"influence": 200,
+				"crystals": 40
+			},
+			"days": 540,
+			"score": 40,
+			"yields": {
+				"knowledge": 10,
+				"influence": 5
+			},
+			"upkeep": {},
+			"text": "Structure d'ère V qu'un empire peut bâtir plusieurs fois, chaque fois dans un autre système et 50 % plus cher. Avec la victoire des Grands Œuvres en jeu, en tenir assez (2 à 5 selon la taille de la galaxie) donne la victoire. Ils se prennent par la conquête.",
+			"quote": "Ils contiennent tout le savoir du monde. Ils ont un léger problème de chauffage."
+		}
+	}
+}

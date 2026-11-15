@@ -140,7 +140,20 @@ static func buildings() -> Dictionary:
 
 
 static func building(id: String) -> Dictionary:
-	return buildings().get(id, {})
+	var b: Dictionary = buildings().get(id, {})
+	if b.is_empty():
+		return wonders_list().get(id, {})  # merveilles et mégastructures (data/wonders.json)
+	return b
+
+
+## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.
+static func wonders() -> Dictionary:
+	return _load("wonders")
+
+
+## Catalogue des merveilles : identifiant -> fiche (lue aussi par GameData.building).
+static func wonders_list() -> Dictionary:
+	return wonders().get("wonders", {})
 
 
 ## Classes de vaisseaux (data/ships.json), par identifiant. Les classes de combat sont des modèles
