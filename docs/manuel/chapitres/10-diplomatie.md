@@ -149,6 +149,24 @@ Le bloc affiche aussi, dans les deux sens, ce que chacun peut faire chez l'autre
 
 **Les liens.** Un traité de libre-passage divise par deux la friction des frontières communes. À l'inverse, une flotte de quatre vaisseaux armés ou plus, stationnée à un saut de chez vous sans droit d'y entrer, pèse -5 sur l'opinion tant qu'elle reste : **ses flottes à nos portes**.
 
+**Les ponts.** Les frontières touchent le reste du jeu :
+
+- **commerce** : une route qui traverse les systèmes d'un empire qui a fermé ses frontières à l'un de ses deux bouts perd **25 %** de sa valeur (chapitre 9) ;
+- **renseignement** : l'opération **Corridor discret** (palier 2, 30 influence) ouvre pour **90 jours** l'espace d'un empire à vos flottes, sans qu'aucune intrusion soit constatée (chapitre 13) ;
+- **foi** : les flottes d'un empire de **même foi d'État** ont le passage inoffensif, même armées ; le précepte **Sanctuaire** permet de fermer ses frontières aux empires d'une autre foi sans leur laisser de grief (chapitre 15) ;
+- **héros** : un stratège au trait **Amiral discret** fait entrer sa flotte sans laisser de souvenir ; un **ambassadeur** auprès de l'Amphictyonie rend les laissez-passer plus faciles à obtenir, un orateur davantage (chapitre 16) ;
+- **politique** : deux lois indépendantes, **Doctrine des frontières closes** et **Doctrine des frontières ouvertes**, changent votre politique par défaut envers tous ceux à qui vous n'en avez pas fixé d'autre (chapitre 14).
+
+| Talent de frontière | Couche | Effet |
+| --- | --- | --- |
+| Gens du voyage | trait Navigateurs (Ossarane, Brisecomète) | La première intrusion chez chaque empire ne compte pas |
+| Ruche close | archétype ruche (Kh'thari) | Frontières closes à tous dès la rencontre, sans offusquer personne |
+| Contrebandiers | syndicat (Brisecomète) | Intrusions à moitié prix ; leurs vaisseaux sans armes passent même les frontières closes |
+| Laissez-passer de la République | république (Vael) | Laissez-passer gratuits, que les IA accordent volontiers |
+| Droit de péage | féodalité (Ossarane) | Péages au double |
+
+Comme les autres talents, ils tiennent aux couches d'espèce et valent pour les peuples créés dans l'éditeur.
+
 L'itinéraire d'une flotte évite de lui-même l'espace où elle n'a pas le droit d'aller quand un détour existe ; s'il le traverse quand même, son délai s'affiche en rouge, « intrusion », et l'ordre vous prévient.
 
 La **lentille des frontières** ([[A]], [[Q]] en QWERTY) cercle chaque système étranger que vous connaissez selon votre droit : vert, vos flottes de guerre passent ; ambre, vaisseaux sans armes seulement ; rouge, frontière close. Le nom de la politique s'inscrit sous chaque capitale, et un losange rouge marque les intrus chez vous.

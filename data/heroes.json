@@ -203,6 +203,7 @@
 				"home_damage_pct": 12
 			}
 		},
+		"amiral_discret": {"label": "Amiral discret", "cls": "stratege", "text": "Avec l'option Frontières : les intrusions de sa flotte ne laissent aucun souvenir chez le propriétaire (sommation et reconduite restent possibles).", "fx": {"discreet": 1}},
 		"bretteur": {
 			"label": "Bretteur des étoiles",
 			"cls": "stratege",

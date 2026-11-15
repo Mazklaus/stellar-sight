@@ -88,6 +88,10 @@ static func _relation_lot2(state: GameState, player: int, id: int, emit: Callabl
 	if Borders.has_cb(state, id, player):
 		_line(box, "Vous avez ignoré sa sommation : il tient contre vous un motif « Violation de frontière » (encore %d j), et ses flottes attaquent les vôtres chez lui." % (int(ign["%d>%d" % [id, player]]) - state.tick),
 				UiTheme.BAD, buttons, "cb_against")
+	if Borders.corridor(state, id, player):
+		_line(box, "Corridor discret ouvert chez lui : encore %d j sans intrusion constatée." % (int(state.borders["corr"]["%d>%d" % [id, player]]) - state.tick), UiTheme.GOOD, buttons, "corridor")
+	if Borders.same_faith(state, id, player):
+		box.add_child(UiTheme.dim("Même foi d'État : vos flottes, même armées, ont chez lui le passage inoffensif.", 13))
 	if Borders.toll_of(state, id) > 0:
 		box.add_child(UiTheme.dim("Péage chez lui : %d énergie par saut pour vos flottes de guerre de passage." % Borders.toll_of(state, id), 13))
 	var row := VassalUi._flow()

@@ -24,7 +24,7 @@ extends RefCounted
 ##   "summ": {"o>v": échéance de la sommation}, "ign": {"o>v": fin du motif et de la riposte},
 ##   "cool": {"o>v": prochaine sommation possible}, "fp": {"<flotte>": {"o", "end"}} (laissez-passer),
 ##   "toll": {"<o>": palier de péage}, "gates": {"o>v": 1} (flottes à nos portes, recalculé chaque mois),
-##   "imp": {"a-b": fin du libre-passage imposé par l'Arbitre}}
+##   "imp": {"a-b": fin du libre-passage imposé par l'Arbitre}, "corr": {"o>v": fin du corridor discret}}
 ## Les clés de paires sont "o>v" (politique de o envers v, ou intrusion de v chez o).
 ## Tout est déterministe : parcours dans l'ordre des identifiants, aucun aléatoire.
 
@@ -51,7 +51,7 @@ static func _cfg(k: String) -> Dictionary:
 
 static func _blank() -> Dictionary:
 	return {"mode": "libres", "pol": {}, "legal": {}, "intr": {}, "first": {}, "half": {},
-			"summ": {}, "ign": {}, "cool": {}, "fp": {}, "toll": {}, "gates": {}, "imp": {}}
+			"summ": {}, "ign": {}, "cool": {}, "fp": {}, "toll": {}, "gates": {}, "imp": {}, "corr": {}}
 
 
 static func setup(state: GameState, mode: String) -> void:
@@ -93,7 +93,7 @@ static func _b(state: GameState) -> Dictionary:
 		var m := mode(state)
 		state.borders = _blank()
 		state.borders["mode"] = m
-	elif not state.borders.has("summ"):
+	elif not state.borders.has("corr"):
 		var blank := _blank()
 		for k in blank:
 			if not state.borders.has(k):
@@ -186,6 +186,26 @@ static func default_policy(state: GameState, o: int) -> String:
 				return String(doc[law])
 	var t := String(talent(state, o).get("default", ""))
 	return t if POLICIES.has(t) else GUARDED
+
+
+## Loi Doctrine des frontières (prop. 28) : la politique par défaut a changé ; ceux qui la subissent
+## (sans politique propre) réagissent comme à un changement de politique.
+static func on_default_change(state: GameState, o: int, before: String) -> void:
+	var after := default_policy(state, o)
+	if after == before:
+		return
+	dirty(state)
+	var eo := state.get_empire(o)
+	var pol: Dictionary = _b(state)["pol"]
+	for v in eo.contacts:
+		if pol.has(_pk(o, v)) or GameState.is_npc(v):
+			continue
+		if after == CLOSED and not bool(talent(state, o).get("close_free", false)) and not sanctuary_free(state, o, v):
+			Diplomacy.remember(state, v, o, "borders_closed")
+		elif after == OPEN:
+			Diplomacy.remember(state, v, o, "borders_opened")
+	state.add_chronicle("%s change de doctrine : ses frontières sont désormais %s par défaut." % [_name(state, o), {"open": "ouvertes", "guarded": "gardées", "closed": "closes"}.get(after, after)],
+			Espionage.public_to(state, [o]))
 
 
 ## Politique de o envers v.
@@ -306,19 +326,28 @@ static func forced(state: GameState, o: int, v: int) -> bool:
 static func civil_ok(state: GameState, o: int, v: int) -> bool:
 	if grants(state, o, v):
 		return true
-	return policy(state, o, v) != CLOSED
+	# Contrebandiers (talent) : leurs vaisseaux sans armes passent même les frontières closes.
+	return policy(state, o, v) != CLOSED or bool(talent(state, v).get("civil_always", false))
 
 
-## Une flotte est-elle traitée comme un passage inoffensif chez o (sans armes) ?
-static func harmless(state: GameState, f: Fleet, _o: int) -> bool:
-	return not Combat.is_armed(f)
+## Une flotte est-elle traitée comme un passage inoffensif chez o (sans armes, ou de même foi d'État) ?
+static func harmless(state: GameState, f: Fleet, o: int) -> bool:
+	return not Combat.is_armed(f) or same_faith(state, o, f.owner)
+
+
+## Religion (prop. 25) : même foi d'État.
+static func same_faith(state: GameState, a: int, b: int) -> bool:
+	if not state.faith_on:
+		return false
+	var fa := Faiths.state_faith(state, a)
+	return fa != "" and fa == Faiths.state_faith(state, b)
 
 
 ## Cette flotte a-t-elle le droit d'être dans un système de o ?
 static func fleet_right(state: GameState, f: Fleet, o: int) -> bool:
 	if f.owner == o or _exempt(state, o, f.owner):
 		return true
-	if has_pass(state, f.id, o):
+	if has_pass(state, f.id, o) or corridor(state, o, f.owner):
 		return true
 	if harmless(state, f, o):
 		return civil_ok(state, o, f.owner)
@@ -438,6 +467,11 @@ static func _record(state: GameState, f: Fleet, o: int) -> void:
 		b["first"][pk] = 1
 		state.add_chronicle("Le %s de %s s'égare à %s, chez %s. On le prend pour un équipage perdu : pour cette fois." % [
 				f.fleet_name, _name(state, v), _sys(state, f.system_id), _name(state, o)], Espionage.private_to(state, [o, v], f.system_id))
+		return
+	# Amiral discret (héros, prop. 27) : l'intrusion est notée, sans souvenir.
+	if Heroes.trait_fx(Heroes.at_post(state, "fleet", f.id, v), "discreet") > 0:
+		state.add_chronicle("Une flotte de %s croise à %s, chez %s ; son amiral sait se faire oublier, et les sentinelles hésitent à faire un rapport." % [
+				_name(state, v), _sys(state, f.system_id), _name(state, o)], Espionage.private_to(state, [o, v], f.system_id))
 		return
 	var n := 1
 	if Diplomacy.in_truce(state, o, v):
@@ -955,7 +989,7 @@ static func charge_toll(state: GameState, f: Fleet, sid: int) -> void:
 	var o := state.system_owner(sid)
 	if o < 0 or o == f.owner or _exempt(state, o, f.owner) or strong_link(state, o, f.owner):
 		return
-	if _amph_flag(state, o, f.owner, "toll_free"):
+	if _amph_flag(state, o, f.owner, "toll_free") or corridor(state, o, f.owner):
 		return
 	var amount := toll_of(state, o)
 	if amount <= 0 or not fleet_right(state, f, o):
@@ -1044,6 +1078,54 @@ static func arbiter_impose(state: GameState, eid: int, a: int, b: int) -> void:
 
 # --- Ponts (lot 3) -----------------------------------------------------------------------------------------
 
-## Dogme Sanctuaire : fermer ses frontières aux infidèles ne coûte rien (lot 3).
-static func sanctuary_free(_state: GameState, _o: int, _v: int) -> bool:
-	return false
+## Héros (prop. 27) : un ambassadeur auprès de l'Amphictyonie facilite les laissez-passer (orateur : davantage).
+static func hero_pass_bonus(state: GameState, v: int) -> int:
+	var h := Heroes.at_post(state, "amph", 0, v)
+	if h.is_empty():
+		return 0
+	return int(_cfg("pass").get("ambassador_bonus", 15)) * (2 if String(h["cls"]) == "orateur" else 1)
+
+
+## Espionnage (prop. 24) : corridor discret de v chez o (ses flottes passent sans intrusion constatée).
+static func corridor(state: GameState, o: int, v: int) -> bool:
+	return int((state.borders.get("corr", {}) as Dictionary).get(_pk(o, v), 0)) > state.tick
+
+
+static func spy_check(state: GameState, a: int, b: int, _op_id: String) -> String:
+	if not active(state):
+		return "les frontières sont libres dans cette partie"
+	if _exempt(state, b, a) or grants(state, b, a):
+		return "vos flottes passent déjà chez lui"
+	if corridor(state, b, a):
+		return "un corridor est déjà ouvert"
+	return ""
+
+
+static func spy_apply(state: GameState, a: int, b: int, _o: Dictionary) -> String:
+	dirty(state)
+	var days := int(data().get("corridor_days", 90))
+	_b(state)["corr"][_pk(b, a)] = state.tick + days
+	return "un corridor discret est ouvert : %d jours sans qu'aucune patrouille ne remarque nos flottes." % days
+
+
+## Commerce (prop. 23) : une route qui traverse les systèmes d'un empire Close envers l'un de ses bouts
+## perd trade_closed_pct de sa valeur (les convois des contrebandiers passent quand même).
+static func trade_pct(state: GameState, a: int, b: int, path: Array) -> int:
+	if not active(state):
+		return 0
+	for i in range(1, path.size() - 1):
+		var o := state.system_owner(int(path[i]))
+		if o < 0 or o == a or o == b:
+			continue
+		for v in [a, b]:
+			if not _exempt(state, o, v) and not civil_ok(state, o, v):
+				return int(data().get("trade_closed_pct", -25))
+	return 0
+
+## Précepte Sanctuaire (catalogue ouvert des préceptes) : fermer ses frontières à un empire d'une
+## autre foi ne lui laisse aucun grief.
+static func sanctuary_free(state: GameState, o: int, v: int) -> bool:
+	if not state.faith_on:
+		return false
+	var fo := Faiths.state_faith(state, o)
+	return fo != "" and Faiths.has_precept(state, fo, "sanctuaire") and Faiths.state_faith(state, v) != fo

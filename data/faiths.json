@@ -1059,6 +1059,7 @@
 			},
 			"src": "Moines guerriers, Civ VI"
 		},
+		"sanctuaire": {"family": "guerre", "label": "Sanctuaire", "text": "Avec l'option Frontières : fermer ses frontières aux empires d'une autre foi ne leur laisse aucun grief. Les flottes de même foi ont toujours le passage inoffensif.", "fx": {"sanctuary": 1}, "src": "Asile et terre sainte ; proposition 25 de l'étude des frontières"},
 		"pelerins_armes": {
 			"family": "guerre",
 			"label": "Pèlerins armés",

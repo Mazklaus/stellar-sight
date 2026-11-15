@@ -26,6 +26,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Concile | Réunion qui permet au chef de foi de changer une doctrine | 15 |
 | Conclave | L'assemblée d'une théocratie ; à l'Amphictyonie, deux théocraties de même foi qui votent ensemble | 14, 12 |
 | Convoi | Réfugiés sans refuge qui errent de saut en saut | 3 |
+| Corridor discret | Opération d'espionnage : 90 jours sans intrusion constatée chez un empire | 8, 13 |
 | Cour impériale | Les sujets de l'Impérateur, sous un préréglage verrouillé | 10, 12 |
 | Courant | L'une des six familles politiques de la roue : Forge, Académie, Concorde, Sève, Autel, Glaive | 14 |
 | Credo | Ce en quoi un peuple croit : honneur, foi, raison, profit, survie | 19 |

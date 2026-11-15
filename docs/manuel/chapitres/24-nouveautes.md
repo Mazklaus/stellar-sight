@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.4
+
+- **Frontières, ponts** (chapitre « La diplomatie ») : routes commerciales à travers une frontière close (-25 %), opération **Corridor discret**, passage inoffensif des flottes de même foi et précepte **Sanctuaire**, trait d'**Amiral discret** et ambassadeurs qui obtiennent les laissez-passer, lois **Doctrine des frontières closes / ouvertes**.
+- Le tableau des **talents de frontière** de chaque peuple.
+
 ### Édition 2.3
 
 - **Frontières, suite** (chapitre « La diplomatie ») : **sommation** de 30 jours, souvenir et motif de guerre **Violation de frontière** si elle est ignorée (chapitre « La guerre »), **riposte** en guerre froide contre les intrus, jamais en paix.

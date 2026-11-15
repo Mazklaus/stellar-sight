@@ -76,13 +76,23 @@ static func _policies(ctx: Dictionary) -> void:
 			AiPlayer._intent(ctx, "Frontières %s envers %s" % [Borders.policy_label(want).to_lower(), o.short_name()])
 
 
+## Doctrine des frontières : les plus belliqueux ferment, les plus pacifiques ouvrent ; les autres s'en passent.
+static func law_score(_state: GameState, _e: Empire, id: String, ag: int) -> int:
+	match id:
+		"doctrine_close":
+			return 10 + ag * 3 if ag >= 2 else -20
+		"doctrine_ouverte":
+			return 10 - ag * 3 if ag <= -2 else -20
+	return -20
+
+
 ## Réponse à une demande de laissez-passer de v pour la flotte f (accepté si >= 0).
 static func pass_score(state: GameState, o: int, v: int, f: Fleet) -> int:
 	var c := cfg()
 	var score := int(c["pass_base"]) + Diplomacy.opinion(state, o, v) / 2
 	@warning_ignore("integer_division")
 	score -= f.ships.size() * 10 / maxi(1, int(c["pass_size_div"]))
-	score += int(Borders.talent(state, v).get("pass_bonus", 0))
+	score += int(Borders.talent(state, v).get("pass_bonus", 0)) + Borders.hero_pass_bonus(state, v)
 	var eo := state.get_empire(o)
 	if eo != null:
 		score -= AiLevels.aggression(eo) * 5
