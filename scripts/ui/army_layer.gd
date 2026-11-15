@@ -10,9 +10,9 @@ extends Node2D
 ## reste (bannières, chevrons, général, traçantes) est dessiné par la vue.
 
 const DAY_SECONDS := 1.6
-const KINDS := ["corpse", "wreck", "shadow", "mil", "inf", "tank", "big", "air"]
-const SIZES := {"corpse": Vector2(12, 5), "wreck": Vector2(22, 10), "shadow": Vector2(22, 6), "mil": Vector2(9, 13),
-		"inf": Vector2(9, 14), "tank": Vector2(22, 12), "big": Vector2(30, 40), "air": Vector2(24, 10)}
+const MASK_SHADER := preload("res://shaders/figure_mask.gdshader")
+## Ordre de dessin des lots : corps et épaves, ombres, fantassins, véhicules, grandes figures, aérien.
+const LAYERS := ["corpse", "wreck", "shadow", "mil", "inf", "tank", "big", "air"]
 
 var backdrop: GroundBackdrop
 var report: Dictionary = {}
@@ -23,8 +23,11 @@ var units: Array = []          # par unité : {fam, kind, n, side, offsets, rank
 var total := 0
 var cap_hit := false
 
-var _mm: Dictionary = {}       # kind -> MultiMeshInstance2D
-var _buf: Dictionary = {}      # kind -> PackedFloat32Array (12 flottants par figurine)
+var side_fids: Array = ["", ""]  # peuple de chaque camp (allure par défaut de ses régiments)
+var _mm: Dictionary = {}       # clé d'allure -> MultiMeshInstance2D
+var _buf: Dictionary = {}      # clé d'allure -> PackedFloat32Array (12 flottants par figurine)
+var _size: Dictionary = {}     # clé d'allure -> taille à l'écran (échelle 1)
+var _mat: ShaderMaterial
 var _dmg_until: Array = []
 var _dead_day: Array = []
 var _days := 1
@@ -33,17 +36,8 @@ var _t := 0.0
 
 
 func _ready() -> void:
-	for k: String in KINDS:
-		var mi := MultiMeshInstance2D.new()
-		var mm := MultiMesh.new()
-		mm.transform_format = MultiMesh.TRANSFORM_2D
-		mm.use_colors = true
-		mm.mesh = _quad()
-		mi.multimesh = mm
-		mi.texture = _texture(k)
-		mi.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-		add_child(mi)
-		_mm[k] = mi
+	_mat = ShaderMaterial.new()
+	_mat.shader = MASK_SHADER
 
 
 static func cfg() -> Dictionary:
@@ -60,68 +54,6 @@ static func _quad() -> ArrayMesh:
 	var m := ArrayMesh.new()
 	m.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
 	return m
-
-
-## Silhouettes dessinées pixel par pixel (en gris, teintées par la couleur de l'empire), tournées vers la droite.
-static func _texture(kind: String) -> ImageTexture:
-	var sz: Vector2 = SIZES[kind] * 2.0
-	var img := Image.create(int(sz.x), int(sz.y), false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))
-	var w := img.get_width()
-	var h := img.get_height()
-	var dark := Color(0.35, 0.35, 0.38)
-	var mid := Color(0.75, 0.75, 0.78)
-	var light := Color(1, 1, 1)
-	match kind:
-		"inf", "mil":
-			# Casque, buste, jambes, arme pointée vers l'avant.
-			_disc(img, Vector2(w * 0.45, h * 0.13), w * 0.2, dark if kind == "inf" else mid)
-			img.fill_rect(Rect2i(int(w * 0.25), int(h * 0.24), int(w * 0.45), int(h * 0.38)), light)
-			img.fill_rect(Rect2i(int(w * 0.25), int(h * 0.62), int(w * 0.18), int(h * 0.38)), mid)
-			img.fill_rect(Rect2i(int(w * 0.52), int(h * 0.62), int(w * 0.18), int(h * 0.38)), mid)
-			if kind == "inf":
-				img.fill_rect(Rect2i(int(w * 0.5), int(h * 0.3), int(w * 0.5), 2), dark)
-		"corpse":
-			img.fill_rect(Rect2i(int(w * 0.1), int(h * 0.35), int(w * 0.7), int(h * 0.5)), mid)
-			_disc(img, Vector2(w * 0.85, h * 0.6), h * 0.3, dark)
-		"tank", "wreck":
-			img.fill_rect(Rect2i(0, int(h * 0.55), w, int(h * 0.45)), dark)
-			for k in 5:
-				_disc(img, Vector2(w * (0.12 + k * 0.19), h * 0.78), h * 0.13, mid)
-			img.fill_rect(Rect2i(int(w * 0.08), int(h * 0.3), int(w * 0.8), int(h * 0.3)), light if kind == "tank" else mid)
-			img.fill_rect(Rect2i(int(w * 0.3), int(h * 0.05), int(w * 0.35), int(h * 0.3)), light if kind == "tank" else dark)
-			if kind == "tank":
-				img.fill_rect(Rect2i(int(w * 0.6), int(h * 0.14), int(w * 0.4), int(h * 0.1)), mid)
-		"big":
-			# Colosse ou marcheur : deux pattes, une caisse, une tête.
-			img.fill_rect(Rect2i(int(w * 0.2), int(h * 0.55), int(w * 0.16), int(h * 0.45)), dark)
-			img.fill_rect(Rect2i(int(w * 0.62), int(h * 0.55), int(w * 0.16), int(h * 0.45)), dark)
-			img.fill_rect(Rect2i(int(w * 0.1), int(h * 0.22), int(w * 0.8), int(h * 0.36)), light)
-			img.fill_rect(Rect2i(int(w * 0.6), int(h * 0.08), int(w * 0.3), int(h * 0.16)), mid)
-			img.fill_rect(Rect2i(int(w * 0.8), int(h * 0.3), int(w * 0.2), int(h * 0.06)), dark)
-		"air":
-			img.fill_rect(Rect2i(0, int(h * 0.4), w, int(h * 0.25)), light)
-			img.fill_rect(Rect2i(int(w * 0.3), 0, int(w * 0.25), h), mid)
-			img.fill_rect(Rect2i(0, int(h * 0.15), int(w * 0.12), int(h * 0.5)), mid)
-		"shadow":
-			_ellipse(img, Color(0, 0, 0, 0.45))
-	return ImageTexture.create_from_image(img)
-
-
-static func _disc(img: Image, c: Vector2, r: float, col: Color) -> void:
-	for y in range(int(c.y - r), int(c.y + r) + 1):
-		for x in range(int(c.x - r), int(c.x + r) + 1):
-			if x >= 0 and y >= 0 and x < img.get_width() and y < img.get_height() and Vector2(x, y).distance_to(c) <= r:
-				img.set_pixel(x, y, col)
-
-
-static func _ellipse(img: Image, col: Color) -> void:
-	var c := Vector2(img.get_width(), img.get_height()) * 0.5
-	for y in img.get_height():
-		for x in img.get_width():
-			var d := Vector2((x - c.x) / c.x, (y - c.y) / c.y)
-			if d.length() <= 1.0:
-				img.set_pixel(x, y, col)
 
 
 static func family_of(ty: String) -> String:
@@ -142,8 +74,25 @@ static func figures_for(ty: String, level: int) -> int:
 	return n
 
 
-func setup(r: Dictionary, bd: GroundBackdrop, level: int, dmg_until: Array, dead_day: Array, side_colors: Array) -> void:
+## Clés d'allure (vivant, mort) d'un régiment : corps et équipement pour les fantassins, véhicule,
+## appareil ou grande figure ; corps, éboulis ou épave une fois tombé.
+static func look_keys(kind: String, ty: String, lk: Dictionary) -> Array:
+	match kind:
+		"mil", "inf":
+			return ["%s|%s|%s" % [kind, lk.get("body", "bipede"), lk.get("gear", "aucun")], "corpse|%s" % lk.get("corpse", "corps")]
+		"tank":
+			return ["tank|%s" % lk.get("vehicle", "chenilles"), "wreck|%s" % lk.get("vehicle", "chenilles")]
+		"big":
+			var b := "colosse" if ty == "colosses" else "marcheur"
+			return ["big|" + b, "corpse|eboulis" if b == "colosse" else "wreck|chenilles"]
+		"air":
+			return ["air|%s" % lk.get("air", "chasseur"), "wreck|chenilles"]
+	return ["inf|bipede|aucun", "corpse|corps"]
+
+
+func setup(r: Dictionary, bd: GroundBackdrop, level: int, dmg_until: Array, dead_day: Array, side_colors: Array, fids: Array = ["", ""]) -> void:
 	report = r
+	side_fids = fids
 	backdrop = bd
 	scale_level = level
 	_dmg_until = dmg_until
@@ -195,7 +144,13 @@ func _build() -> void:
 			"milice": kind = "mil"
 			"blindes": kind = "big" if ty in cfg().get("big", []) else "tank"
 			"aerien": kind = "air"
+		var fid := String(u.get("sp", ""))
+		if fid == "" or GameData.faction(fid).is_empty():
+			fid = String(side_fids[side])
+		var lk := SpeciesLook.look(fid, ty)
+		var keys := look_keys(kind, ty, lk)
 		var e := {"fam": fam, "kind": kind, "n": n, "side": side, "base": anchors[i], "tactic": tac,
+				"key": keys[0], "dkey": keys[1], "gait": float(lk.get("gait", 9.0)), "lscale": float(lk.get("scale", 1.0)),
 				"rout_t": -1.0 if not routs.has(i) else (float(routs[i]) + 0.85) * DAY_SECONDS}
 		_formation(e, i)
 		_deaths(e, i)
@@ -381,32 +336,49 @@ func figure_pos(i: int, k: int, t: float) -> Vector2:
 	var gz := a.y + o.y
 	var p := backdrop.project(a.x + o.x, gz)
 	var lift := 34.0 * backdrop.scale_at(gz) if String(e["kind"]) == "air" else 0.0
-	return p - Vector2(0, (SIZES[e["kind"]] as Vector2).y * 0.5 * backdrop.scale_at(gz) + lift)
+	return p - Vector2(0, FigureArt.size_of(String(e["key"])).y * 0.5 * backdrop.scale_at(gz) + lift)
 
 
-## Capacité de chaque lot (figurines debout, corps, épaves, ombres), fixée au montage.
+## Lots de figurines (un par clé d'allure, rangés par couche de dessin) et leur capacité, fixés au montage.
 func _alloc() -> void:
+	for mi in _mm.values():
+		(mi as Node).queue_free()
+	_mm.clear()
+	_buf.clear()
+	_size.clear()
 	var cap := {}
-	for k: String in KINDS:
-		cap[k] = 0
 	for e: Dictionary in units:
-		var kind := String(e["kind"])
 		var n := int(e["n"])
-		cap[kind] = int(cap[kind]) + n
-		cap[_dead_kind(kind)] = int(cap[_dead_kind(kind)]) + n
-		if kind == "air":
-			cap["shadow"] = int(cap["shadow"]) + n
-	for k: String in KINDS:
-		var mm := (_mm[k] as MultiMeshInstance2D).multimesh
+		for k: String in [String(e["key"]), String(e["dkey"])]:
+			cap[k] = int(cap.get(k, 0)) + n
+		if String(e["kind"]) == "air":
+			cap["shadow"] = int(cap.get("shadow", 0)) + n
+	var keys: Array = cap.keys()
+	keys.sort_custom(func(x: String, y: String) -> bool:
+		var lx := LAYERS.find(x.split("|")[0])
+		var ly := LAYERS.find(y.split("|")[0])
+		return lx < ly if lx != ly else x < y)
+	for k: String in keys:
+		var mi := MultiMeshInstance2D.new()
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_2D
+		mm.use_colors = true
+		mm.mesh = _quad()
 		mm.instance_count = maxi(1, int(cap[k]))
 		mm.visible_instance_count = 0
+		mi.multimesh = mm
+		var tex: Array = FigureArt.textures(k)
+		mi.texture = tex[0]
+		var mat := _mat.duplicate() as ShaderMaterial
+		mat.set_shader_parameter("mask_tex", tex[1])
+		mi.material = mat
+		mi.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		add_child(mi)
+		_mm[k] = mi
+		_size[k] = FigureArt.size_of(k)
 		var b := PackedFloat32Array()
 		b.resize(mm.instance_count * 12)
 		_buf[k] = b
-
-
-static func _dead_kind(kind: String) -> String:
-	return "wreck" if kind in ["tank", "big", "air"] else "corpse"
 
 
 ## Écrit une figurine dans le lot (transformation 2D sur 8 flottants, puis la couleur).
@@ -431,22 +403,24 @@ func update(t: float, tint: Color) -> void:
 	if backdrop == null or _buf.is_empty():
 		return
 	var cnt := {}
-	for k: String in KINDS:
+	for k: String in _buf:
 		cnt[k] = 0
 	for i in units.size():
 		var e: Dictionary = units[i]
 		var side := int(e["side"])
-		var col: Color = (colors[side] as Color) * tint
+		var col: Color = colors[side]
 		col.a = 1.0
 		var dcol := Color(col.darkened(0.55), 0.85)
 		var kind := String(e["kind"])
-		var dk := _dead_kind(kind)
-		var sz: Vector2 = SIZES[kind]
-		var dsz: Vector2 = SIZES[dk] * (1.4 if kind == "big" else 1.0)
-		var shz: Vector2 = SIZES["shadow"]
-		var buf: PackedFloat32Array = _buf[kind]
+		var key := String(e["key"])
+		var dk := String(e["dkey"])
+		var ls := float(e.get("lscale", 1.0))
+		var sz: Vector2 = _size[key] * ls
+		var dsz: Vector2 = _size[dk] * ls * (1.4 if kind == "big" else 1.0)
+		var shz: Vector2 = FigureArt.size_of("shadow")
+		var buf: PackedFloat32Array = _buf[key]
 		var dbuf: PackedFloat32Array = _buf[dk]
-		var sbuf: PackedFloat32Array = _buf["shadow"]
+		var sbuf: PackedFloat32Array = _buf.get("shadow", PackedFloat32Array())
 		var fig_k := float(e.get("fig", 1.0))
 		var a := anchor(i, t)
 		var mv := moving(i, t)
@@ -460,7 +434,7 @@ func update(t: float, tint: Color) -> void:
 			fade = clampf(1.0 - (t - float(e["rout_t"])) / (DAY_SECONDS * 1.6), 0.0, 1.0)
 		var lcol := Color(col, fade)
 		var scol := Color(1, 1, 1, 0.6 * fade)
-		var bob := 9.0 if kind != "big" else 3.0
+		var bob := float(e.get("gait", 9.0))
 		var bob_h := 1.6 if kind != "big" else 2.0
 		for j in offs.size():
 			var o: Vector3 = offs[j]
@@ -485,14 +459,26 @@ func update(t: float, tint: Color) -> void:
 				p.y -= 34.0 * s + sin(t * 2.0 + o.z) * 3.0
 			elif mv:
 				p.y -= absf(sin(t * bob + o.z)) * bob_h * s
-			_put(buf, cnt[kind], p, sz.x * s * dirx, sz.y * s, lcol)
-			cnt[kind] = int(cnt[kind]) + 1
-	for k: String in KINDS:
-		var mm := (_mm[k] as MultiMeshInstance2D).multimesh
+			_put(buf, cnt[key], p, sz.x * s * dirx, sz.y * s, lcol)
+			cnt[key] = int(cnt[key]) + 1
+	for k: String in _buf:
+		var mi: MultiMeshInstance2D = _mm[k]
+		var mm := mi.multimesh
 		mm.buffer = _buf[k]
 		mm.visible_instance_count = int(cnt[k])
+		(mi.material as ShaderMaterial).set_shader_parameter("tint", tint)
 	_t = t
 	queue_redraw()
+
+
+## Premier lot de figurines dont la clé d'allure commence par prefix (corpse, inf, tank…).
+func batch(prefix: String) -> MultiMesh:
+	var keys: Array = _mm.keys()
+	keys.sort()
+	for k: String in keys:
+		if k.begins_with(prefix):
+			return (_mm[k] as MultiMeshInstance2D).multimesh
+	return null
 
 
 func living_total(t: float) -> int:

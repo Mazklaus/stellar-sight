@@ -67,17 +67,20 @@ static func finish(state: GameState, sid: int, report: Dictionary) -> void:
 
 ## Décor d'une bataille au sol (visuel des combats, lot 2, prop. 18 à 22) : relevé à l'ouverture de la
 ## bataille dans b["sc"], recopié dans le rapport (avec la dévastation finale "dev1").
-## {"seed", "star", "ter", "pop", "fort", "fort_max", "citadel", "bastion", "dev0", "orbit", "bombard"}
+## {"seed", "star", "ter", "pop", "fort", "fort_max", "citadel", "bastion", "dev0", "orbit", "bombard", "csp" (peuple de la ville)}
 static func ground_capture(state: GameState, sid: int, attacker: int, defender: int, battle_id: int, tactic: String) -> Dictionary:
 	var s: StarSystem = state.galaxy.systems[sid]
 	var pop := 0
 	var bastion := false
+	var main: Colony = null
 	for pid in s.planet_ids:
 		var c: Colony = state.colonies.get(pid)
 		if c != null and c.owner == defender:
 			pop += c.population if c.is_colony() else 0
 			if c.buildings.has("bastion"):
 				bastion = true
+			if main == null or c.population > main.population:
+				main = c
 	var orbit := 0
 	var bombard := tactic == "bombardement"
 	for f in Fleets.fleets_at(state, sid, attacker):
@@ -87,4 +90,20 @@ static func ground_capture(state: GameState, sid: int, attacker: int, defender: 
 	return {"seed": battle_id * 6151 + sid * 17, "star": s.star_type, "ter": Ground.terrain_of(state, sid, defender), "pop": pop,
 			"fort": GroundSiege.fort(state, sid), "fort_max": GroundSiege.fort_max(state, sid),
 			"citadel": GroundSiege.has_citadel(state, sid), "bastion": bastion, "dev0": GroundSiege.dev(state, sid),
-			"orbit": mini(orbit, 40), "bombard": bombard}
+			"orbit": mini(orbit, 40), "bombard": bombard, "csp": city_species(state, main, defender)}
+
+
+## Peuple qui a bâti la ville (lot 3) : l'espèce la plus nombreuse de la plus grande colonie du défenseur.
+static func city_species(state: GameState, c: Colony, defender: int) -> String:
+	var own := Peoples.founder_of(state, defender)
+	if c == null:
+		return own
+	var best := own
+	var others := 0
+	var best_n := 0
+	for k in c.species:
+		others += int(c.species[k])
+		if int(c.species[k]) > best_n:
+			best_n = int(c.species[k])
+			best = String(k)
+	return best if best_n > c.population - others else own

@@ -16,6 +16,7 @@ func run(check: Callable) -> void:
 		return
 	_test_report(rep)
 	_test_army(rep)
+	_test_species()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -112,7 +113,7 @@ func _test_army(rep: Dictionary) -> void:
 			dead_ok = false
 	_ok(dead_ok, "Visuel sol : une unité détruite n'a plus personne debout")
 	# Les corps restent sur place : la position d'un corps ne dépend pas du moment où l'on regarde.
-	var mm: MultiMesh = (army.get_child(0) as MultiMeshInstance2D).multimesh
+	var mm: MultiMesh = army.batch("corpse")
 	army.update(end, Color.WHITE)
 	var n_corpses := mm.visible_instance_count
 	var p1 := mm.get_instance_transform_2d(0).origin if n_corpses > 0 else Vector2.ZERO
@@ -121,7 +122,7 @@ func _test_army(rep: Dictionary) -> void:
 	_ok(n_corpses > 0 and p1 == p2, "Visuel sol : les corps restent là où ils sont tombés (%d)" % n_corpses)
 	# Déterminisme : même temps, même image.
 	army.update(end * 0.4, Color.WHITE)
-	var inf: MultiMesh = (army.get_child(4) as MultiMeshInstance2D).multimesh
+	var inf: MultiMesh = army.batch("inf")
 	var a := inf.get_instance_transform_2d(0).origin if inf.visible_instance_count > 0 else Vector2.ZERO
 	army.update(end * 0.9, Color.WHITE)
 	army.update(end * 0.4, Color.WHITE)
@@ -168,3 +169,50 @@ func _test_army(rep: Dictionary) -> void:
 	UiSettings.battle_scale = old
 	panel.close_silently()
 	panel.queue_free()
+
+
+## Lot 3 : allure par espèce, villes par peuple et par biome.
+func _test_species() -> void:
+	var bodies := {}
+	for fid in ["ossarane", "khthari", "ferrocornes", "teyl", "murmurants"]:
+		bodies[String(SpeciesLook.look(fid).get("body", ""))] = true
+	_ok(bodies.size() == 5, "Visuel sol : un corps par archétype (%s)" % str(bodies.keys()))
+	_ok(SpeciesLook.look("ossarane").get("gear") == "bouclier" and SpeciesLook.look("vael").get("gear") == "blaster", "Visuel sol : équipement selon le registre")
+	_ok(SpeciesLook.look("khthari").get("vehicle") == "rampant", "Visuel sol : véhicules propres à un peuple")
+	_ok(SpeciesLook.look("vael", "automates").get("body") == "robot", "Visuel sol : troupe dédiée (automates)")
+	_ok(SpeciesLook.look("vael", "milice").get("gear") == "aucun", "Visuel sol : la milice sans équipement")
+	var styles := {}
+	for fid in ["ossarane", "choeur", "vael", "khthari", "teyl", "ferrocornes", "brisecomete", "murmurants"]:
+		styles[SpeciesLook.city_style_id(fid)] = true
+	_ok(styles.size() == 8, "Visuel sol : un style de ville par peuple de départ (%d)" % styles.size())
+	_ok(SpeciesLook.city_style_id("inconnu") != "" and not SpeciesLook.city_style("inconnu").is_empty(), "Visuel sol : style de ville par défaut")
+	_ok(bool(SpeciesLook.city_biome("ocean").get("stilts", false)) and float(SpeciesLook.city_biome("arctic").get("domes", 0)) > 0.0, "Visuel sol : villes adaptées au biome")
+	var ok_tex := true
+	for key in ["inf|bipede|bouclier", "inf|insecte|epines", "inf|bloc|lourd", "inf|reptile|lourd", "inf|robot|exo", "inf|feu_follet|halo",
+			"tank|glisseur", "tank|rampant", "tank|pierre", "air|volant_bio", "air|drone", "big|colosse", "corpse|eboulis"]:
+		var tx: Array = FigureArt.textures(key)
+		if tx.size() != 2 or tx[0] == null or (tx[0] as Texture2D).get_width() < 4:
+			ok_tex = false
+	_ok(ok_tex, "Visuel sol : silhouettes et masques dessinés pour chaque allure")
+	# Taille de la ville selon la population.
+	var tree := Engine.get_main_loop() as SceneTree
+	var bd := GroundBackdrop.new()
+	bd.size = Vector2(1600, 900)
+	tree.root.add_child(bd)
+	bd.setup({"seed": 3, "ter": "continental", "pop": 2, "csp": "vael"}, 1)
+	var small_n := bd._city.size()
+	var small_k := bd.city_size
+	bd.setup({"seed": 3, "ter": "continental", "pop": 24, "csp": "vael"}, 1)
+	_ok(bd._city.size() > small_n and bd.city_size > small_k, "Visuel sol : une grande ville est plus étendue (%d contre %d bâtiments)" % [bd._city.size(), small_n])
+	var landmark := false
+	for b: Array in bd._city:
+		if String(b[5]) == String(bd.city_style.get("landmark", "")) and float(b[2]) > 40.0:
+			landmark = true
+	_ok(landmark, "Visuel sol : grand édifice dans une grande ville")
+	bd.setup({"seed": 3, "ter": "ocean", "pop": 10, "csp": "khthari"}, 1)
+	var organic := true
+	for b: Array in bd._city:
+		if not String(b[5]) in (bd.city_style.get("kinds", []) as Array) + [String(bd.city_style.get("landmark", "")), "dome"]:
+			organic = false
+	_ok(organic and bd.city_style == SpeciesLook.city_style("khthari"), "Visuel sol : la ville Kh'thari est une ruche")
+	bd.queue_free()

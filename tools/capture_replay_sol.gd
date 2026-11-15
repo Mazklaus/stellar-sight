@@ -91,6 +91,10 @@ func _initialize() -> void:
 	var rep: Dictionary = reps[0]
 	print("décor : ", rep.get("sc", {}), "  déroutes : ", rep.get("routs", []))
 	var panel: GroundReplayPanel = main._hud.ground_replay
+	if OS.get_environment("GALLERY") != "":
+		await _gallery(panel, st, me, rep, out)
+		quit()
+		return
 	var scale_env := OS.get_environment("SCALE")
 	UiSettings.battle_scale = scale_env if scale_env != "" else "bataille"
 	panel.show_replay(st, me, rep)
@@ -153,3 +157,33 @@ func _shot(path: String) -> void:
 func _shot_quiet(path: String) -> void:
 	await RenderingServer.frame_post_draw
 	root.get_viewport().get_texture().get_image().save_png(path)
+
+
+## Galerie du lot 3 : la même bataille rejouée avec d'autres peuples, biomes et tailles de ville
+## (GALLERY=1) : écrit CAPTURE_DIR/galerie-<défenseur>-<biome>.png.
+func _gallery(panel: GroundReplayPanel, st: GameState, me: int, rep: Dictionary, out: String) -> void:
+	var combos := [["vael", "ossarane", "continental", 18], ["ossarane", "vael", "arctic", 9],
+			["choeur", "khthari", "desert", 14], ["ferrocornes", "choeur", "toxic", 7],
+			["khthari", "teyl", "gaia", 20], ["brisecomete", "ferrocornes", "barren", 4],
+			["teyl", "murmurants", "ocean", 12], ["murmurants", "brisecomete", "ecumenopole", 22],
+			["ossarane", "ossarane", "asteroids", 2]]
+	UiSettings.battle_scale = "bataille"
+	for c in combos:
+		var r: Dictionary = rep.duplicate(true)
+		for u in r.get("units", []):
+			u["sp"] = String(c[0]) if int(u["side"]) == 0 else String(c[1])
+		var sc: Dictionary = r.get("sc", {})
+		sc["csp"] = String(c[1])
+		sc["ter"] = String(c[2])
+		sc["pop"] = int(c[3])
+		r["ter"] = String(c[2])
+		r["sc"] = sc
+		panel.show_replay(st, me, r)
+		panel.playing = false
+		panel.modulate.a = 1.0
+		panel.t = panel.day_count() * GroundReplayPanel.DAY_SECONDS * 0.3
+		panel.army.update(panel.t, panel.backdrop.tint)
+		panel.queue_redraw()
+		await _frames(3)
+		await _shot(out + "/galerie-%s-%s.png" % [String(c[1]), String(c[2])])
+		print("  galerie %s contre %s, %s, pop %d" % [c[0], c[1], c[2], c[3]])
