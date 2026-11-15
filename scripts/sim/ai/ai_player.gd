@@ -74,6 +74,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiRelics.think(ctx)
 	AiQuests.think(ctx)
 	AiFauna.think(ctx)
+	AiCrisis.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 
@@ -1094,6 +1095,8 @@ static func _declare_wars(ctx: Dictionary) -> void:
 	var aggr := AiLevels.aggression(e)
 	if _swarm_coalition(ctx):
 		return
+	if Crisis.active(state) and aggr < 2:
+		return  # pas de guerre opportuniste pendant une crise de fin de partie (sauf les plus belliqueux)
 	if _skill(ctx) >= 1 and aggr < 2:
 		for w in e.wars:
 			if _borders(ctx, w):
@@ -1205,9 +1208,10 @@ static func wanted_warships(ctx: Dictionary) -> int:
 	elif _swarm_near(ctx) >= 0:
 		@warning_ignore("integer_division")
 		n = n * 3 / 2 + 1  # un Essaim qui chasse à nos portes : on arme sans attendre d'être sa proie
-	elif aggr < 0:
+	elif aggr < 0 and not Crisis.ongoing(state):
 		@warning_ignore("integer_division")
 		n = maxi(1, n * 2 / 3)
+	n = AiCrisis.wanted(state, n)  # crise de fin de partie annoncée ou arrivée
 	return n + maxi(0, aggr)
 
 
@@ -1662,6 +1666,13 @@ static func _command_fleet(ctx: Dictionary, f: Fleet, home: int, threatened: int
 		if _issue(ctx, SimCommands.move_fleet(e.id, f.id, threatened)):
 			_intent(ctx, "Vole au secours de %s" % state.galaxy.systems[threatened].system_name)
 		return
+	# Crise de fin de partie : frapper ses points faibles, libérer les systèmes tombés.
+	if threatened < 0 and Crisis.active(state):
+		var ct := AiCrisis.target(state, e, f, _skill(ctx))
+		if ct >= 0:
+			if ct != here and _issue(ctx, SimCommands.move_fleet(e.id, f.id, ct)):
+				_intent(ctx, "Part combattre %s à %s" % [Crisis.name_of(Crisis.kind(state)), state.galaxy.systems[ct].system_name])
+			return
 	# En paix : démanteler un repaire pirate connu (Vétéran et plus).
 	if threatened < 0:
 		var lair := AiPirates.lair_target(ctx, f, home)

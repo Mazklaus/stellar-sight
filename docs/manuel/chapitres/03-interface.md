@@ -53,7 +53,7 @@ Les écrans d'empire s'ouvrent en plein écran, par les pictogrammes du panneau 
 | Foi | [[Y]] | Foi d'État, grandes fois (nature, doctrines, préceptes), croyances de vos colonies |
 | Amphictyonie | [[M]] | Séance en cours et vote, file des propositions, pupitre pour proposer, résolutions et Nomos, amphictyons et leurs voix |
 | Commerce | [[C]] | Quatre onglets : routes (capacité, routes intérieures, risques), ressources (luxes, stratégiques, licences, monopoles), marché (achats, commandes, accords), Savoir (accords de recherche, licences de technologie, diffusion) |
-| Chroniques | [[J]] | Quêtes, événements, Reliquaire, Bestiaire |
+| Chroniques | [[J]] | Crise de fin de partie, quêtes, événements, Reliquaire, Bestiaire |
 
 ::: marge
 Tout bouton grisé explique pourquoi en infobulle. Lisez-les avant de crier au bogue. Je parle d'expérience.

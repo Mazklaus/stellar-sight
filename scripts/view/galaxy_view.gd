@@ -191,6 +191,7 @@ func _draw() -> void:
 	_draw_conflicts(px)
 	_draw_lairs(px)
 	_draw_quests(px)
+	_draw_crisis(px)
 	_draw_convoys(px)
 
 	if lens == "economy" and state != null:
@@ -770,6 +771,35 @@ func _draw_guardians(px: float) -> void:
 		draw_circle(Vector2(-1.8, -1.2), 1.3, Color(0.1, 0.02, 0.04))
 		draw_circle(Vector2(1.8, -1.2), 1.3, Color(0.1, 0.02, 0.04))
 		draw_line(Vector2(0, 2.4), Vector2(0, 5.0), Color(0.1, 0.02, 0.04), 0.8)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Crise de fin de partie (voir Crisis, prop. 17 et 30) : un anneau magenta autour des systèmes tombés,
+## et ses points faibles, connus de tous, en losange sous l'étoile (plein pour le cœur).
+func _draw_crisis(px: float) -> void:
+	if state == null or state.crisis.is_empty():
+		return
+	# Étoiles éteintes par la Nuit lente (ou qui se rallument) : un voile sombre.
+	var dark := (Crisis.cur(state).get("dark", {}) as Dictionary).keys() + (state.crisis.get("dark_after", {}) as Dictionary).keys()
+	for sid in dark:
+		var dp: Vector2 = galaxy.systems[int(sid)].position
+		draw_circle(dp, 13.0 * px, Color(0.03, 0.02, 0.08, 0.72))
+		draw_arc(dp, 13.0 * px, 0.0, TAU, 24, Color(0.45, 0.35, 0.75, 0.6), 1.2 * px, true)
+	if not Crisis.active(state):
+		return
+	var col := Color(String(GameData.crises()["npc"]["color"]))
+	for sid in Crisis.held(state):
+		var p: Vector2 = galaxy.systems[int(sid)].position
+		draw_arc(p, 15.0 * px, 0.0, TAU, 28, Color(col, 0.85), 2.2 * px, true)
+		draw_arc(p, 18.5 * px, 0.0, TAU, 28, Color(col, 0.35), 1.2 * px, true)
+	for f in Crisis.stations(state):
+		var heart := Crisis.role_of(state, f.id) == Crisis.ROLE_HEART
+		draw_set_transform(galaxy.systems[f.system_id].position + Vector2(-20.0, 16.0) * px, 0.0, Vector2(px, px))
+		var r := 9.0 if heart else 7.0
+		var pts := PackedVector2Array([Vector2(0, -r), Vector2(r, 0), Vector2(0, r), Vector2(-r, 0)])
+		draw_colored_polygon(pts, col if heart else Color(0.12, 0.02, 0.08, 0.9))
+		pts.append(Vector2(0, -r))
+		draw_polyline(pts, col.lightened(0.3), 1.6, true)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

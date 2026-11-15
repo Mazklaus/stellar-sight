@@ -193,6 +193,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		dpct += Pirates.hunt_pct(state, f, fighters)
 		dpct += Fauna.hunt_pct(state, f, fighters)
 		dpct += Plagues.damage_pct(state, f, sid)
+		dpct += Crisis.damage_pct(state, f, sid)  # Front commun contre la crise
 		dpct += FaithNatures.damage_pct(state, f, sid)
 		dpct += Logistics.damage_pct(state, f)  # réserves épuisées loin des bases
 		if dpct != 0:
@@ -459,6 +460,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 	Guardians.on_battle(state, b, winner, added)
 	Plagues.on_battle(state, b, winner, added)
 	FaithNatures.on_battle(state, b)
+	Crisis.on_battle(state, b, winner, added)
 	# Épaves : le vainqueur étudie les armes et les doctrines des vaincus.
 	if winner >= 0:
 		Research.count_stat(state, winner, "battles_won")

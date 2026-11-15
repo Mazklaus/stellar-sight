@@ -429,6 +429,7 @@ static func compute(state: GameState) -> Array[Dictionary]:
 				var inc: Dictionary = income.get(e.id, {})
 				inc["influence"] = int(inc.get("influence", 0)) + infl
 				income[e.id] = inc
+	CrisisKinds.adjust_trade_income(state, income)  # Grand Krach et Grande Dépression
 	state.trade["routes"] = routes
 	state.trade["ints"] = ints
 	state.trade["income"] = income

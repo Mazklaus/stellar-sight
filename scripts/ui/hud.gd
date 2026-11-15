@@ -609,6 +609,14 @@ func _refresh_fleet_card() -> void:
 			_fleet_stats.text += "\n%s" % String(Plagues.kind_def(String(pd["kind"])).get("trait", ""))
 			if String(pd["star"]) != "":
 				_fleet_stats.text += " Sa couleur : %s." % GalaxyGenerator.star_label(String(pd["star"])).to_lower()
+	elif f.owner == GameState.CRISIS_ID:
+		# Crise de fin de partie : son rôle (cœur, point faible, flotte de guerre) et sa force.
+		var role := Crisis.role_of(_state, f.id)
+		var what := "cœur de la crise : le détruire la vainc" if role == Crisis.ROLE_HEART else ("point faible : le détruire l'affaiblit" if role == Crisis.ROLE_STATION else "flotte de guerre")
+		@warning_ignore("integer_division")
+		_fleet_stats.text += "
+☄ %s  ·  puissance %d  ·  coque %d %%\n%s" % [Crisis.name_of(Crisis.kind(_state)), Combat.fleet_power(f),
+				f.total_hp() * 100 / maxi(1, f.total_max_hp()), what]
 	elif Combat.is_armed(f) or f.total_hp() < f.total_max_hp():
 		@warning_ignore("integer_division")
 		if Ground.full(_state):

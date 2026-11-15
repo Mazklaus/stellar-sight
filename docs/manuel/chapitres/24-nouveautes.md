@@ -3,6 +3,16 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.8
+
+- **Crises de fin de partie**, nouveau chapitre et nouvelle option de partie, **Une** par défaut : à partir de l'an 30 (réglable : 20, 30, 40), une puissance hostile à tous peut se lever, tirée tous les deux ans à chance croissante, de force réglable (**Faible, Normale, Terrible, Cauchemar**) et calée sur les flottes du moment. Réglage **Toutes** pour les enchaîner.
+- Trois crises : le **Récif chantant** (corail, Mondes-Récifs), l'**Inspection Générale** (scellés, amendes, confiscations, Registre central) et la **Déchirure** (une faille dans une tempête, ses ancres, les Pâles).
+- **Préavis** en trois étapes, chacune dans une **fenêtre d'événement** avec des préparatifs ; **actes imprudents** qui avancent la fin de partie ; **points faibles** visibles de tous ; systèmes **tombés** et **libérés**.
+- **Front commun** (vision, passage, +10 % de dégâts), **contribution** et partage de la gloire, **trophée** au coup final, +10 de stabilité pour tous pendant dix ans ; **défaite commune** si la crise tient la moitié des mondes ; date limite repoussée.
+- Onglet **Crise** des Chroniques, marques sur la carte, IA qui s'arme et attaque ses points faibles.
+- Trois autres crises : la **Nuit lente** (des étoiles qui s'éteignent, le Phare des Âges, les Arches), le **Grand Krach** (une panique qui suit les routes commerciales, la Banque des Étoiles, la Grande Dépression) et le **Roi-Corsaire** (une horde pirate possible dès l'an 15, qui s'échappe une fois et laisse des héritiers). Choix des **crises autorisées** dans la nouvelle partie.
+- **Pactes** avec la crise, **trêve sacrée** entre membres du Front, **mesures d'urgence** en trois décrets, **convois** à intercepter, **armes du désespoir**, **cicatrices** et restes sauvages après la victoire.
+
 ### Édition 2.7
 
 - **Terrain galactique et environnements de bataille**, nouvelle option de partie, **Normal** par défaut (chapitre « La guerre ») : nébuleuses nommées en nappes, étoiles à neutrons, trous noirs, géantes bleues, champs d'astéroïdes, nuages de plasma, champs de radiations et **cimetières d'épaves** nés des batailles. Chaque terrain a un inconvénient et un avantage.
@@ -62,7 +72,7 @@ Une refonte du codex plutôt qu'un ajout : chaque chapitre a été relu contre l
 - **Des chiffres là où il n'y avait que des mots** : la valeur exacte d'une route commerciale et des monopoles, chaque ligne de la stabilité, la loyauté d'un sujet clause par clause, la cohésion et l'expérience du Koinon, les trois niveaux de chaque résolution de l'Amphictyonie et leur effet cumulé, les raids, tributs, primes et ports francs des pirates, le renom, l'expérience, l'âge et la désertion des héros, le calcul du score.
 - **Ce qui manquait** : comment on entre en guerre (parjure, grief, alliés, Koinon, sujets, guerre sainte, coalitions, guerres de rupture), le score de guerre et la lassitude (chapitre 7) ; les quêtes de credo et les quatre quêtes galactiques (chapitre 17) ; les talents de stabilité (chapitre 14), de l'ombre (chapitre 13), face aux pirates (chapitre 17) et des héros selon le registre (chapitre 16) ; la rançon des héros, et le fait qu'ils ne meurent pas au combat ; tous les réglages de la nouvelle partie avec leur valeur par défaut (chapitre 1).
 - **Corrections** : le score ne compte pas les peuples rencontrés mais l'avancée vers la victoire de peuple, les reliques et les merveilles ; la troisième marche d'une résolution ajoute ses propres effets ; la Défense mutuelle frappe dans vos propres systèmes ; la liste des victoires communes en compte cinq.
-- **Nouveaux tableaux tirés des données** : toutes les lois du Sénat (chapitre 14), le Reliquaire complet en zone scellée (chapitre 22), et pour chaque peuple, ses **talents à travers la galaxie** (chapitre 19), qui se mettent à jour d'eux-mêmes.
+- **Nouveaux tableaux tirés des données** : toutes les lois du Sénat (chapitre 14), le Reliquaire complet en zone scellée (chapitre 23), et pour chaque peuple, ses **talents à travers la galaxie** (chapitre 20), qui se mettent à jour d'eux-mêmes.
 - **Un lexique** (annexe B) de plus de quatre-vingts termes, avec leur chapitre.
 - **Nouvelles captures** : l'écran Commerce, l'écran Foi et une nature de foi, les peuples de l'écran Colonies. **Cinq nouveaux encarts** à illustrer, MJ-31 à MJ-35, en tête des nouveaux chapitres.
 

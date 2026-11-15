@@ -48,6 +48,8 @@ static func card(id: String) -> Dictionary:
 			_cards[String(c["id"])] = c
 		for c: Dictionary in GameData.guardians().get("cards", []):
 			_cards[String(c["id"])] = c
+		for c: Dictionary in GameData.crises().get("cards", []):
+			_cards[String(c["id"])] = c
 	return _cards.get(id, {})
 
 
@@ -642,6 +644,10 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 			"fragments":
 				if not state.relics.is_empty():
 					out.append("%+d fragments" % int(fx["v"]))
+			"crisis":
+				var cl := Crisis.fx_line(fx)
+				if cl != "":
+					out.append(cl)
 			"relic":
 				out.append("Relique : %s" % String(Relics.def(String(fx["relic"])).get("name", fx["relic"])))
 			"hero":
@@ -758,6 +764,8 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 			"fragments":
 				if not state.relics.is_empty():
 					Relics.add_fragments(state, empire_id, int(fx["v"]))
+			"crisis":
+				Crisis.card_fx(state, empire_id, item, fx, added)
 			"relic":
 				Quests.give_relic(state, empire_id, String(fx["relic"]))
 			"hero":
@@ -794,6 +802,7 @@ static func fill(state: GameState, empire_id: int, item: Dictionary, s: String) 
 	out = out.replace("{planet}", state.galaxy.get_planet(pid).display_name(state.galaxy) if pid >= 0 else "?")
 	out = out.replace("{rival}", _rival_name(state, item))
 	out = out.replace("{hero}", _hero_name(state, item))
+	out = Crisis.fill(state, out)  # jetons des cartes de crise de fin de partie
 	return out
 
 

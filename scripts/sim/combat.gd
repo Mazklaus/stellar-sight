@@ -273,7 +273,9 @@ static func at_war(state: GameState, a: int, b: int) -> bool:
 	if GameState.is_npc(a) or GameState.is_npc(b):
 		return true
 	var e := state.get_empire(a)
-	return e != null and e.wars.has(b)
+	if e == null or not e.wars.has(b):
+		return false
+	return not Crisis.truce(state, a, b)  # trêve sacrée du Front commun contre la crise
 
 
 ## Hostilité entre deux flottes : la guerre entre leurs empires, sauf pour la Faune, dont l'humeur
@@ -402,6 +404,7 @@ static func start_war(state: GameState, a: int, b: int, by_nature := false, join
 	if not eb.wars.has(a):
 		eb.wars.append(a)
 		eb.wars.sort()
+	Crisis.on_war(state, a, b)  # rompre la trêve sacrée coûte cher
 	if joined:
 		Diplomacy.on_war_declared(state, a, b, by_nature, joined)
 		return {}

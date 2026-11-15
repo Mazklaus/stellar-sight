@@ -202,6 +202,16 @@ var terrain := "normal"
 var _terrain_select: OptionButton
 var storms := "actives"
 var _storms_select: OptionButton
+## Crises de fin de partie (voir Crisis) : aucune / une / toutes, date de la fin de partie, force.
+var crises := "une"
+var _crises_select: OptionButton
+var crisis_start := "an30"
+var _crisis_start_select: OptionButton
+var crisis_strength := "normale"
+var _crisis_strength_select: OptionButton
+## Sortes de crise autorisées (vide = toutes).
+var crisis_kinds: Array[String] = []
+var _crisis_kinds_button: MenuButton
 
 ## Réglages enregistrés (dernière partie et préréglages du joueur), dans un fichier JSON de user://.
 const PRESETS_PATH := "user://new_game_presets.json"
@@ -1578,6 +1588,75 @@ func set_storms(id: String) -> void:
 	_refresh_preset()
 
 
+static func _ids_of(defs: Array) -> Array[String]:
+	var out: Array[String] = []
+	for d: Dictionary in defs:
+		out.append(String(d["id"]))
+	return out
+
+
+func set_crises(id: String) -> void:
+	var ids := _ids_of(Crisis.mode_defs())
+	crises = id if ids.has(id) else "aucune"
+	if _crises_select:
+		_crises_select.select(ids.find(crises))
+	if _crisis_start_select:
+		_crisis_start_select.disabled = crises == "aucune"
+	if _crisis_strength_select:
+		_crisis_strength_select.disabled = crises == "aucune"
+	if _crisis_kinds_button:
+		_crisis_kinds_button.disabled = crises == "aucune"
+	_refresh_preset()
+
+
+func set_crisis_start(id: String) -> void:
+	var ids := _ids_of(Crisis.start_defs())
+	crisis_start = id if ids.has(id) else Crisis.default_start()
+	if _crisis_start_select:
+		_crisis_start_select.select(ids.find(crisis_start))
+	_refresh_preset()
+
+
+func set_crisis_strength(id: String) -> void:
+	var ids := _ids_of(Crisis.strength_defs())
+	crisis_strength = id if ids.has(id) else Crisis.default_strength()
+	if _crisis_strength_select:
+		_crisis_strength_select.select(ids.find(crisis_strength))
+	_refresh_preset()
+
+
+## Sortes autorisées ; une liste vide ou complète veut dire toutes. Au moins une reste cochée.
+func set_crisis_kinds(kinds: Array) -> void:
+	var all := Crisis.kind_ids()
+	var out: Array[String] = []
+	for k in kinds:
+		if all.has(String(k)) and not out.has(String(k)):
+			out.append(String(k))
+	out.sort()
+	if out.size() == all.size():
+		out.clear()
+	crisis_kinds = out
+	if _crisis_kinds_button:
+		var pop := _crisis_kinds_button.get_popup()
+		for i in all.size():
+			pop.set_item_checked(i, crisis_kinds.is_empty() or crisis_kinds.has(all[i]))
+		_crisis_kinds_button.text = "Toutes" if crisis_kinds.is_empty() else "%d sur %d" % [crisis_kinds.size(), all.size()]
+	_refresh_preset()
+
+
+func _toggle_crisis_kind(i: int) -> void:
+	var all := Crisis.kind_ids()
+	var cur: Array[String] = all.duplicate() if crisis_kinds.is_empty() else crisis_kinds.duplicate()
+	var k := all[i]
+	if cur.has(k):
+		if cur.size() <= 1:
+			return
+		cur.erase(k)
+	else:
+		cur.append(k)
+	set_crisis_kinds(cur)
+
+
 func set_logistics(id: String) -> void:
 	logistics = id if Logistics.MODES.has(id) else Logistics.NONE
 	if _logistics_select:
@@ -1628,7 +1707,8 @@ func set_migrations(id: String) -> void:
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
 	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
-		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms}
+		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
+		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate()}
 
 
 func set_spectator(on: bool) -> void:
@@ -2055,6 +2135,43 @@ func _build_new_page(root: Control) -> void:
 	_storms_select.tooltip_text = "Tempêtes cosmiques (avec le terrain).\n" + "\n".join(sttip)
 	_storms_select.item_selected.connect(func(i: int) -> void: set_storms(Terrain.STORM_MODES[i]))
 	_labeled_row(game, "Tempêtes", _storms_select)
+	_crises_select = OptionButton.new()
+	_crises_select.clip_text = true
+	var crtip := PackedStringArray()
+	for m: Dictionary in Crisis.mode_defs():
+		_crises_select.add_item(String(m["label"]))
+		crtip.append("%s : %s" % [String(m["label"]), String(m["desc"])])
+	_crises_select.tooltip_text = "Crises de fin de partie : une puissance hostile à tous qui met la galaxie au défi de s'unir (Récif chantant, Inspection Générale, Déchirure…).\n" + "\n".join(crtip)
+	_crises_select.item_selected.connect(func(i: int) -> void: set_crises(String(Crisis.mode_defs()[i]["id"])))
+	_labeled_row(game, "Crises de fin de partie", _crises_select)
+	_crisis_start_select = OptionButton.new()
+	_crisis_start_select.clip_text = true
+	for m: Dictionary in Crisis.start_defs():
+		_crisis_start_select.add_item(String(m["label"]))
+	_crisis_start_select.tooltip_text = "Début de la fin de partie : ensuite, tous les deux ans, une crise peut se lever, de plus en plus sûrement. Des actes imprudents (technologies interdites, reliques, atrocités) l'avancent."
+	_crisis_start_select.item_selected.connect(func(i: int) -> void: set_crisis_start(String(Crisis.start_defs()[i]["id"])))
+	_labeled_row(game, "Fin de partie", _crisis_start_select)
+	_crisis_strength_select = OptionButton.new()
+	_crisis_strength_select.clip_text = true
+	var fotip := PackedStringArray()
+	for m: Dictionary in Crisis.strength_defs():
+		_crisis_strength_select.add_item(String(m["label"]))
+		fotip.append("%s : %s" % [String(m["label"]), String(m["desc"])])
+	_crisis_strength_select.tooltip_text = "Force de la crise, calée sur les flottes du moment.\n" + "\n".join(fotip)
+	_crisis_strength_select.item_selected.connect(func(i: int) -> void: set_crisis_strength(String(Crisis.strength_defs()[i]["id"])))
+	_labeled_row(game, "Force de la crise", _crisis_strength_select)
+	_crisis_kinds_button = MenuButton.new()
+	_crisis_kinds_button.flat = false
+	var kpop := _crisis_kinds_button.get_popup()
+	kpop.hide_on_checkable_item_selection = false
+	var ktip := PackedStringArray()
+	for k in Crisis.kind_ids():
+		var kd := Crisis.kind_def(k)
+		kpop.add_check_item(String(kd.get("name", k)))
+		ktip.append("%s : %s" % [String(kd.get("name", k)), String(kd.get("register", ""))])
+	kpop.id_pressed.connect(_toggle_crisis_kind)
+	_crisis_kinds_button.tooltip_text = "Crises qui peuvent se lever dans la partie (au moins une).\n" + "\n".join(ktip)
+	_labeled_row(game, "Crises autorisées", _crisis_kinds_button)
 	set_peoples(peoples)
 	set_migrations(migrations)
 	set_faiths(faiths)
@@ -2068,6 +2185,10 @@ func _build_new_page(root: Control) -> void:
 	set_logistics(logistics)
 	set_terrain(terrain)
 	set_storms(storms)
+	set_crises(crises)
+	set_crisis_start(crisis_start)
+	set_crisis_strength(crisis_strength)
+	set_crisis_kinds(crisis_kinds)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2808,6 +2929,7 @@ func settings() -> Dictionary:
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
+		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(),
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -2826,7 +2948,8 @@ func default_settings() -> Dictionary:
 		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "plagues": true, "events": Events.default_frequency(), "curios": Curios.default_density(),
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
 		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives", "amphictyony": "active", "vassals": "actifs", "koinon": "actif", "wargoals": "actifs", "occupation": "occupation", "borders": String(GameData.borders()["default_mode"]), "ground": String(GameData.ground()["default_mode"]), "logistics": String(GameData.logistics()["default_mode"]),
-		"terrain": Terrain.default_density(), "storms": Terrain.default_storms()}
+		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
+		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": []}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -2909,6 +3032,10 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_logistics(String(d.get("logistics", base["logistics"])))
 	set_terrain(String(d.get("terrain", base["terrain"])))
 	set_storms(String(d.get("storms", base["storms"])))
+	set_crises(String(d.get("crises", base["crises"])))
+	set_crisis_start(String(d.get("crisis_start", base["crisis_start"])))
+	set_crisis_strength(String(d.get("crisis_strength", base["crisis_strength"])))
+	set_crisis_kinds(d.get("crisis_kinds", base["crisis_kinds"]))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])
