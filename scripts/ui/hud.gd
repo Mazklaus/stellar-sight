@@ -617,6 +617,12 @@ func _refresh_fleet_card() -> void:
 		_fleet_stats.text += "
 ☄ %s  ·  puissance %d  ·  coque %d %%\n%s" % [Crisis.name_of(Crisis.kind(_state)), Combat.fleet_power(f),
 				f.total_hp() * 100 / maxi(1, f.total_max_hp()), what]
+	elif GameState.is_ancient(f.owner):
+		# Puissance ancienne : son humeur envers vous et le rapport de force en mots (prop. 6).
+		var aid := f.owner
+		var mood := "sans opinion" if Ancients.no_opinion(_state, aid) else String(Ancients.attitude(_state, aid, _player).get("label", "?")).to_lower()
+		_fleet_stats.text += "\n✧ %s  ·  %s  ·  %s\n%s" % [Ancients.name_of(_state, aid), String(AncientsUi.STAGE_LABELS.get(Ancients.stage(_state, aid), "")).to_lower(),
+				"en guerre avec vous" if Combat.at_war(_state, aid, _player) else mood, Ancients.force_text(_state, aid, _player)]
 	elif Combat.is_armed(f) or f.total_hp() < f.total_max_hp():
 		@warning_ignore("integer_division")
 		if Ground.full(_state):

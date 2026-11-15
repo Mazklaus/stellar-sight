@@ -101,15 +101,17 @@ static func setup(state: GameState) -> void:
 
 ## Crée un site de fouille dans ce système avec une relique encore enfouie (ou passée au marché noir).
 ## Renvoie false s'il n'y a plus de relique à cacher.
-static func create_site(state: GameState, sid: int) -> bool:
+static func create_site(state: GameState, sid: int, force_rid := "") -> bool:
 	if state.digs.has(sid):
 		return false
 	var free: Array[String] = []
 	for id in ids():
 		var r: Dictionary = state.relics[id]
-		# Les reliques de quête (tag « quete ») et les trophées (« trophee ») ne s'enfouissent qu'après être
-		# passés au marché noir.
-		if int(r["owner"]) == -1 and (is_quest(id) or is_trophy(id)):
+		if force_rid != "" and id != force_rid:
+			continue
+		# Les reliques de quête (tag « quete »), les trophées (« trophee ») et les reliques-clés des anciennes
+		# (« ancienne », placées par AncientsBridges) ne s'enfouissent qu'après être passées au marché noir.
+		if int(r["owner"]) == -1 and force_rid == "" and (is_quest(id) or is_trophy(id) or is_ancient_relic(id)):
 			continue
 		if (int(r["owner"]) == -1 or int(r["owner"]) == MARKET) and not _buried(state, id):
 			free.append(id)
@@ -197,6 +199,8 @@ static func check_start(state: GameState, empire_id: int, sid: int) -> String:
 	var d: Dictionary = state.digs[sid]
 	if int(d["by"]) == empire_id and int(d["next"]) >= 0:
 		return "la fouille est déjà en cours"
+	if bool(d.get("vault_crisis", false)) and not Crisis.active(state):
+		return "ce coffre ne s'ouvre que pendant une crise de fin de partie"
 	var e := state.get_empire(empire_id)
 	var cost: Dictionary = data()["digs"]["start_cost"]
 	for r in cost:
@@ -303,6 +307,7 @@ static func _finish(state: GameState, sid: int, added: Array[Dictionary]) -> voi
 	gain(state, eid, rid)
 	FaithWars.on_dig(state, eid)
 	Guardians.on_dig_finished(state, sid, eid, added)
+	AncientsBridges.on_dig_finished(state, sid, eid, added)
 	Research.count_stat(state, eid, "digs")
 	added.append(state.add_chronicle("%s achève les fouilles de %s et en remonte %s. Les archéologues pleurent ; les comptables aussi, mais de joie." % [
 			e.display_name(), site_name(state, sid), String(def(rid)["name"])], Espionage.public_to(state, [eid])))
@@ -367,6 +372,10 @@ static func is_quest(rid: String) -> bool:
 
 
 ## Trophée de gardien (tag « trophee ») : ne s'obtient qu'en l'abattant.
+static func is_ancient_relic(rid: String) -> bool:
+	return (def(rid).get("tags", []) as Array).has("ancienne")
+
+
 static func is_trophy(rid: String) -> bool:
 	return (def(rid).get("tags", []) as Array).has("trophee")
 

@@ -214,6 +214,7 @@ static func _bombard(state: GameState, sid: int, by: int, owner: int, p: String)
 	var d := posture_def(p)
 	if shielded(state, sid):
 		return
+	AncientsBridges.on_bombard(state, sid, by)  # Monde saint bombardé : guerre sainte
 	add_dev(state, sid, int(d.get("dev_per_day", 0)))
 	var every := int(d.get("pop_every_days", 0))
 	if every > 0 and state.rng.randi_range(1, every) == 1:

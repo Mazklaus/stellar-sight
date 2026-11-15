@@ -886,6 +886,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var cfx := Crisis.effects(state, empire_id)
 			_merge(base, cfx)
 			_merge(exalted, cfx)
+		# Faveurs et postes des puissances anciennes (voir Ancients).
+		if not state.ancients.is_empty():
+			var nfx := Ancients.effects(state, empire_id)
+			_merge(base, nfx)
+			_merge(exalted, nfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

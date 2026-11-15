@@ -187,6 +187,8 @@ static func ship(id: String) -> Dictionary:
 	# figurer parmi les classes que l'on construit.
 	if id.begins_with("crise_"):
 		return crises().get("units", {}).get(id, {})
+	if id.begins_with("ancien_"):
+		return ancients().get("units", {}).get(id, {})
 	if id.begins_with("bete_"):
 		var u: Dictionary = creatures().get("units", {}).get(id, {})
 		return u if not u.is_empty() else guardians().get("units", {}).get(id, {})
@@ -273,6 +275,11 @@ static func pirates() -> Dictionary:
 ## Crises de fin de partie (data/crises.json) : réglages, sortes de crise, unités, cartes.
 static func crises() -> Dictionary:
 	return _load("crises")
+
+
+## Puissances anciennes (data/ancients.json) : catalogue, réglages, unités, cartes.
+static func ancients() -> Dictionary:
+	return _load("ancients")
 
 
 static func creatures() -> Dictionary:

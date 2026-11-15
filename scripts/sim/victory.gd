@@ -354,7 +354,11 @@ static func _conquest(state: GameState, e: Empire, out: Dictionary) -> void:
 		out["lines"].append("Alliés : %d (leurs conquêtes comptent)" % (b.size() - 1))
 	out["lines"].append("Capitales rivales tenues : %d / %d" % [held_caps, targets])
 	out["lines"].append("Capitale d'origine : %s" % ("tenue" if own_ok else "PERDUE, à reprendre"))
-	if targets > 0 and alive == 0:
+	# Une parvenue éveillée, pas encore décadente, interdit la conquête (prop. 24 des anciennes).
+	var par := AncientsWake.blocking_parvenue(state)
+	if par >= 0:
+		out["lines"].append("%s est éveillée : pas de conquête tant qu'elle n'est pas décadente ou abattue" % Ancients.name_of(state, par))
+	elif targets > 0 and alive == 0:
 		out["lines"].append("Seuls encore en vie" if b.size() > 1 else "Seul empire encore en vie")
 		out["won"] = true
 	elif targets > 0 and held_caps == targets and own_ok:
@@ -389,7 +393,8 @@ static func domination_needed(state: GameState, empire_id := -1) -> int:
 			if m != empire_id and Vassals.lord_of(state, m) != empire_id:
 				allies += 1
 	var pct := mini(int(v.get("max_pct", 100)), int(v["systems_pct"]) + allies * int(v.get("ally_pct", 0)))
-	return ceili(state.galaxy.systems.size() * pct / 100.0)
+	# Les poches des anciennes endormies ne comptent pas dans le total (prop. 24 des anciennes).
+	return ceili((state.galaxy.systems.size() - Ancients.sleeping_systems(state)) * pct / 100.0)
 
 
 static func _domination(state: GameState, e: Empire, out: Dictionary) -> void:

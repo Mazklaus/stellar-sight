@@ -3,6 +3,22 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.12
+
+- **Ponts des puissances anciennes** (chapitre 20) : **guerre sainte** qui réveille les Hiérophantes à tout moment (coloniser, bombarder ou prendre un Monde saint), **pèlerinage** des fois Précurseurs et **consécration** des Mondes saints, cinq **reliques-clés** cachées près des poches, **coffres** d'une ancienne abattue (le dernier attend une crise), trait de héros **Ami des anciens**, six **talents de peuple** par couche, origine **Rejeton d'une ancienne** dans l'éditeur d'espèces.
+
+### Édition 2.11
+
+- **L'Éveil des anciennes** (chapitre 20), nouveau réglage **Réveils des anciennes** : la **parvenue** (dès l'an 20 face à un bloc trop fort, ou aussitôt qu'on lui prend un monde) avec un an de préavis, ses **Dominions** (tribut, voix muette), l'**Endiguement** et la session extraordinaire de l'Amphictyonie, la **décadence** vingt ans après ; les **gardiennes** qui se lèvent contre une crise de fin de partie ; la **Guerre au ciel** entre rivales, ses camps et la **Ligue des non-alignés** ; les **tombeaux de Kheb**, un par an, un sur cinq fou.
+
+### Édition 2.10
+
+- **Puissances anciennes**, nouveau chapitre et nouvelle option de partie, **Normal** par défaut : de une à cinq civilisations d'avant, repliées dans une poche de trois à cinq systèmes, avec des mondes achevés, des bâtiments uniques et des flottes immenses qui ne bougent pas. Cinq sortes : le **Conservatoire d'Ylm**, la **Dynastie Sépulcrale de Kheb**, les **Hiérophantes de l'Aube Première**, la **Grande Bibliothèque d'Aster** et les **Bergers d'Orrhë**.
+- **Fiche** en fenêtre d'événement au premier contact, opinion de -200 à +200 en trois attitudes, rapport de force dit en phrases, section **Anciennes** de l'écran Diplomatie.
+- **Requêtes**, **missions** de dix ans, **cadeaux** (dont le prêt d'un vaisseau ancien), **colères** propres à chacune, **ultimatums** et **guerre de Punition**.
+- **Contributions** et **postes honorifiques** tous les cinq ans, avec un pouvoir et un vaisseau nommé ; le Bibliothécaire et le Naturaliste vendent des réponses.
+- Mondes anciens **conquis** : butin, triomphe et +5 % de production ; les anciennes endormies sont hors du compte de la conquête et de la domination. Chapitres 21 à 24 renumérotés.
+
 ### Édition 2.9
 
 - **Crises de fin de partie**, nouveau chapitre et nouvelle option de partie, **Une** par défaut : à partir de l'an 30 (réglable : 20, 30, 40), une puissance hostile à tous peut se lever, tirée tous les deux ans à chance croissante, de force réglable (**Faible, Normale, Terrible, Cauchemar**) et calée sur les flottes du moment. Réglage **Toutes** pour les enchaîner.
@@ -80,7 +96,7 @@ Une refonte du codex plutôt qu'un ajout : chaque chapitre a été relu contre l
 - **Des chiffres là où il n'y avait que des mots** : la valeur exacte d'une route commerciale et des monopoles, chaque ligne de la stabilité, la loyauté d'un sujet clause par clause, la cohésion et l'expérience du Koinon, les trois niveaux de chaque résolution de l'Amphictyonie et leur effet cumulé, les raids, tributs, primes et ports francs des pirates, le renom, l'expérience, l'âge et la désertion des héros, le calcul du score.
 - **Ce qui manquait** : comment on entre en guerre (parjure, grief, alliés, Koinon, sujets, guerre sainte, coalitions, guerres de rupture), le score de guerre et la lassitude (chapitre 7) ; les quêtes de credo et les quatre quêtes galactiques (chapitre 17) ; les talents de stabilité (chapitre 14), de l'ombre (chapitre 13), face aux pirates (chapitre 17) et des héros selon le registre (chapitre 16) ; la rançon des héros, et le fait qu'ils ne meurent pas au combat ; tous les réglages de la nouvelle partie avec leur valeur par défaut (chapitre 1).
 - **Corrections** : le score ne compte pas les peuples rencontrés mais l'avancée vers la victoire de peuple, les reliques et les merveilles ; la troisième marche d'une résolution ajoute ses propres effets ; la Défense mutuelle frappe dans vos propres systèmes ; la liste des victoires communes en compte cinq.
-- **Nouveaux tableaux tirés des données** : toutes les lois du Sénat (chapitre 14), le Reliquaire complet en zone scellée (chapitre 23), et pour chaque peuple, ses **talents à travers la galaxie** (chapitre 20), qui se mettent à jour d'eux-mêmes.
+- **Nouveaux tableaux tirés des données** : toutes les lois du Sénat (chapitre 14), le Reliquaire complet en zone scellée (chapitre 24), et pour chaque peuple, ses **talents à travers la galaxie** (chapitre 21), qui se mettent à jour d'eux-mêmes.
 - **Un lexique** (annexe B) de plus de quatre-vingts termes, avec leur chapitre.
 - **Nouvelles captures** : l'écran Commerce, l'écran Foi et une nature de foi, les peuples de l'écran Colonies. **Cinq nouveaux encarts** à illustrer, MJ-31 à MJ-35, en tête des nouveaux chapitres.
 
