@@ -390,7 +390,10 @@ static func begin(state: GameState, k: String, added: Array[Dictionary]) -> void
 	var kd := kind_def(k)
 	var steps: Array = []
 	var seers := CrisisAllies.foreseers(state, k)
-	var ahead := CrisisAllies.foresight_days(k) if not seers.is_empty() and (kd.get("notice", [0]) as Array).size() <= 1 else 0
+	for x in MinorsBridges.presage_seers(state):  # Préscience de Quellis (peuple mineur)
+		if not seers.has(x):
+			seers.append(x)
+	var ahead := maxi(CrisisAllies.foresight_days(k), MinorsBridges.presage_days(state, seers)) if not seers.is_empty() and (kd.get("notice", [0]) as Array).size() <= 1 else 0
 	for d in kd.get("notice", [0]):
 		steps.append(state.tick + ahead + int(d))
 	if ahead > 0:
@@ -437,6 +440,8 @@ static func _omen(state: GameState, c: Dictionary, added: Array[Dictionary]) -> 
 		for t in CrisisAllies.talents_of(state, int(eid), String(c["kind"])):
 			if t.has("omen"):
 				omen = String(t["omen"])
+		if omen == "":
+			omen = MinorsBridges.omen(state, int(eid))
 		if omen == "":
 			continue
 		omen = omen.replace("{empire}", state.get_empire(int(eid)).display_name()).replace("{origin}", state.galaxy.systems[o].system_name if o >= 0 else "la bordure")

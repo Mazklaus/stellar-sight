@@ -106,7 +106,9 @@
 		"invade_populated": "monde peuplé envahi (Mondes protégés)",
 		"orbital_bombing": "monde peuplé bombardé sans discernement (Mondes protégés)",
 		"requisition": "monde peuplé réquisitionné pour nourrir une flotte (Mondes protégés)",
-		"war_limits": "monde peuplé envahi dans une guerre réglée (Guerre réglée)"
+		"war_limits": "monde peuplé envahi dans une guerre réglée (Guerre réglée)",
+		"minor_conquest": "peuple pré-spatial conquis (Non-ingérence)",
+		"minor_protege": "protégé d'un autre amphictyon conquis (peuples mineurs)"
 	},
 	"families": [
 		{"id": "commerce", "label": "Commerce", "glyph": "trade",
@@ -241,6 +243,19 @@
 					{"name": "Eaux territoriales", "fx": {}, "sov_fast": true},
 					{"name": "Souveraineté", "fx": {}, "sov_close_free": true},
 					{"name": "Espaces souverains", "fx": {}, "sov_double": true}
+				]}},
+		{"id": "mineurs", "label": "Peuples mineurs", "glyph": "peoples", "requires": "minors",
+			"a": {"label": "Non-ingérence", "text": "Les jeunes peuples se développent seuls : pas de poste ouvert, pas de transfert de technologie, et conquérir un pré-spatial est une infraction ; ensuite, les réserves apaisent les consciences.",
+				"levels": [
+					{"name": "Non-ingérence", "fx": {}, "bans": ["minor_open_post", "minor_tech", "minor_conquest"]},
+					{"name": "Réserves protégées", "fx": {"stability": 1}},
+					{"name": "Gardiens des jeunes peuples", "fx": {"stability": 1, "opinion_all": 3}}
+				]},
+			"b": {"label": "Exploitation", "text": "Les jeunes peuples sont une ressource : observation +50 %, puis Égalité des échanges (transfert de technologie et commerce doublés), enfin influence tirée de leur tutelle.",
+				"levels": [
+					{"name": "Exploitation", "fx": {}, "minor_post_pct": 50},
+					{"name": "Égalité des échanges", "fx": {}, "minor_equal": 1},
+					{"name": "Tutelle galactique", "fx": {"production_pct": {"influence": 5}}}
 				]}}
 	],
 	"sanctions": [

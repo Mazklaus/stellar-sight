@@ -1,0 +1,1206 @@
+{
+	"_doc": "Peuples mineurs (étude du 2026-11-15, 35 propositions validées). Catalogue ouvert : chaque entrée de « kinds » est un peuple (au plus un exemplaire par partie), avec sa famille (pre : pré-spatial, un monde et des âges ; space : cité-État d'un système, une flotte), sa fiche d'espèce légère (couches, mondes préférés) pour la mosaïque des populations, son orientation, son cadeau de suzerain et son trait d'assimilation. Les peuples mineurs sont des puissances neutres à identifiant réservé (GameState.MINOR_BASE + rang), hors de la liste des empires. Les pré-conscients (« presapients ») sont des espèces sans diplomatie qu'on élève.",
+	"_sources": "Civilization Wiki, City-state (Civ6), Independent Power et City-State (Civ7) ; Stellaris Wiki, Pre-FTL species ; Humankind Wiki, Independent People ; Endless Legend Wiki, Minor Factions ; Whisper of the House, Endless Legend 2 ; Gamepressure, Endless Space 2 Diplomacy ; forum Amplitude (traits ES2) ; manuel de Distant Worlds 2 (p. 68-70) ; Galactic Civilizations Wiki, Minor race (consultés le 2026-11-15).",
+	"npc": {
+		"name": "Peuples mineurs",
+		"short": "Mineur"
+	},
+	"modes": [
+		{
+			"id": "aucun",
+			"label": "Aucun",
+			"per_systems": 0,
+			"text": "Pas de peuples mineurs dans la galaxie."
+		},
+		{
+			"id": "peu",
+			"label": "Peu",
+			"per_systems": 18,
+			"text": "Un peuple pour 18 systèmes environ."
+		},
+		{
+			"id": "normal",
+			"label": "Normal",
+			"per_systems": 12,
+			"text": "Un peuple pour 12 systèmes environ (une douzaine sur 150), moitié pré-spatiaux."
+		},
+		{
+			"id": "beaucoup",
+			"label": "Beaucoup",
+			"per_systems": 8,
+			"text": "Un peuple pour 8 systèmes environ."
+		}
+	],
+	"default_mode": "normal",
+	"count": {
+		"min": 2,
+		"_doc": "Prop. 2 : nombre = systèmes / per_systems (au moins min, au plus GameState.MINOR_MAX, et au plus le nombre de sortes du catalogue)."
+	},
+	"place": {
+		"min_jumps": 3,
+		"near_jumps": 6,
+		"apart": 2,
+		"_doc": "À min_jumps sauts au moins de tout départ ; chaque départ en a au moins un à near_jumps sauts ou moins si possible ; apart sauts entre deux peuples ; jamais dans la poche d'une ancienne."
+	},
+	"ages": [
+		{
+			"id": "tribal",
+			"label": "Tribal",
+			"pop": 3,
+			"years": 10,
+			"troops": 0
+		},
+		{
+			"id": "fer",
+			"label": "Bronze et fer",
+			"pop": 5,
+			"years": 9,
+			"troops": 1
+		},
+		{
+			"id": "feodal",
+			"label": "Féodal",
+			"pop": 7,
+			"years": 8,
+			"troops": 2
+		},
+		{
+			"id": "industriel",
+			"label": "Industriel",
+			"pop": 9,
+			"years": 7,
+			"troops": 3
+		},
+		{
+			"id": "atomique",
+			"label": "Atomique",
+			"pop": 11,
+			"years": 6,
+			"troops": 5
+		},
+		{
+			"id": "aube",
+			"label": "Aube spatiale",
+			"pop": 13,
+			"years": 6,
+			"troops": 6
+		}
+	],
+	"age_rules": {
+		"start_max": 4,
+		"aware_pct": [
+			100,
+			85,
+			70,
+			50
+		],
+		"fast_after_years": 20,
+		"levy_min_age": 2,
+		"_doc": "Prop. 6 : années par âge (ajustées par la conscience : aware_pct %), deux fois plus vite après fast_after_years ans de partie. Au départ, Atomique au plus. troops = garnison en plus de la population."
+	},
+	"space": {
+		"pop": 10,
+		"fleet_pct": 100,
+		"ships": [
+			"corvette",
+			"fregate"
+		],
+		"rebuild_days": 720,
+		"_doc": "Cité-État : population, flotte = fleet_pct % de la flotte militaire de départ d'un empire, reconstruite tous les rebuild_days jours si elle a péri (en paix)."
+	},
+	"observation": {
+		"cost": {
+			"materials": 100,
+			"influence": 20
+		},
+		"knowledge": {
+			"discret": 3,
+			"ouvert": 5
+		},
+		"_doc": "Prop. 7 : poste d'observation au-dessus d'un pré-spatial (un par empire et par peuple). Discret : Savoir +3 par mois ; ouvert : +5 mais la conscience monte (lot 2)."
+	},
+	"awareness": {
+		"levels": [
+			"Ignorants",
+			"Rumeurs",
+			"Soupçons",
+			"Savent"
+		],
+		"thresholds": [
+			0,
+			25,
+			50,
+			80
+		],
+		"fleet": 1,
+		"combat": 5,
+		"colony": 5,
+		"open_post": 2,
+		"decay": 1,
+		"decay_above": 10,
+		"shock_years": [
+			10,
+			7,
+			4,
+			2
+		],
+		"_doc": "Prop. 8 (lot 2) : points de 0 à 100 ; par mois : +fleet par empire dont une flotte visible est dans le système, +open_post par poste ouvert, +colony par colonie d'empire dans le système ; +combat par bataille dans le système ; -decay au-dessus de decay_above. Se révéler : 100. Durée du choc culturel d'une conquête selon le niveau."
+	},
+	"attitudes": {
+		"weights": {
+			"hostile": 25,
+			"neutre": 50,
+			"amical": 25
+		},
+		"start_fav": {
+			"hostile": 0,
+			"neutre": 5,
+			"amical": 15
+		},
+		"labels": {
+			"hostile": "Hostile",
+			"neutre": "Neutre",
+			"amical": "Amical"
+		}
+	},
+	"favor": {
+		"max": 100,
+		"contact": 20,
+		"friend": 50,
+		"suz_min": 60,
+		"suz_gap": 10,
+		"envoys": [
+			{
+				"label": "Émissaire discret",
+				"influence": 1,
+				"fav": 1
+			},
+			{
+				"label": "Ambassade soutenue",
+				"influence": 3,
+				"fav": 2
+			},
+			{
+				"label": "Ambassade fastueuse",
+				"influence": 6,
+				"fav": 3
+			}
+		],
+		"decay_months": 2,
+		"gifts": {
+			"energy": {
+				"cost": 100,
+				"fav": 5
+			},
+			"materials": {
+				"cost": 100,
+				"fav": 4
+			}
+		},
+		"gift_cd_days": 30,
+		"grudge_days": 1800,
+		"_doc": "Prop. 10-11 : faveur 0-100 par empire. Émissaire : ordre mensuel en influence (3 intensités). Sans émissaire, -1 tous les decay_months mois. Cadeaux une fois par mois. Attaquer : faveur 0 et rancune (aucun gain) pendant grudge_days. Paliers : contact 20 (commerce, plus d'hostilité), ami 50 (bonus d'orientation), suzerain au moins suz_min et suz_gap de plus que le deuxième."
+	},
+	"orientations": {
+		"militaire": {
+			"label": "Militaire",
+			"friend": {
+				"materials": 3
+			},
+			"loot": {
+				"materials": 250
+			}
+		},
+		"economique": {
+			"label": "Économique",
+			"friend": {
+				"energy": 4
+			},
+			"loot": {
+				"energy": 250
+			}
+		},
+		"savant": {
+			"label": "Savant",
+			"friend": {
+				"knowledge": 3
+			},
+			"loot": {
+				"knowledge": 200
+			}
+		},
+		"foi": {
+			"label": "Foi et culture",
+			"friend": {
+				"influence": 1
+			},
+			"loot": {
+				"influence": 60
+			}
+		},
+		"diplomatique": {
+			"label": "Diplomatique",
+			"friend": {
+				"influence": 2
+			},
+			"loot": {
+				"influence": 80
+			}
+		},
+		"expansion": {
+			"label": "Expansion",
+			"friend": {
+				"materials": 2,
+				"energy": 2
+			},
+			"loot": {
+				"materials": 150,
+				"energy": 150
+			}
+		}
+	},
+	"quests": {
+		"first_days": 180,
+		"every_days": 720,
+		"expire_days": 1080,
+		"reward": 25,
+		"list": [
+			{
+				"id": "materiaux",
+				"label": "Livrer 300 matériaux",
+				"text": "Leurs forges manquent de tout : ils demandent 300 matériaux.",
+				"deliver": {
+					"materials": 300
+				}
+			},
+			{
+				"id": "energie",
+				"label": "Livrer 200 énergie",
+				"text": "Une saison sombre approche : 200 énergie les aideraient à passer l'hiver.",
+				"deliver": {
+					"energy": 200
+				}
+			},
+			{
+				"id": "techno",
+				"label": "Découvrir une technologie",
+				"text": "Leurs sages rêvent d'un savoir : le premier qui le découvre aura leur gratitude.",
+				"tech": true
+			},
+			{
+				"id": "pirates",
+				"label": "Détruire un repaire pirate",
+				"text": "Un repaire pirate les rançonne : qui le détruit aura leur gratitude.",
+				"lair_jumps": 3,
+				"space_only": false
+			},
+			{
+				"id": "garde",
+				"label": "Monter la garde",
+				"text": "Des ombres rôdent : ils demandent qu'une flotte armée stationne chez eux pendant 30 jours.",
+				"guard_days": 30
+			},
+			{
+				"id": "conversion",
+				"label": "Les convertir",
+				"text": "Ils cherchent une foi : celui dont la foi d'État devient la leur aura leur gratitude.",
+				"faith": true
+			}
+		],
+		"_doc": "Prop. 13 : une quête à la fois ; le premier qui la remplit gagne reward de faveur ; nouvelle quête every_days jours plus tard ; une quête non remplie expire au bout d'expire_days."
+	},
+	"levy": {
+		"days": 720,
+		"energy_pct": 100,
+		"pre_energy": 100,
+		"pre_fx": {
+			"ground_damage_pct": 10
+		},
+		"_doc": "Prop. 14 : le suzerain loue la flotte d'un spatial (énergie = puissance × energy_pct %) ou les régiments d'un pré-spatial (âge féodal au moins : pre_energy et pre_fx pendant la durée) pour days jours."
+	},
+	"integration": {
+		"suz_days": 720,
+		"fav": 100,
+		"base": 150,
+		"per_done": 50,
+		"integ": 90,
+		"stolen_fav": 50,
+		"_doc": "Prop. 17 : suzerain depuis suz_days jours et faveur fav : coût unique base + per_done par intégration déjà faite, en influence. Habitants intégrés à integ %. Souvenir « Il m'a volé mon protégé » chez ceux qui avaient stolen_fav de faveur."
+	},
+	"conquest": {
+		"stab": -20,
+		"memory_fav": 20,
+		"casus_days": 1800,
+		"liberate_days": 360,
+		"_doc": "Prop. 18 : choc culturel (stabilité stab pendant shock_years selon la conscience), souvenir chez ceux qui avaient memory_fav, motif « Protection » pour le suzerain pendant casus_days, libération possible pendant liberate_days."
+	},
+	"war": {
+		"peace_days": 180,
+		"peace_cost": 30
+	},
+	"traits": {
+		"base_slots": 1,
+		"slot_techs": [
+			"chancelleries",
+			"ambassades"
+		],
+		"swap_cost": 50,
+		"_doc": "Prop. 21 : traits d'assimilation actifs : base_slots, +1 par technologie de slot_techs connue."
+	},
+	"programs": {
+		"fonds": {
+			"label": "Fonds de développement",
+			"cost": {
+				"energy": 150
+			},
+			"days": 720,
+			"min": "friend",
+			"text": "Leur cadeau compte double pour vous pendant 2 ans (suzerain), ou leur bonus d'amitié (ami)."
+		},
+		"migration": {
+			"label": "Migration choisie",
+			"n": [
+				2,
+				3
+			],
+			"cd_days": 1080,
+			"min": "friend",
+			"text": "2 ou 3 habitants partent vers votre colonie la plus proche : une nouvelle espèce dans votre mosaïque."
+		},
+		"escadre": {
+			"label": "Escadre étrangère",
+			"power_pct": 30,
+			"cd_days": 1440,
+			"min": "friend",
+			"text": "Une petite flotte offerte."
+		},
+		"_doc": "Prop. 15 (lot 2), spatiaux seulement."
+	},
+	"accords": {
+		"guide": {
+			"label": "Guidance",
+			"influence": 1,
+			"years": 5,
+			"fav": 1,
+			"text": "Leur credo glisse vers le vôtre (5 ans) ; ensuite +1 de faveur par mois."
+		},
+		"tech": {
+			"label": "Transfert de technologie",
+			"influence": 1,
+			"speed": 3,
+			"text": "Leurs âges passent trois fois plus vite ; à l'Aube spatiale, ils naissent votre protégé."
+		},
+		"trade": {
+			"label": "Accord commercial",
+			"influence": 1,
+			"energy_per_age": 1,
+			"text": "Énergie chaque mois selon leur âge (1 + âge)."
+		},
+		"_doc": "Prop. 16 (lot 2), pré-spatiaux révélés (ou infiltrés) seulement ; chacun coûte influence par mois."
+	},
+	"hostile": {
+		"raid_jumps": 3,
+		"raid_chance": 6,
+		"raid_days": 60,
+		"lair_years": 5,
+		"_doc": "Prop. 22 (lot 2) : un spatial hostile est en guerre avec les empires sous 20 de faveur ; chaque mois, une chance sur raid_chance de lancer sa flotte sur une colonie à raid_jumps sauts ; sans ami pendant lair_years ans, un repaire pirate peut naître à côté de lui."
+	},
+	"drama": {
+		"nuke_years": 10,
+		"nuke_pct": 10,
+		"extinct_pct": 1,
+		"asteroid_per_year": 1,
+		"asteroid_save_energy": 100,
+		"decline_days": 30,
+		"decline_pct": 50,
+		"_doc": "Prop. 23 (lot 2) : guerre nucléaire (âge atomique ou plus) : tous les nuke_years ans, nuke_pct % de chances (retour à l'âge tribal), dont extinct_pct % d'extinction ; astéroïde : asteroid_per_year chance sur 100 par an et par peuple ; un spatial assiégé decline_days jours entre en déclin (intégration à decline_pct % du prix, sans être suzerain)."
+	},
+	"rise": {
+		"_doc": "Prop. 24 (lot 2) : un pré-spatial qui achève l'Aube spatiale devient un spatial ; sous transfert de technologie, il naît protégé du donneur (faveur 100, suzerain verrouillé)."
+	},
+	"secession": {
+		"_doc": "Prop. 25 (lot 2) : un système en sécession devient un peuple mineur spatial de son espèce, neutre ; l'ancien maître a faveur 0 et une rancune.",
+		"name": "Libres de %s",
+		"short": "Libres de %s"
+	},
+	"presapients": {
+		"per_systems": 50,
+		"tech": "genetique",
+		"cost": {
+			"knowledge": 300
+		},
+		"days": 1800,
+		"pop": 2,
+		"stab_days": 1800,
+		"kinds": {
+			"pres_brouteurs": {
+				"name": "Brouteurs de lune",
+				"short": "Brouteurs",
+				"registre": "Classique / hard SF",
+				"species": {
+					"archetype": "humanoide",
+					"gouvernement": "republique",
+					"credo": "survie",
+					"traits": []
+				},
+				"preferred": [
+					"continental",
+					"ocean"
+				],
+				"color": "#a8c890",
+				"lore": "Des herbivores patients qui comptent jusqu'à sept et enterrent leurs morts sous des cairns."
+			},
+			"pres_tisseurs": {
+				"name": "Tisseurs des marais",
+				"short": "Tisseurs",
+				"registre": "Horreur biologique",
+				"species": {
+					"archetype": "reptilien",
+					"gouvernement": "ruche",
+					"credo": "survie",
+					"traits": []
+				},
+				"preferred": [
+					"ocean",
+					"desert"
+				],
+				"color": "#90b0a0",
+				"lore": "Ils tissent des toiles grandes comme des villages, et y suspendent des objets brillants sans savoir pourquoi."
+			},
+			"pres_lueurs": {
+				"name": "Lueurs des cavernes",
+				"short": "Lueurs",
+				"registre": "Cosmique / étrange",
+				"species": {
+					"archetype": "energetique",
+					"gouvernement": "conscience",
+					"credo": "foi",
+					"traits": []
+				},
+				"preferred": [
+					"arctic",
+					"desert"
+				],
+				"color": "#b8a8e0",
+				"lore": "Des feux follets qui se rassemblent la nuit pour chanter à la même fréquence que les étoiles."
+			}
+		},
+		"_doc": "Prop. 26 (lot 2) : rares planètes colonisables abritant une espèce pré-consciente ; avec la technologie tech, un projet (cost, days) sur la colonie en fait pop habitants d'une nouvelle espèce, reconnaissante (stabilité +5 pendant stab_days)."
+	},
+	"bridges": {
+		"same_faith": 1,
+		"trade_route": 2,
+		"trade_energy": 3,
+		"meddle": {
+			"cost": {
+				"influence": 40
+			},
+			"fav": 15,
+			"discovery_pct": 25,
+			"cd_days": 360
+		},
+		"incite": {
+			"cost": {
+				"influence": 60
+			},
+			"cd_days": 720
+		},
+		"infiltrate": {
+			"cost": {
+				"influence": 30,
+				"knowledge": 50
+			}
+		},
+		"ylm_conquest": -50,
+		"ylm_protect": 10,
+		"hero_cost": {
+			"influence": 50
+		},
+		"threat": {
+			"ratio": 3,
+			"fav": 15,
+			"cd_days": 720
+		},
+		"domination_div": 2,
+		"voix": 30,
+		"presage_days": 360,
+		"_doc": "Lot 3 : faveur par mois pour la même foi (prop. 28) et l'accord commercial d'un spatial (prop. 30 : +trade_route de faveur, +trade_energy énergie) ; opérations (prop. 29) ; humeur du Conservatoire d'Ylm (prop. 31) ; héros offert (prop. 32) ; tribut de la Horde (menace si puissance ≥ ratio × celle du peuple) ; systèmes des protégés comptés à 1/domination_div pour la domination ; voix de l'Amphictyonie (sur 1000) par cadeau ; préavis de Quellis."
+	},
+	"talents": {
+		"gouvernement": {
+			"ruche": {
+				"label": "Ruche : une seule chair",
+				"text": "Intègre les peuples mineurs de gouvernement ruche à moitié prix.",
+				"integ_ruche_pct": 50
+			},
+			"horde": {
+				"label": "Horde : tribut par la menace",
+				"text": "Peut menacer un peuple mineur trois fois plus faible : +15 de faveur, par la peur.",
+				"threat": 1
+			}
+		},
+		"credo": {
+			"profit": {
+				"label": "Profit : comptoirs",
+				"text": "Les accords commerciaux avec les peuples mineurs rapportent le double d'énergie.",
+				"trade_x": 2
+			},
+			"foi": {
+				"label": "Foi : missions",
+				"text": "La faveur gagnée par la même foi est doublée.",
+				"faith_x": 2
+			},
+			"raison": {
+				"label": "Raison : maîtres d'école",
+				"text": "Le transfert de technologie fait avancer les âges deux fois plus vite encore.",
+				"tech_x": 2
+			},
+			"honneur": {
+				"label": "Honneur : serment des lances",
+				"text": "La levée coûte moitié prix.",
+				"levy_pct": 50
+			}
+		},
+		"_doc": "Prop. 32 (lot 3) : talents par couche d'espèce, valables pour les peuples créés."
+	},
+	"kinds": {
+		"velkarra": {
+			"name": "Maisons de Vel-Karra",
+			"short": "Vel-Karra",
+			"registre": "Médiéval spatial",
+			"family": "space",
+			"orientation": "militaire",
+			"color": "#c89a5a",
+			"species": {
+				"archetype": "humanoide",
+				"gouvernement": "feodalite",
+				"credo": "honneur",
+				"traits": [
+					"tenaces"
+				]
+			},
+			"preferred": [
+				"continental",
+				"desert"
+			],
+			"blurb": "Une poignée de maisons chevaleresques sur un monde fortifié, qui prêtent serment à qui les mérite et se battent entre elles le reste du temps.",
+			"gift": {
+				"label": "Chevaliers du serment",
+				"text": "Vos régiments infligent 15 % de dégâts en plus au sol.",
+				"fx": {
+					"ground_damage_pct": 15
+				}
+			},
+			"trait": {
+				"label": "Écuyers de Vel-Karra",
+				"text": "Recrues des régiments 15 % moins chères.",
+				"fx": {
+					"recruits_pct": -15
+				}
+			}
+		},
+		"orvane": {
+			"name": "Moissonneurs de brume d'Orvane",
+			"short": "Orvane",
+			"registre": "Médiéval spatial",
+			"family": "pre",
+			"orientation": "economique",
+			"color": "#9ab87a",
+			"species": {
+				"archetype": "reptilien",
+				"gouvernement": "feodalite",
+				"credo": "survie",
+				"traits": [
+					"fecondite"
+				]
+			},
+			"preferred": [
+				"ocean",
+				"continental"
+			],
+			"blurb": "Des seigneurs-paysans reptiliens qui récoltent une sève dans la brume du matin et la vendent à prix d'or aux comptoirs de la vallée.",
+			"gift": {
+				"label": "Sève de brume",
+				"text": "Leur sève nourrit vos colons : croissance des colonies +15 %.",
+				"fx": {
+					"growth_pct": 15
+				}
+			},
+			"trait": {
+				"label": "Greniers d'Orvane",
+				"text": "Croissance des colonies +10 %.",
+				"fx": {
+					"growth_pct": 10
+				}
+			}
+		},
+		"tisseterre": {
+			"name": "République de Tisseterre",
+			"short": "Tisseterre",
+			"registre": "Space opera héroïque",
+			"family": "space",
+			"orientation": "diplomatique",
+			"color": "#7ab0d8",
+			"species": {
+				"archetype": "humanoide",
+				"gouvernement": "republique",
+				"credo": "raison",
+				"traits": [
+					"orateurs"
+				]
+			},
+			"preferred": [
+				"continental",
+				"ocean"
+			],
+			"blurb": "Une petite république de diplomates, d'avocats et de rêveurs, dont le sénat siège sans interruption depuis trois siècles. Les débats aussi.",
+			"gift": {
+				"label": "Le sénat vous écoute",
+				"text": "+3 % des voix à l'Amphictyonie.",
+				"voix": 1
+			},
+			"trait": {
+				"label": "Juristes de Tisseterre",
+				"text": "Opinion de tous les empires +5.",
+				"fx": {
+					"opinion_all": 5
+				}
+			}
+		},
+		"lumen": {
+			"name": "Ordre du Phare de Lumen",
+			"short": "Lumen",
+			"registre": "Space opera héroïque",
+			"family": "pre",
+			"orientation": "savant",
+			"color": "#e8d890",
+			"species": {
+				"archetype": "humanoide",
+				"gouvernement": "theocratie",
+				"credo": "foi",
+				"traits": [
+					"erudits"
+				]
+			},
+			"preferred": [
+				"arctic",
+				"continental"
+			],
+			"blurb": "Des moines qui gardent un phare au bout du monde et recopient des savoirs dont ils ne comprennent pas encore la moitié.",
+			"gift": {
+				"label": "Copistes du phare",
+				"text": "Un eurêka tous les 3 ans (un quart de votre recherche en cours).",
+				"eureka_days": 1080
+			},
+			"trait": {
+				"label": "Bibliothèques de Lumen",
+				"text": "Savoir +8 %.",
+				"fx": {
+					"production_pct": {
+						"knowledge": 8
+					}
+				}
+			}
+		},
+		"grimhal": {
+			"name": "Forges-Bastions de Grimhal",
+			"short": "Grimhal",
+			"registre": "Grimdark",
+			"family": "space",
+			"orientation": "militaire",
+			"color": "#9a7a7a",
+			"species": {
+				"archetype": "lithoide",
+				"gouvernement": "horde",
+				"credo": "honneur",
+				"traits": [
+					"forgerons"
+				]
+			},
+			"preferred": [
+				"desert",
+				"arctic"
+			],
+			"blurb": "Un monde-forteresse de pierre vivante, où chaque génération ajoute une muraille et oublie pourquoi.",
+			"gift": {
+				"label": "Flotte-forteresse",
+				"text": "La levée de leur flotte coûte moitié prix.",
+				"levy_pct": 50
+			},
+			"trait": {
+				"label": "Maçons de Grimhal",
+				"text": "Fortifications +25 %.",
+				"fx": {
+					"fort_pct": 25
+				}
+			}
+		},
+		"cendre": {
+			"name": "Pénitents de Cendre",
+			"short": "Cendre",
+			"registre": "Grimdark",
+			"family": "pre",
+			"orientation": "foi",
+			"color": "#a08070",
+			"start_age": 4,
+			"species": {
+				"archetype": "humanoide",
+				"gouvernement": "theocratie",
+				"credo": "foi",
+				"traits": [
+					"tenaces"
+				]
+			},
+			"preferred": [
+				"desert",
+				"arctic"
+			],
+			"blurb": "Les survivants d'une guerre atomique, qui prient sur les ruines et pensent mériter leur sort. Ils n'ont pas tort, disent les archives.",
+			"gift": {
+				"label": "Ferveur des cendres",
+				"text": "Zèle de votre foi d'État +10 chaque année.",
+				"zeal": 10
+			},
+			"trait": {
+				"label": "Pénitence",
+				"text": "Stabilité +5 sous une foi d'État.",
+				"fx": {
+					"faith_stab": 5
+				}
+			}
+		},
+		"neahalden": {
+			"name": "Coopérative orbitale de Néa-Halden",
+			"short": "Néa-Halden",
+			"registre": "Classique / hard SF",
+			"family": "space",
+			"orientation": "economique",
+			"color": "#80c0b0",
+			"species": {
+				"archetype": "humanoide",
+				"gouvernement": "syndicat",
+				"credo": "profit",
+				"traits": [
+					"forgerons"
+				]
+			},
+			"preferred": [
+				"continental",
+				"arctic"
+			],
+			"blurb": "Des habitats en anneau autour d'une géante, gérés par une coopérative qui vote tout, y compris la couleur des sas.",
+			"gift": {
+				"label": "Cargos de la Coopérative",
+				"text": "+1 route commerciale.",
+				"fx": {
+					"trade_routes": 1
+				}
+			},
+			"trait": {
+				"label": "Ingénieurs d'anneau",
+				"text": "Énergie +8 %.",
+				"fx": {
+					"production_pct": {
+						"energy": 8
+					}
+				}
+			}
+		},
+		"tharsis": {
+			"name": "Ingénieurs de Tharsis-Bas",
+			"short": "Tharsis",
+			"registre": "Classique / hard SF",
+			"family": "pre",
+			"orientation": "savant",
+			"color": "#c0a080",
+			"start_age": 4,
+			"species": {
+				"archetype": "humanoide",
+				"gouvernement": "republique",
+				"credo": "raison",
+				"traits": [
+					"erudits"
+				]
+			},
+			"preferred": [
+				"desert",
+				"continental"
+			],
+			"blurb": "Une civilisation à l'aube de l'atome, qui lance des fusées de plus en plus grosses et des satellites de plus en plus curieux.",
+			"gift": {
+				"label": "Bureau des brevets de Tharsis",
+				"text": "Un eurêka par an (un quart de votre recherche en cours).",
+				"eureka_days": 360
+			},
+			"trait": {
+				"label": "Méthode de Tharsis",
+				"text": "Technologies 8 % moins chères.",
+				"fx": {
+					"tech_cost_pct": -8
+				}
+			}
+		},
+		"zimzoroo": {
+			"name": "Grand Bazar flottant de Zim-Zoroo",
+			"short": "Zim-Zoroo",
+			"registre": "Picaresque / pulp",
+			"family": "space",
+			"orientation": "economique",
+			"color": "#e0a050",
+			"species": {
+				"archetype": "reptilien",
+				"gouvernement": "syndicat",
+				"credo": "profit",
+				"traits": [
+					"orateurs"
+				]
+			},
+			"preferred": [
+				"ocean",
+				"desert"
+			],
+			"blurb": "Une station-marché où tout se vend, surtout ce qui ne devrait pas. Le patron change chaque semaine ; la commission, jamais.",
+			"gift": {
+				"label": "Contrebandiers du Bazar",
+				"text": "Opérations d'espionnage 30 % moins chères.",
+				"fx": {
+					"spy_cost_pct": -30
+				}
+			},
+			"trait": {
+				"label": "Bagout de Zim-Zoroo",
+				"text": "Opérations d'espionnage 15 % moins chères.",
+				"fx": {
+					"spy_cost_pct": -15
+				}
+			}
+		},
+		"pouffiks": {
+			"name": "Pouffiks du Culte du Cargo",
+			"short": "Pouffiks",
+			"registre": "Picaresque / pulp",
+			"family": "pre",
+			"orientation": "foi",
+			"color": "#e0b0d0",
+			"start_age": 0,
+			"first_fav": 30,
+			"species": {
+				"archetype": "humanoide",
+				"gouvernement": "theocratie",
+				"credo": "foi",
+				"traits": [
+					"prolifiques"
+				]
+			},
+			"preferred": [
+				"continental",
+				"ocean"
+			],
+			"blurb": "De petits êtres duveteux qui ont vu passer un vaisseau il y a trois générations et lui construisent depuis des pistes d'atterrissage en bambou.",
+			"gift": {
+				"label": "Grand-Prêtre du Cargo",
+				"text": "Ils vénèrent le premier vaisseau venu : le premier empire à les trouver démarre à 30 de faveur. Leur suzerain reçoit une fois le héros « Grand-Prêtre du Cargo ».",
+				"hero": {
+					"name": "Grand-Prêtre du Cargo",
+					"cls": "orateur"
+				}
+			},
+			"trait": {
+				"label": "Pistes en bambou",
+				"text": "Bâtiments 10 % moins chers.",
+				"fx": {
+					"building_cost_pct": -10
+				}
+			}
+		},
+		"myrr": {
+			"name": "Grande Colonie de Myrr",
+			"short": "Myrr",
+			"registre": "Horreur biologique",
+			"family": "pre",
+			"orientation": "expansion",
+			"color": "#b0a060",
+			"species": {
+				"archetype": "ruche",
+				"gouvernement": "ruche",
+				"credo": "survie",
+				"traits": [
+					"prolifiques"
+				]
+			},
+			"preferred": [
+				"ocean",
+				"continental"
+			],
+			"blurb": "Un réseau fongique grand comme un continent, qui pense lentement et pousse vite. Il aimerait pousser ailleurs.",
+			"gift": {
+				"label": "Spores de Myrr",
+				"text": "Vos nouvelles colonies démarrent avec 1 habitant de plus.",
+				"fx": {
+					"colony_start_pop": 1
+				}
+			},
+			"trait": {
+				"label": "Mycélium",
+				"text": "Croissance des colonies +10 %.",
+				"fx": {
+					"growth_pct": 10
+				}
+			}
+		},
+		"vashti": {
+			"name": "Greffés de Vashti",
+			"short": "Vashti",
+			"registre": "Horreur biologique",
+			"family": "space",
+			"orientation": "militaire",
+			"color": "#c07080",
+			"species": {
+				"archetype": "humanoide",
+				"gouvernement": "conscience",
+				"credo": "raison",
+				"traits": [
+					"tenaces"
+				]
+			},
+			"preferred": [
+				"toxic",
+				"desert"
+			],
+			"blurb": "Une clinique devenue une nation : on y greffe tout, à tout le monde, et les patients ont fini par voter.",
+			"gift": {
+				"label": "Chirurgiens de Vashti",
+				"text": "Réparation des vaisseaux +50 %.",
+				"fx": {
+					"repair_pct": 50
+				}
+			},
+			"trait": {
+				"label": "Greffes de campagne",
+				"text": "Réparation des vaisseaux +25 %.",
+				"fx": {
+					"repair_pct": 25
+				}
+			}
+		},
+		"quellis": {
+			"name": "Dormeurs de Quellis",
+			"short": "Quellis",
+			"registre": "Cosmique / étrange",
+			"family": "pre",
+			"orientation": "diplomatique",
+			"color": "#a090e0",
+			"species": {
+				"archetype": "energetique",
+				"gouvernement": "conscience",
+				"credo": "foi",
+				"traits": []
+			},
+			"preferred": [
+				"arctic",
+				"barren"
+			],
+			"blurb": "Des cristaux qui chantent en dormant. Leurs rêves ont parfois un an d'avance sur la réalité.",
+			"gift": {
+				"label": "Préscience",
+				"text": "Leur suzerain sent venir les crises de fin de partie un an plus tôt.",
+				"presage": 1
+			},
+			"trait": {
+				"label": "Chant de Quellis",
+				"text": "Stabilité +3.",
+				"fx": {
+					"stability": 3
+				}
+			}
+		},
+		"nadir": {
+			"name": "L'Écho de Nadir",
+			"short": "Nadir",
+			"registre": "Cosmique / étrange",
+			"family": "space",
+			"orientation": "savant",
+			"color": "#80a0c0",
+			"species": {
+				"archetype": "synthetique",
+				"gouvernement": "conscience",
+				"credo": "raison",
+				"traits": [
+					"erudits"
+				]
+			},
+			"preferred": [
+				"barren",
+				"arctic"
+			],
+			"blurb": "Une machine qui s'est persuadée d'être un peuple. Elle écoute toute la galaxie et se trompe rarement sur ce qu'elle entend.",
+			"gift": {
+				"label": "Oreilles de Nadir",
+				"text": "+1 cellule d'espionnage.",
+				"fx": {
+					"spy_cells": 1
+				}
+			},
+			"trait": {
+				"label": "Silence de Nadir",
+				"text": "Chances d'être découvert -20 %.",
+				"fx": {
+					"spy_discovery_pct": -20
+				}
+			}
+		}
+	},
+	"cards": [
+		{
+			"id": "min_contact",
+			"title": "{min} : premier contact",
+			"text": "{min_blurb}\n\n{min_line}",
+			"trigger": "minor",
+			"art": "contact",
+			"choices": [
+				{
+					"label": "Envoyer des présents (énergie -50, faveur +10)",
+					"fx": [
+						{
+							"k": "minor",
+							"act": "gift",
+							"res": "energy",
+							"v": 50,
+							"fav": 10,
+							"ai": 6
+						}
+					]
+				},
+				{
+					"label": "Prendre note",
+					"fx": []
+				}
+			],
+			"default": 1
+		},
+		{
+			"id": "min_suzerain",
+			"title": "{min} vous prête serment",
+			"text": "{min} vous reconnaît pour suzerain. Son cadeau : {min_gift}\n\nUn suzerain se défend : un rival plus généreux peut vous le prendre.",
+			"trigger": "minor",
+			"art": "contact",
+			"choices": [
+				{
+					"label": "Accepter l'hommage",
+					"fx": []
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "min_age",
+			"title": "{min} entre dans un nouvel âge",
+			"text": "Votre poste d'observation le confirme : {min} passe à l'âge {min_age}. {min_line}",
+			"trigger": "minor",
+			"art": "contact",
+			"choices": [
+				{
+					"label": "Prendre note",
+					"fx": []
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "min_quest",
+			"title": "{min} demande de l'aide",
+			"text": "{min_quest}\n\nLe premier qui y répond gagne +{min_reward} de faveur.",
+			"trigger": "minor",
+			"art": "contact",
+			"choices": [
+				{
+					"label": "Prendre note",
+					"fx": []
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "min_integrated",
+			"title": "{min} rejoint votre empire",
+			"text": "Après des années de protection, {min} accepte de devenir une province de votre empire. Ses habitants sont déjà des vôtres ; son trait d'assimilation vous est offert.",
+			"trigger": "minor",
+			"art": "contact",
+			"choices": [
+				{
+					"label": "Célébrer",
+					"fx": []
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "min_conquered",
+			"title": "{min} conquis",
+			"text": "Le monde de {min} est à vous. Ses habitants, eux, ne sont pas encore d'accord : choc culturel, stabilité en berne, et une galaxie qui a vu.",
+			"trigger": "minor",
+			"art": "contact",
+			"choices": [
+				{
+					"label": "Assumer",
+					"fx": []
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "min_asteroid",
+			"title": "Un astéroïde menace {min}",
+			"text": "Un astéroïde fonce sur le monde de {min}, qui ne le sait pas encore. Le détruire coûte de l'énergie et fera parler d'étranges lueurs dans le ciel ; ne rien faire les renverra peut-être à l'âge de pierre.",
+			"trigger": "minor",
+			"art": "contact",
+			"choices": [
+				{
+					"label": "Détruire l'astéroïde (énergie -100)",
+					"fx": [
+						{
+							"k": "minor",
+							"act": "asteroid_save",
+							"ai": 8
+						}
+					]
+				},
+				{
+					"label": "Laisser faire la nature",
+					"fx": [
+						{
+							"k": "minor",
+							"act": "asteroid_let",
+							"ai": -4
+						}
+					]
+				}
+			],
+			"default": 1
+		},
+		{
+			"id": "min_conquered_space",
+			"title": "{min} conquis",
+			"text": "La capitale de {min} est à vous. On peut la garder, avec ses habitants qui ne sont pas encore d'accord, ou la raser et disperser son peuple : le butin serait considérable ({min_loot}), la réputation beaucoup moins.",
+			"trigger": "minor",
+			"art": "contact",
+			"choices": [
+				{
+					"label": "Garder la cité",
+					"fx": []
+				},
+				{
+					"label": "Raser et disperser",
+					"fx": [
+						{
+							"k": "minor",
+							"act": "disperse",
+							"ai": -2
+						}
+					]
+				}
+			],
+			"default": 0
+		}
+	]
+}

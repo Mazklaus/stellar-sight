@@ -34,6 +34,8 @@ static func enabled(state: GameState) -> bool:
 
 ## Espèce d'un propriétaire ("" pour les puissances neutres, qui n'ont pas d'espèce propre).
 static func founder_of(state: GameState, owner: int) -> String:
+	if GameState.is_minor(owner):
+		return Minors.species_id(state, owner)  # un peuple mineur a sa fiche d'espèce légère
 	if GameState.is_npc(owner):
 		return ""
 	var e := state.get_empire(owner)

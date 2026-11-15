@@ -3,6 +3,20 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.15
+
+- **Ponts des peuples mineurs** (chapitre 21) : famille **Peuples mineurs** de l'Amphictyonie (voies **Non-ingérence** et **Exploitation**, deux infractions au Nomos), foi partagée, prêche et quête de conversion, **comptoirs** chez les cités-États, opérations d'**ingérence**, d'**incitation** et d'**infiltration**, héros demandé à un protégé, humeur du Conservatoire d'Ylm, préscience de Quellis, renforts au Front commun et recrues du Roi-Corsaire, protégés comptés pour la domination, six **talents de peuple** par couche.
+
+### Édition 2.14
+
+- **Vie des peuples mineurs** (chapitre 21) : **conscience** des pré-spatiaux en quatre niveaux et choc culturel à sa mesure, poste **ouvert**, **se révéler**, accords **Guidance**, **Transfert de technologie** et **Accord commercial**, programmes **Fonds**, **Migration** et **Escadre** des cités-États, pré-spatial qui **atteint l'espace** (protégé de son tuteur), cités **hostiles** et leurs raids, **drames** (guerre nucléaire, astéroïde, déclin), **sécession** en peuple mineur, espèces **pré-conscientes** à élever.
+
+### Édition 2.13
+
+- **Peuples mineurs**, nouveau chapitre et nouvelle option de partie, **Normal** par défaut : quatorze peuples, sept **cités-États spatiales** et sept **pré-spatiaux** qui traversent six âges, avec leur attitude, leur orientation, leur cadeau de suzerain et leur trait d'assimilation ; losange sur la carte, section **Peuples mineurs** de l'écran Diplomatie.
+- **Faveur** de 0 à 100 (émissaires, présents, quêtes), paliers **Contact**, **Ami** et **Suzerain** ; **quêtes** tous les deux ans ; **poste d'observation**.
+- **Levée** des troupes d'un protégé, **intégration** après deux ans de suzeraineté, **conquête** et choc culturel, motif de guerre **Protection**, **libération** ; traits d'assimilation à activer. Chapitres 22 à 25 renumérotés.
+
 ### Édition 2.12
 
 - **Ponts des puissances anciennes** (chapitre 20) : **guerre sainte** qui réveille les Hiérophantes à tout moment (coloniser, bombarder ou prendre un Monde saint), **pèlerinage** des fois Précurseurs et **consécration** des Mondes saints, cinq **reliques-clés** cachées près des poches, **coffres** d'une ancienne abattue (le dernier attend une crise), trait de héros **Ami des anciens**, six **talents de peuple** par couche, origine **Rejeton d'une ancienne** dans l'éditeur d'espèces.

@@ -231,6 +231,10 @@ static func cost(state: GameState, empire_id: int, tid: String, colonies := -1) 
 			c = c * int(rs.get("tag_cost_pct", {}).get(String(tag), 100)) / 100
 		if is_heretic(f, tid):
 			c = c * int(t["heretic"].get("cost_pct", 100)) / 100
+		# Brevets d'un peuple mineur absorbé (trait d'assimilation de Tharsis, voir Minors).
+		var tc := 0 if e.is_npc() else fx_int(state, empire_id, "tech_cost_pct")
+		if tc != 0:
+			c = c * maxi(10, 100 + tc) / 100
 	return maxi(1, c)
 
 
@@ -891,6 +895,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var nfx := Ancients.effects(state, empire_id)
 			_merge(base, nfx)
 			_merge(exalted, nfx)
+		# Cadeaux de suzerain et traits d'assimilation des peuples mineurs (voir Minors).
+		if not state.minors.is_empty():
+			var mfx := Minors.effects(state, empire_id)
+			_merge(base, mfx)
+			_merge(exalted, mfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

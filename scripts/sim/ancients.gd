@@ -198,7 +198,7 @@ static func at_war(state: GameState, a: int, b: int) -> bool:
 	var other := b if anc == a else a
 	if get_a(state, anc).is_empty():
 		return false
-	if other == GameState.FAUNA_ID:
+	if other == GameState.FAUNA_ID or GameState.is_minor(other):
 		return false
 	if GameState.is_npc(other):
 		return true  # pirates, crise, Sans-Bannière

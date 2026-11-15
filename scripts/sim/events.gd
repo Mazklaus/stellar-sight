@@ -52,6 +52,8 @@ static func card(id: String) -> Dictionary:
 			_cards[String(c["id"])] = c
 		for c: Dictionary in GameData.ancients().get("cards", []):
 			_cards[String(c["id"])] = c
+		for c: Dictionary in GameData.minors().get("cards", []):
+			_cards[String(c["id"])] = c
 	return _cards.get(id, {})
 
 
@@ -195,7 +197,7 @@ static func push(state: GameState, empire_id: int, card_id: String, subj: Dictio
 			"until": state.tick + int(data().get("answer_days", 30)),
 			"system": int(subj.get("system", -1)), "planet": int(subj.get("planet", -1)),
 			"rival": int(subj.get("rival", -1)), "hero": int(subj.get("hero", -1))}
-	for k in ["anc", "n"]:  # puissance ancienne concernée, et variante tirée (cadeaux)
+	for k in ["anc", "n", "min"]:  # puissance ancienne concernée, et variante tirée (cadeaux)
 		if subj.has(k):
 			item[k] = int(subj[k])
 	state.next_event_id += 1
@@ -657,6 +659,10 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				var al := Ancients.fx_line(state, item, fx)
 				if al != "":
 					out.append(al)
+			"minor":
+				var ml := Minors.fx_line(state, item, fx)
+				if ml != "":
+					out.append(ml)
 			"relic":
 				out.append("Relique : %s" % String(Relics.def(String(fx["relic"])).get("name", fx["relic"])))
 			"hero":
@@ -777,6 +783,8 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				Crisis.card_fx(state, empire_id, item, fx, added)
 			"ancient":
 				Ancients.card_fx(state, empire_id, item, fx, added)
+			"minor":
+				Minors.card_fx(state, empire_id, item, fx, added)
 			"relic":
 				Quests.give_relic(state, empire_id, String(fx["relic"]))
 			"hero":
@@ -815,6 +823,7 @@ static func fill(state: GameState, empire_id: int, item: Dictionary, s: String) 
 	out = out.replace("{hero}", _hero_name(state, item))
 	out = Crisis.fill(state, out)  # jetons des cartes de crise de fin de partie
 	out = Ancients.fill(state, empire_id, item, out)  # jetons des puissances anciennes
+	out = Minors.fill(state, empire_id, item, out)  # jetons des peuples mineurs
 	return out
 
 

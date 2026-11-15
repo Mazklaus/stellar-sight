@@ -38,6 +38,13 @@ static func faction(id: String) -> Dictionary:
 		return _game_factions[id]
 	if _library_factions.has(id):
 		return _library_factions[id]
+	# Fiches légères des peuples mineurs et des pré-conscients (voir Minors.species_fiche).
+	if id.begins_with("mineur_") or id.begins_with("pres_"):
+		if not _cache.has("minor_fiches"):
+			_cache["minor_fiches"] = {}
+		if not _cache["minor_fiches"].has(id):
+			_cache["minor_fiches"][id] = Minors.species_fiche(id)
+		return _cache["minor_fiches"][id]
 	# Index des peuples officiels (appelé à chaque instant par la simulation : pas de parcours de liste).
 	if not _cache.has("factions_by_id"):
 		var idx := {}
@@ -275,6 +282,11 @@ static func pirates() -> Dictionary:
 ## Crises de fin de partie (data/crises.json) : réglages, sortes de crise, unités, cartes.
 static func crises() -> Dictionary:
 	return _load("crises")
+
+
+## Peuples mineurs (data/minors.json) : catalogue, réglages, cartes.
+static func minors() -> Dictionary:
+	return _load("minors")
 
 
 ## Puissances anciennes (data/ancients.json) : catalogue, réglages, unités, cartes.

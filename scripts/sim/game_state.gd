@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 68
+const FORMAT_VERSION := 71
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -28,6 +28,10 @@ const CRISIS_ID := 93
 ## Identifiants des puissances anciennes (voir Ancients et ancient_empire) : ANCIENT_BASE + rang (0 à 4).
 const ANCIENT_BASE := 94
 const ANCIENT_MAX := 5
+## Identifiants des peuples mineurs (voir Minors et minor_empire) : MINOR_BASE + rang, un par peuple
+## pour que la guerre et la paix se règlent peuple par peuple (Combat.at_war).
+const MINOR_BASE := 100
+const MINOR_MAX := 60
 
 ## Message de la dernière erreur de from_dict(), pour l'affichage.
 static var last_error := ""
@@ -180,12 +184,15 @@ var terrain: Dictionary = {}
 var crisis: Dictionary = {}
 ## Puissances anciennes endormies (voir Ancients) ; {} = aucune dans la partie.
 var ancients: Dictionary = {}
+## Peuples mineurs (voir Minors) ; {} = aucun dans la partie.
+var minors: Dictionary = {}
 ## Zones de ravitaillement et lignes du jour (dérivé de l'état, non sauvegardé, recalculé chaque tick).
 var log_cache: Dictionary = {}
 var _pirates: Empire
 var _fauna: Empire
 var _crisis_e: Empire
 var _ancient_e: Dictionary = {}
+var _minor_e: Dictionary = {}
 
 ## Systèmes vus par chaque empire au dernier passage de l'exploration (FleetSystem), et le tick
 ## correspondant : donnée dérivée, non sauvegardée, qui évite à l'IA de refaire le calcul.
@@ -294,6 +301,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Ancients.setup(s, String(options.get("ancients", "aucune")), bool(options.get("awakenings", true)))
 	AncientsBridges.setup_scions(s)  # origine « Rejeton » : une petite ancienne, même sans l'option
 	AncientsBridges.place_relics(s)
+	Minors.setup(s, String(options.get("minors", "aucun")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -434,6 +442,9 @@ func to_dict() -> Dictionary:
 	# Puissances anciennes : seulement s'il y en a (même empreinte sans elles).
 	if Ancients.enabled(self):
 		d["ancients"] = Ancients.to_dict(self)
+	# Peuples mineurs : seulement s'il y en a (même empreinte sans eux).
+	if Minors.worth_saving(self):
+		d["minors"] = Minors.to_dict(self)
 	return d
 
 
@@ -538,6 +549,7 @@ static func from_dict(d: Dictionary) -> GameState:
 		s.empires.append(Empire.from_dict(e))
 	# Puissances anciennes avant les colonies et les flottes : leurs propriétaires doivent exister.
 	Ancients.from_dict(s, d.get("ancients", {}))
+	Minors.from_dict(s, d.get("minors", {}))
 	for c: Dictionary in d["colonies"]:
 		var colony := Colony.from_dict(c)
 		if s.galaxy.get_planet(colony.planet_id) == null or s.get_empire(colony.owner) == null:
@@ -721,6 +733,8 @@ func get_empire(id: int) -> Empire:
 		return crisis_empire()
 	if is_ancient(id):
 		return ancient_empire(id)
+	if is_minor(id):
+		return minor_empire(id)
 	if id < 0 or id >= empires.size():
 		return null
 	return empires[id]
@@ -821,9 +835,44 @@ static func is_ancient(id: int) -> bool:
 	return id >= ANCIENT_BASE and id < ANCIENT_BASE + ANCIENT_MAX
 
 
+## Un peuple mineur (voir Minors) : hors de la liste des empires, recréé à la demande ; son nom, sa
+## couleur et sa fiche d'espèce viennent de sa sorte (data/minors.json). null s'il n'existe pas.
+func minor_empire(id: int) -> Empire:
+	var m: Dictionary = Minors.get_m(self, id)
+	if m.is_empty():
+		return null
+	var e: Empire = _minor_e.get(id)
+	if e == null:
+		e = Empire.new()
+		e.id = id
+		e.capital_planet = -1
+		for sys in galaxy.systems:
+			e.explored[sys.id] = true
+		_minor_e[id] = e
+	var sp := Minors.species_id(self, id)
+	var nm := Minors.name_of(self, id)
+	var credo := String(m.get("credo", ""))
+	if e.npc_faction.is_empty() or e.faction_id != sp or String(e.npc_faction.get("name", "")) != nm or String(e.npc_faction.get("_credo", "")) != credo:
+		e.faction_id = sp
+		var f: Dictionary = GameData.faction(sp).duplicate(true)
+		f["id"] = "mineur"
+		f["name"] = nm
+		f["short"] = Minors.short_of(self, id)
+		f["_credo"] = credo
+		if credo != "" and f.has("species"):
+			f["species"]["credo"] = credo  # Guidance : leur credo a glissé vers celui d'un empire
+		e.npc_faction = f
+	e.home_planet = int(m.get("planet", -1))
+	return e
+
+
+static func is_minor(id: int) -> bool:
+	return id >= MINOR_BASE and id < MINOR_BASE + MINOR_MAX
+
+
 ## Faction non jouable (Sans-Bannière, Pirates, Faune, Crise ou puissance ancienne).
 static func is_npc(id: int) -> bool:
-	return id == NPC_ID or id == PIRATE_ID or id == FAUNA_ID or id == CRISIS_ID or is_ancient(id)
+	return id == NPC_ID or id == PIRATE_ID or id == FAUNA_ID or id == CRISIS_ID or is_ancient(id) or is_minor(id)
 
 
 ## Identifiants des planètes revendiquées, triés : tout parcours qui modifie l'état passe par là,
