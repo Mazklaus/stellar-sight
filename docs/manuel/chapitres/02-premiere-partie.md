@@ -41,6 +41,8 @@ Chaque mécanique peut être retirée de la partie. Une partie sans elle se joue
 | Amphictyonie | **Active**, aucune | 12 |
 | Vassaux | **Actifs**, aucuns | 10 |
 | Koinon | **Actif**, aucun | 11 |
+| Buts de guerre | **Actifs**, aucuns | 7 |
+| Occupation | **Occupation**, conquête immédiate (sans buts de guerre : conquête immédiate) | 7 |
 
 Côté victoire, la conquête, la domination et la victoire diplomatique sont cochées par défaut, la victoire spirituelle ne l'est pas (chapitre 18).
 

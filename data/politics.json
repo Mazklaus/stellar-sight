@@ -84,7 +84,9 @@
 		"looted": {"current": "glaive", "all": 1}, "free_trade": {"current": "concorde", "all": 15}, "embargo": {"current": "glaive", "all": 10},
 		"amph_member": {"current": "concorde", "all": 2},
 		"koinon": {"current": "concorde", "all": 15},
-		"allegeance": {"current": "glaive", "all": 10}
+		"allegeance": {"current": "glaive", "all": 10},
+		"war_just": {"current": "glaive", "all": 15},
+		"war_aggression": {"current": "concorde", "all": 20}
 	},
 	"local": {
 		"built": 30,

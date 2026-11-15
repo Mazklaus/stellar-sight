@@ -57,7 +57,11 @@ static func evaluate(state: GameState, ai_id: int, from_id: int, treaty: String)
 				var war_days := Diplomacy.pact_days(state, ai_id, from_id)
 				if war_days < Diplomacy.days("min_war_days", 60):
 					_p(parts, "La guerre vient de commencer", int(c["too_early"]))
-				_p(parts, "Lassitude de la guerre", mini(int(c["weariness_max"]), war_days / 30))
+				if state.wars_on and not Wars.war(state, ai_id, from_id).is_empty():
+					@warning_ignore("integer_division")
+					_p(parts, "Lassitude de la guerre (%d %%)" % WarPeace.exhaustion(state, ai_id, from_id), mini(int(c["weariness_max"]), WarPeace.exhaustion(state, ai_id, from_id) / 3))
+				else:
+					_p(parts, "Lassitude de la guerre", mini(int(c["weariness_max"]), war_days / 30))
 				var sc := Diplomacy.war_score(state, ai_id, from_id)
 				# Celui qui gagne veut continuer, celui qui perd veut s'arrêter.
 				_p(parts, "Cours de la guerre", clampi(-sc / 4, -int(c["score_max"]), int(c["score_max"])))

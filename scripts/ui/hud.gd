@@ -56,6 +56,7 @@ var _tab_trade: Button
 var _tab_peoples: Button
 var _tab_faith: Button
 var _tab_amph: Button
+var _tab_war: Button
 var _tab_orbit: Button
 var _tab_manage: Button
 var _info_panel: PanelContainer
@@ -220,6 +221,7 @@ func set_system_mode(on: bool) -> void:
 	_tab_peoples.visible = not on
 	_tab_faith.visible = not on
 	_tab_amph.visible = not on
+	_tab_war.visible = not on
 	_tab_orbit.visible = on
 	_tab_manage.visible = on
 	if on:
@@ -343,7 +345,7 @@ func planet_row_count() -> int:
 	return _planet_dots.get_child_count()
 
 
-## Lentille de la carte : "" (vue galaxie), "economy", "stability", "politics", "trade", "peoples", "faith" ou "amph".
+## Lentille de la carte : "" (vue galaxie), "economy", "stability", "politics", "trade", "peoples", "faith", "amph" ou "war".
 func set_lens(value: String) -> void:
 	lens = value
 	_tab_galaxy.set_pressed_no_signal(value == "")
@@ -354,6 +356,8 @@ func set_lens(value: String) -> void:
 	_tab_peoples.set_pressed_no_signal(value == "peoples")
 	_tab_faith.set_pressed_no_signal(value == "faith")
 	_tab_amph.set_pressed_no_signal(value == "amph")
+	if _tab_war:
+		_tab_war.set_pressed_no_signal(value == "war")
 	lens_changed.emit(value)
 
 
@@ -392,6 +396,8 @@ func _build_tabs() -> void:
 	_tab_faith.pressed.connect(func() -> void: set_lens("" if lens == "faith" else "faith"))
 	_tab_amph = _tab("Assemblée", "Lentille de l'Amphictyonie : les empires membres (or), les hors-la-loi (rouge) et ceux qui restent dehors (gris), avec leurs voix  (X)")
 	_tab_amph.pressed.connect(func() -> void: set_lens("" if lens == "amph" else "amph"))
+	_tab_war = _tab("Guerre", "Lentille de guerre : les systèmes de vos ennemis (rouge), vos revendications (pointillé or), les systèmes occupés hachurés à la couleur de l'occupant  (W ; Z en QWERTY)")
+	_tab_war.pressed.connect(func() -> void: set_lens("" if lens == "war" else "war"))
 	_tab_orbit = _tab("Vue orbitale", "L'étoile et ses planètes en orbite  (Tab)")
 	_tab_orbit.pressed.connect(func() -> void: system_mode_requested.emit(false))
 	_tab_manage = _tab("Gestion du système", "Les planètes côte à côte, pour comparer  (Tab)")

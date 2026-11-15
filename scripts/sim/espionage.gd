@@ -606,6 +606,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_f := Vassals.spy_check(state, a, b, op_id)
 		if why_f != "":
 			return why_f
+	if bool(o.get("war", false)):
+		var why_w := WarLaws.spy_check(state, a, b, op_id)
+		if why_w != "":
+			return why_w
 	match op_id:
 		"prophetie":
 			var why := FaithWars.check_prophecy(state, a, b)
@@ -785,6 +789,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return AmphInst.spy_apply(state, a, b, o)
 	if bool(o.get("fed", false)):
 		return Vassals.spy_apply(state, a, b, o)
+	if bool(o.get("war", false)):
+		return WarLaws.spy_apply(state, a, b, o)
 	match String(o["id"]):
 		"rapport":
 			ea.dossiers[b] = dossier(state, b, data()["tiers"].size())

@@ -367,7 +367,7 @@ static func nearest_prey(state: GameState, empire_id: int) -> int:
 	return best
 
 
-static func check_declare_war(state: GameState, empire_id: int, target: int) -> String:
+static func check_declare_war(state: GameState, empire_id: int, target: int, break_truce := false) -> String:
 	var e := state.get_empire(empire_id)
 	var t := state.get_empire(target)
 	if e == null or t == null:
@@ -380,7 +380,7 @@ static func check_declare_war(state: GameState, empire_id: int, target: int) -> 
 		return "vous n'avez jamais rencontré cet empire"
 	if e.wars.has(target):
 		return "vous êtes déjà en guerre"
-	return Diplomacy.check_war(state, empire_id, target)
+	return Diplomacy.check_war(state, empire_id, target, break_truce)
 
 
 ## Déclare la guerre, dans les deux sens, puis ses suites diplomatiques (traité rompu, griefs,
@@ -417,8 +417,8 @@ static func start_war(state: GameState, a: int, b: int, by_nature := false, join
 ## modulée par le peuple (fiefs d'Ossarane). 0 pour un système libre.
 static func garrison_max(state: GameState, system_id: int) -> int:
 	var owner := state.system_owner(system_id)
-	if owner < 0:
-		return 0
+	if owner < 0 or WarPeace.occupier(state, system_id) >= 0:
+		return 0  # occupé : plus de garnison du propriétaire
 	var g: Dictionary = data()["garrison"]
 	var e := state.get_empire(owner)
 	var n := 0
@@ -438,6 +438,8 @@ static func garrison_max(state: GameState, system_id: int) -> int:
 	# Moines guerriers (précepte) : les systèmes dotés d'un temple gardent mieux.
 	if state.faith_on and Faiths.system_has_temple(state, system_id, owner):
 		pct += Research.fx_int(state, owner, "temple_garrison")
+	# Revanchisme : le vaincu qui a dû céder des systèmes garde mieux les autres.
+	pct += WarPeace.revanche_pct(state, owner)
 	@warning_ignore("integer_division")
 	return n * pct / 100
 
@@ -510,11 +512,17 @@ static func check_invade(state: GameState, empire_id: int, fleet_id: int) -> Str
 		return "cette flotte ne vous appartient pas"
 	if f.is_moving():
 		return "la flotte doit être à l'arrêt dans le système visé"
+	var occ := WarPeace.occupier(state, f.system_id)
+	if occ >= 0:
+		return WarPeace.check_liberate(state, empire_id, f, occ)
 	var owner := state.system_owner(f.system_id)
 	if owner < 0 or owner == empire_id:
 		return "aucun système ennemi à envahir ici"
 	if not at_war(state, empire_id, owner):
 		return "vous n'êtes pas en guerre avec %s" % state.get_empire(owner).short_name()
+	var lim := WarLaws.check_invade(state, empire_id, f.system_id)
+	if lim != "":
+		return lim
 	for other in Fleets.fleets_at(state, f.system_id, owner):
 		if is_armed(other):
 			return "une flotte de défense tient encore l'orbite"
@@ -534,6 +542,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 	var old := state.system_owner(system_id)
 	var eo := state.get_empire(old)
 	var en := state.get_empire(new_owner)
+	Wars.on_capture(state, system_id, new_owner, old)
 	Diplomacy.note_conquest(state, new_owner, old)
 	Research.count_stat(state, new_owner, "conquests")
 	var digest := bool(trait_value(state, new_owner, "digest", false))

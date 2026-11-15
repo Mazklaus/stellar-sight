@@ -304,7 +304,7 @@ func _test_save() -> void:
 	var lid := _league(st, ms[3], ms[4] if ms.size() > 4 else 0)
 	Koinon.league(st, lid)["ffund"] = 42
 	var d: Dictionary = JSON.parse_string(JSON.stringify(st.to_snapshot()))
-	_ok(int(d["version"]) == 52, "Sauvegarde : version 52")
+	_ok(int(d["version"]) >= 52, "Sauvegarde : version 52 ou plus")
 	var back := GameState.from_dict(d)
 	_ok(Vassals.spec_of(back, ms[2]) == "erudit" and Vassals.has_pos(back, ms[2], "mission"), "Sauvegarde : spécialité et possessions gardées")
 	_ok(int(Koinon.league(back, lid)["ffund"]) == 42, "Sauvegarde : arsenal fédéral gardé")

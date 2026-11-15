@@ -89,6 +89,9 @@ var vassal_draft: Dictionary = {}
 ## Koinon (KoinonUi) : boutons par rôle, brouillons de forme.
 var koinon_buttons: Dictionary = {}
 var koinon_draft: Dictionary = {}
+## Buts de guerre (WarsUi) : boutons par rôle, motif choisi par empire.
+var war_goal_buttons: Dictionary = {}
+var war_draft: Dictionary = {}
 ## Écran Recherche : arbre, technologie choisie, boutons de la technologie choisie ("front", "queue", "remove").
 var research_tree: ResearchTree
 var research_selected := ""
@@ -1386,6 +1389,7 @@ func _build_diplomacy() -> void:
 	if Diplomacy.faction_abilities(me.faction()).is_empty():
 		_side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("diplomacy").get("why", "")), SIDE_WIDTH - 24.0, 14))
 	_side_box.add_child(VassalUi.side(_state, _player, SIDE_WIDTH - 24.0))
+	_side_box.add_child(WarsUi.side(_state, _player, SIDE_WIDTH - 24.0))
 
 	# Contenu : la table à gauche, la relation choisie et les propositions à droite.
 	var row := HBoxContainer.new()
@@ -1474,7 +1478,8 @@ func _proposals_block(props: Array[Dictionary]) -> Control:
 		l.text = "%s propose : %s  (encore %d j)" % [from.short_name(), Diplomacy.proposal_label(p), left]
 		l.add_theme_color_override("font_color", from.color().lerp(Color.WHITE, 0.4))
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		l.tooltip_text = Vassals.kind_text(_state, p) if Vassals.is_kind(String(p["treaty"])) else String(Diplomacy.treaty_info(String(p["treaty"])).get("desc", ""))
+		l.tooltip_text = Vassals.kind_text(_state, p) if Vassals.is_kind(String(p["treaty"])) else (Wars.kind_text(_state, p) if Wars.is_kind(String(p["treaty"])) \
+				else String(Diplomacy.treaty_info(String(p["treaty"])).get("desc", "")))
 		l.mouse_filter = Control.MOUSE_FILTER_STOP
 		line.add_child(l)
 		var pid := int(p["id"])
@@ -1530,7 +1535,8 @@ func _relation_block(id: int) -> Control:
 	if Trade.embargo_by(_state, id, _player):
 		extra.append("Il vous impose un embargo")
 	if st == "war":
-		extra.append("Guerre depuis %d jours, score %+d" % [Diplomacy.pact_days(_state, _player, id), Diplomacy.war_score(_state, _player, id)])
+		extra.append("Guerre depuis %d jours, score %+d%s" % [Diplomacy.pact_days(_state, _player, id), Diplomacy.war_score(_state, _player, id),
+				" %" if _state.wars_on and not Wars.war(_state, _player, id).is_empty() else ""])
 	if e.is_ai():
 		extra.append("Tempérament : %s" % AiLevels.temperament_label(e))
 	for x in extra:
@@ -1594,6 +1600,8 @@ func _relation_block(id: int) -> Control:
 		verdict.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		verdict.custom_minimum_size = Vector2(240, 0)
 		grid.add_child(verdict)
+	# Buts de guerre : motifs, revendications, score en %, reddition sur but (voir WarsUi).
+	blk.body.add_child(WarsUi.relation(_state, _player, id, _vassal_emit, war_goal_buttons, war_draft))
 	# Paix à conditions, reddition, protection, sujets (voir VassalUi).
 	blk.body.add_child(VassalUi.relation(_state, _player, id, _vassal_emit, vassal_buttons, vassal_draft))
 	# Koinon : fonder, entrer, guerre commune, exclusion (voir KoinonUi).
@@ -1639,18 +1647,25 @@ func _relation_block(id: int) -> Control:
 		embargo_buttons[id] = emb
 	if not e.eliminated and not Combat.at_war(_state, _player, id):
 		var war := Button.new()
-		var label := "ROMPRE ET DÉCLARER LA GUERRE" if Diplomacy.has_pact(_state, _player, id) else "DÉCLARER LA GUERRE"
+		var goals := _state.wars_on
+		var brk := goals and Diplomacy.in_truce(_state, _player, id)
+		var label := "ROMPRE LA TRÊVE ET DÉCLARER LA GUERRE" if brk else ("ROMPRE ET DÉCLARER LA GUERRE" if Diplomacy.has_pact(_state, _player, id) else "DÉCLARER LA GUERRE")
 		war.text = label
 		war.focus_mode = Control.FOCUS_NONE
-		var why := Combat.check_declare_war(_state, _player, id)
+		var why := Combat.check_declare_war(_state, _player, id, brk)
 		war.disabled = why != ""
 		war.tooltip_text = why if why != "" else ("Deux clics. Rompre un traité fait de vous un parjure aux yeux de toute la galaxie." \
 				if Diplomacy.has_pact(_state, _player, id) else "Deux clics : la guerre vaut dans les deux sens.")
+		if goals and why == "":
+			war.tooltip_text += "\n\n" + WarsUi.declare_tip(_state, _player, id, war_draft)
 		var target := id
 		war.pressed.connect(func() -> void:
 			if war.text == label:
 				war.text = "CONFIRMER ?"
 				war.theme_type_variation = &"PrimaryButton"
+			elif goals:
+				var c := WarsUi.choice(_state, _player, target, war_draft)
+				command_requested.emit(SimCommands.declare_war(_player, target, String(c[0]), String(c[1]), brk))
 			else:
 				war_requested.emit(target))
 		acts.add_child(war)
@@ -1749,6 +1764,8 @@ func _diplomacy_sig() -> String:
 	parts.append(str(_state.vassals.get("subs", {})))
 	if _state.koinon_on:
 		parts.append(str(_state.koinon))
+	if _state.wars_on:
+		parts.append(str(_state.wars))
 	return "|".join(parts)
 
 

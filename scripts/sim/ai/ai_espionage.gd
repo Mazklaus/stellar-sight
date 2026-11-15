@@ -54,7 +54,7 @@ static func think(ctx: Dictionary) -> void:
 
 const OP_RESERVE := 100
 const WAR_OPS := ["saper_autorite", "allumer_rebellion", "acheter_allegeance", "attiser_independance", "discorde_synode", "scandale", "acheter_delegue", "coup", "sabotage_chantier", "archives", "partisans", "inciter", "larcin_relique", "dissidence", "financer_opposition", "heritier", "discorde", "truquer", "vol_techno", "convoi", "siphon", "rapport", "etouffer", "appat", "frictions", "propagande", "appel_retour"]
-const PEACE_OPS := ["vol_techno", "heritier", "contrebande", "initie", "acheter_delegue", "fuite_dossier", "discorde_synode", "rapport", "appel_retour"]
+const PEACE_OPS := ["vol_techno", "heritier", "contrebande", "initie", "acheter_delegue", "fuite_dossier", "discorde_synode", "provoquer_incident", "fabriquer_revendication", "rapport", "appel_retour"]
 const CALM_OPS := ["rapport"]
 const ROGUE_PEACE_OPS := ["vol_techno", "larcin_relique", "contrebande", "convoi", "siphon", "dissidence", "truquer", "heritier", "rapport"]
 const HERO_WAR_OPS := ["exfiltration", "assassinat", "corrompre"]
@@ -88,6 +88,9 @@ static func _operation(ctx: Dictionary) -> void:
 		if use >= 2:
 			menu = (HERO_WAR_OPS if war else HERO_PEACE_OPS) + menu
 		for op_id in menu:
+			# Motifs de guerre fabriqués : seulement contre ceux qu'on n'aime pas.
+			if WarLaws.SPY_OPS.has(op_id) and Diplomacy.opinion(state, e.id, b) > 0:
+				continue
 			if Espionage.check_op(state, e.id, b, op_id) != "":
 				continue
 			var cost := Espionage.op_cost(state, e.id, op_id)

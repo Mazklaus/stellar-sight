@@ -78,10 +78,12 @@ static func relation(state: GameState, player: int, id: int, emit: Callable, but
 		box.add_child(_subject_panel(state, player, id, emit, buttons, draft))
 	elif Vassals.lord_of(state, player) == id:
 		box.add_child(_lord_panel(state, player, id, emit, buttons))
+	if not state.vassals_on and not state.wars_on and Vassals.lord_of(state, id) != player and Vassals.lord_of(state, player) != id:
+		return box
+	if Combat.at_war(state, player, id) and not Diplomacy.no_treaties(state, id) and not Diplomacy.no_treaties(state, player):
+		box.add_child(_terms_panel(state, player, id, emit, buttons, draft))
 	if not state.vassals_on and Vassals.lord_of(state, id) != player and Vassals.lord_of(state, player) != id:
 		return box
-	if Combat.at_war(state, player, id):
-		box.add_child(_terms_panel(state, player, id, emit, buttons, draft))
 	var acts := _flow()
 	if state.vassals_on and not Combat.at_war(state, player, id) and Vassals.lord_of(state, player) != id and Vassals.lord_of(state, id) != player:
 		var why := Vassals.check_protect(state, player, id)
@@ -126,7 +128,7 @@ static func _terms_panel(state: GameState, player: int, id: int, emit: Callable,
 	var send_holder := {}
 	var refresh := func() -> void:
 		var terms := _draft_terms(d)
-		var p := Vassals.price(state, id, terms)
+		var p := Vassals.price(state, id, terms, player)
 		var e := state.get_empire(id)
 		var verdict := ""
 		if e.is_ai():
@@ -165,12 +167,25 @@ static func _terms_panel(state: GameState, player: int, id: int, emit: Callable,
 			["repar", "Réparations %d %% (%d)" % [int(t["repar_pct"]), int(t["repar_price"])], true],
 			["break", "Rompre ses alliances (%d)" % int(t["break_price"]), not Diplomacy.allies(state, id).is_empty()],
 			["free", "Libérer ses sujets", not Vassals.subjects_of(state, id).is_empty()]]
+	# Buts de guerre (lot 2) : le traité à la carte étendu ; une clause que votre but ne justifie pas
+	# coûte double et laisse un souvenir amer.
+	if state.wars_on:
+		for k in WarPeace.CLAUSES:
+			var why := WarPeace.check_clause(state, player, id, k)
+			if why != "":
+				continue
+			opts.append([k, "%s (%d)" % [String(WarPeace.clause_def(k).get("label", k)), WarPeace.clause_price(k)], true])
 	for o in opts:
 		if not bool(o[2]):
 			continue
 		var k := String(o[0])
 		var cb := CheckBox.new()
 		cb.text = String(o[1])
+		if state.wars_on and not WarPeace.justified(state, player, id, k):
+			cb.text += "  ×2 injustifiée"
+			cb.tooltip_text = "Votre but de guerre ne justifie pas cette exigence : prix doublé, il s'en souviendra."
+		if WarPeace.is_clause(k):
+			cb.tooltip_text = String(WarPeace.clause_def(k).get("text", "")) + ("\n" + cb.tooltip_text if cb.tooltip_text != "" else "")
 		cb.focus_mode = Control.FOCUS_NONE
 		cb.button_pressed = bool(d.get(k, false))
 		cb.toggled.connect(func(on: bool) -> void:
@@ -180,6 +195,7 @@ static func _terms_panel(state: GameState, player: int, id: int, emit: Callable,
 		buttons["term_" + k] = cb
 	var vrow := HBoxContainer.new()
 	vrow.add_theme_constant_override("separation", 8)
+	vrow.visible = state.vassals_on
 	box.add_child(vrow)
 	vrow.add_child(UiTheme.dim("Devenir sujet (%d) :" % Vassals.vassal_price(state, id), 13))
 	var ob := OptionButton.new()
@@ -208,6 +224,8 @@ static func _terms_panel(state: GameState, player: int, id: int, emit: Callable,
 	srow.add_child(send)
 	buttons["terms"] = send
 	refresh.call()
+	if state.wars_on:
+		return box  # la reddition passe par le but de guerre (voir WarsUi)
 	var sur := _btn("SE RENDRE", Vassals.check_surrender(state, player, id),
 			"Vous devenez son vassal (préréglage Vassal) : la guerre cesse, votre empire survit. Possible à %d points de score contre vous, ou capitale perdue." % int(Vassals.data()["surrender"]["score"]),
 			func() -> void: emit.call(SimCommands.vas_act(player, "surrender", id)))
@@ -220,7 +238,7 @@ static func _draft_terms(d: Dictionary) -> Dictionary:
 	var out := {}
 	if not (d.get("cede", []) as Array).is_empty():
 		out["cede"] = (d["cede"] as Array).duplicate()
-	for k in ["trib", "repar", "break", "free"]:
+	for k in ["trib", "repar", "break", "free"] + Array(WarPeace.CLAUSES):
 		if bool(d.get(k, false)):
 			out[k] = true
 	if String(d.get("vassal", "")) != "":

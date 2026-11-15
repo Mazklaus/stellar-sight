@@ -426,6 +426,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 			pts += Combat.ship_strength(String(ship)) * int(s["lost"][ship])
 		for o: Dictionary in b["sides"]:
 			Diplomacy.add_war_score(state, int(o["empire"]), int(s["empire"]), pts)
+			Wars.on_battle(state, int(o["empire"]), int(s["empire"]), pts)
 	Reputation.battle(state, b, winner)
 	Heroes.on_battle(state, b, winner)
 	Relics.on_battle(state, b, winner, added)
@@ -488,7 +489,7 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 	for k in ids:
 		var sid := int(k)
 		var owner := state.system_owner(sid)
-		if owner < 0:
+		if owner < 0 or WarPeace.occupier(state, sid) >= 0:
 			state.garrisons.erase(sid)
 			state.sieges.erase(sid)
 			continue

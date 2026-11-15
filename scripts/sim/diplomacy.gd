@@ -66,6 +66,8 @@ static func proposal_label(p: Dictionary) -> String:
 		return Vassals.kind_label(p)
 	if Koinon.is_kind(String(p["treaty"])):
 		return Koinon.kind_label(p)
+	if Wars.is_kind(String(p["treaty"])):
+		return Wars.kind_label(p)
 	return treaty_label(String(p["treaty"]))
 
 
@@ -131,6 +133,11 @@ static func in_truce(state: GameState, a: int, b: int) -> bool:
 	return int(rel(state, a, b).get("truce", 0)) > state.tick
 
 
+## La trêve court-elle (même quand les buts de guerre permettent de la rompre) ?
+static func in_truce_raw(state: GameState, a: int, b: int) -> bool:
+	return in_truce(state, a, b)
+
+
 static func truce_left(state: GameState, a: int, b: int) -> int:
 	return maxi(0, int(rel(state, a, b).get("truce", 0)) - state.tick)
 
@@ -178,7 +185,10 @@ static func allies(state: GameState, a: int) -> Array[int]:
 
 
 ## Score de guerre de a contre b : ce que a a gagné (vaisseaux détruits, systèmes pris) moins ce que b a gagné.
+## Avec les buts de guerre (voir Wars), c'est un pourcentage de -100 à +100.
 static func war_score(state: GameState, a: int, b: int) -> int:
+	if state.wars_on and not Wars.war(state, a, b).is_empty():
+		return Wars.score(state, a, b)
 	var s: Array = rel(state, a, b).get("score", [0, 0])
 	var mine := int(s[0]) if a < b else int(s[1])
 	var theirs := int(s[1]) if a < b else int(s[0])
@@ -578,6 +588,8 @@ static func check_answer(state: GameState, player: int, proposal_id: int, accept
 			return Vassals.check_accept(state, p)
 		if Koinon.is_kind(String(p["treaty"])):
 			return Koinon.check_accept(state, p)
+		if Wars.is_kind(String(p["treaty"])):
+			return Wars.check_accept(state, p)
 		return check_terms(state, player, int(p["from"]), String(p["treaty"]))
 	return ""
 
@@ -592,6 +604,9 @@ static func answer(state: GameState, proposal_id: int, accept: bool) -> void:
 		return
 	if Koinon.is_kind(String(p["treaty"])):
 		Koinon.answer(state, p, accept)
+		return
+	if Wars.is_kind(String(p["treaty"])):
+		Wars.answer(state, p, accept)
 		return
 	if accept and String(p["treaty"]) == CONTRACT:
 		sign_contract(state, int(p["merc"]), int(p["client"]), int(p["target"]))
@@ -617,6 +632,7 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 			var was_war := Combat.at_war(state, a, b)
 			var score_a := war_score(state, a, b) if was_war else 0
 			if was_war:
+				WarPeace.before_peace(state, a, b)
 				end_war(state, a, b)
 			var r := _rel_w(state, a, b)
 			r["pact"] = PEACE
@@ -625,7 +641,9 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 			r["score"] = [0, 0]
 			remember(state, a, b, "peace_signed")
 			remember(state, b, a, "peace_signed")
-			Heroes.release_between(state, a, b)
+			# Buts de guerre : après une reddition, chaque camp ne rend que ce que le traité prévoit (WarLaws).
+			if not (state.wars_on and was_war and bool(Wars._w(state).get("vic", false))):
+				Heroes.release_between(state, a, b)
 			Vassals.on_peace(state, a, b)
 			if was_war:
 				Koinon.on_peace(state, a, b, score_a)
@@ -686,6 +704,7 @@ static func end_war(state: GameState, a: int, b: int) -> void:
 	state.get_empire(a).wars.erase(b)
 	state.get_empire(b).wars.erase(a)
 	Stability.on_peace(state, a, b)
+	Wars.on_war_ended(state, a, b)
 	var kept: Array[Dictionary] = []
 	for p in state.proposals:
 		var pair := (int(p["from"]) == a and int(p["to"]) == b) or (int(p["from"]) == b and int(p["to"]) == a)
@@ -788,9 +807,10 @@ static func _add(into: Dictionary, amounts: Dictionary) -> void:
 
 # --- Guerre ------------------------------------------------------------------------------------
 
-## Ce qui s'ajoute à Combat.check_declare_war : trêve, alliance.
-static func check_war(state: GameState, a: int, b: int) -> String:
-	if in_truce(state, a, b):
+## Ce qui s'ajoute à Combat.check_declare_war : trêve, alliance. break_truce : avec les buts de
+## guerre (voir Wars), la trêve peut être rompue, à grands frais.
+static func check_war(state: GameState, a: int, b: int, break_truce := false) -> String:
+	if in_truce(state, a, b) and not (break_truce and state.wars_on):
 		return "une trêve court encore %d jours" % truce_left(state, a, b)
 	if team_of(state, a, b) > 0:
 		return "même équipe : vous êtes alliés toute la partie"
@@ -815,6 +835,11 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 	r["trust"] = 0
 	r["score"] = [0, 0]
 	_drop_all_proposals(state, a, b)
+	Wars.on_war_declared(state, a, b, by_nature, joined)
+	# Kanly : une querelle formelle n'est pas un parjure.
+	if broke and state.wars_on and WarLaws.is_kanly(state, a, b):
+		broke = false
+	r["truce"] = 0
 	Vassals.on_war_declared(state, a, b, joined or by_nature)
 	Koinon.on_war_declared(state, a, b, joined or by_nature)
 	if by_nature:

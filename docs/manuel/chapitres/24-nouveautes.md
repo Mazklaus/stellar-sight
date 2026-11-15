@@ -3,6 +3,16 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.1
+
+- **Buts de guerre et traités de paix**, nouvelle option de partie active par défaut, avec l'option **Occupation** (chapitre « La guerre ») : quatorze **motifs de guerre** et l'agression sans motif, **revendications** payées en influence, **buts** annoncés et appariés, **score en pourcentage**, **reddition sur but**, trêve proportionnelle au score, trêve rompue, noms de guerre.
+- **Occupation** avant annexion et libération, **lassitude** par camp, **statu quo** accordé, imposé ou automatique, **camps** et chef de guerre (paix séparée, butin selon la contribution), **revanchisme**, **lentille Guerre** ([[W]]).
+- **Avant la guerre** : **ultimatums**, **crise diplomatique** de trente jours avec ralliés et recul, **préavis** des préparations de l'IA.
+- **Lois de la guerre** : le **kanly** des peuples féodaux, la famille **Droit de la guerre** de l'Amphictyonie et les **crimes de guerre**, l'Arbitre qui impose le statu quo et **garantit** les traités.
+- **Talents de guerre** par couche d'espèce, sécession du Koinon, deux intrigues (fabriquer une revendication, provoquer un incident), guerre juste et courants, héros captifs et orateurs qui négocient.
+- **Fin des guerres** (chapitre « La diplomatie ») : neuf nouvelles clauses, clauses injustifiées au double, **registre des traités**.
+- Nouvelles captures : panneau de guerre, crise diplomatique, kanly, registre des traités.
+
 ### Édition 2.0
 
 Une refonte du codex plutôt qu'un ajout : chaque chapitre a été relu contre le code du jeu, et les plus chargés ont été partagés.

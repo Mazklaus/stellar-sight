@@ -256,6 +256,8 @@ static func family_available(state: GameState, fid: String) -> bool:
 			return Fauna.active(state) or state.pirate_density != "aucun"
 		"vassals":
 			return state.vassals_on
+		"wars":
+			return state.wars_on
 	return true
 
 
@@ -1176,6 +1178,8 @@ static func casus(state: GameState, a: int, b: int) -> bool:
 ## broke : un traité a été rompu ; grief : a avait un dossier d'espions contre b.
 static func on_war(state: GameState, a: int, b: int, broke: bool, grief: bool) -> void:
 	if not founded(state) or grief or casus(state, a, b) or GameState.is_npc(a) or GameState.is_npc(b):
+		return
+	if state.wars_on and WarLaws.is_kanly(state, a, b):
 		return
 	if is_member(state, a) and is_member(state, b):
 		if broke and banned(state, "treaty_war"):

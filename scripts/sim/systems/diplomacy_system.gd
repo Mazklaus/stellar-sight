@@ -15,6 +15,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 	var last: Variant = state.chronicle.back() if start > 0 else null
 	_expire(state)
 	Espionage.daily(state)
+	WarLaws.daily(state)
 	if state.tick % int(GameData.rules()["month_days"]) == 0:
 		_monthly(state)
 	# Nouvelles entrées de chronique (la chronique est bornée : on remonte jusqu'à la dernière connue).
@@ -60,6 +61,7 @@ static func _monthly(state: GameState) -> void:
 	Espionage.monthly(state)
 	Vassals.monthly(state)
 	Koinon.monthly(state)
+	Wars.monthly(state)
 	Reputation.monthly(state)
 	Echoes.monthly(state)
 	for e in state.empires:
