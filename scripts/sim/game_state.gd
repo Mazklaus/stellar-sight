@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 63
+const FORMAT_VERSION := 64
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -169,6 +169,8 @@ var borders: Dictionary = {}
 var ground: Dictionary = {}
 ## Logistique et ravitaillement (voir Logistics) : réserves des flottes, têtes de pont, option de partie.
 var logistics: Dictionary = {}
+## Terrain galactique (voir Terrain) : terrains de zone, nébuleuses nommées, tenants, tempêtes.
+var terrain: Dictionary = {}
 ## Zones de ravitaillement et lignes du jour (dérivé de l'état, non sauvegardé, recalculé chaque tick).
 var log_cache: Dictionary = {}
 var _pirates: Empire
@@ -224,6 +226,8 @@ var _npc: Empire = null
 ## - "migrations" : migration intérieure ("actives" ou "aucunes", défaut ; voir Movements) ;
 ## - "faiths" : religions ("actives" ou "aucunes", défaut ; voir Faiths) ;
 ## - "logistics" : logistique et ravitaillement ("aucune", défaut, "simple" ou "complete" ; voir Logistics) ;
+## - "terrain" : terrain galactique ("aucun", défaut, "clairseme", "normal" ou "dense" ; voir Terrain) et
+##   "storms" : tempêtes cosmiques ("actives", défaut, ou "aucunes") ;
 ## - "creatures" : densité de la faune (Fauna, défaut "aucune"). Sans ces six options (tests, bancs),
 ##   la partie n'a ni pirates, ni curiosités, ni événements, ni quêtes, ni politique, ni créatures.
 static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: float = 1800.0, player_faction := "", options := {}) -> GameState:
@@ -270,6 +274,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Borders.setup(s, String(options.get("borders", "libres")))
 	Ground.setup(s, String(options.get("ground", "simplifie")))
 	Logistics.setup(s, String(options.get("logistics", "aucune")))
+	Terrain.setup(s, String(options.get("terrain", "aucun")), String(options.get("storms", "actives")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -402,6 +407,8 @@ func to_dict() -> Dictionary:
 	# Logistique : seulement quand l'option est active (même empreinte sans elle).
 	if Logistics.worth_saving(self):
 		d["logistics"] = Logistics.to_dict(self)
+	if Terrain.worth_saving(self):
+		d["terrain"] = Terrain.to_dict(self)
 	return d
 
 
@@ -608,6 +615,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Borders.from_dict(s, d.get("borders", {}))
 	Ground.from_dict(s, d.get("ground", {}))
 	Logistics.from_dict(s, d.get("logistics", {}))
+	Terrain.from_dict(s, d.get("terrain", {}))
 	s.rebuild_ownership()
 	# Sauvegardes d'avant le commerce en paliers : l'ancien accord commercial devient un accord du
 	# 2e palier, et les routes se tracent tout de suite.

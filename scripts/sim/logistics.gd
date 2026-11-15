@@ -251,11 +251,19 @@ static func _compute_zone(state: GameState, eid: int) -> Dictionary:
 		buckets[i] = []
 	for sid in best:
 		(buckets[int(best[sid])] as Array).append(sid)
+	# Terrain (voir Terrain) : une tempête ou une nébuleuse ionisée arrête les convois.
+	var walled := {}
+	if Terrain.active(state):
+		for s in g.systems:
+			if Terrain.blocks_supply(state, s.id):
+				walled[s.id] = true
 	for r in range(maxr, 0, -1):
 		for sid in buckets[r]:
 			if int(best[sid]) != r:
 				continue
 			for n in g.systems[int(sid)].neighbors:
+				if walled.has(n):
+					continue
 				if int(best.get(n, -1)) < r - 1:
 					best[n] = r - 1
 					(buckets[r - 1] as Array).append(n)

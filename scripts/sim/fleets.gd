@@ -9,9 +9,15 @@ extends RefCounted
 
 # --- Routes et trajets -------------------------------------------------------------------------
 
-## Longueur d'une route de saut, arrondie à l'unité (au moins 1).
+## Longueur d'une route de saut, arrondie à l'unité (au moins 1). Le terrain (voir Terrain) l'allonge :
+## nébuleuse, trou noir, tempête… le plus fort malus des deux bouts compte.
 static func lane_length(galaxy: Galaxy, a: int, b: int) -> int:
-	return maxi(1, roundi(galaxy.systems[a].position.distance_to(galaxy.systems[b].position)))
+	var d := maxi(1, roundi(galaxy.systems[a].position.distance_to(galaxy.systems[b].position)))
+	var pct := maxi(galaxy.systems[a].transit_pct, galaxy.systems[b].transit_pct)
+	if pct > 0:
+		@warning_ignore("integer_division")
+		d = d * (100 + pct) / 100
+	return d
 
 
 ## Vitesse d'une flotte : celle de son vaisseau le plus lent (unités par jour).
@@ -140,11 +146,10 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid: Va
 			continue
 		done[best] = 1
 		var best_known := explored.has(best)
-		var pos := g.systems[best].position
 		for n in g.systems[best].neighbors:
 			if done[n] == 1 or not (best_known or explored.has(n)):
 				continue
-			var d: int = d0 + maxi(1, roundi(pos.distance_to(g.systems[n].position)))
+			var d: int = d0 + lane_length(g, best, n)
 			if lairs and explored.has(n) and (Pirates.is_lair(state, n) or Fauna.avoided(state, empire_id, n)):
 				d += LAIR_DETOUR
 			if border:
@@ -376,8 +381,9 @@ static func _own_visible(state: GameState, empire_id: int) -> Dictionary:
 			var sid := vision_center(state, f)
 			sources[sid] = maxi(int(sources.get(sid, -1)), vision(f))
 	var seen := {}
+	var pierce := Terrain.pierces(state, empire_id)
 	for sid in sources:
-		_flood(state.galaxy, int(sid), int(sources[sid]), seen)
+		_flood(state.galaxy, int(sid), int(sources[sid]), seen, pierce)
 	return seen
 
 
@@ -408,8 +414,9 @@ static func visible_all(state: GameState) -> Array[Dictionary]:
 	var own: Array[Dictionary] = []
 	for i in count:
 		var seen := {}
+		var pierce := Terrain.pierces(state, state.empires[i].id)
 		for sid in sources[i]:
-			_flood(state.galaxy, int(sid), int(sources[i][sid]), seen)
+			_flood(state.galaxy, int(sid), int(sources[i][sid]), seen, pierce)
 		own.append(seen)
 	# Vision partagée : chacun voit aussi ce que voient ses alliés.
 	var out: Array[Dictionary] = []
@@ -426,16 +433,25 @@ static func visible_all(state: GameState) -> Array[Dictionary]:
 	return out
 
 
-static func _flood(g: Galaxy, start: int, radius: int, seen: Dictionary) -> void:
+## Vision depuis start sur radius sauts. Terrain (voir Terrain) : une nébuleuse (veiled) ne se voit
+## pas de l'extérieur et cache ce qu'il y a derrière, sauf pour qui la perce (pierce : on la voit à
+## 1 saut, sans voir au-delà) ; une tempête de radiations (blind) réduit la vision au système.
+static func _flood(g: Galaxy, start: int, radius: int, seen: Dictionary, pierce := false) -> void:
 	var frontier: Array[int] = [start]
 	var local := {start: true}
 	seen[start] = true
-	for _r in radius:
+	if g.systems[start].blind:
+		return
+	for r in radius:
 		var next: Array[int] = []
 		for s in frontier:
 			for n in g.systems[s].neighbors:
 				if not local.has(n):
 					local[n] = true
+					if g.systems[n].veiled:
+						if pierce and r == 0:
+							seen[n] = true
+						continue
 					seen[n] = true
 					next.append(n)
 		frontier = next
@@ -637,6 +653,8 @@ static func check_move(state: GameState, empire_id: int, fleet_id: int, system_i
 		return "la flotte y est déjà"
 	if not f.is_moving() and anchored(state, f):
 		return "une ancre gravitationnelle ennemie retient la flotte tant que la bataille dure"
+	if not f.is_moving() and Terrain.pinned(state, f):
+		return "la gravité du lieu retient la flotte tant que la bataille dure (%s)" % Terrain.short(state, f.system_id)
 	if plan_route(state, f, system_id).is_empty():
 		return "aucune route connue jusque-là"
 	return ""

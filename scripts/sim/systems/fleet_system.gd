@@ -125,7 +125,9 @@ static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictiona
 static func _move(state: GameState, f: Fleet) -> void:
 	if not f.is_moving():
 		return
-	var sp := Fleets.speed(f, state)
+	if Terrain.pinned(state, f):
+		return  # trou noir, tempête gravitationnelle : on ne quitte pas la bataille
+	var sp := Terrain.fleet_speed(state, f, Fleets.speed(f, state))
 	if state.faith_on:
 		# Voies sacrées : routes bénies plus rapides pour les fidèles, fermées (ralenties) aux autres.
 		@warning_ignore("integer_division")

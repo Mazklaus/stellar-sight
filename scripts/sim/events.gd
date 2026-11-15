@@ -298,6 +298,18 @@ static func _systems(state: GameState, empire_id: int, mode: String) -> Array[in
 					out.append(far)
 				elif not own.is_empty():
 					out.append(own[0])
+		# Terrain galactique (data/terrain.json) : un de ses systèmes dans une nébuleuse, sous une
+		# tempête, ou près d'un astre dangereux (trou noir, étoile à neutrons, géante bleue).
+		"nebula", "storm", "star_hazard":
+			for sid in own:
+				var here := Terrain.at(state, sid)
+				var ok := false
+				for t in here:
+					var fam := String(Terrain.def(t).get("family", ""))
+					if (mode == "nebula" and t.begins_with("nebuleuse")) or (mode == "storm" and fam == "storm") or (mode == "star_hazard" and fam == "star"):
+						ok = true
+				if ok:
+					out.append(sid)
 		_:
 			out = own
 	return out
@@ -365,6 +377,9 @@ static func conditions_ok(state: GameState, empire_id: int, cond: Dictionary, su
 					return false
 			"war":
 				if bool(v) != (not e.wars.is_empty()):
+					return false
+			"terrain":
+				if bool(v) != Terrain.active(state):
 					return false
 			"stability":
 				if bool(v) != Stability.applies(state, empire_id):

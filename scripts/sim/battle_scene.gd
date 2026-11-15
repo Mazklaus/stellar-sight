@@ -6,7 +6,8 @@ extends RefCounted
 ##
 ## {"seed", "star", "planet": {"type", "size", "id"}, "moons": [{"type", "id"}], "belt": bool,
 ##  "station": "" | "bastion" | "outpost" | "colony", "owner": empire du système, "wrecks": épaves
-##  déjà présentes (cimetière), "siege": bool, "lair": bool}
+##  déjà présentes (cimetière), "siege": bool, "lair": bool, "terrain": terrains actifs triés (Terrain.at,
+##  vide sans terrain ; chaque terrain a un bloc "visual" dans data/terrain.json)}
 ## Les rapports plus anciens n'ont pas de "scene" : la vue prend alors un décor par défaut.
 
 
@@ -38,7 +39,7 @@ static func capture(state: GameState, sid: int, battle_id: int) -> Dictionary:
 			others.append(pid)
 	var scene := {"seed": battle_id * 7919 + sid * 31, "star": s.star_type, "owner": owner, "belt": belt,
 			"station": station, "wrecks": int(state.battle_wrecks.get(sid, 0)), "siege": state.sieges.has(sid),
-			"lair": state.lairs.has(sid), "planet": {}, "moons": []}
+			"lair": state.lairs.has(sid), "planet": {}, "moons": [], "terrain": Terrain.at(state, sid)}
 	if best >= 0:
 		var bp := state.galaxy.get_planet(best)
 		scene["planet"] = {"type": bp.type, "size": bp.size, "id": bp.id}

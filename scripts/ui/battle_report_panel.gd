@@ -73,6 +73,10 @@ func show_report(state: GameState, viewer: int, r: Dictionary) -> void:
 	var days := int(r["day"])
 	_when.text = "Du %s au %s  ·  %d jour%s de combat" % [GameCalendar.date_string(int(r["start"])), GameCalendar.date_string(int(r["end"])),
 			days, "s" if days > 1 else ""]
+	# Terrain (voir Terrain) : ce qui a pesé sur la bataille, en tête du rapport.
+	for tid in r.get("terrain", []):
+		var td := Terrain.def(String(tid))
+		_when.text += "\nTerrain · %s : %s" % [String(td.get("label", tid)), String(td.get("bad", ""))]
 	var winner := int(r.get("winner", -1))
 	if winner < 0:
 		_outcome.text = "Issue indécise : les deux camps tiennent encore le système."

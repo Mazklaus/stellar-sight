@@ -269,8 +269,10 @@ func _test_ai() -> void:
 	Heroes.act(st, 1, "battles_won", 40)
 	Heroes._maybe_offer(st, 1)
 	_ok(not (Heroes.meta(st, 1)["offer"] as Array).is_empty(), "IA : offre reçue")
+	var first := str(Heroes.meta(st, 1)["offer"])
 	sim.advance(61)
-	_ok((Heroes.meta(st, 1)["offer"] as Array).is_empty(), "IA : l'offre est traitée dans le mois (%s)" % e.short_name())
+	# Une nouvelle offre peut arriver entre-temps : seule compte celle qu'on a posée.
+	_ok(str(Heroes.meta(st, 1)["offer"]) != first, "IA : l'offre est traitée dans le mois (%s)" % e.short_name())
 
 
 func _emp(st: GameState, faction_id: String) -> int:

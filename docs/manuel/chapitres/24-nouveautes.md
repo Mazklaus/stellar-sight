@@ -3,6 +3,13 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.7
+
+- **Terrain galactique et environnements de bataille**, nouvelle option de partie, **Normal** par défaut (chapitre « La guerre ») : nébuleuses nommées en nappes, étoiles à neutrons, trous noirs, géantes bleues, champs d'astéroïdes, nuages de plasma, champs de radiations et **cimetières d'épaves** nés des batailles. Chaque terrain a un inconvénient et un avantage.
+- Effets sur le **transit**, la **vision** (voile des nébuleuses) et les **batailles** (boucliers, portée, missiles, chasseurs, couvert, réparations, bataille qu'on ne quitte pas), **connaissance du terrain** après deux ans.
+- **Tempêtes cosmiques** mobiles dès la 10e année (ionique, gravitationnelle, de radiations), qui coupent ravitaillement et commerce mais font progresser la science.
+- Contre-mesures : **Navigation stellaire**, **Senseurs gravitationnels**, **Boucliers durcis**, **Observatoire stellaire**, amiral **Pilote des nébuleuses** ; **talents de terrain** par couche d'espèce et trait d'éditeur **Enfants du vide** ; trois événements ; IA Vétéran qui choisit son terrain.
+
 ### Édition 2.6
 
 - **Logistique et ravitaillement**, nouvelle option de partie, **Simple** par défaut (chapitre « La guerre ») : **zone de ravitaillement** à 2 sauts de vos systèmes et de ceux qui vous ravitaillent, **réserves** de 120 jours pour les flottes de guerre, malus doux à sec (plus de réparation, dégâts jusqu'à -30 %, jamais de vaisseau perdu), civils exemptés, flotte **à quai** à -25 % d'entretien.

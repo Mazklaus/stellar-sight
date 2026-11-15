@@ -899,7 +899,9 @@ static func daily(state: GameState) -> Array[Dictionary]:
 	var added: Array[Dictionary] = []
 	if not full(state):
 		return added
-	var start := state.chronicle.size()
+	# Repère : la dernière entrée existante (la chronique est plafonnée, un indice de départ ne
+	# suffit pas une fois pleine).
+	var last: Variant = state.chronicle.back() if not state.chronicle.is_empty() else null
 	_g(state)
 	if state.tick % int(GameData.rules()["month_days"]) == 0:
 		_monthly(state)
@@ -912,8 +914,12 @@ static func daily(state: GameState) -> Array[Dictionary]:
 	_strays(state)
 	_recover(state)
 	sync_all(state)
-	for i in range(start, state.chronicle.size()):
-		added.append(state.chronicle[i])
+	var fresh: Array[Dictionary] = []
+	for i in range(state.chronicle.size() - 1, -1, -1):
+		if last != null and is_same(state.chronicle[i], last):
+			break
+		fresh.push_front(state.chronicle[i])
+	added.append_array(fresh)
 	return added
 
 

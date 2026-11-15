@@ -516,11 +516,17 @@ static func _finish_route(state: GameState, r: Dictionary, armed: Dictionary) ->
 	var p: Array = r["path"]
 	r["blocked"] = false
 	r["by"] = -1
+	r.erase("storm")
 	for sid in p:
 		var bl := _blocker(state, int(sid), a, b, armed)
 		if bl >= 0:
 			r["blocked"] = true
 			r["by"] = bl
+			r["at"] = int(sid)
+			break
+		if Terrain.blocks_trade(state, int(sid)):
+			r["blocked"] = true  # tempête cosmique sur le chemin : route suspendue
+			r["storm"] = true
 			r["at"] = int(sid)
 			break
 	var loss := route_loss(state, r)
