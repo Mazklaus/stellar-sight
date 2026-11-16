@@ -630,6 +630,8 @@ static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet
 		var target := terraform_target(state, empire_id, p, building_id)
 		if target == "":
 			return "impossible sur ce monde (%s)" % p.type_label()
+	if b.get("stealth", false) and not Stealth.enabled(state):
+		return "la furtivité n'est pas en jeu dans cette partie"
 	var need_terrain: Array = b.get("requires_terrain", [])
 	if not need_terrain.is_empty():
 		var here := Terrain.at(state, p.system_id)

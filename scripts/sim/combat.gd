@@ -498,11 +498,14 @@ static func besiegers(state: GameState, system_id: int) -> Array[Fleet]:
 	if owner < 0 or Defenses.holds(state, system_id):
 		return out  # une station armée tient l'orbite : pas de siège (défenses spatiales)
 	var here := Fleets.fleets_at(state, system_id)
+	var stealthy := not state.stealth.is_empty()
 	for f in here:
-		if f.owner == owner and is_armed(f):
+		if f.owner == owner and is_armed(f) and not (stealthy and Stealth.lurking(state, f)):
 			return []
 	for f in here:
 		if f.owner != GameState.FAUNA_ID and at_war(state, f.owner, owner) and is_armed(f):
+			if stealthy and Stealth.lurking(state, f):
+				continue  # flotte cachée à l'écart : elle n'assiège pas (furtivité)
 			out.append(f)
 	return out
 
@@ -517,9 +520,14 @@ static func is_besieged(state: GameState, system_id: int) -> bool:
 static func blocks(state: GameState, empire_id: int, system_id: int, moving: Fleet = null) -> bool:
 	if runs_blockades(moving) or empire_id == GameState.FAUNA_ID:
 		return false
+	var stealthy := not state.stealth.is_empty()
+	if stealthy and moving != null and Stealth.slips(state, moving, system_id):
+		return false  # furtivité : personne ne la voit passer
 	for f in Fleets.fleets_at(state, system_id):
 		# Les créatures ne barrent pas le passage : on traverse leur système sans s'y arrêter.
 		if f.owner != GameState.FAUNA_ID and at_war(state, f.owner, empire_id) and is_armed(f):
+			if stealthy and Stealth.lurking(state, f):
+				continue  # flotte cachée à l'écart : elle ne barre pas la route
 			return true
 	return false
 

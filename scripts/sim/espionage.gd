@@ -420,6 +420,7 @@ static func probe(state: GameState, player: int, system_id: int) -> void:
 	e.probes -= 1
 	Economy.pay(e, probe_cost())
 	Intel.record_systems(state, e, [system_id])
+	StealthBridges.on_probe(state, player, system_id)  # la sonde perce les camouflages jusqu'à 3
 
 
 # --- Chronique : qui sait quoi ? ---------------------------------------------------------------
@@ -635,6 +636,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_d := DefensesBridges.spy_check(state, a, b, op_id)
 		if why_d != "":
 			return why_d
+	if bool(o.get("stealth", false)):
+		var why_s := StealthBridges.spy_check(state, a, b, op_id)
+		if why_s != "":
+			return why_s
 	if bool(o.get("logistics", false)):
 		var why_l := Logistics.spy_check(state, a, b, op_id)
 		if why_l != "":
@@ -869,6 +874,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return GroundOccupation.spy_apply(state, a, b, o)
 	if bool(o.get("defenses", false)):
 		return DefensesBridges.spy_apply(state, a, b, o)
+	if bool(o.get("stealth", false)):
+		return StealthBridges.spy_apply(state, a, b, o)
 	if bool(o.get("logistics", false)):
 		return Logistics.spy_apply(state, a, b, o)
 	if bool(o.get("culture", false)):

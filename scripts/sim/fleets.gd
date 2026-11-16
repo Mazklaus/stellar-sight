@@ -37,6 +37,9 @@ static func speed(fleet: Fleet, state: GameState = null) -> int:
 	if state != null:
 		@warning_ignore("integer_division")
 		v = v * FactionTraits.fleet_speed_pct(state, fleet.owner) / 100
+		if not state.stealth.is_empty():
+			@warning_ignore("integer_division")
+			v = v * Stealth.speed_pct(state, fleet) / 100  # voile de camouflage, Silence radio
 	return maxi(1, v)
 
 
@@ -397,7 +400,9 @@ static func _own_visible(state: GameState, empire_id: int) -> Dictionary:
 		var f: Fleet = state.fleets[fid]
 		if f.owner == empire_id:
 			var sid := vision_center(state, f)
-			sources[sid] = maxi(int(sources.get(sid, -1)), vision(f))
+			sources[sid] = maxi(int(sources.get(sid, -1)), Stealth.vision_of(state, f) if not state.stealth.is_empty() else vision(f))
+	if not state.stealth.is_empty():
+		Stealth.beacon_vision(state, empire_id, sources)
 	var seen := {}
 	var pierce := Terrain.pierces(state, empire_id)
 	for sid in sources:
@@ -432,7 +437,10 @@ static func visible_all(state: GameState) -> Array[Dictionary]:
 			continue
 		var src := sources[f.owner]
 		var sid := vision_center(state, f)
-		src[sid] = maxi(int(src.get(sid, -1)), vision(f))
+		src[sid] = maxi(int(src.get(sid, -1)), Stealth.vision_of(state, f) if not state.stealth.is_empty() else vision(f))
+	if not state.stealth.is_empty():
+		for i in count:
+			Stealth.beacon_vision(state, state.empires[i].id, sources[i])
 	var own: Array[Dictionary] = []
 	for i in count:
 		var seen := {}
@@ -501,13 +509,16 @@ static func lane_known(state: GameState, empire_id: int, a: int, b: int) -> bool
 
 
 ## Une flotte étrangère est visible si le système d'où elle observerait est vu par l'empire.
-## Archétype Énergétique : une flotte voilée reste cachée (voir Veil).
+## Archétype Énergétique : une flotte voilée reste cachée (voir Veil). Furtivité en jeu : il faut en
+## plus percer son camouflage (voir Stealth ; le Voile du Chœur y devient un camouflage 3).
 static func fleet_visible(state: GameState, viewer: int, fleet: Fleet, seen: Dictionary) -> bool:
 	if fleet.owner == viewer:
 		return true
 	if Echoes.foresees(state, viewer, fleet):
 		return true
 	var sid := vision_center(state, fleet)
+	if not state.stealth.is_empty():
+		return seen.has(sid) and Stealth.detects(state, viewer, fleet)
 	return seen.has(sid) and not Veil.hides(state, fleet.owner, viewer, sid)
 
 

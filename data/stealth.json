@@ -1,0 +1,86 @@
+{
+	"_doc": "Furtivité et détection (étude du 2026-11-16, 41 propositions validées). Deux niveaux de 0 à 5 (les yeux nus voient 1 : un camouflage 1 ne cache rien, d'où des voiles I-III à 2-4, un point au-dessus des yeux nus comme les pirates) : camouflage (ce qui cache une flotte) et détection (ce qui la perce). La portée reste la vision en sauts. Une flotte est vue par un empire si un de ses senseurs (ou d'un allié) couvre son système avec une détection au moins égale à son camouflage. Trois degrés de connaissance : contact, identifiée, détaillée. Voir scripts/sim/stealth.gd.",
+	"_sources": [
+		"Stellaris, Ship (Cloaking) : https://stellaris.paradoxwikis.com/Ship",
+		"Stellaris, Starbase (Detection Array, Listening Post) : https://stellaris.paradoxwikis.com/Starbase",
+		"Endless Space 2, Quadrinix Toroids / Antimatter Channeling (anti-camouflage I-III, sondes) : https://endless-space-2.fandom.com/wiki/Quadrinix_Toroids",
+		"Endless Space 2, The Umbral Choir : https://endless-space-2.fandom.com/wiki/The_Umbral_Choir/Gameplay",
+		"Starsector, Sensors : https://starsector.fandom.com/wiki/Sensors",
+		"Distant Worlds 2, manuel p. 62 et 86-87 : https://ftp.matrixgames.com/pub/DistantWorlds2/DW2%20Manual%20EBOOK.pdf",
+		"Aurora 4X (manuel communautaire), 11.4 Stealth : https://erikevenson.github.io/aurora-manual/11-sensors-and-detection/11.4-stealth.html"
+	],
+	"default_mode": "complete",
+	"modes": [
+		{"id": "complete", "label": "Complète", "text": "Camouflage contre détection, trois degrés de connaissance (contact, identifiée, détaillée), postures Silence radio et Balayage actif, balises d'écoute, brouilleurs et leurres."},
+		{"id": "simple", "label": "Simple", "text": "Camouflage contre détection seulement : une flotte repérée est connue en entier ; ni postures, ni balises, ni brouilleurs, ni leurres."},
+		{"id": "desactivee", "label": "Désactivée", "text": "Comme avant : une flotte est vue dès qu'elle est dans la portée de vos senseurs (seul le Voile du Chœur cache encore)."}
+	],
+	"max_level": 5,
+	"module_max": 4,
+	"base_detection": 1,
+	"stationary_bonus": {"_doc": "Prop. 28 : contre les flottes d'un peuple voilé (Chœur), une présence à l'arrêt sur place (flotte immobile, colonie) voit +2 dans son propre système ; les Détecteurs d'abysse y ajoutent detect_veil partout.", "detect": 2},
+	"cloak": {
+		"_doc": "Prop. 8-10. Malus de vitesse en % selon le camouflage de base de la flotte (marque du voile) ; boucliers à shield_pct % le premier jour de la bataille où le voile tombe ; recharge du voile en recharge_days jours après un tir.",
+		"speed_pct": {"2": 70, "3": 80, "4": 90},
+		"shield_pct": 50,
+		"recharge_days": 30
+	},
+	"ambush": {"_doc": "Prop. 12 : une flotte non repérée qui engage le combat (posture Embuscade) frappe plus fort le premier jour.", "damage_pct": 25},
+	"terrain": {
+		"_doc": "Prop. 13 : bonus de camouflage par terrain (rest = seulement à l'arrêt) ; blind (tempête de radiations) : détection 0 dans le système.",
+		"nebuleuse": {"cloak": 1},
+		"nebuleuse_ionisee": {"cloak": 2},
+		"asteroides": {"cloak": 1, "rest": true}
+	},
+	"postures": {
+		"_doc": "Prop. 12, 14, 15. Silence radio : +1 camouflage, vision réduite à son système, vitesse divisée par deux. Balayage actif : +1 détection et +1 saut de portée, mais la flotte est vue en entier par tous ceux dont la vision couvre son système. Embuscade : une flotte cachée engage les ennemis présents (sinon elle reste à l'écart).",
+		"silence": {"label": "Silence radio", "cloak": 1, "speed_pct": 50, "full": true},
+		"scan": {"label": "Balayage actif", "detect": 1, "range": 1, "full": true},
+		"ambush": {"label": "Embuscade", "full": false}
+	},
+	"degrees": {
+		"_doc": "Prop. 22 : 3 = détaillée (sur place, ou detail_adv points de détection d'avance), 2 = identifiée (à identify_dist saut d'une source), 1 = contact. Brouilleur : au mieux identifiée, sauf jam_adv points d'avance.",
+		"detail_adv": 2,
+		"identify_dist": 1,
+		"jam_adv": 3,
+		"labels": {"1": "Contact", "2": "Identifiée", "3": "Détaillée"}
+	},
+	"sources": {
+		"_doc": "Prop. 16-19. Détection des colonies : base + technologies (effet detect) + bâtiment reseau_ecoute (+1, portée de la colonie) + modules de station module_senseurs (+1) et module_ecoute (+2, +1 saut).",
+		"buildings": {"reseau_ecoute": {"detect": 1}},
+		"station_modules": {"module_senseurs": {"detect": 1}, "module_ecoute": {"detect": 2, "range": 1}}
+	},
+	"beacon": {
+		"_doc": "Prop. 20 : balise d'écoute posée par une flotte sans armes à l'arrêt (technologie detecteurs_2). Camouflée (cloak), elle voit range saut avec la détection detect. Le maître du système la détruit dès qu'il la repère.",
+		"tech": "detecteurs_2",
+		"cost": {"materials": 30, "energy": 20},
+		"cloak": 2,
+		"detect": 1,
+		"range": 1,
+		"max": 6
+	},
+	"decoy": {
+		"_doc": "Prop. 26 : une flotte qui porte des leurres laisse days jours une fausse silhouette (contact) dans la mémoire des empires qui la voient en contact ; elle s'efface dès qu'on l'identifie.",
+		"days": 60
+	},
+	"probe_detect": 3,
+	"non_empires": {
+		"_doc": "Prop. 31 : détection sur place des puissances qui ne sont pas des empires (pirates, crises, puissances anciennes, créatures) et camouflage des pirates (un point au-dessus des yeux nus).",
+		"detect": {"pirates": 1, "crisis": 5, "ancients": 5, "fauna": 1},
+		"pirate_cloak": 2
+	},
+	"grief": {"_doc": "Prop. 35 : flotte camouflée repérée chez un empire en paix.", "opinion": -10, "days": 360},
+	"codes": {"_doc": "Prop. 29 : codes de camouflage volés (opération d'espionnage).", "detect": 2, "days": 360},
+	"talents": {
+		"_doc": "Prop. 33 : talents par couche d'espèce (catalogue ouvert, valables pour les peuples créés). detect : détection de toutes les sources ; cloak : camouflage des flottes déjà voilées ; stationary : bonus sur place.",
+		"archetype": {
+			"synthetique": {"label": "Senseurs intégrés", "text": "Chaque coque est un œil : +1 de détection.", "detect": 1},
+			"energetique": {"label": "Ondes sœurs", "text": "Un peuple d'onde sent les autres ondes : +1 de détection sur place.", "stationary": 1},
+			"ruche": {"label": "Antennes", "text": "La ruche sent les vibrations du vide : +1 de détection sur place.", "stationary": 1}
+		},
+		"credo": {
+			"profit": {"label": "Contrebandiers", "text": "Les flottes voilées gagnent +1 de camouflage.", "cloak": 1}
+		}
+	},
+	"ai": {"_doc": "Prop. 36 : niveau d'IA (skill) à partir duquel l'IA réagit (détecteurs après une embuscade) ou lance des raids camouflés.", "react_skill": 1, "raid_skill": 2, "listen_after_ambush_days": 720}
+}

@@ -675,6 +675,11 @@ static func private_act(player: int, act: String, a := -1, b := -1, s := "") -> 
 	return {"type": "private", "player": player, "act": act, "a": a, "b": b, "s": s}
 
 
+## Furtivité : "pose" (a = flotte, s = posture : "", "silence", "scan", "ambush"), "beacon" (a = flotte).
+static func stealth_act(player: int, act: String, a := -1, b := -1, s := "") -> Dictionary:
+	return {"type": "stealth", "player": player, "act": act, "a": a, "b": b, "s": s}
+
+
 ## Défenses spatiales : "guard"/"unguard" (a = flotte), "modernize" (a = système).
 static func defense_act(player: int, act: String, a := -1, b := -1, s := "") -> Dictionary:
 	return {"type": "defense", "player": player, "act": act, "a": a, "b": b, "s": s}
@@ -879,6 +884,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Finance.check_mint(state, int(cmd["player"]))
 		"finance_franchise":
 			return Finance.check_franchise(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"stealth":
+			return Stealth.check(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"defense":
 			return Defenses.check(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"private":
@@ -1290,6 +1297,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Finance.mint(state, int(cmd["player"]))
 		"finance_franchise":
 			Finance.toggle_franchise(state, int(cmd["player"]), int(cmd["system"]))
+		"stealth":
+			Stealth.apply(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"defense":
 			Defenses.apply(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"private":
@@ -1469,6 +1478,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 		"invade":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var sid := f.system_id
+			Stealth.drop(state, f)  # débarquer fait tomber le voile
 			if Ground.full(state):
 				Ground.land(state, f)  # bataille au sol (voir Ground)
 				return

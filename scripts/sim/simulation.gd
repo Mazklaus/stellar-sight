@@ -82,6 +82,8 @@ func step() -> void:
 		combat_event.emit(ev)
 	for entry in Defenses.daily(state):
 		chronicle_added.emit(entry)
+	for entry in Stealth.daily(state):
+		chronicle_added.emit(entry)
 	for entry in Terrain.daily(state):
 		chronicle_added.emit(entry)
 	for entry in Logistics.daily(state):

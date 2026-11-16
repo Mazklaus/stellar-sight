@@ -23,6 +23,7 @@ static func process(state: GameState, events: Array = []) -> Array[Dictionary]:
 	var added: Array[Dictionary] = []
 	var by_sys := _stationary_by_system(state)
 	Defenses.add_fixed(state, by_sys)  # défenses spatiales : la flotte fixe du défenseur se joint
+	Stealth.filter_battle(state, by_sys)  # furtivité : les flottes cachées restent à l'écart
 	var fought := {}
 	var sids := by_sys.keys()
 	sids.sort()
@@ -136,6 +137,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 			var side := _side(b, f.owner)
 			for s in f.ships:
 				side["engaged"][s] = int(side["engaged"].get(s, 0)) + 1
+	Stealth.on_battle_day(state, b, fighters)  # le voile tombe au premier tir ; embuscade
 	_sync_units(b, fighters)
 	var day_log := {"day": day, "phase": phase, "shots": [], "kills": []}
 	if fresh:
@@ -201,6 +203,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		dpct += FaithNatures.damage_pct(state, f, sid)
 		dpct += Logistics.damage_pct(state, f)  # réserves épuisées loin des bases
 		dpct += Defenses.damage_pct(state, f, sid)  # couverture de station, garde, talents
+		dpct += Stealth.damage_pct(state, b, f, day)  # embuscade, Chasseur d'ombres
 		if dpct != 0:
 			@warning_ignore("integer_division")
 			bonus = bonus * maxi(0, 100 + dpct) / 100
@@ -237,7 +240,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 				var tg_fx: Dictionary = tfx.get(tg.owner, {})
 				var dmg := Combat.shot_damage(String(k), int(w[k]), phase, tac, wbonus, tg.ships[ti], Combat.fleet_tactic(tg),
 						Combat.fleet_pd(tg), Combat.defense_bonus(state, tg.owner, Combat.ship_marks(state, tg, ti)), Combat.fleet_shield(tg),
-						Terrain.shield_pct(tg_fx, tg.ships[ti]) if not tg_fx.is_empty() else 100)
+						(Terrain.shield_pct(tg_fx, tg.ships[ti]) if not tg_fx.is_empty() else 100) * Stealth.shield_pct(b, tg) / 100)
 				if tpct != 100 or tg_fx.has("taken_pct"):
 					@warning_ignore("integer_division")
 					dmg = maxi(1, dmg * tpct / 100 * int(tg_fx.get("taken_pct", 100)) / 100)
@@ -551,6 +554,8 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 					state.garrisons[sid] = g
 			continue
 		var lead: Fleet = by[0]
+		for bf in by:
+			Stealth.drop(state, bf)  # assiéger fait tomber le voile
 		if not state.sieges.has(sid):
 			state.sieges[sid] = {"system": sid, "by": lead.owner, "start": state.tick}
 			added.append(state.add_chronicle("%s met le siège devant %s. La garnison serre les dents, la population les rations." % [

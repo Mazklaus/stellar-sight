@@ -164,6 +164,7 @@ static func _move(state: GameState, f: Fleet) -> void:
 ## Appelée à chaque tick, et à la création d'une partie. Renvoie les entrées de chronique.
 static func update_exploration(state: GameState) -> Array[Dictionary]:
 	var added: Array[Dictionary] = []
+	Stealth.invalidate()
 	var seen_by := Fleets.visible_all(state)
 	state.seen_cache = seen_by.duplicate()
 	state.seen_tick = state.tick
@@ -191,8 +192,13 @@ static func _sees_empire(state: GameState, seen: Dictionary, other_id: int, view
 		if state.system_owner(sid) == other_id and not (veiled and Veil.hides(state, other_id, viewer, sid, near_set)):
 			return true
 	# (on cherche s'il en existe une : l'ordre de parcours ne change pas la réponse)
+	var stealthy := viewer >= 0 and not state.stealth.is_empty()
 	for f: Fleet in state.fleets.values():
 		if f.owner == other_id and seen.has(Fleets.vision_center(state, f)):
+			if stealthy:
+				if Stealth.degree(state, viewer, f, seen) >= 2:
+					return true
+				continue
 			if not (veiled and Veil.hides(state, other_id, viewer, Fleets.vision_center(state, f), near_set)):
 				return true
 	return false

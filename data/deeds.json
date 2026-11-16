@@ -489,6 +489,33 @@
 			"text": "Premier à tenir cinquante ans une capitale gardée par une station sans qu'elle soit jamais assiégée (défenses spatiales en jeu).",
 			"flavor": "Les guides montrent aux touristes les remparts. Les remparts n'ont jamais servi, et c'est tout leur mérite."
 		},
+		"premier_voile": {
+			"label": "Premier voile",
+			"family": "guerre",
+			"sort": "first",
+			"k": "veiled_fleets",
+			"n": 1,
+			"text": "Premier à lancer une flotte camouflée (furtivité en jeu).",
+			"flavor": "Le jour du lancement, personne n'a rien vu. La cérémonie a été jugée très réussie."
+		},
+		"spectre": {
+			"label": "Spectre",
+			"family": "guerre",
+			"sort": "first",
+			"k": "spectre_systems",
+			"n": 10,
+			"text": "Premier à traverser dix systèmes rivaux sans être vu (furtivité en jeu).",
+			"flavor": "Les douanes de dix empires ont la même case vide sur leurs registres."
+		},
+		"nul_ne_passe": {
+			"label": "Nul ne passe",
+			"family": "guerre",
+			"sort": "first",
+			"k": "hidden_found",
+			"n": 5,
+			"text": "Premier à repérer cinq flottes camouflées (furtivité en jeu).",
+			"flavor": "« Il n'y a rien là-bas. » — « Il y en a cinq, et je les ai notées. »"
+		},
 		"premier_leviathan": {
 			"label": "Premier Léviathan",
 			"family": "guerre",
