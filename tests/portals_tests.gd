@@ -21,6 +21,8 @@ func run(check: Callable) -> void:
 	_test_relays()
 	print("  - gates")
 	_test_gates()
+	print("  - bridges")
+	_test_bridges()
 	print("  - save")
 	_test_save()
 
@@ -295,6 +297,69 @@ func _test_gates() -> void:
 	var cc: Colony = st.colonies[e.capital_planet]
 	e.techs["portails_saut"] = true
 	_ok(Portals.check_build(st, 0, cc, "portail_saut") != "", "un seul portail par système")
+
+
+func _test_bridges() -> void:
+	var st := new_game()
+	var e := st.get_empire(0)
+	reveal(st, 0)
+	var pr := gate_pair(st, 0, 5)
+	var home: int = pr[0]
+	var far: int = pr[1]
+	# Ports et commerce (prop. 30, 31) : deux portails reliés sont voisins.
+	_ok(Portals.civil_links(st, 0, home).has(far), "desserte : les portails reliés comptent comme voisins")
+	_ok(not Portals.civil_links(st, 1, home).has(far), "pas pour un empire sans droit")
+	var p := Trade._bfs(st, home, far, 0, 0, false)
+	_ok(p.size() == 2, "une route commerciale emprunte le portail (%d systèmes)" % p.size())
+	var dist := Ports._dist_from(st, 0, home, 1, {0: true, -1: true}, {})
+	_ok(dist.has(far), "la chaîne de ports passe par le portail")
+	# Pirates : un portail sans station les attire (défenses en jeu).
+	if Defenses.enabled(st):
+		_ok(PortalsBridges.lures_pirates(st, far), "portail sans station : il attire les pirates")
+	# Corridor : +10 % sur une route.
+	var n1 := -1
+	for n in st.galaxy.systems[home].neighbors:
+		if st.system_owner(n) < 0 and not st.galaxy.systems[n].planet_ids.is_empty():
+			n1 = n
+			break
+	colonize(st, 0, n1)
+	build(st, home, "relais_hyper")
+	build(st, n1, "relais_hyper")
+	_ok(PortalsBridges.trade_pct(st, 0, [home, n1]) == 10, "route sur un corridor : +10 %")
+	var d2 := Ports._dist_from(st, 0, home, 0, {0: true, -1: true}, {})
+	_ok(d2.has(n1), "un saut de corridor ne compte pas dans la desserte")
+	# Haut fait (prop. 38).
+	_ok(PortalsBridges.linked_gates(st, 0) == 2, "Maître des portes : deux portails reliés comptés")
+	# Espionnage (prop. 25) : désaccorder coupe le portail 60 jours.
+	_ok(PortalsBridges.spy_check(st, 1, 0, "desaccorder_portail") == "", "opération possible contre un empire à portail")
+	_ok(PortalsBridges.spy_check(st, 0, 1, "desaccorder_portail") != "", "impossible sans portail chez la cible")
+	PortalsBridges.spy_apply(st, 1, 0, {})
+	_ok(Portals.cut(st, home) and not Portals.gate_ok(st, 0, home, far), "portail désaccordé : coupé")
+	var op := Espionage.op_def("desaccorder_portail")
+	_ok(bool(op.get("portals", false)), "opération en données")
+	# Événements (prop. 29).
+	Portals._sub(st, "cut").clear()
+	var added: Array[Dictionary] = []
+	var rng := Portals._rng(st, 5)
+	PortalsBridges._event(st, e, "resonance", {"wh": [], "gate": [far], "relay": []}, rng, added)
+	_ok(Portals.cut(st, far) and added.size() == 1, "résonance : portail coupé un mois")
+	var en := int(e.resources.get("energy", 0))
+	PortalsBridges._event(st, e, "contrebande", {"wh": [], "gate": [far], "relay": []}, rng, added)
+	_ok(int(e.resources["energy"]) == en + 40, "contrebandiers : 40 énergie")
+	# Gardien (prop. 28) : le pacte des Portes laisse un portail ancien éveillé.
+	var gs := free_at(st, home, 3)
+	Portals.on_guardian_pact(st, gs)
+	_ok(int(Portals._sub(st, "ruins").get(str(gs), -1)) == 1, "pacte des Portes : portail ancien éveillé")
+	# Loi galactique : sans Amphictyonie, aucun effet.
+	_ok(not Portals._law(st, "gates_open", 0, 1), "loi Portes ouvertes : seulement entre amphictyons")
+	_ok(not Amphictyony.family_available(new_game("desactives"), "portails") and Amphictyony.family_available(st, "portails"), "famille Portails seulement avec les portails")
+	# Talents (prop. 34) : trait de héros réservé au mode Complets, trait d'éditeur en données.
+	_ok(Heroes.data()["traits"].has("pilote_saut"), "trait d'amiral Pilote de saut")
+	var found := false
+	for t in GameData.species_parts()["traits"]:
+		if String(t["id"]) == "tisseurs_portes":
+			found = true
+	_ok(found, "trait d'éditeur Tisseurs de portes")
 
 
 func _test_save() -> void:

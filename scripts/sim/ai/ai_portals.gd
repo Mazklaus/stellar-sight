@@ -81,3 +81,12 @@ static func tech_mult(ctx: Dictionary, tid: String) -> int:
 	if (tid == "relais_hyperspatiaux" or tid == "portails_saut") and not e.contacts.is_empty():
 		return 2
 	return 1
+
+
+## Portails de saut tenus par l'empire (vote de la loi galactique Portails).
+static func gates_held(state: GameState, eid: int) -> int:
+	var n := 0
+	for sid in state.galaxy.portal_gates:
+		if state.system_owner(int(sid)) == eid:
+			n += 1
+	return n

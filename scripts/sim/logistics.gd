@@ -257,16 +257,26 @@ static func _compute_zone(state: GameState, eid: int) -> Dictionary:
 		for s in g.systems:
 			if Terrain.blocks_supply(state, s.id):
 				walled[s.id] = true
+	# Portails (prop. 17) : un saut le long d'un corridor de relais coûte supply_jumps de moins.
+	var corr := Portals.enabled(state) and not g.relays.is_empty()
+	var cj := int(Portals.cfg("relays").get("supply_jumps", 1)) if corr else 0
 	for r in range(maxr, 0, -1):
-		for sid in buckets[r]:
+		var bucket: Array = buckets[r]
+		var bi := 0
+		while bi < bucket.size():
+			var sid: int = int(bucket[bi])
+			bi += 1
 			if int(best[sid]) != r:
 				continue
-			for n in g.systems[int(sid)].neighbors:
+			for n in g.systems[sid].neighbors:
 				if walled.has(n):
 					continue
-				if int(best.get(n, -1)) < r - 1:
-					best[n] = r - 1
-					(buckets[r - 1] as Array).append(n)
+				var nr := r - 1
+				if corr and Portals.corridor(state, eid, sid, int(n)):
+					nr = mini(r, r - 1 + cj)
+				if int(best.get(n, -1)) < nr:
+					best[n] = nr
+					(buckets[nr] as Array).append(n)
 	# Couloirs sans portée : routes commerciales libres (prop. 14), espace neutre sous la
 	# Convention de ravitaillement de l'Amphictyonie (prop. 22).
 	for r: Dictionary in Trade.routes_of(state, eid):

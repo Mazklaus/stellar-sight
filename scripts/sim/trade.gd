@@ -284,13 +284,17 @@ static func path(state: GameState, from: int, to: int, a: int, b: int) -> Array[
 static func _bfs(state: GameState, from: int, to: int, a: int, b: int, avoid: bool) -> Array[int]:
 	var prev := {from: -1}
 	var queue: Array[int] = [from]
+	var portals := Portals.enabled(state)
 	var i := 0
 	while i < queue.size():
 		var cur := queue[i]
 		i += 1
 		if cur == to:
 			break
-		for n in state.galaxy.systems[cur].neighbors:
+		var nbs: Array = state.galaxy.systems[cur].neighbors
+		if portals:
+			nbs = nbs + Portals.civil_links(state, a, cur)  # prop. 31 : trous de ver et portails
+		for n in nbs:
 			if prev.has(n):
 				continue
 			if avoid and n != to:
@@ -547,6 +551,7 @@ static func _finish_route(state: GameState, r: Dictionary, armed: Dictionary) ->
 	var pct := 100 - tariff + int(ti.get("bonus_pct", 0))
 	# Frontières : la route traverse l'espace d'un empire qui a fermé ses frontières à l'un des bouts.
 	pct += Borders.trade_pct(state, a, b, p)
+	pct += PortalsBridges.trade_pct(state, a, p)  # corridor de relais sur le chemin (prop. 15)
 	if not state.admin.is_empty() and not p.is_empty():
 		pct -= AdminBridges.trade_pct(state, a, int(p[0]))  # corruption du système de départ
 	@warning_ignore("integer_division")
@@ -635,6 +640,8 @@ static func _update_risk(state: GameState, routes: Array) -> void:
 		var v := int(risk.get(sid, 0))
 		if on_route.has(sid) and not policed(state, int(sid), fleet_at):
 			v += int(pd["risk_per_month"]) + (int(pd["lair_bonus"]) if lair_near.has(sid) else 0)
+		elif on_route.has(sid) and not fleet_at.has(sid) and PortalsBridges.lures_pirates(state, int(sid)):
+			v += int(pd["risk_per_month"])  # portail sans station ni flotte : il attire les pirates (prop. 31)
 		else:
 			v -= int(pd["risk_decay"])
 		v = clampi(v, 0, int(pd["risk_max"]))

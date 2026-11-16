@@ -20,7 +20,7 @@ extends RefCounted
 ##  "wk": {"<empire>": {"<paire>": 1}} (destinations connues), "cd": {"<système>": jour de fin de recharge},
 ##  "tr": {"<flotte>": jour du transit}, "cut": {"<système>": jour de fin} (sabotage, résonance),
 ##  "ruins": {"<système>": 0 en ruine | 1 réveillé (libre)}, "rs": portails anciens restaurés,
-##  "off": {"<empire>": 1} (relais éteints faute de cristaux), "law": 1 (loi Portes ouvertes)}.
+##  "off": {"<empire>": 1} (relais éteints faute de cristaux)}. Lois galactiques : famille « portails » de l'Amphictyonie.
 ## Dérivé (non sauvegardé, refresh) : Galaxy.wormholes, portal_gates, portal_links, relays.
 ## Déterministe : flux aléatoires dérivés de la graine, parcours dans l'ordre des identifiants.
 
@@ -365,7 +365,7 @@ static func cost_pct(state: GameState, eid: int, bid: String) -> int:
 ## L'empire eid peut-il passer par une infrastructure tenue par o ? La sienne, celle d'un système libre,
 ## d'un allié, d'un membre de son Koinon, de son suzerain ou vassal, d'un empire qui lui accorde le
 ## droit de passage, ou de tout membre en paix avec la loi galactique Portes ouvertes. Jamais en guerre.
-static func may_use(state: GameState, o: int, eid: int) -> bool:
+static func may_use(state: GameState, o: int, eid: int, relay := false) -> bool:
 	if o < 0 or o == eid:
 		return true
 	if eid < 0 or GameState.is_npc(eid) or GameState.is_npc(o):
@@ -374,7 +374,7 @@ static func may_use(state: GameState, o: int, eid: int) -> bool:
 		return false
 	if Borders.strong_link(state, o, eid):
 		return true
-	if int(state.portals.get("law", 0)) == 1 and state.amph_on and Amphictyony.is_member(state, o) and Amphictyony.is_member(state, eid):
+	if _law(state, "gates_open", o, eid) or (relay and _law(state, "relays_open", o, eid)):
 		return true
 	return Borders.active(state) and Borders.grants(state, o, eid)
 
@@ -452,7 +452,7 @@ static func relay_ok(state: GameState, eid: int, a: int, b: int) -> bool:
 		var o := state.system_owner(sid)
 		if o >= 0 and (state.portals.get("off", {}) as Dictionary).has(str(o)):
 			return false
-		if not may_use(state, o, eid) or cut(state, sid):
+		if not may_use(state, o, eid, true) or cut(state, sid):
 			return false
 	return true
 
@@ -507,6 +507,23 @@ static func edges(state: GameState, eid: int, sid: int, explored: Dictionary, sm
 				out.append(int(b))
 				out.append(1)
 	return out
+
+
+## Voisins par raccourci pour les réseaux civils (desserte des ports, routes commerciales, ravitaillement) :
+## l'autre bout d'un trou de ver praticable et les portails reliés, s'ils sont explorés par eid.
+static func civil_links(state: GameState, eid: int, sid: int) -> Array[int]:
+	var out: Array[int] = []
+	if not enabled(state) or eid < 0 or eid >= state.empires.size():
+		return out
+	var ed := edges(state, eid, sid, state.empires[eid].explored)
+	for i in range(0, ed.size(), 2):
+		out.append(int(ed[i]))
+	return out
+
+
+## Route a -> b en corridor de relais praticable pour eid (effets civils).
+static func corridor(state: GameState, eid: int, a: int, b: int) -> bool:
+	return not state.galaxy.relays.is_empty() and eid >= 0 and relay_ok(state, eid, a, b)
 
 
 ## Multiplicateur de vitesse d'une flotte sur la route a -> b (corridor de relais).
@@ -611,6 +628,10 @@ static func _toll(state: GameState, f: Fleet, sid: int, mult: int) -> void:
 	var o := state.system_owner(sid)
 	if o < 0 or o == f.owner or GameState.is_npc(o) or Borders.strong_link(state, o, f.owner):
 		return
+	if _law(state, "gate_toll_free", o, f.owner):
+		return  # loi galactique : péages abolis entre amphictyons
+	if state.amph_on and Amphictyony.is_member(state, o) and Amphictyony._level_flag(state, "gate_toll_double"):
+		mult *= 2
 	var amount := Borders.toll_of(state, o) * mult
 	if amount <= 0:
 		return
@@ -634,7 +655,16 @@ static func shock_pct(state: GameState, f: Fleet) -> int:
 		var h := Heroes.at_post(state, "fleet", f.id, f.owner)
 		if not h.is_empty() and Heroes.trait_fx(h, "jump_shock") > 0:
 			return 0
-	return -int(cfg("gates").get("shock_pct", 25))
+	var pct := int(cfg("gates").get("shock_pct", 25))
+	var o := state.system_owner(f.system_id)
+	if o >= 0 and o != f.owner and state.amph_on and Amphictyony.is_member(state, o) and Amphictyony._level_flag(state, "gate_shock_double"):
+		pct *= 2  # loi galactique Portes gardées
+	return -pct
+
+
+## Effet d'une loi galactique de la famille Portails entre deux amphictyons.
+static func _law(state: GameState, key: String, o: int, eid: int) -> bool:
+	return state.amph_on and Amphictyony.is_member(state, o) and Amphictyony.is_member(state, eid) and Amphictyony._level_flag(state, key)
 
 
 # --- Bâtiments -----------------------------------------------------------------------------------
