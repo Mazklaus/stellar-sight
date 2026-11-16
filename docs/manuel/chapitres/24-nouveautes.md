@@ -3,6 +3,13 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.27
+
+- **Les défenses spatiales** (chapitre 31), nouveau réglage **Défenses spatiales** (complètes, simples, désactivées) : une **station de défense** par système, à trois paliers (**Bastion orbital**, **Forteresse orbitale**, **Rempart stellaire**) améliorés sur place, avec ses **modules** (armes, blindage ablatif, générateur de bouclier, baie de réparation, centre de commandement, grands senseurs) et sa **couverture** pour les flottes amies ; **plates-formes** dans la limite de la **capacité de défense** du système, **batteries**, **hangars** et **boucliers planétaires** (Bouclier I et **Dôme**), **sentinelles** gratuites ; panneau **Défenses** de la vue système et **étape de l'assaut** sur la fiche du système.
+- Les défenses fixes **se battent dans chaque bataille** du système ; tant que la station tient, ni siège, ni bombardement, ni débarquement ; une station vaincue est **réduite au silence** et se répare ; **Moderniser** remet plates-formes et modules aux marques du jour.
+- **Champs de mines** à densité (Mouilleur, Démineur, modules de vaisseau), **inhibiteur de saut** qui retient même les coursiers, posture **Garder** des flottes, **Torpilles de siège** et stat de siège doublée contre les défenses fixes ; l'IA fortifie sa capitale et son front et mesure les défenses avant d'attaquer.
+- **Ponts** : opérations **Couper un bouclier planétaire**, **Couper un inhibiteur de saut** et **Saboter les plates-formes**, clause de paix **Démilitariser un système**, mines interdites en **Guerre réglée**, trait **Ingénieur de place** et Général présent, terrain (astéroïdes, nébuleuse, tempête), haut fait **Inviolée**, stations des peuples mineurs, plate-forme payée par une compagnie privée, blocus des ports levé tant que la station tient, talents par couche. Chapitres 32 à 35 renumérotés.
+
 ### Édition 2.26
 
 - **Les spatioports** (chapitre 30), nouveau réglage **Spatioports** (complet, simple, désactivée) : seule la part **desservie** de la production matérielle d'une colonie (énergie, matériaux, nourriture, cristaux) rejoint le stock ; **Comptoir**, **Spatioport** et **Grand port orbital** améliorés sur place, **Balise de fret** en relais, portée en sauts, **desserte** de 100 % à 50 % (Desservie, Limite, Isolée, Enclave), ports **reliés à la capitale** de proche en proche ; onglet **Réseau** de l'écran Commerce ([[C]]) et **mode Spatioports** de la lentille du commerce ([[G]]).
