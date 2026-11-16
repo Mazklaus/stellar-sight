@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.19"
+EDITION = "2.20"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -725,6 +725,75 @@ def gen_merveilles():
     return out
 
 
+def gen_hauts_faits_modes():
+    """Réglage Hauts faits (data/deeds.json, modes)."""
+    d = charger("deeds.json")
+    lignes = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == 'tous' else ''}</td><td>{inline(m.get('text', ''))}</td></tr>"
+                     for m in d.get("modes", []))
+    return f"<table class='grille'><tr><th>Hauts faits</th><th>Effet</th></tr>{lignes}</table>"
+
+
+SORTES_HF = {"first": "Première", "record": "Record", "layer": "Couche", "infamous": "Infâme", "secret": "Secret"}
+ERES_HF = ["I", "II", "III", "IV", "V"]
+
+
+def gen_hauts_faits():
+    """Catalogue des hauts faits par famille (data/deeds.json) ; les secrets restent cachés."""
+    d = charger("deeds.json")
+    out = ""
+    for fam, f in d["families"].items():
+        aff = f.get("affinity", {})
+        qui = ", ".join([f"credo {c}" for c in aff.get("credo", [])] + [f"registre {r}" for r in aff.get("registre", [])])
+        lignes = ""
+        secrets = 0
+        for hid, h in d["deeds"].items():
+            if h.get("family") != fam:
+                continue
+            if h["sort"] == "secret":
+                secrets += 1
+                continue
+            sorte = SORTES_HF.get(h["sort"], h["sort"])
+            if h["sort"] == "record":
+                sorte += f" ère {ERES_HF[int(h.get('era', 1)) - 1]}"
+            if h.get("layer"):
+                sorte += " (" + ", ".join(str(v) for v in h["layer"].values()) + ")"
+            titre = d["titles"].get(h.get("title", ""), {}).get("label", "")
+            texte = h.get("text", "") + (f" Titre : {titre}." if titre else "")
+            lignes += f"<tr><td><b>{esc(h['label'])}</b></td><td>{esc(sorte)}</td><td>{inline(texte)}</td></tr>"
+        if secrets:
+            lignes += f"<tr><td><b>???</b></td><td>Secret</td><td>{secrets} haut{'s' if secrets > 1 else ''} fait{'s' if secrets > 1 else ''} secret{'s' if secrets > 1 else ''}, à découvrir.</td></tr>"
+        if lignes:
+            out += (f"<h4>{esc(f['label'])}</h4><p class='petit'>Gloire doublée pour : {esc(qui) if qui else 'personne'}</p>"
+                    f"<table class='grille'><tr><th>Haut fait</th><th>Sorte</th><th>Condition</th></tr>{lignes}</table>")
+    return out
+
+
+def gen_hauts_faits_recompenses():
+    """Récompenses au choix (data/deeds.json, rewards)."""
+    d = charger("deeds.json")
+    lignes = ""
+    for rid, r in d["rewards"].items():
+        if r["k"] == "res":
+            eff = ", ".join(f"{v} {NOMS_RES.get(k, k)}" for k, v in r["res"].items()) + " (selon l'ère)"
+        elif r["k"] == "research":
+            eff = f"{r['pct']} % du coût de la recherche en cours"
+        elif r["k"] == "trophy":
+            eff = "un Trophée encore libre, posé dans la capitale"
+        elif r["k"] == "ships":
+            eff = f"{r['n']} vaisseaux à la capitale (croiseurs avec Coques lourdes, sinon frégates)"
+        else:
+            eff = "un héros qui rejoint l'empire, déjà expérimenté (s'il reste de la place)"
+        lignes += f"<tr><td><b>{esc(r['label'])}</b></td><td>{esc(eff)}</td></tr>"
+    return f"<table class='grille'><tr><th>Récompense</th><th>Ce qu'elle donne</th></tr>{lignes}</table>"
+
+
+def gen_hauts_faits_trophees():
+    """Trophées (data/deeds.json, trophies)."""
+    d = charger("deeds.json")
+    lignes = "".join(f"<tr><td><b>{esc(t['label'])}</b></td><td>{inline(t.get('text', ''))}</td></tr>" for t in d["trophies"].values())
+    return f"<table class='grille'><tr><th>Trophée</th><th>Effet</th></tr>{lignes}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -739,6 +808,8 @@ GENERATEURS = {
     "rayonnement_modes": gen_rayonnement_modes, "rayonnement_paliers": gen_rayonnement_paliers,
     "rayonnement_merveilles": gen_rayonnement_merveilles, "rayonnement_talents": gen_rayonnement_talents,
     "merveilles_modes": gen_merveilles_modes, "merveilles": gen_merveilles,
+    "hauts_faits_modes": gen_hauts_faits_modes, "hauts_faits": gen_hauts_faits,
+    "hauts_faits_recompenses": gen_hauts_faits_recompenses, "hauts_faits_trophees": gen_hauts_faits_trophees,
 }
 
 

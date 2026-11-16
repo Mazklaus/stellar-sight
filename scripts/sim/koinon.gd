@@ -299,6 +299,7 @@ static func talent(state: GameState, eid: int) -> Dictionary:
 
 
 static func found(state: GameState, a: int, b: int, fid: String) -> int:
+	Deeds.note(state, a, "koinon")
 	var cost: Dictionary = data()["found"]["cost"]
 	Economy.pay(state.get_empire(a), cost)
 	Economy.pay(state.get_empire(b), cost)

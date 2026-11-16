@@ -846,6 +846,7 @@ static func complete(state: GameState, wid: String, eid: int, added: Array[Dicti
 			e.display_name(), label(wid), p.display_name(state.galaxy)], Espionage.public_to(state, [eid])))
 	WondersCatalog.on_complete(state, wid, eid, pid, added)
 	WondersBridges.on_complete(state, wid, eid, pid, added)
+	DeedsBridges.on_wonder(state, eid, wid)
 
 
 ## Course perdue (ou abandon) : la mise est gardée 90 jours pour une autre merveille, sinon la moitié

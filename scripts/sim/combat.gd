@@ -609,6 +609,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 				en.display_name(), sname, eo.display_name()], Espionage.private_to(state, [new_owner, old], system_id)))
 	Movements.on_conquest(state, system_id, new_owner, added)
 	Ancients.on_capture(state, system_id, new_owner, old, added)
+	DeedsBridges.on_capture(state, system_id, new_owner, old)
 	Minors.on_capture(state, system_id, new_owner, old, added)
 	Culture.on_capture(state, system_id, new_owner, old, added)
 	FaithNatures.on_capture(state, system_id, old, new_owner, added)

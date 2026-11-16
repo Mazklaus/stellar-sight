@@ -638,6 +638,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_w2 := WondersBridges.spy_check(state, a, b, op_id)
 		if why_w2 != "":
 			return why_w2
+	if bool(o.get("deeds", false)):
+		var why_d := DeedsBridges.spy_check(state, a, b, op_id)
+		if why_d != "":
+			return why_d
 	match op_id:
 		"prophetie":
 			var why := FaithWars.check_prophecy(state, a, b)
@@ -797,6 +801,7 @@ static func _resolve(state: GameState, op: Dictionary) -> void:
 		if not net.is_empty():
 			net["inf"] = maxi(0, int(net["inf"]) - int(o.get("spend", 0)))
 		Research.count_stat(state, a, "operations")
+		Deeds.on_spied(state, b)
 		Heroes.on_operation(state, a, b)
 		Reputation.gain(state, a, "op_success")
 	if not seen:
@@ -806,6 +811,8 @@ static func _resolve(state: GameState, op: Dictionary) -> void:
 			state.add_chronicle("%s, chez %s : l'opération échoue sans bruit. Les agents rentrent les mains vides et les pieds secs." % [
 					o["label"], eb.short_name()], private_to(state, [a]))
 		return
+	if ok and bool(o.get("deeds", false)):
+		DeedsBridges.spy_exposed(state, a, b)
 	_discovered(state, a, b, o, ok, what)
 
 
@@ -829,6 +836,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return CultureBridges.spy_apply(state, a, b, o)
 	if bool(o.get("wonders", false)):
 		return WondersBridges.spy_apply(state, a, b, o)
+	if bool(o.get("deeds", false)):
+		return DeedsBridges.spy_apply(state, a, b, o)
 	match String(o["id"]):
 		"rapport":
 			ea.dossiers[b] = dossier(state, b, data()["tiers"].size())
@@ -842,6 +851,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			@warning_ignore("integer_division")
 			var amount := maxi(1, Research.cost(state, a, tid) * int(o["steal_pct"]) / 100)
 			Research.add_progress(state, a, tid, amount)
+			if int(Research.tech(tid).get("era", 1)) > Research.current_era(state, a):
+				Deeds.note(state, a, "steal_up")
 			Research.count_stat(state, a, "stolen")
 			Reputation.exploit(state, a, "vol")
 			return "les plans de « %s » changent de mains (%d Savoir)." % [String(Research.tech(tid).get("label", tid)), amount]
@@ -893,6 +904,7 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			eb.research_progress -= burnt
 			if burnt > 0:
 				Reputation.exploit(state, a, "archives")
+				Deeds.note(state, a, "archives")
 			return "%d Savoir partent en fumée. Les bibliothécaires accusent la foudre, puis les rats." % burnt
 		"discorde":
 			var c := _framed(state, a, b)

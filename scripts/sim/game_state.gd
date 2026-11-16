@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 73
+const FORMAT_VERSION := 74
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -190,6 +190,8 @@ var minors: Dictionary = {}
 var culture: Dictionary = {}
 ## Merveilles galactiques (voir Wonders) : mode, tirage, chantiers, reports, étapes.
 var wonders: Dictionary = {}
+## Hauts faits galactiques (voir Deeds) ; vide si l'option est sur « Aucun ».
+var deeds: Dictionary = {}
 ## Zones de ravitaillement et lignes du jour (dérivé de l'état, non sauvegardé, recalculé chaque tick).
 var log_cache: Dictionary = {}
 var _pirates: Empire
@@ -271,6 +273,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	if vic.has("rayonnement"):
 		s.victory_rules["rayonnement"] = bool(vic["rayonnement"])  # Grand Rayonnement (voir Culture)
 	s.victory_rules["oeuvres"] = bool(vic.get("oeuvres", false))  # Grands Œuvres (voir WondersBridges)
+	s.victory_rules["annales"] = bool(vic.get("annales", false))  # Les Annales (voir DeedsBridges)
 	s.ai_scaling = bool(options.get("ai_scaling", false))
 	s._setup_empires(player_faction, options.get("rivals", null), bool(options.get("duplicates", false)), options.get("distances", []))
 	s._setup_colors(options.get("colors", []))
@@ -311,6 +314,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Minors.setup(s, String(options.get("minors", "aucun")))
 	Culture.setup(s, String(options.get("culture", "aucun")), String(options.get("culture_defect", "")))
 	Wonders.setup(s, String(options.get("wonders", Wonders.default_mode())))
+	Deeds.setup(s, String(options.get("deeds", Deeds.default_mode())), bool(options.get("golden_ages", true)))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -460,6 +464,8 @@ func to_dict() -> Dictionary:
 	# Merveilles : chantiers, reports, étapes (absent des anciennes sauvegardes : tout le catalogue).
 	if Wonders.worth_saving(self):
 		d["wonders"] = Wonders.to_dict(self)
+	if Deeds.worth_saving(self):
+		d["deeds"] = Deeds.to_dict(self)
 	return d
 
 
@@ -567,6 +573,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Minors.from_dict(s, d.get("minors", {}))
 	Culture.from_dict(s, d.get("culture", {}))
 	Wonders.from_dict(s, d.get("wonders", {}))
+	Deeds.from_dict(s, d.get("deeds", {}))
 	for c: Dictionary in d["colonies"]:
 		var colony := Colony.from_dict(c)
 		if s.galaxy.get_planet(colony.planet_id) == null or s.get_empire(colony.owner) == null:
@@ -624,7 +631,7 @@ static func from_dict(d: Dictionary) -> GameState:
 		s.victory_rules[k] = bool(vr.get(k, true))
 	s.victory_rules["spirituelle"] = bool(vr.get("spirituelle", false))
 	s.victory_rules["diplomatique"] = bool(vr.get("diplomatique", true))
-	for k in ["rayonnement", "oeuvres"]:
+	for k in ["rayonnement", "oeuvres", "annales"]:
 		if vr.has(k):
 			s.victory_rules[k] = bool(vr[k])
 	s.ai_scaling = bool(d.get("ai_scaling", false))

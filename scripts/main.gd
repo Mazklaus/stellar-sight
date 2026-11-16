@@ -60,6 +60,10 @@ var _pause_menu: PauseMenu
 var _victory_panel: VictoryPanel
 ## Fenêtre d'événement (cartes de la boîte du joueur), cartes déjà présentées, pause qu'elle a mise.
 var _event_panel: EventPanel
+## Fenêtre de récompense des hauts faits (voir Deeds).
+var _deed_panel: DeedPanel
+var _deed_paused := false
+var _deeds_told := {}
 var _events_told := {}
 var _event_paused := false
 ## Fenêtre d'élection (voir Politics) : dernière élection du joueur déjà montrée, pause qu'elle a mise.
@@ -198,6 +202,12 @@ func _ready() -> void:
 	_event_panel.locate_requested.connect(func(sid: int) -> void:
 		close_event_panel()
 		_go_to_system(sid))
+	_deed_panel = DeedPanel.new()
+	add_child(_deed_panel)
+	_deed_panel.choice_made.connect(func(item_id: int, index: int) -> void:
+		close_deed_panel()
+		_submit(SimCommands.deed_choose(local_player, item_id, index)))
+	_deed_panel.minimized.connect(close_deed_panel)
 	_election_panel = ElectionPanel.new()
 	add_child(_election_panel)
 	_election_panel.closed.connect(close_election_panel)
@@ -207,6 +217,9 @@ func _ready() -> void:
 	_empire_screens.event_requested.connect(func(event_id: int) -> void:
 		close_empire_screen()
 		open_event(event_id))
+	_empire_screens.deed_requested.connect(func(item_id: int) -> void:
+		close_empire_screen()
+		open_deed(item_id))
 
 	net.notice.connect(func(text: String, tone: String) -> void: _hud.notify(text, tone))
 	# Discussion en partie : en bas, à droite de la fiche du système ; Entrée pour écrire.
@@ -486,6 +499,7 @@ func is_empire_screen_open() -> bool:
 func open_main_menu() -> void:
 	close_victory_panel()
 	close_event_panel()
+	close_deed_panel()
 	close_system_view()
 	close_empire_screen()
 	leave_network("Vous avez quitté la partie en réseau.")
@@ -557,7 +571,7 @@ func _check_victory() -> void:
 
 ## Un menu plein écran (principal, pause, d'empire, de fin de partie ou un événement) recouvre la carte.
 func is_modal_open() -> bool:
-	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open() or is_event_panel_open() or is_election_panel_open()
+	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open() or is_event_panel_open() or is_election_panel_open() or is_deed_panel_open()
 
 
 # --- Événements -------------------------------------------------------------------------------
@@ -605,6 +619,53 @@ func _announce_events() -> void:
 	for item: Dictionary in Events.inbox(simulation.state, local_player):
 		if not _events_told.has(int(item["id"])):
 			open_event(int(item["id"]))
+			return
+
+
+# --- Hauts faits -------------------------------------------------------------------------------
+
+## Ouvre le choix de récompense item_id de la boîte du joueur (pause automatique en solo).
+func open_deed(item_id: int) -> void:
+	if spectator or simulation == null:
+		return
+	var item := Deeds.find_item(simulation.state, local_player, item_id)
+	if item.is_empty():
+		return
+	_deeds_told[item_id] = true
+	close_system_view()
+	_hud.show_hover(null, Vector2.ZERO)
+	if not _deed_panel.is_open() and not GameClock.paused and not net.is_active():
+		_deed_paused = true
+		GameClock.set_paused(true)
+	_deed_panel.open(simulation.state, local_player, item)
+	_update_map_input()
+
+
+func close_deed_panel() -> void:
+	if _deed_panel == null or not _deed_panel.is_open():
+		return
+	_deed_panel.close()
+	if _deed_paused:
+		_deed_paused = false
+		GameClock.set_paused(false)
+	_update_map_input()
+
+
+func is_deed_panel_open() -> bool:
+	return _deed_panel != null and _deed_panel.is_open()
+
+
+## Chaque jour : un haut fait gagné ouvre sa fenêtre (une à la fois, jamais par-dessus un menu ou un événement).
+func _announce_deeds() -> void:
+	if spectator or not Deeds.enabled(simulation.state):
+		return
+	if _deed_panel.is_open() and Deeds.find_item(simulation.state, local_player, _deed_panel.item_id).is_empty():
+		close_deed_panel()
+	if _deed_panel.is_open() or _event_panel.is_open() or _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open():
+		return
+	for item: Dictionary in Deeds.inbox(simulation.state, local_player):
+		if not _deeds_told.has(int(item["id"])):
+			open_deed(int(item["id"]))
 			return
 
 
@@ -680,6 +741,8 @@ func _start(state: GameState) -> void:
 	close_victory_panel()
 	close_event_panel()
 	_events_told.clear()
+	close_deed_panel()
+	_deeds_told.clear()
 	close_election_panel()
 	_election_told = int(Politics.emp(state, local_player).get("last", -1))
 	_empire_screens.see_all = spectator
@@ -688,6 +751,7 @@ func _start(state: GameState) -> void:
 		_announce_arrivals()
 		_announce_proposals()
 		_announce_events()
+		_announce_deeds()
 		_announce_election()
 		_check_defeat()
 		_check_victory()
@@ -1077,6 +1141,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if is_event_panel_open():
 		if key.keycode == KEY_ESCAPE:
 			close_event_panel()
+		elif key.keycode == KEY_SPACE:
+			GameClock.toggle_pause()
+		return
+	if is_deed_panel_open():
+		if key.keycode == KEY_ESCAPE:
+			close_deed_panel()
 		elif key.keycode == KEY_SPACE:
 			GameClock.toggle_pause()
 		return

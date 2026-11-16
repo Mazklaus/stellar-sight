@@ -436,7 +436,7 @@ static func voix_pct(state: GameState, eid: int) -> int:
 static func weight(state: GameState, eid: int) -> int:
 	if not is_member(state, eid):
 		return 0
-	return maxi(1, base_voix(state, eid) * maxi(0, 100 + voix_pct(state, eid)) / 100)
+	return maxi(1, base_voix(state, eid) * maxi(0, 100 + voix_pct(state, eid)) / 100) + DeedsBridges.votes(state, eid)
 
 
 static func total_weight(state: GameState) -> int:
@@ -1096,6 +1096,8 @@ static func _close_session(state: GameState, added: Array[Dictionary], veto_by :
 	AmphPower.on_close(state, p, s["votes"], passed)
 	if passed:
 		_apply(state, p, added)
+		if int(p.get("by", -1)) >= 0:
+			Deeds.note(state, int(p["by"]), "nomos")
 	var verdict := "adopte" if passed else ("rejette" if valid else "classe sans suite")
 	if veto_by >= 0:
 		verdict = "rejette, sur le veto de %s," % state.get_empire(veto_by).display_name()

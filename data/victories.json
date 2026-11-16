@@ -282,6 +282,18 @@
 			"on_fail": "reset",
 			"chronicle": "Les Grands Œuvres : les structures de %s dominent le ciel, et la galaxie entière lève les yeux.",
 			"src": "Victoire Merveille d'Endless Space 2 ; Obélisques"
+		},
+		"annales": {
+			"kind": "classic",
+			"label": "Les Annales",
+			"option": true,
+			"deeds": true,
+			"text": "Détenir au moins un haut fait sur %d parmi ceux en jeu (gagnés en premier), être premier en Gloire, et le tenir %d ans.",
+			"counter": "Le devancer dans les courses encore ouvertes, gagner plus de Gloire que lui, ou falsifier ses annales.",
+			"hold_days": 720,
+			"on_fail": "reset",
+			"chronicle": "Les Annales : l'histoire de la galaxie s'écrit au nom de %s. Les autres empires y figurent aussi, en note de bas de page.",
+			"src": "Ambitions d'Old World (10 pour gagner) ; Renommée de Humankind"
 		}
 	}
 }

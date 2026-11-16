@@ -241,13 +241,23 @@ func _status_line(me: Empire) -> String:
 		if revolts > 0:
 			return "Révolte dans %d système%s (F12)  ·  " % [revolts, "s" if revolts > 1 else ""] + line
 		line = "Stabilité %d  ·  " % Stability.empire_value(_state, _player) + line
+	# Gloire des hauts faits (voir Deeds), jamais perdue.
+	if Deeds.enabled(_state):
+		line = "Gloire %d%s  ·  " % [Deeds.glory(_state, _player), " (âge d'or)" if DeedsBridges.in_golden(_state, _player) else ""] + line
 	return line
 
 
 ## Infobulle de la ligne d'état : stabilité d'empire et son effet.
 func _stability_tip(_me: Empire) -> String:
+	var glory := ""
+	if Deeds.enabled(_state):
+		glory = "Gloire %d : gagnée par les hauts faits et les grands moments, jamais perdue (Chroniques, J, onglet Hauts faits).\n" % Deeds.glory(_state, _player)
 	if not Stability.applies(_state, _player):
-		return ""
+		return glory.strip_edges()
+	return glory + _stability_text()
+
+
+func _stability_text() -> String:
 	var ev := Stability.empire_value(_state, _player)
 	return "Stabilité d'empire %d (%s) : %+d %% de Savoir et d'influence.\nOrdre intérieur (F12) pour le détail par système." % [
 			ev, String(Stability.tier_for(ev)["label"]), Stability.empire_pct(_state, _player)]

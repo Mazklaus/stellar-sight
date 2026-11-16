@@ -153,6 +153,21 @@
 			"text": "Merveilles : l'avancement exact de ses grands chantiers, et leur date d'achèvement probable."
 		},
 		{
+			"id": "falsifier_annales",
+			"family": "sabotage",
+			"label": "Falsifier les annales",
+			"tier": 2,
+			"cost": {
+				"influence": 35
+			},
+			"days": 45,
+			"success": 65,
+			"discovery": 30,
+			"spend": 15,
+			"deeds": true,
+			"text": "Hauts faits : 15 % de moins à son compteur sur le haut fait encore à prendre où il est le plus avancé. Si l'opération est découverte, il récupère sa progression."
+		},
+		{
 			"id": "archives",
 			"family": "sabotage",
 			"label": "Brûler des archives",

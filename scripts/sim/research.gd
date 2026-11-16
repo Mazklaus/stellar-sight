@@ -907,6 +907,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var mfx := Minors.effects(state, empire_id)
 			_merge(base, mfx)
 			_merge(exalted, mfx)
+		# Âge d'or (voir DeedsBridges) : même empreinte relic_rev.
+		if not state.deeds.is_empty():
+			var dfx := DeedsBridges.effects(state, empire_id)
+			_merge(base, dfx)
+			_merge(exalted, dfx)
 		# Merveilles tenues (voir Wonders) : même empreinte relic_rev.
 		if not state.wonders.is_empty():
 			var wfx := Wonders.effects(state, empire_id)

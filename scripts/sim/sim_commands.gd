@@ -298,6 +298,11 @@ static func event_choose(player: int, event_id: int, index: int) -> Dictionary:
 	return {"type": "event_choose", "player": player, "event": event_id, "index": index}
 
 
+## Choisit la récompense d'un haut fait (voir Deeds) : entrée item de sa boîte, choix index.
+static func deed_choose(player: int, item: int, index: int) -> Dictionary:
+	return {"type": "deed_choose", "player": player, "item": item, "index": index}
+
+
 ## Fouilles et reliques (voir Relics).
 static func dig_start(player: int, system_id: int) -> Dictionary:
 	return {"type": "dig_start", "player": player, "system": system_id}
@@ -885,6 +890,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Heroes.check_pick(state, int(cmd["player"]), int(cmd.get("index", -2)))
 		"event_choose":
 			return Events.check_choose(state, int(cmd["player"]), int(cmd.get("event", -1)), int(cmd.get("index", -1)))
+		"deed_choose":
+			return Deeds.check_choose(state, int(cmd["player"]), int(cmd.get("item", -1)), int(cmd.get("index", -1)))
 		"dig_start":
 			return Relics.check_start(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"dig_clue":
@@ -1187,6 +1194,9 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 		"event_choose":
 			var ev_added: Array[Dictionary] = []
 			Events.choose(state, int(cmd["player"]), int(cmd["event"]), int(cmd["index"]), ev_added)
+		"deed_choose":
+			var de_added: Array[Dictionary] = []
+			Deeds.choose(state, int(cmd["player"]), int(cmd["item"]), int(cmd["index"]), de_added)
 		"dig_start":
 			Relics.start(state, int(cmd["player"]), int(cmd["system"]))
 		"dig_clue":

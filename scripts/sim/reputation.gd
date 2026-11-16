@@ -118,6 +118,7 @@ static func caught_memory(state: GameState, empire_id: int) -> String:
 
 ## Fin d'une bataille : exploit contre plus fort, et réputation des vaincus.
 static func battle(state: GameState, b: Dictionary, winner: int) -> void:
+	DeedsBridges.on_battle(state, b, winner)
 	if winner < 0:
 		return
 	var own := 0
