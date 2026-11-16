@@ -480,6 +480,15 @@
 			"text": "Premier à prendre une capitale d'origine rivale.",
 			"flavor": "Leur trône est vide. Le nôtre a une chaise de plus."
 		},
+		"inviolee": {
+			"label": "Inviolée",
+			"family": "guerre",
+			"sort": "first",
+			"k": "inviolate_years",
+			"n": 50,
+			"text": "Premier à tenir cinquante ans une capitale gardée par une station sans qu'elle soit jamais assiégée (défenses spatiales en jeu).",
+			"flavor": "Les guides montrent aux touristes les remparts. Les remparts n'ont jamais servi, et c'est tout leur mérite."
+		},
 		"premier_leviathan": {
 			"label": "Premier Léviathan",
 			"family": "guerre",

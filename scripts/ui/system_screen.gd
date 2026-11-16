@@ -47,6 +47,9 @@ var _state: GameState
 var _player := 0
 var _title: Label
 var _subtitle: Label
+var _def_row: HBoxContainer  # défenses spatiales (panneau Défenses, prop. 37)
+var _def_label: Label
+var _def_modernize: Button
 var _rename_edit: LineEdit
 var _rename_button: Button
 ## Lance une sonde vers ce système quand il est connu mais hors de vue (Espionage.probe).
@@ -234,6 +237,22 @@ func _build_header() -> void:
 	_subtitle.theme_type_variation = &"Dim"
 	head.add_child(_subtitle)
 	_build_stability(head)
+	_def_row = HBoxContainer.new()
+	_def_row.add_theme_constant_override("separation", 6)
+	head.add_child(_def_row)
+	_def_label = UiTheme.paragraph("", PANEL_WIDTH - 150.0, 13)
+	_def_label.add_theme_color_override("font_color", Color(0.78, 0.84, 0.95))
+	_def_row.add_child(_def_label)
+	_def_modernize = Button.new()
+	_def_modernize.flat = true
+	_def_modernize.focus_mode = Control.FOCUS_NONE
+	_def_modernize.add_theme_font_size_override("font_size", 12)
+	_def_modernize.text = "Moderniser"
+	_def_modernize.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_def_modernize.pressed.connect(func() -> void:
+		if system_id >= 0:
+			command_requested.emit(SimCommands.defense_act(_player, "modernize", system_id)))
+	_def_row.add_child(_def_modernize)
 
 
 func _build_stability(head: VBoxContainer) -> void:
@@ -394,6 +413,25 @@ func _refresh_header(s: StarSystem) -> void:
 			parts.append("gouverneur ✦ %s" % gov["name"])
 	_subtitle.text = "  ·  ".join(parts)
 	_refresh_stability(s)
+	_refresh_defenses(s)
+
+
+## Panneau Défenses : station, plates-formes, bouclier, mines, étape de l'assaut ; Moderniser.
+func _refresh_defenses(s: StarSystem) -> void:
+	var lines: Array[String] = []
+	if read_only or Intel.shown_live(_state, s.id):
+		lines = Defenses.system_lines(_state, s.id)
+	_def_row.visible = not lines.is_empty()
+	if lines.is_empty():
+		return
+	_def_label.text = "Défenses · " + "\n".join(lines)
+	var mine := _state.system_owner(s.id) == _player and not read_only
+	var cost := Defenses.modernize_cost(_state, s.id) if mine else {}
+	_def_modernize.visible = not cost.is_empty()
+	if _def_modernize.visible:
+		var why := SimCommands.validate(_state, SimCommands.defense_act(_player, "modernize", s.id))
+		_def_modernize.disabled = why != ""
+		_def_modernize.tooltip_text = why if why != "" else "Remettre les défenses aux marques d'armes du jour : %s." % GameData.format_amounts(cost)
 
 
 func _toggle_rename() -> void:
@@ -637,6 +675,11 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 			for t in b.get("requires_tech", []):
 				if not Research.is_visible(me.faction(), String(t)):
 					possible = false
+			# Défenses spatiales : selon le réglage ; modules et plates-formes sur la colonie de la station.
+			if possible and not Defenses.building_allowed(_state, bid):
+				possible = false
+			if possible and Defenses.role(bid) in ["module", "platform"] and int(Defenses.station(_state, p.system_id).get("pid", -1)) != p.id:
+				possible = false
 			if b.get("buildable", true) and possible:
 				actions.append(_build_action(p, bid, b))
 	return actions

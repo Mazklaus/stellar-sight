@@ -22,6 +22,7 @@ extends RefCounted
 static func process(state: GameState, events: Array = []) -> Array[Dictionary]:
 	var added: Array[Dictionary] = []
 	var by_sys := _stationary_by_system(state)
+	Defenses.add_fixed(state, by_sys)  # défenses spatiales : la flotte fixe du défenseur se joint
 	var fought := {}
 	var sids := by_sys.keys()
 	sids.sort()
@@ -199,6 +200,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		dpct += Crisis.damage_pct(state, f, sid)  # Front commun contre la crise
 		dpct += FaithNatures.damage_pct(state, f, sid)
 		dpct += Logistics.damage_pct(state, f)  # réserves épuisées loin des bases
+		dpct += Defenses.damage_pct(state, f, sid)  # couverture de station, garde, talents
 		if dpct != 0:
 			@warning_ignore("integer_division")
 			bonus = bonus * maxi(0, 100 + dpct) / 100
@@ -243,6 +245,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 				if screen != 0 and Combat.ship_line(tg.ships[ti]) == "screen":
 					@warning_ignore("integer_division")
 					dmg = maxi(1, dmg * maxi(0, 100 + screen) / 100)  # rideau d'acier
+				dmg = Defenses.shot(state, sid, f, i, tg, ti, dmg)  # couverture, armes de siège
 				var key := Vector2i(tg.id, ti)
 				pending[key] = int(pending.get(key, 0)) + dmg
 				side["dealt"] = int(side["dealt"]) + dmg
@@ -258,6 +261,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		if int(m[2]) > 0 and e.faction().has("fervor"):
 			e.fervor = mini(int(e.faction()["fervor"]["max"]), e.fervor + int(m[2]))
 	_apply_damage(state, b, fighters, pending, day_log)
+	Defenses.after_battle_day(state, sid, fighters, added)
 	b["log"].append(day_log)
 	if day >= Combat.battle_days():
 		_end_battle(state, sid, added, events)
@@ -436,6 +440,9 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 	var present := {}
 	for f in Fleets.fleets_at(state, sid):
 		present[f.owner] = true
+	var holder := Defenses.standing_owner(state, sid)  # défenses fixes encore debout
+	if holder >= 0:
+		present[holder] = true
 	var standing: Array[int] = []
 	for s: Dictionary in b["sides"]:
 		if present.has(int(s["empire"])):
@@ -558,6 +565,7 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 		for f: Fleet in by:
 			if state.fleets.has(f.id):
 				power += Combat.siege_power(f, state)
+		power = Defenses.absorb_siege(state, sid, power)  # le bouclier planétaire s'use d'abord
 		if Ground.full(state):
 			GroundSiege.on_siege(state, sid, by, power)  # fortifications d'abord, bombardement, reddition
 		else:
@@ -567,6 +575,7 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 			state.garrisons[sid] = maxi(0, Combat.garrison(state, sid) - Logistics.encircled_loss("garrison_loss"))
 			if Ground.full(state) and GroundSiege.fort(state, sid) > 0:
 				GroundSiege._sub(state, "fort")[str(sid)] = maxi(0, GroundSiege.fort(state, sid) - Logistics.encircled_loss("fort_loss"))
+		Defenses.garrison_floor(state, sid)  # credo Survie : Bunkers
 
 
 ## Les batteries des bastions tirent à moyenne portée sur les assiégeants.

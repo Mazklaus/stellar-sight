@@ -2442,6 +2442,62 @@
 				"ground_recovery_pct": 100
 			}
 		},
+		"plates_formes_defense": {
+			"label": "Plates-formes de défense",
+			"domain": "armement",
+			"era": 2,
+			"text": "Défenses spatiales : plates-formes fixes autour de la station, modules à rayons, hangar, défense ponctuelle, bouclier, réparation et commandement, hangar planétaire. +2 places de plates-formes par système.",
+			"pre": [
+				"bastions"
+			],
+			"effects": {
+				"defense_capacity": 2
+			},
+			"eureka": {
+				"kind": "besieged",
+				"n": 1
+			}
+		},
+		"champs_de_mines": {
+			"label": "Champs de mines",
+			"domain": "armement",
+			"era": 3,
+			"text": "Défenses spatiales complètes : mouilleur de mines de station, modules Mouilleur de mines et Démineur pour les vaisseaux.",
+			"pre": [
+				"plates_formes_defense"
+			]
+		},
+		"boucliers_planetaires": {
+			"label": "Boucliers planétaires",
+			"domain": "armement",
+			"era": 3,
+			"text": "Défenses spatiales : le Bouclier planétaire divise par deux bombardement et dévastation, et le siège l'use avant les fortifications.",
+			"pre": [
+				"bastions"
+			]
+		},
+		"inhibiteur_saut": {
+			"label": "Inhibiteur de saut",
+			"domain": "genie",
+			"era": 3,
+			"text": "Défenses spatiales complètes : le module Inhibiteur retient dans le système toute flotte ennemie qui y entre, tant que la station tient.",
+			"pre": [
+				"plates_formes_defense"
+			]
+		},
+		"remparts_stellaires": {
+			"label": "Remparts stellaires",
+			"domain": "armement",
+			"era": 4,
+			"text": "Défenses spatiales : le Rempart stellaire (palier III de la station), le Canon ionique et le Dôme planétaire. +2 places de plates-formes.",
+			"pre": [
+				"citadelle_planetaire",
+				"plates_formes_defense"
+			],
+			"effects": {
+				"defense_capacity": 2
+			}
+		},
 		"citadelle_planetaire": {
 			"label": "Citadelles",
 			"domain": "armement",

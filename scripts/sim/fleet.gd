@@ -39,7 +39,9 @@ var patrol: Array[int] = []
 
 const ORDER_EXPLORE := "explore"
 const ORDER_PATROL := "patrol"
-const STANDING_ORDERS := ["", ORDER_EXPLORE, ORDER_PATROL]
+## Garder le système `patrol[0]` (défenses spatiales) : bonus de dégâts sur place, retour s'il est ailleurs.
+const ORDER_GUARD := "guard"
+const STANDING_ORDERS := ["", ORDER_EXPLORE, ORDER_PATROL, ORDER_GUARD]
 
 
 func is_moving() -> bool:
@@ -58,6 +60,10 @@ func destination() -> int:
 
 func is_exploring() -> bool:
 	return standing_order == ORDER_EXPLORE
+
+
+func is_guarding() -> bool:
+	return standing_order == ORDER_GUARD and patrol.size() == 1
 
 
 func is_patrolling() -> bool:
@@ -176,5 +182,7 @@ static func from_dict(d: Dictionary) -> Fleet:
 	for s in d.get("patrol", []):
 		f.patrol.append(int(s))
 	if f.standing_order == ORDER_PATROL and f.patrol.size() != 2:
+		f.standing_order = ""
+	if f.standing_order == ORDER_GUARD and f.patrol.size() != 1:
 		f.standing_order = ""
 	return f

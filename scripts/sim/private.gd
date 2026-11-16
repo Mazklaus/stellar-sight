@@ -949,6 +949,8 @@ static func _building_site(state: GameState, eid: int, cap: int) -> Array:
 static func _can_place(state: GameState, eid: int, c: Colony, bid: String) -> bool:
 	if not Economy.building_unlocked(state, eid, bid):
 		return false
+	if not DefensesBridges.private_ok(state, eid, c, bid):
+		return false  # plate-forme payée par une compagnie : colonie de la station, système à comptoir
 	var b := GameData.building(bid)
 	if not c.is_colony() and not bool(b.get("outpost_ok", false)):
 		return false

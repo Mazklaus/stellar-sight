@@ -28,7 +28,7 @@
 	"rent_pct": 10,
 	"_rent_doc": "Chantiers loués (prop. 17) : le privé verse rent_pct % de chaque construction au Trésor.",
 	"ship_order": {"_doc": "Vaisseau commandé au privé (prop. 17) : coût +cost_pct %, délai -days_pct %, sans occuper le chantier ; une commande à la fois par colonie.", "cost_pct": 20, "days_pct": -30},
-	"buildings": {"_doc": "Bâtiments que le privé bâtit seul dans une colonie dont le chantier est libre (prop. 4), payés en énergie (cost_mult × le coût total).", "ids": ["centrale_fusion", "comptoir"], "cost_mult": 100},
+	"buildings": {"_doc": "Bâtiments que le privé bâtit seul dans une colonie dont le chantier est libre (prop. 4), payés en énergie (cost_mult × le coût total). La plate-forme canon (défenses spatiales complètes) ne se pose que sur la colonie de la station d'un système à comptoir.", "ids": ["centrale_fusion", "comptoir", "plateforme_canon"], "cost_mult": 100},
 	"companies": {
 		"_doc": "Compagnies (prop. 18-25) : une naît quand la caisse atteint found_at (elle en coûte found_cost), au plus base_max (+ technologies « company_max », lois, talents). Prospérité de 0 à 100 : cible = 50 + 5 par actif de son secteur (au plus assets_max) + (confiance - 50) / 2 + charte, approche de drift par mois ; au-dessus de bonus_from, l'effet du secteur ; sous ruin_below pendant ruin_months mois, la faillite.",
 		"found_at": 300, "found_cost": 150, "base_max": 3, "drift": 5, "assets_max": 30, "bonus_from": 60, "ruin_below": 15, "ruin_months": 6, "charter_pr": 10, "krach": -30, "franchise_pr": 5, "lender_from": 70, "lender_max": 400, "lender_pct": 85,
