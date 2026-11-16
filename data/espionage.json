@@ -63,6 +63,21 @@
 	],
 	"operations": [
 		{
+			"id": "acheter_fonctionnaires",
+			"family": "intrigue",
+			"label": "Acheter les fonctionnaires",
+			"admin": true,
+			"tier": 2,
+			"cost": {
+				"influence": 30
+			},
+			"days": 45,
+			"success": 70,
+			"discovery": 25,
+			"spend": 15,
+			"text": "Des enveloppes glissées sous les tampons : son système le plus corrompu (hors capitale) prend +15 de corruption pendant un an."
+		},
+		{
 			"id": "attiser_maison",
 			"family": "intrigue",
 			"label": "Attiser une Grande Maison",

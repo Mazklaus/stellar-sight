@@ -234,6 +234,8 @@ var rulers := "mortels"
 var _rulers_select: OptionButton
 var court := "actives"
 var _court_select: OptionButton
+var admin := "complete"
+var _admin_select: OptionButton
 var hero_death := "normale"
 var _hero_death_select: OptionButton
 ## Hauts faits (voir Deeds) : tous, premières seules, aucun ; âges d'or en option.
@@ -1707,6 +1709,13 @@ func set_rulers(id: String) -> void:
 	_refresh_preset()
 
 
+func set_admin(id: String) -> void:
+	var ids := _ids_of(Admin.mode_defs())
+	admin = id if ids.has(id) else Admin.default_mode()
+	if _admin_select:
+		_admin_select.select(ids.find(admin))
+
+
 func set_court(id: String) -> void:
 	var ids := _ids_of(Court.mode_defs())
 	court = id if ids.has(id) else Court.default_mode()
@@ -1844,7 +1853,7 @@ func game_options() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court}
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin}
 
 
 func set_spectator(on: bool) -> void:
@@ -2404,6 +2413,15 @@ func _build_new_page(root: Control) -> void:
 	_court_select.tooltip_text = "Grandes Maisons : des familles nobles se partagent les fiefs, briguent les grands offices et jugent le trône (Old World, Imperator, Crusader Kings III).\nAucune désactive tout le pilier.\n" + "\n".join(court_tip)
 	_court_select.item_selected.connect(func(i: int) -> void: set_court(String(Court.mode_defs()[i]["id"])))
 	_labeled_row(game, "Grandes Maisons", _court_select)
+	_admin_select = OptionButton.new()
+	_admin_select.clip_text = true
+	var admin_tip := PackedStringArray()
+	for m: Dictionary in Admin.mode_defs():
+		_admin_select.add_item(String(m["label"]))
+		admin_tip.append("%s : %s" % [String(m["label"]), String(m["text"])])
+	_admin_select.tooltip_text = "Administration et corruption : une capacité administrative contre la charge de l'empire, et une corruption locale qui détourne une part des ressources (Stellaris, Victoria 3, EU4, Distant Worlds 2).\nDésactivée garde les règles d'avant (surextension).\n" + "\n".join(admin_tip)
+	_admin_select.item_selected.connect(func(i: int) -> void: set_admin(String(Admin.mode_defs()[i]["id"])))
+	_labeled_row(game, "Administration", _admin_select)
 	_hero_death_select = OptionButton.new()
 	_hero_death_select.clip_text = true
 	var htip := PackedStringArray()
@@ -2442,6 +2460,7 @@ func _build_new_page(root: Control) -> void:
 	set_rulers(rulers)
 	set_hero_death(hero_death)
 	set_court(court)
+	set_admin(admin)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -3190,7 +3209,7 @@ func settings() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court,
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -3212,7 +3231,7 @@ func default_settings() -> Dictionary:
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
 		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true,
 		"ancients": Ancients.default_mode(), "awakenings": true, "minors": Minors.default_mode(), "culture": Culture.default_mode(), "culture_defect": Culture.default_defect(), "wonders": Wonders.default_mode(),
-		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode()}
+		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -3311,6 +3330,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_rulers(String(d.get("rulers", base["rulers"])))
 	set_hero_death(String(d.get("hero_death", base["hero_death"])))
 	set_court(String(d.get("court", base["court"])))
+	set_admin(String(d.get("admin", base["admin"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

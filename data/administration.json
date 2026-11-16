@@ -1,0 +1,93 @@
+{
+	"_doc": "Administration et corruption (étude « Administration et corruption », 2026-11-16, 36 propositions validées). Chaque empire a une capacité administrative ; tout ce qu'il possède crée de la charge. Au-dessus de la capacité, des malus montent par tranche de 10 % (stabilité, recherche, coûts en influence, corruption de base). Chaque système a une corruption de 0 à 50 % qui détourne une part de son énergie, de ses matériaux, de son influence et de son Savoir (jamais la nourriture). Remplace la surextension et le surcoût de recherche par colonie quand le pilier est actif. Catalogue ouvert : sources, talents et cartes se complètent ici.",
+	"_sources": "Stellaris (taille d'empire, secteurs, journal #153), Victoria 3 (bureaucratie, États non incorporés, loi Bureaucratie), Humankind (capacité de villes), Endless Space 2 (surcolonisation), Civilization IV (entretien, Tribunal, déplacer le palais), Civilization VII (limite de colonies), Distant Worlds 2 (corruption), Galactic Civilizations IV (mondes-cœurs), EU4 (corruption, Extirper la corruption), Imperator (gouverneurs).",
+	"modes": [
+		{"id": "complete", "label": "Complète", "text": "Capacité contre charge, corruption locale, provinces, intégration des conquêtes, scandales."},
+		{"id": "simple", "label": "Simple", "text": "La jauge capacité contre charge seule : ni corruption locale, ni intégration des conquêtes, ni scandales."},
+		{"id": "desactivee", "label": "Désactivée", "text": "Rien ne tourne : la surextension (seuil de 12 systèmes) et le surcoût de recherche par colonie restent comme avant."}
+	],
+	"default_mode": "complete",
+	"load": {
+		"_doc": "Charge : par système peuplé, par colonie de plus dans le même système, par tranche de pop_div habitants, par avant-poste, par système occupé en guerre. Les systèmes non intégrés et les vassaux ne pèsent rien ; en féodalité, les fiefs d'une Grande Maison pèsent fief_pct %.",
+		"system": 4, "extra_colony": 2, "pop_div": 10, "outpost": 1, "occupied": 2, "fief_pct": 50
+	},
+	"capacity": {
+		"_doc": "Capacité : capitale, Forum impérial, Préfecture, Tribunal, technologies (chaque point de seuil de surextension vaut threshold_x de capacité, plus l'effet admin_cap), aptitude Gestion du souverain, Grand Intendant (cour), trait Bureaucrate au conseil.",
+		"capital": 50, "forum": 10, "prefecture": 8, "tribunal": 2, "threshold_x": 4, "gestion": 2, "grand_intendant": 2
+	},
+	"over": {
+		"_doc": "Par tranche de 10 % de charge au-dessus de la capacité.",
+		"step_pct": 10, "stability": -2, "stability_max": -15, "research_pct": 5, "influence_pct": 5, "corruption": 3
+	},
+	"corruption": {
+		"_doc": "Corruption d'un système, de 0 à max %. Distance au siège le plus proche (capitale ou Préfecture), comptée par son propre territoire, les systèmes libres et ceux des alliés ; un système qu'on ne peut relier ainsi est une enclave (distance × enclave_pct %).",
+		"max": 50, "free_jumps": 3, "per_jump": 3, "distance_max": 30, "enclave_pct": 150,
+		"pop_from": 20, "pop_div": 5, "low_stability": 30, "low_stability_value": 10,
+		"conquered_days": 1800, "conquered": 10, "capital": -10,
+		"governor_base": 5, "governor_per_level": 2, "province_governor_pct": 50,
+		"venal": 5, "scorned_house": 5,
+		"resources": ["energy", "materials", "influence", "knowledge"],
+		"stability_from": 30, "stability_value": -5
+	},
+	"provinces": {"radius": 4, "_doc": "Chaque Préfecture est un siège : les systèmes reliés à moins de radius sauts s'y rattachent (province). Les autres dépendent de la capitale."},
+	"efforts": [
+		{"id": "frugal", "label": "Frugal", "upkeep_div": 0, "cap_pct": -15, "corruption": 5, "text": "Aucun coût. Capacité -15 %, corruption +5."},
+		{"id": "normal", "label": "Normal", "upkeep_div": 10, "cap_pct": 0, "corruption": 0, "text": "Les fonctionnaires sont payés : 1 énergie par mois pour 10 de charge."},
+		{"id": "genereux", "label": "Généreux", "upkeep_div": 5, "cap_pct": 15, "corruption": -5, "text": "Le double : capacité +15 %, corruption -5."},
+		{"id": "enquete", "label": "Grande enquête", "upkeep_div": 3, "cap_pct": 0, "corruption": -10, "stability": -3, "text": "Le triple : corruption -10, mais stabilité -3 partout (les purges inquiètent)."}
+	],
+	"default_effort": "normal",
+	"integration": {
+		"_doc": "Un système conquis, cédé, réintégré, absorbé ou annexé arrive non intégré : aucune charge, production -prod_pct %, pas de décret. Intégrer coûte de l'influence et des jours, avec une stabilité d'au moins min_stability.",
+		"prod_pct": 50, "cost_base": 20, "cost_per_colony": 10, "days": 180, "min_stability": 30
+	},
+	"capital_move": {
+		"_doc": "Déplacer la capitale vers une colonie d'au moins min_pop habitants : coût, transition (stabilité partout), délai entre deux transferts. Ni horde ni ruche.",
+		"min_pop": 10, "cost": {"influence": 150, "materials": 400}, "transition_days": 360, "stability": -10, "cooldown_days": 7200
+	},
+	"scandals": {
+		"_doc": "Un système au-dessus de from % de corruption peut tirer une carte une fois par an (chance_pct), puis plus rien pendant cooldown_days.",
+		"from": 30, "chance_pct": 25, "cooldown_days": 3600,
+		"black_market_energy": 40, "bought_days": 360, "bought_counter": -15,
+		"punish_loyalty": -20, "hush_cost": {"influence": 30}, "exposed_stability": -10
+	},
+	"pirates": {"raid_from": 35, "raid_weight_pct": 200, "lair_from": 40, "lair_chance_pct": 5},
+	"espionage": {"bought_corruption": 15, "bought_days": 360, "infiltration_per_step": 1},
+	"politics": {"grievance_from": 25, "election_from": 25, "election_pct": -10},
+	"deed": {"max_corruption": 5, "years": 10, "min_systems": 20},
+	"talents": {
+		"gouvernement": {
+			"feodalite": {"label": "Fiefs délégués", "text": "Les fiefs d'une Grande Maison ne pèsent que pour moitié dans la charge ; une Maison mécontente ou furieuse ajoute +5 corruption dans ses fiefs.", "fiefs_half": true},
+			"theocratie": {"label": "Le clergé veille", "text": "Exaltation : corruption -25 %. Les temples comptent comme des Tribunaux.", "exalted_cor_pct": -25, "temple_tribunal": true},
+			"republique": {"label": "Contre-pouvoirs", "text": "Corruption -25 %, mais capacité -10 % (tout passe en commission).", "cor_pct": -25, "cap_pct": -10},
+			"conscience": {"label": "Rien à soudoyer", "text": "Aucune corruption, mais le dépassement de capacité compte double (un réseau centralisé).", "no_corruption": true, "over_x": 2},
+			"syndicat": {"label": "Pots-de-vin légaux", "text": "Charge +20 %, mais la corruption ne touche l'énergie qu'à moitié : l'argent détourné reste dans le circuit.", "load_pct": 20, "energy_half": true},
+			"horde": {"label": "Le butin d'abord", "text": "Intégrer une conquête coûte moitié moins ; la distance se compte depuis la flotte-ville.", "integrate_pct": 50},
+			"ruche": {"label": "Une seule volonté", "text": "Aucune corruption, et le dépassement de capacité compte à moitié. Les colonies trop lointaines redeviennent sauvages, comme avant.", "no_corruption": true, "over_half": true}
+		},
+		"credo": {
+			"honneur": {"label": "Mains propres", "text": "Corruption -20 %.", "cor_pct": -20},
+			"profit": {"label": "Tout se négocie", "text": "Corruption +10 %, mais les routes commerciales ne perdent rien à la corruption.", "cor_pct": 10, "trade_safe": true},
+			"plaisir": {"label": "Fêtes et faveurs", "text": "Corruption +10 %, et la Grande enquête ne coûte pas de stabilité.", "cor_pct": 10, "enquete_free": true},
+			"raison": {"label": "Bureaux rationnels", "text": "+1 capacité par technologie d'administration connue.", "cap_per_admin_tech": 1}
+		},
+		"archetype": {
+			"synthetique": {"label": "Registres incorruptibles", "text": "Corruption divisée par deux.", "cor_pct": -50}
+		},
+		"registre": {
+			"Grimdark": {"label": "Scriptorium sans fin", "text": "Capacité +20 %, mais corruption +10 % : la paperasse est infinie, les scribes aussi.", "cap_pct": 20, "cor_pct": 10}
+		}
+	},
+	"admin_techs": ["administration", "administration2", "prefectures", "cadastre_algorithmique", "administration_quantique"],
+	"scandal_kinds": ["marche_noir", "fonctionnaires_achetes", "detournement"],
+	"cards": [
+		{"id": "admin_detournement", "title": "Détournement révélé", "trigger": "admin", "art": "throne",
+			"text": "Un audit découvre que les crédits de {system} financent surtout la villa du gouverneur, ses écuries de lévriers orbitaux et un lac artificiel en forme de son profil. Punir le coupable, ou étouffer l'affaire ?",
+			"choices": [
+				{"label": "Punir : procès public et purge des bureaux", "fx": [{"k": "admin", "act": "punish"}, {"k": "stab", "v": 5, "days": 360}]},
+				{"label": "Étouffer l'affaire", "fx": [{"k": "res", "res": {"influence": -30}}]},
+				{"label": "Laisser la presse s'en charger", "fx": [{"k": "stab", "v": -10, "days": 360}]}
+			],
+			"default": 2}
+	]
+}

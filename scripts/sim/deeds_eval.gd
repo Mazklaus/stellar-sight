@@ -25,6 +25,8 @@ static func value(state: GameState, eid: int, k: String, x: Variant = null) -> i
 	if e == null:
 		return 0
 	match k:
+		"admin_clean":
+			return AdminBridges.clean_years(state, eid)
 		"explored_pct":
 			@warning_ignore("integer_division")
 			return e.explored.size() * 100 / maxi(1, state.galaxy.systems.size())

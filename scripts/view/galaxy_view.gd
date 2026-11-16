@@ -217,6 +217,16 @@ func _draw() -> void:
 				_draw_stability(s, px, o == viewer)
 		_draw_lairs(px)
 		return
+	if lens == "corruption" and state != null:
+		# Mode Corruption de la lentille de stabilité (Administration) : vos systèmes cerclés selon leur
+		# corruption, avec sa valeur et leur siège ; les non intégrés en pointillé, les sièges marqués.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		for s in galaxy.systems:
+			if owner_of(s.id) == viewer:
+				_draw_system(s, px)
+				_draw_label(s, px, true)
+				_draw_corruption(s, px)
+		return
 	if lens == "politics" and state != null:
 		# Lentille politique : vos systèmes cerclés à la couleur du courant qui domine leur opinion,
 		# trait plein s'ils sont représentés au pouvoir, pointillé sinon.
@@ -942,6 +952,31 @@ func _draw_stability(s: StarSystem, px: float, mine: bool) -> void:
 		var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
 		draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
 		draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Mode Corruption : couleur selon la corruption, « siège » sur la capitale et les Préfectures.
+func _draw_corruption(s: StarSystem, px: float) -> void:
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	var cor := Admin.corruption(state, s.id)
+	var col := AdminUi.corruption_color(cor)
+	if Admin.is_integrated(state, s.id):
+		draw_arc(Vector2.ZERO, 13.0, 0.0, TAU, 28, col, 2.4, true)
+	else:
+		for i in 8:
+			draw_arc(Vector2.ZERO, 13.0, i * TAU / 8.0, i * TAU / 8.0 + TAU / 16.0, 4, col, 2.4, true)
+	var seat := Admin.seat_of(state, s.id)
+	var text := "%d %%" % cor
+	if seat == s.id:
+		text += " · siège"
+		draw_arc(Vector2.ZERO, 17.0, 0.0, TAU, 28, Color(0.95, 0.78, 0.36), 1.4, true)
+	elif seat < 0:
+		text += " · enclave"
+	if not Admin.is_integrated(state, s.id):
+		text += " · non intégré"
+	var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+	draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
+	draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

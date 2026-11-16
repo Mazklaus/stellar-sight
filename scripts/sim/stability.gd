@@ -232,7 +232,10 @@ static func colony_systems_in(state: GameState, empire_id: int, sid: int) -> int
 
 
 static func threshold(state: GameState, empire_id: int) -> int:
-	return int(data()["sources"]["overextension"]["threshold"]) + Research.fx_int(state, empire_id, "stability_threshold")
+	var t := int(data()["sources"]["overextension"]["threshold"]) + Research.fx_int(state, empire_id, "stability_threshold")
+	if state.admin.is_empty():  # pilier Administration désactivé : les techs d'administration repoussent le seuil
+		t += Research.fx_int(state, empire_id, "stability_threshold_off")
+	return t
 
 
 static func system_pop(state: GameState, sid: int, owner: int) -> int:
@@ -256,7 +259,7 @@ static func context(state: GameState, empire_id: int) -> Dictionary:
 	var c := {"talent": tal, "capital": cap, "jumps": FactionTraits.jumps_from(state.galaxy, cap) if cap >= 0 else {}}
 	var global: Array = []
 	# Surextension.
-	var over := colony_systems(state, empire_id) - threshold(state, empire_id)
+	var over := colony_systems(state, empire_id) - threshold(state, empire_id) if state.admin.is_empty() else 0
 	if over > 0:
 		var ov: Dictionary = src["overextension"]
 		global.append(["Surextension (%d systèmes de trop)" % over, maxi(int(ov["max"]), over * int(ov["per_system"]))])
@@ -329,6 +332,8 @@ static func context(state: GameState, empire_id: int) -> Dictionary:
 		global.append_array(Rulers.stability_parts(state, empire_id))
 	if not state.court.is_empty():
 		global.append_array(Court.empire_stability_parts(state, empire_id))
+	if not state.admin.is_empty():
+		global.append_array(Admin.empire_stability_parts(state, empire_id))  # remplace la surextension
 	# Contre-espionnage : un réseau chez soi tient les meneurs à l'œil.
 	if not state.networks.is_empty() and Espionage.home_cells(state, empire_id) > 0:
 		global.append(["Réseau intérieur (contre-espionnage)", int(src["counter_network"])])
@@ -393,6 +398,8 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 	var dv := GroundSiege.stability_malus(state, sid)
 	if dv != 0:
 		out.append(["Dévastation", dv])
+	if not state.admin.is_empty():
+		out.append_array(Admin.system_stability_parts(state, sid))
 	# Garnison.
 	if (cx["armed"] as Dictionary).has(sid):
 		out.append(["Flotte armée en orbite", int(src["garrison"])])
@@ -554,6 +561,8 @@ static func decree_cost(state: GameState, empire_id: int, id: String) -> Diction
 			for r in cost:
 				@warning_ignore("integer_division")
 				cost[r] = int(cost[r]) * pct / 100
+	if not state.admin.is_empty():
+		cost = Admin.influence_cost(state, empire_id, cost)
 	return cost
 
 
@@ -566,6 +575,8 @@ static func check_decree(state: GameState, empire_id: int, sid: int, id: String)
 		return "votre peuple ne connaît pas la dissidence"
 	if active_decree(state, sid) != "":
 		return "un décret est déjà en vigueur ici"
+	if not state.admin.is_empty() and Admin.decree_block(state, sid) != "":
+		return Admin.decree_block(state, sid)
 	if bool(decree_def(id).get("needs_fleet", false)) and not _armed_at(state, empire_id, sid):
 		return "il faut une flotte armée à l'arrêt dans le système"
 	if not Economy.can_afford(state.get_empire(empire_id), decree_cost(state, empire_id, id)):

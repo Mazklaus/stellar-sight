@@ -203,6 +203,8 @@ static func growth_parts(state: GameState, a: int, b: int) -> Array:
 	var open := int(talent(state, b).get("open_nodes", 0))
 	if open != 0:
 		out.append(["Conscience partagée : ses nœuds sont ouverts", open])
+	if not state.admin.is_empty():
+		out.append_array(AdminBridges.growth_parts(state, b))
 	var counter := home_cells(state, b)
 	if counter > 0:
 		var w := counter_weight(state, b)
@@ -653,6 +655,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_ct := CourtIntrigue.spy_check(state, a, b, op_id)
 		if why_ct != "":
 			return why_ct
+	if bool(o.get("admin", false)):
+		var why_ad := AdminBridges.spy_check(state, a, b, op_id)
+		if why_ad != "":
+			return why_ad
 	match op_id:
 		"prophetie":
 			var why := FaithWars.check_prophecy(state, a, b)
@@ -857,6 +863,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return RulersBridges.spy_apply(state, a, b, o)
 	if bool(o.get("court", false)):
 		return CourtIntrigue.spy_apply(state, a, b, o)
+	if bool(o.get("admin", false)):
+		return AdminBridges.spy_apply(state, a, b, o)
 	match String(o["id"]):
 		"rapport":
 			ea.dossiers[b] = dossier(state, b, data()["tiers"].size())

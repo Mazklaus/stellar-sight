@@ -431,6 +431,8 @@ static func run_election(state: GameState, empire_id: int) -> Array[Dictionary]:
 	var pick := int(en.get("pick", -1))
 	var t := tally(state, empire_id)
 	var votes: Array = t["votes"]
+	if not state.admin.is_empty():
+		AdminBridges.adjust_votes(state, empire_id, votes)  # corruption : les sortants perdent des voix
 	var sys_reps: Dictionary = t["reps"]
 	for sid in sys_reps:
 		_sys_w(state, sid, empire_id)["reps"] = sys_reps[sid]

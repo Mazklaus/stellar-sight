@@ -71,6 +71,7 @@
 		"upgrades": "complexe_minier",
 		"text": "Remplace le Complexe minier sur place (aucun emplacement de plus) : des puits qui descendent jusqu'au manteau.",
 		"yields": {"materials": 14}, "upkeep": {"energy": 2}},
+	"tribunal": {"label": "Tribunal", "admin": true, "cost": {"materials": 150}, "days": 90, "unique": true, "per_system": true, "text": "Un par système. Divise par deux la corruption du système, +2 capacité administrative. Juges, greffiers, et une salle des pas perdus où l'on perd surtout du temps.", "upkeep": {"energy": 2}},
 	"prefecture": {"requires_tech": ["prefectures"], "label": "Préfecture", "cost": {"materials": 300, "influence": 40}, "days": 150, "unique": true,
 		"per_system": true, "min_pop": 10, "free_colonies": 6,
 		"text": "Une par système, dans une colonie de 10 population ou plus. +3 influence, et six colonies de plus échappent au surcoût de recherche des grands empires.",

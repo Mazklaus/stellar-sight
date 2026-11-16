@@ -225,6 +225,8 @@ static func cost(state: GameState, empire_id: int, tid: String, colonies := -1) 
 	if colonies < 0:
 		colonies = cost_colonies(state, empire_id)
 	var extra := maxi(0, colonies - int(d.get("free_colonies", 0))) * int(d.get("per_colony_pct", 0))
+	if not state.admin.is_empty() and e != null and not e.is_npc():
+		extra = Admin.research_pct(state, empire_id)  # le pilier Administration remplace ce surcoût
 	c = c * (100 + extra) / 100
 	if e:
 		var f := e.faction()

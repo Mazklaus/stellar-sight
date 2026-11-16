@@ -616,6 +616,19 @@ static func politics_action(player: int, action: String) -> Dictionary:
 
 
 ## Décret de stabilité sur un système (Stability : "loi_martiale", "fetes", "concessions").
+## Administration : effort administratif, intégration d'un système, transfert de capitale.
+static func admin_effort(player: int, effort_id: String) -> Dictionary:
+	return {"type": "admin_effort", "player": player, "effort": effort_id}
+
+
+static func admin_integrate(player: int, system_id: int) -> Dictionary:
+	return {"type": "admin_integrate", "player": player, "system": system_id}
+
+
+static func admin_capital(player: int, planet_id: int) -> Dictionary:
+	return {"type": "admin_capital", "player": player, "planet": planet_id}
+
+
 static func decree(player: int, system_id: int, decree_id: String) -> Dictionary:
 	return {"type": "decree", "player": player, "system": system_id, "decree": decree_id}
 
@@ -789,6 +802,12 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Laws.check_revoke(state, int(cmd["player"]), String(cmd.get("law", "")))
 		"politics_action":
 			return Laws.check_action(state, int(cmd["player"]), String(cmd.get("action", "")))
+		"admin_effort":
+			return Admin.check_effort(state, int(cmd["player"]), String(cmd.get("effort", "")))
+		"admin_integrate":
+			return Admin.check_integrate(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"admin_capital":
+			return Admin.check_move_capital(state, int(cmd["player"]), int(cmd.get("planet", -1)))
 		"decree":
 			return Stability.check_decree(state, int(cmd["player"]), int(cmd.get("system", -1)), String(cmd.get("decree", "")))
 		"stab_offering":
@@ -1170,6 +1189,12 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Laws.revoke(state, int(cmd["player"]), String(cmd["law"]))
 		"politics_action":
 			Laws.do_action(state, int(cmd["player"]), String(cmd["action"]))
+		"admin_effort":
+			Admin.set_effort(state, int(cmd["player"]), String(cmd["effort"]))
+		"admin_integrate":
+			Admin.integrate(state, int(cmd["player"]), int(cmd["system"]))
+		"admin_capital":
+			Admin.move_capital(state, int(cmd["player"]), int(cmd["planet"]))
 		"decree":
 			Stability.decree(state, int(cmd["player"]), int(cmd["system"]), String(cmd["decree"]))
 		"stab_offering":

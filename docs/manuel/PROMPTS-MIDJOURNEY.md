@@ -434,3 +434,13 @@ a grand throne hall carved inside an asteroid, an aged crowned queen in an ermin
 ```
 a long gilded gallery in an orbital palace, the heads of four rival noble houses of several alien species each standing under their own colourful heraldic banner and bowing toward an empty throne, courtiers in extravagant fashion whispering behind fans, behind a marble pillar a sly spymistress slipping a sealed note to an ambitious young courtier, chandeliers of starlight, elegant court intrigue with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-44 · Gouverner l'empire
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Gouverner l'empire »
+- Sujet : Dans un palais d'archives en orbite, un préfet fatigué de plusieurs espèces signe une pile de formulaires sous des étagères de registres qui montent jusqu'aux étoiles ; derrière lui, un fonctionnaire glisse discrètement une bourse dans sa manche
+
+```
+a vast orbital palace of archives, endless shelves of glowing ledgers and data scrolls rising toward a domed window full of stars, a weary alien prefect at a monumental desk stamping a towering pile of forms, clerks of several alien species hurrying along floating walkways with files, pneumatic message tubes, in the foreground a sly official discreetly slipping a purse of credits into his sleeve, bureaucratic grandeur with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

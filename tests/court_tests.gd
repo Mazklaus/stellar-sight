@@ -318,7 +318,7 @@ func _test_save() -> void:
 	to_month(st)
 	var d := st.to_dict()
 	_ok(d.has("court"), "la cour est sauvegardée")
-	_ok(int(d["version"]) == 76, "format 76")
+	_ok(int(d["version"]) >= 76, "format 76 ou plus")
 	var st2 := GameState.from_dict(d)
 	_ok(st2 != null and Court.houses(st2, v).size() == Court.houses(st, v).size(), "relue : les mêmes maisons")
 	_ok(JSON.stringify(Court.to_dict(st2)) == JSON.stringify(Court.to_dict(st)), "relue à l'identique")

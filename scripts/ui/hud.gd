@@ -358,12 +358,23 @@ func planet_row_count() -> int:
 	return _planet_dots.get_child_count()
 
 
+## Onglet Stabilité (et touche K) : vue galaxie → stabilité → corruption (si le pilier Administration
+## est complet pour le joueur) → vue galaxie.
+func cycle_stability_lens() -> void:
+	if lens == "stability" and _state != null and Admin.full(_state) and Admin.has_corruption(_state, _player):
+		set_lens("corruption")
+	elif lens == "stability" or lens == "corruption":
+		set_lens("")
+	else:
+		set_lens("stability")
+
+
 ## Lentille de la carte : "" (vue galaxie), "economy", "stability", "politics", "trade", "peoples", "faith", "amph" ou "war".
 func set_lens(value: String) -> void:
 	lens = value
 	_tab_galaxy.set_pressed_no_signal(value == "")
 	_tab_economy.set_pressed_no_signal(value == "economy")
-	_tab_stability.set_pressed_no_signal(value == "stability")
+	_tab_stability.set_pressed_no_signal(value == "stability" or value == "corruption")
 	_tab_politics.set_pressed_no_signal(value == "politics")
 	_tab_trade.set_pressed_no_signal(value == "trade")
 	_tab_peoples.set_pressed_no_signal(value == "peoples")
@@ -401,8 +412,8 @@ func _build_tabs() -> void:
 			set_lens(""))
 	_tab_economy = _tab("Économie", "Lentille économique : bilan mensuel de chacun de vos systèmes, sur la carte  (L)")
 	_tab_economy.pressed.connect(func() -> void: set_lens("" if lens == "economy" else "economy"))
-	_tab_stability = _tab("Stabilité", "Lentille de stabilité : la stabilité de chacun de vos systèmes, et les mondes libres, sur la carte  (K)")
-	_tab_stability.pressed.connect(func() -> void: set_lens("" if lens == "stability" else "stability"))
+	_tab_stability = _tab("Stabilité", "Lentille de stabilité : la stabilité de chacun de vos systèmes, et les mondes libres, sur la carte ; un second clic montre la corruption (Administration)  (K)")
+	_tab_stability.pressed.connect(cycle_stability_lens)
 	_tab_politics = _tab("Politique", "Lentille politique : le courant qui domine l'opinion de chacun de vos systèmes, et ses représentants au pouvoir ou non  (O)")
 	_tab_politics.pressed.connect(func() -> void: set_lens("" if lens == "politics" else "politics"))
 	_tab_trade = _tab("Commerce", "Lentille du commerce : vos routes commerciales (couleur du traité, rouge si bloquée) et le risque pirate le long du chemin  (G)")
