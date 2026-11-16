@@ -252,7 +252,7 @@ static func recruit(state: GameState, empire_id: int, cand: Dictionary) -> int:
 		traits.append(String(t))
 	state.heroes[id] = {
 		"id": id, "owner": empire_id, "name": String(cand["name"]), "portrait": String(cand["portrait"]),
-		"cls": String(cand["cls"]), "lvl": 1, "xp": 0, "traits": traits,
+		"cls": String(cand["cls"]), "lvl": 1 + WondersCatalog.fx(state, empire_id, "hero_start_lvl"), "xp": 0, "traits": traits,
 		"born": state.tick - int(cand.get("age", 30)) * DAYS_PER_YEAR,
 		"post": "", "target": -1, "arrive": 0, "wound": 0, "joined": state.tick,
 		"amb": String(cand.get("amb", "")), "served": state.tick, "amb_n": 0, "amb_done": 0,

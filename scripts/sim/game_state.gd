@@ -690,6 +690,8 @@ static func from_dict(d: Dictionary) -> GameState:
 	if int(d["version"]) < 16:
 		for e in s.empires:
 			Intel.seed_from_truth(s, e)
+	if not s.wonders.is_empty():
+		WondersCatalog.refresh_gates(s)  # réseau des portes stellaires (donnée dérivée)
 	return s
 
 

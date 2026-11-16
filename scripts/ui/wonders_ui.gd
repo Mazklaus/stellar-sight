@@ -16,6 +16,11 @@ static func system_actions(state: GameState, player: int, p: Planet, emit: Calla
 	var c: Colony = state.colonies.get(p.id)
 	if c == null or c.owner != player or not c.is_established():
 		return out
+	for wid in WondersCatalog.ruins_at(state, p.id):
+		out.append(_act(state, SimCommands.won_act(player, "restore", wid), "Restaurer : %s" % Wonders.label(wid),
+				"avance %s (total %s)  »  %s" % [GameData.format_amounts(Research.scaled_amounts(WondersCatalog.restore_cost(state, player, wid), Wonders.r_int("advance_pct") - 100)),
+						GameData.format_amounts(WondersCatalog.restore_cost(state, player, wid)), Wonders.effect_text(wid)],
+				"Une merveille d'un âge oublié gît ici. La relever coûte %d %% du prix et de la durée, hors de la limite des grands chantiers." % Wonders.r_int("restore_pct"), emit))
 	for pair in Wonders.builds_by(state, player):
 		var wid := String(pair[0])
 		var entry: Dictionary = pair[1]
@@ -85,6 +90,10 @@ static func build(es: EmpireScreens) -> void:
 	var carry: Dictionary = state.wonders.get("carry", {}).get(str(player), {})
 	if not carry.is_empty() and state.tick <= int(carry["until"]):
 		es._key_value(g, "Mise reportée", "%s (ère %d+, jusqu'au %s)" % [GameData.format_amounts(carry["amt"]), int(carry["era"]), GameCalendar.date_string(int(carry["until"]))])
+	if WondersCatalog.fx(state, player, "tribunal") > 0:
+		var trow := HBoxContainer.new()
+		es._side_box.add_child(trow)
+		_button(es, trow, "Saisir le Tribunal (séance repoussée d'un an)", SimCommands.won_act(player, "tribunal"))
 	es._side_box.add_child(HSeparator.new())
 	es._side_box.add_child(UiTheme.paragraph("Une merveille est une course : plusieurs empires peuvent la bâtir en même temps, le premier qui l'achève l'emporte. Le lancement coûte une avance de %d %%, le reste se paie chaque mois ; le chantier n'occupe pas la file de la colonie. Les colonies à %d sauts ou moins peuvent verser une fois par mois, et le dernier quart se presse à l'influence. Le perdant garde toute sa mise %d jours pour une merveille d'ère égale ou plus haute ; sinon la moitié revient. Des rivaux, vous ne voyez que le quart atteint, et seulement si leur chantier est en vue ou sous votre réseau d'espions." % [
 			Wonders.r_int("advance_pct"), Wonders.r_int("contrib_jumps"), Wonders.r_int("carry_days")], EmpireScreens.SIDE_WIDTH - 24.0, 12))
@@ -149,6 +158,9 @@ static func build(es: EmpireScreens) -> void:
 			if Wonders.galaxy_unique(wid) and at >= 0:
 				var o: Colony = state.colonies[at]
 				state_txt = "achevée par %s" % state.get_empire(o.owner).short_name()
+			elif WondersCatalog.ruin_of(state, wid) >= 0:
+				var rp := WondersCatalog.ruin_of(state, wid)
+				state_txt = "en ruine sur %s : qui tient cette planète peut la restaurer" % (state.galaxy.get_planet(rp).display_name(state.galaxy) if Fleets.is_explored(state, player, state.galaxy.get_planet(rp).system_id) else "un monde inexploré")
 			elif not Wonders.unlocked(state, player, wid):
 				state_txt = Wonders.check_start(state, player, state.get_empire(player).capital_planet, wid)
 			else:

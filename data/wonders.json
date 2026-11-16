@@ -588,7 +588,8 @@
 				"energy": 3
 			},
 			"fx": {
-				"spy_cells": 1
+				"spy_cells": 1,
+				"wonder_sight": 1
 			},
 			"special": "sees_all",
 			"text": "+1 réseau d'espionnage ; vous voyez tous les chantiers de merveille de la galaxie et leur avancement.",
@@ -733,7 +734,8 @@
 			},
 			"fx": {
 				"migration": 1,
-				"stability": 1
+				"stability": 1,
+				"refuge": 1
 			},
 			"special": "refuge",
 			"text": "Les réfugiés et migrants choisissent vos mondes en premier ; +1 stabilité dans tout l'empire.",
@@ -764,7 +766,10 @@
 			},
 			"special": "pirate_peace",
 			"text": "Les pirates épargnent vos flottes et vos routes, et vous versent un tribut de 10 énergie par repaire chaque mois.",
-			"quote": "Entre deux abordages, même un pirate a besoin d'un bon mouillage."
+			"quote": "Entre deux abordages, même un pirate a besoin d'un bon mouillage.",
+			"fx": {
+				"pirate_peace": 1
+			}
 		},
 		"tribunal_etoiles": {
 			"label": "Tribunal des Étoiles",
@@ -790,7 +795,11 @@
 			},
 			"special": "tribunal",
 			"text": "+2 voix à l'Amphictyonie ; une fois par décennie, vous pouvez retarder d'un an la prochaine séance.",
-			"quote": "La justice est aveugle. Ici, elle est aussi très patiente."
+			"quote": "La justice est aveugle. Ici, elle est aussi très patiente.",
+			"fx": {
+				"amph_voix_pct": 20,
+				"tribunal": 1
+			}
 		},
 		"menagerie_celeste": {
 			"label": "Ménagerie céleste",
@@ -814,7 +823,8 @@
 				"energy": 3
 			},
 			"fx": {
-				"damage_pct": 5
+				"damage_pct": 5,
+				"tamer": 1
 			},
 			"special": "tamer",
 			"text": "Les créatures spatiales n'attaquent plus vos flottes ni vos colonies ; vos amiraux connaissent leurs points faibles (+10 % de dégâts).",
@@ -842,7 +852,8 @@
 				"energy": 4
 			},
 			"fx": {
-				"hero_cap": 1
+				"hero_cap": 1,
+				"hero_start_lvl": 1
 			},
 			"special": "veterans",
 			"text": "+1 place de héros ; les héros recrutés commencent avec un niveau de plus.",
@@ -870,7 +881,8 @@
 				"energy": 4
 			},
 			"fx": {
-				"stability": 1
+				"stability": 1,
+				"grievance_half": 1
 			},
 			"special": "grievances",
 			"text": "Les systèmes non représentés au pouvoir perdent moitié moins de stabilité ; +1 stabilité.",
@@ -928,7 +940,10 @@
 			"special": "bulwark",
 			"collective": "crisis",
 			"text": "Pendant une crise de fin de partie : une flotte de défense se lève à l'achèvement ou au début de la crise, et la crise vous vise en dernier. Peut être bâti à plusieurs par le Front commun.",
-			"quote": "On l'a bâti pour un ennemi qu'on espérait ne jamais voir."
+			"quote": "On l'a bâti pour un ennemi qu'on espérait ne jamais voir.",
+			"fx": {
+				"crisis_last": 1
+			}
 		},
 		"miroir_anciens": {
 			"label": "Miroir des Anciens",
@@ -953,7 +968,10 @@
 			},
 			"special": "ancient_friend",
 			"text": "Les puissances anciennes ne s'irritent plus contre vous ; à leur Éveil, elles vous comptent parmi leurs amis.",
-			"quote": "Ils s'y regardent et, pour une fois, s'y trouvent jeunes."
+			"quote": "Ils s'y regardent et, pour une fois, s'y trouvent jeunes.",
+			"fx": {
+				"ancient_friend": 1
+			}
 		},
 		"oeil_demiurge": {
 			"label": "Œil du Démiurge",
@@ -980,7 +998,10 @@
 			},
 			"special": "all_seeing",
 			"text": "Vous voyez toute la galaxie.",
-			"quote": "Il voit tout. On lui a demandé de fermer les yeux ; il n'en a pas."
+			"quote": "Il voit tout. On lui a demandé de fermer les yeux ; il n'en a pas.",
+			"fx": {
+				"all_seeing": 1
+			}
 		},
 		"collecteur_stellaire": {
 			"label": "Sphère de Dyson",
@@ -1238,7 +1259,8 @@
 				"energy": 3
 			},
 			"fx": {
-				"opinion_all": 10
+				"opinion_all": 10,
+				"amph_voix_pct": 10
 			},
 			"special": "amph_voice",
 			"registre": "Space opera héroïque",
@@ -1329,7 +1351,8 @@
 			},
 			"fx": {
 				"spy_cost_pct": -25,
-				"trade_income_pct": 10
+				"trade_income_pct": 10,
+				"pirate_peace": 1
 			},
 			"special": "pirate_peace",
 			"registre": "Picaresque / pulp",
@@ -1450,7 +1473,10 @@
 			},
 			"text": "Les technologies déjà connues d'un empire rencontré vous coûtent 40 % de moins.",
 			"special": "known_tech",
-			"quote": "On n'y invente rien. On y comprend tout, très vite."
+			"quote": "On n'y invente rien. On y comprend tout, très vite.",
+			"fx": {
+				"known_tech_pct": -40
+			}
 		},
 		"banque_lunes": {
 			"label": "Banque des Lunes franches",

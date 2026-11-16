@@ -238,6 +238,10 @@ static func cost(state: GameState, empire_id: int, tid: String, colonies := -1) 
 		var tc := 0 if e.is_npc() else fx_int(state, empire_id, "tech_cost_pct")
 		if tc != 0:
 			c = c * maxi(10, 100 + tc) / 100
+		if not e.is_npc():
+			var kt := WondersCatalog.tech_cost_pct(state, empire_id, tid)  # Collège universel
+			if kt != 0:
+				c = c * maxi(10, 100 + kt) / 100
 	return maxi(1, c)
 
 

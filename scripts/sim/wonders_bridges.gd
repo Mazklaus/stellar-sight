@@ -35,12 +35,21 @@ static func act(state: GameState, player: int, act_id: String, wid: String, x: i
 			_act_more(state, player, act_id, wid, x, n, added)
 
 
-static func _check_more(_state: GameState, _player: int, act_id: String, _wid: String, _x: int, _n: int) -> String:
+static func _check_more(state: GameState, player: int, act_id: String, wid: String, _x: int, _n: int) -> String:
+	match act_id:
+		"restore":
+			return WondersCatalog.check_restore(state, player, wid)
+		"tribunal":
+			return WondersCatalog.check_tribunal(state, player)
 	return "ordre inconnu : %s" % act_id
 
 
-static func _act_more(_state: GameState, _player: int, _act_id: String, _wid: String, _x: int, _n: int, _added: Array[Dictionary]) -> void:
-	pass
+static func _act_more(state: GameState, player: int, act_id: String, wid: String, _x: int, _n: int, added: Array[Dictionary]) -> void:
+	match act_id:
+		"restore":
+			WondersCatalog.restore(state, player, wid, added)
+		"tribunal":
+			WondersCatalog.tribunal(state, player, added)
 
 
 static func oeuvres_on(_state: GameState) -> bool:

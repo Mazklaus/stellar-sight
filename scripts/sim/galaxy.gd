@@ -8,6 +8,8 @@ var systems: Array[StarSystem] = []
 var lanes: Array[Vector2i] = []
 ## Toutes les planètes, indexées par leur identifiant.
 var planets: Array[Planet] = []
+## Portes stellaires ouvertes (voir WondersCatalog) : système -> propriétaire. Donnée dérivée, non sauvegardée.
+var gates: Dictionary = {}
 
 
 func get_system(id: int) -> StarSystem:

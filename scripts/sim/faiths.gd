@@ -661,6 +661,8 @@ static func pressures(state: GameState) -> Dictionary:
 				n *= FaithWars.secondary_holy_x(state, fid, c)
 				# Patriarcats : le métropolite prêche comme un petit monde saint.
 				n *= FaithNatures.source_x(state, c, fid)
+				# Merveilles : lieu saint de la foi d'État de leur maître (prop. 20 des merveilles).
+				n *= WondersCatalog.holy_x(state, c, fid)
 			elif fid == INCROYANCE:
 				# Teyl : le doute est contagieux.
 				n = n * (100 + FaithBridges.unbelief_pct(state, c.owner)) / 100
