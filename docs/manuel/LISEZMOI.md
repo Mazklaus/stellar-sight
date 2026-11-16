@@ -46,7 +46,7 @@ Les textes propres à chaque peuple (devise, histoire, chronique, conseil) sont 
 
 ## Les illustrations Midjourney
 
-`PROMPTS-MIDJOURNEY.md` (régénéré à chaque fabrication) liste les 47 encarts avec leur commande. Déposer l'image dans `images/` sous le nom de son identifiant (`MJ-07.png`, `.jpg` ou `.webp`) et régénérer : elle remplace l'emplacement vide, dans son cadre.
+`PROMPTS-MIDJOURNEY.md` (régénéré à chaque fabrication) liste les 48 encarts avec leur commande. Déposer l'image dans `images/` sous le nom de son identifiant (`MJ-07.png`, `.jpg` ou `.webp`) et régénérer : elle remplace l'emplacement vide, dans son cadre.
 
 La forme des cadres se change en une ligne, `FORMES` en tête de `build.py` (`droit`, `arrondi`, `coupe`, `asym`, `arche`, `medaillon`).
 
