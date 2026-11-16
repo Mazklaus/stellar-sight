@@ -90,6 +90,9 @@ func _initialize() -> void:
 	preload("res://tests/deed_tests.gd").new().run(_check)
 	preload("res://tests/deed2_tests.gd").new().run(_check)
 	preload("res://tests/deed3_tests.gd").new().run(_check)
+	preload("res://tests/ruler_tests.gd").new().run(_check)
+	preload("res://tests/ruler2_tests.gd").new().run(_check)
+	preload("res://tests/ruler3_tests.gd").new().run(_check)
 	preload("res://tests/battle_visuals_tests.gd").new().run(_check)
 	preload("res://tests/ground_visuals_tests.gd").new().run(_check)
 	_test_clock()
@@ -1713,6 +1716,23 @@ func _test_hero_ui(main: Node) -> void:
 			main.simulation.flush_commands()
 			await process_frame
 			_check(String(st.heroes[hid]["post"]) == "", "Panthéon : RAPPELER retire le poste")
+	# Souverains : Maj+F10 ouvre l'écran Trône ; le bouton du pouvoir donne un ordre.
+	if st.rulers.is_empty():
+		Rulers.setup(st, "mortels")
+	var ev := InputEventKey.new()
+	ev.keycode = KEY_F10
+	ev.physical_keycode = KEY_F10
+	ev.shift_pressed = true
+	ev.pressed = true
+	root.push_input(ev)
+	await process_frame
+	_check(screens.current == "throne", "Maj+F10 : écran Trône")
+	_check(screens.throne_buttons.has("power") and screens.throne_buttons.has("legacy:guerre"), "Trône : pouvoir et héritages")
+	if screens.throne_buttons.has("power") and not (screens.throne_buttons["power"] as Button).disabled:
+		(screens.throne_buttons["power"] as Button).pressed.emit()
+		main.simulation.flush_commands()
+		await process_frame
+		_check(int(Rulers.entry(st, me)["power_cd"]) > st.tick, "Trône : INVOQUER use du pouvoir")
 	# Combat au sol : l'écran Armées (régiments, démobiliser) s'ouvre depuis la barre d'empire.
 	screens.show_screen("armies")
 	await process_frame

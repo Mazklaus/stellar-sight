@@ -31,6 +31,8 @@ const SCREENS := [
 		"why": "Affectez vos cellules chez les empires rencontrés : le réseau grandit chaque mois et dévoile, palier après palier, leurs systèmes, leurs comptes, leurs flottes et leurs pensées. Chez vous, elles font du contre-espionnage."},
 	{"id": "heroes", "label": "Panthéon", "key": "F10", "glyph": "heroes", "ready": true,
 		"why": "Vos héros : un poste chacun (amiral d'une flotte, gouverneur d'un système, siège au conseil, agent d'un réseau). Vos actes font monter votre renom ; au seuil, trois candidats se présentent et vous en choisissez un."},
+	{"id": "throne", "label": "Trône", "key": "Maj+F10", "glyph": "heroes", "ready": true, "hidden": true,
+		"why": "Votre souverain : ses aptitudes, sa légitimité, ses surnoms, son ambition, son pouvoir, son poste ; ses héritiers, ses héritages, ses alliances de sang et les annales des règnes. Cliquez le nom de l'empire pour l'ouvrir."},
 	{"id": "order", "label": "Ordre intérieur", "key": "F12", "glyph": "order", "ready": true,
 		"why": "Chaque système a une stabilité de 0 à 100 qui glisse chaque mois vers sa cible. Fidèles, ils produisent plus ; en révolte, ils se figent, puis font sécession au bout d'un an. Les décrets achètent du temps."},
 	{"id": "senate", "label": "Sénat", "key": "P", "glyph": "senate", "ready": true,
@@ -81,6 +83,8 @@ func _ready() -> void:
 	icons.add_theme_constant_override("separation", 2)
 	box.add_child(icons)
 	for sc in SCREENS:
+		if sc.get("hidden", false):
+			continue
 		var b := Widgets.IconButton.new(String(sc["glyph"]), 25)
 		b.toggle_mode = true
 		b.disabled = not sc["ready"]
@@ -99,6 +103,10 @@ func _ready() -> void:
 	_name.custom_minimum_size = Vector2(24, 0)
 	_name.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_name.mouse_filter = Control.MOUSE_FILTER_STOP
+	_name.tooltip_text = "Trône (Maj+F10) : votre souverain et sa lignée."
+	_name.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
+			screen_requested.emit("throne"))
 	icons.add_child(_name)
 	_emblem = Widgets.Emblem.new(20)
 	_emblem.size_flags_vertical = Control.SIZE_SHRINK_CENTER

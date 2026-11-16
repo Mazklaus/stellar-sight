@@ -451,6 +451,18 @@
 			"memory": "",
 			"text": "Il a conquis le peuple mineur dont vous étiez le suzerain : vous venez le libérer. Reprendre son monde fait de vous son suzerain.",
 			"just": true
+		},
+		{
+			"id": "succession",
+			"label": "Guerre de succession",
+			"req": "succession",
+			"goals": [
+				"heritier",
+				"soumission"
+			],
+			"memory": "",
+			"text": "Un mariage dynastique, un prétendant sorti de votre empire ou un trône usurpé vous donne un droit : placer votre candidat sur son trône, ou faire valoir l'union.",
+			"just": true
 		}
 	],
 	"defense_goals": [
@@ -582,6 +594,16 @@
 			"req": "wonder",
 			"price": 40,
 			"text": "Le vaincu cède le système de sa plus grande merveille (hors capitale), avec la merveille et ce qu'elle rapporte."
+		},
+		{
+			"id": "heritier",
+			"label": "Imposer un héritier",
+			"accept": -50,
+			"objective": "battles",
+			"req": "",
+			"price": 40,
+			"limited": true,
+			"text": "Le vaincu prend pour souverain un candidat de votre maison, à la légitimité fragile ; avec les vassaux actifs, il devient votre sujet en union personnelle."
 		}
 	],
 	"names": {
@@ -628,6 +650,11 @@
 		],
 		"any": [
 			"Guerre de {a} contre {d}"
+		],
+		"heritier": [
+			"Guerre de succession de {d}",
+			"Querelle des couronnes de {a} et {d}",
+			"Guerre des Deux Trônes"
 		],
 		"kanly": [
 			"Kanly de {a} et {d}",

@@ -192,6 +192,10 @@ static func claim_cost(state: GameState, a: int, sid: int) -> int:
 	if Diplomacy.opinion(state, a, owner) <= int(c["rival_opinion"]):
 		@warning_ignore("integer_division")
 		n -= n * int(c["rival_pct"]) / 100
+	# Couronne vacillante du propriétaire (voir RulersBridges) : revendiquer coûte moins cher.
+	if not state.rulers.is_empty():
+		@warning_ignore("integer_division")
+		n = n * (100 + RulersBridges.wobbly_claim_pct(state, owner)) / 100
 	@warning_ignore("integer_division")
 	return n * WarLaws.claim_pct(state, a) / 100
 
@@ -292,6 +296,8 @@ static func _req_ok(state: GameState, req: String, a: int, b: int) -> bool:
 			return Borders.has_cb(state, a, b)
 		"kanly":
 			return WarLaws.kanly_ok(state, a, b)
+		"succession":
+			return not state.rulers.is_empty() and RulersBridges.succession_casus(state, a, b)
 	return false
 
 
@@ -866,6 +872,8 @@ static func apply_victory(state: GameState, winner: int, loser: int) -> void:
 			Diplomacy.remember(state, loser, winner, "kanly_lost")
 		"quitter", "retenir":
 			WarLaws.apply_secession(state, winner, loser, gid)
+		"heritier":
+			RulersBridges.impose_heir(state, winner, loser)
 	WarLaws.release_one_way(state, loser, winner)
 	var spent := maxi(sc, int(_cfg("truce")["victory_min_pct"]))
 	set_truce(state, winner, loser, spent)

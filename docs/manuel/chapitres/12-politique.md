@@ -91,7 +91,7 @@ Les citoyens d'autres espèces votent selon leur propre credo : l'opinion d'un s
 
 ### Doléances et crises
 
-Le plus grand courant d'opposition formule une **doléance** à la fois : la satisfaire dans les deux ans le renforce et calme ses fidèles, l'ignorer les agite. Si la stabilité d'empire reste sous 25 pendant un an, c'est la **crise de régime** : le courant opposé à celui qui gouverne prend seul le pouvoir, toutes les lois sont révoquées et six mois passent sans loi.
+Le plus grand courant d'opposition formule une **doléance** à la fois : la satisfaire dans les deux ans le renforce et calme ses fidèles, l'ignorer les agite. Si la stabilité d'empire reste sous 25 pendant un an, c'est la **crise de régime** : le courant opposé à celui qui gouverne prend seul le pouvoir, toutes les lois sont révoquées et six mois passent sans loi. Avec les souverains en jeu (chapitre 25), la crise renverse aussi un souverain dont la légitimité est sous 50, et un **coup d'État** installe un usurpateur. L'archétype du souverain pousse chaque mois son courant à la capitale.
 
 ### Les talents de stabilité
 

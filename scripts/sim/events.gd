@@ -56,6 +56,8 @@ static func card(id: String) -> Dictionary:
 			_cards[String(c["id"])] = c
 		for c: Dictionary in GameData.wonders().get("cards", []):
 			_cards[String(c["id"])] = c
+		for c: Dictionary in GameData.rulers().get("cards", []):
+			_cards[String(c["id"])] = c
 	return _cards.get(id, {})
 
 
@@ -521,6 +523,10 @@ static func _cost_problem(state: GameState, empire_id: int, item: Dictionary, ch
 				var r := state.get_empire(int(item.get("rival", -1)))
 				if r == null or r.eliminated:
 					return "cet empire a disparu"
+			"ruler":
+				var why_r := Rulers.fx_problem(state, empire_id, item, fx)
+				if why_r != "":
+					return why_r
 	return ""
 
 
@@ -682,6 +688,8 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				var gl := Guardians.fx_line(fx)
 				if gl != "":
 					out.append(gl)
+			"ruler":
+				out.append_array(Rulers.fx_lines(state, empire_id, item, fx))
 	return out
 
 
@@ -800,6 +808,8 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				Reputation.exploit(state, empire_id, String(fx["id"]))
 			"guardian":
 				Guardians.card_fx(state, empire_id, item, fx, added)
+			"ruler":
+				Rulers.apply_fx(state, empire_id, item, fx, added)
 
 
 static func _colony_in(state: GameState, empire_id: int, sid: int) -> Colony:
@@ -827,6 +837,8 @@ static func fill(state: GameState, empire_id: int, item: Dictionary, s: String) 
 	out = Ancients.fill(state, empire_id, item, out)  # jetons des puissances anciennes
 	out = Minors.fill(state, empire_id, item, out)  # jetons des peuples mineurs
 	out = Wonders.fill(state, empire_id, item, out)  # jetons des merveilles
+	out = Rulers.fill(state, empire_id, item, out)  # jetons des souverains
+	out = HeroFall.fill(state, item, out)  # héros tombés au combat
 	return out
 
 

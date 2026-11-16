@@ -211,6 +211,8 @@
 		}
 	},
 	"traits": {
+		"trompe_la_mort": {"label": "Trompe-la-mort", "cls": "", "combat_death": true, "text": "Toujours le dernier à quitter l'épave : deux fois moins de chances de mourir au combat.", "fx": {"combat_death_pct": -50}},
+		"temeraire": {"label": "Téméraire", "cls": "stratege", "text": "Mène la charge en tête : +5 % de dégâts pour sa flotte, mais deux fois plus de chances de mourir au combat.", "combat_death": true, "fx": {"damage_pct": 5, "combat_death_pct": 100}},
 		"meneur_hommes": {"label": "Meneur d'hommes", "cls": "general", "text": "+10 % de dégâts au sol pour les régiments qu'il commande.", "fx": {"ground_damage_pct": 10}},
 		"ami_anciens": {"label": "Ami des anciens", "cls": "", "earned": true, "text": "Gagné quand son empire reçoit un poste honorifique d'une puissance ancienne : +25 d'opinion de toutes les anciennes.", "fx": {}},
 		"tueur_crise": {"label": "Tueur de crise", "cls": "stratege", "earned": true, "text": "Gagné en abattant un point faible ou le cœur d'une crise de fin de partie : +20 % de dégâts contre les crises.", "fx": {"crisis_damage_pct": 20}},
@@ -1012,6 +1014,8 @@
 		"loyalty": 25,
 		"renown": 60
 	},
+	"_combat_death": "mort au combat (étude « Souverain et dynastie », prop. 27-32) : chance en % selon ce qui frappe le héros (flotte anéantie, perte du plus gros vaisseau, système perdu, armée vaincue), multipliée par le réglage de la partie (mode, en %) et les traits (combat_death_pct) ; un Avatar ×avatar_pct mais se reforme après avatar_days au niveau -1 ; capsules de survie : capsule_minus points de moins ; synthétique avec la technologie hero_backup : revient après backup_days au niveau -1",
+	"combat_death": {"fleet": 10, "flagship": 3, "system": 5, "army": 5, "avatar_pct": 150, "avatar_days": 180, "capsule_minus": 3, "backup_days": 360, "fallen_card_lvl": 3, "modes": [{"id": "jamais", "label": "Jamais", "pct": 0, "text": "Les héros ne meurent pas au combat : blessure ou capture, comme avant."}, {"id": "rare", "label": "Rare", "pct": 50, "text": "Deux fois moins de morts au combat que la règle normale."}, {"id": "normale", "label": "Normale", "pct": 100, "text": "Flotte anéantie : 10 % ; plus gros vaisseau perdu : 3 % ; système perdu ou armée vaincue : 5 %."}, {"id": "brutale", "label": "Brutale", "pct": 200, "text": "Deux fois plus de morts au combat : chaque bataille compte."}], "default": "normale"},
 	"capture": {
 		"pct": 35,
 		"convert_days": 180,

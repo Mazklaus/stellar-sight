@@ -200,7 +200,7 @@ static func make_candidate(state: GameState, empire_id: int, cls: String, salt: 
 	var pics := portraits_for(arch)
 	var ages: Array = data()["age"]
 	var age := int(ages[0]) + _h(state, salt + ["age"]) % (int(ages[1]) - int(ages[0]) + 1)
-	var pool := class_traits(cls)
+	var pool := class_traits(cls, state)
 	var traits: Array[String] = []
 	if not pool.is_empty():
 		traits.append(pool[_h(state, salt + ["trait"]) % pool.size()])
@@ -229,7 +229,8 @@ static func make_candidate(state: GameState, empire_id: int, cls: String, salt: 
 
 
 ## Traits que peut tirer un héros de cette classe (ceux de la classe, puis ceux de toutes les classes).
-static func class_traits(cls: String) -> Array[String]:
+## Les traits liés à la mort au combat ("combat_death") ne se tirent que si elle est en jeu.
+static func class_traits(cls: String, state: GameState = null) -> Array[String]:
 	var out: Array[String] = []
 	var ids := (data()["traits"] as Dictionary).keys()
 	ids.sort()
@@ -238,6 +239,8 @@ static func class_traits(cls: String) -> Array[String]:
 		var td: Dictionary = data()["traits"][id]
 		if td.get("earned", false):
 			continue  # gagné par un exploit, jamais tiré au sort
+		if td.get("combat_death", false) and (state == null or HeroFall.mode_pct(state) <= 0):
+			continue
 		if c == cls or (c == "" and not td.get("people", false) and not td.get("flaw", false)):
 			out.append(String(id))
 	return out
@@ -437,7 +440,7 @@ static func _council_sum(state: GameState, empire_id: int, key: String) -> int:
 
 ## Bonus de dégâts (%) d'une flotte : son amiral, ses traits, et les Stratèges du conseil.
 static func damage_pct(state: GameState, f: Fleet, day: int, home: bool) -> int:
-	var pct := _council_sum(state, f.owner, "damage_pct") + memorial_fx(state, f.owner, "damage_pct")
+	var pct := _council_sum(state, f.owner, "damage_pct") + memorial_fx(state, f.owner, "damage_pct") + Rulers.fleet_damage_pct(state, f)
 	var h := at_post(state, "fleet", f.id, f.owner)
 	if not h.is_empty():
 		@warning_ignore("integer_division")
@@ -453,7 +456,7 @@ static func damage_pct(state: GameState, f: Fleet, day: int, home: bool) -> int:
 ## Bonus de production (%) d'une ressource pour une colonie : gouverneur du système (et ses traits),
 ## Intendants du conseil.
 static func production_pct(state: GameState, owner: int, system_id: int, resource: String) -> int:
-	if state.heroes.is_empty():
+	if state.heroes.is_empty() and state.rulers.is_empty():
 		return 0
 	var all := production_pcts(state, owner, system_id)
 	return int(all.get(resource, all["*"]))
@@ -462,7 +465,7 @@ static func production_pct(state: GameState, owner: int, system_id: int, resourc
 ## Les mêmes bonus pour toutes les ressources d'un coup : "*" pour toutes, plus une entrée par
 ## ressource que favorise un trait du gouverneur (un seul parcours des héros par colonie).
 static func production_pcts(state: GameState, owner: int, system_id: int) -> Dictionary:
-	var pct := _council_sum(state, owner, "prod_pct") + memorial_fx(state, owner, "prod_pct")
+	var pct := _council_sum(state, owner, "prod_pct") + memorial_fx(state, owner, "prod_pct") + Rulers.capital_prod_pct(state, owner, system_id)
 	var out := {}
 	var h := at_post(state, "system", system_id, owner)
 	if not h.is_empty():
@@ -478,7 +481,7 @@ static func production_pcts(state: GameState, owner: int, system_id: int) -> Dic
 
 ## Revenu mensuel des héros : Orateurs du conseil, traits « quel que soit son poste » (héros affectés).
 static func income(state: GameState, empire_id: int) -> Dictionary:
-	var out := {}
+	var out := Rulers.income(state, empire_id)
 	var inf := _council_sum(state, empire_id, "influence")
 	if inf != 0:
 		out["influence"] = inf
@@ -511,7 +514,7 @@ static func income(state: GameState, empire_id: int) -> Dictionary:
 
 ## Chiffrement en plus (Ombres du conseil) : un point par tranche de deux niveaux, arrondi au-dessus.
 static func encryption(state: GameState, empire_id: int) -> int:
-	var n := 0
+	var n := Rulers.encryption(state, empire_id)
 	for h in council(state, empire_id):
 		if String(h["cls"]) == "ombre" or int((data()["per_level"]["council"].get(String(h["cls"]), {}) as Dictionary).get("encryption_half", 0)) > 0:
 			@warning_ignore("integer_division")
@@ -594,6 +597,7 @@ static func post_effect_text(state: GameState, h: Dictionary) -> String:
 static func act(state: GameState, empire_id: int, kind: String, n := 1) -> void:
 	Politics.on_act(state, empire_id, kind, n)
 	Deeds.note(state, empire_id, kind, n)
+	Rulers.note(state, empire_id, kind, n)
 	var a: Dictionary = (data()["acts"] as Dictionary).get(kind, {})
 	if a.is_empty() or state.get_empire(empire_id) == null or state.heroes.is_empty() and state.hero_meta.is_empty():
 		return
@@ -888,7 +892,7 @@ static func gain_xp(state: GameState, h: Dictionary, n: int) -> void:
 ## Traits qu'un héros peut encore gagner : ceux de son peuple (people) ou de sa classe, sinon l'autre réserve.
 static func _free_traits(state: GameState, h: Dictionary, people: bool) -> Array[String]:
 	var own_pool := people_traits_of(GameData.faction(String(h["sp"]))) if String(h.get("sp", "")) != "" else people_traits(state, int(h["owner"]))
-	var pools := [own_pool, class_traits(String(h["cls"]))]
+	var pools := [own_pool, class_traits(String(h["cls"]), state)]
 	if not people:
 		pools.reverse()
 	for pool: Array[String] in pools:
@@ -955,6 +959,7 @@ static func daily(state: GameState) -> Array[Dictionary]:
 	if state.heroes.is_empty() and state.hero_meta.is_empty():
 		return out
 	var monthly := posmod(state.tick, 30) == 0
+	HeroFall.daily(state, out)
 	for id in ids_of(state, -1):
 		if not state.heroes.has(id):
 			continue
@@ -973,14 +978,18 @@ static func daily(state: GameState) -> Array[Dictionary]:
 			"fleet":
 				var f: Fleet = state.fleets.get(target)
 				if f == null or f.owner != owner:
-					_wound(state, h, out, "sa flotte a été anéantie", _fleet_captor(state, h))
+					HeroFall.blow(state, h, out, "sa flotte a été anéantie", _fleet_captor(state, h), "fleet")
 				else:
 					h["at"] = f.system_id
+					if h.has("flag_hit"):
+						h.erase("flag_hit")
+						if HeroFall.flagship_hit(state, h, out):
+							continue
 			"system":
 				if state.system_owner(target) != owner:
 					var captor := state.system_owner(target)
-					_wound(state, h, out, "%s est tombé" % state.galaxy.systems[target].system_name,
-							captor if captor >= 0 and Combat.at_war(state, owner, captor) else -1)
+					HeroFall.blow(state, h, out, "%s est tombé" % state.galaxy.systems[target].system_name,
+							captor if captor >= 0 and Combat.at_war(state, owner, captor) else -1, "system")
 			"council":
 				if target >= seats(state, owner):
 					h["post"] = ""
@@ -1192,7 +1201,9 @@ static func die(state: GameState, h: Dictionary, why: String, out: Array[Diction
 	var mem: Dictionary = data()["memorial"]
 	var credo := String(e.faction().get("species", {}).get("credo", "")) if e else ""
 	var text := "%s %s." % [h["name"], why]
-	if e and (int(h["lvl"]) >= int(mem["min_lvl"]) or int(tl.get("saint", 0)) > 0) and (mem["credo"] as Dictionary).has(credo):
+	# Credo Honneur : une mort au combat laisse toujours un souvenir (étude « Souverain et dynastie », prop. 31).
+	var brave := int(h.get("fell", 0)) > 0 and credo == "honneur"
+	if e and (int(h["lvl"]) >= int(mem["min_lvl"]) or int(tl.get("saint", 0)) > 0 or brave) and (mem["credo"] as Dictionary).has(credo):
 		var m := meta(state, owner)
 		if not m.has("memorials"):
 			m["memorials"] = []

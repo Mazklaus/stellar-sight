@@ -642,6 +642,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_d := DeedsBridges.spy_check(state, a, b, op_id)
 		if why_d != "":
 			return why_d
+	if bool(o.get("rulers", false)):
+		var why_r := RulersBridges.spy_check(state, a, b, op_id)
+		if why_r != "":
+			return why_r
 	match op_id:
 		"prophetie":
 			var why := FaithWars.check_prophecy(state, a, b)
@@ -813,6 +817,8 @@ static func _resolve(state: GameState, op: Dictionary) -> void:
 		return
 	if ok and bool(o.get("deeds", false)):
 		DeedsBridges.spy_exposed(state, a, b)
+	if bool(o.get("rulers", false)):
+		RulersBridges.spy_exposed(state, a, b, String(o["id"]), ok)
 	_discovered(state, a, b, o, ok, what)
 
 
@@ -838,6 +844,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return WondersBridges.spy_apply(state, a, b, o)
 	if bool(o.get("deeds", false)):
 		return DeedsBridges.spy_apply(state, a, b, o)
+	if bool(o.get("rulers", false)):
+		return RulersBridges.spy_apply(state, a, b, o)
 	match String(o["id"]):
 		"rapport":
 			ea.dossiers[b] = dossier(state, b, data()["tiers"].size())

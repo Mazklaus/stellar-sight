@@ -94,6 +94,11 @@ static func war_act(player: int, act: String, x := -1, s := "") -> Dictionary:
 	return {"type": "war_act", "player": player, "act": act, "x": x, "s": s}
 
 
+## Souverain (voir Rulers) : act = power | post | law | educate | legacy | marry | abdicate.
+static func ruler_act(player: int, act: String, x := -1, s := "") -> Dictionary:
+	return {"type": "ruler_act", "player": player, "act": act, "x": x, "s": s}
+
+
 ## Frontières (voir Borders.check_act) : "policy" (x = empire, s = politique), "summon" (x = intrus),
 ## "pass" (x = propriétaire, y = flotte : laissez-passer), "toll" (x = péage), "arbiter" (x, y : libre-passage
 ## imposé par l'Arbitre), "answer_pass" (x = demande, y = 1 accepter / 0 refuser).
@@ -818,6 +823,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Borders.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), int(cmd.get("y", -1)), String(cmd.get("s", "")))
 		"war_act":
 			return Wars.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")))
+		"ruler_act":
+			return Rulers.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("x", -1)), String(cmd.get("s", "")))
 		"propose_treaty":
 			return Diplomacy.check_propose(state, int(cmd["player"]), int(cmd.get("target", -1)), String(cmd.get("treaty", "")))
 		"answer_proposal":
@@ -1264,6 +1271,9 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Borders.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), int(cmd.get("y", -1)), String(cmd.get("s", "")))
 		"war_act":
 			Wars.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")))
+		"ruler_act":
+			var ra_added: Array[Dictionary] = []
+			Rulers.act(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("x", -1)), String(cmd.get("s", "")), ra_added)
 		"propose_treaty":
 			Diplomacy.propose(state, int(cmd["player"]), int(cmd["target"]), String(cmd["treaty"]))
 		"answer_proposal":

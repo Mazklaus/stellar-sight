@@ -414,3 +414,13 @@ three rival unfinished orbital megastructure construction sites side by side abo
 ```
 a vast orbital hall of archives with a giant glowing timeline frieze running along the walls, scribes of several alien species engraving a new triumphant entry in light, a winning admiral receiving a laurel-like halo of stars, a rival ambassador rushing in breathless and too late, grand ceremony and gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-42 · Le trône et la lignée
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Le trône et la lignée »
+- Sujet : Dans une salle du trône taillée dans un astéroïde, une vieille reine couronnée tend un sceptre d'étoiles à sa jeune héritière, sous les portraits peints de leurs ancêtres de plusieurs espèces, pendant qu'un régent ambitieux observe depuis l'ombre d'une colonne
+
+```
+a grand throne hall carved inside an asteroid, an aged crowned queen in an ermine mantle handing a sceptre of starlight to her young heir kneeling on the steps, a long gallery of painted ancestor portraits of several alien species lining the walls, an ambitious regent watching from the shadow of a pillar, banners of a noble house, solemn dynastic ceremony with a hint of intrigue epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

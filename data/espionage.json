@@ -63,6 +63,51 @@
 	],
 	"operations": [
 		{
+			"id": "assassiner_souverain",
+			"family": "sabotage",
+			"label": "Assassiner le souverain",
+			"tier": 4,
+			"cost": {
+				"influence": 150
+			},
+			"days": 90,
+			"success": 15,
+			"discovery": 60,
+			"spend": 40,
+			"rulers": true,
+			"text": "Souverains : son souverain meurt, la succession s'ouvre. Très cher, presque toujours raté ; découvert, c'est un incident diplomatique majeur."
+		},
+		{
+			"id": "soutenir_pretendant",
+			"family": "intrigue",
+			"label": "Soutenir un prétendant",
+			"tier": 3,
+			"cost": {
+				"influence": 70
+			},
+			"days": 60,
+			"success": 50,
+			"discovery": 40,
+			"spend": 25,
+			"rulers": true,
+			"text": "Souverains : -15 de légitimité à son souverain, et le compte à rebours d'un prétendant avance de six mois s'il est déjà contesté."
+		},
+		{
+			"id": "reveler_batardise",
+			"family": "intrigue",
+			"label": "Révéler une bâtardise",
+			"tier": 2,
+			"cost": {
+				"influence": 40
+			},
+			"days": 45,
+			"success": 60,
+			"discovery": 30,
+			"spend": 15,
+			"rulers": true,
+			"text": "Souverains : son premier héritier est déclaré bâtard ; il aura 15 de légitimité de moins s'il monte sur le trône."
+		},
+		{
 			"id": "rapport",
 			"family": "renseignement",
 			"label": "Rapport complet",

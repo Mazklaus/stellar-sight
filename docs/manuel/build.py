@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.20"
+EDITION = "2.21"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -794,6 +794,74 @@ def gen_hauts_faits_trophees():
     return f"<table class='grille'><tr><th>Trophée</th><th>Effet</th></tr>{lignes}</table>"
 
 
+def gen_souverains_modes():
+    """Réglages Souverains et Mort au combat (data/rulers.json, data/heroes.json)."""
+    d = charger("rulers.json")
+    h = charger("heroes.json")["combat_death"]
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    l2 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == h.get('default') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in h["modes"])
+    return (f"<table class='grille'><tr><th>Souverains</th><th>Effet</th></tr>{l1}</table>"
+            f"<table class='grille'><tr><th>Mort au combat</th><th>Effet</th></tr>{l2}</table>")
+
+
+NOMS_GOUV = {"feodalite": "Féodalité", "theocratie": "Théocratie", "republique": "République", "syndicat": "Syndicat",
+             "horde": "Horde", "ruche": "Ruche", "conscience": "Conscience"}
+
+
+def gen_successions():
+    """Succession selon le gouvernement (data/rulers.json, succession)."""
+    d = charger("rulers.json")
+    lignes = "".join(f"<tr><td><b>{esc(NOMS_GOUV.get(g, g))}</b></td><td>{esc(v['label'])}</td><td>{esc(' / '.join(dict.fromkeys(v['title'])))}</td><td>{inline(v['text'])}</td></tr>"
+                     for g, v in d["succession"].items())
+    return f"<table class='grille'><tr><th>Gouvernement</th><th>Succession</th><th>Titre</th><th>Règle</th></tr>{lignes}</table>"
+
+
+NOMS_COURANTS = {"forge": "Forge", "academie": "Académie", "concorde": "Concorde", "seve": "Sève", "autel": "Autel", "glaive": "Glaive"}
+
+
+def gen_archetypes_regne():
+    """Archétypes de règne et leurs pouvoirs (data/rulers.json, archetypes)."""
+    d = charger("rulers.json")
+    lignes = "".join(f"<tr><td><b>{esc(a['label'])}</b><br><span class='petit'>{esc(a['text'])}</span></td><td><b>{esc(a['power']['label'])}</b> : {inline(a['power']['text'])}</td><td>{esc(NOMS_COURANTS.get(a.get('current', ''), ''))}</td></tr>"
+                     for a in d["archetypes"].values())
+    return f"<table class='grille'><tr><th>Archétype</th><th>Pouvoir (recharge de deux ans)</th><th>Courant</th></tr>{lignes}</table>"
+
+
+FAM_SURNOMS = {"guerre": "Guerre", "paix": "Paix", "batir": "Bâtir", "savoir": "Savoir", "foi": "Foi", "echange": "Échanges",
+               "ombre": "Ombres", "malheur": "Malheurs", "temps": "Le temps", "gloire": "Gloire", "couche": "Propres à un peuple"}
+
+
+def gen_surnoms():
+    """Les surnoms, par famille (data/rulers.json, cognomens)."""
+    d = charger("rulers.json")
+    fams = {}
+    for c in d["cognomens"]:
+        fams.setdefault(c.get("fam", "regne"), []).append(c)
+    out = ""
+    for fam, cs in fams.items():
+        noms = ", ".join(esc(c["m"]) + (f" / {esc(c['f'])}" if c.get("f") and c["f"] != c["m"] else "") for c in cs)
+        out += f"<p><b>{esc(FAM_SURNOMS.get(fam, fam.capitalize()))}</b> ({len(cs)}) : {noms}.</p>"
+    amb = ", ".join(esc(a["cog"]["m"]) for a in d["ambitions"] if a.get("cog"))
+    return out + f"<p><b>Ambitions accomplies</b> ({len(d['ambitions'])}) : {amb}.</p>"
+
+
+def gen_ambitions():
+    """Ambitions du souverain (data/rulers.json, ambitions)."""
+    d = charger("rulers.json")
+    lignes = "".join(f"<tr><td><b>{esc(a['label'])}</b></td><td>{inline(a.get('text', ''))}</td><td>{esc(a['cog']['m'])}</td></tr>" for a in d["ambitions"])
+    return f"<table class='grille'><tr><th>Ambition</th><th>Condition</th><th>Surnom</th></tr>{lignes}</table>"
+
+
+def gen_heritages():
+    """Héritages de la maison, ou traditions d'État (data/rulers.json, legacies)."""
+    d = charger("rulers.json")
+    lignes = ""
+    for t in d["legacies"].values():
+        niv = " ; ".join(f"<b>{esc(l['label'])}</b> ({l['cost']}) : {inline(l.get('text', ''))}" for l in t["levels"])
+        lignes += f"<tr><td><b>{esc(t['label'])}</b></td><td>{niv}</td></tr>"
+    return f"<table class='grille'><tr><th>Voie</th><th>Niveaux (coût en renom)</th></tr>{lignes}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -810,6 +878,8 @@ GENERATEURS = {
     "merveilles_modes": gen_merveilles_modes, "merveilles": gen_merveilles,
     "hauts_faits_modes": gen_hauts_faits_modes, "hauts_faits": gen_hauts_faits,
     "hauts_faits_recompenses": gen_hauts_faits_recompenses, "hauts_faits_trophees": gen_hauts_faits_trophees,
+    "souverains_modes": gen_souverains_modes, "successions": gen_successions, "archetypes_regne": gen_archetypes_regne,
+    "surnoms": gen_surnoms, "ambitions_souverain": gen_ambitions, "heritages": gen_heritages,
 }
 
 
