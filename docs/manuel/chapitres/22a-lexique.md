@@ -16,7 +16,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Amphictyonie, amphictyon | L'assemblée galactique et ses membres | 12 |
 | Annales | La frise des grands moments de votre empire (Chroniques) ; et une victoire en option : un tiers des hauts faits et la première Gloire, tenus deux ans | 24 |
 | Arbitre des étoiles | Conseiller élu de la Haute Voûte, qui peut geler, clore ou imposer une trêve | 12 |
-| Archétype | Le corps d'un peuple : humanoïde, ruche, synthétique, reptilien, énergétique, lithoïde | 25, 26 |
+| Archétype | Le corps d'un peuple : humanoïde, ruche, synthétique, reptilien, énergétique, lithoïde | 26, 27 |
 | Associé | Membre d'un Koinon sans voix ni bonus de forme, protégé et soumis aux lois | 11 |
 | Avant-poste | Revendication sans habitants, qui exploite les gisements et étend la vision | 3 |
 | Avatar | Le héros d'une ruche ou d'une conscience : ni ambition, ni désertion, ni capture | 16 |
@@ -40,6 +40,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Coupée | Flotte hors de sa zone de ravitaillement dont tous les chemins de retour sont barrés par l'ennemi : réserves deux fois plus vite épuisées (logistique complète) | 7 |
 | Cour impériale | Les sujets de l'Impérateur, sous un préréglage verrouillé | 10, 12 |
 | Courant | L'une des six familles politiques de la roue : Forge, Académie, Concorde, Sève, Autel, Glaive | 14 |
+| Couronne vacillante | La première année d'un règne : -10 de légitimité, et les rivaux paient leurs revendications moitié prix | 25 |
 | Credo | Ce en quoi un peuple croit : honneur, foi, raison, profit, survie | 20 |
 | Crise de fin de partie | Puissance hostile à tous qui arrive après l'an 30 (réglable) : Récif chantant, Inspection Générale, Déchirure, Nuit lente, Grand Krach, Roi-Corsaire | 19 |
 | Crise diplomatique | Trente jours d'escalade avant une guerre : ralliés, recul ou guerre | 7 |
@@ -63,13 +64,13 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Ferveur | Jauge propre aux théocraties du Chœur et des Murmurants | 20 |
 | Fin de partie | Date à partir de laquelle une crise peut se lever, avancée par les actes imprudents | 19 |
 | Fléau des étoiles | Le dernier palier de l'Ambition démesurée : guerre de toute la galaxie, et la Couronne du Néant à bâtir | 19 |
-| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 27 |
+| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 28 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
 | Fortifications | Remparts d'un système, que le siège use avant la milice (combat au sol complet) | 7 |
 | Fouille | Site exploré en plusieurs chapitres, avec une relique au bout | 17 |
 | Front commun | Coalition contre la crise : vision partagée, passage libre, +10 % de dégâts contre elle | 19 |
 | Frontière | Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe | 8 |
-| Gardien | Créature unique assise sur un des meilleurs systèmes | 27 |
+| Gardien | Créature unique assise sur un des meilleurs systèmes | 28 |
 | Gloire | Valeur d'empire gagnée par les hauts faits et les grands moments, jamais perdue | 24 |
 | Grand chantier | Chantier de merveille, à part de la file de la colonie : avance de 20 %, puis mensualités ; un à la fois | 23 |
 | Grand chantier commun | Phare des Âges ou Banque des Étoiles : le projet que tous financent pour arrêter une crise sans flotte | 19 |
@@ -80,17 +81,20 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Haut fait | Course à un seul gagnant (« premier à… », record d'ère) : Gloire et récompense au choix | 24 |
 | Haute Voûte | Le haut conseil de l'Amphictyonie : veto, urgence, dénonciation | 12 |
 | Hérésie, schisme | Une foi fille née d'une foi faible ; devenue assez grande, elle fait schisme | 15 |
+| Héritage (maison) | Bonus permanent acheté avec le renom des règnes achevés ; traditions d'État sans dynastie | 25 |
 | Héritiers | Les repaires pirates qui naissent de la mort du Roi-Corsaire | 19 |
 | Hors-la-loi | Celui qui a enfreint le Nomos : sanctions, puis bannissement | 12 |
 | Idole des étoiles | Victoire du credo Plaisir : Influent chez 60 % de la population étrangère | 22 |
 | Impérateur | L'Arbitre à vie qui a reçu les pleins pouvoirs | 12 |
 | Infamie | Marque d'un haut fait infâme : -15 d'opinion chez tous pendant dix ans | 24 |
 | Intégration | L'adaptation d'une espèce dans une colonie, de 0 à 100 % ; ou l'absorption d'un sujet | 3, 10 |
+| Interrègne | Le temps où le trône reste vide (Conclave, Épreuve, couvée royale) | 25 |
 | Intrusion | Flotte entrée sans droit de passage chez un empire rencontré : souvenir, puis -1 par mois si elle reste | 8 |
 | Kanly | Guerre limitée des peuples féodaux : ni monde peuplé envahi, ni parjure | 7 |
 | Koinon | Ligue de deux à six empires, avec synode, Stratège et lois | 11 |
 | Laissez-passer | Droit de passage d'une flotte précise pendant 90 jours, demandé contre 15 influence | 8 |
 | Lassitude | Ce que coûte une guerre qui dure ; avec les buts de guerre, de 0 à 100 % par camp (stabilité, reddition, statu quo) | 7 |
+| Légitimité | L'acceptation du souverain, de 0 à 100 : surnoms, ambitions, sacre ; sous 25, des prétendants | 25 |
 | Lentille | Lecture de la carte : économie, stabilité, politique, commerce, peuples, foi, Amphictyonie, guerre, frontières | 2 |
 | Libre-échange | Troisième palier du commerce ; et une loi qui double le revenu des routes | 9, 14 |
 | Libre-passage | Traité réciproque qui ouvre à chacun l'espace de l'autre ; dénoncé avec 90 jours de préavis | 8 |
@@ -128,15 +132,17 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Pré-spatial | Peuple mineur qui n'a pas quitté son monde et traverse six âges | 21 |
 | Préavis | L'IA masse ses flottes avant de déclarer ; les espions le voient | 7 |
 | Précepte | Règle partagée par tous les empires d'une foi | 15 |
+| Prétendant | Rival qui se proclame quand la légitimité reste sous 25 un an ; et une opération d'espionnage | 25 |
 | Protectorat | Lien de sujet d'un empire faible qui a demandé protection | 10 |
 | Rayonnement | Points de culture par mois qui partent vers chaque empire rencontré et s'y cumulent | 22 |
 | Recrues | Réserve d'hommes de l'empire, versée chaque mois par les colonies, que coûte chaque régiment | 7 |
 | Reddition | Devenir vassal au lieu de disparaître | 8 |
+| Régence | Le gouvernement d'un souverain mineur par un régent : pas de guerre, légitimité qui s'use | 25 |
 | Régiment | Unité de combat au sol, recrutée sur une colonie, transportée par les flottes | 7 |
 | Registre | Le ton d'un peuple : grimdark, médiéval spatial, space opera héroïque… | 20 |
 | Registre des traités | Toutes les paix signées, leurs clauses et leurs échéances | 8 |
-| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 28 |
-| Renom | La gloire d'un empire, qui attire les héros | 16 |
+| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 29 |
+| Renom | La gloire d'un empire, qui attire les héros ; et celui d'une maison, qui achète ses héritages | 16, 25 |
 | Réquisition | Refaire les réserves d'une flotte sur le dos d'un système assiégé : crime de guerre (logistique complète) | 7 |
 | Réserves | Les jours de ravitaillement qu'emporte une flotte de guerre loin de ses bases, 120 au départ | 7 |
 | Révélation | La naissance d'une grande foi | 15 |
@@ -148,11 +154,13 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Score de guerre | Les vaisseaux détruits et les systèmes pris, qui paient la paix | 7 |
 | Session extraordinaire | Vote d'urgence de l'Amphictyonie après une crise | 12 |
 | Sommation | Ordre à un intrus de quitter votre espace sous 30 jours ; ignorée, elle donne un motif de guerre | 8 |
+| Souverain | La tête de l'empire, hors limite de héros : aptitudes, archétype de règne, légitimité, surnoms | 25 |
 | Stabilité | L'humeur d'un système, de 0 à 100 | 14 |
 | Statu quo | Paix où chacun garde ce qu'il tient et revendique | 7 |
 | Stratège | Une classe de héros ; et le chef élu d'un Koinon | 16, 11 |
 | Stratégique | Ressource qui s'ouvre avec les ères, consommée au Chantier | 9 |
 | Sujet, suzerain | L'empire lié par clauses, et celui qui le tient | 10 |
+| Surnom | Ce que le règne a valu au souverain (« la Vaillante ») : il compte dans la légitimité | 25 |
 | Synode | L'assemblée d'un Koinon | 11 |
 | Talent | Ce que donne une couche d'espèce dans un domaine du jeu | 20 |
 | Tempête cosmique | Zone mobile dès la 10e année, qui coupe ravitaillement et commerce mais rapporte du Savoir | 7 |

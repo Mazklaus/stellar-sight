@@ -1335,7 +1335,7 @@ static func _general_after(state: GameState, b: Dictionary, winner: int, how: St
 			Heroes.gain_xp(state, h, int(Heroes.data()["xp"].get("battle_won", 60)))
 		elif how == "held" or how == "retreat":
 			var out: Array[Dictionary] = []
-			Heroes._wound(state, h, out, "défait au sol sur %s" % _sys(state, sid), int(b["d"]))
+			HeroFall.blow(state, h, out, "défait au sol sur %s" % _sys(state, sid), int(b["d"]), "army")
 
 
 ## Rapports de bataille au sol qu'un empire peut lire (les siens), du plus récent au plus ancien.

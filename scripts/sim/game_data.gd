@@ -155,6 +155,12 @@ static func deeds() -> Dictionary:
 	return _load("deeds")
 
 
+## Souverains et dynasties (data/rulers.json) : réglages, titres, archétypes, lois, surnoms, ambitions,
+## héritages, funérailles, galerie de portraits, cartes.
+static func rulers() -> Dictionary:
+	return _load("rulers")
+
+
 ## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.
 static func wonders() -> Dictionary:
 	return _load("wonders")

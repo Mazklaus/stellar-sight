@@ -383,6 +383,10 @@ static func _damage_bonus(state: GameState, b: Dictionary, f: Fleet, sid: int) -
 static func _apply_damage(state: GameState, b: Dictionary, fighters: Array[Fleet], pending: Dictionary, day_log := {}) -> void:
 	for f in fighters:
 		var lost_any := false
+		# Mort au combat (voir HeroFall) : plus gros vaisseau et capsules, seulement si un chef y est.
+		var watch := HeroFall.watched(state, f)
+		var top := HeroFall.top_strength(f) if watch else 0
+		var surv := Combat._fleet_has_flag(f, "survival") if watch else false
 		for i in range(f.ships.size() - 1, -1, -1):
 			var dmg := int(pending.get(Vector2i(f.id, i), 0))
 			if dmg <= 0:
@@ -399,6 +403,8 @@ static func _apply_damage(state: GameState, b: Dictionary, fighters: Array[Fleet
 				lost_any = true
 		if lost_any:
 			f.troops = mini(f.troops, Combat.max_troops(f, state))
+			if watch:
+				HeroFall.on_losses(state, f, top, surv)
 		if f.ships.is_empty():
 			state.fleets.erase(f.id)
 
@@ -456,6 +462,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 			Wars.on_battle(state, int(o["empire"]), int(s["empire"]), pts)
 	Reputation.battle(state, b, winner)
 	Heroes.on_battle(state, b, winner)
+	Rulers.on_battle(state, b, winner)
 	Relics.on_battle(state, b, winner, added)
 	Quests.on_battle(state, b, winner)
 	Politics.on_battle(state, b, winner)

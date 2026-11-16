@@ -43,6 +43,7 @@ etiquette: Annexe
 | Victoires | [[F7]] |
 | Renseignement | [[F8]] |
 | Panthéon | [[F10]] |
+| Trône | [[Maj]]+[[F10]], ou clic sur le nom de l'empire |
 | Ordre intérieur | [[F12]] |
 | Sénat | [[P]] |
 | Foi | [[Y]] |

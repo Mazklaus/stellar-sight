@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.21
+
+- **Le trône et la lignée** (chapitre 25), nouveaux réglages **Souverains** (mortels, immortels, aucun) et **Mort au combat** (jamais, rare, normale, brutale) : un **souverain** par empire, hors limite de héros, avec un portrait tiré d'une galerie de **59 portraits**, quatre **aptitudes**, huit **archétypes de règne** et leurs pouvoirs, une **légitimité** nourrie par plus de **cent surnoms** et **27 ambitions**, la **Couronne vacillante**, le poste au palais ou au front ; écran **Trône** ([[Maj]]+[[F10]]).
+- **Successions** selon le gouvernement (dynastie, Conclave, élection, conseil des actionnaires, Épreuve, Reine-mère, Itérations), **funérailles**, **dynastie** (lois de succession, héritiers et éducation, Cour, régence, bâtards, extinction et union personnelle, mariages, étoile montante, prétendants), **héritages de la maison** et traditions d'État.
+- **Mort des héros au combat**, traits **Trompe-la-mort** et **Téméraire**, module **Capsules de survie**, Avatars qui se reforment, synthétiques sauvegardés, fenêtre d'hommage et noms des tombés dans le rapport de bataille. **Ponts** : sacre et Pontife, coup d'État et crise de régime, opérations **Assassiner le souverain**, **Soutenir un prétendant** et **Révéler une bâtardise**, motif **Guerre de succession** et but **Imposer un héritier**, titres de hauts faits devenus surnoms. Chapitres 26 à 29 renumérotés.
+
 ### Édition 2.20
 
 - **Les hauts faits** (chapitre 24), nouveau réglage **Hauts faits** (tous, premières seules, aucun) et case **Âges d'or** : courses à **un seul gagnant** (égalité le même mois partagée, un quart de la Gloire aux suivants), **73 hauts faits** en données en neuf familles (Premières, records d'ère tirés quatre par ère, hauts faits de couche, **infâmes**, **secrets**), **Gloire** jamais perdue (affinité ×2, rattrapage +25 %), **récompense au choix** parmi trois dans une fenêtre, douze **Trophées**, cinq **titres** dont le Bâtisseur.

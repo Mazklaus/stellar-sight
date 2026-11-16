@@ -1,0 +1,3468 @@
+{
+	"_sources": "Étude « Souverain et dynastie » (2026-11-16) : https://claude.ai/artifact/Rw92e3GA38KQSgbnFQexbR. Old World (notes de conception n° 7, cognomen, Cour, ambitions), Crusader Kings III (succession, régence, renom de dynastie), Stellaris (Leader 3.10 : durée de vie, mort au combat, funérailles ; autorités), Europa Universalis IV (régence, union personnelle).",
+	"_doc": "Catalogue ouvert : titres, archétypes, lois, surnoms, ambitions, héritages, funérailles et portraits s'ajoutent ici sans toucher au code. Les mesures des surnoms et ambitions : src \"r\" = compteur du règne (actes depuis l'avènement), \"sd\" = mesure d'état gagnée depuis l'avènement, \"s\" = mesure d'état actuelle (DeedsEval.value), \"sp\" = mesure propre au souverain (reign_years, age, peace_years, lost_systems, capital_lost, legit, terms, perjury, weak, idle).",
+	"modes": [
+		{
+			"id": "mortels",
+			"label": "Mortels",
+			"text": "Chaque empire a un souverain qui vieillit, règne et meurt ; la succession suit le gouvernement."
+		},
+		{
+			"id": "immortels",
+			"label": "Immortels",
+			"text": "Un souverain par empire, mais il ne meurt jamais : pas de succession, ni dynastie ni régence."
+		},
+		{
+			"id": "aucun",
+			"label": "Aucun",
+			"text": "Pas de souverain : les empires n'ont pas de tête."
+		}
+	],
+	"default_mode": "mortels",
+	"rules": {
+		"check_days": 30,
+		"offset": 11,
+		"start_age": [
+			30,
+			52
+		],
+		"majority": 16,
+		"education_age": 10,
+		"max_cognomens": 4,
+		"past_cognomen_ruler": 6,
+		"legit_max": 100,
+		"legit_high": 75,
+		"legit_high_stab": 5,
+		"legit_low": 25,
+		"legit_low_stab": -5,
+		"legit_adj_min": -40,
+		"legit_adj_max": 40,
+		"victory_adj": 1,
+		"defeat_adj": -1,
+		"system_lost_adj": -2,
+		"capital_lost_adj": -15,
+		"regency_month_adj": -1,
+		"power_cooldown_days": 720,
+		"ambition_days": 60,
+		"ambition_legit": 15,
+		"wobbly_days": 360,
+		"wobbly_war_cost_pct": -50,
+		"memory_halve": true,
+		"vacancy_days": {
+			"conclave": 60,
+			"epreuve": 90,
+			"reine": 360
+		},
+		"republic_term_days": 1080,
+		"republic_max_terms": 2,
+		"noconfidence_quarters": 2,
+		"parachute": {
+			"energy": 60
+		},
+		"iteration_years": 20,
+		"iteration_capital_adj": -20,
+		"queenless_fx": {
+			"production_pct": {
+				"all": -20
+			}
+		},
+		"accident_per_10000_month": 4,
+		"front_death_pct": 10,
+		"front_wound_days": 120,
+		"abdicate_adj": -10,
+		"extinction_legit": 10,
+		"extinction_unrest_days": 720,
+		"star_margin": 15,
+		"star_buy": {
+			"influence": 60
+		},
+		"star_set_aside_loyalty": -15,
+		"pretender_legit": 25,
+		"pretender_days": 360,
+		"renown_month_legit": 50,
+		"renown_per_cognomen": 15,
+		"renown_death_div": 2,
+		"funeral_days": 1800,
+		"court_size": 3,
+		"court_pct": 50,
+		"birth_every_days": [
+			1440,
+			2880
+		],
+		"max_children": 5,
+		"regent_refuse_pct": 15,
+		"marriage_opinion": 20,
+		"union_vassal": true,
+		"law_change": {
+			"influence": 80
+		},
+		"law_change_adj": -10,
+		"partage_fiefs": 1
+	},
+	"aptitudes": {
+		"gestion": {
+			"label": "Gestion",
+			"cls": "intendant",
+			"text": "+%d %% de production dans tout l'empire.",
+			"per": 2
+		},
+		"guerre": {
+			"label": "Guerre",
+			"cls": "stratege",
+			"text": "+%d %% de dégâts pour toutes les flottes (le double pour celle qu'il commande).",
+			"per": 2
+		},
+		"eloquence": {
+			"label": "Éloquence",
+			"cls": "orateur",
+			"text": "+%d influence par mois.",
+			"per": 1
+		},
+		"intrigue": {
+			"label": "Intrigue",
+			"cls": "ombre",
+			"text": "Opérations d'espionnage %d %% moins chères, chiffrement renforcé.",
+			"per": 3
+		}
+	},
+	"apt_max": 6,
+	"succession": {
+		"feodalite": {
+			"kind": "dynastie",
+			"title": [
+				"Roi",
+				"Reine"
+			],
+			"label": "Dynastie",
+			"text": "L'héritier désigné par la loi de succession monte sur le trône."
+		},
+		"theocratie": {
+			"kind": "conclave",
+			"title": [
+				"Pontife",
+				"Pontife"
+			],
+			"label": "Conclave",
+			"text": "À la mort du Pontife, le siège reste vacant soixante jours, puis le Conclave élit le plus digne des fidèles ; plus la ferveur est haute, plus l'élu est légitime."
+		},
+		"republique": {
+			"kind": "election",
+			"title": [
+				"Premier Archonte",
+				"Première Archonte"
+			],
+			"label": "Élection",
+			"text": "Le chef du courant vainqueur de l'élection devient Premier Archonte, pour deux mandats au plus."
+		},
+		"syndicat": {
+			"kind": "conseil",
+			"title": [
+				"Directeur général",
+				"Directrice générale"
+			],
+			"label": "Conseil des actionnaires",
+			"text": "Le conseil nomme le plus ambitieux des financiers ; si le revenu d'énergie baisse deux trimestres de suite, il vote la défiance."
+		},
+		"horde": {
+			"kind": "epreuve",
+			"title": [
+				"Khan",
+				"Khatun"
+			],
+			"label": "L'Épreuve",
+			"text": "À la mort du Khan, les meilleurs stratèges s'affrontent pendant quatre-vingt-dix jours ; le vainqueur prend les rênes."
+		},
+		"ruche": {
+			"kind": "reine",
+			"title": [
+				"Reine-mère",
+				"Reine-mère"
+			],
+			"label": "Reine-mère",
+			"text": "La Reine-mère ne meurt pas tant que la capitale tient. Si elle tombe, la ruche attend un an l'éclosion d'une couvée royale."
+		},
+		"conscience": {
+			"kind": "iteration",
+			"title": [
+				"Nœud premier",
+				"Nœud premier"
+			],
+			"label": "Itérations",
+			"text": "Le Nœud premier ne meurt pas ; tous les vingt ans, il se réécrit et change d'archétype de règne."
+		}
+	},
+	"immortal_kinds": [
+		"reine",
+		"iteration"
+	],
+	"no_front_kinds": [
+		"reine"
+	],
+	"hereditary_kinds": [
+		"dynastie"
+	],
+	"archetypes": {
+		"batisseur": {
+			"label": "Bâtisseur",
+			"text": "Pense en pierres et en siècles.",
+			"fx": {
+				"building_cost_pct": -5
+			},
+			"power": {
+				"label": "Grand chantier",
+				"text": "Pendant 180 jours : bâtiments 25 % moins chers, merveilles 25 % plus rapides.",
+				"days": 180,
+				"fx": {
+					"building_cost_pct": -25,
+					"wonder_speed_pct": 25
+				}
+			},
+			"current": "forge",
+			"credo": [
+				"survie"
+			],
+			"cls": [
+				"intendant"
+			]
+		},
+		"conquerant": {
+			"label": "Conquérant",
+			"text": "Ne voit sur la carte que des frontières provisoires.",
+			"fx": {
+				"ship_days_pct": -5
+			},
+			"power": {
+				"label": "Offensive",
+				"text": "Pendant 60 jours : +20 % de dégâts et +15 % de vitesse pour toutes les flottes.",
+				"days": 60,
+				"fx": {
+					"damage_pct": 20,
+					"fleet_speed_pct": 15
+				}
+			},
+			"current": "glaive",
+			"credo": [
+				"honneur"
+			],
+			"cls": [
+				"stratege"
+			]
+		},
+		"diplomate": {
+			"label": "Diplomate",
+			"text": "Serre chaque main deux fois, en comptant ses doigts.",
+			"fx": {
+				"opinion_all": 5
+			},
+			"power": {
+				"label": "Sommet des étoiles",
+				"text": "Pendant 360 jours : +15 d'opinion de tous les empires.",
+				"days": 360,
+				"fx": {
+					"opinion_all": 15
+				}
+			},
+			"current": "concorde",
+			"credo": [
+				"plaisir"
+			],
+			"cls": [
+				"orateur"
+			]
+		},
+		"savant": {
+			"label": "Savant",
+			"text": "Prend des notes pendant les banquets.",
+			"fx": {
+				"knowledge_pct": 5
+			},
+			"power": {
+				"label": "Illumination",
+				"text": "Tout de suite : la recherche en cours avance de 30 % de son coût.",
+				"days": 0,
+				"research_pct": 30,
+				"fx": {}
+			},
+			"current": "academie",
+			"credo": [
+				"raison"
+			],
+			"cls": [
+				"intendant",
+				"orateur"
+			]
+		},
+		"zelote": {
+			"label": "Zélote",
+			"text": "Prie fort, et de préférence en public.",
+			"fx": {
+				"stability": 2
+			},
+			"power": {
+				"label": "Grande ferveur",
+				"text": "Pendant 360 jours : +6 stabilité partout ; +20 ferveur pour un empire qui en a.",
+				"days": 360,
+				"fervor": 20,
+				"fx": {
+					"stability": 6
+				}
+			},
+			"current": "autel",
+			"credo": [
+				"foi"
+			],
+			"cls": [
+				"orateur"
+			]
+		},
+		"marchand": {
+			"label": "Marchand",
+			"text": "Connaît le prix de tout, et le cours de demain.",
+			"fx": {
+				"trade_income_pct": 5
+			},
+			"power": {
+				"label": "Foire galactique",
+				"text": "Pendant 360 jours : +30 % de revenus du commerce.",
+				"days": 360,
+				"fx": {
+					"trade_income_pct": 30
+				}
+			},
+			"current": "seve",
+			"credo": [
+				"profit"
+			],
+			"cls": [
+				"intendant"
+			]
+		},
+		"intrigant": {
+			"label": "Intrigant",
+			"text": "Sourit toujours, ne répond jamais.",
+			"fx": {
+				"spy_cost_pct": -10
+			},
+			"power": {
+				"label": "Toile d'ombres",
+				"text": "Pendant 360 jours : opérations d'espionnage 30 % moins chères.",
+				"days": 360,
+				"fx": {
+					"spy_cost_pct": -30
+				}
+			},
+			"current": "glaive",
+			"credo": [
+				"profit",
+				"plaisir"
+			],
+			"cls": [
+				"ombre"
+			]
+		},
+		"heros": {
+			"label": "Héros",
+			"text": "Monte en première ligne, ce que ses généraux n'apprécient qu'à moitié.",
+			"fx": {
+				"troops_pct": 10
+			},
+			"power": {
+				"label": "Charge héroïque",
+				"text": "Pendant 90 jours : +10 % de dégâts et +20 % de troupes.",
+				"days": 90,
+				"fx": {
+					"damage_pct": 10,
+					"troops_pct": 20
+				}
+			},
+			"current": "glaive",
+			"credo": [
+				"honneur",
+				"survie"
+			],
+			"cls": [
+				"stratege"
+			]
+		}
+	},
+	"laws": {
+		"primogeniture": {
+			"label": "Primogéniture",
+			"text": "L'aîné des héritiers hérite de tout : la loi la plus stable."
+		},
+		"partage": {
+			"label": "Partage",
+			"text": "L'aîné hérite du trône, chaque cadet reçoit un fief lointain qui devient vassal. Loyal, mais l'empire se morcelle."
+		},
+		"election": {
+			"label": "Élection des lignées",
+			"text": "La Diète choisit le roi parmi les trois héros les plus loyaux (ou les héritiers) : l'élu a +10 de légitimité."
+		}
+	},
+	"default_law": "primogeniture",
+	"legit_start": {
+		"heritier": 50,
+		"elu": 60,
+		"usurpateur": 20,
+		"fondateur": 60,
+		"nouvelle_maison": 10,
+		"conclave": 40,
+		"epreuve": 70,
+		"reine": 70,
+		"iteration": 60,
+		"conseil": 55,
+		"regent": 30,
+		"union": 35
+	},
+	"names": {
+		"humanoide": {
+			"m": [
+				"Aldric",
+				"Bastien",
+				"Cassius",
+				"Dorian",
+				"Étienne",
+				"Faustin",
+				"Gaspard",
+				"Hadrien",
+				"Isidore",
+				"Jovian",
+				"Lucien",
+				"Marius",
+				"Nestor",
+				"Octave",
+				"Primus",
+				"Quentin",
+				"Romuald",
+				"Séverin",
+				"Tancrède",
+				"Ulric",
+				"Valentin",
+				"Wendel",
+				"Xavier",
+				"Yvain",
+				"Zacharie",
+				"Ansgar",
+				"Barnabé",
+				"Clovis",
+				"Desmond",
+				"Evrard",
+				"Fulbert",
+				"Grégoire",
+				"Hugo",
+				"Ignace",
+				"Joachim",
+				"Léandre",
+				"Maxence",
+				"Norbert",
+				"Orléan",
+				"Philibert"
+			],
+			"f": [
+				"Adélaïde",
+				"Bérénice",
+				"Clémence",
+				"Domitia",
+				"Éléonore",
+				"Flavia",
+				"Gisla",
+				"Héloïse",
+				"Iris",
+				"Joséphine",
+				"Livia",
+				"Mathilde",
+				"Nerys",
+				"Oriane",
+				"Pénélope",
+				"Quitterie",
+				"Rosalind",
+				"Séraphine",
+				"Théodora",
+				"Ursule",
+				"Valérie",
+				"Wilhelmine",
+				"Xanthe",
+				"Yolande",
+				"Zoé",
+				"Aliénor",
+				"Blanche",
+				"Céleste",
+				"Diane",
+				"Esther",
+				"Faustine",
+				"Gwendoline",
+				"Hortense",
+				"Ingrid",
+				"Jeanne",
+				"Léonore",
+				"Margaux",
+				"Ninon",
+				"Ombeline",
+				"Pernelle"
+			]
+		},
+		"reptilien": {
+			"n": [
+				"Ssarith",
+				"Kaal-Vor",
+				"Thessk",
+				"Ixxar",
+				"Vhassa",
+				"Ozzrak",
+				"Selith",
+				"Krraal",
+				"Yssen",
+				"Drakhul",
+				"Zhess",
+				"Morrow-Sa",
+				"Tchakk",
+				"Ashvan",
+				"Rhissk",
+				"Vel-Thar",
+				"Ogguth",
+				"Sibbek",
+				"Hessaar",
+				"Kith-Ra"
+			]
+		},
+		"lithoide": {
+			"n": [
+				"Granaxe",
+				"Obsidor",
+				"Quartzal",
+				"Basalte-Ancien",
+				"Marbrelune",
+				"Silex",
+				"Ardoisier",
+				"Feldspath",
+				"Grenat",
+				"Onyxe",
+				"Jaspe-Lent",
+				"Calcite",
+				"Porphyre",
+				"Schiste",
+				"Améthyste",
+				"Corindon",
+				"Diorite",
+				"Gneiss",
+				"Malachite",
+				"Tourmaline"
+			]
+		},
+		"synthetique": {
+			"n": [
+				"Unité Primaire Kel-7",
+				"Axiome",
+				"Protocole Vesta",
+				"Index-9",
+				"Noyau Orion",
+				"Séquence Lyre",
+				"Algorithme Clio",
+				"Matrice Halé",
+				"Référence Zed",
+				"Instance Mira",
+				"Version Atlas",
+				"Calcul Ondine",
+				"Pilote Sirius",
+				"Logique Ysa",
+				"Code Pallas",
+				"Module Théa",
+				"Registre Kepler",
+				"Boucle Nyx",
+				"Vecteur Io",
+				"Somme Rhéa"
+			]
+		},
+		"energetique": {
+			"n": [
+				"Lueur-qui-Chante",
+				"Aube-Froide",
+				"Murmure-d'Azur",
+				"Éclat-Lointain",
+				"Flamme-Calme",
+				"Halo-d'Ambre",
+				"Reflet-Profond",
+				"Brume-Vive",
+				"Étincelle-Patiente",
+				"Onde-Claire",
+				"Lumière-Basse",
+				"Feu-Pale",
+				"Nimbe-Errant",
+				"Rayon-Sage",
+				"Pulsation-Lente",
+				"Aurore-Bleue",
+				"Scintille",
+				"Voile-Doré",
+				"Chant-Stellaire",
+				"Clarté-Sourde"
+			]
+		},
+		"ruche": {
+			"n": [
+				"Mille-Couvées",
+				"Pondeuse-d'Astres",
+				"Chitine-Reine",
+				"Mère-des-Essaims",
+				"Ventre-Profond",
+				"Antenne-Sacrée",
+				"Gelée-Royale",
+				"Ruche-Vive",
+				"Cœur-des-Alvéoles",
+				"Bourdon-Éternel",
+				"Larve-Première",
+				"Carapace-d'Or",
+				"Nid-Infini",
+				"Phéromone",
+				"Essaim-Sans-Fin"
+			]
+		}
+	},
+	"houses": [
+		"Valcourt",
+		"d'Ombreval",
+		"Astrelune",
+		"de Morn",
+		"Haute-Étoile",
+		"Brisefer",
+		"de Cendrecour",
+		"Lys-Noir",
+		"Sorbelame",
+		"de Vaulx-Astral",
+		"Ferrandine",
+		"de Corvel",
+		"Saint-Orage",
+		"Malvoisin",
+		"Clairsoleil",
+		"de Rocheterre",
+		"Aiglemer",
+		"de Valdane",
+		"Ventefroide",
+		"Orbanne",
+		"de Kaelmont",
+		"Marbrecour",
+		"des Sept-Lunes",
+		"Foudrebois",
+		"de Lanterne",
+		"Argenvelde",
+		"Noirciel",
+		"de Montcomète",
+		"Pré-Stellaire",
+		"Rougecastel"
+	],
+	"cognomens": [
+		{
+			"id": "vaillant",
+			"m": "le Vaillant",
+			"f": "la Vaillante",
+			"k": "battles_won",
+			"n": 3,
+			"src": "r",
+			"legit": 10,
+			"fam": "guerre"
+		},
+		{
+			"id": "victorieux",
+			"m": "le Victorieux",
+			"f": "la Victorieuse",
+			"k": "battles_won",
+			"n": 8,
+			"src": "r",
+			"legit": 15,
+			"fam": "guerre"
+		},
+		{
+			"id": "foudre",
+			"m": "le Foudre de guerre",
+			"f": "la Foudre de guerre",
+			"k": "battles_won",
+			"n": 15,
+			"src": "r",
+			"legit": 20,
+			"fam": "guerre"
+		},
+		{
+			"id": "invincible",
+			"m": "l'Invincible",
+			"f": "l'Invincible",
+			"k": "battles_won",
+			"n": 30,
+			"src": "r",
+			"legit": 30,
+			"fam": "guerre"
+		},
+		{
+			"id": "preneur",
+			"m": "le Preneur de mondes",
+			"f": "la Preneuse de mondes",
+			"k": "conquests",
+			"n": 1,
+			"src": "r",
+			"legit": 8,
+			"fam": "guerre"
+		},
+		{
+			"id": "conquerant",
+			"m": "le Conquérant",
+			"f": "la Conquérante",
+			"k": "conquests",
+			"n": 3,
+			"src": "r",
+			"legit": 15,
+			"fam": "guerre"
+		},
+		{
+			"id": "brise_trones",
+			"m": "Briseur de trônes",
+			"f": "Briseuse de trônes",
+			"k": "conquests",
+			"n": 8,
+			"src": "r",
+			"legit": 22,
+			"fam": "guerre"
+		},
+		{
+			"id": "fleau",
+			"m": "le Fléau des étoiles",
+			"f": "le Fléau des étoiles",
+			"k": "conquests",
+			"n": 15,
+			"src": "r",
+			"legit": 30,
+			"fam": "guerre"
+		},
+		{
+			"id": "faucheur",
+			"m": "Faucheur de flottes",
+			"f": "Faucheuse de flottes",
+			"k": "kills",
+			"n": 50,
+			"src": "r",
+			"legit": 15,
+			"fam": "guerre"
+		},
+		{
+			"id": "belliqueux",
+			"m": "le Belliqueux",
+			"f": "la Belliqueuse",
+			"k": "wars",
+			"n": 3,
+			"src": "r",
+			"legit": 5,
+			"fam": "guerre"
+		},
+		{
+			"id": "triomphant",
+			"m": "le Triomphant",
+			"f": "la Triomphante",
+			"k": "triumphs",
+			"n": 2,
+			"src": "r",
+			"legit": 15,
+			"fam": "guerre"
+		},
+		{
+			"id": "tueur_geants",
+			"m": "Tueur de géants",
+			"f": "Tueuse de géants",
+			"k": "guardians",
+			"n": 1,
+			"src": "r",
+			"legit": 15,
+			"fam": "guerre"
+		},
+		{
+			"id": "chasseur",
+			"m": "le Chasseur",
+			"f": "la Chasseresse",
+			"k": "lair",
+			"n": 2,
+			"src": "r",
+			"legit": 10,
+			"fam": "guerre"
+		},
+		{
+			"id": "brave",
+			"m": "le Brave",
+			"f": "la Brave",
+			"k": "front_death",
+			"n": 1,
+			"src": "sp",
+			"legit": 10,
+			"fam": "guerre",
+			"posthumous": true
+		},
+		{
+			"id": "infortune",
+			"m": "l'Infortuné",
+			"f": "l'Infortunée",
+			"k": "ships_lost",
+			"n": 25,
+			"src": "r",
+			"legit": -10,
+			"fam": "malheur"
+		},
+		{
+			"id": "malchanceux",
+			"m": "le Malchanceux",
+			"f": "la Malchanceuse",
+			"k": "ships_lost",
+			"n": 60,
+			"src": "r",
+			"legit": -15,
+			"fam": "malheur"
+		},
+		{
+			"id": "malheureux",
+			"m": "le Malheureux",
+			"f": "la Malheureuse",
+			"k": "lost_systems",
+			"n": 3,
+			"src": "sp",
+			"legit": -12,
+			"fam": "malheur"
+		},
+		{
+			"id": "exile",
+			"m": "l'Exilé",
+			"f": "l'Exilée",
+			"k": "capital_lost",
+			"n": 1,
+			"src": "sp",
+			"legit": -20,
+			"fam": "malheur"
+		},
+		{
+			"id": "parjure",
+			"m": "le Parjure",
+			"f": "la Parjure",
+			"k": "perjury",
+			"n": 1,
+			"src": "sp",
+			"legit": -15,
+			"fam": "malheur"
+		},
+		{
+			"id": "faible",
+			"m": "le Faible",
+			"f": "la Faible",
+			"k": "weak",
+			"n": 1,
+			"src": "sp",
+			"legit": -5,
+			"fam": "malheur"
+		},
+		{
+			"id": "faineant",
+			"m": "le Fainéant",
+			"f": "la Fainéante",
+			"k": "idle",
+			"n": 1,
+			"src": "sp",
+			"legit": -5,
+			"fam": "malheur"
+		},
+		{
+			"id": "usurpateur",
+			"m": "l'Usurpateur",
+			"f": "l'Usurpatrice",
+			"k": "usurper",
+			"n": 1,
+			"src": "sp",
+			"legit": -10,
+			"fam": "malheur",
+			"accession": true
+		},
+		{
+			"id": "bref",
+			"m": "le Bref",
+			"f": "la Brève",
+			"k": "short_reign",
+			"n": 1,
+			"src": "sp",
+			"legit": 0,
+			"fam": "temps",
+			"posthumous": true
+		},
+		{
+			"id": "assassine",
+			"m": "l'Assassiné",
+			"f": "l'Assassinée",
+			"k": "murdered",
+			"n": 1,
+			"src": "sp",
+			"legit": 0,
+			"fam": "temps",
+			"posthumous": true
+		},
+		{
+			"id": "jeune",
+			"m": "le Jeune",
+			"f": "la Jeune",
+			"k": "young",
+			"n": 1,
+			"src": "sp",
+			"legit": 0,
+			"fam": "temps",
+			"accession": true
+		},
+		{
+			"id": "venerable",
+			"m": "le Vénérable",
+			"f": "la Vénérable",
+			"k": "age",
+			"n": 75,
+			"src": "sp",
+			"legit": 10,
+			"fam": "temps"
+		},
+		{
+			"id": "inalterable",
+			"m": "l'Inaltérable",
+			"f": "l'Inaltérable",
+			"k": "reign_years",
+			"n": 30,
+			"src": "sp",
+			"legit": 15,
+			"fam": "temps"
+		},
+		{
+			"id": "long",
+			"m": "au Long Règne",
+			"f": "au Long Règne",
+			"k": "reign_years",
+			"n": 20,
+			"src": "sp",
+			"legit": 10,
+			"fam": "temps"
+		},
+		{
+			"id": "debonnaire",
+			"m": "le Débonnaire",
+			"f": "la Débonnaire",
+			"k": "peace_years",
+			"n": 10,
+			"src": "sp",
+			"legit": 12,
+			"fam": "paix"
+		},
+		{
+			"id": "bien_aime",
+			"m": "le Bien-Aimé",
+			"f": "la Bien-Aimée",
+			"k": "peace_years",
+			"n": 20,
+			"src": "sp",
+			"legit": 25,
+			"fam": "paix"
+		},
+		{
+			"id": "reelu",
+			"m": "le Réélu",
+			"f": "la Réélue",
+			"k": "terms",
+			"n": 2,
+			"src": "sp",
+			"legit": 10,
+			"fam": "paix",
+			"cond": {
+				"gouvernement": [
+					"republique"
+				]
+			}
+		},
+		{
+			"id": "fondateur",
+			"m": "le Fondateur",
+			"f": "la Fondatrice",
+			"k": "colony",
+			"n": 3,
+			"src": "r",
+			"legit": 10,
+			"fam": "batir"
+		},
+		{
+			"id": "semeur",
+			"m": "le Semeur de mondes",
+			"f": "la Semeuse de mondes",
+			"k": "colony",
+			"n": 8,
+			"src": "r",
+			"legit": 18,
+			"fam": "batir"
+		},
+		{
+			"id": "pere_colonies",
+			"m": "Père des colonies",
+			"f": "Mère des colonies",
+			"k": "colony",
+			"n": 15,
+			"src": "r",
+			"legit": 25,
+			"fam": "batir"
+		},
+		{
+			"id": "batisseur",
+			"m": "le Bâtisseur",
+			"f": "la Bâtisseuse",
+			"k": "built",
+			"n": 10,
+			"src": "r",
+			"legit": 10,
+			"fam": "batir"
+		},
+		{
+			"id": "grand_batisseur",
+			"m": "le Grand Bâtisseur",
+			"f": "la Grande Bâtisseuse",
+			"k": "built",
+			"n": 25,
+			"src": "r",
+			"legit": 18,
+			"fam": "batir"
+		},
+		{
+			"id": "architecte",
+			"m": "l'Architecte des étoiles",
+			"f": "l'Architecte des étoiles",
+			"k": "built",
+			"n": 50,
+			"src": "r",
+			"legit": 25,
+			"fam": "batir"
+		},
+		{
+			"id": "prospere",
+			"m": "le Prospère",
+			"f": "la Prospère",
+			"k": "pop_total",
+			"n": 100,
+			"src": "s",
+			"legit": 15,
+			"fam": "batir"
+		},
+		{
+			"id": "pere_peuple",
+			"m": "le Père du peuple",
+			"f": "la Mère du peuple",
+			"k": "pop_total",
+			"n": 250,
+			"src": "s",
+			"legit": 22,
+			"fam": "batir"
+		},
+		{
+			"id": "grand",
+			"m": "le Grand",
+			"f": "la Grande",
+			"k": "systems",
+			"n": 20,
+			"src": "s",
+			"legit": 30,
+			"fam": "batir"
+		},
+		{
+			"id": "empereur",
+			"m": "l'Empereur des étoiles",
+			"f": "l'Impératrice des étoiles",
+			"k": "systems",
+			"n": 35,
+			"src": "s",
+			"legit": 40,
+			"fam": "batir"
+		},
+		{
+			"id": "agrandisseur",
+			"m": "l'Élargisseur",
+			"f": "l'Élargisseuse",
+			"k": "systems",
+			"n": 6,
+			"src": "sd",
+			"legit": 12,
+			"fam": "batir"
+		},
+		{
+			"id": "curieux",
+			"m": "le Curieux",
+			"f": "la Curieuse",
+			"k": "tech",
+			"n": 5,
+			"src": "r",
+			"legit": 8,
+			"fam": "savoir"
+		},
+		{
+			"id": "savant",
+			"m": "le Savant",
+			"f": "la Savante",
+			"k": "tech",
+			"n": 12,
+			"src": "r",
+			"legit": 15,
+			"fam": "savoir"
+		},
+		{
+			"id": "sage",
+			"m": "le Sage",
+			"f": "la Sage",
+			"k": "tech",
+			"n": 25,
+			"src": "r",
+			"legit": 22,
+			"fam": "savoir"
+		},
+		{
+			"id": "illumine",
+			"m": "l'Illuminé",
+			"f": "l'Illuminée",
+			"k": "tech",
+			"n": 40,
+			"src": "r",
+			"legit": 28,
+			"fam": "savoir"
+		},
+		{
+			"id": "eclaire",
+			"m": "l'Éclairé",
+			"f": "l'Éclairée",
+			"k": "era",
+			"n": 1,
+			"src": "sd",
+			"legit": 12,
+			"fam": "savoir"
+		},
+		{
+			"id": "inspire",
+			"m": "l'Inspiré",
+			"f": "l'Inspirée",
+			"k": "eurekas",
+			"n": 5,
+			"src": "sd",
+			"legit": 12,
+			"fam": "savoir"
+		},
+		{
+			"id": "explorateur",
+			"m": "l'Explorateur",
+			"f": "l'Exploratrice",
+			"k": "curios",
+			"n": 5,
+			"src": "r",
+			"legit": 10,
+			"fam": "savoir"
+		},
+		{
+			"id": "navigateur",
+			"m": "le Navigateur",
+			"f": "la Navigatrice",
+			"k": "curios",
+			"n": 12,
+			"src": "r",
+			"legit": 15,
+			"fam": "savoir"
+		},
+		{
+			"id": "archeologue",
+			"m": "l'Archéologue",
+			"f": "l'Archéologue",
+			"k": "digs",
+			"n": 3,
+			"src": "r",
+			"legit": 10,
+			"fam": "savoir"
+		},
+		{
+			"id": "chercheur_legendes",
+			"m": "le Chercheur de légendes",
+			"f": "la Chercheuse de légendes",
+			"k": "quests",
+			"n": 2,
+			"src": "r",
+			"legit": 12,
+			"fam": "savoir"
+		},
+		{
+			"id": "gardien_reliques",
+			"m": "le Gardien des reliques",
+			"f": "la Gardienne des reliques",
+			"k": "relics",
+			"n": 2,
+			"src": "r",
+			"legit": 12,
+			"fam": "savoir"
+		},
+		{
+			"id": "pacifique",
+			"m": "le Pacifique",
+			"f": "la Pacifique",
+			"k": "treaty",
+			"n": 3,
+			"src": "r",
+			"legit": 10,
+			"fam": "paix"
+		},
+		{
+			"id": "diplomate",
+			"m": "le Diplomate",
+			"f": "la Diplomate",
+			"k": "treaty",
+			"n": 8,
+			"src": "r",
+			"legit": 15,
+			"fam": "paix"
+		},
+		{
+			"id": "artisan_paix",
+			"m": "l'Artisan de paix",
+			"f": "l'Artisane de paix",
+			"k": "treaty",
+			"n": 15,
+			"src": "r",
+			"legit": 22,
+			"fam": "paix"
+		},
+		{
+			"id": "marchand",
+			"m": "le Marchand",
+			"f": "la Marchande",
+			"k": "free_trade",
+			"n": 2,
+			"src": "r",
+			"legit": 10,
+			"fam": "echange"
+		},
+		{
+			"id": "main_or",
+			"m": "Main-d'Or",
+			"f": "Main-d'Or",
+			"k": "free_trade",
+			"n": 5,
+			"src": "r",
+			"legit": 18,
+			"fam": "echange"
+		},
+		{
+			"id": "seigneur_routes",
+			"m": "Seigneur des routes",
+			"f": "Dame des routes",
+			"k": "routes",
+			"n": 8,
+			"src": "s",
+			"legit": 12,
+			"fam": "echange"
+		},
+		{
+			"id": "dur",
+			"m": "le Dur",
+			"f": "la Dure",
+			"k": "embargo",
+			"n": 3,
+			"src": "r",
+			"legit": 5,
+			"fam": "echange"
+		},
+		{
+			"id": "ruse",
+			"m": "le Rusé",
+			"f": "la Rusée",
+			"k": "operations",
+			"n": 3,
+			"src": "r",
+			"legit": 8,
+			"fam": "ombre"
+		},
+		{
+			"id": "araignee",
+			"m": "l'Araignée",
+			"f": "l'Araignée",
+			"k": "operations",
+			"n": 8,
+			"src": "r",
+			"legit": 15,
+			"fam": "ombre"
+		},
+		{
+			"id": "maitre_ombres",
+			"m": "le Maître des ombres",
+			"f": "la Maîtresse des ombres",
+			"k": "operations",
+			"n": 15,
+			"src": "r",
+			"legit": 22,
+			"fam": "ombre"
+		},
+		{
+			"id": "voleur_secrets",
+			"m": "le Voleur de secrets",
+			"f": "la Voleuse de secrets",
+			"k": "stolen",
+			"n": 3,
+			"src": "r",
+			"legit": 10,
+			"fam": "ombre"
+		},
+		{
+			"id": "illustre",
+			"m": "l'Illustre",
+			"f": "l'Illustre",
+			"k": "deed",
+			"n": 1,
+			"src": "r",
+			"legit": 10,
+			"fam": "gloire"
+		},
+		{
+			"id": "memorable",
+			"m": "le Mémorable",
+			"f": "la Mémorable",
+			"k": "deed",
+			"n": 3,
+			"src": "r",
+			"legit": 20,
+			"fam": "gloire"
+		},
+		{
+			"id": "heros_recits",
+			"m": "le Héros des récits",
+			"f": "l'Héroïne des récits",
+			"k": "quest_chapter",
+			"n": 5,
+			"src": "r",
+			"legit": 15,
+			"fam": "gloire"
+		},
+		{
+			"id": "aime_dieux",
+			"m": "l'Aimé des dieux",
+			"f": "l'Aimée des dieux",
+			"k": "legit",
+			"n": 90,
+			"src": "sp",
+			"legit": 10,
+			"fam": "gloire"
+		},
+		{
+			"id": "pieux",
+			"m": "le Pieux",
+			"f": "la Pieuse",
+			"k": "holy",
+			"n": 1,
+			"src": "s",
+			"legit": 15,
+			"fam": "foi"
+		},
+		{
+			"id": "prophete",
+			"m": "le Prophète",
+			"f": "la Prophétesse",
+			"k": "revelation",
+			"n": 1,
+			"src": "sd",
+			"legit": 25,
+			"fam": "foi"
+		},
+		{
+			"id": "sacrificateur",
+			"m": "le Sacrificateur",
+			"f": "la Sacrificatrice",
+			"k": "sacrifices",
+			"n": 5,
+			"src": "r",
+			"legit": 10,
+			"fam": "foi",
+			"cond": {
+				"gouvernement": [
+					"theocratie"
+				]
+			}
+		},
+		{
+			"id": "oint",
+			"m": "l'Oint",
+			"f": "l'Ointe",
+			"k": "holy",
+			"n": 1,
+			"src": "s",
+			"legit": 18,
+			"fam": "foi",
+			"cond": {
+				"gouvernement": [
+					"theocratie"
+				]
+			}
+		},
+		{
+			"id": "loyal",
+			"m": "le Loyal",
+			"f": "la Loyale",
+			"k": "treaty",
+			"n": 5,
+			"src": "r",
+			"legit": 14,
+			"fam": "couche",
+			"cond": {
+				"credo": [
+					"honneur"
+				]
+			}
+		},
+		{
+			"id": "juste",
+			"m": "le Juste",
+			"f": "la Juste",
+			"k": "peace_years",
+			"n": 5,
+			"src": "sp",
+			"legit": 14,
+			"fam": "couche",
+			"cond": {
+				"credo": [
+					"honneur"
+				]
+			}
+		},
+		{
+			"id": "saint",
+			"m": "le Saint",
+			"f": "la Sainte",
+			"k": "reign_years",
+			"n": 10,
+			"src": "sp",
+			"legit": 20,
+			"fam": "couche",
+			"cond": {
+				"credo": [
+					"foi"
+				]
+			}
+		},
+		{
+			"id": "rationnel",
+			"m": "le Rationnel",
+			"f": "la Rationnelle",
+			"k": "tech",
+			"n": 15,
+			"src": "r",
+			"legit": 16,
+			"fam": "couche",
+			"cond": {
+				"credo": [
+					"raison"
+				]
+			}
+		},
+		{
+			"id": "riche",
+			"m": "le Riche",
+			"f": "la Riche",
+			"k": "free_trade",
+			"n": 3,
+			"src": "r",
+			"legit": 14,
+			"fam": "couche",
+			"cond": {
+				"credo": [
+					"profit"
+				]
+			}
+		},
+		{
+			"id": "magnat",
+			"m": "le Magnat",
+			"f": "la Magnate",
+			"k": "routes",
+			"n": 12,
+			"src": "s",
+			"legit": 18,
+			"fam": "couche",
+			"cond": {
+				"credo": [
+					"profit"
+				]
+			}
+		},
+		{
+			"id": "magnifique",
+			"m": "le Magnifique",
+			"f": "la Magnifique",
+			"k": "built",
+			"n": 20,
+			"src": "r",
+			"legit": 18,
+			"fam": "couche",
+			"cond": {
+				"credo": [
+					"plaisir"
+				]
+			}
+		},
+		{
+			"id": "fastueux",
+			"m": "le Fastueux",
+			"f": "la Fastueuse",
+			"k": "treaty",
+			"n": 4,
+			"src": "r",
+			"legit": 10,
+			"fam": "couche",
+			"cond": {
+				"credo": [
+					"plaisir"
+				]
+			}
+		},
+		{
+			"id": "tenace",
+			"m": "le Tenace",
+			"f": "la Tenace",
+			"k": "colony",
+			"n": 5,
+			"src": "r",
+			"legit": 14,
+			"fam": "couche",
+			"cond": {
+				"credo": [
+					"survie"
+				]
+			}
+		},
+		{
+			"id": "increvable",
+			"m": "l'Increvable",
+			"f": "l'Increvable",
+			"k": "reign_years",
+			"n": 15,
+			"src": "sp",
+			"legit": 14,
+			"fam": "couche",
+			"cond": {
+				"credo": [
+					"survie"
+				]
+			}
+		},
+		{
+			"id": "implacable",
+			"m": "l'Implacable",
+			"f": "l'Implacable",
+			"k": "kills",
+			"n": 40,
+			"src": "r",
+			"legit": 16,
+			"fam": "couche",
+			"cond": {
+				"registre": [
+					"Grimdark"
+				]
+			}
+		},
+		{
+			"id": "terrible",
+			"m": "le Terrible",
+			"f": "la Terrible",
+			"k": "conquests",
+			"n": 5,
+			"src": "r",
+			"legit": 18,
+			"fam": "couche",
+			"cond": {
+				"registre": [
+					"Grimdark"
+				]
+			}
+		},
+		{
+			"id": "legendaire",
+			"m": "le Légendaire",
+			"f": "la Légendaire",
+			"k": "battles_won",
+			"n": 10,
+			"src": "r",
+			"legit": 18,
+			"fam": "couche",
+			"cond": {
+				"registre": [
+					"Space opera héroïque"
+				]
+			}
+		},
+		{
+			"id": "coeur_comete",
+			"m": "Cœur-de-Comète",
+			"f": "Cœur-de-Comète",
+			"k": "conquests",
+			"n": 3,
+			"src": "r",
+			"legit": 16,
+			"fam": "couche",
+			"cond": {
+				"registre": [
+					"Médiéval spatial"
+				]
+			}
+		},
+		{
+			"id": "filou",
+			"m": "le Filou",
+			"f": "la Filoute",
+			"k": "stolen",
+			"n": 3,
+			"src": "r",
+			"legit": 12,
+			"fam": "couche",
+			"cond": {
+				"registre": [
+					"Picaresque / pulp"
+				]
+			}
+		},
+		{
+			"id": "panache",
+			"m": "le Panache",
+			"f": "le Panache",
+			"k": "operations",
+			"n": 5,
+			"src": "r",
+			"legit": 12,
+			"fam": "couche",
+			"cond": {
+				"registre": [
+					"Picaresque / pulp"
+				]
+			}
+		},
+		{
+			"id": "devoreur",
+			"m": "le Dévoreur",
+			"f": "la Dévoreuse",
+			"k": "conquests",
+			"n": 3,
+			"src": "r",
+			"legit": 16,
+			"fam": "couche",
+			"cond": {
+				"registre": [
+					"Horreur biologique"
+				]
+			}
+		},
+		{
+			"id": "insondable",
+			"m": "l'Insondable",
+			"f": "l'Insondable",
+			"k": "curios",
+			"n": 8,
+			"src": "r",
+			"legit": 16,
+			"fam": "couche",
+			"cond": {
+				"registre": [
+					"Cosmique / étrange"
+				]
+			}
+		},
+		{
+			"id": "ingenieur",
+			"m": "l'Ingénieur",
+			"f": "l'Ingénieure",
+			"k": "tech",
+			"n": 10,
+			"src": "r",
+			"legit": 14,
+			"fam": "couche",
+			"cond": {
+				"registre": [
+					"Classique / hard SF"
+				]
+			}
+		},
+		{
+			"id": "grande_pondeuse",
+			"m": "la Grande Pondeuse",
+			"f": "la Grande Pondeuse",
+			"k": "colony",
+			"n": 6,
+			"src": "r",
+			"legit": 18,
+			"fam": "couche",
+			"cond": {
+				"archetype": [
+					"ruche"
+				]
+			}
+		},
+		{
+			"id": "version_finale",
+			"m": "Version finale",
+			"f": "Version finale",
+			"k": "tech",
+			"n": 20,
+			"src": "r",
+			"legit": 18,
+			"fam": "couche",
+			"cond": {
+				"archetype": [
+					"synthetique"
+				]
+			}
+		},
+		{
+			"id": "eternel",
+			"m": "l'Éternel",
+			"f": "l'Éternelle",
+			"k": "reign_years",
+			"n": 50,
+			"src": "sp",
+			"legit": 20,
+			"fam": "couche",
+			"cond": {
+				"archetype": [
+					"energetique"
+				]
+			}
+		},
+		{
+			"id": "roc",
+			"m": "le Roc",
+			"f": "le Roc",
+			"k": "reign_years",
+			"n": 25,
+			"src": "sp",
+			"legit": 16,
+			"fam": "couche",
+			"cond": {
+				"archetype": [
+					"lithoide"
+				]
+			}
+		},
+		{
+			"id": "ecailles_or",
+			"m": "Écailles-d'Or",
+			"f": "Écailles-d'Or",
+			"k": "colony",
+			"n": 5,
+			"src": "r",
+			"legit": 14,
+			"fam": "couche",
+			"cond": {
+				"archetype": [
+					"reptilien"
+				]
+			}
+		},
+		{
+			"id": "fleau_sedentaires",
+			"m": "Fléau des sédentaires",
+			"f": "Fléau des sédentaires",
+			"k": "looted",
+			"n": 8,
+			"src": "r",
+			"legit": 18,
+			"fam": "couche",
+			"cond": {
+				"gouvernement": [
+					"horde"
+				]
+			}
+		},
+		{
+			"id": "pillard",
+			"m": "le Pillard",
+			"f": "la Pillarde",
+			"k": "looted",
+			"n": 3,
+			"src": "r",
+			"legit": 10,
+			"fam": "couche",
+			"cond": {
+				"gouvernement": [
+					"horde"
+				]
+			}
+		},
+		{
+			"id": "fortune",
+			"m": "le Fortuné",
+			"f": "la Fortunée",
+			"k": "stock",
+			"n": 3000,
+			"src": "s",
+			"legit": 14,
+			"fam": "couche",
+			"cond": {
+				"gouvernement": [
+					"syndicat"
+				]
+			}
+		},
+		{
+			"id": "suzerain",
+			"m": "le Suzerain",
+			"f": "la Suzeraine",
+			"k": "conquests",
+			"n": 4,
+			"src": "r",
+			"legit": 14,
+			"fam": "couche",
+			"cond": {
+				"gouvernement": [
+					"feodalite"
+				]
+			}
+		},
+		{
+			"id": "pense_unique",
+			"m": "la Pensée unique",
+			"f": "la Pensée unique",
+			"k": "techs",
+			"n": 15,
+			"src": "sd",
+			"legit": 16,
+			"fam": "couche",
+			"cond": {
+				"gouvernement": [
+					"conscience"
+				]
+			}
+		},
+		{
+			"id": "tribun",
+			"m": "le Tribun",
+			"f": "la Tribune",
+			"k": "treaty",
+			"n": 4,
+			"src": "r",
+			"legit": 12,
+			"fam": "couche",
+			"cond": {
+				"gouvernement": [
+					"republique"
+				]
+			}
+		}
+	],
+	"ambitions": [
+		{
+			"id": "conquerir",
+			"label": "Conquérir trois systèmes",
+			"text": "Prendre trois systèmes à l'ennemi sous ce règne.",
+			"k": "conquests",
+			"n": 3,
+			"src": "r",
+			"arch": [
+				"conquerant",
+				"heros"
+			],
+			"cog": {
+				"m": "l'Épée de l'Empire",
+				"f": "l'Épée de l'Empire"
+			}
+		},
+		{
+			"id": "batailles",
+			"label": "Gagner six batailles",
+			"text": "Six victoires sous nos couleurs.",
+			"k": "battles_won",
+			"n": 6,
+			"src": "r",
+			"arch": [
+				"conquerant",
+				"heros"
+			],
+			"cog": {
+				"m": "le Glorieux",
+				"f": "la Glorieuse"
+			}
+		},
+		{
+			"id": "moisson",
+			"label": "Abattre trente vaisseaux",
+			"text": "Trente vaisseaux ennemis détruits.",
+			"k": "kills",
+			"n": 30,
+			"src": "r",
+			"arch": [
+				"conquerant"
+			],
+			"cog": {
+				"m": "le Moissonneur",
+				"f": "la Moissonneuse"
+			}
+		},
+		{
+			"id": "coloniser",
+			"label": "Fonder quatre colonies",
+			"text": "Quatre nouveaux mondes sous ce règne.",
+			"k": "colony",
+			"n": 4,
+			"src": "r",
+			"arch": [
+				"batisseur",
+				"marchand"
+			],
+			"cog": {
+				"m": "le Pionnier",
+				"f": "la Pionnière"
+			}
+		},
+		{
+			"id": "batir",
+			"label": "Bâtir quinze édifices",
+			"text": "Quinze chantiers achevés.",
+			"k": "built",
+			"n": 15,
+			"src": "r",
+			"arch": [
+				"batisseur"
+			],
+			"cog": {
+				"m": "le Bâtisseur de cités",
+				"f": "la Bâtisseuse de cités"
+			}
+		},
+		{
+			"id": "agrandir",
+			"label": "Gagner cinq systèmes",
+			"text": "Tenir cinq systèmes de plus qu'à l'avènement.",
+			"k": "systems",
+			"n": 5,
+			"src": "sd",
+			"arch": [
+				"conquerant",
+				"batisseur"
+			],
+			"cog": {
+				"m": "le Bâtisseur d'empire",
+				"f": "la Bâtisseuse d'empire"
+			}
+		},
+		{
+			"id": "nourrir",
+			"label": "Soixante habitants de plus",
+			"text": "Faire croître la population de soixante.",
+			"k": "pop_total",
+			"n": 60,
+			"src": "sd",
+			"arch": [
+				"batisseur",
+				"zelote"
+			],
+			"cog": {
+				"m": "le Nourricier",
+				"f": "la Nourricière"
+			}
+		},
+		{
+			"id": "savoir",
+			"label": "Découvrir huit technologies",
+			"text": "Huit technologies sous ce règne.",
+			"k": "tech",
+			"n": 8,
+			"src": "r",
+			"arch": [
+				"savant"
+			],
+			"cog": {
+				"m": "le Lettré",
+				"f": "la Lettrée"
+			}
+		},
+		{
+			"id": "eureka",
+			"label": "Trois eurêkas",
+			"text": "Trois éclairs de génie.",
+			"k": "eurekas",
+			"n": 3,
+			"src": "sd",
+			"arch": [
+				"savant"
+			],
+			"cog": {
+				"m": "le Visionnaire",
+				"f": "la Visionnaire"
+			}
+		},
+		{
+			"id": "ere",
+			"label": "Ouvrir une ère",
+			"text": "Faire entrer l'empire dans l'ère suivante.",
+			"k": "era",
+			"n": 1,
+			"src": "sd",
+			"arch": [
+				"savant",
+				"batisseur"
+			],
+			"cog": {
+				"m": "le Moderne",
+				"f": "la Moderne"
+			}
+		},
+		{
+			"id": "curiosites",
+			"label": "Sonder cinq curiosités",
+			"text": "Cinq mystères percés.",
+			"k": "curios",
+			"n": 5,
+			"src": "r",
+			"arch": [
+				"savant",
+				"heros"
+			],
+			"cog": {
+				"m": "le Découvreur",
+				"f": "la Découvreuse"
+			}
+		},
+		{
+			"id": "fouilles",
+			"label": "Mener deux fouilles",
+			"text": "Deux chantiers de fouilles achevés.",
+			"k": "digs",
+			"n": 2,
+			"src": "r",
+			"arch": [
+				"savant"
+			],
+			"cog": {
+				"m": "le Fouilleur de ruines",
+				"f": "la Fouilleuse de ruines"
+			}
+		},
+		{
+			"id": "reliques",
+			"label": "Trouver une relique",
+			"text": "Une relique de plus au Reliquaire.",
+			"k": "relics",
+			"n": 1,
+			"src": "r",
+			"arch": [
+				"savant",
+				"zelote"
+			],
+			"cog": {
+				"m": "le Collectionneur",
+				"f": "la Collectionneuse"
+			}
+		},
+		{
+			"id": "traites",
+			"label": "Signer quatre traités",
+			"text": "Quatre traités signés.",
+			"k": "treaty",
+			"n": 4,
+			"src": "r",
+			"arch": [
+				"diplomate"
+			],
+			"cog": {
+				"m": "le Conciliateur",
+				"f": "la Conciliatrice"
+			}
+		},
+		{
+			"id": "paix",
+			"label": "Cinq ans de paix",
+			"text": "Cinq années sans guerre sous ce règne.",
+			"k": "peace_years",
+			"n": 5,
+			"src": "sp",
+			"arch": [
+				"diplomate",
+				"marchand"
+			],
+			"cog": {
+				"m": "le Paisible",
+				"f": "la Paisible"
+			}
+		},
+		{
+			"id": "libre_echange",
+			"label": "Deux accords de libre-échange",
+			"text": "Ouvrir deux marchés.",
+			"k": "free_trade",
+			"n": 2,
+			"src": "r",
+			"arch": [
+				"marchand",
+				"diplomate"
+			],
+			"cog": {
+				"m": "le Négociant",
+				"f": "la Négociante"
+			}
+		},
+		{
+			"id": "routes",
+			"label": "Huit routes commerciales",
+			"text": "Tenir huit routes commerciales.",
+			"k": "routes",
+			"n": 8,
+			"src": "s",
+			"arch": [
+				"marchand"
+			],
+			"cog": {
+				"m": "Seigneur des caravanes",
+				"f": "Dame des caravanes"
+			}
+		},
+		{
+			"id": "operations",
+			"label": "Réussir cinq opérations",
+			"text": "Cinq opérations d'espionnage réussies.",
+			"k": "operations",
+			"n": 5,
+			"src": "r",
+			"arch": [
+				"intrigant"
+			],
+			"cog": {
+				"m": "l'Insaisissable",
+				"f": "l'Insaisissable"
+			}
+		},
+		{
+			"id": "secrets",
+			"label": "Voler deux secrets",
+			"text": "Deux technologies volées.",
+			"k": "stolen",
+			"n": 2,
+			"src": "r",
+			"arch": [
+				"intrigant"
+			],
+			"cog": {
+				"m": "le Subtil",
+				"f": "la Subtile"
+			}
+		},
+		{
+			"id": "monde_saint",
+			"label": "Tenir un monde saint",
+			"text": "Garder un monde saint sous notre bannière.",
+			"k": "holy",
+			"n": 1,
+			"src": "s",
+			"arch": [
+				"zelote"
+			],
+			"cog": {
+				"m": "le Défenseur de la foi",
+				"f": "la Défenseuse de la foi"
+			}
+		},
+		{
+			"id": "revelation",
+			"label": "Faire naître une foi",
+			"text": "Une Révélation sous ce règne.",
+			"k": "revelation",
+			"n": 1,
+			"src": "sd",
+			"arch": [
+				"zelote"
+			],
+			"cog": {
+				"m": "le Révélé",
+				"f": "la Révélée"
+			}
+		},
+		{
+			"id": "legitime",
+			"label": "Atteindre 80 de légitimité",
+			"text": "Que nul ne conteste plus le trône.",
+			"k": "legit",
+			"n": 80,
+			"src": "sp",
+			"arch": [
+				"diplomate",
+				"zelote",
+				"intrigant"
+			],
+			"cog": {
+				"m": "le Bien-Né",
+				"f": "la Bien-Née"
+			}
+		},
+		{
+			"id": "quetes",
+			"label": "Achever deux quêtes",
+			"text": "Deux quêtes menées à terme.",
+			"k": "quests",
+			"n": 2,
+			"src": "r",
+			"arch": [
+				"heros"
+			],
+			"cog": {
+				"m": "le Héros",
+				"f": "l'Héroïne"
+			}
+		},
+		{
+			"id": "monstre",
+			"label": "Abattre un gardien",
+			"text": "Un gardien ou un fléau terrassé.",
+			"k": "guardians",
+			"n": 1,
+			"src": "r",
+			"arch": [
+				"heros"
+			],
+			"cog": {
+				"m": "Pourfendeur de monstres",
+				"f": "Pourfendeuse de monstres"
+			}
+		},
+		{
+			"id": "haut_fait",
+			"label": "Accomplir un haut fait",
+			"text": "Inscrire notre nom aux Annales.",
+			"k": "deed",
+			"n": 1,
+			"src": "r",
+			"arch": [
+				"heros",
+				"batisseur",
+				"savant",
+				"conquerant",
+				"diplomate",
+				"zelote",
+				"marchand",
+				"intrigant"
+			],
+			"cog": {
+				"m": "le Fameux",
+				"f": "la Fameuse"
+			}
+		},
+		{
+			"id": "pillage",
+			"label": "Cinq pillages",
+			"text": "Cinq mondes pillés.",
+			"k": "looted",
+			"n": 5,
+			"src": "r",
+			"arch": [
+				"conquerant",
+				"heros"
+			],
+			"cog": {
+				"m": "le Fléau des greniers",
+				"f": "la Fléau des greniers"
+			},
+			"cond": {
+				"gouvernement": [
+					"horde"
+				]
+			}
+		},
+		{
+			"id": "triomphe",
+			"label": "Célébrer un triomphe",
+			"text": "Un triomphe dans la capitale.",
+			"k": "triumphs",
+			"n": 1,
+			"src": "r",
+			"arch": [
+				"conquerant",
+				"heros"
+			],
+			"cog": {
+				"m": "le Triomphateur",
+				"f": "la Triomphatrice"
+			}
+		}
+	],
+	"legacies": {
+		"guerre": {
+			"label": "Guerre",
+			"levels": [
+				{
+					"label": "École des capitaines",
+					"cost": 100,
+					"fx": {
+						"damage_pct": 3
+					},
+					"text": "+3 % de dégâts."
+				},
+				{
+					"label": "Sang des conquérants",
+					"cost": 250,
+					"fx": {
+						"damage_pct": 4,
+						"ship_days_pct": -5
+					},
+					"text": "+4 % de dégâts, vaisseaux 5 % plus rapides à construire."
+				},
+				{
+					"label": "Lignée invaincue",
+					"cost": 500,
+					"fx": {
+						"damage_pct": 5,
+						"troops_pct": 15
+					},
+					"text": "+5 % de dégâts, +15 % de troupes."
+				}
+			]
+		},
+		"administration": {
+			"label": "Administration",
+			"levels": [
+				{
+					"label": "Chancellerie",
+					"cost": 100,
+					"fx": {
+						"production_pct": {
+							"all": 3
+						}
+					},
+					"text": "+3 % de production."
+				},
+				{
+					"label": "Grand cadastre",
+					"cost": 250,
+					"fx": {
+						"production_pct": {
+							"all": 3
+						},
+						"building_cost_pct": -5
+					},
+					"text": "+3 % de production, bâtiments 5 % moins chers."
+				},
+				{
+					"label": "Bureaucratie éternelle",
+					"cost": 500,
+					"fx": {
+						"production_pct": {
+							"all": 4
+						},
+						"upkeep_pct": -5
+					},
+					"text": "+4 % de production, entretien -5 %."
+				}
+			]
+		},
+		"intrigue": {
+			"label": "Intrigue",
+			"levels": [
+				{
+					"label": "Murmures de cour",
+					"cost": 100,
+					"fx": {
+						"spy_cost_pct": -10
+					},
+					"text": "Opérations 10 % moins chères."
+				},
+				{
+					"label": "Poison et soie",
+					"cost": 250,
+					"fx": {
+						"spy_cost_pct": -10,
+						"spy_discovery_pct": -10
+					},
+					"text": "Opérations encore 10 % moins chères, 10 % moins souvent découvertes."
+				},
+				{
+					"label": "Mille oreilles",
+					"cost": 500,
+					"fx": {
+						"spy_cells": 1,
+						"spy_cost_pct": -10
+					},
+					"text": "Une cellule d'espionnage de plus."
+				}
+			]
+		},
+		"foi": {
+			"label": "Foi",
+			"levels": [
+				{
+					"label": "Chapelle royale",
+					"cost": 100,
+					"fx": {
+						"stability": 2
+					},
+					"text": "+2 stabilité."
+				},
+				{
+					"label": "Droit divin",
+					"cost": 250,
+					"fx": {
+						"stability": 3
+					},
+					"legit": 5,
+					"text": "+3 stabilité, +5 légitimité à chaque souverain."
+				},
+				{
+					"label": "Lignée sacrée",
+					"cost": 500,
+					"fx": {
+						"stability": 3,
+						"opinion_all": 5
+					},
+					"legit": 5,
+					"text": "+3 stabilité, +5 d'opinion de tous, +5 légitimité."
+				}
+			]
+		},
+		"sang": {
+			"label": "Sang",
+			"levels": [
+				{
+					"label": "Nourrices choisies",
+					"cost": 100,
+					"fx": {},
+					"apt": 1,
+					"text": "Les héritiers naissent avec un point d'aptitude de plus."
+				},
+				{
+					"label": "Robuste lignée",
+					"cost": 250,
+					"fx": {},
+					"life": 10,
+					"text": "+10 ans d'espérance de vie pour les souverains."
+				},
+				{
+					"label": "Sang des étoiles",
+					"cost": 500,
+					"fx": {},
+					"apt": 1,
+					"life": 10,
+					"text": "Encore un point d'aptitude et dix ans de vie."
+				}
+			]
+		}
+	},
+	"traditions_label": "Traditions d'État",
+	"funerals": {
+		"_any": [
+			{
+				"id": "sobre",
+				"label": "Une cérémonie sobre suffira",
+				"fx": {
+					"stability": 2
+				}
+			}
+		],
+		"honneur": [
+			{
+				"id": "bucher",
+				"label": "Le bûcher des braves",
+				"fx": {
+					"damage_pct": 5
+				},
+				"cost": {
+					"energy": 40
+				}
+			},
+			{
+				"id": "haie",
+				"label": "Une haie d'honneur de mille vaisseaux",
+				"fx": {
+					"stability": 4,
+					"ship_days_pct": -5
+				},
+				"cost": {
+					"materials": 60
+				}
+			}
+		],
+		"foi": [
+			{
+				"id": "chants",
+				"label": "Sept jours de chants funèbres",
+				"fx": {
+					"stability": 5
+				},
+				"cost": {
+					"influence": 20
+				}
+			},
+			{
+				"id": "reliquaire",
+				"label": "Ses reliques au sanctuaire",
+				"fx": {
+					"opinion_all": 5,
+					"stability": 2
+				},
+				"cost": {
+					"energy": 40
+				}
+			}
+		],
+		"raison": [
+			{
+				"id": "science",
+				"label": "Donner le corps à la science",
+				"fx": {
+					"knowledge_pct": 8
+				}
+			},
+			{
+				"id": "archives",
+				"label": "Numériser ses mémoires",
+				"fx": {
+					"knowledge_pct": 4,
+					"stability": 2
+				},
+				"cost": {
+					"energy": 30
+				}
+			}
+		],
+		"profit": [
+			{
+				"id": "fondation",
+				"label": "Une fondation à son nom",
+				"fx": {
+					"trade_income_pct": 10
+				},
+				"cost": {
+					"energy": 60
+				}
+			},
+			{
+				"id": "encheres",
+				"label": "Vendre ses biens aux enchères",
+				"fx": {
+					"stability": -2
+				},
+				"gain": {
+					"energy": 120
+				}
+			}
+		],
+		"survie": [
+			{
+				"id": "cairn",
+				"label": "Un cairn sur le monde natal",
+				"fx": {
+					"stability": 3,
+					"growth_pct": 5
+				}
+			},
+			{
+				"id": "recyclage",
+				"label": "Rien ne se perd : tout se recycle",
+				"fx": {
+					"production_pct": {
+						"all": 3
+					}
+				}
+			}
+		],
+		"plaisir": [
+			{
+				"id": "parade",
+				"label": "Une parade de trois jours, feux d'artifice compris",
+				"fx": {
+					"stability": 5,
+					"opinion_all": 3
+				},
+				"cost": {
+					"energy": 80
+				}
+			},
+			{
+				"id": "banquet",
+				"label": "Un banquet en son honneur",
+				"fx": {
+					"opinion_all": 5
+				},
+				"cost": {
+					"energy": 40
+				}
+			}
+		],
+		"_gestalt": [
+			{
+				"id": "reabsorption",
+				"label": "L'esprit commun réabsorbe ses souvenirs",
+				"fx": {
+					"knowledge_pct": 4
+				}
+			}
+		]
+	},
+	"portraits": [
+		{
+			"id": "ruler_humanoide_1",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "",
+			"regalia": "crown",
+			"mantle": "ermine",
+			"backdrop": "throne",
+			"label": "Souverain, couronne fermée, manteau d'hermine devant le trône"
+		},
+		{
+			"id": "ruler_humanoide_2",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "crown",
+			"regalia": "laurel",
+			"mantle": "scales",
+			"backdrop": "banner",
+			"label": "Souverain, lauriers d'or, manteau d'écailles sous les bannières"
+		},
+		{
+			"id": "ruler_humanoide_3",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "braids",
+			"regalia": "crown",
+			"mantle": "plain",
+			"backdrop": "rays",
+			"label": "Souverain, couronne fermée, manteau sombre dans la lumière"
+		},
+		{
+			"id": "ruler_humanoide_4",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "hood",
+			"regalia": "laurel",
+			"mantle": "ermine",
+			"backdrop": "arch",
+			"label": "Souverain, lauriers d'or, manteau d'hermine sous l'arche"
+		},
+		{
+			"id": "ruler_humanoide_5",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "wrinkles",
+			"regalia": "crown",
+			"mantle": "scales",
+			"backdrop": "stars",
+			"label": "Souverain, couronne fermée, manteau d'écailles devant les étoiles"
+		},
+		{
+			"id": "ruler_humanoide_6",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "horns",
+			"regalia": "laurel",
+			"mantle": "plain",
+			"backdrop": "pillars",
+			"label": "Souverain, lauriers d'or, manteau sombre entre les colonnes"
+		},
+		{
+			"id": "ruler_humanoide_7",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "crest",
+			"regalia": "crown",
+			"mantle": "ermine",
+			"backdrop": "throne",
+			"label": "Souverain, couronne fermée, manteau d'hermine devant le trône"
+		},
+		{
+			"id": "ruler_humanoide_8",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "scar",
+			"regalia": "laurel",
+			"mantle": "scales",
+			"backdrop": "banner",
+			"label": "Souverain, lauriers d'or, manteau d'écailles sous les bannières"
+		},
+		{
+			"id": "ruler_humanoide_9",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "helm",
+			"regalia": "crown",
+			"mantle": "plain",
+			"backdrop": "rays",
+			"label": "Souverain, couronne fermée, manteau sombre dans la lumière"
+		},
+		{
+			"id": "ruler_humanoide_10",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "horns2",
+			"regalia": "laurel",
+			"mantle": "ermine",
+			"backdrop": "arch",
+			"label": "Souverain, lauriers d'or, manteau d'hermine sous l'arche"
+		},
+		{
+			"id": "ruler_humanoide_11",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "eyepatch",
+			"regalia": "crown",
+			"mantle": "scales",
+			"backdrop": "stars",
+			"label": "Souverain, couronne fermée, manteau d'écailles devant les étoiles"
+		},
+		{
+			"id": "ruler_humanoide_12",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "",
+			"regalia": "laurel",
+			"mantle": "plain",
+			"backdrop": "pillars",
+			"label": "Souverain, lauriers d'or, manteau sombre entre les colonnes"
+		},
+		{
+			"id": "ruler_humanoide_13",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "braids",
+			"regalia": "crown",
+			"mantle": "ermine",
+			"backdrop": "throne",
+			"label": "Souverain, couronne fermée, manteau d'hermine devant le trône"
+		},
+		{
+			"id": "ruler_humanoide_14",
+			"archetypes": [
+				"humanoide"
+			],
+			"look": "wrinkles",
+			"regalia": "laurel",
+			"mantle": "scales",
+			"backdrop": "banner",
+			"label": "Souverain, lauriers d'or, manteau d'écailles sous les bannières"
+		},
+		{
+			"id": "ruler_reptilien_1",
+			"archetypes": [
+				"reptilien"
+			],
+			"look": "frill",
+			"regalia": "tiara",
+			"mantle": "ermine",
+			"backdrop": "stars",
+			"label": "Souverain écailleux, tiare, manteau d'hermine devant les étoiles"
+		},
+		{
+			"id": "ruler_reptilien_2",
+			"archetypes": [
+				"reptilien"
+			],
+			"look": "snout",
+			"regalia": "spikes",
+			"mantle": "scales",
+			"backdrop": "pillars",
+			"label": "Souverain écailleux, couronne à pointes, manteau d'écailles entre les colonnes"
+		},
+		{
+			"id": "ruler_reptilien_3",
+			"archetypes": [
+				"reptilien"
+			],
+			"look": "spines",
+			"regalia": "tiara",
+			"mantle": "plain",
+			"backdrop": "throne",
+			"label": "Souverain écailleux, tiare, manteau sombre devant le trône"
+		},
+		{
+			"id": "ruler_reptilien_4",
+			"archetypes": [
+				"reptilien"
+			],
+			"look": "",
+			"regalia": "spikes",
+			"mantle": "ermine",
+			"backdrop": "banner",
+			"label": "Souverain écailleux, couronne à pointes, manteau d'hermine sous les bannières"
+		},
+		{
+			"id": "ruler_reptilien_5",
+			"archetypes": [
+				"reptilien"
+			],
+			"look": "frill",
+			"regalia": "tiara",
+			"mantle": "scales",
+			"backdrop": "rays",
+			"label": "Souverain écailleux, tiare, manteau d'écailles dans la lumière"
+		},
+		{
+			"id": "ruler_reptilien_6",
+			"archetypes": [
+				"reptilien"
+			],
+			"look": "spines",
+			"regalia": "spikes",
+			"mantle": "plain",
+			"backdrop": "arch",
+			"label": "Souverain écailleux, couronne à pointes, manteau sombre sous l'arche"
+		},
+		{
+			"id": "ruler_reptilien_7",
+			"archetypes": [
+				"reptilien"
+			],
+			"look": "snout",
+			"regalia": "tiara",
+			"mantle": "ermine",
+			"backdrop": "stars",
+			"label": "Souverain écailleux, tiare, manteau d'hermine devant les étoiles"
+		},
+		{
+			"id": "ruler_reptilien_8",
+			"archetypes": [
+				"reptilien"
+			],
+			"look": "",
+			"regalia": "spikes",
+			"mantle": "scales",
+			"backdrop": "pillars",
+			"label": "Souverain écailleux, couronne à pointes, manteau d'écailles entre les colonnes"
+		},
+		{
+			"id": "ruler_reptilien_9",
+			"archetypes": [
+				"reptilien"
+			],
+			"look": "frill",
+			"regalia": "tiara",
+			"mantle": "plain",
+			"backdrop": "throne",
+			"label": "Souverain écailleux, tiare, manteau sombre devant le trône"
+		},
+		{
+			"id": "ruler_lithoide_1",
+			"archetypes": [
+				"lithoide"
+			],
+			"look": "shards",
+			"regalia": "star_diadem",
+			"mantle": "chains",
+			"backdrop": "stars",
+			"label": "Souverain de pierre, diadème d'étoiles, chaînes d'office devant les étoiles"
+		},
+		{
+			"id": "ruler_lithoide_2",
+			"archetypes": [
+				"lithoide"
+			],
+			"look": "geode",
+			"regalia": "helm_crown",
+			"mantle": "stars",
+			"backdrop": "pillars",
+			"label": "Souverain de pierre, heaume couronné, manteau étoilé entre les colonnes"
+		},
+		{
+			"id": "ruler_lithoide_3",
+			"archetypes": [
+				"lithoide"
+			],
+			"look": "boulder",
+			"regalia": "star_diadem",
+			"mantle": "rays",
+			"backdrop": "throne",
+			"label": "Souverain de pierre, diadème d'étoiles, manteau rayonnant devant le trône"
+		},
+		{
+			"id": "ruler_lithoide_4",
+			"archetypes": [
+				"lithoide"
+			],
+			"look": "",
+			"regalia": "helm_crown",
+			"mantle": "chains",
+			"backdrop": "banner",
+			"label": "Souverain de pierre, heaume couronné, chaînes d'office sous les bannières"
+		},
+		{
+			"id": "ruler_lithoide_5",
+			"archetypes": [
+				"lithoide"
+			],
+			"look": "shards",
+			"regalia": "star_diadem",
+			"mantle": "stars",
+			"backdrop": "rays",
+			"label": "Souverain de pierre, diadème d'étoiles, manteau étoilé dans la lumière"
+		},
+		{
+			"id": "ruler_lithoide_6",
+			"archetypes": [
+				"lithoide"
+			],
+			"look": "geode",
+			"regalia": "helm_crown",
+			"mantle": "rays",
+			"backdrop": "arch",
+			"label": "Souverain de pierre, heaume couronné, manteau rayonnant sous l'arche"
+		},
+		{
+			"id": "ruler_lithoide_7",
+			"archetypes": [
+				"lithoide"
+			],
+			"look": "boulder",
+			"regalia": "star_diadem",
+			"mantle": "chains",
+			"backdrop": "stars",
+			"label": "Souverain de pierre, diadème d'étoiles, chaînes d'office devant les étoiles"
+		},
+		{
+			"id": "ruler_lithoide_8",
+			"archetypes": [
+				"lithoide"
+			],
+			"look": "",
+			"regalia": "helm_crown",
+			"mantle": "stars",
+			"backdrop": "pillars",
+			"label": "Souverain de pierre, heaume couronné, manteau étoilé entre les colonnes"
+		},
+		{
+			"id": "ruler_lithoide_9",
+			"archetypes": [
+				"lithoide"
+			],
+			"look": "shards",
+			"regalia": "star_diadem",
+			"mantle": "rays",
+			"backdrop": "throne",
+			"label": "Souverain de pierre, diadème d'étoiles, manteau rayonnant devant le trône"
+		},
+		{
+			"id": "ruler_synthetique_1",
+			"archetypes": [
+				"synthetique"
+			],
+			"look": "visor",
+			"regalia": "spikes",
+			"mantle": "ermine",
+			"backdrop": "stars",
+			"label": "Souverain de métal, couronne à pointes, manteau d'hermine devant les étoiles"
+		},
+		{
+			"id": "ruler_synthetique_2",
+			"archetypes": [
+				"synthetique"
+			],
+			"look": "antenna",
+			"regalia": "tiara",
+			"mantle": "scales",
+			"backdrop": "pillars",
+			"label": "Souverain de métal, tiare, manteau d'écailles entre les colonnes"
+		},
+		{
+			"id": "ruler_synthetique_3",
+			"archetypes": [
+				"synthetique"
+			],
+			"look": "core",
+			"regalia": "spikes",
+			"mantle": "plain",
+			"backdrop": "throne",
+			"label": "Souverain de métal, couronne à pointes, manteau sombre devant le trône"
+		},
+		{
+			"id": "ruler_synthetique_4",
+			"archetypes": [
+				"synthetique"
+			],
+			"look": "visor",
+			"regalia": "tiara",
+			"mantle": "ermine",
+			"backdrop": "banner",
+			"label": "Souverain de métal, tiare, manteau d'hermine sous les bannières"
+		},
+		{
+			"id": "ruler_synthetique_5",
+			"archetypes": [
+				"synthetique"
+			],
+			"look": "core",
+			"regalia": "spikes",
+			"mantle": "scales",
+			"backdrop": "rays",
+			"label": "Souverain de métal, couronne à pointes, manteau d'écailles dans la lumière"
+		},
+		{
+			"id": "ruler_synthetique_6",
+			"archetypes": [
+				"synthetique"
+			],
+			"look": "antenna",
+			"regalia": "tiara",
+			"mantle": "plain",
+			"backdrop": "arch",
+			"label": "Souverain de métal, tiare, manteau sombre sous l'arche"
+		},
+		{
+			"id": "ruler_synthetique_7",
+			"archetypes": [
+				"synthetique"
+			],
+			"look": "visor",
+			"regalia": "spikes",
+			"mantle": "ermine",
+			"backdrop": "stars",
+			"label": "Souverain de métal, couronne à pointes, manteau d'hermine devant les étoiles"
+		},
+		{
+			"id": "ruler_synthetique_8",
+			"archetypes": [
+				"synthetique"
+			],
+			"look": "core",
+			"regalia": "tiara",
+			"mantle": "scales",
+			"backdrop": "pillars",
+			"label": "Souverain de métal, tiare, manteau d'écailles entre les colonnes"
+		},
+		{
+			"id": "ruler_synthetique_9",
+			"archetypes": [
+				"synthetique"
+			],
+			"look": "antenna",
+			"regalia": "spikes",
+			"mantle": "plain",
+			"backdrop": "throne",
+			"label": "Souverain de métal, couronne à pointes, manteau sombre devant le trône"
+		},
+		{
+			"id": "ruler_energetique_1",
+			"archetypes": [
+				"energetique"
+			],
+			"look": "wisp",
+			"regalia": "helm_crown",
+			"mantle": "chains",
+			"backdrop": "stars",
+			"label": "Souverain de lumière, heaume couronné, chaînes d'office devant les étoiles"
+		},
+		{
+			"id": "ruler_energetique_2",
+			"archetypes": [
+				"energetique"
+			],
+			"look": "rings",
+			"regalia": "star_diadem",
+			"mantle": "stars",
+			"backdrop": "pillars",
+			"label": "Souverain de lumière, diadème d'étoiles, manteau étoilé entre les colonnes"
+		},
+		{
+			"id": "ruler_energetique_3",
+			"archetypes": [
+				"energetique"
+			],
+			"look": "veil",
+			"regalia": "helm_crown",
+			"mantle": "rays",
+			"backdrop": "throne",
+			"label": "Souverain de lumière, heaume couronné, manteau rayonnant devant le trône"
+		},
+		{
+			"id": "ruler_energetique_4",
+			"archetypes": [
+				"energetique"
+			],
+			"look": "rings",
+			"regalia": "star_diadem",
+			"mantle": "chains",
+			"backdrop": "banner",
+			"label": "Souverain de lumière, diadème d'étoiles, chaînes d'office sous les bannières"
+		},
+		{
+			"id": "ruler_energetique_5",
+			"archetypes": [
+				"energetique"
+			],
+			"look": "wisp",
+			"regalia": "helm_crown",
+			"mantle": "stars",
+			"backdrop": "rays",
+			"label": "Souverain de lumière, heaume couronné, manteau étoilé dans la lumière"
+		},
+		{
+			"id": "ruler_energetique_6",
+			"archetypes": [
+				"energetique"
+			],
+			"look": "veil",
+			"regalia": "star_diadem",
+			"mantle": "rays",
+			"backdrop": "arch",
+			"label": "Souverain de lumière, diadème d'étoiles, manteau rayonnant sous l'arche"
+		},
+		{
+			"id": "ruler_energetique_7",
+			"archetypes": [
+				"energetique"
+			],
+			"look": "rings",
+			"regalia": "helm_crown",
+			"mantle": "chains",
+			"backdrop": "stars",
+			"label": "Souverain de lumière, heaume couronné, chaînes d'office devant les étoiles"
+		},
+		{
+			"id": "ruler_energetique_8",
+			"archetypes": [
+				"energetique"
+			],
+			"look": "wisp",
+			"regalia": "star_diadem",
+			"mantle": "stars",
+			"backdrop": "pillars",
+			"label": "Souverain de lumière, diadème d'étoiles, manteau étoilé entre les colonnes"
+		},
+		{
+			"id": "ruler_energetique_9",
+			"archetypes": [
+				"energetique"
+			],
+			"look": "veil",
+			"regalia": "helm_crown",
+			"mantle": "rays",
+			"backdrop": "throne",
+			"label": "Souverain de lumière, heaume couronné, manteau rayonnant devant le trône"
+		},
+		{
+			"id": "ruler_ruche_1",
+			"archetypes": [
+				"ruche"
+			],
+			"look": "crown",
+			"regalia": "tiara",
+			"mantle": "ermine",
+			"backdrop": "stars",
+			"label": "Reine, tiare, manteau d'hermine devant les étoiles"
+		},
+		{
+			"id": "ruler_ruche_2",
+			"archetypes": [
+				"ruche"
+			],
+			"look": "colossus",
+			"regalia": "spikes",
+			"mantle": "scales",
+			"backdrop": "pillars",
+			"label": "Reine, couronne à pointes, manteau d'écailles entre les colonnes"
+		},
+		{
+			"id": "ruler_ruche_3",
+			"archetypes": [
+				"ruche"
+			],
+			"look": "mandibles",
+			"regalia": "tiara",
+			"mantle": "plain",
+			"backdrop": "throne",
+			"label": "Reine, tiare, manteau sombre devant le trône"
+		},
+		{
+			"id": "ruler_ruche_4",
+			"archetypes": [
+				"ruche"
+			],
+			"look": "eyes",
+			"regalia": "spikes",
+			"mantle": "ermine",
+			"backdrop": "banner",
+			"label": "Reine, couronne à pointes, manteau d'hermine sous les bannières"
+		},
+		{
+			"id": "ruler_ruche_5",
+			"archetypes": [
+				"ruche"
+			],
+			"look": "crown",
+			"regalia": "tiara",
+			"mantle": "scales",
+			"backdrop": "rays",
+			"label": "Reine, tiare, manteau d'écailles dans la lumière"
+		},
+		{
+			"id": "ruler_ruche_6",
+			"archetypes": [
+				"ruche"
+			],
+			"look": "mandibles",
+			"regalia": "spikes",
+			"mantle": "plain",
+			"backdrop": "arch",
+			"label": "Reine, couronne à pointes, manteau sombre sous l'arche"
+		},
+		{
+			"id": "ruler_ruche_7",
+			"archetypes": [
+				"ruche"
+			],
+			"look": "colossus",
+			"regalia": "tiara",
+			"mantle": "ermine",
+			"backdrop": "stars",
+			"label": "Reine, tiare, manteau d'hermine devant les étoiles"
+		},
+		{
+			"id": "ruler_ruche_8",
+			"archetypes": [
+				"ruche"
+			],
+			"look": "eyes",
+			"regalia": "spikes",
+			"mantle": "scales",
+			"backdrop": "pillars",
+			"label": "Reine, couronne à pointes, manteau d'écailles entre les colonnes"
+		},
+		{
+			"id": "ruler_ruche_9",
+			"archetypes": [
+				"ruche"
+			],
+			"look": "crown",
+			"regalia": "tiara",
+			"mantle": "plain",
+			"backdrop": "throne",
+			"label": "Reine, tiare, manteau sombre devant le trône"
+		}
+	],
+	"cards": [
+		{
+			"id": "ruler_death",
+			"title": "{ruler_dead_title}",
+			"text": "{ruler_dead_text}\n\n{ruler_next_text}\n\nComment l'empire honorera-t-il sa mémoire ?",
+			"trigger": "ruler",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "{ruler_fun_0}",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "funeral",
+							"i": 0
+						}
+					]
+				},
+				{
+					"label": "{ruler_fun_1}",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "funeral",
+							"i": 1
+						}
+					]
+				},
+				{
+					"label": "{ruler_fun_2}",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "funeral",
+							"i": 2
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "ruler_accession",
+			"title": "{ruler_title_name}",
+			"text": "{ruler_accession_text}\n\nChaque souverain se fixe une ambition. Laquelle sera la sienne ?",
+			"trigger": "ruler",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "{ruler_amb_0}",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "ambition",
+							"i": 0
+						}
+					]
+				},
+				{
+					"label": "{ruler_amb_1}",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "ambition",
+							"i": 1
+						}
+					]
+				},
+				{
+					"label": "{ruler_amb_2}",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "ambition",
+							"i": 2
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "ruler_iteration",
+			"title": "Itération du Nœud premier",
+			"text": "{ruler_name} se réécrit. L'esprit commun choisit ce qu'il sera pour les vingt prochaines années.",
+			"trigger": "ruler",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "{ruler_arch_0}",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "iterate",
+							"i": 0
+						}
+					]
+				},
+				{
+					"label": "{ruler_arch_1}",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "iterate",
+							"i": 1
+						}
+					]
+				},
+				{
+					"label": "{ruler_arch_2}",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "iterate",
+							"i": 2
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "hero_fallen",
+			"title": "{fallen_name} est tombé",
+			"text": "{fallen_text}\n\nSon nom sera gravé avec ceux qui ne sont pas revenus.",
+			"trigger": "ruler",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Que son sacrifice ne soit pas vain",
+					"fx": []
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "ruler_marriage",
+			"title": "Une alliance de sang",
+			"text": "{ruler_marriage_text}",
+			"trigger": "ruler",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Accepter le mariage",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "marry_yes"
+						}
+					]
+				},
+				{
+					"label": "Décliner poliment",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "marry_no"
+						}
+					]
+				}
+			],
+			"default": 1
+		},
+		{
+			"id": "ruler_regency",
+			"title": "Un trône trop grand",
+			"text": "{ruler_regency_text}",
+			"trigger": "ruler",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Confier la régence à {ruler_regent}",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "regent_yes"
+						}
+					]
+				},
+				{
+					"label": "Gouverner par un conseil de régence",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "regent_council"
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "ruler_star",
+			"title": "Une étoile montante",
+			"text": "{ruler_star_text}",
+			"trigger": "ruler",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Le couronner : le souverain abdique",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "star_crown"
+						}
+					]
+				},
+				{
+					"label": "Acheter sa fidélité ({ruler_star_cost})",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "star_buy"
+						}
+					]
+				},
+				{
+					"label": "L'écarter de la cour",
+					"fx": [
+						{
+							"k": "ruler",
+							"act": "star_away"
+						}
+					]
+				}
+			],
+			"default": 2
+		}
+	]
+}

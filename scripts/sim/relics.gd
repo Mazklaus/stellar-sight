@@ -492,7 +492,9 @@ const FX_LABELS := {"stability": "stabilité %+d", "damage_pct": "dégâts %+d %
 	"trade_income_pct": "commerce %+d %%", "building_cost_pct": "coût des bâtiments %+d %%", "ship_days_pct": "durée de construction des vaisseaux %+d %%",
 	"troops_pct": "troupes %+d %%", "curio_detect": "détection des curiosités %+d", "curio_power": "puissance d'expédition %+d",
 	"council_seats": "sièges au conseil %+d", "repair_pct": "réparations %+d %%", "upkeep_pct": "entretien %+d %%",
-	"claim_vision": "vision des revendications", "garrison_pct": "garnisons %+d %%"}
+	"claim_vision": "vision des revendications", "garrison_pct": "garnisons %+d %%", "knowledge_pct": "Savoir %+d %%",
+	"spy_cost_pct": "coût des opérations %+d %%", "spy_discovery_pct": "découverte des opérations %+d %%", "spy_cells": "cellules d'espionnage %+d",
+	"wonder_speed_pct": "chantiers de merveille %+d %%"}
 
 
 ## « Énergie +8 %, stabilité +4 » à partir d'effets au format des technologies.

@@ -229,6 +229,11 @@ var _culture_defect_select: OptionButton
 ## Merveilles (voir Wonders) : toutes, tirage, aucune.
 var wonders := "toutes"
 var _wonders_select: OptionButton
+## Souverains (voir Rulers) : mortels, immortels, aucun ; mort des héros au combat (voir HeroFall).
+var rulers := "mortels"
+var _rulers_select: OptionButton
+var hero_death := "normale"
+var _hero_death_select: OptionButton
 ## Hauts faits (voir Deeds) : tous, premières seules, aucun ; âges d'or en option.
 var deeds := "tous"
 var _deeds_select: OptionButton
@@ -1692,6 +1697,22 @@ func set_culture(id: String) -> void:
 	_refresh_preset()
 
 
+func set_rulers(id: String) -> void:
+	var ids := _ids_of(Rulers.mode_defs())
+	rulers = id if ids.has(id) else Rulers.default_mode()
+	if _rulers_select:
+		_rulers_select.select(ids.find(rulers))
+	_refresh_preset()
+
+
+func set_hero_death(id: String) -> void:
+	var ids := _ids_of(HeroFall.mode_defs())
+	hero_death = id if ids.has(id) else HeroFall.default_mode()
+	if _hero_death_select:
+		_hero_death_select.select(ids.find(hero_death))
+	_refresh_preset()
+
+
 func set_deeds(id: String) -> void:
 	var ids := _ids_of(Deeds.mode_defs())
 	deeds = id if ids.has(id) else "tous"
@@ -1813,7 +1834,7 @@ func game_options() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages}
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death}
 
 
 func set_spectator(on: bool) -> void:
@@ -2355,6 +2376,24 @@ func _build_new_page(root: Control) -> void:
 	_golden_check.tooltip_text = "Tous les dix ans, assez de Gloire gagnée sur la décennie ouvre un âge d'or de cinq ans : +5 stabilité, +10 % Savoir et matériaux.\nLe seuil monte à chaque âge d'or (Civilization VI). Pas d'âge sombre."
 	_golden_check.toggled.connect(set_golden_ages)
 	game.add_child(_golden_check)
+	_rulers_select = OptionButton.new()
+	_rulers_select.clip_text = true
+	var rtip := PackedStringArray()
+	for m: Dictionary in Rulers.mode_defs():
+		_rulers_select.add_item(String(m["label"]))
+		rtip.append("%s : %s" % [String(m["label"]), String(m["text"])])
+	_rulers_select.tooltip_text = "Souverains : une tête pour chaque empire, avec ses aptitudes, sa légitimité, ses surnoms et sa succession selon le gouvernement (Old World, Crusader Kings III).\n" + "\n".join(rtip)
+	_rulers_select.item_selected.connect(func(i: int) -> void: set_rulers(String(Rulers.mode_defs()[i]["id"])))
+	_labeled_row(game, "Souverains", _rulers_select)
+	_hero_death_select = OptionButton.new()
+	_hero_death_select.clip_text = true
+	var htip := PackedStringArray()
+	for m: Dictionary in HeroFall.mode_defs():
+		_hero_death_select.add_item(String(m["label"]))
+		htip.append("%s : %s" % [String(m["label"]), String(m["text"])])
+	_hero_death_select.tooltip_text = "Mort au combat : un héros (et un souverain au front) peut tomber quand sa flotte est anéantie, son vaisseau amiral détruit ou son armée vaincue.\n" + "\n".join(htip)
+	_hero_death_select.item_selected.connect(func(i: int) -> void: set_hero_death(String(HeroFall.mode_defs()[i]["id"])))
+	_labeled_row(game, "Mort au combat", _hero_death_select)
 	set_peoples(peoples)
 	set_migrations(migrations)
 	set_faiths(faiths)
@@ -2381,6 +2420,8 @@ func _build_new_page(root: Control) -> void:
 	set_wonders(wonders)
 	set_deeds(deeds)
 	set_golden_ages(golden_ages)
+	set_rulers(rulers)
+	set_hero_death(hero_death)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -3129,7 +3170,7 @@ func settings() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages,
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -3151,7 +3192,7 @@ func default_settings() -> Dictionary:
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
 		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true,
 		"ancients": Ancients.default_mode(), "awakenings": true, "minors": Minors.default_mode(), "culture": Culture.default_mode(), "culture_defect": Culture.default_defect(), "wonders": Wonders.default_mode(),
-		"deeds": "tous", "golden_ages": true}
+		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -3247,6 +3288,8 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_wonders(String(d.get("wonders", base["wonders"])))
 	set_deeds(String(d.get("deeds", base["deeds"])))
 	set_golden_ages(bool(d.get("golden_ages", base["golden_ages"])))
+	set_rulers(String(d.get("rulers", base["rulers"])))
+	set_hero_death(String(d.get("hero_death", base["hero_death"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

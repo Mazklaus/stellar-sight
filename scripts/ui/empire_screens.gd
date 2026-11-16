@@ -155,6 +155,8 @@ var _culture_sig := ""
 ## Écran Merveilles : boutons « start:merveille », « rush:merveille »… (tests).
 var wonder_buttons := {}
 var _wonders_sig := ""
+var throne_buttons := {}
+var _throne_sig := ""
 ## Onglet ouvert de l'écran Chroniques : "quests", "events" ou "relics".
 var chron_tab := "quests"
 var _shipyard_sig := ""
@@ -308,6 +310,9 @@ func show_screen(screen_id: String) -> void:
 		"wonders":
 			wonder_buttons.clear()
 			WondersUi.build(self)
+		"throne":
+			throne_buttons.clear()
+			ThroneScreen.build(self)
 	refresh()
 	screen_changed.emit(screen_id)
 
@@ -361,6 +366,9 @@ func refresh() -> void:
 		"wonders":
 			if WondersUi.signature(self) != _wonders_sig:
 				show_screen("wonders")
+		"throne":
+			if ThroneScreen.signature(self) != _throne_sig:
+				show_screen("throne")
 		"research":
 			if _research_signature() != _research_sig:
 				_fill_research_side()

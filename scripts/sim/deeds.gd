@@ -434,6 +434,7 @@ static func _award(state: GameState, id: String, eids: Array[int], added: Array[
 		var t := String(def(id).get("title", ""))
 		if t != "" and title_holder(state, t) < 0:
 			_m(state, "titles")[t] = eid
+			Rulers.give_cognomen(state, eid, "deed:" + t)  # le titre devient un surnom du souverain régnant
 		if sort_of(id) == "infamous":
 			_m(state, "infamy")[str(eid)] = state.tick + r_int("infamy_days")
 		DeedsBridges.on_award(state, eid, id, added)

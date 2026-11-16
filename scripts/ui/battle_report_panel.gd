@@ -88,6 +88,9 @@ func show_report(state: GameState, viewer: int, r: Dictionary) -> void:
 		if not wrecks.is_empty() and (winner == viewer or viewer < 0):
 			_outcome.text += "\nÉpaves étudiées : %s." % ", ".join(PackedStringArray(wrecks))
 		_outcome.add_theme_color_override("font_color", UiTheme.GOOD if winner == viewer else (UiTheme.BAD if _fought(r, viewer) else UiTheme.TEXT))
+	var fallen: Array = r.get("fallen", [])
+	if not fallen.is_empty():
+		_outcome.text += "\nTombé%s au combat : %s." % ["s" if fallen.size() > 1 else "", ", ".join(PackedStringArray(fallen))]
 	for c in _sides.get_children():
 		_sides.remove_child(c)
 		c.queue_free()

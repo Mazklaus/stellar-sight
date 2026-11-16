@@ -114,6 +114,8 @@ func step() -> void:
 		chronicle_added.emit(entry)
 	for entry in Deeds.daily(state):
 		chronicle_added.emit(entry)
+	for entry in Rulers.daily(state):
+		chronicle_added.emit(entry)
 	for entry in EventSystem.process(state):
 		chronicle_added.emit(entry)
 	for entry in Heroes.daily(state):

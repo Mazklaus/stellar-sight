@@ -646,12 +646,13 @@
 			"label": "Intelligences de bord",
 			"domain": "genie",
 			"era": 3,
-			"text": "Des esprits artificiels pointent les armes : +10 % de dégâts pour toutes les armes.",
+			"text": "Des esprits artificiels pointent les armes : +10 % de dégâts pour toutes les armes. Les héros synthétiques tombés au combat reviennent de leur sauvegarde.",
 			"pre": [
 				"torpilleurs"
 			],
 			"effects": {
-				"damage_pct": 10
+				"damage_pct": 10,
+				"hero_backup": 1
 			},
 			"heretic": {
 				"species": {

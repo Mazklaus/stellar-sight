@@ -186,4 +186,7 @@ static func crisis(state: GameState, empire_id: int, why: String) -> Array[Dicti
 	out.append(state.add_chronicle("Crise de régime chez %s (%s) : %s tombe, %s prend seul le pouvoir. %s Six mois d'interrègne, sans lois." % [
 			e.short_name(), why, Politics.label(state, empire_id, lead), Politics.label(state, empire_id, nw),
 			("%d loi%s révoquée%s." % [n, "s" if n > 1 else "", "s" if n > 1 else ""]) if n > 0 else ""]))
+	# Souverains : le coup d'État installe un usurpateur, la crise peut déposer le souverain.
+	if not state.rulers.is_empty():
+		RulersBridges.on_regime_crisis(state, empire_id, why, nw, out)
 	return out

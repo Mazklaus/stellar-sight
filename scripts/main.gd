@@ -1193,7 +1193,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_F8:
 			toggle_empire_screen("intel")
 		KEY_F10:
-			toggle_empire_screen("heroes")
+			toggle_empire_screen("throne" if key.shift_pressed else "heroes")
 		KEY_F12:
 			toggle_empire_screen("order")
 		KEY_ENTER, KEY_KP_ENTER:

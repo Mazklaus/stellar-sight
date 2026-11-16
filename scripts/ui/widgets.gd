@@ -376,7 +376,7 @@ class ArtSlot:
 		var s := minf(size.x, size.y)
 		if is_banner() and _caption and _caption.text != "":
 			c.x = size.x - size.y * 0.8
-		if art_id.begins_with("portrait_") or art_id.begins_with("hero_"):
+		if art_id.begins_with("portrait_") or art_id.begins_with("hero_") or art_id.begins_with("ruler_"):
 			_draw_portrait(r)
 			if _caption and _caption.text != "":
 				_shade(r)
@@ -426,8 +426,10 @@ class ArtSlot:
 	## "look" du portrait (data/species_parts.json) pour que chaque portrait de la galerie se distingue.
 	func _draw_portrait(r: Rect2) -> void:
 		var hero_ref := art_id.begins_with("hero_")
-		var pid := art_id.trim_prefix("hero_") if hero_ref else art_id.trim_prefix("portrait_")
-		var look := String((Heroes.portrait_def(art_id) if hero_ref else Species.portrait_def(pid)).get("look", ""))
+		var ruler_ref := art_id.begins_with("ruler_")
+		var pid := art_id.trim_prefix("hero_") if hero_ref else (art_id.trim_prefix("ruler_") if ruler_ref else art_id.trim_prefix("portrait_"))
+		var rdef := Rulers.portrait_def(art_id) if ruler_ref else {}
+		var look := String((rdef if ruler_ref else (Heroes.portrait_def(art_id) if hero_ref else Species.portrait_def(pid))).get("look", ""))
 		var hive := pid.begins_with("ruche")
 		var rock := pid.begins_with("lithoide")
 		var synth := pid.begins_with("synthetique")
@@ -457,6 +459,9 @@ class ArtSlot:
 		draw_circle(Vector2(cx, base * 0.42), s * 0.42, Color(tint, 0.07))
 		var sw := s * (0.5 if look == "colossus" or look == "boulder" else 0.4) * sw_k
 		var sh_y := base * 0.78
+		if ruler_ref:
+			_draw_ruler_backdrop(r, String(rdef.get("backdrop", "")), cx, base, s)
+			_draw_ruler_mantle(String(rdef.get("mantle", "")), cx, sh_y, sw, s, base)
 		if me:
 			# La cape aux couleurs de son empire, derrière les épaules.
 			var fc: Color = self.hero.get("faction", tint)
@@ -663,8 +668,113 @@ class ArtSlot:
 			else:
 				for side in [-1.0, 1.0]:
 					draw_circle(head + Vector2(side * hr * 0.38, -hr * 0.05), 2.2, eye)
+		if ruler_ref:
+			_draw_ruler_regalia(String(rdef.get("regalia", "")), head, hr)
 		if me:
 			_draw_hero_state(r, head, hr, edge)
+
+	## Décor d'un portrait de souverain (data/rulers.json « portraits ») : trône, étoiles, colonnes,
+	## bannière, rayons ou arche, derrière le buste.
+	func _draw_ruler_backdrop(r: Rect2, kind: String, cx: float, base: float, s: float) -> void:
+		var gold := Color(0.95, 0.78, 0.36, 0.22)
+		var dim := Color(tint.lightened(0.3), 0.16)
+		match kind:
+			"throne":
+				var w := s * 0.62
+				draw_rect(Rect2(cx - w * 0.5, base * 0.1, w, base * 0.9), Color(tint.darkened(0.5), 0.55))
+				draw_rect(Rect2(cx - w * 0.5, base * 0.1, w, base * 0.9), gold, false, 2.0)
+				for side in [-1.0, 1.0]:
+					draw_circle(Vector2(cx + side * w * 0.5, base * 0.1), s * 0.035, gold)
+			"stars":
+				for i in 24:
+					var p := Vector2(_jit(i, 11) * r.size.x, _jit(i, 12) * r.size.y * 0.7)
+					draw_circle(p, 0.6 + _jit(i, 13) * 1.4, Color(1, 1, 1, 0.25 + _jit(i, 14) * 0.4))
+			"pillars":
+				for side in [-1.0, 1.0]:
+					var x: float = cx + side * s * 0.62
+					draw_rect(Rect2(x - s * 0.06, base * 0.05, s * 0.12, base * 0.95), dim)
+					draw_rect(Rect2(x - s * 0.09, base * 0.05, s * 0.18, s * 0.04), gold)
+			"banner":
+				var w2 := s * 0.36
+				var pts := PackedVector2Array([Vector2(cx - w2, 0), Vector2(cx + w2, 0), Vector2(cx + w2, base * 0.62), Vector2(cx, base * 0.52), Vector2(cx - w2, base * 0.62)])
+				draw_colored_polygon(pts, Color(tint.darkened(0.2), 0.35))
+				pts.append(pts[0])
+				draw_polyline(pts, gold, 1.5, true)
+			"rays":
+				var o := Vector2(cx, base * 0.45)
+				for i in 16:
+					var a := TAU * i / 16.0
+					draw_line(o, o + Vector2(cos(a), sin(a)) * s * 0.75, Color(0.95, 0.8, 0.45, 0.1), 3.0)
+			"arch":
+				draw_arc(Vector2(cx, base * 0.5), s * 0.5, PI, TAU, 40, gold, 3.0, true)
+				for side in [-1.0, 1.0]:
+					draw_line(Vector2(cx + side * s * 0.5, base * 0.5), Vector2(cx + side * s * 0.5, base), gold, 3.0)
+
+	## Manteau du souverain, plus large que la cape d'un héros, sous les épaules.
+	func _draw_ruler_mantle(kind: String, cx: float, sh_y: float, sw: float, s: float, base: float) -> void:
+		var col := Color(tint.darkened(0.15), 0.95)
+		match kind:
+			"ermine": col = Color(0.55, 0.1, 0.14, 0.95)
+			"scales": col = Color(0.18, 0.4, 0.3, 0.95)
+			"chains": col = Color(0.3, 0.3, 0.34, 0.95)
+			"stars": col = Color(0.12, 0.14, 0.38, 0.95)
+			"rays": col = Color(0.62, 0.45, 0.12, 0.95)
+		var pts := PackedVector2Array([Vector2(cx - sw * 1.45, base), Vector2(cx - sw * 1.05, sh_y - s * 0.04), Vector2(cx - sw * 0.25, sh_y - s * 0.17),
+				Vector2(cx + sw * 0.25, sh_y - s * 0.17), Vector2(cx + sw * 1.05, sh_y - s * 0.04), Vector2(cx + sw * 1.45, base)])
+		draw_colored_polygon(pts, col)
+		match kind:
+			"ermine":
+				draw_line(Vector2(cx - sw * 1.05, sh_y - s * 0.04), Vector2(cx + sw * 1.05, sh_y - s * 0.04), Color(0.95, 0.95, 0.92), s * 0.05)
+				for k in 7:
+					draw_circle(Vector2(cx - sw + sw * 2.0 * k / 6.0, sh_y - s * 0.04), s * 0.008, Color(0.05, 0.05, 0.05))
+			"scales":
+				for k in 6:
+					draw_arc(Vector2(cx - sw + sw * 0.4 * k, base - s * 0.08), s * 0.04, 0.0, PI, 8, Color(0.6, 0.9, 0.7, 0.5), 1.0)
+			"chains":
+				for k in 5:
+					draw_arc(Vector2(cx - sw * 0.5 + sw * 0.25 * k, sh_y + s * 0.02), s * 0.025, 0.0, TAU, 10, Color(0.9, 0.8, 0.5, 0.8), 1.5)
+			"stars":
+				for k in 9:
+					draw_circle(Vector2(cx - sw * 1.2 + _jit(k, 21) * sw * 2.4, sh_y + _jit(k, 22) * (base - sh_y)), 1.2, Color(1, 1, 0.9, 0.8))
+			"rays":
+				for k in 5:
+					draw_line(Vector2(cx, sh_y), Vector2(cx - sw * 1.2 + sw * 0.6 * k, base), Color(1, 0.9, 0.5, 0.45), 1.5)
+
+	## Insigne du pouvoir posé sur la tête : tiare, pointes, diadème d'étoiles, heaume couronné,
+	## couronne fermée ou lauriers.
+	func _draw_ruler_regalia(kind: String, head: Vector2, hr: float) -> void:
+		var gold := Color(0.97, 0.8, 0.36, 0.95)
+		var top := head.y - hr * 1.05
+		match kind:
+			"crown":
+				var pts := PackedVector2Array([Vector2(head.x - hr * 0.8, top), Vector2(head.x - hr * 0.8, top - hr * 0.5), Vector2(head.x - hr * 0.4, top - hr * 0.25),
+						Vector2(head.x, top - hr * 0.6), Vector2(head.x + hr * 0.4, top - hr * 0.25), Vector2(head.x + hr * 0.8, top - hr * 0.5), Vector2(head.x + hr * 0.8, top)])
+				draw_colored_polygon(pts, gold)
+				draw_circle(Vector2(head.x, top - hr * 0.15), hr * 0.1, Color(0.8, 0.15, 0.2))
+			"tiara":
+				draw_colored_polygon(PackedVector2Array([Vector2(head.x - hr * 0.6, top + hr * 0.05), Vector2(head.x, top - hr * 0.95), Vector2(head.x + hr * 0.6, top + hr * 0.05)]), gold)
+				for k in 3:
+					draw_line(Vector2(head.x - hr * 0.45 + hr * 0.15 * k, top - hr * 0.2 * k), Vector2(head.x + hr * 0.45 - hr * 0.15 * k, top - hr * 0.2 * k), Color(0.6, 0.45, 0.1), 1.5)
+			"spikes":
+				for k in 5:
+					var x := head.x - hr * 0.8 + hr * 0.4 * k
+					draw_colored_polygon(PackedVector2Array([Vector2(x - hr * 0.12, top + hr * 0.1), Vector2(x, top - hr * (0.5 + 0.25 * (2 - absi(k - 2)))), Vector2(x + hr * 0.12, top + hr * 0.1)]), gold)
+			"star_diadem":
+				draw_arc(head, hr * 1.1, PI * 1.15, PI * 1.85, 24, gold, 2.0, true)
+				for k in 5:
+					var a := PI * (1.2 + 0.15 * k)
+					draw_circle(head + Vector2(cos(a), sin(a)) * hr * 1.25, hr * 0.09, Color(1, 1, 0.85))
+			"helm_crown":
+				draw_arc(head, hr * 1.05, PI, TAU, 24, Color(0.7, 0.72, 0.78, 0.95), hr * 0.3, true)
+				for k in 3:
+					var x := head.x - hr * 0.5 + hr * 0.5 * k
+					draw_colored_polygon(PackedVector2Array([Vector2(x - hr * 0.12, top - hr * 0.1), Vector2(x, top - hr * 0.5), Vector2(x + hr * 0.12, top - hr * 0.1)]), gold)
+			"laurel":
+				for side in [-1.0, 1.0]:
+					for k in 5:
+						var a: float = PI * 1.5 + side * (0.35 + 0.18 * k)
+						var p := head + Vector2(cos(a), sin(a)) * hr * 1.08
+						draw_circle(p, hr * 0.11, Color(0.75, 0.82, 0.35, 0.95))
 
 	## Tirage stable 0-1 pour les variations d'un héros (même héros, même visage).
 	static func _jit(seed_value: int, k: int) -> float:

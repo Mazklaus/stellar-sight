@@ -917,6 +917,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var wfx := Wonders.effects(state, empire_id)
 			_merge(base, wfx)
 			_merge(exalted, wfx)
+		# Souverain : aptitudes, archétype, pouvoir, héritages, funérailles (voir Rulers).
+		if not state.rulers.is_empty():
+			var rfx3 := Rulers.effects(state, empire_id)
+			_merge(base, rfx3)
+			_merge(exalted, rfx3)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted
