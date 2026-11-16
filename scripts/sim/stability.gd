@@ -408,6 +408,7 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 		out.append_array(Finance.system_stability_parts(state, sid))  # franchise fiscale
 	if not state.private.is_empty():
 		out.append_array(Private.system_stability_parts(state, sid))  # dirigeant philanthrope
+		out.append_array(Ports.system_stability_parts(state, sid))  # luxes mal distribués
 	# Garnison.
 	if (cx["armed"] as Dictionary).has(sid):
 		out.append(["Flotte armée en orbite", int(src["garrison"])])

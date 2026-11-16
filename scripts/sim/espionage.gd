@@ -671,6 +671,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_pr := PrivateBridges.spy_check(state, a, b, op_id)
 		if why_pr != "":
 			return why_pr
+	if bool(o.get("ports", false)):
+		var why_po := PortsBridges.spy_check(state, a, b, op_id)
+		if why_po != "":
+			return why_po
 	match op_id:
 		"prophetie":
 			var why := FaithWars.check_prophecy(state, a, b)
@@ -883,6 +887,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return FinanceBridges.spy_apply(state, a, b, o)
 	if bool(o.get("private", false)):
 		return PrivateBridges.spy_apply(state, a, b, o)
+	if bool(o.get("ports", false)):
+		return PortsBridges.spy_apply(state, a, b, o)
 	match String(o["id"]):
 		"rapport":
 			ea.dossiers[b] = dossier(state, b, data()["tiers"].size())

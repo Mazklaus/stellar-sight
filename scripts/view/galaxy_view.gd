@@ -317,6 +317,12 @@ func _draw() -> void:
 			_draw_label(s, px, true)
 			_draw_culture(s, px, o)
 		return
+	if lens == "ports" and state != null:
+		# Réseau des spatioports : desserte de vos systèmes (vert, jaune, orange, rouge pour une
+		# enclave), ports (anneaux selon le niveau, barrés s'ils sont bloqués) et systèmes couverts.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		_draw_ports(px)
+		return
 	if lens == "private" and state != null:
 		# Mode Économie privée de la lentille du commerce : stations minières (losange orange),
 		# stations touristiques (rose), zones militaires (anneau rouge), repaires (croix), filiales
@@ -378,6 +384,44 @@ func _draw_trade(px: float) -> void:
 			var f := clampf(float(risk) / float(Trade.data()["piracy"]["risk_max"]), 0.0, 1.0)
 			draw_arc(s.position, 13.0 * px, -PI / 2.0, -PI / 2.0 + TAU * f, 24, Color(0.95, 0.45, 0.3, 0.9), 2.2 * px, true)
 	_draw_lairs(px)
+
+
+func _draw_ports(px: float) -> void:
+	if state.ports.is_empty():
+		return
+	var shown := {}
+	for s in galaxy.systems:
+		if owner_of(s.id) == viewer:
+			shown[s.id] = true
+	for sid in Ports.nodes_of(state, viewer):
+		shown[sid] = true
+	for sid in shown:
+		var s: StarSystem = galaxy.systems[sid]
+		if not is_explored(s.id):
+			continue
+		_draw_system(s, px)
+		_draw_label(s, px, true)
+		draw_set_transform(s.position, 0.0, Vector2(px, px))
+		var parts := PackedStringArray()
+		if owner_of(s.id) == viewer:
+			var cs := Ports.system_state(state, viewer, s.id)
+			draw_circle(Vector2.ZERO, 9.0, Color(PortsUi.STATE_COLORS[cs], 0.55))
+			parts.append("%d %%" % Ports.system_pct(state, viewer, s.id))
+		var n := Ports.node(state, viewer, s.id)
+		if not n.is_empty():
+			var lvl := int(n["l"])
+			var col := Color(0.55, 0.85, 1.0) if int(n.get("lk", 0)) == 1 else Color(0.85, 0.33, 0.31)
+			for i in maxi(1, lvl):
+				draw_arc(Vector2.ZERO, 13.0 + 4.0 * i, 0.0, TAU, 32, col, 2.0, true)
+			if int(n.get("bk", 0)) == 1:
+				draw_line(Vector2(-16, -16), Vector2(16, 16), Color(0.86, 0.33, 0.31), 2.6, true)
+			parts.append("%s, portée %d" % [Ports.level_label(lvl), int(n["r"])])
+		if not parts.is_empty():
+			var text := " · ".join(parts)
+			var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+			draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 24), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
+			draw_string(_font, Vector2(-tw * 0.5, 38), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.8, 0.9, 1.0))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 const PRIVATE_MINE_COLOR := Color(0.95, 0.62, 0.25)

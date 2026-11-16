@@ -470,9 +470,10 @@ static func _monthly(state: GameState, e: Empire, slow: Dictionary, added: Array
 		if in_zone(state, int(s["sid"])) or (Trade.risk_at(state, int(s["sid"])) >= int(mc["raid_risk"]) and full(state)):
 			continue
 		var y := mine_yield(state, pid)
+		var port_pct := Ports.system_pct(state, e.id, int(s["sid"])) if not state.ports.is_empty() else 100  # livrée au port le plus proche
 		for r in y["state"]:
 			@warning_ignore("integer_division")
-			_add(to, String(r), int(y["state"][r]) * fp / 100)
+			_add(to, String(r), int(y["state"][r]) * fp / 100 * port_pct / 100)
 		@warning_ignore("integer_division")
 		mines += int(y["private"]) * fp / 100
 	if mines > 0:
@@ -499,6 +500,10 @@ static func _monthly(state: GameState, e: Empire, slow: Dictionary, added: Array
 		cost += rv
 	en["sup"] = 0
 	en["cost"] = cost
+	# Spatioports : droits de quai reçus, entretien des balises de fret sous licence.
+	var dock := Ports.dock_fees(state, e.id)
+	if dock > 0:
+		rev["Droits de quai"] = dock
 	# Dépenses : entretien des cargos, paquebots, stations (renchéri par l'inflation).
 	@warning_ignore("integer_division")
 	var up_c := (int(en["cargos"]) + 2) / 3 * c_int("cargo", "upkeep_per3")
@@ -512,6 +517,9 @@ static func _monthly(state: GameState, e: Empire, slow: Dictionary, added: Array
 		exp["Entretien des paquebots"] = _inflated(up_l, infl)
 	if up_s > 0:
 		exp["Entretien des stations"] = _inflated(up_s, infl)
+	var up_b := Ports.beacon_count(state, e.id) * Ports.c_int("private", "beacon_upkeep") if Ports.full(state) else 0
+	if up_b > 0:
+		exp["Balises de fret sous licence"] = up_b
 	# Cargos perdus (prop. 9).
 	en["loss"] = 0
 	if full(state):

@@ -99,6 +99,7 @@ func _initialize() -> void:
 	preload("res://tests/admin_tests.gd").new().run(_check)
 	preload("res://tests/finance_tests.gd").new().run(_check)
 	preload("res://tests/private_tests.gd").new().run(_check)
+	preload("res://tests/ports_tests.gd").new().run(_check)
 	preload("res://tests/defenses_tests.gd").new().run(_check)
 	preload("res://tests/battle_visuals_tests.gd").new().run(_check)
 	preload("res://tests/ground_visuals_tests.gd").new().run(_check)
@@ -318,6 +319,12 @@ func _test_main_scene() -> void:
 	_press(KEY_SPACE)
 	main.simulation.submit(SimCommands.rename_system(0, 5, "Autre-Nom"))
 	main.simulation.flush_commands()
+	# Un haut fait (ex. Cartographe) ou un événement gagné pendant ces quelques jours ouvre une
+	# fenêtre qui capte le clavier : on la ferme, ce n'est pas ce que ce test vérifie.
+	if main.is_deed_panel_open():
+		main.close_deed_panel()
+	if main.is_event_panel_open():
+		main.close_event_panel()
 	_press(KEY_F9)
 	_check(main.simulation.state.tick == saved_tick, "F9 : retour au jour sauvegardé")
 	_check(main.simulation.state.checksum() == saved_checksum, "F9 : partie rechargée à l'identique")

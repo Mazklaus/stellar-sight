@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.25"
+EDITION = "2.26"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -426,6 +426,7 @@ def talents_du_peuple(f):
     ajoute("Administration", _par_couche(c, charger("administration.json").get("talents", {})))
     ajoute("Trésor", _par_couche(c, charger("finance.json").get("talents", {})))
     ajoute("Économie privée", _par_couche(c, charger("private.json").get("talents", {})))
+    ajoute("Spatioports", _par_couche(c, charger("ports.json").get("talents", {})))
     cu = charger("culture.json").get("talents", {})
     peuple = cu.get("peoples", {}).get(f["id"])
     ajoute("Rayonnement", _par_couche(c, {k: v for k, v in cu.items() if k != "peoples"}) + ([peuple] if isinstance(peuple, dict) else []))
@@ -1023,6 +1024,41 @@ def gen_priv_talents():
     return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
 
 
+def gen_port_modes():
+    """Réglage Spatioports (data/ports.json)."""
+    d = charger("ports.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    return f"<table class='grille'><tr><th>Spatioports</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_port_niveaux():
+    """Ports : niveau, portée, réserve, coût (data/ports.json et buildings.json)."""
+    d = charger("ports.json")
+    b = charger("buildings.json")
+    lv = d["levels"]
+    w = d["warehouse"]
+    noms = {"materials": "matériaux", "energy": "énergie"}
+    lignes = ""
+    for bid, n in sorted(lv["buildings"].items(), key=lambda x: x[1]):
+        bd = b.get(bid, {})
+        cout = ", ".join(f"{v} {noms.get(k, k)}" for k, v in bd.get("cost", {}).items())
+        res = "-" if n == 0 else f"{w['days_per_level'] * n * (w['grand_mult'] if n >= 3 else 1)} jours"
+        lignes += f"<tr><td><b>{esc(lv['labels'][n])}</b></td><td>{lv['range'][n]} saut{'s' if lv['range'][n] > 1 else ''}</td><td>{res}</td><td>{esc(cout)}</td></tr>"
+    return f"<table class='grille'><tr><th>Port</th><th>Portée</th><th>Réserve (complet)</th><th>Coût</th></tr>{lignes}</table>"
+
+
+def gen_port_talents():
+    """Talents des spatioports par couche (data/ports.json, talents)."""
+    d = charger("ports.json")
+    lignes = ""
+    for couche, t in d["talents"].items():
+        if couche.startswith("_"):
+            continue
+        for k, v in t.items():
+            lignes += f"<tr><td>{esc(couche.capitalize())}</td><td>{esc(k.capitalize())}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
+
+
 def gen_def_modes():
     """Réglage Défenses spatiales (data/defenses.json)."""
     d = charger("defenses.json")
@@ -1096,6 +1132,7 @@ GENERATEURS = {
     "fisc_paliers": gen_fisc_paliers, "fisc_talents": gen_fisc_talents,
     "priv_modes": gen_priv_modes, "priv_impot": gen_priv_impot, "priv_secteurs": gen_priv_secteurs,
     "priv_chartes": gen_priv_chartes, "priv_talents": gen_priv_talents,
+    "port_modes": gen_port_modes, "port_niveaux": gen_port_niveaux, "port_talents": gen_port_talents,
     "def_modes": gen_def_modes, "def_stations": gen_def_stations, "def_elements": gen_def_elements,
     "def_talents": gen_def_talents,
 }

@@ -243,6 +243,8 @@ var finance := "complete"
 var _finance_select: OptionButton
 var private_eco := "complete"
 var _private_select: OptionButton
+var ports := "complet"
+var _ports_select: OptionButton
 var defenses := "complete"
 var _defenses_select: OptionButton
 var hero_death := "normale"
@@ -1732,6 +1734,11 @@ func set_finance(id: String) -> void:
 		_finance_select.select(ids.find(finance))
 
 
+func set_ports(id: String) -> void:
+	var ids := _ids_of(Ports.mode_defs())
+	ports = id if ids.has(id) else Ports.default_mode()
+	if _ports_select:
+		_ports_select.select(ids.find(ports))
 func set_defenses(id: String) -> void:
 	var ids := _ids_of(Defenses.mode_defs())
 	defenses = id if ids.has(id) else Defenses.default_mode()
@@ -1883,7 +1890,7 @@ func game_options() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses}
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports}
 
 
 func set_spectator(on: bool) -> void:
@@ -2470,6 +2477,15 @@ func _build_new_page(root: Control) -> void:
 	_private_select.tooltip_text = "Économie privée : un secteur privé avec sa propre caisse, qui investit seul (cargos, paquebots, stations minières sous licence, stations touristiques), paie un impôt sur ses bénéfices, et fait naître des compagnies nommées (Distant Worlds 2, Aurora 4X, Victoria 3, Stellaris).\nDésactivée : toute l'économie appartient à l'État, comme avant.\n" + "\n".join(private_tip)
 	_private_select.item_selected.connect(func(i: int) -> void: set_private_eco(String(Private.mode_defs()[i]["id"])))
 	_labeled_row(game, "Économie privée", _private_select)
+	_ports_select = OptionButton.new()
+	_ports_select.clip_text = true
+	var ports_tip := PackedStringArray()
+	for m: Dictionary in Ports.mode_defs():
+		_ports_select.add_item(String(m["label"]))
+		ports_tip.append("%s : %s" % [String(m["label"]), String(m["text"])])
+	_ports_select.tooltip_text = "Spatioports : chaque colonie est plus ou moins bien desservie par un port relié à la capitale, et seule la part desservie de sa production rejoint le stock (Distant Worlds 2, Victoria 3, Starsector).\nDésactivée : toute la production rejoint le stock, comme avant.\n" + "\n".join(ports_tip)
+	_ports_select.item_selected.connect(func(i: int) -> void: set_ports(String(Ports.mode_defs()[i]["id"])))
+	_labeled_row(game, "Spatioports", _ports_select)
 	_defenses_select = OptionButton.new()
 	_defenses_select.clip_text = true
 	var def_tip := PackedStringArray()
@@ -2520,6 +2536,7 @@ func _build_new_page(root: Control) -> void:
 	set_admin(admin)
 	set_finance(finance)
 	set_private_eco(private_eco)
+	set_ports(ports)
 	set_defenses(defenses)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
@@ -3269,7 +3286,7 @@ func settings() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses,
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -3291,7 +3308,7 @@ func default_settings() -> Dictionary:
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
 		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true,
 		"ancients": Ancients.default_mode(), "awakenings": true, "minors": Minors.default_mode(), "culture": Culture.default_mode(), "culture_defect": Culture.default_defect(), "wonders": Wonders.default_mode(),
-		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode()}
+		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -3393,6 +3410,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_admin(String(d.get("admin", base["admin"])))
 	set_finance(String(d.get("finance", base["finance"])))
 	set_private_eco(String(d.get("private", base["private"])))
+	set_ports(String(d.get("ports", base["ports"])))
 	set_defenses(String(d.get("defenses", base["defenses"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):

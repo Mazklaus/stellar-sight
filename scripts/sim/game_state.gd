@@ -198,6 +198,7 @@ var court: Dictionary = {}  # cour et Grandes Maisons (voir Court)
 var admin: Dictionary = {}  # administration et corruption (voir Admin) ; {} = pilier désactivé
 var finance: Dictionary = {}  # fiscalité et dette publique (voir Finance) ; {} = pilier désactivé
 var private: Dictionary = {}  # économie privée (voir Private) ; {} = pilier désactivé
+var ports: Dictionary = {}  # spatioports et réseau de distribution (voir Ports) ; {} = pilier désactivé
 var defenses: Dictionary = {}  # défenses spatiales (voir Defenses) ; {} = désactivées
 ## Mort des héros au combat (voir HeroFall) ; {} = option absente : blessure ou capture seulement.
 var hero_death: Dictionary = {}
@@ -330,6 +331,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Admin.setup(s, String(options.get("admin", "desactivee")))
 	Finance.setup(s, String(options.get("finance", "desactivee")))
 	Private.setup(s, String(options.get("private", "desactivee")))
+	Ports.setup(s, String(options.get("ports", "desactivee")))
 	Defenses.setup(s, String(options.get("defenses", "desactivee")))
 	FleetSystem.update_exploration(s)
 	return s
@@ -492,6 +494,8 @@ func to_dict() -> Dictionary:
 		d["finance"] = Finance.to_dict(self)
 	if Private.worth_saving(self):
 		d["private"] = Private.to_dict(self)
+	if Ports.worth_saving(self):
+		d["ports"] = Ports.to_dict(self)
 	if Defenses.worth_saving(self):
 		d["defenses"] = Defenses.to_dict(self)
 	if HeroFall.worth_saving(self):
@@ -609,6 +613,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Admin.from_dict(s, d.get("admin", {}))
 	Finance.from_dict(s, d.get("finance", {}))
 	Private.from_dict(s, d.get("private", {}))
+	Ports.from_dict(s, d.get("ports", {}))
 	Defenses.from_dict(s, d.get("defenses", {}))
 	HeroFall.from_dict(s, d.get("hero_death", {}))
 	for c: Dictionary in d["colonies"]:

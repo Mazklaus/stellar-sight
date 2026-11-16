@@ -723,7 +723,7 @@
 				"ship_days_pct": -10
 			}
 		},
-		"lignes_ravitaillement": {"label": "Lignes de ravitaillement", "domain": "genie", "era": 2, "pre": ["propulseurs"], "text": "Logistique en jeu : la zone de ravitaillement s'étend d'un saut de plus autour de vos systèmes.", "effects": {"supply_range": 1}, "flavor": "Une balise tous les trois sauts, un entrepôt tous les dix, et un comptable partout."},
+		"lignes_ravitaillement": {"label": "Lignes de ravitaillement", "domain": "genie", "era": 2, "pre": ["propulseurs"], "text": "Logistique en jeu : la zone de ravitaillement s'étend d'un saut de plus autour de vos systèmes. Avec les spatioports : portée de vos ports +1.", "effects": {"supply_range": 1, "port_range": 1}, "flavor": "Une balise tous les trois sauts, un entrepôt tous les dix, et un comptable partout."},
 		"soutes_profondes": {"label": "Soutes profondes", "domain": "genie", "era": 3, "pre": ["coques_series"], "text": "Logistique en jeu : les flottes emportent 50 % de réserves en plus.", "effects": {"autonomy_pct": 50}},
 		"logistique_campagne": {"label": "Logistique de campagne", "domain": "genie", "era": 4, "pre": ["soutes_profondes"], "text": "Logistique en jeu : un système pris ou occupé devient une tête de pont en 15 jours au lieu de 30.", "effects": {"bridge_days_pct": -50}},
 		"ravitaillement": {
@@ -977,7 +977,7 @@
 			"label": "Logistique impériale",
 			"domain": "economie",
 			"era": 2,
-			"text": "+1 emplacement de bâtiment sur les planètes de taille 3 ou plus.",
+			"text": "+1 emplacement de bâtiment sur les planètes de taille 3 ou plus. Avec les spatioports : débloque le Spatioport.",
 			"pre": [
 				"extraction"
 			],
@@ -1030,7 +1030,7 @@
 			"label": "Bourses interstellaires",
 			"domain": "economie",
 			"era": 3,
-			"text": "+15 % d'énergie et +10 % d'influence, et une route commerciale de plus. Avec la fiscalité (comptabilité stellaire) : plafond de crédit +20 %, réserve +25 %. Avec l'économie privée : tourisme +10 %.",
+			"text": "+15 % d'énergie et +10 % d'influence, et une route commerciale de plus. Avec la fiscalité (comptabilité stellaire) : plafond de crédit +20 %, réserve +25 %. Avec l'économie privée : tourisme +10 %. Avec les spatioports complets : fret du réseau +25 %.",
 			"pre": [
 				"recyclage"
 			],
@@ -1042,7 +1042,7 @@
 				"trade_routes": 1,
 				"debt_cap_pct": 20,
 				"reserve_pct": 25,
-				"tourism_pct": 10
+				"tourism_pct": 10, "freight_pct": 25
 			},
 			"eureka": {
 				"kind": "trade",
@@ -2105,7 +2105,7 @@
 			"pre": [
 				"bourses"
 			],
-			"text": "Chaque route commerciale rapporte le double, et une route de plus. Avec la fiscalité complète : débloque la Banque centrale, intérêts -10 %, l'inflation décroît plus vite. Avec l'économie privée : une compagnie et une charte de plus.",
+			"text": "Chaque route commerciale rapporte le double, et une route de plus. Avec la fiscalité complète : débloque la Banque centrale, intérêts -10 %, l'inflation décroît plus vite. Avec l'économie privée : une compagnie et une charte de plus. Avec les spatioports : débloque le Grand port orbital.",
 			"effects": {
 				"trade_income_pct": 100,
 				"trade_routes": 1,
@@ -2319,10 +2319,10 @@
 			"pre": [
 				"prefectures"
 			],
-			"text": "Une colonie pleine ne perd plus sa croissance : ses colons partent vers la colonie la moins peuplée de l'empire qui a encore de la place.",
+			"text": "Une colonie pleine ne perd plus sa croissance : ses colons partent vers la colonie la moins peuplée de l'empire qui a encore de la place. Avec les spatioports complets : réserve des entrepôts doublée.",
 			"effects": {
 				"migration": 1
-			},
+			, "warehouse_pct": 100},
 			"flavor": "Billet aller simple, hublot en option, chat accepté.",
 			"eureka": {
 				"kind": "pop",
