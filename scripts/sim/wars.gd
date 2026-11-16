@@ -298,6 +298,8 @@ static func _req_ok(state: GameState, req: String, a: int, b: int) -> bool:
 			return WarLaws.kanly_ok(state, a, b)
 		"succession":
 			return not state.rulers.is_empty() and RulersBridges.succession_casus(state, a, b)
+		"debt":
+			return not state.finance.is_empty() and FinanceBridges.debt_casus(state, a, b)
 	return false
 
 

@@ -629,6 +629,47 @@ static func admin_capital(player: int, planet_id: int) -> Dictionary:
 	return {"type": "admin_capital", "player": player, "planet": planet_id}
 
 
+## Fiscalité : cran d'impôt, solde, impôt de guerre, approche de crise, emprunts, prêts, planche à billets, franchises.
+static func finance_tax(player: int, tax_id: String) -> Dictionary:
+	return {"type": "finance_tax", "player": player, "tax": tax_id}
+
+
+static func finance_pay(player: int, pay_id: String) -> Dictionary:
+	return {"type": "finance_pay", "player": player, "pay": pay_id}
+
+
+static func finance_war_tax(player: int, on: bool) -> Dictionary:
+	return {"type": "finance_war_tax", "player": player, "on": on}
+
+
+static func finance_approach(player: int, approach_id: String) -> Dictionary:
+	return {"type": "finance_approach", "player": player, "approach": approach_id}
+
+
+static func finance_borrow(player: int, lender: String, amount: int) -> Dictionary:
+	return {"type": "finance_borrow", "player": player, "lender": lender, "amount": amount}
+
+
+static func finance_repay(player: int, loan_id: int, amount: int) -> Dictionary:
+	return {"type": "finance_repay", "player": player, "loan": loan_id, "amount": amount}
+
+
+static func finance_lend(player: int, borrower: int, amount: int) -> Dictionary:
+	return {"type": "finance_lend", "player": player, "borrower": borrower, "amount": amount}
+
+
+static func finance_repudiate(player: int, loan_id: int) -> Dictionary:
+	return {"type": "finance_repudiate", "player": player, "loan": loan_id}
+
+
+static func finance_mint(player: int) -> Dictionary:
+	return {"type": "finance_mint", "player": player}
+
+
+static func finance_franchise(player: int, system_id: int) -> Dictionary:
+	return {"type": "finance_franchise", "player": player, "system": system_id}
+
+
 static func decree(player: int, system_id: int, decree_id: String) -> Dictionary:
 	return {"type": "decree", "player": player, "system": system_id, "decree": decree_id}
 
@@ -808,6 +849,26 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Admin.check_integrate(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"admin_capital":
 			return Admin.check_move_capital(state, int(cmd["player"]), int(cmd.get("planet", -1)))
+		"finance_tax":
+			return Finance.check_tax(state, int(cmd["player"]), String(cmd.get("tax", "")))
+		"finance_pay":
+			return Finance.check_pay(state, int(cmd["player"]), String(cmd.get("pay", "")))
+		"finance_war_tax":
+			return Finance.check_war_tax(state, int(cmd["player"]), bool(cmd.get("on", false)))
+		"finance_approach":
+			return Finance.check_approach(state, int(cmd["player"]), String(cmd.get("approach", "")))
+		"finance_borrow":
+			return Finance.check_borrow(state, int(cmd["player"]), String(cmd.get("lender", "bank")), int(cmd.get("amount", 0)))
+		"finance_repay":
+			return Finance.check_repay(state, int(cmd["player"]), int(cmd.get("loan", -1)), int(cmd.get("amount", 0)))
+		"finance_lend":
+			return Finance.check_lend(state, int(cmd["player"]), int(cmd.get("borrower", -1)), int(cmd.get("amount", 0)))
+		"finance_repudiate":
+			return Finance.check_repudiate(state, int(cmd["player"]), int(cmd.get("loan", -1)))
+		"finance_mint":
+			return Finance.check_mint(state, int(cmd["player"]))
+		"finance_franchise":
+			return Finance.check_franchise(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"decree":
 			return Stability.check_decree(state, int(cmd["player"]), int(cmd.get("system", -1)), String(cmd.get("decree", "")))
 		"stab_offering":
@@ -1195,6 +1256,26 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Admin.integrate(state, int(cmd["player"]), int(cmd["system"]))
 		"admin_capital":
 			Admin.move_capital(state, int(cmd["player"]), int(cmd["planet"]))
+		"finance_tax":
+			Finance.set_tax(state, int(cmd["player"]), String(cmd["tax"]))
+		"finance_pay":
+			Finance.set_pay(state, int(cmd["player"]), String(cmd["pay"]))
+		"finance_war_tax":
+			Finance.set_war_tax(state, int(cmd["player"]), bool(cmd["on"]))
+		"finance_approach":
+			Finance.set_approach(state, int(cmd["player"]), String(cmd["approach"]))
+		"finance_borrow":
+			Finance.borrow(state, int(cmd["player"]), String(cmd["lender"]), int(cmd["amount"]))
+		"finance_repay":
+			Finance.repay(state, int(cmd["player"]), int(cmd["loan"]), int(cmd["amount"]))
+		"finance_lend":
+			Finance.lend(state, int(cmd["player"]), int(cmd["borrower"]), int(cmd["amount"]))
+		"finance_repudiate":
+			Finance.repudiate(state, int(cmd["player"]), int(cmd["loan"]), [] as Array[Dictionary])
+		"finance_mint":
+			Finance.mint(state, int(cmd["player"]))
+		"finance_franchise":
+			Finance.toggle_franchise(state, int(cmd["player"]), int(cmd["system"]))
 		"decree":
 			Stability.decree(state, int(cmd["player"]), int(cmd["system"]), String(cmd["decree"]))
 		"stab_offering":

@@ -94,6 +94,8 @@ static func favor_parts(state: GameState, eid: int, h: Dictionary) -> Array:
 			out.append(["Dividendes impayés (trésor vide)", -int(tal["dividends"])])
 	if Crisis.active(state):
 		out.append(["La galaxie brûle (crise de fin de partie)", r_int("crisis_month") * 5])
+	if not state.finance.is_empty():
+		out.append_array(FinanceBridges.favor_parts(state, eid, h))  # créancière, exemption, répudiation
 	return out
 
 

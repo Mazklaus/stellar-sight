@@ -1174,7 +1174,10 @@
 					}
 				]
 			}
-		}
+		},
+		{"id": "finances", "label": "Finances", "glyph": "trade", "requires": "finance",
+			"a": {"label": "Fonds de stabilité galactique", "text": "Les membres se portent garants les uns des autres : les plafonds de crédit montent.", "levels": [{"name": "Fonds de stabilité", "fx": {"debt_cap_pct": 10}}, {"name": "Garantie mutuelle", "fx": {"debt_cap_pct": 10}}, {"name": "Trésor des Mondes", "fx": {"debt_cap_pct": 10, "debt_crisis_pct": -15}}]},
+			"b": {"label": "Interdiction de l'usure", "text": "Les taux sont plafonnés par la loi galactique, puis les crises de la dette gelées par un moratoire.", "levels": [{"name": "Interdiction de l'usure", "fx": {"debt_rate_pct": -15}}, {"name": "Taux d'usure", "fx": {"debt_rate_pct": -15}}, {"name": "Moratoire sur les dettes", "fx": {"debt_rate_pct": -10, "debt_crisis_pct": -25}}]}}
 	],
 	"sanctions": [
 		{

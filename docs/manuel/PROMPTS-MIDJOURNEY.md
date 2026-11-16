@@ -444,3 +444,13 @@ a long gilded gallery in an orbital palace, the heads of four rival noble houses
 ```
 a vast orbital palace of archives, endless shelves of glowing ledgers and data scrolls rising toward a domed window full of stars, a weary alien prefect at a monumental desk stamping a towering pile of forms, clerks of several alien species hurrying along floating walkways with files, pneumatic message tubes, in the foreground a sly official discreetly slipping a purse of credits into his sleeve, bureaucratic grandeur with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-45 · Le Trésor
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Le Trésor »
+- Sujet : Dans la salle des coffres d'une banque orbitale, des comptables de plusieurs espèces font rouler des piles de jetons d'énergie lumineux ; au centre, une Argentière inquiète lit un registre de dettes qui se déroule jusqu'au sol, pendant qu'un créancier attend, chapeau à la main, sur le seuil
+
+```
+a vast vaulted treasury hall inside an orbital bank, towering vault doors open on stacks of glowing energy tokens, accountants of several alien species pushing floating carts of luminous coins along balconies, at the center a worried alien treasurer reading an enormous debt ledger unrolling down to the marble floor, a patient creditor waiting at the threshold hat in hand, great abacus of stars on the wall, fiscal grandeur with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

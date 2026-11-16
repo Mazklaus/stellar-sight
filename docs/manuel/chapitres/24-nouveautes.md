@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.24
+
+- **Le Trésor** (chapitre 28), nouveau réglage **Fiscalité** (complète, simple, désactivée) : **impôt à cinq crans** (Normal ne change rien) qui pèse sur l'énergie, la stabilité et la croissance, **fuite fiscale** de la corruption, **franchises fiscales** ; onglet **Trésor** de l'Ordre intérieur ([[F12]]) avec le **budget** poste par poste et sa projection, **mode Fiscalité** de la lentille de stabilité ([[K]]) et dette dans la barre du haut.
+- **Dette** : **emprunt automatique** sous zéro (la pénurie ne frappe plus qu'au plafond), **plafond de crédit**, intérêts bas et fixes, **emprunts volontaires** sur cinq ans, prêteurs (Banque intérieure, Grandes Maisons, autres empires), **prêts entre empires**, **cote de crédit** de AAA à D, **inflation**, **planche à billets**, réserve plafonnée, solde des équipages, **impôt de guerre** ; **crise de la dette** en quatre paliers avec ses approches, **faillite** et **répudiation**.
+- **Ponts** : révolte fiscale (grève), doléances **Baisser les impôts** et **Rembourser la dette**, exemptions et Maison usurière, banquier en fuite, Grand Krach et Banque des Étoiles, Bourse galactique, renflouement du Koinon, famille **Finances** de l'Amphictyonie, opérations **Rumeur de faillite**, **Maquiller les comptes** et **Racheter une créance**, motif de guerre **Recouvrement**, Grand Intendant et Fiscaliste au conseil, surnoms **le Dépensier**, **l'Avare** et **le Banqueroutier**, **Banque centrale**, hauts faits **Budget à l'équilibre** et **Banqueroute retentissante**, talents par couche. Chapitres 29 à 32 renumérotés.
+
 ### Édition 2.23
 
 - **Gouverner l'empire** (chapitre 27), nouveau réglage **Administration** (complète, simple, désactivée) : une **capacité administrative** contre la **charge** de tout ce que l'empire possède, avec des malus par tranche de 10 % de dépassement (stabilité, recherche, influence, corruption) qui **remplacent** la surextension et le surcoût de recherche des grands empires ; onglet **Administration** de l'Ordre intérieur ([[F12]]) et **mode Corruption** de la lentille de stabilité ([[K]]).

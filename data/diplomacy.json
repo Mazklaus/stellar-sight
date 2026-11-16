@@ -98,6 +98,10 @@
 		]
 	},
 	"memories": {
+		"debt_default": {"value": -40, "days": 3600, "label": "Nous doit de l'argent et a fait faillite"},
+		"debt_repudiated": {"value": -50, "days": 3600, "label": "A répudié une dette (envers nous ou un autre prêteur)"},
+		"loan_granted": {"value": 10, "days": 1800, "stack": 3, "label": "Nous a prêté de l'argent"},
+		"loan_repaid": {"value": 10, "days": 1800, "stack": 3, "label": "Nous a remboursé jusqu'au dernier sou"},
 		"court_embassy": {"value": 10, "days": 1080, "label": "Nous a envoyé une ambassade fastueuse"},
 		"court_humiliated": {"value": -20, "days": 1800, "label": "A humilié une famille de notre cour"},
 		"court_poached": {"value": -15, "days": 1800, "label": "A débauché une maison de notre cour"},

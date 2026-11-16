@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.23"
+EDITION = "2.24"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -424,6 +424,7 @@ def talents_du_peuple(f):
     ajoute("Créatures", _par_couche(c, charger("creatures.json").get("talents", {})))
     ajoute("Logistique", _par_couche(c, charger("logistics.json").get("talents", {})))
     ajoute("Administration", _par_couche(c, charger("administration.json").get("talents", {})))
+    ajoute("Trésor", _par_couche(c, charger("finance.json").get("talents", {})))
     cu = charger("culture.json").get("talents", {})
     peuple = cu.get("peoples", {}).get(f["id"])
     ajoute("Rayonnement", _par_couche(c, {k: v for k, v in cu.items() if k != "peoples"}) + ([peuple] if isinstance(peuple, dict) else []))
@@ -935,6 +936,50 @@ def gen_admin_talents():
     return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
 
 
+def gen_fisc_modes():
+    """Réglage Fiscalité (data/finance.json)."""
+    d = charger("finance.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    return f"<table class='grille'><tr><th>Fiscalité</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_fisc_crans():
+    """Crans d'impôt (data/finance.json, taxes)."""
+    d = charger("finance.json")["taxes"]
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default') else ''}</td><td>{m['energy_pct']:+d} %</td><td>{m['stability']:+d}</td><td>{m['growth_pct']:+d} %</td></tr>" for m in d["levels"])
+    return f"<table class='grille'><tr><th>Cran</th><th>Énergie</th><th>Stabilité</th><th>Croissance</th></tr>{l1}</table>"
+
+
+def gen_fisc_cotes():
+    """Cotes de crédit (data/finance.json, rating)."""
+    d = charger("finance.json")["rating"]["grades"]
+    l1 = ""
+    prev = 0
+    for g in d:
+        borne = f"jusqu'à {g['max_ratio']} %" if g["max_ratio"] < 1000 else "faillite, répudiation, ou au-delà"
+        l1 += f"<tr><td><b>{esc(g['id'])}</b></td><td>{borne}</td><td>×{g['rate_pct']} %</td><td>×{g['cap_pct']} %</td></tr>"
+    return f"<table class='grille'><tr><th>Cote</th><th>Dette / plafond</th><th>Taux</th><th>Plafond</th></tr>{l1}</table>"
+
+
+def gen_fisc_paliers():
+    """Paliers de la crise de la dette et approches (data/finance.json, crisis)."""
+    d = charger("finance.json")["crisis"]
+    l1 = "".join(f"<tr><td><b>{esc(s['label'])}</b></td><td>{inline(s.get('text', ''))}</td></tr>" for s in d["stages"])
+    l2 = "".join(f"<tr><td><b>{esc(a['label'])}</b></td><td>{inline(a.get('text', ''))}</td></tr>" for a in d["approaches"])
+    return (f"<table class='grille'><tr><th>Palier</th><th>Effet</th></tr>{l1}</table>"
+            f"<table class='grille'><tr><th>Approche</th><th>Effet</th></tr>{l2}</table>")
+
+
+def gen_fisc_talents():
+    """Talents fiscaux par couche (data/finance.json, talents)."""
+    d = charger("finance.json")
+    lignes = ""
+    for couche, t in d["talents"].items():
+        for k, v in t.items():
+            lignes += f"<tr><td>{esc(couche.capitalize())}</td><td>{esc(k.capitalize())}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -955,6 +1000,8 @@ GENERATEURS = {
     "cour_offices": gen_cour_offices, "cour_talents": gen_cour_talents, "successions": gen_successions, "archetypes_regne": gen_archetypes_regne,
     "surnoms": gen_surnoms, "ambitions_souverain": gen_ambitions, "heritages": gen_heritages,
     "admin_modes": gen_admin_modes, "admin_efforts": gen_admin_efforts, "admin_talents": gen_admin_talents,
+    "fisc_modes": gen_fisc_modes, "fisc_crans": gen_fisc_crans, "fisc_cotes": gen_fisc_cotes,
+    "fisc_paliers": gen_fisc_paliers, "fisc_talents": gen_fisc_talents,
 }
 
 

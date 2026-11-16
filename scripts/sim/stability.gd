@@ -334,6 +334,8 @@ static func context(state: GameState, empire_id: int) -> Dictionary:
 		global.append_array(Court.empire_stability_parts(state, empire_id))
 	if not state.admin.is_empty():
 		global.append_array(Admin.empire_stability_parts(state, empire_id))  # remplace la surextension
+	if not state.finance.is_empty():
+		global.append_array(Finance.empire_stability_parts(state, empire_id))  # impôt, crise de la dette
 	# Contre-espionnage : un réseau chez soi tient les meneurs à l'œil.
 	if not state.networks.is_empty() and Espionage.home_cells(state, empire_id) > 0:
 		global.append(["Réseau intérieur (contre-espionnage)", int(src["counter_network"])])
@@ -400,6 +402,8 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 		out.append(["Dévastation", dv])
 	if not state.admin.is_empty():
 		out.append_array(Admin.system_stability_parts(state, sid))
+	if not state.finance.is_empty():
+		out.append_array(Finance.system_stability_parts(state, sid))  # franchise fiscale
 	# Garnison.
 	if (cx["armed"] as Dictionary).has(sid):
 		out.append(["Flotte armée en orbite", int(src["garrison"])])

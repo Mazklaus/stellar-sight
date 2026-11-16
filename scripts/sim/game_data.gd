@@ -169,6 +169,10 @@ static func administration() -> Dictionary:
 	return _load("administration")
 
 
+static func finance() -> Dictionary:
+	return _load("finance")
+
+
 ## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.
 static func wonders() -> Dictionary:
 	return _load("wonders")

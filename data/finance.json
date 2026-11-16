@@ -1,0 +1,158 @@
+{
+	"_doc": "Fiscalité et dette publique (étude « Fiscalité et dette publique », 2026-11-16, 35 propositions validées). L'énergie est le trésor de l'empire : un niveau d'imposition à 5 crans (Normal = l'économie d'avant), un emprunt automatique quand le stock passerait sous zéro, sous un plafond de crédit, des emprunts volontaires remboursés par mensualités, une crise de la dette en 4 paliers puis la faillite, une cote de crédit, plusieurs prêteurs (banque, Grande Maison, autre empire), une inflation douce. Catalogue ouvert : crans, prêteurs, talents, cartes se complètent ici. Montants d'intérêt en centièmes de pour cent par mois (50 = 0,50 %/mois), inflation en centièmes de pour cent (300 = 3 %).",
+	"_sources": "Victoria 3 (5 crans, budget, réserve d'or, emprunt automatique, plafond de crédit, abandon des taux croissants, faillite), Europa Universalis IV (prêts de 5 ans, impôt de guerre, inflation par prêt, faillite), Europa Universalis V (prêteurs : ordres ou pays banquiers, monnayage), Stellaris 3.9 (pénuries en 4 paliers avec approches, emprunt à la faction, défaut), Distant Worlds 2 (taux par monde, corruption qui ronge l'impôt), Galactic Civilizations IV (cran Normal neutre), Master of Orion (grève fiscale), Endless Space 2 (inflation).",
+	"modes": [
+		{"id": "complete", "label": "Complète", "text": "Impôt à 5 crans, emprunts automatiques et volontaires, crise de la dette et faillite, cote de crédit, prêteurs (banque, Maisons, empires), inflation, soldes, franchises, révoltes fiscales."},
+		{"id": "simple", "label": "Simple", "text": "Le niveau d'imposition, l'emprunt automatique sous un plafond et la faillite seulement."},
+		{"id": "desactivee", "label": "Désactivée", "text": "Rien ne tourne : l'énergie ne descend jamais sous zéro et la pénurie arrête les chantiers, comme avant."}
+	],
+	"default_mode": "complete",
+	"taxes": {
+		"_doc": "Crans d'imposition : production d'énergie (energy_pct), stabilité de tous les systèmes, croissance (growth_pct). Changer de cran coûte change_cost et se fait au plus une fois tous les cooldown_days jours.",
+		"levels": [
+			{"id": "tres_bas", "label": "Très bas", "energy_pct": -30, "stability": 8, "growth_pct": 20, "text": "Énergie -30 %, stabilité +8, croissance +20 %. Les contribuables vous adorent ; le trésor beaucoup moins."},
+			{"id": "bas", "label": "Bas", "energy_pct": -15, "stability": 4, "growth_pct": 10, "text": "Énergie -15 %, stabilité +4, croissance +10 %."},
+			{"id": "normal", "label": "Normal", "energy_pct": 0, "stability": 0, "growth_pct": 0, "text": "L'impôt d'usage : ni cadeau ni tour de vis."},
+			{"id": "eleve", "label": "Élevé", "energy_pct": 15, "stability": -5, "growth_pct": -10, "text": "Énergie +15 %, stabilité -5, croissance -10 %."},
+			{"id": "ecrasant", "label": "Écrasant", "energy_pct": 30, "stability": -12, "growth_pct": -20, "text": "Énergie +30 %, stabilité -12, croissance -20 %. Les percepteurs voyagent désormais en escorte."}
+		],
+		"default": "normal",
+		"change_cost": {"influence": 25},
+		"cooldown_days": 360
+	},
+	"credit": {
+		"_doc": "Plafond de crédit : months mois de production brute d'énergie (au dernier bilan), au moins min ; stabilité moyenne d'au moins stab_hi : +stab_hi_pct %, sous stab_lo : stab_lo_pct % ; puis la cote, les technologies (debt_cap_pct) et les talents.",
+		"months": 12, "min": 200, "stab_hi": 60, "stab_hi_pct": 10, "stab_lo": 30, "stab_lo_pct": -25
+	},
+	"rate": {
+		"_doc": "Intérêt de base en centièmes de % par mois (50 = 0,5 %/mois, environ 6 %/an), fixé à la signature ; jamais de taux qui monte avec la dette. Modulé par la cote, le prêteur, la faillite récente, les technologies (debt_rate_pct) et les talents ; au moins min.",
+		"base": 50, "min": 10
+	},
+	"auto": {"_doc": "Dette automatique : remboursée par repay_pct % de l'excédent d'énergie de chaque mois.", "repay_pct": 50},
+	"loan": {"_doc": "Emprunt volontaire : de min à max énergie par tranche de step, remboursé en months mensualités (capital et intérêts).", "min": 100, "max": 1000, "step": 100, "months": 60},
+	"crisis": {
+		"_doc": "Crise de la dette (prop. 21) : quand la dette atteint le plafond avec un bilan d'énergie négatif, ou que le trésor reste à sec, la jauge monte de per_month par mois (+dry_extra si le trésor est à sec), et redescend de recede par mois sinon. Tous les stage_size points, un palier de plus ; à 100, la faillite. Les approches réduisent la montée (slow) contre leurs effets.",
+		"per_month": 4, "dry_extra": 2, "recede": 4, "stage_size": 25,
+		"stages": [
+			{"label": "Tension", "stability": -3, "fx": {}, "text": "Les créanciers téléphonent. Stabilité -3."},
+			{"label": "Déficit", "stability": -6, "fx": {"production_pct": {"influence": -10}}, "text": "Stabilité -6, influence -10 %."},
+			{"label": "Crise", "stability": -10, "fx": {"production_pct": {"influence": -10, "knowledge": -10}}, "text": "Stabilité -10, influence et Savoir -10 %."},
+			{"label": "Banqueroute imminente", "stability": -15, "fx": {"production_pct": {"influence": -15, "knowledge": -15}, "damage_pct": -10}, "text": "Stabilité -15, influence et Savoir -15 %, dégâts -10 %. Les soldes arrivent en retard."}
+		],
+		"approaches": [
+			{"id": "maintenir", "label": "Maintenir les dépenses", "slow": 0, "fx": {}, "stability": 0, "text": "Ne rien changer, et prier."},
+			{"id": "couper_recherche", "label": "Couper la recherche", "slow": 2, "fx": {"production_pct": {"knowledge": -40}, "building_upkeep_pct": -20}, "stability": 0, "text": "Savoir -40 %, entretien des bâtiments -20 % ; la crise monte de 2 de moins par mois."},
+			{"id": "rogner_soldes", "label": "Rogner les soldes", "slow": 2, "fx": {"upkeep_pct": -25, "damage_pct": -10}, "stability": 0, "text": "Entretien des flottes -25 %, dégâts -10 % ; la crise monte de 2 de moins par mois."},
+			{"id": "imposer", "label": "Impôt d'urgence", "slow": 2, "fx": {"production_pct": {"energy": 20}}, "stability": -8, "text": "Énergie +20 %, stabilité -8 ; la crise monte de 2 de moins par mois."}
+		]
+	},
+	"bankruptcy": {
+		"_doc": "Faillite (prop. 22) : toutes les dettes effacées, puis days jours de malus (coûts des bâtiments et vaisseaux, influence, dégâts, intérêts futurs), stabilité les stability_days premiers jours, cote D pendant days, mercenaires renvoyés, prêteurs étrangers furieux (souvenir debt_default).",
+		"days": 3600, "cost_pct": 25, "influence_pct": -50, "damage_pct": -15, "rate_pct": 50, "stability": -15, "stability_days": 720
+	},
+	"rating": {
+		"_doc": "Cote de crédit (prop. 18) selon la dette en % du plafond (max_ratio) : elle module le taux (rate_pct) et le plafond (cap_pct). D : faillite ou répudiation dans les history_days derniers jours, ou dette au plafond. Rumeur de faillite (espionnage) : un cran de moins.",
+		"grades": [
+			{"id": "AAA", "max_ratio": 10, "rate_pct": 70, "cap_pct": 120, "color": "#7fd18b"},
+			{"id": "AA", "max_ratio": 25, "rate_pct": 80, "cap_pct": 110, "color": "#8bc34a"},
+			{"id": "A", "max_ratio": 40, "rate_pct": 90, "cap_pct": 105, "color": "#b5cf4f"},
+			{"id": "BBB", "max_ratio": 55, "rate_pct": 100, "cap_pct": 100, "color": "#d7c94a"},
+			{"id": "BB", "max_ratio": 70, "rate_pct": 115, "cap_pct": 95, "color": "#e0b048"},
+			{"id": "B", "max_ratio": 85, "rate_pct": 130, "cap_pct": 90, "color": "#e09a48"},
+			{"id": "CCC", "max_ratio": 99, "rate_pct": 160, "cap_pct": 80, "color": "#e07a48"},
+			{"id": "D", "max_ratio": 100000, "rate_pct": 200, "cap_pct": 50, "color": "#e04848"}
+		],
+		"history_days": 3600
+	},
+	"creditors": {
+		"_doc": "Prêteurs (prop. 19-20) : la Banque intérieure ; une Grande Maison qui sert (taux house_pct %, faveur house_favor par prêt en cours, au plus house_max par Maison, Maison marchande : merchant_pct %) ; un autre empire (traité de prêt : taux empire_pct %, suzerain lord_pct %). Une IA prête si elle garde ai_reserve énergie après le prêt, si son opinion est d'au moins ai_opinion, hors guerre, et si la cote de l'emprunteur vaut au moins ai_min_grade.",
+		"house_pct": 75, "house_favor": -5, "house_max": 600, "merchant_pct": 60, "merchant_vocations": ["marchands", "libres_marchands", "consortium", "cartel"],
+		"empire_pct": 100, "lord_pct": 75, "ai_reserve": 300, "ai_opinion": 0, "ai_min_grade": "B"
+	},
+	"inflation": {
+		"_doc": "Inflation (prop. 24), en centièmes de % : +per_100 par tranche de 100 énergie empruntée, +mint par planche à billets, +war_tax par mois d'impôt de guerre au-delà de war_tax_months mois ; -decay par mois (plus les technologies inflation_decay) ; au plus max. Elle renchérit d'autant l'entretien en énergie.",
+		"per_100": 20, "mint": 300, "decay": 5, "max": 5000, "war_tax_months": 36, "war_tax": 10, "krach": 300
+	},
+	"mint": {"_doc": "Planche à billets (prop. 25) : months mois de production brute d'énergie tout de suite, une fois tous les cooldown_days jours.", "months": 3, "cooldown_days": 360},
+	"reserve": {"_doc": "Réserve plafonnée (prop. 11) : au-delà de months mois de production brute d'énergie (au moins min, plus reserve_pct des technologies), l'excédent du mois ne rentre qu'à keep_pct %.", "months": 10, "min": 1000, "keep_pct": 50},
+	"pay": {
+		"_doc": "Solde des équipages (prop. 10).",
+		"levels": [
+			{"id": "rognee", "label": "Rognée", "fx": {"upkeep_pct": -25, "damage_pct": -10}, "war_stability": -3, "text": "Entretien des flottes -25 %, dégâts -10 % ; en guerre, -3 de stabilité (équipages mal payés, mutineries)."},
+			{"id": "normale", "label": "Normale", "fx": {}, "war_stability": 0, "text": "La solde d'usage."},
+			{"id": "pleine", "label": "Pleine", "fx": {"upkeep_pct": 25, "damage_pct": 5}, "war_stability": 0, "text": "Entretien des flottes +25 %, dégâts +5 %. Le Glaive approuve."}
+		],
+		"default": "normale"
+	},
+	"war_tax": {"_doc": "Impôt de guerre (prop. 12) : seulement en guerre ; entretien des flottes -20 %, stabilité -3 (lassitude), inflation s'il dure.", "fx": {"upkeep_pct": -20}, "stability": -3},
+	"franchises": {"_doc": "Franchises fiscales (prop. 3) : au plus base + 1 par tranche de per_systems systèmes ; énergie des colonies du système energy_pct %, stabilité +stability, intégration administrative integ_pct % plus rapide. Changer coûte cost.", "base": 1, "per_systems": 8, "energy_pct": -50, "stability": 10, "integ_pct": 50, "cost": {"influence": 15}},
+	"revolt": {
+		"_doc": "Révolte fiscale (prop. 5) : cran Écrasant tenu plus de crush_days jours, ou cran Élevé dans un système sous low_stability : une chance chance_pct par an et par empire ; le système le moins stable fait grève (production strike_pct % pendant strike_days jours) et la carte « Révolte fiscale » propose de céder, réprimer ou acheter les meneurs. Puis cooldown_days.",
+		"crush_days": 720, "low_stability": 30, "chance_pct": 35, "strike_days": 180, "strike_pct": 50, "cooldown_days": 1080, "buy_energy": 120
+	},
+	"politics": {
+		"_doc": "Doléances fiscales (prop. 6) : un cran Élevé ou Écrasant tenu tax_days jours ouvre « Baisser les impôts » (revenir à Normal ou moins en 2 ans) ; une dette au-dessus de debt_pct % du plafond ouvre « Rembourser la dette » (redescendre sous debt_ok_pct %). Satisfaite : +5 de stabilité un an ; ignorée : -5. Chaque mois, les crans poussent des courants (push pour mille par système).",
+		"tax_days": 360, "debt_pct": 75, "debt_ok_pct": 40, "push": 3, "high_tax": "concorde", "low_tax": "forge", "full_pay": "glaive"
+	},
+	"court": {
+		"_doc": "Grandes Maisons (prop. 7) : une fois par an, chance exempt_chance_pct qu'une Maison qui tient des fiefs réclame une exemption (carte) ; accordée : faveur +exempt_favor et énergie de ses fiefs exempt_pct % pendant exempt_days ; refusée : faveur refuse_favor pendant refuse_days. Une Maison furieuse ne paie plus : énergie de ses fiefs furious_pct %. Une Maison répudiée : faveur repudiate_favor pendant le délai de la cote.",
+		"exempt_chance_pct": 20, "exempt_favor": 15, "exempt_pct": -25, "exempt_days": 3600, "refuse_favor": -10, "refuse_days": 1080, "furious_pct": -50, "repudiate_favor": -100
+	},
+	"bridges": {
+		"_doc": "Ponts (prop. 26-29) : Grand Krach (taux et plafond des empires touchés), Bourse galactique (taux de l'hôte), Banque des Étoiles (plafond de tous une fois ouverte), Koinon (renflouement d'un membre en crise : au plus koinon_max, sans intérêts, cohésion koinon_coh, une fois tous les koinon_days jours), Grand Intendant (taux par point d'aptitude), conseil (héros Argentier).",
+		"krach_rate_pct": 50, "krach_cap_pct": -25, "bourse_rate_pct": -20, "banque_cap_pct": 25,
+		"koinon_stage": 2, "koinon_max": 300, "koinon_coh": -5, "koinon_days": 1800,
+		"intendant_rate": -3
+	},
+	"espionage": {"rumor_days": 720, "mask_days": 720, "buy_pct": 50},
+	"deed": {"balanced_years": 20, "min_systems": 10},
+	"talents": {
+		"credo": {
+			"profit": {"label": "Profit : crédit facile", "text": "Plafond de crédit +25 %, intérêts -25 %.", "cap_pct": 25, "rate_pct": -25},
+			"honneur": {"label": "Honneur : parole tenue", "text": "Ne répudie jamais une dette ; intérêts -20 %.", "rate_pct": -20, "no_repudiate": true},
+			"foi": {"label": "Foi : l'usure est un péché", "text": "Les emprunts ne portent pas d'intérêts en énergie : chaque prêt coûte une offrande d'influence (5 par tranche de 100).", "no_interest": true, "loan_influence": 5}
+		},
+		"gouvernement": {
+			"syndicat": {"label": "Syndicat : créancier né", "text": "Les prêts que vous consentez à d'autres empires rapportent 50 % d'intérêts de plus.", "lend_pct": 50},
+			"feodalite": {"label": "Féodalité : la bourse des Maisons", "text": "Les Grandes Maisons prêtent jusqu'au double, et leur taux baisse encore de 10 %.", "house_max_x": 2, "house_rate_pct": -10},
+			"republique": {"label": "République : le prix de la banqueroute", "text": "Plafond de crédit +15 % (les obligations se vendent bien) ; une faillite provoque des élections anticipées.", "cap_pct": 15, "bankrupt_election": true},
+			"horde": {"label": "Horde : on ne taxe pas, on prend", "text": "Pas d'impôt : le cran reste Normal ; en guerre, le butin rapporte +5 % d'énergie.", "no_tax": true, "loot_energy_pct": 5},
+			"ruche": {"label": "Ruche : pas de contribuables", "text": "Pas de révolte fiscale ni de doléance fiscale.", "no_revolt": true},
+			"conscience": {"label": "Conscience : budget optimal", "text": "Pas de révolte fiscale ; la réserve plafonnée garde 75 % de l'excédent.", "no_revolt": true, "reserve_keep": 75}
+		},
+		"registre": {
+			"Picaresque / pulp": {"label": "Picaresque : usuriers de bord", "text": "Les emprunts volontaires se signent sans regarder la cote (taux de base), et la planche à billets coûte moitié moins d'inflation.", "ignore_rating": true, "mint_half": true}
+		}
+	},
+	"cards": [
+		{"id": "finance_revolte", "title": "Révolte fiscale", "trigger": "finance", "art": "throne",
+			"text": "À {system}, les contribuables ont brûlé les registres du cadastre et pendu un percepteur en effigie (en effigie, cette fois). La grève fiscale gagne les docks. Que faire ?",
+			"choices": [
+				{"label": "Céder : baisser l'impôt d'un cran", "fx": [{"k": "finance", "act": "lower_tax"}, {"k": "stab", "v": 5, "days": 360}]},
+				{"label": "Réprimer : les meneurs au cachot", "fx": [{"k": "finance", "act": "end_strike"}, {"k": "stab", "v": -10, "days": 360}]},
+				{"label": "Acheter les meneurs", "fx": [{"k": "finance", "act": "end_strike"}, {"k": "res", "res": {"energy": -120}}]}
+			],
+			"default": 1},
+		{"id": "finance_exemption", "title": "Une Maison réclame une exemption", "trigger": "finance", "art": "throne",
+			"text": "{house} rappelle ses services, ses sacrifices et ses dîners. En échange, elle demande que ses fiefs ne paient plus l'impôt « pendant une petite décennie ».",
+			"choices": [
+				{"label": "Accorder l'exemption", "fx": [{"k": "finance", "act": "exempt"}]},
+				{"label": "Refuser poliment", "fx": [{"k": "finance", "act": "refuse"}]}
+			],
+			"default": 1},
+		{"id": "finance_banquier", "title": "Le banquier s'enfuit", "trigger": "finance", "art": "throne",
+			"text": "Le gouverneur de la Banque intérieure a pris la navette de minuit avec les clés du coffre et trois cartons de reconnaissances de dettes. On le dit en route vers un port franc.",
+			"choices": [
+				{"label": "Le faire rattraper (flotte de police)", "fx": [{"k": "res", "res": {"influence": -20}}, {"k": "finance", "act": "recover"}]},
+				{"label": "Rassurer les marchés", "fx": [{"k": "finance", "act": "rumor_self"}]}
+			],
+			"default": 1},
+		{"id": "finance_usuriers", "title": "Les usuriers de la Maison", "trigger": "finance", "art": "throne",
+			"text": "{house} propose de racheter vos dettes à la Banque intérieure, « à des conditions familiales ». Ses conditions familiales ressemblent beaucoup à celles d'un requin.",
+			"choices": [
+				{"label": "Accepter : la Maison devient votre créancière", "fx": [{"k": "finance", "act": "house_buy"}]},
+				{"label": "Décliner", "fx": [{"k": "finance", "act": "refuse"}]}
+			],
+			"default": 1}
+	]
+}

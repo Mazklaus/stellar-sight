@@ -226,6 +226,8 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 	Stability.adjust_yields(state, planet.system_id, gross)
 	if not state.admin.is_empty():
 		Admin.adjust_yields(state, colony, planet.system_id, gross)  # non intégré, corruption
+	if not state.finance.is_empty():
+		Finance.adjust_yields(state, colony, planet.system_id, gross)  # franchise, grève fiscale, Maisons
 	if Combat.is_besieged(state, planet.system_id):
 		var pct := int(Combat.data().get("besieged_production_pct", 50))
 		for r in gross:
@@ -325,11 +327,18 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 		upkeep["influence"] += Laws.upkeep(state, empire_id)
 	if not state.admin.is_empty():
 		_add(upkeep, Admin.upkeep(state, empire_id))  # effort administratif
+	if not state.finance.is_empty():
+		Finance.adjust_upkeep(state, empire_id, upkeep)  # inflation, mensualités des emprunts
 	var net := _zero()
 	for r in gross:
 		@warning_ignore("integer_division")
 		gross[r] = gross[r] * production_pct(state, empire_id, r) / 100
 		net[r] = gross[r] - upkeep[r]
+	if not state.finance.is_empty():
+		var li := Finance.lender_income(state, empire_id)  # mensualités reçues des emprunteurs
+		if li > 0:
+			gross["energy"] += li
+			net["energy"] += li
 	return {"gross": gross, "upkeep": upkeep, "net": net}
 
 
@@ -439,6 +448,8 @@ static func building_unlocked(state: GameState, empire_id: int, building_id: Str
 		return false  # musée, villégiature, merveilles culturelles : seulement avec le rayonnement
 	if bool(b.get("admin", false)) and not Admin.full(state):
 		return false  # Tribunal : seulement avec la corruption (Administration complète)
+	if bool(b.get("finance", false)) and not Finance.full(state):
+		return false  # Banque centrale : seulement avec la fiscalité complète
 	if String(b.get("nature", "")) != "" and not FaithNatures.follows(state, empire_id, String(b["nature"])):
 		return false  # mausolée : seulement pour sa nature de foi
 	return Research.knows_all(state, empire_id, b.get("requires_tech", []))
@@ -530,6 +541,8 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 		return "le rayonnement culturel n'est pas en jeu dans cette partie"
 	if bool(b.get("admin", false)) and not Admin.full(state):
 		return "la corruption n'est pas en jeu dans cette partie"
+	if bool(b.get("finance", false)) and not Finance.full(state):
+		return "la fiscalité complète n'est pas en jeu dans cette partie"
 	if building_id == "mausolee":
 		var mw := FaithNatures.check_mausoleum(state, empire_id, planet_id)
 		if mw != "":

@@ -808,7 +808,11 @@ static func check_integrate(state: GameState, eid: int, sid: int) -> String:
 
 static func integrate(state: GameState, eid: int, sid: int) -> void:
 	Economy.pay(state.get_empire(eid), integrate_cost(state, eid, sid))
-	(state.admin["integ"] as Dictionary)[str(sid)] = state.tick + d_int("integration", "days")
+	var days := d_int("integration", "days")
+	if Finance.has_franchise(state, sid):  # franchise fiscale : la colonie se rallie plus vite
+		@warning_ignore("integer_division")
+		days = days * 100 / (100 + Finance.d_int("franchises", "integ_pct"))
+	(state.admin["integ"] as Dictionary)[str(sid)] = state.tick + days
 
 
 ## Colonies où la capitale peut aller (au moins min_pop habitants, hors capitale actuelle).

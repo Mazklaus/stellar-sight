@@ -391,6 +391,18 @@
 			"text": "Un incident (peut-être provoqué par vos espions) vous donne un motif pendant 5 ans."
 		},
 		{
+			"id": "recouvrement",
+			"label": "Recouvrement",
+			"req": "debt",
+			"goals": [
+				"rancon",
+				"humiliation"
+			],
+			"memory": "",
+			"just": true,
+			"text": "Il vous doit de l'argent et a fait défaut (faillite ou répudiation) depuis moins de 5 ans : les huissiers viendront avec des canons (fiscalité complète)."
+		},
+		{
 			"id": "violation",
 			"label": "Violation de frontière",
 			"req": "border",
