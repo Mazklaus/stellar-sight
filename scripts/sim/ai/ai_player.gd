@@ -556,6 +556,10 @@ static func _buildings(ctx: Dictionary) -> void:
 			continue
 		var full := Economy.building_slots_used(c) >= Economy.building_slots(state, c)
 		var dwish := AiDefenses.wishes(ctx, c)  # défenses spatiales : sans emplacement pour la plupart
+		if not state.portals.is_empty():
+			var qw := AiPortals.wish(ctx, c)  # portails de saut : sans emplacement (voir AiPortals)
+			if qw != "":
+				dwish.append(qw)
 		if full and not late and dwish.is_empty():
 			continue
 		var urgent := urgent_needs(ctx, net)
@@ -1856,6 +1860,8 @@ static func research_pick(ctx: Dictionary) -> String:
 		var w := int(weights.get(String(t["domain"]), 10))
 		if labs.has(tid) or bias_techs.has(tid):
 			w *= 3  # le bâtiment de recherche et celui du penchant du peuple d'abord (Raffinerie d'Ossarane)
+		if use >= 1 and not state.portals.is_empty():
+			w *= AiPortals.tech_mult(ctx, tid)  # trous de ver connus, rivaux : portails de saut
 		if victory_techs.has(tid):
 			w *= 6 if use >= 1 else 2  # la technologie de sa victoire de peuple, dès que l'ère s'ouvre
 		elif path.has(tid):

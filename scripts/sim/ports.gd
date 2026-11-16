@@ -381,16 +381,26 @@ static func _dist_from(state: GameState, eid: int, from: int, maxd: int, owners_
 	for i in maxd + 1:
 		buckets[i] = []
 	(buckets[0] as Array).append(from)
+	var portals := Portals.enabled(state)
 	for d in maxd + 1:
-		for sid in buckets[d]:
+		var bucket: Array = buckets[d]
+		var bi := 0
+		while bi < bucket.size():
+			var sid: int = int(bucket[bi])
+			bi += 1
 			if int(dist[sid]) != d:
 				continue
-			for n in state.galaxy.systems[int(sid)].neighbors:
+			var nbs: Array = state.galaxy.systems[sid].neighbors
+			if portals:
+				# Raccourcis (prop. 30) : portails reliés et trous de ver comptent comme voisins.
+				nbs = nbs + Portals.civil_links(state, eid, sid)
+			for n in nbs:
 				if not pass_cache.has(n):
 					pass_cache[n] = _passable(state, eid, n, owners_ok)
 				if not bool(pass_cache[n]):
 					continue
-				var nd := d + _step_cost(state, n)
+				# Un saut de corridor de relais ne compte pas dans la baisse de desserte (prop. 15).
+				var nd := d if portals and Portals.corridor(state, eid, sid, int(n)) else d + _step_cost(state, n)
 				if nd > maxd:
 					continue
 				if not dist.has(n) or int(dist[n]) > nd:

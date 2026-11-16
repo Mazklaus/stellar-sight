@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.28
+
+- **Les portails de saut** (chapitre 32), nouveau réglage **Portails de saut** (complets, simples, désactivés) : **trous de ver** naturels nommés, à six sauts ou plus, praticables avec la **Stabilisation des trous de ver**, dont un quart **instables** qui dérivent tous les 8 à 15 ans ; **Ancre de trou de ver** (passage réservé, péage, méga-vaisseaux) ; **relais hyperspatiaux** qui font des **corridors** trois fois plus courts ; **portails de saut** et **Grands portails** à portée en sauts, **recharge** selon la taille de la flotte, coût en **cristaux de saut**, **choc de transit** et **péage** ; jamais ouverts à un ennemi en guerre, coupés par blocus, siège, occupation, tempête gravitationnelle ou inhibiteur ; **Raser le portail** pour l'occupant.
+- **Portails anciens** en ruine à restaurer (le premier en réveille un autre), passages listés dans la vue système, trous de ver, corridors, portails et ruines dessinés sur la carte ; l'IA bâtit relais et portails de sa capitale vers son front.
+- **Ponts** : desserte des spatioports et routes commerciales par les raccourcis, corridors qui enrichissent les routes et étendent le ravitaillement, pirates attirés par les portails sans station, opération **Désaccorder un portail**, famille de lois **Portails** de l'Amphictyonie (**Portes ouvertes**, **Portes gardées**), pacte des Portes, quatre événements, trait d'amiral **Pilote de saut**, trait d'éditeur **Tisseurs de portes**, haut fait **Maître des portes**, talents par couche. Chapitres 33 à 36 renumérotés.
+
 ### Édition 2.27
 
 - **Les défenses spatiales** (chapitre 31), nouveau réglage **Défenses spatiales** (complètes, simples, désactivées) : une **station de défense** par système, à trois paliers (**Bastion orbital**, **Forteresse orbitale**, **Rempart stellaire**) améliorés sur place, avec ses **modules** (armes, blindage ablatif, générateur de bouclier, baie de réparation, centre de commandement, grands senseurs) et sa **couverture** pour les flottes amies ; **plates-formes** dans la limite de la **capacité de défense** du système, **batteries**, **hangars** et **boucliers planétaires** (Bouclier I et **Dôme**), **sentinelles** gratuites ; panneau **Défenses** de la vue système et **étape de l'assaut** sur la fiche du système.

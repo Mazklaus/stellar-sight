@@ -243,6 +243,8 @@ static func class_traits(cls: String, state: GameState = null) -> Array[String]:
 			continue
 		if td.get("defenses", false) and (state == null or not Defenses.enabled(state)):
 			continue  # trait des défenses spatiales : seulement quand elles sont en jeu
+		if td.get("portals", false) and (state == null or not Portals.full(state)):
+			continue  # trait des portails de saut : seulement en mode Complets (choc de transit)
 		if c == cls or (c == "" and not td.get("people", false) and not td.get("flaw", false)):
 			out.append(String(id))
 	return out

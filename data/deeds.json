@@ -489,6 +489,15 @@
 			"text": "Premier à tenir cinquante ans une capitale gardée par une station sans qu'elle soit jamais assiégée (défenses spatiales en jeu).",
 			"flavor": "Les guides montrent aux touristes les remparts. Les remparts n'ont jamais servi, et c'est tout leur mérite."
 		},
+		"maitre_portes": {
+			"label": "Maître des portes",
+			"family": "guerre",
+			"sort": "first",
+			"k": "linked_gates",
+			"n": 5,
+			"text": "Premier à tenir cinq portails de saut reliés à d'autres portails (portails de saut en jeu).",
+			"flavor": "On ne traverse plus la galaxie : on la plie, et l'on fait payer le pli."
+		},
 		"premier_leviathan": {
 			"label": "Premier Léviathan",
 			"family": "guerre",

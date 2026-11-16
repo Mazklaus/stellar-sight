@@ -676,6 +676,11 @@ static func private_act(player: int, act: String, a := -1, b := -1, s := "") -> 
 
 
 ## Défenses spatiales : "guard"/"unguard" (a = flotte), "modernize" (a = système).
+## Portails de saut : l'occupant rase le portail d'un système (voir Portals).
+static func portal_raze(player: int, system_id: int) -> Dictionary:
+	return {"type": "portal_raze", "player": player, "system": system_id}
+
+
 static func defense_act(player: int, act: String, a := -1, b := -1, s := "") -> Dictionary:
 	return {"type": "defense", "player": player, "act": act, "a": a, "b": b, "s": s}
 
@@ -879,6 +884,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Finance.check_mint(state, int(cmd["player"]))
 		"finance_franchise":
 			return Finance.check_franchise(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"portal_raze":
+			return Portals.check_raze(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"defense":
 			return Defenses.check(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"private":
@@ -1290,6 +1297,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Finance.mint(state, int(cmd["player"]))
 		"finance_franchise":
 			Finance.toggle_franchise(state, int(cmd["player"]), int(cmd["system"]))
+		"portal_raze":
+			Portals.raze(state, int(cmd["player"]), int(cmd["system"]))
 		"defense":
 			Defenses.apply(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"private":

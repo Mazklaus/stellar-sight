@@ -14,6 +14,9 @@ extends RefCounted
 static func lane_length(galaxy: Galaxy, a: int, b: int) -> int:
 	if not galaxy.gates.is_empty() and galaxy.gates.has(a) and galaxy.gates.has(b) and a != b:
 		return WondersCatalog.GATE_LEN  # saut de porte à porte
+	if not galaxy.wormholes.is_empty() or not galaxy.portal_gates.is_empty():
+		if Portals.is_shortcut(galaxy, a, b):
+			return 1  # trou de ver ou portail de saut (voir Portals) : un jour pour toute flotte
 	var d := maxi(1, roundi(galaxy.systems[a].position.distance_to(galaxy.systems[b].position)))
 	var pct := maxi(galaxy.systems[a].transit_pct, galaxy.systems[b].transit_pct)
 	if pct > 0:
@@ -83,7 +86,7 @@ static func _dijkstra(state: GameState, empire_id: int, from: int, avoid: Varian
 	if flags & Borders.PATH_LAIRS and state.lairs.is_empty() and not Fauna.active(state):
 		flags &= ~Borders.PATH_LAIRS
 	if not Borders.active(state):
-		flags &= Borders.PATH_LAIRS
+		flags &= Borders.PATH_LAIRS | Borders.PATH_SMUGGLE
 	var e := state.get_empire(empire_id)
 	if e == null:
 		return _dijkstra_raw(state, empire_id, from, flags)
@@ -91,11 +94,11 @@ static func _dijkstra(state: GameState, empire_id: int, from: int, avoid: Varian
 		e.path_cache.clear()
 		e.border_cache.clear()
 		e.path_cache_explored = e.explored.size()
-	if flags & (Borders.PATH_ARMED | Borders.PATH_CIVIL):
+	if flags & (Borders.PATH_ARMED | Borders.PATH_CIVIL | Borders.PATH_SMUGGLE):
 		if e.border_cache_tick != state.tick:
 			e.border_cache.clear()
 			e.border_cache_tick = state.tick
-		var bkey := from * 8 + flags
+		var bkey := from * 16 + flags
 		if not e.border_cache.has(bkey):
 			e.border_cache[bkey] = _dijkstra_raw(state, empire_id, from, flags)
 		return e.border_cache[bkey]
@@ -123,6 +126,10 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid: Va
 	var armed := flags & Borders.PATH_ARMED != 0
 	var detour := int(Borders.data().get("detour", 20000))
 	var blocked_by := {}
+	# Portails de saut (voir Portals) : trous de ver, portails, corridors de relais.
+	var shortcuts := not state.portals.is_empty() and (not state.galaxy.wormholes.is_empty() or not state.galaxy.portal_gates.is_empty())
+	var relays := not state.galaxy.relays.is_empty()
+	var smuggle := flags & Borders.PATH_SMUGGLE != 0
 	# Tableaux indexés par système pendant le calcul (plus rapides que des dictionnaires), puis les
 	# dictionnaires du résultat, remplis dans l'ordre de découverte, comme avant.
 	var g := state.galaxy
@@ -151,7 +158,11 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid: Va
 		for n in g.systems[best].neighbors:
 			if done[n] == 1 or not (best_known or explored.has(n)):
 				continue
-			var d: int = d0 + lane_length(g, best, n)
+			var ll := lane_length(g, best, n)
+			if relays and Portals.relay_ok(state, empire_id, best, n):
+				@warning_ignore("integer_division")
+				ll = maxi(1, ll / Portals.lane_mult(state, empire_id, best, n))
+			var d: int = d0 + ll
 			if lairs and explored.has(n) and (Pirates.is_lair(state, n) or Fauna.avoided(state, empire_id, n)):
 				d += LAIR_DETOUR
 			if border:
@@ -171,6 +182,21 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid: Va
 				prev[n] = best
 				if old < 0 or d < old:
 					_heap_push(heap, (d << 16) | n)
+		if shortcuts:
+			var ex := Portals.edges(state, empire_id, best, explored, smuggle)
+			for j in range(0, ex.size(), 2):
+				var n := ex[j]
+				if done[n] == 1:
+					continue
+				var d: int = d0 + ex[j + 1]
+				var old := dist[n]
+				if old < 0 or d < old or (d == old and best < prev[n]):
+					if old < 0:
+						order.append(n)
+					dist[n] = d
+					prev[n] = best
+					if old < 0 or d < old:
+						_heap_push(heap, (d << 16) | n)
 		# Portes stellaires : d'une porte ouverte à toute autre, en un saut.
 		if not g.gates.is_empty() and g.gates.has(best) and WondersCatalog.gate_open(state, empire_id, best):
 			var gk := g.gates.keys()
@@ -278,8 +304,15 @@ static func remaining_distance(state: GameState, fleet: Fleet) -> int:
 		return 0
 	var g := state.galaxy
 	var d := lane_length(g, fleet.system_id, fleet.path[0]) - fleet.progress
+	if not g.relays.is_empty():
+		@warning_ignore("integer_division")
+		d = d / Portals.lane_mult(state, fleet.owner, fleet.system_id, fleet.path[0])
 	for i in range(1, fleet.path.size()):
-		d += lane_length(g, fleet.path[i - 1], fleet.path[i])
+		var ll := lane_length(g, fleet.path[i - 1], fleet.path[i])
+		if not g.relays.is_empty():
+			@warning_ignore("integer_division")
+			ll = maxi(1, ll / Portals.lane_mult(state, fleet.owner, fleet.path[i - 1], fleet.path[i]))
+		d += ll
 	return d
 
 
