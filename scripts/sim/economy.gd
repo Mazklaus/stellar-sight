@@ -339,6 +339,18 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 		if li > 0:
 			gross["energy"] += li
 			net["energy"] += li
+	if not state.private.is_empty():
+		# Économie privée : impôt sur les bénéfices, loyers, livraisons des mines (hors bonus de
+		# production : déjà comptés) ; indemnités et contrats payés au privé (voir Private).
+		var pt := Private.to_state(state, empire_id)
+		for r in pt:
+			if gross.has(r):
+				gross[r] += int(pt[r])
+				net[r] += int(pt[r])
+		var pc := Private.state_cost(state, empire_id)
+		if pc > 0:
+			upkeep["energy"] += pc
+			net["energy"] -= pc
 	return {"gross": gross, "upkeep": upkeep, "net": net}
 
 

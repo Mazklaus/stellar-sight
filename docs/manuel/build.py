@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.24"
+EDITION = "2.25"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -425,6 +425,7 @@ def talents_du_peuple(f):
     ajoute("Logistique", _par_couche(c, charger("logistics.json").get("talents", {})))
     ajoute("Administration", _par_couche(c, charger("administration.json").get("talents", {})))
     ajoute("Trésor", _par_couche(c, charger("finance.json").get("talents", {})))
+    ajoute("Économie privée", _par_couche(c, charger("private.json").get("talents", {})))
     cu = charger("culture.json").get("talents", {})
     peuple = cu.get("peoples", {}).get(f["id"])
     ajoute("Rayonnement", _par_couche(c, {k: v for k, v in cu.items() if k != "peoples"}) + ([peuple] if isinstance(peuple, dict) else []))
@@ -980,6 +981,48 @@ def gen_fisc_talents():
     return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
 
 
+def gen_priv_modes():
+    """Réglage Économie privée (data/private.json)."""
+    d = charger("private.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    return f"<table class='grille'><tr><th>Économie privée</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_priv_impot():
+    """Impôt sur les bénéfices selon le cran (data/private.json, tax)."""
+    t = charger("private.json")["tax"]
+    noms = {"tres_bas": "Très bas", "bas": "Bas", "normal": "Normal", "eleve": "Élevé", "ecrasant": "Écrasant"}
+    l1 = "".join(f"<tr><td><b>{noms.get(k, k)}</b></td><td>{v} %</td><td>{t['invest_pct'].get(k, 100)} %</td></tr>" for k, v in t["rates"].items())
+    return f"<table class='grille'><tr><th>Cran de l'impôt</th><th>Impôt sur les bénéfices</th><th>Chance d'investir chaque mois</th></tr>{l1}</table>"
+
+
+def gen_priv_secteurs():
+    """Secteurs des compagnies (data/private.json, companies.sectors)."""
+    d = charger("private.json")["companies"]["sectors"]
+    lois = {l["id"]: l["label"] for l in charger("politics.json")["independent_laws"]}
+    l1 = "".join(f"<tr><td><b>{esc(s['label'])}</b></td><td>{inline(s.get('text', ''))}</td><td>{esc(lois.get(s.get('law', ''), s.get('law', '')))}</td><td><i>{esc(s['names'][0].replace('%s', '…'))}</i></td></tr>" for s in d)
+    return f"<table class='grille'><tr><th>Secteur</th><th>Effet (prospérité 60+)</th><th>Loi réclamée</th><th>Exemple de nom</th></tr>{l1}</table>"
+
+
+def gen_priv_chartes():
+    """Chartes et traits des dirigeants (data/private.json)."""
+    d = charger("private.json")
+    l1 = "".join(f"<tr><td><b>{esc(c['label'])}</b></td><td>{inline(c.get('text', ''))}</td></tr>" for c in d["charters"]["list"])
+    l2 = "".join(f"<tr><td><b>{esc(c['label'])}</b></td><td>{inline(c.get('text', ''))}</td></tr>" for c in d["directors"]["traits"])
+    return (f"<table class='grille'><tr><th>Charte</th><th>Effet</th></tr>{l1}</table>"
+            f"<table class='grille'><tr><th>Dirigeant</th><th>Trait</th></tr>{l2}</table>")
+
+
+def gen_priv_talents():
+    """Talents de l'économie privée par couche (data/private.json, talents)."""
+    d = charger("private.json")
+    lignes = ""
+    for couche, t in d["talents"].items():
+        for k, v in t.items():
+            lignes += f"<tr><td>{esc(couche.capitalize())}</td><td>{esc(k.capitalize())}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -1002,6 +1045,8 @@ GENERATEURS = {
     "admin_modes": gen_admin_modes, "admin_efforts": gen_admin_efforts, "admin_talents": gen_admin_talents,
     "fisc_modes": gen_fisc_modes, "fisc_crans": gen_fisc_crans, "fisc_cotes": gen_fisc_cotes,
     "fisc_paliers": gen_fisc_paliers, "fisc_talents": gen_fisc_talents,
+    "priv_modes": gen_priv_modes, "priv_impot": gen_priv_impot, "priv_secteurs": gen_priv_secteurs,
+    "priv_chartes": gen_priv_chartes, "priv_talents": gen_priv_talents,
 }
 
 

@@ -454,3 +454,13 @@ a vast orbital palace of archives, endless shelves of glowing ledgers and data s
 ```
 a vast vaulted treasury hall inside an orbital bank, towering vault doors open on stacks of glowing energy tokens, accountants of several alien species pushing floating carts of luminous coins along balconies, at the center a worried alien treasurer reading an enormous debt ledger unrolling down to the marble floor, a patient creditor waiting at the threshold hat in hand, great abacus of stars on the wall, fiscal grandeur with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-46 · L'économie privée
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « L'économie privée »
+- Sujet : Sur le quai d'un grand spatioport marchand, des cargos privés aux couleurs de compagnies rivales chargent des conteneurs ; une station minière et une station touristique illuminée flottent au loin ; au premier plan, un dirigeant de compagnie serre la main d'un ministre pendant qu'un contrebandier se faufile derrière une pile de caisses
+
+```
+a bustling orbital merchant spaceport quay, private cargo freighters painted in the liveries of rival trading companies loading glowing containers, company banners and holographic share prices above the docks, in the distance a mining station on an asteroid and a brightly lit space resort with panoramic domes, in the foreground a smug company director shaking hands with a government minister while a smuggler slips behind a stack of crates, mercantile bustle with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

@@ -226,7 +226,7 @@ static func migration_dest(state: GameState, src: Colony, fid: String, owners: A
 	var src_hab := Peoples.hab(state, src.owner, fid, state.galaxy.get_planet(src.planet_id).type)
 	var best: Colony = null
 	var bs := -1000000
-	var max_j := int(data().get("migration_jumps", 6))
+	var max_j := int(data().get("migration_jumps", 6)) + Private.migration_bonus(state, src.owner)  # paquebots
 	for pid in state.sorted_colony_ids():
 		var c: Colony = state.colonies[pid]
 		if c == src or not c.is_colony() or not c.is_established() or not owners.has(c.owner):

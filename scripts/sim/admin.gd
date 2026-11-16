@@ -725,6 +725,7 @@ static func corruption_parts(state: GameState, eid: int, sid: int, info := []) -
 	if law != 0:
 		parts.append(["Lois", law])
 	parts.append_array(AdminBridges.corruption_parts(state, eid, sid))
+	parts.append_array(PrivateBridges.corruption_parts(state, eid, sid))  # repaires, comptabilité créative
 	var v := 0
 	for p in parts:
 		v += int(p[1])

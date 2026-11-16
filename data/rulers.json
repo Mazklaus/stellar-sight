@@ -791,6 +791,8 @@
 			"fam": "guerre",
 			"posthumous": true
 		},
+		{"id": "actionnaire", "m": "l'Actionnaire", "f": "l'Actionnaire", "k": "companies", "n": 3, "src": "r", "legit": 5, "fam": "echange"},
+		{"id": "nationalisateur", "m": "le Nationalisateur", "f": "la Nationalisatrice", "k": "nationalized", "n": 2, "src": "r", "legit": -5, "fam": "echange"},
 		{"id": "depensier", "m": "le Dépensier", "f": "la Dépensière", "k": "borrowed", "n": 3, "src": "r", "legit": -5, "fam": "echange"},
 		{"id": "avare", "m": "l'Avare", "f": "l'Avare", "k": "frugal", "n": 5, "src": "r", "legit": 5, "fam": "echange"},
 		{"id": "banqueroutier", "m": "le Banqueroutier", "f": "la Banqueroutière", "k": "bankrupt", "n": 1, "src": "r", "legit": -15, "fam": "malheur"},

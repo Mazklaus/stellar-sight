@@ -934,6 +934,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var ffx2 := Finance.effects(state, empire_id)
 			_merge(base, ffx2)
 			_merge(exalted, ffx2)
+		# Économie privée : secteurs des compagnies prospères, chartes, réquisition (voir Private).
+		if not state.private.is_empty():
+			var pfx := Private.effects(state, empire_id)
+			_merge(base, pfx)
+			_merge(exalted, pfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

@@ -22,9 +22,11 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Avatar | Le héros d'une ruche ou d'une conscience : ni ambition, ni désertion, ni capture | 16 |
 | Bâtisseur | Titre du premier empire à tenir trois merveilles galactiques (un haut fait) | 23, 24 |
 | Bourse galactique | Merveille unique qui fonde le marché commun | 9 |
+| Caisse privée | L'argent du secteur privé, à part du Trésor : il investit seul (économie privée) | 29 |
 | Capacité administrative | Ce que les bureaux de l'empire peuvent gérer ; au-delà, chaque tranche de 10 % de charge coûte stabilité, recherche, influence et corruption | 27 |
 | Chancelier des étoiles | Le titre que l'Amphictyonie décerne, et qui donne la victoire diplomatique | 12, 18 |
 | Charge | Ce que pèse l'empire sur ses bureaux : systèmes, colonies, habitants, avant-postes, occupations | 27 |
+| Charte | Privilège accordé à une compagnie (Monopole, Commerce lointain, Colonisation, Armement, Exploration) | 29 |
 | Cimetière d'épaves | Système où se sont accumulées trente épaves : transit plus long, couvert, matériaux récupérés (terrain) | 7 |
 | Cité-État | Peuple mineur qui a ses vaisseaux et tient un système, avec une flotte | 21 |
 | Clause | Une règle du lien de sujet : diplomatie, guerres, expansion, intégration, tribut, spécialité, culte | 10 |
@@ -32,9 +34,11 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Cohésion | L'unité d'un Koinon, de -100 à +100 ; elle nourrit l'expérience de la ligue | 11 |
 | Commandant du Front | Poste de héros d'un membre du Front commun : ses flottes frappent la crise plus fort | 19 |
 | Communion | Une forme de Koinon (même foi) ; et une nature de foi qui met les productions en commun | 11, 15 |
+| Compagnie | Entreprise privée nommée, avec un secteur, un siège, une prospérité, une charte et un dirigeant | 29 |
 | Comptoir | Point de départ supplémentaire des routes commerciales ; chez un sujet, comptoir de tribut | 9, 10 |
 | Concile | Réunion qui permet au chef de foi de changer une doctrine | 15 |
 | Conclave | L'assemblée d'une théocratie ; à l'Amphictyonie, deux théocraties de même foi qui votent ensemble | 14, 12 |
+| Confiance des investisseurs | Jauge de 0 à 100 qui décide si le privé investit, et combien | 29 |
 | Connaissance du terrain | Un système tenu deux ans : son propriétaire n'y subit plus que la moitié des malus de combat | 7 |
 | Conscience | Ce qu'un pré-spatial sait des empires : Ignorants, Rumeurs, Soupçons, Savent | 21 |
 | Convoi | Réfugiés sans refuge qui errent de saut en saut | 3 |
@@ -73,9 +77,10 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Faveur | Dette de vote à l'Amphictyonie, que l'on appelle pendant une séance | 12 |
 | Ferveur | Jauge propre aux théocraties du Chœur et des Murmurants | 20 |
 | Fief | Système tenu par une Grande Maison ; sa faveur y joue sur la production et la stabilité | 26 |
+| Filiale | Bureau d'une compagnie dans la colonie d'un partenaire commercial ; l'hôte peut l'exproprier | 29 |
 | Fin de partie | Date à partir de laquelle une crise peut se lever, avancée par les actes imprudents | 19 |
 | Fléau des étoiles | Le dernier palier de l'Ambition démesurée : guerre de toute la galaxie, et la Couronne du Néant à bâtir | 19 |
-| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 31 |
+| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 32 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
 | Fortifications | Remparts d'un système, que le siège use avant la milice (combat au sol complet) | 7 |
 | Fouille | Site exploré en plusieurs chapitres, avec une relique au bout | 17 |
@@ -83,7 +88,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Fronde | Révolte d'une maison furieuse : un an de troubles dans ses fiefs, puis un ultimatum | 26 |
 | Front commun | Coalition contre la crise : vision partagée, passage libre, +10 % de dégâts contre elle | 19 |
 | Frontière | Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe | 8 |
-| Gardien | Créature unique assise sur un des meilleurs systèmes | 31 |
+| Gardien | Créature unique assise sur un des meilleurs systèmes | 32 |
 | Gloire | Valeur d'empire gagnée par les hauts faits et les grands moments, jamais perdue | 24 |
 | Grand chantier | Chantier de merveille, à part de la file de la colonie : avance de 20 %, puis mensualités ; un à la fois | 23 |
 | Grand chantier commun | Phare des Âges ou Banque des Étoiles : le projet que tous financent pour arrêter une crise sans flotte | 19 |
@@ -116,6 +121,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Libre-échange | Troisième palier du commerce ; et une loi qui double le revenu des routes | 9, 14 |
 | Libre-passage | Traité réciproque qui ouvre à chacun l'espace de l'autre ; dénoncé avec 90 jours de préavis | 8 |
 | Licence | Droit d'usage d'un luxe, ou achat d'une part de technologie | 9 |
+| Licence minière | Autorisation donnée au privé de bâtir une station minière sur un gisement (10 influence) | 29 |
 | Loyauté | Celle d'un héros, d'un sujet, ou de l'héritier d'Ossarane | 16, 10, 8 |
 | Luxe | Ressource rare qui compte par variété : stabilité et petit effet | 9 |
 | Marché commun | Prix partagés par toute la galaxie, une fois la Bourse fondée | 9 |
@@ -163,7 +169,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Régiment | Unité de combat au sol, recrutée sur une colonie, transportée par les flottes | 7 |
 | Registre | Le ton d'un peuple : grimdark, médiéval spatial, space opera héroïque… | 20 |
 | Registre des traités | Toutes les paix signées, leurs clauses et leurs échéances | 8 |
-| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 30 |
+| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 31 |
 | Renom | La gloire d'un empire, qui attire les héros ; et celui d'une maison, qui achète ses héritages | 16, 25 |
 | Répudiation | Refuser de payer une Maison ou un empire : pas de faillite, mais cote D et créancier furieux | 28 |
 | Réquisition | Refaire les réserves d'une flotte sur le dos d'un système assiégé : crime de guerre (logistique complète) | 7 |
@@ -185,6 +191,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Stratégique | Ressource qui s'ouvre avec les ères, consommée au Chantier | 9 |
 | Sujet, suzerain | L'empire lié par clauses, et celui qui le tient | 10 |
 | Surnom | Ce que le règne a valu au souverain (« la Vaillante ») : il compte dans la légitimité | 25 |
+| Syndicat du crime | Repaire criminel né de la corruption ou d'un port franc : vole de l'énergie, nourrit la corruption | 29 |
 | Synode | L'assemblée d'un Koinon | 11 |
 | Talent | Ce que donne une couche d'espèce dans un domaine du jeu | 20 |
 | Tempête cosmique | Zone mobile dès la 10e année, qui coupe ravitaillement et commerce mais rapporte du Savoir | 7 |
@@ -205,6 +212,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Voile | Une nébuleuse arrête la vue : on n'y voit pas de l'extérieur, et on n'y voit que son système | 7 |
 | Zèle | La vigueur d'une grande foi, de 0 à 100 | 15 |
 | Zone de ravitaillement | Vos systèmes et ceux qui vous ravitaillent, plus 2 sauts autour : les flottes y refont leurs réserves | 7 |
+| Zone militaire | Système interdit aux civils : pas de cargo perdu, mais ses stations privées s'arrêtent | 29 |
 
 ::: marge
 Il manque un mot : « bureaucratie ». Les Archives ont demandé qu'on l'ajoute. La demande est en cours d'examen.

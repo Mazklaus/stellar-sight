@@ -300,6 +300,8 @@ static func _req_ok(state: GameState, req: String, a: int, b: int) -> bool:
 			return not state.rulers.is_empty() and RulersBridges.succession_casus(state, a, b)
 		"debt":
 			return not state.finance.is_empty() and FinanceBridges.debt_casus(state, a, b)
+		"expropriated":
+			return not state.private.is_empty() and Private.full(state) and Private.expropriation_casus(state, a, b)
 	return false
 
 
@@ -314,6 +316,9 @@ static func goal_ok(state: GameState, gid: String, a: int, b: int) -> bool:
 				return false
 		"vassals":
 			if not state.vassals_on or bool(Vassals.talent(state, a).get("no_subjects", false)) or bool(Vassals.talent(state, b).get("no_subjects", false)):
+				return false
+		"private":
+			if state.private.is_empty() or not Private.full(state) or not Private.applies(state, a) or not Private.applies(state, b):
 				return false
 	return true
 
@@ -366,7 +371,7 @@ static func auto_choice(state: GameState, a: int, b: int) -> Array:
 	var e := state.get_empire(a)
 	if e != null and e.is_ai() and int(AiLevels.level(e.ai_level).get("military", {}).get("skill", 1)) <= 0:
 		return ch[(a * 7 + b * 13 + state.tick / 30) % ch.size()]
-	var rank := ["totale", "independance", "quitter", "conquete", "soumission", "liberer", "rancon", "merveille", "demanteler", "humiliation", "kanly"]
+	var rank := ["totale", "independance", "quitter", "conquete", "soumission", "liberer", "ouvrir_marches", "rancon", "merveille", "demanteler", "humiliation", "kanly"]
 	var best: Array = ch[0]
 	for c in ch:
 		var better := rank.find(String(c[1])) < rank.find(String(best[1]))
@@ -848,6 +853,8 @@ static func apply_victory(state: GameState, winner: int, loser: int) -> void:
 					ceded.append(state.galaxy.systems[sid].system_name)
 			for s in Vassals.subjects_of(state, loser):
 				Vassals.unbind(state, s, "la paix l'affranchit")
+		"ouvrir_marches":
+			ceded.append_array(PrivateBridges.open_markets(state, winner, loser))
 		"merveille":
 			var won := WondersBridges.take_prize(state, winner, loser)
 			if won != "":

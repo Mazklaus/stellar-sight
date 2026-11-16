@@ -3,6 +3,13 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.25
+
+- **L'économie privée** (chapitre 29), nouveau réglage **Économie privée** (complète, simple, désactivée) : un **secteur privé** avec sa propre caisse, nourri par l'activité de la population, une part des routes, ses stations et ses filiales ; **impôt sur les bénéfices** selon le cran de la fiscalité ; **confiance des investisseurs** ; investissement autonome (cargos, paquebots, **stations minières sous licence**, **stations touristiques**, bâtiments civils) ; **subventions**, **commandes d'État**, chantiers loués et **vaisseaux commandés au privé** ; onglet **Privé** de l'écran Commerce ([[C]]) et **mode Économie privée** de la lentille du commerce ([[G]]).
+- **Compagnies** nommées : secteur, siège, **prospérité**, **chartes** (dont le Monopole), **dirigeants** recrutables au conseil, **lobbying** et déménagement, **nationalisation**, **actions**, prêts au Trésor ; **filiales** à l'étranger, **expropriation** et **confiscation des comptes**, motif de guerre **Expropriation**, but **Ouvrir les marchés**.
+- **Flotte marchande** : cargos perdus aux pirates et aux ennemis, **zones militaires**, **réquisition** en guerre, **ravitaillement sous contrat**, paquebots qui allongent la migration, chantiers lointains ralentis faute de fret, stations conquises.
+- **Ombres et ponts** : **syndicats du crime** et descentes de police, **comptabilité créative**, fuite fiscale, quatre opérations d'**espionnage industriel**, lois **Laissez-faire**, **Dirigisme** et **Économie planifiée**, Maisons marchandes, surnoms **l'Actionnaire** et **le Nationalisateur**, hauts faits **Société anonyme**, **Multinationale**, **Destination de rêve** et **Le cimetière des cargos**, talents par couche. Chapitres 30 à 33 renumérotés.
+
 ### Édition 2.24
 
 - **Le Trésor** (chapitre 28), nouveau réglage **Fiscalité** (complète, simple, désactivée) : **impôt à cinq crans** (Normal ne change rien) qui pèse sur l'énergie, la stabilité et la croissance, **fuite fiscale** de la corruption, **franchises fiscales** ; onglet **Trésor** de l'Ordre intérieur ([[F12]]) avec le **budget** poste par poste et sa projection, **mode Fiscalité** de la lentille de stabilité ([[K]]) et dette dans la barre du haut.

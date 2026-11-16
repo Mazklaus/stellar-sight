@@ -1268,7 +1268,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				return
 			if key.physical_keycode == KEY_G and not is_system_view_open():
-				_hud.set_lens("" if _hud.lens == "trade" else "trade")
+				_hud.cycle_trade_lens()
 				return
 			if key.physical_keycode == KEY_U and not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "peoples" else "peoples")

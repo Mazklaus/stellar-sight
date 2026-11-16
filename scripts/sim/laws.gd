@@ -244,6 +244,8 @@ static func check_adopt(state: GameState, empire_id: int, id: String) -> String:
 		return "pas de rayonnement culturel dans cette partie"
 	if bool(d.get("admin", false)) and not Admin.full(state):
 		return "la corruption n'est pas active dans cette partie"
+	if bool(d.get("private", false)) and not Private.applies(state, empire_id):
+		return "pas d'économie privée dans votre empire"
 	if bool(d.get("faiths", false)) and id == "inquisition" and not Faiths.has_state_faith(state, empire_id):
 		return "pas d'Inquisition sans foi d'État"
 	if bool(d.get("faiths", false)) and id == "tolerance" and Faiths.doctrine(state, Faiths.state_faith(state, empire_id), "regard") == "fondamentaliste" \

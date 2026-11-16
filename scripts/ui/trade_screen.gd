@@ -83,7 +83,10 @@ static func build(es: EmpireScreens) -> void:
 	var tabs := HBoxContainer.new()
 	tabs.add_theme_constant_override("separation", 2)
 	root.add_child(tabs)
-	for t in [["routes", "Routes"], ["resources", "Ressources"], ["market", "Marché"], ["knowledge", "Savoir"]]:
+	var tab_list := [["routes", "Routes"], ["resources", "Ressources"], ["market", "Marché"], ["knowledge", "Savoir"]]
+	if Private.applies(state, player) or (me == null and Private.enabled(state)):
+		tab_list.append(["private", "Privé"])
+	for t in tab_list:
 		var tb := Button.new()
 		tb.theme_type_variation = &"TabButton"
 		tb.text = String(t[1]).to_upper()
@@ -113,6 +116,9 @@ static func build(es: EmpireScreens) -> void:
 		return
 	if es.trade_tab == "knowledge":
 		GoodsScreen.build_knowledge(es, col)
+		return
+	if es.trade_tab == "private":
+		PrivateUi.build(es, col)
 		return
 
 	var sent := Widgets.Block.new("Vos routes (%d / %d)" % [Trade.sent_by(state, player).size(), cap])
@@ -253,5 +259,5 @@ static func _route_row(es: EmpireScreens, r: Dictionary, mine: bool) -> Control:
 static func signature(es: EmpireScreens) -> String:
 	var state := es._state
 	@warning_ignore("integer_division")
-	return "%d|%d|%s|%s|%d|%s" % [state.tick / 30, Trade.reserved(state, es._player), str(Trade.embargoes_of(state, es._player)),
-			str(Trade.sent_by(state, es._player).size()), Trade.capacity(state, es._player), GoodsScreen.signature(es)]
+	return "%d|%d|%s|%s|%d|%s|%s" % [state.tick / 30, Trade.reserved(state, es._player), str(Trade.embargoes_of(state, es._player)),
+			str(Trade.sent_by(state, es._player).size()), Trade.capacity(state, es._player), GoodsScreen.signature(es), PrivateUi.signature(es)]

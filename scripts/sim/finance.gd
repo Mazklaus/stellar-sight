@@ -376,6 +376,8 @@ static func rate_for(state: GameState, eid: int, lender := "bank", who := -1) ->
 			var h := Court.house(state, eid, who) if not state.court.is_empty() else {}
 			if not h.is_empty() and (cr["merchant_vocations"] as Array).has(String(h.get("voc", ""))):
 				pct = pct * int(cr["merchant_pct"]) / int(cr["house_pct"])
+		"company":
+			pct = pct * Private.c_int("companies", "lender_pct") / 100  # compagnie nationale prêteuse
 		"empire":
 			pct = pct * (int(cr["lord_pct"]) if state.vassals_on and Vassals.lord_of(state, eid) == who else int(cr["empire_pct"])) / 100
 	var adj := _fx(state, eid, "debt_rate_pct") + int(tal.get("rate_pct", 0)) + FinanceBridges.rate_pct(state, eid)
@@ -770,6 +772,11 @@ static func _amortize(state: GameState, e: Empire, en: Dictionary, added: Array[
 				gone = true  # le Koinon dissous n'a plus de trésorier
 			elif int(l["m"]) > 0:
 				lg["treasury"] = int(lg.get("treasury", 0)) + principal_part(l)
+		elif String(l["l"]) == "company":
+			if Private.company(state, int(l["w"])).is_empty():
+				gone = true  # la compagnie a fait faillite : la créance part avec elle
+			elif int(l["m"]) > 0:
+				Private.lend_repaid(state, e.id, installment(state, e.id, l))
 		if int(l["m"]) > 0 and not gone:
 			l["p"] = int(l["p"]) - principal_part(l)
 			l["m"] = int(l["m"]) - 1
@@ -892,6 +899,8 @@ static func lenders(state: GameState, eid: int) -> Array:
 	if not state.court.is_empty() and Court.applies(state, eid):
 		for h: Dictionary in Court.houses(state, eid):
 			out.append(["house:%d" % int(h["id"]), String(h.get("name", "?"))])
+	for c in Private.lender_companies(state, eid):
+		out.append(["company:%d" % int(c["id"]), String(c["n"])])
 	for o in state.empires:
 		if o.id != eid and not o.eliminated and not o.is_npc() and state.get_empire(eid).contacts.has(o.id):
 			out.append(["empire:%d" % o.id, o.short_name()])
@@ -949,6 +958,8 @@ static func check_borrow(state: GameState, eid: int, key: String, amount: int) -
 			return ""
 		"empire":
 			return lend_refusal(state, int(kw[1]), eid, amount)
+		"company":
+			return Private.lend_check(state, eid, int(kw[1]), amount)
 	return "prêteur inconnu"
 
 
@@ -987,6 +998,8 @@ static func borrow(state: GameState, eid: int, key: String, amount: int) -> void
 		var le := state.get_empire(who)
 		le.resources["energy"] = int(le.resources.get("energy", 0)) - amount
 		Diplomacy.remember(state, eid, who, "loan_granted")
+	elif kind == "company":
+		Private.lend_take(state, eid, amount)
 	var l := {"id": _next_id(state), "l": kind, "w": who, "p": amount, "r": rate_for(state, eid, kind, who), "m": d_int("loan", "months")}
 	(_w(state, eid)["loans"] as Array).append(l)
 	e.resources["energy"] = int(e.resources.get("energy", 0)) + amount
@@ -1214,4 +1227,6 @@ static func lender_label(state: GameState, eid: int, l: Dictionary) -> String:
 		"koinon":
 			var lg := Koinon.league(state, int(l["w"])) if not state.koinon.is_empty() else {}
 			return String(lg.get("name", "Le Koinon"))
+		"company":
+			return String(Private.company(state, int(l["w"])).get("n", "Une compagnie disparue"))
 	return "Dette courante (Banque)" if int(l["m"]) == 0 else "Banque intérieure"

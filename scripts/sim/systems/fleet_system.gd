@@ -106,6 +106,8 @@ static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictiona
 		return  # chantiers spatiaux bloqués pendant le siège ou l'occupation
 	if state.wars_on and Combat.ship_damage_profile(c.ship_build) > 0 and WarPeace.fleet_capped(state, c.owner):
 		return  # traité : limite de flotte
+	if Private.skip_day(state, p.system_id):
+		return  # chantier lointain mal desservi par le fret privé
 	c.ship_days -= 1
 	if c.ship_days > 0:
 		return

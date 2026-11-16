@@ -194,16 +194,22 @@ static func _budget_block(es: EmpireScreens, inc: Dictionary) -> Control:
 		@warning_ignore("integer_division")
 		before_infl = before_infl * 10000 / (10000 + infl)
 	var inflation := upkeep - interest - principal - before_infl
-	var rest := before_infl - fleets - armies - admin
+	var ptax := int(Private.to_state(state, player).get("energy", 0))
+	var pcost := Private.state_cost(state, player)
+	var rest := before_infl - fleets - armies - admin - pcost
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 40)
 	b.body.add_child(row)
-	var income := [["Production et impôt des colonies", gross - rent]]
+	var income := [["Production et impôt des colonies", gross - rent - ptax]]
 	if rent > 0:
 		income.append(["Mensualités reçues (prêts consentis)", rent])
+	if ptax > 0:
+		income.append(["Économie privée (impôt, loyers, mines)", ptax])
 	var spend := [["Flottes", fleets], ["Armées", armies], ["Bâtiments et colonies", rest]]
 	if admin > 0:
 		spend.append(["Fonctionnaires", admin])
+	if pcost > 0:
+		spend.append(["Contrats et indemnités du privé", pcost])
 	if interest > 0:
 		spend.append(["Intérêts", interest])
 	if principal > 0:
