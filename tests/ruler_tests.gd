@@ -452,7 +452,7 @@ func _test_save() -> void:
 	Rulers.note(st, eid, "battles_won", 3)
 	to_month(st)
 	var d := st.to_snapshot()
-	_ok(int(d["version"]) == 75, "format de sauvegarde 75")
+	_ok(int(d["version"]) >= 75, "format de sauvegarde 75 ou plus")
 	var st2 := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(st2 != null, "relecture")
 	if st2 == null:

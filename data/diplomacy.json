@@ -98,6 +98,9 @@
 		]
 	},
 	"memories": {
+		"court_embassy": {"value": 10, "days": 1080, "label": "Nous a envoyé une ambassade fastueuse"},
+		"court_humiliated": {"value": -20, "days": 1800, "label": "A humilié une famille de notre cour"},
+		"court_poached": {"value": -15, "days": 1800, "label": "A débauché une maison de notre cour"},
 		"vol_protege": {"value": -20, "days": 1800, "label": "Nous a volé notre protégé (peuple mineur intégré)"},
 		"conquete_mineur": {"value": -10, "days": 1800, "stack": 3, "label": "A conquis un peuple mineur que nous aimions"},
 		"ingerence_mineur": {"value": -15, "days": 1440, "stack": 2, "label": "Ses agents intriguent chez nos protégés"},

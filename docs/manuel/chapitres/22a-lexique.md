@@ -60,21 +60,26 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Embargo | Coupure de tout commerce avec un empire | 9 |
 | Encerclement | Planète assiégée cernée de systèmes ennemis : garnison et remparts ne se relèvent plus (logistique complète) | 7 |
 | Eurêka | Objectif en jeu qui paie 40 % d'une technologie | 5 |
+| Faste | L'éclat de la cour, de 0 à 100 : train de la cour, grandes fêtes ; faveur, influence, rayonnement, style | 26 |
 | Faveur | Dette de vote à l'Amphictyonie, que l'on appelle pendant une séance | 12 |
 | Ferveur | Jauge propre aux théocraties du Chœur et des Murmurants | 20 |
+| Fief | Système tenu par une Grande Maison ; sa faveur y joue sur la production et la stabilité | 26 |
 | Fin de partie | Date à partir de laquelle une crise peut se lever, avancée par les actes imprudents | 19 |
 | Fléau des étoiles | Le dernier palier de l'Ambition démesurée : guerre de toute la galaxie, et la Couronne du Néant à bâtir | 19 |
-| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 28 |
+| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 29 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
 | Fortifications | Remparts d'un système, que le siège use avant la milice (combat au sol complet) | 7 |
 | Fouille | Site exploré en plusieurs chapitres, avec une relique au bout | 17 |
+| Fronde | Révolte d'une maison furieuse : un an de troubles dans ses fiefs, puis un ultimatum | 26 |
 | Front commun | Coalition contre la crise : vision partagée, passage libre, +10 % de dégâts contre elle | 19 |
 | Frontière | Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe | 8 |
-| Gardien | Créature unique assise sur un des meilleurs systèmes | 28 |
+| Gardien | Créature unique assise sur un des meilleurs systèmes | 29 |
 | Gloire | Valeur d'empire gagnée par les hauts faits et les grands moments, jamais perdue | 24 |
 | Grand chantier | Chantier de merveille, à part de la file de la colonie : avance de 20 %, puis mensualités ; un à la fois | 23 |
 | Grand chantier commun | Phare des Âges ou Banque des Étoiles : le projet que tous financent pour arrêter une crise sans flotte | 19 |
 | Grand Rayonnement | Victoire classique : être Influent chez chaque empire rencontré pendant deux ans | 22 |
+| Grande Maison | Famille noble de la cour : vocation, fiefs, siège, membres, faveur de -100 à +100 | 26 |
+| Grands offices | Grand Intendant, Connétable, Grand Héraut, Maître des Murmures (et Grand Aumônier) | 26 |
 | Grands Œuvres | Victoire en option : tenir 2 à 5 Grands Œuvres d'ère V un an | 23 |
 | Grief | Un an pendant lequel attaquer celui qui vous espionnait n'est pas un parjure | 13, 7 |
 | Guerre froide | Le statut de départ entre deux empires qui se rencontrent | 8 |

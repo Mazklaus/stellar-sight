@@ -1116,6 +1116,7 @@ static func _age_month(state: GameState, eid: int, en: Dictionary, r: Dictionary
 	if a < from:
 		return false
 	var per_mille := (a - from + 1) * int(Heroes.data()["life"]["per_year_pct"]) * 10 / 12
+	per_mille = per_mille * (100 - Court.medic_pct(state, eid)) / 100  # Médecin de la cour
 	if _h(state, ["mort", eid, state.tick]) % 1000 >= per_mille:
 		return false
 	die(state, eid, "s'éteint à %d ans" % a, added, "age")

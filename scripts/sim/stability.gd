@@ -327,6 +327,8 @@ static func context(state: GameState, empire_id: int) -> Dictionary:
 	global.append_array(DeedsBridges.stability_parts(state, empire_id))
 	if not state.rulers.is_empty():
 		global.append_array(Rulers.stability_parts(state, empire_id))
+	if not state.court.is_empty():
+		global.append_array(Court.empire_stability_parts(state, empire_id))
 	# Contre-espionnage : un réseau chez soi tient les meneurs à l'œil.
 	if not state.networks.is_empty() and Espionage.home_cells(state, empire_id) > 0:
 		global.append(["Réseau intérieur (contre-espionnage)", int(src["counter_network"])])

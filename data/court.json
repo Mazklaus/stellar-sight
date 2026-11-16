@@ -1,0 +1,3767 @@
+{
+	"_sources": "Étude « La cour et les familles nobles » (2026-11-16) : https://claude.ai/artifact/HkV7gdZRDjESZnothy81kn. Old World (manuel officiel : familles vassales, sièges, goûts, petit conseil, intercession, mécontentement ; Behind the Throne : vizir, étoiles montantes, opulence), Imperator: Rome (manuel 2.0.1 : grandes familles, offices, loyauté, guerre civile, familles des vaincus), Crusader Kings III (conseil, factions et ultimatums, leviers, postes de cour, faste).",
+	"_doc": "Catalogue ouvert : vocations (communes et de registre), désirs, traits des courtisans, offices, postes mineurs, noms par registre, libellés par gouvernement, talents par couche, styles de cour et cartes s'ajoutent ici sans toucher au code. Conditions des désirs (likes/dislikes) : law (loi en vigueur), building (par bâtiment dans ses fiefs, per, max), fiefs_most, fiefs_least, office (un de ses membres en charge), office_id, no_office, war, long_peace (years), faith, kin (mariée au trône), minor_ruler (régence), fleets (n flottes armées), stat (mesure DeedsEval id >= n). Valeur v (ou per) = faveur.",
+	"modes": [
+		{
+			"id": "actives",
+			"label": "Actives",
+			"text": "Chaque empire (sauf les ruches) a ses Grandes Maisons : fiefs, faveur, courtisans, grands offices, faste, Fronde et guerre civile."
+		},
+		{
+			"id": "apaisees",
+			"label": "Apaisées",
+			"text": "Les Maisons et la cour sont là, mais ni Fronde, ni ultimatum, ni guerre civile."
+		},
+		{
+			"id": "aucune",
+			"label": "Aucune",
+			"text": "Pas de Maisons ni de cour : le pilier est désactivé."
+		}
+	],
+	"default_mode": "actives",
+	"rules": {
+		"check_days": 30,
+		"offset": 17,
+		"start_houses": 3,
+		"per_systems": 8,
+		"max_houses": 5,
+		"offered": 4,
+		"members_min": 2,
+		"members_max": 4,
+		"member_age": [
+			20,
+			60
+		],
+		"member_life": 75,
+		"fav_min": -100,
+		"fav_max": 100,
+		"adj_decay": 1,
+		"adj_min": -60,
+		"adj_max": 60,
+		"tiers": [
+			{
+				"id": "furieuse",
+				"label": "Furieuse",
+				"min": -100,
+				"prod": -10,
+				"stab": -6,
+				"ground": -10,
+				"color": "#e04848"
+			},
+			{
+				"id": "mecontente",
+				"label": "Mécontente",
+				"min": -59,
+				"prod": -5,
+				"stab": -3,
+				"ground": -5,
+				"color": "#e09a48"
+			},
+			{
+				"id": "neutre",
+				"label": "Neutre",
+				"min": -19,
+				"prod": 0,
+				"stab": 0,
+				"ground": 0,
+				"color": "#b0b0b0"
+			},
+			{
+				"id": "satisfaite",
+				"label": "Satisfaite",
+				"min": 20,
+				"prod": 5,
+				"stab": 2,
+				"ground": 5,
+				"color": "#8bc34a"
+			},
+			{
+				"id": "devouee",
+				"label": "Dévouée",
+				"min": 60,
+				"prod": 10,
+				"stab": 5,
+				"ground": 10,
+				"color": "#4caf50"
+			}
+		],
+		"equity": 10,
+		"office_fav": 15,
+		"office_fav_max": 25,
+		"appoint_adj": 15,
+		"revoke_adj": -25,
+		"scorn_month": -1,
+		"scorn_min": -30,
+		"scorn_others": 2,
+		"legit_high": 10,
+		"legit_low": -10,
+		"stab_low": 35,
+		"stab_low_fav": -10,
+		"stab_high": 70,
+		"stab_high_fav": 5,
+		"goods_have": 5,
+		"goods_miss": -5,
+		"current_power": 10,
+		"current_opposite": -5,
+		"landless": -20,
+		"seat_upkeep": 0,
+		"gift_cost": {
+			"energy": 60
+		},
+		"gift_adj": 20,
+		"gift_cd": 180,
+		"pacify_cost": {
+			"influence": 20
+		},
+		"pacify_stab": 10,
+		"pacify_days": 360,
+		"pacify_adj": 5,
+		"pacify_cd": 180,
+		"imprison_cost": {
+			"influence": 40
+		},
+		"imprison_base": 40,
+		"imprison_per": 8,
+		"imprison_adj": -30,
+		"imprison_cd": 360,
+		"secret_cost": {
+			"influence": 30
+		},
+		"secret_base": 35,
+		"secret_per": 8,
+		"secret_cd": 360,
+		"lever_days": 1800,
+		"lever_adj": 40,
+		"embassy_cost": {
+			"influence": 25
+		},
+		"embassy_cd": 360,
+		"intercede_cost": {
+			"influence": 30
+		},
+		"intercede_adj": 20,
+		"intercede_cd": 360,
+		"intercede_min": 60,
+		"grant_cost": {
+			"influence": 20
+		},
+		"grant_adj": 15,
+		"revoke_fief_adj": -40,
+		"revoke_others": -5,
+		"revoke_legit": -3,
+		"exile_adj": -30,
+		"raise_cost": {
+			"influence": 60
+		},
+		"raise_adj": 10,
+		"marriage_adj": 30,
+		"marriage_others": -5,
+		"foreign_spouse_ok": true,
+		"rival_both_office": -10,
+		"friend_office": 5,
+		"star_sum": 12,
+		"star_cost": {
+			"influence": 50
+		},
+		"star_away_adj": -20,
+		"star_buy_op": 20,
+		"fronde_fav": -60,
+		"fronde_pct": 10,
+		"fronde_days": 360,
+		"fronde_stab": -15,
+		"ultimatum_share_pct": 33,
+		"ultimatum_cd": 720,
+		"concede_cost": {
+			"influence": 100
+		},
+		"concede_adj": 40,
+		"ultimatum_days": 60,
+		"civil_war_min_systems": 1,
+		"conquered_max": 5,
+		"integrate_adj": -30,
+		"humiliate_culture": -10,
+		"flee_grief": true,
+		"faste_base": 10,
+		"faste_drift": 2,
+		"faste_max": 100,
+		"faste_tiers": [
+			{
+				"min": 25,
+				"fav": 5,
+				"influence": 0,
+				"culture_pct": 5,
+				"label": "Cour honorable"
+			},
+			{
+				"min": 50,
+				"fav": 10,
+				"influence": 1,
+				"culture_pct": 10,
+				"label": "Cour brillante"
+			},
+			{
+				"min": 75,
+				"fav": 15,
+				"influence": 2,
+				"culture_pct": 15,
+				"label": "Cour éblouissante"
+			}
+		],
+		"train": {
+			"table": {
+				"label": "Table",
+				"text": "Banquets, vins et mets rares.",
+				"upkeep": [
+					0,
+					5,
+					12,
+					20
+				],
+				"faste": [
+					0,
+					5,
+					10,
+					15
+				]
+			},
+			"fetes": {
+				"label": "Fêtes",
+				"text": "Bals, joutes et spectacles.",
+				"upkeep": [
+					0,
+					5,
+					12,
+					20
+				],
+				"faste": [
+					0,
+					5,
+					10,
+					15
+				]
+			},
+			"garde": {
+				"label": "Garde d'apparat",
+				"text": "Uniformes, parades et trompettes.",
+				"upkeep": [
+					0,
+					5,
+					12,
+					20
+				],
+				"faste": [
+					0,
+					5,
+					10,
+					15
+				]
+			}
+		},
+		"fete_cost": {
+			"energy": 150,
+			"influence": 30
+		},
+		"fete_faste": 25,
+		"fete_adj": 10,
+		"fete_culture_days": 360,
+		"fete_culture_pct": 10,
+		"fete_cd": 720,
+		"medecin_pct": 10,
+		"garde_pts": 5,
+		"precepteur_pct": 15,
+		"event_every": [
+			540,
+			900
+		],
+		"crisis_month": -1,
+		"politics_push": 1,
+		"hero_loyalty": {
+			"furieuse": -10,
+			"mecontente": -5,
+			"neutre": 0,
+			"satisfaite": 5,
+			"devouee": 10
+		},
+		"new_ruler_adj": 15,
+		"new_ruler_others": -5
+	},
+	"vocations": [
+		{
+			"id": "armateurs",
+			"label": "Armateurs",
+			"current": "forge",
+			"apt": "gestion",
+			"sys": {
+				"materials": 5
+			},
+			"seat": {
+				"ship_cost_pct": -5
+			},
+			"seat_text": "Vaisseaux -5 %",
+			"likes": [
+				{
+					"k": "building",
+					"id": "arsenal",
+					"per": 5,
+					"max": 15,
+					"label": "Arsenaux dans ses fiefs"
+				},
+				{
+					"k": "law",
+					"id": "normes_serie",
+					"v": 15,
+					"label": "Normes de série"
+				},
+				{
+					"k": "fleets",
+					"n": 4,
+					"v": 10,
+					"label": "Une vraie flotte (4 flottes armées)"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "desarmement",
+					"v": -20,
+					"label": "Désarmement"
+				}
+			],
+			"goods": [
+				"corail_orage",
+				"bois_coeur"
+			],
+			"traits": [
+				"brave",
+				"erudit",
+				"cupide"
+			],
+			"text": "Ils possèdent les cales sèches et les chantiers ; leurs fiefs produisent plus de matériaux."
+		},
+		{
+			"id": "champions",
+			"label": "Champions",
+			"current": "glaive",
+			"apt": "guerre",
+			"sys": {},
+			"seat": {
+				"ground_damage_pct": 10
+			},
+			"seat_text": "Régiments +10 % de dégâts",
+			"likes": [
+				{
+					"k": "building",
+					"id": "bastion",
+					"per": 5,
+					"max": 15,
+					"label": "Bastions dans ses fiefs"
+				},
+				{
+					"k": "building",
+					"id": "citadelle",
+					"per": 10,
+					"max": 20,
+					"label": "Citadelles dans ses fiefs"
+				},
+				{
+					"k": "law",
+					"id": "conscription",
+					"v": 15,
+					"label": "Conscription"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "desarmement",
+					"v": -25,
+					"label": "Désarmement"
+				},
+				{
+					"k": "long_peace",
+					"years": 15,
+					"v": -10,
+					"label": "Quinze ans sans guerre"
+				}
+			],
+			"goods": [
+				"vin_nebuleuse",
+				"ambre_chantant"
+			],
+			"traits": [
+				"brave",
+				"bretteur",
+				"fier"
+			],
+			"text": "Une noblesse d'épée : ses fiefs sont plus sûrs, et ses régiments plus mordants.",
+			"sys_stab": 3
+		},
+		{
+			"id": "pretres",
+			"label": "Prêtres",
+			"current": "autel",
+			"apt": "eloquence",
+			"sys": {
+				"influence": 5
+			},
+			"seat": {
+				"faith_stab": 1
+			},
+			"seat_text": "Foi d'État : stabilité +1",
+			"likes": [
+				{
+					"k": "building",
+					"id": "temple",
+					"per": 5,
+					"max": 15,
+					"label": "Temples dans ses fiefs"
+				},
+				{
+					"k": "building",
+					"id": "cathedrale",
+					"per": 10,
+					"max": 20,
+					"label": "Cathédrales"
+				},
+				{
+					"k": "faith",
+					"v": 10,
+					"label": "Une foi d'État"
+				},
+				{
+					"k": "law",
+					"id": "dime",
+					"v": 15,
+					"label": "Dîme"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "tolerance",
+					"v": -15,
+					"label": "Tolérance"
+				}
+			],
+			"goods": [
+				"encens_fossile",
+				"larmes_quasar"
+			],
+			"traits": [
+				"pieux",
+				"loyal",
+				"rancunier"
+			],
+			"text": "Ils tiennent les sanctuaires et les consciences ; leurs fiefs rapportent de l'influence."
+		},
+		{
+			"id": "savants",
+			"label": "Savants",
+			"current": "academie",
+			"apt": "gestion",
+			"sys": {
+				"knowledge": 10
+			},
+			"seat": {
+				"tech_cost_pct": -3
+			},
+			"seat_text": "Technologies -3 %",
+			"likes": [
+				{
+					"k": "building",
+					"id": "universite",
+					"per": 10,
+					"max": 20,
+					"label": "Universités dans ses fiefs"
+				},
+				{
+					"k": "building",
+					"id": "academie",
+					"per": 5,
+					"max": 15,
+					"label": "Académies"
+				},
+				{
+					"k": "law",
+					"id": "universites",
+					"v": 15,
+					"label": "Universités"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "examens_forces",
+					"v": -15,
+					"label": "Examens forcés"
+				}
+			],
+			"goods": [
+				"cristal_memoire",
+				"plumes_phenix"
+			],
+			"traits": [
+				"erudit",
+				"vieux_renard",
+				"temperant"
+			],
+			"text": "Des lignées de chercheurs ; leurs fiefs produisent davantage de Savoir."
+		},
+		{
+			"id": "marchands",
+			"label": "Marchands",
+			"current": "concorde",
+			"apt": "eloquence",
+			"sys": {
+				"energy": 10
+			},
+			"seat": {
+				"trade_income_pct": 10
+			},
+			"seat_text": "Commerce +10 %",
+			"likes": [
+				{
+					"k": "building",
+					"id": "comptoir",
+					"per": 5,
+					"max": 15,
+					"label": "Comptoirs dans ses fiefs"
+				},
+				{
+					"k": "stat",
+					"id": "routes",
+					"n": 3,
+					"v": 10,
+					"label": "Trois routes commerciales"
+				},
+				{
+					"k": "law",
+					"id": "ports_francs",
+					"v": 15,
+					"label": "Ports francs"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "protectionnisme",
+					"v": -20,
+					"label": "Protectionnisme"
+				},
+				{
+					"k": "war",
+					"v": -10,
+					"label": "La guerre (mauvaise pour les affaires)"
+				}
+			],
+			"goods": [
+				"soie_vide",
+				"epices_kesh"
+			],
+			"traits": [
+				"cupide",
+				"beau_parleur",
+				"intrigant"
+			],
+			"text": "L'argent des routes de saut passe par leurs comptoirs ; leurs fiefs produisent plus d'énergie."
+		},
+		{
+			"id": "colons",
+			"label": "Colons",
+			"current": "seve",
+			"apt": "gestion",
+			"sys": {
+				"food": 10
+			},
+			"seat": {
+				"growth_pct": 10
+			},
+			"seat_text": "Croissance +10 %",
+			"likes": [
+				{
+					"k": "fiefs_most",
+					"v": 20,
+					"label": "Le plus de fiefs"
+				},
+				{
+					"k": "law",
+					"id": "pionniers",
+					"v": 15,
+					"label": "Pionniers"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "fiefs_least",
+					"v": -20,
+					"label": "Le moins de fiefs"
+				},
+				{
+					"k": "minor_ruler",
+					"v": -15,
+					"label": "Un souverain mineur"
+				}
+			],
+			"goods": [
+				"lait_etoile",
+				"bois_coeur"
+			],
+			"traits": [
+				"temperant",
+				"loyal",
+				"fier"
+			],
+			"text": "Les grandes familles terriennes ; leurs fiefs nourrissent l'empire et elles en veulent toujours plus."
+		},
+		{
+			"id": "mecenes",
+			"label": "Mécènes",
+			"current": "autel",
+			"apt": "eloquence",
+			"sys": {
+				"influence": 5
+			},
+			"seat": {
+				"culture_pct": 10
+			},
+			"seat_text": "Rayonnement +10 %",
+			"likes": [
+				{
+					"k": "building",
+					"id": "musee_galactique",
+					"per": 15,
+					"max": 15,
+					"label": "Musée galactique"
+				},
+				{
+					"k": "building",
+					"id": "villegiature",
+					"per": 10,
+					"max": 20,
+					"label": "Villégiatures"
+				},
+				{
+					"k": "kin",
+					"v": 20,
+					"label": "Le sang de la maison au trône"
+				},
+				{
+					"k": "office",
+					"v": 10,
+					"label": "Un des leurs en charge"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "war",
+					"v": -5,
+					"label": "La guerre"
+				}
+			],
+			"goods": [
+				"plumes_phenix",
+				"perles_glace"
+			],
+			"traits": [
+				"mecene",
+				"beau_parleur",
+				"prodigue"
+			],
+			"text": "Ils protègent les artistes et les faiseurs de modes ; leur siège fait rayonner l'empire."
+		},
+		{
+			"id": "juristes",
+			"label": "Juristes",
+			"current": "concorde",
+			"apt": "eloquence",
+			"sys": {
+				"influence": 5
+			},
+			"seat": {
+				"law_upkeep_pct": -10
+			},
+			"seat_text": "Entretien des lois -10 %",
+			"likes": [
+				{
+					"k": "office",
+					"v": 15,
+					"label": "Un siège parmi les grands offices"
+				},
+				{
+					"k": "building",
+					"id": "prefecture",
+					"per": 5,
+					"max": 15,
+					"label": "Préfectures"
+				},
+				{
+					"k": "building",
+					"id": "forum",
+					"per": 5,
+					"max": 10,
+					"label": "Forums"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "no_office",
+					"v": -20,
+					"label": "Aucun siège parmi les grands offices"
+				}
+			],
+			"goods": [
+				"vin_nebuleuse",
+				"perles_glace"
+			],
+			"traits": [
+				"vieux_renard",
+				"beau_parleur",
+				"loyal"
+			],
+			"text": "Hommes et femmes d'État, rédacteurs de codes ; ils exigent leur place à la table du pouvoir."
+		},
+		{
+			"id": "navigateurs",
+			"label": "Navigateurs",
+			"current": "academie",
+			"apt": "gestion",
+			"sys": {
+				"crystals": 10
+			},
+			"seat": {
+				"fleet_speed_pct": 10
+			},
+			"seat_text": "Flottes +10 % de vitesse",
+			"likes": [
+				{
+					"k": "building",
+					"id": "observatoire",
+					"per": 5,
+					"max": 15,
+					"label": "Observatoires"
+				},
+				{
+					"k": "building",
+					"id": "station_etude",
+					"per": 5,
+					"max": 10,
+					"label": "Stations d'étude"
+				},
+				{
+					"k": "stat",
+					"id": "explored_pct",
+					"n": 50,
+					"v": 10,
+					"label": "La moitié de la galaxie explorée"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "doctrine_close",
+					"v": -15,
+					"label": "Doctrine des frontières closes"
+				}
+			],
+			"goods": [
+				"larmes_quasar",
+				"soie_vide"
+			],
+			"traits": [
+				"erudit",
+				"intrigant",
+				"temperant"
+			],
+			"text": "Ils connaissent les routes de saut comme leur poche ; leurs fiefs extraient plus de cristaux."
+		},
+		{
+			"id": "ombres",
+			"label": "Ombres",
+			"current": "glaive",
+			"apt": "intrigue",
+			"sys": {
+				"energy": 3
+			},
+			"seat": {
+				"spy_cells": 1
+			},
+			"seat_text": "Une cellule d'espionnage de plus",
+			"likes": [
+				{
+					"k": "office_id",
+					"id": "murmures",
+					"v": 20,
+					"label": "Un des leurs Maître des Murmures"
+				},
+				{
+					"k": "law",
+					"id": "couvre_feu",
+					"v": 10,
+					"label": "Couvre-feu"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "ouverture_culturelle",
+					"v": -10,
+					"label": "Ouverture culturelle"
+				}
+			],
+			"goods": [
+				"ambre_chantant",
+				"encens_fossile"
+			],
+			"traits": [
+				"intrigant",
+				"vieux_renard",
+				"ambitieux"
+			],
+			"text": "Une famille de secrets, de dettes et de silences ; son siège donne un réseau de plus."
+		},
+		{
+			"id": "forgerons",
+			"label": "Forgerons",
+			"current": "forge",
+			"apt": "gestion",
+			"sys": {
+				"materials": 10
+			},
+			"seat": {
+				"building_cost_pct": -10
+			},
+			"seat_text": "Bâtiments -10 %",
+			"likes": [
+				{
+					"k": "building",
+					"id": "complexe_minier",
+					"per": 5,
+					"max": 10,
+					"label": "Complexes miniers"
+				},
+				{
+					"k": "building",
+					"id": "mine_profonde",
+					"per": 5,
+					"max": 10,
+					"label": "Mines profondes"
+				},
+				{
+					"k": "building",
+					"id": "raffinerie",
+					"per": 5,
+					"max": 10,
+					"label": "Raffineries"
+				},
+				{
+					"k": "law",
+					"id": "concessions",
+					"v": 15,
+					"label": "Concessions minières"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "impot_exceptionnel",
+					"v": -15,
+					"label": "Impôt exceptionnel"
+				}
+			],
+			"goods": [
+				"corail_orage",
+				"epices_kesh"
+			],
+			"traits": [
+				"brave",
+				"cupide",
+				"temperant"
+			],
+			"text": "Les maîtres des mines et des fonderies ; leurs fiefs produisent plus de matériaux."
+		},
+		{
+			"id": "dompteurs",
+			"label": "Dompteurs",
+			"current": "seve",
+			"apt": "guerre",
+			"sys": {
+				"food": 5
+			},
+			"seat": {
+				"production_pct": {
+					"food": 10
+				}
+			},
+			"seat_text": "Nourriture +10 %",
+			"likes": [
+				{
+					"k": "building",
+					"id": "vivarium",
+					"per": 10,
+					"max": 20,
+					"label": "Vivariums"
+				},
+				{
+					"k": "law",
+					"id": "agronomie",
+					"v": 10,
+					"label": "Agronomie"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "war",
+					"v": -5,
+					"label": "La guerre (les bêtes s'affolent)"
+				}
+			],
+			"goods": [
+				"lait_etoile",
+				"plumes_phenix"
+			],
+			"traits": [
+				"bretteur",
+				"temperant",
+				"fier"
+			],
+			"text": "Éleveurs de bêtes du vide et chasseurs de monstres ; leurs fiefs sont des garde-manger.",
+			"sys_stab": 1
+		},
+		{
+			"id": "navigateurs_faconnes",
+			"label": "Navigateurs façonnés",
+			"current": "academie",
+			"apt": "intrigue",
+			"sys": {
+				"crystals": 15
+			},
+			"seat": {
+				"fleet_speed_pct": 15
+			},
+			"seat_text": "Flottes +15 % de vitesse",
+			"likes": [
+				{
+					"k": "building",
+					"id": "observatoire",
+					"per": 5,
+					"max": 15,
+					"label": "Observatoires"
+				},
+				{
+					"k": "stat",
+					"id": "luxuries",
+					"n": 2,
+					"v": 10,
+					"label": "Deux luxes possédés"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "doctrine_close",
+					"v": -20,
+					"label": "Doctrine des frontières closes"
+				}
+			],
+			"goods": [
+				"epices_kesh",
+				"larmes_quasar"
+			],
+			"traits": [
+				"intrigant",
+				"erudit",
+				"fier"
+			],
+			"text": "Une guilde de pilotes transformés par la drogue des routes ; on ne les commande pas, on les loue.",
+			"registres": [
+				"Médiéval spatial"
+			]
+		},
+		{
+			"id": "libres_marchands",
+			"label": "Libres-marchands",
+			"current": "concorde",
+			"apt": "guerre",
+			"sys": {
+				"energy": 10,
+				"materials": 5
+			},
+			"seat": {
+				"trade_routes": 1
+			},
+			"seat_text": "Une route commerciale de plus",
+			"likes": [
+				{
+					"k": "building",
+					"id": "comptoir",
+					"per": 5,
+					"max": 15,
+					"label": "Comptoirs"
+				},
+				{
+					"k": "war",
+					"v": 5,
+					"label": "La guerre (on vend aux deux camps)"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "protectionnisme",
+					"v": -20,
+					"label": "Protectionnisme"
+				}
+			],
+			"goods": [
+				"soie_vide",
+				"corail_orage"
+			],
+			"traits": [
+				"bretteur",
+				"cupide",
+				"ambitieux"
+			],
+			"text": "Une lettre patente scellée il y a mille ans les autorise à commercer, à piller et à se croire au-dessus des lois.",
+			"registres": [
+				"Grimdark"
+			]
+		},
+		{
+			"id": "famille_senatoriale",
+			"label": "Famille sénatoriale",
+			"current": "concorde",
+			"apt": "eloquence",
+			"sys": {
+				"influence": 10
+			},
+			"seat": {
+				"opinion_all": 5
+			},
+			"seat_text": "Opinion des autres empires +5",
+			"likes": [
+				{
+					"k": "office",
+					"v": 20,
+					"label": "Un siège parmi les grands offices"
+				},
+				{
+					"k": "law",
+					"id": "diplomatie_couloir",
+					"v": 15,
+					"label": "Diplomatie de couloir"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "no_office",
+					"v": -15,
+					"label": "Aucun siège"
+				}
+			],
+			"goods": [
+				"vin_nebuleuse",
+				"perles_glace"
+			],
+			"traits": [
+				"beau_parleur",
+				"loyal",
+				"intrigant"
+			],
+			"text": "Des orateurs de père en fille, dont les discours ont déclenché trois guerres et en ont fini deux.",
+			"registres": [
+				"Space opera héroïque"
+			]
+		},
+		{
+			"id": "consortium",
+			"label": "Consortium",
+			"current": "forge",
+			"apt": "gestion",
+			"sys": {
+				"knowledge": 5,
+				"materials": 5
+			},
+			"seat": {
+				"tech_cost_pct": -3
+			},
+			"seat_text": "Technologies -3 %",
+			"likes": [
+				{
+					"k": "building",
+					"id": "universite",
+					"per": 10,
+					"max": 20,
+					"label": "Universités"
+				},
+				{
+					"k": "law",
+					"id": "grands_chantiers",
+					"v": 15,
+					"label": "Grands chantiers"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "examens_forces",
+					"v": -10,
+					"label": "Examens forcés"
+				}
+			],
+			"goods": [
+				"cristal_memoire",
+				"bois_coeur"
+			],
+			"traits": [
+				"erudit",
+				"temperant",
+				"cupide"
+			],
+			"text": "Ingénieurs, actionnaires et brevets : la noblesse s'achète ici en parts sociales.",
+			"registres": [
+				"Classique / hard SF"
+			]
+		},
+		{
+			"id": "cartel",
+			"label": "Cartel",
+			"current": "glaive",
+			"apt": "intrigue",
+			"sys": {
+				"energy": 10
+			},
+			"seat": {
+				"spy_cost_pct": -10
+			},
+			"seat_text": "Opérations -10 %",
+			"likes": [
+				{
+					"k": "law",
+					"id": "libre_echange",
+					"v": 15,
+					"label": "Libre-échange"
+				},
+				{
+					"k": "office_id",
+					"id": "murmures",
+					"v": 10,
+					"label": "Un ami Maître des Murmures"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "inquisition",
+					"v": -20,
+					"label": "Inquisition"
+				},
+				{
+					"k": "law",
+					"id": "couvre_feu",
+					"v": -10,
+					"label": "Couvre-feu"
+				}
+			],
+			"goods": [
+				"ambre_chantant",
+				"vin_nebuleuse"
+			],
+			"traits": [
+				"intrigant",
+				"cupide",
+				"bretteur"
+			],
+			"text": "Contrebande, paris et sourires : la famille rend service, et n'oublie jamais une dette.",
+			"registres": [
+				"Picaresque / pulp"
+			]
+		},
+		{
+			"id": "lignee_souche",
+			"label": "Lignée de souche",
+			"current": "seve",
+			"apt": "guerre",
+			"sys": {
+				"food": 10
+			},
+			"seat": {
+				"growth_pct": 15
+			},
+			"seat_text": "Croissance +15 %",
+			"likes": [
+				{
+					"k": "building",
+					"id": "vivarium",
+					"per": 10,
+					"max": 20,
+					"label": "Vivariums"
+				},
+				{
+					"k": "law",
+					"id": "natalite",
+					"v": 15,
+					"label": "Politique nataliste"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "law",
+					"id": "tolerance",
+					"v": -10,
+					"label": "Tolérance"
+				}
+			],
+			"goods": [
+				"lait_etoile",
+				"corail_orage"
+			],
+			"traits": [
+				"fier",
+				"brave",
+				"rancunier"
+			],
+			"text": "Une souche génétique jalouse de sa pureté, qui bourgeonne dans les cuves de ses fiefs.",
+			"registres": [
+				"Horreur biologique"
+			]
+		},
+		{
+			"id": "cercle_reveurs",
+			"label": "Cercle des rêveurs",
+			"current": "autel",
+			"apt": "eloquence",
+			"sys": {
+				"knowledge": 5,
+				"influence": 5
+			},
+			"seat": {
+				"faith_pressure_pct": 10
+			},
+			"seat_text": "Pression de la foi +10 %",
+			"likes": [
+				{
+					"k": "building",
+					"id": "observatoire",
+					"per": 5,
+					"max": 10,
+					"label": "Observatoires"
+				},
+				{
+					"k": "building",
+					"id": "temple",
+					"per": 5,
+					"max": 10,
+					"label": "Temples"
+				}
+			],
+			"dislikes": [
+				{
+					"k": "war",
+					"v": -5,
+					"label": "La guerre (les rêves deviennent cauchemars)"
+				}
+			],
+			"goods": [
+				"cristal_memoire",
+				"encens_fossile"
+			],
+			"traits": [
+				"pieux",
+				"mecene",
+				"vieux_renard"
+			],
+			"text": "Ils dorment pour l'empire et rapportent de leurs songes des vérités inconfortables.",
+			"registres": [
+				"Cosmique / étrange"
+			]
+		}
+	],
+	"traits": {
+		"intrigant": {
+			"label": "Intrigant",
+			"apt": {
+				"intrigue": 1
+			},
+			"head_pct": 10,
+			"text": "Intrigue +1 ; a plus de chances de devenir chef (+10 %)."
+		},
+		"brave": {
+			"label": "Brave",
+			"apt": {
+				"guerre": 1
+			},
+			"text": "Guerre +1."
+		},
+		"erudit": {
+			"label": "Érudit",
+			"apt": {
+				"gestion": 1
+			},
+			"text": "Gestion +1."
+		},
+		"beau_parleur": {
+			"label": "Beau parleur",
+			"apt": {
+				"eloquence": 1
+			},
+			"text": "Éloquence +1."
+		},
+		"loyal": {
+			"label": "Loyal",
+			"op": 15,
+			"text": "Sa maison est plus favorable au trône (+5 quand il est chef)."
+		},
+		"ambitieux": {
+			"label": "Ambitieux",
+			"op": -10,
+			"star": 1,
+			"apt": {
+				"intrigue": 1
+			},
+			"text": "Intrigue +1, mais vise plus haut : peut devenir une étoile montante."
+		},
+		"cupide": {
+			"label": "Cupide",
+			"gift_x": 2,
+			"op": -5,
+			"text": "Les présents comptent double, l'humeur est volatile."
+		},
+		"fier": {
+			"label": "Fier",
+			"scorn_x": 2,
+			"text": "Délaissée, sa maison s'aigrit deux fois plus vite."
+		},
+		"rancunier": {
+			"label": "Rancunier",
+			"revoke_x": 2,
+			"text": "Une révocation lui coûte deux fois plus."
+		},
+		"pieux": {
+			"label": "Pieux",
+			"apt": {
+				"eloquence": 1
+			},
+			"faith": 5,
+			"text": "Éloquence +1 ; aime une foi d'État."
+		},
+		"prodigue": {
+			"label": "Prodigue",
+			"faste": 5,
+			"text": "Le faste de la cour +5 tant qu'il y vit."
+		},
+		"temperant": {
+			"label": "Tempérant",
+			"op": 5,
+			"text": "Calme et mesuré."
+		},
+		"vieux_renard": {
+			"label": "Vieux renard",
+			"apt": {
+				"intrigue": 1,
+				"gestion": 1
+			},
+			"op": -5,
+			"text": "Gestion et Intrigue +1, rien ne lui échappe."
+		},
+		"bretteur": {
+			"label": "Bretteur",
+			"apt": {
+				"guerre": 2
+			},
+			"op": -5,
+			"text": "Guerre +2, querelleur."
+		},
+		"mecene": {
+			"label": "Mécène",
+			"apt": {
+				"eloquence": 1
+			},
+			"faste": 5,
+			"text": "Éloquence +1 et le faste de la cour +5."
+		}
+	},
+	"names": {
+		"Médiéval spatial": [
+			"Atrevane",
+			"Corvalis",
+			"Harmonde",
+			"Ixiane",
+			"Mordrake",
+			"Vernius",
+			"Saluvar",
+			"Elgaris",
+			"Tessaril",
+			"Ordalie",
+			"Quen-Hadar",
+			"Brannoch",
+			"Varkeyne",
+			"Solembre",
+			"Caradun"
+		],
+		"Grimdark": [
+			"Vostrikar",
+			"Mandreth",
+			"Ossegrave",
+			"Thulecrane",
+			"Vauldren",
+			"Kessigor",
+			"Morvane",
+			"Draxelle",
+			"Hurlemort",
+			"Ciremort",
+			"Velgarde",
+			"Sangrefer",
+			"Noirserment",
+			"Gorgevale",
+			"Crâne-d'Argent"
+		],
+		"Space opera héroïque": [
+			"Organel",
+			"Valoren",
+			"Sky-Dorne",
+			"Talmyra",
+			"Corwin",
+			"Astrellan",
+			"Prime-Ciel",
+			"Belleaube",
+			"Kaenor",
+			"Lumière-Haute",
+			"Varadis",
+			"Selbourne",
+			"Quinteros",
+			"Ardéa",
+			"Rhovanne"
+		],
+		"Classique / hard SF": [
+			"Tanaka-Mbeki",
+			"Okonkwo",
+			"Lindqvist",
+			"Varga",
+			"Cheng-Abara",
+			"Ferreira",
+			"Novak-Itoh",
+			"Haldane",
+			"Sørensen",
+			"Abernathy",
+			"Kowalczyk",
+			"Ramaswamy",
+			"Delacroix-Ng",
+			"Ivanova",
+			"Adeyemi"
+		],
+		"Picaresque / pulp": [
+			"Bonaventure",
+			"Fortunato",
+			"Lachance",
+			"Malmouche",
+			"Pépin-Doré",
+			"Scarabelli",
+			"Tirelire",
+			"Vauriant",
+			"Coquefort",
+			"Dés-Pipés",
+			"Belhumeur",
+			"Croquemitaine",
+			"Grippesou",
+			"Lesbrouffes",
+			"Marlou"
+		],
+		"Horreur biologique": [
+			"Souche-Mère",
+			"Kystenoir",
+			"Spora",
+			"Germinale",
+			"Vrillesang",
+			"Larvane",
+			"Mycélis",
+			"Chairneuve",
+			"Nécrose-Douce",
+			"Couveuse",
+			"Bourgeonne",
+			"Placentia",
+			"Scissipare",
+			"Vésicule",
+			"Gangliane"
+		],
+		"Cosmique / étrange": [
+			"Yhl'Ossa",
+			"Ne-Varath",
+			"Somnifère",
+			"Abyssale",
+			"Ul-Qathra",
+			"Murmeval",
+			"Échotombe",
+			"Phosphène",
+			"Thal'Uun",
+			"Vide-Clair",
+			"Aeoliane",
+			"Rêvesourde",
+			"Ombrelune",
+			"Xhal'Ith",
+			"Silencieux"
+		]
+	},
+	"colors": [
+		"#c0392b",
+		"#2e86c1",
+		"#28b463",
+		"#d4ac0d",
+		"#8e44ad",
+		"#d35400",
+		"#17a589",
+		"#7f8c8d",
+		"#c2185b",
+		"#5d6d7e",
+		"#a04000",
+		"#1f618d",
+		"#b7950b",
+		"#6c3483"
+	],
+	"offices": [
+		{
+			"id": "intendant",
+			"apt": "gestion",
+			"label": "Grand Intendant",
+			"labels": {
+				"republique": "Questeur",
+				"theocratie": "Économe sacré",
+				"syndicat": "Directeur financier",
+				"horde": "Gardien des troupeaux",
+				"conscience": "Processus de gestion"
+			},
+			"fx_per": {
+				"production_pct": {
+					"energy": 2,
+					"materials": 2
+				}
+			},
+			"text": "Énergie et matériaux +2 % par point de Gestion.",
+			"missions": [
+				"gift",
+				"pacify"
+			]
+		},
+		{
+			"id": "connetable",
+			"apt": "guerre",
+			"label": "Connétable",
+			"labels": {
+				"republique": "Stratège en chef",
+				"theocratie": "Grand Maître de l'Ordre",
+				"syndicat": "Chef de la sécurité",
+				"horde": "Premier Cavalier",
+				"conscience": "Processus de défense"
+			},
+			"fx_per": {
+				"ground_damage_pct": 3,
+				"recruits_pct": 5
+			},
+			"text": "Régiments +3 % de dégâts et recrutement +5 % par point de Guerre.",
+			"missions": []
+		},
+		{
+			"id": "heraut",
+			"apt": "eloquence",
+			"label": "Grand Héraut",
+			"labels": {
+				"republique": "Premier Orateur",
+				"theocratie": "Grand Chantre",
+				"syndicat": "Directeur de la communication",
+				"horde": "Voix du Kurultaï",
+				"conscience": "Processus d'interface"
+			},
+			"fx_per": {},
+			"influence_per": 1,
+			"text": "Influence +1 par mois par point d'Éloquence.",
+			"missions": [
+				"embassy"
+			]
+		},
+		{
+			"id": "murmures",
+			"apt": "intrigue",
+			"label": "Maître des Murmures",
+			"labels": {
+				"republique": "Censeur",
+				"theocratie": "Grand Inquisiteur",
+				"syndicat": "Directeur du renseignement",
+				"horde": "Œil du Khan",
+				"conscience": "Processus de veille"
+			},
+			"fx_per": {
+				"spy_cost_pct": -3
+			},
+			"text": "Opérations d'espionnage -3 % par point d'Intrigue, chiffrement +1 tous les deux points.",
+			"missions": [
+				"imprison",
+				"secret"
+			]
+		},
+		{
+			"id": "aumonier",
+			"apt": "eloquence",
+			"label": "Grand Aumônier",
+			"governments": [
+				"theocratie"
+			],
+			"fx_per": {
+				"faith_pressure_pct": 5
+			},
+			"stab_per2": 1,
+			"text": "Pression de la foi +5 % par point d'Éloquence, stabilité +1 tous les deux points.",
+			"missions": []
+		}
+	],
+	"minor_posts": [
+		{
+			"id": "medecin",
+			"apt": "gestion",
+			"label": "Médecin de la cour",
+			"text": "Chaque point de Gestion retire 10 % au risque de mort de vieillesse du souverain et des courtisans."
+		},
+		{
+			"id": "garde",
+			"apt": "guerre",
+			"label": "Garde du corps",
+			"text": "Chaque point de Guerre retire 5 points aux chances d'assassiner le souverain ou un héros."
+		},
+		{
+			"id": "precepteur",
+			"apt": "eloquence",
+			"label": "Précepteur",
+			"text": "À l'éducation d'un héritier, 15 % de chances par point d'Éloquence de lui donner +1 dans l'aptitude choisie."
+		}
+	],
+	"governments": {
+		"feodalite": {
+			"plural": "Grandes Maisons",
+			"one": "Maison",
+			"the": "la maison",
+			"head": "chef de maison",
+			"fronde": "Fronde"
+		},
+		"republique": {
+			"plural": "Familles patriciennes",
+			"one": "Famille",
+			"the": "la famille",
+			"head": "patriarche",
+			"fronde": "Sédition"
+		},
+		"theocratie": {
+			"plural": "Ordres",
+			"one": "Ordre",
+			"the": "l'ordre",
+			"head": "grand maître",
+			"fronde": "Schisme"
+		},
+		"syndicat": {
+			"plural": "Conglomérats",
+			"one": "Conglomérat",
+			"the": "le conglomérat",
+			"head": "président",
+			"fronde": "Fronde des actionnaires"
+		},
+		"horde": {
+			"plural": "Clans",
+			"one": "Clan",
+			"the": "le clan",
+			"head": "chef de clan",
+			"fronde": "Révolte du clan"
+		},
+		"conscience": {
+			"plural": "Faisceaux",
+			"one": "Faisceau",
+			"the": "le faisceau",
+			"head": "sous-esprit",
+			"fronde": "Divergence"
+		}
+	},
+	"talents": {
+		"archetype": {
+			"synthetique": {
+				"no_marriage": 1,
+				"label": "Synthétiques : membres assemblés, pas de mariages dans les maisons"
+			},
+			"energetique": {
+				"no_marriage": 1,
+				"label": "Énergétiques : pas de mariages dans les maisons"
+			},
+			"reptilien": {
+				"extra_houses": 1,
+				"label": "Reptiliens : couvées nombreuses, une maison de plus"
+			},
+			"lithoide": {
+				"member_life_pct": 50,
+				"label": "Lithoïdes : chefs très longévifs (+50 %)"
+			}
+		},
+		"credo": {
+			"honneur": {
+				"revoke_x": 2,
+				"label": "Honneur : révoquer un fief coûte deux fois plus"
+			},
+			"profit": {
+				"sell_office": 40,
+				"label": "Profit : chaque nomination à un grand office se vend (+40 énergie)"
+			},
+			"plaisir": {
+				"fete_pct": -50,
+				"label": "Plaisir : grandes fêtes moitié prix"
+			},
+			"foi": {
+				"faith_fav": 5,
+				"label": "Foi : une foi d'État contente toutes les maisons (+5)"
+			},
+			"raison": {
+				"secret_pct": 15,
+				"label": "Raison : chercher un secret +15 %"
+			},
+			"survie": {
+				"fronde_pct": -50,
+				"label": "Survie : la Fronde éclate deux fois moins"
+			}
+		},
+		"registre": {
+			"Médiéval spatial": {
+				"extra_houses": 1,
+				"label": "Médiéval spatial : une maison de plus"
+			}
+		},
+		"gouvernement": {
+			"horde": {
+				"marriage_bonus": 15,
+				"label": "Horde : les mariages entre clans valent +15 de plus"
+			},
+			"theocratie": {
+				"fervor_fav": 10,
+				"label": "Théocratie : la faveur des Ordres suit la ferveur (±10)"
+			},
+			"syndicat": {
+				"dividends": 10,
+				"label": "Syndicat : la faveur des Conglomérats suit la trésorerie (±10)"
+			},
+			"republique": {
+				"election_reset": 1,
+				"label": "République : les grands offices sont remis en jeu à chaque élection"
+			},
+			"conscience": {
+				"no_marriage": 1,
+				"label": "Conscience : pas de mariages entre faisceaux"
+			}
+		}
+	},
+	"styles": {
+		"honneur": {
+			"label": "Cour martiale",
+			"fx": {
+				"damage_pct": 5
+			},
+			"text": "Dégâts +5 %"
+		},
+		"foi": {
+			"label": "Cour pieuse",
+			"fx": {
+				"faith_pressure_pct": 10
+			},
+			"text": "Pression de la foi +10 %"
+		},
+		"raison": {
+			"label": "Cour savante",
+			"fx": {
+				"production_pct": {
+					"knowledge": 5
+				}
+			},
+			"text": "Savoir +5 %"
+		},
+		"profit": {
+			"label": "Cour marchande",
+			"fx": {
+				"trade_income_pct": 10
+			},
+			"text": "Commerce +10 %"
+		},
+		"survie": {
+			"label": "Cour austère",
+			"fx": {
+				"stability": 3
+			},
+			"text": "Stabilité +3 partout"
+		},
+		"plaisir": {
+			"label": "Cour fastueuse",
+			"fx": {
+				"culture_pct": 10
+			},
+			"text": "Rayonnement +10 %"
+		}
+	},
+	"cards": [
+		{
+			"id": "court_houses",
+			"title": "Les Grandes Maisons",
+			"text": "{court_houses_text}\n\nQuatre familles se présentent au trône ; trois seulement recevront des fiefs. Laquelle renvoyez-vous à ses terres ?",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "{court_offer_0}",
+					"fx": [
+						{
+							"k": "court",
+							"act": "drop",
+							"i": 0
+						}
+					]
+				},
+				{
+					"label": "{court_offer_1}",
+					"fx": [
+						{
+							"k": "court",
+							"act": "drop",
+							"i": 1
+						}
+					]
+				},
+				{
+					"label": "{court_offer_2}",
+					"fx": [
+						{
+							"k": "court",
+							"act": "drop",
+							"i": 2
+						}
+					]
+				},
+				{
+					"label": "{court_offer_3}",
+					"fx": [
+						{
+							"k": "court",
+							"act": "drop",
+							"i": 3
+						}
+					]
+				}
+			],
+			"default": 3
+		},
+		{
+			"id": "court_ultimatum",
+			"title": "Ultimatum de {house}",
+			"text": "{court_ult_text}",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Céder (coût {court_concede_cost})",
+					"fx": [
+						{
+							"k": "court",
+							"act": "concede"
+						}
+					]
+				},
+				{
+					"label": "Lui confier un fief de plus",
+					"fx": [
+						{
+							"k": "court",
+							"act": "give_fief"
+						}
+					]
+				},
+				{
+					"label": "Refuser : que les armes décident",
+					"fx": [
+						{
+							"k": "court",
+							"act": "refuse"
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_star",
+			"title": "Une étoile montante à la cour",
+			"text": "{court_star_text}",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "L'élever au rang de héros",
+					"fx": [
+						{
+							"k": "court",
+							"act": "star_raise"
+						}
+					]
+				},
+				{
+					"label": "Acheter sa fidélité ({court_star_cost})",
+					"fx": [
+						{
+							"k": "court",
+							"act": "star_buy"
+						}
+					]
+				},
+				{
+					"label": "L'écarter de la cour",
+					"fx": [
+						{
+							"k": "court",
+							"act": "star_away"
+						}
+					]
+				}
+			],
+			"default": 1
+		},
+		{
+			"id": "court_conquered",
+			"title": "Les vaincus de {court_conq_house}",
+			"text": "{court_conq_text}",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "L'intégrer parmi nos maisons",
+					"fx": [
+						{
+							"k": "court",
+							"act": "integrate"
+						}
+					]
+				},
+				{
+					"label": "L'humilier en public",
+					"fx": [
+						{
+							"k": "court",
+							"act": "humiliate"
+						}
+					]
+				},
+				{
+					"label": "La laisser fuir",
+					"fx": [
+						{
+							"k": "court",
+							"act": "flee"
+						}
+					]
+				}
+			],
+			"default": 2
+		},
+		{
+			"id": "court_ev_duel",
+			"title": "Un duel à l'aube",
+			"text": "{head}, de {house}, a giflé {rival_head}, de {rival_house}, avec un gant de cotte de mailles. Rendez-vous est pris à l'aube sur le pont d'envol. La cour retient son souffle et ouvre les paris.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Interdire le duel",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": -10
+						}
+					]
+				},
+				{
+					"label": "Laisser faire : que le meilleur gagne",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 15
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": -15
+						}
+					]
+				},
+				{
+					"label": "Arbitrer soi-même, avec panache",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": 5
+						},
+						{
+							"k": "res",
+							"res": {
+								"influence": -20
+							}
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_banquet",
+			"title": "Le banquet raté",
+			"text": "Le grand banquet offert par {house} tourne au désastre : le plat de résistance a résisté, et s'est enfui par une bouche d'aération. On rit sous cape.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Rire avec eux",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "faste",
+							"n": -5
+						}
+					]
+				},
+				{
+					"label": "Offrir un second banquet, à nos frais",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 15
+						},
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 5
+						},
+						{
+							"k": "res",
+							"res": {
+								"energy": -40
+							}
+						}
+					]
+				},
+				{
+					"label": "Ignorer l'incident",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -5
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_mesalliance",
+			"title": "Mésalliance",
+			"text": "L'héritière de {house} veut épouser un simple pilote de cargo. Sa famille hurle, la cour se délecte, le pilote se cache.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Bénir l'union",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -15
+						},
+						{
+							"k": "court",
+							"act": "pop_stab",
+							"v": 5
+						}
+					]
+				},
+				{
+					"label": "Interdire le mariage",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						}
+					]
+				},
+				{
+					"label": "Anoblir le pilote",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						},
+						{
+							"k": "res",
+							"res": {
+								"influence": -30
+							}
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_heritage",
+			"title": "Héritage contesté",
+			"text": "La mort du vieil oncle de {house} laisse deux testaments, trois veuves et une station minière. {rival_house} réclame sa part au nom d'un cousinage douteux.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Donner raison à {house}",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 15
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": -15
+						}
+					]
+				},
+				{
+					"label": "Donner raison à {rival_house}",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -15
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": 15
+						}
+					]
+				},
+				{
+					"label": "Confisquer la station pour la couronne",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": -10
+						},
+						{
+							"k": "res",
+							"res": {
+								"materials": 60
+							}
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_complot",
+			"title": "Un complot éventé",
+			"text": "Nos gardes ont intercepté des lettres codées : {head}, de {house}, aurait comploté contre le trône. Ou bien c'est un faux grossier de {rival_house}.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Croire les lettres et punir",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -25
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": 10
+						}
+					]
+				},
+				{
+					"label": "Pardonner publiquement",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 15
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": -5
+						}
+					]
+				},
+				{
+					"label": "Enquêter discrètement",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"influence": -25
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_dette",
+			"title": "Les dettes de {house}",
+			"text": "{house} est criblée de dettes auprès des usuriers de la station orbitale. Elle implore un prêt, « remboursable aux calendes stellaires ».",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Prêter sans intérêts",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"energy": -80
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 20
+						}
+					]
+				},
+				{
+					"label": "Prêter contre un fief de leur choix… plus tard",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"energy": -80
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						}
+					]
+				},
+				{
+					"label": "Refuser poliment",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -15
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_portrait",
+			"title": "Le portrait officiel",
+			"text": "{house} offre au trône un portrait colossal du souverain, peint par un maître. Il est hideux, et accroché dans la grande salle.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Le garder bien en vue",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 15
+						},
+						{
+							"k": "court",
+							"act": "faste",
+							"n": -5
+						}
+					]
+				},
+				{
+					"label": "Le déplacer au sous-sol",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						}
+					]
+				},
+				{
+					"label": "Commander une suite de portraits",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 10
+						},
+						{
+							"k": "res",
+							"res": {
+								"energy": -50
+							}
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_tournoi",
+			"title": "Le grand tournoi",
+			"text": "{house} propose d'organiser un tournoi de chasseurs stellaires en l'honneur du trône. {rival_house} jure qu'elle le gagnera.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Accepter et financer",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"energy": -60
+							}
+						},
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": 5
+						}
+					]
+				},
+				{
+					"label": "Accepter sans financer",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						}
+					]
+				},
+				{
+					"label": "Refuser : nous sommes en deuil budgétaire",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_scandale",
+			"title": "Scandale au palais",
+			"text": "On a surpris {head}, de {house}, à jouer aux dés le sceau de l'empire dans une taverne de la basse ville. Il a perdu, puis regagné, puis reperdu.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Récupérer le sceau à prix d'or",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"energy": -50
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						}
+					]
+				},
+				{
+					"label": "L'exiler un an",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -20
+						},
+						{
+							"k": "court",
+							"act": "pop_stab",
+							"v": 3
+						}
+					]
+				},
+				{
+					"label": "En rire en public",
+					"fx": [
+						{
+							"k": "court",
+							"act": "faste",
+							"n": -5
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_prophete",
+			"title": "Le prophète de la maison",
+			"text": "Un mystique protégé par {house} annonce que la maison est destinée au trône. Les autres maisons s'agitent.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Faire taire le prophète",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -15
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "others",
+							"n": 5
+						}
+					]
+				},
+				{
+					"label": "L'ignorer",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "others",
+							"n": -5
+						}
+					]
+				},
+				{
+					"label": "Lui demander une prophétie pour nous",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"influence": -20
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_jardin",
+			"title": "Les jardins suspendus",
+			"text": "{house} veut construire, à ses frais, des jardins suspendus en orbite basse. Ils masqueraient le soleil de la capitale deux heures par jour.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Accepter",
+					"fx": [
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 15
+						},
+						{
+							"k": "court",
+							"act": "pop_stab",
+							"v": -3
+						}
+					]
+				},
+				{
+					"label": "Refuser",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						}
+					]
+				},
+				{
+					"label": "Les déplacer dans un fief",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_espion",
+			"title": "Un espion dans la maison",
+			"text": "Le Maître des Murmures assure que {house} héberge un espion étranger, déguisé en cuisinier. Les plats ont d'ailleurs un goût de trahison.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Arrêter le cuisinier",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -5
+						},
+						{
+							"k": "res",
+							"res": {
+								"influence": 10
+							}
+						}
+					]
+				},
+				{
+					"label": "Le retourner contre ses maîtres",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"influence": -20
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						}
+					]
+				},
+				{
+					"label": "Laisser la maison régler l'affaire",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_rancune",
+			"title": "Vieille rancune",
+			"text": "{house} et {rival_house} se haïssent depuis qu'un ancêtre a volé la place de parking orbital de l'autre, il y a trois siècles. Elles demandent un arbitrage.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Trancher pour {house}",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 15
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": -15
+						}
+					]
+				},
+				{
+					"label": "Trancher pour {rival_house}",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -15
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": 15
+						}
+					]
+				},
+				{
+					"label": "Imposer une réconciliation",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"influence": -30
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": 5
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_cadeau",
+			"title": "Le cadeau empoisonné",
+			"text": "{rival_house} offre au trône un œuf de créature du vide, « symbole de sa loyauté ». {house} affirme qu'il éclora au pire moment.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Accepter l'œuf",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": 15
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						}
+					]
+				},
+				{
+					"label": "Le refuser poliment",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": -10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						}
+					]
+				},
+				{
+					"label": "L'offrir au musée",
+					"fx": [
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 5
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_mode",
+			"title": "Une nouvelle mode",
+			"text": "{house} lance une mode : des fraises de col si larges qu'on ne passe plus les sas. Toute la cour l'adopte en une semaine.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "L'adopter aussi",
+					"fx": [
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						},
+						{
+							"k": "res",
+							"res": {
+								"energy": -30
+							}
+						}
+					]
+				},
+				{
+					"label": "L'interdire au palais",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						}
+					]
+				},
+				{
+					"label": "Faire élargir les sas",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"materials": -60
+							}
+						},
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 5
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 15
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_bal",
+			"title": "Le bal des masques",
+			"text": "Lors du bal masqué, {head} a dansé toute la nuit avec un inconnu. C'était un ambassadeur rival, et il a beaucoup parlé.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Sévir",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -15
+						},
+						{
+							"k": "res",
+							"res": {
+								"influence": 15
+							}
+						}
+					]
+				},
+				{
+					"label": "Fermer les yeux",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						}
+					]
+				},
+				{
+					"label": "Organiser un second bal, plus surveillé",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"energy": -40
+							}
+						},
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 10
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_reliquat",
+			"title": "Les archives de famille",
+			"text": "{house} retrouve dans ses archives un traité oublié qui lui donne droit à… un dixième des impôts de la capitale.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Honorer le traité un an",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"energy": -60
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 20
+						}
+					]
+				},
+				{
+					"label": "Le déclarer apocryphe",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -15
+						}
+					]
+				},
+				{
+					"label": "Racheter le traité",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"influence": -30
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_prodige",
+			"title": "Un enfant prodige",
+			"text": "Un enfant de {house} résout à neuf ans un problème que nos savants traînaient depuis trente ans. Sa famille réclame une chaire à l'université.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Lui offrir la chaire",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 15
+						},
+						{
+							"k": "res",
+							"res": {
+								"knowledge": 40
+							}
+						}
+					]
+				},
+				{
+					"label": "Le garder sous notre aile",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -5
+						},
+						{
+							"k": "res",
+							"res": {
+								"knowledge": 60
+							}
+						}
+					]
+				},
+				{
+					"label": "Le renvoyer à ses jouets",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_greve",
+			"title": "Grève des serviteurs",
+			"text": "Les serviteurs du palais, recrutés chez {house}, cessent le travail : ils réclament des pauses et le droit de goûter aux plats.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Céder",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"energy": -40
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						}
+					]
+				},
+				{
+					"label": "Les remplacer par des drones",
+					"fx": [
+						{
+							"k": "court",
+							"act": "faste",
+							"n": -10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -15
+						}
+					]
+				},
+				{
+					"label": "Négocier",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"influence": -20
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_chasse",
+			"title": "La grande chasse",
+			"text": "{house} invite le souverain à chasser la bête du vide dans ses terres. On promet du gibier, de l'adrénaline et peu de survivants parmi les rabatteurs.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Accepter l'invitation",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 15
+						},
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 5
+						}
+					]
+				},
+				{
+					"label": "Envoyer un représentant",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						}
+					]
+				},
+				{
+					"label": "Décliner",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_vin",
+			"title": "Le vin empoisonné",
+			"text": "Une coupe de vin destinée au souverain a fait tomber raide le goûteur. Les regards se tournent vers {house}. Elle jure son innocence et accuse {rival_house}.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Accuser {house}",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -25
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": 10
+						}
+					]
+				},
+				{
+					"label": "Accuser {rival_house}",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": -25
+						}
+					]
+				},
+				{
+					"label": "Engager un meilleur goûteur",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"energy": -30
+							}
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_monument",
+			"title": "Un monument à notre gloire",
+			"text": "{house} propose d'ériger une statue du souverain sur la lune de la capitale. Visible de partout, à toute heure, même la nuit.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Accepter",
+					"fx": [
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 15
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						},
+						{
+							"k": "res",
+							"res": {
+								"materials": -80
+							}
+						}
+					]
+				},
+				{
+					"label": "Une plus petite statue",
+					"fx": [
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 5
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						}
+					]
+				},
+				{
+					"label": "Refuser par modestie",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -5
+						},
+						{
+							"k": "court",
+							"act": "pop_stab",
+							"v": 2
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_alliance",
+			"title": "Une alliance de maisons",
+			"text": "{house} et {rival_house} annoncent leur réconciliation et un mariage entre leurs héritiers. Ensemble, elles pèsent lourd à la cour.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Bénir cette union",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "others",
+							"n": -5
+						}
+					]
+				},
+				{
+					"label": "Semer discrètement la discorde",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"influence": -25
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -5
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": -5
+						}
+					]
+				},
+				{
+					"label": "Ne rien dire",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "others",
+							"n": -5
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_exil",
+			"title": "Le retour de l'exilé",
+			"text": "Un cousin banni de {house} revient de l'exil avec une flotte de trois navires, des cicatrices et une rancune. Il demande le pardon.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Le pardonner",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 15
+						}
+					]
+				},
+				{
+					"label": "Le renvoyer en exil",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						}
+					]
+				},
+				{
+					"label": "L'engager comme mercenaire",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"energy": -40
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_astrologue",
+			"title": "L'astrologue de la cour",
+			"text": "L'astrologue de {house} prédit une éclipse funeste pour le règne. Les marchés s'affolent, les courtisans font leurs malles.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Le faire taire",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						},
+						{
+							"k": "court",
+							"act": "pop_stab",
+							"v": 3
+						}
+					]
+				},
+				{
+					"label": "Demander une contre-prédiction",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"influence": -15
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						}
+					]
+				},
+				{
+					"label": "Organiser une fête de l'éclipse",
+					"fx": [
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 10
+						},
+						{
+							"k": "res",
+							"res": {
+								"energy": -40
+							}
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_corruption",
+			"title": "Pots-de-vin",
+			"text": "{head}, de {house}, aurait touché des pots-de-vin pour faire passer des contrats d'armement. La preuve : un manteau de fourrure de comète tout neuf.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Sanctionner",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -20
+						},
+						{
+							"k": "res",
+							"res": {
+								"energy": 40
+							}
+						}
+					]
+				},
+				{
+					"label": "Fermer les yeux",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "pop_stab",
+							"v": -3
+						}
+					]
+				},
+				{
+					"label": "Exiger une part",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"energy": 60
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -5
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_poete",
+			"title": "Le poète satirique",
+			"text": "Un poète protégé par {house} se moque du trône dans des vers que toute la galaxie fredonne. Le refrain est malheureusement très entraînant.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Faire arrêter le poète",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -15
+						},
+						{
+							"k": "court",
+							"act": "faste",
+							"n": -5
+						}
+					]
+				},
+				{
+					"label": "Lui commander une ode au souverain",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"energy": -30
+							}
+						},
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						}
+					]
+				},
+				{
+					"label": "Rire du refrain",
+					"fx": [
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 5
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_ambassade",
+			"title": "L'ambassade de {house}",
+			"text": "{house} propose de mener à ses frais une ambassade auprès d'un empire voisin, en échange de quelques privilèges commerciaux.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Accepter",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 15
+						},
+						{
+							"k": "res",
+							"res": {
+								"influence": 20
+							}
+						}
+					]
+				},
+				{
+					"label": "Refuser : la diplomatie est affaire du trône",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						}
+					]
+				},
+				{
+					"label": "Accepter sans privilèges",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						},
+						{
+							"k": "res",
+							"res": {
+								"influence": 10
+							}
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_jumeaux",
+			"title": "Les jumeaux",
+			"text": "{house} vient d'avoir des jumeaux. Problème : on ne sait plus lequel est l'aîné. La sage-femme a tiré à pile ou face, et perdu la pièce.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Déclarer l'aîné par décret",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						},
+						{
+							"k": "res",
+							"res": {
+								"influence": -10
+							}
+						}
+					]
+				},
+				{
+					"label": "Laisser la maison décider",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						}
+					]
+				},
+				{
+					"label": "Les déclarer co-héritiers",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -5
+						},
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 5
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_fete_lune",
+			"title": "La fête des lunes",
+			"text": "{house} veut célébrer la conjonction des trois lunes par une semaine de fêtes. Ses voisins de {rival_house} préfèrent dormir.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Autoriser les fêtes",
+					"fx": [
+						{
+							"k": "court",
+							"act": "faste",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": -10
+						}
+					]
+				},
+				{
+					"label": "Limiter à une nuit",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 5
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": 5
+						}
+					]
+				},
+				{
+					"label": "Interdire",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -10
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "rival",
+							"n": 10
+						}
+					]
+				}
+			],
+			"default": 0
+		},
+		{
+			"id": "court_ev_carte",
+			"title": "La carte au trésor",
+			"text": "{head}, de {house}, prétend détenir la carte d'une épave chargée de cristaux. Il demande une escorte et la moitié du butin.",
+			"trigger": "court",
+			"art": "throne",
+			"choices": [
+				{
+					"label": "Financer l'expédition",
+					"fx": [
+						{
+							"k": "res",
+							"res": {
+								"energy": -50,
+								"crystals": 30
+							}
+						},
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": 10
+						}
+					]
+				},
+				{
+					"label": "Saisir la carte",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -20
+						},
+						{
+							"k": "res",
+							"res": {
+								"crystals": 20
+							}
+						}
+					]
+				},
+				{
+					"label": "Refuser",
+					"fx": [
+						{
+							"k": "court",
+							"act": "fav",
+							"who": "house",
+							"n": -5
+						}
+					]
+				}
+			],
+			"default": 0
+		}
+	]
+}

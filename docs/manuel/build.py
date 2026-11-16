@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.21"
+EDITION = "2.22"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -862,6 +862,54 @@ def gen_heritages():
     return f"<table class='grille'><tr><th>Voie</th><th>Niveaux (coût en renom)</th></tr>{lignes}</table>"
 
 
+def gen_cour_modes():
+    """Réglage Grandes Maisons (data/court.json)."""
+    d = charger("court.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    return f"<table class='grille'><tr><th>Grandes Maisons</th><th>Effet</th></tr>{l1}</table>"
+
+
+APT_NOMS = {"gestion": "Gestion", "guerre": "Guerre", "eloquence": "Éloquence", "intrigue": "Intrigue"}
+
+
+def gen_cour_vocations():
+    """Vocations des maisons (data/court.json, vocations)."""
+    d = charger("court.json")
+    g = {x["id"]: x["label"] for x in charger("goods.json").get("luxuries", [])} if isinstance(charger("goods.json").get("luxuries"), list) else {}
+    lignes = ""
+    for v in d["vocations"]:
+        regs = v.get("registres", [])
+        aime = ", ".join(esc(c["label"]) for c in v.get("likes", []))
+        hait = ", ".join(esc(c["label"]) for c in v.get("dislikes", []))
+        luxes = ", ".join(esc(g.get(x, x.replace("_", " "))) for x in v.get("goods", []))
+        lignes += (f"<tr><td><b>{esc(v['label'])}</b>{('<br><span class=petit>' + esc(', '.join(regs)) + '</span>') if regs else ''}</td>"
+                   f"<td>{esc(v['text'])}<br><span class='petit'>Aime : {aime}. Déteste : {hait}. Luxes : {luxes}.</span></td>"
+                   f"<td>{esc(v.get('seat_text', ''))}</td><td>{esc(NOMS_COURANTS.get(v.get('current', ''), ''))}</td></tr>")
+    return f"<table class='grille'><tr><th>Vocation</th><th>Ce qu'elle fait, aime et déteste</th><th>Siège</th><th>Courant</th></tr>{lignes}</table>"
+
+
+def gen_cour_offices():
+    """Grands offices (data/court.json, offices)."""
+    d = charger("court.json")
+    lignes = ""
+    for o in d["offices"]:
+        noms = " / ".join(dict.fromkeys(o.get("labels", {}).values()))
+        lignes += (f"<tr><td><b>{esc(o['label'])}</b>{('<br><span class=petit>' + esc(noms) + '</span>') if noms else ''}"
+                   f"{'<br><span class=petit>théocratie seulement</span>' if o.get('governments') else ''}</td>"
+                   f"<td>{esc(APT_NOMS.get(o['apt'], o['apt']))}</td><td>{inline(o.get('text', ''))}</td></tr>")
+    return f"<table class='grille'><tr><th>Office</th><th>Aptitude</th><th>Effet</th></tr>{lignes}</table>"
+
+
+def gen_cour_talents():
+    """Talents de cour par couche (data/court.json, talents)."""
+    d = charger("court.json")
+    lignes = ""
+    for couche, t in d["talents"].items():
+        for k, v in t.items():
+            lignes += f"<tr><td>{esc(couche.capitalize())}</td><td>{esc(v['label'])}</td></tr>"
+    return f"<table class='grille'><tr><th>Couche</th><th>Talent</th></tr>{lignes}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -878,7 +926,8 @@ GENERATEURS = {
     "merveilles_modes": gen_merveilles_modes, "merveilles": gen_merveilles,
     "hauts_faits_modes": gen_hauts_faits_modes, "hauts_faits": gen_hauts_faits,
     "hauts_faits_recompenses": gen_hauts_faits_recompenses, "hauts_faits_trophees": gen_hauts_faits_trophees,
-    "souverains_modes": gen_souverains_modes, "successions": gen_successions, "archetypes_regne": gen_archetypes_regne,
+    "souverains_modes": gen_souverains_modes, "cour_modes": gen_cour_modes, "cour_vocations": gen_cour_vocations,
+    "cour_offices": gen_cour_offices, "cour_talents": gen_cour_talents, "successions": gen_successions, "archetypes_regne": gen_archetypes_regne,
     "surnoms": gen_surnoms, "ambitions_souverain": gen_ambitions, "heritages": gen_heritages,
 }
 

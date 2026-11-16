@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.22
+
+- **La cour et les Grandes Maisons** (chapitre 26), nouveau réglage **Grandes Maisons** (actives, apaisées, aucune) : trois à cinq familles par empire (sauf la ruche), nommées selon le gouvernement, choisies trois parmi quatre au premier mois, **19 vocations** (douze communes, sept de registre) avec leurs désirs, leurs luxes, leur courant et leur **siège** ; **fiefs** partagés, **faveur** en cinq paliers et son détail, courtisans à quatre aptitudes et quinze traits, rivales et amies ; onglet **La Cour** de l'écran Trône.
+- **Grands offices** (Grand Intendant, Connétable, Grand Héraut, Maître des Murmures, Grand Aumônier des théocraties) et **postes mineurs** (Médecin, Garde du corps, Précepteur) ; **missions** (présent, pacification, secret et levier, emprisonnement, ambassade, intercession), mariage, exil, courtisan élevé au rang de héros, **étoile montante** ; **faste**, train de la cour, grande fête et **styles de cour** selon le credo.
+- **Fronde**, **ultimatum** et **guerre civile** par sécession, **maisons des vaincus**, opérations **Attiser une Grande Maison**, **Financer une Fronde** et **Débaucher une Grande Maison**, une trentaine d'**événements de cour**, talents de cour par couche, ponts avec le souverain (nouveau règne, extinction, régence) et les héros (loyauté). Chapitres 27 à 30 renumérotés.
+
 ### Édition 2.21
 
 - **Le trône et la lignée** (chapitre 25), nouveaux réglages **Souverains** (mortels, immortels, aucun) et **Mort au combat** (jamais, rare, normale, brutale) : un **souverain** par empire, hors limite de héros, avec un portrait tiré d'une galerie de **59 portraits**, quatre **aptitudes**, huit **archétypes de règne** et leurs pouvoirs, une **légitimité** nourrie par plus de **cent surnoms** et **27 ambitions**, la **Couronne vacillante**, le poste au palais ou au front ; écran **Trône** ([[Maj]]+[[F10]]).

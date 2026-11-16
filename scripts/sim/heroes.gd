@@ -268,6 +268,7 @@ static func recruit(state: GameState, empire_id: int, cand: Dictionary) -> int:
 		state.heroes[id]["life"] = int((l["archetype"] as Dictionary).get(String(GameData.faction(sp).get("species", {}).get("archetype", "")), l["years"]))
 	state.heroes[id]["loy"] = base_loyalty(state, empire_id, state.heroes[id])
 	meta(state, empire_id)["got"] = int(meta(state, empire_id)["got"]) + 1
+	Court.on_hero_recruit(state, empire_id, id)
 	return id
 
 
@@ -482,9 +483,12 @@ static func production_pcts(state: GameState, owner: int, system_id: int) -> Dic
 ## Revenu mensuel des héros : Orateurs du conseil, traits « quel que soit son poste » (héros affectés).
 static func income(state: GameState, empire_id: int) -> Dictionary:
 	var out := Rulers.income(state, empire_id)
+	var ci := Court.income(state, empire_id)
+	for r in ci:
+		out[r] = int(out.get(r, 0)) + int(ci[r])
 	var inf := _council_sum(state, empire_id, "influence")
 	if inf != 0:
-		out["influence"] = inf
+		out["influence"] = int(out.get("influence", 0)) + inf
 	for m: Dictionary in meta(state, empire_id).get("memorials", []):
 		if int(m["until"]) > state.tick:
 			var inc0: Dictionary = (data()["memorial"]["credo"] as Dictionary).get(String(m["credo"]), {}).get("fx", {}).get("income", {})
@@ -514,7 +518,7 @@ static func income(state: GameState, empire_id: int) -> Dictionary:
 
 ## Chiffrement en plus (Ombres du conseil) : un point par tranche de deux niveaux, arrondi au-dessus.
 static func encryption(state: GameState, empire_id: int) -> int:
-	var n := Rulers.encryption(state, empire_id)
+	var n := Rulers.encryption(state, empire_id) + Court.encryption(state, empire_id)
 	for h in council(state, empire_id):
 		if String(h["cls"]) == "ombre" or int((data()["per_level"]["council"].get(String(h["cls"]), {}) as Dictionary).get("encryption_half", 0)) > 0:
 			@warning_ignore("integer_division")
@@ -1471,7 +1475,7 @@ static func hero_file(state: GameState, a: int, b: int) -> Dictionary:
 static func loyalty(state: GameState, h: Dictionary) -> int:
 	if int(h.get("heir", 0)) > 0:
 		return state.get_empire(int(h["owner"])).heir_loyalty
-	return int(h.get("loy", 100))
+	return clampi(int(h.get("loy", 100)) + Court.hero_loyalty(state, h), 0, 100)
 
 
 static func corrupt(state: GameState, a: int, b: int, loss: int) -> String:

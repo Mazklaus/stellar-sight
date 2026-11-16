@@ -922,6 +922,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var rfx3 := Rulers.effects(state, empire_id)
 			_merge(base, rfx3)
 			_merge(exalted, rfx3)
+		# Cour et Grandes Maisons : sièges, grands offices, faste, style (voir Court).
+		if not state.court.is_empty():
+			var cfx := Court.effects(state, empire_id)
+			_merge(base, cfx)
+			_merge(exalted, cfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

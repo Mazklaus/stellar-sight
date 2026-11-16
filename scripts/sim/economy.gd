@@ -221,6 +221,8 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 			if hp != 0 and int(gross[r]) > 0:
 				@warning_ignore("integer_division")
 				gross[r] = int(gross[r]) * (100 + hp) / 100
+	if not state.court.is_empty():
+		Court.adjust_yields(state, colony, planet.system_id, gross)  # fief d'une Grande Maison
 	Stability.adjust_yields(state, planet.system_id, gross)
 	if Combat.is_besieged(state, planet.system_id):
 		var pct := int(Combat.data().get("besieged_production_pct", 50))

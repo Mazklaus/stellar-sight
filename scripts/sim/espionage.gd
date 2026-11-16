@@ -541,6 +541,9 @@ static func chances(state: GameState, a: int, b: int, op_id: String) -> Dictiona
 		sp.append(["Déchiffrement contre chiffrement", crypto * int(c["per_crypto"])])
 	if String(o.get("family", "")) == "intrigue" and Reputation.intrigue_bonus(state, a) > 0:
 		sp.append(["Réputation", Reputation.intrigue_bonus(state, a)])
+	var gp := Court.guard_pts(state, b) if op_id == "assassiner_souverain" or op_id == "assassinat" else 0
+	if gp > 0:
+		sp.append(["Garde du corps de la cour", -gp])
 	var hc := Heroes.agent_chance(state, a, b)
 	if hc != 0:
 		sp.append(["Agent : %s" % Heroes.agent(state, a, b)["name"], hc])
@@ -646,6 +649,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_r := RulersBridges.spy_check(state, a, b, op_id)
 		if why_r != "":
 			return why_r
+	if bool(o.get("court", false)):
+		var why_ct := CourtIntrigue.spy_check(state, a, b, op_id)
+		if why_ct != "":
+			return why_ct
 	match op_id:
 		"prophetie":
 			var why := FaithWars.check_prophecy(state, a, b)
@@ -819,6 +826,8 @@ static func _resolve(state: GameState, op: Dictionary) -> void:
 		DeedsBridges.spy_exposed(state, a, b)
 	if bool(o.get("rulers", false)):
 		RulersBridges.spy_exposed(state, a, b, String(o["id"]), ok)
+	if bool(o.get("court", false)):
+		CourtIntrigue.spy_exposed(state, a, b, String(o["id"]), ok)
 	_discovered(state, a, b, o, ok, what)
 
 
@@ -846,6 +855,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return DeedsBridges.spy_apply(state, a, b, o)
 	if bool(o.get("rulers", false)):
 		return RulersBridges.spy_apply(state, a, b, o)
+	if bool(o.get("court", false)):
+		return CourtIntrigue.spy_apply(state, a, b, o)
 	match String(o["id"]):
 		"rapport":
 			ea.dossiers[b] = dossier(state, b, data()["tiers"].size())
