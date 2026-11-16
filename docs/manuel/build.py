@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.28"
+EDITION = "2.29"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -427,6 +427,7 @@ def talents_du_peuple(f):
     ajoute("Trésor", _par_couche(c, charger("finance.json").get("talents", {})))
     ajoute("Économie privée", _par_couche(c, charger("private.json").get("talents", {})))
     ajoute("Spatioports", _par_couche(c, charger("ports.json").get("talents", {})))
+    ajoute("Portails", _par_couche(c, charger("portals.json").get("talents", {})))
     cu = charger("culture.json").get("talents", {})
     peuple = cu.get("peoples", {}).get(f["id"])
     ajoute("Rayonnement", _par_couche(c, {k: v for k, v in cu.items() if k != "peoples"}) + ([peuple] if isinstance(peuple, dict) else []))
@@ -1141,6 +1142,45 @@ def gen_st_talents():
     return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
 
 
+def gen_portail_modes():
+    """Réglage Portails de saut (data/portals.json)."""
+    d = charger("portals.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    return f"<table class='grille'><tr><th>Portails de saut</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_portail_batiments():
+    """Relais, portails, ancres (data/buildings.json, drapeau « portals », et data/portals.json)."""
+    b = charger("buildings.json")
+    d = charger("portals.json")
+    techs = charger("technologies.json")["technologies"]
+    req = {"relais_hyper": "relais_hyperspatiaux", "portail_saut": "portails_saut", "grand_portail": "grands_portails",
+           "portail_ancien": "stabilisation_ver", "ancre_ver": "stabilisation_ver"}
+    portee = d["gates"]["range"]
+    l1 = ""
+    for k, v in b.items():
+        if not isinstance(v, dict) or not v.get("portals"):
+            continue
+        noms = {"materials": "matériaux", "energy": "énergie", "crystals": "cristaux de saut", "influence": "influence"}
+        cout = ", ".join(f"{n} {noms.get(r2, r2)}" for r2, n in v.get("cost", {}).items())
+        tech = techs.get(req.get(k, ""), {}).get("label", "—")
+        p = f"{portee[k]} sauts" if k in portee else "—"
+        l1 += f"<tr><td><b>{esc(v['label'])}</b></td><td>{esc(tech)}</td><td>{esc(cout)}</td><td>{p}</td><td>{inline(v.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Bâtiment</th><th>Technologie</th><th>Coût</th><th>Portée</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_portail_talents():
+    """Talents des portails par couche (data/portals.json, talents)."""
+    d = charger("portals.json")
+    lignes = ""
+    for couche, t in d["talents"].items():
+        if couche.startswith("_"):
+            continue
+        for k, v in t.items():
+            lignes += f"<tr><td>{esc(couche.capitalize())}</td><td>{esc(k.capitalize())}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -1169,6 +1209,7 @@ GENERATEURS = {
     "def_modes": gen_def_modes, "def_stations": gen_def_stations, "def_elements": gen_def_elements,
     "def_talents": gen_def_talents,
     "st_modes": gen_st_modes, "st_modules": gen_st_modules, "st_talents": gen_st_talents,
+    "portail_modes": gen_portail_modes, "portail_batiments": gen_portail_batiments, "portail_talents": gen_portail_talents,
 }
 
 

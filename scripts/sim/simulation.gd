@@ -84,6 +84,8 @@ func step() -> void:
 		chronicle_added.emit(entry)
 	for entry in Stealth.daily(state):
 		chronicle_added.emit(entry)
+	for entry in Portals.daily(state):
+		chronicle_added.emit(entry)
 	for entry in Terrain.daily(state):
 		chronicle_added.emit(entry)
 	for entry in Logistics.daily(state):

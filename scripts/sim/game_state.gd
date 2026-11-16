@@ -201,6 +201,7 @@ var private: Dictionary = {}  # économie privée (voir Private) ; {} = pilier d
 var ports: Dictionary = {}  # spatioports et réseau de distribution (voir Ports) ; {} = pilier désactivé
 var defenses: Dictionary = {}  # défenses spatiales (voir Defenses) ; {} = désactivées
 var stealth: Dictionary = {}  # furtivité et détection (voir Stealth) ; {} = désactivée
+var portals: Dictionary = {}  # portails de saut (voir Portals) ; {} = désactivés
 ## Mort des héros au combat (voir HeroFall) ; {} = option absente : blessure ou capture seulement.
 var hero_death: Dictionary = {}
 ## Zones de ravitaillement et lignes du jour (dérivé de l'état, non sauvegardé, recalculé chaque tick).
@@ -335,6 +336,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Ports.setup(s, String(options.get("ports", "desactivee")))
 	Defenses.setup(s, String(options.get("defenses", "desactivee")))
 	Stealth.setup(s, String(options.get("stealth", "desactivee")))
+	Portals.setup(s, String(options.get("portals", "desactives")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -502,6 +504,8 @@ func to_dict() -> Dictionary:
 		d["defenses"] = Defenses.to_dict(self)
 	if Stealth.worth_saving(self):
 		d["stealth"] = Stealth.to_dict(self)
+	if Portals.worth_saving(self):
+		d["portals"] = Portals.to_dict(self)
 	if HeroFall.worth_saving(self):
 		d["hero_death"] = HeroFall.to_dict(self)
 	return d
@@ -620,6 +624,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Ports.from_dict(s, d.get("ports", {}))
 	Defenses.from_dict(s, d.get("defenses", {}))
 	Stealth.from_dict(s, d.get("stealth", {}))
+	Portals.from_dict(s, d.get("portals", {}))
 	HeroFall.from_dict(s, d.get("hero_death", {}))
 	for c: Dictionary in d["colonies"]:
 		var colony := Colony.from_dict(c)
@@ -750,6 +755,7 @@ static func from_dict(d: Dictionary) -> GameState:
 			Intel.seed_from_truth(s, e)
 	if not s.wonders.is_empty():
 		WondersCatalog.refresh_gates(s)  # réseau des portes stellaires (donnée dérivée)
+	Portals.refresh(s)  # trous de ver, relais, portails de saut (données dérivées)
 	return s
 
 

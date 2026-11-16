@@ -134,8 +134,22 @@ static func _move(state: GameState, f: Fleet) -> void:
 		# Voies sacrées : routes bénies plus rapides pour les fidèles, fermées (ralenties) aux autres.
 		@warning_ignore("integer_division")
 		sp = maxi(1, sp * FaithWars.lane_pct(state, f.owner, f.system_id, f.path[0]) / 100)
+	if not state.galaxy.relays.is_empty():
+		sp *= Portals.lane_mult(state, f.owner, f.system_id, f.path[0])  # corridor de relais
 	f.progress += sp
+	var shortcuts := not state.portals.is_empty()
 	while f.is_moving():
+		var hop := shortcuts and (Portals.is_shortcut(state.galaxy, f.system_id, f.path[0]) or not state.galaxy.systems[f.system_id].neighbors.has(f.path[0])) \
+				and not (state.galaxy.gates.has(f.system_id) and state.galaxy.gates.has(f.path[0]))
+		if hop:
+			# Trou de ver ou portail de saut (voir Portals) : recharge, cristaux, accès.
+			var hc := Portals.hop_check(state, f, f.system_id, f.path[0])
+			if int(hc[0]) == 1:
+				f.progress = 0
+				return
+			if int(hc[0]) == 2:
+				f.path.clear()
+				break
 		var lane := Fleets.lane_length(state.galaxy, f.system_id, f.path[0])
 		if f.progress < lane:
 			return
@@ -146,6 +160,8 @@ static func _move(state: GameState, f: Fleet) -> void:
 		f.progress -= lane
 		if state.faith_on:
 			FaithWars.on_lane_crossed(state, f.owner, f.system_id, f.path[0])
+		if hop:
+			Portals.on_hop(state, f, f.system_id, f.path[0])
 		f.system_id = f.path.pop_front()
 		Borders.charge_toll(state, f, f.system_id)
 		if f.is_moving() and Combat.blocks(state, f.owner, f.system_id, f):

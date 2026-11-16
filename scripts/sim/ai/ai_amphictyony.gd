@@ -427,6 +427,9 @@ static func way_interest(state: GameState, e: Empire, fid: String, way: String) 
 		"navigation":
 			# Libre navigation : les puissants et les belliqueux, qui veulent passer ; Espaces souverains : les plus faibles.
 			a = ag + (2 if Diplomacy.warships(state, e.id) > _avg_warships(state) else -2)
+		"portails":
+			# Portes ouvertes : qui n'a pas de portail veut passer chez les autres ; Portes gardées : qui en tient.
+			a = 2 - AiPortals.gates_held(state, e.id) + (1 if credo == "profit" else 0)
 	return clampi(a if way == "a" else -a, -10, 10)
 
 

@@ -195,6 +195,8 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		var dpct := int(pfx.get(String(Combat.data()["phases"][phase]["id"]), 0))
 		if day == 1:
 			dpct += Research.fx_int(state, f.owner, "first_day_damage_pct")
+			if not state.portals.is_empty():
+				dpct += Portals.shock_pct(state, f)  # choc de transit : sorti d'un portail ou d'un trou de ver
 		dpct += Heroes.damage_pct(state, f, day, state.system_owner(sid) == f.owner)
 		dpct += Pirates.hunt_pct(state, f, fighters)
 		dpct += Fauna.hunt_pct(state, f, fighters)

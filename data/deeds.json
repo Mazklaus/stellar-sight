@@ -516,6 +516,15 @@
 			"text": "Premier à repérer cinq flottes camouflées (furtivité en jeu).",
 			"flavor": "« Il n'y a rien là-bas. » — « Il y en a cinq, et je les ai notées. »"
 		},
+		"maitre_portes": {
+			"label": "Maître des portes",
+			"family": "guerre",
+			"sort": "first",
+			"k": "linked_gates",
+			"n": 5,
+			"text": "Premier à tenir cinq portails de saut reliés à d'autres portails (portails de saut en jeu).",
+			"flavor": "On ne traverse plus la galaxie : on la plie, et l'on fait payer le pli."
+		},
 		"premier_leviathan": {
 			"label": "Premier Léviathan",
 			"family": "guerre",

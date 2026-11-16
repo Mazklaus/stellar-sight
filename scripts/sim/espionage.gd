@@ -640,6 +640,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_s := StealthBridges.spy_check(state, a, b, op_id)
 		if why_s != "":
 			return why_s
+	if bool(o.get("portals", false)):
+		var why_p := PortalsBridges.spy_check(state, a, b, op_id)
+		if why_p != "":
+			return why_p
 	if bool(o.get("logistics", false)):
 		var why_l := Logistics.spy_check(state, a, b, op_id)
 		if why_l != "":
@@ -876,6 +880,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return DefensesBridges.spy_apply(state, a, b, o)
 	if bool(o.get("stealth", false)):
 		return StealthBridges.spy_apply(state, a, b, o)
+	if bool(o.get("portals", false)):
+		return PortalsBridges.spy_apply(state, a, b, o)
 	if bool(o.get("logistics", false)):
 		return Logistics.spy_apply(state, a, b, o)
 	if bool(o.get("culture", false)):

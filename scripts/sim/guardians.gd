@@ -617,6 +617,7 @@ static func card_fx(state: GameState, empire_id: int, item: Dictionary, fx: Dict
 				g6["status"] = "pact"
 				g6["by"] = empire_id
 				give_tech(state, empire_id, "pacte_portes")
+				Portals.on_guardian_pact(state, int(g6["sid"]))  # un portail ancien éveillé reste (prop. 28)
 				for o in state.empires:
 					o.path_cache.clear()
 				added.append(state.add_chronicle("%s scelle un pacte avec ce qui dormait sous les Portes. La chose s'en va, satisfaite. Personne n'ose demander ce qu'elle a obtenu." % e.display_name(), Espionage.public_to(state, [empire_id])))

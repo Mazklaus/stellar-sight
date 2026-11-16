@@ -1,0 +1,79 @@
+{
+	"_doc": "Portails de saut et raccourcis spatiaux (étude du 2026-11-16, 38 propositions validées, la 35 Catapulte quantique reste À discuter) : trous de ver naturels à stabiliser, relais hyperspatiaux (corridors), portails de saut en réseau limité par la portée et la recharge ; la Porte stellaire (merveille) reste le sommet. Voir Portals. Chiffres provisoires (équilibrage reporté).",
+	"_sources": [
+		"Stellaris, Portails : https://fantasywarden.com/games/stellaris-gateway-megastructure",
+		"Stellaris, Relais hyperspatiaux : https://fantasywarden.com/games/stellaris-hyper-relay",
+		"Endless Space 2, déplacements : https://gamepressure.com/endless-space-2/systems-and-ways-of-travelling/z29c4b",
+		"Master of Orion (2016), manuel p. 48 et 93 : https://cdn.cloudflare.steamstatic.com/steam/apps/298050/manuals/Master_of_Orion_Game_Manual.pdf",
+		"Sword of the Stars, moteurs des peuples : https://sotsii.fandom.com/wiki/Ship_Drives",
+		"Sins of a Solar Empire, Stabilisateur de phase : https://sinsofasolarempire.fandom.com/wiki/Phase_Stabilizer",
+		"Aurora 4X, points de saut : https://erikevenson.github.io/aurora-manual/4-systems-and-bodies/4.4-jump-points.html",
+		"Starsector, Janus Device : https://starsector.fandom.com/wiki/Janus_Device"
+	],
+	"default_mode": "complets",
+	"modes": [
+		{"id": "complets", "label": "Complets", "text": "Trous de ver (dont certains instables), relais hyperspatiaux, portails de saut à portée et recharge, choc de transit, péages de portail, ancres, portails anciens."},
+		{"id": "simples", "label": "Simples", "text": "Trous de ver stables, relais et portails, sans recharge, choc de transit, instabilité ni péage."},
+		{"id": "desactives", "label": "Désactivés", "text": "Comme avant : seule la Porte stellaire (merveille d'ère 4) relie les systèmes."}
+	],
+	"wormholes": {
+		"_doc": "Une paire pour per_systems systèmes (au moins min_pairs), extrémités à min_jumps sauts ou plus ; trou noir ou étoile à neutrons préférés ; jamais sur un système de départ. unstable_pct : part des paires qui dérivent (Complets), tous les shift_years_min à shift_years_max ans, annoncé warn_days avant.",
+		"per_systems": 12,
+		"min_pairs": 1,
+		"min_jumps": 6,
+		"unstable_pct": 25,
+		"shift_years_min": 8,
+		"shift_years_max": 15,
+		"warn_days": 360,
+		"names": ["Gorge", "Soupirail", "Fausse-Porte", "Puits d'Échos", "Couloir d'Ombre", "Œil Ouvert", "Trouée", "Faille", "Goulet", "Soufflet", "Méandre", "Lucarne", "Entonnoir", "Bouche Noire", "Passe-Muraille", "Coudée"]
+	},
+	"relays": {
+		"_doc": "Corridor : une route dont les deux bouts ont un relais compte divisor fois moins pour qui y a accès. Entretien : upkeep_halves cristaux de saut par mois pour deux relais (0,5 par relais). Effets civils : route commerciale sur un corridor +trade_pct %, un saut de corridor ne compte pas dans la baisse de desserte des ports, la zone de ravitaillement s'étend de supply_jumps saut le long des corridors.",
+		"divisor": 3,
+		"upkeep_per_two": 1,
+		"trade_pct": 10,
+		"supply_jumps": 1
+	},
+	"gates": {
+		"_doc": "Portée en sauts par les routes entre deux portails (le plus petit des deux compte) ; recharge : 1 jour par tranche de points_per_day points de coque d'une flotte de guerre ; coût : 1 cristal de saut par ships_per_crystal vaisseaux de guerre ; choc : -shock_pct % de dégâts le premier jour d'une bataille livrée moins de shock_days jours après le transit.",
+		"range": {"portail_saut": 6, "grand_portail": 10, "portail_ancien": 8},
+		"points_per_day": 4,
+		"size_points": {"small": 1, "medium": 2, "large": 4, "titan": 12},
+		"ships_per_crystal": 5,
+		"shock_pct": 25,
+		"shock_days": 2,
+		"cut_days": 60,
+		"toll_mult": 2
+	},
+	"ruins": {
+		"_doc": "Portails anciens en ruine (Complets) : count_by_size [systèmes, nombre], dans des systèmes vides à 4 sauts ou plus des départs. Le premier restauré en réveille un autre, libre (sans propriétaire, ouvert à qui connaît la Stabilisation).",
+		"count_by_size": [[0, 2], [60, 3], [120, 4]],
+		"min_jumps_from_start": 4
+	},
+	"mega_ships": ["leviathan", "nef_monde"],
+	"talents": {
+		"_doc": "Prop. 34 : talents par couche d'espèce (valables pour les peuples personnalisés) : recharge_pct, free_jump, range_bonus, smuggle (éclaireurs, civils et espions passent les portails d'autrui), cost_pct (relais, portails, ancres).",
+		"traits": {
+			"navigateurs": {"label": "Sentir les failles", "text": "Recharge des portails -50 %, et le saut ne coûte aucun cristal.", "recharge_pct": -50, "free_jump": true},
+			"tisseurs_portes": {"label": "Tisseurs de portes", "text": "Relais, portails et ancres coûtent 25 % de moins.", "cost_pct": -25}
+		},
+		"gouvernement": {
+			"conscience": {"label": "Réseau des nœuds", "text": "Portée des portails +2 sauts.", "range_bonus": 2}
+		},
+		"registre": {
+			"Picaresque / pulp": {"label": "Contrebande de saut", "text": "Vos éclaireurs et vaisseaux civils passent les portails des autres sans droit de passage.", "smuggle": true}
+		}
+	},
+	"events": {
+		"_doc": "Chaque mois, chance (sur 1000) qu'un événement de portail touche un empire qui a un trou de ver, un portail ou un relais. resonance_days : portails du système coupés.",
+		"monthly_permille": 25,
+		"resonance_days": 30
+	},
+	"deed": {"gates": 5},
+	"ai": {
+		"_doc": "IA : relais sur l'axe capitale-front (relays_max), portails à la capitale puis aux frontières menacées (gates_max), réserve de matériaux exigée.",
+		"relays_max": 4,
+		"gates_max": 3,
+		"min_materials": 600
+	}
+}

@@ -30,6 +30,8 @@ static func value(state: GameState, eid: int, k: String, x: Variant = null) -> i
 			return AdminBridges.clean_years(state, eid)
 		"finance_balanced":
 			return FinanceBridges.balanced_years(state, eid)
+		"linked_gates":
+			return PortalsBridges.linked_gates(state, eid)
 		"inviolate_years":
 			return DefensesBridges.inviolate_years(state, eid)
 		"veiled_fleets":

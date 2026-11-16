@@ -453,6 +453,7 @@ static func building_cost(state: GameState, empire_id: int, building_id: String)
 	elif building_id == "tribunal":
 		pct += Research.fx_int(state, empire_id, "tribunal_cost_pct")  # Cadastre algorithmique
 	pct += Defenses.cost_pct(state, empire_id, building_id)  # Bâtisseurs de forteresses
+	pct += Portals.cost_pct(state, empire_id, building_id)  # Tisseurs de portes
 	var c := Research.scaled_amounts(GameData.building(building_id).get("cost", {}), pct)
 	return Goods.with_strategic(state, c, Goods.building_strategic(building_id))
 
@@ -476,6 +477,8 @@ static func building_unlocked(state: GameState, empire_id: int, building_id: Str
 		return false  # mausolée : seulement pour sa nature de foi
 	if not Defenses.building_allowed(state, building_id):
 		return false  # défenses spatiales : selon le réglage de la partie
+	if not Portals.building_allowed(state, building_id):
+		return false  # portails de saut : selon le réglage de la partie
 	return Research.knows_all(state, empire_id, b.get("requires_tech", []))
 
 
@@ -569,6 +572,8 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 		return "la fiscalité complète n'est pas en jeu dans cette partie"
 	if bool(b.get("ports", false)) and not Ports.enabled(state):
 		return "les spatioports ne sont pas en jeu dans cette partie"
+	if not Portals.building_allowed(state, building_id):
+		return "les portails de saut %s ne sont pas en jeu dans cette partie" % ("complets" if Portals.enabled(state) else "")
 	if building_id == "mausolee":
 		var mw := FaithNatures.check_mausoleum(state, empire_id, planet_id)
 		if mw != "":
@@ -656,6 +661,9 @@ static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet
 				if not galaxy:
 					return "une seule par empire : déjà bâtie ou en chantier"
 				return "merveille déjà bâtie ou en chantier chez %s" % (state.get_empire(o.owner).display_name() if o.owner != empire_id else "vous")
+	var pw := Portals.check_build(state, empire_id, c, building_id)  # un portail par système, ancre, ruine
+	if pw != "":
+		return pw
 	return Defenses.check_build(state, empire_id, c, building_id)  # station, modules, plates-formes
 
 
@@ -663,7 +671,8 @@ static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet
 ## ni les projets (terraformation).
 static func takes_slot(building_id: String) -> bool:
 	var b := GameData.building(building_id)
-	return not b.has("upgrades") and not b.get("project", false) and not b.has("family") and Defenses.takes_slot(building_id)
+	return not b.has("upgrades") and not b.get("project", false) and not b.has("family") and Defenses.takes_slot(building_id) \
+			and String(b.get("portals", "")) == ""
 
 
 ## Type de planète obtenu par un projet de terraformation ("" s'il ne s'applique pas à ce monde) :
@@ -717,8 +726,8 @@ static func building_slots_used(colony: Colony) -> int:
 	var n := 0
 	for b in colony.buildings:
 		var bd := GameData.building(b)
-		if bd.get("buildable", true) and not bd.has("family"):
-			n += 1
+		if bd.get("buildable", true) and not bd.has("family") and String(bd.get("portals", "")) == "":
+			n += 1  # relais, portails et ancres ne prennent pas d'emplacement
 	return n
 
 

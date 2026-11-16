@@ -867,6 +867,21 @@
 			"text": "Défenses spatiales complètes : un de ses inhibiteurs de saut se tait pendant 30 jours ; vos flottes passent sans s'arrêter."
 		},
 		{
+			"id": "desaccorder_portail",
+			"family": "sabotage",
+			"label": "Désaccorder un portail",
+			"tier": 2,
+			"cost": {
+				"influence": 35
+			},
+			"days": 40,
+			"success": 65,
+			"discovery": 30,
+			"spend": 10,
+			"portals": true,
+			"text": "Portails de saut : un de ses portails (celui de sa capitale d'abord) est coupé pendant 60 jours."
+		},
+		{
 			"id": "saboter_plates_formes",
 			"family": "sabotage",
 			"label": "Saboter les plates-formes",

@@ -515,69 +515,12 @@
 			},
 			"flavor": "« Il n'y a rien là-bas. » — « Alors pourquoi le rien nous regarde-t-il ? »"
 		},
-		"voiles_1": {
-			"label": "Voiles de camouflage",
-			"domain": "genie",
-			"era": 2,
-			"pre": [
-				"capteurs"
-			],
-			"text": "Furtivité en jeu : débloque le Voile de camouflage I (petites coques) et les lance-leurres.",
-			"flavor": "« On ne voit rien. » — « C'est le but. »"
-		},
-		"voiles_2": {
-			"label": "Voiles réfractifs",
-			"domain": "genie",
-			"era": 3,
-			"pre": [
-				"voiles_1"
-			],
-			"text": "Furtivité en jeu : débloque le Voile de camouflage II (jusqu'aux coques moyennes) et le brouilleur.",
-			"flavor": "La lumière fait un détour. Elle ne s'en plaint pas."
-		},
-		"voiles_3": {
-			"label": "Voiles d'ombre",
-			"domain": "genie",
-			"era": 4,
-			"pre": [
-				"voiles_2"
-			],
-			"text": "Furtivité en jeu : débloque le Voile de camouflage III (jusqu'aux grandes coques) et le Voile titanesque.",
-			"flavor": "Le croiseur était là depuis une semaine. Personne ne l'a cru, même après."
-		},
-		"detecteurs_1": {
-			"label": "Réseau de détecteurs",
-			"domain": "genie",
-			"era": 2,
-			"pre": [
-				"capteurs"
-			],
-			"text": "Furtivité en jeu : débloque le Réseau de détecteurs I (module) et le Réseau d'écoute (bâtiment de colonie, +1 de détection).",
-			"flavor": "Écouter le silence, c'est déjà entendre quelque chose."
-		},
-		"detecteurs_2": {
-			"label": "Senseurs tachyoniques",
-			"domain": "genie",
-			"era": 3,
-			"pre": [
-				"detecteurs_1"
-			],
-			"text": "Furtivité en jeu : débloque le Réseau de détecteurs II, la balise d'écoute (posée par un éclaireur) et le module Poste d'écoute des stations.",
-			"flavor": "Les tachyons arrivent avant la question. C'est pratique, et un peu vexant."
-		},
-		"detecteurs_3": {
-			"label": "Senseurs quantiques",
-			"domain": "genie",
-			"era": 4,
-			"pre": [
-				"detecteurs_2"
-			],
-			"text": "Furtivité en jeu : débloque le Réseau de détecteurs III ; +1 de détection pour toutes vos sources.",
-			"effects": {
-				"detect": 1
-			},
-			"flavor": "Observer change le résultat. Ici, il le change en « trouvé »."
-		},
+		"voiles_1": {"label": "Voiles de camouflage", "domain": "genie", "era": 2, "pre": ["capteurs"], "text": "Furtivité en jeu : débloque le Voile de camouflage I (petites coques) et les lance-leurres.", "flavor": "« On ne voit rien. » — « C'est le but. »"},
+		"voiles_2": {"label": "Voiles réfractifs", "domain": "genie", "era": 3, "pre": ["voiles_1"], "text": "Furtivité en jeu : débloque le Voile de camouflage II (jusqu'aux coques moyennes) et le brouilleur.", "flavor": "La lumière fait un détour. Elle ne s'en plaint pas."},
+		"voiles_3": {"label": "Voiles d'ombre", "domain": "genie", "era": 4, "pre": ["voiles_2"], "text": "Furtivité en jeu : débloque le Voile de camouflage III (jusqu'aux grandes coques) et le Voile titanesque.", "flavor": "Le croiseur était là depuis une semaine. Personne ne l'a cru, même après."},
+		"detecteurs_1": {"label": "Réseau de détecteurs", "domain": "genie", "era": 2, "pre": ["capteurs"], "text": "Furtivité en jeu : débloque le Réseau de détecteurs I (module) et le Réseau d'écoute (bâtiment de colonie, +1 de détection).", "flavor": "Écouter le silence, c'est déjà entendre quelque chose."},
+		"detecteurs_2": {"label": "Senseurs tachyoniques", "domain": "genie", "era": 3, "pre": ["detecteurs_1"], "text": "Furtivité en jeu : débloque le Réseau de détecteurs II, la balise d'écoute (posée par un éclaireur) et le module Poste d'écoute des stations.", "flavor": "Les tachyons arrivent avant la question. C'est pratique, et un peu vexant."},
+		"detecteurs_3": {"label": "Senseurs quantiques", "domain": "genie", "era": 4, "pre": ["detecteurs_2"], "text": "Furtivité en jeu : débloque le Réseau de détecteurs III ; +1 de détection pour toutes vos sources.", "effects": {"detect": 1}, "flavor": "Observer change le résultat. Ici, il le change en « trouvé »."},
 		"senseurs_gravitationnels": {
 			"label": "Senseurs gravitationnels",
 			"domain": "genie",
@@ -787,44 +730,13 @@
 				"ship_days_pct": -10
 			}
 		},
-		"lignes_ravitaillement": {
-			"label": "Lignes de ravitaillement",
-			"domain": "genie",
-			"era": 2,
-			"pre": [
-				"propulseurs"
-			],
-			"text": "Logistique en jeu : la zone de ravitaillement s'étend d'un saut de plus autour de vos systèmes. Avec les spatioports : portée de vos ports +1.",
-			"effects": {
-				"supply_range": 1,
-				"port_range": 1
-			},
-			"flavor": "Une balise tous les trois sauts, un entrepôt tous les dix, et un comptable partout."
-		},
-		"soutes_profondes": {
-			"label": "Soutes profondes",
-			"domain": "genie",
-			"era": 3,
-			"pre": [
-				"coques_series"
-			],
-			"text": "Logistique en jeu : les flottes emportent 50 % de réserves en plus.",
-			"effects": {
-				"autonomy_pct": 50
-			}
-		},
-		"logistique_campagne": {
-			"label": "Logistique de campagne",
-			"domain": "genie",
-			"era": 4,
-			"pre": [
-				"soutes_profondes"
-			],
-			"text": "Logistique en jeu : un système pris ou occupé devient une tête de pont en 15 jours au lieu de 30.",
-			"effects": {
-				"bridge_days_pct": -50
-			}
-		},
+		"stabilisation_ver": {"label": "Stabilisation des trous de ver", "domain": "genie", "era": 2, "pre": ["propulseurs"], "tags": ["saut"], "text": "Portails en jeu : vos flottes empruntent les trous de ver (un jour de transit) et vos sondes en révèlent l'autre bout. Débloque l'Ancre de trou de ver et la restauration des portails anciens.", "flavor": "On ne referme pas une plaie de l'espace. On lui met une attelle, et on prie."},
+		"relais_hyperspatiaux": {"label": "Relais hyperspatiaux", "domain": "genie", "era": 2, "pre": ["propulseurs"], "tags": ["saut"], "text": "Portails en jeu : débloque le Relais hyperspatial. Entre deux relais, une route compte trois fois moins.", "flavor": "Une balise qui chante, une autre qui répond, et entre les deux l'espace qui se fait tout petit."},
+		"portails_saut": {"label": "Portails de saut", "domain": "genie", "era": 3, "pre": ["hyperflux", "relais_hyperspatiaux"], "tags": ["saut"], "text": "Portails en jeu : débloque le Portail de saut. D'un portail à un autre à 6 sauts ou moins, en un jour.", "flavor": "Le premier essai a envoyé une boîte de conserve à neuf années-lumière. Elle est revenue pleine."},
+		"grands_portails": {"label": "Grands portails", "domain": "genie", "era": 4, "pre": ["portails_saut", "saut_precision"], "tags": ["saut"], "text": "Portails en jeu : débloque le Grand portail, portée 10 sauts.", "flavor": "Plus large, plus loin, plus cher. Les ingénieurs appellent ça le progrès ; les comptables, autrement."},
+		"lignes_ravitaillement": {"label": "Lignes de ravitaillement", "domain": "genie", "era": 2, "pre": ["propulseurs"], "text": "Logistique en jeu : la zone de ravitaillement s'étend d'un saut de plus autour de vos systèmes. Avec les spatioports : portée de vos ports +1.", "effects": {"supply_range": 1, "port_range": 1}, "flavor": "Une balise tous les trois sauts, un entrepôt tous les dix, et un comptable partout."},
+		"soutes_profondes": {"label": "Soutes profondes", "domain": "genie", "era": 3, "pre": ["coques_series"], "text": "Logistique en jeu : les flottes emportent 50 % de réserves en plus.", "effects": {"autonomy_pct": 50}},
+		"logistique_campagne": {"label": "Logistique de campagne", "domain": "genie", "era": 4, "pre": ["soutes_profondes"], "text": "Logistique en jeu : un système pris ou occupé devient une tête de pont en 15 jours au lieu de 30.", "effects": {"bridge_days_pct": -50}},
 		"ravitaillement": {
 			"label": "Ravitaillement en vol",
 			"domain": "genie",
@@ -1141,8 +1053,7 @@
 				"trade_routes": 1,
 				"debt_cap_pct": 20,
 				"reserve_pct": 25,
-				"tourism_pct": 10,
-				"freight_pct": 25
+				"tourism_pct": 10, "freight_pct": 25
 			},
 			"eureka": {
 				"kind": "trade",
@@ -2345,44 +2256,8 @@
 				"n": 3
 			}
 		},
-		"cadastre_algorithmique": {
-			"label": "Cadastre algorithmique",
-			"domain": "societe",
-			"era": 3,
-			"pre": [
-				"administration2"
-			],
-			"text": "Capacité administrative +10 et Tribunaux 40 % moins chers (Administration). Sans le pilier : seuil de surextension +2 systèmes.",
-			"effects": {
-				"admin_cap": 10,
-				"stability_threshold_off": 2,
-				"tribunal_cost_pct": -40
-			},
-			"flavor": "Chaque astéroïde a son numéro, chaque numéro son propriétaire, chaque propriétaire son contrôleur fiscal.",
-			"eureka": {
-				"kind": "colonies",
-				"n": 12
-			}
-		},
-		"administration_quantique": {
-			"label": "Administration quantique",
-			"domain": "societe",
-			"era": 5,
-			"pre": [
-				"prefectures"
-			],
-			"text": "La distance au siège compte pour moitié dans la corruption et capacité administrative +15 (Administration). Sans le pilier : seuil de surextension +3 systèmes.",
-			"effects": {
-				"admin_distance_half": 1,
-				"admin_cap": 15,
-				"stability_threshold_off": 3
-			},
-			"flavor": "Le formulaire est à la fois rempli et vierge, jusqu'à ce qu'un fonctionnaire le regarde.",
-			"eureka": {
-				"kind": "colonies",
-				"n": 40
-			}
-		},
+		"cadastre_algorithmique": {"label": "Cadastre algorithmique", "domain": "societe", "era": 3, "pre": ["administration2"], "text": "Capacité administrative +10 et Tribunaux 40 % moins chers (Administration). Sans le pilier : seuil de surextension +2 systèmes.", "effects": {"admin_cap": 10, "stability_threshold_off": 2, "tribunal_cost_pct": -40}, "flavor": "Chaque astéroïde a son numéro, chaque numéro son propriétaire, chaque propriétaire son contrôleur fiscal.", "eureka": {"kind": "colonies", "n": 12}},
+		"administration_quantique": {"label": "Administration quantique", "domain": "societe", "era": 5, "pre": ["prefectures"], "text": "La distance au siège compte pour moitié dans la corruption et capacité administrative +15 (Administration). Sans le pilier : seuil de surextension +3 systèmes.", "effects": {"admin_distance_half": 1, "admin_cap": 15, "stability_threshold_off": 3}, "flavor": "Le formulaire est à la fois rempli et vierge, jusqu'à ce qu'un fonctionnaire le regarde.", "eureka": {"kind": "colonies", "n": 40}},
 		"prefectures": {
 			"label": "Capitales de secteur",
 			"domain": "societe",
@@ -2457,9 +2332,8 @@
 			],
 			"text": "Une colonie pleine ne perd plus sa croissance : ses colons partent vers la colonie la moins peuplée de l'empire qui a encore de la place. Avec les spatioports complets : réserve des entrepôts doublée.",
 			"effects": {
-				"migration": 1,
-				"warehouse_pct": 100
-			},
+				"migration": 1
+			, "warehouse_pct": 100},
 			"flavor": "Billet aller simple, hublot en option, chat accepté.",
 			"eureka": {
 				"kind": "pop",
