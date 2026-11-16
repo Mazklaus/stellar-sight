@@ -110,6 +110,7 @@ static func in_regency(state: GameState, eid: int) -> bool:
 
 static func on_crown(state: GameState, eid: int, r: Dictionary) -> void:
 	var en := Rulers.entry(state, eid)
+	Court.on_new_ruler(state, eid, r)
 	if Rulers.hereditary(state, eid) and Rulers.mortal(state):
 		if int(en.get("spouse", -1)) < 0:
 			var nm := Rulers._name_pick(state, eid, ["consort", eid, state.tick], "f" if String(r["g"]) == "m" else "m")
@@ -265,6 +266,9 @@ static func _extinction(state: GameState, eid: int, added: Array[Dictionary]) ->
 		return
 	var houses: Array = Rulers.data()["houses"]
 	en["house"] = String(houses[_h(state, ["nouvelle", eid, state.tick]) % houses.size()])
+	var gh := Court.strongest_house(state, eid)
+	if not gh.is_empty():
+		en["house"] = String(gh["name"])  # une Grande Maison monte sur le trône
 	var best := RulersSuccession._best_hero(state, eid, "intendant")
 	var r2: Dictionary
 	if not best.is_empty() and Heroes.ids_of(state, eid).size() >= 2:
@@ -286,6 +290,10 @@ static func _start_regency(state: GameState, eid: int, added: Array[Dictionary])
 		return
 	var h := RulersSuccession._best_hero(state, eid, "orateur")
 	en["regent"] = _regent_from(h)
+	var dh := Court.devoted_head(state, eid)
+	if h.is_empty() and not dh.is_empty():
+		en["regent"] = {"hero": -1, "name": String(dh["name"]), "apt": dh["apt"]}
+		h = {"name": String(dh["name"])}
 	var ev := state.next_event_id
 	Events.push(state, eid, "ruler_regency", {}, added)
 	var r: Dictionary = en["r"]
@@ -399,7 +407,7 @@ static func _grow(state: GameState, eid: int, en: Dictionary, added: Array[Dicti
 			continue
 		var a := child_age(state, c)
 		if String(c["edu"]) == "" and a >= r_int("education_age") + 2:
-			_educate(state, c, _best_cls(c))
+			_educate(state, c, _best_cls(c), eid)
 		if hid < 0 and a >= r_int("majority"):
 			var cls := String(c["edu"]) if String(c["edu"]) != "" else _best_cls(c)
 			var cand := {"name": "%s %s" % [String(c["name"]), String(en.get("house", ""))], "portrait": Heroes.portraits_for(Heroes._archetype(state, eid))[_h(state, ["hp", eid, int(c["id"])]) % maxi(1, Heroes.portraits_for(Heroes._archetype(state, eid)).size())] if not Heroes.portraits_for(Heroes._archetype(state, eid)).is_empty() else "",
@@ -422,10 +430,13 @@ static func _best_cls(c: Dictionary) -> String:
 	return String(Rulers.data()["aptitudes"][best]["cls"])
 
 
-static func _educate(_state: GameState, c: Dictionary, cls: String) -> void:
+static func _educate(state: GameState, c: Dictionary, cls: String, eid := -1) -> void:
 	c["edu"] = cls
 	var a := Rulers.apt_of_cls(cls)
-	c["apt"][a] = mini(int(Rulers.data().get("apt_max", 6)), int(c["apt"].get(a, 0)) + 2)
+	var bonus := 0
+	if eid >= 0 and _h(state, ["precepteur", eid, int(c.get("id", 0))]) % 100 < Court.tutor_pct(state, eid):
+		bonus = 1  # le Précepteur de la cour
+	c["apt"][a] = mini(int(Rulers.data().get("apt_max", 6)), int(c["apt"].get(a, 0)) + 2 + bonus)
 
 
 # --- Étoile montante, prétendants --------------------------------------------------------------
@@ -545,16 +556,19 @@ static func spawn_empire(state: GameState, parent: int, sids: Array, r: Dictiona
 	e.contacts.sort()
 	state.rebuild_ownership()
 	FleetSystem.update_exploration(state)
-	var en := Rulers._blank(state, nid)
-	en["parent"] = parent
-	(state.rulers["e"] as Dictionary)[str(nid)] = en
-	Rulers.crown(state, nid, r, [], false)
+	if not state.rulers.is_empty() and not r.is_empty():
+		var en := Rulers._blank(state, nid)
+		en["parent"] = parent
+		(state.rulers["e"] as Dictionary)[str(nid)] = en
+		Rulers.crown(state, nid, r, [], false)
 	Relics.touch(state)
 	if why == "fief":
 		Vassals.bind(state, parent, nid, "vassal", Vassals.preset_clauses("vassal"), 80, true)
 		added.append(state.add_chronicle("Partage : %s reçoit %s en fief. Ainsi naît %s, vassal de %s ; l'empire se morcelle, mais reste en famille." % [
 				Rulers.full_name(state, nid), state.galaxy.systems[int(sids[0])].system_name, e.display_name(), pe.display_name()],
 				Espionage.public_to(state, [parent, nid])))
+	elif why == "fronde":
+		Combat.start_war(state, nid, parent)  # guerre civile (voir CourtIntrigue.civil_war)
 	else:
 		Combat.start_war(state, nid, parent)
 		added.append(state.add_chronicle("Un prétendant se lève contre %s : %s entraîne %d système(s) dans la sécession et fonde %s. La guerre de succession commence." % [
@@ -658,7 +672,7 @@ static func act(state: GameState, eid: int, act_: String, x: int, s: String, add
 		"educate":
 			for c in en.get("heirs", []):
 				if int(c["id"]) == x:
-					_educate(state, c, s)
+					_educate(state, c, s, eid)
 		"legacy":
 			var nx := legacy_next(state, eid, s)
 			en["renown"] = int(en["renown"]) - int(nx["cost"])

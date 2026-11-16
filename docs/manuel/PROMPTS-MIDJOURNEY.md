@@ -424,3 +424,13 @@ a vast orbital hall of archives with a giant glowing timeline frieze running alo
 ```
 a grand throne hall carved inside an asteroid, an aged crowned queen in an ermine mantle handing a sceptre of starlight to her young heir kneeling on the steps, a long gallery of painted ancestor portraits of several alien species lining the walls, an ambitious regent watching from the shadow of a pillar, banners of a noble house, solemn dynastic ceremony with a hint of intrigue epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-43 · La cour et les Grandes Maisons
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « La cour et les Grandes Maisons »
+- Sujet : Dans une galerie de palais orbital, les chefs de quatre Grandes Maisons de plusieurs espèces, chacun sous sa bannière, s'inclinent devant un trône vide ; derrière une colonne, une Maîtresse des Murmures glisse un billet à un jeune courtisan ambitieux
+
+```
+a long gilded gallery in an orbital palace, the heads of four rival noble houses of several alien species each standing under their own colourful heraldic banner and bowing toward an empty throne, courtiers in extravagant fashion whispering behind fans, behind a marble pillar a sly spymistress slipping a sealed note to an ambitious young courtier, chandeliers of starlight, elegant court intrigue with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

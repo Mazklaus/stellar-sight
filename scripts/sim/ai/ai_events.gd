@@ -68,6 +68,8 @@ static func _fx_value(state: GameState, empire_id: int, fxs: Array, temper: int,
 				v += Minors.ai_value(state, empire_id, item, fx, temper)
 			"ruler":
 				v += Rulers.ai_value(state, empire_id, item, fx)
+			"court":
+				v += Court.ai_value(state, empire_id, item, fx) * 3
 			"res":
 				for r in fx["res"]:
 					v += Events.era_scaled(state, empire_id, int(fx["res"][r])) * int(RES_VALUE.get(r, 10))

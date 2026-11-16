@@ -15,7 +15,12 @@ static func build(es: EmpireScreens) -> void:
 	var player := es._player
 	es._throne_sig = signature(es)
 	var sm := Rulers.summary(state, player)
-	es._side_header(String(sm.get("portrait", "screen_throne")), "Trône", GOLD, "faction")
+	var court_tab := tab == "cour" and Court.applies(state, player)
+	es._side_header(String(sm.get("portrait", "screen_throne")) if not court_tab else "screen_throne", "La Cour" if court_tab else "Trône", GOLD, "faction")
+	_tabs(es)
+	if court_tab:
+		CourtScreen.build(es)
+		return
 	if not Rulers.enabled(state) or sm.is_empty():
 		es._side_box.add_child(UiTheme.paragraph("Dans cette partie, les souverains ne sont pas en jeu (Nouvelle partie : Souverains).", EmpireScreens.SIDE_WIDTH - 24.0, 13))
 		return
@@ -61,6 +66,32 @@ static func build(es: EmpireScreens) -> void:
 	_line_block(es, col, state, player, en)
 	_legacy_block(es, col, state, player, en)
 	_annals_block(col, state, player, en)
+
+
+## Onglet de l'écran : « Trône » ou « La Cour » (voir CourtScreen).
+static var tab := "trone"
+
+
+## Boutons d'onglet (seulement si l'empire a une cour).
+static func _tabs(es: EmpireScreens) -> void:
+	if not Court.applies(es._state, es._player):
+		return
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	es._side_box.add_child(row)
+	for t in [["trone", "Trône"], ["cour", "La Cour"]]:
+		var b := Button.new()
+		b.text = String(t[1])
+		b.toggle_mode = true
+		b.button_pressed = tab == String(t[0])
+		b.focus_mode = Control.FOCUS_NONE
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var id := String(t[0])
+		b.pressed.connect(func() -> void:
+			tab = id
+			es.show_screen("throne"))
+		row.add_child(b)
+		es.throne_buttons["tab:" + id] = b
 
 
 static func _ruler_block(es: EmpireScreens, col: VBoxContainer, state: GameState, player: int, en: Dictionary, r: Dictionary) -> void:
@@ -287,6 +318,8 @@ static func _button(es: EmpireScreens, parent: Control, text: String, cmd: Dicti
 
 static func signature(es: EmpireScreens) -> String:
 	var state := es._state
+	if tab == "cour" and Court.applies(state, es._player):
+		return "cour|" + CourtScreen.signature(es)
 	if not Rulers.enabled(state):
 		return "off"
 	var en := Rulers.entry(state, es._player)
