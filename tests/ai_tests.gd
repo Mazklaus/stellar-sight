@@ -378,4 +378,6 @@ func _test_performance() -> void:
 	# À la vitesse 5, un jour dure 40 ms : la simulation doit en laisser l'essentiel à l'affichage.
 	# (11 ms depuis la recherche : les empires y grandissent d'environ 15 % en 3 ans, donc plus de
 	# colonies et de flottes à gérer ; il reste plus de 70 % du jour pour l'affichage.)
-	_ok(ms / 1080.0 < 11.0, "IA assez rapides pour la vitesse maximale")
+	# Machine plus lente (conteneur cloud) : SS_PERF_SLACK=3 multiplie le seuil (1 par défaut).
+	var slack := maxf(1.0, OS.get_environment("SS_PERF_SLACK").to_float())
+	_ok(ms / 1080.0 < 11.0 * slack, "IA assez rapides pour la vitesse maximale (%.2f ms/jour, seuil %.1f)" % [ms / 1080.0, 11.0 * slack])
