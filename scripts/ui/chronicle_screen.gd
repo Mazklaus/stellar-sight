@@ -7,7 +7,7 @@ extends RefCounted
 ## partie, dès son premier présage, voir CrisisPanel).
 ## Construit dans les conteneurs d'EmpireScreens (_grid, _key_value…).
 
-const TABS := [["crisis", "Crise"], ["quests", "Quêtes"], ["events", "Événements"], ["relics", "Reliquaire"], ["bestiary", "Bestiaire"]]
+const TABS := [["crisis", "Crise"], ["quests", "Quêtes"], ["deeds", "Hauts faits"], ["events", "Événements"], ["annals", "Annales"], ["relics", "Reliquaire"], ["bestiary", "Bestiaire"]]
 
 
 ## Onglets offerts dans cette partie (selon les réglages de la Nouvelle partie).
@@ -17,7 +17,11 @@ static func tabs(state: GameState) -> Array[String]:
 		out.append("crisis")  # crise de fin de partie : date, présages, fiche lisible, bilans
 	if Quests.enabled(state):
 		out.append("quests")
+	if Deeds.enabled(state):
+		out.append("deeds")  # hauts faits galactiques (voir DeedsUi)
 	out.append("events")
+	if Deeds.enabled(state):
+		out.append("annals")
 	if not state.relics.is_empty():
 		out.append("relics")
 	if Fauna.active(state):
@@ -48,6 +52,9 @@ static func build(es: EmpireScreens) -> void:
 		fr.tooltip_text = "Petite monnaie des reliques : indices de fouille, part du Triomphe, dons. On en trouve dans les curiosités, les fouilles et les épaves."
 		fr.mouse_filter = Control.MOUSE_FILTER_STOP
 		es._key_value(g, "Reliques", "%d" % Relics.owned(state, player).size())
+	if Deeds.enabled(state):
+		es._key_value(g, "Gloire", "%d" % Deeds.glory(state, player))
+		es._key_value(g, "Hauts faits", "%d" % Deeds.held_by(state, player).size())
 	if Fauna.active(state):
 		es._key_value(g, "Espèces rencontrées", "%d / %d" % [Fauna.known_species(state, player).size(), Fauna.species_ids().size()])
 	if state.curio_density != "aucune":
@@ -84,6 +91,8 @@ static func build(es: EmpireScreens) -> void:
 		var label := String(t[1])
 		if tid == "events" and not box.is_empty():
 			label += " (%d)" % box.size()
+		if tid == "deeds" and not Deeds.inbox(state, player).is_empty():
+			label += " (%d)" % Deeds.inbox(state, player).size()
 		tb.text = label.to_upper()
 		tb.set_pressed_no_signal(tid == es.chron_tab)
 		tb.pressed.connect(func() -> void:
@@ -106,6 +115,12 @@ static func build(es: EmpireScreens) -> void:
 		return
 	if es.chron_tab == "bestiary":
 		BestiaryPanel.build(es, col)
+		return
+	if es.chron_tab == "deeds":
+		DeedsUi.build(es, col)
+		return
+	if es.chron_tab == "annals":
+		DeedsUi.build_annals(es, col)
 		return
 	if es.chron_tab == "crisis":
 		CrisisPanel.build(es, col)
@@ -384,5 +399,6 @@ static func signature(es: EmpireScreens) -> String:
 		s += QuestPanel.signature(es)
 	s += BestiaryPanel.signature(es)
 	s += CrisisPanel.signature(es)
+	s += DeedsUi.signature(es)
 	@warning_ignore("integer_division")
 	return s + "|%s|%d" % [es.chron_tab, state.tick / 30]

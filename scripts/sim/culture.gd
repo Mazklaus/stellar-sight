@@ -126,7 +126,7 @@ static func radiance(state: GameState, eid: int) -> int:
 static func heritage(state: GameState, eid: int) -> int:
 	if state.culture.is_empty():
 		return 0
-	return maxi(1, int(state.culture.get("pat", {}).get(str(eid), int(data().get("start_heritage", 60)))))
+	return maxi(1, int(state.culture.get("pat", {}).get(str(eid), int(data().get("start_heritage", 60))))) + DeedsBridges.heritage_bonus(state, eid)
 
 
 ## Rayonnement cumulé de a reçu par b.
@@ -451,7 +451,7 @@ static func source_parts(state: GameState, eid: int) -> Array:
 
 ## Pourcentage appliqué au Rayonnement brut (technologies, talents, lois).
 static func radiance_pct(state: GameState, eid: int) -> int:
-	return 100 + Research.fx_int(state, eid, "culture_pct") + tal(state, eid, "radiance_pct") + CultureBridges.law_pct(state, eid, "radiance_pct")
+	return 100 + Research.fx_int(state, eid, "culture_pct") + tal(state, eid, "radiance_pct") + CultureBridges.law_pct(state, eid, "radiance_pct") + DeedsBridges.radiance_pct(state, eid)
 
 
 ## Rayonnement mensuel calculé à cet instant (sans le cache du bilan).

@@ -17,6 +17,8 @@ signal war_requested(empire_id: int)
 signal command_requested(cmd: Dictionary)
 ## Rouvrir une carte d'événement de la boîte (écran Chroniques).
 signal event_requested(event_id: int)
+## Ouvrir le choix de récompense d'un haut fait (voir DeedPanel).
+signal deed_requested(item_id: int)
 ## Revoir une bataille au sol (écran Armées).
 signal ground_replay_requested(report_id: int)
 

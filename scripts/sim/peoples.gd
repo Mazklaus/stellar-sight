@@ -788,6 +788,7 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 				if st == "expulses" or posmod(m + pid, 2) == 0:
 					Movements.flee_from(state, state.galaxy.get_planet(pid).system_id, fid, 1, c.owner, added)
 				if st == "extermines":
+					Deeds.note(state, c.owner, "exterminated")
 					if not killers.has(c.owner):
 						killers[c.owner] = {}
 					killers[c.owner][fid] = true

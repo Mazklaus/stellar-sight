@@ -404,3 +404,13 @@ a crowded alien city square at night on a frontier colony world, citizens of sev
 ```
 three rival unfinished orbital megastructure construction sites side by side above a planet at dusk, one colossal shining tower being completed in a burst of golden light with tiny ships celebrating, the two others still wrapped in dark scaffolding with idle cranes, architects watching from an observation deck, grand rivalry and gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-41 · Les hauts faits
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Les hauts faits »
+- Sujet : Dans une immense salle d'archives orbitale, des scribes de plusieurs espèces gravent sur une frise lumineuse le nom de l'empire qui vient d'accomplir un exploit, tandis qu'un ambassadeur rival arrive en courant, trop tard
+
+```
+a vast orbital hall of archives with a giant glowing timeline frieze running along the walls, scribes of several alien species engraving a new triumphant entry in light, a winning admiral receiving a laurel-like halo of stars, a rival ambassador rushing in breathless and too late, grand ceremony and gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

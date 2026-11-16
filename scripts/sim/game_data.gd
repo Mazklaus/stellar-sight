@@ -142,8 +142,17 @@ static func buildings() -> Dictionary:
 static func building(id: String) -> Dictionary:
 	var b: Dictionary = buildings().get(id, {})
 	if b.is_empty():
-		return wonders_list().get(id, {})  # merveilles et mégastructures (data/wonders.json)
+		b = wonders_list().get(id, {})  # merveilles et mégastructures (data/wonders.json)
+	if b.is_empty():
+		b = deeds().get("trophies", {}).get(id, {})  # Trophées des hauts faits (data/deeds.json)
+		if not b.is_empty() and not b.has("buildable"):
+			b["buildable"] = false
 	return b
+
+
+## Hauts faits galactiques (data/deeds.json) : réglages, familles, titres, récompenses, Trophées, catalogue.
+static func deeds() -> Dictionary:
+	return _load("deeds")
 
 
 ## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.

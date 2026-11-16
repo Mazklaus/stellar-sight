@@ -10,15 +10,17 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | À quai | Flotte armée immobile à votre chantier ou à un dépôt de flotte : entretien -25 % (logistique) | 7 |
 | Accord commercial | Deuxième palier du commerce : tarif de 10 %, +1 influence par mois | 9 |
 | Accord de recherche | Deux empires en paix versent de l'énergie ; trois ans plus tard, chacun reçoit un bond de Savoir | 9 |
+| Âge d'or | Cinq ans de prospérité (+5 stabilité, +10 % Savoir et matériaux) quand assez de Gloire a été gagnée sur la décennie (option) | 24 |
 | Alliance | Traité signé après six mois de paix : guerres, cartes et vision partagées | 8 |
 | Ambition démesurée | La voie d'un empire qui veut devenir la crise : la Menace, trois paliers, le Fléau des étoiles | 19 |
 | Amphictyonie, amphictyon | L'assemblée galactique et ses membres | 12 |
+| Annales | La frise des grands moments de votre empire (Chroniques) ; et une victoire en option : un tiers des hauts faits et la première Gloire, tenus deux ans | 24 |
 | Arbitre des étoiles | Conseiller élu de la Haute Voûte, qui peut geler, clore ou imposer une trêve | 12 |
-| Archétype | Le corps d'un peuple : humanoïde, ruche, synthétique, reptilien, énergétique, lithoïde | 23, 24 |
+| Archétype | Le corps d'un peuple : humanoïde, ruche, synthétique, reptilien, énergétique, lithoïde | 25, 26 |
 | Associé | Membre d'un Koinon sans voix ni bonus de forme, protégé et soumis aux lois | 11 |
 | Avant-poste | Revendication sans habitants, qui exploite les gisements et étend la vision | 3 |
 | Avatar | Le héros d'une ruche ou d'une conscience : ni ambition, ni désertion, ni capture | 16 |
-| Bâtisseur | Haut fait du premier empire à tenir trois merveilles galactiques | 23 |
+| Bâtisseur | Titre du premier empire à tenir trois merveilles galactiques (un haut fait) | 23, 24 |
 | Bourse galactique | Merveille unique qui fonde le marché commun | 9 |
 | Chancelier des étoiles | Le titre que l'Amphictyonie décerne, et qui donne la victoire diplomatique | 12, 18 |
 | Cimetière d'épaves | Système où se sont accumulées trente épaves : transit plus long, couvert, matériaux récupérés (terrain) | 7 |
@@ -61,25 +63,28 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Ferveur | Jauge propre aux théocraties du Chœur et des Murmurants | 20 |
 | Fin de partie | Date à partir de laquelle une crise peut se lever, avancée par les actes imprudents | 19 |
 | Fléau des étoiles | Le dernier palier de l'Ambition démesurée : guerre de toute la galaxie, et la Couronne du Néant à bâtir | 19 |
-| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 26 |
+| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 27 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
 | Fortifications | Remparts d'un système, que le siège use avant la milice (combat au sol complet) | 7 |
 | Fouille | Site exploré en plusieurs chapitres, avec une relique au bout | 17 |
 | Front commun | Coalition contre la crise : vision partagée, passage libre, +10 % de dégâts contre elle | 19 |
 | Frontière | Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe | 8 |
-| Gardien | Créature unique assise sur un des meilleurs systèmes | 26 |
+| Gardien | Créature unique assise sur un des meilleurs systèmes | 27 |
+| Gloire | Valeur d'empire gagnée par les hauts faits et les grands moments, jamais perdue | 24 |
 | Grand chantier | Chantier de merveille, à part de la file de la colonie : avance de 20 %, puis mensualités ; un à la fois | 23 |
 | Grand chantier commun | Phare des Âges ou Banque des Étoiles : le projet que tous financent pour arrêter une crise sans flotte | 19 |
 | Grand Rayonnement | Victoire classique : être Influent chez chaque empire rencontré pendant deux ans | 22 |
 | Grands Œuvres | Victoire en option : tenir 2 à 5 Grands Œuvres d'ère V un an | 23 |
 | Grief | Un an pendant lequel attaquer celui qui vous espionnait n'est pas un parjure | 13, 7 |
 | Guerre froide | Le statut de départ entre deux empires qui se rencontrent | 8 |
+| Haut fait | Course à un seul gagnant (« premier à… », record d'ère) : Gloire et récompense au choix | 24 |
 | Haute Voûte | Le haut conseil de l'Amphictyonie : veto, urgence, dénonciation | 12 |
 | Hérésie, schisme | Une foi fille née d'une foi faible ; devenue assez grande, elle fait schisme | 15 |
 | Héritiers | Les repaires pirates qui naissent de la mort du Roi-Corsaire | 19 |
 | Hors-la-loi | Celui qui a enfreint le Nomos : sanctions, puis bannissement | 12 |
 | Idole des étoiles | Victoire du credo Plaisir : Influent chez 60 % de la population étrangère | 22 |
 | Impérateur | L'Arbitre à vie qui a reçu les pleins pouvoirs | 12 |
+| Infamie | Marque d'un haut fait infâme : -15 d'opinion chez tous pendant dix ans | 24 |
 | Intégration | L'adaptation d'une espèce dans une colonie, de 0 à 100 % ; ou l'absorption d'un sujet | 3, 10 |
 | Intrusion | Flotte entrée sans droit de passage chez un empire rencontré : souvenir, puis -1 par mois si elle reste | 8 |
 | Kanly | Guerre limitée des peuples féodaux : ni monde peuplé envahi, ni parjure | 7 |
@@ -130,7 +135,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Régiment | Unité de combat au sol, recrutée sur une colonie, transportée par les flottes | 7 |
 | Registre | Le ton d'un peuple : grimdark, médiéval spatial, space opera héroïque… | 20 |
 | Registre des traités | Toutes les paix signées, leurs clauses et leurs échéances | 8 |
-| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 26 |
+| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 28 |
 | Renom | La gloire d'un empire, qui attire les héros | 16 |
 | Réquisition | Refaire les réserves d'une flotte sur le dos d'un système assiégé : crime de guerre (logistique complète) | 7 |
 | Réserves | Les jours de ravitaillement qu'emporte une flotte de guerre loin de ses bases, 120 au départ | 7 |
@@ -159,6 +164,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Trêve sacrée | L'interdiction de guerre entre membres du Front commun ; la rompre coûte cher | 19 |
 | Tribut | Part du revenu versée par un sujet, ou par un vaincu ; ou rançon payée aux pirates, ou au Roi-Corsaire | 10, 8, 17, 19 |
 | Triomphe | La grande cérémonie d'une relique, une fois tous les dix ans | 17 |
+| Trophée | Bâtiment unique offert par un haut fait, qu'on ne peut pas construire ; il change de mains avec sa colonie | 24 |
 | Ultimatum | Exiger sans tirer ; refusé, il donne un motif de guerre | 7 |
 | Villégiature | Station qui fait rayonner la beauté d'un système | 22 |
 | Voile | Une nébuleuse arrête la vue : on n'y voit pas de l'extérieur, et on n'y voit que son système | 7 |

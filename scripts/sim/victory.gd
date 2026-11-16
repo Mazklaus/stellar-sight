@@ -85,6 +85,8 @@ static func rule_text(id: String) -> String:
 			return t % [int(v["pct"]), maxi(1, years)]
 		"oeuvres":
 			return t % [int(Wonders.rules().get("oeuvre_by_size", [[0, 2]])[0][1]), maxi(1, years)]
+		"annales":
+			return t % [int(Deeds.rules()["annals"]["share_div"]), maxi(1, years)]
 		"diplomatique":
 			var cd: Dictionary = Amphictyony.data()["chancellor"]
 			return t % [int(cd["win_pct"]), int(cd["cover_pct"])]
@@ -134,6 +136,9 @@ static func enabled(state: GameState, id: String) -> bool:
 		return false
 	# Victoire des Grands Œuvres : seulement avec les merveilles.
 	if bool(info(id).get("wonders", false)) and not Wonders.enabled(state):
+		return false
+	# Victoire des Annales : seulement avec les hauts faits.
+	if bool(info(id).get("deeds", false)) and not Deeds.enabled(state):
 		return false
 	# Victoire diplomatique : seulement avec l'Amphictyonie.
 	if bool(info(id).get("amph", false)) and not state.amph_on:
@@ -264,6 +269,8 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			CultureLife.victory_idole(state, e, out)
 		"oeuvres":
 			WondersBridges.victory(state, e, out)
+		"annales":
+			DeedsBridges.victory(state, e, out)
 	if is_people(id) and not has_tech(state, empire_id, id):
 		out["lines"].append("Technologie requise : %s" % String(Research.tech(tech_for(id)).get("label", tech_for(id))))
 		out["cond"] = false
@@ -456,6 +463,7 @@ static func score(state: GameState, empire_id: int) -> int:
 		pts += Relics.owned(state, empire_id).size() * int(Relics.rules()["score"])
 	pts += Quests.score(state, empire_id)
 	pts += Culture.score(state, empire_id)
+	pts += DeedsBridges.score(state, empire_id)
 	@warning_ignore("integer_division")
 	pts += e.explored.size() / maxi(1, int(s.get("explored_div", 3)))
 	var best := 0

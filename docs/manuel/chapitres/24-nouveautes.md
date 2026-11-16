@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.20
+
+- **Les hauts faits** (chapitre 24), nouveau réglage **Hauts faits** (tous, premières seules, aucun) et case **Âges d'or** : courses à **un seul gagnant** (égalité le même mois partagée, un quart de la Gloire aux suivants), **73 hauts faits** en données en neuf familles (Premières, records d'ère tirés quatre par ère, hauts faits de couche, **infâmes**, **secrets**), **Gloire** jamais perdue (affinité ×2, rattrapage +25 %), **récompense au choix** parmi trois dans une fenêtre, douze **Trophées**, cinq **titres** dont le Bâtisseur.
+- **Ponts** : grands moments qui donnent de la Gloire (merveille, crise, gardien, quête galactique, ancienne, paix imposée), héros (expérience, renom, ambition Gloire), Légende des Picaresques, **score**, **Patrimoine**, Rayonnement accru, voix à l'Amphictyonie, **Infamie**, opération **Falsifier les annales**, **âges d'or**, onglets **Hauts faits** et **Annales** des Chroniques, Gloire dans la barre d'empire, victoire **Les Annales** (option). Chapitres 25 à 28 renumérotés.
+
 ### Édition 2.19
 
 - **Les merveilles** (chapitre 23), nouveau réglage **Merveilles** (toutes, tirage, aucune) : vraie **course** au premier qui achève, **grand chantier** à part (avance de 20 %, mensualités, un à la fois), contributions des colonies proches, dernier quart **pressé** à l'influence, mise gardée 90 jours ou moitié rendue, course visible par quarts, écran **Merveilles** et actions sur la fiche de système.

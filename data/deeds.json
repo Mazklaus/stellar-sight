@@ -1,0 +1,1075 @@
+{
+	"_doc": "Hauts faits galactiques (étude « Hauts faits galactiques », 2026-11-16, 34 propositions validées). Chaque haut fait est une course à un seul gagnant : « k » nomme ce que l'on mesure (voir DeedsEval), « n » le seuil. Sortes : first (Première, ouverte dès le début), record (ouvert par ère, compté depuis l'ouverture), layer (lié à une couche d'espèce), infamous (Infamie), secret (caché jusqu'à l'obtention). Catalogue ouvert : une mécanique future ajoute ses hauts faits ici.",
+	"_sources": [
+		"https://endlessspace2.fandom.com/wiki/Deed",
+		"https://civilization.fandom.com/wiki/Historic_Moment_(Civ6)",
+		"https://civilization.fandom.com/wiki/Age_(Civ6)",
+		"https://humankind.fandom.com/wiki/Fame",
+		"https://humankind.fandom.com/wiki/Era_Star",
+		"https://civilization.fandom.com/wiki/Legacy_Path_(Civ7)",
+		"https://oldworld.fandom.com/wiki/Ambitions",
+		"https://www.designer-notes.com/?p=1748"
+	],
+	"modes": [
+		{
+			"id": "tous",
+			"label": "Tous",
+			"text": "Premières, records d'ère tirés, hauts faits de couche, infâmes et secrets."
+		},
+		{
+			"id": "premieres",
+			"label": "Premières seules",
+			"text": "Seulement les « premier à… », sans records d'ère."
+		},
+		{
+			"id": "aucun",
+			"label": "Aucun",
+			"text": "Pas de hauts faits ni de Gloire."
+		}
+	],
+	"default_mode": "aucun",
+	"rules": {
+		"check_days": 30,
+		"offset": 11,
+		"records_per_era": 4,
+		"glory": {
+			"first": 100,
+			"layer": 100,
+			"infamous": 80,
+			"secret": 120,
+			"record_era": [
+				50,
+				75,
+				100,
+				125,
+				150
+			]
+		},
+		"late_pct": 25,
+		"affinity_mult": 2,
+		"warn_pct": 75,
+		"quarter": 25,
+		"answer_days": 30,
+		"choices": 3,
+		"title_opinion": 10,
+		"infamy_opinion": -15,
+		"infamy_days": 3600,
+		"catchup_pct": 25,
+		"hero_xp": 120,
+		"renown": 40,
+		"legend_rep": 6,
+		"score_div": 10,
+		"heritage_div": 4,
+		"radiance_days": 360,
+		"radiance_pct": 25,
+		"votes_per": 500,
+		"falsify_pct": 15,
+		"moments": {
+			"wonder": 60,
+			"crisis": 150,
+			"guardians": 50,
+			"quests": 40,
+			"ancient_world": 80,
+			"imposed_peace": 40
+		},
+		"golden": {
+			"period": 3600,
+			"days": 1800,
+			"base": 300,
+			"step": 150,
+			"stability": 5,
+			"pct": 10
+		},
+		"annals": {
+			"share_div": 3,
+			"hold_days": 720
+		},
+		"silence_days": 7200,
+		"peace_days": 1800,
+		"min_rivals": 3
+	},
+	"families": {
+		"exploration": {
+			"label": "Exploration",
+			"color": "#6fb7d6",
+			"affinity": {
+				"credo": [
+					"raison"
+				],
+				"registre": [
+					"Classique / hard SF"
+				]
+			}
+		},
+		"expansion": {
+			"label": "Expansion",
+			"color": "#79bb84",
+			"affinity": {
+				"credo": [
+					"survie"
+				],
+				"registre": [
+					"Médiéval spatial"
+				]
+			}
+		},
+		"science": {
+			"label": "Science",
+			"color": "#8fa6e8",
+			"affinity": {
+				"credo": [
+					"raison"
+				],
+				"registre": [
+					"Cosmique / étrange"
+				]
+			}
+		},
+		"economie": {
+			"label": "Économie",
+			"color": "#d1aa4c",
+			"affinity": {
+				"credo": [
+					"profit"
+				],
+				"registre": []
+			}
+		},
+		"guerre": {
+			"label": "Guerre",
+			"color": "#e0574a",
+			"affinity": {
+				"credo": [
+					"honneur"
+				],
+				"registre": [
+					"Grimdark",
+					"Space opera héroïque"
+				]
+			}
+		},
+		"diplomatie": {
+			"label": "Diplomatie",
+			"color": "#b48fd6",
+			"affinity": {
+				"credo": [
+					"plaisir"
+				],
+				"registre": []
+			}
+		},
+		"foi": {
+			"label": "Foi et culture",
+			"color": "#e8c96a",
+			"affinity": {
+				"credo": [
+					"foi",
+					"plaisir"
+				],
+				"registre": []
+			}
+		},
+		"ombres": {
+			"label": "Ombres",
+			"color": "#8a8f9c",
+			"affinity": {
+				"credo": [],
+				"registre": [
+					"Picaresque / pulp"
+				]
+			}
+		},
+		"perils": {
+			"label": "Périls",
+			"color": "#c97b4a",
+			"affinity": {
+				"credo": [
+					"survie",
+					"honneur"
+				],
+				"registre": [
+					"Horreur biologique"
+				]
+			}
+		}
+	},
+	"titles": {
+		"batisseur": {
+			"label": "Bâtisseur",
+			"text": "Premier à tenir trois merveilles galactiques (titre des merveilles, inchangé)."
+		},
+		"cartographe": {
+			"label": "Cartographe",
+			"text": "Premier à explorer la moitié de la galaxie."
+		},
+		"conquerant": {
+			"label": "Conquérant",
+			"text": "Premier à prendre une capitale d'origine rivale."
+		},
+		"mecene": {
+			"label": "Mécène",
+			"text": "Premier à être Influent chez un rival."
+		},
+		"pacificateur": {
+			"label": "Pacificateur",
+			"text": "Premier en paix avec tous les empires rencontrés pendant cinq ans."
+		}
+	},
+	"rewards": {
+		"materiaux": {
+			"label": "Coffres de matériaux",
+			"k": "res",
+			"res": {
+				"materials": 300
+			}
+		},
+		"influence": {
+			"label": "Dons d'influence",
+			"k": "res",
+			"res": {
+				"influence": 120
+			}
+		},
+		"energie": {
+			"label": "Réserves d'énergie et de cristaux",
+			"k": "res",
+			"res": {
+				"energy": 250,
+				"crystals": 40
+			}
+		},
+		"savoir": {
+			"label": "Percée scientifique",
+			"k": "research",
+			"pct": 40
+		},
+		"trophee": {
+			"label": "Un Trophée",
+			"k": "trophy"
+		},
+		"escadre": {
+			"label": "Escadre d'honneur",
+			"k": "ships",
+			"n": 2
+		},
+		"heros": {
+			"label": "Un héros déjà aguerri",
+			"k": "hero",
+			"xp": 900
+		}
+	},
+	"trophies": {
+		"citadelle_democratie": {
+			"label": "Citadelle de la Concorde",
+			"yields": {
+				"influence": 6
+			},
+			"text": "+6 influence. Les pétitions y arrivent par milliers ; on en lit parfois une."
+		},
+		"bureau_achats": {
+			"label": "Bureau des achats stellaires",
+			"yields": {
+				"materials": 10
+			},
+			"text": "+10 matériaux. Personne ne sait ce qu'il achète, mais il achète bien."
+		},
+		"incubateur": {
+			"label": "Incubateur de brevets",
+			"yields": {
+				"energy": 8,
+				"knowledge": 4
+			},
+			"knowledge_pct": 5,
+			"text": "+8 énergie, +4 Savoir, +5 % de Savoir dans le système."
+		},
+		"ciel_clair": {
+			"label": "Programme Ciel clair",
+			"yields": {
+				"influence": 3,
+				"knowledge": 6
+			},
+			"text": "+3 influence, +6 Savoir. Les savants y apprennent à parler aux journalistes."
+		},
+		"mega_terraformation": {
+			"label": "Mégasite de terraformation",
+			"yields": {
+				"food": 10
+			},
+			"text": "+10 nourriture. Les montagnes y sont déplacées sur rendez-vous."
+		},
+		"magnats": {
+			"label": "Conseil des magnats",
+			"yields": {
+				"materials": 6,
+				"energy": 6
+			},
+			"trade_routes": 1,
+			"text": "+6 matériaux, +6 énergie, +1 route commerciale."
+		},
+		"sanctuaire_fortune": {
+			"label": "Sanctuaire des fortunes",
+			"yields": {
+				"energy": 12
+			},
+			"text": "+12 énergie. On y dépose son argent ; il y prie pour vous."
+		},
+		"filet_sonique": {
+			"label": "Filet sonique planétaire",
+			"garrison": 4,
+			"fort": 1,
+			"yields": {},
+			"text": "+4 garnison, une fortification. Les envahisseurs entendent une note très aiguë, puis plus rien."
+		},
+		"ministere_verite": {
+			"label": "Ministère des Annales",
+			"yields": {
+				"influence": 4,
+				"knowledge": 3
+			},
+			"text": "+4 influence, +3 Savoir. L'histoire y est écrite par les vainqueurs, en trois exemplaires."
+		},
+		"arsenal_honneur": {
+			"label": "Arsenal d'honneur",
+			"yields": {
+				"materials": 8
+			},
+			"garrison": 2,
+			"text": "+8 matériaux, +2 garnison."
+		},
+		"observatoire_annales": {
+			"label": "Observatoire des Annales",
+			"yields": {
+				"knowledge": 8
+			},
+			"text": "+8 Savoir. On y regarde les étoiles et, surtout, ce que les autres en disent."
+		},
+		"jardins_memoire": {
+			"label": "Jardins de la Mémoire",
+			"yields": {
+				"food": 6,
+				"influence": 2
+			},
+			"text": "+6 nourriture, +2 influence. Chaque arbre porte le nom d'un haut fait."
+		}
+	},
+	"deeds": {
+		"cartographe": {
+			"label": "Cartographe des étoiles",
+			"family": "exploration",
+			"sort": "first",
+			"k": "explored_pct",
+			"n": 50,
+			"title": "cartographe",
+			"text": "Premier à explorer la moitié des systèmes.",
+			"flavor": "Les cartes s'arrêtaient au bord du parchemin. Les nôtres ont dû en coller un second."
+		},
+		"bout_du_monde": {
+			"label": "Le bout du monde",
+			"family": "exploration",
+			"sort": "first",
+			"k": "explored_pct",
+			"n": 100,
+			"text": "Premier à explorer tous les systèmes.",
+			"flavor": "Au-delà, il n'y a rien. Nous avons vérifié deux fois."
+		},
+		"tous_les_visages": {
+			"label": "Tous les visages",
+			"family": "exploration",
+			"sort": "first",
+			"k": "met_all",
+			"n": 1,
+			"text": "Premier à rencontrer tous les empires encore en vie (trois au moins).",
+			"flavor": "Nous connaissons désormais tous nos voisins. C'est rarement une bonne nouvelle."
+		},
+		"reveil_legendes": {
+			"label": "Le réveil des légendes",
+			"family": "exploration",
+			"sort": "first",
+			"k": "ancient_met",
+			"n": 1,
+			"text": "Premier contact avec une puissance ancienne.",
+			"flavor": "Elle nous a regardés comme on regarde une fourmi qui a appris à écrire."
+		},
+		"pionnier_mondes": {
+			"label": "Pionnier des mondes",
+			"family": "expansion",
+			"sort": "first",
+			"k": "planet_types",
+			"n": 5,
+			"text": "Premier à coloniser cinq types de planètes différents.",
+			"flavor": "Glace, roche, jungle, désert, océan : nos colons se plaignent partout, mais différemment."
+		},
+		"mere_des_peuples": {
+			"label": "Mère des peuples",
+			"family": "expansion",
+			"sort": "first",
+			"k": "species",
+			"n": 5,
+			"text": "Premier à abriter cinq espèces différentes.",
+			"flavor": "Cinq langues aux marchés, cinq cuisines, et une seule administration pour tout compliquer."
+		},
+		"aube_2": {
+			"label": "Aube de l'ère II",
+			"family": "science",
+			"sort": "first",
+			"k": "era",
+			"n": 2,
+			"text": "Premier à entrer dans l'ère II.",
+			"flavor": "Le monde change. Nous l'avons changé un peu avant les autres."
+		},
+		"aube_3": {
+			"label": "Aube de l'ère III",
+			"family": "science",
+			"sort": "first",
+			"k": "era",
+			"n": 3,
+			"text": "Premier à entrer dans l'ère III.",
+			"flavor": "Les savants d'hier sont les manuels d'aujourd'hui."
+		},
+		"aube_4": {
+			"label": "Aube de l'ère IV",
+			"family": "science",
+			"sort": "first",
+			"k": "era",
+			"n": 4,
+			"text": "Premier à entrer dans l'ère IV.",
+			"flavor": "Nos ancêtres nous prendraient pour des dieux. Nos voisins nous prennent pour des tricheurs."
+		},
+		"aube_5": {
+			"label": "Aube de l'ère V",
+			"family": "science",
+			"sort": "first",
+			"k": "era",
+			"n": 5,
+			"text": "Premier à entrer dans l'ère V.",
+			"flavor": "La frontière du savoir recule. Elle recule devant nous."
+		},
+		"batisseur": {
+			"label": "Bâtisseur de merveilles",
+			"family": "economie",
+			"sort": "first",
+			"k": "builder_title",
+			"n": 1,
+			"title": "batisseur",
+			"text": "Premier à tenir trois merveilles galactiques (titre de Bâtisseur).",
+			"flavor": "On nous demande des conseils de chantier jusque dans les cours rivales."
+		},
+		"comptoirs_partout": {
+			"label": "Comptoirs partout",
+			"family": "economie",
+			"sort": "first",
+			"k": "trade_all",
+			"n": 1,
+			"text": "Premier à commercer avec tous les empires rencontrés (quatre au moins).",
+			"flavor": "Nos cargos ont vu toutes les douanes de la galaxie, et toutes les ont trouvées trop lentes."
+		},
+		"chute_capitale": {
+			"label": "Chute d'une capitale",
+			"family": "guerre",
+			"sort": "first",
+			"k": "capital_taken",
+			"n": 1,
+			"title": "conquerant",
+			"text": "Premier à prendre une capitale d'origine rivale.",
+			"flavor": "Leur trône est vide. Le nôtre a une chaise de plus."
+		},
+		"premier_leviathan": {
+			"label": "Premier Léviathan",
+			"family": "guerre",
+			"sort": "first",
+			"k": "echelon",
+			"n": 2,
+			"text": "Premier à lancer un Léviathan.",
+			"flavor": "Les astronomes voisins l'ont d'abord pris pour une lune."
+		},
+		"premiere_nef": {
+			"label": "Première Nef-monde",
+			"family": "guerre",
+			"sort": "first",
+			"k": "echelon",
+			"n": 3,
+			"text": "Premier à lancer une Nef-monde.",
+			"flavor": "Ce n'est plus une flotte qui part en guerre, c'est un pays."
+		},
+		"tueur_de_geant": {
+			"label": "Tueur de géant",
+			"family": "guerre",
+			"sort": "first",
+			"k": "giant_slain",
+			"n": 1,
+			"outsider": true,
+			"text": "Vaincre en bataille une flotte de l'empire en tête de Gloire, en étant dans la moitié basse du classement.",
+			"flavor": "Plus il est grand, plus il fait de bruit en tombant."
+		},
+		"premiere_loi": {
+			"label": "Première loi galactique",
+			"family": "diplomatie",
+			"sort": "first",
+			"k": "nomos",
+			"n": 1,
+			"text": "Premier à faire adopter une loi du Nomos.",
+			"flavor": "Pour la première fois, la galaxie obéit à un texte. Le nôtre."
+		},
+		"fondateur_koinon": {
+			"label": "Fondateur du Koinon",
+			"family": "diplomatie",
+			"sort": "first",
+			"k": "koinon",
+			"n": 1,
+			"text": "Premier à fonder un Koinon.",
+			"flavor": "Nous ne serons plus jamais seuls. C'est le but, et c'est aussi le problème."
+		},
+		"grande_paix": {
+			"label": "La Grande Paix",
+			"family": "diplomatie",
+			"sort": "first",
+			"k": "peace_all",
+			"n": 1,
+			"title": "pacificateur",
+			"text": "Premier en paix avec tous les empires rencontrés (quatre au moins) pendant cinq ans.",
+			"flavor": "Cinq ans sans une salve. Les amiraux s'ennuient, les poètes s'inquiètent."
+		},
+		"revelation": {
+			"label": "La Révélation",
+			"family": "foi",
+			"sort": "first",
+			"k": "revelation",
+			"n": 1,
+			"text": "Premier à fonder une grande foi.",
+			"flavor": "Une voix a parlé. Nous étions les premiers à l'écouter, et les seuls à l'avoir comprise."
+		},
+		"voix_qui_porte": {
+			"label": "Une voix qui porte",
+			"family": "foi",
+			"sort": "first",
+			"k": "influent",
+			"n": 1,
+			"title": "mecene",
+			"text": "Premier à être Influent chez un rival.",
+			"flavor": "Leurs enfants chantent nos chansons, et ne savent pas d'où elles viennent."
+		},
+		"coup_du_siecle": {
+			"label": "Le coup du siècle",
+			"family": "ombres",
+			"sort": "first",
+			"k": "steal_up",
+			"n": 1,
+			"text": "Premier à voler une technologie d'une ère supérieure à la sienne.",
+			"flavor": "On ne l'a pas inventée. On l'a trouvée, dans le coffre de quelqu'un d'autre."
+		},
+		"tueur_de_gardien": {
+			"label": "Tueur de gardien",
+			"family": "perils",
+			"sort": "first",
+			"k": "guardians",
+			"n": 1,
+			"text": "Premier à abattre un gardien.",
+			"flavor": "Il veillait depuis dix mille ans. Il n'a pas vu venir le onze millième."
+		},
+		"bouclier_galaxie": {
+			"label": "Bouclier de la galaxie",
+			"family": "perils",
+			"sort": "first",
+			"k": "crisis_top",
+			"n": 1,
+			"text": "Plus grande part de gloire contre une crise vaincue.",
+			"flavor": "Quand tout a vacillé, nous avons tenu. Les autres ont tenu derrière nous."
+		},
+		"sommeil_rendu": {
+			"label": "Le sommeil rendu",
+			"family": "perils",
+			"sort": "first",
+			"k": "ancient_world",
+			"n": 1,
+			"text": "Premier à prendre un monde d'une puissance ancienne.",
+			"flavor": "Elle dormait sur ce monde. Elle dormira ailleurs."
+		},
+		"chercheur_curiosites": {
+			"label": "Chercheur de curiosités",
+			"family": "exploration",
+			"sort": "record",
+			"era": 1,
+			"k": "curios",
+			"n": 6,
+			"text": "Fouiller 6 curiosités.",
+			"flavor": "Chaque caillou bizarre a une histoire. Nous les collectionnons."
+		},
+		"semeur_mondes": {
+			"label": "Semeur de mondes",
+			"family": "expansion",
+			"sort": "record",
+			"era": 1,
+			"k": "colonies",
+			"n": 5,
+			"text": "Tenir 5 colonies peuplées.",
+			"flavor": "Cinq mondes, cinq départs, cinq fêtes trop arrosées."
+		},
+		"createur_richesse": {
+			"label": "Créateur de richesse",
+			"family": "economie",
+			"sort": "record",
+			"era": 1,
+			"k": "stock",
+			"n": 1500,
+			"x": "materials",
+			"text": "Avoir 1 500 matériaux en réserve.",
+			"flavor": "Certains comptent les étoiles. D'autres comptent ce qu'ils ont dans les caves."
+		},
+		"vainqueur_escarmouches": {
+			"label": "Vainqueur d'escarmouches",
+			"family": "guerre",
+			"sort": "record",
+			"era": 1,
+			"k": "battles_won",
+			"n": 5,
+			"text": "Gagner 5 batailles.",
+			"flavor": "Cinq fois l'ennemi s'est présenté. Cinq fois il est reparti, en moins de morceaux."
+		},
+		"archeologue": {
+			"label": "Archéologue",
+			"family": "exploration",
+			"sort": "record",
+			"era": 2,
+			"k": "digs",
+			"n": 3,
+			"text": "Achever 3 fouilles.",
+			"flavor": "La poussière des anciens a un goût de victoire. Et de poussière."
+		},
+		"batisseur_empire": {
+			"label": "Bâtisseur d'empire",
+			"family": "expansion",
+			"sort": "record",
+			"era": 2,
+			"k": "systems",
+			"n": 12,
+			"text": "Tenir 12 systèmes.",
+			"flavor": "Douze étoiles sur notre drapeau : il faudra un drapeau plus grand."
+		},
+		"promoteur_sciences": {
+			"label": "Promoteur des sciences",
+			"family": "science",
+			"sort": "record",
+			"era": 2,
+			"k": "techs",
+			"n": 20,
+			"text": "Connaître 20 technologies.",
+			"flavor": "Nos bibliothèques débordent. Nos bibliothécaires aussi."
+		},
+		"conglomerats": {
+			"label": "Fondateur de conglomérats",
+			"family": "economie",
+			"sort": "record",
+			"era": 2,
+			"k": "routes",
+			"n": 5,
+			"text": "Tenir 5 routes commerciales actives.",
+			"flavor": "L'argent circule. Il circule surtout vers nous."
+		},
+		"conquerant_systemes": {
+			"label": "Conquérant des systèmes",
+			"family": "guerre",
+			"sort": "record",
+			"era": 2,
+			"k": "conquests",
+			"n": 3,
+			"text": "Conquérir 3 systèmes.",
+			"flavor": "Les cartes sont redessinées. À l'encre de nos couleurs."
+		},
+		"faiseur_traites": {
+			"label": "Faiseur de traités",
+			"family": "diplomatie",
+			"sort": "record",
+			"era": 2,
+			"k": "treaty",
+			"n": 3,
+			"text": "Signer 3 traités.",
+			"flavor": "La plume a pesé plus lourd que le canon. Cette fois."
+		},
+		"lieux_saints": {
+			"label": "Gardien des lieux saints",
+			"family": "foi",
+			"sort": "record",
+			"era": 2,
+			"k": "holy",
+			"n": 2,
+			"text": "Tenir 2 mondes saints.",
+			"flavor": "Les pèlerins viennent de loin. Ils repartent plus légers."
+		},
+		"maitre_espion": {
+			"label": "Maître espion",
+			"family": "ombres",
+			"sort": "record",
+			"era": 2,
+			"k": "operations",
+			"n": 5,
+			"text": "Réussir 5 opérations d'espionnage.",
+			"flavor": "Officiellement, rien ne s'est passé. Cinq fois."
+		},
+		"chasseur_pirates": {
+			"label": "Chasseur de pirates",
+			"family": "perils",
+			"sort": "record",
+			"era": 2,
+			"k": "lair",
+			"n": 3,
+			"text": "Détruire 3 repaires pirates.",
+			"flavor": "Les routes sont sûres. Les tavernes sont tristes."
+		},
+		"explorateur_abimes": {
+			"label": "Explorateur des abîmes",
+			"family": "exploration",
+			"sort": "record",
+			"era": 3,
+			"k": "explored_terrain",
+			"n": 10,
+			"text": "Avoir exploré 10 systèmes à terrain particulier.",
+			"flavor": "Là où les cartes disaient « ne pas aller », nous sommes allés."
+		},
+		"consolidateur": {
+			"label": "Consolidateur",
+			"family": "expansion",
+			"sort": "record",
+			"era": 3,
+			"k": "terrain_held",
+			"n": 6,
+			"text": "Tenir 6 systèmes à terrain particulier.",
+			"flavor": "Personne ne voulait ces nébuleuses. Elles sont à nous, avec leurs orages."
+		},
+		"collectionneur_eurekas": {
+			"label": "Collectionneur d'eurêkas",
+			"family": "science",
+			"sort": "record",
+			"era": 3,
+			"k": "eurekas",
+			"n": 5,
+			"text": "Obtenir 5 eurêkas.",
+			"flavor": "Cinq fois, un savant a crié dans son bain. Cinq fois, il avait raison."
+		},
+		"monopoliste": {
+			"label": "Monopoliste",
+			"family": "economie",
+			"sort": "record",
+			"era": 3,
+			"k": "monopoly",
+			"n": 1,
+			"text": "Tenir un monopole de luxe.",
+			"flavor": "Ils en veulent ? Ils paieront notre prix."
+		},
+		"maitre_sieges": {
+			"label": "Maître des sièges",
+			"family": "guerre",
+			"sort": "record",
+			"era": 3,
+			"k": "conquests",
+			"n": 6,
+			"text": "Conquérir 6 systèmes.",
+			"flavor": "Aucune muraille n'a tenu. Nous avons cessé de compter les murailles."
+		},
+		"suzerain": {
+			"label": "Suzerain",
+			"family": "diplomatie",
+			"sort": "record",
+			"era": 3,
+			"k": "proteges",
+			"n": 3,
+			"text": "Être suzerain de 3 peuples mineurs.",
+			"flavor": "Trois petits peuples nous appellent « protecteur ». Les plus polis."
+		},
+		"conservateur": {
+			"label": "Conservateur",
+			"family": "foi",
+			"sort": "record",
+			"era": 3,
+			"k": "museum",
+			"n": 1,
+			"text": "Ouvrir un Musée galactique.",
+			"flavor": "Le passé de la galaxie a un toit. C'est le nôtre."
+		},
+		"toile_araignee": {
+			"label": "Toile d'araignée",
+			"family": "ombres",
+			"sort": "record",
+			"era": 3,
+			"k": "networks_all",
+			"n": 1,
+			"text": "Tenir un réseau d'espionnage chez chaque empire rencontré (trois au moins).",
+			"flavor": "Il n'y a plus de secret dans la galaxie. Il n'y a que des secrets que nous n'avons pas encore lus."
+		},
+		"dompteur": {
+			"label": "Dompteur",
+			"family": "perils",
+			"sort": "record",
+			"era": 3,
+			"k": "studied",
+			"n": 3,
+			"text": "Avoir étudié 3 espèces de créatures.",
+			"flavor": "Elles mordent toujours. Mais nous savons désormais pourquoi."
+		},
+		"coeur_battant": {
+			"label": "Cœur battant",
+			"family": "expansion",
+			"sort": "record",
+			"era": 4,
+			"k": "colony_pop",
+			"n": 25,
+			"text": "Avoir une colonie à 25 de population.",
+			"flavor": "Une ville qui ne dort jamais, sur un monde qui ne finit pas."
+		},
+		"esprit_encyclopedique": {
+			"label": "Esprit encyclopédique",
+			"family": "science",
+			"sort": "record",
+			"era": 4,
+			"k": "techs",
+			"n": 60,
+			"text": "Connaître 60 technologies.",
+			"flavor": "Nous savons presque tout. Le reste, nous l'inventerons."
+		},
+		"corne_abondance": {
+			"label": "Corne d'abondance",
+			"family": "economie",
+			"sort": "record",
+			"era": 4,
+			"k": "luxuries",
+			"n": 6,
+			"text": "Profiter de 6 luxes différents.",
+			"flavor": "Le superflu, chose très nécessaire."
+		},
+		"levee_en_masse": {
+			"label": "Levée en masse",
+			"family": "guerre",
+			"sort": "record",
+			"era": 4,
+			"k": "regiments",
+			"n": 20,
+			"text": "Tenir 20 régiments.",
+			"flavor": "Vingt régiments au pas. Le sol tremble, les voisins aussi."
+		},
+		"legislateur": {
+			"label": "Législateur",
+			"family": "diplomatie",
+			"sort": "record",
+			"era": 4,
+			"k": "nomos",
+			"n": 3,
+			"text": "Faire adopter 3 lois du Nomos.",
+			"flavor": "La galaxie a un code. Nous en avons écrit les meilleurs articles."
+		},
+		"conversion_capitale": {
+			"label": "Conversion d'une capitale",
+			"family": "foi",
+			"sort": "record",
+			"era": 4,
+			"k": "capital_converted",
+			"n": 1,
+			"text": "La foi que vous avez fondée domine la capitale d'origine d'un rival.",
+			"flavor": "Leurs prêtres prient désormais nos dieux. Les leurs sont vexés."
+		},
+		"multitudes": {
+			"label": "Multitudes",
+			"family": "expansion",
+			"sort": "record",
+			"era": 5,
+			"k": "pop_total",
+			"n": 300,
+			"text": "Avoir 300 de population dans l'empire.",
+			"flavor": "Nous sommes légion. Et légion a faim."
+		},
+		"bout_arbre": {
+			"label": "Au bout de l'arbre",
+			"family": "science",
+			"sort": "record",
+			"era": 5,
+			"k": "branch_full",
+			"n": 1,
+			"text": "Connaître toutes les technologies d'un domaine.",
+			"flavor": "Il n'y a plus de branche à ce rameau. Il faudra planter un autre arbre."
+		},
+		"banquier_etoiles": {
+			"label": "Banquier des étoiles",
+			"family": "economie",
+			"sort": "record",
+			"era": 5,
+			"k": "stock",
+			"n": 8000,
+			"x": "materials",
+			"text": "Avoir 8 000 matériaux en réserve.",
+			"flavor": "Notre trésor a sa propre gravité."
+		},
+		"invaincu": {
+			"label": "Invaincu",
+			"family": "guerre",
+			"sort": "record",
+			"era": 5,
+			"k": "streak",
+			"n": 10,
+			"text": "Gagner 10 batailles d'affilée.",
+			"flavor": "Dix batailles, dix victoires. La onzième, on la gagnera par habitude."
+		},
+		"casse_millenaire": {
+			"label": "Le casse du millénaire",
+			"family": "ombres",
+			"sort": "layer",
+			"k": "relics_stolen",
+			"n": 1,
+			"layer": {
+				"registre": "Picaresque / pulp"
+			},
+			"text": "Voler une relique.",
+			"flavor": "Elle était sous trois gardes, deux verrous et un dragon. Le dragon dormait."
+		},
+		"empire_marchand": {
+			"label": "Empire marchand",
+			"family": "economie",
+			"sort": "layer",
+			"k": "routes",
+			"n": 10,
+			"layer": {
+				"credo": "profit"
+			},
+			"text": "Tenir 10 routes commerciales actives.",
+			"flavor": "Tout se vend. Tout s'achète. Surtout chez nous."
+		},
+		"grande_digestion": {
+			"label": "La Grande Digestion",
+			"family": "guerre",
+			"sort": "layer",
+			"k": "digested",
+			"n": 200,
+			"layer": {
+				"archetype": "ruche"
+			},
+			"text": "Digérer 200 de biomasse.",
+			"flavor": "Rien ne se perd. Tout se mange."
+		},
+		"cathedrale_cathedrales": {
+			"label": "Cathédrale des cathédrales",
+			"family": "foi",
+			"sort": "layer",
+			"k": "holy",
+			"n": 3,
+			"layer": {
+				"gouvernement": "theocratie"
+			},
+			"text": "Tenir 3 mondes saints.",
+			"flavor": "Trois lieux saints, et toujours pas assez de bancs."
+		},
+		"idole": {
+			"label": "L'Idole",
+			"family": "foi",
+			"sort": "layer",
+			"k": "influent",
+			"n": 3,
+			"layer": {
+				"credo": "plaisir"
+			},
+			"text": "Être Influent chez trois rivaux.",
+			"flavor": "Ils veulent nous ressembler. Nous les laissons essayer."
+		},
+		"serment_tenu": {
+			"label": "Le serment tenu",
+			"family": "guerre",
+			"sort": "layer",
+			"k": "battles_won",
+			"n": 15,
+			"layer": {
+				"credo": "honneur"
+			},
+			"text": "Gagner 15 batailles.",
+			"flavor": "Nous avions juré de ne jamais reculer. Nous n'avons pas eu à le faire."
+		},
+		"derniers_debout": {
+			"label": "Les derniers debout",
+			"family": "perils",
+			"sort": "layer",
+			"k": "crisis_survived",
+			"n": 1,
+			"layer": {
+				"credo": "survie"
+			},
+			"text": "Survivre à une crise de fin de partie.",
+			"flavor": "Le ciel est tombé. Nous l'avons ramassé."
+		},
+		"briseur_mondes": {
+			"label": "Briseur de mondes",
+			"family": "guerre",
+			"sort": "infamous",
+			"k": "exterminated",
+			"n": 10,
+			"text": "Exterminer 10 de population.",
+			"flavor": "Les archives parleront de nous. Pas en bien."
+		},
+		"fossoyeur_traites": {
+			"label": "Fossoyeur de traités",
+			"family": "diplomatie",
+			"sort": "infamous",
+			"k": "broke",
+			"n": 3,
+			"text": "Rompre 3 traités de paix ou d'alliance.",
+			"flavor": "Notre parole vaut ce qu'elle vaut. Elle ne vaut plus grand-chose."
+		},
+		"bruleur_archives": {
+			"label": "Brûleur d'archives",
+			"family": "ombres",
+			"sort": "infamous",
+			"k": "archives",
+			"n": 3,
+			"text": "Brûler 3 fois les archives d'un rival.",
+			"flavor": "L'histoire est écrite par les vainqueurs. Nous avons simplement effacé celle des autres."
+		},
+		"survivant": {
+			"label": "Survivant",
+			"family": "perils",
+			"sort": "secret",
+			"k": "crisis_survived",
+			"n": 2,
+			"text": "Survivre à deux crises de fin de partie.",
+			"flavor": "Deux fois la fin du monde. Deux fois le lendemain."
+		},
+		"tresor_quetes": {
+			"label": "Le trésor des quêtes",
+			"family": "exploration",
+			"sort": "secret",
+			"k": "quest_relics",
+			"n": 3,
+			"text": "Réunir 3 reliques de quête.",
+			"flavor": "Trois légendes dans une même vitrine. Le gardien du musée ne dort plus."
+		},
+		"phenix": {
+			"label": "Phénix",
+			"family": "guerre",
+			"sort": "secret",
+			"k": "phoenix",
+			"n": 1,
+			"text": "Reprendre sa capitale d'origine perdue.",
+			"flavor": "Ils l'avaient prise. Nous l'avons reprise. Ils s'en souviendront."
+		},
+		"david": {
+			"label": "David",
+			"family": "guerre",
+			"sort": "secret",
+			"k": "david",
+			"n": 1,
+			"text": "Signer la paix en vainqueur contre un empire plus grand que soi.",
+			"flavor": "La fronde n'était pas grande. La pierre a suffi."
+		},
+		"long_silence": {
+			"label": "Le long silence",
+			"family": "diplomatie",
+			"sort": "secret",
+			"k": "silence",
+			"n": 1,
+			"text": "Vingt ans sans guerre ni opération d'espionnage subie.",
+			"flavor": "Vingt ans de calme. Les historiens n'ont rien eu à écrire, et c'est le plus beau chapitre."
+		},
+		"au_bord_abime": {
+			"label": "Au bord de l'abîme",
+			"family": "expansion",
+			"sort": "secret",
+			"k": "blackhole_colony",
+			"n": 1,
+			"text": "Coloniser un système à trou noir.",
+			"flavor": "Le soleil ne se lève jamais. Il tombe, très lentement."
+		}
+	}
+}

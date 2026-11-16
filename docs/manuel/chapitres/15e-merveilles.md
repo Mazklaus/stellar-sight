@@ -70,7 +70,7 @@ Les **œuvres collectives** se bâtissent à plusieurs : un membre lance le chan
 
 ### Haut fait et victoire
 
-Le premier empire qui tient **trois merveilles galactiques** reçoit le titre de **Bâtisseur** : tous les empires l'en estiment davantage. Chaque merveille compte aussi au **score**.
+Le premier empire qui tient **trois merveilles galactiques** reçoit le titre de **Bâtisseur** : tous les empires l'en estiment davantage. C'est l'un des hauts faits du chapitre 24. Chaque merveille compte aussi au **score**.
 
 **Les Grands Œuvres** (victoire classique en option) : tenir 2 à 5 Grands Œuvres d'ère V selon la taille de la galaxie, chacun dans un autre système et 50 % plus cher que le précédent, et les garder **un an**. Ils se prennent par la conquête.
 

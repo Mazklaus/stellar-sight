@@ -611,6 +611,7 @@ static func register(state: GameState, a: int, b: int, winner: int, kind: String
 	(w["treaties"] as Array).append(t)
 	while (w["treaties"] as Array).size() > 60:
 		(w["treaties"] as Array).pop_front()
+	DeedsBridges.on_peace(state, a, b, winner)
 	return t
 
 

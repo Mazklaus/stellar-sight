@@ -121,6 +121,9 @@
      "prompt": "a crowded alien city square at night on a frontier colony world, citizens of several species gathered under a giant floating holographic opera projected from an orbiting theatre ship, foreign banners and fashion everywhere, a lone old official watching from a balcony as the crowd sings, wistful wonder and gentle irony"},
     {"id": "MJ-40", "titre": "Les merveilles", "format": "2:1", "forme": "grande", "emplacement": "Bandeau du chapitre « Les merveilles »",
      "sujet": "Au-dessus d'un monde au crépuscule, trois chantiers rivaux de la même tour orbitale s'élèvent côte à côte ; l'un s'achève dans une gerbe de lumière tandis que les deux autres restent sous leurs échafaudages",
-     "prompt": "three rival unfinished orbital megastructure construction sites side by side above a planet at dusk, one colossal shining tower being completed in a burst of golden light with tiny ships celebrating, the two others still wrapped in dark scaffolding with idle cranes, architects watching from an observation deck, grand rivalry and gentle irony"}
+     "prompt": "three rival unfinished orbital megastructure construction sites side by side above a planet at dusk, one colossal shining tower being completed in a burst of golden light with tiny ships celebrating, the two others still wrapped in dark scaffolding with idle cranes, architects watching from an observation deck, grand rivalry and gentle irony"},
+    {"id": "MJ-41", "titre": "Les hauts faits", "format": "2:1", "forme": "grande", "emplacement": "Bandeau du chapitre « Les hauts faits »",
+     "sujet": "Dans une immense salle d'archives orbitale, des scribes de plusieurs espèces gravent sur une frise lumineuse le nom de l'empire qui vient d'accomplir un exploit, tandis qu'un ambassadeur rival arrive en courant, trop tard",
+     "prompt": "a vast orbital hall of archives with a giant glowing timeline frieze running along the walls, scribes of several alien species engraving a new triumphant entry in light, a winning admiral receiving a laurel-like halo of stars, a rival ambassador rushing in breathless and too late, grand ceremony and gentle irony"}
   ]
 }

@@ -349,6 +349,10 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	if not state.culture.is_empty():
 		for pp in Culture.opinion_parts(state, a, b):
 			_part(out, String(pp[0]), int(pp[1]))
+	# Hauts faits : titres honorifiques et Infamie (voir DeedsBridges).
+	if not state.deeds.is_empty():
+		for pp in DeedsBridges.opinion_parts(state, a, b):
+			_part(out, String(pp[0]), int(pp[1]))
 	# Merveilles : titre de Bâtisseur, Phare de la Concorde (voir WondersBridges).
 	if not state.wonders.is_empty():
 		for pp in WondersBridges.opinion_parts(state, a, b):
@@ -789,9 +793,11 @@ static func cancel(state: GameState, player: int, target: int, treaty: String) -
 			r.erase("migr")
 			r["since"] = state.tick
 			remember(state, target, player, "left_alliance")
+			Deeds.note(state, player, "broke")
 			state.add_chronicle("%s quitte son alliance avec %s. On se serre encore la main, mais avec des gants." % [
 					ep.display_name(), et.display_name()], Espionage.public_to(state, [player, target]))
 		PEACE:
+			Deeds.note(state, player, "broke")
 			r["pact"] = COLD
 			r["trade"] = 0
 			r.erase("migr")

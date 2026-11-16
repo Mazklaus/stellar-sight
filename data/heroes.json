@@ -77,6 +77,14 @@
 		"lair": {
 			"renown": 30,
 			"cls": "stratege"
+		},
+		"deed": {
+			"renown": 40,
+			"cls": "orateur"
+		},
+		"deed_war": {
+			"renown": 0,
+			"cls": "stratege"
 		}
 	},
 	"offer_size": 3,
@@ -952,7 +960,8 @@
 			"text": "Veut des victoires : batailles gagnées, systèmes conquis.",
 			"acts": [
 				"battles_won",
-				"conquests"
+				"conquests",
+				"deed_war"
 			],
 			"grand": 8,
 			"grand_text": "huit victoires sous nos couleurs"

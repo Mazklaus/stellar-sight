@@ -1199,6 +1199,7 @@ static func _finish(state: GameState, result: String, by: int, added: Array[Dict
 	match result:
 		"victoire":
 			CrisisAllies.on_victory(state, added)
+			DeedsBridges.on_crisis_victory(state, sh)
 			var v: Dictionary = data()["victory"]
 			state.crisis["post"] = {"until": state.tick + int(v["days"]), "stab": int(v["stab"]), "kind": k}
 			var parts: Array[String] = []
