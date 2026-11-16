@@ -259,6 +259,7 @@ func _test_main_scene() -> void:
 	await _test_war_goals_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
+	_quiet_minor_contacts(main)
 	_press(KEY_SPACE)
 	_check(not clock.paused, "Espace enlève la pause")
 	_press(KEY_3, KEY_3)
@@ -1528,7 +1529,7 @@ func _test_vassal_ui(main: Node) -> void:
 		await process_frame
 		_check(not Vassals.is_subject(st, sub), "panneau du sujet : LIBÉRER rend sa liberté")
 	st.wars_on = goals_were
-	screens.close()
+	main.close_empire_screen()  # pas screens.close() : la barre et la fiche du système resteraient en mode « écran d'empire »
 	await process_frame
 
 
@@ -1589,7 +1590,7 @@ func _test_war_goals_ui(main: Node) -> void:
 		await process_frame
 		_check(not Combat.at_war(st, me, foe), "EXIGER SA REDDITION : l'IA écrasée se rend")
 	st.wars_on = goals_were
-	screens.close()
+	main.close_empire_screen()
 	await process_frame
 
 
@@ -1626,7 +1627,7 @@ func _test_koinon_ui(main: Node) -> void:
 	var found: Button = screens.koinon_buttons.get("found")
 	_check(found != null and screens.koinon_buttons.has("found_form"), "Diplomatie : fonder un Koinon avec un allié ancien")
 	if found == null:
-		screens.close()
+		main.close_empire_screen()
 		return
 	_check(not found.disabled, "Koinon : bouton FONDER actif (%s)" % found.tooltip_text)
 	found.pressed.emit()
@@ -1643,7 +1644,7 @@ func _test_koinon_ui(main: Node) -> void:
 		await process_frame
 		_check(Koinon.league_of(st, me) < 0, "Koinon : QUITTER dissout une ligue de deux")
 	st.koinon_on = false
-	screens.close()
+	main.close_empire_screen()
 	await process_frame
 
 
@@ -2150,6 +2151,23 @@ func _test_victory_ui(main: Node) -> void:
 	main.simulation.ticked.emit(st.tick)
 	_check(not main.is_victory_panel_open(), "fin de partie : le panneau ne revient pas")
 	st.winner = {}
+
+
+## La partie relancée par le menu a des peuples mineurs : chaque premier contact ouvre une fenêtre
+## d'événement qui met en pause et prend le clavier (Espace, 1-5, clic, F9). Les tests des touches
+## de la carte établissent donc ces contacts d'avance et ferment la carte déjà ouverte.
+func _quiet_minor_contacts(main: Node) -> void:
+	var st: GameState = main.simulation.state
+	var me: int = main.local_player
+	for id in Minors.ids(st):
+		(Minors.get_m(st, id)["contact"] as Dictionary)[me] = st.tick
+	var inbox: Array = Events.inbox(st, me)
+	for i in range(inbox.size() - 1, -1, -1):
+		if String(inbox[i]["card"]) == "min_contact":
+			inbox.remove_at(i)
+	main.close_event_panel()
+	root.get_node("GameClock").set_paused(true)  # fermer la carte lève la pause qu'elle avait mise
+	_check(not main.is_modal_open(), "aucune fenêtre ouverte avant les tests de touches de la carte")
 
 
 func _press(keycode: Key, physical: Key = KEY_NONE) -> void:

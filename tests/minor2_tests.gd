@@ -94,7 +94,9 @@ func _test_accords() -> void:
 	_days(st, 30)
 	_ok(int(st.empires[0].resources.get("energy", 0)) == e0 + 3, "accord commercial : énergie 1 + âge par mois")
 	_ok(int(st.empires[0].resources["influence"]) == i0 - 3, "chaque accord coûte 1 influence par mois")
-	_ok(MinorsLife.age_mult(st, id) == 3, "transfert de technologie : âges trois fois plus vite")
+	# Transfert ×3, doublé par le talent Raison du credo des Vael (lot 3, prop. 32).
+	_ok(MinorsBridges.tech_x(st, 0) == 2, "les Vael (credo Raison) doublent le transfert de technologie")
+	_ok(MinorsLife.age_mult(st, id) == 3 * MinorsBridges.tech_x(st, 0), "transfert de technologie : âges trois fois plus vite (×2 Raison) (obtenu ×%d)" % MinorsLife.age_mult(st, id))
 	(m["acc"][0] as Dictionary)["guide"] = st.tick - 5 * 360
 	_days(st, 30)
 	_ok(String(m.get("credo", "")) == String(st.empires[0].faction()["species"]["credo"]), "Guidance : leur credo glisse vers le vôtre")

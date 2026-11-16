@@ -166,7 +166,9 @@ func _test_performance() -> void:
 	sim.advance(3600)
 	var ms := (Time.get_ticks_usec() - start) / 1000.0
 	print("  3600 ticks (10 ans de jeu) en %.1f ms" % ms)
-	_ok(ms < 2000.0, "simulation assez rapide")
+	# Machine plus lente (conteneur cloud) : SS_PERF_SLACK=3 multiplie le seuil (1 par défaut).
+	var slack := maxf(1.0, OS.get_environment("SS_PERF_SLACK").to_float())
+	_ok(ms < 2000.0 * slack, "simulation assez rapide (%.0f ms, seuil %.0f)" % [ms, 2000.0 * slack])
 
 
 func _write(path: String, text: String) -> void:
