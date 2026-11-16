@@ -25,7 +25,7 @@ Chaque système revendiqué a une stabilité de 0 à 100, qui glisse chaque mois
 | Ce qui la fait baisser | Valeur |
 | --- | --- |
 | La distance à la capitale | -2 par saut au-delà de 4, jusqu'à -10 |
-| Un empire trop étendu | -1 par système au-delà de 12, jusqu'à -15 |
+| Un empire trop étendu | Administration désactivée : -1 par système au-delà de 12, jusqu'à -15. Sinon, -2 par tranche de 10 % de charge au-delà de la capacité, jusqu'à -15 (chapitre 27) |
 | La surpopulation | -1 par habitant au-delà de 80 % du plafond, jusqu'à -5 |
 | Une famine ou une pénurie d'énergie | -20 |
 | Une attaque subie | -15 pendant 90 jours |

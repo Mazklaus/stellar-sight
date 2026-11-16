@@ -96,6 +96,7 @@ func _initialize() -> void:
 	preload("res://tests/court_tests.gd").new().run(_check)
 	preload("res://tests/court2_tests.gd").new().run(_check)
 	preload("res://tests/court3_tests.gd").new().run(_check)
+	preload("res://tests/admin_tests.gd").new().run(_check)
 	preload("res://tests/battle_visuals_tests.gd").new().run(_check)
 	preload("res://tests/ground_visuals_tests.gd").new().run(_check)
 	_test_clock()
@@ -1833,8 +1834,34 @@ func _test_order_ui(main: Node) -> void:
 	_check(main._hud.lens == "stability", "K : filtre de stabilité")
 	_press(KEY_K)
 	await process_frame
+	if Admin.full(st) and Admin.has_corruption(st, me):
+		_check(main._hud.lens == "corruption", "K une deuxième fois : mode Corruption (Administration)")
+		main._view.queue_redraw()
+		await process_frame
+		_press(KEY_K)
+		await process_frame
 	_check(main._hud.lens == "", "K referme le filtre de stabilité")
 	st.stability[home] = {"v": 50}
+	# Onglet Administration de l'Ordre intérieur (pilier actif dans la partie de test).
+	if Admin.applies(st, me):
+		_press(KEY_F12)
+		await process_frame
+		_check(screens.order_buttons.has("tab:admin"), "Ordre intérieur : onglet Administration")
+		if screens.order_buttons.has("tab:admin"):
+			(screens.order_buttons["tab:admin"] as Button).pressed.emit()
+			await process_frame
+		_check(_find_label(screens, "%d / %d" % [Admin.load_of(st, me), Admin.capacity(st, me)]), "Administration : la jauge charge / capacité s'affiche")
+		st.get_empire(me).resources["energy"] = 3000
+		screens.refresh()
+		await process_frame
+		_check(screens.order_buttons.has("effort:genereux"), "Administration : boutons d'effort")
+		if screens.order_buttons.has("effort:genereux"):
+			(screens.order_buttons["effort:genereux"] as Button).pressed.emit()
+			main.simulation.flush_commands()
+		_check(Admin.effort(st, me) == "genereux", "Administration : effort Généreux appliqué")
+		OrderScreen.tab = "ordre"
+		_press(KEY_F12)
+		await process_frame
 	# Repaires pirates connus dans l'Ordre intérieur (la partie de test n'en a pas : on en pose un).
 	var lair := -1
 	for sys in st.galaxy.systems:

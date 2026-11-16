@@ -1207,7 +1207,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				_hud.set_lens("" if _hud.lens == "economy" else "economy")
 		KEY_K:
 			if not is_system_view_open():
-				_hud.set_lens("" if _hud.lens == "stability" else "stability")
+				_hud.cycle_stability_lens()
 		KEY_TAB:
 			# Dans la vue système, Tab bascule vue orbitale / gestion ; sur la carte, il passe d'un système à l'autre.
 			if is_system_view_open():

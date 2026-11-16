@@ -431,6 +431,8 @@ static func pick_target(state: GameState, sid: int, victim := -1, range_jumps :=
 			top = maxi(top, bounty_weight(state, int(c["owner"])))
 		if top > 0:
 			cands = cands.filter(func(c: Dictionary) -> bool: return bounty_weight(state, int(c["owner"])) == top)
+	if victim < 0 and not state.admin.is_empty():
+		cands = AdminBridges.raid_filter(state, cands)  # les systèmes très corrompus attirent les raids
 	var open := cands.filter(func(c: Dictionary) -> bool: return not c["defended"])
 	if not open.is_empty():
 		cands = open

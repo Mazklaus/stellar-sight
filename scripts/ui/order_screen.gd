@@ -13,7 +13,12 @@ static func build(es: EmpireScreens) -> void:
 	var player := es._player
 	es._order_sig = signature(es)
 	es.order_buttons.clear()
-	es._side_header("screen_order", "Ordre intérieur", Color(0.42, 0.75, 0.55), "faction")
+	var admin_tab := tab == "admin" and Admin.applies(state, player)
+	es._side_header("screen_order", "Administration" if admin_tab else "Ordre intérieur", AdminUi.INK if admin_tab else Color(0.42, 0.75, 0.55), "faction")
+	_tabs(es)
+	if admin_tab:
+		AdminUi.build(es)
+		return
 	var applies := Stability.applies(state, player)
 	var g := es._grid()
 	es._side_box.add_child(g)
@@ -92,9 +97,37 @@ static func build(es: EmpireScreens) -> void:
 		col.add_child(_lairs_block(es))
 
 
+## Onglet de l'écran : « Ordre intérieur » ou « Administration » (voir AdminUi).
+static var tab := "ordre"
+
+
+## Boutons d'onglet (seulement si le pilier Administration est en jeu pour l'empire).
+static func _tabs(es: EmpireScreens) -> void:
+	if not Admin.applies(es._state, es._player):
+		return
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	es._side_box.add_child(row)
+	for t in [["ordre", "Ordre intérieur"], ["admin", "Administration"]]:
+		var b := Button.new()
+		b.text = String(t[1])
+		b.toggle_mode = true
+		b.button_pressed = tab == String(t[0])
+		b.focus_mode = Control.FOCUS_NONE
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var id := String(t[0])
+		b.pressed.connect(func() -> void:
+			tab = id
+			es.show_screen("order"))
+		row.add_child(b)
+		es.order_buttons["tab:" + id] = b
+
+
 ## Ce qui change l'écran : mois, systèmes et leurs entrées de stabilité, ressources.
 static func signature(es: EmpireScreens) -> String:
 	var state := es._state
+	if tab == "admin" and Admin.applies(state, es._player):
+		return "admin|" + AdminUi.signature(es)
 	var e := state.get_empire(es._player)
 	@warning_ignore("integer_division")
 	return "%d|%s|%s|%s|%d|%d|%s|%s|%d|%d" % [state.tick / 30, str(Stability.systems_of(state, es._player)), str(state.stability),

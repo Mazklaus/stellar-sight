@@ -274,6 +274,22 @@
 				}
 			}
 		},
+		"integre": {
+			"label": "Intègre",
+			"cls": "intendant",
+			"text": "Gouverneur : divise par deux la corruption de son système (Administration).",
+			"fx": {
+				"admin_cor_half": 1
+			}
+		},
+		"bureaucrate": {
+			"label": "Bureaucrate",
+			"cls": "intendant",
+			"text": "Au conseil : +5 capacité administrative (Administration).",
+			"fx": {
+				"admin_cap": 5
+			}
+		},
 		"fiscaliste": {
 			"label": "Fiscaliste",
 			"cls": "intendant",
@@ -580,12 +596,13 @@
 			"label": "Vénal",
 			"cls": "",
 			"people": true,
-			"text": "+3 énergie par mois, mais loyauté −10.",
+			"text": "+3 énergie par mois, mais loyauté −10. Gouverneur : +5 corruption dans son système (Administration).",
 			"fx": {
 				"income": {
 					"energy": 3
 				},
-				"loyalty": -10
+				"loyalty": -10,
+				"admin_cor": 5
 			}
 		},
 		"survivant": {

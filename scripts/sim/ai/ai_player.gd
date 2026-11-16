@@ -82,6 +82,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiDeeds.think(ctx)
 	AiRulers.think(ctx)
 	AiCourt.think(ctx)
+	AiAdmin.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 
@@ -678,6 +679,9 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 	# les autres niveaux à 500 (sans quoi le Chœur entassait des milliers de matériaux inutiles).
 	if c.is_colony() and _res(ctx, "materials") >= (250 if use >= 2 else 500):
 		out.append("forum")
+	# Administration : un Tribunal là où la corruption mord (voir AiAdmin).
+	if c.is_colony() and AiAdmin.wants_tribunal(ctx, p.system_id):
+		out.append("tribunal")
 	# Plus de partenaires commerciaux que de routes : un comptoir (voir AiTrade).
 	if use >= 1 and AiTrade.wants_comptoir(ctx):
 		out.append("comptoir")
@@ -764,6 +768,8 @@ static func _foothold_claims(ctx: Dictionary) -> void:
 	var max_claims := mini(int(ctx["lv"].get("max_claims", 2)) + Research.fx_int(state, e.id, "max_projects"),
 			Economy.max_projects_for(state, e.id))
 	var reserve_inf := int(ctx["lv"].get("reserve_influence", 0))
+	if AiAdmin.restrain(ctx):  # Administration : trop au-dessus de la capacité pour s'étendre encore
+		return
 	for sid in EmpireReport.owned_systems(state, e.id):
 		if Economy.active_projects(state, e.id) >= max_claims:
 			return

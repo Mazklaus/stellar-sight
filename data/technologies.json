@@ -1264,7 +1264,7 @@
 			"label": "Administration coloniale",
 			"domain": "societe",
 			"era": 1,
-			"text": "+1 colonisation simultanée. Seuil de surextension +2 systèmes.",
+			"text": "+1 colonisation simultanée. Seuil de surextension +2 systèmes (Administration : +8 capacité).",
 			"effects": {
 				"max_projects": 1,
 				"stability_threshold": 2
@@ -1452,7 +1452,7 @@
 			"label": "Gouverneurs de secteur",
 			"domain": "societe",
 			"era": 3,
-			"text": "+1 colonisation simultanée. Seuil de surextension +2 systèmes.",
+			"text": "+1 colonisation simultanée. Seuil de surextension +2 systèmes (Administration : +8 capacité).",
 			"pre": [
 				"administration",
 				"colons_formes"
@@ -2238,6 +2238,8 @@
 				"n": 3
 			}
 		},
+		"cadastre_algorithmique": {"label": "Cadastre algorithmique", "domain": "societe", "era": 3, "pre": ["administration2"], "text": "Capacité administrative +10 et Tribunaux 40 % moins chers (Administration). Sans le pilier : seuil de surextension +2 systèmes.", "effects": {"admin_cap": 10, "stability_threshold_off": 2, "tribunal_cost_pct": -40}, "flavor": "Chaque astéroïde a son numéro, chaque numéro son propriétaire, chaque propriétaire son contrôleur fiscal.", "eureka": {"kind": "colonies", "n": 12}},
+		"administration_quantique": {"label": "Administration quantique", "domain": "societe", "era": 5, "pre": ["prefectures"], "text": "La distance au siège compte pour moitié dans la corruption et capacité administrative +15 (Administration). Sans le pilier : seuil de surextension +3 systèmes.", "effects": {"admin_distance_half": 1, "admin_cap": 15, "stability_threshold_off": 3}, "flavor": "Le formulaire est à la fois rempli et vierge, jusqu'à ce qu'un fonctionnaire le regarde.", "eureka": {"kind": "colonies", "n": 40}},
 		"prefectures": {
 			"label": "Capitales de secteur",
 			"domain": "societe",
@@ -2245,7 +2247,7 @@
 			"pre": [
 				"administration2"
 			],
-			"text": "Débloque la Préfecture, une par système, dans une colonie de 10 population ou plus : +3 influence, et six colonies de plus échappent au surcoût de recherche des grands empires. Seuil de surextension +3 systèmes. Héros : +1 place.",
+			"text": "Débloque la Préfecture, une par système, dans une colonie de 10 population ou plus : +3 influence, et six colonies de plus échappent au surcoût de recherche des grands empires. Seuil de surextension +3 systèmes (Administration : +12 capacité, et chaque Préfecture devient un siège de province). Héros : +1 place.",
 			"effects": {
 				"hero_cap": 1,
 				"stability_threshold": 3

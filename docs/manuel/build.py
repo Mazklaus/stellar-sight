@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.22"
+EDITION = "2.23"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -423,6 +423,7 @@ def talents_du_peuple(f):
     ajoute("Pirates", _par_couche(c, charger("pirates.json").get("talents", {})))
     ajoute("Créatures", _par_couche(c, charger("creatures.json").get("talents", {})))
     ajoute("Logistique", _par_couche(c, charger("logistics.json").get("talents", {})))
+    ajoute("Administration", _par_couche(c, charger("administration.json").get("talents", {})))
     cu = charger("culture.json").get("talents", {})
     peuple = cu.get("peoples", {}).get(f["id"])
     ajoute("Rayonnement", _par_couche(c, {k: v for k, v in cu.items() if k != "peoples"}) + ([peuple] if isinstance(peuple, dict) else []))
@@ -910,6 +911,30 @@ def gen_cour_talents():
     return f"<table class='grille'><tr><th>Couche</th><th>Talent</th></tr>{lignes}</table>"
 
 
+def gen_admin_modes():
+    """Réglage Administration (data/administration.json)."""
+    d = charger("administration.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    return f"<table class='grille'><tr><th>Administration</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_admin_efforts():
+    """Effort administratif (data/administration.json, efforts)."""
+    d = charger("administration.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_effort') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["efforts"])
+    return f"<table class='grille'><tr><th>Effort</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_admin_talents():
+    """Talents d'administration par couche (data/administration.json, talents)."""
+    d = charger("administration.json")
+    lignes = ""
+    for couche, t in d["talents"].items():
+        for k, v in t.items():
+            lignes += f"<tr><td>{esc(couche.capitalize())}</td><td>{esc(k.capitalize())}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -929,6 +954,7 @@ GENERATEURS = {
     "souverains_modes": gen_souverains_modes, "cour_modes": gen_cour_modes, "cour_vocations": gen_cour_vocations,
     "cour_offices": gen_cour_offices, "cour_talents": gen_cour_talents, "successions": gen_successions, "archetypes_regne": gen_archetypes_regne,
     "surnoms": gen_surnoms, "ambitions_souverain": gen_ambitions, "heritages": gen_heritages,
+    "admin_modes": gen_admin_modes, "admin_efforts": gen_admin_efforts, "admin_talents": gen_admin_talents,
 }
 
 

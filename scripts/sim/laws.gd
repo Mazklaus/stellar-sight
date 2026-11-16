@@ -242,6 +242,8 @@ static func check_adopt(state: GameState, empire_id: int, id: String) -> String:
 		return "les frontières sont libres dans cette partie"
 	if bool(d.get("culture", false)) and not Culture.enabled(state):
 		return "pas de rayonnement culturel dans cette partie"
+	if bool(d.get("admin", false)) and not Admin.full(state):
+		return "la corruption n'est pas active dans cette partie"
 	if bool(d.get("faiths", false)) and id == "inquisition" and not Faiths.has_state_faith(state, empire_id):
 		return "pas d'Inquisition sans foi d'État"
 	if bool(d.get("faiths", false)) and id == "tolerance" and Faiths.doctrine(state, Faiths.state_faith(state, empire_id), "regard") == "fondamentaliste" \
@@ -264,14 +266,14 @@ static func check_adopt(state: GameState, empire_id: int, id: String) -> String:
 			return "%s n'est pas au pouvoir" % Politics.label(state, empire_id, i)
 		if level(state, empire_id, i) < int(d["level"]):
 			return "il faut que %s atteigne le niveau %d (niveau %d)" % [Politics.label(state, empire_id, i), int(d["level"]), level(state, empire_id, i)]
-	var cost := adopt_cost(id)
+	var cost := Admin.influence_cost(state, empire_id, adopt_cost(id)) if not state.admin.is_empty() else adopt_cost(id)
 	if not cost.is_empty() and not Economy.can_afford(state.get_empire(empire_id), cost):
 		return "pas assez d'influence (%s)" % GameData.format_amounts(cost)
 	return ""
 
 
 static func adopt(state: GameState, empire_id: int, id: String) -> void:
-	var cost := adopt_cost(id)
+	var cost := Admin.influence_cost(state, empire_id, adopt_cost(id)) if not state.admin.is_empty() else adopt_cost(id)
 	if not cost.is_empty():
 		Economy.pay(state.get_empire(empire_id), cost)
 	var en := _w(state, empire_id)

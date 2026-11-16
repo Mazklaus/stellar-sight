@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.23
+
+- **Gouverner l'empire** (chapitre 27), nouveau réglage **Administration** (complète, simple, désactivée) : une **capacité administrative** contre la **charge** de tout ce que l'empire possède, avec des malus par tranche de 10 % de dépassement (stabilité, recherche, influence, corruption) qui **remplacent** la surextension et le surcoût de recherche des grands empires ; onglet **Administration** de l'Ordre intérieur ([[F12]]) et **mode Corruption** de la lentille de stabilité ([[K]]).
+- **Corruption** locale de 0 à 50 % qui détourne énergie, matériaux, influence et Savoir (jamais la nourriture) : distance au siège, enclaves, population, stabilité, conquête, gouverneurs ; bâtiment **Tribunal**, **effort administratif** en quatre crans (Frugal, Normal, Généreux, Grande enquête), **provinces** autour des Préfectures, **intégration** des conquêtes, **transfert de capitale**.
+- Traits de héros **Intègre** et **Bureaucrate** (Vénal corrompt aussi), Grand Intendant et Gestion du souverain, lois **Fonctionnaires élus** et **Inspection impériale**, technologies **Cadastre algorithmique** et **Administration quantique** ; **scandales** et carte **Détournement révélé**, pirates attirés par la corruption, opération **Acheter les fonctionnaires**, commerce, doléance **Assainir l'administration** et élections, haut fait **Mains propres**, talents par couche. Chapitres 28 à 31 renumérotés.
+
 ### Édition 2.22
 
 - **La cour et les Grandes Maisons** (chapitre 26), nouveau réglage **Grandes Maisons** (actives, apaisées, aucune) : trois à cinq familles par empire (sauf la ruche), nommées selon le gouvernement, choisies trois parmi quatre au premier mois, **19 vocations** (douze communes, sept de registre) avec leurs désirs, leurs luxes, leur courant et leur **siège** ; **fiefs** partagés, **faveur** en cinq paliers et son détail, courtisans à quatre aptitudes et quinze traits, rivales et amies ; onglet **La Cour** de l'écran Trône.
