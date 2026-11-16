@@ -95,6 +95,7 @@ static func _record_fleets(state: GameState, seen_by: Array[Dictionary]) -> void
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
 		spots.append([fid, f.owner, Fleets.vision_center(state, f), f.ships.size(), -1, f])
+	var stealthy := not state.stealth.is_empty()
 	for e in state.empires:
 		if e.eliminated or e.id >= seen_by.size():
 			continue
@@ -104,7 +105,17 @@ static func _record_fleets(state: GameState, seen_by: Array[Dictionary]) -> void
 		for spot in spots:
 			if int(spot[1]) == e.id or not seen.has(spot[2]):
 				continue
-			if Veil.is_veiled(state, int(spot[1])):
+			var shown_owner: int = spot[1]
+			if stealthy and Stealth.cloak(state, spot[5]) > 0:
+				# Furtivité : il faut percer le camouflage ; au degré « contact », pas de pavillon.
+				var deg := Stealth.degree(state, e.id, spot[5], seen)
+				if deg <= 0:
+					continue
+				if deg == 1:
+					shown_owner = -1
+				if Veil.is_veiled(state, int(spot[1])):
+					Veil.spot(state, int(spot[1]), e.id)
+			elif not stealthy and Veil.is_veiled(state, int(spot[1])):
 				if near_set == null:
 					near_set = Veil.near(state, e.id)
 				if Veil.hides(state, int(spot[1]), e.id, int(spot[2]), near_set):
@@ -116,12 +127,12 @@ static func _record_fleets(state: GameState, seen_by: Array[Dictionary]) -> void
 			here[fid] = true
 			var old: Dictionary = e.sightings.get(fid, {})
 			if old.is_empty():
-				e.sightings[fid] = {"sys": spot[2], "day": state.tick, "owner": spot[1], "ships": spot[3],
+				e.sightings[fid] = {"sys": spot[2], "day": state.tick, "owner": shown_owner, "ships": spot[3],
 						"armed": spot[4]}
 			else:
 				old["sys"] = spot[2]
 				old["day"] = state.tick
-				old["owner"] = spot[1]
+				old["owner"] = shown_owner
 				old["ships"] = spot[3]
 				old["armed"] = spot[4]
 		if e.sightings.size() == here.size():

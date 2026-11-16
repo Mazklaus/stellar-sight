@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.28"
+EDITION = "2.29"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -1109,6 +1109,39 @@ def gen_def_talents():
     return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
 
 
+def gen_st_modes():
+    """Réglage Furtivité (data/stealth.json)."""
+    d = charger("stealth.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    return f"<table class='grille'><tr><th>Furtivité</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_st_modules():
+    """Modules de furtivité (data/designs.json, drapeau « stealth »)."""
+    d = charger("designs.json")
+    tech = charger("technologies.json")["technologies"]
+    l1 = ""
+    for k, m in d["modules"].items():
+        if not isinstance(m, dict) or not m.get("stealth"):
+            continue
+        tailles = ", ".join({"small": "petite", "medium": "moyenne", "large": "grande", "titan": "titan"}[t] for t in m.get("sizes", ["small", "medium", "large", "titan"]))
+        req = ", ".join(tech.get(t, {}).get("label", t) for t in m.get("requires_tech", []))
+        l1 += f"<tr><td><b>{esc(m['label'])}</b></td><td>{esc(tailles)}</td><td>{esc(req)}</td><td>{inline(m.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Module</th><th>Coques</th><th>Technologie</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_st_talents():
+    """Talents de furtivité par couche (data/stealth.json, talents)."""
+    d = charger("stealth.json")
+    lignes = ""
+    for couche, t in d["talents"].items():
+        if couche.startswith("_"):
+            continue
+        for k, v in t.items():
+            lignes += f"<tr><td>{esc(couche.capitalize())}</td><td>{esc(k.capitalize())}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
+
+
 def gen_portail_modes():
     """Réglage Portails de saut (data/portals.json)."""
     d = charger("portals.json")
@@ -1175,6 +1208,7 @@ GENERATEURS = {
     "port_modes": gen_port_modes, "port_niveaux": gen_port_niveaux, "port_talents": gen_port_talents,
     "def_modes": gen_def_modes, "def_stations": gen_def_stations, "def_elements": gen_def_elements,
     "def_talents": gen_def_talents,
+    "st_modes": gen_st_modes, "st_modules": gen_st_modules, "st_talents": gen_st_talents,
     "portail_modes": gen_portail_modes, "portail_batiments": gen_portail_batiments, "portail_talents": gen_portail_talents,
 }
 

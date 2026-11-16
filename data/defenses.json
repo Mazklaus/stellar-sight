@@ -57,6 +57,7 @@
 			"module_reparation": {"fx": "repair", "repair_pct": 3},
 			"module_commandement": {"fx": "capacity", "capacity": 4},
 			"module_senseurs": {"fx": "vision", "vision": 1},
+			"module_ecoute": {"fx": "listen", "stealth": true},
 			"module_mouilleur": {"fx": "mines", "mines_per_month": 10, "mode": "complete", "tier": 2},
 			"module_inhibiteur": {"fx": "inhibitor", "mode": "complete", "tier": 2}
 		},

@@ -1483,6 +1483,16 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 			if _submit(SimCommands.defense_act(view_empire, act, fleet_id)):
 				_hud.notify("%s : %s." % [f.fleet_name, "garde levée" if act == "unguard" else "garde le système"])
 			_hud.show_fleet(fleet_id)
+		"posture":
+			var ps := Stealth.postures(st)
+			var nxt := String(ps[(ps.find(Stealth.posture(st, f)) + 1) % ps.size()])
+			if _submit(SimCommands.stealth_act(view_empire, "pose", fleet_id, -1, nxt)):
+				_hud.notify("%s : posture %s." % [f.fleet_name, Stealth.posture_label(nxt).to_lower()])
+			_hud.show_fleet(fleet_id)
+		"beacon":
+			if _submit(SimCommands.stealth_act(view_empire, "beacon", fleet_id)):
+				_hud.notify("%s pose une balise d'écoute." % f.fleet_name)
+			_hud.show_fleet(fleet_id)
 		"merge":
 			for other in Fleets.fleets_at(st, f.system_id, view_empire):
 				if other.id != fleet_id:

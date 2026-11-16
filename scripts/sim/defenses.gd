@@ -185,6 +185,8 @@ static func check_build(state: GameState, empire_id: int, c: Colony, bid: String
 		if int(st["t"]) < need:
 			return "il faut une station de palier %s" % ["", "I", "II", "III"][need]
 		if r == "module":
+			if bool(module_def(bid).get("stealth", false)) and not Stealth.enabled(state):
+				return "la furtivité n'est pas en jeu dans cette partie"
 			if bid == "module_mouilleur" and bool(talent(state, empire_id).get("no_mines", false)):
 				return "votre peuple refuse de semer des mines : ce n'est pas une façon de se battre"
 			if modules_count(state, c) >= int(tier_def(int(st["t"])).get("slots", 0)):
@@ -772,6 +774,12 @@ static func on_enter(state: GameState, f: Fleet, sid: int) -> int:
 		return 0
 	var out := 0
 	var md: Dictionary = _sub(state, "mines").get(str(sid), {})
+	if not state.stealth.is_empty() and Stealth.cloak(state, f) > 0:
+		# Furtivité : mines et inhibiteur ne retiennent que ce que leur maître voit.
+		if not md.is_empty() and Stealth.unseen_by(state, int(md["o"]), f):
+			md = {}
+		if state.system_owner(sid) >= 0 and Stealth.unseen_by(state, state.system_owner(sid), f):
+			return 1 if not md.is_empty() and int(md.get("d", 0)) > 0 and _foe_of(state, int(md["o"]), f) and _mine_hits(state, f, sid, int(md["o"]), int(md["d"])) else 0
 	if not md.is_empty() and int(md.get("d", 0)) > 0 and _foe_of(state, int(md["o"]), f):
 		if _mine_hits(state, f, sid, int(md["o"]), int(md["d"])):
 			out = 1

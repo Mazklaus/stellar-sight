@@ -260,6 +260,21 @@
 			"text": "Merveilles : les plans de son grand chantier le plus avancé. Cette merveille vous coûtera 25 % de moins."
 		},
 		{
+			"id": "voler_codes",
+			"family": "larcin",
+			"label": "Voler les codes de camouflage",
+			"tier": 2,
+			"cost": {
+				"influence": 35
+			},
+			"days": 50,
+			"success": 70,
+			"discovery": 25,
+			"spend": 10,
+			"stealth": true,
+			"text": "Furtivité en jeu : pendant un an, +2 de détection contre toutes ses flottes camouflées (ses voiles s'effilochent sur vos écrans)."
+		},
+		{
 			"id": "ausculter",
 			"family": "renseignement",
 			"label": "Ausculter un chantier",

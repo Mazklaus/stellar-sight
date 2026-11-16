@@ -505,15 +505,22 @@
 			"label": "Détecteurs d'abysse",
 			"domain": "genie",
 			"era": 2,
-			"text": "Percent le Voile des peuples énergétiques : leurs flottes et leurs revendications apparaissent partout où l'on voit. Curiosités : +1 détection.",
+			"text": "Percent le Voile des peuples énergétiques : leurs flottes et leurs revendications apparaissent partout où l'on voit (furtivité en jeu : +2 de détection contre les flottes des peuples voilés). Curiosités : +1 détection.",
 			"pre": [
 				"capteurs"
 			],
 			"effects": {
-				"curio_detect": 1
+				"curio_detect": 1,
+				"detect_veil": 2
 			},
 			"flavor": "« Il n'y a rien là-bas. » — « Alors pourquoi le rien nous regarde-t-il ? »"
 		},
+		"voiles_1": {"label": "Voiles de camouflage", "domain": "genie", "era": 2, "pre": ["capteurs"], "text": "Furtivité en jeu : débloque le Voile de camouflage I (petites coques) et les lance-leurres.", "flavor": "« On ne voit rien. » — « C'est le but. »"},
+		"voiles_2": {"label": "Voiles réfractifs", "domain": "genie", "era": 3, "pre": ["voiles_1"], "text": "Furtivité en jeu : débloque le Voile de camouflage II (jusqu'aux coques moyennes) et le brouilleur.", "flavor": "La lumière fait un détour. Elle ne s'en plaint pas."},
+		"voiles_3": {"label": "Voiles d'ombre", "domain": "genie", "era": 4, "pre": ["voiles_2"], "text": "Furtivité en jeu : débloque le Voile de camouflage III (jusqu'aux grandes coques) et le Voile titanesque.", "flavor": "Le croiseur était là depuis une semaine. Personne ne l'a cru, même après."},
+		"detecteurs_1": {"label": "Réseau de détecteurs", "domain": "genie", "era": 2, "pre": ["capteurs"], "text": "Furtivité en jeu : débloque le Réseau de détecteurs I (module) et le Réseau d'écoute (bâtiment de colonie, +1 de détection).", "flavor": "Écouter le silence, c'est déjà entendre quelque chose."},
+		"detecteurs_2": {"label": "Senseurs tachyoniques", "domain": "genie", "era": 3, "pre": ["detecteurs_1"], "text": "Furtivité en jeu : débloque le Réseau de détecteurs II, la balise d'écoute (posée par un éclaireur) et le module Poste d'écoute des stations.", "flavor": "Les tachyons arrivent avant la question. C'est pratique, et un peu vexant."},
+		"detecteurs_3": {"label": "Senseurs quantiques", "domain": "genie", "era": 4, "pre": ["detecteurs_2"], "text": "Furtivité en jeu : débloque le Réseau de détecteurs III ; +1 de détection pour toutes vos sources.", "effects": {"detect": 1}, "flavor": "Observer change le résultat. Ici, il le change en « trouvé »."},
 		"senseurs_gravitationnels": {
 			"label": "Senseurs gravitationnels",
 			"domain": "genie",

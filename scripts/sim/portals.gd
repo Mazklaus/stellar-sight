@@ -597,6 +597,7 @@ static func hop_check(state: GameState, f: Fleet, a: int, b: int) -> Array:
 
 ## Après un saut de raccourci : cristaux, recharge, péage, marque du choc de transit.
 static func on_hop(state: GameState, f: Fleet, a: int, b: int) -> void:
+	Stealth.on_transit(state, f)  # signature de transit : le passage fait tomber le voile (furtivité)
 	var g := state.galaxy
 	var e := state.get_empire(f.owner)
 	var armed := Combat.is_armed(f)

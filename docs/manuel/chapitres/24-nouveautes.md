@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.29
+
+- **Ombres et senseurs** (chapitre 33), nouveau réglage **Furtivité** (complète, simple, désactivée) : **camouflage** contre **détection**, de 0 à 5, dans la portée de vision ; **Voiles de camouflage I à III** et **Voile titanesque** (le voile ralentit, tombe au premier tir et se relève en 30 jours), **Réseaux de détecteurs I à III**, **Réseau d'écoute**, **Poste d'écoute** de station, **balises d'écoute**, sonde qui perce jusqu'à 3 ; terrain qui cache, tempête qui aveugle.
+- Une flotte cachée ne déclenche ni bataille ni siège et se glisse entre blocus, mines et inhibiteurs ; postures **Silence radio**, **Balayage actif** et **Embuscade** (+25 % le premier jour) ; trois degrés de connaissance (**contact** gris sans pavillon, **identifiée**, **détaillée**), **brouilleur** et **lance-leurres**.
+- **Ponts** : le Voile des Murmurants devient un camouflage 3 (comportement d'avant conservé), opération **Voler les codes de camouflage**, palier Amirauté, pirates et Spectre des pulsars camouflés, traits **Fantôme**, **Œil-de-lynx** et **Chasseur d'ombres**, grief des flottes espionnes, hauts faits **Premier voile**, **Spectre** et **Nul ne passe**, talents par couche, IA qui écoute après une embuscade et raids voilés du Vétéran. Chapitres 34 à 37 renumérotés ; signature de transit des portails (un passage de portail fait tomber le voile).
+
 ### Édition 2.28
 
 - **Les portails de saut** (chapitre 32), nouveau réglage **Portails de saut** (complets, simples, désactivés) : **trous de ver** naturels nommés, à six sauts ou plus, praticables avec la **Stabilisation des trous de ver**, dont un quart **instables** qui dérivent tous les 8 à 15 ans ; **Ancre de trou de ver** (passage réservé, péage, méga-vaisseaux) ; **relais hyperspatiaux** qui font des **corridors** trois fois plus courts ; **portails de saut** et **Grands portails** à portée en sauts, **recharge** selon la taille de la flotte, coût en **cristaux de saut**, **choc de transit** et **péage** ; jamais ouverts à un ennemi en guerre, coupés par blocus, siège, occupation, tempête gravitationnelle ou inhibiteur ; **Raser le portail** pour l'occupant.

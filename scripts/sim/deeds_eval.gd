@@ -34,6 +34,12 @@ static func value(state: GameState, eid: int, k: String, x: Variant = null) -> i
 			return PortalsBridges.linked_gates(state, eid)
 		"inviolate_years":
 			return DefensesBridges.inviolate_years(state, eid)
+		"veiled_fleets":
+			return StealthBridges.veiled_fleets(state, eid)
+		"spectre_systems":
+			return StealthBridges.spectre(state, eid)
+		"hidden_found":
+			return StealthBridges.found(state, eid)
 		"branch_empires":
 			return int(Private.entry(state, eid).get("brx", 0))
 		"tourism":

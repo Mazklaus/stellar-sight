@@ -21,6 +21,8 @@ const STATS := ["hp", "armor", "shield", "pd", "pd_fleet", "shield_fleet", "flee
 ## Drapeaux qu'un module transmet au vaisseau (fleet_repair : la flotte se répare partout comme chez
 ## elle ; fleet_barracks : ses troupes se reforment partout ; anchor : les ennemis ne quittent pas la
 ## bataille ; reliquary : ferveur à chaque victoire ; digester : épaves changées en matériaux).
+## Caractéristiques de furtivité (voir Stealth) : la meilleure des modules compte, sans cumul.
+const MAX_STATS := ["cloak", "detect", "jam", "decoy"]
 const FLAGS := ["blockade_runner", "adaptive", "fleet_repair", "fleet_barracks", "anchor", "reliquary", "digester", "net", "supply_hold", "hardened_shields", "survival", "minelayer", "sweeper"]
 const LINES := ["screen", "line", "rear"]
 const TARGETS := ["nearest", "largest", "smallest", "rear"]
@@ -97,6 +99,9 @@ static func compute(hull_id: String, modules: Array) -> Dictionary:
 		for k in STATS:
 			if m.has(k):
 				out[k] = int(out[k]) + int(_sized(m[k], size))
+		for k in MAX_STATS:
+			if m.has(k):
+				out[k] = maxi(int(out.get(k, 0)), int(_sized(m[k], size)))
 		for fam in m.get("weapons", {}):
 			var p := int(_sized(m["weapons"][fam], size))
 			if p != 0:
@@ -347,6 +352,8 @@ static func check_save(state: GameState, empire_id: int, spec: Dictionary) -> St
 	for mid in mods:
 		if not module_allowed(String(mid), e.faction_id):
 			return "votre peuple n'utilise pas le module %s" % String(module(String(mid)).get("label", mid))
+		if module(String(mid)).get("stealth", false) and not Stealth.enabled(state):
+			return "la furtivité n'est pas en jeu dans cette partie (%s)" % String(module(String(mid)).get("label", mid))
 	var techs := required_techs(hid, mods)
 	if not Research.knows_all(state, empire_id, techs):
 		return "technologie requise : %s" % Research.missing_text(state, empire_id, techs)
@@ -504,6 +511,8 @@ static func _usable(state: GameState, empire_id: int, hull_id: String, slot_type
 		if not Research.knows_all(state, empire_id, m.get("requires_tech", [])):
 			continue
 		if not module_allowed(mid, state.get_empire(empire_id).faction_id):
+			continue
+		if m.get("stealth", false) and not Stealth.enabled(state):
 			continue
 		out.append(mid)
 	return out

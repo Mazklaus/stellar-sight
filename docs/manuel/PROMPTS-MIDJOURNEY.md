@@ -494,3 +494,13 @@ a colossal orbital fortress bristling with gun turrets guarding a fortified plan
 ```
 a colossal ring-shaped jump gate opening onto an alien starfield, a warfleet plunging through it in a flash of blue light, in the distance a swirling violet wormhole beside a black hole, a chain of hyperspace relay beacons tracing a glowing teal corridor between two stars, a frost-covered ancient ruined gate waiting to be rekindled, sense of impossible distances folded, epic wonder with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-50 · Ombres et senseurs
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Ombres et senseurs »
+- Sujet : Une frégate à demi effacée par un voile de camouflage glisse devant une nébuleuse ; sur la passerelle d'un croiseur voisin, un officier scrute un écran de senseurs où ne brille qu'une ombre grise ; au loin, une balise d'écoute minuscule clignote
+
+```
+a sleek frigate half dissolved by a shimmering cloaking veil gliding in front of a violet nebula, its hull visible only as refracted starlight, in the foreground the dim bridge of a nearby cruiser where a tense officer leans over a green sensor display showing a single faint grey blip, far away a tiny listening beacon blinking in the void, quiet suspense of a hunt in the dark with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```
