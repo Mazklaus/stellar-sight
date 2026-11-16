@@ -393,6 +393,9 @@ static func check_declare_war(state: GameState, empire_id: int, target: int, bre
 		return "vous n'avez jamais rencontré cet empire"
 	if e.wars.has(target):
 		return "vous êtes déjà en guerre"
+	var pw := WondersBridges.check_war(state, empire_id, target)  # Phare de la Concorde
+	if pw != "":
+		return pw
 	return Diplomacy.check_war(state, empire_id, target, break_truce)
 
 
@@ -411,6 +414,8 @@ static func start_war(state: GameState, a: int, b: int, by_nature := false, join
 		eb.wars.append(a)
 		eb.wars.sort()
 	Crisis.on_war(state, a, b)  # rompre la trêve sacrée coûte cher
+	if not joined and not by_nature:
+		WondersBridges.on_war(state, a, b)
 	if joined:
 		Diplomacy.on_war_declared(state, a, b, by_nature, joined)
 		return {}

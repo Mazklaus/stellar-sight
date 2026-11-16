@@ -359,6 +359,8 @@ static func refuge_for(state: GameState, from_sid: int, fid: String, exclude: Ar
 		# Les Murmurants (et leurs semblables) attirent ceux « qui les ont entendus ».
 		if int(talent(state, c.owner).get("refugee_pull", 0)) > 0:
 			tier = maxi(0, tier - 1)
+		if WondersCatalog.fx(state, c.owner, "refuge") > 0:
+			tier = maxi(0, tier - 2)  # Arche des exilés
 		var k := tier * 100000 + int(jumps.get(_sid(state, c), 999)) * 100 + 0
 		if k < bk:
 			bk = k

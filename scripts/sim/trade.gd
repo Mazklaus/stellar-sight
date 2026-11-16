@@ -429,6 +429,7 @@ static func compute(state: GameState) -> Array[Dictionary]:
 				var inc: Dictionary = income.get(e.id, {})
 				inc["influence"] = int(inc.get("influence", 0)) + infl
 				income[e.id] = inc
+	WondersCatalog.tolls(state, routes, income)  # Grand Caravansérail
 	CrisisKinds.adjust_trade_income(state, income)  # Grand Krach et Grande Dépression
 	state.trade["routes"] = routes
 	state.trade["ints"] = ints
@@ -561,6 +562,8 @@ static func route_loss(state: GameState, r: Dictionary) -> int:
 	var p: Array = r["path"]
 	var a := int(r["from"])
 	var b := int(r["to"])
+	if WondersCatalog.fx(state, a, "pirate_peace") > 0 or WondersCatalog.fx(state, b, "pirate_peace") > 0:
+		return 0  # Rade franche, Tripot des lunes : les pirates épargnent ces routes
 	var worst := 0
 	for i in range(1, p.size() - 1):
 		var v := int(risk.get(int(p[i]), 0))

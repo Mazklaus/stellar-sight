@@ -191,6 +191,7 @@ func _draw() -> void:
 	_draw_conflicts(px)
 	_draw_lairs(px)
 	_draw_minors(px)
+	_draw_wonders(px)
 	_draw_quests(px)
 	_draw_crisis(px)
 	_draw_convoys(px)
@@ -749,6 +750,31 @@ func _draw_minors(px: float) -> void:
 		else:
 			draw_line(Vector2(-3, 0), Vector2(3, 0), col, 1.6, true)
 			draw_line(Vector2(0, -3), Vector2(0, 3), col, 1.6, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Merveilles (voir Wonders, prop. 28) : une petite pyramide à degrés à gauche de l'étoile, dorée pour
+## une merveille achevée, grise pour une ruine.
+func _draw_wonders(px: float) -> void:
+	if state == null or state.wonders.is_empty():
+		return
+	var marks := {}
+	for row in Wonders.held(state):
+		marks[galaxy.get_planet(int(row[1])).system_id] = Color(0.95, 0.8, 0.4)
+	var r: Dictionary = state.wonders.get("ruins", {})
+	for wid in r:
+		var sid := galaxy.get_planet(int(r[wid])).system_id
+		if not marks.has(sid):
+			marks[sid] = Color(0.6, 0.6, 0.62)
+	for sid in marks:
+		if not is_explored(int(sid)):
+			continue
+		var col: Color = marks[sid]
+		draw_set_transform(galaxy.systems[int(sid)].position + Vector2(-19.0, 6.0) * px, 0.0, Vector2(px, px))
+		draw_rect(Rect2(-7, 1, 14, 4), Color(0.04, 0.04, 0.06, 0.9))
+		for k in 3:
+			var w := 6.0 - k * 2.0
+			draw_rect(Rect2(-w, 2.5 - k * 3.0, w * 2.0, 2.5), col)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

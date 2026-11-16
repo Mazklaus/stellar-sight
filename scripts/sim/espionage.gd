@@ -634,6 +634,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_c := CultureBridges.spy_check(state, a, b, op_id)
 		if why_c != "":
 			return why_c
+	if bool(o.get("wonders", false)):
+		var why_w2 := WondersBridges.spy_check(state, a, b, op_id)
+		if why_w2 != "":
+			return why_w2
 	match op_id:
 		"prophetie":
 			var why := FaithWars.check_prophecy(state, a, b)
@@ -692,7 +696,7 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 			if not Goods.market_on(state):
 				return "pas de marché dans cette partie"
 		"sabotage_chantier":
-			if _sabotage_site(state, b) < 0:
+			if _sabotage_site(state, b) < 0 and WondersBridges.top_build(state, b).is_empty():
 				return "aucun chantier en cours chez lui"
 		"archives":
 			if t.research_progress <= 0:
@@ -823,6 +827,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return Logistics.spy_apply(state, a, b, o)
 	if bool(o.get("culture", false)):
 		return CultureBridges.spy_apply(state, a, b, o)
+	if bool(o.get("wonders", false)):
+		return WondersBridges.spy_apply(state, a, b, o)
 	match String(o["id"]):
 		"rapport":
 			ea.dossiers[b] = dossier(state, b, data()["tiers"].size())
@@ -864,6 +870,10 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			return "ses courtiers l'annoncent : %s sur %s vers le %s (%+d %%)." % ["une envolée" if int(sh["pct"]) > 0 else "un krach",
 					Goods.label(String(sh["res"])).to_lower(), GameCalendar.date_string(int(sh["tick"])), int(sh["pct"])]
 		"sabotage_chantier":
+			var wmsg := WondersBridges.sabotage(state, b, int(o["delay_days"]))
+			if wmsg != "":
+				Reputation.exploit(state, a, "sabotage")
+				return wmsg
 			var pid := _sabotage_site(state, b)
 			if pid < 0:
 				return "le chantier visé était déjà terminé. Les explosifs serviront une autre fois."

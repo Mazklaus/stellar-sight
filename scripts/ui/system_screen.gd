@@ -567,6 +567,9 @@ func _refresh_panel(s: StarSystem) -> void:
 	_dep_label.text = ", ".join(deps) if not deps.is_empty() else "Aucun gisement notable"
 	if (Curios.sees(_state, _player, p.id) if _player >= 0 else Curios.is_open(_state, p.id)):
 		_dep_label.text += "\n" + PlanetInfo.curio_text(_state, p.id, _player)
+	if not _state.wonders.is_empty():
+		for wid in WondersCatalog.ruins_at(_state, p.id):
+			_dep_label.text += "\nRuines : %s, une merveille d'un âge oublié (à restaurer par qui tient la planète)" % Wonders.label(wid)
 	if _state.digs.has(p.system_id) and (read_only or Relics.knows(_state, _player, p.system_id)):
 		_dep_label.text += "\n" + PlanetInfo.dig_text(_state, p.system_id, _player)
 
@@ -626,6 +629,7 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 			if not _state.lairs.is_empty() or GroundOccupation.syndicate(_state) >= 0:
 				actions.append(_hire_action(p))
 	if c and c.owner == _player and c.is_established():
+		actions.append_array(WondersUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
 		for bid in GameData.buildings():
 			var b := GameData.building(bid)
 			# Les bâtiments d'une technologie que ce peuple n'aura jamais (Académie pour le Chœur) n'apparaissent pas.

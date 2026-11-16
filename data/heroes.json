@@ -206,6 +206,7 @@
 		"meneur_hommes": {"label": "Meneur d'hommes", "cls": "general", "text": "+10 % de dégâts au sol pour les régiments qu'il commande.", "fx": {"ground_damage_pct": 10}},
 		"ami_anciens": {"label": "Ami des anciens", "cls": "", "earned": true, "text": "Gagné quand son empire reçoit un poste honorifique d'une puissance ancienne : +25 d'opinion de toutes les anciennes.", "fx": {}},
 		"tueur_crise": {"label": "Tueur de crise", "cls": "stratege", "earned": true, "text": "Gagné en abattant un point faible ou le cœur d'une crise de fin de partie : +20 % de dégâts contre les crises.", "fx": {"crisis_damage_pct": 20}},
+		"architecte": {"label": "Architecte", "cls": "", "earned": true, "text": "Gagné quand une merveille s'achève dans le système qu'il gouverne : les chantiers de merveille qu'il gouverne vont 30 % plus vite.", "fx": {}},
 		"veteran_front": {"label": "Vétéran du Front", "cls": "stratege", "earned": true, "text": "A combattu une crise de fin de partie jusqu'à la victoire : +5 % de dégâts, et l'on paie ses verres.", "fx": {"damage_pct": 5}},
 		"tueur_monstres": {"label": "Tueur de monstres", "cls": "stratege", "earned": true, "text": "Gagné en abattant un gardien ou un fléau : +25 % de dégâts contre les créatures.", "fx": {"fauna_damage_pct": 25}},
 		"foudre": {
@@ -246,7 +247,7 @@
 		"maitre_oeuvre": {
 			"label": "Maître d'œuvre",
 			"cls": "intendant",
-			"text": "+15 % de matériaux dans le système qu'il gouverne.",
+			"text": "+15 % de matériaux dans le système qu'il gouverne, et ses chantiers de merveille vont 20 % plus vite.",
 			"fx": {
 				"res_pct": {
 					"materials": 15

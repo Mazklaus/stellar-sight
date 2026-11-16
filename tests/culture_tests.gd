@@ -151,10 +151,10 @@ func _test_buildings() -> void:
 	Research.grant(st, 0, ["arts_holographiques"])
 	_ok(Economy.building_unlocked(st, 0, "musee_galactique") and Economy.building_unlocked(st, 0, "villegiature"), "Arts holographiques : Musée et villégiature")
 	var n := 0
-	for bid in GameData.buildings():
+	for bid in Wonders.all_ids():
 		if int(GameData.building(String(bid)).get("culture_wonder", 0)) > 0:
 			n += 1
-			_ok(bool(GameData.building(String(bid)).get("galaxy_unique", false)), "merveille culturelle unique dans la galaxie : %s" % bid)
+			_ok(Wonders.galaxy_unique(String(bid)), "merveille culturelle unique dans la galaxie : %s" % bid)
 	_ok(n == 8, "huit merveilles culturelles (%d)" % n)
 	for t in ["arts_holographiques", "holovision", "reseau_mondes", "conversion_culturelle"]:
 		_ok(Research.exists(t), "technologie %s" % t)
@@ -245,7 +245,7 @@ func _test_heritage() -> void:
 
 
 func _test_save() -> void:
-	_ok(GameState.FORMAT_VERSION == 72 and GameState.READABLE_VERSIONS.has(71), "sauvegarde 72, la 71 reste lisible")
+	_ok(GameState.FORMAT_VERSION >= 72 and GameState.READABLE_VERSIONS.has(71), "sauvegarde 72+, la 71 reste lisible")
 	var sim := Simulation.new(new_game(13, {"ai_level": "normal"}))
 	var st := sim.state
 	sim.advance(400)

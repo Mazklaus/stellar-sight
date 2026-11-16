@@ -634,6 +634,9 @@ static func stability_part(state: GameState, sid: int, owner: int) -> Array:
 		if city != null and city.system_id == sid and not city.is_moving():
 			return ["Le clan %s grogne, mais la flotte-ville est là" % short(state, owner, rep), 0]
 		v = int(rp.get("horde_out", v))
+	if WondersCatalog.fx(state, owner, "grievance_half") > 0:
+		@warning_ignore("integer_division")
+		v = v / 2  # Palais des Doléances
 	return ["Non représenté (%s dans l'opposition)" % short(state, owner, rep), v]
 
 

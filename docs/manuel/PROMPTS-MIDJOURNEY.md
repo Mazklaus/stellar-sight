@@ -394,3 +394,13 @@ a small medieval-like alien village on a hill at dusk, curious villagers with la
 ```
 a crowded alien city square at night on a frontier colony world, citizens of several species gathered under a giant floating holographic opera projected from an orbiting theatre ship, foreign banners and fashion everywhere, a lone old official watching from a balcony as the crowd sings, wistful wonder and gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-40 · Les merveilles
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Les merveilles »
+- Sujet : Au-dessus d'un monde au crépuscule, trois chantiers rivaux de la même tour orbitale s'élèvent côte à côte ; l'un s'achève dans une gerbe de lumière tandis que les deux autres restent sous leurs échafaudages
+
+```
+three rival unfinished orbital megastructure construction sites side by side above a planet at dusk, one colossal shining tower being completed in a burst of golden light with tiny ships celebrating, the two others still wrapped in dark scaffolding with idle cranes, architects watching from an observation deck, grand rivalry and gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

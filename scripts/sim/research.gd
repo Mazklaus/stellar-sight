@@ -123,6 +123,9 @@ static func unlocks(faction: Dictionary, tid: String) -> PackedStringArray:
 	for bid in GameData.buildings():
 		if GameData.building(bid).get("requires_tech", []).has(tid):
 			out.append(String(GameData.building(bid).get("label", bid)))
+	for wid in Wonders.all_ids():
+		if Wonders.def(wid).get("requires_tech", []).has(tid):
+			out.append("%s (merveille)" % Wonders.label(wid))
 	for sid in FactionTraits.ship_ids_for(String(faction.get("id", ""))):
 		if GameData.ship(sid).get("requires_tech", []).has(tid):
 			out.append(String(GameData.ship(sid).get("label", sid)))
@@ -235,6 +238,10 @@ static func cost(state: GameState, empire_id: int, tid: String, colonies := -1) 
 		var tc := 0 if e.is_npc() else fx_int(state, empire_id, "tech_cost_pct")
 		if tc != 0:
 			c = c * maxi(10, 100 + tc) / 100
+		if not e.is_npc():
+			var kt := WondersCatalog.tech_cost_pct(state, empire_id, tid)  # Collège universel
+			if kt != 0:
+				c = c * maxi(10, 100 + kt) / 100
 	return maxi(1, c)
 
 
@@ -900,6 +907,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var mfx := Minors.effects(state, empire_id)
 			_merge(base, mfx)
 			_merge(exalted, mfx)
+		# Merveilles tenues (voir Wonders) : même empreinte relic_rev.
+		if not state.wonders.is_empty():
+			var wfx := Wonders.effects(state, empire_id)
+			_merge(base, wfx)
+			_merge(exalted, wfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

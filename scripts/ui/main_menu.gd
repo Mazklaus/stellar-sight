@@ -144,7 +144,7 @@ var people_victories := true
 var _deadline_select: OptionButton
 var _people_check: CheckBox
 ## Victoires classiques en jeu et alliés qui gagnent ensemble (GameState.victory_rules).
-var victories := {"conquete": true, "domination": true, "allies": true, "spirituelle": false, "diplomatique": true, "rayonnement": true}
+var victories := {"conquete": true, "domination": true, "allies": true, "spirituelle": false, "diplomatique": true, "rayonnement": true, "oeuvres": false}
 var _victory_checks := {}
 ## Difficulté progressive : les bonus des IA Expert et Légende montent avec le temps.
 var ai_scaling := false
@@ -226,6 +226,9 @@ var culture := "actif"
 var culture_defect := "rare"
 var _culture_select: OptionButton
 var _culture_defect_select: OptionButton
+## Merveilles (voir Wonders) : toutes, tirage, aucune.
+var wonders := "toutes"
+var _wonders_select: OptionButton
 ## Le bloc Partie de la nouvelle partie, qui défile.
 var _game_scroll: ScrollContainer
 var awakenings := true
@@ -1684,6 +1687,14 @@ func set_culture(id: String) -> void:
 	_refresh_preset()
 
 
+func set_wonders(id: String) -> void:
+	var ids := _ids_of(Wonders.mode_defs())
+	wonders = id if ids.has(id) else Wonders.default_mode()
+	if _wonders_select:
+		_wonders_select.select(ids.find(wonders))
+	_refresh_preset()
+
+
 func set_culture_defect(id: String) -> void:
 	var ids := _ids_of(Culture.defect_defs())
 	culture_defect = id if ids.has(id) else Culture.default_defect()
@@ -1779,7 +1790,7 @@ func game_options() -> Dictionary:
 	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
-		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect}
+		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders}
 
 
 func set_spectator(on: bool) -> void:
@@ -2298,6 +2309,15 @@ func _build_new_page(root: Control) -> void:
 	_culture_defect_select.tooltip_text = "Défection culturelle (Galactic Civilizations) : un système instable, fasciné par la culture d'un voisin, peut changer de drapeau sans un coup de feu.\n" + "\n".join(dftip)
 	_culture_defect_select.item_selected.connect(func(i: int) -> void: set_culture_defect(String(Culture.defect_defs()[i]["id"])))
 	_labeled_row(game, "Défection culturelle", _culture_defect_select)
+	_wonders_select = OptionButton.new()
+	_wonders_select.clip_text = true
+	var wotip := PackedStringArray()
+	for m: Dictionary in Wonders.mode_defs():
+		_wonders_select.add_item(String(m["label"]))
+		wotip.append("%s : %s" % [String(m["label"]), String(m["text"])])
+	_wonders_select.tooltip_text = "Merveilles : de vraies courses entre empires, avec avance, mensualités et contributions des colonies (Civilization, Humankind, Endless Space 2).\n" + "\n".join(wotip)
+	_wonders_select.item_selected.connect(func(i: int) -> void: set_wonders(String(Wonders.mode_defs()[i]["id"])))
+	_labeled_row(game, "Merveilles", _wonders_select)
 	set_peoples(peoples)
 	set_migrations(migrations)
 	set_faiths(faiths)
@@ -2321,6 +2341,7 @@ func _build_new_page(root: Control) -> void:
 	set_minors(minors)
 	set_culture(culture)
 	set_culture_defect(culture_defect)
+	set_wonders(wonders)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
 
@@ -2350,6 +2371,7 @@ func _build_new_page(root: Control) -> void:
 		"allies": ["Alliés ensemble", "Les alliés additionnent leurs conquêtes et leurs systèmes, et gagnent ensemble\n(Endless Space 2). Décoché : chacun pour soi, même allié."],
 		"spirituelle": ["Spirituelle", "Avec les religions : votre foi d'État majoritaire dans plus de la moitié des colonies\nde chaque empire survivant, tenue 5 ans (Civilization VI). En option, décochée par défaut."],
 		"rayonnement": ["Grand Rayonnement", "Avec le rayonnement culturel : votre culture Influente chez chaque empire survivant\nrencontré, tenue 2 ans (Civilization V et VI). Alertes à toute la galaxie à la moitié et aux trois quarts."],
+		"oeuvres": ["Grands Œuvres", "Avec les merveilles : tenir 2 à 5 Grands Œuvres d'ère V selon la taille de la galaxie,\nchacun 50 % plus cher que le précédent, et les garder un an (Endless Space 2). En option, décochée par défaut."],
 		"diplomatique": ["Diplomatique", "Avec l'Amphictyonie : être élu Chancelier des étoiles (dès l'an 30, tous les 10 ans)\navec 67 % de toutes les voix d'une assemblée qui réunit 75 % des empires, puis faire accepter le verdict."],
 	}
 	for key in ["conquete", "domination"]:
@@ -2360,6 +2382,7 @@ func _build_new_page(root: Control) -> void:
 	grid.add_child(_victory_check("spirituelle", vtips["spirituelle"]))
 	grid.add_child(_victory_check("diplomatique", vtips["diplomatique"]))
 	grid.add_child(_victory_check("rayonnement", vtips["rayonnement"]))
+	grid.add_child(_victory_check("oeuvres", vtips["oeuvres"]))
 	set_deadline(deadline_days)
 	var back_b := Widgets.RoundButton.new("back", "Retour")
 	back_b.tooltip_text = "Échap"
@@ -3064,7 +3087,7 @@ func settings() -> Dictionary:
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
-		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect,
+		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -3085,7 +3108,7 @@ func default_settings() -> Dictionary:
 		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives", "amphictyony": "active", "vassals": "actifs", "koinon": "actif", "wargoals": "actifs", "occupation": "occupation", "borders": String(GameData.borders()["default_mode"]), "ground": String(GameData.ground()["default_mode"]), "logistics": String(GameData.logistics()["default_mode"]),
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
 		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true,
-		"ancients": Ancients.default_mode(), "awakenings": true, "minors": Minors.default_mode(), "culture": Culture.default_mode(), "culture_defect": Culture.default_defect()}
+		"ancients": Ancients.default_mode(), "awakenings": true, "minors": Minors.default_mode(), "culture": Culture.default_mode(), "culture_defect": Culture.default_defect(), "wonders": Wonders.default_mode()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -3178,6 +3201,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_minors(String(d.get("minors", base["minors"])))
 	set_culture(String(d.get("culture", base["culture"])))
 	set_culture_defect(String(d.get("culture_defect", base["culture_defect"])))
+	set_wonders(String(d.get("wonders", base["wonders"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):
 		_seed_edit.text = String(d["seed"])

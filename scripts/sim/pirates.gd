@@ -413,7 +413,7 @@ static func pick_target(state: GameState, sid: int, victim := -1, range_jumps :=
 			caps[owner] = FactionTraits.capital_system(state, owner)
 		if s.id == int(caps[owner]) or Stability.colony_systems_in(state, owner, s.id) == 0:
 			continue
-		if victim < 0 and pays_tribute(state, sid, owner):
+		if victim < 0 and (pays_tribute(state, sid, owner) or WondersCatalog.fx(state, owner, "pirate_peace") > 0):
 			continue
 		if not sees(state, owner):
 			continue

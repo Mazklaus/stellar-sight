@@ -551,6 +551,8 @@ static func add_op(state: GameState, id: int, eid: int, v: int) -> void:
 	var a := get_a(state, id)
 	if a.is_empty() or no_opinion(state, id) or not (a["contact"] as Dictionary).has(eid):
 		return
+	if v < 0 and WondersCatalog.fx(state, eid, "ancient_friend") > 0:
+		return  # Miroir des Anciens : elles ne s'irritent plus
 	var o: Dictionary = data()["opinion"]
 	(a["op"] as Dictionary)[eid] = clampi(int((a["op"] as Dictionary).get(eid, 0)) + v, int(o["min"]), int(o["max"]))
 

@@ -397,6 +397,8 @@ static func hostile(state: GameState, beast: Fleet, empire_id: int) -> bool:
 			return false
 		return true
 	var sp := String(h["sp"])
+	if WondersCatalog.fx(state, empire_id, "tamer") > 0:
+		return false  # Ménagerie céleste
 	if sp == "nuees" and bool(talent(state, empire_id).get("storm_veil", false)):
 		return false
 	match stance(state, empire_id, sp):
@@ -411,6 +413,8 @@ static func hostile(state: GameState, beast: Fleet, empire_id: int) -> bool:
 
 ## L'espèce est-elle hostile à cet empire par nature (sans regarder un troupeau précis) ?
 static func species_hostile(state: GameState, empire_id: int, sp: String) -> bool:
+	if WondersCatalog.fx(state, empire_id, "tamer") > 0:
+		return false
 	if sp == "nuees" and bool(talent(state, empire_id).get("storm_veil", false)):
 		return false
 	match stance(state, empire_id, sp):

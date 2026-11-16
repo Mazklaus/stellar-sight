@@ -12,6 +12,8 @@ extends RefCounted
 ## Longueur d'une route de saut, arrondie à l'unité (au moins 1). Le terrain (voir Terrain) l'allonge :
 ## nébuleuse, trou noir, tempête… le plus fort malus des deux bouts compte.
 static func lane_length(galaxy: Galaxy, a: int, b: int) -> int:
+	if not galaxy.gates.is_empty() and galaxy.gates.has(a) and galaxy.gates.has(b) and a != b:
+		return WondersCatalog.GATE_LEN  # saut de porte à porte
 	var d := maxi(1, roundi(galaxy.systems[a].position.distance_to(galaxy.systems[b].position)))
 	var pct := maxi(galaxy.systems[a].transit_pct, galaxy.systems[b].transit_pct)
 	if pct > 0:
@@ -168,6 +170,22 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid: Va
 				dist[n] = d
 				prev[n] = best
 				if old < 0 or d < old:
+					_heap_push(heap, (d << 16) | n)
+		# Portes stellaires : d'une porte ouverte à toute autre, en un saut.
+		if not g.gates.is_empty() and g.gates.has(best) and WondersCatalog.gate_open(state, empire_id, best):
+			var gk := g.gates.keys()
+			gk.sort()
+			for n2 in gk:
+				var n := int(n2)
+				if n == best or done[n] == 1 or not WondersCatalog.gate_open(state, empire_id, n):
+					continue
+				var d: int = d0 + WondersCatalog.GATE_LEN
+				var old := dist[n]
+				if old < 0 or d < old:
+					if old < 0:
+						order.append(n)
+					dist[n] = d
+					prev[n] = best
 					_heap_push(heap, (d << 16) | n)
 	var out_dist := {}
 	var out_prev := {}
@@ -384,6 +402,7 @@ static func _own_visible(state: GameState, empire_id: int) -> Dictionary:
 	var pierce := Terrain.pierces(state, empire_id)
 	for sid in sources:
 		_flood(state.galaxy, int(sid), int(sources[sid]), seen, pierce)
+	WondersCatalog.see_all(state, empire_id, seen)
 	return seen
 
 
@@ -417,6 +436,7 @@ static func visible_all(state: GameState) -> Array[Dictionary]:
 		var pierce := Terrain.pierces(state, state.empires[i].id)
 		for sid in sources[i]:
 			_flood(state.galaxy, int(sid), int(sources[i][sid]), seen, pierce)
+		WondersCatalog.see_all(state, state.empires[i].id, seen)
 		own.append(seen)
 	# Vision partagée : chacun voit aussi ce que voient ses alliés.
 	var out: Array[Dictionary] = []

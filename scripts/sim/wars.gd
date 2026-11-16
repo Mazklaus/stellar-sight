@@ -301,6 +301,9 @@ static func goal_ok(state: GameState, gid: String, a: int, b: int) -> bool:
 	if g.is_empty():
 		return false
 	match String(g.get("req", "")):
+		"wonder":
+			if WondersBridges.prize_system(state, b) < 0:
+				return false
 		"vassals":
 			if not state.vassals_on or bool(Vassals.talent(state, a).get("no_subjects", false)) or bool(Vassals.talent(state, b).get("no_subjects", false)):
 				return false
@@ -355,7 +358,7 @@ static func auto_choice(state: GameState, a: int, b: int) -> Array:
 	var e := state.get_empire(a)
 	if e != null and e.is_ai() and int(AiLevels.level(e.ai_level).get("military", {}).get("skill", 1)) <= 0:
 		return ch[(a * 7 + b * 13 + state.tick / 30) % ch.size()]
-	var rank := ["totale", "independance", "quitter", "conquete", "soumission", "liberer", "rancon", "demanteler", "humiliation", "kanly"]
+	var rank := ["totale", "independance", "quitter", "conquete", "soumission", "liberer", "rancon", "merveille", "demanteler", "humiliation", "kanly"]
 	var best: Array = ch[0]
 	for c in ch:
 		var better := rank.find(String(c[1])) < rank.find(String(best[1]))
@@ -837,6 +840,10 @@ static func apply_victory(state: GameState, winner: int, loser: int) -> void:
 					ceded.append(state.galaxy.systems[sid].system_name)
 			for s in Vassals.subjects_of(state, loser):
 				Vassals.unbind(state, s, "la paix l'affranchit")
+		"merveille":
+			var won := WondersBridges.take_prize(state, winner, loser)
+			if won != "":
+				ceded.append(won)
 		"demanteler":
 			for ally in Diplomacy.allies(state, loser):
 				if Diplomacy.team_of(state, loser, ally) <= 0:

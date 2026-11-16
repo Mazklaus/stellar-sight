@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.19
+
+- **Les merveilles** (chapitre 23), nouveau réglage **Merveilles** (toutes, tirage, aucune) : vraie **course** au premier qui achève, **grand chantier** à part (avance de 20 %, mensualités, un à la fois), contributions des colonies proches, dernier quart **pressé** à l'influence, mise gardée 90 jours ou moitié rendue, course visible par quarts, écran **Merveilles** et actions sur la fiche de système.
+- **Catalogue** de 51 merveilles en données, en six familles : galactiques, **mégastructures** à étapes (Collecteur, Nexus, **Monde-anneau**, **Porte stellaire**), merveilles de **registre** et de **credo**, **œuvres collectives** et **Grands Œuvres** ; **ruines** à restaurer ; merveilles lieux saints ; trait de héros **Architecte**.
+- **Ponts** : chantier suspendu par une flotte ennemie, merveille **ruinée** par un long siège, but de guerre **Prendre la merveille**, opérations **Voler les plans** et **Ausculter un chantier**, famille **Merveilles** de l'Amphictyonie (Patrimoine, **Concours amphictyonique**, Moratoire des mégastructures), œuvres du Koinon, de l'Amphictyonie et du Front commun, plans offerts par les anciennes, haut fait du **Bâtisseur**, victoire **Les Grands Œuvres** (option), Patrimoine gardé par le bâtisseur.
+
 ### Édition 2.18
 
 - **Le rayonnement culturel** (chapitre 22), nouveau réglage **Rayonnement culturel** et **Défections culturelles** : Rayonnement et **Patrimoine**, diffusion portée par les routes, la foi, le droit de passage et les licences de luxe, six **paliers** (Inconnu à Dominant) et leurs effets, **Musée galactique** et ses reliques exposées, **stations de villégiature** et beauté des systèmes, huit **merveilles culturelles**, **osmose des lois** et **des savoirs**, **défection culturelle**, lentille **Culture**, écran **Rayonnement**.

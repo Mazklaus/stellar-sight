@@ -264,20 +264,27 @@ func _test_wonders() -> void:
 	Research.grant(st, 1, ["assemblee"])
 	var outpost := _plant(st, 0, _free_planet(st, "barren").id, 0, Colony.KIND_OUTPOST)
 	_ok(_build(sim, outpost.planet_id, "collecteur_stellaire") == "", "Collecteur stellaire lancé depuis un avant-poste")
-	_ok(_build(sim, home, "collecteur_stellaire").contains("une seule"), "un seul Collecteur stellaire par empire")
+	_ok(_build(sim, home, "collecteur_stellaire").contains("chantier"), "un seul chantier du Collecteur stellaire")
 	var score0 := Victory.score(st, 0)
-	_finish(sim, outpost.planet_id)
+	var added: Array[Dictionary] = []
+	Wonders.complete(st, "collecteur_stellaire", 0, added)
 	_ok(Victory.score(st, 0) > score0, "la mégastructure rapporte du score")
-	# Merveille unique dans la galaxie : le premier qui la lance est le seul.
+	_ok(_build(sim, home, "collecteur_stellaire").contains("une seule"), "un seul Collecteur stellaire par empire")
+	# Merveille unique dans la galaxie : vraie course, le premier qui l'achève l'emporte.
 	_ok(_build(sim, home, "assemblee") == "", "Assemblée interstellaire lancée")
 	var rival := st.empires[1].capital_planet
 	st.empires[1].resources["materials"] = 50000
 	st.empires[1].resources["influence"] = 50000
 	st.empires[1].resources["energy"] = 50000
-	var why := SimCommands.validate(st, SimCommands.build(1, rival, "assemblee"))
-	_ok(why.contains("merveille"), "un rival ne peut plus la lancer (%s)" % why)
+	var why := SimCommands.validate(st, SimCommands.won_act(1, "start", "assemblee", rival))
+	_ok(why == "", "un rival peut entrer dans la course (%s)" % why)
+	sim.submit(SimCommands.won_act(1, "start", "assemblee", rival))
+	sim.flush_commands()
 	var op0 := Diplomacy.opinion(st, 1, 0)
-	_finish(sim, home)
+	Wonders.complete(st, "assemblee", 0, added)
+	_ok(Wonders.build_of(st, 1, "assemblee").is_empty(), "le rival perd son chantier")
+	why = SimCommands.validate(st, SimCommands.won_act(1, "start", "assemblee", rival))
+	_ok(why.contains("merveille"), "puis ne peut plus la lancer (%s)" % why)
 	_ok(Diplomacy.opinion(st, 1, 0) > op0, "l'Assemblée améliore l'opinion des autres empires (%d -> %d)" % [op0, Diplomacy.opinion(st, 1, 0)])
 
 

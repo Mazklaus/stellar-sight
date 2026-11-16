@@ -367,7 +367,10 @@ static func wonder_value(state: GameState, eid: int, bid: String) -> int:
 	var b := GameData.building(bid)
 	var v := int(b.get("culture_wonder", 0))
 	if v <= 0:
-		return 0
+		# Toute merveille rayonne un peu (prop. 17 des merveilles) : base + 1 par ère de la merveille.
+		if not Wonders.is_wonder(bid):
+			return 0
+		v = Wonders.r_int("radiance_base") + int(b.get("era", 1)) * Wonders.r_int("radiance_per_era")
 	v += maxi(0, Research.current_era(state, eid) - int(b.get("era", 1))) * int(data()["sources"]["wonder_era_bonus"])
 	return v + tal(state, eid, "wonder_bonus")
 
@@ -659,11 +662,13 @@ static func _heritage(state: GameState, ids: Array[int]) -> void:
 		if not state.relics.is_empty():
 			n += Relics.owned(state, eid).size() * int(hd["per_relic"])
 		n += int(by_owner.get(eid, 0)) * int(hd["per_old_colony"])
+		# Merveilles : le Patrimoine reste au bâtisseur, même après une conquête (prop. 17 des merveilles).
 		for pid in state.sorted_colony_ids():
 			var c: Colony = state.colonies[pid]
-			if c.owner == eid:
-				for bid in c.buildings:
-					if int(GameData.building(bid).get("culture_wonder", 0)) > 0:
+			for bid in c.buildings:
+				if Wonders.is_wonder(bid):
+					var who := Wonders.builder_of(state, bid, pid)
+					if (who if who >= 0 else c.owner) == eid:
 						n += int(hd["per_wonder"])
 		@warning_ignore("integer_division")
 		n = n * maxi(0, 100 + tal(state, eid, "heritage_pct") + CultureBridges.law_pct(state, eid, "heritage_pct")) / 100

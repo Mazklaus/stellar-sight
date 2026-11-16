@@ -25,7 +25,7 @@ Votre **Rayonnement** est un nombre de points par mois, calculé au milieu de ch
 | --- | --- |
 | **Population sereine** | 15 % de vos habitants : pleinement dans un système calme ou mieux, à moitié en agitation, rien en révolte |
 | **Musée galactique** | +3, et jusqu'à trois reliques exposées (+3 chacune, double si elles partagent un thème) |
-| **Merveilles culturelles** | de +4 à +8 chacune, +1 par ère franchie depuis la sienne |
+| **Merveilles** | culturelles : de +4 à +8 chacune ; les autres : +2, plus 1 par ère de la merveille ; toutes +1 par ère franchie depuis la leur (chapitre 23) |
 | **Stations de villégiature** | la beauté du système (0 à 10) |
 | **Foi** | +4 pour le monde saint de votre foi d'État, +2 par relique sainte au Reliquaire |
 | **Conservateurs** | un gouverneur Orateur double les œuvres de son système et ajoute son niveau |
@@ -33,7 +33,7 @@ Votre **Rayonnement** est un nombre de points par mois, calculé au milieu de ch
 
 Les technologies **Holovision** et **Réseau des mondes** l'augmentent de 25 % chacune. Le détail apparaît en survolant votre Rayonnement dans l'écran **Rayonnement**.
 
-Votre **Patrimoine** est ce que la culture des autres doit surmonter chez vous. Il part de 60 et grandit chaque mois de toute l'influence que vous produisez, de 1 par loi en vigueur, de 1 par relique tenue, de 1 par colonie de plus de dix ans et de 2 par merveille culturelle. Une **ruche** ne rayonne pas, mais son Patrimoine compte double.
+Votre **Patrimoine** est ce que la culture des autres doit surmonter chez vous. Il part de 60 et grandit chaque mois de toute l'influence que vous produisez, de 1 par loi en vigueur, de 1 par relique tenue, de 1 par colonie de plus de dix ans et de 2 par merveille bâtie (au bâtisseur, même après une conquête). Une **ruche** ne rayonne pas, mais son Patrimoine compte double.
 
 ### La diffusion
 
