@@ -173,6 +173,10 @@ static func defenses() -> Dictionary:
 	return _load("defenses")
 
 
+static func portals() -> Dictionary:
+	return _load("portals")
+
+
 static func private_eco() -> Dictionary:
 	return _load("private")
 

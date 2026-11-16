@@ -10,6 +10,12 @@ var lanes: Array[Vector2i] = []
 var planets: Array[Planet] = []
 ## Portes stellaires ouvertes (voir WondersCatalog) : système -> propriétaire. Donnée dérivée, non sauvegardée.
 var gates: Dictionary = {}
+## Portails de saut (voir Portals), données dérivées, non sauvegardées : trous de ver (système -> autre
+## bout), portails (système -> portée de base), liens à portée (système -> {autre: sauts}), relais.
+var wormholes: Dictionary = {}
+var portal_gates: Dictionary = {}
+var portal_links: Dictionary = {}
+var relays: Dictionary = {}
 
 
 func get_system(id: int) -> StarSystem:

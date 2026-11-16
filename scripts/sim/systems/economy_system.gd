@@ -136,6 +136,7 @@ static func _finish_building(state: GameState, c: Colony, e: Empire, planet_name
 	Ports.touch(state, bid)
 	Politics.on_building(state, state.galaxy.get_planet(c.planet_id).system_id, bid)
 	Defenses.on_built(state, c, bid)  # défenses spatiales : marques du jour, palier neuf
+	Portals.on_built(state, c, bid, added)  # portails de saut : réseau à refaire, ruine restaurée
 	if b.get("galaxy_unique", false):
 		added.append(state.add_chronicle("Merveille : %s achève %s sur %s. Toute la galaxie en parle, certains avec envie." % [e.display_name(), label, planet_name], Espionage.public_to(state, [e.id])))
 	else:

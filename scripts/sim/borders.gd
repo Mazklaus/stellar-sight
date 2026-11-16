@@ -37,6 +37,8 @@ const MODES: Array[String] = ["libres", "souples", "strictes"]
 const PATH_LAIRS := 1
 const PATH_ARMED := 2
 const PATH_CIVIL := 4
+## Éclaireurs et civils d'un peuple contrebandier : passent les portails d'autrui (voir Portals).
+const PATH_SMUGGLE := 8
 
 static var _talent_cache := {}
 
@@ -369,6 +371,8 @@ static func path_flags(state: GameState, f: Fleet) -> int:
 	var flags := PATH_LAIRS if Fleets.avoids_lairs(state, f) else 0
 	if active(state) and not GameState.is_npc(f.owner):
 		flags |= PATH_CIVIL if not Combat.is_armed(f) else PATH_ARMED
+	if not state.portals.is_empty() and not Combat.is_armed(f) and Portals.smuggler(state, f.owner):
+		flags |= PATH_SMUGGLE
 	return flags
 
 

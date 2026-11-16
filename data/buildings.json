@@ -139,5 +139,15 @@
 		"yields": {}, "upkeep": {"energy": 2}},
 	"villegiature": {"requires_tech": ["arts_holographiques"], "label": "Station de villégiature", "culture": true, "cost": {"materials": 150, "energy": 60}, "days": 120, "unique": true, "per_system": true, "outpost_ok": true,
 		"text": "Une par système, même sur un avant-poste. Rayonne selon la beauté du système (étoile, nébuleuses, mondes-jardins, curiosités, gardiens), et rapporte de l'énergie selon la population à trois sauts ou moins.",
-		"yields": {}, "upkeep": {"energy": 1}}
+		"yields": {}, "upkeep": {"energy": 1}},
+	"relais_hyper": {"requires_tech": ["relais_hyperspatiaux"], "label": "Relais hyperspatial", "portals": "relay", "cost": {"materials": 150, "crystals": 20}, "days": 180, "unique": true, "per_system": true, "outpost_ok": true,
+		"text": "Portails en jeu : un par système, sans emplacement. Une route dont les deux bouts ont un relais compte trois fois moins pour vous, vos alliés et qui a le droit de passage (corridor). Entretien : un demi-cristal de saut par mois.", "yields": {}, "upkeep": {}},
+	"portail_saut": {"requires_tech": ["portails_saut"], "label": "Portail de saut", "portals": "gate", "cost": {"materials": 400, "crystals": 60}, "days": 360, "unique": true, "outpost_ok": true,
+		"text": "Portails en jeu : un par système, sans emplacement. Saut en un jour vers tout portail à 6 sauts ou moins (la plus petite portée des deux compte). Une flotte de guerre recharge le portail de départ selon sa taille et paie un cristal de saut par cinq vaisseaux.", "yields": {}, "upkeep": {"energy": 2}},
+	"grand_portail": {"requires_tech": ["grands_portails"], "label": "Grand portail", "portals": "gate", "upgrades": "portail_saut", "cost": {"materials": 600, "energy": 150, "crystals": 80}, "days": 240, "unique": true, "outpost_ok": true,
+		"text": "Portails en jeu : remplace le Portail de saut. Portée 10 sauts.", "yields": {}, "upkeep": {"energy": 3}},
+	"portail_ancien": {"requires_tech": ["stabilisation_ver"], "label": "Portail ancien restauré", "portals": "ruin", "cost": {"materials": 200, "crystals": 30}, "days": 180, "unique": true, "outpost_ok": true,
+		"text": "Portails complets : se bâtit sur un portail ancien en ruine, pour la moitié du prix d'un portail neuf. Portée 8 sauts. Le premier restauré de la galaxie en réveille un autre, ailleurs.", "yields": {}, "upkeep": {"energy": 1}},
+	"ancre_ver": {"requires_tech": ["stabilisation_ver"], "label": "Ancre de trou de ver", "portals": "anchor", "cost": {"materials": 120, "energy": 40}, "days": 90, "unique": true, "per_system": true, "outpost_ok": true,
+		"text": "Portails complets : sur une extrémité de trou de ver. Seuls vous, vos alliés et qui a le droit de passage l'empruntent ; les flottes de guerre de passage paient votre péage ; les méga-vaisseaux peuvent le traverser.", "yields": {}, "upkeep": {"energy": 1}}
 }
