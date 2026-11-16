@@ -9,6 +9,9 @@ Un système n'attend plus seulement ses flottes pour se défendre. Avec les déf
 
 Le modèle vient de **Master of Orion** (2016 ; bases de missiles, garnisons de chasseurs, bouclier planétaire, postures Garde et Blocage), de **Galactic Civilizations IV** (bases stellaires à modules, sentinelles des colonies), de **Sins of a Solar Empire II** (points de structure, plates-formes légères et lourdes, faiblesses des défenses fixes), de **Distant Worlds 2** (les quatre étapes d'une invasion, armes planétaires qui abattent les barges, opérations spéciales contre les défenses), de **Starsector** (une station vaincue se tait et se répare en quelques mois) et de **VGA Planets** (champs de mines à densité, usure et déminage). Les pages de Stellaris étaient fermées à la lecture : les quelques idées qui en viennent (capacité de plates-formes, canon ionique, inhibiteur) ont été vérifiées dans des extraits de recherche seulement.
 
+::: capture docs/apercu-defenses.png|La vue système d'une capitale fortifiée : le panneau Défenses montre la station, ses modules, les plates-formes, le dôme, le champ de mines et l'étape de l'assaut
+:::
+
 ### Le réglage
 
 Le bloc Règles de la nouvelle partie propose le réglage **Défenses spatiales**. **Désactivées** garde le comportement d'avant : le Bastion et la Citadelle n'agissent qu'au siège.

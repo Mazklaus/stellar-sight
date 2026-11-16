@@ -2,7 +2,8 @@ extends SceneTree
 ## Banc d'essai de la guerre entre IA : parties en spectateur, puis bilan des guerres, batailles,
 ## sièges, conquêtes et empires disparus.
 ##   godot --headless --path . -s res://tools/war_bench.gd
-## Variables : YEARS (défaut 8), LEVEL (défaut normal), TEMPER (défaut normal), SEEDS (ex. 3,17,99).
+## Variables : YEARS (défaut 8), LEVEL (défaut normal), TEMPER (défaut normal), SEEDS (ex. 3,17,99),
+## DEFENSES (complete, simple ; défaut désactivées) : défenses spatiales, avec le compte des stations.
 
 func _initialize() -> void:
 	var years := int(OS.get_environment("YEARS")) if OS.get_environment("YEARS") != "" else 8
@@ -12,7 +13,7 @@ func _initialize() -> void:
 	if OS.get_environment("SEEDS") != "":
 		seeds = Array(OS.get_environment("SEEDS").split(",")).map(func(s: String) -> int: return int(s))
 	for sd in seeds:
-		var st := GameState.create(sd, 150, 1800.0, "", {"spectator": true, "ai_level": level, "temperament": temper})
+		var st := GameState.create(sd, 150, 1800.0, "", {"spectator": true, "ai_level": level, "temperament": temper, "defenses": OS.get_environment("DEFENSES")})
 		var sim := Simulation.new(st)
 		var n := {"battles": 0, "sieges": 0, "first_war": -1, "captures": 0, "dead": ""}
 		sim.combat_event.connect(func(ev: Dictionary) -> void:
@@ -32,6 +33,11 @@ func _initialize() -> void:
 		sim.advance(360 * years)
 		var line := "graine %d (%s, %s, %d ans, %d ms) : 1re guerre j%d, %d batailles, %d sièges, %d invasions, disparitions%s\n" % [
 				sd, level, temper, years, Time.get_ticks_msec() - t0, n["first_war"], n["battles"], n["sieges"], n["captures"], n["dead"]]
+		if Defenses.enabled(st):
+			var tiers := [0, 0, 0, 0]
+			for s2 in st.galaxy.systems:
+				tiers[Defenses.tier(st, s2.id)] += 1
+			line += "   défenses : stations I/II/III %d/%d/%d\n" % [tiers[1], tiers[2], tiers[3]]
 		for e in st.empires:
 			var t := EmpireReport.totals(st, e.id)
 			var war := 0
