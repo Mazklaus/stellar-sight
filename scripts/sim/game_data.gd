@@ -169,6 +169,10 @@ static func administration() -> Dictionary:
 	return _load("administration")
 
 
+static func private_eco() -> Dictionary:
+	return _load("private")
+
+
 static func finance() -> Dictionary:
 	return _load("finance")
 

@@ -10,7 +10,8 @@ extends RefCounted
 ## Mesures tenues par Deeds.note() (le reste se lit dans l'état).
 const COUNTERS := ["curios", "battles_won", "digs", "conquests", "treaty", "operations", "lair", "guardians",
 		"nomos", "koinon", "giant_slain", "steal_up", "crisis_top", "ancient_world", "relics_stolen", "digested",
-		"exterminated", "broke", "archives", "crisis_survived", "phoenix", "david", "bankrupt", "repudiated"]
+		"exterminated", "broke", "archives", "crisis_survived", "phoenix", "david", "bankrupt", "repudiated",
+		"company_founded", "cargos_lost"]
 
 
 static func is_counter(k: String) -> bool:
@@ -29,6 +30,10 @@ static func value(state: GameState, eid: int, k: String, x: Variant = null) -> i
 			return AdminBridges.clean_years(state, eid)
 		"finance_balanced":
 			return FinanceBridges.balanced_years(state, eid)
+		"branch_empires":
+			return int(Private.entry(state, eid).get("brx", 0))
+		"tourism":
+			return int(Private.entry(state, eid).get("tour", 0))
 		"explored_pct":
 			@warning_ignore("integer_division")
 			return e.explored.size() * 100 / maxi(1, state.galaxy.systems.size())

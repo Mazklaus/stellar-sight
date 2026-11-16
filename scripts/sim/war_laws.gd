@@ -562,6 +562,8 @@ static func _concede(state: GameState, a: int, d: int, gid: String) -> Array[Str
 				var n := maxi(0, int(ed.resources.get(r, 0))) * int(_cfg("crisis").get("repar_pct", 20)) / 100
 				ed.resources[r] = int(ed.resources.get(r, 0)) - n
 				ea.resources[r] = int(ea.resources.get(r, 0)) + n
+		"ouvrir_marches":
+			got.append_array(PrivateBridges.open_markets(state, a, d))
 		"soumission":
 			if state.vassals_on and not Vassals.is_subject(state, d) and not Vassals.is_subject(state, a):
 				Vassals.bind(state, a, d, "vassal", Vassals.preset_clauses("vassal"), int(Vassals.data()["loyalty"].get("start_terms", 0)), true)

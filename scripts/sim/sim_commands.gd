@@ -670,6 +670,11 @@ static func finance_franchise(player: int, system_id: int) -> Dictionary:
 	return {"type": "finance_franchise", "player": player, "system": system_id}
 
 
+## Économie privée (voir Private.check) : subventionner, licence, commande, charte, nationaliser…
+static func private_act(player: int, act: String, a := -1, b := -1, s := "") -> Dictionary:
+	return {"type": "private", "player": player, "act": act, "a": a, "b": b, "s": s}
+
+
 static func decree(player: int, system_id: int, decree_id: String) -> Dictionary:
 	return {"type": "decree", "player": player, "system": system_id, "decree": decree_id}
 
@@ -869,6 +874,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Finance.check_mint(state, int(cmd["player"]))
 		"finance_franchise":
 			return Finance.check_franchise(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"private":
+			return Private.check(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"decree":
 			return Stability.check_decree(state, int(cmd["player"]), int(cmd.get("system", -1)), String(cmd.get("decree", "")))
 		"stab_offering":
@@ -1276,6 +1283,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Finance.mint(state, int(cmd["player"]))
 		"finance_franchise":
 			Finance.toggle_franchise(state, int(cmd["player"]), int(cmd["system"]))
+		"private":
+			Private.apply(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"decree":
 			Stability.decree(state, int(cmd["player"]), int(cmd["system"]), String(cmd["decree"]))
 		"stab_offering":

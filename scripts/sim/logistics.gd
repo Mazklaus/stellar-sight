@@ -458,7 +458,7 @@ static func daily(state: GameState) -> Array[Dictionary]:
 			cur = mini(aut, cur + int(_cfg("refill_per_day")))
 			ex.erase(k)
 			cut.erase(k)
-		elif _free_port(state, f):
+		elif _free_port(state, f) or (st != CUT and Private.supplies(state, f)):
 			cur = aut
 			ex.erase(k)
 			cut.erase(k)

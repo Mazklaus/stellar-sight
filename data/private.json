@@ -1,0 +1,102 @@
+{
+	"_doc": "Économie privée à la Distant Worlds 2 (étude « Économie privée », 2026-11-16, 36 propositions validées). Chaque empire a un secteur privé : une caisse à part du Trésor, nourrie par l'activité de la population, la part privée des routes, les stations minières sous licence, les stations touristiques, le fret et les filiales ; il paie la construction et l'entretien de ses cargos, paquebots et stations, et l'État prélève un impôt sur ses bénéfices. Le joueur oriente (licences, chartes, subventions, lois, impôt), il ne pilote pas. Compagnies nommées, prospérité, chartes, dirigeants, filiales à l'étranger, nationalisation, actions ; cargos vulnérables, zones militaires, réquisition, ravitaillement sous contrat ; syndicats du crime et espionnage industriel. Catalogues ouverts : secteurs, chartes, traits de dirigeants, talents.",
+	"_sources": "Distant Worlds 2 (journal n°6 : secteur privé, licences minières, cargos, paquebots, stations de villégiature, chantiers loués ; mise à jour Mercantile : confiscation des comptes, comptabilité créative, plafond doux du tourisme), Aurora 4X (impôt sur les bénéfices, bouton Subventionner, compagnies de transport, colonies minières civiles, zones interdites, options désactivables), Victoria 3 (investissement autonome, compagnies, prospérité, chartes, dirigeants, nationalisation), Stellaris (filiales : 50 % de la valeur, coût selon la distance ; héritage criminel ; motif Expropriation), Endless Space 2 (compagnie détruite avec son siège), X4 (marchands visibles), Civilization VI (corporations).",
+	"modes": [
+		{"id": "complete", "label": "Complète", "text": "Secteur privé, compagnies nommées, chartes, dirigeants, filiales, nationalisation, actions, cargos vulnérables, réquisition, syndicats du crime, ponts."},
+		{"id": "simple", "label": "Simple", "text": "Caisse privée, impôt sur les bénéfices, licences minières, stations touristiques, cargos et paquebots abstraits ; sans compagnies nommées ni filiales."},
+		{"id": "desactivee", "label": "Désactivée", "text": "Rien ne tourne : toute l'économie appartient à l'État, comme avant."}
+	],
+	"default_mode": "complete",
+	"start": {"_doc": "Capital et confiance de départ, cargos par colonie au départ.", "capital": 100, "confidence": 50, "cargos_per_colony": 1},
+	"activity": {"_doc": "Activité privée (prop. 2) : 1 énergie par tranche de per_pop habitants dans chaque colonie d'au moins min_pop habitants, multipliée par (50 + confiance) %. Part privée des routes : route_pct % du revenu des routes de l'empire, en plus.", "min_pop": 3, "per_pop": 2, "route_pct": 20},
+	"tax": {"_doc": "Impôt sur les bénéfices (prop. 3), en %, selon le cran de la fiscalité (Normal sans fiscalité). Un cran Élevé ou Écrasant ralentit l'investissement (invest_pct : chance d'investir chaque mois).", "rates": {"tres_bas": 10, "bas": 20, "normal": 30, "eleve": 40, "ecrasant": 55}, "invest_pct": {"tres_bas": 100, "bas": 100, "normal": 100, "eleve": 70, "ecrasant": 40}, "laissez_faire": -10},
+	"confidence": {
+		"_doc": "Confiance des investisseurs (prop. 5), de 0 à 100 : la cible se calcule chaque mois, la jauge s'en approche de drift par mois. Sous min_invest, le privé n'investit plus ; à partir de spontaneous, il pose seul des mines ; à partir de double, il investit deux fois par mois.",
+		"base": 50, "drift": 5, "min_invest": 25, "spontaneous": 60, "double": 75,
+		"stab_hi": 60, "stab_hi_v": 10, "stab_lo": 30, "stab_lo_v": -15,
+		"peace": 5, "war": -5, "war_soil": -15,
+		"grade_hi": 10, "grade_lo": -15, "bankrupt": -40, "per_charter": 3, "charter_max": 9,
+		"laissez_faire": 15, "nationalized": -30, "nationalized_days": 3600, "corruption_div": 3,
+		"cargo_loss": -2, "cargo_loss_max": -15, "krach": -20, "subsidy": 2, "subsidy_max": 10, "requisition": -10, "confiscation": -10
+	},
+	"subsidy": {"_doc": "Subventionner (prop. 6) : energy du Trésor vers la caisse privée, une fois par mois au plus.", "energy": 100},
+	"order": {"_doc": "Commande d'État (prop. 6) : l'État paie la station au privé, qui la bâtit en priorité (licence comprise).", "energy_pct": 100},
+	"cargo": {"_doc": "Cargos (prop. 8) : coût, entretien pour 3 cargos, délai. Besoin : 1 pour 2 colonies fondées ou routes envoyées, 1 par station privée. Sous le besoin, les chantiers à plus de far_jumps sauts de la capitale et des comptoirs avancent slow_pct % moins vite, et les mines ne livrent qu'au prorata du fret.", "cost": 60, "upkeep_per3": 1, "days": 30, "far_jumps": 6, "slow_pct": 25},
+	"liner": {"_doc": "Paquebots (prop. 12) : coût, entretien pour 3, besoin (1 pour 3 colonies, 1 par station touristique). Fret de passagers suffisant : migration +jumps sauts, tourisme plein.", "cost": 80, "upkeep_per3": 1, "days": 45, "per_colonies": 3, "jumps": 2},
+	"mine": {"_doc": "Stations minières (prop. 14-15) : coût, entretien, délai ; licence en influence ; la station livre à l'État le rendement du gisement (×1, en plus de ce qu'en tire une colonie ou un avant-poste), et rapporte au privé revenue_per_unit énergie par unité (crystals_value pour les cristaux) ; gisement de luxe ou stratégique : goods_state énergie à l'État, goods_private au privé. Raid pirate : une station dans un système à risque d'au moins raid_risk ne produit rien ce mois-là.", "cost": 150, "upkeep": 1, "days": 90, "licence": {"influence": 10}, "revenue_per_unit": 2, "crystals_value": 4, "goods_state": 2, "goods_private": 4, "raid_risk": 30},
+	"resort": {"_doc": "Stations touristiques (prop. 16) : coût, entretien, délai, beauté minimale du système (Culture.beauty) ; revenu = population à jumps sauts / pop_div (au plus max), +beauty_pct % par point de beauté (plafond doux : au-delà de soft_cap %, moitié), +foreign par partenaire commercial à foreign_jumps sauts ; × (50 + 50 × paquebots/besoin) %.", "cost": 200, "upkeep": 2, "days": 120, "min_beauty": 3, "jumps": 4, "pop_div": 4, "max": 20, "beauty_pct": 8, "soft_cap": 25, "foreign": 2, "foreign_jumps": 6},
+	"rent_pct": 10,
+	"_rent_doc": "Chantiers loués (prop. 17) : le privé verse rent_pct % de chaque construction au Trésor.",
+	"ship_order": {"_doc": "Vaisseau commandé au privé (prop. 17) : coût +cost_pct %, délai -days_pct %, sans occuper le chantier ; une commande à la fois par colonie.", "cost_pct": 20, "days_pct": -30},
+	"buildings": {"_doc": "Bâtiments que le privé bâtit seul dans une colonie dont le chantier est libre (prop. 4), payés en énergie (cost_mult × le coût total).", "ids": ["centrale_fusion", "comptoir"], "cost_mult": 100},
+	"companies": {
+		"_doc": "Compagnies (prop. 18-25) : une naît quand la caisse atteint found_at (elle en coûte found_cost), au plus base_max (+ technologies « company_max », lois, talents). Prospérité de 0 à 100 : cible = 50 + 5 par actif de son secteur (au plus assets_max) + (confiance - 50) / 2 + charte, approche de drift par mois ; au-dessus de bonus_from, l'effet du secteur ; sous ruin_below pendant ruin_months mois, la faillite.",
+		"found_at": 300, "found_cost": 150, "base_max": 3, "drift": 5, "assets_max": 30, "bonus_from": 60, "ruin_below": 15, "ruin_months": 6, "charter_pr": 10, "krach": -30, "franchise_pr": 5, "lender_from": 70, "lender_max": 400, "lender_pct": 85,
+		"sectors": [
+			{"id": "fret", "label": "Fret", "fx": {"trade_income_pct": 10}, "text": "Routes commerciales +10 %.", "names": ["Messageries de %s", "Fret Transstellaire de %s", "Compagnie des Cargos de %s"], "law": "libre_echange"},
+			{"id": "mines", "label": "Mines", "fx": {"production_pct": {"materials": 10}}, "text": "Matériaux +10 %.", "names": ["Houillères de %s", "Consortium minier de %s", "Forges profondes de %s"], "law": "protectionnisme"},
+			{"id": "tourisme", "label": "Tourisme", "fx": {"tourism_pct": 25}, "text": "Revenu touristique +25 %.", "names": ["Croisières de %s", "Grands Hôtels de %s", "Agence des Merveilles de %s"], "law": "ouverture_culturelle"},
+			{"id": "chantiers", "label": "Chantiers", "fx": {"ship_cost_pct": -5}, "text": "Vaisseaux -5 %.", "names": ["Chantiers navals de %s", "Arsenaux privés de %s", "Ateliers orbitaux de %s"], "law": "laissez_faire"},
+			{"id": "banque", "label": "Banque", "fx": {"debt_rate_pct": -10}, "text": "Intérêts des emprunts -10 %.", "names": ["Banque de %s", "Crédit stellaire de %s", "Caisse des Dépôts de %s"], "law": "laissez_faire"},
+			{"id": "armement", "label": "Armement", "fx": {"damage_pct": 3}, "text": "Dégâts +3 %.", "names": ["Armureries de %s", "Arsenal de %s", "Balistique de %s"], "law": "compagnies_charte"},
+			{"id": "biotech", "label": "Biotechnologie", "fx": {"growth_pct": 5}, "text": "Croissance +5 %.", "names": ["Laboratoires de %s", "Génétique de %s", "Serres vivantes de %s"], "law": "laissez_faire"},
+			{"id": "medias", "label": "Médias", "fx": {"production_pct": {"influence": 5}}, "text": "Influence +5 %.", "names": ["Gazette de %s", "Holovision de %s", "Échos de %s"], "law": "compagnies_charte"}
+		]
+	},
+	"charters": {
+		"_doc": "Chartes (prop. 20) : base (+ technologies « charters », talents), une par compagnie, réattribuable une fois par an.",
+		"base": 2, "cooldown_days": 360,
+		"list": [
+			{"id": "monopole", "label": "Monopole", "text": "Seule de son secteur : effet du secteur doublé ; -1 stabilité (les petits commerçants grondent).", "stability": -1},
+			{"id": "commerce", "label": "Commerce lointain", "fx": {"trade_routes": 1}, "text": "Une route commerciale de plus."},
+			{"id": "colonisation", "label": "Colonisation", "fx": {"claim_cost_pct": -20}, "text": "Revendications de planètes -20 % (elle finance les colons)."},
+			{"id": "armement", "label": "Armement", "fx": {"ship_cost_pct": -10}, "text": "Vaisseaux -10 %."},
+			{"id": "exploration", "label": "Exploration", "fx": {"fleet_speed_pct": 5}, "text": "Flottes +5 % de vitesse (cartes et balises privées)."}
+		]
+	},
+	"directors": {
+		"_doc": "Dirigeants (prop. 21) : un trait tiré au hasard ; recruté au conseil comme héros (classe intendant), la compagnie en reçoit un nouveau.",
+		"traits": [
+			{"id": "visionnaire", "label": "Visionnaire", "text": "Prospérité cible +10.", "pr": 10},
+			{"id": "prudent", "label": "Prudent", "text": "Ne descend jamais sous 20 de prospérité.", "floor": 20},
+			{"id": "lobbyiste", "label": "Lobbyiste", "text": "Influence du lobbying doublée.", "lobby_x": 2},
+			{"id": "corsaire", "label": "Ancien corsaire", "text": "Pertes de cargos -50 %.", "loss_pct": -50},
+			{"id": "philanthrope", "label": "Philanthrope", "text": "+2 stabilité dans le système du siège.", "stability": 2}
+		]
+	},
+	"branches": {"_doc": "Filiales (prop. 22) : palier de commerce minimal (2 = accord commercial), coût en énergie de la caisse (+per_jump % par saut au-delà de free_jumps depuis le siège) et en influence ; revenu = population de la colonie / pop_div (au plus max) pour le pays d'origine, host énergie pour l'hôte. Expropriation : l'hôte touche expropriate_months mois de revenu ; motif de guerre pour l'origine pendant casus_days.", "tier": 2, "energy": 100, "influence": 20, "free_jumps": 3, "per_jump": 10, "pop_div": 2, "max": 8, "host": 1, "expropriate_months": 6, "casus_days": 1800, "confiscate_months": 12},
+	"nationalize": {"_doc": "Nationaliser (prop. 23) : coût en influence ; chaque compagnie nationalisée verse au Trésor share_pct % du bénéfice privé (après impôt).", "influence": 40, "share_pct": 15},
+	"lobby": {"_doc": "Lobbying (prop. 24) : la loi voulue en vigueur : +influence par mois et +pr de prospérité cible ; une loi qui l'exclut en vigueur depuis relocate_days : la compagnie déménage chez un partenaire commercial.", "influence": 1, "pr": 5, "relocate_days": 1800},
+	"shares": {"_doc": "Actions (prop. 25) : une tranche de 10 % coûte base + per_pr × prospérité ; dividende annuel par tranche : prospérité × div_pct / 100 ; au plus max_tenths tranches vendues.", "base": 50, "per_pr": 3, "div_pct": 50, "max_tenths": 5},
+	"losses": {"_doc": "Cargos perdus (prop. 9) : chaque route envoyée dont le pire système a un risque pirate r perd un cargo avec r % de chances / risk_div ; une flotte armée hostile (pirates, ennemis) sur le chemin : +hostile_pct % de chances.", "risk_div": 4, "hostile_pct": 25},
+	"requisition": {"_doc": "Réquisition (prop. 11) : en guerre, pct % des cargos servent l'armée : portée de ravitaillement +1 ; indemnité de pay énergie par cargo et par mois, sinon confiance -10.", "pct": 30, "pay": 2, "fx": {"supply_range": 1}},
+	"contract": {"_doc": "Ravitaillement sous contrat (prop. 13) : une flotte hors de la zone (non coupée) est ravitaillée si le privé a au moins min_cargos cargos ; energy par flotte et par mois, du Trésor au privé.", "min_cargos": 2, "energy": 3},
+	"crime": {
+		"_doc": "Syndicats du crime (prop. 26) : un repaire peut naître chaque mois (birth_pct %) dans le système le plus corrompu d'un empire si sa corruption atteint birth_cor, ou à from_free sauts d'un port franc ; au plus un par an et par empire. Chaque repaire vole steal + corruption / steal_div énergie par mois à l'hôte, ajoute corruption de corruption ; une fois l'an, spread_pct % de chances d'en ouvrir un dans un système voisin (corruption au moins spread_cor). À corruption nulle, close_pct % de chances par mois de fermer ; Grande enquête : close_inquiry %. Descente de police : raid_influence, raid_pct % de réussite.",
+		"birth_pct": 4, "birth_cor": 40, "from_free": 3, "steal": 2, "steal_div": 10, "corruption": 5, "spread_pct": 20, "spread_cor": 20, "close_pct": 5, "close_inquiry": 10, "raid_influence": 30, "raid_pct": 60, "tolerated": 1
+	},
+	"espionage": {"_doc": "Espionnage industriel (prop. 27).", "steal_pr": 10, "steal_loss": 5, "sabotage_pr": -25, "poach_pr": 10, "rumor_pr": -15},
+	"creative": {"_doc": "Comptabilité créative (prop. 31) : months mois d'impôt privé d'avance (pris dans la caisse), corruption +corruption dans le système de la capitale pendant days ; une fois tous les cooldown_days.", "months": 3, "corruption": 10, "days": 360, "cooldown_days": 360},
+	"conquest": {"_doc": "Conquête (prop. 30) : une station prise passe au privé du conquérant ; talent de pillage : loot énergie par station.", "loot": 100},
+	"planned_pct": 70,
+	"_planned_doc": "Économie planifiée (prop. 29) : l'activité privée passe à l'État à planned_pct %, sans investissement, sans compagnies nouvelles.",
+	"talents": {
+		"gouvernement": {
+			"syndicat": {"label": "Syndicat : la Guilde marchande", "text": "Vous dirigez vous-même l'investissement privé : choisissez sa priorité (cargos, mines, tourisme, bâtiments).", "guild": true},
+			"ruche": {"label": "Ruche : rien n'est privé", "text": "Pas de secteur privé : tout appartient au Tout.", "no_private": true},
+			"conscience": {"label": "Conscience : compagnies automates", "text": "Compagnies sans dirigeant, mais l'impôt privé n'est jamais détourné par la corruption.", "no_directors": true, "no_leak": true},
+			"horde": {"label": "Horde : pillage des stations", "text": "Chaque station privée conquise rapporte 100 énergie.", "loot_station": true}
+		},
+		"credo": {
+			"profit": {"label": "Profit : chartes de plus", "text": "Une charte de plus.", "charters": 1},
+			"survie": {"label": "Survie : on s'arrange avec le milieu", "text": "Les repaires des syndicats chez vous ne volent rien ni ne corrompent : ils rapportent 1 énergie chacun.", "crime_tolerant": true}
+		}
+	},
+	"focus": [
+		{"id": "", "label": "Libre"},
+		{"id": "cargos", "label": "Cargos et paquebots"},
+		{"id": "mines", "label": "Mines"},
+		{"id": "tourisme", "label": "Tourisme"},
+		{"id": "batiments", "label": "Bâtiments"}
+	]
+}

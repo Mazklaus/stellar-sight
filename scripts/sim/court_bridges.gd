@@ -96,6 +96,8 @@ static func favor_parts(state: GameState, eid: int, h: Dictionary) -> Array:
 		out.append(["La galaxie brûle (crise de fin de partie)", r_int("crisis_month") * 5])
 	if not state.finance.is_empty():
 		out.append_array(FinanceBridges.favor_parts(state, eid, h))  # créancière, exemption, répudiation
+	if not state.private.is_empty():
+		out.append_array(PrivateBridges.favor_parts(state, eid, h))  # maison marchande et sa compagnie
 	return out
 
 

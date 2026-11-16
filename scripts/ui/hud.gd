@@ -372,6 +372,17 @@ func cycle_stability_lens() -> void:
 		set_lens("stability")
 
 
+## Onglet Commerce (et touche G) : vue galaxie → commerce → économie privée (si le joueur a un
+## secteur privé) → vue galaxie.
+func cycle_trade_lens() -> void:
+	if lens == "trade" and _state != null and Private.applies(_state, _player):
+		set_lens("private")
+	elif lens == "trade" or lens == "private":
+		set_lens("")
+	else:
+		set_lens("trade")
+
+
 ## Lentille de la carte : "" (vue galaxie), "economy", "stability", "politics", "trade", "peoples", "faith", "amph" ou "war".
 func set_lens(value: String) -> void:
 	lens = value
@@ -379,7 +390,7 @@ func set_lens(value: String) -> void:
 	_tab_economy.set_pressed_no_signal(value == "economy")
 	_tab_stability.set_pressed_no_signal(value == "stability" or value == "corruption" or value == "fiscal")
 	_tab_politics.set_pressed_no_signal(value == "politics")
-	_tab_trade.set_pressed_no_signal(value == "trade")
+	_tab_trade.set_pressed_no_signal(value == "trade" or value == "private")
 	_tab_peoples.set_pressed_no_signal(value == "peoples")
 	_tab_faith.set_pressed_no_signal(value == "faith")
 	_tab_amph.set_pressed_no_signal(value == "amph")
@@ -419,8 +430,8 @@ func _build_tabs() -> void:
 	_tab_stability.pressed.connect(cycle_stability_lens)
 	_tab_politics = _tab("Politique", "Lentille politique : le courant qui domine l'opinion de chacun de vos systèmes, et ses représentants au pouvoir ou non  (O)")
 	_tab_politics.pressed.connect(func() -> void: set_lens("" if lens == "politics" else "politics"))
-	_tab_trade = _tab("Commerce", "Lentille du commerce : vos routes commerciales (couleur du traité, rouge si bloquée) et le risque pirate le long du chemin  (G)")
-	_tab_trade.pressed.connect(func() -> void: set_lens("" if lens == "trade" else "trade"))
+	_tab_trade = _tab("Commerce", "Lentille du commerce : vos routes commerciales (couleur du traité, rouge si bloquée) et le risque pirate le long du chemin ; un second clic montre l'économie privée (stations, cargos, filiales, repaires)  (G)")
+	_tab_trade.pressed.connect(cycle_trade_lens)
 	_tab_peoples = _tab("Peuples", "Lentille des peuples : la part de chaque espèce dans vos systèmes, et l'espèce majoritaire  (U)")
 	_tab_peoples.pressed.connect(func() -> void: set_lens("" if lens == "peoples" else "peoples"))
 	_tab_faith = _tab("Foi", "Lentille de la foi : la part de chaque croyance dans vos systèmes, la majoritaire, et les mondes saints connus  (N)")

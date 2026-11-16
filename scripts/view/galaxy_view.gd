@@ -317,6 +317,13 @@ func _draw() -> void:
 			_draw_label(s, px, true)
 			_draw_culture(s, px, o)
 		return
+	if lens == "private" and state != null:
+		# Mode Économie privée de la lentille du commerce : stations minières (losange orange),
+		# stations touristiques (rose), zones militaires (anneau rouge), repaires (croix), filiales
+		# (carré bleu), et les cargos du privé en route sur les routes commerciales.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		_draw_private(px)
+		return
 	if lens == "trade" and state != null:
 		# Lentille du commerce : vos routes (couleur du palier du traité, verte pour une route
 		# intérieure, rouge si bloquée) et le risque pirate des systèmes traversés.
@@ -370,6 +377,76 @@ func _draw_trade(px: float) -> void:
 		if risk > 0:
 			var f := clampf(float(risk) / float(Trade.data()["piracy"]["risk_max"]), 0.0, 1.0)
 			draw_arc(s.position, 13.0 * px, -PI / 2.0, -PI / 2.0 + TAU * f, 24, Color(0.95, 0.45, 0.3, 0.9), 2.2 * px, true)
+	_draw_lairs(px)
+
+
+const PRIVATE_MINE_COLOR := Color(0.95, 0.62, 0.25)
+const PRIVATE_RESORT_COLOR := Color(0.95, 0.5, 0.8)
+const PRIVATE_BRANCH_COLOR := Color(0.45, 0.75, 1.0)
+
+
+func _draw_private(px: float) -> void:
+	if state.private.is_empty():
+		return
+	var shown := {}
+	for s in galaxy.systems:
+		if owner_of(s.id) == viewer:
+			shown[s.id] = true
+	# Cargos : un point par route envoyée, qui avance d'un saut par jour (repère visuel seulement).
+	for r in Trade.sent_by(state, viewer):
+		var p: Array = r["path"]
+		if p.size() < 2:
+			continue
+		for i in range(p.size() - 1):
+			draw_line(galaxy.systems[int(p[i])].position, galaxy.systems[int(p[i + 1])].position, Color(0.75, 0.62, 0.35, 0.35), 1.2 * px, true)
+		var steps := (p.size() - 1) * 4
+		var k := posmod(state.tick + int(r.get("to", 0)), steps)
+		@warning_ignore("integer_division")
+		var seg := k / 4
+		var t := float(k % 4) / 4.0
+		var pos := galaxy.systems[int(p[seg])].position.lerp(galaxy.systems[int(p[seg + 1])].position, t)
+		draw_circle(pos, 3.2 * px, Color(0.98, 0.86, 0.5))
+		for sid in p:
+			shown[int(sid)] = true
+	for sid in shown:
+		var s: StarSystem = galaxy.systems[sid]
+		if not is_explored(s.id):
+			continue
+		_draw_system(s, px)
+		_draw_label(s, px, true)
+		draw_set_transform(s.position, 0.0, Vector2(px, px))
+		var parts := PackedStringArray()
+		if Private.in_zone(state, s.id):
+			draw_arc(Vector2.ZERO, 15.0, 0.0, TAU, 28, Color(0.86, 0.33, 0.31), 2.4, true)
+			parts.append("zone militaire")
+		var mines := 0
+		for pid in s.planet_ids:
+			var st := Private.station(state, pid)
+			if st.is_empty() or int(st["o"]) != viewer:
+				continue
+			if String(st["k"]) == "mine":
+				mines += 1
+			else:
+				draw_circle(Vector2(-14, -12), 4.0, PRIVATE_RESORT_COLOR)
+				parts.append("tourisme %d" % Private.resort_income(state, pid))
+		if mines > 0:
+			draw_colored_polygon(PackedVector2Array([Vector2(14, -17), Vector2(18, -12), Vector2(14, -7), Vector2(10, -12)]), PRIVATE_MINE_COLOR)
+			parts.append("%d mine%s" % [mines, "s" if mines > 1 else ""])
+		for pid in s.planet_ids:
+			if (state.private.get("br", {}) as Dictionary).has(str(pid)):
+				draw_rect(Rect2(Vector2(-4, -22), Vector2(8, 8)), PRIVATE_BRANCH_COLOR)
+				parts.append("filiale")
+				break
+		if PrivateBridges.has_den(state, s.id) and (owner_of(s.id) == viewer):
+			draw_line(Vector2(-6, 10), Vector2(6, 22), Color(0.86, 0.33, 0.31), 2.4, true)
+			draw_line(Vector2(6, 10), Vector2(-6, 22), Color(0.86, 0.33, 0.31), 2.4, true)
+			parts.append("syndicat")
+		if not parts.is_empty():
+			var text := " · ".join(parts)
+			var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+			draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 24), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
+			draw_string(_font, Vector2(-tw * 0.5, 38), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.92, 0.82, 0.6))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	_draw_lairs(px)
 
 

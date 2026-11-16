@@ -403,6 +403,19 @@
 			"text": "Il vous doit de l'argent et a fait défaut (faillite ou répudiation) depuis moins de 5 ans : les huissiers viendront avec des canons (fiscalité complète)."
 		},
 		{
+			"id": "expropriation",
+			"label": "Expropriation",
+			"req": "expropriated",
+			"goals": [
+				"ouvrir_marches",
+				"rancon",
+				"humiliation"
+			],
+			"memory": "",
+			"just": true,
+			"text": "Il a exproprié vos filiales ou confisqué vos comptes depuis moins de 5 ans : vos compagnies réclament réparation, et elles ont des amis à l'état-major (économie privée complète)."
+		},
+		{
 			"id": "violation",
 			"label": "Violation de frontière",
 			"req": "border",
@@ -616,6 +629,16 @@
 			"price": 40,
 			"limited": true,
 			"text": "Le vaincu prend pour souverain un candidat de votre maison, à la légitimité fragile ; avec les vassaux actifs, il devient votre sujet en union personnelle."
+		},
+		{
+			"id": "ouvrir_marches",
+			"label": "Ouvrir les marchés",
+			"accept": -25,
+			"objective": "battles",
+			"req": "private",
+			"price": 30,
+			"limited": true,
+			"text": "Le vaincu signe un accord commercial, vos meilleures compagnies ouvrent deux filiales gratuites chez lui, et il ne peut plus exproprier vos filiales pendant 10 ans (économie privée complète)."
 		}
 	],
 	"names": {
@@ -662,6 +685,11 @@
 		],
 		"any": [
 			"Guerre de {a} contre {d}"
+		],
+		"ouvrir_marches": [
+			"Guerre des Comptoirs de {a}",
+			"Guerre de l'Opium stellaire",
+			"Expédition des Actionnaires de {a}"
 		],
 		"heritier": [
 			"Guerre de succession de {d}",
