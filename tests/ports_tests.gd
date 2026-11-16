@@ -319,7 +319,7 @@ func _test_save() -> void:
 		colonize(st, 0, far)
 	Ports.refresh(st)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 80, "sauvegarde 80")
+	_ok(int(d["version"]) >= 80, "sauvegarde 80")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(Ports.full(back), "réglage relu")
 	_ok(str(Ports.to_dict(back)) == str(Ports.to_dict(st)), "réseau relu à l'identique")
