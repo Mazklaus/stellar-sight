@@ -9,8 +9,8 @@ extends RefCounted
 ## égale au camouflage. Camouflage 0 = vue comme avant ; détection de base 1 partout (0 dans une
 ## tempête de radiations).
 ##
-## Camouflage d'une flotte = celui de son vaisseau le plus faible (module Voile de camouflage I-III,
-## stat "cloak" des modèles), ou 3 pour un peuple voilé (le Voile du Chœur, prop. 28) ; s'y ajoutent le
+## Camouflage d'une flotte = celui de son vaisseau le plus faible (module Voile de camouflage I-III :
+## 2 à 4, un point au-dessus des yeux nus ; stat "cloak" des modèles), ou 3 pour un peuple voilé (le Voile du Chœur, prop. 28) ; s'y ajoutent le
 ## terrain, la posture Silence radio, le trait d'amiral Fantôme et les talents de peuple, plafond 5.
 ## Le voile tombe au premier tir (bataille, siège, débarquement) et se recharge en 30 jours ; il coûte
 ## de la vitesse. Une flotte cachée ne déclenche ni intrusion ni bataille, traverse blocus, mines et
@@ -296,6 +296,12 @@ static func drop(state: GameState, f: Fleet) -> void:
 	var off := _sub(state, "off")
 	off[str(f.id)] = maxi(int(off.get(str(f.id), -1)), state.tick + int(cfg("cloak").get("recharge_days", 30)))
 	_cloak_cache.erase(f.id)
+
+
+## Signature de transit (pour les portails de saut et autres passages bruyants) : le passage
+## illumine la flotte, son voile tombe comme au premier tir. Sans effet si la furtivité n'est pas en jeu.
+static func on_transit(state: GameState, f: Fleet) -> void:
+	drop(state, f)
 
 
 ## Vitesse en % (voile levé : malus selon la marque ; Silence radio : moitié).

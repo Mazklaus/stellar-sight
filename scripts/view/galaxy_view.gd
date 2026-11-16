@@ -706,6 +706,15 @@ func fleet_positions(px := -1.0) -> Dictionary:
 
 func _draw_fleet_icon(f: Fleet, pos: Vector2, px: float) -> void:
 	var col := state.get_empire(f.owner).color()
+	# Furtivité : un simple contact est un chevron gris, sans pavillon ; vos flottes voilées pâlissent.
+	var veiled := false
+	if not state.stealth.is_empty() and viewer >= 0:
+		if f.owner == viewer:
+			veiled = Stealth.veil_up(state, f)
+		elif fog and Stealth.full(state) and Stealth.cloak(state, f) > 0 and Stealth.degree(state, viewer, f, _seen) == 1:
+			col = Color(0.62, 0.64, 0.68)
+	if veiled:
+		col = Color(col, 0.45)
 	var dir := Vector2.RIGHT
 	if f.is_moving():
 		dir = (galaxy.systems[f.path[0]].position - galaxy.systems[f.system_id].position).normalized()

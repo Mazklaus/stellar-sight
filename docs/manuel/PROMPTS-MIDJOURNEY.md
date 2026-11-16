@@ -484,3 +484,13 @@ a colossal ring-shaped orbital spaceport encircling a green agricultural planet,
 ```
 a colossal orbital fortress bristling with gun turrets guarding a fortified planet, ring of defense platforms and a glittering minefield around it, a translucent planetary shield dome with ground batteries firing streaks of light upward, a hesitant invasion fleet holding position at the edge of the system, a jump inhibitor beacon pulsing, grim military grandeur with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-50 · Ombres et senseurs
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Ombres et senseurs »
+- Sujet : Une frégate à demi effacée par un voile de camouflage glisse devant une nébuleuse ; sur la passerelle d'un croiseur voisin, un officier scrute un écran de senseurs où ne brille qu'une ombre grise ; au loin, une balise d'écoute minuscule clignote
+
+```
+a sleek frigate half dissolved by a shimmering cloaking veil gliding in front of a violet nebula, its hull visible only as refracted starlight, in the foreground the dim bridge of a nearby cruiser where a tense officer leans over a green sensor display showing a single faint grey blip, far away a tiny listening beacon blinking in the void, quiet suspense of a hunt in the dark with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

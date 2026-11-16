@@ -559,6 +559,8 @@ func _build_fleet_card() -> void:
 			["stop", "ARRÊTER", "S'arrêter au système le plus proche sur la route"],
 			["patrol", "PATROUILLE", "Aller-retour permanent entre la position de la flotte et un système : cliquez, puis clic droit sur le système (ou Maj + clic droit). Les pirates évitent les systèmes gardés."],
 			["guard", "GARDER", "Défenses spatiales complètes : garder ce système. La flotte y reçoit +10 % de dégâts, la couverture de la station, et y revient si on l'en attire."],
+			["posture", "POSTURE", "Furtivité : changer de posture (aucune, Silence radio, Balayage actif, Embuscade). Clic : posture suivante."],
+			["beacon", "BALISE D'ÉCOUTE", "Furtivité complète : un éclaireur sans armes à l'arrêt pose une balise camouflée qui voit à un saut (Senseurs tachyoniques, 30 matériaux et 20 énergie, 6 au plus)."],
 			["merge", "RASSEMBLER", "Réunir dans cette flotte les autres flottes à l'arrêt dans ce système"],
 			["split", "DÉTACHER", "Détacher un vaisseau dans une nouvelle flotte"],
 			["report", "RAPPORT", "Dernier rapport de bataille de vos flottes  (B)"],
@@ -677,6 +679,15 @@ func _refresh_fleet_card() -> void:
 					f.total_hp() * 100 / maxi(1, f.total_max_hp()), f.troops, Combat.max_troops(f, _state), Combat.tactic_label(Combat.fleet_tactic(f))]
 	if Ground.full(_state) and Ground.capacity(_state, f) > 0 and (mine or Fleets.is_explored(_state, _player, f.system_id)):
 		_fleet_stats.text += "\n" + ground_line(_state, f)
+	# Furtivité : camouflage, détection et posture ; pour une flotte étrangère, ce qu'on en sait.
+	if Stealth.enabled(_state):
+		if mine:
+			for line in Stealth.fleet_lines(_state, f):
+				_fleet_stats.text += "\n" + line
+		elif Stealth.full(_state) and _player >= 0:
+			var deg := Stealth.degree(_state, _player, f)
+			if deg > 0 and deg < 3:
+				_fleet_stats.text += "\nRenseignement : %s%s" % [Stealth.degree_label(deg).to_lower(), " (pavillon inconnu)" if deg == 1 else ""]
 	# Logistique : état de ravitaillement et réserves (prop. 28).
 	if mine and Logistics.applies(_state, f):
 		_fleet_stats.text += "\n" + Logistics.status_line(_state, f)
@@ -704,6 +715,15 @@ func _refresh_fleet_card() -> void:
 	if f.is_patrolling():
 		_fleet_buttons["patrol"].tooltip_text = "Patrouille entre %s et %s. Clic : l'arrêter." % [g.systems[f.patrol[0]].system_name, g.systems[f.patrol[1]].system_name]
 	_fleet_buttons["guard"].visible = mine and Combat.is_armed(f) and Defenses.full(_state)
+	_fleet_buttons["posture"].visible = mine and Stealth.enabled(_state)
+	if mine and Stealth.enabled(_state):
+		var pz := Stealth.posture(_state, f)
+		_fleet_buttons["posture"].text = "POSTURE : %s" % Stealth.posture_label(pz).to_upper()
+	_fleet_buttons["beacon"].visible = mine and Stealth.full(_state) and not Combat.is_armed(f)
+	if _fleet_buttons["beacon"].visible:
+		var bwhy := Stealth.check_beacon(_state, _player, f)
+		_fleet_buttons["beacon"].disabled = bwhy != ""
+		_fleet_buttons["beacon"].tooltip_text = "Poser une balise d'écoute camouflée qui voit à un saut." if bwhy == "" else "Impossible : %s." % bwhy
 	_fleet_buttons["guard"].set_pressed_no_signal(f.is_guarding())
 	_fleet_buttons["guard"].text = ("GARDE : %s" % g.systems[f.patrol[0]].system_name.to_upper()) if f.is_guarding() else "GARDER"
 	_fleet_buttons["stop"].visible = mine

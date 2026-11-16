@@ -400,7 +400,7 @@ func _test_save() -> void:
 	Defenses._sub(st, "mines")[str(sid)] = {"o": 0, "d": 42}
 	Defenses._sub(st, "hp")[str(sid)] = {"st": 100}
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 81, "sauvegarde 81")
+	_ok(int(d["version"]) >= 81, "sauvegarde 81")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and Defenses.mode(back) == "complete", "réglage relu")
 	_ok(int(Defenses.mines(back, sid).get("d", 0)) == 42 and Defenses.hp_of(back, sid, "st", "x") == 100, "mines et PV relus")

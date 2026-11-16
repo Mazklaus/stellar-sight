@@ -85,6 +85,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiAdmin.think(ctx)
 	AiFinance.think(ctx)
 	AiPrivate.think(ctx)
+	AiStealth.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 
@@ -556,6 +557,7 @@ static func _buildings(ctx: Dictionary) -> void:
 			continue
 		var full := Economy.building_slots_used(c) >= Economy.building_slots(state, c)
 		var dwish := AiDefenses.wishes(ctx, c)  # défenses spatiales : sans emplacement pour la plupart
+		dwish.append_array(AiStealth.wishes(ctx, c))  # furtivité : Réseau d'écoute après une embuscade
 		if full and not late and dwish.is_empty():
 			continue
 		var urgent := urgent_needs(ctx, net)

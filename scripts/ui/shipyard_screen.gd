@@ -485,6 +485,12 @@ static func module_value(mid: String, size: String) -> String:
 			var v := int(Designs._sized(m[k], size))
 			if v != 0:
 				parts.append("%s %+d" % [names[k], v])
+	var snames := {"cloak": "camouflage", "detect": "détection", "jam": "brouilleur", "decoy": "leurres"}
+	for k in Designs.MAX_STATS:
+		if m.has(k):
+			var v := int(Designs._sized(m[k], size))
+			if v != 0:
+				parts.append(("%s %d" % [snames[k], v]) if k == "cloak" else ("%s %+d" % [snames[k], v]) if k == "detect" else String(snames[k]))
 	var raw: Dictionary = m.get("cost", {})
 	var cost: Dictionary = raw.get(size, {}) if raw.has(size) else raw
 	if not cost.is_empty():
@@ -528,6 +534,8 @@ func _fill_stats() -> void:
 		["Vitesse", int(now.get("speed", 0)), int(ref.get("speed", now.get("speed", 0)))],
 		["Troupes", int(now.get("troops", 0)), int(ref.get("troops", now.get("troops", 0)))],
 		["Siège", int(now.get("siege", 0)), int(ref.get("siege", now.get("siege", 0)))],
+		["Camouflage", int(now.get("cloak", 0)), int(ref.get("cloak", now.get("cloak", 0)))],
+		["Détection +", int(now.get("detect", 0)), int(ref.get("detect", now.get("detect", 0)))],
 		["Durée (j)", int(now.get("days", 1)), int(ref.get("days", now.get("days", 1)))],
 	]
 	for r: Array in rows:

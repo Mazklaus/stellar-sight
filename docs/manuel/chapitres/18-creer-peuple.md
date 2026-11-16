@@ -1,6 +1,6 @@
 ---
 titre: Créer son peuple
-numero: 33
+numero: 35
 image: MJ-20
 epigraphe: Les dieux ont mis sept jours. Vous avez quatre points de traits. Soyez raisonnable.
 signature: Note de l'éditeur

@@ -51,7 +51,7 @@ static func codes_bonus(state: GameState, eid: int, against: int) -> int:
 	var end := int((state.stealth.get("codes", {}) as Dictionary).get("%d:%d" % [eid, against], -1))
 	if end > state.tick:
 		n += int(Stealth.cfg("codes").get("detect", 2))
-	if not state.espionage.is_empty() and Espionage.tier(state, eid, against) >= 3:
+	if Espionage.tier(state, eid, against) >= 3:
 		n += Stealth.max_level()
 	return n
 
