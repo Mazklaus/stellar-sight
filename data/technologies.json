@@ -1030,7 +1030,7 @@
 			"label": "Bourses interstellaires",
 			"domain": "economie",
 			"era": 3,
-			"text": "+15 % d'énergie et +10 % d'influence, et une route commerciale de plus.",
+			"text": "+15 % d'énergie et +10 % d'influence, et une route commerciale de plus. Avec la fiscalité (comptabilité stellaire) : plafond de crédit +20 %, réserve +25 %.",
 			"pre": [
 				"recyclage"
 			],
@@ -1039,7 +1039,9 @@
 					"energy": 15,
 					"influence": 10
 				},
-				"trade_routes": 1
+				"trade_routes": 1,
+				"debt_cap_pct": 20,
+				"reserve_pct": 25
 			},
 			"eureka": {
 				"kind": "trade",
@@ -2102,10 +2104,12 @@
 			"pre": [
 				"bourses"
 			],
-			"text": "Chaque route commerciale rapporte le double, et une route de plus.",
+			"text": "Chaque route commerciale rapporte le double, et une route de plus. Avec la fiscalité complète : débloque la Banque centrale, intérêts -10 %, l'inflation décroît plus vite.",
 			"effects": {
 				"trade_income_pct": 100,
-				"trade_routes": 1
+				"trade_routes": 1,
+				"debt_rate_pct": -10,
+				"inflation_decay": 5
 			},
 			"flavor": "Elles ont des actionnaires, des flottes et des avis sur la politique étrangère. Surtout des avis.",
 			"eureka": {

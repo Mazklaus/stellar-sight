@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 77
+const FORMAT_VERSION := 78
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -196,6 +196,7 @@ var deeds: Dictionary = {}
 var rulers: Dictionary = {}
 var court: Dictionary = {}  # cour et Grandes Maisons (voir Court)
 var admin: Dictionary = {}  # administration et corruption (voir Admin) ; {} = pilier désactivé
+var finance: Dictionary = {}  # fiscalité et dette publique (voir Finance) ; {} = pilier désactivé
 ## Mort des héros au combat (voir HeroFall) ; {} = option absente : blessure ou capture seulement.
 var hero_death: Dictionary = {}
 ## Zones de ravitaillement et lignes du jour (dérivé de l'état, non sauvegardé, recalculé chaque tick).
@@ -325,6 +326,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Rulers.setup(s, String(options.get("rulers", "aucun")))
 	Court.setup(s, String(options.get("court", "aucune")))
 	Admin.setup(s, String(options.get("admin", "desactivee")))
+	Finance.setup(s, String(options.get("finance", "desactivee")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -482,6 +484,8 @@ func to_dict() -> Dictionary:
 		d["court"] = Court.to_dict(self)
 	if Admin.worth_saving(self):
 		d["admin"] = Admin.to_dict(self)
+	if Finance.worth_saving(self):
+		d["finance"] = Finance.to_dict(self)
 	if HeroFall.worth_saving(self):
 		d["hero_death"] = HeroFall.to_dict(self)
 	return d
@@ -595,6 +599,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Rulers.from_dict(s, d.get("rulers", {}))
 	Court.from_dict(s, d.get("court", {}))
 	Admin.from_dict(s, d.get("admin", {}))
+	Finance.from_dict(s, d.get("finance", {}))
 	HeroFall.from_dict(s, d.get("hero_death", {}))
 	for c: Dictionary in d["colonies"]:
 		var colony := Colony.from_dict(c)

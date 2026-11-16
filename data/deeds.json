@@ -353,6 +353,8 @@
 		}
 	},
 	"deeds": {
+		"budget_equilibre": {"label": "Budget à l'équilibre", "family": "expansion", "sort": "first", "k": "finance_balanced", "n": 20, "text": "Premier à tenir vingt ans sans un sou de dette avec au moins 10 systèmes (fiscalité en jeu).", "flavor": "Le ministre des Finances a pleuré en présentant le budget. De joie, cette fois."},
+		"banqueroute": {"label": "Banqueroute retentissante", "family": "expansion", "sort": "infamous", "k": "bankrupt", "n": 1, "text": "Faire faillite.", "flavor": "Nos créanciers se souviendront de nous. Nos historiens aussi, hélas."},
 		"mains_propres": {"label": "Mains propres", "family": "expansion", "sort": "first", "k": "admin_clean", "n": 10, "text": "Premier à tenir dix ans une corruption moyenne sous 5 % avec au moins 20 systèmes.", "flavor": "Nos inspecteurs n'ont rien trouvé. Nous avons fait inspecter les inspecteurs : rien non plus."},
 		"cartographe": {
 			"label": "Cartographe des étoiles",

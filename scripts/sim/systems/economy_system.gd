@@ -181,6 +181,10 @@ static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionar
 		if not was_starving:
 			added.append(state.add_chronicle("Famine chez %s : on rationne, les cuisiniers démissionnent en bloc." % e.display_name(), Espionage.private_to(state, [e.id])))
 
+	# Fiscalité : réserve plafonnée, emprunt d'office sous zéro, crise de la dette (voir Finance).
+	if not state.finance.is_empty():
+		Finance.settle(state, e, inc_all, added)
+
 	var was_blackout := e.blackout
 	e.blackout = e.resources["energy"] < 0
 	if e.blackout and not was_blackout:

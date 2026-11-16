@@ -62,6 +62,8 @@ static func card(id: String) -> Dictionary:
 			_cards[String(c["id"])] = c
 		for c: Dictionary in GameData.administration().get("cards", []):
 			_cards[String(c["id"])] = c
+		for c: Dictionary in GameData.finance().get("cards", []):
+			_cards[String(c["id"])] = c
 	return _cards.get(id, {})
 
 
@@ -539,6 +541,10 @@ static func _cost_problem(state: GameState, empire_id: int, item: Dictionary, ch
 				var why_a := AdminBridges.fx_problem(state, empire_id, item, fx)
 				if why_a != "":
 					return why_a
+			"finance":
+				var why_f := FinanceBridges.fx_problem(state, empire_id, item, fx)
+				if why_f != "":
+					return why_f
 	return ""
 
 
@@ -706,6 +712,8 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				out.append_array(Court.fx_lines(state, empire_id, item, fx))
 			"admin":
 				out.append_array(AdminBridges.fx_lines(state, empire_id, item, fx))
+			"finance":
+				out.append_array(FinanceBridges.fx_lines(state, empire_id, item, fx))
 	return out
 
 
@@ -830,6 +838,8 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				Court.apply_fx(state, empire_id, item, fx, added)
 			"admin":
 				AdminBridges.apply_fx(state, empire_id, item, fx, added)
+			"finance":
+				FinanceBridges.apply_fx(state, empire_id, item, fx, added)
 
 
 static func _colony_in(state: GameState, empire_id: int, sid: int) -> Colony:

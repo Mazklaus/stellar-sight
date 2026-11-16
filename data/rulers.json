@@ -791,6 +791,9 @@
 			"fam": "guerre",
 			"posthumous": true
 		},
+		{"id": "depensier", "m": "le Dépensier", "f": "la Dépensière", "k": "borrowed", "n": 3, "src": "r", "legit": -5, "fam": "echange"},
+		{"id": "avare", "m": "l'Avare", "f": "l'Avare", "k": "frugal", "n": 5, "src": "r", "legit": 5, "fam": "echange"},
+		{"id": "banqueroutier", "m": "le Banqueroutier", "f": "la Banqueroutière", "k": "bankrupt", "n": 1, "src": "r", "legit": -15, "fam": "malheur"},
 		{
 			"id": "infortune",
 			"m": "l'Infortuné",

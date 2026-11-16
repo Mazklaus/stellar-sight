@@ -188,6 +188,13 @@ func refresh() -> void:
 		(chip["stock"] as Label).text = str(r["stock"])
 		var low: bool = (r["id"] == "food" and me.starving) or (r["id"] == "energy" and me.blackout)
 		(chip["stock"] as Label).add_theme_color_override("font_color", UiTheme.BAD if low else UiTheme.TEXT)
+		if r["id"] == "energy" and not _state.finance.is_empty() and Finance.applies(_state, _player):
+			var debt := Finance.debt(_state, _player)
+			if debt > 0:
+				# Fiscalité : la dette à côté du trésor, rouge au-delà de 75 % du plafond.
+				(chip["stock"] as Label).text = "%d · dette %d" % [int(r["stock"]), debt]
+				if debt * 100 > Finance.cap(_state, _player) * 75:
+					(chip["stock"] as Label).add_theme_color_override("font_color", UiTheme.BAD)
 		(chip["delta"] as Label).text = "%+d" % net
 		(chip["delta"] as Label).add_theme_color_override("font_color", UiTheme.delta_color(net))
 		(chip["panel"] as Control).tooltip_text = _resource_tip(r, me)
@@ -288,6 +295,13 @@ func _resource_tip(r: Dictionary, me: Empire) -> String:
 		lines.append("[color=#%s]Famine : la population décline.[/color]" % UiTheme.BAD.to_html(false))
 	if r["id"] == "energy" and me.blackout:
 		lines.append("[color=#%s]Pénurie : les chantiers sont à l'arrêt.[/color]" % UiTheme.BAD.to_html(false))
+	if r["id"] == "energy" and not _state.finance.is_empty() and Finance.applies(_state, me.id):
+		var g := Finance.grade(_state, me.id)
+		lines.append("Dette : [b]%d[/b] / plafond %d · cote [color=%s]%s[/color]" % [Finance.debt(_state, me.id), Finance.cap(_state, me.id), String(Finance.grade_def(g).get("color", "#cccccc")), g])
+		var st := Finance.crisis_stage(_state, me.id)
+		if st > 0:
+			lines.append("[color=#%s]Crise de la dette : %s.[/color]" % [UiTheme.BAD.to_html(false), String(Finance.stage_def(st)["label"]).to_lower()])
+		lines.append("Impôt : %s (écran Ordre intérieur, onglet Trésor)" % String(Finance.tax_def(Finance.tax(_state, me.id)).get("label", "")).to_lower())
 	return "\n".join(lines)
 
 

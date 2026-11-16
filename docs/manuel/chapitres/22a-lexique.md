@@ -40,12 +40,14 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Convoi | Réfugiés sans refuge qui errent de saut en saut | 3 |
 | Corridor discret | Opération d'espionnage : 90 jours sans intrusion constatée chez un empire | 8, 13 |
 | Corruption | Part de 0 à 50 % de l'énergie, des matériaux, de l'influence et du Savoir d'un système qui part dans les mauvaises poches | 27 |
+| Cote de crédit | Note de AAA à D selon la dette rapportée au plafond ; elle fixe le taux et module le plafond (fiscalité) | 28 |
 | Coupée | Flotte hors de sa zone de ravitaillement dont tous les chemins de retour sont barrés par l'ennemi : réserves deux fois plus vite épuisées (logistique complète) | 7 |
 | Cour impériale | Les sujets de l'Impérateur, sous un préréglage verrouillé | 10, 12 |
 | Courant | L'une des six familles politiques de la roue : Forge, Académie, Concorde, Sève, Autel, Glaive | 14 |
 | Couronne vacillante | La première année d'un règne : -10 de légitimité, et les rivaux paient leurs revendications moitié prix | 25 |
 | Credo | Ce en quoi un peuple croit : honneur, foi, raison, profit, survie | 20 |
 | Crise de fin de partie | Puissance hostile à tous qui arrive après l'an 30 (réglable) : Récif chantant, Inspection Générale, Déchirure, Nuit lente, Grand Krach, Roi-Corsaire | 19 |
+| Crise de la dette | Jauge qui monte au plafond de crédit en quatre paliers (Tension, Déficit, Crise, Banqueroute imminente), jusqu'à la faillite | 28 |
 | Crise diplomatique | Trente jours d'escalade avant une guerre : ralliés, recul ou guerre | 7 |
 | Croisade | Guerre prêchée par un chef de foi, où toute la foi suit | 15 |
 | Culte caché | Foi à la diffusion secrète, invisible chez les autres jusqu'à sa découverte | 15 |
@@ -55,6 +57,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Défection culturelle | Système instable d'un voisin qui passe chez vous après deux ans, sans un coup de feu, si votre culture l'écrase | 22 |
 | Dépôt de flotte | Bâtiment qui prolonge d'un saut la zone de ravitaillement et répare les flottes à 8 % par jour | 7 |
 | Dernière Guerre | La guerre contre qui refuse l'élection du Chancelier des étoiles | 12 |
+| Dette courante | L'emprunt d'office à la Banque intérieure quand le trésor passe sous zéro ; intérêts seuls, remboursée par l'excédent | 28 |
 | Dévastation | Taux de 0 à 100 par système, né du bombardement et des combats au sol : moins de production, de croissance et de stabilité | 7 |
 | Diaspora | Le peuple d'un empire disparu, qui peut le faire renaître | 3 |
 | Doctrine | En recherche, un choix exclusif d'Armement ; en religion, une position sur l'un des quatre axes d'une foi | 5, 15 |
@@ -65,20 +68,22 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Encerclement | Planète assiégée cernée de systèmes ennemis : garnison et remparts ne se relèvent plus (logistique complète) | 7 |
 | Enclave | Système qu'on ne relie à aucun siège par son territoire, les systèmes libres ou ceux d'un allié : corruption de distance ×1,5 | 27 |
 | Eurêka | Objectif en jeu qui paie 40 % d'une technologie | 5 |
+| Faillite | Fin de la crise de la dette : dettes effacées, dix ans de malus, cote D | 28 |
 | Faste | L'éclat de la cour, de 0 à 100 : train de la cour, grandes fêtes ; faveur, influence, rayonnement, style | 26 |
 | Faveur | Dette de vote à l'Amphictyonie, que l'on appelle pendant une séance | 12 |
 | Ferveur | Jauge propre aux théocraties du Chœur et des Murmurants | 20 |
 | Fief | Système tenu par une Grande Maison ; sa faveur y joue sur la production et la stabilité | 26 |
 | Fin de partie | Date à partir de laquelle une crise peut se lever, avancée par les actes imprudents | 19 |
 | Fléau des étoiles | Le dernier palier de l'Ambition démesurée : guerre de toute la galaxie, et la Couronne du Néant à bâtir | 19 |
-| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 30 |
+| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 31 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
 | Fortifications | Remparts d'un système, que le siège use avant la milice (combat au sol complet) | 7 |
 | Fouille | Site exploré en plusieurs chapitres, avec une relique au bout | 17 |
+| Franchise fiscale | Système exempté d'impôt : énergie -50 %, stabilité +10 | 28 |
 | Fronde | Révolte d'une maison furieuse : un an de troubles dans ses fiefs, puis un ultimatum | 26 |
 | Front commun | Coalition contre la crise : vision partagée, passage libre, +10 % de dégâts contre elle | 19 |
 | Frontière | Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe | 8 |
-| Gardien | Créature unique assise sur un des meilleurs systèmes | 30 |
+| Gardien | Créature unique assise sur un des meilleurs systèmes | 31 |
 | Gloire | Valeur d'empire gagnée par les hauts faits et les grands moments, jamais perdue | 24 |
 | Grand chantier | Chantier de merveille, à part de la file de la colonie : avance de 20 %, puis mensualités ; un à la fois | 23 |
 | Grand chantier commun | Phare des Âges ou Banque des Étoiles : le projet que tous financent pour arrêter une crise sans flotte | 19 |
@@ -96,7 +101,9 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Hors-la-loi | Celui qui a enfreint le Nomos : sanctions, puis bannissement | 12 |
 | Idole des étoiles | Victoire du credo Plaisir : Influent chez 60 % de la population étrangère | 22 |
 | Impérateur | L'Arbitre à vie qui a reçu les pleins pouvoirs | 12 |
+| Impôt (cran d') | Niveau d'imposition à cinq crans, de Très bas à Écrasant ; Normal ne change rien | 28 |
 | Infamie | Marque d'un haut fait infâme : -15 d'opinion chez tous pendant dix ans | 24 |
+| Inflation | Indice qui renchérit l'entretien en énergie ; nourri par les emprunts, la planche à billets, le Grand Krach | 28 |
 | Intégration | L'adaptation d'une espèce dans une colonie, de 0 à 100 % ; ou l'absorption d'un sujet | 3, 10 |
 | Interrègne | Le temps où le trône reste vide (Conclave, Épreuve, couvée royale) | 25 |
 | Intrusion | Flotte entrée sans droit de passage chez un empire rencontré : souvenir, puis -1 par mois si elle reste | 8 |
@@ -137,6 +144,8 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Patronage divisé | Ce que coûte en loyauté chaque sujet de plus | 10 |
 | Péage | Énergie payée à chaque saut par les flottes de guerre étrangères de passage | 8 |
 | Peuple mineur | Petite civilisation neutre qu'on courtise par la faveur, protège, intègre ou conquiert | 21 |
+| Plafond de crédit | Ce que l'empire peut devoir : environ douze mois de production brute d'énergie | 28 |
+| Planche à billets | Battre monnaie : trois mois de production tout de suite, contre 3 % d'inflation | 28 |
 | Point faible | Station immobile d'une crise (Monde-Récif, Bureau de contrôle, ancre, Repaire de la Horde) : la détruire l'affaiblit | 19 |
 | Port franc | Repaire pirate rangé : mercenaires, héros et marché noir | 17 |
 | Porte stellaire | Mégastructure : vos flottes sautent d'une porte à l'autre en un jour | 23 |
@@ -147,14 +156,16 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Protectorat | Lien de sujet d'un empire faible qui a demandé protection | 10 |
 | Province | Les systèmes à moins de 4 sauts d'une Préfecture, qui en dépendent au lieu de la capitale | 27 |
 | Rayonnement | Points de culture par mois qui partent vers chaque empire rencontré et s'y cumulent | 22 |
+| Recouvrement | Motif de guerre d'un créancier contre un débiteur qui a fait défaut depuis moins de cinq ans | 28 |
 | Recrues | Réserve d'hommes de l'empire, versée chaque mois par les colonies, que coûte chaque régiment | 7 |
 | Reddition | Devenir vassal au lieu de disparaître | 8 |
 | Régence | Le gouvernement d'un souverain mineur par un régent : pas de guerre, légitimité qui s'use | 25 |
 | Régiment | Unité de combat au sol, recrutée sur une colonie, transportée par les flottes | 7 |
 | Registre | Le ton d'un peuple : grimdark, médiéval spatial, space opera héroïque… | 20 |
 | Registre des traités | Toutes les paix signées, leurs clauses et leurs échéances | 8 |
-| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 29 |
+| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 30 |
 | Renom | La gloire d'un empire, qui attire les héros ; et celui d'une maison, qui achète ses héritages | 16, 25 |
+| Répudiation | Refuser de payer une Maison ou un empire : pas de faillite, mais cote D et créancier furieux | 28 |
 | Réquisition | Refaire les réserves d'une flotte sur le dos d'un système assiégé : crime de guerre (logistique complète) | 7 |
 | Réserves | Les jours de ravitaillement qu'emporte une flotte de guerre loin de ses bases, 120 au départ | 7 |
 | Révélation | La naissance d'une grande foi | 15 |
@@ -181,6 +192,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Tête de pont | Système conquis ou occupé, qui ne ravitaille qu'après 30 jours tenus | 7 |
 | Trait d'assimilation | Bonus laissé par un peuple mineur intégré ou conquis, à activer | 21 |
 | Transit | Allongement d'une route par le terrain des systèmes qu'elle relie | 7 |
+| Trésor | L'énergie de l'empire, et l'onglet de l'Ordre intérieur qui la gouverne (impôt, budget, emprunts) | 28 |
 | Trêve | L'année sans guerre qui suit une paix | 8 |
 | Trêve sacrée | L'interdiction de guerre entre membres du Front commun ; la rompre coûte cher | 19 |
 | Tribunal | Bâtiment qui divise par deux la corruption de son système | 27 |
@@ -188,11 +200,11 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Triomphe | La grande cérémonie d'une relique, une fois tous les dix ans | 17 |
 | Trophée | Bâtiment unique offert par un haut fait, qu'on ne peut pas construire ; il change de mains avec sa colonie | 24 |
 | Ultimatum | Exiger sans tirer ; refusé, il donne un motif de guerre | 7 |
+| Œuvre collective | Merveille bâtie à plusieurs (Koinon, Amphictyonie, Front commun), effet partagé | 23 |
 | Villégiature | Station qui fait rayonner la beauté d'un système | 22 |
 | Voile | Une nébuleuse arrête la vue : on n'y voit pas de l'extérieur, et on n'y voit que son système | 7 |
 | Zèle | La vigueur d'une grande foi, de 0 à 100 | 15 |
 | Zone de ravitaillement | Vos systèmes et ceux qui vous ravitaillent, plus 2 sauts autour : les flottes y refont leurs réserves | 7 |
-| Œuvre collective | Merveille bâtie à plusieurs (Koinon, Amphictyonie, Front commun), effet partagé | 23 |
 
 ::: marge
 Il manque un mot : « bureaucratie ». Les Archives ont demandé qu'on l'ajoute. La demande est en cours d'examen.

@@ -14,10 +14,16 @@ static func build(es: EmpireScreens) -> void:
 	es._order_sig = signature(es)
 	es.order_buttons.clear()
 	var admin_tab := tab == "admin" and Admin.applies(state, player)
-	es._side_header("screen_order", "Administration" if admin_tab else "Ordre intérieur", AdminUi.INK if admin_tab else Color(0.42, 0.75, 0.55), "faction")
+	var finance_tab := tab == "tresor" and Finance.applies(state, player)
+	var title := "Administration" if admin_tab else ("Trésor" if finance_tab else "Ordre intérieur")
+	var ink := AdminUi.INK if admin_tab else (FinanceUi.INK if finance_tab else Color(0.42, 0.75, 0.55))
+	es._side_header("screen_order", title, ink, "faction")
 	_tabs(es)
 	if admin_tab:
 		AdminUi.build(es)
+		return
+	if finance_tab:
+		FinanceUi.build(es)
 		return
 	var applies := Stability.applies(state, player)
 	var g := es._grid()
@@ -101,14 +107,19 @@ static func build(es: EmpireScreens) -> void:
 static var tab := "ordre"
 
 
-## Boutons d'onglet (seulement si le pilier Administration est en jeu pour l'empire).
+## Boutons d'onglet (seulement si le pilier Administration ou la Fiscalité est en jeu pour l'empire).
 static func _tabs(es: EmpireScreens) -> void:
-	if not Admin.applies(es._state, es._player):
+	var tabs := [["ordre", "Ordre intérieur"]]
+	if Admin.applies(es._state, es._player):
+		tabs.append(["admin", "Administration"])
+	if Finance.applies(es._state, es._player):
+		tabs.append(["tresor", "Trésor"])
+	if tabs.size() < 2:
 		return
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
 	es._side_box.add_child(row)
-	for t in [["ordre", "Ordre intérieur"], ["admin", "Administration"]]:
+	for t in tabs:
 		var b := Button.new()
 		b.text = String(t[1])
 		b.toggle_mode = true
@@ -128,6 +139,8 @@ static func signature(es: EmpireScreens) -> String:
 	var state := es._state
 	if tab == "admin" and Admin.applies(state, es._player):
 		return "admin|" + AdminUi.signature(es)
+	if tab == "tresor" and Finance.applies(state, es._player):
+		return "tresor|" + FinanceUi.signature(es)
 	var e := state.get_empire(es._player)
 	@warning_ignore("integer_division")
 	return "%d|%s|%s|%s|%d|%d|%s|%s|%d|%d" % [state.tick / 30, str(Stability.systems_of(state, es._player)), str(state.stability),

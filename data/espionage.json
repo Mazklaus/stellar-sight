@@ -77,6 +77,12 @@
 			"spend": 15,
 			"text": "Des enveloppes glissées sous les tampons : son système le plus corrompu (hors capitale) prend +15 de corruption pendant un an."
 		},
+		{"id": "rumeur_faillite", "family": "intrigue", "label": "Rumeur de faillite", "finance": true, "tier": 1, "cost": {"influence": 25}, "days": 30, "success": 75, "discovery": 25, "spend": 10,
+			"text": "Des gazettes bien payées annoncent sa ruine prochaine : sa cote de crédit perd un cran pendant deux ans (fiscalité complète)."},
+		{"id": "maquiller_comptes", "family": "intrigue", "label": "Maquiller les comptes", "finance": true, "tier": 2, "cost": {"influence": 30}, "days": 45, "success": 70, "discovery": 20, "spend": 15,
+			"text": "Ses comptables voient ce que vous voulez : il vous croit noté A pendant deux ans, et vous prête volontiers (fiscalité complète)."},
+		{"id": "racheter_creance", "family": "intrigue", "label": "Racheter une créance", "finance": true, "tier": 3, "cost": {"influence": 40}, "days": 60, "success": 60, "discovery": 30, "spend": 20,
+			"text": "Vous rachetez à moitié prix sa plus grosse dette envers sa Banque intérieure : c'est désormais à vous qu'il paie les mensualités (fiscalité complète)."},
 		{
 			"id": "attiser_maison",
 			"family": "intrigue",

@@ -227,6 +227,16 @@ func _draw() -> void:
 				_draw_label(s, px, true)
 				_draw_corruption(s, px)
 		return
+	if lens == "fiscal" and state != null:
+		# Mode Fiscalité de la lentille de stabilité : franchises fiscales (or), grèves fiscales (rouge),
+		# fuite fiscale de la corruption ; la cote de crédit sur la capitale.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		for s in galaxy.systems:
+			if owner_of(s.id) == viewer:
+				_draw_system(s, px)
+				_draw_label(s, px, true)
+				_draw_fiscal(s, px)
+		return
 	if lens == "politics" and state != null:
 		# Lentille politique : vos systèmes cerclés à la couleur du courant qui domine leur opinion,
 		# trait plein s'ils sont représentés au pouvoir, pointillé sinon.
@@ -977,6 +987,36 @@ func _draw_corruption(s: StarSystem, px: float) -> void:
 	var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
 	draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
 	draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Mode Fiscalité : franchise, grève, fuite fiscale ; cote et dette sur la capitale.
+func _draw_fiscal(s: StarSystem, px: float) -> void:
+	if state.finance.is_empty():
+		return
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	var parts := PackedStringArray()
+	var col := Color(0.55, 0.58, 0.62)
+	if Finance.has_franchise(state, s.id):
+		col = Color(0.92, 0.78, 0.36)
+		parts.append("franchise")
+	var leak := Finance.leak_pct(state, viewer, s.id)
+	if leak > 0:
+		parts.append("fuite %d %%" % leak)
+		if col == Color(0.55, 0.58, 0.62):
+			col = Color(0.88, 0.57, 0.23)
+	if Finance.on_strike(state, s.id):
+		col = Color(0.86, 0.33, 0.31)
+		parts.append("grève")
+	if FactionTraits.capital_system(state, viewer) == s.id:
+		var g := Finance.grade(state, viewer)
+		parts.append("cote %s · dette %d / %d" % [g, Finance.debt(state, viewer), Finance.cap(state, viewer)])
+	draw_arc(Vector2.ZERO, 13.0, 0.0, TAU, 28, col, 2.4, true)
+	if not parts.is_empty():
+		var text := " · ".join(parts)
+		var tw := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		draw_rect(Rect2(Vector2(-tw * 0.5 - 5, 16), Vector2(tw + 10, 18)), Color(0.02, 0.03, 0.05, 0.9))
+		draw_string(_font, Vector2(-tw * 0.5, 30), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

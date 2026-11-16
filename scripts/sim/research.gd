@@ -929,6 +929,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var cfx := Court.effects(state, empire_id)
 			_merge(base, cfx)
 			_merge(exalted, cfx)
+		# Fiscalité : crans d'impôt, solde, impôt de guerre, crise de la dette, faillite (voir Finance).
+		if not state.finance.is_empty():
+			var ffx2 := Finance.effects(state, empire_id)
+			_merge(base, ffx2)
+			_merge(exalted, ffx2)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted
