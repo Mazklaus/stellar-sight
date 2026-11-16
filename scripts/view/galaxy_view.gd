@@ -938,6 +938,10 @@ func _draw_portals(px: float) -> void:
 		var pa := g.systems[ia].position
 		var known := viewer < 0 or Portals.known_pair(state, viewer, Portals.pair_index(state, ia))
 		var col := Color(0.72, 0.5, 1.0, 0.55)
+		# Le lien entier ne s'affiche en clair que pour le trou de ver du système choisi ou survolé ;
+		# sinon un fil discret, pour ne pas barrer la carte de longues ondulations.
+		var focus := selected_id == ia or selected_id == ib or hovered_id == ia or hovered_id == ib
+		var lcol := col if focus else Color(col.r, col.g, col.b, 0.16)
 		if known and is_explored(ib):
 			var pb := g.systems[ib].position
 			var pts := PackedVector2Array()
@@ -947,7 +951,7 @@ func _draw_portals(px: float) -> void:
 			for i in steps + 1:
 				var t := float(i) / steps
 				pts.append(pa + dir * t + nrm * sin(t * TAU * 6.0) * 5.0 * px)
-			draw_polyline(pts, col, 1.4 * px, true)
+			draw_polyline(pts, lcol, (1.6 if focus else 1.0) * px, true)
 			_draw_swirl(pb, px, col)
 		_draw_swirl(pa, px, col)
 	if not g.relays.is_empty():
@@ -957,6 +961,13 @@ func _draw_portals(px: float) -> void:
 	for sid in g.portal_gates:
 		if not is_explored(int(sid)):
 			continue
+		# Liens de portail (dans la portée) : pointillés, en clair pour le système choisi ou survolé.
+		var links: Dictionary = g.portal_links.get(sid, {})
+		for b in links:
+			if int(b) <= int(sid) or not is_explored(int(b)) or int(links[b]) > mini(Portals.gate_range(state, int(sid)), Portals.gate_range(state, int(b))):
+				continue
+			var gf := selected_id == int(sid) or selected_id == int(b) or hovered_id == int(sid) or hovered_id == int(b)
+			draw_dashed_line(g.systems[int(sid)].position, g.systems[int(b)].position, Color(0.62, 0.55, 1.0, 0.85 if gf else 0.3), (2.0 if gf else 1.2) * px, 9.0 * px, true)
 		var free := state.system_owner(int(sid)) < 0
 		draw_arc(g.systems[int(sid)].position, 15.0 * px, 0.0, TAU, 28, Color(0.95, 0.8, 0.35, 0.9) if free else Color(0.62, 0.55, 1.0, 0.9), 2.0 * px, true)
 	var ruins: Dictionary = state.portals.get("ruins", {})

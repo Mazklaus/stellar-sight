@@ -484,3 +484,13 @@ a colossal ring-shaped orbital spaceport encircling a green agricultural planet,
 ```
 a colossal orbital fortress bristling with gun turrets guarding a fortified planet, ring of defense platforms and a glittering minefield around it, a translucent planetary shield dome with ground batteries firing streaks of light upward, a hesitant invasion fleet holding position at the edge of the system, a jump inhibitor beacon pulsing, grim military grandeur with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-49 · Les portails de saut
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Les portails de saut »
+- Sujet : Un immense anneau de portail de saut s'ouvre sur un ciel étranger, et une flotte de guerre s'y engouffre dans un éclair bleu ; plus loin, un trou de ver violet tourbillonne près d'un trou noir, une chaîne de relais hyperspatiaux trace un corridor lumineux entre deux étoiles, et un portail ancien en ruine, couvert de givre, attend qu'on le rallume
+
+```
+a colossal ring-shaped jump gate opening onto an alien starfield, a warfleet plunging through it in a flash of blue light, in the distance a swirling violet wormhole beside a black hole, a chain of hyperspace relay beacons tracing a glowing teal corridor between two stars, a frost-covered ancient ruined gate waiting to be rekindled, sense of impossible distances folded, epic wonder with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

@@ -328,6 +328,12 @@ func _test_bridges() -> void:
 	_ok(PortalsBridges.trade_pct(st, 0, [home, n1]) == 10, "route sur un corridor : +10 %")
 	var d2 := Ports._dist_from(st, 0, home, 0, {0: true, -1: true}, {})
 	_ok(d2.has(n1), "un saut de corridor ne compte pas dans la desserte")
+	var cc: Colony = st.colonies[e.capital_planet]
+	var used := Economy.building_slots_used(cc)
+	cc.buildings.append_array(["relais_hyper", "portail_saut"])
+	_ok(Economy.building_slots_used(cc) == used, "relais et portails ne prennent pas d'emplacement")
+	cc.buildings.pop_back()
+	cc.buildings.pop_back()
 	# Haut fait (prop. 38).
 	_ok(PortalsBridges.linked_gates(st, 0) == 2, "Maître des portes : deux portails reliés comptés")
 	# Espionnage (prop. 25) : désaccorder coupe le portail 60 jours.

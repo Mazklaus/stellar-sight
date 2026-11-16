@@ -724,8 +724,8 @@ static func building_slots_used(colony: Colony) -> int:
 	var n := 0
 	for b in colony.buildings:
 		var bd := GameData.building(b)
-		if bd.get("buildable", true) and not bd.has("family"):
-			n += 1
+		if bd.get("buildable", true) and not bd.has("family") and String(bd.get("portals", "")) == "":
+			n += 1  # relais, portails et ancres ne prennent pas d'emplacement
 	return n
 
 
