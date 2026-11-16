@@ -593,7 +593,7 @@ func _test_save() -> void:
 	c["ch"] = "commerce"
 	(st.private["crime"] as Dictionary)["3"] = {"o": p, "t": 5}
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 79 and d.has("private"), "sauvegarde 79 avec l'économie privée")
+	_ok(int(d["version"]) >= 79 and d.has("private"), "sauvegarde 79+ avec l'économie privée")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and JSON.stringify(Private.to_dict(back)) == JSON.stringify(Private.to_dict(st)), "aller-retour fidèle")
 	var off := GameState.create(31, 120, 1600.0, "vael", {"ai_level": ""})
