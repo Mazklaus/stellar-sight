@@ -211,8 +211,8 @@
 		}
 	},
 	"traits": {
-		"trompe_la_mort": {"label": "Trompe-la-mort", "cls": "", "text": "Toujours le dernier à quitter l'épave : deux fois moins de chances de mourir au combat.", "fx": {"combat_death_pct": -50}},
-		"temeraire": {"label": "Téméraire", "cls": "stratege", "text": "Mène la charge en tête : +5 % de dégâts pour sa flotte, mais deux fois plus de chances de mourir au combat.", "fx": {"damage_pct": 5, "combat_death_pct": 100}},
+		"trompe_la_mort": {"label": "Trompe-la-mort", "cls": "", "combat_death": true, "text": "Toujours le dernier à quitter l'épave : deux fois moins de chances de mourir au combat.", "fx": {"combat_death_pct": -50}},
+		"temeraire": {"label": "Téméraire", "cls": "stratege", "text": "Mène la charge en tête : +5 % de dégâts pour sa flotte, mais deux fois plus de chances de mourir au combat.", "combat_death": true, "fx": {"damage_pct": 5, "combat_death_pct": 100}},
 		"meneur_hommes": {"label": "Meneur d'hommes", "cls": "general", "text": "+10 % de dégâts au sol pour les régiments qu'il commande.", "fx": {"ground_damage_pct": 10}},
 		"ami_anciens": {"label": "Ami des anciens", "cls": "", "earned": true, "text": "Gagné quand son empire reçoit un poste honorifique d'une puissance ancienne : +25 d'opinion de toutes les anciennes.", "fx": {}},
 		"tueur_crise": {"label": "Tueur de crise", "cls": "stratege", "earned": true, "text": "Gagné en abattant un point faible ou le cœur d'une crise de fin de partie : +20 % de dégâts contre les crises.", "fx": {"crisis_damage_pct": 20}},

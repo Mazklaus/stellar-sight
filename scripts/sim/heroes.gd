@@ -200,7 +200,7 @@ static func make_candidate(state: GameState, empire_id: int, cls: String, salt: 
 	var pics := portraits_for(arch)
 	var ages: Array = data()["age"]
 	var age := int(ages[0]) + _h(state, salt + ["age"]) % (int(ages[1]) - int(ages[0]) + 1)
-	var pool := class_traits(cls)
+	var pool := class_traits(cls, state)
 	var traits: Array[String] = []
 	if not pool.is_empty():
 		traits.append(pool[_h(state, salt + ["trait"]) % pool.size()])
@@ -229,7 +229,8 @@ static func make_candidate(state: GameState, empire_id: int, cls: String, salt: 
 
 
 ## Traits que peut tirer un héros de cette classe (ceux de la classe, puis ceux de toutes les classes).
-static func class_traits(cls: String) -> Array[String]:
+## Les traits liés à la mort au combat ("combat_death") ne se tirent que si elle est en jeu.
+static func class_traits(cls: String, state: GameState = null) -> Array[String]:
 	var out: Array[String] = []
 	var ids := (data()["traits"] as Dictionary).keys()
 	ids.sort()
@@ -238,6 +239,8 @@ static func class_traits(cls: String) -> Array[String]:
 		var td: Dictionary = data()["traits"][id]
 		if td.get("earned", false):
 			continue  # gagné par un exploit, jamais tiré au sort
+		if td.get("combat_death", false) and (state == null or HeroFall.mode_pct(state) <= 0):
+			continue
 		if c == cls or (c == "" and not td.get("people", false) and not td.get("flaw", false)):
 			out.append(String(id))
 	return out
@@ -889,7 +892,7 @@ static func gain_xp(state: GameState, h: Dictionary, n: int) -> void:
 ## Traits qu'un héros peut encore gagner : ceux de son peuple (people) ou de sa classe, sinon l'autre réserve.
 static func _free_traits(state: GameState, h: Dictionary, people: bool) -> Array[String]:
 	var own_pool := people_traits_of(GameData.faction(String(h["sp"]))) if String(h.get("sp", "")) != "" else people_traits(state, int(h["owner"]))
-	var pools := [own_pool, class_traits(String(h["cls"]))]
+	var pools := [own_pool, class_traits(String(h["cls"]), state)]
 	if not people:
 		pools.reverse()
 	for pool: Array[String] in pools:

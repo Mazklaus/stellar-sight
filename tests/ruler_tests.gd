@@ -375,6 +375,9 @@ func _test_hero_death() -> void:
 	(h["traits"] as Array).append("temeraire")
 	_ok(HeroFall.chance(st, h, "fleet") == 20, "Téméraire : deux fois plus")
 	(h["traits"] as Array).erase("temeraire")
+	_ok(Heroes.class_traits("stratege", st).has("temeraire") and Heroes.class_traits("", st).has("trompe_la_mort"), "traits de la mort au combat tirés quand elle est en jeu")
+	var off := GameState.create(5, 40, 1000.0, "vael", {"ai_level": ""})
+	_ok(not Heroes.class_traits("stratege", off).has("temeraire") and not Heroes.class_traits("", off).has("trompe_la_mort"), "sans mort au combat, jamais tirés")
 	h["surv"] = 1
 	_ok(HeroFall.chance(st, h, "fleet") == 7, "Capsules de survie : 3 points de moins")
 	h.erase("surv")
