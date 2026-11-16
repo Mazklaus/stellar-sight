@@ -83,7 +83,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Filiale | Bureau d'une compagnie dans la colonie d'un partenaire commercial ; l'hôte peut l'exproprier | 29 |
 | Fin de partie | Date à partir de laquelle une crise peut se lever, avancée par les actes imprudents | 19 |
 | Fléau des étoiles | Le dernier palier de l'Ambition démesurée : guerre de toute la galaxie, et la Couronne du Néant à bâtir | 19 |
-| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 33 |
+| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 34 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
 | Fortifications | Remparts d'un système, que le siège use avant la milice (combat au sol complet) | 7 |
 | Fouille | Site exploré en plusieurs chapitres, avec une relique au bout | 17 |
@@ -91,7 +91,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Fronde | Révolte d'une maison furieuse : un an de troubles dans ses fiefs, puis un ultimatum | 26 |
 | Front commun | Coalition contre la crise : vision partagée, passage libre, +10 % de dégâts contre elle | 19 |
 | Frontière | Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe | 8 |
-| Gardien | Créature unique assise sur un des meilleurs systèmes | 33 |
+| Gardien | Créature unique assise sur un des meilleurs systèmes | 34 |
 | Gloire | Valeur d'empire gagnée par les hauts faits et les grands moments, jamais perdue | 24 |
 | Grand chantier | Chantier de merveille, à part de la file de la colonie : avance de 20 %, puis mensualités ; un à la fois | 23 |
 | Grand chantier commun | Phare des Âges ou Banque des Étoiles : le projet que tous financent pour arrêter une crise sans flotte | 19 |
@@ -173,7 +173,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Régiment | Unité de combat au sol, recrutée sur une colonie, transportée par les flottes | 7 |
 | Registre | Le ton d'un peuple : grimdark, médiéval spatial, space opera héroïque… | 20 |
 | Registre des traités | Toutes les paix signées, leurs clauses et leurs échéances | 8 |
-| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 32 |
+| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 33 |
 | Renom | La gloire d'un empire, qui attire les héros ; et celui d'une maison, qui achète ses héritages | 16, 25 |
 | Répudiation | Refuser de payer une Maison ou un empire : pas de faillite, mais cote D et créancier furieux | 28 |
 | Réquisition | Refaire les réserves d'une flotte sur le dos d'un système assiégé : crime de guerre (logistique complète) | 7 |

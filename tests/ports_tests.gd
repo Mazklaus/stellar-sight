@@ -216,6 +216,15 @@ func _test_blockade() -> void:
 	simple.spawn_ship(foe, "corvette", cap_sys(simple, 0))
 	Ports.refresh(simple)
 	_ok(int(Ports.node(simple, 0, cap_sys(simple, 0))["bk"]) == 0, "Simple : pas de blocus")
+	# Pont avec les défenses spatiales : une station qui tient l'orbite empêche le blocus.
+	var dst := new_game("complet", 41, {"defenses": "complete"})
+	var dcs := cap_sys(dst, 0)
+	(dst.colonies[dst.get_empire(0).capital_planet] as Colony).buildings.append("bastion")
+	Combat.start_war(dst, 0, foe, true)
+	dst.spawn_ship(foe, "corvette", dcs)
+	Ports.refresh(dst)
+	_ok(not Defenses.holds(dst, dcs) or int(Ports.node(dst, 0, dcs)["bk"]) == 0, "station qui tient l'orbite : pas de blocus")
+	_ok(Defenses.holds(dst, dcs), "le Bastion de la capitale tient l'orbite")
 
 
 func _test_flows() -> void:

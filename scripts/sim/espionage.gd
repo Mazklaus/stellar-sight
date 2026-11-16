@@ -631,6 +631,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_g := GroundOccupation.spy_check(state, a, b, op_id)
 		if why_g != "":
 			return why_g
+	if bool(o.get("defenses", false)):
+		var why_d := DefensesBridges.spy_check(state, a, b, op_id)
+		if why_d != "":
+			return why_d
 	if bool(o.get("logistics", false)):
 		var why_l := Logistics.spy_check(state, a, b, op_id)
 		if why_l != "":
@@ -863,6 +867,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return Borders.spy_apply(state, a, b, o)
 	if bool(o.get("ground", false)):
 		return GroundOccupation.spy_apply(state, a, b, o)
+	if bool(o.get("defenses", false)):
+		return DefensesBridges.spy_apply(state, a, b, o)
 	if bool(o.get("logistics", false)):
 		return Logistics.spy_apply(state, a, b, o)
 	if bool(o.get("culture", false)):

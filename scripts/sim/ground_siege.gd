@@ -214,10 +214,16 @@ static func _bombard(state: GameState, sid: int, by: int, owner: int, p: String)
 	var d := posture_def(p)
 	if shielded(state, sid):
 		return
+	# Bouclier planétaire (défenses spatiales) : Bouclier I divise par deux, Dôme debout bloque tout.
+	var bp := Defenses.bombard_pct(state, sid)
+	if bp <= 0:
+		return
 	AncientsBridges.on_bombard(state, sid, by)  # Monde saint bombardé : guerre sainte
-	add_dev(state, sid, int(d.get("dev_per_day", 0)))
+	@warning_ignore("integer_division")
+	add_dev(state, sid, int(d.get("dev_per_day", 0)) * bp / 100)
 	var every := int(d.get("pop_every_days", 0))
-	if every > 0 and state.rng.randi_range(1, every) == 1:
+	@warning_ignore("integer_division")
+	if every > 0 and state.rng.randi_range(1, every * 100 / bp) == 1:
 		var best: Colony = null
 		for pid in state.galaxy.systems[sid].planet_ids:
 			var c: Colony = state.colonies.get(pid)

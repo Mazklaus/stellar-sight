@@ -422,7 +422,10 @@ static func visible_all(state: GameState) -> Array[Dictionary]:
 			continue
 		var src := sources[c.owner]
 		var sid := state.galaxy.get_planet(pid).system_id
-		src[sid] = maxi(int(src.get(sid, -1)), claim_vision[c.owner])
+		var cv := claim_vision[c.owner]
+		if c.buildings.has("module_senseurs") and not state.defenses.is_empty():
+			cv += Defenses.vision_bonus(c)  # grands senseurs de station
+		src[sid] = maxi(int(src.get(sid, -1)), cv)
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
 		if f.owner < 0 or f.owner >= count:
@@ -810,6 +813,8 @@ static func check_order(state: GameState, empire_id: int, fleet_id: int, order: 
 		return "la flotte a déjà cet ordre" if order != "" else "la flotte n'a pas d'ordre permanent"
 	if order == Fleet.ORDER_PATROL:
 		return "une patrouille se donne avec sa destination"
+	if order == Fleet.ORDER_GUARD:
+		return "la garde se donne par l'ordre Garder le système"
 	if order == Fleet.ORDER_EXPLORE and explore_target(state, f) == -1:
 		return "plus aucun système inexploré joignable par vos routes connues"
 	return ""

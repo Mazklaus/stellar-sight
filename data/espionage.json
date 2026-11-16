@@ -822,6 +822,51 @@
 			"text": "Combat au sol complet : les fortifications d'un de ses systèmes (celui que vous assiégez, sinon sa capitale) tombent à zéro et sa milice perd un tiers de ses effectifs."
 		},
 		{
+			"id": "couper_bouclier",
+			"family": "sabotage",
+			"label": "Couper un bouclier planétaire",
+			"tier": 2,
+			"cost": {
+				"influence": 30
+			},
+			"days": 40,
+			"success": 65,
+			"discovery": 30,
+			"spend": 10,
+			"defenses": true,
+			"text": "Défenses spatiales : le bouclier planétaire d'un de ses systèmes (celui où vous vous battez, sinon sa capitale) tombe pendant 30 jours."
+		},
+		{
+			"id": "couper_inhibiteur",
+			"family": "sabotage",
+			"label": "Couper un inhibiteur de saut",
+			"tier": 2,
+			"cost": {
+				"influence": 35
+			},
+			"days": 40,
+			"success": 65,
+			"discovery": 30,
+			"spend": 10,
+			"defenses": true,
+			"text": "Défenses spatiales complètes : un de ses inhibiteurs de saut se tait pendant 30 jours ; vos flottes passent sans s'arrêter."
+		},
+		{
+			"id": "saboter_plates_formes",
+			"family": "sabotage",
+			"label": "Saboter les plates-formes",
+			"tier": 2,
+			"cost": {
+				"influence": 30
+			},
+			"days": 45,
+			"success": 70,
+			"discovery": 25,
+			"spend": 10,
+			"defenses": true,
+			"text": "Défenses spatiales complètes : les plates-formes de défense d'un de ses systèmes perdent la moitié de leurs PV."
+		},
+		{
 			"id": "campagne_culturelle",
 			"family": "intrigue",
 			"label": "Campagne de propagande culturelle",

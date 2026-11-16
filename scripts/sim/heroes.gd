@@ -241,6 +241,8 @@ static func class_traits(cls: String, state: GameState = null) -> Array[String]:
 			continue  # gagné par un exploit, jamais tiré au sort
 		if td.get("combat_death", false) and (state == null or HeroFall.mode_pct(state) <= 0):
 			continue
+		if td.get("defenses", false) and (state == null or not Defenses.enabled(state)):
+			continue  # trait des défenses spatiales : seulement quand elles sont en jeu
 		if c == cls or (c == "" and not td.get("people", false) and not td.get("flaw", false)):
 			out.append(String(id))
 	return out

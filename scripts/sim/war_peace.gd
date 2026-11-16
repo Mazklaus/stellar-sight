@@ -11,7 +11,7 @@ extends RefCounted
 ## Dans chaque guerre (Wars) : "ex" (lassitude %), "pw" (puissance au début), "e100" (jour des 100 %),
 ## "lead" (clé de la guerre du chef, pour un allié entré à ses côtés), "chief", "idle".
 
-const CLAUSES: Array[String] = ["dmz", "fleet", "pass", "heroes", "convert", "regime", "transfer", "koinon", "people"]
+const CLAUSES: Array[String] = ["dmz", "fleet", "pass", "heroes", "convert", "regime", "transfer", "koinon", "people", "demil"]
 
 
 static func _cfg(k: String) -> Dictionary:
@@ -532,6 +532,9 @@ static func check_clause(state: GameState, winner: int, loser: int, k: String) -
 			var ok := Peoples.allowed_statuses(state, loser, fid)
 			if ok.is_empty() or Peoples.status(state, loser, fid) == ok[0]:
 				return "votre peuple n'a pas de statut à gagner chez lui"
+		"demil":
+			if DefensesBridges.demil_target(state, winner, loser) < 0:
+				return "il n'a aucune station de défense à démonter"
 	return ""
 
 
@@ -591,6 +594,8 @@ static func apply_clauses(state: GameState, winner: int, loser: int, terms: Dict
 				var ok := Peoples.allowed_statuses(state, loser, fid)
 				if not ok.is_empty():
 					Peoples.set_status(state, loser, fid, ok[0])
+			"demil":
+				DefensesBridges.demilitarize(state, winner, loser)
 	return cl
 
 

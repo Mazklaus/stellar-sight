@@ -1059,6 +1059,55 @@ def gen_port_talents():
     return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
 
 
+def gen_def_modes():
+    """Réglage Défenses spatiales (data/defenses.json)."""
+    d = charger("defenses.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    return f"<table class='grille'><tr><th>Défenses spatiales</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_def_stations():
+    """Paliers de la station et leur cœur (data/defenses.json, stations et core)."""
+    d = charger("defenses.json")
+    b = charger("buildings.json")
+    l1 = ""
+    for t in ["1", "2", "3"]:
+        st, c = d["stations"][t], d["core"][t]
+        bd = b.get(st["building"], {})
+        armes = ", ".join(f"{k} {v}" for k, v in c["weapons"].items())
+        l1 += (f"<tr><td><b>{esc(st['label'])}</b></td><td>{st['slots']}</td><td>{st['capacity']}</td>"
+               f"<td>{c['hp']} PV, blindage {c['armor']}, bouclier {c['shield']}</td><td>{esc(armes)}</td>"
+               f"<td>{d['cover']['pct'][int(t)]} %</td><td>+{bd.get('garrison', 0)}</td></tr>")
+    return ("<table class='grille'><tr><th>Palier</th><th>Modules</th><th>Places</th><th>Cœur</th><th>Armes</th>"
+            f"<th>Couverture</th><th>Garnison</th></tr>{l1}</table>")
+
+
+def gen_def_elements():
+    """Modules, plates-formes et défenses planétaires (data/buildings.json, rôle « defense »)."""
+    b = charger("buildings.json")
+    noms = {"module": "Module", "platform": "Plate-forme", "planetary": "Planétaire", "shield": "Bouclier"}
+    l1 = ""
+    for k, v in b.items():
+        r = v.get("defense") if isinstance(v, dict) else None
+        if not isinstance(r, str):
+            continue
+        cout = ", ".join(f"{n} {r2}" for r2, n in v.get("cost", {}).items())
+        l1 += f"<tr><td><b>{esc(v['label'])}</b></td><td>{noms.get(r, r)}</td><td>{esc(cout)}</td><td>{inline(v.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Élément</th><th>Rôle</th><th>Coût</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_def_talents():
+    """Talents de défense par couche (data/defenses.json, talents)."""
+    d = charger("defenses.json")
+    lignes = ""
+    for couche, t in d["talents"].items():
+        if couche.startswith("_"):
+            continue
+        for k, v in t.items():
+            lignes += f"<tr><td>{esc(couche.capitalize())}</td><td>{esc(k.capitalize())}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -1084,6 +1133,8 @@ GENERATEURS = {
     "priv_modes": gen_priv_modes, "priv_impot": gen_priv_impot, "priv_secteurs": gen_priv_secteurs,
     "priv_chartes": gen_priv_chartes, "priv_talents": gen_priv_talents,
     "port_modes": gen_port_modes, "port_niveaux": gen_port_niveaux, "port_talents": gen_port_talents,
+    "def_modes": gen_def_modes, "def_stations": gen_def_stations, "def_elements": gen_def_elements,
+    "def_talents": gen_def_talents,
 }
 
 

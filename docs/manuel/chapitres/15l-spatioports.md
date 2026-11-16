@@ -55,7 +55,7 @@ Le réseau a besoin de cargos : **1 par colonie** hors du système d'un port, **
 
 Chaque port garde une **réserve** : 30 jours par niveau, doublée pour le Grand port (et par Spatioports de transit). Un port **coupé** du réseau, ou **bloqué** par une flotte armée ennemie en guerre dans son système, continue de desservir tant que sa réserve dure ; reliée, elle se recharge de 3 jours par jour.
 
-- **Blocus** : annoncé par le chroniqueur ; chaque mois, l'empire qui bloque **pille** 10 énergie et 10 matériaux par niveau de port.
+- **Blocus** : annoncé par le chroniqueur ; chaque mois, l'empire qui bloque **pille** 10 énergie et 10 matériaux par niveau de port. Une station de défense qui tient l'orbite empêche le blocus (chapitre 31).
 - **Liaisons coupées** : une flotte ennemie qui tient un système sur le chemin coupe la chaîne ; ce qui est derrière vit sur ses réserves, puis devient une enclave.
 - **Pirates** : le risque pirate d'un système retire de 5 à 20 % de desserte à ses colonies.
 - **Ravitaillement** : un Spatioport ou un Grand port sert de dépôt de flotte (logistique en jeu).

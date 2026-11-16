@@ -150,6 +150,13 @@ static func _move(state: GameState, f: Fleet) -> void:
 		Borders.charge_toll(state, f, f.system_id)
 		if f.is_moving() and Combat.blocks(state, f.owner, f.system_id, f):
 			f.path.clear()  # blocus : impossible de passer sans livrer bataille
+		# Défenses spatiales : l'inhibiteur de saut retient l'ennemi ; un champ de mines lui coûte la fin
+		# du trajet du jour.
+		var dx := Defenses.on_enter(state, f, f.system_id)
+		if dx == 2:
+			f.path.clear()
+		elif dx == 1:
+			break
 	f.progress = 0  # arrivée : le reste du trajet du jour est perdu
 
 

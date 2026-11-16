@@ -429,7 +429,8 @@
 		"minor_conquest": "peuple pré-spatial conquis (Non-ingérence)",
 		"minor_protege": "protégé d'un autre amphictyon conquis (peuples mineurs)",
 		"ruin_wonder": "merveille réduite en ruine (Patrimoine des merveilles)",
-		"megastructure": "mégastructure lancée malgré le Moratoire"
+		"megastructure": "mégastructure lancée malgré le Moratoire",
+		"mines": "champ de mines posé malgré les Lois de la guerre (Guerre réglée)"
 	},
 	"families": [
 		{
@@ -904,7 +905,7 @@
 			"requires": "wars",
 			"a": {
 				"label": "Lois de la guerre",
-				"text": "La guerre a ses règles : prisonniers épargnés, mondes peuplés protégés, puis guerres limitées entre amphictyons. Les enfreindre est un crime de guerre.",
+				"text": "La guerre a ses règles : prisonniers épargnés, mondes peuplés protégés, puis guerres limitées entre amphictyons et mines interdites (défenses spatiales). Les enfreindre est un crime de guerre.",
 				"levels": [
 					{
 						"name": "Convention des prisonniers",
@@ -925,7 +926,10 @@
 					{
 						"name": "Guerre réglée",
 						"fx": {},
-						"limited_members": true
+						"limited_members": true,
+						"bans": [
+							"mines"
+						]
 					}
 				]
 			},

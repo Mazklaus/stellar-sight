@@ -420,7 +420,8 @@ static func _compute_empire(state: GameState, eid: int) -> void:
 		n["bk"] = 0
 		var down := false
 		if is_full:
-			if Combat.blocks(state, eid, sid):
+			# Une station de défense qui tient l'orbite empêche le blocus (pont avec les défenses spatiales).
+			if Combat.blocks(state, eid, sid) and not (state.system_owner(sid) == eid and Defenses.holds(state, sid)):
 				n["bk"] = 1
 				down = true
 			if int((state.ports["dis"] as Dictionary).get(str(sid), 0)) > state.tick or int((state.ports["strike"] as Dictionary).get(str(sid), 0)) > state.tick:
