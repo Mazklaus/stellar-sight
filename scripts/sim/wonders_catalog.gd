@@ -352,6 +352,7 @@ static func _architect(state: GameState, eid: int, pid: int, added: Array[Dictio
 	var h := Heroes.at_post(state, "system", state.galaxy.get_planet(pid).system_id, eid)
 	if not h.is_empty():
 		CrisisAllies._give(state, h, "architecte", added)
+		Heroes.gain_xp(state, h, 100)  # le héros posté à l'achèvement y gagne en renommée
 
 
 ## Cartothèque des vents : révèle les systèmes à `radius` sauts.

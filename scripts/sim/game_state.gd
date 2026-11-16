@@ -270,6 +270,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	s.victory_rules["diplomatique"] = bool(vic.get("diplomatique", true))
 	if vic.has("rayonnement"):
 		s.victory_rules["rayonnement"] = bool(vic["rayonnement"])  # Grand Rayonnement (voir Culture)
+	s.victory_rules["oeuvres"] = bool(vic.get("oeuvres", false))  # Grands Œuvres (voir WondersBridges)
 	s.ai_scaling = bool(options.get("ai_scaling", false))
 	s._setup_empires(player_faction, options.get("rivals", null), bool(options.get("duplicates", false)), options.get("distances", []))
 	s._setup_colors(options.get("colors", []))
@@ -623,6 +624,9 @@ static func from_dict(d: Dictionary) -> GameState:
 		s.victory_rules[k] = bool(vr.get(k, true))
 	s.victory_rules["spirituelle"] = bool(vr.get("spirituelle", false))
 	s.victory_rules["diplomatique"] = bool(vr.get("diplomatique", true))
+	for k in ["rayonnement", "oeuvres"]:
+		if vr.has(k):
+			s.victory_rules[k] = bool(vr[k])
 	s.ai_scaling = bool(d.get("ai_scaling", false))
 	var w: Dictionary = d.get("winner", {})
 	if not w.is_empty():

@@ -270,6 +270,18 @@
 			"hold_days": 360,
 			"on_fail": "reset",
 			"chronicle": "L'Idole des étoiles : %s ne gouverne personne, mais tout le monde danse sur sa musique. Les autres empires ont encore des drapeaux ; plus personne ne se souvient de leurs hymnes."
+		},
+		"oeuvres": {
+			"kind": "classic",
+			"label": "Les Grands Œuvres",
+			"option": true,
+			"wonders": true,
+			"text": "Tenir %d Grands Œuvres (structures d'ère V, chacun dans un autre système et 50 %% plus cher que le précédent) et les garder %d an(s). Ils se prennent par la conquête.",
+			"counter": "Prendre ses Grands Œuvres, saboter ses chantiers, voler les plans, ou en bâtir plus vite que lui.",
+			"hold_days": 360,
+			"on_fail": "reset",
+			"chronicle": "Les Grands Œuvres : les structures de %s dominent le ciel, et la galaxie entière lève les yeux.",
+			"src": "Victoire Merveille d'Endless Space 2 ; Obélisques"
 		}
 	}
 }

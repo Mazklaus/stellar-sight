@@ -252,7 +252,8 @@
 			"goals": [
 				"conquete",
 				"humiliation",
-				"rancon"
+				"rancon",
+				"merveille"
 			],
 			"memory": "",
 			"text": "Vous revendiquez certains de ses systèmes : la galaxie comprend, sans approuver."
@@ -288,7 +289,8 @@
 			"goals": [
 				"humiliation",
 				"rancon",
-				"demanteler"
+				"demanteler",
+				"merveille"
 			],
 			"memory": "",
 			"text": "Il a rompu un traité avec vous, ou ses espions ont été pris chez vous.",
@@ -311,7 +313,8 @@
 			"goals": [
 				"conquete",
 				"humiliation",
-				"rancon"
+				"rancon",
+				"merveille"
 			],
 			"memory": "",
 			"text": "Votre foi vous en donne le droit (voir l'écran Foi)."
@@ -368,7 +371,8 @@
 			"goals": [
 				"conquete",
 				"humiliation",
-				"rancon"
+				"rancon",
+				"merveille"
 			],
 			"memory": "",
 			"just": true,
@@ -427,7 +431,8 @@
 			"goals": [
 				"conquete",
 				"humiliation",
-				"rancon"
+				"rancon",
+				"merveille"
 			],
 			"memory": "aggressor",
 			"aggression": true,
@@ -440,7 +445,8 @@
 			"goals": [
 				"conquete",
 				"humiliation",
-				"rancon"
+				"rancon",
+				"merveille"
 			],
 			"memory": "",
 			"text": "Il a conquis le peuple mineur dont vous étiez le suzerain : vous venez le libérer. Reprendre son monde fait de vous son suzerain.",
@@ -567,6 +573,15 @@
 			"price": 30,
 			"defense_only": true,
 			"text": "Le sécessionniste rentre dans le Koinon et ne pourra plus le quitter avant 5 ans."
+		},
+		{
+			"id": "merveille",
+			"label": "Prendre la merveille",
+			"accept": -50,
+			"objective": "battles",
+			"req": "wonder",
+			"price": 40,
+			"text": "Le vaincu cède le système de sa plus grande merveille (hors capitale), avec la merveille et ce qu'elle rapporte."
 		}
 	],
 	"names": {

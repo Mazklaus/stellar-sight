@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.18"
+EDITION = "2.19"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -634,7 +634,8 @@ def gen_rayonnement_merveilles():
     """Musée, villégiature et merveilles culturelles (data/buildings.json, champ culture)."""
     tech = charger("technologies.json")["technologies"]
     lignes = ""
-    for bid, b in charger("buildings.json").items():
+    batiments = list(charger("buildings.json").items()) + list(charger("wonders.json")["wonders"].items())
+    for bid, b in batiments:
         if not isinstance(b, dict) or not b.get("culture"):
             continue
         req = ", ".join(tech.get(t, {}).get("label", t) for t in b.get("requires_tech", []))
@@ -658,6 +659,72 @@ def gen_rayonnement_talents():
     return (f"<table class='grille'><tr><th>Couche</th><th>Talent</th><th>Effet</th></tr>{lignes}</table>")
 
 
+NOMS_RES = {**FX_TEXTE, "crystals": "cristaux"}
+
+
+def gen_merveilles_modes():
+    """Réglage Merveilles (data/wonders.json, modes)."""
+    d = charger("wonders.json")
+    lignes = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>"
+                     for m in d.get("modes", []))
+    return f"<table class='grille'><tr><th>Merveilles</th><th>Effet</th></tr>{lignes}</table>"
+
+
+def site_texte(site):
+    """Condition de site d'une merveille, en clair."""
+    types = {p: v.get("label", p) for p, v in charger("planet_types.json").items() if isinstance(v, dict)}
+    morceaux = []
+    for k, v in site.items():
+        if k == "capital": morceaux.append("capitale")
+        elif k == "min_pop": morceaux.append(f"{v} population")
+        elif k == "min_size": morceaux.append(f"planète de taille {v}+")
+        elif k == "crossroads": morceaux.append(f"carrefour de {v} routes")
+        elif k == "border": morceaux.append("monde frontalier")
+        elif k == "building": morceaux.append(f"avec {charger('buildings.json').get(v, {}).get('label', v).lower()}")
+        elif k == "or_building": morceaux.append(f"ou {charger('buildings.json').get(v, {}).get('label', v).lower()}")
+        elif k == "planet": morceaux.append("monde " + " ou ".join(types.get(p, p).lower() for p in v))
+        elif k == "star": morceaux.append("étoile : " + ", ".join({"blue_giant": "géante bleue", "black_hole": "trou noir"}.get(s, s) for s in v))
+        elif k == "or_star": morceaux.append("ou trou noir")
+        elif k == "terrain": morceaux.append("terrain : " + ", ".join(t.replace("_", " ") for t in v))
+        elif k == "storm_or_terrain": morceaux.append("terrain difficile")
+        elif k == "nest": morceaux.append("nid de créatures proche")
+        elif k == "ancient_near": morceaux.append(f"ancienne à {v} sauts")
+        elif k == "min_species": morceaux.append(f"{v} peuples sur le monde")
+        elif k == "holy": morceaux.append("monde saint")
+        elif k == "trade_route": morceaux.append("sur une route commerciale")
+        elif k == "no_habitable": morceaux.append("étoile sans monde habitable")
+        elif k == "amph": morceaux.append("membre de l'Amphictyonie")
+        elif k == "amph_seat": morceaux.append("capitale d'un amphictyon")
+        elif k == "outpost_ok": morceaux.append("avant-poste possible")
+        elif k == "distinct_system": morceaux.append("un par système")
+    return ", ".join(morceaux) or "partout"
+
+
+def gen_merveilles():
+    """Catalogue des merveilles par famille (data/wonders.json)."""
+    d = charger("wonders.json")
+    tech = charger("technologies.json")["technologies"]
+    out = ""
+    for fam, nom in d["families"].items():
+        lignes = ""
+        for wid, w in d["wonders"].items():
+            if w.get("family") != fam:
+                continue
+            if w.get("requires_tech"):
+                deb = ", ".join(tech.get(t, {}).get("label", t) for t in w["requires_tech"])
+            else:
+                deb = f"ère {w.get('unlock_era', w.get('era', 1))}"
+            extra = w.get("registre") or w.get("credo") or ""
+            if extra:
+                deb += f" ({extra})"
+            cout = ", ".join(f"{v} {NOMS_RES.get(k, k)}" for k, v in w.get("cost", {}).items())
+            lignes += (f"<tr><td><b>{esc(w['label'])}</b><br><span class='petit'>ère {w.get('era', 1)}, {w.get('days', 360)} j</span></td>"
+                       f"<td>{esc(deb)}</td><td>{esc(site_texte(w.get('site', {})))}</td><td>{esc(cout)}</td><td>{inline(w.get('text', ''))}</td></tr>")
+        if lignes:
+            out += (f"<h4>{esc(nom)}</h4><table class='grille'><tr><th>Merveille</th><th>Déblocage</th><th>Site</th><th>Coût</th><th>Effet</th></tr>{lignes}</table>")
+    return out
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -671,6 +738,7 @@ GENERATEURS = {
     "mineurs_talents": gen_mineurs_talents,
     "rayonnement_modes": gen_rayonnement_modes, "rayonnement_paliers": gen_rayonnement_paliers,
     "rayonnement_merveilles": gen_rayonnement_merveilles, "rayonnement_talents": gen_rayonnement_talents,
+    "merveilles_modes": gen_merveilles_modes, "merveilles": gen_merveilles,
 }
 
 

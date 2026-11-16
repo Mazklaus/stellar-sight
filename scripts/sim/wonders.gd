@@ -232,6 +232,8 @@ static func is_staging(state: GameState, wid: String, pid: int) -> bool:
 
 ## Rendement d'une merveille dans sa colonie : celui de l'étape atteinte pour une mégastructure.
 static func yields_of(state: GameState, pid: int, wid: String) -> Dictionary:
+	if WondersBridges.shared_yields(wid):
+		return {}  # œuvre du Koinon : partagée chaque mois entre ceux qui ont versé
 	var st := stage_at(state, wid, pid)
 	var sts := stages(wid)
 	if st > 0 and st <= sts.size():
@@ -527,6 +529,9 @@ static func check_start(state: GameState, eid: int, pid: int, wid: String) -> St
 		var cw := WondersBridges.check_collective(state, eid, wid)
 		if cw != "":
 			return cw
+	var nb := WondersBridges.check_nomos(state, eid, wid)
+	if nb != "":
+		return nb
 	if not unlocked(state, eid, wid):
 		if d.has("credo") and String(e.faction().get("credo", "")) != String(d["credo"]):
 			return "réservée au credo : %s" % String(d["credo"])

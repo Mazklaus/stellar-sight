@@ -18,6 +18,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Associé | Membre d'un Koinon sans voix ni bonus de forme, protégé et soumis aux lois | 11 |
 | Avant-poste | Revendication sans habitants, qui exploite les gisements et étend la vision | 3 |
 | Avatar | Le héros d'une ruche ou d'une conscience : ni ambition, ni désertion, ni capture | 16 |
+| Bâtisseur | Haut fait du premier empire à tenir trois merveilles galactiques | 23 |
 | Bourse galactique | Merveille unique qui fonde le marché commun | 9 |
 | Chancelier des étoiles | Le titre que l'Amphictyonie décerne, et qui donne la victoire diplomatique | 12, 18 |
 | Cimetière d'épaves | Système où se sont accumulées trente épaves : transit plus long, couvert, matériaux récupérés (terrain) | 7 |
@@ -60,15 +61,17 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Ferveur | Jauge propre aux théocraties du Chœur et des Murmurants | 20 |
 | Fin de partie | Date à partir de laquelle une crise peut se lever, avancée par les actes imprudents | 19 |
 | Fléau des étoiles | Le dernier palier de l'Ambition démesurée : guerre de toute la galaxie, et la Couronne du Néant à bâtir | 19 |
-| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 25 |
+| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 26 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
 | Fortifications | Remparts d'un système, que le siège use avant la milice (combat au sol complet) | 7 |
 | Fouille | Site exploré en plusieurs chapitres, avec une relique au bout | 17 |
 | Front commun | Coalition contre la crise : vision partagée, passage libre, +10 % de dégâts contre elle | 19 |
 | Frontière | Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe | 8 |
-| Gardien | Créature unique assise sur un des meilleurs systèmes | 25 |
+| Gardien | Créature unique assise sur un des meilleurs systèmes | 26 |
+| Grand chantier | Chantier de merveille, à part de la file de la colonie : avance de 20 %, puis mensualités ; un à la fois | 23 |
 | Grand chantier commun | Phare des Âges ou Banque des Étoiles : le projet que tous financent pour arrêter une crise sans flotte | 19 |
 | Grand Rayonnement | Victoire classique : être Influent chez chaque empire rencontré pendant deux ans | 22 |
+| Grands Œuvres | Victoire en option : tenir 2 à 5 Grands Œuvres d'ère V un an | 23 |
 | Grief | Un an pendant lequel attaquer celui qui vous espionnait n'est pas un parjure | 13, 7 |
 | Guerre froide | Le statut de départ entre deux empires qui se rencontrent | 8 |
 | Haute Voûte | Le haut conseil de l'Amphictyonie : veto, urgence, dénonciation | 12 |
@@ -91,8 +94,9 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Luxe | Ressource rare qui compte par variété : stabilité et petit effet | 9 |
 | Marché commun | Prix partagés par toute la galaxie, une fois la Bourse fondée | 9 |
 | Marque | Niveau d'une famille d'armes ou de défenses, de I à V | 5 |
+| Mégastructure | Merveille par empire, bâtie par étapes qui produisent dès qu'elles sont franchies | 23 |
 | Menace | La jauge de l'empire qui a pris la voie de l'Ambition démesurée : trois paliers, jusqu'au Fléau des étoiles | 19 |
-| Merveille | Bâtiment unique dans la galaxie, au premier qui l'achève | 3 |
+| Merveille | Monument unique dans la galaxie : vraie course, au premier qui l'achève ; les autres gardent leur mise 90 jours | 23 |
 | Mesures d'urgence | Trois décrets pris pendant une crise, qui durent jusqu'à sa fin | 19 |
 | Milice | Les habitants en armes : la garnison, qui se bat au sol contre les régiments qui débarquent | 7 |
 | Monde saint | Le monde où une foi est née, qui prêche quatre fois plus fort | 15 |
@@ -115,6 +119,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Peuple mineur | Petite civilisation neutre qu'on courtise par la faveur, protège, intègre ou conquiert | 21 |
 | Point faible | Station immobile d'une crise (Monde-Récif, Bureau de contrôle, ancre, Repaire de la Horde) : la détruire l'affaiblit | 19 |
 | Port franc | Repaire pirate rangé : mercenaires, héros et marché noir | 17 |
+| Porte stellaire | Mégastructure : vos flottes sautent d'une porte à l'autre en un jour | 23 |
 | Pré-spatial | Peuple mineur qui n'a pas quitté son monde et traverse six âges | 21 |
 | Préavis | L'IA masse ses flottes avant de déclarer ; les espions le voient | 7 |
 | Précepte | Règle partagée par tous les empires d'une foi | 15 |
@@ -133,6 +138,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Revendication | Droit acheté en influence sur un système d'un autre empire | 7 |
 | Riposte | Combat sans guerre contre l'intrus qui a ignoré votre sommation, en guerre froide seulement | 8 |
 | Route commerciale | Lien mensuel entre deux empires qui commercent, payé aux deux bouts | 9 |
+| Ruine (merveille) | Merveille d'un âge oublié, à restaurer pour 60 % par qui tient sa planète | 23 |
 | Sans-Bannière | Les mondes libres, nés des sécessions et des convois | 14, 3 |
 | Score de guerre | Les vaisseaux détruits et les systèmes pris, qui paient la paix | 7 |
 | Session extraordinaire | Vote d'urgence de l'Amphictyonie après une crise | 12 |
@@ -158,6 +164,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Voile | Une nébuleuse arrête la vue : on n'y voit pas de l'extérieur, et on n'y voit que son système | 7 |
 | Zèle | La vigueur d'une grande foi, de 0 à 100 | 15 |
 | Zone de ravitaillement | Vos systèmes et ceux qui vous ravitaillent, plus 2 sauts autour : les flottes y refont leurs réserves | 7 |
+| Œuvre collective | Merveille bâtie à plusieurs (Koinon, Amphictyonie, Front commun), effet partagé | 23 |
 
 ::: marge
 Il manque un mot : « bureaucratie ». Les Archives ont demandé qu'on l'ajoute. La demande est en cours d'examen.

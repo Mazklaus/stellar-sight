@@ -80,7 +80,7 @@ static func choose(ctx: Dictionary, seen: Dictionary) -> Array:
 	var cands: Array = []
 	for wid in Wonders.all_ids():
 		var d := Wonders.def(wid)
-		if d.has("collective") or not Wonders.visible_for(state, e.id, wid) or not Wonders.unlocked(state, e.id, wid):
+		if not Wonders.visible_for(state, e.id, wid) or not Wonders.unlocked(state, e.id, wid):
 			continue
 		if not Wonders.build_of(state, e.id, wid).is_empty():
 			continue

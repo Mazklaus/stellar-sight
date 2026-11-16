@@ -144,7 +144,7 @@ var people_victories := true
 var _deadline_select: OptionButton
 var _people_check: CheckBox
 ## Victoires classiques en jeu et alliés qui gagnent ensemble (GameState.victory_rules).
-var victories := {"conquete": true, "domination": true, "allies": true, "spirituelle": false, "diplomatique": true, "rayonnement": true}
+var victories := {"conquete": true, "domination": true, "allies": true, "spirituelle": false, "diplomatique": true, "rayonnement": true, "oeuvres": false}
 var _victory_checks := {}
 ## Difficulté progressive : les bonus des IA Expert et Légende montent avec le temps.
 var ai_scaling := false
@@ -2371,6 +2371,7 @@ func _build_new_page(root: Control) -> void:
 		"allies": ["Alliés ensemble", "Les alliés additionnent leurs conquêtes et leurs systèmes, et gagnent ensemble\n(Endless Space 2). Décoché : chacun pour soi, même allié."],
 		"spirituelle": ["Spirituelle", "Avec les religions : votre foi d'État majoritaire dans plus de la moitié des colonies\nde chaque empire survivant, tenue 5 ans (Civilization VI). En option, décochée par défaut."],
 		"rayonnement": ["Grand Rayonnement", "Avec le rayonnement culturel : votre culture Influente chez chaque empire survivant\nrencontré, tenue 2 ans (Civilization V et VI). Alertes à toute la galaxie à la moitié et aux trois quarts."],
+		"oeuvres": ["Grands Œuvres", "Avec les merveilles : tenir 2 à 5 Grands Œuvres d'ère V selon la taille de la galaxie,\nchacun 50 % plus cher que le précédent, et les garder un an (Endless Space 2). En option, décochée par défaut."],
 		"diplomatique": ["Diplomatique", "Avec l'Amphictyonie : être élu Chancelier des étoiles (dès l'an 30, tous les 10 ans)\navec 67 % de toutes les voix d'une assemblée qui réunit 75 % des empires, puis faire accepter le verdict."],
 	}
 	for key in ["conquete", "domination"]:
@@ -2381,6 +2382,7 @@ func _build_new_page(root: Control) -> void:
 	grid.add_child(_victory_check("spirituelle", vtips["spirituelle"]))
 	grid.add_child(_victory_check("diplomatique", vtips["diplomatique"]))
 	grid.add_child(_victory_check("rayonnement", vtips["rayonnement"]))
+	grid.add_child(_victory_check("oeuvres", vtips["oeuvres"]))
 	set_deadline(deadline_days)
 	var back_b := Widgets.RoundButton.new("back", "Retour")
 	back_b.tooltip_text = "Échap"

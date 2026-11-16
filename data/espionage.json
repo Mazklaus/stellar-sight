@@ -8,7 +8,13 @@
 	],
 	"cells": {
 		"start": 2,
-		"per_era": [0, 0, 1, 1, 2],
+		"per_era": [
+			0,
+			0,
+			1,
+			1,
+			2
+		],
 		"_per_era": "cellules en plus selon l'ère atteinte (ère 1 à 5)"
 	},
 	"network": {
@@ -19,153 +25,787 @@
 		"border_bonus": 1,
 		"war_malus": 2,
 		"counter_per_cell": 2,
-		"crypto_pct": [25, 50, 100, 150, 200],
+		"crypto_pct": [
+			25,
+			50,
+			100,
+			150,
+			200
+		],
 		"_crypto_pct": "croissance en % selon déchiffrement de l'espion moins chiffrement de la cible : -2 ou moins, -1, 0, +1, +2 ou plus",
 		"home_cell_encryption": 1
 	},
 	"tiers": [
-		{"id": "cartographes", "at": 20, "label": "Cartographes",
-			"text": "Les relevés de ses systèmes se mettent à jour chaque mois, même hors de vue."},
-		{"id": "comptables", "at": 40, "label": "Comptables",
-			"text": "Ses ressources, sa recherche en cours et ses technologies ; ses affaires intérieures arrivent dans notre chronique."},
-		{"id": "amiraute", "at": 60, "label": "Amirauté",
-			"text": "Ses flottes : combien, où, et combien de vaisseaux de guerre."},
-		{"id": "conseil", "at": 80, "label": "Conseil",
-			"text": "Ce qu'il pense de chacun : ses guerres, ses haines et ses amitiés."}
+		{
+			"id": "cartographes",
+			"at": 20,
+			"label": "Cartographes",
+			"text": "Les relevés de ses systèmes se mettent à jour chaque mois, même hors de vue."
+		},
+		{
+			"id": "comptables",
+			"at": 40,
+			"label": "Comptables",
+			"text": "Ses ressources, sa recherche en cours et ses technologies ; ses affaires intérieures arrivent dans notre chronique."
+		},
+		{
+			"id": "amiraute",
+			"at": 60,
+			"label": "Amirauté",
+			"text": "Ses flottes : combien, où, et combien de vaisseaux de guerre."
+		},
+		{
+			"id": "conseil",
+			"at": 80,
+			"label": "Conseil",
+			"text": "Ce qu'il pense de chacun : ses guerres, ses haines et ses amitiés."
+		}
 	],
 	"operations": [
-		{"id": "rapport", "family": "renseignement", "label": "Rapport complet", "tier": 1,
-			"cost": {"influence": 20}, "days": 30, "success": 85, "discovery": 10, "spend": 5,
-			"text": "Un dossier complet (comme au palier Conseil) et les relevés de tous ses systèmes, une fois."},
-		{"id": "vol_techno", "family": "larcin", "label": "Voler une technologie", "tier": 2,
-			"cost": {"influence": 40}, "days": 60, "success": 70, "discovery": 25, "spend": 15, "steal_pct": 40,
-			"text": "40 % d'une technologie qu'il connaît et pas vous (la plus chère qu'on puisse chercher)."},
-		{"id": "siphon", "family": "larcin", "label": "Siphonner l'énergie", "tier": 2,
-			"cost": {"influence": 25}, "days": 30, "success": 75, "discovery": 20, "spend": 10, "take_pct": 20, "take_max": 150,
-			"text": "20 % de sa réserve d'énergie (150 au plus) passent dans la vôtre."},
-		{"id": "sabotage_chantier", "family": "sabotage", "label": "Saboter un chantier", "tier": 3,
-			"cost": {"influence": 50}, "days": 45, "success": 65, "discovery": 35, "spend": 20, "delay_days": 60,
-			"text": "Le chantier spatial le plus avancé de sa capitale (ou de sa plus grande colonie) prend 60 jours de retard."},
-		{"id": "archives", "family": "sabotage", "label": "Brûler des archives", "tier": 3,
-			"cost": {"influence": 50}, "days": 45, "success": 65, "discovery": 35, "spend": 20, "burn_pct": 50,
-			"text": "La moitié du Savoir déjà accumulé sur sa recherche en cours part en fumée."},
-		{"id": "discorde", "family": "intrigue", "label": "Semer la discorde", "tier": 3,
-			"cost": {"influence": 50}, "days": 60, "success": 60, "discovery": 35, "spend": 20,
-			"text": "De fausses preuves accusent l'empire qu'il aime le plus de l'espionner : leur amitié en prend un coup pour quatre ans."},
-		{"id": "heritier", "family": "intrigue", "label": "Corrompre l'héritier", "tier": 3,
-			"cost": {"influence": 40}, "days": 45, "success": 70, "discovery": 30, "spend": 15, "loyalty_loss": 30,
-			"text": "Une dynastie seulement : l'héritier perd 30 de loyauté, en secret, et c'est à vous qu'il livrera son fief s'il trahit."},
-		{"id": "dossier_heros", "family": "renseignement", "label": "Dossier des héros", "tier": 2,
-			"cost": {"influence": 20}, "days": 30, "success": 85, "discovery": 10, "spend": 5,
-			"text": "La liste de ses héros : classe, niveau, poste et loyauté, à la date du dossier."},
-		{"id": "corrompre", "family": "intrigue", "label": "Corrompre un héros", "tier": 3,
-			"cost": {"influence": 40}, "days": 45, "success": 65, "discovery": 30, "spend": 15, "loyalty_loss": 30,
-			"text": "Son meilleur héros (pas un Avatar) perd 30 de loyauté, en secret ; s'il déserte, c'est chez vous qu'il viendra."},
-		{"id": "exfiltration", "family": "larcin", "label": "Exfiltrer un prisonnier", "tier": 3,
-			"cost": {"influence": 50}, "days": 45, "success": 55, "discovery": 35, "spend": 20,
-			"text": "Un de vos héros qu'il retient prisonnier s'évade et rentre chez vous."},
-		{"id": "assassinat", "family": "sabotage", "label": "Assassiner un héros", "tier": 4,
-			"cost": {"influence": 80}, "days": 60, "success": 35, "discovery": 50, "spend": 30,
-			"text": "Son meilleur héros meurt, Avatars compris. Les chances sont minces, le scandale certain si l'on vous prend."},
-		{"id": "dissidence", "family": "intrigue", "label": "Attiser la dissidence", "tier": 2,
-			"cost": {"influence": 35}, "days": 45, "success": 70, "discovery": 25, "spend": 15,
-			"text": "Tracts, rumeurs et meneurs payés : son système le moins stable (hors capitale) perd 15 de stabilité pendant un an."},
-		{"id": "partisans", "family": "sabotage", "label": "Armer des partisans", "tier": 3,
-			"cost": {"influence": 50}, "days": 60, "success": 60, "discovery": 35, "spend": 20,
-			"text": "Des rebelles se lèvent dans son système le moins stable, s'il est en Agitation ou en Révolte."},
-		{"id": "larcin_relique", "family": "larcin", "label": "Larcin de relique", "tier": 3,
-			"cost": {"influence": 60}, "days": 60, "success": 50, "discovery": 40, "spend": 25,
-			"text": "Une relique de son Reliquaire (pas celles que portent ses héros) passe dans le vôtre. Un coup d'éclat : on en parle longtemps, surtout si l'on est pris."},
-		{"id": "convoi", "family": "larcin", "label": "Détourner un convoi", "tier": 2, "cost": {"influence": 30}, "days": 30, "success": 70, "discovery": 25, "spend": 10, "text": "Un mois du revenu de ses routes commerciales (200 énergie au plus) finit dans vos coffres."},
-		{"id": "contrebande", "family": "larcin", "label": "Contrebande", "tier": 2, "cost": {"influence": 30}, "days": 45, "success": 70, "discovery": 25, "spend": 10, "text": "Un de ses luxes que vous n'avez pas vous parvient pendant un an, sans traité ni loyer."},
-		{"id": "initie", "family": "renseignement", "label": "Délit d'initié", "tier": 2, "cost": {"influence": 25}, "days": 30, "success": 80, "discovery": 15, "spend": 5, "text": "Ses courtiers savent avant tout le monde : vous apprenez le prochain krach ou la prochaine envolée du marché (date et ressource)."},
-		{"id": "inciter", "family": "intrigue", "label": "Inciter les pirates", "tier": 3,
-			"cost": {"influence": 40}, "days": 45, "success": 65, "discovery": 30, "spend": 15,
-			"text": "Un repaire que vos agents connaissent lance un raid contre lui, à vos frais nuls et à son insu (il faut un de ses systèmes à portée du repaire)."},
-		{"id": "etouffer", "family": "sabotage", "label": "Étouffer une étoile", "tier": 3,
-			"cost": {"influence": 50, "energy": 60}, "days": 60, "success": 60, "discovery": 35, "spend": 20,
-			"text": "Une dent du Mange-soleil glissée dans l'étoile de sa capitale : −50 % de production dans ce système pendant six mois (il faut avoir abattu le Mange-soleil)."},
-		{"id": "appat", "family": "sabotage", "label": "Appât", "tier": 2,
-			"cost": {"influence": 40, "energy": 50}, "days": 45, "success": 60, "discovery": 30, "spend": 15,
-			"text": "Des balises odorantes semées chez lui : un fléau errant change de route vers ses colonies, ou, à défaut, un troupeau hostile proche (5 sauts) vient se servir chez lui."},
-		{"id": "truquer", "family": "intrigue", "label": "Truquer l'élection", "tier": 2,
-			"cost": {"influence": 40}, "days": 45, "success": 65, "discovery": 30, "spend": 15,
-			"text": "Urnes à double fond et bulletins bien imprimés : au prochain vote de la cible, le courant en tête chez vous pèse 20 % de plus dans chaque tirage."},
-		{"id": "financer_opposition", "family": "intrigue", "label": "Financer l'opposition", "tier": 2,
-			"cost": {"influence": 35}, "days": 45, "success": 70, "discovery": 25, "spend": 15,
-			"text": "Le plus grand courant d'opposition reçoit de l'argent et formule une doléance de plus, deux fois plus exigeante. S'il n'est pas écouté, ses systèmes grognent."},
-		{"id": "frictions", "family": "intrigue", "label": "Attiser les frictions", "tier": 2, "cost": {"influence": 35}, "days": 45, "success": 70, "discovery": 25, "spend": 15, "peoples": true, "text": "Peuples mêlés : rumeurs et provocations dans son système le plus mêlé, -15 de stabilité pendant un an."},
-		{"id": "appel_retour", "family": "intrigue", "label": "Appel au retour", "tier": 2, "cost": {"influence": 30}, "days": 45, "success": 75, "discovery": 20, "spend": 10, "peoples": true, "text": "Peuples mêlés : 3 des vôtres qui vivent chez lui rentrent au pays, avec leurs savoir-faire."},
-		{"id": "propagande", "family": "intrigue", "label": "Propagande xénophobe", "tier": 3, "cost": {"influence": 45}, "days": 60, "success": 65, "discovery": 30, "spend": 15, "peoples": true, "text": "Peuples mêlés : pendant deux ans, ses peuples venus d'ailleurs ne s'intègrent plus qu'à moitié et le Glaive et l'Autel gagnent des voix chez lui."},
-		{"id": "prophetie", "family": "intrigue", "label": "Semer une prophétie", "tier": 3, "cost": {"influence": 60}, "days": 720, "success": 70, "discovery": 20, "spend": 15, "faiths": true, "text": "Religions : de faux prophètes annoncent la venue d'un héros de votre foi sur sa colonie la plus peuplée. Quand un de vos héros amiraux y stationne, la planète entière se convertit."},
-		{"id": "coup", "family": "intrigue", "label": "Fomenter un coup d'État", "tier": 3,
-			"cost": {"influence": 60}, "days": 90, "success": 45, "discovery": 45, "spend": 25,
-			"text": "Si sa stabilité d'empire est sous 35 : crise de régime, le courant opposé prend le pouvoir, ses lois tombent, six mois sans lois."},
-		{"id": "acheter_delegue", "family": "intrigue", "label": "Acheter un délégué", "tier": 2, "amph": true,
-			"cost": {"influence": 35}, "days": 20, "success": 65, "discovery": 30, "spend": 10, "voix_pct": 25,
-			"text": "Pendant le vote en cours de l'Amphictyonie, un quart des voix de la cible passe dans votre camp."},
-		{"id": "fuite_dossier", "family": "intrigue", "label": "Faire fuiter un dossier", "tier": 2, "amph": true,
-			"cost": {"influence": 30}, "days": 30, "success": 70, "discovery": 25, "spend": 10,
-			"text": "Des pièces embarrassantes sur la proposition que la cible a déposée à l'Amphictyonie : elle doit la retirer de la file, frais perdus."},
-		{"id": "scandale", "family": "intrigue", "label": "Monter un scandale", "tier": 3, "amph": true,
-			"cost": {"influence": 50}, "days": 60, "success": 55, "discovery": 35, "spend": 20, "voix_pct": -10, "voix_days": 2160,
-			"text": "Un scandale à l'Amphictyonie : la cible perd ses bonus de voix de proposant et 10 % de voix pendant 6 ans."},
-		{"id": "saper_autorite", "family": "intrigue", "label": "Saper l'autorité", "tier": 3, "amph": true,
-			"cost": {"influence": 50}, "days": 45, "success": 60, "discovery": 35, "spend": 15, "auth": 15,
-			"text": "Pamphlets, rumeurs de cour et caricatures : l'autorité de l'Impérateur perd 15 points. Seulement contre un Impérateur dont l'autorité est sous 50."},
-		{"id": "allumer_rebellion", "family": "intrigue", "label": "Allumer la rébellion", "tier": 3, "amph": true,
-			"cost": {"influence": 60}, "days": 60, "success": 50, "discovery": 40, "spend": 20,
-			"text": "Des agents persuadent un membre soumis de se soulever : il quitte l'Amphictyonie et entre en guerre contre la Cour. Seulement quand l'autorité de l'Impérateur est sous 50."},
-		{"id": "attiser_independance", "family": "intrigue", "label": "Attiser l'indépendance", "tier": 2, "fed": true, "cost": {"influence": 40}, "days": 60, "success": 60, "discovery": 30, "spend": 15, "loyalty": 150, "text": "Pamphlets et banquets chez le sujet d'un rival : sa loyauté envers son suzerain perd 15 points."},
-		{"id": "acheter_allegeance", "family": "intrigue", "label": "Acheter une allégeance", "tier": 3, "fed": true, "cost": {"influence": 70}, "days": 90, "success": 45, "discovery": 35, "spend": 20, "text": "Le sujet d'un rival vous jure fidélité en secret : si vous entrez en guerre contre son suzerain, il change de camp."},
-		{"id": "discorde_synode", "family": "intrigue", "label": "Semer la discorde au synode", "tier": 2, "fed": true, "cost": {"influence": 40}, "days": 60, "success": 55, "discovery": 30, "spend": 15, "cohesion": -15, "text": "Rumeurs entre les délégués d'un Koinon dont vous n'êtes pas : sa cohésion perd 15 points."},
-		{"id": "fabriquer_revendication", "family": "intrigue", "label": "Fabriquer une revendication", "tier": 2, "war": true, "cost": {"influence": 30}, "days": 60, "success": 65, "discovery": 30, "spend": 15, "text": "Chartes anciennes et généalogies retouchées : une revendication gratuite sur l'un de ses systèmes (le moins cher)."},
-		{"id": "provoquer_incident", "family": "intrigue", "label": "Provoquer un incident", "tier": 2, "war": true, "cost": {"influence": 35}, "days": 45, "success": 60, "discovery": 35, "spend": 15, "text": "Un convoi « attaqué », des témoins bien payés : vous gagnez contre lui le motif Incident de frontière pendant 5 ans."},
-		{"id": "corridor_discret", "family": "renseignement", "label": "Corridor discret", "tier": 2, "borders": true, "cost": {"influence": 30}, "days": 30, "success": 65, "discovery": 30, "spend": 10, "text": "Des patrouilles soudoyées, des balises éteintes : pendant 90 jours, vos flottes traversent son espace sans qu'aucune intrusion soit constatée (ni souvenir, ni sommation, ni reconduite)."},
-		{"id": "saboter_depots", "family": "sabotage", "label": "Saboter les dépôts", "tier": 2, "cost": {"influence": 25}, "days": 40, "success": 70, "discovery": 25, "spend": 10, "logistics": true, "text": "Logistique en jeu : ses flottes loin de leurs bases perdent la moitié de leurs réserves, et ses dépôts de flotte restent fermés 60 jours."},
-		{"id": "saboter_defenses", "family": "sabotage", "label": "Saboter les défenses", "tier": 2, "cost": {"influence": 30}, "days": 45, "success": 70, "discovery": 25, "spend": 10, "ground": true, "text": "Combat au sol complet : les fortifications d'un de ses systèmes (celui que vous assiégez, sinon sa capitale) tombent à zéro et sa milice perd un tiers de ses effectifs."},
-		{"id": "campagne_culturelle", "family": "intrigue", "label": "Campagne de propagande culturelle", "tier": 1, "cost": {"influence": 30}, "days": 45, "success": 75, "discovery": 20, "spend": 10, "culture": true, "text": "Rayonnement culturel : pendant un an, vos feuilletons et vos chansons inondent ses écrans. Votre diffusion chez lui +50 %."},
-		{"id": "denigrement", "family": "intrigue", "label": "Dénigrement culturel", "tier": 2, "cost": {"influence": 40}, "days": 60, "success": 65, "discovery": 30, "spend": 15, "culture": true, "text": "Rayonnement culturel : la culture étrangère la plus influente chez lui est tournée en ridicule. Sa diffusion baisse de 25 % partout pendant un an."},
-		{"id": "vol_oeuvre", "family": "larcin", "label": "Vol d'œuvre", "tier": 3, "cost": {"influence": 60}, "days": 60, "success": 50, "discovery": 45, "spend": 25, "culture": true, "text": "Rayonnement culturel : une relique exposée dans son Musée galactique passe dans votre Reliquaire."}
+		{
+			"id": "rapport",
+			"family": "renseignement",
+			"label": "Rapport complet",
+			"tier": 1,
+			"cost": {
+				"influence": 20
+			},
+			"days": 30,
+			"success": 85,
+			"discovery": 10,
+			"spend": 5,
+			"text": "Un dossier complet (comme au palier Conseil) et les relevés de tous ses systèmes, une fois."
+		},
+		{
+			"id": "vol_techno",
+			"family": "larcin",
+			"label": "Voler une technologie",
+			"tier": 2,
+			"cost": {
+				"influence": 40
+			},
+			"days": 60,
+			"success": 70,
+			"discovery": 25,
+			"spend": 15,
+			"steal_pct": 40,
+			"text": "40 % d'une technologie qu'il connaît et pas vous (la plus chère qu'on puisse chercher)."
+		},
+		{
+			"id": "siphon",
+			"family": "larcin",
+			"label": "Siphonner l'énergie",
+			"tier": 2,
+			"cost": {
+				"influence": 25
+			},
+			"days": 30,
+			"success": 75,
+			"discovery": 20,
+			"spend": 10,
+			"take_pct": 20,
+			"take_max": 150,
+			"text": "20 % de sa réserve d'énergie (150 au plus) passent dans la vôtre."
+		},
+		{
+			"id": "sabotage_chantier",
+			"family": "sabotage",
+			"label": "Saboter un chantier",
+			"tier": 3,
+			"cost": {
+				"influence": 50
+			},
+			"days": 45,
+			"success": 65,
+			"discovery": 35,
+			"spend": 20,
+			"delay_days": 60,
+			"text": "Le chantier le plus avancé de sa capitale (ou de sa plus grande colonie) prend 60 jours de retard ; s'il mène un grand chantier de merveille, c'est lui qui est visé."
+		},
+		{
+			"id": "voler_plans",
+			"family": "larcin",
+			"label": "Voler les plans d'une merveille",
+			"tier": 2,
+			"cost": {
+				"influence": 40
+			},
+			"days": 60,
+			"success": 65,
+			"discovery": 30,
+			"spend": 15,
+			"wonders": true,
+			"text": "Merveilles : les plans de son grand chantier le plus avancé. Cette merveille vous coûtera 25 % de moins."
+		},
+		{
+			"id": "ausculter",
+			"family": "renseignement",
+			"label": "Ausculter un chantier",
+			"tier": 1,
+			"cost": {
+				"influence": 15
+			},
+			"days": 30,
+			"success": 85,
+			"discovery": 10,
+			"spend": 5,
+			"wonders": true,
+			"text": "Merveilles : l'avancement exact de ses grands chantiers, et leur date d'achèvement probable."
+		},
+		{
+			"id": "archives",
+			"family": "sabotage",
+			"label": "Brûler des archives",
+			"tier": 3,
+			"cost": {
+				"influence": 50
+			},
+			"days": 45,
+			"success": 65,
+			"discovery": 35,
+			"spend": 20,
+			"burn_pct": 50,
+			"text": "La moitié du Savoir déjà accumulé sur sa recherche en cours part en fumée."
+		},
+		{
+			"id": "discorde",
+			"family": "intrigue",
+			"label": "Semer la discorde",
+			"tier": 3,
+			"cost": {
+				"influence": 50
+			},
+			"days": 60,
+			"success": 60,
+			"discovery": 35,
+			"spend": 20,
+			"text": "De fausses preuves accusent l'empire qu'il aime le plus de l'espionner : leur amitié en prend un coup pour quatre ans."
+		},
+		{
+			"id": "heritier",
+			"family": "intrigue",
+			"label": "Corrompre l'héritier",
+			"tier": 3,
+			"cost": {
+				"influence": 40
+			},
+			"days": 45,
+			"success": 70,
+			"discovery": 30,
+			"spend": 15,
+			"loyalty_loss": 30,
+			"text": "Une dynastie seulement : l'héritier perd 30 de loyauté, en secret, et c'est à vous qu'il livrera son fief s'il trahit."
+		},
+		{
+			"id": "dossier_heros",
+			"family": "renseignement",
+			"label": "Dossier des héros",
+			"tier": 2,
+			"cost": {
+				"influence": 20
+			},
+			"days": 30,
+			"success": 85,
+			"discovery": 10,
+			"spend": 5,
+			"text": "La liste de ses héros : classe, niveau, poste et loyauté, à la date du dossier."
+		},
+		{
+			"id": "corrompre",
+			"family": "intrigue",
+			"label": "Corrompre un héros",
+			"tier": 3,
+			"cost": {
+				"influence": 40
+			},
+			"days": 45,
+			"success": 65,
+			"discovery": 30,
+			"spend": 15,
+			"loyalty_loss": 30,
+			"text": "Son meilleur héros (pas un Avatar) perd 30 de loyauté, en secret ; s'il déserte, c'est chez vous qu'il viendra."
+		},
+		{
+			"id": "exfiltration",
+			"family": "larcin",
+			"label": "Exfiltrer un prisonnier",
+			"tier": 3,
+			"cost": {
+				"influence": 50
+			},
+			"days": 45,
+			"success": 55,
+			"discovery": 35,
+			"spend": 20,
+			"text": "Un de vos héros qu'il retient prisonnier s'évade et rentre chez vous."
+		},
+		{
+			"id": "assassinat",
+			"family": "sabotage",
+			"label": "Assassiner un héros",
+			"tier": 4,
+			"cost": {
+				"influence": 80
+			},
+			"days": 60,
+			"success": 35,
+			"discovery": 50,
+			"spend": 30,
+			"text": "Son meilleur héros meurt, Avatars compris. Les chances sont minces, le scandale certain si l'on vous prend."
+		},
+		{
+			"id": "dissidence",
+			"family": "intrigue",
+			"label": "Attiser la dissidence",
+			"tier": 2,
+			"cost": {
+				"influence": 35
+			},
+			"days": 45,
+			"success": 70,
+			"discovery": 25,
+			"spend": 15,
+			"text": "Tracts, rumeurs et meneurs payés : son système le moins stable (hors capitale) perd 15 de stabilité pendant un an."
+		},
+		{
+			"id": "partisans",
+			"family": "sabotage",
+			"label": "Armer des partisans",
+			"tier": 3,
+			"cost": {
+				"influence": 50
+			},
+			"days": 60,
+			"success": 60,
+			"discovery": 35,
+			"spend": 20,
+			"text": "Des rebelles se lèvent dans son système le moins stable, s'il est en Agitation ou en Révolte."
+		},
+		{
+			"id": "larcin_relique",
+			"family": "larcin",
+			"label": "Larcin de relique",
+			"tier": 3,
+			"cost": {
+				"influence": 60
+			},
+			"days": 60,
+			"success": 50,
+			"discovery": 40,
+			"spend": 25,
+			"text": "Une relique de son Reliquaire (pas celles que portent ses héros) passe dans le vôtre. Un coup d'éclat : on en parle longtemps, surtout si l'on est pris."
+		},
+		{
+			"id": "convoi",
+			"family": "larcin",
+			"label": "Détourner un convoi",
+			"tier": 2,
+			"cost": {
+				"influence": 30
+			},
+			"days": 30,
+			"success": 70,
+			"discovery": 25,
+			"spend": 10,
+			"text": "Un mois du revenu de ses routes commerciales (200 énergie au plus) finit dans vos coffres."
+		},
+		{
+			"id": "contrebande",
+			"family": "larcin",
+			"label": "Contrebande",
+			"tier": 2,
+			"cost": {
+				"influence": 30
+			},
+			"days": 45,
+			"success": 70,
+			"discovery": 25,
+			"spend": 10,
+			"text": "Un de ses luxes que vous n'avez pas vous parvient pendant un an, sans traité ni loyer."
+		},
+		{
+			"id": "initie",
+			"family": "renseignement",
+			"label": "Délit d'initié",
+			"tier": 2,
+			"cost": {
+				"influence": 25
+			},
+			"days": 30,
+			"success": 80,
+			"discovery": 15,
+			"spend": 5,
+			"text": "Ses courtiers savent avant tout le monde : vous apprenez le prochain krach ou la prochaine envolée du marché (date et ressource)."
+		},
+		{
+			"id": "inciter",
+			"family": "intrigue",
+			"label": "Inciter les pirates",
+			"tier": 3,
+			"cost": {
+				"influence": 40
+			},
+			"days": 45,
+			"success": 65,
+			"discovery": 30,
+			"spend": 15,
+			"text": "Un repaire que vos agents connaissent lance un raid contre lui, à vos frais nuls et à son insu (il faut un de ses systèmes à portée du repaire)."
+		},
+		{
+			"id": "etouffer",
+			"family": "sabotage",
+			"label": "Étouffer une étoile",
+			"tier": 3,
+			"cost": {
+				"influence": 50,
+				"energy": 60
+			},
+			"days": 60,
+			"success": 60,
+			"discovery": 35,
+			"spend": 20,
+			"text": "Une dent du Mange-soleil glissée dans l'étoile de sa capitale : −50 % de production dans ce système pendant six mois (il faut avoir abattu le Mange-soleil)."
+		},
+		{
+			"id": "appat",
+			"family": "sabotage",
+			"label": "Appât",
+			"tier": 2,
+			"cost": {
+				"influence": 40,
+				"energy": 50
+			},
+			"days": 45,
+			"success": 60,
+			"discovery": 30,
+			"spend": 15,
+			"text": "Des balises odorantes semées chez lui : un fléau errant change de route vers ses colonies, ou, à défaut, un troupeau hostile proche (5 sauts) vient se servir chez lui."
+		},
+		{
+			"id": "truquer",
+			"family": "intrigue",
+			"label": "Truquer l'élection",
+			"tier": 2,
+			"cost": {
+				"influence": 40
+			},
+			"days": 45,
+			"success": 65,
+			"discovery": 30,
+			"spend": 15,
+			"text": "Urnes à double fond et bulletins bien imprimés : au prochain vote de la cible, le courant en tête chez vous pèse 20 % de plus dans chaque tirage."
+		},
+		{
+			"id": "financer_opposition",
+			"family": "intrigue",
+			"label": "Financer l'opposition",
+			"tier": 2,
+			"cost": {
+				"influence": 35
+			},
+			"days": 45,
+			"success": 70,
+			"discovery": 25,
+			"spend": 15,
+			"text": "Le plus grand courant d'opposition reçoit de l'argent et formule une doléance de plus, deux fois plus exigeante. S'il n'est pas écouté, ses systèmes grognent."
+		},
+		{
+			"id": "frictions",
+			"family": "intrigue",
+			"label": "Attiser les frictions",
+			"tier": 2,
+			"cost": {
+				"influence": 35
+			},
+			"days": 45,
+			"success": 70,
+			"discovery": 25,
+			"spend": 15,
+			"peoples": true,
+			"text": "Peuples mêlés : rumeurs et provocations dans son système le plus mêlé, -15 de stabilité pendant un an."
+		},
+		{
+			"id": "appel_retour",
+			"family": "intrigue",
+			"label": "Appel au retour",
+			"tier": 2,
+			"cost": {
+				"influence": 30
+			},
+			"days": 45,
+			"success": 75,
+			"discovery": 20,
+			"spend": 10,
+			"peoples": true,
+			"text": "Peuples mêlés : 3 des vôtres qui vivent chez lui rentrent au pays, avec leurs savoir-faire."
+		},
+		{
+			"id": "propagande",
+			"family": "intrigue",
+			"label": "Propagande xénophobe",
+			"tier": 3,
+			"cost": {
+				"influence": 45
+			},
+			"days": 60,
+			"success": 65,
+			"discovery": 30,
+			"spend": 15,
+			"peoples": true,
+			"text": "Peuples mêlés : pendant deux ans, ses peuples venus d'ailleurs ne s'intègrent plus qu'à moitié et le Glaive et l'Autel gagnent des voix chez lui."
+		},
+		{
+			"id": "prophetie",
+			"family": "intrigue",
+			"label": "Semer une prophétie",
+			"tier": 3,
+			"cost": {
+				"influence": 60
+			},
+			"days": 720,
+			"success": 70,
+			"discovery": 20,
+			"spend": 15,
+			"faiths": true,
+			"text": "Religions : de faux prophètes annoncent la venue d'un héros de votre foi sur sa colonie la plus peuplée. Quand un de vos héros amiraux y stationne, la planète entière se convertit."
+		},
+		{
+			"id": "coup",
+			"family": "intrigue",
+			"label": "Fomenter un coup d'État",
+			"tier": 3,
+			"cost": {
+				"influence": 60
+			},
+			"days": 90,
+			"success": 45,
+			"discovery": 45,
+			"spend": 25,
+			"text": "Si sa stabilité d'empire est sous 35 : crise de régime, le courant opposé prend le pouvoir, ses lois tombent, six mois sans lois."
+		},
+		{
+			"id": "acheter_delegue",
+			"family": "intrigue",
+			"label": "Acheter un délégué",
+			"tier": 2,
+			"amph": true,
+			"cost": {
+				"influence": 35
+			},
+			"days": 20,
+			"success": 65,
+			"discovery": 30,
+			"spend": 10,
+			"voix_pct": 25,
+			"text": "Pendant le vote en cours de l'Amphictyonie, un quart des voix de la cible passe dans votre camp."
+		},
+		{
+			"id": "fuite_dossier",
+			"family": "intrigue",
+			"label": "Faire fuiter un dossier",
+			"tier": 2,
+			"amph": true,
+			"cost": {
+				"influence": 30
+			},
+			"days": 30,
+			"success": 70,
+			"discovery": 25,
+			"spend": 10,
+			"text": "Des pièces embarrassantes sur la proposition que la cible a déposée à l'Amphictyonie : elle doit la retirer de la file, frais perdus."
+		},
+		{
+			"id": "scandale",
+			"family": "intrigue",
+			"label": "Monter un scandale",
+			"tier": 3,
+			"amph": true,
+			"cost": {
+				"influence": 50
+			},
+			"days": 60,
+			"success": 55,
+			"discovery": 35,
+			"spend": 20,
+			"voix_pct": -10,
+			"voix_days": 2160,
+			"text": "Un scandale à l'Amphictyonie : la cible perd ses bonus de voix de proposant et 10 % de voix pendant 6 ans."
+		},
+		{
+			"id": "saper_autorite",
+			"family": "intrigue",
+			"label": "Saper l'autorité",
+			"tier": 3,
+			"amph": true,
+			"cost": {
+				"influence": 50
+			},
+			"days": 45,
+			"success": 60,
+			"discovery": 35,
+			"spend": 15,
+			"auth": 15,
+			"text": "Pamphlets, rumeurs de cour et caricatures : l'autorité de l'Impérateur perd 15 points. Seulement contre un Impérateur dont l'autorité est sous 50."
+		},
+		{
+			"id": "allumer_rebellion",
+			"family": "intrigue",
+			"label": "Allumer la rébellion",
+			"tier": 3,
+			"amph": true,
+			"cost": {
+				"influence": 60
+			},
+			"days": 60,
+			"success": 50,
+			"discovery": 40,
+			"spend": 20,
+			"text": "Des agents persuadent un membre soumis de se soulever : il quitte l'Amphictyonie et entre en guerre contre la Cour. Seulement quand l'autorité de l'Impérateur est sous 50."
+		},
+		{
+			"id": "attiser_independance",
+			"family": "intrigue",
+			"label": "Attiser l'indépendance",
+			"tier": 2,
+			"fed": true,
+			"cost": {
+				"influence": 40
+			},
+			"days": 60,
+			"success": 60,
+			"discovery": 30,
+			"spend": 15,
+			"loyalty": 150,
+			"text": "Pamphlets et banquets chez le sujet d'un rival : sa loyauté envers son suzerain perd 15 points."
+		},
+		{
+			"id": "acheter_allegeance",
+			"family": "intrigue",
+			"label": "Acheter une allégeance",
+			"tier": 3,
+			"fed": true,
+			"cost": {
+				"influence": 70
+			},
+			"days": 90,
+			"success": 45,
+			"discovery": 35,
+			"spend": 20,
+			"text": "Le sujet d'un rival vous jure fidélité en secret : si vous entrez en guerre contre son suzerain, il change de camp."
+		},
+		{
+			"id": "discorde_synode",
+			"family": "intrigue",
+			"label": "Semer la discorde au synode",
+			"tier": 2,
+			"fed": true,
+			"cost": {
+				"influence": 40
+			},
+			"days": 60,
+			"success": 55,
+			"discovery": 30,
+			"spend": 15,
+			"cohesion": -15,
+			"text": "Rumeurs entre les délégués d'un Koinon dont vous n'êtes pas : sa cohésion perd 15 points."
+		},
+		{
+			"id": "fabriquer_revendication",
+			"family": "intrigue",
+			"label": "Fabriquer une revendication",
+			"tier": 2,
+			"war": true,
+			"cost": {
+				"influence": 30
+			},
+			"days": 60,
+			"success": 65,
+			"discovery": 30,
+			"spend": 15,
+			"text": "Chartes anciennes et généalogies retouchées : une revendication gratuite sur l'un de ses systèmes (le moins cher)."
+		},
+		{
+			"id": "provoquer_incident",
+			"family": "intrigue",
+			"label": "Provoquer un incident",
+			"tier": 2,
+			"war": true,
+			"cost": {
+				"influence": 35
+			},
+			"days": 45,
+			"success": 60,
+			"discovery": 35,
+			"spend": 15,
+			"text": "Un convoi « attaqué », des témoins bien payés : vous gagnez contre lui le motif Incident de frontière pendant 5 ans."
+		},
+		{
+			"id": "corridor_discret",
+			"family": "renseignement",
+			"label": "Corridor discret",
+			"tier": 2,
+			"borders": true,
+			"cost": {
+				"influence": 30
+			},
+			"days": 30,
+			"success": 65,
+			"discovery": 30,
+			"spend": 10,
+			"text": "Des patrouilles soudoyées, des balises éteintes : pendant 90 jours, vos flottes traversent son espace sans qu'aucune intrusion soit constatée (ni souvenir, ni sommation, ni reconduite)."
+		},
+		{
+			"id": "saboter_depots",
+			"family": "sabotage",
+			"label": "Saboter les dépôts",
+			"tier": 2,
+			"cost": {
+				"influence": 25
+			},
+			"days": 40,
+			"success": 70,
+			"discovery": 25,
+			"spend": 10,
+			"logistics": true,
+			"text": "Logistique en jeu : ses flottes loin de leurs bases perdent la moitié de leurs réserves, et ses dépôts de flotte restent fermés 60 jours."
+		},
+		{
+			"id": "saboter_defenses",
+			"family": "sabotage",
+			"label": "Saboter les défenses",
+			"tier": 2,
+			"cost": {
+				"influence": 30
+			},
+			"days": 45,
+			"success": 70,
+			"discovery": 25,
+			"spend": 10,
+			"ground": true,
+			"text": "Combat au sol complet : les fortifications d'un de ses systèmes (celui que vous assiégez, sinon sa capitale) tombent à zéro et sa milice perd un tiers de ses effectifs."
+		},
+		{
+			"id": "campagne_culturelle",
+			"family": "intrigue",
+			"label": "Campagne de propagande culturelle",
+			"tier": 1,
+			"cost": {
+				"influence": 30
+			},
+			"days": 45,
+			"success": 75,
+			"discovery": 20,
+			"spend": 10,
+			"culture": true,
+			"text": "Rayonnement culturel : pendant un an, vos feuilletons et vos chansons inondent ses écrans. Votre diffusion chez lui +50 %."
+		},
+		{
+			"id": "denigrement",
+			"family": "intrigue",
+			"label": "Dénigrement culturel",
+			"tier": 2,
+			"cost": {
+				"influence": 40
+			},
+			"days": 60,
+			"success": 65,
+			"discovery": 30,
+			"spend": 15,
+			"culture": true,
+			"text": "Rayonnement culturel : la culture étrangère la plus influente chez lui est tournée en ridicule. Sa diffusion baisse de 25 % partout pendant un an."
+		},
+		{
+			"id": "vol_oeuvre",
+			"family": "larcin",
+			"label": "Vol d'œuvre",
+			"tier": 3,
+			"cost": {
+				"influence": 60
+			},
+			"days": 60,
+			"success": 50,
+			"discovery": 45,
+			"spend": 25,
+			"culture": true,
+			"text": "Rayonnement culturel : une relique exposée dans son Musée galactique passe dans votre Reliquaire."
+		}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
 	"chances": {
-		"per_tier": 5, "per_crypto": 10, "counter_per_cell": 10, "era_gap_discovery": 10, "min": 5, "max": 95,
+		"per_tier": 5,
+		"per_crypto": 10,
+		"counter_per_cell": 10,
+		"era_gap_discovery": 10,
+		"min": 5,
+		"max": 95,
 		"_": "succès + per_tier par palier au-dessus du minimum + per_crypto par point de déchiffrement d'avance ; découverte + counter_per_cell par cellule chez la cible, + era_gap_discovery par ère d'avance de la cible, - per_tier par palier au-dessus"
 	},
 	"discovery": {
-		"infiltration_loss": 30, "answer_days": 30, "reparation": {"influence": 80},
+		"infiltration_loss": 30,
+		"answer_days": 30,
+		"reparation": {
+			"influence": 80
+		},
 		"_": "un réseau pris perd 30 ; la victime a 30 jours pour répondre (sinon : expulsion) ; réparation exigée"
 	},
 	"turned": {
-		"spot_pct": 10, "spot_per_crypto": 5, "spot_min": 2, "spot_max": 40, "false_pct": 50,
+		"spot_pct": 10,
+		"spot_per_crypto": 5,
+		"spot_min": 2,
+		"spot_max": 40,
+		"false_pct": 50,
 		"_": "réseau retourné : chaque mois, l'espion a spot_pct % (+ spot_per_crypto par point de déchiffrement d'avance) de s'en rendre compte ; d'ici là, false_pct % de ses relevés sont faux et ses dossiers mentent"
 	},
 	"talents": {
 		"_": "talents d'espionnage par couche d'espèce ; les entiers s'additionnent (avec le talent research.spy de la fiche, comme celui du credo Profit)",
 		"gouvernement": {
-			"feodalite": {"label": "Maisons méfiantes", "encryption": 1,
-				"text": "Chaque lignée surveille les autres : chiffrement +1."},
-			"republique": {"label": "Assemblées ouvertes", "encryption": -1, "caught_memory": 2,
-				"text": "Les débats sont publics (chiffrement -1), mais un espion pris fait scandale : le souvenir compte double."},
-			"ruche": {"label": "Ni cour ni rumeurs", "intrigue_immune": 1, "no_intrigue": 1, "devour": 1,
-				"text": "Aucune intrigue ne prend sur une ruche et elle n'en mène aucune ; les espions qu'elle prend sont dévorés sur-le-champ."},
-			"conscience": {"label": "Nœuds ouverts", "open_nodes": 2,
-				"text": "Une conscience partagée se lit plus vite qu'elle ne se garde : +2 par mois aux réseaux étrangers chez elle."}
+			"feodalite": {
+				"label": "Maisons méfiantes",
+				"encryption": 1,
+				"text": "Chaque lignée surveille les autres : chiffrement +1."
+			},
+			"republique": {
+				"label": "Assemblées ouvertes",
+				"encryption": -1,
+				"caught_memory": 2,
+				"text": "Les débats sont publics (chiffrement -1), mais un espion pris fait scandale : le souvenir compte double."
+			},
+			"ruche": {
+				"label": "Ni cour ni rumeurs",
+				"intrigue_immune": 1,
+				"no_intrigue": 1,
+				"devour": 1,
+				"text": "Aucune intrigue ne prend sur une ruche et elle n'en mène aucune ; les espions qu'elle prend sont dévorés sur-le-champ."
+			},
+			"conscience": {
+				"label": "Nœuds ouverts",
+				"open_nodes": 2,
+				"text": "Une conscience partagée se lit plus vite qu'elle ne se garde : +2 par mois aux réseaux étrangers chez elle."
+			}
 		},
 		"credo": {
-			"foi": {"label": "Inquisition", "counter_x": 2, "fervor_on_catch": 10,
-				"text": "Les cellules de contre-espionnage comptent double ; un espion infidèle démasqué rallume la ferveur (+10)."}
+			"foi": {
+				"label": "Inquisition",
+				"counter_x": 2,
+				"fervor_on_catch": 10,
+				"text": "Les cellules de contre-espionnage comptent double ; un espion infidèle démasqué rallume la ferveur (+10)."
+			}
 		},
 		"archetype": {
-			"synthetique": {"label": "Calculateurs", "encryption": 2, "decryption": 2,
-				"text": "Des esprits de silicium : déchiffrement et chiffrement +2."}
+			"synthetique": {
+				"label": "Calculateurs",
+				"encryption": 2,
+				"decryption": 2,
+				"text": "Des esprits de silicium : déchiffrement et chiffrement +2."
+			}
 		}
 	},
 	"probes": {
 		"max": 3,
 		"regen_days": 90,
 		"start": 2,
-		"cost": {"energy": 10}
+		"cost": {
+			"energy": 10
+		}
 	}
 }

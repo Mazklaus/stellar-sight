@@ -662,11 +662,13 @@ static func _heritage(state: GameState, ids: Array[int]) -> void:
 		if not state.relics.is_empty():
 			n += Relics.owned(state, eid).size() * int(hd["per_relic"])
 		n += int(by_owner.get(eid, 0)) * int(hd["per_old_colony"])
+		# Merveilles : le Patrimoine reste au bâtisseur, même après une conquête (prop. 17 des merveilles).
 		for pid in state.sorted_colony_ids():
 			var c: Colony = state.colonies[pid]
-			if c.owner == eid:
-				for bid in c.buildings:
-					if int(GameData.building(bid).get("culture_wonder", 0)) > 0 or Wonders.is_wonder(bid):
+			for bid in c.buildings:
+				if Wonders.is_wonder(bid):
+					var who := Wonders.builder_of(state, bid, pid)
+					if (who if who >= 0 else c.owner) == eid:
 						n += int(hd["per_wonder"])
 		@warning_ignore("integer_division")
 		n = n * maxi(0, 100 + tal(state, eid, "heritage_pct") + CultureBridges.law_pct(state, eid, "heritage_pct")) / 100

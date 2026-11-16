@@ -90,6 +90,13 @@ static func build(es: EmpireScreens) -> void:
 	var carry: Dictionary = state.wonders.get("carry", {}).get(str(player), {})
 	if not carry.is_empty() and state.tick <= int(carry["until"]):
 		es._key_value(g, "Mise reportée", "%s (ère %d+, jusqu'au %s)" % [GameData.format_amounts(carry["amt"]), int(carry["era"]), GameCalendar.date_string(int(carry["until"]))])
+	var deed := WondersBridges.builder_deed(state)
+	if deed >= 0:
+		es._key_value(g, "Bâtisseur de merveilles", state.get_empire(deed).short_name())
+	if not state.wonders.get("contest", {}).is_empty():
+		es._key_value(g, "Concours amphictyonique", "votre score %d, fin le %s" % [WondersBridges.contest_score(state, player), GameCalendar.date_string(int(state.wonders["contest"]["end"]))])
+	if int(state.wonders.get("medals", {}).get(str(player), 0)) > 0:
+		es._key_value(g, "Médailles des concours", str(int(state.wonders["medals"][str(player)])))
 	if WondersCatalog.fx(state, player, "tribunal") > 0:
 		var trow := HBoxContainer.new()
 		es._side_box.add_child(trow)
@@ -120,7 +127,10 @@ static func build(es: EmpireScreens) -> void:
 		var p := state.galaxy.get_planet(int(entry["p"]))
 		var rivals := PackedStringArray()
 		for r in Wonders.rivals_known(state, player, wid, seen):
-			rivals.append("%s (%d %%+)" % [state.get_empire(int(r[0])).short_name(), int(r[1]) * Wonders.r_int("quarter")])
+			if WondersBridges.auscultated(state, player, int(r[0])):
+				rivals.append("%s (%d %%)" % [state.get_empire(int(r[0])).short_name(), Wonders.pct(Wonders.build_of(state, int(r[0]), wid))])
+			else:
+				rivals.append("%s (%d %%+)" % [state.get_empire(int(r[0])).short_name(), int(r[1]) * Wonders.r_int("quarter")])
 		var line := "%s sur %s : %d %%, %d pts/jour, mensualité %s." % [Wonders.label(wid), p.display_name(state.galaxy), Wonders.pct(entry),
 				Wonders.speed(state, player, wid, p.id), GameData.format_amounts(Wonders.installment(state, player, wid, entry))]
 		if not rivals.is_empty():
@@ -136,6 +146,29 @@ static func build(es: EmpireScreens) -> void:
 		var best := _best_donor(state, player, wid)
 		if best >= 0:
 			_button(es, row, "Verser depuis %s" % state.galaxy.get_planet(best).display_name(state.galaxy), SimCommands.won_act(player, "contribute", wid, best))
+
+	var shared := Widgets.Block.new("Œuvres communes")
+	var any_shared := false
+	var bmap: Dictionary = state.wonders.get("build", {})
+	var bkeys := bmap.keys()
+	bkeys.sort()
+	for wid in bkeys:
+		if WondersBridges.collective_kind(String(wid)) == "":
+			continue
+		var per: Dictionary = bmap[wid]
+		for k in per:
+			var builder := int(k)
+			if builder == player or not WondersBridges.partners(state, builder, String(wid)).has(player):
+				continue
+			any_shared = true
+			var entry: Dictionary = per[k]
+			shared.body.add_child(UiTheme.paragraph("%s, chantier de %s : %d %%. Chaque mois, vous pouvez y verser %s ; l'effet se partage au prorata de ce que chacun a versé." % [
+					Wonders.label(String(wid)), state.get_empire(builder).short_name(), Wonders.pct(entry), GameData.format_amounts(Wonders.contribute_cost(state, builder, String(wid)))], W, 12))
+			var row := HBoxContainer.new()
+			shared.body.add_child(row)
+			_button(es, row, "Verser", SimCommands.won_act(player, "give", String(wid), builder))
+	if any_shared:
+		col.add_child(shared)
 
 	var by_fam := {}
 	for wid in Wonders.all_ids():

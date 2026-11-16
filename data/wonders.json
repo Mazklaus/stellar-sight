@@ -86,6 +86,14 @@
 			]
 		],
 		"deed_count": 3,
+		"contest_days": 1800,
+		"contest_prizes": [
+			300,
+			150,
+			75
+		],
+		"phare_war_influence": 100,
+		"anc_plans_pct": -50,
 		"deed_opinion": 10,
 		"tribunal_cooldown": 3600,
 		"tribunal_delay": 360,
@@ -938,12 +946,12 @@
 				"energy": 4
 			},
 			"special": "bulwark",
-			"collective": "crisis",
 			"text": "Pendant une crise de fin de partie : une flotte de défense se lève à l'achèvement ou au début de la crise, et la crise vous vise en dernier. Peut être bâti à plusieurs par le Front commun.",
 			"quote": "On l'a bâti pour un ennemi qu'on espérait ne jamais voir.",
 			"fx": {
 				"crisis_last": 1
-			}
+			},
+			"front": true
 		},
 		"miroir_anciens": {
 			"label": "Miroir des Anciens",
