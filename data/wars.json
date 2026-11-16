@@ -227,6 +227,17 @@
 				],
 				"text": "Il quitte son Koinon."
 			},
+			"demil": {
+				"label": "Démilitariser un système",
+				"price": 15,
+				"days": 3600,
+				"goals": [
+					"humiliation",
+					"conquete",
+					"demanteler"
+				],
+				"text": "Défenses spatiales : la station et les plates-formes de son système le plus proche des vôtres sont démontées, et rien ne s'y rebâtit pendant 10 ans."
+			},
 			"people": {
 				"label": "Libération d'un peuple",
 				"price": 15,

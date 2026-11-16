@@ -1478,6 +1478,11 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 				_patrol_pick = true
 				_hud.notify("Patrouille : clic droit sur le système où %s fera l'aller-retour." % f.fleet_name)
 			_hud.show_fleet(fleet_id)
+		"guard":
+			var act := "unguard" if f.is_guarding() else "guard"
+			if _submit(SimCommands.defense_act(view_empire, act, fleet_id)):
+				_hud.notify("%s : %s." % [f.fleet_name, "garde levée" if act == "unguard" else "garde le système"])
+			_hud.show_fleet(fleet_id)
 		"merge":
 			for other in Fleets.fleets_at(st, f.system_id, view_empire):
 				if other.id != fleet_id:

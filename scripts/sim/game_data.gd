@@ -169,6 +169,10 @@ static func administration() -> Dictionary:
 	return _load("administration")
 
 
+static func defenses() -> Dictionary:
+	return _load("defenses")
+
+
 static func private_eco() -> Dictionary:
 	return _load("private")
 
@@ -240,6 +244,8 @@ static func ship(id: String) -> Dictionary:
 		return crises().get("units", {}).get(id, {})
 	if id.begins_with("ancien_"):
 		return ancients().get("units", {}).get(id, {})
+	if id.begins_with("def_"):
+		return Defenses.unit(id)  # défenses fixes (data/defenses.json)
 	if id.begins_with("bete_"):
 		var u: Dictionary = creatures().get("units", {}).get(id, {})
 		return u if not u.is_empty() else guardians().get("units", {}).get(id, {})

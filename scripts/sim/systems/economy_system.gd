@@ -131,6 +131,7 @@ static func _finish_building(state: GameState, c: Colony, e: Empire, planet_name
 		c.buildings.append(bid)
 	Economy.clear_wonders()
 	Politics.on_building(state, state.galaxy.get_planet(c.planet_id).system_id, bid)
+	Defenses.on_built(state, c, bid)  # défenses spatiales : marques du jour, palier neuf
 	if b.get("galaxy_unique", false):
 		added.append(state.add_chronicle("Merveille : %s achève %s sur %s. Toute la galaxie en parle, certains avec envie." % [e.display_name(), label, planet_name], Espionage.public_to(state, [e.id])))
 	else:

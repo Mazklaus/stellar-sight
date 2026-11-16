@@ -1,0 +1,114 @@
+{
+	"_doc": "Défenses spatiales (étude du 2026-11-16, 40 propositions validées) : station de défense à 3 paliers (le Bastion orbital est le palier I), modules, plates-formes, champs de mines, inhibiteur de saut, batteries, boucliers et hangars planétaires, sentinelles. Les éléments arment une flotte fixe du défenseur qui se bat dans les batailles du système (voir Defenses). Chiffres provisoires (équilibrage reporté).",
+	"_sources": [
+		"Master of Orion (2016), Empire Defense : https://masteroforion.com/api/news/empire-defense",
+		"Galactic Civilizations IV v1.04 : https://www.stardock.com/games/article/513001/",
+		"Sins of a Solar Empire II, Defend Your Empire : https://forums.sinsofasolarempire2.com/530789",
+		"Distant Worlds 2, manuel p. 94-96 : https://ftp.matrixgames.com/pub/DistantWorlds2/DW2%20Manual%20EBOOK.pdf",
+		"Starsector, Station : https://starsector.fandom.com/wiki/Station",
+		"VGA Planets, Minefields : https://help.planets.nu/minefields"
+	],
+	"default_mode": "complete",
+	"modes": [
+		{"id": "complete", "label": "Complètes", "text": "Station à 3 paliers et ses modules, plates-formes, champs de mines, inhibiteur de saut, batteries, boucliers et hangars planétaires, sentinelles, posture de garde."},
+		{"id": "simple", "label": "Simples", "text": "Station à 3 paliers et ses modules (sans mouilleur ni inhibiteur) et boucliers planétaires ; ni plates-formes, ni mines, ni batteries planétaires, ni sentinelles."},
+		{"id": "desactivee", "label": "Désactivées", "text": "Comme avant : le Bastion et la Citadelle n'agissent qu'au siège, rien ne se bat en orbite à part les flottes."}
+	],
+	"stations": {
+		"_doc": "Palier de station -> bâtiment, emplacements de modules, capacité de plates-formes de base, unité de combat (cœur).",
+		"1": {"building": "bastion", "slots": 2, "capacity": 3, "label": "Bastion orbital"},
+		"2": {"building": "forteresse_orbitale", "slots": 4, "capacity": 6, "label": "Forteresse orbitale"},
+		"3": {"building": "rempart_stellaire", "slots": 6, "capacity": 10, "label": "Rempart stellaire"}
+	},
+	"core": {
+		"_doc": "Cœur de la station par palier. Le blindage ablatif (module) ajoute armor_per et hp_pct_per, le générateur de bouclier shield_per ; plafond 3 modules de chaque.",
+		"1": {"hp": 600, "armor": 20, "shield": 10, "weapons": {"kinetic": 20, "missile": 12}, "size": "large"},
+		"2": {"hp": 1400, "armor": 30, "shield": 25, "weapons": {"kinetic": 35, "missile": 25}, "size": "titan"},
+		"3": {"hp": 2800, "armor": 40, "shield": 40, "weapons": {"kinetic": 50, "missile": 40, "beam": 30}, "size": "titan"},
+		"armor_per": 10, "hp_pct_per": 20, "shield_per": 20, "stack_max": 3
+	},
+	"units": {
+		"_doc": "Unités fixes (préfixe def_) lues comme des classes de vaisseaux au combat. Le cœur de station (def_st_...) est calculé.",
+		"def_mod_batterie": {"label": "Batterie cinétique", "plural": "Batteries cinétiques", "line": "screen", "size": "medium", "hp": 220, "armor": 15, "shield": 0, "weapons": {"kinetic": 25}},
+		"def_mod_missiles": {"label": "Rampe de missiles", "plural": "Rampes de missiles", "line": "line", "size": "medium", "hp": 180, "armor": 10, "shield": 0, "weapons": {"missile": 22}},
+		"def_mod_rayons": {"label": "Lances à rayons", "plural": "Lances à rayons", "line": "line", "size": "medium", "hp": 180, "armor": 5, "shield": 15, "weapons": {"beam": 22}},
+		"def_mod_hangar": {"label": "Hangar de station", "plural": "Hangars de station", "line": "line", "size": "medium", "hp": 220, "armor": 10, "shield": 10, "weapons": {"fighters": 24}, "pd": 10},
+		"def_mod_antimissile": {"label": "Défense ponctuelle", "plural": "Défenses ponctuelles", "line": "line", "size": "medium", "hp": 160, "armor": 10, "shield": 0, "pd": 20, "pd_fleet": 15, "weapons": {"kinetic": 6}},
+		"def_pf_canon": {"label": "Plate-forme canon", "plural": "Plates-formes canon", "line": "screen", "size": "small", "hp": 150, "armor": 10, "shield": 0, "weapons": {"kinetic": 14}},
+		"def_pf_missiles": {"label": "Plate-forme lance-missiles", "plural": "Plates-formes lance-missiles", "line": "line", "size": "small", "hp": 130, "armor": 5, "shield": 0, "weapons": {"missile": 12}},
+		"def_pf_rayons": {"label": "Plate-forme à rayons", "plural": "Plates-formes à rayons", "line": "line", "size": "small", "hp": 130, "armor": 0, "shield": 15, "weapons": {"beam": 12}},
+		"def_pf_antimissile": {"label": "Plate-forme antimissile", "plural": "Plates-formes antimissiles", "line": "line", "size": "small", "hp": 120, "armor": 5, "shield": 0, "pd": 30, "pd_fleet": 10, "weapons": {"kinetic": 4}},
+		"def_pf_ionique": {"label": "Canon ionique", "plural": "Canons ioniques", "line": "line", "size": "titan", "hp": 900, "armor": 30, "shield": 30, "weapons": {"beam": 45, "artillery": 40}},
+		"def_batterie_plan": {"label": "Batterie planétaire", "plural": "Batteries planétaires", "line": "rear", "size": "large", "hp": 500, "armor": 30, "shield": 10, "weapons": {"missile": 18, "artillery": 22}},
+		"def_hangar_plan": {"label": "Hangar planétaire", "plural": "Hangars planétaires", "line": "rear", "size": "large", "hp": 400, "armor": 20, "shield": 10, "weapons": {"fighters": 26}, "pd_fleet": 10},
+		"def_sentinelle": {"label": "Sentinelle", "plural": "Sentinelles", "line": "screen", "size": "small", "hp": 120, "armor": 10, "shield": 0, "weapons": {"kinetic": 10}}
+	},
+	"core_label": {"label": "Cœur de station", "plural": "Cœurs de station"},
+	"buildings": {
+		"_doc": "Rôle de chaque bâtiment de défense : station (palier), module (unité de combat ou effet), plate-forme (places), planétaire (unité), bouclier (points).",
+		"modules": {
+			"module_batterie": {"unit": "def_mod_batterie"},
+			"module_missiles": {"unit": "def_mod_missiles"},
+			"module_rayons": {"unit": "def_mod_rayons"},
+			"module_hangar": {"unit": "def_mod_hangar"},
+			"module_antimissile": {"unit": "def_mod_antimissile"},
+			"module_blindage": {"fx": "armor"},
+			"module_bouclier": {"fx": "shield"},
+			"module_reparation": {"fx": "repair", "repair_pct": 3},
+			"module_commandement": {"fx": "capacity", "capacity": 4},
+			"module_senseurs": {"fx": "vision", "vision": 1},
+			"module_mouilleur": {"fx": "mines", "mines_per_month": 10, "mode": "complete", "tier": 2},
+			"module_inhibiteur": {"fx": "inhibitor", "mode": "complete", "tier": 2}
+		},
+		"platforms": {
+			"plateforme_canon": {"unit": "def_pf_canon", "places": 1},
+			"plateforme_missiles": {"unit": "def_pf_missiles", "places": 1},
+			"plateforme_rayons": {"unit": "def_pf_rayons", "places": 1},
+			"plateforme_antimissile": {"unit": "def_pf_antimissile", "places": 1},
+			"canon_ionique": {"unit": "def_pf_ionique", "places": 4, "tier": 3}
+		},
+		"planetary": {
+			"batterie_planetaire": {"unit": "def_batterie_plan"},
+			"hangar_planetaire": {"unit": "def_hangar_plan"}
+		},
+		"shields": {
+			"bouclier_planetaire": {"level": 1, "points": 150},
+			"bouclier_planetaire_2": {"level": 2, "points": 400}
+		}
+	},
+	"capacity": {"_doc": "Places de plates-formes : base du palier + une place pour pop_per habitants du système + technologies (defense_capacity) + Centre de commandement.", "pop_per": 6},
+	"cover": {"_doc": "Couverture de station (prop. 9) : +dégâts et -dégâts subis pour le propriétaire et ses alliés dans le système.", "pct": [0, 10, 10, 15]},
+	"repair": {"_doc": "Hors combat, chaque élément regagne 1/days de ses PV par jour ; une station réduite au silence se tait jusqu'à ce que son cœur soit réparé (60 jours).", "days": 60},
+	"siege_vs_defense_pct": 200,
+	"modernize_pct": 25,
+	"sentinels": {"_doc": "Prop. 24 : une sentinelle par colonie de min_pop habitants, deux à double_pop ; sans entretien, elles ne quittent jamais le système.", "min_pop": 6, "double_pop": 12},
+	"shields": {"_doc": "Bouclier planétaire (prop. 20) : niveau 1, bombardement et dévastation divisés par deux ; niveau 2, bombardement et débarquement bloqués tant qu'il a des points. Le siège use d'abord le bouclier. Il remonte de regen points par jour hors siège.", "bomb_pct_1": 50, "regen": 5},
+	"mines": {
+		"_doc": "Champs de mines (prop. 15-16, VGA Planets) : densité 0-100. Chance de touche = densité / hit_div % par vaisseau ennemi qui entre ; dégâts en % de PV max selon la taille ; la flotte perd la fin de son trajet du jour. Usure annuelle (decay_pct, x3 en nébuleuse), déminage par jour et par vaisseau démineur, et par les armes à rayons (beam_sweep par point de rayons sur 100).",
+		"max": 100, "hit_div": 2, "dmg_pct": {"small": 40, "medium": 25, "large": 15, "titan": 6},
+		"decay_pct": 5, "nebula_x": 3, "sweep_per_ship": 4, "beam_sweep": 1, "lay_per_ship": 2
+	},
+	"guard": {"_doc": "Posture Garder le système (prop. 23) : bonus de dégâts dans le système gardé ; la flotte y revient si elle est ailleurs et à l'arrêt.", "damage_pct": 10},
+	"ai": {"_doc": "IA (prop. 36) : stations aux systèmes à moins de front_jumps sauts d'un rival et à la capitale ; matériaux minimaux par niveau ; poids des défenses dans l'estimation des cibles.", "front_jumps": 2, "min_materials": [400, 250, 200, 150, 150], "power_weight_pct": [0, 60, 100, 100, 100]},
+	"bridges": {"_doc": "Lot 3 (prop. 27-35) : Général présent (+% de tir des défenses), astéroïdes (+blindage du cœur), sabotage (jours, % de PV ôtés aux plates-formes), démilitarisation (jours), peuples mineurs (palier selon l'âge, palier des peuples spatiaux), bâtiment qui rend un système assez commerçant pour qu'une compagnie y paie une plate-forme.",
+		"general_pct": 10, "asteroid_armor": 15, "sabotage": {"days": 30, "platform_pct": 50}, "demil_days": 3600,
+		"minors": {"tier_by_age": [0, 0, 0, 0, 1, 1], "space_tier": 2}, "private_hub": "comptoir"},
+	"talents": {
+		"_doc": "Prop. 30 : talents de défense par couche d'espèce (valables pour les peuples personnalisés).",
+		"registre": {
+			"Médiéval spatial": {"label": "Bâtisseurs de forteresses", "text": "Stations et modules coûtent 20 % de moins.", "cost_pct": -20},
+			"Grimdark": {"label": "Remparts de la foi", "text": "Les défenses fixes frappent 15 % plus fort.", "damage_pct": 15},
+			"Picaresque / pulp": {"label": "Mines leurres", "text": "Leurs champs de mines touchent 50 % plus souvent.", "mine_hit_pct": 50}
+		},
+		"archetype": {
+			"lithoide": {"label": "Stations de roche", "text": "Le cœur des stations a 30 % de PV en plus.", "core_hp_pct": 30},
+			"ruche": {"label": "Récifs vivants", "text": "Les éléments de défense se réparent deux fois plus vite.", "repair_x": 2},
+			"synthetique": {"label": "Plates-formes autonomes", "text": "+3 places de plates-formes par système.", "capacity": 3},
+			"energetique": {"label": "Boucliers chantants", "text": "Boucliers planétaires +50 % de points, et le cœur des stations +15 de bouclier.", "shield_pct": 50, "core_shield": 15}
+		},
+		"credo": {
+			"survie": {"label": "Bunkers", "text": "Pendant un siège, la garnison d'un système à station ne tombe jamais sous 25 %.", "garrison_floor_pct": 25},
+			"honneur": {"label": "Combat loyal", "text": "Ne pose jamais de mines, mais ses stations donnent +5 % de couverture.", "no_mines": true, "cover_pct": 5}
+		}
+	}
+}

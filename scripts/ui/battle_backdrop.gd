@@ -330,11 +330,13 @@ func _draw_objects(ci: Control) -> void:
 		_draw_wreck(ci, wk[0], float(wk[1]), float(wk[2]), int(wk[3]))
 	match String(scene.get("station", "")):
 		"bastion":
-			_draw_station(ci, _station_pos, 30.0, true)
+			_draw_station(ci, _station_pos, 30.0 + 6.0 * maxf(0.0, float(int(scene.get("tier", 1)) - 1)), true)
 		"colony", "outpost":
 			_draw_station(ci, _station_pos, 18.0, false)
-	if bool(scene.get("siege", false)) and _planet:
+	if (bool(scene.get("siege", false)) or int(scene.get("dfx", 0)) > 1) and _planet:
 		var n := int(cfg().get("objects", {}).get("defenses", 4))
+		if int(scene.get("dfx", 0)) > 1:
+			n = clampi(int(scene["dfx"]) - 1, 1, 10)  # plates-formes et éléments fixes (défenses spatiales)
 		for i in n:
 			var a := PI * 1.2 + PI * 0.6 * (float(i) + 0.5) / float(n)
 			var p := _planet_center + Vector2(cos(a), sin(a)) * (_planet_radius * 1.08)

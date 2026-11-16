@@ -555,12 +555,18 @@ static func _buildings(ctx: Dictionary) -> void:
 		if c.construction != "" or _forgets(ctx):
 			continue
 		var full := Economy.building_slots_used(c) >= Economy.building_slots(state, c)
-		if full and not late:
+		var dwish := AiDefenses.wishes(ctx, c)  # défenses spatiales : sans emplacement pour la plupart
+		if full and not late and dwish.is_empty():
 			continue
 		var urgent := urgent_needs(ctx, net)
 		var wishes := late_wishes(ctx, c, net) if late else ([] as Array[String])
+		var d_first := AiDefenses.first(ctx)
+		if d_first:
+			wishes.append_array(dwish)
 		if not full:
 			wishes.append_array(building_wishes(ctx, c, net))
+		if not d_first:
+			wishes.append_array(dwish)
 		for b in wishes:
 			if not Economy.building_unlocked(state, e.id, b):
 				continue
@@ -1579,6 +1585,17 @@ static func _enemy_power_map(ctx: Dictionary) -> Dictionary:
 			if f.is_moving() or not e.wars.has(f.owner) or not seen.has(f.system_id) or not Combat.is_armed(f):
 				continue
 			out[f.system_id] = int(out.get(f.system_id, 0)) + Combat.fleet_power(f)
+		# Défenses spatiales : la puissance des défenses fixes des systèmes ennemis vus compte aussi.
+		var dw := AiDefenses.power_weight(ctx) if Defenses.enabled(state) else 0
+		if dw > 0:
+			var sids := seen.keys()
+			sids.sort()
+			for k in sids:
+				var sid := int(k)
+				var o := state.system_owner(sid)
+				if o >= 0 and e.wars.has(o) and Defenses.has_any(state, sid):
+					@warning_ignore("integer_division")
+					out[sid] = int(out.get(sid, 0)) + Defenses.power(state, sid) * dw / 100
 	ctx["enemy_map"] = out
 	return out
 

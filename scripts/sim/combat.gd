@@ -495,8 +495,8 @@ static func battery(state: GameState, system_id: int) -> Dictionary:
 static func besiegers(state: GameState, system_id: int) -> Array[Fleet]:
 	var out: Array[Fleet] = []
 	var owner := state.system_owner(system_id)
-	if owner < 0:
-		return out
+	if owner < 0 or Defenses.holds(state, system_id):
+		return out  # une station armée tient l'orbite : pas de siège (défenses spatiales)
 	var here := Fleets.fleets_at(state, system_id)
 	for f in here:
 		if f.owner == owner and is_armed(f):
@@ -549,6 +549,9 @@ static func check_invade(state: GameState, empire_id: int, fleet_id: int) -> Str
 	for other in Fleets.fleets_at(state, f.system_id, owner):
 		if is_armed(other):
 			return "une flotte de défense tient encore l'orbite"
+	var dfx := Defenses.landing_block(state, f.system_id)
+	if dfx != "":
+		return dfx
 	if Ground.full(state):
 		return Ground.check_land(state, empire_id, f)
 	if f.troops <= 0:

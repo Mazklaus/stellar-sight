@@ -99,6 +99,7 @@ func _initialize() -> void:
 	preload("res://tests/admin_tests.gd").new().run(_check)
 	preload("res://tests/finance_tests.gd").new().run(_check)
 	preload("res://tests/private_tests.gd").new().run(_check)
+	preload("res://tests/defenses_tests.gd").new().run(_check)
 	preload("res://tests/battle_visuals_tests.gd").new().run(_check)
 	preload("res://tests/ground_visuals_tests.gd").new().run(_check)
 	_test_clock()

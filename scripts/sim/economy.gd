@@ -443,6 +443,7 @@ static func building_cost(state: GameState, empire_id: int, building_id: String)
 		pct += Research.fx_int(state, empire_id, "temple_cost_pct")  # Aniconisme
 	elif building_id == "tribunal":
 		pct += Research.fx_int(state, empire_id, "tribunal_cost_pct")  # Cadastre algorithmique
+	pct += Defenses.cost_pct(state, empire_id, building_id)  # Bâtisseurs de forteresses
 	var c := Research.scaled_amounts(GameData.building(building_id).get("cost", {}), pct)
 	return Goods.with_strategic(state, c, Goods.building_strategic(building_id))
 
@@ -464,6 +465,8 @@ static func building_unlocked(state: GameState, empire_id: int, building_id: Str
 		return false  # Banque centrale : seulement avec la fiscalité complète
 	if String(b.get("nature", "")) != "" and not FaithNatures.follows(state, empire_id, String(b["nature"])):
 		return false  # mausolée : seulement pour sa nature de foi
+	if not Defenses.building_allowed(state, building_id):
+		return false  # défenses spatiales : selon le réglage de la partie
 	return Research.knows_all(state, empire_id, b.get("requires_tech", []))
 
 
@@ -640,14 +643,14 @@ static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet
 				if not galaxy:
 					return "une seule par empire : déjà bâtie ou en chantier"
 				return "merveille déjà bâtie ou en chantier chez %s" % (state.get_empire(o.owner).display_name() if o.owner != empire_id else "vous")
-	return ""
+	return Defenses.check_build(state, empire_id, c, building_id)  # station, modules, plates-formes
 
 
 ## Le bâtiment prend-il un emplacement ? Pas les bâtiments de 2e rang (ils remplacent le 1er rang),
 ## ni les projets (terraformation).
 static func takes_slot(building_id: String) -> bool:
 	var b := GameData.building(building_id)
-	return not b.has("upgrades") and not b.get("project", false) and not b.has("family")
+	return not b.has("upgrades") and not b.get("project", false) and not b.has("family") and Defenses.takes_slot(building_id)
 
 
 ## Type de planète obtenu par un projet de terraformation ("" s'il ne s'applique pas à ce monde) :

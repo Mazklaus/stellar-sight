@@ -555,6 +555,7 @@ func _build_fleet_card() -> void:
 			["colonize", "COLONISER ICI", "Ouvrir le système pour choisir la planète où fonder la revendication"],
 			["stop", "ARRÊTER", "S'arrêter au système le plus proche sur la route"],
 			["patrol", "PATROUILLE", "Aller-retour permanent entre la position de la flotte et un système : cliquez, puis clic droit sur le système (ou Maj + clic droit). Les pirates évitent les systèmes gardés."],
+			["guard", "GARDER", "Défenses spatiales complètes : garder ce système. La flotte y reçoit +10 % de dégâts, la couverture de la station, et y revient si on l'en attire."],
 			["merge", "RASSEMBLER", "Réunir dans cette flotte les autres flottes à l'arrêt dans ce système"],
 			["split", "DÉTACHER", "Détacher un vaisseau dans une nouvelle flotte"],
 			["report", "RAPPORT", "Dernier rapport de bataille de vos flottes  (B)"],
@@ -572,7 +573,7 @@ func _build_fleet_card() -> void:
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if a[0] == "colonize" or a[0] == "invade":
 			b.theme_type_variation = &"PrimaryButton"
-		if a[0] == "explore" or a[0] == "patrol":
+		if a[0] == "explore" or a[0] == "patrol" or a[0] == "guard":
 			b.toggle_mode = true
 		var action: String = a[0]
 		b.pressed.connect(func() -> void: fleet_action_requested.emit(action, _fleet_id))
@@ -699,6 +700,9 @@ func _refresh_fleet_card() -> void:
 	_fleet_buttons["patrol"].text = "PATROUILLE : ACTIVE" if f.is_patrolling() else "PATROUILLE"
 	if f.is_patrolling():
 		_fleet_buttons["patrol"].tooltip_text = "Patrouille entre %s et %s. Clic : l'arrêter." % [g.systems[f.patrol[0]].system_name, g.systems[f.patrol[1]].system_name]
+	_fleet_buttons["guard"].visible = mine and Combat.is_armed(f) and Defenses.full(_state)
+	_fleet_buttons["guard"].set_pressed_no_signal(f.is_guarding())
+	_fleet_buttons["guard"].text = ("GARDE : %s" % g.systems[f.patrol[0]].system_name.to_upper()) if f.is_guarding() else "GARDER"
 	_fleet_buttons["stop"].visible = mine
 	_fleet_buttons["stop"].disabled = not f.is_moving()
 	_fleet_buttons["merge"].visible = mine
@@ -1042,6 +1046,10 @@ func _refresh_card() -> void:
 			tal.append(String(t[0]))
 		if not tal.is_empty():
 			_card_owner.text += "\nTalent de terrain : " + ", ".join(tal)
+	# Défenses spatiales (voir Defenses) : station, bouclier, mines, où en est l'assaut ; seulement en vue.
+	if live:
+		for line in Defenses.system_lines(_state, s.id):
+			_card_owner.text += "\n" + line
 	_card_lore.text = String(STAR_LORE.get(s.star_type, ""))
 	# Une pastille par planète, à la couleur de son type ; un anneau à la couleur du propriétaire.
 	var dots := _planet_dots.get_children()

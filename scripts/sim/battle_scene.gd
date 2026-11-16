@@ -28,7 +28,7 @@ static func capture(state: GameState, sid: int, battle_id: int) -> Dictionary:
 		var score := p.size * 10
 		if c != null and c.owner == owner:
 			score += 1000 + c.population * 20
-			if c.buildings.has("bastion"):
+			if c.buildings.has("bastion") or c.buildings.has("forteresse_orbitale") or c.buildings.has("rempart_stellaire"):
 				station = "bastion"
 			elif station == "":
 				station = "colony" if c.is_colony() else "outpost"
@@ -40,6 +40,10 @@ static func capture(state: GameState, sid: int, battle_id: int) -> Dictionary:
 	var scene := {"seed": battle_id * 7919 + sid * 31, "star": s.star_type, "owner": owner, "belt": belt,
 			"station": station, "wrecks": int(state.battle_wrecks.get(sid, 0)), "siege": state.sieges.has(sid),
 			"lair": state.lairs.has(sid), "planet": {}, "moons": [], "terrain": Terrain.at(state, sid)}
+	# Défenses spatiales : palier de la station et nombre d'éléments fixes, pour le décor.
+	if Defenses.enabled(state):
+		scene["tier"] = Defenses.tier(state, sid)
+		scene["dfx"] = Defenses.elements(state, sid).size()
 	if best >= 0:
 		var bp := state.galaxy.get_planet(best)
 		scene["planet"] = {"type": bp.type, "size": bp.size, "id": bp.id}
