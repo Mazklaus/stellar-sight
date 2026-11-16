@@ -86,6 +86,8 @@ static func build(es: EmpireScreens) -> void:
 	var tab_list := [["routes", "Routes"], ["resources", "Ressources"], ["market", "Marché"], ["knowledge", "Savoir"]]
 	if Private.applies(state, player) or (me == null and Private.enabled(state)):
 		tab_list.append(["private", "Privé"])
+	if Ports.enabled(state):
+		tab_list.append(["ports", "Réseau"])
 	for t in tab_list:
 		var tb := Button.new()
 		tb.theme_type_variation = &"TabButton"
@@ -119,6 +121,9 @@ static func build(es: EmpireScreens) -> void:
 		return
 	if es.trade_tab == "private":
 		PrivateUi.build(es, col)
+		return
+	if es.trade_tab == "ports":
+		PortsUi.build(es, col)
 		return
 
 	var sent := Widgets.Block.new("Vos routes (%d / %d)" % [Trade.sent_by(state, player).size(), cap])
@@ -260,4 +265,4 @@ static func signature(es: EmpireScreens) -> String:
 	var state := es._state
 	@warning_ignore("integer_division")
 	return "%d|%d|%s|%s|%d|%s|%s" % [state.tick / 30, Trade.reserved(state, es._player), str(Trade.embargoes_of(state, es._player)),
-			str(Trade.sent_by(state, es._player).size()), Trade.capacity(state, es._player), GoodsScreen.signature(es), PrivateUi.signature(es)]
+			str(Trade.sent_by(state, es._player).size()), Trade.capacity(state, es._player), GoodsScreen.signature(es), PrivateUi.signature(es) + PortsUi.signature(es)]

@@ -196,7 +196,7 @@ static func has_depot(state: GameState, sid: int, holder := -1) -> bool:
 		var c: Colony = state.colonies.get(pid)
 		if c != null and c.owner == holder and c.is_established() and c.buildings.has(DEPOT):
 			return true
-	return false
+	return Ports.depot_at(state, sid, holder)  # un Spatioport sert de dépôt (spatioports complets)
 
 
 ## Zone de ravitaillement de eid : {système: portée restante}. Recalculée une fois par jour.

@@ -124,6 +124,8 @@ func step() -> void:
 		chronicle_added.emit(entry)
 	for entry in Private.daily(state):
 		chronicle_added.emit(entry)
+	for entry in Ports.daily(state):
+		chronicle_added.emit(entry)
 	for entry in EventSystem.process(state):
 		chronicle_added.emit(entry)
 	for entry in Heroes.daily(state):

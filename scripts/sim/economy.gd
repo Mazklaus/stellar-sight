@@ -257,6 +257,9 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		for r in gross:
 			@warning_ignore("integer_division")
 			gross[r] = gross[r] * cr_pct / 100
+	# Spatioports : seule la part desservie de la production matérielle rejoint le stock (voir Ports).
+	if not state.ports.is_empty():
+		Ports.adjust_yields(state, colony, gross)
 	return {"gross": gross, "upkeep": upkeep}
 
 
@@ -351,6 +354,12 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 		if pc > 0:
 			upkeep["energy"] += pc
 			net["energy"] -= pc
+	if not state.ports.is_empty():
+		# Spatioports : droits de port, entretien des balises repris par le privé (voir Ports).
+		var pi := Ports.income(state, empire_id)
+		for r in pi:
+			gross[r] += int(pi[r])
+			net[r] += int(pi[r])
 	return {"gross": gross, "upkeep": upkeep, "net": net}
 
 
@@ -555,6 +564,8 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 		return "la corruption n'est pas en jeu dans cette partie"
 	if bool(b.get("finance", false)) and not Finance.full(state):
 		return "la fiscalité complète n'est pas en jeu dans cette partie"
+	if bool(b.get("ports", false)) and not Ports.enabled(state):
+		return "les spatioports ne sont pas en jeu dans cette partie"
 	if building_id == "mausolee":
 		var mw := FaithNatures.check_mausoleum(state, empire_id, planet_id)
 		if mw != "":

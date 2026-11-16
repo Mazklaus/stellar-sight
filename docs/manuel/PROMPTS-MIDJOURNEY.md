@@ -464,3 +464,13 @@ a vast vaulted treasury hall inside an orbital bank, towering vault doors open o
 ```
 a bustling orbital merchant spaceport quay, private cargo freighters painted in the liveries of rival trading companies loading glowing containers, company banners and holographic share prices above the docks, in the distance a mining station on an asteroid and a brightly lit space resort with panoramic domes, in the foreground a smug company director shaking hands with a government minister while a smuggler slips behind a stack of crates, mercantile bustle with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-47 · Les spatioports
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Les spatioports »
+- Sujet : Un grand port orbital en anneau autour d'une planète agricole, relié par des traînées lumineuses de cargos à des balises de fret qui s'égrènent dans le vide jusqu'à une colonie lointaine ; sur les quais, des dockers en grève brandissent des pancartes sous d'immenses grues ; au loin, une flotte ennemie bloque un port plus petit
+
+```
+a colossal ring-shaped orbital spaceport encircling a green agricultural planet, streams of cargo freighters leaving glowing trails toward a chain of small freight relay beacons stretching across the void to a distant lonely colony, on the busy docks under gigantic cargo cranes a crowd of striking dockworkers waving placards, far away a hostile warfleet blockading a smaller port station, logistics and trade at galactic scale with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

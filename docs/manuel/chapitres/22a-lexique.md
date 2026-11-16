@@ -20,7 +20,9 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Associé | Membre d'un Koinon sans voix ni bonus de forme, protégé et soumis aux lois | 11 |
 | Avant-poste | Revendication sans habitants, qui exploite les gisements et étend la vision | 3 |
 | Avatar | Le héros d'une ruche ou d'une conscience : ni ambition, ni désertion, ni capture | 16 |
+| Balise de fret | Relais de spatioports, même sur un avant-poste : ne dessert rien mais relie deux ports éloignés | 30 |
 | Bâtisseur | Titre du premier empire à tenir trois merveilles galactiques (un haut fait) | 23, 24 |
+| Blocus | Flotte armée ennemie en guerre dans le système d'un port : il vit sur sa réserve et l'ennemi pille chaque mois (spatioports complets) | 30 |
 | Bourse galactique | Merveille unique qui fonde le marché commun | 9 |
 | Caisse privée | L'argent du secteur privé, à part du Trésor : il investit seul (économie privée) | 29 |
 | Capacité administrative | Ce que les bureaux de l'empire peuvent gérer ; au-delà, chaque tranche de 10 % de charge coûte stabilité, recherche, influence et corruption | 27 |
@@ -61,6 +63,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Défection culturelle | Système instable d'un voisin qui passe chez vous après deux ans, sans un coup de feu, si votre culture l'écrase | 22 |
 | Dépôt de flotte | Bâtiment qui prolonge d'un saut la zone de ravitaillement et répare les flottes à 8 % par jour | 7 |
 | Dernière Guerre | La guerre contre qui refuse l'élection du Chancelier des étoiles | 12 |
+| Desserte | Part de 50 à 100 % de la production matérielle d'une colonie qui rejoint le stock de l'empire (spatioports) | 30 |
 | Dette courante | L'emprunt d'office à la Banque intérieure quand le trésor passe sous zéro ; intérêts seuls, remboursée par l'excédent | 28 |
 | Dévastation | Taux de 0 à 100 par système, né du bombardement et des combats au sol : moins de production, de croissance et de stabilité | 7 |
 | Diaspora | Le peuple d'un empire disparu, qui peut le faire renaître | 3 |
@@ -70,7 +73,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Effort administratif | Ce que l'empire paie ses fonctionnaires : Frugal, Normal, Généreux ou Grande enquête | 27 |
 | Embargo | Coupure de tout commerce avec un empire | 9 |
 | Encerclement | Planète assiégée cernée de systèmes ennemis : garnison et remparts ne se relèvent plus (logistique complète) | 7 |
-| Enclave | Système qu'on ne relie à aucun siège par son territoire, les systèmes libres ou ceux d'un allié : corruption de distance ×1,5 | 27 |
+| Enclave | Système qu'on ne relie à aucun siège par son territoire, les systèmes libres ou ceux d'un allié : corruption de distance ×1,5 ; avec les spatioports, port que rien ne relie à la capitale : ses colonies tombent au plancher de desserte | 27, 30 |
 | Eurêka | Objectif en jeu qui paie 40 % d'une technologie | 5 |
 | Faillite | Fin de la crise de la dette : dettes effacées, dix ans de malus, cote D | 28 |
 | Faste | L'éclat de la cour, de 0 à 100 : train de la cour, grandes fêtes ; faveur, influence, rayonnement, style | 26 |
@@ -80,7 +83,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Filiale | Bureau d'une compagnie dans la colonie d'un partenaire commercial ; l'hôte peut l'exproprier | 29 |
 | Fin de partie | Date à partir de laquelle une crise peut se lever, avancée par les actes imprudents | 19 |
 | Fléau des étoiles | Le dernier palier de l'Ambition démesurée : guerre de toute la galaxie, et la Couronne du Néant à bâtir | 19 |
-| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 32 |
+| Fléau errant | Créature immense qui erre de colonie en colonie après l'an 15 | 33 |
 | Foi d'État | La foi qu'un empire adopte officiellement | 15 |
 | Fortifications | Remparts d'un système, que le siège use avant la milice (combat au sol complet) | 7 |
 | Fouille | Site exploré en plusieurs chapitres, avec une relique au bout | 17 |
@@ -88,10 +91,11 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Fronde | Révolte d'une maison furieuse : un an de troubles dans ses fiefs, puis un ultimatum | 26 |
 | Front commun | Coalition contre la crise : vision partagée, passage libre, +10 % de dégâts contre elle | 19 |
 | Frontière | Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe | 8 |
-| Gardien | Créature unique assise sur un des meilleurs systèmes | 32 |
+| Gardien | Créature unique assise sur un des meilleurs systèmes | 33 |
 | Gloire | Valeur d'empire gagnée par les hauts faits et les grands moments, jamais perdue | 24 |
 | Grand chantier | Chantier de merveille, à part de la file de la colonie : avance de 20 %, puis mensualités ; un à la fois | 23 |
 | Grand chantier commun | Phare des Âges ou Banque des Étoiles : le projet que tous financent pour arrêter une crise sans flotte | 19 |
+| Grand port orbital | Troisième niveau de port : portée de trois sauts, réserve doublée | 30 |
 | Grand Rayonnement | Victoire classique : être Influent chez chaque empire rencontré pendant deux ans | 22 |
 | Grande Maison | Famille noble de la cour : vocation, fiefs, siège, membres, faveur de -100 à +100 | 26 |
 | Grands offices | Grand Intendant, Connétable, Grand Héraut, Maître des Murmures (et Grand Aumônier) | 26 |
@@ -169,7 +173,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Régiment | Unité de combat au sol, recrutée sur une colonie, transportée par les flottes | 7 |
 | Registre | Le ton d'un peuple : grimdark, médiéval spatial, space opera héroïque… | 20 |
 | Registre des traités | Toutes les paix signées, leurs clauses et leurs échéances | 8 |
-| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 31 |
+| Relique | Objet ancien à effet permanent, et son Triomphe | 17, 32 |
 | Renom | La gloire d'un empire, qui attire les héros ; et celui d'une maison, qui achète ses héritages | 16, 25 |
 | Répudiation | Refuser de payer une Maison ou un empire : pas de faillite, mais cote D et créancier furieux | 28 |
 | Réquisition | Refaire les réserves d'une flotte sur le dos d'un système assiégé : crime de guerre (logistique complète) | 7 |
@@ -185,6 +189,7 @@ Les mots du jeu, du plus courant au plus obscur, avec le chapitre où chacun est
 | Siège | La capitale ou une Préfecture, d'où se compte la distance de la corruption ; et le fief le plus peuplé d'une Grande Maison | 27, 26 |
 | Sommation | Ordre à un intrus de quitter votre espace sous 30 jours ; ignorée, elle donne un motif de guerre | 8 |
 | Souverain | La tête de l'empire, hors limite de héros : aptitudes, archétype de règne, légitimité, surnoms | 25 |
+| Spatioport | Deuxième niveau de port, amélioré depuis le Comptoir ; et, au sens large, tout port qui dessert les colonies alentour | 30 |
 | Stabilité | L'humeur d'un système, de 0 à 100 | 14 |
 | Statu quo | Paix où chacun garde ce qu'il tient et revendique | 7 |
 | Stratège | Une classe de héros ; et le chef élu d'un Koinon | 16, 11 |

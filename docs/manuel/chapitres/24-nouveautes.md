@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.26
+
+- **Les spatioports** (chapitre 30), nouveau réglage **Spatioports** (complet, simple, désactivée) : seule la part **desservie** de la production matérielle d'une colonie (énergie, matériaux, nourriture, cristaux) rejoint le stock ; **Comptoir**, **Spatioport** et **Grand port orbital** améliorés sur place, **Balise de fret** en relais, portée en sauts, **desserte** de 100 % à 50 % (Desservie, Limite, Isolée, Enclave), ports **reliés à la capitale** de proche en proche ; onglet **Réseau** de l'écran Commerce ([[C]]) et **mode Spatioports** de la lentille du commerce ([[G]]).
+- **Réglage complet** : **fret** du réseau, **réserves** d'entrepôt, **blocus** et pillage, liaisons coupées, risque pirate, chantiers de bâtiments ralentis et luxes affaiblis loin des ports, enclaves qui se nourrissent seules, dépôt de flotte et chantier spatial plus rapide aux grands ports.
+- **Ponts** : routes commerciales, **droits de port**, cargos privés et **droits de quai**, **balises sous licence**, opération **Désorganiser les docks**, contrebande aux docks, événements de port, technologies (Lignes de ravitaillement, Bourses interstellaires, Spatioports de transit), talents par couche. Chapitres 31 à 34 renumérotés.
+
 ### Édition 2.25
 
 - **L'économie privée** (chapitre 29), nouveau réglage **Économie privée** (complète, simple, désactivée) : un **secteur privé** avec sa propre caisse, nourri par l'activité de la population, une part des routes, ses stations et ses filiales ; **impôt sur les bénéfices** selon le cran de la fiscalité ; **confiance des investisseurs** ; investissement autonome (cargos, paquebots, **stations minières sous licence**, **stations touristiques**, bâtiments civils) ; **subventions**, **commandes d'État**, chantiers loués et **vaisseaux commandés au privé** ; onglet **Privé** de l'écran Commerce ([[C]]) et **mode Économie privée** de la lentille du commerce ([[G]]).

@@ -1,0 +1,67 @@
+{
+	"_doc": "Spatioports et réseau de distribution (étude « Spatioports », 2026-11-16, 36 propositions validées). Chaque colonie est plus ou moins bien desservie par un port de son empire : la desserte (plancher à 100 %) dit quelle part de sa production matérielle (énergie, matériaux, nourriture, cristaux) rejoint le stock de l'empire ; l'immatériel (Savoir, Influence) n'est jamais touché. Ports : Comptoir, Spatioport, Grand port orbital (un par système), plus la Balise de fret (relais sur avant-poste). Un port ne compte que s'il est relié à la capitale par une chaîne de ports dont les portées se touchent ; sinon ses colonies forment une enclave. Mode complet : fret, flux Construction / Luxe / Nourriture, entrepôts, blocus, liaisons coupées, pirates, pillage, ravitaillement, ponts. Catalogues ouverts : niveaux, événements, talents.",
+	"_sources": "Distant Worlds 2 (journal n°6 : les ressources vont d'abord aux spatioports puis sont redistribuées ; manuel p. 77 : un spatioport par monde comme plaque, p. 94 : le blocus empêche les ressources d'arriver ; panneau Ressources : Adéquat / Bas / Critique), Victoria 3 (journal n°39 : chemin vers la capitale du marché, convois requis contre disponibles, enclaves isolées), Starsector (spatioport et mégaport : accessibilité, pirates), Stellaris 3.x (portée de collecte des bases stellaires, +1 saut par plaque commerciale), Aurora 4X (compagnies civiles limitées à 4 systèmes, relais, raids). Étude : https://claude.ai/artifact/7ckhoNxjWYRB3ejUQrfwvW",
+	"modes": [
+		{"id": "complet", "label": "Complet", "text": "Desserte, ports, balises et enclaves, plus le fret, les flux Construction / Luxe / Nourriture, les entrepôts, les blocus, les liaisons coupées, les pirates, le ravitaillement et les ponts avec les autres piliers."},
+		{"id": "simple", "label": "Simple", "text": "Desserte, ports, balises, réseau vers la capitale et lentille, sans fret, flux, entrepôts ni effets de la guerre."},
+		{"id": "desactivee", "label": "Désactivée", "text": "Toute la production rejoint le stock de l'empire quelle que soit la distance, comme avant."}
+	],
+	"default_mode": "complet",
+	"levels": {
+		"_doc": "Niveau de port de chaque bâtiment (1 Comptoir, 2 Spatioport, 3 Grand port) ; 0 = Balise de fret (relais sans desserte). Portée en sauts par niveau ; la balise a sa portée à part.",
+		"buildings": {"comptoir": 1, "spatioport": 2, "grand_port": 3, "balise_fret": 0},
+		"range": [1, 1, 2, 3],
+		"labels": ["Balise de fret", "Comptoir", "Spatioport", "Grand port orbital"]
+	},
+	"capital_building": "spatioport",
+	"service": {
+		"_doc": "Desserte (prop. 1, 3, 4) : 100 % dans la portée d'un port relié, puis -per_jump % par saut au-delà, jamais sous floor. États : Desservie à ok_at % ou plus, Limite à limit_at % ou plus, sinon Isolée.",
+		"floor": 50, "per_jump": 15, "ok_at": 90, "limit_at": 60,
+		"resources": ["energy", "materials", "food", "crystals"]
+	},
+	"freight": {
+		"_doc": "Fret du réseau (prop. 13) : besoin = 1 par colonie hors du système d'un port, +1 par saut jusqu'au port ; disponible = per_level par niveau de port relié, plus per_cargo par cargo privé utilisable. Sous le besoin, la part de desserte au-dessus du plancher baisse d'autant.",
+		"per_level": 4, "per_cargo": 2
+	},
+	"flows": {
+		"_doc": "Flux (prop. 14-16) : un jour de chantier sur build_skip est perdu (Limite, Isolée) ; bonus de stabilité des luxes gardé (en %) ; une enclave qui mange plus qu'elle ne produit arrête sa croissance.",
+		"build_skip": {"limit": 4, "isolated": 2},
+		"luxury_pct": {"ok": 100, "limit": 50, "isolated": 0}
+	},
+	"warehouse": {
+		"_doc": "Entrepôts (prop. 17) : jours de réserve par niveau de port (le Grand port compte double) ; un port coupé ou bloqué vit sur sa réserve, qui se recharge de refill jours par jour quand il est relié.",
+		"days_per_level": 30, "grand_mult": 2, "refill": 3
+	},
+	"blockade": {"_doc": "Blocus et pillage (prop. 19, 22) : chaque mois de blocus, l'empire qui bloque prend loot_per_level énergie et matériaux par niveau de port.", "loot_per_level": 10},
+	"pirates": {"_doc": "Pirates (prop. 21) : un risque pirate dans le système d'une colonie retire de min_loss à max_loss % de desserte (proportionnel au risque, plafond risk_max).", "min_loss": 5, "max_loss": 20, "risk_max": 250},
+	"shipyard": {"_doc": "Le port est un chantier (prop. 12) : un jour de chantier spatial gagné tous les N jours (Spatioport 4, Grand port 2).", "bonus_every": [0, 0, 4, 2]},
+	"trade": {"_doc": "Commerce (prop. 26) : +route_pct % de revenu des routes par niveau du meilleur port de l'empire au-delà du premier.", "route_pct": 10},
+	"dues": {"_doc": "Droits de port (prop. 27) : énergie par mois et par niveau de port relié, ajustée par le cran d'impôt (fiscalité) en %.", "per_level": 1, "tax_pct": {"tres_bas": 50, "bas": 75, "normal": 100, "eleve": 125, "ecrasant": 150}},
+	"private": {"_doc": "Économie privée (prop. 25) : droits de quai versés au privé par niveau de port relié ; balises sous licence : le privé paie l'entretien des balises.", "dock_fees": 2, "beacon_upkeep": 1},
+	"espionage": {"_doc": "Désorganiser les docks (prop. 29) : jours sans desserte du port visé.", "days": 60},
+	"corruption": {"_doc": "Contrebande aux docks (prop. 31) : au-delà de at % de corruption du système, le port perd days jours de réserve par mois.", "at": 40, "days": 10},
+	"events": {
+		"_doc": "Événements de port (prop. 31) : chance par mois et par port relié (pour mille), effet. Catalogue ouvert.",
+		"chance_permil": 8,
+		"list": [
+			{"id": "greve", "label": "Grève des dockers", "days": 30, "text": "%s : grève des dockers à %s. Plus rien ne sort des entrepôts pendant un mois ; les grévistes, eux, ont de quoi manger."},
+			{"id": "incendie", "label": "Entrepôt incendié", "text": "%s : un entrepôt flambe à %s. La réserve du port part en fumée, l'assurance part en vacances."},
+			{"id": "afflux", "label": "Afflux de marchands", "energy_per_level": 20, "text": "%s : afflux de marchands à %s. Les quais débordent, les caisses aussi."},
+			{"id": "sature", "label": "Port saturé", "days": 60, "text": "%s : %s est saturé. Les cargos tournent en orbite en attendant une place ; le fret de l'empire baisse d'un quart pendant deux mois."}
+		],
+		"saturated_freight_pct": 75
+	},
+	"talents": {
+		"_doc": "Talents de peuple par couche (prop. 32) : range (+portée des ports), enclave_fed (les enclaves ne s'arrêtent pas de grandir), freight_pct (+fret), warehouse_pct (+réserve). Catalogue ouvert.",
+		"gouvernement": {
+			"ruche": {"label": "Ruche : le réseau du Tout", "text": "Portée de tous vos ports +1 : les ouvrières se passent les vivres de main en main.", "range": 1},
+			"horde": {"label": "Horde : on emporte tout", "text": "Vos enclaves ne s'arrêtent jamais de grandir : un peuple nomade vit sur ce qu'il porte.", "enclave_fed": true}
+		},
+		"credo": {
+			"profit": {"label": "Profit : armateurs nés", "text": "Fret du réseau +25 %.", "freight_pct": 25}
+		},
+		"archetype": {
+			"lithoide": {"label": "Lithoïde : silos de pierre", "text": "Réserve des entrepôts doublée : la roche ne pourrit pas.", "warehouse_pct": 100}
+		}
+	}
+}

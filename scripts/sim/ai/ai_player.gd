@@ -687,6 +687,11 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 	# Plus de partenaires commerciaux que de routes : un comptoir (voir AiTrade).
 	if use >= 1 and AiTrade.wants_comptoir(ctx):
 		out.append("comptoir")
+	# Spatioports : améliorer ses ports, couvrir les colonies isolées, relier les enclaves (voir Ports).
+	if not state.ports.is_empty() and use >= 1:
+		var pw := Ports.ai_wish(state, e.id, c)
+		if pw != "":
+			out.append(pw)
 	# En guerre, les systèmes du front se fortifient (dès le niveau Normal).
 	if not e.wars.is_empty() and _skill(ctx) >= 1 and int(rival_distance(ctx).get(p.system_id, 99)) <= 2 \
 			and Combat.battery(state, p.system_id).is_empty():
@@ -1549,6 +1554,10 @@ static func _war_target(ctx: Dictionary, from: int) -> int:
 		if state.wars_on and _skill(ctx) >= 1 and Wars.has_claim(state, e.id, sid):
 			@warning_ignore("integer_division")
 			score = score / 2
+		# Spatioports complets : un port ennemi est une cible de choix (le bloquer coupe son réseau).
+		if Ports.full(state) and _skill(ctx) >= 1 and Ports.port_level_at(state, owner, sid) >= 2:
+			@warning_ignore("integer_division")
+			score = score * 3 / 4
 		# Terrain : le Vétéran et au-dessus évitent d'attaquer là où le terrain les désavantage.
 		var tai: Dictionary = Terrain.data().get("ai", {})
 		if Terrain.active(state) and _skill(ctx) >= int(tai.get("min_skill", 2)) \

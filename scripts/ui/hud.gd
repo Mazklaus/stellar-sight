@@ -375,9 +375,12 @@ func cycle_stability_lens() -> void:
 ## Onglet Commerce (et touche G) : vue galaxie → commerce → économie privée (si le joueur a un
 ## secteur privé) → vue galaxie.
 func cycle_trade_lens() -> void:
+	var ports_on := _state != null and Ports.enabled(_state)
 	if lens == "trade" and _state != null and Private.applies(_state, _player):
 		set_lens("private")
-	elif lens == "trade" or lens == "private":
+	elif (lens == "trade" or lens == "private") and ports_on:
+		set_lens("ports")
+	elif lens == "trade" or lens == "private" or lens == "ports":
 		set_lens("")
 	else:
 		set_lens("trade")
@@ -390,7 +393,7 @@ func set_lens(value: String) -> void:
 	_tab_economy.set_pressed_no_signal(value == "economy")
 	_tab_stability.set_pressed_no_signal(value == "stability" or value == "corruption" or value == "fiscal")
 	_tab_politics.set_pressed_no_signal(value == "politics")
-	_tab_trade.set_pressed_no_signal(value == "trade" or value == "private")
+	_tab_trade.set_pressed_no_signal(value == "trade" or value == "private" or value == "ports")
 	_tab_peoples.set_pressed_no_signal(value == "peoples")
 	_tab_faith.set_pressed_no_signal(value == "faith")
 	_tab_amph.set_pressed_no_signal(value == "amph")
@@ -430,7 +433,7 @@ func _build_tabs() -> void:
 	_tab_stability.pressed.connect(cycle_stability_lens)
 	_tab_politics = _tab("Politique", "Lentille politique : le courant qui domine l'opinion de chacun de vos systèmes, et ses représentants au pouvoir ou non  (O)")
 	_tab_politics.pressed.connect(func() -> void: set_lens("" if lens == "politics" else "politics"))
-	_tab_trade = _tab("Commerce", "Lentille du commerce : vos routes commerciales (couleur du traité, rouge si bloquée) et le risque pirate le long du chemin ; un second clic montre l'économie privée (stations, cargos, filiales, repaires)  (G)")
+	_tab_trade = _tab("Commerce", "Lentille du commerce : vos routes commerciales (couleur du traité, rouge si bloquée) et le risque pirate le long du chemin ; un second clic montre l'économie privée (stations, cargos, filiales, repaires), puis le réseau de distribution des spatioports (desserte, portées, liaisons)  (G)")
 	_tab_trade.pressed.connect(cycle_trade_lens)
 	_tab_peoples = _tab("Peuples", "Lentille des peuples : la part de chaque espèce dans vos systèmes, et l'espèce majoritaire  (U)")
 	_tab_peoples.pressed.connect(func() -> void: set_lens("" if lens == "peoples" else "peoples"))

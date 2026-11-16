@@ -45,7 +45,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 
 	var sys_id := state.galaxy.get_planet(c.planet_id).system_id
 	if c.construction != "" and not e.blackout and not Stability.frozen(state, sys_id) and WarPeace.occupier(state, sys_id) < 0 \
-			and not Private.skip_day(state, sys_id):
+			and not Private.skip_day(state, sys_id) and not Ports.skip_build(state, c):
 		c.construction_days -= 1
 		if c.construction_days <= 0:
 			_finish_building(state, c, e, state.galaxy.get_planet(c.planet_id).display_name(state.galaxy), added)
@@ -59,6 +59,9 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 	var cap := Economy.max_pop(state, state.galaxy.get_planet(c.planet_id), c.owner, c.buildings)
 	if e.starving:
 		c.growth = 0
+		return
+	# Spatioports : une enclave qui ne se nourrit pas elle-même ne grandit plus.
+	if Ports.hungry(state, c):
 		return
 	# Agitation et révolte : la population ne grandit plus (sans perdre ce qui est acquis).
 	if not Stability.growth_ok(state, sys_id):
@@ -130,6 +133,7 @@ static func _finish_building(state: GameState, c: Colony, e: Empire, planet_name
 	else:
 		c.buildings.append(bid)
 	Economy.clear_wonders()
+	Ports.touch(state, bid)
 	Politics.on_building(state, state.galaxy.get_planet(c.planet_id).system_id, bid)
 	if b.get("galaxy_unique", false):
 		added.append(state.add_chronicle("Merveille : %s achève %s sur %s. Toute la galaxie en parle, certains avec envie." % [e.display_name(), label, planet_name], Espionage.public_to(state, [e.id])))
