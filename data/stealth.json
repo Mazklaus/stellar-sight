@@ -9,6 +9,7 @@
 		"Distant Worlds 2, manuel p. 62 et 86-87 : https://ftp.matrixgames.com/pub/DistantWorlds2/DW2%20Manual%20EBOOK.pdf",
 		"Aurora 4X (manuel communautaire), 11.4 Stealth : https://erikevenson.github.io/aurora-manual/11-sensors-and-detection/11.4-stealth.html"
 	],
+	"_equilibrage": "À REVOIR À L'ÉQUILIBRAGE (décision du 2026-11-16) : voiles I-III à 2-4 au lieu de 1-3, et règles contre les peuples voilés (Murmurants : camouflage 3, +2 à l'arrêt sur place, detect_veil des Détecteurs d'abysse).",
 	"default_mode": "complete",
 	"modes": [
 		{"id": "complete", "label": "Complète", "text": "Camouflage contre détection, trois degrés de connaissance (contact, identifiée, détaillée), postures Silence radio et Balayage actif, balises d'écoute, brouilleurs et leurres."},
