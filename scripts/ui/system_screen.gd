@@ -421,10 +421,19 @@ func _refresh_defenses(s: StarSystem) -> void:
 	var lines: Array[String] = []
 	if read_only or Intel.shown_live(_state, s.id):
 		lines = Defenses.system_lines(_state, s.id)
-	_def_row.visible = not lines.is_empty()
-	if lines.is_empty():
+	var viewer_e := _state.get_empire(_player)
+	var passages: Array[String] = []
+	if read_only or (viewer_e != null and viewer_e.explored.has(s.id)):
+		passages = Portals.passage_lines(_state, _player, s.id)
+	_def_row.visible = not lines.is_empty() or not passages.is_empty()
+	if lines.is_empty() and passages.is_empty():
 		return
-	_def_label.text = "Défenses · " + "\n".join(lines)
+	var text := ""
+	if not lines.is_empty():
+		text = "Défenses · " + "\n".join(lines)
+	if not passages.is_empty():
+		text += ("\n" if text != "" else "") + "Passages · " + "\n".join(passages)
+	_def_label.text = text
 	var mine := _state.system_owner(s.id) == _player and not read_only
 	var cost := Defenses.modernize_cost(_state, s.id) if mine else {}
 	_def_modernize.visible = not cost.is_empty()
@@ -637,6 +646,13 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 	if c == null:
 		actions.append(_claim_action(p, Colony.KIND_OUTPOST))
 	var me := _state.get_empire(_player)
+	# Portails de saut : l'occupant peut raser le portail du système (sur la planète qui le porte).
+	if c and c.owner != _player and Portals.enabled(_state) and Portals.check_raze(_state, _player, p.system_id) == "" \
+			and Portals._gate_colony(_state, p.system_id) == c:
+		var rcmd := SimCommands.portal_raze(_player, p.system_id)
+		actions.append({"text": "Raser le portail", "detail": "le portail de ce système est détruit", "reason": "",
+				"tooltip": "Vous occupez ce système : détruire son portail de saut coupe le réseau ennemi.",
+				"action": func() -> void: command_requested.emit(rcmd)})
 	if me and c and c.owner == _player and c.is_established():
 		var f := me.faction()
 		if FactionTraits.can_rush(f) and c.construction != "":
@@ -677,6 +693,11 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 					possible = false
 			# Défenses spatiales : selon le réglage ; modules et plates-formes sur la colonie de la station.
 			if possible and not Defenses.building_allowed(_state, bid):
+				possible = false
+			# Portails de saut : selon le réglage ; ancre sur un trou de ver, restauration sur une ruine.
+			if possible and not Portals.building_allowed(_state, bid):
+				possible = false
+			if possible and String(b.get("portals", "")) in ["anchor", "ruin"] and Portals.check_build(_state, _player, _state.colonies[p.id], bid) != "":
 				possible = false
 			if possible and Defenses.role(bid) in ["module", "platform"] and int(Defenses.station(_state, p.system_id).get("pid", -1)) != p.id:
 				possible = false

@@ -179,6 +179,7 @@ func _draw() -> void:
 		var lit := lane.x == selected_id or lane.y == selected_id
 		var alpha := 0.75 if lit else (0.22 if ea and eb else 0.1)
 		draw_line(a, b, Color(LANE_COLOR, alpha), (2.0 if lit else 1.0) * px, true)
+	_draw_portals(px)
 
 	for s in galaxy.systems:
 		if is_explored(s.id):
@@ -917,6 +918,60 @@ func _draw_wonders(px: float) -> void:
 			var w := 6.0 - k * 2.0
 			draw_rect(Rect2(-w, 2.5 - k * 3.0, w * 2.0, 2.5), col)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Portails de saut (voir Portals), dessinés en permanence sans lentille : trous de ver en ligne
+## ondulée violette (destination connue) ou tourbillon seul, corridors de relais surlignés en vert d'eau,
+## anneau sur les systèmes à portail (gris pointillé pour une ruine, doré pour un portail libre).
+func _draw_portals(px: float) -> void:
+	if state == null or state.portals.is_empty():
+		return
+	var g := galaxy
+	var drawn := {}
+	for a in g.wormholes:
+		var ia := int(a)
+		var ib := int(g.wormholes[a])
+		if drawn.has(ia) or not is_explored(ia):
+			continue
+		drawn[ia] = true
+		drawn[ib] = true
+		var pa := g.systems[ia].position
+		var known := viewer < 0 or Portals.known_pair(state, viewer, Portals.pair_index(state, ia))
+		var col := Color(0.72, 0.5, 1.0, 0.55)
+		if known and is_explored(ib):
+			var pb := g.systems[ib].position
+			var pts := PackedVector2Array()
+			var dir := pb - pa
+			var nrm := Vector2(-dir.y, dir.x).normalized()
+			var steps := 40
+			for i in steps + 1:
+				var t := float(i) / steps
+				pts.append(pa + dir * t + nrm * sin(t * TAU * 6.0) * 5.0 * px)
+			draw_polyline(pts, col, 1.4 * px, true)
+			_draw_swirl(pb, px, col)
+		_draw_swirl(pa, px, col)
+	if not g.relays.is_empty():
+		for lane in g.lanes:
+			if g.relays.has(lane.x) and g.relays.has(lane.y) and is_explored(lane.x) and is_explored(lane.y):
+				draw_line(g.systems[lane.x].position, g.systems[lane.y].position, Color(0.35, 0.95, 0.75, 0.6), 2.6 * px, true)
+	for sid in g.portal_gates:
+		if not is_explored(int(sid)):
+			continue
+		var free := state.system_owner(int(sid)) < 0
+		draw_arc(g.systems[int(sid)].position, 15.0 * px, 0.0, TAU, 28, Color(0.95, 0.8, 0.35, 0.9) if free else Color(0.62, 0.55, 1.0, 0.9), 2.0 * px, true)
+	var ruins: Dictionary = state.portals.get("ruins", {})
+	for k in ruins:
+		if int(ruins[k]) == 0 and is_explored(int(k)):
+			var c := g.systems[int(k)].position
+			for i in 8:
+				var a0 := TAU * i / 8.0
+				draw_arc(c, 15.0 * px, a0, a0 + TAU / 16.0, 4, Color(0.6, 0.6, 0.62, 0.8), 1.6 * px, true)
+
+
+func _draw_swirl(p: Vector2, px: float, col: Color) -> void:
+	for k in 3:
+		var r := (5.0 + k * 3.5) * px
+		draw_arc(p + Vector2(0, 0), r, k * 1.3, k * 1.3 + PI * 1.4, 12, col, 1.3 * px, true)
 
 
 ## Convois de réfugiés (voir Movements) : un cercle bleu pâle sous l'étoile, avec leur nombre.
