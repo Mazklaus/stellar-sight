@@ -423,9 +423,11 @@ static func start_war(state: GameState, a: int, b: int, by_nature := false, join
 		return {}
 	var entry: Dictionary
 	if by_nature:
+		Announce.next(state, "war_declared", {"actor": a, "target": b})
 		entry = state.add_chronicle("%s rencontre %s et ne voit pas l'intérêt de discuter. C'est la guerre : l'Essaim ne signe rien, il digère." % [
 				ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 	else:
+		Announce.next(state, "war_declared", {"actor": a, "target": b})
 		entry = state.add_chronicle("%s déclare la guerre à %s. Les amirautés ressortent les cartes, les poètes les hymnes." % [
 				ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 	Diplomacy.on_war_declared(state, a, b, by_nature, joined)

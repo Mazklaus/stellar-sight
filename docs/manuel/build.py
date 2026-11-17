@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.35"
+EDITION = "2.36"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -1479,6 +1479,31 @@ def gen_ar_talents():
     return f"<table class='grille'><tr><th>Peuple</th><th>Talent</th></tr>{l1}</table>"
 
 
+def gen_an_familles():
+    """Les dix familles d'annonces et leurs types (data/announcements.json)."""
+    d = charger("announcements.json")
+    grav = {g["id"]: g["label"] for g in d["gravities"]}
+    l1 = ""
+    for fid, f in d["families"].items():
+        if fid.startswith("_"):
+            continue
+        types = []
+        for k, v in d["kinds"].items():
+            if k.startswith("_") or v.get("family") != fid:
+                continue
+            g = v.get("g", [1, 0, 0])
+            types.append(f"{esc(v.get('title', k))} <i>({grav.get(g[0], '?')} / {grav.get(g[1], '?')} / {grav.get(g[2], '?')})</i>")
+        l1 += f"<tr><td><b>{esc(f['label'])}</b><br><i>{inline(f.get('lead', ''))}</i></td><td>{'<br>'.join(types)}</td></tr>"
+    return f"<table class='grille'><tr><th>Famille</th><th>Types (vous concerne / un voisin connu / lointain)</th></tr>{l1}</table>"
+
+
+def gen_an_presets():
+    """Préréglages des annonces (data/announcements.json « presets »)."""
+    d = charger("announcements.json")
+    l1 = "".join(f"<tr><td><b>{esc(v['label'])}</b>{' (défaut)' if k == 'stratege' else ''}</td><td>{inline(v.get('text', ''))}</td></tr>" for k, v in d["presets"].items())
+    return f"<table class='grille'><tr><th>Préréglage</th><th>Effet</th></tr>{l1}</table>"
+
+
 def gen_ct_modes():
     """Réglages Contact, Lointains et Issue (data/contact.json)."""
     d = charger("contact.json")
@@ -1550,6 +1575,7 @@ GENERATEURS = {
     "psi_felures": gen_psi_felures, "psi_postures": gen_psi_postures, "psi_visions": gen_psi_visions, "psi_puissances": gen_psi_puissances,
     "psi_talents": gen_psi_talents,
     "mg_modes": gen_mg_modes, "mg_catalogue": gen_mg_catalogue, "mg_talents": gen_mg_talents,
+    "an_familles": gen_an_familles, "an_presets": gen_an_presets,
     "ar_modes": gen_ar_modes, "ar_types": gen_ar_types, "ar_actions": gen_ar_actions, "ar_disparus": gen_ar_disparus, "ar_talents": gen_ar_talents,
     "ct_modes": gen_ct_modes, "ct_couches": gen_ct_couches, "ct_natures": gen_ct_natures, "ct_talents": gen_ct_talents,
     "tr_modes": gen_tr_modes, "tr_voies": gen_tr_voies, "tr_oeuvres": gen_tr_oeuvres, "tr_talents": gen_tr_talents,

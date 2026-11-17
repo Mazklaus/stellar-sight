@@ -1165,6 +1165,7 @@ static func _discovered(state: GameState, a: int, b: int, o: Dictionary, ok: boo
 	if ok and String(o["id"]) == "assassinat":
 		Diplomacy.remember(state, b, a, "hero_assassinated")
 	var verdict := "Ils ont réussi quand même : %s" % what if ok else "Ils repartent bredouilles, et repérés."
+	Announce.next(state, "spies_caught", {"actor": a, "target": b})
 	state.add_chronicle("Des agents de %s sont démasqués chez %s (%s). %s" % [ea.display_name(), eb.display_name(), String(o["label"]).to_lower(), verdict],
 			public_to(state, [a, b]))
 	var zeal := int(tb.get("fervor_on_catch", 0))

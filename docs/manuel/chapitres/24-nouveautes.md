@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.36
+
+- **La voix du chroniqueur** (chapitre 40), la fenêtre d'événement généralisée : les nouvelles importantes deviennent des **annonces typées** (49 types en **dix familles**), avec **quatre gravités** (Chronique, Avis, Fenêtre, Fanfare) qui suivent votre **distance** à l'événement, les **premières de la galaxie** et les types **toujours visibles** ; une **fenêtre commune** (Emplacement, Écran lié, Réduire, Compris, flèches, « Ouvrir d'elle-même ») ; des **Fanfares** plein cadre avec les vues **guerre** et **mémorial** ; la **colonne** de pastilles au-dessus du cadran, regroupées par type et par mois, avec les décisions en or ; des **avis cliquables** ; un plafond de **deux fenêtres par mois** ; une **pause unifiée** pour toutes les fenêtres ; le rappel des décisions en attente à la fin du tour.
+- Onglet **Annonces** des Options (préréglages **Chroniqueur**, **Stratège**, **Silence** ; animations ; son ; apparence, pause et ouverture par type) ; onglets **Annonces** et **Heures** des Chroniques ; alertes de victoire à **50, 75 et 90 %** ; chronique portée à 400 lignes. Sauvegarde 90. Chapitres 41 à 44 renumérotés.
+
 ### Édition 2.35
 
 - **Ce que la poussière se rappelle** (chapitre 39), nouveau réglage **Archéologie** (complète, classique, désactivée) : les fouilles du Reliquaire deviennent les **Strates**. Trois technologies (**Archéologie stellaire**, **Déchiffrement des Strates**, **Paléo-ingénierie**) ; sept **types de sites** ; **strates** Première, Moyenne et Récente (détection 3 pour la Première) ; origines ; sites **nés de l'histoire de la partie** ; **mondes-reliques** ; fouille sur un système libre avec une flotte, ou chez un autre empire avec un **permis de fouille** ; **fouilles concurrentes** ; méthode **Prudente**, **Méthodique** ou **Pillage** ; chapitres à choix **Étudier** ou **Exploiter** et choix par couche ; incidents enrichis et **pillards** ; **Extraire ou Classer en Haut lieu** ; **gisements** de fragments ; **antiquités** et salles à thème du Musée galactique ; **trois natures de fragments** (Savoir, Art, Arme) qui se forgent en reliques ; **actions de fragments** (plafond 500) ; le **Collectionneur**.

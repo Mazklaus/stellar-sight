@@ -379,6 +379,7 @@ static func add_route(state: GameState, eid: int, r: String, added: Array[Dictio
 	if was == 0:
 		sub(state, "alerts")[str(eid)] = 0  # plus de fausses alertes après la vraie
 		_push_alert(state, eid, true, "", added)
+		Announce.next(state, "signal_heard", {"actor": eid})
 		added.append(state.add_chronicle("%s capte quelque chose (%s) : %s, peut-être. Il faut une deuxième voie pour l'entendre en entier." % [e.display_name(), route_label(r), signal_name(state, eid)],
 				Espionage.private_to(state, [eid])))
 	elif was + 1 == c_int("capture", "need", 2):
@@ -804,6 +805,7 @@ static func _on_porteuse(state: GameState, eid: int, added: Array[Dictionary]) -
 	first["porteuse"] = eid
 	sub(state, "porteuse_until")["t"] = state.tick + c_int("porteuse", "days", 360)
 	_stat(state, eid, "first_porteuse", 1)
+	Announce.next(state, "contact_porteuse", {"actor": eid})
 	added.append(state.add_chronicle("Nous ne sommes pas seuls : %s déchiffre la Porteuse d'un signal venu d'au-delà de la galaxie. Des nombres premiers, sans fin. Dans tous les empires, on lève les yeux." % state.get_empire(eid).display_name()))
 	ContactVoices.on_porteuse(state, eid, added)
 
@@ -1002,6 +1004,7 @@ static func start_tx(state: GameState, eid: int, added: Array[Dictionary]) -> vo
 	_stat(state, eid, "tx", 1)
 	state.relic_rev += 1
 	var e := state.get_empire(eid)
+	Announce.next(state, "contact_reply", {"actor": eid, "system": heraut_system(state, eid)})
 	added.append(state.add_chronicle("Alerte galactique : %s répond au Signal. Son Héraut, à %s, émet vers l'au-delà ; dans %s au plus tôt, la réponse arrivera. D'ici là, tout le monde sait où il est." % [
 			e.display_name(), state.galaxy.systems[heraut_system(state, eid)].system_name, Victory._days_text(tx_left(state, eid))]))
 	ContactRace.on_transmit(state, eid, added)
@@ -1086,6 +1089,7 @@ static func complete(state: GameState, eid: int, added: Array[Dictionary]) -> vo
 	if not win:
 		sub(state, "failed")[str(eid)] = state.tick
 		_stat(state, eid, "failed", 1)
+		Announce.next(state, "contact_fail", {"actor": eid})
 		added.append(state.add_chronicle(String(nd.get("fail", "La réponse arrive, et elle n'est pas bonne pour %s.")) % e.display_name()))
 		ContactVoices.on_fail(state, eid, String(nd.get("crisis", "")), added)
 		return

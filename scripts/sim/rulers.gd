@@ -1157,6 +1157,7 @@ static func die(state: GameState, eid: int, why: String, added: Array[Dictionary
 	if not leaves:
 		_halve_memories(state, eid)
 	var e := state.get_empire(eid)
+	Announce.next(state, "ruler_death", {"target": eid, "name": dead_name, "portrait": String(r.get("portrait", "")), "born": int(r.get("born", 0)), "from": int(r.get("from", 0)), "why": why})
 	added.append(state.add_chronicle("%s %s." % [dead_name, why], Espionage.public_to(state, [eid])))
 	# Succession (peut couronner tout de suite ou ouvrir un interrègne).
 	if not successor.is_empty():

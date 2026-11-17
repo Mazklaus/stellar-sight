@@ -12,3 +12,4 @@ cherche un fichier portant son identifiant et l'affiche à la place du motif des
 | `planet_<type>` (continental, ocean, desert, arctic, toxic, gas_giant, barren, asteroids) | Colonie choisie (écran Colonies) | paysage, 4:3 |
 | `screen_colonies`, `screen_research`, `screen_diplomacy` | Colonne de gauche des écrans d'empire | bandeau, 2:1 |
 | `main_menu` | Fond du menu principal (sinon la galaxie qui dérive) | 16:9 |
+| `annonces/<type>` (types de data/announcements.json : war_declared, hero_death, crisis_start…) | Fenêtre des annonces et Fanfares, sous le bandeau de famille ; Fanfares en priorité | bandeau, 3:1 (Fanfare plein cadre) |

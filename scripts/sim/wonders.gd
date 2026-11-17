@@ -842,6 +842,7 @@ static func complete(state: GameState, wid: String, eid: int, added: Array[Dicti
 	var p := state.galaxy.get_planet(pid)
 	Politics.on_building(state, p.system_id, wid)
 	Events.push(state, eid, "wonder_done", {"planet": pid, "system": p.system_id, "n": all_ids().find(wid)}, added)
+	Announce.next(state, "wonder_done", {"actor": eid, "planet": pid, "name": label(wid)})
 	added.append(state.add_chronicle("Merveille : %s achève %s sur %s. Toute la galaxie en parle, certains avec envie." % [
 			e.display_name(), label(wid), p.display_name(state.galaxy)], Espionage.public_to(state, [eid])))
 	WondersCatalog.on_complete(state, wid, eid, pid, added)

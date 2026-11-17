@@ -198,6 +198,11 @@ static func archaeology() -> Dictionary:
 	return _load("archaeology")
 
 
+## Annonces : familles, gravités, types (data/announcements.json, voir Announce).
+static func announcements() -> Dictionary:
+	return _load("announcements")
+
+
 static func portals() -> Dictionary:
 	return _load("portals")
 

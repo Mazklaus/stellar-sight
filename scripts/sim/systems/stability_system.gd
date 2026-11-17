@@ -75,6 +75,7 @@ static func _monthly_system(state: GameState, e: Empire, sid: int, month: int, c
 	en["revolt"] = days
 	for w in sec["warn_days"]:
 		if before < int(w) and days >= int(w):
+			Announce.next(state, "revolt", {"target": e.id, "system": sid})
 			@warning_ignore("integer_division")
 			added.append(state.add_chronicle("Révolte à %s (%s) depuis %d mois : on y parle de sécession à voix haute. Encore %d mois et il sera trop tard." % [
 					sname, e.short_name(), days / month, (int(sec["revolt_days"]) - days) / month], Espionage.private_to(state, [e.id], sid)))
@@ -135,6 +136,7 @@ static func secede(state: GameState, sid: int, empire_id: int, added: Array[Dict
 		var ek := state.get_empire(kin)
 		Stability._transfer(state, sid, empire_id, kin)
 		state.stability.erase(sid)
+		Announce.next(state, "secession", {"actor": empire_id, "target": kin, "system": sid})
 		added.append(state.add_chronicle("Sécession ! %s rompt avec %s et rejoint %s, l'empire de son peuple. On change de drapeau, de langue officielle et, pour certains, de cousins." % [
 				sname, e.display_name(), ek.display_name()], Espionage.public_to(state, [empire_id, kin])))
 		Movements.on_secession(state, sid, empire_id, kin, added)
@@ -151,6 +153,7 @@ static func secede(state: GameState, sid: int, empire_id: int, added: Array[Dict
 		added.append(state.add_chronicle("La colonie de %s rompt avec %s et redevient sauvage : un essaim sans maître, qui ne reconnaît plus personne." % [
 				sname, e.display_name()], Espionage.public_to(state, [empire_id])))
 	else:
+		Announce.next(state, "secession", {"actor": empire_id, "system": sid})
 		added.append(state.add_chronicle("Sécession ! %s rompt avec %s et rejoint les Sans-Bannière. On brûle les portraits officiels, on garde les cadres." % [
 				sname, e.display_name()], Espionage.public_to(state, [empire_id])))
 	_spawn_rebels(state, sid, e, added, true)

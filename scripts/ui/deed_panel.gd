@@ -24,22 +24,7 @@ var _choices: VBoxContainer
 
 
 func _ready() -> void:
-	layer = 7
-	visible = false
-	var dim := ColorRect.new()
-	dim.color = Color(0.0, 0.01, 0.03, 0.55)
-	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(dim)
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
-	var window := PanelContainer.new()
-	window.theme_type_variation = &"WindowPanel"
-	center.add_child(window)
-	var box := VBoxContainer.new()
-	box.custom_minimum_size = Vector2(WIDTH, 0)
-	box.add_theme_constant_override("separation", 10)
-	window.add_child(box)
+	var box := AnnounceFrame.build(self, WIDTH, "Décision")
 	# Emplacement d'illustration (images générées en fin de projet : assets/art/deed_<haut fait>).
 	_art = Widgets.ArtSlot.new("", Vector2(WIDTH, 150), Color(0.95, 0.82, 0.4), "star")
 	box.add_child(_art)
@@ -101,6 +86,7 @@ func open(state: GameState, player: int, item: Dictionary) -> void:
 		_choices.add_child(_choice_row(state, player, String(rid), i, opts.has(String(rid))))
 		i += 1
 	visible = true
+	AnnounceFrame.fade_in(self)
 
 
 func _choice_row(state: GameState, player: int, rid: String, index: int, ok: bool) -> Control:

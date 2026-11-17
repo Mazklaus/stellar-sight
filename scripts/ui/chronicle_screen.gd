@@ -7,7 +7,7 @@ extends RefCounted
 ## partie, dès son premier présage, voir CrisisPanel).
 ## Construit dans les conteneurs d'EmpireScreens (_grid, _key_value…).
 
-const TABS := [["crisis", "Crise"], ["quests", "Quêtes"], ["deeds", "Hauts faits"], ["events", "Événements"], ["annals", "Annales"], ["relics", "Reliquaire"], ["archeo", "Archéologie"], ["bestiary", "Bestiaire"]]
+const TABS := [["crisis", "Crise"], ["quests", "Quêtes"], ["deeds", "Hauts faits"], ["events", "Événements"], ["annals", "Annales"], ["relics", "Reliquaire"], ["archeo", "Archéologie"], ["bestiary", "Bestiaire"], ["announces", "Annonces"], ["hours", "Heures"]]
 
 
 ## Onglets offerts dans cette partie (selon les réglages de la Nouvelle partie).
@@ -28,6 +28,8 @@ static func tabs(state: GameState) -> Array[String]:
 		out.append("archeo")  # les Strates (voir ArchaeoUi)
 	if Fauna.active(state):
 		out.append("bestiary")
+	out.append("announces")  # registre des annonces typées (voir AnnounceUi)
+	out.append("hours")  # frise des grandes heures de l'empire
 	return out
 
 
@@ -134,6 +136,12 @@ static func build(es: EmpireScreens) -> void:
 		return
 	if es.chron_tab == "archeo":
 		ArchaeoUi.build(es, col)
+		return
+	if es.chron_tab == "announces":
+		AnnounceUi.build(es, col)
+		return
+	if es.chron_tab == "hours":
+		AnnounceUi.build_hours(es, col)
 		return
 	if not Events.enabled(state) and state.curio_density == "aucune" and box.is_empty() and Guardians.ids(state).is_empty():
 		col.add_child(UiTheme.dim("Ni événements ni curiosités dans cette partie (réglage de la Nouvelle partie).", 15))
@@ -407,5 +415,6 @@ static func signature(es: EmpireScreens) -> String:
 	s += CrisisPanel.signature(es)
 	s += DeedsUi.signature(es)
 	s += ArchaeoUi.signature(es)
+	s += AnnounceUi.signature(es)
 	@warning_ignore("integer_division")
 	return s + "|%s|%d" % [es.chron_tab, state.tick / 30]

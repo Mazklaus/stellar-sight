@@ -307,6 +307,7 @@ static func choose_path(state: GameState, eid: int, pid: String, added: Array[Di
 	sub(state, "gauge")[str(eid)] = 0
 	_stat(state, eid, "path", 1)
 	state.relic_rev += 1
+	Announce.next(state, "transcend_oree", {"actor": eid})
 	added.append(state.add_chronicle("%s franchit l'Orée et se voue à %s. %s" % [e.display_name(), path_label(pid).to_lower(), String(path_def(pid).get("text", "")).get_slice(".", 0) + "."],
 			Espionage.public_to(state, [eid])))
 
@@ -506,6 +507,7 @@ static func start_stage(state: GameState, eid: int, want: int, added: Array[Dict
 		o["until"] = state.tick
 	sub(state, "oeuvre")[str(eid)] = o
 	if int(o["stage"]) == 0:
+		Announce.next(state, "exodium_begun", {"actor": eid})
 		added.append(state.add_chronicle(String(path_def(pid).get("start", "%s commence son Exodium.")) % e.display_name(), Espionage.public_to(state, [eid])))
 
 
@@ -587,6 +589,7 @@ static func begin_passage(state: GameState, eid: int, added: Array[Dictionary], 
 	sub(state, "passage")[str(eid)] = p
 	_stat(state, eid, "passage", 1)
 	state.relic_rev += 1
+	Announce.next(state, "passage", {"actor": eid})
 	added.append(state.add_chronicle("Alerte galactique : %s entre dans le Passage. Dans %s, son peuple ne sera plus de ce monde ; d'ici là, %s doit tenir." % [
 			e.display_name(), Victory._days_text(passage_need(state, eid)), oeuvre_label(path_of(state, eid))], Espionage.public_to(state, [eid])))
 	if full(state):
@@ -789,6 +792,7 @@ static func complete(state: GameState, eid: int, added: Array[Dictionary]) -> vo
 		added.append(state.add_chronicle("Le chroniqueur du Chœur annonce, la voix brisée, que le deuxième couplet est enfin terminé. Personne n'ose demander s'il y en a un troisième.", Espionage.public_to(state, [eid])))
 	if not departs(state):
 		return  # la victoire est proclamée par VictorySystem (Victory.progress « transcendance »)
+	Announce.next(state, "transcended", {"actor": eid})
 	added.append(state.add_chronicle(String(path_def(pid).get("win", "%s quitte la galaxie.")) % e.display_name(), Espionage.public_to(state, [eid])))
 	var leavers: Array[int] = [eid]
 	leavers.append_array(joined_to(state, eid))

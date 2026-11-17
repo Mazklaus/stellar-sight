@@ -130,6 +130,13 @@ func is_resolving_turn() -> bool:
 	return _turn_target >= 0
 
 
+## Un appui sur Espace (ou le centre du cadran) terminerait-il le tour en cours ?
+func would_end_turn() -> bool:
+	if mode != MODE_TURNS or _turn_target >= 0:
+		return false
+	return driver != null or paused
+
+
 ## Termine le tour : les ordres s'appliquent et les jours défilent jusqu'au début du tour suivant.
 ## Sans effet en temps réel ou si un tour est déjà en cours de résolution.
 ## En multijoueur, l'hôte l'appellera quand tous les joueurs auront terminé leur tour

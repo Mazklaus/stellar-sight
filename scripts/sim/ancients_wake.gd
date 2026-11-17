@@ -211,6 +211,7 @@ static func notice(state: GameState, id: int, added: Array[Dictionary]) -> void:
 	state.ancients["parv"] = id
 	a["stage"] = STAGE_NOTICE
 	a["wake_at"] = state.tick + int(cfg()["notice_days"])
+	Announce.next(state, "ancient_stir", {})
 	added.append(state.add_chronicle("%s remue dans son sommeil. Dans un an, elle sera debout." % Ancients.name_of(state, id)))
 	_push_all(state, id, "anc_eveil_preavis", added)
 
@@ -265,6 +266,7 @@ static func awaken(state: GameState, id: int, added: Array[Dictionary]) -> void:
 		added.append(state.add_chronicle("Session extraordinaire de %s face à %s : l'assemblée vote l'aide d'urgence à l'unanimité, pour une fois." % [
 				Amphictyony.name_short(), Crisis.obj_name(Ancients.name_of(state, id))]))
 	a["aid"] = aid
+	Announce.next(state, "ancient_wake", {})
 	added.append(state.add_chronicle("%s s'éveille. Ses chantiers rouvrent ; ses hérauts partent avec des traités de soumission tout prêts." % Ancients.name_of(state, id)))
 	_push_all(state, id, "anc_eveil", added)
 
@@ -473,6 +475,7 @@ static func start_heaven(state: GameState, parv: int, rival: int, added: Array[D
 	state.ancients["heaven"] = {"a": parv, "b": rival, "since": state.tick, "sides": {}, "league": -1}
 	for e in state.empires:
 		e.path_cache.clear()
+	Announce.next(state, "sky_war", {})
 	added.append(state.add_chronicle("Guerre au ciel : %s s'éveille pour affronter %s. Les deux plus vieilles puissances de la galaxie se battent, et la galaxie est entre les deux." % [
 			Ancients.name_of(state, rival), Crisis.obj_name(Ancients.name_of(state, parv))]))
 	_push_all(state, rival, "anc_guerre_ciel", added)

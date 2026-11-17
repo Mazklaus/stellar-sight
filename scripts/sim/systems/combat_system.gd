@@ -708,6 +708,7 @@ static func _eliminations(state: GameState, added: Array[Dictionary]) -> void:
 		if e.eliminated or alive.has(e.id):
 			continue
 		eliminate(state, e)
+		Announce.next(state, "empire_fallen", {"target": e.id})
 		added.append(state.add_chronicle("%s disparaît de la galaxie. Il en reste des épaves, des chansons, et quelques dettes impayées." % e.display_name(), Espionage.public_to(state, [e.id])))
 
 

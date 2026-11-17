@@ -19,6 +19,9 @@ signal command_requested(cmd: Dictionary)
 signal event_requested(event_id: int)
 ## Ouvrir le choix de récompense d'un haut fait (voir DeedPanel).
 signal deed_requested(item_id: int)
+## Chroniques, onglet Annonces : rouvrir une annonce, montrer son lieu.
+signal announce_requested(aid: int)
+signal announce_locate_requested(system_id: int)
 ## Revoir une bataille au sol (écran Armées).
 signal ground_replay_requested(report_id: int)
 
@@ -173,6 +176,8 @@ var throne_buttons := {}
 var _throne_sig := ""
 ## Onglet ouvert de l'écran Chroniques : "quests", "events" ou "relics".
 var chron_tab := "quests"
+## Filtres de l'onglet Annonces des Chroniques : famille ("" : toutes), gravité minimale (0 à 3), me concerne.
+var announce_filter := {"family": "", "gravity": 0, "mine": false}
 var _shipyard_sig := ""
 
 

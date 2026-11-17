@@ -38,6 +38,7 @@ static func load_settings() -> void:
 
 static func save_settings() -> void:
 	var cfg := ConfigFile.new()
+	cfg.load(PATH)  # garde les autres sections (annonces : AnnounceSettings)
 	cfg.set_value("display", "fullscreen", fullscreen)
 	cfg.set_value("game", "auto_pause_menus", auto_pause_menus)
 	cfg.set_value("display", "ui_scale", ui_scale)

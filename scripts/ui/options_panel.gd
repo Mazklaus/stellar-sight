@@ -9,7 +9,7 @@ signal back_requested
 
 const ROW_WIDTH := 760.0
 const VALUE_WIDTH := 300.0
-const TABS := [["display", "Affichage"], ["game", "Partie"], ["controls", "Commandes"]]
+const TABS := [["display", "Affichage"], ["game", "Partie"], ["announce", "Annonces"], ["controls", "Commandes"]]
 
 var tab := "display"
 ## Rangée des boutons du bas (Retour, Valeurs par défaut), que le menu principal place dans les coins.
@@ -21,6 +21,12 @@ var _auto_pause: Button
 var _detail: Button
 var _scale_b: Button
 var _scale: Button
+var _preset: Button
+var _anim: Button
+var _sound: Button
+var _search: LineEdit
+## Lignes des types d'annonce (tests) : type -> {"row", "look", "pause", "auto"}.
+var announce_rows := {}
 
 
 func _ready() -> void:
@@ -79,6 +85,7 @@ func _ready() -> void:
 		UiSettings.auto_pause_menus = not UiSettings.auto_pause_menus
 		UiSettings.save_settings()
 		sync())
+	_build_announce(_page("announce"))
 	var controls := _page("controls")
 	var scroll := ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(ROW_WIDTH, 360)
@@ -106,7 +113,7 @@ func _ready() -> void:
 	foot.add_child(spacer)
 	var reset := Widgets.RoundButton.new("back", "Valeurs par défaut", 18)
 	reset.glyph = "reset"
-	reset.tooltip_text = "Fenêtré, interface à 100 %, sans pause automatique."
+	reset.tooltip_text = "Fenêtré, interface à 100 %, sans pause automatique, annonces au préréglage Stratège."
 	reset.pressed.connect(reset_defaults)
 	foot.add_child(reset)
 	show_tab("display")
@@ -130,6 +137,7 @@ func reset_defaults() -> void:
 	UiSettings.replay_detail = "normal"
 	UiSettings.battle_scale = "escarmouche"
 	UiSettings.save_settings()
+	AnnounceSettings.reset()
 	sync()
 
 
@@ -142,6 +150,137 @@ func sync() -> void:
 	_scale.text = "%d %%" % roundi(UiSettings.ui_scale * 100.0)
 	_detail.text = String(GameData.battle_visuals().get("detail", {}).get("labels", {}).get(UiSettings.replay_detail, UiSettings.replay_detail))
 	_scale_b.text = String(GameData.battle_visuals().get("ground", {}).get("scale_labels", {}).get(UiSettings.battle_scale, UiSettings.battle_scale))
+	_preset.text = AnnounceSettings.preset_label()
+	_anim.text = AnnounceSettings.anim_label()
+	_set_toggle(_sound, AnnounceSettings.sound)
+	for kind in announce_rows:
+		_sync_announce_row(String(kind))
+
+
+## Onglet Annonces (étude de la fenêtre d'événement, prop. 29 à 32) : préréglage, animations, son, puis
+## pour chaque type, rangé par famille : apparence (Auto, Chronique, Avis, Fenêtre, Fanfare), pause,
+## ouverture automatique. Une recherche filtre la liste.
+func _build_announce(page: VBoxContainer) -> void:
+	var prow := _row(page, "Préréglage", "Chroniqueur : tout s'ouvre. Stratège : l'essentiel. Silence : rien ne s'ouvre, sauf les Fanfares.")
+	_preset = _value_box("", false) as Button
+	_preset.tooltip_text = "Clic : Chroniqueur, Stratège, Silence"
+	_preset.pressed.connect(func() -> void:
+		AnnounceSettings.cycle_preset()
+		sync())
+	prow.add_child(_preset)
+	var arow := _row(page, "Animations des fenêtres", "Durée des fondus d'ouverture.")
+	_anim = _value_box("", false) as Button
+	_anim.tooltip_text = "Clic : Normales, Rapides, Instantanées"
+	_anim.pressed.connect(func() -> void:
+		AnnounceSettings.cycle_anim()
+		sync())
+	arow.add_child(_anim)
+	_sound = _toggle_row(page, "Son des annonces", "Un son par famille d'annonce, quand l'habillage sonore sera là.", func() -> void:
+		AnnounceSettings.sound = not AnnounceSettings.sound
+		AnnounceSettings.save_settings()
+		sync())
+	_search = LineEdit.new()
+	_search.placeholder_text = "Chercher un type d'annonce…"
+	_search.clear_button_enabled = true
+	_search.text_changed.connect(func(_t: String) -> void: _filter_announce())
+	page.add_child(_search)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 8)
+	var hl := UiTheme.dim("TYPE", 12)
+	hl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(hl)
+	for t in ["APPARENCE", "PAUSE", "S'OUVRE"]:
+		var l := UiTheme.dim(t, 12)
+		l.custom_minimum_size = Vector2(118, 0)
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		head.add_child(l)
+	page.add_child(head)
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(ROW_WIDTH, 190)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	page.add_child(scroll)
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 3)
+	scroll.add_child(list)
+	for fam in Announce.family_ids():
+		var sec := UiTheme.section(String(Announce.family_def(fam).get("label", fam)))
+		sec.add_theme_color_override("font_color", Announce.family_color(fam))
+		sec.set_meta("family", fam)
+		list.add_child(sec)
+		for kind in Announce.kind_ids():
+			if Announce.family_of(kind) != fam:
+				continue
+			var row := HBoxContainer.new()
+			row.add_theme_constant_override("separation", 8)
+			var l := Label.new()
+			l.text = String(Announce.kind_def(kind).get("title", kind))
+			l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			l.add_theme_font_size_override("font_size", 14)
+			row.add_child(l)
+			var look := _small_box()
+			look.tooltip_text = "Clic : Auto, Chronique, Avis, Fenêtre, Fanfare"
+			look.pressed.connect(func() -> void:
+				AnnounceSettings.cycle_look(kind)
+				_sync_announce_row(kind))
+			row.add_child(look)
+			var pause := _small_box()
+			pause.tooltip_text = "La fenêtre de ce type met-elle la partie en pause (en solo) ?"
+			pause.pressed.connect(func() -> void:
+				AnnounceSettings.toggle_pause(kind, _default_gravity(kind))
+				_sync_announce_row(kind))
+			row.add_child(pause)
+			var auto := _small_box()
+			auto.tooltip_text = "Non : l'annonce reste dans la colonne de droite sans s'ouvrir."
+			auto.pressed.connect(func() -> void:
+				AnnounceSettings.set_auto_open(kind, not AnnounceSettings.auto_open(kind))
+				_sync_announce_row(kind))
+			row.add_child(auto)
+			row.set_meta("family", fam)
+			list.add_child(row)
+			announce_rows[kind] = {"row": row, "look": look, "pause": pause, "auto": auto, "label": l.text}
+
+
+func _small_box() -> Button:
+	var b := _value_box("", false) as Button
+	b.custom_minimum_size = Vector2(118, 28)
+	b.add_theme_font_size_override("font_size", 13)
+	return b
+
+
+## Gravité d'un type pour l'empire concerné (sert au défaut de la pause).
+func _default_gravity(kind: String) -> int:
+	var look := AnnounceSettings.look_of(kind)
+	if look != AnnounceSettings.AUTO:
+		return look
+	return int((Announce.kind_def(kind).get("g", [1]) as Array)[0])
+
+
+func _sync_announce_row(kind: String) -> void:
+	var r: Dictionary = announce_rows[kind]
+	(r["look"] as Button).text = AnnounceSettings.look_label(kind)
+	var p := AnnounceSettings.pauses_for(kind, _default_gravity(kind))
+	(r["pause"] as Button).text = "Pause" if p else "Non"
+	(r["pause"] as Button).add_theme_color_override("font_color", UiTheme.ACCENT if p else UiTheme.TEXT_DIM)
+	var a := AnnounceSettings.auto_open(kind)
+	(r["auto"] as Button).text = "Oui" if a else "Colonne"
+	(r["auto"] as Button).add_theme_color_override("font_color", UiTheme.ACCENT if a else UiTheme.TEXT_DIM)
+
+
+func _filter_announce() -> void:
+	var q := _search.text.strip_edges().to_lower()
+	var fams := {}
+	for kind in announce_rows:
+		var r: Dictionary = announce_rows[kind]
+		var show := q == "" or String(r["label"]).to_lower().contains(q) or String(kind).contains(q)
+		(r["row"] as Control).visible = show
+		if show:
+			fams[Announce.family_of(String(kind))] = true
+	var list := (announce_rows.values()[0]["row"] as Control).get_parent() if not announce_rows.is_empty() else null
+	if list:
+		for c in list.get_children():
+			if c is Label and c.has_meta("family"):
+				c.visible = fams.has(String(c.get_meta("family")))
 
 
 func _page(id: String) -> VBoxContainer:

@@ -927,6 +927,7 @@ static func apply_victory(state: GameState, winner: int, loser: int) -> void:
 		WarPeace.on_ceded(state, loser, spent)
 	WarPeace.register(state, winner, loser, winner, "reddition : " + goal_label(gid).to_lower(), {}, name, first_ceded)
 	var extra := (" Systèmes cédés : %s." % ", ".join(ceded)) if not ceded.is_empty() else ""
+	Announce.next(state, "peace_signed", {"actor": winner, "target": loser})
 	state.add_chronicle("Fin de la %s : %s se rend à %s, qui obtient son but (%s).%s Les vainqueurs écrivent l'histoire ; les vaincus, des mémoires." % [
 			name, _name(state, loser), _name(state, winner), goal_label(gid).to_lower(), extra], Espionage.public_to(state, [winner, loser]))
 

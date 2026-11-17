@@ -283,15 +283,29 @@ func show_chronicle(entry: Dictionary) -> void:
 
 
 ## Petit message temporaire sous les onglets. kind : "info", "good", "bad".
-func notify(text: String, kind := "info") -> void:
+## on_click : l'avis devient cliquable (annonces, prop. 10 de l'étude de la fenêtre d'événement) ;
+## seconds < 0 : durée par défaut ; color : liseré imposé (couleur du besoin de l'annonce).
+func notify(text: String, kind := "info", on_click := Callable(), seconds := -1.0, color := Color(0, 0, 0, 0)) -> void:
 	var toast := PanelContainer.new()
 	var accent: Color = {"good": UiTheme.GOOD, "bad": UiTheme.BAD}.get(kind, UiTheme.ACCENT)
+	if color.a > 0.0:
+		accent = color
 	var st := UiTheme.box(Color(0.03, 0.04, 0.06, 0.9), accent, 8, 0)
 	st.border_width_left = 2
 	st.content_margin_left = 14
 	st.content_margin_right = 14
 	toast.add_theme_stylebox_override("panel", st)
 	toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if on_click.is_valid():
+		toast.mouse_filter = Control.MOUSE_FILTER_STOP
+		toast.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		toast.tooltip_text = "Clic : ouvrir l'annonce"
+		toast.gui_input.connect(func(ev: InputEvent) -> void:
+			var mb := ev as InputEventMouseButton
+			if mb and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+				toast.accept_event()
+				toast.queue_free()
+				on_click.call())
 	var l := Label.new()
 	l.text = text
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -303,7 +317,7 @@ func notify(text: String, kind := "info") -> void:
 		_toasts.remove_child(old)
 		old.queue_free()
 	var tw := toast.create_tween()
-	tw.tween_interval(TOAST_SECONDS)
+	tw.tween_interval(TOAST_SECONDS if seconds < 0.0 else seconds)
 	tw.tween_property(toast, "modulate:a", 0.0, 0.5)
 	tw.tween_callback(toast.queue_free)
 

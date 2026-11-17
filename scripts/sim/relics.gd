@@ -338,6 +338,7 @@ static func _finish(state: GameState, sid: int, added: Array[Dictionary]) -> voi
 	if rid == "":
 		return
 	gain(state, eid, rid)
+	Announce.next(state, "relic_found", {"actor": eid, "system": sid})
 	added.append(state.add_chronicle("%s achève les fouilles de %s et en remonte %s. Les archéologues pleurent ; les comptables aussi, mais de joie." % [
 			e.display_name(), site_name(state, sid), String(def(rid)["name"])], Espionage.public_to(state, [eid])))
 

@@ -1227,6 +1227,7 @@ static func die(state: GameState, h: Dictionary, why: String, out: Array[Diction
 		e.fervor = mini(int(e.faction()["fervor"]["max"]), e.fervor + int(tl["saint_fervor"]))
 		text += " Un saint de plus : la ferveur monte."
 	text += TranscendenceBridges.hero_epitaph(state, owner)  # mort pendant le Passage (Transcendance)
+	Announce.next(state, "hero_death", {"target": owner, "name": String(h["name"]), "hero": int(h["id"]), "portrait": String(h.get("portrait", "")), "lvl": int(h.get("lvl", 1)), "cls": String(h.get("cls", "")), "born": int(h.get("born", state.tick)), "seed": int(h["id"]), "why": why})
 	out.append(state.add_chronicle(text, Espionage.private_to(state, [owner])))
 
 
