@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 83
+const FORMAT_VERSION := 84
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 50
@@ -201,6 +201,7 @@ var private: Dictionary = {}  # économie privée (voir Private) ; {} = pilier d
 var ports: Dictionary = {}  # spatioports et réseau de distribution (voir Ports) ; {} = pilier désactivé
 var defenses: Dictionary = {}  # défenses spatiales (voir Defenses) ; {} = désactivées
 var stealth: Dictionary = {}  # furtivité et détection (voir Stealth) ; {} = désactivée
+var genetics: Dictionary = {}  # ingénierie des espèces (voir Genetics) ; {} = désactivée
 var portals: Dictionary = {}  # portails de saut (voir Portals) ; {} = désactivés
 ## Mort des héros au combat (voir HeroFall) ; {} = option absente : blessure ou capture seulement.
 var hero_death: Dictionary = {}
@@ -336,6 +337,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Ports.setup(s, String(options.get("ports", "desactivee")))
 	Defenses.setup(s, String(options.get("defenses", "desactivee")))
 	Stealth.setup(s, String(options.get("stealth", "desactivee")))
+	Genetics.setup(s, String(options.get("genetics", "desactivee")))
 	Portals.setup(s, String(options.get("portals", "desactives")))
 	FleetSystem.update_exploration(s)
 	return s
@@ -504,6 +506,8 @@ func to_dict() -> Dictionary:
 		d["defenses"] = Defenses.to_dict(self)
 	if Stealth.worth_saving(self):
 		d["stealth"] = Stealth.to_dict(self)
+	if Genetics.worth_saving(self):
+		d["genetics"] = Genetics.to_dict(self)
 	if Portals.worth_saving(self):
 		d["portals"] = Portals.to_dict(self)
 	if HeroFall.worth_saving(self):
@@ -624,6 +628,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Ports.from_dict(s, d.get("ports", {}))
 	Defenses.from_dict(s, d.get("defenses", {}))
 	Stealth.from_dict(s, d.get("stealth", {}))
+	Genetics.from_dict(s, d.get("genetics", {}))
 	Portals.from_dict(s, d.get("portals", {}))
 	HeroFall.from_dict(s, d.get("hero_death", {}))
 	for c: Dictionary in d["colonies"]:

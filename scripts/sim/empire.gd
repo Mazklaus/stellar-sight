@@ -42,6 +42,15 @@ var border_cache_tick := -1
 var _faction_cache: Dictionary = {}
 var _faction_gen := -1
 var _faction_id_cached := ""
+var _faction_rev := -1
+## Ingénierie des espèces (voir Genetics) : génome par espèce vivant dans l'empire {fid: {"add": [traits],
+## "rem": [traits], "bio": second biome, "cyber": bool, "synth": bool, "graft": {ressource: %}, "gfood": %,
+## "grafted": [espèces greffées]}}, voie d'élévation choisie ("" = aucune) et compteur de révisions
+## (les fiches gardées en cache se refont quand il change).
+var genome: Dictionary = {}
+var gene_path: String = ""
+var genome_rev: int = 0
+var _species_cache: Dictionary = {}
 ## Empires rencontrés (identifiants, triés).
 var contacts: Array[int] = []
 ## Empires avec qui il est en guerre (identifiants, triés). La guerre vaut dans les deux sens.
@@ -127,12 +136,27 @@ func is_npc() -> bool:
 func faction() -> Dictionary:
 	if not npc_faction.is_empty():
 		return npc_faction
-	# Fiche gardée tant que les peuples créés ne changent pas (appelée sans cesse par la simulation).
-	if _faction_gen != GameData.factions_gen or _faction_id_cached != faction_id:
-		_faction_cache = GameData.faction(faction_id)
+	# Fiche gardée tant que les peuples créés et le génome ne changent pas (appelée sans cesse par la
+	# simulation). Le génome de l'espèce fondatrice (voir Genetics) se pose sur la fiche du peuple.
+	if _faction_gen != GameData.factions_gen or _faction_id_cached != faction_id or _faction_rev != genome_rev:
+		_faction_cache = Genetics.apply_genome(GameData.faction(faction_id), genome.get(faction_id, {}), gene_path, true)
 		_faction_gen = GameData.factions_gen
 		_faction_id_cached = faction_id
+		_faction_rev = genome_rev
+		_species_cache.clear()
 	return _faction_cache
+
+
+## Fiche d'une espèce qui vit dans l'empire (populations mêlées), son génome posé dessus.
+func species_fiche(fid: String) -> Dictionary:
+	if fid == faction_id or fid == "":
+		return faction()
+	if genome.is_empty() or (not genome.has(fid) and gene_path == ""):
+		return GameData.faction(fid)
+	faction()  # vide le cache des espèces si le génome a changé
+	if not _species_cache.has(fid):
+		_species_cache[fid] = Genetics.apply_genome(GameData.faction(fid), genome.get(fid, {}), gene_path, false)
+	return _species_cache[fid]
 
 
 func display_name() -> String:
@@ -204,6 +228,8 @@ func to_dict() -> Dictionary:
 		"spotted": spotted_tick,
 		"spotted_by": spotted_by,
 		"echoes": echoes,
+		"genome": Genetics.genome_to_list(self),
+		"gene_path": gene_path,
 	}
 
 
@@ -333,4 +359,6 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.spotted_tick = int(d.get("spotted", -1))
 	e.spotted_by = int(d.get("spotted_by", -1))
 	e.echoes = int(d.get("echoes", 0))
+	Genetics.genome_from_list(e, d.get("genome", []))
+	e.gene_path = String(d.get("gene_path", ""))
 	return e

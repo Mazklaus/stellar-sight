@@ -1047,6 +1047,26 @@
 			},
 			"src": "Fécondité, Imperator ; Nourrir le monde, Civ VI"
 		},
+		"saintete_chair": {
+			"family": "morale",
+			"label": "Sainteté de la chair",
+			"requires": "genetics",
+			"text": "Ingénierie des espèces en jeu : le corps natal est sacré ; les empires de cette foi ne façonnent pas leur propre espèce. Stabilité +2 là où la foi domine.",
+			"fx": {
+				"temple_stab": 2
+			},
+			"gen_ban_founder": true,
+			"src": "Pureté et Sanctuaire du génome, étude Ingénierie des espèces"
+		},
+		"chair_argile": {
+			"family": "societe",
+			"label": "La chair est argile",
+			"requires": "genetics",
+			"text": "Ingénierie des espèces en jeu : le corps est une œuvre à parfaire ; programmes 20 % moins chers pour les empires de cette foi.",
+			"fx": {},
+			"gen_cost_pct": -20,
+			"src": "Évolution dirigée, Stellaris ; affinités de Civilization: Beyond Earth"
+		},
 		"propriete_eglise": {
 			"family": "societe",
 			"label": "Propriété de l'Église",

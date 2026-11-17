@@ -122,6 +122,22 @@ class IconButton:
 				draw_circle(c + Vector2(-s * 0.3, -s * 0.15), s * 0.14, Color(0.05, 0.07, 0.1))
 				draw_circle(c + Vector2(s * 0.3, -s * 0.15), s * 0.14, Color(0.05, 0.07, 0.1))
 				draw_arc(c + Vector2(0, s * 0.12), s * 0.38, PI * 0.15, PI * 0.85, 12, Color(0.05, 0.07, 0.1), 1.6, true)
+			"genome":
+				# Une double hélice et ses barreaux : le génome.
+				var prev_a := Vector2.ZERO
+				var prev_b := Vector2.ZERO
+				for k in 9:
+					var y := -s * 1.2 + s * 2.4 * float(k) / 8.0
+					var x := sin(float(k) / 8.0 * TAU) * s * 0.75
+					var pa := c + Vector2(x, y)
+					var pb := c + Vector2(-x, y)
+					if k > 0:
+						draw_line(prev_a, pa, col, 1.6, true)
+						draw_line(prev_b, pb, Color(col, 0.7), 1.6, true)
+					if k % 2 == 1:
+						draw_line(pa, pb, Color(col, 0.6), 1.0, true)
+					prev_a = pa
+					prev_b = pb
 			"wonders":
 				# Une pyramide à degrés sous une étoile : les grands œuvres.
 				for k in 3:

@@ -249,6 +249,8 @@ var defenses := "complete"
 var _defenses_select: OptionButton
 var stealth := "complete"
 var _stealth_select: OptionButton
+var genetics := "complete"
+var _genetics_select: OptionButton
 var portals := "complets"
 var _portals_select: OptionButton
 var hero_death := "normale"
@@ -1750,6 +1752,13 @@ func set_stealth(id: String) -> void:
 		_stealth_select.select(ids.find(stealth))
 
 
+func set_genetics(id: String) -> void:
+	var ids := _ids_of(Genetics.mode_defs())
+	genetics = id if ids.has(id) else Genetics.default_mode()
+	if _genetics_select:
+		_genetics_select.select(ids.find(genetics))
+
+
 func set_portals(id: String) -> void:
 	var ids := _ids_of(Portals.mode_defs())
 	portals = id if ids.has(id) else Portals.default_mode()
@@ -1908,7 +1917,7 @@ func game_options() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth}
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics}
 
 
 func set_spectator(on: bool) -> void:
@@ -2522,6 +2531,15 @@ func _build_new_page(root: Control) -> void:
 	_stealth_select.tooltip_text = "Furtivité et détection : camouflage contre détection (niveaux 0 à 5), voiles de camouflage, réseaux de détecteurs, postes d'écoute, balises, embuscades (Stellaris, Endless Space 2, Starsector, Distant Worlds 2, Aurora 4X).\n" + "\n".join(st_tip)
 	_stealth_select.item_selected.connect(func(i: int) -> void: set_stealth(String(Stealth.mode_defs()[i]["id"])))
 	_labeled_row(game, "Furtivité", _stealth_select)
+	_genetics_select = OptionButton.new()
+	_genetics_select.clip_text = true
+	var gen_tip := PackedStringArray()
+	for m: Dictionary in Genetics.mode_defs():
+		_genetics_select.add_item(String(m["label"]))
+		gen_tip.append("%s : %s" % [String(m["label"]), String(m["text"])])
+	_genetics_select.tooltip_text = "Ingénierie des espèces : modifier les traits de vos peuples en cours de partie, par programmes payés en Savoir ; voies génétique, cybernétique et synthétique, acclimatation, lignées, hybrides, voie d'élévation ou serment de Pureté (Stellaris, Endless Space 2, Aurora 4X, Civilization: Beyond Earth).\n" + "\n".join(gen_tip)
+	_genetics_select.item_selected.connect(func(i: int) -> void: set_genetics(String(Genetics.mode_defs()[i]["id"])))
+	_labeled_row(game, "Ingénierie des espèces", _genetics_select)
 	_portals_select = OptionButton.new()
 	_portals_select.clip_text = true
 	var por_tip := PackedStringArray()
@@ -2575,6 +2593,7 @@ func _build_new_page(root: Control) -> void:
 	set_ports(ports)
 	set_defenses(defenses)
 	set_stealth(stealth)
+	set_genetics(genetics)
 	set_portals(portals)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
@@ -3324,7 +3343,7 @@ func settings() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth,
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -3346,7 +3365,7 @@ func default_settings() -> Dictionary:
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
 		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true,
 		"ancients": Ancients.default_mode(), "awakenings": true, "minors": Minors.default_mode(), "culture": Culture.default_mode(), "culture_defect": Culture.default_defect(), "wonders": Wonders.default_mode(),
-		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode(), "portals": Portals.default_mode(), "stealth": Stealth.default_mode()}
+		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode(), "portals": Portals.default_mode(), "stealth": Stealth.default_mode(), "genetics": Genetics.default_mode()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -3451,6 +3470,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_ports(String(d.get("ports", base["ports"])))
 	set_defenses(String(d.get("defenses", base["defenses"])))
 	set_stealth(String(d.get("stealth", base["stealth"])))
+	set_genetics(String(d.get("genetics", base["genetics"])))
 	set_portals(String(d.get("portals", base["portals"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):

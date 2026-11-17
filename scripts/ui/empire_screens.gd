@@ -152,6 +152,8 @@ var _armies_sig := ""
 ## Écran Rayonnement : boutons « osmose:1 », « savoir:tech », « ambassade:empire », « troupe:empire » (tests).
 var culture_buttons := {}
 var _culture_sig := ""
+var genome_buttons := {}
+var _genome_sig := ""
 ## Écran Merveilles : boutons « start:merveille », « rush:merveille »… (tests).
 var wonder_buttons := {}
 var _wonders_sig := ""
@@ -307,6 +309,9 @@ func show_screen(screen_id: String) -> void:
 		"culture":
 			culture_buttons.clear()
 			CultureScreen.build(self)
+		"genome":
+			genome_buttons.clear()
+			GenomeScreen.build(self)
 		"wonders":
 			wonder_buttons.clear()
 			WondersUi.build(self)
@@ -363,6 +368,9 @@ func refresh() -> void:
 		"culture":
 			if CultureScreen.signature(self) != _culture_sig:
 				show_screen("culture")
+		"genome":
+			if GenomeScreen.signature(self) != _genome_sig:
+				show_screen("genome")
 		"wonders":
 			if WondersUi.signature(self) != _wonders_sig:
 				show_screen("wonders")

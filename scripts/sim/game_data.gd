@@ -177,6 +177,10 @@ static func stealth() -> Dictionary:
 	return _load("stealth")
 
 
+static func genetics() -> Dictionary:
+	return _load("genetics")
+
+
 static func portals() -> Dictionary:
 	return _load("portals")
 
