@@ -482,6 +482,7 @@ static func _reward(state: GameState, gid: String, eid: int, sid: int, added: Ar
 	var gd := def(gid)
 	var d := data()
 	var parts: Array = []
+	WorldForgeWorld.on_titan_slain(state, gid, eid, sid, added)  # carcasse de titan (Forge des mondes)
 	if String(gd.get("trophy", "")) != "":
 		parts.append("trophée : %s" % Quests.give_relic(state, eid, String(gd["trophy"])))
 	var item := {"id": -1, "card": "", "system": sid, "planet": -1, "rival": -1, "hero": -1}

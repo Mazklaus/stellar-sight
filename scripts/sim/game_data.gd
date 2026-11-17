@@ -224,6 +224,11 @@ static func megastructures() -> Dictionary:
 	return _load("megastructures")
 
 
+## La Forge des mondes (data/worldforge.json) : réglages, règles, mondes façonnés, chantiers, talents.
+static func worldforge() -> Dictionary:
+	return _load("worldforge")
+
+
 ## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.
 static func wonders() -> Dictionary:
 	return _load("wonders")

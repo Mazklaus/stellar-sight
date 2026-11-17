@@ -655,6 +655,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_ar := ArchaeoBridges.spy_check(state, a, b, op_id)
 		if why_ar != "":
 			return why_ar
+	if bool(o.get("forge", false)):
+		var why_wf := WorldForgeBridges.spy_check(state, a, b, op_id)
+		if why_wf != "":
+			return why_wf
 	if bool(o.get("megas", false)):
 		var why_m := MegasBridges.spy_check(state, a, b, op_id)
 		if why_m != "":
@@ -909,6 +913,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return TranscendenceWorld.spy_apply(state, a, b, o)
 	if bool(o.get("archaeo", false)):
 		return ArchaeoBridges.spy_apply(state, a, b, o)
+	if bool(o.get("forge", false)):
+		return WorldForgeBridges.spy_apply(state, a, b, o)
 	if bool(o.get("megas", false)):
 		return MegasBridges.spy_apply(state, a, b, o)
 	if bool(o.get("contact", false)):

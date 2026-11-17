@@ -549,7 +549,7 @@ static func price_mult(state: GameState, eid: int, res: String) -> int:
 
 ## Variation du mois (en %) due à la galaxie : guerres, paix, fléaux, monopoles, krachs.
 static func trend_pct(state: GameState, res: String) -> int:
-	return int(state.goods.get("trend", {}).get(res, 0))
+	return int(state.goods.get("trend", {}).get(res, 0)) + WorldForge.trend_pct(state, res)
 
 
 ## Prix unitaire courant en énergie, ×1000 (facteur d'échanges et tendance compris).

@@ -1071,6 +1071,21 @@
 			"text": "Mégastructures : les plans d'un ouvrage achevé qu'il tient et que vous n'avez pas ; ses étapes vous coûteront 25 % de moins."
 		},
 		{
+			"id": "breche_monde",
+			"family": "sabotage",
+			"label": "Brèche",
+			"tier": 2,
+			"cost": {
+				"influence": 30
+			},
+			"days": 45,
+			"success": 60,
+			"discovery": 30,
+			"spend": 15,
+			"forge": true,
+			"text": "Forge des mondes : une brèche dans son chantier planétaire (120 jours de retard) ou, à défaut, dans un de ses mondes façonnés (40 points d'intégrité)."
+		},
+		{
 			"id": "faussaire",
 			"family": "larcin",
 			"label": "Faussaire",

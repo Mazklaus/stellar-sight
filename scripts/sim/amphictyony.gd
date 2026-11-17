@@ -280,6 +280,8 @@ static func family_available(state: GameState, fid: String) -> bool:
 			return Contact.full(state)
 		"archaeo":
 			return Archaeology.full(state)
+		"forge":
+			return WorldForge.dismantle_on(state)
 	return true
 
 

@@ -934,7 +934,7 @@ static func _fleets(ctx: Dictionary) -> void:
 			continue  # dissoute par une colonisation plus haut dans la boucle
 		if not state.transcendence.is_empty() and Transcendence.is_ark(state, f):
 			continue  # l'Arche de la Bordure : menée par AiTranscendence
-		if not state.megas.is_empty() and Megastructures.is_architect_fleet(f):
+		if (not state.megas.is_empty() or not state.forge.is_empty()) and Megastructures.is_architect_fleet(f):
 			continue  # Vaisseau-architecte : mené par AiMegas
 		if Fleets.colonizer_ship(f) != "":
 			_colonizer(ctx, f)

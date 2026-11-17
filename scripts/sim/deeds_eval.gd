@@ -179,6 +179,8 @@ static func value(state: GameState, eid: int, k: String, x: Variant = null) -> i
 			return q
 		"mega_kard", "mega_rings":
 			return MegasBridges.deed_value(state, eid, k)
+		"forge_made", "forge_void":
+			return WorldForgeBridges.deed_value(state, eid, k)
 		"silence":
 			return 1 if Deeds.quiet_days(state, eid) >= Deeds.r_int("silence_days") else 0
 		"blackhole_colony":
