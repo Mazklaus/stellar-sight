@@ -569,6 +569,8 @@ static func spawn_empire(state: GameState, parent: int, sids: Array, r: Dictiona
 				Espionage.public_to(state, [parent, nid])))
 	elif why == "fronde":
 		Combat.start_war(state, nid, parent)  # guerre civile (voir CourtIntrigue.civil_war)
+	elif why == "transcend":
+		pass  # État successeur d'un peuple parti (voir TranscendenceWorld) : pas de guerre
 	else:
 		Combat.start_war(state, nid, parent)
 		added.append(state.add_chronicle("Un prétendant se lève contre %s : %s entraîne %d système(s) dans la sécession et fonde %s. La guerre de succession commence." % [

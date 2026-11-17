@@ -977,6 +977,8 @@ static func offer_natures(state: GameState, eid: int, fid: String, via: String) 
 		return ["communion"]
 	var nd: Dictionary = data()["natures"]
 	var avail := nature_ids()
+	if not TranscendenceWorld.has_partis(state):
+		avail.erase("culte_partis")  # le culte des Partis attend qu'un peuple soit parti (Transcendance)
 	var out: Array = []
 	var e := state.get_empire(eid)
 	var pref: Array = []

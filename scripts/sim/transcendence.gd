@@ -476,7 +476,7 @@ static func check_oeuvre(state: GameState, eid: int, want := -1) -> String:
 		return "%s est achevé" % oeuvre_label(pid)
 	if pid == "depart" and t_int(state, eid, "city_ark") > 0:
 		return "la flotte-ville sert d'Arche : il n'y a rien à bâtir"
-	if stage(state, eid) == 0 and TranscendenceWorld.moratorium(state):
+	if stage(state, eid) == 0 and TranscendenceWorld.moratorium(state, eid):
 		return "l'Amphictyonie a voté un Moratoire sur l'Orée"
 	var vs := t_int(state, eid, "referendum_stab")
 	if vs > 0 and stage(state, eid) == 0 and Stability.applies(state, eid) and Stability.empire_value(state, eid) < vs:
@@ -547,7 +547,7 @@ static func relays(state: GameState, eid: int) -> int:
 		var c: Colony = state.colonies[pid]
 		if who.has(c.owner) and c.buildings.has(b):
 			n += 1
-	if not TranscendenceWorld.relays_banned(state):
+	if not TranscendenceWorld.relays_banned(state, eid):
 		n += TranscendenceBridges.extra_relays(state, eid)
 	else:
 		n = 0
@@ -774,6 +774,8 @@ static func join(state: GameState, eid: int, host: int, added: Array[Dictionary]
 static func complete(state: GameState, eid: int, added: Array[Dictionary]) -> void:
 	var e := state.get_empire(eid)
 	var pid := path_of(state, eid)
+	if full(state) and TranscendenceBridges.trap(state, eid, added):
+		return  # le Raccourci était un piège (lot 3)
 	sub(state, "done")[str(eid)] = state.tick
 	sub(state, "passage").erase(str(eid))
 	sub(state, "ark").erase(str(eid))
@@ -869,7 +871,7 @@ static func check_build(state: GameState, eid: int, c: Colony, building_id: Stri
 	if building_id == relay_building():
 		if not c.is_colony():
 			return "seulement sur une colonie"
-		if TranscendenceWorld.relays_banned(state):
+		if TranscendenceWorld.relays_banned(state, eid):
 			return "l'Amphictyonie interdit les Relais"
 		if path_of(state, eid) == "" and host_of(state, eid) < 0:
 			var ally := false

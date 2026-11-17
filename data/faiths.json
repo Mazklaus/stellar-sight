@@ -383,6 +383,11 @@
 				"label": "Astres vivants",
 				"text": "Les étoiles, les nébuleuses et les anomalies sont des dieux. À sa fondation, la foi tient pour sacrés le système de son monde saint et les deux systèmes les plus remarquables à portée : ils prêchent comme des mondes saints jusqu'à 2 sauts. Un empire qui y pose un avant-poste ou un complexe minier fâche tous les fidèles de la galaxie (opinion -15) ; un gardien qui y vit en devient l'avatar (prêche doublé), et l'abattre est une profanation.",
 				"src": "Invention de l'étude v1 ; dieux réels (proposition 19)"
+			},
+			"culte_partis": {
+				"label": "Culte des Partis",
+				"text": "Transcendance (issue Départ) : on prie ceux qui ont quitté la galaxie. Ne se révèle qu'une fois qu'un peuple est parti. Plus les Partis ont de fidèles chez un empire, plus ils interviennent pour lui (+2 % par tranche de 10 fidèles, 40 % au plus). On se demande s'ils ne s'en nourrissent pas.",
+				"src": "Étude de la Transcendance (prop. 24) ; les Ori de Stargate"
 			}
 		},
 		"fleet_pressure": 20,

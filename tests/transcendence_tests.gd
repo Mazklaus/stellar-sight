@@ -1,3 +1,4 @@
+class_name TranscendenceTests
 extends RefCounted
 ## Tests de la Transcendance (étude du 2026-11-17, 42 propositions) : données et réglages, voies et
 ## conditions, jauge, Œuvre, Passage (Relais, occupation, destruction), Arche de la Bordure,
@@ -27,6 +28,7 @@ func run(check: Callable) -> void:
 	_test_depart_renounce()
 	print("  - ai_save")
 	_test_ai_save()
+	TranscendenceTests2.run(check)
 
 
 func _ok(cond: bool, what: String) -> void:

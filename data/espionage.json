@@ -970,6 +970,36 @@
 			"spend": 25,
 			"culture": true,
 			"text": "Rayonnement culturel : une relique exposée dans son Musée galactique passe dans votre Reliquaire."
+		},
+		{
+			"id": "feler_oeuvre",
+			"family": "sabotage",
+			"label": "Fêler l'Œuvre",
+			"tier": 3,
+			"cost": {
+				"influence": 60
+			},
+			"days": 60,
+			"success": 50,
+			"discovery": 40,
+			"spend": 25,
+			"transcendence": true,
+			"text": "Transcendance : son Œuvre perd une étape ; s'il est en Passage, le Passage est brisé. Les futurs Partis s'en souviendront."
+		},
+		{
+			"id": "voler_carnets",
+			"family": "larcin",
+			"label": "Voler les carnets de l'Orée",
+			"tier": 2,
+			"cost": {
+				"influence": 40
+			},
+			"days": 45,
+			"success": 65,
+			"discovery": 30,
+			"spend": 15,
+			"transcendence": true,
+			"text": "Transcendance, pour un empire voué à une voie : sa jauge d'Élévation +10 %, mais ce savoir volé double le risque que votre propre Passage avorte."
 		}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
