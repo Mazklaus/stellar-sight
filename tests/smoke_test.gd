@@ -38,6 +38,7 @@ func _initialize() -> void:
 	preload("res://tests/politics_bridges_tests.gd").new().run(_check)
 	preload("res://tests/pirate_tests.gd").new().run(_check)
 	preload("res://tests/event_tests.gd").new().run(_check)
+	preload("res://tests/announce_tests.gd").new().run(_check)
 	preload("res://tests/relic_tests.gd").new().run(_check)
 	preload("res://tests/quest_tests.gd").new().run(_check)
 	preload("res://tests/fauna_tests.gd").new().run(_check)
@@ -264,6 +265,7 @@ func _test_main_scene() -> void:
 	await _test_senate_ui(main)
 	await _test_faith_ui(main)
 	await _test_event_ui(main)
+	await _test_announce_ui(main)
 	await _test_vassal_ui(main)
 	await _test_koinon_ui(main)
 	await _test_war_goals_ui(main)
@@ -1902,6 +1904,122 @@ func _test_order_ui(main: Node) -> void:
 	await process_frame
 	st.fleets.erase(Pirates.guard_fleet(st, lair).id)
 	st.lairs.erase(lair)
+
+
+## Fenêtre d'événement généralisée : Fanfare, fenêtre, colonne, avis cliquable, plafond, réglages, Chroniques.
+func _test_announce_ui(main: Node) -> void:
+	AnnounceSettings.persist = false
+	AnnounceSettings.reset()
+	var center: AnnounceCenter = main.announce
+	var st: GameState = main.simulation.state
+	var me: int = main.local_player
+	var clock: Node = root.get_node("GameClock")
+	var other := 1 if me != 1 else 2
+	main.close_empire_screen()
+	main.close_event_panel()
+	main.close_deed_panel()
+	main.close_election_panel()
+	center.opening = true
+	center.items.clear()
+	center.queue.clear()
+	center.opened_days.clear()
+	clock.set_paused(false)
+	Announce.next(st, "war_declared", {"actor": other, "target": me})
+	st.add_chronicle("Guerre de test.", [me, other])
+	center.ingest()
+	center.try_open(true)
+	await process_frame
+	var panel: AnnouncePanel = center.panel
+	_check(panel.is_open() and panel.fanfare and panel.view == "war", "guerre déclarée au joueur : Fanfare, vue de guerre")
+	_check(clock.paused or main.net.is_active(), "la Fanfare met la partie en pause (solo)")
+	_check(main.is_modal_open(), "la fenêtre d'annonce recouvre la carte")
+	_press(KEY_ESCAPE)
+	await process_frame
+	_check(not panel.is_open() and center.items.size() == 1 and center.column.shown.size() >= 1, "Échap réduit : la pastille reste dans la colonne")
+	_check(not clock.paused, "la pause de la Fanfare est levée")
+	center.open_item(0)
+	await process_frame
+	_check(panel.is_open(), "un clic sur la pastille rouvre l'annonce")
+	_press(KEY_ENTER)
+	await process_frame
+	_check(not panel.is_open() and center.items.is_empty(), "Entrée (Compris) : la pastille quitte la colonne")
+	clock.set_paused(true)
+	# Fenêtre ordinaire (mémorial), sans pause par défaut.
+	Announce.next(st, "hero_death", {"target": me, "name": "Ilya", "hero": 1, "lvl": 3, "born": 0, "why": "est tombé"})
+	st.add_chronicle("Ilya est tombé.", [me])
+	center.ingest()
+	center.try_open(false)
+	await process_frame
+	_check(panel.is_open() and not panel.fanfare and panel.view == "memorial", "mort d'un héros : fenêtre mémorial")
+	_check(panel.locate_button.visible == false and panel.screen_button.visible, "boutons selon l'annonce (pas de lieu, écran des héros)")
+	center.close_panel()
+	# Plafond : la deuxième passe, la troisième attend dans la colonne.
+	for i in 2:
+		Announce.next(st, ["revolt", "relic_found"][i], {"target": me})
+		st.add_chronicle("Nouvelle %d." % i, [me])
+	center.ingest()
+	center.try_open(false)
+	await process_frame
+	_check(panel.is_open(), "deuxième fenêtre du mois : elle s'ouvre")
+	center.close_panel()
+	center.try_open(false)
+	await process_frame
+	_check(not panel.is_open() and center.queue.is_empty() and center.items.size() == 3, "plafond de 2 fenêtres par 30 jours : la troisième reste dans la colonne")
+	# Avis cliquable.
+	var toasts: VBoxContainer = main._hud._toasts
+	for t in toasts.get_children():
+		toasts.remove_child(t)
+		t.queue_free()
+	Announce.next(st, "creature_met", {"target": me})
+	st.add_chronicle("Une créature.", [me])
+	center.ingest()
+	_check(toasts.get_child_count() == 1 and (toasts.get_child(toasts.get_child_count() - 1) as Control).mouse_filter == Control.MOUSE_FILTER_STOP, "avis : un message cliquable")
+	# Navigation.
+	center.open_item(center.items.size() - 1)
+	await process_frame
+	_check(panel.nav_label.text == "1 sur %d" % center.items.size() and not panel.next_button.disabled, "flèches : 1 sur N")
+	panel.next_button.pressed.emit()
+	await process_frame
+	_check(panel.is_open() and panel.nav_label.text == "2 sur %d" % center.items.size(), "flèche : annonce suivante")
+	panel.auto_check.toggled.emit(false)
+	_check(not AnnounceSettings.auto_open(panel.kind), "interrupteur « Ouvrir d'elle-même »")
+	center.close_panel()
+	# État du poste rangé dans la sauvegarde.
+	var ui := center.to_ui()
+	var count := center.items.size()
+	center.start(st, me, false, {"announce": ui})
+	_check(center.items.size() == count, "la colonne revient avec la sauvegarde du poste")
+	# Options, onglet Annonces.
+	var opts := OptionsPanel.new()
+	root.add_child(opts)
+	await process_frame
+	_check(opts.announce_rows.size() == Announce.kind_ids().size(), "Options : une ligne par type d'annonce")
+	(opts.announce_rows["revolt"]["look"] as Button).pressed.emit()
+	_check(AnnounceSettings.look_of("revolt") == Announce.MURMUR and (opts.announce_rows["revolt"]["look"] as Button).text == Announce.gravity_label(0), "Options : apparence par type")
+	opts.queue_free()
+	# Chroniques : onglets Annonces et Heures.
+	var screens: EmpireScreens = main._empire_screens
+	screens.chron_tab = "announces"
+	_press(KEY_J, KEY_J)
+	await process_frame
+	var aid := Announce.last_id(st)
+	_check(screens.chronicle_buttons.has("ann:%d" % aid), "Chroniques : l'annonce est au registre")
+	if screens.chronicle_buttons.has("ann:%d" % aid):
+		(screens.chronicle_buttons["ann:%d" % aid] as Button).pressed.emit()
+	await process_frame
+	_check(panel.is_open() and not screens.is_open(), "Chroniques : Rouvrir montre la fenêtre")
+	center.close_panel()
+	screens.chron_tab = "hours"
+	_press(KEY_J, KEY_J)
+	await process_frame
+	_check(screens.chronicle_buttons.has("hours:frise"), "Chroniques : frise des Heures")
+	_press(KEY_J, KEY_J)
+	await process_frame
+	AnnounceSettings.reset()
+	center.opening = false
+	center.items.clear()
+	center.queue.clear()
+	center.refresh()
 
 
 func _test_event_ui(main: Node) -> void:
