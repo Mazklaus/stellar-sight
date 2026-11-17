@@ -386,6 +386,17 @@ func cycle_trade_lens() -> void:
 		set_lens("trade")
 
 
+## Onglet Peuples : peuples, puis lentille psionique si le pilier est en jeu (sensitifs, écrans, Phare,
+## ambre, mondes hantés), puis la vue galaxie.
+func cycle_peoples_lens() -> void:
+	if lens == "peoples" and _state != null and Psionics.applies(_state, _player):
+		set_lens("psionics")
+	elif lens == "peoples" or lens == "psionics":
+		set_lens("")
+	else:
+		set_lens("peoples")
+
+
 ## Lentille de la carte : "" (vue galaxie), "economy", "stability", "politics", "trade", "peoples", "faith", "amph" ou "war".
 func set_lens(value: String) -> void:
 	lens = value
@@ -394,7 +405,7 @@ func set_lens(value: String) -> void:
 	_tab_stability.set_pressed_no_signal(value == "stability" or value == "corruption" or value == "fiscal")
 	_tab_politics.set_pressed_no_signal(value == "politics")
 	_tab_trade.set_pressed_no_signal(value == "trade" or value == "private" or value == "ports")
-	_tab_peoples.set_pressed_no_signal(value == "peoples")
+	_tab_peoples.set_pressed_no_signal(value == "peoples" or value == "psionics")
 	_tab_faith.set_pressed_no_signal(value == "faith")
 	_tab_amph.set_pressed_no_signal(value == "amph")
 	if _tab_war:
@@ -435,8 +446,8 @@ func _build_tabs() -> void:
 	_tab_politics.pressed.connect(func() -> void: set_lens("" if lens == "politics" else "politics"))
 	_tab_trade = _tab("Commerce", "Lentille du commerce : vos routes commerciales (couleur du traité, rouge si bloquée) et le risque pirate le long du chemin ; un second clic montre l'économie privée (stations, cargos, filiales, repaires), puis le réseau de distribution des spatioports (desserte, portées, liaisons)  (G)")
 	_tab_trade.pressed.connect(cycle_trade_lens)
-	_tab_peoples = _tab("Peuples", "Lentille des peuples : la part de chaque espèce dans vos systèmes, et l'espèce majoritaire  (U)")
-	_tab_peoples.pressed.connect(func() -> void: set_lens("" if lens == "peoples" else "peoples"))
+	_tab_peoples = _tab("Peuples", "Lentille des peuples : la part de chaque espèce dans vos systèmes, et l'espèce majoritaire ; deuxième clic : lentille psionique (pouvoirs psioniques en jeu)  (U)")
+	_tab_peoples.pressed.connect(cycle_peoples_lens)
 	_tab_faith = _tab("Foi", "Lentille de la foi : la part de chaque croyance dans vos systèmes, la majoritaire, et les mondes saints connus  (N)")
 	_tab_faith.pressed.connect(func() -> void: set_lens("" if lens == "faith" else "faith"))
 	_tab_amph = _tab("Assemblée", "Lentille de l'Amphictyonie : les empires membres (or), les hors-la-loi (rouge) et ceux qui restent dehors (gris), avec leurs voix  (X)")

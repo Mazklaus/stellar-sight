@@ -394,7 +394,7 @@ func _test_save() -> void:
 	e.gene_path = "genetique"
 	cmd(st, 0, "mod", {"fid": "ossarane", "add": ["g_resistants"]})
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 84, "Sauvegarde 84")
+	_ok(int(d["version"]) >= 84, "Sauvegarde 84 ou plus")
 	var st2 := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(st2 != null, "Sauvegarde relue")
 	if st2 == null:

@@ -939,6 +939,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var pfx := Private.effects(state, empire_id)
 			_merge(base, pfx)
 			_merge(exalted, pfx)
+		# Pouvoirs psioniques : bienfaits et malédictions du Songe, paliers de pacte (voir PsionicsDream).
+		if not state.psionics.is_empty():
+			var sfx := PsionicsDream.effects(state, empire_id)
+			_merge(base, sfx)
+			_merge(exalted, sfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

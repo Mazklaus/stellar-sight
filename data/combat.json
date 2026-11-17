@@ -21,6 +21,7 @@
 		"singularity": {"label": "Singularité", "short": "Singularité", "eff": [60, 100, 100], "defense": "none",
 			"vs_size": {"small": 30, "medium": 70, "large": 120, "titan": 160}},
 		"martyr": {"label": "Charge sacrée", "short": "Charge sacrée", "eff": [0, 0, 100], "defense": "armor", "self_destruct": true, "fervor": 5},
+		"psychic": {"label": "Frappe mentale", "short": "Psychique", "eff": [60, 100, 80], "defense": "psi", "psionic": true},
 		"decharge": {"label": "Décharge vivante", "short": "Décharge", "eff": [60, 90, 90], "defense": "none", "creature": true}
 	},
 	"lines": {

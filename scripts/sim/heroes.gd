@@ -528,7 +528,7 @@ static func income(state: GameState, empire_id: int) -> Dictionary:
 
 ## Chiffrement en plus (Ombres du conseil) : un point par tranche de deux niveaux, arrondi au-dessus.
 static func encryption(state: GameState, empire_id: int) -> int:
-	var n := Rulers.encryption(state, empire_id) + Court.encryption(state, empire_id)
+	var n := Rulers.encryption(state, empire_id) + Court.encryption(state, empire_id) + PsionicsBridges.encryption(state, empire_id)
 	for h in council(state, empire_id):
 		if String(h["cls"]) == "ombre" or int((data()["per_level"]["council"].get(String(h["cls"]), {}) as Dictionary).get("encryption_half", 0)) > 0:
 			@warning_ignore("integer_division")

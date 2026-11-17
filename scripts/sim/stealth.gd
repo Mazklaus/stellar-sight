@@ -450,6 +450,7 @@ static func detection_at(state: GameState, viewer: int, sid: int, cam := 0, agai
 		var extra := StealthBridges.codes_bonus(state, eid, against) if against >= 0 else 0
 		if veil_target:
 			extra += Research.fx_int(state, eid, "detect_veil")
+		extra += PsionicsBridges.detect_bonus(state, eid, against)  # Lecture des esprits réussie
 		var tal := int(talent(state, eid).get("stationary", 0))
 		for src in sources(state, eid):
 			var d := int(dists.get(int(src[0]), 99))

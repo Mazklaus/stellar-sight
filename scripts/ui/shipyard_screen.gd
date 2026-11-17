@@ -485,12 +485,12 @@ static func module_value(mid: String, size: String) -> String:
 			var v := int(Designs._sized(m[k], size))
 			if v != 0:
 				parts.append("%s %+d" % [names[k], v])
-	var snames := {"cloak": "camouflage", "detect": "détection", "jam": "brouilleur", "decoy": "leurres"}
+	var snames := {"cloak": "camouflage", "detect": "détection", "jam": "brouilleur", "decoy": "leurres", "psi": "barrière psychique"}
 	for k in Designs.MAX_STATS:
 		if m.has(k):
 			var v := int(Designs._sized(m[k], size))
 			if v != 0:
-				parts.append(("%s %d" % [snames[k], v]) if k == "cloak" else ("%s %+d" % [snames[k], v]) if k == "detect" else String(snames[k]))
+				parts.append(("%s %d" % [snames[k], v]) if k == "cloak" or k == "psi" else ("%s %+d" % [snames[k], v]) if k == "detect" else String(snames[k]))
 	var raw: Dictionary = m.get("cost", {})
 	var cost: Dictionary = raw.get(size, {}) if raw.has(size) else raw
 	if not cost.is_empty():

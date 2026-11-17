@@ -514,3 +514,13 @@ a sleek frigate half dissolved by a shimmering cloaking veil gliding in front of
 ```
 a vast genetic engineering laboratory under an open observatory dome showing the stars, rows of tall glowing amber vats where engineered alien silhouettes float in liquid, one of them half cybernetic with glinting implants, another already a sleek metal chassis, at the center a huge rotating holographic double helix hovering above a console where a hesitant geneticist rests one finger on a single large button, wonder and unease of playing god with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-52 · Ce que le Songe murmure
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Ce que le Songe murmure »
+- Sujet : Une salle circulaire de sensitifs en méditation sous un dôme ouvert sur une mer de brume violette et dorée : au-dessus d'eux, dans la brume, des silhouettes immenses et floues se penchent (un tisserand, une gueule, un miroir, une horloge) ; un plongeur flotte à demi dissous entre les deux mondes, relié aux autres par des fils de lumière
+
+```
+a circular hall of robed psychic sensitives meditating in a ring under an open dome, above them the sky becomes a vast sea of violet and golden dream mist, in the mist huge blurred otherworldly presences lean down to look, a giant weaver with many hands, a colossal maw, a tender mirror, an ebony clockwork face, one diver floats half dissolved between the hall and the dream connected to the others by threads of light, awe and dread, uncanny and beautiful with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

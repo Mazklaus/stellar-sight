@@ -75,6 +75,7 @@
 		{"id": "g_parfaits", "voie": "elite", "label": "Parfaits", "cost": 2, "text": "Espèce parfaite : +8 % d'énergie, de matériaux, d'influence et de Savoir.", "fields": {"production_pct": {"energy": 108, "materials": 108, "influence": 108, "knowledge": 108}}},
 		{"id": "g_abrutis", "voie": "special", "label": "Abrutis", "cost": 0, "text": "Volonté retranchée : +10 % de production, ni héros, ni doléances, ni intégration.", "fields": {"production_pct": {"energy": 110, "materials": 110, "food": 110, "crystals": 110, "knowledge": 110}, "stapled": true}},
 		{"id": "g_peau_vide", "voie": "special", "label": "Peau de vide", "cost": 1, "text": "Échantillon d'une créature spatiale : garnisons +20 %, mange 10 % de moins.", "fields": {"combat": {"garrison_pct": 120, "ground_pct": 110}, "food_upkeep_pct": 90}},
+		{"id": "g_neant", "voie": "special", "psionics": true, "label": "Néant psychique", "cost": 2, "text": "Pouvoirs psioniques en jeu (technologie Écrans psychiques) : les Intouchables. Immunisés aux pouvoirs, sourds au Songe, ils éteignent tout pouvoir dans leur système.", "fields": {"psi_null": true}},
 		{"id": "g_sang_ancien", "voie": "special", "label": "Sang d'Ancien", "cost": 1, "text": "Échantillon d'une créature colossale : +10 % de Savoir et d'énergie.", "fields": {"production_pct": {"knowledge": 110, "energy": 110}}}
 	],
 	"implant_upkeep": {"_doc": "Prop. 10 : chaque implant coûte 1 énergie par mois pour per_pop habitants.", "per_pop": 10, "energy": 1},
@@ -89,7 +90,13 @@
 			{"id": "genetique", "label": "Espèce parfaite", "text": "+2 points de marge et un trait de plus pour vos espèces, traits d'élite (Génie, Indomptables, Parfaits), Cuves de clonage : +25 % de croissance.", "growth_pct": 25},
 			{"id": "cybernetique", "label": "Chair et acier", "text": "Toutes vos espèces organiques deviennent cybernétiques (un trait de plus), implants pour tous, programmes à moitié prix.", "cost_pct": -50},
 			{"id": "synthetique", "label": "Le Grand Transfert", "text": "Ouvre le Grand Transfert (avec Matrices de conscience) : une espèce organique devient synthétique, pour de bon. Programmes de reprogrammation -25 %.", "cost_pct": -25},
-			{"id": "purete", "label": "Pureté", "text": "Serment de ne rien modifier : +5 de stabilité partout, la Sève et l'Autel vous soutiennent, +10 % sur le point fort de votre espèce, loi « Sanctuaire du génome ». Renier le serment coûte une crise de stabilité.", "stability": 5, "strong_pct": 110}
+			{"id": "purete", "label": "Pureté", "text": "Serment de ne rien modifier : +5 de stabilité partout, la Sève et l'Autel vous soutiennent, +10 % sur le point fort de votre espèce, loi « Sanctuaire du génome ». Renier le serment coûte une crise de stabilité.", "stability": 5, "strong_pct": 110},
+			{
+				"id": "eveil",
+				"label": "L'Éveil",
+				"psionics": true,
+				"text": "Pouvoirs psioniques en jeu (Théorie psionique et Télépathie) : votre espèce fondatrice s'éveille au Songe, ses héros naissent sensitifs, fêlures -25 %. Interdit Chair et acier ; se choisit sans programme achevé."
+			}
 		],
 		"renounce": {"stability": -20, "days": 720}
 	},

@@ -258,6 +258,18 @@ func _draw() -> void:
 				_draw_peoples(s, px)
 		_draw_convoys(px)
 		return
+	if lens == "psionics" and state != null:
+		# Lentille psionique : vos systèmes selon le niveau de leurs espèces, Collèges (C), écrans (E),
+		# Phare (P) et sa zone, et partout où vous avez exploré : l'ambre de songe et les mondes hantés.
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		for s in galaxy.systems:
+			var mine := owner_of(s.id) == viewer
+			var e := state.get_empire(viewer)
+			if mine or (e != null and e.explored.has(s.id)):
+				_draw_system(s, px)
+				_draw_label(s, px, mine)
+				_draw_psionics(s, px, mine)
+		return
 	if lens == "faith" and state != null:
 		# Lentille de la foi : vos systèmes cerclés de la part de chaque croyance, la majoritaire, et
 		# les mondes saints des systèmes explorés.
@@ -1440,6 +1452,45 @@ func _draw_faith(s: StarSystem, px: float) -> void:
 
 
 ## Mondes saints des systèmes explorés : une étoile dorée à huit branches.
+func _draw_psionics(s: StarSystem, px: float, mine: bool) -> void:
+	var col := Color(0.72, 0.6, 0.95)
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	if mine:
+		var best := 0
+		var marks := ""
+		var cb := String(Psionics.cfg("college").get("building", "college_sensitifs"))
+		var eb := String(Psionics.cfg("screens").get("building", "ecran_psychique"))
+		var pb := String(Psionics.cfg("phare").get("building", "phare_songe"))
+		for pid in s.planet_ids:
+			var c: Colony = state.colonies.get(pid)
+			if c == null or c.owner != viewer:
+				continue
+			var cnt := Peoples.counts(state, c) if not c.species.is_empty() else {state.get_empire(viewer).faction_id: c.population}
+			for fid in cnt:
+				if int(cnt[fid]) > 0:
+					best = maxi(best, Psionics.level(state, viewer, String(fid)))
+			if c.buildings.has(cb):
+				marks += "C"
+			if c.buildings.has(eb):
+				marks += "E"
+			if c.buildings.has(pb):
+				marks += "P"
+		if best > 0:
+			draw_arc(Vector2.ZERO, 14.0 + 4.0 * best, 0.0, TAU, 32, Color(col, 0.35 + 0.2 * best), 2.0 + best)
+		if marks != "":
+			draw_string(_font, Vector2(-12, 30), marks, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
+		if (Psionics.sub(state, "phz").get(str(s.id), []) as Array).has(viewer):
+			draw_arc(Vector2.ZERO, 30.0, 0.0, TAU, 24, Color(1.0, 0.9, 0.5, 0.35), 1.5)
+	for pid in s.planet_ids:
+		if Psionics.sub(state, "ambre").has(str(pid)):
+			draw_circle(Vector2(18, -18), 5.0, Color(1.0, 0.7, 0.2, 0.9))
+			break
+	if Psionics.sub(state, "haunted").has(str(s.id)):
+		draw_line(Vector2(-10, -10), Vector2(10, 10), Color(0.8, 0.3, 0.9), 3.0)
+		draw_line(Vector2(-10, 10), Vector2(10, -10), Color(0.8, 0.3, 0.9), 3.0)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
 func _draw_holy_worlds(px: float) -> void:
 	if not state.faith_on:
 		return

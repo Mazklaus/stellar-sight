@@ -42,6 +42,8 @@ static func check_voc(state: GameState, player: int, hid: int, voc: String) -> S
 		return "héros inconnu"
 	if not bd()["vocations"].has(voc):
 		return "vocation inconnue"
+	if bool(bd()["vocations"][voc].get("psionics", false)) and not Psionics.applies(state, player):
+		return "les pouvoirs psioniques ne sont pas en jeu"
 	if String(h.get("amb", "")) != String(bd()["vocation_amb"]):
 		return "seul un héros à l'ambition Foi entend l'appel"
 	if vocation(h) != "":

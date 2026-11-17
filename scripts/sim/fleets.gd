@@ -43,6 +43,9 @@ static func speed(fleet: Fleet, state: GameState = null) -> int:
 		if not state.stealth.is_empty():
 			@warning_ignore("integer_division")
 			v = v * Stealth.speed_pct(state, fleet) / 100  # voile de camouflage, Silence radio
+		if not state.psionics.is_empty():
+			@warning_ignore("integer_division")
+			v = v * PsionicsBridges.phare_pct(state, fleet) / 100  # Phare du Songe allumé à portée
 	return maxi(1, v)
 
 
@@ -547,7 +550,7 @@ static func lane_known(state: GameState, empire_id: int, a: int, b: int) -> bool
 static func fleet_visible(state: GameState, viewer: int, fleet: Fleet, seen: Dictionary) -> bool:
 	if fleet.owner == viewer:
 		return true
-	if Echoes.foresees(state, viewer, fleet):
+	if Echoes.foresees(state, viewer, fleet) or Psionics.foresees(state, viewer, fleet):
 		return true
 	var sid := vision_center(state, fleet)
 	if not state.stealth.is_empty():

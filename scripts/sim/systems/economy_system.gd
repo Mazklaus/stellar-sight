@@ -17,6 +17,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 		Movements.monthly(state, added)
 		Faiths.monthly(state, added)
 		Genetics.monthly(state, added)
+		Psionics.monthly(state, added)
 		for e in state.empires:
 			_monthly_balance(state, e, added)
 	return added

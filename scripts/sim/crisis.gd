@@ -33,7 +33,8 @@ static func kind_def(kind: String) -> Dictionary:
 static func kind_ids() -> Array[String]:
 	var out: Array[String] = []
 	for k in data().get("kinds", {}):
-		out.append(String(k))
+		if not bool(data()["kinds"][k].get("summoned", false)):  # le Solde du Songe ne se tire pas : il s'appelle (Psionics)
+			out.append(String(k))
 	out.sort()
 	return out
 
@@ -390,10 +391,10 @@ static func begin(state: GameState, k: String, added: Array[Dictionary]) -> void
 	var kd := kind_def(k)
 	var steps: Array = []
 	var seers := CrisisAllies.foreseers(state, k)
-	for x in MinorsBridges.presage_seers(state):  # Préscience de Quellis (peuple mineur)
+	for x in MinorsBridges.presage_seers(state) + Psionics.crisis_seers(state):  # Préscience de Quellis, pouvoir Préscience
 		if not seers.has(x):
 			seers.append(x)
-	var ahead := maxi(CrisisAllies.foresight_days(k), MinorsBridges.presage_days(state, seers)) if not seers.is_empty() and (kd.get("notice", [0]) as Array).size() <= 1 else 0
+	var ahead := maxi(maxi(CrisisAllies.foresight_days(k), MinorsBridges.presage_days(state, seers)), Psionics.presage_days(state, seers)) if not seers.is_empty() and (kd.get("notice", [0]) as Array).size() <= 1 else 0
 	for d in kd.get("notice", [0]):
 		steps.append(state.tick + ahead + int(d))
 	if ahead > 0:
@@ -632,6 +633,21 @@ static func _origin(state: GameState, k: String) -> int:
 			if Terrain.storms_on(state) and Terrain.active(state):
 				return -1  # on attendra une tempête
 			return free[_h(state, ["faille", k]) % free.size()]
+		"dream":
+			# Le Solde du Songe : le système libre le plus proche de la capitale de l'empire débiteur.
+			var debtor := int(state.crisis.get("summoner", -1))
+			var cap := FactionTraits.capital_system(state, debtor) if debtor >= 0 else -1
+			if cap >= 0:
+				var jumps := FactionTraits.jumps_from(state.galaxy, cap)
+				var best := -1
+				var best_j := 999
+				for sid in range(state.galaxy.systems.size()):
+					if state.system_owner(sid) < 0 and not state.lairs.has(sid) and int(jumps.get(sid, 999)) < best_j:
+						best_j = int(jumps.get(sid, 999))
+						best = sid
+				if best >= 0:
+					return best
+			return free[_h(state, ["solde", k]) % free.size()]
 		"bureaus":
 			var best := -1
 			var best_d := INF

@@ -361,6 +361,10 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	if not state.rulers.is_empty():
 		for pp in RulersDynasty.opinion_parts(state, a, b):
 			_part(out, String(pp[0]), int(pp[1]))
+	# Pouvoirs psioniques : la Voix de b (voir PsionicsDream).
+	if not state.psionics.is_empty():
+		for pp in PsionicsDream.opinion_parts(state, a, b):
+			_part(out, String(pp[0]), int(pp[1]))
 	# Histoire commune : les souvenirs qui ne sont pas encore effacés.
 	for m in state.memories:
 		if int(m["who"]) == a and int(m["about"]) == b:

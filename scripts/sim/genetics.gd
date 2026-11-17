@@ -287,10 +287,12 @@ static func apply_genome(base: Dictionary, g: Dictionary, path: String, founder:
 		var pp2: Dictionary = (f.get("production_pct", {}) as Dictionary).duplicate()
 		pp2[strong] = _mul(int(pp2.get(strong, 100)), int(path_def("purete").get("strong_pct", 110)))
 		f["production_pct"] = pp2
+	if String(g.get("gov", "")) != "":
+		sp["gouvernement"] = String(g["gov"])  # souverain élu d'une Puissance du Songe (voir PsionicsDream)
 	sp["traits"] = ts
 	f["species"] = sp
 	f["traits"] = shown
-	f["engineered"] = not g.is_empty()
+	f["engineered"] = not g.is_empty() and not (g.size() == 1 and g.has("gov"))
 	return f
 
 
@@ -614,8 +616,10 @@ static func check_mod(state: GameState, eid: int, fid: String, add: Array, rem: 
 			return "trait inconnu : %s" % tid
 		if cur.has(String(tid)):
 			return "%s : l'espèce l'a déjà" % trait_label(String(tid))
+		if bool(t.get("psionics", false)) and not (Psionics.enabled(state) and e.techs.has(Psionics.tech_for("screens"))):
+			return "%s : il faut les pouvoirs psioniques et la technologie Écrans psychiques" % trait_label(String(tid))
 		var v := String(t.get("voie", "creation"))
-		if v == "special" and not extra.has(String(tid)):
+		if v == "special" and not extra.has(String(tid)) and not bool(t.get("psionics", false)):
 			return "%s ne s'obtient pas par un programme" % trait_label(String(tid))
 		if v != "creation" and v != "special" and not voies.has(v) and not extra.has(String(tid)):
 			return "%s : voie %s fermée à cette espèce" % [trait_label(String(tid)), voie_label(v)]
@@ -947,6 +951,8 @@ static func check_cyber(state: GameState, eid: int, fid: String) -> String:
 	var e := state.get_empire(eid)
 	if e.gene_path == "purete":
 		return "votre serment de Pureté interdit tout programme"
+	if Psionics.awake(state, eid):
+		return "L'Éveil interdit les implants de Chair et acier"
 	if GeneticsBridges.moratorium(state, eid):
 		return "le Moratoire génétique de l'Amphictyonie interdit tout programme"
 	if not species_of(state, eid).has(fid):
@@ -1059,6 +1065,8 @@ static func check_path(state: GameState, eid: int, id: String) -> String:
 		return "voie inconnue : %s" % id
 	if sub(state, "renounce").has(str(eid)):
 		return "un serment renié ne se reprend pas"
+	if bool(path_def(id).get("psionics", false)):
+		return Psionics.check_path(state, eid)  # L'Éveil : pouvoirs psioniques
 	if id == "purete":
 		if programs_done(state, eid) > 0 or not programs(state, eid).is_empty() or not e.genome.is_empty():
 			return "la Pureté se jure avant tout programme"
@@ -1084,6 +1092,9 @@ static func choose_path(state: GameState, eid: int, id: String, added: Array[Dic
 		e.genome_rev += 1
 	if id == "purete":
 		_politics(state, eid, 1, "purete")
+	if bool(path_def(id).get("psionics", false)):
+		Psionics.awaken(state, eid, added)
+		return
 	GeneticsBridges.refresh_lineages(state, eid, "")
 	var pd := path_def(id)
 	added.append(state.add_chronicle("%s se voue à la voie « %s ». %s" % [e.display_name(), String(pd.get("label", id)), String(pd.get("text", ""))], Espionage.private_to(state, [eid])))

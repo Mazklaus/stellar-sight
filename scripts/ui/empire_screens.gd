@@ -154,6 +154,9 @@ var culture_buttons := {}
 var _culture_sig := ""
 var genome_buttons := {}
 var _genome_sig := ""
+## Écran Songe : boutons « path », « power:pouvoir:cible »… (tests).
+var psionics_buttons := {}
+var _psionics_sig := ""
 ## Écran Merveilles : boutons « start:merveille », « rush:merveille »… (tests).
 var wonder_buttons := {}
 var _wonders_sig := ""
@@ -312,6 +315,9 @@ func show_screen(screen_id: String) -> void:
 		"genome":
 			genome_buttons.clear()
 			GenomeScreen.build(self)
+		"psionics":
+			psionics_buttons.clear()
+			PsionicsScreen.build(self)
 		"wonders":
 			wonder_buttons.clear()
 			WondersUi.build(self)
@@ -371,6 +377,9 @@ func refresh() -> void:
 		"genome":
 			if GenomeScreen.signature(self) != _genome_sig:
 				show_screen("genome")
+		"psionics":
+			if PsionicsScreen.signature(self) != _psionics_sig:
+				show_screen("psionics")
 		"wonders":
 			if WondersUi.signature(self) != _wonders_sig:
 				show_screen("wonders")

@@ -248,6 +248,8 @@ static func check_adopt(state: GameState, empire_id: int, id: String) -> String:
 		return "pas d'économie privée dans votre empire"
 	if bool(d.get("genetics", false)) and not Genetics.applies(state, empire_id):
 		return "pas d'ingénierie des espèces dans cette partie"
+	if bool(d.get("psionics", false)) and not Psionics.applies(state, empire_id):
+		return "pas de pouvoirs psioniques dans cette partie"
 	if id == "sanctuaire_genome" and state.get_empire(empire_id).gene_path != "purete":
 		return "il faut avoir juré la Pureté"
 	if bool(d.get("faiths", false)) and id == "inquisition" and not Faiths.has_state_faith(state, empire_id):
