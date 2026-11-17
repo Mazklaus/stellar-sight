@@ -20,8 +20,8 @@ static func think(ctx: Dictionary) -> void:
 	keys.sort()
 	for k in keys:
 		var sid := int(k)
-		if Relics.check_start(state, e.id, sid) == "" and _affordable(e):
-			AiPlayer._issue(ctx, SimCommands.dig_start(e.id, sid))
+		if state.system_owner(sid) == e.id and Relics.check_start(state, e.id, sid, AiArchaeo.method_for(state, e, sid)) == "" and _affordable(e):
+			AiPlayer._issue(ctx, SimCommands.dig_start(e.id, sid, AiArchaeo.method_for(state, e, sid)))
 		elif Relics.check_clue(state, e.id, sid) == "" and Relics.fragments(state, e.id) >= int(Relics.data()["digs"]["clue_fragments"]) + 5:
 			AiPlayer._issue(ctx, SimCommands.dig_clue(e.id, sid))
 	for rid in Relics.owned(state, e.id):

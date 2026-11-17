@@ -278,6 +278,8 @@ static func family_available(state: GameState, fid: String) -> bool:
 			return Megastructures.full(state)
 		"contact":
 			return Contact.full(state)
+		"archaeo":
+			return Archaeology.full(state)
 	return true
 
 
