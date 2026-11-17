@@ -5,7 +5,7 @@ image: MJ-17
 epigraphe: On ne gagne pas une galaxie. On attend simplement que les autres aient fini de la perdre.
 signature: Proverbe des Lignées d'Ossarane
 ---
-Six victoires sont ouvertes à tous, et chaque peuple a la sienne. Le bloc Victoire de la nouvelle partie dit lesquelles sont en jeu ; l'écran Victoires ([[F7]]) montre où en est chaque empire.
+Sept victoires sont ouvertes à tous, et chaque peuple a la sienne. Le bloc Victoire de la nouvelle partie dit lesquelles sont en jeu ; l'écran Victoires ([[F7]]) montre où en est chaque empire.
 
 ### Les victoires communes
 
@@ -28,7 +28,7 @@ Six victoires sont ouvertes à tous, et chaque peuple a la sienne. Le bloc Victo
 
 ### Les victoires de peuple
 
-Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie de Société de l'ère IV. Elle tient à ses couches d'espèce : un peuple créé dans l'éditeur reçoit celle de sa combinaison. Le chapitre 36 les présente une à une.
+Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie de Société de l'ère IV. Elle tient à ses couches d'espèce : un peuple créé dans l'éditeur reçoit celle de sa combinaison. Le chapitre 37 les présente une à une.
 
 | Victoire | Peuple | En bref |
 | --- | --- | --- |
