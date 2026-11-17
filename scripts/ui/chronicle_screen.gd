@@ -7,7 +7,7 @@ extends RefCounted
 ## partie, dès son premier présage, voir CrisisPanel).
 ## Construit dans les conteneurs d'EmpireScreens (_grid, _key_value…).
 
-const TABS := [["crisis", "Crise"], ["quests", "Quêtes"], ["deeds", "Hauts faits"], ["events", "Événements"], ["annals", "Annales"], ["relics", "Reliquaire"], ["bestiary", "Bestiaire"]]
+const TABS := [["crisis", "Crise"], ["quests", "Quêtes"], ["deeds", "Hauts faits"], ["events", "Événements"], ["annals", "Annales"], ["relics", "Reliquaire"], ["archeo", "Archéologie"], ["bestiary", "Bestiaire"]]
 
 
 ## Onglets offerts dans cette partie (selon les réglages de la Nouvelle partie).
@@ -24,6 +24,8 @@ static func tabs(state: GameState) -> Array[String]:
 		out.append("annals")
 	if not state.relics.is_empty():
 		out.append("relics")
+	if Archaeology.full(state):
+		out.append("archeo")  # les Strates (voir ArchaeoUi)
 	if Fauna.active(state):
 		out.append("bestiary")
 	return out
@@ -127,7 +129,11 @@ static func build(es: EmpireScreens) -> void:
 		return
 	if es.chron_tab == "relics":
 		col.add_child(_reliquary_block(es))
-		col.add_child(_digs_block(es))
+		if not Archaeology.full(state):
+			col.add_child(_digs_block(es))  # avec les Strates, les fouilles passent dans l'onglet Archéologie
+		return
+	if es.chron_tab == "archeo":
+		ArchaeoUi.build(es, col)
 		return
 	if not Events.enabled(state) and state.curio_density == "aucune" and box.is_empty() and Guardians.ids(state).is_empty():
 		col.add_child(UiTheme.dim("Ni événements ni curiosités dans cette partie (réglage de la Nouvelle partie).", 15))
@@ -400,5 +406,6 @@ static func signature(es: EmpireScreens) -> String:
 	s += BestiaryPanel.signature(es)
 	s += CrisisPanel.signature(es)
 	s += DeedsUi.signature(es)
+	s += ArchaeoUi.signature(es)
 	@warning_ignore("integer_division")
 	return s + "|%s|%d" % [es.chron_tab, state.tick / 30]

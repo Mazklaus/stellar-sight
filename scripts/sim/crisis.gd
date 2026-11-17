@@ -391,10 +391,10 @@ static func begin(state: GameState, k: String, added: Array[Dictionary]) -> void
 	var kd := kind_def(k)
 	var steps: Array = []
 	var seers := CrisisAllies.foreseers(state, k)
-	for x in MinorsBridges.presage_seers(state) + Psionics.crisis_seers(state):  # Préscience de Quellis, pouvoir Préscience
+	for x in MinorsBridges.presage_seers(state) + Psionics.crisis_seers(state) + ArchaeoWorld.crisis_seers(state, k):  # Préscience de Quellis, pouvoir Préscience, Avertissement des Strates
 		if not seers.has(x):
 			seers.append(x)
-	var ahead := maxi(maxi(CrisisAllies.foresight_days(k), MinorsBridges.presage_days(state, seers)), Psionics.presage_days(state, seers)) if not seers.is_empty() and (kd.get("notice", [0]) as Array).size() <= 1 else 0
+	var ahead := maxi(maxi(maxi(CrisisAllies.foresight_days(k), MinorsBridges.presage_days(state, seers)), Psionics.presage_days(state, seers)), ArchaeoWorld.presage_days(state, seers, k)) if not seers.is_empty() and (kd.get("notice", [0]) as Array).size() <= 1 else 0
 	for d in kd.get("notice", [0]):
 		steps.append(state.tick + ahead + int(d))
 	if ahead > 0:
@@ -1215,6 +1215,7 @@ static func _finish(state: GameState, result: String, by: int, added: Array[Dict
 	match result:
 		"victoire":
 			CrisisAllies.on_victory(state, added)
+			ArchaeoWorld.queue_history(state, int(c.get("origin", -1)), "c:" + k, "champ")
 			DeedsBridges.on_crisis_victory(state, sh)
 			var v: Dictionary = data()["victory"]
 			state.crisis["post"] = {"until": state.tick + int(v["days"]), "stab": int(v["stab"]), "kind": k}

@@ -651,6 +651,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_t := TranscendenceWorld.spy_check(state, a, b, op_id)
 		if why_t != "":
 			return why_t
+	if bool(o.get("archaeo", false)):
+		var why_ar := ArchaeoBridges.spy_check(state, a, b, op_id)
+		if why_ar != "":
+			return why_ar
 	if bool(o.get("megas", false)):
 		var why_m := MegasBridges.spy_check(state, a, b, op_id)
 		if why_m != "":
@@ -735,8 +739,8 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 			if op_id == "coup" and Stability.empire_value(state, b) >= int(Politics.data()["crisis"]["coup_below"]):
 				return "son régime tient encore (stabilité d'empire %d, il faut moins de %d)" % [Stability.empire_value(state, b), int(Politics.data()["crisis"]["coup_below"])]
 		"larcin_relique":
-			if Relics.in_reliquary(state, b).is_empty():
-				return "aucune relique dans son Reliquaire"
+			if Relics.in_reliquary(state, b).is_empty() and Archaeology.antiqs_of(state, b).is_empty():
+				return "aucune relique dans son Reliquaire, aucune antiquité dans ses vitrines"
 		"etouffer":
 			if not Guardians.unlocked(state, a, "etouffer"):
 				return "il faut avoir abattu le Mange-soleil"
@@ -903,6 +907,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return GeneticsBridges.spy_apply(state, a, b, o)
 	if bool(o.get("transcendence", false)):
 		return TranscendenceWorld.spy_apply(state, a, b, o)
+	if bool(o.get("archaeo", false)):
+		return ArchaeoBridges.spy_apply(state, a, b, o)
 	if bool(o.get("megas", false)):
 		return MegasBridges.spy_apply(state, a, b, o)
 	if bool(o.get("contact", false)):
@@ -1044,6 +1050,9 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		"larcin_relique":
 			var rid := Relics.pick_reliquary(state, b, ["larcin", a, state.tick])
 			if rid == "":
+				var aq := ArchaeoBridges.steal_antiq(state, a, b)
+				if aq != "":
+					return "%s quitte ses vitrines dans une caisse marquée « produits d'entretien »." % aq
 				return "le Reliquaire était vide. Les vitrines, elles, sont superbes."
 			Relics.steal(state, a, rid)
 			return "%s quitte son Reliquaire par une fenêtre de service, et rejoint le nôtre par la grande porte." % String(Relics.def(rid)["name"])

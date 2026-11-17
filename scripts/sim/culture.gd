@@ -440,6 +440,7 @@ static func source_parts(state: GameState, eid: int) -> Array:
 		out.append(["Conservateurs", cons])
 	# Foi (prop. 11) et héros (prop. 12) : lot 3.
 	out.append_array(CultureBridges.extra_sources(state, eid))
+	out.append_array(Archaeology.culture_parts(state, eid))  # Hauts lieux, musée des antiquités
 	# Arènes des Ferrocornes : batailles gagnées le mois dernier.
 	var br := tal(state, eid, "battle_radiance")
 	if br > 0:

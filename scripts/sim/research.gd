@@ -963,6 +963,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var ctfx := Contact.effects(state, empire_id)
 			_merge(base, ctfx)
 			_merge(exalted, ctfx)
+		# Archéologie : antiquités, actions de fragments, Disparus (voir Archaeology ; jamais Research ici).
+		if not state.archaeo.is_empty():
+			var arfx := Archaeology.effects(state, empire_id)
+			_merge(base, arfx)
+			_merge(exalted, arfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

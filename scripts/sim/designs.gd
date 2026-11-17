@@ -230,6 +230,8 @@ static func hull_ids_for(faction_id: String) -> Array[String]:
 	var replaced := {}
 	for hid in hull_ids():
 		var h := hull(hid)
+		if h.has("gabarit"):
+			continue  # coques anciennes : seulement pour qui détient le Gabarit (hull_ids_of)
 		if not FactionTraits.species_matches(f, h.get("requires", {}).get("species", {})):
 			continue
 		if h.has("replaces"):
@@ -240,6 +242,19 @@ static func hull_ids_for(faction_id: String) -> Array[String]:
 		if not replaced.has(hid):
 			kept.append(hid)
 	return kept
+
+
+## Coques d'un empire : celles de son peuple et les Gabarits anciens qu'il détient (archéologie).
+static func hull_ids_of(state: GameState, empire_id: int) -> Array[String]:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return []
+	var out := hull_ids_for(e.faction_id)
+	for d in ArchaeoWorld.gabarits_of(state, empire_id):
+		var hid := String(Archaeology.disparu_def(d).get("hull", ""))
+		if hid != "" and not hull(hid).is_empty() and not out.has(hid):
+			out.append(hid)
+	return out
 
 
 ## Technologies qu'il faut pour une coque équipée (coque + modules posés), sans doublon.
@@ -323,8 +338,7 @@ static func can_build_id(state: GameState, empire_id: int, ship_id: String) -> b
 		var rec: Dictionary = state.designs[ship_id]
 		if int(rec["owner"]) != empire_id or rec.get("retired", false):
 			return false
-		var e := state.get_empire(empire_id)
-		return e != null and hull_ids_for(e.faction_id).has(String(rec["hull"]))
+		return hull_ids_of(state, empire_id).has(String(rec["hull"]))
 	var e2 := state.get_empire(empire_id)
 	return e2 != null and FactionTraits.ship_ids_for(e2.faction_id).has(ship_id)
 
@@ -343,7 +357,7 @@ static func check_save(state: GameState, empire_id: int, spec: Dictionary) -> St
 	var hid := String(spec.get("hull", ""))
 	if hull(hid).is_empty():
 		return "coque inconnue : %s" % hid
-	if not hull_ids_for(e.faction_id).has(hid):
+	if not hull_ids_of(state, empire_id).has(hid):
 		return "votre peuple n'utilise pas la coque %s" % String(hull(hid)["label"])
 	var mods: Array = spec.get("modules", [])
 	var why := check_fit(hid, mods, extras(state, empire_id, hid))

@@ -462,6 +462,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 	report.erase("slots")
 	BattleScene.finish(state, sid, report)
 	Terrain.on_battle_end(state, sid, added)
+	ArchaeoWorld.on_battle_end(state, sid)  # un grand cimetière d'épaves deviendra un site (archéologie)
 	state.battle_reports.append(report)
 	var keep := int(Combat.data().get("reports_max", 12))
 	while state.battle_reports.size() > keep:
@@ -711,6 +712,7 @@ static func _eliminations(state: GameState, added: Array[Dictionary]) -> void:
 
 
 static func eliminate(state: GameState, e: Empire) -> void:
+	ArchaeoWorld.on_eliminated(state, e)  # sa capitale deviendra un site daté de la partie (archéologie)
 	e.eliminated = true
 	e.capital_planet = -1
 	for f in Fleets.empire_fleets(state, e.id):

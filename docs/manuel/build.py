@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.34"
+EDITION = "2.35"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -1419,6 +1419,66 @@ def gen_mg_talents():
     return f"<table class='grille'><tr><th>Peuple</th><th>Talent</th></tr>{l1}</table>"
 
 
+def gen_ar_modes():
+    """Réglage Archéologie (data/archaeology.json)."""
+    d = charger("archaeology.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    return f"<table class='grille'><tr><th>Archéologie</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_ar_types():
+    """Les sept types de sites (data/archaeology.json « site_types »)."""
+    d = charger("archaeology.json")
+    lab = {"stability": "stabilité", "production_pct": "production", "curio_power": "puissance d'expédition", "damage_pct": "dégâts",
+           "growth_pct": "croissance", "repair_pct": "réparations", "knowledge": "Savoir", "influence": "influence", "energy": "énergie",
+           "materials": "matériaux", "food": "nourriture"}
+    def fx(f):
+        out = []
+        for k, v in f.items():
+            if isinstance(v, dict):
+                out += [f"{lab.get(k, k)} {lab.get(kk, kk)} +{vv} %" for kk, vv in v.items()]
+            else:
+                out.append(f"{lab.get(k, k)} +{v}{' %' if k.endswith('_pct') else ''}")
+        return ", ".join(out)
+    l1 = ""
+    for k, v in d["site_types"].items():
+        if k.startswith("_"):
+            continue
+        res = ", ".join(f"{n} {lab.get(r, r)}" for r, n in v.get("res", {}).items())
+        l1 += f"<tr><td><b>{esc(v['label'])}</b></td><td>{inline(v.get('text', ''))}</td><td>{esc(res)}</td><td>{esc(fx(v.get('antiq_fx', {})))}</td></tr>"
+    return f"<table class='grille'><tr><th>Type</th><th>Ce qu'on y trouve</th><th>Exploiter</th><th>Antiquité</th></tr>{l1}</table>"
+
+
+def gen_ar_actions():
+    """Actions de fragments (data/archaeology.json « actions »)."""
+    d = charger("archaeology.json")
+    l1 = "".join(f"<tr><td><b>{esc(v['label'])}</b></td><td>{v['cost']} fragments, puis {v['cd']} jours</td><td>{inline(v.get('text', ''))}</td></tr>" for k, v in d["actions"].items() if not k.startswith("_"))
+    return f"<table class='grille'><tr><th>Action</th><th>Coût et délai</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_ar_disparus():
+    """Les cinq Disparus (data/archaeology.json « disparus »)."""
+    d = charger("archaeology.json")
+    crises = charger("crises.json").get("kinds", {})
+    l1 = ""
+    for k, v in d["disparus"].items():
+        if k.startswith("_"):
+            continue
+        chute = crises.get(v.get("fall", ""), {}).get("name", v.get("fall", ""))
+        l1 += (f"<tr><td><b>{esc(v['label'])}</b><br><i>Chute : {esc(chute)}</i></td><td>{inline(v.get('lore', ''))}</td>"
+               f"<td><b>{esc(v['civ']['label'])}</b> : {inline(v['civ']['text'])}<br><b>{esc(v['ship']['label'])}</b> : {inline(v['ship']['text'])}<br>"
+               f"<b>{esc(v['reco']['label'])}</b> : {inline(v['reco']['text'])}</td></tr>")
+    return f"<table class='grille'><tr><th>Disparu</th><th>Ce qu'on en sait</th><th>Technologies anciennes et Reconstitution</th></tr>{l1}</table>"
+
+
+def gen_ar_talents():
+    """Talents des peuples (data/archaeology.json « talents »)."""
+    d = charger("archaeology.json")
+    noms = {f["id"]: f.get("name", f["id"]) for f in charger("factions.json")}
+    l1 = "".join(f"<tr><td>{esc(noms.get(k, k))}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>" for k, v in d["talents"].items() if not k.startswith("_"))
+    return f"<table class='grille'><tr><th>Peuple</th><th>Talent</th></tr>{l1}</table>"
+
+
 def gen_ct_modes():
     """Réglages Contact, Lointains et Issue (data/contact.json)."""
     d = charger("contact.json")
@@ -1490,6 +1550,7 @@ GENERATEURS = {
     "psi_felures": gen_psi_felures, "psi_postures": gen_psi_postures, "psi_visions": gen_psi_visions, "psi_puissances": gen_psi_puissances,
     "psi_talents": gen_psi_talents,
     "mg_modes": gen_mg_modes, "mg_catalogue": gen_mg_catalogue, "mg_talents": gen_mg_talents,
+    "ar_modes": gen_ar_modes, "ar_types": gen_ar_types, "ar_actions": gen_ar_actions, "ar_disparus": gen_ar_disparus, "ar_talents": gen_ar_talents,
     "ct_modes": gen_ct_modes, "ct_couches": gen_ct_couches, "ct_natures": gen_ct_natures, "ct_talents": gen_ct_talents,
     "tr_modes": gen_tr_modes, "tr_voies": gen_tr_voies, "tr_oeuvres": gen_tr_oeuvres, "tr_talents": gen_tr_talents,
     "portail_modes": gen_portail_modes, "portail_batiments": gen_portail_batiments, "portail_talents": gen_portail_talents,

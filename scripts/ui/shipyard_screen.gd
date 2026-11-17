@@ -167,7 +167,7 @@ func _fill_side() -> void:
 	_side.add_child(UiTheme.section("Modèles"))
 	var origins := FactionTraits.ship_ids_for(me.faction_id)
 	var retired: Array[Dictionary] = []
-	for hid in Designs.hull_ids_for(me.faction_id):
+	for hid in Designs.hull_ids_of(_state, me.id):
 		var h := Designs.hull(hid)
 		var head := Button.new()
 		head.text = "+  %s" % String(h["label"]).to_upper()
@@ -225,7 +225,7 @@ func select_design(id: String) -> void:
 	var sd := GameData.ship(id)
 	var hid := String(sd.get("hull", ""))
 	if hid == "":
-		new_draft(Designs.hull_ids_for(_state.get_empire(_player).faction_id)[0])
+		new_draft(Designs.hull_ids_of(_state, _player)[0])
 		return
 	var custom: bool = sd.get("custom", false)
 	draft = {

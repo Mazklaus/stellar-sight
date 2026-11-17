@@ -111,7 +111,7 @@ static func restore_cost(state: GameState, eid: int, m: Dictionary) -> Dictionar
 			total[r] = int(total.get(r, 0)) + int(c[r])
 	var pct := Megastructures.r_int("restore_pct", 40)
 	@warning_ignore("integer_division")
-	pct = pct * (100 + Megastructures.t_int(state, eid, "restore_pct")) / 100
+	pct = pct * (100 + Megastructures.t_int(state, eid, "restore_pct") + ArchaeoBridges.plans_pct(state, eid, int(m.get("s", -1)))) / 100
 	return Research.scaled_amounts(total, pct - 100)
 
 
@@ -389,6 +389,7 @@ static func daily(state: GameState, added: Array[Dictionary]) -> void:
 		elif int(m.get("wk", 0)) > 0:
 			m["wk"] = 0
 		if int(m.get("wk", 0)) >= weak:
+			ArchaeoWorld.queue_history(state, int(m["s"]), "m", "epave")  # ses débris deviendront un site
 			Megastructures.entries(state).erase(str(int(m["id"])))
 			Megastructures.touch(state)
 			added.append(state.add_chronicle("Des saboteurs ennemis trouvent le point faible du Brise-monde de %s : il saute, et emporte avec lui une bonne partie de la croûte de %s." % [

@@ -195,6 +195,7 @@ func _draw() -> void:
 	_draw_wonders(px)
 	_draw_oeuvres(px)
 	_draw_megas(px)
+	_draw_archaeo(px)
 	_draw_contact(px)
 	_draw_quests(px)
 	_draw_crisis(px)
@@ -998,6 +999,37 @@ func _draw_megas(px: float) -> void:
 			draw_arc(Vector2.ZERO, 13.0, -PI / 2.0, -PI / 2.0 + TAU * frac, 24, col, 1.6, true)
 			if bool(Megastructures.kind_def(String(m["k"])).get("weapon", false)):
 				draw_line(Vector2(9, -9), Vector2(14, -14), Color(1.0, 0.35, 0.3), 1.8, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Archéologie (prop. 42) : petit repère en pioche sous les sites connus du joueur (doré s'il y fouille,
+## gris une fois fini), et un losange sur les Mondes-berceaux qu'il a trouvés. Sans lentille.
+func _draw_archaeo(px: float) -> void:
+	if state == null or not Archaeology.full(state):
+		return
+	var keys := state.digs.keys()
+	keys.sort()
+	for k in keys:
+		var sid := int(k)
+		if not Relics.knows(state, viewer, sid):
+			continue
+		var d: Dictionary = state.digs[sid]
+		var col := Color(0.78, 0.66, 0.42, 0.85)
+		if int(d["done"]) >= 0:
+			col = Color(0.55, 0.55, 0.55, 0.6)
+		elif int(d["by"]) == viewer and int(d["next"]) >= 0:
+			col = Color(1.0, 0.84, 0.35, 1.0)
+		draw_set_transform(galaxy.systems[sid].position, 0.0, Vector2(px, px))
+		draw_line(Vector2(-6, 15), Vector2(0, 9), col, 1.6, true)
+		draw_line(Vector2(-3, 9), Vector2(3, 9), col, 1.6, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	for dn in Archaeology.in_game_disparus(state):
+		if not ArchaeoWorld.cradle_known(state, viewer, dn):
+			continue
+		var sid2 := int(ArchaeoWorld.cradle_of(state, dn)["s"])
+		draw_set_transform(galaxy.systems[sid2].position, 0.0, Vector2(px, px))
+		var c2 := Color.html(String(Archaeology.disparu_def(dn).get("color", "#c8a96a")))
+		draw_polyline(PackedVector2Array([Vector2(0, -17), Vector2(5, -12), Vector2(0, -7), Vector2(-5, -12), Vector2(0, -17)]), c2, 1.6, true)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

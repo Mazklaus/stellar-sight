@@ -689,6 +689,15 @@
 			"text": "Le vaincu cède le système de sa plus grande mégastructure (hors capitale), avec l'ouvrage et ce qu'il rapporte."
 		},
 		{
+			"id": "restitution",
+			"label": "Restitution",
+			"accept": -25,
+			"objective": "battles",
+			"req": "archaeo",
+			"price": 25,
+			"text": "Le vaincu rend trois antiquités de ses vitrines, d'abord celles qui viennent de votre peuple (archéologie complète)."
+		},
+		{
 			"id": "heritier",
 			"label": "Imposer un héritier",
 			"accept": -50,
