@@ -434,6 +434,8 @@ def talents_du_peuple(f):
     ajoute("Transcendance", [tr] if isinstance(tr, dict) else [])
     mg = charger("megastructures.json").get("talents", {}).get(f["id"])
     ajoute("Mégastructures", [mg] if isinstance(mg, dict) else [])
+    ct = charger("contact.json").get("talents", {}).get(f["id"])
+    ajoute("Contact", [ct] if isinstance(ct, dict) else [])
     cu = charger("culture.json").get("talents", {})
     peuple = cu.get("peoples", {}).get(f["id"])
     ajoute("Rayonnement", _par_couche(c, {k: v for k, v in cu.items() if k != "peoples"}) + ([peuple] if isinstance(peuple, dict) else []))
@@ -1417,6 +1419,43 @@ def gen_mg_talents():
     return f"<table class='grille'><tr><th>Peuple</th><th>Talent</th></tr>{l1}</table>"
 
 
+def gen_ct_modes():
+    """Réglages Contact, Lointains et Issue (data/contact.json)."""
+    d = charger("contact.json")
+    out = ""
+    for titre, cle, defaut in [("Contact", "modes", "default_mode"), ("Lointains", "nature_modes", "default_nature_mode"), ("Issue", "outcomes", "default_outcome")]:
+        lignes = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get(defaut) else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d[cle])
+        out += f"<table class='grille'><tr><th>{titre}</th><th>Effet</th></tr>{lignes}</table>"
+    return out
+
+
+def gen_ct_couches():
+    """Les quatre couches du Signal (data/contact.json « layers »)."""
+    d = charger("contact.json")
+    voix = d.get("names", {}).get("default", {})
+    l1 = "".join(f"<tr><td><b>{esc(c['label'])}</b><br>{c['at'] // 10} %</td><td>{inline(c.get('text', ''))}</td><td><i>« {esc(voix.get(c['id'], ''))} »</i></td></tr>" for c in d["layers"])
+    return f"<table class='grille'><tr><th>Couche</th><th>Ce qu'elle apporte</th><th>Ce qu'on y lit</th></tr>{l1}</table>"
+
+
+def gen_ct_natures():
+    """Les cinq natures des Lointains (data/contact.json « natures »)."""
+    d = charger("contact.json")
+    issue = {"victory": "Victoire de Contact, partagée avec le Consortium", "archive": "Une archive répond : victoire douce-amère",
+             "trap": "Victoire si les Plans ont été audités ; sinon l'émetteur devient l'Hôte", "loop": "Victoire : la boucle se ferme",
+             "crisis": "Pas de victoire : l'Outre-Nuit arrive en trois ans et vise l'émetteur"}
+    l1 = "".join(f"<tr><td><b>{esc(n['label'])}</b><br>poids {n.get('weight', 0)}</td><td>{inline(n.get('text', ''))}</td><td>{inline(n.get('hint', ''))}</td><td>{esc(issue.get(n.get('outcome', ''), ''))}</td></tr>" for n in d["natures"]["list"])
+    return f"<table class='grille'><tr><th>Nature</th><th>Qui ils sont</th><th>Indices</th><th>Si l'on répond</th></tr>{l1}</table>"
+
+
+def gen_ct_talents():
+    """Talents des peuples et nom du Signal (data/contact.json « talents », « names »)."""
+    d = charger("contact.json")
+    noms = {f["id"]: f.get("name", f["id"]) for f in charger("factions.json")}
+    signal = d.get("names", {})
+    l1 = "".join(f"<tr><td>{esc(noms.get(k, k))}</td><td><i>{esc(signal.get(k, {}).get('name', ''))}</i></td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>" for k, v in d["talents"].items() if not k.startswith("_"))
+    return f"<table class='grille'><tr><th>Peuple</th><th>Nom du Signal</th><th>Talent</th></tr>{l1}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -1451,6 +1490,7 @@ GENERATEURS = {
     "psi_felures": gen_psi_felures, "psi_postures": gen_psi_postures, "psi_visions": gen_psi_visions, "psi_puissances": gen_psi_puissances,
     "psi_talents": gen_psi_talents,
     "mg_modes": gen_mg_modes, "mg_catalogue": gen_mg_catalogue, "mg_talents": gen_mg_talents,
+    "ct_modes": gen_ct_modes, "ct_couches": gen_ct_couches, "ct_natures": gen_ct_natures, "ct_talents": gen_ct_talents,
     "tr_modes": gen_tr_modes, "tr_voies": gen_tr_voies, "tr_oeuvres": gen_tr_oeuvres, "tr_talents": gen_tr_talents,
     "portail_modes": gen_portail_modes, "portail_batiments": gen_portail_batiments, "portail_talents": gen_portail_talents,
 }

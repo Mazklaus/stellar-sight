@@ -205,6 +205,7 @@ var genetics: Dictionary = {}  # ingénierie des espèces (voir Genetics) ; {} =
 var psionics: Dictionary = {}  # pouvoirs psioniques (voir Psionics) ; {} = désactivés
 var transcendence: Dictionary = {}  # la Transcendance (voir Transcendence) ; {} = désactivée
 var megas: Dictionary = {}  # les mégastructures (voir Megastructures) ; {} = désactivées
+var contact: Dictionary = {}  # la victoire de Contact (voir Contact) ; {} = désactivée
 var portals: Dictionary = {}  # portails de saut (voir Portals) ; {} = désactivés
 ## Mort des héros au combat (voir HeroFall) ; {} = option absente : blessure ou capture seulement.
 var hero_death: Dictionary = {}
@@ -345,6 +346,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Transcendence.setup(s, String(options.get("transcendence", "desactivee")), String(options.get("transcendence_outcome", "")))
 	Portals.setup(s, String(options.get("portals", "desactives")))
 	Megastructures.setup(s, String(options.get("megastructures", "desactivees")), String(options.get("mega_ruins", "")))
+	Contact.setup(s, String(options.get("contact", "desactive")), String(options.get("contact_nature", "")), String(options.get("contact_outcome", "")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -518,6 +520,8 @@ func to_dict() -> Dictionary:
 		d["psionics"] = Psionics.to_dict(self)
 	if Transcendence.worth_saving(self):
 		d["transcendence"] = Transcendence.to_dict(self)
+	if Contact.worth_saving(self):
+		d["contact"] = Contact.to_dict(self)
 	if Portals.worth_saving(self):
 		d["portals"] = Portals.to_dict(self)
 	if Megastructures.worth_saving(self):
@@ -644,6 +648,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Psionics.from_dict(s, d.get("psionics", {}))
 	Transcendence.from_dict(s, d.get("transcendence", {}))
 	Portals.from_dict(s, d.get("portals", {}))
+	Contact.from_dict(s, d.get("contact", {}))
 	HeroFall.from_dict(s, d.get("hero_death", {}))
 	for c: Dictionary in d["colonies"]:
 		var colony := Colony.from_dict(c)

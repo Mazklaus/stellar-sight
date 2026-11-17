@@ -700,6 +700,12 @@ static func mega_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "megastructures", "player": player, "act": act, "d": d}
 
 
+## Contact (voir Contact.check) : "share" (d : v), "intuition", "transmit", "rate" (d : v), "announce",
+## "verify", "plans_raw", "plans_audit", et ceux de la course (ContactRace) et des voix (ContactVoices).
+static func ct_act(player: int, act: String, d := {}) -> Dictionary:
+	return {"type": "contact", "player": player, "act": act, "d": d}
+
+
 ## Furtivité : "pose" (a = flotte, s = posture : "", "silence", "scan", "ambush"), "beacon" (a = flotte).
 static func stealth_act(player: int, act: String, a := -1, b := -1, s := "") -> Dictionary:
 	return {"type": "stealth", "player": player, "act": act, "a": a, "b": b, "s": s}
@@ -922,6 +928,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Megastructures.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"transcendence":
 			return Transcendence.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
+		"contact":
+			return Contact.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"stealth":
 			return Stealth.check(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"portal_raze":
@@ -1149,6 +1157,9 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			c.construction = String(cmd["building"])
 			# Loi « Cadences » : chantiers plus courts.
 			c.construction_days = maxi(1, Research.scaled(int(b["days"]), Research.fx_int(state, e.id, "building_days_pct")))
+			# Contact : Oreilles bâties plus vite par les Lignées d'Ossarane.
+			if bool(b.get("contact", false)) and not state.contact.is_empty():
+				c.construction_days = ContactVoices.build_days(state, e.id, String(cmd["building"]), c.construction_days)
 		"build_ship":
 			var e := state.get_empire(int(cmd["player"]))
 			var c: Colony = state.colonies[int(cmd["planet"])]
@@ -1345,6 +1356,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Transcendence.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"megastructures":
 			Megastructures.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
+		"contact":
+			Contact.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"stealth":
 			Stealth.apply(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"portal_raze":

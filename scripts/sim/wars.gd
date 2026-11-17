@@ -302,6 +302,8 @@ static func _req_ok(state: GameState, req: String, a: int, b: int) -> bool:
 			return not state.finance.is_empty() and FinanceBridges.debt_casus(state, a, b)
 		"expropriated":
 			return not state.private.is_empty() and Private.full(state) and Private.expropriation_casus(state, a, b)
+		"silence":
+			return not state.contact.is_empty() and ContactRace.silence_casus(state, a, b)
 		"ascension":
 			return Transcendence.full(state) and Transcendence.leaving(state, b) and not Transcendence.leaving(state, a)
 	return false
@@ -327,6 +329,9 @@ static func goal_ok(state: GameState, gid: String, a: int, b: int) -> bool:
 				return false
 		"ascension":
 			if not Transcendence.full(state) or not Transcendence.leaving(state, b):
+				return false
+		"silence":
+			if state.contact.is_empty() or not Contact.transmitting(state, b):
 				return false
 	return true
 
@@ -379,7 +384,7 @@ static func auto_choice(state: GameState, a: int, b: int) -> Array:
 	var e := state.get_empire(a)
 	if e != null and e.is_ai() and int(AiLevels.level(e.ai_level).get("military", {}).get("skill", 1)) <= 0:
 		return ch[(a * 7 + b * 13 + state.tick / 30) % ch.size()]
-	var rank := ["totale", "independance", "quitter", "ascension", "conquete", "soumission", "liberer", "ouvrir_marches", "rancon", "merveille", "mega", "demanteler", "humiliation", "kanly"]
+	var rank := ["totale", "independance", "quitter", "ascension", "faire_taire", "conquete", "soumission", "liberer", "ouvrir_marches", "rancon", "merveille", "mega", "demanteler", "humiliation", "kanly"]
 	var best: Array = ch[0]
 	for c in ch:
 		var better := rank.find(String(c[1])) < rank.find(String(best[1]))
@@ -863,6 +868,9 @@ static func apply_victory(state: GameState, winner: int, loser: int) -> void:
 				Vassals.unbind(state, s, "la paix l'affranchit")
 		"ouvrir_marches":
 			ceded.append_array(PrivateBridges.open_markets(state, winner, loser))
+		"faire_taire":
+			if not state.contact.is_empty():
+				ceded.append(ContactRace.silence(state, winner, loser))
 		"ascension":
 			var host := Transcendence.host_of(state, loser)
 			if host >= 0:

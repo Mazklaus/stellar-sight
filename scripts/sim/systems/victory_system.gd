@@ -91,6 +91,9 @@ static func _proclaim(state: GameState, empire_id: int, id: String, added: Array
 	# Transcendance commune : les empires joints au Passage partagent la victoire.
 	if id == "transcendance":
 		state.winner["allies"] = Array(Transcendence.joined_to(state, empire_id))
+	# Consortium du Signal : ses membres partagent la victoire de Contact.
+	if id == "contact":
+		state.winner["allies"] = Array(ContactRace.partners(state, empire_id))
 	if e.victory.has(id):
 		e.victory[id]["pct"] = 100
 	added.append(state.add_chronicle("VICTOIRE. " + Victory.chronicle_text(id, e, state.winner["allies"], state)))

@@ -5,7 +5,7 @@ image: MJ-17
 epigraphe: On ne gagne pas une galaxie. On attend simplement que les autres aient fini de la perdre.
 signature: Proverbe des Lignées d'Ossarane
 ---
-Sept victoires sont ouvertes à tous, et chaque peuple a la sienne. Le bloc Victoire de la nouvelle partie dit lesquelles sont en jeu ; l'écran Victoires ([[F7]]) montre où en est chaque empire.
+Huit victoires sont ouvertes à tous, et chaque peuple a la sienne. Le bloc Victoire de la nouvelle partie dit lesquelles sont en jeu ; l'écran Victoires ([[F7]]) montre où en est chaque empire.
 
 ### Les victoires communes
 

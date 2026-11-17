@@ -987,6 +987,45 @@
 			"text": "Transcendance : son Exodium perd une étape ; s'il est en Passage, le Passage est brisé. Les futurs Partis s'en souviendront."
 		},
 		{
+			"id": "copier_releves",
+			"family": "larcin",
+			"label": "Copier les relevés du Signal",
+			"tier": 2,
+			"cost": {"influence": 40},
+			"days": 45,
+			"success": 60,
+			"discovery": 30,
+			"spend": 15,
+			"contact": true,
+			"text": "Contact : vole le fragment du Signal de la cible (sans le lui faire perdre)."
+		},
+		{
+			"id": "fragment_empoisonne",
+			"family": "intrigue",
+			"label": "Fragment empoisonné",
+			"tier": 3,
+			"cost": {"influence": 50},
+			"days": 60,
+			"success": 50,
+			"discovery": 35,
+			"spend": 20,
+			"contact": true,
+			"text": "Contact : un réseau retourné livre à la cible un faux fragment ; son déchiffrement recule de 10 %."
+		},
+		{
+			"id": "saboter_heraut",
+			"family": "sabotage",
+			"label": "Saboter le Héraut",
+			"tier": 3,
+			"cost": {"influence": 60},
+			"days": 60,
+			"success": 45,
+			"discovery": 45,
+			"spend": 25,
+			"contact": true,
+			"text": "Contact : la Transmission de la cible prend 3 à 6 mois de retard."
+		},
+		{
 			"id": "voler_carnets",
 			"family": "larcin",
 			"label": "Voler les carnets de l'Orée",

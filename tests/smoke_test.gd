@@ -106,6 +106,7 @@ func _initialize() -> void:
 	preload("res://tests/psionics_tests.gd").new().run(_check)
 	preload("res://tests/transcendence_tests.gd").new().run(_check)
 	preload("res://tests/megas_tests.gd").new().run(_check)
+	preload("res://tests/contact_tests.gd").new().run(_check)
 	preload("res://tests/battle_visuals_tests.gd").new().run(_check)
 	preload("res://tests/ground_visuals_tests.gd").new().run(_check)
 	_test_clock()
@@ -2150,6 +2151,13 @@ func _test_victory_ui(main: Node) -> void:
 	await process_frame
 	cell = screens.victory_rows.get(rid, {}).get(rival)
 	_check(cell != null and cell.text == "60 %", "écran Victoire : visible à 60 %")
+	if Contact.enabled(st):
+		_check(screens.contact_buttons.has("tab:contact"), "écran Victoire : onglet Contact")
+		screens.show_screen("contact")
+		await process_frame
+		_check(screens.contact_buttons.has("tab:victory") and screens.is_open(), "écran Contact : ouvert, onglets en tête")
+		screens.show_screen("victory")
+		await process_frame
 	_press(KEY_F7)
 	await process_frame
 	_check(not screens.is_open(), "F7 referme l'écran Victoire")

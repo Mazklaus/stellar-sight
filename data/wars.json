@@ -465,6 +465,18 @@
 			"text": "Le Stratège vous a refusé la sortie du Koinon : vous la prenez par les armes."
 		},
 		{
+			"id": "faire_taire",
+			"label": "Faire taire",
+			"req": "silence",
+			"goals": [
+				"faire_taire",
+				"humiliation"
+			],
+			"memory": "",
+			"just": true,
+			"text": "Contact : il répond aux Lointains et son Héraut émet. Personne ne vous reprochera de vouloir le faire taire."
+		},
+		{
 			"id": "ascension",
 			"label": "Empêcher l'Ascension",
 			"req": "ascension",
@@ -639,6 +651,15 @@
 			"price": 30,
 			"defense_only": true,
 			"text": "Le sécessionniste rentre dans le Koinon et ne pourra plus le quitter avant 5 ans."
+		},
+		{
+			"id": "faire_taire",
+			"label": "Faire taire le Héraut",
+			"accept": -50,
+			"objective": "battles",
+			"req": "silence",
+			"price": 40,
+			"text": "Le vaincu démolit son Héraut : sa Transmission retombe au dernier quart atteint."
 		},
 		{
 			"id": "ascension",

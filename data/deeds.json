@@ -1150,6 +1150,10 @@
 		"kardashev_ii": {"label": "Civilisation stellaire", "family": "science", "sort": "first", "k": "mega_kard", "n": 2, "text": "Premier à atteindre le type II de l'échelle de Kardashev (mégastructures en jeu).", "flavor": "Notre étoile travaille pour nous. Elle n'a pas été consultée."},
 		"kardashev_iii": {"label": "Civilisation galactique", "family": "science", "sort": "first", "k": "mega_kard", "n": 3, "text": "Premier à atteindre le type III de l'échelle de Kardashev (mégastructures en jeu).", "flavor": "Les voisins ne regardent plus le ciel : ils regardent nos chantiers."},
 		"premier_monde_anneau": {"label": "Le premier Anneau", "family": "economie", "sort": "first", "k": "mega_rings", "n": 1, "text": "Premier à achever un Monde-anneau (mégastructures en jeu).", "flavor": "Le soleil ne se couche jamais. Les horaires de travail ont dû être revus."},
+		"pas_seuls": {"label": "Nous ne sommes pas seuls", "family": "science", "sort": "first", "k": "ct_porteuse", "n": 1, "text": "Premier empire à déchiffrer la Porteuse du Signal (Contact en jeu).", "flavor": "2, 3, 5, 7, 11… Quelqu'un, là-bas, sait compter. C'est un début."},
+		"ce_que_nous_fumes": {"label": "Ce que nous fûmes", "family": "perils", "sort": "secret", "k": "ct_echo_crime", "n": 1, "text": "Voir l'Écho du Signal ressortir un de vos crimes oubliés (Contact en jeu).", "flavor": "On croyait l'émission perdue. L'univers, lui, garde tout."},
+		"ne_pas_repondre": {"label": "On vous avait dit de ne pas répondre", "family": "perils", "sort": "secret", "k": "ct_survived", "n": 1, "text": "Survivre à l'Outre-Nuit après l'avoir appelée (Contact en jeu).", "flavor": "La prochaine fois, peut-être, on lira l'Abécédaire jusqu'au bout."},
+		"cercle_decimales": {"label": "Un cercle dans les décimales", "family": "science", "sort": "first", "k": "ct_won", "n": 1, "text": "Recevoir la réponse des Lointains (Contact en jeu).", "flavor": "Tout au fond des décimales de pi, une suite de zéros et de uns dessine un cercle. Quelqu'un l'a mis là."},
 		"au_bord_abime": {
 			"label": "Au bord de l'abîme",
 			"family": "expansion",

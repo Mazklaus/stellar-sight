@@ -189,6 +189,10 @@ static func transcendence() -> Dictionary:
 	return _load("transcendence")
 
 
+static func contact() -> Dictionary:
+	return _load("contact")
+
+
 static func portals() -> Dictionary:
 	return _load("portals")
 
