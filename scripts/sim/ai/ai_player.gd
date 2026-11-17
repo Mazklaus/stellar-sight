@@ -88,6 +88,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiStealth.think(ctx)
 	AiGenetics.think(ctx)
 	AiPsionics.think(ctx)
+	AiTranscendence.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 
@@ -928,6 +929,8 @@ static func _fleets(ctx: Dictionary) -> void:
 	for f in Fleets.empire_fleets(state, e.id):
 		if not state.fleets.has(f.id):
 			continue  # dissoute par une colonisation plus haut dans la boucle
+		if not state.transcendence.is_empty() and Transcendence.is_ark(state, f):
+			continue  # l'Arche de la Bordure : menée par AiTranscendence
 		if Fleets.colonizer_ship(f) != "":
 			_colonizer(ctx, f)
 		elif FactionTraits.is_city_fleet(f):
@@ -1572,6 +1575,10 @@ static func _war_target(ctx: Dictionary, from: int) -> int:
 		if Ports.full(state) and _skill(ctx) >= 1 and Ports.port_level_at(state, owner, sid) >= 2:
 			@warning_ignore("integer_division")
 			score = score * 3 / 4
+		# Transcendance : l'Œuvre d'un empire en route vers l'au-delà est la cible de choix (prop. 40).
+		if not state.transcendence.is_empty() and Transcendence.strike_target(state, owner, sid):
+			@warning_ignore("integer_division")
+			score = score / 3
 		# Terrain : le Vétéran et au-dessus évitent d'attaquer là où le terrain les désavantage.
 		var tai: Dictionary = Terrain.data().get("ai", {})
 		if Terrain.active(state) and _skill(ctx) >= int(tai.get("min_skill", 2)) \

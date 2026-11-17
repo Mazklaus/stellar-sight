@@ -294,6 +294,7 @@
 			"on_fail": "reset",
 			"chronicle": "Les Annales : l'histoire de la galaxie s'écrit au nom de %s. Les autres empires y figurent aussi, en note de bas de page.",
 			"src": "Ambitions d'Old World (10 pour gagner) ; Renommée de Humankind"
-		}
+		},
+		"transcendance": {"kind": "classic", "label": "Transcendance", "transcendence": true, "text": "Franchir l'Orée, se vouer à une voie, remplir la jauge d'Élévation, bâtir l'Œuvre de sa voie en trois étapes, puis tenir le Passage (cinq ans, moins avec des Relais et des Lieux minces ; le Grand Départ finit par le voyage de l'Arche jusqu'à la Bordure). Les alliés qui ont rejoint le Passage partagent la victoire. En issue « Départ », le peuple quitte la galaxie au lieu de gagner.", "counter": "Prendre ou occuper le système de l'Œuvre (le Passage recule d'un an par mois), abattre l'Arche, voter un Moratoire sur l'Orée, déclarer la guerre « Empêcher l'Ascension ».", "hold_days": 0, "chronicle": "%s transcende.", "src": "Victoire Transcendance de Civilization: Beyond Earth ; Ascent to Transcendence d'Alpha Centauri ; voir data/transcendence.json"}
 	}
 }

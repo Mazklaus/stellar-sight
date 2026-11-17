@@ -944,6 +944,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var sfx := PsionicsDream.effects(state, empire_id)
 			_merge(base, sfx)
 			_merge(exalted, sfx)
+		# Transcendance : Renoncement, effacement du Passage, credo (voir Transcendence).
+		if not state.transcendence.is_empty():
+			var tfx := Transcendence.effects(state, empire_id)
+			_merge(base, tfx)
+			_merge(exalted, tfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

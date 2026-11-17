@@ -88,6 +88,9 @@ static func _proclaim(state: GameState, empire_id: int, id: String, added: Array
 		var b := Victory.bloc(state, empire_id)
 		b.erase(empire_id)
 		state.winner["allies"] = Array(b)
+	# Transcendance commune : les empires joints au Passage partagent la victoire.
+	if id == "transcendance":
+		state.winner["allies"] = Array(Transcendence.joined_to(state, empire_id))
 	if e.victory.has(id):
 		e.victory[id]["pct"] = 100
 	added.append(state.add_chronicle("VICTOIRE. " + Victory.chronicle_text(id, e, state.winner["allies"], state)))
