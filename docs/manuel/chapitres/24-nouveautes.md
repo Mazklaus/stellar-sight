@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.30
+
+- **La chair et le code** (chapitre 34), nouveau réglage **Ingénierie des espèces** (complète, simple, désactivée) : un **génome** par espèce et par empire, des **programmes** payés en Savoir (matériaux pour les synthétiques) en mensualités, une **marge** de points (technologies du pilier, Codex des origines, voie génétique), plus de quarante **traits façonnés** en voies génétique, poussée, de caste, de recristallisation, harmonique, de reprogrammation et d'implants ; six nouvelles technologies (**Reprogrammation**, **Implants neuraux**, **Reséquençage**, **Acclimatation glandulaire**, **Évolution dirigée**, **Matrices de conscience**) ; écran **Génome**.
+- **Chair et acier**, **Grand Transfert**, **acclimatation** au second biome ; **voies d'élévation** (Espèce parfaite, Chair et acier, Grand Transfert) et serment de **Pureté** ; en réglage complet, **lignées**, **abrutissement**, **greffe** par sacrifice et espèces **hybrides**.
+- **Ponts** : lois **Charte du génome**, **Eugénisme d'État**, **Sanctuaire du génome** ; préceptes **Sainteté de la chair** et **La chair est argile** ; famille **Génome** du Nomos (Libre ingénierie, Convention de l'intégrité, Moratoire génétique) ; souvenir **Profanation de notre sang** ; héros longévifs, **Héritiers façonnés**, Lignée de souche à la cour, régiments clonés, fléaux, opérations **Voler un génome** et **Contaminer les cuves**, relique **Codex des origines**, échantillons de créatures, don génétique aux peuples mineurs, détection, camouflage, échos, biomasse ; hauts faits **L'Espèce parfaite**, **Mille visages** et **Le dernier de chair** ; talents par couche ; IA qui façonne. Chapitres 35 à 38 renumérotés.
+
 ### Édition 2.29
 
 - **Ombres et senseurs** (chapitre 33), nouveau réglage **Furtivité** (complète, simple, désactivée) : **camouflage** contre **détection**, de 0 à 5, dans la portée de vision ; **Voiles de camouflage I à III** et **Voile titanesque** (le voile ralentit, tombe au premier tir et se relève en 30 jours), **Réseaux de détecteurs I à III**, **Réseau d'écoute**, **Poste d'écoute** de station, **balises d'écoute**, sonde qui perce jusqu'à 3 ; terrain qui cache, tempête qui aveugle.

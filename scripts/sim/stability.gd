@@ -338,6 +338,8 @@ static func context(state: GameState, empire_id: int) -> Dictionary:
 		global.append_array(Finance.empire_stability_parts(state, empire_id))  # impôt, crise de la dette
 	if not state.private.is_empty():
 		global.append_array(Private.empire_stability_parts(state, empire_id))  # monopoles
+	if not state.genetics.is_empty():
+		global.append_array(Genetics.empire_stability_parts(state, empire_id))  # Pureté
 	# Contre-espionnage : un réseau chez soi tient les meneurs à l'œil.
 	if not state.networks.is_empty() and Espionage.home_cells(state, empire_id) > 0:
 		global.append(["Réseau intérieur (contre-espionnage)", int(src["counter_network"])])
@@ -409,6 +411,8 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 	if not state.private.is_empty():
 		out.append_array(Private.system_stability_parts(state, sid))  # dirigeant philanthrope
 		out.append_array(Ports.system_stability_parts(state, sid))  # luxes mal distribués
+	if not state.genetics.is_empty():
+		out.append_array(Genetics.system_stability_parts(state, sid, owner))  # espèce docile
 	# Garnison.
 	if (cx["armed"] as Dictionary).has(sid):
 		out.append(["Flotte armée en orbite", int(src["garrison"])])

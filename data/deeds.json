@@ -489,6 +489,33 @@
 			"text": "Premier à tenir cinquante ans une capitale gardée par une station sans qu'elle soit jamais assiégée (défenses spatiales en jeu).",
 			"flavor": "Les guides montrent aux touristes les remparts. Les remparts n'ont jamais servi, et c'est tout leur mérite."
 		},
+		"espece_parfaite": {
+			"label": "L'Espèce parfaite",
+			"family": "science",
+			"sort": "first",
+			"k": "gen_traits",
+			"n": 7,
+			"text": "Premier à porter sept traits sur son espèce fondatrice (ingénierie des espèces en jeu).",
+			"flavor": "Ils sont beaux, forts, intelligents et longévifs. Ils s'ennuient un peu."
+		},
+		"mille_visages": {
+			"label": "Mille visages",
+			"family": "science",
+			"sort": "first",
+			"k": "gen_shaped",
+			"n": 5,
+			"text": "Premier à façonner cinq espèces ou lignées (ingénierie des espèces en jeu).",
+			"flavor": "Au recensement, la case « espèce » a été remplacée par une page entière."
+		},
+		"dernier_de_chair": {
+			"label": "Le dernier de chair",
+			"family": "science",
+			"sort": "secret",
+			"k": "gen_transfer",
+			"n": 1,
+			"text": "Transférer son espèce fondatrice dans des châssis (Grand Transfert).",
+			"flavor": "Le dernier repas fut servi dans un silence recueilli. Personne n'a eu faim depuis."
+		},
 		"premier_voile": {
 			"label": "Premier voile",
 			"family": "guerre",

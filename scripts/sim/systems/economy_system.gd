@@ -16,6 +16,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 		Peoples.monthly(state, added)
 		Movements.monthly(state, added)
 		Faiths.monthly(state, added)
+		Genetics.monthly(state, added)
 		for e in state.empires:
 			_monthly_balance(state, e, added)
 	return added
@@ -165,6 +166,8 @@ static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionar
 	for r in net:
 		e.resources[r] = int(e.resources.get(r, 0)) + int(net[r])
 
+	# Ingénierie des espèces : les programmes prennent leur mensualité sur le stock.
+	Genetics.monthly_empire(state, e, added)
 	_monthly_research(state, e, int(net.get("knowledge", 0)), added)
 
 	_monthly_traits(state, e, added)

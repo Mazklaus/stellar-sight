@@ -1,0 +1,130 @@
+{
+	"_doc": "Ingénierie des espèces (étude du 2026-11-16, 43 propositions validées le 2026-11-17). Chaque empire tient un génome par espèce qui vit chez lui (Empire.genome) : traits ajoutés, traits retirés, second biome, drapeaux (cybernétique, synthétique, abrutie, greffes). Les programmes payés en Savoir (matériaux pour les synthétiques) changent ce génome ; la fiche de l'espèce (Empire.faction(), Genetics.fiche) le porte, et le reste du jeu le voit sans changement. Les mécaniques propres des peuples ne se modifient jamais.",
+	"_sources": "Stellaris 3.9 (wiki fandom : Population modification, Traditions, Species traits), Endless Space 2 (Horatio, Gene Hunters, Genetic Recoding), Aurora 4X (Genetic Modification Centre), Civilization: Beyond Earth (affinités), Stellaris 4.0 BioGenesis (résumés).",
+	"_equilibrage": "Équilibrage reporté (décision du 2026-11-11) : valeurs provisoires. Écarts notés : la marge de 4 points double presque le budget de l'éditeur en fin de partie ; les synthétiques paient en matériaux ; la greffe peut rendre l'Essaim très fort.",
+	"default_mode": "complete",
+	"modes": [
+		{"id": "complete", "label": "Complète", "text": "Génome par espèce, trois voies et voies d'archétype, acclimatation, lignées spécialisées, hybrides, greffe par sacrifice, abrutissement, voie d'élévation et Pureté."},
+		{"id": "simple", "label": "Simple", "text": "Génome par espèce seulement : programmes, voies, acclimatation et voie d'élévation ; ni lignées, ni hybrides, ni greffe, ni abrutissement."},
+		{"id": "desactivee", "label": "Désactivée", "text": "Les peuples restent tels qu'ils sont nés."}
+	],
+	"margin": {"_doc": "Prop. 4 : points libres d'une espèce. 0 au départ, +1 par technologie du pilier (au plus tech_max), +1 par Codex des origines, +2 au couronnement génétique.", "tech_max": 4, "relic": 1, "crown_genetique": 2, "max_traits": 5, "max_flaws": 3, "max_growth": 1, "cap_cyber": 1, "cap_path": 1},
+	"cost": {
+		"_doc": "Prop. 6 : coût d'un programme = base + per_pop × habitants de l'espèce dans l'empire + per_point × habitants × points changés (au moins 1) + biome × habitants si le second biome change. min_months : le programme se paie en au moins autant de mensualités. Synthétiques : matériaux au lieu de Savoir (Stellaris paie les robots en Ingénierie), materials_pct du coût.",
+		"base": 120, "per_pop": 2, "per_point": 10, "biome": 30, "min_months": 3, "max_programs": 1, "materials_pct": 100,
+		"lineage_base": 80, "cyber_entry": 150, "transfer_base": 600, "transfer_per_pop": 20, "heir": 200, "gift": 150, "hybrid": 200
+	},
+	"techs": {
+		"_doc": "Prop. 7 : technologies du pilier et ce qu'elles ouvrent. Chacune compte pour la marge (au plus margin.tech_max).",
+		"genetique": "add",
+		"reprogrammation": "reprogram",
+		"implants_neuraux": "cyber",
+		"resequencage": "reseq",
+		"acclimatation_glandulaire": "biome",
+		"evolution_dirigee": "directed",
+		"matrices_conscience": "transfer"
+	},
+	"directed": {"programs": 2, "cost_pct": -25},
+	"voies": {
+		"_doc": "Prop. 9-13 : voie de chaque archétype (catalogue ouvert). La voie dit quels traits façonnés sont permis ; les traits de l'éditeur (création) restent permis à tous.",
+		"humanoide": ["genetique", "pousses"],
+		"reptilien": ["genetique", "pousses"],
+		"ruche": ["genetique", "pousses", "castes"],
+		"lithoide": ["genetique", "pousses", "recristallisation"],
+		"synthetique": ["synthetique"],
+		"energetique": ["harmoniques"]
+	},
+	"voie_labels": {"genetique": "Génétique", "pousses": "Traits poussés", "castes": "Castes", "recristallisation": "Recristallisation", "synthetique": "Reprogrammation", "harmoniques": "Accords harmoniques", "cybernetique": "Implants", "elite": "Élite", "special": "Unique"},
+	"traits": [
+		{"id": "g_robustes", "voie": "genetique", "label": "Robustes", "cost": 1, "text": "Garnisons et régiments 25 % plus solides.", "fields": {"combat": {"garrison_pct": 125, "ground_pct": 125}}},
+		{"id": "g_resistants", "voie": "genetique", "label": "Résistants", "cost": 1, "text": "Les fléaux et les crises biologiques tuent deux fois moins.", "fields": {"plague_pct": 50}},
+		{"id": "g_longevifs", "voie": "genetique", "label": "Longévifs", "cost": 1, "text": "Héros et souverains de cette espèce vivent 15 ans de plus.", "fields": {"life_years": 15}},
+		{"id": "g_doues", "voie": "genetique", "label": "Doués", "cost": 2, "text": "+15 % de Savoir.", "opposes": ["distraits"], "fields": {"production_pct": {"knowledge": 115}}},
+		{"id": "g_industrieux", "voie": "genetique", "label": "Industrieux", "cost": 2, "text": "+15 % de matériaux.", "fields": {"production_pct": {"materials": 115}}},
+		{"id": "g_frugaux", "voie": "genetique", "label": "Frugaux", "cost": 1, "text": "Mangent 25 % de moins.", "opposes": ["voraces"], "fields": {"food_upkeep_pct": 75}},
+		{"id": "g_charismatiques", "voie": "genetique", "label": "Charismatiques", "cost": 2, "text": "+15 % d'influence.", "opposes": ["maladroits"], "fields": {"production_pct": {"influence": 115}}},
+		{"id": "g_adaptables", "voie": "genetique", "label": "Adaptables", "cost": 1, "text": "+10 d'habitabilité sur tous les mondes habitables.", "fields": {"hab_plus": 10}},
+		{"id": "g_dociles", "voie": "genetique", "label": "Dociles", "cost": 1, "text": "+5 de stabilité là où ils sont la majorité, mais -10 % de Savoir.", "fields": {"stability": 5, "production_pct": {"knowledge": 90}}},
+		{"id": "g_savoureux", "voie": "genetique", "label": "Savoureux", "cost": 0, "text": "Rien d'utile pour eux : qui les digère en tire 50 % de biomasse en plus. On ne choisit pas toujours ses qualités.", "fields": {"savoury": 150}},
+		{"id": "g_cerveaux", "voie": "pousses", "label": "Cerveaux surchargés", "cost": 1, "life": -10, "text": "+20 % de Savoir ; héros et souverains vivent 10 ans de moins.", "fields": {"production_pct": {"knowledge": 120}, "life_years": -10}},
+		{"id": "g_bras", "voie": "pousses", "label": "Bras greffés", "cost": 1, "life": -10, "text": "+20 % de matériaux ; héros et souverains vivent 10 ans de moins.", "fields": {"production_pct": {"materials": 120}, "life_years": -10}},
+		{"id": "g_sourires", "voie": "pousses", "label": "Sourires sculptés", "cost": 1, "life": -10, "text": "+20 % d'influence ; héros et souverains vivent 10 ans de moins.", "fields": {"production_pct": {"influence": 120}, "life_years": -10}},
+		{"id": "g_glandes", "voie": "pousses", "label": "Glandes de fer", "cost": 1, "life": -10, "text": "Garnisons +40 % ; héros et souverains vivent 10 ans de moins.", "fields": {"combat": {"garrison_pct": 140, "ground_pct": 120}, "life_years": -10}},
+		{"id": "g_fertilite", "voie": "pousses", "label": "Fertilité forcée", "cost": 1, "life": -10, "growth": true, "text": "+30 % de croissance ; héros et souverains vivent 10 ans de moins.", "fields": {"growth_pct": 130, "life_years": -10}},
+		{"id": "g_nerfs", "voie": "pousses", "label": "Nerfs d'acier", "cost": 1, "life": -10, "text": "+15 % de dégâts des flottes ; héros et souverains vivent 10 ans de moins.", "fields": {"combat": {"damage_pct": 115}, "life_years": -10}},
+		{"id": "g_ouvrieres", "voie": "castes", "label": "Caste ouvrière", "cost": 1, "opposes": ["g_guerrieres", "g_pondeuses"], "text": "La ruche pond des ouvrières : +20 % de matériaux, -10 % de Savoir.", "fields": {"production_pct": {"materials": 120, "knowledge": 90}}},
+		{"id": "g_guerrieres", "voie": "castes", "label": "Caste guerrière", "cost": 1, "opposes": ["g_ouvrieres", "g_pondeuses"], "text": "La ruche pond des guerrières : +10 % de dégâts, garnisons +20 %.", "fields": {"combat": {"damage_pct": 110, "garrison_pct": 120}}},
+		{"id": "g_pondeuses", "voie": "castes", "label": "Caste pondeuse", "cost": 1, "growth": true, "opposes": ["g_ouvrieres", "g_guerrieres"], "text": "La ruche pond des pondeuses : +30 % de croissance, mange 20 % de plus.", "fields": {"growth_pct": 130, "food_upkeep_pct": 120}},
+		{"id": "g_veines", "voie": "recristallisation", "label": "Veines de cristaux", "cost": 2, "text": "+25 % de cristaux.", "fields": {"production_pct": {"crystals": 125}}},
+		{"id": "g_carapace", "voie": "recristallisation", "label": "Carapace", "cost": 1, "text": "Garnisons +30 %.", "fields": {"combat": {"garrison_pct": 130, "ground_pct": 115}}},
+		{"id": "g_eternels", "voie": "recristallisation", "label": "Lents mais éternels", "cost": -1, "text": "Croissance -20 %, mais héros et souverains vivent 30 ans de plus.", "fields": {"growth_pct": 80, "life_years": 30}},
+		{"id": "g_chassis", "voie": "synthetique", "label": "Châssis renforcés", "cost": 1, "text": "Garnisons +25 %.", "fields": {"combat": {"garrison_pct": 125, "ground_pct": 125}}},
+		{"id": "g_processeurs", "voie": "synthetique", "label": "Processeurs efficaces", "cost": 2, "text": "+10 % d'énergie, de matériaux et de Savoir.", "fields": {"production_pct": {"energy": 110, "materials": 110, "knowledge": 110}}},
+		{"id": "g_assemblage", "voie": "synthetique", "label": "Assemblage rapide", "cost": 1, "growth": true, "text": "+25 % de croissance (chaînes d'assemblage plus rapides).", "fields": {"growth_pct": 125}},
+		{"id": "g_protocoles", "voie": "synthetique", "label": "Protocoles sociaux", "cost": 1, "text": "+20 % d'influence.", "fields": {"production_pct": {"influence": 120}}},
+		{"id": "g_resonance", "voie": "harmoniques", "label": "Résonance du Voile", "cost": 2, "text": "Furtivité en jeu : +1 de camouflage pour les flottes déjà voilées.", "fields": {"cloak_bonus": 1}},
+		{"id": "g_choeur_echos", "voie": "harmoniques", "label": "Chœur d'échos", "cost": 1, "text": "Registre cosmique : +50 % d'échos.", "fields": {"echoes_pct": 150}},
+		{"id": "g_lumiere", "voie": "harmoniques", "label": "Lumière vive", "cost": 1, "text": "+20 % d'énergie.", "fields": {"production_pct": {"energy": 120}}},
+		{"id": "g_interfaces", "voie": "cybernetique", "label": "Interfacés", "cost": 1, "implant": true, "text": "+10 % de dégâts des flottes. Implant : +1 énergie par mois pour 10 habitants.", "fields": {"combat": {"damage_pct": 110}}},
+		{"id": "g_ouvriers_aug", "voie": "cybernetique", "label": "Ouvriers augmentés", "cost": 1, "implant": true, "text": "+15 % de matériaux. Implant : +1 énergie par mois pour 10 habitants.", "fields": {"production_pct": {"materials": 115}}},
+		{"id": "g_memoire", "voie": "cybernetique", "label": "Mémoire étendue", "cost": 1, "implant": true, "text": "Les héros de l'espèce gagnent 50 % d'expérience en plus. Implant : +1 énergie par mois pour 10 habitants.", "fields": {"hero_xp_pct": 150}},
+		{"id": "g_endurants", "voie": "cybernetique", "label": "Endurants", "cost": 1, "implant": true, "text": "Garnisons +25 %. Implant : +1 énergie par mois pour 10 habitants.", "fields": {"combat": {"garrison_pct": 125, "ground_pct": 115}}},
+		{"id": "g_yeux", "voie": "cybernetique", "label": "Yeux-senseurs", "cost": 1, "implant": true, "text": "Furtivité en jeu : +1 de détection. Implant : +1 énergie par mois pour 10 habitants.", "fields": {"detect_bonus": 1}},
+		{"id": "g_genie", "voie": "elite", "label": "Génie", "cost": 2, "text": "Espèce parfaite : +25 % de Savoir.", "fields": {"production_pct": {"knowledge": 125}}},
+		{"id": "g_indomptables", "voie": "elite", "label": "Indomptables", "cost": 2, "text": "Espèce parfaite : garnisons +50 %, dégâts +10 %.", "fields": {"combat": {"garrison_pct": 150, "damage_pct": 110, "ground_pct": 130}}},
+		{"id": "g_parfaits", "voie": "elite", "label": "Parfaits", "cost": 2, "text": "Espèce parfaite : +8 % d'énergie, de matériaux, d'influence et de Savoir.", "fields": {"production_pct": {"energy": 108, "materials": 108, "influence": 108, "knowledge": 108}}},
+		{"id": "g_abrutis", "voie": "special", "label": "Abrutis", "cost": 0, "text": "Volonté retranchée : +10 % de production, ni héros, ni doléances, ni intégration.", "fields": {"production_pct": {"energy": 110, "materials": 110, "food": 110, "crystals": 110, "knowledge": 110}, "stapled": true}},
+		{"id": "g_peau_vide", "voie": "special", "label": "Peau de vide", "cost": 1, "text": "Échantillon d'une créature spatiale : garnisons +20 %, mange 10 % de moins.", "fields": {"combat": {"garrison_pct": 120, "ground_pct": 110}, "food_upkeep_pct": 90}},
+		{"id": "g_sang_ancien", "voie": "special", "label": "Sang d'Ancien", "cost": 1, "text": "Échantillon d'une créature colossale : +10 % de Savoir et d'énergie.", "fields": {"production_pct": {"knowledge": 110, "energy": 110}}}
+	],
+	"implant_upkeep": {"_doc": "Prop. 10 : chaque implant coûte 1 énergie par mois pour per_pop habitants.", "per_pop": 10, "energy": 1},
+	"cyber": {"_doc": "Prop. 10 : programme d'entrée « Chair et acier » (Implants neuraux).", "label": "Chair et acier", "trait": "Cybernétique", "text": "Implants à la naissance : un trait de plus au plafond, et les implants deviennent possibles."},
+	"transfer": {"_doc": "Prop. 12 : Grand Transfert (couronnement synthétique, Matrices de conscience). L'espèce prend l'archétype synthétique et ses champs ; ses traits génétiques deviennent des modules.", "label": "Grand Transfert", "politics": {"seve": -300, "autel": -300, "academie": 150, "forge": 150}},
+	"biome": {"_doc": "Prop. 14 : l'acclimatation change le second biome (80 %), jamais le monde natal."},
+	"lineage": {"_doc": "Prop. 15 (Complète, populations mêlées) : jusqu'à max lignées par espèce et par empire. Une lignée est une fiche de plus (GameState.custom_factions, identifiant base~empire~n) qui compte comme la même espèce.", "max": 2},
+	"paths": {
+		"_doc": "Prop. 17-18 : voie d'élévation, choisie une fois après min_programs programmes, pour de bon.",
+		"min_programs": 3,
+		"list": [
+			{"id": "genetique", "label": "Espèce parfaite", "text": "+2 points de marge et un trait de plus pour vos espèces, traits d'élite (Génie, Indomptables, Parfaits), Cuves de clonage : +25 % de croissance.", "growth_pct": 25},
+			{"id": "cybernetique", "label": "Chair et acier", "text": "Toutes vos espèces organiques deviennent cybernétiques (un trait de plus), implants pour tous, programmes à moitié prix.", "cost_pct": -50},
+			{"id": "synthetique", "label": "Le Grand Transfert", "text": "Ouvre le Grand Transfert (avec Matrices de conscience) : une espèce organique devient synthétique, pour de bon. Programmes de reprogrammation -25 %.", "cost_pct": -25},
+			{"id": "purete", "label": "Pureté", "text": "Serment de ne rien modifier : +5 de stabilité partout, la Sève et l'Autel vous soutiennent, +10 % sur le point fort de votre espèce, loi « Sanctuaire du génome ». Renier le serment coûte une crise de stabilité.", "stability": 5, "strong_pct": 110}
+		],
+		"renounce": {"stability": -20, "days": 720}
+	},
+	"politics": {"_doc": "Prop. 25 : soutien gagné ou perdu par point changé, dans chaque système de l'empire (Politics).", "per_point": {"seve": -40, "autel": -40, "academie": 30, "forge": 20}, "purete": {"seve": 200, "autel": 200}},
+	"citizens": {"_doc": "Prop. 19 : modifier des citoyens d'une autre espèce leur retire de l'intégration.", "integ": -10},
+	"stapling": {"_doc": "Prop. 20 (Complète) : abrutissement des assujettis seulement.", "status": "assujettis"},
+	"graft": {"_doc": "Prop. 21 (Complète) : greffe par sacrifice à la Endless Space 2 : 2, puis 4, 6… habitants ; moitié du point fort (au-dessus de 100) ; +5 % de nourriture par greffe ; une fois par espèce.", "first": 2, "step": 2, "share_pct": 50, "food_pct": 5, "min_strong": 10},
+	"hybrid": {"_doc": "Prop. 22 (Complète, populations mêlées) : chance par an (en dix-millièmes) qu'une colonie où vivent deux espèces organiques d'affinité positive (au moins min_each habitants chacune) donne une espèce hybride ; +1 marge, +1 trait.", "chance": 150, "min_each": 3, "max_per_empire": 3, "margin": 1, "cap": 1},
+	"gift": {"_doc": "Prop. 23 : don génétique à un peuple mineur (programme offert).", "relation": 40},
+	"events": {"_doc": "Prop. 30 : chance (en %) qu'un programme achevé mute ; chaîne « La lignée qui dérive » sur une lignée de plus de drift_points points.", "mutation_pct": 8, "drift_points": 4},
+	"heir": {"_doc": "Prop. 31 : Héritiers façonnés : le prochain héritier gagne +1 dans chaque aptitude.", "bonus": 1, "seve": -100},
+	"court": {"_doc": "Prop. 32 : la Grande Maison à souche génétique en faveur (faveur >= favor) réduit le coût des programmes.", "house_trait": "lignee_souche", "favor": 60, "cost_pct": -20},
+	"clones": {"_doc": "Prop. 33 : voie génétique : régiments clonés recrutés plus vite, sans prendre de population.", "speed_pct": 50},
+	"espionage": {"_doc": "Prop. 35", "contaminate_days": 60},
+	"relic": {"_doc": "Prop. 36 : Codex des origines.", "id": "codex_origines"},
+	"creature_traits": {"_doc": "Prop. 36 : échantillon d'une créature spatiale vaincue (taille >= big : sang d'Ancien).", "small": "g_peau_vide", "big": "g_sang_ancien", "big_from": 3},
+	"talents": {
+		"_doc": "Prop. 37 : talents par couche d'espèce (catalogue ouvert, valables pour les peuples créés). gen_pct/cyber_pct/syn_pct/harm_pct : coût des programmes de la voie ; hybrid_x : hybrides plus fréquents ; graft_digest : greffe gratuite tous les n peuples digérés ; free_biome : une acclimatation gratuite par ère ; clinics : achat et vente de génomes.",
+		"gouvernement": {
+			"feodalite": {"label": "Navigateurs façonnés", "text": "Les lignées nobles se façonnent depuis des siècles : programmes génétiques -25 %.", "gen_pct": -25},
+			"horde": {"label": "La mue", "text": "Le clan change de peau : une acclimatation gratuite par ère.", "free_biome": 1},
+			"republique": {"label": "Quarante peuples", "text": "Les unions mêlées sont bénies : hybrides deux fois plus fréquents.", "hybrid_x": 2},
+			"syndicat": {"label": "Cliniques clandestines", "text": "On achète et on vend des génomes : un trait façonné connu d'un empire rencontré s'achète en énergie.", "clinics": 1}
+		},
+		"credo": {
+			"foi": {"label": "Le dieu-machine", "text": "La chair est faible, l'acier est saint : programmes cybernétiques -25 %.", "cyber_pct": -25}
+		},
+		"archetype": {
+			"ruche": {"label": "Tout est biomasse", "text": "La ruche apprend de ce qu'elle digère : une greffe gratuite tous les 3 peuples digérés.", "graft_digest": 3},
+			"synthetique": {"label": "Code ouvert", "text": "Se réécrire est une routine : reprogrammation -50 %.", "syn_pct": -50},
+			"energetique": {"label": "Accords harmoniques", "text": "Ni gènes ni implants, mais l'onde s'accorde : programmes harmoniques -25 %.", "harm_pct": -25}
+		}
+	},
+	"clinics": {"energy_per_point": 120},
+	"grief": {"_doc": "Prop. 29 : « Profanation de notre sang ».", "opinion": -25, "days": 1080},
+	"ai": {"_doc": "Prop. 40 : niveau d'IA (skill) à partir duquel l'IA lance des programmes ; seuil de Savoir en stock.", "min_skill": 0, "knowledge_floor": 150, "path_purete_credo": ["honneur"]},
+	"deeds": {"perfect_traits": 7, "faces": 5}
+}

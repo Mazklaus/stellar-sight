@@ -572,7 +572,7 @@ static func recruit(state: GameState, eid: int, sid: int, t: String, species := 
 ## Délai de formation d'un régiment (technologies comprises).
 static func recruit_days(state: GameState, eid: int, t: String) -> int:
 	@warning_ignore("integer_division")
-	return maxi(1, int(type_def(t).get("days", 30)) * maxi(10, 100 + Research.fx_int(state, eid, "recruit_days_pct")) / 100)
+	return maxi(1, int(type_def(t).get("days", 30)) * maxi(10, 100 + Research.fx_int(state, eid, "recruit_days_pct") + Genetics.clone_days_pct(state, eid)) / 100)
 
 
 ## Espèce la plus nombreuse d'une colonie (celle qu'on y recrute).
@@ -1096,6 +1096,7 @@ static func _damage(state: GameState, b: Dictionary, side: int, u: Dictionary, t
 	pct = pct * _species_pct(sp, "damage_pct") / 100
 	pct = pct * _species_pct(sp, "ground_damage_pct") / 100
 	var eid := int(b["a"]) if side == 0 else int(b["d"])
+	pct = pct * Genetics.ground_pct(state, eid, sp) / 100  # traits façonnés (Robustes, Carapace…)
 	pct += Research.fx_int(state, eid, "ground_damage_pct")
 	@warning_ignore("integer_division")
 	return maxi(1, n * maxi(10, pct) / 100)

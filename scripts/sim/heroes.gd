@@ -140,7 +140,11 @@ static func people_traits_of(f: Dictionary) -> Array[String]:
 ## Espérance de vie (années) d'un héros de ce peuple ; 0 = sans limite (synthétiques).
 static func life_years(state: GameState, empire_id: int) -> int:
 	var l: Dictionary = data()["life"]
-	return int((l["archetype"] as Dictionary).get(_archetype_raw(state, empire_id), l["years"]))
+	var y := int((l["archetype"] as Dictionary).get(_archetype_raw(state, empire_id), l["years"]))
+	# Ingénierie des espèces : Longévifs, traits poussés, Lents mais éternels.
+	if y > 0 and not state.genetics.is_empty():
+		y = maxi(10, y + Genetics.life_years(state, empire_id, ""))
+	return y
 
 
 static func _archetype_raw(state: GameState, empire_id: int) -> String:
@@ -883,7 +887,7 @@ static func gain_xp(state: GameState, h: Dictionary, n: int) -> void:
 	if n <= 0:
 		return
 	@warning_ignore("integer_division")
-	h["xp"] = int(h["xp"]) + n * (100 + trait_fx(h, "xp_pct") + FaithNatures.hero_xp_pct(state, int(h["owner"]))) / 100
+	h["xp"] = int(h["xp"]) + n * (100 + trait_fx(h, "xp_pct") + FaithNatures.hero_xp_pct(state, int(h["owner"])) + Genetics.hero_xp_bonus(state, int(h["owner"]))) / 100
 	var levels: Array = data()["xp_levels"]
 	while int(h["lvl"]) < levels.size() and int(h["xp"]) >= int(levels[int(h["lvl"])]):
 		h["lvl"] = int(h["lvl"]) + 1

@@ -596,6 +596,12 @@ static func on_battle(state: GameState, b: Dictionary, winner: int, added: Array
 			for r in per:
 				@warning_ignore("integer_division")
 				loot[r] = int(loot.get(r, 0)) + int(per[r]) * n * pct / 100
+		# Ingénierie des espèces : un échantillon (trait unique) des créatures abattues.
+		if count > 0 and not state.genetics.is_empty():
+			var smp := GeneticsBridges.on_creature_killed(state, winner, count)
+			if smp != "" and not we.is_ai():
+				added.append(state.add_chronicle("Les biologistes de %s prélèvent un échantillon sur les créatures abattues : « %s » devient possible dans les cuves." % [
+						we.short_name(), Genetics.trait_label(smp)], Espionage.private_to(state, [winner])))
 		if loot.is_empty():
 			continue
 		for r in loot:

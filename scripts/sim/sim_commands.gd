@@ -675,6 +675,12 @@ static func private_act(player: int, act: String, a := -1, b := -1, s := "") -> 
 	return {"type": "private", "player": player, "act": act, "a": a, "b": b, "s": s}
 
 
+## Ingénierie des espèces (voir Genetics.check) : "mod" (d : fid, add, rem, bio), "cyber", "transfer"
+## (d : fid), "cancel" (d : id), "path" (d : path), "renounce", et ceux du lot 2/3 (GeneticsBridges).
+static func gen_act(player: int, act: String, d := {}) -> Dictionary:
+	return {"type": "genetics", "player": player, "act": act, "d": d}
+
+
 ## Furtivité : "pose" (a = flotte, s = posture : "", "silence", "scan", "ambush"), "beacon" (a = flotte).
 static func stealth_act(player: int, act: String, a := -1, b := -1, s := "") -> Dictionary:
 	return {"type": "stealth", "player": player, "act": act, "a": a, "b": b, "s": s}
@@ -889,6 +895,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Finance.check_mint(state, int(cmd["player"]))
 		"finance_franchise":
 			return Finance.check_franchise(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"genetics":
+			return Genetics.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"stealth":
 			return Stealth.check(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"portal_raze":
@@ -1304,6 +1312,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Finance.mint(state, int(cmd["player"]))
 		"finance_franchise":
 			Finance.toggle_franchise(state, int(cmd["player"]), int(cmd["system"]))
+		"genetics":
+			Genetics.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"stealth":
 			Stealth.apply(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"portal_raze":

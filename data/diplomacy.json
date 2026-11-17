@@ -100,6 +100,7 @@
 	"memories": {
 		"naval_spy": {"value": -10, "days": 360, "stack": 3, "label": "Ses flottes camouflées rôdent chez nous en temps de paix"},
 		"debt_default": {"value": -40, "days": 3600, "label": "Nous doit de l'argent et a fait faillite"},
+		"gen_profanation": {"value": -25, "days": 1080, "stack": 2, "label": "Profanation de notre sang (a façonné notre espèce)"},
 		"debt_repudiated": {"value": -50, "days": 3600, "label": "A répudié une dette (envers nous ou un autre prêteur)"},
 		"loan_granted": {"value": 10, "days": 1800, "stack": 3, "label": "Nous a prêté de l'argent"},
 		"loan_repaid": {"value": 10, "days": 1800, "stack": 3, "label": "Nous a remboursé jusqu'au dernier sou"},

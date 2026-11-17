@@ -270,6 +270,8 @@ static func family_available(state: GameState, fid: String) -> bool:
 			return Finance.full(state)
 		"portals":
 			return Portals.enabled(state)
+		"genetics":
+			return Genetics.enabled(state)
 	return true
 
 

@@ -34,6 +34,12 @@ static func value(state: GameState, eid: int, k: String, x: Variant = null) -> i
 			return PortalsBridges.linked_gates(state, eid)
 		"inviolate_years":
 			return DefensesBridges.inviolate_years(state, eid)
+		"gen_traits":
+			return Genetics.stat(state, eid, "founder_traits") if Genetics.enabled(state) else 0
+		"gen_shaped":
+			return Genetics.stat(state, eid, "shaped") if Genetics.enabled(state) else 0
+		"gen_transfer":
+			return Genetics.stat(state, eid, "founder_transfer") if Genetics.enabled(state) else 0
 		"veiled_fleets":
 			return StealthBridges.veiled_fleets(state, eid)
 		"spectre_systems":

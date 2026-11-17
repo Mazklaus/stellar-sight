@@ -949,6 +949,8 @@ static func check_precept(state: GameState, player: int, fid: String, pid: Strin
 
 
 static func _precept_free(state: GameState, fid: String, pid: String) -> String:
+	if String(precept_def(pid).get("requires", "")) == "genetics" and not Genetics.enabled(state):
+		return "l'ingénierie des espèces n'est pas en jeu"
 	if (faith(state, fid).get("precepts", []) as Array).has(pid):
 		return "cette foi suit déjà ce précepte"
 	var h := precept_holder(state, pid, fid)

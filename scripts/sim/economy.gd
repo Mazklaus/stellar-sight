@@ -47,6 +47,8 @@ static func habitability_for(state: GameState, empire_id: int, planet_type: Stri
 	# Plancher des technologies tardives (Adaptation totale, Symbiose universelle), sur les mondes habitables.
 	if hab > 0:
 		hab = maxi(hab, mini(100, int(fx.get("hab_min", 0))))
+		# Ingénierie des espèces : trait façonné « Adaptables ».
+		hab = mini(100, hab + Genetics.hab_plus(f))
 	return hab
 
 
@@ -175,6 +177,9 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 			food_pct = food_pct * maxi(0, 100 + int(fx.get("food_upkeep_pct", 0))) / 100
 			@warning_ignore("integer_division")
 			upkeep[diet] = int(upkeep.get(diet, 0)) + colony.population * int(rules["food_per_pop"]) * food_pct / 100
+			# Ingénierie des espèces : les implants coûtent de l'énergie.
+			if bool(fac.get("engineered", false)):
+				upkeep["energy"] = int(upkeep.get("energy", 0)) + Genetics.implant_upkeep(fac, colony.population)
 	else:
 		_add(gross, ptype.get("outpost_yields", {}))
 		# Syndicats : chaque avant-poste est un comptoir.
@@ -270,7 +275,7 @@ static func _mixed_pop_yields(state: GameState, colony: Colony, py: Dictionary, 
 	var cnt := Peoples.counts(state, colony)
 	for fid in cnt:
 		var n := int(cnt[fid])
-		var f := GameData.faction(fid)
+		var f := Genetics.fiche(state, colony.owner, fid)
 		var diet := FactionTraits.diet(f)
 		var y := py
 		if diet != "food" and py.has("food"):
@@ -280,6 +285,8 @@ static func _mixed_pop_yields(state: GameState, colony: Colony, py: Dictionary, 
 		_add(gross, y, n)
 		var food_pct := int(f.get("food_upkeep_pct", 100)) * maxi(0, 100 + int(fx.get("food_upkeep_pct", 0))) / 100
 		upkeep[diet] = int(upkeep.get(diet, 0)) + n * int(rules["food_per_pop"]) * food_pct / 100
+		if bool(f.get("engineered", false)):
+			upkeep["energy"] = int(upkeep.get("energy", 0)) + Genetics.implant_upkeep(f, n)
 
 
 ## Bilan mensuel d'un empire : {"gross", "upkeep", "net"}, bonus de faction appliqués au brut.

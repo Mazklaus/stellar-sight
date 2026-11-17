@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.29"
+EDITION = "2.30"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -428,6 +428,7 @@ def talents_du_peuple(f):
     ajoute("Économie privée", _par_couche(c, charger("private.json").get("talents", {})))
     ajoute("Spatioports", _par_couche(c, charger("ports.json").get("talents", {})))
     ajoute("Portails", _par_couche(c, charger("portals.json").get("talents", {})))
+    ajoute("Génome", _par_couche(c, charger("genetics.json").get("talents", {})))
     cu = charger("culture.json").get("talents", {})
     peuple = cu.get("peoples", {}).get(f["id"])
     ajoute("Rayonnement", _par_couche(c, {k: v for k, v in cu.items() if k != "peoples"}) + ([peuple] if isinstance(peuple, dict) else []))
@@ -1181,6 +1182,65 @@ def gen_portail_talents():
     return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
 
 
+def gen_gen_modes():
+    """Réglage Ingénierie des espèces (data/genetics.json)."""
+    d = charger("genetics.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    return f"<table class='grille'><tr><th>Ingénierie des espèces</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_gen_techs():
+    """Technologies du pilier (data/genetics.json « techs », data/technologies.json)."""
+    d = charger("genetics.json")
+    techs = charger("technologies.json")["technologies"]
+    eres = {1: "I", 2: "II", 3: "III", 4: "IV", 5: "V"}
+    l1 = ""
+    for k in d["techs"]:
+        if k.startswith("_"):
+            continue
+        t = techs.get(k, {})
+        l1 += f"<tr><td><b>{esc(t.get('label', k))}</b></td><td>{eres.get(t.get('era'), '')}</td><td>{inline(t.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Technologie</th><th>Ère</th><th>Ce qu'elle ouvre</th></tr>{l1}</table>"
+
+
+def gen_gen_voies():
+    """Voies ouvertes par archétype (data/genetics.json « voies »)."""
+    d = charger("genetics.json")
+    lab = d["voie_labels"]
+    arch = {"humanoide": "Humanoïde", "reptilien": "Reptilien", "ruche": "Ruche", "lithoide": "Lithoïde", "synthetique": "Synthétique", "energetique": "Énergétique"}
+    l1 = "".join(f"<tr><td><b>{esc(arch.get(k, k))}</b></td><td>{esc(', '.join(lab.get(v, v) for v in vs))}</td></tr>" for k, vs in d["voies"].items() if not k.startswith("_"))
+    return f"<table class='grille'><tr><th>Archétype</th><th>Voies</th></tr>{l1}</table>"
+
+
+def gen_gen_traits():
+    """Catalogue des traits façonnés (data/genetics.json « traits »), rangés par voie."""
+    d = charger("genetics.json")
+    lab = d["voie_labels"]
+    l1 = ""
+    for t in d["traits"]:
+        l1 += f"<tr><td>{esc(lab.get(t['voie'], t['voie']))}</td><td><b>{esc(t['label'])}</b></td><td>{t.get('cost', 0):+d}</td><td>{inline(t.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Voie</th><th>Trait</th><th>Points</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_gen_paths():
+    """Voies d'élévation (data/genetics.json « paths »)."""
+    d = charger("genetics.json")
+    l1 = "".join(f"<tr><td><b>{esc(p['label'])}</b></td><td>{inline(p.get('text', ''))}</td></tr>" for p in d["paths"]["list"])
+    return f"<table class='grille'><tr><th>Voie</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_gen_talents():
+    """Talents du génome par couche (data/genetics.json, talents)."""
+    d = charger("genetics.json")
+    lignes = ""
+    for couche, t in d["talents"].items():
+        if couche.startswith("_"):
+            continue
+        for k, v in t.items():
+            lignes += f"<tr><td>{esc(couche.capitalize())}</td><td>{esc(k.capitalize())}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -1209,6 +1269,8 @@ GENERATEURS = {
     "def_modes": gen_def_modes, "def_stations": gen_def_stations, "def_elements": gen_def_elements,
     "def_talents": gen_def_talents,
     "st_modes": gen_st_modes, "st_modules": gen_st_modules, "st_talents": gen_st_talents,
+    "gen_modes": gen_gen_modes, "gen_techs": gen_gen_techs, "gen_voies": gen_gen_voies, "gen_traits": gen_gen_traits,
+    "gen_paths": gen_gen_paths, "gen_talents": gen_gen_talents,
     "portail_modes": gen_portail_modes, "portail_batiments": gen_portail_batiments, "portail_talents": gen_portail_talents,
 }
 

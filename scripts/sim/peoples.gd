@@ -152,7 +152,7 @@ static func hab(state: GameState, empire_id: int, fid: String, planet_type: Stri
 		e.hab_cache_n = e.techs.size()
 	var key := fid + "|" + planet_type
 	if not e.hab_cache.has(key):
-		var f := GameData.faction(fid)
+		var f := Genetics.fiche(state, empire_id, fid)
 		e.hab_cache[key] = Economy.habitability_for(state, empire_id, planet_type, f) \
 				if Economy.houses_pop(state, empire_id, planet_type, f) else 0
 	return e.hab_cache[key]
@@ -296,12 +296,12 @@ static func adjust_yields(state: GameState, c: Colony, gross: Dictionary) -> voi
 	if c.species.is_empty() or c.population <= 0:
 		return
 	var cnt := counts(state, c)
-	var own_f := GameData.faction(founder_of(state, c.owner))
+	var own_f := Genetics.fiche(state, c.owner, founder_of(state, c.owner))
 	var own_pct: Dictionary = own_f.get("production_pct", {})
 	# Une fois par espèce (et non par ressource) : nombre, pourcentages de son peuple, modificateur.
 	var info := []
 	for fid in cnt:
-		info.append([int(cnt[fid]), GameData.faction(fid).get("production_pct", {}), species_prod_mod(state, c, fid)])
+		info.append([int(cnt[fid]), Genetics.fiche(state, c.owner, fid).get("production_pct", {}), species_prod_mod(state, c, fid)])
 	for r in gross:
 		var base := int(own_pct.get(r, 100))
 		var acc := 0
@@ -463,6 +463,8 @@ static func default_status(state: GameState, empire_id: int, fid: String) -> Str
 
 ## Statut d'une espèce dans un empire (l'espèce fondatrice est toujours citoyenne).
 static func status(state: GameState, empire_id: int, fid: String) -> String:
+	if Genetics.is_lineage(fid):
+		fid = Genetics.root(fid)  # une lignée façonnée a le statut de son espèce
 	if fid == founder_of(state, empire_id) or GameState.is_npc(empire_id):
 		return "citoyens"
 	var st := String((state.peoples.get("status", {}) as Dictionary).get(str(empire_id), {}).get(fid, ""))

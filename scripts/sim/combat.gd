@@ -603,9 +603,14 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 		if eo.capital_planet == pid:
 			lost_capital = true
 	if digested > 0:
-		en.resources["materials"] = int(en.resources.get("materials", 0)) + digested * bio
-		en.biomass += digested * bio
+		# Ingénierie des espèces : un peuple « Savoureux » rend plus de biomasse ; l'Essaim apprend de ce qu'il digère.
+		@warning_ignore("integer_division")
+		var tasty := digested * bio * (Genetics.savoury_pct(state, old) - 100) / 100
+		en.resources["materials"] = int(en.resources.get("materials", 0)) + digested * bio + tasty
+		en.biomass += digested * bio + tasty
 		Research.count_stat(state, en.id, "digested", digested)
+		if eo != null and not state.genetics.is_empty():
+			GeneticsBridges.on_digest(state, new_owner, eo.faction_id, added)
 	state.rebuild_ownership()
 	state.garrisons[system_id] = 0
 	state.sieges.erase(system_id)

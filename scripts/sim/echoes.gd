@@ -35,7 +35,8 @@ static func monthly_gain(state: GameState, empire_id: int) -> int:
 		var col: Colony = state.colonies[pid]
 		if col.owner == empire_id and col.is_colony() and col.is_established():
 			n += 1
-	return int(c.get("per_month", 0)) + int(c.get("per_colony", 0)) * n
+	@warning_ignore("integer_division")
+	return (int(c.get("per_month", 0)) + int(c.get("per_colony", 0)) * n) * Genetics.echoes_pct(state, empire_id) / 100
 
 
 static func monthly(state: GameState) -> void:
