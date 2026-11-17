@@ -126,7 +126,8 @@ static func species(sp: String) -> Dictionary:
 static func species_ids() -> Array[String]:
 	var out: Array[String] = []
 	for k in data()["species"]:
-		out.append(String(k))
+		if not bool(data()["species"][k].get("dream", false)):  # bêtes du Songe : nées des fêlures seulement
+			out.append(String(k))
 	out.sort()
 	return out
 

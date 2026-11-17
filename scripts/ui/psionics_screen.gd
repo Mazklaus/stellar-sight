@@ -119,7 +119,7 @@ static func fx_label(state: GameState, fx: Dictionary) -> String:
 		"prescience":
 			return "Préscience"
 		"apaisement":
-			return "Apaisement : %s" % state.galaxy.systems[int(fx["sys"])].name
+			return "Apaisement : %s" % state.galaxy.systems[int(fx["sys"])].system_name
 		"f_empire", "f_system":
 			return "Fêlure : %s" % String(fx.get("label", ""))
 	return PsionicsDreamUi.fx_label(state, fx)
@@ -143,7 +143,7 @@ static func _targets(state: GameState, player: int, p: Dictionary) -> Array:
 					var sid := state.galaxy.get_planet(pid).system_id
 					if not seen.has(sid):
 						seen[sid] = true
-						out.append([sid, "%s (%d)" % [state.galaxy.systems[sid].name, Stability.value(state, sid)]])
+						out.append([sid, "%s (%d)" % [state.galaxy.systems[sid].system_name, Stability.value(state, sid)]])
 		_:
 			out.append([-1, "Invoquer"])
 	return PsionicsDreamUi.targets(state, player, p, out)
@@ -168,4 +168,5 @@ static func signature(es: EmpireScreens) -> String:
 	@warning_ignore("integer_division")
 	return "%d|%d|%s|%d|%s|%s|%d|%d" % [e.techs.size(), Psionics.resonance(state, es._player) / 5, str(Psionics.awake(state, es._player)),
 			Psionics.colleges(state, es._player), str(Psionics.fx_list(state, es._player).size()), str(state.psionics.get("cd", {}).size()),
-			state.tick / 30, e.contacts.size()]
+			state.tick / 30, e.contacts.size()] + "|%s|%s|%s|%s" % [str(PsionicsDream.pact(state, es._player)), str(PsionicsDream.offer(state, es._player)),
+			str(PsionicsDream.opened(state, es._player)), str(PsionicsDream.check_reform(state, es._player) == "")]

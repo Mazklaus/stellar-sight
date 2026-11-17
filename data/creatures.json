@@ -64,6 +64,10 @@
 			"loot": {"energy": 25},
 			"study_fx": {"production_pct": {"energy": 6}}, "study_text": "+6 % d'énergie : on apprend à boire la foudre."
 		},
+		"betes_songe": {"label": "Bêtes du Songe", "one": "Bête du Songe", "temper": "predator", "tamable": false, "dream": true,
+			"text": "Des formes nées du Songe, qui passent par les fêlures et les plongées ratées. Elles chassent les esprits plus que les coques.",
+			"weakness": "Leur chair de rêve ignore le blindage mais craint les barrières psychiques ; boucliers moyens, coque fragile : rayons et frappes mentales.",
+			"unit": "bete_songe", "herd": 2, "loot": {"knowledge": 20}, "study_fx": {"defense_pct": {"shield": 5}}, "study_text": "+5 % de boucliers : on apprend à leur fermer la porte."},
 		"beliers": {
 			"label": "Béliers d'écume", "one": "Bélier d'écume", "temper": "passive", "tamable": false,
 			"text": "De grands herbivores de nébuleuse aux cornes de glace. Ils broutent le gaz, élèvent leurs petits et foncent sur ce qui les menace.",
@@ -120,7 +124,8 @@
 			"description": "Une gerbe de cristal qui résonne. Les rayons s'y perdent."},
 		"bete_nuee": {"label": "Nuée d'orage", "plural": "Nuées d'orage", "line": "screen", "size": "small", "role": "Créature", "hp": 50, "armor": 0, "shield": 50, "weapons": {"decharge": 22}, "speed": 34, "military": true, "creature": "nuees",
 			"description": "Une décharge qui a appris à chasser."},
-		"bete_belier": {"label": "Bélier d'écume", "plural": "Béliers d'écume", "line": "line", "size": "large", "role": "Créature", "hp": 260, "armor": 30, "shield": 0, "weapons": {"kinetic": 22}, "speed": 14, "military": true, "creature": "beliers",
+				"bete_songe": {"label": "Bête du Songe", "plural": "Bêtes du Songe", "line": "line", "size": "medium", "role": "Créature", "hp": 220, "armor": 0, "shield": 40, "weapons": {"psychic": 26, "beam": 10}, "speed": 22, "military": true, "creature": "betes_songe", "description": "On la voit mieux les yeux fermés."},
+"bete_belier": {"label": "Bélier d'écume", "plural": "Béliers d'écume", "line": "line", "size": "large", "role": "Créature", "hp": 260, "armor": 30, "shield": 0, "weapons": {"kinetic": 22}, "speed": 14, "military": true, "creature": "beliers",
 			"description": "Des cornes de glace, une patience de montagne, un très mauvais caractère quand on touche aux petits."},
 		"bete_spectre": {"label": "Spectre des pulsars", "plural": "Spectres des pulsars", "line": "line", "size": "titan", "role": "Fléau", "hp": 5200, "armor": 20, "shield": 70, "weapons": {"beam": 70, "missile": 40}, "speed": 18, "military": true, "plague": "spectre", "cloak": 2,
 			"description": "Une lueur qui a la forme d'un vaisseau. Les boucliers n'arrêtent pas la nostalgie."},

@@ -22,7 +22,7 @@ const STATS := ["hp", "armor", "shield", "pd", "pd_fleet", "shield_fleet", "flee
 ## elle ; fleet_barracks : ses troupes se reforment partout ; anchor : les ennemis ne quittent pas la
 ## bataille ; reliquary : ferveur à chaque victoire ; digester : épaves changées en matériaux).
 ## Caractéristiques de furtivité (voir Stealth) : la meilleure des modules compte, sans cumul.
-const MAX_STATS := ["cloak", "detect", "jam", "decoy"]
+const MAX_STATS := ["cloak", "detect", "jam", "decoy", "psi"]
 const FLAGS := ["blockade_runner", "adaptive", "fleet_repair", "fleet_barracks", "anchor", "reliquary", "digester", "net", "supply_hold", "hardened_shields", "survival", "minelayer", "sweeper"]
 const LINES := ["screen", "line", "rear"]
 const TARGETS := ["nearest", "largest", "smallest", "rear"]
@@ -354,6 +354,8 @@ static func check_save(state: GameState, empire_id: int, spec: Dictionary) -> St
 			return "votre peuple n'utilise pas le module %s" % String(module(String(mid)).get("label", mid))
 		if module(String(mid)).get("stealth", false) and not Stealth.enabled(state):
 			return "la furtivité n'est pas en jeu dans cette partie (%s)" % String(module(String(mid)).get("label", mid))
+		if module(String(mid)).get("psionics", false) and not Psionics.enabled(state):
+			return "les pouvoirs psioniques ne sont pas en jeu dans cette partie (%s)" % String(module(String(mid)).get("label", mid))
 	var techs := required_techs(hid, mods)
 	if not Research.knows_all(state, empire_id, techs):
 		return "technologie requise : %s" % Research.missing_text(state, empire_id, techs)
@@ -513,6 +515,8 @@ static func _usable(state: GameState, empire_id: int, hull_id: String, slot_type
 		if not module_allowed(mid, state.get_empire(empire_id).faction_id):
 			continue
 		if m.get("stealth", false) and not Stealth.enabled(state):
+			continue
+		if m.get("psionics", false) and not Psionics.enabled(state):
 			continue
 		out.append(mid)
 	return out

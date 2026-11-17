@@ -118,6 +118,8 @@ static func type_allowed(state: GameState, eid: int, t: String, species := "") -
 		return false
 	if not Research.knows_all(state, eid, d.get("requires_tech", [])):
 		return false
+	if bool(d.get("psionics", false)) and (not Psionics.applies(state, eid) or Psionics.level(state, eid, species if species != "" else Peoples.founder_of(state, eid)) <= 0):
+		return false  # pouvoirs psioniques : une espèce qui entend le Songe
 	var req: Dictionary = d.get("requires", {})
 	if req.has("species"):
 		var fid := species if species != "" else Peoples.founder_of(state, eid)

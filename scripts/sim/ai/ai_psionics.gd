@@ -6,6 +6,10 @@ extends RefCounted
 ## Collège des sensitifs sur sa capitale, puis use de ses pouvoirs en gardant une réserve : Apaisement
 ## sur le système le plus agité, Préscience en guerre, Lecture des esprits sur un ennemi.
 ## Un peuple sourd (synthétique) cherche seulement les Écrans psychiques. La Recrue oublie souvent.
+## Lot 2 : en réglage Complet, ouvre le Songe dès qu'il en a le Savoir, plonge (posture selon son
+## tempérament : Audacieuse s'il est agressif, Prudente s'il est pacifique), accepte les pactes sauf
+## celui de la Dernière Puissance, accepte la réforme de l'Élu si son credo est la foi ; en guerre,
+## tente la Domination mentale ; en paix, use de la Voix sur le voisin qui l'aime le moins.
 
 static func cfg() -> Dictionary:
 	return Psionics.cfg("ai")
@@ -32,6 +36,7 @@ static func think(ctx: Dictionary) -> void:
 		AiPlayer._intent(ctx, "éveiller son peuple au Songe")
 		return
 	_college(ctx)
+	_dream(ctx)
 	_powers(ctx)
 
 
@@ -58,6 +63,31 @@ static func _college(ctx: Dictionary) -> void:
 		return
 	if Economy.check_build(state, e.id, e.capital_planet, b) == "":
 		AiPlayer._issue(ctx, SimCommands.build(e.id, e.capital_planet, b))
+
+
+static func _dream(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if not Psionics.full(state):
+		return
+	var off := PsionicsDream.offer(state, e.id)
+	if not off.is_empty():
+		var yes := not PsionicsDream.is_last(String(off["p"])) and PsionicsDream.pact(state, e.id).is_empty()
+		AiPlayer._issue(ctx, SimCommands.psi_act(e.id, "pact", {"accept": yes}))
+		return
+	if PsionicsDream.check_reform(state, e.id) == "":
+		var credo := String(FactionTraits.species(e.faction()).get("credo", ""))
+		AiPlayer._issue(ctx, SimCommands.psi_act(e.id, "reform", {"accept": credo == "foi"}))
+		return
+	if PsionicsDream.check_open(state, e.id) == "":
+		AiPlayer._issue(ctx, SimCommands.psi_act(e.id, "open"))
+		AiPlayer._intent(ctx, "ouvrir le Songe")
+		return
+	var aggr := AiLevels.aggression(e)
+	var posture := "audacieuse" if aggr >= 1 else ("prudente" if aggr <= -1 else "mesuree")
+	if Psionics.resonance(state, e.id) - PsionicsDream.dive_cost(state, e.id) >= int(cfg().get("reserve", 20)) and PsionicsDream.check_dive(state, e.id, posture) == "":
+		AiPlayer._issue(ctx, SimCommands.psi_act(e.id, "dive", {"posture": posture}))
+		AiPlayer._intent(ctx, "plonger dans le Songe")
 
 
 static func _powers(ctx: Dictionary) -> void:
@@ -88,6 +118,24 @@ static func _powers(ctx: Dictionary) -> void:
 				break
 		if foe >= 0 and _try(ctx, "lecture", foe, reserve):
 			return
+		for fid in PsionicsDream.fleet_ids(state):
+			var f: Fleet = state.fleets[fid]
+			if f.owner == e.id and not f.is_moving() and _try(ctx, "domination", f.system_id, reserve):
+				return
+	else:
+		# La Voix : sur le voisin qui nous aime le moins (opinion négative).
+		var worst_e := -1
+		var worst_o := 0
+		for c in e.contacts:
+			var b := state.get_empire(c)
+			if b == null or b.eliminated or b.is_npc():
+				continue
+			var o := Diplomacy.opinion(state, c, e.id)
+			if o < worst_o:
+				worst_o = o
+				worst_e = c
+		if worst_e >= 0:
+			_try(ctx, "voix", worst_e, reserve)
 
 
 static func _try(ctx: Dictionary, power: String, target: int, reserve: int) -> bool:

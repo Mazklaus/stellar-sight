@@ -191,7 +191,8 @@
 		"spy_shamed": {"value": -10, "days": 1080, "label": "Espion démasqué qui a refusé de réparer"},
 		"spy_reparation": {"value": 10, "days": 720, "label": "A payé réparation pour ses espions"},
 		"framed": {"value": -25, "days": 1440, "label": "Des preuves l'accusent de nous espionner"},
-		"turned_us": {"value": -20, "days": 1440, "label": "A retourné notre réseau contre nous"}
+		"turned_us": {"value": -20, "days": 1440, "label": "A retourné notre réseau contre nous"},
+		"psi_viol": {"value": -40, "days": 3600, "label": "Viol des esprits"}
 	},
 	"abilities": {
 		"no_treaties": {

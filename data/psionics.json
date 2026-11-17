@@ -59,10 +59,79 @@
 		{"id": "prescience", "form": "songe", "label": "Préscience", "tech": "precognition", "target": "self", "cost": 30, "cooldown": 360, "felure": 8, "days": 180, "presage_days": 120,
 			"text": "Six mois durant : les flottes étrangères qui font route vers vos systèmes sont visibles dès leur départ, et une crise vous est annoncée quatre mois à l'avance."},
 		{"id": "apaisement", "form": "songe", "label": "Apaisement", "tech": "telepathie", "target": "system", "cost": 25, "cooldown": 90, "felure": 4, "hero": "intendant", "days": 180, "stability": 10,
-			"text": "Un de vos systèmes : +10 de stabilité pendant six mois ; les esprits échauffés s'endorment un peu."}
+			"text": "Un de vos systèmes : +10 de stabilité pendant six mois ; les esprits échauffés s'endorment un peu."},
+		{"id": "voix", "form": "songe", "label": "La Voix", "tech": "telepathie", "target": "empire", "cost": 35, "cooldown": 180, "felure": 5, "screened": true, "hero": "orateur", "days": 720, "opinion": 25, "caught_pct": 20,
+			"text": "Un empire rencontré : ses dirigeants vous trouvent soudain très raisonnables (+25 d'opinion pendant deux ans). Une chance sur cinq qu'il s'en rende compte : grief « Viol des esprits »."},
+		{"id": "domination", "form": "songe", "label": "Domination mentale", "tech": "precognition", "target": "enemy_system", "cost": 100, "cooldown": 1080, "felure": 15, "screened": true, "hero": "stratege", "min_hero": 2, "garrison_max": 30, "caught_pct": 100,
+			"text": "Un système ennemi, en guerre, où mouille la flotte d'un stratège sensitif de puissance 2 ou plus : la garnison (30 au plus) dépose les armes et le système vous revient. Sans écran psychique dans le système. Grief lourd « Viol des esprits »."}
 	],
+	"navigation": {"_doc": "Prop. 22 : Navigation par le Songe (ordre jump {fleet, sys}). Une flotte à l'arrêt saute vers un système à max_jumps sauts au plus, hors des routes. lost_pct : elle s'égare vers un système voisin de la cible et perd lost_hp_pct % de sa coque ; beast_pct : une bête du Songe la suit.",
+		"tech": "navigation_songe", "label": "Navigation par le Songe", "cost": 40, "cooldown": 120, "felure": 6, "max_jumps": 4, "lost_pct": 15, "lost_hp_pct": 25, "beast_pct": 8,
+		"text": "Une flotte à l'arrêt plonge dans le Songe et en ressort jusqu'à quatre sauts plus loin, sans suivre les routes. Elle peut s'égarer (15 %) ou ramener une bête du Songe (8 %)."},
+	"elu": {"_doc": "Prop. 11 : l'Élu, un seul héros de puissance 3 par empire (h.psi = 3), venu d'une vision, d'une Puissance ou d'une lignée (lot 3).", "label": "l'Élu", "xp": 100},
+	"dream": {
+		"_doc": "Prop. 24-25 : Ouvrir le Songe (ordre open : Savoir = open_base + open_colony × colonies peuplées), puis plonger (ordre dive {posture}) : dive_cost de Résonance et dive_years ans de recharge. Chaque posture tire bienfait / rien / malédiction (odds, en %) ; tier = palier de visions ouvert (les meilleures visions demandent l'audace). Bienfaits et malédictions durent boon_years ans. meet_pct : chance (en %) qu'un bienfait soit une rencontre de Puissance ; last_pct : chance que ce soit la Dernière Puissance.",
+		"open_base": 500, "open_colony": 100, "dive_cost": 60, "dive_years": 5, "boon_years": 5, "meet_pct": 25, "last_pct": 2,
+		"postures": [
+			{"id": "prudente", "label": "Prudente", "odds": [70, 20, 10], "tier": 0, "text": "On garde un pied sur la rive."},
+			{"id": "mesuree", "label": "Mesurée", "odds": [50, 30, 20], "tier": 1, "text": "On nage, sans perdre la côte de vue."},
+			{"id": "audacieuse", "label": "Audacieuse", "odds": [30, 40, 30], "tier": 2, "text": "On lâche la rive. Les meilleures visions sont au large, les pires aussi."}
+		]
+	},
+	"visions": {
+		"_doc": "Prop. 26 : catalogue ouvert des visions. kind : boon (bienfait), none (rien), curse (malédiction). tier : posture minimale. fx : effets (mêmes clés que les technologies) pendant boon_years ans ; empire_stability : stabilité de tout l'empire ; do : effet spécial (tech, regard, resonance, avatar, elu, beast, hero_death, resonance_loss, felure_grave).",
+		"list": [
+			{"id": "inspiration", "kind": "boon", "weight": 20, "tier": 0, "label": "Inspiration", "fx": {"production_pct": {"knowledge": 15}}, "text": "Des équations entières flottent dans le Songe comme des poissons. +15 % de Savoir pendant cinq ans."},
+			{"id": "vigueur", "kind": "boon", "weight": 15, "tier": 0, "label": "Vigueur", "fx": {"growth_pct": 15}, "text": "Les sensitifs reviennent en chantant ; les berceaux se remplissent. +15 % de croissance pendant cinq ans."},
+			{"id": "bras", "kind": "boon", "weight": 15, "tier": 0, "label": "Bras du Songe", "fx": {"damage_pct": 10}, "text": "Les canonniers rêvent de leurs cibles avant de les voir. +10 % de dégâts pendant cinq ans."},
+			{"id": "flux", "kind": "boon", "weight": 10, "tier": 0, "label": "Flux de Résonance", "do": "resonance", "text": "Le Songe déborde : la Résonance monte jusqu'au plafond."},
+			{"id": "regard", "kind": "boon", "weight": 10, "tier": 0, "label": "Regard au loin", "do": "regard", "text": "Une plongée débouche dans les rêves d'un autre empire : son dossier complet est sur la table."},
+			{"id": "savoir", "kind": "boon", "weight": 10, "tier": 1, "label": "Savoir du Songe", "do": "tech", "text": "Le Songe montre ce qu'on n'avait pas encore compris : une technologie du pilier est acquise."},
+			{"id": "avatar", "kind": "boon", "weight": 6, "tier": 1, "label": "L'Avatar", "do": "avatar", "text": "Quelque chose de très grand accepte de suivre les plongeurs jusqu'ici : l'Avatar du Songe rejoint vos armées."},
+			{"id": "elu", "kind": "boon", "weight": 4, "tier": 2, "label": "L'Élu", "do": "elu", "text": "Un de vos héros revient de la plongée avec des yeux nouveaux. Il est l'Élu."},
+			{"id": "brume", "kind": "none", "weight": 30, "label": "Brume", "text": "Rien que du gris, et une odeur de pain chaud qui ne mène nulle part."},
+			{"id": "echo", "kind": "none", "weight": 20, "label": "Écho", "text": "Les plongeurs entendent leurs propres voix, une semaine plus tard. Ils ne disent rien d'utile."},
+			{"id": "foire", "kind": "none", "weight": 10, "label": "Foire des rêves", "text": "Une foire immense, des marchands sans visage. On revient avec un ballon rouge et aucun souvenir du prix."},
+			{"id": "cauchemars", "kind": "curse", "weight": 25, "tier": 0, "label": "Cauchemars", "empire_stability": -8, "text": "Les plongeurs ont ramené des cauchemars, et les cauchemars ont des jambes. Stabilité -8 dans tout l'empire pendant cinq ans."},
+			{"id": "langueur", "kind": "curse", "weight": 20, "tier": 0, "label": "Langueur", "fx": {"production_pct": {"all": -10}}, "text": "Une grande fatigue gagne l'empire : on rêve plus qu'on ne travaille. Production -10 % pendant cinq ans."},
+			{"id": "entite", "kind": "curse", "weight": 15, "tier": 0, "label": "Entité hostile", "do": "beast", "text": "Quelque chose a suivi les plongeurs. Une bête du Songe rôde près de votre capitale."},
+			{"id": "perte", "kind": "curse", "weight": 10, "tier": 0, "label": "Plongeur perdu", "do": "hero_death", "text": "Un héros sensitif n'est pas remonté. Son corps respire encore ; c'est tout."},
+			{"id": "assechement", "kind": "curse", "weight": 15, "tier": 0, "label": "Assèchement", "do": "resonance_loss", "text": "Le Songe se retire comme une marée : la Résonance tombe à zéro."},
+			{"id": "fissure", "kind": "curse", "weight": 15, "tier": 1, "label": "Fissure", "do": "felure_grave", "text": "La plongée a laissé la porte entrouverte : une fêlure grave."}
+		]
+	},
+	"entities": {
+		"_doc": "Prop. 27-29 : les Puissances du Songe (catalogue ouvert). likes : credos et gouvernements qui plaisent (+like_favor de faveur par mois) ; acts : ce qu'elle aime voir chaque mois (war, peace, genome, lecture, prescience, powers) et la faveur gagnée. tiers : effets par palier de faveur (le dernier palier fait un Élu de la Puissance, qui peut proposer le souverain élu, prop. 31). price : contrepartie tirée tous les price_years ans (pop : habitants perdus ; hero : héros mort ; stability : stabilité de l'empire ; resonance : Résonance perdue ; mutation : croissance réduite). La Dernière Puissance (last) : pacte de last_years ans, puis le Solde.",
+		"price_years": 15, "favor_month": 1, "like_favor": 1, "max_favor": 150, "break_stability": -10, "break_days": 1080, "reform_refused_stability": -10, "reform_refused_days": 720, "reform_gov": "theocratie",
+		"list": [
+			{"id": "tisserand", "label": "Le Tisserand", "domain": "lignées et chair", "likes": {"credo": ["raison", "survie"], "gouvernement": ["conscience"]}, "acts": {"genome": 2},
+				"text": "Il tisse les lignées comme d'autres tricotent : patiemment, et en comptant les mailles.",
+				"tiers": [{"favor": 0, "fx": {"growth_pct": 10}}, {"favor": 50, "fx": {"growth_pct": 20, "production_pct": {"food": 10}}}, {"favor": 100, "fx": {"growth_pct": 30, "production_pct": {"food": 15}}, "elu": true}],
+				"price": [{"id": "pop", "weight": 40, "n": 3, "label": "Le Tisserand reprend des fils"}, {"id": "mutation", "weight": 40, "fx": {"growth_pct": -10}, "label": "Une maille a filé"}, {"id": "hero", "weight": 20, "label": "Le Tisserand veut un modèle"}]},
+			{"id": "gueule", "label": "La Gueule", "domain": "guerre", "likes": {"credo": ["honneur"], "gouvernement": ["horde", "feodalite"]}, "acts": {"war": 3},
+				"text": "Elle a faim, toujours, et elle aime ceux qui la nourrissent de batailles.",
+				"tiers": [{"favor": 0, "fx": {"damage_pct": 5}}, {"favor": 50, "fx": {"damage_pct": 12}}, {"favor": 100, "fx": {"damage_pct": 20, "repair_pct": 10}, "elu": true}],
+				"price": [{"id": "hero", "weight": 40, "label": "La Gueule réclame un champion"}, {"id": "pop", "weight": 40, "n": 4, "label": "La Gueule mange"}, {"id": "stability", "weight": 20, "v": -15, "days": 720, "label": "La Gueule rugit dans les rêves"}]},
+			{"id": "miroir", "label": "Le Miroir tendre", "domain": "paix et plaisir", "likes": {"credo": ["plaisir"], "gouvernement": ["republique"]}, "acts": {"peace": 3},
+				"text": "Il montre à chacun ce qu'il veut voir, et c'est si doux qu'on oublie de regarder ailleurs.",
+				"tiers": [{"favor": 0, "fx": {"stability": 3}}, {"favor": 50, "fx": {"stability": 6, "trade_income_pct": 10}}, {"favor": 100, "fx": {"stability": 10, "trade_income_pct": 20}, "elu": true}],
+				"price": [{"id": "stability", "weight": 40, "v": -12, "days": 720, "label": "Le Miroir se trouble"}, {"id": "resonance", "weight": 40, "label": "Le Miroir boit la Résonance"}, {"id": "pop", "weight": 20, "n": 2, "label": "Des rêveurs ne se réveillent plus"}]},
+			{"id": "chuchoteur", "label": "Le Chuchoteur", "domain": "secrets", "likes": {"credo": ["profit"], "gouvernement": ["syndicat"]}, "acts": {"lecture": 3, "powers": 1},
+				"text": "Il connaît le secret de chacun, et il en fait cadeau à qui sait écouter.",
+				"tiers": [{"favor": 0, "fx": {"production_pct": {"knowledge": 5}}}, {"favor": 50, "fx": {"production_pct": {"knowledge": 10}, "trade_income_pct": 5}}, {"favor": 100, "fx": {"production_pct": {"knowledge": 15}, "trade_income_pct": 10}, "elu": true}],
+				"price": [{"id": "resonance", "weight": 40, "label": "Le Chuchoteur se paie en murmures"}, {"id": "hero", "weight": 30, "label": "Le Chuchoteur garde un confident"}, {"id": "stability", "weight": 30, "v": -10, "days": 720, "label": "Des secrets courent les rues"}]},
+			{"id": "horloger", "label": "L'Horloger d'ébène", "domain": "temps et échos", "likes": {"credo": ["foi"], "gouvernement": ["theocratie"]}, "acts": {"prescience": 3},
+				"text": "Il remonte les heures comme des pendules, et il entend tout ce qui sonnera.",
+				"tiers": [{"favor": 0, "fx": {"production_pct": {"materials": 5}}}, {"favor": 50, "fx": {"production_pct": {"all": 5}}}, {"favor": 100, "fx": {"production_pct": {"all": 10}}, "elu": true}],
+				"price": [{"id": "mutation", "weight": 40, "fx": {"growth_pct": -10}, "label": "L'Horloger prend des années"}, {"id": "hero", "weight": 30, "label": "Un héros vieillit d'un coup"}, {"id": "pop", "weight": 30, "n": 3, "label": "Des heures perdues"}]}
+		],
+		"last": {"id": "derniere", "label": "La Dernière Puissance", "domain": "fin du cycle", "last_years": 50,
+			"text": "Elle n'a pas de forme. Elle offre tout, tout de suite, pour cinquante ans. Après, il faudra solder le compte.",
+			"fx": {"production_pct": {"all": 30}, "damage_pct": 25, "growth_pct": 20, "stability": 5},
+			"solde": {"pop_pct": 50, "stability": -30, "days": 1800, "crisis": "solde"}}
+	},
 	"felures": {
-		"_doc": "Prop. 8 : chance (en %) d'une fêlure à chaque pouvoir = felure du pouvoir × (100 + loi + voie + collèges + héros) / 100. Tirage pondéré dans table (catalogue ouvert ; le lot 2 ajoute les fêlures graves).",
+		"_doc": "Prop. 8 et 30 : chance (en %) d'une fêlure à chaque pouvoir = felure du pouvoir × (100 + loi + voie + collèges + héros) / 100. Tirage pondéré dans table, plus grave en réglage Complet (catalogue ouvert ; do : possession, beast ; haunt : monde hanté).",
 		"college_pct": -5,
 		"college_min_pct": -30,
 		"hero_pct": -10,
@@ -70,6 +139,11 @@
 			{"id": "migraine", "weight": 50, "label": "Migraine collective", "empire_stability": -5, "days": 180, "text": "Des millions de crânes résonnent en même temps. Stabilité -5 dans tout l'empire pendant six mois."},
 			{"id": "fuite", "weight": 30, "label": "Fuite de Résonance", "resonance_loss_pct": 50, "text": "Le Songe reprend ce qu'on lui a pris : la moitié de la Résonance s'évapore."},
 			{"id": "hantise", "weight": 20, "label": "Hantise", "system_stability": -15, "days": 360, "text": "Quelque chose est resté. Dans le système le plus peuplé, stabilité -15 pendant un an ; on entend des pas dans les couloirs vides."}
+		],
+		"grave": [
+			{"id": "possession", "weight": 6, "label": "Possession", "do": "possession", "text": "Un héros sensitif parle avec une autre voix. Il quitte le palais une nuit ; ce qui l'habite ne reviendra pas en ami."},
+			{"id": "cratere", "weight": 6, "label": "Cratère du Songe", "system_stability": -10, "days": 36000, "haunt": true, "text": "Le Songe a percé la réalité : le système le plus peuplé devient un monde hanté (stabilité -10, pour longtemps)."},
+			{"id": "bete", "weight": 8, "label": "Bête du Songe", "do": "beast", "text": "Une bête du Songe passe par la fêlure et se met en chasse."}
 		]
 	},
 	"heroes": {
@@ -81,6 +155,7 @@
 		"latent_pct": 8,
 		"cost_pct": -10
 	},
+	"combat": {"_doc": "Prop. 20 : modules Barrière psychique et Frappe mentale (data/designs.json, psionics: true), arme psychic (data/combat.json, défense psi), régiments psioniques et Avatar du Songe (data/ground.json). beast : espèce des bêtes du Songe (data/creatures.json), beast_days : jours avant qu'une bête dérangée se disperse.", "beast": "betes_songe", "beast_days": 720, "avatar": "avatar_songe"},
 	"college": {"_doc": "Prop. 9 : Collège des sensitifs.", "building": "college_sensitifs", "stability": 1},
 	"screens": {"_doc": "Prop. 23 : chance (en %) qu'un pouvoir visé (screened) échoue contre une cible : tech + écrans bâtis (au plus max) ; 100 contre une espèce fondatrice immunisée.", "building": "ecran_psychique", "tech": 30, "per_building": 10, "max": 90},
 	"laws": {

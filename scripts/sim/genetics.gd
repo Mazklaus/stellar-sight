@@ -287,10 +287,12 @@ static func apply_genome(base: Dictionary, g: Dictionary, path: String, founder:
 		var pp2: Dictionary = (f.get("production_pct", {}) as Dictionary).duplicate()
 		pp2[strong] = _mul(int(pp2.get(strong, 100)), int(path_def("purete").get("strong_pct", 110)))
 		f["production_pct"] = pp2
+	if String(g.get("gov", "")) != "":
+		sp["gouvernement"] = String(g["gov"])  # souverain élu d'une Puissance du Songe (voir PsionicsDream)
 	sp["traits"] = ts
 	f["species"] = sp
 	f["traits"] = shown
-	f["engineered"] = not g.is_empty()
+	f["engineered"] = not g.is_empty() and not (g.size() == 1 and g.has("gov"))
 	return f
 
 

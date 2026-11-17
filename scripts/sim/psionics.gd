@@ -23,7 +23,7 @@ extends RefCounted
 ##  "fx": {"eid": [effet actif {"id", "until", "target"?, "sys"?, "v"?}]}, "st": {"eid": {statistiques}}}.
 ## Tout est déterministe : entiers, tirages par hachage de la graine, ordres par SimCommands.
 
-const SUBS := ["res", "awake", "crown", "cd", "fx", "st"]
+const SUBS := ["res", "awake", "crown", "cd", "fx", "st", "open", "pact", "offer", "reform", "haunted"]
 
 static var _talent_cache := {}
 
@@ -617,7 +617,7 @@ static func _effect(state: GameState, eid: int, power: String, target: int, adde
 					Espionage.private_to(state, [eid])))
 		"apaisement":
 			_add_fx(state, eid, {"id": "apaisement", "until": until, "sys": target, "v": int(pd.get("stability", 10))})
-			added.append(state.add_chronicle("Sur %s, une douceur inexplicable gagne les foules ; les émeutiers rentrent chez eux faire la sieste." % state.galaxy.systems[target].name,
+			added.append(state.add_chronicle("Sur %s, une douceur inexplicable gagne les foules ; les émeutiers rentrent chez eux faire la sieste." % state.galaxy.systems[target].system_name,
 					Espionage.private_to(state, [eid])))
 		_:
 			PsionicsDream.effect(state, eid, power, target, added)
@@ -830,6 +830,8 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 			for fx: Dictionary in fxs[str(e.id)]:
 				if int(fx["until"]) > state.tick:
 					keep.append(fx)
+				elif fx.has("fx"):
+					state.relic_rev += 1  # bienfait ou malédiction du Songe expiré : effets à recalculer
 			fxs[str(e.id)] = keep
 		if posmod(month, 12) == posmod(e.id, 12):
 			_reveal_sensitives(state, e, added)
