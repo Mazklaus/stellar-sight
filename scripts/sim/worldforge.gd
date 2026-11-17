@@ -540,6 +540,8 @@ static func site_reason(state: GameState, eid: int, op: String, sid: int, pid: i
 	if not relic and not _holds(state, eid, sid):
 		return "il faut tenir le système (une colonie ou un avant-poste établi, sans occupant)"
 	if relic:
+		if not Fleets.is_explored(state, eid, sid):
+			return "système inexploré"
 		var o := state.system_owner(sid)
 		if o >= 0 and o != eid:
 			return "le système est tenu par un autre"

@@ -51,6 +51,7 @@
 		"evac_stab_days": 360,
 		"digest_food_per_pop": 25,
 		"order_price": {"energy": 300},
+		"order_min_opinion": -10,
 		"koinon_share_pct": 25,
 		"debris_mass": 20,
 		"void_dyson_pct": -25,

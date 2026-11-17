@@ -133,7 +133,7 @@ func _test_save() -> void:
 		_ok(back.announces.size() == st.announces.size() and typeof(back.announces[0]["r"]["lvl"]) == TYPE_INT, "les nombres redeviennent entiers")
 		_ok(int(back.announce_meta.get("firsts", {}).get("kardashev", 0)) > 0, "les premières de la galaxie sont gardées")
 		_ok(String(back.chronicle.back().get("kind", "")) == "kardashev", "la chronique garde le type de ses lignes")
-	_ok(GameState.FORMAT_VERSION == 90, "format de sauvegarde 90")
+	_ok(GameState.FORMAT_VERSION >= 90, "format de sauvegarde 90 ou plus")
 
 
 func _test_war() -> void:

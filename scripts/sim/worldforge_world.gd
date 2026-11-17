@@ -463,8 +463,8 @@ static func _seller_reason(state: GameState, eid: int, seller: int) -> String:
 		return "il ne sait pas fabriquer de planètes"
 	if Combat.at_war(state, eid, seller):
 		return "on ne commande pas une planète à un ennemi"
-	if Diplomacy.opinion(state, seller, eid) < 0:
-		return "il ne vous aime pas assez pour travailler pour vous"
+	if Diplomacy.opinion(state, seller, eid) < _r("order_min_opinion", -10):
+		return "il vous en veut trop pour travailler pour vous"
 	if WorldForge.busy(state, seller) >= WorldForge.slots(state, seller):
 		return "ses chantiers sont tous occupés"
 	return ""
