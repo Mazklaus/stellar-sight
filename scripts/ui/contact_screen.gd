@@ -202,6 +202,17 @@ static func build(es: EmpireScreens) -> void:
 	content_extra(es, col)
 
 
+## Lignes des voix (lot 3) dans la colonne latérale.
+static func voices_side(_es: EmpireScreens) -> Array[Control]:
+	var out: Array[Control] = []
+	return out
+
+
+## Blocs des voix (lot 3) dans la colonne principale.
+static func voices_content(_es: EmpireScreens, _col: VBoxContainer) -> void:
+	pass
+
+
 static func _status(state: GameState, player: int) -> String:
 	if Contact.done(state, player):
 		return "la réponse est arrivée"
@@ -217,14 +228,71 @@ static func _status(state: GameState, player: int) -> String:
 
 
 ## Lignes de la course et des voix (lots 2 et 3) dans la colonne latérale.
-static func side_extra(_es: EmpireScreens) -> Array[Control]:
+static func side_extra(es: EmpireScreens) -> Array[Control]:
 	var out: Array[Control] = []
+	var state := es._state
+	var player := es._player
+	for o: Dictionary in ContactRace.pending_offers(state, player):
+		var from := int(o["from"])
+		var kind := String(o["kind"])
+		var what: String = {"frag_trade": "échanger vos fragments", "frag_demand": "exige votre fragment", "cons_invite": "fonder un Consortium du Signal"}.get(kind, kind)
+		out.append(UiTheme.dim("%s propose : %s" % [state.get_empire(from).short_name(), what], 13))
+		out.append(_btn(es, "Accepter", ContactRace.check(state, player, "accept", {"kind": kind, "from": from}), "", SimCommands.ct_act(player, "accept", {"kind": kind, "from": from}), "accept:%s:%d" % [kind, from]))
+		out.append(_btn(es, "Refuser", ContactRace.check(state, player, "decline", {"kind": kind, "from": from}), "", SimCommands.ct_act(player, "decline", {"kind": kind, "from": from}), "decline:%s:%d" % [kind, from]))
+	if ContactRace.cons_id(state, player) >= 0:
+		out.append(_btn(es, "Quitter le Consortium", ContactRace.check(state, player, "cons_leave", {}), "Avant la Réponse, vos partenaires y verront une trahison.",
+				SimCommands.ct_act(player, "cons_leave"), "cons_leave"))
+	out.append_array(voices_side(es))
 	return out
 
 
 ## Blocs de la course et des voix (lots 2 et 3) dans la colonne principale.
-static func content_extra(_es: EmpireScreens, _col: VBoxContainer) -> void:
-	pass
+static func content_extra(es: EmpireScreens, col: VBoxContainer) -> void:
+	var state := es._state
+	var player := es._player
+	if ContactRace.full(state) and Contact.route_count(state, player) > 0:
+		var db := Widgets.Block.new("Fragments et Consortium")
+		col.add_child(db)
+		var held := ContactRace.held_from(state, player)
+		var names := PackedStringArray()
+		for x in held:
+			names.append(state.get_empire(x).short_name())
+		db.body.add_child(UiTheme.paragraph("Fragments étrangers : %s" % (", ".join(names) if not names.is_empty() else "aucun"), W, 13))
+		var ms := ContactRace.partners(state, player)
+		if not ms.is_empty():
+			var mn := PackedStringArray()
+			for m in ms:
+				mn.append(state.get_empire(m).short_name())
+			db.body.add_child(UiTheme.paragraph("Consortium : %s (vous gagnerez ensemble)" % ", ".join(mn), W, 13))
+		var me := state.get_empire(player)
+		for oid in me.contacts:
+			var o := state.get_empire(oid)
+			if o == null or o.eliminated or not Contact.applies(state, oid):
+				continue
+			var row := HBoxContainer.new()
+			row.add_theme_constant_override("separation", 4)
+			var lab := Label.new()
+			lab.text = o.short_name()
+			lab.custom_minimum_size = Vector2(140, 0)
+			row.add_child(lab)
+			for a in [["frag_trade", "Échanger"], ["frag_give", "Donner"], ["frag_demand", "Exiger"], ["cons_invite", "Consortium"], ["dark_forest", "Forêt sombre"]]:
+				var why := Contact.check(state, player, String(a[0]), {"to": oid})
+				if String(a[0]) == "dark_forest" and why != "" and not Contact.knows_nature(state, player):
+					continue
+				var b := Button.new()
+				b.text = String(a[1])
+				b.focus_mode = Control.FOCUS_NONE
+				b.disabled = why != ""
+				b.tooltip_text = why
+				var cmd := SimCommands.ct_act(player, String(a[0]), {"to": oid})
+				b.pressed.connect(func() -> void: es.command_requested.emit(cmd))
+				es.contact_buttons["%s:%d" % [a[0], oid]] = b
+				row.add_child(b)
+			db.body.add_child(row)
+		var jam := ContactRace.jammed(state)
+		if jam == player:
+			db.body.add_child(UiTheme.paragraph("Brouillage : quelque chose, au loin, gêne vos savants (%+d %% de Savoir)." % (-Contact.c_int("jamming", "pct_per_layer", 10) * Contact.layers(state, player)), W, 13))
+	voices_content(es, col)
 
 
 static func _tenths(n: int) -> String:

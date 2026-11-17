@@ -178,6 +178,8 @@
 		"spy_grief": {"value": -5, "days": 360, "label": "Grief : la guerre contre lui ne serait pas un parjure"},
 		"amph_backed": {"value": 8, "days": 1440, "stack": 3, "label": "A voté pour notre proposition"},
 		"amph_opposed": {"value": -8, "days": 1440, "stack": 3, "label": "A voté contre notre proposition"},
+		"ct_cons_quit": {"value": -30, "days": 1800, "stack": 1, "label": "A quitté le Consortium du Signal"},
+		"ct_dark_forest": {"value": -40, "days": 1800, "stack": 2, "label": "Nous a menacés de la Forêt sombre"},
 		"amph_outlaw": {"value": -30, "days": 1800, "stack": 2, "label": "Hors-la-loi de l'Amphictyonie"},
 		"amph_denounced": {"value": -15, "days": 1800, "stack": 2, "label": "Nous a dénoncés sous la Haute Voûte"},
 		"amph_aided": {"value": 10, "days": 1440, "stack": 3, "label": "Nous a secourus (aide d'urgence)"},
