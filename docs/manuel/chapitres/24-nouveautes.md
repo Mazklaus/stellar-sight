@@ -3,6 +3,13 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.31
+
+- **Ce que le Songe murmure** (chapitre 35), nouveau réglage **Pouvoirs psioniques** (complet, discret, désactivé) : un catalogue ouvert de **formes** de psionisme, dont **le Songe** est la première ; espèces **Sourdes**, **Latentes**, **Éveillées** et **Transcendantes** ; la **Résonance**, réserve d'empire ; six technologies (**Théorie psionique**, **Télépathie**, **Écrans psychiques**, **Navigation par le Songe**, **Précognition**, **Ouverture du Songe**) ; la voie d'élévation **L'Éveil** ; **Collège des sensitifs**, héros sensitifs et **Élu** ; loi **Statut des sensitifs** (Registre, Collèges fermés, Nefs du Silence, Persécution) ; pouvoirs **Lecture des esprits**, **Préscience**, **Apaisement**, **La Voix**, **Domination mentale**, **Foire aux visions** et **Navigation par le Songe** ; **écrans psychiques** ; **fêlures** ; écran **Songe**.
+- En réglage complet : **ouvrir le Songe**, **plonger** en trois postures, une vingtaine de **visions**, cinq **Puissances** et leurs **pactes** (faveur, paliers, prix, Élu de la Puissance, **souverain élu**), la **Dernière Puissance** et la crise **le Solde du Songe** ; fêlures graves (possession, **Cratère du Songe**, bête du Songe).
+- **Combat** : modules **Frappe mentale** et **Barrière psychique**, **régiment psionique**, **Avatar du Songe** ; bêtes du Songe et **Avatar corrompu**.
+- **Ponts** : **Phare du Songe**, **Ambre de songe**, trait **Néant psychique** (les Intouchables), fois qui sacralisent ou chassent les sensitifs, vocation **Voyant**, Grande Maison **Souche du Songe**, **programme de lignées**, Hiérophantes maîtres du Songe, souvenirs **Viol des esprits** et **Visions de pacotille**, chiffrement et détection, hauts faits **Le premier Élu**, **Le Phare allumé** et **Pacte rompu**, talents par couche, **lentille psionique**, IA. Chapitres 36 à 39 renumérotés.
+
 ### Édition 2.30
 
 - **La chair et le code** (chapitre 34), nouveau réglage **Ingénierie des espèces** (complète, simple, désactivée) : un **génome** par espèce et par empire, des **programmes** payés en Savoir (matériaux pour les synthétiques) en mensualités, une **marge** de points (technologies du pilier, Codex des origines, voie génétique), plus de quarante **traits façonnés** en voies génétique, poussée, de caste, de recristallisation, harmonique, de reprogrammation et d'implants ; six nouvelles technologies (**Reprogrammation**, **Implants neuraux**, **Reséquençage**, **Acclimatation glandulaire**, **Évolution dirigée**, **Matrices de conscience**) ; écran **Génome**.

@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.30"
+EDITION = "2.31"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -429,6 +429,7 @@ def talents_du_peuple(f):
     ajoute("Spatioports", _par_couche(c, charger("ports.json").get("talents", {})))
     ajoute("Portails", _par_couche(c, charger("portals.json").get("talents", {})))
     ajoute("Génome", _par_couche(c, charger("genetics.json").get("talents", {})))
+    ajoute("Songe", _par_couche(c, charger("psionics.json").get("talents", {})))
     cu = charger("culture.json").get("talents", {})
     peuple = cu.get("peoples", {}).get(f["id"])
     ajoute("Rayonnement", _par_couche(c, {k: v for k, v in cu.items() if k != "peoples"}) + ([peuple] if isinstance(peuple, dict) else []))
@@ -1241,6 +1242,111 @@ def gen_gen_talents():
     return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
 
 
+def gen_psi_modes():
+    """Réglage Pouvoirs psioniques (data/psionics.json)."""
+    d = charger("psionics.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    return f"<table class='grille'><tr><th>Pouvoirs psioniques</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_psi_niveaux():
+    """Échelle des espèces (data/psionics.json « levels »)."""
+    d = charger("psionics.json")
+    l1 = "".join(f"<tr><td><b>{esc(l['label'])}</b></td><td>{inline(l.get('text', ''))}</td><td>{d['resonance']['per_pop'][l['id']] / 10:g}</td></tr>" for l in d["levels"])
+    return f"<table class='grille'><tr><th>Niveau</th><th>Ce que cela veut dire</th><th>Résonance par habitant et par mois</th></tr>{l1}</table>"
+
+
+def gen_psi_techs():
+    """Technologies du pilier (data/psionics.json « techs »)."""
+    d = charger("psionics.json")
+    techs = charger("technologies.json")["technologies"]
+    eres = {1: "I", 2: "II", 3: "III", 4: "IV", 5: "V"}
+    l1 = ""
+    for k in d["techs"]:
+        if k.startswith("_"):
+            continue
+        t = techs.get(k, {})
+        l1 += f"<tr><td><b>{esc(t.get('label', k))}</b></td><td>{eres.get(t.get('era'), '')}</td><td>{inline(t.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Technologie</th><th>Ère</th><th>Ce qu'elle ouvre</th></tr>{l1}</table>"
+
+
+def gen_psi_pouvoirs():
+    """Catalogue des pouvoirs (data/psionics.json « powers »)."""
+    d = charger("psionics.json")
+    techs = charger("technologies.json")["technologies"]
+    l1 = ""
+    for p in d["powers"]:
+        t = techs.get(p.get("tech", ""), {}).get("label", p.get("tech", ""))
+        l1 += f"<tr><td><b>{esc(p['label'])}</b></td><td>{esc(t)}</td><td>{p['cost']}</td><td>{p['cooldown']} j</td><td>{p['felure']} %</td><td>{inline(p.get('text', ''))}</td></tr>"
+    n = d["navigation"]
+    l1 += f"<tr><td><b>{esc(n['label'])}</b></td><td>{esc(techs.get(n['tech'], {}).get('label', n['tech']))}</td><td>{n['cost']}</td><td>{n['cooldown']} j</td><td>{n['felure']} %</td><td>{inline(n.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Pouvoir</th><th>Technologie</th><th>Résonance</th><th>Recharge</th><th>Fêlure</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_psi_felures():
+    """Fêlures (data/psionics.json « felures »)."""
+    d = charger("psionics.json")["felures"]
+    l1 = "".join(f"<tr><td><b>{esc(f['label'])}</b></td><td>Toujours</td><td>{f['weight']}</td><td>{inline(f.get('text', ''))}</td></tr>" for f in d["table"])
+    l1 += "".join(f"<tr><td><b>{esc(f['label'])}</b></td><td>Complet</td><td>{f['weight']}</td><td>{inline(f.get('text', ''))}</td></tr>" for f in d.get("grave", []))
+    return f"<table class='grille'><tr><th>Fêlure</th><th>Réglage</th><th>Poids</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_psi_postures():
+    """Postures de plongée (data/psionics.json « dream »)."""
+    d = charger("psionics.json")["dream"]
+    l1 = "".join(f"<tr><td><b>{esc(p['label'])}</b></td><td>{p['odds'][0]} %</td><td>{p['odds'][1]} %</td><td>{p['odds'][2]} %</td><td>{inline(p.get('text', ''))}</td></tr>" for p in d["postures"])
+    return f"<table class='grille'><tr><th>Posture</th><th>Bienfait</th><th>Rien</th><th>Malédiction</th><th></th></tr>{l1}</table>"
+
+
+def gen_psi_visions():
+    """Catalogue des visions (data/psionics.json « visions »)."""
+    d = charger("psionics.json")
+    post = [p["label"] for p in d["dream"]["postures"]]
+    sortes = {"boon": "Bienfait", "none": "Rien", "curse": "Malédiction"}
+    l1 = "".join(f"<tr><td>{sortes.get(v['kind'], v['kind'])}</td><td><b>{esc(v['label'])}</b></td><td>{esc(post[v.get('tier', 0)]) if v['kind'] != 'none' else ''}</td><td>{inline(v.get('text', ''))}</td></tr>" for v in d["visions"]["list"])
+    return f"<table class='grille'><tr><th>Sorte</th><th>Vision</th><th>Posture minimale</th><th>Effet</th></tr>{l1}</table>"
+
+
+def _psi_fx(fx):
+    noms = {"growth_pct": "croissance", "damage_pct": "dégâts", "stability": "stabilité", "trade_income_pct": "commerce", "repair_pct": "réparations"}
+    res = {"knowledge": "Savoir", "food": "nourriture", "materials": "matériaux", "energy": "énergie", "all": "production"}
+    out = []
+    for k, v in fx.items():
+        if isinstance(v, dict):
+            out += [f"{res.get(r, r)} {x:+d} %" for r, x in v.items()]
+        else:
+            out.append(f"{noms.get(k, k)} {v:+d}{' %' if k.endswith('_pct') else ''}")
+    return ", ".join(out)
+
+
+def gen_psi_puissances():
+    """Les Puissances du Songe (data/psionics.json « entities »)."""
+    d = charger("psionics.json")["entities"]
+    noms = {"credo": "credo", "gouvernement": "gouvernement"}
+    actes = {"war": "la guerre", "peace": "la paix", "genome": "le génome façonné", "lecture": "la Lecture des esprits", "prescience": "la Préscience", "powers": "les pouvoirs"}
+    l1 = ""
+    for p in d["list"]:
+        likes = ", ".join(NOMS_COUCHE.get(v, v) for vs in p.get("likes", {}).values() for v in vs)
+        paliers = " ; ".join(f"faveur {t['favor']} : {_psi_fx(t['fx'])}{' et un Élu' if t.get('elu') else ''}" for t in p["tiers"])
+        prix = ", ".join(x["label"] for x in p["price"])
+        l1 += f"<tr><td><b>{esc(p['label'])}</b><br>{esc(p['domain'])}</td><td>{esc(likes)} ; {esc(', '.join(actes.get(a, a) for a in p.get('acts', {})))}</td><td>{esc(paliers)}</td><td>{esc(prix)}</td></tr>"
+    last = d["last"]
+    l1 += f"<tr><td><b>{esc(last['label'])}</b><br>{esc(last['domain'])}</td><td>2 % des rencontres</td><td>{esc(_psi_fx(last['fx']))} pendant {last['last_years']} ans</td><td>Le Solde</td></tr>"
+    return f"<table class='grille'><tr><th>Puissance</th><th>Ce qui lui plaît</th><th>Paliers</th><th>Prix</th></tr>{l1}</table>"
+
+
+def gen_psi_talents():
+    """Talents psioniques par couche (data/psionics.json « talents »)."""
+    d = charger("psionics.json")
+    lignes = ""
+    for couche, t in d["talents"].items():
+        if couche.startswith("_"):
+            continue
+        for k, v in t.items():
+            lignes += f"<tr><td>{esc(couche.capitalize())}</td><td>{esc(NOMS_COUCHE.get(k, k).capitalize())}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -1271,6 +1377,9 @@ GENERATEURS = {
     "st_modes": gen_st_modes, "st_modules": gen_st_modules, "st_talents": gen_st_talents,
     "gen_modes": gen_gen_modes, "gen_techs": gen_gen_techs, "gen_voies": gen_gen_voies, "gen_traits": gen_gen_traits,
     "gen_paths": gen_gen_paths, "gen_talents": gen_gen_talents,
+    "psi_modes": gen_psi_modes, "psi_niveaux": gen_psi_niveaux, "psi_techs": gen_psi_techs, "psi_pouvoirs": gen_psi_pouvoirs,
+    "psi_felures": gen_psi_felures, "psi_postures": gen_psi_postures, "psi_visions": gen_psi_visions, "psi_puissances": gen_psi_puissances,
+    "psi_talents": gen_psi_talents,
     "portail_modes": gen_portail_modes, "portail_batiments": gen_portail_batiments, "portail_talents": gen_portail_talents,
 }
 
