@@ -564,3 +564,13 @@ a half-built Dyson sphere around an orange star, giant hexagonal plates being se
 ```
 an archaeological excavation cut into a cliff on a dead alien world under a sky streaked with planetary rings, the exposed cliff face reveals layers of an ancient alien city stacked like pages of a book, each stratum a different architecture, under floodlights archaeologists of several alien species uncover a colossal faceless statue, in the foreground a looter in a spacesuit quietly walks away carrying a crate while a small excavation robot carefully dusts a tiny cup, wonder and melancholy with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-57 · La voix du chroniqueur
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « La voix du chroniqueur »
+- Sujet : Dans une immense salle de chancellerie aux baies ouvertes sur une galaxie spirale, un vieux chroniqueur se lève de son pupitre, la plume posée ; autour de lui flottent des dizaines de dépêches lumineuses rondes, or, rouges, vertes et bleues ; une seule, immense et dorée, s'est déployée en bannière au-dessus de la salle et les scribes de plusieurs peuples lèvent la tête ; au premier plan, un jeune commis glisse discrètement une pile de dépêches bleues sous le tapis
+
+```
+a vast chancellery hall with tall windows opening onto a spiral galaxy, an elderly chronicler in long robes rises from his writing desk with his quill set down, dozens of round glowing dispatches float around him in gold red green and blue, a single enormous golden dispatch has unfurled into a banner above the hall and scribes of several alien species all look up at it, in the foreground a young clerk discreetly sweeps a pile of blue dispatches under the rug, solemn ceremony with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```
