@@ -195,14 +195,23 @@ static func _species_block(es: EmpireScreens, col: VBoxContainer, fid: String) -
 		acts.add_child(_btn(es, "Grand Transfert (%d)" % Genetics.transfer_cost(state, player, fid), Genetics.check_transfer(state, player, fid),
 				"L'espèce devient synthétique, pour de bon.", SimCommands.gen_act(player, "transfer", {"fid": fid}), "transfer:" + fid))
 	if Genetics.full(state) and state.peoples_on:
+		# Lignées : les traits forts seulement (2 points, ou croissance), pour garder l'écran lisible.
+		var lin := HFlowContainer.new()
+		lin.add_theme_constant_override("h_separation", 6)
+		var lin_label := UiTheme.dim("Fonder une lignée :", 13)
+		lin.add_child(lin_label)
 		for t: Dictionary in Genetics.catalogue():
 			var tid := String(t["id"])
-			if cur.has(tid) or not voies.has(String(t["voie"])) or int(t.get("cost", 0)) <= 0:
+			if cur.has(tid) or not voies.has(String(t["voie"])) or (int(t.get("cost", 0)) < 2 and not bool(t.get("growth", false))):
 				continue
 			if GeneticsBridges.check_lineage(state, player, fid, [tid], []) == "":
-				acts.add_child(_btn(es, "Lignée %s" % String(t["label"]).to_lower(), "",
+				lin.add_child(_btn(es, String(t["label"]), "",
 						"Une lignée façonnée : la moitié des habitants d'un monde la rejoint ; elle compte comme la même espèce.",
 						SimCommands.gen_act(player, "lineage", {"fid": fid, "add": [tid]}), "lineage:%s:%s" % [fid, tid]))
+		if lin.get_child_count() > 1:
+			b.body.add_child(lin)
+		else:
+			lin.free()
 		if fid != e.faction_id:
 			acts.add_child(_btn(es, "Abrutir", GeneticsBridges.check_staple(state, player, fid),
 					"Assujettis seulement : +10 % de production, plus de volonté.", SimCommands.gen_act(player, "staple", {"fid": fid}), "staple:" + fid))

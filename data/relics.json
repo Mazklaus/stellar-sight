@@ -68,6 +68,7 @@
 			"fx": {"production_pct": {"energy": 8}}, "triumph": {"label": "Embrasement", "cost": 50, "days": 360, "fx": {"production_pct": {"energy": 30}}, "now": []}},
 		{"id": "enclume_monde", "name": "Enclume des mondes", "text": "On y aurait forgé des planètes. On y forge aujourd'hui des boulons, avec le même sérieux.", "tags": [],
 			"fx": {"production_pct": {"materials": 8}}, "triumph": {"label": "Grande forge", "cost": 50, "days": 360, "fx": {"production_pct": {"materials": 30}, "ship_cost_pct": -15}, "now": []}},
+		{"id": "codex_origines", "name": "Codex des origines", "text": "Le génome complet d'un peuple disparu, annoté à la main par quelqu'un qui trouvait que c'était perfectible. Ingénierie des espèces : +1 point de marge pour chacune de vos espèces.", "tags": [], "fx": {"production_pct": {"knowledge": 5}}, "triumph": {"label": "Relecture du Codex", "cost": 50, "days": 360, "fx": {"growth_pct": 15}, "now": []}},
 		{"id": "semence_eden", "name": "Semence d'Éden", "text": "Une graine qui germe sur tout, y compris sur les gens qui dorment trop près.", "tags": ["sainte"],
 			"fx": {"production_pct": {"food": 10}}, "triumph": {"label": "Floraison", "cost": 40, "days": 360, "fx": {"hab_bonus": {"all": 1}, "production_pct": {"food": 25}}, "now": []}},
 		{"id": "sceau_concorde", "name": "Sceau de la première Concorde", "text": "Le premier traité de paix de la galaxie. Il a tenu onze jours, un record à l'époque.", "tags": [],

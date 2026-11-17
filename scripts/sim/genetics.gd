@@ -117,6 +117,8 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 
 
 static func sub(state: GameState, k: String) -> Dictionary:
+	if state.genetics.is_empty():
+		return {}  # pilier désactivé : ne jamais le rallumer en écrivant
 	if not state.genetics.has(k):
 		state.genetics[k] = {}
 	return state.genetics[k]
@@ -1227,3 +1229,55 @@ static func hero_xp_bonus(state: GameState, eid: int) -> int:
 	if not applies(state, eid):
 		return 0
 	return int(state.get_empire(eid).faction().get("hero_xp_pct", 100)) - 100
+
+
+## Combat au sol : bonus façonné (combat.ground_pct) des régiments de cette espèce.
+static func ground_pct(state: GameState, eid: int, fid: String) -> int:
+	if not applies(state, eid):
+		return 100
+	var f := fiche(state, eid, fid if fid != "" else state.get_empire(eid).faction_id)
+	if not bool(f.get("engineered", false)):
+		return 100
+	return int(f.get("combat", {}).get("ground_pct", 100))
+
+
+## Régiments clonés (voie génétique) : recrutement plus rapide (pourcentage négatif de durée).
+static func clone_days_pct(state: GameState, eid: int) -> int:
+	if not applies(state, eid) or state.get_empire(eid).gene_path != "genetique":
+		return 0
+	return -c_int("clones", "speed_pct", 50)
+
+
+## Fléaux : habitants perdus (trait Résistants : moitié moins).
+@warning_ignore("integer_division")
+static func plague_loss(state: GameState, eid: int, pop: int) -> int:
+	if pop <= 0 or not applies(state, eid):
+		return pop
+	return maxi(1, pop * int(state.get_empire(eid).faction().get("plague_pct", 100)) / 100)
+
+
+## Furtivité : détection en plus (Yeux-senseurs) et camouflage en plus (Résonance du Voile).
+static func detect_bonus(state: GameState, eid: int) -> int:
+	if not applies(state, eid):
+		return 0
+	return int(state.get_empire(eid).faction().get("detect_bonus", 0))
+
+
+static func cloak_bonus(state: GameState, eid: int) -> int:
+	if eid >= state.empires.size() or not applies(state, eid):
+		return 0
+	return int(state.get_empire(eid).faction().get("cloak_bonus", 0))
+
+
+## Registre cosmique : pourcentage des échos gagnés (Chœur d'échos).
+static func echoes_pct(state: GameState, eid: int) -> int:
+	if not applies(state, eid):
+		return 100
+	return int(state.get_empire(eid).faction().get("echoes_pct", 100))
+
+
+## Biomasse tirée d'un peuple digéré (trait Savoureux de son espèce fondatrice), en pourcentage.
+static func savoury_pct(state: GameState, eid: int) -> int:
+	if not applies(state, eid):
+		return 100
+	return int(state.get_empire(eid).faction().get("savoury", 100))

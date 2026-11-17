@@ -331,8 +331,9 @@ static func eat(state: GameState, sid: int, pop: int, stab: int, stab_days: int,
 		if e != null and e.capital_planet == pid:
 			continue
 		victims[c.owner] = true
-		if c.population > pop:
-			c.population -= pop
+		var loss := Genetics.plague_loss(state, c.owner, pop)  # Résistants : moitié moins de morts
+		if c.population > loss:
+			c.population -= loss
 		else:
 			state.colonies.erase(pid)
 			gone += 1

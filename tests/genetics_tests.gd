@@ -351,6 +351,39 @@ func _test_bridges() -> void:
 	_ok(Genetics.resource_for(st3, 0, "teyl") == "materials", "Synthétiques : programmes en matériaux")
 	# Nomos : famille Génome dans le catalogue.
 	_ok(not Amphictyony.family_def("genome").is_empty(), "Nomos : famille Génome")
+	# Fléaux, combat au sol, régiments clonés.
+	Genetics._set_genome(st, e, "ossarane", {"add": ["g_resistants", "g_robustes"]})
+	_ok(Genetics.plague_loss(st, 0, 4) == 2, "Fléaux : Résistants perdent moitié moins")
+	_ok(Genetics.ground_pct(st, 0, "") == 125, "Combat au sol : Robustes +25 %")
+	var t0 := Ground.type_ids()[0]
+	var d0 := Ground.recruit_days(st, 0, t0)
+	e.gene_path = "genetique"
+	_ok(Genetics.clone_days_pct(st, 0) == -50 and Ground.recruit_days(st, 0, t0) < d0, "Régiments clonés : recrutement deux fois plus rapide")
+	e.gene_path = ""
+	# Furtivité, échos, biomasse.
+	Genetics._set_genome(st, e, "ossarane", {"add": ["g_yeux", "g_savoureux"], "cyber": true})
+	_ok(Genetics.detect_bonus(st, 0) == 1, "Furtivité : Yeux-senseurs +1 de détection")
+	_ok(Genetics.savoury_pct(st, 0) == 150, "Biomasse : un peuple Savoureux rend 50 % de plus")
+	# Codex des origines, hauts faits.
+	_ok(not Relics.def("codex_origines").is_empty(), "Relique : Codex des origines")
+	_ok(DeedsEval.value(st, 0, "gen_traits") >= 0, "Hauts faits : mesures du génome")
+	# Lois et préceptes.
+	_ok(not Laws.law_def("charte_genome").is_empty() and not Laws.law_def("eugenisme_etat").is_empty() and not Laws.law_def("sanctuaire_genome").is_empty(), "Lois : Charte du génome, Eugénisme d'État, Sanctuaire du génome")
+	_ok(not Faiths.precept_def("saintete_chair").is_empty() and not Faiths.precept_def("chair_argile").is_empty(), "Préceptes : Sainteté de la chair, La chair est argile")
+	var st4 := new_game("desactivee", "ossarane", {"faiths": "actives"})
+	_ok(Faiths._precept_free(st4, "x", "chair_argile") != "", "Préceptes du génome : seulement avec le pilier")
+	# Espionnage : opérations en données.
+	_ok(not Espionage.op_def("voler_genome").is_empty() and not Espionage.op_def("contaminer_cuves").is_empty(), "Espionnage : Voler un génome, Contaminer les cuves")
+	_ok(GeneticsBridges.spy_check(st, 0, 1, "contaminer_cuves") != "", "Contaminer les cuves : il faut un programme en cours")
+	# IA : façonne quand elle peut.
+	var st5 := new_game("complete", "vael")
+	give_techs(st5, 0, ["genetique", "reprogrammation"])
+	_ok(AiGenetics.best_trait(st5, 0, "vael") != "", "IA : choisit un trait à façonner (%s)" % AiGenetics.best_trait(st5, 0, "vael"))
+	# Disabled state is never re-enabled by a read.
+	var st6 := new_game("desactivee")
+	Genetics.stat(st6, 0, "programs")
+	GeneticsBridges.contaminated(st6, 0)
+	_ok(st6.genetics.is_empty(), "Pilier désactivé : une lecture ne le rallume pas")
 
 
 func _test_save() -> void:

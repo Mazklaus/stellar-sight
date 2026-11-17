@@ -356,14 +356,14 @@ static func graft_gain(state: GameState, eid: int, donor: String) -> Dictionary:
 
 
 static func check_graft(state: GameState, eid: int, donor: String, free := false) -> String:
-	if not Genetics.full(state) or not state.peoples_on:
+	if not Genetics.full(state) or (not state.peoples_on and not free):
 		return "la greffe demande l'ingénierie complète et les populations mêlées"
 	var e := state.get_empire(eid)
 	if e.gene_path == "purete":
 		return "votre serment de Pureté interdit tout programme"
 	if moratorium(state, eid):
 		return "le Moratoire génétique de l'Amphictyonie interdit tout programme"
-	if donor == e.faction_id or Genetics.is_lineage(donor) or not Genetics.species_of(state, eid).has(donor):
+	if donor == e.faction_id or Genetics.is_lineage(donor) or (not free and not Genetics.species_of(state, eid).has(donor)):
 		return "il faut une autre espèce qui vit chez vous"
 	if not Genetics.is_organic(e.faction()) or not Genetics.is_organic(Genetics.fiche(state, eid, donor)):
 		return "la greffe se fait entre corps organiques"
@@ -702,3 +702,30 @@ static func _drift(state: GameState, e: Empire, added: Array[Dictionary]) -> voi
 static func e_contacts(state: GameState, eid: int) -> Array:
 	var e := state.get_empire(eid)
 	return e.contacts if e != null else []
+
+
+# --- Opérations d'espionnage (prop. 35) ------------------------------------------------------------
+
+static func spy_check(state: GameState, _a: int, b: int, op_id: String) -> String:
+	if not Genetics.enabled(state):
+		return "l'ingénierie des espèces n'est pas en jeu dans cette partie"
+	if op_id == "voler_genome":
+		var t := state.get_empire(b)
+		if t == null or t.genome.is_empty():
+			return "ses cuves n'ont rien façonné"
+	if op_id == "contaminer_cuves" and Genetics.programs(state, b).is_empty():
+		return "aucun programme à contaminer"
+	return ""
+
+
+static func spy_apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
+	match String(o.get("id", "")):
+		"voler_genome":
+			var tid := steal_genome(state, a, b, ["spy", state.tick])
+			if tid == "":
+				return "ses archives génétiques ne nous apprennent rien de neuf."
+			return "nous avons copié le génome « %s » de %s : nos cuves sauront le refaire." % [Genetics.trait_label(tid), state.get_empire(b).display_name()]
+		"contaminer_cuves":
+			contaminate(state, b)
+			return "les cuves de %s sont contaminées : ses programmes génétiques s'arrêtent pour deux mois." % state.get_empire(b).display_name()
+	return ""

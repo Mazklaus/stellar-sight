@@ -504,3 +504,13 @@ a colossal ring-shaped jump gate opening onto an alien starfield, a warfleet plu
 ```
 a sleek frigate half dissolved by a shimmering cloaking veil gliding in front of a violet nebula, its hull visible only as refracted starlight, in the foreground the dim bridge of a nearby cruiser where a tense officer leans over a green sensor display showing a single faint grey blip, far away a tiny listening beacon blinking in the void, quiet suspense of a hunt in the dark with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-51 · La chair et le code
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « La chair et le code »
+- Sujet : Un vaste laboratoire de cuves génétiques sous une coupole ouverte sur les étoiles : dans des cylindres lumineux flottent des silhouettes façonnées, l'une à demi cybernétique, une autre déjà faite de métal ; au centre, une double hélice holographique tourne au-dessus d'un pupitre où un généticien hésite, le doigt sur un bouton
+
+```
+a vast genetic engineering laboratory under an open observatory dome showing the stars, rows of tall glowing amber vats where engineered alien silhouettes float in liquid, one of them half cybernetic with glinting implants, another already a sleek metal chassis, at the center a huge rotating holographic double helix hovering above a console where a hesitant geneticist rests one finger on a single large button, wonder and unease of playing god with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

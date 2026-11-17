@@ -227,6 +227,8 @@ static func base_cloak(state: GameState, f: Fleet) -> int:
 	var lo := 99
 	for s in f.ships:
 		lo = mini(lo, ship_cloak(s))
+	if lo > 0 and lo < 99 and f.owner >= 0:
+		lo += Genetics.cloak_bonus(state, f.owner)  # Résonance du Voile (traits façonnés)
 	return maxi(0, lo)
 
 
@@ -357,7 +359,7 @@ static func fleet_detect(state: GameState, f: Fleet) -> int:
 static func _empire_detect(state: GameState, eid: int) -> int:
 	if eid < 0 or eid >= state.empires.size():
 		return 0
-	return Research.fx_int(state, eid, "detect") + int(talent(state, eid).get("detect", 0))
+	return Research.fx_int(state, eid, "detect") + int(talent(state, eid).get("detect", 0)) + Genetics.detect_bonus(state, eid)
 
 
 ## Sources de détection d'un empire : [[système, portée, détection, à l'arrêt (1/0)]...].

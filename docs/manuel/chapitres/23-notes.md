@@ -17,10 +17,10 @@ Stellar Sight est un 4X spatial en temps réel pausable, jouable aussi au tour p
 
 ### Ce qui viendra
 
-Le jeu évolue encore. Depuis la première édition de ce codex sont arrivés le commerce galactique, les peuples mêlés et les migrations, les religions, l'Amphictyonie, les vassaux et le Koinon, les buts de guerre et les traités de paix, les frontières et le droit de passage, le combat au sol et les armées, la logistique, le terrain galactique, les crises de fin de partie, les puissances anciennes endormies, les peuples mineurs et le rayonnement culturel. Sont prévus, entre autres :
+Le jeu évolue encore. Depuis la première édition de ce codex sont arrivés le commerce galactique, les peuples mêlés et les migrations, les religions, l'Amphictyonie, les vassaux et le Koinon, les buts de guerre et les traités de paix, les frontières et le droit de passage, le combat au sol et les armées, la logistique, le terrain galactique, les crises de fin de partie, les puissances anciennes endormies, les peuples mineurs, le rayonnement culturel et l'ingénierie des espèces. Sont prévus, entre autres :
 
 - une **économie privée** de marchands indépendants, des **merveilles galactiques** à bâtir à plusieurs ;
-- l'**ingénierie des espèces** en cours de partie, des **ruches plus étranges** et des **pouvoirs psioniques** ;
+- des **ruches plus étranges** et des **pouvoirs psioniques** (peut-être une quatrième voie d'élévation, à côté de la génétique, de l'acier et du Grand Transfert) ;
 - la **mort des héros au combat** ;
 - les coques propres à chaque peuple, et des vaisseaux en 3D ;
 - une refonte d'ensemble de l'interface, et un glossaire consultable en jeu.

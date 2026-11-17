@@ -275,6 +275,36 @@
 			"text": "Furtivité en jeu : pendant un an, +2 de détection contre toutes ses flottes camouflées (ses voiles s'effilochent sur vos écrans)."
 		},
 		{
+			"id": "voler_genome",
+			"family": "larcin",
+			"label": "Voler un génome",
+			"tier": 2,
+			"cost": {
+				"influence": 30
+			},
+			"days": 45,
+			"success": 70,
+			"discovery": 25,
+			"spend": 10,
+			"genetics": true,
+			"text": "Ingénierie des espèces en jeu : un trait façonné de ses espèces, au hasard, devient possible dans vos cuves."
+		},
+		{
+			"id": "contaminer_cuves",
+			"family": "sabotage",
+			"label": "Contaminer les cuves",
+			"tier": 2,
+			"cost": {
+				"influence": 35
+			},
+			"days": 40,
+			"success": 65,
+			"discovery": 30,
+			"spend": 10,
+			"genetics": true,
+			"text": "Ingénierie des espèces en jeu : ses programmes génétiques s'arrêtent 60 jours."
+		},
+		{
 			"id": "ausculter",
 			"family": "renseignement",
 			"label": "Ausculter un chantier",
