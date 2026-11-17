@@ -554,3 +554,13 @@ a colossal radio dish built on a dark asteroid at the very edge of a spiral gala
 ```
 a half-built Dyson sphere around an orange star, giant hexagonal plates being set in place one by one by swarms of small construction ships trailing light, gaps in the shell letting sunbeams escape, in the far distance the bright curve of a ringworld catching the light, in the foreground on a scaffolding gantry a foreman studies glowing holographic blueprints while a worker in a spacesuit naps on a girder, awe of colossal engineering with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-56 · Ce que la poussière se rappelle
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Ce que la poussière se rappelle »
+- Sujet : Sur un monde mort sous un ciel strié d'anneaux, une fouille à flanc de falaise met au jour les couches d'une cité extraterrestre empilées comme les pages d'un livre ; sous des projecteurs, des archéologues de plusieurs peuples dégagent une immense statue sans visage ; au premier plan, un pillard en scaphandre s'éloigne discrètement avec une caisse pendant qu'un robot de fouille époussette avec soin une minuscule tasse
+
+```
+an archaeological excavation cut into a cliff on a dead alien world under a sky streaked with planetary rings, the exposed cliff face reveals layers of an ancient alien city stacked like pages of a book, each stratum a different architecture, under floodlights archaeologists of several alien species uncover a colossal faceless statue, in the foreground a looter in a spacesuit quietly walks away carrying a crate while a small excavation robot carefully dusts a tiny cup, wonder and melancholy with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```
