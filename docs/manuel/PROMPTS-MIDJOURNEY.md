@@ -534,3 +534,13 @@ a circular hall of robed psychic sensitives meditating in a ring under an open d
 ```
 an immense ark made of light as much as metal departing from the edge of a spiral galaxy toward the black void beyond the rim, behind it a world veiled in golden mist, an empty throne atop a tall spire, a planet wrapped in a silk chrysalis, a stellar computing shell glowing around a sun, in the foreground on a station gantry a small crowd of scavengers and diplomats watch the people leave, one of them already carrying a crate of salvaged relics, awe and melancholy with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-54 · Ceux qui appellent
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Ceux qui appellent »
+- Sujet : Au bord de la galaxie, une immense antenne parabolique posée sur un astéroïde sombre écoute le vide ; au-delà de la Bordure, une lueur pâle pulse en motifs de nombres premiers ; dans la salle de contrôle, des savants de plusieurs peuples se disputent devant des pages de plans qui débordent des pupitres, tandis qu'une silhouette en retrait garde la main sur un levier marqué « ne pas répondre »
+
+```
+a colossal radio dish built on a dark asteroid at the very edge of a spiral galaxy listening to the black void beyond the rim, far beyond the edge a faint pale light pulses in patterns of prime numbers, inside a glass control room scientists of several alien species argue over stacks of machine blueprints spilling from consoles, one cautious figure in the shadows keeps a hand on a lever labelled do not answer, wonder and dread with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```
