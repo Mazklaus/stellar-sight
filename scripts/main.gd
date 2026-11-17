@@ -62,14 +62,17 @@ var _victory_panel: VictoryPanel
 var _event_panel: EventPanel
 ## Fenêtre de récompense des hauts faits (voir Deeds).
 var _deed_panel: DeedPanel
-var _deed_paused := false
 var _deeds_told := {}
 var _events_told := {}
-var _event_paused := false
+## Annonces typées (fenêtre commune, colonne à droite, avis cliquables, pause unifiée des fenêtres).
+var announce: AnnounceCenter
+## État du poste lu avec la dernière sauvegarde chargée (colonne des annonces), pour _start.
+var _pending_ui := {}
+## Fin de tour demandée alors que des décisions attendent : un second appui confirme (prop. 28).
+var _turn_warned_at := -1
 ## Fenêtre d'élection (voir Politics) : dernière élection du joueur déjà montrée, pause qu'elle a mise.
 var _election_panel: ElectionPanel
 var _election_told := -1
-var _election_paused := false
 ## Le vainqueur a déjà été annoncé (panneau de fin de partie montré, ou partie chargée déjà gagnée).
 var _victory_told := false
 ## Réglages des victoires de la prochaine partie (menu Nouvelle partie) : date limite en jours
@@ -128,7 +131,7 @@ func _ready() -> void:
 		else:
 			toggle_empire_screen("chronicles"))
 	_hud.menu_requested.connect(open_pause_menu)
-	_hud.pause_toggled.connect(GameClock.toggle_pause)
+	_hud.pause_toggled.connect(toggle_pause_or_turn)
 	_hud.speed_requested.connect(GameClock.set_speed)
 	_hud.close_system_requested.connect(close_system_view)
 	_hud.fleet_action_requested.connect(_on_fleet_action)
@@ -214,6 +217,19 @@ func _ready() -> void:
 	_election_panel.senate_requested.connect(func() -> void:
 		close_election_panel()
 		toggle_empire_screen("senate"))
+	announce = AnnounceCenter.new()
+	add_child(announce)
+	announce.setup(_hud, GameClock, _announce_blocked)
+	announce.net_check = func() -> bool: return net != null and net.is_active()
+	announce.locate_requested.connect(_go_to_system)
+	announce.screen_requested.connect(toggle_empire_screen)
+	announce.event_requested.connect(open_event)
+	announce.deed_requested.connect(open_deed)
+	announce.panel_changed.connect(func(open: bool) -> void:
+		if open:
+			close_system_view()
+			_hud.show_hover(null, Vector2.ZERO)
+		_update_map_input())
 	_empire_screens.event_requested.connect(func(event_id: int) -> void:
 		close_empire_screen()
 		open_event(event_id))
@@ -367,7 +383,7 @@ func new_game(seed_value: int, keep_net := false) -> void:
 
 
 func save_game() -> void:
-	if SaveGame.save_state(simulation.state, save_path, GameClock.settings()) == OK:
+	if SaveGame.save_state(simulation.state, save_path, GameClock.settings(), {"announce": announce.to_ui()}) == OK:
 		_hud.notify("Partie sauvegardée (%s)" % GameCalendar.date_string(simulation.state.tick), "good")
 	else:
 		_hud.notify("Échec de la sauvegarde : %s" % SaveGame.last_error, "bad")
@@ -384,6 +400,7 @@ func load_game() -> bool:
 	var kept := state.get_empire(local_player)
 	if kept == null or kept.is_ai():
 		local_player = 0
+	_pending_ui = SaveGame.last_ui
 	_start(state)
 	GameClock.apply_settings(SaveGame.last_clock)
 	game_in_progress = true
@@ -500,6 +517,7 @@ func open_main_menu() -> void:
 	close_victory_panel()
 	close_event_panel()
 	close_deed_panel()
+	close_announce_panel()
 	close_system_view()
 	close_empire_screen()
 	leave_network("Vous avez quitté la partie en réseau.")
@@ -571,7 +589,37 @@ func _check_victory() -> void:
 
 ## Un menu plein écran (principal, pause, d'empire, de fin de partie ou un événement) recouvre la carte.
 func is_modal_open() -> bool:
-	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open() or is_event_panel_open() or is_election_panel_open() or is_deed_panel_open()
+	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open() or is_event_panel_open() or is_election_panel_open() or is_deed_panel_open() or is_announce_panel_open()
+
+
+# --- Annonces ---------------------------------------------------------------------------------
+
+func is_announce_panel_open() -> bool:
+	return announce != null and announce.is_open()
+
+
+func close_announce_panel() -> void:
+	if announce:
+		announce.close_panel()
+
+
+## Une annonce attend : un menu, un écran d'empire ou une autre fenêtre recouvre-t-il la carte ?
+func _announce_blocked() -> bool:
+	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open() or is_event_panel_open() or is_deed_panel_open() or is_election_panel_open()
+
+
+## Espace et le centre du cadran. Au tour par tour, finir le tour alors que des décisions attendent
+## demande un second appui (prop. 28 de l'étude de la fenêtre d'événement).
+func toggle_pause_or_turn() -> void:
+	if GameClock.would_end_turn() and announce != null and not announce.decisions().is_empty():
+		var now := Time.get_ticks_msec()
+		if _turn_warned_at < 0 or now - _turn_warned_at > 4000:
+			_turn_warned_at = now
+			var n: int = announce.decisions().size()
+			_hud.notify("%d décision%s en attente (colonne de droite). Appuyez de nouveau pour finir le tour." % [n, "s" if n > 1 else ""], "bad")
+			return
+	_turn_warned_at = -1
+	GameClock.toggle_pause()
 
 
 # --- Événements -------------------------------------------------------------------------------
@@ -584,11 +632,10 @@ func open_event(event_id: int) -> void:
 	if item.is_empty():
 		return
 	_events_told[event_id] = true
+	close_announce_panel()
 	close_system_view()
 	_hud.show_hover(null, Vector2.ZERO)
-	if not _event_panel.is_open() and not GameClock.paused and not net.is_active():
-		_event_paused = true
-		GameClock.set_paused(true)
+	announce.hold("event")
 	_event_panel.open(simulation.state, local_player, item)
 	_update_map_input()
 
@@ -597,9 +644,8 @@ func close_event_panel() -> void:
 	if _event_panel == null or not _event_panel.is_open():
 		return
 	_event_panel.close()
-	if _event_paused:
-		_event_paused = false
-		GameClock.set_paused(false)
+	announce.release("event")
+	announce.refresh()
 	_update_map_input()
 
 
@@ -614,7 +660,7 @@ func _announce_events() -> void:
 		return
 	if _event_panel.is_open() and Events.find_item(simulation.state, local_player, _event_panel.event_id).is_empty():
 		close_event_panel()
-	if _event_panel.is_open() or _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open():
+	if _event_panel.is_open() or is_announce_panel_open() or _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open():
 		return
 	for item: Dictionary in Events.inbox(simulation.state, local_player):
 		if not _events_told.has(int(item["id"])):
@@ -632,11 +678,10 @@ func open_deed(item_id: int) -> void:
 	if item.is_empty():
 		return
 	_deeds_told[item_id] = true
+	close_announce_panel()
 	close_system_view()
 	_hud.show_hover(null, Vector2.ZERO)
-	if not _deed_panel.is_open() and not GameClock.paused and not net.is_active():
-		_deed_paused = true
-		GameClock.set_paused(true)
+	announce.hold("deed")
 	_deed_panel.open(simulation.state, local_player, item)
 	_update_map_input()
 
@@ -645,9 +690,8 @@ func close_deed_panel() -> void:
 	if _deed_panel == null or not _deed_panel.is_open():
 		return
 	_deed_panel.close()
-	if _deed_paused:
-		_deed_paused = false
-		GameClock.set_paused(false)
+	announce.release("deed")
+	announce.refresh()
 	_update_map_input()
 
 
@@ -661,7 +705,7 @@ func _announce_deeds() -> void:
 		return
 	if _deed_panel.is_open() and Deeds.find_item(simulation.state, local_player, _deed_panel.item_id).is_empty():
 		close_deed_panel()
-	if _deed_panel.is_open() or _event_panel.is_open() or _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open():
+	if _deed_panel.is_open() or _event_panel.is_open() or is_announce_panel_open() or _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open():
 		return
 	for item: Dictionary in Deeds.inbox(simulation.state, local_player):
 		if not _deeds_told.has(int(item["id"])):
@@ -676,14 +720,12 @@ func _announce_election() -> void:
 	var last := int(Politics.emp(simulation.state, local_player).get("last", -1))
 	if last <= _election_told or simulation.state.tick - last > 30:
 		return
-	if _election_panel.is_open() or _event_panel.is_open() or _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open():
+	if _election_panel.is_open() or _event_panel.is_open() or is_announce_panel_open() or _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open():
 		return
 	_election_told = last
 	close_system_view()
 	_hud.show_hover(null, Vector2.ZERO)
-	if not GameClock.paused and not net.is_active():
-		_election_paused = true
-		GameClock.set_paused(true)
+	announce.hold("election")
 	_election_panel.open(simulation.state, local_player)
 	_update_map_input()
 
@@ -692,9 +734,7 @@ func close_election_panel() -> void:
 	if _election_panel == null or not _election_panel.is_open():
 		return
 	_election_panel.close()
-	if _election_paused:
-		_election_paused = false
-		GameClock.set_paused(false)
+	announce.release("election")
 	_update_map_input()
 
 
@@ -745,14 +785,22 @@ func _start(state: GameState) -> void:
 	_deeds_told.clear()
 	close_election_panel()
 	_election_told = int(Politics.emp(state, local_player).get("last", -1))
+	announce.networked = net.is_active()
+	announce.opening = start_with_menu
+	announce.start(state, local_player, spectator, _pending_ui)
+	_pending_ui = {}
 	_empire_screens.see_all = spectator
 	_proposals_told = state.next_proposal_id - 1
 	simulation.ticked.connect(func(_tick: int) -> void:
 		_announce_arrivals()
 		_announce_proposals()
+		# Fanfares d'abord, puis les décisions, puis les fenêtres ordinaires (prop. 21 et 25).
+		announce.ingest()
+		announce.try_open(true)
 		_announce_events()
 		_announce_deeds()
 		_announce_election()
+		announce.try_open(false)
 		_check_defeat()
 		_check_victory()
 		_refresh_all())
@@ -1138,6 +1186,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			close_election_panel()
 			toggle_empire_screen("senate")
 		return
+	if is_announce_panel_open():
+		if key.keycode == KEY_ESCAPE:
+			close_announce_panel()
+		elif key.keycode == KEY_ENTER or key.keycode == KEY_KP_ENTER:
+			announce.panel.acknowledged.emit()
+		elif key.keycode == KEY_SPACE:
+			GameClock.toggle_pause()
+		return
 	if is_event_panel_open():
 		if key.keycode == KEY_ESCAPE:
 			close_event_panel()
@@ -1223,7 +1279,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			if _hud.battle_replay.visible:
 				_hud.battle_replay.toggle_play()
 			else:
-				GameClock.toggle_pause()
+				toggle_pause_or_turn()
 		KEY_F5:
 			save_game()
 		KEY_F9:

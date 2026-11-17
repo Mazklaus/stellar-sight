@@ -13,11 +13,14 @@ static var last_error := ""
 ## Réglages de l'horloge lus par le dernier load_state() réussi ({"mode": "realtime"|"turns",
 ## "turn_days": int}), vide si la sauvegarde n'en contient pas (anciennes sauvegardes).
 static var last_clock := {}
+## État du poste rangé avec la dernière sauvegarde chargée (colonne des annonces) : hors empreinte.
+static var last_ui := {}
 
 
 ## clock : façon de jouer (temps réel ou tour par tour), rangée à côté de l'état car ce n'est
 ## pas une donnée de simulation (elle n'entre pas dans l'empreinte).
-static func save_state(state: GameState, path: String = QUICKSAVE_PATH, clock := {}) -> Error:
+## ui : état propre au poste (colonne des annonces), lui aussi hors empreinte.
+static func save_state(state: GameState, path: String = QUICKSAVE_PATH, clock := {}, ui := {}) -> Error:
 	last_error = ""
 	var dir_err := DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	if dir_err != OK:
@@ -33,6 +36,8 @@ static func save_state(state: GameState, path: String = QUICKSAVE_PATH, clock :=
 	}
 	if not clock.is_empty():
 		data["clock"] = clock
+	if not ui.is_empty():
+		data["ui"] = ui
 	# Écriture dans un fichier temporaire puis renommage : une coupure pendant
 	# l'écriture n'abîme pas la sauvegarde précédente.
 	var tmp_path := path + ".tmp"
@@ -52,6 +57,7 @@ static func save_state(state: GameState, path: String = QUICKSAVE_PATH, clock :=
 static func load_state(path: String = QUICKSAVE_PATH) -> GameState:
 	last_error = ""
 	last_clock = {}
+	last_ui = {}
 	if not FileAccess.file_exists(path):
 		last_error = "aucune sauvegarde"
 		return null
@@ -70,6 +76,8 @@ static func load_state(path: String = QUICKSAVE_PATH) -> GameState:
 		return null
 	if parsed.get("clock") is Dictionary:
 		last_clock = parsed["clock"]
+	if parsed.get("ui") is Dictionary:
+		last_ui = parsed["ui"]
 	return state
 
 
