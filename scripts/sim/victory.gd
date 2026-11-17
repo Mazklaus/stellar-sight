@@ -143,6 +143,9 @@ static func enabled(state: GameState, id: String) -> bool:
 	# Victoire de Transcendance : seulement avec la Transcendance en jeu.
 	if bool(info(id).get("transcendence", false)) and not Transcendence.enabled(state):
 		return false
+	# Victoire de Contact : seulement avec le Contact en jeu.
+	if bool(info(id).get("contact", false)) and not Contact.enabled(state):
+		return false
 	# Victoire diplomatique : seulement avec l'Amphictyonie.
 	if bool(info(id).get("amph", false)) and not state.amph_on:
 		return false
@@ -276,6 +279,8 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			DeedsBridges.victory(state, e, out)
 		"transcendance":
 			Transcendence.victory(state, e, out)
+		"contact":
+			Contact.victory(state, e, out)
 	if is_people(id) and not has_tech(state, empire_id, id):
 		out["lines"].append("Technologie requise : %s" % String(Research.tech(tech_for(id)).get("label", tech_for(id))))
 		out["cond"] = false
@@ -830,6 +835,8 @@ static func chronicle_text(id: String, e: Empire, allies: Array = [], state: Gam
 		var pid := Transcendence.path_of(state, e.id)
 		if pid != "":
 			return String(Transcendence.path_def(pid).get("win", "%s transcende.")) % who
+	if id == "contact" and state != null and Contact.enabled(state):
+		return String(Contact.nature_def(Contact.nature(state)).get("win", "%s reçoit la réponse des Lointains.")) % who
 	var t := String(info(id).get("chronicle", "%s l'emporte."))
 	return t % who if t.contains("%s") else t
 

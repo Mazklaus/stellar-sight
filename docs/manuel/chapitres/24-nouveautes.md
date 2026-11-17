@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.33
+
+- **Ceux qui appellent** (chapitre 37), nouveaux réglages **Contact** (complet, victoire seule, désactivé), **Lointains** (bienveillants, au hasard, sans indices) et **Issue** (victoire ou ouverture), et une huitième victoire commune : les technologies **Écoute profonde** et **Grammaire des étoiles**, l'**Oreille de la Bordure**, les **Échos fossiles**, la capture par deux voies sur trois, le **Signal partiel** et les **fausses alertes** ; la **jauge de déchiffrement** et ses quatre couches (**la Porteuse**, **l'Écho**, **les Plans**, **l'Abécédaire**), les lectures outil ou arme, le **dossier des Lointains** et la certitude ; le **Héraut** et la **Transmission** ; cinq natures des Lointains (**Bâtisseurs**, **Archivistes**, **Semeurs**, **Revenants**, **Affamés**) ; onglet **Contact** de l'écran Victoires, marqueurs sur la carte, IA.
+- En réglage complet : **fragments** (échange, don, exigence), **Consortium du Signal** et victoire partagée, opérations **Copier les relevés du Signal**, **Fragment empoisonné** et **Saboter le Héraut**, famille **Le Signal** de l'Amphictyonie (**Programme commun d'écoute**, **loi du Silence**), guerre **Faire taire**, **brouillage**, **Forêt sombre**, exposition de l'émetteur.
+- **Les voix** : **Taiseux** et **saboteurs**, **Voyage des Cinq**, Ylm, Aster et Kheb, crises appelées **l'Outre-Nuit** et **l'Hôte**, lettre des Partis, sensitifs, Précognition, héros **Interprète**, fois, **Attendants**, talents et nom du Signal des huit peuples, hauts faits **Nous ne sommes pas seuls**, **Un cercle dans les décimales**, **Ce que nous fûmes** et **On vous avait dit de ne pas répondre**. Chapitres 38 à 41 renumérotés.
+
 ### Édition 2.32
 
 - **Au-delà de l'Orée** (chapitre 36), nouveaux réglages **Transcendance** (complète, victoire seule, désactivée) et **Issue** (victoire ou départ), et une septième victoire commune : la technologie **L'Orée**, cinq **voies** (**Le Songe**, **Le Téléversement**, **L'Apothéose**, **La Mue**, **Le Grand Départ**), la **jauge d'Élévation**, **l'Exodium** de chaque voie en trois étapes, le **Passage** (**Relais du Passage**, occupation, Transcendance commune), l'**Arche de la Bordure** ; onglet **Transcendance** de l'écran Victoires, marqueur de l'Exodium sur la carte, IA.

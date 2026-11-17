@@ -1,6 +1,6 @@
 ---
 titre: Faune de l'espace
-numero: 39
+numero: 40
 image: MJ-18
 epigraphe: Toute créature du vide a une faiblesse. Il suffit de survivre assez longtemps pour la trouver.
 signature: Traité de zoologie stellaire, préface

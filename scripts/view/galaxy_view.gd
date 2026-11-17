@@ -194,6 +194,7 @@ func _draw() -> void:
 	_draw_minors(px)
 	_draw_wonders(px)
 	_draw_oeuvres(px)
+	_draw_contact(px)
 	_draw_quests(px)
 	_draw_crisis(px)
 	_draw_convoys(px)
@@ -968,6 +969,39 @@ func _draw_oeuvres(px: float) -> void:
 			draw_set_transform(galaxy.systems[tgt].position + Vector2(19.0, -8.0) * px, 0.0, Vector2(px, px))
 			draw_arc(Vector2.ZERO, 7.0, 0.0, TAU, 20, Color(0.9, 0.88, 1.0, 0.8), 1.2, true)
 			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Contact (prop. 43) : Échos fossiles explorés (trois arcs pâles), Oreilles du joueur (petite parabole),
+## Hérauts qui transmettent (ondes concentriques, pour tous en mode Complet), sans lentille.
+func _draw_contact(px: float) -> void:
+	if state == null or state.contact.is_empty():
+		return
+	var pale := Color(0.7, 0.9, 1.0, 0.7)
+	for sid in Contact.echo_sites(state):
+		if not is_explored(sid):
+			continue
+		draw_set_transform(galaxy.systems[sid].position + Vector2(-19.0, -8.0) * px, 0.0, Vector2(px, px))
+		for k in 3:
+			draw_arc(Vector2(-3, 0), 2.0 + k * 2.5, -0.8, 0.8, 8, pale, 1.0, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if viewer >= 0:
+		for x in Contact.ears_of(state, viewer):
+			var sid := int(x[1])
+			var col := Color(0.6, 1.0, 0.85) if int(x[2]) >= int(x[3]) else pale
+			draw_set_transform(galaxy.systems[sid].position + Vector2(-19.0, 8.0) * px, 0.0, Vector2(px, px))
+			draw_arc(Vector2(0, 2), 5.0, PI + 0.5, TAU - 0.5, 10, col, 1.4, true)
+			draw_line(Vector2(0, 2), Vector2(0, -3), col, 1.2, true)
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	var shown: Array[int] = Contact.exposed_systems(state)
+	if viewer >= 0:
+		var own := Contact.heraut_system(state, viewer)
+		if own >= 0 and not shown.has(own):
+			shown.append(own)
+	for sid in shown:
+		draw_set_transform(galaxy.systems[sid].position + Vector2(19.0, 8.0) * px, 0.0, Vector2(px, px))
+		for k in 3:
+			draw_arc(Vector2.ZERO, 3.0 + k * 3.0, 0.0, TAU, 18, Color(0.75, 0.95, 1.0, 0.85 - k * 0.22), 1.2, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## Portails de saut (voir Portals), dessinés en permanence sans lentille : trous de ver en ligne

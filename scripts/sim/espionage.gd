@@ -651,6 +651,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_t := TranscendenceWorld.spy_check(state, a, b, op_id)
 		if why_t != "":
 			return why_t
+	if bool(o.get("contact", false)):
+		var why_ct := ContactRace.spy_check(state, a, b, op_id)
+		if why_ct != "":
+			return why_ct
 	if bool(o.get("portals", false)):
 		var why_p := PortalsBridges.spy_check(state, a, b, op_id)
 		if why_p != "":
@@ -895,6 +899,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return GeneticsBridges.spy_apply(state, a, b, o)
 	if bool(o.get("transcendence", false)):
 		return TranscendenceWorld.spy_apply(state, a, b, o)
+	if bool(o.get("contact", false)):
+		return ContactRace.spy_apply(state, a, b, o)
 	if bool(o.get("portals", false)):
 		return PortalsBridges.spy_apply(state, a, b, o)
 	if bool(o.get("logistics", false)):
