@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.36"
+EDITION = "2.38"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -1419,6 +1419,53 @@ def gen_mg_talents():
     return f"<table class='grille'><tr><th>Peuple</th><th>Talent</th></tr>{l1}</table>"
 
 
+def gen_kd_modes():
+    """Réglages Échelle de Kardashev et rythme (data/kardashev.json)."""
+    d = charger("kardashev.json")
+    out = ""
+    for titre, cle, defaut in [("Échelle de Kardashev", "modes", "default_mode"), ("Rythme", "paces", "default_pace")]:
+        lignes = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get(defaut) else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d[cle])
+        out += f"<table class='grille'><tr><th>{titre}</th><th>Effet</th></tr>{lignes}</table>"
+    return out
+
+
+def gen_kd_echelle():
+    """Ancres de puissance, verrous et Rayonnement de chaque type (data/kardashev.json)."""
+    d = charger("kardashev.json")
+    a = d["power"]["anchors"]
+    lk = d["locks"]
+    verrous = ["aucun",
+               f"la technologie Fusion compacte et {lk['1']['capital_buildings']} bâtiments sur un monde de la capitale",
+               f"une Sphère de Dyson achevée ou {lk['2']['swarms']} Essaims de Dyson achevés",
+               f"le verrou II, {lk['3']['great']} grandes mégastructures achevées (ère IV et plus) dont {lk['3']['era5']} de l'ère V, et {lk['3']['systems_pct']} % des systèmes de la galaxie"]
+    l1 = ""
+    for t in range(4):
+        val = "0,70" if t == 0 else f"{t},00"
+        l1 += f"<tr><td><b>{val}</b><br>{esc(d['titles'][t])}</td><td>{a[t]:,}".replace(",", " ") + f"</td><td>{esc(verrous[t])}</td><td>+{d['culture_pct'][t]} %</td></tr>"
+    return f"<table class='grille'><tr><th>Indice</th><th>Puissance (rythme Normal)</th><th>Verrou</th><th>Rayonnement</th></tr>{l1}</table>"
+
+
+def gen_kd_capture():
+    """Puissance captée par étape de mégastructure (data/kardashev.json « power.capture »)."""
+    d = charger("kardashev.json")
+    noms = {k: v["label"] for k, v in charger("megastructures.json")["kinds"].items()}
+    noms.update({"era4": "Autre grande mégastructure de l'ère IV", "era5": "Autre mégastructure de l'ère V"})
+    l1 = "".join(f"<tr><td>{esc(noms.get(k, k))}</td><td>{v}</td></tr>" for k, v in d["power"]["capture"].items())
+    return f"<table class='grille'><tr><th>Mégastructure</th><th>Puissance par étape achevée</th></tr>{l1}</table>"
+
+
+def gen_kd_prerogatives():
+    """Les prérogatives de chaque demi-palier (data/kardashev.json « perks »)."""
+    d = charger("kardashev.json")
+    lv = d["levels"]
+    l1 = ""
+    for n in range(1, len(lv) + 1):
+        ps = [v for k, v in d["perks"].items() if not k.startswith("_") and v.get("level") == n]
+        val = f"{lv[n - 1] // 100},{lv[n - 1] % 100:02d}"
+        l1 += f"<tr><td><b>{val}</b></td><td>" + "<br>".join(f"<b>{esc(p['label'])}</b> : {inline(p.get('text', ''))}" for p in ps) + "</td></tr>"
+    return f"<table class='grille'><tr><th>Palier</th><th>Prérogatives (une au choix)</th></tr>{l1}</table>"
+
+
 def gen_ar_modes():
     """Réglage Archéologie (data/archaeology.json)."""
     d = charger("archaeology.json")
@@ -1576,6 +1623,7 @@ GENERATEURS = {
     "psi_talents": gen_psi_talents,
     "mg_modes": gen_mg_modes, "mg_catalogue": gen_mg_catalogue, "mg_talents": gen_mg_talents,
     "an_familles": gen_an_familles, "an_presets": gen_an_presets,
+    "kd_modes": gen_kd_modes, "kd_echelle": gen_kd_echelle, "kd_capture": gen_kd_capture, "kd_prerogatives": gen_kd_prerogatives,
     "ar_modes": gen_ar_modes, "ar_types": gen_ar_types, "ar_actions": gen_ar_actions, "ar_disparus": gen_ar_disparus, "ar_talents": gen_ar_talents,
     "ct_modes": gen_ct_modes, "ct_couches": gen_ct_couches, "ct_natures": gen_ct_natures, "ct_talents": gen_ct_talents,
     "tr_modes": gen_tr_modes, "tr_voies": gen_tr_voies, "tr_oeuvres": gen_tr_oeuvres, "tr_talents": gen_tr_talents,

@@ -9,7 +9,7 @@ Les **mégastructures** sont des ouvrages à l'échelle d'une étoile ou d'une p
 
 Le modèle vient de **Stellaris** (les mégastructures à étapes posées par un vaisseau de construction, la limite d'un chantier à la fois, la Sphère de Dyson qui gèle les planètes, le Cerveau Matriochka, le Monde-anneau, la Porte d'accès, la Catapulte quantique, les ruines à restaurer, la prise d'une mégastructure par le vainqueur qui ne peut ni l'étendre ni la réparer sans la technologie), de **Galactic Civilizations IV** (les journaux de développement sur les mégastructures : la couleur de l'étoile change le rendement, l'Essaim avant la Sphère), de **Dyson Sphere Program** (l'Essaim de voiles qui s'usent et la coque qu'on ferme couche par couche), de **Freeman Dyson**, **Nikolaï Kardashev** et de son échelle, des romans de **Larry Niven** (*L'Anneau-Monde*), de **Iain M. Banks** (les Orbitales de la Culture) et de **Warhammer 40K**, **Star Wars** (l'Étoile de la mort et la base Starkiller) et **Halo** (les anneaux qui vident une région de toute vie). D'après l'étude, **Endless Space 2** n'a pas de mégastructures. La Forteresse dormante, l'Œuvre monumentale, les talents des peuples et les ponts avec les autres piliers sont propres à Stellar Sight.
 
-::: capture docs/apercu-megastructures.png|L'onglet Mégastructures de l'écran des Merveilles : l'indice de Kardashev, les étapes en chantier, vos mégastructures et ce que vous pouvez bâtir
+::: capture docs/apercu-megastructures.png|L'onglet Mégastructures de l'écran des Merveilles : les étapes en chantier, vos mégastructures et ce que vous pouvez bâtir
 :::
 
 ### Le réglage
@@ -46,13 +46,7 @@ Quelques précisions :
 
 ### Kardashev
 
-L'**indice de Kardashev** va de 0,0 à 3,0 et se recalcule chaque mois :
-
-- **Type I** (Civilisation planétaire) : 150 énergie brute par mois.
-- **Type II** (Civilisation stellaire) : en plus, une Sphère de Dyson ou trois Essaims achevés.
-- **Type III** (Civilisation galactique) : en plus, six grandes mégastructures achevées (ère IV et plus), dont trois de l'ère V, et 800 énergie.
-
-La décimale mesure le chemin vers le palier suivant. Chaque palier donne du Rayonnement (+5 %, +10 %, +20 %), et la galaxie entière l'apprend.
+L'**échelle de Kardashev** est devenue un pilier à part (chapitre 42) : les mégastructures qui boivent l'énergie d'une étoile font monter votre **puissance captée**, et le type II demande une Sphère de Dyson ou trois Essaims achevés.
 
 ### Guerre, sièges et ruines
 

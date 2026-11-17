@@ -750,6 +750,8 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 			if Plagues.bait_pick(state, b).is_empty():
 				return "rien à attirer : ni fléau, ni troupeau hostile près de ses colonies"
 		"vol_techno":
+			if KardashevWorld.no_theft(state, b):
+				return "ses Archives de pierre ne se volent pas"
 			if Research.steal_target(state, a, b) == "":
 				return "il ne connaît rien que vous puissiez lui voler"
 		"siphon":

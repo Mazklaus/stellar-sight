@@ -303,11 +303,10 @@ func _test_dyson() -> void:
 		if not ["gas_giant", "asteroids", "anneau", "barren", "arctic"].has(t):
 			frozen = false
 	_ok(frozen, "Sphère achevée : les mondes du système gèlent")
-	# Kardashev II.
-	st.get_empire(0).resources["energy"] = 99999
+	# Kardashev : la Sphère lève le verrou du type II et compte dans la puissance captée.
+	Kardashev.setup(st, "complete")
 	Megastructures._kardashev(st, 0, [])
-	var gross := int(Economy.empire_income(st, 0)["gross"].get("energy", 0))
-	_ok(Megastructures.kardashev_tier(st, 0) == (2 if gross >= 150 else 0), "Kardashev : type II avec la Sphère (%s, %d énergie)" % [Megastructures.kardashev_text(st, 0), gross])
+	_ok(Kardashev.lock_ok(st, 0, 2) and Kardashev.mega_power(st, 0) >= 1000, "Kardashev : la Sphère lève le verrou II et capte %d (%s)" % [Kardashev.mega_power(st, 0), Megastructures.kardashev_text(st, 0)])
 	_ok(inc.has("gross"), "revenus calculés")
 	# Matriochka sur la Sphère : mange son énergie.
 	Research.grant(st, 0, ["matriochka"])

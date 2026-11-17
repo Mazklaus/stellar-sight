@@ -173,7 +173,7 @@ func open(state: GameState, viewer: int, recs: Array[Dictionary], g: int, nav_at
 	_screen = String(kd.get("screen", ""))
 	screen_button.visible = _screen != "" and viewer >= 0
 	if _screen != "":
-		var info := EmpireBar.screen_info({"transcendence": "victory", "contact": "victory", "megas": "wonders"}.get(_screen, _screen))
+		var info := EmpireBar.screen_info({"transcendence": "victory", "contact": "victory", "kardashev": "victory", "megas": "wonders"}.get(_screen, _screen))
 		screen_button.tooltip_text = "Ouvrir l'écran %s" % String(info.get("label", _screen))
 	auto_check.set_pressed_no_signal(AnnounceSettings.auto_open(kind))
 	nav_label.text = "%d sur %d" % [nav_at, nav_total]

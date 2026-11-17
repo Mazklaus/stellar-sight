@@ -112,6 +112,8 @@ static func restore_cost(state: GameState, eid: int, m: Dictionary) -> Dictionar
 	var pct := Megastructures.r_int("restore_pct", 40)
 	@warning_ignore("integer_division")
 	pct = pct * (100 + Megastructures.t_int(state, eid, "restore_pct") + ArchaeoBridges.plans_pct(state, eid, int(m.get("s", -1)))) / 100
+	@warning_ignore("integer_division")
+	pct = pct * (100 + KardashevWorld.repair_pct(state, eid)) / 100  # Âge sombre
 	return Research.scaled_amounts(total, pct - 100)
 
 

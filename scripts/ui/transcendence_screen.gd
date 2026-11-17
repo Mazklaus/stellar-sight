@@ -7,13 +7,15 @@ extends RefCounted
 const COLOR := Color(0.85, 0.8, 1.0)
 
 
-## Onglets « Victoires | Transcendance | Contact » en tête de ces écrans (selon les piliers en jeu).
+## Onglets « Victoires | Transcendance | Contact | L'Échelle » en tête de ces écrans (selon les piliers en jeu).
 static func tabs(es: EmpireScreens, active: String) -> void:
 	var list := [["victory", "Victoires"]]
 	if Transcendence.enabled(es._state):
 		list.append(["transcendence", "Transcendance"])
 	if Contact.enabled(es._state):
 		list.append(["contact", "Contact"])
+	if Kardashev.enabled(es._state):
+		list.append(["kardashev", "L'Échelle"])
 	if list.size() < 2:
 		return
 	var row := HBoxContainer.new()
@@ -28,6 +30,7 @@ static func tabs(es: EmpireScreens, active: String) -> void:
 		b.pressed.connect(func() -> void: es.show_screen(sid))
 		es.transcendence_buttons["tab:" + sid] = b
 		es.contact_buttons["tab:" + sid] = b
+		es.kardashev_buttons["tab:" + sid] = b
 		row.add_child(b)
 	es._side_box.add_child(row)
 

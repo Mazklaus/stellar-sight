@@ -224,6 +224,11 @@ static func megastructures() -> Dictionary:
 	return _load("megastructures")
 
 
+## Échelle de Kardashev (data/kardashev.json).
+static func kardashev() -> Dictionary:
+	return _load("kardashev")
+
+
 ## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.
 static func wonders() -> Dictionary:
 	return _load("wonders")

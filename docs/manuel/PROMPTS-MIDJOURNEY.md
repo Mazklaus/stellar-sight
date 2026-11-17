@@ -574,3 +574,13 @@ an archaeological excavation cut into a cliff on a dead alien world under a sky 
 ```
 a vast chancellery hall with tall windows opening onto a spiral galaxy, an elderly chronicler in long robes rises from his writing desk with his quill set down, dozens of round glowing dispatches float around him in gold red green and blue, a single enormous golden dispatch has unfurled into a banner above the hall and scribes of several alien species all look up at it, in the foreground a young clerk discreetly sweeps a pile of blue dispatches under the rug, solemn ceremony with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-59 · Ce que boit une civilisation
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Ce que boit une civilisation »
+- Sujet : Une étoile jaune à demi enfermée dans une coque de Dyson inachevée, dont les panneaux sombres rougeoient de chaleur sur leur face extérieure ; sur un balcon d'observation, des dignitaires de plusieurs peuples regardent une immense échelle lumineuse graduée de I à III dessinée dans le ciel, où leurs blasons montent à des hauteurs différentes ; au loin, une naine rouge se rallume en jaune ; au premier plan, un ingénieur fatigué tient un thermomètre ridiculement petit
+
+```
+a yellow star half enclosed in an unfinished dyson shell, dark shell panels glowing red hot on their outer face, on an observation balcony dignitaries of several alien species look up at an immense luminous ladder graduated I II III drawn across the sky with their banners rising to different heights along it, in the distance a red dwarf star reignites into yellow, in the foreground a tired engineer holds a ridiculously small thermometer, awe and ambition with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

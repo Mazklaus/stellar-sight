@@ -248,6 +248,9 @@ static func cost(state: GameState, empire_id: int, tid: String, colonies := -1) 
 			var kt := WondersCatalog.tech_cost_pct(state, empire_id, tid)  # Collège universel
 			if kt != 0:
 				c = c * maxi(10, 100 + kt) / 100
+			var ke := KardashevWorld.tech_cost_pct(state, empire_id, tid)  # Émulation (Kardashev)
+			if ke != 0:
+				c = c * maxi(10, 100 + ke) / 100
 	return maxi(1, c)
 
 
@@ -953,7 +956,7 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var tfx := Transcendence.effects(state, empire_id)
 			_merge(base, tfx)
 			_merge(exalted, tfx)
-		# Mégastructures : effets des étapes, palier de Kardashev (voir Megastructures).
+		# Mégastructures : effets des étapes (voir Megastructures).
 		if not state.megas.is_empty():
 			var mfx := Megastructures.effects(state, empire_id)
 			_merge(base, mfx)
@@ -968,6 +971,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var arfx := Archaeology.effects(state, empire_id)
 			_merge(base, arfx)
 			_merge(exalted, arfx)
+		# Échelle de Kardashev : culture du type, prérogatives, Âge sombre (voir Kardashev).
+		if not state.kardashev.is_empty():
+			var kdfx := Kardashev.effects(state, empire_id)
+			_merge(base, kdfx)
+			_merge(exalted, kdfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

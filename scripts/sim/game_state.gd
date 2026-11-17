@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 90
+const FORMAT_VERSION := 92
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 400
@@ -212,6 +212,7 @@ var announce_meta: Dictionary = {}
 var announce_next: Dictionary = {}
 var archaeo: Dictionary = {}  # l'archéologie, les Strates (voir Archaeology) ; {} = Classique ou désactivée
 var contact: Dictionary = {}  # la victoire de Contact (voir Contact) ; {} = désactivée
+var kardashev: Dictionary = {}  # l'échelle de Kardashev (voir Kardashev) ; {} = désactivée
 var portals: Dictionary = {}  # portails de saut (voir Portals) ; {} = désactivés
 ## Mort des héros au combat (voir HeroFall) ; {} = option absente : blessure ou capture seulement.
 var hero_death: Dictionary = {}
@@ -354,6 +355,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Megastructures.setup(s, String(options.get("megastructures", "desactivees")), String(options.get("mega_ruins", "")))
 	Contact.setup(s, String(options.get("contact", "desactive")), String(options.get("contact_nature", "")), String(options.get("contact_outcome", "")))
 	Archaeology.setup(s, String(options.get("archaeology", "classique")))
+	Kardashev.setup(s, String(options.get("kardashev", "desactivee")), String(options.get("kardashev_pace", "")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -535,6 +537,8 @@ func to_dict() -> Dictionary:
 		d["megas"] = Megastructures.to_dict(self)
 	if Archaeology.worth_saving(self):
 		d["archaeo"] = Archaeology.to_dict(self)
+	if Kardashev.worth_saving(self):
+		d["kardashev"] = Kardashev.to_dict(self)
 	if Announce.worth_saving(self):
 		d["announces"] = Announce.to_dict(self)
 	# Vision du jour, calculée au milieu du tick (après les mouvements) : les nouvelles du lendemain s'y
@@ -806,6 +810,10 @@ static func from_dict(d: Dictionary) -> GameState:
 	# Sauvegardes d'avant les mégastructures : Dyson, Nexus et Monde-anneau quittent les merveilles.
 	if int(d["version"]) < 88 and not d.has("megas"):
 		Megastructures.migrate_wonders(s)
+	# Échelle de Kardashev (sauvegarde 92) : l'indice quitte les mégastructures.
+	Kardashev.from_dict(s, d.get("kardashev", {}))
+	if int(d["version"]) < 92 and not d.has("kardashev"):
+		Kardashev.migrate(s)
 	if not s.wonders.is_empty():
 		WondersCatalog.refresh_gates(s)  # réseau des portes stellaires (donnée dérivée)
 	Portals.refresh(s)  # trous de ver, relais, portails de saut (données dérivées)

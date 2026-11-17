@@ -81,7 +81,7 @@
 		"faith_founded": {"family": "foi", "title": "Révélation", "g": [2, 1, 1], "need": "info", "screen": "faith", "first": true},
 		"wonder_done": {"family": "savoir", "title": "Merveille achevée", "g": [3, 1, 1], "tone": {"actor": "good"}, "need": "info", "screen": "wonders", "fanfare": true, "first": true},
 		"mega_done": {"family": "savoir", "title": "Mégastructure achevée", "g": [3, 1, 1], "tone": {"actor": "good"}, "need": "info", "screen": "wonders", "fanfare": true, "first": true},
-		"kardashev": {"family": "savoir", "title": "Échelle de Kardashev", "g": [2, 1, 1], "tone": {"actor": "good"}, "need": "info", "screen": "wonders", "first": true},
+		"kardashev": {"family": "savoir", "title": "Échelle de Kardashev", "g": [2, 1, 1], "tone": {"actor": "good"}, "need": "info", "screen": "kardashev", "first": true},
 		"relic_found": {"family": "savoir", "title": "Une relique sort de terre", "g": [2, 0, 0], "need": "good", "screen": "chronicles"},
 		"spies_caught": {"family": "ombres", "title": "Espions démasqués", "g": [2, 1, 0], "tone": {"actor": "threat", "target": "info"}, "need": "info", "screen": "intel"},
 		"signal_heard": {"family": "au_dela", "title": "Un signal", "g": [3, 1, 1], "need": "good", "screen": "victory", "fanfare": true, "first": true},

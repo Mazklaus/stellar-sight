@@ -14,7 +14,7 @@ extends RefCounted
 ## Désactivées (state.megas vide) ; ruines Aucune, Peu, Beaucoup. Sans l'option (tests, bancs) : désactivées.
 ##
 ## État : state.megas = {"mode", "ruins_opt", "next": prochain identifiant, "list": {"id": entrée},
-##  "kard": {"eid": indice ×10}, "plans": {"flotte": {"k", "s", "p"}}, "st": {"eid": {statistiques}}}.
+##  "plans": {"flotte": {"k", "s", "p"}}, "st": {"eid": {statistiques}}}.
 ## Entrée : {"id", "k": type, "o": propriétaire (-1 = ruine sans maître), "s": système, "p": planète
 ##  (-1 = l'étoile), "st": étapes achevées (0 à n), "w": jours restants de l'étape en cours (0 = rien),
 ##  "f": Vaisseau-architecte du Chantier, "dmg": 1 si l'étape la plus haute est ruinée, "rp": 1 pendant
@@ -22,7 +22,7 @@ extends RefCounted
 ##  usure en %, "cd": jour de fin de recharge, "sg": mois de siège, "wk": jours de point faible}.
 ## Tout est déterministe : entiers, tirages par hachage de la graine, ordres par SimCommands.
 
-const SUBS := ["list", "kard", "plans", "st", "first"]
+const SUBS := ["list", "plans", "st", "first"]
 
 
 static func data() -> Dictionary:
@@ -363,6 +363,7 @@ static func cost_pct(state: GameState, eid: int, k: String, sid := -1) -> int:
 			pct -= 100 - int(kind_def(k).get("on_swarm_pct", 60))
 	pct += MegasBridges.cost_pct(state, eid, k)
 	pct += Research.fx_int(state, eid, "mega_cost_pct")  # Métier des Tisserands (archéologie)
+	pct += KardashevWorld.mega_cost_pct(state, eid, k)  # Émulation (Kardashev, prop. 15)
 	return pct
 
 
@@ -758,9 +759,10 @@ static func advance(state: GameState, eid: int, id: int, added: Array[Dictionary
 
 
 ## Réparer l'étape ruinée : la moitié de son coût (prop. 32).
+@warning_ignore("integer_division")
 static func repair_cost(state: GameState, eid: int, m: Dictionary) -> Dictionary:
 	var k := String(m["k"])
-	return Research.scaled_amounts(stage_cost(state, eid, k, maxi(0, int(m["st"]) - 1), int(m["s"])), r_int("repair_pct", 50) - 100)
+	return Research.scaled_amounts(stage_cost(state, eid, k, maxi(0, int(m["st"]) - 1), int(m["s"])), (100 + r_int("repair_pct", 50) - 100) * (100 + KardashevWorld.repair_pct(state, eid)) / 100 - 100)  # Âge sombre (Kardashev)
 
 
 static func check_repair(state: GameState, eid: int, id: int) -> String:
@@ -998,7 +1000,7 @@ static func _freeze(state: GameState, m: Dictionary, added: Array[Dictionary]) -
 static func star_pct(state: GameState, m: Dictionary) -> int:
 	if not bool(kind_def(String(m["k"])).get("star_mult", false)):
 		return 100
-	return int(cfg("stars").get(state.galaxy.systems[int(m["s"])].star_type, 100))
+	return int(cfg("stars").get(KardashevWorld.star_type(state, int(m["s"])), 100))  # étoiles rallumées (Kardashev)
 
 
 ## Rendement mensuel d'une mégastructure (étape qui compte, étoile, usure, Matriochka).
@@ -1084,11 +1086,7 @@ static func effects(state: GameState, eid: int) -> Dictionary:
 				var c := int(cap[key])
 				v = maxi(v, c) if c < 0 else mini(v, c)
 			out[key] = int(out.get(key, 0)) + v
-	var kt := kardashev_tier(state, eid)
-	var cp: Array = cfg("kardashev").get("culture_pct", [])
-	if kt > 0 and kt < cp.size() and int(cp[kt]) != 0:
-		out["culture_pct"] = int(out.get("culture_pct", 0)) + int(cp[kt])
-	return out
+	return out  # le Rayonnement du palier de Kardashev vient maintenant de Kardashev.effects
 
 
 static func fx_text(fx: Dictionary) -> String:
@@ -1200,9 +1198,6 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 			continue
 		_sync_owner(state, m, added)
 	MegasWorld.monthly(state, added)
-	for e in state.empires:
-		if not e.is_npc() and not e.eliminated:
-			_kardashev(state, e.id, added)
 
 
 ## Prise (prop. 31) : une mégastructure suit le propriétaire de son système.
@@ -1233,70 +1228,25 @@ static func _sync_owner(state: GameState, m: Dictionary, added: Array[Dictionary
 	MegasBridges.on_taken(state, m, cur, o, added)
 
 
-## Indice de Kardashev ×10 (prop. 9).
+## Indice de Kardashev ×10 : le pilier vit maintenant dans Kardashev (sauvegarde 92) ; ces fonctions
+## restent pour les appels existants (hauts faits, interface des mégastructures).
 static func kardashev(state: GameState, eid: int) -> int:
-	return int(sub(state, "kard").get(str(eid), 0))
+	@warning_ignore("integer_division")
+	return Kardashev.index100(state, eid) / 10 if Kardashev.enabled(state) else 0
 
 
-@warning_ignore("integer_division")
+## Recalcule l'indice d'un empire tout de suite (outils, tests).
+static func _kardashev(state: GameState, eid: int, added: Array[Dictionary]) -> void:
+	if Kardashev.applies(state, eid):
+		Kardashev._update(state, eid, added)
+
+
 static func kardashev_tier(state: GameState, eid: int) -> int:
-	return kardashev(state, eid) / 10
+	return Kardashev.tier(state, eid)
 
 
 static func kardashev_text(state: GameState, eid: int) -> String:
-	var k := kardashev(state, eid)
-	@warning_ignore("integer_division")
-	var t := "%d,%d" % [k / 10, k % 10]
-	var titles: Array = cfg("kardashev").get("titles", [])
-	var tier := kardashev_tier(state, eid)
-	if tier > 0 and tier < titles.size():
-		t += " (%s)" % String(titles[tier])
-	return t
-
-
-@warning_ignore("integer_division")
-static func compute_kardashev(state: GameState, eid: int) -> int:
-	var kc := cfg("kardashev")
-	var en: Array = kc.get("energy", [150, 400, 800])
-	var gross := int((Economy.empire_income(state, eid)["gross"] as Dictionary).get("energy", 0))
-	var tier := 0
-	if gross >= int(en[0]):
-		tier = 1
-		var type2 := complete_count(state, eid, "sphere_dyson") > 0 or complete_count(state, eid, "essaim_dyson") >= 3
-		if type2:
-			tier = 2
-			var great := 0
-			var era5 := 0
-			for m in owned_by(state, eid):
-				if complete(m) and int(kind_def(String(m["k"])).get("era", 1)) >= 4:
-					great += 1
-					if int(kind_def(String(m["k"])).get("era", 1)) >= 5:
-						era5 += 1
-			if great >= int(kc.get("great", 6)) and era5 >= int(kc.get("era5", 3)) and gross >= int(en[2]):
-				tier = 3
-	if tier >= 3:
-		return 30
-	var lo := 0 if tier == 0 else int(en[tier - 1])
-	var hi := int(en[tier])
-	var frac := clampi((gross - lo) * 10 / maxi(1, hi - lo), 0, 9)
-	return tier * 10 + frac
-
-
-static func _kardashev(state: GameState, eid: int, added: Array[Dictionary]) -> void:
-	var before := kardashev_tier(state, eid)
-	var k := compute_kardashev(state, eid)
-	sub(state, "kard")[str(eid)] = k
-	@warning_ignore("integer_division")
-	var tier := k / 10
-	if tier > before:
-		touch(state)
-		var titles: Array = cfg("kardashev").get("titles", [])
-		Announce.next(state, "kardashev", {"actor": eid})
-		added.append(state.add_chronicle("%s franchit le type %s de l'échelle de Kardashev : %s. Les astronomes voisins notent une étoile un peu moins brillante que prévu." % [
-				state.get_empire(eid).short_name(), ["0", "I", "II", "III"][tier], String(titles[tier]) if tier < titles.size() else ""]))
-		MegasBridges.on_kardashev(state, eid, tier, added)
-	elif tier < before:
-		touch(state)
+	return Kardashev.text(state, eid)
 
 
 # --- Anciennes sauvegardes (prop. 1) ------------------------------------------------------------

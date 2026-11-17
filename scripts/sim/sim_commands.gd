@@ -712,6 +712,11 @@ static func ar_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "archaeology", "player": player, "act": act, "d": d}
 
 
+## Échelle de Kardashev (voir Kardashev.check) : "perk" (id), "sober" (on), "veil", "relight" (s).
+static func kd_act(player: int, act: String, d := {}) -> Dictionary:
+	return {"type": "kardashev", "player": player, "act": act, "d": d}
+
+
 ## Furtivité : "pose" (a = flotte, s = posture : "", "silence", "scan", "ambush"), "beacon" (a = flotte).
 static func stealth_act(player: int, act: String, a := -1, b := -1, s := "") -> Dictionary:
 	return {"type": "stealth", "player": player, "act": act, "a": a, "b": b, "s": s}
@@ -936,6 +941,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Transcendence.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"archaeology":
 			return Archaeology.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
+		"kardashev":
+			return Kardashev.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"contact":
 			return Contact.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"stealth":
@@ -1366,6 +1373,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Megastructures.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"archaeology":
 			Archaeology.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
+		"kardashev":
+			Kardashev.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"contact":
 			Contact.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"stealth":

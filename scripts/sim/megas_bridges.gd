@@ -333,11 +333,11 @@ static func on_kardashev(_state: GameState, _eid: int, _tier: int, _added: Array
 # --- Hauts faits et victoire (prop. 42) ----------------------------------------------------------
 
 static func deed_value(state: GameState, eid: int, k: String) -> int:
+	if k == "mega_kard":
+		return Kardashev.tier(state, eid)
 	if not Megastructures.enabled(state):
 		return 0
 	match k:
-		"mega_kard":
-			return Megastructures.kardashev_tier(state, eid)
 		"mega_rings":
 			return Megastructures.complete_count(state, eid, "monde_anneau")
 	return 0
