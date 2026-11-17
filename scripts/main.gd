@@ -233,6 +233,12 @@ func _ready() -> void:
 	_empire_screens.event_requested.connect(func(event_id: int) -> void:
 		close_empire_screen()
 		open_event(event_id))
+	_empire_screens.announce_requested.connect(func(aid: int) -> void:
+		close_empire_screen()
+		announce.open_record(aid))
+	_empire_screens.announce_locate_requested.connect(func(sid: int) -> void:
+		close_empire_screen()
+		_go_to_system(sid))
 	_empire_screens.deed_requested.connect(func(item_id: int) -> void:
 		close_empire_screen()
 		open_deed(item_id))

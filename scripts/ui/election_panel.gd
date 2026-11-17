@@ -21,22 +21,7 @@ var _player := -1
 
 
 func _ready() -> void:
-	layer = 7
-	visible = false
-	var dim := ColorRect.new()
-	dim.color = Color(0.0, 0.01, 0.03, 0.55)
-	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(dim)
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
-	var window := PanelContainer.new()
-	window.theme_type_variation = &"WindowPanel"
-	center.add_child(window)
-	var box := VBoxContainer.new()
-	box.custom_minimum_size = Vector2(WIDTH, 0)
-	box.add_theme_constant_override("separation", 10)
-	window.add_child(box)
+	var box := AnnounceFrame.build(self, WIDTH, "Élection")
 	_title = UiTheme.title("", 28)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_title)
@@ -81,6 +66,7 @@ func open(state: GameState, player: int) -> void:
 	_title.text = "Élection : %s" % String(reg["label"])
 	_when.text = "%s  ·  %s élection de votre règne" % [GameCalendar.date_string(int(en.get("last", state.tick))), _ordinal(int(en.get("n", 1)))]
 	visible = true
+	AnnounceFrame.fade_in(self)
 	show_step(2)
 
 
