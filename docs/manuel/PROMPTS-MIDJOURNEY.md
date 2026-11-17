@@ -524,3 +524,13 @@ a vast genetic engineering laboratory under an open observatory dome showing the
 ```
 a circular hall of robed psychic sensitives meditating in a ring under an open dome, above them the sky becomes a vast sea of violet and golden dream mist, in the mist huge blurred otherworldly presences lean down to look, a giant weaver with many hands, a colossal maw, a tender mirror, an ebony clockwork face, one diver floats half dissolved between the hall and the dream connected to the others by threads of light, awe and dread, uncanny and beautiful with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-53 · Au-delà de l'Orée
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Au-delà de l'Orée »
+- Sujet : Au bord de la galaxie, une nef immense, faite de lumière autant que de métal, s'éloigne vers le vide noir de la Bordure ; derrière elle, un monde voilé d'une brume dorée, un trône vide sur une tour, une chrysalide de soie autour d'une planète ; au premier plan, sur une passerelle, des pillards et des diplomates regardent partir le peuple, l'un d'eux tenant déjà une caisse de reliques
+
+```
+an immense ark made of light as much as metal departing from the edge of a spiral galaxy toward the black void beyond the rim, behind it a world veiled in golden mist, an empty throne atop a tall spire, a planet wrapped in a silk chrysalis, a stellar computing shell glowing around a sun, in the foreground on a station gantry a small crowd of scavengers and diplomats watch the people leave, one of them already carrying a crate of salvaged relics, awe and melancholy with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

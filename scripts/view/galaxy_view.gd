@@ -193,6 +193,7 @@ func _draw() -> void:
 	_draw_lairs(px)
 	_draw_minors(px)
 	_draw_wonders(px)
+	_draw_oeuvres(px)
 	_draw_quests(px)
 	_draw_crisis(px)
 	_draw_convoys(px)
@@ -939,6 +940,34 @@ func _draw_wonders(px: float) -> void:
 			var w := 6.0 - k * 2.0
 			draw_rect(Rect2(-w, 2.5 - k * 3.0, w * 2.0, 2.5), col)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Exodiums de Transcendance connues (prop. 39) : un anneau pâle et une flèche vers le haut sur le système
+## de l'Exodium (pulsé pendant le Passage), sans lentille.
+func _draw_oeuvres(px: float) -> void:
+	if state == null or state.transcendence.is_empty():
+		return
+	for k in state.transcendence.get("oeuvre", {}):
+		var eid := int(k)
+		var sid := Transcendence.oeuvre_sys(state, eid)
+		if sid < 0 or not is_explored(sid):
+			continue
+		var e := state.get_empire(eid)
+		var col := Color(0.88, 0.84, 1.0) if e == null else e.color().lerp(Color(0.9, 0.88, 1.0), 0.5)
+		var pulse := 0.0 if not Transcendence.in_passage(state, eid) else 0.35
+		draw_set_transform(galaxy.systems[sid].position + Vector2(19.0, -8.0) * px, 0.0, Vector2(px, px))
+		draw_arc(Vector2.ZERO, 6.0, 0.0, TAU, 20, Color(col, 0.65 + pulse), 1.4, true)
+		draw_line(Vector2(0, 4), Vector2(0, -5), col, 1.6, true)
+		draw_line(Vector2(-3, -2), Vector2(0, -5), col, 1.6, true)
+		draw_line(Vector2(3, -2), Vector2(0, -5), col, 1.6, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	for k in state.transcendence.get("ark", {}):
+		var f := Transcendence.ark_fleet(state, int(k))
+		var tgt := int(Transcendence.ark(state, int(k)).get("target", -1))
+		if f != null and tgt >= 0 and is_explored(tgt):
+			draw_set_transform(galaxy.systems[tgt].position + Vector2(19.0, -8.0) * px, 0.0, Vector2(px, px))
+			draw_arc(Vector2.ZERO, 7.0, 0.0, TAU, 20, Color(0.9, 0.88, 1.0, 0.8), 1.2, true)
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## Portails de saut (voir Portals), dessinés en permanence sans lentille : trous de ver en ligne

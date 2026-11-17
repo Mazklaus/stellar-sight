@@ -185,6 +185,10 @@ static func psionics() -> Dictionary:
 	return _load("psionics")
 
 
+static func transcendence() -> Dictionary:
+	return _load("transcendence")
+
+
 static func portals() -> Dictionary:
 	return _load("portals")
 

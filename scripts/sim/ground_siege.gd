@@ -216,6 +216,9 @@ static func _bombard(state: GameState, sid: int, by: int, owner: int, p: String)
 		return
 	# Bouclier planétaire (défenses spatiales) : Bouclier I divise par deux, Dôme debout bloque tout.
 	var bp := Defenses.bombard_pct(state, sid)
+	if not state.transcendence.is_empty():
+		@warning_ignore("integer_division")
+		bp = bp * Transcendence.bombard_pct(state, owner) / 100  # voile de l'Orée (prop. 18)
 	if bp <= 0:
 		return
 	AncientsBridges.on_bombard(state, sid, by)  # Monde saint bombardé : guerre sainte

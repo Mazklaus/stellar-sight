@@ -53,7 +53,7 @@
 		"Cosmique / étrange": {"academie": "les Veilleurs", "autel": "le Murmure"}
 	},
 	"lean": {
-		"credo": {"honneur": "glaive", "foi": "autel", "raison": "academie", "profit": "forge", "survie": "seve", "plaisir": "concorde"},
+		"credo": {"honneur": "glaive", "foi": "autel", "raison": "academie", "profit": "forge", "survie": "seve", "plaisir": "concorde", "transcendance": "autel"},
 		"gouvernement": {"feodalite": "glaive", "horde": "glaive", "theocratie": "autel", "republique": "concorde", "syndicat": "forge", "conscience": "academie"},
 		"principal": 500,
 		"secondary": 300,

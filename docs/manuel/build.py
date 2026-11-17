@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.31"
+EDITION = "2.32"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -430,6 +430,8 @@ def talents_du_peuple(f):
     ajoute("Portails", _par_couche(c, charger("portals.json").get("talents", {})))
     ajoute("Génome", _par_couche(c, charger("genetics.json").get("talents", {})))
     ajoute("Songe", _par_couche(c, charger("psionics.json").get("talents", {})))
+    tr = charger("transcendence.json").get("talents", {}).get(f["id"])
+    ajoute("Transcendance", [tr] if isinstance(tr, dict) else [])
     cu = charger("culture.json").get("talents", {})
     peuple = cu.get("peoples", {}).get(f["id"])
     ajoute("Rayonnement", _par_couche(c, {k: v for k, v in cu.items() if k != "peoples"}) + ([peuple] if isinstance(peuple, dict) else []))
@@ -1347,6 +1349,43 @@ def gen_psi_talents():
     return f"<table class='grille'><tr><th>Couche</th><th>Valeur</th><th>Talent</th></tr>{lignes}</table>"
 
 
+def gen_tr_modes():
+    """Réglages Transcendance et issue (data/transcendence.json)."""
+    d = charger("transcendence.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    l2 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_outcome') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["outcomes"])
+    return f"<table class='grille'><tr><th>Transcendance</th><th>Effet</th></tr>{l1}</table><table class='grille'><tr><th>Issue</th><th>Effet</th></tr>{l2}</table>"
+
+
+def gen_tr_voies():
+    """Les cinq voies (data/transcendence.json « paths »)."""
+    d = charger("transcendence.json")
+    src = {"resonance": "Résonance", "knowledge": "Savoir", "faith": "Fidèles", "pop": "Population", "industry": "Matériaux et énergie"}
+    l1 = "".join(f"<tr><td><b>{esc(p['label'])}</b></td><td>{esc(src.get(p['source'], p['source']))}</td><td>{inline(p.get('text', ''))}</td></tr>" for p in d["paths"]["list"])
+    return f"<table class='grille'><tr><th>Voie</th><th>Nourrie par</th><th>En bref</th></tr>{l1}</table>"
+
+
+def gen_tr_oeuvres():
+    """L'Œuvre de chaque voie (data/transcendence.json « paths », « oeuvre »)."""
+    d = charger("transcendence.json")
+    res = {"materials": "matériaux", "energy": "énergie", "influence": "influence", "food": "nourriture", "knowledge": "Savoir"}
+    sites = {"capital": "le monde capital", "star": "un système tenu", "holy": "le monde saint", "ship": "un chantier spatial"}
+    l1 = ""
+    for p in d["paths"]["list"]:
+        o = p["oeuvre"]
+        et = " ; ".join(f"{', '.join(f'{v} {res.get(k, k)}' for k, v in s['cost'].items())} en {s['days']} j" for s in o["stages"])
+        l1 += f"<tr><td><b>{esc(o['label'][:1].upper() + o['label'][1:])}</b><br>{esc(p['label'])}</td><td>{esc(sites.get(o['site'], o['site']))}</td><td>{esc(et)}</td></tr>"
+    return f"<table class='grille'><tr><th>Œuvre</th><th>Où</th><th>Trois étapes</th></tr>{l1}</table>"
+
+
+def gen_tr_talents():
+    """Talents des peuples (data/transcendence.json « talents »)."""
+    d = charger("transcendence.json")
+    noms = {f["id"]: f.get("name", f["id"]) for f in charger("factions.json")}
+    l1 = "".join(f"<tr><td>{esc(noms.get(k, k))}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>" for k, v in d["talents"].items() if not k.startswith("_"))
+    return f"<table class='grille'><tr><th>Peuple</th><th>Talent</th></tr>{l1}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -1380,6 +1419,7 @@ GENERATEURS = {
     "psi_modes": gen_psi_modes, "psi_niveaux": gen_psi_niveaux, "psi_techs": gen_psi_techs, "psi_pouvoirs": gen_psi_pouvoirs,
     "psi_felures": gen_psi_felures, "psi_postures": gen_psi_postures, "psi_visions": gen_psi_visions, "psi_puissances": gen_psi_puissances,
     "psi_talents": gen_psi_talents,
+    "tr_modes": gen_tr_modes, "tr_voies": gen_tr_voies, "tr_oeuvres": gen_tr_oeuvres, "tr_talents": gen_tr_talents,
     "portail_modes": gen_portail_modes, "portail_batiments": gen_portail_batiments, "portail_talents": gen_portail_talents,
 }
 

@@ -272,6 +272,8 @@ static func family_available(state: GameState, fid: String) -> bool:
 			return Portals.enabled(state)
 		"genetics":
 			return Genetics.enabled(state)
+		"transcendence":
+			return Transcendence.full(state)
 	return true
 
 

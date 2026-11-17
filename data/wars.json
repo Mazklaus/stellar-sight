@@ -461,6 +461,18 @@
 			"text": "Le Stratège vous a refusé la sortie du Koinon : vous la prenez par les armes."
 		},
 		{
+			"id": "ascension",
+			"label": "Empêcher l'Ascension",
+			"req": "ascension",
+			"goals": [
+				"ascension",
+				"humiliation"
+			],
+			"memory": "",
+			"just": true,
+			"text": "Transcendance : il est en Passage et va quitter la galaxie. Personne ne vous reprochera de vouloir l'en empêcher, et votre peuple ne s'en lassera pas."
+		},
+		{
 			"id": "agression",
 			"label": "Agression (sans motif)",
 			"req": "always",
@@ -621,6 +633,15 @@
 			"price": 30,
 			"defense_only": true,
 			"text": "Le sécessionniste rentre dans le Koinon et ne pourra plus le quitter avant 5 ans."
+		},
+		{
+			"id": "ascension",
+			"label": "Empêcher l'Ascension",
+			"accept": -50,
+			"objective": "battles",
+			"req": "ascension",
+			"price": 40,
+			"text": "Le vaincu perd une étape de son Exodium et son Passage est brisé : il faudra recommencer."
 		},
 		{
 			"id": "merveille",

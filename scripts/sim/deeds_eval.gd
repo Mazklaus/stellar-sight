@@ -44,6 +44,8 @@ static func value(state: GameState, eid: int, k: String, x: Variant = null) -> i
 			return Psionics.stat(state, eid, "phare") if Psionics.enabled(state) else 0
 		"psi_broken":
 			return Psionics.stat(state, eid, "broken") if Psionics.enabled(state) else 0
+		"tr_path", "tr_ruins", "tr_descent":
+			return Transcendence.stat(state, eid, {"tr_path": "path", "tr_ruins": "tr_ruins", "tr_descent": "tr_descent"}[k]) if Transcendence.enabled(state) else 0
 		"gen_transfer":
 			return Genetics.stat(state, eid, "founder_transfer") if Genetics.enabled(state) else 0
 		"veiled_fleets":

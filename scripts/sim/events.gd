@@ -64,6 +64,8 @@ static func card(id: String) -> Dictionary:
 			_cards[String(c["id"])] = c
 		for c: Dictionary in GameData.finance().get("cards", []):
 			_cards[String(c["id"])] = c
+		for c: Dictionary in GameData.transcendence().get("cards", []):
+			_cards[String(c["id"])] = c
 	return _cards.get(id, {})
 
 
@@ -626,6 +628,12 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 	var out: Array[String] = []
 	for fx: Dictionary in fxs:
 		match String(fx["k"]):
+			"tr":
+				if String(fx.get("act", "")) == "shortcut":
+					out.append("Passage en 2 ans, sans Exodium (ce que la voix ne dit pas reste à voir)")
+				elif int(fx.get("gauge", 0)) != 0:
+					@warning_ignore("integer_division")
+					out.append("Jauge d'Élévation %+d %%" % (int(fx["gauge"]) / 10))
 			"res":
 				var amounts := {}
 				for r in fx["res"]:
@@ -733,6 +741,12 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 	var m := meta(state, empire_id)
 	for fx: Dictionary in fxs:
 		match String(fx["k"]):
+			"tr":
+				# Transcendance : jauge d'Élévation, ou Raccourci accepté (voir Transcendence).
+				if String(fx.get("act", "")) != "":
+					TranscendenceBridges.event_act(state, empire_id, String(fx["act"]), added)
+				else:
+					Transcendence.add_gauge(state, empire_id, int(fx.get("gauge", 0)))
 			"res":
 				for r in fx["res"]:
 					e.resources[r] = maxi(0, int(e.resources.get(r, 0)) + era_scaled(state, empire_id, int(fx["res"][r])))

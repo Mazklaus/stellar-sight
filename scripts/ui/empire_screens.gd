@@ -157,6 +157,9 @@ var _genome_sig := ""
 ## Écran Songe : boutons « path », « power:pouvoir:cible »… (tests).
 var psionics_buttons := {}
 var _psionics_sig := ""
+## Écran Transcendance (onglet de l'écran Victoire) : boutons « path:voie », « oeuvre », « tab:… » (tests).
+var transcendence_buttons := {}
+var _transcendence_sig := ""
 ## Écran Merveilles : boutons « start:merveille », « rush:merveille »… (tests).
 var wonder_buttons := {}
 var _wonders_sig := ""
@@ -276,7 +279,7 @@ func show_screen(screen_id: String) -> void:
 	_filter_tabs.clear()
 	_col_sig = ""
 	_sys_sig = ""
-	var sc := EmpireBar.screen_info(screen_id)
+	var sc := EmpireBar.screen_info("victory" if screen_id == "transcendence" else screen_id)
 	_tab.text = ("%s     ×" % sc.get("label", screen_id)).to_upper()
 	match screen_id:
 		"economy":
@@ -318,6 +321,9 @@ func show_screen(screen_id: String) -> void:
 		"psionics":
 			psionics_buttons.clear()
 			PsionicsScreen.build(self)
+		"transcendence":
+			transcendence_buttons.clear()
+			TranscendenceScreen.build(self)
 		"wonders":
 			wonder_buttons.clear()
 			WondersUi.build(self)
@@ -380,6 +386,9 @@ func refresh() -> void:
 		"psionics":
 			if PsionicsScreen.signature(self) != _psionics_sig:
 				show_screen("psionics")
+		"transcendence":
+			if TranscendenceScreen.signature(self) != _transcendence_sig:
+				show_screen("transcendence")
 		"wonders":
 			if WondersUi.signature(self) != _wonders_sig:
 				show_screen("wonders")
@@ -1864,6 +1873,8 @@ func _build_victory() -> void:
 	victory_rows.clear()
 	var me := _state.get_empire(_player)
 	_side_header("screen_victory", "Victoire", Color(1.0, 0.85, 0.45), "faction")
+	transcendence_buttons.clear()
+	TranscendenceScreen.tabs(self, "victory")
 	var w := _state.winner
 	if not w.is_empty():
 		var we := _state.get_empire(int(w["empire"]))

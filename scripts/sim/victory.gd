@@ -140,6 +140,9 @@ static func enabled(state: GameState, id: String) -> bool:
 	# Victoire des Annales : seulement avec les hauts faits.
 	if bool(info(id).get("deeds", false)) and not Deeds.enabled(state):
 		return false
+	# Victoire de Transcendance : seulement avec la Transcendance en jeu.
+	if bool(info(id).get("transcendence", false)) and not Transcendence.enabled(state):
+		return false
 	# Victoire diplomatique : seulement avec l'Amphictyonie.
 	if bool(info(id).get("amph", false)) and not state.amph_on:
 		return false
@@ -271,6 +274,8 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			WondersBridges.victory(state, e, out)
 		"annales":
 			DeedsBridges.victory(state, e, out)
+		"transcendance":
+			Transcendence.victory(state, e, out)
 	if is_people(id) and not has_tech(state, empire_id, id):
 		out["lines"].append("Technologie requise : %s" % String(Research.tech(tech_for(id)).get("label", tech_for(id))))
 		out["cond"] = false
@@ -821,6 +826,10 @@ static func chronicle_text(id: String, e: Empire, allies: Array = [], state: Gam
 		return "%s achève %s et monte sur son trône de vide. La galaxie n'a pas su arrêter le Fléau des étoiles : elle lui appartient." % [who, String(CrisisNemesis.data().get("oeuvre", {}).get("name", "son grand œuvre"))]
 	if id == "crise":
 		return "%s tient la moitié des mondes de la galaxie. Personne n'a su l'arrêter%s." % [who, "" if allies.is_empty() else " ; ceux qui ont pactisé avec elle partagent sa victoire"]
+	if id == "transcendance" and state != null:
+		var pid := Transcendence.path_of(state, e.id)
+		if pid != "":
+			return String(Transcendence.path_def(pid).get("win", "%s transcende.")) % who
 	var t := String(info(id).get("chronicle", "%s l'emporte."))
 	return t % who if t.contains("%s") else t
 

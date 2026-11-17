@@ -78,6 +78,25 @@
 		"siege": 4,
 		"fleet_barracks": true
 	},
+	"arche_bordure": {
+		"label": "Arche de la Bordure",
+		"plural": "Arches de la Bordure",
+		"line": "line",
+		"size": "titan",
+		"role": "Transcendance",
+		"description": "La plus grande nef jamais construite, pleine de dormeurs, de graines, d'archives et d'un orchestre de chambre qui jouera pendant tout le vide entre les galaxies. Lente, presque impossible à percer, et sans un seul canon.",
+		"factions": ["__aucune__"],
+		"cost": {},
+		"days": 1,
+		"upkeep": {},
+		"speed": 12,
+		"vision": 2,
+		"hp": 4000,
+		"armor": 40,
+		"pd": 20,
+		"weapons": {},
+		"troops": 0
+	},
 	"corvette": {
 		"label": "Corvette",
 		"plural": "Corvettes",

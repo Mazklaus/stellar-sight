@@ -510,6 +510,9 @@
 		"premier_elu": {"label": "Le premier Élu", "family": "foi", "sort": "first", "k": "psi_elu", "n": 1, "text": "Premier empire à avoir un Élu (pouvoirs psioniques en jeu).", "flavor": "Il a demandé ce qu'on attendait de lui. Tout le monde a répondu en même temps."},
 		"phare_allume": {"label": "Le Phare allumé", "family": "exploration", "sort": "first", "k": "psi_phare", "n": 1, "text": "Premier à allumer un Phare du Songe (pouvoirs psioniques en jeu).", "flavor": "Les navigateurs disent qu'on l'entend avant de le voir. Les navigateurs disent beaucoup de choses."},
 		"pacte_rompu": {"label": "Pacte rompu", "family": "perils", "sort": "secret", "k": "psi_broken", "n": 1, "text": "Rompre un pacte avec une Puissance du Songe.", "flavor": "Elle n'a rien dit. C'est ce silence-là qui empêche de dormir."},
+		"premier_oree": {"label": "Premier à l'Orée", "family": "science", "sort": "first", "k": "tr_path", "n": 1, "text": "Premier empire à se vouer à une voie de Transcendance (Transcendance en jeu).", "flavor": "Il a regardé l'au-delà le premier. L'au-delà, poli, a fait semblant de ne pas le voir."},
+		"grande_curee": {"label": "La Grande Curée", "family": "economie", "sort": "first", "k": "tr_ruins", "n": 3, "text": "Premier à fouiller trois reliques de savoir laissées par un peuple parti (Transcendance en jeu).", "flavor": "On ne part pas sans laisser de miettes. On ne mange pas les miettes sans se faire remarquer."},
+		"revenu_au_dela": {"label": "Revenu d'au-delà", "family": "foi", "sort": "secret", "k": "tr_descent", "n": 1, "text": "Accueillir un Parti redescendu parmi les mortels.", "flavor": "Il ne se souvient de rien. Il sait pourtant où sont rangées les tasses."},
 		"dernier_de_chair": {
 			"label": "Le dernier de chair",
 			"family": "science",

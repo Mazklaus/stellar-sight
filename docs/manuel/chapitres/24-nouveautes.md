@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.32
+
+- **Au-delà de l'Orée** (chapitre 36), nouveaux réglages **Transcendance** (complète, victoire seule, désactivée) et **Issue** (victoire ou départ), et une septième victoire commune : la technologie **L'Orée**, cinq **voies** (**Le Songe**, **Le Téléversement**, **L'Apothéose**, **La Mue**, **Le Grand Départ**), la **jauge d'Élévation**, **l'Exodium** de chaque voie en trois étapes, le **Passage** (**Relais du Passage**, occupation, Transcendance commune), l'**Arche de la Bordure** ; onglet **Transcendance** de l'écran Victoires, marqueur de l'Exodium sur la carte, IA.
+- En réglage complet : **signes**, **Renoncement**, **les Restants**, **Lieux minces**, **Guide du Passage** et désertions, effacement et **voile de l'Orée** ; famille **L'Orée** de l'Amphictyonie (**Bénédiction du Passage**, **Moratoire sur l'Orée**) ; guerre **Empêcher l'Ascension** ; opérations **Fêler l'Exodium** et **Voler les carnets de l'Orée** ; en issue Départ, **État successeur**, **la Curée** et ses reliques de savoir, **les Partis**, leur culte, la Descente et la Légende.
+- **Passages ratés** : la crise **l'Avorté**, **le Raccourci** et ses pièges (**Coquilles**, Solde du Songe), **renoncer**. **Ponts** : talents des huit peuples, credo **Transcendance** dans l'éditeur d'espèces, fêlures doublées pendant le Passage du Songe, merveilles qui comptent comme Relais, héros partis en avance, bêtes attirées par l'Exodium, le Fléau exclu, hauts faits **Premier à l'Orée**, **La Grande Curée** et **Revenu d'au-delà**. Chapitres 37 à 40 renumérotés.
+
 ### Édition 2.31
 
 - **Ce que le Songe murmure** (chapitre 35), nouveau réglage **Pouvoirs psioniques** (complet, discret, désactivé) : un catalogue ouvert de **formes** de psionisme, dont **le Songe** est la première ; espèces **Sourdes**, **Latentes**, **Éveillées** et **Transcendantes** ; la **Résonance**, réserve d'empire ; six technologies (**Théorie psionique**, **Télépathie**, **Écrans psychiques**, **Navigation par le Songe**, **Précognition**, **Ouverture du Songe**) ; la voie d'élévation **L'Éveil** ; **Collège des sensitifs**, héros sensitifs et **Élu** ; loi **Statut des sensitifs** (Registre, Collèges fermés, Nefs du Silence, Persécution) ; pouvoirs **Lecture des esprits**, **Préscience**, **Apaisement**, **La Voix**, **Domination mentale**, **Foire aux visions** et **Navigation par le Songe** ; **écrans psychiques** ; **fêlures** ; écran **Songe**.

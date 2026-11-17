@@ -1226,6 +1226,7 @@ static func die(state: GameState, h: Dictionary, why: String, out: Array[Diction
 	if e and int(tl.get("saint_fervor", 0)) > 0 and FactionTraits.has_fervor(e.faction()):
 		e.fervor = mini(int(e.faction()["fervor"]["max"]), e.fervor + int(tl["saint_fervor"]))
 		text += " Un saint de plus : la ferveur monte."
+	text += TranscendenceBridges.hero_epitaph(state, owner)  # mort pendant le Passage (Transcendance)
 	out.append(state.add_chronicle(text, Espionage.private_to(state, [owner])))
 
 
