@@ -693,6 +693,13 @@ static func tr_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "transcendence", "player": player, "act": act, "d": d}
 
 
+## Mégastructures (voir Megastructures.check) : "plan" (k, s, p, f?), "pose" (f, k, p), "advance" (id),
+## "repair" (id), "restore" (id), "cancel" (id), "module" (id, m), "launch" (id, f, t), "fire" (id, t),
+## "purge" (id), et ceux des ponts (MegasBridges).
+static func mega_act(player: int, act: String, d := {}) -> Dictionary:
+	return {"type": "megastructures", "player": player, "act": act, "d": d}
+
+
 ## Furtivité : "pose" (a = flotte, s = posture : "", "silence", "scan", "ambush"), "beacon" (a = flotte).
 static func stealth_act(player: int, act: String, a := -1, b := -1, s := "") -> Dictionary:
 	return {"type": "stealth", "player": player, "act": act, "a": a, "b": b, "s": s}
@@ -911,6 +918,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Genetics.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"psionics":
 			return Psionics.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
+		"megastructures":
+			return Megastructures.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"transcendence":
 			return Transcendence.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"stealth":
@@ -1334,6 +1343,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Psionics.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"transcendence":
 			Transcendence.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
+		"megastructures":
+			Megastructures.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"stealth":
 			Stealth.apply(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"portal_raze":

@@ -1147,6 +1147,9 @@
 			"text": "Vingt ans sans guerre ni opération d'espionnage subie.",
 			"flavor": "Vingt ans de calme. Les historiens n'ont rien eu à écrire, et c'est le plus beau chapitre."
 		},
+		"kardashev_ii": {"label": "Civilisation stellaire", "family": "science", "sort": "first", "k": "mega_kard", "n": 2, "text": "Premier à atteindre le type II de l'échelle de Kardashev (mégastructures en jeu).", "flavor": "Notre étoile travaille pour nous. Elle n'a pas été consultée."},
+		"kardashev_iii": {"label": "Civilisation galactique", "family": "science", "sort": "first", "k": "mega_kard", "n": 3, "text": "Premier à atteindre le type III de l'échelle de Kardashev (mégastructures en jeu).", "flavor": "Les voisins ne regardent plus le ciel : ils regardent nos chantiers."},
+		"premier_monde_anneau": {"label": "Le premier Anneau", "family": "economie", "sort": "first", "k": "mega_rings", "n": 1, "text": "Premier à achever un Monde-anneau (mégastructures en jeu).", "flavor": "Le soleil ne se couche jamais. Les horaires de travail ont dû être revus."},
 		"au_bord_abime": {
 			"label": "Au bord de l'abîme",
 			"family": "expansion",

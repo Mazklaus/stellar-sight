@@ -126,6 +126,10 @@ static func unlocks(faction: Dictionary, tid: String) -> PackedStringArray:
 	for wid in Wonders.all_ids():
 		if Wonders.def(wid).get("requires_tech", []).has(tid):
 			out.append("%s (merveille)" % Wonders.label(wid))
+	for k in Megastructures.kind_ids():
+		var md := Megastructures.kind_def(k)
+		if (md.get("tech", []) as Array).has(tid) and not bool(md.get("ruin_only", false)):
+			out.append("%s (mégastructure)" % Megastructures.label(k))
 	for sid in FactionTraits.ship_ids_for(String(faction.get("id", ""))):
 		if GameData.ship(sid).get("requires_tech", []).has(tid):
 			out.append(String(GameData.ship(sid).get("label", sid)))
@@ -949,6 +953,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var tfx := Transcendence.effects(state, empire_id)
 			_merge(base, tfx)
 			_merge(exalted, tfx)
+		# Mégastructures : effets des étapes, palier de Kardashev (voir Megastructures).
+		if not state.megas.is_empty():
+			var mfx := Megastructures.effects(state, empire_id)
+			_merge(base, mfx)
+			_merge(exalted, mfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

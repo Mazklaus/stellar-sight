@@ -264,7 +264,8 @@
 				"conquete",
 				"humiliation",
 				"rancon",
-				"merveille"
+				"merveille",
+				"mega"
 			],
 			"memory": "",
 			"text": "Vous revendiquez certains de ses systèmes : la galaxie comprend, sans approuver."
@@ -301,7 +302,8 @@
 				"humiliation",
 				"rancon",
 				"demanteler",
-				"merveille"
+				"merveille",
+				"mega"
 			],
 			"memory": "",
 			"text": "Il a rompu un traité avec vous, ou ses espions ont été pris chez vous.",
@@ -325,7 +327,8 @@
 				"conquete",
 				"humiliation",
 				"rancon",
-				"merveille"
+				"merveille",
+				"mega"
 			],
 			"memory": "",
 			"text": "Votre foi vous en donne le droit (voir l'écran Foi)."
@@ -383,7 +386,8 @@
 				"conquete",
 				"humiliation",
 				"rancon",
-				"merveille"
+				"merveille",
+				"mega"
 			],
 			"memory": "",
 			"just": true,
@@ -480,7 +484,8 @@
 				"conquete",
 				"humiliation",
 				"rancon",
-				"merveille"
+				"merveille",
+				"mega"
 			],
 			"memory": "aggressor",
 			"aggression": true,
@@ -494,7 +499,8 @@
 				"conquete",
 				"humiliation",
 				"rancon",
-				"merveille"
+				"merveille",
+				"mega"
 			],
 			"memory": "",
 			"text": "Il a conquis le peuple mineur dont vous étiez le suzerain : vous venez le libérer. Reprendre son monde fait de vous son suzerain.",
@@ -651,6 +657,15 @@
 			"req": "wonder",
 			"price": 40,
 			"text": "Le vaincu cède le système de sa plus grande merveille (hors capitale), avec la merveille et ce qu'elle rapporte."
+		},
+		{
+			"id": "mega",
+			"label": "Saisir la mégastructure",
+			"accept": -50,
+			"objective": "battles",
+			"req": "mega",
+			"price": 40,
+			"text": "Le vaincu cède le système de sa plus grande mégastructure (hors capitale), avec l'ouvrage et ce qu'il rapporte."
 		},
 		{
 			"id": "heritier",

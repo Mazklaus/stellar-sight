@@ -36,7 +36,7 @@ Une merveille achevée ouvre une **fenêtre d'événement** à son bâtisseur, a
 ### Les familles
 
 - **Merveilles galactiques** : uniques dans la galaxie, au premier qui les achève.
-- **Mégastructures** : une par empire (la Porte stellaire, une par système), bâties par **étapes** qui produisent dès qu'elles sont franchies. Le **Monde-anneau** change à chaque étape une planète de son système en **segment d'anneau**, habitable à 100 % pour tous les peuples. La **Porte stellaire** relie toutes vos portes : vos flottes sautent d'une porte à l'autre en un jour, et passent par celles des empires qui vous accordent le **droit de passage** (ou de vos alliés).
+- **Mégastructures** : il n'en reste qu'une parmi les merveilles, la **Porte stellaire** (une par système). La Sphère de Dyson (l'ancien Collecteur stellaire), le Nexus du savoir et le Monde-anneau ont rejoint le chapitre 38, *Les grands chantiers*. La **Porte stellaire** relie toutes vos portes : vos flottes sautent d'une porte à l'autre en un jour, et passent par celles des empires qui vous accordent le **droit de passage** (ou de vos alliés).
 - **Merveilles de registre** : une par registre, plus faciles pour son peuple.
 - **Merveilles de credo** : réservées au credo, ouvertes à l'ère III ; elles nourrissent le zèle de votre foi d'État.
 - **Œuvres collectives** : bâties à plusieurs (voir plus bas).

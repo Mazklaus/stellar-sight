@@ -109,6 +109,8 @@ static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictiona
 	if Private.skip_day(state, p.system_id):
 		return  # chantier lointain mal desservi par le fret privé
 	c.ship_days -= 1 + Ports.ship_bonus(state, c.owner, p.system_id)  # port : chantier plus rapide
+	if not state.megas.is_empty():
+		c.ship_days -= Megastructures.ship_bonus(state, c)  # Anneau orbital, module Chantier naval
 	if c.ship_days > 0:
 		return
 	var f := state.spawn_ship(c.owner, c.ship_build, p.system_id)

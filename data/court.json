@@ -1631,6 +1631,13 @@
 			"apt": "eloquence",
 			"label": "Précepteur",
 			"text": "À l'éducation d'un héritier, 15 % de chances par point d'Éloquence de lui donner +1 dans l'aptitude choisie."
+		},
+		{
+			"id": "grand_architecte",
+			"apt": "gestion",
+			"label": "Grand Architecte",
+			"megas": true,
+			"text": "Mégastructures en jeu : une étape de mégastructure de plus à la fois, si le titulaire a au moins 1 en Gestion."
 		}
 	],
 	"governments": {

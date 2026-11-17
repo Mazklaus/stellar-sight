@@ -501,6 +501,9 @@ static func start_stage(state: GameState, eid: int, want: int, added: Array[Dict
 	var sd := stage_def(pid, int(o["stage"]))
 	Economy.pay(e, sd.get("cost", {}))
 	o["until"] = state.tick + int(sd.get("days", 180))
+	# Mégastructure achevée dans le système de l'Exodium : la première étape est d'avance (prop. 38).
+	if int(o["stage"]) == 0 and MegasBridges.exodium_site(state, eid, int(o.get("sys", -1))):
+		o["until"] = state.tick
 	sub(state, "oeuvre")[str(eid)] = o
 	if int(o["stage"]) == 0:
 		added.append(state.add_chronicle(String(path_def(pid).get("start", "%s commence son Exodium.")) % e.display_name(), Espionage.public_to(state, [eid])))

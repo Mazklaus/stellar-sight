@@ -205,6 +205,11 @@ static func finance() -> Dictionary:
 	return _load("finance")
 
 
+## Mégastructures (data/megastructures.json) : réglages, règles, Kardashev, talents, catalogue.
+static func megastructures() -> Dictionary:
+	return _load("megastructures")
+
+
 ## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.
 static func wonders() -> Dictionary:
 	return _load("wonders")

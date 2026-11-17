@@ -40,6 +40,22 @@
 		"hp": 60,
 		"colonizer": true
 	},
+	"architecte": {
+		"label": "Vaisseau-architecte",
+		"plural": "Vaisseaux-architectes",
+		"line": "rear",
+		"size": "medium",
+		"role": "Mégastructures",
+		"description": "Un atelier volant bourré de géomètres, de drones de soudure et de plans roulés. Il pose le chantier d'une mégastructure et doit rester sur place jusqu'à ce que le Chantier tienne debout ; ensuite, la structure grandit sans lui.",
+		"requires_tech": ["architectes_stellaires"],
+		"cost": {"materials": 120, "energy": 30},
+		"days": 45,
+		"upkeep": {"energy": 1},
+		"speed": 25,
+		"vision": 1,
+		"hp": 60,
+		"architect": true
+	},
 	"spore_ship": {
 		"label": "Vaisseau-spore",
 		"plural": "Vaisseaux-spores",

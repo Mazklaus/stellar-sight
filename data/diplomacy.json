@@ -98,6 +98,9 @@
 		]
 	},
 	"memories": {
+		"world_breaker": {"value": -30, "days": 3600, "stack": 2, "label": "A brisé un monde avec sa superarme"},
+		"mega_sacrilege": {"value": -25, "days": 1800, "stack": 2, "label": "A emmailloté l'étoile de notre lieu saint"},
+		"mega_taken": {"value": -20, "days": 1800, "stack": 2, "label": "Nous a pris une mégastructure"},
 		"naval_spy": {"value": -10, "days": 360, "stack": 3, "label": "Ses flottes camouflées rôdent chez nous en temps de paix"},
 		"debt_default": {"value": -40, "days": 3600, "label": "Nous doit de l'argent et a fait faillite"},
 		"gen_profanation": {"value": -25, "days": 1080, "stack": 2, "label": "Profanation de notre sang (a façonné notre espèce)"},

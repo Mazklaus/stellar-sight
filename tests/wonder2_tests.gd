@@ -18,7 +18,6 @@ func run(check: Callable) -> void:
 	_test_known_tech()
 	_test_flags()
 	_test_free_tech()
-	_test_ring()
 	_test_gates()
 	_test_misc()
 
@@ -139,18 +138,6 @@ func _test_free_tech() -> void:
 	var eu := st2.get_empire(0).eurekas.size()
 	finish(st2, 0, st2.get_empire(0).capital_planet, "observatoire_horizon")
 	_ok(st2.get_empire(0).eurekas.size() == eu + 1, "Observatoire de l'Horizon : un eurêka")
-
-
-func _test_ring() -> void:
-	var st := T.new_game()
-	var home := st.get_empire(0).capital_planet
-	var sid := st.galaxy.get_planet(home).system_id
-	finish(st, 0, home, "monde_anneau")
-	var rings := 0
-	for p in st.galaxy.planets:
-		if p.system_id == sid and p.type == "anneau":
-			rings += 1
-	_ok(rings >= 1, "Monde-anneau : une planète du système devient segment d'anneau (%d)" % rings)
 
 
 func _test_gates() -> void:

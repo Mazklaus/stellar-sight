@@ -2183,7 +2183,7 @@
 			"pre": [
 				"ecopes"
 			],
-			"text": "Mégastructure, une par empire : un essaim de miroirs autour d'une étoile, construit depuis une colonie ou un avant-poste. +60 énergie par mois.",
+			"text": "Débloque la Sphère de Dyson (mégastructure, une par empire, avec la Méga-ingénierie) : une étoile emmaillotée, énergie selon l'étoile.",
 			"flavor": "L'étoile n'a rien demandé. Elle brille pareil, simplement plus pour nous.",
 			"eureka": {
 				"kind": "claim",
@@ -2198,7 +2198,7 @@
 			"pre": [
 				"fabriques_autonomes"
 			],
-			"text": "Mégastructure, une par empire : une station de recherche de la taille d'une ville. +40 Savoir par mois.",
+			"text": "Débloque le Nexus du savoir (mégastructure, une par empire, avec la Méga-ingénierie) : une station de recherche de la taille d'une ville.",
 			"flavor": "Quarante mille chercheurs, un seul café. La productivité n'a jamais été aussi haute.",
 			"eureka": {
 				"kind": "techs",
@@ -2649,7 +2649,24 @@
 			"effects": {
 				"culture_defect": 1
 			}
-		}
+		},
+		"architectes_stellaires": {"label": "Architectes stellaires", "domain": "genie", "era": 2, "pre": ["pont_orbital"], "text": "Mégastructures en jeu : débloque le Vaisseau-architecte, qui pose les chantiers des mégastructures, et l'Ascenseur orbital.", "flavor": "Le plan tient sur une serviette. La serviette fait trois kilomètres."},
+		"essaim_dyson": {"label": "Essaim de Dyson", "domain": "economie", "era": 3, "pre": ["cristallographie"], "text": "Mégastructures en jeu : débloque l'Essaim de Dyson (jusqu'à trois), des voiles autour d'une étoile, énergie selon l'étoile.", "flavor": "Un miroir, c'est de la décoration. Un milliard, c'est une politique énergétique."},
+		"anneau_orbital": {"label": "Anneaux orbitaux", "domain": "genie", "era": 3, "pre": ["arsenaux"], "text": "Mégastructures en jeu : débloque l'Anneau orbital (un par colonie), moitié station de défense, puis chantier naval, habitation ou batteries.", "flavor": "On a voulu agrandir le spatioport. On a fait le tour."},
+		"forge_noyau": {"label": "Forges-noyaux", "domain": "economie", "era": 3, "pre": ["automatisation"], "text": "Mégastructures en jeu : débloque la Forge-noyau (jusqu'à trois) sur une planète stérile ou toxique, matériaux puis cristaux.", "flavor": "Le manteau d'une planète morte, c'est une mine qui n'a jamais servi."},
+		"siphon_geante": {"label": "Siphons de géante", "domain": "economie", "era": 3, "pre": ["nanofabrication"], "text": "Mégastructures en jeu : débloque le Siphon de géante (jusqu'à trois) sur une géante gazeuse, énergie et dépôt de ravitaillement.", "flavor": "Une paille, très longue. Et beaucoup de patience."},
+		"mega_ingenierie": {"label": "Méga-ingénierie", "domain": "genie", "era": 4, "pre": ["coques_modulaires"], "text": "Mégastructures en jeu : ouvre les grandes mégastructures et permet de relever les ruines de mégastructures.", "flavor": "À cette échelle, une erreur d'arrondi a son propre climat."},
+		"mega_chantier": {"label": "Méga-chantiers navals", "domain": "genie", "era": 4, "pre": ["mega_ingenierie"], "text": "Mégastructures en jeu : débloque le Méga-chantier naval (un par empire), vaisseaux construits plus vite, titans compris.", "flavor": "On n'y construit pas des vaisseaux. On y construit des flottes, à la chaîne."},
+		"reseau_veille": {"label": "Réseau de veille", "domain": "genie", "era": 4, "pre": ["mega_ingenierie", "detecteurs_3"], "text": "Mégastructures en jeu : débloque le Réseau de veille (un par empire), vision lointaine puis galactique, détection contre la furtivité.", "flavor": "Plus rien ne bouge dans la galaxie sans qu'un stagiaire le note."},
+		"forum_interstellaire": {"label": "Forum interstellaire", "domain": "societe", "era": 4, "pre": ["ambassades"], "text": "Mégastructures en jeu : débloque le Forum interstellaire (un par empire), voix à l'Amphictyonie et opinion de tous.", "flavor": "Pour la première fois, tout le monde se parle. Ce n'est pas forcément une bonne nouvelle."},
+		"oeuvre_monumentale": {"label": "Art monumental", "domain": "societe", "era": 4, "pre": ["legende"], "text": "Mégastructures en jeu : débloque l'Œuvre monumentale (une par empire), stabilité et Rayonnement.", "flavor": "L'artiste a demandé une étoile comme toile. Le comité a dit oui, pour voir."},
+		"centre_coordination": {"label": "Coordination stratégique", "domain": "genie", "era": 4, "pre": ["logistique_campagne"], "text": "Mégastructures en jeu : débloque le Centre de coordination stratégique (un par empire), ravitaillement, vitesse des flottes, places de défense.", "flavor": "Chaque flotte reçoit son ordre de mission, sa météo, et un mot d'encouragement."},
+		"catapulte_quantique": {"label": "Catapulte quantique", "domain": "genie", "era": 4, "pre": ["mega_ingenierie", "saut_precision"], "text": "Mégastructures en jeu : débloque la Catapulte quantique, autour d'une étoile à neutrons, qui lance une flotte loin avec un risque d'arriver à côté.", "flavor": "Le calcul est exact. C'est l'univers qui arrondit."},
+		"matriochka": {"label": "Cerveau Matriochka", "domain": "economie", "era": 5, "pre": ["collecteur_stellaire"], "text": "Mégastructures en jeu : débloque le Cerveau Matriochka, sur votre Sphère de Dyson, Savoir massif au prix de l'énergie de la Sphère.", "flavor": "Une étoile qui calcule. Elle a déjà trouvé trois erreurs dans nos manuels."},
+		"decompresseur": {"label": "Décompression de matière", "domain": "economie", "era": 5, "pre": ["forage_manteau"], "text": "Mégastructures en jeu : débloque le Décompresseur de matière, autour d'un trou noir, matériaux en très grande quantité.", "flavor": "On ne sort rien d'un trou noir, disaient-ils. Ils n'avaient pas essayé avec un tire-bouchon gravitationnel."},
+		"mega_ingenierie_avancee": {"label": "Méga-ingénierie avancée", "domain": "genie", "era": 5, "pre": ["mega_ingenierie"], "text": "Mégastructures en jeu : une étape de mégastructure de plus en chantier à la fois.", "effects": {"mega_slots": 1}, "flavor": "Deux chantiers de la taille d'un système solaire, et un seul chef de chantier. Il ne dort plus."},
+		"brise_monde": {"label": "Brise-monde", "domain": "armement", "era": 5, "pre": ["canons_singularite"], "text": "Superarmes en jeu : débloque le Brise-monde (une par empire), qui détruit une planète à distance.", "flavor": "La question n'est plus de savoir si l'on peut. La question est de savoir qui le pardonnera."},
+		"anneau_extinction": {"label": "Anneau d'extinction", "domain": "armement", "era": 5, "pre": ["lances_stellaires"], "text": "Superarmes en jeu : débloque l'Anneau d'extinction (une par empire), arme de dernier recours qui anéantit une crise, et une partie des siens avec.", "flavor": "Un bouton, sous une vitre, sous une autre vitre, sous un serment."}
 	},
 	"marks": {
 		"step_pct": 20,

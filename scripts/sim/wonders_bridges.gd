@@ -79,7 +79,7 @@ static func oeuvres_needed(state: GameState) -> int:
 
 
 static func victory(state: GameState, e: Empire, out: Dictionary) -> void:
-	var have := Wonders.owned(state, e.id).count("grand_oeuvre")
+	var have := Wonders.owned(state, e.id).count("grand_oeuvre") + MegasBridges.great_works(state, e.id)  # mégastructures de l'ère V
 	var need := oeuvres_needed(state)
 	out["lines"].append("Grands Œuvres tenus : %d sur %d" % [have, need])
 	out["cond"] = have >= need

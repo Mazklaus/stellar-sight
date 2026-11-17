@@ -163,6 +163,9 @@ var _transcendence_sig := ""
 ## Écran Merveilles : boutons « start:merveille », « rush:merveille »… (tests).
 var wonder_buttons := {}
 var _wonders_sig := ""
+## Écran Mégastructures (onglet de l'écran Merveilles) : boutons « plan:type », « advance:id », « tab:… » (tests).
+var mega_buttons := {}
+var _megas_sig := ""
 var throne_buttons := {}
 var _throne_sig := ""
 ## Onglet ouvert de l'écran Chroniques : "quests", "events" ou "relics".
@@ -279,7 +282,7 @@ func show_screen(screen_id: String) -> void:
 	_filter_tabs.clear()
 	_col_sig = ""
 	_sys_sig = ""
-	var sc := EmpireBar.screen_info("victory" if screen_id == "transcendence" else screen_id)
+	var sc := EmpireBar.screen_info({"transcendence": "victory", "megas": "wonders"}.get(screen_id, screen_id))
 	_tab.text = ("%s     ×" % sc.get("label", screen_id)).to_upper()
 	match screen_id:
 		"economy":
@@ -326,7 +329,11 @@ func show_screen(screen_id: String) -> void:
 			TranscendenceScreen.build(self)
 		"wonders":
 			wonder_buttons.clear()
+			mega_buttons.clear()
 			WondersUi.build(self)
+		"megas":
+			mega_buttons.clear()
+			MegasUi.build(self)
 		"throne":
 			throne_buttons.clear()
 			ThroneScreen.build(self)
@@ -392,6 +399,9 @@ func refresh() -> void:
 		"wonders":
 			if WondersUi.signature(self) != _wonders_sig:
 				show_screen("wonders")
+		"megas":
+			if MegasUi.signature(self) != _megas_sig:
+				show_screen("megas")
 		"throne":
 			if ThroneScreen.signature(self) != _throne_sig:
 				show_screen("throne")

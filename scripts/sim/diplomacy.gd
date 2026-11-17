@@ -369,6 +369,10 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	if not state.transcendence.is_empty():
 		for pp in TranscendenceWorld.opinion_parts(state, a, b):
 			_part(out, String(pp[0]), int(pp[1]))
+	# Mégastructures : les credos jugent les grands ouvrages (voir MegasBridges).
+	if not state.megas.is_empty():
+		for pp in MegasBridges.opinion_parts(state, a, b):
+			_part(out, String(pp[0]), int(pp[1]))
 	# Histoire commune : les souvenirs qui ne sont pas encore effacés.
 	for m in state.memories:
 		if int(m["who"]) == a and int(m["about"]) == b:

@@ -312,6 +312,7 @@ static func capacity(state: GameState, sid: int) -> int:
 	n += module_count(state, sid, "capacity") * int(module_def("module_commandement").get("capacity", 4))
 	n += int(talent(state, owner).get("capacity", 0))
 	n += DefensesBridges.capacity_bonus(state, sid, owner)
+	n += Megastructures.capacity_bonus(state, sid, owner)  # Anneau orbital
 	return n
 
 
