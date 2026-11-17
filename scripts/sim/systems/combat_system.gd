@@ -202,6 +202,8 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		dpct += Fauna.hunt_pct(state, f, fighters)
 		dpct += Plagues.damage_pct(state, f, sid)
 		dpct += Crisis.damage_pct(state, f, sid)  # Front commun contre la crise
+		if not state.transcendence.is_empty():
+			dpct += TranscendenceBridges.damage_pct(state, f, sid)  # Faim de l'Au-delà (Kh'thari)
 		dpct += FaithNatures.damage_pct(state, f, sid)
 		dpct += Logistics.damage_pct(state, f)  # réserves épuisées loin des bases
 		dpct += Defenses.damage_pct(state, f, sid)  # couverture de station, garde, talents

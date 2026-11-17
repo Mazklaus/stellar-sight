@@ -29,6 +29,7 @@ func run(check: Callable) -> void:
 	print("  - ai_save")
 	_test_ai_save()
 	TranscendenceTests2.run(check)
+	TranscendenceTests3.run(check)
 
 
 func _ok(cond: bool, what: String) -> void:

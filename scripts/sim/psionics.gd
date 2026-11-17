@@ -589,6 +589,11 @@ static func felure_chance(state: GameState, eid: int, power: String) -> Array:
 	if tp != 0:
 		parts.append(["Talent", tp])
 		pct += tp
+	if not state.transcendence.is_empty():
+		var trp := TranscendenceBridges.felure_pct(state, eid)
+		if trp != 0:
+			parts.append(["Passage du Songe", trp])
+			pct += trp
 	return [maxi(0, base * maxi(0, 100 + pct) / 100), parts]
 
 
