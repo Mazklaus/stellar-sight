@@ -537,6 +537,15 @@ func to_dict() -> Dictionary:
 		d["archaeo"] = Archaeology.to_dict(self)
 	if Announce.worth_saving(self):
 		d["announces"] = Announce.to_dict(self)
+	# Vision du jour, calculée au milieu du tick (après les mouvements) : les nouvelles du lendemain s'y
+	# adressent avant le nouveau calcul. Sans elle, une partie rechargée divergeait dès le premier jour.
+	if seen_tick == tick and not seen_cache.is_empty():
+		var vis := []
+		for m: Dictionary in seen_cache:
+			var ids := m.keys()
+			ids.sort()
+			vis.append(ids)
+		d["seen"] = vis
 	if HeroFall.worth_saving(self):
 		d["hero_death"] = HeroFall.to_dict(self)
 	return d
@@ -800,6 +809,15 @@ static func from_dict(d: Dictionary) -> GameState:
 	if not s.wonders.is_empty():
 		WondersCatalog.refresh_gates(s)  # réseau des portes stellaires (donnée dérivée)
 	Portals.refresh(s)  # trous de ver, relais, portails de saut (données dérivées)
+	# Vision du jour (voir to_dict « seen »).
+	if d.get("seen") is Array:
+		s.seen_cache.clear()
+		for ids in d["seen"]:
+			var m := {}
+			for x in ids:
+				m[int(x)] = true
+			s.seen_cache.append(m)
+		s.seen_tick = s.tick
 	return s
 
 
