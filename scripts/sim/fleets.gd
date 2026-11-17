@@ -43,6 +43,9 @@ static func speed(fleet: Fleet, state: GameState = null) -> int:
 		if not state.stealth.is_empty():
 			@warning_ignore("integer_division")
 			v = v * Stealth.speed_pct(state, fleet) / 100  # voile de camouflage, Silence radio
+		if not state.psionics.is_empty():
+			@warning_ignore("integer_division")
+			v = v * PsionicsBridges.phare_pct(state, fleet) / 100  # Phare du Songe allumé à portée
 	return maxi(1, v)
 
 

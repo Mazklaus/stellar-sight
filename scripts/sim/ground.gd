@@ -569,6 +569,8 @@ static func recruit(state: GameState, eid: int, sid: int, t: String, species := 
 	state.ground["rec"][k] = recruits(state, eid) - int(d.get("recruits", 2))
 	var sp := species if species != "" else default_species(state, eid, sid)
 	(_g(state)["q"] as Array).append({"e": eid, "s": sid, "t": t, "sp": sp, "d": state.tick + recruit_days(state, eid, t)})
+	if bool(d.get("psionics", false)):
+		Politics.on_act(state, eid, "psi_regiment")  # le Glaive aime les régiments psioniques
 
 
 ## Délai de formation d'un régiment (technologies comprises).
@@ -1099,6 +1101,8 @@ static func _damage(state: GameState, b: Dictionary, side: int, u: Dictionary, t
 	pct = pct * _species_pct(sp, "ground_damage_pct") / 100
 	var eid := int(b["a"]) if side == 0 else int(b["d"])
 	pct = pct * Genetics.ground_pct(state, eid, sp) / 100  # traits façonnés (Robustes, Carapace…)
+	if bool(d.get("psionics", false)) and not state.psionics.is_empty():
+		pct += int(Psionics.talent(state, eid).get("psi_ground_pct", 0))  # Hurleurs
 	pct += Research.fx_int(state, eid, "ground_damage_pct")
 	@warning_ignore("integer_division")
 	return maxi(1, n * maxi(10, pct) / 100)

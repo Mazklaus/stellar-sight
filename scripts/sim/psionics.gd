@@ -23,7 +23,7 @@ extends RefCounted
 ##  "fx": {"eid": [effet actif {"id", "until", "target"?, "sys"?, "v"?}]}, "st": {"eid": {statistiques}}}.
 ## Tout est déterministe : entiers, tirages par hachage de la graine, ordres par SimCommands.
 
-const SUBS := ["res", "awake", "crown", "cd", "fx", "st", "open", "pact", "offer", "reform", "haunted"]
+const SUBS := ["res", "awake", "crown", "cd", "fx", "st", "open", "pact", "offer", "reform", "haunted", "ambre", "amb", "lineage", "phz"]
 
 static var _talent_cache := {}
 
@@ -87,6 +87,7 @@ static func setup(state: GameState, mode_id: String) -> void:
 	state.psionics = {"mode": mode_id}
 	for k in SUBS:
 		state.psionics[k] = {}
+	PsionicsBridges.place_ambre(state)
 
 
 static func worth_saving(state: GameState) -> bool:
@@ -152,14 +153,14 @@ static func talent(state: GameState, eid: int) -> Dictionary:
 		return {}
 	var f := e.faction()
 	var sp := FactionTraits.species(f)
-	var key := "%s|%s|%s|%s|%s|%s" % [e.faction_id, f.get("registre", ""), sp.get("archetype", ""), sp.get("gouvernement", ""), sp.get("credo", ""), ",".join(PackedStringArray(sp.get("traits", [])))]
+	var key := "%s|%s|%s|%s|%s|%s|%s" % [e.faction_id, f.get("registre", ""), sp.get("archetype", ""), sp.get("gouvernement", ""), sp.get("credo", ""), sp.get("origine", ""), ",".join(PackedStringArray(sp.get("traits", [])))]
 	if _talent_cache.has(key):
 		return _talent_cache[key]
 	var out := {}
 	var tl := cfg("talents")
 	var layers := {"registre": String(f.get("registre", "")), "archetype": String(sp.get("archetype", "")),
-			"gouvernement": String(sp.get("gouvernement", "")), "credo": String(sp.get("credo", ""))}
-	for layer in ["registre", "archetype", "gouvernement", "credo"]:
+			"gouvernement": String(sp.get("gouvernement", "")), "credo": String(sp.get("credo", "")), "origine": String(sp.get("origine", ""))}
+	for layer in ["registre", "archetype", "gouvernement", "credo", "origine"]:
 		var t: Variant = (tl.get(layer, {}) as Dictionary).get(layers[layer], null)
 		if t is Dictionary:
 			for k in t:
@@ -356,7 +357,10 @@ static func gain_parts(state: GameState, eid: int) -> Array:
 	if col > 0 and best_level(state, eid) > 0:
 		out.append(["Collèges des sensitifs", col])
 		raw += col
-	var pct := law_fx(state, eid, "resonance_pct") + int(talent(state, eid).get("res_pct", 0))
+	for x in PsionicsBridges.gain_parts(state, eid):
+		out.append(x)
+		raw += int(x[1])
+	var pct := law_fx(state, eid, "resonance_pct") + int(talent(state, eid).get("res_pct", 0)) + PsionicsBridges.res_pct(state, eid)
 	if pct != 0 and raw > 0:
 		out.append(["Lois et talents (%+d %%)" % pct, raw * pct / 100])
 	return out
@@ -437,7 +441,7 @@ static func hero_power(state: GameState, h: Dictionary) -> int:
 	if lv <= 0 or bool(arch_def(Genetics.fiche(state, owner, hero_species(state, h))).get("collective", false)):
 		return 0
 	var hd := cfg("heroes")
-	var base := 1 if (h.get("traits", []) as Array).has(String(hd.get("trait", "psionique"))) or lv >= 2 else 0
+	var base := 1 if (h.get("traits", []) as Array).has(String(hd.get("trait", "psionique"))) or lv >= 2 or String(h.get("voc", "")) == "voyant" else 0
 	if base == 0:
 		return 0
 	if int(h.get("lvl", 1)) >= int(hd.get("level_up", 4)) or Heroes.age(state, h) >= int(hd.get("age_up", 60)) or lv >= 3:
@@ -481,7 +485,8 @@ static func powers_of(state: GameState, eid: int) -> Array:
 	var out := []
 	var fm := form(state, eid)
 	for p: Dictionary in power_defs():
-		if String(p.get("form", "songe")) == fm and (not bool(p.get("dream", false)) or full(state)):
+		if String(p.get("form", "songe")) == fm and (not bool(p.get("dream", false)) or full(state)) \
+				and (String(p.get("requires_talent", "")) == "" or bool(talent(state, eid).get(String(p["requires_talent"]), false))):
 			out.append(p)
 	return out
 
@@ -491,7 +496,7 @@ static func power_cost(state: GameState, eid: int, power: String) -> int:
 	var pd := power_def(power)
 	var c := int(pd.get("cost", 0))
 	var h := power_hero(state, eid, power)
-	var pct := int(talent(state, eid).get("power_cost_pct", 0))
+	var pct := int(talent(state, eid).get("power_cost_pct", 0)) + PsionicsBridges.cost_pct(state, eid, power)
 	if not h.is_empty():
 		pct += hero_power(state, h) * c_int("heroes", "cost_pct", -10)
 	return maxi(1, c * (100 + pct) / 100)
@@ -511,6 +516,8 @@ static func check_power(state: GameState, eid: int, power: String, target: int) 
 		return "ce pouvoir n'appartient pas à votre forme de psionisme"
 	if bool(pd.get("dream", false)) and not full(state):
 		return "le Songe n'est pas en jeu (réglage Discret)"
+	if String(pd.get("requires_talent", "")) != "" and not bool(talent(state, eid).get(String(pd["requires_talent"]), false)):
+		return "ce pouvoir est un talent d'un autre peuple"
 	var e := state.get_empire(eid)
 	var t := String(pd.get("tech", ""))
 	if t != "" and not e.techs.has(t):
@@ -533,6 +540,8 @@ static func check_power(state: GameState, eid: int, power: String, target: int) 
 		"system":
 			if target < 0 or target >= state.galaxy.systems.size() or state.system_owner(target) != eid:
 				return "il faut viser un de vos systèmes"
+	if String(pd.get("target", "")).ends_with("system") and PsionicsBridges.null_in(state, target):
+		return "des Intouchables vivent dans ce système : le Songe s'y tait"
 	return PsionicsDream.check_power(state, eid, power, target)
 
 
@@ -544,7 +553,7 @@ static func screen_pct(state: GameState, target: int) -> int:
 		return 100
 	var s := cfg("screens")
 	var n := 0
-	if state.get_empire(target).techs.has(tech_for("screens")):
+	if state.get_empire(target).techs.has(tech_for("screens")) or bool(talent(state, target).get("screens_free", false)):
 		n = int(s.get("tech", 30)) + int(s.get("per_building", 10)) * screens_built(state, target)
 	n += int(talent(state, target).get("screen", 0))
 	return clampi(n, 0, int(s.get("max", 90)) if n < 100 else 100)
@@ -573,6 +582,9 @@ static func felure_chance(state: GameState, eid: int, power: String) -> Array:
 		var hp := hero_power(state, h) * c_int("felures", "hero_pct", -10)
 		parts.append(["%s (sensitif)" % h["name"], hp])
 		pct += hp
+	for x in PsionicsBridges.felure_parts(state, eid):
+		parts.append(x)
+		pct += int(x[1])
 	var tp := int(talent(state, eid).get("felure_pct", 0))
 	if tp != 0:
 		parts.append(["Talent", tp])
@@ -619,6 +631,8 @@ static func _effect(state: GameState, eid: int, power: String, target: int, adde
 			_add_fx(state, eid, {"id": "apaisement", "until": until, "sys": target, "v": int(pd.get("stability", 10))})
 			added.append(state.add_chronicle("Sur %s, une douceur inexplicable gagne les foules ; les émeutiers rentrent chez eux faire la sieste." % state.galaxy.systems[target].system_name,
 					Espionage.private_to(state, [eid])))
+		"foire":
+			PsionicsBridges.foire(state, eid, target, added)
 		_:
 			PsionicsDream.effect(state, eid, power, target, added)
 
@@ -700,6 +714,7 @@ static func empire_stability_parts(state: GameState, eid: int) -> Array:
 	for fx: Dictionary in fx_list(state, eid):
 		if String(fx["id"]) == "f_empire" and int(fx["until"]) > state.tick:
 			out.append(["Fêlure : %s" % String(fx.get("label", "")), int(fx.get("v", 0))])
+	out.append_array(PsionicsBridges.empire_stability_parts(state, eid))
 	return out
 
 
@@ -723,6 +738,7 @@ static func system_stability_parts(state: GameState, sid: int, owner: int) -> Ar
 			n += 1
 	if n > 0:
 		out.append(["Collège des sensitifs", n * c_int("college", "stability", 1)])
+	out.append_array(PsionicsBridges.system_stability_parts(state, sid, owner))
 	return out
 
 
@@ -792,6 +808,8 @@ static func check(state: GameState, eid: int, act: String, d: Dictionary) -> Str
 			return check_path(state, eid)
 		"power":
 			return check_power(state, eid, String(d.get("power", "")), int(d.get("target", -1)))
+		"lineage":
+			return PsionicsBridges.check_lineage(state, eid)
 	return PsionicsDream.check(state, eid, act, d)
 
 
@@ -805,6 +823,8 @@ static func apply(state: GameState, eid: int, act: String, d: Dictionary) -> Arr
 				awaken(state, eid, added)
 		"power":
 			use_power(state, eid, String(d["power"]), int(d.get("target", -1)), added)
+		"lineage":
+			PsionicsBridges.start_lineage(state, eid, added)
 		_:
 			PsionicsDream.apply(state, eid, act, d, added)
 	return added
@@ -835,6 +855,7 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 			fxs[str(e.id)] = keep
 		if posmod(month, 12) == posmod(e.id, 12):
 			_reveal_sensitives(state, e, added)
+	PsionicsBridges.monthly(state, month, added)
 	PsionicsDream.monthly(state, added)
 
 

@@ -8,6 +8,7 @@ static func build(es: EmpireScreens, col: VBoxContainer) -> void:
 	var state := es._state
 	var player := es._player
 	var w := 760.0
+	_bridges(es, col)
 	# L'Élu.
 	var h := PsionicsDream.elu(state, player)
 	if not h.is_empty():
@@ -108,6 +109,34 @@ static func build(es: EmpireScreens, col: VBoxContainer) -> void:
 		rb.body.add_child(row3)
 		row3.add_child(PsionicsScreen._btn(es, "Accepter", "", "Le gouvernement devient une théocratie.", SimCommands.psi_act(player, "reform", {"accept": true}), "reform:yes"))
 		row3.add_child(PsionicsScreen._btn(es, "Refuser", "", "Stabilité en baisse pendant deux ans.", SimCommands.psi_act(player, "reform", {"accept": false}), "reform:no"))
+
+
+## Lot 3 : Phare du Songe, Ambre de songe, foi, programme de lignées.
+static func _bridges(es: EmpireScreens, col: VBoxContainer) -> void:
+	var state := es._state
+	var player := es._player
+	var w := 760.0
+	var b := Widgets.Block.new("Phare, ambre et lignées")
+	col.add_child(b)
+	var ps := PsionicsBridges.phare_system(state, player)
+	var phare := "pas encore bâti (technologie Navigation par le Songe)" if ps < 0 else ("%s, allumé : vos flottes vont %d %% plus vite à %d sauts autour" % [state.galaxy.systems[ps].system_name,
+			int(Psionics.cfg("phare").get("speed_pct", 25)), int(Psionics.cfg("phare").get("radius", 3))] if PsionicsBridges.phare_lit(state, player) else "%s, éteint : il faut le tribut des Nefs du Silence" % state.galaxy.systems[ps].system_name)
+	b.body.add_child(UiTheme.paragraph("Phare du Songe : %s." % phare, w, 13))
+	var am := PsionicsBridges.ambre_of(state, player)
+	b.body.add_child(UiTheme.paragraph("Ambre de songe : %d gisement(s) exploité(s) sur %d dans la galaxie%s%s." % [am, PsionicsBridges.ambre_planets(state).size(),
+			(" (+%d Résonance par mois, fêlures %d %%)" % [PsionicsBridges.ambre_res(state, player), PsionicsBridges.ambre_felure_pct(state, player)]) if am > 0 else "",
+			" ; votre peuple en a pris l'habitude" if PsionicsBridges.ambre_habit(state, player) else ""], w, 13))
+	var st := PsionicsBridges.faith_stance(state, player)
+	if st != "":
+		b.body.add_child(UiTheme.paragraph("Foi d'État : %s." % ("elle sacralise les sensitifs (fêlures plus rares, Résonance en plus)" if st == "sacred" else "elle chasse les sensitifs (les Collèges fâchent les fidèles)"), w, 13))
+	var lu := PsionicsBridges.lineage_until(state, player)
+	var ld := Psionics.cfg("lineage")
+	if lu > 0:
+		b.body.add_child(UiTheme.paragraph("Programme de lignées en cours, jusqu'au %s." % GameCalendar.date_string(lu), w, 13))
+	else:
+		b.body.add_child(PsionicsScreen._btn(es, "Programme de lignées (%s)" % GameData.format_amounts(ld.get("cost", {})), PsionicsBridges.check_lineage(state, player),
+				"Des mariages arrangés pendant %d ans : au bout, un Élu s'il n'y en a pas, sinon un héritier sensitif." % int(ld.get("years", 10)),
+				SimCommands.psi_act(player, "lineage"), "lineage"))
 
 
 static func _pact_tip(ed: Dictionary) -> String:

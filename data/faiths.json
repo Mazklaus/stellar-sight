@@ -1548,6 +1548,12 @@
 				"inquisition_x": 2,
 				"heresy_pct": 50
 			},
+			"voyant": {
+				"label": "Voyant",
+				"psionics": true,
+				"text": "Pouvoirs psioniques en jeu : le héros entend le Songe (sensitif), et la Préscience coûte moitié moins à l'empire.",
+				"prescience_pct": -50
+			},
 			"martyr": {
 				"label": "Martyr",
 				"text": "S'il est exécuté ou assassiné : zèle +15 pour la foi, 3 fragments de relique, et le Bouclier du martyr s'il est encore sans maître.",

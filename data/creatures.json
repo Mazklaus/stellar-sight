@@ -68,6 +68,10 @@
 			"text": "Des formes nées du Songe, qui passent par les fêlures et les plongées ratées. Elles chassent les esprits plus que les coques.",
 			"weakness": "Leur chair de rêve ignore le blindage mais craint les barrières psychiques ; boucliers moyens, coque fragile : rayons et frappes mentales.",
 			"unit": "bete_songe", "herd": 2, "loot": {"knowledge": 20}, "study_fx": {"defense_pct": {"shield": 5}}, "study_text": "+5 % de boucliers : on apprend à leur fermer la porte."},
+		"avatar_corrompu": {"label": "Avatars corrompus", "one": "Avatar corrompu", "temper": "predator", "tamable": false, "dream": true,
+			"text": "Un Avatar du Songe tordu par une plongée ratée. Il cherche les plongeurs qui l'ont appelé, et tous ceux qui leur ressemblent.",
+			"weakness": "Énorme et lent, sans blindage : artillerie et canons cinétiques à distance ; une barrière psychique émousse ses hurlements.",
+			"unit": "bete_avatar_corrompu", "herd": 1, "loot": {"knowledge": 60}, "study_fx": {"damage_pct": 5}, "study_text": "+5 % de dégâts : on sait maintenant où frapper un rêve."},
 		"beliers": {
 			"label": "Béliers d'écume", "one": "Bélier d'écume", "temper": "passive", "tamable": false,
 			"text": "De grands herbivores de nébuleuse aux cornes de glace. Ils broutent le gaz, élèvent leurs petits et foncent sur ce qui les menace.",
@@ -125,6 +129,7 @@
 		"bete_nuee": {"label": "Nuée d'orage", "plural": "Nuées d'orage", "line": "screen", "size": "small", "role": "Créature", "hp": 50, "armor": 0, "shield": 50, "weapons": {"decharge": 22}, "speed": 34, "military": true, "creature": "nuees",
 			"description": "Une décharge qui a appris à chasser."},
 				"bete_songe": {"label": "Bête du Songe", "plural": "Bêtes du Songe", "line": "line", "size": "medium", "role": "Créature", "hp": 220, "armor": 0, "shield": 40, "weapons": {"psychic": 26, "beam": 10}, "speed": 22, "military": true, "creature": "betes_songe", "description": "On la voit mieux les yeux fermés."},
+		"bete_avatar_corrompu": {"label": "Avatar corrompu", "plural": "Avatars corrompus", "line": "line", "size": "large", "role": "Créature", "hp": 900, "armor": 0, "shield": 50, "weapons": {"psychic": 50, "kinetic": 20}, "speed": 14, "military": true, "creature": "avatar_corrompu", "description": "Il a la forme d'une prière qu'on aurait mal prononcée."},
 "bete_belier": {"label": "Bélier d'écume", "plural": "Béliers d'écume", "line": "line", "size": "large", "role": "Créature", "hp": 260, "armor": 30, "shield": 0, "weapons": {"kinetic": 22}, "speed": 14, "military": true, "creature": "beliers",
 			"description": "Des cornes de glace, une patience de montagne, un très mauvais caractère quand on touche aux petits."},
 		"bete_spectre": {"label": "Spectre des pulsars", "plural": "Spectres des pulsars", "line": "line", "size": "titan", "role": "Fléau", "hp": 5200, "armor": 20, "shield": 70, "weapons": {"beam": 70, "missile": 40}, "speed": 18, "military": true, "plague": "spectre", "cloak": 2,

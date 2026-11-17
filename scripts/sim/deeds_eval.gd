@@ -38,6 +38,12 @@ static func value(state: GameState, eid: int, k: String, x: Variant = null) -> i
 			return Genetics.stat(state, eid, "founder_traits") if Genetics.enabled(state) else 0
 		"gen_shaped":
 			return Genetics.stat(state, eid, "shaped") if Genetics.enabled(state) else 0
+		"psi_elu":
+			return Psionics.stat(state, eid, "elu") if Psionics.enabled(state) else 0
+		"psi_phare":
+			return Psionics.stat(state, eid, "phare") if Psionics.enabled(state) else 0
+		"psi_broken":
+			return Psionics.stat(state, eid, "broken") if Psionics.enabled(state) else 0
 		"gen_transfer":
 			return Genetics.stat(state, eid, "founder_transfer") if Genetics.enabled(state) else 0
 		"veiled_fleets":

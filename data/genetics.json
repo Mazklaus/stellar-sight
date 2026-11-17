@@ -75,6 +75,7 @@
 		{"id": "g_parfaits", "voie": "elite", "label": "Parfaits", "cost": 2, "text": "Espèce parfaite : +8 % d'énergie, de matériaux, d'influence et de Savoir.", "fields": {"production_pct": {"energy": 108, "materials": 108, "influence": 108, "knowledge": 108}}},
 		{"id": "g_abrutis", "voie": "special", "label": "Abrutis", "cost": 0, "text": "Volonté retranchée : +10 % de production, ni héros, ni doléances, ni intégration.", "fields": {"production_pct": {"energy": 110, "materials": 110, "food": 110, "crystals": 110, "knowledge": 110}, "stapled": true}},
 		{"id": "g_peau_vide", "voie": "special", "label": "Peau de vide", "cost": 1, "text": "Échantillon d'une créature spatiale : garnisons +20 %, mange 10 % de moins.", "fields": {"combat": {"garrison_pct": 120, "ground_pct": 110}, "food_upkeep_pct": 90}},
+		{"id": "g_neant", "voie": "special", "psionics": true, "label": "Néant psychique", "cost": 2, "text": "Pouvoirs psioniques en jeu (technologie Écrans psychiques) : les Intouchables. Immunisés aux pouvoirs, sourds au Songe, ils éteignent tout pouvoir dans leur système.", "fields": {"psi_null": true}},
 		{"id": "g_sang_ancien", "voie": "special", "label": "Sang d'Ancien", "cost": 1, "text": "Échantillon d'une créature colossale : +10 % de Savoir et d'énergie.", "fields": {"production_pct": {"knowledge": 110, "energy": 110}}}
 	],
 	"implant_upkeep": {"_doc": "Prop. 10 : chaque implant coûte 1 énergie par mois pour per_pop habitants.", "per_pop": 10, "energy": 1},

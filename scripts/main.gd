@@ -1271,7 +1271,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				_hud.cycle_trade_lens()
 				return
 			if key.physical_keycode == KEY_U and not is_system_view_open():
-				_hud.set_lens("" if _hud.lens == "peoples" else "peoples")
+				_hud.cycle_peoples_lens()
 				return
 			if key.physical_keycode == KEY_N and not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "faith" else "faith")

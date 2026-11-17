@@ -353,7 +353,7 @@ static func _draw_vocations(state: GameState, eid: int, n: int) -> Array[String]
 	var common: Array[String] = []
 	for v: Dictionary in data()["vocations"]:
 		var id := String(v["id"])
-		if used.has(id):
+		if used.has(id) or (bool(v.get("psionics", false)) and not Psionics.applies(state, eid)):
 			continue
 		var regs: Array = v.get("registres", [])
 		if regs.is_empty():

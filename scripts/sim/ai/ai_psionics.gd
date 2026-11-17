@@ -10,6 +10,7 @@ extends RefCounted
 ## tempérament : Audacieuse s'il est agressif, Prudente s'il est pacifique), accepte les pactes sauf
 ## celui de la Dernière Puissance, accepte la réforme de l'Élu si son credo est la foi ; en guerre,
 ## tente la Domination mentale ; en paix, use de la Voix sur le voisin qui l'aime le moins.
+## Lot 3 : une foi qui chasse les sensitifs adopte la Persécution ; les médiums de foire vendent des visions.
 
 static func cfg() -> Dictionary:
 	return Psionics.cfg("ai")
@@ -29,6 +30,11 @@ static func think(ctx: Dictionary) -> void:
 		return
 	_research(ctx)
 	if Psionics.best_level(state, e.id) <= 0:
+		return
+	# Une foi qui chasse les sensitifs choisit la Persécution (prop. 41).
+	if PsionicsBridges.faith_stance(state, e.id) == "hunt" and state.politics_on and Laws.check_adopt(state, e.id, "persecution") == "":
+		AiPlayer._issue(ctx, SimCommands.law_adopt(e.id, "persecution"))
+		AiPlayer._intent(ctx, "persécuter les sensitifs, au nom de la foi")
 		return
 	var credo := String(FactionTraits.species(e.faction()).get("credo", ""))
 	if (cfg().get("eveil_credo", []) as Array).has(credo) and Psionics.check(state, e.id, "path", {}) == "":
@@ -134,8 +140,12 @@ static func _powers(ctx: Dictionary) -> void:
 			if o < worst_o:
 				worst_o = o
 				worst_e = c
-		if worst_e >= 0:
-			_try(ctx, "voix", worst_e, reserve)
+		if worst_e >= 0 and _try(ctx, "voix", worst_e, reserve):
+			return
+		# Médiums de foire : vendre des visions au premier voisin venu.
+		for c in e.contacts:
+			if _try(ctx, "foire", c, reserve):
+				return
 
 
 static func _try(ctx: Dictionary, power: String, target: int, reserve: int) -> bool:

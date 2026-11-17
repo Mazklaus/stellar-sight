@@ -199,9 +199,9 @@ static func jump_felure(state: GameState, eid: int) -> int:
 	return maxi(0, int(nav().get("felure", 6)) * maxi(0, 100 + pct) / 100)
 
 
-static func spawn_beast(state: GameState, sid: int) -> void:
+static func spawn_beast(state: GameState, sid: int, sp := "") -> void:
 	var c := cfg("combat")
-	Fauna.spawn_herd(state, String(c.get("beast", "betes_songe")), sid, -1, state.tick + int(c.get("beast_days", 720)))
+	Fauna.spawn_herd(state, sp if sp != "" else String(c.get("beast", "betes_songe")), sid, -1, state.tick + int(c.get("beast_days", 720)))
 
 
 # --- L'Élu -------------------------------------------------------------------------------------
@@ -260,7 +260,8 @@ static func open_cost(state: GameState, eid: int) -> int:
 		var c: Colony = state.colonies[pid]
 		if c.owner == eid and c.is_colony() and c.is_established():
 			cols += 1
-	return int(dream().get("open_base", 500)) + int(dream().get("open_colony", 100)) * cols
+	@warning_ignore("integer_division")
+	return (int(dream().get("open_base", 500)) + int(dream().get("open_colony", 100)) * cols) * (100 + PsionicsBridges.open_pct(state, eid)) / 100
 
 
 static func posture(id: String) -> Dictionary:
@@ -388,10 +389,10 @@ static func apply_vision(state: GameState, eid: int, v: Dictionary, added: Array
 		"elu":
 			if make_elu(state, eid, "", added).is_empty():
 				Psionics.add_resonance(state, eid, Psionics.cap(state, eid))
-		"beast":
+		"beast", "corrupt":
 			var sid := FactionTraits.capital_system(state, eid)
 			if sid >= 0:
-				spawn_beast(state, sid)
+				spawn_beast(state, sid, String(cfg("combat").get("corrupt", "avatar_corrompu")) if String(v.get("do", "")) == "corrupt" else "")
 		"hero_death":
 			_kill_sensitive(state, eid, "n'est pas remonté du Songe", added)
 		"felure_grave":
@@ -517,6 +518,7 @@ static func answer_pact(state: GameState, eid: int, accept: bool, added: Array[D
 	Psionics.sub(state, "pact")[str(eid)] = p
 	Psionics._stat(state, eid, "pacts", 1)
 	state.relic_rev += 1
+	PsionicsBridges.on_pact(state, eid)
 	added.append(state.add_chronicle("%s pactise avec %s. %s" % [e.display_name(), entity_label(pid),
 			"Cinquante ans de tout, tout de suite. Le compte est ouvert." if is_last(pid) else "La faveur montera avec les actes qui lui plaisent ; le prix viendra aussi."],
 			_private(state, eid)))

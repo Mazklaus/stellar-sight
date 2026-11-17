@@ -95,8 +95,8 @@ static func best_trait(state: GameState, eid: int, fid: String) -> String:
 	var best_score := -1
 	for t: Dictionary in Genetics.catalogue():
 		var c := int(t.get("cost", 0))
-		if c <= 0:
-			continue
+		if c <= 0 or bool(t.get("psionics", false)):
+			continue  # les Intouchables : un choix de joueur, pas d'IA
 		var tid := String(t["id"])
 		var score := c * 10
 		if (t.get("fields", {}).get("production_pct", {}) as Dictionary).has(strong):

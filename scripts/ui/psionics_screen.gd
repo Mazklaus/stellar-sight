@@ -169,4 +169,5 @@ static func signature(es: EmpireScreens) -> String:
 	return "%d|%d|%s|%d|%s|%s|%d|%d" % [e.techs.size(), Psionics.resonance(state, es._player) / 5, str(Psionics.awake(state, es._player)),
 			Psionics.colleges(state, es._player), str(Psionics.fx_list(state, es._player).size()), str(state.psionics.get("cd", {}).size()),
 			state.tick / 30, e.contacts.size()] + "|%s|%s|%s|%s" % [str(PsionicsDream.pact(state, es._player)), str(PsionicsDream.offer(state, es._player)),
-			str(PsionicsDream.opened(state, es._player)), str(PsionicsDream.check_reform(state, es._player) == "")]
+			str(PsionicsDream.opened(state, es._player)), str(PsionicsDream.check_reform(state, es._player) == "")] + "|%d|%s|%d" % [PsionicsBridges.lineage_until(state, es._player),
+			str(PsionicsBridges.phare_lit(state, es._player)), PsionicsBridges.ambre_of(state, es._player)]

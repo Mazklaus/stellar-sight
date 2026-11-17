@@ -616,8 +616,10 @@ static func check_mod(state: GameState, eid: int, fid: String, add: Array, rem: 
 			return "trait inconnu : %s" % tid
 		if cur.has(String(tid)):
 			return "%s : l'espèce l'a déjà" % trait_label(String(tid))
+		if bool(t.get("psionics", false)) and not (Psionics.enabled(state) and e.techs.has(Psionics.tech_for("screens"))):
+			return "%s : il faut les pouvoirs psioniques et la technologie Écrans psychiques" % trait_label(String(tid))
 		var v := String(t.get("voie", "creation"))
-		if v == "special" and not extra.has(String(tid)):
+		if v == "special" and not extra.has(String(tid)) and not bool(t.get("psionics", false)):
 			return "%s ne s'obtient pas par un programme" % trait_label(String(tid))
 		if v != "creation" and v != "special" and not voies.has(v) and not extra.has(String(tid)):
 			return "%s : voie %s fermée à cette espèce" % [trait_label(String(tid)), voie_label(v)]
