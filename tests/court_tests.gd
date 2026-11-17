@@ -101,7 +101,7 @@ func _test_data() -> void:
 	_ok(vocs.size() >= 19, "19 vocations au moins (%d)" % vocs.size())
 	var common := 0
 	for v: Dictionary in vocs:
-		if (v.get("registres", []) as Array).is_empty():
+		if (v.get("registres", []) as Array).is_empty() and not v.get("psionics", false):
 			common += 1
 		_ok(Politics.index_of(String(v["current"])) >= 0, "vocation %s : courant connu" % v["id"])
 		_ok(Court.APTS.has(String(v["apt"])), "vocation %s : aptitude connue" % v["id"])

@@ -286,7 +286,7 @@
 		"new_ruler_others": -5
 	},
 	"vocations": [
-		{"id": "souche_songe", "label": "Souche du Songe", "psionics": true, "current": "academie", "apt": "savoir", "sys": {"knowledge": 3}, "seat": {"psi_felure_pct": -10}, "seat_text": "Fêlures -10 %", "likes": [{"k": "building", "id": "college_sensitifs", "per": 10, "max": 20, "label": "Collèges des sensitifs dans ses fiefs"}, {"k": "law", "id": "registre_sensitifs", "v": 15, "label": "Registre des sensitifs"}], "dislikes": [{"k": "law", "id": "persecution", "v": -30, "label": "Persécution des sensitifs"}], "goods": [], "traits": ["erudit"], "text": "Pouvoirs psioniques en jeu : une maison où l'on naît sensitif depuis dix générations. On y rêve beaucoup, et juste."},
+		{"id": "souche_songe", "label": "Souche du Songe", "psionics": true, "current": "academie", "apt": "eloquence", "sys": {"knowledge": 3}, "seat": {"psi_felure_pct": -10}, "seat_text": "Fêlures -10 %", "likes": [{"k": "building", "id": "college_sensitifs", "per": 10, "max": 20, "label": "Collèges des sensitifs dans ses fiefs"}, {"k": "law", "id": "registre_sensitifs", "v": 15, "label": "Registre des sensitifs"}], "dislikes": [{"k": "law", "id": "persecution", "v": -30, "label": "Persécution des sensitifs"}], "goods": ["cristal_memoire", "larmes_quasar"], "traits": ["erudit"], "text": "Pouvoirs psioniques en jeu : une maison où l'on naît sensitif depuis dix générations. On y rêve beaucoup, et juste."},
 		{
 			"id": "armateurs",
 			"label": "Armateurs",
