@@ -16,14 +16,30 @@ static func think(ctx: Dictionary) -> void:
 	var e: Empire = ctx["e"]
 	if not Genetics.applies(state, e.id):
 		return
-	if posmod(state.tick + e.id * 7, int(GameData.rules()["month_days"])) != 0:
+	# Une fois par mois (l'IA ne réfléchit pas tous les jours : on retient le dernier mois vu).
+	@warning_ignore("integer_division")
+	var month := state.tick / int(GameData.rules()["month_days"]) + 1
+	if Genetics.stat(state, e.id, "ai_month") >= month:
 		return
+	Genetics._stat(state, e.id, "ai_month", month - Genetics.stat(state, e.id, "ai_month"))
 	if AiPlayer._skill(ctx) < int(cfg().get("min_skill", 0)) or AiPlayer._forgets(ctx):
 		return
 	_path(ctx)
-	if e.gene_path == "purete" or not Genetics.programs(state, e.id).is_empty():
+	if e.gene_path == "purete":
 		return
-	if int(e.resources.get(Genetics.resource_for(state, e.id, e.faction_id), 0)) < int(cfg().get("knowledge_floor", 150)):
+	# Recherche : Génétique appliquée d'abord (ou Reprogrammation pour un corps de métal), puis Reséquençage.
+	var want := "reprogrammation" if String(FactionTraits.species(e.faction()).get("archetype", "")) == "synthetique" else "genetique"
+	for t in [want, "resequencage"]:
+		if not e.techs.has(t) and Research.tech(t).get("era", 9) <= Research.current_era(state, e.id):
+			var step := reachable(state, e, t, 3)
+			if step != "" and not e.research_queue.has(step):
+				AiPlayer._issue(ctx, SimCommands.research(e.id, step))
+			break
+	if not Genetics.programs(state, e.id).is_empty():
+		return
+	# La recherche vide le stock chaque mois : on juge sur le revenu (la mensualité passe avant la recherche).
+	var res := Genetics.resource_for(state, e.id, e.faction_id)
+	if int(e.resources.get(res, 0)) + int(AiPlayer._net(ctx).get(res, 0)) * 3 < int(cfg().get("knowledge_floor", 150)):
 		return
 	var tid := best_trait(state, e.id, e.faction_id)
 	if tid != "":
@@ -49,6 +65,22 @@ static func _path(ctx: Dictionary) -> void:
 		want = "cybernetique"
 	if Genetics.check_path(state, e.id, want) == "":
 		AiPlayer._issue(ctx, SimCommands.gen_act(e.id, "path", {"path": want}))
+
+
+## Première technologie de la chaîne de « tid » qui peut entrer en file (ses prérequis manquants
+## d'abord, sur « depth » niveaux) ; "" si aucune ou si elle y est déjà.
+static func reachable(state: GameState, e: Empire, tid: String, depth: int) -> String:
+	if e.techs.has(tid) or e.research_queue.has(tid):
+		return ""
+	if Research.check_queue(state, e.id, tid) == "":
+		return tid
+	if depth <= 0:
+		return ""
+	for p in Research.tech(tid).get("pre", []):
+		var r := reachable(state, e, String(p), depth - 1)
+		if r != "":
+			return r
+	return ""
 
 
 ## Trait à ajouter : le plus cher que la marge permet ; à coût égal, celui qui sert le point fort.
