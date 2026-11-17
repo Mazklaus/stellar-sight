@@ -203,14 +203,57 @@ static func build(es: EmpireScreens) -> void:
 
 
 ## Lignes des voix (lot 3) dans la colonne latérale.
-static func voices_side(_es: EmpireScreens) -> Array[Control]:
+static func voices_side(es: EmpireScreens) -> Array[Control]:
 	var out: Array[Control] = []
+	var state := es._state
+	var p := es._player
+	if Contact.full(state) and Contact.route_count(state, p) > 0:
+		var line := "Taiseux : %d / 100%s" % [ContactVoices.taiseux(state, p), " (au pouvoir)" if ContactVoices.silenced(state, p) else ""]
+		if ContactVoices.no_debate(state, p):
+			line = "Taiseux : pas de débat dans votre gouvernement%s" % (" ; votre foi tient le Signal pour une hérésie" if ContactVoices.silenced(state, p) else "")
+		out.append(UiTheme.dim(line, 13))
+	if Contact.has_layer(state, p, "plans") and not Contact.done(state, p) and not Contact.failed(state, p):
+		if not Contact.abc_key(state, p) and ContactVoices.aster_id(state) >= 0:
+			out.append(_btn(es, "Demander la clé à la Bibliothèque d'Aster", ContactVoices.check_aster(state, p), "La Grande Bibliothèque prête la clé de l'Abécédaire à qui elle estime, contre une requête.",
+					SimCommands.ct_act(p, "aster"), "aster"))
+		if Contact.t_int(state, p, "city_heraut") > 0 and not Contact.has_heraut(state, p):
+			out.append(_btn(es, "Monter le Héraut sur la flotte-ville", ContactVoices.check_mount(state, p), "La flotte-ville porte l'émetteur ; elle devra rester à l'arrêt pendant la Transmission.",
+					SimCommands.ct_act(p, "mount_heraut"), "mount_heraut"))
+		if Contact.sub(state, "voyage").get(str(p), {}).is_empty() and not Contact.transmitting(state, p):
+			out.append(_btn(es, "Le Voyage des Cinq (%s)" % GameData.format_amounts(ContactVoices.voyage_cost(state, p)), ContactVoices.check_voyage(state, p),
+					"Bâtir la Machine des Plans et y envoyer jusqu'à cinq héros du Conseil, deux ans. S'ils reviennent, c'est la victoire ; sinon ils sont perdus.",
+					SimCommands.ct_act(p, "voyage"), "voyage"))
+	if Contact.route_count(state, p) > 0 and not Heroes.council(state, p).is_empty():
+		var cur := ContactVoices.interpreter(state, p)
+		out.append(UiTheme.dim("Interprète : %s" % (String(cur["name"]) if not cur.is_empty() else "aucun"), 13))
+		for h in Heroes.council(state, p):
+			if not cur.is_empty() and int(h["id"]) == int(cur["id"]):
+				continue
+			out.append(_btn(es, "Nommer %s Interprète" % String(h["name"]), ContactVoices.check(state, p, "interpreter", {"hero": int(h["id"])}),
+					"+15 % de déchiffrement ; très loyal, il lit le Signal comme une arme sans que les voisins s'en offusquent.", SimCommands.ct_act(p, "interpreter", {"hero": int(h["id"])}), "interp:%d" % int(h["id"])))
+	if out.size() > 0:
+		out.push_front(HSeparator.new())
 	return out
 
 
 ## Blocs des voix (lot 3) dans la colonne principale.
-static func voices_content(_es: EmpireScreens, _col: VBoxContainer) -> void:
-	pass
+static func voices_content(es: EmpireScreens, col: VBoxContainer) -> void:
+	var state := es._state
+	var p := es._player
+	var v: Dictionary = Contact.sub(state, "voyage").get(str(p), {})
+	var inc := Contact.sub(state, "incoming")
+	if v.is_empty() and inc.is_empty() and ContactVoices.faith_reaction(state, p) == "":
+		return
+	var b := Widgets.Block.new("Les voix")
+	col.add_child(b)
+	if not v.is_empty():
+		b.body.add_child(UiTheme.paragraph("Le Voyage des Cinq : %d héros partis, retour le %s." % [(v.get("heroes", []) as Array).size(), GameCalendar.date_string(int(v["until"]))], W, 13))
+	var fr := ContactVoices.faith_reaction(state, p)
+	if fr != "":
+		b.body.add_child(UiTheme.paragraph("Votre foi voit dans le Signal %s." % {"revelation": "une révélation", "heresie": "une hérésie", "epreuve": "une épreuve"}.get(fr, fr), W, 13))
+	for k in inc:
+		if String(k) != "survive":
+			b.body.add_child(UiTheme.paragraph("Quelque chose est en route vers la galaxie (%s)." % String(Crisis.kind_def(String(k)).get("name", k)), W, 13))
 
 
 static func _status(state: GameState, player: int) -> String:

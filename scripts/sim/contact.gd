@@ -28,7 +28,7 @@ extends RefCounted
 
 const SUBS := ["routes", "ears", "echoes", "survey", "net", "alerts", "alert", "gauge", "layers", "share", "cadj", "elim", "read", "plans",
 		"gifts", "abc", "tx", "done", "failed", "first", "st", "fxsig", "frag", "offers", "cons", "echo_hit", "taiseux", "voyage",
-		"incoming", "porteuse_until", "scars", "threats", "faith_seen"]
+		"incoming", "porteuse_until", "scars", "threats", "faith_seen", "city_heraut", "interp", "ear_own"]
 
 static var _edge_key := ""
 static var _edge: Dictionary = {}

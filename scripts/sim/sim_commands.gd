@@ -1148,6 +1148,9 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			c.construction = String(cmd["building"])
 			# Loi « Cadences » : chantiers plus courts.
 			c.construction_days = maxi(1, Research.scaled(int(b["days"]), Research.fx_int(state, e.id, "building_days_pct")))
+			# Contact : Oreilles bâties plus vite par les Lignées d'Ossarane.
+			if bool(b.get("contact", false)) and not state.contact.is_empty():
+				c.construction_days = ContactVoices.build_days(state, e.id, String(cmd["building"]), c.construction_days)
 		"build_ship":
 			var e := state.get_empire(int(cmd["player"]))
 			var c: Colony = state.colonies[int(cmd["planet"])]

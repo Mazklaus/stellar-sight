@@ -54,8 +54,9 @@ static func held_from(state: GameState, eid: int) -> Array[int]:
 	return out
 
 
+## Fragments étrangers, plus la lettre des Partis (prop. 39) pour qui a capté.
 static func foreign_count(state: GameState, eid: int) -> int:
-	return held_from(state, eid).size()
+	return held_from(state, eid).size() + (1 if has_own(state, eid) and ContactVoices.letter(state) else 0)
 
 
 static func holds(state: GameState, eid: int, from: int) -> bool:
@@ -79,6 +80,8 @@ static func ai_accepts(state: GameState, b: int, a: int, kind: String) -> bool:
 	var need := Contact.c_int("fragments", "min_opinion", -10) if kind == "trade" else Contact.c_int("consortium", "min_opinion", 0)
 	if kind == "demand":
 		need = 30
+	if kind == "sell":
+		return int(state.get_empire(b).resources.get("energy", 0)) >= sell_price(state, a) * 2 and not holds(state, b, a)
 	return Diplomacy.opinion(state, b, a) >= need
 
 
@@ -97,6 +100,16 @@ static func gauge_pct_parts(state: GameState, eid: int) -> Array:
 
 
 # --- Consortium du Signal (prop. 22) -----------------------------------------------------------
+
+static func cons_cost(state: GameState, eid: int) -> Dictionary:
+	if Contact.t_int(state, eid, "consortium_free") > 0:
+		return {}
+	return Contact.cfg("consortium").get("cost", {})
+
+
+static func sell_price(state: GameState, seller: int) -> int:
+	return Contact.t_int(state, seller, "price")
+
 
 static func cons_id(state: GameState, eid: int) -> int:
 	return int(Contact.sub(state, "cons").get(str(eid), -1))
@@ -211,6 +224,8 @@ static func on_echo(state: GameState, eid: int, added: Array[Dictionary]) -> voi
 			pick = d
 			break
 	var te := state.get_empire(target)
+	if String(pick["id"]) == "crime":
+		Contact._stat(state, target, "echo_crime", 1)
 	if int(pick.get("influence", 0)) != 0:
 		te.resources["influence"] = maxi(0, int(te.resources.get("influence", 0)) + int(pick["influence"]))
 	var hits: Array = Contact.sub(state, "echo_hit").get(str(target), []).duplicate()
@@ -247,7 +262,7 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array:
 		if v != 0 and state.tick < int(h.get("until", 0)):
 			out.append(["L'Écho : %s" % echo_label(String(h["k"])), v])
 	var m := Contact.readings(state, b, "menace")
-	if m > 0:
+	if m > 0 and not ContactVoices.calm_reader(state, b):
 		out.append(["Lit le Signal comme une arme", m * int((Contact.cfg("readings").get("menace", {}) as Dictionary).get("opinion", -10))])
 	if Contact.has_layer(state, b, "abecedaire"):
 		out.append(["La Langue universelle", Contact.c_int("abecedaire", "opinion", 10)])
@@ -460,6 +475,25 @@ static func check(state: GameState, eid: int, act: String, d: Dictionary) -> Str
 				return "il a déjà répondu seul"
 			if _has_offer(state, t, act, eid):
 				return "offre déjà faite"
+			if not Economy.can_afford(state.get_empire(eid), cons_cost(state, eid)):
+				return "fonder un Consortium coûte %s" % GameData.format_amounts(cons_cost(state, eid))
+			return ""
+		"frag_sell":
+			if not full(state):
+				return "seulement en mode Complet"
+			if Contact.t_int(state, eid, "broker") <= 0:
+				return "seuls les courtiers vendent leur fragment"
+			var w3 := _ok_pair(state, eid, t)
+			if w3 != "":
+				return w3
+			if not has_own(state, eid):
+				return "vous n'avez pas encore capté le Signal"
+			if holds(state, t, eid):
+				return "il a déjà votre fragment"
+			if no_trade(state, t):
+				return "les Kh'thari n'achètent pas"
+			if _has_offer(state, t, act, eid):
+				return "offre déjà faite"
 			return ""
 		"cons_leave":
 			if cons_id(state, eid) < 0:
@@ -480,10 +514,10 @@ static func apply(state: GameState, eid: int, act: String, d: Dictionary, added:
 		"frag_give":
 			give_fragment(state, eid, t)
 			added.append(state.add_chronicle("%s offre son fragment du Signal à %s." % [state.get_empire(eid).display_name(), state.get_empire(t).short_name()], Espionage.public_to(state, [eid, t])))
-		"frag_trade", "frag_demand", "cons_invite":
+		"frag_trade", "frag_demand", "cons_invite", "frag_sell":
 			var te := state.get_empire(t)
 			if te.is_ai():
-				if ai_accepts(state, t, eid, {"frag_trade": "trade", "frag_demand": "demand", "cons_invite": "cons"}[act]):
+				if ai_accepts(state, t, eid, {"frag_trade": "trade", "frag_demand": "demand", "cons_invite": "cons", "frag_sell": "sell"}[act]):
 					_settle(state, act, eid, t, added)
 				else:
 					added.append(state.add_chronicle("%s refuse l'offre de %s au sujet du Signal." % [te.display_name(), state.get_empire(eid).short_name()], Espionage.private_to(state, [eid, t])))
@@ -521,7 +555,18 @@ static func _settle(state: GameState, act: String, a: int, b: int, added: Array[
 			give_fragment(state, b, a)
 			added.append(state.add_chronicle("%s cède son fragment du Signal à %s, qui l'exigeait." % [state.get_empire(b).display_name(), state.get_empire(a).short_name()], Espionage.public_to(state, [a, b])))
 		"cons_invite":
+			Economy.pay(state.get_empire(a), cons_cost(state, a))
 			_join(state, a, b, added)
+		"frag_sell":
+			var be := state.get_empire(b)
+			var price := mini(sell_price(state, a), int(be.resources.get("energy", 0)))
+			be.resources["energy"] = int(be.resources.get("energy", 0)) - price
+			var ae := state.get_empire(a)
+			ae.resources["energy"] = int(ae.resources.get("energy", 0)) + price
+			ae.resources["influence"] = int(ae.resources.get("influence", 0)) + Contact.t_int(state, a, "rep")
+			give_fragment(state, a, b)
+			Contact._stat(state, a, "sold", 1)
+			added.append(state.add_chronicle("%s vend son fragment du Signal à %s pour %d énergie. Le Gros Lot, disent-ils." % [ae.display_name(), be.short_name(), price], Espionage.private_to(state, [a, b])))
 
 
 # --- IA de la course ---------------------------------------------------------------------------
@@ -534,7 +579,7 @@ static func ai(ctx: Dictionary) -> void:
 		return
 	# Offres reçues : accepter si l'IA y consent.
 	for o: Dictionary in pending_offers(state, e.id).duplicate():
-		var kind := "trade" if String(o["kind"]) == "frag_trade" else ("demand" if String(o["kind"]) == "frag_demand" else "cons")
+		var kind: String = {"frag_trade": "trade", "frag_demand": "demand", "frag_sell": "sell"}.get(String(o["kind"]), "cons")
 		var act := "accept" if ai_accepts(state, e.id, int(o["from"]), kind) else "decline"
 		AiPlayer._issue(ctx, SimCommands.ct_act(e.id, act, {"kind": String(o["kind"]), "from": int(o["from"])}))
 	if has_own(state, e.id):

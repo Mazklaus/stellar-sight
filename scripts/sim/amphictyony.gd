@@ -894,6 +894,8 @@ static func check_vote(state: GameState, eid: int, v: int) -> String:
 		return "seuls les amphictyons votent"
 	if v < -1 or v > 1:
 		return "vote inconnu"
+	if v > 0 and not state.contact.is_empty():
+		return ContactVoices.silence_vote_block(state, eid, session(state)["prop"])
 	return ""
 
 
@@ -955,6 +957,8 @@ static func tally(state: GameState) -> Dictionary:
 		if AncientsWake.dominion_of(state, m) >= 0:
 			v = 0  # Dominion d'une ancienne éveillée : sa voix se tait
 		var w := weight(state, m) + bv * int((s["buy"] as Dictionary).get(str(m), 0))
+		if not state.contact.is_empty():
+			w = ContactVoices.silence_weight(state, m, s["prop"], v, w)  # Murmurants : voix doublées pour le Silence
 		if v > 0:
 			out["pour"] = int(out["pour"]) + w
 		elif v < 0:

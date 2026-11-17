@@ -33,6 +33,7 @@ static func think(ctx: Dictionary) -> void:
 	_ears(ctx)
 	_echo(ctx)
 	_plans(ctx)
+	_voices(ctx)
 	_heraut(ctx)
 	ContactRace.ai(ctx)
 
@@ -145,6 +146,28 @@ static func _plans(ctx: Dictionary) -> void:
 		AiPlayer._issue(ctx, SimCommands.ct_act(e.id, "plans_audit" if bool(cfg().get("audit", true)) else "plans_raw"))
 	if Contact.check(state, e.id, "intuition", {}) == "":
 		AiPlayer._issue(ctx, SimCommands.ct_act(e.id, "intuition"))
+
+
+## Les voix : un Interprète au Conseil, la clé d'Aster, le Voyage des Cinq si l'on sait les Lointains
+## bienveillants, la vente du fragment (courtiers).
+static func _voices(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if Contact.route_count(state, e.id) > 0 and ContactVoices.interpreter(state, e.id).is_empty():
+		for h in Heroes.council(state, e.id):
+			if AiPlayer._issue(ctx, SimCommands.ct_act(e.id, "interpreter", {"hero": int(h["id"])})):
+				break
+	if Contact.check(state, e.id, "aster", {}) == "" and not Contact.abc_key(state, e.id):
+		AiPlayer._issue(ctx, SimCommands.ct_act(e.id, "aster"))
+	var n := Contact.nature(state)
+	if Contact.knows_nature(state, e.id) and (n == "batisseurs" or n == "revenants") and Contact.check(state, e.id, "voyage", {}) == "":
+		AiPlayer._issue(ctx, SimCommands.ct_act(e.id, "voyage"))
+	if Contact.t_int(state, e.id, "broker") > 0:
+		for oid in e.contacts:
+			var o := state.get_empire(oid)
+			if o != null and o.is_ai() and Contact.check(state, e.id, "frag_sell", {"to": oid}) == "" and ContactRace.ai_accepts(state, oid, e.id, "sell"):
+				if AiPlayer._issue(ctx, SimCommands.ct_act(e.id, "frag_sell", {"to": oid})):
+					break
 
 
 ## Le Héraut sur la capitale, puis la Transmission, si l'on ne craint pas les Lointains.
