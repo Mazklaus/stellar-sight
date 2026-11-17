@@ -77,6 +77,8 @@ static func gain_parts(state: GameState, eid: int) -> Array:
 	var n := minces_held(state, eid)
 	if n > 0:
 		out.append(["Lieux minces tenus (%d)" % n, n * Transcendence.c_int("minces", "gauge", 15)])
+	if not state.megas.is_empty():
+		out.append_array(MegasBridges.gain_parts(state, eid))  # Cerveau Matriochka
 	return out
 
 

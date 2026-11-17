@@ -1039,6 +1039,36 @@
 			"spend": 15,
 			"transcendence": true,
 			"text": "Transcendance, pour un empire voué à une voie : sa jauge d'Élévation +10 %, mais ce savoir volé double le risque que votre propre Passage avorte."
+		},
+		{
+			"id": "saboter_chantier",
+			"family": "sabotage",
+			"label": "Saboter un chantier de mégastructure",
+			"tier": 2,
+			"cost": {
+				"influence": 45
+			},
+			"days": 45,
+			"success": 55,
+			"discovery": 40,
+			"spend": 20,
+			"megas": true,
+			"text": "Mégastructures : l'étape en cours de sa mégastructure perd 120 jours (une restauration ou une réparation aussi)."
+		},
+		{
+			"id": "voler_plans_mega",
+			"family": "larcin",
+			"label": "Voler les plans d'une mégastructure",
+			"tier": 2,
+			"cost": {
+				"influence": 40
+			},
+			"days": 45,
+			"success": 60,
+			"discovery": 30,
+			"spend": 15,
+			"megas": true,
+			"text": "Mégastructures : les plans d'un ouvrage achevé qu'il tient et que vous n'avez pas ; ses étapes vous coûteront 25 % de moins."
 		}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",

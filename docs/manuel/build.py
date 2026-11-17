@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.33"
+EDITION = "2.34"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -432,6 +432,8 @@ def talents_du_peuple(f):
     ajoute("Songe", _par_couche(c, charger("psionics.json").get("talents", {})))
     tr = charger("transcendence.json").get("talents", {}).get(f["id"])
     ajoute("Transcendance", [tr] if isinstance(tr, dict) else [])
+    mg = charger("megastructures.json").get("talents", {}).get(f["id"])
+    ajoute("Mégastructures", [mg] if isinstance(mg, dict) else [])
     ct = charger("contact.json").get("talents", {}).get(f["id"])
     ajoute("Contact", [ct] if isinstance(ct, dict) else [])
     cu = charger("culture.json").get("talents", {})
@@ -1388,6 +1390,35 @@ def gen_tr_talents():
     return f"<table class='grille'><tr><th>Peuple</th><th>Talent</th></tr>{l1}</table>"
 
 
+def gen_mg_modes():
+    """Réglages Mégastructures et ruines (data/megastructures.json)."""
+    d = charger("megastructures.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    l2 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_ruins') else ''}</td><td>{'aucune ruine' if not m.get('per_systems') else 'une ruine pour %d systèmes environ' % m['per_systems']}</td></tr>" for m in d["ruin_opts"])
+    return f"<table class='grille'><tr><th>Mégastructures</th><th>Effet</th></tr>{l1}</table><table class='grille'><tr><th>Ruines</th><th>Combien</th></tr>{l2}</table>"
+
+
+def gen_mg_catalogue():
+    """Le catalogue des mégastructures (data/megastructures.json « kinds »)."""
+    d = charger("megastructures.json")
+    corps = {"star": "étoile", "planet": "planète libre", "colony": "colonie peuplée"}
+    l1 = ""
+    for k, v in d["kinds"].items():
+        site = corps.get(v["site"].get("body", "star"), "")
+        etapes = " · ".join(s["label"] for s in v["stages"])
+        marque = " (superarme)" if v.get("weapon") else (" (trouvaille)" if v.get("ruin_only") else (" (classique)" if v.get("classic") else ""))
+        l1 += f"<tr><td><b>{esc(v['label'])}</b>{esc(marque)}<br>ère {v['era']}, {esc(site)}</td><td>{inline(v.get('text', ''))}<br><i>{esc(etapes)}</i></td></tr>"
+    return f"<table class='grille'><tr><th>Mégastructure</th><th>Ce qu'elle fait, et ses étapes</th></tr>{l1}</table>"
+
+
+def gen_mg_talents():
+    """Talents des peuples (data/megastructures.json « talents »)."""
+    d = charger("megastructures.json")
+    noms = {f["id"]: f.get("name", f["id"]) for f in charger("factions.json")}
+    l1 = "".join(f"<tr><td>{esc(noms.get(k, k))}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>" for k, v in d["talents"].items() if not k.startswith("_"))
+    return f"<table class='grille'><tr><th>Peuple</th><th>Talent</th></tr>{l1}</table>"
+
+
 def gen_ct_modes():
     """Réglages Contact, Lointains et Issue (data/contact.json)."""
     d = charger("contact.json")
@@ -1458,6 +1489,7 @@ GENERATEURS = {
     "psi_modes": gen_psi_modes, "psi_niveaux": gen_psi_niveaux, "psi_techs": gen_psi_techs, "psi_pouvoirs": gen_psi_pouvoirs,
     "psi_felures": gen_psi_felures, "psi_postures": gen_psi_postures, "psi_visions": gen_psi_visions, "psi_puissances": gen_psi_puissances,
     "psi_talents": gen_psi_talents,
+    "mg_modes": gen_mg_modes, "mg_catalogue": gen_mg_catalogue, "mg_talents": gen_mg_talents,
     "ct_modes": gen_ct_modes, "ct_couches": gen_ct_couches, "ct_natures": gen_ct_natures, "ct_talents": gen_ct_talents,
     "tr_modes": gen_tr_modes, "tr_voies": gen_tr_voies, "tr_oeuvres": gen_tr_oeuvres, "tr_talents": gen_tr_talents,
     "portail_modes": gen_portail_modes, "portail_batiments": gen_portail_batiments, "portail_talents": gen_portail_talents,

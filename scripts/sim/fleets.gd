@@ -439,11 +439,13 @@ static func _own_visible(state: GameState, empire_id: int) -> Dictionary:
 			sources[sid] = maxi(int(sources.get(sid, -1)), Stealth.vision_of(state, f) if not state.stealth.is_empty() else vision(f))
 	if not state.stealth.is_empty():
 		Stealth.beacon_vision(state, empire_id, sources)
+	Megastructures.vision(state, empire_id, sources)  # Réseau de veille
 	var seen := {}
 	var pierce := Terrain.pierces(state, empire_id)
 	for sid in sources:
 		_flood(state.galaxy, int(sid), int(sources[sid]), seen, pierce)
 	WondersCatalog.see_all(state, empire_id, seen)
+	Megastructures.see_all(state, empire_id, seen)
 	return seen
 
 
@@ -477,6 +479,9 @@ static func visible_all(state: GameState) -> Array[Dictionary]:
 	if not state.stealth.is_empty():
 		for i in count:
 			Stealth.beacon_vision(state, state.empires[i].id, sources[i])
+	if not state.megas.is_empty():
+		for i in count:
+			Megastructures.vision(state, state.empires[i].id, sources[i])  # Réseau de veille
 	var own: Array[Dictionary] = []
 	for i in count:
 		var seen := {}
@@ -484,6 +489,7 @@ static func visible_all(state: GameState) -> Array[Dictionary]:
 		for sid in sources[i]:
 			_flood(state.galaxy, int(sid), int(sources[i][sid]), seen, pierce)
 		WondersCatalog.see_all(state, state.empires[i].id, seen)
+		Megastructures.see_all(state, state.empires[i].id, seen)
 		own.append(seen)
 	# Vision partagée : chacun voit aussi ce que voient ses alliés.
 	var out: Array[Dictionary] = []
@@ -625,7 +631,10 @@ static func ship_cost(state: GameState, empire_id: int, ship_id: String) -> Dict
 
 ## Durée de construction d'un vaisseau pour un empire, en jours (au moins 1).
 static func ship_days(state: GameState, empire_id: int, ship_id: String) -> int:
-	return maxi(1, Research.scaled(int(GameData.ship(ship_id).get("days", 1)), Research.fx_int(state, empire_id, "ship_days_pct")))
+	var pct := Research.fx_int(state, empire_id, "ship_days_pct")
+	if String(GameData.ship(ship_id).get("size", "")) == "titan":
+		pct += Research.fx_int(state, empire_id, "titan_days_pct")  # Méga-chantier naval
+	return maxi(1, Research.scaled(int(GameData.ship(ship_id).get("days", 1)), pct))
 
 
 ## Classe de vaisseau débloquée par les technologies de l'empire ?
@@ -767,6 +776,8 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 		return "votre peuple ne construit pas de %s" % String(sd["plural"]).to_lower()
 	if not ship_unlocked(state, empire_id, ship_id):
 		return "technologie requise : %s" % Research.missing_text(state, empire_id, sd.get("requires_tech", []))
+	if bool(sd.get("architect", false)) and not Megastructures.enabled(state):
+		return "les mégastructures ne sont pas en jeu dans cette partie"
 	var req: Dictionary = sd.get("requires", {})
 	var need := String(req.get("building", ""))
 	if need != "" and not c.buildings.has(need):

@@ -373,7 +373,7 @@ func _test_ai_save() -> void:
 	to_plans(st2, oss)
 	Contact.plans_raw(st2, oss, [])
 	var d := st2.to_dict()
-	_ok(int(d["version"]) == 87, "Sauvegarde 87")
+	_ok(int(d["version"]) >= 87, "Sauvegarde 87 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(Contact.captured(back, oss) and Contact.has_layer(back, oss, "plans") and Contact.plans_state(back, oss) == "raw" and Contact.nature(back) == Contact.nature(st2), "Sauvegarde : capture, couches, Plans et nature relus")
 	_ok(JSON.stringify(back.to_dict()) == JSON.stringify(d), "Sauvegarde : aller-retour identique")

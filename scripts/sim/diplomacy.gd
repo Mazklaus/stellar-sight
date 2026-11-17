@@ -369,6 +369,10 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	if not state.transcendence.is_empty():
 		for pp in TranscendenceWorld.opinion_parts(state, a, b):
 			_part(out, String(pp[0]), int(pp[1]))
+	# Mégastructures : les credos jugent les grands ouvrages (voir MegasBridges).
+	if not state.megas.is_empty():
+		for pp in MegasBridges.opinion_parts(state, a, b):
+			_part(out, String(pp[0]), int(pp[1]))
 	# Contact : l'Écho, les lectures menaçantes, la Langue universelle (voir ContactRace).
 	if not state.contact.is_empty():
 		for pp in ContactRace.opinion_parts(state, a, b):

@@ -544,3 +544,13 @@ an immense ark made of light as much as metal departing from the edge of a spira
 ```
 a colossal radio dish built on a dark asteroid at the very edge of a spiral galaxy listening to the black void beyond the rim, far beyond the edge a faint pale light pulses in patterns of prime numbers, inside a glass control room scientists of several alien species argue over stacks of machine blueprints spilling from consoles, one cautious figure in the shadows keeps a hand on a lever labelled do not answer, wonder and dread with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-55 · Les grands chantiers
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Les grands chantiers »
+- Sujet : Autour d'une étoile orangée, une Sphère de Dyson à moitié fermée, ses plaques hexagonales posées une à une par des nuées de vaisseaux-architectes ; dans le lointain, la courbe d'un Monde-anneau éclairé ; au premier plan, sur une passerelle d'échafaudage, un contremaître consulte des plans holographiques pendant qu'un ouvrier en scaphandre s'est endormi sur une poutre
+
+```
+a half-built Dyson sphere around an orange star, giant hexagonal plates being set in place one by one by swarms of small construction ships trailing light, gaps in the shell letting sunbeams escape, in the far distance the bright curve of a ringworld catching the light, in the foreground on a scaffolding gantry a foreman studies glowing holographic blueprints while a worker in a spacesuit naps on a girder, awe of colossal engineering with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

@@ -257,6 +257,10 @@ var transcendence := "complete"
 var _transcendence_select: OptionButton
 var transcendence_outcome := "victoire"
 var _transcendence_outcome_select: OptionButton
+var megastructures := "completes"
+var _megas_select: OptionButton
+var mega_ruins := "peu"
+var _mega_ruins_select: OptionButton
 var contact := "complete"
 var _contact_select: OptionButton
 var contact_nature := "hasard"
@@ -1806,6 +1810,20 @@ func set_transcendence(id: String) -> void:
 		_transcendence_select.select(ids.find(transcendence))
 
 
+func set_megastructures(id: String) -> void:
+	var ids := _ids_of(Megastructures.mode_defs())
+	megastructures = id if ids.has(id) else Megastructures.default_mode()
+	if _megas_select:
+		_megas_select.select(ids.find(megastructures))
+
+
+func set_mega_ruins(id: String) -> void:
+	var ids := _ids_of(Megastructures.ruin_defs())
+	mega_ruins = id if ids.has(id) else Megastructures.default_ruins()
+	if _mega_ruins_select:
+		_mega_ruins_select.select(ids.find(mega_ruins))
+
+
 func set_transcendence_outcome(id: String) -> void:
 	var ids := _ids_of(Transcendence.outcome_defs())
 	transcendence_outcome = id if ids.has(id) else Transcendence.default_outcome()
@@ -1971,7 +1989,7 @@ func game_options() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome}
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins}
 
 
 func set_spectator(on: bool) -> void:
@@ -2621,6 +2639,22 @@ func _build_new_page(root: Control) -> void:
 	_transcendence_outcome_select.tooltip_text = "Issue d'un Passage achevé.\n" + "\n".join(tro_tip)
 	_transcendence_outcome_select.item_selected.connect(func(i: int) -> void: set_transcendence_outcome(String(Transcendence.outcome_defs()[i]["id"])))
 	_labeled_row(game, "Issue de la Transcendance", _transcendence_outcome_select)
+	_megas_select = OptionButton.new()
+	_megas_select.clip_text = true
+	var mg_tip := PackedStringArray()
+	for m: Dictionary in Megastructures.mode_defs():
+		_megas_select.add_item(String(m["label"]))
+		mg_tip.append("%s : %s" % [String(m["label"]), String(m["text"])])
+	_megas_select.tooltip_text = "Mégastructures : des ouvrages à l'échelle d'une étoile, posés par un Vaisseau-architecte et bâtis étape par étape (Essaim et Sphère de Dyson, Monde-anneau, Cerveau Matriochka, Réseau de veille, Catapulte quantique, superarmes…), et l'échelle de Kardashev (Stellaris, Galactic Civilizations IV, Dyson Sphere Program, Larry Niven, Iain M. Banks).\n" + "\n".join(mg_tip)
+	_megas_select.item_selected.connect(func(i: int) -> void: set_megastructures(String(Megastructures.mode_defs()[i]["id"])))
+	_labeled_row(game, "Mégastructures", _megas_select)
+	_mega_ruins_select = OptionButton.new()
+	_mega_ruins_select.clip_text = true
+	for m: Dictionary in Megastructures.ruin_defs():
+		_mega_ruins_select.add_item(String(m["label"]))
+	_mega_ruins_select.tooltip_text = "Ruines de mégastructures d'un âge oublié, à relever avec un Vaisseau-architecte (modes Complètes et Sans superarmes)."
+	_mega_ruins_select.item_selected.connect(func(i: int) -> void: set_mega_ruins(String(Megastructures.ruin_defs()[i]["id"])))
+	_labeled_row(game, "Ruines de mégastructures", _mega_ruins_select)
 	_contact_select = OptionButton.new()
 	_contact_select.clip_text = true
 	var contact_tip := PackedStringArray()
@@ -2705,6 +2739,8 @@ func _build_new_page(root: Control) -> void:
 	set_psionics(psionics)
 	set_transcendence(transcendence)
 	set_transcendence_outcome(transcendence_outcome)
+	set_megastructures(megastructures)
+	set_mega_ruins(mega_ruins)
 	set_contact(contact)
 	set_contact_nature(contact_nature)
 	set_contact_outcome(contact_outcome)
@@ -3457,7 +3493,7 @@ func settings() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome,
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -3479,7 +3515,7 @@ func default_settings() -> Dictionary:
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
 		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true,
 		"ancients": Ancients.default_mode(), "awakenings": true, "minors": Minors.default_mode(), "culture": Culture.default_mode(), "culture_defect": Culture.default_defect(), "wonders": Wonders.default_mode(),
-		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode(), "portals": Portals.default_mode(), "stealth": Stealth.default_mode(), "genetics": Genetics.default_mode(), "psionics": Psionics.default_mode(), "transcendence": Transcendence.default_mode(), "transcendence_outcome": Transcendence.default_outcome(), "contact": Contact.default_mode(), "contact_nature": Contact.default_nature_mode(), "contact_outcome": Contact.default_outcome()}
+		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode(), "portals": Portals.default_mode(), "stealth": Stealth.default_mode(), "genetics": Genetics.default_mode(), "psionics": Psionics.default_mode(), "transcendence": Transcendence.default_mode(), "transcendence_outcome": Transcendence.default_outcome(), "contact": Contact.default_mode(), "contact_nature": Contact.default_nature_mode(), "contact_outcome": Contact.default_outcome(), "megastructures": Megastructures.default_mode(), "mega_ruins": Megastructures.default_ruins()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -3588,6 +3624,8 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_psionics(String(d.get("psionics", base["psionics"])))
 	set_transcendence(String(d.get("transcendence", base["transcendence"])))
 	set_transcendence_outcome(String(d.get("transcendence_outcome", base["transcendence_outcome"])))
+	set_megastructures(String(d.get("megastructures", base["megastructures"])))
+	set_mega_ruins(String(d.get("mega_ruins", base["mega_ruins"])))
 	set_contact(String(d.get("contact", base["contact"])))
 	set_contact_nature(String(d.get("contact_nature", base["contact_nature"])))
 	set_contact_outcome(String(d.get("contact_outcome", base["contact_outcome"])))

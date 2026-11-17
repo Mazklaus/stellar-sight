@@ -80,6 +80,7 @@ static func build(es: EmpireScreens) -> void:
 	var player := es._player
 	es._wonders_sig = signature(es)
 	es._side_header("screen_wonders", "Merveilles", Color(0.9, 0.78, 0.45), "faction")
+	MegasUi.tabs(es, "wonders")
 	if not Wonders.enabled(state):
 		es._side_box.add_child(UiTheme.paragraph("Dans cette partie, les merveilles ne sont pas en jeu (Nouvelle partie : Merveilles).", EmpireScreens.SIDE_WIDTH - 24.0, 13))
 		return

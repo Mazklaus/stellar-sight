@@ -684,6 +684,7 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 				actions.append(_hire_action(p))
 	if c and c.owner == _player and c.is_established():
 		actions.append_array(WondersUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
+		actions.append_array(MegasUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
 		for bid in GameData.buildings():
 			var b := GameData.building(bid)
 			# Les bâtiments d'une technologie que ce peuple n'aura jamais (Académie pour le Chœur) n'apparaissent pas.

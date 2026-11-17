@@ -430,6 +430,8 @@
 		"minor_protege": "protégé d'un autre amphictyon conquis (peuples mineurs)",
 		"ruin_wonder": "merveille réduite en ruine (Patrimoine des merveilles)",
 		"megastructure": "mégastructure lancée malgré le Moratoire",
+		"mega_foreign_star": "étoile d'un autre peuple emmaillotée (Patrimoine stellaire)",
+		"mega_weapon": "superarme bâtie malgré le Patrimoine stellaire",
 		"mines": "champ de mines posé malgré les Lois de la guerre (Guerre réglée)"
 	},
 	"families": [
@@ -1188,6 +1190,9 @@
 		{"id": "genome", "label": "Génome", "glyph": "peoples", "requires": "genetics",
 			"a": {"label": "Libre ingénierie", "text": "Ingénierie des espèces : les membres partagent leurs séquences ; les programmes coûtent moins cher (10 %, puis 20 %, puis 30 %).", "levels": [{"name": "Banque des séquences", "fx": {}, "gen_cost_pct": -10}, {"name": "Cliniques ouvertes", "fx": {}, "gen_cost_pct": -10}, {"name": "Génome commun", "fx": {}, "gen_cost_pct": -10}]},
 			"b": {"label": "Convention de l'intégrité", "text": "Ingénierie des espèces : l'abrutissement est interdit, puis modifier une espèce née chez un autre empire, enfin le Moratoire génétique gèle tout programme.", "levels": [{"name": "Convention de l'intégrité", "fx": {}, "bans": ["gen_staple"]}, {"name": "Intégrité des peuples", "fx": {}, "bans": ["gen_foreign"]}, {"name": "Moratoire génétique", "fx": {}, "bans": ["gen_moratorium"]}]}},
+		{"id": "chantiers", "label": "Grands chantiers", "glyph": "wonders", "requires": "megas",
+			"a": {"label": "Chantiers partagés", "text": "Mégastructures : les membres mettent en commun ingénieurs et matériaux ; les étapes des membres coûtent moins cher (10 %, puis 20 %, puis 30 %).", "levels": [{"name": "Bureau des chantiers", "fx": {}, "mega_shared_pct": -10}, {"name": "Corps des ingénieurs", "fx": {}, "mega_shared_pct": -10}, {"name": "Grand Atelier galactique", "fx": {}, "mega_shared_pct": -10}]},
+			"b": {"label": "Patrimoine stellaire", "text": "Mégastructures : interdit d'emmailloter une étoile où vit un autre peuple, puis de bâtir des superarmes, enfin le Moratoire des mégastructures gèle tout nouveau chantier.", "levels": [{"name": "Patrimoine stellaire", "fx": {}, "bans": ["mega_foreign_star"]}, {"name": "Interdiction des superarmes", "fx": {"opinion_all": 2}, "bans": ["mega_weapon"]}, {"name": "Moratoire des mégastructures", "fx": {"opinion_all": 3}, "bans": ["megastructure"]}]}},
 		{"id": "signal", "label": "Le Signal", "glyph": "science", "requires": "contact",
 			"a": {"label": "Programme commun d'écoute", "text": "Contact : les membres écoutent ensemble ; leur déchiffrement va 10 % plus vite, puis ils reçoivent les fragments de tous les membres, enfin 10 % de plus.", "levels": [{"name": "Programme commun d'écoute", "fx": {}, "ct_listen": 10}, {"name": "Fragments communs", "fx": {}, "ct_shared": 1}, {"name": "Grande Écoute", "fx": {}, "ct_listen": 10}]},
 			"b": {"label": "Loi du Silence", "text": "Contact : on recense d'abord les émetteurs, puis répondre aux Lointains devient une atrocité (session extraordinaire), enfin le Silence armé : tous les membres entrent en guerre contre l'émetteur.", "levels": [{"name": "Registre des émissions", "fx": {"stability": 1}}, {"name": "Loi du Silence", "fx": {}, "bans": ["ct_silence"]}, {"name": "Silence armé", "fx": {}, "bans": ["ct_armed"]}]}},

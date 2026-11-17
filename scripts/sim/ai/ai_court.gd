@@ -66,6 +66,8 @@ static func _minor(ctx: Dictionary, state: GameState, e: Empire) -> void:
 		if String(en["offices"][k]["k"]) == "m":
 			used[int(en["offices"][k]["id"])] = true
 	for p: Dictionary in Court.data()["minor_posts"]:
+		if bool(p.get("megas", false)) and not Megastructures.enabled(state):
+			continue  # Grand Architecte : seulement avec les mégastructures
 		var pid := String(p["id"])
 		if int((en["minor"] as Dictionary).get(pid, -1)) >= 0 and not Court.member(state, e.id, int(en["minor"][pid])).is_empty():
 			continue

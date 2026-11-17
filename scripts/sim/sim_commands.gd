@@ -693,6 +693,13 @@ static func tr_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "transcendence", "player": player, "act": act, "d": d}
 
 
+## Mégastructures (voir Megastructures.check) : "plan" (k, s, p, f?), "pose" (f, k, p), "advance" (id),
+## "repair" (id), "restore" (id), "cancel" (id), "module" (id, m), "launch" (id, f, t), "fire" (id, t),
+## "purge" (id), et ceux des ponts (MegasBridges).
+static func mega_act(player: int, act: String, d := {}) -> Dictionary:
+	return {"type": "megastructures", "player": player, "act": act, "d": d}
+
+
 ## Contact (voir Contact.check) : "share" (d : v), "intuition", "transmit", "rate" (d : v), "announce",
 ## "verify", "plans_raw", "plans_audit", et ceux de la course (ContactRace) et des voix (ContactVoices).
 static func ct_act(player: int, act: String, d := {}) -> Dictionary:
@@ -917,6 +924,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Genetics.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"psionics":
 			return Psionics.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
+		"megastructures":
+			return Megastructures.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"transcendence":
 			return Transcendence.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"contact":
@@ -1345,6 +1354,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Psionics.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"transcendence":
 			Transcendence.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
+		"megastructures":
+			Megastructures.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"contact":
 			Contact.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"stealth":

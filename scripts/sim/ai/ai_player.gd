@@ -89,6 +89,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiGenetics.think(ctx)
 	AiPsionics.think(ctx)
 	AiTranscendence.think(ctx)
+	AiMegas.think(ctx)
 	AiContact.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
@@ -932,6 +933,8 @@ static func _fleets(ctx: Dictionary) -> void:
 			continue  # dissoute par une colonisation plus haut dans la boucle
 		if not state.transcendence.is_empty() and Transcendence.is_ark(state, f):
 			continue  # l'Arche de la Bordure : menée par AiTranscendence
+		if not state.megas.is_empty() and Megastructures.is_architect_fleet(f):
+			continue  # Vaisseau-architecte : mené par AiMegas
 		if Fleets.colonizer_ship(f) != "":
 			_colonizer(ctx, f)
 		elif FactionTraits.is_city_fleet(f):
@@ -1580,6 +1583,10 @@ static func _war_target(ctx: Dictionary, from: int) -> int:
 		if not state.transcendence.is_empty() and Transcendence.strike_target(state, owner, sid):
 			@warning_ignore("integer_division")
 			score = score / 3
+		# Mégastructures : les chantiers et grands ouvrages des rivaux attirent les flottes (prop. 34).
+		if not state.megas.is_empty() and _skill(ctx) >= 1 and MegasBridges.strike_target(state, owner, sid):
+			@warning_ignore("integer_division")
+			score = score / 2
 		# Terrain : le Vétéran et au-dessus évitent d'attaquer là où le terrain les désavantage.
 		var tai: Dictionary = Terrain.data().get("ai", {})
 		if Terrain.active(state) and _skill(ctx) >= int(tai.get("min_skill", 2)) \

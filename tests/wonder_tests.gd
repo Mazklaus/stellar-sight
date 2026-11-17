@@ -63,7 +63,7 @@ func _test_data() -> void:
 	for f in ["galactique", "mega", "registre", "credo"]:
 		_ok(fams.has(f), "famille %s présente" % f)
 	_ok(not GameData.buildings().has("assemblee"), "les merveilles ont quitté buildings.json")
-	_ok(Wonders.galaxy_unique("assemblee") and not Wonders.galaxy_unique("collecteur_stellaire"), "galactique unique, mégastructure par empire")
+	_ok(Wonders.galaxy_unique("assemblee") and not Wonders.galaxy_unique("porte_stellaire"), "galactique unique, mégastructure par empire")
 
 
 func _test_modes() -> void:

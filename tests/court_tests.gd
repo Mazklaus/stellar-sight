@@ -117,7 +117,7 @@ func _test_data() -> void:
 				_ok(not GameData.building(String(c["id"])).is_empty(), "bâtiment %s connu (%s)" % [c["id"], v["id"]])
 	_ok(common == 12, "douze vocations communes (%d)" % common)
 	_ok((d["offices"] as Array).size() == 5, "cinq grands offices (quatre, plus l'Aumônier des théocraties)")
-	_ok((d["minor_posts"] as Array).size() == 3, "trois postes mineurs")
+	_ok((d["minor_posts"] as Array).size() == 4, "trois postes mineurs, et le Grand Architecte des mégastructures")
 	for g in ["feodalite", "republique", "theocratie", "syndicat", "horde", "conscience"]:
 		_ok((d["governments"] as Dictionary).has(g), "mots de la cour pour %s" % g)
 	_ok(not (d["governments"] as Dictionary).has("ruche"), "la ruche n'a pas de maisons")

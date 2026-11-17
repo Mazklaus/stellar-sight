@@ -194,6 +194,7 @@ func _draw() -> void:
 	_draw_minors(px)
 	_draw_wonders(px)
 	_draw_oeuvres(px)
+	_draw_megas(px)
 	_draw_contact(px)
 	_draw_quests(px)
 	_draw_crisis(px)
@@ -969,6 +970,35 @@ func _draw_oeuvres(px: float) -> void:
 			draw_set_transform(galaxy.systems[tgt].position + Vector2(19.0, -8.0) * px, 0.0, Vector2(px, px))
 			draw_arc(Vector2.ZERO, 7.0, 0.0, TAU, 20, Color(0.9, 0.88, 1.0, 0.8), 1.2, true)
 			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Mégastructures connues (voir Megastructures, prop. 43), sans lentille : un arc autour de l'étoile, à la
+## couleur du maître (pointillé gris pour une ruine), d'autant plus fermé que l'ouvrage est avancé ;
+## une pointe rouge pour une superarme.
+func _draw_megas(px: float) -> void:
+	if state == null or state.megas.is_empty():
+		return
+	var done := {}
+	for m in Megastructures.all_sorted(state):
+		var sid := int(m["s"])
+		if done.has(sid) or not is_explored(sid):
+			continue
+		done[sid] = true
+		var ruin := Megastructures.is_ruin(m)
+		var e := state.get_empire(int(m["o"]))
+		var col := Color(0.6, 0.6, 0.62, 0.8) if ruin or e == null else e.color().lerp(Color(1.0, 0.95, 0.8), 0.3)
+		var n := maxi(1, Megastructures.stage_count(String(m["k"])))
+		var frac := clampf(float(int(m["st"])) / float(n), 0.15, 1.0)
+		draw_set_transform(galaxy.systems[sid].position, 0.0, Vector2(px, px))
+		if ruin:
+			for i in 6:
+				var a := TAU * i / 6.0
+				draw_arc(Vector2.ZERO, 13.0, a, a + 0.5, 4, col, 1.2, true)
+		else:
+			draw_arc(Vector2.ZERO, 13.0, -PI / 2.0, -PI / 2.0 + TAU * frac, 24, col, 1.6, true)
+			if bool(Megastructures.kind_def(String(m["k"])).get("weapon", false)):
+				draw_line(Vector2(9, -9), Vector2(14, -14), Color(1.0, 0.35, 0.3), 1.8, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## Contact (prop. 43) : Échos fossiles explorés (trois arcs pâles), Oreilles du joueur (petite parabole),

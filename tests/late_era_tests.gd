@@ -262,14 +262,7 @@ func _test_wonders() -> void:
 	var home := st.empires[0].capital_planet
 	Research.grant(st, 0, ["collecteur_stellaire", "abondance", "assemblee"])
 	Research.grant(st, 1, ["assemblee"])
-	var outpost := _plant(st, 0, _free_planet(st, "barren").id, 0, Colony.KIND_OUTPOST)
-	_ok(_build(sim, outpost.planet_id, "collecteur_stellaire") == "", "Collecteur stellaire lancé depuis un avant-poste")
-	_ok(_build(sim, home, "collecteur_stellaire").contains("chantier"), "un seul chantier du Collecteur stellaire")
-	var score0 := Victory.score(st, 0)
-	var added: Array[Dictionary] = []
-	Wonders.complete(st, "collecteur_stellaire", 0, added)
-	_ok(Victory.score(st, 0) > score0, "la mégastructure rapporte du score")
-	_ok(_build(sim, home, "collecteur_stellaire").contains("une seule"), "un seul Collecteur stellaire par empire")
+	# (le Collecteur stellaire est devenu la Sphère de Dyson des mégastructures : voir MegasTests)
 	# Merveille unique dans la galaxie : vraie course, le premier qui l'achève l'emporte.
 	_ok(_build(sim, home, "assemblee") == "", "Assemblée interstellaire lancée")
 	var rival := st.empires[1].capital_planet
@@ -281,6 +274,7 @@ func _test_wonders() -> void:
 	sim.submit(SimCommands.won_act(1, "start", "assemblee", rival))
 	sim.flush_commands()
 	var op0 := Diplomacy.opinion(st, 1, 0)
+	var added: Array[Dictionary] = []
 	Wonders.complete(st, "assemblee", 0, added)
 	_ok(Wonders.build_of(st, 1, "assemblee").is_empty(), "le rival perd son chantier")
 	why = SimCommands.validate(st, SimCommands.won_act(1, "start", "assemblee", rival))
@@ -366,6 +360,5 @@ func _test_ai_late_game() -> void:
 			terraformed += 1
 	_ok(seen.has("mine_profonde") or seen.has("centrale_confinement") or seen.has("ferme_verticale"), "les IA bâtissent des bâtiments de 2e rang")
 	_ok(seen.has("prefecture"), "les IA bâtissent des Préfectures")
-	_ok(seen.has("collecteur_stellaire") or seen.has("nexus_savoir"), "les IA bâtissent des mégastructures")
 	_ok(seen.has("assemblee") or seen.has("bourse_mille_soleils"), "les IA lancent des merveilles")
 	_ok(terraformed > 0 or seen.has("monde_jardin") or seen.has("terraformeur") or seen.has("ecumenopole"), "les IA terraforment (%d)" % terraformed)

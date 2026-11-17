@@ -1,0 +1,1493 @@
+{
+	"_doc": "Mégastructures (étude du 2026-11-17, 46 propositions validées le même jour ; 8 Mégamasse et 26 Moteur stellaire restées À discuter, non codées). Catalogue ouvert : chaque entrée de « kinds » est une mégastructure posée sur un astre précis d'un système tenu (site.body : star | planet | colony), par un Vaisseau-architecte qui doit rester sur place pendant le Chantier (étape 0). Les étapes suivantes se lancent une à une (coût payé au lancement) et l'empire n'en avance qu'un nombre limité à la fois (rules.slots + effets mega_slots). Effets d'une étape : yields (par mois, star_mult selon l'étoile), fx (mêmes clés que les technologies, voir Research.effects), special (codé dans Megastructures / MegasWorld). Tous les nombres sont des valeurs de départ (équilibrage reporté).",
+	"_sources": "Site posé par un vaisseau de construction, étapes à effets croissants, une à la fois, limites par type, Dyson qui gèle les planètes, Catapulte sur étoile à neutrons, ruines à réparer, prise par conquête : Stellaris (stellaris.fandom.com/wiki/Megastructures). Vaisseau Stellar Architect, énergie selon la couleur de l'étoile, prise des portails : Galactic Civilizations IV (stardock.com, Dev Journals #84 et #87). Voiles d'essaim qui s'usent : Dyson Sphere Program (dsp-wiki.com/Dyson_Sphere). Échelle de Kardashev (Wikipédia, formule de Sagan). Étude : https://claude.ai/artifact/WoUwkHt9fR78r284fYPccn",
+	"modes": [
+		{
+			"id": "completes",
+			"label": "Complètes",
+			"text": "Tout le catalogue, superarmes comprises, avec les ruines, les trouvailles, les événements de chantier et les ponts avec les autres piliers."
+		},
+		{
+			"id": "sans_armes",
+			"label": "Sans superarmes",
+			"text": "Tout, sauf le Brise-monde et l'Anneau d'extinction."
+		},
+		{
+			"id": "classiques",
+			"label": "Classiques",
+			"text": "Seulement la Sphère de Dyson, le Nexus du savoir et le Monde-anneau, comme avant le pilier, mais posés par un Vaisseau-architecte."
+		},
+		{
+			"id": "desactivees",
+			"label": "Désactivées",
+			"text": "Aucune mégastructure."
+		}
+	],
+	"default_mode": "completes",
+	"ruin_opts": [
+		{
+			"id": "aucune",
+			"label": "Aucune",
+			"per_systems": 0
+		},
+		{
+			"id": "peu",
+			"label": "Peu",
+			"per_systems": 75
+		},
+		{
+			"id": "beaucoup",
+			"label": "Beaucoup",
+			"per_systems": 35
+		}
+	],
+	"default_ruins": "peu",
+	"stars": {
+		"blue_giant": 150,
+		"white": 125,
+		"yellow": 100,
+		"red": 60,
+		"neutron": 80,
+		"black_hole": 0
+	},
+	"star_labels": {
+		"blue_giant": "géante bleue",
+		"white": "naine blanche",
+		"yellow": "naine jaune",
+		"red": "naine rouge",
+		"neutron": "étoile à neutrons",
+		"black_hole": "trou noir"
+	},
+	"rules": {
+		"slots": 1,
+		"ship": "architecte",
+		"cancel_refund_pct": 50,
+		"repair_pct": 50,
+		"restore_pct": 40,
+		"restore_days": 360,
+		"siege_months": 3,
+		"event_pct": 8,
+		"contested_days": 30
+	},
+	"kardashev": {
+		"_doc": "Prop. 9 : indice de 0,0 à 3,0. Type I : énergie brute mensuelle >= energy[0]. Type II : type I + une Sphère achevée ou trois Essaims achevés. Type III : type II + great mégastructures achevées (dont era5 de l'ère V) + énergie >= energy[2]. La décimale mesure le chemin vers le palier suivant (énergie).",
+		"energy": [
+			150,
+			400,
+			800
+		],
+		"great": 6,
+		"era5": 3,
+		"titles": [
+			"",
+			"Civilisation planétaire",
+			"Civilisation stellaire",
+			"Civilisation galactique"
+		],
+		"culture_pct": [
+			0,
+			5,
+			10,
+			20
+		]
+	},
+	"events": [
+		{
+			"id": "accident",
+			"text": "%s : accident sur le chantier %s. Une poutre de dix kilomètres a glissé ; on a perdu %d jours et deux contremaîtres.",
+			"days": 30
+		},
+		{
+			"id": "decouverte",
+			"text": "%s : en creusant les fondations de %s, les ingénieurs trouvent quelque chose d'intéressant. +%d Savoir.",
+			"knowledge": 40
+		},
+		{
+			"id": "greve",
+			"text": "%s : grève sur le chantier %s. Les soudeurs exigent des pauses gravitationnelles ; %d énergie de primes pour reprendre.",
+			"energy": 30
+		},
+		{
+			"id": "heros",
+			"text": "%s : une équipe d'ouvriers héroïques boucle une semaine de travail en une nuit sur %s. %d jours gagnés.",
+			"days": 20
+		}
+	],
+	"talents": {
+		"_doc": "Prop. 40 : talents des huit peuples (clés lues par Megastructures.talent).",
+		"ferrocornes": {
+			"label": "Forgerons du vide",
+			"text": "Les étapes avancent 25 % plus vite, et une étape de plus à la fois.",
+			"speed_pct": 25,
+			"slots": 1
+		},
+		"brisecomete": {
+			"label": "Ferrailleurs de légende",
+			"text": "Les ruines se relèvent à moitié prix et deux fois plus vite.",
+			"restore_pct": -50,
+			"restore_days_pct": -50
+		},
+		"choeur": {
+			"label": "Le Grand Chant",
+			"text": "L'Œuvre monumentale donne deux fois plus de stabilité et de Rayonnement.",
+			"oeuvre_x": 2
+		},
+		"khthari": {
+			"label": "Essaim vivant",
+			"text": "Leurs Essaims de Dyson sont des nuées vivantes : entretenus en nourriture au lieu de matériaux.",
+			"wear_food": true
+		},
+		"teyl": {
+			"label": "Esprits en couches",
+			"text": "Le Cerveau Matriochka coûte 30 % de moins et donne 25 % de Savoir en plus.",
+			"matriochka_cost_pct": -30,
+			"matriochka_pct": 25
+		},
+		"vael": {
+			"label": "Tribune galactique",
+			"text": "Le Forum interstellaire donne moitié plus de voix et d'opinion.",
+			"forum_pct": 50
+		},
+		"ossarane": {
+			"label": "L'Anneau des Lignées",
+			"text": "Chaque segment de leur Monde-anneau donne +1 influence par mois, et ses étapes coûtent 20 % de moins.",
+			"ring_influence": 1,
+			"ring_cost_pct": -20
+		},
+		"murmurants": {
+			"label": "Chantiers dans l'ombre",
+			"text": "Leurs chantiers sont invisibles aux autres empires tant qu'ils ne sont pas achevés, et le Réseau de veille ne les trahit pas.",
+			"hidden": true
+		}
+	},
+	"bridges": {
+		"_doc": "Lot 3 (prop. 33-42) : ponts avec les autres piliers (MegasBridges). spy : sabotage (jours perdus), plans volés (coût du type) ; koinon : cofinancement fédéral (federal) par membre ; credo_opinion : opinion envers qui tient une grande mégastructure (ère IV+) ; private : part des rendements cédée à une compagnie qui finance une étape ; hero_speed_pct : gouverneur au trait Architecte ; exodium_era : ère minimale d'une mégastructure achevée qui sert de site à l'Exodium.",
+		"spy": {
+			"sabotage_days": 120,
+			"plans_pct": -25
+		},
+		"koinon": {
+			"per_member_pct": -10,
+			"max_pct": -30
+		},
+		"credo_opinion": {
+			"raison": 5,
+			"profit": 3,
+			"honneur": 0,
+			"foi": -5,
+			"survie": -3
+		},
+		"private": {
+			"share_pct": 25,
+			"years": 10
+		},
+		"hero_speed_pct": 30,
+		"exodium_era": 4
+	},
+	"kinds": {
+		"ascenseur_orbital": {
+			"label": "Ascenseur orbital",
+			"era": 2,
+			"tech": [
+				"architectes_stellaires"
+			],
+			"site": {
+				"body": "colony"
+			},
+			"limit": {
+				"per_colony": 1
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 80
+					},
+					"days": 60
+				},
+				{
+					"label": "Câble d'ancrage",
+					"cost": {
+						"materials": 150,
+						"energy": 40
+					},
+					"days": 120,
+					"fx": {
+						"ship_cost_pct": -1,
+						"building_cost_pct": -1,
+						"trade_income_pct": 1
+					}
+				},
+				{
+					"label": "Ascenseur achevé",
+					"cost": {
+						"materials": 200,
+						"energy": 60
+					},
+					"days": 180,
+					"fx": {
+						"ship_cost_pct": -3,
+						"building_cost_pct": -3,
+						"trade_income_pct": 3
+					}
+				}
+			],
+			"fx_cap": {
+				"ship_cost_pct": -15,
+				"building_cost_pct": -15,
+				"trade_income_pct": 15
+			},
+			"ruin": false,
+			"text": "Petite mégastructure, une par colonie peuplée : par Ascenseur achevé, vaisseaux et bâtiments -3 % et commerce +3 % dans tout l'empire (plafond 15 %).",
+			"quote": "Trente-six mille kilomètres de câble, une seule cabine, et une file d'attente qui fait le tour de la planète."
+		},
+		"essaim_dyson": {
+			"label": "Essaim de Dyson",
+			"era": 3,
+			"tech": [
+				"essaim_dyson"
+			],
+			"site": {
+				"body": "star",
+				"not_stars": [
+					"black_hole"
+				]
+			},
+			"limit": {
+				"empire": 3
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 150,
+						"energy": 50
+					},
+					"days": 90
+				},
+				{
+					"label": "Grappe de voiles",
+					"cost": {
+						"materials": 250
+					},
+					"days": 180,
+					"yields": {
+						"energy": 8
+					}
+				},
+				{
+					"label": "Nuée",
+					"cost": {
+						"materials": 350,
+						"crystals": 10
+					},
+					"days": 240,
+					"yields": {
+						"energy": 16
+					}
+				},
+				{
+					"label": "Essaim complet",
+					"cost": {
+						"materials": 450,
+						"crystals": 20
+					},
+					"days": 300,
+					"yields": {
+						"energy": 28
+					}
+				}
+			],
+			"star_mult": true,
+			"wear": {
+				"materials_per_stage": 2,
+				"step": 10,
+				"max": 50
+			},
+			"ruin": false,
+			"text": "Jusqu'à trois, autour d'une étoile (pas un trou noir) : +8, +16 puis +28 énergie, selon l'étoile. Les voiles s'usent : 2 matériaux par étape et par mois, sinon le rendement baisse.",
+			"quote": "Des milliards de miroirs, chacun persuadé d'être le plus important."
+		},
+		"anneau_orbital": {
+			"label": "Anneau orbital",
+			"era": 3,
+			"tech": [
+				"anneau_orbital"
+			],
+			"site": {
+				"body": "colony"
+			},
+			"limit": {
+				"per_colony": 1
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 200,
+						"influence": 20
+					},
+					"days": 120
+				},
+				{
+					"label": "Ossature",
+					"cost": {
+						"materials": 400,
+						"energy": 80
+					},
+					"days": 240,
+					"special": {
+						"capacity": 4
+					}
+				},
+				{
+					"label": "Anneau achevé",
+					"cost": {
+						"materials": 600,
+						"energy": 120
+					},
+					"days": 300,
+					"fx": {
+						"trade_income_pct": 5
+					},
+					"special": {
+						"capacity": 8,
+						"module": true
+					}
+				}
+			],
+			"modules": {
+				"chantier": {
+					"label": "Chantier naval",
+					"text": "les vaisseaux de cette colonie sortent un jour plus tôt par jour de chantier (deux fois plus vite)."
+				},
+				"habitation": {
+					"label": "Habitation",
+					"text": "+3 population maximale sur la colonie."
+				},
+				"batteries": {
+					"label": "Batteries",
+					"text": "+6 places de défense dans le système et +25 % de garnison sur la colonie."
+				}
+			},
+			"module_fx": {
+				"chantier": {
+					"ship_speed": 1
+				},
+				"habitation": {
+					"pop": 3
+				},
+				"batteries": {
+					"capacity": 6,
+					"garrison_pct": 25
+				}
+			},
+			"ruin": false,
+			"text": "Autour d'une colonie : moitié station de défense (+4 puis +8 places de défense), puis un module au choix : chantier naval, habitation (+3 population) ou batteries.",
+			"quote": "Une ceinture d'acier autour de la planète. Elle ne tient rien, mais elle rassure."
+		},
+		"forge_noyau": {
+			"label": "Forge-noyau",
+			"era": 3,
+			"tech": [
+				"forge_noyau"
+			],
+			"site": {
+				"body": "planet",
+				"planet_types": [
+					"barren",
+					"toxic"
+				]
+			},
+			"limit": {
+				"empire": 3
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 150
+					},
+					"days": 90
+				},
+				{
+					"label": "Bande équatoriale",
+					"cost": {
+						"materials": 250,
+						"energy": 60
+					},
+					"days": 180,
+					"yields": {
+						"materials": 8
+					}
+				},
+				{
+					"label": "Pompes de forage",
+					"cost": {
+						"materials": 350,
+						"energy": 80
+					},
+					"days": 240,
+					"yields": {
+						"materials": 16
+					}
+				},
+				{
+					"label": "Extracteurs du manteau",
+					"cost": {
+						"materials": 450,
+						"energy": 100
+					},
+					"days": 300,
+					"yields": {
+						"materials": 24,
+						"crystals": 2
+					}
+				}
+			],
+			"ruin": true,
+			"text": "Jusqu'à trois, sur une planète stérile ou toxique : +8, +16 puis +24 matériaux, et 2 cristaux au dernier stade.",
+			"quote": "On a percé jusqu'au cœur. Le cœur a protesté, puis il a payé."
+		},
+		"siphon_geante": {
+			"label": "Siphon de géante",
+			"era": 3,
+			"tech": [
+				"siphon_geante"
+			],
+			"site": {
+				"body": "planet",
+				"planet_types": [
+					"gas_giant"
+				]
+			},
+			"limit": {
+				"empire": 3
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 120
+					},
+					"days": 90
+				},
+				{
+					"label": "Pompes atmosphériques",
+					"cost": {
+						"materials": 220,
+						"energy": 40
+					},
+					"days": 180,
+					"yields": {
+						"energy": 8
+					}
+				},
+				{
+					"label": "Siphon achevé",
+					"cost": {
+						"materials": 320,
+						"energy": 60
+					},
+					"days": 240,
+					"yields": {
+						"energy": 16
+					},
+					"special": {
+						"depot": true
+					}
+				}
+			],
+			"ruin": false,
+			"text": "Jusqu'à trois, sur une géante gazeuse : +8 puis +16 énergie ; achevé, il sert de dépôt de ravitaillement à vos flottes dans le système.",
+			"quote": "La géante maigrit d'un gramme par siècle. Elle ne s'en est pas encore aperçue."
+		},
+		"mega_chantier": {
+			"label": "Méga-chantier naval",
+			"era": 4,
+			"tech": [
+				"mega_chantier"
+			],
+			"site": {
+				"body": "star"
+			},
+			"limit": {
+				"empire": 1
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 300,
+						"influence": 30
+					},
+					"days": 150
+				},
+				{
+					"label": "Cadre",
+					"cost": {
+						"materials": 600,
+						"energy": 150
+					},
+					"days": 300,
+					"fx": {
+						"ship_days_pct": -10
+					}
+				},
+				{
+					"label": "Cœur",
+					"cost": {
+						"materials": 800,
+						"energy": 200
+					},
+					"days": 300,
+					"fx": {
+						"ship_days_pct": -20,
+						"titan_days_pct": -15
+					}
+				},
+				{
+					"label": "Méga-chantier achevé",
+					"cost": {
+						"materials": 1000,
+						"energy": 250,
+						"crystals": 30
+					},
+					"days": 360,
+					"fx": {
+						"ship_days_pct": -30,
+						"titan_days_pct": -30,
+						"first_day_damage_pct": 10
+					}
+				}
+			],
+			"ruin": true,
+			"text": "Un par empire, autour d'une étoile : vaisseaux construits 10, 20 puis 30 % plus vite, Léviathans et Nefs-mondes jusqu'à 30 % plus vite ; achevé, les équipages sortent rodés (+10 % de dégâts le premier jour de bataille).",
+			"quote": "On y assemble des cuirassés comme on enfile des perles. De très grosses perles, avec des canons."
+		},
+		"reseau_veille": {
+			"label": "Réseau de veille",
+			"era": 4,
+			"tech": [
+				"reseau_veille"
+			],
+			"site": {
+				"body": "star"
+			},
+			"limit": {
+				"empire": 1
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 250,
+						"influence": 30
+					},
+					"days": 150
+				},
+				{
+					"label": "Moyeu",
+					"cost": {
+						"materials": 400,
+						"energy": 120
+					},
+					"days": 240,
+					"fx": {
+						"detect": 1
+					},
+					"special": {
+						"vision": 4
+					}
+				},
+				{
+					"label": "Flèche",
+					"cost": {
+						"materials": 400,
+						"energy": 120
+					},
+					"days": 240,
+					"fx": {
+						"detect": 1
+					},
+					"special": {
+						"vision": 8
+					}
+				},
+				{
+					"label": "Antennes",
+					"cost": {
+						"materials": 400,
+						"energy": 120
+					},
+					"days": 240,
+					"fx": {
+						"detect": 2
+					},
+					"special": {
+						"vision": 12
+					}
+				},
+				{
+					"label": "Réseau achevé",
+					"cost": {
+						"materials": 500,
+						"energy": 150,
+						"crystals": 20
+					},
+					"days": 300,
+					"fx": {
+						"detect": 2
+					},
+					"special": {
+						"vision": 99
+					}
+				}
+			],
+			"ruin": true,
+			"text": "Un par empire : vision à 4, 8 puis 12 sauts, puis toute la galaxie ; détection +1 puis +2 contre la furtivité.",
+			"quote": "Nous voyons tout. Nous ne comprenons pas tout. C'est déjà beaucoup."
+		},
+		"forum_interstellaire": {
+			"label": "Forum interstellaire",
+			"era": 4,
+			"tech": [
+				"forum_interstellaire"
+			],
+			"federal": true,
+			"site": {
+				"body": "star"
+			},
+			"limit": {
+				"empire": 1
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 250,
+						"influence": 50
+					},
+					"days": 150
+				},
+				{
+					"label": "Locus",
+					"cost": {
+						"materials": 300,
+						"influence": 40
+					},
+					"days": 180,
+					"fx": {
+						"mega_voix_pct": 5,
+						"opinion_all": 5
+					}
+				},
+				{
+					"label": "Anneau des consuls",
+					"cost": {
+						"materials": 300,
+						"influence": 40
+					},
+					"days": 180,
+					"fx": {
+						"mega_voix_pct": 10,
+						"opinion_all": 10
+					}
+				},
+				{
+					"label": "Modules du forum",
+					"cost": {
+						"materials": 300,
+						"influence": 40
+					},
+					"days": 180,
+					"fx": {
+						"mega_voix_pct": 15,
+						"opinion_all": 15
+					}
+				},
+				{
+					"label": "Forum achevé",
+					"cost": {
+						"materials": 400,
+						"influence": 60
+					},
+					"days": 240,
+					"fx": {
+						"mega_voix_pct": 20,
+						"opinion_all": 20
+					}
+				}
+			],
+			"ruin": true,
+			"text": "Un par empire : +5 à +20 % de voix à l'Amphictyonie et +5 à +20 d'opinion chez tous les empires.",
+			"quote": "Mille délégations, mille interprètes, et un seul micro qui marche."
+		},
+		"oeuvre_monumentale": {
+			"label": "Œuvre monumentale",
+			"era": 4,
+			"tech": [
+				"oeuvre_monumentale"
+			],
+			"site": {
+				"body": "star"
+			},
+			"limit": {
+				"empire": 1
+			},
+			"nebula_pct": 150,
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 250,
+						"influence": 30
+					},
+					"days": 150
+				},
+				{
+					"label": "Naissance",
+					"cost": {
+						"materials": 300,
+						"energy": 80
+					},
+					"days": 240,
+					"fx": {
+						"stability": 1,
+						"culture_pct": 10
+					}
+				},
+				{
+					"label": "Maturité",
+					"cost": {
+						"materials": 300,
+						"energy": 80
+					},
+					"days": 240,
+					"fx": {
+						"stability": 2,
+						"culture_pct": 20
+					}
+				},
+				{
+					"label": "Œuvre achevée",
+					"cost": {
+						"materials": 400,
+						"energy": 100
+					},
+					"days": 300,
+					"fx": {
+						"stability": 3,
+						"culture_pct": 30
+					}
+				}
+			],
+			"ruin": true,
+			"text": "Une par empire : stabilité +1 à +3 et Rayonnement +10 à +30 % ; moitié plus dans une nébuleuse.",
+			"quote": "Personne ne sait ce que ça représente. Tout le monde a un avis."
+		},
+		"centre_coordination": {
+			"label": "Centre de coordination stratégique",
+			"era": 4,
+			"tech": [
+				"centre_coordination"
+			],
+			"site": {
+				"body": "star"
+			},
+			"limit": {
+				"empire": 1
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 250,
+						"influence": 30
+					},
+					"days": 150
+				},
+				{
+					"label": "Coque",
+					"cost": {
+						"materials": 400,
+						"energy": 100
+					},
+					"days": 240,
+					"fx": {
+						"supply_range": 1,
+						"fleet_speed_pct": 5
+					}
+				},
+				{
+					"label": "Transmissions",
+					"cost": {
+						"materials": 400,
+						"energy": 100
+					},
+					"days": 240,
+					"fx": {
+						"supply_range": 2,
+						"fleet_speed_pct": 10,
+						"defense_capacity": 2
+					}
+				},
+				{
+					"label": "Centre achevé",
+					"cost": {
+						"materials": 500,
+						"energy": 120
+					},
+					"days": 300,
+					"fx": {
+						"supply_range": 3,
+						"fleet_speed_pct": 15,
+						"defense_capacity": 4
+					}
+				}
+			],
+			"ruin": true,
+			"text": "Un par empire : portée de ravitaillement +1 à +3, vitesse des flottes +5 à +15 %, places de défense +2 puis +4 dans chaque station.",
+			"quote": "Ici, chaque flotte a un nom, un cap, et un bureau qui s'inquiète pour elle."
+		},
+		"catapulte_quantique": {
+			"label": "Catapulte quantique",
+			"era": 4,
+			"tech": [
+				"catapulte_quantique"
+			],
+			"site": {
+				"body": "star",
+				"stars": [
+					"neutron"
+				]
+			},
+			"limit": {
+				"per_system": 1
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 300,
+						"energy": 100
+					},
+					"days": 150
+				},
+				{
+					"label": "Quatre lentilles",
+					"cost": {
+						"materials": 400,
+						"energy": 150,
+						"crystals": 10
+					},
+					"days": 240,
+					"special": {
+						"range": 6,
+						"miss": 40,
+						"cooldown": 180
+					}
+				},
+				{
+					"label": "Huit lentilles",
+					"cost": {
+						"materials": 400,
+						"energy": 150,
+						"crystals": 10
+					},
+					"days": 240,
+					"special": {
+						"range": 10,
+						"miss": 20,
+						"cooldown": 120
+					}
+				},
+				{
+					"label": "Catapulte achevée",
+					"cost": {
+						"materials": 500,
+						"energy": 200,
+						"crystals": 20
+					},
+					"days": 300,
+					"special": {
+						"range": 16,
+						"miss": 5,
+						"cooldown": 60
+					}
+				}
+			],
+			"launch_cost": {
+				"energy": 40
+			},
+			"ruin": true,
+			"text": "Autour d'une étoile à neutrons, une par système : lance une flotte du système vers un système exploré à 6, 10 puis 16 sauts, avec 40, 20 puis 5 % de risque d'arriver à côté. 40 énergie par tir, puis recharge.",
+			"quote": "Le pilote a demandé où se trouvaient les freins. On lui a répondu : « à l'arrivée »."
+		},
+		"sphere_dyson": {
+			"label": "Sphère de Dyson",
+			"era": 5,
+			"tech": [
+				"collecteur_stellaire",
+				"mega_ingenierie"
+			],
+			"site": {
+				"body": "star",
+				"not_stars": [
+					"black_hole"
+				],
+				"no_foreign_pop": true
+			},
+			"limit": {
+				"empire": 1
+			},
+			"classic": true,
+			"from_wonder": "collecteur_stellaire",
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 400,
+						"energy": 100
+					},
+					"days": 180
+				},
+				{
+					"label": "Cadre",
+					"cost": {
+						"materials": 600,
+						"energy": 150,
+						"crystals": 10
+					},
+					"days": 240,
+					"yields": {
+						"energy": 20
+					}
+				},
+				{
+					"label": "Coque à moitié",
+					"cost": {
+						"materials": 700,
+						"energy": 150,
+						"crystals": 15
+					},
+					"days": 300,
+					"yields": {
+						"energy": 45
+					}
+				},
+				{
+					"label": "Coque aux trois quarts",
+					"cost": {
+						"materials": 800,
+						"energy": 200,
+						"crystals": 15
+					},
+					"days": 300,
+					"yields": {
+						"energy": 75
+					}
+				},
+				{
+					"label": "Sphère achevée",
+					"cost": {
+						"materials": 900,
+						"energy": 200,
+						"crystals": 20
+					},
+					"days": 360,
+					"yields": {
+						"energy": 120
+					},
+					"special": {
+						"freeze": true
+					}
+				}
+			],
+			"star_mult": true,
+			"on_swarm_pct": 60,
+			"ruin": true,
+			"text": "Une par empire, autour d'une étoile sans peuple étranger : +20, +45, +75 puis +120 énergie, selon l'étoile ; 40 % moins chère sur l'un de vos Essaims achevés, qu'elle absorbe. Achevée, elle gèle les planètes du système.",
+			"quote": "Une étoile emmaillotée. Elle n'a pas été consultée."
+		},
+		"matriochka": {
+			"label": "Cerveau Matriochka",
+			"era": 5,
+			"tech": [
+				"matriochka"
+			],
+			"site": {
+				"body": "star",
+				"on_kind": "sphere_dyson"
+			},
+			"limit": {
+				"empire": 1
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 400,
+						"energy": 200
+					},
+					"days": 180
+				},
+				{
+					"label": "Première coque pensante",
+					"cost": {
+						"materials": 700,
+						"energy": 250,
+						"crystals": 20
+					},
+					"days": 300,
+					"yields": {
+						"knowledge": 40
+					}
+				},
+				{
+					"label": "Deuxième coque",
+					"cost": {
+						"materials": 800,
+						"energy": 300,
+						"crystals": 25
+					},
+					"days": 300,
+					"yields": {
+						"knowledge": 80
+					}
+				},
+				{
+					"label": "Cerveau achevé",
+					"cost": {
+						"materials": 900,
+						"energy": 300,
+						"crystals": 30
+					},
+					"days": 360,
+					"yields": {
+						"knowledge": 140
+					}
+				}
+			],
+			"eats_sphere": true,
+			"elevation_bonus": {
+				"songe": 3,
+				"televersement": 5
+			},
+			"ruin": false,
+			"text": "Sur votre Sphère achevée : +40, +80 puis +140 Savoir, mais la Sphère ne donne plus d'énergie ; accélère l'Élévation des voies Songe et Téléversement.",
+			"quote": "Elle pense en couches, comme un oignon. Et comme un oignon, elle fait pleurer ceux qui la contredisent."
+		},
+		"nexus_savoir": {
+			"label": "Nexus du savoir",
+			"era": 5,
+			"tech": [
+				"nexus_savoir",
+				"mega_ingenierie"
+			],
+			"site": {
+				"body": "planet",
+				"planet_types": [
+					"barren",
+					"asteroids"
+				]
+			},
+			"limit": {
+				"empire": 1
+			},
+			"classic": true,
+			"from_wonder": "nexus_savoir",
+			"upkeep": {
+				"energy": 5
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 300,
+						"energy": 80
+					},
+					"days": 120
+				},
+				{
+					"label": "Noyau de calcul",
+					"cost": {
+						"materials": 250,
+						"energy": 70
+					},
+					"days": 240,
+					"yields": {
+						"knowledge": 15
+					}
+				},
+				{
+					"label": "Couronnes savantes",
+					"cost": {
+						"materials": 250,
+						"energy": 70
+					},
+					"days": 240,
+					"yields": {
+						"knowledge": 25
+					}
+				},
+				{
+					"label": "Nexus achevé",
+					"cost": {
+						"materials": 300,
+						"energy": 80
+					},
+					"days": 300,
+					"yields": {
+						"knowledge": 40
+					}
+				}
+			],
+			"ruin": true,
+			"text": "Un par empire, sur une planète stérile ou une ceinture : +15, +25 puis +40 Savoir par mois.",
+			"quote": "Une ville qui pense. Elle pense surtout que vous devriez l'agrandir."
+		},
+		"monde_anneau": {
+			"label": "Monde-anneau",
+			"era": 5,
+			"tech": [
+				"spatioports",
+				"mega_ingenierie"
+			],
+			"site": {
+				"body": "star",
+				"not_stars": [
+					"black_hole"
+				],
+				"no_pop": true
+			},
+			"limit": {
+				"empire": 1
+			},
+			"classic": true,
+			"from_wonder": "monde_anneau",
+			"federal": true,
+			"upkeep": {
+				"energy": 6
+			},
+			"stages": [
+				{
+					"label": "Cadre",
+					"cost": {
+						"materials": 600,
+						"energy": 200,
+						"influence": 30
+					},
+					"days": 180
+				},
+				{
+					"label": "Premier segment",
+					"cost": {
+						"materials": 500,
+						"energy": 150,
+						"influence": 20
+					},
+					"days": 240,
+					"special": {
+						"ring": true
+					}
+				},
+				{
+					"label": "Deuxième segment",
+					"cost": {
+						"materials": 500,
+						"energy": 150,
+						"influence": 20
+					},
+					"days": 240,
+					"special": {
+						"ring": true
+					}
+				},
+				{
+					"label": "Troisième segment",
+					"cost": {
+						"materials": 500,
+						"energy": 150,
+						"influence": 20
+					},
+					"days": 240,
+					"special": {
+						"ring": true
+					}
+				},
+				{
+					"label": "Anneau fermé",
+					"cost": {
+						"materials": 500,
+						"energy": 150,
+						"influence": 30
+					},
+					"days": 300,
+					"special": {
+						"ring": true,
+						"absorb": true
+					}
+				}
+			],
+			"ruin": true,
+			"text": "Un par empire, autour d'une étoile sans monde peuplé : chaque étape change une planète du système en segment d'anneau, habitable pour tous ; fermé, l'anneau absorbe les autres planètes libres.",
+			"quote": "Une planète, ce n'était pas assez. Alors on a déroulé le sol."
+		},
+		"decompresseur": {
+			"label": "Décompresseur de matière",
+			"era": 5,
+			"tech": [
+				"decompresseur"
+			],
+			"site": {
+				"body": "star",
+				"stars": [
+					"black_hole"
+				]
+			},
+			"limit": {
+				"empire": 1
+			},
+			"stages": [
+				{
+					"label": "Ancre",
+					"cost": {
+						"materials": 400,
+						"energy": 150
+					},
+					"days": 180
+				},
+				{
+					"label": "Lentilles",
+					"cost": {
+						"materials": 500,
+						"energy": 200,
+						"crystals": 15
+					},
+					"days": 300,
+					"yields": {
+						"materials": 30
+					}
+				},
+				{
+					"label": "Forage",
+					"cost": {
+						"materials": 600,
+						"energy": 250,
+						"crystals": 20
+					},
+					"days": 300,
+					"yields": {
+						"materials": 60
+					}
+				},
+				{
+					"label": "Décompresseur achevé",
+					"cost": {
+						"materials": 700,
+						"energy": 300,
+						"crystals": 25
+					},
+					"days": 360,
+					"yields": {
+						"materials": 100
+					}
+				}
+			],
+			"ruin": true,
+			"text": "Un par empire, autour d'un trou noir : +30, +60 puis +100 matériaux par mois.",
+			"quote": "Le trou noir rend enfin ce qu'il a pris. Avec des intérêts, et en vrac."
+		},
+		"brise_monde": {
+			"label": "Brise-monde",
+			"era": 5,
+			"tech": [
+				"brise_monde"
+			],
+			"weapon": true,
+			"site": {
+				"body": "planet",
+				"planet_types": [
+					"barren"
+				]
+			},
+			"limit": {
+				"empire": 1
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 500,
+						"energy": 200,
+						"influence": 50
+					},
+					"days": 180
+				},
+				{
+					"label": "Noyau creusé",
+					"cost": {
+						"materials": 700,
+						"energy": 300
+					},
+					"days": 300
+				},
+				{
+					"label": "Canal de tir",
+					"cost": {
+						"materials": 800,
+						"energy": 300,
+						"crystals": 30
+					},
+					"days": 300
+				},
+				{
+					"label": "Brise-monde armé",
+					"cost": {
+						"materials": 900,
+						"energy": 400,
+						"crystals": 40
+					},
+					"days": 360,
+					"special": {
+						"fire": true
+					}
+				}
+			],
+			"fire": {
+				"range": 8,
+				"cost": {
+					"energy": 300
+				},
+				"cooldown": 1800,
+				"weak_days": 30
+			},
+			"ruin": false,
+			"text": "Superarme, une par empire, creusée dans une planète stérile : armée, elle détruit une planète à 8 sauts ou moins (la colonie avec) ; 300 énergie, puis 5 ans de recharge. Tout le monde s'en souviendra. Point faible : une flotte ennemie qui tient le système 30 jours la fait sauter.",
+			"quote": "Il y avait là une planète. Il y a maintenant une ceinture d'astéroïdes, et un avis très défavorable de la galaxie entière."
+		},
+		"anneau_extinction": {
+			"label": "Anneau d'extinction",
+			"era": 5,
+			"tech": [
+				"anneau_extinction"
+			],
+			"weapon": true,
+			"site": {
+				"body": "star",
+				"not_stars": [
+					"black_hole"
+				]
+			},
+			"limit": {
+				"empire": 1
+			},
+			"stages": [
+				{
+					"label": "Chantier",
+					"cost": {
+						"materials": 500,
+						"energy": 200,
+						"influence": 50
+					},
+					"days": 180
+				},
+				{
+					"label": "Arc",
+					"cost": {
+						"materials": 700,
+						"energy": 300
+					},
+					"days": 300
+				},
+				{
+					"label": "Anneau fermé",
+					"cost": {
+						"materials": 800,
+						"energy": 300,
+						"crystals": 30
+					},
+					"days": 300
+				},
+				{
+					"label": "Anneau armé",
+					"cost": {
+						"materials": 900,
+						"energy": 400,
+						"crystals": 40
+					},
+					"days": 360,
+					"special": {
+						"purge": true
+					}
+				}
+			],
+			"purge": {
+				"radius": 6,
+				"cooldown": 3600,
+				"pop_pct": 50,
+				"cost": {
+					"energy": 400
+				}
+			},
+			"ruin": false,
+			"text": "Superarme de dernier recours, une par empire : seulement pendant une crise, elle anéantit les flottes de la crise à 6 sauts ou moins, mais la moitié des habitants des colonies de la zone meurt aussi. 400 énergie, puis 10 ans de recharge.",
+			"quote": "Il n'a été conçu que pour une chose. Ses bâtisseurs espèrent qu'elle n'arrivera jamais."
+		},
+		"forteresse_dormante": {
+			"label": "Forteresse dormante",
+			"era": 5,
+			"tech": [
+				"mega_ingenierie"
+			],
+			"ruin_only": true,
+			"site": {
+				"body": "star"
+			},
+			"limit": {
+				"empire": 1
+			},
+			"stages": [
+				{
+					"label": "Coque d'onyx",
+					"cost": {},
+					"days": 1
+				},
+				{
+					"label": "Base navale",
+					"cost": {
+						"materials": 600,
+						"energy": 200
+					},
+					"days": 360,
+					"fx": {
+						"defense_capacity": 6,
+						"repair_pct": 50
+					}
+				},
+				{
+					"label": "Éveil",
+					"cost": {
+						"materials": 800,
+						"energy": 400,
+						"crystals": 40
+					},
+					"days": 360,
+					"fx": {
+						"defense_capacity": 6,
+						"repair_pct": 50,
+						"damage_pct": 10,
+						"home_damage_pct": 20
+					},
+					"special": {
+						"awaken": true
+					}
+				}
+			],
+			"ruin": true,
+			"text": "Trouvaille rare, jamais bâtie : relevée, c'est une base navale (+6 places de défense, réparations +50 %) ; son Éveil (+10 % de dégâts, +20 % chez soi) n'est possible qu'après le réveil d'une puissance ancienne, ou avec l'Anneau d'extinction.",
+			"quote": "Elle était là avant nous. Elle a attendu. Elle attend encore un peu, par politesse."
+		}
+	}
+}

@@ -114,6 +114,8 @@ static func max_pop(state: GameState, planet: Planet, empire_id: int, buildings:
 		return 0
 	for b in buildings:
 		base += int(GameData.building(b).get("max_pop", 0))
+	if not state.megas.is_empty():
+		base += Megastructures.pop_bonus(state, planet.id, empire_id)  # module Habitation
 	return base
 
 
@@ -335,6 +337,10 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 		for r in lt:
 			gross[r] += int(lt[r])
 		upkeep["influence"] += Laws.upkeep(state, empire_id)
+	if not state.megas.is_empty():
+		var mi := Megastructures.income(state, empire_id)  # rendements et entretien des mégastructures
+		_add(gross, mi["gross"])
+		_add(upkeep, mi["upkeep"])
 	if not state.admin.is_empty():
 		_add(upkeep, Admin.upkeep(state, empire_id))  # effort administratif
 	if not state.finance.is_empty():

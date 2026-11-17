@@ -118,6 +118,8 @@ func step() -> void:
 		chronicle_added.emit(entry)
 	for entry in Wonders.daily(state):
 		chronicle_added.emit(entry)
+	for entry in Megastructures.daily(state):
+		chronicle_added.emit(entry)
 	for entry in Deeds.daily(state):
 		chronicle_added.emit(entry)
 	for entry in Rulers.daily(state):

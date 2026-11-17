@@ -75,6 +75,8 @@ static func _offices_block(es: EmpireScreens, col: VBoxContainer, state: GameSta
 			ThroneScreen._button(es, row, "Libérer", SimCommands.court_act(player, "vacate", -1, -1, oid), "court:vacate:" + oid)
 	b.body.add_child(HSeparator.new())
 	for p: Dictionary in Court.data()["minor_posts"]:
+		if bool(p.get("megas", false)) and not Megastructures.enabled(state):
+			continue  # Grand Architecte : seulement avec les mégastructures
 		var row2 := HBoxContainer.new()
 		row2.add_theme_constant_override("separation", 10)
 		b.body.add_child(row2)
