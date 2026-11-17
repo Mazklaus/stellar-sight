@@ -173,7 +173,7 @@ class Frise:
 	var viewer := -1
 
 	func _init() -> void:
-		custom_minimum_size = Vector2(0, 110)
+		custom_minimum_size = Vector2(0, 124)
 		mouse_filter = Control.MOUSE_FILTER_PASS
 
 	func _x_of(t: int) -> float:
@@ -183,7 +183,7 @@ class Frise:
 	func _draw() -> void:
 		if state == null:
 			return
-		var y := 52.0
+		var y := 62.0
 		draw_line(Vector2(20, y), Vector2(size.x - 20, y), Color(1, 1, 1, 0.25), 2.0, true)
 		var f := UiTheme.font(400)
 		var years := maxi(1, int(state.tick / 360.0))
@@ -202,7 +202,9 @@ class Frise:
 			draw_circle(Vector2(x, y), 5.0, col)
 			draw_circle(Vector2(x, y), 2.0, Color(0.02, 0.02, 0.03))
 			var title := String(Announce.kind_def(String(rec["k"])).get("title", ""))
-			draw_string(f, Vector2(x + 3, tip_y - 2 if up else tip_y + 10), title, HORIZONTAL_ALIGNMENT_LEFT, 150, 11, Color(col, 0.95))
+			var tw := minf(150.0, f.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x)
+			var tx := x + 3.0 if x + 3.0 + tw < size.x - 4.0 else x - 3.0 - tw
+			draw_string(f, Vector2(tx, tip_y - 2 if up else tip_y + 10), title, HORIZONTAL_ALIGNMENT_LEFT, 150, 11, Color(col, 0.95))
 			up = not up
 		if hours.is_empty():
 			draw_string(f, Vector2(24, y - 12), "Premier jour", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, UiTheme.TEXT_DIM)

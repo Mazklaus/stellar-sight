@@ -23,10 +23,10 @@ func _init() -> void:
 	anchor_right = 1.0
 	anchor_top = 1.0
 	anchor_bottom = 1.0
-	# À gauche du bouton de menu, au-dessus du cadran (Hud.MARGIN = 10, TimeDial.SIDE = 150).
-	offset_right = -10.0 - 36.0 - 8.0
+	# Au-dessus du bouton de menu, lui-même au-dessus du cadran (Hud.MARGIN = 10, TimeDial.SIDE = 150).
+	offset_right = -10.0 + 1.0
 	offset_left = offset_right - SIDE
-	offset_bottom = -TimeDial.SIDE - 10.0 - 4.0
+	offset_bottom = -TimeDial.SIDE - 10.0 - 46.0
 	offset_top = offset_bottom
 	grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	grow_vertical = Control.GROW_DIRECTION_BEGIN
