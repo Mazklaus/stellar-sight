@@ -89,7 +89,13 @@
 			{"id": "genetique", "label": "Espèce parfaite", "text": "+2 points de marge et un trait de plus pour vos espèces, traits d'élite (Génie, Indomptables, Parfaits), Cuves de clonage : +25 % de croissance.", "growth_pct": 25},
 			{"id": "cybernetique", "label": "Chair et acier", "text": "Toutes vos espèces organiques deviennent cybernétiques (un trait de plus), implants pour tous, programmes à moitié prix.", "cost_pct": -50},
 			{"id": "synthetique", "label": "Le Grand Transfert", "text": "Ouvre le Grand Transfert (avec Matrices de conscience) : une espèce organique devient synthétique, pour de bon. Programmes de reprogrammation -25 %.", "cost_pct": -25},
-			{"id": "purete", "label": "Pureté", "text": "Serment de ne rien modifier : +5 de stabilité partout, la Sève et l'Autel vous soutiennent, +10 % sur le point fort de votre espèce, loi « Sanctuaire du génome ». Renier le serment coûte une crise de stabilité.", "stability": 5, "strong_pct": 110}
+			{"id": "purete", "label": "Pureté", "text": "Serment de ne rien modifier : +5 de stabilité partout, la Sève et l'Autel vous soutiennent, +10 % sur le point fort de votre espèce, loi « Sanctuaire du génome ». Renier le serment coûte une crise de stabilité.", "stability": 5, "strong_pct": 110},
+			{
+				"id": "eveil",
+				"label": "L'Éveil",
+				"psionics": true,
+				"text": "Pouvoirs psioniques en jeu (Théorie psionique et Télépathie) : votre espèce fondatrice s'éveille au Songe, ses héros naissent sensitifs, fêlures -25 %. Interdit Chair et acier ; se choisit sans programme achevé."
+			}
 		],
 		"renounce": {"stability": -20, "days": 720}
 	},

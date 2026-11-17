@@ -947,6 +947,8 @@ static func check_cyber(state: GameState, eid: int, fid: String) -> String:
 	var e := state.get_empire(eid)
 	if e.gene_path == "purete":
 		return "votre serment de Pureté interdit tout programme"
+	if Psionics.awake(state, eid):
+		return "L'Éveil interdit les implants de Chair et acier"
 	if GeneticsBridges.moratorium(state, eid):
 		return "le Moratoire génétique de l'Amphictyonie interdit tout programme"
 	if not species_of(state, eid).has(fid):
@@ -1059,6 +1061,8 @@ static func check_path(state: GameState, eid: int, id: String) -> String:
 		return "voie inconnue : %s" % id
 	if sub(state, "renounce").has(str(eid)):
 		return "un serment renié ne se reprend pas"
+	if bool(path_def(id).get("psionics", false)):
+		return Psionics.check_path(state, eid)  # L'Éveil : pouvoirs psioniques
 	if id == "purete":
 		if programs_done(state, eid) > 0 or not programs(state, eid).is_empty() or not e.genome.is_empty():
 			return "la Pureté se jure avant tout programme"
@@ -1084,6 +1088,9 @@ static func choose_path(state: GameState, eid: int, id: String, added: Array[Dic
 		e.genome_rev += 1
 	if id == "purete":
 		_politics(state, eid, 1, "purete")
+	if bool(path_def(id).get("psionics", false)):
+		Psionics.awaken(state, eid, added)
+		return
 	GeneticsBridges.refresh_lineages(state, eid, "")
 	var pd := path_def(id)
 	added.append(state.add_chronicle("%s se voue à la voie « %s ». %s" % [e.display_name(), String(pd.get("label", id)), String(pd.get("text", ""))], Espionage.private_to(state, [eid])))

@@ -43,6 +43,8 @@ const SCREENS := [
 		"why": "Votre culture rayonne chaque mois vers les empires rencontrés et s'y cumule ; rapportée à leur Patrimoine, elle passe d'Exotique à Dominante. Les paliers ouvrent du Savoir par route, de l'opinion, des osmoses de lois et de savoirs, la défection des systèmes voisins instables et la victoire du Grand Rayonnement."},
 	{"id": "genome", "label": "Génome", "key": "", "glyph": "genome", "ready": true,
 		"why": "Façonnez vos espèces : un programme payé en Savoir ajoute ou retire un trait, acclimate à un second biome, pose des implants ou transfère les esprits dans des châssis. Chaque espèce a sa marge de points ; après trois programmes, vouez votre empire à une voie d'élévation, ou jurez la Pureté avant le premier."},
+	{"id": "psionics", "label": "Songe", "key": "", "glyph": "psionics", "ready": true,
+		"why": "Pouvoirs psioniques : vos espèces vivantes entendent le Songe et donnent de la Résonance ; dépensez-la en pouvoirs (Lecture des esprits, Préscience, Apaisement…), au risque d'une fêlure. Bâtissez des Collèges, votez une loi sur les sensitifs, vouez-vous à L'Éveil."},
 	{"id": "wonders", "label": "Merveilles", "key": "", "glyph": "wonders", "ready": true,
 		"why": "Les merveilles sont des courses : plusieurs empires peuvent bâtir la même, le premier qui l'achève l'emporte et les autres gardent leur mise un temps. Un grand chantier à la fois, une avance puis des mensualités, des colonies proches qui versent, le dernier quart pressé à l'influence."},
 	{"id": "amphictyony", "label": "Amphictyonie", "key": "M", "glyph": "amphictyony", "ready": true,

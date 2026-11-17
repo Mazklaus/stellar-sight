@@ -547,6 +547,9 @@ static func chances(state: GameState, a: int, b: int, op_id: String) -> Dictiona
 	var gp := Court.guard_pts(state, b) if op_id == "assassiner_souverain" or op_id == "assassinat" else 0
 	if gp > 0:
 		sp.append(["Garde du corps de la cour", -gp])
+	var pb := Psionics.op_bonus(state, a, b)
+	if pb != 0:
+		sp.append(["Lecture des esprits", pb])
 	var hc := Heroes.agent_chance(state, a, b)
 	if hc != 0:
 		sp.append(["Agent : %s" % Heroes.agent(state, a, b)["name"], hc])

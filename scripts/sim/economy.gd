@@ -644,6 +644,10 @@ static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet
 			return "impossible sur ce monde (%s)" % p.type_label()
 	if b.get("stealth", false) and not Stealth.enabled(state):
 		return "la furtivité n'est pas en jeu dans cette partie"
+	if b.get("psionics", false):
+		var pw_psi := Psionics.check_build(state, empire_id, c, building_id)
+		if pw_psi != "":
+			return pw_psi
 	var need_terrain: Array = b.get("requires_terrain", [])
 	if not need_terrain.is_empty():
 		var here := Terrain.at(state, p.system_id)

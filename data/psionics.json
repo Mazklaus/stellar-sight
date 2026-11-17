@@ -1,0 +1,94 @@
+{
+	"_doc": "Pouvoirs psioniques (étude du 2026-11-17, 42 propositions validées le même jour). Deux étages : la technologie Théorie psionique rend Latentes les espèces vivantes de l'empire ; la voie d'élévation « L'Éveil » (5e voie du Génome, exclusive) rend l'espèce fondatrice Éveillée, puis Transcendante au couronnement. Les sensitifs donnent la Résonance, réserve d'empire plafonnée que dépensent les pouvoirs. Chaque pouvoir risque une Fêlure. Catalogues ouverts : formes de psionisme, niveaux, pouvoirs, fêlures, lois, talents.",
+	"_sources": "Stellaris (The Shroud, Traditions Psionic, Traits, Common leader traits, Jobs, Land warfare, Utility components, FTL ; wiki fandom), Master of Orion II (Telepathic), Warhammer 40K (Psyker, Black Ships, Navigator, Astropath ; wiki fandom), Dune (Voice, Prescience, Guild Navigator ; wiki fandom), Babylon 5 (Psi Corps), Sins of a Solar Empire (Advent), Sword of the Stars (Liir, résumé TV Tropes).",
+	"_equilibrage": "Équilibrage reporté (décision du 2026-11-11) : valeurs provisoires.",
+	"default_mode": "complet",
+	"modes": [
+		{"id": "complet", "label": "Complet", "text": "Éveil, Résonance, sensitifs, pouvoirs, le Songe (plongées, visions, Puissances et pactes) et la crise du Solde."},
+		{"id": "discret", "label": "Discret", "text": "Éveil, Résonance, sensitifs et pouvoirs seulement : ni Songe, ni pactes, ni crise."},
+		{"id": "desactive", "label": "Désactivé", "text": "Personne n'entend rien. C'est peut-être mieux ainsi."}
+	],
+	"forms": {
+		"_doc": "Formes de psionisme (catalogue ouvert, consigne du 2026-11-17 : d'autres peuples apporteront d'autres formes, peut-être très différentes). Une forme dit d'où vient le pouvoir, son nom et ses pouvoirs propres (champ form des pouvoirs). Un empire suit la forme de son talent (talents.*.form), sinon la forme par défaut.",
+		"default": "songe",
+		"list": [
+			{"id": "songe", "label": "Le Songe", "resource": "Résonance", "text": "Un plan psychique sous la réalité, que les esprits sensibles entendent comme un rêve partagé. On y puise, on y plonge, et parfois quelque chose y répond."}
+		]
+	},
+	"levels": [
+		{"id": 0, "label": "Sourde", "text": "N'entend pas le Songe."},
+		{"id": 1, "label": "Latente", "text": "Quelques sensitifs naissent ; le Songe murmure."},
+		{"id": 2, "label": "Éveillée", "text": "Toute l'espèce entend le Songe ; ses héros sont sensitifs."},
+		{"id": 3, "label": "Transcendante", "text": "L'espèce pense à moitié dans le Songe."}
+	],
+	"archetypes": {
+		"_doc": "Prop. 3 : max = niveau le plus haut possible ; innate = niveau de naissance ; immune = insensible aux pouvoirs mentaux ; collective = un seul esprit (pas de sensitifs individuels, Ombre de ruche au lot 3).",
+		"synthetique": {"max": 0, "immune": true},
+		"ruche": {"max": 1, "collective": true},
+		"energetique": {"innate": 1}
+	},
+	"techs": {
+		"_doc": "Prop. 6 : technologies du pilier et ce qu'elles ouvrent.",
+		"theorie_psionique": "latent",
+		"telepathie": "college",
+		"ecrans_psychiques": "screens",
+		"navigation_songe": "navigation",
+		"precognition": "prescience",
+		"ouverture_songe": "dream"
+	},
+	"resonance": {
+		"_doc": "Prop. 5 : Résonance gagnée chaque mois = Σ habitants × per_pop[niveau] / 10 + college × Collèges ; plafond = cap_base + cap_colony × colonies peuplées + cap_college × Collèges.",
+		"per_pop": [0, 5, 12, 20],
+		"college": 4,
+		"cap_base": 100,
+		"cap_colony": 10,
+		"cap_college": 25
+	},
+	"path": {
+		"_doc": "Prop. 1 et 4 : la voie L'Éveil (dans la liste des voies du Génome quand l'ingénierie est en jeu). Exclut Chair et acier ; une espèce cybernétique plafonne à Latente. Couronnement : Transcendance de l'espèce fondatrice.",
+		"id": "eveil",
+		"label": "L'Éveil",
+		"techs": ["theorie_psionique", "telepathie"],
+		"text": "L'espèce fondatrice s'éveille : elle entend le Songe, ses héros naissent sensitifs, les fêlures sont plus rares (-25 %). Interdit les implants de Chair et acier. Couronnement (Précognition, Ouverture du Songe et dix ans d'éveil) : l'espèce devient Transcendante.",
+		"felure_pct": -25,
+		"crown": {"techs": ["precognition", "ouverture_songe"], "years": 10}
+	},
+	"powers": [
+		{"id": "lecture", "form": "songe", "label": "Lecture des esprits", "tech": "telepathie", "target": "empire", "cost": 40, "cooldown": 180, "felure": 6, "screened": true, "hero": "ombre", "days": 180, "op_bonus": 10,
+			"text": "Un empire rencontré : son dossier complet tombe sur la table, et vos opérations contre lui gagnent +10 % de réussite pendant six mois."},
+		{"id": "prescience", "form": "songe", "label": "Préscience", "tech": "precognition", "target": "self", "cost": 30, "cooldown": 360, "felure": 8, "days": 180, "presage_days": 120,
+			"text": "Six mois durant : les flottes étrangères qui font route vers vos systèmes sont visibles dès leur départ, et une crise vous est annoncée quatre mois à l'avance."},
+		{"id": "apaisement", "form": "songe", "label": "Apaisement", "tech": "telepathie", "target": "system", "cost": 25, "cooldown": 90, "felure": 4, "hero": "intendant", "days": 180, "stability": 10,
+			"text": "Un de vos systèmes : +10 de stabilité pendant six mois ; les esprits échauffés s'endorment un peu."}
+	],
+	"felures": {
+		"_doc": "Prop. 8 : chance (en %) d'une fêlure à chaque pouvoir = felure du pouvoir × (100 + loi + voie + collèges + héros) / 100. Tirage pondéré dans table (catalogue ouvert ; le lot 2 ajoute les fêlures graves).",
+		"college_pct": -5,
+		"college_min_pct": -30,
+		"hero_pct": -10,
+		"table": [
+			{"id": "migraine", "weight": 50, "label": "Migraine collective", "empire_stability": -5, "days": 180, "text": "Des millions de crânes résonnent en même temps. Stabilité -5 dans tout l'empire pendant six mois."},
+			{"id": "fuite", "weight": 30, "label": "Fuite de Résonance", "resonance_loss_pct": 50, "text": "Le Songe reprend ce qu'on lui a pris : la moitié de la Résonance s'évapore."},
+			{"id": "hantise", "weight": 20, "label": "Hantise", "system_stability": -15, "days": 360, "text": "Quelque chose est resté. Dans le système le plus peuplé, stabilité -15 pendant un an ; on entend des pas dans les couloirs vides."}
+		]
+	},
+	"heroes": {
+		"_doc": "Prop. 10 : puissance d'un héros (0-3). 1 s'il porte le trait psionique ou si son espèce est Éveillée ; +1 au niveau level_up ou à l'âge age_up (au plus max_plain ; 3 = l'Élu, lot 2). Chaque année, un héros d'une espèce Latente gagne le trait avec latent_pct % de chances. Un héros de la classe du pouvoir, affecté et actif, en réduit le coût de cost_pct % par point de puissance et la fêlure de felure_pct.",
+		"trait": "psionique",
+		"level_up": 4,
+		"age_up": 60,
+		"max_plain": 2,
+		"latent_pct": 8,
+		"cost_pct": -10
+	},
+	"college": {"_doc": "Prop. 9 : Collège des sensitifs.", "building": "college_sensitifs", "stability": 1},
+	"screens": {"_doc": "Prop. 23 : chance (en %) qu'un pouvoir visé (screened) échoue contre une cible : tech + écrans bâtis (au plus max) ; 100 contre une espèce fondatrice immunisée.", "building": "ecran_psychique", "tech": 30, "per_building": 10, "max": 90},
+	"laws": {
+		"_doc": "Prop. 12 : loi « Statut des sensitifs » (famille de lois, data/politics.json). Sans loi : sensitifs libres.",
+		"registre_sensitifs": {"felure_pct": -40},
+		"colleges_fermes": {"felure_pct": -20, "resonance_pct": 50},
+		"nefs_silence": {"felure_pct": -60, "resonance_pct": -50, "tribute": true},
+		"persecution": {"no_powers": true, "resonance_pct": -100}
+	},
+	"ai": {"_doc": "Prop. 41 : niveau d'IA à partir duquel elle use des pouvoirs ; stabilité sous laquelle elle apaise ; credos qui choisissent L'Éveil.", "min_skill": 0, "calm_below": 35, "eveil_credo": ["foi", "raison"], "reserve": 20}
+}

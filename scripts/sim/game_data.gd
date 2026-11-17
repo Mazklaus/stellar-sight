@@ -181,6 +181,10 @@ static func genetics() -> Dictionary:
 	return _load("genetics")
 
 
+static func psionics() -> Dictionary:
+	return _load("psionics")
+
+
 static func portals() -> Dictionary:
 	return _load("portals")
 

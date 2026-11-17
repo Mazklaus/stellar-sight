@@ -122,6 +122,14 @@ class IconButton:
 				draw_circle(c + Vector2(-s * 0.3, -s * 0.15), s * 0.14, Color(0.05, 0.07, 0.1))
 				draw_circle(c + Vector2(s * 0.3, -s * 0.15), s * 0.14, Color(0.05, 0.07, 0.1))
 				draw_arc(c + Vector2(0, s * 0.12), s * 0.38, PI * 0.15, PI * 0.85, 12, Color(0.05, 0.07, 0.1), 1.6, true)
+			"psionics":
+				# Un œil fermé d'où montent trois ondes : le Songe.
+				draw_arc(c + Vector2(0, s * 0.25), s * 0.85, PI * 1.15, PI * 1.85, 14, col, 1.6, true)
+				draw_arc(c + Vector2(0, -s * 0.55), s * 0.85, PI * 0.15, PI * 0.85, 14, col, 1.6, true)
+				draw_circle(c + Vector2(0, -s * 0.15), s * 0.18, col)
+				for k in 3:
+					var r := s * (0.55 + 0.3 * float(k))
+					draw_arc(c + Vector2(0, -s * 0.15), r, PI * 1.3, PI * 1.7, 10, Color(col, 0.75 - 0.2 * float(k)), 1.2, true)
 			"genome":
 				# Une double hélice et ses barreaux : le génome.
 				var prev_a := Vector2.ZERO

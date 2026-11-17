@@ -390,10 +390,10 @@ static func begin(state: GameState, k: String, added: Array[Dictionary]) -> void
 	var kd := kind_def(k)
 	var steps: Array = []
 	var seers := CrisisAllies.foreseers(state, k)
-	for x in MinorsBridges.presage_seers(state):  # Préscience de Quellis (peuple mineur)
+	for x in MinorsBridges.presage_seers(state) + Psionics.crisis_seers(state):  # Préscience de Quellis, pouvoir Préscience
 		if not seers.has(x):
 			seers.append(x)
-	var ahead := maxi(CrisisAllies.foresight_days(k), MinorsBridges.presage_days(state, seers)) if not seers.is_empty() and (kd.get("notice", [0]) as Array).size() <= 1 else 0
+	var ahead := maxi(maxi(CrisisAllies.foresight_days(k), MinorsBridges.presage_days(state, seers)), Psionics.presage_days(state, seers)) if not seers.is_empty() and (kd.get("notice", [0]) as Array).size() <= 1 else 0
 	for d in kd.get("notice", [0]):
 		steps.append(state.tick + ahead + int(d))
 	if ahead > 0:

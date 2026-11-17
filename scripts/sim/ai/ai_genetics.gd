@@ -58,6 +58,10 @@ static func _path(ctx: Dictionary) -> void:
 	if (cfg().get("path_purete_credo", []) as Array).has(credo) and Genetics.check_path(state, e.id, "purete") == "":
 		AiPlayer._issue(ctx, SimCommands.gen_act(e.id, "path", {"path": "purete"}))
 		return
+	# Un peuple qui attend L'Éveil (pouvoirs psioniques) ne prend pas d'autre voie.
+	if Psionics.applies(state, e.id) and (Psionics.cfg("ai").get("eveil_credo", []) as Array).has(credo) \
+			and int(Psionics.arch_def(e.faction()).get("max", 3)) >= 2 and not bool(e.faction().get("cyber", false)):
+		return
 	var want := "genetique"
 	if not Genetics.is_organic(e.faction()):
 		want = "synthetique"
