@@ -263,6 +263,10 @@ var archaeology := "complete"
 var _archaeo_select: OptionButton
 var mega_ruins := "peu"
 var _mega_ruins_select: OptionButton
+var worldforge := "complete"
+var _forge_select: OptionButton
+var forge_ancients := "peu"
+var _forge_anc_select: OptionButton
 var contact := "complete"
 var _contact_select: OptionButton
 var contact_nature := "hasard"
@@ -1826,6 +1830,20 @@ func set_archaeology(id: String) -> void:
 		_archaeo_select.select(ids.find(archaeology))
 
 
+func set_worldforge(id: String) -> void:
+	var ids := _ids_of(WorldForge.mode_defs())
+	worldforge = id if ids.has(id) else WorldForge.default_mode()
+	if _forge_select:
+		_forge_select.select(ids.find(worldforge))
+
+
+func set_forge_ancients(id: String) -> void:
+	var ids := _ids_of(WorldForge.ancient_defs())
+	forge_ancients = id if ids.has(id) else WorldForge.default_ancients()
+	if _forge_anc_select:
+		_forge_anc_select.select(ids.find(forge_ancients))
+
+
 func set_mega_ruins(id: String) -> void:
 	var ids := _ids_of(Megastructures.ruin_defs())
 	mega_ruins = id if ids.has(id) else Megastructures.default_ruins()
@@ -1998,7 +2016,7 @@ func game_options() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins, "archaeology": archaeology}
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins, "archaeology": archaeology, "worldforge": worldforge, "forge_ancients": forge_ancients}
 
 
 func set_spectator(on: bool) -> void:
@@ -2673,6 +2691,22 @@ func _build_new_page(root: Control) -> void:
 	_archaeo_select.tooltip_text = "Archéologie, les Strates : types de sites, strates et origines, méthode de fouille, antiquités et Hauts lieux, cinq Disparus à retrouver (Stellaris, Civilization V et VI, Beyond Earth, Distant Worlds 2).\n" + "\n".join(ar_tip)
 	_archaeo_select.item_selected.connect(func(i: int) -> void: set_archaeology(String(Archaeology.mode_defs()[i]["id"])))
 	_labeled_row(game, "Archéologie", _archaeo_select)
+	_forge_select = OptionButton.new()
+	_forge_select.clip_text = true
+	var wf_tip := PackedStringArray()
+	for m: Dictionary in WorldForge.mode_defs():
+		_forge_select.add_item(String(m["label"]))
+		wf_tip.append("%s : %s" % [String(m["label"]), String(m["text"])])
+	_forge_select.tooltip_text = "Forge des mondes : agglomérer des astéroïdes, comprimer une géante, bâtir habitats, coquilles, mondes creux et planètes sur mesure, démanteler et déplacer des mondes (Master of Orion, Stellaris, Halo, La Culture, Larry Niven, H2G2).\n" + "\n".join(wf_tip)
+	_forge_select.item_selected.connect(func(i: int) -> void: set_worldforge(String(WorldForge.mode_defs()[i]["id"])))
+	_labeled_row(game, "Forge des mondes", _forge_select)
+	_forge_anc_select = OptionButton.new()
+	_forge_anc_select.clip_text = true
+	for m: Dictionary in WorldForge.ancient_defs():
+		_forge_anc_select.add_item(String(m["label"]))
+	_forge_anc_select.tooltip_text = "Mondes-reliquaires des Façonneurs, un peuple disparu : à ouvrir avec un Vaisseau-architecte (Forge des mondes en jeu)."
+	_forge_anc_select.item_selected.connect(func(i: int) -> void: set_forge_ancients(String(WorldForge.ancient_defs()[i]["id"])))
+	_labeled_row(game, "Mondes-reliquaires", _forge_anc_select)
 	_contact_select = OptionButton.new()
 	_contact_select.clip_text = true
 	var contact_tip := PackedStringArray()
@@ -2760,6 +2794,8 @@ func _build_new_page(root: Control) -> void:
 	set_megastructures(megastructures)
 	set_mega_ruins(mega_ruins)
 	set_archaeology(archaeology)
+	set_worldforge(worldforge)
+	set_forge_ancients(forge_ancients)
 	set_contact(contact)
 	set_contact_nature(contact_nature)
 	set_contact_outcome(contact_outcome)
@@ -3512,7 +3548,7 @@ func settings() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins, "archaeology": archaeology,
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins, "archaeology": archaeology, "worldforge": worldforge, "forge_ancients": forge_ancients,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -3534,7 +3570,7 @@ func default_settings() -> Dictionary:
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
 		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true,
 		"ancients": Ancients.default_mode(), "awakenings": true, "minors": Minors.default_mode(), "culture": Culture.default_mode(), "culture_defect": Culture.default_defect(), "wonders": Wonders.default_mode(),
-		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode(), "portals": Portals.default_mode(), "stealth": Stealth.default_mode(), "genetics": Genetics.default_mode(), "psionics": Psionics.default_mode(), "transcendence": Transcendence.default_mode(), "transcendence_outcome": Transcendence.default_outcome(), "contact": Contact.default_mode(), "contact_nature": Contact.default_nature_mode(), "contact_outcome": Contact.default_outcome(), "megastructures": Megastructures.default_mode(), "mega_ruins": Megastructures.default_ruins(), "archaeology": Archaeology.default_mode()}
+		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode(), "portals": Portals.default_mode(), "stealth": Stealth.default_mode(), "genetics": Genetics.default_mode(), "psionics": Psionics.default_mode(), "transcendence": Transcendence.default_mode(), "transcendence_outcome": Transcendence.default_outcome(), "contact": Contact.default_mode(), "contact_nature": Contact.default_nature_mode(), "contact_outcome": Contact.default_outcome(), "megastructures": Megastructures.default_mode(), "mega_ruins": Megastructures.default_ruins(), "archaeology": Archaeology.default_mode(), "worldforge": WorldForge.default_mode(), "forge_ancients": WorldForge.default_ancients()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -3645,6 +3681,8 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_transcendence_outcome(String(d.get("transcendence_outcome", base["transcendence_outcome"])))
 	set_megastructures(String(d.get("megastructures", base["megastructures"])))
 	set_archaeology(String(d.get("archaeology", base["archaeology"])))
+	set_worldforge(String(d.get("worldforge", base["worldforge"])))
+	set_forge_ancients(String(d.get("forge_ancients", base["forge_ancients"])))
 	set_mega_ruins(String(d.get("mega_ruins", base["mega_ruins"])))
 	set_contact(String(d.get("contact", base["contact"])))
 	set_contact_nature(String(d.get("contact_nature", base["contact_nature"])))

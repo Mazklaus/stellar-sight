@@ -195,6 +195,7 @@ func _draw() -> void:
 	_draw_wonders(px)
 	_draw_oeuvres(px)
 	_draw_megas(px)
+	_draw_forge(px)
 	_draw_archaeo(px)
 	_draw_contact(px)
 	_draw_quests(px)
@@ -999,6 +1000,39 @@ func _draw_megas(px: float) -> void:
 			draw_arc(Vector2.ZERO, 13.0, -PI / 2.0, -PI / 2.0 + TAU * frac, 24, col, 1.6, true)
 			if bool(Megastructures.kind_def(String(m["k"])).get("weapon", false)):
 				draw_line(Vector2(9, -9), Vector2(14, -14), Color(1.0, 0.35, 0.3), 1.8, true)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Forge des mondes (prop. 40) : un petit carré ambré sous les systèmes connus qui portent un chantier
+## planétaire (plein) ou un monde façonné (contour), un losange violet sur les mondes-reliquaires
+## scellés repérés. Sans lentille.
+func _draw_forge(px: float) -> void:
+	if state == null or state.forge.is_empty():
+		return
+	var amber := Color(0.95, 0.72, 0.4, 0.9)
+	var marks := {}
+	for id in WorldForge.job_ids(state):
+		marks[int(WorldForge.get_job(state, id)["s"])] = 2
+	for k in WorldForge.sub(state, "worlds"):
+		var p := galaxy.get_planet(int(k))
+		if p != null and not marks.has(p.system_id):
+			marks[p.system_id] = 1
+	for k in WorldForge.sub(state, "relics"):
+		var p := galaxy.get_planet(int(k))
+		if p != null and WorldForgeWorld.is_relic(state, p.id) and not marks.has(p.system_id):
+			marks[p.system_id] = 3
+	for sid in marks:
+		if not is_explored(int(sid)):
+			continue
+		draw_set_transform(galaxy.systems[int(sid)].position, 0.0, Vector2(px, px))
+		var r := Rect2(Vector2(-12, 9), Vector2(5, 5))
+		match int(marks[sid]):
+			2:
+				draw_rect(r, amber, true)
+			1:
+				draw_rect(r, amber, false, 1.2)
+			3:
+				draw_colored_polygon(PackedVector2Array([Vector2(-9.5, 8), Vector2(-7, 11.5), Vector2(-9.5, 15), Vector2(-12, 11.5)]), Color(0.72, 0.6, 0.95, 0.9))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

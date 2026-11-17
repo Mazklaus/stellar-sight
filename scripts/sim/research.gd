@@ -130,6 +130,9 @@ static func unlocks(faction: Dictionary, tid: String) -> PackedStringArray:
 		var md := Megastructures.kind_def(k)
 		if (md.get("tech", []) as Array).has(tid) and not bool(md.get("ruin_only", false)):
 			out.append("%s (mégastructure)" % Megastructures.label(k))
+	for op in WorldForge.op_ids():
+		if (WorldForge.op_def(op).get("tech", []) as Array).has(tid):
+			out.append("%s (Forge des mondes)" % WorldForge.op_label(op))
 	for sid in FactionTraits.ship_ids_for(String(faction.get("id", ""))):
 		if GameData.ship(sid).get("requires_tech", []).has(tid):
 			out.append(String(GameData.ship(sid).get("label", sid)))
@@ -958,6 +961,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var mfx := Megastructures.effects(state, empire_id)
 			_merge(base, mfx)
 			_merge(exalted, mfx)
+		# Forge des mondes : Rayonnement des mondes créés (voir WorldForge).
+		if not state.forge.is_empty():
+			var wfx := WorldForge.effects(state, empire_id)
+			_merge(base, wfx)
+			_merge(exalted, wfx)
 		# Contact : dons des Plans, lectures, brouillage (voir Contact).
 		if not state.contact.is_empty():
 			var ctfx := Contact.effects(state, empire_id)

@@ -110,7 +110,7 @@ static func _night_day(state: GameState, added: Array[Dictionary]) -> void:
 			continue
 		for pid in state.galaxy.systems[sid].planet_ids:
 			var col: Colony = state.colonies.get(pid)
-			if col == null or GameState.is_npc(col.owner) or col.population <= 1:
+			if col == null or GameState.is_npc(col.owner) or col.population <= 1 or WorldForgeWorld.shelter(state, pid):
 				continue
 			col.population -= int(fate.get("flee_pop", 1))
 			col.population = maxi(1, col.population)

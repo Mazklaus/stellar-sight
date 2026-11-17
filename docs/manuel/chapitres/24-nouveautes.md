@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.37
+
+- **La Forge des mondes** (chapitre 41), nouveaux réglages **Forge des mondes** (complète, sans démantèlement, désactivée) et **Mondes-reliquaires** (aucun, peu, beaucoup) : le **chantier planétaire** lancé par un Vaisseau-architecte (un par système, deux à la fois), six technologies (**Agglomération**, **Compression gravitationnelle**, **Mondes-coquilles**, **Démantèlement**, **Mondes sur mesure**, **Moteurs planétaires**), la **Masse planétaire** et sa fonte en matériaux ; six types de mondes (**monde-noyau**, **habitat-monde** et ses extensions, **monde-coquille**, **monde creux**, **monde-reliquaire**, **monde-abri**) et la **planète sur mesure** ; entretien en énergie, **intégrité**, brèches et effondrement.
+- **Défaire et déplacer** : **démantèlement** (levage des géantes, ceintures qui disparaissent), **évacuation**, mondes qu'on ne touche pas, **Grand Vide**, **Grande Braderie** ; **moteurs planétaires** et marche des mondes, **rosettes**, **bélier planétaire**, **commandes de mondes** ; **mondes-reliquaires des Façonneurs**, défenses dormantes, trésor, **mondes vivants**, **carcasses de titans**.
+- **Ponts** : famille **Mondes** de l'Amphictyonie (**Convention des mondes**, **Atelier commun**), **Forge commune** du Koinon, opération **Brèche**, débris du Brise-monde, cinq souvenirs diplomatiques, liaison avec l'échelle de Kardashev, hauts faits **Atelier de mondes** et **Le Grand Vide**, talents des huit peuples ; onglet **Forge des mondes** de l'écran des Merveilles, actions de l'écran Système, repères sur la carte, IA. Sauvegarde 91. Chapitres 42 à 45 renumérotés.
+
 ### Édition 2.36
 
 - **La voix du chroniqueur** (chapitre 40), la fenêtre d'événement généralisée : les nouvelles importantes deviennent des **annonces typées** (49 types en **dix familles**), avec **quatre gravités** (Chronique, Avis, Fenêtre, Fanfare) qui suivent votre **distance** à l'événement, les **premières de la galaxie** et les types **toujours visibles** ; une **fenêtre commune** (Emplacement, Écran lié, Réduire, Compris, flèches, « Ouvrir d'elle-même ») ; des **Fanfares** plein cadre avec les vues **guerre** et **mémorial** ; la **colonne** de pastilles au-dessus du cadran, regroupées par type et par mois, avec les décisions en or ; des **avis cliquables** ; un plafond de **deux fenêtres par mois** ; une **pause unifiée** pour toutes les fenêtres ; le rappel des décisions en attente à la fin du tour.
