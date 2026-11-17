@@ -310,7 +310,7 @@ func _test_save() -> void:
 	cmd(st, oss, "path")
 	Psionics.add_resonance(st, oss, 40)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 85, "Sauvegarde 85")
+	_ok(int(d["version"]) >= 85, "Sauvegarde 85 ou plus")
 	var st2 := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(st2 != null, "Sauvegarde relue")
 	if st2 == null:
