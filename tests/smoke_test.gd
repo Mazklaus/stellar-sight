@@ -107,6 +107,7 @@ func _initialize() -> void:
 	preload("res://tests/transcendence_tests.gd").new().run(_check)
 	preload("res://tests/megas_tests.gd").new().run(_check)
 	preload("res://tests/contact_tests.gd").new().run(_check)
+	preload("res://tests/archeo_tests.gd").new().run(_check)
 	preload("res://tests/battle_visuals_tests.gd").new().run(_check)
 	preload("res://tests/ground_visuals_tests.gd").new().run(_check)
 	_test_clock()

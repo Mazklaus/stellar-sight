@@ -60,7 +60,7 @@ static func add_fragments(state: GameState, empire_id: int, n: int) -> void:
 	if e == null or e.is_npc() or n == 0:
 		return
 	var m := meta(state, empire_id)
-	m["frag"] = maxi(0, int(m["frag"]) + n)
+	m["frag"] = clampi(int(m["frag"]) + n, 0, Archaeology.frag_cap(state))  # plafond des Strates (prop. 24)
 
 
 static func touch(state: GameState) -> void:
@@ -113,6 +113,9 @@ static func create_site(state: GameState, sid: int, force_rid := "") -> bool:
 		# (« ancienne », placées par AncientsBridges) ne s'enfouissent qu'après être passées au marché noir.
 		if int(r["owner"]) == -1 and force_rid == "" and (is_quest(id) or is_trophy(id) or is_ancient_relic(id)):
 			continue
+		# Reliques des Disparus (archéologie) : seulement sur leur Monde-berceau ; reliques classées en place.
+		if force_rid == "" and (is_disparu(id) or Archaeology.relic_locked(state, id)):
+			continue
 		if (int(r["owner"]) == -1 or int(r["owner"]) == MARKET) and not _buried(state, id):
 			free.append(id)
 	if free.is_empty():
@@ -140,6 +143,8 @@ static func _buried(state: GameState, rid: String) -> bool:
 
 static func site_name(state: GameState, sid: int) -> String:
 	var d: Dictionary = state.digs[sid]
+	if d.has("nm"):
+		return String(d["nm"])
 	var names: Array = data()["digs"]["names"]
 	return String(names[int(d["name"]) % names.size()])
 
@@ -151,7 +156,7 @@ static func is_open(state: GameState, sid: int) -> bool:
 ## Le site est-il connu de cet empire (système exploré) ?
 static func knows(state: GameState, empire_id: int, sid: int) -> bool:
 	var e := state.get_empire(empire_id)
-	return state.digs.has(sid) and e != null and not e.is_npc() and e.explored.has(sid)
+	return state.digs.has(sid) and e != null and not e.is_npc() and e.explored.has(sid) and Archaeology.can_see(state, empire_id, sid)
 
 
 ## Les détails d'une fouille d'un autre empire sont cachés si son peuple est énergétique (le Voile).
@@ -159,7 +164,7 @@ static func hidden_from(state: GameState, viewer: int, sid: int) -> bool:
 	var by := int(state.digs[sid]["by"])
 	if by < 0 or by == viewer:
 		return false
-	return Events.layer_value(state, by, "archetype") == "energetique"
+	return Events.layer_value(state, by, "archetype") == "energetique" or Archaeology.t_bool(state, by, "hidden")
 
 
 static func known_sites(state: GameState, empire_id: int) -> Array[int]:
@@ -181,8 +186,8 @@ static func difficulty(state: GameState, sid: int) -> int:
 static func skill(state: GameState, empire_id: int, sid: int) -> int:
 	var h := Heroes.at_post(state, "system", sid, empire_id)
 	if not h.is_empty() and String(h["cls"]) == "intendant":
-		return maxi(1, int(h["lvl"]))
-	return 1
+		return maxi(1, int(h["lvl"])) + Archaeology.skill_bonus(state, empire_id, sid)
+	return 1 + Archaeology.skill_bonus(state, empire_id, sid)
 
 
 ## Chance (en %) que la prochaine phase finisse le chapitre.
@@ -191,11 +196,18 @@ static func success_pct(state: GameState, empire_id: int, sid: int) -> int:
 	return clampi((11 - need) * 10, 0, 100)
 
 
-static func check_start(state: GameState, empire_id: int, sid: int) -> String:
+static func check_start(state: GameState, empire_id: int, sid: int, method := "") -> String:
 	if not is_open(state, sid):
 		return "pas de fouille ouverte ici"
-	if state.system_owner(sid) != empire_id:
-		return "il faut posséder le système"
+	var why := Archaeology.dig_reason(state, empire_id, sid)
+	if why != "":
+		return why
+	if int(state.digs[sid]["by"]) >= 0 and int(state.digs[sid]["by"]) != empire_id and int(state.digs[sid]["next"]) >= 0 \
+			and not ArchaeoBridges.can_rival(state, empire_id, sid):
+		return "un autre empire fouille déjà ici"
+	why = Archaeology.method_reason(state, empire_id, sid, method)
+	if why != "":
+		return why
 	var d: Dictionary = state.digs[sid]
 	if int(d["by"]) == empire_id and int(d["next"]) >= 0:
 		return "la fouille est déjà en cours"
@@ -209,14 +221,20 @@ static func check_start(state: GameState, empire_id: int, sid: int) -> String:
 	return ""
 
 
-static func start(state: GameState, empire_id: int, sid: int) -> void:
+static func start(state: GameState, empire_id: int, sid: int, method := "") -> void:
 	var e := state.get_empire(empire_id)
 	var cost: Dictionary = data()["digs"]["start_cost"]
 	for r in cost:
 		e.resources[r] = int(e.resources.get(r, 0)) - int(cost[r])
+	if ArchaeoBridges.join_rival(state, empire_id, sid):
+		state.add_chronicle("%s ouvre un second chantier sur %s : la course aux fouilles commence." % [e.short_name(), site_name(state, sid)],
+				Espionage.private_to(state, [empire_id], sid))
+		return
 	var d: Dictionary = state.digs[sid]
 	d["by"] = empire_id
-	d["next"] = state.tick + int(data()["digs"]["phase_days"])
+	var a_added: Array[Dictionary] = []
+	Archaeology.on_start(state, empire_id, sid, method, a_added)
+	d["next"] = state.tick + Archaeology.phase_days(state, empire_id, sid)
 	state.add_chronicle("%s ouvre le chantier de fouilles de %s, à %s." % [e.short_name(), site_name(state, sid), state.galaxy.systems[sid].system_name],
 			Espionage.private_to(state, [empire_id], sid))
 
@@ -246,7 +264,7 @@ static func daily_digs(state: GameState, added: Array[Dictionary]) -> void:
 		if int(d["done"]) >= 0 or int(d["by"]) < 0:
 			continue
 		var owner := state.system_owner(sid)
-		if owner != int(d["by"]):
+		if owner != int(d["by"]) and not Archaeology.may_continue(state, sid, d):
 			# Un conquérant reprend la fouille où elle en est ; un système perdu sans repreneur la met en pause.
 			if owner >= 0 and not GameState.is_npc(owner):
 				d["by"] = owner
@@ -263,13 +281,16 @@ static func daily_digs(state: GameState, added: Array[Dictionary]) -> void:
 		_roll(state, sid, added)
 
 
-static func _roll(state: GameState, sid: int, added: Array[Dictionary]) -> void:
+## forced : le chapitre est gagné d'office (fouilles concurrentes : un rival vient de le finir).
+static func _roll(state: GameState, sid: int, added: Array[Dictionary], forced := false) -> void:
 	var d: Dictionary = state.digs[sid]
 	var eid := int(d["by"])
 	var dg: Dictionary = data()["digs"]
 	var dice := 1 + _h(state, ["jet", sid, state.tick]) % 10
 	var total := dice + int(d["clues"]) + skill(state, eid, sid) - difficulty(state, sid)
-	d["next"] = state.tick + int(dg["phase_days"])
+	if forced:
+		total = maxi(total, int(dg["success_at"]))
+	d["next"] = state.tick + Archaeology.phase_days(state, eid, sid)
 	var who := Espionage.private_to(state, [eid], sid)
 	if total >= int(dg["success_at"]):
 		d["ch"] = int(d["ch"]) + 1
@@ -281,8 +302,11 @@ static func _roll(state: GameState, sid: int, added: Array[Dictionary]) -> void:
 		var texts: Array = dg["chapter_texts"]
 		added.append(state.add_chronicle("Fouilles de %s, chapitre %d sur %d : %s (+%d fragments)" % [site_name(state, sid), int(d["ch"]), int(d["chapters"]),
 				String(texts[(int(d["ch"]) - 1) % texts.size()]), int(dg["chapter_fragments"])], who))
+		Archaeology.on_chapter(state, sid, eid, added)
 	elif total <= int(dg["incident_at"]):
 		d["clues"] = 0
+		if Archaeology.incident(state, sid, eid, added):
+			return
 		var inc: Array = dg["incidents"]
 		var text := String(inc[_h(state, ["incident", sid, state.tick]) % inc.size()])
 		var h := Heroes.at_post(state, "system", sid, eid)
@@ -304,11 +328,16 @@ static func _finish(state: GameState, sid: int, added: Array[Dictionary]) -> voi
 	d["next"] = -1
 	var rid := String(d["relic"])
 	add_fragments(state, eid, int(data()["digs"]["final_fragments"]))
-	gain(state, eid, rid)
 	FaithWars.on_dig(state, eid)
 	Guardians.on_dig_finished(state, sid, eid, added)
 	AncientsBridges.on_dig_finished(state, sid, eid, added)
 	Research.count_stat(state, eid, "digs")
+	# Les Strates : Extraire ou Classer (prop. 21), la relique attend le choix.
+	if Archaeology.on_finish(state, sid, eid, added):
+		return
+	if rid == "":
+		return
+	gain(state, eid, rid)
 	added.append(state.add_chronicle("%s achève les fouilles de %s et en remonte %s. Les archéologues pleurent ; les comptables aussi, mais de joie." % [
 			e.display_name(), site_name(state, sid), String(def(rid)["name"])], Espionage.public_to(state, [eid])))
 
@@ -378,6 +407,11 @@ static func is_ancient_relic(rid: String) -> bool:
 
 static func is_trophy(rid: String) -> bool:
 	return (def(rid).get("tags", []) as Array).has("trophee")
+
+
+## Relique d'un Disparu (archéologie, tag « disparu ») : seulement sur son Monde-berceau.
+static func is_disparu(rid: String) -> bool:
+	return (def(rid).get("tags", []) as Array).has("disparu")
 
 
 static func is_holy(rid: String) -> bool:

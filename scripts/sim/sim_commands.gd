@@ -314,8 +314,8 @@ static func deed_choose(player: int, item: int, index: int) -> Dictionary:
 
 
 ## Fouilles et reliques (voir Relics).
-static func dig_start(player: int, system_id: int) -> Dictionary:
-	return {"type": "dig_start", "player": player, "system": system_id}
+static func dig_start(player: int, system_id: int, method := "") -> Dictionary:
+	return {"type": "dig_start", "player": player, "system": system_id, "method": method}
 
 
 ## Verse un lot d'énergie ou de matériaux au grand chantier commun contre la crise (Phare des Âges,
@@ -706,6 +706,12 @@ static func ct_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "contact", "player": player, "act": act, "d": d}
 
 
+## Archéologie (voir Archaeology.check) : actions de fragments "fa_*", "forge" (k : nature), "reco" (d), "secrets" (d), "permit"
+## (host, share), "restitute" (id), "sell_antiq" (id), "aster", "collector_buy" (i), "collector_sell" (id).
+static func ar_act(player: int, act: String, d := {}) -> Dictionary:
+	return {"type": "archaeology", "player": player, "act": act, "d": d}
+
+
 ## Furtivité : "pose" (a = flotte, s = posture : "", "silence", "scan", "ambush"), "beacon" (a = flotte).
 static func stealth_act(player: int, act: String, a := -1, b := -1, s := "") -> Dictionary:
 	return {"type": "stealth", "player": player, "act": act, "a": a, "b": b, "s": s}
@@ -928,6 +934,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Megastructures.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"transcendence":
 			return Transcendence.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
+		"archaeology":
+			return Archaeology.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"contact":
 			return Contact.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"stealth":
@@ -1056,7 +1064,7 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 		"deed_choose":
 			return Deeds.check_choose(state, int(cmd["player"]), int(cmd.get("item", -1)), int(cmd.get("index", -1)))
 		"dig_start":
-			return Relics.check_start(state, int(cmd["player"]), int(cmd.get("system", -1)))
+			return Relics.check_start(state, int(cmd["player"]), int(cmd.get("system", -1)), String(cmd.get("method", "")))
 		"dig_clue":
 			return Relics.check_clue(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"crisis_fund":
@@ -1356,6 +1364,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Transcendence.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"megastructures":
 			Megastructures.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
+		"archaeology":
+			Archaeology.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"contact":
 			Contact.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"stealth":
@@ -1408,7 +1418,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var de_added: Array[Dictionary] = []
 			Deeds.choose(state, int(cmd["player"]), int(cmd["item"]), int(cmd["index"]), de_added)
 		"dig_start":
-			Relics.start(state, int(cmd["player"]), int(cmd["system"]))
+			Relics.start(state, int(cmd["player"]), int(cmd["system"]), String(cmd.get("method", "")))
 		"dig_clue":
 			Relics.buy_clue(state, int(cmd["player"]), int(cmd["system"]))
 		"crisis_fund":

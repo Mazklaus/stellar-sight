@@ -193,6 +193,11 @@ static func contact() -> Dictionary:
 	return _load("contact")
 
 
+## Archéologie, les Strates (data/archaeology.json).
+static func archaeology() -> Dictionary:
+	return _load("archaeology")
+
+
 static func portals() -> Dictionary:
 	return _load("portals")
 

@@ -1,0 +1,746 @@
+{
+	"_doc": "Archéologie et fouilles, « les Strates » (étude du 2026-11-17, 44 propositions). Prolonge les fouilles de data/relics.json (digs) : types de sites, strates, origines, méthodes, chapitres à choix, antiquités, Hauts lieux, gisements, actions de fragments, cinq Disparus (pistes, Mondes-berceaux, Secrets, technologies anciennes, gabarits, Chute), Reconstitutions, ponts et talents. Catalogue ouvert : ajouter un type, un Disparu ou une action ici suffit.",
+	"_sources": "stellaris.fandom.com (Archaeological_site, Minor_artifacts, Discovery, Society_research, Planetary_features), civilization.fandom.com (Archaeology (concept) Civ5, Archaeologist / Antiquity Site / Archaeological Museum Civ6, Artifacts CivBE), endlesslegend.wiki.gg Terrain, endless-space-2.fandom Curiosities, wiki.galciv.com Anomalies, Distant Worlds 2 dev diary 5, twilight-imperium.fandom Relics, warhammer40k STC, masseffect Prothean Beacon, babylon5 Z'ha'dum.",
+	"modes": [
+		{
+			"id": "complete",
+			"label": "Complète",
+			"text": "Les Strates : types de sites, Disparus, antiquités, Hauts lieux, actions de fragments, ponts."
+		},
+		{
+			"id": "classique",
+			"label": "Classique",
+			"text": "Les fouilles d'avant : une relique au bout de quelques chapitres, rien de plus."
+		},
+		{
+			"id": "desactivee",
+			"label": "Désactivée",
+			"text": "Aucun site de fouille dans la galaxie."
+		}
+	],
+	"default_mode": "complete",
+	"rules": {
+		"_doc": "Valeurs générales. phase_pct_* : durée d'une phase selon la méthode (pillage : jours fixes). antiq_pct : chance d'antiquité par chapitre fini (avec la techno). seal_one_in : 1 site sur n est scellé.",
+		"phase_pct_prudente": 150,
+		"pillage_days": 45,
+		"antiq_pct": 35,
+		"antiq_prudente_pct": 15,
+		"antiq_cap_fx": 8,
+		"seal_one_in": 8,
+		"seal_risk_pct": 50,
+		"deposit_pct": 67,
+		"deposit_values": [
+			[
+				1,
+				80
+			],
+			[
+				2,
+				16
+			],
+			[
+				3,
+				4
+			]
+		],
+		"hist_delay_days": 7200,
+		"hist_gap_days": 1825,
+		"hist_wrecks": 30,
+		"relic_worlds": [
+			[
+				100,
+				1
+			],
+			[
+				200,
+				2
+			],
+			[
+				9999,
+				3
+			]
+		],
+		"relic_world_sites": 3,
+		"relic_world_unlock": 2,
+		"relic_world_next_days": 360,
+		"relic_world_knowledge_pct": 10,
+		"frag_cap": 500,
+		"hero_xp": 30,
+		"hero_trait_pct": 20,
+		"first_detect": 3,
+		"study_research_pct": 10,
+		"finish_study_research_pct": 15,
+		"finish_study_need": 2,
+		"permit_fee": {
+			"energy": 100
+		},
+		"permit_days": 3600,
+		"permit_min_opinion": 0,
+		"classify_base": 2,
+		"classify_stab": 3,
+		"classify_age": [
+			3,
+			2,
+			1
+		],
+		"vestige_chapter": 0,
+		"vestige_site": 2,
+		"vestiges_for_cradle": 6,
+		"trail_site_at": 3,
+		"secrets_fragments": 300,
+		"secrets_days": 720,
+		"cradle_first": {
+			"knowledge": 600,
+			"influence": 120
+		},
+		"gabarit_epave_pct": 10,
+		"warn_presage_days": 1800,
+		"warn_damage_pct": 15,
+		"restitute_fav": 25,
+		"pillage_fav": -20,
+		"aster_cost": {
+			"influence": 60
+		},
+		"aster_days": 3600,
+		"aster_min_op": 10,
+		"aster_skill": 2,
+		"kheb_jumps": 4,
+		"kheb_op": -5,
+		"kheb_hasten_days": 180,
+		"ylm_jumps": 4,
+		"ylm_op": -15,
+		"plans_pct": -30,
+		"echo_gauge": 5,
+		"faith_pillage": -10,
+		"faith_prudente": 5,
+		"antiq_radiance": 2,
+		"museum_slots_per_level": 3,
+		"sell_antiq_energy": 120,
+		"pirate_raid_pct": 10,
+		"wound_pct": 50,
+		"concurrence": true,
+		"collector_every_days": 1800,
+		"collector_stay_days": 360,
+		"collector_stock": 4,
+		"collector_buy": {
+			"energy": 260,
+			"influence": 30
+		},
+		"collector_sell_energy": 180
+	},
+	"strata": [
+		{
+			"label": "Première",
+			"text": "Très ancienne : il faut une détection de niveau 3 pour la voir, et elle est plus dure (+1).",
+			"diff": 1,
+			"weight": 25
+		},
+		{
+			"label": "Moyenne",
+			"text": "Ni jeune ni vieille : la poussière habituelle.",
+			"diff": 0,
+			"weight": 45
+		},
+		{
+			"label": "Récente",
+			"text": "À peine refroidie. Parfois, on connaît encore les noms.",
+			"diff": 0,
+			"weight": 30
+		}
+	],
+	"site_types": {
+		"necropole": {
+			"label": "Nécropole",
+			"glyph": "skull",
+			"weight": 16,
+			"res": {
+				"influence": 30
+			},
+			"antiq_fx": {
+				"stability": 1
+			},
+			"text": "Foi et Rayonnement : des tombes, des prières et des gens qui n'aiment pas qu'on dérange les morts.",
+			"names": [
+				"Nécropole des Sept Soleils",
+				"Ossuaire des titans",
+				"Chapelle à l'envers",
+				"Vallée des Sans-Nom"
+			]
+		},
+		"cite": {
+			"label": "Cité engloutie",
+			"glyph": "city",
+			"weight": 16,
+			"res": {
+				"knowledge": 80
+			},
+			"antiq_fx": {
+				"production_pct": {
+					"knowledge": 2
+				}
+			},
+			"text": "Savoir : des rues, des archives, des boîtes aux lettres pleines.",
+			"names": [
+				"Archive engloutie de Vœl",
+				"Cité sous la glace",
+				"Bibliothèque qui chuchote",
+				"Ville aux mille escaliers"
+			]
+		},
+		"observatoire": {
+			"label": "Observatoire",
+			"glyph": "eye",
+			"weight": 12,
+			"res": {
+				"knowledge": 60
+			},
+			"antiq_fx": {
+				"curio_power": 1
+			},
+			"text": "Détection et Contact : ils regardaient le ciel, et le ciel les regardait.",
+			"names": [
+				"Observatoire du Dernier Matin",
+				"Oreille de pierre",
+				"Tour des longues nuits"
+			]
+		},
+		"champ": {
+			"label": "Champ de bataille",
+			"glyph": "swords",
+			"weight": 14,
+			"res": {
+				"materials": 80
+			},
+			"antiq_fx": {
+				"damage_pct": 1
+			},
+			"text": "Militaire : la guerre laisse beaucoup de ferraille et quelques leçons.",
+			"names": [
+				"Arène des anciens rois",
+				"Plaine des lances brisées",
+				"Tranchée d'éternité"
+			]
+		},
+		"arche": {
+			"label": "Arche",
+			"glyph": "seed",
+			"weight": 12,
+			"res": {
+				"food": 80
+			},
+			"antiq_fx": {
+				"growth_pct": 2
+			},
+			"text": "Population et génome : ils voulaient sauver la vie, et ont oublié de se sauver eux-mêmes.",
+			"names": [
+				"Jardins pétrifiés",
+				"Silo des premiers colons",
+				"Serre du dernier printemps"
+			]
+		},
+		"sanctuaire": {
+			"label": "Sanctuaire",
+			"glyph": "flame",
+			"weight": 12,
+			"res": {
+				"influence": 20,
+				"energy": 40
+			},
+			"antiq_fx": {
+				"production_pct": {
+					"influence": 3
+				}
+			},
+			"text": "Psionique et foi : l'air y vibre encore d'un chant que personne n'entend.",
+			"names": [
+				"Sanctuaire du Silence",
+				"Cloître des échos",
+				"Autel sans dieu"
+			]
+		},
+		"epave": {
+			"label": "Épave enfouie",
+			"glyph": "ship",
+			"weight": 18,
+			"res": {
+				"materials": 60,
+				"energy": 40
+			},
+			"antiq_fx": {
+				"repair_pct": 3
+			},
+			"text": "Modules et gabarits : un vaisseau qu'on n'aurait jamais dû enterrer, ou qui s'est enterré tout seul.",
+			"names": [
+				"Vaisseau-tombeau enfoui",
+				"Forge sans fond",
+				"Carène des abysses"
+			]
+		}
+	},
+	"generic_origin": {
+		"label": "un peuple sans nom",
+		"short": "Sans-Nom",
+		"objects": [
+			"Stèle fendue",
+			"Masque de cérémonie",
+			"Tablette de comptes",
+			"Statuette souriante",
+			"Clé sans serrure",
+			"Lampe froide",
+			"Jouet d'enfant",
+			"Sceau effacé"
+		]
+	},
+	"disparus": {
+		"tisserands": {
+			"label": "les Tisserands de Hel",
+			"short": "Tisserands",
+			"adj": "tisserande",
+			"color": "#8fb8e8",
+			"types": [
+				"observatoire",
+				"cite",
+				"epave"
+			],
+			"fall": "dechirure",
+			"lore": "Ils tissaient des anneaux autour des étoiles et des sphères autour des anneaux. Un jour, leurs métiers ont tiré trop fort sur l'étoffe de l'espace, et quelque chose est passé par le trou.",
+			"fall_text": "Leurs derniers relevés montrent une faille au cœur d'une tempête, et des silhouettes pâles qui en sortent. Vous saurez la reconnaître.",
+			"objects": [
+				"Navette de métier stellaire",
+				"Fil de Hel tressé",
+				"Gabarit d'anneau",
+				"Bobine d'horizon",
+				"Plan de sphère plié",
+				"Aiguille d'étoile"
+			],
+			"civ": {
+				"label": "Métier des Tisserands",
+				"text": "Les étapes de mégastructure coûtent 25 % de moins.",
+				"fx": {
+					"mega_cost_pct": -25
+				}
+			},
+			"ship": {
+				"label": "Fil de Hel",
+				"text": "Les rayons frappent 25 % plus fort.",
+				"fx": {
+					"weapon_pct": {
+						"beam": 25
+					}
+				}
+			},
+			"secrets": {
+				"label": "Secrets des Tisserands",
+				"text": "+10 % de matériaux.",
+				"fx": {
+					"production_pct": {
+						"materials": 10
+					}
+				}
+			},
+			"reco": {
+				"label": "Métier à étoiles reconstitué",
+				"text": "+1 chantier de mégastructure à la fois et +5 % de production.",
+				"fx": {
+					"mega_slots": 1,
+					"production_pct": {
+						"all": 5
+					}
+				}
+			},
+			"relic": "navette_hel",
+			"hull": "gabarit_tisserand"
+		},
+		"cendree": {
+			"label": "l'Hégémonie Cendrée",
+			"short": "Cendrés",
+			"adj": "cendrée",
+			"color": "#d47a5a",
+			"types": [
+				"champ",
+				"epave",
+				"necropole"
+			],
+			"fall": "inspection",
+			"lore": "Ils brûlaient les mondes qui leur résistaient, puis ceux qui leur ressemblaient trop. Une machine très ancienne les a jugés trop avancés, et a mis leur empire sous scellés.",
+			"fall_text": "Les dernières archives parlent de Contrôleurs polis qui confisquaient tout. Vous savez maintenant comment ils pensent.",
+			"objects": [
+				"Lance cendrée",
+				"Casque de légat",
+				"Étendard calciné",
+				"Ordre de bataille gravé",
+				"Médaille des mondes brûlés",
+				"Gantelet de feu"
+			],
+			"civ": {
+				"label": "Discipline cendrée",
+				"text": "+10 % de dégâts au sol et des troupes plus nombreuses (+10 %).",
+				"fx": {
+					"ground_damage_pct": 10,
+					"troops_pct": 10
+				}
+			},
+			"ship": {
+				"label": "Lance cendrée",
+				"text": "L'artillerie frappe 25 % plus fort.",
+				"fx": {
+					"weapon_pct": {
+						"artillery": 25
+					}
+				}
+			},
+			"secrets": {
+				"label": "Secrets de l'Hégémonie",
+				"text": "+5 % de dégâts pour toutes les flottes.",
+				"fx": {
+					"damage_pct": 5
+				}
+			},
+			"reco": {
+				"label": "Forge de légion reconstituée",
+				"text": "Les vaisseaux coûtent 10 % de moins.",
+				"fx": {
+					"ship_cost_pct": -10
+				}
+			},
+			"relic": "etendard_cendre",
+			"hull": "gabarit_cendre"
+		},
+		"jardiniers": {
+			"label": "les Jardiniers d'Ouvre",
+			"short": "Jardiniers",
+			"adj": "jardinière",
+			"color": "#7fcf8f",
+			"types": [
+				"arche",
+				"cite",
+				"sanctuaire"
+			],
+			"fall": "recif",
+			"lore": "Ils semaient la vie sur les mondes morts, avec patience et beaucoup d'engrais. Leur dernier jardin s'est mis à chanter, puis à pousser sur eux.",
+			"fall_text": "Leurs carnets décrivent un corail qui chante et recouvre les planètes. Vous saurez où tailler.",
+			"objects": [
+				"Graine d'Ouvre",
+				"Arrosoir de comète",
+				"Herbier vivant",
+				"Greffoir d'argent",
+				"Pot de terre-mère",
+				"Sécateur des saisons"
+			],
+			"civ": {
+				"label": "Greffe d'Ouvre",
+				"text": "+10 % de croissance et de nourriture.",
+				"fx": {
+					"growth_pct": 10,
+					"production_pct": {
+						"food": 10
+					}
+				}
+			},
+			"ship": {
+				"label": "Coque bourgeonnante",
+				"text": "Les vaisseaux se réparent 25 % plus vite.",
+				"fx": {
+					"repair_pct": 25
+				}
+			},
+			"secrets": {
+				"label": "Secrets des Jardiniers",
+				"text": "+1 de population au départ de chaque nouvelle colonie.",
+				"fx": {
+					"colony_start_pop": 1
+				}
+			},
+			"reco": {
+				"label": "Serre-monde reconstituée",
+				"text": "+15 % de nourriture et +5 % de croissance.",
+				"fx": {
+					"production_pct": {
+						"food": 15
+					},
+					"growth_pct": 5
+				}
+			},
+			"relic": "graine_ouvre",
+			"hull": "gabarit_jardinier"
+		},
+		"ports": {
+			"label": "la Ligue des Mille Ports",
+			"short": "Mille Ports",
+			"adj": "portuaire",
+			"color": "#e0c060",
+			"types": [
+				"cite",
+				"epave",
+				"observatoire"
+			],
+			"fall": "krach",
+			"lore": "Mille ports, dix mille routes, un million de contrats. Une rumeur sur une route de saut a suffi : en un an, tout s'est vendu, puis plus rien ne s'est acheté.",
+			"fall_text": "Leurs registres montrent la panique suivre les routes commerciales. Vous savez où couper les ponts.",
+			"objects": [
+				"Sceau des Mille Ports",
+				"Balance de change",
+				"Registre de cargaison",
+				"Pièce à deux faces",
+				"Lettre de crédit éternelle",
+				"Lanterne de quai"
+			],
+			"civ": {
+				"label": "Sceau des Mille Ports",
+				"text": "+1 route commerciale et +10 % de revenus commerciaux.",
+				"fx": {
+					"trade_routes": 1,
+					"trade_income_pct": 10
+				}
+			},
+			"ship": {
+				"label": "Soutes de la Ligue",
+				"text": "Flottes 10 % plus rapides.",
+				"fx": {
+					"fleet_speed_pct": 10
+				}
+			},
+			"secrets": {
+				"label": "Secrets de la Ligue",
+				"text": "+10 % d'énergie.",
+				"fx": {
+					"production_pct": {
+						"energy": 10
+					}
+				}
+			},
+			"reco": {
+				"label": "Comptoir des Mille Ports reconstitué",
+				"text": "+15 % de revenus commerciaux et de tourisme.",
+				"fx": {
+					"trade_income_pct": 15,
+					"tourism_pct": 15
+				}
+			},
+			"relic": "balance_ports",
+			"hull": "gabarit_portuaire"
+		},
+		"chanteurs": {
+			"label": "les Chanteurs du Silence",
+			"short": "Chanteurs",
+			"adj": "silencieuse",
+			"color": "#b49ae0",
+			"types": [
+				"sanctuaire",
+				"observatoire",
+				"necropole"
+			],
+			"fall": "outre_nuit",
+			"lore": "Ils parlaient d'esprit à esprit et chantaient sans voix. Un jour, une réponse est venue de très loin. Ils ont chanté plus fort pour la saluer. C'était une erreur.",
+			"fall_text": "Leur dernier chant est une mise en garde : ceux qui répondent par la Bordure ont faim. Vous les entendrez venir.",
+			"objects": [
+				"Diapason muet",
+				"Masque sans bouche",
+				"Partition de silence",
+				"Couronne d'écoute",
+				"Cristal de pensée",
+				"Cloche de verre"
+			],
+			"civ": {
+				"label": "Chœur du Silence",
+				"text": "+3 de stabilité et +10 % d'influence.",
+				"fx": {
+					"stability": 3,
+					"production_pct": {
+						"influence": 10
+					}
+				}
+			},
+			"ship": {
+				"label": "Voile du Silence",
+				"text": "Boucliers renforcés (+1 marque).",
+				"fx": {
+					"marks": {
+						"shield": 1
+					}
+				}
+			},
+			"secrets": {
+				"label": "Secrets des Chanteurs",
+				"text": "+10 % de Savoir.",
+				"fx": {
+					"production_pct": {
+						"knowledge": 10
+					}
+				}
+			},
+			"reco": {
+				"label": "Chœur de verre reconstitué",
+				"text": "+5 de stabilité.",
+				"fx": {
+					"stability": 5
+				}
+			},
+			"relic": "diapason_silence",
+			"hull": "gabarit_chanteur"
+		}
+	},
+	"disparus_per_game": 3,
+	"origin_weights": {
+		"disparu": 55,
+		"generic": 30,
+		"ancient": 15
+	},
+	"natures": {
+		"_doc": "Prop. 5 (validée le 2026-11-17) : trois natures de fragments, comme les fragments de reliques de Twilight Imperium. Chaque chapitre fini en donne un de la nature du site (deux à la fin) ; trois identiques se forgent en une relique encore libre, sinon en un bienfait de leur nature. Les fragments ordinaires restent la monnaie des fouilles.",
+		"savoir": {"label": "Savoir", "types": ["cite", "observatoire"], "text": "Tablettes, cartes du ciel, calculs gravés.", "fallback": "research", "pct": 30},
+		"art": {"label": "Art", "types": ["necropole", "sanctuaire", "arche"], "text": "Fresques, reliquaires, chants notés.", "fallback": "influence", "n": 150},
+		"arme": {"label": "Arme", "types": ["champ", "epave"], "text": "Éclats de coque, lames, mécanismes de tir.", "fallback": "damage", "days": 1800, "fx": {"damage_pct": 10}}
+	},
+	"nature_forge": 3,
+	"methods": {
+		"prudente": {
+			"label": "Prudente",
+			"text": "Phases 50 % plus longues, aucun incident grave, une antiquité de plus, risque des sites scellés divisé par deux."
+		},
+		"methodique": {
+			"label": "Méthodique",
+			"text": "La règle ordinaire."
+		},
+		"pillage": {
+			"label": "Pillage",
+			"text": "Phases de 45 jours, butin réduit de moitié, site détruit sans gisement, le peuple d'origine s'en souvient."
+		}
+	},
+	"incidents": [
+		{
+			"id": "perte",
+			"weight": 30,
+			"grave": true,
+			"clues": -1,
+			"text": "une équipe s'est perdue dans les galeries. On la retrouvera, peut-être, dans un prochain chapitre."
+		},
+		{
+			"id": "eboulement",
+			"weight": 20,
+			"grave": true,
+			"clues": -2,
+			"wound": true,
+			"text": "éboulement dans la salle principale : le chef de chantier jure que la voûte était « parfaitement stable hier »."
+		},
+		{
+			"id": "danger_evite",
+			"weight": 25,
+			"clues": 3,
+			"text": "un piège ancien désamorcé de justesse. Il indiquait, très poliment, la bonne direction."
+		},
+		{
+			"id": "paiement",
+			"weight": 25,
+			"card": "archeo_paiement",
+			"text": "un contremaître propose d'accélérer, contre une petite enveloppe."
+		}
+	],
+	"actions": {
+		"_doc": "Actions de fragments (prop. 24) : coût en fragments, délai (jours), techno minimale (niveau d'archéologie).",
+		"fa_sell": {
+			"label": "Vendre aux collectionneurs",
+			"cost": 50,
+			"cd": 180,
+			"lvl": 2,
+			"energy": 400,
+			"text": "50 fragments contre de l'énergie (selon l'ère)."
+		},
+		"fa_reverse": {
+			"label": "Rétro-ingénierie",
+			"cost": 150,
+			"cd": 720,
+			"lvl": 2,
+			"pct": 25,
+			"ancient_pct": 10,
+			"text": "25 % d'une technologie au hasard ; parfois une technologie ancienne d'un Disparu dont vous suivez la piste."
+		},
+		"fa_military": {
+			"label": "Applications militaires",
+			"cost": 100,
+			"cd": 1800,
+			"lvl": 2,
+			"days": 1800,
+			"fx": {
+				"damage_pct": 10
+			},
+			"text": "Cinq ans de +10 % de dégâts."
+		},
+		"fa_proclaim": {
+			"label": "Proclamation",
+			"cost": 100,
+			"cd": 3600,
+			"lvl": 2,
+			"days": 3600,
+			"fx": {
+				"stability": 3
+			},
+			"fervor": 15,
+			"text": "Dix ans de +3 de stabilité (et de la ferveur pour une foi)."
+		},
+		"fa_query": {
+			"label": "Interroger les Strates",
+			"cost": 80,
+			"cd": 1080,
+			"lvl": 2,
+			"text": "Révèle un site que vous seul connaissez."
+		}
+	},
+	"cards": [
+		"archeo_etude",
+		"archeo_fin",
+		"archeo_paiement",
+		"archeo_permis"
+	],
+	"talents": {
+		"_doc": "Prop. 40 : talents des huit peuples (clés lues par Archaeology.t_int / talent).",
+		"ossarane": {
+			"label": "Généalogistes",
+			"text": "Chaque antiquité exposée au musée donne +1 d'influence par mois.",
+			"antiq_influence": 1
+		},
+		"choeur": {
+			"label": "Reliquaires",
+			"text": "Les fouilles donnent toujours de la ferveur, jamais de profanation.",
+			"faith_always": true
+		},
+		"vael": {
+			"label": "Archives de la Concorde",
+			"text": "Chaque fouille commence avec 1 indice.",
+			"start_clue": 1
+		},
+		"khthari": {
+			"label": "Fouisseurs",
+			"text": "Les phases de fouille sont 30 % plus courtes.",
+			"phase_pct": -30
+		},
+		"teyl": {
+			"label": "Modélisation",
+			"text": "+1 à chaque jet de fouille.",
+			"skill": 1
+		},
+		"ferrocornes": {
+			"label": "Forge-reliques",
+			"text": "Une Reconstitution ne demande que 2 antiquités.",
+			"reco_need": 2
+		},
+		"brisecomete": {
+			"label": "Pilleurs de tombes",
+			"text": "Le Pillage ne coûte pas d'opinion et la vente d'antiquités rapporte double.",
+			"pillage_free": true,
+			"sell_x": 2
+		},
+		"murmurants": {
+			"label": "Mémoire des abysses",
+			"text": "Voient les sites de strate Première sans détection, et leurs fouilles restent cachées.",
+			"see_first": true,
+			"hidden": true
+		}
+	},
+	"reco_need": 3,
+	"ai": {
+		"_doc": "Seuils des IA.",
+		"frag_keep": 60,
+		"permit_jumps": 6
+	}
+}

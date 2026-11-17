@@ -490,6 +490,8 @@ static func choices(state: GameState, empire_id: int, item: Dictionary) -> Array
 		var cond: Dictionary = ch.get("if", {})
 		if cond.has("layers") and not _layers_ok(state, empire_id, cond["layers"]):
 			continue
+		if cond.has("ar") and not Archaeology.choice_ok(state, empire_id, item, String(cond["ar"])):
+			continue
 		var tag := ""
 		if cond.has("layers"):
 			for layer in cond["layers"]:
@@ -640,6 +642,10 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				var ctl := Contact.event_line(String(fx.get("act", "")))
 				if ctl != "":
 					out.append(ctl)
+			"ar":
+				var arl := Archaeology.event_line(state, empire_id, item, String(fx.get("act", "")))
+				if arl != "":
+					out.append(arl)
 			"res":
 				var amounts := {}
 				for r in fx["res"]:
@@ -756,6 +762,9 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 			"ct":
 				# Contact : lecture d'une couche, Plans, alerte (voir Contact.event_act).
 				Contact.event_act(state, empire_id, String(fx.get("act", "")), added)
+			"ar":
+				# Archéologie : études, Extraire / Classer, permis (voir Archaeology.event_act).
+				Archaeology.event_act(state, empire_id, item, String(fx.get("act", "")), added)
 			"res":
 				for r in fx["res"]:
 					e.resources[r] = maxi(0, int(e.resources.get(r, 0)) + era_scaled(state, empire_id, int(fx["res"][r])))
@@ -893,6 +902,7 @@ static func fill(state: GameState, empire_id: int, item: Dictionary, s: String) 
 	out = Rulers.fill(state, empire_id, item, out)  # jetons des souverains
 	out = Court.fill(state, empire_id, item, out)  # jetons de la cour
 	out = HeroFall.fill(state, item, out)  # héros tombés au combat
+	out = Archaeology.fill(state, empire_id, item, out)  # jetons des sites de fouille
 	return out
 
 

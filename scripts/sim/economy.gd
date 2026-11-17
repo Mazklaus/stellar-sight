@@ -539,6 +539,9 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 	var cblock := Crisis.colony_block(state, p.system_id)
 	if cblock != "":
 		return cblock
+	var rwb := ArchaeoWorld.colony_block(state, planet_id)
+	if rwb != "":
+		return rwb
 	if not in_range(state, empire_id, p.system_id):
 		return "hors de portée : il faut un vaisseau colon à l'arrêt dans ce système (ou une revendication établie dans le système)"
 	if kind == Colony.KIND_COLONY and species != "" and species != Peoples.founder_of(state, empire_id):
