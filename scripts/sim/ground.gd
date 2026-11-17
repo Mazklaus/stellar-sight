@@ -1245,6 +1245,7 @@ static func _end(state: GameState, b: Dictionary, winner: int) -> void:
 	var a := int(b["a"])
 	var d := int(b["d"])
 	if winner == a:
+		Announce.next(state, "capital_lost" if FactionTraits.capital_system(state, d) == sid else "world_conquered", {"actor": a, "target": d, "system": sid})
 		state.add_chronicle("%s emporte la bataille au sol de %s : les derniers défenseurs déposent les armes, le drapeau change de mât." % [_name(state, a), _sys(state, sid)])
 		_finish(state, b, a, "won")
 		# La prise : occupation (buts de guerre) ou conquête, comme l'ancienne invasion.

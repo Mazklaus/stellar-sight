@@ -174,6 +174,7 @@ static func _spawn(state: GameState, kind: String, added: Array[Dictionary]) -> 
 			String(kd["name"]), state.galaxy.systems[sid].system_name]
 	if star != "":
 		text += " Les astronomes notent qu'il porte la couleur des %s." % GalaxyGenerator.star_label(star).to_lower()
+	Announce.next(state, "plague_rises", {"system": sid})
 	added.append(state.add_chronicle(text))
 	return pid
 
@@ -349,6 +350,7 @@ static func eat(state: GameState, sid: int, pop: int, stab: int, stab_days: int,
 			en["ev"] = stab
 			en["ev_end"] = state.tick + stab_days
 			en["ev_card"] = "fleau"
+	Announce.next(state, "plague_strikes", {"system": sid, "inv": owners.duplicate()})
 	added.append(state.add_chronicle("%s s'abat sur %s : %s. Les survivants comptent les absents." % [
 			who, state.galaxy.systems[sid].system_name,
 			("%d colonie%s rayée%s de la carte" % [gone, "s" if gone > 1 else "", "s" if gone > 1 else ""]) if gone > 0 else "la population fond"],

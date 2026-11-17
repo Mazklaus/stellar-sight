@@ -497,6 +497,7 @@ static func plunder(state: GameState, sid: int, target: int, added: Array[Dictio
 	var sname := state.galaxy.systems[target].system_name
 	var what := GameData.format_amounts(taken) if not taken.is_empty() else "rien, les caisses étaient vides"
 	if not e.is_ai():
+		Announce.next(state, "pirate_raid", {"target": owner, "system": target})
 		added.append(state.add_chronicle("Raid pirate sur %s : les pillards emportent %s, et la confiance des habitants avec. Ils ne restent pas pour les remerciements." % [
 				sname, what], Espionage.private_to(state, [owner], target)))
 	if by >= 0 and not state.get_empire(by).is_ai():

@@ -48,6 +48,7 @@ static func _monthly(state: GameState, every: int, added: Array[Dictionary]) -> 
 				if int(rec["pct"]) >= int(warn[i]):
 					level = i + 1
 			if level > int(rec.get("warn", 0)):
+				Announce.next(state, ["victory_half", "victory_near", "victory_imminent"][mini(level - 1, 2)], {"actor": e.id, "victory": id})
 				added.append(state.add_chronicle(_warning(e, id, int(warn[level - 1])), Espionage.public_to(state, [e.id])))
 			rec["warn"] = level
 			e.victory[id] = rec
@@ -57,6 +58,8 @@ static func _monthly(state: GameState, every: int, added: Array[Dictionary]) -> 
 
 
 static func _warning(e: Empire, id: String, at: int) -> String:
+	if at > Victory.met_at():
+		return "Alerte galactique : %s est à un pas de %s (%d %%). Si personne ne l'arrête maintenant, personne ne l'arrêtera." % [e.display_name(), Victory.label(id), at]
 	if at >= Victory.met_at():
 		return "Alerte galactique : %s a rempli la condition de %s. Le compte à rebours a commencé ; il est encore temps de l'arrêter." % [e.display_name(), Victory.label(id)]
 	return "Les chroniqueurs s'inquiètent : %s est à mi-chemin de %s." % [e.display_name(), Victory.label(id)]
@@ -96,4 +99,5 @@ static func _proclaim(state: GameState, empire_id: int, id: String, added: Array
 		state.winner["allies"] = Array(ContactRace.partners(state, empire_id))
 	if e.victory.has(id):
 		e.victory[id]["pct"] = 100
+	Announce.next(state, "victory", {"actor": empire_id, "inv": Array(state.winner["allies"])})
 	added.append(state.add_chronicle("VICTOIRE. " + Victory.chronicle_text(id, e, state.winner["allies"], state)))

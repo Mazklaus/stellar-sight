@@ -931,6 +931,7 @@ static func finish_stage(state: GameState, m: Dictionary, added: Array[Dictionar
 		var pub := int(kind_def(k).get("era", 1)) >= 4
 		if not first.has(k):
 			first[k] = eid
+		Announce.next(state, "mega_done", {"actor": eid, "system": int(m["s"])})
 		added.append(state.add_chronicle("%s achève son %s : « %s »" % [e.short_name(), name_of(state, m), String(kind_def(k).get("quote", ""))],
 				_who(state, eid, int(m["s"]), k, pub)))
 		MegasBridges.on_complete(state, m, added)
@@ -1290,6 +1291,7 @@ static func _kardashev(state: GameState, eid: int, added: Array[Dictionary]) -> 
 	if tier > before:
 		touch(state)
 		var titles: Array = cfg("kardashev").get("titles", [])
+		Announce.next(state, "kardashev", {"actor": eid})
 		added.append(state.add_chronicle("%s franchit le type %s de l'échelle de Kardashev : %s. Les astronomes voisins notent une étoile un peu moins brillante que prévu." % [
 				state.get_empire(eid).short_name(), ["0", "I", "II", "III"][tier], String(titles[tier]) if tier < titles.size() else ""]))
 		MegasBridges.on_kardashev(state, eid, tier, added)

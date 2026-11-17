@@ -230,6 +230,7 @@ static func _meet(state: GameState, a: Empire, b: Empire, added: Array[Dictionar
 	if not b.contacts.has(a.id):
 		b.contacts.append(a.id)
 		b.contacts.sort()
+	Announce.next(state, "first_contact", {"actor": a.id, "target": b.id})
 	added.append(state.add_chronicle("Premier contact entre %s et %s. Chacun trouve l'autre étrange, et se garde bien de le dire." % [
 			a.display_name(), b.display_name()], Espionage.public_to(state, [a.id, b.id])))
 	# L'Essaim Kh'thari ne négocie pas : s'il n'a pas de proie, la rencontre vaut déclaration de guerre.

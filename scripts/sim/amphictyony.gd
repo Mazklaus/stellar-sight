@@ -553,6 +553,7 @@ static func _found(state: GameState) -> void:
 	var names := PackedStringArray()
 	for x in yes:
 		names.append(state.get_empire(int(x)).display_name())
+	Announce.next(state, "amph_founded", {"inv": yes.duplicate()})
 	state.add_chronicle("Fondation de %s ! %s en signent la charte : une loi commune, une tribune, et pour commencer l'interdiction des atrocités. Les autres empires peuvent adhérer ; la première séance s'ouvrira dans un an." % [name_long(), ", ".join(names)])
 
 
@@ -1119,6 +1120,7 @@ static func _close_session(state: GameState, added: Array[Dictionary], veto_by :
 	var verdict := "adopte" if passed else ("rejette" if valid else "classe sans suite")
 	if veto_by >= 0:
 		verdict = "rejette, sur le veto de %s," % state.get_empire(veto_by).display_name()
+	Announce.next(state, "amph_vote", {"actor": int(p["by"]), "inv": members(state)})
 	added.append(state.add_chronicle("%s %s : %s (%d voix pour, %d contre)." % [cap(name_short()), verdict, label, pour, contre],
 			Espionage.public_to(state, members(state))))
 
@@ -1170,6 +1172,7 @@ static func _make_outlaw(state: GameState, eid: int, kind: String) -> void:
 		if m != eid:
 			Diplomacy.remember(state, m, eid, "amph_outlaw")
 	var e := state.get_empire(eid)
+	Announce.next(state, "amph_outlaw", {"target": eid})
 	state.add_chronicle("%s déclare %s hors-la-loi : %s. %s" % [cap(name_short()), e.display_name(), breach_label(kind),
 			"Sa peine est prolongée." if was else "Les amphictyons peuvent désormais voter des sanctions contre lui."], Espionage.public_to(state, members(state) + [eid]))
 

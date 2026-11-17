@@ -425,6 +425,7 @@ static func found(state: GameState, eid: int, via: String, planet_id: int, added
 	Relics.touch(state)
 	if via != "origine":
 		var p := state.galaxy.get_planet(holy)
+		Announce.next(state, "faith_founded", {"actor": e.id, "planet": holy})
 		added.append(state.add_chronicle("Révélation ! %s fonde %s, %s. Monde saint : %s. Les autres empires comptent leurs prêtres." % [
 				e.display_name(), name_of(state, fid), String(data()["vias"].get(via, "")), p.display_name(state.galaxy)]))
 	return fid

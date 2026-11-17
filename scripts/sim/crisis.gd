@@ -425,6 +425,7 @@ static func _notice(state: GameState, added: Array[Dictionary]) -> void:
 			_omen(state, c, added)
 			continue
 		var text := step_text(state, i - (1 if c.has("seers") else 0))
+		Announce.next(state, "crisis_start" if last else "crisis_omen", {})
 		added.append(state.add_chronicle(("CRISE. " if last else "Présage. ") + text))
 		var card := "crise_arrivee" if last else ("crise_alerte_1" if i == 0 else "crise_alerte_2")
 		_push_all(state, card, int(c["origin"]), added)
@@ -446,6 +447,7 @@ static func _omen(state: GameState, c: Dictionary, added: Array[Dictionary]) -> 
 		if omen == "":
 			continue
 		omen = omen.replace("{empire}", state.get_empire(int(eid)).display_name()).replace("{origin}", state.galaxy.systems[o].system_name if o >= 0 else "la bordure")
+		Announce.next(state, "crisis_omen", {})
 		added.append(state.add_chronicle("Présage. " + omen, Espionage.private_to(state, [int(eid)], -1)))
 		Events.push(state, int(eid), "crise_alerte_1", {"system": o}, added)
 
@@ -842,6 +844,7 @@ static func _drain(state: GameState, sid: int, pop: int, erase: bool, station: S
 			if not has:
 				@warning_ignore("integer_division")
 				_station(state, station, sid, int(cur(state)["power"]) * int(data()["power"]["station_pct"]) / 100, ROLE_STATION)
+		Announce.next(state, "crisis_wipe", {"system": sid})
 		added.append(state.add_chronicle("%s : %d colonie%s de %s rayée%s de la carte." % [name_of(kind(state)), gone, "s" if gone > 1 else "",
 				state.galaxy.systems[sid].system_name, "s" if gone > 1 else ""]))
 
@@ -906,6 +909,7 @@ static func fall(state: GameState, sid: int, added: Array[Dictionary]) -> void:
 	c["fallen"] = int(c.get("fallen", 0)) + 1
 	var fate := fate_of(state)
 	var text := String(fate.get("fall", "%s tombe.")) % state.galaxy.systems[sid].system_name
+	Announce.next(state, "crisis_fall", {"target": owner, "system": sid})
 	added.append(state.add_chronicle(text))
 	CrisisAllies.on_fall(state, sid, owner, added)
 	if Stability.applies(state, owner):
@@ -1247,6 +1251,7 @@ static func _finish(state: GameState, result: String, by: int, added: Array[Dict
 			text = "Six ans de Krach, et personne n'a su relancer la galaxie : c'est la Grande Dépression. Elle laissera des traces pendant cinq ans."
 		_:
 			text = "%s ne trouve pas de prise sur la galaxie et se dissipe." % name_of(k)
+	Announce.next(state, "crisis_end", {})
 	added.append(state.add_chronicle(text))
 	# Les flottes de la crise se dissipent (sauf les restes sauvages, voir CrisisKinds).
 	var keep: Dictionary = state.crisis.get("remnants", {})

@@ -521,6 +521,7 @@ static func _reward(state: GameState, gid: String, eid: int, sid: int, added: Ar
 	for o in state.empires:
 		if not o.eliminated and o.explored.has(sid) and not who.has(o.id):
 			who.append(o.id)
+	Announce.next(state, "guardian_slain", {"actor": e.id, "system": sid})
 	added.append(state.add_chronicle("Triomphe ! %s abat %s à %s. Les foules envahissent les places de la capitale et les poètes cherchent des rimes. %s." % [
 			e.display_name(), String(gd["name"]), state.galaxy.systems[sid].system_name,
 			("Au tableau : " + ", ".join(parts)) if not parts.is_empty() else "La gloire suffit"], Espionage.public_to(state, who)))

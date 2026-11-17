@@ -568,6 +568,7 @@ static func see(state: GameState, empire_id: int, sp: String, sid: int, added: A
 	if e.is_ai():
 		return
 	var sd := species(sp)
+	Announce.next(state, "creature_met", {"target": empire_id, "system": sid})
 	added.append(state.add_chronicle("Premier contact avec les %s, près de %s. %s Elles sont %s. (Chroniques, onglet Bestiaire : les étudier, les chasser%s.)" % [
 			String(sd["label"]), state.galaxy.systems[sid].system_name, String(sd["text"]), temper_label(sp).to_lower(),
 			" ou les apprivoiser" if bool(sd.get("tamable", false)) else ""], Espionage.private_to(state, [empire_id], sid)))

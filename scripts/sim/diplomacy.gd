@@ -706,6 +706,7 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 				Koinon.on_peace(state, a, b, score_a)
 				Koinon.on_peace(state, b, a, -score_a)
 			if was_war:
+				Announce.next(state, "peace_signed", {"actor": a, "target": b})
 				state.add_chronicle("Paix entre %s et %s. On signe en bas, on enterre les morts, et l'on jure que c'était la dernière fois." % [
 						ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 			else:
@@ -716,6 +717,7 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 			r["pact"] = ALLIANCE
 			r["since"] = state.tick
 			share_maps(state, a, b)
+			Announce.next(state, "alliance", {"actor": a, "target": b})
 			state.add_chronicle("Alliance entre %s et %s : désormais, qui frappe l'un devra compter avec l'autre." % [
 					ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 		TRADE:
@@ -814,6 +816,7 @@ static func cancel(state: GameState, player: int, target: int, treaty: String) -
 			r["since"] = state.tick
 			remember(state, target, player, "left_alliance")
 			Deeds.note(state, player, "broke")
+			Announce.next(state, "alliance_broken", {"actor": player, "target": target})
 			state.add_chronicle("%s quitte son alliance avec %s. On se serre encore la main, mais avec des gants." % [
 					ep.display_name(), et.display_name()], Espionage.public_to(state, [player, target]))
 		PEACE:
@@ -823,6 +826,7 @@ static func cancel(state: GameState, player: int, target: int, treaty: String) -
 			r.erase("migr")
 			r["since"] = state.tick
 			remember(state, target, player, "denounced")
+			Announce.next(state, "treaty_denounced", {"actor": player, "target": target})
 			state.add_chronicle("%s dénonce son traité de paix avec %s. Rien n'est encore tiré, mais les tourelles pivotent." % [
 					ep.display_name(), et.display_name()], Espionage.public_to(state, [player, target]))
 		TRADE:
@@ -927,6 +931,7 @@ static func on_war_declared(state: GameState, a: int, b: int, by_nature: bool, j
 		for e in state.empires:
 			if e.id != a and e.id != b and not e.eliminated and e.contacts.has(a):
 				remember(state, e.id, a, "oathbreaker")
+		Announce.next(state, "treaty_broken", {"actor": a, "target": b})
 		state.add_chronicle("%s rompt son traité avec %s. Les juristes parlent de parjure, les amiraux d'occasion." % [
 				state.get_empire(a).display_name(), state.get_empire(b).display_name()], Espionage.public_to(state, [a, b]))
 	var cr := ability("crusade")

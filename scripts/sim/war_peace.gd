@@ -94,6 +94,7 @@ static func _occupy(state: GameState, sid: int, by: int) -> void:
 	state.sieges.erase(sid)
 	Wars.on_occupy(state, sid, by, owner)
 	Diplomacy.note_conquest(state, by, owner)
+	Announce.next(state, "system_occupied", {"actor": by, "target": owner, "system": sid})
 	state.add_chronicle("%s occupe %s, système de %s. La propriété attendra le traité ; les impôts, eux, changent de main dès ce soir." % [
 			_name(state, by), _sys(state, sid), _name(state, owner)], Espionage.public_to(state, [by, owner]))
 
@@ -258,6 +259,7 @@ static func check_impose(state: GameState, eid: int, other: int) -> String:
 static func impose(state: GameState, eid: int, other: int) -> void:
 	var name := String(Wars.war(state, eid, other).get("name", "la guerre"))
 	Diplomacy.sign_treaty(state, eid, other, Diplomacy.PEACE)
+	Announce.next(state, "peace_signed", {"actor": eid, "target": other})
 	state.add_chronicle("Fin de la %s : %s impose le statu quo à %s, à bout de forces." % [name, _name(state, eid), _name(state, other)],
 			Espionage.public_to(state, [eid, other]))
 
@@ -455,6 +457,7 @@ static func separate(state: GameState, eid: int, other: int) -> void:
 	Diplomacy.sign_treaty(state, eid, other, Diplomacy.PEACE)
 	if chief >= 0:
 		Diplomacy.remember(state, chief, eid, "separate_peace")
+	Announce.next(state, "peace_signed", {"actor": eid, "target": other})
 	state.add_chronicle("%s signe une paix séparée avec %s et laisse %s finir la guerre seul. On appelle cela de la prudence, ou autre chose." % [
 			_name(state, eid), _name(state, other), _name(state, chief) if chief >= 0 else "ses alliés"], Espionage.public_to(state, [eid, other]))
 
@@ -773,6 +776,7 @@ static func monthly(state: GameState) -> void:
 		if int(e1[0]) >= 0 and int(e1[1]) >= 0 and state.tick - maxi(int(e1[0]), int(e1[1])) >= auto:
 			var name := String(rec.get("name", "la guerre"))
 			Diplomacy.sign_treaty(state, a, d, Diplomacy.PEACE)
+			Announce.next(state, "peace_signed", {"actor": a, "target": d})
 			state.add_chronicle("Fin de la %s : épuisés, %s et %s reviennent au statu quo sans même le négocier." % [name, _name(state, a), _name(state, d)],
 					Espionage.public_to(state, [a, d]))
 			continue

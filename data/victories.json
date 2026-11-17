@@ -1,9 +1,10 @@
 {
-	"_sources": "Étude des conditions de victoire : https://claude.ai/artifact/TYX252JaLg64V6qQhUpXm2. Conquête des capitales en gardant la sienne : Civilization VI (gamepressure.com/sidmeierscivilization6/ways-to-achieve-victory/zb959d). Part de la galaxie tenue un temps : Galactic Civilizations III (wiki.galciv.com/index.php/Victory). Alertes à la moitié et aux trois quarts, victoires choisies au lancement : Endless Space 2. Score à date limite : Civilization VI, Endless Space 2, Stellaris. Victoires de peuple : tableau des victoires uniques du document de game design (https://claude.ai/artifact/XhrEUfPjjpkz4vcmL12tBK).",
+	"_sources": "Étude des conditions de victoire : https://claude.ai/artifact/TYX252JaLg64V6qQhUpXm2. Conquête des capitales en gardant la sienne : Civilization VI (gamepressure.com/sidmeierscivilization6/ways-to-achieve-victory/zb959d). Part de la galaxie tenue un temps : Galactic Civilizations III (wiki.galciv.com/index.php/Victory). Alertes à la moitié et aux trois quarts (Endless Space 2), puis à 90 % (étude des annonces, prop. 36), victoires choisies au lancement : Endless Space 2. Score à date limite : Civilization VI, Endless Space 2, Stellaris. Victoires de peuple : tableau des victoires uniques du document de game design (https://claude.ai/artifact/XhrEUfPjjpkz4vcmL12tBK).",
 	"visible_at": 50,
 	"warn_at": [
 		50,
-		75
+		75,
+		90
 	],
 	"met_at": 75,
 	"check_days": 30,

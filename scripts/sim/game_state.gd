@@ -8,15 +8,15 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 89
+const FORMAT_VERSION := 90
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
-const CHRONICLE_MAX := 50
+const CHRONICLE_MAX := 400
 ## Identifiant des Sans-Bannière (faction neutre, voir npc_empire) : au-delà de tout indice d'empire.
 const NPC_ID := 90
 ## Identifiant des Pirates (repaires et raids, voir Pirates et pirate_empire).
@@ -205,6 +205,11 @@ var genetics: Dictionary = {}  # ingénierie des espèces (voir Genetics) ; {} =
 var psionics: Dictionary = {}  # pouvoirs psioniques (voir Psionics) ; {} = désactivés
 var transcendence: Dictionary = {}  # la Transcendance (voir Transcendence) ; {} = désactivée
 var megas: Dictionary = {}  # les mégastructures (voir Megastructures) ; {} = désactivées
+## Annonces typées (voir Announce) : registre et méta (prochain identifiant, premières de la galaxie).
+var announces: Array[Dictionary] = []
+var announce_meta: Dictionary = {}
+## Type posé par Announce.next() pour la prochaine ligne de chronique (jamais sauvegardé).
+var announce_next: Dictionary = {}
 var archaeo: Dictionary = {}  # l'archéologie, les Strates (voir Archaeology) ; {} = Classique ou désactivée
 var contact: Dictionary = {}  # la victoire de Contact (voir Contact) ; {} = désactivée
 var portals: Dictionary = {}  # portails de saut (voir Portals) ; {} = désactivés
@@ -530,6 +535,8 @@ func to_dict() -> Dictionary:
 		d["megas"] = Megastructures.to_dict(self)
 	if Archaeology.worth_saving(self):
 		d["archaeo"] = Archaeology.to_dict(self)
+	if Announce.worth_saving(self):
+		d["announces"] = Announce.to_dict(self)
 	if HeroFall.worth_saving(self):
 		d["hero_death"] = HeroFall.to_dict(self)
 	return d
@@ -602,6 +609,9 @@ static func from_dict(d: Dictionary) -> GameState:
 	s.rng.state = String(d["rng_state"]).to_int()
 	for e: Dictionary in d["chronicle"]:
 		var entry := {"tick": int(e["tick"]), "text": String(e["text"])}
+		if e.has("kind"):
+			entry["kind"] = String(e["kind"])
+			entry["aid"] = int(e.get("aid", 0))
 		if e.has("who"):
 			var who := []
 			for x in e["who"]:
@@ -783,6 +793,7 @@ static func from_dict(d: Dictionary) -> GameState:
 			Intel.seed_from_truth(s, e)
 	Megastructures.from_dict(s, d.get("megas", {}))
 	Archaeology.from_dict(s, d.get("archaeo", {}))
+	Announce.from_dict(s, d.get("announces", {}))
 	# Sauvegardes d'avant les mégastructures : Dyson, Nexus et Monde-anneau quittent les merveilles.
 	if int(d["version"]) < 88 and not d.has("megas"):
 		Megastructures.migrate_wonders(s)
@@ -810,6 +821,11 @@ func add_chronicle(text: String, who: Variant = null) -> Dictionary:
 	chronicle.append(entry)
 	while chronicle.size() > CHRONICLE_MAX:
 		chronicle.pop_front()
+	# Ligne typée par Announce.next() : elle entre au registre des annonces.
+	if not announce_next.is_empty():
+		var tag := announce_next
+		announce_next = {}
+		Announce.record(self, entry, tag)
 	return entry
 
 
