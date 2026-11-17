@@ -362,6 +362,7 @@ static func cost_pct(state: GameState, eid: int, k: String, sid := -1) -> int:
 		if not sw.is_empty() and int(sw["o"]) == eid and complete(sw):
 			pct -= 100 - int(kind_def(k).get("on_swarm_pct", 60))
 	pct += MegasBridges.cost_pct(state, eid, k)
+	pct += Research.fx_int(state, eid, "mega_cost_pct")  # Métier des Tisserands (archéologie)
 	return pct
 
 
