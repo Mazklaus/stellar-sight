@@ -69,7 +69,7 @@ static func _test_raccourci() -> void:
 	_ok(offered, "Le Raccourci est offert (fenêtre d'événement)")
 	var c := Events.card("orree_raccourci")
 	Events.apply_fx(st, oss, {"card": "orree_raccourci"}, c["choices"][0]["fx"], [])
-	_ok(Transcendence.in_passage(st, oss) and Transcendence.passage_need(st, oss) == 720 and Transcendence.oeuvre(st, oss).is_empty(), "Raccourci accepté : Passage de deux ans, sans Œuvre")
+	_ok(Transcendence.in_passage(st, oss) and Transcendence.passage_need(st, oss) == 720 and Transcendence.oeuvre(st, oss).is_empty(), "Raccourci accepté : Passage de deux ans, sans Exodium")
 	Transcendence.sub(st, "passage")[str(oss)]["prog"] = 9999
 	var trapped := Transcendence._h(st, ["piege", oss]) % 100 < Transcendence.c_int("raccourci", "trap_pct", 50)
 	TranscendenceTests.months(st, 1)

@@ -1,8 +1,8 @@
 extends SceneTree
-## Capture de l'onglet Transcendance de l'écran Victoires, et du marqueur de l'Œuvre sur la carte, avec le rendu réel :
+## Capture de l'onglet Transcendance de l'écran Victoires, et du marqueur de l'Exodium sur la carte, avec le rendu réel :
 ##   xvfb-run -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_transcendence.gd
 ## Écrit les images dans le dossier donné par CAPTURE_DIR (par défaut user://captures).
-## Scénario : Chœur Éternel, Transcendance complète. L'Orée, l'Apothéose, la jauge pleine, l'Œuvre (le
+## Scénario : Chœur Éternel, Transcendance complète. L'Orée, l'Apothéose, la jauge pleine, l'Exodium (le
 ## Trône vide) achevée, un Relais, et le Passage en cours ; un rival sur le Grand Départ à mi-jauge.
 
 

@@ -1,7 +1,7 @@
 class_name TranscendenceScreen
 extends RefCounted
 ## Écran Transcendance (voir Transcendence, prop. 39) : un onglet de l'écran Victoire. La voie, la jauge
-## d'Élévation et son détail, les trois étapes de l'Œuvre, le Passage (Relais, Lieux minces, empires
+## d'Élévation et son détail, les trois étapes de l'Exodium, le Passage (Relais, Lieux minces, empires
 ## joints), et les Passages en cours dans la galaxie. Construit dans les conteneurs d'EmpireScreens.
 
 const COLOR := Color(0.85, 0.8, 1.0)
@@ -68,7 +68,7 @@ static func build(es: EmpireScreens) -> void:
 		var why := Transcendence.check(state, player, "oeuvre", {})
 		if Transcendence.stage(state, player) < Transcendence.stage_count(pid) and not Transcendence.stage_running(state, player) and not Transcendence.in_passage(state, player):
 			var cost := Transcendence.stage_cost(state, player)
-			es._side_box.add_child(_btn(es, "Bâtir %s, étape %d (%s)" % [String(od.get("label", "l'Œuvre")), Transcendence.stage(state, player) + 1, GameData.format_amounts(cost)], why,
+			es._side_box.add_child(_btn(es, "Bâtir %s, étape %d (%s)" % [String(od.get("label", "l'Exodium")), Transcendence.stage(state, player) + 1, GameData.format_amounts(cost)], why,
 					String(od.get("text", "")), SimCommands.tr_act(player, "oeuvre", {}), "oeuvre"))
 		es._side_box.add_child(_btn(es, "Renoncer à l'Orée", Transcendence.check(state, player, "renounce", {}),
 				"La jauge est perdue, cinq ans de crise de stabilité, les Restants au pouvoir ; plus jamais l'Orée.",
@@ -76,7 +76,7 @@ static func build(es: EmpireScreens) -> void:
 	for x in TranscendenceUiExtra.side(es):
 		es._side_box.add_child(x)
 	es._side_box.add_child(HSeparator.new())
-	es._side_box.add_child(UiTheme.paragraph("Trois étapes : franchir l'Orée et remplir la jauge, bâtir l'Œuvre de sa voie, puis tenir le Passage. Le Passage recule d'un an par mois d'occupation du système de l'Œuvre ; six mois, et l'Œuvre est détruite. Des Relais (2 mois chacun) et des Lieux minces (3 mois) le raccourcissent, jamais sous deux ans.", w, 12))
+	es._side_box.add_child(UiTheme.paragraph("Trois étapes : franchir l'Orée et remplir la jauge, bâtir l'Exodium de sa voie, puis tenir le Passage. Le Passage recule d'un an par mois d'occupation du système de l'Exodium ; six mois, et l'Exodium est détruit. Des Relais (2 mois chacun) et des Lieux minces (3 mois) le raccourcissent, jamais sous deux ans.", w, 12))
 
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -122,9 +122,9 @@ static func build(es: EmpireScreens) -> void:
 				pb.body.add_child(UiTheme.paragraph("L'Arche fait route vers la Bordure : %s. Amenez-la jusque-là et arrêtez-la." % state.galaxy.systems[int(a["target"])].system_name, 760.0, 13))
 			else:
 				pb.body.add_child(UiTheme.paragraph("En cours : %d %% (%s restants)%s" % [Transcendence.passage_pct(state, player), Victory._days_text(maxi(0, Transcendence.passage_need(state, player) - Transcendence.passage_prog(state, player))),
-						", Œuvre occupée depuis %d mois" % int(Transcendence.passage(state, player).get("occ", 0)) if int(Transcendence.passage(state, player).get("occ", 0)) > 0 else ""], 760.0, 13))
+						", Exodium occupé depuis %d mois" % int(Transcendence.passage(state, player).get("occ", 0)) if int(Transcendence.passage(state, player).get("occ", 0)) > 0 else ""], 760.0, 13))
 		else:
-			pb.body.add_child(UiTheme.dim("Il commence quand l'Œuvre est achevée. Plancher : %s." % Victory._days_text(int(p.get("min_days", 720))), 13))
+			pb.body.add_child(UiTheme.dim("Il commence quand l'Exodium est achevé. Plancher : %s." % Victory._days_text(int(p.get("min_days", 720))), 13))
 
 	# Les voies.
 	var vb := Widgets.Block.new("Les cinq voies")

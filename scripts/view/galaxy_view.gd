@@ -942,8 +942,8 @@ func _draw_wonders(px: float) -> void:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
-## Œuvres de Transcendance connues (prop. 39) : un anneau pâle et une flèche vers le haut sur le système
-## de l'Œuvre (pulsé pendant le Passage), sans lentille.
+## Exodiums de Transcendance connues (prop. 39) : un anneau pâle et une flèche vers le haut sur le système
+## de l'Exodium (pulsé pendant le Passage), sans lentille.
 func _draw_oeuvres(px: float) -> void:
 	if state == null or state.transcendence.is_empty():
 		return

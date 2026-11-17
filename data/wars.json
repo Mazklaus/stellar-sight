@@ -641,7 +641,7 @@
 			"objective": "battles",
 			"req": "ascension",
 			"price": 40,
-			"text": "Le vaincu perd une étape de son Œuvre et son Passage est brisé : il faudra recommencer."
+			"text": "Le vaincu perd une étape de son Exodium et son Passage est brisé : il faudra recommencer."
 		},
 		{
 			"id": "merveille",

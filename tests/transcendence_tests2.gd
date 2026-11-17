@@ -122,9 +122,9 @@ static func _test_war_spy() -> void:
 	_ok(Wars.casus_list(st, other, oss).has("ascension") and bool(Wars.casus_def("ascension").get("just", false)), "Motif juste « Empêcher l'Ascension » contre un empire en Passage")
 	_ok(Wars.goal_ok(st, "ascension", other, oss), "But de guerre « Empêcher l'Ascension »")
 	st.get_empire(other).techs["oree"] = true
-	_ok(TranscendenceWorld.spy_check(st, other, oss, "feler_oeuvre") == "", "Fêler l'Œuvre : possible contre un Passage")
+	_ok(TranscendenceWorld.spy_check(st, other, oss, "feler_oeuvre") == "", "Fêler l'Exodium : possible contre un Passage")
 	TranscendenceWorld.spy_apply(st, other, oss, {"id": "feler_oeuvre"})
-	_ok(not Transcendence.in_passage(st, oss) and Transcendence.stage(st, oss) == 2, "Œuvre fêlée : Passage brisé, une étape perdue")
+	_ok(not Transcendence.in_passage(st, oss) and Transcendence.stage(st, oss) == 2, "Exodium fêlé : Passage brisé, une étape perdue")
 	_ok(TranscendenceWorld.spy_check(st, other, oss, "voler_carnets") != "", "Voler les carnets : il faut une voie")
 	Transcendence.choose_path(st, other, "depart", [])
 	TranscendenceWorld.spy_apply(st, other, oss, {"id": "voler_carnets"})

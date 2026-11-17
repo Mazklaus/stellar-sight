@@ -2582,7 +2582,7 @@ func _build_new_page(root: Control) -> void:
 	for m: Dictionary in Transcendence.mode_defs():
 		_transcendence_select.add_item(String(m["label"]))
 		tr_tip.append("%s : %s" % [String(m["label"]), String(m["text"])])
-	_transcendence_select.tooltip_text = "Transcendance : une fin de partie où un peuple quitte la galaxie. La technologie L'Orée ouvre cinq voies (le Songe, le Téléversement, l'Apothéose, la Mue, le Grand Départ), une jauge d'Élévation, l'Œuvre de la voie puis le Passage à défendre (Civilization: Beyond Earth, Alpha Centauri, Stellaris, la Culture de Iain M. Banks, Stargate).\n" + "\n".join(tr_tip)
+	_transcendence_select.tooltip_text = "Transcendance : une fin de partie où un peuple quitte la galaxie. La technologie L'Orée ouvre cinq voies (le Songe, le Téléversement, l'Apothéose, la Mue, le Grand Départ), une jauge d'Élévation, l'Exodium de la voie puis le Passage à défendre (Civilization: Beyond Earth, Alpha Centauri, Stellaris, la Culture de Iain M. Banks, Stargate).\n" + "\n".join(tr_tip)
 	_transcendence_select.item_selected.connect(func(i: int) -> void: set_transcendence(String(Transcendence.mode_defs()[i]["id"])))
 	_labeled_row(game, "Transcendance", _transcendence_select)
 	_transcendence_outcome_select = OptionButton.new()

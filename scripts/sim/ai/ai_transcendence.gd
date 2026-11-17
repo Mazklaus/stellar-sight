@@ -2,10 +2,10 @@ class_name AiTranscendence
 extends RefCounted
 ## IA et Transcendance (prop. 40 ; voir Transcendence, data/transcendence.json « ai »).
 ## Une fois par mois, si le pilier est en jeu : cherche L'Orée à l'ère V, choisit la voie qui lui va
-## (préférences par credo, puis la première ouverte), bâtit l'Œuvre étape par étape en gardant une
+## (préférences par credo, puis la première ouverte), bâtit l'Exodium étape par étape en gardant une
 ## réserve, des Relais sur ses colonies les plus peuplées, mène l'Arche jusqu'à la Bordure, et rejoint
 ## le Passage d'un allié. Un peuple qui ne transcende jamais (Kh'thari) ne cherche pas L'Orée.
-## Ses rivaux visent l'Œuvre aux alertes (AiPlayer._war_target, Transcendence.strike_target).
+## Ses rivaux visent l'Exodium aux alertes (AiPlayer._war_target, Transcendence.strike_target).
 ## La Recrue oublie souvent.
 
 static func cfg() -> Dictionary:

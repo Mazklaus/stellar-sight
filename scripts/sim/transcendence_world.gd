@@ -2,7 +2,7 @@ class_name TranscendenceWorld
 extends RefCounted
 ## La Transcendance et la galaxie (lot 2 ; voir Transcendence, data/transcendence.json).
 ##
-## Avant l'Œuvre : signes par voie (prop. 9), Renoncement (prop. 10), les Restants (prop. 11), Lieux
+## Avant l'Exodium : signes par voie (prop. 9), Renoncement (prop. 10), les Restants (prop. 11), Lieux
 ## minces (prop. 12), Guide du Passage et désertions (prop. 14).
 ## Pendant le Passage : effacement et voile de l'Orée (prop. 18), réactions de la galaxie (opinion selon
 ## le credo, famille « oree » de l'Amphictyonie, motif et but de guerre « Ascension », prop. 19), bêtes
@@ -577,7 +577,7 @@ static func spy_check(state: GameState, a: int, b: int, op_id: String) -> String
 	match op_id:
 		"feler_oeuvre":
 			if Transcendence.stage(state, b) <= 0 and not Transcendence.stage_running(state, b):
-				return "son Œuvre n'a pas d'étape à fêler"
+				return "son Exodium n'a pas d'étape à fêler"
 		"voler_carnets":
 			if Transcendence.path_of(state, b) == "":
 				return "il ne s'est voué à aucune voie"

@@ -1,7 +1,7 @@
 class_name TranscendenceTests
 extends RefCounted
 ## Tests de la Transcendance (étude du 2026-11-17, 42 propositions) : données et réglages, voies et
-## conditions, jauge, Œuvre, Passage (Relais, occupation, destruction), Arche de la Bordure,
+## conditions, jauge, Exodium, Passage (Relais, occupation, destruction), Arche de la Bordure,
 ## Transcendance commune, victoire et départ, renoncement, IA, sauvegarde. Le monde et les ponts
 ## (lots 2-3) : TranscendenceTests2.
 ## Appelés par smoke_test.gd.
@@ -90,7 +90,7 @@ func _test_data() -> void:
 	for p: Dictionary in Transcendence.path_defs():
 		if Transcendence.stage_count(String(p["id"])) != 3 or not p.has("win") or not p.has("start") or String(p.get("source", "")) == "":
 			bad = String(p["id"])
-	_ok(bad == "", "Chaque voie a une source, trois étapes d'Œuvre et ses textes (%s)" % bad)
+	_ok(bad == "", "Chaque voie a une source, trois étapes d'Exodium et ses textes (%s)" % bad)
 	_ok(not Research.tech("oree").is_empty() and int(Research.tech("oree")["era"]) == 5, "L'Orée : technologie d'ère V")
 	_ok(not GameData.building("relais_passage").is_empty() and bool(GameData.building("relais_passage").get("transcendence", false)), "Relais du Passage : bâtiment du pilier")
 	_ok(not GameData.ship("arche_bordure").is_empty() and not FactionTraits.ship_ids_for("ossarane").has("arche_bordure"), "Arche de la Bordure : vaisseau hors chantiers")
@@ -137,10 +137,10 @@ func _test_gauge_oeuvre() -> void:
 	_ok(Transcendence.monthly_gain(st, oss) > 0, "La jauge monte chaque mois (+%d)" % Transcendence.monthly_gain(st, oss))
 	months(st, 1)
 	_ok(Transcendence.gauge(st, oss) > g0, "Bilan mensuel : jauge en hausse")
-	_ok(cmd(st, oss, "oeuvre") != "", "Pas d'Œuvre avant la jauge pleine")
+	_ok(cmd(st, oss, "oeuvre") != "", "Pas d'Exodium avant la jauge pleine")
 	Transcendence.sub(st, "gauge")[str(oss)] = Transcendence.gauge_max()
 	st.get_empire(oss).resources["materials"] = 0
-	_ok(cmd(st, oss, "oeuvre") != "", "L'Œuvre se paie")
+	_ok(cmd(st, oss, "oeuvre") != "", "L'Exodium se paie")
 	rich(st, oss)
 	var mat := int(st.get_empire(oss).resources["materials"])
 	_ok(cmd(st, oss, "oeuvre") == "" and Transcendence.stage_running(st, oss), "Première étape en chantier")
@@ -169,7 +169,7 @@ func _test_passage() -> void:
 	months(st, 3)
 	var prog := Transcendence.passage_prog(st, oss) - p0
 	_ok(prog == 90, "Le Passage avance d'un mois par mois (%d)" % prog)
-	# Occupation du système de l'Œuvre : un an de recul par mois ; six mois, l'Œuvre est détruite.
+	# Occupation du système de l'Exodium : un an de recul par mois ; six mois, l'Exodium est détruit.
 	var sys := Transcendence.oeuvre_sys(st, oss)
 	var other := 0 if oss != 0 else 1
 	for pid in st.galaxy.systems[sys].planet_ids:
@@ -178,9 +178,9 @@ func _test_passage() -> void:
 			col.owner = other
 	st.rebuild_ownership()
 	months(st, 1)
-	_ok(Transcendence.passage_prog(st, oss) == 0 and int(Transcendence.passage(st, oss).get("occ", 0)) == 1, "Œuvre occupée : le Passage recule")
+	_ok(Transcendence.passage_prog(st, oss) == 0 and int(Transcendence.passage(st, oss).get("occ", 0)) == 1, "Exodium occupé : le Passage recule")
 	months(st, 5)
-	_ok(not Transcendence.in_passage(st, oss) and Transcendence.stage(st, oss) == 2, "Six mois d'occupation : Œuvre détruite, une étape à rebâtir")
+	_ok(not Transcendence.in_passage(st, oss) and Transcendence.stage(st, oss) == 2, "Six mois d'occupation : Exodium détruit, une étape à rebâtir")
 
 
 func _test_ark() -> void:
@@ -210,7 +210,7 @@ func _test_ark() -> void:
 	var f2 := Transcendence.ark_fleet(st2, o2)
 	st2.fleets.erase(f2.id)
 	months(st2, 1)
-	_ok(not Transcendence.in_passage(st2, o2) and Transcendence.stage(st2, o2) == 0, "Arche abattue : Œuvre et Passage à refaire")
+	_ok(not Transcendence.in_passage(st2, o2) and Transcendence.stage(st2, o2) == 0, "Arche abattue : Exodium et Passage à refaire")
 
 
 func _test_join_victory() -> void:
@@ -284,5 +284,5 @@ func _test_ai_save() -> void:
 	var d := st2.to_dict()
 	_ok(int(d["version"]) == 86, "Sauvegarde 86")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
-	_ok(Transcendence.in_passage(back, oss) and Transcendence.path_of(back, oss) == "apotheose" and Transcendence.stage(back, oss) == 3, "Sauvegarde : voie, Œuvre et Passage relus")
+	_ok(Transcendence.in_passage(back, oss) and Transcendence.path_of(back, oss) == "apotheose" and Transcendence.stage(back, oss) == 3, "Sauvegarde : voie, Exodium et Passage relus")
 	_ok(JSON.stringify(back.to_dict()) == JSON.stringify(d), "Sauvegarde : aller-retour identique")

@@ -630,7 +630,7 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 		match String(fx["k"]):
 			"tr":
 				if String(fx.get("act", "")) == "shortcut":
-					out.append("Passage en 2 ans, sans Œuvre (ce que la voix ne dit pas reste à voir)")
+					out.append("Passage en 2 ans, sans Exodium (ce que la voix ne dit pas reste à voir)")
 				elif int(fx.get("gauge", 0)) != 0:
 					@warning_ignore("integer_division")
 					out.append("Jauge d'Élévation %+d %%" % (int(fx["gauge"]) / 10))

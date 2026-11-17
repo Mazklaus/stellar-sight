@@ -1575,7 +1575,7 @@ static func _war_target(ctx: Dictionary, from: int) -> int:
 		if Ports.full(state) and _skill(ctx) >= 1 and Ports.port_level_at(state, owner, sid) >= 2:
 			@warning_ignore("integer_division")
 			score = score * 3 / 4
-		# Transcendance : l'Œuvre d'un empire en route vers l'au-delà est la cible de choix (prop. 40).
+		# Transcendance : l'Exodium d'un empire en route vers l'au-delà est la cible de choix (prop. 40).
 		if not state.transcendence.is_empty() and Transcendence.strike_target(state, owner, sid):
 			@warning_ignore("integer_division")
 			score = score / 3

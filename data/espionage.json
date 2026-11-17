@@ -974,7 +974,7 @@
 		{
 			"id": "feler_oeuvre",
 			"family": "sabotage",
-			"label": "Fêler l'Œuvre",
+			"label": "Fêler l'Exodium",
 			"tier": 3,
 			"cost": {
 				"influence": 60
@@ -984,7 +984,7 @@
 			"discovery": 40,
 			"spend": 25,
 			"transcendence": true,
-			"text": "Transcendance : son Œuvre perd une étape ; s'il est en Passage, le Passage est brisé. Les futurs Partis s'en souviendront."
+			"text": "Transcendance : son Exodium perd une étape ; s'il est en Passage, le Passage est brisé. Les futurs Partis s'en souviendront."
 		},
 		{
 			"id": "voler_carnets",

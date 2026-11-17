@@ -5,16 +5,16 @@ extends RefCounted
 ## Fin de partie où un peuple quitte la galaxie matérielle. Trois étapes (prop. 5) :
 ## 1. l'Orée : la technologie « oree » ouvre le choix d'une VOIE (catalogue ouvert « paths », prop. 1-2)
 ##    et une jauge d'Élévation de 0 à 100 (en dixièmes : 0-1000) nourrie par la source de la voie ;
-## 2. l'Œuvre de la voie (Dormitoire, Substrat, Trône vide, Chrysalide, Arche de la Bordure) : trois
+## 2. l'Exodium de la voie (Dormitoire, Substrat, Trône vide, Chrysalide, Arche de la Bordure) : trois
 ##    étapes payées, dans un système tenu (prop. 15) ;
 ## 3. le Passage : compte à rebours (5 ans) que les Relais et les Lieux minces raccourcissent, que les
-##    empires joints allongent, et qui recule quand le système de l'Œuvre est occupé (prop. 7, 13, 16).
+##    empires joints allongent, et qui recule quand le système de l'Exodium est occupé (prop. 7, 13, 16).
 ##    Le Grand Départ finit par un voyage : l'Arche doit rallier un système de bordure (prop. 17).
 ##
 ## Issue réglable (prop. 6) : « victoire » (la partie s'arrête, victoire partagée avec les joints) ou
 ## « depart » (l'espèce fondatrice quitte la galaxie, voir TranscendenceWorld).
 ##
-## Nom : l'étude parle de « Grand Œuvre » ; le jeu dit « l'Œuvre » pour ne pas confondre avec la
+## Nom : l'étude parle de « Grand Œuvre » ; le jeu dit « l'Exodium » pour ne pas confondre avec la
 ## victoire des Grands Œuvres (merveilles).
 ##
 ## Réglage « Transcendance » : Complète, Victoire seule, Désactivée (state.transcendence vide).
@@ -223,7 +223,7 @@ static func oeuvre_def(path_id: String) -> Dictionary:
 
 
 static func oeuvre_label(path_id: String) -> String:
-	return String(oeuvre_def(path_id).get("label", "l'Œuvre"))
+	return String(oeuvre_def(path_id).get("label", "l'Exodium"))
 
 
 static func knows_oree(state: GameState, eid: int) -> bool:
@@ -407,7 +407,7 @@ static func guide_hero(state: GameState, eid: int) -> Dictionary:
 	return best
 
 
-# --- L'Œuvre -----------------------------------------------------------------------------------
+# --- L'Exodium -----------------------------------------------------------------------------------
 
 static func oeuvre(state: GameState, eid: int) -> Dictionary:
 	return sub(state, "oeuvre").get(str(eid), {})
@@ -434,7 +434,7 @@ static func stage_count(path_id: String) -> int:
 	return (oeuvre_def(path_id).get("stages", []) as Array).size()
 
 
-## Système où l'Œuvre s'élèverait (site de la voie) ; -1 si aucun ne convient.
+## Système où l'Exodium s'élèverait (site de la voie) ; -1 si aucun ne convient.
 static func site_for(state: GameState, eid: int, path_id: String, want := -1) -> int:
 	var e := state.get_empire(eid)
 	var cap := FactionTraits.capital_system(state, eid)
@@ -503,7 +503,7 @@ static func start_stage(state: GameState, eid: int, want: int, added: Array[Dict
 	o["until"] = state.tick + int(sd.get("days", 180))
 	sub(state, "oeuvre")[str(eid)] = o
 	if int(o["stage"]) == 0:
-		added.append(state.add_chronicle(String(path_def(pid).get("start", "%s commence son Œuvre.")) % e.display_name(), Espionage.public_to(state, [eid])))
+		added.append(state.add_chronicle(String(path_def(pid).get("start", "%s commence son Exodium.")) % e.display_name(), Espionage.public_to(state, [eid])))
 
 
 ## Étape finie (bilan mensuel) ; la dernière ouvre le Passage.
@@ -590,7 +590,7 @@ static func begin_passage(state: GameState, eid: int, added: Array[Dictionary], 
 		TranscendenceWorld.on_passage(state, eid, added)
 
 
-## Passage brisé (Œuvre perdue, Arche abattue) : tout recule, et l'Avorté peut naître (lot 3).
+## Passage brisé (Exodium perdu, Arche abattue) : tout recule, et l'Avorté peut naître (lot 3).
 static func break_passage(state: GameState, eid: int, why: String, stages_lost: int, added: Array[Dictionary]) -> void:
 	var e := state.get_empire(eid)
 	var pct := passage_pct(state, eid) if in_passage(state, eid) else 0
@@ -706,7 +706,7 @@ static func is_ark(state: GameState, f: Fleet) -> bool:
 	return int(ark(state, f.owner).get("fleet", -1)) == f.id
 
 
-## Système de l'Œuvre d'un empire qui a passé l'alerte (IA : cible de guerre, prop. 40).
+## Système de l'Exodium d'un empire qui a passé l'alerte (IA : cible de guerre, prop. 40).
 static func strike_target(state: GameState, owner: int, sid: int) -> bool:
 	if owner < 0 or oeuvre_sys(state, owner) != sid:
 		return false
@@ -793,7 +793,7 @@ static func complete(state: GameState, eid: int, added: Array[Dictionary]) -> vo
 		TranscendenceWorld.depart(state, l, pid, added)
 
 
-## Avancée vers la victoire « transcendance » (Victory.progress) : jauge 0-49 %, Œuvre 50-74 %,
+## Avancée vers la victoire « transcendance » (Victory.progress) : jauge 0-49 %, Exodium 50-74 %,
 ## Passage 75-99 %, 100 au départ.
 @warning_ignore("integer_division")
 static func victory(state: GameState, e: Empire, out: Dictionary) -> void:
@@ -939,7 +939,7 @@ static func apply(state: GameState, eid: int, act: String, d: Dictionary) -> Arr
 	return added
 
 
-## Bilan mensuel : jauge, étapes de l'Œuvre, Passage, Arche ; puis le monde (lot 2) et les ponts (lot 3).
+## Bilan mensuel : jauge, étapes de l'Exodium, Passage, Arche ; puis le monde (lot 2) et les ponts (lot 3).
 static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 	if not enabled(state):
 		return
