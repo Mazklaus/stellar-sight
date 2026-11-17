@@ -949,6 +949,11 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			var tfx := Transcendence.effects(state, empire_id)
 			_merge(base, tfx)
 			_merge(exalted, tfx)
+		# Contact : dons des Plans, lectures, brouillage (voir Contact).
+		if not state.contact.is_empty():
+			var ctfx := Contact.effects(state, empire_id)
+			_merge(base, ctfx)
+			_merge(exalted, ctfx)
 		e.tech_fx = base
 		e.tech_fx_exalted = exalted
 		e.tech_fx_has_exalted = has_exalted

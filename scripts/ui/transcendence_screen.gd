@@ -7,13 +7,18 @@ extends RefCounted
 const COLOR := Color(0.85, 0.8, 1.0)
 
 
-## Onglets « Victoires | Transcendance » en tête des deux écrans (si la Transcendance est en jeu).
+## Onglets « Victoires | Transcendance | Contact » en tête de ces écrans (selon les piliers en jeu).
 static func tabs(es: EmpireScreens, active: String) -> void:
-	if not Transcendence.enabled(es._state):
+	var list := [["victory", "Victoires"]]
+	if Transcendence.enabled(es._state):
+		list.append(["transcendence", "Transcendance"])
+	if Contact.enabled(es._state):
+		list.append(["contact", "Contact"])
+	if list.size() < 2:
 		return
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
-	for t in [["victory", "Victoires"], ["transcendence", "Transcendance"]]:
+	for t in list:
 		var b := Button.new()
 		b.text = String(t[1])
 		b.toggle_mode = true
@@ -22,6 +27,7 @@ static func tabs(es: EmpireScreens, active: String) -> void:
 		var sid := String(t[0])
 		b.pressed.connect(func() -> void: es.show_screen(sid))
 		es.transcendence_buttons["tab:" + sid] = b
+		es.contact_buttons["tab:" + sid] = b
 		row.add_child(b)
 	es._side_box.add_child(row)
 

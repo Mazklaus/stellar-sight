@@ -89,6 +89,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiGenetics.think(ctx)
 	AiPsionics.think(ctx)
 	AiTranscendence.think(ctx)
+	AiContact.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 

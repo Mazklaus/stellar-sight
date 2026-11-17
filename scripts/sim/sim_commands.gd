@@ -693,6 +693,12 @@ static func tr_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "transcendence", "player": player, "act": act, "d": d}
 
 
+## Contact (voir Contact.check) : "share" (d : v), "intuition", "transmit", "rate" (d : v), "announce",
+## "verify", "plans_raw", "plans_audit", et ceux de la course (ContactRace) et des voix (ContactVoices).
+static func ct_act(player: int, act: String, d := {}) -> Dictionary:
+	return {"type": "contact", "player": player, "act": act, "d": d}
+
+
 ## Furtivité : "pose" (a = flotte, s = posture : "", "silence", "scan", "ambush"), "beacon" (a = flotte).
 static func stealth_act(player: int, act: String, a := -1, b := -1, s := "") -> Dictionary:
 	return {"type": "stealth", "player": player, "act": act, "a": a, "b": b, "s": s}
@@ -913,6 +919,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Psionics.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"transcendence":
 			return Transcendence.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
+		"contact":
+			return Contact.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"stealth":
 			return Stealth.check(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"portal_raze":
@@ -1334,6 +1342,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Psionics.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"transcendence":
 			Transcendence.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
+		"contact":
+			Contact.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"stealth":
 			Stealth.apply(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"portal_raze":

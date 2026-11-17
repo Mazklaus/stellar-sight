@@ -652,6 +652,10 @@ static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet
 		var pw_tr := Transcendence.check_build(state, empire_id, c, building_id)
 		if pw_tr != "":
 			return pw_tr
+	if b.get("contact", false):
+		var pw_ct := Contact.check_build(state, empire_id, c, building_id)
+		if pw_ct != "":
+			return pw_ct
 	var need_terrain: Array = b.get("requires_terrain", [])
 	if not need_terrain.is_empty():
 		var here := Terrain.at(state, p.system_id)

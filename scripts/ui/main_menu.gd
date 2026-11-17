@@ -257,6 +257,12 @@ var transcendence := "complete"
 var _transcendence_select: OptionButton
 var transcendence_outcome := "victoire"
 var _transcendence_outcome_select: OptionButton
+var contact := "complete"
+var _contact_select: OptionButton
+var contact_nature := "hasard"
+var _contact_nature_select: OptionButton
+var contact_outcome := "victoire"
+var _contact_outcome_select: OptionButton
 var portals := "complets"
 var _portals_select: OptionButton
 var hero_death := "normale"
@@ -1772,6 +1778,27 @@ func set_psionics(id: String) -> void:
 		_psionics_select.select(ids.find(psionics))
 
 
+func set_contact(id: String) -> void:
+	var ids := _ids_of(Contact.mode_defs())
+	contact = id if ids.has(id) else Contact.default_mode()
+	if _contact_select:
+		_contact_select.select(ids.find(contact))
+
+
+func set_contact_nature(id: String) -> void:
+	var ids := _ids_of(Contact.nature_mode_defs())
+	contact_nature = id if ids.has(id) else Contact.default_nature_mode()
+	if _contact_nature_select:
+		_contact_nature_select.select(ids.find(contact_nature))
+
+
+func set_contact_outcome(id: String) -> void:
+	var ids := _ids_of(Contact.outcome_defs())
+	contact_outcome = id if ids.has(id) else Contact.default_outcome()
+	if _contact_outcome_select:
+		_contact_outcome_select.select(ids.find(contact_outcome))
+
+
 func set_transcendence(id: String) -> void:
 	var ids := _ids_of(Transcendence.mode_defs())
 	transcendence = id if ids.has(id) else Transcendence.default_mode()
@@ -1944,7 +1971,7 @@ func game_options() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome}
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome}
 
 
 func set_spectator(on: bool) -> void:
@@ -2594,6 +2621,33 @@ func _build_new_page(root: Control) -> void:
 	_transcendence_outcome_select.tooltip_text = "Issue d'un Passage achevé.\n" + "\n".join(tro_tip)
 	_transcendence_outcome_select.item_selected.connect(func(i: int) -> void: set_transcendence_outcome(String(Transcendence.outcome_defs()[i]["id"])))
 	_labeled_row(game, "Issue de la Transcendance", _transcendence_outcome_select)
+	_contact_select = OptionButton.new()
+	_contact_select.clip_text = true
+	var contact_tip := PackedStringArray()
+	for m: Dictionary in Contact.mode_defs():
+		_contact_select.add_item(String(m["label"]))
+		contact_tip.append("%s : %s" % [String(m["label"]), String(m.get("text", ""))])
+	_contact_select.tooltip_text = "Victoire de Contact : un signal venu d'au-delà de la galaxie. La technologie Écoute profonde ouvre l'écoute (Oreilles de la Bordure, Échos fossiles), la Grammaire des étoiles aide à lire ; on déchiffre quatre couches, on bâtit le Héraut et on répond. Tous les Lointains ne sont pas bienveillants.\n" + "\n".join(contact_tip)
+	_contact_select.item_selected.connect(func(i: int) -> void: set_contact(String(Contact.mode_defs()[i]["id"])))
+	_labeled_row(game, "Contact", _contact_select)
+	_contact_nature_select = OptionButton.new()
+	_contact_nature_select.clip_text = true
+	var contact_nature_tip := PackedStringArray()
+	for m: Dictionary in Contact.nature_mode_defs():
+		_contact_nature_select.add_item(String(m["label"]))
+		contact_nature_tip.append("%s : %s" % [String(m["label"]), String(m.get("text", ""))])
+	_contact_nature_select.tooltip_text = "Nature de ceux qui envoient le Signal, tirée en secret à la création.\n" + "\n".join(contact_nature_tip)
+	_contact_nature_select.item_selected.connect(func(i: int) -> void: set_contact_nature(String(Contact.nature_mode_defs()[i]["id"])))
+	_labeled_row(game, "Lointains", _contact_nature_select)
+	_contact_outcome_select = OptionButton.new()
+	_contact_outcome_select.clip_text = true
+	var contact_outcome_tip := PackedStringArray()
+	for m: Dictionary in Contact.outcome_defs():
+		_contact_outcome_select.add_item(String(m["label"]))
+		contact_outcome_tip.append("%s : %s" % [String(m["label"]), String(m.get("text", ""))])
+	_contact_outcome_select.tooltip_text = "Issue d'une réponse réussie.\n" + "\n".join(contact_outcome_tip)
+	_contact_outcome_select.item_selected.connect(func(i: int) -> void: set_contact_outcome(String(Contact.outcome_defs()[i]["id"])))
+	_labeled_row(game, "Issue du Contact", _contact_outcome_select)
 	_portals_select = OptionButton.new()
 	_portals_select.clip_text = true
 	var por_tip := PackedStringArray()
@@ -2651,6 +2705,9 @@ func _build_new_page(root: Control) -> void:
 	set_psionics(psionics)
 	set_transcendence(transcendence)
 	set_transcendence_outcome(transcendence_outcome)
+	set_contact(contact)
+	set_contact_nature(contact_nature)
+	set_contact_outcome(contact_outcome)
 	set_portals(portals)
 	_scaling_check.toggled.connect(set_ai_scaling)
 	game.add_child(_scaling_check)
@@ -3400,7 +3457,7 @@ func settings() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome,
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -3422,7 +3479,7 @@ func default_settings() -> Dictionary:
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
 		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true,
 		"ancients": Ancients.default_mode(), "awakenings": true, "minors": Minors.default_mode(), "culture": Culture.default_mode(), "culture_defect": Culture.default_defect(), "wonders": Wonders.default_mode(),
-		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode(), "portals": Portals.default_mode(), "stealth": Stealth.default_mode(), "genetics": Genetics.default_mode(), "psionics": Psionics.default_mode(), "transcendence": Transcendence.default_mode(), "transcendence_outcome": Transcendence.default_outcome()}
+		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode(), "portals": Portals.default_mode(), "stealth": Stealth.default_mode(), "genetics": Genetics.default_mode(), "psionics": Psionics.default_mode(), "transcendence": Transcendence.default_mode(), "transcendence_outcome": Transcendence.default_outcome(), "contact": Contact.default_mode(), "contact_nature": Contact.default_nature_mode(), "contact_outcome": Contact.default_outcome()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -3531,6 +3588,9 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_psionics(String(d.get("psionics", base["psionics"])))
 	set_transcendence(String(d.get("transcendence", base["transcendence"])))
 	set_transcendence_outcome(String(d.get("transcendence_outcome", base["transcendence_outcome"])))
+	set_contact(String(d.get("contact", base["contact"])))
+	set_contact_nature(String(d.get("contact_nature", base["contact_nature"])))
+	set_contact_outcome(String(d.get("contact_outcome", base["contact_outcome"])))
 	set_portals(String(d.get("portals", base["portals"])))
 	galaxy_settings = GalaxySettings.normalize(d.get("galaxy", {}))
 	if _seed_edit and d.has("seed"):

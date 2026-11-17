@@ -344,6 +344,8 @@ static func context(state: GameState, empire_id: int) -> Dictionary:
 		global.append_array(Psionics.empire_stability_parts(state, empire_id))  # fêlures
 	if not state.transcendence.is_empty():
 		global.append_array(Transcendence.empire_stability_parts(state, empire_id))  # Renoncement, renoncer
+	if not state.contact.is_empty():
+		global.append_array(Contact.empire_stability_parts(state, empire_id))  # Porteuse, Plans bruts, Taiseux
 	# Contre-espionnage : un réseau chez soi tient les meneurs à l'œil.
 	if not state.networks.is_empty() and Espionage.home_cells(state, empire_id) > 0:
 		global.append(["Réseau intérieur (contre-espionnage)", int(src["counter_network"])])
