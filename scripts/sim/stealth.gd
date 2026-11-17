@@ -108,7 +108,7 @@ static func from_dict(state: GameState, d: Dictionary) -> void:
 	if d.is_empty():
 		state.stealth = {}
 		return
-	state.stealth = d.duplicate(true)
+	state.stealth = GameData._to_ints(d.duplicate(true))  # JSON rend des flottants : l'empreinte doit rester la même
 	for k in ["off", "pose", "bc", "codes", "amb", "dk", "st", "seen"]:
 		if not state.stealth.has(k):
 			state.stealth[k] = {}
