@@ -362,6 +362,7 @@ static func cost_pct(state: GameState, eid: int, k: String, sid := -1) -> int:
 		if not sw.is_empty() and int(sw["o"]) == eid and complete(sw):
 			pct -= 100 - int(kind_def(k).get("on_swarm_pct", 60))
 	pct += MegasBridges.cost_pct(state, eid, k)
+	pct += WorldForge.mega_cost_pct(state, k, sid)  # Le Grand Vide : système dépouillé
 	pct += Research.fx_int(state, eid, "mega_cost_pct")  # Métier des Tisserands (archéologie)
 	pct += KardashevWorld.mega_cost_pct(state, eid, k)  # Émulation (Kardashev, prop. 15)
 	return pct
@@ -550,7 +551,7 @@ static func architect_busy(state: GameState, f: Fleet) -> bool:
 	for m in all_sorted(state):
 		if int(m.get("f", -1)) == f.id and int(m["st"]) == 0:
 			return true
-	return sub(state, "plans").has(str(f.id))
+	return sub(state, "plans").has(str(f.id)) or WorldForge.holds_architect(state, f)
 
 
 # --- Ordres ------------------------------------------------------------------------------------

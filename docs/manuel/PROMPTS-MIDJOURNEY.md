@@ -575,6 +575,16 @@ an archaeological excavation cut into a cliff on a dead alien world under a sky 
 a vast chancellery hall with tall windows opening onto a spiral galaxy, an elderly chronicler in long robes rises from his writing desk with his quill set down, dozens of round glowing dispatches float around him in gold red green and blue, a single enormous golden dispatch has unfurled into a banner above the hall and scribes of several alien species all look up at it, in the foreground a young clerk discreetly sweeps a pile of blue dispatches under the rug, solemn ceremony with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
 
+## MJ-58 · La Forge des mondes
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « La Forge des mondes »
+- Sujet : Dans un chantier orbital immense, une planète à moitié construite flotte dans des échafaudages : un hémisphère déjà couvert d'océans et de nuages, l'autre encore une grille de poutres et de plaques ; des nuées de vaisseaux-architectes y déposent des montagnes entières ; à l'arrière-plan, une géante gazeuse est lentement dévidée en un long ruban de gaz, et un monde à moteurs traverse le ciel ; au premier plan, sur une passerelle, un contremaître présente à un client sceptique un catalogue holographique de fjords
+
+```
+an immense orbital shipyard where a half-built planet floats inside colossal scaffolding, one hemisphere already covered with oceans and swirling clouds, the other still a bare lattice of girders and hexagonal plates, swarms of construction ships lowering entire mountain ranges into place, in the background a gas giant slowly unspooled into a long ribbon of glowing gas, a planet fitted with enormous engines crossing the sky, in the foreground on a gantry a foreman presents a holographic catalogue of fjords to a skeptical alien client, awe of creation with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```
+
 ## MJ-59 · Ce que boit une civilisation
 
 - Format : 2:1 · Forme du cadre : coupe

@@ -7,13 +7,18 @@ extends RefCounted
 const COLOR := Color(0.75, 0.88, 1.0)
 
 
-## Onglets « Merveilles | Mégastructures » en tête des deux écrans (si les mégastructures sont en jeu).
+## Onglets « Merveilles | Mégastructures | Forge des mondes » en tête des écrans (selon ce qui est en jeu).
 static func tabs(es: EmpireScreens, active: String) -> void:
-	if not Megastructures.enabled(es._state):
+	var list: Array = [["wonders", "Merveilles"]]
+	if Megastructures.enabled(es._state):
+		list.append(["megas", "Mégastructures"])
+	if WorldForge.enabled(es._state):
+		list.append(["forge", "Forge des mondes"])
+	if list.size() < 2:
 		return
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
-	for t in [["wonders", "Merveilles"], ["megas", "Mégastructures"]]:
+	for t in list:
 		var b := Button.new()
 		b.text = String(t[1])
 		b.toggle_mode = true

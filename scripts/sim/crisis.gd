@@ -829,6 +829,8 @@ static func _drain(state: GameState, sid: int, pop: int, erase: bool, station: S
 		var capital := e != null and e.capital_planet == pid
 		if CrisisAllies.resists_drain(state, col.owner, sid):
 			continue  # ruche sourde au chant du Récif
+		if WorldForgeWorld.shelter(state, pid):
+			continue  # monde-abri des Façonneurs : aucune crise n'y entre
 		if col.population > pop or capital or not erase:
 			col.population = maxi(1, col.population - pop)
 		else:

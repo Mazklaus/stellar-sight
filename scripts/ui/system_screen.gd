@@ -34,6 +34,8 @@ const TYPE_DOT_COLORS := {
 	"arctic": Color(0.85, 0.92, 1.0), "toxic": Color(0.65, 0.75, 0.2), "gas_giant": Color(0.88, 0.72, 0.5),
 	"barren": Color(0.55, 0.53, 0.5), "asteroids": Color(0.6, 0.55, 0.48),
 	"gaia": Color(0.3, 0.8, 0.45), "ecumenopole": Color(0.9, 0.76, 0.42),
+	"noyau": Color(0.9, 0.5, 0.28), "habitat": Color(0.75, 0.8, 0.86), "coquille": Color(0.55, 0.85, 0.95),
+	"creux": Color(0.45, 0.72, 0.88), "reliquaire": Color(0.72, 0.6, 0.95), "abri": Color(0.8, 0.72, 1.0),
 }
 
 var view: SystemView
@@ -646,6 +648,8 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 	if c == null:
 		actions.append(_claim_action(p, Colony.KIND_OUTPOST))
 	var me := _state.get_empire(_player)
+	# Forge des mondes : chantiers planétaires sur ce corps, colonie ou non.
+	actions.append_array(ForgeUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
 	# Portails de saut : l'occupant peut raser le portail du système (sur la planète qui le porte).
 	if c and c.owner != _player and Portals.enabled(_state) and Portals.check_raze(_state, _player, p.system_id) == "" \
 			and Portals._gate_colony(_state, p.system_id) == c:

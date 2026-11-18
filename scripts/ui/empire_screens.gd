@@ -39,6 +39,8 @@ const TYPE_COLORS := {
 	"arctic": Color(0.75, 0.88, 1.0), "toxic": Color(0.65, 0.78, 0.2), "gas_giant": Color(0.88, 0.7, 0.45),
 	"barren": Color(0.6, 0.58, 0.55), "asteroids": Color(0.62, 0.56, 0.48),
 	"gaia": Color(0.3, 0.8, 0.45), "ecumenopole": Color(0.9, 0.76, 0.42),
+	"noyau": Color(0.9, 0.5, 0.28), "habitat": Color(0.75, 0.8, 0.86), "coquille": Color(0.55, 0.85, 0.95),
+	"creux": Color(0.45, 0.72, 0.88), "reliquaire": Color(0.72, 0.6, 0.95), "abri": Color(0.8, 0.72, 1.0),
 }
 
 var current := ""
@@ -172,6 +174,8 @@ var _wonders_sig := ""
 ## Écran Mégastructures (onglet de l'écran Merveilles) : boutons « plan:type », « advance:id », « tab:… » (tests).
 var mega_buttons := {}
 var _megas_sig := ""
+var forge_buttons := {}
+var _forge_sig := ""
 ## Écran L'Échelle (onglet de l'écran Victoires) : boutons « perk:id », « sober », « veil », « relight:s », « tab:… » (tests).
 var kardashev_buttons := {}
 var _kardashev_sig := ""
@@ -293,7 +297,7 @@ func show_screen(screen_id: String) -> void:
 	_filter_tabs.clear()
 	_col_sig = ""
 	_sys_sig = ""
-	var sc := EmpireBar.screen_info({"transcendence": "victory", "contact": "victory", "kardashev": "victory", "megas": "wonders"}.get(screen_id, screen_id))
+	var sc := EmpireBar.screen_info({"transcendence": "victory", "contact": "victory", "kardashev": "victory", "megas": "wonders", "forge": "wonders"}.get(screen_id, screen_id))
 	_tab.text = ("%s     ×" % sc.get("label", screen_id)).to_upper()
 	match screen_id:
 		"economy":
@@ -348,6 +352,10 @@ func show_screen(screen_id: String) -> void:
 		"megas":
 			mega_buttons.clear()
 			MegasUi.build(self)
+		"forge":
+			mega_buttons.clear()
+			forge_buttons.clear()
+			ForgeUi.build(self)
 		"kardashev":
 			kardashev_buttons.clear()
 			KardashevScreen.build(self)
@@ -422,6 +430,9 @@ func refresh() -> void:
 		"megas":
 			if MegasUi.signature(self) != _megas_sig:
 				show_screen("megas")
+		"forge":
+			if ForgeUi.signature(self) != _forge_sig:
+				show_screen("forge")
 		"kardashev":
 			if KardashevScreen.signature(self) != _kardashev_sig:
 				show_screen("kardashev")

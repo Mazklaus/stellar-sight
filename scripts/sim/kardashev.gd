@@ -284,25 +284,9 @@ static func mega_power(state: GameState, eid: int) -> int:
 	return total
 
 
-## Mondes forgés ou démantelés (pilier des planètes artificielles, s'il est dans le jeu : la classe
-## WorldForge expose kardashev_count, 0 quand l'option est coupée). Résolu une fois par lancement.
-static var _wf: Variant = null
-static var _wf_done := false
-
-
+## Mondes forgés ou démantelés (pilier de la Forge des mondes ; 0 quand l'option est coupée).
 static func worldforge_count(state: GameState, eid: int) -> int:
-	if not _wf_done:
-		_wf_done = true
-		var path := "res://scripts/sim/worldforge.gd"
-		if ResourceLoader.exists(path):
-			var scr := load(path) as Script
-			if scr != null:
-				for m: Dictionary in scr.get_script_method_list():
-					if String(m.get("name", "")) == "kardashev_count":
-						_wf = scr
-	if _wf == null:
-		return 0
-	return int(_wf.call("kardashev_count", state, eid))
+	return WorldForge.kardashev_count(state, eid)
 
 
 ## Puissance captée (prop. 2), détaillée : {"colonies", "megas", "worlds", "sober_pct", "total"}.

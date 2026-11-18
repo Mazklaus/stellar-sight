@@ -47,6 +47,19 @@ const PLANET_LOOKS := {
 	"ecumenopole": {"c_deep": Color(0.16, 0.15, 0.17), "c_shallow": Color(0.3, 0.28, 0.3), "c_low": Color(0.46, 0.42, 0.36),
 		"c_high": Color(0.9, 0.76, 0.42), "atmo": Color(1.0, 0.82, 0.5), "atmo_strength": 0.45, "sea_level": -1.0,
 		"clouds": 0.15, "relief_scale": 6.0},
+	# Forge des mondes (prop. 40) : un dessin par monde façonné.
+	"noyau": {"mode": 2, "c_deep": Color(0.22, 0.14, 0.12), "c_shallow": Color(0.62, 0.36, 0.22), "c_low": Color(0.14, 0.1, 0.1),
+		"c_high": Color(0.95, 0.62, 0.3), "atmo": Color(1.0, 0.55, 0.3), "atmo_strength": 0.2, "relief_scale": 5.0},
+	"habitat": {"c_deep": Color(0.2, 0.22, 0.26), "c_shallow": Color(0.45, 0.5, 0.56), "c_low": Color(0.3, 0.55, 0.3),
+		"c_high": Color(0.82, 0.86, 0.9), "atmo": Color(0.7, 0.9, 1.0), "atmo_strength": 0.3, "sea_level": 0.3, "clouds": 0.2, "relief_scale": 7.0},
+	"coquille": {"c_deep": Color(0.12, 0.2, 0.3), "c_shallow": Color(0.3, 0.45, 0.55), "c_low": Color(0.42, 0.5, 0.32),
+		"c_high": Color(0.7, 0.66, 0.55), "atmo": Color(0.65, 0.95, 1.0), "atmo_strength": 0.85, "sea_level": 0.4, "clouds": 0.45},
+	"creux": {"c_deep": Color(0.08, 0.14, 0.22), "c_shallow": Color(0.26, 0.38, 0.46), "c_low": Color(0.32, 0.42, 0.26),
+		"c_high": Color(0.6, 0.56, 0.48), "atmo": Color(0.55, 0.85, 1.0), "atmo_strength": 0.9, "sea_level": 0.42, "clouds": 0.35, "relief_scale": 2.5},
+	"reliquaire": {"mode": 2, "c_deep": Color(0.12, 0.1, 0.16), "c_shallow": Color(0.36, 0.3, 0.46), "c_low": Color(0.08, 0.07, 0.1),
+		"c_high": Color(0.78, 0.7, 0.95), "atmo": Color(0.75, 0.6, 1.0), "atmo_strength": 0.35, "relief_scale": 8.0},
+	"abri": {"c_deep": Color(0.1, 0.12, 0.2), "c_shallow": Color(0.3, 0.32, 0.5), "c_low": Color(0.36, 0.5, 0.36),
+		"c_high": Color(0.8, 0.74, 0.95), "atmo": Color(0.8, 0.7, 1.0), "atmo_strength": 0.6, "sea_level": 0.35, "clouds": 0.3},
 }
 ## Variantes de couleurs des géantes gazeuses (choisies d'après la planète).
 const GAS_PALETTES := [

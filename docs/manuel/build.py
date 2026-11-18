@@ -436,6 +436,8 @@ def talents_du_peuple(f):
     ajoute("Mégastructures", [mg] if isinstance(mg, dict) else [])
     ct = charger("contact.json").get("talents", {}).get(f["id"])
     ajoute("Contact", [ct] if isinstance(ct, dict) else [])
+    wf = charger("worldforge.json").get("talents", {}).get(f["id"])
+    ajoute("Forge des mondes", [wf] if isinstance(wf, dict) else [])
     cu = charger("culture.json").get("talents", {})
     peuple = cu.get("peoples", {}).get(f["id"])
     ajoute("Rayonnement", _par_couche(c, {k: v for k, v in cu.items() if k != "peoples"}) + ([peuple] if isinstance(peuple, dict) else []))
@@ -1526,6 +1528,48 @@ def gen_ar_talents():
     return f"<table class='grille'><tr><th>Peuple</th><th>Talent</th></tr>{l1}</table>"
 
 
+def gen_wf_modes():
+    """Réglages Forge des mondes et mondes-reliquaires (data/worldforge.json)."""
+    d = charger("worldforge.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    l2 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_ancients') else ''}</td><td>{'aucun' if not m.get('per') else 'un pour %d systèmes environ' % m['per']}</td></tr>" for m in d["ancient_opts"])
+    return f"<table class='grille'><tr><th>Forge des mondes</th><th>Effet</th></tr>{l1}</table><table class='grille'><tr><th>Mondes-reliquaires</th><th>Combien</th></tr>{l2}</table>"
+
+
+def gen_wf_ops():
+    """Les chantiers planétaires (data/worldforge.json « ops »)."""
+    d = charger("worldforge.json")
+    techs = {k: v.get("label", k) for k, v in charger("technologies.json")["technologies"].items()}
+    noms = {"materials": "matériaux", "energy": "énergie", "influence": "influence"}
+    l1 = ""
+    for k, v in d["ops"].items():
+        cout = ", ".join(f"{n} {noms.get(r, r)}" for r, n in v.get("cost", {}).items())
+        if v.get("mass"):
+            cout += f", {v['mass']} Masse"
+        if "days_base" in v:
+            duree = f"{v['days_base'] + v['days_per_size']} à {v['days_base'] + 5 * v['days_per_size']} jours"
+        else:
+            duree = f"{v.get('days', 0)} jours"
+        tech = " + ".join(techs.get(t, t) for t in v.get("tech", []))
+        l1 += f"<tr><td><b>{esc(v['label'])}</b><br><i>{esc(tech)}</i></td><td>{esc(cout)}<br>{esc(duree)}</td><td>{inline(v.get('text', ''))}</td></tr>"
+    return f"<table class='grille'><tr><th>Chantier</th><th>Coût et durée</th><th>Ce qu'il fait</th></tr>{l1}</table>"
+
+
+def gen_wf_instant():
+    """Les ordres immédiats (data/worldforge.json « instant »)."""
+    d = charger("worldforge.json")
+    l1 = "".join(f"<tr><td><b>{esc(v['label'])}</b></td><td>{inline(v.get('text', ''))}</td></tr>" for k, v in d["instant"].items() if not k.startswith("_"))
+    return f"<table class='grille'><tr><th>Ordre</th><th>Effet</th></tr>{l1}</table>"
+
+
+def gen_wf_talents():
+    """Talents des peuples (data/worldforge.json « talents »)."""
+    d = charger("worldforge.json")
+    noms = {f["id"]: f.get("name", f["id"]) for f in charger("factions.json")}
+    l1 = "".join(f"<tr><td>{esc(noms.get(k, k))}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>" for k, v in d["talents"].items() if not k.startswith("_"))
+    return f"<table class='grille'><tr><th>Peuple</th><th>Talent</th></tr>{l1}</table>"
+
+
 def gen_an_familles():
     """Les dix familles d'annonces et leurs types (data/announcements.json)."""
     d = charger("announcements.json")
@@ -1624,7 +1668,7 @@ GENERATEURS = {
     "mg_modes": gen_mg_modes, "mg_catalogue": gen_mg_catalogue, "mg_talents": gen_mg_talents,
     "an_familles": gen_an_familles, "an_presets": gen_an_presets,
     "kd_modes": gen_kd_modes, "kd_echelle": gen_kd_echelle, "kd_capture": gen_kd_capture, "kd_prerogatives": gen_kd_prerogatives,
-    "ar_modes": gen_ar_modes, "ar_types": gen_ar_types, "ar_actions": gen_ar_actions, "ar_disparus": gen_ar_disparus, "ar_talents": gen_ar_talents,
+    "ar_modes": gen_ar_modes, "ar_types": gen_ar_types, "ar_actions": gen_ar_actions, "ar_disparus": gen_ar_disparus, "ar_talents": gen_ar_talents, "wf_modes": gen_wf_modes, "wf_ops": gen_wf_ops, "wf_instant": gen_wf_instant, "wf_talents": gen_wf_talents,
     "ct_modes": gen_ct_modes, "ct_couches": gen_ct_couches, "ct_natures": gen_ct_natures, "ct_talents": gen_ct_talents,
     "tr_modes": gen_tr_modes, "tr_voies": gen_tr_voies, "tr_oeuvres": gen_tr_oeuvres, "tr_talents": gen_tr_talents,
     "portail_modes": gen_portail_modes, "portail_batiments": gen_portail_batiments, "portail_talents": gen_portail_talents,

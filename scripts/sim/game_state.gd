@@ -205,6 +205,7 @@ var genetics: Dictionary = {}  # ingénierie des espèces (voir Genetics) ; {} =
 var psionics: Dictionary = {}  # pouvoirs psioniques (voir Psionics) ; {} = désactivés
 var transcendence: Dictionary = {}  # la Transcendance (voir Transcendence) ; {} = désactivée
 var megas: Dictionary = {}  # les mégastructures (voir Megastructures) ; {} = désactivées
+var forge: Dictionary = {}  # la Forge des mondes (voir WorldForge) ; {} = désactivée
 ## Annonces typées (voir Announce) : registre et méta (prochain identifiant, premières de la galaxie).
 var announces: Array[Dictionary] = []
 var announce_meta: Dictionary = {}
@@ -355,6 +356,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Megastructures.setup(s, String(options.get("megastructures", "desactivees")), String(options.get("mega_ruins", "")))
 	Contact.setup(s, String(options.get("contact", "desactive")), String(options.get("contact_nature", "")), String(options.get("contact_outcome", "")))
 	Archaeology.setup(s, String(options.get("archaeology", "classique")))
+	WorldForge.setup(s, String(options.get("worldforge", "desactivee")), String(options.get("forge_ancients", "")))
 	Kardashev.setup(s, String(options.get("kardashev", "desactivee")), String(options.get("kardashev_pace", "")))
 	FleetSystem.update_exploration(s)
 	return s
@@ -537,6 +539,8 @@ func to_dict() -> Dictionary:
 		d["megas"] = Megastructures.to_dict(self)
 	if Archaeology.worth_saving(self):
 		d["archaeo"] = Archaeology.to_dict(self)
+	if WorldForge.worth_saving(self):
+		d["forge"] = WorldForge.to_dict(self)
 	if Kardashev.worth_saving(self):
 		d["kardashev"] = Kardashev.to_dict(self)
 	if Announce.worth_saving(self):
@@ -631,6 +635,8 @@ static func from_dict(d: Dictionary) -> GameState:
 				who.append(int(x))
 			entry["who"] = who
 		s.chronicle.append(entry)
+	# Forge des mondes : corps ajoutés, déplacés ou démantelés, avant les modifications de planètes.
+	WorldForge.restore_bodies(s.galaxy, d.get("forge", {}))
 	for o: Dictionary in d["planet_overrides"]:
 		var fields := o.duplicate(true)
 		fields.erase("planet")
@@ -806,6 +812,7 @@ static func from_dict(d: Dictionary) -> GameState:
 			Intel.seed_from_truth(s, e)
 	Megastructures.from_dict(s, d.get("megas", {}))
 	Archaeology.from_dict(s, d.get("archaeo", {}))
+	WorldForge.from_dict(s, d.get("forge", {}))
 	Announce.from_dict(s, d.get("announces", {}))
 	# Sauvegardes d'avant les mégastructures : Dyson, Nexus et Monde-anneau quittent les merveilles.
 	if int(d["version"]) < 88 and not d.has("megas"):

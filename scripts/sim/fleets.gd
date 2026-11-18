@@ -776,7 +776,7 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 		return "votre peuple ne construit pas de %s" % String(sd["plural"]).to_lower()
 	if not ship_unlocked(state, empire_id, ship_id):
 		return "technologie requise : %s" % Research.missing_text(state, empire_id, sd.get("requires_tech", []))
-	if bool(sd.get("architect", false)) and not Megastructures.enabled(state):
+	if bool(sd.get("architect", false)) and not Megastructures.enabled(state) and not WorldForge.enabled(state):
 		return "les mégastructures ne sont pas en jeu dans cette partie"
 	var req: Dictionary = sd.get("requires", {})
 	var need := String(req.get("building", ""))

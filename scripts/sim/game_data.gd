@@ -224,6 +224,11 @@ static func megastructures() -> Dictionary:
 	return _load("megastructures")
 
 
+## La Forge des mondes (data/worldforge.json) : réglages, règles, mondes façonnés, chantiers, talents.
+static func worldforge() -> Dictionary:
+	return _load("worldforge")
+
+
 ## Échelle de Kardashev (data/kardashev.json).
 static func kardashev() -> Dictionary:
 	return _load("kardashev")

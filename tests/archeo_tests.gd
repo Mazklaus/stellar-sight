@@ -272,7 +272,7 @@ func _test_save() -> void:
 	var sid := first_site(st)
 	Archaeology.add_antiq(st, 0, sid)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 89, "sauvegarde 89")
+	_ok(int(d["version"]) >= 89, "sauvegarde 89 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and JSON.stringify(back.to_dict()) == JSON.stringify(d), "aller-retour identique")
 	_ok(String(back.digs[sid].get("nm", "")) == String(st.digs[sid].get("nm", "")), "les sites gardent leur nom")

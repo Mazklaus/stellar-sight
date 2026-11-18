@@ -700,6 +700,12 @@ static func mega_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "megastructures", "player": player, "act": act, "d": d}
 
 
+## Forge des mondes (voir WorldForge.check) : "start" / "plan" (op, s, p, a), "cancel" (id), "melt" (n),
+## "unplan" (f), "move" (p, t), "rosette" (s), "ram" (p, t), "order" (seller, s, a).
+static func forge_act(player: int, act: String, d := {}) -> Dictionary:
+	return {"type": "worldforge", "player": player, "act": act, "d": d}
+
+
 ## Contact (voir Contact.check) : "share" (d : v), "intuition", "transmit", "rate" (d : v), "announce",
 ## "verify", "plans_raw", "plans_audit", et ceux de la course (ContactRace) et des voix (ContactVoices).
 static func ct_act(player: int, act: String, d := {}) -> Dictionary:
@@ -937,6 +943,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Psionics.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"megastructures":
 			return Megastructures.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
+		"worldforge":
+			return WorldForge.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"transcendence":
 			return Transcendence.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"archaeology":
@@ -1371,6 +1379,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Transcendence.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"megastructures":
 			Megastructures.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
+		"worldforge":
+			WorldForge.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"archaeology":
 			Archaeology.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"kardashev":

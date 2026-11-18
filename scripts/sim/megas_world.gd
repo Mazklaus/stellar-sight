@@ -290,7 +290,8 @@ static func fire(state: GameState, eid: int, id: int, pid: int, added: Array[Dic
 	var nm := p.display_name(state.galaxy)
 	var c: Colony = state.colonies.get(pid)
 	var victim := c.owner if c != null else -1
-	if c != null:
+	WorldForge.on_world_broken(state, eid, pid, added)  # monde creux, débris, Masse (Forge des mondes)
+	if c != null and state.colonies.has(pid):
 		state.colonies.erase(pid)
 		state.rebuild_ownership()
 	# Ce qui était bâti sur la planète disparaît avec elle.
