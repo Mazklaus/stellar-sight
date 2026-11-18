@@ -376,6 +376,10 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	if not state.megas.is_empty():
 		for pp in MegasBridges.opinion_parts(state, a, b):
 			_part(out, String(pp[0]), int(pp[1]))
+	# Écologie : la Préservation se méfie de l'Extraction (voir EcologyBridges).
+	if not state.ecology.is_empty():
+		for pp in EcologyBridges.opinion_parts(state, a, b):
+			_part(out, String(pp[0]), int(pp[1]))
 	# Contact : l'Écho, les lectures menaçantes, la Langue universelle (voir ContactRace).
 	if not state.contact.is_empty():
 		for pp in ContactRace.opinion_parts(state, a, b):

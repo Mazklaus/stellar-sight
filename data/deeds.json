@@ -1162,6 +1162,8 @@
 		"prise_titan": {"label": "Prise d'un titan", "family": "guerre", "sort": "first", "k": "cap_titan", "n": 1, "text": "Prendre une méga-coque à l'abordage ou par reddition (prises de guerre complètes).", "flavor": "Le nouveau propriétaire a fait repeindre la coque. Il a fallu quatre cents litres et un discours."},
 		"flotte_prises": {"label": "Flotte de prises", "family": "guerre", "sort": "first", "k": "cap_fleet", "n": 10, "text": "Avoir 10 prises en service en même temps (prises de guerre complètes).", "flavor": "Aucun vaisseau de cette flotte n'a été construit par nous. Tous ont été payés, d'une façon ou d'une autre."},
 		"ferrailleur": {"label": "Ferrailleur", "family": "economie", "sort": "first", "k": "cap_scrap", "n": 50, "text": "Récolter 50 épaves (champs d'épaves, cimetières, politique Ferrailler).", "flavor": "Un vaisseau perdu, c'est triste. Cinquante, c'est un stock."},
+		"jardinier_kynes": {"label": "Le Jardinier de Kynes", "family": "expansion", "sort": "first", "k": "eco_regreen", "n": 1, "text": "Faire reverdir un monde : désert, banquise ou monde toxique florissant pendant cinq ans (écologie Complète).", "flavor": "Il a fallu cinq ans, trois réserves et un ministre qui arrosait lui-même. Le désert a cédé le premier."},
+		"terre_brulee": {"label": "Terre brûlée", "family": "guerre", "sort": "infamous", "k": "eco_shift", "n": 3, "text": "Faire basculer le climat de trois de ses mondes (écologie Complète).", "flavor": "« Le ciel était bleu, autrefois », dit le guide. Personne ne le croit."},
 		"au_bord_abime": {
 			"label": "Au bord de l'abîme",
 			"family": "expansion",

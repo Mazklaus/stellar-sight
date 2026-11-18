@@ -325,6 +325,9 @@ static func _systems(state: GameState, empire_id: int, mode: String) -> Array[in
 					out.append(own[0])
 		# Terrain galactique (data/terrain.json) : un de ses systèmes dans une nébuleuse, sous une
 		# tempête, ou près d'un astre dangereux (trou noir, étoile à neutrons, géante bleue).
+		# Écologie : un système qui porte un de ses mondes vivants (événements écologiques).
+		"living_world":
+			out = EcologyBridges.event_systems(state, empire_id)
 		"nebula", "storm", "star_hazard":
 			for sid in own:
 				var here := Terrain.at(state, sid)
@@ -652,6 +655,9 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				var lwl := LivingWorlds.event_line(state, empire_id, item, String(fx.get("act", "")))
 				if lwl != "":
 					out.append(lwl)
+			"eco":
+				if Ecology.enabled(state) and not EcologyBridges.event_worlds(state, empire_id, int(item.get("system", -1))).is_empty():
+					out.append("Biosphère %+d à %s" % [int(fx["v"]), _sys_name(state, int(item.get("system", -1)))])
 			"res":
 				var amounts := {}
 				for r in fx["res"]:
@@ -778,6 +784,9 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 			"lw":
 				# Mondes vivants : demandes, éveil, visiteurs (voir LivingWorlds.event_act).
 				LivingWorlds.event_act(state, empire_id, item, String(fx.get("act", "")), added)
+			"eco":
+				# Écologie : la biosphère des mondes vivants du système (voir EcologyBridges).
+				EcologyBridges.event_fx(state, empire_id, int(item.get("system", -1)), int(fx["v"]))
 			"res":
 				for r in fx["res"]:
 					e.resources[r] = maxi(0, int(e.resources.get(r, 0)) + era_scaled(state, empire_id, int(fx["res"][r])))

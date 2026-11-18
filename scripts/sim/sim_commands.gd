@@ -725,7 +725,7 @@ static func cap_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "capture", "player": player, "act": act, "d": d}
 
 
-## Écologie (voir Ecology.check) : "doctrine" (id).
+## Écologie (voir Ecology.check) : "doctrine" (id), "factory" (pid), "scorch" (pid).
 static func eco_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "ecology", "player": player, "act": act, "d": d}
 

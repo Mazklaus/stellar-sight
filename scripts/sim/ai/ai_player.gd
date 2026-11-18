@@ -94,6 +94,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiLiving.think(ctx)
 	KardashevWorld.ai(ctx)
 	Ecology.ai(ctx)  # doctrine environnementale selon le tempérament
+	EcologyBridges.ai(ctx)  # monde-usine sur un monde effondré
 	AiArchaeo.think(ctx)
 	AiContact.think(ctx)
 	AiCapture.think(ctx)

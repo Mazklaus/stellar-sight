@@ -20,8 +20,12 @@ extends RefCounted
 ## État : state.ecology = {"mode", "bio": {pid: valeur}, "low": {pid: mois Effondrée},
 ##  "high": {pid: mois Florissante}, "warn": {pid: 1}, "doc": {eid: doctrine}, "doc_at": {eid: jour}}.
 ## API pour les autres piliers (Mondes vivants) : Ecology.health(state, pid) -> 0-100, ou -1 sans biosphère.
+##
+## Extensions (props. 15 à 30, validées le 2026-11-18) : EcologyBridges (catastrophes, centrales
+## allégées, démantèlement, réfugiés, Tolérance, foi, Amphictyonie, sabotage, siège et terre brûlée,
+## Monde-usine, hauts faits, événements, biosphères remarquables, opinion, décor).
 
-const SUBS := ["bio", "low", "high", "warn", "doc", "doc_at"]
+const SUBS := ["bio", "low", "high", "warn", "doc", "doc_at", "cat", "factory", "sabot", "rem", "flee", "anger", "stat"]
 
 
 static func data() -> Dictionary:
@@ -52,6 +56,7 @@ static func setup(state: GameState, mode_id: String) -> void:
 	state.ecology = {"mode": mode_id}
 	for k in SUBS:
 		state.ecology[k] = {}
+	EcologyBridges.pick_remarkable(state)  # prop. 28
 
 
 static func enabled(state: GameState) -> bool:
@@ -108,11 +113,16 @@ static func has_biosphere(state: GameState, pid: int) -> bool:
 	if not enabled(state) or pid < 0:
 		return false
 	var p := state.galaxy.get_planet(pid)
-	return p != null and living_type(p.type)
+	return p != null and living_type(p.type) and not EcologyBridges.is_factory(state, pid)
 
 
 static func vitality(planet_type: String) -> int:
 	return int(type_def(planet_type).get("vitality", 0))
+
+
+## Vitalité d'un monde : celle de son type, plus une biosphère remarquable (prop. 28).
+static func planet_vitality(state: GameState, pid: int) -> int:
+	return mini(100, vitality(state.galaxy.get_planet(pid).type) + EcologyBridges.vitality_bonus(state, pid))
 
 
 ## Santé de la biosphère (0-100), ou -1 si le monde n'en a pas (ou si l'écologie est coupée).
@@ -123,7 +133,7 @@ static func health(state: GameState, pid: int) -> int:
 	var b := sub(state, "bio")
 	if b.has(k):
 		return int(b[k])
-	return vitality(state.galaxy.get_planet(pid).type)
+	return planet_vitality(state, pid)
 
 
 static func _set_health(state: GameState, pid: int, v: int) -> void:
@@ -168,7 +178,10 @@ static func doctrine_def(id: String) -> Dictionary:
 static func doctrine(state: GameState, eid: int) -> String:
 	if not enabled(state):
 		return ""
-	return String(sub(state, "doc").get(str(eid), data().get("default_doctrine", "equilibre")))
+	var d := String(sub(state, "doc").get(str(eid), data().get("default_doctrine", "equilibre")))
+	if d == "extraction" and EcologyBridges.extraction_banned(state, eid):
+		return String(data().get("default_doctrine", "equilibre"))  # Convention des biosphères (prop. 21)
+	return d
 
 
 ## Multiplicateur de l'empreinte (en %) : technologies et doctrine de l'empire.
@@ -179,6 +192,7 @@ static func footprint_pct(state: GameState, eid: int) -> int:
 
 
 ## Empreinte brute d'une planète, poste par poste : [[libellé, points]], avant le multiplicateur.
+@warning_ignore("integer_division")
 static func footprint_parts(state: GameState, pid: int) -> Array:
 	var out: Array = []
 	var c: Colony = state.colonies.get(pid)
@@ -194,12 +208,20 @@ static func footprint_parts(state: GameState, pid: int) -> Array:
 	for b in keys:
 		var n := int(counts[b])
 		var label := String(GameData.building(b).get("label", b))
-		out.append([label if n == 1 else "%s ×%d" % [label, n], int(fp[b]) * n])
+		var pts := int(fp[b]) * n
+		var pp := EcologyBridges.plant_pct(state, c.owner, b)  # mégastructures énergétiques (prop. 16)
+		if pp != 100:
+			pts = pts * pp / 100
+		label = label if n == 1 else "%s ×%d" % [label, n]
+		if pp != 100:
+			label += " (allégée par vos mégastructures)"
+		out.append([label, pts])
 	if c.is_colony():
 		var p := state.galaxy.get_planet(pid)
 		var over := c.population - rule("pop_free_per_size", 3) * p.size
 		if over > 0:
 			out.append(["Population au-delà de %d" % (rule("pop_free_per_size", 3) * p.size), over])
+	out.append_array(EcologyBridges.extra_parts(state, pid))  # sabotage écologique (prop. 22)
 	return out
 
 
@@ -209,6 +231,7 @@ static func footprint(state: GameState, pid: int) -> int:
 	for part: Array in footprint_parts(state, pid):
 		raw += int(part[1])
 	var c: Colony = state.colonies.get(pid)
+	raw = raw * EcologyBridges.world_pct(state, pid) / 100  # biosphère remarquable (prop. 28)
 	return raw * (footprint_pct(state, c.owner) if c != null else 100) / 100
 
 
@@ -230,9 +253,8 @@ static func care(state: GameState, pid: int) -> int:
 ## Équilibre vers lequel glisse la biosphère (0-100).
 @warning_ignore("integer_division")
 static func equilibrium(state: GameState, pid: int) -> int:
-	var p := state.galaxy.get_planet(pid)
 	var excess := maxi(0, footprint(state, pid) - absorption(state, pid))
-	return clampi(vitality(p.type) + care(state, pid) - excess * rule("excess_pct", 150) / 100, 0, 100)
+	return clampi(planet_vitality(state, pid) + care(state, pid) - excess * rule("excess_pct", 150) / 100, 0, 100)
 
 
 ## Flèche de tendance : 1 monte, -1 descend, 0 stable.
@@ -257,6 +279,8 @@ static func adjust_yields(state: GameState, c: Colony, gross: Dictionary) -> voi
 	var t := tier(state, c.planet_id)
 	if not t.is_empty() and c.is_colony():
 		var fp := int(t.get("food_pct", 0))
+		if fp < 0 and EcologyBridges.tolerant(state, c.owner):
+			fp = 0  # trait Tolérance (prop. 19)
 		if fp != 0 and int(gross.get("food", 0)) > 0:
 			gross["food"] = int(gross["food"]) * (100 + fp) / 100
 	var yp := int(doctrine_def(doctrine(state, c.owner)).get("yield_pct", 0))
@@ -264,6 +288,7 @@ static func adjust_yields(state: GameState, c: Colony, gross: Dictionary) -> voi
 		for r in ["materials", "energy"]:
 			if int(gross.get(r, 0)) > 0:
 				gross[r] = int(gross[r]) * (100 + yp) / 100
+	EcologyBridges.adjust_yields(state, c, gross)  # catastrophe, monde-usine, biosphère remarquable
 
 
 ## Croissance (points de %) : Dégradée ralentit.
@@ -282,6 +307,7 @@ static func growth_blocked(state: GameState, pid: int) -> bool:
 static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 	if not enabled(state):
 		return []
+	var extra := EcologyBridges.stability_parts(state, sid, owner)  # monde-usine, Sacralité du vivant
 	var worst := 0
 	var name := ""
 	var label := ""
@@ -303,10 +329,10 @@ static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 			best = s
 			best_name = state.galaxy.get_planet(pid).display_name(state.galaxy)
 	if worst < 0:
-		return [["Biosphère %s (%s)" % [label.to_lower(), name], worst]]
+		return [["Biosphère %s (%s)" % [label.to_lower(), name], worst]] + extra
 	if best > 0:
-		return [["Biosphère florissante (%s)" % best_name, best]]
-	return []
+		return [["Biosphère florissante (%s)" % best_name, best]] + extra
+	return extra
 
 
 # --- Le mois -----------------------------------------------------------------------------------
@@ -328,7 +354,7 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 			_forget(state, pid)
 			continue
 		var v := int(bio[k])
-		var vt := vitality(p.type)
+		var vt := planet_vitality(state, pid)
 		v = mini(vt, v + drift) if v < vt else maxi(vt, v - drift)
 		if v == vt:
 			_forget(state, pid)
@@ -342,8 +368,10 @@ static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 		var eq := equilibrium(state, pid)
 		v = mini(eq, v + drift) if v < eq else maxi(eq, v - drift)
 		_set_health(state, pid, v)
+		EcologyBridges.colony_monthly(state, c, added)  # siège, catastrophes, réfugiés
 		if full(state):
-			_climate(state, c, v, added)
+			_climate(state, c, health(state, pid), added)
+	EcologyBridges.empire_monthly(state)  # Convention des biosphères
 
 
 static func _forget(state: GameState, pid: int) -> void:
@@ -374,6 +402,7 @@ static func _climate(state: GameState, c: Colony, v: int, added: Array[Dictionar
 		if int(low[k]) >= rule("shift_months", 24):
 			var before := p.type_label()
 			_change_type(state, pid, String(shift[p.type]))
+			EcologyBridges.on_shift(state, c.owner)
 			low.erase(k)
 			sub(state, "warn").erase(k)
 			Announce.next(state, "eco_shift", {"actor": c.owner, "system": p.system_id})
@@ -387,6 +416,7 @@ static func _climate(state: GameState, c: Colony, v: int, added: Array[Dictionar
 		if int(high[k]) >= rule("regreen_months", 60):
 			var before := p.type_label()
 			_change_type(state, pid, String(regreen[p.type]))
+			EcologyBridges.on_regreen(state, c.owner)
 			high.erase(k)
 			Announce.next(state, "eco_regreen", {"actor": c.owner, "system": p.system_id})
 			added.append(state.add_chronicle("%s : %s a reverdi. Cinq ans de soins, et le monde %s est devenu %s. Kynes aurait souri, brièvement." % [
@@ -445,10 +475,16 @@ static func check(state: GameState, eid: int, act: String, d: Dictionary) -> Str
 				return "doctrine inconnue"
 			if id == doctrine(state, eid) and sub(state, "doc").has(str(eid)):
 				return "c'est déjà votre doctrine"
+			if id == "extraction" and EcologyBridges.extraction_banned(state, eid):
+				return "interdit par la Convention des biosphères (Amphictyonie)"
 			var left := doctrine_wait(state, eid)
 			if left > 0:
 				return "encore %d jours avant de pouvoir en changer" % left
 			return ""
+		"factory":
+			return EcologyBridges.check_factory(state, eid, int(d.get("pid", -1)))
+		"scorch":
+			return EcologyBridges.check_scorch(state, eid, int(d.get("pid", -1)))
 	return "action inconnue"
 
 
@@ -469,6 +505,10 @@ static func apply(state: GameState, eid: int, act: String, d: Dictionary) -> voi
 			sub(state, "doc_at")[str(eid)] = state.tick
 			var e := state.get_empire(eid)
 			state.add_chronicle("%s adopte la doctrine environnementale « %s »." % [e.display_name(), String(doctrine_def(id)["label"])], Espionage.public_to(state, [eid]))
+		"factory":
+			EcologyBridges.make_factory(state, eid, int(d["pid"]))
+		"scorch":
+			EcologyBridges.scorch(state, eid, int(d["pid"]))
 
 
 # --- Affichage ---------------------------------------------------------------------------------
@@ -493,7 +533,7 @@ static func tooltip(state: GameState, pid: int) -> String:
 	var c: Colony = state.colonies.get(pid)
 	var lines := PackedStringArray()
 	lines.append(line(state, pid))
-	lines.append("Vitalité du monde %s : +%d" % [p.type_label().to_lower(), vitality(p.type)])
+	lines.append("Vitalité du monde %s : +%d" % [p.type_label().to_lower(), planet_vitality(state, pid)])
 	var cr := care(state, pid)
 	if cr > 0:
 		lines.append("Soins (réserves) : +%d" % cr)
@@ -525,6 +565,7 @@ static func tooltip(state: GameState, pid: int) -> String:
 			lines.append("Effondrée depuis %d mois : basculement à %d." % [int(sub(state, "low")[k]), rule("shift_months", 24)])
 		if sub(state, "high").has(k) and data().get("regreen", {}).has(p.type):
 			lines.append("Florissante depuis %d mois : reverdissement à %d." % [int(sub(state, "high")[k]), rule("regreen_months", 60)])
+	lines.append_array(EcologyBridges.tooltip_lines(state, pid))
 	return "\n".join(lines)
 
 

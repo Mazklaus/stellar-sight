@@ -282,6 +282,8 @@ static func family_available(state: GameState, fid: String) -> bool:
 			return Archaeology.full(state)
 		"forge":
 			return WorldForge.dismantle_on(state)
+		"ecology":
+			return Ecology.enabled(state)
 	return true
 
 

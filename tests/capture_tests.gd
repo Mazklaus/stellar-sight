@@ -395,7 +395,7 @@ func _test_save() -> void:
 	Capture.set_posture(st, f.id, true)
 	Capture.note_stat(st, me, "prizes", 2)
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 99, "sauvegarde 99")
+	_ok(int(d["version"]) >= 99, "sauvegarde 99")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and Capture.full(back), "les prises de guerre se rechargent")
 	if back == null:

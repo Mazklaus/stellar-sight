@@ -147,6 +147,7 @@ func set_system(value_state: GameState, s: StarSystem, viewer: int) -> void:
 		var body := ColorRect.new()
 		body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		body.material = make_planet_material(p)
+		tint_for_biosphere(state, pid, body.material as ShaderMaterial)
 		body.visible = show_scene
 		add_child(body)
 		_bodies[pid] = body
@@ -517,6 +518,19 @@ static func _material(shader: Shader) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
 	m.shader = shader
 	return m
+
+
+## Écologie (prop. 30) : la planète verdit quand sa biosphère fleurit, grisonne quand elle se meurt.
+static func tint_for_biosphere(st: GameState, pid: int, m: ShaderMaterial) -> void:
+	if st == null or m == null:
+		return
+	var tn := EcologyBridges.tint(st, pid)
+	if tn.is_empty():
+		return
+	for key in ["c_low", "c_high"]:
+		var cur: Variant = m.get_shader_parameter(key)
+		if cur is Color:
+			m.set_shader_parameter(key, (cur as Color).lerp(tn[0] as Color, float(tn[1])))
 
 
 ## Matériau d'une planète selon son type (partagé avec la vue de gestion).

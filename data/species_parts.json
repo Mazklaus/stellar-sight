@@ -148,6 +148,7 @@
 	"traits": [
 		{"id": "navigateurs", "label": "Navigateurs", "cost": 2, "text": "Flottes 30 % plus rapides, +50 % de cristaux de saut, +10 % d'influence.", "opposes": ["casaniers"],
 			"fields": {"fleet_speed_pct": 130, "production_pct": {"crystals": 150, "influence": 110}, "ai": {"building_bias": "raffinerie"}}},
+		{"id": "tolerants", "label": "Tolérants", "cost": 1, "text": "Écologie : les paliers de biosphère ne leur retirent pas de nourriture ; ils vivent sur un monde ruiné comme sur un autre (espèces tolérantes de Master of Orion II).", "fields": {"eco_tolerant": true}},
 		{"id": "tisseurs_portes", "label": "Tisseurs de portes", "cost": 1, "text": "Portails de saut : relais hyperspatiaux, portails et ancres de trou de ver coûtent 25 % de moins.", "fields": {}},
 		{"id": "orateurs", "label": "Assemblées ouvertes", "cost": 2, "text": "+50 % d'influence et +10 % d'énergie.", "opposes": ["maladroits"],
 			"fields": {"production_pct": {"influence": 150, "energy": 110}}},

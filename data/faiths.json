@@ -1120,6 +1120,13 @@
 			"text": "Les fidèles veillent sur les mondes vivants : chaque monde vivant gagne 3 d'humeur par mois envers les empires de la foi (sans effet si les mondes vivants ne sont pas en jeu).",
 			"fx": {},
 			"src": "Zonama Sekot (Star Wars, les Ferroans) ; Gaïa des Fondations (Asimov)"
+		},
+		"sacralite_vivant": {
+			"family": "culte",
+			"label": "Sacralité du vivant",
+			"text": "Toute vie est un psaume : +3 stabilité dans un système à monde florissant, mais −5 dans tout l'empire pendant un an quand un de ses mondes bascule (sans effet si l'écologie n'est pas en jeu).",
+			"fx": {},
+			"src": "Les Fremen et le plan de Kynes (Dune) ; Pandora (Avatar, de mémoire)"
 		}
 	},
 	"precept_families": [
