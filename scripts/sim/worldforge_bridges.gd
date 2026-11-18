@@ -174,6 +174,7 @@ static func dismantle_done(state: GameState, j: Dictionary, added: Array[Diction
 		WorldForge.reshape(state, pid, "asteroids", 1)
 		state.override_planet(pid, {"deposits": []})
 		WorldForge.sub(state, "worlds").erase(str(pid))
+	EcologyBridges.on_dismantle(state, sid, added)  # les biosphères du système encaissent (écologie, prop. 17)
 	WorldForge._stat(state, eid, "dism", 1)
 	state.forge["total_dism"] = int(state.forge.get("total_dism", 0)) + 1
 	Announce.next(state, "forge_dismantled", {"actor": eid, "system": sid})

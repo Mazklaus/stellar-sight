@@ -63,6 +63,26 @@ Chaque empire choisit une doctrine dans la colonne de l'écran **Colonies**. On 
 
 {{eco_doctrines}}
 
+### La biosphère dans le reste de la galaxie
+
+Ces liens ne valent que si l'écologie est en jeu ; chacun s'appuie sur un pilier existant.
+
+- **Catastrophes climatiques.** Un monde qui faiblit subit des tempêtes de sable, des inondations, des raz-de-marée, des vagues de froid ou des pluies acides selon son climat : 1 % de risque par mois pour une biosphère Saine, 2 % Fragile, 4 % Dégradée, 8 % Effondrée, jamais pour une Florissante. Selon le cas, la colonie perd un habitant ou produit 25 % de moins pendant trois mois. Un **bouclier planétaire** les arrête toutes.
+- **Mégastructures énergétiques.** Chaque Essaim ou Sphère de Dyson, Siphon de géante ou Forge du noyau achevé allège de 25 % l'empreinte de vos centrales (fusion et confinement), jusqu'au quart de leur poids : déporter l'énergie en orbite soulage les planètes.
+- **Forge des mondes.** Un démantèlement achevé fait pleuvoir ses débris : les biosphères du système perdent 20 points. Coquilles, mondes creux et abris vivent sous cloche et n'ont pas de biosphère.
+- **Réfugiés climatiques.** Un monde Dégradé ou Effondré pousse ses habitants à migrer vers vos autres colonies ; un monde Effondré voit partir un réfugié par an.
+- **Peuples tolérants.** Le trait d'espèce **Tolérants** (éditeur de peuples, 1 point) ignore les malus de nourriture des paliers, comme les espèces tolérantes de Master of Orion II. Le bonus d'un monde florissant reste.
+- **Sacralité du vivant.** Ce précepte de foi donne +3 de stabilité dans un système à monde florissant, mais −5 dans tout l'empire pendant un an quand un de ses mondes bascule.
+- **Convention des biosphères.** La famille **Biosphères** de l'Amphictyonie : d'un côté le Registre, l'interdiction de l'Extraction pour les membres, puis +3 d'influence par mois aux membres en Préservation ; de l'autre la **Libre exploitation** (+3 % puis +6 % de matériaux, puis des mondes-usines sans perte de stabilité).
+- **Sabotage écologique.** Une opération de renseignement empoisonne le monde vivant le plus peuplé d'un rival : 12 points d'empreinte en plus pendant un an.
+- **Siège et terre brûlée.** Un monde assiégé perd 5 points de biosphère par mois. Sur un monde assiégé ou en cours d'évacuation, l'action **Terre brûlée** de la vue système met la biosphère à 0 ; en réglage Complète, le climat bascule le mois suivant.
+- **Monde-usine.** Sur un monde toxique ou effondré, l'action **Faire un monde-usine** abandonne la biosphère pour de bon : plus de palier ni de basculement, +25 % de matériaux et d'énergie, −10 de stabilité dans le système. C'est le monde-ruche de Warhammer 40K, assumé.
+- **Biosphères remarquables.** Environ un monde vivant sur six (jamais un monde natal) porte une vie indigène riche : vitalité +20, empreinte comptée une fois et demie, +3 de Savoir par mois tant que la biosphère tient 60.
+- **Diplomatie.** Un empire en Préservation se méfie d'un empire en Extraction (opinion −10).
+- **Hauts faits.** **Le Jardinier de Kynes** (faire reverdir un monde) et **Terre brûlée** (faire basculer trois de ses mondes, infâme).
+- **Événements.** Six cartes écologiques (une espèce inconnue, la marée rouge, la grande floraison, la migration, les lanceurs d'alerte, les graines anciennes) qui soignent ou blessent une biosphère.
+- **Décor.** Dans la vue système, une planète florissante verdit, une planète dégradée ou effondrée grisonne.
+
 ### L'IA
 
-L'IA choisit sa doctrine selon son tempérament (Extraction pour les belliqueux, Préservation pour les pacifiques), bâtit une Réserve quand un monde passe sous 45, lance l'Ingénierie climatique sous 30, et n'ajoute plus d'industrie lourde sur un monde vivant fragile quand elle tient des mondes morts.
+L'IA choisit sa doctrine selon son tempérament (Extraction pour les belliqueux, Préservation pour les pacifiques), bâtit une Réserve quand un monde passe sous 45, lance l'Ingénierie climatique sous 30, n'ajoute plus d'industrie lourde sur un monde vivant fragile quand elle tient des mondes morts, et fait un monde-usine d'un monde effondré qui ne se relèvera pas.

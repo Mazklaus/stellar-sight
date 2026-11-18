@@ -1071,6 +1071,21 @@
 			"text": "Mégastructures : les plans d'un ouvrage achevé qu'il tient et que vous n'avez pas ; ses étapes vous coûteront 25 % de moins."
 		},
 		{
+			"id": "saboter_biosphere",
+			"family": "sabotage",
+			"label": "Sabotage écologique",
+			"tier": 2,
+			"cost": {
+				"influence": 30
+			},
+			"days": 45,
+			"success": 65,
+			"discovery": 30,
+			"spend": 10,
+			"ecology": true,
+			"text": "Écologie en jeu : nappes empoisonnées, espèces invasives ; son monde vivant le plus peuplé porte 12 points d'empreinte de plus pendant un an."
+		},
+		{
 			"id": "breche_monde",
 			"family": "sabotage",
 			"label": "Brèche",

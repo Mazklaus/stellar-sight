@@ -466,6 +466,15 @@ static func detection_at(state: GameState, viewer: int, sid: int, cam := 0, agai
 	return out
 
 
+## Lentille Senseurs (prop. 37) : niveau de camouflage que l'empire (et ses alliés) perce sur ce
+## système, ou -1 s'il n'y voit rien du tout.
+static func coverage(state: GameState, viewer: int, sid: int) -> int:
+	if not enabled(state):
+		return -1
+	var d := detection_at(state, viewer, sid)
+	return int(d["det"]) if int(d["dist"]) >= 0 else -1
+
+
 ## L'empire viewer (ou un allié) perce-t-il le camouflage de f ? (la portée est vérifiée à part :
 ## Fleets.fleet_visible). Une puissance qui n'est pas un empire voit sur place selon son niveau.
 static func detects(state: GameState, viewer: int, f: Fleet) -> bool:

@@ -661,6 +661,8 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 	actions.append_array(ForgeUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
 	# Mondes vivants : inviter, écouter, nef-graine, fusion.
 	actions.append_array(LivingUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
+	# Écologie : monde-usine, terre brûlée.
+	actions.append_array(EcologyUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
 	# Portails de saut : l'occupant peut raser le portail du système (sur la planète qui le porte).
 	if c and c.owner != _player and Portals.enabled(_state) and Portals.check_raze(_state, _player, p.system_id) == "" \
 			and Portals._gate_colony(_state, p.system_id) == c:

@@ -113,6 +113,7 @@ func _initialize() -> void:
 	preload("res://tests/megas_tests.gd").new().run(_check)
 	preload("res://tests/kardashev_tests.gd").new().run(_check)
 	preload("res://tests/ecology_tests.gd").new().run(_check)
+	preload("res://tests/ecology_tests2.gd").new().run(_check)
 	preload("res://tests/contact_tests.gd").new().run(_check)
 	preload("res://tests/archeo_tests.gd").new().run(_check)
 	preload("res://tests/forge_tests.gd").new().run(_check)

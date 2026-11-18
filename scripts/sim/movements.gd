@@ -180,6 +180,8 @@ static func push_reason(state: GameState, c: Colony) -> String:
 		return "famine"
 	if not Stability.growth_ok(state, _sid(state, c)):
 		return "instable"
+	if EcologyBridges.push_reason(state, c) != "":
+		return "climat"  # biosphère dégradée ou effondrée (écologie, prop. 18)
 	var p := state.galaxy.get_planet(c.planet_id)
 	var cap := Economy.max_pop(state, p, c.owner, c.buildings)
 	if cap > 0 and c.population * 100 >= cap * int(data().get("crowded_pct", 90)):

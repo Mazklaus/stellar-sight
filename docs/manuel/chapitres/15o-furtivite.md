@@ -54,6 +54,8 @@ Le bouton **Posture** de la fiche de flotte passe d'une posture à l'autre :
 - **Balise d'écoute** (Senseurs tachyoniques, furtivité complète) : un éclaireur **sans armes** à l'arrêt la pose hors de chez vous pour 30 matériaux et 20 énergie (6 au plus). Camouflée (2), elle voit à un saut ; le maître du système la détruit dès qu'il la repère.
 - La **sonde d’espionnage** (chapitre 13) relève les flottes cachées du système sondé jusqu'au camouflage 3.
 
+**La lentille Senseurs.** Un second clic sur l'onglet **Guerre** (ou une seconde pression de [[W]]) affiche la couverture de vos senseurs : sur chaque système exploré, un disque bleu d'autant plus vif que la détection est forte, et le **niveau de camouflage** que vous percez là (de 0 à 5), alliés compris. Là où rien ne s'affiche, vous êtes aveugle : une flotte peut y passer sans même un contact. Les anneaux blancs marquent vos **postes fixes** (colonies, stations, balises). C'est la carte à consulter avant de laisser une frontière sans détecteurs.
+
 ### Savoir : contact, identifiée, détaillée
 
 En furtivité complète, voir une flotte cachée ne dit pas tout. Trois degrés :

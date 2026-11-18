@@ -52,6 +52,10 @@ static func value(state: GameState, eid: int, k: String, x: Variant = null) -> i
 			return CaptureLore.prizes_in_service(state, eid)
 		"cap_scrap":
 			return Capture.stat(state, eid, "wrecks")
+		"eco_regreen":
+			return EcologyBridges.stat(state, eid, "regreen")
+		"eco_shift":
+			return EcologyBridges.stat(state, eid, "shift")
 		"ct_porteuse", "ct_echo_crime", "ct_survived", "ct_won":
 			return Contact.stat(state, eid, {"ct_porteuse": "first_porteuse", "ct_echo_crime": "echo_crime", "ct_survived": "survived", "ct_won": "won"}[k]) if Contact.enabled(state) else 0
 		"gen_transfer":

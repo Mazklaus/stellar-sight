@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.47
+
+- **La biosphère dans le reste de la galaxie** (chapitre 44) : **catastrophes climatiques** arrêtées par le bouclier planétaire, centrales allégées par les **mégastructures énergétiques**, débris des **démantèlements**, **réfugiés climatiques**, trait d'espèce **Tolérants**, précepte **Sacralité du vivant**, famille **Biosphères** de l'Amphictyonie (**Convention des biosphères**, **Libre exploitation**), opération **Sabotage écologique**, **siège** et **terre brûlée**, **monde-usine**, **biosphères remarquables**, méfiance de la Préservation envers l'Extraction, hauts faits **Le Jardinier de Kynes** et **Terre brûlée**, six événements écologiques, planètes qui verdissent ou grisonnent dans la vue système. Sauvegarde 100.
+- **Lentille Senseurs** (chapitre 33) : second clic de la lentille de guerre, la couverture de vos senseurs système par système.
+
 ### Édition 2.46
 
 - **Allure de résolution des tours** : au tour par tour, les cinq crans du cadran (touches [[1]] à [[5]]) règlent la vitesse à laquelle les jours du tour défilent, de contemplative à éclair ; l'allure de départ est plus posée qu'avant. En réseau, l'hôte la règle pour tous.

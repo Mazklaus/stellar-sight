@@ -1401,7 +1401,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				return
 			# Lentille de guerre : touche physique Z du QWERTY (le W de l'AZERTY), libre des deux côtés.
 			if key.physical_keycode == KEY_Z and not is_system_view_open():
-				_hud.set_lens("" if _hud.lens == "war" else "war")
+				_hud.cycle_war_lens()  # guerre, puis couverture des senseurs (furtivité)
 				get_viewport().set_input_as_handled()
 				return
 			# Lentille des frontières : touche physique Q du QWERTY (le A de l'AZERTY).
