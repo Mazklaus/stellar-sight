@@ -23,7 +23,10 @@ const STATS := ["hp", "armor", "shield", "pd", "pd_fleet", "shield_fleet", "flee
 ## bataille ; reliquary : ferveur à chaque victoire ; digester : épaves changées en matériaux).
 ## Caractéristiques de furtivité (voir Stealth) : la meilleure des modules compte, sans cumul.
 const MAX_STATS := ["cloak", "detect", "jam", "decoy", "psi"]
-const FLAGS := ["blockade_runner", "adaptive", "fleet_repair", "fleet_barracks", "anchor", "reliquary", "digester", "net", "supply_hold", "hardened_shields", "survival", "minelayer", "sweeper"]
+const FLAGS := ["blockade_runner", "adaptive", "fleet_repair", "fleet_barracks", "anchor", "reliquary", "digester", "net", "supply_hold", "hardened_shields", "survival", "minelayer", "sweeper",
+		# Coques de peuple (voir PeopleHulls).
+		"concord", "larvae", "linked", "predictive", "broadside", "boarding", "wreck_discount", "privateer", "phased", "echo_song",
+		"cold_blood", "embassy", "pulpit", "brood", "backup", "market", "first_salvo", "penitent"]
 const LINES := ["screen", "line", "rear"]
 const TARGETS := ["nearest", "largest", "smallest", "rear"]
 const NAME_MAX := 32
@@ -465,6 +468,12 @@ const CLASS_ROLES := {
 	"bombarde": "siege", "cuirasse": "artillerie", "porte_vaisseaux": "porteur", "ruche_mere": "porteur", "titan": "ligne",
 	"leviathan": "ligne", "nef_monde": "ligne",
 }
+
+
+## Rôle de conception d'une classe : la table ci-dessus, sinon le champ "ai_role" de la classe (coques
+## de peuple : catalogue ouvert, une nouvelle coque dit elle-même son rôle).
+static func class_role(class_id: String) -> String:
+	return String(CLASS_ROLES.get(class_id, GameData.ship(class_id).get("ai_role", "")))
 
 
 ## Rôle des variantes de méga-coques (les autres coques gardent le rôle de leur classe d'origine).

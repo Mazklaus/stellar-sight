@@ -1325,7 +1325,7 @@ static func _designs(ctx: Dictionary) -> void:
 	var sig := "%d|%d" % [e.techs.size(), (int(e.stats.get("kills", 0)) + int(e.stats.get("ships_lost", 0))) / 10]
 	var mine := _ai_designs(ctx)
 	for sid in FactionTraits.ship_ids_for(e.faction_id):
-		var role := String(Designs.CLASS_ROLES.get(sid, ""))
+		var role := Designs.class_role(sid)
 		var sd := GameData.ship(sid)
 		if role == "" or not sd.has("hull") or not Fleets.ship_unlocked(state, e.id, sid):
 			continue
@@ -1419,10 +1419,14 @@ static func _pick_warship(ctx: Dictionary) -> String:
 				return t
 		if posmod(turn, 5) == 0 and classes.has("escorteur"):
 			return "escorteur"
-		var base := _variant(classes, "corvette") if mats < 200 else _variant(classes, "fregate")
+		var base := _variant(classes, "corvette", turn) if mats < 200 else _variant(classes, "fregate", turn)
 		return base if base != "" else classes[0]
 	# Méga-vaisseaux : l'échelon le plus haut qu'on sait lancer (un seul de chaque par empire).
 	for mega in ["nef_monde", "leviathan", "titan"]:
+		# Le titan du peuple (Cathédrale, Mère-monde…) passe avant le titan commun.
+		for sid in classes:
+			if String(GameData.ship(sid).get("alt_of", "")) == mega and Designs.hull(String(GameData.ship(sid).get("hull", ""))).has("echelon"):
+				return sid
 		if classes.has(mega):
 			return mega
 	if at_war and troops < 24:
@@ -1453,7 +1457,7 @@ static func _pick_warship(ctx: Dictionary) -> String:
 			return "escorteur"
 		if at_war and classes.has("martyr") and posmod(turn, 2) == 0:
 			return "martyr"
-		var sc := _variant(classes, "corvette")
+		var sc := _variant(classes, "corvette", turn)
 		if sc != "":
 			return sc
 	if big >= 2 and classes.has("torpilleur"):
@@ -1468,9 +1472,9 @@ static func _pick_warship(ctx: Dictionary) -> String:
 		return "bombarde"
 	var pick := ""
 	if shields > bare:
-		pick = _variant(classes, "croiseur") if mats >= 300 else _variant(classes, "corvette")
+		pick = _variant(classes, "croiseur", turn) if mats >= 300 else _variant(classes, "corvette", turn)
 	else:
-		pick = _variant(classes, "fregate") if mats >= 140 else _variant(classes, "corvette")
+		pick = _variant(classes, "fregate", turn) if mats >= 140 else _variant(classes, "corvette", turn)
 	return pick if pick != "" else classes[0]
 
 
@@ -1512,13 +1516,25 @@ static func _buildable_warships(ctx: Dictionary) -> Array[String]:
 
 
 ## La classe `base` si elle est au catalogue, sinon la classe de peuple qui la remplace ("" sinon).
-static func _variant(classes: Array[String], base: String) -> String:
+static func _variant(classes: Array[String], base: String, salt := 0) -> String:
+	var pick := ""
 	if classes.has(base):
-		return base
+		pick = base
+	else:
+		for sid in classes:
+			if String(GameData.ship(sid).get("replaces", "")) == base:
+				pick = sid
+				break
+	# Coques de peuple ("alt_of") : elles s'ajoutent au modèle commun, l'IA les alterne avec lui.
+	var alts: Array[String] = []
 	for sid in classes:
-		if String(GameData.ship(sid).get("replaces", "")) == base:
-			return sid
-	return ""
+		if String(GameData.ship(sid).get("alt_of", "")) == base:
+			alts.append(sid)
+	if alts.is_empty():
+		return pick
+	if pick != "":
+		alts.insert(0, pick)
+	return alts[posmod(salt, alts.size())]
 
 
 ## La première des classes voulues (ou leur variante de peuple) qui est au catalogue.

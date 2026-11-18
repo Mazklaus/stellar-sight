@@ -355,6 +355,8 @@ static func fleet_right(state: GameState, f: Fleet, o: int) -> bool:
 		return true
 	if has_pass(state, f.id, o) or corridor(state, o, f.owner):
 		return true
+	if PeopleHulls.concord_right(state, f, o):
+		return true  # Pavillon de concorde (coques de peuple)
 	if harmless(state, f, o):
 		return civil_ok(state, o, f.owner)
 	return grants(state, o, f.owner)

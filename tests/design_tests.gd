@@ -255,7 +255,7 @@ func _test_ai_designs() -> void:
 	var roles_ok := true
 	for id in st.designs:
 		var rec: Dictionary = st.designs[id]
-		roles_ok = roles_ok and Designs.CLASS_ROLES.has(String(rec.get("role", ""))) and String(rec.get("sig", "")) != ""
+		roles_ok = roles_ok and Designs.class_role(String(rec.get("role", ""))) != "" and String(rec.get("sig", "")) != ""
 	_ok(roles_ok, "un modèle d'IA dit quelle classe il remplace et quand il a été conçu")
 
 

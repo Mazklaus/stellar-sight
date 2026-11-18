@@ -385,6 +385,7 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 		if int(m["who"]) == a and int(m["about"]) == b:
 			var md: Dictionary = data()["memories"].get(String(m["kind"]), {})
 			_part(out, String(md.get("label", m["kind"])), memory_value(state, m))
+	_part(out, "Arche de Concorde en visite", PeopleHulls.embassy_opinion(state, a, b))  # coques de peuple
 	return out
 
 

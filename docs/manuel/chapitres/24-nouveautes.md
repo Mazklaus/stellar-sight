@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.43
+
+- **Les chantiers des peuples** (chapitre 45) : chaque peuple a ses coques. Quatorze **coques de ligne** (Galère de fief, Corvette de concorde, Sporange de guerre, Châssis relié, Nœud de calcul, Affût de roc, Bélier-clan, Épave remontée, Cargo-corsaire, Onde-nef, Diapason, Astéroïde creusé, Nef-tanière, Nef de pénitence) et huit **méga-coques** qui prennent la place du titan commun (Grand Voilier de lignée, Arche de Concorde, Cathédrale, Mère-monde, Noosphère-mère, Montagne-forteresse, Comète-marché, Abysse chantante), ouvertes par une couche d'espèce, en catalogue ouvert. Chacune porte un **module intégré** qui change une règle : concorde, larves, lien, calcul prédictif, bordée, abordage, bricolage d'épaves, corsaires, déphasage, chant d'écho, sang-froid, ambassade, chaire, ponte, sauvegarde, marché flottant, voile abyssal, pénitents.
+- **Silhouettes** : une forme par coque et une signature par style, modules visibles ; silhouette au Chantier et vignettes de la liste, vignettes du rapport de bataille, option **Silhouettes des flottes sur la carte**, style choisi dans l'éditeur d'espèces, remplacement par image. Section **Coques du peuple** du Chantier, IA. Sauvegarde 97. Chapitres 46 à 49 renumérotés.
+
 ### Édition 2.41
 
 - **Les mondes qui choisissent** (chapitre 43), nouveaux réglages **Mondes vivants** (aucun, rares, fréquents) et **Monde-Ego** (non, oui) : des planètes conscientes qui ont une **humeur** envers chaque empire, en cinq paliers (**Hostile**, **Méfiant**, **Neutre**, **Bienveillant**, **Lié**), quatre **origines** (Éveillé, Graine, Reliquaire, Hanté) et cinq **tempéraments** (Curieux, Jaloux, Maternel, Fier, Énigme), en catalogues ouverts ; une espèce préférée et une qu'il supporte mal ; reconnaissance du monde ; colons refusés ou ralentis ; **demandes** par carte d'événement et promesses suivies ; le **Rejet** et le **départ** du monde.

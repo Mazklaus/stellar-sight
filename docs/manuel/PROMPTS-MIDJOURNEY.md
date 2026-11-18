@@ -614,3 +614,13 @@ a living planet covered with forests and oceans whose clouds slowly form the fac
 ```
 a planet seen from orbit split in two by the day night terminator, one hemisphere green and blue with forests and white clouds, the other grey and brown smoking with giant chimneys under rust colored clouds, along the border a band of desert where tiny colonists plant grasses in patient rows, in the foreground on an orbital station an elderly planetologist and a young steward look at a holographic gauge hesitating between green and red, the steward holds a factory blueprint, the planetologist holds a tiny flower pot, hope and consequence with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-63 · Les chantiers des peuples
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Les chantiers des peuples »
+- Sujet : Une immense cale sèche orbitale où huit vaisseaux de peuples différents sont en construction côte à côte : un grand voilier aux voiles de lumière tendues sur des mâts dorés, une cathédrale volante hérissée de flèches gothiques, une masse organique verte et palpitante qui pond de petits vaisseaux-graines, un astéroïde creusé percé de canons, un anneau d'énergie pure qui vibre, une montagne-forteresse couverte de remparts, une comète transformée en marché aux étals illuminés, un vaisseau de cristal entouré d'orbes ; au premier plan, sur une passerelle, des maîtres de chantier de plusieurs espèces se disputent un même plan, chacun persuadé que son vaisseau est le plus beau
+
+```
+a vast orbital drydock where eight starships of different alien civilizations are built side by side, a great sailing ship with sails of light on golden masts, a flying gothic cathedral bristling with spires, a pulsing green organic mass laying small seed ships, a hollowed asteroid pierced with cannons, a ring of pure vibrating energy, a mountain fortress covered with ramparts, a comet turned into a glowing market, a crystal vessel surrounded by floating orbs, in the foreground on a catwalk shipwrights of several alien species argue over the same blueprint each convinced their ship is the most beautiful, epic scale with gentle humor epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

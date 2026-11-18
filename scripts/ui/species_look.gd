@@ -74,6 +74,10 @@ static func hull_style(fid: String) -> String:
 	var people: Dictionary = sp.get("peoples", {})
 	if people.has(fid) and people[fid].has("hull"):
 		return String(people[fid]["hull"])
+	# Coques de peuple (prop. 39) : un peuple créé garde le style choisi dans l'éditeur d'espèces.
+	var chosen := GameData.ship_style(fid)
+	if chosen != fid and people.has(chosen) and people[chosen].has("hull"):
+		return String(people[chosen]["hull"])
 	var arch: Dictionary = sp.get("hull_archetypes", {})
 	if arch.has(archetype_of(fid)):
 		return String(arch[archetype_of(fid)])

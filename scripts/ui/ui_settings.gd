@@ -17,6 +17,8 @@ const REPLAY_DETAILS := ["sobre", "normal", "riche"]
 ## Échelle des batailles au sol (visuel des combats, prop. 23 amendée) : figurines par régiment.
 static var battle_scale := "escarmouche"
 const BATTLE_SCALES := ["escarmouche", "bataille", "grande"]
+## Coques de peuple (prop. 38) : silhouette de la coque de tête sur l'icône de flotte de la carte.
+static var fleet_silhouettes := false
 static var _loaded := false
 
 
@@ -31,6 +33,7 @@ static func load_settings() -> void:
 	replay_detail = String(cfg.get_value("display", "replay_detail", "normal"))
 	if not REPLAY_DETAILS.has(replay_detail):
 		replay_detail = "normal"
+	fleet_silhouettes = bool(cfg.get_value("display", "fleet_silhouettes", false))
 	battle_scale = String(cfg.get_value("display", "battle_scale", "escarmouche"))
 	if not BATTLE_SCALES.has(battle_scale):
 		battle_scale = "escarmouche"
@@ -44,6 +47,7 @@ static func save_settings() -> void:
 	cfg.set_value("display", "ui_scale", ui_scale)
 	cfg.set_value("display", "replay_detail", replay_detail)
 	cfg.set_value("display", "battle_scale", battle_scale)
+	cfg.set_value("display", "fleet_silhouettes", fleet_silhouettes)
 	cfg.save(PATH)
 
 
