@@ -1104,6 +1104,7 @@ static func _damage(state: GameState, b: Dictionary, side: int, u: Dictionary, t
 	if bool(d.get("psionics", false)) and not state.psionics.is_empty():
 		pct += int(Psionics.talent(state, eid).get("psi_ground_pct", 0))  # Hurleurs
 	pct += Research.fx_int(state, eid, "ground_damage_pct")
+	pct += LivingWorldsWar.ground_pct(state, int(b["s"]), eid)  # le sol d'un monde vivant choisit son camp
 	@warning_ignore("integer_division")
 	return maxi(1, n * maxi(10, pct) / 100)
 

@@ -891,6 +891,9 @@ static func check_war(state: GameState, a: int, b: int, break_truce := false) ->
 	var kw := Koinon.check_war(state, a, b)
 	if kw != "":
 		return kw
+	var lw := LivingWorlds.check_war(state, a, b)  # deux empires fusionnés au même monde vivant
+	if lw != "":
+		return lw
 	return Vassals.check_war(state, a, b)
 
 

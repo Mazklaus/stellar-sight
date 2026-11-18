@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.39
+
+- **Les mondes qui choisissent** (chapitre 43), nouveaux réglages **Mondes vivants** (aucun, rares, fréquents) et **Monde-Ego** (non, oui) : des planètes conscientes qui ont une **humeur** envers chaque empire, en cinq paliers (**Hostile**, **Méfiant**, **Neutre**, **Bienveillant**, **Lié**), quatre **origines** (Éveillé, Graine, Reliquaire, Hanté) et cinq **tempéraments** (Curieux, Jaloux, Maternel, Fier, Énigme), en catalogues ouverts ; une espèce préférée et une qu'il supporte mal ; reconnaissance du monde ; colons refusés ou ralentis ; **demandes** par carte d'événement et promesses suivies ; le **Rejet** et le **départ** du monde.
+- **Le monde se défend** : décharges pendant les batailles, sol qui choisit son camp, **anticorps** qui ne chassent que l'empire visé, **refuge** des flottes amies, **fuite** d'un monde assiégé. **Inviter**, **écouter** (Résonance), **nef-graine** (vaisseau vivant), **fusion** après dix ans de lien ; visiteurs de l'Énigme ; **éveils** en cours de partie ; **Ego, le Monde affamé**, ses graines et la coalition qui abat son noyau.
+- **Ponts** : Résonance des mondes Liés et fêlures qui hantent, anticorps apprivoisables, lieux sacrés des Astres vivants et précepte **Gardiens du monde**, mondes vivants intouchables et **meurtre d'un monde** (Forge des mondes), reliquaires qui s'éveillent vivants, écologie (si le pilier est en jeu), talents des huit peuples ; fiche et actions dans la vue système, feuille sur la carte, quatre types d'annonces, IA. Sauvegarde 93. Chapitres 44 à 47 renumérotés.
+
 ### Édition 2.38
 
 - **Ce que boit une civilisation** (chapitre 42), nouveaux réglages **Échelle de Kardashev** (complète, indice seul, désactivée) et **Rythme** (lent, normal, rapide) : l'indice quitte les mégastructures et devient un pilier. Il se calcule sur la **puissance captée** (énergie brute des colonies, mégastructures qui boivent un astre, mondes forgés), de **0,70** au départ à **3,00**, au centième, sur une échelle logarithmique ; chaque type entier a son **verrou** (Fusion compacte et quatre bâtiments à la capitale ; une Sphère ou trois Essaims ; grandes mégastructures et 10 % des systèmes). Une Sphère sous un Cerveau Matriochka compte toujours.

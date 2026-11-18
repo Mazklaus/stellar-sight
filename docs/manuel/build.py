@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.38"
+EDITION = "2.39"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -438,6 +438,8 @@ def talents_du_peuple(f):
     ajoute("Contact", [ct] if isinstance(ct, dict) else [])
     wf = charger("worldforge.json").get("talents", {}).get(f["id"])
     ajoute("Forge des mondes", [wf] if isinstance(wf, dict) else [])
+    lw = charger("livingworlds.json").get("talents", {}).get(f["id"])
+    ajoute("Mondes vivants", [lw] if isinstance(lw, dict) else [])
     cu = charger("culture.json").get("talents", {})
     peuple = cu.get("peoples", {}).get(f["id"])
     ajoute("Rayonnement", _par_couche(c, {k: v for k, v in cu.items() if k != "peoples"}) + ([peuple] if isinstance(peuple, dict) else []))
@@ -1570,6 +1572,49 @@ def gen_wf_talents():
     return f"<table class='grille'><tr><th>Peuple</th><th>Talent</th></tr>{l1}</table>"
 
 
+def gen_lw_modes():
+    """Réglages Mondes vivants et Monde-Ego (data/livingworlds.json)."""
+    d = charger("livingworlds.json")
+    l1 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    l2 = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_ego') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["ego_opts"])
+    return f"<table class='grille'><tr><th>Mondes vivants</th><th>Effet</th></tr>{l1}</table><table class='grille'><tr><th>Monde-Ego</th><th>Effet</th></tr>{l2}</table>"
+
+
+def gen_lw_paliers():
+    """Les cinq paliers d'humeur et leurs effets sur la colonie de l'hôte (data/livingworlds.json « rules.tiers »)."""
+    d = charger("livingworlds.json")
+    l1 = ""
+    bas = -100
+    for t in d["rules"]["tiers"]:
+        l1 += f"<tr><td><b>{esc(t['label'])}</b></td><td>{bas} à {t['max']}</td><td>{t['pop']:+d}</td><td>{t['stab']:+d}</td><td>{t['food']:+d}</td></tr>"
+        bas = t["max"] + 1
+    return f"<table class='grille'><tr><th>Palier</th><th>Humeur</th><th>Population</th><th>Stabilité</th><th>Nourriture / mois</th></tr>{l1}</table>"
+
+
+def gen_lw_origines():
+    """Origines et tempéraments (catalogues ouverts, data/livingworlds.json)."""
+    d = charger("livingworlds.json")
+    faune = {k: v.get("label", k) for k, v in charger("creatures.json").get("species", {}).items()}
+    l1 = "".join(f"<tr><td><b>{esc(v['label'])}</b></td><td>{inline(v.get('text', ''))}</td><td>{esc(faune.get(v.get('antibody', ''), v.get('antibody', '')))}</td></tr>" for k, v in d["origins"].items() if not k.startswith("_"))
+    l2 = "".join(f"<tr><td><b>{esc(v['label'])}</b></td><td>{inline(v.get('text', ''))}</td></tr>" for k, v in d["temperaments"].items() if not k.startswith("_"))
+    return f"<table class='grille'><tr><th>Origine</th><th>Ce qu'il est</th><th>Anticorps</th></tr>{l1}</table><table class='grille'><tr><th>Tempérament</th><th>Ce qu'il aime</th></tr>{l2}</table>"
+
+
+def gen_lw_demandes():
+    """Les demandes d'un monde vivant (data/livingworlds.json « requests »)."""
+    d = charger("livingworlds.json")
+    l1 = "".join(f"<tr><td><b>{esc(v['label'])}</b></td><td>{inline(v.get('ask', '').replace('{lw_rival}', 'un ennemi').replace('{lw_people}', 'un autre peuple'))}</td></tr>" for k, v in d["requests"].items() if not k.startswith("_"))
+    return f"<table class='grille'><tr><th>Demande</th><th>Ce qu'il veut</th></tr>{l1}</table>"
+
+
+def gen_lw_talents():
+    """Talents des peuples (data/livingworlds.json « talents »)."""
+    d = charger("livingworlds.json")
+    noms = {f["id"]: f.get("name", f["id"]) for f in charger("factions.json")}
+    l1 = "".join(f"<tr><td>{esc(noms.get(k, k))}</td><td><b>{esc(v['label'])}</b> : {inline(v.get('text', ''))}</td></tr>" for k, v in d["talents"].items() if not k.startswith("_"))
+    return f"<table class='grille'><tr><th>Peuple</th><th>Talent</th></tr>{l1}</table>"
+
+
 def gen_an_familles():
     """Les dix familles d'annonces et leurs types (data/announcements.json)."""
     d = charger("announcements.json")
@@ -1669,6 +1714,7 @@ GENERATEURS = {
     "an_familles": gen_an_familles, "an_presets": gen_an_presets,
     "kd_modes": gen_kd_modes, "kd_echelle": gen_kd_echelle, "kd_capture": gen_kd_capture, "kd_prerogatives": gen_kd_prerogatives,
     "ar_modes": gen_ar_modes, "ar_types": gen_ar_types, "ar_actions": gen_ar_actions, "ar_disparus": gen_ar_disparus, "ar_talents": gen_ar_talents, "wf_modes": gen_wf_modes, "wf_ops": gen_wf_ops, "wf_instant": gen_wf_instant, "wf_talents": gen_wf_talents,
+    "lw_modes": gen_lw_modes, "lw_paliers": gen_lw_paliers, "lw_origines": gen_lw_origines, "lw_demandes": gen_lw_demandes, "lw_talents": gen_lw_talents,
     "ct_modes": gen_ct_modes, "ct_couches": gen_ct_couches, "ct_natures": gen_ct_natures, "ct_talents": gen_ct_talents,
     "tr_modes": gen_tr_modes, "tr_voies": gen_tr_voies, "tr_oeuvres": gen_tr_oeuvres, "tr_talents": gen_tr_talents,
     "portail_modes": gen_portail_modes, "portail_batiments": gen_portail_batiments, "portail_talents": gen_portail_talents,

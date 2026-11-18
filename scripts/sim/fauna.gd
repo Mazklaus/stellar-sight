@@ -397,6 +397,9 @@ static func hostile(state: GameState, beast: Fleet, empire_id: int) -> bool:
 		if not beast.ships.is_empty() and String(beast.ships[0]) == "bete_machine_tombeau" and bool(talent(state, empire_id).get("parley", false)):
 			return false
 		return true
+	var ab: Variant = LivingWorldsWar.antibody_hostile(h, empire_id)
+	if ab != null:
+		return bool(ab)  # anticorps d'un monde vivant : seul l'empire visé est chassé
 	var sp := String(h["sp"])
 	if WondersCatalog.fx(state, empire_id, "tamer") > 0:
 		return false  # Ménagerie céleste
@@ -501,7 +504,8 @@ static func check_attitude(state: GameState, empire_id: int, sp: String, att: St
 				return "cette espèce ne s'apprivoise pas"
 			if stance(state, empire_id, sp) == "apprivoise":
 				return "l'espèce est déjà apprivoisée"
-			if bool(attitude_def("apprivoise").get("needs_study", true)) and not studied(state, empire_id, sp) and not Guardians.tame_freed(state, sp):
+			if bool(attitude_def("apprivoise").get("needs_study", true)) and not studied(state, empire_id, sp) and not Guardians.tame_freed(state, sp) \
+					and not LivingWorldsBridges.tames(state, empire_id, sp):
 				return "il faut d'abord étudier l'espèce"
 		"renoncer":
 			if stance(state, empire_id, sp) == "":
@@ -514,7 +518,8 @@ static func check_attitude(state: GameState, empire_id: int, sp: String, att: St
 
 ## L'espèce s'apprivoise-t-elle pour cet empire ? (credo de la survie : toutes)
 static func tamable(state: GameState, empire_id: int, sp: String) -> bool:
-	return bool(species(sp).get("tamable", false)) or bool(talent(state, empire_id).get("tame_all", false))
+	return bool(species(sp).get("tamable", false)) or bool(talent(state, empire_id).get("tame_all", false)) \
+			or LivingWorldsBridges.tames(state, empire_id, sp)  # un monde vivant qui vous aime
 
 
 static func set_attitude(state: GameState, empire_id: int, sp: String, att: String) -> void:

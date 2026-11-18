@@ -68,6 +68,8 @@ static func card(id: String) -> Dictionary:
 			_cards[String(c["id"])] = c
 		for c: Dictionary in GameData.contact().get("cards", []):
 			_cards[String(c["id"])] = c
+		for c: Dictionary in GameData.livingworlds().get("cards", []):
+			_cards[String(c["id"])] = c
 	return _cards.get(id, {})
 
 
@@ -646,6 +648,10 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				var arl := Archaeology.event_line(state, empire_id, item, String(fx.get("act", "")))
 				if arl != "":
 					out.append(arl)
+			"lw":
+				var lwl := LivingWorlds.event_line(state, empire_id, item, String(fx.get("act", "")))
+				if lwl != "":
+					out.append(lwl)
 			"res":
 				var amounts := {}
 				for r in fx["res"]:
@@ -765,6 +771,9 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 			"ar":
 				# Archéologie : études, Extraire / Classer, permis (voir Archaeology.event_act).
 				Archaeology.event_act(state, empire_id, item, String(fx.get("act", "")), added)
+			"lw":
+				# Mondes vivants : demandes, éveil, visiteurs (voir LivingWorlds.event_act).
+				LivingWorlds.event_act(state, empire_id, item, String(fx.get("act", "")), added)
 			"res":
 				for r in fx["res"]:
 					e.resources[r] = maxi(0, int(e.resources.get(r, 0)) + era_scaled(state, empire_id, int(fx["res"][r])))
@@ -903,6 +912,7 @@ static func fill(state: GameState, empire_id: int, item: Dictionary, s: String) 
 	out = Court.fill(state, empire_id, item, out)  # jetons de la cour
 	out = HeroFall.fill(state, item, out)  # héros tombés au combat
 	out = Archaeology.fill(state, empire_id, item, out)  # jetons des sites de fouille
+	out = LivingWorlds.fill(state, item, out)  # jetons des mondes vivants
 	return out
 
 

@@ -723,6 +723,11 @@ static func kd_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "kardashev", "player": player, "act": act, "d": d}
 
 
+## Mondes vivants (voir LivingWorlds.check) : "invite", "listen", "seed", "fuse" (p = planète).
+static func living_act(player: int, act: String, d := {}) -> Dictionary:
+	return {"type": "living", "player": player, "act": act, "d": d}
+
+
 ## Furtivité : "pose" (a = flotte, s = posture : "", "silence", "scan", "ambush"), "beacon" (a = flotte).
 static func stealth_act(player: int, act: String, a := -1, b := -1, s := "") -> Dictionary:
 	return {"type": "stealth", "player": player, "act": act, "a": a, "b": b, "s": s}
@@ -951,6 +956,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Archaeology.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"kardashev":
 			return Kardashev.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
+		"living":
+			return LivingWorlds.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"contact":
 			return Contact.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"stealth":
@@ -1163,7 +1170,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				c.planet_id = pid
 				c.owner = e.id
 			c.kind = kind
-			c.days_left = Economy.claim_days(kind)
+			c.days_left = LivingWorlds.claim_days(state, e.id, pid, Economy.claim_days(kind))  # monde vivant Méfiant : deux fois plus long
 			var sp := String(cmd.get("species", ""))
 			c.founder = sp if kind == Colony.KIND_COLONY and sp != e.faction_id else ""
 			state.add_colony(c)
@@ -1385,6 +1392,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Archaeology.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"kardashev":
 			Kardashev.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
+		"living":
+			LivingWorlds.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"contact":
 			Contact.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"stealth":

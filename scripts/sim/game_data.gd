@@ -234,6 +234,11 @@ static func kardashev() -> Dictionary:
 	return _load("kardashev")
 
 
+## Mondes vivants (data/livingworlds.json).
+static func livingworlds() -> Dictionary:
+	return _load("livingworlds")
+
+
 ## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.
 static func wonders() -> Dictionary:
 	return _load("wonders")
@@ -297,6 +302,8 @@ static func ship(id: String) -> Dictionary:
 		return crises().get("units", {}).get(id, {})
 	if id.begins_with("ancien_"):
 		return ancients().get("units", {}).get(id, {})
+	if id.begins_with("vivant_"):
+		return livingworlds().get("units", {}).get(id, {})  # nef-graine des mondes vivants
 	if id.begins_with("def_"):
 		return Defenses.unit(id)  # défenses fixes (data/defenses.json)
 	if id.begins_with("bete_"):

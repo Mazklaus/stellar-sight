@@ -1,0 +1,158 @@
+{
+	"_doc": "Les mondes vivants (étude du 2026-11-18, version complète validée : 33 propositions). Un monde vivant est une planète qui a une humeur envers chaque empire (-100 à +100), la fait connaître par paliers, choisit ses hôtes, se défend, peut partir. Lu par LivingWorlds, LivingWorldsWar, LivingWorldsBridges. Tous les tirages sont faits par hachage de la graine.",
+	"_sources": "Alpha Centauri (Planet, dégâts écologiques, valeur PLANET), Zonama Sekot (Star Wars Légendes), Ego (Marvel), Mogo (DC), Gaia (Asimov), Solaris (Lem), monde-démon (Warhammer 40K), Stellaris (Mer de conscience), Doctor Who (Kill the Moon).",
+	"modes": [
+		{"id": "aucun", "label": "Aucun", "text": "Pas de monde vivant (la Forge des mondes garde sa version courte).", "start": 0},
+		{"id": "rares", "label": "Rares", "text": "Un ou deux mondes vivants par partie ; un éveil possible en cours de partie.", "start": 1, "per_systems": 120, "max_start": 2, "wake_max": 1},
+		{"id": "frequents", "label": "Fréquents", "text": "Trois ou quatre mondes vivants ; des éveils plus fréquents.", "start": 3, "per_systems": 60, "max_start": 4, "wake_max": 3}
+	],
+	"default_mode": "rares",
+	"ego_opts": [
+		{"id": "non", "label": "Non", "text": "Pas de Monde-Ego."},
+		{"id": "oui", "label": "Oui", "text": "Vers l'an 40, un monde vivant s'éveille affamé et transforme ses voisins : il faut une coalition pour frapper son noyau."}
+	],
+	"default_ego": "non",
+	"rules": {
+		"_doc": "Prop. 3 : placement ; prop. 6 : paliers ; prop. 8 : effets ; prop. 9 : choix des hôtes ; prop. 10 : demandes ; prop. 11 : Rejet ; prop. 17 : départ.",
+		"min_jumps_from_capital": 4,
+		"start_types": ["continental", "ocean", "gaia", "desert", "arctic"],
+		"min_size": 5,
+		"start_mood": 0,
+		"drift": 1,
+		"tiers": [
+			{"id": "hostile", "label": "Hostile", "max": -50, "pop": -3, "stab": -10, "food": 0, "color": [0.92, 0.32, 0.28]},
+			{"id": "mefiant", "label": "Méfiant", "max": -10, "pop": -1, "stab": -4, "food": 0, "color": [0.92, 0.62, 0.3]},
+			{"id": "neutre", "label": "Neutre", "max": 24, "pop": 0, "stab": 0, "food": 0, "color": [0.8, 0.8, 0.8]},
+			{"id": "bienveillant", "label": "Bienveillant", "max": 74, "pop": 2, "stab": 4, "food": 1, "color": [0.55, 0.85, 0.5]},
+			{"id": "lie", "label": "Lié", "max": 100, "pop": 3, "stab": 10, "food": 3, "color": [0.4, 0.95, 0.75]}
+		],
+		"tolerance_step": 10,
+		"tolerance_max": 50,
+		"wary_claim_pct": 200,
+		"reject_days": 1080,
+		"leave_days": 360,
+		"leave_range": 6,
+		"request_min_days": 1080,
+		"request_max_days": 1800,
+		"request_yes": 20,
+		"request_no": -15,
+		"request_broken": -20,
+		"request_watch_days": 180,
+		"wake_year": 20,
+		"wake_min_pop": 12,
+		"wake_pct": 6,
+		"slept_res": {"food": 300, "energy": 200, "knowledge": 150},
+		"invite_cost": {"influence": 100},
+		"invite_min": 25,
+		"invite_cd_days": 1800,
+		"invite_max_planets": 8,
+		"listen_cost": 30,
+		"listen_mood": 10,
+		"listen_cd_days": 360,
+		"lie_resonance": 3,
+		"seed_cd_days": 720,
+		"seed_max": 3,
+		"seed_unit": "vivant_nef_graine",
+		"fuse_days": 3600,
+		"fuse_stab": 15,
+		"fuse_prod_pct": 25,
+		"fuse_pop": 2,
+		"visit_days": 1800,
+		"visit_stab": 5,
+		"visit_research_pct": 15
+	},
+	"factors": {
+		"_doc": "Prop. 7 : ce qui fait bouger l'humeur. Mensuel sauf mention.",
+		"unmade_world": -25,
+		"exterminate": -5,
+		"exterminate_max": -10,
+		"battle_month": -6,
+		"siege_month": -8,
+		"peace_host": 1,
+		"faith_sacred": 3,
+		"precept": 3,
+		"maternal_pop": 1,
+		"curious_species": 1,
+		"jealous_rival": -2,
+		"ecology_low": -4,
+		"ecology_high": 2,
+		"dismantle_start": -40,
+		"murder": -60,
+		"rejected_mood": -20
+	},
+	"origins": {
+		"_doc": "Prop. 2 : catalogue ouvert. antibody = espèce de la faune lâchée contre les ennemis (prop. 13) ; strike = force des décharges (prop. 12) ; unmade_x = haine des briseurs de mondes ; leave_cd = jours entre deux fuites (prop. 18).",
+		"eveille": {"label": "Éveillé", "text": "Une biosphère entière qui a pris conscience d'elle-même, comme Planet dans Alpha Centauri. Elle aime qu'on la ménage.", "antibody": "rongeroc", "strike": 40, "unmade_x": 1, "leave_cd": 3600, "ecology": true, "names": ["la Planète qui rêve", "le Grand Champignon", "Celle-qui-pousse", "la Forêt pensante", "l'Océan qui compte"]},
+		"graine": {"label": "Graine", "text": "Né d'une graine venue d'ailleurs, comme Zonama Sekot. Il éprouve ses visiteurs, offre des vaisseaux vivants à ses amis et sait fuir.", "antibody": "nuees", "strike": 35, "unmade_x": 1, "leave_cd": 1800, "seed_x": 2, "names": ["le Monde-graine", "Sekh-Torr", "la Semence errante", "le Jardin voyageur"]},
+		"reliquaire": {"label": "Reliquaire", "text": "Un monde-reliquaire des Façonneurs qui s'est réveillé vivant. Il aime ceux qui créent des mondes et hait doublement ceux qui les défont.", "antibody": "cristalloides", "strike": 50, "unmade_x": 2, "leave_cd": 3600, "names": ["le Monde qui écoute", "la Planète qui rêve", "le Cœur vert", "Celui-qui-choisit"]},
+		"hante": {"label": "Hanté", "text": "Un monde vivant touché par le Songe, comme un monde-démon. Il hait tous ceux qui n'ont pas fait l'Éveil.", "antibody": "betes_songe", "strike": 60, "unmade_x": 1, "leave_cd": 3600, "mood_cap": -30, "names": ["le Monde qui hurle", "la Plaie du Songe", "l'Œil ouvert", "Celui-qui-ne-dort-plus"]}
+	},
+	"start_origins": ["eveille", "graine", "eveille", "graine"],
+	"temperaments": {
+		"_doc": "Prop. 5 : catalogue ouvert. gain_pct / loss_pct : vitesse de l'humeur ; req_pct : fréquence des demandes ; asks : demandes préférées ; hidden : humeur cachée sans écoute (Solaris).",
+		"curieux": {"label": "Curieux", "text": "Aime les peuples variés et les savants. Demande souvent qu'on lui chante quelque chose de nouveau.", "gain_pct": 100, "loss_pct": 100, "req_pct": 80, "asks": ["chant", "peuple", "offrande"]},
+		"jaloux": {"label": "Jaloux", "text": "Veut être le seul monde vivant de son hôte. Supporte mal les flottes en orbite.", "gain_pct": 80, "loss_pct": 130, "req_pct": 100, "asks": ["chasser", "repos", "offrande"]},
+		"maternel": {"label": "Maternel", "text": "Aime les colonies peuplées et la paix. Pardonne vite.", "gain_pct": 130, "loss_pct": 80, "req_pct": 100, "asks": ["paix", "peuple", "repos"]},
+		"fier": {"label": "Fier", "text": "Ne supporte pas qu'on lui refuse quoi que ce soit.", "gain_pct": 100, "loss_pct": 100, "req_pct": 120, "no_x": 2, "asks": ["offrande", "chasser", "paix"]},
+		"enigme": {"label": "Énigme", "text": "Comme l'océan de Solaris : ses humeurs restent cachées tant qu'un sensitif ne l'a pas écouté. Il lui arrive de renvoyer des fantômes.", "gain_pct": 100, "loss_pct": 100, "req_pct": 140, "hidden": true, "visitors": true, "asks": ["chant", "repos", "offrande"]}
+	},
+	"requests": {
+		"_doc": "Prop. 10 : demandes. Chacune a un texte, une condition, un coût à l'acceptation et parfois une obligation suivie (watch).",
+		"repos": {"label": "Laisser le sol en repos", "ask": "Il veut que le sol se repose : la colonie produira 30 % de moins pendant un an.", "prod_pct": -30, "days": 360},
+		"offrande": {"label": "Une offrande", "ask": "Il réclame une offrande : 150 de nourriture et 100 d'énergie, déposées sur ses plaines.", "cost": {"food": 150, "energy": 100}},
+		"chasser": {"label": "Chasser les flottes", "ask": "Il ne veut plus voir vos vaisseaux de guerre en orbite pendant six mois.", "watch": "nofleet"},
+		"paix": {"label": "Cesser une guerre", "ask": "Il veut que cesse votre guerre contre {lw_rival} d'ici six mois.", "watch": "peace", "needs_war": true},
+		"peuple": {"label": "Accueillir un peuple", "ask": "Il veut entendre une autre voix : deux familles de {lw_people} viendront s'installer sur la colonie.", "pops": 2, "needs_people": true},
+		"chant": {"label": "Lui chanter quelque chose", "ask": "Il veut qu'on lui chante quelque chose de nouveau : 50 d'influence et 50 de savoir pour une année de concerts.", "cost": {"influence": 50, "knowledge": 50}}
+	},
+	"war": {
+		"_doc": "Prop. 12-18. strike_shots : tirs par jour de bataille ; antibody_cd : jours entre deux nuées d'anticorps ; ground_pct : sol hostile.",
+		"strike_shots": 3,
+		"strike_weapon": "decharge",
+		"antibody_cd": 180,
+		"antibody_days": 120,
+		"antibody_herds": 1,
+		"ground_pct": 25,
+		"refuge_min": 25,
+		"flee_range": 5
+	},
+	"ego": {
+		"_doc": "Prop. 26 : le Monde-Ego (crise en option). start_year, seed_days : une graine tous les seed_days sur une planète à seed_range sauts ; une planète ensemencée devient une extension après grow_days (sa colonie meurt) ; le noyau tombe quand kill_power de puissance armée non-Ego l'assiège kill_days de suite.",
+		"start_year": 40,
+		"seed_days": 540,
+		"seed_range": 3,
+		"grow_days": 360,
+		"kill_power": 600,
+		"kill_days": 30,
+		"antibody": "betes_songe",
+		"strike": 90,
+		"reward": {"influence": 200, "knowledge": 300},
+		"name": "Ego, le Monde affamé"
+	},
+	"talents": {
+		"_doc": "Prop. 25 : talents des huit peuples (clés lues par LivingWorlds.t_int / t_bool).",
+		"ferrocornes": {"label": "Pied lourd", "text": "Les décharges des mondes vivants les frappent 25 % moins fort.", "strike_taken_pct": -25},
+		"brisecomete": {"label": "Briseurs de comètes", "text": "Les mondes vivants les tiennent d'abord pour suspects (-10 au départ), mais leurs offrandes comptent double.", "start_mood": -10, "offer_x": 2},
+		"ossarane": {"label": "Jardiniers", "text": "Les mondes vivants qu'ils habitent gagnent +2 d'humeur par mois.", "host_mood": 2},
+		"choeur": {"label": "Communion", "text": "L'humeur des mondes vivants envers eux monte 50 % plus vite.", "gain_pct": 50},
+		"khthari": {"label": "Dévoreurs", "text": "Craints des mondes vivants (-20 au départ) ; leur digestion compte double dans leur haine, mais leurs anticorps les fuient : aucun troupeau n'est lâché contre eux.", "start_mood": -20, "exterminate_x": 2, "no_antibody": true},
+		"teyl": {"label": "Coques muettes", "text": "Synthétiques, le monde ne les entend pas : son humeur envers eux reste à 0, jamais Hostile ni Lié.", "mute": true},
+		"vael": {"label": "Cadastre des mondes", "text": "Inviter un monde vivant leur coûte moitié moins.", "invite_pct": -50},
+		"murmurants": {"label": "Ondes de fond", "text": "Ils écoutent les mondes vivants sans sensitif ni Résonance.", "free_listen": true}
+	},
+	"units": {
+		"vivant_nef_graine": {"label": "Nef-graine", "plural": "Nefs-graines", "line": "line", "size": "medium", "role": "Vaisseau vivant", "hp": 260, "armor": 10, "shield": 40, "weapons": {"decharge": 30}, "speed": 42, "military": true, "fleet_repair": true, "upkeep": {"food": 2}, "description": "Un vaisseau vivant offert par un monde lié, comme ceux de Zonama Sekot : rapide, et toute sa flotte se répare où qu'elle soit."}
+	},
+	"visitors": ["la fondatrice de votre lignée", "un amiral disparu en mer d'étoiles", "une enfant morte il y a un siècle", "le premier colon de ce monde", "un savant dont personne ne se souvient", "votre propre souverain, plus jeune de vingt ans"],
+	"cards": [
+		{"id": "lw_demande", "title": "Le monde demande", "trigger": "living", "weight": 0, "repeat": true, "art": "anomaly", "text": "{lw_world}, à {system}, se fait entendre : les vents tournent tous dans le même sens, les forêts murmurent à l'unisson. {lw_ask}", "choices": [{"label": "Accepter", "fx": [{"k": "lw", "act": "yes"}]}, {"label": "Refuser", "fx": [{"k": "lw", "act": "no"}]}], "default": 1},
+		{"id": "lw_eveil", "title": "Le monde s'éveille", "trigger": "living", "weight": 0, "repeat": true, "art": "anomaly", "text": "Sous {planet}, à {system}, les sismographes battent comme un cœur. Les biologistes sont formels : la planète entière est en train de devenir quelqu'un. On peut la laisser s'éveiller, ou l'endormir pour toujours tant qu'il est temps.", "choices": [{"label": "La laisser s'éveiller", "fx": [{"k": "lw", "act": "wake"}]}, {"label": "L'endormir pour toujours", "fx": [{"k": "lw", "act": "sleep"}]}], "default": 0},
+		{"id": "lw_visiteurs", "title": "Un visiteur", "trigger": "living", "weight": 0, "repeat": true, "art": "anomaly", "text": "{lw_world}, à {system}, a renvoyé quelqu'un : {lw_ghost} marche dans les rues de la colonie, et se souvient de tout. Personne ne sait si c'est un cadeau ou une question.", "choices": [{"label": "L'accueillir", "fx": [{"k": "lw", "act": "visit_yes"}]}, {"label": "Le rendre à l'océan", "fx": [{"k": "lw", "act": "visit_no"}]}], "default": 0}
+	],
+	"ai": {
+		"_doc": "Prop. 32.",
+		"accept_easy": ["repos", "chant", "offrande", "peuple"],
+		"avoid_x": 3,
+		"invite_reserve": {"influence": 150}
+	}
+}

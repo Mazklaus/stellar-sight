@@ -594,3 +594,13 @@ an immense orbital shipyard where a half-built planet floats inside colossal sca
 ```
 a yellow star half enclosed in an unfinished dyson shell, dark shell panels glowing red hot on their outer face, on an observation balcony dignitaries of several alien species look up at an immense luminous ladder graduated I II III drawn across the sky with their banners rising to different heights along it, in the distance a red dwarf star reignites into yellow, in the foreground a tired engineer holds a ridiculously small thermometer, awe and ambition with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-60 · Les mondes qui choisissent
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Les mondes qui choisissent »
+- Sujet : Une planète couverte de forêts et d'océans dont les nuages dessinent lentement un visage endormi ; des racines lumineuses relient ses continents comme des veines ; en orbite, une petite flotte de colons attend, et un vaisseau vivant aux formes de graine s'en détache vers elle ; au loin, une seconde planète s'éloigne lentement de son étoile, traînant une queue de nuages ; au premier plan, sur une colline, une chorale de colons de plusieurs peuples chante vers le ciel sous la direction d'un chef de chœur visiblement anxieux
+
+```
+a living planet covered with forests and oceans whose clouds slowly form the face of a sleeping giant, glowing roots link its continents like veins, in orbit a small fleet of colony ships waits while a living seed-shaped vessel drifts away from the planet toward them, in the distance a second planet slowly leaves its star trailing a tail of clouds, in the foreground on a hill a choir of colonists of several alien species sings toward the sky led by a visibly anxious choirmaster, wonder and reverence with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

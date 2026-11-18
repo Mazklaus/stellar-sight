@@ -196,6 +196,7 @@ func _draw() -> void:
 	_draw_oeuvres(px)
 	_draw_megas(px)
 	_draw_forge(px)
+	_draw_living(px)
 	_draw_archaeo(px)
 	_draw_contact(px)
 	_draw_quests(px)
@@ -1033,6 +1034,29 @@ func _draw_forge(px: float) -> void:
 				draw_rect(r, amber, false, 1.2)
 			3:
 				draw_colored_polygon(PackedVector2Array([Vector2(-9.5, 8), Vector2(-7, 11.5), Vector2(-9.5, 15), Vector2(-12, 11.5)]), Color(0.72, 0.6, 0.95, 0.9))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Mondes vivants (prop. 31) : une petite feuille sous le système d'un monde vivant que le joueur connaît,
+## à la couleur de l'humeur qu'il lui porte (grise s'il la cache) ; rouge sombre pour Ego.
+func _draw_living(px: float) -> void:
+	if state == null or state.living.is_empty():
+		return
+	for pid in LivingWorlds.ids(state):
+		var sid := LivingWorlds.sys_of(state, pid)
+		if sid < 0 or not is_explored(sid) or (viewer >= 0 and not LivingWorlds.knows(state, pid, viewer)):
+			continue
+		var col := Color(0.55, 0.85, 0.5, 0.95)
+		if int(LivingWorlds.world(state, pid).get("ego", 0)) == 1:
+			col = Color(0.75, 0.1, 0.2, 0.95)
+		elif viewer >= 0 and LivingWorlds.mood_known(state, pid, viewer):
+			var c: Array = LivingWorlds.tier(state, pid, viewer).get("color", [0.55, 0.85, 0.5])
+			col = Color(float(c[0]), float(c[1]), float(c[2]), 0.95)
+		elif viewer >= 0:
+			col = Color(0.6, 0.6, 0.6, 0.9)
+		draw_set_transform(galaxy.systems[sid].position, 0.0, Vector2(px, px))
+		draw_colored_polygon(PackedVector2Array([Vector2(9, 8), Vector2(13, 12), Vector2(9, 17), Vector2(5, 12)]), col)
+		draw_line(Vector2(9, 9.5), Vector2(9, 16), Color(0.05, 0.12, 0.05, 0.9), 1.0)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

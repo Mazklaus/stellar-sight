@@ -174,6 +174,8 @@ static func push_reason(state: GameState, c: Colony) -> String:
 	var e := state.get_empire(c.owner)
 	if e == null or c.population < 2:
 		return ""
+	if LivingWorlds.fused_colony(state, c):
+		return ""  # monde fusionné : personne ne part
 	if e.starving:
 		return "famine"
 	if not Stability.growth_ok(state, _sid(state, c)):
