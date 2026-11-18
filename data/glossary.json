@@ -3920,6 +3920,43 @@
     "15zb-prises"
    ],
    "strict": true
+  },
+  {
+   "id": "allure_resolution",
+   "name": "Allure de résolution",
+   "forms": [
+    "Allure de résolution"
+   ],
+   "family": "meca",
+   "summary": "Au tour par tour, vitesse à laquelle les jours d'un tour défilent, réglée par les cinq crans du cadran (touches 1 à 5), de contemplative à éclair ; en réseau, l'hôte la règle pour tous",
+   "chapters": [
+    "02-premiere-partie"
+   ]
+  },
+  {
+   "id": "tours_simultanes",
+   "name": "Tours simultanés",
+   "forms": [
+    "Tours simultanés",
+    "Tour simultané"
+   ],
+   "family": "meca",
+   "summary": "Tour par tour en réseau : tous jouent en même temps, le temps arrêté ; les jours passent quand chacun a terminé son tour ou que l'hôte force la fin du tour",
+   "chapters": [
+    "02-premiere-partie"
+   ]
+  },
+  {
+   "id": "ia_interimaire",
+   "name": "IA intérimaire",
+   "forms": [
+    "IA intérimaire"
+   ],
+   "family": "meca",
+   "summary": "En réseau, l'IA qui tient l'empire d'un joueur parti, même par une coupure, et le lui rend à son retour",
+   "chapters": [
+    "02-premiere-partie"
+   ]
   }
  ]
 }

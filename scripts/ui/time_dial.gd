@@ -4,7 +4,8 @@ extends Control
 ## des 4X au tour par tour. Le centre met en pause ou relance, la date s'affiche dessous, et les
 ## cinq vitesses sont des crans sur l'arc du haut. Il lit l'horloge et n'émet que des demandes.
 ## Au tour par tour, le cadran redevient un vrai bouton de fin de tour : le centre termine le
-## tour, l'anneau se remplit pendant que les jours du tour défilent, et le numéro du tour s'affiche.
+## tour, l'anneau se remplit pendant que les jours du tour défilent, et le numéro du tour s'affiche ;
+## les crans règlent alors l'allure à laquelle les jours du tour défilent (de contemplative à éclair).
 
 signal pause_toggled
 signal speed_requested(index: int)
@@ -51,19 +52,10 @@ func _draw() -> void:
 	draw_circle(c, RING + 10.0, Color(0.03, 0.04, 0.06, 0.55))
 	draw_arc(c, RING + 10.0, 0.0, TAU, 72, UiTheme.LINE_STRONG, 1.0, true)
 	draw_arc(c, RING, 0.0, TAU, 72, UiTheme.LINE, 1.0, true)
+	_draw_speed_notches(paused and not _clock.is_turn_based())
 	if _clock.is_turn_based():
 		_draw_turn_dial(c)
 		return
-	for i in _clock.SECONDS_PER_DAY.size():
-		var p := speed_position(i)
-		var on: bool = i <= _clock.speed_index
-		var col := UiTheme.ACCENT if on else Color(1, 1, 1, 0.25)
-		if paused and on:
-			col = Color(UiTheme.ACCENT, 0.45)
-		var r := 5.0 if i == _hover_speed else 4.0
-		draw_circle(p, r, col)
-		if i == _clock.speed_index:
-			draw_arc(p, 8.0, 0.0, TAU, 24, col, 1.0, true)
 	# Disque central : pause / lecture.
 	var core_col := Color(0.06, 0.08, 0.11, 0.92) if not _hover_core else Color(0.1, 0.13, 0.17, 0.95)
 	draw_circle(c, CORE, core_col)
@@ -86,6 +78,20 @@ func _draw() -> void:
 	draw_string(cf, c + Vector2(-lw * 0.5, 32), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, gcol if paused else UiTheme.TEXT_DIM)
 
 
+## Les cinq crans de vitesse sur l'arc du haut (au tour par tour : l'allure de résolution des tours).
+func _draw_speed_notches(dim: bool) -> void:
+	for i in _clock.SECONDS_PER_DAY.size():
+		var p := speed_position(i)
+		var on: bool = i <= _clock.speed_index
+		var col := UiTheme.ACCENT if on else Color(1, 1, 1, 0.25)
+		if dim and on:
+			col = Color(UiTheme.ACCENT, 0.45)
+		var r := 5.0 if i == _hover_speed else 4.0
+		draw_circle(p, r, col)
+		if i == _clock.speed_index:
+			draw_arc(p, 8.0, 0.0, TAU, 24, col, 1.0, true)
+
+
 ## Variante tour par tour : progression du tour sur l'anneau, gros bouton « fin de tour » au centre.
 func _draw_turn_dial(c: Vector2) -> void:
 	var resolving: bool = _clock.is_resolving_turn()
@@ -100,13 +106,13 @@ func _draw_turn_dial(c: Vector2) -> void:
 	var head := "TOUR %d" % _clock.turn()
 	var hw := cf.get_string_size(head, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 	draw_string(cf, c + Vector2(-hw * 0.5, -18), head, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, UiTheme.TEXT)
-	# Minuteur de tour en réseau, dans la bande au-dessus du disque : le temps qui reste avant que
-	# l'hôte termine le tour pour tous.
+	# Minuteur de tour en réseau, en haut du disque (les crans d'allure occupent l'arc au-dessus) :
+	# le temps qui reste avant que l'hôte termine le tour pour tous.
 	var left: int = _clock.timer_left() if not resolving else -1
 	if left >= 0:
 		var t := "%d:%02d" % [left / 60, left % 60]
 		var tw := cf.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
-		draw_string(cf, c + Vector2(-tw * 0.5, -CORE - 5), t, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, UiTheme.BAD if left <= 10 else UiTheme.WARN)
+		draw_string(cf, c + Vector2(-tw * 0.5, -31), t, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, UiTheme.BAD if left <= 10 else UiTheme.WARN)
 	# Glyphe : chevron double « suivant », ou sablier stylisé pendant la résolution.
 	var g := c + Vector2(0, -2)
 	var s := 6.0
@@ -152,7 +158,7 @@ func _gui_input(event: InputEvent) -> void:
 		return
 	var mb := event as InputEventMouseButton
 	if mb and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
-		var i := -1 if _clock.is_turn_based() else _speed_at(mb.position)
+		var i := _speed_at(mb.position)
 		if i >= 0:
 			speed_requested.emit(i)
 			accept_event()
@@ -184,7 +190,13 @@ func _tip() -> String:
 			tip += "\nCentre : annuler la fin de votre tour (l'hôte : forcer la fin du tour)."
 		if _clock.timer_left() >= 0:
 			tip += "\nMinuteur : le tour se termine pour tous dans %d s." % _clock.timer_left()
-		return tip
+		return tip + "\n" + _pace_tip() + " (réglée par l'hôte)"
 	if _clock.is_turn_based():
-		return "Centre : fin de tour, %d jours passent  (Espace)" % _clock.turn_days
+		return "Centre : fin de tour, %d jours passent  (Espace)\n%s" % [_clock.turn_days, _pace_tip()]
 	return "Centre : %s  (Espace)\nCrans : vitesse 1 à 5  (touches 1 à 5)" % ("reprendre" if _clock.paused else "pause")
+
+
+## Allure de résolution des tours, pour les infobulles.
+func _pace_tip() -> String:
+	return "Crans : allure de résolution %s, un tour se joue en %.1f s  (touches 1 à 5)" % [
+			_clock.TURN_PACE_NAMES[_clock.speed_index], _clock.turn_resolution_seconds()]

@@ -238,6 +238,17 @@ func _test_clock() -> void:
 	clock._process(5.0)
 	_check(clock.day == 10, "rien ne bouge entre deux tours")
 	_check(clock.settings() == {"mode": "turns", "turn_days": 10}, "réglages du mode pour la sauvegarde")
+	# Allure de résolution : les crans de vitesse règlent le défilement des jours du tour.
+	clock.set_speed(0)
+	clock.end_turn()
+	clock._process(1.0)
+	_check(clock.day == 12 and clock.is_resolving_turn(), "allure contemplative : 2 jours par seconde (jour %d)" % clock.day)
+	clock.set_speed(4)
+	for _i in 10:
+		clock._process(0.1)
+	_check(clock.day == 20 and clock.paused, "allure éclair : le reste du tour passe en moins d'une seconde (jour %d)" % clock.day)
+	_check(is_equal_approx(clock.turn_resolution_seconds(), 0.3), "durée d'un tour de 10 jours à l'allure éclair")
+	clock.set_speed(1)
 	clock.apply_settings({})
 	_check(not clock.is_turn_based(), "sauvegarde sans réglage : temps réel")
 	clock.apply_settings({"mode": "turns", "turn_days": 30})
@@ -957,6 +968,8 @@ func _test_navigation_ui(main: Node) -> void:
 	await process_frame
 	_check(not main._hud.turn_players.visible, "seul en réseau : pas de liste")
 	var turn_end: int = (main.simulation.state.tick / 5 + 1) * 5
+	clock.set_speed(4)  # allure éclair : l'hôte règle l'allure de résolution pour tous
+	_check(main.net.speed == 4 and clock.speed_index == 4, "tour en réseau : l'hôte règle l'allure de résolution")
 	clock.toggle_pause()
 	_check(not main.net.paused and main.net.turn_target == turn_end and clock.is_resolving_turn(), "Fin de tour : seul joueur prêt, les jours du tour défilent")
 	for _i in 120:
