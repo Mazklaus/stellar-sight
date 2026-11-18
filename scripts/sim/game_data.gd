@@ -234,6 +234,11 @@ static func kardashev() -> Dictionary:
 	return _load("kardashev")
 
 
+## Écologie et climat des mondes (data/ecology.json).
+static func ecology() -> Dictionary:
+	return _load("ecology")
+
+
 ## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.
 static func wonders() -> Dictionary:
 	return _load("wonders")

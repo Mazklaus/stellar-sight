@@ -718,6 +718,11 @@ static func ar_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "archaeology", "player": player, "act": act, "d": d}
 
 
+## Écologie (voir Ecology.check) : "doctrine" (id).
+static func eco_act(player: int, act: String, d := {}) -> Dictionary:
+	return {"type": "ecology", "player": player, "act": act, "d": d}
+
+
 ## Échelle de Kardashev (voir Kardashev.check) : "perk" (id), "sober" (on), "veil", "relight" (s).
 static func kd_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "kardashev", "player": player, "act": act, "d": d}
@@ -949,6 +954,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Transcendence.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"archaeology":
 			return Archaeology.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
+		"ecology":
+			return Ecology.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"kardashev":
 			return Kardashev.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"contact":
@@ -1383,6 +1390,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			WorldForge.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"archaeology":
 			Archaeology.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
+		"ecology":
+			Ecology.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"kardashev":
 			Kardashev.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"contact":
