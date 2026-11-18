@@ -41,8 +41,13 @@ const TURN_TIMERS: Array[Dictionary] = [
 	{"id": "dernier-60", "label": "Dernier joueur : 1 min", "mode": "dernier", "s": 60},
 	{"id": "dernier-120", "label": "Dernier joueur : 2 min", "mode": "dernier", "s": 120},
 ]
-## Pendant la résolution d'un tour, les jours défilent à cette cadence (secondes réelles par jour).
-const TURN_SECONDS_PER_DAY := 0.06
+## Pendant la résolution d'un tour, les jours défilent à cette cadence (secondes réelles par jour),
+## selon le cran de vitesse : les mêmes cinq crans qu'en temps réel règlent l'allure de la résolution.
+## Cran 2 par défaut : un tour de 10 jours se joue en 1,5 s, assez pour suivre les flottes et les
+## batailles ; le cran 1 laisse le temps de tout regarder, le cran 5 garde l'ancienne allure éclair.
+const TURN_SECONDS_PER_DAY: Array[float] = [0.4, 0.15, 0.08, 0.05, 0.03]
+## Nom de chaque allure de résolution, pour le cadran et les infobulles.
+const TURN_PACE_NAMES: Array[String] = ["contemplative", "posée", "vive", "rapide", "éclair"]
 
 var simulation: Simulation
 var speed_index: int = 1
@@ -200,7 +205,12 @@ func day_fraction() -> float:
 
 
 func _seconds_per_day() -> float:
-	return TURN_SECONDS_PER_DAY if mode == MODE_TURNS else SECONDS_PER_DAY[speed_index]
+	return TURN_SECONDS_PER_DAY[speed_index] if mode == MODE_TURNS else SECONDS_PER_DAY[speed_index]
+
+
+## Secondes réelles que dure la résolution d'un tour à l'allure choisie.
+func turn_resolution_seconds() -> float:
+	return TURN_SECONDS_PER_DAY[speed_index] * turn_days
 
 
 ## Interrompt le tour en cours de résolution (une bataille vient de s'engager) : le jeu s'arrête

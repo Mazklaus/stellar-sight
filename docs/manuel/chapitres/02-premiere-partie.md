@@ -59,9 +59,33 @@ Pour une première partie, prenez la Concorde de Vael ou les Lignées d'Ossarane
 
 En **temps réel pausable**, les jours défilent à la vitesse choisie (cinq crans, touches [[1]] à [[5]]) et [[Espace]] met en pause à tout moment. Vous pouvez donner tous vos ordres pendant la pause.
 
-Au **tour par tour**, le temps est arrêté pendant que vous jouez. Le cadran devient un bouton **Fin de tour** ([[Espace]]) qui fait défiler les jours du tour en accéléré, puis s'arrête au tour suivant. Si une bataille éclate avec vos flottes pendant le tour, il s'interrompt pour vous laisser choisir la tactique ou vous retirer.
+Au **tour par tour**, le temps est arrêté pendant que vous jouez. Le cadran devient un bouton **Fin de tour** ([[Espace]]) qui fait défiler les jours du tour, puis s'arrête au tour suivant. Si une bataille éclate avec vos flottes pendant le tour, il s'interrompt pour vous laisser choisir la tactique ou vous retirer.
+
+Les cinq crans du cadran (touches [[1]] à [[5]]) règlent alors l'**allure de résolution** : à quelle vitesse les jours du tour défilent, le temps de voir les flottes avancer et les batailles éclater. Contemplative (un tour de 10 jours en 4 secondes), posée (1,5 seconde, l'allure de départ), vive, rapide ou éclair (0,3 seconde). L'infobulle du cadran rappelle l'allure choisie.
 
 Les deux modes appliquent exactement les mêmes règles : un tour n'est qu'une suite de jours ordinaires. Seul votre confort change.
+
+### Jouer en réseau
+
+La page **Multijoueur** de l'accueil réunit tout. Jusqu'à douze joueurs humains, sous Windows comme sous Linux, à condition d'avoir la même version du jeu.
+
+**Héberger.** **Nouvelle partie en réseau** ouvre l'écran Nouvelle partie habituel, avec les **tours simultanés** proposés d'abord. Dans le bloc des rivaux, le niveau d'IA d'une place peut devenir **Joueur humain** : elle attend un joueur du salon. Une place retirée est fermée. Chaque joueur y prend sa place, choisit son peuple (les peuples créés dans l'éditeur voyagent avec lui) et sa couleur, puis se déclare **Prêt** ; l'hôte lance la partie. Les **équipes** se règlent par place : alliance verrouillée, vision et victoire communes. Une place Joueur humain restée vide est jouée par l'IA. L'hôte peut aussi ouvrir une partie déjà commencée (menu du jeu, **Ouvrir en réseau**), et la protéger par un **mot de passe**.
+
+**Rejoindre.** Les parties de votre réseau local s'affichent toutes seules ; sinon, tapez l'adresse que l'hôte vous donne. Vous choisissez alors votre empire parmi ceux que tient l'IA. On peut rejoindre une partie en cours : au tour par tour, vous entrez au début du tour suivant.
+
+**Les tours simultanés.** Tout le monde joue en même temps, le temps arrêté. Chacun termine son tour au cadran (qui affiche alors PRÊT et le nombre de joueurs attendus) et peut l'annuler tant que le tour n'est pas parti. La liste des joueurs, près du cadran, montre qui a fini. Quand tous ont terminé, ou que l'hôte force la fin du tour, les jours défilent chez tous, à l'allure choisie par l'hôte, et chacun s'arrête au même jour. Un **minuteur** de tour est possible : fixe, ou seulement pour le dernier joueur.
+
+**En temps réel**, la pause vaut pour tous : chacun peut la mettre, la reprend celui qui l'a mise ou l'hôte, et seul l'hôte règle la vitesse.
+
+**Partir et revenir.** Un joueur qui quitte, même par une coupure, laisse son empire à une IA intérimaire qui le lui garde ; l'hôte sauvegarde aussitôt. En revenant (même nom ou même poste), il retrouve son empire. Si l'hôte part, **Reprendre la partie en réseau** rouvre la dernière sauvegarde automatique et chacun retrouve sa place.
+
+**Discuter.** [[Entrée]] ouvre la discussion ; la case **Équipe** réserve un message à vos alliés d'équipe.
+
+**Par Internet.** L'hôte ouvre le port UDP 24570 : sa box le fait parfois seule (la ligne « Par Internet » du salon le dit), sinon il faut une redirection de ce port vers son PC et, sous Windows, le bouton **Autoriser dans le pare-feu**. **Tester l'accès depuis Internet** vérifie l'ouverture. Derrière une box qui partage son adresse (CGNAT, fréquent en 4G), seul un réseau privé comme Tailscale fonctionne.
+
+::: conseil
+Pour une première partie entre amis, prenez les tours simultanés de 10 jours, l'allure posée et un minuteur « Dernier joueur : 1 min » : personne n'attend longtemps celui qui hésite.
+:::
 
 ### Les dix premières minutes
 

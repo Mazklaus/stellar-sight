@@ -573,7 +573,7 @@ func request_speed(index: int) -> void:
 		_update_delay()
 		_broadcast_clock()
 	elif core:
-		notice.emit("Seul l'hôte règle la vitesse.", "")
+		notice.emit("Seul l'hôte règle l'allure de résolution des tours." if turn_mode else "Seul l'hôte règle la vitesse.", "")
 
 
 ## Fraction du jour en cours, pour animer les flottes.
@@ -613,7 +613,7 @@ func _clock() -> Node:
 
 
 func _seconds_per_day() -> float:
-	return Clock.TURN_SECONDS_PER_DAY if turn_mode else Clock.SECONDS_PER_DAY[speed]
+	return Clock.TURN_SECONDS_PER_DAY[speed] if turn_mode else Clock.SECONDS_PER_DAY[speed]
 
 
 func _my_id() -> int:

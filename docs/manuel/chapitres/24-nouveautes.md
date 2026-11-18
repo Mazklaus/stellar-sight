@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.46
+
+- **Allure de résolution des tours** : au tour par tour, les cinq crans du cadran (touches [[1]] à [[5]]) règlent la vitesse à laquelle les jours du tour défilent, de contemplative à éclair ; l'allure de départ est plus posée qu'avant. En réseau, l'hôte la règle pour tous.
+- **Jouer en réseau** (chapitre 2) : le manuel décrit enfin le multijoueur, du salon d'avant-partie aux tours simultanés, au départ et au retour des joueurs et à l'ouverture du port.
+
 ### Édition 2.45
 
 - **Prises de guerre** (chapitre 46), nouveau réglage **Prises de guerre** (Complète, Classique, Désactivée) : **posture d'abordage** de flotte (seuils de coque par taille, troupes engagées, chances de 5 à 90 %), modules **Grappins**, **Capsules d'assaut**, **Sas piégés**, **Charge d'autodestruction** et **Grue de récupération**, technologies Équipes de prise, Capsules d'assaut et Ingénierie inverse ; **redditions** selon le peuple ; **prises** et dix **avaries** ; remise en état, refonte, démantèlement et revente au chantier ; vaisseau amiral pris et héros prisonnier, traits Abordeur et Ferrailleur.
