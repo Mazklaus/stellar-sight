@@ -405,7 +405,7 @@ static func compute(state: GameState) -> Array[Dictionary]:
 				income[who] = inc
 			# Horde : la flotte qui bloque la route rançonne le convoi.
 			var by := int(r.get("by", -1))
-			if bool(r["blocked"]) and by >= 0 and TradeLinks.has_talent(state, by, "convoy_raid"):
+			if bool(r["blocked"]) and by >= 0 and (TradeLinks.has_talent(state, by, "convoy_raid") or PeopleHulls.privateer_at(state, by, int(r.get("at", -1)))):
 				var inc_h: Dictionary = income.get(by, {})
 				@warning_ignore("integer_division")
 				inc_h["energy"] = int(inc_h.get("energy", 0)) + int(r["value"]) * int(TradeLinks.data()["horde_raid_pct"]) / 100

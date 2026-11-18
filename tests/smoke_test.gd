@@ -22,6 +22,7 @@ func _initialize() -> void:
 	preload("res://tests/research_tests.gd").new().run(_check)
 	preload("res://tests/arsenal_tests.gd").new().run(_check)
 	preload("res://tests/design_tests.gd").new().run(_check)
+	preload("res://tests/people_hulls_tests.gd").new().run(_check)
 	preload("res://tests/victory_tests.gd").new().run(_check)
 	preload("res://tests/late_era_tests.gd").new().run(_check)
 	preload("res://tests/ship_art_tests.gd").new().run(_check)

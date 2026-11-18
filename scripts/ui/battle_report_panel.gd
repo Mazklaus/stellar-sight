@@ -137,6 +137,7 @@ func _side_row(s: Dictionary) -> Control:
 	var n := UiTheme.title(e.short_name(), 20, e.color().lightened(0.3))
 	name_box.add_child(n)
 	name_box.add_child(UiTheme.dim("Dégâts infligés : %d" % int(s["dealt"]), 13))
+	name_box.add_child(_vignettes(e, s))
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 10)
@@ -148,6 +149,38 @@ func _side_row(s: Dictionary) -> Control:
 	var lost: Dictionary = s["lost"]
 	grid.add_child(_value(Combat.ships_text(lost) if not lost.is_empty() else "aucun", UiTheme.BAD if not lost.is_empty() else UiTheme.GOOD))
 	return panel
+
+
+## Coques de peuple (prop. 37) : une vignette par classe engagée, au style du peuple ; les perdues
+## sont assombries, les prises d'abordage marquées d'un liseré d'or.
+func _vignettes(e: Empire, s: Dictionary) -> Control:
+	var box := HFlowContainer.new()
+	box.custom_minimum_size = Vector2(190, 0)
+	var style := SpeciesLook.hull_style(e.faction_id)
+	var lost: Dictionary = s["lost"]
+	var classes: Array = (s["engaged"] as Dictionary).keys()
+	classes.sort_custom(func(a, b) -> bool: return Fleet.max_hp_of(String(a)) > Fleet.max_hp_of(String(b)))
+	for cls in classes.slice(0, 8):
+		var t := TextureRect.new()
+		t.texture = HullArt.icon(style, String(cls), e.color())
+		t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		t.custom_minimum_size = Vector2(22, 34)
+		var n := int((s["engaged"] as Dictionary)[cls])
+		var l := int(lost.get(cls, 0))
+		if l >= n:
+			t.modulate = Color(0.45, 0.45, 0.45, 0.7)
+		t.tooltip_text = "%s : %d engagé(s), %d perdu(s)" % [String(GameData.ship(String(cls)).get("label", cls)), n, l]
+		box.add_child(t)
+	for c in (s.get("captured", {}) as Dictionary).keys():
+		var t := TextureRect.new()
+		t.texture = HullArt.icon(style, String(c), Color(0.95, 0.78, 0.36))
+		t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		t.custom_minimum_size = Vector2(22, 34)
+		t.tooltip_text = "Pris à l'abordage : %s" % String(GameData.ship(String(c)).get("label", c))
+		box.add_child(t)
+	return box
 
 
 func _value(text: String, color: Color) -> Label:

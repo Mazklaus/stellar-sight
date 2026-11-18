@@ -18,6 +18,7 @@ var _tabs := {}
 var _pages := {}
 var _fullscreen: Button
 var _auto_pause: Button
+var _silhouettes: Button
 var _detail: Button
 var _scale_b: Button
 var _scale: Button
@@ -79,6 +80,11 @@ func _ready() -> void:
 		UiSettings.cycle_battle_scale()
 		sync())
 	brow.add_child(_scale_b)
+	_silhouettes = _toggle_row(display, "Silhouettes des flottes sur la carte",
+			"Remplace le chevron par la silhouette du plus gros vaisseau, au style de son peuple.", func() -> void:
+		UiSettings.fleet_silhouettes = not UiSettings.fleet_silhouettes
+		UiSettings.save_settings()
+		sync())
 	var game := _page("game")
 	_auto_pause = _toggle_row(game, "Pause automatique dans les écrans d'empire",
 			"Le temps s'arrête quand vous consultez l'économie ou vos colonies, et repart à la fermeture.", func() -> void:
@@ -147,6 +153,7 @@ func sync() -> void:
 		return
 	_set_toggle(_fullscreen, UiSettings.fullscreen)
 	_set_toggle(_auto_pause, UiSettings.auto_pause_menus)
+	_set_toggle(_silhouettes, UiSettings.fleet_silhouettes)
 	_scale.text = "%d %%" % roundi(UiSettings.ui_scale * 100.0)
 	_detail.text = String(GameData.battle_visuals().get("detail", {}).get("labels", {}).get(UiSettings.replay_detail, UiSettings.replay_detail))
 	_scale_b.text = String(GameData.battle_visuals().get("ground", {}).get("scale_labels", {}).get(UiSettings.battle_scale, UiSettings.battle_scale))

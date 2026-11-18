@@ -727,11 +727,13 @@ func _draw_fleet_icon(f: Fleet, pos: Vector2, px: float) -> void:
 	var col := state.get_empire(f.owner).color()
 	# Furtivité : un simple contact est un chevron gris, sans pavillon ; vos flottes voilées pâlissent.
 	var veiled := false
+	var contact := false
 	if not state.stealth.is_empty() and viewer >= 0:
 		if f.owner == viewer:
 			veiled = Stealth.veil_up(state, f)
 		elif fog and Stealth.full(state) and Stealth.cloak(state, f) > 0 and Stealth.degree(state, viewer, f, _seen) == 1:
 			col = Color(0.62, 0.64, 0.68)
+			contact = true
 	if veiled:
 		col = Color(col, 0.45)
 	var dir := Vector2.RIGHT
@@ -744,11 +746,21 @@ func _draw_fleet_icon(f: Fleet, pos: Vector2, px: float) -> void:
 	if f.id == selected_fleet:
 		draw_circle(pos, s * 1.9, Color(SELECT_COLOR, 0.18))
 		draw_arc(pos, s * 1.9, 0.0, TAU, 24, SELECT_COLOR, 1.5 * px, true)
-	draw_colored_polygon(pts, Color(0.02, 0.03, 0.05, 0.85))
-	var inner := PackedVector2Array()
-	for p in pts:
-		inner.append(pos + (p - pos) * 0.78)
-	draw_colored_polygon(inner, col)
+	var lead := _lead_ship(f) if UiSettings.fleet_silhouettes and not contact else ""
+	if lead != "":
+		# Coques de peuple (prop. 38) : la silhouette du plus gros vaisseau, nez dans le sens de la marche.
+		var tex := HullArt.icon(SpeciesLook.hull_style(state.get_empire(f.owner).faction_id), lead, col)
+		var h := s * 2.6
+		var w := h * float(tex.get_width()) / float(maxi(1, tex.get_height()))
+		draw_set_transform(pos, dir.angle() + PI * 0.5, Vector2.ONE)
+		draw_texture_rect(tex, Rect2(-w * 0.5, -h * 0.5, w, h), false, Color(1, 1, 1, col.a))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	else:
+		draw_colored_polygon(pts, Color(0.02, 0.03, 0.05, 0.85))
+		var inner := PackedVector2Array()
+		for p in pts:
+			inner.append(pos + (p - pos) * 0.78)
+		draw_colored_polygon(inner, col)
 	if f.ships.size() > 1:
 		draw_set_transform(pos, 0.0, Vector2(px, px))
 		draw_string(_font, Vector2(8, 12), str(f.ships.size()), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 1, 1, 0.85))
@@ -758,6 +770,18 @@ func _draw_fleet_icon(f: Fleet, pos: Vector2, px: float) -> void:
 		var m := pos + Vector2(0, -s * 1.35)
 		draw_circle(m, 3.2 * px, Color(0.02, 0.03, 0.05, 0.9))
 		draw_circle(m, 2.4 * px, Color(0.95, 0.78, 0.36))
+
+
+## Classe de tête d'une flotte : celle qui a le plus de structure.
+func _lead_ship(f: Fleet) -> String:
+	var best := ""
+	var best_hp := -1
+	for sh in f.ships:
+		var m := Fleet.max_hp_of(String(sh))
+		if m > best_hp:
+			best_hp = m
+			best = String(sh)
+	return best
 
 
 const SUPPLY_COLOR := Color(0.45, 0.85, 0.55)

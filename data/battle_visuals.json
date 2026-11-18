@@ -1263,7 +1263,7 @@
 		}
 	},
 	"hulls": {
-		"_doc": "Prop. 14 : silhouettes 2D des coques, dessinées par le jeu selon le style du peuple (species) et la coque du modèle. Remplacées par assets/battle/hulls/<style>_<coque>.png (+ _n.png pour les normales) quand le fichier existe. length : longueur en pixels de l'image ; width : demi-largeur relative ; parts : éléments ajoutés.",
+		"_doc": "Prop. 14 : silhouettes 2D des coques, dessinées par le jeu selon le style du peuple (species) et la coque du modèle. Remplacées par assets/battle/hulls/<style>_<coque>.png (+ _n.png pour les normales) quand le fichier existe. length : longueur en pixels de l'image ; width : demi-largeur relative ; parts : éléments ajoutés. Chantiers des peuples (lot 3) : form change le contour (dard, tour, epaules, plat, couronne, eperon, sac, relie, anneau, asym, montagne, voilier), scale agrandit ou réduit l'image ; chaque style a sa signature dessinée par HullArt._signature.",
 		"art": "res://assets/battle/hulls/%s.png",
 		"sizes": {
 			"small": 56,
@@ -1274,13 +1274,15 @@
 		"shapes": {
 			"corvette": {
 				"width": 0.2,
-				"parts": []
+				"parts": [],
+				"form": "dard"
 			},
 			"coursier": {
 				"width": 0.16,
 				"parts": [
 					"ailerons"
-				]
+				],
+				"form": "dard"
 			},
 			"fregate": {
 				"width": 0.24,
@@ -1300,7 +1302,8 @@
 				"parts": [
 					"tourelles",
 					"tour"
-				]
+				],
+				"form": "tour"
 			},
 			"cuirasse": {
 				"width": 0.3,
@@ -1308,14 +1311,16 @@
 					"tourelles",
 					"tour",
 					"blindage"
-				]
+				],
+				"form": "epaules"
 			},
 			"porte_vaisseaux": {
 				"width": 0.34,
 				"parts": [
 					"hangar",
 					"tour"
-				]
+				],
+				"form": "plat"
 			},
 			"titan": {
 				"width": 0.3,
@@ -1323,14 +1328,16 @@
 					"tourelles",
 					"tour",
 					"blindage"
-				]
+				],
+				"form": "couronne"
 			},
 			"titan_porteur": {
 				"width": 0.34,
 				"parts": [
 					"hangar",
 					"tour"
-				]
+				],
+				"form": "plat"
 			},
 			"titan_bastion": {
 				"width": 0.34,
@@ -1338,7 +1345,8 @@
 					"tourelles",
 					"blindage",
 					"bouclier"
-				]
+				],
+				"form": "couronne"
 			},
 			"leviathan": {
 				"width": 0.3,
@@ -1347,14 +1355,16 @@
 					"tour",
 					"blindage",
 					"antenne"
-				]
+				],
+				"form": "couronne"
 			},
 			"leviathan_porteur": {
 				"width": 0.36,
 				"parts": [
 					"hangar",
 					"tour"
-				]
+				],
+				"form": "plat"
 			},
 			"leviathan_siege": {
 				"width": 0.28,
@@ -1375,7 +1385,8 @@
 				"parts": [
 					"hangar",
 					"ville"
-				]
+				],
+				"form": "plat"
 			},
 			"nef_bastion": {
 				"width": 0.42,
@@ -1389,13 +1400,167 @@
 				"width": 0.18,
 				"parts": [
 					"eperon"
-				]
+				],
+				"form": "eperon"
 			},
 			"ruche_mere": {
 				"width": 0.4,
 				"parts": [
 					"hangar"
+				],
+				"form": "sac"
+			},
+			"galere_fief": {
+				"width": 0.28,
+				"parts": [
+					"soute",
+					"tour"
 				]
+			},
+			"corvette_concorde": {
+				"width": 0.18,
+				"form": "dard",
+				"parts": [
+					"antenne"
+				]
+			},
+			"sporange": {
+				"width": 0.22,
+				"form": "sac",
+				"parts": []
+			},
+			"chassis_relie": {
+				"width": 0.24,
+				"form": "relie",
+				"parts": []
+			},
+			"noeud_calcul": {
+				"width": 0.2,
+				"form": "relie",
+				"scale": 0.8,
+				"parts": [
+					"antenne"
+				]
+			},
+			"affut_roc": {
+				"width": 0.3,
+				"form": "montagne",
+				"parts": [
+					"canon",
+					"blindage"
+				]
+			},
+			"belier_clan": {
+				"width": 0.26,
+				"parts": [
+					"eperon",
+					"blindage"
+				]
+			},
+			"epave_remontee": {
+				"width": 0.26,
+				"form": "asym",
+				"parts": []
+			},
+			"cargo_corsaire": {
+				"width": 0.28,
+				"form": "plat",
+				"scale": 0.9,
+				"parts": [
+					"soute"
+				]
+			},
+			"onde_nef": {
+				"width": 0.42,
+				"form": "anneau",
+				"scale": 0.8,
+				"parts": []
+			},
+			"diapason": {
+				"width": 0.16,
+				"form": "dard",
+				"parts": [
+					"antenne"
+				]
+			},
+			"asteroide_creuse": {
+				"width": 0.38,
+				"form": "montagne",
+				"parts": [
+					"blindage"
+				]
+			},
+			"nef_taniere": {
+				"width": 0.27,
+				"form": "epaules",
+				"parts": []
+			},
+			"nef_penitence": {
+				"width": 0.25,
+				"form": "epaules",
+				"parts": [
+					"eperon"
+				]
+			},
+			"grand_voilier": {
+				"width": 0.24,
+				"form": "voilier",
+				"parts": [
+					"tour"
+				]
+			},
+			"arche_concorde": {
+				"width": 0.36,
+				"form": "plat",
+				"parts": [
+					"ville",
+					"bouclier"
+				]
+			},
+			"cathedrale": {
+				"width": 0.32,
+				"form": "couronne",
+				"parts": [
+					"tour",
+					"eperon",
+					"blindage"
+				]
+			},
+			"mere_monde": {
+				"width": 0.44,
+				"form": "sac",
+				"parts": [
+					"hangar"
+				]
+			},
+			"noosphere_mere": {
+				"width": 0.32,
+				"form": "relie",
+				"parts": [
+					"tour",
+					"antenne"
+				]
+			},
+			"montagne_forteresse": {
+				"width": 0.42,
+				"form": "montagne",
+				"parts": [
+					"canon",
+					"blindage"
+				]
+			},
+			"comete_marche": {
+				"width": 0.36,
+				"form": "asym",
+				"parts": [
+					"ville",
+					"soute"
+				]
+			},
+			"abysse_chantante": {
+				"width": 0.46,
+				"form": "anneau",
+				"parts": []
 			},
 			"_default": {
 				"width": 0.24,
