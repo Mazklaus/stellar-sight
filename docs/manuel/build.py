@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.38"
+EDITION = "2.40"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -1431,6 +1431,60 @@ def gen_kd_modes():
     return out
 
 
+def gen_eco_modes():
+    """Réglage Écologie (data/ecology.json)."""
+    d = charger("ecology.json")
+    lignes = "".join(f"<tr><td><b>{esc(m['label'])}</b>{' (défaut au menu)' if m['id'] == d.get('default_mode') else ''}</td><td>{inline(m.get('text', ''))}</td></tr>" for m in d["modes"])
+    return f"<table class='grille'><tr><th>Écologie</th><th>Effet</th></tr>{lignes}</table>"
+
+
+def gen_eco_types():
+    """Vitalité des mondes vivants, basculement et reverdissement (data/ecology.json)."""
+    d = charger("ecology.json")
+    pt = charger("planet_types.json")
+    nom = lambda k: pt.get(k, {}).get("label", k)
+    l1 = ""
+    for k, v in d["types"].items():
+        bas = nom(d["shift"][k]) if k in d["shift"] else "—"
+        rev = nom(d["regreen"][k]) if k in d["regreen"] else "—"
+        l1 += f"<tr><td>{esc(nom(k))}</td><td>{v['vitality']}</td><td>{esc(bas)}</td><td>{esc(rev)}</td></tr>"
+    return f"<table class='grille'><tr><th>Monde vivant</th><th>Vitalité</th><th>Bascule vers</th><th>Reverdit vers</th></tr>{l1}</table>"
+
+
+def gen_eco_empreinte():
+    """Empreinte des bâtiments et soins (data/ecology.json)."""
+    d = charger("ecology.json")
+    b = charger("buildings.json")
+    l1 = "".join(f"<tr><td>{esc(b.get(k, {}).get('label', k))}</td><td>{v}</td></tr>" for k, v in sorted(d["footprint"].items(), key=lambda kv: -kv[1]))
+    l1 += "".join(f"<tr><td>{esc(b.get(k, {}).get('label', k))}</td><td>−{v} (soins)</td></tr>" for k, v in d["care"].items())
+    return f"<table class='grille'><tr><th>Bâtiment</th><th>Empreinte</th></tr>{l1}</table>"
+
+
+def gen_eco_paliers():
+    """Paliers de la biosphère (data/ecology.json « tiers »)."""
+    d = charger("ecology.json")
+    def eff(t):
+        out = []
+        if t["food_pct"]:
+            out.append(f"{t['food_pct']:+d} % nourriture")
+        if t["stab"]:
+            out.append(f"{t['stab']:+d} stabilité")
+        if t["growth_pct"] <= -100:
+            out.append("croissance arrêtée")
+        elif t["growth_pct"]:
+            out.append(f"{t['growth_pct']:+d} % croissance")
+        return ", ".join(out) or "aucun"
+    l1 = "".join(f"<tr><td><b>{esc(t['label'])}</b></td><td>{t['min']} et plus</td><td>{esc(eff(t))}</td></tr>" for t in d["tiers"])
+    return f"<table class='grille'><tr><th>Palier</th><th>Biosphère</th><th>Effets</th></tr>{l1}</table>"
+
+
+def gen_eco_doctrines():
+    """Doctrines environnementales (data/ecology.json « doctrines »)."""
+    d = charger("ecology.json")
+    l1 = "".join(f"<tr><td><b>{esc(x['label'])}</b>{' (au départ)' if x['id'] == d.get('default_doctrine') else ''}</td><td>{inline(x.get('text', ''))}</td></tr>" for x in d["doctrines"])
+    return f"<table class='grille'><tr><th>Doctrine</th><th>Effet</th></tr>{l1}</table>"
+
+
 def gen_kd_echelle():
     """Ancres de puissance, verrous et Rayonnement de chaque type (data/kardashev.json)."""
     d = charger("kardashev.json")
@@ -1667,6 +1721,7 @@ GENERATEURS = {
     "psi_talents": gen_psi_talents,
     "mg_modes": gen_mg_modes, "mg_catalogue": gen_mg_catalogue, "mg_talents": gen_mg_talents,
     "an_familles": gen_an_familles, "an_presets": gen_an_presets,
+    "eco_modes": gen_eco_modes, "eco_types": gen_eco_types, "eco_empreinte": gen_eco_empreinte, "eco_paliers": gen_eco_paliers, "eco_doctrines": gen_eco_doctrines,
     "kd_modes": gen_kd_modes, "kd_echelle": gen_kd_echelle, "kd_capture": gen_kd_capture, "kd_prerogatives": gen_kd_prerogatives,
     "ar_modes": gen_ar_modes, "ar_types": gen_ar_types, "ar_actions": gen_ar_actions, "ar_disparus": gen_ar_disparus, "ar_talents": gen_ar_talents, "wf_modes": gen_wf_modes, "wf_ops": gen_wf_ops, "wf_instant": gen_wf_instant, "wf_talents": gen_wf_talents,
     "ct_modes": gen_ct_modes, "ct_couches": gen_ct_couches, "ct_natures": gen_ct_natures, "ct_talents": gen_ct_talents,

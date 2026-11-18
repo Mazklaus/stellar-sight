@@ -594,3 +594,13 @@ an immense orbital shipyard where a half-built planet floats inside colossal sca
 ```
 a yellow star half enclosed in an unfinished dyson shell, dark shell panels glowing red hot on their outer face, on an observation balcony dignitaries of several alien species look up at an immense luminous ladder graduated I II III drawn across the sky with their banners rising to different heights along it, in the distance a red dwarf star reignites into yellow, in the foreground a tired engineer holds a ridiculously small thermometer, awe and ambition with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-61 · Le souffle des mondes
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Le souffle des mondes »
+- Sujet : Une planète vue depuis l'orbite, coupée en deux par la ligne du jour : un hémisphère vert et bleu couvert de forêts et de nuages blancs, l'autre gris, brun et fumant de cheminées géantes sous des nuages couleur de rouille ; sur la frontière, une bande de désert où des colons plantent des herbes en rangées patientes ; au premier plan, sur une station orbitale, une planétologue âgée et un jeune intendant regardent une jauge holographique qui hésite entre le vert et le rouge ; l'intendant tient un plan d'usine, la planétologue un minuscule pot de fleurs
+
+```
+a planet seen from orbit split in two by the day night terminator, one hemisphere green and blue with forests and white clouds, the other grey and brown smoking with giant chimneys under rust colored clouds, along the border a band of desert where tiny colonists plant grasses in patient rows, in the foreground on an orbital station an elderly planetologist and a young steward look at a holographic gauge hesitating between green and red, the steward holds a factory blueprint, the planetologist holds a tiny flower pot, hope and consequence with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.40
+
+- **Le souffle des mondes** (chapitre 44), nouveau réglage **Écologie** (complète, biosphère seule, désactivée) : chaque **monde vivant** a une **Biosphère** de 0 à 100 qui glisse d'un point par mois vers un **équilibre** affiché (vitalité du type, soins, empreinte non absorbée). **Empreinte** des bâtiments et de la population, **absorption** de 4 par cran de taille ; les mondes morts et les mondes faits de main n'ont pas de biosphère.
+- **Cinq paliers** (Florissante, Saine, Fragile, Dégradée, Effondrée) qui changent la nourriture, la stabilité du système et la croissance ; **basculement** du climat après deux ans d'effondrement, **reverdissement** après cinq ans florissants. **Réserve naturelle**, technologies **Recycleurs atmosphériques** et **Ingénierie climatique**, terraformation qui remet la biosphère à 60, écuménopole sans biosphère ; **doctrine environnementale** (Équilibre, Extraction, Préservation). Onglet **Biosphères** de l'écran Colonies, ligne et infobulle dans la vue système, trois annonces, IA. Sauvegarde 94.
+
 ### Édition 2.38
 
 - **Ce que boit une civilisation** (chapitre 42), nouveaux réglages **Échelle de Kardashev** (complète, indice seul, désactivée) et **Rythme** (lent, normal, rapide) : l'indice quitte les mégastructures et devient un pilier. Il se calcule sur la **puissance captée** (énergie brute des colonies, mégastructures qui boivent un astre, mondes forgés), de **0,70** au départ à **3,00**, au centième, sur une échelle logarithmique ; chaque type entier a son **verrou** (Fusion compacte et quatre bâtiments à la capitale ; une Sphère ou trois Essaims ; grandes mégastructures et 10 % des systèmes). Une Sphère sous un Cerveau Matriochka compte toujours.

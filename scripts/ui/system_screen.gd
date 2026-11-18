@@ -622,8 +622,14 @@ func _refresh_panel(s: StarSystem) -> void:
 	if _state.digs.has(p.system_id) and (read_only or Relics.knows(_state, _player, p.system_id)):
 		_dep_label.text += "\n" + PlanetInfo.dig_text(_state, p.system_id, _player)
 
+	if c == null and Ecology.has_biosphere(_state, p.id):
+		_dep_label.text += "\n" + Ecology.line(_state, p.id)
 	_status_title.visible = true
 	_status_label.text = "\n".join(PlanetInfo.colony_lines(_state, p, c, _player)) if c else "Aucune revendication. Elle n'attend que vous (ou un voisin plus rapide)."
+	# Écologie (prop. 11) : l'infobulle détaille l'équilibre de la biosphère, poste par poste.
+	var eco_tip := Ecology.tooltip(_state, p.id) if c != null and (c.owner == _player or read_only) else ""
+	_status_label.tooltip_text = eco_tip
+	_status_label.mouse_filter = Control.MOUSE_FILTER_STOP if eco_tip != "" else Control.MOUSE_FILTER_IGNORE
 
 	var actions := planet_actions(p)
 	_set_actions(actions)
