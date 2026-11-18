@@ -614,3 +614,13 @@ a living planet covered with forests and oceans whose clouds slowly form the fac
 ```
 a planet seen from orbit split in two by the day night terminator, one hemisphere green and blue with forests and white clouds, the other grey and brown smoking with giant chimneys under rust colored clouds, along the border a band of desert where tiny colonists plant grasses in patient rows, in the foreground on an orbital station an elderly planetologist and a young steward look at a holographic gauge hesitating between green and red, the steward holds a factory blueprint, the planetologist holds a tiny flower pot, hope and consequence with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-62 · Médaillon · Le Codex de l'Archonte
+
+- Format : 1:1 · Forme du cadre : medaillon
+- Emplacement : Chapitre « Lire l'écran », section Les infobulles et le Codex, en marge
+- Sujet : Un grand livre ouvert flottant dans le vide, dont les pages sont des écrans translucides ; de chaque mot souligné jaillit une petite fenêtre lumineuse qui en ouvre une autre, en cascade ; un archiviste minuscule, perché sur la tranche, tient une loupe et semble débordé
+
+```
+a large open book floating in space whose pages are translucent holographic screens, from underlined words small glowing windows spring out and open further windows in a cascade, a tiny archivist perched on the edge of the book holds a magnifying glass and looks overwhelmed, centered composition on dark background, wonder with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 1:1
+```

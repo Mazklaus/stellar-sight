@@ -167,6 +167,18 @@ class IconButton:
 						var a := PI + PI * (float(j) + 0.5) / float(5 + 2 * k)
 						draw_circle(c + Vector2(0, s * 0.55) + Vector2(cos(a), sin(a)) * r, s * 0.16, col)
 				draw_rect(Rect2(c + Vector2(-s * 0.3, s * 0.35), Vector2(s * 0.6, s * 0.45)), col)
+			"codex":
+				# Un livre fermé, son dos et une étoile sur le plat (Codex de l'Archonte).
+				draw_rect(Rect2(c + Vector2(-s * 0.95, -s * 1.15), Vector2(s * 1.9, s * 2.3)), col, false, 1.5)
+				draw_line(c + Vector2(-s * 0.55, -s * 1.15), c + Vector2(-s * 0.55, s * 1.15), col, 1.5, true)
+				var star := PackedVector2Array()
+				for i in 10:
+					var r := s * (0.5 if i % 2 == 0 else 0.2)
+					var a := -PI / 2.0 + i * PI / 5.0
+					star.append(c + Vector2(s * 0.22, -s * 0.1) + Vector2(cos(a), sin(a)) * r)
+				draw_colored_polygon(star, col)
+				if has_meta("badge") and bool(get_meta("badge")):
+					draw_circle(c + Vector2(s * 1.15, -s * 1.15), 3.0, UiTheme.ACCENT)
 			"chronicles":
 				# Un livre ouvert : deux pages et le dos.
 				for side in [-1.0, 1.0]:
@@ -1102,6 +1114,10 @@ class OrbitMenuItem:
 					draw_polyline(PackedVector2Array([c + Vector2(dx - s * 0.35, -s * 0.8), c + Vector2(dx + s * 0.45, 0), c + Vector2(dx - s * 0.35, s * 0.8)]), col, w, true)
 			"resume":
 				draw_colored_polygon(PackedVector2Array([c + Vector2(-s * 0.6, -s), c + Vector2(s, 0), c + Vector2(-s * 0.6, s)]), col)
+			"codex":
+				# Un livre ouvert : deux pages et le dos.
+				draw_polyline(PackedVector2Array([c + Vector2(0, s * 0.85), c + Vector2(-s, s * 0.6), c + Vector2(-s, -s * 0.75), c + Vector2(0, -s * 0.5), c + Vector2(s, -s * 0.75), c + Vector2(s, s * 0.6), c + Vector2(0, s * 0.85)]), col, w, true)
+				draw_line(c + Vector2(0, -s * 0.5), c + Vector2(0, s * 0.85), col, w, true)
 			"options":
 				draw_arc(c, s * 0.42, 0.0, TAU, 20, col, w, true)
 				for i in 8:

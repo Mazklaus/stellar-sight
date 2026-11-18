@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.42
+
+- **Les infobulles et le Codex** (chapitre 2) : les termes du jeu se soulignent dans les infobulles, les annonces et les cartes d'événement ; leur **infobulle imbriquée** s'ouvre au survol, jusqu'à quatre niveaux, et se **fige** quand la souris reste immobile (ou d'un clic de molette). Réglages du délai, du temps de verrouillage et des termes soulignés dans les Options.
+- Le **Codex de l'Archonte** ([[Maj]]+[[F1]], le livre du panneau d'empire, ou le menu principal) : ce manuel découpé en articles, le lexique, des fiches pour treize catalogues, une recherche sans accents ni pluriels, l'historique, les épingles et la pastille des nouveautés. Les fiches des peuples, de la faune, des puissances anciennes, des gardiens et des crises restent « ??? » tant qu'on ne les a pas rencontrés ; les **Chroniques**, fragments de lore, se collectionnent d'une partie à l'autre. Le lexique de l'annexe B vient désormais du même dictionnaire que le jeu. Sauvegarde 96.
+
 ### Édition 2.41
 
 - **Les mondes qui choisissent** (chapitre 43), nouveaux réglages **Mondes vivants** (aucun, rares, fréquents) et **Monde-Ego** (non, oui) : des planètes conscientes qui ont une **humeur** envers chaque empire, en cinq paliers (**Hostile**, **Méfiant**, **Neutre**, **Bienveillant**, **Lié**), quatre **origines** (Éveillé, Graine, Reliquaire, Hanté) et cinq **tempéraments** (Curieux, Jaloux, Maternel, Fier, Énigme), en catalogues ouverts ; une espèce préférée et une qu'il supporte mal ; reconnaissance du monde ; colons refusés ou ralentis ; **demandes** par carte d'événement et promesses suivies ; le **Rejet** et le **départ** du monde.

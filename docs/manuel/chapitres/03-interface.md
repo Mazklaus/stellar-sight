@@ -54,6 +54,26 @@ Les écrans d'empire s'ouvrent en plein écran, par les pictogrammes du panneau 
 | Amphictyonie | [[M]] | Séance en cours et vote, file des propositions, pupitre pour proposer, résolutions et Nomos, amphictyons et leurs voix |
 | Commerce | [[C]] | Quatre onglets : routes (capacité, routes intérieures, risques), ressources (luxes, stratégiques, licences, monopoles), marché (achats, commandes, accords), Savoir (accords de recherche, licences de technologie, diffusion) |
 | Chroniques | [[J]] | Crise de fin de partie, quêtes, événements, Reliquaire, Bestiaire |
+| Codex de l'Archonte | [[Maj]]+[[F1]] | Ce manuel, le lexique, les fiches des peuples, des créatures et des technologies, les Chroniques |
+
+### Les infobulles et le Codex
+
+Presque tout ce qui s'affiche explique ce qu'il est en **infobulle** : laissez la souris un instant sur un chiffre, un bouton ou un nom. Dans ces infobulles, comme dans les annonces et les cartes d'événement, les mots soulignés en bleu sont des **termes du Codex** : survolez-en un et une seconde infobulle s'ouvre à côté de la première, avec sa définition, qui peut elle-même contenir d'autres termes. On descend ainsi jusqu'à quatre niveaux.
+
+Pour aller dans une infobulle sans qu'elle se ferme, il faut la **figer** : gardez la souris immobile pendant que la fine jauge de son bord bas se remplit. Une infobulle figée reste ouverte tant que la souris est dessus ou sur celle qui l'a ouverte, et [[Échap]] les referme toutes. Dans les Options, onglet Partie, on règle le délai d'apparition, le temps qu'il faut pour figer, ou l'on choisit de figer d'un clic de molette ; on peut aussi éteindre les termes soulignés.
+
+Un clic droit ou [[F1]] sur un terme ouvre son article dans le **Codex de l'Archonte** ; [[Maj]]+[[F1]] ou le livre du panneau d'empire ouvre le Codex là où on l'avait laissé, et le menu principal le propose aussi hors partie. Le Codex range ce manuel par sections, le lexique de l'annexe B, des **fiches** pour les peuples, les puissances anciennes, la faune, les gardiens, les crises, les technologies, les bâtiments, les vaisseaux, les merveilles, les reliques, les biens, les lois et les pouvoirs, et les **Chroniques**, des fragments de lore à collectionner. Sa recherche ignore accents et pluriels. On y épingle ses articles favoris, on y revient en arrière comme dans un navigateur, et une pastille signale ce qui est nouveau.
+
+Ce que votre empire n'a pas encore rencontré reste « ??? » : un peuple jamais contacté, une créature jamais vue, un gardien, une crise. Une fiche découverte le reste, même après la fin de la menace, et la partie s'en souvient dans sa sauvegarde. Les Chroniques, elles, se gagnent en jouant : chaque fois que la chronique galactique nomme un terme d'un chapitre, un fragment de ce chapitre se libère, et il reste acquis d'une partie à l'autre.
+
+::: image MJ-62 flottant-d
+:::
+
+::: capture docs/apercu-infobulles.png|Une infobulle et sa voisine imbriquée, toutes deux figées
+:::
+
+::: capture docs/apercu-codex.png|Le Codex de l'Archonte ouvert sur un terme du lexique
+:::
 
 ::: marge
 Tout bouton grisé explique pourquoi en infobulle. Lisez-les avant de crier au bogue. Je parle d'expérience.

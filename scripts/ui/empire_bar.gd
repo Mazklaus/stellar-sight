@@ -49,6 +49,8 @@ const SCREENS := [
 		"why": "Les merveilles sont des courses : plusieurs empires peuvent bâtir la même, le premier qui l'achève l'emporte et les autres gardent leur mise un temps. Un grand chantier à la fois, une avance puis des mensualités, des colonies proches qui versent, le dernier quart pressé à l'influence."},
 	{"id": "amphictyony", "label": "Amphictyonie", "key": "M", "glyph": "amphictyony", "ready": true,
 		"why": "La Grande Amphictyonie Galactique : une assemblée des empires, fondée quand l'un d'eux a rencontré presque toute la galaxie et que trois signent son acte. Chaque membre pèse selon sa population heureuse, son économie, son savoir et sa flotte. Tous les deux ans, la proposition la plus soutenue passe en séance (vote de six mois, modifiable, voix achetables). Les résolutions tordent les règles du commerce, du savoir, de la guerre, de la foi, des peuples, des ombres et des périls pour les membres ; ce qu'elles interdisent devient le Nomos, et qui l'enfreint devient hors-la-loi, exposé aux sanctions et au bannissement."},
+	{"id": "codex", "label": "Codex de l'Archonte", "key": "Maj+F1", "glyph": "codex", "ready": true,
+		"why": "L'encyclopédie du jeu : les mécanismes (le manuel découpé en articles et le lexique), l'univers, le bestiaire et ses secrets, et les Chroniques que vous collectionnez. Un mot coloré dans une infobulle y mène (clic droit ou F1)."},
 	{"id": "chronicles", "label": "Chroniques", "key": "J", "glyph": "chronicles", "ready": true,
 		"why": "Les quêtes (celle de votre peuple, les quêtes secondaires et les retournements galactiques), les événements qui attendent votre décision, ceux que vous avez tranchés, les curiosités repérées, le Reliquaire et les fouilles. Chaque chapitre de quête a deux branches : la première remplie l'emporte. Une curiosité se sonde avec un vaisseau sans armes à l'arrêt (ou une Station d'étude) ; plus votre puissance d'expédition dépasse son niveau, plus c'est rapide."},
 ]
@@ -226,6 +228,14 @@ func gauge_text() -> String:
 func set_open_screen(screen_id: String) -> void:
 	for id in _screen_buttons:
 		(_screen_buttons[id] as Button).set_pressed_no_signal(id == screen_id)
+
+
+## Pastille « nouveau » sur l'icône du Codex (glossaire en jeu, prop. 33).
+func set_codex_badge(on: bool) -> void:
+	var b: Button = _screen_buttons.get("codex")
+	if b != null and bool(b.get_meta("badge", false)) != on:
+		b.set_meta("badge", on)
+		b.queue_redraw()
 
 
 ## Texte lisible des ressources ("Énergie 100 (+16)  Matériaux 200 (+17)…"), pour les tests.

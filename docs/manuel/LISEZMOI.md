@@ -11,9 +11,12 @@ cd docs/manuel
 python3 build.py            # manuel.html puis manuel.pdf
 python3 build.py --html     # HTML seulement (aperçu dans un navigateur)
 python3 build.py --clair    # variante sur fond clair, pour l'impression
+python3 build.py --codex     # seulement data/codex_manual.json (le Codex de l'Archonte en jeu)
 ```
 
 Si Playwright est installé globalement : `NODE_PATH=$(npm root -g) python3 build.py`. La pagination (Paged.js) prend une à deux minutes.
+
+Le build complet réécrit aussi `data/codex_manual.json`, le manuel découpé en articles pour le Codex de l'Archonte en jeu, et l'annexe B (`{{lexique}}`) vient de `data/glossary.json`. Chaque nouveau pilier ajoute ses termes à ce fichier ; `python3 tools/glossary_check.py` liste les mots en gras du manuel qui n'ont pas encore d'article.
 
 ## Ce qui se met à jour tout seul
 

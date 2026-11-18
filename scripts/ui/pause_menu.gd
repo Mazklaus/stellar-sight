@@ -49,6 +49,13 @@ const SHORTCUT_GROUPS := [
 		["F5 / F9", "Sauvegarde / chargement rapide"],
 		["F11", "Plein écran"],
 	]],
+	["Codex et infobulles", [
+		["Maj+F1", "Codex de l'Archonte"],
+		["Survol d'un mot coloré", "Son explication, dans une infobulle de plus"],
+		["F1 / clic droit sur un mot", "Ouvrir son article dans le Codex"],
+		["Molette / Maj", "Figer une infobulle (mode Action)"],
+		["Échap", "Fermer les infobulles figées"],
+	]],
 ]
 
 var page := "home"

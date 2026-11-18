@@ -19,7 +19,7 @@ var choice_buttons := {}
 var _art: Widgets.ArtSlot
 var _title: Label
 var _when: Label
-var _text: Label
+var _text: RichTextLabel
 var _choices: VBoxContainer
 var _locate: Widgets.RoundButton
 var _system := -1
@@ -37,7 +37,7 @@ func _ready() -> void:
 	_when = UiTheme.dim("", 13)
 	_when.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_when)
-	_text = UiTheme.paragraph("", WIDTH - 20.0, 15)
+	_text = TipManager.paragraph(WIDTH - 20.0, 15)
 	box.add_child(_text)
 	box.add_child(Widgets.NotchHeader.new("Votre décision", 14))
 	_choices = VBoxContainer.new()
@@ -63,7 +63,7 @@ func open(state: GameState, player: int, item: Dictionary) -> void:
 	event_id = int(item["id"])
 	var c := Events.card(String(item["card"]))
 	_title.text = Events.fill(state, player, item, String(c.get("title", "")))
-	_text.text = Events.fill(state, player, item, String(c.get("text", "")))
+	TipManager.set_linked(_text, Events.fill(state, player, item, String(c.get("text", ""))))
 	var left := maxi(0, int(item["until"]) - state.tick)
 	_when.text = "%s  ·  sans réponse dans %d jour%s, le choix par défaut s'appliquera" % [
 			GameCalendar.date_string(int(item["tick"])), left, "s" if left > 1 else ""]

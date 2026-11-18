@@ -1,0 +1,3649 @@
+{
+ "_doc": "Glossaire du jeu : un article par terme (infobulles imbriquées, Codex de l'Archonte, annexe B du manuel). forms = formes reconnues dans les textes (pluriels en s/x reconnus d'office) ; strict = reconnu seulement avec une majuscule initiale (mots courants) ; chapters = fichiers du manuel (docs/manuel/chapitres) ; see = voir aussi (facultatif, sinon calculé) ; qualifier = précision entre parenthèses.",
+ "families": [
+  {
+   "id": "meca",
+   "label": "Mécanismes",
+   "glyph": "research"
+  },
+  {
+   "id": "univers",
+   "label": "Univers",
+   "glyph": "diplomacy"
+  },
+  {
+   "id": "bestiaire",
+   "label": "Bestiaire et secrets",
+   "glyph": "intel"
+  },
+  {
+   "id": "chroniques",
+   "label": "Chroniques",
+   "glyph": "chronicles"
+  }
+ ],
+ "terms": [
+  {
+   "id": "accord_commercial",
+   "name": "Accord commercial",
+   "forms": [
+    "Accord commercial"
+   ],
+   "family": "meca",
+   "summary": "Deuxième palier du commerce : tarif de 10 %, +1 influence par mois",
+   "chapters": [
+    "10a-commerce"
+   ]
+  },
+  {
+   "id": "accord_de_recherche",
+   "name": "Accord de recherche",
+   "forms": [
+    "Accord de recherche"
+   ],
+   "family": "meca",
+   "summary": "Deux empires en paix versent de l'énergie ; trois ans plus tard, chacun reçoit un bond de Savoir",
+   "chapters": [
+    "10a-commerce"
+   ]
+  },
+  {
+   "id": "agglomeration",
+   "name": "Agglomération",
+   "forms": [
+    "Agglomération"
+   ],
+   "family": "meca",
+   "summary": "Première opération de la Forge des mondes (ère III) : assembler un monde à partir de débris.",
+   "chapters": [
+    "15w-forge"
+   ],
+   "strict": true
+  },
+  {
+   "id": "alliance",
+   "name": "Alliance",
+   "forms": [
+    "Alliance"
+   ],
+   "family": "meca",
+   "summary": "Traité signé après six mois de paix : guerres, cartes et vision partagées",
+   "chapters": [
+    "10-diplomatie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "ambassade_culturelle",
+   "name": "Ambassade culturelle",
+   "forms": [
+    "ambassade culturelle"
+   ],
+   "family": "meca",
+   "summary": "Chez un empire d'un autre credo, 80 influence : la diffusion de votre culture y gagne 25 %.",
+   "chapters": [
+    "15d-rayonnement"
+   ]
+  },
+  {
+   "id": "ambition_demesuree",
+   "name": "Ambition démesurée",
+   "forms": [
+    "Ambition démesurée"
+   ],
+   "family": "meca",
+   "summary": "La voie d'un empire qui veut devenir la crise : la Menace, trois paliers, le Fléau des étoiles",
+   "chapters": [
+    "15a-crises"
+   ]
+  },
+  {
+   "id": "amphictyonie",
+   "name": "Amphictyonie",
+   "forms": [
+    "Amphictyonie",
+    "amphictyon"
+   ],
+   "family": "meca",
+   "summary": "L'assemblée galactique et ses membres",
+   "chapters": [
+    "10d-amphictyonie"
+   ]
+  },
+  {
+   "id": "annales",
+   "name": "Annales",
+   "forms": [
+    "Annales"
+   ],
+   "family": "meca",
+   "summary": "La frise des grands moments de votre empire (Chroniques) ; et une victoire en option : un tiers des hauts faits et la première Gloire, tenus deux ans",
+   "chapters": [
+    "15f-hauts-faits"
+   ],
+   "strict": true
+  },
+  {
+   "id": "annonce",
+   "name": "Annonce",
+   "forms": [
+    "annonce"
+   ],
+   "family": "meca",
+   "summary": "Message de la voix du chroniqueur, rangé par famille et réglé dans l'onglet Annonces des Options.",
+   "chapters": [
+    "15v-annonces"
+   ],
+   "strict": true
+  },
+  {
+   "id": "antiquite",
+   "name": "Antiquité",
+   "forms": [
+    "antiquité"
+   ],
+   "family": "meca",
+   "summary": "Petit objet d'un site de fouille, exposé ou vendu, qui compte pour la piste d'un Disparu.",
+   "chapters": [
+    "15u-archeologie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "arbitre_des_etoiles",
+   "name": "Arbitre des étoiles",
+   "forms": [
+    "Arbitre des étoiles"
+   ],
+   "family": "meca",
+   "summary": "Conseiller élu de la Haute Voûte, qui peut geler, clore ou imposer une trêve",
+   "chapters": [
+    "10d-amphictyonie"
+   ]
+  },
+  {
+   "id": "archetype",
+   "name": "Archétype",
+   "forms": [
+    "Archétype"
+   ],
+   "family": "meca",
+   "summary": "Le corps d'un peuple : humanoïde, ruche, synthétique, reptilien, énergétique, lithoïde",
+   "chapters": [
+    "09-guerre",
+    "15p-genome"
+   ],
+   "strict": true
+  },
+  {
+   "id": "architectes_stellaires",
+   "name": "Architectes stellaires",
+   "forms": [
+    "Architectes stellaires"
+   ],
+   "family": "meca",
+   "summary": "Technologie de Génie (ère II) qui débloque le Vaisseau-architecte, qui bâtit les mégastructures.",
+   "chapters": [
+    "15t-megastructures"
+   ]
+  },
+  {
+   "id": "associe",
+   "name": "Associé",
+   "forms": [
+    "Associé"
+   ],
+   "family": "meca",
+   "summary": "Membre d'un Koinon sans voix ni bonus de forme, protégé et soumis aux lois",
+   "chapters": [
+    "10c-koinon"
+   ]
+  },
+  {
+   "id": "avant_poste",
+   "name": "Avant-poste",
+   "forms": [
+    "Avant-poste"
+   ],
+   "family": "meca",
+   "summary": "Revendication sans habitants, qui exploite les gisements et étend la vision",
+   "chapters": [
+    "04-colonies"
+   ]
+  },
+  {
+   "id": "avatar",
+   "name": "Avatar",
+   "forms": [
+    "Avatar"
+   ],
+   "family": "meca",
+   "summary": "Le héros d'une ruche ou d'une conscience : ni ambition, ni désertion, ni capture",
+   "chapters": [
+    "13-heros"
+   ],
+   "strict": true
+  },
+  {
+   "id": "avorte",
+   "name": "Avorté",
+   "forms": [
+    "Avorté"
+   ],
+   "family": "meca",
+   "summary": "Un Passage raté qui tourne mal : la moitié du peuple est perdue, et une crise peut s'ouvrir.",
+   "chapters": [
+    "15r-transcendance"
+   ]
+  },
+  {
+   "id": "a_quai",
+   "name": "À quai",
+   "forms": [
+    "À quai"
+   ],
+   "family": "meca",
+   "summary": "Flotte armée immobile à votre chantier ou à un dépôt de flotte : entretien -25 % (logistique)",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "age_d_or",
+   "name": "Âge d'or",
+   "forms": [
+    "Âge d'or"
+   ],
+   "family": "meca",
+   "summary": "Cinq ans de prospérité (+5 stabilité, +10 % Savoir et matériaux) quand assez de Gloire a été gagnée sur la décennie (option)",
+   "chapters": [
+    "15f-hauts-faits"
+   ]
+  },
+  {
+   "id": "balise_de_fret",
+   "name": "Balise de fret",
+   "forms": [
+    "Balise de fret"
+   ],
+   "family": "meca",
+   "summary": "Relais de spatioports, même sur un avant-poste : ne dessert rien mais relie deux ports éloignés",
+   "chapters": [
+    "15l-spatioports"
+   ]
+  },
+  {
+   "id": "basculement",
+   "name": "Basculement",
+   "forms": [
+    "basculement"
+   ],
+   "family": "meca",
+   "summary": "Changement de climat d'un monde après deux ans de biosphère effondrée.",
+   "chapters": [
+    "15z-ecologie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "bastion_orbital",
+   "name": "Bastion orbital",
+   "forms": [
+    "bastion orbital"
+   ],
+   "family": "meca",
+   "summary": "Défense de planète : +20 de garnison et des tirs sur les assiégeants.",
+   "chapters": [
+    "09-guerre",
+    "15m-defenses"
+   ]
+  },
+  {
+   "id": "batisseur",
+   "name": "Bâtisseur",
+   "forms": [
+    "Bâtisseur"
+   ],
+   "family": "meca",
+   "summary": "Titre du premier empire à tenir trois merveilles galactiques (un haut fait)",
+   "chapters": [
+    "15e-merveilles",
+    "15f-hauts-faits"
+   ]
+  },
+  {
+   "id": "biosphere",
+   "name": "Biosphère",
+   "forms": [
+    "Biosphère"
+   ],
+   "family": "meca",
+   "summary": "La santé d'un monde vivant, de 0 à 100 : l'industrie l'use, les réserves et le temps la soignent.",
+   "chapters": [
+    "15z-ecologie"
+   ]
+  },
+  {
+   "id": "blocus",
+   "name": "Blocus",
+   "forms": [
+    "Blocus"
+   ],
+   "family": "meca",
+   "summary": "Flotte armée ennemie en guerre dans le système d'un port : il vit sur sa réserve et l'ennemi pille chaque mois (spatioports complets)",
+   "chapters": [
+    "15l-spatioports"
+   ]
+  },
+  {
+   "id": "bourse_galactique",
+   "name": "Bourse galactique",
+   "forms": [
+    "Bourse galactique"
+   ],
+   "family": "meca",
+   "summary": "Merveille unique qui fonde le marché commun",
+   "chapters": [
+    "10a-commerce"
+   ]
+  },
+  {
+   "id": "breche",
+   "name": "Brèche",
+   "forms": [
+    "brèche"
+   ],
+   "family": "meca",
+   "summary": "L'intégrité d'un monde artificiel passe sous 50 % : à zéro, il s'effondre et ses habitants fuient.",
+   "chapters": [
+    "15w-forge"
+   ],
+   "strict": true
+  },
+  {
+   "id": "but_de_guerre",
+   "name": "But de guerre",
+   "forms": [
+    "but de guerre",
+    "buts de guerre"
+   ],
+   "family": "meca",
+   "summary": "Ce qu'un camp réclame dans une guerre (option) : la paix se négocie sur eux.",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "caisse_privee",
+   "name": "Caisse privée",
+   "forms": [
+    "Caisse privée"
+   ],
+   "family": "meca",
+   "summary": "L'argent du secteur privé, à part du Trésor : il investit seul (économie privée)",
+   "chapters": [
+    "15k-economie-privee"
+   ]
+  },
+  {
+   "id": "camouflage",
+   "name": "Camouflage",
+   "forms": [
+    "camouflage"
+   ],
+   "family": "meca",
+   "summary": "Le niveau de 0 à 5 qui cache une flotte ; il affronte la détection de celui qui regarde.",
+   "chapters": [
+    "15o-furtivite"
+   ],
+   "strict": true
+  },
+  {
+   "id": "capacite_administrative",
+   "name": "Capacité administrative",
+   "forms": [
+    "Capacité administrative"
+   ],
+   "family": "meca",
+   "summary": "Ce que les bureaux de l'empire peuvent gérer ; au-delà, chaque tranche de 10 % de charge coûte stabilité, recherche, influence et corruption",
+   "chapters": [
+    "15i-administration"
+   ]
+  },
+  {
+   "id": "chair_et_acier",
+   "name": "Chair et acier",
+   "forms": [
+    "Chair et acier"
+   ],
+   "family": "meca",
+   "summary": "Programme qui rend une espèce organique cybernétique : un trait de plus et des implants.",
+   "chapters": [
+    "15p-genome"
+   ]
+  },
+  {
+   "id": "chancelier_des_etoiles",
+   "name": "Chancelier des étoiles",
+   "forms": [
+    "Chancelier des étoiles"
+   ],
+   "family": "meca",
+   "summary": "Le titre que l'Amphictyonie décerne, et qui donne la victoire diplomatique",
+   "chapters": [
+    "10d-amphictyonie",
+    "15-victoire"
+   ]
+  },
+  {
+   "id": "charge",
+   "name": "Charge",
+   "forms": [
+    "Charge"
+   ],
+   "family": "meca",
+   "summary": "Ce que pèse l'empire sur ses bureaux : systèmes, colonies, habitants, avant-postes, occupations",
+   "chapters": [
+    "15i-administration"
+   ],
+   "strict": true
+  },
+  {
+   "id": "charte",
+   "name": "Charte",
+   "forms": [
+    "Charte"
+   ],
+   "family": "meca",
+   "summary": "Privilège accordé à une compagnie (Monopole, Commerce lointain, Colonisation, Armement, Exploration)",
+   "chapters": [
+    "15k-economie-privee"
+   ],
+   "strict": true
+  },
+  {
+   "id": "cimetiere_d_epaves",
+   "name": "Cimetière d'épaves",
+   "forms": [
+    "Cimetière d'épaves"
+   ],
+   "family": "meca",
+   "summary": "Système où se sont accumulées trente épaves : transit plus long, couvert, matériaux récupérés (terrain)",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "citadelle",
+   "name": "Citadelle",
+   "forms": [
+    "Citadelle"
+   ],
+   "family": "meca",
+   "summary": "Fortification qui protège la population et les bâtiments d'une planète assiégée.",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "cite_etat",
+   "name": "Cité-État",
+   "forms": [
+    "Cité-État"
+   ],
+   "family": "meca",
+   "summary": "Peuple mineur qui a ses vaisseaux et tient un système, avec une flotte",
+   "chapters": [
+    "15c-mineurs"
+   ]
+  },
+  {
+   "id": "civilisation_galactique",
+   "name": "Civilisation galactique",
+   "forms": [
+    "Civilisation galactique"
+   ],
+   "family": "meca",
+   "summary": "Haut fait du premier empire qui atteint le type III de l'échelle de Kardashev.",
+   "chapters": [
+    "15x-kardashev"
+   ]
+  },
+  {
+   "id": "civilisation_stellaire",
+   "name": "Civilisation stellaire",
+   "forms": [
+    "Civilisation stellaire"
+   ],
+   "family": "meca",
+   "summary": "Haut fait du premier empire qui atteint le type II de l'échelle de Kardashev.",
+   "chapters": [
+    "15x-kardashev"
+   ]
+  },
+  {
+   "id": "clause",
+   "name": "Clause",
+   "forms": [
+    "Clause"
+   ],
+   "family": "meca",
+   "summary": "Une règle du lien de sujet : diplomatie, guerres, expansion, intégration, tribut, spécialité, culte",
+   "chapters": [
+    "10b-sujets"
+   ],
+   "strict": true
+  },
+  {
+   "id": "coalition",
+   "name": "Coalition",
+   "forms": [
+    "Coalition"
+   ],
+   "family": "meca",
+   "summary": "Les membres qui ont voté une session extraordinaire contre un fautif, et lui font la guerre sans parjure",
+   "chapters": [
+    "10d-amphictyonie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "cohesion",
+   "name": "Cohésion",
+   "forms": [
+    "Cohésion"
+   ],
+   "family": "meca",
+   "summary": "L'unité d'un Koinon, de -100 à +100 ; elle nourrit l'expérience de la ligue",
+   "chapters": [
+    "10c-koinon"
+   ],
+   "strict": true
+  },
+  {
+   "id": "college_des_sensitifs",
+   "name": "Collège des sensitifs",
+   "forms": [
+    "Collège des sensitifs"
+   ],
+   "family": "meca",
+   "summary": "Bâtiment qui forme les sensitifs : plus de Résonance et un plafond plus haut.",
+   "chapters": [
+    "15q-psionique"
+   ]
+  },
+  {
+   "id": "commandant_du_front",
+   "name": "Commandant du Front",
+   "forms": [
+    "Commandant du Front"
+   ],
+   "family": "meca",
+   "summary": "Poste de héros d'un membre du Front commun : ses flottes frappent la crise plus fort",
+   "chapters": [
+    "15a-crises"
+   ]
+  },
+  {
+   "id": "communion",
+   "name": "Communion",
+   "forms": [
+    "Communion"
+   ],
+   "family": "meca",
+   "summary": "Une forme de Koinon (même foi) ; et une nature de foi qui met les productions en commun",
+   "chapters": [
+    "10c-koinon",
+    "12a-foi"
+   ],
+   "strict": true
+  },
+  {
+   "id": "compagnie",
+   "name": "Compagnie",
+   "forms": [
+    "Compagnie"
+   ],
+   "family": "meca",
+   "summary": "Entreprise privée nommée, avec un secteur, un siège, une prospérité, une charte et un dirigeant",
+   "chapters": [
+    "15k-economie-privee"
+   ],
+   "strict": true
+  },
+  {
+   "id": "comptoir",
+   "name": "Comptoir",
+   "forms": [
+    "Comptoir"
+   ],
+   "family": "meca",
+   "summary": "Point de départ supplémentaire des routes commerciales ; chez un sujet, comptoir de tribut",
+   "chapters": [
+    "10a-commerce",
+    "10b-sujets"
+   ],
+   "strict": true
+  },
+  {
+   "id": "concile",
+   "name": "Concile",
+   "forms": [
+    "Concile"
+   ],
+   "family": "meca",
+   "summary": "Réunion qui permet au chef de foi de changer une doctrine",
+   "chapters": [
+    "12a-foi"
+   ]
+  },
+  {
+   "id": "conclave",
+   "name": "Conclave",
+   "forms": [
+    "Conclave"
+   ],
+   "family": "meca",
+   "summary": "L'assemblée d'une théocratie ; à l'Amphictyonie, deux théocraties de même foi qui votent ensemble",
+   "chapters": [
+    "12-politique",
+    "10d-amphictyonie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "confiance_des_investisseurs",
+   "name": "Confiance des investisseurs",
+   "forms": [
+    "Confiance des investisseurs"
+   ],
+   "family": "meca",
+   "summary": "Jauge de 0 à 100 qui décide si le privé investit, et combien",
+   "chapters": [
+    "15k-economie-privee"
+   ]
+  },
+  {
+   "id": "connaissance_du_terrain",
+   "name": "Connaissance du terrain",
+   "forms": [
+    "Connaissance du terrain"
+   ],
+   "family": "meca",
+   "summary": "Un système tenu deux ans : son propriétaire n'y subit plus que la moitié des malus de combat",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "conscience",
+   "name": "Conscience",
+   "forms": [
+    "Conscience"
+   ],
+   "family": "meca",
+   "summary": "Ce qu'un pré-spatial sait des empires : Ignorants, Rumeurs, Soupçons, Savent",
+   "chapters": [
+    "15c-mineurs"
+   ],
+   "strict": true
+  },
+  {
+   "id": "convoi",
+   "name": "Convoi",
+   "forms": [
+    "Convoi"
+   ],
+   "family": "meca",
+   "summary": "Réfugiés sans refuge qui errent de saut en saut",
+   "chapters": [
+    "04-colonies"
+   ],
+   "strict": true
+  },
+  {
+   "id": "corridor_discret",
+   "name": "Corridor discret",
+   "forms": [
+    "Corridor discret"
+   ],
+   "family": "meca",
+   "summary": "Opération d'espionnage : 90 jours sans intrusion constatée chez un empire",
+   "chapters": [
+    "10-diplomatie",
+    "11-renseignement"
+   ]
+  },
+  {
+   "id": "corruption",
+   "name": "Corruption",
+   "forms": [
+    "Corruption"
+   ],
+   "family": "meca",
+   "summary": "Part de 0 à 50 % de l'énergie, des matériaux, de l'influence et du Savoir d'un système qui part dans les mauvaises poches",
+   "chapters": [
+    "15i-administration"
+   ]
+  },
+  {
+   "id": "cote_de_credit",
+   "name": "Cote de crédit",
+   "forms": [
+    "Cote de crédit"
+   ],
+   "family": "meca",
+   "summary": "Note de AAA à D selon la dette rapportée au plafond ; elle fixe le taux et module le plafond (fiscalité)",
+   "chapters": [
+    "15j-fiscalite"
+   ]
+  },
+  {
+   "id": "coupee",
+   "name": "Coupée",
+   "forms": [
+    "Coupée"
+   ],
+   "family": "meca",
+   "summary": "Flotte hors de sa zone de ravitaillement dont tous les chemins de retour sont barrés par l'ennemi : réserves deux fois plus vite épuisées (logistique complète)",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "cour_imperiale",
+   "name": "Cour impériale",
+   "forms": [
+    "Cour impériale"
+   ],
+   "family": "meca",
+   "summary": "Les sujets de l'Impérateur, sous un préréglage verrouillé",
+   "chapters": [
+    "10b-sujets",
+    "10d-amphictyonie"
+   ]
+  },
+  {
+   "id": "courant",
+   "name": "Courant",
+   "forms": [
+    "Courant"
+   ],
+   "family": "meca",
+   "summary": "L'une des six familles politiques de la roue : Forge, Académie, Concorde, Sève, Autel, Glaive",
+   "chapters": [
+    "12-politique"
+   ],
+   "strict": true
+  },
+  {
+   "id": "couronne_vacillante",
+   "name": "Couronne vacillante",
+   "forms": [
+    "Couronne vacillante"
+   ],
+   "family": "meca",
+   "summary": "La première année d'un règne : -10 de légitimité, et les rivaux paient leurs revendications moitié prix",
+   "chapters": [
+    "15g-trone"
+   ]
+  },
+  {
+   "id": "cran_d_impot",
+   "name": "Cran d'impôt",
+   "forms": [
+    "cran d'impôt",
+    "crans d'impôt"
+   ],
+   "family": "meca",
+   "summary": "Niveau d'imposition à cinq crans, de Très bas à Écrasant ; Normal ne change rien",
+   "chapters": [
+    "15j-fiscalite"
+   ]
+  },
+  {
+   "id": "credo",
+   "name": "Credo",
+   "forms": [
+    "Credo"
+   ],
+   "family": "meca",
+   "summary": "Ce en quoi un peuple croit : honneur, foi, raison, profit, survie",
+   "chapters": [
+    "15b-anciennes"
+   ],
+   "strict": true
+  },
+  {
+   "id": "crise_de_fin_de_partie",
+   "name": "Crise de fin de partie",
+   "forms": [
+    "Crise de fin de partie"
+   ],
+   "family": "meca",
+   "summary": "Puissance hostile à tous qui arrive après l'an 30 (réglable) : Récif chantant, Inspection Générale, Déchirure, Nuit lente, Grand Krach, Roi-Corsaire",
+   "chapters": [
+    "15h-cour"
+   ]
+  },
+  {
+   "id": "crise_de_la_dette",
+   "name": "Crise de la dette",
+   "forms": [
+    "Crise de la dette"
+   ],
+   "family": "meca",
+   "summary": "Jauge qui monte au plafond de crédit en quatre paliers (Tension, Déficit, Crise, Banqueroute imminente), jusqu'à la faillite",
+   "chapters": [
+    "15j-fiscalite"
+   ]
+  },
+  {
+   "id": "crise_diplomatique",
+   "name": "Crise diplomatique",
+   "forms": [
+    "Crise diplomatique"
+   ],
+   "family": "meca",
+   "summary": "Trente jours d'escalade avant une guerre : ralliés, recul ou guerre",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "cristaux_de_saut",
+   "name": "Cristaux de saut",
+   "forms": [
+    "cristaux de saut"
+   ],
+   "family": "meca",
+   "summary": "Gisement rare qui donne des cristaux, la ressource des sauts et des modules avancés.",
+   "chapters": [
+    "04-colonies"
+   ]
+  },
+  {
+   "id": "croisade",
+   "name": "Croisade",
+   "forms": [
+    "Croisade"
+   ],
+   "family": "meca",
+   "summary": "Guerre prêchée par un chef de foi, où toute la foi suit",
+   "chapters": [
+    "12a-foi"
+   ],
+   "strict": true
+  },
+  {
+   "id": "culte_cache",
+   "name": "Culte caché",
+   "forms": [
+    "Culte caché"
+   ],
+   "family": "meca",
+   "summary": "Foi à la diffusion secrète, invisible chez les autres jusqu'à sa découverte",
+   "chapters": [
+    "12a-foi"
+   ]
+  },
+  {
+   "id": "cultes_natals",
+   "name": "Cultes natals",
+   "forms": [
+    "Cultes natals"
+   ],
+   "family": "meca",
+   "summary": "Les croyances d'origine d'un peuple, avant toute grande foi",
+   "chapters": [
+    "12a-foi"
+   ]
+  },
+  {
+   "id": "curiosite",
+   "name": "Curiosité",
+   "forms": [
+    "Curiosité"
+   ],
+   "family": "meca",
+   "summary": "Épave, signal, ruine ou anomalie à sonder sur une planète",
+   "chapters": [
+    "14-perils"
+   ],
+   "strict": true
+  },
+  {
+   "id": "derniere_guerre",
+   "name": "Dernière Guerre",
+   "forms": [
+    "Dernière Guerre"
+   ],
+   "family": "meca",
+   "summary": "La guerre contre qui refuse l'élection du Chancelier des étoiles",
+   "chapters": [
+    "10d-amphictyonie"
+   ]
+  },
+  {
+   "id": "desserte",
+   "name": "Desserte",
+   "forms": [
+    "Desserte"
+   ],
+   "family": "meca",
+   "summary": "Part de 50 à 100 % de la production matérielle d'une colonie qui rejoint le stock de l'empire (spatioports)",
+   "chapters": [
+    "15l-spatioports"
+   ],
+   "strict": true
+  },
+  {
+   "id": "dette_courante",
+   "name": "Dette courante",
+   "forms": [
+    "Dette courante"
+   ],
+   "family": "meca",
+   "summary": "L'emprunt d'office à la Banque intérieure quand le trésor passe sous zéro ; intérêts seuls, remboursée par l'excédent",
+   "chapters": [
+    "15j-fiscalite"
+   ]
+  },
+  {
+   "id": "defaite_commune",
+   "name": "Défaite commune",
+   "forms": [
+    "Défaite commune"
+   ],
+   "family": "meca",
+   "summary": "Fin de partie sans vainqueur : la crise tient la moitié des systèmes habités",
+   "chapters": [
+    "15a-crises"
+   ]
+  },
+  {
+   "id": "defection_culturelle",
+   "name": "Défection culturelle",
+   "forms": [
+    "Défection culturelle"
+   ],
+   "family": "meca",
+   "summary": "Système instable d'un voisin qui passe chez vous après deux ans, sans un coup de feu, si votre culture l'écrase",
+   "chapters": [
+    "15d-rayonnement"
+   ]
+  },
+  {
+   "id": "demantelement",
+   "name": "Démantèlement",
+   "forms": [
+    "démantèlement"
+   ],
+   "family": "meca",
+   "summary": "Opération de la Forge des mondes (ère IV) qui défait une planète pour ses matériaux.",
+   "chapters": [
+    "15w-forge"
+   ]
+  },
+  {
+   "id": "depot_de_flotte",
+   "name": "Dépôt de flotte",
+   "forms": [
+    "Dépôt de flotte"
+   ],
+   "family": "meca",
+   "summary": "Bâtiment qui prolonge d'un saut la zone de ravitaillement et répare les flottes à 8 % par jour",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "detection",
+   "name": "Détection",
+   "forms": [
+    "détection"
+   ],
+   "family": "meca",
+   "summary": "Le niveau de 0 à 5 qui perce le camouflage : réseaux de détecteurs, postes d'écoute, technologies.",
+   "chapters": [
+    "15o-furtivite"
+   ],
+   "strict": true
+  },
+  {
+   "id": "devastation",
+   "name": "Dévastation",
+   "forms": [
+    "Dévastation"
+   ],
+   "family": "meca",
+   "summary": "Taux de 0 à 100 par système, né du bombardement et des combats au sol : moins de production, de croissance et de stabilité",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "diaspora",
+   "name": "Diaspora",
+   "forms": [
+    "Diaspora"
+   ],
+   "family": "meca",
+   "summary": "Le peuple d'un empire disparu, qui peut le faire renaître",
+   "chapters": [
+    "04-colonies"
+   ],
+   "strict": true
+  },
+  {
+   "id": "disparus",
+   "name": "Disparus",
+   "forms": [
+    "Disparus"
+   ],
+   "family": "meca",
+   "summary": "Cinq peuples éteints dont on reconstitue l'histoire, site après site, jusqu'à leur Monde-berceau et leur Chute.",
+   "chapters": [
+    "15u-archeologie"
+   ]
+  },
+  {
+   "id": "doctrine",
+   "name": "Doctrine",
+   "forms": [
+    "Doctrine"
+   ],
+   "family": "meca",
+   "summary": "En recherche, un choix exclusif d'Armement ; en religion, une position sur l'un des quatre axes d'une foi",
+   "chapters": [
+    "07-recherche",
+    "12a-foi"
+   ],
+   "strict": true
+  },
+  {
+   "id": "doctrine_environnementale",
+   "name": "Doctrine environnementale",
+   "forms": [
+    "doctrine environnementale"
+   ],
+   "family": "meca",
+   "summary": "Le choix d'empire sur l'industrie et la nature, réglé dans l'écran Colonies.",
+   "chapters": [
+    "15z-ecologie"
+   ]
+  },
+  {
+   "id": "doleance",
+   "name": "Doléance",
+   "forms": [
+    "Doléance"
+   ],
+   "family": "meca",
+   "summary": "Ce que réclame un courant d'opposition, ou un peuple sans droits",
+   "chapters": [
+    "12-politique",
+    "04-colonies"
+   ],
+   "strict": true
+  },
+  {
+   "id": "droit_de_passage",
+   "name": "Droit de passage",
+   "forms": [
+    "Droit de passage"
+   ],
+   "family": "meca",
+   "summary": "Ce qui permet à une flotte de guerre d'entrer chez un autre empire hors guerre : lien fort, traité, politique Ouverte",
+   "chapters": [
+    "10-diplomatie"
+   ]
+  },
+  {
+   "id": "effort_administratif",
+   "name": "Effort administratif",
+   "forms": [
+    "Effort administratif"
+   ],
+   "family": "meca",
+   "summary": "Ce que l'empire paie ses fonctionnaires : Frugal, Normal, Généreux ou Grande enquête",
+   "chapters": [
+    "15i-administration"
+   ]
+  },
+  {
+   "id": "embargo",
+   "name": "Embargo",
+   "forms": [
+    "Embargo"
+   ],
+   "family": "meca",
+   "summary": "Coupure de tout commerce avec un empire",
+   "chapters": [
+    "10a-commerce"
+   ],
+   "strict": true
+  },
+  {
+   "id": "empreinte",
+   "name": "Empreinte",
+   "forms": [
+    "empreinte"
+   ],
+   "family": "meca",
+   "summary": "Le poids des bâtiments et de la population sur une biosphère ; le monde en absorbe une part selon sa taille.",
+   "chapters": [
+    "15z-ecologie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "encerclement",
+   "name": "Encerclement",
+   "forms": [
+    "Encerclement"
+   ],
+   "family": "meca",
+   "summary": "Planète assiégée cernée de systèmes ennemis : garnison et remparts ne se relèvent plus (logistique complète)",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "enclave",
+   "name": "Enclave",
+   "forms": [
+    "Enclave"
+   ],
+   "family": "meca",
+   "summary": "Système qu'on ne relie à aucun siège par son territoire, les systèmes libres ou ceux d'un allié : corruption de distance ×1,5 ; avec les spatioports, port que rien ne relie à la capitale : ses colonies tombent au plancher de desserte",
+   "chapters": [
+    "15i-administration",
+    "15l-spatioports"
+   ],
+   "strict": true
+  },
+  {
+   "id": "eureka",
+   "name": "Eurêka",
+   "forms": [
+    "Eurêka"
+   ],
+   "family": "meca",
+   "summary": "Objectif en jeu qui paie 40 % d'une technologie",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "exception_culturelle",
+   "name": "Exception culturelle",
+   "forms": [
+    "Exception culturelle"
+   ],
+   "family": "meca",
+   "summary": "Loi qui protège votre culture : Patrimoine +25 %, cultures étrangères -25 %, routes -10 %.",
+   "chapters": [
+    "15d-rayonnement"
+   ]
+  },
+  {
+   "id": "exodium",
+   "name": "Exodium",
+   "forms": [
+    "Exodium"
+   ],
+   "family": "meca",
+   "summary": "L'ouvrage final d'une voie de Transcendance, bâti en trois étapes dans un lieu précis, visible de tous : c'est là qu'on viendra vous arrêter.",
+   "chapters": [
+    "15r-transcendance"
+   ]
+  },
+  {
+   "id": "echelle_de_kardashev",
+   "name": "Échelle de Kardashev",
+   "forms": [
+    "échelle de Kardashev",
+    "Kardashev"
+   ],
+   "family": "meca",
+   "summary": "Classe les civilisations par la puissance captée : type I la planète, type II l'étoile, type III la galaxie.",
+   "chapters": [
+    "15x-kardashev"
+   ]
+  },
+  {
+   "id": "ecoute_profonde",
+   "name": "Écoute profonde",
+   "forms": [
+    "Écoute profonde"
+   ],
+   "family": "meca",
+   "summary": "Technologie de l'ère IV qui révèle que quelque chose appelle : le début de la victoire de Contact.",
+   "chapters": [
+    "15s-contact"
+   ]
+  },
+  {
+   "id": "elevation",
+   "name": "Élévation",
+   "forms": [
+    "Élévation"
+   ],
+   "family": "meca",
+   "summary": "La jauge d'une voie de Transcendance ; à 100 %, l'empire peut bâtir son Exodium.",
+   "chapters": [
+    "15r-transcendance"
+   ]
+  },
+  {
+   "id": "emulation",
+   "name": "Émulation",
+   "forms": [
+    "Émulation"
+   ],
+   "family": "meca",
+   "summary": "Le rattrapage de l'échelle de Kardashev : les empires en retard progressent plus vite.",
+   "chapters": [
+    "15x-kardashev"
+   ],
+   "strict": true
+  },
+  {
+   "id": "faillite",
+   "name": "Faillite",
+   "forms": [
+    "Faillite"
+   ],
+   "family": "meca",
+   "summary": "Fin de la crise de la dette : dettes effacées, dix ans de malus, cote D",
+   "chapters": [
+    "15j-fiscalite"
+   ]
+  },
+  {
+   "id": "faste",
+   "name": "Faste",
+   "forms": [
+    "Faste"
+   ],
+   "family": "meca",
+   "summary": "L'éclat de la cour, de 0 à 100 : train de la cour, grandes fêtes ; faveur, influence, rayonnement, style",
+   "chapters": [
+    "15h-cour"
+   ],
+   "strict": true
+  },
+  {
+   "id": "faveur",
+   "name": "Faveur",
+   "forms": [
+    "Faveur"
+   ],
+   "family": "meca",
+   "summary": "Dette de vote à l'Amphictyonie, que l'on appelle pendant une séance",
+   "chapters": [
+    "10d-amphictyonie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "fenetre_d_evenement",
+   "name": "Fenêtre d'événement",
+   "forms": [
+    "fenêtre d'événement"
+   ],
+   "family": "meca",
+   "summary": "La grande fenêtre illustrée qui annonce un moment important (en solo, le jeu se met en pause).",
+   "chapters": [
+    "15v-annonces"
+   ]
+  },
+  {
+   "id": "ferveur",
+   "name": "Ferveur",
+   "forms": [
+    "Ferveur"
+   ],
+   "family": "meca",
+   "summary": "Jauge propre aux théocraties du Chœur et des Murmurants",
+   "chapters": [
+    "12a-foi"
+   ],
+   "strict": true
+  },
+  {
+   "id": "felure",
+   "name": "Fêlure",
+   "forms": [
+    "fêlure"
+   ],
+   "family": "meca",
+   "summary": "Ce qui peut mal tourner quand on puise dans le Songe : chaque pouvoir a son risque, plus grave en réglage Complet.",
+   "chapters": [
+    "15q-psionique"
+   ]
+  },
+  {
+   "id": "fief",
+   "name": "Fief",
+   "forms": [
+    "Fief"
+   ],
+   "family": "meca",
+   "summary": "Système tenu par une Grande Maison ; sa faveur y joue sur la production et la stabilité",
+   "chapters": [
+    "15h-cour"
+   ],
+   "strict": true
+  },
+  {
+   "id": "filiale",
+   "name": "Filiale",
+   "forms": [
+    "Filiale"
+   ],
+   "family": "meca",
+   "summary": "Bureau d'une compagnie dans la colonie d'un partenaire commercial ; l'hôte peut l'exproprier",
+   "chapters": [
+    "15k-economie-privee"
+   ]
+  },
+  {
+   "id": "fin_de_partie",
+   "name": "Fin de partie",
+   "forms": [
+    "Fin de partie"
+   ],
+   "family": "meca",
+   "summary": "Date à partir de laquelle une crise peut se lever, avancée par les actes imprudents",
+   "chapters": [
+    "15a-crises"
+   ]
+  },
+  {
+   "id": "fleau_des_etoiles",
+   "name": "Fléau des étoiles",
+   "forms": [
+    "Fléau des étoiles"
+   ],
+   "family": "meca",
+   "summary": "Le dernier palier de l'Ambition démesurée : guerre de toute la galaxie, et la Couronne du Néant à bâtir",
+   "chapters": [
+    "15a-crises"
+   ]
+  },
+  {
+   "id": "fleau_errant",
+   "name": "Fléau errant",
+   "forms": [
+    "Fléau errant"
+   ],
+   "family": "meca",
+   "summary": "Créature immense qui erre de colonie en colonie après l'an 15",
+   "chapters": [
+    "15p-genome"
+   ]
+  },
+  {
+   "id": "foi_d_etat",
+   "name": "Foi d'État",
+   "forms": [
+    "Foi d'État"
+   ],
+   "family": "meca",
+   "summary": "La foi qu'un empire adopte officiellement",
+   "chapters": [
+    "12a-foi"
+   ]
+  },
+  {
+   "id": "forge_des_mondes",
+   "name": "Forge des mondes",
+   "forms": [
+    "Forge des mondes"
+   ],
+   "family": "meca",
+   "summary": "Faire des planètes un matériau : démanteler, agglomérer, bâtir des mondes-coquilles et des mondes sur mesure.",
+   "chapters": [
+    "15w-forge"
+   ]
+  },
+  {
+   "id": "fortifications",
+   "name": "Fortifications",
+   "forms": [
+    "Fortifications"
+   ],
+   "family": "meca",
+   "summary": "Remparts d'un système, que le siège use avant la milice (combat au sol complet)",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "fouille",
+   "name": "Fouille",
+   "forms": [
+    "Fouille"
+   ],
+   "family": "meca",
+   "summary": "Site exploré en plusieurs chapitres, avec une relique au bout",
+   "chapters": [
+    "14-perils"
+   ],
+   "strict": true
+  },
+  {
+   "id": "franchise_fiscale",
+   "name": "Franchise fiscale",
+   "forms": [
+    "Franchise fiscale"
+   ],
+   "family": "meca",
+   "summary": "Système exempté d'impôt : énergie -50 %, stabilité +10",
+   "chapters": [
+    "15j-fiscalite"
+   ]
+  },
+  {
+   "id": "fronde",
+   "name": "Fronde",
+   "forms": [
+    "Fronde"
+   ],
+   "family": "meca",
+   "summary": "Révolte d'une maison furieuse : un an de troubles dans ses fiefs, puis un ultimatum",
+   "chapters": [
+    "15h-cour"
+   ]
+  },
+  {
+   "id": "front_commun",
+   "name": "Front commun",
+   "forms": [
+    "Front commun"
+   ],
+   "family": "meca",
+   "summary": "Coalition contre la crise : vision partagée, passage libre, +10 % de dégâts contre elle",
+   "chapters": [
+    "15a-crises"
+   ]
+  },
+  {
+   "id": "frontiere",
+   "name": "Frontière",
+   "forms": [
+    "Frontière"
+   ],
+   "family": "meca",
+   "summary": "Avec l'option Frontières, l'espace d'un empire ; sa politique (Ouverte, Gardée, Close) dit qui y passe",
+   "chapters": [
+    "10-diplomatie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "gardien",
+   "name": "Gardien",
+   "forms": [
+    "Gardien"
+   ],
+   "family": "meca",
+   "summary": "Créature unique assise sur un des meilleurs systèmes",
+   "chapters": [
+    "15p-genome"
+   ],
+   "strict": true
+  },
+  {
+   "id": "gloire",
+   "name": "Gloire",
+   "forms": [
+    "Gloire"
+   ],
+   "family": "meca",
+   "summary": "Valeur d'empire gagnée par les hauts faits et les grands moments, jamais perdue",
+   "chapters": [
+    "15f-hauts-faits"
+   ],
+   "strict": true
+  },
+  {
+   "id": "grand_chantier",
+   "name": "Grand chantier",
+   "forms": [
+    "Grand chantier"
+   ],
+   "family": "meca",
+   "summary": "Chantier de merveille, à part de la file de la colonie : avance de 20 %, puis mensualités ; un à la fois",
+   "chapters": [
+    "15e-merveilles"
+   ]
+  },
+  {
+   "id": "grand_chantier_commun",
+   "name": "Grand chantier commun",
+   "forms": [
+    "Grand chantier commun"
+   ],
+   "family": "meca",
+   "summary": "Phare des Âges ou Banque des Étoiles : le projet que tous financent pour arrêter une crise sans flotte",
+   "chapters": [
+    "15a-crises"
+   ]
+  },
+  {
+   "id": "grand_port_orbital",
+   "name": "Grand port orbital",
+   "forms": [
+    "Grand port orbital"
+   ],
+   "family": "meca",
+   "summary": "Troisième niveau de port : portée de trois sauts, réserve doublée",
+   "chapters": [
+    "15l-spatioports"
+   ]
+  },
+  {
+   "id": "grand_rayonnement",
+   "name": "Grand Rayonnement",
+   "forms": [
+    "Grand Rayonnement"
+   ],
+   "family": "meca",
+   "summary": "Victoire classique : être Influent chez chaque empire rencontré pendant deux ans",
+   "chapters": [
+    "15d-rayonnement"
+   ]
+  },
+  {
+   "id": "grande_maison",
+   "name": "Grande Maison",
+   "forms": [
+    "Grande Maison"
+   ],
+   "family": "meca",
+   "summary": "Famille noble de la cour : vocation, fiefs, siège, membres, faveur de -100 à +100",
+   "chapters": [
+    "15h-cour"
+   ]
+  },
+  {
+   "id": "grands_offices",
+   "name": "Grands offices",
+   "forms": [
+    "Grands offices"
+   ],
+   "family": "meca",
+   "summary": "Grand Intendant, Connétable, Grand Héraut, Maître des Murmures (et Grand Aumônier)",
+   "chapters": [
+    "15h-cour"
+   ]
+  },
+  {
+   "id": "grands_uvres",
+   "name": "Grands Œuvres",
+   "forms": [
+    "Grands Œuvres"
+   ],
+   "family": "meca",
+   "summary": "Victoire en option : tenir 2 à 5 Grands Œuvres d'ère V un an",
+   "chapters": [
+    "15e-merveilles"
+   ]
+  },
+  {
+   "id": "grief",
+   "name": "Grief",
+   "forms": [
+    "Grief"
+   ],
+   "family": "meca",
+   "summary": "Un an pendant lequel attaquer celui qui vous espionnait n'est pas un parjure",
+   "chapters": [
+    "11-renseignement",
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "guerre_froide",
+   "name": "Guerre froide",
+   "forms": [
+    "Guerre froide"
+   ],
+   "family": "meca",
+   "summary": "Le statut de départ entre deux empires qui se rencontrent",
+   "chapters": [
+    "10-diplomatie"
+   ]
+  },
+  {
+   "id": "haut_fait",
+   "name": "Haut fait",
+   "forms": [
+    "Haut fait"
+   ],
+   "family": "meca",
+   "summary": "Course à un seul gagnant (« premier à… », record d'ère) : Gloire et récompense au choix",
+   "chapters": [
+    "15f-hauts-faits"
+   ]
+  },
+  {
+   "id": "haute_voute",
+   "name": "Haute Voûte",
+   "forms": [
+    "Haute Voûte"
+   ],
+   "family": "meca",
+   "summary": "Le haut conseil de l'Amphictyonie : veto, urgence, dénonciation",
+   "chapters": [
+    "10d-amphictyonie"
+   ]
+  },
+  {
+   "id": "hegemonie",
+   "name": "Hégémonie",
+   "forms": [
+    "Hégémonie"
+   ],
+   "family": "meca",
+   "summary": "La forme de Koinon d'un seul : le plus puissant préside à vie, et l'on ne part pas sans son accord.",
+   "chapters": [
+    "10c-koinon"
+   ]
+  },
+  {
+   "id": "heresie",
+   "name": "Hérésie",
+   "forms": [
+    "Hérésie",
+    "schisme"
+   ],
+   "family": "meca",
+   "summary": "Une foi fille née d'une foi faible ; devenue assez grande, elle fait schisme",
+   "chapters": [
+    "12a-foi"
+   ]
+  },
+  {
+   "id": "heritage_maison",
+   "name": "Héritage",
+   "forms": [
+    "Héritage"
+   ],
+   "family": "meca",
+   "summary": "Bonus permanent acheté avec le renom des règnes achevés ; traditions d'État sans dynastie",
+   "chapters": [
+    "15g-trone"
+   ],
+   "qualifier": "maison",
+   "strict": true
+  },
+  {
+   "id": "heritiers",
+   "name": "Héritiers",
+   "forms": [
+    "Héritiers"
+   ],
+   "family": "meca",
+   "summary": "Les repaires pirates qui naissent de la mort du Roi-Corsaire",
+   "chapters": [
+    "15a-crises"
+   ],
+   "strict": true
+  },
+  {
+   "id": "hors_la_loi",
+   "name": "Hors-la-loi",
+   "forms": [
+    "Hors-la-loi"
+   ],
+   "family": "meca",
+   "summary": "Celui qui a enfreint le Nomos : sanctions, puis bannissement",
+   "chapters": [
+    "10d-amphictyonie"
+   ]
+  },
+  {
+   "id": "idole_des_etoiles",
+   "name": "Idole des étoiles",
+   "forms": [
+    "Idole des étoiles"
+   ],
+   "family": "meca",
+   "summary": "Victoire du credo Plaisir : Influent chez 60 % de la population étrangère",
+   "chapters": [
+    "15d-rayonnement"
+   ]
+  },
+  {
+   "id": "imperateur",
+   "name": "Impérateur",
+   "forms": [
+    "Impérateur"
+   ],
+   "family": "meca",
+   "summary": "L'Arbitre à vie qui a reçu les pleins pouvoirs",
+   "chapters": [
+    "10d-amphictyonie"
+   ]
+  },
+  {
+   "id": "infamie",
+   "name": "Infamie",
+   "forms": [
+    "Infamie"
+   ],
+   "family": "meca",
+   "summary": "Marque d'un haut fait infâme : -15 d'opinion chez tous pendant dix ans",
+   "chapters": [
+    "15f-hauts-faits"
+   ],
+   "strict": true
+  },
+  {
+   "id": "inflation",
+   "name": "Inflation",
+   "forms": [
+    "Inflation"
+   ],
+   "family": "meca",
+   "summary": "Indice qui renchérit l'entretien en énergie ; nourri par les emprunts, la planche à billets, le Grand Krach",
+   "chapters": [
+    "15j-fiscalite"
+   ],
+   "strict": true
+  },
+  {
+   "id": "influence",
+   "name": "Influence",
+   "forms": [
+    "Influence"
+   ],
+   "family": "meca",
+   "summary": "La ressource politique : revendications, traités, décrets, lois.",
+   "chapters": [
+    "04-colonies"
+   ],
+   "strict": true
+  },
+  {
+   "id": "ingenierie_climatique",
+   "name": "Ingénierie climatique",
+   "forms": [
+    "Ingénierie climatique"
+   ],
+   "family": "meca",
+   "summary": "Projet à relancer pendant cinq ans pour faire reverdir un monde.",
+   "chapters": [
+    "15z-ecologie"
+   ]
+  },
+  {
+   "id": "ingenierie_des_especes",
+   "name": "Ingénierie des espèces",
+   "forms": [
+    "ingénierie des espèces"
+   ],
+   "family": "meca",
+   "summary": "Façonner ses espèces en cours de partie par des programmes payés en Savoir (écran Génome).",
+   "chapters": [
+    "15p-genome"
+   ]
+  },
+  {
+   "id": "inhibiteur_de_saut",
+   "name": "Inhibiteur de saut",
+   "forms": [
+    "inhibiteur de saut"
+   ],
+   "family": "meca",
+   "summary": "Défense qui retient les flottes ennemies dans un système et peut couper un portail.",
+   "chapters": [
+    "15m-defenses",
+    "15n-portails"
+   ]
+  },
+  {
+   "id": "inquisition",
+   "name": "Inquisition",
+   "forms": [
+    "Inquisition"
+   ],
+   "family": "meca",
+   "summary": "Loi de culte qui traque les autres fois ; incompatible avec la Tolérance.",
+   "chapters": [
+    "12-politique",
+    "12a-foi"
+   ],
+   "strict": true
+  },
+  {
+   "id": "insurrection",
+   "name": "Insurrection",
+   "forms": [
+    "insurrection"
+   ],
+   "family": "meca",
+   "summary": "À 100, des partisans se lèvent dans un système occupé ; s'ils l'emportent, il est libéré.",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "interregne",
+   "name": "Interrègne",
+   "forms": [
+    "Interrègne"
+   ],
+   "family": "meca",
+   "summary": "Le temps où le trône reste vide (Conclave, Épreuve, couvée royale)",
+   "chapters": [
+    "15g-trone"
+   ]
+  },
+  {
+   "id": "integration",
+   "name": "Intégration",
+   "forms": [
+    "Intégration"
+   ],
+   "family": "meca",
+   "summary": "L'adaptation d'une espèce dans une colonie, de 0 à 100 % ; ou l'absorption d'un sujet",
+   "chapters": [
+    "04-colonies",
+    "10b-sujets"
+   ],
+   "strict": true
+  },
+  {
+   "id": "intrusion",
+   "name": "Intrusion",
+   "forms": [
+    "Intrusion"
+   ],
+   "family": "meca",
+   "summary": "Flotte entrée sans droit de passage chez un empire rencontré : souvenir, puis -1 par mois si elle reste",
+   "chapters": [
+    "10-diplomatie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "kanly",
+   "name": "Kanly",
+   "forms": [
+    "Kanly"
+   ],
+   "family": "meca",
+   "summary": "Guerre limitée des peuples féodaux : ni monde peuplé envahi, ni parjure",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "koinon",
+   "name": "Koinon",
+   "forms": [
+    "Koinon"
+   ],
+   "family": "meca",
+   "summary": "Ligue de deux à six empires, avec synode, Stratège et lois",
+   "chapters": [
+    "10c-koinon"
+   ]
+  },
+  {
+   "id": "laissez_passer",
+   "name": "Laissez-passer",
+   "forms": [
+    "Laissez-passer"
+   ],
+   "family": "meca",
+   "summary": "Droit de passage d'une flotte précise pendant 90 jours, demandé contre 15 influence",
+   "chapters": [
+    "10-diplomatie"
+   ]
+  },
+  {
+   "id": "lassitude",
+   "name": "Lassitude",
+   "forms": [
+    "Lassitude"
+   ],
+   "family": "meca",
+   "summary": "Ce que coûte une guerre qui dure ; avec les buts de guerre, de 0 à 100 % par camp (stabilité, reddition, statu quo)",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "lentille",
+   "name": "Lentille",
+   "forms": [
+    "Lentille"
+   ],
+   "family": "meca",
+   "summary": "Lecture de la carte : économie, stabilité, politique, commerce, peuples, foi, Amphictyonie, guerre, frontières",
+   "chapters": [
+    "03-interface"
+   ],
+   "strict": true
+  },
+  {
+   "id": "legitimite",
+   "name": "Légitimité",
+   "forms": [
+    "Légitimité"
+   ],
+   "family": "meca",
+   "summary": "L'acceptation du souverain, de 0 à 100 : surnoms, ambitions, sacre ; sous 25, des prétendants",
+   "chapters": [
+    "15g-trone"
+   ]
+  },
+  {
+   "id": "libre_echange",
+   "name": "Libre-échange",
+   "forms": [
+    "Libre-échange"
+   ],
+   "family": "meca",
+   "summary": "Troisième palier du commerce ; et une loi qui double le revenu des routes",
+   "chapters": [
+    "10a-commerce",
+    "12-politique"
+   ]
+  },
+  {
+   "id": "libre_passage",
+   "name": "Libre-passage",
+   "forms": [
+    "Libre-passage"
+   ],
+   "family": "meca",
+   "summary": "Traité réciproque qui ouvre à chacun l'espace de l'autre ; dénoncé avec 90 jours de préavis",
+   "chapters": [
+    "10-diplomatie"
+   ]
+  },
+  {
+   "id": "licence",
+   "name": "Licence",
+   "forms": [
+    "Licence"
+   ],
+   "family": "meca",
+   "summary": "Droit d'usage d'un luxe, ou achat d'une part de technologie",
+   "chapters": [
+    "10a-commerce"
+   ],
+   "strict": true
+  },
+  {
+   "id": "licence_miniere",
+   "name": "Licence minière",
+   "forms": [
+    "Licence minière"
+   ],
+   "family": "meca",
+   "summary": "Autorisation donnée au privé de bâtir une station minière sur un gisement (10 influence)",
+   "chapters": [
+    "15k-economie-privee"
+   ]
+  },
+  {
+   "id": "lointains",
+   "name": "Lointains",
+   "forms": [
+    "Lointains"
+   ],
+   "family": "meca",
+   "summary": "Ceux qui envoient le Signal ; le réglage de nouvelle partie dit qui ils sont.",
+   "chapters": [
+    "15s-contact"
+   ],
+   "strict": true
+  },
+  {
+   "id": "loyaute",
+   "name": "Loyauté",
+   "forms": [
+    "Loyauté"
+   ],
+   "family": "meca",
+   "summary": "Celle d'un héros, d'un sujet, ou de l'héritier d'Ossarane",
+   "chapters": [
+    "13-heros",
+    "10b-sujets",
+    "10-diplomatie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "luxe",
+   "name": "Luxe",
+   "forms": [
+    "Luxe"
+   ],
+   "family": "meca",
+   "summary": "Ressource rare qui compte par variété : stabilité et petit effet",
+   "chapters": [
+    "10a-commerce"
+   ],
+   "strict": true
+  },
+  {
+   "id": "marche_commun",
+   "name": "Marché commun",
+   "forms": [
+    "Marché commun"
+   ],
+   "family": "meca",
+   "summary": "Prix partagés par toute la galaxie, une fois la Bourse fondée",
+   "chapters": [
+    "10a-commerce"
+   ]
+  },
+  {
+   "id": "marche_noir",
+   "name": "Marché noir",
+   "forms": [
+    "marché noir"
+   ],
+   "family": "meca",
+   "summary": "Le commerce d'un port franc pirate : des stratégiques sans traité, au double du prix.",
+   "chapters": [
+    "10a-commerce",
+    "14-perils"
+   ]
+  },
+  {
+   "id": "marque",
+   "name": "Marque",
+   "forms": [
+    "Marque"
+   ],
+   "family": "meca",
+   "summary": "Niveau d'une famille d'armes ou de défenses, de I à V",
+   "chapters": [
+    "07-recherche"
+   ],
+   "strict": true
+  },
+  {
+   "id": "martyr",
+   "name": "Martyr",
+   "forms": [
+    "Martyr"
+   ],
+   "family": "meca",
+   "summary": "Héros de foi qui, exécuté ou assassiné, donne du zèle et des fragments de relique.",
+   "chapters": [
+    "12a-foi",
+    "13-heros"
+   ],
+   "strict": true
+  },
+  {
+   "id": "menace",
+   "name": "Menace",
+   "forms": [
+    "Menace"
+   ],
+   "family": "meca",
+   "summary": "La jauge de l'empire qui a pris la voie de l'Ambition démesurée : trois paliers, jusqu'au Fléau des étoiles",
+   "chapters": [
+    "15a-crises"
+   ]
+  },
+  {
+   "id": "merveille",
+   "name": "Merveille",
+   "forms": [
+    "Merveille"
+   ],
+   "family": "meca",
+   "summary": "Monument unique dans la galaxie : vraie course, au premier qui l'achève ; les autres gardent leur mise 90 jours",
+   "chapters": [
+    "15e-merveilles"
+   ]
+  },
+  {
+   "id": "mesures_d_urgence",
+   "name": "Mesures d'urgence",
+   "forms": [
+    "Mesures d'urgence"
+   ],
+   "family": "meca",
+   "summary": "Trois décrets pris pendant une crise, qui durent jusqu'à sa fin",
+   "chapters": [
+    "15a-crises"
+   ],
+   "strict": true
+  },
+  {
+   "id": "megastructure",
+   "name": "Mégastructure",
+   "forms": [
+    "Mégastructure"
+   ],
+   "family": "meca",
+   "summary": "Merveille par empire, bâtie par étapes qui produisent dès qu'elles sont franchies",
+   "chapters": [
+    "15e-merveilles"
+   ]
+  },
+  {
+   "id": "milice",
+   "name": "Milice",
+   "forms": [
+    "Milice"
+   ],
+   "family": "meca",
+   "summary": "Les habitants en armes : la garnison, qui se bat au sol contre les régiments qui débarquent",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "monde_saint",
+   "name": "Monde saint",
+   "forms": [
+    "Monde saint"
+   ],
+   "family": "meca",
+   "summary": "Le monde où une foi est née, qui prêche quatre fois plus fort",
+   "chapters": [
+    "12a-foi"
+   ]
+  },
+  {
+   "id": "monde_vivant",
+   "name": "Monde vivant",
+   "forms": [
+    "monde vivant"
+   ],
+   "family": "meca",
+   "summary": "Une planète qui pense et se souvient, avec une humeur envers chaque empire, de -100 à +100.",
+   "chapters": [
+    "15y-mondes-vivants"
+   ]
+  },
+  {
+   "id": "monde_berceau",
+   "name": "Monde-berceau",
+   "forms": [
+    "Monde-berceau"
+   ],
+   "family": "meca",
+   "summary": "Le monde d'origine d'un Disparu, révélé à six vestiges : relique, Gabarit et Secrets pour qui l'atteint.",
+   "chapters": [
+    "15u-archeologie"
+   ]
+  },
+  {
+   "id": "monde_coquille",
+   "name": "Monde-coquille",
+   "forms": [
+    "monde-coquille",
+    "mondes-coquilles"
+   ],
+   "family": "meca",
+   "summary": "Monde creux bâti par la Forge des mondes autour d'un cœur ; une brèche peut le faire s'effondrer.",
+   "chapters": [
+    "15w-forge"
+   ]
+  },
+  {
+   "id": "monde_reliquaire",
+   "name": "Monde-reliquaire",
+   "forms": [
+    "monde-reliquaire",
+    "mondes-reliquaires"
+   ],
+   "family": "meca",
+   "summary": "Monde artificiel d'un âge oublié, qu'on peut réveiller (réglage de nouvelle partie).",
+   "chapters": [
+    "15w-forge"
+   ]
+  },
+  {
+   "id": "monopole",
+   "name": "Monopole",
+   "forms": [
+    "Monopole"
+   ],
+   "family": "meca",
+   "summary": "60 % des gisements d'un luxe ou d'un stratégique",
+   "chapters": [
+    "10a-commerce"
+   ],
+   "strict": true
+  },
+  {
+   "id": "moteur_planetaire",
+   "name": "Moteur planétaire",
+   "forms": [
+    "moteur planétaire",
+    "moteurs planétaires"
+   ],
+   "family": "meca",
+   "summary": "Ouvrage de l'ère V qui déplace un monde.",
+   "chapters": [
+    "15w-forge"
+   ]
+  },
+  {
+   "id": "motif_de_guerre",
+   "name": "Motif de guerre",
+   "forms": [
+    "Motif de guerre"
+   ],
+   "family": "meca",
+   "summary": "La raison avouée d'une guerre (casus belli) ; sans motif, c'est une agression",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "musee_galactique",
+   "name": "Musée galactique",
+   "forms": [
+    "Musée galactique"
+   ],
+   "family": "meca",
+   "summary": "Bâtiment unique qui expose trois reliques et nourrit le Rayonnement",
+   "chapters": [
+    "15d-rayonnement"
+   ]
+  },
+  {
+   "id": "nature",
+   "name": "Nature",
+   "forms": [
+    "Nature"
+   ],
+   "family": "meca",
+   "summary": "La mécanique propre d'une foi, parmi dix-neuf",
+   "chapters": [
+    "12a-foi"
+   ],
+   "strict": true
+  },
+  {
+   "id": "nebuleuse",
+   "name": "Nébuleuse",
+   "forms": [
+    "Nébuleuse"
+   ],
+   "family": "meca",
+   "summary": "Nappe nommée de la carte : transit plus long, voile qui arrête la vue, longue portée réduite (terrain)",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "nomos",
+   "name": "Nomos",
+   "forms": [
+    "Nomos"
+   ],
+   "family": "meca",
+   "summary": "La loi commune de l'Amphictyonie",
+   "chapters": [
+    "10d-amphictyonie"
+   ]
+  },
+  {
+   "id": "non_integre",
+   "name": "Non intégré",
+   "forms": [
+    "Non intégré"
+   ],
+   "family": "meca",
+   "summary": "Système conquis, cédé ou annexé qui attend son intégration : production divisée par deux, aucun décret, aucune charge",
+   "chapters": [
+    "15i-administration"
+   ]
+  },
+  {
+   "id": "observateur",
+   "name": "Observateur",
+   "forms": [
+    "Observateur"
+   ],
+   "family": "meca",
+   "summary": "Empire hors de l'Amphictyonie, admis au banc des observateurs",
+   "chapters": [
+    "10d-amphictyonie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "occupation",
+   "name": "Occupation",
+   "forms": [
+    "Occupation"
+   ],
+   "family": "meca",
+   "summary": "Système envahi qui reste à son propriétaire jusqu'au traité",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "oree",
+   "name": "Orée",
+   "forms": [
+    "Orée"
+   ],
+   "family": "meca",
+   "summary": "La technologie de l'ère V qui ouvre le choix d'une voie de Transcendance, une seule et pour toujours.",
+   "chapters": [
+    "15r-transcendance"
+   ]
+  },
+  {
+   "id": "osmose",
+   "name": "Osmose",
+   "forms": [
+    "Osmose"
+   ],
+   "family": "meca",
+   "summary": "Une culture En vogue chez vous fait réclamer une de ses lois, ou vous vend ses technologies contre de l'énergie",
+   "chapters": [
+    "15d-rayonnement"
+   ],
+   "strict": true
+  },
+  {
+   "id": "pacte_de_crise",
+   "name": "Pacte",
+   "forms": [
+    "Pacte"
+   ],
+   "family": "meca",
+   "summary": "Le marché qu'offre une crise : être épargné contre un prix et la défiance de tous",
+   "chapters": [
+    "15a-crises"
+   ],
+   "qualifier": "de crise"
+  },
+  {
+   "id": "palier_culturel",
+   "name": "Palier culturel",
+   "forms": [
+    "Palier culturel"
+   ],
+   "family": "meca",
+   "summary": "Votre culture chez un empire : Inconnue, Exotique, Familière, En vogue, Influente, Dominante",
+   "chapters": [
+    "15d-rayonnement"
+   ]
+  },
+  {
+   "id": "parjure",
+   "name": "Parjure",
+   "forms": [
+    "Parjure"
+   ],
+   "family": "meca",
+   "summary": "Celui qui rompt un traité pour attaquer",
+   "chapters": [
+    "09-guerre",
+    "10-diplomatie"
+   ]
+  },
+  {
+   "id": "passage",
+   "name": "Passage",
+   "forms": [
+    "Passage"
+   ],
+   "family": "meca",
+   "summary": "Le départ lui-même, après l'Exodium : brisé ou mené dans le désordre, il peut avorter.",
+   "chapters": [
+    "15r-transcendance"
+   ],
+   "strict": true
+  },
+  {
+   "id": "passage_inoffensif",
+   "name": "Passage inoffensif",
+   "forms": [
+    "Passage inoffensif"
+   ],
+   "family": "meca",
+   "summary": "Le droit des vaisseaux sans armes de traverser un espace étranger, sauf frontière close",
+   "chapters": [
+    "10-diplomatie"
+   ]
+  },
+  {
+   "id": "patrimoine",
+   "name": "Patrimoine",
+   "forms": [
+    "Patrimoine"
+   ],
+   "family": "meca",
+   "summary": "Ce que la culture des autres doit surmonter chez vous ; il grandit avec votre influence, vos lois et vos reliques",
+   "chapters": [
+    "15d-rayonnement"
+   ],
+   "strict": true
+  },
+  {
+   "id": "patronage_divise",
+   "name": "Patronage divisé",
+   "forms": [
+    "Patronage divisé"
+   ],
+   "family": "meca",
+   "summary": "Ce que coûte en loyauté chaque sujet de plus",
+   "chapters": [
+    "10b-sujets"
+   ]
+  },
+  {
+   "id": "peuple_mineur",
+   "name": "Peuple mineur",
+   "forms": [
+    "Peuple mineur"
+   ],
+   "family": "meca",
+   "summary": "Petite civilisation neutre qu'on courtise par la faveur, protège, intègre ou conquiert",
+   "chapters": [
+    "15c-mineurs"
+   ],
+   "strict": true
+  },
+  {
+   "id": "peuples_meles",
+   "name": "Peuples mêlés",
+   "forms": [
+    "Peuples mêlés"
+   ],
+   "family": "meca",
+   "summary": "Option qui permet à une colonie d'abriter plusieurs espèces.",
+   "chapters": [
+    "04-colonies"
+   ]
+  },
+  {
+   "id": "peage",
+   "name": "Péage",
+   "forms": [
+    "Péage"
+   ],
+   "family": "meca",
+   "summary": "Énergie payée à chaque saut par les flottes de guerre étrangères de passage",
+   "chapters": [
+    "10-diplomatie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "plafond_de_credit",
+   "name": "Plafond de crédit",
+   "forms": [
+    "Plafond de crédit"
+   ],
+   "family": "meca",
+   "summary": "Ce que l'empire peut devoir : environ douze mois de production brute d'énergie",
+   "chapters": [
+    "15j-fiscalite"
+   ]
+  },
+  {
+   "id": "planche_a_billets",
+   "name": "Planche à billets",
+   "forms": [
+    "Planche à billets"
+   ],
+   "family": "meca",
+   "summary": "Battre monnaie : trois mois de production tout de suite, contre 3 % d'inflation",
+   "chapters": [
+    "15j-fiscalite"
+   ]
+  },
+  {
+   "id": "point_faible",
+   "name": "Point faible",
+   "forms": [
+    "Point faible"
+   ],
+   "family": "meca",
+   "summary": "Station immobile d'une crise (Monde-Récif, Bureau de contrôle, ancre, Repaire de la Horde) : la détruire l'affaiblit",
+   "chapters": [
+    "15a-crises"
+   ]
+  },
+  {
+   "id": "port_franc",
+   "name": "Port franc",
+   "forms": [
+    "Port franc"
+   ],
+   "family": "meca",
+   "summary": "Repaire pirate rangé : mercenaires, héros et marché noir",
+   "chapters": [
+    "14-perils"
+   ]
+  },
+  {
+   "id": "portail_de_saut",
+   "name": "Portail de saut",
+   "forms": [
+    "portail de saut",
+    "portails de saut"
+   ],
+   "family": "meca",
+   "summary": "Raccourci de la carte : trou de ver naturel à stabiliser ou relais bâti entre deux systèmes.",
+   "chapters": [
+    "15n-portails"
+   ]
+  },
+  {
+   "id": "porte_stellaire",
+   "name": "Porte stellaire",
+   "forms": [
+    "Porte stellaire"
+   ],
+   "family": "meca",
+   "summary": "Mégastructure : vos flottes sautent d'une porte à l'autre en un jour",
+   "chapters": [
+    "15e-merveilles"
+   ]
+  },
+  {
+   "id": "poste_d_ecoute",
+   "name": "Poste d'écoute",
+   "forms": [
+    "Poste d'écoute"
+   ],
+   "family": "meca",
+   "summary": "Bâtiment de colonie qui augmente la détection.",
+   "chapters": [
+    "15o-furtivite"
+   ]
+  },
+  {
+   "id": "pouvoir_psionique",
+   "name": "Pouvoir psionique",
+   "forms": [
+    "pouvoir psionique"
+   ],
+   "family": "meca",
+   "summary": "Effet payé en Résonance (Lecture des esprits, Préscience, Apaisement…), avec une recharge et un risque de fêlure.",
+   "chapters": [
+    "15q-psionique"
+   ]
+  },
+  {
+   "id": "pre_spatial",
+   "name": "Pré-spatial",
+   "forms": [
+    "Pré-spatial"
+   ],
+   "family": "meca",
+   "summary": "Peuple mineur qui n'a pas quitté son monde et traverse six âges",
+   "chapters": [
+    "15c-mineurs"
+   ]
+  },
+  {
+   "id": "preavis",
+   "name": "Préavis",
+   "forms": [
+    "Préavis"
+   ],
+   "family": "meca",
+   "summary": "L'IA masse ses flottes avant de déclarer ; les espions le voient",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "precepte",
+   "name": "Précepte",
+   "forms": [
+    "Précepte"
+   ],
+   "family": "meca",
+   "summary": "Règle partagée par tous les empires d'une foi",
+   "chapters": [
+    "12a-foi"
+   ],
+   "strict": true
+  },
+  {
+   "id": "prefecture",
+   "name": "Préfecture",
+   "forms": [
+    "Préfecture"
+   ],
+   "family": "meca",
+   "summary": "Bâtiment qui fait d'un système un siège : les systèmes à moins de 4 sauts forment sa province.",
+   "chapters": [
+    "15i-administration"
+   ]
+  },
+  {
+   "id": "prerogative",
+   "name": "Prérogative",
+   "forms": [
+    "prérogative"
+   ],
+   "family": "meca",
+   "summary": "Bonus choisi parmi trois à chaque demi-palier de l'échelle de Kardashev ; il dort si l'indice retombe.",
+   "chapters": [
+    "15x-kardashev"
+   ]
+  },
+  {
+   "id": "pretendant",
+   "name": "Prétendant",
+   "forms": [
+    "Prétendant"
+   ],
+   "family": "meca",
+   "summary": "Rival qui se proclame quand la légitimité reste sous 25 un an ; et une opération d'espionnage",
+   "chapters": [
+    "15g-trone"
+   ]
+  },
+  {
+   "id": "programme_genetique",
+   "name": "Programme génétique",
+   "forms": [
+    "programme génétique"
+   ],
+   "family": "meca",
+   "summary": "Un chantier de l'écran Génome : ajouter ou retirer un trait, acclimater, poser des implants, transférer les esprits.",
+   "chapters": [
+    "15p-genome"
+   ]
+  },
+  {
+   "id": "protectorat",
+   "name": "Protectorat",
+   "forms": [
+    "Protectorat"
+   ],
+   "family": "meca",
+   "summary": "Lien de sujet d'un empire faible qui a demandé protection",
+   "chapters": [
+    "10b-sujets"
+   ]
+  },
+  {
+   "id": "province",
+   "name": "Province",
+   "forms": [
+    "Province"
+   ],
+   "family": "meca",
+   "summary": "Les systèmes à moins de 4 sauts d'une Préfecture, qui en dépendent au lieu de la capitale",
+   "chapters": [
+    "15i-administration"
+   ],
+   "strict": true
+  },
+  {
+   "id": "puissance_ancienne",
+   "name": "Puissance ancienne",
+   "forms": [
+    "puissance ancienne",
+    "puissances anciennes"
+   ],
+   "family": "meca",
+   "summary": "Vieil empire figé, immensément fort, replié dans une poche de trois à cinq systèmes splendides.",
+   "chapters": [
+    "15b-anciennes"
+   ]
+  },
+  {
+   "id": "puissance_captee",
+   "name": "Puissance captée",
+   "forms": [
+    "puissance captée"
+   ],
+   "family": "meca",
+   "summary": "L'énergie qu'un empire tire de ses mondes et de ses étoiles ; elle fixe son rang sur l'échelle de Kardashev.",
+   "chapters": [
+    "15x-kardashev"
+   ]
+  },
+  {
+   "id": "purete",
+   "name": "Pureté",
+   "forms": [
+    "Pureté"
+   ],
+   "family": "meca",
+   "summary": "Serment juré avant tout programme : un bonus tant qu'on ne façonne pas son peuple.",
+   "chapters": [
+    "15p-genome"
+   ]
+  },
+  {
+   "id": "rayonnement",
+   "name": "Rayonnement",
+   "forms": [
+    "Rayonnement"
+   ],
+   "family": "meca",
+   "summary": "Points de culture par mois qui partent vers chaque empire rencontré et s'y cumulent",
+   "chapters": [
+    "15d-rayonnement"
+   ]
+  },
+  {
+   "id": "recouvrement",
+   "name": "Recouvrement",
+   "forms": [
+    "Recouvrement"
+   ],
+   "family": "meca",
+   "summary": "Motif de guerre d'un créancier contre un débiteur qui a fait défaut depuis moins de cinq ans",
+   "chapters": [
+    "15j-fiscalite"
+   ]
+  },
+  {
+   "id": "recrues",
+   "name": "Recrues",
+   "forms": [
+    "Recrues"
+   ],
+   "family": "meca",
+   "summary": "Réserve d'hommes de l'empire, versée chaque mois par les colonies, que coûte chaque régiment",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "reddition",
+   "name": "Reddition",
+   "forms": [
+    "Reddition"
+   ],
+   "family": "meca",
+   "summary": "Devenir vassal au lieu de disparaître",
+   "chapters": [
+    "10-diplomatie"
+   ]
+  },
+  {
+   "id": "registre",
+   "name": "Registre",
+   "forms": [
+    "Registre"
+   ],
+   "family": "meca",
+   "summary": "Le ton d'un peuple : grimdark, médiéval spatial, space opera héroïque…",
+   "chapters": [
+    "00-prelude",
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "registre_des_traites",
+   "name": "Registre des traités",
+   "forms": [
+    "Registre des traités"
+   ],
+   "family": "meca",
+   "summary": "Toutes les paix signées, leurs clauses et leurs échéances",
+   "chapters": [
+    "10-diplomatie"
+   ]
+  },
+  {
+   "id": "relais_hyperspatial",
+   "name": "Relais hyperspatial",
+   "forms": [
+    "relais hyperspatial",
+    "relais hyperspatiaux"
+   ],
+   "family": "meca",
+   "summary": "Portail bâti qui fait un corridor rapide entre deux de vos systèmes.",
+   "chapters": [
+    "15n-portails"
+   ]
+  },
+  {
+   "id": "relique",
+   "name": "Relique",
+   "forms": [
+    "Relique"
+   ],
+   "family": "meca",
+   "summary": "Objet ancien à effet permanent, et son Triomphe",
+   "chapters": [
+    "14-perils"
+   ]
+  },
+  {
+   "id": "renom",
+   "name": "Renom",
+   "forms": [
+    "Renom"
+   ],
+   "family": "meca",
+   "summary": "La gloire d'un empire, qui attire les héros ; et celui d'une maison, qui achète ses héritages",
+   "chapters": [
+    "13-heros",
+    "15g-trone"
+   ],
+   "strict": true
+  },
+  {
+   "id": "revendication",
+   "name": "Revendication",
+   "forms": [
+    "Revendication"
+   ],
+   "family": "meca",
+   "summary": "Droit acheté en influence sur un système d'un autre empire",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "regence",
+   "name": "Régence",
+   "forms": [
+    "Régence"
+   ],
+   "family": "meca",
+   "summary": "Le gouvernement d'un souverain mineur par un régent : pas de guerre, légitimité qui s'use",
+   "chapters": [
+    "15g-trone"
+   ],
+   "strict": true
+  },
+  {
+   "id": "regiment",
+   "name": "Régiment",
+   "forms": [
+    "Régiment"
+   ],
+   "family": "meca",
+   "summary": "Unité de combat au sol, recrutée sur une colonie, transportée par les flottes",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "repudiation",
+   "name": "Répudiation",
+   "forms": [
+    "Répudiation"
+   ],
+   "family": "meca",
+   "summary": "Refuser de payer une Maison ou un empire : pas de faillite, mais cote D et créancier furieux",
+   "chapters": [
+    "15j-fiscalite"
+   ]
+  },
+  {
+   "id": "requisition",
+   "name": "Réquisition",
+   "forms": [
+    "Réquisition"
+   ],
+   "family": "meca",
+   "summary": "Refaire les réserves d'une flotte sur le dos d'un système assiégé : crime de guerre (logistique complète)",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "reserve_naturelle",
+   "name": "Réserve naturelle",
+   "forms": [
+    "Réserve naturelle"
+   ],
+   "family": "meca",
+   "summary": "Bâtiment d'un monde vivant : soigne sa biosphère et rapporte un peu d'influence.",
+   "chapters": [
+    "15z-ecologie"
+   ]
+  },
+  {
+   "id": "reserves",
+   "name": "Réserves",
+   "forms": [
+    "Réserves"
+   ],
+   "family": "meca",
+   "summary": "Les jours de ravitaillement qu'emporte une flotte de guerre loin de ses bases, 120 au départ",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "resonance",
+   "name": "Résonance",
+   "forms": [
+    "Résonance"
+   ],
+   "family": "meca",
+   "summary": "Réserve d'empire donnée chaque mois par les sensitifs ; elle paie les pouvoirs psioniques et ne se commerce pas.",
+   "chapters": [
+    "15q-psionique"
+   ]
+  },
+  {
+   "id": "revelation",
+   "name": "Révélation",
+   "forms": [
+    "Révélation"
+   ],
+   "family": "meca",
+   "summary": "La naissance d'une grande foi",
+   "chapters": [
+    "12a-foi"
+   ]
+  },
+  {
+   "id": "riposte",
+   "name": "Riposte",
+   "forms": [
+    "Riposte"
+   ],
+   "family": "meca",
+   "summary": "Combat sans guerre contre l'intrus qui a ignoré votre sommation, en guerre froide seulement",
+   "chapters": [
+    "10-diplomatie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "route_commerciale",
+   "name": "Route commerciale",
+   "forms": [
+    "Route commerciale"
+   ],
+   "family": "meca",
+   "summary": "Lien mensuel entre deux empires qui commercent, payé aux deux bouts",
+   "chapters": [
+    "10a-commerce"
+   ],
+   "strict": true
+  },
+  {
+   "id": "ruine_merveille",
+   "name": "Ruine",
+   "forms": [
+    "Ruine"
+   ],
+   "family": "meca",
+   "summary": "Merveille d'un âge oublié, à restaurer pour 60 % par qui tient sa planète",
+   "chapters": [
+    "15e-merveilles"
+   ],
+   "qualifier": "merveille"
+  },
+  {
+   "id": "sans_banniere",
+   "name": "Sans-Bannière",
+   "forms": [
+    "Sans-Bannière"
+   ],
+   "family": "meca",
+   "summary": "Les mondes libres, nés des sécessions et des convois",
+   "chapters": [
+    "12-politique",
+    "04-colonies"
+   ]
+  },
+  {
+   "id": "savoir",
+   "name": "Savoir",
+   "forms": [
+    "Savoir"
+   ],
+   "family": "meca",
+   "summary": "La ressource de la science : elle finance la technologie en tête de file.",
+   "chapters": [
+    "07-recherche"
+   ],
+   "strict": true
+  },
+  {
+   "id": "score_de_guerre",
+   "name": "Score de guerre",
+   "forms": [
+    "Score de guerre"
+   ],
+   "family": "meca",
+   "summary": "Les vaisseaux détruits et les systèmes pris, qui paient la paix",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "sensitif",
+   "name": "Sensitif",
+   "forms": [
+    "sensitif"
+   ],
+   "family": "meca",
+   "summary": "Membre d'une espèce qui entend le Songe ; son niveau va de Sourd à Éveillé, puis Transcendant.",
+   "chapters": [
+    "15q-psionique"
+   ]
+  },
+  {
+   "id": "session_extraordinaire",
+   "name": "Session extraordinaire",
+   "forms": [
+    "Session extraordinaire"
+   ],
+   "family": "meca",
+   "summary": "Vote d'urgence de l'Amphictyonie après une crise",
+   "chapters": [
+    "10d-amphictyonie"
+   ]
+  },
+  {
+   "id": "secession",
+   "name": "Sécession",
+   "forms": [
+    "sécession"
+   ],
+   "family": "meca",
+   "summary": "Un système en révolte depuis un an quitte l'empire et rejoint les Sans-Bannière.",
+   "chapters": [
+    "12-politique"
+   ]
+  },
+  {
+   "id": "siege",
+   "name": "Siège",
+   "forms": [
+    "Siège"
+   ],
+   "family": "meca",
+   "summary": "La capitale ou une Préfecture, d'où se compte la distance de la corruption ; et le fief le plus peuplé d'une Grande Maison",
+   "chapters": [
+    "15i-administration",
+    "15h-cour"
+   ],
+   "strict": true
+  },
+  {
+   "id": "signal",
+   "name": "Signal",
+   "forms": [
+    "Signal"
+   ],
+   "family": "meca",
+   "summary": "Ce qui appelle d'au-delà de la galaxie, révélé par l'Écoute profonde et capté par deux voies sur trois.",
+   "chapters": [
+    "15s-contact"
+   ],
+   "strict": true
+  },
+  {
+   "id": "site_de_fouille",
+   "name": "Site de fouille",
+   "forms": [
+    "site de fouille"
+   ],
+   "family": "meca",
+   "summary": "Fouille en plusieurs chapitres de trois mois, avec un jet à chaque phase et une relique au bout.",
+   "chapters": [
+    "15u-archeologie",
+    "14-perils"
+   ]
+  },
+  {
+   "id": "sommation",
+   "name": "Sommation",
+   "forms": [
+    "Sommation"
+   ],
+   "family": "meca",
+   "summary": "Ordre à un intrus de quitter votre espace sous 30 jours ; ignorée, elle donne un motif de guerre",
+   "chapters": [
+    "10-diplomatie"
+   ]
+  },
+  {
+   "id": "songe",
+   "name": "Songe",
+   "forms": [
+    "Songe"
+   ],
+   "family": "meca",
+   "summary": "La mer d'esprit que les sensitifs entendent : la source des pouvoirs psioniques, de la Résonance et des fêlures.",
+   "chapters": [
+    "15q-psionique"
+   ]
+  },
+  {
+   "id": "souverain",
+   "name": "Souverain",
+   "forms": [
+    "Souverain"
+   ],
+   "family": "meca",
+   "summary": "La tête de l'empire, hors limite de héros : aptitudes, archétype de règne, légitimité, surnoms",
+   "chapters": [
+    "15g-trone"
+   ]
+  },
+  {
+   "id": "spatioport",
+   "name": "Spatioport",
+   "forms": [
+    "Spatioport"
+   ],
+   "family": "meca",
+   "summary": "Deuxième niveau de port, amélioré depuis le Comptoir ; et, au sens large, tout port qui dessert les colonies alentour",
+   "chapters": [
+    "15l-spatioports"
+   ]
+  },
+  {
+   "id": "stabilite",
+   "name": "Stabilité",
+   "forms": [
+    "Stabilité"
+   ],
+   "family": "meca",
+   "summary": "L'humeur d'un système, de 0 à 100",
+   "chapters": [
+    "12-politique"
+   ]
+  },
+  {
+   "id": "station_de_defense",
+   "name": "Station de défense",
+   "forms": [
+    "station de défense"
+   ],
+   "family": "meca",
+   "summary": "Station à trois paliers garnie de modules, qui défend un système.",
+   "chapters": [
+    "15m-defenses"
+   ]
+  },
+  {
+   "id": "statu_quo",
+   "name": "Statu quo",
+   "forms": [
+    "Statu quo"
+   ],
+   "family": "meca",
+   "summary": "Paix où chacun garde ce qu'il tient et revendique",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "strate",
+   "name": "Strate",
+   "forms": [
+    "strate"
+   ],
+   "family": "meca",
+   "summary": "La couche d'histoire d'un site de fouille ; avec son type et son origine, elle dit ce qu'on peut y trouver.",
+   "chapters": [
+    "15u-archeologie"
+   ]
+  },
+  {
+   "id": "stratege",
+   "name": "Stratège",
+   "forms": [
+    "Stratège"
+   ],
+   "family": "meca",
+   "summary": "Une classe de héros ; et le chef élu d'un Koinon",
+   "chapters": [
+    "13-heros",
+    "10c-koinon"
+   ],
+   "strict": true
+  },
+  {
+   "id": "strategique",
+   "name": "Stratégique",
+   "forms": [
+    "Stratégique"
+   ],
+   "family": "meca",
+   "summary": "Ressource qui s'ouvre avec les ères, consommée au Chantier",
+   "chapters": [
+    "10a-commerce"
+   ],
+   "strict": true
+  },
+  {
+   "id": "sujet",
+   "name": "Sujet",
+   "forms": [
+    "Sujet",
+    "suzerain"
+   ],
+   "family": "meca",
+   "summary": "L'empire lié par clauses, et celui qui le tient",
+   "chapters": [
+    "10b-sujets"
+   ]
+  },
+  {
+   "id": "surnom",
+   "name": "Surnom",
+   "forms": [
+    "Surnom"
+   ],
+   "family": "meca",
+   "summary": "Ce que le règne a valu au souverain (« la Vaillante ») : il compte dans la légitimité",
+   "chapters": [
+    "15g-trone"
+   ],
+   "strict": true
+  },
+  {
+   "id": "syndicat_du_crime",
+   "name": "Syndicat du crime",
+   "forms": [
+    "Syndicat du crime"
+   ],
+   "family": "meca",
+   "summary": "Repaire criminel né de la corruption ou d'un port franc : vole de l'énergie, nourrit la corruption",
+   "chapters": [
+    "15k-economie-privee"
+   ]
+  },
+  {
+   "id": "synode",
+   "name": "Synode",
+   "forms": [
+    "Synode"
+   ],
+   "family": "meca",
+   "summary": "L'assemblée d'un Koinon",
+   "chapters": [
+    "10c-koinon"
+   ]
+  },
+  {
+   "id": "talent",
+   "name": "Talent",
+   "forms": [
+    "Talent"
+   ],
+   "family": "meca",
+   "summary": "Ce que donne une couche d'espèce dans un domaine du jeu",
+   "chapters": [
+    "15b-anciennes"
+   ],
+   "strict": true
+  },
+  {
+   "id": "tempete_cosmique",
+   "name": "Tempête cosmique",
+   "forms": [
+    "Tempête cosmique"
+   ],
+   "family": "meca",
+   "summary": "Zone mobile dès la 10e année, qui coupe ravitaillement et commerce mais rapporte du Savoir",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "terrain",
+   "name": "Terrain",
+   "forms": [
+    "Terrain"
+   ],
+   "family": "meca",
+   "summary": "Ce qu'un système change aux règles : un inconvénient et un avantage (option de partie)",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "tete_de_pont",
+   "name": "Tête de pont",
+   "forms": [
+    "Tête de pont"
+   ],
+   "family": "meca",
+   "summary": "Système conquis ou occupé, qui ne ravitaille qu'après 30 jours tenus",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "tolerance",
+   "name": "Tolérance",
+   "forms": [
+    "Tolérance"
+   ],
+   "family": "meca",
+   "summary": "Loi de culte qui accepte les autres fois ; incompatible avec l'Inquisition.",
+   "chapters": [
+    "12-politique",
+    "12a-foi"
+   ],
+   "strict": true
+  },
+  {
+   "id": "trait_d_assimilation",
+   "name": "Trait d'assimilation",
+   "forms": [
+    "Trait d'assimilation"
+   ],
+   "family": "meca",
+   "summary": "Bonus laissé par un peuple mineur intégré ou conquis, à activer",
+   "chapters": [
+    "15c-mineurs"
+   ]
+  },
+  {
+   "id": "transcendance",
+   "name": "Transcendance",
+   "forms": [
+    "Transcendance"
+   ],
+   "family": "meca",
+   "summary": "Fin de partie où un empire quitte la galaxie : il s'endort dans le Songe, téléverse ses esprits, devient un dieu, mue ou part par le vide.",
+   "chapters": [
+    "15r-transcendance"
+   ]
+  },
+  {
+   "id": "transit",
+   "name": "Transit",
+   "forms": [
+    "Transit"
+   ],
+   "family": "meca",
+   "summary": "Allongement d'une route par le terrain des systèmes qu'elle relie",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "tresor",
+   "name": "Trésor",
+   "forms": [
+    "Trésor"
+   ],
+   "family": "meca",
+   "summary": "L'énergie de l'empire, et l'onglet de l'Ordre intérieur qui la gouverne (impôt, budget, emprunts)",
+   "chapters": [
+    "15j-fiscalite"
+   ],
+   "strict": true
+  },
+  {
+   "id": "treve",
+   "name": "Trêve",
+   "forms": [
+    "Trêve"
+   ],
+   "family": "meca",
+   "summary": "L'année sans guerre qui suit une paix",
+   "chapters": [
+    "10-diplomatie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "treve_sacree",
+   "name": "Trêve sacrée",
+   "forms": [
+    "Trêve sacrée"
+   ],
+   "family": "meca",
+   "summary": "L'interdiction de guerre entre membres du Front commun ; la rompre coûte cher",
+   "chapters": [
+    "15a-crises"
+   ]
+  },
+  {
+   "id": "tribunal",
+   "name": "Tribunal",
+   "forms": [
+    "Tribunal"
+   ],
+   "family": "meca",
+   "summary": "Bâtiment qui divise par deux la corruption de son système",
+   "chapters": [
+    "15i-administration"
+   ],
+   "strict": true
+  },
+  {
+   "id": "tribut",
+   "name": "Tribut",
+   "forms": [
+    "Tribut"
+   ],
+   "family": "meca",
+   "summary": "Part du revenu versée par un sujet, ou par un vaincu ; ou rançon payée aux pirates, ou au Roi-Corsaire",
+   "chapters": [
+    "10b-sujets",
+    "10-diplomatie",
+    "14-perils",
+    "15a-crises"
+   ],
+   "strict": true
+  },
+  {
+   "id": "triomphe",
+   "name": "Triomphe",
+   "forms": [
+    "Triomphe"
+   ],
+   "family": "meca",
+   "summary": "La grande cérémonie d'une relique, une fois tous les dix ans",
+   "chapters": [
+    "14-perils"
+   ],
+   "strict": true
+  },
+  {
+   "id": "trophee",
+   "name": "Trophée",
+   "forms": [
+    "Trophée"
+   ],
+   "family": "meca",
+   "summary": "Bâtiment unique offert par un haut fait, qu'on ne peut pas construire ; il change de mains avec sa colonie",
+   "chapters": [
+    "15f-hauts-faits"
+   ],
+   "strict": true
+  },
+  {
+   "id": "trou_de_ver",
+   "name": "Trou de ver",
+   "forms": [
+    "trou de ver",
+    "trous de ver"
+   ],
+   "family": "meca",
+   "summary": "Passage naturel entre deux systèmes éloignés, instable tant qu'on ne l'a pas stabilisé.",
+   "chapters": [
+    "15n-portails"
+   ]
+  },
+  {
+   "id": "ultimatum",
+   "name": "Ultimatum",
+   "forms": [
+    "Ultimatum"
+   ],
+   "family": "meca",
+   "summary": "Exiger sans tirer ; refusé, il donne un motif de guerre",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "vaisseau_architecte",
+   "name": "Vaisseau-architecte",
+   "forms": [
+    "Vaisseau-architecte"
+   ],
+   "family": "meca",
+   "summary": "Vaisseau civil, construit au chantier, qui pose et bâtit les mégastructures.",
+   "chapters": [
+    "15t-megastructures"
+   ]
+  },
+  {
+   "id": "vassal",
+   "name": "Vassal",
+   "forms": [
+    "vassal",
+    "vassaux"
+   ],
+   "family": "meca",
+   "summary": "Empire vaincu qui s'est rendu : il survit, mais sous son vainqueur.",
+   "chapters": [
+    "10-diplomatie",
+    "10b-sujets"
+   ]
+  },
+  {
+   "id": "victoire_de_contact",
+   "name": "Victoire de Contact",
+   "forms": [
+    "victoire de Contact"
+   ],
+   "family": "meca",
+   "summary": "Quatre temps : écouter le Signal venu d'au-delà de la galaxie, le déchiffrer, décider s'il faut répondre, répondre et tenir l'émetteur.",
+   "chapters": [
+    "15s-contact"
+   ]
+  },
+  {
+   "id": "villegiature",
+   "name": "Villégiature",
+   "forms": [
+    "Villégiature"
+   ],
+   "family": "meca",
+   "summary": "Station qui fait rayonner la beauté d'un système",
+   "chapters": [
+    "15d-rayonnement"
+   ]
+  },
+  {
+   "id": "vitalite",
+   "name": "Vitalité",
+   "forms": [
+    "vitalité"
+   ],
+   "family": "meca",
+   "summary": "La biosphère de départ et le point d'équilibre naturel d'un type de monde vivant.",
+   "chapters": [
+    "15z-ecologie"
+   ],
+   "strict": true
+  },
+  {
+   "id": "voie_d_elevation",
+   "name": "Voie d'élévation",
+   "forms": [
+    "voie d'élévation"
+   ],
+   "family": "meca",
+   "summary": "Le destin choisi après trois programmes achevés, pour de bon.",
+   "chapters": [
+    "15p-genome"
+   ]
+  },
+  {
+   "id": "voile",
+   "name": "Voile",
+   "forms": [
+    "Voile"
+   ],
+   "family": "meca",
+   "summary": "Une nébuleuse arrête la vue : on n'y voit pas de l'extérieur, et on n'y voit que son système",
+   "chapters": [
+    "09-guerre"
+   ],
+   "strict": true
+  },
+  {
+   "id": "zele",
+   "name": "Zèle",
+   "forms": [
+    "Zèle"
+   ],
+   "family": "meca",
+   "summary": "La vigueur d'une grande foi, de 0 à 100",
+   "chapters": [
+    "12a-foi"
+   ]
+  },
+  {
+   "id": "zone_de_ravitaillement",
+   "name": "Zone de ravitaillement",
+   "forms": [
+    "Zone de ravitaillement"
+   ],
+   "family": "meca",
+   "summary": "Vos systèmes et ceux qui vous ravitaillent, plus 2 sauts autour : les flottes y refont leurs réserves",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "zone_militaire",
+   "name": "Zone militaire",
+   "forms": [
+    "Zone militaire"
+   ],
+   "family": "meca",
+   "summary": "Système interdit aux civils : pas de cargo perdu, mais ses stations privées s'arrêtent",
+   "chapters": [
+    "15k-economie-privee"
+   ]
+  },
+  {
+   "id": "uvre_collective",
+   "name": "Œuvre collective",
+   "forms": [
+    "Œuvre collective"
+   ],
+   "family": "meca",
+   "summary": "Merveille bâtie à plusieurs (Koinon, Amphictyonie, Front commun), effet partagé",
+   "chapters": [
+    "15e-merveilles"
+   ]
+  }
+ ]
+}
