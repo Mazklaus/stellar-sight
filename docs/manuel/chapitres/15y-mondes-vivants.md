@@ -111,4 +111,4 @@ L'IA accepte les demandes faciles qu'elle peut payer ; une IA pacifique cède la
 
 ### Sauvegarde
 
-Les mondes vivants, leurs humeurs, leurs demandes et les planètes parties ailleurs sont sauvegardés (sauvegarde 93). Une partie plus ancienne se charge sans monde vivant.
+Les mondes vivants, leurs humeurs, leurs demandes et les planètes parties ailleurs sont sauvegardés (sauvegarde 95). Une partie plus ancienne se charge sans monde vivant.

@@ -604,3 +604,13 @@ a yellow star half enclosed in an unfinished dyson shell, dark shell panels glow
 ```
 a living planet covered with forests and oceans whose clouds slowly form the face of a sleeping giant, glowing roots link its continents like veins, in orbit a small fleet of colony ships waits while a living seed-shaped vessel drifts away from the planet toward them, in the distance a second planet slowly leaves its star trailing a tail of clouds, in the foreground on a hill a choir of colonists of several alien species sings toward the sky led by a visibly anxious choirmaster, wonder and reverence with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-61 · Le souffle des mondes
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Le souffle des mondes »
+- Sujet : Une planète vue depuis l'orbite, coupée en deux par la ligne du jour : un hémisphère vert et bleu couvert de forêts et de nuages blancs, l'autre gris, brun et fumant de cheminées géantes sous des nuages couleur de rouille ; sur la frontière, une bande de désert où des colons plantent des herbes en rangées patientes ; au premier plan, sur une station orbitale, une planétologue âgée et un jeune intendant regardent une jauge holographique qui hésite entre le vert et le rouge ; l'intendant tient un plan d'usine, la planétologue un minuscule pot de fleurs
+
+```
+a planet seen from orbit split in two by the day night terminator, one hemisphere green and blue with forests and white clouds, the other grey and brown smoking with giant chimneys under rust colored clouds, along the border a band of desert where tiny colonists plant grasses in patient rows, in the foreground on an orbital station an elderly planetologist and a young steward look at a holographic gauge hesitating between green and red, the steward holds a factory blueprint, the planetologist holds a tiny flower pot, hope and consequence with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

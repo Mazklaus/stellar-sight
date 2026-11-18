@@ -93,6 +93,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiForge.think(ctx)
 	AiLiving.think(ctx)
 	KardashevWorld.ai(ctx)
+	Ecology.ai(ctx)  # doctrine environnementale selon le tempérament
 	AiArchaeo.think(ctx)
 	AiContact.think(ctx)
 	if String(ctx["intent"]) != "":
@@ -582,6 +583,7 @@ static func _buildings(ctx: Dictionary) -> void:
 			wishes.append_array(building_wishes(ctx, c, net))
 		if not d_first:
 			wishes.append_array(dwish)
+		wishes = Ecology.ai_filter(ctx, c, wishes)  # réserve, ingénierie, industrie lourde épargnée
 		for b in wishes:
 			if not Economy.building_unlocked(state, e.id, b):
 				continue

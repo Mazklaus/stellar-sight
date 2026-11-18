@@ -481,6 +481,8 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 	# Rayonnement culturel : refus d'une osmose, « Vivre comme eux » (voir CultureLife).
 	if not state.culture.is_empty():
 		out.append_array(CultureLife.stability_parts(state, sid, owner))
+	# Écologie : biosphère du pire monde vivant du système (voir Ecology).
+	out.append_array(Ecology.stability_parts(state, sid, owner))
 	# Archéologie : Haut lieu classé dans le système (voir Archaeology).
 	out.append_array(Archaeology.stability_parts(state, sid, owner))
 	# Décret.

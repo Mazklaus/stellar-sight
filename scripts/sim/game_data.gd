@@ -237,6 +237,9 @@ static func kardashev() -> Dictionary:
 ## Mondes vivants (data/livingworlds.json).
 static func livingworlds() -> Dictionary:
 	return _load("livingworlds")
+## Écologie et climat des mondes (data/ecology.json).
+static func ecology() -> Dictionary:
+	return _load("ecology")
 
 
 ## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.

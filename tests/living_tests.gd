@@ -262,7 +262,7 @@ func _test_reject() -> void:
 
 
 func _test_save() -> void:
-	_ok(GameState.FORMAT_VERSION == 93 and GameState.READABLE_VERSIONS.has(92), "format 93, 92 toujours lisible")
+	_ok(GameState.FORMAT_VERSION >= 95 and GameState.READABLE_VERSIONS.has(94), "format 95 ou plus, 94 toujours lisible")
 	var st := new_game("frequents", "oui")
 	var pid := first(st)
 	LivingWorlds.set_mood(st, pid, 0, 42)
@@ -275,9 +275,9 @@ func _test_save() -> void:
 	_ok(LivingWorlds.ids(snap) == LivingWorlds.ids(st), "instantané réseau : mêmes mondes")
 	var old := new_game("aucun").to_dict()
 	old.erase("living")
-	old["version"] = 92
+	old["version"] = 94
 	var ob := GameState.from_dict(old)
-	_ok(ob != null and ob.living.is_empty(), "sauvegarde 92 : rien à faire")
+	_ok(ob != null and ob.living.is_empty(), "sauvegarde 94 : rien à faire")
 
 
 func _test_war() -> void:

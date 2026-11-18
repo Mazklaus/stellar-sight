@@ -23,6 +23,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 		WorldForge.monthly(state, added)
 		Kardashev.monthly(state, added)
 		LivingWorlds.monthly(state, added)
+		Ecology.monthly(state, added)
 		Contact.monthly(state, added)
 		for e in state.empires:
 			_monthly_balance(state, e, added)
@@ -73,6 +74,9 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 		return
 	# Agitation et révolte : la population ne grandit plus (sans perdre ce qui est acquis).
 	if not Stability.growth_ok(state, sys_id):
+		return
+	# Biosphère effondrée (voir Ecology) : la population ne grandit plus.
+	if Ecology.growth_blocked(state, c.planet_id):
 		return
 	# Culte du Je (ruches) : les drones dissidents non tolérés arrêtent la ponte.
 	if FaithWars.je_blocks_growth(state, c):
@@ -131,8 +135,13 @@ static func _finish_building(state: GameState, c: Colony, e: Empire, planet_name
 		var before := p.type_label()
 		state.override_planet(c.planet_id, {"type": target})
 		e.hab_cache.clear()
+		Ecology.on_terraform(state, c.planet_id)  # la biosphère repart (prop. 12)
 		added.append(state.add_chronicle("%s : %s n'est plus un monde %s, c'est désormais : %s. Les cartes sont à refaire." % [
 				e.short_name(), planet_name, before.to_lower(), p.type_label()], Espionage.private_to(state, [e.id], p.system_id)))
+		return
+	if b.get("eco_heal", false):
+		Ecology.heal(state, c.planet_id)  # Ingénierie climatique : projet, rien ne reste bâti
+		added.append(state.add_chronicle("%s : l'ingénierie climatique a rendu de l'air à %s. Les nuages sont neufs, encore un peu raides." % [e.short_name(), planet_name], Espionage.private_to(state, [e.id], state.galaxy.get_planet(c.planet_id).system_id)))
 		return
 	var base := String(b.get("upgrades", ""))
 	var at := c.buildings.find(base) if base != "" else -1

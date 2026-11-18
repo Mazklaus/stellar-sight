@@ -131,7 +131,8 @@ static func growth_per_day(state: GameState, colony: Colony) -> int:
 	var pct := int(e.faction().get("growth_pct", 100))
 	pct = pct * maxi(10, 100 + Research.fx_int(state, colony.owner, "growth_pct") + FaithWars.growth_pct(state, colony)
 			+ GroundSiege.growth_pct(state, state.galaxy.get_planet(colony.planet_id).system_id) + WorldForge.growth_pct(state, colony.planet_id)
-			+ LivingWorlds.growth_pct(state, colony.planet_id)) / 100
+			+ LivingWorlds.growth_pct(state, colony.planet_id)
+			+ Ecology.growth_pct(state, colony.planet_id)) / 100
 	# Route intérieure (voir Trade) : la jeune colonie desservie grandit plus vite.
 	return int(GameData.rules()["growth_per_day"]) * pct / 100 + Trade.internal_growth(state, colony.planet_id)
 
@@ -221,6 +222,8 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		@warning_ignore("integer_division")
 		gross["knowledge"] = int(gross["knowledge"]) * (100 + knowledge_pct) / 100
 	Terrain.adjust_yields(state, planet.system_id, colony.owner, gross)  # étoile, nébuleuse, plasma…
+	if not state.ecology.is_empty():
+		Ecology.adjust_yields(state, colony, gross)  # palier de la biosphère, doctrine environnementale
 	if state.faith_on:
 		Faiths.temple_yields(state, colony, gross)
 	FactionTraits.adjust_yields(state, colony, gross, upkeep)
@@ -669,6 +672,10 @@ static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet
 		var target := terraform_target(state, empire_id, p, building_id)
 		if target == "":
 			return "impossible sur ce monde (%s)" % p.type_label()
+	if b.get("ecology", false):
+		var pw_eco := Ecology.check_build(state, empire_id, c, p, building_id)
+		if pw_eco != "":
+			return pw_eco
 	if b.get("stealth", false) and not Stealth.enabled(state):
 		return "la furtivité n'est pas en jeu dans cette partie"
 	if b.get("psionics", false):

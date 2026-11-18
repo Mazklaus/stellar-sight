@@ -108,6 +108,7 @@ func _initialize() -> void:
 	preload("res://tests/transcendence_tests.gd").new().run(_check)
 	preload("res://tests/megas_tests.gd").new().run(_check)
 	preload("res://tests/kardashev_tests.gd").new().run(_check)
+	preload("res://tests/ecology_tests.gd").new().run(_check)
 	preload("res://tests/contact_tests.gd").new().run(_check)
 	preload("res://tests/archeo_tests.gd").new().run(_check)
 	preload("res://tests/forge_tests.gd").new().run(_check)
@@ -2285,6 +2286,16 @@ func _test_victory_ui(main: Node) -> void:
 		screens.show_screen("kardashev")
 		await process_frame
 		_check(screens.kardashev_buttons.has("tab:victory") and screens.kardashev_buttons.has("sober") and screens.is_open(), "écran L'Échelle : ouvert, onglets, Sobriété")
+		screens.show_screen("victory")
+		await process_frame
+	if Ecology.enabled(st):
+		screens.show_screen("colonies")
+		await process_frame
+		_check(screens._filter_tabs.has("biosphere") and screens._eco_buttons.size() == 3, "écran Colonies : onglet Biosphères et doctrine")
+		screens.set_colony_filter("biosphere")
+		await process_frame
+		_check(screens.is_open(), "écran Colonies : onglet Biosphères ouvert")
+		screens.set_colony_filter("all")
 		screens.show_screen("victory")
 		await process_frame
 	_press(KEY_F7)

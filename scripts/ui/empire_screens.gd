@@ -74,6 +74,10 @@ var _col_empty: Label
 var _col_donut: Widgets.Donut
 var _col_counts := {}
 var _filter_tabs := {}
+## Écologie : boutons de doctrine environnementale (écran Colonies).
+var _eco_buttons := {}
+var _eco_label: Label
+var _col_head_build: Label
 var _pick_art: Widgets.ArtSlot
 var _pick_title: Label
 var _pick_lines: Label
@@ -966,6 +970,7 @@ func _build_colonies() -> void:
 	_col_counts["systems"] = _key_value(g, "Systèmes")
 	_col_counts["max_projects"] = _key_value(g, "Fondations simultanées")
 	_build_peoples_side()
+	_build_eco_side()
 
 	var rows := VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 22)
@@ -978,7 +983,7 @@ func _build_colonies() -> void:
 	filters.alignment = BoxContainer.ALIGNMENT_CENTER
 	filters.add_theme_constant_override("separation", 30)
 	list_block.body.add_child(filters)
-	for f in COLONY_FILTERS:
+	for f in colony_filters():
 		var b := Button.new()
 		b.theme_type_variation = &"TabButton"
 		b.toggle_mode = true
@@ -1000,6 +1005,8 @@ func _build_colonies() -> void:
 		var l := UiTheme.section(titles[i])
 		l.custom_minimum_size = Vector2(COLUMN_WIDTHS[i], 0)
 		header.add_child(l)
+		if i == 3:
+			_col_head_build = l
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -1061,6 +1068,14 @@ func _refresh_colonies() -> void:
 	for c in all:
 		if _matches_filter(c):
 			list.append(c)
+	if colony_filter == "biosphere":
+		list.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			var ha := Ecology.health(_state, int(a["planet_id"]))
+			var hb := Ecology.health(_state, int(b["planet_id"]))
+			return ha < hb or (ha == hb and int(a["planet_id"]) < int(b["planet_id"])))
+	_refresh_eco_side()
+	if _col_head_build != null:
+		_col_head_build.text = ("Biosphère  →  équilibre" if colony_filter == "biosphere" else "Chantier").to_upper()
 	var ids := PackedStringArray()
 	for c in list:
 		ids.append(str(c["planet_id"]))
@@ -1087,8 +1102,57 @@ func _refresh_colonies() -> void:
 	_refresh_pick(all)
 
 
+## Onglets de la liste des colonies : Biosphères en plus quand l'écologie est en jeu (prop. 11).
+func colony_filters() -> Array:
+	var out := COLONY_FILTERS.duplicate()
+	if Ecology.enabled(_state):
+		out.append(["biosphere", "Biosphères"])
+	return out
+
+
+## Doctrine environnementale (écologie, prop. 10) : trois boutons dans la colonne de l'écran Colonies.
+func _build_eco_side() -> void:
+	_eco_buttons.clear()
+	_eco_label = null
+	if not Ecology.enabled(_state):
+		return
+	_side_box.add_child(HSeparator.new())
+	_side_box.add_child(UiTheme.section("Doctrine environnementale"))
+	_eco_label = UiTheme.paragraph("", SIDE_WIDTH - 30, 14)
+	_side_box.add_child(_eco_label)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	_side_box.add_child(row)
+	for d: Dictionary in Ecology.doctrine_defs():
+		var b := Button.new()
+		b.text = String(d["label"])
+		b.toggle_mode = true
+		b.focus_mode = Control.FOCUS_NONE
+		var cmd := SimCommands.eco_act(_player, "doctrine", {"id": String(d["id"])})
+		b.pressed.connect(func() -> void: command_requested.emit(cmd))
+		row.add_child(b)
+		_eco_buttons[String(d["id"])] = b
+
+
+func _refresh_eco_side() -> void:
+	if _eco_label == null or not Ecology.enabled(_state):
+		return
+	var cur := Ecology.doctrine(_state, _player)
+	var wait := Ecology.doctrine_wait(_state, _player)
+	_eco_label.text = "%s : %s%s" % [String(Ecology.doctrine_def(cur).get("label", cur)), String(Ecology.doctrine_def(cur).get("text", "")),
+			("\nChangement possible dans %d jours." % wait) if wait > 0 else ""]
+	for id in _eco_buttons:
+		var b: Button = _eco_buttons[id]
+		b.set_pressed_no_signal(id == cur)
+		var why := SimCommands.validate(_state, SimCommands.eco_act(_player, "doctrine", {"id": id}))
+		b.disabled = why != ""
+		b.tooltip_text = String(Ecology.doctrine_def(id).get("text", "")) + ("" if why == "" else "\n(%s)" % why)
+
+
 func _matches_filter(c: Dictionary) -> bool:
 	match colony_filter:
+		"biosphere":
+			return c["established"] and Ecology.has_biosphere(_state, int(c["planet_id"]))
 		"colony":
 			return c["established"] and c["kind"] == Colony.KIND_COLONY
 		"outpost":
@@ -1155,6 +1219,12 @@ func _fill_colony_row(row: Dictionary, c: Dictionary) -> void:
 	(cells[2] as Label).add_theme_color_override("font_color", UiTheme.WARN if not c["established"] else UiTheme.TEXT)
 	(cells[3] as Label).text = "%s (%d j)" % [c["construction"], c["construction_days"]] if c["construction"] != "" else "—"
 	(cells[3] as Label).add_theme_color_override("font_color", UiTheme.TEXT if c["construction"] != "" else UiTheme.TEXT_DIM)
+	if colony_filter == "biosphere":
+		# Onglet Biosphères : la colonne Chantier montre la jauge, sa tendance et son palier.
+		var pid := int(c["planet_id"])
+		(cells[3] as Label).text = "%d %s %d  %s" % [Ecology.health(_state, pid), Ecology.arrow(_state, pid), Ecology.equilibrium(_state, pid), String(Ecology.tier(_state, pid).get("label", ""))]
+		(cells[3] as Label).add_theme_color_override("font_color", Ecology.tier_color(Ecology.tier(_state, pid)))
+		(row["button"] as Button).tooltip_text = Ecology.tooltip(_state, pid) + "\n\nClic : choisir    Double-clic : ouvrir la vue système"
 	var sig := str(c["net"])
 	if sig != row["net_sig"]:
 		row["net_sig"] = sig

@@ -734,20 +734,9 @@ static func _exterminated(state: GameState, eid: int) -> int:
 	return n
 
 
-## Santé de la biosphère (pilier Écologie, s'il est en jeu) : 0-100, -1 sans écologie.
-static var _eco_script: Variant = null
-static var _eco_checked := false
-
+## Santé de la biosphère (pilier Écologie, s'il est en jeu) : 0-100, -1 sans écologie ni biosphère.
 static func _ecology(state: GameState, pid: int) -> int:
-	if not _eco_checked:
-		_eco_checked = true
-		for c: Dictionary in ProjectSettings.get_global_class_list():
-			if String(c.get("class", "")) == "Ecology":
-				_eco_script = load(String(c["path"]))
-	if _eco_script == null or not (_eco_script as Script).has_method("health"):
-		return -1
-	var v: Variant = (_eco_script as Script).call("health", state, pid)
-	return int(v) if (v is int or v is float) else -1
+	return Ecology.health(state, pid)
 
 
 ## Prop. 9 : la colonie perd peu à peu les habitants de l'espèce que le monde rejette.

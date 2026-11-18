@@ -1,0 +1,63 @@
+{
+	"_doc": "Écologie et climat des mondes (étude du 2026-11-18, version resserrée : propositions 1 à 14). Chaque monde VIVANT (types listés dans \"types\") a une Biosphère de 0 à 100 ; les mondes morts et les mondes faits de main n'en ont pas. Chaque mois, la jauge glisse de drift points vers l'équilibre : vitalité du type + soins − (empreinte − absorption) × excess_pct %, borné à 0-100. Empreinte = poids des bâtiments (footprint) + 1 par habitant au-delà de pop_free_per_size × taille, modulée par les technologies (fx eco_footprint_pct) et la doctrine. Absorption = absorb_per_size × taille (Master of Orion II). Paliers : food_pct (nourriture produite par la colonie), stab (stabilité du système, le pire monde compte), growth_pct (-100 = croissance arrêtée). Basculement (mode Complète) : shift_months mois Effondrée => un cran de climat vers shift ; avis à warn_months. Reverdissement : regreen_months mois Florissante => un cran vers regreen. Terraformation : la biosphère repart à terraform_reset (100 pour un monde-jardin) ; l'écuménopole n'en a plus. Doctrines : footprint_pct et yield_pct (matériaux et énergie produits par la colonie), changeables tous les doctrine_cooldown jours. Tous les nombres sont des valeurs de départ (équilibrage reporté).",
+	"_sources": "Paliers nommés qui récompensent aussi le haut de l'échelle : Anno 2070 (anno2070.fandom.com/wiki/Ecobalance). Pollution locale qui retire nourriture et stabilité, infobulle qui détaille les pollueurs, réserves naturelles et énergies propres : Humankind (humankind.fandom.com/wiki/Pollution). Absorption par taille, recycleurs qui divisent la pollution : Master of Orion II (boards.straightdope.com, « Master of Orion II help »). Phases irréversibles, projet de Recapture du carbone : Civilization VI Gathering Storm (civilization.fandom.com/wiki/Climate_(Civ6)). Reverdissement lent d'un désert : le plan de Kynes, Dune (en.wikipedia.org/wiki/Arrakis). Monde sacrifié à l'industrie : mondes-ruches de Warhammer 40K. Étude : https://claude.ai/artifact/893jGnY5QLD9CEJqpgkVJc",
+	"modes": [
+		{"id": "complete", "label": "Complète", "text": "Biosphère de chaque monde vivant, paliers, basculement du climat d'un monde effondré et reverdissement d'un désert soigné."},
+		{"id": "biosphere", "label": "Biosphère seule", "text": "La jauge et ses paliers (nourriture, stabilité, croissance), sans basculement ni reverdissement."},
+		{"id": "desactivee", "label": "Désactivée", "text": "Aucune écologie : les mondes ne s'usent pas."}
+	],
+	"default_mode": "complete",
+	"types": {
+		"continental": {"vitality": 70},
+		"ocean": {"vitality": 75},
+		"arctic": {"vitality": 55},
+		"desert": {"vitality": 45},
+		"toxic": {"vitality": 25},
+		"gaia": {"vitality": 100}
+	},
+	"rules": {
+		"drift": 1,
+		"absorb_per_size": 4,
+		"pop_free_per_size": 3,
+		"excess_pct": 150,
+		"terraform_reset": 60,
+		"heal": 25,
+		"shift_months": 24,
+		"warn_months": 12,
+		"regreen_months": 60,
+		"doctrine_cooldown": 1800
+	},
+	"footprint": {
+		"capitale": 3,
+		"ferme_hydroponique": 1,
+		"centrale_fusion": 4,
+		"complexe_minier": 6,
+		"raffinerie": 6,
+		"ferme_verticale": 3,
+		"centrale_confinement": 8,
+		"mine_profonde": 14,
+		"arsenal": 4,
+		"chantier_titanesque": 8,
+		"spatioport": 2,
+		"grand_port": 3
+	},
+	"care": {
+		"reserve_naturelle": 25
+	},
+	"tiers": [
+		{"id": "florissante", "label": "Florissante", "min": 80, "food_pct": 15, "stab": 5, "growth_pct": 0, "color": [0.35, 0.85, 0.45]},
+		{"id": "saine", "label": "Saine", "min": 60, "food_pct": 0, "stab": 0, "growth_pct": 0, "color": [0.6, 0.85, 0.5]},
+		{"id": "fragile", "label": "Fragile", "min": 40, "food_pct": -10, "stab": 0, "growth_pct": 0, "color": [0.9, 0.8, 0.4]},
+		{"id": "degradee", "label": "Dégradée", "min": 20, "food_pct": -25, "stab": -5, "growth_pct": -25, "color": [0.92, 0.55, 0.3]},
+		{"id": "effondree", "label": "Effondrée", "min": 0, "food_pct": -50, "stab": -10, "growth_pct": -100, "color": [0.85, 0.3, 0.3]}
+	],
+	"shift": {"continental": "desert", "ocean": "desert", "desert": "toxic", "arctic": "toxic"},
+	"regreen": {"toxic": "desert", "desert": "continental", "arctic": "continental"},
+	"doctrines": [
+		{"id": "equilibre", "label": "Équilibre", "footprint_pct": 0, "yield_pct": 0, "text": "Ni pillage ni sanctuaire : l'empreinte compte telle quelle.", "aggression_max": 0, "aggression_min": 0},
+		{"id": "extraction", "label": "Extraction", "footprint_pct": 50, "yield_pct": 10, "text": "+10 % de matériaux et d'énergie produits par les colonies, mais l'empreinte pèse 50 % de plus.", "aggression_min": 1},
+		{"id": "preservation", "label": "Préservation", "footprint_pct": -40, "yield_pct": -10, "text": "L'empreinte pèse 40 % de moins, mais les colonies produisent 10 % de matériaux et d'énergie en moins.", "aggression_max": -1}
+	],
+	"default_doctrine": "equilibre",
+	"ai": {"reserve_below": 45, "heal_below": 30, "spare_below": 60, "heavy": ["mine_profonde", "complexe_minier", "centrale_confinement", "raffinerie"]}
+}
