@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.43"
+EDITION = "2.44"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -1789,6 +1789,29 @@ def gen_ct_talents():
     return f"<table class='grille'><tr><th>Peuple</th><th>Nom du Signal</th><th>Talent</th></tr>{l1}</table>"
 
 
+def _numeros_chapitres():
+    """Fichier de chapitre (sans .md) -> son numéro (« 15 », « B »)."""
+    out = {}
+    for nom in sorted(os.listdir(os.path.join(ICI, "chapitres"))):
+        if nom.endswith(".md"):
+            meta, _ = lire_chapitre(os.path.join(ICI, "chapitres", nom))
+            if meta.get("numero"):
+                out[nom[:-3]] = meta["numero"]
+    return out
+
+
+def gen_lexique():
+    """Annexe B, tirée du glossaire du jeu (data/glossary.json), comme le Codex en jeu."""
+    g = charger("glossary.json")
+    nums = _numeros_chapitres()
+    lignes = ""
+    for t in g["terms"]:
+        nom = t["name"] + (f" ({t['qualifier']})" if t.get("qualifier") else "")
+        ch = ", ".join(nums.get(c, "") for c in t.get("chapters", []) if nums.get(c))
+        lignes += f"<tr><td><b>{esc(nom)}</b></td><td>{inline(t['summary'])}</td><td class='court'>{esc(ch)}</td></tr>"
+    return f"<table class='grille lexique'><tr><th>Terme</th><th>En bref</th><th>Ch.</th></tr>{lignes}</table>"
+
+
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
@@ -1831,6 +1854,7 @@ GENERATEURS = {
     "lw_modes": gen_lw_modes, "lw_paliers": gen_lw_paliers, "lw_origines": gen_lw_origines, "lw_demandes": gen_lw_demandes, "lw_talents": gen_lw_talents,
     "ct_modes": gen_ct_modes, "ct_couches": gen_ct_couches, "ct_natures": gen_ct_natures, "ct_talents": gen_ct_talents,
     "tr_modes": gen_tr_modes, "tr_voies": gen_tr_voies, "tr_oeuvres": gen_tr_oeuvres, "tr_talents": gen_tr_talents,
+    "lexique": gen_lexique,
     "portail_modes": gen_portail_modes, "portail_batiments": gen_portail_batiments, "portail_talents": gen_portail_talents,
 }
 
@@ -1940,10 +1964,194 @@ def ecrire_prompts_md():
         f.write("\n".join(lignes))
 
 
+# --- Codex de l'Archonte en jeu (data/codex_manual.json) ---------------------
+# Le jeu lit le manuel découpé en articles (une section ### par article), avec ses tableaux déjà
+# calculés depuis les données et ses fragments de lore : le manuel et le Codex disent la même chose.
+from html.parser import HTMLParser
+
+CODEX_SANS = {"22a-lexique", "25-encarts"}
+
+
+class _VersBBCode(HTMLParser):
+    """HTML du manuel -> BBCode de RichTextLabel (Godot)."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.out = []
+        self.listes = []
+        self.table = None
+        self.cell = None
+        self.saute = 0
+
+    def _w(self, t):
+        if self.saute:
+            return
+        if self.cell is not None:
+            self.cell.append(t)
+        else:
+            self.out.append(t)
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        cls = a.get("class", "") or ""
+        if self.saute:
+            if tag in ("figure", "div"):
+                self.saute += 1
+            return
+        if tag == "figure" and "mj" in cls:
+            self.saute = 1
+            return
+        if tag == "img" and a.get("src", "").startswith("../../"):
+            self._w("[[CAPTURE:" + a["src"][6:] + "]]")
+        elif tag in ("strong", "b"):
+            self._w("[b]")
+        elif tag in ("em", "i", "cite"):
+            self._w("[i]")
+        elif tag == "span" and "kbd" in cls:
+            self._w("[b]")
+        elif tag in ("ul", "ol"):
+            self.listes.append([tag, 0])
+        elif tag == "li":
+            if self.listes:
+                self.listes[-1][1] += 1
+                self._w("\n" + ("   " * (len(self.listes) - 1)) + ("• " if self.listes[-1][0] == "ul" else f"{self.listes[-1][1]}. "))
+        elif tag in ("h3", "h4"):
+            self._w("\n[b]")
+        elif tag == "br":
+            self._w("\n")
+        elif tag == "table":
+            self.table = []
+        elif tag == "tr" and self.table is not None:
+            self.table.append([])
+        elif tag in ("td", "th") and self.table is not None:
+            self.cell = ["[b]"] if tag == "th" else []
+        elif tag == "aside":
+            lbl = {"conseil": "Conseil", "marge": "Note du commandant", "chronique": "Fragment", "transmission": "Transmission", "attention": "Attention"}
+            k = next((v for c, v in lbl.items() if c in cls), "")
+            self._w("\n\n[i]" + (f"[b]{k}[/b] · " if k else ""))
+        elif tag == "figcaption":
+            self._w("\n[i]")
+        elif tag == "div" and ("fiche-t" in cls or "lbl" in cls):
+            self._w("\n[b]")
+
+    def handle_endtag(self, tag):
+        if self.saute:
+            if tag in ("figure", "div"):
+                self.saute -= 1
+            return
+        if tag in ("strong", "b"):
+            self._w("[/b]")
+        elif tag in ("em", "i", "cite"):
+            self._w("[/i]")
+        elif tag == "span":
+            # Seules les touches ouvrent un [b] sur un span : on le referme si besoin.
+            buf = self.cell if self.cell is not None else self.out
+            if buf and "[b]" in "".join(buf[-3:]) and not "".join(buf[-3:]).endswith("[/b]"):
+                self._w("[/b]")
+        elif tag in ("ul", "ol"):
+            if self.listes:
+                self.listes.pop()
+            if not self.listes:
+                self._w("\n")
+        elif tag in ("h3", "h4"):
+            self._w("[/b]\n")
+        elif tag == "p":
+            self._w("\n\n")
+        elif tag in ("td", "th") and self.table is not None and self.cell is not None:
+            if tag == "th":
+                self.cell.append("[/b]")
+            self.table[-1].append("".join(self.cell).strip())
+            self.cell = None
+        elif tag == "table" and self.table is not None:
+            rows = [r for r in self.table if r]
+            n = max((len(r) for r in rows), default=0)
+            t = f"\n[table={n}]" if n else ""
+            for r in rows:
+                for c in r + [""] * (n - len(r)):
+                    t += f"[cell padding=6,3,6,3 border=#ffffff1c]{c}[/cell]"
+            self.table = None
+            self.out.append(t + ("[/table]\n" if n else ""))
+        elif tag == "aside":
+            self._w("[/i]\n")
+        elif tag == "figcaption":
+            self._w("[/i]\n")
+        elif tag == "div":
+            pass
+
+    def handle_data(self, data):
+        if self.saute:
+            return
+        data = data.replace("[", "[lb]")
+        if self.cell is None and not data.strip() and "\n" in data:
+            return
+        self._w(data)
+
+    def texte(self):
+        t = "".join(self.out)
+        # [b] restés ouverts dans un div de titre de fiche : on les referme en fin de ligne.
+        t = re.sub(r"\n\[b\]([^\[\n]*?)(?=\n)", lambda m: "\n[b]" + m.group(1) + "[/b]", t)
+        t = re.sub(r"[ \t]+\n", "\n", t)
+        t = re.sub(r"\n{3,}", "\n\n", t)
+        return t.strip()
+
+
+def _bbcode(html_):
+    p = _VersBBCode()
+    p.feed(html_)
+    p.close()
+    return p.texte()
+
+
+def construire_codex():
+    """Écrit data/codex_manual.json : chapitres découpés en sections, et fragments de lore."""
+    chapitres, fragments = [], []
+    for nom in sorted(os.listdir(os.path.join(ICI, "chapitres"))):
+        if not nom.endswith(".md") or nom[:-3] in CODEX_SANS:
+            continue
+        meta, brut = lire_chapitre(os.path.join(ICI, "chapitres", nom))
+        fid = nom[:-3]
+        if meta.get("type") == "partie":
+            continue
+        if meta.get("epigraphe"):
+            fragments.append({"id": f"{fid}:epi", "chapter": fid, "kind": "epigraphe",
+                              "source": meta.get("signature", ""), "text": meta["epigraphe"]})
+        for k, m in enumerate(re.finditer(r"^::: (chronique|transmission|marge)(.*?)\n(.*?)^:::$", brut, re.M | re.S)):
+            arg = m.group(2).strip()
+            src = {"chronique": arg.split("|")[0], "transmission": arg, "marge": "Notes du commandant A. Varrek"}[m.group(1)]
+            sig = arg.split("|")[1] if m.group(1) == "chronique" and "|" in arg else ""
+            corps = re.sub(r"\s*\n\s*", " ", m.group(3).strip())
+            fragments.append({"id": f"{fid}:{k}", "chapter": fid, "kind": m.group(1), "source": src, "signature": sig,
+                              "text": re.sub(r"\*\*(.+?)\*\*", r"\1", re.sub(r"(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)", r"\1", corps))})
+        morceaux = re.split(r"^### (.+)$", brut, flags=re.M)
+        sections = []
+        for i in range(0, len(morceaux), 2):
+            titre = meta.get("titre", fid) if i == 0 else morceaux[i - 1].strip()
+            texte = _bbcode(rendre(morceaux[i]))
+            if not texte.strip():
+                continue
+            caps = re.findall(r"\[\[CAPTURE:([^\]]+)\]\]", texte)
+            texte = re.sub(r"\[\[CAPTURE:[^\]]+\]\]", "", texte).strip()
+            sid = re.sub(r"\W+", "-", titre.lower()).strip("-")
+            sections.append({"id": f"{fid}#{sid}" if i else fid, "title": titre if i else "Présentation",
+                             "text": texte, "captures": caps})
+        chapitres.append({"file": fid, "num": meta.get("numero", ""), "label": meta.get("etiquette", "Chapitre"),
+                          "title": meta.get("titre", fid), "epigraph": meta.get("epigraphe", ""),
+                          "signature": meta.get("signature", ""), "secret": fid.startswith("20-"), "sections": sections})
+    sortie = os.path.join(DATA, "codex_manual.json")
+    with open(sortie, "w", encoding="utf-8") as f:
+        json.dump({"_doc": "Généré par docs/manuel/build.py --codex : ne pas modifier à la main.", "edition": EDITION,
+                   "chapters": chapitres, "fragments": fragments}, f, ensure_ascii=False, indent=0)
+    print(f"codex_manual.json écrit ({len(chapitres)} chapitres, {sum(len(c['sections']) for c in chapitres)} sections, {len(fragments)} fragments)")
+
+
 if __name__ == "__main__":
+    if "--codex" in sys.argv:
+        construire_codex()
+        sys.exit(0)
     clair = "--clair" in sys.argv
     sortie = construire(clair)
     ecrire_prompts_md()
+    construire_codex()
     if "--html" not in sys.argv:
         pdf = os.path.join(ICI, "manuel-clair.pdf" if clair else "manuel.pdf")
         subprocess.check_call(["node", os.path.join(ICI, "print.js"), sortie, pdf])

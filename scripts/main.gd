@@ -60,6 +60,11 @@ var _pause_menu: PauseMenu
 var _victory_panel: VictoryPanel
 ## Fenêtre d'événement (cartes de la boîte du joueur), cartes déjà présentées, pause qu'elle a mise.
 var _event_panel: EventPanel
+## Codex de l'Archonte (glossaire en jeu) et infobulles imbriquées.
+var codex: CodexScreen
+var tips: TipManager
+var _codex_sync := 0.0
+var _codex_paused := false
 ## Fenêtre de récompense des hauts faits (voir Deeds).
 var _deed_panel: DeedPanel
 var _deeds_told := {}
@@ -325,6 +330,7 @@ func _ready() -> void:
 		if load_game():
 			close_main_menu())
 	_main_menu.quit_requested.connect(func() -> void: get_tree().quit())
+	_main_menu.codex_requested.connect(func() -> void: open_codex())
 	_main_menu.join_requested.connect(func(address: String, port: int, pname: String) -> void:
 		player_name = pname
 		join_game(address, port))
@@ -353,6 +359,15 @@ func _ready() -> void:
 			_lobby_sync())
 	net.choose_empire.connect(func(list: Array) -> void: _main_menu.show_empire_choice(list))
 	_main_menu.bind_chat(net)
+
+	codex = CodexScreen.new()
+	add_child(codex)
+	codex.closed.connect(_on_codex_closed)
+	Glossary.unlock_check = CodexPrefs.unlocked
+	# Les infobulles passent au-dessus de tout : le gestionnaire vient en dernier.
+	tips = TipManager.new()
+	add_child(tips)
+	tips.article_requested.connect(func(id: String) -> void: open_codex(id))
 
 	UiTheme.apply_to(self)
 	new_game(randi())
@@ -482,6 +497,9 @@ func _go_to_system(id: int) -> void:
 
 ## Ouvre un menu d'empire ("economy", "colonies"), ou le ferme s'il est déjà affiché.
 func toggle_empire_screen(screen_id: String) -> void:
+	if screen_id == "codex":
+		toggle_codex()
+		return
 	if _empire_screens.is_open() and _empire_screens.current == screen_id:
 		close_empire_screen()
 		return
@@ -515,6 +533,58 @@ func is_empire_screen_open() -> bool:
 	return _empire_screens != null and _empire_screens.is_open()
 
 
+
+
+# --- Codex de l'Archonte ----------------------------------------------------------------------
+
+func is_codex_open() -> bool:
+	return codex != null and codex.is_open()
+
+
+## Ouvre le Codex (sur un article, ou là où on l'avait laissé) ; la partie se met en pause.
+func open_codex(aid := "") -> void:
+	_sync_codex()
+	if not codex.is_open() and not _main_menu.is_open() and not GameClock.paused and not net.is_active():
+		_codex_paused = true
+		GameClock.set_paused(true)
+	if tips:
+		tips.close_all()
+	_hud.show_hover(null, Vector2.ZERO)
+	codex.open(aid)
+	_hud.bar.set_open_screen("codex")
+	_update_map_input()
+
+
+func toggle_codex(aid := "") -> void:
+	if is_codex_open():
+		codex.close_codex()
+	else:
+		open_codex(aid)
+
+
+func _on_codex_closed() -> void:
+	_hud.bar.set_open_screen(_empire_screens.current if _empire_screens.is_open() else "")
+	if _codex_paused:
+		_codex_paused = false
+		GameClock.set_paused(false)
+	_update_map_input()
+
+
+## Le Codex suit la partie en cours (verrous des fiches, Chroniques) ; hors partie, il ne suit rien.
+func _sync_codex() -> void:
+	var playing := game_in_progress and not _main_menu.is_open() and simulation != null
+	CodexPrefs.set_game(simulation.state if playing else null, view_empire if playing else -1)
+	if playing and not UiSettings.glossary_intro_done and _hud != null and not spectator:
+		# Une fois pour toutes : présenter les termes soulignés et le Codex (prop. 22).
+		UiSettings.glossary_intro_done = true
+		UiSettings.save_settings()
+		_hud.notify("Les mots soulignés en bleu sont des termes du Codex : survolez-les pour une explication, gardez la souris immobile pour figer l'infobulle, F1 ou clic droit pour lire l'article. Maj+F1 ouvre le Codex de l'Archonte.", "info", func() -> void: open_codex(), 14.0)
+	if playing:
+		var got := CodexPrefs.scan()
+		if not got.is_empty() and _hud != null:
+			_hud.notify("Codex : %d nouvelle%s Chronique%s." % [got.size(), "s" if got.size() > 1 else "", "s" if got.size() > 1 else ""])
+	if _hud != null:
+		_hud.bar.set_codex_badge(CodexPrefs.has_new())
 
 
 # --- Menu principal et menu pause -------------------------------------------------------------
@@ -595,7 +665,7 @@ func _check_victory() -> void:
 
 ## Un menu plein écran (principal, pause, d'empire, de fin de partie ou un événement) recouvre la carte.
 func is_modal_open() -> bool:
-	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open() or is_event_panel_open() or is_election_panel_open() or is_deed_panel_open() or is_announce_panel_open()
+	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open() or is_event_panel_open() or is_election_panel_open() or is_deed_panel_open() or is_announce_panel_open() or is_codex_open()
 
 
 # --- Annonces ---------------------------------------------------------------------------------
@@ -611,7 +681,7 @@ func close_announce_panel() -> void:
 
 ## Une annonce attend : un menu, un écran d'empire ou une autre fenêtre recouvre-t-il la carte ?
 func _announce_blocked() -> bool:
-	return _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open() or is_event_panel_open() or is_deed_panel_open() or is_election_panel_open()
+	return is_codex_open() or _main_menu.is_open() or _pause_menu.is_open() or is_empire_screen_open() or is_victory_panel_open() or is_event_panel_open() or is_deed_panel_open() or is_election_panel_open()
 
 
 ## Espace et le centre du cadran. Au tour par tour, finir le tour alors que des décisions attendent
@@ -1130,6 +1200,10 @@ func _process(delta: float) -> void:
 	if galaxy == null:
 		return
 	_view.day_fraction = GameClock.day_fraction()
+	_codex_sync -= delta
+	if _codex_sync <= 0.0:
+		_codex_sync = 1.0
+		_sync_codex()
 	if _main_menu.is_open():
 		_camera.position += MENU_DRIFT * delta  # la galaxie dérive doucement derrière le menu
 		return
@@ -1175,6 +1249,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if key.keycode == KEY_F11:
 		UiSettings.toggle_fullscreen()
+		return
+	# Maj+F1 : le Codex de l'Archonte, partout (même au menu principal).
+	if key.keycode == KEY_F1 and key.shift_pressed:
+		toggle_codex()
+		return
+	if is_codex_open():
 		return
 	if _main_menu.is_open():
 		if key.keycode == KEY_ESCAPE:

@@ -17,6 +17,17 @@ const REPLAY_DETAILS := ["sobre", "normal", "riche"]
 ## Échelle des batailles au sol (visuel des combats, prop. 23 amendée) : figurines par régiment.
 static var battle_scale := "escarmouche"
 const BATTLE_SCALES := ["escarmouche", "bataille", "grande"]
+## Infobulles (glossaire en jeu, prop. 11, 12 et 16) : délai d'apparition, durée avant qu'elles se
+## figent, mode de verrouillage ("minuterie" ou "action" : clic molette ou Maj), termes colorés.
+static var tip_delay := 0.35
+const TIP_DELAYS := [0.15, 0.35, 0.6, 1.0]
+static var tip_lock := 0.8
+const TIP_LOCKS := [0.4, 0.8, 1.5]
+static var tip_lock_mode := "minuterie"
+const TIP_LOCK_MODES := ["minuterie", "action"]
+static var glossary_links := true
+## L'annonce qui présente les mots colorés a déjà été montrée (prop. 22).
+static var glossary_intro_done := false
 ## Coques de peuple (prop. 38) : silhouette de la coque de tête sur l'icône de flotte de la carte.
 static var fleet_silhouettes := false
 static var _loaded := false
@@ -37,6 +48,13 @@ static func load_settings() -> void:
 	battle_scale = String(cfg.get_value("display", "battle_scale", "escarmouche"))
 	if not BATTLE_SCALES.has(battle_scale):
 		battle_scale = "escarmouche"
+	tip_delay = float(cfg.get_value("tips", "delay", 0.35))
+	tip_lock = float(cfg.get_value("tips", "lock", 0.8))
+	tip_lock_mode = String(cfg.get_value("tips", "lock_mode", "minuterie"))
+	if not TIP_LOCK_MODES.has(tip_lock_mode):
+		tip_lock_mode = "minuterie"
+	glossary_links = bool(cfg.get_value("tips", "glossary_links", true))
+	glossary_intro_done = bool(cfg.get_value("tips", "intro_done", false))
 
 
 static func save_settings() -> void:
@@ -47,6 +65,11 @@ static func save_settings() -> void:
 	cfg.set_value("display", "ui_scale", ui_scale)
 	cfg.set_value("display", "replay_detail", replay_detail)
 	cfg.set_value("display", "battle_scale", battle_scale)
+	cfg.set_value("tips", "delay", tip_delay)
+	cfg.set_value("tips", "lock", tip_lock)
+	cfg.set_value("tips", "lock_mode", tip_lock_mode)
+	cfg.set_value("tips", "glossary_links", glossary_links)
+	cfg.set_value("tips", "intro_done", glossary_intro_done)
 	cfg.set_value("display", "fleet_silhouettes", fleet_silhouettes)
 	cfg.save(PATH)
 
@@ -91,3 +114,30 @@ static func battle_scale_level() -> int:
 static func cycle_battle_scale() -> void:
 	battle_scale = BATTLE_SCALES[(battle_scale_level() + 1) % BATTLE_SCALES.size()]
 	save_settings()
+
+
+## Infobulles : passe au réglage suivant, puis prévient le gestionnaire (TipManager).
+static func cycle_tip_delay() -> void:
+	tip_delay = TIP_DELAYS[(maxi(0, TIP_DELAYS.find(tip_delay)) + 1) % TIP_DELAYS.size()]
+	_tips_changed()
+
+
+static func cycle_tip_lock() -> void:
+	tip_lock = TIP_LOCKS[(maxi(0, TIP_LOCKS.find(tip_lock)) + 1) % TIP_LOCKS.size()]
+	_tips_changed()
+
+
+static func cycle_tip_lock_mode() -> void:
+	tip_lock_mode = TIP_LOCK_MODES[(maxi(0, TIP_LOCK_MODES.find(tip_lock_mode)) + 1) % TIP_LOCK_MODES.size()]
+	_tips_changed()
+
+
+static func toggle_glossary_links() -> void:
+	glossary_links = not glossary_links
+	_tips_changed()
+
+
+static func _tips_changed() -> void:
+	save_settings()
+	if TipManager.instance != null:
+		TipManager.instance.apply_settings()

@@ -50,6 +50,17 @@ etiquette: Annexe
 | Amphictyonie | [[M]] |
 | Commerce | [[C]] |
 | Chroniques | [[J]] |
+| Codex de l'Archonte | [[Maj]]+[[F1]] |
+
+### Infobulles et Codex
+
+| Action | Touche |
+| --- | --- |
+| Figer une infobulle | Garder la souris immobile, ou clic de molette (selon les Options) |
+| Refermer les infobulles figées | [[Échap]] |
+| Ouvrir l'article d'un terme | Clic droit ou [[F1]] sur le terme |
+| Ouvrir ou fermer le Codex | [[Maj]]+[[F1]] |
+| Refermer le Codex | [[Échap]] |
 
 ### Vue système
 

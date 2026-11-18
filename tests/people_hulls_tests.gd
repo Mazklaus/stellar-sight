@@ -338,7 +338,7 @@ func _test_save() -> void:
 	var st := _state(37, "teyl")
 	st.people_hulls = {"backup": {"2": "noosphere_mere"}}
 	var d := st.to_dict()
-	_ok(int(d["version"]) == 97, "sauvegarde 97")
+	_ok(int(d["version"]) >= 97, "sauvegarde 97 ou plus")
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(d)))
 	_ok(back != null and String(back.people_hulls.get("backup", {}).get("2", "")) == "noosphere_mere", "la sauvegarde de la Noosphère-mère traverse la sauvegarde")
 

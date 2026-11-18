@@ -26,6 +26,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 		Ecology.monthly(state, added)
 		Contact.monthly(state, added)
 		PeopleHulls.monthly(state, added)  # ponte, marché flottant, ambassade
+		CodexProgress.monthly(state)
 		for e in state.empires:
 			_monthly_balance(state, e, added)
 	return added

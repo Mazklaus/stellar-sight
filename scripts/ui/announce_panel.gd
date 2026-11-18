@@ -41,7 +41,7 @@ var _special: VBoxContainer
 var _title: Label
 var _sub: Label
 var _lead: Label
-var _text: Label
+var _text: RichTextLabel
 var _conseq: VBoxContainer
 var _system := -1
 var _screen := ""
@@ -82,7 +82,7 @@ func _ready() -> void:
 	_lead.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_lead.add_theme_color_override("font_color", Color(UiTheme.TEXT_DIM, 0.95))
 	_box.add_child(_lead)
-	_text = UiTheme.paragraph("", WIDTH - 20.0, 16)
+	_text = TipManager.paragraph(WIDTH - 20.0, 16)
 	_box.add_child(_text)
 	_conseq = VBoxContainer.new()
 	_conseq.add_theme_constant_override("separation", 3)
@@ -163,9 +163,9 @@ func open(state: GameState, viewer: int, recs: Array[Dictionary], g: int, nav_at
 	_lead.text = "« %s »" % Announce.lead(rec) if Announce.lead(rec) != "" else ""
 	_lead.visible = _lead.text != ""
 	_lead.custom_minimum_size.x = w - 20.0
-	_text.text = String(rec["x"])
+	TipManager.set_linked(_text, String(rec["x"]))
 	_text.custom_minimum_size.x = w - 20.0
-	_text.add_theme_font_size_override("font_size", 18 if fanfare else 16)
+	_text.add_theme_font_size_override("normal_font_size", 18 if fanfare else 16)
 	_build_special(state, viewer, rec, w)
 	_build_consequences(state, viewer, recs, w)
 	_system = Announce.system_of(state, rec)

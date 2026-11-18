@@ -8,6 +8,7 @@ signal new_game_requested(faction_id: String, seed_value: int)
 signal resume_requested
 signal continue_requested
 signal quit_requested
+signal codex_requested
 ## « Rejoindre une partie » : adresse et port de l'hôte, nom du joueur (voir NetSession).
 signal join_requested(address: String, port: int, player_name: String)
 ## Multijoueur : l'empire choisi dans la liste proposée par l'hôte.
@@ -390,6 +391,7 @@ func _ready() -> void:
 	_menu_button("new", "Nouvelle partie", "Choisir un peuple et lancer une nouvelle galaxie.", func() -> void: show_page("new"))
 	_menu_button("species", "Peuples", "Créer, modifier et ranger vos propres peuples : couches d'espèce, traits, portrait.", func() -> void: open_species("home"))
 	_menu_button("join", "Multijoueur", "Héberger une partie en réseau, la reprendre, ou rejoindre celle d'un ami.", func() -> void: show_page("join"))
+	_menu_button("codex", "Codex de l'Archonte", "Le manuel, le lexique et les fiches du jeu, à lire hors partie (Maj+F1).", func() -> void: codex_requested.emit())
 	_menu_button("options", "Options", "Affichage, partie et commandes.", func() -> void: show_page("options"))
 	_menu_button("quit", "Quitter", "Retourner au bureau. La galaxie attendra.", func() -> void: quit_requested.emit())
 	_hint = PanelContainer.new()

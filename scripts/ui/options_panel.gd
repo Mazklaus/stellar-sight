@@ -26,6 +26,11 @@ var _preset: Button
 var _anim: Button
 var _sound: Button
 var _search: LineEdit
+## Infobulles (glossaire en jeu, prop. 16).
+var _tip_links: Button
+var _tip_delay: Button
+var _tip_lock: Button
+var _tip_mode: Button
 ## Lignes des types d'annonce (tests) : type -> {"row", "look", "pause", "auto"}.
 var announce_rows := {}
 
@@ -91,6 +96,32 @@ func _ready() -> void:
 		UiSettings.auto_pause_menus = not UiSettings.auto_pause_menus
 		UiSettings.save_settings()
 		sync())
+	game.add_child(UiTheme.section("Infobulles et glossaire"))
+	_tip_links = _toggle_row(game, "Termes du jeu colorés dans les infobulles",
+			"Survolez un mot coloré pour son explication, puis un mot de cette explication, et ainsi de suite.", func() -> void:
+		UiSettings.toggle_glossary_links()
+		sync())
+	var trow := _row(game, "Délai d'apparition", "Le temps que le curseur doit rester posé avant qu'une infobulle s'ouvre.")
+	_tip_delay = _value_box("", false) as Button
+	_tip_delay.tooltip_text = "Clic : 0,15 s, 0,35 s, 0,6 s, 1 s"
+	_tip_delay.pressed.connect(func() -> void:
+		UiSettings.cycle_tip_delay()
+		sync())
+	trow.add_child(_tip_delay)
+	var mrow := _row(game, "Figer les infobulles", "Minuterie : elles se figent seules après un instant (la jauge du bas). Action : seulement au clic molette ou en tenant Maj.")
+	_tip_mode = _value_box("", false) as Button
+	_tip_mode.tooltip_text = "Clic : Minuterie, Action"
+	_tip_mode.pressed.connect(func() -> void:
+		UiSettings.cycle_tip_lock_mode()
+		sync())
+	mrow.add_child(_tip_mode)
+	var lrow := _row(game, "Durée avant de figer", "En mode Minuterie, le temps avant qu'on puisse entrer dans l'infobulle.")
+	_tip_lock = _value_box("", false) as Button
+	_tip_lock.tooltip_text = "Clic : 0,4 s, 0,8 s, 1,5 s"
+	_tip_lock.pressed.connect(func() -> void:
+		UiSettings.cycle_tip_lock()
+		sync())
+	lrow.add_child(_tip_lock)
 	_build_announce(_page("announce"))
 	var controls := _page("controls")
 	var scroll := ScrollContainer.new()
@@ -142,6 +173,11 @@ func reset_defaults() -> void:
 	UiSettings.auto_pause_menus = false
 	UiSettings.replay_detail = "normal"
 	UiSettings.battle_scale = "escarmouche"
+	UiSettings.tip_delay = 0.35
+	UiSettings.tip_lock = 0.8
+	UiSettings.tip_lock_mode = "minuterie"
+	UiSettings.glossary_links = true
+	UiSettings._tips_changed()
 	UiSettings.save_settings()
 	AnnounceSettings.reset()
 	sync()
@@ -157,6 +193,10 @@ func sync() -> void:
 	_scale.text = "%d %%" % roundi(UiSettings.ui_scale * 100.0)
 	_detail.text = String(GameData.battle_visuals().get("detail", {}).get("labels", {}).get(UiSettings.replay_detail, UiSettings.replay_detail))
 	_scale_b.text = String(GameData.battle_visuals().get("ground", {}).get("scale_labels", {}).get(UiSettings.battle_scale, UiSettings.battle_scale))
+	_set_toggle(_tip_links, UiSettings.glossary_links)
+	_tip_delay.text = ("%.2f s" % UiSettings.tip_delay).replace(".", ",").replace(",00 s", " s").replace("0 s", " s")
+	_tip_lock.text = ("%.1f s" % UiSettings.tip_lock).replace(".", ",")
+	_tip_mode.text = "Minuterie" if UiSettings.tip_lock_mode == "minuterie" else "Action (molette, Maj)"
 	_preset.text = AnnounceSettings.preset_label()
 	_anim.text = AnnounceSettings.anim_label()
 	_set_toggle(_sound, AnnounceSettings.sound)

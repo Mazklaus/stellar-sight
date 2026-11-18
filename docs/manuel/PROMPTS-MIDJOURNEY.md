@@ -624,3 +624,13 @@ a planet seen from orbit split in two by the day night terminator, one hemispher
 ```
 a vast orbital drydock where eight starships of different alien civilizations are built side by side, a great sailing ship with sails of light on golden masts, a flying gothic cathedral bristling with spires, a pulsing green organic mass laying small seed ships, a hollowed asteroid pierced with cannons, a ring of pure vibrating energy, a mountain fortress covered with ramparts, a comet turned into a glowing market, a crystal vessel surrounded by floating orbs, in the foreground on a catwalk shipwrights of several alien species argue over the same blueprint each convinced their ship is the most beautiful, epic scale with gentle humor epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-64 · Médaillon · Le Codex de l'Archonte
+
+- Format : 1:1 · Forme du cadre : medaillon
+- Emplacement : Chapitre « Lire l'écran », section Les infobulles et le Codex, en marge
+- Sujet : Un grand livre ouvert flottant dans le vide, dont les pages sont des écrans translucides ; de chaque mot souligné jaillit une petite fenêtre lumineuse qui en ouvre une autre, en cascade ; un archiviste minuscule, perché sur la tranche, tient une loupe et semble débordé
+
+```
+a large open book floating in space whose pages are translucent holographic screens, from underlined words small glowing windows spring out and open further windows in a cascade, a tiny archivist perched on the edge of the book holds a magnifying glass and looks overwhelmed, centered composition on dark background, wonder with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 1:1
+```

@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.44
+
+- **Les infobulles et le Codex** (chapitre 2) : les termes du jeu se soulignent dans les infobulles, les annonces et les cartes d'événement ; leur **infobulle imbriquée** s'ouvre au survol, jusqu'à quatre niveaux, et se **fige** quand la souris reste immobile (ou d'un clic de molette). Réglages du délai, du temps de verrouillage et des termes soulignés dans les Options.
+- Le **Codex de l'Archonte** ([[Maj]]+[[F1]], le livre du panneau d'empire, ou le menu principal) : ce manuel découpé en articles, le lexique, des fiches pour treize catalogues, une recherche sans accents ni pluriels, l'historique, les épingles et la pastille des nouveautés. Les fiches des peuples, de la faune, des puissances anciennes, des gardiens et des crises restent « ??? » tant qu'on ne les a pas rencontrés ; les **Chroniques**, fragments de lore, se collectionnent d'une partie à l'autre. Le lexique de l'annexe B vient désormais du même dictionnaire que le jeu. Sauvegarde 98.
+
 ### Édition 2.43
 
 - **Les chantiers des peuples** (chapitre 45) : chaque peuple a ses coques. Quatorze **coques de ligne** (Galère de fief, Corvette de concorde, Sporange de guerre, Châssis relié, Nœud de calcul, Affût de roc, Bélier-clan, Épave remontée, Cargo-corsaire, Onde-nef, Diapason, Astéroïde creusé, Nef-tanière, Nef de pénitence) et huit **méga-coques** qui prennent la place du titan commun (Grand Voilier de lignée, Arche de Concorde, Cathédrale, Mère-monde, Noosphère-mère, Montagne-forteresse, Comète-marché, Abysse chantante), ouvertes par une couche d'espèce, en catalogue ouvert. Chacune porte un **module intégré** qui change une règle : concorde, larves, lien, calcul prédictif, bordée, abordage, bricolage d'épaves, corsaires, déphasage, chant d'écho, sang-froid, ambassade, chaire, ponte, sauvegarde, marché flottant, voile abyssal, pénitents.

@@ -114,6 +114,7 @@ func _initialize() -> void:
 	preload("res://tests/archeo_tests.gd").new().run(_check)
 	preload("res://tests/forge_tests.gd").new().run(_check)
 	preload("res://tests/living_tests.gd").new().run(_check)
+	preload("res://tests/glossary_tests.gd").new().run(_check)
 	preload("res://tests/battle_visuals_tests.gd").new().run(_check)
 	preload("res://tests/ground_visuals_tests.gd").new().run(_check)
 	_test_clock()
@@ -1002,6 +1003,29 @@ func _test_navigation_ui(main: Node) -> void:
 	DirAccess.remove_absolute("user://test_multi_auto.json")
 	clock.set_mode(clock.MODE_REALTIME)
 
+	# Codex de l'Archonte et infobulles imbriquées (glossaire en jeu).
+	_check(main.tips != null and TipManager.instance == main.tips, "infobulles : le gestionnaire est en place")
+	main.toggle_empire_screen("codex")
+	await process_frame
+	_check(main.is_codex_open() and main.is_modal_open() and main.codex.current != "", "Codex : s'ouvre depuis la barre")
+	var term_id: String = Glossary.order[0]
+	main.tips.open_article(term_id)
+	await process_frame
+	_check(main.codex.current == term_id, "Codex : un terme s'ouvre sur son article")
+	main.codex.go_back()
+	_check(main.codex.current != term_id, "Codex : retour à l'article précédent")
+	main.codex.close_codex()
+	await process_frame
+	_check(not main.is_codex_open() and not main.is_modal_open(), "Codex : se referme")
+	var codex_key := InputEventKey.new()
+	codex_key.keycode = KEY_F1
+	codex_key.shift_pressed = true
+	codex_key.pressed = true
+	main._unhandled_input(codex_key)
+	_check(main.is_codex_open(), "Codex : Maj+F1 l'ouvre")
+	main.codex.close_codex()
+	await process_frame
+
 	# Menu principal : reprendre, puis nouvelle partie avec une autre faction et une graine choisie.
 	main.open_main_menu()
 	await process_frame
@@ -1009,7 +1033,7 @@ func _test_navigation_ui(main: Node) -> void:
 	# Les lancements des tests ne remplacent pas la « dernière partie » de l'utilisateur.
 	menu.presets_path = "user://test_new_game_presets.json"
 	_check(menu.is_open() and not hud.visible and menu._resume.visible, "menu principal : la partie en cours peut reprendre")
-	_check(not menu._continue.visible and menu._items.size() == 8, "accueil : Reprendre remplace Continuer")
+	_check(not menu._continue.visible and menu._items.size() == 9, "accueil : Reprendre remplace Continuer")
 	menu.show_page("join")
 	_check(menu._join_page.visible and not menu._home.visible, "accueil : page Multijoueur")
 	# Réseau local : une partie annoncée apparaît dans la liste, sans adresse à taper.
