@@ -165,6 +165,7 @@ func _draw() -> void:
 
 	_draw_territory()
 	_draw_terrain(px)
+	_draw_wrecks(px)
 
 	for p in _background:
 		draw_circle(p, 1.1 * px, Color(1, 1, 1, 0.22))
@@ -652,6 +653,30 @@ func _draw_terrain(px: float) -> void:
 			draw_line(cp + dir * 30.0, tip, Color(sc, 0.6), 1.6 * px, true)
 			draw_line(tip, tip - dir.rotated(0.5) * 9.0 * px * 1.5, Color(sc, 0.6), 1.6 * px, true)
 			draw_line(tip, tip - dir.rotated(-0.5) * 9.0 * px * 1.5, Color(sc, 0.6), 1.6 * px, true)
+
+
+## Prises de guerre (prop. 46) : champs d'épaves en éclats gris-rouille, Vaisseau-tombe en losange.
+## Pas de lentille dédiée : comme le terrain, discret et toujours là.
+func _draw_wrecks(px: float) -> void:
+	if state == null or not Capture.full(state):
+		return
+	for k in Capture.sub(state, "fields"):
+		var sid := int(k)
+		if sid < 0 or sid >= galaxy.systems.size() or not is_explored(sid):
+			continue
+		@warning_ignore("integer_division")
+		var n := mini(9, (Capture.sub(state, "fields")[k] as Array).size() / 3 + 1)
+		var h := absi(hash([sid, "epaves"]))
+		var pos := galaxy.systems[sid].position
+		for i in n:
+			var a := float((h >> (i * 2)) % 64) / 64.0 * TAU
+			var off := Vector2.from_angle(a) * (16.0 + float((h >> (i + 3)) % 14))
+			draw_rect(Rect2(pos + off - Vector2(1.4, 1.0) * px, Vector2(2.8, 2.0) * px), Color(0.72, 0.55, 0.42, 0.65))
+	var tsid := CaptureTomb.system(state)
+	if tsid >= 0 and tsid < galaxy.systems.size() and is_explored(tsid):
+		var tp := galaxy.systems[tsid].position + Vector2(0, -28.0 * px)
+		var d := 7.0 * px
+		draw_colored_polygon(PackedVector2Array([tp + Vector2(0, -d), tp + Vector2(d, 0), tp + Vector2(0, d), tp + Vector2(-d, 0)]), Color(0.6, 0.3, 0.25, 0.85))
 
 
 ## Système connu mais inexploré : une petite lueur grise, sans nom ni planètes.

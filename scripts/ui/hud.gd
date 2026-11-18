@@ -585,6 +585,8 @@ func _build_fleet_card() -> void:
 			["patrol", "PATROUILLE", "Aller-retour permanent entre la position de la flotte et un système : cliquez, puis clic droit sur le système (ou Maj + clic droit). Les pirates évitent les systèmes gardés."],
 			["guard", "GARDER", "Défenses spatiales complètes : garder ce système. La flotte y reçoit +10 % de dégâts, la couverture de la station, et y revient si on l'en attire."],
 			["posture", "POSTURE", "Furtivité : changer de posture (aucune, Silence radio, Balayage actif, Embuscade). Clic : posture suivante."],
+			["board", "ABORDAGE", "Prises de guerre : posture d'abordage. La flotte dépense ses troupes pour prendre les vaisseaux ennemis très abîmés au lieu de les achever."],
+			["prizes", "PRISES", "Prises de guerre : remettre en état, refondre, démanteler ou vendre les vaisseaux pris (au chantier d'une de vos colonies)."],
 			["beacon", "BALISE D'ÉCOUTE", "Furtivité complète : un éclaireur sans armes à l'arrêt pose une balise camouflée qui voit à un saut (Senseurs tachyoniques, 30 matériaux et 20 énergie, 6 au plus)."],
 			["merge", "RASSEMBLER", "Réunir dans cette flotte les autres flottes à l'arrêt dans ce système"],
 			["split", "DÉTACHER", "Détacher un vaisseau dans une nouvelle flotte"],
@@ -603,7 +605,7 @@ func _build_fleet_card() -> void:
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if a[0] == "colonize" or a[0] == "invade":
 			b.theme_type_variation = &"PrimaryButton"
-		if a[0] == "explore" or a[0] == "patrol" or a[0] == "guard":
+		if a[0] == "explore" or a[0] == "patrol" or a[0] == "guard" or a[0] == "board":
 			b.toggle_mode = true
 		var action: String = a[0]
 		b.pressed.connect(func() -> void: fleet_action_requested.emit(action, _fleet_id))
@@ -744,6 +746,18 @@ func _refresh_fleet_card() -> void:
 	if mine and Stealth.enabled(_state):
 		var pz := Stealth.posture(_state, f)
 		_fleet_buttons["posture"].text = "POSTURE : %s" % Stealth.posture_label(pz).to_upper()
+	_fleet_buttons["board"].visible = mine and Capture.full(_state) and Capture.posture_open(_state, f)
+	if _fleet_buttons["board"].visible:
+		var on := Capture.posture(_state, f)
+		_fleet_buttons["board"].set_pressed_no_signal(on)
+		_fleet_buttons["board"].text = "ABORDAGE : ACTIF" if on else "ABORDAGE"
+		_fleet_buttons["board"].tooltip_text = CaptureUi.posture_tip(_state, f)
+	var n_prizes := 0
+	for s in f.ships:
+		if Capture.is_prize(s):
+			n_prizes += 1
+	_fleet_buttons["prizes"].visible = mine and Capture.full(_state) and n_prizes > 0
+	_fleet_buttons["prizes"].text = "PRISES (%d)" % n_prizes
 	_fleet_buttons["beacon"].visible = mine and Stealth.full(_state) and not Combat.is_armed(f)
 	if _fleet_buttons["beacon"].visible:
 		var bwhy := Stealth.check_beacon(_state, _player, f)
@@ -1088,6 +1102,11 @@ func _refresh_card() -> void:
 	var tlines := Terrain.lines(_state, s.id)
 	for line in tlines:
 		_card_owner.text += "\n" + line
+	var wl := CaptureLore.field_text(_state, s.id)  # champ d'épaves (prises de guerre)
+	if wl != "":
+		_card_owner.text += "\n" + wl
+	if CaptureTomb.system(_state) == s.id:
+		_card_owner.text += "\nLe Vaisseau-tombe dérive ici : l'aborder demande %d troupes (bouton PRISES d'une flotte)." % Capture.rule("tomb_troops", 60)
 	if not tlines.is_empty():
 		var tal: Array = []
 		for t in Terrain.talent_labels(_state, Intel.lens):

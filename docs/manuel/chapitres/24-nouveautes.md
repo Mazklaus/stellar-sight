@@ -3,6 +3,12 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.45
+
+- **Prises de guerre** (chapitre 46), nouveau réglage **Prises de guerre** (Complète, Classique, Désactivée) : **posture d'abordage** de flotte (seuils de coque par taille, troupes engagées, chances de 5 à 90 %), modules **Grappins**, **Capsules d'assaut**, **Sas piégés**, **Charge d'autodestruction** et **Grue de récupération**, technologies Équipes de prise, Capsules d'assaut et Ingénierie inverse ; **redditions** selon le peuple ; **prises** et dix **avaries** ; remise en état, refonte, démantèlement et revente au chantier ; vaisseau amiral pris et héros prisonnier, traits Abordeur et Ferrailleur.
+- **Épaves** : champ d'épaves composé, **récupération** après bataille, **Butin de bataille** au Chantier, **politique d'épaves** (Étudier, Ferrailler, Les deux), récolte des champs et des cimetières, pillards, carte « L'épave à la dérive » ; **rétro-ingénierie** par module, **analyse** des modèles ennemis (+15 % de dégâts au plus), **copies** affaiblies des coques de ligne étrangères, ponts avec les Strates et les carcasses de créatures, opération **Voler les plans**.
+- Règles des sept couches de peuple, **Vaisseau-tombe**, clause de paix **Rendre les prises**, trois hauts faits, trois types d'annonces, section du rapport et grappins au replay, champs d'épaves sur la carte, IA. Sauvegarde 99. Chapitres 47 à 50 renumérotés.
+
 ### Édition 2.44
 
 - **Les infobulles et le Codex** (chapitre 2) : les termes du jeu se soulignent dans les infobulles, les annonces et les cartes d'événement ; leur **infobulle imbriquée** s'ouvre au survol, jusqu'à quatre niveaux, et se **fige** quand la souris reste immobile (ou d'un clic de molette). Réglages du délai, du temps de verrouillage et des termes soulignés dans les Options.

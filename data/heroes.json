@@ -559,6 +559,8 @@
 				}
 			}
 		},
+		"abordeur": {"label": "Abordeur", "cls": "", "earned": true, "text": "Gagné en prenant trois vaisseaux à l'abordage (prises de guerre complètes) : force d'abordage de sa flotte +30 %.", "fx": {"board_pct": 30}},
+		"ferrailleur": {"label": "Ferrailleur", "cls": "", "earned": true, "text": "Gagné en récupérant trois vaisseaux sur les champs d'épaves (prises de guerre complètes) : chances de récupérer un vaisseau détruit +50 % après les batailles de sa flotte.", "fx": {"salvage_pct": 50}},
 		"pillard": {
 			"label": "Pillard",
 			"cls": "",

@@ -1299,7 +1299,7 @@ func _build_shipyard() -> void:
 
 func _shipyard_signature() -> String:
 	var e := _state.get_empire(_player)
-	return "%d|%d" % [e.techs.size(), _state.designs.size()]
+	return "%d|%d|%s" % [e.techs.size(), _state.designs.size(), CaptureUi.signature(_state, _player)]
 
 
 func _research_signature() -> String:

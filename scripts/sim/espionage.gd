@@ -679,6 +679,10 @@ static func check_op(state: GameState, a: int, b: int, op_id: String) -> String:
 		var why_c := CultureBridges.spy_check(state, a, b, op_id)
 		if why_c != "":
 			return why_c
+	if bool(o.get("capture", false)):
+		var why_cap := CaptureLore.spy_check(state, a, b, op_id)
+		if why_cap != "":
+			return why_cap
 	if bool(o.get("wonders", false)):
 		var why_w2 := WondersBridges.spy_check(state, a, b, op_id)
 		if why_w2 != "":
@@ -927,6 +931,8 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 		return Logistics.spy_apply(state, a, b, o)
 	if bool(o.get("culture", false)):
 		return CultureBridges.spy_apply(state, a, b, o)
+	if bool(o.get("capture", false)):
+		return CaptureLore.spy_apply(state, a, b, o)
 	if bool(o.get("wonders", false)):
 		return WondersBridges.spy_apply(state, a, b, o)
 	if bool(o.get("deeds", false)):

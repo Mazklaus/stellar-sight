@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 98
+const FORMAT_VERSION := 99
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 400
@@ -217,6 +217,8 @@ var kardashev: Dictionary = {}  # l'échelle de Kardashev (voir Kardashev) ; {} 
 var living: Dictionary = {}  # les mondes vivants (voir LivingWorlds) ; {} = désactivés
 var people_hulls: Dictionary = {}  # coques de peuple (voir PeopleHulls) : {"backup": {empire: coque}}
 var ecology: Dictionary = {}  # écologie et climat des mondes (voir Ecology) ; {} = désactivée
+var capture: Dictionary = {}  # prises de guerre (voir Capture) ; {} = Classique ou Désactivée
+var capture_mode: String = "classique"  # complete, classique, desactivee
 var codex: Dictionary = {}  # fiches du Codex rencontrées par chaque empire (voir CodexProgress)
 var portals: Dictionary = {}  # portails de saut (voir Portals) ; {} = désactivés
 ## Mort des héros au combat (voir HeroFall) ; {} = option absente : blessure ou capture seulement.
@@ -364,6 +366,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	Kardashev.setup(s, String(options.get("kardashev", "desactivee")), String(options.get("kardashev_pace", "")))
 	LivingWorlds.setup(s, String(options.get("living", "aucun")), String(options.get("living_ego", "")))
 	Ecology.setup(s, String(options.get("ecology", "desactivee")))
+	Capture.setup(s, String(options.get("capture", "classique")))
 	FleetSystem.update_exploration(s)
 	return s
 
@@ -555,6 +558,8 @@ func to_dict() -> Dictionary:
 		d["people_hulls"] = PeopleHulls.to_dict(self)
 	if Ecology.worth_saving(self):
 		d["ecology"] = Ecology.to_dict(self)
+	if capture_mode != "classique":
+		d["capture"] = Capture.to_dict(self)
 	if CodexProgress.worth_saving(self):
 		d["codex"] = CodexProgress.to_dict(self)
 	if Announce.worth_saving(self):
@@ -839,6 +844,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	LivingWorlds.from_dict(s, d.get("living", {}))  # mondes vivants (sauvegarde 95)
 	PeopleHulls.from_dict(s, d.get("people_hulls", {}))  # coques de peuple (sauvegarde 97)
 	Ecology.from_dict(s, d.get("ecology", {}))  # écologie (sauvegarde 94) ; absente = désactivée
+	Capture.from_dict(s, d.get("capture", {}))  # prises de guerre (sauvegarde 99) ; absente = Classique
 	CodexProgress.from_dict(s, d.get("codex", {}))  # Codex de l'Archonte (sauvegarde 98)
 	if not s.wonders.is_empty():
 		WondersCatalog.refresh_gates(s)  # réseau des portes stellaires (donnée dérivée)

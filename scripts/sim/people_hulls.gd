@@ -115,7 +115,11 @@ static func adjust_cost(state: GameState, empire_id: int, ship_id: String, plane
 
 static func wrecks_ok(state: GameState, planet_id: int) -> bool:
 	var p = state.galaxy.get_planet(planet_id)
-	return p != null and int(state.battle_wrecks.get(int(p.system_id), 0)) >= WRECKS_USED
+	if p == null:
+		return false
+	if int(state.battle_wrecks.get(int(p.system_id), 0)) >= WRECKS_USED:
+		return true
+	return CaptureLore.field(state, int(p.system_id)).size() >= WRECKS_USED  # champ d'épaves (prises de guerre, prop. 37)
 
 
 static func has_backup(state: GameState, empire_id: int, ship_id: String) -> bool:
@@ -134,9 +138,14 @@ static func _backups(state: GameState) -> Dictionary:
 static func on_build(state: GameState, empire_id: int, planet_id: int, ship_id: String, c: Colony) -> void:
 	if flag(ship_id, "wreck_discount") and wrecks_ok(state, planet_id):
 		var sid := int(state.galaxy.get_planet(planet_id).system_id)
-		state.battle_wrecks[sid] = int(state.battle_wrecks[sid]) - WRECKS_USED
-		if int(state.battle_wrecks[sid]) <= 0:
-			state.battle_wrecks.erase(sid)
+		if int(state.battle_wrecks.get(sid, 0)) >= WRECKS_USED:
+			state.battle_wrecks[sid] = int(state.battle_wrecks[sid]) - WRECKS_USED
+			if int(state.battle_wrecks[sid]) <= 0:
+				state.battle_wrecks.erase(sid)
+		else:
+			var fl := CaptureLore.field(state, sid)
+			for _k in WRECKS_USED:
+				fl.pop_front()
 	if has_backup(state, empire_id, ship_id):
 		_backups(state).erase(str(empire_id))
 		c.ship_days = maxi(1, c.ship_days / 2)

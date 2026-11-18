@@ -46,6 +46,12 @@ static func value(state: GameState, eid: int, k: String, x: Variant = null) -> i
 			return Psionics.stat(state, eid, "broken") if Psionics.enabled(state) else 0
 		"tr_path", "tr_ruins", "tr_descent":
 			return Transcendence.stat(state, eid, {"tr_path": "path", "tr_ruins": "tr_ruins", "tr_descent": "tr_descent"}[k]) if Transcendence.enabled(state) else 0
+		"cap_titan":
+			return Capture.stat(state, eid, "mega_prizes")
+		"cap_fleet":
+			return CaptureLore.prizes_in_service(state, eid)
+		"cap_scrap":
+			return Capture.stat(state, eid, "wrecks")
 		"ct_porteuse", "ct_echo_crime", "ct_survived", "ct_won":
 			return Contact.stat(state, eid, {"ct_porteuse": "first_porteuse", "ct_echo_crime": "echo_crime", "ct_survived": "survived", "ct_won": "won"}[k]) if Contact.enabled(state) else 0
 		"gen_transfer":

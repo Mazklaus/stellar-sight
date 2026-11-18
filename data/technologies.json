@@ -1872,16 +1872,20 @@
 				"n": 4
 			}
 		},
+		"equipes_prise": {"label": "Équipes de prise", "domain": "armement", "era": 2, "pre": ["debarquement"], "text": "Prises de guerre complètes : toute flotte qui porte des troupes peut se mettre en posture d'abordage ; modules Grappins, Sas piégés et Charge d'autodestruction.", "flavor": "La première leçon de l'école de prise : on n'abîme pas ce qu'on veut garder. La seconde : on l'abîme quand même un peu."},
+		"capsules_assaut": {"label": "Capsules d'assaut", "domain": "armement", "era": 3, "pre": ["equipes_prise"], "text": "Prises de guerre complètes : module Capsules d'assaut, qui permet d'aborder dès la phase moyenne.", "flavor": "Un cercueil avec des moteurs, disent les soldats. Un taxi, corrigent les sergents."},
+		"ingenierie_inverse": {"label": "Ingénierie inverse", "domain": "genie", "era": 2, "pre": ["debarquement"], "text": "Prises de guerre complètes : rétro-ingénierie +50 %, politique d'épaves « Les deux », module Grue de récupération.", "effects": {"study_pct": 50}, "flavor": "Démonter pour comprendre, remonter pour vérifier, recommencer pour l'avoir vraiment compris."},
 		"abordage": {
 			"label": "Abordage",
 			"domain": "armement",
 			"era": 3,
-			"text": "Doctrine : +15 % de dégâts à courte portée et +25 % de troupes embarquées.",
+			"text": "Doctrine : +15 % de dégâts à courte portée, +25 % de troupes embarquées et (prises de guerre complètes) force d'abordage +20 %.",
 			"effects": {
 				"phase_damage_pct": {
 					"short": 15
 				},
-				"troops_pct": 25
+				"troops_pct": 25,
+				"board_pct": 20
 			},
 			"doctrine": true,
 			"exclusive": "feu_lointain",

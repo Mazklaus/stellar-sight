@@ -28,7 +28,7 @@ Huit victoires sont ouvertes à tous, et chaque peuple a la sienne. Le bloc Vict
 
 ### Les victoires de peuple
 
-Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie de Société de l'ère IV. Elle tient à ses couches d'espèce : un peuple créé dans l'éditeur reçoit celle de sa combinaison. Le chapitre 46 les présente une à une.
+Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie de Société de l'ère IV. Elle tient à ses couches d'espèce : un peuple créé dans l'éditeur reçoit celle de sa combinaison. Le chapitre 47 les présente une à une.
 
 | Victoire | Peuple | En bref |
 | --- | --- | --- |

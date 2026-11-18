@@ -485,6 +485,8 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 	out.append_array(Ecology.stability_parts(state, sid, owner))
 	# Archéologie : Haut lieu classé dans le système (voir Archaeology).
 	out.append_array(Archaeology.stability_parts(state, sid, owner))
+	# Prises de guerre : trophées de clan, quartier refusé (voir Capture).
+	out.append_array(Capture.stability_parts(state, sid, owner))
 	# Décret.
 	var d := active_decree(state, sid)
 	if d != "":

@@ -87,6 +87,7 @@ func show_report(state: GameState, viewer: int, r: Dictionary) -> void:
 		var wrecks: Array = r.get("wrecks", [])
 		if not wrecks.is_empty() and (winner == viewer or viewer < 0):
 			_outcome.text += "\nÉpaves étudiées : %s." % ", ".join(PackedStringArray(wrecks))
+		_outcome.text += CaptureUi.report_text(r, winner, viewer)  # prises et épaves
 		_outcome.add_theme_color_override("font_color", UiTheme.GOOD if winner == viewer else (UiTheme.BAD if _fought(r, viewer) else UiTheme.TEXT))
 	var fallen: Array = r.get("fallen", [])
 	if not fallen.is_empty():

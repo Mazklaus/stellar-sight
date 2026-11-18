@@ -238,6 +238,16 @@
 				],
 				"text": "Défenses spatiales : la station et les plates-formes de son système le plus proche des vôtres sont démontées, et rien ne s'y rebâtit pendant 10 ans."
 			},
+			"prizes": {
+				"label": "Rendre les prises",
+				"price": 10,
+				"goals": [
+					"humiliation",
+					"rancon",
+					"liberer"
+				],
+				"text": "Prises de guerre : il vous rend les vaisseaux qu'il vous a pris (avec leurs avaries) et vos héros prisonniers rentrent."
+			},
 			"people": {
 				"label": "Libération d'un peuple",
 				"price": 15,

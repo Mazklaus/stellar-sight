@@ -1,0 +1,101 @@
+{
+	"_doc": "Prises de guerre (étude « Prises de guerre », 2026-11-18, 50 propositions validées) : abordage, prises et avaries, épaves et récupération, rétro-ingénierie. Catalogue ouvert : on ajoute des avaries À LA FIN de la liste (leur rang est un bit de l'identifiant des prises), des politiques, des règles par couche d'espèce. Voir scripts/sim/capture.gd.",
+	"_sources": [
+		"Homeworld : corvette de récupération (1/2/3/5 corvettes selon la cible), Porter Mk.2 (subversion des vaisseaux très abîmés) — well-of-souls.com",
+		"X4: Foundations : abordage en trois étapes, estimation de réussite, vaisseaux abandonnés — manuel Egosoft",
+		"Stellaris : débris (10 % par composant au-dessus de votre niveau, sinon le prérequis), politique Étudier/Ferrailler, civique Scavengers, Ingénierie énigmatique — Stellaris Wiki, Technology",
+		"Starsector : récupération après bataille sans marines, d-mods (2 à 4 sur un ennemi, 1 sur un allié), restauration plus chère qu'un neuf — Starsector Wiki, Fractal Softworks",
+		"Master of Orion II : démonter une prise donne 0 à 3 technologies — StrategyWiki",
+		"FTL : reddition d'un ennemi abîmé ; BFG : jets opposés par rang ; Sins : Corsev ; Empire at War FoC : marché noir ; DW2 : capsules d'assaut ; Warhammer 40K : space hulks, Orks ferrailleurs"
+	],
+	"modes": [
+		{"id": "complete", "label": "Complète", "text": "Abordage ouvert à tous (posture de flotte), redditions, prises et avaries, épaves récupérables, politique d'épaves, rétro-ingénierie par module, analyse des modèles ennemis, Vaisseau-tombe."},
+		{"id": "classique", "label": "Classique", "text": "Comme avant : seul l'Éperon d'abordage prend des vaisseaux ; le vainqueur étudie les marques et doctrines des vaincus."},
+		{"id": "desactivee", "label": "Désactivée", "text": "Aucune prise : pas d'abordage, même pour l'Éperon."}
+	],
+	"default_mode": "complete",
+	"sizes": {
+		"small": {"hp_pct": 30, "troops": 4, "crew": 6, "recover": 20},
+		"medium": {"hp_pct": 30, "troops": 8, "crew": 12, "recover": 12},
+		"large": {"hp_pct": 20, "troops": 16, "crew": 24, "recover": 8},
+		"titan": {"hp_pct": 10, "troops": 40, "crew": 60, "recover": 4}
+	},
+	"rules": {
+		"chance_min": 5, "chance_max": 90, "keep_pct": 50,
+		"grapple_pct": 25, "eperon_pct": 50, "board_def_pct": 50, "foi_def_pct": 50,
+		"normal_ai_min": 60, "intrusion_pct": 50,
+		"board_avaries_min": 1, "board_avaries_max": 2,
+		"wreck_avaries_min": 2, "wreck_avaries_max": 4, "own_avaries": 1,
+		"upkeep_per_avarie_pct": 10,
+		"repair_cost_pct": 25, "repair_days": 20, "refit_cost_pct": 50, "scrap_pct": 30,
+		"sell_market_pct": 40, "sell_pirates_pct": 60, "sell_empire_pct": 50, "profit_sell_pct": 50,
+		"surrender_hp_pct": 50, "surrender_ratio": 3,
+		"self_destruct_pct": 25,
+		"ruche_decay_pct": 5,
+		"trophy_days": 360, "trophy_stability": 3, "refused_days": 360, "refused_stability": -5,
+		"fervor_per_prize": 3,
+		"study_pct": 10, "scrap_study_pct": 25, "scrap_study_max": 3, "nothing_research_pct": 3,
+		"study_bonus_tech_pct": 50, "study_bonus_energetic_pct": 50,
+		"analysis_pct": 5, "analysis_max": 15, "analysis_spy_pct": 10,
+		"scavenge_pct": 10,
+		"field_cap": 60, "field_decay_pct": 50,
+		"salvage_double": 2, "salvage_per_month": 2, "graveyard_materials": 20, "intact_chance": 2,
+		"loot_days": 30, "loot_hp_pct": 50,
+		"copy_studies": 3, "copy_cost_pct": 130, "copy_hp_pct": 80,
+		"carcass_pct": 10,
+		"tomb_year": 5, "tomb_chance": 25, "tomb_move_days": 90, "tomb_troops": 60, "tomb_life_days": 1800
+	},
+	"surrender": {
+		"_doc": "Propension à se rendre (en %, chaque fin de phase où la reddition est possible), par couche d'espèce : la première règle qui correspond l'emporte.",
+		"base": 30,
+		"by_layer": [
+			{"species": {"credo": ["foi"]}, "pct": 0, "label": "ne se rend jamais"},
+			{"species": {"archetype": ["ruche"]}, "pct": 0, "label": "une ruche ne se rend pas"},
+			{"species": {"credo": ["honneur"]}, "pct": 10, "label": "se rend rarement"},
+			{"species": {"credo": ["profit"]}, "pct": 60, "label": "négocie volontiers"}
+		]
+	},
+	"policies": [
+		{"id": "etudier", "label": "Étudier", "text": "Les épaves ennemies nourrissent la recherche (rétro-ingénierie)."},
+		{"id": "ferrailler", "label": "Ferrailler", "text": "Les épaves ennemies rapportent 10 % de leur coût en matériaux, sans recherche."},
+		{"id": "both", "label": "Les deux", "text": "Recherche et matériaux. Réservé au credo Profit, au gouvernement Syndicat ou à la technologie Ingénierie inverse.", "requires": {"species_any": [{"credo": ["profit"]}, {"gouvernement": ["syndicat"]}], "tech": "ingenierie_inverse"}}
+	],
+	"unboardable_hulls": ["onde_nef", "abysse_chantante"],
+	"no_wreck_hulls": ["onde_nef", "abysse_chantante"],
+	"layers": {
+		"_doc": "Règles des peuples (bloc F), toujours par couche d'espèce.",
+		"trophies": {"gouvernement": ["horde"]},
+		"scrappers": [{"credo": ["profit"]}, {"gouvernement": ["syndicat"]}],
+		"no_surrender_def": {"credo": ["foi"]},
+		"sacred_hulls": ["cathedrale"],
+		"living": {"archetype": ["ruche"]},
+		"intrusion": {"archetype": ["synthetique"]},
+		"no_board": {"archetype": ["energetique"]},
+		"remote_study": {"archetype": ["energetique"]},
+		"honor": {"credo": ["honneur"]},
+		"larva_ship": "sporange"
+	},
+	"avaries": [
+		{"id": "blindage_fissure", "label": "Blindage fissuré", "text": "Blindage −25 %.", "fx": {"armor": -25}},
+		{"id": "affuts_fausses", "label": "Affûts faussés", "text": "Dégâts −15 %.", "fx": {"weapons": -15}},
+		{"id": "reacteur_instable", "label": "Réacteur instable", "text": "Structure −10 %, dégâts −5 %.", "fx": {"hp": -10, "weapons": -5}},
+		{"id": "moteurs_brides", "label": "Moteurs bridés", "text": "Vitesse −20 %.", "fx": {"speed": -20}},
+		{"id": "boucliers_dephases", "label": "Boucliers déphasés", "text": "Boucliers −50 %.", "fx": {"shield": -50}},
+		{"id": "coursives_eventrees", "label": "Coursives éventrées", "text": "Troupes embarquées −50 %.", "fx": {"troops": -50}},
+		{"id": "cablage_piege", "label": "Câblage piégé", "text": "Structure −15 %.", "fx": {"hp": -15}},
+		{"id": "structure_vrillee", "label": "Structure vrillée", "text": "Structure −20 %.", "fx": {"hp": -20}},
+		{"id": "capteurs_aveugles", "label": "Capteurs aveugles", "text": "Vision −1.", "fx": {"vision_flat": -1}},
+		{"id": "defense_rongee", "label": "Défense rongée", "text": "Défense ponctuelle −50 %.", "fx": {"pd": -50}}
+	],
+	"tomb": {
+		"label": "Vaisseau-tombe",
+		"text": "Un amas de coques soudées par les siècles, qui dérive de système en système. Personne ne sait d'où il vient ; tout le monde sait ce qu'il contient.",
+		"table": [
+			{"id": "savoir", "w": 30, "label": "Bibliothèques de bord", "text": "trois technologies avancent de moitié"},
+			{"id": "relique", "w": 15, "label": "Reliquaire scellé", "text": "une relique"},
+			{"id": "coque", "w": 20, "label": "Coque intacte", "text": "un vaisseau remis en service"},
+			{"id": "creatures", "w": 20, "label": "Ce qui vivait dedans", "text": "les troupes engagées sont perdues"},
+			{"id": "pirates", "w": 15, "label": "Locataires armés", "text": "des pirates s'en échappent"}
+		]
+	}
+}

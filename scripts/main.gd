@@ -1631,6 +1631,17 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 			if _submit(SimCommands.stealth_act(view_empire, "pose", fleet_id, -1, nxt)):
 				_hud.notify("%s : posture %s." % [f.fleet_name, Stealth.posture_label(nxt).to_lower()])
 			_hud.show_fleet(fleet_id)
+		"board":
+			var on := not Capture.posture(st, f)
+			var cmd := SimCommands.cap_act(view_empire, "posture", {"fleet": fleet_id, "on": on})
+			var why := SimCommands.validate(st, cmd)
+			if why != "":
+				_hud.notify("%s : %s." % [f.fleet_name, why], "warn")
+			elif _submit(cmd):
+				_hud.notify("%s : %s." % [f.fleet_name, "posture d'abordage, on prend au lieu d'achever" if on else "fin de la posture d'abordage"])
+			_hud.show_fleet(fleet_id)
+		"prizes":
+			CaptureUi.open_prize_menu(self, st, view_empire, f)
 		"beacon":
 			if _submit(SimCommands.stealth_act(view_empire, "beacon", fleet_id)):
 				_hud.notify("%s pose une balise d'écoute." % f.fleet_name)
