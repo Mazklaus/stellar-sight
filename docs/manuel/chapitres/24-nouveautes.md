@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.38
+
+- **Ce que boit une civilisation** (chapitre 42), nouveaux réglages **Échelle de Kardashev** (complète, indice seul, désactivée) et **Rythme** (lent, normal, rapide) : l'indice quitte les mégastructures et devient un pilier. Il se calcule sur la **puissance captée** (énergie brute des colonies, mégastructures qui boivent un astre, mondes forgés), de **0,70** au départ à **3,00**, au centième, sur une échelle logarithmique ; chaque type entier a son **verrou** (Fusion compacte et quatre bâtiments à la capitale ; une Sphère ou trois Essaims ; grandes mégastructures et 10 % des systèmes). Une Sphère sous un Cerveau Matriochka compte toujours.
+- En réglage complet : **quinze prérogatives**, une au choix par demi-palier, qui **dorment** sous leur palier ; l'**Émulation** qui aide ceux qui sont en retard ; la **signature thermique** qui révèle la capitale puis tous les systèmes des puissants et attire les crises, la **Sobriété thermique** et le **Voile stellaire** ; l'**Âge sombre** et l'**Âge héroïque** ; la **révérence** ou la **crainte** envers les plus puissants ; l'**Allumeur d'étoiles**. Onglet **L'Échelle** de l'écran des Victoires, indice en Diplomatie, IA. Sauvegarde 92 (les anciennes parties avec mégastructures sont converties). Chapitres 43 à 46 renumérotés.
+
 ### Édition 2.37
 
 - **La Forge des mondes** (chapitre 41), nouveaux réglages **Forge des mondes** (complète, sans démantèlement, désactivée) et **Mondes-reliquaires** (aucun, peu, beaucoup) : le **chantier planétaire** lancé par un Vaisseau-architecte (un par système, deux à la fois), six technologies (**Agglomération**, **Compression gravitationnelle**, **Mondes-coquilles**, **Démantèlement**, **Mondes sur mesure**, **Moteurs planétaires**), la **Masse planétaire** et sa fonte en matériaux ; six types de mondes (**monde-noyau**, **habitat-monde** et ses extensions, **monde-coquille**, **monde creux**, **monde-reliquaire**, **monde-abri**) et la **planète sur mesure** ; entretien en énergie, **intégrité**, brèches et effondrement.

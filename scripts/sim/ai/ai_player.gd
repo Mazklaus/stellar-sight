@@ -91,6 +91,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiTranscendence.think(ctx)
 	AiMegas.think(ctx)
 	AiForge.think(ctx)
+	KardashevWorld.ai(ctx)
 	AiArchaeo.think(ctx)
 	AiContact.think(ctx)
 	if String(ctx["intent"]) != "":

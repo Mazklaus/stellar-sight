@@ -1,0 +1,98 @@
+{
+	"_doc": "L'échelle de Kardashev (étude du 2026-11-17, version resserrée validée le 2026-11-18 : prop. 1-5, 12, 15, 16, 21, 22, 24, 25, 26, 44, 47, 48). Indice ×100 de 0 à 300, calculé chaque mois sur la Puissance captée (énergie brute des colonies + puissance des mégastructures, qu'elle soit versée au trésor ou non). Entre deux ancres, la décimale suit une échelle logarithmique (formule de Sagan, calculée en entiers). Un type entier ne se franchit qu'avec son verrou. Voir scripts/sim/kardashev.gd.",
+	"_sources": "Kardashev 1964, formule et départ à 0,7 de Sagan, critiques de Dutil et Dumas, recherche de chaleur G-HAT (Wright et coll. 2014) : en.wikipedia.org/wiki/Kardashev_scale, arxiv.org/abs/1408.1134. Prérogatives à chaque palier : dévouements de Civilization VI (digitaltrends.com, guide des âges), « empire focus » de la discussion CivFanatics « Idea for space 4X game: the Kardashev scale ». Rattrapage : « Competitive Spirit » de Humankind (humankind.fandom.com/wiki/Era_Star). Puissance relative affichée : Stellaris (stellaris.fandom.com/wiki/Diplomacy). Âge sombre : Civilization VI, Warhammer 40K. Étude : https://claude.ai/artifact/GehqujeZRfN5H3UFkduYoc",
+	"modes": [
+		{"id": "complete", "label": "Complète", "text": "L'indice, ses verrous, les prérogatives à chaque demi-palier, le rattrapage, la chaleur qui trahit les puissants et l'Âge sombre."},
+		{"id": "indice", "label": "Indice seul", "text": "L'indice et ses verrous, affichés partout, sans prérogatives, sans chaleur ni Âge sombre."},
+		{"id": "desactivee", "label": "Désactivée", "text": "Pas d'échelle de Kardashev."}
+	],
+	"default_mode": "complete",
+	"paces": [
+		{"id": "lent", "label": "Lent", "pct": 150, "text": "Il faut moitié plus de puissance pour chaque palier."},
+		{"id": "normal", "label": "Normal", "pct": 100, "text": "Réglage de référence."},
+		{"id": "rapide", "label": "Rapide", "pct": 70, "text": "Il faut 30 % de puissance en moins pour chaque palier."}
+	],
+	"default_pace": "normal",
+	"power": {
+		"_doc": "Prop. 2-4. anchors : puissance pour 0,70 (départ), 1,00, 2,00 et 3,00 ; les trois dernières suivent le rythme. capture : puissance par étape achevée d'une mégastructure (× couleur de l'étoile pour celles qui la boivent). La Sphère sous un Cerveau Matriochka compte toujours. worldforge : par monde forgé ou démantelé (pilier des planètes artificielles, s'il est en jeu).",
+		"start_k": 70,
+		"anchors": [15, 300, 8000, 120000],
+		"min_k": 0,
+		"capture": {
+			"ascenseur_orbital": 60,
+			"anneau_orbital": 150,
+			"forge_noyau": 200,
+			"siphon_geante": 300,
+			"essaim_dyson": 600,
+			"sphere_dyson": 2000,
+			"era4": 3000,
+			"era5": 4000
+		},
+		"worldforge": 1500
+	},
+	"locks": {
+		"_doc": "Prop. 5. Type I : technologies + bâtiments sur la capitale. Type II : une Sphère achevée ou trois Essaims achevés. Type III : type II + great mégastructures achevées de l'ère IV et plus (dont era5 de l'ère V) + systems_pct % des systèmes de la galaxie. Sans le verrou, l'indice plafonne à x,99.",
+		"1": {"techs": ["fusion_compacte"], "capital_buildings": 4},
+		"2": {"spheres": 1, "swarms": 3},
+		"3": {"great": 6, "era5": 3, "systems_pct": 10}
+	},
+	"titles": ["Civilisation pré-planétaire", "Civilisation planétaire", "Civilisation stellaire", "Civilisation galactique"],
+	"culture_pct": [0, 5, 10, 20],
+	"emulation": {
+		"_doc": "Prop. 15 (Humankind) : quand un empire franchit le premier un type, ceux qui sont en dessous paient base_pct % de moins (+per_empire_pct par empire déjà passé, max_pct au plus) les technologies listées et les étapes des mégastructures qui servent au verrou de ce type, jusqu'à ce qu'ils le franchissent.",
+		"base_pct": 25,
+		"per_empire_pct": 10,
+		"max_pct": 55,
+		"techs": {
+			"1": ["fusion_compacte"],
+			"2": ["essaim_dyson", "mega_ingenierie", "etoiles_captives"],
+			"3": ["mega_ingenierie_avancee"]
+		},
+		"kinds": {
+			"2": ["essaim_dyson", "sphere_dyson"],
+			"3": ["*era4"]
+		}
+	},
+	"signature": {
+		"_doc": "Prop. 21-22. La signature thermique vaut l'indice (×100) ; la Sobriété thermique la baisse de sober_minus et la puissance de sober_power_pct %. À capital_at, la capitale et les mégastructures sont connues de tous ; à all_at, tous les systèmes peuplés. Les crises visent d'abord la plus forte signature (à distance comparable). Le Voile stellaire l'éteint veil_days jours, une fois tous les veil_cooldown jours.",
+		"capital_at": 150,
+		"all_at": 250,
+		"sober_minus": 50,
+		"sober_power_pct": 85,
+		"crisis_weight": 20,
+		"veil_days": 120,
+		"veil_cooldown": 360
+	},
+	"dark": {
+		"_doc": "Prop. 25. Retomber d'au moins un type sous le meilleur atteint : Âge sombre (stabilité, réparations et relèvement des mégastructures moins chers). Remonter à son meilleur type : Âge héroïque, une prérogative de plus (choisie parmi celles des paliers atteints).",
+		"stability": -2,
+		"repair_pct": -50
+	},
+	"rank": {
+		"_doc": "Prop. 26 (puissance relative de Stellaris). Opinion de a envers b quand b a au moins un type de plus : reverence si a l'estime déjà (opinion de base >= reverence_min), sinon fear. Un type entier ou plus d'écart double la crainte (pousse l'IA vers ses rivaux). Prérogatives Prestige de la puissance et Phare de la galaxie : voir perks.",
+		"reverence": 8,
+		"reverence_min": 10,
+		"fear": -8
+	},
+	"relight": {"_doc": "Prérogative Allumeur d'étoiles : une naine rouge ou blanche d'un système tenu devient une naine jaune au bout de days jours.", "days": 360, "from": ["red", "white"], "to": "yellow"},
+	"perks": {
+		"_doc": "Prop. 12. Trois prérogatives par demi-palier (1,0 ; 1,5 ; 2,0 ; 2,5 ; 3,0). Une par demi-palier atteint, définitive ; celles d'un palier perdu dorment (prop. 24). fx : effets ajoutés à Research.effects. ai : ordre de préférence de l'IA (plus petit = préféré).",
+		"reseau_planetaire": {"level": 1, "label": "Réseau planétaire", "text": "Vos réseaux tiennent : pas de pénurie d'énergie tant que le déficit du mois reste sous 200.", "fx": {"kard_blackout_floor": 200}, "ai": 2},
+		"climat_maitrise": {"level": 1, "label": "Climat maîtrisé", "text": "On règle le temps qu'il fait : un emplacement de bâtiment de plus sur chacun de vos mondes.", "fx": {"building_slots_all": 1}, "ai": 1},
+		"archives_pierre": {"level": 1, "label": "Archives de pierre", "text": "Vos savoirs sont gravés dans la roche : aucune opération ne peut plus voler vos technologies.", "fx": {"kard_no_theft": 1}, "ai": 3},
+		"voile_stellaire": {"level": 2, "label": "Voile stellaire", "text": "Une fois par an, vous éteignez votre signature thermique pendant 120 jours : la galaxie vous perd de vue.", "fx": {}, "action": "veil", "ai": 3},
+		"ateliers_moleculaires": {"level": 2, "label": "Ateliers moléculaires", "text": "Les bâtiments s'entretiennent tout seuls, ou presque : leur entretien est divisé par deux.", "fx": {"building_upkeep_pct": -50}, "ai": 1},
+		"prestige_puissance": {"level": 2, "label": "Prestige de la puissance", "text": "Les empires d'un type inférieur en paix avec vous vous regardent avec respect : +15 d'opinion.", "fx": {}, "opinion_lower": 15, "ai": 2},
+		"forge_soleils": {"level": 3, "label": "Forge des soleils", "text": "Vos chantiers géants ne s'attendent plus : une étape de mégastructure de plus en même temps.", "fx": {"mega_slots": 1}, "ai": 1},
+		"semis_arches": {"level": 3, "label": "Semis d'arches", "text": "Des arches partent seules vers les mondes vides : colonies et avant-postes coûtent moitié moins.", "fx": {"claim_cost_pct": -50}, "ai": 2},
+		"nanomachines": {"level": 3, "label": "Essaims de nanomachines", "text": "Des nuées de machines recousent les coques : vos flottes se réparent deux fois plus vite.", "fx": {"repair_pct": 100}, "ai": 3},
+		"allumeur_etoiles": {"level": 4, "label": "Allumeur d'étoiles", "text": "Une naine rouge ou blanche d'un de vos systèmes peut être rallumée en naine jaune (un an de chantier) : meilleur rendement pour l'Essaim et la Sphère.", "fx": {}, "action": "relight", "ai": 3},
+		"peuple_airain": {"level": 4, "label": "Peuple d'airain", "text": "Votre peuple ne se lasse plus de la guerre (politique en jeu).", "fx": {"no_war_weariness": 1}, "ai": 2},
+		"conseil_elargi": {"level": 4, "label": "Conseil élargi", "text": "Un siège de plus au Conseil : un héros de plus à votre service.", "fx": {"hero_cap": 1}, "ai": 1},
+		"phare_galaxie": {"level": 5, "label": "Phare de la galaxie", "text": "Votre lumière se voit de partout et rassure : +10 d'opinion chez tous les empires en paix avec vous.", "fx": {}, "opinion_peace": 10, "ai": 2},
+		"seigneurs_etoiles": {"level": 5, "label": "Seigneurs des étoiles", "text": "Vos flottes sont ravitaillées trois sauts plus loin et vont 20 % plus vite.", "fx": {"supply_range": 3, "fleet_speed_pct": 20}, "ai": 1},
+		"immortels": {"level": 5, "label": "Techniquement immortels", "text": "Dispersés, archivés, redondants : les crises vous visent en dernier, et vos mondes gagnent 2 de stabilité.", "fx": {"stability": 2, "kard_crisis_last": 1}, "ai": 3}
+	},
+	"levels": [100, 150, 200, 250, 300],
+	"ai": {"_doc": "L'IA choisit ses prérogatives par préférence (perks.ai), la Sobriété quand une crise est en jeu et qu'elle dépasse capital_at, le Voile dès qu'il est prêt en guerre, et rallume la première étoile possible.", "sober_in_crisis": true}
+}

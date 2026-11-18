@@ -328,6 +328,9 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	# Religion : coreligionnaires et fois rivales (voir Faiths).
 	for pp in Faiths.opinion_parts(state, a, b):
 		_part(out, String(pp[0]), int(pp[1]))
+	# Échelle de Kardashev : révérence ou crainte des plus puissants, prérogatives (voir Kardashev).
+	for pp in Kardashev.opinion_parts(state, a, b):
+		_part(out, String(pp[0]), int(pp[1]))
 	var w := Economy.wonders(state)
 	for key in w:
 		if int(w[key]) == b:

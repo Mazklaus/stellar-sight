@@ -69,28 +69,6 @@
 		"event_pct": 8,
 		"contested_days": 30
 	},
-	"kardashev": {
-		"_doc": "Prop. 9 : indice de 0,0 à 3,0. Type I : énergie brute mensuelle >= energy[0]. Type II : type I + une Sphère achevée ou trois Essaims achevés. Type III : type II + great mégastructures achevées (dont era5 de l'ère V) + énergie >= energy[2]. La décimale mesure le chemin vers le palier suivant (énergie).",
-		"energy": [
-			150,
-			400,
-			800
-		],
-		"great": 6,
-		"era5": 3,
-		"titles": [
-			"",
-			"Civilisation planétaire",
-			"Civilisation stellaire",
-			"Civilisation galactique"
-		],
-		"culture_pct": [
-			0,
-			5,
-			10,
-			20
-		]
-	},
 	"events": [
 		{
 			"id": "accident",

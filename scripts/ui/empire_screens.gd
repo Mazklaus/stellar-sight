@@ -176,6 +176,9 @@ var mega_buttons := {}
 var _megas_sig := ""
 var forge_buttons := {}
 var _forge_sig := ""
+## Écran L'Échelle (onglet de l'écran Victoires) : boutons « perk:id », « sober », « veil », « relight:s », « tab:… » (tests).
+var kardashev_buttons := {}
+var _kardashev_sig := ""
 var throne_buttons := {}
 var _throne_sig := ""
 ## Onglet ouvert de l'écran Chroniques : "quests", "events" ou "relics".
@@ -294,7 +297,7 @@ func show_screen(screen_id: String) -> void:
 	_filter_tabs.clear()
 	_col_sig = ""
 	_sys_sig = ""
-	var sc := EmpireBar.screen_info({"transcendence": "victory", "contact": "victory", "megas": "wonders", "forge": "wonders"}.get(screen_id, screen_id))
+	var sc := EmpireBar.screen_info({"transcendence": "victory", "contact": "victory", "kardashev": "victory", "megas": "wonders", "forge": "wonders"}.get(screen_id, screen_id))
 	_tab.text = ("%s     ×" % sc.get("label", screen_id)).to_upper()
 	match screen_id:
 		"economy":
@@ -353,6 +356,9 @@ func show_screen(screen_id: String) -> void:
 			mega_buttons.clear()
 			forge_buttons.clear()
 			ForgeUi.build(self)
+		"kardashev":
+			kardashev_buttons.clear()
+			KardashevScreen.build(self)
 		"throne":
 			throne_buttons.clear()
 			ThroneScreen.build(self)
@@ -427,6 +433,9 @@ func refresh() -> void:
 		"forge":
 			if ForgeUi.signature(self) != _forge_sig:
 				show_screen("forge")
+		"kardashev":
+			if KardashevScreen.signature(self) != _kardashev_sig:
+				show_screen("kardashev")
 		"throne":
 			if ThroneScreen.signature(self) != _throne_sig:
 				show_screen("throne")
@@ -1476,6 +1485,8 @@ func _build_diplomacy() -> void:
 	_key_value(g, "Empires rencontrés", str(me.contacts.size()))
 	_key_value(g, "Guerres", str(wars))
 	_key_value(g, "Traités", str(pacts))
+	if Kardashev.applies(_state, _player):
+		_key_value(g, "Échelle de Kardashev", Kardashev.text(_state, _player))
 	var income := Diplomacy.treaty_income(_state, _player)
 	if not income.is_empty():
 		_key_value(g, "Revenus des traités", GameData.format_amounts(income, true))
@@ -1645,6 +1656,8 @@ func _relation_block(id: int) -> Control:
 				" %" if _state.wars_on and not Wars.war(_state, _player, id).is_empty() else ""])
 	if e.is_ai():
 		extra.append("Tempérament : %s" % AiLevels.temperament_label(e))
+	if Kardashev.applies(_state, id) and not e.eliminated:
+		extra.append("Échelle de Kardashev : %s" % Kardashev.text(_state, id))
 	for x in extra:
 		info.add_child(UiTheme.dim(x, 13))
 	if st == "none":

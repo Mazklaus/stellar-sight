@@ -88,7 +88,7 @@
 		"forge_breach": {"family": "perils", "title": "Brèche", "g": [2, 0, 0], "need": "threat", "screen": "wonders"},
 		"forge_braderie": {"family": "economie", "title": "La Grande Braderie", "g": [2, 2, 2], "need": "info", "screen": "trade", "always": true},
 		"forge_moving": {"family": "savoir", "title": "Un monde en marche", "g": [2, 1, 1], "need": "info", "screen": "wonders", "first": true},
-		"kardashev": {"family": "savoir", "title": "Échelle de Kardashev", "g": [2, 1, 1], "tone": {"actor": "good"}, "need": "info", "screen": "wonders", "first": true},
+		"kardashev": {"family": "savoir", "title": "Échelle de Kardashev", "g": [2, 1, 1], "tone": {"actor": "good"}, "need": "info", "screen": "kardashev", "first": true},
 		"relic_found": {"family": "savoir", "title": "Une relique sort de terre", "g": [2, 0, 0], "need": "good", "screen": "chronicles"},
 		"spies_caught": {"family": "ombres", "title": "Espions démasqués", "g": [2, 1, 0], "tone": {"actor": "threat", "target": "info"}, "need": "info", "screen": "intel"},
 		"signal_heard": {"family": "au_dela", "title": "Un signal", "g": [3, 1, 1], "need": "good", "screen": "victory", "fanfare": true, "first": true},

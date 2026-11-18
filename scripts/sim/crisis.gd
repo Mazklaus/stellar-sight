@@ -1004,6 +1004,7 @@ static func _target(state: GameState, f: Fleet) -> int:
 		var score := j * 1000 + _h(state, ["proie", f.id, sid]) % 500
 		if WondersCatalog.fx(state, col.owner, "crisis_last") > 0:
 			score += 50000  # Rempart de l'Aube : visé en dernier
+		score += KardashevWorld.crisis_score(state, col.owner)  # signature thermique, Techniquement immortels
 		if prefer >= 0 and col.owner != prefer:
 			score += 4000
 		if aimed.has(sid):

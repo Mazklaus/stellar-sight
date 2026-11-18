@@ -21,6 +21,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 		Transcendence.monthly(state, added)
 		Megastructures.monthly(state, added)
 		WorldForge.monthly(state, added)
+		Kardashev.monthly(state, added)
 		Contact.monthly(state, added)
 		for e in state.empires:
 			_monthly_balance(state, e, added)
@@ -201,7 +202,7 @@ static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionar
 		Finance.settle(state, e, inc_all, added)
 
 	var was_blackout := e.blackout
-	e.blackout = e.resources["energy"] < 0
+	e.blackout = e.resources["energy"] < -KardashevWorld.blackout_floor(state, e.id)  # Réseau planétaire (Kardashev)
 	if e.blackout and not was_blackout:
 		added.append(state.add_chronicle("Pénurie d'énergie chez %s : les chantiers s'arrêtent, les bougies se vendent très bien." % e.display_name(), Espionage.private_to(state, [e.id])))
 

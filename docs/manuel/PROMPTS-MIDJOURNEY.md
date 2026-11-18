@@ -584,3 +584,13 @@ a vast chancellery hall with tall windows opening onto a spiral galaxy, an elder
 ```
 an immense orbital shipyard where a half-built planet floats inside colossal scaffolding, one hemisphere already covered with oceans and swirling clouds, the other still a bare lattice of girders and hexagonal plates, swarms of construction ships lowering entire mountain ranges into place, in the background a gas giant slowly unspooled into a long ribbon of glowing gas, a planet fitted with enormous engines crossing the sky, in the foreground on a gantry a foreman presents a holographic catalogue of fjords to a skeptical alien client, awe of creation with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-59 · Ce que boit une civilisation
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Ce que boit une civilisation »
+- Sujet : Une étoile jaune à demi enfermée dans une coque de Dyson inachevée, dont les panneaux sombres rougeoient de chaleur sur leur face extérieure ; sur un balcon d'observation, des dignitaires de plusieurs peuples regardent une immense échelle lumineuse graduée de I à III dessinée dans le ciel, où leurs blasons montent à des hauteurs différentes ; au loin, une naine rouge se rallume en jaune ; au premier plan, un ingénieur fatigué tient un thermomètre ridiculement petit
+
+```
+a yellow star half enclosed in an unfinished dyson shell, dark shell panels glowing red hot on their outer face, on an observation balcony dignitaries of several alien species look up at an immense luminous ladder graduated I II III drawn across the sky with their banners rising to different heights along it, in the distance a red dwarf star reignites into yellow, in the foreground a tired engineer holds a ridiculously small thermometer, awe and ambition with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

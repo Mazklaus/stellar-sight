@@ -260,7 +260,11 @@ var _transcendence_outcome_select: OptionButton
 var megastructures := "completes"
 var _megas_select: OptionButton
 var archaeology := "complete"
+var kardashev := "complete"
+var kardashev_pace := "normal"
 var _archaeo_select: OptionButton
+var _kard_select: OptionButton
+var _kard_pace_select: OptionButton
 var mega_ruins := "peu"
 var _mega_ruins_select: OptionButton
 var worldforge := "complete"
@@ -1844,6 +1848,20 @@ func set_forge_ancients(id: String) -> void:
 		_forge_anc_select.select(ids.find(forge_ancients))
 
 
+func set_kardashev(id: String) -> void:
+	var ids := _ids_of(Kardashev.mode_defs())
+	kardashev = id if ids.has(id) else Kardashev.default_mode()
+	if _kard_select:
+		_kard_select.select(ids.find(kardashev))
+
+
+func set_kardashev_pace(id: String) -> void:
+	var ids := _ids_of(Kardashev.pace_defs())
+	kardashev_pace = id if ids.has(id) else Kardashev.default_pace()
+	if _kard_pace_select:
+		_kard_pace_select.select(ids.find(kardashev_pace))
+
+
 func set_mega_ruins(id: String) -> void:
 	var ids := _ids_of(Megastructures.ruin_defs())
 	mega_ruins = id if ids.has(id) else Megastructures.default_ruins()
@@ -2016,7 +2034,7 @@ func game_options() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins, "archaeology": archaeology, "worldforge": worldforge, "forge_ancients": forge_ancients}
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins, "archaeology": archaeology, "worldforge": worldforge, "forge_ancients": forge_ancients, "kardashev": kardashev, "kardashev_pace": kardashev_pace}
 
 
 func set_spectator(on: bool) -> void:
@@ -2672,7 +2690,7 @@ func _build_new_page(root: Control) -> void:
 	for m: Dictionary in Megastructures.mode_defs():
 		_megas_select.add_item(String(m["label"]))
 		mg_tip.append("%s : %s" % [String(m["label"]), String(m["text"])])
-	_megas_select.tooltip_text = "Mégastructures : des ouvrages à l'échelle d'une étoile, posés par un Vaisseau-architecte et bâtis étape par étape (Essaim et Sphère de Dyson, Monde-anneau, Cerveau Matriochka, Réseau de veille, Catapulte quantique, superarmes…), et l'échelle de Kardashev (Stellaris, Galactic Civilizations IV, Dyson Sphere Program, Larry Niven, Iain M. Banks).\n" + "\n".join(mg_tip)
+	_megas_select.tooltip_text = "Mégastructures : des ouvrages à l'échelle d'une étoile, posés par un Vaisseau-architecte et bâtis étape par étape (Essaim et Sphère de Dyson, Monde-anneau, Cerveau Matriochka, Réseau de veille, Catapulte quantique, superarmes…) (Stellaris, Galactic Civilizations IV, Dyson Sphere Program, Larry Niven, Iain M. Banks).\n" + "\n".join(mg_tip)
 	_megas_select.item_selected.connect(func(i: int) -> void: set_megastructures(String(Megastructures.mode_defs()[i]["id"])))
 	_labeled_row(game, "Mégastructures", _megas_select)
 	_mega_ruins_select = OptionButton.new()
@@ -2707,6 +2725,24 @@ func _build_new_page(root: Control) -> void:
 	_forge_anc_select.tooltip_text = "Mondes-reliquaires des Façonneurs, un peuple disparu : à ouvrir avec un Vaisseau-architecte (Forge des mondes en jeu)."
 	_forge_anc_select.item_selected.connect(func(i: int) -> void: set_forge_ancients(String(WorldForge.ancient_defs()[i]["id"])))
 	_labeled_row(game, "Mondes-reliquaires", _forge_anc_select)
+	_kard_select = OptionButton.new()
+	_kard_select.clip_text = true
+	var kd_tip := PackedStringArray()
+	for m: Dictionary in Kardashev.mode_defs():
+		_kard_select.add_item(String(m["label"]))
+		kd_tip.append("%s : %s" % [String(m["label"]), String(m["text"])])
+	_kard_select.tooltip_text = "Échelle de Kardashev : la puissance que votre empire capte, de 0,70 (pré-planétaire) à 3,00 (galactique). Chaque type se franchit avec son verrou et chaque demi-palier offre une prérogative (Kardashev 1964, formule de Sagan, Civilization VI, Humankind, Stellaris).\n" + "\n".join(kd_tip)
+	_kard_select.item_selected.connect(func(i: int) -> void: set_kardashev(String(Kardashev.mode_defs()[i]["id"])))
+	_labeled_row(game, "Échelle de Kardashev", _kard_select)
+	_kard_pace_select = OptionButton.new()
+	_kard_pace_select.clip_text = true
+	var kp_tip := PackedStringArray()
+	for m: Dictionary in Kardashev.pace_defs():
+		_kard_pace_select.add_item(String(m["label"]))
+		kp_tip.append("%s : %s" % [String(m["label"]), String(m["text"])])
+	_kard_pace_select.tooltip_text = "Rythme de l'échelle de Kardashev : la puissance qu'il faut pour chaque palier.\n" + "\n".join(kp_tip)
+	_kard_pace_select.item_selected.connect(func(i: int) -> void: set_kardashev_pace(String(Kardashev.pace_defs()[i]["id"])))
+	_labeled_row(game, "Rythme de Kardashev", _kard_pace_select)
 	_contact_select = OptionButton.new()
 	_contact_select.clip_text = true
 	var contact_tip := PackedStringArray()
@@ -2796,6 +2832,8 @@ func _build_new_page(root: Control) -> void:
 	set_archaeology(archaeology)
 	set_worldforge(worldforge)
 	set_forge_ancients(forge_ancients)
+	set_kardashev(kardashev)
+	set_kardashev_pace(kardashev_pace)
 	set_contact(contact)
 	set_contact_nature(contact_nature)
 	set_contact_outcome(contact_outcome)
@@ -3548,7 +3586,7 @@ func settings() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins, "archaeology": archaeology, "worldforge": worldforge, "forge_ancients": forge_ancients,
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins, "archaeology": archaeology, "worldforge": worldforge, "forge_ancients": forge_ancients, "kardashev": kardashev, "kardashev_pace": kardashev_pace,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -3570,7 +3608,7 @@ func default_settings() -> Dictionary:
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
 		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true,
 		"ancients": Ancients.default_mode(), "awakenings": true, "minors": Minors.default_mode(), "culture": Culture.default_mode(), "culture_defect": Culture.default_defect(), "wonders": Wonders.default_mode(),
-		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode(), "portals": Portals.default_mode(), "stealth": Stealth.default_mode(), "genetics": Genetics.default_mode(), "psionics": Psionics.default_mode(), "transcendence": Transcendence.default_mode(), "transcendence_outcome": Transcendence.default_outcome(), "contact": Contact.default_mode(), "contact_nature": Contact.default_nature_mode(), "contact_outcome": Contact.default_outcome(), "megastructures": Megastructures.default_mode(), "mega_ruins": Megastructures.default_ruins(), "archaeology": Archaeology.default_mode(), "worldforge": WorldForge.default_mode(), "forge_ancients": WorldForge.default_ancients()}
+		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode(), "portals": Portals.default_mode(), "stealth": Stealth.default_mode(), "genetics": Genetics.default_mode(), "psionics": Psionics.default_mode(), "transcendence": Transcendence.default_mode(), "transcendence_outcome": Transcendence.default_outcome(), "contact": Contact.default_mode(), "contact_nature": Contact.default_nature_mode(), "contact_outcome": Contact.default_outcome(), "megastructures": Megastructures.default_mode(), "mega_ruins": Megastructures.default_ruins(), "archaeology": Archaeology.default_mode(), "worldforge": WorldForge.default_mode(), "forge_ancients": WorldForge.default_ancients(), "kardashev": Kardashev.default_mode(), "kardashev_pace": Kardashev.default_pace()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -3683,6 +3721,8 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_archaeology(String(d.get("archaeology", base["archaeology"])))
 	set_worldforge(String(d.get("worldforge", base["worldforge"])))
 	set_forge_ancients(String(d.get("forge_ancients", base["forge_ancients"])))
+	set_kardashev(String(d.get("kardashev", base["kardashev"])))
+	set_kardashev_pace(String(d.get("kardashev_pace", base["kardashev_pace"])))
 	set_mega_ruins(String(d.get("mega_ruins", base["mega_ruins"])))
 	set_contact(String(d.get("contact", base["contact"])))
 	set_contact_nature(String(d.get("contact_nature", base["contact_nature"])))

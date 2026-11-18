@@ -229,6 +229,11 @@ static func worldforge() -> Dictionary:
 	return _load("worldforge")
 
 
+## Échelle de Kardashev (data/kardashev.json).
+static func kardashev() -> Dictionary:
+	return _load("kardashev")
+
+
 ## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.
 static func wonders() -> Dictionary:
 	return _load("wonders")

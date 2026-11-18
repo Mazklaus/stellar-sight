@@ -281,7 +281,7 @@ func _test_save() -> void:
 	WorldForge.add_mass(st, 0, 33)
 	var n := st.galaxy.planets.size()
 	var d := st.to_dict()
-	_ok(d.has("forge") and int(d["version"]) == 91, "sauvegarde 91 avec la Forge")
+	_ok(d.has("forge") and int(d["version"]) >= 91, "sauvegarde 91 ou plus avec la Forge")
 	var back := GameState.from_dict(d)
 	_ok(back != null, "relecture (%s)" % GameState.last_error)
 	if back == null:

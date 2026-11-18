@@ -107,6 +107,7 @@ func _initialize() -> void:
 	preload("res://tests/psionics_tests.gd").new().run(_check)
 	preload("res://tests/transcendence_tests.gd").new().run(_check)
 	preload("res://tests/megas_tests.gd").new().run(_check)
+	preload("res://tests/kardashev_tests.gd").new().run(_check)
 	preload("res://tests/contact_tests.gd").new().run(_check)
 	preload("res://tests/archeo_tests.gd").new().run(_check)
 	preload("res://tests/forge_tests.gd").new().run(_check)
@@ -2276,6 +2277,13 @@ func _test_victory_ui(main: Node) -> void:
 		screens.show_screen("contact")
 		await process_frame
 		_check(screens.contact_buttons.has("tab:victory") and screens.is_open(), "écran Contact : ouvert, onglets en tête")
+		screens.show_screen("victory")
+		await process_frame
+	if Kardashev.enabled(st):
+		_check(screens.kardashev_buttons.has("tab:kardashev"), "écran Victoire : onglet L'Échelle")
+		screens.show_screen("kardashev")
+		await process_frame
+		_check(screens.kardashev_buttons.has("tab:victory") and screens.kardashev_buttons.has("sober") and screens.is_open(), "écran L'Échelle : ouvert, onglets, Sobriété")
 		screens.show_screen("victory")
 		await process_frame
 	_press(KEY_F7)

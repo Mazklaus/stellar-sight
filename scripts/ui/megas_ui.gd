@@ -37,7 +37,7 @@ static func signature(es: EmpireScreens) -> String:
 		return "off"
 	var e := state.get_empire(es._player)
 	@warning_ignore("integer_division")
-	return "%d|%d|%s|%d|%d" % [e.techs.size(), state.tick / 30, str(Megastructures.entries(state)), Megastructures.kardashev(state, es._player), Megastructures.architects_of(state, es._player).size()]
+	return "%d|%d|%s|%d|%d" % [e.techs.size(), state.tick / 30, str(Megastructures.entries(state)), Kardashev.index100(state, es._player), Megastructures.architects_of(state, es._player).size()]
 
 
 static func _btn(es: EmpireScreens, text: String, command: Dictionary, tip: String, key: String) -> Button:
@@ -92,7 +92,8 @@ static func build(es: EmpireScreens) -> void:
 	var g := es._grid()
 	es._side_box.add_child(g)
 	es._key_value(g, "Réglage", Megastructures.mode_label(state))
-	es._key_value(g, "Indice de Kardashev", Megastructures.kardashev_text(state, player))
+	if Kardashev.enabled(state):
+		es._key_value(g, "Indice de Kardashev", Kardashev.text(state, player))
 	es._key_value(g, "Étapes en chantier", "%d / %d" % [Megastructures.busy(state, player), Megastructures.slots(state, player)])
 	es._key_value(g, "Vaisseaux-architectes", str(Megastructures.architects_of(state, player).size()))
 	var t := Megastructures.talent(state, player)
@@ -138,17 +139,10 @@ static func build(es: EmpireScreens) -> void:
 	col.add_theme_constant_override("separation", 18)
 	scroll.add_child(col)
 
-	var kb := Widgets.Block.new("Échelle de Kardashev : %s" % Megastructures.kardashev_text(state, player))
-	col.add_child(kb)
-	var en: Array = Megastructures.cfg("kardashev").get("energy", [150, 400, 800])
-	kb.body.add_child(UiTheme.paragraph("Type I : %d énergie brute par mois. Type II : en plus, une Sphère de Dyson ou trois Essaims achevés. Type III : en plus, %d grandes mégastructures achevées (dont %d de l'ère V) et %d énergie. Chaque palier donne du Rayonnement." % [
-			int(en[0]), int(Megastructures.cfg("kardashev").get("great", 6)), int(Megastructures.cfg("kardashev").get("era5", 3)), int(en[2])], 760.0, 13))
-	var lines := PackedStringArray()
-	for e in state.empires:
-		if e.is_npc() or e.eliminated or not (es.see_all or e.id == player or state.get_empire(player).contacts.has(e.id)):
-			continue
-		lines.append("%s : %s" % [e.short_name(), Megastructures.kardashev_text(state, e.id)])
-	kb.body.add_child(UiTheme.paragraph("\n".join(lines), 760.0, 13))
+	if Kardashev.enabled(state):
+		var kb := Widgets.Block.new("Échelle de Kardashev : %s" % Kardashev.text(state, player))
+		col.add_child(kb)
+		kb.body.add_child(UiTheme.paragraph("Chaque étape achevée d'une mégastructure qui capte l'énergie d'un astre fait monter votre puissance captée, et donc votre indice ; le type II demande une Sphère de Dyson ou trois Essaims achevés. Le détail est dans l'écran Victoires, onglet L'Échelle.", 760.0, 13))
 
 	var seen := Fleets.visible_systems(state, player)
 	var known := Widgets.Block.new("Mégastructures connues")
