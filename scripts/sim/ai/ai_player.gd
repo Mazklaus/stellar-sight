@@ -91,6 +91,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiTranscendence.think(ctx)
 	AiMegas.think(ctx)
 	AiForge.think(ctx)
+	AiLiving.think(ctx)
 	KardashevWorld.ai(ctx)
 	Ecology.ai(ctx)  # doctrine environnementale selon le tempérament
 	AiArchaeo.think(ctx)
@@ -1597,6 +1598,9 @@ static func _war_target(ctx: Dictionary, from: int) -> int:
 		if Terrain.active(state) and _skill(ctx) >= int(tai.get("min_skill", 2)) \
 				and Terrain.ai_handicap(state, sid, e.id, owner) > int(tai.get("avoid_pct", 20)):
 			score = score * 2 + 50
+		# Mondes vivants : on évite le système d'un monde qui aime le défenseur ou nous déteste (prop. 32).
+		if not state.living.is_empty() and _skill(ctx) >= 1 and LivingWorldsWar.ai_avoid(state, sid, e.id, owner):
+			score = score * int(LivingWorlds.cfg("ai").get("avoid_x", 3)) + 100
 		if best == -1 or score < best_score:
 			best = sid
 			best_score = score

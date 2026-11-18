@@ -808,6 +808,7 @@ static func start(state: GameState, eid: int, op: String, sid: int, pid: int, ar
 	var where := world_name(state, pid) if pid >= 0 else "une orbite vide de %s" % state.galaxy.systems[sid].system_name
 	if op == "demanteler":
 		WorldForgeBridges.on_dismantle_start(state, eid, pid, added)
+		LivingWorlds.on_dismantle_start(state, pid, eid)  # un monde vivant sent le chantier commencer
 	var extra := (" pour %s" % payer.short_name()) if buyer >= 0 else ""
 	added.append(state.add_chronicle("%s lance un chantier planétaire sur %s : %s%s (%d jours)." % [e.short_name(), where, op_label(op).to_lower(), extra, days],
 			_who(state, eid, sid)))

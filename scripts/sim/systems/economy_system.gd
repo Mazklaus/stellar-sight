@@ -22,6 +22,7 @@ static func process(state: GameState) -> Array[Dictionary]:
 		Megastructures.monthly(state, added)
 		WorldForge.monthly(state, added)
 		Kardashev.monthly(state, added)
+		LivingWorlds.monthly(state, added)
 		Ecology.monthly(state, added)
 		Contact.monthly(state, added)
 		for e in state.empires:

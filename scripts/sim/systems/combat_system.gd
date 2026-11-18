@@ -269,6 +269,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 			e.fervor = mini(int(e.faction()["fervor"]["max"]), e.fervor + int(m[2]))
 	_apply_damage(state, b, fighters, pending, day_log)
 	Defenses.after_battle_day(state, sid, fighters, added)
+	LivingWorldsWar.battle_day(state, sid, fighters, added)  # un monde vivant frappe ceux qu'il n'aime pas
 	b["log"].append(day_log)
 	if day >= Combat.battle_days():
 		_end_battle(state, sid, added, events)
@@ -678,6 +679,8 @@ static func _repairs(state: GameState, fought: Dictionary) -> void:
 			if Terrain.no_repair(state, f):
 				pct = 0  # radiations
 			pct = Research.scaled(pct, Research.fx_int(state, f.owner, "repair_pct"))  # guerre d'usure
+			if LivingWorldsWar.refuge(state, f):
+				pct = 100  # refuge d'un monde vivant qui vous aime (Mogo)
 			if pct <= 0:
 				continue  # à sec : plus aucune réparation
 			for i in f.ships.size():

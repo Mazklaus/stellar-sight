@@ -115,6 +115,8 @@ static func opened(state: GameState, j: Dictionary, added: Array[Dictionary]) ->
 	var txt := "%s s'ouvre. Trésor des Façonneurs : %s et %d Masse. " % [nm, GameData.format_amounts(tre), _r("relic_mass", 80)]
 	if collapsed:
 		txt += "Mais l'intérieur s'effondre sur lui-même : il n'en reste qu'un monde stérile."
+	elif living and LivingWorldsBridges.relic_wakes(state, pid, eid):
+		txt += "Au cœur du monde, quelque chose bat. Il est vivant, et il s'appelle désormais %s. Il choisira ses hôtes." % LivingWorlds.name_of(state, pid)
 	elif living:
 		var ln: Array = (WorldForge.cfg("relics").get("living_names", []) as Array)
 		r["living"] = {"o": -1, "hate": 0}
@@ -427,6 +429,8 @@ static func ram(state: GameState, eid: int, pid: int, target: int, added: Array[
 	var na := WorldForge.world_name(state, pid)
 	var nb := WorldForge.world_name(state, target)
 	var tsid := state.galaxy.get_planet(target).system_id
+	LivingWorlds.on_murder(state, pid, eid, added)  # bélier : un monde vivant lancé ou percuté
+	LivingWorlds.on_murder(state, target, eid, added)
 	_smash(state, pid, added)
 	_smash(state, target, added)
 	WorldForge._stat(state, eid, "rams", 1)

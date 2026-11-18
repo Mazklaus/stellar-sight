@@ -421,6 +421,8 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 		out.append_array(Genetics.system_stability_parts(state, sid, owner))  # espèce docile
 	if not state.psionics.is_empty():
 		out.append_array(Psionics.system_stability_parts(state, sid, owner))  # apaisement, collèges, hantise
+	if not state.living.is_empty():
+		out.append_array(LivingWorlds.stability_parts(state, sid, owner))  # humeur des mondes vivants
 	# Garnison.
 	if (cx["armed"] as Dictionary).has(sid):
 		out.append(["Flotte armée en orbite", int(src["garrison"])])

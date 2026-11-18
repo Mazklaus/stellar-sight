@@ -180,6 +180,7 @@ static func pick_sacred(state: GameState, fid: String) -> Array:
 			sc += int(ad["site_score"])
 		if guarded.has(int(s)):
 			sc += 3
+		sc += LivingWorldsBridges.sacred_score(state, int(s))  # un monde vivant attire les fidèles
 		cands.append([sc, int(s)])
 	cands.sort_custom(func(x, y): return x[0] > y[0] or (x[0] == y[0] and x[1] < y[1]))
 	for cnd in cands:

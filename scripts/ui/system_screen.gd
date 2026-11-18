@@ -626,6 +626,9 @@ func _refresh_panel(s: StarSystem) -> void:
 		_dep_label.text += "\n" + Ecology.line(_state, p.id)
 	_status_title.visible = true
 	_status_label.text = "\n".join(PlanetInfo.colony_lines(_state, p, c, _player)) if c else "Aucune revendication. Elle n'attend que vous (ou un voisin plus rapide)."
+	var lw_lines := LivingUi.lines(_state, _player, p)  # monde vivant
+	if not lw_lines.is_empty():
+		_status_label.text += "\n\n" + "\n".join(lw_lines)
 	# Écologie (prop. 11) : l'infobulle détaille l'équilibre de la biosphère, poste par poste.
 	var eco_tip := Ecology.tooltip(_state, p.id) if c != null and (c.owner == _player or read_only) else ""
 	_status_label.tooltip_text = eco_tip
@@ -656,6 +659,8 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 	var me := _state.get_empire(_player)
 	# Forge des mondes : chantiers planétaires sur ce corps, colonie ou non.
 	actions.append_array(ForgeUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
+	# Mondes vivants : inviter, écouter, nef-graine, fusion.
+	actions.append_array(LivingUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
 	# Portails de saut : l'occupant peut raser le portail du système (sur la planète qui le porte).
 	if c and c.owner != _player and Portals.enabled(_state) and Portals.check_raze(_state, _player, p.system_id) == "" \
 			and Portals._gate_colony(_state, p.system_id) == c:

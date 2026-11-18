@@ -1113,6 +1113,13 @@
 				}
 			},
 			"src": "Invention (réserve non humaine)"
+		},
+		"gardiens_monde": {
+			"family": "culte",
+			"label": "Gardiens du monde",
+			"text": "Les fidèles veillent sur les mondes vivants : chaque monde vivant gagne 3 d'humeur par mois envers les empires de la foi (sans effet si les mondes vivants ne sont pas en jeu).",
+			"fx": {},
+			"src": "Zonama Sekot (Star Wars, les Ferroans) ; Gaïa des Fondations (Asimov)"
 		}
 	},
 	"precept_families": [

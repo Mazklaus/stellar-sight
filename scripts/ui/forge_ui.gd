@@ -175,7 +175,7 @@ static func build(es: EmpireScreens) -> void:
 			if WorldForge.is_gone(state, pid) or not known.call(p.system_id):
 				continue
 			nr += 1
-			var st := "scellé" if WorldForgeWorld.is_relic(state, pid) else ("vivant" if WorldForgeWorld.is_living(state, pid) else "ouvert")
+			var st := "scellé" if WorldForgeWorld.is_relic(state, pid) else ("vivant" if WorldForgeWorld.is_living(state, pid) or LivingWorlds.is_living(state, pid) else "ouvert")
 			rb.body.add_child(UiTheme.paragraph("%s, autour de %s : %s" % [WorldForgeWorld.relic_name(state, pid), state.galaxy.systems[p.system_id].system_name, st], 760.0, 13))
 		if nr == 0:
 			rb.body.add_child(UiTheme.dim("Aucun repéré pour l'instant : explorez.", 13))

@@ -151,6 +151,8 @@ static func untouchable(state: GameState, eid: int, pid: int) -> Array:
 		out.append("un site de fouille encore ouvert")
 	if p.type == "gaia":
 		out.append("un monde-jardin")
+	if LivingWorlds.is_living(state, pid):
+		out.append("un monde vivant")
 	return out
 
 
@@ -161,6 +163,7 @@ static func dismantle_done(state: GameState, j: Dictionary, added: Array[Diction
 	var e := state.get_empire(eid)
 	var sid := p.system_id
 	var nm := WorldForge.world_name(state, pid)
+	LivingWorlds.on_murder(state, pid, eid, added)  # un monde vivant démantelé : crime galactique
 	var vanished := p.type == "asteroids" or p.type == "gas_giant"
 	if vanished:
 		WorldForge.remove_body(state, pid)

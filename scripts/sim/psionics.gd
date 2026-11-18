@@ -685,6 +685,7 @@ static func felure(state: GameState, eid: int, power: String, added: Array[Dicti
 			pick = f
 			break
 	apply_felure(state, eid, pick, added)
+	LivingWorldsBridges.on_felure(state, eid, added)  # un monde vivant voisin peut s'en trouver souillé
 
 
 static func apply_felure(state: GameState, eid: int, f: Dictionary, added: Array[Dictionary]) -> void:

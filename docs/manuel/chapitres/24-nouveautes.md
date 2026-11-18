@@ -3,6 +3,11 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.41
+
+- **Les mondes qui choisissent** (chapitre 43), nouveaux réglages **Mondes vivants** (aucun, rares, fréquents) et **Monde-Ego** (non, oui) : des planètes conscientes qui ont une **humeur** envers chaque empire, en cinq paliers (**Hostile**, **Méfiant**, **Neutre**, **Bienveillant**, **Lié**), quatre **origines** (Éveillé, Graine, Reliquaire, Hanté) et cinq **tempéraments** (Curieux, Jaloux, Maternel, Fier, Énigme), en catalogues ouverts ; une espèce préférée et une qu'il supporte mal ; reconnaissance du monde ; colons refusés ou ralentis ; **demandes** par carte d'événement et promesses suivies ; le **Rejet** et le **départ** du monde.
+- **Le monde se défend** : décharges pendant les batailles, sol qui choisit son camp, **anticorps** qui ne chassent que l'empire visé, **refuge** des flottes amies, **fuite** d'un monde assiégé. **Inviter**, **écouter** (Résonance), **nef-graine** (vaisseau vivant), **fusion** après dix ans de lien ; visiteurs de l'Énigme ; **éveils** en cours de partie ; **Ego, le Monde affamé**, ses graines et la coalition qui abat son noyau.
+- **Ponts** : Résonance des mondes Liés et fêlures qui hantent, anticorps apprivoisables, lieux sacrés des Astres vivants et précepte **Gardiens du monde**, mondes vivants intouchables et **meurtre d'un monde** (Forge des mondes), reliquaires qui s'éveillent vivants, écologie (si le pilier est en jeu), talents des huit peuples ; fiche et actions dans la vue système, feuille sur la carte, quatre types d'annonces, IA. Sauvegarde 95. Chapitres 45 à 48 renumérotés.
 ### Édition 2.40
 
 - **Le souffle des mondes** (chapitre 44), nouveau réglage **Écologie** (complète, biosphère seule, désactivée) : chaque **monde vivant** a une **Biosphère** de 0 à 100 qui glisse d'un point par mois vers un **équilibre** affiché (vitalité du type, soins, empreinte non absorbée). **Empreinte** des bâtiments et de la population, **absorption** de 4 par cran de taille ; les mondes morts et les mondes faits de main n'ont pas de biosphère.

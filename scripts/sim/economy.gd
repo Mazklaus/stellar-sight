@@ -117,7 +117,9 @@ static func max_pop(state: GameState, planet: Planet, empire_id: int, buildings:
 	if not state.megas.is_empty():
 		base += Megastructures.pop_bonus(state, planet.id, empire_id)  # module Habitation
 	if not state.forge.is_empty():
-		base += WorldForge.pop_bonus(state, planet.id, empire_id)  # rosettes, mondes vivants
+		base += WorldForge.pop_bonus(state, planet.id, empire_id)  # rosettes, reliquaires vivants
+	if not state.living.is_empty():
+		base += LivingWorlds.pop_bonus(state, planet.id, empire_id)  # humeur du monde vivant
 	return base
 
 
@@ -129,6 +131,7 @@ static func growth_per_day(state: GameState, colony: Colony) -> int:
 	var pct := int(e.faction().get("growth_pct", 100))
 	pct = pct * maxi(10, 100 + Research.fx_int(state, colony.owner, "growth_pct") + FaithWars.growth_pct(state, colony)
 			+ GroundSiege.growth_pct(state, state.galaxy.get_planet(colony.planet_id).system_id) + WorldForge.growth_pct(state, colony.planet_id)
+			+ LivingWorlds.growth_pct(state, colony.planet_id)
 			+ Ecology.growth_pct(state, colony.planet_id)) / 100
 	# Route intérieure (voir Trade) : la jeune colonie desservie grandit plus vite.
 	return int(GameData.rules()["growth_per_day"]) * pct / 100 + Trade.internal_growth(state, colony.planet_id)
@@ -259,6 +262,7 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 			gross[r] = gross[r] * occ_pct / 100
 	# Étoile rongée par le Mange-soleil, ou étouffée par une opération.
 	var star_pct := Guardians.production_pct(state, planet.system_id) * WorldForge.production_pct(state, planet.id) / 100
+	star_pct = star_pct * LivingWorlds.production_pct(state, planet.id) / 100  # monde vivant : repos, fusion
 	if star_pct != 100:
 		for r in gross:
 			@warning_ignore("integer_division")
@@ -350,6 +354,8 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 		var wfi := WorldForge.income(state, empire_id)  # entretien des mondes façonnés, démantèlements
 		_add(gross, wfi["gross"])
 		_add(upkeep, wfi["upkeep"])
+	if not state.living.is_empty():
+		_add(gross, LivingWorlds.income(state, empire_id)["gross"])  # offrandes des mondes vivants
 	if not state.admin.is_empty():
 		_add(upkeep, Admin.upkeep(state, empire_id))  # effort administratif
 	if not state.finance.is_empty():
@@ -554,6 +560,9 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 	var wfb := WorldForge.colony_block(state, planet_id)
 	if wfb != "":
 		return wfb
+	var lwb := LivingWorlds.colony_block(state, planet_id, empire_id)
+	if lwb != "":
+		return lwb
 	if not in_range(state, empire_id, p.system_id):
 		return "hors de portée : il faut un vaisseau colon à l'arrêt dans ce système (ou une revendication établie dans le système)"
 	if kind == Colony.KIND_COLONY and species != "" and species != Peoples.founder_of(state, empire_id):
