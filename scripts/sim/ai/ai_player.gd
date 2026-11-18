@@ -1939,7 +1939,7 @@ static func victory_path(_state: GameState, e: Empire, victory_techs: Array[Stri
 				var o := Research.tech(tid)
 				if String(o["domain"]) == dom and int(o["era"]) < era:
 					out[tid] = 4
-		var todo: Array = Array(t.get("pre", []))
+		var todo: Array = Array(t.get("pre", [])).duplicate()  # copie : sinon pop_back() vide les prérequis dans les données du jeu
 		while not todo.is_empty():
 			var p := String(todo.pop_back())
 			if e.techs.has(p) or int(out.get(p, 0)) == 5:

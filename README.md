@@ -706,6 +706,8 @@ godot --headless --path . -s res://tests/smoke_test.gd
 
 Il affiche `OK : N vérifications passées.` et renvoie le code 0 si tout passe, 1 sinon.
 
+**Toute la suite, vite** : `tools/run_tests.sh` lance `tests/run_all.gd` en une tranche par cœur (le moteur ne compile le jeu qu'une fois par tranche) et résume les échecs, les erreurs de script et les unités les plus lentes ; environ 9 minutes sur 4 cœurs dans le conteneur cloud. Les fichiers `tests/*_tests*.gd` sont découverts tout seuls (un fichier appelé par un autre, comme les lots 2 et 3, se déclare dans `CHAINED` de `run_all.gd`) ; les fichiers longs sont coupés en une unité par fonction `_test_*`, et les tranches s'équilibrent d'après `tests/test_durations.json` (`tools/run_tests.sh --update-durations` le réécrit). Quelques fichiers : `tools/run_tests.sh ai_tests minor_tests` ; une fonction : `tools/run_tests.sh ai_tests:_test_temperament`. Les tranches tournent avec `--fixed-fps 60`, pour que les tests d'interface ne dépendent pas de la charge de la machine. Pour trouver les tests lents : `TESTS=ai_tests godot --headless --path . -s res://tools/profile_tests.gd`. Référence de performance d'une partie entre IA (coût de chaque système par jour, année par année, mémoire, sauvegardes) : `godot --headless --path . -s res://tools/profile_game.gd` (variables `YEARS`, `SEED`, `LEVEL`, `OUT`), résultats dans `docs/performance.md`.
+
 ## Limites connues
 
 - Diplomatie V1 : ni vassalisation, ni conseil galactique, ni exigences ; les chiffres d'opinion et de jugement de l'IA sont à équilibrer en jouant. Les guerres contre l'Essaim ne finissent jamais (c'est voulu).

@@ -360,7 +360,7 @@ static func dossier(state: GameState, b: int, t: int) -> Dictionary:
 		d["ships"] = ships
 		d["warships"] = armed
 	if t >= 4:
-		d["wars"] = Array(e.wars)
+		d["wars"] = Array(e.wars).duplicate()  # copie : Array() sur un tableau typé garde la même référence
 		var ops := []
 		for o in e.contacts:
 			var oe := state.get_empire(o)

@@ -373,14 +373,20 @@ func _test_tombs() -> void:
 
 func _test_ai() -> void:
 	var sim := Simulation.new(GameState.create(23, 150, 1800.0, "", {"ai_level": "normal", "curios": "normales", "quests": "toutes", "events": "normaux"}))
-	sim.advance(360 * 6)
 	var chapters := 0
 	var side := 0
-	for id in sim.state.quests:
-		var q: Dictionary = sim.state.quests[id]
-		chapters += (q["path"] as Array).size()
-		if not Quests.is_credo(q):
-			side += 1
+	# Au plus 6 ans, par mois ; on s'arrête dès que les trois constats sont faits.
+	for m in 12 * 6:
+		sim.advance(30)
+		chapters = 0
+		side = 0
+		for id in sim.state.quests:
+			var q: Dictionary = sim.state.quests[id]
+			chapters += (q["path"] as Array).size()
+			if not Quests.is_credo(q):
+				side += 1
+		if chapters >= 8 and side >= 3 and (not (sim.state.galactic["log"] as Array).is_empty() or not Quests.current(sim.state).is_empty()):
+			break
 	_ok(chapters >= 8, "les IA avancent leurs quêtes (%d chapitres en 6 ans)" % chapters)
 	_ok(side >= 3, "des quêtes secondaires naissent (%d)" % side)
 	_ok(not (sim.state.galactic["log"] as Array).is_empty() or not Quests.current(sim.state).is_empty(), "un retournement galactique a eu lieu")

@@ -143,7 +143,7 @@ func _test_corrupted_saves() -> void:
 	_write(TEST_SAVE, "{pas du json")
 	_ok(SaveGame.load_state(TEST_SAVE) == null, "fichier illisible refusé")
 	var data: Dictionary = JSON.parse_string(text)
-	data["state"]["version"] = 99
+	data["state"]["version"] = GameState.FORMAT_VERSION + 1  # une version future, inconnue de ce jeu
 	_write(TEST_SAVE, JSON.stringify(data))
 	_ok(SaveGame.load_state(TEST_SAVE) == null and SaveGame.last_error.contains("version"), "version inconnue refusée")
 	_ok(SaveGame.load_state("user://saves/inexistante.json") == null, "fichier absent : échec propre")

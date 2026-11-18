@@ -10,6 +10,9 @@ var _checks := 0
 
 
 func _initialize() -> void:
+	# Une image d'abord : l'arbre de scène est alors actif et les panneaux ajoutés par les tests
+	# reçoivent leur _ready() (voir battle_visuals_tests). Suite complète plus rapide : tools/run_tests.sh.
+	await process_frame
 	_test_generator()
 	preload("res://tests/sim_tests.gd").new().run(_check)
 	preload("res://tests/economy_tests.gd").new().run(_check)
@@ -107,6 +110,7 @@ func _initialize() -> void:
 	preload("res://tests/ports_tests.gd").new().run(_check)
 	preload("res://tests/defenses_tests.gd").new().run(_check)
 	preload("res://tests/stealth_tests.gd").new().run(_check)
+	preload("res://tests/portals_tests.gd").new().run(_check)
 	preload("res://tests/genetics_tests.gd").new().run(_check)
 	preload("res://tests/psionics_tests.gd").new().run(_check)
 	preload("res://tests/transcendence_tests.gd").new().run(_check)

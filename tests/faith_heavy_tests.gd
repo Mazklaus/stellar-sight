@@ -79,7 +79,7 @@ func _test_data() -> void:
 	for n in FaithHeavy.HEAVY:
 		all = all and nl.has(n) and String(nl[n].get("src", "")) != ""
 	_ok(all, "les 5 natures lourdes sont en données, sourcées")
-	_ok(nl.size() == 19, "19 natures au catalogue")
+	_ok(nl.size() >= 20 and nl.has("culte_partis"), "au moins 20 natures au catalogue (catalogue ouvert, dont le culte des Partis)")
 	var vo: Dictionary = FaithBridges.bd()["vocations"]
 	_ok(vo.has("prophete") and vo.has("inquisiteur") and vo.has("martyr"), "3 vocations de foi en données")
 	var tal: Dictionary = FaithBridges.bd()["talents"]

@@ -824,7 +824,7 @@ static func _passage_path(state: GameState, steps: int) -> Array:
 	while qi < queue.size():
 		var cur := queue[qi]
 		qi += 1
-		var ns: Array = Array(systems[cur].neighbors)
+		var ns: Array = Array(systems[cur].neighbors).duplicate()  # copie : sinon sort() réordonne les voisins de la galaxie
 		ns.sort()
 		for n in ns:
 			if not parent.has(int(n)):

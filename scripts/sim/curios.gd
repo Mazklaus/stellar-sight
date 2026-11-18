@@ -342,7 +342,7 @@ static func _give(state: GameState, empire_id: int, pid: int, kind: String, adde
 		var ddef: Dictionary = GameData.deposit(dep)
 		if ddef.is_empty() or p.deposits.has(dep) or (bool(ddef.get("habitable_only", false)) and not p.is_habitable_type()):
 			return _give(state, empire_id, pid, "research", added)
-		var deps: Array = Array(p.deposits)
+		var deps: Array = Array(p.deposits).duplicate()  # copie : Array() sur un tableau typé garde la même référence
 		deps.append(dep)
 		state.override_planet(pid, {"deposits": deps})
 		return "un gisement de %s affleure. Les prospecteurs se battent déjà pour la première pioche." % String(ddef["label"]).to_lower()

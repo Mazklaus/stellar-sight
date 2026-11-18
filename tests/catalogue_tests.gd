@@ -257,18 +257,26 @@ func _test_titan_launch() -> void:
 
 func _test_ai_uses_catalogue() -> void:
 	var built := {}
+	var fresh := 0
+	# Deux parties de 3 ans au plus ; on s'arrête dès que trois classes nouvelles sont sorties.
 	for seed_value in [17, 23]:
 		var st := GameState.create(seed_value, 150, 1800.0, "", {"spectator": true, "ai_level": "veteran", "temperament": "belliqueux"})
 		var sim := Simulation.new(st)
-		for i in 360 * 3:
-			sim.step()
-		for e in st.empires:
-			for sid in e.ships_built:
-				built[sid] = int(built.get(sid, 0)) + int(e.ships_built[sid])
-	var fresh := 0
-	for sid in ["escorteur", "torpilleur", "transport", "bombarde", "cuirasse", "porte_vaisseaux", "titan", "coursier", "martyr", "fregate_quarante", "ruche_mere"]:
-		if int(built.get(sid, 0)) > 0:
-			fresh += 1
+		var before := built.duplicate()
+		for m in 12 * 3:
+			sim.advance(30)
+			built = before.duplicate()
+			for e in st.empires:
+				for sid in e.ships_built:
+					built[sid] = int(built.get(sid, 0)) + int(e.ships_built[sid])
+			fresh = 0
+			for sid in ["escorteur", "torpilleur", "transport", "bombarde", "cuirasse", "porte_vaisseaux", "titan", "coursier", "martyr", "fregate_quarante", "ruche_mere"]:
+				if int(built.get(sid, 0)) > 0:
+					fresh += 1
+			if fresh >= 3:
+				break
+		if fresh >= 3:
+			break
 	print("  IA Vétéran, 3 ans x2 : ", built)
 	_ok(fresh >= 3, "les IA Vétéran construisent plusieurs classes du nouveau catalogue (%d)" % fresh)
 
