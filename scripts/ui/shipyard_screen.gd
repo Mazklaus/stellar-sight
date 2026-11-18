@@ -167,7 +167,23 @@ func _fill_side() -> void:
 	_side.add_child(UiTheme.section("Modèles"))
 	var origins := FactionTraits.ship_ids_for(me.faction_id)
 	var retired: Array[Dictionary] = []
+	# Coques du peuple d'abord (prop. 7), avec la couche qui les ouvre ; puis les coques communes.
+	var ordered: Array[String] = []
 	for hid in Designs.hull_ids_of(_state, me.id):
+		if PeopleHulls.is_people_hull(hid):
+			ordered.append(hid)
+	var n_people := ordered.size()
+	for hid in Designs.hull_ids_of(_state, me.id):
+		if not PeopleHulls.is_people_hull(hid):
+			ordered.append(hid)
+	if n_people > 0:
+		var ph := UiTheme.section("Coques du peuple · %s" % me.display_name())
+		ph.add_theme_color_override("font_color", Color(1.0, 0.82, 0.45))
+		_side.add_child(ph)
+	for k in ordered.size():
+		var hid := ordered[k]
+		if k == n_people and n_people > 0:
+			_side.add_child(UiTheme.section("Coques communes"))
 		var h := Designs.hull(hid)
 		var head := Button.new()
 		head.text = "+  %s" % String(h["label"]).to_upper()
@@ -180,6 +196,12 @@ func _fill_side() -> void:
 		var known := Research.knows_all(_state, _player, techs)
 		head.add_theme_color_override("font_color", UiTheme.ACCENT if known else UiTheme.TEXT_DIM)
 		head.tooltip_text = "Nouveau modèle sur une coque de %s (%s)" % [String(h["label"]).to_lower(), _slots_text(hid)]
+		if PeopleHulls.is_people_hull(hid):
+			head.tooltip_text += "\nCoque de peuple, ouverte par : %s" % PeopleHulls.opened_by(hid)
+			var integ: Array = h.get("integrated", [])
+			if not integ.is_empty():
+				var md := Designs.module(String(integ[0]))
+				head.tooltip_text += "\n◆ %s : %s" % [String(md.get("label", "")), String(md.get("text", ""))]
 		if not known:
 			head.tooltip_text += "\nTechnologie requise : %s" % Research.missing_text(_state, _player, techs)
 		head.pressed.connect(func() -> void: new_draft(hid))
@@ -210,6 +232,13 @@ func _add_design_row(id: String, text: String, dim := false) -> void:
 	b.clip_text = true
 	b.set_pressed_no_signal(id == selected)
 	b.add_theme_font_size_override("font_size", 14)
+	# Vignette : la silhouette du modèle (prop. 36).
+	var me := _state.get_empire(_player)
+	if me != null and not GameData.ship(id).is_empty():
+		b.text = "  " + text
+		b.icon = HullArt.icon(SpeciesLook.hull_style(me.faction_id), id, me.color())
+		b.expand_icon = false
+		b.add_theme_constant_override("icon_max_width", 34)
 	if dim:
 		b.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 	b.pressed.connect(func() -> void: select_design(id))
@@ -672,6 +701,17 @@ class HullView:
 			if ext.y > hh * 2.2:
 				ext *= hh * 2.2 / ext.y
 			draw_texture_rect(art, Rect2(c - ext * 0.5, ext), false, Color(1, 1, 1, 0.55))
+		elif faction_id != "":
+			# Silhouette 2D du peuple (HullArt), avec les modules posés : tourelles, hangars, plaques…
+			var mods: Array = []
+			for m in filled:
+				if String(m) != "":
+					mods.append(String(m))
+			var sil := HullArt.hull_texture(SpeciesLook.hull_style(faction_id), hull_id, mods, tint)
+			var ext2 := Vector2(w * 2.0, w * 2.0 * sil.get_height() / sil.get_width())
+			if ext2.y > hh * 2.4:
+				ext2 *= hh * 2.4 / ext2.y
+			draw_texture_rect(sil, Rect2(c - ext2 * 0.5, ext2), false, Color(1, 1, 1, 0.6))
 		else:
 			draw_colored_polygon(body, Color(0.12, 0.2, 0.28, 0.55))
 			var outline := body.duplicate()

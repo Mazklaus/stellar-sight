@@ -1201,10 +1201,11 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var e := state.get_empire(int(cmd["player"]))
 			var c: Colony = state.colonies[int(cmd["planet"])]
 			var sd := GameData.ship(String(cmd["ship"]))
-			Economy.pay(e, Fleets.ship_cost(state, e.id, String(cmd["ship"])))
+			Economy.pay(e, Fleets.ship_cost(state, e.id, String(cmd["ship"]), int(cmd["planet"])))
 			c.population -= int(sd.get("pop_cost", 0))
 			c.ship_build = String(cmd["ship"])
 			c.ship_days = Fleets.ship_days(state, e.id, String(cmd["ship"]))
+			PeopleHulls.on_build(state, e.id, int(cmd["planet"]), String(cmd["ship"]), c)  # épaves, sauvegarde
 		"move_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var plan := Fleets.plan_route(state, f, int(cmd["system"]))

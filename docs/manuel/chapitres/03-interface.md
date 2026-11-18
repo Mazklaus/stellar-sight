@@ -66,7 +66,7 @@ Un clic droit ou [[F1]] sur un terme ouvre son article dans le **Codex de l'Arch
 
 Ce que votre empire n'a pas encore rencontré reste « ??? » : un peuple jamais contacté, une créature jamais vue, un gardien, une crise. Une fiche découverte le reste, même après la fin de la menace, et la partie s'en souvient dans sa sauvegarde. Les Chroniques, elles, se gagnent en jouant : chaque fois que la chronique galactique nomme un terme d'un chapitre, un fragment de ce chapitre se libère, et il reste acquis d'une partie à l'autre.
 
-::: image MJ-62 flottant-d
+::: image MJ-64 flottant-d
 :::
 
 ::: capture docs/apercu-infobulles.png|Une infobulle et sa voisine imbriquée, toutes deux figées

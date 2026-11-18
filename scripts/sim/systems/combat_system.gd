@@ -182,6 +182,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 	# Tirs simultanés : on cumule, puis on applique.
 	var pending := {}
 	var martyrs: Array = []
+	var shots_rec: Array = []  # [tireur, cible, dégâts] pour le Calcul prédictif (coques de peuple)
 	for f in fighters:
 		if targets[f.owner]["nearest"]["any"][1] <= 0:
 			continue
@@ -227,7 +228,8 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 			var my_fx: Dictionary = tfx.get(f.owner, {})
 			for k in keys:
 				var wd: Dictionary = Combat.data()["weapons"].get(k, {})
-				if Combat.weapon_eff(String(k), phase) <= 0:
+				var ph := PeopleHulls.shot_phase(f.ships[i], String(k), phase)  # Bordée : l'artillerie au contact
+				if Combat.weapon_eff(String(k), ph) <= 0:
 					continue
 				var tpct := Terrain.shot_pct(my_fx, String(k), phase)
 				if tpct <= 0:
@@ -239,10 +241,12 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 				var pick: Array = _pick(cum, state.rng.randi_range(0, int(cum[1]) - 1))
 				var tg: Fleet = pick[0]
 				var ti: int = pick[1]
+				if PeopleHulls.untouchable(tg.ships[ti], phase, day):
+					continue  # Déphasage (phase longue), Voile abyssal (premier jour)
 				@warning_ignore("integer_division")
-				var wbonus := bonus * (100 + Combat.weapon_bonus(state, f.owner, String(k), my_marks)) / 100
+				var wbonus := bonus * (100 + Combat.weapon_bonus(state, f.owner, String(k), my_marks)) / 100 * PeopleHulls.shot_pct(f, f.ships[i], String(k), day) / 100
 				var tg_fx: Dictionary = tfx.get(tg.owner, {})
-				var dmg := Combat.shot_damage(String(k), int(w[k]), phase, tac, wbonus, tg.ships[ti], Combat.fleet_tactic(tg),
+				var dmg := Combat.shot_damage(String(k), int(w[k]), ph, tac, wbonus, tg.ships[ti], Combat.fleet_tactic(tg),
 						Combat.fleet_pd(tg), Combat.defense_bonus(state, tg.owner, Combat.ship_marks(state, tg, ti)), Combat.fleet_shield(tg),
 						(Terrain.shield_pct(tg_fx, tg.ships[ti]) if not tg_fx.is_empty() else 100) * Stealth.shield_pct(b, tg) / 100)
 				if tpct != 100 or tg_fx.has("taken_pct"):
@@ -255,10 +259,12 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 				dmg = Defenses.shot(state, sid, f, i, tg, ti, dmg)  # couverture, armes de siège
 				var key := Vector2i(tg.id, ti)
 				pending[key] = int(pending.get(key, 0)) + dmg
+				shots_rec.append([Vector2i(f.id, i), key, dmg])
 				side["dealt"] = int(side["dealt"]) + dmg
 				day_log["shots"].append([_unit(b, f.id, i), _unit(b, tg.id, ti), String(k), dmg])
 				if wd.get("self_destruct", false):
 					martyrs.append([f, i, int(wd.get("fervor", 0))])
+	pending = PeopleHulls.predictive(fighters, shots_rec, pending)  # Calcul prédictif : on tire d'abord
 	# Les martyrs disparaissent dans leur charge (après les tirs du jour, qui sont simultanés).
 	for m in martyrs:
 		var mf: Fleet = m[0]
@@ -267,7 +273,15 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		var e := state.get_empire(mf.owner)
 		if int(m[2]) > 0 and e.faction().has("fervor"):
 			e.fervor = mini(int(e.faction()["fervor"]["max"]), e.fervor + int(m[2]))
+	PeopleHulls.share_linked(fighters, pending)  # Lien de noosphère
 	_apply_damage(state, b, fighters, pending, day_log)
+	for cap in PeopleHulls.boarding(state, fighters, phase):  # Éperon d'abordage
+		var taker: Fleet = cap[0]
+		var won: Dictionary = _side(b, taker.owner).get_or_add("captured", {})
+		won[String(cap[1])] = int(won.get(String(cap[1]), 0)) + 1
+		var victim := _side(b, int(cap[2]))
+		victim["lost"][String(cap[1])] = int(victim["lost"].get(String(cap[1]), 0)) + 1
+	_sync_units(b, fighters)
 	Defenses.after_battle_day(state, sid, fighters, added)
 	LivingWorldsWar.battle_day(state, sid, fighters, added)  # un monde vivant frappe ceux qu'il n'aime pas
 	b["log"].append(day_log)
@@ -407,6 +421,7 @@ static func _apply_damage(state: GameState, b: Dictionary, fighters: Array[Fleet
 			if f.hp[i] <= 0:
 				var side := _side(b, f.owner)
 				side["lost"][f.ships[i]] = int(side["lost"].get(f.ships[i], 0)) + 1
+				PeopleHulls.on_ship_lost(state, f, i)  # Noyau de sauvegarde, Nef de pénitence
 				_credit_kill(state, b, f.owner)
 				if day_log.has("kills"):
 					day_log["kills"].append(_unit(b, f.id, i))
@@ -487,6 +502,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 	Plagues.on_battle(state, b, winner, added)
 	FaithNatures.on_battle(state, b)
 	Crisis.on_battle(state, b, winner, added)
+	PeopleHulls.after_battle(state, sid, b["sides"], winner)  # larves, chants d'écho
 	# Épaves : le vainqueur étudie les armes et les doctrines des vaincus.
 	if winner >= 0:
 		Research.count_stat(state, winner, "battles_won")

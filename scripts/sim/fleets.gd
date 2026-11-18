@@ -624,8 +624,10 @@ static func upkeep(state: GameState, empire_id: int) -> Dictionary:
 
 
 ## Coût d'un vaisseau pour un empire (technologies de coques comprises ; pendant l'Exaltation aussi).
-static func ship_cost(state: GameState, empire_id: int, ship_id: String) -> Dictionary:
+## planet_id : lieu du chantier, pour les coques de peuple dont le prix en dépend (Bricolage, épaves).
+static func ship_cost(state: GameState, empire_id: int, ship_id: String, planet_id := -1) -> Dictionary:
 	var c := Research.scaled_amounts(GameData.ship(ship_id).get("cost", {}), Research.fx_int(state, empire_id, "ship_cost_pct"))
+	c = PeopleHulls.adjust_cost(state, empire_id, ship_id, planet_id, c)
 	return Goods.with_strategic(state, c, GameData.ship(ship_id).get("strategic", {}))
 
 
@@ -789,7 +791,7 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	var pop_cost := int(sd.get("pop_cost", 0))
 	if pop_cost > 0 and c.population <= pop_cost:
 		return "il faut plus de %d population sur cette colonie (le vaisseau emporte %d population)" % [pop_cost, pop_cost]
-	var cost := ship_cost(state, empire_id, ship_id)
+	var cost := ship_cost(state, empire_id, ship_id, planet_id)
 	if not Economy.can_afford(e, cost):
 		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)
 	return ""

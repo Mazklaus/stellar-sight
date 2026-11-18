@@ -2,7 +2,7 @@ class_name GlossaryTests
 extends RefCounted
 ## Tests du glossaire en jeu (étude du 2026-11-18, 40 propositions) : cohérence du dictionnaire
 ## (prop. 7), liens dans les textes, infobulle d'un terme, Codex (contenu, recherche, verrous,
-## Chroniques) et mémoire du Codex dans la sauvegarde 96.
+## Chroniques) et mémoire du Codex dans la sauvegarde 98.
 ##   TESTS=glossary_tests godot --headless --path . -s res://tests/_only.gd
 
 var _check: Callable
@@ -127,13 +127,13 @@ func _test_progress() -> void:
 	_ok(CodexProgress.unlocked(st, me, own), "mémorisé chaque mois")
 	_ok(not CodexProgress.unlocked(st, me, "cat:gardiens:inexistant"), "un gardien non croisé reste scellé")
 	var back := GameState.from_dict(st.to_dict())
-	_ok(back.codex == st.codex and not back.codex.is_empty(), "sauvegarde 96 : mémoire du Codex rechargée")
-	_ok(GameState.FORMAT_VERSION >= 96 and GameState.READABLE_VERSIONS.has(95), "format 96 ou plus, 95 lisible")
+	_ok(back.codex == st.codex and not back.codex.is_empty(), "sauvegarde 98 : mémoire du Codex rechargée")
+	_ok(GameState.FORMAT_VERSION >= 98 and GameState.READABLE_VERSIONS.has(97), "format 98 ou plus, 97 lisible")
 	var old := st.to_dict()
 	old.erase("codex")
-	old["version"] = 95
+	old["version"] = 97
 	var ob := GameState.from_dict(old)
-	_ok(ob != null and ob.codex.is_empty(), "sauvegarde 95 : Codex vide")
+	_ok(ob != null and ob.codex.is_empty(), "sauvegarde 97 : Codex vide")
 	# Le Codex suit la partie : le peuple du joueur est ouvert, un gardien non.
 	CodexPrefs.reset()
 	CodexPrefs.set_game(st, me)

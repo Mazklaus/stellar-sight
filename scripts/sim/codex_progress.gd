@@ -3,7 +3,7 @@ extends RefCounted
 ## Ce que chaque empire a rencontré, pour le Codex de l'Archonte (glossaire en jeu, prop. 18 et 30) :
 ## les fiches des peuples, des puissances anciennes, de la faune, des gardiens et des crises restent
 ## « ??? » tant qu'on ne les a pas croisés. Une fiche rencontrée le reste (même après la mort d'un
-## empire ou la fin d'une crise) : state.codex = {"seen": {"<empire>": [identifiants]}}, sauvegarde 96.
+## empire ou la fin d'une crise) : state.codex = {"seen": {"<empire>": [identifiants]}}, sauvegarde 98.
 ## Relevé une fois par mois, sans aléatoire ; à la demande, ce qui est connu à l'instant compte aussi.
 
 

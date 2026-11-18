@@ -386,6 +386,8 @@ static func autonomy(state: GameState, f: Fleet) -> int:
 	pct += Heroes.trait_fx(Heroes.at_post(state, "fleet", f.id, f.owner), "autonomy_pct")
 	if Combat._fleet_has_flag(f, "supply_hold"):
 		pct += int((_cfg("supply_hold") as Dictionary).get("autonomy_pct", 100))
+	if Combat._fleet_has_flag(f, "cold_blood"):
+		pct += 100  # Sang-froid (coque de peuple reptilienne) : autonomie doublée
 	return maxi(10, int(_cfg("autonomy_days")) * maxi(10, pct) / 100)
 
 

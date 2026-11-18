@@ -24,6 +24,19 @@
  ],
  "terms": [
   {
+   "id": "abordage",
+   "name": "Abordage",
+   "forms": [
+    "Abordage",
+    "Abordages"
+   ],
+   "family": "meca",
+   "summary": "Prise d'un petit vaisseau militaire ennemi tombé à 30 % de sa structure ou moins, en phase courte ; il rejoint votre flotte",
+   "chapters": [
+    "15za-coques-peuple"
+   ]
+  },
+  {
    "id": "accord_commercial",
    "name": "Accord commercial",
    "forms": [
@@ -701,6 +714,20 @@
     "04-colonies"
    ],
    "strict": true
+  },
+  {
+   "id": "coque_de_peuple",
+   "name": "Coque de peuple",
+   "forms": [
+    "Coque de peuple",
+    "Coques de peuple",
+    "Coques du peuple"
+   ],
+   "family": "meca",
+   "summary": "Coque ouverte par une couche d'espèce ; elle s'ajoute aux coques communes sans les remplacer, en général deux coques de ligne et une méga-coque par peuple",
+   "chapters": [
+    "15za-coques-peuple"
+   ]
   },
   {
    "id": "corridor_discret",
@@ -2093,6 +2120,21 @@
    "strict": true
   },
   {
+   "id": "mega_coque_de_peuple",
+   "name": "Méga-coque de peuple",
+   "forms": [
+    "Méga-coque de peuple",
+    "Méga-coques de peuple",
+    "Méga-coque",
+    "Méga-coques"
+   ],
+   "family": "meca",
+   "summary": "Titan propre au peuple, construit au Chantier titanesque ; il prend la place du titan commun, car un empire n'a qu'un titan",
+   "chapters": [
+    "15za-coques-peuple"
+   ]
+  },
+  {
    "id": "menace",
    "name": "Menace",
    "forms": [
@@ -2153,6 +2195,19 @@
     "09-guerre"
    ],
    "strict": true
+  },
+  {
+   "id": "module_integre",
+   "name": "Module intégré",
+   "forms": [
+    "Module intégré",
+    "Modules intégrés"
+   ],
+   "family": "meca",
+   "summary": "Module fixé à une coque de peuple, qu'on ne peut ni retirer ni poser ailleurs : une règle de combat, d'économie ou de diplomatie propre au peuple",
+   "chapters": [
+    "15za-coques-peuple"
+   ]
   },
   {
    "id": "monde_saint",
@@ -3102,6 +3157,19 @@
     "15s-contact"
    ],
    "strict": true
+  },
+  {
+   "id": "silhouette",
+   "name": "Silhouette",
+   "forms": [
+    "Silhouette",
+    "Silhouettes"
+   ],
+   "family": "meca",
+   "summary": "Forme 2D d'une coque, signature du style de son peuple ; visible au Chantier, dans le rapport de bataille et, en option, sur la carte",
+   "chapters": [
+    "15za-coques-peuple"
+   ]
   },
   {
    "id": "site_de_fouille",

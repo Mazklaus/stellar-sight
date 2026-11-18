@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.42"
+EDITION = "2.44"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -1433,6 +1433,64 @@ def gen_kd_modes():
     return out
 
 
+
+def _coques_peuple():
+    """Coques de peuple (data/designs.json « people ») et peuples officiels qui les ouvrent."""
+    d = charger("designs.json")
+    sp = charger("species_parts.json")
+    fac = charger("factions.json")
+    noms = {}
+    for couche in ("archetype", "gouvernement", "credo", "traits", "registre", "origine"):
+        for e in sp.get(couche, []):
+            noms[(couche, e["id"])] = e.get("label", e["id"])
+    titres = {"archetype": "archétype", "gouvernement": "gouvernement", "credo": "credo", "traits": "trait", "registre": "registre", "origine": "origine"}
+    def ok(f, req):
+        s = f.get("species", {})
+        for couche, voulu in req.items():
+            if couche == "traits":
+                if not set(s.get("traits", [])) & set(voulu):
+                    return False
+            elif couche == "registre":
+                if f.get("registre", "") not in voulu:
+                    return False
+            elif s.get(couche, "") not in voulu:
+                return False
+        return True
+    out = []
+    for hid, h in d["hulls"].items():
+        if not h.get("people"):
+            continue
+        req = h.get("requires", {}).get("species", {})
+        ouvre = ", ".join(f"{titres.get(c, c)} {noms.get((c, v), v)}" for c, vs in req.items() for v in vs)
+        peuples = ", ".join(f["name"] for f in fac if ok(f, req)) or "aucun peuple officiel"
+        mods = [d["modules"][m] for m in h.get("integrated", []) if m in d["modules"]]
+        out.append((hid, h, ouvre, peuples, mods))
+    return out
+
+
+def gen_coques_ligne():
+    """Coques de ligne des peuples (data/designs.json)."""
+    tailles = {"small": "petite", "medium": "moyenne", "large": "grande"}
+    l = ""
+    for hid, h, ouvre, peuples, mods in _coques_peuple():
+        if h.get("requires", {}).get("unique_per_empire"):
+            continue
+        m = "".join(f"<b>{esc(x['label'])}</b> : {inline(x.get('text', ''))}" for x in mods)
+        l += f"<tr><td><b>{esc(h['label'])}</b><br/>{tailles.get(h.get('size'), '')}, {h.get('hp', 0)} PS</td><td>{esc(ouvre)}<br/><i>{esc(peuples)}</i></td><td>{m}</td></tr>"
+    return f"<table class='grille'><tr><th>Coque</th><th>Ouverte par</th><th>Module intégré</th></tr>{l}</table>"
+
+
+def gen_coques_mega():
+    """Méga-coques des peuples (data/designs.json, unique_per_empire)."""
+    l = ""
+    for hid, h, ouvre, peuples, mods in _coques_peuple():
+        if not h.get("requires", {}).get("unique_per_empire"):
+            continue
+        m = "".join(f"<b>{esc(x['label'])}</b> : {inline(x.get('text', ''))}" for x in mods)
+        l += f"<tr><td><b>{esc(h['label'])}</b><br/>{h.get('hp', 0)} PS</td><td>{esc(ouvre)}<br/><i>{esc(peuples)}</i></td><td>{m}</td></tr>"
+    return f"<table class='grille'><tr><th>Méga-coque</th><th>Ouverte par</th><th>Module intégré</th></tr>{l}</table>"
+
+
 def gen_eco_modes():
     """Réglage Écologie (data/ecology.json)."""
     d = charger("ecology.json")
@@ -1790,6 +1848,7 @@ GENERATEURS = {
     "mg_modes": gen_mg_modes, "mg_catalogue": gen_mg_catalogue, "mg_talents": gen_mg_talents,
     "an_familles": gen_an_familles, "an_presets": gen_an_presets,
     "eco_modes": gen_eco_modes, "eco_types": gen_eco_types, "eco_empreinte": gen_eco_empreinte, "eco_paliers": gen_eco_paliers, "eco_doctrines": gen_eco_doctrines,
+    "coques_ligne": gen_coques_ligne, "coques_mega": gen_coques_mega,
     "kd_modes": gen_kd_modes, "kd_echelle": gen_kd_echelle, "kd_capture": gen_kd_capture, "kd_prerogatives": gen_kd_prerogatives,
     "ar_modes": gen_ar_modes, "ar_types": gen_ar_types, "ar_actions": gen_ar_actions, "ar_disparus": gen_ar_disparus, "ar_talents": gen_ar_talents, "wf_modes": gen_wf_modes, "wf_ops": gen_wf_ops, "wf_instant": gen_wf_instant, "wf_talents": gen_wf_talents,
     "lw_modes": gen_lw_modes, "lw_paliers": gen_lw_paliers, "lw_origines": gen_lw_origines, "lw_demandes": gen_lw_demandes, "lw_talents": gen_lw_talents,
