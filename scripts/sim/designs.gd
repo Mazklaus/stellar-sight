@@ -26,7 +26,9 @@ const MAX_STATS := ["cloak", "detect", "jam", "decoy", "psi"]
 const FLAGS := ["blockade_runner", "adaptive", "fleet_repair", "fleet_barracks", "anchor", "reliquary", "digester", "net", "supply_hold", "hardened_shields", "survival", "minelayer", "sweeper",
 		# Coques de peuple (voir PeopleHulls).
 		"concord", "larvae", "linked", "predictive", "broadside", "boarding", "wreck_discount", "privateer", "phased", "echo_song",
-		"cold_blood", "embassy", "pulpit", "brood", "backup", "market", "first_salvo", "penitent"]
+		"cold_blood", "embassy", "pulpit", "brood", "backup", "market", "first_salvo", "penitent",
+		# Prises de guerre (voir Capture).
+		"grapple", "assault_pods", "board_def", "self_destruct_capture", "salvage"]
 const LINES := ["screen", "line", "rear"]
 const TARGETS := ["nearest", "largest", "smallest", "rear"]
 const NAME_MAX := 32
@@ -43,6 +45,8 @@ static func slot_types() -> Dictionary:
 
 
 static func hull(id: String) -> Dictionary:
+	if id.ends_with(CaptureLore.COPY):
+		return CaptureLore.copy_hull(id)  # coque de peuple copiée (prises de guerre)
 	return data().get("hulls", {}).get(id, {})
 
 
@@ -97,16 +101,22 @@ static func compute(hull_id: String, modules: Array) -> Dictionary:
 	var all: Array = []
 	all.append_array(h.get("integrated", []))
 	all.append_array(modules)
-	for mid in all:
+	var half: Array = h.get("half_integrated", [])  # copie : module intégré à moitié d'effet
+	all = half + all
+	for n_mod in all.size():
+		var mid: Variant = all[n_mod]
 		var m := module(String(mid))
+		var div := 2 if n_mod < half.size() else 1
 		for k in STATS:
 			if m.has(k):
-				out[k] = int(out[k]) + int(_sized(m[k], size))
+				@warning_ignore("integer_division")
+				out[k] = int(out[k]) + int(_sized(m[k], size)) / div
 		for k in MAX_STATS:
 			if m.has(k):
 				out[k] = maxi(int(out.get(k, 0)), int(_sized(m[k], size)))
 		for fam in m.get("weapons", {}):
-			var p := int(_sized(m["weapons"][fam], size))
+			@warning_ignore("integer_division")
+			var p := int(_sized(m["weapons"][fam], size)) / div
 			if p != 0:
 				weapons[fam] = int(weapons.get(fam, 0)) + p
 		var raw: Dictionary = m.get("cost", {})
@@ -257,6 +267,7 @@ static func hull_ids_of(state: GameState, empire_id: int) -> Array[String]:
 		var hid := String(Archaeology.disparu_def(d).get("hull", ""))
 		if hid != "" and not hull(hid).is_empty() and not out.has(hid):
 			out.append(hid)
+	out.append_array(CaptureLore.copies_of(state, empire_id))  # copies de coques étrangères (prises de guerre)
 	return out
 
 

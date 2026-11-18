@@ -687,6 +687,10 @@ static func fx_lines(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				out.append("Population %+d à %s" % [int(fx["v"]), _sys_name(state, _target_system(state, empire_id, item, "system"))])
 			"ship":
 				out.append("Un vaisseau : %s" % String(GameData.ship(String(fx["ship"])).get("label", fx["ship"])))
+			"prize":
+				out.append("Une épave remise en service : %s, avec des avaries" % String(GameData.ship(String(fx["ship"])).get("label", fx["ship"])))
+			"wreck_study":
+				out.append("Démontage : rétro-ingénierie de %s et des matériaux" % String(GameData.ship(String(fx["ship"])).get("label", fx["ship"])))
 			"research":
 				out.append("Recherche en cours : +%d %% de son coût" % int(fx["pct"]))
 			"renown":
@@ -819,6 +823,10 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				var sid := _target_system(state, empire_id, item, "system")
 				if sid >= 0:
 					state.spawn_ship(empire_id, String(fx["ship"]), sid)
+			"prize", "wreck_study":
+				var sid2 := _target_system(state, empire_id, item, "system")
+				if sid2 >= 0:
+					CaptureLore.derelict(state, empire_id, String(fx["ship"]), sid2, String(fx["k"]) == "prize")
 			"research":
 				give_research(state, empire_id, int(fx["pct"]))
 			"renown":

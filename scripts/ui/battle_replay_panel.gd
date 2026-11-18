@@ -404,6 +404,22 @@ func _draw() -> void:
 		_draw_shot(w, _pos[a], _pos[b], clampf(p, 0.0, 1.0), p > 1.0, k)
 		if p > 1.0 and not tactical:
 			_draw_impact(b, _pos[b], (p - 1.0) / 0.15, k)
+	_draw_boards(day.get("boards", []), frac)
+
+
+## Prises de guerre : grappins et capsules (pointillés), puis la prise qui change de couleur (anneau).
+func _draw_boards(boards: Array, frac: float) -> void:
+	for bd: Array in boards:
+		var a := int(bd[0])
+		var b := int(bd[1])
+		if a < 0 or b < 0 or a >= _pos.size() or b >= _pos.size() or frac < 0.45:
+			continue
+		var p := clampf((frac - 0.45) / 0.35, 0.0, 1.0)
+		var end: Vector2 = _pos[a].lerp(_pos[b], p)
+		draw_dashed_line(_pos[a], end, Color(0.95, 0.85, 0.45, 0.85), 1.5, 5.0)
+		if p >= 1.0:
+			var ok := int(bd[2]) == 1
+			draw_arc(_pos[b], 14.0, 0.0, TAU, 24, Color(0.45, 1.0, 0.55, 0.9) if ok else Color(1.0, 0.45, 0.35, 0.7), 2.0)
 
 
 func _draw_sides_names(font: Font) -> void:

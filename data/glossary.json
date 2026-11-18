@@ -31,9 +31,10 @@
     "Abordages"
    ],
    "family": "meca",
-   "summary": "Prise d'un petit vaisseau militaire ennemi tombé à 30 % de sa structure ou moins, en phase courte ; il rejoint votre flotte",
+   "summary": "Prise d'un vaisseau ennemi tombé sous son seuil de coque : l'Éperon d'abordage, ou toute flotte en posture d'abordage (prises de guerre complètes)",
    "chapters": [
-    "15za-coques-peuple"
+    "15za-coques-peuple",
+    "15zb-prises"
    ]
   },
   {
@@ -1012,7 +1013,8 @@
    "summary": "Opération de la Forge des mondes (ère IV) qui défait une planète pour ses matériaux.",
    "chapters": [
     "15w-forge"
-   ]
+   ],
+   "qualifier": "Forge des mondes"
   },
   {
    "id": "depot_de_flotte",
@@ -3712,6 +3714,212 @@
    "chapters": [
     "15e-merveilles"
    ]
+  },
+  {
+   "id": "prise_de_guerre",
+   "name": "Prise de guerre",
+   "forms": [
+    "Prise de guerre",
+    "Prises de guerre",
+    "prise"
+   ],
+   "family": "meca",
+   "summary": "Vaisseau ennemi pris à l'abordage, par reddition ou récupéré sur un champ d'épaves ; il sert avec ses avaries",
+   "chapters": [
+    "15zb-prises"
+   ],
+   "strict": true
+  },
+  {
+   "id": "avarie",
+   "name": "Avarie",
+   "forms": [
+    "avarie"
+   ],
+   "family": "meca",
+   "summary": "Défaut d'une prise (blindage fissuré, moteurs bridés…) : un effet négatif et 10 % d'entretien de plus ; se retire au chantier",
+   "chapters": [
+    "15zb-prises"
+   ]
+  },
+  {
+   "id": "posture_d_abordage",
+   "name": "Posture d'abordage",
+   "forms": [
+    "Posture d'abordage"
+   ],
+   "family": "meca",
+   "summary": "Ordre de flotte : aborder les vaisseaux ennemis tombés sous leur seuil de coque au lieu de les achever",
+   "chapters": [
+    "15zb-prises"
+   ]
+  },
+  {
+   "id": "seuil_de_coque",
+   "name": "Seuil de coque",
+   "forms": [
+    "Seuil de coque"
+   ],
+   "family": "meca",
+   "summary": "Structure sous laquelle un vaisseau peut être abordé : 30 % (petit, moyen), 20 % (grand), 10 % (titan)",
+   "chapters": [
+    "15zb-prises"
+   ]
+  },
+  {
+   "id": "reddition_flotte",
+   "name": "Reddition d'une flotte",
+   "forms": [
+    "Reddition d'une flotte",
+    "redditions ennemies"
+   ],
+   "family": "meca",
+   "summary": "Une flotte très affaiblie se rend en fin de phase : ses vaisseaux deviennent des prises (sauf Foi et ruche)",
+   "chapters": [
+    "15zb-prises"
+   ]
+  },
+  {
+   "id": "champ_d_epaves",
+   "name": "Champ d'épaves",
+   "forms": [
+    "Champ d'épaves",
+    "champs d'épaves"
+   ],
+   "family": "meca",
+   "summary": "Coques détruites d'un système, avec leur empire : on les récolte, on les étudie ; la moitié s'efface chaque année",
+   "chapters": [
+    "15zb-prises"
+   ]
+  },
+  {
+   "id": "recuperation",
+   "name": "Récupération",
+   "forms": [
+    "Récupération"
+   ],
+   "family": "meca",
+   "summary": "Après une victoire, chance de remettre en service un vaisseau détruit (20 % petit à 4 % titan), avec deux à quatre avaries",
+   "chapters": [
+    "15zb-prises"
+   ],
+   "strict": true
+  },
+  {
+   "id": "butin_de_bataille",
+   "name": "Butin de bataille",
+   "forms": [
+    "Butin de bataille"
+   ],
+   "family": "meca",
+   "summary": "Liste au Chantier des coques récupérées : garder, démonter ou étudier ; la politique d'épaves décide au bout de 30 jours",
+   "chapters": [
+    "15zb-prises"
+   ]
+  },
+  {
+   "id": "politique_d_epaves",
+   "name": "Politique d'épaves",
+   "forms": [
+    "Politique d'épaves"
+   ],
+   "family": "meca",
+   "summary": "Réglage d'empire : Étudier (rétro-ingénierie), Ferrailler (matériaux) ou Les deux (Profit, Syndicat, Ingénierie inverse)",
+   "chapters": [
+    "15zb-prises"
+   ]
+  },
+  {
+   "id": "retro_ingenierie",
+   "name": "Rétro-ingénierie",
+   "forms": [
+    "Rétro-ingénierie"
+   ],
+   "family": "meca",
+   "summary": "Étudier un vaisseau ennemi : 10 % de chaque technologie inconnue de ses modules (25 % pour une prise démontée)",
+   "chapters": [
+    "15zb-prises"
+   ]
+  },
+  {
+   "id": "analyse_modele",
+   "name": "Analyse",
+   "forms": [
+    "Analyse d'un modèle",
+    "analyse"
+   ],
+   "family": "meca",
+   "summary": "+5 % de dégâts contre un modèle ennemi par vaisseau étudié, jusqu'à +15 % ; une nouvelle version repart de zéro",
+   "chapters": [
+    "15zb-prises"
+   ],
+   "strict": true
+  },
+  {
+   "id": "remise_en_etat",
+   "name": "Remise en état",
+   "forms": [
+    "Remise en état",
+    "Remettre en état"
+   ],
+   "family": "meca",
+   "summary": "Retirer une avarie d'une prise au chantier, pour 25 % de son coût",
+   "chapters": [
+    "15zb-prises"
+   ]
+  },
+  {
+   "id": "refonte",
+   "name": "Refonte",
+   "forms": [
+    "Refonte",
+    "Refondre"
+   ],
+   "family": "meca",
+   "summary": "Transformer une prise en l'un de vos modèles de même taille, pour la moitié de son coût",
+   "chapters": [
+    "15zb-prises"
+   ],
+   "strict": true
+  },
+  {
+   "id": "demontage_prise",
+   "name": "Démanteler une prise",
+   "forms": [
+    "Démanteler une prise"
+   ],
+   "family": "meca",
+   "summary": "Démonter une prise au chantier : 30 % de ses matériaux et une rétro-ingénierie renforcée",
+   "chapters": [
+    "15zb-prises"
+   ]
+  },
+  {
+   "id": "vaisseau_tombe",
+   "name": "Vaisseau-tombe",
+   "forms": [
+    "Vaisseau-tombe",
+    "Vaisseaux-tombes"
+   ],
+   "family": "meca",
+   "summary": "Amas errant de coques soudées : 60 troupes pour l'aborder, et une table de trésors et de dangers",
+   "chapters": [
+    "15zb-prises"
+   ]
+  },
+  {
+   "id": "copie_coque",
+   "name": "Copie de coque",
+   "forms": [
+    "Copie de coque",
+    "copie"
+   ],
+   "family": "meca",
+   "summary": "Coque de ligne d'un autre peuple, débloquée après trois études : module intégré à moitié d'effet, coût +30 %",
+   "chapters": [
+    "15zb-prises"
+   ],
+   "strict": true
   }
  ]
 }

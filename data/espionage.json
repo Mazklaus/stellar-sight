@@ -1099,6 +1099,21 @@
 			"spend": 15,
 			"archaeo": true,
 			"text": "Archéologie : une fausse antiquité glissée dans son musée. Tant qu'elle y reste (dix ans), aucun thème ne tient et les experts se disputent."
+		},
+		{
+			"id": "voler_plans",
+			"family": "larcin",
+			"label": "Voler les plans",
+			"tier": 2,
+			"cost": {
+				"influence": 30
+			},
+			"days": 40,
+			"success": 60,
+			"discovery": 30,
+			"spend": 15,
+			"capture": true,
+			"text": "Prises de guerre : les plans de son modèle le plus nombreux. Vous gagnez +10 % d'analyse contre ce modèle (dégâts, jusqu'à +15 %) sans combattre, et il s'affiche au dossier."
 		}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",

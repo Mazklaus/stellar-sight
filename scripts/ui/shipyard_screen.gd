@@ -221,6 +221,7 @@ func _fill_side() -> void:
 		_side.add_child(UiTheme.section("Retirés"))
 		for rec in retired:
 			_add_design_row(String(rec["id"]), "%s  ·  v%d" % [rec["name"], int(rec.get("version", 1))], true)
+	CaptureUi.shipyard_block(_state, _player, _side, func(cmd: Dictionary) -> void: command_requested.emit(cmd))  # prises de guerre
 
 
 func _add_design_row(id: String, text: String, dim := false) -> void:

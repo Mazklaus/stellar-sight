@@ -422,6 +422,7 @@
 		"aggression": "guerre d'agression contre un membre",
 		"nest": "nid de créatures détruit (Sanctuaires)",
 		"hero_execution": "héros prisonnier exécuté (Convention des prisonniers)",
+		"surrender_refused": "reddition refusée (Convention des prisonniers)",
 		"invade_populated": "monde peuplé envahi (Mondes protégés)",
 		"orbital_bombing": "monde peuplé bombardé sans discernement (Mondes protégés)",
 		"requisition": "monde peuplé réquisitionné pour nourrir une flotte (Mondes protégés)",
@@ -913,7 +914,8 @@
 						"name": "Convention des prisonniers",
 						"fx": {},
 						"bans": [
-							"hero_execution"
+							"hero_execution",
+							"surrender_refused"
 						]
 					},
 					{

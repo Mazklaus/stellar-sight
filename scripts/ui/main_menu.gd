@@ -269,6 +269,8 @@ var _living_select: OptionButton
 var _living_ego_select: OptionButton
 var ecology := "complete"
 var _eco_select: OptionButton
+var capture := "complete"
+var _cap_select: OptionButton
 var _archaeo_select: OptionButton
 var _kard_select: OptionButton
 var _kard_pace_select: OptionButton
@@ -1875,6 +1877,13 @@ func set_living_ego(id: String) -> void:
 	living_ego = id if ids.has(id) else LivingWorlds.default_ego()
 	if _living_ego_select:
 		_living_ego_select.select(ids.find(living_ego))
+func set_capture(id: String) -> void:
+	var ids := _ids_of(Capture.mode_defs())
+	capture = id if ids.has(id) else Capture.default_mode()
+	if _cap_select:
+		_cap_select.select(ids.find(capture))
+
+
 func set_ecology(id: String) -> void:
 	var ids := _ids_of(Ecology.mode_defs())
 	ecology = id if ids.has(id) else Ecology.default_mode()
@@ -2061,7 +2070,7 @@ func game_options() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins, "archaeology": archaeology, "worldforge": worldforge, "forge_ancients": forge_ancients, "kardashev": kardashev, "kardashev_pace": kardashev_pace, "living": living, "living_ego": living_ego, "ecology": ecology}
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins, "archaeology": archaeology, "worldforge": worldforge, "forge_ancients": forge_ancients, "kardashev": kardashev, "kardashev_pace": kardashev_pace, "living": living, "living_ego": living_ego, "ecology": ecology, "capture": capture}
 
 
 func set_spectator(on: bool) -> void:
@@ -2797,6 +2806,15 @@ func _build_new_page(root: Control) -> void:
 	_eco_select.tooltip_text = "Écologie et climat des mondes : chaque monde vivant a une biosphère que l'industrie use et que les réserves soignent ; les mondes morts n'en ont pas (Anno 2070, Humankind, Master of Orion II, Civilization VI, Dune).\n" + "\n".join(eco_tip)
 	_eco_select.item_selected.connect(func(i: int) -> void: set_ecology(String(Ecology.mode_defs()[i]["id"])))
 	_labeled_row(game, "Écologie", _eco_select)
+	_cap_select = OptionButton.new()
+	_cap_select.clip_text = true
+	var cap_tip := PackedStringArray()
+	for m: Dictionary in Capture.mode_defs():
+		_cap_select.add_item(String(m["label"]))
+		cap_tip.append("%s : %s" % [String(m["label"]), String(m["text"])])
+	_cap_select.tooltip_text = "Prises de guerre : aborder les vaisseaux désemparés, accepter les redditions, fouiller les épaves et copier la technologie ennemie (Stellaris, Sins of a Solar Empire, Starsector, FTL, Master of Orion II).\n" + "\n".join(cap_tip)
+	_cap_select.item_selected.connect(func(i: int) -> void: set_capture(String(Capture.mode_defs()[i]["id"])))
+	_labeled_row(game, "Prises de guerre", _cap_select)
 	_contact_select = OptionButton.new()
 	_contact_select.clip_text = true
 	var contact_tip := PackedStringArray()
@@ -2891,6 +2909,7 @@ func _build_new_page(root: Control) -> void:
 	set_living(living)
 	set_living_ego(living_ego)
 	set_ecology(ecology)
+	set_capture(capture)
 	set_contact(contact)
 	set_contact_nature(contact_nature)
 	set_contact_outcome(contact_outcome)
@@ -3643,7 +3662,7 @@ func settings() -> Dictionary:
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
-		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins, "archaeology": archaeology, "worldforge": worldforge, "forge_ancients": forge_ancients, "kardashev": kardashev, "kardashev_pace": kardashev_pace, "living": living, "living_ego": living_ego, "ecology": ecology,
+		"deeds": deeds, "golden_ages": golden_ages, "rulers": rulers, "hero_death": hero_death, "court": court, "admin": admin, "finance": finance, "private": private_eco, "defenses": defenses, "ports": ports, "portals": portals, "stealth": stealth, "genetics": genetics, "psionics": psionics, "transcendence": transcendence, "transcendence_outcome": transcendence_outcome, "contact": contact, "contact_nature": contact_nature, "contact_outcome": contact_outcome, "megastructures": megastructures, "mega_ruins": mega_ruins, "archaeology": archaeology, "worldforge": worldforge, "forge_ancients": forge_ancients, "kardashev": kardashev, "kardashev_pace": kardashev_pace, "living": living, "living_ego": living_ego, "ecology": ecology, "capture": capture,
 		"seed": _seed_edit.text.strip_edges() if _seed_edit else ""}
 
 
@@ -3665,7 +3684,7 @@ func default_settings() -> Dictionary:
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
 		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true,
 		"ancients": Ancients.default_mode(), "awakenings": true, "minors": Minors.default_mode(), "culture": Culture.default_mode(), "culture_defect": Culture.default_defect(), "wonders": Wonders.default_mode(),
-		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode(), "portals": Portals.default_mode(), "stealth": Stealth.default_mode(), "genetics": Genetics.default_mode(), "psionics": Psionics.default_mode(), "transcendence": Transcendence.default_mode(), "transcendence_outcome": Transcendence.default_outcome(), "contact": Contact.default_mode(), "contact_nature": Contact.default_nature_mode(), "contact_outcome": Contact.default_outcome(), "megastructures": Megastructures.default_mode(), "mega_ruins": Megastructures.default_ruins(), "archaeology": Archaeology.default_mode(), "worldforge": WorldForge.default_mode(), "forge_ancients": WorldForge.default_ancients(), "kardashev": Kardashev.default_mode(), "kardashev_pace": Kardashev.default_pace(), "living": LivingWorlds.default_mode(), "living_ego": LivingWorlds.default_ego(), "ecology": Ecology.default_mode()}
+		"deeds": "tous", "golden_ages": true, "rulers": Rulers.default_mode(), "hero_death": HeroFall.default_mode(), "court": Court.default_mode(), "admin": Admin.default_mode(), "finance": Finance.default_mode(), "private": Private.default_mode(), "defenses": Defenses.default_mode(), "ports": Ports.default_mode(), "portals": Portals.default_mode(), "stealth": Stealth.default_mode(), "genetics": Genetics.default_mode(), "psionics": Psionics.default_mode(), "transcendence": Transcendence.default_mode(), "transcendence_outcome": Transcendence.default_outcome(), "contact": Contact.default_mode(), "contact_nature": Contact.default_nature_mode(), "contact_outcome": Contact.default_outcome(), "megastructures": Megastructures.default_mode(), "mega_ruins": Megastructures.default_ruins(), "archaeology": Archaeology.default_mode(), "worldforge": WorldForge.default_mode(), "forge_ancients": WorldForge.default_ancients(), "kardashev": Kardashev.default_mode(), "kardashev_pace": Kardashev.default_pace(), "living": LivingWorlds.default_mode(), "living_ego": LivingWorlds.default_ego(), "ecology": Ecology.default_mode(), "capture": Capture.default_mode()}
 
 
 ## Remplit l'écran avec des réglages (préréglage, dernière partie, code). Une valeur inconnue garde la
@@ -3783,6 +3802,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_living(String(d.get("living", base["living"])))
 	set_living_ego(String(d.get("living_ego", base["living_ego"])))
 	set_ecology(String(d.get("ecology", base["ecology"])))
+	set_capture(String(d.get("capture", base["capture"])))
 	set_mega_ruins(String(d.get("mega_ruins", base["mega_ruins"])))
 	set_contact(String(d.get("contact", base["contact"])))
 	set_contact_nature(String(d.get("contact_nature", base["contact_nature"])))

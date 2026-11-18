@@ -718,6 +718,13 @@ static func ar_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "archaeology", "player": player, "act": act, "d": d}
 
 
+## Prises de guerre (voir Capture.check_act) : "posture" (fleet, on), "repair" / "scrap" (fleet, ship),
+## "refit" (fleet, ship, x = modèle), "sell" (fleet, ship, x = market|pirates|empire, y = acheteur),
+## "policy" (x), "surrender" (x = accept|refuse), "loot" (i, x = keep|scrap|study), "tomb" (fleet).
+static func cap_act(player: int, act: String, d := {}) -> Dictionary:
+	return {"type": "capture", "player": player, "act": act, "d": d}
+
+
 ## Écologie (voir Ecology.check) : "doctrine" (id).
 static func eco_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "ecology", "player": player, "act": act, "d": d}
@@ -961,6 +968,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Archaeology.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"ecology":
 			return Ecology.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
+		"capture":
+			return Capture.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"kardashev":
 			return Kardashev.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"living":
@@ -1400,6 +1409,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Archaeology.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"ecology":
 			Ecology.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
+		"capture":
+			Capture.apply_act(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"kardashev":
 			Kardashev.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"living":

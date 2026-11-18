@@ -257,6 +257,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 					@warning_ignore("integer_division")
 					dmg = maxi(1, dmg * maxi(0, 100 + screen) / 100)  # rideau d'acier
 				dmg = Defenses.shot(state, sid, f, i, tg, ti, dmg)  # couverture, armes de siège
+				dmg = CaptureLore.analysis_shot(state, f.owner, tg.ships[ti], dmg)  # analyse du modèle ennemi
 				var key := Vector2i(tg.id, ti)
 				pending[key] = int(pending.get(key, 0)) + dmg
 				shots_rec.append([Vector2i(f.id, i), key, dmg])
@@ -275,12 +276,21 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 			e.fervor = mini(int(e.faction()["fervor"]["max"]), e.fervor + int(m[2]))
 	PeopleHulls.share_linked(fighters, pending)  # Lien de noosphère
 	_apply_damage(state, b, fighters, pending, day_log)
-	for cap in PeopleHulls.boarding(state, fighters, phase):  # Éperon d'abordage
+	# Abordage (Éperon, posture de flotte) et redditions : voir Capture.
+	var caps := Capture.boarding(state, b, fighters, phase, day_log, added)
+	caps.append_array(Capture.surrenders(state, b, fighters, day, added))
+	for cap in caps:
 		var taker: Fleet = cap[0]
-		var won: Dictionary = _side(b, taker.owner).get_or_add("captured", {})
-		won[String(cap[1])] = int(won.get(String(cap[1]), 0)) + 1
+		if String(cap[1]) != "":
+			var won: Dictionary = _side(b, taker.owner).get_or_add("captured", {})
+			won[String(cap[1])] = int(won.get(String(cap[1]), 0)) + 1
 		var victim := _side(b, int(cap[2]))
-		victim["lost"][String(cap[1])] = int(victim["lost"].get(String(cap[1]), 0)) + 1
+		victim["lost"][String(cap[3])] = int(victim["lost"].get(String(cap[3]), 0)) + 1
+		if String(cap[1]) == "":
+			_credit_kill(state, b, int(cap[2]))  # sauté ou effacé : détruit
+	for f in fighters:
+		if f.ships.is_empty():
+			state.fleets.erase(f.id)
 	_sync_units(b, fighters)
 	Defenses.after_battle_day(state, sid, fighters, added)
 	LivingWorldsWar.battle_day(state, sid, fighters, added)  # un monde vivant frappe ceux qu'il n'aime pas
@@ -503,6 +513,7 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 	FaithNatures.on_battle(state, b)
 	Crisis.on_battle(state, b, winner, added)
 	PeopleHulls.after_battle(state, sid, b["sides"], winner)  # larves, chants d'écho
+	CaptureLore.after_battle(state, sid, b, winner, report, added)  # champ d'épaves, récupération, rétro-ingénierie
 	# Épaves : le vainqueur étudie les armes et les doctrines des vaincus.
 	if winner >= 0:
 		Research.count_stat(state, winner, "battles_won")
@@ -512,6 +523,8 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 			var loser := int(s["empire"])
 			if loser == winner or not Combat.at_war(state, winner, loser) or Combat.count_ships(s["engaged"]) == 0:
 				continue
+			if not CaptureLore.studies_marks(state, winner):
+				continue  # politique d'épaves « Ferrailler » : pas de recherche
 			for r in Research.study_wrecks(state, winner, loser):
 				var lbl := String(Research.tech(String(r[0])).get("label", r[0]))
 				if bool(r[2]):
@@ -701,7 +714,7 @@ static func _repairs(state: GameState, fought: Dictionary) -> void:
 				continue  # à sec : plus aucune réparation
 			for i in f.ships.size():
 				var mx := Fleet.max_hp_of(f.ships[i])
-				if f.hp[i] < mx:
+				if f.hp[i] < mx and not Capture.repair_blocked(state, f, f.ships[i]):  # une prise : au chantier seulement
 					@warning_ignore("integer_division")
 					f.hp[i] = mini(mx, f.hp[i] + maxi(1, mx * pct / 100))
 		if Ground.full(state):

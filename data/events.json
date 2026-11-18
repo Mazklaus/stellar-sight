@@ -59,7 +59,7 @@
 			"ruines": ["Temple scellé", "Cité engloutie", "Observatoire mort", "Stèles bavardes", "Escalier vers rien", "Archives de poussière"],
 			"epave": ["Vaisseau fantôme", "Carcasse muette", "Croiseur coupé en deux", "Capsule de sauvetage", "Cimetière orbital", "Cargo à la dérive"]
 		},
-		"curio_cards": {"atmo": ["c_tempete"], "souterraine": ["c_puits"], "vivante": ["c_foret"], "ruines": ["c_temple"], "epave": ["c_fantome"]}
+		"curio_cards": {"atmo": ["c_tempete"], "souterraine": ["c_puits"], "vivante": ["c_foret"], "ruines": ["c_temple"], "epave": ["c_fantome", "c_derive"]}
 	},
 
 	"tones": {
@@ -385,6 +385,14 @@
 				{"label": "La remorquer", "risky": {"pct": 70, "win": [{"k": "ship", "ship": "fregate"}], "lose": [{"k": "pirates"}]}},
 				{"label": "L'étudier sur place", "fx": [{"k": "research", "pct": 25}]},
 				{"label": "Rendre les honneurs aux disparus", "if": {"layers": {"credo": ["honneur", "foi"]}}, "fx": [{"k": "stab", "v": 5, "days": 720, "scope": "empire"}, {"k": "renown", "v": 40}]}
+			], "default": 1},
+
+		{"id": "c_derive", "title": "L'épave à la dérive", "trigger": "curio",
+			"text": "Près de {planet}, une frégate abandonnée dérive, réacteur froid, coque marquée de vieilles brûlures. Personne ne répond aux appels ; les rats de bord, eux, ont l'air en pleine forme.",
+			"choices": [
+				{"label": "La remettre en service", "fx": [{"k": "prize", "ship": "fregate"}]},
+				{"label": "La démonter pour la technologie", "fx": [{"k": "wreck_study", "ship": "fregate"}]},
+				{"label": "La laisser aux rats", "fx": [{"k": "res", "res": {"influence": 10}}]}
 			], "default": 1},
 
 		{"id": "c_foret", "title": "La forêt qui chante", "trigger": "curio",

@@ -634,3 +634,13 @@ a vast orbital drydock where eight starships of different alien civilizations ar
 ```
 a large open book floating in space whose pages are translucent holographic screens, from underlined words small glowing windows spring out and open further windows in a cascade, a tiny archivist perched on the edge of the book holds a magnifying glass and looks overwhelmed, centered composition on dark background, wonder with gentle irony epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 1:1
 ```
+
+## MJ-65 · Prises de guerre
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Prises de guerre »
+- Sujet : Dans le vide, deux vaisseaux de guerre accrochés l'un à l'autre par des dizaines de grappins tendus comme des cordes ; des capsules d'assaut fichées dans la coque du plus abîmé, d'où sortent des soldats en armure magnétique ; derrière, un champ d'épaves rouillées où une grue de récupération découpe une carcasse ; au premier plan, sur la passerelle éventrée du vaisseau pris, un contremaître moustachu repeint déjà le blason ennemi aux couleurs de son empire, pendant que l'ancien capitaine, menotté, lui indique d'un air pincé qu'il déborde
+
+```
+in deep space two warships locked together by dozens of taut grappling cables, assault pods embedded in the hull of the more damaged ship with armored marines in magnetic boots emerging, behind them a field of rusted wrecks where a salvage crane ship cuts apart a carcass, in the foreground on the torn bridge of the captured ship a mustached foreman already repaints the enemy crest in his own empire colors while the former captain in handcuffs primly points out that he is painting outside the lines, boarding action with gentle humor epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

@@ -242,6 +242,11 @@ static func ecology() -> Dictionary:
 	return _load("ecology")
 
 
+## Prises de guerre (voir Capture).
+static func capture() -> Dictionary:
+	return _load("capture")
+
+
 ## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.
 static func wonders() -> Dictionary:
 	return _load("wonders")
@@ -294,11 +299,14 @@ static func register_custom_ship(id: String, stats: Dictionary) -> void:
 static func clear_custom_ships() -> void:
 	_custom.clear()
 	_ids_cache = []
+	Capture.clear_cache()
 
 
 static func ship(id: String) -> Dictionary:
 	if _custom.has(id):
 		return _custom[id]
+	if id.contains("~"):
+		return Capture.prize_stats(id) if not id.ends_with("~copie") else {}  # prises de guerre (voir Capture)
 	# Créatures (data/creatures.json, « units ») : elles se lisent comme des classes au combat, sans
 	# figurer parmi les classes que l'on construit.
 	if id.begins_with("crise_"):

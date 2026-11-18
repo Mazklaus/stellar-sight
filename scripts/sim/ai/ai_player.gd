@@ -96,6 +96,7 @@ static func think(state: GameState, e: Empire) -> void:
 	Ecology.ai(ctx)  # doctrine environnementale selon le tempérament
 	AiArchaeo.think(ctx)
 	AiContact.think(ctx)
+	AiCapture.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 
