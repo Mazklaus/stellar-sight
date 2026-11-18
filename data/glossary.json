@@ -3957,6 +3957,96 @@
    "chapters": [
     "02-premiere-partie"
    ]
+  },
+  {
+   "id": "monde_usine",
+   "name": "Monde-usine",
+   "forms": [
+    "Monde-usine",
+    "monde-usine",
+    "mondes-usines"
+   ],
+   "family": "meca",
+   "summary": "Un monde vivant sacrifié à l'industrie : plus de biosphère ni de palier, plus de matériaux et d'énergie, moins de stabilité.",
+   "chapters": [
+    "15z-ecologie"
+   ]
+  },
+  {
+   "id": "biosphere_remarquable",
+   "name": "Biosphère remarquable",
+   "forms": [
+    "biosphère remarquable",
+    "biosphères remarquables"
+   ],
+   "family": "meca",
+   "summary": "Un monde vivant sur six porte une vie indigène riche : plus vital, plus fragile, il rapporte du Savoir tant qu'on le ménage.",
+   "chapters": [
+    "15z-ecologie"
+   ]
+  },
+  {
+   "id": "terre_brulee",
+   "name": "Terre brûlée",
+   "forms": [
+    "terre brûlée"
+   ],
+   "family": "meca",
+   "summary": "Ruiner soi-même la biosphère d'un monde assiégé ou évacué : l'ennemi ne trouvera qu'un monde mort.",
+   "chapters": [
+    "15z-ecologie"
+   ]
+  },
+  {
+   "id": "catastrophe_climatique",
+   "name": "Catastrophe climatique",
+   "forms": [
+    "catastrophe climatique",
+    "catastrophes climatiques"
+   ],
+   "family": "meca",
+   "summary": "Tempête de sable, inondations, pluies acides : plus fréquentes quand la biosphère faiblit ; le bouclier planétaire les arrête.",
+   "chapters": [
+    "15z-ecologie"
+   ]
+  },
+  {
+   "id": "sacralite_vivant",
+   "name": "Sacralité du vivant",
+   "forms": [
+    "Sacralité du vivant"
+   ],
+   "family": "meca",
+   "summary": "Précepte de foi : stabilité près des mondes florissants, colère quand un monde bascule.",
+   "chapters": [
+    "15z-ecologie",
+    "12a-foi"
+   ]
+  },
+  {
+   "id": "convention_biospheres",
+   "name": "Convention des biosphères",
+   "forms": [
+    "Convention des biosphères"
+   ],
+   "family": "meca",
+   "summary": "Voie de la famille Biosphères de l'Amphictyonie : interdit l'Extraction aux membres et récompense la Préservation.",
+   "chapters": [
+    "15z-ecologie"
+   ]
+  },
+  {
+   "id": "lentille_senseurs",
+   "name": "Lentille Senseurs",
+   "forms": [
+    "lentille Senseurs",
+    "Lentille Senseurs"
+   ],
+   "family": "meca",
+   "summary": "Second clic de la lentille de guerre : le camouflage que vos senseurs percent, système par système.",
+   "chapters": [
+    "15o-furtivite"
+   ]
   }
  ]
 }
