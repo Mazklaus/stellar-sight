@@ -30,12 +30,35 @@ func run(check: Callable) -> void:
 	_test_choeur()
 	print("  - bridges")
 	_test_bridges()
+	print("  - sensors_lens")
+	_test_sensors_lens()
 	print("  - save")
 	_test_save()
 
 
 func _ok(cond: bool, what: String) -> void:
 	_check.call(cond, what)
+
+
+## Lentille Senseurs (prop. 37) : couverture de détection système par système, second clic de la
+## lentille de guerre.
+func _test_sensors_lens() -> void:
+	var st := new_game()
+	var me: Empire = null
+	for e in st.empires:
+		if not e.is_npc():
+			me = e
+			break
+	var home := st.galaxy.get_planet(me.capital_planet).system_id
+	_ok(Stealth.coverage(st, me.id, home) >= 1, "Senseurs : le système natal est couvert (niveau %d)" % Stealth.coverage(st, me.id, home))
+	var far := -1
+	var jumps := FactionTraits.jumps_from(st.galaxy, home)
+	for s in st.galaxy.systems:
+		if int(jumps.get(s.id, 0)) >= 9:
+			far = s.id
+			break
+	_ok(far < 0 or Stealth.coverage(st, me.id, far) == -1, "Senseurs : aveugle loin de tout")
+	_ok(Stealth.coverage(GameState.create(41, 60, 1200.0, "ossarane", {"ai_level": ""}), me.id, home) == -1, "furtivité coupée : pas de couverture")
 
 
 static func new_game(mode := "complete", faction := "ossarane", seed_value := 41) -> GameState:

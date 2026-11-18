@@ -300,6 +300,22 @@ func _draw() -> void:
 			_draw_label(s, px, true)
 			_draw_amph(s, px, o)
 		return
+	if lens == "sensors" and state != null:
+		# Lentille Senseurs (second clic de la lentille de guerre, furtivité) : sur chaque système exploré,
+		# le camouflage le plus fort que vos senseurs (et ceux de vos alliés) percent, de 0 à 5 ; rien
+		# là où vous êtes aveugle. Les anneaux blancs marquent vos postes fixes (colonies, stations, balises).
+		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
+		var posts := {}
+		for src in Stealth.sources(state, viewer):
+			if int(src[3]) == 1:
+				posts[int(src[0])] = true
+		for s in galaxy.systems:
+			if not is_explored(s.id):
+				continue
+			_draw_system(s, px)
+			_draw_label(s, px, owner_of(s.id) == viewer)
+			_draw_sensors(s, px, Stealth.coverage(state, viewer, s.id), posts.has(s.id))
+		return
 	if lens == "war" and state != null:
 		# Lentille de guerre : les systèmes des empires en guerre avec vous (cercle rouge), vos
 		# revendications (pointillé or), les systèmes occupés hachurés à la couleur de l'occupant.
@@ -1553,6 +1569,20 @@ func _draw_war(s: StarSystem, px: float, o: int) -> void:
 			draw_arc(Vector2.ZERO, 17.0, TAU * k / 10.0, TAU * (k + 0.5) / 10.0, 4, Color(0.95, 0.8, 0.35), 2.0, true)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	_draw_occupation(s, px)
+
+
+## Lentille Senseurs : un disque d'autant plus vif que la détection est forte, et son niveau.
+func _draw_sensors(s: StarSystem, px: float, level: int, post: bool) -> void:
+	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	if level >= 0:
+		var col := Color(0.35, 0.85, 0.95)
+		var t := clampf(float(level) / float(maxi(1, Stealth.max_level())), 0.0, 1.0)
+		draw_circle(Vector2.ZERO, 16.0, Color(col, 0.12 + 0.3 * t))
+		draw_arc(Vector2.ZERO, 16.0, 0.0, TAU, 28, Color(col, 0.5 + 0.4 * t), 1.6, true)
+		draw_string(_font, Vector2(14, -10), str(level), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, col.lightened(0.3))
+	if post:
+		draw_arc(Vector2.ZERO, 21.0, 0.0, TAU, 28, Color(1, 1, 1, 0.7), 1.4, true)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 ## Système occupé : hachures à la couleur de l'occupant (aussi sur la carte ordinaire).

@@ -411,6 +411,17 @@ func cycle_peoples_lens() -> void:
 		set_lens("peoples")
 
 
+## Onglet Guerre (et touche W) : guerre, puis couverture des senseurs si la furtivité est en jeu
+## (furtivité, prop. 37), puis la vue galaxie.
+func cycle_war_lens() -> void:
+	if lens == "war" and _state != null and Stealth.enabled(_state):
+		set_lens("sensors")
+	elif lens == "war" or lens == "sensors":
+		set_lens("")
+	else:
+		set_lens("war")
+
+
 ## Lentille de la carte : "" (vue galaxie), "economy", "stability", "politics", "trade", "peoples", "faith", "amph" ou "war".
 func set_lens(value: String) -> void:
 	lens = value
@@ -423,7 +434,7 @@ func set_lens(value: String) -> void:
 	_tab_faith.set_pressed_no_signal(value == "faith")
 	_tab_amph.set_pressed_no_signal(value == "amph")
 	if _tab_war:
-		_tab_war.set_pressed_no_signal(value == "war")
+		_tab_war.set_pressed_no_signal(value == "war" or value == "sensors")
 	if _tab_borders:
 		_tab_borders.set_pressed_no_signal(value == "borders")
 	if _tab_culture:
@@ -466,8 +477,8 @@ func _build_tabs() -> void:
 	_tab_faith.pressed.connect(func() -> void: set_lens("" if lens == "faith" else "faith"))
 	_tab_amph = _tab("Assemblée", "Lentille de l'Amphictyonie : les empires membres (or), les hors-la-loi (rouge) et ceux qui restent dehors (gris), avec leurs voix  (X)")
 	_tab_amph.pressed.connect(func() -> void: set_lens("" if lens == "amph" else "amph"))
-	_tab_war = _tab("Guerre", "Lentille de guerre : les systèmes de vos ennemis (rouge), vos revendications (pointillé or), les systèmes occupés hachurés à la couleur de l'occupant  (W ; Z en QWERTY)")
-	_tab_war.pressed.connect(func() -> void: set_lens("" if lens == "war" else "war"))
+	_tab_war = _tab("Guerre", "Lentille de guerre : les systèmes de vos ennemis (rouge), vos revendications (pointillé or), les systèmes occupés hachurés à la couleur de l'occupant. Second clic, si la furtivité est en jeu : la couverture de vos senseurs  (W ; Z en QWERTY)")
+	_tab_war.pressed.connect(cycle_war_lens)
 	_tab_borders = _tab("Frontières", "Lentille des frontières : votre droit de passage chez chaque voisin (vert : vos flottes de guerre passent, ambre : vaisseaux sans armes seulement, rouge : frontière close) et les intrus chez vous  (A ; Q en QWERTY)")
 	_tab_borders.pressed.connect(func() -> void: set_lens("" if lens == "borders" else "borders"))
 	_tab_culture = _tab("Culture", "Lentille du rayonnement : chez chaque empire, le palier de votre culture (gris Inconnu, bleu Exotique, vert Familier, or En vogue, orange Influent, rouge Dominant) ; chez vous, la culture étrangère dominante et les défections en cours")
