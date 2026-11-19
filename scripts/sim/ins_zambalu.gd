@@ -110,7 +110,7 @@ static func _show_day(state: GameState, eid: int, ed: Dictionary, f: Fleet, b: i
 	shows.erase(key)
 	var e := state.get_empire(eid)
 	var host := state.get_empire(b)
-	var ticket := mini(_c("show_ticket", 20), maxi(0, int(host.resources.get("energy", 0))))
+	var ticket := mini(Insolites.tuned(state, eid, "zambalu", "show_ticket", _c("show_ticket", 20)), maxi(0, int(host.resources.get("energy", 0))))
 	host.resources["energy"] = int(host.resources.get("energy", 0)) - ticket
 	e.resources["energy"] = int(e.resources.get("energy", 0)) + ticket
 	Insolites.sub(state, "stage")[str(sid)] = state.tick + _c("show_stability_days", 180)
@@ -118,7 +118,7 @@ static func _show_day(state: GameState, eid: int, ed: Dictionary, f: Fleet, b: i
 	if not state.culture.is_empty():
 		var cum := Culture._m(state, "cum")
 		var ck := Culture._k(eid, b)
-		cum[ck] = int(cum.get(ck, 0)) + _c("show_radiance", 40)
+		cum[ck] = int(cum.get(ck, 0)) + Insolites.tuned(state, eid, "zambalu", "show_radiance", _c("show_radiance", 40))
 	else:
 		# Sans rayonnement culturel, les Recrues viennent des tournées : un artiste par représentation.
 		ed["pop"] = int(ed["pop"]) + 1
@@ -135,7 +135,7 @@ static func _spectacle_mass(state: GameState, e: Empire, host: Empire, sid: int)
 	var fid := Faiths.state_faith(state, host.id)
 	if not state.faith_on or FaithWars.nature(state, fid) != "grand_spectacle":
 		return
-	e.resources["energy"] = int(e.resources.get("energy", 0)) + _c("show_ticket", 20)
+	e.resources["energy"] = int(e.resources.get("energy", 0)) + Insolites.tuned(state, e.id, "zambalu", "show_ticket", _c("show_ticket", 20))
 	var best: Colony = null
 	for pid in state.galaxy.systems[sid].planet_ids:
 		var c: Colony = state.colonies.get(pid)
@@ -165,7 +165,7 @@ static func _tour_day(state: GameState, eid: int, ed: Dictionary, f: Fleet, b: i
 		tours.erase(key)
 		return
 	if not tours.has(key) or int(tours[key]["p"]) != target:
-		tours[key] = {"s": sid, "p": target, "left": _c("tour_days", 90)}
+		tours[key] = {"s": sid, "p": target, "left": Insolites.tuned(state, eid, "zambalu", "tour_days", _c("tour_days", 90))}
 	var t: Dictionary = tours[key]
 	t["left"] = int(t["left"]) - 1
 	if int(t["left"]) > 0:

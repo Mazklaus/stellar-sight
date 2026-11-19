@@ -36,6 +36,26 @@ static func cfg(section: String) -> Dictionary:
 	return data().get(section, {})
 
 
+## Lot 5 de l'arbre : un réglage d'un peuple insolite modifié par ses technologies (effet "ins_pct",
+## {"peuple.réglage": %}). Le réglage de base reste dans data/insolites.json.
+@warning_ignore("integer_division")
+static func tuned(state: GameState, eid: int, section: String, key: String, base: int) -> int:
+	var p := Research.fx_sub(state, eid, "ins_pct", section + "." + key)
+	return base if p == 0 else base * maxi(0, 100 + p) / 100
+
+
+## Lot 5 de l'arbre : talent de recherche d'un peuple insolite, du Savoir à chaque événement de sa
+## mécanique (clé "learn_<événement>" du talent, en Savoir par unité). Renvoie le Savoir gagné.
+static func learn(state: GameState, eid: int, key: String, units: int) -> int:
+	var e := state.get_empire(eid)
+	if e == null or units <= 0:
+		return 0
+	var k := int(e.faction().get("research", {}).get(key, 0)) * units
+	if k > 0:
+		e.resources["knowledge"] = int(e.resources.get("knowledge", 0)) + k
+	return k
+
+
 static func c_int(section: String, key: String, def := 0) -> int:
 	return int(cfg(section).get(key, def))
 
@@ -757,7 +777,7 @@ static func claim_block(state: GameState, eid: int, claim_kind: String) -> Strin
 static func claim_extra_days(state: GameState, eid: int, claim_kind: String) -> int:
 	if state.insolites.is_empty() or claim_kind != Colony.KIND_COLONY or kind(state, eid) != "bureau":
 		return 0
-	return c_int("bureau", "file_days", 360)
+	return tuned(state, eid, "bureau", "file_days", c_int("bureau", "file_days", 360))
 
 
 ## Coût des contrats de mercenaires en % de plus (Diplomacy.sign_contract) : l'armée privée.

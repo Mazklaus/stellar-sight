@@ -187,6 +187,7 @@ static func undo(state: GameState, eid: int, i: int, added: Array[Dictionary]) -
 	var en: Dictionary = reg[i]
 	reg.remove_at(i)
 	ed["sand"] = int(ed.get("sand", 0)) - undo_cost(en)
+	Insolites.learn(state, eid, "learn_undo", 1)  # Le futur se souvient
 	var e := state.get_empire(eid)
 	var sid := int(en.get("sid", -1))
 	var text := ""
@@ -303,7 +304,7 @@ static func check_bubble(state: GameState, eid: int, sid: int, mode: String) -> 
 static func bubble(state: GameState, eid: int, sid: int, mode: String, added: Array[Dictionary]) -> void:
 	var ed := Insolites.emp(state, eid)
 	ed["sand"] = int(ed["sand"]) - _c("bubble_sand", 30)
-	ed["bub"] = state.tick + _c("bubble_cd_days", 360)
+	ed["bub"] = state.tick + Insolites.tuned(state, eid, "sablier", "bubble_cd_days", _c("bubble_cd_days", 360))
 	var pct := _c("bubble_pct", 25) * (1 if mode == "compression" else -1)
 	Insolites.sub(state, "bubbles")[str(sid)] = {"pct": pct, "until": state.tick + _c("bubble_days", 360), "o": eid}
 	var sname := state.galaxy.systems[sid].system_name
@@ -398,7 +399,7 @@ static func daily(state: GameState, eid: int, ed: Dictionary, month: bool, added
 		added.append(state.add_chronicle("Un nouveau Gardien chronal prend le Sablier. Il a l'air de savoir déjà comment tout cela finit, et il ne dit rien.", Espionage.public_to(state, [eid])))
 	if not month:
 		return
-	ed["sand"] = mini(_c("sand_max", 200), int(ed.get("sand", 0)) + _c("sand_month", 5))
+	ed["sand"] = mini(_c("sand_max", 200), int(ed.get("sand", 0)) + Insolites.tuned(state, eid, "sablier", "sand_month", _c("sand_month", 5)))
 	var reg: Array = ed.get("reg", [])
 	while not reg.is_empty() and state.tick - int((reg[0] as Dictionary)["t"]) > _c("reg_days", 180):
 		reg.pop_front()

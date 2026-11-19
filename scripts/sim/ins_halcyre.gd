@@ -107,7 +107,7 @@ static func _eat_day(state: GameState, eid: int, ed: Dictionary, o: Fleet, added
 		if list.is_empty():
 			ed["eat"] = {}
 			return
-		eat = {"p": list[0], "left": _c("eat_days", 60), "col": 0}
+		eat = {"p": list[0], "left": Insolites.tuned(state, eid, "halcyre", "eat_days", _c("eat_days", 60)), "col": 0}
 	var pid := int(eat["p"])
 	if int(eat["col"]) > 0:
 		var c: Colony = state.colonies.get(pid)
@@ -140,6 +140,7 @@ static func _eat_day(state: GameState, eid: int, ed: Dictionary, o: Fleet, added
 		Research.count_stat(state, eid, "worlds_devoured")
 	Insolites.sub(state, "eaten")[str(pid)] = 1
 	_add_mass(ed, e.faction_id, gain)
+	Insolites.learn(state, eid, "learn_mass", gain)  # Digestion lente
 	Research.count_stat(state, eid, "bodies_eaten")
 	if victim >= 0:
 		added.append(state.add_chronicle("L'Orbe-Monde Halcyre a dévoré %s, colonie de %s : il n'en reste qu'un anneau de poussière, et une Masse de plus (%+d)." % [
@@ -165,8 +166,8 @@ static func check_sentinel(state: GameState, eid: int, pid: int) -> String:
 	var owner := state.system_owner(p.system_id)
 	if owner >= 0 and owner != eid:
 		return "le système est revendiqué par %s" % state.get_empire(owner).short_name()
-	if mass(state, eid) <= _c("sentinel_mass", 4) + 1:
-		return "il faut plus de %d de Masse" % (_c("sentinel_mass", 4) + 1)
+	if mass(state, eid) <= Insolites.tuned(state, eid, "halcyre", "sentinel_mass", _c("sentinel_mass", 4)) + 1:
+		return "il faut plus de %d de Masse" % (Insolites.tuned(state, eid, "halcyre", "sentinel_mass", _c("sentinel_mass", 4)) + 1)
 	if not (Insolites.emp(state, eid).get("eat", {}) as Dictionary).is_empty() and int(Insolites.emp(state, eid)["eat"]["p"]) == pid:
 		return "l'Orbe est en train de manger ce corps"
 	return ""
@@ -180,7 +181,7 @@ static func sentinel(state: GameState, eid: int, pid: int, added: Array[Dictiona
 	c.owner = eid
 	c.kind = Colony.KIND_OUTPOST
 	state.colonies[pid] = c
-	_add_mass(ed, state.get_empire(eid).faction_id, -_c("sentinel_mass", 4))
+	_add_mass(ed, state.get_empire(eid).faction_id, -Insolites.tuned(state, eid, "halcyre", "sentinel_mass", _c("sentinel_mass", 4)))
 	state.rebuild_ownership()
 	state.garrisons[p.system_id] = Combat.garrison_max(state, p.system_id)
 	Research.count_stat(state, eid, "sentinels")
@@ -206,7 +207,7 @@ static func check_devour(state: GameState, eid: int, pid: int) -> String:
 
 
 static func devour(state: GameState, eid: int, pid: int) -> void:
-	Insolites.emp(state, eid)["eat"] = {"p": pid, "left": _c("eat_colony_days", 120), "col": 1}
+	Insolites.emp(state, eid)["eat"] = {"p": pid, "left": Insolites.tuned(state, eid, "halcyre", "eat_colony_days", _c("eat_colony_days", 120)), "col": 1}
 
 
 # --- L'Allumage (prop. 28) -------------------------------------------------------------------------
@@ -227,7 +228,7 @@ static func siege(state: GameState, eid: int) -> Array[int]:
 static func besieged(state: GameState, eid: int) -> bool:
 	var s := siege(state, eid)
 	@warning_ignore("integer_division")
-	return s[0] > 0 and s[0] * 100 >= s[1] * _c("siege_power_pct", 100)
+	return s[0] > 0 and s[0] * 100 >= s[1] * Insolites.tuned(state, eid, "halcyre", "siege_power_pct", _c("siege_power_pct", 100))
 
 
 static func victory(state: GameState, e: Empire, out: Dictionary) -> void:

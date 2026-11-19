@@ -2974,6 +2974,330 @@ square sci-fi concept art, a cultural festival of light, temples and holographic
 square sci-fi concept art, a holographic war-room tactical map with fleet formations, evoking the technology "Pillage méthodique" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## brouillage_piste · Brouillage de piste
+
+- Fichier : `assets/tech/brouillage_piste.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Les Traqueurs mettent moitié plus de temps à retrouver une flotte-ville mouillée au même endroit.
+
+```
+square sci-fi concept art, a starship drive and a glowing jump gate, evoking the technology "Brouillage de piste" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## nefs_elargies · Nefs élargies
+
+- Fichier : `assets/tech/nefs_elargies.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Chaque nef-cité loge 25 % d'habitants de plus : on a abattu les cloisons des coursives.
+
+```
+square sci-fi concept art, a starship hull under construction in an orbital shipyard, evoking the technology "Nefs élargies" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## decors_holographiques · Décors holographiques
+
+- Fichier : `assets/tech/decors_holographiques.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Un spectacle répand moitié plus de Rayonnement : la pyramide de lumière se voit depuis l'orbite.
+
+```
+square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Décors holographiques" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## chapiteau_deux · Chapiteau II
+
+- Fichier : `assets/tech/chapiteau_deux.png` · Domaine : economie · Ère 2
+- Ce qu'elle fait : Un chapiteau à deux pistes : le prix du billet monte de moitié.
+
+```
+square sci-fi concept art, a bustling interstellar trade hub with cargo ships, evoking the technology "Chapiteau II" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## haute_voltige · Haute voltige
+
+- Fichier : `assets/tech/haute_voltige.png` · Domaine : genie · Ère 3
+- Ce qu'elle fait : Les tournées montent leur prochaine représentation 30 % plus vite.
+
+```
+square sci-fi concept art, a starship drive and a glowing jump gate, evoking the technology "Haute voltige" (era 3 of 5, advanced and refined), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## lunes_sentinelles_ii · Lunes-sentinelles II
+
+- Fichier : `assets/tech/lunes_sentinelles_ii.png` · Domaine : armement · Ère 2
+- Ce qu'elle fait : Détacher une Lune-sentinelle ne coûte plus que la moitié de la Masse.
+
+```
+square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Lunes-sentinelles II" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## croute_blindee · Croûte blindée
+
+- Fichier : `assets/tech/croute_blindee.png` · Domaine : armement · Ère 3
+- Ce qu'elle fait : Il faut une flotte moitié plus forte pour assiéger l'Orbe-Monde.
+
+```
+square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Croûte blindée" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## coeur_fusion · Cœur en fusion
+
+- Fichier : `assets/tech/coeur_fusion.png` · Domaine : economie · Ère 2
+- Ce qu'elle fait : L'Orbe digère 30 % plus vite : dévorer un corps ou une colonie prend moins de temps.
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Cœur en fusion" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## lignees_robustes · Lignées robustes
+
+- Fichier : `assets/tech/lignees_robustes.png` · Domaine : societe · Ère 1
+- Ce qu'elle fait : Les naissances viennent un tiers plus tôt : deux Adultes au pâturage donnent un Petit plus vite.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Lignées robustes" (era 1 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## paturages_profonds · Pâturages profonds
+
+- Fichier : `assets/tech/paturages_profonds.png` · Domaine : economie · Ère 2
+- Ce qu'elle fait : La harde broute 40 % de moins par mois : un pâturage s'épuise bien moins vite.
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Pâturages profonds" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## chant_migration · Chant de migration
+
+- Fichier : `assets/tech/chant_migration.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Sur les routes de migration connues, la harde va encore 15 % plus vite.
+
+```
+square sci-fi concept art, a starship drive and a glowing jump gate, evoking the technology "Chant de migration" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## audit_prealable · Audit préalable
+
+- Fichier : `assets/tech/audit_prealable.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : La Compagnie voit une colonie dès 15 % de parts au lieu de 25 %.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Audit préalable" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## rachat_levier · Rachat à effet de levier
+
+- Fichier : `assets/tech/rachat_levier.png` · Domaine : economie · Ère 3
+- Ce qu'elle fait : Les parts coûtent 25 % de moins (le prix plancher reste le même).
+
+```
+square sci-fi concept art, a bustling interstellar trade hub with cargo ships, evoking the technology "Rachat à effet de levier" (era 3 of 5, advanced and refined), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## formulaires_dematerialises · Formulaires dématérialisés
+
+- Fichier : `assets/tech/formulaires_dematerialises.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Le dossier d'une nouvelle colonie attend moitié moins longtemps. Débloque le Guichet central, qui remplace le Tribunal.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Formulaires dématérialisés" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## huissiers_assermentes · Huissiers assermentés
+
+- Fichier : `assets/tech/huissiers_assermentes.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Une Procédure du Bureau sanctionne moitié plus longtemps.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Huissiers assermentés" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## protocoles_viraux · Protocoles viraux
+
+- Fichier : `assets/tech/protocoles_viraux.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Le Signal se copie moitié plus souvent dans les colonies voisines.
+
+```
+square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Protocoles viraux" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## corps_empruntes_ii · Corps empruntés II
+
+- Fichier : `assets/tech/corps_empruntes_ii.png` · Domaine : armement · Ère 3
+- Ce qu'elle fait : Les vaisseaux empruntés restent deux fois plus longtemps sous le contrôle du Signal.
+
+```
+square sci-fi concept art, armored ground troops and dropships, evoking the technology "Corps empruntés II" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## reverie_profonde · Rêverie profonde
+
+- Fichier : `assets/tech/reverie_profonde.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Les rêveries s'installent 40 % plus souvent dans les populations voisines.
+
+```
+square sci-fi concept art, minds, psychic resonance and cosmic mysteries, evoking the technology "Rêverie profonde" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## flotte_songe_durable · Flotte de songe durable
+
+- Fichier : `assets/tech/flotte_songe_durable.png` · Domaine : armement · Ère 3
+- Ce qu'elle fait : Une flotte de songe dure deux fois plus longtemps avant de se dissiper.
+
+```
+square sci-fi concept art, a holographic war-room tactical map with fleet formations, evoking the technology "Flotte de songe durable" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## ossuaires_ii · Ossuaires II
+
+- Fichier : `assets/tech/ossuaires_ii.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Deux fois plus de morts peuvent rouvrir les yeux chaque mois.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Ossuaires II" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## vitrines_climatisees · Vitrines climatisées
+
+- Fichier : `assets/tech/vitrines_climatisees.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Les pièces vivantes de la Collection s'échappent bien moins souvent (60 % de moins).
+
+```
+square sci-fi concept art, a sensor array scanning the dark between stars, evoking the technology "Vitrines climatisées" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## visites_guidees · Visites guidées
+
+- Fichier : `assets/tech/visites_guidees.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Les visiteurs de marque viennent moitié plus souvent (et laissent leur influence).
+
+```
+square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Visites guidées" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## optique_voilee · Optique voilée
+
+- Fichier : `assets/tech/optique_voilee.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Les postes voilés sont 40 % moins souvent découverts.
+
+```
+square sci-fi concept art, a sensor array scanning the dark between stars, evoking the technology "Optique voilée" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## elevation_douce · Élévation douce
+
+- Fichier : `assets/tech/elevation_douce.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Chaque élévation fait mûrir une espèce primitive 30 % plus vite.
+
+```
+square sci-fi concept art, minds, psychic resonance and cosmic mysteries, evoking the technology "Élévation douce" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## sable_fin · Sable fin
+
+- Fichier : `assets/tech/sable_fin.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Le Sable remonte 60 % plus vite chaque mois.
+
+```
+square sci-fi concept art, minds, psychic resonance and cosmic mysteries, evoking the technology "Sable fin" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## bulles_rapprochees · Bulles rapprochées
+
+- Fichier : `assets/tech/bulles_rapprochees.png` · Domaine : genie · Ère 3
+- Ce qu'elle fait : On peut gonfler une nouvelle bulle temporelle deux fois plus tôt.
+
+```
+square sci-fi concept art, a starship drive and a glowing jump gate, evoking the technology "Bulles rapprochées" (era 3 of 5, advanced and refined), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## oeuvres_hatees · Œuvres hâtées
+
+- Fichier : `assets/tech/oeuvres_hatees.png` · Domaine : economie · Ère 2
+- Ce qu'elle fait : La réserve de Temps monte moitié plus vite quand les Lithes n'entreprennent rien.
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Œuvres hâtées" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## hibernation_profonde · Hibernation profonde
+
+- Fichier : `assets/tech/hibernation_profonde.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Une colonie endormie dort moitié plus longtemps, à l'abri de tout.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Hibernation profonde" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## cometes_semences_ii · Comètes-semences II
+
+- Fichier : `assets/tech/cometes_semences_ii.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Les comètes-semences portent 40 % plus loin de vos colonies.
+
+```
+square sci-fi concept art, a starship drive and a glowing jump gate, evoking the technology "Comètes-semences II" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## cometes_semences_iii · Comètes-semences III
+
+- Fichier : `assets/tech/cometes_semences_iii.png` · Domaine : genie · Ère 4
+- Ce qu'elle fait : Les comètes-semences portent encore 40 % plus loin.
+
+```
+square sci-fi concept art, a starship drive and a glowing jump gate, evoking the technology "Comètes-semences III" (era 4 of 5, advanced and refined), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## spores_ralentissantes · Spores ralentissantes
+
+- Fichier : `assets/tech/spores_ralentissantes.png` · Domaine : armement · Ère 2
+- Ce qu'elle fait : Les spores pèsent deux fois plus sur les flottes ennemies dans vos systèmes.
+
+```
+square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Spores ralentissantes" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## saisons_accelerees · Saisons accélérées
+
+- Fichier : `assets/tech/saisons_accelerees.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : On peut changer de Saison deux fois par an.
+
+```
+square sci-fi concept art, minds, psychic resonance and cosmic mysteries, evoking the technology "Saisons accélérées" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## jardinage_patient · Jardinage patient
+
+- Fichier : `assets/tech/jardinage_patient.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Une colonie devient monde-jardin 30 % plus vite.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Jardinage patient" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## psaumes_coursives · Psaumes des coursives
+
+- Fichier : `assets/tech/psaumes_coursives.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Chaque signe de la Terre promise donne deux fois plus d'Espoir.
+
+```
+square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Psaumes des coursives" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## lignees_croisees_etape1 · Pactes de sang
+
+- Fichier : `assets/tech/lignees_croisees_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Lignées croisées », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Pactes de sang" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## lignees_croisees_etape2 · Arbres généalogiques
+
+- Fichier : `assets/tech/lignees_croisees_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Lignées croisées », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Arbres généalogiques" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## lignees_croisees · Lignées croisées
 
 - Fichier : `assets/tech/lignees_croisees.png` · Domaine : societe · Ère 4
@@ -2981,6 +3305,24 @@ square sci-fi concept art, a holographic war-room tactical map with fleet format
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Lignées croisées" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## dernier_couplet_etape1 · Premier couplet
+
+- Fichier : `assets/tech/dernier_couplet_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Le Dernier Couplet », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Premier couplet" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## dernier_couplet_etape2 · Second couplet
+
+- Fichier : `assets/tech/dernier_couplet_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Le Dernier Couplet », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Second couplet" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## dernier_couplet · Le Dernier Couplet
@@ -2992,6 +3334,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Le Dernier Couplet" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## charte_etape1 · Avant-projet
+
+- Fichier : `assets/tech/charte_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Charte des Quarante et Un », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Avant-projet" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## charte_etape2 · Navette parlementaire
+
+- Fichier : `assets/tech/charte_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Charte des Quarante et Un », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Navette parlementaire" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## charte · Charte des Quarante et Un
 
 - Fichier : `assets/tech/charte.png` · Domaine : societe · Ère 4
@@ -2999,6 +3359,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Charte des Quarante et Un" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## terre_promise_etape1 · Cartes chantées
+
+- Fichier : `assets/tech/terre_promise_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Chants de la route », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Cartes chantées" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## terre_promise_etape2 · Mémoire de la route
+
+- Fichier : `assets/tech/terre_promise_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Chants de la route », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Mémoire de la route" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## terre_promise · Chants de la route
@@ -3010,6 +3388,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Chants de la route" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## legende_etape1 · Conteurs des docks
+
+- Fichier : `assets/tech/legende_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Mille et une histoires », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Conteurs des docks" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## legende_etape2 · Registre des exploits
+
+- Fichier : `assets/tech/legende_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Mille et une histoires », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Registre des exploits" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## legende · Mille et une histoires
 
 - Fichier : `assets/tech/legende.png` · Domaine : societe · Ère 4
@@ -3017,6 +3413,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Mille et une histoires" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## silence_parfait_etape1 · Voix basse
+
+- Fichier : `assets/tech/silence_parfait_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Le Grand Silence », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Voix basse" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## silence_parfait_etape2 · Murmure
+
+- Fichier : `assets/tech/silence_parfait_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Le Grand Silence », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Murmure" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## silence_parfait · Le Grand Silence
@@ -3028,6 +3442,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Le Grand Silence" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## noosphere_etape1 · Synapses
+
+- Fichier : `assets/tech/noosphere_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Éveil de la Noosphère », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Synapses" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## noosphere_etape2 · Pensée commune
+
+- Fichier : `assets/tech/noosphere_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Éveil de la Noosphère », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Pensée commune" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## noosphere · Éveil de la Noosphère
 
 - Fichier : `assets/tech/noosphere.png` · Domaine : societe · Ère 4
@@ -3035,6 +3467,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Éveil de la Noosphère" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## allumage_etape1 · Noyau dense
+
+- Fichier : `assets/tech/allumage_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « L'Allumage », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Noyau dense" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## allumage_etape2 · Première étincelle
+
+- Fichier : `assets/tech/allumage_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « L'Allumage », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Première étincelle" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## allumage · L'Allumage
@@ -3046,6 +3496,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "L'Allumage" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## opa_galactique_etape1 · Prise de participation
+
+- Fichier : `assets/tech/opa_galactique_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « L'OPA galactique », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Prise de participation" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## opa_galactique_etape2 · Pacte d'actionnaires
+
+- Fichier : `assets/tech/opa_galactique_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « L'OPA galactique », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Pacte d'actionnaires" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## opa_galactique · L'OPA galactique
 
 - Fichier : `assets/tech/opa_galactique.png` · Domaine : societe · Ère 4
@@ -3053,6 +3521,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "L'OPA galactique" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## administration_totale_etape1 · Normes des normes
+
+- Fichier : `assets/tech/administration_totale_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « L'Administration totale », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Normes des normes" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## administration_totale_etape2 · Guichet unique
+
+- Fichier : `assets/tech/administration_totale_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « L'Administration totale », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Guichet unique" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## administration_totale · L'Administration totale
@@ -3064,6 +3550,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "L'Administration totale" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## saturation_etape1 · Bande passante
+
+- Fichier : `assets/tech/saturation_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « La Saturation », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Bande passante" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## saturation_etape2 · Écho partout
+
+- Fichier : `assets/tech/saturation_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « La Saturation », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Écho partout" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## saturation · La Saturation
 
 - Fichier : `assets/tech/saturation.png` · Domaine : societe · Ère 4
@@ -3071,6 +3575,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "La Saturation" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## reve_commun_etape1 · Sommeil partagé
+
+- Fichier : `assets/tech/reve_commun_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Le Rêve commun », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Sommeil partagé" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## reve_commun_etape2 · Rêve éveillé
+
+- Fichier : `assets/tech/reve_commun_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Le Rêve commun », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Rêve éveillé" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## reve_commun · Le Rêve commun
@@ -3082,6 +3604,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Le Rêve commun" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## grand_rassemblement_etape1 · Registre des morts
+
+- Fichier : `assets/tech/grand_rassemblement_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Le Grand Rassemblement », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Registre des morts" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## grand_rassemblement_etape2 · Chemin des âmes
+
+- Fichier : `assets/tech/grand_rassemblement_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Le Grand Rassemblement », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Chemin des âmes" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## grand_rassemblement · Le Grand Rassemblement
 
 - Fichier : `assets/tech/grand_rassemblement.png` · Domaine : societe · Ère 4
@@ -3089,6 +3629,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Le Grand Rassemblement" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## musee_vivant_etape1 · Catalogue raisonné
+
+- Fichier : `assets/tech/musee_vivant_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Le Musée vivant », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Catalogue raisonné" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## musee_vivant_etape2 · Dernière salle
+
+- Fichier : `assets/tech/musee_vivant_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Le Musée vivant », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Dernière salle" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## musee_vivant · Le Musée vivant
@@ -3100,6 +3658,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Le Musée vivant" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## envol_etape1 · Patience des étoiles
+
+- Fichier : `assets/tech/envol_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « L'Envol », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Patience des étoiles" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## envol_etape2 · Phare discret
+
+- Fichier : `assets/tech/envol_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « L'Envol », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Phare discret" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## envol · L'Envol
 
 - Fichier : `assets/tech/envol.png` · Domaine : societe · Ère 4
@@ -3107,6 +3683,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "L'Envol" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## paradoxe_stable_etape1 · Fissure maîtrisée
+
+- Fichier : `assets/tech/paradoxe_stable_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Le Paradoxe stable », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Fissure maîtrisée" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## paradoxe_stable_etape2 · Boucle ouverte
+
+- Fichier : `assets/tech/paradoxe_stable_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Le Paradoxe stable », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Boucle ouverte" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## paradoxe_stable · Le Paradoxe stable
@@ -3118,6 +3712,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Le Paradoxe stable" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## remodelage_etape1 · Plan millénaire
+
+- Fichier : `assets/tech/remodelage_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Le Remodelage », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Plan millénaire" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## remodelage_etape2 · Géologie dirigée
+
+- Fichier : `assets/tech/remodelage_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Le Remodelage », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Géologie dirigée" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## remodelage · Le Remodelage
 
 - Fichier : `assets/tech/remodelage.png` · Domaine : societe · Ère 4
@@ -3125,6 +3737,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Le Remodelage" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## biosphere_unique_etape1 · Mycélium patient
+
+- Fichier : `assets/tech/biosphere_unique_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « La Biosphère unique », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Mycélium patient" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## biosphere_unique_etape2 · Couverture de spores
+
+- Fichier : `assets/tech/biosphere_unique_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « La Biosphère unique », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Couverture de spores" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## biosphere_unique · La Biosphère unique
@@ -3136,6 +3766,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "La Biosphère unique" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## grand_jardin_etape1 · Semis d'étoiles
+
+- Fichier : `assets/tech/grand_jardin_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Le Grand Jardin », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Semis d'étoiles" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## grand_jardin_etape2 · Racines croisées
+
+- Fichier : `assets/tech/grand_jardin_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Le Grand Jardin », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Racines croisées" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## grand_jardin · Le Grand Jardin
 
 - Fichier : `assets/tech/grand_jardin.png` · Domaine : societe · Ère 4
@@ -3145,6 +3793,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Le Grand Jardin" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## grande_moisson_etape1 · Banque génétique
+
+- Fichier : `assets/tech/grande_moisson_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « La Grande Moisson », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Banque génétique" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## grande_moisson_etape2 · Faim commune
+
+- Fichier : `assets/tech/grande_moisson_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « La Grande Moisson », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Faim commune" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## grande_moisson · La Grande Moisson
 
 - Fichier : `assets/tech/grande_moisson.png` · Domaine : societe · Ère 4
@@ -3152,6 +3818,24 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "La Grande Moisson" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## idole_etape1 · Affiches lumineuses
+
+- Fichier : `assets/tech/idole_etape1.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Destinée « Idole des étoiles », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Affiches lumineuses" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## idole_etape2 · Tournée d'adieu
+
+- Fichier : `assets/tech/idole_etape2.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Destinée « Idole des étoiles », deuxième étape : le compte à rebours de la victoire est un quart plus court.
+
+```
+square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Tournée d'adieu" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## idole · Idole des étoiles

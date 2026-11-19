@@ -51,7 +51,7 @@ static func arrived(state: GameState, eid: int) -> bool:
 
 
 static func pop_cap(state: GameState, eid: int) -> int:
-	return nef_count(state, eid) * _c("nef_cap", 12)
+	return nef_count(state, eid) * Insolites.tuned(state, eid, "exode", "nef_cap", _c("nef_cap", 12))
 
 
 ## Rendement d'une planète travaillée depuis le mouillage (celui d'un avant-poste de son type).
@@ -139,7 +139,7 @@ static func _anchor_day(state: GameState, eid: int, ed: Dictionary, added: Array
 	if stay == _c("stalk_warn_days", 630):
 		added.append(state.add_chronicle("Les guetteurs de %s ont vu des signatures sur les routes de %s. Les Traqueurs approchent : il est temps de lever l'ancre." % [
 				state.get_empire(eid).display_name(), state.galaxy.systems[int(anc["s"])].system_name], Espionage.private_to(state, [eid])))
-	if stay >= _c("stalk_days", 720):
+	if stay >= Insolites.tuned(state, eid, "exode", "stalk_days", _c("stalk_days", 720)):
 		@warning_ignore("integer_division")
 		var extra := state.tick / (360 * maxi(1, _c("hunter_extra_per_years", 2)))
 		_hunt(state, eid, ed, int(anc["s"]), extra, added, false)
@@ -196,7 +196,8 @@ static func _month(state: GameState, eid: int, ed: Dictionary, added: Array[Dict
 			var dist := int(FactionTraits.jumps_from(state.galaxy, cf.system_id).get(state.galaxy.get_planet(pid).system_id, 999))
 			if int(ed.get("best", -1)) < 0 or dist < int(ed["best"]):
 				if int(ed.get("best", -1)) >= 0:
-					_hope(ed, _c("hope_sign", 6))
+					_hope(ed, Insolites.tuned(state, eid, "exode", "hope_sign", _c("hope_sign", 6)))
+					Insolites.learn(state, eid, "learn_sign", 1)  # Mémoire des nefs
 					added.append(state.add_chronicle("Un signe ! Les Chants de la route disent la Terre promise à %d sauts de %s. On chante plus fort dans les coursives." % [
 							dist, e.display_name()], Espionage.private_to(state, [eid])))
 				ed["best"] = dist
@@ -380,7 +381,7 @@ static func status_lines(state: GameState, eid: int, ed: Dictionary) -> Array[St
 	else:
 		var anc: Dictionary = ed.get("anc", {})
 		if int(anc.get("s", -1)) >= 0:
-			var left := _c("stalk_days", 720) - (state.tick - int(anc["t"]))
+			var left := Insolites.tuned(state, eid, "exode", "stalk_days", _c("stalk_days", 720)) - (state.tick - int(anc["t"]))
 			out.append("Mouillage à %s : les Traqueurs frappent dans %d jours" % [state.galaxy.systems[int(anc["s"])].system_name, maxi(0, left)])
 		else:
 			out.append("En route : les nefs ne produisent rien")

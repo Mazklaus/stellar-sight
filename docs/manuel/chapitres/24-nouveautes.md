@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.56
+
+- **La refonte de l'arbre de recherche** (chapitre 5), cinquième et dernier lot : **les peuples insolites et les Destinées**. Trente-quatre technologies propres qui affinent la mécanique de chaque peuple insolite (Kraal sans coques ni chantier, Guichet central du Bureau à la place du Tribunal) ; onze **talents de recherche** propres, qui remplacent ceux qu'ils empruntaient ; les talents deviennent une **brique de l'éditeur d'espèces** ; chaque **Destinée** se gagne en **trois étapes** (compte à rebours en pause, puis plus court, puis la Destinée). Sauvegarde 101 inchangée.
+
 ### Édition 2.55
 
 - **La refonte de l'arbre de recherche** (chapitre 5), quatrième lot : **les couches d'espèce et les peuples du GDD**. Une branche par archétype (lithoïdes, êtres de lumière, synthétiques et machines, ruches, végétaux et fongoïdes) avec trois **2es rangs** de leurs bâtiments de régime (Carrière profonde, Condensateur d'âme, Grande serre) ; une technologie pour chacun des onze credos qui n'en avaient pas ; pour les huit peuples du GDD, des technologies propres et sept **bâtiments de peuple** qui remplacent un bâtiment commun (Donjon de lignée, Forge-reliquaire, Tribune des Quarante, Bassin de ponte, Fonderie de châssis, Campement de clan, Tripot portuaire) ; treize **coques de peuple** de plus gagnent une capacité ; trois **talents de recherche** propres (Compilation pour Teyl, Butin de clan pour les Ferrocornes, Écoute des abysses pour les Murmurants). Le Monopole des cristaux devient la **Charte des cristaux** (péages doublés). Sauvegarde 101 inchangée.

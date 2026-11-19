@@ -95,7 +95,7 @@ static func check_uplift(state: GameState, eid: int, mid: int) -> String:
 static func uplift(state: GameState, eid: int, mid: int, added: Array[Dictionary]) -> void:
 	Economy.pay(state.get_empire(eid), Insolites.cfg("quietude").get("uplift_cost", {}))
 	var m := Minors.get_m(state, mid)
-	m["age_days"] = int(m["age_days"]) + _c("uplift_days", 540)
+	m["age_days"] = int(m["age_days"]) + Insolites.tuned(state, eid, "quietude", "uplift_days", _c("uplift_days", 540))
 	MinorsLife.add_aware(state, mid, _c("uplift_aware", 10))
 	(Insolites.emp(state, eid)["up"] as Dictionary)[str(mid)] = state.tick + _c("uplift_cd_days", 180)
 	added.append(state.add_chronicle("Chez %s, un inventeur fait un rêve très précis. Au réveil, il dessine une roue meilleure. Au-dessus, quelqu'un prend une note, et s'inquiète un peu." % Minors.name_of(state, mid),
@@ -130,7 +130,7 @@ static func _detect(state: GameState, eid: int, added: Array[Dictionary]) -> voi
 					seen[f.owner] = _c("detect_fleet_pmille", 40)
 			for o in m.get("post", {}):
 				if int(o) != eid:
-					seen[int(o)] = int(seen.get(int(o), 0)) + _c("detect_pmille", 25)
+					seen[int(o)] = int(seen.get(int(o), 0)) + Insolites.tuned(state, eid, "quietude", "detect_pmille", _c("detect_pmille", 25))
 			var ks := seen.keys()
 			ks.sort()
 			for o in ks:

@@ -57,7 +57,7 @@ static func licensed(state: GameState, eid: int, pid: int) -> bool:
 static func price(state: GameState, eid: int, pid: int) -> int:
 	var c: Colony = state.colonies.get(pid)
 	var pop := c.population if c != null else 0
-	var p := maxi(_c("share_price_min", 20), pop * _c("share_price_per_pop", 4))
+	var p := maxi(_c("share_price_min", 20), pop * Insolites.tuned(state, eid, "ventrelune", "share_price_per_pop", _c("share_price_per_pop", 4)))
 	@warning_ignore("integer_division")
 	return p * maxi(10, 100 + int(directive_def(state, eid).get("price_pct", 0))) / 100
 
@@ -104,7 +104,7 @@ static func buy(state: GameState, eid: int, pid: int, added: Array[Dictionary]) 
 	if bool(directive_def(state, eid).get("angry", false)):
 		Diplomacy.remember(state, c.owner, eid, "ins_hostile_buy")
 	var now := int(sh[str(pid)])
-	if now >= _c("view_pct", 25):
+	if now >= Insolites.tuned(state, eid, "ventrelune", "view_pct", _c("view_pct", 25)):
 		Insolites._explore(state, eid)  # droit de regard : la colonie entre dans la vue
 	if before < _c("control_pct", 51) and now >= _c("control_pct", 51):
 		added.append(state.add_chronicle("%s détient désormais la majorité de %s. Le gouverneur garde son bureau ; il a seulement un nouveau patron, et un nouveau logo sur sa porte." % [
@@ -208,6 +208,8 @@ static func daily(state: GameState, eid: int, ed: Dictionary, month: bool, added
 			continue
 		nolic.erase(key)
 		var pct := int(sh[key])
+		if pct >= _c("view_pct", 25):
+			Insolites.learn(state, eid, "learn_share_pop", c.population)  # Brevets
 		@warning_ignore("integer_division")
 		var due := c.population * _c("dividend_per_pop", 1) * pct * div_pct / 10000
 		if pct >= _c("control_pct", 51):

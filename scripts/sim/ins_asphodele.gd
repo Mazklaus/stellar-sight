@@ -151,7 +151,7 @@ static func _awaken(state: GameState, eid: int, added: Array[Dictionary]) -> voi
 	var e := state.get_empire(eid)
 	var per := maxi(1, _c("souls_per_pop", 2))
 	var n := 0
-	while int(ed["souls"]) >= per and n < _c("souls_cap_per_month", 4):
+	while int(ed["souls"]) >= per and n < Insolites.tuned(state, eid, "asphodele", "souls_cap_per_month", _c("souls_cap_per_month", 4)):
 		var c := _roomiest(state, eid)
 		if c == null:
 			break
@@ -161,6 +161,7 @@ static func _awaken(state: GameState, eid: int, added: Array[Dictionary]) -> voi
 		var fid := _take_species(ed, per)
 		if fid != "" and fid != e.faction_id and Peoples.enabled(state):
 			c.species[fid] = int(c.species.get(fid, 0)) + 1
+	Insolites.learn(state, eid, "learn_soul", n)  # Mémoire des morts
 	if n > 0 and state.tick % 360 < 30:
 		added.append(state.add_chronicle("Dans les nécropoles d'Asphodèle, %d mort%s ouvre%s les yeux. On leur explique ; ils posent toujours les mêmes questions." % [
 				n, "s" if n > 1 else "", "nt" if n > 1 else ""], Espionage.private_to(state, [eid])))

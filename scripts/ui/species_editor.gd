@@ -34,6 +34,8 @@ var _lore_edit: TextEdit
 var _color_row: HBoxContainer
 var _style_select: OptionButton
 var _temper_select: OptionButton
+var _talent_select: OptionButton
+var _talent_ids: Array[String] = []
 var _portrait_grid: GridContainer
 var _layer_selects := {}
 var _layer_texts := {}
@@ -348,6 +350,16 @@ func _build_identity(page: VBoxContainer) -> void:
 		spec["temperament"] = int(Species.parts()["temperaments"][i]["id"])
 		_refresh())
 	form.add_child(_temper_select)
+	# Talent de recherche (props 21 et 71 de l'arbre) : une brique choisie comme un trait, selon les couches.
+	form.add_child(UiTheme.section("Talent de recherche"))
+	_talent_select = OptionButton.new()
+	_talent_select.tooltip_text = "Par défaut, le talent vient des couches (souvent du credo). Les talents proposés dépendent du gouvernement et de l'archétype."
+	_talent_select.item_selected.connect(func(i: int) -> void:
+		if _syncing:
+			return
+		spec["research_talent"] = "" if i <= 0 else _talent_ids[i - 1]
+		_refresh())
+	form.add_child(_talent_select)
 	var lore_col := VBoxContainer.new()
 	lore_col.add_theme_constant_override("separation", 6)
 	lore_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -532,6 +544,22 @@ func _build_footer() -> void:
 # --- Rafraîchissement ---------------------------------------------------------------------------
 
 ## Remet tous les contrôles à l'image du spec (après ouverture ou changement de couche).
+## Liste des talents qui conviennent aux couches choisies ; un talent devenu impossible est retiré.
+func _sync_talents() -> void:
+	if _talent_select == null:
+		return
+	_talent_ids = Species.talent_choices(spec)
+	if String(spec.get("research_talent", "")) != "" and not _talent_ids.has(String(spec["research_talent"])):
+		spec["research_talent"] = ""
+	_talent_select.clear()
+	_talent_select.add_item("Selon les couches")
+	for t in _talent_ids:
+		var td: Dictionary = Species.talents()[t]
+		_talent_select.add_item(String(td["name"]))
+		_talent_select.set_item_tooltip(_talent_select.item_count - 1, String(td["text"]))
+	_talent_select.select(_talent_ids.find(String(spec.get("research_talent", ""))) + 1)
+
+
 func _sync_all() -> void:
 	if _name_edit == null:
 		return
@@ -545,6 +573,7 @@ func _sync_all() -> void:
 	for i in temps.size():
 		if int(temps[i]["id"]) == int(spec.get("temperament", 0)):
 			_temper_select.select(i)
+	_sync_talents()
 	for layer in _layer_selects:
 		var opts := Species.options(String(layer))
 		for i in opts.size():

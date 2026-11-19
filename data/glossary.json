@@ -5435,6 +5435,32 @@
    "chapters": [
     "07-recherche"
    ]
+  },
+  {
+   "id": "etape_destinee",
+   "name": "Étape de Destinée",
+   "forms": [
+    "Étape de Destinée",
+    "Étapes de Destinée"
+   ],
+   "family": "meca",
+   "summary": "Chacune des deux technologies qui précèdent une Destinée : la première met le compte à rebours de la victoire en pause quand sa condition se perd, la seconde le raccourcit d'un quart",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "talent_recherche",
+   "name": "Talent de recherche",
+   "forms": [
+    "Talent de recherche",
+    "Talents de recherche"
+   ],
+   "family": "meca",
+   "summary": "Manière propre à un peuple de faire avancer la science (Compilation, Brevets, Mémoire des morts…) ; une brique de l'éditeur d'espèces, choisie parmi celles que permettent les couches",
+   "chapters": [
+    "07-recherche"
+   ]
   }
  ]
 }

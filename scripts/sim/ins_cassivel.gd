@@ -200,6 +200,7 @@ static func check_acquire(state: GameState, eid: int, who: int) -> String:
 static func acquire(state: GameState, eid: int, who: int, added: Array[Dictionary]) -> void:
 	var cost: Dictionary = Insolites.cfg("cassivel").get("buy_cost", {})
 	Economy.pay(state.get_empire(eid), cost)
+	Insolites.learn(state, eid, "learn_piece", 1)  # Fiches d'inventaire
 	if not GameState.is_npc(who):
 		var seller := state.get_empire(who)
 		for r in cost:
@@ -238,7 +239,7 @@ static func daily(state: GameState, eid: int, ed: Dictionary, month: bool, added
 		return
 	var spec: Dictionary = ed.get("spec", {})
 	var h := hash([state.seed_value, state.tick, eid, "museum"])
-	if not spec.is_empty() and posmod(h, 1000) < _c("escape_pmille", 15) * (3 if orphan(state, eid) else 1):
+	if not spec.is_empty() and posmod(h, 1000) < Insolites.tuned(state, eid, "cassivel", "escape_pmille", _c("escape_pmille", 15)) * (3 if orphan(state, eid) else 1):
 		var ks := spec.keys()
 		ks.sort()
 		var fid := String(ks[posmod(h / 1000, ks.size())])
@@ -251,7 +252,7 @@ static func daily(state: GameState, eid: int, ed: Dictionary, month: bool, added
 		Heroes._free(state, hp)
 		added.append(state.add_chronicle("Un héros de %s s'introduit au Muséum pendant les heures de visite et repart avec %s, sous le bras, comme une pièce empruntée." % [
 				state.get_empire(int(hp["owner"])).short_name() if state.get_empire(int(hp["owner"])) else "?", String(hp["name"])], Espionage.public_to(state, [eid, int(hp["owner"])])))
-	if posmod(h / 17, 1000) < _c("visitors_pmille", 60):
+	if posmod(h / 17, 1000) < Insolites.tuned(state, eid, "cassivel", "visitors_pmille", _c("visitors_pmille", 60)):
 		var e := state.get_empire(eid)
 		e.resources["influence"] = int(e.resources.get("influence", 0)) + _c("visitors_influence", 15)
 		added.append(state.add_chronicle("Une délégation étrangère visite le Muséum de Sire Cassivel. Ils repartent émerveillés, avec des cartes postales et une légère inquiétude.", Espionage.private_to(state, [eid])))

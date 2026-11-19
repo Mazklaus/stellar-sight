@@ -114,7 +114,7 @@ static func speed_pct(state: GameState, f: Fleet) -> int:
 	if not f.is_moving() or kraal_count(f) == 0:
 		return 100
 	var known: Dictionary = Insolites.emp(state, f.owner).get("known", {})
-	return _c("route_pct", 130) if known.has(str(f.destination())) else _c("off_route_pct", 85)
+	return Insolites.tuned(state, f.owner, "kraal", "route_pct", _c("route_pct", 130)) if known.has(str(f.destination())) else _c("off_route_pct", 85)
 
 
 static func daily(state: GameState, eid: int, ed: Dictionary, month: bool, added: Array[Dictionary]) -> void:
@@ -172,7 +172,7 @@ static func _graze_month(state: GameState, eid: int, ed: Dictionary, gz: Diction
 		var sid := int(k)
 		var v := int(g.get(k, mx))
 		if gz.has(sid):
-			v -= _c("graze_month", 12) * (gz[sid] as Array).size()
+			v -= Insolites.tuned(state, eid, "kraal", "graze_month", _c("graze_month", 12)) * (gz[sid] as Array).size()
 		else:
 			v += _c("regrow_month", 5)
 		g[k] = clampi(v, 0, mx)
@@ -194,7 +194,7 @@ static func _births(state: GameState, eid: int, ed: Dictionary, gz: Dictionary, 
 			var k := str(f.id)
 			seen[k] = true
 			br[k] = int(br.get(k, 0)) + 1
-			if int(br[k]) >= _c("birth_months", 3):
+			if int(br[k]) >= Insolites.tuned(state, eid, "kraal", "birth_months", _c("birth_months", 3)):
 				br[k] = 0
 				f.add_ship(String(ages()[0]), -1, Research.mark_gen(state, eid))
 				Research.count_stat(state, eid, "births")
@@ -218,15 +218,20 @@ static func _aging(state: GameState, eid: int) -> void:
 				continue
 			if posmod(hash([state.seed_value, state.tick, f.id, i, "kraal"]), maxi(1, int(months[s]))) == 0:
 				ups.append(i)
+		# Retirer d'abord (indices décroissants, stables), puis ajouter : add_ship insère en ordre trié et
+		# décalerait les indices restants.
+		var born: Array = []
 		for j in range(ups.size() - 1, -1, -1):
 			var i := ups[j]
 			var old := f.ships[i]
 			var nxt := String(a[a.find(old) + 1])
 			@warning_ignore("integer_division")
-			var hp := maxi(1, f.hp[i] * Fleet.max_hp_of(nxt) / Fleet.max_hp_of(old))
-			var g := f.gen[i]
+			born.append([nxt, maxi(1, f.hp[i] * Fleet.max_hp_of(nxt) / Fleet.max_hp_of(old)), f.gen[i]])
 			f.remove_at(i)
-			f.add_ship(nxt, hp, g)
+		for nb: Array in born:
+			f.add_ship(String(nb[0]), int(nb[1]), int(nb[2]))
+			if String(nb[0]) == String(a[a.size() - 1]):
+				Insolites.learn(state, eid, "learn_ancient", 1)  # Instinct des Anciens
 
 
 # --- Pilotes (prop. 32) -------------------------------------------------------------------------------
