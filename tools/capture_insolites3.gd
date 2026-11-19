@@ -56,7 +56,7 @@ func _initialize() -> void:
 			main.toggle_empire_screen("insolites")
 			await _frames(10)
 			await _shot(out + "/insolites3-menu-%s.png" % who)
-			for c in main.get_children():
+			for c in root.get_children():
 				if c is PopupMenu:
 					c.queue_free()
 			await _frames(3)
