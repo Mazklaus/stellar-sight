@@ -102,7 +102,7 @@ static func census(state: GameState, added: Array[Dictionary]) -> void:
 ## Systèmes à portée des nécropoles : reach_jumps sauts autour de chaque colonie d'Asphodèle.
 static func _reach(state: GameState, eid: int) -> Dictionary:
 	var out := {}
-	var r := _c("reach_jumps", 5)
+	var r := Insolites.tuned(state, eid, "asphodele", "reach_jumps", _c("reach_jumps", 5))  # Corps de mémoire
 	for pid in state.sorted_colony_ids():
 		var c: Colony = state.colonies[pid]
 		if c.owner != eid or not c.is_colony():

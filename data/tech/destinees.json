@@ -16,11 +16,12 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "lignees_croisees",
-			"text": "Destinée « Lignées croisées », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Lignées croisées », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les maisons rivales vous regardent mieux (opinion de tous +10).",
 			"effects": {
 				"destiny_keep": {
 					"elu": 1
-				}
+				},
+				"opinion_all": 10
 			}
 		},
 		"lignees_croisees_etape2": {
@@ -86,11 +87,12 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "dernier_couplet",
-			"text": "Destinée « Le Dernier Couplet », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Le Dernier Couplet », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : l'Exaltation tient mieux (stabilité +3 partout).",
 			"effects": {
 				"destiny_keep": {
 					"couplet": 1
-				}
+				},
+				"stability": 3
 			}
 		},
 		"dernier_couplet_etape2": {
@@ -159,11 +161,12 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "charte",
-			"text": "Destinée « Charte des Quarante et Un », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Charte des Quarante et Un », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : le commerce des signataires rapporte plus (routes commerciales +15 %).",
 			"effects": {
 				"destiny_keep": {
 					"charte": 1
-				}
+				},
+				"trade_income_pct": 15
 			}
 		},
 		"charte_etape2": {
@@ -227,11 +230,12 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "terre_promise",
-			"text": "Destinée « Chants de la route », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Chants de la route », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : la route se fait plus vite (flottes +10 % de vitesse).",
 			"effects": {
 				"destiny_keep": {
 					"terre_promise": 1
-				}
+				},
+				"fleet_speed_pct": 10
 			}
 		},
 		"terre_promise_etape2": {
@@ -297,11 +301,12 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "legende",
-			"text": "Destinée « Mille et une histoires », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Mille et une histoires », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les histoires circulent (Rayonnement +15 %).",
 			"effects": {
 				"destiny_keep": {
 					"legende": 1
-				}
+				},
+				"culture_pct": 15
 			}
 		},
 		"legende_etape2": {
@@ -368,11 +373,12 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "silence_parfait",
-			"text": "Destinée « Le Grand Silence », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Le Grand Silence », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : on se tait mieux (camouflage +1).",
 			"effects": {
 				"destiny_keep": {
 					"silence": 1
-				}
+				},
+				"cloak": 1
 			}
 		},
 		"silence_parfait_etape2": {
@@ -442,11 +448,12 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "noosphere",
-			"text": "Destinée « Éveil de la Noosphère », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Éveil de la Noosphère », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : plus de colonies pensent ensemble (capacité administrative +2).",
 			"effects": {
 				"destiny_keep": {
 					"noosphere": 1
-				}
+				},
+				"admin_cap": 2
 			}
 		},
 		"noosphere_etape2": {
@@ -510,10 +517,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "allumage",
-			"text": "Destinée « L'Allumage », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « L'Allumage », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : l'Orbe dévore 20 % plus vite.",
 			"effects": {
 				"destiny_keep": {
 					"allumage": 1
+				},
+				"ins_pct": {
+					"halcyre.eat_days": -20
 				}
 			}
 		},
@@ -578,10 +588,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "opa_galactique",
-			"text": "Destinée « L'OPA galactique », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « L'OPA galactique », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les parts coûtent 15 % de moins.",
 			"effects": {
 				"destiny_keep": {
 					"opa": 1
+				},
+				"ins_pct": {
+					"ventrelune.share_price_per_pop": -15
 				}
 			}
 		},
@@ -646,10 +659,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "administration_totale",
-			"text": "Destinée « L'Administration totale », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « L'Administration totale », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les sanctions du Bureau durent moitié plus longtemps.",
 			"effects": {
 				"destiny_keep": {
 					"administration": 1
+				},
+				"ins_pct": {
+					"bureau.sanction_days": 50
 				}
 			}
 		},
@@ -714,10 +730,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "saturation",
-			"text": "Destinée « La Saturation », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « La Saturation », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : le Signal se propage un quart plus vite.",
 			"effects": {
 				"destiny_keep": {
 					"saturation": 1
+				},
+				"ins_pct": {
+					"signal.spread_pmille": 25
 				}
 			}
 		},
@@ -782,10 +801,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "reve_commun",
-			"text": "Destinée « Le Rêve commun », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Le Rêve commun », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les rêveries gagnent un quart plus vite.",
 			"effects": {
 				"destiny_keep": {
 					"reve_commun": 1
+				},
+				"ins_pct": {
+					"ysmer.spread_pmille": 25
 				}
 			}
 		},
@@ -850,10 +872,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "grand_rassemblement",
-			"text": "Destinée « Le Grand Rassemblement », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Le Grand Rassemblement », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : moitié plus de morts rouvrent les yeux chaque mois.",
 			"effects": {
 				"destiny_keep": {
 					"grand_rassemblement": 1
+				},
+				"ins_pct": {
+					"asphodele.souls_cap_per_month": 50
 				}
 			}
 		},
@@ -918,10 +943,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "musee_vivant",
-			"text": "Destinée « Le Musée vivant », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Le Musée vivant », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les spécimens s'échappent deux fois moins.",
 			"effects": {
 				"destiny_keep": {
 					"musee_vivant": 1
+				},
+				"ins_pct": {
+					"cassivel.escape_pmille": -50
 				}
 			}
 		},
@@ -986,10 +1014,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "envol",
-			"text": "Destinée « L'Envol », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « L'Envol », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les postes voilés se découvrent 30 % moins.",
 			"effects": {
 				"destiny_keep": {
 					"envol": 1
+				},
+				"ins_pct": {
+					"quietude.detect_pmille": -30
 				}
 			}
 		},
@@ -1054,10 +1085,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "paradoxe_stable",
-			"text": "Destinée « Le Paradoxe stable », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Le Paradoxe stable », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : le Sable monte 40 % plus vite.",
 			"effects": {
 				"destiny_keep": {
 					"paradoxe": 1
+				},
+				"ins_pct": {
+					"sablier.sand_month": 40
 				}
 			}
 		},
@@ -1122,10 +1156,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "remodelage",
-			"text": "Destinée « Le Remodelage », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Le Remodelage », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : la réserve de Temps monte un quart plus vite.",
 			"effects": {
 				"destiny_keep": {
 					"remodelage": 1
+				},
+				"ins_pct": {
+					"gravea.time_month": 25
 				}
 			}
 		},
@@ -1190,10 +1227,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "biosphere_unique",
-			"text": "Destinée « La Biosphère unique », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « La Biosphère unique », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les comètes-semences portent un quart plus loin.",
 			"effects": {
 				"destiny_keep": {
 					"biosphere": 1
+				},
+				"ins_pct": {
+					"myrr.comet_jumps": 25
 				}
 			}
 		},
@@ -1258,10 +1298,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "grand_jardin",
-			"text": "Destinée « Le Grand Jardin », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Le Grand Jardin », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les mondes-jardins poussent un quart plus vite.",
 			"effects": {
 				"destiny_keep": {
 					"grand_jardin": 1
+				},
+				"ins_pct": {
+					"vergemonde.garden_days": -25
 				}
 			}
 		},
@@ -1327,11 +1370,12 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "grande_moisson",
-			"text": "Destinée « La Grande Moisson », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « La Grande Moisson », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : l'Essaim croît plus vite (croissance +10 %).",
 			"effects": {
 				"destiny_keep": {
 					"moisson": 1
-				}
+				},
+				"growth_pct": 10
 			}
 		},
 		"grande_moisson_etape2": {
@@ -1396,10 +1440,13 @@
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "idole",
-			"text": "Destinée « Idole des étoiles », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"text": "Destinée « Idole des étoiles », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : la tournée rapporte (influence +15 %).",
 			"effects": {
 				"destiny_keep": {
 					"idole": 1
+				},
+				"production_pct": {
+					"influence": 15
 				}
 			}
 		},

@@ -1752,7 +1752,7 @@
 			"era": 3,
 			"field": "commerce",
 			"current": "forge",
-			"text": "Les parts coûtent 25 % de moins (le prix plancher reste le même).",
+			"text": "Les parts coûtent 25 % de moins (le prix plancher reste le même). Débloque le Siège de la Compagnie (2e rang de la capitale, en annexe) : dividendes +25 %, +3 influence.",
 			"pre": [
 				"audit_prealable"
 			],
@@ -2504,6 +2504,28 @@
 			"effects": {
 				"detect": 1
 			}
+		},
+		"corps_memoire": {
+			"label": "Corps de mémoire",
+			"domain": "societe",
+			"era": 1,
+			"field": "colonisation",
+			"current": "autel",
+			"text": "Asphodèle ne soigne pas les vivants, elle se souvient des morts : remplace la Médecine coloniale. Les nécropoles recueillent les Âmes 40 % plus loin (7 sauts au lieu de 5).",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"necro_conseil"
+					]
+				}
+			},
+			"replaces": "medecine",
+			"effects": {
+				"ins_pct": {
+					"asphodele.reach_jumps": 40
+				}
+			},
+			"flavor": "On ne guérit pas la mort. On l'archive."
 		}
 	}
 }

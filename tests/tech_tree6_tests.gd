@@ -23,6 +23,7 @@ func run(check: Callable) -> void:
 	_test_gravea()
 	_test_silencieux()
 	_test_hulls()
+	_test_last()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -191,3 +192,37 @@ func _test_hulls() -> void:
 	_ok(PeopleHulls.upgrades_of("comptabilite_occulte").size() == 2, "Comptabilité occulte améliore l'Épave remontée et la Comète-marché")
 	_ok(Research.is_visible(GameData.faction("ferrocornes"), "mues_coques") and Research.is_visible(GameData.faction("murmurants"), "accord_parfait"),
 			"technologies des coques visibles chez leurs peuples (reptiliens, registre étrange)")
+
+
+func _test_last() -> void:
+	# Corps de mémoire : remplace la Médecine chez Asphodèle, nécropoles qui portent plus loin.
+	var asph := GameData.faction("asphodele")
+	_ok(Research.is_visible(asph, "corps_memoire") and Research.replaced_by(asph, "medecine") == "corps_memoire", "Corps de mémoire : remplace la Médecine chez Asphodèle")
+	var st := _state("asphodele")
+	var r0 := InsAsphodele._reach(st, 0).size()
+	Research.grant(st, 0, ["corps_memoire"])
+	_ok(InsAsphodele._reach(st, 0).size() >= r0 and Insolites.tuned(st, 0, "asphodele", "reach_jumps", 5) == 7, "Corps de mémoire : les Âmes viennent de 7 sauts")
+	# Siège de la Compagnie : 2e rang de la capitale, en annexe.
+	var sv := _state("ventrelune")
+	var e := sv.get_empire(0)
+	var cap: Colony = sv.colonies[e.capital_planet]
+	_ok(Economy.check_build(sv, 0, cap.planet_id, "siege_compagnie") != "", "Siège : il faut le Rachat à effet de levier")
+	Research.grant(sv, 0, ["audit_prealable", "rachat_levier"])
+	for r in ["materials", "energy"]:
+		e.resources[r] = 5000
+	_ok(Economy.check_build(sv, 0, cap.planet_id, "siege_compagnie") == "", "Siège : s'ajoute à la capitale sans emplacement")
+	cap.buildings.append("siege_compagnie")
+	_ok(InsVentrelune.seat_pct(sv, 0) == 25 and cap.buildings.has("capitale"), "Siège : dividendes +25 %, la capitale reste")
+	# Outils des Destinées : chaque première étape apporte un outil de sa victoire.
+	var techs: Dictionary = GameData.technologies()["technologies"]
+	var bare := PackedStringArray()
+	for tid: String in techs:
+		if techs[tid].has("victory"):
+			var fx: Dictionary = Research.tech(tid + "_etape1").get("effects", {})
+			if fx.size() < 2:
+				bare.append(tid)
+	_ok(bare.is_empty(), "outils des Destinées : chaque première étape fait plus que garder le compte (%s)" % ", ".join(bare))
+	var sc := _state("vael")
+	var t0 := Research.fx_int(sc, 0, "trade_income_pct")
+	Research.grant(sc, 0, ["charte_etape1"])
+	_ok(Research.fx_int(sc, 0, "trade_income_pct") == t0 + 15, "Avant-projet de la Charte : le commerce des signataires rapporte plus")
