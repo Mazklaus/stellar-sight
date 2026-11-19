@@ -4531,6 +4531,307 @@
    "chapters": [
     "17a-insolites"
    ]
+  },
+  {
+   "id": "ames",
+   "name": "Âmes",
+   "forms": [
+    "Âmes",
+    "Âme"
+   ],
+   "family": "meca",
+   "summary": "Ce que verse à Asphodèle une population morte à sa portée (ou sur un Ossuaire) ; deux Âmes font un habitant numérisé qui garde son espèce.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "ossuaire",
+   "name": "Ossuaire",
+   "forms": [
+    "Ossuaire",
+    "Ossuaires",
+    "ossuaire",
+    "ossuaires"
+   ],
+   "family": "meca",
+   "summary": "Implant d'Asphodèle chez un signataire du Pacte funéraire : stabilité +3 et piété pour l'hôte ; ses morts vont à Asphodèle à toute distance.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "pacte_funeraire",
+   "name": "Pacte funéraire",
+   "forms": [
+    "Pacte funéraire",
+    "Pactes funéraires"
+   ],
+   "family": "meca",
+   "summary": "Accord par lequel un empire confie ses morts à Asphodèle et reçoit des Ossuaires. Interdit par la loi « Rites funéraires protégés ».",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "revenant",
+   "name": "Revenant",
+   "forms": [
+    "Revenant",
+    "Revenants"
+   ],
+   "family": "meca",
+   "summary": "Héros mort n'importe où dans la galaxie, réveillé par Asphodèle à son service avec son rang.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "necro_conseil",
+   "name": "Nécro-conseil",
+   "forms": [
+    "Nécro-conseil"
+   ],
+   "family": "meca",
+   "summary": "Gouvernement d'Asphodèle : trois Anciens morts siègent, s'usent, et partent quand on les y autorise (Savoir et piété).",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "usure_anciens",
+   "name": "Usure des Anciens",
+   "forms": [
+    "Usure des Anciens"
+   ],
+   "family": "meca",
+   "summary": "Ce qu'accumule un Ancien du Nécro-conseil ; au-delà de cinq ans, il coûte de la stabilité partout.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "traversee",
+   "name": "La Traversée",
+   "forms": [
+    "Traversée",
+    "la Traversée"
+   ],
+   "family": "meca",
+   "summary": "Nature de foi d'Asphodèle : les morts de ses fidèles rejoignent la Cité des Trépassés à toute distance, et les Ossuaires prêchent plus fort.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "grand_rassemblement",
+   "name": "Le Grand Rassemblement",
+   "forms": [
+    "Grand Rassemblement",
+    "le Grand Rassemblement"
+   ],
+   "family": "meca",
+   "summary": "Victoire d'Asphodèle : avoir accueilli autant de morts que la moitié de la population de la galaxie, et le tenir deux ans.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "rites_funeraires",
+   "name": "Rites funéraires protégés",
+   "forms": [
+    "Rites funéraires protégés"
+   ],
+   "family": "meca",
+   "summary": "Loi de l'Amphictyonie (famille Rites des morts) qui interdit les Pactes funéraires et ferme les Ossuaires.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "sire_cassivel",
+   "name": "Sire Cassivel",
+   "forms": [
+    "Sire Cassivel",
+    "Cassivel"
+   ],
+   "family": "meca",
+   "summary": "Souverain immortel du Muséum et héros voyageur. Sa mort sans copie de sauvegarde rend le Muséum Orphelin.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "vitrine",
+   "name": "Vitrine",
+   "forms": [
+    "Vitrine",
+    "Vitrines",
+    "vitrine",
+    "vitrines"
+   ],
+   "family": "meca",
+   "summary": "Une des cinq sortes de pièces de la Collection du Muséum : espèces, reliques, héros captifs, créatures, prises de guerre.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "specimen",
+   "name": "Spécimen",
+   "forms": [
+    "Spécimen",
+    "Spécimens",
+    "spécimen",
+    "spécimens"
+   ],
+   "family": "meca",
+   "summary": "Représentant d'une espèce exposé au Muséum : acheté, volé (Acquisition discrète) ou vivant dans une colonie de Cassivel.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "copie_sauvegarde",
+   "name": "Copie de sauvegarde",
+   "forms": [
+    "Copie de sauvegarde",
+    "copie de sauvegarde"
+   ],
+   "family": "meca",
+   "summary": "Corps de rechange de Sire Cassivel, payé d'avance : s'il tombe, il revient six mois plus tard au lieu de rendre le Muséum Orphelin.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "orphelin",
+   "name": "Muséum Orphelin",
+   "forms": [
+    "Orphelin",
+    "Muséum Orphelin"
+   ],
+   "family": "meca",
+   "summary": "Crise du Muséum après la mort de Sire Cassivel sans copie : stabilité -15, production -25 % pendant trois ans, évasions plus fréquentes.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "acquisition_discrete",
+   "name": "Acquisition discrète",
+   "forms": [
+    "Acquisition discrète"
+   ],
+   "family": "meca",
+   "summary": "Opération d'espionnage du Muséum : un habitant d'un autre peuple disparaît et se réveille en vitrine.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "musee_vivant",
+   "name": "Le Musée vivant",
+   "forms": [
+    "Musée vivant",
+    "le Musée vivant"
+   ],
+   "family": "meca",
+   "summary": "Victoire du Muséum : un représentant de chaque espèce des autres empires et des mineurs rencontrés, tenu un an.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "directive_silencieux",
+   "name": "Directive des Silencieux",
+   "forms": [
+    "Directive des Silencieux"
+   ],
+   "family": "meca",
+   "summary": "Ce que font les Silencieux, affiché à tous : extraire, étendre leurs usines, ou écarter l'obstacle qui tient le système visé.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "replication",
+   "name": "Réplication",
+   "forms": [
+    "Réplication",
+    "réplication"
+   ],
+   "family": "meca",
+   "summary": "Un avant-poste des Silencieux qui devient une usine (une colonie), sans vaisseau colon.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "eveil_usine",
+   "name": "Éveil d'une usine",
+   "forms": [
+    "Éveil d'une usine"
+   ],
+   "family": "meca",
+   "summary": "La Noosphère de Teyl tente de rendre conscience à une usine des Silencieux : si elle répond, elle devient un peuple mineur.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "poste_voile",
+   "name": "Poste voilé",
+   "forms": [
+    "Poste voilé",
+    "Postes voilés",
+    "poste voilé",
+    "postes voilés"
+   ],
+   "family": "meca",
+   "summary": "Poste d'observation caché des Observateurs de Quiétude au-dessus d'un pré-spatial : Savoir chaque mois, élévation discrète possible.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "scandale_observateurs",
+   "name": "Scandale des observateurs",
+   "forms": [
+    "Scandale des observateurs"
+   ],
+   "family": "meca",
+   "summary": "Un poste voilé découvert : il tombe, tous les empires s'en souviennent, et le compte des Envols repart de zéro.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "protege_quietude",
+   "name": "Protégé",
+   "forms": [
+    "Protégé",
+    "Protégés"
+   ],
+   "family": "meca",
+   "summary": "Peuple élevé en secret par Quiétude : il atteint l'espace suzerain-verrouillé et lui fait des cadeaux chaque mois.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "envol",
+   "name": "L'Envol",
+   "forms": [
+    "Envol",
+    "l'Envol",
+    "Envols"
+   ],
+   "family": "meca",
+   "summary": "Victoire de Quiétude : deux espèces primitives atteignent l'espace sous un poste voilé, sans découverte entre-temps.",
+   "chapters": [
+    "17a-insolites"
+   ]
   }
  ]
 }

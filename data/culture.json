@@ -113,7 +113,8 @@
 	"talents": {
 		"archetype": {
 			"ruche": {"label": "Une seule voix", "text": "La Ruche ne rayonne pas, mais son Patrimoine compte double : rien ne la pénètre.", "no_radiance": true, "heritage_mult": 2},
-			"synthetique": {"label": "Archives parfaites", "text": "Patrimoine +20 %.", "heritage_pct": 20}
+			"synthetique": {"label": "Archives parfaites", "text": "Patrimoine +20 %.", "heritage_pct": 20},
+			"machines": {"label": "Sourds aux chansons", "text": "Les Silencieux ne rayonnent pas, et aucune culture ne les touche (peuples insolites, prop. 71).", "no_radiance": true}
 		},
 		"gouvernement": {
 			"theocratie": {"label": "Le chant des fidèles", "text": "Rayonnement religieux +50 %.", "faith_pct": 50},

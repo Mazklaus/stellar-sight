@@ -65,7 +65,7 @@ func _test_data() -> void:
 	_ok((d["cognomens"] as Array).size() >= 100, "une longue liste de surnoms (%d)" % (d["cognomens"] as Array).size())
 	_ok((d["ambitions"] as Array).size() >= 25, "des ambitions en nombre (%d)" % (d["ambitions"] as Array).size())
 	_ok((d["archetypes"] as Dictionary).size() == 8, "huit archétypes de règne")
-	_ok((d["succession"] as Dictionary).size() == 7, "une succession par gouvernement")
+	_ok((d["succession"] as Dictionary).size() == 9, "une succession par gouvernement (sept, plus les deux des peuples insolites)")
 	var ids := {}
 	for c: Dictionary in d["cognomens"]:
 		_ok(not ids.has(c["id"]), "surnom unique %s" % c["id"])

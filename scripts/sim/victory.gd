@@ -93,6 +93,12 @@ static func rule_text(id: String) -> String:
 			return t % [int(v["pct"]), years]
 		"reve_commun":
 			return t % [int(v["pct"]), years]
+		"grand_rassemblement":
+			return t % [int(v["pct"]), years]
+		"musee_vivant":
+			return t % [years]
+		"envol":
+			return t % [int(v["count"]), maxi(1, years)]
 		"oeuvres":
 			return t % [int(Wonders.rules().get("oeuvre_by_size", [[0, 2]])[0][1]), maxi(1, years)]
 		"annales":
@@ -293,6 +299,12 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			InsSignal.victory(state, e, out)
 		"reve_commun":
 			InsYsmer.victory(state, e, out)
+		"grand_rassemblement":
+			InsAsphodele.victory(state, e, out)
+		"musee_vivant":
+			InsCassivel.victory(state, e, out)
+		"envol":
+			InsQuietude.victory(state, e, out)
 		"oeuvres":
 			WondersBridges.victory(state, e, out)
 		"annales":
@@ -306,6 +318,12 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 		out["cond"] = false
 		out["won"] = false
 		out["pct"] = mini(int(out["pct"]), met_at() - 1)
+	if not Insolites.victory_allowed(state, empire_id, id):
+		out["lines"].append("Les Silencieux ne gagnent que par la force : Conquête ou Domination.")
+		out["cond"] = false
+		out["won"] = false
+		out["keep"] = false
+		out["pct"] = 0
 	return out
 
 

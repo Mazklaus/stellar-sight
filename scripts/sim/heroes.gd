@@ -1211,6 +1211,7 @@ static func die(state: GameState, h: Dictionary, why: String, out: Array[Diction
 	state.heroes.erase(int(h["id"]))
 	Relics.on_hero_gone(state, int(h["id"]))
 	FaithNatures.on_hero_death(state, h, killer, out)
+	Insolites.on_hero_death(state, h, out)  # Revenants d'Asphodèle, chute de Sire Cassivel
 	var tl := talent(state, owner)
 	var mem: Dictionary = data()["memorial"]
 	var credo := String(e.faction().get("species", {}).get("credo", "")) if e else ""

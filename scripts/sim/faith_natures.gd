@@ -354,6 +354,15 @@ static func spectacle_pct(state: GameState, c: Colony, fid: String) -> int:
 	return best * int(FaithWars.data()["natures"].get("spectacle_tier_pct", 20))
 
 
+## La Traversée (peuples insolites, prop. 107 : « le Passage » de l'étude, renommé pour ne pas confondre avec le Passage de la Transcendance) : une colonie à Ossuaire d'Asphodèle prêche plus fort.
+static func traversee_pct(state: GameState, c: Colony, fid: String) -> int:
+	if state.insolites.is_empty() or FaithWars.nature(state, fid) != "traversee":
+		return 0
+	if Insolites.implant(state, c.planet_id, "ossuaire").is_empty() and Insolites.kind(state, c.owner) != "asphodele":
+		return 0
+	return int(FaithWars.data()["natures"].get("traversee_pct", 30))
+
+
 ## Pression du dominion d'un dieu présent (Faiths.pressures, via FaithWars.extra_pressures).
 static func extra_pressures(state: GameState, out: Dictionary, targets_by_sys: Dictionary) -> void:
 	FaithHeavy.extra_pressures(state, out, targets_by_sys)

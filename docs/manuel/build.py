@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.49"
+EDITION = "2.50"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -363,7 +363,9 @@ NOMS_COUCHE = {
     "conseil_survie": "Conseil de survie", "troupe": "Troupe itinérante", "aucun": "Aucun", "troupeau": "Troupeau",
     "espoir": "Espoir", "information": "Information", "actionnaires": "Conseil d'actionnaires",
     "bureaucratie": "Bureaucratie", "reve_partage": "Rêve partagé", "ordre": "Ordre", "propagation": "Propagation",
-    "transcendance": "Transcendance",
+    "transcendance": "Transcendance", "esprits_numerises": "Esprits numérisés", "machines": "Machines",
+    "necro_conseil": "Nécro-conseil", "collectionneur": "Autocratie immortelle", "conseil_anciens": "Conseil des anciens",
+    "collection": "Collection", "non_ingerence": "Non-ingérence", "efficacite": "Efficacité",
 }
 BIOMES = {"arctic": "Glaciaire", "desert": "Désert", "ocean": "Océan", "jungle": "Jungle", "toxic": "Toxique",
           "barren": "Stérile", "terran": "Tempéré", "tundra": "Toundra", "gas": "Géante gazeuse", "volcanic": "Volcanique",

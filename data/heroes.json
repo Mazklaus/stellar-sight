@@ -928,7 +928,8 @@
 			"label": "Unité de commandement",
 			"archetypes": [
 				"synthetique",
-				"information"
+				"information",
+				"machines"
 			]
 		},
 		{
@@ -937,7 +938,8 @@
 			"label": "Sonde d'infiltration",
 			"archetypes": [
 				"synthetique",
-				"information"
+				"information",
+				"machines"
 			]
 		},
 		{
@@ -946,7 +948,8 @@
 			"label": "Cœur-logique gouverneur",
 			"archetypes": [
 				"synthetique",
-				"information"
+				"information",
+				"machines"
 			]
 		},
 		{
@@ -954,7 +957,8 @@
 			"look": "wisp",
 			"label": "Flamme-capitaine",
 			"archetypes": [
-				"energetique"
+				"energetique",
+				"esprits_numerises"
 			]
 		},
 		{
@@ -962,7 +966,8 @@
 			"look": "rings",
 			"label": "Oracle aux anneaux",
 			"archetypes": [
-				"energetique"
+				"energetique",
+				"esprits_numerises"
 			]
 		},
 		{
@@ -970,7 +975,8 @@
 			"look": "veil",
 			"label": "Voix voilée",
 			"archetypes": [
-				"energetique"
+				"energetique",
+				"esprits_numerises"
 			]
 		}
 	],

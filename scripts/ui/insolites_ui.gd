@@ -4,7 +4,8 @@ extends RefCounted
 ## implant, l'Arrivée de l'Exode, acheter des parts, nationaliser, souffler un rêve), menu « Peuple » de la
 ## fiche de flotte (chantier embarqué, Pilotes des Kraal, délégué au Grand Numéro) et menu des peuples
 ## (clic sur la ligne d'état de l'empire : normes du Bureau, Mises en demeure, Accord d'hébergement du
-## Signal, flotte de songe). Les ordres passent par SimCommands.ins_act.
+## Signal, flotte de songe ; lot 3 : Pacte funéraire et Nécro-conseil d'Asphodèle, sauvegarde et
+## acquisitions du Muséum, postes voilés et élévations de Quiétude). Les ordres passent par SimCommands.ins_act.
 
 
 static func system_actions(state: GameState, player: int, p: Planet, emit: Callable) -> Array[Dictionary]:
@@ -46,6 +47,18 @@ static func system_actions(state: GameState, player: int, p: Planet, emit: Calla
 				"Un rêve utile : l'hôte gagne du Savoir et s'en souvient avec gratitude.", emit))
 		out.append(WondersUi._act(state, SimCommands.ins_act(player, "nightmare", d), "Envoyer des cauchemars", GameData.format_amounts(Insolites.cfg("ysmer").get("nightmare_cost", {})),
 				"Toute la colonie rêve la même nuit d'un couloir sans fin : stabilité -10 dans le système pendant six mois.", emit))
+	# Lot 3 : éveiller une usine des Silencieux (Noosphère), postes voilés et élévations de Quiétude.
+	if c != null and c.is_colony() and InsSilencieux.is_silent(state, c.owner) and String(state.get_empire(player).faction().get("species", {}).get("gouvernement", "")) == "conscience":
+		out.append(WondersUi._act(state, SimCommands.ins_act(player, "awaken", d), "Éveiller l'usine", GameData.format_amounts(Insolites.cfg("silencieux").get("awaken_cost", {})),
+				"La Noosphère tend la main vers une usine des Silencieux. Si elle répond, elle devient un peuple mineur conscient.", emit))
+	if k == "quietude" and c != null and GameState.is_minor(c.owner) and not state.minors.is_empty() and Minors.is_pre(state, c.owner):
+		var md := {"m": c.owner}
+		if InsQuietude.post_on(state, c.owner).is_empty():
+			out.append(WondersUi._act(state, SimCommands.ins_act(player, "post", md), "Poser un poste voilé", GameData.format_amounts(Insolites.cfg("quietude").get("post_cost", {})),
+					"Un poste d'observation caché au-dessus de ce jeune peuple : du Savoir chaque mois, et le droit de l'élever en secret. Gare à qui le découvre.", emit))
+		else:
+			out.append(WondersUi._act(state, SimCommands.ins_act(player, "uplift", md), "Élever en secret", GameData.format_amounts(Insolites.cfg("quietude").get("uplift_cost", {})),
+					"Un rêve, une idée, une roue meilleure : le jeune peuple avance d'un an et demi, mais sa conscience monte.", emit))
 	return out
 
 
@@ -127,10 +140,10 @@ static func has_people_menu(state: GameState, player: int) -> bool:
 	if e == null:
 		return false
 	var k := Insolites.kind(state, player)
-	if k == "bureau" or k == "ysmer":
+	if ["bureau", "ysmer", "asphodele", "cassivel"].has(k):
 		return true
 	for eid in Insolites.nomad_ids(state):
-		if eid != player and e.contacts.has(eid) and ["bureau", "signal"].has(Insolites.kind(state, eid)):
+		if eid != player and e.contacts.has(eid) and ["bureau", "signal", "asphodele"].has(Insolites.kind(state, eid)):
 			return true
 	return false
 
@@ -172,6 +185,37 @@ static func open_people_menu(main: Node, state: GameState, player: int) -> void:
 	if k == "ysmer":
 		menu.add_separator("Rêveurs d'Ysmer")
 		_item(menu, cmds, state, player, "dream_fleet", {}, "Rêver une flotte de songe (%s, 90 jours)" % GameData.format_amounts(Insolites.cfg("ysmer").get("dream_fleet_cost", {})))
+	for a in InsAsphodele.asphodeles(state):
+		if a == player or not e.contacts.has(a):
+			continue
+		menu.add_separator("Asphodèle, Cité des Trépassés")
+		var on := not InsAsphodele.pacted(state, a, player)
+		_item(menu, cmds, state, player, "pact" if on else "unpact", {"a": a},
+				"Signer le Pacte funéraire (Ossuaires : stabilité +3, piété ; vos morts vont à Asphodèle)" if on else "Rompre le Pacte funéraire")
+	if k == "asphodele":
+		menu.add_separator("Nécro-conseil")
+		var council: Array = Insolites.emp(state, player).get("council", [])
+		for i in council.size():
+			_item(menu, cmds, state, player, "release", {"i": i}, "Laisser partir %s (%d mois d'Usure)" % [String(council[i]["n"]), InsAsphodele.lassitude(state, council[i])])
+		menu.add_separator("Revenants (%s)" % GameData.format_amounts(Insolites.cfg("asphodele").get("raise_cost", {})))
+		var fl := InsAsphodele.fallen(state)
+		for i in fl.size():
+			_item(menu, cmds, state, player, "raise", {"i": i}, "Réveiller %s (niveau %d)" % [String(fl[i]["name"]), int(fl[i]["lvl"])])
+	if k == "cassivel":
+		menu.add_separator("Muséum de Sire Cassivel")
+		_item(menu, cmds, state, player, "backup", {}, "Copie de sauvegarde de Sire Cassivel (%s)" % GameData.format_amounts(Insolites.cfg("cassivel").get("backup_cost", {})))
+		var who: Array[int] = []
+		for o in e.contacts:
+			who.append(int(o))
+		if not state.minors.is_empty():
+			who.append_array(Minors.met(state, player))
+		who.sort()
+		for w in who:
+			var fid := InsCassivel.species_of(state, w)
+			if fid == "" or InsCassivel.species_held(state, player).has(fid):
+				continue
+			var nm := Minors.name_of(state, w) if GameState.is_npc(w) else state.get_empire(w).short_name()
+			_item(menu, cmds, state, player, "acquire", {"w": w}, "Acheter un spécimen à %s (%s)" % [nm, GameData.format_amounts(Insolites.cfg("cassivel").get("buy_cost", {}))])
 	menu.id_pressed.connect(func(id: int) -> void:
 		if id >= 0 and id < cmds.size() and main.has_method("_submit"):
 			main.call("_submit", cmds[id])

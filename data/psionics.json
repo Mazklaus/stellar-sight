@@ -25,7 +25,8 @@
 		"_doc": "Prop. 3 : max = niveau le plus haut possible ; innate = niveau de naissance ; immune = insensible aux pouvoirs mentaux ; collective = un seul esprit (pas de sensitifs individuels, Ombre de ruche au lot 3).",
 		"synthetique": {"max": 0, "immune": true},
 		"ruche": {"max": 1, "collective": true},
-		"energetique": {"innate": 1}
+		"energetique": {"innate": 1},
+		"machines": {"max": 0, "immune": true}
 	},
 	"techs": {
 		"_doc": "Prop. 6 : technologies du pilier et ce qu'elles ouvrent.",

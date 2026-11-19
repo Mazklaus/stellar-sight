@@ -1221,6 +1221,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var sd := GameData.ship(String(cmd["ship"]))
 			Economy.pay(e, Fleets.ship_cost(state, e.id, String(cmd["ship"]), int(cmd["planet"])))
 			c.population -= int(sd.get("pop_cost", 0))
+			Insolites.note_departure(state, int(cmd["planet"]), int(sd.get("pop_cost", 0)))  # un départ n'est pas une mort
 			c.ship_build = String(cmd["ship"])
 			c.ship_days = Fleets.ship_days(state, e.id, String(cmd["ship"]))
 			PeopleHulls.on_build(state, e.id, int(cmd["planet"]), String(cmd["ship"]), c)  # épaves, sauvegarde

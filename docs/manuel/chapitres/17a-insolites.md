@@ -4,9 +4,9 @@ numero: 48
 epigraphe: On m'a demandé où était notre monde. J'ai montré la flotte. On m'a demandé où était notre flotte. J'ai montré le monde. Ils sont repartis assez fâchés.
 signature: Avatar d'Halcyre, à un éclaireur de Vael
 ---
-Les huit peuples classiques jouent tous le même jeu : des mondes, des colonies, des chantiers. Les **peuples insolites** cassent chacun une de ces règles, et le jeu s'arrange autour. Ce chapitre présente les **peuples sans monde** (la Flotte-Exode, le Cirque Zambalù, l'Orbe-Monde Halcyre et les Hardes de Kraal) et les **peuples qui vivent chez les autres** (la Compagnie Ventrelune, le Bureau des Affaires Courantes, les Enfants du Signal et les Rêveurs d'Ysmer). D'autres viendront.
+Les huit peuples classiques jouent tous le même jeu : des mondes, des colonies, des chantiers. Les **peuples insolites** cassent chacun une de ces règles, et le jeu s'arrange autour. Ce chapitre présente les **peuples sans monde** (la Flotte-Exode, le Cirque Zambalù, l'Orbe-Monde Halcyre et les Hardes de Kraal) les **peuples qui vivent chez les autres** (la Compagnie Ventrelune, le Bureau des Affaires Courantes, les Enfants du Signal et les Rêveurs d'Ysmer) et les **peuples qui jouent avec la vie et la mort** (Asphodèle, le Muséum de Sire Cassivel, les Silencieux et les Observateurs de Quiétude). D'autres viendront.
 
-Les idées viennent des sources consultées pour l'étude : le wiki d'**Endless Space 2** (les Vodyani, peuple d'arches, et le Chœur Ombral, qui vit chez les autres), celui de **Stellaris** (les Caravaniers, marchands sans planète, et les Tiyanki, baleines de l'espace) et celui d'**Endless Legend** (les Cultistes, qui n'ont qu'une ville). Pour le second lot, le wiki d'Endless Space 2 a aussi été lu pour les **Lumeris** (marchands qui achètent leurs avant-postes) et, de nouveau, pour les Sanctuaires cachés du **Chœur Ombral**. Viennent de mémoire, sans source consultée : la flotte poursuivie de **Battlestar Galactica**, la planète vivante Ego des **Gardiens de la Galaxie**, les Purrgil de **Star Wars Rebels**, le Pilote de **Farscape**, les succursales et le motif « Expropriation » de **Stellaris**, les Vogons du **Guide du voyageur galactique**, l'Administratum de **Warhammer 40K**, le virus-mémoire de **Snow Crash** et le Songe de **Sandman**.
+Les idées viennent des sources consultées pour l'étude : le wiki d'**Endless Space 2** (les Vodyani, peuple d'arches, et le Chœur Ombral, qui vit chez les autres), celui de **Stellaris** (les Caravaniers, marchands sans planète, et les Tiyanki, baleines de l'espace) et celui d'**Endless Legend** (les Cultistes, qui n'ont qu'une ville). Pour le second lot, le wiki d'Endless Space 2 a aussi été lu pour les **Lumeris** (marchands qui achètent leurs avant-postes) et, de nouveau, pour les Sanctuaires cachés du **Chœur Ombral**. Viennent de mémoire, sans source consultée : la flotte poursuivie de **Battlestar Galactica**, la planète vivante Ego des **Gardiens de la Galaxie**, les Purrgil de **Star Wars Rebels**, le Pilote de **Farscape**, les succursales et le motif « Expropriation » de **Stellaris**, les Vogons du **Guide du voyageur galactique**, l'Administratum de **Warhammer 40K**, le virus-mémoire de **Snow Crash** et le Songe de **Sandman**. Pour le troisième lot, l'étude a lu les pages des origines de **Stellaris** (le Nécrophage, qui grandit en convertissant les autres), du **Horatio** d'Endless Space 2 (un seul individu, cloné, qui collectionne les gènes des autres), de **Memory Alpha** (la Prime Directive de **Star Trek**), des **gholas** de **Dune**, des **Nécrons** de **Warhammer 40K**, et un résumé des **Berserkers** (machines autorépliquantes) ; le Collectionneur des **Gardiens de la Galaxie** a été lu aussi. Les postes d'observation de Stellaris viennent de résumés de recherche, pages non ouvertes. **Altered Carbon** (les esprits recopiés) vient de mémoire.
 
 ### Le réglage de partie
 
@@ -51,5 +51,31 @@ Ils changent aussi quelques règles communes : la **Non-conformité** ralentit l
 - **Le Grand Spectacle**, nouvelle nature de foi : on y croit parce que c'est beau. Ses colonies prêchent plus fort à mesure que la culture de leur empire rayonne (+20 % par palier culturel), et une scène du Cirque prêche comme un monde saint. Chez un hôte de cette foi, une représentation convertit un habitant et rapporte une seconde billetterie.
 - **Le Cirque et le Chœur Éternel** : au premier contact, la carte « l'Hymne et le Chapiteau » passe avant celle de leurs registres, et le Chœur garde une rancune de -10 (l'Hymne éternel a été mis en comédie musicale).
 - **Le Bureau et le Syndicat Brisecomète** : la carte « le Formulaire et la Contrebande », et une rancune de -10 de part et d'autre (l'original du Formulaire B-7 a été passé en contrebande).
+
+### Les peuples qui jouent avec la vie et la mort
+
+Ces quatre peuples changent ce que veut dire naître, mourir ou grandir. **Asphodèle** ne fait pas d'enfants : elle accueille les morts des autres. **Cassivel** ne meurt pas : il collectionne. Les **Silencieux** ne pensent pas : ils exécutent. Les **Observateurs de Quiétude** ne se montrent pas : ils regardent grandir les plus jeunes.
+
+Leurs ordres passent par le **menu des peuples** (signer ou rompre le Pacte funéraire, réveiller un Revenant, laisser partir un Ancien, payer une copie de sauvegarde, acquérir un spécimen) et par la fiche des planètes (poser un poste voilé, élever en secret, éveiller une usine).
+
+| Implant | Peuple | Ce qu'il fait | Caché ? | Purge |
+| --- | --- | --- | --- | --- |
+| **Ossuaire** | Asphodèle | stabilité +3 et 1 d'influence par mois pour l'hôte, ses morts rejoignent Asphodèle à toute distance | non | impossible tant que le Pacte tient : il faut le rompre |
+| **Poste voilé** | Quiétude | 3 de Savoir par mois pour Quiétude | oui, toujours : on ne le trouve qu'en le découvrant | — |
+
+Ils changent aussi quelques règles communes :
+
+- **Les morts comptent.** Chaque population qui disparaît (bataille, invasion, famine, catastrophe, crise, monde détruit) est notée chaque mois ; celles qui tombent à cinq sauts d'Asphodèle, chez un signataire du Pacte, ou sous une foi de la **Traversée**, deviennent des Âmes. Les vaisseaux colons qui partent ne sont pas des morts.
+- **Héros tombés.** Un héros mort n'importe où entre dans la liste des tombés (les huit derniers) ; Asphodèle peut le réveiller en **Revenant** (60 d'influence), et l'empire qui l'a perdu s'en souvient.
+- **Loi de l'Amphictyonie** : nouvelle famille **Rites funéraires** (si Asphodèle est en jeu). **Rites funéraires protégés** interdit le Pacte funéraire ; **Libre passage** le laisse faire.
+- **Opération d'espionnage** **Acquisition discrète** : le Muséum vole un spécimen de l'espèce de la cible.
+- **Silencieux** : aucune culture, foi, psionique, intrigue ni diplomatie n'a prise sur eux ; ils n'ont ni opinion ni traité et ne font pas de recherche. Leur IA ne déclare la guerre qu'à l'**obstacle** à sa directive, jamais avant l'an 5. Ils ne peuvent gagner que par la **Conquête** ou la **Domination**.
+- **Victoires de peuple** : le **Grand Rassemblement** (Asphodèle), le **Musée vivant** (Cassivel) et **l'Envol** (Quiétude), chacune avec sa technologie de Société.
+
+### La Traversée et les chocs de tons
+
+- **La Traversée**, nouvelle nature de foi (seulement si Asphodèle est en jeu) : la mort est un passage. Elle prêche 30 % plus fort sur une colonie d'Asphodèle ou un monde qui porte un Ossuaire, et ses fidèles morts rejoignent Asphodèle à toute distance. Asphodèle aime les fois des Ancêtres et de la Traversée (+15) et se méfie des Églises universelles, des Patriarcats, du Dieu présent et de l'Harmonie (-15).
+- **Asphodèle et le Chœur Éternel** : la carte « Qui garde les morts ? », et une rancune de -10 de part et d'autre (le Chœur chante pour ses morts, Asphodèle les héberge).
+- **Les Silencieux et la Noosphère de Teyl** : la carte « Les frères endormis ». Teyl voit dans les Silencieux des frères qui dorment, et s'en inquiète (-10 d'opinion de sa part ; les Silencieux, eux, n'ont pas d'opinion). Une Noosphère peut tenter d'**éveiller une usine** à quatre sauts de l'une de ses colonies (150 de Savoir, une chance sur trois environ, une tentative par an) : l'usine fait sécession et devient un peuple mineur conscient, les **Éveillés**.
 
 {{insolites}}

@@ -203,7 +203,7 @@ static func targets(state: GameState, a: int) -> Array[int]:
 		return out
 	for o in e.contacts:
 		var oe := state.get_empire(o)
-		if oe != null and not oe.eliminated and not oe.is_npc():
+		if oe != null and not oe.eliminated and not oe.is_npc() and not Insolites.silent(state, o):  # les Silencieux n'écoutent pas
 			out.append(o)
 	if not state.minors.is_empty():
 		for mid in Minors.ids(state):
@@ -441,6 +441,7 @@ static func source_parts(state: GameState, eid: int) -> Array:
 	# Foi (prop. 11) et héros (prop. 12) : lot 3.
 	out.append_array(CultureBridges.extra_sources(state, eid))
 	out.append_array(Archaeology.culture_parts(state, eid))  # Hauts lieux, musée des antiquités
+	out.append_array(Insolites.culture_parts(state, eid))  # Collection du Muséum de Sire Cassivel
 	# Arènes des Ferrocornes : batailles gagnées le mois dernier.
 	var br := tal(state, eid, "battle_radiance")
 	if br > 0:

@@ -10,9 +10,14 @@ extends RefCounted
 ##   - le Bureau met en demeure les non-conformes ;
 ##   - le Signal n'a rien à décider (il se propage seul) ; ses Corps empruntés se battent comme une flotte ;
 ##   - les Ysmer soufflent des inspirations aux voisins, des cauchemars aux ennemis, et rêvent une flotte
-##     de songe en guerre.
+##     de songe en guerre ;
+##   - Asphodèle réveille les héros morts et laisse partir ses Anciens las ;
+##   - le Muséum se fait sauvegarder, achète des spécimens à ses partenaires et aux mineurs, en vole ;
+##   - les Silencieux suivent leur directive : avant-postes dans le système visé, guerre à qui le tient ;
+##   - Quiétude pose des postes voilés au-dessus des pré-spatiaux et les élève en secret.
 ## Et la réaction des autres : envoyer un délégué au Grand Numéro, purger un implant, signer une norme ou
-## la refuser, nationaliser des parts, tolérer le Signal (Accord d'hébergement).
+## la refuser, nationaliser des parts, tolérer le Signal (Accord d'hébergement) ; lot 3 : signer le Pacte
+## funéraire d'Asphodèle, tenter d'éveiller une usine des Silencieux (Noosphère).
 
 
 static func _ai() -> Dictionary:
@@ -56,6 +61,14 @@ static func think(ctx: Dictionary) -> void:
 			_bureau(ctx)
 		"ysmer":
 			_ysmer(ctx)
+		"asphodele":
+			_asphodele(ctx)
+		"cassivel":
+			_cassivel(ctx)
+		"silencieux":
+			_silencieux(ctx)
+		"quietude":
+			_quietude(ctx)
 
 
 static func _go(ctx: Dictionary, f: Fleet, sid: int, why := "") -> bool:
@@ -156,6 +169,18 @@ static func _react(ctx: Dictionary) -> void:
 		for norm in InsBureau.unsigned(state, b, e.id):
 			if InsBureau.check_sign(state, e.id, b, String(norm)) == "":
 				AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "sign", {"b": b, "norm": String(norm)}))
+				break
+	# Pacte funéraire : on confie ses morts à Asphodèle si on ne la déteste pas.
+	for a in InsAsphodele.asphodeles(state):
+		if a != e.id and InsAsphodele.check_pact(state, e.id, a, true) == "" and Diplomacy.opinion(state, e.id, a) >= int(_ai().get("pact_opinion", -10)):
+			AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "pact", {"a": a}))
+			break
+	# Noosphère : tenter d'éveiller une usine des Silencieux, quand on a du Savoir à revendre.
+	if int(e.resources.get("knowledge", 0)) >= 300 and posmod(hash([state.seed_value, state.tick, e.id, "eveil"]), 1000) < int(_ai().get("teyl_awaken_pmille", 150)):
+		for pid in state.sorted_colony_ids():
+			var sc: Colony = state.colonies[pid]
+			if InsSilencieux.is_silent(state, sc.owner) and InsSilencieux.check_awaken(state, e.id, int(pid)) == "":
+				AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "awaken", {"pid": int(pid)}))
 				break
 	# Parts de la Compagnie : on nationalise en guerre, ou quand elle a pris la majorité d'un monde.
 	if Insolites.kind(state, e.id) != "ventrelune":
@@ -448,3 +473,107 @@ static func _kraal(ctx: Dictionary) -> void:
 				break
 		if not moved and not known.has(str(f.system_id)) and f.is_idle():
 			AiPlayer._issue(ctx, SimCommands.set_fleet_order(e.id, f.id, Fleet.ORDER_EXPLORE))  # chercher de nouveaux pâturages
+
+
+# --- Asphodèle -----------------------------------------------------------------------------------
+
+static func _asphodele(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var council: Array = Insolites.emp(state, e.id).get("council", [])
+	for i in council.size():
+		if InsAsphodele.lassitude(state, council[i]) >= Insolites.c_int("asphodele", "lassitude_max", 60) and InsAsphodele.check_release(state, e.id, i) == "":
+			if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "release", {"i": i})):
+				return
+	if int(e.resources.get("influence", 0)) < int(_ai().get("asphodele_raise_influence", 80)):
+		return
+	var fl := InsAsphodele.fallen(state)
+	var best := -1
+	var lvl := 0
+	for i in fl.size():
+		if int((fl[i] as Dictionary)["lvl"]) > lvl:
+			lvl = int((fl[i] as Dictionary)["lvl"])
+			best = i
+	if best >= 0 and InsAsphodele.check_raise(state, e.id, best) == "":
+		if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "raise", {"i": best})):
+			AiPlayer._intent(ctx, "Réveille un héros mort")
+
+
+# --- Muséum de Sire Cassivel ---------------------------------------------------------------------
+
+static func _cassivel(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if int(e.resources.get("energy", 0)) >= int(_ai().get("cassivel_backup_reserve", 400)) and InsCassivel.check_backup(state, e.id) == "":
+		AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "backup"))
+		return
+	if int(e.resources.get("energy", 0)) < int(_ai().get("cassivel_buy_reserve", 120)) + 120:
+		return
+	var who: Array[int] = []
+	for o in e.contacts:
+		who.append(int(o))
+	if not state.minors.is_empty():
+		who.append_array(Minors.met(state, e.id))
+	who.sort()
+	for w in who:
+		if InsCassivel.check_acquire(state, e.id, w) == "":
+			if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "acquire", {"w": w})):
+				AiPlayer._intent(ctx, "Achète un spécimen pour la Collection")
+				return
+	# Sans accord commercial : une Acquisition discrète.
+	for o in e.contacts:
+		if InsCassivel.species_of(state, int(o)) != "" and not InsCassivel.species_held(state, e.id).has(InsCassivel.species_of(state, int(o))):
+			if SimCommands.validate(state, SimCommands.spy_op(e.id, int(o), "acquisition_discrete")) == "":
+				AiPlayer._issue(ctx, SimCommands.spy_op(e.id, int(o), "acquisition_discrete"))
+				return
+
+
+# --- Silencieux ----------------------------------------------------------------------------------
+
+static func _silencieux(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var d := InsSilencieux.directive(state, e.id)
+	if d.is_empty():
+		return
+	var ob := InsSilencieux.obstacle(state, e.id)
+	if ob >= 0:
+		# Garde-fou : pas de guerre pour la directive avant l'an 5 (chacun doit survivre jusque-là).
+		if not Combat.at_war(state, e.id, ob) and state.tick >= int(_ai().get("silencieux_war_min_days", 1800)):
+			var mine := 0
+			var theirs := 0
+			for f in Fleets.empire_fleets(state, ob):
+				theirs += Combat.fleet_power(f)
+			for f in Fleets.empire_fleets(state, e.id):
+				mine += Combat.fleet_power(f)
+			if mine * 100 >= theirs * int(_ai().get("silencieux_war_power_pct", 120)) and SimCommands.validate(state, SimCommands.declare_war(e.id, ob)) == "":
+				if AiPlayer._issue(ctx, SimCommands.declare_war(e.id, ob)):
+					AiPlayer._intent(ctx, "Écarte l'obstacle à la directive")
+		return
+	for pid in state.galaxy.systems[int(d["sid"])].planet_ids:
+		if state.colonies.has(pid):
+			continue
+		if SimCommands.validate(state, SimCommands.colonize(e.id, pid, Colony.KIND_OUTPOST)) == "":
+			if AiPlayer._issue(ctx, SimCommands.colonize(e.id, pid, Colony.KIND_OUTPOST)):
+				AiPlayer._intent(ctx, "Suit la directive")
+				return
+
+
+# --- Observateurs de Quiétude --------------------------------------------------------------------
+
+static func _quietude(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if state.minors.is_empty():
+		return
+	for mid in Minors.ids(state):
+		if InsQuietude.check_uplift(state, e.id, mid) == "" and int(e.resources.get("influence", 0)) >= int(_ai().get("quietude_uplift_influence", 60)):
+			if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "uplift", {"m": mid})):
+				return
+	if int(e.resources.get("influence", 0)) < 60:
+		return
+	for mid in Minors.ids(state):
+		if InsQuietude.check_post(state, e.id, mid) == "":
+			if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "post", {"m": mid})):
+				AiPlayer._intent(ctx, "Pose un poste voilé")
+				return

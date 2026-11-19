@@ -1139,6 +1139,8 @@ static func _declare_wars(ctx: Dictionary) -> void:
 	var war: Dictionary = GameData.ai().get("war", {})
 	if state.tick < int(war.get("grace_days", 240)):
 		return
+	if Insolites.silent(state, e.id):
+		return  # Silencieux : jamais par haine ni par occasion, seulement contre l'obstacle à la directive (AiInsolites)
 	var aggr := AiLevels.aggression(e)
 	if _swarm_coalition(ctx):
 		return

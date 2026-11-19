@@ -121,6 +121,7 @@ static func rise(state: GameState, id: int, added: Array[Dictionary]) -> void:
 		Minors.set_suzerain(state, id, donor, added)
 		added.append(state.add_chronicle("%s naît protégé de %s, qui lui a tout appris." % [Minors.name_of(state, id), state.get_empire(donor).display_name()]))
 	m.erase("acc_tech")
+	Insolites.on_minor_rise(state, id, added)  # élevé en secret : un Protégé des Observateurs de Quiétude
 
 
 ## Suzerain verrouillé : né protégé du donneur, ou sujet.

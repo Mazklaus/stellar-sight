@@ -2143,6 +2143,60 @@
 			"victory": "reve_commun",
 			"flavor": "« Dors. Nous gardons la porte. »"
 		},
+		"grand_rassemblement": {
+			"label": "Le Grand Rassemblement",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand Asphodèle a accueilli les morts de la moitié de la galaxie (en cumul), et le tient deux ans, tous les vivants savent où ils iront.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"esprits_numerises"
+					]
+				}
+			},
+			"victory": "grand_rassemblement",
+			"flavor": "« Entrez. Il y a de la place pour tout le monde. »"
+		},
+		"musee_vivant": {
+			"label": "Le Musée vivant",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand le Muséum expose un représentant de chaque espèce de la partie, et le tient un an, Sire Cassivel ferme la dernière vitrine.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"collectionneur"
+					]
+				}
+			},
+			"victory": "musee_vivant",
+			"flavor": "« Ne touchez pas les spécimens. Les spécimens, ne touchez pas les visiteurs. »"
+		},
+		"envol": {
+			"label": "L'Envol",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand deux espèces primitives atteignent l'espace sous les postes voilés de Quiétude sans que personne ne les découvre entre-temps, les Observateurs ont gagné.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conseil_anciens"
+					]
+				}
+			},
+			"victory": "envol",
+			"flavor": "« Ils ne sauront jamais. C'est le plus beau cadeau. »"
+		},
 		"grande_moisson": {
 			"label": "La Grande Moisson",
 			"domain": "societe",

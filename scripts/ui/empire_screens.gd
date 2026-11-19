@@ -1743,6 +1743,10 @@ func _relation_block(id: int) -> Control:
 		var t := UiTheme.paragraph("%s. %s" % [ab["label"], ab["text"]], 520, 13)
 		t.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 		blk.body.add_child(t)
+	if InsSilencieux.is_silent(_state, id):  # la directive des Silencieux est affichée à tous (prop. 74)
+		var dt := UiTheme.paragraph(InsSilencieux.directive_text(_state, id), 520, 13)
+		dt.add_theme_color_override("font_color", UiTheme.WARN)
+		blk.body.add_child(dt)
 	if Diplomacy.has_heir(_state, id):
 		blk.body.add_child(UiTheme.dim("Loyauté de son héritier : %d / 100" % e.heir_loyalty, 13))
 

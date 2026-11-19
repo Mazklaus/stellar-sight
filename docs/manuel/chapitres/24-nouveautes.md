@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.50
+
+- **Les peuples insolites** (chapitre 48), troisième lot : les **peuples qui jouent avec la vie et la mort**. **Asphodèle, Cité des Trépassés** (les Âmes des morts de la galaxie, Pacte funéraire et Ossuaires, Revenants, Nécro-conseil et Usure des Anciens, victoire du **Grand Rassemblement**), le **Muséum de Sire Cassivel** (souverain immortel qui voyage, copie de sauvegarde et crise Orphelin, cinq vitrines, acquisition de spécimens, victoire du **Musée vivant**), les **Silencieux** (machines sans diplomatie ni recherche, directive publique, réplication des avant-postes, victoires de force seulement) et les **Observateurs de Quiétude** (postes voilés, élever en secret, scandale de la découverte, Protégés, victoire de **l'Envol**). Nature de foi **la Traversée**, famille de lois **Rites funéraires** de l'Amphictyonie, opération **Acquisition discrète**, chocs des tons **Asphodèle et le Chœur** et **les Silencieux et Teyl** (éveiller une usine). Sauvegarde 101 inchangée.
+
 ### Édition 2.49
 
 - **Les peuples insolites** (chapitre 48), second lot : les **peuples qui vivent chez les autres**. La **Compagnie Ventrelune** (parts des colonies étrangères, licence, nationalisation, Conseil d'actionnaires, mercenaires moins chers, dette remboursée en parts, victoire de l'**OPA galactique**), le **Bureau des Affaires Courantes** (normes, Non-conformité, Guichets, Mise en demeure et Procédure, Huissiers, paperasse, dossiers perdus, victoire de l'**Administration totale**), les **Enfants du Signal** (nœuds cachés, bande passante, pare-feu, Accord d'hébergement, Corps empruntés, mutations et schismes, victoire de la **Saturation**) et les **Rêveurs d'Ysmer** (rêveries, Éveillés, inspirations et cauchemars, flotte de songe, victoire du **Rêve commun**). Implants de plusieurs sortes par planète, **menu des peuples** sur la ligne d'état, choc des tons **le Bureau et le Syndicat**. Un peuple sans monde n'a plus de capitale à prendre pour la Conquête.

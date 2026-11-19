@@ -229,6 +229,8 @@ static func base_cloak(state: GameState, f: Fleet) -> int:
 		lo = mini(lo, ship_cloak(s))
 	if lo > 0 and lo < 99 and f.owner >= 0:
 		lo += Genetics.cloak_bonus(state, f.owner)  # Résonance du Voile (traits façonnés)
+	if f.owner >= 0 and lo < 99:
+		lo = maxi(lo, int(talent(state, f.owner).get("base_cloak", 0)))  # escadres voilées de Quiétude
 	return maxi(0, lo)
 
 

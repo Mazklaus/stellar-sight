@@ -183,5 +183,57 @@
     "chronique_source": "Registre des rêves|Hôpital de Vael-Prime",
     "chronique": "« Quatre cents patients ont fait cette nuit le même rêve : un couloir, une porte qui respire, et une voix qui disait merci. Le personnel de garde l'a fait aussi. Nous avons classé l'affaire sous \"fatigue collective\" et personne n'a voulu dormir la nuit suivante. »",
     "conseil": "Soufflez des inspirations aux empires qui vous entourent : leur gratitude les rend lents à chercher des Éveillés."
+  },
+  "asphodele": {
+    "portrait": "MJ-74",
+    "devise": "Personne ne se perd. Tout le monde arrive.",
+    "difficulte": "●●●○ Exigeant",
+    "regle": "**Sa population ne naît pas.** Asphodèle n'a aucune naissance : elle grandit des morts des autres, qui lui arrivent sous forme d'Âmes.",
+    "histoire": "Sur Asphodèle, la pierre se souvient. Les morts de la galaxie y sont recopiés, et ils continuent : ils travaillent, ils discutent, ils gouvernent. Trois Anciens siègent au Nécro-conseil ; les plus vieux, un jour, demandent à partir pour de bon.",
+    "jouer": "Chaque mois, les populations mortes à cinq sauts de vos colonies (bataille, invasion, famine, catastrophe) vous versent des **Âmes** ; deux Âmes font un habitant, qui garde son espèce. Proposez le **Pacte funéraire** (menu des peuples) : le signataire reçoit des **Ossuaires** (stabilité +3, 1 d'influence par mois) et tous ses morts vous rejoignent à toute distance. Un héros tombé n'importe où peut être réveillé en **Revenant** (60 d'influence). Les trois Anciens du Nécro-conseil prennent de l'**Usure** : au-delà de cinq ans, chacun coûte 4 de stabilité partout ; **laissez-le partir** pour 120 Savoir et 20 d'influence, et un mort plus récent prend sa place.",
+    "contrer": "Ne pas signer le Pacte, ou le rompre : les Ossuaires tombent et vos morts restent à vous (sauf à cinq sauts d'Asphodèle). L'Amphictyonie peut voter **Rites funéraires protégés**, qui interdit le Pacte partout. Les fois qui se méfient de la mort-passage (Églises universelles, Patriarcats, Dieu présent, Harmonie) lui sont hostiles.",
+    "victoire": "**Le Grand Rassemblement** (archétype Esprits numérisés). Que la moitié de la population de la galaxie vive à Asphodèle.",
+    "chronique_source": "Registre des arrivées|Porte de l'Ouest, Asphodèle",
+    "chronique": "« Arrivés ce matin : quatre mille deux cents marins de la bataille de Kesh, des deux camps. Ils ont demandé s'ils devaient continuer la guerre. Le préposé leur a dit qu'il y avait du thé, et qu'on verrait après. Personne n'a repris la guerre. »",
+    "conseil": "Le Pacte vaut mieux que la guerre : un grand empire pacifique qui signe vous donnera, à la longue, plus d'Âmes que toutes les batailles à votre portée."
+  },
+  "cassivel": {
+    "portrait": "MJ-75",
+    "devise": "Un exemplaire de tout. Deux, si c'est rare.",
+    "difficulte": "●●○○ Accessible",
+    "regle": "**Un seul dirigeant, à jamais.** Sire Cassivel ne meurt pas de vieillesse et n'a pas d'héritier : il règne et il voyage, et tout le Muséum tient à lui.",
+    "histoire": "Sire Cassivel a commencé par une boîte de papillons. Aujourd'hui, son Muséum couvre un système entier, et ses serviteurs passent leurs nuits à épousseter des espèces, des reliques, des héros captifs, des créatures et des vaisseaux pris à l'ennemi. Il est charmant, cultivé, et ne rend jamais rien.",
+    "jouer": "Cinq **vitrines** : espèces, reliques, héros captifs, créatures du Vivarium, prises de guerre. Chaque pièce rayonne (3 de rayonnement) ; trois pièces de chaque sorte font une **galerie complète** (40 de rayonnement et 5 d'influence par mois). Les espèces s'**acquièrent** (menu des peuples) chez un partenaire commercial ou un peuple mineur rencontré (200 d'énergie, dont la moitié au vendeur, une par an), se volent (opération **Acquisition discrète**) ou viennent vivre dans vos colonies. Sire Cassivel est aussi un héros : s'il tombe, c'est la crise **Orphelin** (stabilité -15, production -25 % pendant trois ans), sauf si vous avez payé une **copie de sauvegarde** (250 d'énergie, 200 de Savoir) : il revient six mois plus tard.",
+    "contrer": "Refuser le commerce, c'est refuser la vente. Tuer Sire Cassivel quand il n'a pas de copie à jour plonge le Muséum dans trois ans de crise. Les héros captifs s'évadent parfois, et vos espions peuvent les libérer.",
+    "victoire": "**Le Musée vivant** (gouvernement Autocratie immortelle). Un spécimen de chaque espèce de la partie (empires vivants et peuples mineurs rencontrés), et une galerie complète.",
+    "chronique_source": "Cartel de la salle 412|Muséum de Sire Cassivel",
+    "chronique": "« Amiral de la flotte de Vael, en uniforme de cérémonie, capturé à la bataille d'Orth. Prière de ne pas lui donner à manger : il se plaint du menu. Prière de ne pas lui parler : il se plaint de tout. Pièce très rare. »",
+    "conseil": "Payez la copie de sauvegarde avant d'envoyer Sire Cassivel au loin : un héros qui voyage finit toujours par croiser une flotte de trop."
+  },
+  "silencieux": {
+    "portrait": "MJ-76",
+    "devise": "DIRECTIVE EN COURS.",
+    "difficulte": "●○○○ Simple",
+    "regle": "**Ne négocie pas, n'invente pas.** Des machines sans conscience : ni diplomatie ni recherche. Elles suivent une directive, affichée à tous.",
+    "histoire": "Personne ne sait qui les a construites, ni s'il reste quelqu'un pour leur dire d'arrêter. Les Silencieux extraient, assemblent, s'étendent. Ils ne haïssent personne. Ils écartent ce qui gêne, comme on pousse une pierre du chemin.",
+    "jouer": "Production très haute (matériaux +60 %, énergie +50 %), pas de stabilité à gérer, des habitants assemblés en usine. Pas de recherche : vos technologies viennent des épaves et des prises (rétro-ingénierie quatre fois plus efficace) et des ruines. Une **directive** est publiée tous les deux ans (« Extraire les métaux de… », « Étendre les usines vers… », « Écarter l'obstacle de… ») ; l'IA y envoie ses avant-postes, et ne fait la guerre qu'à l'empire qui tient le système visé. Après deux ans, un avant-poste peut se **répliquer** en usine (une colonie de 1 population, une par mois au plus). Ni culture, ni foi, ni psionique, ni intrigue n'a prise sur vous.",
+    "contrer": "Lire la directive : elle dit où ils vont. Ne pas tenir le système visé, c'est ne pas être l'obstacle. La Noosphère de Teyl peut **éveiller une usine**, qui devient un peuple mineur conscient.",
+    "victoire": "Aucune victoire propre : seulement la **Conquête** ou la **Domination**.",
+    "chronique_source": "Transmission captée en clair|toutes fréquences",
+    "chronique": "« DIRECTIVE 4471 : EXTRAIRE LES MÉTAUX DE KESH. OBSTACLE DÉTECTÉ : FLOTTE DE VAEL. ÉVALUATION DE L'OBSTACLE : NON PERTINENTE. DIRECTIVE 4471 : EN COURS. »",
+    "conseil": "Gardez un œil sur les batailles des autres : chaque épave est une technologie que vous ne pourrez pas trouver autrement."
+  },
+  "quietude": {
+    "portrait": "MJ-77",
+    "devise": "On regarde. On ne touche pas. Presque jamais.",
+    "difficulte": "●●●○ Exigeant",
+    "regle": "**Gagne en se cachant.** Les Observateurs veillent sur des peuples pré-spatiaux et les aident à grandir en secret ; être découvert, c'est tout perdre.",
+    "histoire": "Les sages de pierre de Quiétude vivent des siècles et délibèrent longtemps. Ils ont décidé, il y a très longtemps, que les jeunes peuples méritaient une chance. Ils les regardent depuis des postes voilés, prennent des notes, et parfois soufflent une idée. Jamais deux fois de suite.",
+    "jouer": "Posez des **postes voilés** (40 d'influence, depuis la fiche de la planète) au-dessus de peuples mineurs pré-spatiaux, à douze sauts au plus : chaque poste rapporte 3 de Savoir par mois, et personne ne le voit. **Élever en secret** (30 d'influence, tous les six mois) fait avancer le jeune peuple d'un an et demi, mais fait monter sa conscience. Quand il atteint l'espace, il devient votre **Protégé** : verrouillé dans votre camp, il vous offre 10 de Savoir et 3 d'influence par mois. Fonder une colonie vous coûte deux fois plus d'influence, et vos escadres sont voilées.",
+    "contrer": "Stationner une flotte au-dessus d'un peuple pré-spatial, y poser son propre poste d'observation, ou y livrer bataille face à une escadre de Quiétude : chaque mois, une chance de **découvrir** le poste. C'est un **scandale** : le poste tombe, Quiétude perd 50 d'influence, tous les empires qui la connaissent s'en souviennent, et son compte des Envols repart de zéro.",
+    "victoire": "**L'Envol** (gouvernement Conseil des anciens). Faire atteindre l'espace à deux peuples pré-spatiaux sans être découvert entre-temps.",
+    "chronique_source": "Carnet d'observation, poste 7|Observateurs de Quiétude",
+    "chronique": "« Année 312 de l'observation. Les petits ont inventé la poésie. Elle parle surtout de la lune. Nous sommes derrière la lune. Le Conseil se demande s'il faut se sentir flatté ; la délibération est prévue pour le siècle prochain. »",
+    "conseil": "Choisissez des peuples loin des routes : chaque flotte étrangère qui passe et s'arrête est un regard de trop."
   }
 }
