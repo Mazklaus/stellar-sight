@@ -644,3 +644,43 @@ a large open book floating in space whose pages are translucent holographic scre
 ```
 in deep space two warships locked together by dozens of taut grappling cables, assault pods embedded in the hull of the more damaged ship with armored marines in magnetic boots emerging, behind them a field of rusted wrecks where a salvage crane ship cuts apart a carcass, in the foreground on the torn bridge of the captured ship a mustached foreman already repaints the enemy crest in his own empire colors while the former captain in handcuffs primly points out that he is painting outside the lines, boarding action with gentle humor epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
 ```
+
+## MJ-66 · Portrait · Flotte-Exode des Derniers
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche de la Flotte-Exode (chapitre « Les peuples insolites »)
+- Sujet : Une conseillère de quart, épuisée et digne, devant le hublot d'une Nef-cité ; derrière elle trois autres nefs rapiécées en convoi, et très loin sur la route, une lueur qui les suit
+
+```
+portrait of a weary but dignified human council officer standing at the viewport of a huge patched-up generation ship, behind her three other battered city ships flying in convoy, greenhouse domes leaking mist, and far behind on the starlanes a faint ominous glow that follows them, hopeful and haunted refugee fleet epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
+
+## MJ-67 · Portrait · Cirque Stellaire Zambalù
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche du Cirque Zambalù (chapitre « Les peuples insolites »)
+- Sujet : Monsieur Loyal, haut-de-forme et queue de pie constellée, bras ouverts devant un chapiteau-vaisseau illuminé ; derrière, des acrobates de plusieurs espèces et une ménagerie qui a l'air d'avoir faim
+
+```
+portrait of a flamboyant ringmaster with a tall top hat and a star-spangled tailcoat, arms wide open in welcome before a glowing striped circus tent built on a starship, behind him acrobats of several alien species in mid-leap and a cage of a hungry-looking alien beast, festive spotlights, picaresque pulp joy epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
+
+## MJ-68 · Portrait · Orbe-Monde Halcyre
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche de l'Orbe-Monde Halcyre (chapitre « Les peuples insolites »)
+- Sujet : Une planète vivante aux anneaux de roche qui avale lentement une lune ; au premier plan, son Avatar de pierre polie, poli et un peu trop grand, salue des éclaireurs minuscules
+
+```
+a living rogue planet with rings of floating rock slowly swallowing a small moon in a stream of debris, in the foreground its avatar a tall courteous humanoid figure of polished stone and glowing veins, slightly too large, bowing politely to tiny astonished scouts in spacesuits, cosmic and uncanny mood epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
+
+## MJ-69 · Portrait · Hardes de Kraal
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche des Hardes de Kraal (chapitre « Les peuples insolites »)
+- Sujet : Une harde de baleines du vide aux os apparents broutant les nuages d'une géante gazeuse ; sur le front du plus vieux, une petite silhouette humaine liée par des filaments : le Pilote
+
+```
+a herd of colossal space whales with exposed bone plates and cartilage fins grazing the cloud bands of a gas giant, a newborn calf among them, on the brow of the oldest whale a small human figure bound by glowing organic filaments, the pilot, grim and majestic mood epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```

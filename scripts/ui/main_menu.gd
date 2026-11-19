@@ -88,6 +88,10 @@ var _species_return := "home"
 var slots: Array[Dictionary] = []
 ## Plusieurs empires peuvent-ils partager un peuple (y compris le vôtre) ?
 var allow_duplicates := false
+## Peuples insolites parmi les rivaux tirés au hasard (data/insolites.json, rivals) : aucun, quelques,
+## libres, tous.
+var insolites_mode := "quelques"
+var _ins_select: OptionButton
 var _slot_list: VBoxContainer
 var _slot_count: Label
 var _slot_note: Label
@@ -1154,11 +1158,65 @@ func _on_library_changed() -> void:
 		select_faction(GameData.faction_ids()[0])
 
 
-## Emplacements par défaut : un rival par peuple officiel (le vôtre sera retiré au lancement).
+## Emplacements « classiques » : un rival par peuple classique (le vôtre sera retiré au lancement).
+## Repère des tests et des outils ; l'écran part de random_slots().
 static func default_slots() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
-	for fid in GameData.faction_ids():
+	for fid in GameData.classic_faction_ids():
 		out.append(new_slot(fid))
+	return out
+
+
+## Emplacements d'une nouvelle partie (prop. 3 des peuples insolites) : sept rivaux tirés au hasard parmi
+## tous les peuples, selon le réglage « Peuples insolites ».
+static func random_slots() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for _i in GameData.classic_faction_ids().size() - 1:
+		out.append(new_slot(RANDOM_FACTION))
+	return out
+
+
+static func insolites_modes() -> Array:
+	return GameData.insolites().get("rivals", {}).get("modes", [])
+
+
+static func insolites_default() -> String:
+	return String(GameData.insolites().get("rivals", {}).get("default", "quelques"))
+
+
+func set_insolites_mode(id: String) -> void:
+	var ids := _ids_of(insolites_modes())
+	insolites_mode = id if ids.has(id) else insolites_default()
+	if _ins_select:
+		_ins_select.select(ids.find(insolites_mode))
+	_refresh_slots()
+
+
+## Réserve d'un tirage au hasard : les peuples libres, les insolites selon le réglage (plafond en part des
+## places tirées, ou en priorité pour « Tous »).
+func _draw_pool(used: Array[String], drawn_insolites: int, random_count: int) -> Array[String]:
+	var mode: Dictionary = {}
+	for md: Dictionary in insolites_modes():
+		if String(md["id"]) == insolites_mode:
+			mode = md
+	var pct := int(mode.get("max_pct", 34))
+	@warning_ignore("integer_division")
+	var cap := random_count if pct >= 100 else (maxi(1, random_count * pct / 100) if pct > 0 else 0)
+	var classic: Array[String] = []
+	var odd: Array[String] = []
+	for f in GameData.all_faction_ids():
+		if not allow_duplicates and used.has(f):
+			continue
+		if bool(GameData.faction(f).get("insolite", false)):
+			odd.append(f)
+		else:
+			classic.append(f)
+	if drawn_insolites >= cap:
+		return classic
+	if bool(mode.get("prefer", false)) and not odd.is_empty():
+		return odd
+	var out := classic.duplicate()
+	out.append_array(odd)
 	return out
 
 
@@ -1313,19 +1371,23 @@ func empire_setup(player: String, seed_value := 0) -> Dictionary:
 		if allow_duplicates or not used.has(fid):
 			picked[i] = fid
 			used.append(fid)
+	var random_count := 0
+	for i in slots.size():
+		if picked[i] == "":
+			random_count += 1
+	var drawn_odd := 0
 	for i in slots.size():
 		var fid := String(slots[i]["faction"])
 		# Une place de joueur dont le peuple est déjà pris est tirée au hasard plutôt que retirée.
 		var redraw := is_slot_human(i) and picked[i] == ""
 		if fid != RANDOM_FACTION and not GameData.faction(fid).is_empty() and not redraw:
 			continue
-		var pool: Array[String] = []
-		for f in GameData.all_faction_ids():
-			if allow_duplicates or not used.has(f):
-				pool.append(f)
+		var pool := _draw_pool(used, drawn_odd, random_count)
 		if pool.is_empty():
 			continue
 		picked[i] = pool[rng.randi_range(0, pool.size() - 1)]
+		if bool(GameData.faction(picked[i]).get("insolite", false)):
+			drawn_odd += 1
 		used.append(picked[i])
 	var out := {"rivals": [] as Array[String], "ai_levels": [ai_level], "temperaments": [temperament],
 			"colors": [""], "starts": [""], "distances": [""], "duplicates": allow_duplicates, "slots": [],
@@ -2082,6 +2144,9 @@ func set_spectator(on: bool) -> void:
 ## Traits d'un peuple en texte enrichi : le nom de chaque trait en gras, à sa couleur.
 static func trait_bbcode(f: Dictionary, col: Color) -> String:
 	var lines := PackedStringArray()
+	# Peuples insolites : la règle de base qu'ils cassent, d'un coup d'œil (prop. 2).
+	if String(f.get("broken_rule", "")) != "":
+		lines.append("[b][color=#%s]Règle cassée : %s[/color][/b]" % [UiTheme.WARN.to_html(false), String(f["broken_rule"])])
 	for t: Dictionary in f.get("traits", []):
 		lines.append("[b][color=#%s]%s[/color][/b]  %s" % [col.lightened(0.35).to_html(false), t["name"], t["text"]])
 	return "\n".join(lines) if not lines.is_empty() else String(f.get("trait", ""))
@@ -3177,16 +3242,26 @@ func _build_rivals_block(page_root: Control) -> void:
 	_team_select.tooltip_text = "Rangez des rivaux (IA ou joueurs) dans votre équipe avec leur bouton « + » :\nvous naissez alliés, voyez ensemble et gagnez ensemble. Des rivaux peuvent aussi former\nleurs propres équipes entre eux."
 	_team_select.item_selected.connect(set_player_team)
 	actions.add_child(_team_select)
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	actions.add_child(spacer)
+	# Seconde ligne : qui peut être tiré (doublons, peuples insolites).
+	var draws := HBoxContainer.new()
+	draws.add_theme_constant_override("separation", 8)
+	body.add_child(draws)
 	_dup_check = CheckBox.new()
 	_dup_check.text = "Peuples en double"
 	_dup_check.focus_mode = Control.FOCUS_NONE
 	_dup_check.button_pressed = allow_duplicates
 	_dup_check.tooltip_text = "Permet à plusieurs empires d'être du même peuple, y compris le vôtre.\nIls se distinguent par leur couleur et un numéro (« Lignées d'Ossarane II »)."
 	_dup_check.toggled.connect(set_duplicates)
-	actions.add_child(_dup_check)
+	draws.add_child(_dup_check)
+	_ins_select = OptionButton.new()
+	_ins_select.focus_mode = Control.FOCUS_NONE
+	for md: Dictionary in insolites_modes():
+		_ins_select.add_item("Peuples insolites : %s" % String(md["label"]).to_lower())
+		_ins_select.set_item_tooltip(_ins_select.item_count - 1, String(md["text"]))
+	_ins_select.select(maxi(0, _ids_of(insolites_modes()).find(insolites_mode)))
+	_ins_select.tooltip_text = "Part des peuples insolites (sans monde, chez les autres, étranges…) parmi les rivaux tirés « Au hasard ».\nVotre propre peuple se choisit toujours librement."
+	_ins_select.item_selected.connect(func(i: int) -> void: set_insolites_mode(String(insolites_modes()[i]["id"])))
+	draws.add_child(_ins_select)
 	_lobby_label = Label.new()
 	_lobby_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_lobby_label.add_theme_color_override("font_color", UiTheme.GOOD)
@@ -3204,7 +3279,7 @@ func _build_rivals_block(page_root: Control) -> void:
 	body.add_child(_slot_note)
 	_build_slot_advanced(page_root)
 	if slots.is_empty():
-		slots = default_slots()
+		slots = random_slots()
 	_refresh_slots()
 
 
@@ -3655,7 +3730,7 @@ func settings() -> Dictionary:
 	var saved_slots := slots.duplicate(true)
 	for sl in saved_slots:
 		sl.erase("human")  # les places de joueurs ne valent que pour le salon en cours
-	return {"faction": selected_faction, "slots": saved_slots, "duplicates": allow_duplicates, "team": player_team,
+	return {"faction": selected_faction, "slots": saved_slots, "duplicates": allow_duplicates, "insolites": insolites_mode, "team": player_team,
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
 		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
@@ -3674,7 +3749,7 @@ static func _without_seed(d: Dictionary) -> Dictionary:
 
 ## Réglages par défaut de l'écran (votre peuple choisi gardé).
 func default_settings() -> Dictionary:
-	return {"faction": selected_faction, "slots": default_slots(), "duplicates": false, "team": 0,
+	return {"faction": selected_faction, "slots": random_slots(), "duplicates": false, "insolites": insolites_default(), "team": 0,
 		"ai_level": AiLevels.default_id(), "temperament": AiLevels.default_temperament(), "spectator": false,
 		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "timer": "", "deadline": Victory.default_deadline(), "people": true,
 		"victories": DEFAULT_VICTORIES.duplicate(), "ai_scaling": false,
@@ -3703,6 +3778,11 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	allow_duplicates = bool(d.get("duplicates", false))
 	if _dup_check:
 		_dup_check.set_pressed_no_signal(allow_duplicates)
+	insolites_mode = String(d.get("insolites", insolites_default()))
+	if not _ids_of(insolites_modes()).has(insolites_mode):
+		insolites_mode = insolites_default()
+	if _ins_select:
+		_ins_select.select(_ids_of(insolites_modes()).find(insolites_mode))
 	var new_slots: Array[Dictionary] = []
 	var raw: Variant = d.get("slots", base["slots"])
 	for item: Variant in (raw if raw is Array else []):

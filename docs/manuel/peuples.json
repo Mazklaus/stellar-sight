@@ -79,5 +79,57 @@
     "chronique_source": "Carnet d'un navigateur|Maître-navigateur Elkan d'Ossarane",
     "chronique": "« Le système de Veyth était vide. Je l'ai vérifié trois fois. Je l'affirme encore aujourd'hui. Je voudrais seulement savoir qui chante, la nuit, sur la quatrième planète. »",
     "conseil": "Trente échos avancent un chantier de 60 jours : repliez le temps d'abord sur un vaisseau colon. Et surveillez qui recherche les Détecteurs d'abysse."
+  },
+  "exode": {
+    "portrait": "MJ-66",
+    "devise": "Nous ne fuyons pas. Nous arrivons, un peu en retard.",
+    "difficulte": "●●●○ Exigeant",
+    "regle": "**Pas de monde, et quelque chose suit.** L'Exode n'a aucune colonie au départ : quatre Nefs-cités portent les 24 de population. Rester deux ans au même mouillage attire les **Traqueurs**.",
+    "histoire": "Le Conseil de survie vote tout, même l'heure des repas, et l'on dit qu'un jour il votera l'arrivée. En attendant, les nefs mouillent au-dessus de systèmes qu'elles ne colonisent pas : elles en travaillent les planètes depuis l'orbite, comme des avant-postes, puis repartent avant que la trace ne se refroidisse.",
+    "jouer": "Mouillez dans un système riche (chaque nef y a son fonds, et les planètes libres sont travaillées une fois par nef, deux nefs au plus par système), construisez des escortes au **chantier embarqué** (bouton **CHANTIER EMBARQUÉ** de la fiche de flotte, un vaisseau à la fois), et levez l'ancre avant les 630 jours qui annoncent les Traqueurs. L'**Espoir** monte avec chaque signe de la Terre promise et chaque réfugié recueilli (batailles et révoltes à trois sauts) ; une nef perdue en coûte 15. À zéro, une partie de la flotte fait sécession. Avec les **Chants de la route**, trouvez la Terre promise, mouillez au-dessus, et choisissez **L'Arrivée** dans la fiche de la planète : l'Exode devient un empire planétaire, et les Traqueurs livrent leur dernière bataille.",
+    "contrer": "Les nefs sont lentes et fragiles, et ne se reconstruisent pas : chaque nef détruite emporte un quart du peuple. Refusez-leur le mouillage dans vos systèmes, ou attendez les Traqueurs : ils frappent tout le monde dans le système.",
+    "victoire": "**La Terre promise.** Se poser sur le monde des chansons, y fonder sa capitale et y faire camper la flotte un an.",
+    "chronique_source": "Journal de bord de la Nef « Patience »|Conseillère de quart Ilse Moran",
+    "chronique": "« Vote n° 41 207 : rester un mois de plus au-dessus de Teshar. Pour : 312. Contre : 298. Abstention : le guetteur, qui dit avoir vu quelque chose sur la route. Nous levons l'ancre demain. »",
+    "conseil": "Une nef en route ne produit rien : changez de mouillage vers un système voisin, pas à l'autre bout de la carte. Les Traqueurs se comptent à partir de l'arrivée, pas de la première visite."
+  },
+  "zambalu": {
+    "portrait": "MJ-67",
+    "devise": "Le spectacle doit continuer. Surtout s'il n'a pas commencé.",
+    "difficulte": "●●●○ Exigeant",
+    "regle": "**Ne garde aucune planète.** Le Cirque n'a pas de colonie : la **Cité-chapiteau** porte le peuple, et les **Troupes**, vaisseaux sans armes, vont jouer chez les autres. Sa population vient des artistes qu'il recrute.",
+    "histoire": "Quarante espèces, un chapiteau, une ménagerie et un monsieur Loyal qui n'a jamais dit son nom. Le Cirque ne conquiert pas : il tourne. Ses refrains restent après lui, et ses fans aussi.",
+    "jouer": "Envoyez les Troupes chez des empires en paix : 60 jours à l'arrêt et la **représentation** paie 20 d'énergie de billetterie, donne de la stabilité au système hôte pour six mois et pousse la culture du Cirque chez l'hôte. Quand cette culture devient **Influente** (palier 3), des artistes rejoignent le Chapiteau. En guerre, une Troupe escortée qui tient 90 jours sans bataille le système d'une colonie ennemie en fait un **Fan-club** : la colonie reste à son maître mais verse une dîme au Cirque. Tous les dix ans (le premier à cinq ans), le **Grand Numéro** : les empires qui envoient un délégué (bouton **GRAND NUMÉRO** pendant l'appel) gagnent une trêve entre eux.",
+    "contrer": "La loi **Exception culturelle** interdit les représentations chez vous. Un Fan-club se purge contre 40 d'influence (au prix de la stabilité du système pendant quatre mois). Les Troupes n'ont pas d'armes : escortées, elles se battent ; seules, elles fuient.",
+    "victoire": "**L'Idole des foules** (credo Plaisir). Être au moins Influent chez des empires qui réunissent l'essentiel de la population étrangère rencontrée, et le tenir.",
+    "chronique_source": "Programme de la tournée|Monsieur Loyal",
+    "chronique": "« Ce soir, et ce soir seulement, sous le grand chapiteau : la Danse des Neuf Lunes, l'Homme-Canon de Vael, et l'Hymne éternel du Chœur… en version claquettes. Les remboursements ne sont pas acceptés. Les plaintes non plus. »",
+    "conseil": "Un hôte en guerre contre vous ne paie pas de billet. Gardez la paix avec les plus riches : c'est là que les Recrues viennent le plus vite."
+  },
+  "halcyre": {
+    "portrait": "MJ-68",
+    "devise": "Je n'ai pas faim. J'ai de l'appétit.",
+    "difficulte": "●●○○ Accessible",
+    "regle": "**L'espèce est sa planète.** Halcyre n'a ni colonie ni vaisseau : l'**Orbe-Monde** est le peuple, et sa population s'appelle la **Masse**.",
+    "histoire": "Elle marche d'un système à l'autre, très lentement, mange des lunes et laisse derrière elle des sentinelles de roche. Pour parler aux petits êtres, elle se façonne un Avatar à leur image, poli et un peu trop grand.",
+    "jouer": "Au repos dans un système, l'Orbe mange tout seul les corps libres (stériles, astéroïdes, glaciaires, toxiques, géantes gazeuses) : la Masse monte, et avec elle l'énergie, les matériaux, le savoir et les dégâts de l'Orbe (+1 % par 3 de Masse, 60 % au plus). Sans rien à manger six mois, elle perd de la Masse. Une **Lune-sentinelle** (fiche de la planète) laisse sur un corps libre un avant-poste armé contre 4 de Masse. En guerre, **dévorer** une colonie ennemie dans le système la fait disparaître. Les mondes vivants l'aiment, le Monde-Ego beaucoup moins.",
+    "contrer": "L'Orbe va très lentement : on le voit venir. Une puissance armée au moins égale à la sienne dans son système l'**assiège**, et arrête le compte à rebours de l'Allumage. Fermez-lui les systèmes où manger, et elle s'affame.",
+    "victoire": "**L'Allumage.** Atteindre 300 de Masse et la tenir trois ans sans être assiégé : la planète-être s'allume en étoile.",
+    "chronique_source": "Rapport d'un éclaireur d'Ossarane|Lieutenant Ferhan de Vash",
+    "chronique": "« L'Avatar nous a reçus avec beaucoup de courtoisie. Il s'est excusé pour la lune. Il a dit qu'elle était à personne. Nous avons vérifié : elle était à personne. Nous n'avons pas osé dire qu'elle nous plaisait. »",
+    "conseil": "Une Lune-sentinelle coûte de la Masse mais tient le système pour vous : posez-la là où vous reviendrez manger."
+  },
+  "kraal": {
+    "portrait": "MJ-69",
+    "devise": "La route est dans le sang. Le pilote aussi.",
+    "difficulte": "●●○○ Accessible",
+    "regle": "**Les vaisseaux sont la population.** Pas de chantier ni de colonie : chaque **Kraal** est à la fois un vaisseau et un habitant (Petit 1, Jeune 2, Adulte 3, Ancien 4).",
+    "histoire": "Des baleines de vide qui broutent les géantes gazeuses, mettent bas dans les nébuleuses et migrent par des routes que seuls les Anciens connaissent. Elles arrachent parfois un pilote aux mondes qu'elles traversent, et le gardent.",
+    "jouer": "Menez la harde vers les **pâturages** (géantes gazeuses, nébuleuses) que la mémoire ancestrale connaît à quatre sauts du départ. Un pâturage s'épuise et repousse ; brouté un mois, il devient un avant-poste de la harde. Deux reproducteurs au repos dans un pâturage bien garni donnent un **Petit** tous les trois mois, et les Kraal vieillissent en se renforçant. Les Kraal vont 30 % plus vite vers un pâturage connu. Chez un ennemi, une harde à l'arrêt peut lier un **Pilote** (bouton **PILOTES**) : +10 % de dégâts, trois par harde.",
+    "contrer": "Un Kraal mort ne se capture pas, mais sa carcasse se dépèce (des matériaux). Tenez les géantes gazeuses : sans pâturage, la harde ne grandit plus. Une harde loin de ses routes est lente.",
+    "victoire": "**La Grande Moisson.** Porter une grande part de la population de la galaxie (la harde compte), avoir pris assez de Pilotes et d'habitants, et le tenir.",
+    "chronique_source": "Chant des Anciens, traduit au mieux|Pilote sans nom",
+    "chronique": "« Avant, j'avais un nom et un monde. Maintenant j'ai une harde et une route. On me demande souvent si je regrette. Je ne sais pas. La géante de Kesh est en fleur, et le Petit a ouvert les yeux. »",
+    "conseil": "Ne laissez pas toute la harde au même pâturage : il s'épuise. Deux hardes sur deux pâturages grandissent plus vite qu'une seule."
   }
 }

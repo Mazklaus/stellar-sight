@@ -246,8 +246,11 @@ static func has_horde(faction: Dictionary) -> bool:
 	return faction.has("horde")
 
 
-## Classe du vaisseau-capitale d'une horde ("" sinon).
+## Classe du vaisseau-capitale d'une horde, ou de la cité mobile d'un peuple sans monde (Insolites :
+## Nef-cité, Cité-chapiteau, Orbe-Monde, Kraal ancien) ; "" sinon.
 static func city_ship(faction: Dictionary) -> String:
+	if faction.has("nomad"):
+		return String(faction["nomad"].get("ship", ""))
 	return String(faction.get("horde", {}).get("ship", ""))
 
 
@@ -319,6 +322,9 @@ static func far_from_clan(state: GameState, c: Colony) -> bool:
 ## Ce que rapporte la flotte-ville chaque mois : le rendement du bâtiment « capitale ».
 static func city_yields(state: GameState, empire_id: int) -> Dictionary:
 	if city_fleet(state, empire_id) == null:
+		return {}
+	# L'Exode posé sur la Terre promise a un vrai palais : ses nefs ne sont plus la capitale.
+	if not state.insolites.is_empty() and InsExode.arrived(state, empire_id):
 		return {}
 	return GameData.building("capitale").get("yields", {})
 

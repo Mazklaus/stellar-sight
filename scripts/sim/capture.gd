@@ -264,7 +264,9 @@ static func hull_of(ship_id: String) -> String:
 
 
 static func unboardable(ship_id: String) -> bool:
-	return fixed_unit(ship_id) or (data().get("unboardable_hulls", []) as Array).has(hull_of(ship_id))
+	# Vaisseaux vivants et planète-être (Insolites) : on ne capture pas un Kraal, on le dépèce.
+	return fixed_unit(ship_id) or (data().get("unboardable_hulls", []) as Array).has(hull_of(ship_id)) \
+			or bool(GameData.ship(base_of(ship_id)).get("unboardable", false))
 
 
 # --- Posture d'abordage (prop. 5) -------------------------------------------------------------------

@@ -61,6 +61,10 @@
 			["Picaresque / pulp", "Horreur biologique", -2],
 			["Cosmique / étrange", "Horreur biologique", 0]
 		],
+		"_faction_pairs_doc": "Choc des tons entre deux peuples précis (peuples insolites, prop. 106) : [peuple, peuple, points d'opinion, libellé], ajouté à la dissonance de leurs registres.",
+		"faction_pairs": [
+			["zambalu", "choeur", -10, "Le Cirque a mis l'Hymne éternel en comédie musicale"]
+		],
 		"credo_same": 10,
 		"credo_pairs": [
 			["foi", "raison", -10],

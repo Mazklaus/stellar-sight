@@ -725,6 +725,12 @@ static func cap_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "capture", "player": player, "act": act, "d": d}
 
 
+## Peuples insolites (voir Insolites.check) : "build" (ship), "settle", "purge" (pid), "delegate",
+## "sentinel" (pid), "devour" (pid), "pilot" (fleet).
+static func ins_act(player: int, act: String, d := {}) -> Dictionary:
+	return {"type": "insolites", "player": player, "act": act, "d": d}
+
+
 ## Écologie (voir Ecology.check) : "doctrine" (id), "factory" (pid), "scorch" (pid).
 static func eco_act(player: int, act: String, d := {}) -> Dictionary:
 	return {"type": "ecology", "player": player, "act": act, "d": d}
@@ -970,6 +976,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Ecology.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"capture":
 			return Capture.check_act(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
+		"insolites":
+			return Insolites.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"kardashev":
 			return Kardashev.check(state, int(cmd["player"]), String(cmd.get("act", "")), cmd.get("d", {}) as Dictionary)
 		"living":
@@ -1411,6 +1419,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Ecology.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"capture":
 			Capture.apply_act(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
+		"insolites":
+			Insolites.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"kardashev":
 			Kardashev.apply(state, int(cmd["player"]), String(cmd["act"]), cmd.get("d", {}) as Dictionary)
 		"living":

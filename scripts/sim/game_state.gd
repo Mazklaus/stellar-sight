@@ -8,12 +8,12 @@ extends RefCounted
 ## sauvegardes et le multijoueur : la régénérer depuis la graine sur une autre machine pourrait
 ## donner une autre galaxie (sinus et cosinus calculés différemment selon le système).
 
-const FORMAT_VERSION := 100
+const FORMAT_VERSION := 101
 ## Versions plus anciennes encore lues (la 9 n'a pas encore de modèles de vaisseaux, la 10 pas de
 ## victoires : une ancienne partie se charge sans date limite, victoires de peuple en jeu ; la 11 pas
 ## de peuples créés ; avant la 14, conquête et domination toujours en jeu, alliés qui gagnent ensemble,
 ## bonus d'IA fixes ; avant la 15, galaxie toujours régénérée depuis la graine).
-const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100]
+const READABLE_VERSIONS := [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101]
 ## Compléments de nom des empires qui partagent un peuple.
 const ROMAN := ["", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 const CHRONICLE_MAX := 400
@@ -219,6 +219,7 @@ var people_hulls: Dictionary = {}  # coques de peuple (voir PeopleHulls) : {"bac
 var ecology: Dictionary = {}  # écologie et climat des mondes (voir Ecology) ; {} = désactivée
 var capture: Dictionary = {}  # prises de guerre (voir Capture) ; {} = Classique ou Désactivée
 var capture_mode: String = "classique"  # complete, classique, desactivee
+var insolites: Dictionary = {}  # peuples insolites (voir Insolites) ; {} = aucun dans la partie
 var codex: Dictionary = {}  # fiches du Codex rencontrées par chaque empire (voir CodexProgress)
 var portals: Dictionary = {}  # portails de saut (voir Portals) ; {} = désactivés
 ## Mort des héros au combat (voir HeroFall) ; {} = option absente : blessure ou capture seulement.
@@ -560,6 +561,8 @@ func to_dict() -> Dictionary:
 		d["ecology"] = Ecology.to_dict(self)
 	if capture_mode != "classique":
 		d["capture"] = Capture.to_dict(self)
+	if Insolites.worth_saving(self):
+		d["insolites"] = Insolites.to_dict(self)
 	if CodexProgress.worth_saving(self):
 		d["codex"] = CodexProgress.to_dict(self)
 	if Announce.worth_saving(self):
@@ -845,6 +848,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	PeopleHulls.from_dict(s, d.get("people_hulls", {}))  # coques de peuple (sauvegarde 97)
 	Ecology.from_dict(s, d.get("ecology", {}))  # écologie (sauvegarde 94) ; absente = désactivée
 	Capture.from_dict(s, d.get("capture", {}))  # prises de guerre (sauvegarde 99) ; absente = Classique
+	Insolites.from_dict(s, d.get("insolites", {}))  # peuples insolites (sauvegarde 101) ; absent = aucun
 	CodexProgress.from_dict(s, d.get("codex", {}))  # Codex de l'Archonte (sauvegarde 98)
 	if not s.wonders.is_empty():
 		WondersCatalog.refresh_gates(s)  # réseau des portes stellaires (donnée dérivée)
@@ -1162,7 +1166,9 @@ func _setup_empires(player_faction: String, rivals: Variant = null, duplicates :
 	var order: Array[String] = []
 	if player_faction != "" and not GameData.faction(player_faction).is_empty():
 		order.append(player_faction)
-	var others: Array = rivals if rivals is Array else GameData.faction_ids()
+	# Sans liste de rivaux (tests, bancs d'essai), les huit peuples classiques : les insolites ne viennent
+	# que d'un tirage de la nouvelle partie (réglage « Peuples insolites »).
+	var others: Array = rivals if rivals is Array else GameData.classic_faction_ids()
 	for fid in others:
 		if (duplicates or not order.has(String(fid))) and not GameData.faction(String(fid)).is_empty():
 			order.append(String(fid))
@@ -1196,6 +1202,12 @@ func _setup_empires(player_faction: String, rivals: Variant = null, duplicates :
 		for pid in sys.planet_ids:
 			if galaxy.planets[pid].size > galaxy.planets[home_id].size:
 				home_id = pid
+		# Peuple sans monde (voir Insolites) : pas de colonie natale, sa cité mobile ou sa harde part d'ici.
+		if Insolites.kind_of_faction(faction) != "":
+			e.home_planet = home_id
+			e.capital_planet = -1
+			Insolites.found(self, e, sys.id)
+			continue
 		override_planet(home_id, {"type": faction["preferred"][0], "size": hw["size"]})
 		var dep := String(faction.get("home_deposit", ""))
 		if dep != "":

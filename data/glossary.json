@@ -4047,6 +4047,256 @@
    "chapters": [
     "15o-furtivite"
    ]
+  },
+  {
+   "id": "peuples_insolites",
+   "name": "Peuples insolites",
+   "forms": [
+    "peuples insolites",
+    "peuple insolite",
+    "Peuples insolites"
+   ],
+   "family": "univers",
+   "summary": "Peuples qui cassent une règle du jeu (pas de monde, pas de colonie, pas de chantier…). Le réglage de nouvelle partie dit combien de rivaux tirés au hasard peuvent l'être.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "population_portee",
+   "name": "Population portée",
+   "forms": [
+    "population portée",
+    "Population portée"
+   ],
+   "family": "meca",
+   "summary": "Population d'un peuple sans monde, portée par ses nefs, son chapiteau, sa Masse ou sa harde : elle compte pour la part galactique, le score et la Légende.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "implant",
+   "name": "Implant",
+   "forms": [
+    "implant",
+    "implants",
+    "Implant"
+   ],
+   "family": "meca",
+   "summary": "Peuple installé sur la planète d'un autre empire, qui lui prend une dîme. Le maître de la planète peut le purger contre de l'influence.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "fan_club",
+   "name": "Fan-club",
+   "forms": [
+    "Fan-club",
+    "fan-club",
+    "Fan-clubs"
+   ],
+   "family": "meca",
+   "summary": "Implant du Cirque Zambalù né d'une Tournée triomphale : la colonie reste à son maître mais verse une dîme et du rayonnement au Cirque.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "chantier_embarque",
+   "name": "Chantier embarqué",
+   "forms": [
+    "chantier embarqué",
+    "Chantier embarqué"
+   ],
+   "family": "meca",
+   "summary": "Chantier de la cité mobile de l'Exode ou du Cirque : un vaisseau à la fois, à la durée normale.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "nef_cite",
+   "name": "Nef-cité",
+   "forms": [
+    "Nef-cité",
+    "Nefs-cités",
+    "nef-cité",
+    "nefs-cités"
+   ],
+   "family": "univers",
+   "summary": "Vaisseau-monde de la Flotte-Exode : il porte le peuple et travaille les planètes du système où il mouille. Une nef perdue ne se reconstruit pas.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "traqueurs",
+   "name": "Traqueurs",
+   "forms": [
+    "Traqueurs"
+   ],
+   "family": "bestiaire",
+   "summary": "Puissance hostile qui suit la Flotte-Exode : deux ans au même mouillage, et ils frappent.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "espoir_exode",
+   "name": "Espoir",
+   "forms": [
+    "Espoir de l'Exode",
+    "l'Espoir"
+   ],
+   "family": "meca",
+   "summary": "Jauge de la Flotte-Exode : monte avec les signes de la Terre promise et les réfugiés, baisse avec les nefs perdues et les Traqueurs. À zéro, une sécession.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "troupe_cirque",
+   "name": "Troupe",
+   "forms": [
+    "Troupe du Cirque",
+    "Troupes du Cirque"
+   ],
+   "family": "univers",
+   "summary": "Vaisseau de spectacle sans armes du Cirque Zambalù : il joue chez les empires en paix et passe leurs frontières.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "tournee_triomphale",
+   "name": "Tournée triomphale",
+   "forms": [
+    "Tournée triomphale",
+    "tournée triomphale"
+   ],
+   "family": "meca",
+   "summary": "En guerre, une Troupe escortée qui tient 90 jours le système d'une colonie ennemie en fait un Fan-club.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "grand_numero",
+   "name": "Grand Numéro",
+   "forms": [
+    "Grand Numéro"
+   ],
+   "family": "meca",
+   "summary": "Spectacle du Cirque tous les dix ans : les empires qui y envoient un délégué gagnent une trêve entre eux, de l'influence et du rayonnement.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "orbe_monde",
+   "name": "Orbe-Monde",
+   "forms": [
+    "Orbe-Monde",
+    "l'Orbe"
+   ],
+   "family": "univers",
+   "summary": "Halcyre, planète vivante et peuple à la fois : elle marche lentement de système en système et mange les corps libres.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "masse_halcyre",
+   "name": "Masse",
+   "forms": [
+    "Masse d'Halcyre",
+    "de Masse"
+   ],
+   "family": "meca",
+   "summary": "Population de l'Orbe-Monde : elle fait sa production et sa force au combat, et mène à l'Allumage.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "lune_sentinelle",
+   "name": "Lune-sentinelle",
+   "forms": [
+    "Lune-sentinelle",
+    "Lunes-sentinelles"
+   ],
+   "family": "meca",
+   "summary": "Éclat d'Halcyre laissé sur un corps libre contre 4 de Masse : un avant-poste armé qui garde le système.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "allumage",
+   "name": "L'Allumage",
+   "forms": [
+    "Allumage",
+    "l'Allumage"
+   ],
+   "family": "meca",
+   "summary": "Victoire de l'Orbe-Monde : tenir 300 de Masse trois ans sans être assiégé, et s'allumer en étoile.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "kraal",
+   "name": "Kraal",
+   "forms": [
+    "Kraal",
+    "Hardes de Kraal"
+   ],
+   "family": "univers",
+   "summary": "Baleines du vide : chaque Kraal est un vaisseau et un habitant, qui grandit de Petit à Ancien.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "paturage",
+   "name": "Pâturage",
+   "forms": [
+    "pâturage",
+    "pâturages",
+    "Pâturage"
+   ],
+   "family": "meca",
+   "summary": "Géante gazeuse ou nébuleuse où paissent les Kraal ; il s'épuise et repousse, et devient un avant-poste de la harde.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "pilote_kraal",
+   "name": "Pilote",
+   "forms": [
+    "Pilote",
+    "Pilotes"
+   ],
+   "family": "bestiaire",
+   "summary": "Habitant arraché à une colonie ennemie et lié à un Kraal : +10 % de dégâts, trois par harde.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "grand_spectacle",
+   "name": "Grand Spectacle",
+   "forms": [
+    "Grand Spectacle"
+   ],
+   "family": "meca",
+   "summary": "Nature de foi : on y croit parce que c'est beau. Elle prêche avec le rayonnement culturel et les représentations du Cirque.",
+   "chapters": [
+    "17a-insolites"
+   ]
   }
  ]
 }

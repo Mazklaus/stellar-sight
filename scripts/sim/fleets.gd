@@ -46,6 +46,9 @@ static func speed(fleet: Fleet, state: GameState = null) -> int:
 		if not state.psionics.is_empty():
 			@warning_ignore("integer_division")
 			v = v * PsionicsBridges.phare_pct(state, fleet) / 100  # Phare du Songe allumé à portée
+		if not state.insolites.is_empty():
+			@warning_ignore("integer_division")
+			v = v * Insolites.speed_pct(state, fleet) / 100  # routes de migration des Kraal
 	return maxi(1, v)
 
 
@@ -772,6 +775,8 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	var sd := GameData.ship(ship_id)
 	if sd.is_empty():
 		return "classe de vaisseau inconnue : %s" % ship_id
+	if bool(sd.get("spawn_only", false)):
+		return "ce vaisseau ne se construit pas : il naît, ou il est le peuple lui-même"
 	if not Designs.can_build_id(state, empire_id, ship_id):
 		if sd.get("custom", false):
 			return "ce modèle n'est pas disponible pour vous (retiré, ou conçu par un autre empire)"

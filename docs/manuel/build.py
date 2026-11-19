@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.47"
+EDITION = "2.48"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -359,7 +359,9 @@ NOMS_COUCHE = {
     "energetique": "Énergétique", "lithoide": "Lithoïde", "feodalite": "Féodalité", "theocratie": "Théocratie",
     "republique": "République", "conscience": "Conscience distribuée", "horde": "Horde", "syndicat": "Syndicat",
     "honneur": "Honneur", "foi": "Foi", "raison": "Raison", "survie": "Survie", "profit": "Profit",
-    "plaisir": "Plaisir",
+    "plaisir": "Plaisir", "planete_etre": "Planète-être", "vaisseaux_vivants": "Vaisseaux vivants",
+    "conseil_survie": "Conseil de survie", "troupe": "Troupe itinérante", "aucun": "Aucun", "troupeau": "Troupeau",
+    "espoir": "Espoir",
 }
 BIOMES = {"arctic": "Glaciaire", "desert": "Désert", "ocean": "Océan", "jungle": "Jungle", "toxic": "Toxique",
           "barren": "Stérile", "terran": "Tempéré", "tundra": "Toundra", "gas": "Géante gazeuse", "volcanic": "Volcanique",
@@ -447,27 +449,36 @@ def talents_du_peuple(f):
 
 
 def gen_peuples():
+    """Les huit peuples classiques (les insolites ont leur chapitre, {{insolites}})."""
+    return "".join(fiche_peuple(f) for f in charger("factions.json") if not f.get("insolite"))
+
+
+def gen_insolites():
+    """Les peuples insolites : la fiche, puis la règle cassée, comment le jouer, comment le contrer."""
+    return "".join(fiche_peuple(f) for f in charger("factions.json") if f.get("insolite"))
+
+
+def fiche_peuple(f):
     h = ""
-    for f in charger("factions.json"):
-        x = PEUPLES_EXTRA.get(f["id"], {})
-        sp = f.get("species", {})
-        reg = f.get("registre", "")
-        coul = REGISTRE_COULEUR.get(reg, "#d8b46a")
-        traits = "".join(f"<div class='trait'><b>{esc(t['name'])}</b> {inline(t['text'])}</div>" for t in f.get("traits", []))
-        lore = f.get("lore", "")
-        donnees = [
-            ("Registre", reg),
-            ("Archétype", NOMS_COUCHE.get(sp.get("archetype"), sp.get("archetype", "—"))),
-            ("Gouvernement", NOMS_COUCHE.get(sp.get("gouvernement"), sp.get("gouvernement", "—"))),
-            ("Credo", NOMS_COUCHE.get(sp.get("credo"), sp.get("credo", "—"))),
-            ("Mondes préférés", ", ".join(BIOMES.get(b, b) for b in f.get("preferred", [])) or "—"),
-            ("Recherche", f.get("research", {}).get("name", "—")),
-            ("Tempérament IA", f.get("ai", {}).get("temperament", {}).get("label", "—")),
-            ("Prise en main", x.get("difficulte", "—")),
-        ]
-        grille = "".join(f"<div class='row'><div class='k'>{esc(k)}</div><div class='v'>{esc(v)}</div></div>" for k, v in donnees)
-        victoire = x.get("victoire", "")
-        h += f"""
+    x = PEUPLES_EXTRA.get(f["id"], {})
+    sp = f.get("species", {})
+    reg = f.get("registre", "")
+    coul = REGISTRE_COULEUR.get(reg, "#d8b46a")
+    traits = "".join(f"<div class='trait'><b>{esc(t['name'])}</b> {inline(t['text'])}</div>" for t in f.get("traits", []))
+    lore = f.get("lore", "")
+    donnees = [
+        ("Registre", reg),
+        ("Archétype", NOMS_COUCHE.get(sp.get("archetype"), sp.get("archetype", "—"))),
+        ("Gouvernement", NOMS_COUCHE.get(sp.get("gouvernement"), sp.get("gouvernement", "—"))),
+        ("Credo", NOMS_COUCHE.get(sp.get("credo"), sp.get("credo", "—"))),
+        ("Mondes préférés", ", ".join(BIOMES.get(b, b) for b in f.get("preferred", [])) or "—"),
+        ("Recherche", f.get("research", {}).get("name", "—")),
+        ("Tempérament IA", f.get("ai", {}).get("temperament", {}).get("label", "—")),
+        ("Prise en main", x.get("difficulte", "—")),
+    ]
+    grille = "".join(f"<div class='row'><div class='k'>{esc(k)}</div><div class='v'>{esc(v)}</div></div>" for k, v in donnees)
+    victoire = x.get("victoire", "")
+    h += f"""
 <section class="peuple" style="--accent:{coul}">
   <div class="peuple-tete">
     <div class="reg">Registre {esc(reg)} · {esc(NOMS_COUCHE.get(sp.get('gouvernement'), ''))} · Credo {esc(NOMS_COUCHE.get(sp.get('credo'), ''))}</div>
@@ -488,6 +499,9 @@ def gen_peuples():
   <div class="traits">{traits}</div>
   <div class="boxtitle">Talents à travers la galaxie</div>
   <div class="talents-peuple">{''.join(f"<div class='tp'><span class='tp-cat'>{esc(cat)}</span><b>{esc(lab)}</b> {inline(txt)}</div>" for cat, lab, txt in talents_du_peuple(f))}</div>
+  {f'<div class="boxtitle">La règle cassée · {esc(f.get("broken_rule", ""))}</div>{markdown(x["regle"])}' if x.get('regle') else ''}
+  {f'<div class="boxtitle">Comment le jouer</div>{markdown(x["jouer"])}' if x.get('jouer') else ''}
+  {f'<div class="boxtitle">Comment le contrer</div>{markdown(x["contrer"])}' if x.get('contrer') else ''}
   {f'<div class="boxtitle">Victoire de peuple</div><p class="victoire-peuple">{inline(victoire)}</p>' if victoire else ''}
   {bloc('chronique', x['chronique_source'], x['chronique']) if x.get('chronique') else ''}
   {bloc('conseil', '', x['conseil']) if x.get('conseil') else ''}
@@ -1815,7 +1829,7 @@ def gen_lexique():
 GENERATEURS = {
     "ressources": gen_ressources, "stabilite": gen_stabilite, "courants": gen_courants,
     "faune": gen_faune, "gardiens": gen_gardiens, "technologies": gen_technologies,
-    "peuples": gen_peuples, "prompts": gen_prompts,
+    "peuples": gen_peuples, "insolites": gen_insolites, "prompts": gen_prompts,
     "luxes": gen_luxes, "strategiques": gen_strategiques,
     "lois": gen_lois, "reliques": gen_reliques, "logistique": gen_logistique,
     "terrains": gen_terrains, "terrain_talents": gen_terrain_talents,

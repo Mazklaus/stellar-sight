@@ -98,6 +98,7 @@ static func think(state: GameState, e: Empire) -> void:
 	AiArchaeo.think(ctx)
 	AiContact.think(ctx)
 	AiCapture.think(ctx)
+	AiInsolites.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
 
@@ -943,6 +944,8 @@ static func _fleets(ctx: Dictionary) -> void:
 			continue  # l'Arche de la Bordure : menée par AiTranscendence
 		if (not state.megas.is_empty() or not state.forge.is_empty()) and Megastructures.is_architect_fleet(f):
 			continue  # Vaisseau-architecte : mené par AiMegas
+		if AiInsolites.managed(state, f):
+			continue  # nefs, Troupes, Orbe-Monde, hardes de Kraal : menés par AiInsolites
 		if Fleets.colonizer_ship(f) != "":
 			_colonizer(ctx, f)
 		elif FactionTraits.is_city_fleet(f):

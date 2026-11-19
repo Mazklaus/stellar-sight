@@ -214,6 +214,8 @@ func refresh() -> void:
 ## Traits d'une faction en lignes « Nom : effet » (infobulles, écrans d'empire).
 static func trait_summary(faction: Dictionary) -> String:
 	var lines := PackedStringArray()
+	if String(faction.get("broken_rule", "")) != "":
+		lines.append("Règle cassée : %s" % String(faction["broken_rule"]))
 	for t: Dictionary in faction.get("traits", []):
 		lines.append("%s : %s" % [t["name"], t["text"]])
 	return "\n".join(lines) if not lines.is_empty() else String(faction.get("trait", ""))
@@ -270,6 +272,13 @@ func _status_line(me: Empire) -> String:
 		if revolts > 0:
 			return "Révolte dans %d système%s (F12)  ·  " % [revolts, "s" if revolts > 1 else ""] + line
 		line = "Stabilité %d  ·  " % Stability.empire_value(_state, _player) + line
+	# Peuple sans monde (voir Insolites) : sa première ligne d'état (population à bord, Masse, Harde…).
+	var nomad := Insolites.status_lines(_state, _player)
+	if not nomad.is_empty() and Stability.colony_systems(_state, _player) == 0:
+		# Sans colonie, chantiers, fondations et stabilité ne disent rien : la ligne du peuple seule.
+		line = "  ·  ".join(nomad.slice(0, 2))
+	elif not nomad.is_empty():
+		line = "%s  ·  " % nomad[0] + line
 	# Gloire des hauts faits (voir Deeds), jamais perdue.
 	if Deeds.enabled(_state):
 		line = "Gloire %d%s  ·  " % [Deeds.glory(_state, _player), " (âge d'or)" if DeedsBridges.in_golden(_state, _player) else ""] + line
@@ -279,8 +288,11 @@ func _status_line(me: Empire) -> String:
 ## Infobulle de la ligne d'état : stabilité d'empire et son effet.
 func _stability_tip(_me: Empire) -> String:
 	var glory := ""
+	var nomad := Insolites.status_lines(_state, _player)
+	if not nomad.is_empty():
+		glory = "%s\n%s\n" % [String(_me.faction().get("broken_rule", "")), "\n".join(nomad)]
 	if Deeds.enabled(_state):
-		glory = "Gloire %d : gagnée par les hauts faits et les grands moments, jamais perdue (Chroniques, J, onglet Hauts faits).\n" % Deeds.glory(_state, _player)
+		glory += "Gloire %d : gagnée par les hauts faits et les grands moments, jamais perdue (Chroniques, J, onglet Hauts faits).\n" % Deeds.glory(_state, _player)
 	if not Stability.applies(_state, _player):
 		return glory.strip_edges()
 	return glory + _stability_text()

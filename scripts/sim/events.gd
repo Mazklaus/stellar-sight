@@ -228,9 +228,12 @@ static func on_contact(state: GameState, a: Empire, b: Empire, added: Array[Dict
 	var ra := String(a.faction().get("registre", ""))
 	var rb := String(b.faction().get("registre", ""))
 	for p: Dictionary in data()["tones"]["pairs"]:
-		var pa := String(p["a"])
-		var pb := String(p["b"])
-		if not ((ra == pa and rb == pb) or (ra == pb and rb == pa)):
+		# Paire de peuples (fa/fb) : elle passe avant celle de leurs registres (rangée plus haut).
+		var pa := String(p.get("fa", p.get("a", "")))
+		var pb := String(p.get("fb", p.get("b", "")))
+		var xa := a.faction_id if p.has("fa") else ra
+		var xb := b.faction_id if p.has("fa") else rb
+		if not ((xa == pa and xb == pb) or (xa == pb and xb == pa)):
 			continue
 		if String(p.get("memory", "")) != "":
 			Diplomacy.remember(state, a.id, b.id, String(p["memory"]))

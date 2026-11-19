@@ -83,6 +83,8 @@ static func rule_text(id: String) -> String:
 			return t % [int(v["min_rivals"]), years]
 		"idole":
 			return t % [int(v["pct"]), maxi(1, years)]
+		"allumage":
+			return t % [int(v["mass"]), years]
 		"oeuvres":
 			return t % [int(Wonders.rules().get("oeuvre_by_size", [[0, 2]])[0][1]), maxi(1, years)]
 		"annales":
@@ -273,6 +275,8 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			CultureLife.victory_rayonnement(state, e, out)
 		"idole":
 			CultureLife.victory_idole(state, e, out)
+		"allumage":
+			InsHalcyre.victory(state, e, out)
 		"oeuvres":
 			WondersBridges.victory(state, e, out)
 		"annales":
@@ -461,6 +465,8 @@ static func score(state: GameState, empire_id: int) -> int:
 		if c.owner != empire_id or not c.is_established():
 			continue
 		pts += c.population * int(s.get("pop", 2)) + int(s.get("colony", 10) if c.is_colony() else s.get("outpost", 4))
+	if not state.insolites.is_empty():
+		pts += Insolites.score(state, empire_id, int(s.get("pop", 2)))  # population portée
 	pts += e.techs.size() * int(s.get("tech", 5))
 	# Merveilles et mégastructures (data/buildings.json, champ score).
 	var w := Economy.wonders(state)
@@ -656,6 +662,11 @@ static func population_share(state: GameState, empire_id: int) -> Array[int]:
 		total += c.population
 		if c.owner == empire_id:
 			mine += c.population
+	# Population portée des peuples sans monde : nefs, Chapiteau, Masse, Kraal (voir Insolites).
+	if not state.insolites.is_empty():
+		var cs := Insolites.carried_share(state, empire_id)
+		total += cs[0]
+		mine += cs[1]
 	return [total, mine]
 
 
@@ -696,7 +707,7 @@ static var _promised := {}
 
 static func promised_planet(state: GameState, empire_id: int) -> int:
 	var e := state.get_empire(empire_id)
-	if e == null or not FactionTraits.has_horde(e.faction()) or e.home_planet < 0:
+	if e == null or e.home_planet < 0 or not (FactionTraits.has_horde(e.faction()) or Insolites.kind_of_faction(e.faction()) == "exode"):
 		return -1
 	var key := "%d:%d:%d:%s" % [state.galaxy.get_instance_id(), state.seed_value, empire_id, e.faction_id]
 	if _promised.has(key):

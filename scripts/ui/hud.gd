@@ -598,6 +598,7 @@ func _build_fleet_card() -> void:
 			["posture", "POSTURE", "Furtivité : changer de posture (aucune, Silence radio, Balayage actif, Embuscade). Clic : posture suivante."],
 			["board", "ABORDAGE", "Prises de guerre : posture d'abordage. La flotte dépense ses troupes pour prendre les vaisseaux ennemis très abîmés au lieu de les achever."],
 			["prizes", "PRISES", "Prises de guerre : remettre en état, refondre, démanteler ou vendre les vaisseaux pris (au chantier d'une de vos colonies)."],
+			["insolite", "PEUPLE", "Peuples insolites : chantier embarqué, Pilotes des Kraal, délégué au Grand Numéro."],
 			["beacon", "BALISE D'ÉCOUTE", "Furtivité complète : un éclaireur sans armes à l'arrêt pose une balise camouflée qui voit à un saut (Senseurs tachyoniques, 30 matériaux et 20 énergie, 6 au plus)."],
 			["merge", "RASSEMBLER", "Réunir dans cette flotte les autres flottes à l'arrêt dans ce système"],
 			["split", "DÉTACHER", "Détacher un vaisseau dans une nouvelle flotte"],
@@ -769,6 +770,9 @@ func _refresh_fleet_card() -> void:
 			n_prizes += 1
 	_fleet_buttons["prizes"].visible = mine and Capture.full(_state) and n_prizes > 0
 	_fleet_buttons["prizes"].text = "PRISES (%d)" % n_prizes
+	_fleet_buttons["insolite"].visible = mine and InsolitesUi.fleet_has_actions(_state, _player, f)
+	if _fleet_buttons["insolite"].visible:
+		_fleet_buttons["insolite"].text = InsolitesUi.fleet_button_text(_state, _player)
 	_fleet_buttons["beacon"].visible = mine and Stealth.full(_state) and not Combat.is_armed(f)
 	if _fleet_buttons["beacon"].visible:
 		var bwhy := Stealth.check_beacon(_state, _player, f)

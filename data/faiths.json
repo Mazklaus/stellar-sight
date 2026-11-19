@@ -278,7 +278,7 @@
 	},
 	"_prophecy_doc": "Prophétie plantée (proposition 17, opération d'intrigue de deux ans) : semée sur le monde le plus peuplé de la cible, elle attend qu'un héros amiral de l'empire qui l'a plantée y arrive avec sa flotte. Le monde se convertit d'un coup à la foi d'État du planteur, et vacille pour son maître (-20 pendant un an). Elle s'éteint au bout de 10 ans.",
 	"natures": {
-		"_doc": "Natures de foi : la mécanique propre d'une foi, choisie par le fondateur parmi 3 (préférée de son peuple, liée à la voie de la Révélation, une tirée). Catalogue ouvert : 5 natures SF (lot 2) et 9 classiques (lot 3, bloc « classic ») ; 5 natures SF lourdes (lot 4, bloc « heavy »). Une nature peut imposer (forces) ou interdire (forbids) une position de doctrine.",
+		"_doc": "Natures de foi : la mécanique propre d'une foi, choisie par le fondateur parmi 3 (préférée de son peuple, liée à la voie de la Révélation, une tirée). Catalogue ouvert : 5 natures SF (lot 2) et 9 classiques (lot 3, bloc « classic ») ; 5 natures SF lourdes (lot 4, bloc « heavy ») ; le Grand Spectacle (peuples insolites, lot 1). Une nature peut imposer (forces) ou interdire (forbids) une position de doctrine.",
 		"list": {
 			"code_saint": {
 				"label": "Code saint",
@@ -388,6 +388,11 @@
 				"label": "Culte des Partis",
 				"text": "Transcendance (issue Départ) : on prie ceux qui ont quitté la galaxie. Ne se révèle qu'une fois qu'un peuple est parti. Plus les Partis ont de fidèles chez un empire, plus ils interviennent pour lui (+2 % par tranche de 10 fidèles, 40 % au plus). On se demande s'ils ne s'en nourrissent pas.",
 				"src": "Étude de la Transcendance (prop. 24) ; les Ori de Stargate"
+			},
+			"grand_spectacle": {
+				"label": "Grand Spectacle",
+				"text": "La foi est une représentation : on y croit parce que c'est beau. Ses colonies prêchent plus fort à mesure que la culture de leur empire rayonne (+20 % par palier culturel, le meilleur atteint chez un autre empire). Une scène du Cirque Zambalù dans un système prêche comme un monde saint ; chez un hôte de cette foi, chaque représentation convertit un habitant et rapporte au Cirque une billetterie doublée (payée par les fidèles). Contre : l'Exception culturelle.",
+				"src": "Cirque et liturgie-spectacle : idée de l'étude des peuples insolites (prop. 107)"
 			}
 		},
 		"fleet_pressure": 20,
@@ -426,6 +431,10 @@
 				],
 				"brisecomete": [
 					"meme"
+				],
+				"zambalu": [
+					"grand_spectacle",
+					"meme"
 				]
 			},
 			"registers": {
@@ -449,7 +458,8 @@
 					"precurseurs"
 				],
 				"Picaresque / pulp": [
-					"meme"
+					"meme",
+					"grand_spectacle"
 				],
 				"Cosmique / étrange": [
 					"astres_vivants",
@@ -501,7 +511,9 @@
 			"influence": 20
 		},
 		"precursor_wreck_zeal": -3,
-		"precursor_secondary_x": 2
+		"precursor_secondary_x": 2,
+		"spectacle_tier_pct": 20,
+		"spectacle_stage_x": 2
 	},
 	"je": {
 		"chance_pmille": 15,
@@ -1092,7 +1104,15 @@
 			},
 			"src": "Moines guerriers, Civ VI"
 		},
-		"sanctuaire": {"family": "guerre", "label": "Sanctuaire", "text": "Avec l'option Frontières : fermer ses frontières aux empires d'une autre foi ne leur laisse aucun grief. Les flottes de même foi ont toujours le passage inoffensif.", "fx": {"sanctuary": 1}, "src": "Asile et terre sainte ; proposition 25 de l'étude des frontières"},
+		"sanctuaire": {
+			"family": "guerre",
+			"label": "Sanctuaire",
+			"text": "Avec l'option Frontières : fermer ses frontières aux empires d'une autre foi ne leur laisse aucun grief. Les flottes de même foi ont toujours le passage inoffensif.",
+			"fx": {
+				"sanctuary": 1
+			},
+			"src": "Asile et terre sainte ; proposition 25 de l'étude des frontières"
+		},
 		"pelerins_armes": {
 			"family": "guerre",
 			"label": "Pèlerins armés",

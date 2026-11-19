@@ -177,7 +177,8 @@
 			"label": "La Moisson",
 			"requires": {
 				"archetype": [
-					"ruche"
+					"ruche",
+					"vaisseaux_vivants"
 				]
 			},
 			"tech": "grande_moisson",
@@ -227,7 +228,8 @@
 			"label": "La Terre promise",
 			"requires": {
 				"gouvernement": [
-					"horde"
+					"horde",
+					"conseil_survie"
 				]
 			},
 			"tech": "terre_promise",
@@ -271,6 +273,23 @@
 			"hold_days": 360,
 			"on_fail": "reset",
 			"chronicle": "L'Idole des étoiles : %s ne gouverne personne, mais tout le monde danse sur sa musique. Les autres empires ont encore des drapeaux ; plus personne ne se souvient de leurs hymnes."
+		},
+		"allumage": {
+			"kind": "people",
+			"label": "L'Allumage",
+			"requires": {
+				"archetype": [
+					"planete_etre"
+				]
+			},
+			"tech": "allumage",
+			"text": "Atteindre une Masse de %d et la tenir %d ans sans être assiégé (une puissance armée ennemie au moins égale à celle de l'Orbe dans son système arrête le compte à rebours) : la planète-être s'allume en étoile.",
+			"counter": "L'assiéger avec une grande puissance armée, comme le Monde-Ego ; l'affamer en lui fermant les systèmes où manger.",
+			"mass": 300,
+			"hold_days": 1080,
+			"on_fail": "pause",
+			"chronicle": "L'Allumage. %s s'embrase : là où marchait une planète brille désormais une jeune étoile, qui a l'air très contente d'elle.",
+			"src": "Étude des peuples insolites, prop. 28 (nouvelle)"
 		},
 		"oeuvres": {
 			"kind": "classic",

@@ -1642,6 +1642,8 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 			_hud.show_fleet(fleet_id)
 		"prizes":
 			CaptureUi.open_prize_menu(self, st, view_empire, f)
+		"insolite":
+			InsolitesUi.open_fleet_menu(self, st, view_empire, f)
 		"beacon":
 			if _submit(SimCommands.stealth_act(view_empire, "beacon", fleet_id)):
 				_hud.notify("%s pose une balise d'écoute." % f.fleet_name)

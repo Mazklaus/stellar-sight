@@ -63,8 +63,9 @@
 	},
 
 	"tones": {
-		"_doc": "Choc des tons (GDD) : au premier contact entre deux registres de cette liste, chacun reçoit la carte de la paire. kin/clash : souvenir posé d'office des deux côtés (esprits voisins ou tout oppose).",
+		"_doc": "Choc des tons (GDD) : au premier contact entre deux registres de cette liste (ou deux peuples, fa/fb, qui passent avant leurs registres : peuples insolites, prop. 106), chacun reçoit la carte de la paire. kin/clash : souvenir posé d'office des deux côtés (esprits voisins ou tout oppose).",
 		"pairs": [
+			{"fa": "zambalu", "fb": "choeur", "card": "t_hymne_chapiteau", "memory": "tones_clash"},
 			{"a": "Picaresque / pulp", "b": "Grimdark", "card": "t_contrebande", "memory": "tones_clash"},
 			{"a": "Space opera héroïque", "b": "Grimdark", "card": "t_heros_fanatiques", "memory": "tones_clash"},
 			{"a": "Classique / hard SF", "b": "Cosmique / étrange", "card": "t_equations", "memory": "tones_clash"},
@@ -417,6 +418,14 @@
 				{"label": "Descendre", "risky": {"pct": 55, "win": [{"k": "deposit", "what": "crystals"}, {"k": "res", "res": {"crystals": 15}}], "lose": [{"k": "pirates"}]}},
 				{"label": "Exploiter les parois", "fx": [{"k": "res", "res": {"materials": 100}}]}
 			], "default": 1},
+
+		{"id": "t_hymne_chapiteau", "title": "Choc des tons : l'Hymne et le Chapiteau", "trigger": "contact",
+			"text": "Premier contact avec {rival}. Les uns chantent le même hymne depuis dix mille ans ; les autres en ont tiré une comédie musicale, avec claquettes au deuxième couplet. Toutes les places sont vendues. Personne ne sait encore qui le prend le plus mal.",
+			"choices": [
+				{"label": "Monter la Messe-Spectacle ensemble", "fx": [{"k": "res", "res": {"energy": 50}}, {"k": "rep", "v": 2}, {"k": "opinion", "kind": "ev_gift"}]},
+				{"label": "Interdire la parodie", "fx": [{"k": "fervor", "v": 8}, {"k": "opinion", "kind": "ev_snub"}]},
+				{"label": "L'art ne se négocie pas", "fx": []}
+			], "default": 2},
 
 		{"id": "t_contrebande", "title": "Choc des tons : reliques de contrebande", "trigger": "contact",
 			"text": "Premier contact avec {rival}. D'un côté, on vénère des ossements bénis ; de l'autre, on les revend au poids. Une conversation s'engage, très vite commerciale.",

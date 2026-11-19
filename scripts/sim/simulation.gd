@@ -124,6 +124,8 @@ func step() -> void:
 		chronicle_added.emit(entry)
 	for entry in Capture.daily(state):
 		chronicle_added.emit(entry)
+	for entry in Insolites.daily(state):
+		chronicle_added.emit(entry)
 	for entry in WorldForge.daily(state):
 		chronicle_added.emit(entry)
 	for entry in Deeds.daily(state):

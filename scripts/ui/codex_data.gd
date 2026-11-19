@@ -11,7 +11,7 @@ extends RefCounted
 
 const PATH := "res://data/codex_manual.json"
 ## Chapitres rangés dans Univers et dans Bestiaire et secrets (les autres sont des Mécanismes).
-const UNIVERSE_CHAPTERS := ["00-prelude", "17-peuples", "18-creer-peuple"]
+const UNIVERSE_CHAPTERS := ["00-prelude", "17-peuples", "17a-insolites", "18-creer-peuple"]
 const BESTIARY_CHAPTERS := ["19-faune", "20-zone-scellee", "15a-crises"]
 
 static var _loaded := false

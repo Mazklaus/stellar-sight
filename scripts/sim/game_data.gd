@@ -62,6 +62,25 @@ static func faction_ids() -> Array[String]:
 	return ids
 
 
+## Les huit peuples classiques : les officiels sans les peuples insolites (rivaux par défaut des tests,
+## des bancs d'essai et des parties créées sans liste de rivaux).
+static func classic_faction_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for f: Dictionary in factions():
+		if not bool(f.get("insolite", false)):
+			ids.append(String(f["id"]))
+	return ids
+
+
+## Peuples insolites officiels (voir Insolites).
+static func insolite_faction_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for f: Dictionary in factions():
+		if bool(f.get("insolite", false)):
+			ids.append(String(f["id"]))
+	return ids
+
+
 ## Peuples officiels puis peuples de la bibliothèque (triés), pour les listes de choix.
 static func all_faction_ids() -> Array[String]:
 	var ids := faction_ids()
@@ -245,6 +264,11 @@ static func ecology() -> Dictionary:
 ## Prises de guerre (voir Capture).
 static func capture() -> Dictionary:
 	return _load("capture")
+
+
+## Peuples insolites (voir Insolites, data/insolites.json).
+static func insolites() -> Dictionary:
+	return _load("insolites")
 
 
 ## Merveilles galactiques (data/wonders.json) : réglages, modes, cartes, catalogue.

@@ -67,6 +67,26 @@
 				{"name": "Le Voile", "text": "Leurs flottes et leurs revendications n'apparaissent pas aux autres empires, même à portée de vue. Les percent : la technologie Détecteurs d'abysse, les autres peuples voilés, leurs alliés, et quiconque a une flotte à l'arrêt ou une revendication dans le même système."},
 				{"name": "Corps immatériels", "text": "Ils ne mangent pas : aucune nourriture consommée. Mais ils se multiplient lentement (population 25 % plus lente) et tiennent mal le terrain (garnisons moitié moins nombreuses)."},
 				{"name": "Ni air ni sol", "text": "Les mondes stériles leur sont habitables à 50 %."}
+			]},
+		{"id": "planete_etre", "label": "Planète-être", "text": "L'espèce est sa propre planète. Elle ne colonise pas : elle voyage, et elle mange des lunes.",
+			"requires": {"gouvernement": ["aucun"]},
+			"fields": {"nomad": {"kind": "halcyre", "ship": "orbe_monde", "count": 1}, "ships_excluded": ["colony_ship"], "start_ships": [], "food_upkeep_pct": 0, "ai": {"research_bias": {"genie": 2, "economie": 1}}},
+			"traits": [
+				{"name": "Le Monde qui marche", "text": "Pas de colonie ni de vaisseau colon : le peuple est une planète mobile, l'Orbe-Monde, qui se déplace très lentement (un saut tous les six mois environ). Sa population est sa Masse."},
+				{"name": "Absorber", "text": "Au repos dans un système, l'Orbe mange une lune, un astéroïde ou une planète morte libre en deux mois pour gagner de la Masse. Manger un monde habité demande une guerre, quatre mois sans opposition, et tue la colonie. La Masse fait la production et la force au combat."},
+				{"name": "Lunes-sentinelles", "text": "Contre 4 de Masse, l'Orbe laisse derrière lui une lune armée qui tient le système comme un avant-poste : c'est son seul territoire."},
+				{"name": "La Faim", "text": "Six mois sans rien manger, et la Masse fond d'un point par mois : l'Orbe doit voyager."},
+				{"name": "L'Avatar", "text": "L'Orbe parle par un seul héros, son Avatar. On ne signe de traité qu'avec les empires dont il a traversé un système. Les mondes vivants l'aiment, le Monde-Ego le jalouse."}
+			]},
+		{"id": "vaisseaux_vivants", "label": "Vaisseaux vivants", "text": "Leurs vaisseaux sont leur population : ils naissent, migrent, se reproduisent et meurent.",
+			"requires": {"gouvernement": ["troupeau"]},
+			"fields": {"nomad": {"kind": "kraal", "ship": "kraal_ancien", "count": 0}, "ships_excluded": ["colony_ship"], "start_ships": [], "food_upkeep_pct": 0, "ai": {"research_bias": {"armement": 1, "societe": 1}}},
+			"traits": [
+				{"name": "Chaque vaisseau est un habitant", "text": "Pas de chantier : chaque Kraal naît Petit, puis devient Jeune, Adulte et Ancien en vieillissant, plus fort à chaque âge. Deux Adultes au repos dans un pâturage donnent naissance à un Petit."},
+				{"name": "Pâturages", "text": "Géantes gazeuses et nébuleuses nourrissent la Harde, et s'épuisent si elle y reste. Un pâturage brouté un mois devient un avant-poste de la Harde : son seul territoire."},
+				{"name": "Routes de migration", "text": "Les Kraal vont 30 % plus vite vers un pâturage qu'ils connaissent, 15 % moins vite ailleurs."},
+				{"name": "Pilotes", "text": "Une harde à l'arrêt chez un ennemi sans défense arrache un habitant à sa colonie et le lie à un Kraal comme Pilote : +10 % de dégâts par Pilote (trois par harde au plus)."},
+				{"name": "Parenté avec la Faune", "text": "Les troupeaux de créatures ne les attaquent jamais. Un Kraal mort ne se capture pas, mais sa carcasse se dépèce : le vainqueur y prend des matériaux."}
 			]}
 	],
 	"gouvernement": [
@@ -118,6 +138,37 @@
 			"fields": {"combat": {"prey": true, "digest": true, "garrison_pct": 150, "army_free_pct": 150, "orbital_raze": 1, "no_surrender": 1}, "ai": {"research_bias": {"armement": 2}, "temperament": {"never_peace": true}}},
 			"traits": [
 				{"name": "Faim sans traité", "text": "La ruche chasse une proie à la fois : sans guerre, elle attaque le premier empire rencontré, puis le plus proche. Les colonies conquises sont digérées. Chaque larve défend la ruche : garnisons 50 % plus nombreuses, et 50 % de régiments sans entretien en plus (combat au sol complet). La ruche ne capitule jamais, et rase sans état d'âme."}
+			]},
+		{"id": "conseil_survie", "label": "Conseil de survie", "text": "Pas de capitale, pas de frontières : quatre nefs, un conseil, et la peur de ce qui suit.",
+			"excludes": {"archetype": ["ruche", "planete_etre", "vaisseaux_vivants"]},
+			"fields": {"nomad": {"kind": "exode", "ship": "nef_cite", "count": 4}, "ships_excluded": ["colony_ship"], "start_ships": ["scout", "corvette", "corvette"], "growth_pct": 50, "ai": {"research_bias": {"genie": 1, "societe": 1}}},
+			"traits": [
+				{"name": "Nefs-cités", "text": "Pas de monde : quatre Nefs-cités portent tout le peuple. Une nef au mouillage travaille toutes les planètes de son système sans les coloniser ; en route, elle ne produit rien. Une nef perdue ne se reconstruit pas."},
+				{"name": "Les Traqueurs", "text": "Une puissance hostile suit la trace de l'Exode. Deux ans au même mouillage, et ils frappent ; lever l'ancre les remet à distance."},
+				{"name": "Réfugiés", "text": "Croissance naturelle moitié moins rapide, mais les nefs recueillent chaque mois les populations qui fuient une bataille ou une révolte à trois sauts au plus, de toutes les espèces."},
+				{"name": "L'Arrivée", "text": "Sur la Terre promise, l'Exode peut se poser : il devient un empire planétaire, et les Traqueurs livrent une dernière bataille."}
+			]},
+		{"id": "troupe", "label": "Troupe itinérante", "text": "Un directeur, des artistes, des fans partout et des terres nulle part.",
+			"excludes": {"archetype": ["ruche", "planete_etre", "vaisseaux_vivants"]},
+			"fields": {"nomad": {"kind": "zambalu", "ship": "cite_chapiteau", "count": 1}, "ships_excluded": ["colony_ship"], "start_ships": ["scout", "troupe_cirque", "troupe_cirque"], "growth_pct": 0, "ai": {"research_bias": {"societe": 2}}},
+			"traits": [
+				{"name": "Le Chapiteau", "text": "Une seule cité mobile, la Cité-chapiteau, et des Troupes, vaisseaux de spectacle sans armes qui passent toutes les frontières des empires en paix avec le Cirque."},
+				{"name": "Représentations", "text": "Une Troupe à l'arrêt chez un empire en paix joue 60 jours : l'hôte gagne de la stabilité et paie une billetterie en énergie, et le Cirque y envoie un Rayonnement massif. L'Exception culturelle interdit les spectacles."},
+				{"name": "Tournée triomphale", "text": "Le Cirque ne garde aucune planète. En guerre, une Troupe escortée qui tient 90 jours un système ennemi y fait d'une colonie un Fan-club : elle reste à son propriétaire mais verse une dîme au Cirque."},
+				{"name": "Recrues", "text": "Aucune naissance : chaque fois que la culture du Cirque devient Influente chez un empire, des artistes de ses espèces rejoignent le Chapiteau."},
+				{"name": "Le Grand Numéro", "text": "Tous les dix ans, un spectacle galactique : les empires qui y envoient un délégué suspendent leurs guerres entre eux six mois."}
+			]},
+		{"id": "aucun", "label": "Aucun", "text": "Pas d'institutions, pas de chefs, pas de débats : une seule volonté.",
+			"requires": {"archetype": ["planete_etre"]},
+			"fields": {"ai": {"research_bias": {"economie": 1}}},
+			"traits": [
+				{"name": "Une seule volonté", "text": "Le peuple n'a pas de gouvernement à proprement parler : ce qui pense, c'est lui tout entier."}
+			]},
+		{"id": "troupeau", "label": "Troupeau", "text": "Des hardes, des matriarches, et l'instinct de migrer avant l'hiver.",
+			"requires": {"archetype": ["vaisseaux_vivants"]},
+			"fields": {"combat": {"no_surrender": 1}, "ai": {"research_bias": {"armement": 1}}},
+			"traits": [
+				{"name": "Instinct de harde", "text": "Pas de conseil ni de lois : les Anciens guident, les autres suivent. Une harde ne capitule jamais."}
 			]}
 	],
 	"credo": [
@@ -135,7 +186,13 @@
 				"ai": {"research_bias": {"societe": 2}}},
 			"with": {"archetype": {"ruche": {"production_pct": {"knowledge": 67}, "research": {"knowledge_per_biomass": 2}}}}},
 		{"id": "plaisir", "label": "Plaisir", "text": "La vie est une fête, et la galaxie une salle de concert. Les impôts ? Un droit d'entrée.", "fields": {"production_pct": {"knowledge": 90, "influence": 110}, "research": {"name": "Mécènes et spectacles", "text": "Savoir -10 %, influence +10 %. Rayonnement culturel : +25 % et Troupes de spectacle deux fois plus efficaces (talent « Fête perpétuelle ») ; victoire de peuple « L'Idole des étoiles »."}, "ai": {"research_bias": {"societe": 3}}}},
-		{"id": "transcendance", "label": "Transcendance", "text": "La matière est une salle d'attente. On y range ses affaires, poliment, en attendant de partir.", "fields": {"research": {"name": "Regard vers l'Orée", "text": "Transcendance en jeu : jauge d'Élévation +25 %, mais croissance -10 % (on fait moins d'enfants quand on compte partir). L'IA cherche L'Orée et préfère le Songe, puis le Téléversement. Hors Transcendance, un credo de ton et d'opinion seulement (Raison et Survie s'en méfient)."}, "ai": {"research_bias": {"societe": 3}}}}
+		{"id": "transcendance", "label": "Transcendance", "text": "La matière est une salle d'attente. On y range ses affaires, poliment, en attendant de partir.", "fields": {"research": {"name": "Regard vers l'Orée", "text": "Transcendance en jeu : jauge d'Élévation +25 %, mais croissance -10 % (on fait moins d'enfants quand on compte partir). L'IA cherche L'Orée et préfère le Songe, puis le Téléversement. Hors Transcendance, un credo de ton et d'opinion seulement (Raison et Survie s'en méfient)."}, "ai": {"research_bias": {"societe": 3}}}},
+		{"id": "espoir", "label": "Espoir", "text": "Quelque part, il y a un monde. Il faut juste tenir jusque-là.",
+			"requires": {"gouvernement": ["conseil_survie"]},
+			"fields": {"production_pct": {"knowledge": 90}, "research": {"name": "Archives de la Flotte", "text": "Savoir -10 % : les nefs ont emporté ce qu'elles ont pu."}},
+			"traits": [
+				{"name": "L'Espoir", "text": "L'Espoir remplace la stabilité : il monte avec chaque signe de la Terre promise et chaque réfugié sauvé, baisse avec le temps et avec chaque nef perdue. À zéro, une nef fait sécession."}
+			]}
 	],
 	"origine": [
 		{"id": "gisement_cristaux", "label": "Veine de cristaux", "text": "Un gisement de cristaux de saut garanti dans le système d'origine.", "fields": {"home_deposit": "crystals"}},
@@ -206,7 +263,9 @@
 		{"id": "energetique_3", "look": "veil", "label": "Voilé de l'Abysse", "archetypes": ["energetique"]},
 		{"id": "synthetique_1", "look": "visor", "label": "Unité à visière", "archetypes": ["synthetique"]},
 		{"id": "synthetique_2", "look": "antenna", "label": "Coordinatrice à antennes", "archetypes": ["synthetique"]},
-		{"id": "synthetique_3", "look": "core", "label": "Noyau ouvert", "archetypes": ["synthetique"]}
+		{"id": "synthetique_3", "look": "core", "label": "Noyau ouvert", "archetypes": ["synthetique"]},
+		{"id": "planete_etre_1", "look": "rings", "label": "Avatar au regard d'orage", "archetypes": ["planete_etre"]},
+		{"id": "vaisseaux_vivants_1", "look": "mandibles", "label": "Doyenne de la harde", "archetypes": ["vaisseaux_vivants"]}
 	],
 	"ship_styles": ["ossarane", "choeur", "vael", "khthari", "teyl", "ferrocornes", "brisecomete", "murmurants"],
 	"temperaments": [
@@ -222,6 +281,10 @@
 		"teyl": {"registre": "Classique / hard SF", "archetype": "synthetique", "gouvernement": "conscience", "credo": "raison", "origine": "gisement_geothermie", "biomes": ["arctic", "desert"], "traits": ["erudits", "forgerons"], "temperament": 0, "portrait": "synthetique_1", "ship_style": "teyl"},
 		"ferrocornes": {"registre": "Grimdark", "archetype": "reptilien", "gouvernement": "horde", "credo": "honneur", "origine": "gisement_filons", "biomes": ["desert", "toxic"], "traits": ["canonniers", "tenaces"], "temperament": 1, "portrait": "reptilien_1", "ship_style": "ferrocornes"},
 		"brisecomete": {"registre": "Picaresque / pulp", "archetype": "humanoide", "gouvernement": "syndicat", "credo": "profit", "origine": "sans_heritage", "biomes": ["arctic", "continental"], "traits": ["pluriel", "navigateurs", "canonniers"], "temperament": 0, "portrait": "humanoide_5", "ship_style": "brisecomete"},
-		"murmurants": {"registre": "Cosmique / étrange", "archetype": "energetique", "gouvernement": "theocratie", "credo": "raison", "origine": "gisement_cristaux", "biomes": ["arctic", "toxic"], "traits": ["orateurs", "erudits", "pelerins", "casaniers"], "temperament": -1, "portrait": "energetique_3", "ship_style": "murmurants"}
+		"murmurants": {"registre": "Cosmique / étrange", "archetype": "energetique", "gouvernement": "theocratie", "credo": "raison", "origine": "gisement_cristaux", "biomes": ["arctic", "toxic"], "traits": ["orateurs", "erudits", "pelerins", "casaniers"], "temperament": -1, "portrait": "energetique_3", "ship_style": "murmurants"},
+		"exode": {"registre": "Space opera héroïque", "archetype": "humanoide", "gouvernement": "conseil_survie", "credo": "espoir", "origine": "sans_heritage", "biomes": ["continental", "ocean"], "traits": ["tenaces", "navigateurs"], "temperament": -1, "portrait": "humanoide_6", "ship_style": "vael"},
+		"zambalu": {"registre": "Picaresque / pulp", "archetype": "humanoide", "gouvernement": "troupe", "credo": "plaisir", "origine": "sans_heritage", "biomes": ["continental", "desert"], "traits": ["pluriel", "orateurs"], "temperament": -1, "portrait": "humanoide_4", "ship_style": "brisecomete"},
+		"halcyre": {"registre": "Cosmique / étrange", "archetype": "planete_etre", "gouvernement": "aucun", "credo": "survie", "origine": "sans_heritage", "biomes": ["arctic", "toxic"], "traits": ["tenaces"], "temperament": 0, "portrait": "planete_etre_1", "ship_style": "murmurants"},
+		"kraal": {"registre": "Grimdark", "archetype": "vaisseaux_vivants", "gouvernement": "troupeau", "credo": "survie", "origine": "sans_heritage", "biomes": ["toxic", "desert"], "traits": ["canonniers"], "temperament": 1, "portrait": "vaisseaux_vivants_1", "ship_style": "khthari"}
 	}
 }

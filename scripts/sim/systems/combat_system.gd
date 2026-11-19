@@ -209,6 +209,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 		dpct += Logistics.damage_pct(state, f)  # réserves épuisées loin des bases
 		dpct += Defenses.damage_pct(state, f, sid)  # couverture de station, garde, talents
 		dpct += Stealth.damage_pct(state, b, f, day)  # embuscade, Chasseur d'ombres
+		dpct += Insolites.damage_pct(state, f)  # Pilotes des Kraal, Masse de l'Orbe-Monde
 		if dpct != 0:
 			@warning_ignore("integer_division")
 			bonus = bonus * maxi(0, 100 + dpct) / 100
@@ -432,6 +433,7 @@ static func _apply_damage(state: GameState, b: Dictionary, fighters: Array[Fleet
 				var side := _side(b, f.owner)
 				side["lost"][f.ships[i]] = int(side["lost"].get(f.ships[i], 0)) + 1
 				PeopleHulls.on_ship_lost(state, f, i)  # Noyau de sauvegarde, Nef de pénitence
+				Insolites.on_ship_lost(state, f, i, b)  # carcasse d'un Kraal dépecée
 				_credit_kill(state, b, f.owner)
 				if day_log.has("kills"):
 					day_log["kills"].append(_unit(b, f.id, i))
@@ -735,6 +737,9 @@ static func _eliminations(state: GameState, added: Array[Dictionary]) -> void:
 	for e in state.empires:
 		# Horde : tant que la flotte-ville vogue, le clan vit, même sans une seule planète.
 		if not e.eliminated and not alive.has(e.id) and FactionTraits.city_fleet(state, e.id) != null:
+			alive[e.id] = true
+		# Hardes de Kraal : tant qu'un Kraal vit, le peuple vit (voir Insolites).
+		elif not e.eliminated and not alive.has(e.id) and not state.insolites.is_empty() and Insolites.keeps_alive(state, e.id):
 			alive[e.id] = true
 	for e in state.empires:
 		if e.eliminated or alive.has(e.id):

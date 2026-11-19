@@ -29,7 +29,8 @@ func _ok(cond: bool, what: String) -> void:
 
 
 func _test_data() -> void:
-	_ok(Array(GameData.faction_ids()) == ["ossarane", "choeur", "vael", "khthari", "teyl", "ferrocornes", "brisecomete", "murmurants"], "les 8 peuples officiels sont chargés")
+	_ok(Array(GameData.classic_faction_ids()) == ["ossarane", "choeur", "vael", "khthari", "teyl", "ferrocornes", "brisecomete", "murmurants"], "les 8 peuples classiques sont chargés")
+	_ok(GameData.faction_ids().slice(0, 8) == GameData.classic_faction_ids() and GameData.faction_ids().size() > 8, "les peuples insolites suivent les classiques")
 	_ok(GameData.resource_ids().size() == 6, "4 ressources communes + cristaux de saut + Savoir")
 	for f: Dictionary in GameData.factions():
 		for t in f["preferred"]:
