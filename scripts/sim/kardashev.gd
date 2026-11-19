@@ -370,8 +370,9 @@ static func lock_ok(state: GameState, eid: int, t: int) -> bool:
 
 
 ## Indice ×100 avec les verrous (prop. 5).
-static func compute(state: GameState, eid: int) -> int:
-	var raw := index_of_power(state, int(power_parts(state, eid)["total"]))
+## power : puissance déjà calculée (power_parts()["total"]) pour ne pas refaire le bilan, -1 sinon.
+static func compute(state: GameState, eid: int, power := -1) -> int:
+	var raw := index_of_power(state, power if power >= 0 else int(power_parts(state, eid)["total"]))
 	for t in range(1, 4):
 		if raw >= t * 100 and not lock_ok(state, eid, t):
 			return t * 100 - 1
@@ -397,7 +398,7 @@ static func _update(state: GameState, eid: int, added: Array[Dictionary]) -> voi
 	var half_before := _gi(state, "half", eid)
 	var p := power_parts(state, eid)
 	sub(state, "power")[str(eid)] = int(p["total"])
-	var k := compute(state, eid)
+	var k := compute(state, eid, int(p["total"]))
 	var old_k := index100(state, eid)
 	sub(state, "k")[str(eid)] = k
 	var t := tier(state, eid)
