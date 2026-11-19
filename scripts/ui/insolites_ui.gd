@@ -1,8 +1,10 @@
 class_name InsolitesUi
 extends RefCounted
 ## Peuples insolites côté interface : actions de la fiche de planète (Lune-sentinelle, dévorer, purger un
-## implant, l'Arrivée de l'Exode) et menu « Peuple » de la fiche de flotte (chantier embarqué, Pilotes des
-## Kraal, délégué au Grand Numéro). Les ordres passent par SimCommands.ins_act.
+## implant, l'Arrivée de l'Exode, acheter des parts, nationaliser, souffler un rêve), menu « Peuple » de la
+## fiche de flotte (chantier embarqué, Pilotes des Kraal, délégué au Grand Numéro) et menu des peuples
+## (clic sur la ligne d'état de l'empire : normes du Bureau, Mises en demeure, Accord d'hébergement du
+## Signal, flotte de songe). Les ordres passent par SimCommands.ins_act.
 
 
 static func system_actions(state: GameState, player: int, p: Planet, emit: Callable) -> Array[Dictionary]:
@@ -24,11 +26,26 @@ static func system_actions(state: GameState, player: int, p: Planet, emit: Calla
 	if k == "exode" and not InsExode.arrived(state, player) and Victory.promised_planet(state, player) == p.id:
 		out.append(WondersUi._act(state, SimCommands.ins_act(player, "settle", {}), "L'Arrivée", "l'Exode se pose ici",
 				"La Flotte-Exode se pose sur la Terre promise : les nefs deviennent une capitale, les Traqueurs lancent leur dernière chasse.", emit))
-	if c != null and c.owner == player and not Insolites.implant(state, p.id).is_empty() and Insolites.implant_visible(state, p.id, player):
-		var df := Insolites.implant_def(String(Insolites.implant(state, p.id)["k"]))
-		out.append(WondersUi._act(state, SimCommands.ins_act(player, "purge", d), "Purger le %s" % String(df.get("label", "implant")).to_lower(),
-				GameData.format_amounts(df.get("purge_cost", {})),
-				"Chasser l'implant d'un autre peuple de cette planète. La stabilité du système souffre quelques mois.", emit))
+	if c != null and c.owner == player:
+		for im: Dictionary in Insolites.implants_on(state, p.id):
+			var ik := String(im["k"])
+			if not Insolites.implant_visible(state, p.id, player, ik):
+				continue
+			var df := Insolites.implant_def(ik)
+			out.append(WondersUi._act(state, SimCommands.ins_act(player, "purge", {"pid": p.id, "k": ik}), "Purger : %s" % String(df.get("label", "implant")).to_lower(),
+					GameData.format_amounts(df.get("purge_cost", {})),
+					"Chasser l'implant d'un autre peuple de cette planète. La stabilité du système souffre quelques semaines.", emit))
+		if InsVentrelune.holder(state, p.id) >= 0:
+			out.append(WondersUi._act(state, SimCommands.ins_act(player, "nationalize", d), "Nationaliser", "%d %% de parts" % InsVentrelune.share(state, InsVentrelune.holder(state, p.id), p.id),
+					"Saisir les parts de la Compagnie Ventrelune sur ce monde : plus de dividendes à verser, mais une lourde perte d'opinion et un motif de guerre pour elle.", emit))
+	if k == "ventrelune" and c != null and c.owner != player and c.is_colony():
+		out.append(WondersUi._act(state, SimCommands.ins_act(player, "buy", d), "Acheter 10 %% (%d %% détenus)" % InsVentrelune.share(state, player, p.id), "%d énergie" % InsVentrelune.price(state, player, p.id),
+				"Acheter une tranche de parts à la Bourse (accord commercial requis) : dividendes chaque mois, vue à 25 %, impôt à 51 %.", emit))
+	if k == "ysmer" and c != null and int(Insolites.implant(state, p.id, "reverie").get("o", -1)) == player:
+		out.append(WondersUi._act(state, SimCommands.ins_act(player, "inspire", d), "Souffler une inspiration", GameData.format_amounts(Insolites.cfg("ysmer").get("inspire_cost", {})),
+				"Un rêve utile : l'hôte gagne du Savoir et s'en souvient avec gratitude.", emit))
+		out.append(WondersUi._act(state, SimCommands.ins_act(player, "nightmare", d), "Envoyer des cauchemars", GameData.format_amounts(Insolites.cfg("ysmer").get("nightmare_cost", {})),
+				"Toute la colonie rêve la même nuit d'un couloir sans fin : stabilité -10 dans le système pendant six mois.", emit))
 	return out
 
 
@@ -98,3 +115,69 @@ static func _item(menu: PopupMenu, cmds: Array[Dictionary], state: GameState, pl
 		var idx := menu.get_item_index(id)
 		menu.set_item_disabled(idx, true)
 		menu.set_item_tooltip(idx, why)
+
+
+# --- Menu des peuples (ligne d'état de l'empire) -------------------------------------------------------
+
+## Le menu des peuples a-t-il quelque chose à proposer ?
+static func has_people_menu(state: GameState, player: int) -> bool:
+	if state == null or player < 0 or state.insolites.is_empty():
+		return false
+	var e := state.get_empire(player)
+	if e == null:
+		return false
+	var k := Insolites.kind(state, player)
+	if k == "bureau" or k == "ysmer":
+		return true
+	for eid in Insolites.nomad_ids(state):
+		if eid != player and e.contacts.has(eid) and ["bureau", "signal"].has(Insolites.kind(state, eid)):
+			return true
+	return false
+
+
+static func open_people_menu(main: Node, state: GameState, player: int) -> void:
+	if not has_people_menu(state, player):
+		return
+	var e := state.get_empire(player)
+	var menu := PopupMenu.new()
+	menu.name = "InsolitesPeopleMenu"
+	var cmds: Array[Dictionary] = []
+	var k := Insolites.kind(state, player)
+	for b in InsBureau.bureaus(state):
+		if b == player or not e.contacts.has(b):
+			continue
+		menu.add_separator("Normes du %s (non-conformité : %d %%)" % [state.get_empire(b).short_name(), InsBureau.nonconf_pct(state, player)])
+		for norm in InsBureau.published(state, b):
+			var nd := InsBureau.norm_def(String(norm))
+			if InsBureau.signed(state, b, player).has(norm):
+				var i := menu.item_count
+				menu.add_item("✓ %s" % String(nd.get("label", norm)), -1)
+				menu.set_item_disabled(i, true)
+				menu.set_item_tooltip(i, String(nd.get("text", "")))
+				continue
+			_item(menu, cmds, state, player, "sign", {"b": b, "norm": String(norm)}, "Signer « %s »" % String(nd.get("label", norm)))
+			menu.set_item_tooltip(menu.item_count - 1, "%s Redevance : %d énergie par mois." % [String(nd.get("text", "")), Insolites.c_int("bureau", "fee", 2)])
+	if k == "bureau":
+		menu.add_separator("Mises en demeure")
+		for o in state.empires:
+			if o.id != player and not o.is_npc() and not o.eliminated and e.contacts.has(o.id) and not InsBureau.conforms(state, player, o.id):
+				_item(menu, cmds, state, player, "summon", {"target": o.id}, "Mettre en demeure %s (%d norme(s) non signée(s))" % [o.short_name(), InsBureau.unsigned(state, player, o.id).size()])
+	for s in Insolites.nomad_ids(state):
+		if s == player or not e.contacts.has(s) or Insolites.kind(state, s) != "signal":
+			continue
+		menu.add_separator("Enfants du Signal")
+		var on := not InsSignal.hosted(state, s, player)
+		_item(menu, cmds, state, player, "host" if on else "unhost", {"s": s},
+				"Signer un Accord d'hébergement (plus de symptômes, du Savoir par nœud)" if on else "Rompre l'Accord d'hébergement")
+	if k == "ysmer":
+		menu.add_separator("Rêveurs d'Ysmer")
+		_item(menu, cmds, state, player, "dream_fleet", {}, "Rêver une flotte de songe (%s, 90 jours)" % GameData.format_amounts(Insolites.cfg("ysmer").get("dream_fleet_cost", {})))
+	menu.id_pressed.connect(func(id: int) -> void:
+		if id >= 0 and id < cmds.size() and main.has_method("_submit"):
+			main.call("_submit", cmds[id])
+		menu.queue_free())
+	menu.popup_hide.connect(func() -> void:
+		if is_instance_valid(menu):
+			menu.queue_free.call_deferred())
+	main.add_child(menu)
+	menu.popup_centered()

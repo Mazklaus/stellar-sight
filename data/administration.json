@@ -63,7 +63,8 @@
 			"conscience": {"label": "Rien à soudoyer", "text": "Aucune corruption, mais le dépassement de capacité compte double (un réseau centralisé).", "no_corruption": true, "over_x": 2},
 			"syndicat": {"label": "Pots-de-vin légaux", "text": "Charge +20 %, mais la corruption ne touche l'énergie qu'à moitié : l'argent détourné reste dans le circuit.", "load_pct": 20, "energy_half": true},
 			"horde": {"label": "Le butin d'abord", "text": "Intégrer une conquête coûte moitié moins ; la distance se compte depuis la flotte-ville.", "integrate_pct": 50},
-			"ruche": {"label": "Une seule volonté", "text": "Aucune corruption, et le dépassement de capacité compte à moitié. Les colonies trop lointaines redeviennent sauvages, comme avant.", "no_corruption": true, "over_half": true}
+			"ruche": {"label": "Une seule volonté", "text": "Aucune corruption, et le dépassement de capacité compte à moitié. Les colonies trop lointaines redeviennent sauvages, comme avant.", "no_corruption": true, "over_half": true},
+			"bureaucratie": {"label": "Tout en triple exemplaire", "text": "Aucune corruption, capacité administrative +50 % : un dossier pour chaque dossier.", "no_corruption": true, "cap_pct": 50}
 		},
 		"credo": {
 			"honneur": {"label": "Mains propres", "text": "Corruption -20 %.", "cor_pct": -20},

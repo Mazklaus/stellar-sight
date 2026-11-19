@@ -927,7 +927,8 @@
 			"look": "visor",
 			"label": "Unité de commandement",
 			"archetypes": [
-				"synthetique"
+				"synthetique",
+				"information"
 			]
 		},
 		{
@@ -935,7 +936,8 @@
 			"look": "antenna",
 			"label": "Sonde d'infiltration",
 			"archetypes": [
-				"synthetique"
+				"synthetique",
+				"information"
 			]
 		},
 		{
@@ -943,7 +945,8 @@
 			"look": "core",
 			"label": "Cœur-logique gouverneur",
 			"archetypes": [
-				"synthetique"
+				"synthetique",
+				"information"
 			]
 		},
 		{

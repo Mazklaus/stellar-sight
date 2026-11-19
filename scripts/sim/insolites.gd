@@ -37,9 +37,16 @@ static func c_int(section: String, key: String, def := 0) -> int:
 
 # --- Qui est insolite ? --------------------------------------------------------------------------
 
-## Sorte de peuple sans monde d'une fiche ("" pour un peuple classique).
+## Sorte de peuple insolite d'une fiche ("" pour un peuple classique) : champ "nomad" des peuples
+## sans monde (lot 1), "guest" des peuples qui vivent chez les autres (lot 2).
 static func kind_of_faction(f: Dictionary) -> String:
-	return String(f.get("nomad", {}).get("kind", ""))
+	var k := String(f.get("nomad", {}).get("kind", ""))
+	return k if k != "" else String(f.get("guest", {}).get("kind", ""))
+
+
+## Le peuple démarre-t-il sans monde natal ? (les nomades, et le Signal qui n'existe que comme donnée)
+static func worldless(f: Dictionary) -> bool:
+	return f.has("nomad") or bool(f.get("guest", {}).get("worldless", false))
 
 
 static func kind(state: GameState, eid: int) -> String:
@@ -89,6 +96,19 @@ static func found(state: GameState, e: Empire, sid: int) -> void:
 	var k := kind_of_faction(f)
 	var ed := {"k": k, "pop": 0, "sp": {}}
 	sub(state, "emp")[str(e.id)] = ed
+	match k:
+		"ventrelune":
+			InsVentrelune.found(state, e, sid, ed)
+			return
+		"bureau":
+			InsBureau.found(state, e, sid, ed)
+			return
+		"signal":
+			InsSignal.found(state, e, sid, ed)
+			return
+		"ysmer":
+			InsYsmer.found(state, e, sid, ed)
+			return
 	var nm: Dictionary = f["nomad"]
 	var ship := String(nm.get("ship", ""))
 	match k:
@@ -110,6 +130,16 @@ static func found(state: GameState, e: Empire, sid: int) -> void:
 					InsHalcyre.found(state, e, sid, ed)
 	for ship_id in FactionTraits.start_ships(e.faction_id):
 		state.spawn_ship(e.id, String(ship_id), sid)
+
+
+## Après la mise en place de tous les empires : le Signal pose ses premiers nœuds.
+static func after_setup(state: GameState) -> void:
+	for eid in nomad_ids(state):
+		match kind(state, eid):
+			"signal":
+				InsSignal.seed_nodes(state, eid)
+			"ysmer":
+				InsYsmer.seed_reverie(state, eid)  # le Dormeur a déjà un rêveur chez le plus proche voisin
 
 
 static func worth_saving(state: GameState) -> bool:
@@ -173,8 +203,13 @@ static func keeps_alive(state: GameState, eid: int) -> bool:
 	var k := kind(state, eid)
 	if k == "":
 		return false
-	if k == "kraal":
-		return InsKraal.herd_pop(state, eid) > 0
+	match k:
+		"kraal":
+			return InsKraal.herd_pop(state, eid) > 0
+		"signal":
+			return InsSignal.alive(state, eid)
+		"ventrelune", "bureau", "ysmer":
+			return false
 	return FactionTraits.city_fleet(state, eid) != null
 
 
@@ -184,7 +219,18 @@ static func keeps_alive(state: GameState, eid: int) -> bool:
 static func income(state: GameState, eid: int) -> Dictionary:
 	if state.insolites.is_empty():
 		return {}
+	var nf := InsBureau.norm_fx(state, eid, "influence")  # norme « archivage en sept exemplaires »
+	if nf != 0:
+		var out := _kind_income(state, eid).duplicate()
+		out["influence"] = int(out.get("influence", 0)) + nf
+		return out
+	return _kind_income(state, eid)
+
+
+static func _kind_income(state: GameState, eid: int) -> Dictionary:
 	match kind(state, eid):
+		"ysmer":
+			return InsYsmer.income(state, eid)
 		"exode":
 			return InsExode.income(state, eid)
 		"zambalu":
@@ -207,47 +253,90 @@ static func implant_def(k: String) -> Dictionary:
 	return (cfg("implants").get("kinds", {}) as Dictionary).get(k, {})
 
 
-static func implant(state: GameState, pid: int) -> Dictionary:
+static func _ikey(pid: int, k: String) -> String:
+	return str(pid) if k == "fan_club" else "%d|%s" % [pid, k]  # Fan-clubs : clé de la sauvegarde 101
+
+
+static func _ipid(key: Variant) -> int:
+	var s := String(key)
+	var i := s.find("|")
+	return int(s) if i < 0 else int(s.substr(0, i))
+
+
+## Implant d'une sorte sur une planète ({} sans implant de cette sorte).
+static func implant(state: GameState, pid: int, k := "fan_club") -> Dictionary:
 	if state.insolites.is_empty():
 		return {}
-	return (state.insolites.get("implants", {}) as Dictionary).get(str(pid), {})
+	return (state.insolites.get("implants", {}) as Dictionary).get(_ikey(pid, k), {})
 
 
-static func implants_of(state: GameState, owner: int) -> Array[int]:
+## Implants d'une planète, toutes sortes, par sorte croissante.
+static func implants_on(state: GameState, pid: int) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	if state.insolites.is_empty():
+		return out
+	var ks: Array = (cfg("implants").get("kinds", {}) as Dictionary).keys()
+	ks.sort()
+	for k in ks:
+		var im := implant(state, pid, String(k))
+		if not im.is_empty():
+			out.append(im)
+	return out
+
+
+## Planètes portant un implant de ce propriétaire (d'une sorte, ou de toutes avec k = ""), triées.
+static func implants_of(state: GameState, owner: int, k := "") -> Array[int]:
 	var out: Array[int] = []
 	if state.insolites.is_empty():
 		return out
 	var im: Dictionary = state.insolites.get("implants", {})
-	for k in im:
-		if int(im[k]["o"]) == owner:
-			out.append(int(k))
+	for key in im:
+		var d: Dictionary = im[key]
+		if int(d["o"]) == owner and (k == "" or String(d["k"]) == k):
+			var pid := _ipid(key)
+			if not out.has(pid):
+				out.append(pid)
 	out.sort()
 	return out
 
 
 static func add_implant(state: GameState, pid: int, k: String, owner: int) -> void:
-	sub(state, "implants")[str(pid)] = {"k": k, "o": owner, "t": state.tick}
+	sub(state, "implants")[_ikey(pid, k)] = {"k": k, "o": owner, "t": state.tick}
 
 
-## L'implant est-il visible de cet empire ? (Les implants cachés : lots suivants.)
-static func implant_visible(state: GameState, pid: int, eid: int) -> bool:
-	var im := implant(state, pid)
+static func remove_implant(state: GameState, pid: int, k: String) -> void:
+	if not state.insolites.is_empty():
+		(state.insolites.get("implants", {}) as Dictionary).erase(_ikey(pid, k))
+
+
+## L'implant est-il visible de cet empire ? Un implant caché ne se voit que de son propriétaire, et de
+## l'hôte qui sait le chercher : pare-feu (Propagande) pour un Nœud du Signal, Éveil psionique pour une
+## Rêverie d'Ysmer.
+static func implant_visible(state: GameState, pid: int, eid: int, k := "fan_club") -> bool:
+	var im := implant(state, pid, k)
 	if im.is_empty():
 		return false
-	if int(im["o"]) == eid or not bool(implant_def(String(im["k"])).get("hidden", false)):
+	if int(im["o"]) == eid or not bool(implant_def(k).get("hidden", false)):
 		return true
 	var c: Colony = state.colonies.get(pid)
-	return c != null and c.owner == eid and int(im.get("seen", 0)) > 0
+	if c == null or c.owner != eid:
+		return false
+	match k:
+		"noeud":
+			return InsSignal.detects(state, eid, im)
+		"reverie":
+			return InsYsmer.detects(state, eid)
+	return int(im.get("seen", 0)) > 0
 
 
 ## Dîmes du mois : chaque implant prend sa part chez l'hôte (dans la limite de ses réserves).
-static func _implant_month(state: GameState, added: Array[Dictionary]) -> void:
+static func _implant_month(state: GameState, _added: Array[Dictionary]) -> void:
 	var im: Dictionary = state.insolites.get("implants", {})
 	var keys := im.keys()
-	keys.sort_custom(func(a, b): return int(a) < int(b))
+	keys.sort()
 	for key in keys:
 		var d: Dictionary = im[key]
-		var pid := int(key)
+		var pid := _ipid(key)
 		var c: Colony = state.colonies.get(pid)
 		var owner := state.get_empire(int(d["o"]))
 		if c == null or not c.is_colony() or owner == null or owner.eliminated or c.owner == owner.id:
@@ -259,6 +348,9 @@ static func _implant_month(state: GameState, added: Array[Dictionary]) -> void:
 			continue
 		var tithe: Dictionary = (df.get("tithe", {}) as Dictionary).duplicate()
 		tithe["energy"] = int(tithe.get("energy", 0)) + c.population * int(df.get("tithe_per_pop", 0))
+		match String(d["k"]):
+			"noeud":
+				tithe = InsSignal.bandwidth(state, owner.id, c)
 		for r in tithe:
 			var n := mini(int(tithe[r]), maxi(0, int(host.resources.get(r, 0))))
 			if n > 0:
@@ -269,36 +361,46 @@ static func _implant_month(state: GameState, added: Array[Dictionary]) -> void:
 			var cum := Culture._m(state, "cum")
 			var ck := Culture._k(owner.id, host.id)
 			cum[ck] = int(cum.get(ck, 0)) + rad
-	if not added.is_empty():
-		pass
 
 
-static func check_purge(state: GameState, eid: int, pid: int) -> String:
-	var im := implant(state, pid)
+static func check_purge(state: GameState, eid: int, pid: int, k := "fan_club") -> String:
+	var im := implant(state, pid, k)
 	if im.is_empty():
-		return "aucun implant sur cette planète"
+		return "aucun implant de cette sorte sur cette planète"
 	var c: Colony = state.colonies.get(pid)
 	if c == null or c.owner != eid:
 		return "seul le propriétaire de la planète peut purger un implant"
-	if not implant_visible(state, pid, eid):
+	if not implant_visible(state, pid, eid, k):
 		return "aucun implant connu sur cette planète"
-	var cost: Dictionary = implant_def(String(im["k"])).get("purge_cost", {})
+	if k == "reverie" and not Psionics.awake(state, eid):
+		return "seuls des Éveillés peuvent plonger dans le Songe pour chasser une rêverie"
+	if k == "noeud" and InsSignal.hosted(state, int(im["o"]), eid):
+		return "un accord d'hébergement protège ce nœud : rompez-le d'abord"
+	var cost: Dictionary = implant_def(k).get("purge_cost", {})
 	if not Economy.can_afford(state.get_empire(eid), cost):
 		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)
 	return ""
 
 
-static func purge(state: GameState, eid: int, pid: int, added: Array[Dictionary]) -> void:
-	var im := implant(state, pid)
-	var df := implant_def(String(im["k"]))
+const PURGE_TEXT := {
+	"fan_club": "Les fans pleurent ; certains gardent leurs affiches sous le lit.",
+	"guichet": "Le guichet ferme. Une affichette indique de s'adresser au guichet d'à côté, qui n'existe pas.",
+	"noeud": "Les calculateurs redémarrent. Pendant une seconde, tous les écrans ont affiché le même mot.",
+	"reverie": "Les Éveillés sont revenus du Songe ; les dormeurs ne se souviennent plus de ce qu'ils rêvaient.",
+}
+
+
+static func purge(state: GameState, eid: int, pid: int, added: Array[Dictionary], k := "fan_club") -> void:
+	var im := implant(state, pid, k)
+	var df := implant_def(k)
 	Economy.pay(state.get_empire(eid), df.get("purge_cost", {}))
 	var owner := state.get_empire(int(im["o"]))
-	(state.insolites["implants"] as Dictionary).erase(str(pid))
+	remove_implant(state, pid, k)
 	var sid := state.galaxy.get_planet(pid).system_id
 	sub(state, "purged")[str(sid)] = state.tick + int(df.get("purge_stability_days", 0))
-	added.append(state.add_chronicle("%s purge le %s de %s sur %s. Les fans pleurent ; certains gardent leurs affiches sous le lit." % [
-			state.get_empire(eid).display_name(), String(df.get("label", im["k"])), owner.short_name() if owner else "?",
-			state.galaxy.get_planet(pid).display_name(state.galaxy)], Espionage.private_to(state, [eid, int(im["o"])], sid)))
+	added.append(state.add_chronicle("%s purge le %s de %s sur %s. %s" % [
+			state.get_empire(eid).display_name(), String(df.get("label", k)).to_lower(), owner.short_name() if owner else "?",
+			state.galaxy.get_planet(pid).display_name(state.galaxy), String(PURGE_TEXT.get(k, ""))], Espionage.private_to(state, [eid, int(im["o"])], sid)))
 
 
 # --- Chantier embarqué ---------------------------------------------------------------------------
@@ -367,6 +469,8 @@ static func treaty_block(state: GameState, a: int, b: int) -> String:
 	for pair in [[a, b], [b, a]]:
 		if kind(state, int(pair[0])) == "halcyre" and not InsHalcyre.visited(state, int(pair[0]), int(pair[1])):
 			return "l'Avatar d'Halcyre n'a jamais traversé un système de %s" % state.get_empire(int(pair[1])).short_name()
+		if kind(state, int(pair[0])) == "signal":
+			return "le Signal ne signe rien, sauf un Accord d'hébergement"
 	return ""
 
 
@@ -418,8 +522,17 @@ static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 		out.append(["Spectacle du Cirque", c_int("zambalu", "show_stability", 10)])
 	if int((state.insolites.get("purged", {}) as Dictionary).get(str(sid), 0)) > state.tick:
 		out.append(["Implant purgé", -5])
+	if InsYsmer.nightmare(state, sid):
+		out.append(["Cauchemars des Ysmer", c_int("ysmer", "nightmare_stab", -10)])
 	if owner < 0:
 		return out
+	if InsSignal.symptoms(state, sid, owner):
+		out.append(["Symptômes étranges", c_int("signal", "symptom_stab", -2)])
+	var ns := InsBureau.norm_fx(state, owner, "stab")
+	if ns != 0:
+		out.append(["Registre d'état civil", ns])
+	if InsBureau.bailiffs(state, sid, owner):
+		out.append(["Huissiers du Bureau", -3])
 	return out
 
 
@@ -437,9 +550,13 @@ static func damage_pct(state: GameState, f: Fleet) -> int:
 
 ## Vitesse d'une flotte en % (Fleets.speed) : routes de migration des Kraal.
 static func speed_pct(state: GameState, f: Fleet) -> int:
-	if state.insolites.is_empty() or kind(state, f.owner) != "kraal":
+	if state.insolites.is_empty():
 		return 100
-	return InsKraal.speed_pct(state, f)
+	var pct := InsKraal.speed_pct(state, f) if kind(state, f.owner) == "kraal" else 100
+	var e := state.get_empire(f.owner)
+	if e != null and e.wars.is_empty():
+		pct += InsBureau.norm_fx(state, f.owner, "speed_pct")  # formulaire de transit B-7
+	return pct
 
 
 ## Un vaisseau tombe au combat (CombatSystem._apply_damage) : carcasse d'un Kraal dépecée.
@@ -469,6 +586,111 @@ static func fauna_kin(state: GameState, eid: int) -> bool:
 	return not state.insolites.is_empty() and kind(state, eid) == "kraal"
 
 
+## Bonus de production (%, Economy.production_pct) : normes signées (recherche), sanctions du Bureau.
+static func production_bonus(state: GameState, eid: int, resource: String) -> int:
+	if state.insolites.is_empty():
+		return 0
+	var n := InsBureau.norm_fx(state, eid, "knowledge_pct") if resource == "knowledge" else 0
+	if InsBureau.sanctioned(state, eid):
+		n += c_int("bureau", "sanction_income_pct", -10)
+	return n
+
+
+## Revenu des traités commerciaux en % (Economy.empire_income) : normes, Non-conformité.
+static func trade_pct(state: GameState, eid: int) -> int:
+	if state.insolites.is_empty():
+		return 100
+	return maxi(0, 100 + InsBureau.norm_fx(state, eid, "trade_pct") + InsBureau.nonconf_pct(state, eid))
+
+
+## Durée de construction des vaisseaux en % de plus (Fleets.ship_days) : homologation, Non-conformité.
+static func ship_days_pct(state: GameState, eid: int) -> int:
+	if state.insolites.is_empty():
+		return 0
+	return -InsBureau.norm_fx(state, eid, "build_pct") - InsBureau.nonconf_pct(state, eid)
+
+
+## Croissance en % (Economy.growth_per_day) : directive Croissance de la Compagnie.
+static func growth_pct(state: GameState, eid: int) -> int:
+	if state.insolites.is_empty() or kind(state, eid) != "ventrelune":
+		return 0
+	return int(InsVentrelune.directive_def(state, eid).get("growth_pct", 0))
+
+
+## Raison qui empêche une déclaration de guerre ("" sinon) : le Bureau envoie des Mises en demeure.
+static func war_block(state: GameState, eid: int) -> String:
+	if state.insolites.is_empty():
+		return ""
+	match kind(state, eid):
+		"bureau":
+			return "le Bureau ne déclare jamais de guerre : il adresse une Mise en demeure"
+		"signal":
+			return "le Signal ne déclare pas de guerre : il se copie"
+	return ""
+
+
+## Raison qui empêche une revendication de ce type ("" sinon) : le Dormeur n'a qu'un monde.
+static func claim_block(state: GameState, eid: int, claim_kind: String) -> String:
+	if state.insolites.is_empty():
+		return ""
+	if claim_kind == Colony.KIND_COLONY and kind(state, eid) == "ysmer":
+		return "les Ysmer n'ont qu'un monde, celui du Dormeur : leur territoire est dans les rêves des autres"
+	return ""
+
+
+## Jours de plus pour fonder une revendication (SimCommands) : le dossier d'un an du Bureau.
+static func claim_extra_days(state: GameState, eid: int, claim_kind: String) -> int:
+	if state.insolites.is_empty() or claim_kind != Colony.KIND_COLONY or kind(state, eid) != "bureau":
+		return 0
+	return c_int("bureau", "file_days", 360)
+
+
+## Coût des contrats de mercenaires en % de plus (Diplomacy.sign_contract) : l'armée privée.
+static func contract_fee_pct(state: GameState, client: int) -> int:
+	if state.insolites.is_empty() or kind(state, client) != "ventrelune":
+		return 0
+	return c_int("ventrelune", "merc_fee_pct", -30)
+
+
+## Planètes que le peuple voit chez les autres : parts de la Compagnie à 25 %, nœuds, rêveries.
+static func seen_planets(state: GameState, eid: int) -> Array[int]:
+	var pids: Array[int] = []
+	match kind(state, eid):
+		"ventrelune":
+			var sh := InsVentrelune.shares(state, eid)
+			for key in sh:
+				if int(sh[key]) >= c_int("ventrelune", "view_pct", 25):
+					pids.append(int(key))
+			pids.sort()
+		"signal", "ysmer":
+			pids = implants_of(state, eid)
+	return pids
+
+
+## Vision (Fleets) : les systèmes de ces planètes, sans portée au-delà.
+static func vision(state: GameState, eid: int, sources: Dictionary) -> void:
+	if state.insolites.is_empty():
+		return
+	for pid in seen_planets(state, eid):
+		var p := state.galaxy.get_planet(pid)
+		if p != null:
+			sources[p.system_id] = maxi(int(sources.get(p.system_id, -1)), 0)
+
+
+## Ces systèmes sont aussi explorés (chaque mois) : on peut ouvrir leur vue système.
+static func _explore(state: GameState, eid: int) -> void:
+	var e := state.get_empire(eid)
+	for pid in seen_planets(state, eid):
+		var p := state.galaxy.get_planet(pid)
+		if p != null:
+			e.explored[p.system_id] = true
+
+
+## Motif de guerre Expropriation (Wars) : la Compagnie contre qui a saisi ou privé de licence ses parts.
+static func expropriation_casus(state: GameState, a: int, b: int) -> bool:
+	return not state.insolites.is_empty() and InsVentrelune.expropriation_casus(state, a, b)
+
+
 # --- Chaque jour ----------------------------------------------------------------------------------
 
 static func daily(state: GameState) -> Array[Dictionary]:
@@ -481,6 +703,8 @@ static func daily(state: GameState) -> Array[Dictionary]:
 		if ed.is_empty():
 			continue
 		_yard_day(state, eid, ed, added)
+		if month:
+			_explore(state, eid)
 		match String(ed["k"]):
 			"exode":
 				InsExode.daily(state, eid, ed, month, added)
@@ -490,6 +714,14 @@ static func daily(state: GameState) -> Array[Dictionary]:
 				InsHalcyre.daily(state, eid, ed, month, added)
 			"kraal":
 				InsKraal.daily(state, eid, ed, month, added)
+			"ventrelune":
+				InsVentrelune.daily(state, eid, ed, month, added)
+			"bureau":
+				InsBureau.daily(state, eid, ed, month, added)
+			"signal":
+				InsSignal.daily(state, eid, ed, month, added)
+			"ysmer":
+				InsYsmer.daily(state, eid, ed, month, added)
 	InsZambalu.numero_day(state, added)
 	if month:
 		_implant_month(state, added)
@@ -497,8 +729,9 @@ static func daily(state: GameState) -> Array[Dictionary]:
 
 
 # --- Ordres des joueurs ---------------------------------------------------------------------------
-## Actions (SimCommands.ins_act) : "build" (ship), "settle", "purge" (pid), "delegate", "sentinel" (pid),
-## "devour" (pid), "pilot" (fleet).
+## Actions (SimCommands.ins_act) : "build" (ship), "settle", "purge" (pid, k), "delegate", "sentinel" (pid),
+## "devour" (pid), "pilot" (fleet) ; lot 2 : "buy" et "nationalize" (pid), "sign" (b, norm), "summon"
+## (target), "host" et "unhost" (s), "inspire" et "nightmare" (pid), "dream_fleet".
 
 static func check(state: GameState, eid: int, act: String, d: Dictionary) -> String:
 	if state.insolites.is_empty():
@@ -512,7 +745,7 @@ static func check(state: GameState, eid: int, act: String, d: Dictionary) -> Str
 		"settle":
 			return InsExode.check_settle(state, eid)
 		"purge":
-			return check_purge(state, eid, int(d.get("pid", -1)))
+			return check_purge(state, eid, int(d.get("pid", -1)), String(d.get("k", "fan_club")))
 		"delegate":
 			return InsZambalu.check_delegate(state, eid)
 		"sentinel":
@@ -521,6 +754,20 @@ static func check(state: GameState, eid: int, act: String, d: Dictionary) -> Str
 			return InsHalcyre.check_devour(state, eid, int(d.get("pid", -1)))
 		"pilot":
 			return InsKraal.check_pilot(state, eid, int(d.get("fleet", -1)))
+		"buy":
+			return InsVentrelune.check_buy(state, eid, int(d.get("pid", -1)))
+		"nationalize":
+			return InsVentrelune.check_nationalize(state, eid, int(d.get("pid", -1)))
+		"sign":
+			return InsBureau.check_sign(state, eid, int(d.get("b", -1)), String(d.get("norm", "")))
+		"summon":
+			return InsBureau.check_summon(state, eid, int(d.get("target", -1)))
+		"host", "unhost":
+			return InsSignal.check_host(state, eid, int(d.get("s", -1)), act == "host")
+		"inspire", "nightmare":
+			return InsYsmer.check_breath(state, eid, act, int(d.get("pid", -1)))
+		"dream_fleet":
+			return InsYsmer.check_dream_fleet(state, eid)
 	return "action inconnue : %s" % act
 
 
@@ -532,7 +779,7 @@ static func apply(state: GameState, eid: int, act: String, d: Dictionary) -> Arr
 		"settle":
 			InsExode.settle(state, eid, added)
 		"purge":
-			purge(state, eid, int(d["pid"]), added)
+			purge(state, eid, int(d["pid"]), added, String(d.get("k", "fan_club")))
 		"delegate":
 			InsZambalu.delegate(state, eid)
 		"sentinel":
@@ -541,6 +788,20 @@ static func apply(state: GameState, eid: int, act: String, d: Dictionary) -> Arr
 			InsHalcyre.devour(state, eid, int(d["pid"]))
 		"pilot":
 			InsKraal.pilot(state, eid, int(d["fleet"]), added)
+		"buy":
+			InsVentrelune.buy(state, eid, int(d["pid"]), added)
+		"nationalize":
+			InsVentrelune.nationalize(state, eid, int(d["pid"]), added)
+		"sign":
+			InsBureau.sign(state, eid, int(d["b"]), String(d["norm"]), added)
+		"summon":
+			InsBureau.summon(state, eid, int(d["target"]), added)
+		"host", "unhost":
+			InsSignal.set_host(state, eid, int(d["s"]), act == "host", added)
+		"inspire", "nightmare":
+			InsYsmer.breath(state, eid, act, int(d["pid"]), added)
+		"dream_fleet":
+			InsYsmer.dream_fleet(state, eid, added)
 	return added
 
 
@@ -561,6 +822,14 @@ static func status_lines(state: GameState, eid: int) -> Array[String]:
 			out = InsHalcyre.status_lines(state, eid, ed)
 		"kraal":
 			out = InsKraal.status_lines(state, eid, ed)
+		"ventrelune":
+			out = InsVentrelune.status_lines(state, eid, ed)
+		"bureau":
+			out = InsBureau.status_lines(state, eid, ed)
+		"signal":
+			out = InsSignal.status_lines(state, eid, ed)
+		"ysmer":
+			out = InsYsmer.status_lines(state, eid, ed)
 	var y: Dictionary = ed.get("yard", {})
 	if not y.is_empty():
 		out.append("Chantier embarqué : %s (%d j)" % [String(GameData.ship(String(y["ship"])).get("label", y["ship"])), int(y["left"])])

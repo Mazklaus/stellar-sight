@@ -394,6 +394,9 @@ static func check_declare_war(state: GameState, empire_id: int, target: int, bre
 		return "vous n'avez jamais rencontré cet empire"
 	if e.wars.has(target):
 		return "vous êtes déjà en guerre"
+	var ib := Insolites.war_block(state, empire_id)
+	if ib != "":
+		return ib
 	if not state.rulers.is_empty() and RulersDynasty.in_regency(state, empire_id):
 		return "un régent ne peut pas déclarer la guerre"
 	var pw := WondersBridges.check_war(state, empire_id, target)  # Phare de la Concorde

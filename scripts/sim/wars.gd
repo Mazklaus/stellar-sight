@@ -301,7 +301,7 @@ static func _req_ok(state: GameState, req: String, a: int, b: int) -> bool:
 		"debt":
 			return not state.finance.is_empty() and FinanceBridges.debt_casus(state, a, b)
 		"expropriated":
-			return not state.private.is_empty() and Private.full(state) and Private.expropriation_casus(state, a, b)
+			return (not state.private.is_empty() and Private.full(state) and Private.expropriation_casus(state, a, b)) or Insolites.expropriation_casus(state, a, b)
 		"silence":
 			return not state.contact.is_empty() and ContactRace.silence_casus(state, a, b)
 		"ascension":

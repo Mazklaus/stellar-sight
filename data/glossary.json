@@ -4297,6 +4297,240 @@
    "chapters": [
     "17a-insolites"
    ]
+  },
+  {
+   "id": "parts_compagnie",
+   "name": "Parts (Compagnie)",
+   "forms": [
+    "parts de colonie",
+    "parts de la Compagnie"
+   ],
+   "family": "meca",
+   "summary": "La Compagnie Ventrelune possède des parts des colonies des autres, 10 % à la fois : dividendes chaque mois, vue à 25 %, impôt à 51 %.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "licence_compagnie",
+   "name": "Licence",
+   "forms": [
+    "sans licence"
+   ],
+   "family": "meca",
+   "summary": "L'accord commercial qui permet à la Compagnie d'acheter des parts. Sans lui, ses parts sont « sans licence » et ne rapportent plus rien.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "nationaliser",
+   "name": "Nationaliser",
+   "forms": [
+    "nationalisation",
+    "nationalise",
+    "nationaliser"
+   ],
+   "family": "meca",
+   "summary": "Saisir les parts de la Compagnie sur sa propre colonie, contre une forte perte d'opinion et un motif de guerre Expropriation pour elle.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "conseil_actionnaires",
+   "name": "Conseil d'actionnaires",
+   "forms": [
+    "Conseil d'actionnaires"
+   ],
+   "family": "meca",
+   "summary": "Le gouvernement de la Compagnie Ventrelune : des IA qui votent chaque trimestre une directive (Croissance, Dividendes, Rachat hostile).",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "opa_galactique",
+   "name": "L'OPA galactique",
+   "forms": [
+    "OPA galactique",
+    "l'OPA galactique"
+   ],
+   "family": "meca",
+   "summary": "Victoire de la Compagnie : la majorité des parts (pondérées par la population) de trois empires rivaux, tenue deux ans.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "normes_bureau",
+   "name": "Normes",
+   "forms": [
+    "normes du Bureau",
+    "norme du Bureau"
+   ],
+   "family": "meca",
+   "summary": "Ce que publie le Bureau des Affaires Courantes : la signer donne un petit avantage et coûte une redevance mensuelle.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "non_conformite",
+   "name": "Non-conformité",
+   "forms": [
+    "Non-conformité",
+    "non-conformité",
+    "non-conforme",
+    "non-conformes"
+   ],
+   "family": "meca",
+   "summary": "Le prix du refus des normes du Bureau : commerce et chantiers ralentis, d'autant plus qu'il y a de signataires (25 % au plus).",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "guichet",
+   "name": "Guichet",
+   "forms": [
+    "Guichet",
+    "Guichets",
+    "guichets"
+   ],
+   "family": "meca",
+   "summary": "Implant du Bureau chez un signataire avec qui il commerce : 2 d'énergie par mois.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "mise_en_demeure",
+   "name": "Mise en demeure",
+   "forms": [
+    "Mise en demeure",
+    "Mises en demeure"
+   ],
+   "family": "meca",
+   "summary": "Ce que le Bureau envoie au lieu de déclarer la guerre. Six mois plus tard, si les signataires l'emportent, une Procédure sanctionne le non-conforme.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "administration_totale",
+   "name": "L'Administration totale",
+   "forms": [
+    "Administration totale",
+    "l'Administration totale"
+   ],
+   "family": "meca",
+   "summary": "Victoire du Bureau : tous les empires survivants ont signé toutes les normes en vigueur, et le restent un an.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "noeud_signal",
+   "name": "Nœud du Signal",
+   "forms": [
+    "nœud",
+    "nœuds",
+    "Nœuds"
+   ],
+   "family": "meca",
+   "summary": "Implant caché des Enfants du Signal : il prend du Savoir à son hôte et lui donne des symptômes. Le pare-feu culturel (Propagande) le révèle.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "accord_hebergement",
+   "name": "Accord d'hébergement",
+   "forms": [
+    "Accord d'hébergement"
+   ],
+   "family": "meca",
+   "summary": "La seule diplomatie du Signal : l'hôte tolère ses nœuds, n'a plus de symptômes et reçoit du Savoir.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "corps_empruntes",
+   "name": "Corps empruntés",
+   "forms": [
+    "Corps empruntés"
+   ],
+   "family": "meca",
+   "summary": "À partir de douze nœuds, le Signal détourne un chantier hôte : une flotte qui dure 120 jours.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "saturation",
+   "name": "La Saturation",
+   "forms": [
+    "Saturation",
+    "la Saturation"
+   ],
+   "family": "meca",
+   "summary": "Victoire du Signal : un nœud dans 40 % des colonies de chaque empire survivant, tenu trois ans.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "reverie",
+   "name": "Rêverie",
+   "forms": [
+    "rêverie",
+    "rêveries",
+    "Rêveries"
+   ],
+   "family": "meca",
+   "summary": "Implant caché des Rêveurs d'Ysmer dans une population organique endormie. Seuls des Éveillés la voient et la chassent.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "flotte_songe",
+   "name": "Flotte de songe",
+   "forms": [
+    "flotte de songe"
+   ],
+   "family": "meca",
+   "summary": "Une flotte que les Ysmer rêvent pour 90 jours, puis qui se dissipe.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "reve_commun",
+   "name": "Le Rêve commun",
+   "forms": [
+    "Rêve commun",
+    "le Rêve commun"
+   ],
+   "family": "meca",
+   "summary": "Victoire des Ysmer : des rêveries dans la moitié de la population organique des autres empires, tenues cinq ans.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "menu_peuples",
+   "name": "Menu des peuples",
+   "forms": [
+    "menu des peuples"
+   ],
+   "family": "meca",
+   "summary": "S'ouvre d'un clic sur la ligne d'état du panneau d'empire : normes du Bureau, Mises en demeure, Accord d'hébergement, flotte de songe.",
+   "chapters": [
+    "17a-insolites"
+   ]
   }
  ]
 }

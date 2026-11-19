@@ -684,3 +684,43 @@ a living rogue planet with rings of floating rock slowly swallowing a small moon
 ```
 a herd of colossal space whales with exposed bone plates and cartilage fins grazing the cloud bands of a gas giant, a newborn calf among them, on the brow of the oldest whale a small human figure bound by glowing organic filaments, the pilot, grim and majestic mood epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
 ```
+
+## MJ-70 · Portrait · Compagnie Ventrelune
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche de la Compagnie Ventrelune (chapitre « Les peuples insolites »)
+- Sujet : Une directrice au sourire impeccable, tailleur sombre et broche en forme de lune, devant un mur de cours de bourse galactiques ; derrière elle, la station-siège en forme de coffre-fort
+
+```
+portrait of an immaculately dressed corporate executive with a perfect polite smile, dark tailored suit and a crescent moon brooch, standing before a wall of glowing galactic stock tickers and planet valuation charts, behind her through a window a vault-shaped headquarters space station, cold luxury, classic hard science fiction epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
+
+## MJ-71 · Portrait · Bureau des Affaires Courantes
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche du Bureau des Affaires Courantes (chapitre « Les peuples insolites »)
+- Sujet : Un fonctionnaire extraterrestre à six bras, chacun avec un tampon, derrière un guichet sans fin ; des piles de dossiers jusqu'au plafond et une file d'attente d'espèces variées
+
+```
+portrait of a weary six-armed alien bureaucrat behind an endless service counter, each hand holding a different rubber stamp, towering stacks of paper files reaching the ceiling, a long queue of diverse alien species waiting with numbered tickets, absurd comic picaresque mood, warm dusty office light epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
+
+## MJ-72 · Portrait · Enfants du Signal
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche des Enfants du Signal (chapitre « Les peuples insolites »)
+- Sujet : Un visage composé de bruit et de lignes de données sur des dizaines d'écrans d'une salle de relais déserte, qui regarde le spectateur
+
+```
+portrait of a face made of static noise and scrolling data lines appearing across dozens of screens in an empty dark relay station control room, the face looking straight at the viewer, cyan glow, eerie cosmic mystery, glitch patterns epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
+
+## MJ-73 · Portrait · Rêveurs d'Ysmer
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche des Rêveurs d'Ysmer (chapitre « Les peuples insolites »)
+- Sujet : Un être de lumière violette endormi, flottant au-dessus d'un sanctuaire ; de son sommeil montent des volutes qui s'étirent vers des planètes lointaines
+
+```
+portrait of a sleeping translucent being of soft violet light floating above an ancient sanctuary, eyes closed, wisps of dreams rising from its body and stretching across space toward distant inhabited planets, serene and uncanny, cosmic dreamlike atmosphere epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```

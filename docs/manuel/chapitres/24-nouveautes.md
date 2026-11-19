@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.49
+
+- **Les peuples insolites** (chapitre 48), second lot : les **peuples qui vivent chez les autres**. La **Compagnie Ventrelune** (parts des colonies étrangères, licence, nationalisation, Conseil d'actionnaires, mercenaires moins chers, dette remboursée en parts, victoire de l'**OPA galactique**), le **Bureau des Affaires Courantes** (normes, Non-conformité, Guichets, Mise en demeure et Procédure, Huissiers, paperasse, dossiers perdus, victoire de l'**Administration totale**), les **Enfants du Signal** (nœuds cachés, bande passante, pare-feu, Accord d'hébergement, Corps empruntés, mutations et schismes, victoire de la **Saturation**) et les **Rêveurs d'Ysmer** (rêveries, Éveillés, inspirations et cauchemars, flotte de songe, victoire du **Rêve commun**). Implants de plusieurs sortes par planète, **menu des peuples** sur la ligne d'état, choc des tons **le Bureau et le Syndicat**. Un peuple sans monde n'a plus de capitale à prendre pour la Conquête.
+
 ### Édition 2.48
 
 - **Les peuples insolites** (chapitre 48), premier lot : les **peuples sans monde**. La **Flotte-Exode** (Nefs-cités, Traqueurs, Espoir, réfugiés, l'Arrivée sur la Terre promise), le **Cirque Zambalù** (Troupes, représentations, Tournée triomphale et Fan-clubs, Recrues, le Grand Numéro), l'**Orbe-Monde Halcyre** (Masse, Lunes-sentinelles, dévorer un monde, victoire de l'**Allumage**) et les **Hardes de Kraal** (âges, pâturages, naissances, Pilotes, carcasses). Nouveau réglage **Peuples insolites** au menu, **population portée**, **implants**, **chantier embarqué**, nature de foi **le Grand Spectacle**, choc des tons **le Cirque et le Chœur**. Les chapitres suivants prennent un numéro de plus. Sauvegarde 101.

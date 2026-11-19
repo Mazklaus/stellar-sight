@@ -500,6 +500,9 @@ func toggle_empire_screen(screen_id: String) -> void:
 	if screen_id == "codex":
 		toggle_codex()
 		return
+	if screen_id == "insolites":
+		InsolitesUi.open_people_menu(self, simulation.state if simulation else null, view_empire)
+		return
 	if _empire_screens.is_open() and _empire_screens.current == screen_id:
 		close_empire_screen()
 		return

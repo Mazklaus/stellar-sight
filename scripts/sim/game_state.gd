@@ -1203,7 +1203,7 @@ func _setup_empires(player_faction: String, rivals: Variant = null, duplicates :
 			if galaxy.planets[pid].size > galaxy.planets[home_id].size:
 				home_id = pid
 		# Peuple sans monde (voir Insolites) : pas de colonie natale, sa cité mobile ou sa harde part d'ici.
-		if Insolites.kind_of_faction(faction) != "":
+		if Insolites.worldless(faction):
 			e.home_planet = home_id
 			e.capital_planet = -1
 			Insolites.found(self, e, sys.id)
@@ -1240,7 +1240,11 @@ func _setup_empires(player_faction: String, rivals: Variant = null, duplicates :
 		# Flotte de départ : de quoi explorer et fonder une première colonie.
 		for ship_id in FactionTraits.start_ships(e.faction_id):
 			spawn_ship(e.id, String(ship_id), sys.id)
+		# Peuple insolite qui a un monde (il vit chez les autres : voir Insolites) : son état propre.
+		if Insolites.kind_of_faction(faction) != "":
+			Insolites.found(self, e, sys.id)
 	rebuild_ownership()
+	Insolites.after_setup(self)  # le Signal se glisse dans les premières colonies des autres
 
 
 ## Systèmes d'origine : le premier au hasard (via state.rng), puis chaque suivant le plus loin

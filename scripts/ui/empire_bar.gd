@@ -161,6 +161,12 @@ func _ready() -> void:
 	_status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_status.custom_minimum_size = Vector2(WIDTH - 20.0, 0)
 	box.add_child(_status)
+	# Peuples insolites (voir InsolitesUi) : un clic sur la ligne d'état ouvre le menu des peuples.
+	_status.mouse_filter = Control.MOUSE_FILTER_STOP
+	_status.gui_input.connect(func(ev: InputEvent) -> void:
+		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT \
+				and _state != null and InsolitesUi.has_people_menu(_state, _player):
+			screen_requested.emit("insolites"))
 
 
 func set_state(state: GameState, player: int) -> void:

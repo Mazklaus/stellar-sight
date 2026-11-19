@@ -1,13 +1,34 @@
 {
-	"_doc": "Les peuples insolites (étude « Les 15 peuples insolites et le 9e peuple », validée le 2026-11-19). Lot 1 : les peuples sans monde (Flotte-Exode, Cirque Zambalù, Orbe-Monde Halcyre, Hardes de Kraal). Chaque peuple a un champ de faction \"nomad\" {kind, ship, count} posé par une brique d'espèce ; ce fichier donne les règles de chaque sorte. Les durées sont en jours, les pourcentages en points de %. Tout est en nombres entiers (déterminisme).",
+	"_doc": "Les peuples insolites (étude « Les 15 peuples insolites et le 9e peuple », validée le 2026-11-19). Lot 1 : les peuples sans monde (Flotte-Exode, Cirque Zambalù, Orbe-Monde Halcyre, Hardes de Kraal), champ de faction \"nomad\" {kind, ship, count}. Lot 2 : les peuples qui vivent chez les autres (Compagnie Ventrelune, Bureau des Affaires Courantes, Enfants du Signal, Rêveurs d'Ysmer), champ de faction \"guest\" {kind, worldless?}. Chaque champ est posé par une brique d'espèce ; ce fichier donne les règles de chaque sorte. Les durées sont en jours, les pourcentages en points de %. Tout est en nombres entiers (déterminisme).",
 	"_sources": "Inspirations lues pour l'étude (wiki Endless Space 2 : Vodyani, Chœur Ombral ; Stellaris : Caravaneers, Tiyanki ; Endless Legend : Cultistes) ; Battlestar Galactica, les Gardiens de la Galaxie (Ego), Star Wars Rebels (Purrgil) et Farscape (Pilote) de mémoire. Voir l'étude pour le détail.",
 	"rivals": {
 		"_doc": "Prop. 3. Réglage « Peuples insolites » de la nouvelle partie : part des rivaux tirés au hasard qui peuvent être insolites.",
 		"modes": [
-			{"id": "aucun", "label": "Aucun", "text": "Les rivaux tirés au hasard sont pris parmi les huit peuples classiques.", "max_pct": 0},
-			{"id": "quelques", "label": "Quelques-uns", "text": "Un tiers des rivaux tirés au hasard au plus sont des peuples insolites.", "max_pct": 34},
-			{"id": "libres", "label": "Libres", "text": "Les rivaux tirés au hasard sont pris parmi tous les peuples, classiques et insolites.", "max_pct": 100},
-			{"id": "tous", "label": "Tous", "text": "Les rivaux tirés au hasard sont pris d'abord parmi les peuples insolites.", "max_pct": 100, "prefer": true}
+			{
+				"id": "aucun",
+				"label": "Aucun",
+				"text": "Les rivaux tirés au hasard sont pris parmi les huit peuples classiques.",
+				"max_pct": 0
+			},
+			{
+				"id": "quelques",
+				"label": "Quelques-uns",
+				"text": "Un tiers des rivaux tirés au hasard au plus sont des peuples insolites.",
+				"max_pct": 34
+			},
+			{
+				"id": "libres",
+				"label": "Libres",
+				"text": "Les rivaux tirés au hasard sont pris parmi tous les peuples, classiques et insolites.",
+				"max_pct": 100
+			},
+			{
+				"id": "tous",
+				"label": "Tous",
+				"text": "Les rivaux tirés au hasard sont pris d'abord parmi les peuples insolites.",
+				"max_pct": 100,
+				"prefer": true
+			}
 		],
 		"default": "quelques"
 	},
@@ -16,25 +37,88 @@
 		"score_pct": 100
 	},
 	"implants": {
-		"_doc": "Prop. 9. Implants : un peuple qui existe sur la planète d'un autre empire. Chaque sorte : ce que l'implant verse chaque mois à son propriétaire (pris chez l'hôte), s'il est caché, et ce que coûte à l'hôte de le purger.",
+		"_doc": "Prop. 9. Implants : un peuple qui existe sur la planète d'un autre empire. Chaque sorte : ce que l'implant verse chaque mois à son propriétaire (pris chez l'hôte), s'il est caché, et ce que coûte à l'hôte de le purger. Lot 2 : chaque planète porte au plus un implant de chaque sorte (implants empilés par sorte : \"layers\").",
 		"kinds": {
-			"fan_club": {"label": "Fan-club", "text": "Une colonie conquise par la Tournée triomphale : elle reste à son propriétaire, adopte la culture du Cirque et lui verse une dîme.", "tithe": {"energy": 3, "influence": 1}, "tithe_per_pop": 1, "radiance": 12, "hidden": false, "purge_cost": {"influence": 40}, "purge_stability_days": 120}
+			"fan_club": {
+				"label": "Fan-club",
+				"text": "Une colonie conquise par la Tournée triomphale : elle reste à son propriétaire, adopte la culture du Cirque et lui verse une dîme.",
+				"tithe": {
+					"energy": 3,
+					"influence": 1
+				},
+				"tithe_per_pop": 1,
+				"radiance": 12,
+				"hidden": false,
+				"purge_cost": {
+					"influence": 40
+				},
+				"purge_stability_days": 120
+			},
+			"guichet": {
+				"label": "Guichet",
+				"text": "Un comptoir du Bureau sur une colonie signataire reliée par une route commerciale : il prélève un droit sur le commerce qui passe.",
+				"tithe": {
+					"energy": 2
+				},
+				"tithe_per_pop": 0,
+				"radiance": 0,
+				"hidden": false,
+				"purge_cost": {
+					"influence": 30
+				},
+				"purge_stability_days": 60
+			},
+			"noeud": {
+				"label": "Nœud du Signal",
+				"text": "Une copie du Signal cachée dans les calculateurs d'une colonie : elle prend une part de son Savoir.",
+				"tithe": {},
+				"tithe_per_pop": 0,
+				"radiance": 0,
+				"hidden": true,
+				"purge_cost": {
+					"knowledge": 60
+				},
+				"purge_stability_days": 30
+			},
+			"reverie": {
+				"label": "Rêverie",
+				"text": "Un rêve des Ysmer qui s'est installé dans le sommeil d'une population organique.",
+				"tithe": {},
+				"tithe_per_pop": 0,
+				"radiance": 0,
+				"hidden": true,
+				"purge_cost": {
+					"influence": 25
+				},
+				"purge_stability_days": 30
+			}
 		}
 	},
 	"yard": {
 		"_doc": "Les peuples sans chantier planétaire construisent dans leur cité mobile (Nef-cité, Cité-chapiteau) : un vaisseau à la fois, à la durée normale. L'Orbe-Monde et les Kraal ne construisent rien.",
-		"kinds": ["exode", "zambalu"]
+		"kinds": [
+			"exode",
+			"zambalu"
+		]
 	},
 	"exode": {
 		"start_pop": 24,
 		"nef_cap": 12,
-		"anchor_base": {"food": 2, "energy": 1, "knowledge": 2},
+		"anchor_base": {
+			"food": 2,
+			"energy": 1,
+			"knowledge": 2
+		},
 		"anchor_work_pct": 100,
 		"growth_per_pop": 50,
 		"growth_threshold": 900,
 		"stalk_days": 720,
 		"stalk_warn_days": 630,
-		"hunter_ships": ["corvette", "corvette", "fregate"],
+		"hunter_ships": [
+			"corvette",
+			"corvette",
+			"fregate"
+		],
 		"hunter_extra_per_years": 2,
 		"hunter_stay_days": 60,
 		"final_hunt_days": 30,
@@ -62,7 +146,10 @@
 		"recruit_tier": 3,
 		"recruit_pop": 3,
 		"recruit_next_tier": 2,
-		"pop_yields": {"influence": 1, "energy": 1},
+		"pop_yields": {
+			"influence": 1,
+			"energy": 1
+		},
 		"pop_per_yield": 2,
 		"numero_every_days": 3600,
 		"numero_first_days": 1800,
@@ -74,14 +161,24 @@
 	"halcyre": {
 		"start_mass": 30,
 		"eat_days": 60,
-		"eat_types": ["barren", "asteroids", "arctic", "toxic", "gas_giant"],
+		"eat_types": [
+			"barren",
+			"asteroids",
+			"arctic",
+			"toxic",
+			"gas_giant"
+		],
 		"eat_mass_base": 3,
 		"eat_mass_size_div": 2,
 		"eat_colony_days": 120,
 		"eat_colony_mass_per_pop": 2,
 		"hunger_days": 180,
 		"hunger_month": -1,
-		"mass_yields": {"energy": 1, "materials": 1, "knowledge": 1},
+		"mass_yields": {
+			"energy": 1,
+			"materials": 1,
+			"knowledge": 1
+		},
 		"mass_per_yield": 4,
 		"mass_influence_div": 10,
 		"mass_damage_div": 3,
@@ -93,12 +190,37 @@
 		"siege_power_pct": 100
 	},
 	"kraal": {
-		"ages": ["kraal_petit", "kraal_jeune", "kraal_adulte", "kraal_ancien"],
-		"age_months": [18, 30, 60],
-		"age_pop": {"kraal_petit": 1, "kraal_jeune": 2, "kraal_adulte": 3, "kraal_ancien": 4},
-		"start_herd": ["kraal_ancien", "kraal_adulte", "kraal_adulte", "kraal_jeune", "kraal_jeune", "kraal_petit"],
-		"pasture_types": ["gas_giant"],
-		"pasture_zones": ["nebuleuse"],
+		"ages": [
+			"kraal_petit",
+			"kraal_jeune",
+			"kraal_adulte",
+			"kraal_ancien"
+		],
+		"age_months": [
+			18,
+			30,
+			60
+		],
+		"age_pop": {
+			"kraal_petit": 1,
+			"kraal_jeune": 2,
+			"kraal_adulte": 3,
+			"kraal_ancien": 4
+		},
+		"start_herd": [
+			"kraal_ancien",
+			"kraal_adulte",
+			"kraal_adulte",
+			"kraal_jeune",
+			"kraal_jeune",
+			"kraal_petit"
+		],
+		"pasture_types": [
+			"gas_giant"
+		],
+		"pasture_zones": [
+			"nebuleuse"
+		],
 		"memory_jumps": 4,
 		"pasture_max": 100,
 		"graze_month": 12,
@@ -106,7 +228,10 @@
 		"birth_min_graze": 25,
 		"birth_months": 3,
 		"claim_days": 30,
-		"graze_yields": {"energy": 1, "materials": 1},
+		"graze_yields": {
+			"energy": 1,
+			"materials": 1
+		},
 		"route_pct": 130,
 		"off_route_pct": 85,
 		"pilot_damage_pct": 10,
@@ -114,12 +239,228 @@
 		"pilot_min_pop": 2
 	},
 	"victories": {
-		"allumage": {"_doc": "Prop. 28. Masse tenue 3 ans sans siège.", "mass": 300}
+		"allumage": {
+			"_doc": "Prop. 28. Masse tenue 3 ans sans siège.",
+			"mass": 300
+		},
+		"opa": {
+			"_doc": "Prop. 41.",
+			"pct": 51,
+			"rivals": 3
+		},
+		"administration": {
+			"_doc": "Prop. 46."
+		},
+		"saturation": {
+			"_doc": "Prop. 52.",
+			"pct": 40
+		},
+		"reve_commun": {
+			"_doc": "Prop. 58.",
+			"pct": 50
+		}
 	},
 	"ai": {
 		"exode_flee_days": 600,
 		"zambalu_escort_power": 60,
 		"halcyre_sentinel_mass": 50,
-		"kraal_min_graze": 30
+		"kraal_min_graze": 30,
+		"ventrelune_buy_reserve": 150,
+		"bureau_publish": true,
+		"signal_borrow": true,
+		"ysmer_inspire_pmille": 300,
+		"sign_opinion": -20
+	},
+	"ventrelune": {
+		"_doc": "Prop. 35 à 41. Parts en %, prix en énergie.",
+		"colony_influence_pct": 400,
+		"share_step": 10,
+		"share_price_per_pop": 4,
+		"share_price_min": 20,
+		"dividend_per_pop": 1,
+		"tax_per_pop_div": 2,
+		"view_pct": 25,
+		"control_pct": 51,
+		"nationalize_opinion": "branch_expropriated",
+		"directive_days": 90,
+		"directives": [
+			{
+				"id": "croissance",
+				"label": "Croissance",
+				"text": "Le Conseil réinvestit : croissance de la population du Siège +20 %, parts 10 % moins chères.",
+				"growth_pct": 20,
+				"price_pct": -10
+			},
+			{
+				"id": "dividendes",
+				"label": "Dividendes",
+				"text": "Le Conseil sert les actionnaires : dividendes +50 %.",
+				"dividend_pct": 50
+			},
+			{
+				"id": "rachat",
+				"label": "Rachat hostile",
+				"text": "Le Conseil rachète : parts 25 % moins chères, mais chaque achat fâche le propriétaire.",
+				"price_pct": -25,
+				"angry": true
+			}
+		],
+		"merc_fee_pct": -30,
+		"default_share_per_energy": 10,
+		"opa_pct": 51,
+		"opa_rivals": 3,
+		"opa_hold_days": 720
+	},
+	"bureau": {
+		"_doc": "Prop. 42 à 47.",
+		"publish_every_days": 1440,
+		"start_norms": 2,
+		"fee": 2,
+		"nonconf_pct": -5,
+		"nonconf_per_signer": 1,
+		"nonconf_max_pct": -25,
+		"guichet_max": 12,
+		"summon_days": 180,
+		"sanction_days": 720,
+		"sanction_income_pct": -10,
+		"file_days": 360,
+		"lost_file_chance_pmille": 30,
+		"total_hold_days": 360,
+		"norms": [
+			{
+				"id": "soutes_c12",
+				"label": "Gabarit des soutes C-12",
+				"text": "Les cargos ont enfin la même taille de caisse : commerce extérieur +5 %.",
+				"fx": {
+					"trade_pct": 5
+				}
+			},
+			{
+				"id": "transit_b7",
+				"label": "Formulaire de transit B-7",
+				"text": "Un tampon, et la frontière s'ouvre : vitesse des flottes +5 % en paix.",
+				"fx": {
+					"speed_pct": 5
+				}
+			},
+			{
+				"id": "homologation",
+				"label": "Taxe d'homologation",
+				"text": "Les vaisseaux homologués se réparent plus vite : chantiers +5 %.",
+				"fx": {
+					"build_pct": 5
+				}
+			},
+			{
+				"id": "etat_civil",
+				"label": "Registre d'état civil galactique",
+				"text": "Chaque habitant a un numéro : stabilité +2 dans les systèmes peuplés.",
+				"fx": {
+					"stab": 2
+				}
+			},
+			{
+				"id": "metrologie",
+				"label": "Étalon de la seconde sidérale",
+				"text": "Tout le monde arrive à l'heure : recherche +3 %.",
+				"fx": {
+					"knowledge_pct": 3
+				}
+			},
+			{
+				"id": "archivage",
+				"label": "Norme d'archivage en sept exemplaires",
+				"text": "Rien ne se perd : influence +1 par mois.",
+				"fx": {
+					"influence": 1
+				}
+			}
+		]
+	},
+	"signal": {
+		"_doc": "Prop. 48 à 53.",
+		"start_nodes": 3,
+		"bandwidth_pct": 10,
+		"bandwidth_min": 1,
+		"spread_pmille": 60,
+		"spread_vulnerable_x": 2,
+		"symptom_stab": -2,
+		"borrow_nodes": 12,
+		"borrow_days": 120,
+		"borrow_ships": [
+			"corvette",
+			"corvette",
+			"fregate"
+		],
+		"borrow_cooldown_days": 720,
+		"mutate_every_days": 1800,
+		"schism_pmille": 250,
+		"schism_share_pct": 25,
+		"host_gift_knowledge": 4,
+		"saturation_pct": 40,
+		"saturation_hold_days": 1080,
+		"mutations": [
+			{
+				"id": "furtif",
+				"label": "Variante furtive",
+				"text": "Nœuds deux fois plus durs à repérer.",
+				"fx": {
+					"stealth": 1
+				}
+			},
+			{
+				"id": "vorace",
+				"label": "Variante vorace",
+				"text": "Bande passante +5 points.",
+				"fx": {
+					"bandwidth": 5
+				}
+			},
+			{
+				"id": "virale",
+				"label": "Variante virale",
+				"text": "Propagation +50 %.",
+				"fx": {
+					"spread_pct": 50
+				}
+			},
+			{
+				"id": "polie",
+				"label": "Variante polie",
+				"text": "Plus de symptômes chez les hôtes.",
+				"fx": {
+					"quiet": 1
+				}
+			}
+		]
+	},
+	"ysmer": {
+		"_doc": "Prop. 54 à 58.",
+		"spread_pmille": 50,
+		"spread_jumps": 3,
+		"dormeur_jumps": 8,
+		"inspire_knowledge": 30,
+		"inspire_cost": {
+			"influence": 10
+		},
+		"nightmare_stab": -10,
+		"nightmare_days": 180,
+		"nightmare_cost": {
+			"influence": 15
+		},
+		"dream_fleet_ships": [
+			"corvette",
+			"corvette",
+			"fregate",
+			"fregate"
+		],
+		"dream_fleet_days": 90,
+		"dream_fleet_cost": {
+			"influence": 40
+		},
+		"dream_fleet_cooldown_days": 360,
+		"reverie_influence": 1,
+		"dream_hold_days": 1800,
+		"dream_pct": 50
 	}
 }

@@ -85,6 +85,14 @@ static func rule_text(id: String) -> String:
 			return t % [int(v["pct"]), maxi(1, years)]
 		"allumage":
 			return t % [int(v["mass"]), years]
+		"opa":
+			return t % [int(v["pct"]), int(v["rivals"]), years]
+		"administration":
+			return t % [years]
+		"saturation":
+			return t % [int(v["pct"]), years]
+		"reve_commun":
+			return t % [int(v["pct"]), years]
 		"oeuvres":
 			return t % [int(Wonders.rules().get("oeuvre_by_size", [[0, 2]])[0][1]), maxi(1, years)]
 		"annales":
@@ -277,6 +285,14 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			CultureLife.victory_idole(state, e, out)
 		"allumage":
 			InsHalcyre.victory(state, e, out)
+		"opa":
+			InsVentrelune.victory(state, e, out)
+		"administration":
+			InsBureau.victory(state, e, out)
+		"saturation":
+			InsSignal.victory(state, e, out)
+		"reve_commun":
+			InsYsmer.victory(state, e, out)
 		"oeuvres":
 			WondersBridges.victory(state, e, out)
 		"annales":
@@ -383,6 +399,10 @@ static func _conquest(state: GameState, e: Empire, out: Dictionary) -> void:
 		if FactionTraits.has_horde(o.faction()):
 			# Horde : sa capitale est la flotte-ville ; elle compte comme prise une fois abattue.
 			if FactionTraits.city_fleet(state, o.id) == null:
+				held_caps += 1
+		elif Insolites.worldless(o.faction()) and o.capital_planet < 0:
+			# Peuple sans monde (voir Insolites) : pas de capitale à prendre, il faut l'éteindre.
+			if o.eliminated:
 				held_caps += 1
 		elif o.home_planet >= 0 and b.has(_owner_of(state, o.home_planet)):
 			held_caps += 1

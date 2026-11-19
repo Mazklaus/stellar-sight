@@ -443,6 +443,7 @@ static func _own_visible(state: GameState, empire_id: int) -> Dictionary:
 	if not state.stealth.is_empty():
 		Stealth.beacon_vision(state, empire_id, sources)
 	Megastructures.vision(state, empire_id, sources)  # Réseau de veille
+	Insolites.vision(state, empire_id, sources)  # parts de la Compagnie, nœuds, rêveries
 	var seen := {}
 	var pierce := Terrain.pierces(state, empire_id)
 	for sid in sources:
@@ -485,6 +486,9 @@ static func visible_all(state: GameState) -> Array[Dictionary]:
 	if not state.megas.is_empty():
 		for i in count:
 			Megastructures.vision(state, state.empires[i].id, sources[i])  # Réseau de veille
+	if not state.insolites.is_empty():
+		for i in count:
+			Insolites.vision(state, state.empires[i].id, sources[i])  # parts, nœuds, rêveries
 	var own: Array[Dictionary] = []
 	for i in count:
 		var seen := {}
@@ -639,6 +643,7 @@ static func ship_days(state: GameState, empire_id: int, ship_id: String) -> int:
 	var pct := Research.fx_int(state, empire_id, "ship_days_pct")
 	if String(GameData.ship(ship_id).get("size", "")) == "titan":
 		pct += Research.fx_int(state, empire_id, "titan_days_pct")  # Méga-chantier naval
+	pct += Insolites.ship_days_pct(state, empire_id)  # normes du Bureau, Non-conformité
 	return maxi(1, Research.scaled(int(GameData.ship(ship_id).get("days", 1)), pct))
 
 
