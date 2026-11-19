@@ -1901,7 +1901,9 @@ static func research_pick(ctx: Dictionary) -> String:
 	var best := ""
 	var best_score := -1
 	var colonies := Research.cost_colonies(state, e.id)
-	for tid in Research.visible_ids(f):
+	var aggr := AiLevels.aggression(e)
+	var mood := "guerre" if aggr > 0 else ("paix" if aggr < 0 else "")
+	for tid in Research.visible_for(state, e.id):
 		if e.techs.has(tid) or e.research_queue.has(tid) or Research.check_queue(state, e.id, tid) != "":
 			continue
 		if use >= 1 and Research.is_heretic(f, tid):
@@ -1913,6 +1915,15 @@ static func research_pick(ctx: Dictionary) -> String:
 			w *= 3  # le bâtiment de recherche et celui du penchant du peuple d'abord (Raffinerie d'Ossarane)
 		if use >= 1 and not state.portals.is_empty():
 			w *= AiPortals.tech_mult(ctx, tid)  # trous de ver connus, rivaux : portails de saut
+		if Research.is_mastery(tid):
+			@warning_ignore("integer_division")
+			w = w * 2 / 3  # Maîtrise : facultative, après ce qui ouvre quelque chose
+		if use >= 1 and Research.is_dangerous(tid) and aggr <= 0:
+			@warning_ignore("integer_division")
+			w = maxi(1, w / 3)  # technologie dangereuse : les prudents attendent
+		if mood != "":
+			@warning_ignore("integer_division")
+			w = maxi(1, w * Research.ai_weight_pct(tid, mood) / 100)
 		if victory_techs.has(tid):
 			w *= 6 if use >= 1 else 2  # la technologie de sa victoire de peuple, dès que l'ère s'ouvre
 		elif path.has(tid):
@@ -1931,7 +1942,7 @@ static func research_pick(ctx: Dictionary) -> String:
 ## Leurs prérequis (récursivement) comptent ×5 ; les technologies des ères précédentes de leur
 ## domaine comptent ×4 tant que l'ère n'est pas ouverte (il en faut assez pour l'ouvrir) : sans quoi
 ## les peuples guerriers, qui pèsent surtout l'armement, n'atteignent jamais l'ère IV de Société.
-static func victory_path(_state: GameState, e: Empire, victory_techs: Array[String]) -> Dictionary:
+static func victory_path(state: GameState, e: Empire, victory_techs: Array[String]) -> Dictionary:
 	var out := {}
 	for vt in victory_techs:
 		if e.techs.has(vt):
@@ -1939,8 +1950,8 @@ static func victory_path(_state: GameState, e: Empire, victory_techs: Array[Stri
 		var t := Research.tech(vt)
 		var dom := String(t.get("domain", ""))
 		var era := int(t.get("era", 1))
-		if not Research.era_open(e.techs, dom, era):
-			for tid in Research.visible_ids(e.faction()):
+		if not Research.era_open(e.techs, dom, era, e.faction(), state, e.id):
+			for tid in Research.visible_for(state, e.id):
 				var o := Research.tech(tid)
 				if String(o["domain"]) == dom and int(o["era"]) < era:
 					out[tid] = 4

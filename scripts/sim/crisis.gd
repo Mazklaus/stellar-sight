@@ -1480,7 +1480,7 @@ static func pull(state: GameState, trigger: String, eid: int) -> void:
 
 ## Technologie terminée : est-elle interdite ?
 static func on_tech(state: GameState, eid: int, tid: String) -> void:
-	if enabled(state) and (data()["early"]["techs"] as Array).has(tid):
+	if enabled(state) and Research.is_dangerous(tid):
 		pull(state, "tech:" + tid, eid)
 		CrisisNemesis.gain(state, eid, int(CrisisNemesis.data().get("gain", {}).get("tech", 0)))
 

@@ -32,6 +32,16 @@ static func exists(id: String) -> bool:
 	return data().get("technologies", {}).has(id)
 
 
+## Identifiant à garder pour une technologie lue dans une sauvegarde : elle-même si elle existe, son
+## héritière si elle a été renommée ou fondue dans une autre (champ « renamed » des réglages), "" si
+## elle a disparu.
+static func heir_of(id: String) -> String:
+	if exists(id):
+		return id
+	var to := String(data().get("renamed", {}).get(id, ""))
+	return to if to != "" and exists(to) else ""
+
+
 static func domain_ids() -> Array[String]:
 	var out: Array[String] = []
 	for d: Dictionary in data().get("domains", []):
@@ -51,17 +61,72 @@ static func eras() -> int:
 
 
 # --- Technologies d'un peuple -------------------------------------------------------------------
+## Ce qu'un peuple voit de l'arbre : couches d'espèce (requires, forbidden, replaces), capacités (needs :
+## un peuple sans vaisseau ne voit pas les canons) et piliers coupés par les options de partie (pillar).
+## Les capacités se lisent dans les couches (sortes insolites posées par une brique, archétype,
+## gouvernement, régime), jamais dans l'identifiant du peuple : un peuple de l'éditeur y a droit aussi.
+## Sans état (state = null), tous les piliers comptent comme en jeu.
 
-static var _visible_cache := {}
-## Par peuple : technologie commune remplacée -> technologie du peuple qui la remplace.
-static var _replaced_cache := {}
+static var _info_cache := {}
 
 
 ## Technologies de l'arbre d'une faction (toutes visibles dès le début), dans l'ordre des données.
-static func visible_ids(faction: Dictionary) -> Array[String]:
-	var key := String(faction.get("id", ""))
-	if _visible_cache.has(key):
-		return _visible_cache[key]
+static func visible_ids(faction: Dictionary, state: GameState = null, eid := -1) -> Array[String]:
+	return _info(faction, state, eid)["ids"]
+
+
+## Les mêmes, pour l'empire d'un état (piliers de la partie, condition du peuple).
+static func visible_for(state: GameState, eid: int) -> Array[String]:
+	var e := state.get_empire(eid)
+	return visible_ids(e.faction(), state, eid) if e != null else ([] as Array[String])
+
+
+static func is_visible(faction: Dictionary, tid: String, state: GameState = null, eid := -1) -> bool:
+	return (_info(faction, state, eid)["set"] as Dictionary).has(tid)
+
+
+## La technologie commune que celle-ci remplace pour ce peuple ("" si aucune).
+static func replaced_by(faction: Dictionary, tid: String) -> String:
+	return String((_info(faction, null, -1)["repl"] as Dictionary).get(tid, ""))
+
+
+## Clé du cache : le peuple, les capacités qui lui manquent et les piliers coupés.
+static var _lack_memo := {}
+
+
+static func _info_key(faction: Dictionary, state: GameState, eid: int) -> String:
+	var fid := String(faction.get("id", ""))
+	var sh: int = faction.get("species", {}).hash()
+	var m: Array = _lack_memo.get(fid, [])
+	if m.is_empty() or not is_same(m[0], faction) or int(m[1]) != sh:
+		var lack0 := PackedStringArray()
+		var dyn := false
+		for cap in capability_ids():
+			if lacks(faction, cap):
+				lack0.append(cap)
+				if (capability(cap).get("until_arrived", []) as Array).has(Insolites.kind_of_faction(faction)):
+					dyn = true
+		m = [faction, sh, ",".join(lack0), dyn]
+		_lack_memo[fid] = m
+	var lack: String = m[2]
+	if bool(m[3]) and state != null and eid >= 0:
+		var l2 := PackedStringArray()
+		for cap in capability_ids():
+			if lacks(faction, cap, state, eid):
+				l2.append(cap)
+		lack = ",".join(l2)
+	var off := ""
+	if state != null:
+		for p in pillar_ids():
+			if not pillar_on(state, p):
+				off += p + ","
+	return fid + "|" + lack + "|" + off + "|" + str(sh)
+
+
+static func _info(faction: Dictionary, state: GameState, eid: int) -> Dictionary:
+	var key := _info_key(faction, state, eid)
+	if _info_cache.has(key):
+		return _info_cache[key]
 	var techs: Dictionary = data().get("technologies", {})
 	var out: Array[String] = []
 	var replaced := {}
@@ -72,38 +137,222 @@ static func visible_ids(faction: Dictionary) -> Array[String]:
 		var forbid: Dictionary = t.get("forbidden", {}).get("species", {})
 		if not forbid.is_empty() and FactionTraits.species_matches(faction, forbid):
 			continue
+		var useless := false
+		for cap in t.get("needs", []):
+			if lacks(faction, String(cap), state, eid):
+				useless = true
+		if useless or (state != null and t.has("pillar") and not pillar_on(state, String(t["pillar"]))):
+			continue
 		if t.has("replaces"):
 			replaced[String(t["replaces"])] = String(tid)
 		out.append(String(tid))
 	var kept: Array[String] = []
+	var set := {}
+	var counts := {}
 	for tid in out:
 		if not replaced.has(tid):
 			kept.append(tid)
+			set[tid] = true
+			var t: Dictionary = techs[tid]
+			if not t.has("mastery"):
+				var ck := "%s:%d" % [String(t["domain"]), int(t.get("era", 1))]
+				counts[ck] = int(counts.get(ck, 0)) + 1
 	var repl := {}
 	for tid in kept:
 		if techs[tid].has("replaces"):
 			repl[String(techs[tid]["replaces"])] = tid
-	_replaced_cache[key] = repl
-	_visible_cache[key] = kept
-	return kept
+	var info := {"ids": kept, "set": set, "repl": repl, "counts": counts}
+	_info_cache[key] = info
+	return info
 
 
-static func is_visible(faction: Dictionary, tid: String) -> bool:
-	return visible_ids(faction).has(tid)
-
-
-## La technologie commune que celle-ci remplace pour ce peuple ("" si aucune).
-static func replaced_by(faction: Dictionary, tid: String) -> String:
-	visible_ids(faction)
-	return String(_replaced_cache[String(faction.get("id", ""))].get(tid, ""))
-
-
-## Une technologie qui en remplace une autre compte comme elle pour les prérequis.
-static func _satisfies(faction: Dictionary, have: Dictionary, pre: String) -> bool:
+## Une technologie qui en remplace une autre compte comme elle pour les prérequis. Un prérequis que ce
+## peuple ne voit pas (sans objet pour lui, ou pilier coupé) ne bloque pas : vis = technologies visibles.
+static func _satisfies(faction: Dictionary, have: Dictionary, pre: String, vis := {}) -> bool:
 	if have.has(pre):
 		return true
 	var alt := replaced_by(faction, pre)
-	return alt != "" and have.has(alt)
+	if alt != "":
+		return have.has(alt)
+	return not vis.is_empty() and not vis.has(pre)
+
+
+# --- Capacités et piliers ----------------------------------------------------------------------
+
+static var _cap_ids: Array = []
+static var _pillar_ids: Array = []
+
+
+static func capability_ids() -> Array:
+	if _cap_ids.is_empty():
+		for k in data().get("capabilities", {}):
+			if not String(k).begins_with("_"):
+				_cap_ids.append(String(k))
+	return _cap_ids
+
+
+static func capability(cap: String) -> Dictionary:
+	return data().get("capabilities", {}).get(cap, {})
+
+
+## Le peuple n'a-t-il pas cette capacité ? (state, eid : condition qui change en partie, comme
+## l'Exode posé sur la Terre promise, prop. 72 de l'étude de l'arbre.)
+static func lacks(faction: Dictionary, cap: String, state: GameState = null, eid := -1) -> bool:
+	var c := capability(cap)
+	if c.is_empty():
+		return false
+	var sp := FactionTraits.species(faction)
+	var kind := Insolites.kind_of_faction(faction)
+	var lack := false
+	if kind != "" and (c.get("kinds", []) as Array).has(kind):
+		lack = true
+	elif (c.get("archetypes", []) as Array).has(String(sp.get("archetype", ""))):
+		lack = true
+	elif (c.get("gouvernements", []) as Array).has(String(sp.get("gouvernement", ""))):
+		lack = true
+	elif bool(c.get("diet", false)) and faction.has("diet"):
+		lack = true
+	else:
+		for k in c.get("zero", []):
+			if faction.has(k) and int(faction[k]) == 0:
+				lack = true
+		for k in c.get("has", []):
+			if faction.has(k):
+				lack = true
+	if lack and state != null and eid >= 0 and (c.get("until_arrived", []) as Array).has(kind):
+		lack = int(Insolites.emp(state, eid).get("arrived", 0)) == 0
+	return lack
+
+
+## Libellés « sans vaisseau », « sans nourriture »... des capacités qui manquent au peuple.
+static func lacking_labels(faction: Dictionary, state: GameState = null, eid := -1) -> PackedStringArray:
+	var out := PackedStringArray()
+	for cap in capability_ids():
+		if lacks(faction, cap, state, eid):
+			out.append(String(capability(cap).get("lack", cap)))
+	return out
+
+
+static func pillar_ids() -> Array:
+	if _pillar_ids.is_empty():
+		for k in data().get("pillars", {}):
+			if not String(k).begins_with("_"):
+				_pillar_ids.append(String(k))
+	return _pillar_ids
+
+
+static func pillar_label(p: String) -> String:
+	return String(data().get("pillars", {}).get(p, p))
+
+
+## Le pilier optionnel est-il en jeu dans cette partie ?
+static func pillar_on(state: GameState, p: String) -> bool:
+	match p:
+		"terrain": return Terrain.active(state)
+		"furtivite": return Stealth.enabled(state)
+		"genetique": return Genetics.enabled(state)
+		"psionique": return Psionics.enabled(state)
+		"contact": return Contact.enabled(state)
+		"archeologie": return Archaeology.enabled(state)
+		"transcendance": return Transcendence.enabled(state)
+		"portails": return Portals.enabled(state)
+		"logistique": return Logistics.active(state)
+		"megastructures": return Megastructures.enabled(state)
+		"superarmes": return Megastructures.enabled(state) and Megastructures.kind_allowed(state, "brise_monde")
+		"forge_mondes": return WorldForge.enabled(state)
+		"ecologie": return Ecology.enabled(state)
+	return true
+
+
+# --- Sortes de technologies ----------------------------------------------------------------------
+
+## Maîtrise (prop. 3) : bonus facultatif accroché à une technologie parente ; jamais prérequis, elle ne
+## compte pas pour ouvrir l'ère suivante.
+static func is_mastery(tid: String) -> bool:
+	return tech(tid).has("mastery")
+
+
+## Maîtrises accrochées à une technologie.
+static func masteries_of(tid: String) -> Array[String]:
+	var out: Array[String] = []
+	var techs: Dictionary = data().get("technologies", {})
+	for k in techs:
+		if String(techs[k].get("mastery", "")) == tid:
+			out.append(String(k))
+	return out
+
+
+## Trouvaille (prop. 10) : ne se recherche pas ; elle s'obtient par une curiosité, une ruine, une
+## strate, une quête, une prise, une puissance ancienne ou un haut fait (Research.grant).
+static func is_find(tid: String) -> bool:
+	return bool(tech(tid).get("find", false))
+
+
+## Technologie dangereuse (prop. 11) : elle rapproche la fin de partie du pilier Crises.
+static func is_dangerous(tid: String) -> bool:
+	return tech(tid).has("danger") or Crisis.is_forbidden_tech(tid)
+
+
+static func danger_text(tid: String) -> String:
+	return String(tech(tid).get("danger", "Technologie dangereuse : elle rapproche la fin de partie du pilier Crises."))
+
+
+## Groupe de spécialisation (prop. 12, doctrines comprises) : on n'en recherche qu'une ; les autres
+## ne s'obtiennent plus que par échange, vol, épaves ou trouvaille.
+static func spec_group(tid: String) -> String:
+	return String(tech(tid).get("spec", ""))
+
+
+static func spec_members(group: String) -> Array[String]:
+	var out: Array[String] = []
+	if group == "":
+		return out
+	var techs: Dictionary = data().get("technologies", {})
+	for k in techs:
+		if String(techs[k].get("spec", "")) == group:
+			out.append(String(k))
+	return out
+
+
+## L'autre branche déjà choisie (connue ou en file) qui ferme celle-ci ("" sinon).
+static func spec_taken(planned: Dictionary, tid: String) -> String:
+	for o in spec_members(spec_group(tid)):
+		if o != tid and planned.has(o):
+			return o
+	return ""
+
+
+## Champ de rangement (prop. 5) : id et libellé.
+static func field_of(tid: String) -> String:
+	return String(tech(tid).get("field", ""))
+
+
+static func field_label(domain_id: String, field_id: String) -> String:
+	for fd: Dictionary in domain(domain_id).get("fields", []):
+		if String(fd["id"]) == field_id:
+			return String(fd["label"])
+	return "Destinée" if field_id == "destinee" else field_id
+
+
+## Bande Peuple (prop. 6 revue) : une technologie propre au peuple qui ne remplace aucune technologie
+## commune et n'en prépare aucune, et les Destinées (victoires de peuple). Les autres technologies de
+## peuple restent à leur place dans leur domaine.
+static func in_band(faction: Dictionary, tid: String) -> bool:
+	var t := tech(tid)
+	if t.has("victory"):
+		return true
+	if not t.has("requires") or t.has("replaces"):
+		return false
+	var techs: Dictionary = data().get("technologies", {})
+	for k in visible_ids(faction):
+		if not techs[k].has("requires") and (techs[k].get("pre", []) as Array).has(tid):
+			return false
+	# Rattachée à la chaîne commune par ses propres prérequis ? Elle reste dans le domaine si l'un
+	# d'eux est commun et qu'elle n'est pas une victoire.
+	for p in t.get("pre", []):
+		if not tech(String(p)).has("requires"):
+			return false
+	return true
 
 
 static func is_heretic(faction: Dictionary, tid: String) -> bool:
@@ -120,35 +369,156 @@ static func is_specific(tid: String) -> bool:
 ## du Chantier (libellés).
 static func unlocks(faction: Dictionary, tid: String) -> PackedStringArray:
 	var out := PackedStringArray()
+	for u: Dictionary in unlock_entries(faction, tid):
+		out.append(String(u["text"]))
+	return out
+
+
+## Sortes de déblocage, pour les icônes de l'arbre et le filtre « ce que ça débloque » (prop. 106).
+const UNLOCK_KINDS := {
+	"batiment": "Bâtiments", "merveille": "Merveilles", "mega": "Mégastructures", "forge": "Forge des mondes",
+	"vaisseau": "Vaisseaux", "coque": "Coques", "module": "Modules", "regiment": "Régiments",
+	"maitrise": "Maîtrises", "regle": "Règles et bonus",
+}
+
+
+static var _unlock_cache := {}
+
+
+## Déblocages détaillés : [{kind, id, label, text}] (text = libellé affiché dans la liste). Gardés en
+## cache par peuple : l'arbre les redessine souvent.
+static func unlock_entries(faction: Dictionary, tid: String) -> Array:
+	var key := "%s|%s|%d" % [String(faction.get("id", "")), tid, GameData.ship_ids().size()]
+	if not _unlock_cache.has(key):
+		_unlock_cache[key] = _unlock_entries(faction, tid)
+	return _unlock_cache[key]
+
+
+static func _unlock_entries(faction: Dictionary, tid: String) -> Array:
+	var out: Array = []
 	for bid in GameData.buildings():
 		if GameData.building(bid).get("requires_tech", []).has(tid):
-			out.append(String(GameData.building(bid).get("label", bid)))
+			var l := String(GameData.building(bid).get("label", bid))
+			out.append({"kind": "batiment", "id": bid, "label": l, "text": l})
 	for wid in Wonders.all_ids():
 		if Wonders.def(wid).get("requires_tech", []).has(tid):
-			out.append("%s (merveille)" % Wonders.label(wid))
+			out.append({"kind": "merveille", "id": wid, "label": Wonders.label(wid), "text": "%s (merveille)" % Wonders.label(wid)})
 	for k in Megastructures.kind_ids():
 		var md := Megastructures.kind_def(k)
 		if (md.get("tech", []) as Array).has(tid) and not bool(md.get("ruin_only", false)):
-			out.append("%s (mégastructure)" % Megastructures.label(k))
+			out.append({"kind": "mega", "id": k, "label": Megastructures.label(k), "text": "%s (mégastructure)" % Megastructures.label(k)})
 	for op in WorldForge.op_ids():
 		if (WorldForge.op_def(op).get("tech", []) as Array).has(tid):
-			out.append("%s (Forge des mondes)" % WorldForge.op_label(op))
+			out.append({"kind": "forge", "id": op, "label": WorldForge.op_label(op), "text": "%s (Forge des mondes)" % WorldForge.op_label(op)})
 	for sid in FactionTraits.ship_ids_for(String(faction.get("id", ""))):
 		if GameData.ship(sid).get("requires_tech", []).has(tid):
-			out.append(String(GameData.ship(sid).get("label", sid)))
+			var l := String(GameData.ship(sid).get("label", sid))
+			out.append({"kind": "vaisseau", "id": sid, "label": l, "text": l})
+	var seen := {}
+	for u: Dictionary in out:
+		seen[String(u["label"])] = true
 	for hid in Designs.hull_ids_for(String(faction.get("id", ""))):
 		var h := Designs.hull(hid)
-		if h.get("requires_tech", []).has(tid) and not out.has(String(h.get("label", hid))):
-			out.append("coque %s" % String(h.get("label", hid)))
+		if h.get("requires_tech", []).has(tid) and not seen.has(String(h.get("label", hid))):
+			out.append({"kind": "coque", "id": hid, "label": String(h.get("label", hid)), "text": "coque %s" % String(h.get("label", hid))})
 	for mid in Designs.module_ids():
 		var m := Designs.module(mid)
 		if m.get("requires_tech", []).has(tid) and Designs.module_allowed_for(mid, faction):
-			out.append("module %s" % String(m.get("label", mid)))
+			out.append({"kind": "module", "id": mid, "label": String(m.get("label", mid)), "text": "module %s" % String(m.get("label", mid))})
 	for t in Ground.type_ids():
 		var gd := Ground.type_def(t)
 		if gd.get("requires_tech", []).has(tid) and FactionTraits.species_matches(faction, gd.get("requires", {}).get("species", {})):
-			out.append("régiment %s" % String(gd.get("label", t)))
+			out.append({"kind": "regiment", "id": t, "label": String(gd.get("label", t)), "text": "régiment %s" % String(gd.get("label", t))})
+	for m in masteries_of(tid):
+		out.append({"kind": "maitrise", "id": m, "label": String(tech(m).get("label", m)), "text": "Maîtrise : %s" % String(tech(m).get("label", m))})
 	return out
+
+
+## Sortes de déblocage d'une technologie (règle ou bonus si rien d'autre : effet chiffré ou règle
+## décrite par son texte).
+static func unlock_kinds(faction: Dictionary, tid: String) -> Array:
+	var out := []
+	for u: Dictionary in unlock_entries(faction, tid):
+		if not out.has(u["kind"]):
+			out.append(u["kind"])
+	if out.is_empty() or (out.size() == 1 and out[0] == "maitrise"):
+		out.append("regle")
+	return out
+
+
+## Chemin vers une technologie lointaine (prop. 107) : ce qu'il faut mettre en file, dans l'ordre, pour
+## l'atteindre (prérequis manquants, puis de quoi ouvrir les ères : les moins chères de l'ère
+## précédente). Ne compte que ce qui est déjà découvert ou en file. Vide si elle n'est pas atteignable.
+static func plan_path(state: GameState, empire_id: int, target: String) -> Array[String]:
+	var out: Array[String] = []
+	var e := state.get_empire(empire_id)
+	if e == null or not is_visible(e.faction(), target, state, empire_id) or e.techs.has(target) or is_find(target):
+		return out
+	var planned := e.techs.duplicate()
+	for q in e.research_queue:
+		planned[q] = true
+	if planned.has(target):
+		return out
+	_plan_add(state, e, target, planned, out, 0)
+	return out if out.has(target) else ([] as Array[String])
+
+
+static func _plan_add(state: GameState, e: Empire, tid: String, planned: Dictionary, out: Array[String], depth: int) -> void:
+	if planned.has(tid) or depth > 40:
+		return
+	var f := e.faction()
+	var vis: Dictionary = _info(f, state, e.id)["set"]
+	if not vis.has(tid) or is_find(tid) or spec_taken(planned, tid) != "":
+		return
+	var t := tech(tid)
+	for p in t.get("pre", []):
+		var pid := String(p)
+		if _satisfies(f, planned, pid, vis):
+			continue
+		var alt := replaced_by(f, pid)
+		_plan_add(state, e, alt if alt != "" else pid, planned, out, depth + 1)
+	# Ères à ouvrir : de proche en proche, les technologies les moins chères des ères précédentes.
+	var dom := String(t["domain"])
+	for era in range(2, int(t.get("era", 1)) + 1):
+		var guard := 0
+		var tried := {}
+		while not era_open(planned, dom, era, f, state, e.id) and guard < 16:
+			guard += 1
+			# D'abord celles dont les prérequis sont déjà prévus, puis les moins chères (avec leurs prérequis).
+			var best := ""
+			var best_key := 0
+			for o in visible_for(state, e.id):
+				var od := tech(o)
+				if planned.has(o) or tried.has(o) or String(od["domain"]) != dom or int(od.get("era", 1)) != era - 1 or od.has("mastery") \
+						or is_find(o) or od.has("victory") or od.has("requires") and not od.has("replaces") or spec_taken(planned, o) != "":
+					continue
+				var k := cost(state, e.id, o) + (0 if _pres_planned(f, planned, o, vis) else 1000000)
+				if best == "" or k < best_key:
+					best = o
+					best_key = k
+			if best == "":
+				break
+			tried[best] = true
+			_plan_add(state, e, best, planned, out, depth + 1)
+	for p in t.get("pre", []):
+		if not _satisfies(f, planned, String(p), vis):
+			return
+	if era_open(planned, dom, int(t.get("era", 1)), f, state, e.id) and ultimate_ok(planned, tid):
+		planned[tid] = true
+		out.append(tid)
+
+
+static func _pres_planned(f: Dictionary, planned: Dictionary, tid: String, vis: Dictionary) -> bool:
+	for p in tech(tid).get("pre", []):
+		if not _satisfies(f, planned, String(p), vis):
+			return false
+	return true
+
+
+## Poids de la technologie pour l'IA selon son tempérament (champ ai {tempérament: %}, prop. 108),
+## 100 par défaut.
+static func ai_weight_pct(tid: String, temperament: String) -> int:
+	return int(tech(tid).get("ai", {}).get(temperament, 100))
 
 
 static func knows(state: GameState, empire_id: int, tid: String) -> bool:
@@ -181,12 +551,12 @@ static func missing_text(state: GameState, empire_id: int, tids: Array) -> Strin
 
 # --- Ères ---------------------------------------------------------------------------------------
 
-## Nombre de technologies d'une ère, dans un domaine, parmi celles de `have`.
+## Nombre de technologies d'une ère, dans un domaine, parmi celles de `have` (Maîtrises exclues).
 static func count_in(have: Dictionary, domain_id: String, era: int) -> int:
 	var n := 0
 	for tid in have:
 		var t := tech(String(tid))
-		if String(t.get("domain", "")) == domain_id and int(t.get("era", 0)) == era:
+		if String(t.get("domain", "")) == domain_id and int(t.get("era", 0)) == era and not t.has("mastery"):
 			n += 1
 	return n
 
@@ -197,10 +567,21 @@ static func era_threshold(era: int) -> int:
 
 
 ## Une ère est ouverte dans un domaine si l'on y connaît assez de technologies de l'ère précédente.
-static func era_open(have: Dictionary, domain_id: String, era: int) -> bool:
+## Avec le peuple (faction), le seuil ne dépasse jamais ce que son arbre propose dans l'ère précédente :
+## un peuple sans vaisseau, à qui l'on masque l'essentiel de l'Armement, peut quand même avancer.
+static func era_open(have: Dictionary, domain_id: String, era: int, faction := {}, state: GameState = null, eid := -1) -> bool:
 	if era <= 1:
 		return true
-	return count_in(have, domain_id, era - 1) >= era_threshold(era)
+	return count_in(have, domain_id, era - 1) >= era_need(domain_id, era, faction, state, eid)
+
+
+## Technologies de l'ère précédente qu'il faut connaître pour ouvrir cette ère.
+static func era_need(domain_id: String, era: int, faction := {}, state: GameState = null, eid := -1) -> int:
+	var th := era_threshold(era)
+	if faction.is_empty():
+		return th
+	var counts: Dictionary = _info(faction, state, eid)["counts"]
+	return mini(th, int(counts.get("%s:%d" % [domain_id, era - 1], 0)))
 
 
 ## Ère la plus avancée ouverte dans au moins un domaine.
@@ -209,9 +590,10 @@ static func current_era(state: GameState, empire_id: int) -> int:
 	if e == null:
 		return 1
 	var best := 1
+	var f := e.faction()
 	for d in domain_ids():
 		for era in range(2, eras() + 1):
-			if era_open(e.techs, d, era):
+			if era_open(e.techs, d, era, f, state, empire_id):
 				best = maxi(best, era)
 	return best
 
@@ -328,10 +710,14 @@ static func check_queue(state: GameState, empire_id: int, tid: String, front := 
 	if not exists(tid):
 		return "technologie inconnue : %s" % tid
 	var f := e.faction()
-	if not is_visible(f, tid):
+	if not is_visible(f, tid, state, empire_id):
 		return "cette technologie n'est pas pour votre peuple"
 	if e.techs.has(tid):
 		return "déjà découverte"
+	if Insolites.no_research(state, empire_id):
+		return "votre peuple n'invente rien : il prend (épaves, prises, ruines)"
+	if is_find(tid):
+		return "trouvaille : elle ne se recherche pas, elle se trouve (curiosités, ruines, Strates, quêtes, prises)"
 	if e.research_queue.has(tid):
 		if not front:
 			return "déjà dans la file"
@@ -344,21 +730,22 @@ static func check_queue(state: GameState, empire_id: int, tid: String, front := 
 	for q in e.research_queue:
 		planned[q] = true
 	var t := tech(tid)
-	var other := String(t.get("exclusive", ""))
-	if other != "" and planned.has(other):
-		return "doctrine fermée : vous avez choisi « %s » (définitif ; celle-ci ne s'obtient plus que par les épaves)" % \
+	var other := spec_taken(planned, tid)
+	if other != "":
+		return "spécialisation fermée : vous avez choisi « %s » (définitif ; celle-ci ne s'obtient plus que par échange, vol, épaves ou trouvaille)" % \
 				String(tech(other).get("label", other))
+	var vis: Dictionary = _info(f, state, empire_id)["set"]
 	var missing := PackedStringArray()
 	for p in t.get("pre", []):
-		if not _satisfies(f, planned, String(p)):
+		if not _satisfies(f, planned, String(p), vis):
 			var shown := replaced_by(f, String(p))
 			missing.append(String(tech(shown if shown != "" else String(p)).get("label", p)))
 	if not missing.is_empty():
 		return "il faut d'abord : %s" % ", ".join(missing)
 	var era := int(t.get("era", 1))
-	if not era_open(planned, String(t["domain"]), era):
+	if not era_open(planned, String(t["domain"]), era, f, state, empire_id):
 		return "ère %d fermée en %s : il faut %d technologies de l'ère %d (%d)" % [
-				era, String(domain(String(t["domain"])).get("label", t["domain"])), era_threshold(era), era - 1,
+				era, String(domain(String(t["domain"])).get("label", t["domain"])), era_need(String(t["domain"]), era, f, state, empire_id), era - 1,
 				count_in(planned, String(t["domain"]), era - 1)]
 	if not ultimate_ok(planned, tid):
 		return "technologie ultime : il faut %d autres technologies de l'ère %d en %s (%d)" % [
@@ -385,15 +772,20 @@ static func is_ultimate(tid: String) -> bool:
 
 
 ## Une technologie peut-elle être recherchée tout de suite (prérequis et ère, sans compter la file) ?
+## Les trouvailles ne le sont jamais (elles se trouvent) ; le vol et l'échange passent par ici.
 static func is_available(state: GameState, empire_id: int, tid: String) -> bool:
 	var e := state.get_empire(empire_id)
-	if e == null or e.techs.has(tid) or not is_visible(e.faction(), tid):
+	if e == null or e.techs.has(tid) or is_find(tid):
+		return false
+	var f := e.faction()
+	var vis: Dictionary = _info(f, state, empire_id)["set"]
+	if not vis.has(tid):
 		return false
 	var t := tech(tid)
 	for p in t.get("pre", []):
-		if not _satisfies(e.faction(), e.techs, String(p)):
+		if not _satisfies(f, e.techs, String(p), vis):
 			return false
-	return era_open(e.techs, String(t["domain"]), int(t.get("era", 1))) and ultimate_ok(e.techs, tid)
+	return era_open(e.techs, String(t["domain"]), int(t.get("era", 1)), f, state, empire_id) and ultimate_ok(e.techs, tid)
 
 
 static func check_remove(state: GameState, empire_id: int, tid: String) -> String:
@@ -417,7 +809,7 @@ static func apply_queue(state: GameState, empire_id: int, tid: String, front: bo
 		if e.research_progress > 0:
 			e.research_shelf[e.research_queue[0]] = e.research_progress
 		e.research_queue.insert(0, tid)
-		_fix_order(e)  # ses prérequis encore en file passent devant elle
+		_fix_order(state, e)  # ses prérequis encore en file passent devant elle
 		e.research_progress = int(e.research_shelf.get(e.research_queue[0], 0))
 		e.research_shelf.erase(e.research_queue[0])
 	else:
@@ -441,7 +833,7 @@ static func apply_remove(state: GameState, empire_id: int, tid: String) -> void:
 		var planned := e.techs.duplicate()
 		var keep: Array[String] = []
 		for q in e.research_queue:
-			if _plannable(e, planned, q):
+			if _plannable(state, e, planned, q):
 				planned[q] = true
 				keep.append(q)
 			else:
@@ -454,16 +846,18 @@ static func apply_remove(state: GameState, empire_id: int, tid: String) -> void:
 			e.research_shelf.erase(e.research_queue[0])
 
 
-static func _plannable(e: Empire, planned: Dictionary, tid: String) -> bool:
+static func _plannable(state: GameState, e: Empire, planned: Dictionary, tid: String) -> bool:
 	var t := tech(tid)
+	var f := e.faction()
+	var vis: Dictionary = _info(f, state, e.id)["set"]
 	for p in t.get("pre", []):
-		if not _satisfies(e.faction(), planned, String(p)):
+		if not _satisfies(f, planned, String(p), vis):
 			return false
-	return era_open(planned, String(t["domain"]), int(t.get("era", 1))) and ultimate_ok(planned, tid)
+	return era_open(planned, String(t["domain"]), int(t.get("era", 1)), f, state, e.id) and ultimate_ok(planned, tid)
 
 
 ## Après une insertion en tête, remet en ordre la file pour que chaque technologie suive ses prérequis.
-static func _fix_order(e: Empire) -> void:
+static func _fix_order(state: GameState, e: Empire) -> void:
 	var planned := e.techs.duplicate()
 	var rest: Array[String] = e.research_queue.duplicate()
 	var out: Array[String] = []
@@ -472,7 +866,7 @@ static func _fix_order(e: Empire) -> void:
 		guard += 1
 		var placed := false
 		for q in rest:
-			if _plannable(e, planned, q):
+			if _plannable(state, e, planned, q):
 				out.append(q)
 				planned[q] = true
 				rest.erase(q)
@@ -514,6 +908,7 @@ static func complete(state: GameState, empire_id: int, tid: String) -> void:
 		return
 	e.techs[tid] = true
 	Heroes.act(state, empire_id, "tech")
+	Politics.on_tech(state, empire_id, String(tech(tid).get("current", "")))  # la recherche dessine la vie politique
 	Crisis.on_tech(state, empire_id, tid)  # technologie interdite : la fin de partie approche
 	if not e.research_queue.is_empty() and e.research_queue[0] == tid:
 		e.research_queue.remove_at(0)
@@ -608,7 +1003,7 @@ static func next_mark_tech(state: GameState, empire_id: int, fam: String) -> Str
 		return ""
 	var best := ""
 	var best_era := 99
-	for tid in visible_ids(e.faction()):
+	for tid in visible_for(state, empire_id):
 		if e.techs.has(tid) or not tech(tid).get("effects", {}).get("marks", {}).has(fam):
 			continue
 		var era := int(tech(tid).get("era", 1))

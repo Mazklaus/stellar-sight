@@ -194,4 +194,6 @@ static func exists(aid: String) -> bool:
 		return _sections.has(aid.substr(4))
 	if aid.begins_with("frag:"):
 		return _fragment_by_id.has(aid.substr(5))
-	return Glossary.has(aid)
+	# Fiches des catalogues non soulignés (technologies, bâtiments…) : absentes du glossaire, mais
+	# on peut y aller directement (page Codex d'une technologie depuis l'arbre).
+	return Glossary.has(aid) or (aid.begins_with("cat:") and not CodexCatalogs.entry(aid).is_empty())

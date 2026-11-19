@@ -1,0 +1,546 @@
+{
+	"_doc": "Technologies communes du domaine Économie.",
+	"technologies": {
+		"reprogrammation": {
+			"label": "Reprogrammation",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "academie",
+			"text": "Ingénierie des espèces en jeu : réécrire le code d'une espèce synthétique (traits de reprogrammation, payés en matériaux) ; +1 point de marge génétique.",
+			"pre": [
+				"academies"
+			],
+			"pillar": "genetique",
+			"flavor": "« Mise à jour disponible. Redémarrer maintenant ? » Toute une espèce a cliqué « plus tard »."
+		},
+		"hydroponie": {
+			"label": "Hydroponie avancée",
+			"domain": "economie",
+			"era": 1,
+			"field": "production",
+			"current": "seve",
+			"text": "+15 % de nourriture.",
+			"needs": [
+				"nourriture"
+			],
+			"effects": {
+				"production_pct": {
+					"food": 15
+				}
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 3
+			}
+		},
+		"fusion_compacte": {
+			"label": "Fusion compacte",
+			"domain": "economie",
+			"era": 1,
+			"field": "production",
+			"current": "forge",
+			"text": "+15 % d'énergie.",
+			"effects": {
+				"production_pct": {
+					"energy": 15
+				}
+			},
+			"eureka": {
+				"kind": "building",
+				"what": "centrale_fusion",
+				"n": 2
+			}
+		},
+		"extraction": {
+			"label": "Extraction profonde",
+			"domain": "economie",
+			"era": 1,
+			"field": "production",
+			"current": "forge",
+			"text": "+15 % de matériaux.",
+			"effects": {
+				"production_pct": {
+					"materials": 15
+				}
+			},
+			"eureka": {
+				"kind": "building",
+				"what": "complexe_minier",
+				"n": 2
+			}
+		},
+		"academies": {
+			"label": "Académies",
+			"domain": "economie",
+			"era": 1,
+			"field": "savoir",
+			"current": "academie",
+			"text": "Débloque l'Académie : +4 Savoir et +10 % de Savoir dans sa colonie.",
+			"eureka": {
+				"kind": "pop",
+				"n": 25
+			}
+		},
+		"raffinage": {
+			"label": "Raffinage des cristaux",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "forge",
+			"text": "Débloque la Raffinerie de cristaux.",
+			"pre": [
+				"fusion_compacte"
+			],
+			"eureka": {
+				"kind": "deposit",
+				"what": "crystals",
+				"n": 1
+			}
+		},
+		"logistique": {
+			"label": "Logistique impériale",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "forge",
+			"text": "+1 emplacement de bâtiment sur les planètes de taille 3 ou plus. Avec les spatioports : débloque le Spatioport.",
+			"pre": [
+				"extraction"
+			],
+			"effects": {
+				"building_slots": 1
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 10
+			}
+		},
+		"banques_donnees": {
+			"label": "Banques de données",
+			"domain": "economie",
+			"era": 2,
+			"field": "savoir",
+			"current": "academie",
+			"text": "+15 % de Savoir.",
+			"pre": [
+				"academies"
+			],
+			"effects": {
+				"production_pct": {
+					"knowledge": 15
+				}
+			},
+			"eureka": {
+				"kind": "techs",
+				"n": 10
+			}
+		},
+		"recyclage": {
+			"label": "Recyclage orbital",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "forge",
+			"text": "+10 % de matériaux et d'énergie.",
+			"pre": [
+				"extraction"
+			],
+			"effects": {
+				"production_pct": {
+					"materials": 10,
+					"energy": 10
+				}
+			},
+			"eureka": {
+				"kind": "ships_lost",
+				"n": 8
+			}
+		},
+		"bourses": {
+			"label": "Bourses interstellaires",
+			"domain": "economie",
+			"era": 3,
+			"field": "commerce",
+			"current": "concorde",
+			"text": "+15 % d'énergie et +10 % d'influence, et une route commerciale de plus. Avec la fiscalité (comptabilité stellaire) : plafond de crédit +20 %, réserve +25 %. Avec l'économie privée : tourisme +10 %. Avec les spatioports complets : fret du réseau +25 %.",
+			"pre": [
+				"recyclage"
+			],
+			"effects": {
+				"production_pct": {
+					"energy": 15,
+					"influence": 10
+				},
+				"trade_routes": 1,
+				"debt_cap_pct": 20,
+				"reserve_pct": 25,
+				"tourism_pct": 10,
+				"freight_pct": 25
+			},
+			"eureka": {
+				"kind": "trade",
+				"n": 1
+			}
+		},
+		"automatisation": {
+			"label": "Automatisation",
+			"domain": "economie",
+			"era": 3,
+			"field": "production",
+			"current": "forge",
+			"text": "+10 % de production de toutes les ressources.",
+			"pre": [
+				"logistique"
+			],
+			"forbidden": {
+				"species": {
+					"credo": [
+						"foi"
+					]
+				}
+			},
+			"effects": {
+				"production_pct": {
+					"all": 10
+				}
+			}
+		},
+		"nanofabrication": {
+			"label": "Nanofabrication",
+			"domain": "economie",
+			"era": 3,
+			"field": "production",
+			"current": "forge",
+			"text": "Les bâtiments coûtent 20 % de moins.",
+			"pre": [
+				"logistique"
+			],
+			"effects": {
+				"building_cost_pct": -20
+			}
+		},
+		"cristallographie": {
+			"label": "Cristallographie",
+			"domain": "economie",
+			"era": 3,
+			"field": "production",
+			"current": "forge",
+			"text": "+25 % de cristaux de saut.",
+			"pre": [
+				"raffinage"
+			],
+			"effects": {
+				"production_pct": {
+					"crystals": 25
+				}
+			},
+			"eureka": {
+				"kind": "deposit",
+				"what": "crystals",
+				"n": 3
+			}
+		},
+		"reseaux_savants": {
+			"label": "Réseaux savants",
+			"domain": "economie",
+			"era": 3,
+			"field": "savoir",
+			"current": "academie",
+			"text": "+20 % de Savoir.",
+			"pre": [
+				"banques_donnees"
+			],
+			"mastery": "banques_donnees",
+			"effects": {
+				"production_pct": {
+					"knowledge": 20
+				}
+			},
+			"eureka": {
+				"kind": "techs",
+				"n": 22
+			}
+		},
+		"arcologies_productives": {
+			"label": "Arcologies productives",
+			"domain": "economie",
+			"era": 4,
+			"field": "production",
+			"current": "forge",
+			"text": "Débloque les bâtiments de 2e rang : Ferme verticale, Centrale à confinement et Mine profonde. Chacun remplace son bâtiment de 1er rang sur place, sans prendre d'emplacement, et rend plus du double.",
+			"pre": [
+				"automatisation"
+			],
+			"eureka": {
+				"kind": "building",
+				"what": "complexe_minier",
+				"n": 8
+			},
+			"flavor": "On a fini par construire vers le haut. Puis vers le bas. Puis dans les deux sens à la fois."
+		},
+		"ecopes": {
+			"label": "Écopes et foreuses",
+			"domain": "economie",
+			"era": 4,
+			"field": "production",
+			"current": "forge",
+			"text": "Les avant-postes travaillent enfin : sur une géante gazeuse +2 énergie et +1 cristal de saut, sur une ceinture d'astéroïdes +3 matériaux, sur un monde stérile +2 matériaux.",
+			"pre": [
+				"cristallographie"
+			],
+			"effects": {
+				"outpost_yields": {
+					"gas_giant": {
+						"energy": 2,
+						"crystals": 1
+					},
+					"asteroids": {
+						"materials": 3
+					},
+					"barren": {
+						"materials": 2
+					}
+				}
+			},
+			"eureka": {
+				"kind": "claim",
+				"what": "gas_giant",
+				"n": 4
+			},
+			"flavor": "Trois techniciens, un chat, et désormais une foreuse de quatre kilomètres. Le chat est ravi."
+		},
+		"fabriques_autonomes": {
+			"label": "Fabriques autonomes",
+			"domain": "economie",
+			"era": 4,
+			"field": "production",
+			"current": "forge",
+			"text": "+1 emplacement de bâtiment sur toutes les colonies, petites comprises, et un 2e emplacement sur les avant-postes.",
+			"pre": [
+				"nanofabrication"
+			],
+			"effects": {
+				"building_slots_all": 1,
+				"outpost_slots": 1
+			},
+			"eureka": {
+				"kind": "techs",
+				"n": 45
+			},
+			"flavor": "Les usines se construisent elles-mêmes. Elles demandent seulement qu'on arrête de les regarder."
+		},
+		"compagnies": {
+			"label": "Compagnies marchandes",
+			"domain": "economie",
+			"era": 4,
+			"field": "commerce",
+			"current": "concorde",
+			"text": "Chaque route commerciale rapporte le double, et une route de plus. Avec la fiscalité complète : débloque la Banque centrale, intérêts -10 %, l'inflation décroît plus vite. Avec l'économie privée : une compagnie et une charte de plus. Avec les spatioports : débloque le Grand port orbital.",
+			"pre": [
+				"bourses"
+			],
+			"effects": {
+				"trade_income_pct": 100,
+				"trade_routes": 1,
+				"debt_rate_pct": -10,
+				"inflation_decay": 5,
+				"company_max": 1,
+				"charters": 1
+			},
+			"eureka": {
+				"kind": "trade",
+				"n": 3
+			},
+			"flavor": "Elles ont des actionnaires, des flottes et des avis sur la politique étrangère. Surtout des avis."
+		},
+		"forage_manteau": {
+			"label": "Forage du manteau",
+			"domain": "economie",
+			"era": 4,
+			"field": "production",
+			"current": "forge",
+			"text": "Les gisements (filons, sols fertiles, géothermie, cristaux) rapportent le double. Les planètes à gisement valent d'être disputées.",
+			"pre": [
+				"automatisation"
+			],
+			"effects": {
+				"deposit_pct": 100
+			},
+			"eureka": {
+				"kind": "deposit",
+				"what": "minerals",
+				"n": 6
+			},
+			"flavor": "La croûte, c'était l'emballage."
+		},
+		"arcologie_planetaire": {
+			"label": "Arcologie planétaire",
+			"domain": "economie",
+			"era": 5,
+			"field": "production",
+			"current": "forge",
+			"text": "Projet d'Écuménopole sur une colonie de 12 population ou plus (taille 3 ou plus) : toute la planète devient une ville. Habitable à 100 %, deux fois plus de population, chaque habitant produit énergie, matériaux et Savoir, mais plus aucune nourriture.",
+			"pre": [
+				"arcologies_productives"
+			],
+			"eureka": {
+				"kind": "pop",
+				"n": 400
+			},
+			"flavor": "De l'espace, on ne voit plus le sol. Du sol, on ne voit plus l'espace. Personne ne se plaint : personne ne sort."
+		},
+		"collecteur_stellaire": {
+			"label": "Collecteur stellaire",
+			"domain": "economie",
+			"era": 5,
+			"field": "megastructures",
+			"current": "forge",
+			"text": "Débloque la Sphère de Dyson (mégastructure, une par empire, avec la Méga-ingénierie) : une étoile emmaillotée, énergie selon l'étoile.",
+			"pre": [
+				"ecopes"
+			],
+			"pillar": "megastructures",
+			"eureka": {
+				"kind": "claim",
+				"what": "gas_giant",
+				"n": 8
+			},
+			"flavor": "L'étoile n'a rien demandé. Elle brille pareil, simplement plus pour nous."
+		},
+		"nexus_savoir": {
+			"label": "Nexus du savoir",
+			"domain": "economie",
+			"era": 5,
+			"field": "megastructures",
+			"current": "academie",
+			"text": "Débloque le Nexus du savoir (mégastructure, une par empire, avec la Méga-ingénierie) : une station de recherche de la taille d'une ville.",
+			"pre": [
+				"fabriques_autonomes"
+			],
+			"pillar": "megastructures",
+			"danger": "Tout savoir en un seul point fait un point très visible : la fin de partie approche.",
+			"ai": {
+				"paix": 40
+			},
+			"eureka": {
+				"kind": "techs",
+				"n": 70
+			},
+			"flavor": "Quarante mille chercheurs, un seul café. La productivité n'a jamais été aussi haute."
+		},
+		"replicateurs": {
+			"label": "Réplicateurs de matière",
+			"domain": "economie",
+			"era": 5,
+			"field": "production",
+			"current": "seve",
+			"text": "La population ne mange plus que la moitié de sa nourriture : les fermes libèrent leurs emplacements, les écuménopoles deviennent tenables.",
+			"pre": [
+				"forage_manteau"
+			],
+			"needs": [
+				"nourriture"
+			],
+			"effects": {
+				"food_upkeep_pct": -50
+			},
+			"eureka": {
+				"kind": "pop",
+				"n": 300
+			},
+			"flavor": "Ça a le goût de ce que vous voulez. Ça a surtout la texture de rien."
+		},
+		"abondance": {
+			"label": "Économie d'abondance",
+			"domain": "economie",
+			"era": 5,
+			"field": "production",
+			"current": "forge",
+			"text": "Technologie ultime (il faut 3 autres technologies de l'ère V d'Économie). Les bâtiments ne coûtent plus aucun entretien, et la Bourse des Mille Soleils, merveille unique dans la galaxie, peut être bâtie.",
+			"ultimate": 3,
+			"effects": {
+				"building_upkeep_pct": -100
+			},
+			"flavor": "La rareté était une habitude. On s'en est défait comme des autres."
+		},
+		"essaim_dyson": {
+			"label": "Essaim de Dyson",
+			"domain": "economie",
+			"era": 3,
+			"field": "megastructures",
+			"current": "forge",
+			"text": "Mégastructures en jeu : débloque l'Essaim de Dyson (jusqu'à trois), des voiles autour d'une étoile, énergie selon l'étoile.",
+			"pre": [
+				"cristallographie"
+			],
+			"pillar": "megastructures",
+			"flavor": "Un miroir, c'est de la décoration. Un milliard, c'est une politique énergétique."
+		},
+		"forge_noyau": {
+			"label": "Forges-noyaux",
+			"domain": "economie",
+			"era": 3,
+			"field": "megastructures",
+			"current": "forge",
+			"text": "Mégastructures en jeu : débloque la Forge-noyau (jusqu'à trois) sur une planète stérile ou toxique, matériaux puis cristaux.",
+			"pre": [
+				"automatisation"
+			],
+			"pillar": "megastructures",
+			"flavor": "Le manteau d'une planète morte, c'est une mine qui n'a jamais servi."
+		},
+		"siphon_geante": {
+			"label": "Siphons de géante",
+			"domain": "economie",
+			"era": 3,
+			"field": "megastructures",
+			"current": "forge",
+			"text": "Mégastructures en jeu : débloque le Siphon de géante (jusqu'à trois) sur une géante gazeuse, énergie et dépôt de ravitaillement.",
+			"pre": [
+				"nanofabrication"
+			],
+			"pillar": "megastructures",
+			"flavor": "Une paille, très longue. Et beaucoup de patience."
+		},
+		"matriochka": {
+			"label": "Cerveau Matriochka",
+			"domain": "economie",
+			"era": 5,
+			"field": "megastructures",
+			"current": "academie",
+			"text": "Mégastructures en jeu : débloque le Cerveau Matriochka, sur votre Sphère de Dyson, Savoir massif au prix de l'énergie de la Sphère.",
+			"pre": [
+				"collecteur_stellaire"
+			],
+			"pillar": "megastructures",
+			"flavor": "Une étoile qui calcule. Elle a déjà trouvé trois erreurs dans nos manuels."
+		},
+		"decompresseur": {
+			"label": "Décompression de matière",
+			"domain": "economie",
+			"era": 5,
+			"field": "megastructures",
+			"current": "forge",
+			"text": "Mégastructures en jeu : débloque le Décompresseur de matière, autour d'un trou noir, matériaux en très grande quantité.",
+			"pre": [
+				"forage_manteau"
+			],
+			"pillar": "megastructures",
+			"flavor": "On ne sort rien d'un trou noir, disaient-ils. Ils n'avaient pas essayé avec un tire-bouchon gravitationnel."
+		},
+		"demantelement": {
+			"label": "Démantèlement planétaire",
+			"domain": "economie",
+			"era": 4,
+			"field": "production",
+			"current": "forge",
+			"text": "Forge des mondes en jeu : démanteler une planète inhabitée (Masse et matériaux pendant des années), évacuer une colonie avant de la défaire.",
+			"pre": [
+				"compression_gravitationnelle"
+			],
+			"pillar": "forge_mondes",
+			"flavor": "Rien ne se perd, tout se démonte."
+		}
+	}
+}

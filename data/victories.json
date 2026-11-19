@@ -210,8 +210,8 @@
 			"kind": "people",
 			"label": "La Légende",
 			"requires": {
-				"registre": [
-					"Picaresque / pulp"
+				"gouvernement": [
+					"syndicat"
 				]
 			},
 			"tech": "legende",
@@ -247,6 +247,9 @@
 			"requires": {
 				"archetype": [
 					"energetique"
+				],
+				"credo": [
+					"raison"
 				]
 			},
 			"tech": "silence_parfait",
@@ -448,11 +451,7 @@
 			"label": "La Biosphère unique",
 			"requires": {
 				"archetype": [
-					"fongoide",
-					"vegetal"
-				],
-				"credo": [
-					"survie"
+					"fongoide"
 				]
 			},
 			"tech": "biosphere_unique",

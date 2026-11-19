@@ -24,6 +24,8 @@ signal announce_requested(aid: int)
 signal announce_locate_requested(system_id: int)
 ## Revoir une bataille au sol (écran Armées).
 signal ground_replay_requested(report_id: int)
+## Page du Codex d'une technologie (prop. 112 de l'étude de l'arbre).
+signal codex_requested(article_id: String)
 
 const MARGIN := 10.0
 const SIDE_WIDTH := EmpireBar.WIDTH
@@ -1265,24 +1267,119 @@ func _refresh_pick(all: Array[Dictionary]) -> void:
 func _build_research() -> void:
 	research_buttons.clear()
 	var me := _state.get_empire(_player)
-	if research_selected == "" or not Research.is_visible(me.faction(), research_selected):
+	if research_selected == "" or not Research.is_visible(me.faction(), research_selected, _state, _player):
 		research_selected = me.research_queue[0] if not me.research_queue.is_empty() else ""
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 6)
+	_content.add_child(col)
+	col.add_child(_research_toolbar())
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	_content.add_child(scroll)
+	col.add_child(scroll)
 	research_tree = ResearchTree.new()
 	research_tree.selected = research_selected
+	research_tree.filter = research_filter.duplicate()
+	research_tree.zoom = research_zoom
 	scroll.add_child(research_tree)
-	var vp := get_viewport().get_visible_rect().size
-	research_tree.setup(_state, _player, vp.x - CONTENT_LEFT - CONTENT_RIGHT - 16.0, vp.y - _content.offset_top + _content.offset_bottom - 4.0)
+	research_tree.setup(_state, _player)
 	research_tree.tech_selected.connect(func(tid: String) -> void:
 		research_selected = tid
 		_fill_research_side())
 	research_tree.tech_activated.connect(func(tid: String) -> void:
 		if Research.check_queue(_state, _player, tid, true) == "":
 			command_requested.emit(SimCommands.research(_player, tid, true)))
+	research_tree.tech_planned.connect(plan_research_path)
+	research_tree.zoom_changed.connect(func(z: float) -> void: research_zoom = z)
 	_fill_research_side()
+
+
+## Filtres de l'arbre gardés d'une ouverture à l'autre (prop. 105) et zoom.
+var research_filter := {"field": "", "kind": "", "text": "", "mine": false}
+var research_zoom := 1.0
+var research_path: Array[String] = []
+
+
+## Barre au-dessus de l'arbre : recherche par nom, champ, « ce que ça débloque », Mon peuple, zoom.
+func _research_toolbar() -> Control:
+	var bar := HBoxContainer.new()
+	bar.add_theme_constant_override("separation", 8)
+	# Rangée calée à droite : le coin gauche de l'écran est pris par la barre de ressources.
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bar.add_child(spacer)
+	var search := LineEdit.new()
+	search.tooltip_text = "Par nom ou par texte. Clic droit sur une carte : planifier le chemin jusqu'à elle. Ctrl + molette : zoom."
+	search.placeholder_text = "Chercher une technologie…"
+	search.custom_minimum_size = Vector2(220, 0)
+	search.text = String(research_filter["text"])
+	search.text_changed.connect(func(t: String) -> void: _set_research_filter("text", t))
+	bar.add_child(search)
+	research_buttons["search"] = search
+	var fields := OptionButton.new()
+	fields.add_item("Tous les champs")
+	fields.set_item_metadata(0, "")
+	for d in Research.domain_ids():
+		for fd: Dictionary in Research.domain(d).get("fields", []):
+			fields.add_item("%s · %s" % [String(Research.domain(d).get("short", d)), String(fd["label"])])
+			fields.set_item_metadata(fields.item_count - 1, String(fd["id"]))
+			if String(fd["id"]) == String(research_filter["field"]):
+				fields.select(fields.item_count - 1)
+	fields.item_selected.connect(func(i: int) -> void: _set_research_filter("field", String(fields.get_item_metadata(i))))
+	bar.add_child(fields)
+	research_buttons["field"] = fields
+	var kinds := OptionButton.new()
+	kinds.add_item("Tout ce qui se débloque")
+	kinds.set_item_metadata(0, "")
+	for k in Research.UNLOCK_KINDS:
+		kinds.add_item(String(Research.UNLOCK_KINDS[k]))
+		kinds.set_item_metadata(kinds.item_count - 1, String(k))
+		if String(k) == String(research_filter["kind"]):
+			kinds.select(kinds.item_count - 1)
+	kinds.item_selected.connect(func(i: int) -> void: _set_research_filter("kind", String(kinds.get_item_metadata(i))))
+	bar.add_child(kinds)
+	research_buttons["kind"] = kinds
+	var mine := CheckButton.new()
+	mine.text = "Mon peuple"
+	mine.tooltip_text = "Allume les technologies propres à votre peuple et leurs chemins ; estompe le reste."
+	mine.button_pressed = bool(research_filter["mine"])
+	mine.toggled.connect(func(on: bool) -> void: _set_research_filter("mine", on))
+	bar.add_child(mine)
+	research_buttons["mine"] = mine
+	for z in [["−", 1.0 / 1.15], ["+", 1.15]]:
+		var b := Button.new()
+		b.text = String(z[0])
+		b.focus_mode = Control.FOCUS_NONE
+		b.custom_minimum_size = Vector2(28, 0)
+		var mult: float = z[1]
+		b.pressed.connect(func() -> void:
+			if research_tree != null:
+				research_tree.set_zoom(research_tree.zoom * mult))
+		bar.add_child(b)
+	return bar
+
+
+func _set_research_filter(key: String, value: Variant) -> void:
+	research_filter[key] = value
+	if research_tree != null and is_instance_valid(research_tree):
+		research_tree.set_filter(key, value)
+
+
+## Clic droit sur une technologie lointaine (prop. 107) : la file se remplit avec ses prérequis dans
+## l'ordre (et de quoi ouvrir les ères), et les liens du chemin s'allument.
+func plan_research_path(tid: String) -> void:
+	var e := _state.get_empire(_player)
+	var steps := Research.plan_path(_state, _player, tid)
+	research_path = steps
+	if research_tree != null:
+		research_tree.set_path(steps)
+	if Insolites.no_research(_state, _player):
+		return
+	for q in steps:
+		if e.research_queue.size() >= Research.MAX_QUEUE:
+			break
+		if Research.check_queue(_state, _player, q) == "":
+			command_requested.emit(SimCommands.research(_player, q, false))
 
 
 func _build_shipyard() -> void:
@@ -1320,6 +1417,9 @@ func _fill_research_side() -> void:
 	var f := e.faction()
 	var income := int(Economy.empire_income(_state, _player)["net"].get("knowledge", 0))
 
+	if Insolites.no_research(_state, _player):
+		_fill_research_catalogue(e)
+		return
 	_side_box.add_child(UiTheme.section("Recherche en cours"))
 	if e.research_queue.is_empty():
 		_side_box.add_child(UiTheme.paragraph("Aucune. Choisissez une technologie dans l'arbre : un double-clic la lance tout de suite.", SIDE_WIDTH - 24.0, 14))
@@ -1341,7 +1441,7 @@ func _fill_research_side() -> void:
 	_side_box.add_child(g)
 	_key_value(g, "Savoir par mois", "%+d" % income)
 	_key_value(g, "Savoir en réserve", str(int(e.resources.get("knowledge", 0))))
-	_key_value(g, "Technologies", "%d / %d" % [e.techs.size(), Research.visible_ids(f).size()])
+	_key_value(g, "Technologies", "%d / %d" % [e.techs.size(), Research.visible_for(_state, _player).size()])
 	_key_value(g, "Ère la plus avancée", str(Research.current_era(_state, _player)))
 	var rs: Dictionary = f.get("research", {})
 	if not rs.is_empty():
@@ -1349,10 +1449,37 @@ func _fill_research_side() -> void:
 		talent.mouse_filter = Control.MOUSE_FILTER_STOP
 		talent.tooltip_text = String(rs.get("text", ""))
 		talent.add_theme_color_override("font_color", e.color().lightened(0.3))
+	var lack := Research.lacking_labels(f, _state, _player)
+	if not lack.is_empty():
+		var ll := UiTheme.paragraph("Votre peuple est %s : ce qui ne lui servirait à rien n'apparaît pas dans son arbre." % ", ".join(lack), SIDE_WIDTH - 24.0, 12)
+		ll.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		_side_box.add_child(ll)
 
 	if not e.research_queue.is_empty():
 		_side_box.add_child(UiTheme.section("File de recherche"))
 		_side_box.add_child(_queue_chips(e, income))
+	_fill_tech_panel()
+
+
+## Catalogue des acquisitions (prop. 26) : un peuple qui n'invente rien (les Silencieux) prend ses
+## technologies aux épaves, aux prises et aux ruines ; pas de file, mais ce qui reste à prendre.
+func _fill_research_catalogue(e: Empire) -> void:
+	_side_box.add_child(UiTheme.section("Catalogue des acquisitions"))
+	_side_box.add_child(UiTheme.paragraph("Votre peuple n'invente rien : il prend. Les technologies viennent des épaves des batailles gagnées, des vaisseaux pris (rétro-ingénierie) et des ruines. Pas de file de recherche.", SIDE_WIDTH - 24.0, 13))
+	var ids := Research.visible_for(_state, _player)
+	var g := _grid()
+	_side_box.add_child(g)
+	_key_value(g, "Acquises", "%d / %d" % [e.techs.size(), ids.size()])
+	var by_dom := {}
+	for tid in ids:
+		if not e.techs.has(tid):
+			var d := String(Research.tech(tid)["domain"])
+			by_dom[d] = int(by_dom.get(d, 0)) + 1
+	for d in Research.domain_ids():
+		_key_value(g, "À prendre : %s" % String(Research.domain(d).get("label", d)), str(int(by_dom.get(d, 0))))
+	var hint := UiTheme.paragraph("Où les trouver : les marques d'armes et les doctrines sur les épaves des flottes vaincues ; les coques et modules sur les vaisseaux pris ; le reste dans les ruines et les Strates. Ce qui a déjà été entamé porte un trait doré sous sa carte.", SIDE_WIDTH - 24.0, 12)
+	hint.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	_side_box.add_child(hint)
 	_fill_tech_panel()
 
 
@@ -1425,13 +1552,29 @@ func _tech_detail(tid: String) -> Control:
 	var dom := Research.domain(String(t["domain"]))
 	var head := UiTheme.title(String(t.get("label", tid)), 20)
 	box.add_child(head)
-	var sub := UiTheme.dim("%s  ·  ère %d  ·  %d Savoir" % [dom.get("label", ""), int(t["era"]), Research.cost(_state, _player, tid)], 13)
+	var fld := Research.field_label(String(t["domain"]), Research.field_of(tid))
+	var sub := UiTheme.dim("%s%s  ·  ère %d  ·  %d Savoir" % [dom.get("label", ""), (" · " + fld) if fld != "" else "", int(t["era"]), Research.cost(_state, _player, tid)], 13)
 	sub.add_theme_color_override("font_color", Color.html(String(dom.get("color", "#ffffff"))).lightened(0.2))
 	box.add_child(sub)
 	box.add_child(UiTheme.paragraph(String(t.get("text", "")), SIDE_WIDTH - 24.0, 14))
 	var unlocks := Research.unlocks(f, tid)
 	if not unlocks.is_empty():
 		box.add_child(UiTheme.paragraph("Débloque : %s" % ", ".join(unlocks), SIDE_WIDTH - 24.0, 13))
+	if Research.is_mastery(tid):
+		var ml0 := UiTheme.paragraph("Maîtrise de « %s » : facultative, jamais prérequise ; elle ne compte pas pour ouvrir l'ère suivante." % String(Research.tech(String(t["mastery"])).get("label", t["mastery"])), SIDE_WIDTH - 24.0, 13)
+		ml0.add_theme_color_override("font_color", Color("d9b85c"))
+		box.add_child(ml0)
+	if Research.is_find(tid):
+		var fi := UiTheme.paragraph("Trouvaille : elle ne se recherche pas. Curiosités, ruines, Strates, quêtes, prises ou hauts faits peuvent la livrer.", SIDE_WIDTH - 24.0, 13)
+		fi.add_theme_color_override("font_color", Color("d9b85c"))
+		box.add_child(fi)
+	if Research.is_dangerous(tid):
+		var dg := UiTheme.paragraph("Dangereuse : %s" % Research.danger_text(tid), SIDE_WIDTH - 24.0, 13)
+		dg.add_theme_color_override("font_color", UiTheme.BAD)
+		box.add_child(dg)
+	if _state.politics_on and String(t.get("current", "")) != "" and Politics.index_of(String(t["current"])) >= 0:
+		var cl := UiTheme.dim("Courant : %s y gagne un peu de soutien." % Politics.label(_state, _player, Politics.index_of(String(t["current"]))), 12)
+		box.add_child(cl)
 	var pre := PackedStringArray()
 	for p in t.get("pre", []):
 		var shown := Research.replaced_by(f, String(p))
@@ -1458,10 +1601,15 @@ func _tech_detail(tid: String) -> Control:
 		var ml := UiTheme.paragraph("Marques : %s. Les vaisseaux déjà construits les reçoivent au chantier (remise à niveau)." % ", ".join(parts), SIDE_WIDTH - 24.0, 13)
 		ml.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 		box.add_child(ml)
-	if t.get("doctrine", false) and not e.techs.has(String(t.get("exclusive", ""))):
-		var other := String(t.get("exclusive", ""))
-		var dl := UiTheme.paragraph("Doctrine définitive : la choisir ferme « %s » (que seules les épaves des batailles gagnées peuvent encore livrer)." % String(Research.tech(other).get("label", other)), SIDE_WIDTH - 24.0, 13)
-		dl.add_theme_color_override("font_color", UiTheme.ACCENT)
+	if Research.spec_group(tid) != "" and not e.techs.has(tid):
+		var others := PackedStringArray()
+		for o in Research.spec_members(Research.spec_group(tid)):
+			if o != tid:
+				others.append("« %s »" % String(Research.tech(o).get("label", o)))
+		var taken := Research.spec_taken(e.techs, tid)
+		var dl := UiTheme.paragraph(("Spécialisation fermée : vous avez choisi « %s ». Celle-ci ne s'obtient plus que par échange, vol, épaves ou trouvaille." % String(Research.tech(taken).get("label", taken))) if taken != "" else \
+				("Spécialisation définitive : la choisir ferme %s (que seuls l'échange, le vol, les épaves ou une trouvaille peuvent encore livrer)." % ", ".join(others)), SIDE_WIDTH - 24.0, 13)
+		dl.add_theme_color_override("font_color", UiTheme.BAD if taken != "" else UiTheme.ACCENT)
 		box.add_child(dl)
 	if t.has("eureka") and not e.techs.has(tid):
 		var st := Research.eureka_status(_state, _player, tid)
@@ -1483,6 +1631,15 @@ func _tech_detail(tid: String) -> Control:
 		var fl := UiTheme.paragraph("« %s »" % t["flavor"], SIDE_WIDTH - 24.0, 13)
 		fl.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 		box.add_child(fl)
+	var cdx := Button.new()
+	cdx.flat = true
+	cdx.text = "Page du Codex ›"
+	cdx.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	cdx.add_theme_font_size_override("font_size", 13)
+	cdx.add_theme_color_override("font_color", Color.html(Glossary.LINK_COLOR))
+	cdx.pressed.connect(func() -> void: codex_requested.emit("cat:technologies:" + tid))
+	box.add_child(cdx)
+	research_buttons["codex"] = cdx
 	if e.techs.has(tid):
 		var ok := UiTheme.dim("Découverte.", 14)
 		ok.add_theme_color_override("font_color", UiTheme.GOOD)

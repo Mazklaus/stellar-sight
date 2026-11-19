@@ -102,6 +102,9 @@ static func has(id: String) -> bool:
 
 static func term(id: String) -> Dictionary:
 	ensure_loaded()
+	if not terms.has(id) and id.begins_with("cat:"):
+		# Fiche d'un catalogue non souligné dans les textes (technologies, bâtiments…).
+		return CodexCatalogs.entry(id)
 	return terms.get(id, {})
 
 

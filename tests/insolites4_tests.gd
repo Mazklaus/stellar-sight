@@ -113,7 +113,7 @@ func _test_data() -> void:
 	_ok(Victory.people_ids_for(GameData.faction("sablier")).has("paradoxe") and Victory.people_ids_for(GameData.faction("gravea")).has("remodelage")
 			and Victory.people_ids_for(GameData.faction("myrr")).has("biosphere") and Victory.people_ids_for(GameData.faction("vergemonde")).has("grand_jardin"),
 			"chaque victoire va à son peuple")
-	_ok(Victory.people_ids_for(GameData.faction("vergemonde")).has("biosphere"), "la Biosphère unique est ouverte au Hallier (végétal de survie)")
+	_ok(not Victory.people_ids_for(GameData.faction("vergemonde")).has("biosphere"), "la Biosphère unique reste au Myrr (le Hallier a son Grand Jardin : refonte de l'arbre, prop. 18)")
 	_ok(String(GameData.faction("myrr").get("species", {}).get("archetype", "")) == "fongoide" and String(GameData.faction("vergemonde").get("species", {}).get("archetype", "")) == "vegetal",
 			"deux archétypes nouveaux : fongoïde et végétal")
 	_ok(not Psionics.form_def("chronopathie").is_empty(), "catalogue ouvert : la forme psionique Chronopathie")

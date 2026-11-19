@@ -1,0 +1,429 @@
+{
+	"_doc": "Destinées : technologies des victoires de peuple (bande Peuple de l'arbre).",
+	"technologies": {
+		"lignees_croisees": {
+			"label": "Lignées croisées",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "concorde",
+			"text": "Victoire de peuple, l'Élu des routes : permet d'unir ses lignées à celles d'un allié de longue date (Diplomatie). Quand toutes les dynasties rivales sont unies et l'héritier loyal, l'Élu naît en deux ans.",
+			"pre": [
+				"propagande"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"feodalite"
+					]
+				}
+			},
+			"victory": "elu"
+		},
+		"dernier_couplet": {
+			"label": "Le Dernier Couplet",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "autel",
+			"text": "Victoire de peuple : débloque la Cathédrale-chœur. Trois cathédrales dans trois systèmes, puis deux ans d'Exaltation, et l'hymne s'achève enfin.",
+			"pre": [
+				"pelerinages"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"theocratie"
+					],
+					"credo": [
+						"foi"
+					]
+				}
+			},
+			"victory": "couplet"
+		},
+		"charte": {
+			"label": "Charte des Quarante et Un",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "concorde",
+			"text": "Victoire de peuple : la Charte s'ouvre à la signature. Chaque empire survivant en paix et en commerce avec la république la signe ; deux ans de ratification sans défection, et elle préside la galaxie.",
+			"pre": [
+				"propagande"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"republique"
+					]
+				}
+			},
+			"victory": "charte"
+		},
+		"terre_promise": {
+			"label": "Chants de la route",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "seve",
+			"text": "Victoire de peuple : les anciens chants des clans donnent le chemin de la Terre promise. Chaque mois, ils disent à combien de sauts de la flotte-ville elle se trouve ; à deux sauts, ils la nomment.",
+			"pre": [
+				"administration2"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"horde",
+						"conseil_survie"
+					]
+				}
+			},
+			"victory": "terre_promise",
+			"flavor": "« Là où les étoiles chantent faux, tourne à gauche. » Personne ne sait plus chanter juste."
+		},
+		"legende": {
+			"label": "Mille et une histoires",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "concorde",
+			"text": "Victoire de peuple : les conteurs des docks recueillent les exploits du peuple. Sept exploits différents et une réputation d'au moins 60, tenus un an, et la Légende entre dans l'histoire.",
+			"pre": [
+				"administration2"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"syndicat"
+					]
+				}
+			},
+			"victory": "legende",
+			"flavor": "« C'était trois contre un. Puis dix contre un, au deuxième verre. »"
+		},
+		"silence_parfait": {
+			"label": "Le Grand Silence",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "academie",
+			"text": "Victoire de peuple : les colonies apprennent à se taire tout à fait. Huit colonies peuplées tenues trois ans sans qu'aucun empire non allié ne les aperçoive, et le Silence parfait est atteint.",
+			"pre": [
+				"administration2"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"energetique"
+					],
+					"credo": [
+						"raison"
+					]
+				}
+			},
+			"victory": "silence",
+			"flavor": "« Nous ne sommes pas cachés. Vous ne regardez simplement pas au bon endroit, ni au bon moment. »"
+		},
+		"noosphere": {
+			"label": "Éveil de la Noosphère",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "academie",
+			"text": "Victoire de peuple : quand au moins douze colonies pensent ensemble, sans un seul nœud coupé, et le tiennent deux ans, la Noosphère s'éveille.",
+			"pre": [
+				"administration2"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conscience"
+					]
+				}
+			},
+			"victory": "noosphere",
+			"flavor": "Douze esprits, et plus un seul silence entre deux pensées."
+		},
+		"allumage": {
+			"label": "L'Allumage",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "academie",
+			"text": "Victoire de peuple : quand l'Orbe-Monde atteint une Masse de 300 et la tient trois ans sans être assiégé, il s'allume en étoile.",
+			"pre": [
+				"forage_manteau"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"planete_etre"
+					]
+				}
+			},
+			"victory": "allumage",
+			"flavor": "« Toute planète rêve d'être une étoile. La plupart ont la décence de ne pas essayer. »"
+		},
+		"opa_galactique": {
+			"label": "L'OPA galactique",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "concorde",
+			"text": "Victoire de peuple : quand la Compagnie détient la majorité des parts de trois empires rivaux et la tient deux ans, la galaxie lui appartient.",
+			"pre": [
+				"compagnies"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"actionnaires"
+					]
+				}
+			},
+			"victory": "opa",
+			"flavor": "« Nous ne conquérons pas. Nous diversifions notre portefeuille. »"
+		},
+		"administration_totale": {
+			"label": "L'Administration totale",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "concorde",
+			"text": "Victoire de peuple : quand tous les empires survivants ont signé toutes les normes en vigueur, et le restent un an, le Bureau a fini son travail.",
+			"pre": [
+				"cadastre_algorithmique"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"bureaucratie"
+					]
+				}
+			},
+			"victory": "administration",
+			"flavor": "« Formulaire Z-0 : déclaration de fin de l'Histoire. À remplir en trois exemplaires. »"
+		},
+		"saturation": {
+			"label": "La Saturation",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "academie",
+			"text": "Victoire de peuple : quand le Signal habite 40 % des colonies de chaque empire survivant, et le tient trois ans, il est partout.",
+			"pre": [
+				"banques_donnees"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"information"
+					]
+				}
+			},
+			"victory": "saturation",
+			"flavor": "« 01001110 01001111 01010101 01010011 »"
+		},
+		"reve_commun": {
+			"label": "Le Rêve commun",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "seve",
+			"text": "Victoire de peuple : quand la moitié de la population organique de la galaxie rêve avec les Ysmer, et le tient cinq ans, tous font le même rêve.",
+			"pre": [
+				"holovision"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"reve_partage"
+					]
+				}
+			},
+			"victory": "reve_commun",
+			"flavor": "« Dors. Nous gardons la porte. »"
+		},
+		"grand_rassemblement": {
+			"label": "Le Grand Rassemblement",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "academie",
+			"text": "Victoire de peuple : quand Asphodèle a accueilli les morts de la moitié de la galaxie (en cumul), et le tient deux ans, tous les vivants savent où ils iront.",
+			"pre": [
+				"habitats"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"esprits_numerises"
+					]
+				}
+			},
+			"victory": "grand_rassemblement",
+			"flavor": "« Entrez. Il y a de la place pour tout le monde. »"
+		},
+		"musee_vivant": {
+			"label": "Le Musée vivant",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "concorde",
+			"text": "Victoire de peuple : quand le Muséum expose un représentant de chaque espèce de la partie, et le tient un an, Sire Cassivel ferme la dernière vitrine.",
+			"pre": [
+				"arts_holographiques"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"collectionneur"
+					]
+				}
+			},
+			"victory": "musee_vivant",
+			"flavor": "« Ne touchez pas les spécimens. Les spécimens, ne touchez pas les visiteurs. »"
+		},
+		"envol": {
+			"label": "L'Envol",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "concorde",
+			"text": "Victoire de peuple : quand deux espèces primitives atteignent l'espace sous les postes voilés de Quiétude sans que personne ne les découvre entre-temps, les Observateurs ont gagné.",
+			"pre": [
+				"ambassades"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conseil_anciens"
+					]
+				}
+			},
+			"victory": "envol",
+			"flavor": "« Ils ne sauront jamais. C'est le plus beau cadeau. »"
+		},
+		"paradoxe_stable": {
+			"label": "Le Paradoxe stable",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "academie",
+			"text": "Victoire de peuple : ouvre la Boucle, trois étapes de deux ans qui envoient dans le passé la technologie qui les fonde ; fermée avec le Gardien chronal vivant et tenue un an, elle donne la victoire.",
+			"pre": [
+				"precognition"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"chronarchie"
+					]
+				}
+			},
+			"victory": "paradoxe",
+			"flavor": "« Nous l'avons inventé parce que nous l'avions déjà. »"
+		},
+		"remodelage": {
+			"label": "Le Remodelage",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "seve",
+			"text": "Victoire de peuple : quand les Lithes ont achevé cinq Œuvres lentes dans cinq systèmes, et le tiennent un an, la galaxie a pris leur forme.",
+			"pre": [
+				"terraformation"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"consensus_seculaire"
+					]
+				}
+			},
+			"victory": "remodelage",
+			"flavor": "« Nous ne sommes pas pressés. Les montagnes non plus. »"
+		},
+		"biosphere_unique": {
+			"label": "La Biosphère unique",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "seve",
+			"text": "Victoire de peuple : quand un organisme fongoïde ou végétal couvre 40 % des planètes habitables de la galaxie, et le tient deux ans, il n'y a plus qu'une seule vie.",
+			"pre": [
+				"biomes_extremes"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"fongoide"
+					]
+				}
+			},
+			"victory": "biosphere",
+			"flavor": "« Tout est relié. Tout. »"
+		},
+		"grand_jardin": {
+			"label": "Le Grand Jardin",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "seve",
+			"text": "Victoire de peuple : quand le Hallier tient huit mondes-jardins et trois mondes vivants Liés, cinq ans durant, la galaxie a changé de couleur.",
+			"pre": [
+				"terraformation"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"cercle_enracines"
+					]
+				}
+			},
+			"victory": "grand_jardin",
+			"flavor": "« Plantez. Attendez. Plantez encore. »"
+		},
+		"grande_moisson": {
+			"label": "La Grande Moisson",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "seve",
+			"text": "Victoire de peuple : quand l'Essaim porte la moitié de toute la vie de la galaxie et a digéré assez de peuples conquis, et le tient deux ans, la Moisson est faite.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche",
+						"vaisseaux_vivants"
+					]
+				}
+			},
+			"victory": "moisson"
+		},
+		"idole": {
+			"label": "Idole des étoiles",
+			"domain": "societe",
+			"era": 4,
+			"field": "destinee",
+			"current": "concorde",
+			"text": "Victoire de peuple : la grande tournée commence. Influente chez des empires qui réunissent 60 % de la population étrangère rencontrée, tenu un an, et la galaxie entière danse sur votre musique.",
+			"pre": [
+				"holovision"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"plaisir"
+					]
+				}
+			},
+			"victory": "idole",
+			"flavor": "Ils ont des flottes, des armées et des lois. Nous avons le refrain."
+		}
+	}
+}
