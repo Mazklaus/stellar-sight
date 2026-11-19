@@ -315,7 +315,7 @@
 			"era": 2,
 			"field": "etat",
 			"current": "concorde",
-			"text": "Débloque les alliances et le Bureau du renseignement (une cellule d'espionnage de plus). Héros : +1 place.",
+			"text": "Débloque les alliances. Héros : +1 place.",
 			"pre": [
 				"rhetorique"
 			],
@@ -437,7 +437,7 @@
 			"era": 3,
 			"field": "culture",
 			"current": "concorde",
-			"text": "Débloque l'Institut des héros, le Grand temple et le Grand mausolée. +20 % d'influence, +5 stabilité dans tous vos systèmes. Avec les religions : pare-feu culturel contre les fois Mème.",
+			"text": "+20 % d'influence, +5 stabilité dans tous vos systèmes. Avec les religions : pare-feu culturel contre les fois Mème.",
 			"pre": [
 				"chancelleries"
 			],
@@ -950,6 +950,644 @@
 				"strates"
 			],
 			"flavor": "Trois mille ans de querelles de bornage. Les juristes pleurent de joie."
+		},
+		"cryptographie": {
+			"label": "Cryptographie",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "academie",
+			"text": "Débloque le Bureau du renseignement (une cellule d'espionnage de plus). Chiffrement et déchiffrement +1 : vos réseaux résistent mieux, ceux des autres se lisent mieux.",
+			"pre": [
+				"chancelleries"
+			],
+			"effects": {
+				"crypto": 1
+			},
+			"eureka": {
+				"kind": "stat",
+				"what": "operations",
+				"n": 2
+			},
+			"flavor": "Le message dit « tout va bien ». Le message chiffré dit aussi « tout va bien », mais personne ne le croit."
+		},
+		"contre_espionnage": {
+			"label": "Contre-espionnage",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "glaive",
+			"text": "Vos cellules chez vous pèsent double dans la détection des réseaux adverses : ils sont démasqués bien plus souvent.",
+			"pre": [
+				"cryptographie"
+			],
+			"effects": {
+				"counter_x": 1
+			},
+			"eureka": {
+				"kind": "stat",
+				"what": "operations",
+				"n": 5
+			}
+		},
+		"agents_dormants": {
+			"label": "Agents dormants",
+			"domain": "societe",
+			"era": 4,
+			"field": "etat",
+			"current": "glaive",
+			"text": "Quand l'adversaire démantèle l'un de vos réseaux, un tiers de son implantation survit et reprend dans l'ombre.",
+			"pre": [
+				"contre_espionnage"
+			],
+			"effects": {
+				"sleepers": 1
+			},
+			"eureka": {
+				"kind": "stat",
+				"what": "operations",
+				"n": 10
+			},
+			"flavor": "Ils ont mené une vie parfaitement ordinaire pendant vingt ans. Certains ont oublié pourquoi."
+		},
+		"theologie_comparee": {
+			"label": "Théologie comparée",
+			"domain": "societe",
+			"era": 2,
+			"field": "culture",
+			"current": "autel",
+			"text": "Religions en jeu : vos théologiens débattent avec les missionnaires étrangers. Dans vos colonies, la pression des fois qui ne sont pas la vôtre baisse d'un quart.",
+			"pre": [
+				"catechisme"
+			],
+			"pillar": "religion",
+			"effects": {
+				"faith_debate": 25
+			},
+			"eureka": {
+				"kind": "building",
+				"what": "temple",
+				"n": 2
+			},
+			"flavor": "Le débat a duré trois jours. À la fin, chacun était sûr d'avoir gagné, ce qui est la définition même du dialogue interreligieux."
+		},
+		"grands_temples": {
+			"label": "Grands temples",
+			"domain": "societe",
+			"era": 3,
+			"field": "culture",
+			"current": "autel",
+			"text": "Religions en jeu : débloque le Grand temple (pression de la foi doublée) et le Grand mausolée, annexes du Temple et du Mausolée.",
+			"pre": [
+				"theologie_comparee"
+			],
+			"pillar": "religion",
+			"eureka": {
+				"kind": "building",
+				"what": "temple",
+				"n": 4
+			}
+		},
+		"schisme_reforme": {
+			"label": "Schisme et réforme",
+			"domain": "societe",
+			"era": 4,
+			"field": "culture",
+			"current": "autel",
+			"text": "Religions en jeu : une foi que vous dirigez gagne une place de précepte de plus. Elle se réforme sans se briser.",
+			"pre": [
+				"grands_temples"
+			],
+			"pillar": "religion",
+			"effects": {
+				"faith_slots": 1
+			},
+			"eureka": {
+				"kind": "building",
+				"what": "temple",
+				"n": 6
+			}
+		},
+		"doctrine_commandement": {
+			"label": "Doctrine de commandement",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "glaive",
+			"text": "Débloque l'Institut des héros. Vos héros gagnent 25 % d'expérience en plus.",
+			"pre": [
+				"chancelleries"
+			],
+			"effects": {
+				"hero_xp_pct": 25
+			},
+			"eureka": {
+				"kind": "battles_won",
+				"n": 3
+			}
+		},
+		"legendes_vivantes": {
+			"label": "Légendes vivantes",
+			"domain": "societe",
+			"era": 4,
+			"field": "culture",
+			"current": "concorde",
+			"text": "Vos héros peuvent porter un trait de plus : passé le dernier, chaque niveau en apporte encore un.",
+			"pre": [
+				"doctrine_commandement"
+			],
+			"effects": {
+				"hero_traits": 1
+			},
+			"eureka": {
+				"kind": "battles_won",
+				"n": 10
+			}
+		},
+		"protocole_cour": {
+			"label": "Protocole de cour",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Cour en jeu : une grande maison de plus peut siéger à votre cour.",
+			"pre": [
+				"assemblees"
+			],
+			"pillar": "cour",
+			"effects": {
+				"court_houses": 1
+			},
+			"eureka": {
+				"kind": "techs",
+				"n": 12
+			},
+			"flavor": "Le protocole tient en neuf cents pages. La page sur les chaises en fait quatre-vingts."
+		},
+		"genealogies": {
+			"label": "Généalogies",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Lignées en jeu : à la succession, la couronne revient au plus doué des deux premiers héritiers, plus seulement à l'aîné.",
+			"pre": [
+				"protocole_cour"
+			],
+			"pillar": "dynastie",
+			"effects": {
+				"heir_pick": 1
+			},
+			"eureka": {
+				"kind": "techs",
+				"n": 25
+			}
+		},
+		"grands_mariages": {
+			"label": "Grands mariages",
+			"domain": "societe",
+			"era": 4,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Lignées en jeu : un mariage dynastique vaut 15 d'opinion de plus entre les deux empires.",
+			"pre": [
+				"genealogies"
+			],
+			"pillar": "dynastie",
+			"effects": {
+				"marriage_opinion": 15
+			},
+			"eureka": {
+				"kind": "peace",
+				"n": 2
+			}
+		},
+		"sondages": {
+			"label": "Sondages",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Politique en jeu : le Sénat montre le résultat probable de la prochaine élection avant le vote.",
+			"pre": [
+				"assemblees"
+			],
+			"pillar": "politique",
+			"effects": {
+				"forecast": 1
+			},
+			"eureka": {
+				"kind": "techs",
+				"n": 12
+			},
+			"flavor": "Marge d'erreur : trois points. Marge d'embarras : illimitée."
+		},
+		"institutions": {
+			"label": "Institutions",
+			"domain": "societe",
+			"era": 4,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Politique en jeu : un événement ne peut plus déplacer plus d'un cinquième de l'opinion d'un système d'un coup. Aucun courant ne s'effondre en une nuit.",
+			"pre": [
+				"sondages"
+			],
+			"pillar": "politique",
+			"effects": {
+				"institutions": 1
+			},
+			"eureka": {
+				"kind": "techs",
+				"n": 40
+			}
+		},
+		"droit_federal": {
+			"label": "Droit fédéral",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Koinon en jeu : vous pouvez proposer de durcir une loi de la ligue un rang plus tôt.",
+			"pre": [
+				"chancelleries"
+			],
+			"pillar": "koinon",
+			"effects": {
+				"federal_law": 1
+			},
+			"eureka": {
+				"kind": "peace",
+				"n": 2
+			}
+		},
+		"clienteles": {
+			"label": "Clientèles",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Vassaux en jeu : un sujet spécialisé vous est plus fidèle (+10 de loyauté).",
+			"pre": [
+				"vassalite"
+			],
+			"pillar": "vassaux",
+			"effects": {
+				"clienteles": 10
+			},
+			"eureka": {
+				"kind": "conquests",
+				"n": 1
+			}
+		},
+		"diplomatie_multilaterale": {
+			"label": "Diplomatie multilatérale",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Amphictyonie en jeu : une proposition de plus en cours à la fois.",
+			"pre": [
+				"chancelleries"
+			],
+			"pillar": "amphictyonie",
+			"effects": {
+				"amph_props": 1
+			},
+			"eureka": {
+				"kind": "contacts",
+				"n": 4
+			}
+		},
+		"xenologie": {
+			"label": "Xénologie",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "concorde",
+			"text": "Populations mixtes en jeu : les autres espèces s'intègrent plus vite (+3 points par an). Débloque les Quartiers d'accueil.",
+			"pre": [
+				"xenodiplomatie"
+			],
+			"pillar": "populations",
+			"effects": {
+				"integ_yearly": 3
+			},
+			"eureka": {
+				"kind": "stat",
+				"what": "refugees",
+				"n": 1
+			}
+		},
+		"patrouilles_stellaires": {
+			"label": "Patrouilles stellaires",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "glaive",
+			"text": "Pirates en jeu : vous repérez les repaires voisins de vos systèmes sans les avoir explorés, et leur démantèlement rapporte le double.",
+			"pre": [
+				"administration"
+			],
+			"pillar": "pirates",
+			"effects": {
+				"patrols": 1
+			},
+			"eureka": {
+				"kind": "kills",
+				"n": 5
+			}
+		},
+		"amnistie": {
+			"label": "Amnistie",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Pirates en jeu : quand vous démantelez un repaire, sa garde se rallie et rejoint votre flotte.",
+			"pre": [
+				"patrouilles_stellaires"
+			],
+			"pillar": "pirates",
+			"effects": {
+				"amnesty": 1
+			},
+			"eureka": {
+				"kind": "kills",
+				"n": 15
+			},
+			"flavor": "Les anciens pirates portent l'uniforme avec une fierté sincère. Ils ont juste gardé l'habitude de compter les cargaisons des autres."
+		},
+		"xenozoologie": {
+			"label": "Xénozoologie",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Créatures en jeu : étudier une espèce prend deux fois moins de temps.",
+			"pre": [
+				"medecine"
+			],
+			"pillar": "creatures",
+			"effects": {
+				"fast_study": 1
+			},
+			"eureka": {
+				"kind": "stat",
+				"what": "beasts",
+				"n": 3
+			}
+		},
+		"dressage": {
+			"label": "Dressage",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Créatures en jeu : chaque Vivarium abrite deux bêtes de guerre de plus.",
+			"pre": [
+				"xenozoologie"
+			],
+			"pillar": "creatures",
+			"effects": {
+				"vivarium_cap": 2
+			},
+			"eureka": {
+				"kind": "stat",
+				"what": "beasts",
+				"n": 6
+			}
+		},
+		"biologie_leviathans": {
+			"label": "Biologie des léviathans",
+			"domain": "societe",
+			"era": 4,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Créatures en jeu : les créatures abattues rapportent deux fois plus de butin. On sait enfin quoi faire de chaque morceau.",
+			"pre": [
+				"dressage"
+			],
+			"pillar": "creatures",
+			"effects": {
+				"fauna_loot": 1
+			},
+			"eureka": {
+				"kind": "stat",
+				"what": "beasts",
+				"n": 12
+			}
+		},
+		"protectorats": {
+			"label": "Protectorats",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Peuples mineurs en jeu : faire d'une cité-État votre sujette demande 60 de faveur au lieu de 80.",
+			"pre": [
+				"vassalite"
+			],
+			"pillar": "mineurs",
+			"effects": {
+				"protectorates": 20
+			},
+			"eureka": {
+				"kind": "contacts",
+				"n": 2
+			}
+		},
+		"elevation": {
+			"label": "Élévation",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Peuples mineurs en jeu : vous pouvez élever une espèce pré-consciente de vos colonies jusqu'à la citoyenneté. Sans naissance ni génétique : l'élévation passe par l'éducation.",
+			"pre": [
+				"colons_formes"
+			],
+			"pillar": "mineurs",
+			"effects": {
+				"elevation": 1
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 6
+			}
+		},
+		"biosemiotique": {
+			"label": "Biosémiotique",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Mondes vivants en jeu : vous lisez l'humeur de tous les mondes vivants que vous connaissez, même des plus secrets.",
+			"pre": [
+				"colons_formes"
+			],
+			"pillar": "mondes_vivants",
+			"effects": {
+				"biosemiotics": 1
+			},
+			"eureka": {
+				"kind": "explored",
+				"n": 30
+			}
+		},
+		"symbioses_planetaires": {
+			"label": "Symbioses planétaires",
+			"domain": "societe",
+			"era": 4,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Mondes vivants en jeu : les colères des mondes vivants envers vous sont deux fois moins fortes.",
+			"pre": [
+				"biosemiotique"
+			],
+			"pillar": "mondes_vivants",
+			"effects": {
+				"symbiosis": 1
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 10
+			},
+			"flavor": "On ne dompte pas une planète. On négocie avec elle, et elle lit les petites lignes."
+		},
+		"douanes_stellaires": {
+			"label": "Douanes stellaires",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "forge",
+			"text": "Frontières en jeu : votre péage s'applique aussi aux vaisseaux sans armes de passage, à moitié prix.",
+			"pre": [
+				"administration"
+			],
+			"pillar": "frontieres",
+			"effects": {
+				"customs": 1
+			},
+			"eureka": {
+				"kind": "explored",
+				"n": 20
+			}
+		},
+		"cartographie_juridique": {
+			"label": "Cartographie juridique",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "glaive",
+			"text": "Buts de guerre en jeu : vos revendications portent deux sauts plus loin.",
+			"pre": [
+				"douanes_stellaires"
+			],
+			"pillar": "guerre",
+			"effects": {
+				"claim_reach": 2
+			},
+			"eureka": {
+				"kind": "wars",
+				"n": 1
+			}
+		},
+		"voie_songe": {
+			"label": "Rêve partagé",
+			"domain": "societe",
+			"era": 5,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Transcendance, voie choisie seulement. Le Songe : les dormeurs de tout l'empire rêvent ensemble. +0,8 % de jauge d'Élévation par mois.",
+			"pre": [
+				"oree"
+			],
+			"pillar": "transcendance",
+			"effects": {
+				"path_gauge": 8
+			},
+			"path": "songe"
+		},
+		"voie_televersement": {
+			"label": "Mémoire distribuée",
+			"domain": "societe",
+			"era": 5,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Transcendance, voie choisie seulement. Le Téléversement : les esprits copiés se relaient. +0,8 % de jauge d'Élévation par mois.",
+			"pre": [
+				"oree"
+			],
+			"pillar": "transcendance",
+			"effects": {
+				"path_gauge": 8
+			},
+			"path": "televersement"
+		},
+		"voie_apotheose": {
+			"label": "Liturgie de l'ascension",
+			"domain": "societe",
+			"era": 5,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Transcendance, voie choisie seulement. L'Apothéose : la foi chante la montée. +0,8 % de jauge d'Élévation par mois.",
+			"pre": [
+				"oree"
+			],
+			"pillar": "transcendance",
+			"effects": {
+				"path_gauge": 8
+			},
+			"path": "apotheose"
+		},
+		"voie_mue": {
+			"label": "Chrysalide",
+			"domain": "societe",
+			"era": 5,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Transcendance, voie choisie seulement. La Mue : le peuple prépare son prochain corps. +0,8 % de jauge d'Élévation par mois.",
+			"pre": [
+				"oree"
+			],
+			"pillar": "transcendance",
+			"effects": {
+				"path_gauge": 8
+			},
+			"path": "mue"
+		},
+		"voie_depart": {
+			"label": "Arches générationnelles",
+			"domain": "societe",
+			"era": 5,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Transcendance, voie choisie seulement. Le Grand Départ : les chantiers posent les premières arches. +0,8 % de jauge d'Élévation par mois.",
+			"pre": [
+				"oree"
+			],
+			"pillar": "transcendance",
+			"effects": {
+				"path_gauge": 8
+			},
+			"path": "depart"
+		},
+		"restauration_ecologique": {
+			"label": "Restauration écologique",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Écologie en jeu : débloque la Réserve intégrale, annexe de la Réserve naturelle (+25 de soins de plus à la biosphère).",
+			"pre": [
+				"recycleurs_atmospheriques"
+			],
+			"pillar": "ecologie",
+			"eureka": {
+				"kind": "building",
+				"what": "reserve_naturelle",
+				"n": 1
+			}
 		}
 	}
 }

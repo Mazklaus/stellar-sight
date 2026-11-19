@@ -253,6 +253,11 @@ static func knows(state: GameState, empire_id: int, sid: int) -> bool:
 	if not is_lair(state, sid):
 		return false
 	var e := state.get_empire(empire_id)
+	if e != null and not e.explored.has(sid) and Research.fx_int(state, empire_id, "patrols") > 0:
+		# Patrouilles stellaires (lot 3 de l'arbre) : les repaires voisins de nos systèmes.
+		for n in state.galaxy.get_system(sid).neighbors:
+			if state.system_owner(n) == empire_id:
+				return true
 	return e != null and e.explored.has(sid)
 
 
@@ -621,8 +626,9 @@ static func bounty(state: GameState, empire_id: int, victim: int) -> void:
 static func dismantle(state: GameState, sid: int, empire_id: int, added: Array[Dictionary]) -> void:
 	var e := state.get_empire(empire_id)
 	var loot: Dictionary = data()["dismantle"]["loot"]
+	var lx := 2 if Research.fx_int(state, empire_id, "patrols") > 0 else 1  # Patrouilles stellaires
 	for r in loot:
-		e.resources[r] = int(e.resources.get(r, 0)) + int(loot[r])
+		e.resources[r] = int(e.resources.get(r, 0)) + int(loot[r]) * lx
 	var tal := talent(state, empire_id)
 	var extra := ""
 	if int(tal.get("crusade_fervor", 0)) > 0 and FactionTraits.has_fervor(e.faction()):
@@ -635,7 +641,7 @@ static func dismantle(state: GameState, sid: int, empire_id: int, added: Array[D
 			e.resources["materials"] = int(e.resources.get("materials", 0)) + gain
 			e.biomass += gain
 			extra = " Rien ne reste de la station, pas même les rivets."
-	if bool(tal.get("rally", false)):
+	if bool(tal.get("rally", false)) or Research.fx_int(state, empire_id, "amnesty") > 0:  # Amnistie (lot 3 de l'arbre)
 		var f := _rally_fleet(state, sid, empire_id)
 		if f != null:
 			for t in data()["guard"]["ships"]:

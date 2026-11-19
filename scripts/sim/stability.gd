@@ -445,6 +445,8 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 		if age < int(cq["days"]):
 			@warning_ignore("integer_division")
 			var v := int(cq["value"]) * (int(cq["days"]) - age) / int(cq["days"]) * maxi(1, int(tal.get("conquered_x", 1)))
+			if Research.fx_int(state, owner, "occupation") > 0:
+				v /= 2  # Logistique d'occupation (lot 3 de l'arbre)
 			if v != 0:
 				out.append(["Monde conquis", v])
 	# Agitation semée par des espions étrangers.

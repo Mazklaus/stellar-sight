@@ -101,7 +101,7 @@ static func cost_for(state: GameState, eid: int, kind: String, fid: String, cost
 ## Propositions qu'un membre peut avoir en même temps (Tribune : 2).
 static func max_props(state: GameState, eid: int) -> int:
 	var tr := talent(state, eid, "tribune")
-	return int(tr["props"]) if not tr.is_empty() else 1
+	return (int(tr["props"]) if not tr.is_empty() else 1) + (Research.fx_int(state, eid, "amph_props") if eid >= 0 and not GameState.is_npc(eid) else 0)
 
 
 ## Siège voilé : ni nom sur les propositions (pour les autres), ni souvenirs de vote.

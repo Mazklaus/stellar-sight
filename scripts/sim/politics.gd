@@ -269,6 +269,10 @@ static func push(state: GameState, sid: int, i: int, pts: int) -> void:
 		return
 	var op: Array = _sys_w(state, sid, owner)["op"]
 	pts = mini(pts, TOTAL)
+	# Institutions (lot 3 de l'arbre) : jamais plus d'un cinquième de l'opinion d'un coup.
+	if Research.fx_int(state, owner, "institutions") > 0:
+		@warning_ignore("integer_division")
+		pts = mini(pts, TOTAL / 5)
 	for k in N:
 		@warning_ignore("integer_division")
 		op[k] = int(op[k]) * (TOTAL - pts) / TOTAL
@@ -588,7 +592,7 @@ static func forecast(state: GameState, empire_id: int) -> Dictionary:
 ## Talent des Échos : le registre Cosmique voit le résultat avant le vote.
 static func sees_forecast(state: GameState, empire_id: int) -> bool:
 	var e := state.get_empire(empire_id)
-	return e != null and not e.is_npc() and String(e.faction().get("registre", "")) == "Cosmique / étrange" \
+	return e != null and not e.is_npc() and (String(e.faction().get("registre", "")) == "Cosmique / étrange" or Research.fx_int(state, empire_id, "forecast") > 0) \
 			and applies(state, empire_id) and mode(state, empire_id) != "continuous"
 
 

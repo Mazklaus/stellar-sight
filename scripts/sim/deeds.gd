@@ -684,7 +684,9 @@ static func apply_reward(state: GameState, eid: int, rid: String, deed_id: Strin
 			for res in r["res"]:
 				e.resources[res] = int(e.resources.get(res, 0)) + Events.era_scaled(state, eid, int(r["res"][res]))
 		"research":
-			txt = Events.give_research(state, eid, int(r["pct"]))
+			# Prop. 65 de l'arbre : une percée de haut fait est d'abord une trouvaille.
+			var fd := Research.grant_find(state, eid, "deeds")
+			txt = ("trouvaille : %s" % String(Research.tech(fd).get("label", fd))) if fd != "" else Events.give_research(state, eid, int(r["pct"]))
 		"trophy":
 			var free := free_trophies(state)
 			var c := _capital_colony(state, eid)

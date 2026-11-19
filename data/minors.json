@@ -425,7 +425,7 @@
 	},
 	"presapients": {
 		"per_systems": 50,
-		"tech": "genetique",
+		"tech": "elevation",
 		"cost": {
 			"knowledge": 300
 		},

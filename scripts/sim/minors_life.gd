@@ -337,8 +337,9 @@ static func check_subject(state: GameState, eid: int, id: int) -> String:
 		return ""  # rompre le lien
 	if Minors.suzerain(state, id) != eid:
 		return "réservé au suzerain"
-	if Minors.fav(state, id, eid) < 80:
-		return "il faut 80 de faveur"
+	var need := 80 - Research.fx_int(state, eid, "protectorates")  # Protectorats (lot 3 de l'arbre)
+	if Minors.fav(state, id, eid) < need:
+		return "il faut %d de faveur" % need
 	return ""
 
 
@@ -680,7 +681,7 @@ static func check_elevate(state: GameState, eid: int, pid: int) -> String:
 	if (state.minors.get("elev", {}) as Dictionary).has(pid):
 		return "élévation déjà en cours"
 	var e := state.get_empire(eid)
-	if not e.techs.has(String(pd["tech"])):
+	if not e.techs.has(String(pd["tech"])) and Research.fx_int(state, eid, "elevation") <= 0:
 		return "il faut %s" % String(Research.tech(String(pd["tech"])).get("label", pd["tech"]))
 	for r in pd["cost"]:
 		if int(e.resources.get(r, 0)) < int(pd["cost"][r]):

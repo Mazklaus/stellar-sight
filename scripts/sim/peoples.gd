@@ -571,6 +571,8 @@ static func integration_rate(state: GameState, c: Colony, fid: String) -> int:
 			v += int(ig.get("intendant", 2))
 	var tl := Movements.talent(state, c.owner)
 	v += int(tl.get("integ_yearly", 0))
+	# Xénologie et Quartiers d'accueil (lot 3 de l'arbre).
+	v += Research.fx_int(state, c.owner, "integ_yearly") + Economy.local_sum(c, "integ_yearly")
 	var pct := int(Laws.effects(state, c.owner).get("integration_pct", 0)) + int(tl.get("integ_pct", 0))
 	v = v * (100 + pct) / 100
 	# Propagande xénophobe d'un rival : moitié moins vite.

@@ -374,6 +374,9 @@ static func gain_parts(state: GameState, eid: int) -> Array:
 		out.append([source_label(src), v])
 	if pid == "apotheose" and t_int(state, eid, "heir_gauge") > 0 and (not state.faith_on or Faiths.founded_by(state, eid) == ""):
 		out.append(["La Lignée monte", t_int(state, eid, "heir_gauge")])
+	var deep := Research.fx_int(state, eid, "path_gauge")
+	if deep > 0:
+		out.append(["Voie approfondie (technologie)", deep])  # prop. 66 de l'arbre
 	var guide := guide_hero(state, eid)
 	if not guide.is_empty():
 		out.append(["Guide du Passage : %s" % String(guide["name"]), int(guide.get("lvl", 1)) * c_int("gauge", "guide_per_level", 2)])

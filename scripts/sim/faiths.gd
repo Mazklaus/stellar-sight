@@ -722,6 +722,19 @@ static func pressures(state: GameState) -> Dictionary:
 					v = v * (100 + _fx_for_faith(state, fid, "faith_route_pct") + FaithWars.nature_route_pct(state, fid)) / 100
 					pm[fid] = int(pm.get(fid, 0)) + v
 				out[pid] = pm
+	# Théologie comparée (lot 3 de l'arbre) : le débat freine les fois étrangères dans vos colonies.
+	for pid in out:
+		var c: Colony = state.colonies.get(pid)
+		if c == null or GameState.is_npc(c.owner):
+			continue
+		var cut := Research.fx_int(state, c.owner, "faith_debate")
+		if cut <= 0:
+			continue
+		var sf := state_faith(state, c.owner)
+		var pm: Dictionary = out[pid]
+		for fid in pm:
+			if fid != sf:
+				pm[fid] = int(pm[fid]) * maxi(0, 100 - cut) / 100
 	# Poussée de la foi d'État sur chaque colonie de l'empire.
 	for pid in state.sorted_colony_ids():
 		var c: Colony = state.colonies[pid]
@@ -933,7 +946,10 @@ static func free_slots(state: GameState, fid: String) -> int:
 	var f := faith(state, fid)
 	if f.is_empty() or int(f.get("pending", 0)) > 0:
 		return 0
-	return maxi(0, int(f["slots"]) - (f["precepts"] as Array).size())
+	# Schisme et réforme (lot 3 de l'arbre) : une place de plus pour la foi que l'on dirige.
+	var h := head(state, fid)
+	var extra := Research.fx_int(state, h, "faith_slots") if h >= 0 and not GameState.is_npc(h) else 0
+	return maxi(0, int(f["slots"]) + extra - (f["precepts"] as Array).size())
 
 
 ## "" si le joueur peut ajouter ce précepte à cette foi, sinon la raison du refus.

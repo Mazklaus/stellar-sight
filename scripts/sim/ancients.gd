@@ -533,6 +533,11 @@ static func meet(state: GameState, id: int, eid: int, added: Array[Dictionary]) 
 	added.append(state.add_chronicle("%s rencontre %s. %s" % [e.display_name(), Crisis.obj_name(name_of(state, id)).trim_prefix(""),
 			"Personne n'ose parler trop fort."], Espionage.private_to(state, [eid])))
 	Events.push(state, eid, "anc_contact", {"anc": id, "system": int(a["home"])}, added)
+	# Prop. 64 de l'arbre : chaque puissance ancienne rencontrée laisse une trouvaille.
+	var fd := Research.grant_find(state, eid, "ancients")
+	if fd != "":
+		added.append(state.add_chronicle("Trouvaille : au contact de %s, %s comprend %s." % [Crisis.obj_name(name_of(state, id)), e.display_name(),
+				String(Research.tech(fd).get("label", fd))], Espionage.private_to(state, [eid])))
 
 
 ## Opinion de départ : celle de la sorte, ses colères permanentes (peuple synthétique) et les talents.

@@ -5197,7 +5197,7 @@
     "Trouvaille"
    ],
    "family": "meca",
-   "summary": "Technologie qui ne se recherche pas : une grande curiosité, une puissance ancienne, les Strates ou une prise démontée la livrent ; elle vaut sa cousine de l'arbre",
+   "summary": "Technologie qui ne se recherche pas : une grande curiosité, une puissance ancienne, les Strates, une prise démontée, la percée d'un haut fait ou le présage d'une crise la livre ; elle vaut sa cousine de l'arbre",
    "chapters": [
     "07-recherche"
    ],
@@ -5344,6 +5344,44 @@
    ],
    "family": "meca",
    "summary": "La dernière technologie d'un domaine : elle demande trois autres technologies de son ère V (Verbe final, Moteur à singularité, Économie d'abondance, Symbiose)",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "techno_pilier",
+   "name": "Technologie de pilier",
+   "forms": [
+    "Technologie de pilier",
+    "Technologies de pilier"
+   ],
+   "family": "meca",
+   "summary": "Technologie qui ouvre l'étage avancé d'un pilier optionnel (espionnage, religions, héros, cour, créatures…), jamais son cœur ; elle disparaît de l'arbre quand le pilier est coupé",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "ordre_terme",
+   "name": "Ordre à terme",
+   "forms": [
+    "Ordre à terme",
+    "Ordres à terme"
+   ],
+   "family": "meca",
+   "summary": "Ordre mensuel du marché qui, avec le Courtage interstellaire, n'achète qu'au prix de base ou moins et ne vend qu'au prix de base ou plus",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "voie_approfondie",
+   "name": "Voie approfondie",
+   "forms": [
+    "Voie approfondie"
+   ],
+   "family": "meca",
+   "summary": "Technologie propre à la voie de transcendance choisie, visible seulement sur cette voie : elle remplit la jauge d'Élévation plus vite",
    "chapters": [
     "07-recherche"
    ]

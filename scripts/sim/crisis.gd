@@ -427,6 +427,8 @@ static func _notice(state: GameState, added: Array[Dictionary]) -> void:
 		var text := step_text(state, i - (1 if c.has("seers") else 0))
 		Announce.next(state, "crisis_start" if last else "crisis_omen", {})
 		added.append(state.add_chronicle(("CRISE. " if last else "Présage. ") + text))
+		if not last and i == (1 if c.has("seers") else 0):
+			_omen_finds(state, added)
 		var card := "crise_arrivee" if last else ("crise_alerte_1" if i == 0 else "crise_alerte_2")
 		_push_all(state, card, int(c["origin"]), added)
 		if last:
@@ -450,6 +452,17 @@ static func _omen(state: GameState, c: Dictionary, added: Array[Dictionary]) -> 
 		Announce.next(state, "crisis_omen", {})
 		added.append(state.add_chronicle("Présage. " + omen, Espionage.private_to(state, [int(eid)], -1)))
 		Events.push(state, int(eid), "crise_alerte_1", {"system": o}, added)
+
+
+## Premier présage public (prop. 63 de l'arbre) : chaque empire peut en tirer une contre-mesure.
+static func _omen_finds(state: GameState, added: Array[Dictionary]) -> void:
+	for e in state.empires:
+		if e.eliminated or e.is_npc():
+			continue
+		var fd := Research.grant_find(state, e.id, "crisis")
+		if fd != "":
+			added.append(state.add_chronicle("Trouvaille : en décortiquant le présage, les savants de %s mettent au point %s." % [
+					e.display_name(), String(Research.tech(fd).get("label", fd))], Espionage.private_to(state, [e.id])))
 
 
 static func step_text(state: GameState, i: int) -> String:

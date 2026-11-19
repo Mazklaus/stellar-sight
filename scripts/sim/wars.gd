@@ -179,7 +179,7 @@ static func claim_cost(state: GameState, a: int, sid: int) -> int:
 	if owner < 0 or owner == a or GameState.is_npc(owner):
 		return -1
 	var j := jumps_to(state, a, sid)
-	if j > int(c["max_jumps"]):
+	if j > int(c["max_jumps"]) + Research.fx_int(state, a, "claim_reach"):  # Cartographie juridique
 		return -1
 	var rec := war(state, a, owner)
 	if not rec.is_empty() and int(rec["d"]) == a:

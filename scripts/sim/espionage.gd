@@ -94,7 +94,8 @@ static func talent_labels(state: GameState, empire_id: int) -> Array:
 
 ## Cellules de contre-espionnage de b, pondérées (l'Inquisition de la foi les compte double).
 static func counter_weight(state: GameState, b: int) -> int:
-	return home_cells(state, b) * maxi(1, int(talent(state, b).get("counter_x", 1)))
+	# Contre-espionnage (lot 3 de l'arbre) : les cellules à domicile pèsent une fois de plus.
+	return home_cells(state, b) * (maxi(1, int(talent(state, b).get("counter_x", 1))) + Research.fx_int(state, b, "counter_x"))
 
 
 ## Cellules affectées par a chez b (chez lui-même quand a == b : contre-espionnage).
@@ -159,12 +160,13 @@ static func infiltration(state: GameState, a: int, b: int) -> int:
 
 
 static func decryption(state: GameState, empire_id: int) -> int:
-	return Research.current_era(state, empire_id) + int(talent(state, empire_id).get("decryption", 0))
+	return Research.current_era(state, empire_id) + int(talent(state, empire_id).get("decryption", 0)) + Research.fx_int(state, empire_id, "crypto")
 
 
 static func encryption(state: GameState, empire_id: int) -> int:
 	var bonus := int(data()["network"]["home_cell_encryption"]) if home_cells(state, empire_id) > 0 else 0
-	return Research.current_era(state, empire_id) + bonus + int(talent(state, empire_id).get("encryption", 0)) + Heroes.encryption(state, empire_id)
+	return Research.current_era(state, empire_id) + bonus + int(talent(state, empire_id).get("encryption", 0)) + Heroes.encryption(state, empire_id) \
+			+ Research.fx_int(state, empire_id, "crypto")
 
 
 ## Pourcentage de croissance selon déchiffrement de a moins chiffrement de b.
@@ -1279,7 +1281,9 @@ static func answer(state: GameState, victim: int, case_id: int, choice: String) 
 	if choice == "expel" or choice == "turn":
 		var net: Dictionary = state.networks.get(key(a, victim), {})
 		if not net.is_empty():
-			net["inf"] = 0
+			# Agents dormants (lot 3 de l'arbre) : un tiers de l'implantation survit au démantèlement.
+			@warning_ignore("integer_division")
+			net["inf"] = int(net.get("inf", 0)) / 3 if Research.fx_int(state, a, "sleepers") > 0 else 0
 		set_cells(state, a, victim, 0)
 		Diplomacy.remember(state, a, victim, "spy_expelled")
 		state.add_chronicle("%s expulse les agents de %s. On les raccompagne au spatioport, avec leurs valises et sans leurs carnets." % [

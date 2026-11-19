@@ -381,8 +381,11 @@ static func welcome(state: GameState, c: Colony, fid: String, n := 1) -> void:
 		integ = maxi(integ, int(tl["refugee_integration"]))
 	if int(Laws.effects(state, c.owner).get("integration_pct", 0)) > 0:
 		integ = mini(100, integ * (100 + int(Laws.effects(state, c.owner)["integration_pct"])) / 100)
+	if Research.fx_int(state, c.owner, "integ_yearly") > 0:
+		integ = maxi(integ, 75)  # Xénologie : des réfugiés accueillis plus vite
 	for i in n:
 		add_one(state, c, fid, integ)
+	Research.count_stat(state, c.owner, "refugees", n)
 	var e := state.get_empire(c.owner)
 	e.resources["influence"] = int(e.resources.get("influence", 0)) + n * int(data().get("refugee_influence", 2))
 	e.resources["food"] = int(e.resources.get("food", 0)) - n * int(data().get("refugee_food", 5))

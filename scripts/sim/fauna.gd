@@ -532,7 +532,8 @@ static func set_attitude(state: GameState, empire_id: int, sp: String, att: Stri
 	match att:
 		"etude":
 			Economy.pay(e, attitude_cost_for(state, empire_id, att))
-			m["study"][sp] = state.tick + int(attitude_def("etude").get("days", 360))
+			@warning_ignore("integer_division")
+			m["study"][sp] = state.tick + int(attitude_def("etude").get("days", 360)) / (2 if Research.fx_int(state, empire_id, "fast_study") > 0 else 1)
 			text = "%s lance l'étude des %s. Les xénobiologistes promettent des résultats dans l'année, et des croquis dès demain." % [e.display_name(), String(sd["label"])]
 		"chasse":
 			Economy.pay(e, attitude_cost(att))
@@ -601,6 +602,7 @@ static func on_battle(state: GameState, b: Dictionary, winner: int, added: Array
 			var m := _meta(state, winner)
 			m["kills"][sp] = int(m["kills"].get(sp, 0)) + n
 			var pct := int(attitude_def("chasse").get("loot_pct", 100)) if stance(state, winner, sp) == "chasse" else 50
+			pct *= 1 + Research.fx_int(state, winner, "fauna_loot")  # Biologie des léviathans (lot 3 de l'arbre)
 			var per: Dictionary = species(sp).get("loot", {})
 			for r in per:
 				@warning_ignore("integer_division")
@@ -611,6 +613,8 @@ static func on_battle(state: GameState, b: Dictionary, winner: int, added: Array
 			if smp != "" and not we.is_ai():
 				added.append(state.add_chronicle("Les biologistes de %s prélèvent un échantillon sur les créatures abattues : « %s » devient possible dans les cuves." % [
 						we.short_name(), Genetics.trait_label(smp)], Espionage.private_to(state, [winner])))
+		if count > 0:
+			Research.count_stat(state, winner, "beasts", count)  # eurêkas de Créatures (prop. 16 de l'arbre)
 		if loot.is_empty():
 			continue
 		for r in loot:
