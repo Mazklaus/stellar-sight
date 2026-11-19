@@ -225,17 +225,16 @@ static func _compute_zone(state: GameState, eid: int) -> Dictionary:
 	var best := {}
 	var maxr := 0
 	var holders_ok := {}
-	for s in g.systems:
-		var sid := s.id
-		var h := WarPeace.holder(state, sid)
-		if h < 0:
-			continue
+	var sh := _shared(state)
+	for row: Array in sh["held"]:
+		var sid: int = row[0]
+		var h: int = row[1]
 		if not holders_ok.has(h):
 			holders_ok[h] = supplies(state, h, eid)
-		if not bool(holders_ok[h]) or not bridge_ok(state, sid, h):
+		if not bool(holders_ok[h]) or not bool(row[2]):
 			continue
 		var r := rng
-		if has_depot(state, sid, h):
+		if bool(row[3]):
 			r += depot_r
 		if int(best.get(sid, -1)) < r:
 			best[sid] = r
@@ -254,14 +253,11 @@ static func _compute_zone(state: GameState, eid: int) -> Dictionary:
 	for sid in best:
 		(buckets[int(best[sid])] as Array).append(sid)
 	# Terrain (voir Terrain) : une tempête ou une nébuleuse ionisée arrête les convois.
-	var walled := {}
-	if Terrain.active(state):
-		for s in g.systems:
-			if Terrain.blocks_supply(state, s.id):
-				walled[s.id] = true
+	var walled: Dictionary = sh["walled"]
 	# Portails (prop. 17) : un saut le long d'un corridor de relais coûte supply_jumps de moins.
 	var corr := Portals.enabled(state) and not g.relays.is_empty()
 	var cj := int(Portals.cfg("relays").get("supply_jumps", 1)) if corr else 0
+	var relay_ends := {}
 	for r in range(maxr, 0, -1):
 		var bucket: Array = buckets[r]
 		var bi := 0
@@ -274,8 +270,8 @@ static func _compute_zone(state: GameState, eid: int) -> Dictionary:
 				if walled.has(n):
 					continue
 				var nr := r - 1
-				if corr and Portals.corridor(state, eid, sid, int(n)):
-					nr = mini(r, r - 1 + cj)
+				if corr and eid >= 0 and _relay_end(state, eid, sid, relay_ends) and _relay_end(state, eid, int(n), relay_ends):
+					nr = mini(r, r - 1 + cj)  # Portals.corridor, bout par bout gardé pour ce calcul
 				if int(best.get(n, -1)) < nr:
 					best[n] = nr
 					(buckets[nr] as Array).append(n)
@@ -292,6 +288,33 @@ static func _compute_zone(state: GameState, eid: int) -> Dictionary:
 			if not best.has(s.id) and state.system_owner(s.id) < 0:
 				best[s.id] = 0
 	return best
+
+
+static func _relay_end(state: GameState, eid: int, sid: int, memo: Dictionary) -> bool:
+	if not memo.has(sid):
+		memo[sid] = Portals.relay_end_ok(state, eid, sid)
+	return bool(memo[sid])
+
+
+## Ce qui ne dépend pas de l'empire, calculé une fois pour toutes les zones du cache (grande passe
+## d'optimisation) : systèmes tenus dans l'ordre de la galaxie [système, tenant, tête de pont
+## acquise, dépôt], et systèmes murés par le terrain. Même durée de vie que le cache des zones.
+static func _shared(state: GameState) -> Dictionary:
+	var cache := state.log_cache
+	if cache.has("sh"):
+		return cache["sh"]
+	var held: Array = []
+	var walled := {}
+	var terrain := Terrain.active(state)
+	for s in state.galaxy.systems:
+		var h := WarPeace.holder(state, s.id)
+		if h >= 0:
+			held.append([s.id, h, bridge_ok(state, s.id, h), has_depot(state, s.id, h)])
+		if terrain and Terrain.blocks_supply(state, s.id):
+			walled[s.id] = true
+	var sh := {"held": held, "walled": walled}
+	cache["sh"] = sh
+	return sh
 
 
 static func in_zone(state: GameState, eid: int, sid: int) -> bool:

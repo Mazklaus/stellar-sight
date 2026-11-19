@@ -324,12 +324,31 @@ static func regiments_of(state: GameState, eid: int) -> Array[Dictionary]:
 
 
 static func aboard(state: GameState, fid: int) -> Array[Dictionary]:
+	# Trie seulement les régiments de la flotte (même ordre qu'un tri de tous les identifiants).
+	var regs: Dictionary = _g(state)["r"]
+	var ids: Array[int] = []
+	for k in regs:
+		if int(regs[k]["f"]) == fid:
+			ids.append(int(k))
+	ids.sort()
 	var out: Array[Dictionary] = []
+	for rid in ids:
+		out.append(regs[str(rid)])
+	return out
+
+
+## Régiments embarqués, flotte par flotte ({flotte: [régiments]}, chaque liste dans l'ordre des
+## identifiants) : un seul passage pour toutes les flottes.
+static func aboard_by_fleet(state: GameState) -> Dictionary:
+	var by_f := {}
 	for rid in _sorted_ids(state):
 		var r: Dictionary = state.ground["r"][str(rid)]
-		if int(r["f"]) == fid:
-			out.append(r)
-	return out
+		var fid := int(r["f"])
+		if fid >= 0:
+			if not by_f.has(fid):
+				by_f[fid] = []
+			(by_f[fid] as Array).append(r)
+	return by_f
 
 
 ## Régiments au sol dans un système (d'un empire, ou de tous si eid < 0).
@@ -938,13 +957,16 @@ static func _check_transport(state: GameState) -> void:
 		if fid >= 0 and not state.fleets.has(fid):
 			lost[int(r["o"])] = int(lost.get(int(r["o"]), 0)) + 1
 			state.ground["r"].erase(str(rid))
+	var by_f := aboard_by_fleet(state)
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
-		var regs := aboard(state, fid)
+		var regs: Array = by_f.get(fid, [])
 		if regs.is_empty():
 			continue
 		var cap := capacity(state, f)
-		var used := used_places(state, fid)
+		var used := 0
+		for r: Dictionary in regs:
+			used += size_of(String(r["t"]))
 		var i := regs.size() - 1
 		while used > cap and i >= 0:
 			used -= size_of(String(regs[i]["t"]))

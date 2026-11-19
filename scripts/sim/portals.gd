@@ -448,13 +448,18 @@ static func relay_ok(state: GameState, eid: int, a: int, b: int) -> bool:
 	var g := state.galaxy
 	if g.relays.is_empty() or not g.relays.has(a) or not g.relays.has(b):
 		return false
-	for sid in [a, b]:
-		var o := state.system_owner(sid)
-		if o >= 0 and (state.portals.get("off", {}) as Dictionary).has(str(o)):
-			return false
-		if not may_use(state, o, eid, true) or cut(state, sid):
-			return false
-	return true
+	return relay_end_ok(state, eid, a) and relay_end_ok(state, eid, b)
+
+
+## Un bout de corridor : relais de ce système utilisable par eid (tenant qui n'a pas éteint ses relais,
+## droit de passage, système pas coupé). relay_ok = les deux bouts ; la logistique le garde par système.
+static func relay_end_ok(state: GameState, eid: int, sid: int) -> bool:
+	if not state.galaxy.relays.has(sid):
+		return false
+	var o := state.system_owner(sid)
+	if o >= 0 and (state.portals.get("off", {}) as Dictionary).has(str(o)):
+		return false
+	return may_use(state, o, eid, true) and not cut(state, sid)
 
 
 ## Portée effective du portail d'un système (talent du tenant).

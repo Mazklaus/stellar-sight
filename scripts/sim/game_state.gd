@@ -917,6 +917,10 @@ func spawn_ship(owner_id: int, ship_id: String, system_id: int) -> Fleet:
 
 
 func get_empire(id: int) -> Empire:
+	# Les empires ordinaires d'abord (le cas de loin le plus fréquent) : tous les autres
+	# identifiants sont à partir de NPC_ID.
+	if id >= 0 and id < NPC_ID:
+		return empires[id] if id < empires.size() else null
 	if id == NPC_ID:
 		return npc_empire()
 	if id == PIRATE_ID:
@@ -1066,6 +1070,8 @@ static func is_minor(id: int) -> bool:
 
 ## Faction non jouable (Sans-Bannière, Pirates, Faune, Crise ou puissance ancienne).
 static func is_npc(id: int) -> bool:
+	if id < NPC_ID:
+		return false
 	return id == NPC_ID or id == PIRATE_ID or id == FAUNA_ID or id == CRISIS_ID or is_ancient(id) or is_minor(id)
 
 

@@ -161,7 +161,17 @@ static func buildings() -> Dictionary:
 ## Lot 4 de l'arbre : un bâtiment de peuple (replaces_building) compte comme le bâtiment commun qu'il
 ## remplace (Tribune = Forum, Campement de clan = Dépôt de flotte…). Renvoie l'identifiant commun.
 static func building_kind(id: String) -> String:
-	return String(buildings().get(id, {}).get("replaces_building", id))
+	var k: Variant = _kind_memo.get(id)
+	if k == null:
+		k = String(buildings().get(id, {}).get("replaces_building", id))
+		_kind_memo[id] = k
+	return k
+
+
+## Mémos des lectures les plus fréquentes (grande passe d'optimisation) : les données du jeu ne
+## changent pas en cours de partie.
+static var _kind_memo := {}
+static var _bld_memo := {}
 
 
 ## Bâtiments de peuple qui remplacent ce bâtiment commun.
@@ -183,6 +193,9 @@ static func building_variants(id: String) -> Array[String]:
 
 
 static func building(id: String) -> Dictionary:
+	var m: Variant = _bld_memo.get(id)
+	if m != null:
+		return m
 	var b: Dictionary = buildings().get(id, {})
 	if b.is_empty():
 		b = wonders_list().get(id, {})  # merveilles et mégastructures (data/wonders.json)
@@ -190,6 +203,8 @@ static func building(id: String) -> Dictionary:
 		b = deeds().get("trophies", {}).get(id, {})  # Trophées des hauts faits (data/deeds.json)
 		if not b.is_empty() and not b.has("buildable"):
 			b["buildable"] = false
+	if not b.is_empty():
+		_bld_memo[id] = b
 	return b
 
 
