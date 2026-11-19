@@ -23,16 +23,31 @@
 			"era": 1,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "+10 % de vitesse pour toutes les flottes.",
+			"text": "Débloque la tactique Harcèlement (bien de loin, un peu moins touchée). Sa Maîtrise, Postcombustion, rend les flottes plus rapides.",
 			"needs": [
 				"vaisseaux"
 			],
-			"effects": {
-				"fleet_speed_pct": 10
-			},
 			"tags": [
 				"saut"
 			]
+		},
+		"postcombustion": {
+			"label": "Postcombustion",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "+10 % de vitesse pour toutes les flottes.",
+			"pre": [
+				"propulseurs"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"mastery": "propulseurs",
+			"effects": {
+				"fleet_speed_pct": 10
+			}
 		},
 		"detecteurs_abysse": {
 			"label": "Détecteurs d'abysse",
@@ -234,17 +249,33 @@
 			"era": 1,
 			"field": "coques",
 			"current": "forge",
-			"text": "Les vaisseaux sortent des chantiers 15 % plus vite.",
+			"text": "Débloque la Cale sèche : les vaisseaux construits dans la colonie sortent 25 % plus vite. Sa Maîtrise accélère tous les chantiers.",
 			"needs": [
 				"chantier",
 				"vaisseaux"
 			],
-			"effects": {
-				"ship_days_pct": -15
-			},
 			"eureka": {
 				"kind": "built",
 				"n": 6
+			}
+		},
+		"cales_paralleles": {
+			"label": "Cales parallèles",
+			"domain": "genie",
+			"era": 2,
+			"field": "coques",
+			"current": "forge",
+			"text": "Les vaisseaux se construisent 15 % plus vite.",
+			"pre": [
+				"cales_rapides"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"mastery": "cales_rapides",
+			"effects": {
+				"ship_days_pct": -15
 			}
 		},
 		"coques_lourdes": {
@@ -287,16 +318,13 @@
 			"era": 2,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "+10 % de vitesse pour toutes les flottes.",
+			"text": "Débloque les Nacelles à hyperflux : le vaisseau force les blocus. Sa Maîtrise, Flux continu, rend les flottes plus rapides.",
 			"pre": [
 				"propulseurs"
 			],
 			"needs": [
 				"vaisseaux"
 			],
-			"effects": {
-				"fleet_speed_pct": 10
-			},
 			"tags": [
 				"saut"
 			],
@@ -305,13 +333,31 @@
 				"n": 35
 			}
 		},
+		"flux_continu": {
+			"label": "Flux continu",
+			"domain": "genie",
+			"era": 3,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "+10 % de vitesse pour toutes les flottes.",
+			"pre": [
+				"hyperflux"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"mastery": "hyperflux",
+			"effects": {
+				"fleet_speed_pct": 10
+			}
+		},
 		"coques_series": {
 			"label": "Coques de série",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
 			"current": "forge",
-			"text": "Les vaisseaux coûtent 10 % de moins.",
+			"text": "Débloque la Chaîne navale (remplace la Cale sèche). Sa Maîtrise, Ravitaillement en vol, allège l'entretien et le prix des flottes.",
 			"pre": [
 				"cales_rapides"
 			],
@@ -319,9 +365,6 @@
 				"chantier",
 				"vaisseaux"
 			],
-			"effects": {
-				"ship_cost_pct": -10
-			},
 			"eureka": {
 				"kind": "built",
 				"n": 20
@@ -381,7 +424,7 @@
 			"era": 3,
 			"field": "coques",
 			"current": "academie",
-			"text": "Des esprits artificiels pointent les armes : +10 % de dégâts pour toutes les armes. Les héros synthétiques tombés au combat reviennent de leur sauvegarde.",
+			"text": "Débloque le Cœur de calcul (le vaisseau tire avant d'encaisser), et les héros synthétiques tombés au combat reviennent de leur sauvegarde. Sa Maîtrise, Tir prédictif, ajoute des dégâts.",
 			"pre": [
 				"torpilleurs"
 			],
@@ -399,8 +442,25 @@
 				"vaisseaux"
 			],
 			"effects": {
-				"damage_pct": 10,
 				"hero_backup": 1
+			}
+		},
+		"tir_predictif": {
+			"label": "Tir prédictif",
+			"domain": "genie",
+			"era": 4,
+			"field": "coques",
+			"current": "academie",
+			"text": "+10 % de dégâts pour tous vos vaisseaux.",
+			"pre": [
+				"ia_bord"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"mastery": "ia_bord",
+			"effects": {
+				"damage_pct": 10
 			}
 		},
 		"cuirasses": {
@@ -424,19 +484,34 @@
 			"era": 4,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "+15 % de vitesse pour toutes les flottes.",
+			"text": "Débloque l'Œil du Titan. Sa Maîtrise, Sauts calculés, rend les flottes plus rapides.",
 			"pre": [
 				"hyperflux"
 			],
 			"needs": [
 				"vaisseaux"
 			],
-			"effects": {
-				"fleet_speed_pct": 15
-			},
 			"tags": [
 				"saut"
 			]
+		},
+		"sauts_calcules": {
+			"label": "Sauts calculés",
+			"domain": "genie",
+			"era": 5,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "+15 % de vitesse pour toutes les flottes.",
+			"pre": [
+				"saut_precision"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"mastery": "saut_precision",
+			"effects": {
+				"fleet_speed_pct": 15
+			}
 		},
 		"coques_modulaires": {
 			"label": "Coques modulaires",
@@ -444,14 +519,30 @@
 			"era": 4,
 			"field": "coques",
 			"current": "forge",
-			"text": "Les vaisseaux coûtent encore 10 % de moins et sortent 10 % plus vite.",
+			"text": "Débloque la Baie de réparation : hors de son territoire, la flotte se répare trois fois plus vite. Sa Maîtrise standardise les coques.",
 			"pre": [
 				"arsenaux"
 			],
 			"needs": [
 				"chantier",
 				"vaisseaux"
+			]
+		},
+		"coques_standard": {
+			"label": "Coques standardisées",
+			"domain": "genie",
+			"era": 5,
+			"field": "coques",
+			"current": "forge",
+			"text": "Vaisseaux 10 % moins chers et 10 % plus vite construits.",
+			"pre": [
+				"coques_modulaires"
 			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"mastery": "coques_modulaires",
 			"effects": {
 				"ship_cost_pct": -10,
 				"ship_days_pct": -10
@@ -597,7 +688,7 @@
 			"era": 4,
 			"field": "coques",
 			"current": "forge",
-			"text": "L'entretien des flottes coûte 20 % de moins.",
+			"text": "L'entretien des flottes coûte 20 % de moins, et les vaisseaux 10 % de moins.",
 			"pre": [
 				"coques_series"
 			],
@@ -607,7 +698,8 @@
 			],
 			"mastery": "coques_series",
 			"effects": {
-				"upkeep_pct": -20
+				"upkeep_pct": -20,
+				"ship_cost_pct": -10
 			}
 		},
 		"navigation_stellaire": {
@@ -714,6 +806,19 @@
 				"paix": 40
 			}
 		},
+		"moteur_singularite": {
+			"label": "Moteur à singularité",
+			"domain": "genie",
+			"era": 5,
+			"field": "coques",
+			"current": "forge",
+			"text": "Technologie ultime (il faut 3 autres technologies de l'ère V de Génie). Débloque le Moteur à singularité : le module de vitesse final, qui force aussi les blocus.",
+			"ultimate": 3,
+			"needs": [
+				"vaisseaux"
+			],
+			"flavor": "On ne va plus d'une étoile à l'autre. On laisse l'autre venir."
+		},
 		"ingenierie_inverse": {
 			"label": "Ingénierie inverse",
 			"domain": "genie",
@@ -738,7 +843,7 @@
 			"era": 2,
 			"field": "coques",
 			"current": "glaive",
-			"text": "Débarquement plus rapide : un jour de moins avant la bataille au sol.",
+			"text": "Débloque les Navettes lourdes (beaucoup plus de troupes à bord).",
 			"pre": [
 				"debarquement"
 			],
@@ -916,6 +1021,53 @@
 			],
 			"pillar": "forge_mondes",
 			"flavor": "Le monde ne tourne plus seulement sur lui-même. Il a aussi un itinéraire."
+		},
+		"archeologie_stellaire": {
+			"label": "Archéologie stellaire",
+			"domain": "genie",
+			"era": 2,
+			"field": "senseurs",
+			"current": "academie",
+			"text": "Archéologie en jeu : les fouilles livrent des antiquités, la strate et l'origine des sites se lisent, et le Musée galactique gagne 3 places d'antiquités.",
+			"pre": [
+				"capteurs"
+			],
+			"pillar": "archeologie",
+			"effects": {
+				"archaeo_lvl": 1
+			},
+			"flavor": "Avant, on creusait pour trouver de l'or. Maintenant, on creuse pour trouver des gens qui creusaient pour trouver de l'or."
+		},
+		"dechiffrement_strates": {
+			"label": "Déchiffrement des Strates",
+			"domain": "genie",
+			"era": 3,
+			"field": "senseurs",
+			"current": "academie",
+			"text": "Archéologie en jeu : actions de fragments (vente, rétro-ingénierie, applications militaires, proclamation, interroger les Strates) et 3 places d'antiquités de plus.",
+			"pre": [
+				"archeologie_stellaire"
+			],
+			"pillar": "archeologie",
+			"effects": {
+				"archaeo_lvl": 1
+			},
+			"flavor": "Les inscriptions disaient « Défense d'entrer ». Il a fallu trois siècles pour les lire, et trois secondes pour les ignorer."
+		},
+		"codex_navigateurs": {
+			"label": "Codex des navigateurs disparus",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "Trouvaille : les carnets d'un peuple de navigateurs. Ils valent Moteurs à hyperflux (Nacelles à hyperflux) sans les rechercher.",
+			"find": true,
+			"find_of": "hyperflux",
+			"find_sources": [
+				"curio",
+				"strates"
+			],
+			"flavor": "Les marges sont pleines de jurons. Les navigateurs étaient donc des gens comme nous."
 		}
 	}
 }

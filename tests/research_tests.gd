@@ -161,12 +161,12 @@ func _test_effects() -> void:
 	var e := st.get_empire(0)
 	var home := e.capital_planet
 	var before: Dictionary = Economy.empire_income(st, 0)["gross"]
-	Research.grant(st, 0, ["hydroponie", "rhetorique"])
+	Research.grant(st, 0, ["hydroponie", "rhetorique", "agronomie_orbitale", "art_oratoire"])
 	var after: Dictionary = Economy.empire_income(st, 0)["gross"]
-	_ok(int(after["food"]) > int(before["food"]) and int(after["influence"]) > int(before["influence"]), "Hydroponie et Rhétorique augmentent la production")
+	_ok(int(after["food"]) > int(before["food"]) and int(after["influence"]) > int(before["influence"]), "Maîtrises d'Hydroponie et de Rhétorique : plus de production")
 	var g0 := Economy.growth_per_day(st, st.colonies[home])
-	Research.grant(st, 0, ["medecine"])
-	_ok(Economy.growth_per_day(st, st.colonies[home]) > g0, "Médecine accélère la croissance")
+	Research.grant(st, 0, ["medecine", "sante_publique"])
+	_ok(Economy.growth_per_day(st, st.colonies[home]) > g0, "Santé publique (Maîtrise de Médecine) accélère la croissance")
 	_ok(Economy.max_projects_for(st, 0) == int(GameData.rules()["max_projects"]), "fondations simultanées de base")
 	Research.grant(st, 0, ["administration"])
 	_ok(Economy.max_projects_for(st, 0) == int(GameData.rules()["max_projects"]) + 1, "Administration : une fondation de plus")
@@ -190,10 +190,10 @@ func _test_effects() -> void:
 	var cost0 := int(Fleets.ship_cost(st, 0, "corvette")["materials"])
 	var days0 := Fleets.ship_days(st, 0, "corvette")
 	var up0 := Fleets.upkeep(st, 0).duplicate()
-	Research.grant(st, 0, ["propulseurs", "cales_rapides", "coques_series", "capteurs"])
+	Research.grant(st, 0, ["propulseurs", "cales_rapides", "coques_series", "capteurs", "postcombustion", "cales_paralleles", "ravitaillement"])
 	_ok(Fleets.speed(f, st) > v0, "Propulseurs : flottes plus rapides")
-	_ok(int(Fleets.ship_cost(st, 0, "corvette")["materials"]) < cost0, "Coques en série : vaisseaux moins chers")
-	_ok(Fleets.ship_days(st, 0, "corvette") < days0, "Cales rapides : vaisseaux plus vite construits")
+	_ok(int(Fleets.ship_cost(st, 0, "corvette")["materials"]) < cost0, "Ravitaillement en vol (Maîtrise des Coques en série) : vaisseaux moins chers")
+	_ok(Fleets.ship_days(st, 0, "corvette") < days0, "Cales parallèles (Maîtrise) : vaisseaux plus vite construits")
 	Research.grant(st, 0, ["extraction", "logistique", "recyclage", "ravitaillement"])
 	_ok(int(Fleets.upkeep(st, 0).get("energy", 0)) <= int(up0.get("energy", 0)), "Ravitaillement : entretien réduit")
 	# Combat : dégâts par famille et protection.
@@ -201,12 +201,14 @@ func _test_effects() -> void:
 	var strong := Combat.shot_damage("kinetic", 240, 1, "equilibre", 100 + 20, "croiseur", "equilibre")
 	var armored := Combat.shot_damage("kinetic", 240, 1, "equilibre", 100, "croiseur", "equilibre", 0, {"armor": 40})
 	_ok(strong > raw and armored < raw, "dégâts et blindage des technologies (%d, %d, %d)" % [raw, strong, armored])
-	Research.grant(st, 0, ["canons_masse"])
-	_ok(Combat.weapon_bonus(st, 0, "kinetic") == 20 and Combat.weapon_bonus(st, 0, "beam") == 0, "Canons à masse réactive : +20 % aux armes cinétiques seulement")
+	_ok(Combat.weapon_bonus(st, 0, "kinetic") == 0, "ère I d'Armement : marque I, pas de bonus")
+	Research.grant(st, 0, ["canons_masse", "lentilles", "tetes_chercheuses", "blindage_composite"])
+	_ok(Combat.weapon_bonus(st, 0, "kinetic") == 20 and Combat.weapon_bonus(st, 0, "beam") == 20,
+			"palier de l'ère II d'Armement : marque II pour toutes les armes (+20 %%) (%d)" % Combat.weapon_bonus(st, 0, "kinetic"))
 	var tr := st.spawn_ship(0, "transport", st.galaxy.get_planet(home).system_id)
 	var t0 := Combat.max_troops(tr, st)
-	Research.grant(st, 0, ["marines"])
-	_ok(Combat.max_troops(tr, st) > t0, "Marines : plus de troupes")
+	Research.grant(st, 0, ["marines", "fusiliers_elite"])
+	_ok(Combat.max_troops(tr, st) > t0, "Fusiliers d'élite (Maîtrise des Marines) : plus de troupes")
 
 
 func _test_locked_content() -> void:

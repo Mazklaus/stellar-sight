@@ -146,13 +146,16 @@ func _test_strategic() -> void:
 	_plant(st, "plasmine")
 	var p := _take(st, 0, "plasmine")
 	_month(st)
-	_ok(int(st.get_empire(0).resources.get("plasmine", 0)) == 0, "un stratégique de l'ère II ne rend rien à l'ère I")
+	_ok(int(st.get_empire(0).resources.get("plasmine", 0)) == 0, "un stratégique ne rend rien sans sa technologie")
 	var t2: Array = []
 	for t in GameData.technologies()["technologies"]:
-		if int(Research.tech(String(t)).get("era", 1)) <= 2:
+		if int(Research.tech(String(t)).get("era", 1)) <= 2 and String(t) != "extraction_plasmine":
 			t2.append(String(t))
 	Research.grant(st, 0, t2)
 	_ok(Research.current_era(st, 0) >= 2, "l'empire atteint l'ère II")
+	_month(st)
+	_ok(int(st.get_empire(0).resources.get("plasmine", 0)) == 0, "l'ère II ne suffit pas : il faut Extraction de plasmine (lot 2)")
+	Research.grant(st, 0, ["extraction_plasmine"])
 	_month(st)
 	_ok(p >= 0 and int(st.get_empire(0).resources.get("plasmine", 0)) == 1, "puis 1 par gisement et par mois")
 	var c := Designs.compute("croiseur", ["piece_artillerie"])

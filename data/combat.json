@@ -22,7 +22,8 @@
 			"vs_size": {"small": 30, "medium": 70, "large": 120, "titan": 160}},
 		"martyr": {"label": "Charge sacrée", "short": "Charge sacrée", "eff": [0, 0, 100], "defense": "armor", "self_destruct": true, "fervor": 5},
 		"psychic": {"label": "Frappe mentale", "short": "Psychique", "eff": [60, 100, 80], "defense": "psi", "psionic": true},
-		"decharge": {"label": "Décharge vivante", "short": "Décharge", "eff": [60, 90, 90], "defense": "none", "creature": true}
+		"decharge": {"label": "Décharge vivante", "short": "Décharge", "eff": [60, 90, 90], "defense": "none", "creature": true},
+		"ion": {"label": "Ions", "short": "Ions", "eff": [60, 90, 60], "defense": "shield", "ion": true, "ion_pct": 50, "mark_family": "beam"}
 	},
 	"lines": {
 		"screen": {"label": "Écran", "weight": 3, "desc": "Devant : attire les tirs et protège le reste de la flotte."},
@@ -50,7 +51,18 @@
 		{"id": "rempart", "label": "Rempart", "dmg": [85, 85, 85], "taken": 80,
 			"desc": "Serre les rangs et encaisse : -20 % de dégâts reçus, -15 % de dégâts infligés. Pour tenir en attendant les renforts."},
 		{"id": "adaptatif", "label": "Adaptative", "dmg": [120, 115, 120], "taken": 100, "requires": "adaptive",
-			"desc": "Change de manière de se battre à chaque phase. Il faut un équipage capable de voter vite : une Frégate des Quarante dans la flotte."}
+			"desc": "Change de manière de se battre à chaque phase. Il faut un équipage capable de voter vite : une Frégate des Quarante dans la flotte."},
+		{"id": "feu_concentre", "label": "Feu concentré", "dmg": [95, 125, 100], "taken": 105, "requires_tech": "lentilles", "desc": "Toute la flotte vise les mêmes cibles à moyenne portée : +25 % de dégâts à mi-distance, mais elle s'expose un peu (+5 % de dégâts reçus)."},
+		{"id": "salves_croisees", "label": "Salves croisées", "dmg": [115, 105, 85], "taken": 100, "pd_cut": 25, "requires_tech": "tetes_chercheuses", "desc": "Les missiles arrivent de plusieurs côtés à la fois : la défense ponctuelle adverse en arrête un quart de moins. Mieux de loin."},
+		{"id": "guerre_electronique", "label": "Guerre électronique", "dmg": [110, 105, 100], "taken": 100, "pd_cut": 40, "requires_tech": "missiles_furtifs", "desc": "Brouillage, leurres et fausses signatures : la défense ponctuelle adverse arrête 40 % de projectiles de moins."},
+		{"id": "harcelement", "label": "Harcèlement", "dmg": [110, 105, 70], "taken": 95, "requires_tech": "propulseurs", "desc": "La flotte tourne autour de l'ennemi sans jamais se laisser rejoindre : bien de loin, mauvaise au contact, un peu moins touchée."},
+		{"id": "mur_acier", "label": "Mur d'acier", "dmg": [90, 95, 100], "taken": 82, "requires_tech": "rideau_acier", "desc": "Doctrine du Rideau d'acier : les escortes serrent les rangs devant la ligne. -18 % de dégâts reçus pour un peu de puissance de feu."},
+		{"id": "raid_profond", "label": "Raid en profondeur", "dmg": [90, 110, 125], "taken": 108, "pierce": 15, "requires_tech": "frappe_profondeur", "desc": "Doctrine de la Frappe en profondeur : la flotte plonge vers les arrières, perce 15 % du blindage et des boucliers, et s'expose (+8 % de dégâts reçus)."},
+		{"id": "barrage", "label": "Barrage", "dmg": [140, 100, 60], "taken": 100, "requires_tech": "feu_lointain", "desc": "Doctrine du Feu lointain : un mur d'obus et de missiles avant tout contact. +40 % de loin, -40 % au contact."},
+		{"id": "abordage_vague", "label": "Abordage en vague", "dmg": [60, 100, 140], "taken": 105, "board_pct": 30, "requires_tech": "abordage", "desc": "Doctrine de l'Abordage : la flotte fonce au contact pour lancer ses équipes. +40 % au contact, force d'abordage +30 %."},
+		{"id": "charge_eclair", "label": "Charge éclair", "dmg": [110, 120, 115], "taken": 115, "requires_tech": "guerre_eclair", "desc": "Doctrine de la Guerre éclair : tout, tout de suite. Plus de dégâts à toutes les portées, mais la flotte encaisse 15 % de plus."},
+		{"id": "retraite_ordonnee", "label": "Retraite ordonnée", "dmg": [90, 85, 65], "taken": 70, "requires_tech": "guerre_usure", "desc": "Doctrine de la Guerre d'usure : la flotte recule en bon ordre et ne se bat que pour durer (-30 % de dégâts reçus)."},
+		{"id": "dernier_mot", "label": "Dernier mot", "dmg": [125, 125, 125], "taken": 110, "requires_tech": "verbe_final", "desc": "Doctrine finale (Le Verbe final) : la flotte frappe à pleine puissance à toutes les portées et encaisse 10 % de plus."}
 	],
 	"repair_pct_home": 5,
 	"repair_pct_away": 1,

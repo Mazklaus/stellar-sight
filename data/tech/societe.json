@@ -131,38 +131,6 @@
 			"pillar": "contact",
 			"flavor": "Le verbe y est une étoile, le sujet une galaxie, et le complément nous."
 		},
-		"archeologie_stellaire": {
-			"label": "Archéologie stellaire",
-			"domain": "societe",
-			"era": 2,
-			"field": "culture",
-			"current": "academie",
-			"text": "Archéologie en jeu : les fouilles livrent des antiquités, la strate et l'origine des sites se lisent, et le Musée galactique gagne 3 places d'antiquités.",
-			"pre": [
-				"rhetorique"
-			],
-			"pillar": "archeologie",
-			"effects": {
-				"archaeo_lvl": 1
-			},
-			"flavor": "Avant, on creusait pour trouver de l'or. Maintenant, on creuse pour trouver des gens qui creusaient pour trouver de l'or."
-		},
-		"dechiffrement_strates": {
-			"label": "Déchiffrement des Strates",
-			"domain": "societe",
-			"era": 3,
-			"field": "culture",
-			"current": "academie",
-			"text": "Archéologie en jeu : actions de fragments (vente, rétro-ingénierie, applications militaires, proclamation, interroger les Strates) et 3 places d'antiquités de plus.",
-			"pre": [
-				"archeologie_stellaire"
-			],
-			"pillar": "archeologie",
-			"effects": {
-				"archaeo_lvl": 1
-			},
-			"flavor": "Les inscriptions disaient « Défense d'entrer ». Il a fallu trois siècles pour les lire, et trois secondes pour les ignorer."
-		},
 		"oree": {
 			"label": "L'Orée",
 			"domain": "societe",
@@ -195,7 +163,7 @@
 			"era": 1,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "+20 % d'habitabilité sur les mondes continentaux et océaniques (hors monde d'origine).",
+			"text": "Débloque les Dômes biosphériques (+2 population maximale), et +20 % d'habitabilité sur les mondes continentaux et océaniques (hors monde d'origine).",
 			"needs": [
 				"colonies"
 			],
@@ -217,7 +185,7 @@
 			"era": 1,
 			"field": "etat",
 			"current": "academie",
-			"text": "+1 colonisation simultanée. Seuil de surextension +2 systèmes (Administration : +8 capacité).",
+			"text": "Débloque le Poste de sécurité. +1 colonisation simultanée. Seuil de surextension +2 systèmes (Administration : +8 capacité).",
 			"needs": [
 				"colonies"
 			],
@@ -236,15 +204,27 @@
 			"era": 1,
 			"field": "culture",
 			"current": "concorde",
+			"text": "Débloque la Maison des spectacles (stabilité). Sa Maîtrise, Art oratoire : +15 % d'influence.",
+			"eureka": {
+				"kind": "contacts",
+				"n": 1
+			}
+		},
+		"art_oratoire": {
+			"label": "Art oratoire",
+			"domain": "societe",
+			"era": 2,
+			"field": "culture",
+			"current": "concorde",
 			"text": "+15 % d'influence.",
+			"pre": [
+				"rhetorique"
+			],
+			"mastery": "rhetorique",
 			"effects": {
 				"production_pct": {
 					"influence": 15
 				}
-			},
-			"eureka": {
-				"kind": "contacts",
-				"n": 1
 			}
 		},
 		"medecine": {
@@ -253,16 +233,31 @@
 			"era": 1,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "+15 % de croissance de la population.",
+			"text": "Débloque la Clinique (+25 % de croissance dans la colonie). Sa Maîtrise, Santé publique : +15 % de croissance partout.",
 			"needs": [
 				"naissance"
 			],
-			"effects": {
-				"growth_pct": 15
-			},
 			"eureka": {
 				"kind": "pop",
 				"n": 20
+			}
+		},
+		"sante_publique": {
+			"label": "Santé publique",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "+15 % de croissance de la population.",
+			"pre": [
+				"medecine"
+			],
+			"needs": [
+				"naissance"
+			],
+			"mastery": "medecine",
+			"effects": {
+				"growth_pct": 15
 			}
 		},
 		"mondes_toxiques": {
@@ -295,7 +290,7 @@
 			"era": 2,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "+20 % d'habitabilité sur les mondes désertiques et glaciaires.",
+			"text": "Débloque les Dômes renforcés (+4 population maximale), et +20 % d'habitabilité sur les mondes désertiques et glaciaires.",
 			"pre": [
 				"adaptation"
 			],
@@ -320,7 +315,7 @@
 			"era": 2,
 			"field": "etat",
 			"current": "concorde",
-			"text": "Débloque les alliances. Héros : +1 place.",
+			"text": "Débloque les alliances et le Bureau du renseignement (une cellule d'espionnage de plus). Héros : +1 place.",
 			"pre": [
 				"rhetorique"
 			],
@@ -339,12 +334,13 @@
 			"era": 2,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "Les nouvelles colonies démarrent avec 1 population de plus.",
+			"text": "Ouvre le Traité de migration (avec les peuples mêlés), et les nouvelles colonies démarrent avec 1 population de plus.",
 			"pre": [
 				"medecine"
 			],
 			"effects": {
-				"colony_start_pop": 1
+				"colony_start_pop": 1,
+				"treaty_migration": 1
 			},
 			"eureka": {
 				"kind": "colonies",
@@ -399,7 +395,7 @@
 			"era": 3,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "+15 % de croissance de la population.",
+			"text": "Débloque le Centre de clonage (remplace la Clinique, +50 %). Sa Maîtrise, Thérapies géniques : +15 % de croissance partout.",
 			"pre": [
 				"colons_formes"
 			],
@@ -415,7 +411,22 @@
 			},
 			"needs": [
 				"naissance"
+			]
+		},
+		"therapies_geniques": {
+			"label": "Thérapies géniques",
+			"domain": "societe",
+			"era": 4,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "+15 % de croissance de la population.",
+			"pre": [
+				"genetique"
 			],
+			"needs": [
+				"naissance"
+			],
+			"mastery": "genetique",
 			"effects": {
 				"growth_pct": 15
 			}
@@ -426,7 +437,7 @@
 			"era": 3,
 			"field": "culture",
 			"current": "concorde",
-			"text": "+20 % d'influence, +5 stabilité dans tous vos systèmes. Avec les religions : pare-feu culturel, les fois de nature Mème ne passent plus chez vous par les routes commerciales ni par les réseaux d'espionnage.",
+			"text": "Débloque l'Institut des héros, le Grand temple et le Grand mausolée. +20 % d'influence, +5 stabilité dans tous vos systèmes. Avec les religions : pare-feu culturel contre les fois Mème.",
 			"pre": [
 				"chancelleries"
 			],
@@ -513,7 +524,7 @@
 			"era": 3,
 			"field": "etat",
 			"current": "academie",
-			"text": "Capacité administrative +10 et Tribunaux 40 % moins chers (Administration). Sans le pilier : seuil de surextension +2 systèmes.",
+			"text": "Débloque la Cour de justice (agrandit le Tribunal). Capacité administrative +10 et Tribunaux 40 % moins chers (Administration). Sans le pilier : seuil de surextension +2 systèmes.",
 			"pre": [
 				"administration2"
 			],
@@ -537,7 +548,7 @@
 			"era": 5,
 			"field": "etat",
 			"current": "academie",
-			"text": "La distance au siège compte pour moitié dans la corruption et capacité administrative +15 (Administration). Sans le pilier : seuil de surextension +3 systèmes.",
+			"text": "Débloque le Bureau de sécurité intérieure. La distance au siège compte pour moitié dans la corruption et capacité administrative +15 (Administration). Sans le pilier : seuil de surextension +3 systèmes.",
 			"pre": [
 				"prefectures"
 			],
@@ -584,13 +595,14 @@
 			"era": 4,
 			"field": "etat",
 			"current": "concorde",
-			"text": "+15 d'opinion chez tous les empires rencontrés : la paix, le commerce et les alliances se négocient plus facilement. Conseil : +1 siège.",
+			"text": "Débloque le Sénat local (agrandit le Forum) et la fondation d'un Koinon (fédération, avec le Koinon en jeu). +15 d'opinion chez tous les empires rencontrés. Conseil : +1 siège.",
 			"pre": [
 				"propagande"
 			],
 			"effects": {
 				"opinion_all": 15,
-				"council_seats": 1
+				"council_seats": 1,
+				"federation": 1
 			},
 			"eureka": {
 				"kind": "contacts",
@@ -660,7 +672,7 @@
 			"era": 5,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "Aucun monde habitable ne descend sous 60 % d'habitabilité : les pires planètes deviennent de vraies colonies.",
+			"text": "Débloque la Cité scellée (+3 population maximale). Aucun monde habitable ne descend sous 60 % d'habitabilité.",
 			"pre": [
 				"cites_creusees"
 			],
@@ -692,7 +704,7 @@
 			"era": 5,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "Technologie ultime (il faut 3 autres technologies de l'ère V de Société). Aucun monde habitable ne descend sous 80 %, et la population croît 25 % plus vite.",
+			"text": "Technologie ultime (il faut 3 autres technologies de l'ère V de Société). Débloque le Jardin symbiotique. Aucun monde habitable ne descend sous 80 %, et la population croît 25 % plus vite.",
 			"ultimate": 3,
 			"effects": {
 				"hab_min": 20,
@@ -706,10 +718,22 @@
 			"era": 2,
 			"field": "etat",
 			"current": "glaive",
-			"text": "+25 % de recrues chaque mois.",
+			"text": "Débloque le Camp de recrutement (recrues, plafond, garnison). Sa Maîtrise, Service universel : +25 % de recrues.",
 			"pre": [
 				"debarquement"
+			]
+		},
+		"service_universel": {
+			"label": "Service universel",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "glaive",
+			"text": "+25 % de recrues pour le combat au sol.",
+			"pre": [
+				"conscription_planetaire"
 			],
+			"mastery": "conscription_planetaire",
 			"effects": {
 				"recruits_pct": 25
 			}
@@ -720,7 +744,7 @@
 			"era": 2,
 			"field": "etat",
 			"current": "glaive",
-			"text": "Les régiments récupèrent santé et moral deux fois plus vite hors bataille.",
+			"text": "Débloque l'Académie militaire (remplace le Camp de recrutement). Les régiments récupèrent santé et moral deux fois plus vite hors bataille.",
 			"pre": [
 				"conscription_planetaire"
 			],
@@ -780,14 +804,15 @@
 			"era": 4,
 			"field": "culture",
 			"current": "concorde",
-			"text": "Rayonnement +25 %. Débloque le Phare des Civilisations.",
+			"text": "Rayonnement +25 %. Débloque le Phare des Civilisations. Spécialisation : Réseau des mondes ou Conversion culturelle, rayonner ou convertir (l'autre ne s'obtient plus que par échange, vol ou trouvaille).",
 			"pre": [
 				"holovision",
 				"propagande"
 			],
 			"effects": {
 				"culture_pct": 25
-			}
+			},
+			"spec": "voie_culturelle"
 		},
 		"conversion_culturelle": {
 			"label": "Conversion culturelle",
@@ -795,14 +820,15 @@
 			"era": 4,
 			"field": "culture",
 			"current": "concorde",
-			"text": "Vos voisins instables et largement rayonnés par vous peuvent faire défection et rejoindre votre empire (selon le réglage de la partie).",
+			"text": "Débloque le Sanctuaire (agrandit le Grand temple). Vos voisins instables et largement rayonnés par vous peuvent faire défection et rejoindre votre empire (selon le réglage de la partie). Spécialisation : Réseau des mondes ou Conversion culturelle, rayonner ou convertir (l'autre ne s'obtient plus que par échange, vol ou trouvaille).",
 			"pre": [
 				"holovision"
 			],
 			"effects": {
 				"culture_defect": 1
 			},
-			"flavor": "On ne prend plus les mondes : on les invite."
+			"flavor": "On ne prend plus les mondes : on les invite.",
+			"spec": "voie_culturelle"
 		},
 		"forum_interstellaire": {
 			"label": "Forum interstellaire",
@@ -894,6 +920,36 @@
 			],
 			"pillar": "forge_mondes",
 			"flavor": "Océan, désert ou glacier ? Le catalogue fait quatre cents pages ; les fjords sont en option."
+		},
+		"pharmacopee_perdue": {
+			"label": "Pharmacopée perdue",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Trouvaille : un herbier génétique d'une civilisation éteinte. Il vaut Génétique appliquée (Centre de clonage) sans la rechercher.",
+			"find": true,
+			"find_of": "genetique",
+			"find_sources": [
+				"curio",
+				"ancients"
+			],
+			"flavor": "Chaque page soigne une maladie qui n'existe plus. Et trois qui existent encore."
+		},
+		"archives_cadastrales": {
+			"label": "Archives cadastrales",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "academie",
+			"text": "Trouvaille : le cadastre complet d'un empire disparu, avec ses procès. Il vaut le Cadastre algorithmique (Cour de justice) sans le rechercher.",
+			"find": true,
+			"find_of": "cadastre_algorithmique",
+			"find_sources": [
+				"curio",
+				"strates"
+			],
+			"flavor": "Trois mille ans de querelles de bornage. Les juristes pleurent de joie."
 		}
 	}
 }

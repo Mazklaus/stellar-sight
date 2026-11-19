@@ -95,7 +95,7 @@
 			"era": 3,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "+50 % de garnison dans les fiefs.",
+			"text": "+50 % de garnison dans les fiefs. Améliore la coque Galère de fief : l'ost se lève à bord, les troupes de la flotte se reforment même loin de chez elles.",
 			"pre": [
 				"duellistes",
 				"bastions"
@@ -117,7 +117,7 @@
 			"era": 2,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Les renforts infligent 15 % de dégâts en plus (s'ajoute à « Au dernier moment »).",
+			"text": "Les renforts infligent 15 % de dégâts en plus (s'ajoute à « Au dernier moment »). Améliore la coque Corvette de concorde : chaque corvette a son chantier de fortune, la flotte se répare trois fois plus vite hors de chez elle.",
 			"requires": {
 				"species": {
 					"gouvernement": [
@@ -184,7 +184,7 @@
 			"era": 3,
 			"field": "coques",
 			"current": "autel",
-			"text": "Des cerveaux de fidèles câblés aux tourelles : +10 % de dégâts pour toutes les armes, et +5 ferveur à la découverte.",
+			"text": "Des cerveaux de fidèles câblés aux tourelles : +10 % de dégâts pour toutes les armes, et +5 ferveur à la découverte. Améliore la coque Martyr : les âmes de l'équipage recousent la coque, la flotte se répare partout comme chez elle.",
 			"pre": [
 				"torpilleurs"
 			],
@@ -260,7 +260,7 @@
 			"era": 2,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "+1 vision pour les colonies, et +10 % de vitesse.",
+			"text": "+1 vision pour les colonies, et +10 % de vitesse. Améliore la coque Coursier de saut : le navigateur trouve son chemin loin des dépôts, autonomie doublée.",
 			"pre": [
 				"cartes_lignees"
 			],
@@ -288,7 +288,7 @@
 			"era": 2,
 			"field": "coques",
 			"current": "forge",
-			"text": "Quarante espèces sur le même pont : les vaisseaux sortent 15 % plus vite.",
+			"text": "Quarante espèces sur le même pont : les vaisseaux sortent 15 % plus vite. Améliore la coque Frégate des Quarante : les Quarante se recomposent, les troupes de la flotte se reforment même loin de chez elles.",
 			"pre": [
 				"cales_rapides"
 			],
@@ -456,7 +456,7 @@
 			"era": 2,
 			"field": "production",
 			"current": "forge",
-			"text": "+25 % de cristaux de saut.",
+			"text": "Les fiefs tiennent le négoce des cristaux : chaque Raffinerie de cristaux rapporte aussi +2 influence.",
 			"pre": [
 				"fusion_compacte"
 			],
@@ -468,9 +468,7 @@
 				}
 			},
 			"effects": {
-				"production_pct": {
-					"crystals": 25
-				}
+				"refinery_influence": 2
 			}
 		},
 		"catechisme": {
@@ -526,7 +524,7 @@
 			"era": 3,
 			"field": "colonisation",
 			"current": "autel",
-			"text": "+20 % de croissance pendant l'Exaltation.",
+			"text": "+20 % de croissance pendant l'Exaltation. Améliore la coque Nef de pénitence : les pénitents réparent en chantant, la flotte se répare trois fois plus vite hors de chez elle.",
 			"pre": [
 				"offrande_consacree"
 			],

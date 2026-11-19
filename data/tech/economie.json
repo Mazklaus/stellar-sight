@@ -20,18 +20,33 @@
 			"era": 1,
 			"field": "production",
 			"current": "seve",
-			"text": "+15 % de nourriture.",
+			"text": "Débloque l'Enrichissement des sols (projet : un gisement fertile de plus). Sa Maîtrise, Agronomie orbitale : +15 % de nourriture.",
 			"needs": [
 				"nourriture"
 			],
+			"eureka": {
+				"kind": "colonies",
+				"n": 3
+			}
+		},
+		"agronomie_orbitale": {
+			"label": "Agronomie orbitale",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "seve",
+			"text": "+15 % de nourriture.",
+			"pre": [
+				"hydroponie"
+			],
+			"needs": [
+				"nourriture"
+			],
+			"mastery": "hydroponie",
 			"effects": {
 				"production_pct": {
 					"food": 15
 				}
-			},
-			"eureka": {
-				"kind": "colonies",
-				"n": 3
 			}
 		},
 		"fusion_compacte": {
@@ -40,16 +55,28 @@
 			"era": 1,
 			"field": "production",
 			"current": "forge",
-			"text": "+15 % d'énergie.",
-			"effects": {
-				"production_pct": {
-					"energy": 15
-				}
-			},
+			"text": "Débloque le Forage géothermique (projet : un gisement géothermique de plus sur un monde sec). Sa Maîtrise : +15 % d'énergie.",
 			"eureka": {
 				"kind": "building",
 				"what": "centrale_fusion",
 				"n": 2
+			}
+		},
+		"fusion_stabilisee": {
+			"label": "Fusion stabilisée",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "forge",
+			"text": "+15 % d'énergie.",
+			"pre": [
+				"fusion_compacte"
+			],
+			"mastery": "fusion_compacte",
+			"effects": {
+				"production_pct": {
+					"energy": 15
+				}
 			}
 		},
 		"extraction": {
@@ -58,16 +85,28 @@
 			"era": 1,
 			"field": "production",
 			"current": "forge",
-			"text": "+15 % de matériaux.",
-			"effects": {
-				"production_pct": {
-					"materials": 15
-				}
-			},
+			"text": "Débloque le Puits d'extraction (agrandit le Complexe minier, sans emplacement). Sa Maîtrise, Filons profonds : +15 % de matériaux.",
 			"eureka": {
 				"kind": "building",
 				"what": "complexe_minier",
 				"n": 2
+			}
+		},
+		"filons_profonds": {
+			"label": "Filons profonds",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "forge",
+			"text": "+15 % de matériaux.",
+			"pre": [
+				"extraction"
+			],
+			"mastery": "extraction",
+			"effects": {
+				"production_pct": {
+					"materials": 15
+				}
 			}
 		},
 		"academies": {
@@ -98,6 +137,22 @@
 				"n": 1
 			}
 		},
+		"extraction_plasmine": {
+			"label": "Extraction de plasmine",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "forge",
+			"text": "Les gisements de Plasmine de vos systèmes rapportent (1 par gisement et par mois, avec les ressources stratégiques en jeu). Sans elle, la plasmine reste dans sa roche.",
+			"pre": [
+				"extraction"
+			],
+			"effects": {
+				"strategic_extract": {
+					"plasmine": 1
+				}
+			}
+		},
 		"logistique": {
 			"label": "Logistique impériale",
 			"domain": "economie",
@@ -122,15 +177,10 @@
 			"era": 2,
 			"field": "savoir",
 			"current": "academie",
-			"text": "+15 % de Savoir.",
+			"text": "Débloque les Instituts (l'Académie se voue à un domaine, qui coûte moins cher), le Grand scriptorium, l'Athénée et le Ganglion majeur. Sa Maîtrise, Réseaux savants : +35 % de Savoir.",
 			"pre": [
 				"academies"
 			],
-			"effects": {
-				"production_pct": {
-					"knowledge": 15
-				}
-			},
 			"eureka": {
 				"kind": "techs",
 				"n": 10
@@ -142,19 +192,31 @@
 			"era": 2,
 			"field": "production",
 			"current": "forge",
-			"text": "+10 % de matériaux et d'énergie.",
+			"text": "Débloque le Recycleur orbital (aussi sur un avant-poste). Sa Maîtrise, Économie circulaire : +10 % de matériaux et d'énergie.",
 			"pre": [
 				"extraction"
 			],
+			"eureka": {
+				"kind": "ships_lost",
+				"n": 8
+			}
+		},
+		"economie_circulaire": {
+			"label": "Économie circulaire",
+			"domain": "economie",
+			"era": 3,
+			"field": "production",
+			"current": "forge",
+			"text": "+10 % de matériaux et d'énergie.",
+			"pre": [
+				"recyclage"
+			],
+			"mastery": "recyclage",
 			"effects": {
 				"production_pct": {
 					"materials": 10,
 					"energy": 10
 				}
-			},
-			"eureka": {
-				"kind": "ships_lost",
-				"n": 8
 			}
 		},
 		"bourses": {
@@ -163,7 +225,7 @@
 			"era": 3,
 			"field": "commerce",
 			"current": "concorde",
-			"text": "+15 % d'énergie et +10 % d'influence, et une route commerciale de plus. Avec la fiscalité (comptabilité stellaire) : plafond de crédit +20 %, réserve +25 %. Avec l'économie privée : tourisme +10 %. Avec les spatioports complets : fret du réseau +25 %.",
+			"text": "Débloque la Bourse de commerce (agrandit le Comptoir). +15 % d'énergie et +10 % d'influence, et une route commerciale de plus. Avec la fiscalité : plafond de crédit +20 %, réserve +25 %. Avec l'économie privée : tourisme +10 %. Avec les spatioports complets : fret +25 %.",
 			"pre": [
 				"recyclage"
 			],
@@ -189,7 +251,7 @@
 			"era": 3,
 			"field": "production",
 			"current": "forge",
-			"text": "+10 % de production de toutes les ressources.",
+			"text": "Débloque l'Usine automatisée (+8 matériaux). Sa Maîtrise, Usines noires : +10 % de toutes les productions.",
 			"pre": [
 				"logistique"
 			],
@@ -199,7 +261,19 @@
 						"foi"
 					]
 				}
-			},
+			}
+		},
+		"usines_noires": {
+			"label": "Usines noires",
+			"domain": "economie",
+			"era": 4,
+			"field": "production",
+			"current": "forge",
+			"text": "+10 % de toutes les productions.",
+			"pre": [
+				"automatisation"
+			],
+			"mastery": "automatisation",
 			"effects": {
 				"production_pct": {
 					"all": 10
@@ -212,10 +286,22 @@
 			"era": 3,
 			"field": "production",
 			"current": "forge",
-			"text": "Les bâtiments coûtent 20 % de moins.",
+			"text": "Débloque l'Atelier de nanofabrication : les chantiers de la colonie vont deux fois plus vite. Sa Maîtrise rend les bâtiments moins chers.",
 			"pre": [
 				"logistique"
+			]
+		},
+		"assembleurs": {
+			"label": "Assembleurs moléculaires",
+			"domain": "economie",
+			"era": 4,
+			"field": "production",
+			"current": "forge",
+			"text": "Les bâtiments coûtent 20 % de moins.",
+			"pre": [
+				"nanofabrication"
 			],
+			"mastery": "nanofabrication",
 			"effects": {
 				"building_cost_pct": -20
 			}
@@ -226,19 +312,47 @@
 			"era": 3,
 			"field": "production",
 			"current": "forge",
-			"text": "+25 % de cristaux de saut.",
+			"text": "Débloque la Raffinerie avancée (agrandit la Raffinerie). Sa Maîtrise, Cristaux purs : +25 % de cristaux de saut.",
 			"pre": [
 				"raffinage"
 			],
-			"effects": {
-				"production_pct": {
-					"crystals": 25
-				}
-			},
 			"eureka": {
 				"kind": "deposit",
 				"what": "crystals",
 				"n": 3
+			}
+		},
+		"cristaux_purs": {
+			"label": "Cristaux purs",
+			"domain": "economie",
+			"era": 4,
+			"field": "production",
+			"current": "forge",
+			"text": "+25 % de cristaux de saut.",
+			"pre": [
+				"cristallographie"
+			],
+			"mastery": "cristallographie",
+			"effects": {
+				"production_pct": {
+					"crystals": 25
+				}
+			}
+		},
+		"extraction_ferronoir": {
+			"label": "Extraction du ferronoir",
+			"domain": "economie",
+			"era": 3,
+			"field": "production",
+			"current": "forge",
+			"text": "Les gisements de Ferronoir de vos systèmes rapportent (1 par gisement et par mois, avec les ressources stratégiques en jeu).",
+			"pre": [
+				"extraction_plasmine"
+			],
+			"effects": {
+				"strategic_extract": {
+					"ferronoir": 1
+				}
 			}
 		},
 		"reseaux_savants": {
@@ -247,14 +361,14 @@
 			"era": 3,
 			"field": "savoir",
 			"current": "academie",
-			"text": "+20 % de Savoir.",
+			"text": "+35 % de Savoir.",
 			"pre": [
 				"banques_donnees"
 			],
 			"mastery": "banques_donnees",
 			"effects": {
 				"production_pct": {
-					"knowledge": 20
+					"knowledge": 35
 				}
 			},
 			"eureka": {
@@ -316,7 +430,7 @@
 			"era": 4,
 			"field": "production",
 			"current": "forge",
-			"text": "+1 emplacement de bâtiment sur toutes les colonies, petites comprises, et un 2e emplacement sur les avant-postes.",
+			"text": "Débloque la Fabrique autonome (sans entretien, aussi sur un avant-poste). +1 emplacement de bâtiment sur toutes les colonies, et un 2e sur les avant-postes.",
 			"pre": [
 				"nanofabrication"
 			],
@@ -360,19 +474,47 @@
 			"era": 4,
 			"field": "production",
 			"current": "forge",
-			"text": "Les gisements (filons, sols fertiles, géothermie, cristaux) rapportent le double. Les planètes à gisement valent d'être disputées.",
+			"text": "Débloque le Puits du manteau (projet : un filon riche de plus). Sa Maîtrise double le rendement des gisements : les planètes à gisement valent d'être disputées.",
 			"pre": [
 				"automatisation"
 			],
-			"effects": {
-				"deposit_pct": 100
-			},
 			"eureka": {
 				"kind": "deposit",
 				"what": "minerals",
 				"n": 6
 			},
 			"flavor": "La croûte, c'était l'emballage."
+		},
+		"cartographie_manteau": {
+			"label": "Cartographie du manteau",
+			"domain": "economie",
+			"era": 5,
+			"field": "production",
+			"current": "forge",
+			"text": "Les gisements rapportent deux fois plus.",
+			"pre": [
+				"forage_manteau"
+			],
+			"mastery": "forage_manteau",
+			"effects": {
+				"deposit_pct": 100
+			}
+		},
+		"extraction_etherine": {
+			"label": "Extraction de l'éthérine",
+			"domain": "economie",
+			"era": 4,
+			"field": "production",
+			"current": "forge",
+			"text": "Les gisements d'Éthérine de vos systèmes rapportent (1 par gisement et par mois, avec les ressources stratégiques en jeu). Les ingénieurs qui la travaillent finissent par parler doucement.",
+			"pre": [
+				"extraction_ferronoir"
+			],
+			"effects": {
+				"strategic_extract": {
+					"etherine": 1
+				}
+			}
 		},
 		"arcologie_planetaire": {
 			"label": "Arcologie planétaire",
@@ -435,21 +577,36 @@
 			"era": 5,
 			"field": "production",
 			"current": "seve",
-			"text": "La population ne mange plus que la moitié de sa nourriture : les fermes libèrent leurs emplacements, les écuménopoles deviennent tenables.",
+			"text": "Débloque le Réplicateur de matière (+10 nourriture). Sa Maîtrise, Cuisine moléculaire : la population mange deux fois moins.",
 			"pre": [
 				"forage_manteau"
 			],
 			"needs": [
 				"nourriture"
 			],
-			"effects": {
-				"food_upkeep_pct": -50
-			},
 			"eureka": {
 				"kind": "pop",
 				"n": 300
 			},
 			"flavor": "Ça a le goût de ce que vous voulez. Ça a surtout la texture de rien."
+		},
+		"cuisine_moleculaire": {
+			"label": "Cuisine moléculaire",
+			"domain": "economie",
+			"era": 5,
+			"field": "production",
+			"current": "seve",
+			"text": "La population mange deux fois moins.",
+			"pre": [
+				"replicateurs"
+			],
+			"needs": [
+				"nourriture"
+			],
+			"mastery": "replicateurs",
+			"effects": {
+				"food_upkeep_pct": -50
+			}
 		},
 		"abondance": {
 			"label": "Économie d'abondance",
@@ -457,12 +614,24 @@
 			"era": 5,
 			"field": "production",
 			"current": "forge",
-			"text": "Technologie ultime (il faut 3 autres technologies de l'ère V d'Économie). Les bâtiments ne coûtent plus aucun entretien, et la Bourse des Mille Soleils, merveille unique dans la galaxie, peut être bâtie.",
+			"text": "Technologie ultime (il faut 3 autres technologies de l'ère V d'Économie). Débloque le Grenier universel et la Bourse des Mille Soleils, merveille unique dans la galaxie. Sa Maîtrise, Post-rareté, supprime l'entretien des bâtiments.",
 			"ultimate": 3,
+			"flavor": "La rareté était une habitude. On s'en est défait comme des autres."
+		},
+		"post_rarete": {
+			"label": "Post-rareté",
+			"domain": "economie",
+			"era": 5,
+			"field": "production",
+			"current": "forge",
+			"text": "Les bâtiments ne coûtent plus d'entretien.",
+			"pre": [
+				"abondance"
+			],
+			"mastery": "abondance",
 			"effects": {
 				"building_upkeep_pct": -100
-			},
-			"flavor": "La rareté était une habitude. On s'en est défait comme des autres."
+			}
 		},
 		"essaim_dyson": {
 			"label": "Essaim de Dyson",
@@ -541,6 +710,21 @@
 			],
 			"pillar": "forge_mondes",
 			"flavor": "Rien ne se perd, tout se démonte."
+		},
+		"fonderie_anciens": {
+			"label": "Fonderie des Anciens",
+			"domain": "economie",
+			"era": 3,
+			"field": "production",
+			"current": "forge",
+			"text": "Trouvaille : les plans d'une usine qui tournait seule bien avant nous. Elle vaut Automatisation (Usine automatisée) sans la rechercher.",
+			"find": true,
+			"find_of": "automatisation",
+			"find_sources": [
+				"curio",
+				"ancients"
+			],
+			"flavor": "Personne ne sait ce qu'elle fabriquait. Elle a l'air contente de fabriquer autre chose."
 		}
 	}
 }

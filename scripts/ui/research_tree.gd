@@ -246,8 +246,33 @@ func _gui_input(event: InputEvent) -> void:
 			accept_event()
 
 
+## Centre du losange de palier d'une ère dans un couloir de domaine (coin haut gauche de la colonne).
+func _tier_center(lane: Dictionary, era: int) -> Vector2:
+	return Vector2(_era_x(era) - ERA_GAP * 0.5, float(lane["y"]) + 4.0)
+
+
+## Infobulle d'un palier d'ère sous le pointeur ("" sinon).
+func _tier_tooltip(at_position: Vector2) -> String:
+	var p := at_position / zoom
+	for lane in _lanes:
+		if not Research.domain_ids().has(String(lane["id"])):
+			continue
+		for era in range(2, Research.eras() + 1):
+			var tr := Research.tier(String(lane["id"]), era)
+			if tr.is_empty() or p.distance_to(_tier_center(lane, era)) > 9.0:
+				continue
+			var e := _state.get_empire(_player)
+			var open := Research.era_open(e.techs, String(lane["id"]), era, e.faction(), _state, _player)
+			return "Palier de l'ère %s (%s) : %s\n%s\n%s" % [["I", "II", "III", "IV", "V"][era - 1], String(lane["label"]),
+					String(tr.get("label", "")), String(tr.get("text", "")),
+					"Acquis : l'ère est ouverte." if open else "Gratuit dès que l'ère s'ouvre dans ce domaine."]
+	return ""
+
+
 func _get_tooltip(at_position: Vector2) -> String:
 	var tid := _tech_at(at_position)
+	if tid == "" and _state != null:
+		return _tier_tooltip(at_position)
 	if tid == "" or _state == null:
 		return ""
 	var t := Research.tech(tid)
@@ -331,6 +356,14 @@ func _draw() -> void:
 		draw_set_transform(Vector2(20, y0 + h * 0.5 + tw * 0.5) * zoom, -PI * 0.5, Vector2(zoom, zoom))
 		draw_string(_bold, Vector2.ZERO, txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(col, 0.95))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2(zoom, zoom))
+		# Paliers d'ère (prop. 4) : un losange en tête de chaque ère du domaine, doré une fois l'ère ouverte.
+		if Research.domain_ids().has(String(lane["id"])):
+			for era in range(2, eras + 1):
+				if not Research.tier(String(lane["id"]), era).is_empty():
+					var tc := _tier_center(lane, era)
+					var open := Research.era_open(e.techs, String(lane["id"]), era, f, _state, _player)
+					var pts := PackedVector2Array([tc + Vector2(0, -5), tc + Vector2(5, 0), tc + Vector2(0, 5), tc + Vector2(-5, 0)])
+					draw_colored_polygon(pts, Color("d9b85c") if open else Color(1, 1, 1, 0.25))
 		# Ères fermées dans ce domaine : voile sombre.
 		if Research.domain_ids().has(String(lane["id"])):
 			for era in range(2, eras + 1):
@@ -503,6 +536,20 @@ func _unlock_icon(c: Vector2, kind: String, col: Color) -> void:
 		"maitrise":
 			draw_colored_polygon(PackedVector2Array([c + Vector2(0, -5), c + Vector2(1.5, -1.5), c + Vector2(5, 0), c + Vector2(1.5, 1.5),
 					c + Vector2(0, 5), c + Vector2(-1.5, 1.5), c + Vector2(-5, 0), c + Vector2(-1.5, -1.5)]), col)
+		"tactique":
+			# deux flèches croisées
+			draw_line(c + Vector2(-4, 4), c + Vector2(4, -4), col, 1.5, true)
+			draw_line(c + Vector2(4, 4), c + Vector2(-4, -4), col, 1.5, true)
+			draw_colored_polygon(PackedVector2Array([c + Vector2(4, -4), c + Vector2(1, -4), c + Vector2(4, -1)]), col)
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-4, -4), c + Vector2(-1, -4), c + Vector2(-4, -1)]), col)
+		"projet":
+			draw_rect(Rect2(c - Vector2(4, 4), Vector2(8, 8)), col, false, 1.4)
+			draw_line(c + Vector2(-2, 0), c + Vector2(2, 0), col, 1.4)
+			draw_line(c + Vector2(0, -2), c + Vector2(0, 2), col, 1.4)
+		"loi":
+			draw_rect(Rect2(c + Vector2(-3.5, -4.5), Vector2(7, 9)), col, false, 1.3)
+			draw_line(c + Vector2(-1.8, -1.5), c + Vector2(1.8, -1.5), col, 1.0)
+			draw_line(c + Vector2(-1.8, 1), c + Vector2(1.8, 1), col, 1.0)
 		_:
 			draw_circle(c, 2.2, Color(col, col.a * 0.7))
 

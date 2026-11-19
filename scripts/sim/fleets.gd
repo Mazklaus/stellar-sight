@@ -741,7 +741,7 @@ static func check_move(state: GameState, empire_id: int, fleet_id: int, system_i
 	if not f.is_moving() and f.system_id == system_id:
 		return "la flotte y est déjà"
 	if not f.is_moving() and anchored(state, f):
-		return "une ancre gravitationnelle ennemie retient la flotte tant que la bataille dure"
+		return "une ancre gravitationnelle ou un rayon tracteur ennemi retient la flotte tant que la bataille dure"
 	if not f.is_moving() and Terrain.pinned(state, f):
 		return "la gravité du lieu retient la flotte tant que la bataille dure (%s)" % Terrain.short(state, f.system_id)
 	if plan_route(state, f, system_id).is_empty():
@@ -831,12 +831,13 @@ static func count_same_hull(state: GameState, empire_id: int, ship_id: String) -
 	return n
 
 
-## Une ancre gravitationnelle ennemie (en guerre) retient la flotte dans la bataille de son système.
+## Une ancre gravitationnelle ou un rayon tracteur ennemi (en guerre) retient la flotte dans la bataille
+## de son système.
 static func anchored(state: GameState, f: Fleet) -> bool:
 	if not state.battles.has(f.system_id):
 		return false
 	for other in fleets_at(state, f.system_id):
-		if other.owner != f.owner and Combat.at_war(state, other.owner, f.owner) and Combat._fleet_has_flag(other, "anchor"):
+		if other.owner != f.owner and Combat.at_war(state, other.owner, f.owner) and (Combat._fleet_has_flag(other, "anchor") or Combat._fleet_has_flag(other, "tractor")):
 			return true
 	return false
 

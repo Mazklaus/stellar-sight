@@ -65,6 +65,8 @@ func _ally(st: GameState, a: int, b: int) -> void:
 	Diplomacy._rel_w(st, a, b)["since"] = st.tick - int(Koinon.data()["found"]["alliance_days"])
 	Diplomacy._rel_w(st, a, b)["truce"] = 0
 	Diplomacy._rel_w(st, a, b)["trust"] = 100
+	Research.grant(st, a, ["ambassades"])  # lot 2 de l'arbre : fonder un Koinon demande les Ambassades
+	Research.grant(st, b, ["ambassades"])
 
 
 ## Ligue de deux membres (a fonde avec b), forme fid.
@@ -115,6 +117,8 @@ func _test_found() -> void:
 	Diplomacy._rel_w(st, a, b)["trust"] = 100
 	_ok(Koinon.check_found(st, a, b, "marchande").contains("ans d'alliance"), "Fondation : il faut deux ans d'alliance")
 	Diplomacy._rel_w(st, a, b)["since"] = st.tick - 720
+	_ok(Koinon.check_found(st, a, b, "marchande").contains("Ambassades"), "Fondation : il faut les Ambassades (lot 2 de l'arbre)")
+	Research.grant(st, a, ["ambassades"])
 	_ok(Koinon.check_found(st, a, b, "marchande") == "", "Fondation : alliance ancienne, c'est possible (%s)" % Koinon.check_found(st, a, b, "marchande"))
 	_ok(Koinon.check_found(st, a, b, "inconnue") != "", "Fondation : forme inconnue refusée")
 	var inf := int(st.get_empire(a).resources["influence"])

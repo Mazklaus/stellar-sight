@@ -420,7 +420,8 @@ static func recruits(state: GameState, eid: int) -> int:
 
 static func recruits_cap(state: GameState, eid: int) -> int:
 	var rc := _cfg("recruits")
-	return maxi(int(rc.get("cap_min", 6)), population(state, eid) * int(rc.get("cap_per_pop", 1)))
+	return maxi(int(rc.get("cap_min", 6)), population(state, eid) * int(rc.get("cap_per_pop", 1))) \
+			+ Economy.building_sum(state, eid, "recruits_cap")  # Camp de recrutement, Académie militaire
 
 
 static func recruits_gain(state: GameState, eid: int) -> int:
@@ -432,6 +433,7 @@ static func recruits_gain(state: GameState, eid: int) -> int:
 			peopled += 1
 	@warning_ignore("integer_division")
 	var g := maxi(peopled, population(state, eid) / maxi(1, int(rc.get("every_pop", 4))))
+	g += Economy.building_sum(state, eid, "recruits")  # Camp de recrutement, Académie militaire
 	return Research.scaled(g, Research.fx_int(state, eid, "recruits_pct")) if g > 0 else 0
 
 

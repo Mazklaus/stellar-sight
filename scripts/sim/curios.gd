@@ -348,6 +348,10 @@ static func _give(state: GameState, empire_id: int, pid: int, kind: String, adde
 		return "un gisement de %s affleure. Les prospecteurs se battent déjà pour la première pioche." % String(ddef["label"]).to_lower()
 	match kind:
 		"research":
+			if lvl >= 3:
+				var fd := Research.grant_find(state, empire_id, "curio")  # trouvaille (prop. 10 de l'arbre)
+				if fd != "":
+					return "une trouvaille : %s. Elle dispense de la rechercher." % String(Research.tech(fd).get("label", fd))
 			var pct := int((data()["research_pct_by_level"] as Array)[lvl - 1])
 			return Events.give_research(state, empire_id, pct) + ". Les savants réclament une plaque commémorative."
 		"ship":

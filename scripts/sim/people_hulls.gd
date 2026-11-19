@@ -53,6 +53,29 @@ static func fleet_flag(fleet: Fleet, f: String) -> bool:
 	return Combat._fleet_has_flag(fleet, f)
 
 
+## Lot 2 de l'arbre (prop. 47) : une coque de peuple gagne une capacité ("upgrade" : tech, flag, text)
+## quand l'empire connaît la technologie de sa bande Peuple. Le drapeau gagné vaut celui d'un module.
+static func has_flag(state: GameState, f: Fleet, fl: String) -> bool:
+	if Combat._fleet_has_flag(f, fl):
+		return true
+	if state == null or f == null:
+		return false
+	for s in f.ships:
+		var up: Dictionary = Designs.hull(String(GameData.ship(s).get("hull", ""))).get("upgrade", {})
+		if String(up.get("flag", "")) == fl and Research.knows(state, f.owner, String(up["tech"])):
+			return true
+	return false
+
+
+## Coques de peuple qu'améliore une technologie (pour l'arbre et le Codex).
+static func upgrades_of(tid: String) -> Array[String]:
+	var out: Array[String] = []
+	for hid in Designs.hull_ids():
+		if String(Designs.hull(hid).get("upgrade", {}).get("tech", "")) == tid:
+			out.append(hid)
+	return out
+
+
 ## Coque de peuple ? (rubrique à part dans le Chantier)
 static func is_people_hull(hull_id: String) -> bool:
 	return bool(Designs.hull(hull_id).get("people", false)) or Designs.hull(hull_id).get("requires", {}).has("species")

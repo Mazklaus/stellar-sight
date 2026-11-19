@@ -248,5 +248,176 @@
 	},
 	"renamed": {
 		"_doc": "Sauvegardes anciennes (prop. 109) : technologie renommée ou fondue -> héritière. Une technologie absente d'ici et des données est oubliée au chargement."
+	},
+	"tiers": {
+		"_doc": "Paliers d'ère (prop. 4 de l'étude de l'arbre) : ouvrir une ère dans un domaine donne ces améliorations sans rien rechercher, affichées en tête de colonne. Les marques d'armes viennent des paliers d'Armement (marque V à l'ère V). Effets au format des technologies.",
+		"armement": {
+			"2": {
+				"label": "Marques d'armes II",
+				"text": "Toutes les familles d'armes et de protections passent à la marque II (+20 % chacune).",
+				"effects": {
+					"marks": {
+						"kinetic": 1,
+						"beam": 1,
+						"missile": 1,
+						"torpedo": 1,
+						"artillery": 1,
+						"fighters": 1,
+						"armor": 1,
+						"shield": 1,
+						"pd": 1
+					}
+				}
+			},
+			"3": {
+				"label": "Marques d'armes III",
+				"text": "Toutes les familles d'armes et de protections passent à la marque III (+20 % chacune).",
+				"effects": {
+					"marks": {
+						"kinetic": 1,
+						"beam": 1,
+						"missile": 1,
+						"torpedo": 1,
+						"artillery": 1,
+						"fighters": 1,
+						"armor": 1,
+						"shield": 1,
+						"pd": 1
+					}
+				}
+			},
+			"4": {
+				"label": "Marques d'armes IV",
+				"text": "Toutes les familles d'armes et de protections passent à la marque IV (+20 % chacune).",
+				"effects": {
+					"marks": {
+						"kinetic": 1,
+						"beam": 1,
+						"missile": 1,
+						"torpedo": 1,
+						"artillery": 1,
+						"fighters": 1,
+						"armor": 1,
+						"shield": 1,
+						"pd": 1
+					}
+				}
+			},
+			"5": {
+				"label": "Marques d'armes V",
+				"text": "Toutes les familles d'armes et de protections passent à la marque V (+20 % chacune).",
+				"effects": {
+					"marks": {
+						"kinetic": 1,
+						"beam": 1,
+						"missile": 1,
+						"torpedo": 1,
+						"artillery": 1,
+						"fighters": 1,
+						"armor": 1,
+						"shield": 1,
+						"pd": 1
+					}
+				}
+			}
+		},
+		"genie": {
+			"2": {
+				"label": "Pilotes chevronnés",
+				"text": "Flottes +5 % de vitesse.",
+				"effects": {
+					"fleet_speed_pct": 5
+				}
+			},
+			"3": {
+				"label": "Cales normalisées",
+				"text": "Vaisseaux construits 5 % plus vite.",
+				"effects": {
+					"ship_days_pct": -5
+				}
+			},
+			"4": {
+				"label": "Navigation fine",
+				"text": "Flottes +5 % de vitesse.",
+				"effects": {
+					"fleet_speed_pct": 5
+				}
+			},
+			"5": {
+				"label": "Ingénierie maîtrisée",
+				"text": "Vaisseaux 5 % moins chers.",
+				"effects": {
+					"ship_cost_pct": -5
+				}
+			}
+		},
+		"economie": {
+			"2": {
+				"label": "Savoir-faire II",
+				"text": "Toute la production +3 %.",
+				"effects": {
+					"production_pct": {
+						"all": 3
+					}
+				}
+			},
+			"3": {
+				"label": "Savoir-faire III",
+				"text": "Toute la production +3 %.",
+				"effects": {
+					"production_pct": {
+						"all": 3
+					}
+				}
+			},
+			"4": {
+				"label": "Savoir-faire IV",
+				"text": "Toute la production +3 %.",
+				"effects": {
+					"production_pct": {
+						"all": 3
+					}
+				}
+			},
+			"5": {
+				"label": "Savoir-faire V",
+				"text": "Toute la production +3 %.",
+				"effects": {
+					"production_pct": {
+						"all": 3
+					}
+				}
+			}
+		},
+		"societe": {
+			"2": {
+				"label": "Hygiène publique",
+				"text": "Croissance +5 %.",
+				"effects": {
+					"growth_pct": 5
+				}
+			},
+			"3": {
+				"label": "Institutions",
+				"text": "Stabilité +2 sur toutes vos planètes.",
+				"effects": {
+					"stability": 2
+				}
+			},
+			"4": {
+				"label": "Longévité",
+				"text": "Croissance +5 %.",
+				"effects": {
+					"growth_pct": 5
+				}
+			},
+			"5": {
+				"label": "Âge mûr",
+				"text": "Stabilité +2 sur toutes vos planètes.",
+				"effects": {
+					"stability": 2
+				}
+			}
+		}
 	}
 }

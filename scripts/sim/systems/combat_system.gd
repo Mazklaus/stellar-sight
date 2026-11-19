@@ -247,9 +247,13 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 				@warning_ignore("integer_division")
 				var wbonus := bonus * (100 + Combat.weapon_bonus(state, f.owner, String(k), my_marks)) / 100 * PeopleHulls.shot_pct(f, f.ships[i], String(k), day) / 100
 				var tg_fx: Dictionary = tfx.get(tg.owner, {})
+				var ion := Combat.ion_pct(b, tg, day)  # Ions (lot 2 de l'arbre) : boucliers et défense ponctuelle coupés
+				@warning_ignore("integer_division")
 				var dmg := Combat.shot_damage(String(k), int(w[k]), ph, tac, wbonus, tg.ships[ti], Combat.fleet_tactic(tg),
-						Combat.fleet_pd(tg), Combat.defense_bonus(state, tg.owner, Combat.ship_marks(state, tg, ti)), Combat.fleet_shield(tg),
-						(Terrain.shield_pct(tg_fx, tg.ships[ti]) if not tg_fx.is_empty() else 100) * Stealth.shield_pct(b, tg) / 100)
+						Combat.fleet_pd(tg) * ion / 100, Combat.defense_bonus(state, tg.owner, Combat.ship_marks(state, tg, ti)), Combat.fleet_shield(tg),
+						(Terrain.shield_pct(tg_fx, tg.ships[ti]) if not tg_fx.is_empty() else 100) * Stealth.shield_pct(b, tg) / 100 * ion / 100)
+				if wd.get("ion", false):
+					(b.get_or_add("ion", {}) as Dictionary)[str(tg.id)] = day
 				if tpct != 100 or tg_fx.has("taken_pct"):
 					@warning_ignore("integer_division")
 					dmg = maxi(1, dmg * tpct / 100 * int(tg_fx.get("taken_pct", 100)) / 100)
@@ -704,8 +708,11 @@ static func _repairs(state: GameState, fought: Dictionary) -> void:
 				break
 		if damaged:
 			# Forge mobile (Léviathan) : la flotte se répare partout comme chez elle.
-			var anywhere := at_home or bool(Combat.trait_value(state, f.owner, "repair_anywhere", false)) or Combat._fleet_has_flag(f, "fleet_repair")
+			var anywhere := at_home or bool(Combat.trait_value(state, f.owner, "repair_anywhere", false)) or PeopleHulls.has_flag(state, f, "fleet_repair")
 			var pct := home if anywhere else away
+			if not anywhere and PeopleHulls.has_flag(state, f, "repair_bay"):
+				@warning_ignore("integer_division")
+				pct = maxi(away * 3, (home + away) / 2)  # Baie de réparation (lot 2 de l'arbre)
 			pct = Logistics.repair_pct(state, f, pct)  # dépôt de flotte, réserves épuisées
 			if Terrain.no_repair(state, f):
 				pct = 0  # radiations
@@ -723,7 +730,7 @@ static func _repairs(state: GameState, fought: Dictionary) -> void:
 			continue  # armées : les régiments se recrutent sur les colonies (voir Ground)
 		var tmax := Combat.max_troops(f, state)
 		# Cité de bord (Nef-monde) : les troupes se reforment même loin de chez elles.
-		if f.troops < tmax and (at_home or Combat._fleet_has_flag(f, "fleet_barracks")):
+		if f.troops < tmax and (at_home or PeopleHulls.has_flag(state, f, "fleet_barracks")):
 			@warning_ignore("integer_division")
 			f.troops = mini(tmax, f.troops + maxi(1, tmax * regen / 100))
 

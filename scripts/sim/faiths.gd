@@ -677,7 +677,9 @@ static func pressures(state: GameState) -> Dictionary:
 		if c.buildings.has("temple"):
 			var mj := majority(c)
 			if mj != NATIVE:
-				m[mj] = int(m.get(mj, 0)) + int(data()["temple"]["pressure"]) * 100
+				# Grand temple ×2, Sanctuaire ×3 (annexes du Temple).
+				var rank := 3 if c.buildings.has("sanctuaire") else (2 if c.buildings.has("grand_temple") else 1)
+				m[mj] = int(m.get(mj, 0)) + int(data()["temple"]["pressure"]) * 100 * rank
 		src[sid] = m
 	var out := {}
 	# Prêche de proximité.

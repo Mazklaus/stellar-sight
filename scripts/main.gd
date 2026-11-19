@@ -1719,7 +1719,7 @@ func cycle_tactic(fleet_id: int) -> void:
 	var f: Fleet = simulation.state.fleets.get(fleet_id)
 	if f == null or f.owner != view_empire or not Combat.is_armed(f):
 		return
-	var ids := Combat.tactic_ids_for(f)
+	var ids := Combat.tactic_ids_for(f, simulation.state)
 	var next := ids[(ids.find(Combat.fleet_tactic(f)) + 1) % ids.size()]
 	if _submit(SimCommands.set_tactic(view_empire, fleet_id, next)):
 		_hud.notify("%s : tactique « %s »." % [f.fleet_name, Combat.tactic_label(next)])

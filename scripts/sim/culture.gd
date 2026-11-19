@@ -438,6 +438,16 @@ static func source_parts(state: GameState, eid: int) -> Array:
 		out.append(["Stations de villégiature (beauté)", sta])
 	if cons > 0:
 		out.append(["Conservateurs", cons])
+	# Maison des spectacles, Grand théâtre : du Rayonnement pour leur credo (Plaisir).
+	var credo := Events.layer_value(state, eid, "credo")
+	var show := 0
+	for pid in state.colonies:
+		var cc: Colony = state.colonies[pid]
+		if cc.owner == eid and cc.is_established():
+			for bid in cc.buildings:
+				show += int(GameData.building(bid).get("radiance_credo", {}).get(credo, 0))
+	if show > 0:
+		out.append(["Spectacles", show])
 	# Foi (prop. 11) et héros (prop. 12) : lot 3.
 	out.append_array(CultureBridges.extra_sources(state, eid))
 	out.append_array(Archaeology.culture_parts(state, eid))  # Hauts lieux, musée des antiquités

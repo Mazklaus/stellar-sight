@@ -112,6 +112,9 @@ func _test_adopt() -> void:
 	# Emplacements pleins.
 	_rule(st, 0, "forge", 4)
 	e.resources["influence"] = 1000
+	_ok(Laws.check_adopt(st, 0, "normes_serie").contains("technologie d'État"), "lois : niveau 2 sans technologie d'État de l'ère II refusé (lot 2)")
+	Research.grant(st, 0, ["prefectures"])
+	_ok(Laws.tech_level(st, 0) == 4, "lois : Préfectures (État, ère IV) ouvrent les lois jusqu'au niveau 4")
 	for id in ["cadences", "normes_serie", "grands_chantiers", "concessions"]:
 		_submit(st, SimCommands.law_adopt(0, id))
 	_ok(Laws.used(st, 0) == 4, "lois : quatre lois adoptées")

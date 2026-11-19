@@ -233,6 +233,8 @@ static func _bombard(state: GameState, sid: int, by: int, owner: int, p: String)
 			var c: Colony = state.colonies.get(pid)
 			if c != null and c.owner == owner and c.is_colony() and c.population > 1 and (best == null or c.population > best.population):
 				best = c
+		if best != null and best.buildings.has("abris_civils") and state.tick % 2 == 0:
+			best = null  # Abris civils : un coup sur deux, les habitants étaient à l'abri
 		if best != null:
 			best.population -= 1
 			best.growth = 0

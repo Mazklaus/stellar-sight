@@ -1699,6 +1699,7 @@ func _test_koinon_ui(main: Node) -> void:
 	r["trust"] = 100
 	for x in [me, ally]:
 		st.get_empire(x).resources["influence"] = maxi(500, int(st.get_empire(x).resources.get("influence", 0)))
+		Research.grant(st, x, ["ambassades"])  # lot 2 de l'arbre : le Koinon demande les Ambassades
 	screens.diplo_selected = ally
 	screens.open("diplomacy", st, me)
 	await process_frame

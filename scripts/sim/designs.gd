@@ -28,7 +28,9 @@ const FLAGS := ["blockade_runner", "adaptive", "fleet_repair", "fleet_barracks",
 		"concord", "larvae", "linked", "predictive", "broadside", "boarding", "wreck_discount", "privateer", "phased", "echo_song",
 		"cold_blood", "embassy", "pulpit", "brood", "backup", "market", "first_salvo", "penitent",
 		# Prises de guerre (voir Capture).
-		"grapple", "assault_pods", "board_def", "self_destruct_capture", "salvage"]
+		"grapple", "assault_pods", "board_def", "self_destruct_capture", "salvage",
+		# Lot 2 de l'arbre : rayon tracteur, baie de réparation.
+		"tractor", "repair_bay"]
 const LINES := ["screen", "line", "rear"]
 const TARGETS := ["nearest", "largest", "smallest", "rear"]
 const NAME_MAX := 32

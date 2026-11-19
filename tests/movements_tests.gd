@@ -135,6 +135,8 @@ func _test_treaty() -> void:
 	_meet(st, v, o)
 	_ok(Diplomacy.check_terms(st, v, o, Diplomacy.MIGRATION) != "", "traité de migration : il faut la paix")
 	Diplomacy.sign_treaty(st, v, o, Diplomacy.PEACE)
+	_ok(Diplomacy.check_terms(st, v, o, Diplomacy.MIGRATION).contains("Colons formés"), "traité de migration : il faut Colons formés (lot 2)")
+	Research.grant(st, v, ["colons_formes"])
 	_ok(Diplomacy.check_terms(st, v, o, Diplomacy.MIGRATION) == "", "en paix, le traité est possible")
 	Diplomacy.sign_treaty(st, v, o, Diplomacy.MIGRATION)
 	_ok(Diplomacy.has_migration(st, v, o) and Diplomacy.has_migration(st, o, v), "traité de migration signé")

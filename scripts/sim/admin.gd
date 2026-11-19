@@ -744,6 +744,14 @@ static func corruption_parts(state: GameState, eid: int, sid: int, info := []) -
 		parts.append(["Tribunal (÷2)", -(v - v / 2)])
 		@warning_ignore("integer_division")
 		v = v / 2
+	for bid in _cor_buildings(state, eid, sid):  # Poste ou Bureau de sécurité, Cour de justice
+		if v <= 0:
+			break
+		var bpct := int(GameData.building(bid).get("corruption_pct", 0))
+		@warning_ignore("integer_division")
+		var bdv := -v * -bpct / 100
+		parts.append(["%s (%d %%)" % [String(GameData.building(bid).get("label", bid)), bpct], bdv])
+		v = maxi(0, v + bdv)
 	if v > 0 and not gov.is_empty() and Heroes.trait_fx(gov, "admin_cor_half") > 0:
 		@warning_ignore("integer_division")
 		parts.append(["%s est intègre (÷2)" % String(gov["name"]), -(v - v / 2)])
@@ -751,6 +759,19 @@ static func corruption_parts(state: GameState, eid: int, sid: int, info := []) -
 		v = v / 2
 	v = clampi(v, 0, int(cd["max"]))
 	return [v, parts]
+
+
+## Bâtiments distincts du système qui réduisent la corruption (corruption_pct), triés par nom.
+static func _cor_buildings(state: GameState, eid: int, sid: int) -> Array[String]:
+	var out: Array[String] = []
+	for pid in state.galaxy.systems[sid].planet_ids:
+		var c: Colony = state.colonies.get(pid)
+		if c != null and c.owner == eid and c.is_established():
+			for b in c.buildings:
+				if int(GameData.building(b).get("corruption_pct", 0)) < 0 and not out.has(b):
+					out.append(b)
+	out.sort()
+	return out
 
 
 static func _has_building(state: GameState, eid: int, sid: int, b: String) -> bool:

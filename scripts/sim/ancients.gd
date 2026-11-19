@@ -829,9 +829,12 @@ static func _give_gift(state: GameState, id: int, eid: int, idx: int, added: Arr
 			for r in gd["res"]:
 				e.resources[r] = int(e.resources.get(r, 0)) + int(gd["res"][r])
 		"tech":
-			var t := gift_tech(state, eid)
+			var t := Research.grant_find(state, eid, "ancients")  # trouvaille d'abord (prop. 10 de l'arbre)
+			if t == "":
+				t = gift_tech(state, eid)
+				if t != "":
+					Research.grant(state, eid, [t])
 			if t != "":
-				Research.grant(state, eid, [t])
 				added.append(state.add_chronicle("%s reçoit de %s une technologie toute faite : %s." % [e.display_name(), Crisis.obj_name(name_of(state, id)),
 						String(Research.tech(t).get("label", t))], Espionage.private_to(state, [eid])))
 		"boon":
