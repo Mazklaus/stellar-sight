@@ -31,7 +31,7 @@ Votre **Rayonnement** est un nombre de points par mois, calculé au milieu de ch
 | **Conservateurs** | un gouverneur Orateur double les œuvres de son système et ajoute son niveau |
 | **Alliés** | 20 % du Rayonnement de chaque allié et de chaque membre de votre Koinon |
 
-Les technologies **Holovision** et **Réseau des mondes** l'augmentent de 25 % chacune. Le détail apparaît en survolant votre Rayonnement dans l'écran **Rayonnement**.
+Les technologies **Propagande** (qui a absorbé l'Holovision) et **Réseau des mondes** l'augmentent de 25 % chacune. Le détail apparaît en survolant votre Rayonnement dans l'écran **Rayonnement**.
 
 Votre **Patrimoine** est ce que la culture des autres doit surmonter chez vous. Il part de 60 et grandit chaque mois de toute l'influence que vous produisez, de 1 par loi en vigueur, de 1 par relique tenue, de 1 par colonie de plus de dix ans et de 2 par merveille bâtie (au bâtisseur, même après une conquête). Une **ruche** ne rayonne pas, mais son Patrimoine compte double.
 
@@ -93,7 +93,7 @@ Un **compte à rebours de deux ans** s'ouvre alors, annoncé aux deux empires, a
 | Action | Comment | Effet |
 | --- | --- | --- |
 | **Ambassade culturelle** | Écran Rayonnement, 80 influence ; seulement chez un empire d'un autre credo ; une à la fois | Diffusion +25 % chez lui |
-| **Troupe de spectacle** | Écran Rayonnement, Holovision, 120 énergie et 30 influence ; une tournée à la fois | Trois mois plus tard : triomphe (+90 au cumul), succès (+60), four (rien) ou scandale (+30 et un affront) |
+| **Troupe de spectacle** | Écran Rayonnement, Propagande, 120 énergie et 30 influence ; une tournée à la fois | Trois mois plus tard : triomphe (+90 au cumul), succès (+60), four (rien) ou scandale (+30 et un affront) |
 | **Exception culturelle** | Loi indépendante | Patrimoine +25 %, cultures étrangères -25 %, routes -10 % |
 | **Ouverture culturelle** | Loi indépendante | Cultures étrangères +25 %, Patrimoine -15 %, routes +10 % |
 | **Campagne de propagande culturelle** | Opération d'intrigue, réseau 1 | Votre diffusion chez lui +50 % pendant un an |

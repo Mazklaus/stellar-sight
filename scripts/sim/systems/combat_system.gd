@@ -245,7 +245,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 				if PeopleHulls.untouchable(tg.ships[ti], phase, day):
 					continue  # Déphasage (phase longue), Voile abyssal (premier jour)
 				@warning_ignore("integer_division")
-				var wbonus := bonus * (100 + Combat.weapon_bonus(state, f.owner, String(k), my_marks)) / 100 * PeopleHulls.shot_pct(f, f.ships[i], String(k), day) / 100
+				var wbonus := bonus * (100 + Combat.weapon_bonus(state, f.owner, String(k), my_marks)) / 100 * PeopleHulls.shot_pct(f, f.ships[i], String(k), day) / 100 * PeopleHulls.city_battery_pct(state, f.owner, f.ships[i]) / 100
 				var tg_fx: Dictionary = tfx.get(tg.owner, {})
 				var ion := Combat.ion_pct(b, tg, day)  # Ions (lot 2 de l'arbre) : boucliers et défense ponctuelle coupés
 				@warning_ignore("integer_division")

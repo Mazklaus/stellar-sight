@@ -39,6 +39,12 @@ static func work_def(w: String) -> Dictionary:
 	return (Insolites.cfg("gravea").get("works", {}) as Dictionary).get(w, {})
 
 
+## Œuvres par ère (arbre, restes du lot 5) : une Œuvre qui porte "tech" attend cette technologie.
+static func work_open(state: GameState, eid: int, w: String) -> bool:
+	var t := String(work_def(w).get("tech", ""))
+	return t == "" or Research.knows(state, eid, t)
+
+
 static func work_ids() -> Array[String]:
 	var out: Array[String] = []
 	for k in (Insolites.cfg("gravea").get("works", {}) as Dictionary):
@@ -74,6 +80,8 @@ static func check_work(state: GameState, eid: int, w: String, pid: int) -> Strin
 	var wd := work_def(w)
 	if wd.is_empty():
 		return "Œuvre inconnue"
+	if not work_open(state, eid, w):
+		return "technologie requise : %s" % Research.missing_text(state, eid, [String(wd["tech"])])
 	var p := state.galaxy.get_planet(pid)
 	if p == null:
 		return "planète inconnue"

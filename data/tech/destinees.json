@@ -822,7 +822,7 @@
 			"current": "seve",
 			"text": "Victoire de peuple : quand la moitié de la population organique de la galaxie rêve avec les Ysmer, et le tient cinq ans, tous font le même rêve.",
 			"pre": [
-				"holovision",
+				"propagande",
 				"reve_commun_etape2"
 			],
 			"requires": {
@@ -1436,7 +1436,7 @@
 			"current": "concorde",
 			"text": "Victoire de peuple : la grande tournée commence. Influente chez des empires qui réunissent 60 % de la population étrangère rencontrée, tenu un an, et la galaxie entière danse sur votre musique.",
 			"pre": [
-				"holovision",
+				"propagande",
 				"idole_etape2"
 			],
 			"requires": {

@@ -707,7 +707,7 @@ static func has_own_yard(state: GameState, empire_id: int, system_id: int) -> bo
 		var c: Colony = state.colonies.get(pid)
 		if c != null and c.owner == empire_id and c.is_established() and c.is_colony():
 			return true
-	return false
+	return PeopleHulls.city_yard(state, empire_id, system_id)  # Flotte-ville III : le campement est un chantier
 
 
 static func check_refit(state: GameState, empire_id: int, fleet_id: int) -> String:

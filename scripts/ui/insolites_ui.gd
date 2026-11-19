@@ -81,6 +81,9 @@ static func system_actions(state: GameState, player: int, p: Planet, emit: Calla
 		elif state.system_owner(p.system_id) >= 0 and not GameState.is_npc(state.system_owner(p.system_id)):
 			out.append(WondersUi._act(state, SimCommands.ins_act(player, "bubble", {"s": p.system_id, "mode": "dilatation"}), "Bulle de Dilatation", "%d Sable" % Insolites.c_int("sablier", "bubble_sand", 30),
 					"Les horloges de ce système étranger ralentissent : production -%d %% pendant un an." % Insolites.c_int("sablier", "bubble_pct", 25), emit))
+		if c != null and c.owner == player and Research.fx_int(state, player, "bubble_pli") > 0:
+			out.append(WondersUi._act(state, SimCommands.ins_act(player, "pli", {"pid": p.id}), "Bulle de Pli", "%d Sable" % Insolites.c_int("sablier", "bubble_sand", 30),
+					"Le chantier de cette colonie se plie : le bâtiment et le vaisseau en cours s'achèvent tout de suite.", emit))
 	if k == "myrr" and c == null and not InsMyrr.seeded(state, player).has(p.system_id):
 		out.append(WondersUi._act(state, SimCommands.ins_act(player, "comet", {"s": p.system_id}), "Comète-semence", GameData.format_amounts(Insolites.cfg("myrr").get("comet_cost", {})),
 				"Lancer une comète chargée de spores vers ce système : elle y tombe au bout de quelques mois et une colonie pousse. Une seconde comète vers le même système arrive deux fois plus vite.", emit))
@@ -102,6 +105,8 @@ static func fleet_has_actions(state: GameState, player: int, f: Fleet) -> bool:
 	var k := Insolites.kind(state, player)
 	if k == "kraal":
 		return InsKraal.kraal_count(f) > 0
+	if k == "sablier" and Research.fx_int(state, player, "bubble_repli") > 0:
+		return true
 	if Insolites.yard_allowed(state, player):
 		return FactionTraits.city_fleet(state, player) == f
 	return false
@@ -113,6 +118,8 @@ static func fleet_button_text(state: GameState, player: int) -> String:
 			return "PILOTES"
 		"exode", "zambalu":
 			return "CHANTIER EMBARQUÉ"
+		"sablier":
+			return "BULLE"
 	return "GRAND NUMÉRO"
 
 
@@ -135,6 +142,9 @@ static func open_fleet_menu(main: Node, state: GameState, player: int, f: Fleet)
 	if Insolites.kind(state, player) == "kraal" and InsKraal.kraal_count(f) > 0:
 		menu.add_separator("Pilotes")
 		_item(menu, cmds, state, player, "pilot", {"fleet": f.id}, "Lier un Pilote (un habitant ennemi du système)")
+	if Insolites.kind(state, player) == "sablier" and Research.fx_int(state, player, "bubble_repli") > 0:
+		menu.add_separator("Bulles du Sablier")
+		_item(menu, cmds, state, player, "repli", {"fleet": f.id}, "Repli (%d Sable) : la flotte revient d'où elle venait" % Insolites.c_int("sablier", "bubble_sand", 30))
 	if InsZambalu.open_call(state) >= 0:
 		menu.add_separator("Grand Numéro")
 		_item(menu, cmds, state, player, "delegate", {}, "Envoyer un délégué (trêve entre délégués, influence)")

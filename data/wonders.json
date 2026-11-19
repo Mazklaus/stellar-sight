@@ -322,7 +322,7 @@
 		},
 		"holotheatre": {
 			"requires_tech": [
-				"holovision"
+				"propagande"
 			],
 			"label": "Holothéâtre éternel",
 			"culture": true,
@@ -721,7 +721,7 @@
 			"family": "galactique",
 			"era": 3,
 			"requires_tech": [
-				"cites_flottantes"
+				"habitats"
 			],
 			"site": {
 				"planet": [
@@ -1080,7 +1080,7 @@
 			"family": "registre",
 			"era": 2,
 			"requires_tech": [
-				"defense_planetaire"
+				"bastions"
 			],
 			"site": {
 				"building": "bastion",
@@ -1141,7 +1141,7 @@
 			"family": "registre",
 			"era": 2,
 			"requires_tech": [
-				"mondes_toxiques"
+				"biomes_extremes"
 			],
 			"site": {
 				"planet": [

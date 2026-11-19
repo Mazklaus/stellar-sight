@@ -4749,9 +4749,10 @@
     "Directive des Silencieux"
    ],
    "family": "meca",
-   "summary": "Ce que font les Silencieux, affiché à tous : extraire, étendre leurs usines, ou écarter l'obstacle qui tient le système visé.",
+   "summary": "Ce que font les Silencieux, affiché à tous : extraire, étendre leurs usines, ou écarter l'obstacle qui tient le système visé ; avec leurs acquisitions, optimiser leurs chaînes (8 technologies) ou démonter les épaves d'un champ de bataille (16).",
    "chapters": [
-    "17a-insolites"
+    "17a-insolites",
+    "07-recherche"
    ]
   },
   {
@@ -4878,12 +4879,15 @@
     "Bulle temporelle",
     "Bulles temporelles",
     "Compression",
-    "Dilatation"
+    "Dilatation",
+    "Repli",
+    "Pli"
    ],
    "family": "meca",
-   "summary": "Le Sablier plie le temps d'un système pendant un an : Compression (+25 %) chez soi, Dilatation (-25 %) chez un autre.",
+   "summary": "Le Sablier plie le temps d'un système pendant un an : Compression (+25 %) chez soi, Dilatation (-25 %) chez un autre ; avec la recherche, Repli (une flotte revient d'où elle venait) et Pli (un chantier s'achève tout de suite).",
    "chapters": [
-    "17a-insolites"
+    "17a-insolites",
+    "07-recherche"
    ]
   },
   {
@@ -4947,7 +4951,7 @@
     "Œuvres"
    ],
    "family": "meca",
-   "summary": "Projet de dix à quinze ans des Lithes de Gravéa qui change la forme des mondes d'un système (fondre, rendre habitable, déplacer, refroidir).",
+   "summary": "Projet de dix à quinze ans des Lithes de Gravéa qui change la forme des mondes d'un système : fondre une ceinture d'emblée, puis rendre habitable, déplacer, refroidir l'étoile, une Œuvre par ère avec sa technologie.",
    "chapters": [
     "17a-insolites"
    ]
@@ -5210,7 +5214,7 @@
     "Spécialisation"
    ],
    "family": "meca",
-   "summary": "Nœud de l'arbre où l'on choisit une branche ; les autres ne s'obtiennent plus que par échange, vol, épaves ou trouvaille (les doctrines en sont)",
+   "summary": "Nœud de l'arbre où l'on choisit une branche ; les autres ne s'obtiennent plus que par échange, vol, épaves ou trouvaille (les doctrines, le chantier lourd, rayonner ou convertir, l'ombre ou la gloire, le peuplement)",
    "chapters": [
     "07-recherche"
    ],
@@ -5458,6 +5462,34 @@
    ],
    "family": "meca",
    "summary": "Manière propre à un peuple de faire avancer la science (Compilation, Brevets, Mémoire des morts…) ; une brique de l'éditeur d'espèces, choisie parmi celles que permettent les couches",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "flotte_ville",
+   "name": "Flotte-ville",
+   "forms": [
+    "Flotte-ville",
+    "Flottes-villes",
+    "flotte-ville",
+    "flottes-villes"
+   ],
+   "family": "univers",
+   "summary": "Capitale mobile des clans à horde (Ferrocornes) : elle rapporte ce que rapporte un palais. Flotte-ville II lui donne des batteries, Flotte-ville III un chantier là où elle campe.",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "module_nef",
+   "name": "Module de nef",
+   "forms": [
+    "Module de nef",
+    "Modules de nef"
+   ],
+   "family": "meca",
+   "summary": "Équivalent des bâtiments de colonie pour la Flotte-Exode : chaque nef au mouillage rapporte ce que ses modules rapportent (Serres, Ateliers de coursive, Observatoire de proue).",
    "chapters": [
     "07-recherche"
    ]

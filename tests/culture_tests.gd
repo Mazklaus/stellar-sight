@@ -137,7 +137,7 @@ func _test_sources() -> void:
 	# Merveille culturelle : +valeur, +1 par ère franchie.
 	c.buildings.append("bibliotheque_mondes")
 	_ok(Culture.wonder_value(st, 0, "bibliotheque_mondes") == 4 + maxi(0, Research.current_era(st, 0) - 2), "merveille : valeur + ère franchie")
-	Research.grant(st, 0, ["holovision"])
+	Research.grant(st, 0, ["propagande"])
 	_ok(Culture.radiance_pct(st, 0) >= 125, "Holovision : Rayonnement +25 %")
 
 
@@ -156,7 +156,7 @@ func _test_buildings() -> void:
 			n += 1
 			_ok(Wonders.galaxy_unique(String(bid)), "merveille culturelle unique dans la galaxie : %s" % bid)
 	_ok(n == 8, "huit merveilles culturelles (%d)" % n)
-	for t in ["arts_holographiques", "holovision", "reseau_mondes", "conversion_culturelle"]:
+	for t in ["arts_holographiques", "propagande", "reseau_mondes", "conversion_culturelle"]:
 		_ok(Research.exists(t), "technologie %s" % t)
 	_ok(GameData.building("villegiature").get("outpost_ok", false), "villégiature possible sur un avant-poste")
 

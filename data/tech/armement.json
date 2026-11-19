@@ -15,12 +15,13 @@
 			"flavor": "Même principe qu'avant, mais le projectile arrive avant qu'on ait fini de le regretter."
 		},
 		"lentilles": {
-			"label": "Lentilles de focalisation",
+			"label": "Optiques et autoguidage",
 			"domain": "armement",
 			"era": 1,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Débloque la tactique Feu concentré (+25 % à moyenne portée)."
+			"text": "Débloque la tactique Feu concentré (+25 % à moyenne portée). Débloque la tactique Salves croisées : la défense ponctuelle adverse arrête un quart de missiles de moins.",
+			"pre": []
 		},
 		"blindage_composite": {
 			"label": "Blindage composite",
@@ -36,14 +37,6 @@
 				"kind": "ships_lost",
 				"n": 3
 			}
-		},
-		"tetes_chercheuses": {
-			"label": "Missiles à tête chercheuse",
-			"domain": "armement",
-			"era": 1,
-			"field": "armes",
-			"current": "glaive",
-			"text": "Débloque la tactique Salves croisées : la défense ponctuelle adverse arrête un quart de missiles de moins."
 		},
 		"boucliers_phase": {
 			"label": "Boucliers à phase",
@@ -81,7 +74,7 @@
 			"era": 2,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Débloque les Tourelles d'interception (défense ponctuelle du vaisseau et un peu de la flotte) et le Dôme antimissile des titans.",
+			"text": "Débloque les Tourelles d'interception (défense ponctuelle du vaisseau et un peu de la flotte) et le Dôme antimissile des titans. Débloque les Plaques ablatives (blindage plus épais).",
 			"pre": [
 				"blindage_composite"
 			],
@@ -97,7 +90,7 @@
 			"current": "glaive",
 			"text": "Famille d'armes Torpilles (fortes contre les grosses coques). Il faut aussi les Torpilleurs pour en armer un vaisseau.",
 			"pre": [
-				"tetes_chercheuses"
+				"lentilles"
 			],
 			"needs": [
 				"vaisseaux"
@@ -113,13 +106,16 @@
 			"era": 2,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Débloque le Bastion orbital : garnison et batterie de défense d'un système.",
+			"text": "Débloque le Bastion orbital : garnison et batterie de défense d'un système. Débloque les Abris civils (moitié moins de morts sous les bombardements). Tir sur les régiments qui débarquent : 10 % de leur santé (combat au sol complet).",
 			"pre": [
 				"blindage_composite"
 			],
 			"eureka": {
 				"kind": "besieged",
 				"n": 1
+			},
+			"effects": {
+				"landing_fire_pct": 10
 			}
 		},
 		"marines": {
@@ -159,12 +155,12 @@
 			}
 		},
 		"blindes_assaut": {
-			"label": "Blindés d'assaut",
+			"label": "Régiments spécialisés",
 			"domain": "armement",
 			"era": 2,
 			"field": "troupes",
 			"current": "glaive",
-			"text": "Débloque les régiments de Blindés (combat au sol complet) : ils encaissent et écrasent l'infanterie.",
+			"text": "Débloque les régiments de Blindés (combat au sol complet) : ils encaissent et écrasent l'infanterie. Débloque les régiments de Forces spéciales (combat au sol complet) : ils sabotent milice et batteries au débarquement.",
 			"pre": [
 				"debarquement"
 			],
@@ -188,18 +184,6 @@
 				"n": 2
 			}
 		},
-		"accelerateurs": {
-			"label": "Accélérateurs magnétiques",
-			"domain": "armement",
-			"era": 3,
-			"field": "armes",
-			"current": "glaive",
-			"text": "Débloque le Rayon tracteur : la flotte ennemie accrochée ne quitte plus la bataille, et l'abordage contre elle gagne en force.",
-			"pre": [
-				"canons_masse",
-				"marines"
-			]
-		},
 		"plasma": {
 			"label": "Rayons à plasma",
 			"domain": "armement",
@@ -211,30 +195,17 @@
 				"boucliers_phase"
 			]
 		},
-		"plaques_ablatives": {
-			"label": "Plaques ablatives",
-			"domain": "armement",
-			"era": 3,
-			"field": "defenses",
-			"current": "glaive",
-			"text": "Débloque les Plaques ablatives (blindage plus épais).",
-			"pre": [
-				"interception"
-			],
-			"needs": [
-				"vaisseaux"
-			]
-		},
 		"essaims": {
 			"label": "Missiles en essaim",
 			"domain": "armement",
 			"era": 3,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Débloque le Lance-essaim (missiles légers en gerbe).",
+			"text": "Débloque le Lance-essaim (missiles légers en gerbe). Débloque la tactique Guerre électronique : la défense ponctuelle adverse arrête 40 % de projectiles de moins.",
 			"pre": [
 				"torpilles"
-			]
+			],
+			"flavor": "Les tourelles adverses tirent sur ce qu'elles voient. C'est tout le problème."
 		},
 		"artillerie": {
 			"label": "Artillerie lourde",
@@ -242,9 +213,10 @@
 			"era": 3,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Famille d'armes Artillerie (portée longue, rien en phase courte). Il faut aussi les Cuirassés pour en armer un vaisseau.",
+			"text": "Famille d'armes Artillerie (portée longue, rien en phase courte). Il faut aussi les Cuirassés pour en armer un vaisseau. Débloque le Rayon tracteur : la flotte ennemie accrochée ne quitte plus la bataille, et l'abordage contre elle gagne en force.",
 			"pre": [
-				"accelerateurs"
+				"canons_masse",
+				"marines"
 			],
 			"needs": [
 				"vaisseaux"
@@ -268,27 +240,13 @@
 				"vaisseaux"
 			]
 		},
-		"phase_dense": {
-			"label": "Boucliers de phase dense",
-			"domain": "armement",
-			"era": 4,
-			"field": "defenses",
-			"current": "glaive",
-			"text": "Débloque le Bouclier de flottille (module de soutien qui couvre les vaisseaux voisins).",
-			"pre": [
-				"plasma"
-			],
-			"needs": [
-				"vaisseaux"
-			]
-		},
 		"canons_rail": {
-			"label": "Canons à rail",
+			"label": "Canons lourds",
 			"domain": "armement",
 			"era": 4,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Débloque le Canon à rail (canon lourd des grandes coques).",
+			"text": "Débloque le Canon à rail (canon lourd des grandes coques). Débloque le Canon de siège des titans.",
 			"pre": [
 				"artillerie"
 			]
@@ -314,23 +272,11 @@
 			"era": 4,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Débloque la famille d'armes Ions : le Canon à ions coupe à moitié les boucliers et la défense ponctuelle de la flotte touchée jusqu'au lendemain.",
+			"text": "Débloque la famille d'armes Ions : le Canon à ions coupe à moitié les boucliers et la défense ponctuelle de la flotte touchée jusqu'au lendemain. Débloque le Bouclier de flottille (module de soutien qui couvre les vaisseaux voisins).",
 			"pre": [
 				"plasma"
 			],
 			"flavor": "Le rayon est invisible. Le trou qu'il laisse, beaucoup moins."
-		},
-		"missiles_furtifs": {
-			"label": "Missiles furtifs",
-			"domain": "armement",
-			"era": 4,
-			"field": "armes",
-			"current": "glaive",
-			"text": "Débloque la tactique Guerre électronique : la défense ponctuelle adverse arrête 40 % de projectiles de moins.",
-			"pre": [
-				"essaims"
-			],
-			"flavor": "Les tourelles adverses tirent sur ce qu'elles voient. C'est tout le problème."
 		},
 		"blindage_reactif": {
 			"label": "Blindage réactif",
@@ -340,30 +286,19 @@
 			"current": "glaive",
 			"text": "Débloque le Blindage réactif (blindage et un peu de défense ponctuelle).",
 			"pre": [
-				"plaques_ablatives"
+				"interception"
 			],
 			"needs": [
 				"vaisseaux"
 			]
 		},
-		"obusiers": {
-			"label": "Obusiers à fragmentation",
-			"domain": "armement",
-			"era": 4,
-			"field": "armes",
-			"current": "glaive",
-			"text": "Débloque le Canon de siège des titans.",
-			"pre": [
-				"artillerie"
-			]
-		},
 		"canons_singularite": {
-			"label": "Canons à singularité",
+			"label": "Armes à singularité",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Débloque le Canon à singularité des léviathans.",
+			"text": "Débloque le Canon à singularité des léviathans. Débloque la Torpille à singularité.",
 			"pre": [
 				"canons_rail"
 			],
@@ -382,18 +317,6 @@
 			"text": "Débloque la Lance stellaire des titans.",
 			"pre": [
 				"faisceaux_gamma"
-			]
-		},
-		"torpilles_singulieres": {
-			"label": "Torpilles à singularité",
-			"domain": "armement",
-			"era": 5,
-			"field": "armes",
-			"current": "glaive",
-			"text": "Débloque la Torpille à singularité.",
-			"pre": [
-				"missiles_furtifs",
-				"antimatiere"
 			]
 		},
 		"verbe_final": {
@@ -434,23 +357,9 @@
 			"era": 5,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Débloque le Hangar géant des titans.",
+			"text": "Débloque le Hangar géant des titans. Débloque la Nuée de drones (emplacement lourd : chasseurs et défense ponctuelle).",
 			"pre": [
-				"obusiers"
-			]
-		},
-		"nuees_pensantes": {
-			"label": "Nuées pensantes",
-			"domain": "armement",
-			"era": 5,
-			"field": "armes",
-			"current": "glaive",
-			"text": "Débloque la Nuée de drones (emplacement lourd : chasseurs et défense ponctuelle).",
-			"pre": [
-				"escadres_autonomes"
-			],
-			"needs": [
-				"vaisseaux"
+				"canons_rail"
 			],
 			"danger": "Des nuées qui pensent finissent par penser à autre chose : la fin de partie approche.",
 			"ai": {
@@ -527,7 +436,7 @@
 			"era": 2,
 			"field": "troupes",
 			"current": "glaive",
-			"text": "Prises de guerre complètes : toute flotte qui porte des troupes peut se mettre en posture d'abordage ; modules Grappins, Sas piégés et Charge d'autodestruction.",
+			"text": "Prises de guerre complètes : toute flotte qui porte des troupes peut se mettre en posture d'abordage ; modules Grappins, Sas piégés et Charge d'autodestruction. Prises de guerre complètes : module Capsules d'assaut, qui permet d'aborder dès la phase moyenne.",
 			"pre": [
 				"debarquement"
 			],
@@ -535,21 +444,6 @@
 				"vaisseaux"
 			],
 			"flavor": "La première leçon de l'école de prise : on n'abîme pas ce qu'on veut garder. La seconde : on l'abîme quand même un peu."
-		},
-		"capsules_assaut": {
-			"label": "Capsules d'assaut",
-			"domain": "armement",
-			"era": 3,
-			"field": "troupes",
-			"current": "glaive",
-			"text": "Prises de guerre complètes : module Capsules d'assaut, qui permet d'aborder dès la phase moyenne.",
-			"pre": [
-				"equipes_prise"
-			],
-			"needs": [
-				"vaisseaux"
-			],
-			"flavor": "Un cercueil avec des moteurs, disent les soldats. Un taxi, corrigent les sergents."
 		},
 		"abordage": {
 			"label": "Abordage",
@@ -617,21 +511,6 @@
 				"n": 8
 			}
 		},
-		"forces_speciales": {
-			"label": "Forces spéciales",
-			"domain": "armement",
-			"era": 2,
-			"field": "troupes",
-			"current": "glaive",
-			"text": "Débloque les régiments de Forces spéciales (combat au sol complet) : ils sabotent milice et batteries au débarquement.",
-			"pre": [
-				"debarquement"
-			],
-			"eureka": {
-				"kind": "conquests",
-				"n": 1
-			}
-		},
 		"genie_siege": {
 			"label": "Génie de siège",
 			"domain": "armement",
@@ -647,27 +526,13 @@
 				"n": 1
 			}
 		},
-		"defense_planetaire": {
-			"label": "Défense planétaire",
-			"domain": "armement",
-			"era": 2,
-			"field": "defenses",
-			"current": "glaive",
-			"text": "Débloque les Abris civils (moitié moins de morts sous les bombardements). Tir sur les régiments qui débarquent : 10 % de leur santé (combat au sol complet).",
-			"pre": [
-				"bastions"
-			],
-			"effects": {
-				"landing_fire_pct": 10
-			}
-		},
 		"plates_formes_defense": {
 			"label": "Plates-formes de défense",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Défenses spatiales : plates-formes fixes autour de la station, modules à rayons, hangar, défense ponctuelle, bouclier, réparation et commandement, hangar planétaire. +2 places de plates-formes par système.",
+			"text": "Défenses spatiales : plates-formes fixes autour de la station, modules à rayons, hangar, défense ponctuelle, bouclier, réparation et commandement, hangar planétaire. +2 places de plates-formes par système. Défenses spatiales complètes : mouilleur de mines de station, modules Mouilleur de mines et Démineur pour les vaisseaux.",
 			"pre": [
 				"bastions"
 			],
@@ -678,28 +543,6 @@
 				"kind": "besieged",
 				"n": 1
 			}
-		},
-		"champs_de_mines": {
-			"label": "Champs de mines",
-			"domain": "armement",
-			"era": 3,
-			"field": "defenses",
-			"current": "glaive",
-			"text": "Défenses spatiales complètes : mouilleur de mines de station, modules Mouilleur de mines et Démineur pour les vaisseaux.",
-			"pre": [
-				"plates_formes_defense"
-			]
-		},
-		"boucliers_planetaires": {
-			"label": "Boucliers planétaires",
-			"domain": "armement",
-			"era": 3,
-			"field": "defenses",
-			"current": "glaive",
-			"text": "Défenses spatiales : le Bouclier planétaire divise par deux bombardement et dévastation, et le siège l'use avant les fortifications.",
-			"pre": [
-				"bastions"
-			]
 		},
 		"remparts_stellaires": {
 			"label": "Remparts stellaires",
@@ -722,9 +565,10 @@
 			"era": 3,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Débloque la Citadelle : fortifications, tir au débarquement, et la population à l'abri des bombardements tant qu'elle tient.",
+			"text": "Débloque la Citadelle : fortifications, tir au débarquement, et la population à l'abri des bombardements tant qu'elle tient. Défenses spatiales : le Bouclier planétaire divise par deux bombardement et dévastation, et le siège l'use avant les fortifications.",
 			"pre": [
-				"genie_siege"
+				"genie_siege",
+				"bastions"
 			]
 		},
 		"doctrine_interarmes": {
@@ -828,7 +672,7 @@
 			"current": "glaive",
 			"text": "Trouvaille : un bouclier de flottille dessiné par une puissance ancienne. Il vaut Phase dense (Bouclier de flottille) sans la rechercher.",
 			"find": true,
-			"find_of": "phase_dense",
+			"find_of": "faisceaux_gamma",
 			"find_sources": [
 				"ancients",
 				"strates"
@@ -848,11 +692,12 @@
 			"effects": {
 				"corps": 1
 			},
+			"flavor": "« Je ne peux pas être partout. » — « Deux endroits suffiront, mon général. »",
+			"mastery": "marines",
 			"eureka": {
 				"kind": "conquests",
 				"n": 2
-			},
-			"flavor": "« Je ne peux pas être partout. » — « Deux endroits suffiront, mon général. »"
+			}
 		},
 		"droit_guerre": {
 			"label": "Droit de la guerre",
@@ -886,6 +731,7 @@
 			"effects": {
 				"occupation": 1
 			},
+			"mastery": "droit_guerre",
 			"eureka": {
 				"kind": "conquests",
 				"n": 3

@@ -592,6 +592,7 @@ static func colony_pct(state: GameState, pid: int) -> int:
 	var pct := maxi(0, 100 + InsSablier.system_pct(state, state.galaxy.get_planet(pid).system_id))
 	@warning_ignore("integer_division")
 	pct = pct * InsGravea.colony_pct(state, pid) / 100 * InsMyrr.colony_pct(state, pid) / 100
+	pct = pct * (100 + InsSilencieux.colony_pct(state, pid)) / 100  # Optimiser les chaînes
 	return pct
 
 
@@ -960,7 +961,7 @@ static func daily(state: GameState) -> Array[Dictionary]:
 ## "devour" (pid), "pilot" (fleet) ; lot 2 : "buy" et "nationalize" (pid), "sign" (b, norm), "summon"
 ## (target), "host" et "unhost" (s), "inspire" et "nightmare" (pid), "dream_fleet" ; lot 3 : "pact" et
 ## "unpact" (a), "raise" et "release" (i), "backup", "acquire" (w : empire ou mineur), "awaken" (pid),
-## "post" et "uplift" (m : mineur) ; lot 4 : "undo" (i), "bubble" (s, mode), "loop", "work" (w, pid),
+## "post" et "uplift" (m : mineur) ; lot 4 : "undo" (i), "bubble" (s, mode), "repli" (fleet), "pli" (pid), "loop", "work" (w, pid),
 ## "hasten" (i), "deliberate" (t), "sleep" (pid), "comet" (s), "burn" (pid), "season" (s), "heart" (pid).
 
 static func check(state: GameState, eid: int, act: String, d: Dictionary) -> String:
@@ -1018,6 +1019,10 @@ static func check(state: GameState, eid: int, act: String, d: Dictionary) -> Str
 			return InsSablier.check_undo(state, eid, int(d.get("i", -1)))
 		"bubble":
 			return InsSablier.check_bubble(state, eid, int(d.get("s", -1)), String(d.get("mode", "")))
+		"repli":
+			return InsSablier.check_fold(state, eid, "repli", int(d.get("fleet", -1)))
+		"pli":
+			return InsSablier.check_fold(state, eid, "pli", int(d.get("pid", -1)))
 		"loop":
 			return InsSablier.check_loop(state, eid)
 		"work":
@@ -1090,6 +1095,10 @@ static func apply(state: GameState, eid: int, act: String, d: Dictionary) -> Arr
 			InsSablier.undo(state, eid, int(d["i"]), added)
 		"bubble":
 			InsSablier.bubble(state, eid, int(d["s"]), String(d["mode"]), added)
+		"repli":
+			InsSablier.fold(state, eid, "repli", int(d["fleet"]), added)
+		"pli":
+			InsSablier.fold(state, eid, "pli", int(d["pid"]), added)
 		"loop":
 			InsSablier.loop(state, eid, added)
 		"work":

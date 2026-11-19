@@ -76,7 +76,7 @@ static func apply(st: GameState, cmd: Dictionary) -> String:
 
 static func learn_all(st: GameState, eid: int) -> void:
 	var e := st.get_empire(eid)
-	for t in ["bastions", "citadelle_planetaire", "plates_formes_defense", "champs_de_mines", "boucliers_planetaires", "inhibiteur_saut", "remparts_stellaires"]:
+	for t in ["bastions", "citadelle_planetaire", "plates_formes_defense", "inhibiteur_saut", "remparts_stellaires"]:
 		if not e.techs.has(t):
 			e.techs[t] = true
 

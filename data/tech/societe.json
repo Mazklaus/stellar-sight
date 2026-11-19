@@ -260,37 +260,13 @@
 				"growth_pct": 15
 			}
 		},
-		"mondes_toxiques": {
-			"label": "Mondes toxiques",
-			"domain": "societe",
-			"era": 2,
-			"field": "colonisation",
-			"current": "seve",
-			"text": "Les mondes toxiques deviennent habitables (40 %).",
-			"pre": [
-				"adaptation"
-			],
-			"needs": [
-				"colonies"
-			],
-			"effects": {
-				"hab_set": {
-					"toxic": 40
-				}
-			},
-			"eureka": {
-				"kind": "claim",
-				"what": "toxic",
-				"n": 1
-			}
-		},
 		"biomes_extremes": {
 			"label": "Biomes extrêmes",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "Débloque les Dômes renforcés (+4 population maximale), et +20 % d'habitabilité sur les mondes désertiques et glaciaires.",
+			"text": "Débloque les Dômes renforcés (+4 population maximale), et +20 % d'habitabilité sur les mondes désertiques et glaciaires. Les mondes toxiques deviennent habitables (40 %).",
 			"pre": [
 				"adaptation"
 			],
@@ -301,6 +277,9 @@
 				"hab_bonus": {
 					"desert": 20,
 					"arctic": 20
+				},
+				"hab_set": {
+					"toxic": 40
 				}
 			},
 			"eureka": {
@@ -353,9 +332,9 @@
 			"era": 3,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "Débloque les Habitats orbitaux.",
+			"text": "Débloque les Habitats orbitaux. Les géantes gazeuses deviennent habitables (30 %).",
 			"pre": [
-				"mondes_toxiques"
+				"biomes_extremes"
 			],
 			"needs": [
 				"colonies"
@@ -363,30 +342,11 @@
 			"eureka": {
 				"kind": "pop",
 				"n": 80
-			}
-		},
-		"cites_flottantes": {
-			"label": "Cités flottantes",
-			"domain": "societe",
-			"era": 3,
-			"field": "colonisation",
-			"current": "seve",
-			"text": "Les géantes gazeuses deviennent habitables (30 %).",
-			"pre": [
-				"mondes_toxiques"
-			],
-			"needs": [
-				"colonies"
-			],
+			},
 			"effects": {
 				"hab_set": {
 					"gas_giant": 30
 				}
-			},
-			"eureka": {
-				"kind": "claim",
-				"what": "gas_giant",
-				"n": 1
 			}
 		},
 		"genetique": {
@@ -437,21 +397,25 @@
 			"era": 3,
 			"field": "culture",
 			"current": "concorde",
-			"text": "+20 % d'influence, +5 stabilité dans tous vos systèmes. Avec les religions : pare-feu culturel contre les fois Mème.",
+			"text": "+20 % d'influence, +5 stabilité dans tous vos systèmes. Avec les religions : pare-feu culturel contre les fois Mème. Rayonnement +25 %. Débloque l'Holothéâtre éternel et les Troupes de spectacle.",
 			"pre": [
-				"chancelleries"
+				"chancelleries",
+				"arts_holographiques"
 			],
 			"effects": {
 				"meme_firewall": 1,
 				"production_pct": {
 					"influence": 20
 				},
-				"stability": 5
+				"stability": 5,
+				"culture_pct": 25,
+				"culture_troupe": 1
 			},
 			"eureka": {
 				"kind": "peace",
 				"n": 1
-			}
+			},
+			"flavor": "Douze mille chaînes, et toujours rien à regarder. Sauf, curieusement, les feuilletons du voisin."
 		},
 		"administration2": {
 			"label": "Gouverneurs de secteur",
@@ -478,9 +442,10 @@
 			"era": 4,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "Projet de Terraformation sur une colonie d'un monde continental, océanique, désertique, glaciaire ou toxique : la planète devient le second monde préféré de votre peuple (80 % d'habitabilité).",
+			"text": "Projet de Terraformation sur une colonie d'un monde continental, océanique, désertique, glaciaire ou toxique : la planète devient le second monde préféré de votre peuple (80 % d'habitabilité). Les mondes stériles (30 %) et les ceintures d'astéroïdes (50 %) deviennent habitables : on vit dans la roche, on y extrait des matériaux.",
 			"pre": [
-				"biomes_extremes"
+				"biomes_extremes",
+				"habitats"
 			],
 			"needs": [
 				"colonies"
@@ -490,33 +455,13 @@
 				"what": "desert",
 				"n": 1
 			},
-			"flavor": "On ne change pas le climat d'une planète en un jour. Il faut un an, et beaucoup de patience de la part des autochtones microbiens."
-		},
-		"cites_creusees": {
-			"label": "Cités creusées",
-			"domain": "societe",
-			"era": 4,
-			"field": "colonisation",
-			"current": "seve",
-			"text": "Les mondes stériles (30 %) et les ceintures d'astéroïdes (50 %) deviennent habitables : on vit dans la roche, on y extrait des matériaux.",
-			"pre": [
-				"habitats"
-			],
-			"needs": [
-				"colonies"
-			],
+			"flavor": "On ne change pas le climat d'une planète en un jour. Il faut un an, et beaucoup de patience de la part des autochtones microbiens.",
 			"effects": {
 				"hab_set": {
 					"barren": 30,
 					"asteroids": 50
 				}
-			},
-			"eureka": {
-				"kind": "claim",
-				"what": "asteroids",
-				"n": 3
-			},
-			"flavor": "Pas de ciel, pas de météo, pas de voisins bruyants. Juste de la roche, et des mineurs qui chantent faux."
+			}
 		},
 		"cadastre_algorithmique": {
 			"label": "Cadastre algorithmique",
@@ -664,7 +609,8 @@
 				"kind": "pop",
 				"n": 250
 			},
-			"flavor": "Billet aller simple, hublot en option, chat accepté."
+			"flavor": "Billet aller simple, hublot en option, chat accepté.",
+			"spec": "peuplement"
 		},
 		"adaptation_totale": {
 			"label": "Adaptation totale",
@@ -674,7 +620,7 @@
 			"current": "seve",
 			"text": "Débloque la Cité scellée (+3 population maximale). Aucun monde habitable ne descend sous 60 % d'habitabilité.",
 			"pre": [
-				"cites_creusees"
+				"terraformation"
 			],
 			"heretic": {
 				"species": {
@@ -696,7 +642,8 @@
 				"kind": "colonies",
 				"n": 40
 			},
-			"flavor": "Le corps s'adapte au monde. Puis le monde, vexé, s'adapte un peu aussi."
+			"flavor": "Le corps s'adapte au monde. Puis le monde, vexé, s'adapte un peu aussi.",
+			"spec": "peuplement"
 		},
 		"symbiose": {
 			"label": "Symbiose universelle",
@@ -782,22 +729,6 @@
 			},
 			"flavor": "La sculpture en lumière dure a ruiné deux siècles de marbriers, et enrichi les vendeurs de lunettes."
 		},
-		"holovision": {
-			"label": "Holovision",
-			"domain": "societe",
-			"era": 3,
-			"field": "culture",
-			"current": "concorde",
-			"text": "Rayonnement +25 %. Débloque l'Holothéâtre éternel et les Troupes de spectacle.",
-			"pre": [
-				"arts_holographiques"
-			],
-			"effects": {
-				"culture_pct": 25,
-				"culture_troupe": 1
-			},
-			"flavor": "Douze mille chaînes, et toujours rien à regarder. Sauf, curieusement, les feuilletons du voisin."
-		},
 		"reseau_mondes": {
 			"label": "Réseau des mondes",
 			"domain": "societe",
@@ -806,7 +737,6 @@
 			"current": "concorde",
 			"text": "Rayonnement +25 %. Débloque le Phare des Civilisations. Spécialisation : Réseau des mondes ou Conversion culturelle, rayonner ou convertir (l'autre ne s'obtient plus que par échange, vol ou trouvaille).",
 			"pre": [
-				"holovision",
 				"propagande"
 			],
 			"effects": {
@@ -822,7 +752,7 @@
 			"current": "concorde",
 			"text": "Débloque le Sanctuaire (agrandit le Grand temple). Vos voisins instables et largement rayonnés par vous peuvent faire défection et rejoindre votre empire (selon le réglage de la partie). Spécialisation : Réseau des mondes ou Conversion culturelle, rayonner ou convertir (l'autre ne s'obtient plus que par échange, vol ou trouvaille).",
 			"pre": [
-				"holovision"
+				"propagande"
 			],
 			"effects": {
 				"culture_defect": 1
@@ -1008,7 +938,8 @@
 				"what": "operations",
 				"n": 10
 			},
-			"flavor": "Ils ont mené une vie parfaitement ordinaire pendant vingt ans. Certains ont oublié pourquoi."
+			"flavor": "Ils ont mené une vie parfaitement ordinaire pendant vingt ans. Certains ont oublié pourquoi.",
+			"spec": "ombre_ou_gloire"
 		},
 		"theologie_comparee": {
 			"label": "Théologie comparée",
@@ -1102,7 +1033,8 @@
 			"eureka": {
 				"kind": "battles_won",
 				"n": 10
-			}
+			},
+			"spec": "ombre_ou_gloire"
 		},
 		"protocole_cour": {
 			"label": "Protocole de cour",

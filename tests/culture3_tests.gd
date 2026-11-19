@@ -113,7 +113,7 @@ func _test_troupe() -> void:
 	st.get_empire(0).resources["energy"] = 1000
 	st.get_empire(0).resources["influence"] = 1000
 	_ok(SimCommands.validate(st, SimCommands.cul_act(0, "troupe", 1)) != "", "Troupe : il faut l'Holovision")
-	Research.grant(st, 0, ["arts_holographiques", "holovision"])
+	Research.grant(st, 0, ["arts_holographiques", "propagande"])
 	_ok(SimCommands.validate(st, SimCommands.cul_act(0, "troupe", 1)) == "", "Troupe disponible")
 	SimCommands.apply(st, SimCommands.cul_act(0, "troupe", 1))
 	_ok(CultureBridges.troupes_of(st, 0).size() == 1, "la Troupe part en tournée")

@@ -124,8 +124,25 @@ static func concord_right(state: GameState, f: Fleet, o: int) -> bool:
 
 ## Coût ajusté au lieu de construction : Bricolage (épaves) et Noyau de sauvegarde (moitié prix).
 @warning_ignore("integer_division")
+## Flotte-ville II (arbre, restes des lots 4-5) : les batteries de la capitale mobile (100 + city_battery_pct).
+static func city_battery_pct(state: GameState, empire_id: int, ship_id: String) -> int:
+	if not FactionTraits.is_capital_ship(ship_id):
+		return 100
+	return 100 + Research.fx_int(state, empire_id, "city_battery_pct")
+
+
+## Flotte-ville III : le chantier embarqué. Vrai si la flotte-ville campe dans ce système et que l'empire
+## connaît le chantier (city_yard) : le campement vaut un chantier ami.
+static func city_yard(state: GameState, empire_id: int, system_id: int) -> bool:
+	if Research.fx_int(state, empire_id, "city_yard") <= 0:
+		return false
+	return FactionTraits.camp_system(state, empire_id) == system_id
+
+
 static func adjust_cost(state: GameState, empire_id: int, ship_id: String, planet_id: int, cost: Dictionary) -> Dictionary:
 	var out := cost
+	if planet_id >= 0 and city_yard(state, empire_id, state.galaxy.get_planet(planet_id).system_id):
+		out = Research.scaled_amounts(out, -Research.fx_int(state, empire_id, "city_yard"))
 	if planet_id >= 0 and flag(ship_id, "wreck_discount") and wrecks_ok(state, planet_id):
 		out = out.duplicate()
 		out["materials"] = int(out.get("materials", 0)) * (100 - WRECK_DISCOUNT_PCT) / 100
