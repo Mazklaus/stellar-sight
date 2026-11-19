@@ -2932,7 +2932,7 @@ square sci-fi concept art, a grand interstellar administrative palace and its of
 ## rachat_levier · Rachat à effet de levier
 
 - Fichier : `assets/tech/rachat_levier.png` · Domaine : economie · Ère 3
-- Ce qu'elle fait : Les parts coûtent 25 % de moins (le prix plancher reste le même).
+- Ce qu'elle fait : Les parts coûtent 25 % de moins (le prix plancher reste le même). Débloque le Siège de la Compagnie (2e rang de la capitale, en annexe) : dividendes +25 %, +3 influence.
 
 ```
 square sci-fi concept art, a bustling interstellar trade hub with cargo ships, evoking the technology "Rachat à effet de levier" (era 3 of 5, advanced and refined), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3244,10 +3244,19 @@ square sci-fi concept art, a starship hull under construction in an orbital ship
 square sci-fi concept art, a sensor array scanning the dark between stars, evoking the technology "Accord parfait" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## corps_memoire · Corps de mémoire
+
+- Fichier : `assets/tech/corps_memoire.png` · Domaine : societe · Ère 1
+- Ce qu'elle fait : Asphodèle ne soigne pas les vivants, elle se souvient des morts : remplace la Médecine coloniale. Les nécropoles recueillent les Âmes 40 % plus loin (7 sauts au lieu de 5).
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Corps de mémoire" (era 1 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## lignees_croisees_etape1 · Pactes de sang
 
 - Fichier : `assets/tech/lignees_croisees_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Lignées croisées », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Lignées croisées », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les maisons rivales vous regardent mieux (opinion de tous +10).
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Pactes de sang" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3274,7 +3283,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## dernier_couplet_etape1 · Premier couplet
 
 - Fichier : `assets/tech/dernier_couplet_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Le Dernier Couplet », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Le Dernier Couplet », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : l'Exaltation tient mieux (stabilité +3 partout).
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Premier couplet" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3301,7 +3310,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## charte_etape1 · Avant-projet
 
 - Fichier : `assets/tech/charte_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Charte des Quarante et Un », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Charte des Quarante et Un », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : le commerce des signataires rapporte plus (routes commerciales +15 %).
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Avant-projet" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3328,7 +3337,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## terre_promise_etape1 · Cartes chantées
 
 - Fichier : `assets/tech/terre_promise_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Chants de la route », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Chants de la route », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : la route se fait plus vite (flottes +10 % de vitesse).
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Cartes chantées" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3355,7 +3364,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## legende_etape1 · Conteurs des docks
 
 - Fichier : `assets/tech/legende_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Mille et une histoires », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Mille et une histoires », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les histoires circulent (Rayonnement +15 %).
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Conteurs des docks" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3382,7 +3391,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## silence_parfait_etape1 · Voix basse
 
 - Fichier : `assets/tech/silence_parfait_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Le Grand Silence », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Le Grand Silence », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : on se tait mieux (camouflage +1).
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Voix basse" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3409,7 +3418,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## noosphere_etape1 · Synapses
 
 - Fichier : `assets/tech/noosphere_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Éveil de la Noosphère », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Éveil de la Noosphère », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : plus de colonies pensent ensemble (capacité administrative +2).
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Synapses" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3436,7 +3445,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## allumage_etape1 · Noyau dense
 
 - Fichier : `assets/tech/allumage_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « L'Allumage », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « L'Allumage », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : l'Orbe dévore 20 % plus vite.
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Noyau dense" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3463,7 +3472,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## opa_galactique_etape1 · Prise de participation
 
 - Fichier : `assets/tech/opa_galactique_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « L'OPA galactique », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « L'OPA galactique », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les parts coûtent 15 % de moins.
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Prise de participation" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3490,7 +3499,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## administration_totale_etape1 · Normes des normes
 
 - Fichier : `assets/tech/administration_totale_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « L'Administration totale », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « L'Administration totale », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les sanctions du Bureau durent moitié plus longtemps.
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Normes des normes" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3517,7 +3526,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## saturation_etape1 · Bande passante
 
 - Fichier : `assets/tech/saturation_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « La Saturation », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « La Saturation », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : le Signal se propage un quart plus vite.
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Bande passante" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3544,7 +3553,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## reve_commun_etape1 · Sommeil partagé
 
 - Fichier : `assets/tech/reve_commun_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Le Rêve commun », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Le Rêve commun », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les rêveries gagnent un quart plus vite.
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Sommeil partagé" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3571,7 +3580,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## grand_rassemblement_etape1 · Registre des morts
 
 - Fichier : `assets/tech/grand_rassemblement_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Le Grand Rassemblement », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Le Grand Rassemblement », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : moitié plus de morts rouvrent les yeux chaque mois.
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Registre des morts" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3598,7 +3607,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## musee_vivant_etape1 · Catalogue raisonné
 
 - Fichier : `assets/tech/musee_vivant_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Le Musée vivant », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Le Musée vivant », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les spécimens s'échappent deux fois moins.
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Catalogue raisonné" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3625,7 +3634,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## envol_etape1 · Patience des étoiles
 
 - Fichier : `assets/tech/envol_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « L'Envol », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « L'Envol », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les postes voilés se découvrent 30 % moins.
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Patience des étoiles" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3652,7 +3661,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## paradoxe_stable_etape1 · Fissure maîtrisée
 
 - Fichier : `assets/tech/paradoxe_stable_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Le Paradoxe stable », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Le Paradoxe stable », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : le Sable monte 40 % plus vite.
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Fissure maîtrisée" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3679,7 +3688,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## remodelage_etape1 · Plan millénaire
 
 - Fichier : `assets/tech/remodelage_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Le Remodelage », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Le Remodelage », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : la réserve de Temps monte un quart plus vite.
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Plan millénaire" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3706,7 +3715,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## biosphere_unique_etape1 · Mycélium patient
 
 - Fichier : `assets/tech/biosphere_unique_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « La Biosphère unique », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « La Biosphère unique », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les comètes-semences portent un quart plus loin.
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Mycélium patient" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3733,7 +3742,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## grand_jardin_etape1 · Semis d'étoiles
 
 - Fichier : `assets/tech/grand_jardin_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Le Grand Jardin », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Le Grand Jardin », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : les mondes-jardins poussent un quart plus vite.
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Semis d'étoiles" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3760,7 +3769,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## grande_moisson_etape1 · Banque génétique
 
 - Fichier : `assets/tech/grande_moisson_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « La Grande Moisson », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « La Grande Moisson », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : l'Essaim croît plus vite (croissance +10 %).
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Banque génétique" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3787,7 +3796,7 @@ square sci-fi concept art, the triumphant destiny of an alien civilization, evok
 ## idole_etape1 · Affiches lumineuses
 
 - Fichier : `assets/tech/idole_etape1.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Destinée « Idole des étoiles », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.
+- Ce qu'elle fait : Destinée « Idole des étoiles », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro. Outil de la victoire : la tournée rapporte (influence +15 %).
 
 ```
 square sci-fi concept art, the triumphant destiny of an alien civilization, evoking the technology "Affiches lumineuses" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1

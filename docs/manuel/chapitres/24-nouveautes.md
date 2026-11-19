@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.58
+
+- **Arbre de recherche** (chapitre 5), derniers restes : chaque Destinée gagne un **outil de victoire** à sa première étape ; **Corps de mémoire** d'Asphodèle (remplace la Médecine coloniale, Âmes recueillies plus loin) ; **Siège de la Compagnie** de Ventrelune, 2e rang de la capitale en annexe (dividendes +25 %). Sauvegarde 101 inchangée.
+
 ### Édition 2.57
 
 - **La refonte de l'arbre de recherche** (chapitre 5) s'achève : **les restes des lots**. Armement et Société resserrés autour d'une trentaine de technologies principales (dix-sept fusions, deux nouvelles Maîtrises ; les anciennes technologies retrouvent leur héritière dans les vieilles sauvegardes) ; trois **spécialisations** de plus (chantier lourd, l'ombre ou la gloire, le peuplement) ; **Flotte-ville II et III** des Ferrocornes (batteries, chantier embarqué) ; **modules de nef** de l'Exode ; bulles **Repli** et **Pli** du Sablier ; **Œuvres lentes par ère** de Gravéa ; **directives** des Silencieux par acquisitions (Optimiser, Démonter) ; les sept dernières **coques de peuple** gagnent leur capacité. Correction : une trouvaille ne compte plus dans le seuil d'ouverture d'une ère (une ère pouvait rester fermée). Sauvegarde 101 inchangée.

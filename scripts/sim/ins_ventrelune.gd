@@ -33,6 +33,15 @@ static func directive_def(state: GameState, eid: int) -> Dictionary:
 	return {}
 
 
+## Siège de la Compagnie (2e rang de la capitale, en annexe) : dividendes en % de plus.
+static func seat_pct(state: GameState, eid: int) -> int:
+	var e := state.get_empire(eid)
+	var c: Colony = state.colonies.get(e.capital_planet) if e != null else null
+	if c == null or c.owner != eid or not c.buildings.has("siege_compagnie"):
+		return 0
+	return int(GameData.building("siege_compagnie").get("dividend_pct", 0))
+
+
 static func shares(state: GameState, eid: int) -> Dictionary:
 	return Insolites.emp(state, eid).get("shares", {})
 
@@ -193,7 +202,7 @@ static func daily(state: GameState, eid: int, ed: Dictionary, month: bool, added
 	var keys := sh.keys()
 	keys.sort_custom(func(a, b): return int(a) < int(b))
 	var e := state.get_empire(eid)
-	var div_pct := 100 + int(directive_def(state, eid).get("dividend_pct", 0))
+	var div_pct := 100 + int(directive_def(state, eid).get("dividend_pct", 0)) + seat_pct(state, eid)
 	for key in keys:
 		var c: Colony = state.colonies.get(int(key))
 		if c == null or not c.is_colony() or c.owner == eid or GameState.is_npc(c.owner):
@@ -288,4 +297,6 @@ static func status_lines(state: GameState, eid: int, ed: Dictionary) -> Array[St
 		if int(sh[k]) >= _c("control_pct", 51):
 			maj += 1
 	out.append("Parts : %d colonies, dont %d en majorité ; sans licence : %d" % [sh.size(), maj, (ed.get("nolic", {}) as Dictionary).size()])
+	if seat_pct(state, eid) > 0:
+		out.append("Siège de la Compagnie : dividendes +%d %%" % seat_pct(state, eid))
 	return out
