@@ -481,6 +481,11 @@ static func coverage(state: GameState, viewer: int, sid: int) -> int:
 ## L'empire viewer (ou un allié) perce-t-il le camouflage de f ? (la portée est vérifiée à part :
 ## Fleets.fleet_visible). Une puissance qui n'est pas un empire voit sur place selon son niveau.
 static func detects(state: GameState, viewer: int, f: Fleet) -> bool:
+	return _detects(state, viewer, f, {})
+
+
+## detects(), en gardant dans memo["at"] la détection calculée (degree() s'en resert au lieu de la refaire).
+static func _detects(state: GameState, viewer: int, f: Fleet, memo: Dictionary) -> bool:
 	if not enabled(state) or f == null or viewer == f.owner:
 		return true
 	var cam := cloak(state, f)
@@ -500,7 +505,9 @@ static func detects(state: GameState, viewer: int, f: Fleet) -> bool:
 	if Diplomacy.allied(state, viewer, f.owner):
 		return true
 	var sid := Fleets.vision_center(state, f)
-	return int(detection_at(state, viewer, sid, cam, f.owner)["dist"]) >= 0
+	var at := detection_at(state, viewer, sid, cam, f.owner)
+	memo["at"] = at
+	return int(at["dist"]) >= 0
 
 
 ## Degré de connaissance d'une flotte vue (0 si invisible) : 1 contact, 2 identifiée, 3 détaillée.
@@ -515,7 +522,8 @@ static func degree(state: GameState, viewer: int, f: Fleet, seen: Variant = null
 		return 0
 	if not enabled(state):
 		return 0 if Veil.hides(state, f.owner, viewer, sid) else 3
-	if not detects(state, viewer, f):
+	var memo := {}
+	if not _detects(state, viewer, f, memo):
 		return 0
 	if not full(state) or viewer >= state.empires.size() or Diplomacy.allied(state, viewer, f.owner):
 		return 3
@@ -523,7 +531,7 @@ static func degree(state: GameState, viewer: int, f: Fleet, seen: Variant = null
 		return 3
 	var cam := cloak(state, f)
 	var dc: Dictionary = cfg("degrees")
-	var at := detection_at(state, viewer, sid, cam, f.owner)
+	var at: Dictionary = memo["at"] if memo.has("at") else detection_at(state, viewer, sid, cam, f.owner)
 	var adv := int(at["det"]) - cam
 	var d := int(at["dist"])
 	var out := 1

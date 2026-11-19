@@ -1008,6 +1008,9 @@ static func _recover(state: GameState) -> void:
 	var fighting := {}
 	for b in battles(state):
 		fighting[int(b["s"])] = true
+	var rec_fx := {}
+	var hp_memo := {}
+	var mo_memo := {}
 	for rid in _sorted_ids(state):
 		var r: Dictionary = state.ground["r"][str(rid)]
 		var sid := int(r["s"])
@@ -1017,10 +1020,21 @@ static func _recover(state: GameState) -> void:
 			continue  # logistique complète : régiments sans ravitaillement, aucun renfort
 		var home := int(r["f"]) < 0 and WarPeace.holder(state, sid) == int(r["o"])
 		var pct := int(rc.get("home_pct", 10)) if home else int(rc.get("away_pct", 3))
+		var o := int(r["o"])
+		if not rec_fx.has(o):
+			rec_fx[o] = Research.fx_int(state, o, "ground_recovery_pct")
 		@warning_ignore("integer_division")
-		pct = pct * maxi(10, 100 + Research.fx_int(state, int(r["o"]), "ground_recovery_pct")) / 100
-		var mh := max_hp(r)
-		var mm := max_morale(r, state)
+		pct = pct * maxi(10, 100 + int(rec_fx[o])) / 100
+		# Plafonds mémorisés le temps du passage : ils ne dépendent que du type, de l'espèce, du rang
+		# et du propriétaire, et rien ne les change pendant la récupération.
+		var hk := "%s|%s" % [String(r["t"]), String(r.get("sp", ""))]
+		if not hp_memo.has(hk):
+			hp_memo[hk] = max_hp(r)
+		var mk := "%s|%d|%d" % [String(r["t"]), rank_pct(r), o]
+		if not mo_memo.has(mk):
+			mo_memo[mk] = max_morale(r, state)
+		var mh: int = hp_memo[hk]
+		var mm: int = mo_memo[mk]
 		@warning_ignore("integer_division")
 		r["hp"] = mini(mh, int(r["hp"]) + maxi(1, mh * pct / 100))
 		@warning_ignore("integer_division")
