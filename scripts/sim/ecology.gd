@@ -200,7 +200,8 @@ static func footprint_parts(state: GameState, pid: int) -> Array:
 		return out
 	var fp: Dictionary = data().get("footprint", {})
 	var counts := {}
-	for b in c.buildings:
+	for b0 in c.buildings:
+		var b := b0 if fp.has(b0) else GameData.building_kind(b0)  # bâtiment de peuple : celui qu'il remplace
 		if fp.has(b):
 			counts[b] = int(counts.get(b, 0)) + 1
 	var keys := counts.keys()

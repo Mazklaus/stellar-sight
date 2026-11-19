@@ -730,7 +730,7 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 	if c.is_colony() and _skill(ctx) >= 1 and _is_main_yard(ctx, c):
 		if not _empire_has_building(ctx, "arsenal") and (not e.wars.is_empty() or _res(ctx, "materials") >= 400):
 			out.push_front("arsenal")
-		elif _skill(ctx) >= 2 and c.buildings.has("arsenal") and not _empire_has_building(ctx, "chantier_titanesque") \
+		elif _skill(ctx) >= 2 and c.has_kind("arsenal") and not _empire_has_building(ctx, "chantier_titanesque") \
 				and _res(ctx, "materials") >= 1200:
 			out.push_front("chantier_titanesque")
 	if p.deposits.has("crystals"):
@@ -757,11 +757,11 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 		# Lot 2 de l'arbre : bâtiments selon le peuple (régime) et seconds choix utiles.
 		var diet := FactionTraits.diet(e.faction())
 		if diet == "materials" and int(net.get("materials", 0)) < 10:
-			out.append("carriere_nourriciere")
+			out.append_array(["carriere_profonde", "carriere_nourriciere"])  # 2e rang d'abord (lot 4)
 		if diet == "energy" and int(net.get("energy", 0)) < 10:
-			out.append_array(["batteries_communes", "serre_lumiere"])
+			out.append_array(["grande_serre", "batteries_communes", "serre_lumiere"])
 		if int(net.get("energy", 0)) < 10:
-			out.append("puits_echo")
+			out.append_array(["condensateur_ame", "puits_echo"])
 		if use >= 1:
 			if c.population * 2 < cap:
 				out.append("clinique")
@@ -776,7 +776,7 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 ## Un bâtiment existe-t-il (ou est-il en chantier) dans une colonie de l'empire ?
 static func _empire_has_building(ctx: Dictionary, building_id: String) -> bool:
 	for c in _my_colonies(ctx):
-		if c.buildings.has(building_id) or c.construction == building_id:
+		if c.has_kind(building_id) or c.construction == building_id or GameData.building_kind(c.construction) == building_id:
 			return true
 	return false
 
@@ -1517,6 +1517,7 @@ static func _buildable_warships(ctx: Dictionary) -> Array[String]:
 			continue
 		for b in c.buildings:
 			have[b] = true
+			have[GameData.building_kind(b)] = true  # bâtiment de peuple (lot 4 de l'arbre)
 		if c.ship_build == "":
 			free_yard = true
 			max_pop = maxi(max_pop, c.population)

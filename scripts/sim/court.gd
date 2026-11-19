@@ -785,7 +785,9 @@ static func _cond(state: GameState, eid: int, h: Dictionary, c: Dictionary) -> i
 				for pid in state.galaxy.systems[sid].planet_ids:
 					var col: Colony = state.colonies.get(pid)
 					if col != null and col.owner == eid:
-						n += col.buildings.count(String(c["id"]))
+						for b in col.buildings:
+							if b == String(c["id"]) or GameData.building_kind(b) == String(c["id"]):
+								n += 1
 			return mini(int(c.get("max", 99)), n * int(c.get("per", 0)))
 		"fiefs_most", "fiefs_least":
 			var mine := fiefs_of(state, eid, hid).size()

@@ -1599,7 +1599,7 @@ static func check_ship_order(state: GameState, eid: int, pid: int, ship: String)
 	if int(sd.get("pop_cost", 0)) > 0 or bool((sd.get("requires", {}) as Dictionary).get("unique_per_empire", false)):
 		return "le privé ne construit ni vaisseaux colons ni méga-vaisseaux"
 	var need := String((sd.get("requires", {}) as Dictionary).get("building", ""))
-	if need != "" and not c.buildings.has(need):
+	if need != "" and not c.has_kind(need):
 		return "il faut un bâtiment sur cette colonie : %s" % String(GameData.building(need).get("label", need))
 	for o: Dictionary in entry(state, eid).get("orders", []):
 		if int(o["pid"]) == pid:

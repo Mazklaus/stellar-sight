@@ -795,7 +795,7 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 		return "les mégastructures ne sont pas en jeu dans cette partie"
 	var req: Dictionary = sd.get("requires", {})
 	var need := String(req.get("building", ""))
-	if need != "" and not c.buildings.has(need):
+	if need != "" and not c.has_kind(need):
 		return "il faut un bâtiment sur cette colonie : %s" % String(GameData.building(need).get("label", need))
 	if req.get("unique_per_empire", false) and count_same_hull(state, empire_id, ship_id) > 0:
 		return "un seul %s par empire" % unique_label(ship_id) + (", toutes variantes confondues" if Designs.hull(String(sd.get("hull", ""))).has("echelon") else "")

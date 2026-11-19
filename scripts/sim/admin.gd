@@ -604,7 +604,7 @@ static func capacity_parts(state: GameState, eid: int) -> Array:
 		var c: Colony = state.colonies[pid]
 		if c.owner != eid or not c.is_established():
 			continue
-		if c.buildings.has("forum"):
+		if c.has_kind("forum"):
 			forum = true
 		if c.buildings.has("prefecture"):
 			pref += 1

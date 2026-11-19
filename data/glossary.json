@@ -5385,6 +5385,56 @@
    "chapters": [
     "07-recherche"
    ]
+  },
+  {
+   "id": "batiment_peuple",
+   "name": "Bâtiment de peuple",
+   "forms": [
+    "Bâtiment de peuple",
+    "Bâtiments de peuple"
+   ],
+   "family": "meca",
+   "summary": "Bâtiment propre à un peuple qui remplace un bâtiment commun dès que sa technologie est connue (Tribune des Quarante pour le Forum, Donjon de lignée pour le Camp de recrutement…) et compte comme lui partout",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "compilation",
+   "name": "Compilation",
+   "forms": [
+    "Compilation"
+   ],
+   "strict": true,
+   "family": "meca",
+   "summary": "Talent de recherche de Teyl : chaque technologie connue du même domaine et du même champ rend la suivante 2 % moins chère, 20 % au plus",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "butin_clan",
+   "name": "Butin de clan",
+   "forms": [
+    "Butin de clan"
+   ],
+   "family": "meca",
+   "summary": "Talent de recherche des Ferrocornes : la moitié du butin des raids revient en Savoir",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "ecoute_abysses",
+   "name": "Écoute des abysses",
+   "forms": [
+    "Écoute des abysses"
+   ],
+   "family": "meca",
+   "summary": "Talent de recherche des Murmurants : +1 % de Savoir pour 4 Échos accumulés, 25 % au plus",
+   "chapters": [
+    "07-recherche"
+   ]
   }
  ]
 }

@@ -402,6 +402,17 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 	return {"gross": gross, "upkeep": upkeep, "net": net}
 
 
+## Écoute des abysses (Murmurants, lot 4 de l'arbre) : +1 % de Savoir par tranche d'Échos accumulés.
+static func echo_knowledge_pct(state: GameState, empire_id: int) -> int:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return 0
+	var rs: Dictionary = e.faction().get("research", {})
+	var div := int(rs.get("echo_knowledge_div", 0))
+	@warning_ignore("integer_division")
+	return mini(int(rs.get("echo_knowledge_max", 25)), e.echoes / div) if div > 0 else 0
+
+
 ## Pourcentage total appliqué à la production brute d'une ressource : traits de faction (et ferveur),
 ## technologies et talent de recherche du peuple, puis bonus de difficulté des IA des niveaux hauts.
 @warning_ignore("integer_division")
@@ -411,6 +422,7 @@ static func production_pct(state: GameState, empire_id: int, resource: String) -
 	if resource == "knowledge":
 		bonus += FactionTraits.peace_knowledge_pct(state, empire_id)
 		bonus += Vassals.knowledge_pct(state, empire_id)
+		bonus += echo_knowledge_pct(state, empire_id)
 	bonus += Koinon.knowledge_pct(state, empire_id) if resource == "knowledge" else 0
 	bonus += Vassals.production_pct(state, empire_id, resource)
 	if resource == "materials" or resource == "energy":
@@ -504,6 +516,8 @@ static func building_unlocked(state: GameState, empire_id: int, building_id: Str
 	if Wonders.is_wonder(building_id):
 		return Wonders.unlocked(state, empire_id, building_id)
 	var b := GameData.building(building_id)
+	if variant_for(state, empire_id, building_id) != building_id:
+		return false  # remplacé par le bâtiment de ce peuple (lot 4 de l'arbre)
 	if bool(b.get("faiths", false)) and not state.faith_on:
 		return false  # temples : seulement avec les religions
 	if bool(b.get("logistics", false)) and not Logistics.active(state):
@@ -603,8 +617,18 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 	return ""
 
 
+## Lot 4 de l'arbre : le bâtiment de peuple qui remplace ce bâtiment commun pour cet empire, dès qu'il est
+## débloqué (sinon le bâtiment commun lui-même). Construire le commun construit alors celui du peuple.
+static func variant_for(state: GameState, empire_id: int, building_id: String) -> String:
+	for v in GameData.building_variants(building_id):
+		if building_unlocked(state, empire_id, v):
+			return v
+	return building_id
+
+
 ## "" si l'empire peut lancer ce chantier, sinon la raison du refus.
 static func check_build(state: GameState, empire_id: int, planet_id: int, building_id: String) -> String:
+	building_id = variant_for(state, empire_id, building_id)
 	var e := state.get_empire(empire_id)
 	if e == null:
 		return "empire inconnu : %d" % empire_id
@@ -648,10 +672,10 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 	var dep := String(b.get("requires_deposit", ""))
 	if dep != "" and not p.deposits.has(dep):
 		return "nécessite un gisement : %s" % GameData.deposit(dep).get("label", dep)
-	if b.get("unique", false) and c.buildings.has(building_id):
+	if b.get("unique", false) and (c.buildings.has(building_id) or c.has_kind(GameData.building_kind(building_id))):
 		return "déjà construit sur cette planète"
 	var needs := String(b.get("requires_building", ""))
-	if needs != "" and not c.buildings.has(needs):
+	if needs != "" and not c.has_kind(needs):
 		return "nécessite d'abord : %s" % String(GameData.building(needs).get("label", needs))
 	var group := String(b.get("annex_group", ""))
 	if group != "":
@@ -699,7 +723,7 @@ static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet
 		if why != "":
 			return why
 	var base := String(b.get("upgrades", ""))
-	if base != "" and not c.buildings.has(base):
+	if base != "" and not c.has_kind(base):
 		return "remplace un bâtiment de 1er rang : %s" % String(GameData.building(base).get("label", base))
 	if b.has("terraform"):
 		if not c.is_colony():

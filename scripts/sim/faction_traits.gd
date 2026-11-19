@@ -191,13 +191,17 @@ static func network_systems(state: GameState, empire_id: int) -> Dictionary:
 	var start := state.galaxy.get_planet(e.capital_planet).system_id
 	var seen := {start: true}
 	var queue: Array[int] = [start]
+	# Lot 4 de l'arbre (Teyl) : Maillage passe les blocus, Nœuds relais compte les systèmes alliés.
+	var mesh := Research.fx_int(state, empire_id, "mesh") > 0
+	var relay := Research.fx_int(state, empire_id, "relay") > 0
 	while not queue.is_empty():
 		var sid: int = queue.pop_front()
 		for n in state.galaxy.systems[sid].neighbors:
 			if seen.has(n):
 				continue
 			var o := state.system_owner(n)
-			if (o == -1 or o == empire_id) and not Combat.blocks(state, empire_id, n):
+			var mine := o == -1 or o == empire_id or (relay and Diplomacy.allied(state, empire_id, o))
+			if mine and (mesh or not Combat.blocks(state, empire_id, n)):
 				seen[n] = true
 				queue.append(n)
 	return seen
@@ -338,6 +342,7 @@ static func loot_plan(state: GameState, empire_id: int) -> Array[Dictionary]:
 	if e == null or e.eliminated or not has_horde(e.faction()) or e.wars.is_empty():
 		return out
 	var per: Dictionary = e.faction()["horde"].get("loot", {})
+	var lp := Research.fx_int(state, empire_id, "loot_pct")  # Pillage méthodique (lot 4 de l'arbre)
 	var left := {}
 	for f in Fleets.empire_fleets(state, empire_id):
 		if f.is_moving():
@@ -359,7 +364,8 @@ static func loot_plan(state: GameState, empire_id: int) -> Array[Dictionary]:
 		var stock: Dictionary = left[victim_id]
 		var amounts := {}
 		for r in per:
-			var n := mini(int(per[r]) * armed, maxi(0, int(stock.get(r, 0))))
+			@warning_ignore("integer_division")
+			var n := mini(int(per[r]) * armed * (100 + lp) / 100, maxi(0, int(stock.get(r, 0))))
 			if n > 0:
 				amounts[r] = n
 				stock[r] = int(stock.get(r, 0)) - n

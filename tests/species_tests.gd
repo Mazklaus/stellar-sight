@@ -84,7 +84,7 @@ func _test_presets_match_officials() -> void:
 	var off := GameData.faction("teyl")
 	_ok(t["network"] == off["network"] and t["assembly"] == off["assembly"] and String(t["diet"]) == "energy" and String(off["diet"]) == "energy", "Teyl : réseau, assemblage, énergie")
 	_ok(int(t["production_pct"]["knowledge"]) == int(off["production_pct"]["knowledge"]) and int(t["production_pct"]["materials"]) == int(off["production_pct"]["materials"]) and t["hab_extra"] == off["hab_extra"], "Teyl : érudits, fonderies, châssis étanches")
-	_ok(String(t["home_deposit"]) == String(off["home_deposit"]) and int(t["research"]["peace_knowledge_pct"]) == 5, "Teyl : cœur brûlant, académies")
+	_ok(String(t["home_deposit"]) == String(off["home_deposit"]) and int(t["research"]["compile_per"]) == 2, "Teyl : cœur brûlant, Compilation")
 	var fr := Species.build(_spec("ferrocornes"))
 	var fo := GameData.faction("ferrocornes")
 	for key in ["horde", "hab_none", "migration", "food_upkeep_pct", "home_deposit", "combat", "research", "preferred", "production_pct", "growth_pct", "ship_style"]:

@@ -33,6 +33,22 @@ var integ: Dictionary = {}
 var faith: Dictionary = {}
 
 
+## Lot 4 de l'arbre : la colonie a-t-elle ce bâtiment, ou le bâtiment de peuple qui le remplace ?
+func has_kind(id: String) -> bool:
+	return kind_index(id) >= 0
+
+
+## Place du bâtiment (ou de son remplaçant de peuple) dans la liste, -1 sinon.
+func kind_index(id: String) -> int:
+	var i := buildings.find(id)
+	if i >= 0:
+		return i
+	for j in buildings.size():
+		if GameData.building_kind(buildings[j]) == id:
+			return j
+	return -1
+
+
 func is_established() -> bool:
 	return days_left <= 0
 

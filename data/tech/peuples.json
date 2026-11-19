@@ -451,12 +451,12 @@
 			}
 		},
 		"monopole": {
-			"label": "Monopole des cristaux",
+			"label": "Charte des cristaux",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
 			"current": "forge",
-			"text": "Les fiefs tiennent le négoce des cristaux : chaque Raffinerie de cristaux rapporte aussi +2 influence.",
+			"text": "Les fiefs tiennent le négoce des cristaux : chaque Raffinerie de cristaux rapporte aussi +2 influence. Frontières en jeu : les péages que vous percevez rapportent le double.",
 			"pre": [
 				"fusion_compacte"
 			],
@@ -468,7 +468,8 @@
 				}
 			},
 			"effects": {
-				"refinery_influence": 2
+				"refinery_influence": 2,
+				"toll_x": 1
 			}
 		},
 		"catechisme": {
@@ -673,6 +674,823 @@
 					"all": 20
 				}
 			}
+		},
+		"geophagie": {
+			"label": "Géophagie",
+			"domain": "economie",
+			"era": 1,
+			"field": "production",
+			"current": "forge",
+			"text": "Débloque la Carrière profonde, 2e rang de la Carrière nourricière : +12 matériaux au lieu de 6.",
+			"requires": {
+				"species": {
+					"archetype": [
+						"lithoide"
+					]
+				}
+			},
+			"eureka": {
+				"kind": "building",
+				"what": "carriere_nourriciere",
+				"n": 2
+			},
+			"flavor": "Le gourmet lithe distingue le granit de la vallée de celui du versant nord. Les autres ne voient que des cailloux."
+		},
+		"cristallisation": {
+			"label": "Cristallisation défensive",
+			"domain": "armement",
+			"era": 3,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Les corps de pierre se figent en cristal sous le feu : garnison de vos systèmes +50 %. Les Astéroïdes creusés se réparent trois fois plus vite hors de chez eux.",
+			"pre": [
+				"geophagie",
+				"bastions"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"lithoide"
+					]
+				}
+			},
+			"effects": {
+				"garrison_pct": 50
+			}
+		},
+		"strates_vivantes": {
+			"label": "Strates vivantes",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Les mondes nus sont un festin : habitabilité des mondes stériles portée à 50 % et des astéroïdes à 40 % au moins.",
+			"pre": [
+				"geophagie",
+				"adaptation"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"lithoide"
+					]
+				}
+			},
+			"effects": {
+				"hab_set": {
+					"barren": 50,
+					"asteroids": 40
+				}
+			}
+		},
+		"condensateurs_ame": {
+			"label": "Condensateurs d'âme",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "forge",
+			"text": "Débloque le Condensateur d'âme, 2e rang du Puits d'écho : +6 énergie et +6 Savoir au lieu de 3 et 3.",
+			"requires": {
+				"species": {
+					"archetype": [
+						"energetique"
+					]
+				}
+			},
+			"eureka": {
+				"kind": "building",
+				"what": "puits_echo",
+				"n": 2
+			},
+			"flavor": "On y stocke les pensées en surplus. Personne ne sait ce qui arrive à celles qu'on ne vient jamais rechercher."
+		},
+		"resonance_stellaire": {
+			"label": "Résonance stellaire",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Un corps de lumière vit partout où brille une étoile : aucune planète colonisable n'a moins de 40 % d'habitabilité.",
+			"pre": [
+				"condensateurs_ame"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"energetique"
+					]
+				}
+			},
+			"effects": {
+				"hab_min": 40
+			}
+		},
+		"corps_denses": {
+			"label": "Corps denses",
+			"domain": "armement",
+			"era": 2,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "Les soldats de lumière se concentrent jusqu'à toucher : moral des troupes au sol +25 %, garnison +25 %.",
+			"requires": {
+				"species": {
+					"archetype": [
+						"energetique"
+					]
+				}
+			},
+			"effects": {
+				"ground_morale_pct": 25,
+				"garrison_pct": 25
+			},
+			"needs": [
+				"vaisseaux"
+			]
+		},
+		"chaines_flux": {
+			"label": "Chaînes de flux",
+			"domain": "societe",
+			"era": 1,
+			"field": "colonisation",
+			"current": "academie",
+			"text": "On n'enfante pas, on assemble : débloque la Fonderie de châssis, qui remplace la Clinique (+25 % de croissance locale). Les Châssis reliés se réparent trois fois plus vite hors de chez eux.",
+			"requires": {
+				"species": {
+					"archetype": [
+						"synthetique",
+						"machines"
+					]
+				}
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 2
+			},
+			"flavor": "Le premier modèle sorti de la chaîne s'est retourné et a demandé pourquoi. Le deuxième n'a rien demandé : on avait corrigé."
+		},
+		"chassis_specialises": {
+			"label": "Châssis spécialisés",
+			"domain": "economie",
+			"era": 3,
+			"field": "production",
+			"current": "forge",
+			"text": "Un châssis par métier : +10 % de matériaux, d'énergie et de Savoir.",
+			"pre": [
+				"chaines_flux",
+				"automatisation"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"synthetique",
+						"machines"
+					]
+				}
+			},
+			"effects": {
+				"production_pct": {
+					"materials": 10,
+					"energy": 10,
+					"knowledge": 10
+				}
+			}
+		},
+		"chassis_etanches": {
+			"label": "Châssis étanches",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Le froid ne gêne pas un circuit bien isolé : habitabilité des mondes arctiques portée à 60 % au moins.",
+			"pre": [
+				"chaines_flux"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"synthetique",
+						"machines"
+					]
+				}
+			},
+			"effects": {
+				"hab_set": {
+					"arctic": 60
+				}
+			}
+		},
+		"cocons_guerre": {
+			"label": "Cocons de guerre",
+			"domain": "genie",
+			"era": 2,
+			"field": "coques",
+			"current": "glaive",
+			"text": "Les vaisseaux éclosent : coût des vaisseaux -10 %. Débloque le Bassin de ponte, qui remplace la Cale sèche (vaisseaux 35 % plus rapides dans la colonie). La Ruche-mère recoud ses flottes partout comme chez elle.",
+			"pre": [
+				"cales_rapides"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			},
+			"effects": {
+				"ship_cost_pct": -10
+			},
+			"needs": [
+				"vaisseaux"
+			]
+		},
+		"ganglion_mere": {
+			"label": "Ganglion-mère",
+			"domain": "economie",
+			"era": 3,
+			"field": "savoir",
+			"current": "academie",
+			"text": "La ruche pense d'un seul bloc : +3 matériaux par population digérée en biomasse. La Mère-monde reforme ses troupes même loin de chez elle.",
+			"pre": [
+				"ganglions",
+				"digestion_totale"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			},
+			"effects": {
+				"biomass_bonus": 3
+			}
+		},
+		"grandes_serres": {
+			"label": "Grandes serres",
+			"domain": "economie",
+			"era": 1,
+			"field": "production",
+			"current": "seve",
+			"text": "Débloque la Grande serre, 2e rang de la Serre de lumière : +12 énergie au lieu de 7.",
+			"requires": {
+				"species": {
+					"archetype": [
+						"vegetal"
+					]
+				}
+			},
+			"eureka": {
+				"kind": "building",
+				"what": "serre_lumiere",
+				"n": 2
+			}
+		},
+		"racines_profondes": {
+			"label": "Racines profondes",
+			"domain": "armement",
+			"era": 2,
+			"field": "defenses",
+			"current": "seve",
+			"text": "On n'arrache pas une forêt : garnison de vos systèmes +50 %.",
+			"pre": [
+				"blindage_composite"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"vegetal",
+						"fongoide"
+					]
+				}
+			},
+			"effects": {
+				"garrison_pct": 50
+			},
+			"flavor": "L'envahisseur a planté son drapeau. Au printemps suivant, le drapeau avait des feuilles."
+		},
+		"dissemination": {
+			"label": "Dissémination",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Pollen et spores sur les vents solaires : croissance +15 %, et chaque nouvelle colonie commence avec 1 population de plus.",
+			"pre": [
+				"adaptation"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"vegetal",
+						"fongoide"
+					]
+				}
+			},
+			"effects": {
+				"growth_pct": 15,
+				"colony_start_pop": 1
+			},
+			"needs": [
+				"naissance"
+			]
+		},
+		"comptabilite_occulte": {
+			"label": "Comptabilité occulte",
+			"domain": "economie",
+			"era": 2,
+			"field": "commerce",
+			"current": "forge",
+			"text": "Credo Profit : deux livres de comptes, dont un pour le fisc : frais du marché -10 %, revenus des routes commerciales +15 %.",
+			"pre": [
+				"logistique"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"profit"
+					]
+				}
+			},
+			"effects": {
+				"market_fee_pct": -10,
+				"trade_income_pct": 15
+			}
+		},
+		"grandes_fetes": {
+			"label": "Grandes fêtes",
+			"domain": "societe",
+			"era": 2,
+			"field": "culture",
+			"current": "concorde",
+			"text": "Credo Plaisir : une fête par jour, deux le dimanche : stabilité +5, tourisme +25 %.",
+			"pre": [
+				"rhetorique"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"plaisir"
+					]
+				}
+			},
+			"effects": {
+				"stability": 5,
+				"tourism_pct": 25
+			}
+		},
+		"normalisation": {
+			"label": "Normalisation",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Credo Ordre : tout a une norme, même les normes : capacité administrative +4, coût des bâtiments -10 %.",
+			"pre": [
+				"administration"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"ordre"
+					]
+				}
+			},
+			"effects": {
+				"admin_cap": 4,
+				"building_cost_pct": -10
+			}
+		},
+		"abris_profonds": {
+			"label": "Abris profonds",
+			"domain": "armement",
+			"era": 2,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Credo Survie : survivre d'abord : garnison +50 %, et les troupes au sol se remettent deux fois plus vite.",
+			"pre": [
+				"blindage_composite"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"survie"
+					]
+				}
+			},
+			"effects": {
+				"garrison_pct": 50,
+				"ground_recovery_pct": 50
+			}
+		},
+		"signes_presages": {
+			"label": "Signes et présages",
+			"domain": "societe",
+			"era": 2,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Credo Espoir : tout est signe pour qui espère : détection et pouvoir des curiosités +1.",
+			"pre": [
+				"rhetorique"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"espoir"
+					]
+				}
+			},
+			"effects": {
+				"curio_detect": 1,
+				"curio_power": 1
+			}
+		},
+		"seuils": {
+			"label": "Science des seuils",
+			"domain": "societe",
+			"era": 2,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Credo Transcendance : chaque passage prépare le grand : stabilité +3 et, Transcendance en jeu, jauge d'Élévation +5 % par mois de plus.",
+			"pre": [
+				"rhetorique"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"transcendance"
+					]
+				}
+			},
+			"effects": {
+				"stability": 3,
+				"path_gauge": 5
+			}
+		},
+		"longue_patience": {
+			"label": "Longue patience",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "forge",
+			"text": "Credo Patience : bâtir pour mille ans, c'est ne rien réparer avant cinq cents : entretien des bâtiments -15 %.",
+			"pre": [
+				"extraction"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"patience"
+					]
+				}
+			},
+			"effects": {
+				"building_upkeep_pct": -15
+			}
+		},
+		"discretion": {
+			"label": "Discrétion",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Credo Non-ingerence : observer sans toucher : détection +1 et opinion de tous les empires +10.",
+			"pre": [
+				"administration"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"non_ingerence"
+					]
+				}
+			},
+			"effects": {
+				"detect": 1,
+				"opinion_all": 10
+			}
+		},
+		"rendement": {
+			"label": "Rendement",
+			"domain": "genie",
+			"era": 2,
+			"field": "coques",
+			"current": "forge",
+			"text": "Credo Efficacite : pas un boulon de trop : coût des vaisseaux -10 %, entretien des flottes -10 %.",
+			"pre": [
+				"cales_rapides"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"efficacite"
+					]
+				}
+			},
+			"effects": {
+				"ship_cost_pct": -10,
+				"upkeep_pct": -10
+			}
+		},
+		"inventaire": {
+			"label": "Inventaire raisonné",
+			"domain": "societe",
+			"era": 2,
+			"field": "culture",
+			"current": "concorde",
+			"text": "Credo Collection : une fiche par pièce, une pièce par fiche : Rayonnement +15 % et pouvoir des curiosités +1.",
+			"pre": [
+				"rhetorique"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"collection"
+					]
+				}
+			},
+			"effects": {
+				"culture_pct": 15,
+				"curio_power": 1
+			}
+		},
+		"essaimage": {
+			"label": "Essaimage",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Credo Propagation : se répandre est un devoir : croissance +15 %, et chaque nouvelle colonie commence avec 1 population de plus.",
+			"pre": [
+				"adaptation"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"propagation"
+					]
+				}
+			},
+			"effects": {
+				"growth_pct": 15,
+				"colony_start_pop": 1
+			}
+		},
+		"routes_saphene": {
+			"label": "Routes de Saphène",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "concorde",
+			"text": "Les maisons tiennent les routes : l'éloignement de la capitale coûte moitié moins de capacité administrative.",
+			"pre": [
+				"cartes_lignees"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"feodalite"
+					]
+				}
+			},
+			"effects": {
+				"admin_distance_half": 1
+			}
+		},
+		"traducteurs_universels": {
+			"label": "Traducteurs universels",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Quarante langues, une seule assemblée : opinion de tous les empires +15, et la faveur gagnée auprès des peuples mineurs vaut moitié plus. L'Arche de la Concorde se répare trois fois plus vite hors de chez elle.",
+			"pre": [
+				"assemblees"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"republique"
+					]
+				}
+			},
+			"effects": {
+				"opinion_all": 15,
+				"translators": 1
+			}
+		},
+		"maillage": {
+			"label": "Maillage",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "academie",
+			"text": "Le réseau passe sous les blocus : les systèmes ennemis bloqués ne coupent plus la Noosphère. Les Nœuds de calcul se réparent trois fois plus vite hors de chez eux.",
+			"pre": [
+				"administration"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conscience"
+					]
+				}
+			},
+			"effects": {
+				"mesh": 1
+			}
+		},
+		"noeuds_relais": {
+			"label": "Nœuds relais",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "academie",
+			"text": "Les alliés relaient la pensée : leurs systèmes comptent dans le réseau de la Noosphère. La Noosphère-mère recoud ses flottes partout comme chez elle.",
+			"pre": [
+				"maillage"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conscience"
+					]
+				}
+			},
+			"effects": {
+				"relay": 1
+			}
+		},
+		"campements_fortifies": {
+			"label": "Campements fortifiés",
+			"domain": "armement",
+			"era": 2,
+			"field": "doctrines",
+			"current": "glaive",
+			"text": "Le clan campe là où il pille : ravitaillement +1 saut. Débloque le Campement de clan, qui remplace le Dépôt de flotte (garnison +10). Les Béliers de clan reforment leurs troupes même loin de chez eux, la Montagne-forteresse recoud ses flottes partout.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"horde"
+					]
+				}
+			},
+			"effects": {
+				"supply_range": 1
+			},
+			"needs": [
+				"vaisseaux"
+			]
+		},
+		"planques": {
+			"label": "Planques",
+			"domain": "economie",
+			"era": 2,
+			"field": "commerce",
+			"current": "forge",
+			"text": "Chaque caillou cache une cache : vos avant-postes sur astéroïdes et mondes stériles rapportent +2 matériaux et +1 énergie.",
+			"pre": [
+				"logistique"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"syndicat"
+					]
+				}
+			},
+			"effects": {
+				"outpost_yields": {
+					"asteroids": {
+						"materials": 2,
+						"energy": 1
+					},
+					"barren": {
+						"materials": 2,
+						"energy": 1
+					}
+				}
+			}
+		},
+		"contrats_chaine": {
+			"label": "Contrats à la chaîne",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "glaive",
+			"text": "On connaît tout le monde dans le milieu : engager ou payer les pirates coûte moitié moins.",
+			"pre": [
+				"administration"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"syndicat"
+					]
+				}
+			},
+			"effects": {
+				"pirate_pct": -50
+			}
+		},
+		"faux_papiers": {
+			"label": "Faux papiers",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "glaive",
+			"text": "Pavillon de complaisance : hors guerre, vos flottes entrent chez les autres sans droit de passage. Les Cargos corsaires trouvent leur chemin loin des dépôts, autonomie doublée.",
+			"pre": [
+				"contrats_chaine"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"syndicat"
+					]
+				}
+			},
+			"effects": {
+				"forged_papers": 1
+			},
+			"flavor": "Le douanier a lu « Cargo de fleurs, équipage de six ». Il a compté quarante canons. Il a tamponné quand même."
+		},
+		"voile_profond": {
+			"label": "Voile profond",
+			"domain": "genie",
+			"era": 2,
+			"field": "senseurs",
+			"current": "academie",
+			"text": "Une onde qui chante sous le seuil d'écoute : camouflage de vos flottes +1. Les Ondes-nefs trouvent leur chemin loin des dépôts.",
+			"pre": [
+				"capteurs"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"energetique"
+					]
+				}
+			},
+			"effects": {
+				"cloak": 1
+			},
+			"needs": [
+				"vaisseaux"
+			]
+		},
+		"chorale": {
+			"label": "Chorale des abysses",
+			"domain": "societe",
+			"era": 2,
+			"field": "culture",
+			"current": "autel",
+			"text": "Plus de voix dans le chœur : les Échos montent de 2 de plus chaque mois. L'Abysse chantante recoud ses flottes partout comme chez elle.",
+			"pre": [
+				"rhetorique"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"energetique"
+					],
+					"gouvernement": [
+						"theocratie"
+					]
+				}
+			},
+			"effects": {
+				"echo_gain": 2
+			}
+		},
+		"pillage_methodique": {
+			"label": "Pillage méthodique",
+			"domain": "armement",
+			"era": 3,
+			"field": "doctrines",
+			"current": "glaive",
+			"text": "On ne pille plus, on inventorie : chaque flotte qui campe chez l'ennemi emporte 50 % de butin en plus.",
+			"pre": [
+				"campements_fortifies"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"horde"
+					]
+				}
+			},
+			"effects": {
+				"loot_pct": 50
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"eureka": {
+				"kind": "stat",
+				"what": "looted",
+				"n": 200
+			},
+			"flavor": "Le scribe du clan note tout : « une caisse de lingots, un réacteur, un ambassadeur (abîmé) »."
 		}
 	}
 }

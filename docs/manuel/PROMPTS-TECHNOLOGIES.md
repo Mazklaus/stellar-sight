@@ -2560,13 +2560,13 @@ square sci-fi concept art, a luminous library-laboratory of alien scholars, evok
 square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Digestion totale" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
-## monopole · Monopole des cristaux
+## monopole · Charte des cristaux
 
 - Fichier : `assets/tech/monopole.png` · Domaine : economie · Ère 2
-- Ce qu'elle fait : Les fiefs tiennent le négoce des cristaux : chaque Raffinerie de cristaux rapporte aussi +2 influence.
+- Ce qu'elle fait : Les fiefs tiennent le négoce des cristaux : chaque Raffinerie de cristaux rapporte aussi +2 influence. Frontières en jeu : les péages que vous percevez rapportent le double.
 
 ```
-square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Monopole des cristaux" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Charte des cristaux" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## catechisme · Catéchisme
@@ -2648,6 +2648,330 @@ square sci-fi concept art, settlers founding a colony on a strange new world, ev
 
 ```
 square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Métabolisme adaptatif" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## geophagie · Géophagie
+
+- Fichier : `assets/tech/geophagie.png` · Domaine : economie · Ère 1
+- Ce qu'elle fait : Débloque la Carrière profonde, 2e rang de la Carrière nourricière : +12 matériaux au lieu de 6.
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Géophagie" (era 1 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## cristallisation · Cristallisation défensive
+
+- Fichier : `assets/tech/cristallisation.png` · Domaine : armement · Ère 3
+- Ce qu'elle fait : Les corps de pierre se figent en cristal sous le feu : garnison de vos systèmes +50 %. Les Astéroïdes creusés se réparent trois fois plus vite hors de chez eux.
+
+```
+square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Cristallisation défensive" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## strates_vivantes · Strates vivantes
+
+- Fichier : `assets/tech/strates_vivantes.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Les mondes nus sont un festin : habitabilité des mondes stériles portée à 50 % et des astéroïdes à 40 % au moins.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Strates vivantes" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## condensateurs_ame · Condensateurs d'âme
+
+- Fichier : `assets/tech/condensateurs_ame.png` · Domaine : economie · Ère 2
+- Ce qu'elle fait : Débloque le Condensateur d'âme, 2e rang du Puits d'écho : +6 énergie et +6 Savoir au lieu de 3 et 3.
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Condensateurs d'âme" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## resonance_stellaire · Résonance stellaire
+
+- Fichier : `assets/tech/resonance_stellaire.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Un corps de lumière vit partout où brille une étoile : aucune planète colonisable n'a moins de 40 % d'habitabilité.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Résonance stellaire" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## corps_denses · Corps denses
+
+- Fichier : `assets/tech/corps_denses.png` · Domaine : armement · Ère 2
+- Ce qu'elle fait : Les soldats de lumière se concentrent jusqu'à toucher : moral des troupes au sol +25 %, garnison +25 %.
+
+```
+square sci-fi concept art, armored ground troops and dropships, evoking the technology "Corps denses" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## chaines_flux · Chaînes de flux
+
+- Fichier : `assets/tech/chaines_flux.png` · Domaine : societe · Ère 1
+- Ce qu'elle fait : On n'enfante pas, on assemble : débloque la Fonderie de châssis, qui remplace la Clinique (+25 % de croissance locale). Les Châssis reliés se réparent trois fois plus vite hors de chez eux.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Chaînes de flux" (era 1 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## chassis_specialises · Châssis spécialisés
+
+- Fichier : `assets/tech/chassis_specialises.png` · Domaine : economie · Ère 3
+- Ce qu'elle fait : Un châssis par métier : +10 % de matériaux, d'énergie et de Savoir.
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Châssis spécialisés" (era 3 of 5, advanced and refined), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## chassis_etanches · Châssis étanches
+
+- Fichier : `assets/tech/chassis_etanches.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Le froid ne gêne pas un circuit bien isolé : habitabilité des mondes arctiques portée à 60 % au moins.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Châssis étanches" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## cocons_guerre · Cocons de guerre
+
+- Fichier : `assets/tech/cocons_guerre.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Les vaisseaux éclosent : coût des vaisseaux -10 %. Débloque le Bassin de ponte, qui remplace la Cale sèche (vaisseaux 35 % plus rapides dans la colonie). La Ruche-mère recoud ses flottes partout comme chez elle.
+
+```
+square sci-fi concept art, a starship hull under construction in an orbital shipyard, evoking the technology "Cocons de guerre" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## ganglion_mere · Ganglion-mère
+
+- Fichier : `assets/tech/ganglion_mere.png` · Domaine : economie · Ère 3
+- Ce qu'elle fait : La ruche pense d'un seul bloc : +3 matériaux par population digérée en biomasse. La Mère-monde reforme ses troupes même loin de chez elle.
+
+```
+square sci-fi concept art, a luminous library-laboratory of alien scholars, evoking the technology "Ganglion-mère" (era 3 of 5, advanced and refined), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## grandes_serres · Grandes serres
+
+- Fichier : `assets/tech/grandes_serres.png` · Domaine : economie · Ère 1
+- Ce qu'elle fait : Débloque la Grande serre, 2e rang de la Serre de lumière : +12 énergie au lieu de 7.
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Grandes serres" (era 1 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## racines_profondes · Racines profondes
+
+- Fichier : `assets/tech/racines_profondes.png` · Domaine : armement · Ère 2
+- Ce qu'elle fait : On n'arrache pas une forêt : garnison de vos systèmes +50 %.
+
+```
+square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Racines profondes" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## dissemination · Dissémination
+
+- Fichier : `assets/tech/dissemination.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Pollen et spores sur les vents solaires : croissance +15 %, et chaque nouvelle colonie commence avec 1 population de plus.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Dissémination" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## comptabilite_occulte · Comptabilité occulte
+
+- Fichier : `assets/tech/comptabilite_occulte.png` · Domaine : economie · Ère 2
+- Ce qu'elle fait : Credo Profit : deux livres de comptes, dont un pour le fisc : frais du marché -10 %, revenus des routes commerciales +15 %.
+
+```
+square sci-fi concept art, a bustling interstellar trade hub with cargo ships, evoking the technology "Comptabilité occulte" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## grandes_fetes · Grandes fêtes
+
+- Fichier : `assets/tech/grandes_fetes.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Credo Plaisir : une fête par jour, deux le dimanche : stabilité +5, tourisme +25 %.
+
+```
+square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Grandes fêtes" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## normalisation · Normalisation
+
+- Fichier : `assets/tech/normalisation.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Credo Ordre : tout a une norme, même les normes : capacité administrative +4, coût des bâtiments -10 %.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Normalisation" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## abris_profonds · Abris profonds
+
+- Fichier : `assets/tech/abris_profonds.png` · Domaine : armement · Ère 2
+- Ce qu'elle fait : Credo Survie : survivre d'abord : garnison +50 %, et les troupes au sol se remettent deux fois plus vite.
+
+```
+square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Abris profonds" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## signes_presages · Signes et présages
+
+- Fichier : `assets/tech/signes_presages.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Credo Espoir : tout est signe pour qui espère : détection et pouvoir des curiosités +1.
+
+```
+square sci-fi concept art, minds, psychic resonance and cosmic mysteries, evoking the technology "Signes et présages" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## seuils · Science des seuils
+
+- Fichier : `assets/tech/seuils.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Credo Transcendance : chaque passage prépare le grand : stabilité +3 et, Transcendance en jeu, jauge d'Élévation +5 % par mois de plus.
+
+```
+square sci-fi concept art, minds, psychic resonance and cosmic mysteries, evoking the technology "Science des seuils" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## longue_patience · Longue patience
+
+- Fichier : `assets/tech/longue_patience.png` · Domaine : economie · Ère 2
+- Ce qu'elle fait : Credo Patience : bâtir pour mille ans, c'est ne rien réparer avant cinq cents : entretien des bâtiments -15 %.
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Longue patience" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## discretion · Discrétion
+
+- Fichier : `assets/tech/discretion.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Credo Non-ingerence : observer sans toucher : détection +1 et opinion de tous les empires +10.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Discrétion" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## rendement · Rendement
+
+- Fichier : `assets/tech/rendement.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Credo Efficacite : pas un boulon de trop : coût des vaisseaux -10 %, entretien des flottes -10 %.
+
+```
+square sci-fi concept art, a starship hull under construction in an orbital shipyard, evoking the technology "Rendement" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## inventaire · Inventaire raisonné
+
+- Fichier : `assets/tech/inventaire.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Credo Collection : une fiche par pièce, une pièce par fiche : Rayonnement +15 % et pouvoir des curiosités +1.
+
+```
+square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Inventaire raisonné" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## essaimage · Essaimage
+
+- Fichier : `assets/tech/essaimage.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Credo Propagation : se répandre est un devoir : croissance +15 %, et chaque nouvelle colonie commence avec 1 population de plus.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Essaimage" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## routes_saphene · Routes de Saphène
+
+- Fichier : `assets/tech/routes_saphene.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Les maisons tiennent les routes : l'éloignement de la capitale coûte moitié moins de capacité administrative.
+
+```
+square sci-fi concept art, a starship drive and a glowing jump gate, evoking the technology "Routes de Saphène" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## traducteurs_universels · Traducteurs universels
+
+- Fichier : `assets/tech/traducteurs_universels.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Quarante langues, une seule assemblée : opinion de tous les empires +15, et la faveur gagnée auprès des peuples mineurs vaut moitié plus. L'Arche de la Concorde se répare trois fois plus vite hors de chez elle.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Traducteurs universels" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## maillage · Maillage
+
+- Fichier : `assets/tech/maillage.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Le réseau passe sous les blocus : les systèmes ennemis bloqués ne coupent plus la Noosphère. Les Nœuds de calcul se réparent trois fois plus vite hors de chez eux.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Maillage" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## noeuds_relais · Nœuds relais
+
+- Fichier : `assets/tech/noeuds_relais.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Les alliés relaient la pensée : leurs systèmes comptent dans le réseau de la Noosphère. La Noosphère-mère recoud ses flottes partout comme chez elle.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Nœuds relais" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## campements_fortifies · Campements fortifiés
+
+- Fichier : `assets/tech/campements_fortifies.png` · Domaine : armement · Ère 2
+- Ce qu'elle fait : Le clan campe là où il pille : ravitaillement +1 saut. Débloque le Campement de clan, qui remplace le Dépôt de flotte (garnison +10). Les Béliers de clan reforment leurs troupes même loin de chez eux, la Montagne-forteresse recoud ses flottes partout.
+
+```
+square sci-fi concept art, a holographic war-room tactical map with fleet formations, evoking the technology "Campements fortifiés" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## planques · Planques
+
+- Fichier : `assets/tech/planques.png` · Domaine : economie · Ère 2
+- Ce qu'elle fait : Chaque caillou cache une cache : vos avant-postes sur astéroïdes et mondes stériles rapportent +2 matériaux et +1 énergie.
+
+```
+square sci-fi concept art, a bustling interstellar trade hub with cargo ships, evoking the technology "Planques" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## contrats_chaine · Contrats à la chaîne
+
+- Fichier : `assets/tech/contrats_chaine.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : On connaît tout le monde dans le milieu : engager ou payer les pirates coûte moitié moins.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Contrats à la chaîne" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## faux_papiers · Faux papiers
+
+- Fichier : `assets/tech/faux_papiers.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Pavillon de complaisance : hors guerre, vos flottes entrent chez les autres sans droit de passage. Les Cargos corsaires trouvent leur chemin loin des dépôts, autonomie doublée.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Faux papiers" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## voile_profond · Voile profond
+
+- Fichier : `assets/tech/voile_profond.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Une onde qui chante sous le seuil d'écoute : camouflage de vos flottes +1. Les Ondes-nefs trouvent leur chemin loin des dépôts.
+
+```
+square sci-fi concept art, a sensor array scanning the dark between stars, evoking the technology "Voile profond" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## chorale · Chorale des abysses
+
+- Fichier : `assets/tech/chorale.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Plus de voix dans le chœur : les Échos montent de 2 de plus chaque mois. L'Abysse chantante recoud ses flottes partout comme chez elle.
+
+```
+square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Chorale des abysses" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## pillage_methodique · Pillage méthodique
+
+- Fichier : `assets/tech/pillage_methodique.png` · Domaine : armement · Ère 3
+- Ce qu'elle fait : On ne pille plus, on inventorie : chaque flotte qui campe chez l'ennemi emporte 50 % de butin en plus.
+
+```
+square sci-fi concept art, a holographic war-room tactical map with fleet formations, evoking the technology "Pillage méthodique" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## lignees_croisees · Lignées croisées

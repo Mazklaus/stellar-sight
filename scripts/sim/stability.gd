@@ -396,7 +396,7 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 		if c == null or c.owner != owner or not c.is_established():
 			continue
 		for b in c.buildings:
-			bld += int(bsrc.get(b, 0))
+			bld += int(bsrc.get(b, bsrc.get(GameData.building_kind(b), 0)))
 		if c.is_colony() and not bool(tal.get("no_overpop", false)):
 			var mx := Economy.max_pop(state, state.galaxy.get_planet(pid), owner, c.buildings)
 			@warning_ignore("integer_division")
