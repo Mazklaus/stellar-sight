@@ -714,7 +714,7 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(screens.is_open() and screens.current == "research" and screens._tab.text.begins_with("RECHERCHE"), "F3 : écran Recherche")
 	var rme: Empire = main.simulation.state.get_empire(main.view_empire)
 	var rtree: ResearchTree = screens.research_tree
-	_check(rtree != null and rtree.card_ids().size() == Research.visible_ids(rme.faction()).size(), "l'arbre montre toutes les technologies du peuple")
+	_check(rtree != null and rtree.card_ids().size() == Research.visible_for(main.simulation.state, main.view_empire).size(), "l'arbre montre toutes les technologies du peuple")
 	var rfirst := ""
 	for tid in Research.visible_ids(rme.faction()):
 		if Research.is_available(main.simulation.state, main.view_empire, tid) and not rme.research_queue.has(tid):
@@ -730,6 +730,11 @@ func _test_navigation_ui(main: Node) -> void:
 	(screens.research_buttons["remove"] as Button).pressed.emit()
 	await process_frame
 	_check(not rme.research_queue.has(rfirst), "« Retirer de la file »")
+	(screens.research_buttons["codex"] as Button).pressed.emit()
+	await process_frame
+	_check(main.is_codex_open() and main.codex.current == "cat:technologies:" + rfirst, "la fiche ouvre la page Codex de la technologie")
+	main.codex.close_codex()
+	await process_frame
 	_press(KEY_F6)
 	await process_frame
 	_check(screens.current == "shipyard" and screens.shipyard != null and screens._tab.text.begins_with("CHANTIER"), "F6 : écran Chantier")

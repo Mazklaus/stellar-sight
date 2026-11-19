@@ -515,6 +515,8 @@ func _show(aid: String) -> void:
 				var c2 := CodexData.chapter(String(nums))
 				if not c2.is_empty():
 					_add_row("Chapitre", CodexData.chapter_label(c2))
+	_art.tech_id = aid.trim_prefix("cat:technologies:") if aid.begins_with("cat:technologies:") and not locked else ""
+	_art.custom_minimum_size.y = 240.0 if _art.tech_id != "" else 170.0  # l'image de la technologie, en grand
 	_art.set_art(art_id, UiTheme.ACCENT)
 	_art.visible = art_id != ""
 	for a in also:

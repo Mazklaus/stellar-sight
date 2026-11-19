@@ -1,0 +1,907 @@
+{
+	"_doc": "Technologies communes du domaine Armement.",
+	"technologies": {
+		"canons_masse": {
+			"label": "Canons à masse réactive",
+			"domain": "armement",
+			"era": 1,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Canons cinétiques marque II : +20 % de dégâts.",
+			"effects": {
+				"marks": {
+					"kinetic": 1
+				}
+			},
+			"eureka": {
+				"kind": "kills",
+				"n": 3
+			},
+			"flavor": "Même principe qu'avant, mais le projectile arrive avant qu'on ait fini de le regretter."
+		},
+		"lentilles": {
+			"label": "Lentilles de focalisation",
+			"domain": "armement",
+			"era": 1,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Rayons marque II : +20 % de dégâts.",
+			"effects": {
+				"marks": {
+					"beam": 1
+				}
+			}
+		},
+		"blindage_composite": {
+			"label": "Blindage composite",
+			"domain": "armement",
+			"era": 1,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Blindage marque II : +20 % de protection du blindage.",
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"marks": {
+					"armor": 1
+				}
+			},
+			"eureka": {
+				"kind": "ships_lost",
+				"n": 3
+			}
+		},
+		"tetes_chercheuses": {
+			"label": "Missiles à tête chercheuse",
+			"domain": "armement",
+			"era": 1,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Missiles marque II : +20 % de dégâts.",
+			"effects": {
+				"marks": {
+					"missile": 1
+				}
+			}
+		},
+		"boucliers_phase": {
+			"label": "Boucliers à phase",
+			"domain": "armement",
+			"era": 2,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Boucliers marque II : +20 % de protection des boucliers.",
+			"pre": [
+				"lentilles"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"marks": {
+					"shield": 1
+				}
+			}
+		},
+		"boucliers_durcis": {
+			"label": "Boucliers durcis",
+			"domain": "armement",
+			"era": 2,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Terrain en jeu : débloque le module Boucliers durcis, qui garde la moitié de sa protection là où le terrain coupe les boucliers.",
+			"pre": [
+				"boucliers_phase"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "terrain",
+			"flavor": "« Le champ magnétique de l'étoile éteint nos boucliers. » — « Alors on en fabrique qui ne l'écoutent pas. »"
+		},
+		"interception": {
+			"label": "Tourelles d'interception",
+			"domain": "armement",
+			"era": 2,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Défense ponctuelle marque II : +20 % d'interception des missiles, torpilles et chasseurs.",
+			"pre": [
+				"blindage_composite"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"marks": {
+					"pd": 1
+				}
+			}
+		},
+		"torpilles": {
+			"label": "Torpilles à fusion",
+			"domain": "armement",
+			"era": 2,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Famille d'armes Torpilles (fortes contre les grosses coques). Il faut aussi les Torpilleurs pour en armer un vaisseau.",
+			"pre": [
+				"tetes_chercheuses"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"eureka": {
+				"kind": "kills",
+				"n": 12
+			}
+		},
+		"bastions": {
+			"label": "Bastions orbitaux",
+			"domain": "armement",
+			"era": 2,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Débloque le Bastion orbital : garnison et batterie de défense d'un système.",
+			"pre": [
+				"blindage_composite"
+			],
+			"eureka": {
+				"kind": "besieged",
+				"n": 1
+			}
+		},
+		"marines": {
+			"label": "Marines d'assaut",
+			"domain": "armement",
+			"era": 2,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "+25 % de troupes embarquées.",
+			"pre": [
+				"canons_masse"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"troops_pct": 25
+			},
+			"eureka": {
+				"kind": "conquests",
+				"n": 1
+			}
+		},
+		"blindes_assaut": {
+			"label": "Blindés d'assaut",
+			"domain": "armement",
+			"era": 2,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "Débloque les régiments de Blindés (combat au sol complet) : ils encaissent et écrasent l'infanterie.",
+			"pre": [
+				"debarquement"
+			],
+			"eureka": {
+				"kind": "conquests",
+				"n": 1
+			}
+		},
+		"assaut_aeroporte": {
+			"label": "Assaut aéroporté",
+			"domain": "armement",
+			"era": 3,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "Débloque les régiments Aériens (combat au sol complet) : chers, ils détruisent les blindés.",
+			"pre": [
+				"blindes_assaut"
+			],
+			"eureka": {
+				"kind": "conquests",
+				"n": 2
+			}
+		},
+		"accelerateurs": {
+			"label": "Accélérateurs magnétiques",
+			"domain": "armement",
+			"era": 3,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Canons cinétiques marque III : +20 % de dégâts en plus.",
+			"pre": [
+				"canons_masse",
+				"marines"
+			],
+			"effects": {
+				"marks": {
+					"kinetic": 1
+				}
+			}
+		},
+		"plasma": {
+			"label": "Rayons à plasma",
+			"domain": "armement",
+			"era": 3,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Rayons marque III : +20 % de dégâts en plus.",
+			"pre": [
+				"boucliers_phase"
+			],
+			"effects": {
+				"marks": {
+					"beam": 1
+				}
+			}
+		},
+		"plaques_ablatives": {
+			"label": "Plaques ablatives",
+			"domain": "armement",
+			"era": 3,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Blindage marque III : +20 % de protection en plus.",
+			"pre": [
+				"interception"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"marks": {
+					"armor": 1
+				}
+			}
+		},
+		"essaims": {
+			"label": "Missiles en essaim",
+			"domain": "armement",
+			"era": 3,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Missiles marque III et torpilles marque II : +20 % de dégâts.",
+			"pre": [
+				"torpilles"
+			],
+			"effects": {
+				"marks": {
+					"missile": 1,
+					"torpedo": 1
+				}
+			}
+		},
+		"artillerie": {
+			"label": "Artillerie lourde",
+			"domain": "armement",
+			"era": 3,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Famille d'armes Artillerie (portée longue, rien en phase courte). Il faut aussi les Cuirassés pour en armer un vaisseau.",
+			"pre": [
+				"accelerateurs"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"eureka": {
+				"kind": "conquests",
+				"n": 3
+			}
+		},
+		"chasse": {
+			"label": "Escadrilles de chasse",
+			"domain": "armement",
+			"era": 3,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Famille d'armes Chasseurs (ignorent les rangs). Il faut aussi les Baies de lancement pour les embarquer.",
+			"pre": [
+				"torpilles"
+			],
+			"needs": [
+				"vaisseaux"
+			]
+		},
+		"phase_dense": {
+			"label": "Boucliers de phase dense",
+			"domain": "armement",
+			"era": 4,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Boucliers et défense ponctuelle marque III : +20 % de protection.",
+			"pre": [
+				"plasma"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"marks": {
+					"shield": 1,
+					"pd": 1
+				}
+			}
+		},
+		"canons_rail": {
+			"label": "Canons à rail",
+			"domain": "armement",
+			"era": 4,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Canons cinétiques marque IV et artillerie marque II : +20 % de dégâts.",
+			"pre": [
+				"artillerie"
+			],
+			"effects": {
+				"marks": {
+					"kinetic": 1,
+					"artillery": 1
+				}
+			}
+		},
+		"antimatiere": {
+			"label": "Torpilles à antimatière",
+			"domain": "armement",
+			"era": 4,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Torpilles marque III et chasseurs marque II : +20 % de dégâts.",
+			"pre": [
+				"essaims",
+				"chasse"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"marks": {
+					"torpedo": 1,
+					"fighters": 1
+				}
+			}
+		},
+		"faisceaux_gamma": {
+			"label": "Faisceaux gamma",
+			"domain": "armement",
+			"era": 4,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Rayons marque IV et boucliers marque IV.",
+			"pre": [
+				"plasma"
+			],
+			"effects": {
+				"marks": {
+					"beam": 1,
+					"shield": 1
+				}
+			},
+			"flavor": "Le rayon est invisible. Le trou qu'il laisse, beaucoup moins."
+		},
+		"missiles_furtifs": {
+			"label": "Missiles furtifs",
+			"domain": "armement",
+			"era": 4,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Missiles marque IV et torpilles marque IV.",
+			"pre": [
+				"essaims"
+			],
+			"effects": {
+				"marks": {
+					"missile": 1,
+					"torpedo": 1
+				}
+			},
+			"flavor": "Les tourelles adverses tirent sur ce qu'elles voient. C'est tout le problème."
+		},
+		"blindage_reactif": {
+			"label": "Blindage réactif",
+			"domain": "armement",
+			"era": 4,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Blindage marque IV et défense ponctuelle marque IV.",
+			"pre": [
+				"plaques_ablatives"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"marks": {
+					"armor": 1,
+					"pd": 1
+				}
+			}
+		},
+		"obusiers": {
+			"label": "Obusiers à fragmentation",
+			"domain": "armement",
+			"era": 4,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Artillerie marque III et chasseurs marque III.",
+			"pre": [
+				"artillerie"
+			],
+			"effects": {
+				"marks": {
+					"artillery": 1,
+					"fighters": 1
+				}
+			}
+		},
+		"canons_singularite": {
+			"label": "Canons à singularité",
+			"domain": "armement",
+			"era": 5,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Canons cinétiques marque V et artillerie marque IV.",
+			"pre": [
+				"canons_rail"
+			],
+			"danger": "Percer l'espace à chaque tir attire l'attention de ce qui vit derrière : la fin de partie approche.",
+			"ai": {
+				"paix": 40
+			},
+			"effects": {
+				"marks": {
+					"kinetic": 1,
+					"artillery": 1
+				}
+			},
+			"flavor": "Le projectile pèse un gramme. Il en paraît beaucoup plus à l'arrivée."
+		},
+		"lances_stellaires": {
+			"label": "Lances stellaires",
+			"domain": "armement",
+			"era": 5,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Rayons marque V et boucliers marque V.",
+			"pre": [
+				"faisceaux_gamma"
+			],
+			"effects": {
+				"marks": {
+					"beam": 1,
+					"shield": 1
+				}
+			}
+		},
+		"torpilles_singulieres": {
+			"label": "Torpilles à singularité",
+			"domain": "armement",
+			"era": 5,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Missiles marque V et torpilles marque V.",
+			"pre": [
+				"missiles_furtifs",
+				"antimatiere"
+			],
+			"effects": {
+				"marks": {
+					"missile": 1,
+					"torpedo": 1
+				}
+			}
+		},
+		"matiere_programmable": {
+			"label": "Matière programmable",
+			"domain": "armement",
+			"era": 5,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Blindage marque V et défense ponctuelle marque V.",
+			"pre": [
+				"blindage_reactif"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"danger": "Une matière qui obéit peut un jour cesser d'obéir : la fin de partie approche.",
+			"ai": {
+				"paix": 40
+			},
+			"effects": {
+				"marks": {
+					"armor": 1,
+					"pd": 1
+				}
+			}
+		},
+		"escadres_autonomes": {
+			"label": "Escadres autonomes",
+			"domain": "armement",
+			"era": 5,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Chasseurs marque IV et artillerie marque V.",
+			"pre": [
+				"obusiers"
+			],
+			"effects": {
+				"marks": {
+					"fighters": 1,
+					"artillery": 1
+				}
+			}
+		},
+		"nuees_pensantes": {
+			"label": "Nuées pensantes",
+			"domain": "armement",
+			"era": 5,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Chasseurs marque V.",
+			"pre": [
+				"escadres_autonomes"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"danger": "Des nuées qui pensent finissent par penser à autre chose : la fin de partie approche.",
+			"ai": {
+				"paix": 40
+			},
+			"effects": {
+				"marks": {
+					"fighters": 1
+				}
+			},
+			"flavor": "Elles votent avant chaque attaque. Toujours à l'unanimité."
+		},
+		"rideau_acier": {
+			"label": "Rideau d'acier",
+			"domain": "armement",
+			"era": 2,
+			"field": "doctrines",
+			"current": "glaive",
+			"text": "Doctrine : les vaisseaux d'écran encaissent 20 % de dégâts en moins.",
+			"needs": [
+				"vaisseaux"
+			],
+			"spec": "doctrine_ecran",
+			"doctrine": true,
+			"effects": {
+				"screen_taken_pct": -20
+			},
+			"eureka": {
+				"kind": "battles_won",
+				"n": 2
+			}
+		},
+		"frappe_profondeur": {
+			"label": "Frappe en profondeur",
+			"domain": "armement",
+			"era": 2,
+			"field": "doctrines",
+			"current": "glaive",
+			"text": "Doctrine : 25 % des tirs ignorent les rangs et visent n'importe quel vaisseau, arrière compris.",
+			"needs": [
+				"vaisseaux"
+			],
+			"spec": "doctrine_ecran",
+			"doctrine": true,
+			"effects": {
+				"deep_strike_pct": 25
+			},
+			"eureka": {
+				"kind": "battles_won",
+				"n": 2
+			}
+		},
+		"feu_lointain": {
+			"label": "Feu lointain",
+			"domain": "armement",
+			"era": 3,
+			"field": "doctrines",
+			"current": "glaive",
+			"text": "Doctrine : +15 % de dégâts à longue portée, -10 % à courte portée.",
+			"needs": [
+				"vaisseaux"
+			],
+			"spec": "doctrine_portee",
+			"doctrine": true,
+			"effects": {
+				"phase_damage_pct": {
+					"long": 15,
+					"short": -10
+				}
+			},
+			"eureka": {
+				"kind": "battles_won",
+				"n": 4
+			}
+		},
+		"equipes_prise": {
+			"label": "Équipes de prise",
+			"domain": "armement",
+			"era": 2,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "Prises de guerre complètes : toute flotte qui porte des troupes peut se mettre en posture d'abordage ; modules Grappins, Sas piégés et Charge d'autodestruction.",
+			"pre": [
+				"debarquement"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"flavor": "La première leçon de l'école de prise : on n'abîme pas ce qu'on veut garder. La seconde : on l'abîme quand même un peu."
+		},
+		"capsules_assaut": {
+			"label": "Capsules d'assaut",
+			"domain": "armement",
+			"era": 3,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "Prises de guerre complètes : module Capsules d'assaut, qui permet d'aborder dès la phase moyenne.",
+			"pre": [
+				"equipes_prise"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"flavor": "Un cercueil avec des moteurs, disent les soldats. Un taxi, corrigent les sergents."
+		},
+		"abordage": {
+			"label": "Abordage",
+			"domain": "armement",
+			"era": 3,
+			"field": "doctrines",
+			"current": "glaive",
+			"text": "Doctrine : +15 % de dégâts à courte portée, +25 % de troupes embarquées et (prises de guerre complètes) force d'abordage +20 %.",
+			"needs": [
+				"vaisseaux"
+			],
+			"spec": "doctrine_portee",
+			"doctrine": true,
+			"effects": {
+				"phase_damage_pct": {
+					"short": 15
+				},
+				"troops_pct": 25,
+				"board_pct": 20
+			},
+			"eureka": {
+				"kind": "battles_won",
+				"n": 4
+			}
+		},
+		"guerre_usure": {
+			"label": "Guerre d'usure",
+			"domain": "armement",
+			"era": 4,
+			"field": "doctrines",
+			"current": "glaive",
+			"text": "Doctrine : réparations deux fois plus rapides, sièges 25 % plus efficaces.",
+			"needs": [
+				"vaisseaux"
+			],
+			"spec": "doctrine_campagne",
+			"doctrine": true,
+			"effects": {
+				"repair_pct": 100,
+				"siege_pct": 25
+			},
+			"eureka": {
+				"kind": "battles_won",
+				"n": 8
+			}
+		},
+		"guerre_eclair": {
+			"label": "Guerre éclair",
+			"domain": "armement",
+			"era": 4,
+			"field": "doctrines",
+			"current": "glaive",
+			"text": "Doctrine : flottes 20 % plus rapides, +10 % de dégâts le premier jour de chaque bataille.",
+			"needs": [
+				"vaisseaux"
+			],
+			"spec": "doctrine_campagne",
+			"doctrine": true,
+			"effects": {
+				"fleet_speed_pct": 20,
+				"first_day_damage_pct": 10
+			},
+			"eureka": {
+				"kind": "battles_won",
+				"n": 8
+			}
+		},
+		"forces_speciales": {
+			"label": "Forces spéciales",
+			"domain": "armement",
+			"era": 2,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "Débloque les régiments de Forces spéciales (combat au sol complet) : ils sabotent milice et batteries au débarquement.",
+			"pre": [
+				"debarquement"
+			],
+			"eureka": {
+				"kind": "conquests",
+				"n": 1
+			}
+		},
+		"genie_siege": {
+			"label": "Génie de siège",
+			"domain": "armement",
+			"era": 2,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "Débloque les régiments du Génie de siège : à bord d'une flotte qui assiège, ils usent les fortifications.",
+			"pre": [
+				"bastions"
+			],
+			"eureka": {
+				"kind": "besieged",
+				"n": 1
+			}
+		},
+		"defense_planetaire": {
+			"label": "Défense planétaire",
+			"domain": "armement",
+			"era": 2,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Tir sur les régiments qui débarquent dans vos systèmes : 10 % de leur santé (combat au sol complet).",
+			"pre": [
+				"bastions"
+			],
+			"effects": {
+				"landing_fire_pct": 10
+			}
+		},
+		"plates_formes_defense": {
+			"label": "Plates-formes de défense",
+			"domain": "armement",
+			"era": 2,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Défenses spatiales : plates-formes fixes autour de la station, modules à rayons, hangar, défense ponctuelle, bouclier, réparation et commandement, hangar planétaire. +2 places de plates-formes par système.",
+			"pre": [
+				"bastions"
+			],
+			"effects": {
+				"defense_capacity": 2
+			},
+			"eureka": {
+				"kind": "besieged",
+				"n": 1
+			}
+		},
+		"champs_de_mines": {
+			"label": "Champs de mines",
+			"domain": "armement",
+			"era": 3,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Défenses spatiales complètes : mouilleur de mines de station, modules Mouilleur de mines et Démineur pour les vaisseaux.",
+			"pre": [
+				"plates_formes_defense"
+			]
+		},
+		"boucliers_planetaires": {
+			"label": "Boucliers planétaires",
+			"domain": "armement",
+			"era": 3,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Défenses spatiales : le Bouclier planétaire divise par deux bombardement et dévastation, et le siège l'use avant les fortifications.",
+			"pre": [
+				"bastions"
+			]
+		},
+		"remparts_stellaires": {
+			"label": "Remparts stellaires",
+			"domain": "armement",
+			"era": 4,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Défenses spatiales : le Rempart stellaire (palier III de la station), le Canon ionique et le Dôme planétaire. +2 places de plates-formes.",
+			"pre": [
+				"citadelle_planetaire",
+				"plates_formes_defense"
+			],
+			"effects": {
+				"defense_capacity": 2
+			}
+		},
+		"citadelle_planetaire": {
+			"label": "Citadelles",
+			"domain": "armement",
+			"era": 3,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Débloque la Citadelle : fortifications, tir au débarquement, et la population à l'abri des bombardements tant qu'elle tient.",
+			"pre": [
+				"genie_siege"
+			]
+		},
+		"doctrine_interarmes": {
+			"label": "Doctrine interarmes",
+			"domain": "armement",
+			"era": 3,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "+10 % de dégâts pour tous vos régiments.",
+			"pre": [
+				"blindes_assaut"
+			],
+			"mastery": "blindes_assaut",
+			"effects": {
+				"ground_damage_pct": 10
+			}
+		},
+		"infanterie_antiaerienne": {
+			"label": "Missiles portatifs",
+			"domain": "armement",
+			"era": 3,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "L'infanterie fait +50 % de dégâts à l'aérien.",
+			"pre": [
+				"assaut_aeroporte"
+			],
+			"mastery": "assaut_aeroporte",
+			"effects": {
+				"inf_vs_air": 150
+			}
+		},
+		"bombardement_precision": {
+			"label": "Bombardement de précision",
+			"domain": "armement",
+			"era": 3,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "Le bombardement Sélectif use les fortifications 50 % plus vite.",
+			"pre": [
+				"genie_siege"
+			],
+			"mastery": "genie_siege",
+			"effects": {
+				"precision_siege_pct": 50
+			}
+		},
+		"brise_monde": {
+			"label": "Brise-monde",
+			"domain": "armement",
+			"era": 5,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Superarmes en jeu : débloque le Brise-monde (une par empire), qui détruit une planète à distance.",
+			"pre": [
+				"canons_singularite"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "superarmes",
+			"flavor": "La question n'est plus de savoir si l'on peut. La question est de savoir qui le pardonnera."
+		},
+		"anneau_extinction": {
+			"label": "Anneau d'extinction",
+			"domain": "armement",
+			"era": 5,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Superarmes en jeu : débloque l'Anneau d'extinction (une par empire), arme de dernier recours qui anéantit une crise, et une partie des siens avec.",
+			"pre": [
+				"lances_stellaires"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "superarmes",
+			"flavor": "Un bouton, sous une vitre, sous une autre vitre, sous un serment."
+		}
+	}
+}

@@ -1085,7 +1085,7 @@
     "Doctrine"
    ],
    "family": "meca",
-   "summary": "En recherche, un choix exclusif d'Armement ; en religion, une position sur l'un des quatre axes d'une foi",
+   "summary": "En recherche, une spécialisation d'Armement (choix définitif) ; en religion, une position sur l'un des quatre axes d'une foi",
    "chapters": [
     "07-recherche",
     "12a-foi"
@@ -5162,6 +5162,109 @@
    "summary": "Victoire du Hallier : huit mondes-jardins et trois mondes vivants Liés.",
    "chapters": [
     "17a-insolites"
+   ]
+  },
+  {
+   "id": "maitrise",
+   "name": "Maîtrise",
+   "forms": [
+    "Maîtrise"
+   ],
+   "family": "meca",
+   "summary": "Bonus pur et facultatif accroché à une technologie parente : jamais prérequis, il ne compte pas pour ouvrir l'ère suivante",
+   "chapters": [
+    "07-recherche"
+   ],
+   "strict": true
+  },
+  {
+   "id": "champ_recherche",
+   "name": "Champ de recherche",
+   "forms": [
+    "Champ de recherche",
+    "Champs de recherche"
+   ],
+   "family": "meca",
+   "summary": "Rangement d'un domaine de l'arbre (Armes, Coques et chantiers, Production, Colonisation…), pour le filtre, sans effet de jeu",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "trouvaille",
+   "name": "Trouvaille",
+   "forms": [
+    "Trouvaille"
+   ],
+   "family": "meca",
+   "summary": "Technologie qui ne se recherche pas : curiosités, ruines, Strates, quêtes, prises ou hauts faits la livrent",
+   "chapters": [
+    "07-recherche"
+   ],
+   "strict": true
+  },
+  {
+   "id": "specialisation",
+   "name": "Spécialisation",
+   "forms": [
+    "Spécialisation"
+   ],
+   "family": "meca",
+   "summary": "Nœud de l'arbre où l'on choisit une branche ; les autres ne s'obtiennent plus que par échange, vol, épaves ou trouvaille (les doctrines en sont)",
+   "chapters": [
+    "07-recherche"
+   ],
+   "strict": true
+  },
+  {
+   "id": "technologie_dangereuse",
+   "name": "Technologie dangereuse",
+   "forms": [
+    "Technologie dangereuse",
+    "Technologies dangereuses"
+   ],
+   "family": "meca",
+   "summary": "Technologie puissante qui rapproche la fin de partie du pilier Crises ; un triangle rouge la signale",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "destinee",
+   "name": "Destinée",
+   "forms": [
+    "Destinée"
+   ],
+   "family": "meca",
+   "summary": "Technologie de la victoire de son peuple, rangée dans la bande Peuple de l'arbre",
+   "chapters": [
+    "07-recherche"
+   ],
+   "strict": true
+  },
+  {
+   "id": "bande_peuple",
+   "name": "Bande Peuple",
+   "forms": [
+    "Bande Peuple"
+   ],
+   "family": "meca",
+   "summary": "Rangée de l'arbre sous les domaines : technologies propres sans lien avec l'arbre commun, et la Destinée",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "capacite_peuple",
+   "name": "Capacité de peuple",
+   "forms": [
+    "Capacité de peuple",
+    "Capacités de peuple"
+   ],
+   "family": "meca",
+   "summary": "Ce qu'un peuple peut faire selon ses couches (vaisseaux, chantier, nourriture, naissances, colonies) ; ce qui ne lui sert à rien disparaît de son arbre",
+   "chapters": [
+    "07-recherche"
    ]
   }
  ]

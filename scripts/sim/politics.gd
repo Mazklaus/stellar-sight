@@ -292,6 +292,19 @@ static func on_act(state: GameState, empire_id: int, kind: String, n := 1) -> vo
 		push(state, sid, i, pts)
 
 
+## Technologie découverte : son courant (champ current de l'arbre) gagne un peu partout (prop. 13 de
+## l'étude de l'arbre : la recherche dessine la vie politique).
+static func on_tech(state: GameState, empire_id: int, current: String) -> void:
+	if not state.politics_on or current == "" or not applies(state, empire_id):
+		return
+	var i := index_of(current)
+	var pts := int((data()["acts"] as Dictionary).get("tech_current", {}).get("all", 0))
+	if i < 0 or pts <= 0:
+		return
+	for sid in Stability.systems_of(state, empire_id):
+		push(state, sid, i, pts)
+
+
 static func push_local(state: GameState, sid: int, current: String, key: String) -> void:
 	if not state.politics_on:
 		return

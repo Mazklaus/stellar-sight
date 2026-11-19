@@ -1,0 +1,680 @@
+{
+	"_doc": "Technologies propres à certaines couches d'espèce (requires.species) : elles prennent place dans leur domaine quand elles remplacent une technologie commune ou en préparent une, sinon dans la bande Peuple.",
+	"technologies": {
+		"litanies": {
+			"label": "Litanies de visée",
+			"domain": "armement",
+			"era": 1,
+			"field": "armes",
+			"current": "autel",
+			"text": "+10 % de dégâts pour toutes les flottes pendant l'Exaltation.",
+			"requires": {
+				"species": {
+					"credo": [
+						"foi"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects_exalted": {
+				"damage_pct": 10
+			},
+			"flavor": "Le canonnier chante, le canon écoute."
+		},
+		"charge_sacree": {
+			"label": "Charge sacrée",
+			"domain": "armement",
+			"era": 2,
+			"field": "armes",
+			"current": "autel",
+			"text": "Débloque le Martyr : un brûlot payé en population qui explose en phase courte et nourrit la ferveur.",
+			"pre": [
+				"litanies"
+			],
+			"requires": {
+				"species": {
+					"traits": [
+						"fanatisme"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			]
+		},
+		"zelotes": {
+			"label": "Zélotes d'assaut",
+			"domain": "armement",
+			"era": 3,
+			"field": "troupes",
+			"current": "autel",
+			"text": "+25 % de troupes embarquées, en plus des Marines.",
+			"pre": [
+				"charge_sacree"
+			],
+			"requires": {
+				"species": {
+					"traits": [
+						"fanatisme"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"troops_pct": 25
+			}
+		},
+		"duellistes": {
+			"label": "Duellistes de lignée",
+			"domain": "armement",
+			"era": 1,
+			"field": "armes",
+			"current": "glaive",
+			"text": "+10 % de dégâts dans les systèmes de l'empire : chaque maison défend son nom.",
+			"requires": {
+				"species": {
+					"credo": [
+						"honneur"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"home_damage_pct": 10
+			}
+		},
+		"ban_vassaux": {
+			"label": "Ban des vassaux",
+			"domain": "armement",
+			"era": 3,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "+50 % de garnison dans les fiefs.",
+			"pre": [
+				"duellistes",
+				"bastions"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"feodalite"
+					]
+				}
+			},
+			"effects": {
+				"garrison_pct": 50
+			}
+		},
+		"dernier_moment": {
+			"label": "Doctrine du dernier moment",
+			"domain": "armement",
+			"era": 2,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Les renforts infligent 15 % de dégâts en plus (s'ajoute à « Au dernier moment »).",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"republique"
+					]
+				}
+			},
+			"effects": {
+				"reinforcement_pct": 15
+			}
+		},
+		"griffes": {
+			"label": "Griffes chitineuses",
+			"domain": "armement",
+			"era": 1,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Canons cinétiques organiques : +25 % de dégâts.",
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			},
+			"replaces": "canons_masse",
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"weapon_pct": {
+					"kinetic": 25
+				}
+			},
+			"flavor": "L'Essaim n'a pas inventé le canon. Il a fait pousser quelque chose qui y ressemble."
+		},
+		"acide": {
+			"label": "Sécrétions acides",
+			"domain": "armement",
+			"era": 3,
+			"field": "armes",
+			"current": "glaive",
+			"text": "+10 % de dégâts pour toutes les armes.",
+			"pre": [
+				"griffes"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"damage_pct": 10
+			}
+		},
+		"esprits_lies": {
+			"label": "Esprits-liés",
+			"domain": "genie",
+			"era": 3,
+			"field": "coques",
+			"current": "autel",
+			"text": "Des cerveaux de fidèles câblés aux tourelles : +10 % de dégâts pour toutes les armes, et +5 ferveur à la découverte.",
+			"pre": [
+				"torpilleurs"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"foi"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"damage_pct": 10
+			},
+			"fervor": 5,
+			"flavor": "Ils ont demandé à servir. Enfin, quelqu'un a demandé pour eux."
+		},
+		"forges_nefs": {
+			"label": "Forges-nefs",
+			"domain": "genie",
+			"era": 2,
+			"field": "coques",
+			"current": "autel",
+			"text": "Pendant l'Exaltation, les vaisseaux coûtent 10 % de moins.",
+			"pre": [
+				"debarquement"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"foi"
+					]
+				}
+			},
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"effects_exalted": {
+				"ship_cost_pct": -10
+			}
+		},
+		"cartes_lignees": {
+			"label": "Cartes des lignées",
+			"domain": "genie",
+			"era": 1,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "Les routes de saut des maisons : +15 % de vitesse pour toutes les flottes.",
+			"requires": {
+				"species": {
+					"traits": [
+						"navigateurs"
+					]
+				}
+			},
+			"replaces": "propulseurs",
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"fleet_speed_pct": 15
+			},
+			"tags": [
+				"saut"
+			]
+		},
+		"ecoles_navigateurs": {
+			"label": "Écoles de navigateurs",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "+1 vision pour les colonies, et +10 % de vitesse.",
+			"pre": [
+				"cartes_lignees"
+			],
+			"requires": {
+				"species": {
+					"traits": [
+						"navigateurs"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"claim_vision": 1,
+				"fleet_speed_pct": 10
+			},
+			"tags": [
+				"saut"
+			]
+		},
+		"equipages_mixtes": {
+			"label": "Équipages mixtes",
+			"domain": "genie",
+			"era": 2,
+			"field": "coques",
+			"current": "forge",
+			"text": "Quarante espèces sur le même pont : les vaisseaux sortent 15 % plus vite.",
+			"pre": [
+				"cales_rapides"
+			],
+			"requires": {
+				"species": {
+					"traits": [
+						"pluriel"
+					]
+				}
+			},
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"effects": {
+				"ship_days_pct": -15
+			}
+		},
+		"spores_rapides": {
+			"label": "Cosses accélérées",
+			"domain": "genie",
+			"era": 1,
+			"field": "coques",
+			"current": "forge",
+			"text": "Les vaisseaux sortent 20 % plus vite des chantiers (ou des cocons).",
+			"requires": {
+				"species": {
+					"traits": [
+						"fecondite"
+					]
+				}
+			},
+			"replaces": "cales_rapides",
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"ship_days_pct": -20
+			}
+		},
+		"scriptorium": {
+			"label": "Scriptorium",
+			"domain": "economie",
+			"era": 1,
+			"field": "savoir",
+			"current": "autel",
+			"text": "À la place de l'Académie : le Scriptorium, +4 Savoir et +1 ferveur par mois. Les moines recopient le savoir, ils ne le discutent pas.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"theocratie"
+					]
+				}
+			},
+			"replaces": "academies"
+		},
+		"forges_psalmodiques": {
+			"label": "Forges psalmodiques",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "autel",
+			"text": "+20 % de matériaux pendant l'Exaltation.",
+			"pre": [
+				"extraction"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"foi"
+					]
+				}
+			},
+			"effects_exalted": {
+				"production_pct": {
+					"materials": 20
+				}
+			}
+		},
+		"serviteurs": {
+			"label": "Serviteurs pénitents",
+			"domain": "economie",
+			"era": 3,
+			"field": "production",
+			"current": "autel",
+			"text": "À la place de l'Automatisation : +15 % de production de toutes les ressources, mais une croissance 10 % plus lente.",
+			"pre": [
+				"logistique"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"foi"
+					]
+				}
+			},
+			"replaces": "automatisation",
+			"effects": {
+				"production_pct": {
+					"all": 15
+				},
+				"growth_pct": -10
+			},
+			"flavor": "Ils travaillent sans relâche. Ils n'ont plus vraiment le choix, ni d'avis."
+		},
+		"universites": {
+			"label": "Universités des Quarante",
+			"domain": "economie",
+			"era": 1,
+			"field": "savoir",
+			"current": "academie",
+			"text": "À la place de l'Académie : l'Université, +6 Savoir et +10 % dans sa colonie.",
+			"requires": {
+				"species": {
+					"credo": [
+						"raison"
+					]
+				}
+			},
+			"replaces": "academies"
+		},
+		"ganglions": {
+			"label": "Ganglions de mémoire",
+			"domain": "economie",
+			"era": 1,
+			"field": "savoir",
+			"current": "academie",
+			"text": "À la place de l'Académie : le Ganglion, +4 Savoir, nourri de nourriture plutôt que de livres.",
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			},
+			"replaces": "academies"
+		},
+		"digestion_totale": {
+			"label": "Digestion totale",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "seve",
+			"text": "La biomasse rapporte +5 matériaux de plus par population digérée.",
+			"pre": [
+				"hydroponie"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			},
+			"needs": [
+				"nourriture"
+			],
+			"effects": {
+				"biomass_bonus": 5
+			}
+		},
+		"monopole": {
+			"label": "Monopole des cristaux",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "forge",
+			"text": "+25 % de cristaux de saut.",
+			"pre": [
+				"fusion_compacte"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"feodalite"
+					]
+				}
+			},
+			"effects": {
+				"production_pct": {
+					"crystals": 25
+				}
+			}
+		},
+		"catechisme": {
+			"label": "Catéchisme",
+			"domain": "societe",
+			"era": 1,
+			"field": "culture",
+			"current": "autel",
+			"text": "+1 ferveur par mois pour chaque colonie de 5 population ou plus.",
+			"requires": {
+				"species": {
+					"credo": [
+						"foi"
+					]
+				}
+			},
+			"effects": {
+				"fervor_big_colony": 1
+			},
+			"eureka": {
+				"kind": "exalted",
+				"n": 1
+			}
+		},
+		"offrande_consacree": {
+			"label": "Offrande consacrée",
+			"domain": "societe",
+			"era": 2,
+			"field": "culture",
+			"current": "autel",
+			"text": "L'Offrande donne 10 ferveur de plus.",
+			"pre": [
+				"catechisme"
+			],
+			"requires": {
+				"species": {
+					"traits": [
+						"fanatisme"
+					]
+				}
+			},
+			"effects": {
+				"sacrifice_gain": 10
+			},
+			"eureka": {
+				"kind": "sacrifices",
+				"n": 3
+			}
+		},
+		"pelerinages": {
+			"label": "Pèlerinages",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "autel",
+			"text": "+20 % de croissance pendant l'Exaltation.",
+			"pre": [
+				"offrande_consacree"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"theocratie"
+					]
+				}
+			},
+			"effects_exalted": {
+				"growth_pct": 20
+			}
+		},
+		"vassalite": {
+			"label": "Serments de vassalité",
+			"domain": "societe",
+			"era": 1,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Chaque fief verse 1 influence de plus par mois.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"feodalite"
+					]
+				}
+			},
+			"effects": {
+				"fief_influence": 1
+			}
+		},
+		"tournois": {
+			"label": "Tournois des maisons",
+			"domain": "societe",
+			"era": 3,
+			"field": "culture",
+			"current": "autel",
+			"text": "+20 % d'influence.",
+			"pre": [
+				"vassalite",
+				"rhetorique"
+			],
+			"requires": {
+				"species": {
+					"credo": [
+						"honneur"
+					]
+				}
+			},
+			"effects": {
+				"production_pct": {
+					"influence": 20
+				}
+			}
+		},
+		"assemblees": {
+			"label": "Assemblées élargies",
+			"domain": "societe",
+			"era": 1,
+			"field": "etat",
+			"current": "concorde",
+			"text": "+15 % d'influence, en plus de la Rhétorique.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"republique"
+					]
+				}
+			},
+			"effects": {
+				"production_pct": {
+					"influence": 15
+				}
+			}
+		},
+		"xenodiplomatie": {
+			"label": "Xénodiplomatie",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "concorde",
+			"text": "+10 % d'habitabilité sur tous les mondes habitables.",
+			"pre": [
+				"assemblees"
+			],
+			"requires": {
+				"species": {
+					"traits": [
+						"pluriel"
+					]
+				}
+			},
+			"needs": [
+				"colonies"
+			],
+			"effects": {
+				"hab_bonus": {
+					"all": 10
+				}
+			}
+		},
+		"couvees": {
+			"label": "Couvées",
+			"domain": "societe",
+			"era": 1,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "+20 % de croissance de la population.",
+			"requires": {
+				"species": {
+					"traits": [
+						"fecondite"
+					]
+				}
+			},
+			"needs": [
+				"naissance"
+			],
+			"effects": {
+				"growth_pct": 20
+			}
+		},
+		"metabolisme": {
+			"label": "Métabolisme adaptatif",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "+20 % d'habitabilité sur tous les mondes habitables.",
+			"pre": [
+				"couvees"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche"
+					]
+				}
+			},
+			"needs": [
+				"colonies"
+			],
+			"effects": {
+				"hab_bonus": {
+					"all": 20
+				}
+			}
+		}
+	}
+}

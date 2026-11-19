@@ -62,10 +62,13 @@ func _test_data() -> void:
 		if not t.get("doctrine", false):
 			continue
 		n += 1
-		var o: Dictionary = techs.get(String(t.get("exclusive", "")), {})
-		if o.is_empty() or String(o.get("exclusive", "")) != tid or int(o["era"]) != int(t["era"]) or t["domain"] != "armement":
+		var mates := Research.spec_members(Research.spec_group(tid))
+		if mates.size() != 2 or t["domain"] != "armement":
 			bad.append(tid)
-	_ok(n == 6 and bad.is_empty(), "3 paires de doctrines exclusives et réciproques (%d, %s)" % [n, ", ".join(bad)])
+		for o in mates:
+			if int(techs[o]["era"]) != int(t["era"]):
+				bad.append(tid)
+	_ok(n == 6 and bad.is_empty(), "3 paires de doctrines en groupes de spécialisation de la même ère (%d, %s)" % [n, ", ".join(bad)])
 	var eu := 0
 	var no_text := PackedStringArray()
 	for tid in techs:

@@ -1,0 +1,921 @@
+{
+	"_doc": "Technologies communes du domaine Génie spatial.",
+	"technologies": {
+		"debarquement": {
+			"label": "Navires de débarquement",
+			"domain": "genie",
+			"era": 1,
+			"field": "coques",
+			"current": "glaive",
+			"text": "Débloque le Transport de troupes.",
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"eureka": {
+				"kind": "wars",
+				"n": 1
+			}
+		},
+		"propulseurs": {
+			"label": "Propulseurs à fusion",
+			"domain": "genie",
+			"era": 1,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "+10 % de vitesse pour toutes les flottes.",
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"fleet_speed_pct": 10
+			},
+			"tags": [
+				"saut"
+			]
+		},
+		"detecteurs_abysse": {
+			"label": "Détecteurs d'abysse",
+			"domain": "genie",
+			"era": 2,
+			"field": "senseurs",
+			"current": "academie",
+			"text": "Percent le Voile des peuples énergétiques : leurs flottes et leurs revendications apparaissent partout où l'on voit (furtivité en jeu : +2 de détection contre les flottes des peuples voilés). Curiosités : +1 détection.",
+			"pre": [
+				"capteurs"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"curio_detect": 1,
+				"detect_veil": 2
+			},
+			"flavor": "« Il n'y a rien là-bas. » — « Alors pourquoi le rien nous regarde-t-il ? »"
+		},
+		"voiles_1": {
+			"label": "Voiles de camouflage",
+			"domain": "genie",
+			"era": 2,
+			"field": "senseurs",
+			"current": "forge",
+			"text": "Furtivité en jeu : débloque le Voile de camouflage I (petites coques) et les lance-leurres.",
+			"pre": [
+				"capteurs"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "furtivite",
+			"flavor": "« On ne voit rien. » — « C'est le but. »"
+		},
+		"voiles_2": {
+			"label": "Voiles réfractifs",
+			"domain": "genie",
+			"era": 3,
+			"field": "senseurs",
+			"current": "forge",
+			"text": "Furtivité en jeu : débloque le Voile de camouflage II (jusqu'aux coques moyennes) et le brouilleur.",
+			"pre": [
+				"voiles_1"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "furtivite",
+			"flavor": "La lumière fait un détour. Elle ne s'en plaint pas."
+		},
+		"voiles_3": {
+			"label": "Voiles d'ombre",
+			"domain": "genie",
+			"era": 4,
+			"field": "senseurs",
+			"current": "forge",
+			"text": "Furtivité en jeu : débloque le Voile de camouflage III (jusqu'aux grandes coques) et le Voile titanesque.",
+			"pre": [
+				"voiles_2"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "furtivite",
+			"flavor": "Le croiseur était là depuis une semaine. Personne ne l'a cru, même après."
+		},
+		"detecteurs_1": {
+			"label": "Réseau de détecteurs",
+			"domain": "genie",
+			"era": 2,
+			"field": "senseurs",
+			"current": "forge",
+			"text": "Furtivité en jeu : débloque le Réseau de détecteurs I (module) et le Réseau d'écoute (bâtiment de colonie, +1 de détection).",
+			"pre": [
+				"capteurs"
+			],
+			"pillar": "furtivite",
+			"flavor": "Écouter le silence, c'est déjà entendre quelque chose."
+		},
+		"detecteurs_2": {
+			"label": "Senseurs tachyoniques",
+			"domain": "genie",
+			"era": 3,
+			"field": "senseurs",
+			"current": "forge",
+			"text": "Furtivité en jeu : débloque le Réseau de détecteurs II, la balise d'écoute (posée par un éclaireur) et le module Poste d'écoute des stations.",
+			"pre": [
+				"detecteurs_1"
+			],
+			"pillar": "furtivite",
+			"flavor": "Les tachyons arrivent avant la question. C'est pratique, et un peu vexant."
+		},
+		"detecteurs_3": {
+			"label": "Senseurs quantiques",
+			"domain": "genie",
+			"era": 4,
+			"field": "senseurs",
+			"current": "forge",
+			"text": "Furtivité en jeu : débloque le Réseau de détecteurs III ; +1 de détection pour toutes vos sources.",
+			"pre": [
+				"detecteurs_2"
+			],
+			"pillar": "furtivite",
+			"effects": {
+				"detect": 1
+			},
+			"flavor": "Observer change le résultat. Ici, il le change en « trouvé »."
+		},
+		"navigation_songe": {
+			"label": "Navigation par le Songe",
+			"domain": "genie",
+			"era": 4,
+			"field": "propulsion",
+			"current": "autel",
+			"text": "Pouvoirs psioniques en jeu (Songe) : une flotte peut sauter hors des routes vers un système proche, au risque de s'égarer.",
+			"pre": [
+				"telepathie"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "psionique",
+			"flavor": "Le pilote ferme les yeux. Le vaisseau, lui, préférerait qu'il les garde ouverts."
+		},
+		"ecoute_profonde": {
+			"label": "Écoute profonde",
+			"domain": "genie",
+			"era": 4,
+			"field": "senseurs",
+			"current": "concorde",
+			"text": "Contact en jeu : débloque l'Oreille de la Bordure et le Héraut ; vos flottes relèvent les Échos fossiles. C'est le début de l'écoute d'un signal venu d'au-delà de la galaxie.",
+			"pre": [
+				"detecteurs_3"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "contact",
+			"flavor": "On a tendu l'oreille vers le vide. Le vide, pour une fois, a quelque chose à dire."
+		},
+		"paleo_ingenierie": {
+			"label": "Paléo-ingénierie",
+			"domain": "genie",
+			"era": 4,
+			"field": "coques",
+			"current": "academie",
+			"text": "Archéologie en jeu : les gabarits des Disparus deviennent constructibles au chantier, les Reconstitutions coûtent une pièce de moins (2 au minimum), et 3 places d'antiquités de plus.",
+			"pre": [
+				"dechiffrement_strates"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"pillar": "archeologie",
+			"effects": {
+				"archaeo_lvl": 1
+			},
+			"flavor": "Personne ne sait comment ça marche. Ça marche. Le service qualité a démissionné."
+		},
+		"senseurs_gravitationnels": {
+			"label": "Senseurs gravitationnels",
+			"domain": "genie",
+			"era": 2,
+			"field": "senseurs",
+			"current": "academie",
+			"text": "Terrain en jeu : vos flottes et colonies voient à un saut dans les nébuleuses. Débloque l'Observatoire (systèmes à trou noir ou étoile à neutrons).",
+			"pre": [
+				"capteurs"
+			],
+			"pillar": "terrain",
+			"effects": {
+				"terrain_pierce": 1
+			},
+			"flavor": "On ne voit rien dans la nébuleuse. On sent, en revanche, très bien ce qui pèse."
+		},
+		"capteurs": {
+			"label": "Capteurs profonds",
+			"domain": "genie",
+			"era": 1,
+			"field": "senseurs",
+			"current": "academie",
+			"text": "Les colonies et avant-postes voient un saut plus loin. Curiosités : +1 détection et +1 puissance d'expédition, et la Station d'étude.",
+			"effects": {
+				"claim_vision": 1,
+				"curio_detect": 1,
+				"curio_power": 1
+			},
+			"eureka": {
+				"kind": "explored",
+				"n": 15
+			}
+		},
+		"cales_rapides": {
+			"label": "Chantiers à cadence",
+			"domain": "genie",
+			"era": 1,
+			"field": "coques",
+			"current": "forge",
+			"text": "Les vaisseaux sortent des chantiers 15 % plus vite.",
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"effects": {
+				"ship_days_pct": -15
+			},
+			"eureka": {
+				"kind": "built",
+				"n": 6
+			}
+		},
+		"coques_lourdes": {
+			"label": "Coques lourdes",
+			"domain": "genie",
+			"era": 2,
+			"field": "coques",
+			"current": "forge",
+			"text": "Débloque le Croiseur.",
+			"pre": [
+				"debarquement"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"eureka": {
+				"kind": "kills",
+				"n": 10
+			}
+		},
+		"torpilleurs": {
+			"label": "Torpilleurs",
+			"domain": "genie",
+			"era": 2,
+			"field": "coques",
+			"current": "forge",
+			"text": "Débloque le Torpilleur (demande aussi les Torpilles à fusion).",
+			"pre": [
+				"cales_rapides"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			]
+		},
+		"hyperflux": {
+			"label": "Moteurs à hyperflux",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "+10 % de vitesse pour toutes les flottes.",
+			"pre": [
+				"propulseurs"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"fleet_speed_pct": 10
+			},
+			"tags": [
+				"saut"
+			],
+			"eureka": {
+				"kind": "explored",
+				"n": 35
+			}
+		},
+		"coques_series": {
+			"label": "Coques de série",
+			"domain": "genie",
+			"era": 2,
+			"field": "coques",
+			"current": "forge",
+			"text": "Les vaisseaux coûtent 10 % de moins.",
+			"pre": [
+				"cales_rapides"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"effects": {
+				"ship_cost_pct": -10
+			},
+			"eureka": {
+				"kind": "built",
+				"n": 20
+			}
+		},
+		"bombardes": {
+			"label": "Bombardes de siège",
+			"domain": "genie",
+			"era": 3,
+			"field": "coques",
+			"current": "forge",
+			"text": "Débloque la Bombarde.",
+			"pre": [
+				"coques_lourdes"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			]
+		},
+		"baies": {
+			"label": "Baies de lancement",
+			"domain": "genie",
+			"era": 3,
+			"field": "coques",
+			"current": "forge",
+			"text": "Débloque le Porte-vaisseaux (demande aussi les Escadrilles de chasse et un Arsenal). Les drones des baies sondent mieux : +1 puissance d'expédition.",
+			"pre": [
+				"coques_lourdes"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"effects": {
+				"curio_power": 1
+			}
+		},
+		"arsenaux": {
+			"label": "Arsenaux orbitaux",
+			"domain": "genie",
+			"era": 3,
+			"field": "coques",
+			"current": "forge",
+			"text": "Débloque l'Arsenal orbital, chantier des grosses coques.",
+			"pre": [
+				"coques_series"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			]
+		},
+		"ia_bord": {
+			"label": "Intelligences de bord",
+			"domain": "genie",
+			"era": 3,
+			"field": "coques",
+			"current": "academie",
+			"text": "Des esprits artificiels pointent les armes : +10 % de dégâts pour toutes les armes. Les héros synthétiques tombés au combat reviennent de leur sauvegarde.",
+			"pre": [
+				"torpilleurs"
+			],
+			"heretic": {
+				"species": {
+					"credo": [
+						"foi"
+					]
+				},
+				"cost_pct": 150,
+				"fervor": -15,
+				"text": "Hérétique pour le Chœur : coûte 50 % de plus et retire 15 ferveur."
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"damage_pct": 10,
+				"hero_backup": 1
+			}
+		},
+		"cuirasses": {
+			"label": "Cuirassés",
+			"domain": "genie",
+			"era": 4,
+			"field": "coques",
+			"current": "forge",
+			"text": "Débloque le Cuirassé (demande aussi l'Artillerie lourde et un Arsenal).",
+			"pre": [
+				"arsenaux"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			]
+		},
+		"saut_precision": {
+			"label": "Saut de précision",
+			"domain": "genie",
+			"era": 4,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "+15 % de vitesse pour toutes les flottes.",
+			"pre": [
+				"hyperflux"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"fleet_speed_pct": 15
+			},
+			"tags": [
+				"saut"
+			]
+		},
+		"coques_modulaires": {
+			"label": "Coques modulaires",
+			"domain": "genie",
+			"era": 4,
+			"field": "coques",
+			"current": "forge",
+			"text": "Les vaisseaux coûtent encore 10 % de moins et sortent 10 % plus vite.",
+			"pre": [
+				"arsenaux"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"effects": {
+				"ship_cost_pct": -10,
+				"ship_days_pct": -10
+			}
+		},
+		"stabilisation_ver": {
+			"label": "Stabilisation des trous de ver",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "academie",
+			"text": "Portails en jeu : vos flottes empruntent les trous de ver (un jour de transit) et vos sondes en révèlent l'autre bout. Débloque l'Ancre de trou de ver et la restauration des portails anciens.",
+			"pre": [
+				"propulseurs"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "portails",
+			"tags": [
+				"saut"
+			],
+			"flavor": "On ne referme pas une plaie de l'espace. On lui met une attelle, et on prie."
+		},
+		"relais_hyperspatiaux": {
+			"label": "Relais hyperspatiaux",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "academie",
+			"text": "Portails en jeu : débloque le Relais hyperspatial. Entre deux relais, une route compte trois fois moins.",
+			"pre": [
+				"propulseurs"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "portails",
+			"tags": [
+				"saut"
+			],
+			"flavor": "Une balise qui chante, une autre qui répond, et entre les deux l'espace qui se fait tout petit."
+		},
+		"portails_saut": {
+			"label": "Portails de saut",
+			"domain": "genie",
+			"era": 3,
+			"field": "propulsion",
+			"current": "academie",
+			"text": "Portails en jeu : débloque le Portail de saut. D'un portail à un autre à 6 sauts ou moins, en un jour.",
+			"pre": [
+				"hyperflux",
+				"relais_hyperspatiaux"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "portails",
+			"tags": [
+				"saut"
+			],
+			"flavor": "Le premier essai a envoyé une boîte de conserve à neuf années-lumière. Elle est revenue pleine."
+		},
+		"grands_portails": {
+			"label": "Grands portails",
+			"domain": "genie",
+			"era": 4,
+			"field": "propulsion",
+			"current": "academie",
+			"text": "Portails en jeu : débloque le Grand portail, portée 10 sauts.",
+			"pre": [
+				"portails_saut",
+				"saut_precision"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "portails",
+			"tags": [
+				"saut"
+			],
+			"flavor": "Plus large, plus loin, plus cher. Les ingénieurs appellent ça le progrès ; les comptables, autrement."
+		},
+		"lignes_ravitaillement": {
+			"label": "Lignes de ravitaillement",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "Logistique en jeu : la zone de ravitaillement s'étend d'un saut de plus autour de vos systèmes. Avec les spatioports : portée de vos ports +1.",
+			"pre": [
+				"propulseurs"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "logistique",
+			"effects": {
+				"supply_range": 1,
+				"port_range": 1
+			},
+			"flavor": "Une balise tous les trois sauts, un entrepôt tous les dix, et un comptable partout."
+		},
+		"soutes_profondes": {
+			"label": "Soutes profondes",
+			"domain": "genie",
+			"era": 3,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "Logistique en jeu : les flottes emportent 50 % de réserves en plus.",
+			"pre": [
+				"coques_series"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "logistique",
+			"effects": {
+				"autonomy_pct": 50
+			}
+		},
+		"logistique_campagne": {
+			"label": "Logistique de campagne",
+			"domain": "genie",
+			"era": 4,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "Logistique en jeu : un système pris ou occupé devient une tête de pont en 15 jours au lieu de 30.",
+			"pre": [
+				"soutes_profondes"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "logistique",
+			"effects": {
+				"bridge_days_pct": -50
+			}
+		},
+		"ravitaillement": {
+			"label": "Ravitaillement en vol",
+			"domain": "genie",
+			"era": 4,
+			"field": "coques",
+			"current": "forge",
+			"text": "L'entretien des flottes coûte 20 % de moins.",
+			"pre": [
+				"coques_series"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"mastery": "coques_series",
+			"effects": {
+				"upkeep_pct": -20
+			}
+		},
+		"navigation_stellaire": {
+			"label": "Navigation stellaire",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "academie",
+			"text": "Terrain en jeu : malus de transit du terrain (nébuleuses, trous noirs, champs d'astéroïdes) divisés par deux pour toutes vos flottes.",
+			"pre": [
+				"propulseurs"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "terrain",
+			"effects": {
+				"terrain_transit_pct": -50
+			},
+			"eureka": {
+				"kind": "explored",
+				"n": 30
+			},
+			"flavor": "Une carte des courants, un pilote qui sait la lire, et le brouillard devient une autoroute."
+		},
+		"chantier_titanesque": {
+			"label": "Chantier titanesque",
+			"domain": "genie",
+			"era": 5,
+			"field": "coques",
+			"current": "forge",
+			"text": "Débloque le Chantier titanesque et le Titan.",
+			"pre": [
+				"cuirasses",
+				"coques_modulaires"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			]
+		},
+		"leviathans": {
+			"label": "Léviathans",
+			"domain": "genie",
+			"era": 5,
+			"field": "coques",
+			"current": "forge",
+			"text": "Débloque le Léviathan, deuxième échelon des méga-vaisseaux, ses variantes, et les modules colossaux forge mobile et canon à singularité (avec les Canons à singularité).",
+			"pre": [
+				"chantier_titanesque"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			]
+		},
+		"nefs_mondes": {
+			"label": "Nefs-mondes",
+			"domain": "genie",
+			"era": 5,
+			"field": "coques",
+			"current": "forge",
+			"text": "Débloque la Nef-monde, troisième échelon des méga-vaisseaux, ses variantes, et les modules astraux moteur de trame et brise-monde.",
+			"pre": [
+				"leviathans",
+				"matiere_programmable"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			]
+		},
+		"puits_gravite": {
+			"label": "Puits de gravité",
+			"domain": "genie",
+			"era": 5,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Un puits de gravité artificiel assez profond pour retenir une flotte : débloque l'ancre gravitationnelle des Léviathans.",
+			"pre": [
+				"leviathans",
+				"saut_precision"
+			],
+			"needs": [
+				"vaisseaux"
+			]
+		},
+		"etoiles_captives": {
+			"label": "Étoiles captives",
+			"domain": "genie",
+			"era": 5,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Mettre une étoile naine en cage à bord d'une Nef-monde : débloque le soleil captif, l'arme la plus lourde du jeu, et le cœur-étoile, qui rend de l'énergie à l'empire.",
+			"pre": [
+				"nefs_mondes",
+				"lances_stellaires"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"danger": "Une étoile en cage, ça se remarque de très loin : la fin de partie du pilier Crises approche.",
+			"ai": {
+				"paix": 40
+			}
+		},
+		"ingenierie_inverse": {
+			"label": "Ingénierie inverse",
+			"domain": "genie",
+			"era": 2,
+			"field": "coques",
+			"current": "academie",
+			"text": "Prises de guerre complètes : rétro-ingénierie +50 %, politique d'épaves « Les deux », module Grue de récupération.",
+			"pre": [
+				"debarquement"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"study_pct": 50
+			},
+			"flavor": "Démonter pour comprendre, remonter pour vérifier, recommencer pour l'avoir vraiment compris."
+		},
+		"pont_orbital": {
+			"label": "Pont orbital",
+			"domain": "genie",
+			"era": 2,
+			"field": "coques",
+			"current": "glaive",
+			"text": "Débarquement plus rapide : un jour de moins avant la bataille au sol.",
+			"pre": [
+				"debarquement"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"landing_days": -1
+			}
+		},
+		"inhibiteur_saut": {
+			"label": "Inhibiteur de saut",
+			"domain": "genie",
+			"era": 3,
+			"field": "senseurs",
+			"current": "forge",
+			"text": "Défenses spatiales complètes : le module Inhibiteur retient dans le système toute flotte ennemie qui y entre, tant que la station tient.",
+			"pre": [
+				"plates_formes_defense"
+			]
+		},
+		"architectes_stellaires": {
+			"label": "Architectes stellaires",
+			"domain": "genie",
+			"era": 2,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Mégastructures en jeu : débloque le Vaisseau-architecte, qui pose les chantiers des mégastructures, et l'Ascenseur orbital.",
+			"pre": [
+				"pont_orbital"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"pillar": "megastructures",
+			"flavor": "Le plan tient sur une serviette. La serviette fait trois kilomètres."
+		},
+		"anneau_orbital": {
+			"label": "Anneaux orbitaux",
+			"domain": "genie",
+			"era": 3,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Mégastructures en jeu : débloque l'Anneau orbital (un par colonie), moitié station de défense, puis chantier naval, habitation ou batteries.",
+			"pre": [
+				"arsenaux"
+			],
+			"pillar": "megastructures",
+			"flavor": "On a voulu agrandir le spatioport. On a fait le tour."
+		},
+		"mega_ingenierie": {
+			"label": "Méga-ingénierie",
+			"domain": "genie",
+			"era": 4,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Mégastructures en jeu : ouvre les grandes mégastructures et permet de relever les ruines de mégastructures.",
+			"pre": [
+				"coques_modulaires"
+			],
+			"pillar": "megastructures",
+			"flavor": "À cette échelle, une erreur d'arrondi a son propre climat."
+		},
+		"mega_chantier": {
+			"label": "Méga-chantiers navals",
+			"domain": "genie",
+			"era": 4,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Mégastructures en jeu : débloque le Méga-chantier naval (un par empire), vaisseaux construits plus vite, titans compris.",
+			"pre": [
+				"mega_ingenierie"
+			],
+			"needs": [
+				"chantier",
+				"vaisseaux"
+			],
+			"pillar": "megastructures",
+			"flavor": "On n'y construit pas des vaisseaux. On y construit des flottes, à la chaîne."
+		},
+		"reseau_veille": {
+			"label": "Réseau de veille",
+			"domain": "genie",
+			"era": 4,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Mégastructures en jeu : débloque le Réseau de veille (un par empire), vision lointaine puis galactique, détection contre la furtivité.",
+			"pre": [
+				"mega_ingenierie",
+				"detecteurs_3"
+			],
+			"pillar": "megastructures",
+			"flavor": "Plus rien ne bouge dans la galaxie sans qu'un stagiaire le note."
+		},
+		"centre_coordination": {
+			"label": "Coordination stratégique",
+			"domain": "genie",
+			"era": 4,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Mégastructures en jeu : débloque le Centre de coordination stratégique (un par empire), ravitaillement, vitesse des flottes, places de défense.",
+			"pre": [
+				"logistique_campagne"
+			],
+			"pillar": "megastructures",
+			"flavor": "Chaque flotte reçoit son ordre de mission, sa météo, et un mot d'encouragement."
+		},
+		"catapulte_quantique": {
+			"label": "Catapulte quantique",
+			"domain": "genie",
+			"era": 4,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Mégastructures en jeu : débloque la Catapulte quantique, autour d'une étoile à neutrons, qui lance une flotte loin avec un risque d'arriver à côté.",
+			"pre": [
+				"mega_ingenierie",
+				"saut_precision"
+			],
+			"pillar": "megastructures",
+			"flavor": "Le calcul est exact. C'est l'univers qui arrondit."
+		},
+		"mega_ingenierie_avancee": {
+			"label": "Méga-ingénierie avancée",
+			"domain": "genie",
+			"era": 5,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Mégastructures en jeu : une étape de mégastructure de plus en chantier à la fois.",
+			"pre": [
+				"mega_ingenierie"
+			],
+			"pillar": "megastructures",
+			"effects": {
+				"mega_slots": 1
+			},
+			"flavor": "Deux chantiers de la taille d'un système solaire, et un seul chef de chantier. Il ne dort plus."
+		},
+		"agglomeration": {
+			"label": "Agglomération",
+			"domain": "genie",
+			"era": 3,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Forge des mondes en jeu : un Vaisseau-architecte change une ceinture d'astéroïdes en planète stérile, ou bâtit un habitat-monde dans un système sans planète habitable.",
+			"pre": [
+				"architectes_stellaires",
+				"habitats"
+			],
+			"pillar": "forge_mondes",
+			"flavor": "Mille cailloux qui ne servaient à rien. Un caillou qui sert à tout."
+		},
+		"compression_gravitationnelle": {
+			"label": "Compression gravitationnelle",
+			"domain": "genie",
+			"era": 4,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Forge des mondes en jeu : une géante gazeuse devient un monde-noyau, petit, dense, riche en matériaux et en cristaux.",
+			"pre": [
+				"agglomeration",
+				"mega_ingenierie"
+			],
+			"pillar": "forge_mondes",
+			"flavor": "On a pressé la géante comme un citron. Il en est resté le pépin, et il vaut une fortune."
+		},
+		"moteurs_planetaires": {
+			"label": "Moteurs planétaires",
+			"domain": "genie",
+			"era": 5,
+			"field": "mega_ing",
+			"current": "forge",
+			"text": "Forge des mondes en jeu : équiper un monde de moteurs pour le mener vers un système voisin, former des rosettes de mondes, et, en guerre, s'en servir de bélier.",
+			"pre": [
+				"demantelement"
+			],
+			"pillar": "forge_mondes",
+			"flavor": "Le monde ne tourne plus seulement sur lui-même. Il a aussi un itinéraire."
+		}
+	}
+}

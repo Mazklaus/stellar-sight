@@ -74,7 +74,10 @@ func _test_faction_trees() -> void:
 	# Un peuple de l'éditeur qui partage les couches d'espèce y a droit aussi.
 	var custom := {"id": "test_moines", "species": {"archetype": "humanoide", "gouvernement": "theocratie", "credo": "foi", "traits": []}, "registre": "Médiéval spatial"}
 	_ok(Research.is_visible(custom, "scriptorium") and Research.is_visible(custom, "litanies"), "un peuple personnalisé théocrate a le Scriptorium et les Litanies")
-	_ok(not Research.is_heretic(custom, "genetique"), "l'hérésie dépend du registre, pas du nom du peuple")
+	_ok(Research.is_heretic(custom, "genetique"), "l'hérésie dépend du credo, pas du nom du peuple")
+	var grim := {"id": "test_grim", "species": {"archetype": "reptilien", "gouvernement": "horde", "credo": "honneur", "traits": []}, "registre": "Grimdark"}
+	_ok(not Research.is_heretic(grim, "genetique") and not Research.is_visible(grim, "forges_psalmodiques") and Research.is_visible(grim, "automatisation"),
+			"le registre Grimdark seul ne donne plus les forges du dieu-machine (fuite corrigée)")
 
 
 func _test_queue_and_eras() -> void:

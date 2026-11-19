@@ -94,15 +94,25 @@ static func entries(cid: String) -> Array:
 				out.append(_e(cid, k, String(c["name"]), String(c.get("short", "")), body,
 						[["Registre", String(c.get("register", ""))]], "", [String(c["name"])], ["15a-crises", "20-zone-scellee"]))
 		"technologies":
-			var t: Dictionary = _data("data/technologies.json")
-			var doms := {}
-			for d: Dictionary in t.get("domains", []):
-				doms[String(d["id"])] = String(d["label"])
+			# Une page par technologie (prop. 112 de l'étude de l'arbre) : image, ce qu'elle débloque,
+			# prérequis et suites, Maîtrise, eurêka, peuple. Les noms de technologies ne sont pas
+			# soulignés dans les autres textes (catalogue sans « link »).
+			var t: Dictionary = GameData.technologies()
 			var techs: Dictionary = t.get("technologies", {})
+			var nexts := {}
+			for k: String in techs:
+				for p in techs[k].get("pre", []):
+					if not nexts.has(String(p)):
+						nexts[String(p)] = []
+					nexts[String(p)].append(k)
 			for k: String in techs:
 				var x: Dictionary = techs[k]
-				out.append(_e(cid, k, String(x["label"]), String(x.get("text", "")), String(x.get("text", "")),
-						[["Domaine", String(doms.get(String(x.get("domain", "")), ""))], ["Ère", _roman(int(x.get("era", 1)))], ["Requiert", _tech_names(x.get("requires", []), techs)]],
+				out.append(_e(cid, k, String(x["label"]), String(x.get("text", "")), _tech_body(k, x, techs, nexts),
+						[["Domaine", "Peuple (Destinée)" if x.has("victory") else String(Research.domain(String(x.get("domain", ""))).get("label", ""))],
+						["Champ", Research.field_label(String(x.get("domain", "")), String(x.get("field", ""))) if not x.has("victory") else ""],
+						["Ère", _roman(int(x.get("era", 1)))], ["Sorte", _tech_kind(x)],
+						["Courant", String(GameData.politics()["currents"][Politics.index_of(String(x["current"]))]["short"]) if Politics.index_of(String(x.get("current", ""))) >= 0 else ""],
+						["Requiert", _tech_names(x.get("pre", []), techs)]],
 						String(x.get("flavor", "")), [], ["07-recherche"]))
 		"batiments":
 			var b: Dictionary = _data("data/buildings.json")
@@ -177,6 +187,68 @@ static func _first_sentences(s: String) -> String:
 		return s
 	var cut := s.find(". ", 120)
 	return s.left(cut + 1) if cut > 0 and cut < 260 else s.left(217) + "…"
+
+
+## Texte de la page d'une technologie.
+static func _tech_body(k: String, x: Dictionary, techs: Dictionary, nexts: Dictionary) -> String:
+	var parts := PackedStringArray([String(x.get("text", ""))])
+	var owner := {}
+	for f: Dictionary in GameData.factions():
+		if Research.is_visible(f, k):
+			owner = f
+			break
+	if not owner.is_empty():
+		var un := PackedStringArray()
+		for u: Dictionary in Research.unlock_entries(owner, k):
+			if String(u["kind"]) != "maitrise":
+				un.append(String(u["text"]))
+		if not un.is_empty():
+			parts.append("**Débloque.** %s." % ", ".join(un))
+	var ms := Research.masteries_of(k)
+	if not ms.is_empty():
+		parts.append("**Maîtrise.** %s." % _tech_names(ms, techs))
+	if x.has("mastery"):
+		parts.append("**Maîtrise de %s.** Facultative : elle n'est jamais prérequise et ne compte pas pour ouvrir l'ère suivante." % String(techs.get(String(x["mastery"]), {}).get("label", x["mastery"])))
+	if nexts.has(k):
+		parts.append("**Ouvre la voie à.** %s." % _tech_names(nexts[k], techs))
+	if x.has("eureka"):
+		var eu := Research.eureka_text(k)
+		parts.append("**Eurêka.** %s%s : 40 %% du coût payé d'avance." % [eu.left(1).to_upper(), eu.substr(1)])
+	if x.has("requires"):
+		var who := PackedStringArray()
+		for f: Dictionary in GameData.factions():
+			if Research.is_visible(f, k):
+				who.append(String(f.get("short", f.get("name", ""))))
+		parts.append("**Peuple.** Propre aux peuples qui en ont les couches%s." % (" (aujourd'hui : %s)" % ", ".join(who) if not who.is_empty() else ""))
+		if x.has("replaces"):
+			parts.append("Elle remplace pour eux %s, à sa place dans l'arbre." % String(techs.get(String(x["replaces"]), {}).get("label", x["replaces"])))
+	if x.has("spec"):
+		var mates := PackedStringArray()
+		for o in Research.spec_members(String(x["spec"])):
+			if o != k:
+				mates.append(String(techs[o]["label"]))
+		parts.append("**Spécialisation.** La choisir ferme %s ; l'autre branche ne s'obtient plus que par échange, vol, épaves ou trouvaille." % ", ".join(mates))
+	if x.has("find"):
+		parts.append("**Trouvaille.** Elle ne se recherche pas : curiosités, ruines, Strates, quêtes, prises ou hauts faits la livrent.")
+	if Research.is_dangerous(k):
+		parts.append("**Dangereuse.** %s" % Research.danger_text(k))
+	if x.has("pillar"):
+		parts.append("Elle n'apparaît que si le pilier %s est en jeu." % Research.pillar_label(String(x["pillar"])))
+	return "\n\n".join(parts)
+
+
+static func _tech_kind(x: Dictionary) -> String:
+	if x.has("victory"):
+		return "Destinée"
+	if x.has("mastery"):
+		return "Maîtrise"
+	if x.has("find"):
+		return "Trouvaille"
+	if x.has("ultimate"):
+		return "Ultime"
+	if x.has("spec"):
+		return "Spécialisation"
+	return "Technologie de peuple" if x.has("requires") else ""
 
 
 static func _roman(n: int) -> String:

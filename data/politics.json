@@ -64,7 +64,7 @@
 		"_doc": "Actes de l'empire (clés des compteurs d'actes des héros et de Research.count_stat) : courant poussé, poussée en pour mille sur tous les systèmes de l'empire. Les actes situés (bâtiment, colonie, bataille, attaque) poussent aussi fort dans leur système (local).",
 		"built": {"current": "forge", "all": 3},
 		"stolen": {"current": "forge", "all": 6},
-		"tech": {"current": "academie", "all": 8}, "psi_regiment": {"current": "glaive", "all": 6},
+		"tech": {"current": "academie", "all": 8}, "tech_current": {"current": "", "all": 4, "_doc": "Poussée du courant propre à la technologie découverte (champ current de l'arbre), en plus de l'Académie."}, "psi_regiment": {"current": "glaive", "all": 6},
 		"curios": {"current": "academie", "all": 6},
 		"digs": {"current": "academie", "all": 6},
 		"folds": {"current": "academie", "all": 2},

@@ -176,6 +176,7 @@ func _ready() -> void:
 		_hud.ground_replay.show_replay(simulation.state, view_empire, rep))
 	_hud.ground_replay.closed.connect(func() -> void: toggle_empire_screen("armies"))
 	_empire_screens.war_requested.connect(declare_war)
+	_empire_screens.codex_requested.connect(func(aid: String) -> void: open_codex(aid))
 	_empire_screens.command_requested.connect(diplomacy_command)
 	_empire_screens.screen_changed.connect(func(id: String) -> void: _hud.bar.set_open_screen(id))
 	_empire_screens.planet_requested.connect(func(pid: int) -> void:

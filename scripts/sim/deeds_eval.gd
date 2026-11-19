@@ -368,7 +368,7 @@ static func _full_domains(e: Empire) -> int:
 	var techs: Dictionary = Research.data().get("technologies", {})
 	for tid in techs:
 		var t: Dictionary = techs[tid]
-		if t.has("requires") or t.has("replaces") or t.has("exclusive") or t.has("heretic") or t.has("forbidden") or t.has("victory"):
+		if t.has("requires") or t.has("replaces") or t.has("spec") or t.has("heretic") or t.has("forbidden") or t.has("victory"):
 			continue
 		var d := String(t["domain"])
 		total[d] = int(total.get(d, 0)) + 1

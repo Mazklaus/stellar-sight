@@ -332,6 +332,7 @@ func _test_ai_game() -> void:
 	var alive5 := true
 	var early_win := false
 	var exode_moved := false
+	var kraal_ok := false
 	for d in 3600:
 		sim.step()
 		if not exode_moved:
@@ -340,14 +341,20 @@ func _test_ai_game() -> void:
 		if d == 1799:
 			for fid in ODD:
 				alive5 = alive5 and not st.get_empire(_eid(st, fid)).eliminated
+			# Lue à l'an 5 : plus tard, une guerre d'alliance peut emporter la harde (partie chaotique).
+			kraal_ok = not (Insolites.emp(st, _eid(st, "kraal"))["known"] as Dictionary).is_empty() and InsKraal.herd_pop(st, _eid(st, "kraal")) > 0
 		if not st.winner.is_empty():
-			early_win = true
+			# Comme les autres parties d'essai des insolites : une Conquête d'alliance peut arriver (les
+			# peuples sans monde n'ont pas de capitale à prendre) ; seule une victoire de peuple serait trop tôt.
+			early_win = Victory.is_people(String(st.winner.get("victory", "")))
+			print("  victoire au jour %d : %s" % [d, str(st.winner)])
+			break
 	_ok(alive5, "les quatre peuples sans monde survivent jusqu'à l'an 5")
-	_ok(not early_win, "aucune victoire en 10 ans")
+	_ok(not early_win, "aucune victoire de peuple en 10 ans")
 	_ok(exode_moved, "IA : l'Exode lève l'ancre")
 	_ok(int(st.get_empire(_eid(st, "zambalu")).stats.get("shows", 0)) > 0, "IA : le Cirque donne des représentations")
 	_ok(InsHalcyre.mass(st, _eid(st, "halcyre")) > m0, "IA : l'Orbe-Monde mange et grossit")
-	_ok(not (Insolites.emp(st, _eid(st, "kraal"))["known"] as Dictionary).is_empty() and InsKraal.herd_pop(st, _eid(st, "kraal")) > 0, "IA : la harde connaît des pâturages et vit")
+	_ok(kraal_ok, "IA : la harde connaît des pâturages et vit (an 5)")
 	var d1 := st.to_dict()
 	var st2 := GameState.from_dict(JSON.parse_string(JSON.stringify(d1)))
 	_ok(st2 != null and int(d1.get("version", 0)) == 101 and JSON.stringify(st2.to_dict()) == JSON.stringify(d1), "sauvegarde 101 relue à l'identique")

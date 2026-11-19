@@ -527,9 +527,38 @@ static func heroes() -> Dictionary:
 	return _load("heroes")
 
 
-## Technologies (data/technologies.json) : domaines, ères, coûts, arbre.
+## Technologies : réglages (data/technologies.json : domaines, champs, ères, coûts, capacités) et
+## catalogue ouvert data/tech/*.json fusionné sous "technologies" : d'abord les fichiers de « catalog »
+## dans cet ordre, puis tout autre fichier du dossier par ordre alphabétique (un futur peuple ou pilier
+## ajoute le sien sans toucher au reste). Une technologie déjà vue garde sa première définition.
 static func technologies() -> Dictionary:
-	return _load("technologies")
+	if not _cache.has("technologies"):
+		var d: Dictionary = _load("technologies_settings_raw")
+		var out := d.duplicate()
+		var techs := {}
+		var names: Array = (d.get("catalog", []) as Array).duplicate()
+		var extra: Array = []
+		for f in DirAccess.get_files_at(DATA_DIR + "/tech"):
+			var fn := String(f).trim_suffix(".remap")
+			if fn.ends_with(".json") and not names.has(fn.get_basename()) and not extra.has(fn.get_basename()):
+				extra.append(fn.get_basename())
+		extra.sort()
+		names.append_array(extra)
+		for n in names:
+			var path := "%s/tech/%s.json" % [DATA_DIR, n]
+			if not FileAccess.file_exists(path):
+				continue
+			var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+			if not parsed is Dictionary:
+				push_error("Données de jeu illisibles : %s" % path)
+				continue
+			var part: Dictionary = _to_ints(parsed).get("technologies", {})
+			for tid in part:
+				if not techs.has(tid):
+					techs[tid] = part[tid]
+		out["technologies"] = techs
+		_cache["technologies"] = out
+	return _cache["technologies"]
 
 
 ## Conditions de victoire (data/victories.json) : classiques, de peuple, date limite, score.
@@ -576,7 +605,7 @@ static func format_amounts(amounts: Dictionary, signed := false) -> String:
 
 static func _load(name: String) -> Variant:
 	if not _cache.has(name):
-		var path := "%s/%s.json" % [DATA_DIR, name]
+		var path := "%s/%s.json" % [DATA_DIR, name.trim_suffix("_settings_raw")]
 		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 		if parsed == null:
 			push_error("Données de jeu illisibles : %s" % path)

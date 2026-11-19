@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.51"
+EDITION = "2.52"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -32,7 +32,25 @@ FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "cap
 
 def charger(nom):
     with open(os.path.join(DATA, nom), encoding="utf-8") as f:
-        return json.load(f)
+        d = json.load(f)
+    if nom == "technologies.json":
+        d["technologies"] = charger_technologies(d)
+    return d
+
+
+def charger_technologies(reglages):
+    """Catalogue ouvert data/tech/*.json : les fichiers de « catalog » dans l'ordre, puis les autres."""
+    dossier = os.path.join(DATA, "tech")
+    noms = list(reglages.get("catalog", []))
+    noms += sorted(n[:-5] for n in os.listdir(dossier) if n.endswith(".json") and n[:-5] not in noms)
+    techs = {}
+    for n in noms:
+        chemin = os.path.join(dossier, n + ".json")
+        if os.path.exists(chemin):
+            with open(chemin, encoding="utf-8") as f:
+                for k, v in json.load(f).get("technologies", {}).items():
+                    techs.setdefault(k, v)
+    return techs
 
 
 def esc(t):
@@ -286,8 +304,10 @@ def gen_technologies():
     nb = len(techs) if not isinstance(techs, dict) else len(techs)
     doms = t["domains"]
     dom_l = [d.get("label", d.get("id")) if isinstance(d, dict) else str(d) for d in (doms if isinstance(doms, list) else doms.values())]
+    nm = sum(1 for v in techs.values() if "mastery" in v)
+    nd = sum(1 for v in techs.values() if "victory" in v)
     return (f"<p class='donnee'>L'arbre compte actuellement <strong>{nb} technologies</strong> réparties en "
-            f"{len(dom_l)} domaines ({esc(', '.join(dom_l))}) sur cinq ères.</p>")
+            f"{len(dom_l)} domaines ({esc(', '.join(dom_l))}) sur cinq ères, dont {nm} Maîtrises et {nd} Destinées.</p>")
 
 
 def _signe(v):

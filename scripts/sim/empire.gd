@@ -327,13 +327,21 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.heir_loyalty = int(d.get("heir", -1))
 	e.heir_suitor = int(d.get("suitor", -1))
 	e.mediation_tick = int(d.get("mediation", -100000))
+	# Sauvegardes anciennes (prop. 109 de l'étude de l'arbre) : une technologie renommée passe à son
+	# héritière, une technologie disparue sans héritière est oubliée (Research.heir_of).
 	for t in d.get("techs", []):
-		e.techs[String(t)] = true
+		var tid := Research.heir_of(String(t))
+		if tid != "":
+			e.techs[tid] = true
 	for t in d.get("queue", []):
-		e.research_queue.append(String(t))
+		var tid := Research.heir_of(String(t))
+		if tid != "" and not e.research_queue.has(tid) and not e.techs.has(tid):
+			e.research_queue.append(tid)
 	e.research_progress = int(d.get("progress", 0))
 	for pair in d.get("shelf", []):
-		e.research_shelf[String(pair[0])] = int(pair[1])
+		var tid := Research.heir_of(String(pair[0]))
+		if tid != "":
+			e.research_shelf[tid] = int(pair[1])
 	for m in d.get("marks_log", []):
 		var md := {}
 		for k in m:

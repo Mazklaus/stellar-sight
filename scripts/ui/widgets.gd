@@ -314,6 +314,8 @@ class ArtSlot:
 	var variant := 0
 	## Portrait d'un héros précis (voir set_hero) : classe, niveau, âge, état, couleur de son empire.
 	var hero := {}
+	## Technologie dont l'image est dessinée (TechArt) quand res://assets/tech/<id>.png manque.
+	var tech_id := ""
 	var _tex: TextureRect
 	var _caption: Label
 
@@ -389,6 +391,9 @@ class ArtSlot:
 		return custom_minimum_size.x >= custom_minimum_size.y * 4.0
 
 	func _load() -> void:
+		if tech_id != "":
+			_tex.texture = TechArt.texture(tech_id)
+			return
 		var p := art_path(art_id)
 		_tex.texture = load(p) as Texture2D if p != "" else null
 
@@ -397,6 +402,10 @@ class ArtSlot:
 		if has_art():
 			if _caption and _caption.text != "":
 				_shade(r)
+			return
+		if tech_id != "":
+			TechArt.draw_full(self, r, tech_id)
+			draw_rect(r, Color(1, 1, 1, 0.08), false, 1.0)
 			return
 		# Fond : dégradé sombre dans la teinte, quelques hachures très légères.
 		var top := tint.darkened(0.72)

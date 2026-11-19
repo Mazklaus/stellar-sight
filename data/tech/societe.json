@@ -1,0 +1,899 @@
+{
+	"_doc": "Technologies communes du domaine Société.",
+	"technologies": {
+		"implants_neuraux": {
+			"label": "Implants neuraux",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "academie",
+			"text": "Ingénierie des espèces en jeu : programme « Chair et acier » et implants cybernétiques ; +1 point de marge génétique.",
+			"pre": [
+				"medecine_campagne"
+			],
+			"pillar": "genetique",
+			"flavor": "Le premier implant permettait de lire plus vite. Le second, de lire les petites lignes du contrat du premier."
+		},
+		"resequencage": {
+			"label": "Reséquençage",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "academie",
+			"text": "Ingénierie des espèces en jeu : retirer un trait positif ou ajouter un défaut pour regagner des points ; +1 point de marge génétique.",
+			"pre": [
+				"genetique"
+			],
+			"pillar": "genetique",
+			"flavor": "On a retiré la timidité. On a perdu les poètes. On les remettra à la prochaine version."
+		},
+		"acclimatation_glandulaire": {
+			"label": "Acclimatation glandulaire",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Ingénierie des espèces en jeu : changer le second biome d'une espèce (jamais son monde natal) ; +1 point de marge génétique.",
+			"pre": [
+				"genetique"
+			],
+			"pillar": "genetique",
+			"flavor": "Les colons ont maintenant des branchies. Ils regrettent un peu les mondes secs, par nostalgie."
+		},
+		"evolution_dirigee": {
+			"label": "Évolution dirigée",
+			"domain": "societe",
+			"era": 4,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Ingénierie des espèces en jeu : deux programmes à la fois, 25 % moins chers ; +1 point de marge génétique.",
+			"pre": [
+				"resequencage"
+			],
+			"pillar": "genetique",
+			"flavor": "L'évolution prenait des millions d'années. Le comité d'éthique, lui, prend trois semaines."
+		},
+		"matrices_conscience": {
+			"label": "Matrices de conscience",
+			"domain": "societe",
+			"era": 5,
+			"field": "colonisation",
+			"current": "academie",
+			"text": "Ingénierie des espèces en jeu : le Grand Transfert pour les empires voués à la voie synthétique (une espèce organique devient synthétique, pour de bon).",
+			"pre": [
+				"evolution_dirigee"
+			],
+			"pillar": "genetique",
+			"flavor": "« Est-ce que je suis encore moi ? » La matrice répond oui. Elle est programmée pour."
+		},
+		"theorie_psionique": {
+			"label": "Théorie psionique",
+			"domain": "societe",
+			"era": 3,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Pouvoirs psioniques en jeu : vos espèces vivantes deviennent Latentes ; la Résonance commence à monter.",
+			"pre": [
+				"colons_formes"
+			],
+			"pillar": "psionique",
+			"flavor": "La première équation du Songe tenait sur une ligne. La deuxième tenait sur le mur. Le mathématicien, lui, ne tenait plus debout."
+		},
+		"telepathie": {
+			"label": "Télépathie",
+			"domain": "societe",
+			"era": 3,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Pouvoirs psioniques en jeu : Collège des sensitifs (bâtiment), pouvoirs Lecture des esprits et Apaisement, voie L'Éveil (avec Théorie psionique).",
+			"pre": [
+				"theorie_psionique"
+			],
+			"pillar": "psionique",
+			"flavor": "« Je sais ce que vous pensez. » Le plus dur, au Collège, c'est d'apprendre à ne pas le dire."
+		},
+		"ecrans_psychiques": {
+			"label": "Écrans psychiques",
+			"domain": "societe",
+			"era": 3,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Pouvoirs psioniques en jeu, ouverte à tous, même aux peuples sourds : les pouvoirs qui vous visent échouent plus souvent (30 %, +10 % par Écran psychique bâti) ; débloque l'Écran psychique.",
+			"pre": [
+				"theorie_psionique"
+			],
+			"pillar": "psionique",
+			"flavor": "Un casque de cuivre, un bruit blanc, une chanson idiote qu'on se répète. Les trois marchent. La chanson marche le mieux."
+		},
+		"precognition": {
+			"label": "Précognition",
+			"domain": "societe",
+			"era": 4,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Pouvoirs psioniques en jeu : pouvoir Préscience (flottes ennemies vues dès leur départ, crises annoncées).",
+			"pre": [
+				"telepathie"
+			],
+			"pillar": "psionique",
+			"flavor": "Les précogs savent tout à l'avance, sauf pourquoi on continue de les surprendre avec des fêtes d'anniversaire."
+		},
+		"grammaire_etoiles": {
+			"label": "Grammaire des étoiles",
+			"domain": "societe",
+			"era": 5,
+			"field": "esprit",
+			"current": "concorde",
+			"text": "Contact en jeu : une voie de capture du Signal à elle seule, et +25 % de vitesse de déchiffrement.",
+			"pre": [
+				"ecoute_profonde"
+			],
+			"pillar": "contact",
+			"flavor": "Le verbe y est une étoile, le sujet une galaxie, et le complément nous."
+		},
+		"archeologie_stellaire": {
+			"label": "Archéologie stellaire",
+			"domain": "societe",
+			"era": 2,
+			"field": "culture",
+			"current": "academie",
+			"text": "Archéologie en jeu : les fouilles livrent des antiquités, la strate et l'origine des sites se lisent, et le Musée galactique gagne 3 places d'antiquités.",
+			"pre": [
+				"rhetorique"
+			],
+			"pillar": "archeologie",
+			"effects": {
+				"archaeo_lvl": 1
+			},
+			"flavor": "Avant, on creusait pour trouver de l'or. Maintenant, on creuse pour trouver des gens qui creusaient pour trouver de l'or."
+		},
+		"dechiffrement_strates": {
+			"label": "Déchiffrement des Strates",
+			"domain": "societe",
+			"era": 3,
+			"field": "culture",
+			"current": "academie",
+			"text": "Archéologie en jeu : actions de fragments (vente, rétro-ingénierie, applications militaires, proclamation, interroger les Strates) et 3 places d'antiquités de plus.",
+			"pre": [
+				"archeologie_stellaire"
+			],
+			"pillar": "archeologie",
+			"effects": {
+				"archaeo_lvl": 1
+			},
+			"flavor": "Les inscriptions disaient « Défense d'entrer ». Il a fallu trois siècles pour les lire, et trois secondes pour les ignorer."
+		},
+		"oree": {
+			"label": "L'Orée",
+			"domain": "societe",
+			"era": 5,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Transcendance en jeu : votre empire peut se vouer à une voie (le Songe, le Téléversement, l'Apothéose, la Mue ou le Grand Départ) ; la jauge d'Élévation se remplit, puis l'Exodium de la voie et le Passage mènent hors de la galaxie. Débloque le Relais du Passage.",
+			"pre": [
+				"assemblee"
+			],
+			"pillar": "transcendance",
+			"flavor": "Au bord de l'Orée, les philosophes ont cessé de se disputer. Ce n'est pas qu'ils soient d'accord : ils regardent tous dans la même direction."
+		},
+		"ouverture_songe": {
+			"label": "Ouverture du Songe",
+			"domain": "societe",
+			"era": 4,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Pouvoirs psioniques en jeu (Complet) : le projet qui ouvre le Songe aux plongées ; couronnement de L'Éveil.",
+			"pre": [
+				"precognition"
+			],
+			"pillar": "psionique",
+			"flavor": "La porte s'ouvre vers l'intérieur. C'est toujours ce qui inquiète, avec les portes."
+		},
+		"adaptation": {
+			"label": "Adaptation climatique",
+			"domain": "societe",
+			"era": 1,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "+20 % d'habitabilité sur les mondes continentaux et océaniques (hors monde d'origine).",
+			"needs": [
+				"colonies"
+			],
+			"effects": {
+				"hab_bonus": {
+					"continental": 20,
+					"ocean": 20
+				}
+			},
+			"eureka": {
+				"kind": "planet",
+				"what": "ocean",
+				"n": 1
+			}
+		},
+		"administration": {
+			"label": "Administration coloniale",
+			"domain": "societe",
+			"era": 1,
+			"field": "etat",
+			"current": "academie",
+			"text": "+1 colonisation simultanée. Seuil de surextension +2 systèmes (Administration : +8 capacité).",
+			"needs": [
+				"colonies"
+			],
+			"effects": {
+				"max_projects": 1,
+				"stability_threshold": 2
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 5
+			}
+		},
+		"rhetorique": {
+			"label": "Rhétorique impériale",
+			"domain": "societe",
+			"era": 1,
+			"field": "culture",
+			"current": "concorde",
+			"text": "+15 % d'influence.",
+			"effects": {
+				"production_pct": {
+					"influence": 15
+				}
+			},
+			"eureka": {
+				"kind": "contacts",
+				"n": 1
+			}
+		},
+		"medecine": {
+			"label": "Médecine coloniale",
+			"domain": "societe",
+			"era": 1,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "+15 % de croissance de la population.",
+			"needs": [
+				"naissance"
+			],
+			"effects": {
+				"growth_pct": 15
+			},
+			"eureka": {
+				"kind": "pop",
+				"n": 20
+			}
+		},
+		"mondes_toxiques": {
+			"label": "Mondes toxiques",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Les mondes toxiques deviennent habitables (40 %).",
+			"pre": [
+				"adaptation"
+			],
+			"needs": [
+				"colonies"
+			],
+			"effects": {
+				"hab_set": {
+					"toxic": 40
+				}
+			},
+			"eureka": {
+				"kind": "claim",
+				"what": "toxic",
+				"n": 1
+			}
+		},
+		"biomes_extremes": {
+			"label": "Biomes extrêmes",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "+20 % d'habitabilité sur les mondes désertiques et glaciaires.",
+			"pre": [
+				"adaptation"
+			],
+			"needs": [
+				"colonies"
+			],
+			"effects": {
+				"hab_bonus": {
+					"desert": 20,
+					"arctic": 20
+				}
+			},
+			"eureka": {
+				"kind": "planet",
+				"what": "arctic",
+				"n": 1
+			}
+		},
+		"chancelleries": {
+			"label": "Chancelleries",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Débloque les alliances. Héros : +1 place.",
+			"pre": [
+				"rhetorique"
+			],
+			"effects": {
+				"alliances": 1,
+				"hero_cap": 1
+			},
+			"eureka": {
+				"kind": "contacts",
+				"n": 3
+			}
+		},
+		"colons_formes": {
+			"label": "Colons formés",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Les nouvelles colonies démarrent avec 1 population de plus.",
+			"pre": [
+				"medecine"
+			],
+			"effects": {
+				"colony_start_pop": 1
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 8
+			}
+		},
+		"habitats": {
+			"label": "Habitats orbitaux",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Débloque les Habitats orbitaux.",
+			"pre": [
+				"mondes_toxiques"
+			],
+			"needs": [
+				"colonies"
+			],
+			"eureka": {
+				"kind": "pop",
+				"n": 80
+			}
+		},
+		"cites_flottantes": {
+			"label": "Cités flottantes",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Les géantes gazeuses deviennent habitables (30 %).",
+			"pre": [
+				"mondes_toxiques"
+			],
+			"needs": [
+				"colonies"
+			],
+			"effects": {
+				"hab_set": {
+					"gas_giant": 30
+				}
+			},
+			"eureka": {
+				"kind": "claim",
+				"what": "gas_giant",
+				"n": 1
+			}
+		},
+		"genetique": {
+			"label": "Génétique appliquée",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "+15 % de croissance de la population.",
+			"pre": [
+				"colons_formes"
+			],
+			"heretic": {
+				"species": {
+					"credo": [
+						"foi"
+					]
+				},
+				"cost_pct": 150,
+				"fervor": -10,
+				"text": "Hérétique pour le Chœur : coûte 50 % de plus et retire 10 ferveur."
+			},
+			"needs": [
+				"naissance"
+			],
+			"effects": {
+				"growth_pct": 15
+			}
+		},
+		"propagande": {
+			"label": "Propagande",
+			"domain": "societe",
+			"era": 3,
+			"field": "culture",
+			"current": "concorde",
+			"text": "+20 % d'influence, +5 stabilité dans tous vos systèmes. Avec les religions : pare-feu culturel, les fois de nature Mème ne passent plus chez vous par les routes commerciales ni par les réseaux d'espionnage.",
+			"pre": [
+				"chancelleries"
+			],
+			"effects": {
+				"meme_firewall": 1,
+				"production_pct": {
+					"influence": 20
+				},
+				"stability": 5
+			},
+			"eureka": {
+				"kind": "peace",
+				"n": 1
+			}
+		},
+		"administration2": {
+			"label": "Gouverneurs de secteur",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "academie",
+			"text": "+1 colonisation simultanée. Seuil de surextension +2 systèmes (Administration : +8 capacité).",
+			"pre": [
+				"administration",
+				"colons_formes"
+			],
+			"needs": [
+				"colonies"
+			],
+			"effects": {
+				"max_projects": 1,
+				"stability_threshold": 2
+			}
+		},
+		"terraformation": {
+			"label": "Terraformation",
+			"domain": "societe",
+			"era": 4,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Projet de Terraformation sur une colonie d'un monde continental, océanique, désertique, glaciaire ou toxique : la planète devient le second monde préféré de votre peuple (80 % d'habitabilité).",
+			"pre": [
+				"biomes_extremes"
+			],
+			"needs": [
+				"colonies"
+			],
+			"eureka": {
+				"kind": "planet",
+				"what": "desert",
+				"n": 1
+			},
+			"flavor": "On ne change pas le climat d'une planète en un jour. Il faut un an, et beaucoup de patience de la part des autochtones microbiens."
+		},
+		"cites_creusees": {
+			"label": "Cités creusées",
+			"domain": "societe",
+			"era": 4,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Les mondes stériles (30 %) et les ceintures d'astéroïdes (50 %) deviennent habitables : on vit dans la roche, on y extrait des matériaux.",
+			"pre": [
+				"habitats"
+			],
+			"needs": [
+				"colonies"
+			],
+			"effects": {
+				"hab_set": {
+					"barren": 30,
+					"asteroids": 50
+				}
+			},
+			"eureka": {
+				"kind": "claim",
+				"what": "asteroids",
+				"n": 3
+			},
+			"flavor": "Pas de ciel, pas de météo, pas de voisins bruyants. Juste de la roche, et des mineurs qui chantent faux."
+		},
+		"cadastre_algorithmique": {
+			"label": "Cadastre algorithmique",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "academie",
+			"text": "Capacité administrative +10 et Tribunaux 40 % moins chers (Administration). Sans le pilier : seuil de surextension +2 systèmes.",
+			"pre": [
+				"administration2"
+			],
+			"needs": [
+				"gouvernement"
+			],
+			"effects": {
+				"admin_cap": 10,
+				"stability_threshold_off": 2,
+				"tribunal_cost_pct": -40
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 12
+			},
+			"flavor": "Chaque astéroïde a son numéro, chaque numéro son propriétaire, chaque propriétaire son contrôleur fiscal."
+		},
+		"administration_quantique": {
+			"label": "Administration quantique",
+			"domain": "societe",
+			"era": 5,
+			"field": "etat",
+			"current": "academie",
+			"text": "La distance au siège compte pour moitié dans la corruption et capacité administrative +15 (Administration). Sans le pilier : seuil de surextension +3 systèmes.",
+			"pre": [
+				"prefectures"
+			],
+			"needs": [
+				"gouvernement"
+			],
+			"effects": {
+				"admin_distance_half": 1,
+				"admin_cap": 15,
+				"stability_threshold_off": 3
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 40
+			},
+			"flavor": "Le formulaire est à la fois rempli et vierge, jusqu'à ce qu'un fonctionnaire le regarde."
+		},
+		"prefectures": {
+			"label": "Capitales de secteur",
+			"domain": "societe",
+			"era": 4,
+			"field": "etat",
+			"current": "academie",
+			"text": "Débloque la Préfecture, une par système, dans une colonie de 10 population ou plus : +3 influence, et six colonies de plus échappent au surcoût de recherche des grands empires. Seuil de surextension +3 systèmes (Administration : +12 capacité, et chaque Préfecture devient un siège de province). Héros : +1 place.",
+			"pre": [
+				"administration2"
+			],
+			"needs": [
+				"gouvernement"
+			],
+			"effects": {
+				"hero_cap": 1,
+				"stability_threshold": 3
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 25
+			},
+			"flavor": "Un gouverneur, un palais, un tampon. L'empire peut grandir : quelqu'un d'autre signera les formulaires."
+		},
+		"ambassades": {
+			"label": "Ambassades permanentes",
+			"domain": "societe",
+			"era": 4,
+			"field": "etat",
+			"current": "concorde",
+			"text": "+15 d'opinion chez tous les empires rencontrés : la paix, le commerce et les alliances se négocient plus facilement. Conseil : +1 siège.",
+			"pre": [
+				"propagande"
+			],
+			"effects": {
+				"opinion_all": 15,
+				"council_seats": 1
+			},
+			"eureka": {
+				"kind": "contacts",
+				"n": 5
+			},
+			"flavor": "Des diplomates à demeure, des réceptions chaque semaine, et un buffet qui fait plus pour la paix que dix traités."
+		},
+		"mondes_jardins": {
+			"label": "Mondes-jardins",
+			"domain": "societe",
+			"era": 5,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Projet de Monde-jardin sur une colonie (monde continental, océanique, désertique, glaciaire, toxique ou stérile) : la planète devient un monde-jardin, habitable à 100 % pour tous les peuples et riche en tout.",
+			"pre": [
+				"terraformation"
+			],
+			"needs": [
+				"colonies"
+			],
+			"eureka": {
+				"kind": "planet",
+				"what": "ocean",
+				"n": 3
+			},
+			"flavor": "Un monde fait pour la vie, par la vie. Les poètes s'y installent en premier ; les promoteurs, juste après."
+		},
+		"assemblee": {
+			"label": "Assemblée interstellaire",
+			"domain": "societe",
+			"era": 5,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Débloque l'Assemblée interstellaire, merveille unique dans la galaxie : +8 influence, +20 d'opinion chez tous les empires et des points de score.",
+			"pre": [
+				"ambassades"
+			],
+			"eureka": {
+				"kind": "peace",
+				"n": 2
+			},
+			"flavor": "Un parlement pour toutes les espèces. Les débats durent des siècles ; c'était le but."
+		},
+		"spatioports": {
+			"label": "Spatioports de transit",
+			"domain": "societe",
+			"era": 5,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Une colonie pleine ne perd plus sa croissance : ses colons partent vers la colonie la moins peuplée de l'empire qui a encore de la place. Avec les spatioports complets : réserve des entrepôts doublée.",
+			"pre": [
+				"prefectures"
+			],
+			"effects": {
+				"migration": 1,
+				"warehouse_pct": 100
+			},
+			"eureka": {
+				"kind": "pop",
+				"n": 250
+			},
+			"flavor": "Billet aller simple, hublot en option, chat accepté."
+		},
+		"adaptation_totale": {
+			"label": "Adaptation totale",
+			"domain": "societe",
+			"era": 5,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Aucun monde habitable ne descend sous 60 % d'habitabilité : les pires planètes deviennent de vraies colonies.",
+			"pre": [
+				"cites_creusees"
+			],
+			"heretic": {
+				"species": {
+					"credo": [
+						"foi"
+					]
+				},
+				"cost_pct": 150,
+				"fervor": -10,
+				"text": "Hérétique pour le Chœur : coûte 50 % de plus et retire 10 ferveur."
+			},
+			"needs": [
+				"colonies"
+			],
+			"effects": {
+				"hab_min": 60
+			},
+			"eureka": {
+				"kind": "colonies",
+				"n": 40
+			},
+			"flavor": "Le corps s'adapte au monde. Puis le monde, vexé, s'adapte un peu aussi."
+		},
+		"symbiose": {
+			"label": "Symbiose universelle",
+			"domain": "societe",
+			"era": 5,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Technologie ultime (il faut 3 autres technologies de l'ère V de Société). Aucun monde habitable ne descend sous 80 %, et la population croît 25 % plus vite.",
+			"ultimate": 3,
+			"effects": {
+				"hab_min": 20,
+				"growth_pct": 25
+			},
+			"flavor": "Plus de mondes hostiles, seulement des mondes qu'on n'a pas encore compris."
+		},
+		"conscription_planetaire": {
+			"label": "Registres de conscription",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "glaive",
+			"text": "+25 % de recrues chaque mois.",
+			"pre": [
+				"debarquement"
+			],
+			"effects": {
+				"recruits_pct": 25
+			}
+		},
+		"medecine_campagne": {
+			"label": "Médecine de campagne",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "glaive",
+			"text": "Les régiments récupèrent santé et moral deux fois plus vite hors bataille.",
+			"pre": [
+				"conscription_planetaire"
+			],
+			"effects": {
+				"ground_recovery_pct": 100
+			}
+		},
+		"propagande_front": {
+			"label": "Propagande du front",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "glaive",
+			"text": "+20 % de moral pour vos régiments.",
+			"pre": [
+				"medecine_campagne"
+			],
+			"mastery": "medecine_campagne",
+			"effects": {
+				"ground_morale_pct": 20
+			}
+		},
+		"arts_holographiques": {
+			"label": "Arts holographiques",
+			"domain": "societe",
+			"era": 2,
+			"field": "culture",
+			"current": "concorde",
+			"text": "Débloque le Musée galactique, les stations de villégiature et la Bibliothèque des Mille Mondes. Rayonnement : chaque relique exposée compte.",
+			"pre": [
+				"rhetorique"
+			],
+			"effects": {
+				"culture_museum": 1
+			},
+			"flavor": "La sculpture en lumière dure a ruiné deux siècles de marbriers, et enrichi les vendeurs de lunettes."
+		},
+		"holovision": {
+			"label": "Holovision",
+			"domain": "societe",
+			"era": 3,
+			"field": "culture",
+			"current": "concorde",
+			"text": "Rayonnement +25 %. Débloque l'Holothéâtre éternel et les Troupes de spectacle.",
+			"pre": [
+				"arts_holographiques"
+			],
+			"effects": {
+				"culture_pct": 25,
+				"culture_troupe": 1
+			},
+			"flavor": "Douze mille chaînes, et toujours rien à regarder. Sauf, curieusement, les feuilletons du voisin."
+		},
+		"reseau_mondes": {
+			"label": "Réseau des mondes",
+			"domain": "societe",
+			"era": 4,
+			"field": "culture",
+			"current": "concorde",
+			"text": "Rayonnement +25 %. Débloque le Phare des Civilisations.",
+			"pre": [
+				"holovision",
+				"propagande"
+			],
+			"effects": {
+				"culture_pct": 25
+			}
+		},
+		"conversion_culturelle": {
+			"label": "Conversion culturelle",
+			"domain": "societe",
+			"era": 4,
+			"field": "culture",
+			"current": "concorde",
+			"text": "Vos voisins instables et largement rayonnés par vous peuvent faire défection et rejoindre votre empire (selon le réglage de la partie).",
+			"pre": [
+				"holovision"
+			],
+			"effects": {
+				"culture_defect": 1
+			},
+			"flavor": "On ne prend plus les mondes : on les invite."
+		},
+		"forum_interstellaire": {
+			"label": "Forum interstellaire",
+			"domain": "societe",
+			"era": 4,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Mégastructures en jeu : débloque le Forum interstellaire (un par empire), voix à l'Amphictyonie et opinion de tous.",
+			"pre": [
+				"ambassades"
+			],
+			"pillar": "megastructures",
+			"flavor": "Pour la première fois, tout le monde se parle. Ce n'est pas forcément une bonne nouvelle."
+		},
+		"oeuvre_monumentale": {
+			"label": "Art monumental",
+			"domain": "societe",
+			"era": 4,
+			"field": "culture",
+			"current": "concorde",
+			"text": "Mégastructures en jeu : débloque l'Œuvre monumentale (une par empire), stabilité et Rayonnement.",
+			"pre": [
+				"legende"
+			],
+			"pillar": "megastructures",
+			"flavor": "L'artiste a demandé une étoile comme toile. Le comité a dit oui, pour voir."
+		},
+		"recycleurs_atmospheriques": {
+			"label": "Recycleurs atmosphériques",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Écologie en jeu : l'empreinte de vos colonies sur les biosphères pèse 30 % de moins.",
+			"pre": [
+				"biomes_extremes"
+			],
+			"pillar": "ecologie",
+			"effects": {
+				"eco_footprint_pct": -30
+			},
+			"ecology": true,
+			"flavor": "Ce qui sort des cheminées y retourne. Les cheminées, vexées, ont demandé un syndicat."
+		},
+		"ingenierie_climatique": {
+			"label": "Ingénierie climatique",
+			"domain": "societe",
+			"era": 4,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Écologie en jeu : projet d'Ingénierie climatique, qui rend 25 points de biosphère d'un coup à un monde vivant.",
+			"pre": [
+				"terraformation"
+			],
+			"pillar": "ecologie",
+			"ecology": true,
+			"flavor": "Nous avons appris à fabriquer des nuages. Il reste à leur apprendre à pleuvoir au bon endroit."
+		},
+		"mondes_coquilles": {
+			"label": "Mondes-coquilles",
+			"domain": "societe",
+			"era": 4,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Forge des mondes en jeu : une coquille gonflée rend habitable un monde stérile, glaciaire ou toxique ; ouvre aussi les mondes-reliquaires des Façonneurs.",
+			"pre": [
+				"terraformation",
+				"agglomeration"
+			],
+			"needs": [
+				"colonies"
+			],
+			"pillar": "forge_mondes",
+			"flavor": "Le ciel a un plafond, désormais. Il est très haut, et on le repeint au printemps."
+		},
+		"mondes_sur_mesure": {
+			"label": "Mondes sur mesure",
+			"domain": "societe",
+			"era": 5,
+			"field": "colonisation",
+			"current": "forge",
+			"text": "Forge des mondes en jeu : fabriquer sur une orbite vide une planète du type choisi (trois par empire), et en vendre à d'autres empires.",
+			"pre": [
+				"mondes_coquilles",
+				"mondes_jardins"
+			],
+			"needs": [
+				"colonies"
+			],
+			"pillar": "forge_mondes",
+			"flavor": "Océan, désert ou glacier ? Le catalogue fait quatre cents pages ; les fjords sont en option."
+		}
+	}
+}

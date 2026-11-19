@@ -443,7 +443,7 @@ func _test_terre_promise() -> void:
 func _test_legende() -> void:
 	var st := _state("brisecomete")
 	var e := st.get_empire(0)
-	_ok(Array(Victory.ids_for(st, 0)).has("legende") and not Array(Victory.ids_for(st, 1)).has("legende"), "La Légende : visée par le registre Picaresque seulement")
+	_ok(Array(Victory.ids_for(st, 0)).has("legende") and not Array(Victory.ids_for(st, 1)).has("legende"), "La Légende : visée par le Syndicat seulement")
 	var need := int(Victory.info("legende")["exploits"])
 	var min_rep := int(Victory.info("legende")["min_reputation"])
 	Research.grant(st, 0, ["legende"])
