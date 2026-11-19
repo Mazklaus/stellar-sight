@@ -9,9 +9,10 @@ extends RefCounted
 
 const SAVE := "res://tests/data/fin_de_partie.json.gz"
 const DAYS := 30
-## Moyenne par jour et pire jour tolérés sur un PC (ms). À resserrer à chaque lot de la passe.
-const MEAN_MS := 300.0
-const WORST_MS := 1600.0
+## Moyenne par jour et pire jour tolérés sur un PC (ms). Mesuré après la grande passe (2026-11-19) :
+## environ 290 et 1 900 ms dans le conteneur, soit 145 et 950 sur un PC.
+const MEAN_MS := 200.0
+const WORST_MS := 1200.0
 
 var _check: Callable
 
