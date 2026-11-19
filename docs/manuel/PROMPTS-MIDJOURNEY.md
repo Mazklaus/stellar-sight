@@ -764,3 +764,43 @@ portrait of a faceless colossal machine factory spreading across a grey airless 
 ```
 portrait of an immense patient stone sage with mineral skin and glowing crystal eyes, seated inside a cloaked observation post hidden behind a moon, gazing down at a small pre-industrial alien village whose people look up at the sky without seeing it, notebooks of carved stone around him, serene contemplative hard science fiction mood epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
 ```
+
+## MJ-78 · Portrait · Gardiens du Sablier Fêlé
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche des Gardiens du Sablier Fêlé (chapitre « Les peuples insolites »)
+- Sujet : Une gardienne en armure de cérémonie tient un immense sablier fêlé d'où le sable remonte ; derrière elle, une bataille spatiale se rembobine en éclats lumineux
+
+```
+portrait of a solemn humanoid guardian woman in ornate ceremonial armor holding an immense cracked hourglass whose golden sand flows upward, behind her a space battle rewinding into streaks of light and reversed explosions, fractures of glowing time in the air, heroic space opera mood epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
+
+## MJ-79 · Portrait · Lithes de Gravéa
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche des Lithes de Gravéa (chapitre « Les peuples insolites »)
+- Sujet : Un être de roche colossal, couvert de lichen et de strates, pousse doucement une planète vers la lumière de son étoile ; d'autres Lithes, immobiles, délibèrent autour
+
+```
+portrait of a colossal lithoid being made of layered rock strata covered in lichen, slowly pushing a small planet toward the warm light of its star, other motionless stone beings sitting in a circle deliberating around it, geological timescale, quiet hard science fiction mood epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
+
+## MJ-80 · Portrait · Sporemère de Myrr
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche de la Sporemère de Myrr (chapitre « Les peuples insolites »)
+- Sujet : Une forêt de champignons blancs et lumineux recouvre une ville abandonnée ; dans le ciel, une comète chargée de spores file vers un autre monde
+
+```
+an immense forest of pale bioluminescent white fungi and mycelium filaments overgrowing an abandoned alien city, a slow comet trailing glowing spores crossing the sky toward another planet, eerie beautiful cosmic weird mood, Annihilation-like shimmer epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
+
+## MJ-81 · Portrait · Hallier de Vergemonde
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche du Hallier de Vergemonde (chapitre « Les peuples insolites »)
+- Sujet : Un être-arbre ancien, enraciné au sommet d'une colline fleurie, veille sur de jeunes pousses qui marchent ; à l'horizon, une planète entière est devenue jardin
+
+```
+portrait of an ancient wise tree-being rooted on top of a flowering hill, young walking sapling people around its roots, warm sunlight, in the sky a whole planet turned into a lush garden world, gentle heroic space opera mood, luminous greens and golds epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```

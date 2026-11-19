@@ -842,7 +842,8 @@
 			"label": "Guerrière aux mandibules d'or",
 			"archetypes": [
 				"ruche",
-				"vaisseaux_vivants"
+				"vaisseaux_vivants",
+				"fongoide"
 			]
 		},
 		{
@@ -851,7 +852,8 @@
 			"label": "Guetteuse aux cent yeux",
 			"archetypes": [
 				"ruche",
-				"vaisseaux_vivants"
+				"vaisseaux_vivants",
+				"fongoide"
 			]
 		},
 		{
@@ -860,7 +862,8 @@
 			"label": "Princesse de la ponte",
 			"archetypes": [
 				"ruche",
-				"vaisseaux_vivants"
+				"vaisseaux_vivants",
+				"fongoide"
 			]
 		},
 		{
@@ -877,7 +880,8 @@
 			"label": "Héraut aux éclats",
 			"archetypes": [
 				"lithoide",
-				"planete_etre"
+				"planete_etre",
+				"vegetal"
 			]
 		},
 		{
@@ -886,7 +890,8 @@
 			"label": "Vétéran de basalte",
 			"archetypes": [
 				"lithoide",
-				"planete_etre"
+				"planete_etre",
+				"vegetal"
 			]
 		},
 		{
@@ -895,7 +900,8 @@
 			"label": "Sage-géode",
 			"archetypes": [
 				"lithoide",
-				"planete_etre"
+				"planete_etre",
+				"vegetal"
 			]
 		},
 		{
@@ -1072,7 +1078,9 @@
 			"synthetique": 0,
 			"energetique": 150,
 			"reptilien": 75,
-			"ruche": 70
+			"ruche": 70,
+			"fongoide": 150,
+			"vegetal": 200
 		}
 	},
 	"flaws": {

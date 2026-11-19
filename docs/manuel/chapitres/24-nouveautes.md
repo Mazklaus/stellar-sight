@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.51
+
+- **Les peuples insolites** (chapitre 48), quatrième lot : les **peuples du temps et de la vie autre**. Les **Gardiens du Sablier Fêlé** (Registre des événements annulables, Sable, déchirures et effondrement local, bulles temporelles, Gardien chronal, victoire du **Paradoxe stable**), les **Lithes de Gravéa** (Œuvres lentes qui remodèlent les mondes, Consensus séculaire, Patience, Hibernation, victoire du **Remodelage**), la **Sporemère de Myrr** (aucun vaisseau, comètes-semences, mycélium irrémédiable, feu, réseau mycorhizien, spores, symbiose, victoire de la **Biosphère unique**) et le neuvième peuple, le **Hallier de Vergemonde** (trois âges et saisons, mondes-jardins, planter un Cœur, Feu-qui-renouvelle, victoire du **Grand Jardin**). Archétypes **fongoïde** et **végétal**, forme psionique **Chronopathie**, chocs des tons **Myrr et le Hallier** et **le Sablier et les Lithes**. Correction : la victoire du Grand Rassemblement compte les Âmes accueillies depuis le début, rapportées à la population actuelle de la galaxie. Sauvegarde 101 inchangée.
+
 ### Édition 2.50
 
 - **Les peuples insolites** (chapitre 48), troisième lot : les **peuples qui jouent avec la vie et la mort**. **Asphodèle, Cité des Trépassés** (les Âmes des morts de la galaxie, Pacte funéraire et Ossuaires, Revenants, Nécro-conseil et Usure des Anciens, victoire du **Grand Rassemblement**), le **Muséum de Sire Cassivel** (souverain immortel qui voyage, copie de sauvegarde et crise Orphelin, cinq vitrines, acquisition de spécimens, victoire du **Musée vivant**), les **Silencieux** (machines sans diplomatie ni recherche, directive publique, réplication des avant-postes, victoires de force seulement) et les **Observateurs de Quiétude** (postes voilés, élever en secret, scandale de la découverte, Protégés, victoire de **l'Envol**). Nature de foi **la Traversée**, famille de lois **Rites funéraires** de l'Amphictyonie, opération **Acquisition discrète**, chocs des tons **Asphodèle et le Chœur** et **les Silencieux et Teyl** (éveiller une usine). Sauvegarde 101 inchangée.

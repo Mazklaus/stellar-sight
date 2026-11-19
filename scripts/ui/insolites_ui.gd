@@ -5,7 +5,10 @@ extends RefCounted
 ## fiche de flotte (chantier embarqué, Pilotes des Kraal, délégué au Grand Numéro) et menu des peuples
 ## (clic sur la ligne d'état de l'empire : normes du Bureau, Mises en demeure, Accord d'hébergement du
 ## Signal, flotte de songe ; lot 3 : Pacte funéraire et Nécro-conseil d'Asphodèle, sauvegarde et
-## acquisitions du Muséum, postes voilés et élévations de Quiétude). Les ordres passent par SimCommands.ins_act.
+## acquisitions du Muséum, postes voilés et élévations de Quiétude ; lot 4 : Registre et Boucle du Sablier,
+## Consensus et Patience des Lithes, comètes de Myrr, Saisons du Hallier ; sur la planète : Œuvres lentes,
+## Hibernation, bulles temporelles, comète, brûler le mycélium, planter un Cœur). Les ordres passent par
+## SimCommands.ins_act.
 
 
 static func system_actions(state: GameState, player: int, p: Planet, emit: Callable) -> Array[Dictionary]:
@@ -59,6 +62,34 @@ static func system_actions(state: GameState, player: int, p: Planet, emit: Calla
 		else:
 			out.append(WondersUi._act(state, SimCommands.ins_act(player, "uplift", md), "Élever en secret", GameData.format_amounts(Insolites.cfg("quietude").get("uplift_cost", {})),
 					"Un rêve, une idée, une roue meilleure : le jeune peuple avance d'un an et demi, mais sa conscience monte.", emit))
+	# Lot 4 : Œuvres lentes et Hibernation des Lithes, bulles du Sablier, comètes et feu de Myrr, Cœur du Hallier.
+	if k == "gravea" and state.system_owner(p.system_id) == player:
+		for w in InsGravea.work_ids():
+			if InsGravea.targets(state, w, p.id).is_empty():
+				continue
+			var wd := InsGravea.work_def(w)
+			@warning_ignore("integer_division")
+			out.append(WondersUi._act(state, SimCommands.ins_act(player, "work", {"w": w, "pid": p.id}), "Œuvre : %s" % String(wd.get("label", w)), "%s, %d ans" % [GameData.format_amounts(wd.get("cost", {})), int(wd.get("days", 3600)) / 360],
+					String(wd.get("text", "")) + " Une Œuvre lente : elle changera la forme du monde, dans dix ou quinze ans.", emit))
+		if c != null and c.owner == player and c.is_colony():
+			out.append(WondersUi._act(state, SimCommands.ins_act(player, "sleep", d), "Hiberner", "%d jours" % Insolites.c_int("gravea", "sleep_days", 1080),
+					"Le monde attaqué s'endort : plus d'invasion possible dans ce système, mais plus de production non plus.", emit))
+	if k == "sablier":
+		if state.system_owner(p.system_id) == player:
+			out.append(WondersUi._act(state, SimCommands.ins_act(player, "bubble", {"s": p.system_id, "mode": "compression"}), "Bulle de Compression", "%d Sable" % Insolites.c_int("sablier", "bubble_sand", 30),
+					"Le temps se resserre sur ce système : production +%d %% pendant un an." % Insolites.c_int("sablier", "bubble_pct", 25), emit))
+		elif state.system_owner(p.system_id) >= 0 and not GameState.is_npc(state.system_owner(p.system_id)):
+			out.append(WondersUi._act(state, SimCommands.ins_act(player, "bubble", {"s": p.system_id, "mode": "dilatation"}), "Bulle de Dilatation", "%d Sable" % Insolites.c_int("sablier", "bubble_sand", 30),
+					"Les horloges de ce système étranger ralentissent : production -%d %% pendant un an." % Insolites.c_int("sablier", "bubble_pct", 25), emit))
+	if k == "myrr" and c == null and not InsMyrr.seeded(state, player).has(p.system_id):
+		out.append(WondersUi._act(state, SimCommands.ins_act(player, "comet", {"s": p.system_id}), "Comète-semence", GameData.format_amounts(Insolites.cfg("myrr").get("comet_cost", {})),
+				"Lancer une comète chargée de spores vers ce système : elle y tombe au bout de quelques mois et une colonie pousse. Une seconde comète vers le même système arrive deux fois plus vite.", emit))
+	if c != null and InsMyrr.is_myrr(state, c.owner) and c.owner != player:
+		out.append(WondersUi._act(state, SimCommands.ins_act(player, "burn", d), "Brûler le mycélium", "en guerre, flotte sur place",
+				"Le feu depuis l'orbite : la colonie de Myrr perd des habitants (ou disparaît), le système ne pousse plus pendant un an, la biosphère en souffre.", emit))
+	if k == "vergemonde" and c != null and c.owner == player and p.type == "gaia":
+		out.append(WondersUi._act(state, SimCommands.ins_act(player, "heart", d), "Planter un Cœur", GameData.format_amounts(Insolites.cfg("vergemonde").get("heart_cost", {})),
+				"Éveiller ce monde-jardin : il devient un monde vivant, bienveillant d'emblée envers le Hallier.", emit))
 	return out
 
 
@@ -140,7 +171,7 @@ static func has_people_menu(state: GameState, player: int) -> bool:
 	if e == null:
 		return false
 	var k := Insolites.kind(state, player)
-	if ["bureau", "ysmer", "asphodele", "cassivel"].has(k):
+	if ["bureau", "ysmer", "asphodele", "cassivel", "sablier", "gravea", "myrr", "vergemonde"].has(k):
 		return true
 	for eid in Insolites.nomad_ids(state):
 		if eid != player and e.contacts.has(eid) and ["bureau", "signal", "asphodele"].has(Insolites.kind(state, eid)):
@@ -216,6 +247,7 @@ static func open_people_menu(main: Node, state: GameState, player: int) -> void:
 				continue
 			var nm := Minors.name_of(state, w) if GameState.is_npc(w) else state.get_empire(w).short_name()
 			_item(menu, cmds, state, player, "acquire", {"w": w}, "Acheter un spécimen à %s (%s)" % [nm, GameData.format_amounts(Insolites.cfg("cassivel").get("buy_cost", {}))])
+	_lot4_menu(menu, cmds, state, player, k)
 	menu.id_pressed.connect(func(id: int) -> void:
 		if id >= 0 and id < cmds.size() and main.has_method("_submit"):
 			main.call("_submit", cmds[id])
@@ -225,3 +257,53 @@ static func open_people_menu(main: Node, state: GameState, player: int) -> void:
 			menu.queue_free.call_deferred())
 	main.add_child(menu)
 	menu.popup_centered()
+
+
+## Menu des peuples, lot 4 : Registre et Boucle du Sablier, Consensus et Patience des Lithes, comètes de
+## Myrr (rappel), Saisons du Hallier.
+static func _lot4_menu(menu: PopupMenu, cmds: Array[Dictionary], state: GameState, player: int, k: String) -> void:
+	var e := state.get_empire(player)
+	var ed := Insolites.emp(state, player)
+	match k:
+		"sablier":
+			menu.add_separator("Registre (Sable : %d)" % int(ed.get("sand", 0)))
+			var reg := InsSablier.ledger(state, player)
+			for i in range(reg.size() - 1, -1, -1):
+				_item(menu, cmds, state, player, "undo", {"i": i}, "Annuler : %s (%d Sable)" % [InsSablier.entry_text(state, reg[i]), InsSablier.undo_cost(reg[i])])
+			menu.add_separator("La Boucle (%d / %d)" % [int(ed.get("loop", 0)), Insolites.c_int("sablier", "loop_stages", 3)])
+			_item(menu, cmds, state, player, "loop", {}, "Commencer l'étape suivante (%s)" % GameData.format_amounts(InsSablier.loop_cost(state, player)))
+		"gravea":
+			menu.add_separator("Consensus séculaire")
+			var cons: Dictionary = ed.get("cons", {})
+			for o in state.empires:
+				if o.id == player or o.is_npc() or o.eliminated or not e.contacts.has(o.id):
+					continue
+				if cons.has(str(o.id)):
+					var i := menu.item_count
+					var left := int(cons[str(o.id)]) - state.tick
+					menu.add_item("%s : %s" % [o.short_name(), ("délibère encore (%d j)" % left) if left > 0 else "consensus mûr, guerre possible"], -1)
+					menu.set_item_disabled(i, true)
+					continue
+				_item(menu, cmds, state, player, "deliberate", {"t": o.id}, "Délibérer d'une guerre contre %s (deux ans)" % o.short_name())
+			menu.add_separator("Patience (%d jours de Temps)" % int(ed.get("time", 0)))
+			var works: Array = ed.get("works", [])
+			for i in works.size():
+				var x: Dictionary = works[i]
+				_item(menu, cmds, state, player, "hasten", {"i": i}, "Dépenser le Temps sur l'Œuvre de %s (%d j restants)" % [state.galaxy.systems[int(x["sid"])].system_name, int(x["left"])])
+		"myrr":
+			menu.add_separator("Comètes-semences (%d en vol)" % (ed.get("comets", []) as Array).size())
+			var n := 0
+			for sid in state.galaxy.systems.size():
+				if n >= 12:
+					break
+				if InsMyrr.check_comet(state, player, sid) == "":
+					_item(menu, cmds, state, player, "comet", {"s": sid}, "Lancer une comète vers %s (%d sauts)" % [state.galaxy.systems[sid].system_name, InsMyrr.comet_range(state, player, sid)])
+					n += 1
+			if n == 0:
+				var i := menu.item_count
+				menu.add_item("Aucun système à portée pour l'instant", -1)
+				menu.set_item_disabled(i, true)
+		"vergemonde":
+			menu.add_separator("Saisons du Hallier")
+			for s in InsVergemonde.SEASONS:
+				_item(menu, cmds, state, player, "season", {"s": String(s)}, "Entrer dans la %s" % String(InsVergemonde.SEASON_LABEL[s]).to_lower())

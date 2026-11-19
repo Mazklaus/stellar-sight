@@ -4832,6 +4832,337 @@
    "chapters": [
     "17a-insolites"
    ]
+  },
+  {
+   "id": "registre_sablier",
+   "name": "Registre",
+   "forms": [
+    "le Registre"
+   ],
+   "family": "meca",
+   "summary": "Les six derniers mois d'événements que les Gardiens du Sablier peuvent défaire : vaisseau perdu, système conquis, héros mort, technologie volée.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "sable",
+   "name": "Sable",
+   "forms": [
+    "Sable"
+   ],
+   "family": "meca",
+   "summary": "Réserve des Gardiens du Sablier : cinq par mois, deux cents au plus. Elle paie les annulations et les bulles temporelles.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "dechirure",
+   "name": "Déchirure",
+   "forms": [
+    "Déchirure",
+    "Déchirures",
+    "Déchirure du temps"
+   ],
+   "family": "meca",
+   "summary": "Plaie laissée par une annulation : production -25 % et stabilité -5 pendant deux ans ; à trois dans le même système, effondrement local.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "bulle_temporelle",
+   "name": "Bulle temporelle",
+   "forms": [
+    "Bulle temporelle",
+    "Bulles temporelles",
+    "Compression",
+    "Dilatation"
+   ],
+   "family": "meca",
+   "summary": "Le Sablier plie le temps d'un système pendant un an : Compression (+25 %) chez soi, Dilatation (-25 %) chez un autre.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "chronopathie",
+   "name": "Chronopathie",
+   "forms": [
+    "Chronopathie",
+    "chronopathes"
+   ],
+   "family": "meca",
+   "summary": "Forme psionique des Gardiens du Sablier : ils voient un peu du temps qui vient (Sable rendu, Déjà-vu).",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "gardien_chronal",
+   "name": "Gardien chronal",
+   "forms": [
+    "Gardien chronal"
+   ],
+   "family": "meca",
+   "summary": "Héros du Sablier dont la mort est un point fixe : on ne l'annule pas, et la Boucle se défait avec lui.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "boucle",
+   "name": "La Boucle",
+   "forms": [
+    "Boucle",
+    "la Boucle"
+   ],
+   "family": "meca",
+   "summary": "Trois projets successifs des Gardiens du Sablier ; fermée avec le Gardien chronal vivant, elle donne la victoire du Paradoxe stable.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "paradoxe_stable",
+   "name": "Le Paradoxe stable",
+   "forms": [
+    "Paradoxe stable",
+    "le Paradoxe stable"
+   ],
+   "family": "meca",
+   "summary": "Victoire des Gardiens du Sablier : fermer les trois étapes de la Boucle.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "oeuvre_lente",
+   "name": "Œuvre lente",
+   "forms": [
+    "Œuvre lente",
+    "Œuvres lentes",
+    "Œuvre",
+    "Œuvres"
+   ],
+   "family": "meca",
+   "summary": "Projet de dix à quinze ans des Lithes de Gravéa qui change la forme des mondes d'un système (fondre, rendre habitable, déplacer, refroidir).",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "consensus_seculaire",
+   "name": "Consensus séculaire",
+   "forms": [
+    "Consensus séculaire",
+    "consensus"
+   ],
+   "family": "meca",
+   "summary": "Gouvernement des Lithes : une guerre se délibère deux ans avant d'être possible.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "patience",
+   "name": "Patience",
+   "forms": [
+    "Patience",
+    "Temps en réserve"
+   ],
+   "family": "meca",
+   "summary": "Credo des Lithes : sans rien entreprendre, ils accumulent du Temps, qu'ils dépensent d'un coup pour avancer une Œuvre.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "hibernation",
+   "name": "Hibernation",
+   "forms": [
+    "Hibernation",
+    "hiberne",
+    "Hiberner"
+   ],
+   "family": "meca",
+   "summary": "Un monde des Lithes attaqué s'endort trois ans : impossible à envahir, mais il ne produit plus rien.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "remodelage",
+   "name": "Le Remodelage",
+   "forms": [
+    "Remodelage",
+    "le Remodelage"
+   ],
+   "family": "meca",
+   "summary": "Victoire des Lithes : cinq Œuvres lentes achevées dans cinq systèmes différents.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "comete_semence",
+   "name": "Comète-semence",
+   "forms": [
+    "Comète-semence",
+    "Comètes-semences",
+    "comète"
+   ],
+   "family": "meca",
+   "summary": "La Sporemère de Myrr colonise par comètes chargées de spores, jusqu'à cinq sauts d'une colonie.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "mycelium",
+   "name": "Mycélium",
+   "forms": [
+    "Mycélium",
+    "mycélium"
+   ],
+   "family": "meca",
+   "summary": "Implant de Myrr : il prend un habitant par mois à une colonie étrangère et l'absorbe à un seul habitant. Le feu l'arrête.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "reseau_mycorhizien",
+   "name": "Réseau mycorhizien",
+   "forms": [
+    "Réseau mycorhizien"
+   ],
+   "family": "meca",
+   "summary": "Gouvernement de Myrr : un système coupé de la capitale par le feu ou la distance produit moitié moins.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "symbiose",
+   "name": "Symbiose",
+   "forms": [
+    "Symbiose",
+    "symbioses"
+   ],
+   "family": "meca",
+   "summary": "Ce que Myrr gagne en absorbant une espèce : un petit bonus de production selon son archétype.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "spores",
+   "name": "Spores",
+   "forms": [
+    "Spores",
+    "spores"
+   ],
+   "family": "meca",
+   "summary": "Les flottes ennemies à l'arrêt dans un système de Myrr perdent 2 % de coque par jour.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "biosphere_unique",
+   "name": "La Biosphère unique",
+   "forms": [
+    "Biosphère unique",
+    "la Biosphère unique"
+   ],
+   "family": "meca",
+   "summary": "Victoire de Myrr (ouverte au Hallier) : tenir 40 % des planètes habitables de la galaxie.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "trois_ages",
+   "name": "Trois âges",
+   "forms": [
+    "Trois âges",
+    "Pousses",
+    "Marcheurs",
+    "Enracinés"
+   ],
+   "family": "meca",
+   "summary": "Le Hallier de Vergemonde vit en trois âges : Pousses (Savoir), Marcheurs (travail, armées), Enracinés (influence, stabilité).",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "saison_hallier",
+   "name": "Saison",
+   "forms": [
+    "Saison des Pousses",
+    "Saison des Marcheurs",
+    "Saison des Enracinés"
+   ],
+   "family": "meca",
+   "summary": "Choix annuel du Hallier : vers quel âge sa population glisse, de deux points par mois.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "monde_jardin",
+   "name": "Monde-jardin",
+   "forms": [
+    "Monde-jardin",
+    "Mondes-jardins",
+    "monde-jardin"
+   ],
+   "family": "meca",
+   "summary": "Une colonie du Hallier devient un monde gaïa au bout de huit ans ; le jardin gagne ensuite une planète du système tous les quatre ans.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "coeur_hallier",
+   "name": "Cœur",
+   "forms": [
+    "Planter un Cœur",
+    "Cœur"
+   ],
+   "family": "meca",
+   "summary": "Le Hallier éveille un monde-jardin en monde vivant, bienveillant d'emblée.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "feu_renouvelle",
+   "name": "Feu-qui-renouvelle",
+   "forms": [
+    "Feu-qui-renouvelle"
+   ],
+   "family": "meca",
+   "summary": "Rite du Hallier : un incendie emporte des habitants, puis la forêt repousse plus dense un an plus tard.",
+   "chapters": [
+    "17a-insolites"
+   ]
+  },
+  {
+   "id": "grand_jardin",
+   "name": "Le Grand Jardin",
+   "forms": [
+    "Grand Jardin",
+    "le Grand Jardin"
+   ],
+   "family": "meca",
+   "summary": "Victoire du Hallier : huit mondes-jardins et trois mondes vivants Liés.",
+   "chapters": [
+    "17a-insolites"
+   ]
   }
  ]
 }

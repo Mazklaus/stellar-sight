@@ -138,6 +138,7 @@
 		"khthari": {"label": "Dévoreurs", "text": "Craints des mondes vivants (-20 au départ) ; leur digestion compte double dans leur haine, mais leurs anticorps les fuient : aucun troupeau n'est lâché contre eux.", "start_mood": -20, "exterminate_x": 2, "no_antibody": true},
 		"teyl": {"label": "Coques muettes", "text": "Synthétiques, le monde ne les entend pas : son humeur envers eux reste à 0, jamais Hostile ni Lié.", "mute": true},
 		"vael": {"label": "Cadastre des mondes", "text": "Inviter un monde vivant leur coûte moitié moins.", "invite_pct": -50},
+		"vergemonde": {"label": "Cœurs plantés", "text": "Les mondes vivants s'attachent au Hallier deux fois plus vite, et ceux qu'il habite gagnent +2 d'humeur par mois.", "gain_pct": 100, "host_mood": 2},
 		"murmurants": {"label": "Ondes de fond", "text": "Ils écoutent les mondes vivants sans sensitif ni Résonance.", "free_listen": true}
 	},
 	"units": {

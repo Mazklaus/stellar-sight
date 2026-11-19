@@ -119,6 +119,18 @@
 					"influence": 30
 				},
 				"purge_stability_days": 0
+			},
+			"mycelium": {
+				"label": "Mycélium",
+				"text": "Le mycélium de la Sporemère de Myrr dans une colonie étrangère : il prend un habitant par mois (Myrr en gagne un) et, à un seul habitant, absorbe la colonie. Seul le feu l'arrête.",
+				"tithe": {},
+				"tithe_per_pop": 0,
+				"radiance": 0,
+				"hidden": false,
+				"purge_cost": {
+					"influence": 30
+				},
+				"purge_stability_days": 90
 			}
 		}
 	},
@@ -297,6 +309,23 @@
 		"envol": {
 			"_doc": "Prop. 81.",
 			"count": 2
+		},
+		"paradoxe": {
+			"_doc": "Prop. 88.",
+			"count": 3
+		},
+		"remodelage": {
+			"_doc": "Prop. 93.",
+			"count": 5
+		},
+		"biosphere": {
+			"_doc": "Prop. 99 (ouverte aussi au Hallier, prop. 105).",
+			"pct": 40
+		},
+		"grand_jardin": {
+			"_doc": "Prop. 105.",
+			"gardens": 8,
+			"living": 3
 		}
 	},
 	"ai": {
@@ -316,7 +345,19 @@
 		"silencieux_war_power_pct": 120,
 		"silencieux_war_min_days": 1800,
 		"quietude_uplift_influence": 60,
-		"teyl_awaken_pmille": 150
+		"teyl_awaken_pmille": 150,
+		"sablier_undo_sand": 60,
+		"gravea_deliberate_opinion": -30,
+		"myrr_comet_materials": 120,
+		"vergemonde_heart_influence": 150,
+		"myrr_defense_materials": 300,
+		"myrr_defenses": [
+			"citadelle",
+			"bastion",
+			"batterie_planetaire",
+			"bouclier_planetaire",
+			"forteresse_orbitale"
+		]
 	},
 	"ventrelune": {
 		"_doc": "Prop. 35 à 41. Parts en %, prix en énergie.",
@@ -642,5 +683,218 @@
 			"influence": 3
 		},
 		"colony_influence_pct": 200
+	},
+	"sablier": {
+		"_doc": "Prop. 83 à 88. Sable : réserve propre (pas un bien). undo_cost par sorte d'événement du Registre (ship, colony, hero, tech). Déchirure : tear_pct % de production en moins et tear_stab de stabilité pendant tear_days ; à tear_collapse annulations dans un système avant guérison, effondrement (population divisée par deux). La Boucle : loop_stages étapes de loop_days jours, coûts dans loop_costs.",
+		"hero_name": "le Gardien chronal",
+		"sand_start": 40,
+		"sand_month": 5,
+		"sand_max": 200,
+		"reg_days": 180,
+		"reg_max": 24,
+		"undo_cost": {
+			"ship": 20,
+			"hero": 40,
+			"tech": 30,
+			"colony": 80
+		},
+		"tear_days": 720,
+		"tear_pct": 25,
+		"tear_stab": -5,
+		"tear_collapse": 3,
+		"hiatus_pmille": 300,
+		"hiatus_days": 180,
+		"bubble_sand": 30,
+		"bubble_pct": 25,
+		"bubble_days": 360,
+		"bubble_cd_days": 360,
+		"life_pct": 250,
+		"psi_sand": 40,
+		"loop_stages": 3,
+		"loop_days": 720,
+		"chrono_days": 1800,
+		"loop_costs": [
+			{
+				"knowledge": 400,
+				"energy": 200
+			},
+			{
+				"knowledge": 700,
+				"energy": 300
+			},
+			{
+				"knowledge": 1000,
+				"energy": 400
+			}
+		]
+	},
+	"gravea": {
+		"_doc": "Prop. 89 à 93. works : Œuvres lentes, map = type de planète avant : type après, scope planet (la planète visée) ou system (tout le système). Temps : time_month jours de réserve par mois sans entreprise depuis idle_days (et en paix), time_max au plus, dépensés d'un coup (hasten_min au moins).",
+		"works_max": 3,
+		"cons_days": 720,
+		"cons_keep_days": 360,
+		"idle_days": 180,
+		"time_month": 20,
+		"time_max": 720,
+		"hasten_min": 60,
+		"sleep_days": 1080,
+		"works": {
+			"fondre": {
+				"label": "Fondre la ceinture",
+				"text": "Fondre une ceinture d'astéroïdes en un monde désertique.",
+				"days": 3600,
+				"scope": "planet",
+				"map": {
+					"asteroids": "desert"
+				},
+				"cost": {
+					"materials": 300,
+					"energy": 150
+				}
+			},
+			"habitable": {
+				"label": "Rendre un monde habitable",
+				"text": "Donner de l'air et de l'eau à un monde stérile ou toxique.",
+				"days": 4320,
+				"scope": "planet",
+				"map": {
+					"barren": "continental",
+					"toxic": "ocean"
+				},
+				"cost": {
+					"materials": 250,
+					"energy": 200
+				}
+			},
+			"deplacer": {
+				"label": "Déplacer une planète",
+				"text": "Pousser un monde gelé ou stérile vers la zone tempérée de son étoile.",
+				"days": 4320,
+				"scope": "planet",
+				"map": {
+					"arctic": "continental",
+					"barren": "desert"
+				},
+				"cost": {
+					"materials": 350,
+					"energy": 250
+				}
+			},
+			"refroidir": {
+				"label": "Refroidir l'étoile",
+				"text": "Calmer l'étoile : les mondes brûlants du système deviennent tempérés.",
+				"days": 5400,
+				"scope": "system",
+				"map": {
+					"desert": "continental",
+					"toxic": "ocean"
+				},
+				"cost": {
+					"materials": 400,
+					"energy": 400,
+					"knowledge": 200
+				}
+			}
+		}
+	},
+	"myrr": {
+		"_doc": "Prop. 94 à 99. Comètes : comet_days_per_jump jours par saut depuis la colonie la plus proche, comet_jumps au plus, comet_max en vol. Mycélium : spread_pmille par système et par mois, feed_pmille par colonie infectée et par mois. Feu : burn_days sans pousse, burn_eco de biosphère, burn_pop habitants. symbiosis : par archétype de l'espèce absorbée (pct de production).",
+		"comet_cost": {
+			"materials": 120,
+			"energy": 60
+		},
+		"comet_days_per_jump": 60,
+		"comet_jumps": 5,
+		"comet_max": 2,
+		"comet_settle_days": 90,
+		"spread_pmille": 350,
+		"spread_settle_days": 30,
+		"feed_pmille": 500,
+		"burn_days": 360,
+		"burn_eco": 30,
+		"burn_pop": 3,
+		"iso_pct": 50,
+		"spore_pct": 2,
+		"symbiosis": {
+			"_doc": "Trait de symbiose donné par une espèce absorbée, selon son archétype.",
+			"humanoide": {
+				"label": "Symbiose des bâtisseurs (matériaux +5 %)",
+				"pct": {
+					"materials": 5
+				}
+			},
+			"lithoide": {
+				"label": "Symbiose minérale (matériaux +8 %)",
+				"pct": {
+					"materials": 8
+				}
+			},
+			"reptilien": {
+				"label": "Symbiose des sang-froid (énergie +5 %)",
+				"pct": {
+					"energy": 5
+				}
+			},
+			"synthetique": {
+				"label": "Symbiose des circuits (Savoir +8 %)",
+				"pct": {
+					"knowledge": 8
+				}
+			},
+			"energetique": {
+				"label": "Symbiose lumineuse (énergie +8 %)",
+				"pct": {
+					"energy": 8
+				}
+			},
+			"ruche": {
+				"label": "Symbiose de la ruche (nourriture +10 %)",
+				"pct": {
+					"food": 10
+				}
+			},
+			"vegetal": {
+				"label": "Symbiose des racines (nourriture +8 %)",
+				"pct": {
+					"food": 8
+				}
+			},
+			"_default": {
+				"label": "Symbiose étrange (Savoir +5 %)",
+				"pct": {
+					"knowledge": 5
+				}
+			}
+		},
+		"defense_techs": [
+			"citadelle_planetaire",
+			"bastions",
+			"boucliers_planetaires"
+		]
+	},
+	"vergemonde": {
+		"_doc": "Prop. 100 à 105. Âges : glissent de drift points par mois vers la saison choisie. Jardins : garden_days après la fondation, puis spread_days par planète du système (types garden_from). Feu-qui-renouvelle : fire_pmille par mois et par colonie d'au moins fire_min_pop, fire_pop habitants perdus, fire_regrow de plus au bout de fire_regrow_days.",
+		"drift": 2,
+		"season_cd_days": 360,
+		"garden_days": 2880,
+		"spread_days": 1440,
+		"garden_from": [
+			"continental",
+			"ocean",
+			"desert",
+			"arctic",
+			"toxic",
+			"barren"
+		],
+		"heart_cost": {
+			"influence": 120,
+			"knowledge": 120
+		},
+		"heart_mood": 50,
+		"fire_pmille": 15,
+		"fire_min_pop": 5,
+		"fire_pop": 2,
+		"fire_regrow": 3,
+		"fire_regrow_days": 360
 	}
 }

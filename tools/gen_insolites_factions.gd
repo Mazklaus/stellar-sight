@@ -28,12 +28,20 @@ const META := {
 		"lore": "Personne ne sait qui a construit les Silencieux, ni pourquoi. Ils ne parlent pas, ne prient pas, ne rêvent pas : ils extraient, assemblent, se répliquent. Ils ne haïssent personne ; ils écartent ce qui gêne. Leur directive s'affiche sur toutes les fréquences, en clair, comme un panneau de chantier. On peut la lire. On ne peut pas la discuter."},
 	"quietude": {"name": "Observateurs de Quiétude", "short": "Quiétude", "color": "#8fb9a8", "broken_rule": "Gagne en se cachant",
 		"lore": "Les lithes de Quiétude vivent lentement, pensent longtemps, et regardent. Au-dessus des jeunes peuples qui n'ont pas encore quitté leur monde, ils posent des postes voilés, prennent des notes, et parfois, très discrètement, poussent un peu. Ils ont un principe : ne jamais être vus. Ils ont aussi un problème : ils aiment beaucoup leurs protégés."},
+	"sablier": {"name": "Gardiens du Sablier Fêlé", "short": "Sablier", "color": "#e0c27a", "broken_rule": "Annule le passé",
+		"lore": "Les Gardiens vivent trois fois plus longtemps que les autres humains et se souviennent de choses qui ne sont pas encore arrivées. Ils gardent un sablier fêlé, très ancien, dont le sable coule parfois à l'envers. Avec lui, ils réparent ce qui n'aurait pas dû se passer : une flotte perdue, un héros tombé. Chaque réparation laisse une fissure. Ils le savent. Ils le font quand même, avec beaucoup de regrets et beaucoup de soin."},
+	"gravea": {"name": "Lithes de Gravéa", "short": "Gravéa", "color": "#9a8f7d", "broken_rule": "Agit en décennies",
+		"lore": "Un Lithe de Gravéa met un an à finir une phrase et un siècle à changer d'avis. Ils ne sont pas lents : ils sont à l'échelle. Pendant que les autres empires se font et se défont, ils déplacent une planète, fondent une ceinture d'astéroïdes, refroidissent une étoile. On les croit endormis. On a tort. On a seulement l'impression d'avoir raison pendant très longtemps."},
+	"myrr": {"name": "Sporemère de Myrr", "short": "Myrr", "color": "#c7b7e8", "broken_rule": "Aucun vaisseau",
+		"lore": "Myrr est un seul champignon, grand comme un système, qui pense lentement et ne meurt pas vraiment. Elle n'a jamais construit de vaisseau : elle lance des comètes chargées de spores, qui tombent là où personne ne regarde. Quelques mois plus tard, il y a une forêt blanche. Quelques années plus tard, il y a Myrr, partout, et les anciens habitants qui font partie de quelque chose de plus grand."},
+	"vergemonde": {"name": "Hallier de Vergemonde", "short": "Vergemonde", "color": "#6fbf5a", "broken_rule": "Transforme lentement les mondes",
+		"lore": "Le Hallier est une forêt qui a appris à marcher. Ses Pousses écoutent et apprennent, ses Marcheurs travaillent et voyagent, ses Enracinés, les plus vieux, ne bougent plus et décident. Partout où il s'installe, le monde verdit, lentement, sur trois générations. Il ne fait pas la guerre s'il peut l'éviter. Quand il ne peut pas, il se souvient que les racines tiennent mieux que les murs."},
 }
 
 
 func _init() -> void:
 	var out := []
-	for fid in ["exode", "zambalu", "halcyre", "kraal", "ventrelune", "bureau", "signal", "ysmer", "asphodele", "cassivel", "silencieux", "quietude"]:
+	for fid in ["exode", "zambalu", "halcyre", "kraal", "ventrelune", "bureau", "signal", "ysmer", "asphodele", "cassivel", "silencieux", "quietude", "sablier", "gravea", "myrr", "vergemonde"]:
 		var spec := Species.from_preset(fid)
 		var m: Dictionary = META[fid]
 		spec["id"] = "p_tmp"

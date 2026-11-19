@@ -99,6 +99,14 @@ static func rule_text(id: String) -> String:
 			return t % [years]
 		"envol":
 			return t % [int(v["count"]), maxi(1, years)]
+		"paradoxe":
+			return t % [int(v["count"]), maxi(1, years)]
+		"remodelage":
+			return t % [int(v["count"]), maxi(1, years)]
+		"biosphere":
+			return t % [int(v["pct"]), years]
+		"grand_jardin":
+			return t % [int(v["gardens"]), int(v["living"]), years]
 		"oeuvres":
 			return t % [int(Wonders.rules().get("oeuvre_by_size", [[0, 2]])[0][1]), maxi(1, years)]
 		"annales":
@@ -305,6 +313,14 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			InsCassivel.victory(state, e, out)
 		"envol":
 			InsQuietude.victory(state, e, out)
+		"paradoxe":
+			InsSablier.victory(state, e, out)
+		"remodelage":
+			InsGravea.victory(state, e, out)
+		"biosphere":
+			InsMyrr.victory(state, e, out)
+		"grand_jardin":
+			InsVergemonde.victory(state, e, out)
 		"oeuvres":
 			WondersBridges.victory(state, e, out)
 		"annales":

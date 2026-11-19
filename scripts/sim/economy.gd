@@ -263,6 +263,7 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 	# Étoile rongée par le Mange-soleil, ou étouffée par une opération.
 	var star_pct := Guardians.production_pct(state, planet.system_id) * WorldForge.production_pct(state, planet.id) / 100
 	star_pct = star_pct * LivingWorlds.production_pct(state, planet.id) / 100  # monde vivant : repos, fusion
+	star_pct = star_pct * Insolites.colony_pct(state, planet.id) / 100  # déchirures, hibernation, réseau de Myrr
 	if star_pct != 100:
 		for r in gross:
 			@warning_ignore("integer_division")

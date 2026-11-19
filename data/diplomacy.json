@@ -66,7 +66,9 @@
 			["zambalu", "choeur", -10, "Le Cirque a mis l'Hymne éternel en comédie musicale"],
 			["bureau", "brisecomete", -10, "Le Syndicat a fait passer en contrebande l'original du Formulaire B-7"],
 			["asphodele", "choeur", -10, "Le Chœur et la Cité se disputent la garde des morts"],
-			["silencieux", "teyl", -10, "La Noosphère voit dans les Silencieux des frères qui dorment"]
+			["silencieux", "teyl", -10, "La Noosphère voit dans les Silencieux des frères qui dorment"],
+			["myrr", "vergemonde", -15, "La forêt et la pourriture se disputent les mêmes mondes"],
+			["sablier", "gravea", -10, "Les Lithes trouvent indécent de défaire le temps"]
 		],
 		"credo_same": 10,
 		"credo_pairs": [
@@ -132,6 +134,7 @@
 		"ins_revenant": {"value": -10, "days": 1800, "label": "A réveillé un de nos héros morts à son service"},
 		"ins_specimen_stolen": {"value": -20, "days": 1800, "label": "A enlevé un des nôtres pour sa Collection"},
 		"ins_watchers_found": {"value": -15, "days": 1800, "label": "Nous espionnait depuis des siècles derrière un poste voilé"},
+		"ins_absorbed": {"value": -30, "days": 3600, "label": "A absorbé un de nos mondes dans son mycélium"},
 		"branch_expropriated": {"value": -30, "days": 3600, "label": "A exproprié nos filiales"},
 		"accounts_confiscated": {"value": -25, "days": 3600, "label": "A confisqué les comptes de nos compagnies"},
 		"court_embassy": {"value": 10, "days": 1080, "label": "Nous a envoyé une ambassade fastueuse"},

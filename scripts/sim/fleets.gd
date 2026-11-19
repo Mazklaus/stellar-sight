@@ -772,6 +772,9 @@ static func check_build_ship(state: GameState, empire_id: int, planet_id: int, s
 	var e := state.get_empire(empire_id)
 	if e == null:
 		return "empire inconnu : %d" % empire_id
+	var nb := Insolites.ship_block(state, empire_id)  # la Sporemère n'a aucun vaisseau
+	if nb != "":
+		return nb
 	var c: Colony = state.colonies.get(planet_id)
 	if c == null or c.owner != empire_id:
 		return "cette planète ne vous appartient pas"
