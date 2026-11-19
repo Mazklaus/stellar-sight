@@ -725,6 +725,102 @@
 				"ancients"
 			],
 			"flavor": "Personne ne sait ce qu'elle fabriquait. Elle a l'air contente de fabriquer autre chose."
+		},
+		"droit_societes": {
+			"label": "Droit des sociétés",
+			"domain": "economie",
+			"era": 2,
+			"field": "commerce",
+			"current": "forge",
+			"text": "Économie privée en jeu : une charte de plus à accorder.",
+			"pre": [
+				"extraction"
+			],
+			"pillar": "economie_privee",
+			"effects": {
+				"charters": 1
+			},
+			"eureka": {
+				"kind": "trade",
+				"n": 1
+			},
+			"flavor": "La société a une personnalité juridique. Elle n'a pas encore de personnalité tout court."
+		},
+		"courtage": {
+			"label": "Courtage interstellaire",
+			"domain": "economie",
+			"era": 3,
+			"field": "commerce",
+			"current": "forge",
+			"text": "Marché en jeu : vos ordres mensuels deviennent des ordres à terme. Ils n'achètent qu'au prix de base ou moins, et ne vendent qu'au prix de base ou plus.",
+			"pre": [
+				"bourses"
+			],
+			"pillar": "marche",
+			"effects": {
+				"brokerage": 1
+			},
+			"eureka": {
+				"kind": "trade",
+				"n": 2
+			}
+		},
+		"reseau_planetaire": {
+			"label": "Réseau planétaire",
+			"domain": "economie",
+			"era": 1,
+			"field": "production",
+			"current": "forge",
+			"text": "Kardashev en jeu, type I atteint : +10 % d'énergie.",
+			"pre": [
+				"fusion_compacte"
+			],
+			"pillar": "kardashev",
+			"effects": {
+				"production_pct": {
+					"energy": 10
+				}
+			},
+			"mastery": "fusion_compacte",
+			"kard": 1
+		},
+		"collecte_stellaire": {
+			"label": "Collecte stellaire",
+			"domain": "economie",
+			"era": 3,
+			"field": "megastructures",
+			"current": "forge",
+			"text": "Kardashev en jeu, type II atteint : +20 % d'énergie.",
+			"pre": [
+				"essaim_dyson"
+			],
+			"pillar": "kardashev",
+			"effects": {
+				"production_pct": {
+					"energy": 20
+				}
+			},
+			"mastery": "essaim_dyson",
+			"kard": 2
+		},
+		"flux_galactique": {
+			"label": "Flux galactique",
+			"domain": "economie",
+			"era": 5,
+			"field": "megastructures",
+			"current": "forge",
+			"text": "Kardashev en jeu, type III atteint : +30 % d'énergie.",
+			"pre": [
+				"collecteur_stellaire"
+			],
+			"pillar": "kardashev",
+			"effects": {
+				"production_pct": {
+					"energy": 30
+				}
+			},
+			"mastery": "collecteur_stellaire",
+			"kard": 3
 		}
 	}
 }

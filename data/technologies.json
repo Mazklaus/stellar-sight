@@ -244,7 +244,25 @@
 		"megastructures": "Mégastructures",
 		"superarmes": "Superarmes",
 		"forge_mondes": "Forge des mondes",
-		"ecologie": "Écologie"
+		"ecologie": "Écologie",
+		"religion": "Religions",
+		"cour": "Cour",
+		"dynastie": "Lignées",
+		"politique": "Politique",
+		"koinon": "Koinon",
+		"vassaux": "Vassaux",
+		"amphictyonie": "Amphictyonie",
+		"economie_privee": "Économie privée",
+		"marche": "Marché",
+		"populations": "Populations mixtes",
+		"pirates": "Pirates",
+		"creatures": "Créatures",
+		"mineurs": "Peuples mineurs",
+		"mondes_vivants": "Mondes vivants",
+		"frontieres": "Frontières",
+		"guerre": "Buts de guerre",
+		"crises": "Crises",
+		"kardashev": "Kardashev"
 	},
 	"renamed": {
 		"_doc": "Sauvegardes anciennes (prop. 109) : technologie renommée ou fondue -> héritière. Une technologie absente d'ici et des données est oubliée au chargement."

@@ -341,8 +341,10 @@ func _test_presapients() -> void:
 	st.rebuild_ownership()
 	_ok(MinorsLife.pres_of(st, 0) == [pid], "pré-conscients sur votre monde")
 	st.empires[0].resources["knowledge"] = 1000
-	_ok(Minors.check_act(st, 0, "elevate", -1, "", pid).contains("Génétique"), "élévation : il faut la Génétique appliquée")
+	_ok(Minors.check_act(st, 0, "elevate", -1, "", pid).contains("Élévation"), "élévation : il faut la technologie Élévation")
 	st.empires[0].techs["genetique"] = true
+	_ok(Minors.check_act(st, 0, "elevate", -1, "", pid) != "", "élévation : la Génétique appliquée ne suffit plus")
+	Research.grant(st, 0, ["elevation"])
 	_ok(Minors.check_act(st, 0, "elevate", -1, "", pid) == "", "élévation possible")
 	Minors.act(st, 0, "elevate", -1, "", pid, [])
 	_ok(int(st.empires[0].resources["knowledge"]) == 700, "élévation : 300 savoir")

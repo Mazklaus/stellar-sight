@@ -834,6 +834,99 @@
 				"strates"
 			],
 			"flavor": "L'original protégeait une flotte entière. De quoi, les plans ne le disent pas."
+		},
+		"generaux_corps": {
+			"label": "Généraux de corps",
+			"domain": "armement",
+			"era": 3,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "Un général commande aussi les combats au sol des systèmes voisins de celui où sa flotte stationne : il mène deux fronts à la fois.",
+			"pre": [
+				"marines"
+			],
+			"effects": {
+				"corps": 1
+			},
+			"eureka": {
+				"kind": "conquests",
+				"n": 2
+			},
+			"flavor": "« Je ne peux pas être partout. » — « Deux endroits suffiront, mon général. »"
+		},
+		"droit_guerre": {
+			"label": "Droit de la guerre",
+			"domain": "armement",
+			"era": 3,
+			"field": "doctrines",
+			"current": "concorde",
+			"text": "Buts de guerre en jeu : une clause de paix que votre but ne justifie pas coûte une fois et demie son prix au lieu du double.",
+			"pre": [
+				"rideau_acier"
+			],
+			"pillar": "guerre",
+			"effects": {
+				"laws_of_war": 1
+			},
+			"eureka": {
+				"kind": "peace",
+				"n": 1
+			}
+		},
+		"logistique_occupation": {
+			"label": "Logistique d'occupation",
+			"domain": "armement",
+			"era": 4,
+			"field": "doctrines",
+			"current": "glaive",
+			"text": "Le malus de stabilité des mondes conquis est divisé par deux.",
+			"pre": [
+				"droit_guerre"
+			],
+			"effects": {
+				"occupation": 1
+			},
+			"eureka": {
+				"kind": "conquests",
+				"n": 3
+			}
+		},
+		"contre_mesures_crise": {
+			"label": "Contre-mesures de crise",
+			"domain": "armement",
+			"era": 3,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Trouvaille du premier présage d'une crise. +20 % de dégâts contre les flottes de la crise.",
+			"pre": [
+				"blindage_composite"
+			],
+			"pillar": "crises",
+			"effects": {
+				"crisis_counter": 1
+			},
+			"find": true,
+			"find_sources": [
+				"crisis"
+			],
+			"flavor": "Le présage décrivait la fin du monde. Les ingénieurs y ont surtout lu des spécifications."
+		},
+		"manuel_braves": {
+			"label": "Manuel des braves",
+			"domain": "armement",
+			"era": 2,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "Trouvaille d'un haut fait ou d'une curiosité : les Marines, sans les rechercher.",
+			"pre": [
+				"blindage_composite"
+			],
+			"find": true,
+			"find_of": "marines",
+			"find_sources": [
+				"deeds",
+				"curio"
+			]
 		}
 	}
 }

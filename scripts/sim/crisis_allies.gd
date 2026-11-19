@@ -184,7 +184,8 @@ static func check_front_post(state: GameState, player: int, target: int) -> Stri
 
 ## Bonus de dégâts contre la crise : talents, Commandant du Front, traits de l'amiral.
 static func damage_pct(state: GameState, f: Fleet) -> int:
-	var pct := tal(state, f.owner, "damage_pct") + ArchaeoWorld.crisis_damage_pct(state, f.owner)
+	var pct := tal(state, f.owner, "damage_pct") + ArchaeoWorld.crisis_damage_pct(state, f.owner) \
+			+ (20 * Research.fx_int(state, f.owner, "crisis_counter") if not GameState.is_npc(f.owner) else 0)  # Contre-mesures de crise
 	if state.heroes.is_empty():
 		return pct
 	var cmd := Heroes.at_post(state, "front", 0, f.owner)

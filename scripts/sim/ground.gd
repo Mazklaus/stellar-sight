@@ -1311,7 +1311,8 @@ static func _finish(state: GameState, b: Dictionary, winner: int, how: String) -
 
 
 ## Héros général (prop. 28) : les généraux de l'empire dont la flotte est à l'arrêt dans ce système.
-static func generals_at(state: GameState, eid: int, sid: int) -> Array[Dictionary]:
+## reach : Généraux de corps (lot 3 de l'arbre), le général mène aussi le sol des systèmes voisins.
+static func generals_at(state: GameState, eid: int, sid: int, reach := false) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	if state.heroes.is_empty():
 		return out
@@ -1322,7 +1323,8 @@ static func generals_at(state: GameState, eid: int, sid: int) -> Array[Dictionar
 		if int(h["owner"]) != eid or String(h["post"]) != "army" or not Heroes.active(state, h):
 			continue
 		var f: Fleet = state.fleets.get(int(h["target"]))
-		if f != null and not f.is_moving() and f.system_id == sid:
+		if f != null and not f.is_moving() and (f.system_id == sid or (reach and Research.fx_int(state, eid, "corps") > 0 \
+				and state.galaxy.get_system(f.system_id).neighbors.has(sid))):
 			out.append(h)
 	return out
 
@@ -1330,7 +1332,7 @@ static func generals_at(state: GameState, eid: int, sid: int) -> Array[Dictionar
 ## Bonus de dégâts (%) des généraux présents.
 static func general_pct(state: GameState, eid: int, sid: int) -> int:
 	var pct := 0
-	for h in generals_at(state, eid, sid):
+	for h in generals_at(state, eid, sid, true):
 		@warning_ignore("integer_division")
 		pct += int(Heroes.data()["per_level"].get("army_damage_pct", 5)) * Heroes.half_levels(h, "army") / 2
 		pct += Heroes.trait_fx(h, "ground_damage_pct")

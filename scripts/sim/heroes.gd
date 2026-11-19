@@ -888,13 +888,20 @@ static func gain_xp(state: GameState, h: Dictionary, n: int) -> void:
 	if n <= 0:
 		return
 	@warning_ignore("integer_division")
-	h["xp"] = int(h["xp"]) + n * (100 + trait_fx(h, "xp_pct") + FaithNatures.hero_xp_pct(state, int(h["owner"])) + Genetics.hero_xp_bonus(state, int(h["owner"]))) / 100
+	h["xp"] = int(h["xp"]) + n * (100 + trait_fx(h, "xp_pct") + FaithNatures.hero_xp_pct(state, int(h["owner"])) + Genetics.hero_xp_bonus(state, int(h["owner"])) \
+			+ (Research.fx_int(state, int(h["owner"]), "hero_xp_pct") if not GameState.is_npc(int(h["owner"])) else 0)) / 100
 	var levels: Array = data()["xp_levels"]
+	# Légendes vivantes : passé le dernier niveau, chaque palier d'expérience de plus apporte encore un trait.
+	if int(h["lvl"]) >= levels.size() and (h["traits"] as Array).size() < max_traits(state, int(h["owner"])) \
+			and int(h["xp"]) >= int(levels[levels.size() - 1]) * 2:
+		var more := _free_traits(state, h, true)
+		if not more.is_empty():
+			(h["traits"] as Array).append(more[_h(state, ["legende", int(h["id"])]) % more.size()])
 	while int(h["lvl"]) < levels.size() and int(h["xp"]) >= int(levels[int(h["lvl"])]):
 		h["lvl"] = int(h["lvl"]) + 1
 		var got := ""
 		var free := _free_traits(state, h, posmod(int(h["lvl"]), 2) == 0)
-		if (h["traits"] as Array).size() < int(data()["max_traits"]) and not free.is_empty():
+		if (h["traits"] as Array).size() < max_traits(state, int(h["owner"])) and not free.is_empty():
 			got = free[_h(state, ["lvl", int(h["id"]), int(h["lvl"])]) % free.size()]
 			(h["traits"] as Array).append(got)
 		var owner := int(h["owner"])
@@ -902,6 +909,11 @@ static func gain_xp(state: GameState, h: Dictionary, n: int) -> void:
 				(" et gagne le trait « %s »" % trait_def(got)["label"]) if got != "" else ""], Espionage.private_to(state, [owner]))
 		# Un héros à l'ambition Foi peut révéler une grande foi (voir Faiths).
 		Faiths.on_hero_level(state, h)
+
+
+## Traits qu'un héros peut porter : Légendes vivantes (lot 3 de l'arbre) en ajoute un.
+static func max_traits(state: GameState, empire_id: int) -> int:
+	return int(data()["max_traits"]) + (Research.fx_int(state, empire_id, "hero_traits") if not GameState.is_npc(empire_id) else 0)
 
 
 ## Traits qu'un héros peut encore gagner : ceux de son peuple (people) ou de sa classe, sinon l'autre réserve.

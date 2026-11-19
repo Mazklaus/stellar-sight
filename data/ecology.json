@@ -42,7 +42,8 @@
 		"grand_port": 3
 	},
 	"care": {
-		"reserve_naturelle": 25
+		"reserve_naturelle": 25,
+		"reserve_integrale": 25
 	},
 	"tiers": [
 		{"id": "florissante", "label": "Florissante", "min": 80, "food_pct": 15, "stab": 5, "growth_pct": 0, "color": [0.35, 0.85, 0.45]},

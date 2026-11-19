@@ -997,15 +997,22 @@ static func set_toll(state: GameState, o: int, level: int) -> void:
 
 ## FleetSystem : une flotte armée qui entre dans un système de o avec le droit de passage paie le péage.
 static func charge_toll(state: GameState, f: Fleet, sid: int) -> void:
-	if not active(state) or not Combat.is_armed(f):
+	if not active(state):
 		return
 	var o := state.system_owner(sid)
+	# Douanes stellaires (lot 3 de l'arbre) : les vaisseaux sans armes paient aussi, à moitié prix.
+	var civil := not Combat.is_armed(f)
+	if civil and (o < 0 or GameState.is_npc(o) or Research.fx_int(state, o, "customs") <= 0):
+		return
 	if o < 0 or o == f.owner or _exempt(state, o, f.owner) or strong_link(state, o, f.owner):
 		return
 	if _amph_flag(state, o, f.owner, "toll_free") or corridor(state, o, f.owner):
 		return
 	var amount := toll_of(state, o)
-	if amount <= 0 or not fleet_right(state, f, o):
+	if civil:
+		@warning_ignore("integer_division")
+		amount /= 2
+	if amount <= 0 or (not civil and not fleet_right(state, f, o)):
 		return
 	var ev := state.get_empire(f.owner)
 	var paid := mini(amount, int(ev.resources.get("energy", 0)))

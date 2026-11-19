@@ -120,6 +120,8 @@ static func _info_key(faction: Dictionary, state: GameState, eid: int) -> String
 		for p in pillar_ids():
 			if not pillar_on(state, p):
 				off += p + ","
+		if eid >= 0 and not state.transcendence.is_empty():
+			off += "voie:" + Transcendence.path_of(state, eid)
 	return fid + "|" + lack + "|" + off + "|" + str(sh)
 
 
@@ -142,6 +144,9 @@ static func _info(faction: Dictionary, state: GameState, eid: int) -> Dictionary
 			if lacks(faction, String(cap), state, eid):
 				useless = true
 		if useless or (state != null and t.has("pillar") and not pillar_on(state, String(t["pillar"]))):
+			continue
+		# Voie de transcendance (prop. 66 de l'arbre) : seule la voie choisie se montre.
+		if t.has("path") and (state == null or eid < 0 or state.transcendence.is_empty() or Transcendence.path_of(state, eid) != String(t["path"])):
 			continue
 		if t.has("replaces"):
 			replaced[String(t["replaces"])] = String(tid)
@@ -266,7 +271,36 @@ static func pillar_on(state: GameState, p: String) -> bool:
 		"superarmes": return Megastructures.enabled(state) and Megastructures.kind_allowed(state, "brise_monde")
 		"forge_mondes": return WorldForge.enabled(state)
 		"ecologie": return Ecology.enabled(state)
+		"religion": return state.faith_on
+		"cour": return Court.enabled(state)
+		"dynastie": return Rulers.enabled(state)
+		"politique": return state.politics_on
+		"koinon": return state.koinon_on
+		"vassaux": return state.vassals_on
+		"amphictyonie": return state.amph_on
+		"economie_privee": return Private.enabled(state)
+		"marche": return Goods.market_on(state)
+		"populations": return state.peoples_on
+		"pirates": return state.pirate_density != "aucun"
+		"creatures": return String(state.fauna.get("density", "aucune")) != "aucune"
+		"mineurs": return Minors.enabled(state)
+		"mondes_vivants": return LivingWorlds.enabled(state)
+		"frontieres": return Borders.active(state)
+		"guerre": return state.wars_on
+		"crises": return Crisis.enabled(state)
+		"kardashev": return Kardashev.enabled(state)
 	return true
+
+
+## Lot 3 de l'arbre : verrou de partie d'une technologie ("" si elle est libre). kard = palier de
+## Kardashev atteint (prop. 67) ; path = voie de transcendance choisie (prop. 66, voir aussi _info).
+static func gate_reason(state: GameState, empire_id: int, tid: String) -> String:
+	var t := tech(tid)
+	if t.has("kard") and Kardashev.enabled(state) and Kardashev.tier(state, empire_id) < int(t["kard"]):
+		return "il faut atteindre le type %s de Kardashev" % ["I", "II", "III"][clampi(int(t["kard"]) - 1, 0, 2)]
+	if t.has("path") and Transcendence.path_of(state, empire_id) != String(t["path"]):
+		return "réservée à la voie « %s »" % Transcendence.path_label(String(t["path"]))
+	return ""
 
 
 # --- Sortes de technologies ----------------------------------------------------------------------
@@ -795,6 +829,9 @@ static func check_queue(state: GameState, empire_id: int, tid: String, front := 
 			missing.append(String(tech(shown if shown != "" else String(p)).get("label", p)))
 	if not missing.is_empty():
 		return "il faut d'abord : %s" % ", ".join(missing)
+	var gate := gate_reason(state, empire_id, tid)
+	if gate != "":
+		return gate
 	var era := int(t.get("era", 1))
 	if not era_open(planned, String(t["domain"]), era, f, state, empire_id):
 		return "ère %d fermée en %s : il faut %d technologies de l'ère %d (%d)" % [
@@ -838,7 +875,8 @@ static func is_available(state: GameState, empire_id: int, tid: String) -> bool:
 	for p in t.get("pre", []):
 		if not _satisfies(f, e.techs, String(p), vis):
 			return false
-	return era_open(e.techs, String(t["domain"]), int(t.get("era", 1)), f, state, empire_id) and ultimate_ok(e.techs, tid)
+	return era_open(e.techs, String(t["domain"]), int(t.get("era", 1)), f, state, empire_id) and ultimate_ok(e.techs, tid) \
+			and gate_reason(state, empire_id, tid) == ""
 
 
 static func check_remove(state: GameState, empire_id: int, tid: String) -> String:
@@ -1205,6 +1243,17 @@ static func study_wrecks(state: GameState, winner: int, loser: int) -> Array:
 
 const CLAIM_KINDS := ["colonies", "pop", "building", "deposit", "planet", "claim"]
 
+## Eurêkas de pilier (prop. 16) : objectif en clair de chaque compteur de count_stat utilisé.
+const STAT_TEXTS := {
+	"operations": "réussir %d opérations d'espionnage",
+	"refugees": "accueillir %d vagues de réfugiés",
+	"beasts": "abattre %d créatures",
+	"digs": "mener %d fouilles",
+	"quests": "achever %d quêtes",
+	"curios": "étudier %d curiosités",
+	"prizes": "faire %d prises",
+}
+
 
 ## Ce que tiennent les revendications fondées d'un empire, pour les eurêkas en attente `tids` (tous
 ## ceux de son arbre si vide) : {"kind:what": total}. Un seul passage sur les revendications.
@@ -1256,6 +1305,8 @@ static func eureka_status(state: GameState, empire_id: int, tid: String, summary
 	match String(eu.get("kind", "")):
 		"kills", "ships_lost", "battles_won", "conquests", "besieged", "wars", "built", "sacrifices":
 			have = int(e.stats.get(String(eu["kind"]), 0))
+		"stat":
+			have = int(e.stats.get(what, 0))  # compteur de Research.count_stat (eurêkas de pilier, prop. 16)
 		"contacts":
 			have = e.contacts.size()
 		"explored":
@@ -1296,6 +1347,7 @@ static func eureka_text(tid: String) -> String:
 		"wars": return "entrer en guerre"
 		"built": return "construire %d vaisseau%s" % [n, "x" if n > 1 else ""]
 		"sacrifices": return "faire %d offrande%s" % [n, plural]
+		"stat": return String(STAT_TEXTS.get(what, "%s : %d")) % n if STAT_TEXTS.has(what) else "%s : %d" % [what, n]
 		"contacts": return "rencontrer %d empire%s" % [n, plural]
 		"explored": return "explorer %d systèmes" % n
 		"techs": return "connaître %d technologies" % n

@@ -340,7 +340,7 @@ static func start_count(state: GameState, eid: int) -> int:
 
 
 static func max_count(state: GameState, eid: int) -> int:
-	return r_int("max_houses") + int(talent(state, eid).get("extra_houses", 0))
+	return r_int("max_houses") + int(talent(state, eid).get("extra_houses", 0)) + Research.fx_int(state, eid, "court_houses")
 
 
 ## Vocations tirées : celles du registre de l'empire d'abord (une au plus), puis les communes.

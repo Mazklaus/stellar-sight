@@ -104,7 +104,7 @@ Avec une **cité-État** amie, trois programmes :
 
 **La sécession.** Un de vos systèmes qui fait sécession devient un **peuple mineur** de son espèce, les « Libres de » votre empire, avec une faveur de 0 et une rancune pour vous.
 
-**Les pré-conscients.** De rares planètes colonisables abritent une espèce **pré-consciente** : les Brouteurs de lune, les Tisseurs des marais, les Lueurs des cavernes. Avec la technologie de génétique, un projet de cinq ans et 300 Savoir l'**élève** : elle devient une nouvelle espèce de votre mosaïque, reconnaissante (+5 de stabilité pendant cinq ans).
+**Les pré-conscients.** De rares planètes colonisables abritent une espèce **pré-consciente** : les Brouteurs de lune, les Tisseurs des marais, les Lueurs des cavernes. Avec la technologie Élévation, un projet de cinq ans et 300 Savoir l'**élève** : elle devient une nouvelle espèce de votre mosaïque, reconnaissante (+5 de stabilité pendant cinq ans).
 
 ### Les ponts
 

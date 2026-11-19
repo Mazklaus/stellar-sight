@@ -508,6 +508,51 @@ square sci-fi concept art, a gleaming starship weapon system firing, evoking the
 square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Plans d'un bouclier oublié" (era 4 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## generaux_corps · Généraux de corps
+
+- Fichier : `assets/tech/generaux_corps.png` · Domaine : armement · Ère 3
+- Ce qu'elle fait : Un général commande aussi les combats au sol des systèmes voisins de celui où sa flotte stationne : il mène deux fronts à la fois.
+
+```
+square sci-fi concept art, armored ground troops and dropships, evoking the technology "Généraux de corps" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## droit_guerre · Droit de la guerre
+
+- Fichier : `assets/tech/droit_guerre.png` · Domaine : armement · Ère 3
+- Ce qu'elle fait : Buts de guerre en jeu : une clause de paix que votre but ne justifie pas coûte une fois et demie son prix au lieu du double.
+
+```
+square sci-fi concept art, a holographic war-room tactical map with fleet formations, evoking the technology "Droit de la guerre" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## logistique_occupation · Logistique d'occupation
+
+- Fichier : `assets/tech/logistique_occupation.png` · Domaine : armement · Ère 4
+- Ce qu'elle fait : Le malus de stabilité des mondes conquis est divisé par deux.
+
+```
+square sci-fi concept art, a holographic war-room tactical map with fleet formations, evoking the technology "Logistique d'occupation" (era 4 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## contre_mesures_crise · Contre-mesures de crise
+
+- Fichier : `assets/tech/contre_mesures_crise.png` · Domaine : armement · Ère 3
+- Ce qu'elle fait : Trouvaille du premier présage d'une crise. +20 % de dégâts contre les flottes de la crise.
+
+```
+square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Contre-mesures de crise" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## manuel_braves · Manuel des braves
+
+- Fichier : `assets/tech/manuel_braves.png` · Domaine : armement · Ère 2
+- Ce qu'elle fait : Trouvaille d'un haut fait ou d'une curiosité : les Marines, sans les rechercher.
+
+```
+square sci-fi concept art, armored ground troops and dropships, evoking the technology "Manuel des braves" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## debarquement · Navires de débarquement
 
 - Fichier : `assets/tech/debarquement.png` · Domaine : genie · Ère 1
@@ -1084,6 +1129,15 @@ square sci-fi concept art, a sensor array scanning the dark between stars, evoki
 square sci-fi concept art, a starship drive and a glowing jump gate, evoking the technology "Codex des navigateurs disparus" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## cartes_anciennes · Cartes des Anciens
+
+- Fichier : `assets/tech/cartes_anciennes.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Trouvaille d'une puissance ancienne ou d'un haut fait : la Navigation stellaire, sans la rechercher.
+
+```
+square sci-fi concept art, a starship drive and a glowing jump gate, evoking the technology "Cartes des Anciens" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## reprogrammation · Reprogrammation
 
 - Fichier : `assets/tech/reprogrammation.png` · Domaine : economie · Ère 2
@@ -1480,6 +1534,51 @@ square sci-fi concept art, vast automated industrial complexes on a planet, evok
 square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Fonderie des Anciens" (era 3 of 5, advanced and refined), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
+## droit_societes · Droit des sociétés
+
+- Fichier : `assets/tech/droit_societes.png` · Domaine : economie · Ère 2
+- Ce qu'elle fait : Économie privée en jeu : une charte de plus à accorder.
+
+```
+square sci-fi concept art, a bustling interstellar trade hub with cargo ships, evoking the technology "Droit des sociétés" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## courtage · Courtage interstellaire
+
+- Fichier : `assets/tech/courtage.png` · Domaine : economie · Ère 3
+- Ce qu'elle fait : Marché en jeu : vos ordres mensuels deviennent des ordres à terme. Ils n'achètent qu'au prix de base ou moins, et ne vendent qu'au prix de base ou plus.
+
+```
+square sci-fi concept art, a bustling interstellar trade hub with cargo ships, evoking the technology "Courtage interstellaire" (era 3 of 5, advanced and refined), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## reseau_planetaire · Réseau planétaire
+
+- Fichier : `assets/tech/reseau_planetaire.png` · Domaine : economie · Ère 1
+- Ce qu'elle fait : Kardashev en jeu, type I atteint : +10 % d'énergie.
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Réseau planétaire" (era 1 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## collecte_stellaire · Collecte stellaire
+
+- Fichier : `assets/tech/collecte_stellaire.png` · Domaine : economie · Ère 3
+- Ce qu'elle fait : Kardashev en jeu, type II atteint : +20 % d'énergie.
+
+```
+square sci-fi concept art, a giant energy-harvesting megastructure around a star, evoking the technology "Collecte stellaire" (era 3 of 5, advanced and refined), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## flux_galactique · Flux galactique
+
+- Fichier : `assets/tech/flux_galactique.png` · Domaine : economie · Ère 5
+- Ce qu'elle fait : Kardashev en jeu, type III atteint : +30 % d'énergie.
+
+```
+square sci-fi concept art, a giant energy-harvesting megastructure around a star, evoking the technology "Flux galactique" (era 5 of 5, near-mythical), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
 ## implants_neuraux · Implants neuraux
 
 - Fichier : `assets/tech/implants_neuraux.png` · Domaine : societe · Ère 3
@@ -1663,7 +1762,7 @@ square sci-fi concept art, settlers founding a colony on a strange new world, ev
 ## chancelleries · Chancelleries
 
 - Fichier : `assets/tech/chancelleries.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Débloque les alliances et le Bureau du renseignement (une cellule d'espionnage de plus). Héros : +1 place.
+- Ce qu'elle fait : Débloque les alliances. Héros : +1 place.
 
 ```
 square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Chancelleries" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -1717,7 +1816,7 @@ square sci-fi concept art, settlers founding a colony on a strange new world, ev
 ## propagande · Propagande
 
 - Fichier : `assets/tech/propagande.png` · Domaine : societe · Ère 3
-- Ce qu'elle fait : Débloque l'Institut des héros, le Grand temple et le Grand mausolée. +20 % d'influence, +5 stabilité dans tous vos systèmes. Avec les religions : pare-feu culturel contre les fois Mème.
+- Ce qu'elle fait : +20 % d'influence, +5 stabilité dans tous vos systèmes. Avec les religions : pare-feu culturel contre les fois Mème.
 
 ```
 square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Propagande" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -1973,6 +2072,312 @@ square sci-fi concept art, settlers founding a colony on a strange new world, ev
 
 ```
 square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Archives cadastrales" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## cryptographie · Cryptographie
+
+- Fichier : `assets/tech/cryptographie.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Débloque le Bureau du renseignement (une cellule d'espionnage de plus). Chiffrement et déchiffrement +1 : vos réseaux résistent mieux, ceux des autres se lisent mieux.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Cryptographie" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## contre_espionnage · Contre-espionnage
+
+- Fichier : `assets/tech/contre_espionnage.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Vos cellules chez vous pèsent double dans la détection des réseaux adverses : ils sont démasqués bien plus souvent.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Contre-espionnage" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## agents_dormants · Agents dormants
+
+- Fichier : `assets/tech/agents_dormants.png` · Domaine : societe · Ère 4
+- Ce qu'elle fait : Quand l'adversaire démantèle l'un de vos réseaux, un tiers de son implantation survit et reprend dans l'ombre.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Agents dormants" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## theologie_comparee · Théologie comparée
+
+- Fichier : `assets/tech/theologie_comparee.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Religions en jeu : vos théologiens débattent avec les missionnaires étrangers. Dans vos colonies, la pression des fois qui ne sont pas la vôtre baisse d'un quart.
+
+```
+square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Théologie comparée" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## grands_temples · Grands temples
+
+- Fichier : `assets/tech/grands_temples.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Religions en jeu : débloque le Grand temple (pression de la foi doublée) et le Grand mausolée, annexes du Temple et du Mausolée.
+
+```
+square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Grands temples" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## schisme_reforme · Schisme et réforme
+
+- Fichier : `assets/tech/schisme_reforme.png` · Domaine : societe · Ère 4
+- Ce qu'elle fait : Religions en jeu : une foi que vous dirigez gagne une place de précepte de plus. Elle se réforme sans se briser.
+
+```
+square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Schisme et réforme" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## doctrine_commandement · Doctrine de commandement
+
+- Fichier : `assets/tech/doctrine_commandement.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Débloque l'Institut des héros. Vos héros gagnent 25 % d'expérience en plus.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Doctrine de commandement" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## legendes_vivantes · Légendes vivantes
+
+- Fichier : `assets/tech/legendes_vivantes.png` · Domaine : societe · Ère 4
+- Ce qu'elle fait : Vos héros peuvent porter un trait de plus : passé le dernier, chaque niveau en apporte encore un.
+
+```
+square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Légendes vivantes" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## protocole_cour · Protocole de cour
+
+- Fichier : `assets/tech/protocole_cour.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Cour en jeu : une grande maison de plus peut siéger à votre cour.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Protocole de cour" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## genealogies · Généalogies
+
+- Fichier : `assets/tech/genealogies.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Lignées en jeu : à la succession, la couronne revient au plus doué des deux premiers héritiers, plus seulement à l'aîné.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Généalogies" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## grands_mariages · Grands mariages
+
+- Fichier : `assets/tech/grands_mariages.png` · Domaine : societe · Ère 4
+- Ce qu'elle fait : Lignées en jeu : un mariage dynastique vaut 15 d'opinion de plus entre les deux empires.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Grands mariages" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## sondages · Sondages
+
+- Fichier : `assets/tech/sondages.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Politique en jeu : le Sénat montre le résultat probable de la prochaine élection avant le vote.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Sondages" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## institutions · Institutions
+
+- Fichier : `assets/tech/institutions.png` · Domaine : societe · Ère 4
+- Ce qu'elle fait : Politique en jeu : un événement ne peut plus déplacer plus d'un cinquième de l'opinion d'un système d'un coup. Aucun courant ne s'effondre en une nuit.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Institutions" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## droit_federal · Droit fédéral
+
+- Fichier : `assets/tech/droit_federal.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Koinon en jeu : vous pouvez proposer de durcir une loi de la ligue un rang plus tôt.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Droit fédéral" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## clienteles · Clientèles
+
+- Fichier : `assets/tech/clienteles.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Vassaux en jeu : un sujet spécialisé vous est plus fidèle (+10 de loyauté).
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Clientèles" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## diplomatie_multilaterale · Diplomatie multilatérale
+
+- Fichier : `assets/tech/diplomatie_multilaterale.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Amphictyonie en jeu : une proposition de plus en cours à la fois.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Diplomatie multilatérale" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## xenologie · Xénologie
+
+- Fichier : `assets/tech/xenologie.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Populations mixtes en jeu : les autres espèces s'intègrent plus vite (+3 points par an). Débloque les Quartiers d'accueil.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Xénologie" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## patrouilles_stellaires · Patrouilles stellaires
+
+- Fichier : `assets/tech/patrouilles_stellaires.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Pirates en jeu : vous repérez les repaires voisins de vos systèmes sans les avoir explorés, et leur démantèlement rapporte le double.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Patrouilles stellaires" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## amnistie · Amnistie
+
+- Fichier : `assets/tech/amnistie.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Pirates en jeu : quand vous démantelez un repaire, sa garde se rallie et rejoint votre flotte.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Amnistie" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## xenozoologie · Xénozoologie
+
+- Fichier : `assets/tech/xenozoologie.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Créatures en jeu : étudier une espèce prend deux fois moins de temps.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Xénozoologie" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## dressage · Dressage
+
+- Fichier : `assets/tech/dressage.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Créatures en jeu : chaque Vivarium abrite deux bêtes de guerre de plus.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Dressage" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## biologie_leviathans · Biologie des léviathans
+
+- Fichier : `assets/tech/biologie_leviathans.png` · Domaine : societe · Ère 4
+- Ce qu'elle fait : Créatures en jeu : les créatures abattues rapportent deux fois plus de butin. On sait enfin quoi faire de chaque morceau.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Biologie des léviathans" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## protectorats · Protectorats
+
+- Fichier : `assets/tech/protectorats.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Peuples mineurs en jeu : faire d'une cité-État votre sujette demande 60 de faveur au lieu de 80.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Protectorats" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## elevation · Élévation
+
+- Fichier : `assets/tech/elevation.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Peuples mineurs en jeu : vous pouvez élever une espèce pré-consciente de vos colonies jusqu'à la citoyenneté. Sans naissance ni génétique : l'élévation passe par l'éducation.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Élévation" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## biosemiotique · Biosémiotique
+
+- Fichier : `assets/tech/biosemiotique.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Mondes vivants en jeu : vous lisez l'humeur de tous les mondes vivants que vous connaissez, même des plus secrets.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Biosémiotique" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## symbioses_planetaires · Symbioses planétaires
+
+- Fichier : `assets/tech/symbioses_planetaires.png` · Domaine : societe · Ère 4
+- Ce qu'elle fait : Mondes vivants en jeu : les colères des mondes vivants envers vous sont deux fois moins fortes.
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Symbioses planétaires" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## douanes_stellaires · Douanes stellaires
+
+- Fichier : `assets/tech/douanes_stellaires.png` · Domaine : societe · Ère 2
+- Ce qu'elle fait : Frontières en jeu : votre péage s'applique aussi aux vaisseaux sans armes de passage, à moitié prix.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Douanes stellaires" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## cartographie_juridique · Cartographie juridique
+
+- Fichier : `assets/tech/cartographie_juridique.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Buts de guerre en jeu : vos revendications portent deux sauts plus loin.
+
+```
+square sci-fi concept art, a grand interstellar administrative palace and its officials, evoking the technology "Cartographie juridique" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## voie_songe · Rêve partagé
+
+- Fichier : `assets/tech/voie_songe.png` · Domaine : societe · Ère 5
+- Ce qu'elle fait : Transcendance, voie choisie seulement. Le Songe : les dormeurs de tout l'empire rêvent ensemble. +0,8 % de jauge d'Élévation par mois.
+
+```
+square sci-fi concept art, minds, psychic resonance and cosmic mysteries, evoking the technology "Rêve partagé" (era 5 of 5, near-mythical), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## voie_televersement · Mémoire distribuée
+
+- Fichier : `assets/tech/voie_televersement.png` · Domaine : societe · Ère 5
+- Ce qu'elle fait : Transcendance, voie choisie seulement. Le Téléversement : les esprits copiés se relaient. +0,8 % de jauge d'Élévation par mois.
+
+```
+square sci-fi concept art, minds, psychic resonance and cosmic mysteries, evoking the technology "Mémoire distribuée" (era 5 of 5, near-mythical), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## voie_apotheose · Liturgie de l'ascension
+
+- Fichier : `assets/tech/voie_apotheose.png` · Domaine : societe · Ère 5
+- Ce qu'elle fait : Transcendance, voie choisie seulement. L'Apothéose : la foi chante la montée. +0,8 % de jauge d'Élévation par mois.
+
+```
+square sci-fi concept art, minds, psychic resonance and cosmic mysteries, evoking the technology "Liturgie de l'ascension" (era 5 of 5, near-mythical), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## voie_mue · Chrysalide
+
+- Fichier : `assets/tech/voie_mue.png` · Domaine : societe · Ère 5
+- Ce qu'elle fait : Transcendance, voie choisie seulement. La Mue : le peuple prépare son prochain corps. +0,8 % de jauge d'Élévation par mois.
+
+```
+square sci-fi concept art, minds, psychic resonance and cosmic mysteries, evoking the technology "Chrysalide" (era 5 of 5, near-mythical), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## voie_depart · Arches générationnelles
+
+- Fichier : `assets/tech/voie_depart.png` · Domaine : societe · Ère 5
+- Ce qu'elle fait : Transcendance, voie choisie seulement. Le Grand Départ : les chantiers posent les premières arches. +0,8 % de jauge d'Élévation par mois.
+
+```
+square sci-fi concept art, minds, psychic resonance and cosmic mysteries, evoking the technology "Arches générationnelles" (era 5 of 5, near-mythical), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## restauration_ecologique · Restauration écologique
+
+- Fichier : `assets/tech/restauration_ecologique.png` · Domaine : societe · Ère 3
+- Ce qu'elle fait : Écologie en jeu : débloque la Réserve intégrale, annexe de la Réserve naturelle (+25 de soins de plus à la biosphère).
+
+```
+square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Restauration écologique" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## litanies · Litanies de visée

@@ -691,6 +691,11 @@ static func _market_month(state: GameState, added: Array[Dictionary]) -> void:
 		rs.sort()
 		for res in rs:
 			var n := int(m[res])
+			# Courtage interstellaire (lot 3 de l'arbre) : ordres à terme, au prix de base ou mieux.
+			if Research.fx_int(state, int(eid), "brokerage") > 0:
+				var pm := price_mult(state, int(eid), String(res))
+				if (n > 0 and pm > 1000) or (n < 0 and pm < 1000):
+					continue
 			if check_market(state, int(eid), String(res), n) == "":
 				trade_market(state, int(eid), String(res), n)
 

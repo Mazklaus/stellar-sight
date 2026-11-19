@@ -461,6 +461,8 @@ static func add_mood(state: GameState, pid: int, eid: int, delta: int) -> void:
 		d = d * int(td.get("loss_pct", 100)) / 100
 		var thr := int((w["thr"] as Dictionary).get(str(eid), 0))
 		d = d * (100 - thr) / 100
+		if Research.fx_int(state, eid, "symbiosis") > 0:
+			d /= 2  # Symbioses planétaires (lot 3 de l'arbre)
 	if d == 0:
 		d = 1 if delta > 0 else -1
 	var m := clampi(mood(state, pid, eid) + d, -100, 100)
@@ -499,7 +501,7 @@ static func mood_known(state: GameState, pid: int, eid: int) -> bool:
 	if w.is_empty() or not knows(state, pid, eid):
 		return false
 	if bool(temper_def(String(w["t"])).get("hidden", false)):
-		return (w["deep"] as Dictionary).has(str(eid))
+		return (w["deep"] as Dictionary).has(str(eid)) or Research.fx_int(state, eid, "biosemiotics") > 0  # Biosémiotique
 	return true
 
 

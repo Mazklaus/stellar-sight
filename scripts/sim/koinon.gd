@@ -421,6 +421,8 @@ static func check_propose(state: GameState, by: int, kind: String, x: int, s: St
 			var need := int(steps[x].get("rank", 1))
 			if s == "central" and state.politics_on and Laws.is_enacted(state, by, "hegemonie"):
 				need -= 1
+			if Research.fx_int(state, by, "federal_law") > 0:
+				need -= 1  # Droit fédéral (lot 3 de l'arbre)
 			if x > law_step(state, lid, s) and rank(state, lid) < need:
 				return "il faut le rang %d" % need
 		"form":

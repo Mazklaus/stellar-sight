@@ -1068,6 +1068,23 @@
 				"strates"
 			],
 			"flavor": "Les marges sont pleines de jurons. Les navigateurs étaient donc des gens comme nous."
+		},
+		"cartes_anciennes": {
+			"label": "Cartes des Anciens",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "academie",
+			"text": "Trouvaille d'une puissance ancienne ou d'un haut fait : la Navigation stellaire, sans la rechercher.",
+			"pre": [
+				"propulseurs"
+			],
+			"find": true,
+			"find_of": "navigation_stellaire",
+			"find_sources": [
+				"ancients",
+				"deeds"
+			]
 		}
 	}
 }

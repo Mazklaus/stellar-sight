@@ -405,7 +405,8 @@ static func price(state: GameState, loser: int, terms: Dictionary, winner := -1)
 	for k in parts:
 		var v := int(parts[k])
 		if winner >= 0 and state.wars_on and not WarPeace.justified(state, winner, loser, String(k)):
-			v *= 2
+			@warning_ignore("integer_division")
+			v = v * 3 / 2 if Research.fx_int(state, winner, "laws_of_war") > 0 else v * 2  # Droit de la guerre
 		n += v
 	# Un orateur au conseil du vainqueur négocie : clauses moins chères (lot 3 des buts de guerre).
 	if winner >= 0 and state.wars_on:
@@ -1101,6 +1102,8 @@ static func loyalty_parts(state: GameState, sub: int) -> Array[Dictionary]:
 		_part(out, "Patronage divisé (%d autre%s sujet%s)" % [others, "s" if others > 1 else "", "s" if others > 1 else ""], int(lc["patronage"]) * mini(others, 3))
 	if is_protectorate(state, sub):
 		_part(out, "Protection", int(lc["protectorate"]))
+	if spec_of(state, sub) != "":
+		_part(out, "Clientèle", Research.fx_int(state, lord, "clienteles"))  # lot 3 de l'arbre
 	# Lot 3 : culte imposé par une théocratie, possessions, Résident.
 	if clause(state, sub, "cult") == "impose" and bool(talent(state, lord).get("cult_free", false)):
 		_part(out, "Culte imposé par une théocratie (sans rancœur)", -int(opt_def("cult", "impose").get("m10", 0)))

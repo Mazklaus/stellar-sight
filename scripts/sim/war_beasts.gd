@@ -47,6 +47,8 @@ static func capacity(state: GameState, empire_id: int) -> int:
 		if c.owner == empire_id:
 			for bid in c.buildings:
 				per += int(GameData.building(String(bid)).get("vivarium", 0))
+			if c.buildings.has("vivarium"):
+				per += Research.fx_int(state, empire_id, "vivarium_cap")  # Dressage (lot 3 de l'arbre)
 	return per
 
 

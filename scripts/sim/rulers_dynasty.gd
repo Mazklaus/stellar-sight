@@ -151,8 +151,12 @@ static func heir_succession(state: GameState, eid: int, how: String, added: Arra
 	if r.is_empty():
 		var hs := heirs(state, eid)
 		if not hs.is_empty():
-			var c: Dictionary = hs[0]
-			hs.remove_at(0)
+			var pick := 0
+			# Généalogies (lot 3 de l'arbre) : le plus doué des deux premiers héritiers.
+			if hs.size() > 1 and Research.fx_int(state, eid, "heir_pick") > 0 and _apt_sum(hs[1]) > _apt_sum(hs[0]):
+				pick = 1
+			var c: Dictionary = hs[pick]
+			hs.remove_at(pick)
 			r = _from_child(state, eid, c, "heritier")
 			bastard = int(c.get("bastard", 0)) > 0
 			if child_age(state, c) < r_int("majority"):
@@ -171,6 +175,13 @@ static func heir_succession(state: GameState, eid: int, how: String, added: Arra
 		Rulers.adjust(state, eid, -15)
 	if not minor_child.is_empty():
 		_start_regency(state, eid, added)
+
+
+static func _apt_sum(c: Dictionary) -> int:
+	var n := 0
+	for a in (c.get("apt", {}) as Dictionary):
+		n += int(c["apt"][a])
+	return n
 
 
 static func _from_child(state: GameState, eid: int, c: Dictionary, how: String) -> Dictionary:
@@ -589,7 +600,7 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array:
 	if el > 0:
 		out.append(["Éloquence de son souverain", el])
 	if int(eb.get("spouse", -1)) == a:
-		out.append(["Mariage dynastique", r_int("marriage_opinion")])
+		out.append(["Mariage dynastique", r_int("marriage_opinion") + maxi(Research.fx_int(state, a, "marriage_opinion"), Research.fx_int(state, b, "marriage_opinion"))])
 	return out
 
 
