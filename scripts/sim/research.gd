@@ -157,6 +157,11 @@ static func _info(faction: Dictionary, state: GameState, eid: int) -> Dictionary
 			if not t.has("mastery"):
 				var ck := "%s:%d" % [String(t["domain"]), int(t.get("era", 1))]
 				counts[ck] = int(counts.get(ck, 0)) + 1
+	# Une Maîtrise suit sa parente : remplacée (technologie de peuple) ou sans objet, elle disparaît.
+	var orphans := kept.filter(func(m): return techs[m].has("mastery") and not set.has(String(techs[m]["mastery"])))
+	for m in orphans:
+		kept.erase(m)
+		set.erase(m)
 	var repl := {}
 	for tid in kept:
 		if techs[tid].has("replaces"):
@@ -376,9 +381,9 @@ static func unlocks(faction: Dictionary, tid: String) -> PackedStringArray:
 
 ## Sortes de déblocage, pour les icônes de l'arbre et le filtre « ce que ça débloque » (prop. 106).
 const UNLOCK_KINDS := {
-	"batiment": "Bâtiments", "merveille": "Merveilles", "mega": "Mégastructures", "forge": "Forge des mondes",
-	"vaisseau": "Vaisseaux", "coque": "Coques", "module": "Modules", "regiment": "Régiments",
-	"maitrise": "Maîtrises", "regle": "Règles et bonus",
+	"batiment": "Bâtiments", "projet": "Projets", "merveille": "Merveilles", "mega": "Mégastructures", "forge": "Forge des mondes",
+	"vaisseau": "Vaisseaux", "coque": "Coques", "module": "Modules", "tactique": "Tactiques", "regiment": "Régiments",
+	"loi": "Lois et traités", "maitrise": "Maîtrises", "regle": "Règles et bonus",
 }
 
 
@@ -397,9 +402,11 @@ static func unlock_entries(faction: Dictionary, tid: String) -> Array:
 static func _unlock_entries(faction: Dictionary, tid: String) -> Array:
 	var out: Array = []
 	for bid in GameData.buildings():
-		if GameData.building(bid).get("requires_tech", []).has(tid):
-			var l := String(GameData.building(bid).get("label", bid))
-			out.append({"kind": "batiment", "id": bid, "label": l, "text": l})
+		var bd := GameData.building(bid)
+		if bd.get("requires_tech", []).has(tid) and FactionTraits.species_matches(faction, bd.get("requires", {}).get("species", {})):
+			var l := String(bd.get("label", bid))
+			var proj := bool(bd.get("project", false))
+			out.append({"kind": "projet" if proj else "batiment", "id": bid, "label": l, "text": "%s (projet)" % l if proj else l})
 	for wid in Wonders.all_ids():
 		if Wonders.def(wid).get("requires_tech", []).has(tid):
 			out.append({"kind": "merveille", "id": wid, "label": Wonders.label(wid), "text": "%s (merveille)" % Wonders.label(wid)})
@@ -429,6 +436,24 @@ static func _unlock_entries(faction: Dictionary, tid: String) -> Array:
 		var gd := Ground.type_def(t)
 		if gd.get("requires_tech", []).has(tid) and FactionTraits.species_matches(faction, gd.get("requires", {}).get("species", {})):
 			out.append({"kind": "regiment", "id": t, "label": String(gd.get("label", t)), "text": "régiment %s" % String(gd.get("label", t))})
+	for t: Dictionary in Combat.data().get("tactics", []):
+		if String(t.get("requires_tech", "")) == tid:
+			out.append({"kind": "tactique", "id": String(t["id"]), "label": String(t["label"]), "text": "tactique %s" % String(t["label"])})
+	# Lois et traités (lot 2, prop. 45 et 46).
+	var tt := tech(tid)
+	var tfx: Dictionary = tt.get("effects", {})
+	if tfx.has("alliances"):
+		out.append({"kind": "loi", "id": "alliance", "label": "Alliances", "text": "traité d'alliance"})
+	if tfx.has("federation"):
+		out.append({"kind": "loi", "id": "koinon", "label": "Fondation d'un Koinon", "text": "fondation d'un Koinon"})
+	if tfx.has("treaty_migration"):
+		out.append({"kind": "loi", "id": "migration", "label": "Traité de migration", "text": "traité de migration"})
+	var lv := mini(4, int(tt.get("era", 1)))
+	if String(tt.get("field", "")) == "etat" and not tt.has("mastery") and lv >= 2:
+		out.append({"kind": "loi", "id": "lois_%d" % lv, "label": "Lois de niveau %d" % lv, "text": "lois de niveau %d (politique)" % lv})
+	for hid in PeopleHulls.upgrades_of(tid):
+		var hl := String(Designs.hull(hid).get("label", hid))
+		out.append({"kind": "coque", "id": hid, "label": "%s amélioré" % hl, "text": "amélioration de la coque %s" % hl})
 	for m in masteries_of(tid):
 		out.append({"kind": "maitrise", "id": m, "label": String(tech(m).get("label", m)), "text": "Maîtrise : %s" % String(tech(m).get("label", m))})
 	return out
@@ -584,6 +609,30 @@ static func era_need(domain_id: String, era: int, faction := {}, state: GameStat
 	return mini(th, int(counts.get("%s:%d" % [domain_id, era - 1], 0)))
 
 
+## Palier d'une ère dans un domaine ({label, text, effects} ; vide s'il n'y en a pas).
+static func tier(domain_id: String, era: int) -> Dictionary:
+	return data().get("tiers", {}).get(domain_id, {}).get(str(era), {})
+
+
+## Paliers d'ère ouverts pour un empire (prop. 4) : [{domain, era, label, text, effects}], domaine par domaine.
+static func open_tiers(state: GameState, empire_id: int) -> Array:
+	var out: Array = []
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return out
+	var f := e.faction()
+	for d in domain_ids():
+		for era in range(2, eras() + 1):
+			var tr := tier(d, era)
+			if tr.is_empty() or not era_open(e.techs, d, era, f, state, empire_id):
+				continue
+			var x := tr.duplicate()
+			x["domain"] = d
+			x["era"] = era
+			out.append(x)
+	return out
+
+
 ## Ère la plus avancée ouverte dans au moins un domaine.
 static func current_era(state: GameState, empire_id: int) -> int:
 	var e := state.get_empire(empire_id)
@@ -629,6 +678,10 @@ static func cost(state: GameState, empire_id: int, tid: String, colonies := -1) 
 		var tc := 0 if e.is_npc() else fx_int(state, empire_id, "tech_cost_pct")
 		if tc != 0:
 			c = c * maxi(10, 100 + tc) / 100
+		# Instituts (annexes de l'Académie) : leur domaine coûte moins cher, 25 % au plus.
+		var inst := Economy.institute_pct(state, empire_id, String(t.get("domain", "")))
+		if inst != 0:
+			c = c * (100 + inst) / 100
 		if not e.is_npc():
 			var kt := WondersCatalog.tech_cost_pct(state, empire_id, tid)  # Collège universel
 			if kt != 0:
@@ -934,6 +987,42 @@ static func complete(state: GameState, empire_id: int, tid: String) -> void:
 static func grant(state: GameState, empire_id: int, tids: Array) -> void:
 	for t in tids:
 		complete(state, empire_id, String(t))
+		# Trouvaille (prop. 10) : elle dispense de rechercher sa cousine.
+		var cousin := String(tech(String(t)).get("find_of", ""))
+		if cousin != "" and not knows(state, empire_id, cousin):
+			complete(state, empire_id, cousin)
+
+
+## Trouvaille offerte par une source (curio, ancients, strates, capture) : la première du catalogue,
+## dans l'ordre des ères, que le peuple voit et n'a pas encore (ni sa cousine), choisie sans hasard
+## parmi celles de la plus basse ère disponible. Renvoie son id ("" si aucune).
+static func grant_find(state: GameState, empire_id: int, source: String) -> String:
+	var e := state.get_empire(empire_id)
+	if e == null or e.is_npc():
+		return ""
+	var f := e.faction()
+	var best: Array[String] = []
+	var best_era := 99
+	var techs: Dictionary = data().get("technologies", {})
+	for tid in techs:
+		var t: Dictionary = techs[tid]
+		if not t.get("find", false) or not (t.get("find_sources", []) as Array).has(source):
+			continue
+		if e.techs.has(tid) or e.techs.has(String(t.get("find_of", ""))) or not is_visible(f, String(tid), state, empire_id):
+			continue
+		var era := int(t.get("era", 1))
+		if era > current_era(state, empire_id) + 1:
+			continue  # pas une trouvaille de deux ères d'avance
+		if era < best_era:
+			best_era = era
+			best.clear()
+		if era == best_era:
+			best.append(String(tid))
+	if best.is_empty():
+		return ""
+	var pick := best[posmod(hash([state.seed_value, empire_id, state.tick, source]), best.size())]
+	grant(state, empire_id, [pick])
+	return pick
 
 
 ## Accorde à un empire toutes les technologies de son arbre (tests du contenu verrouillé).
@@ -995,20 +1084,34 @@ static func gen_outdated(state: GameState, empire_id: int, g: int) -> bool:
 	return g >= 0 and marks_of_gen(state, empire_id, g) != marks(state, empire_id)
 
 
-## Technologie qui donne la marque suivante d'une famille à cet empire ("" s'il n'y en a plus) :
-## la moins avancée de son arbre parmi celles qu'il ne connaît pas.
+## Technologie qui rapproche de la marque suivante d'une famille (épaves) : les marques viennent des
+## paliers d'Armement (prop. 4), donc la technologie d'Armement la moins avancée que l'empire ne connaît
+## pas encore (ni Maîtrise ni trouvaille) ; "" s'il n'y en a plus ou si la famille est déjà au maximum.
 static func next_mark_tech(state: GameState, empire_id: int, fam: String) -> String:
 	var e := state.get_empire(empire_id)
 	if e == null:
 		return ""
+	if int(marks(state, empire_id).get(fam, 1)) >= int(data().get("marks", {}).get("max", 5)):
+		return ""
+	# L'ère d'Armement la plus avancée déjà ouverte : ses technologies ouvrent le palier suivant.
+	var f := e.faction()
+	var top := 1
+	for era in range(2, eras() + 1):
+		if era_open(e.techs, "armement", era, f, state, empire_id):
+			top = era
 	var best := ""
 	var best_era := 99
 	for tid in visible_for(state, empire_id):
-		if e.techs.has(tid) or not tech(tid).get("effects", {}).get("marks", {}).has(fam):
+		var t := tech(tid)
+		if e.techs.has(tid) or String(t.get("domain", "")) != "armement" or t.has("mastery") or t.has("find") or t.has("requires"):
 			continue
-		var era := int(tech(tid).get("era", 1))
-		if era < best_era:
-			best_era = era
+		var era := int(t.get("era", 1))
+		if era > top:
+			continue
+		# (l'ère ouverte la plus avancée d'abord, puis les précédentes)
+		var rank := top - era
+		if rank < best_era:
+			best_era = rank
 			best = tid
 	return best
 
@@ -1268,6 +1371,10 @@ static func effects(state: GameState, empire_id: int) -> Dictionary:
 			if t.has("effects_exalted"):
 				has_exalted = true
 				_merge(exalted, t["effects_exalted"])
+		# Paliers d'ère (prop. 4 de l'étude de l'arbre) : ouvrir une ère dans un domaine les donne.
+		for tr: Dictionary in open_tiers(state, empire_id):
+			_merge(base, tr.get("effects", {}))
+			_merge(exalted, tr.get("effects", {}))
 		# Reliques et Triomphe en cours (voir Relics) : mêmes clés que les technologies.
 		var rfx := Relics.effects(state, empire_id)
 		_merge(base, rfx)

@@ -36,7 +36,7 @@ static func picto_kind(faction: Dictionary, tid: String) -> String:
 	if Research.is_mastery(tid):
 		return "maitrise"
 	var kinds := Research.unlock_kinds(faction, tid)
-	for k in ["vaisseau", "coque", "mega", "merveille", "forge", "batiment", "regiment", "module"]:
+	for k in ["vaisseau", "coque", "mega", "merveille", "forge", "batiment", "projet", "regiment", "module", "tactique", "loi"]:
 		if kinds.has(k):
 			return k
 	if t.get("effects", {}).has("marks"):
@@ -106,6 +106,26 @@ static func _draw_picto(ci: CanvasItem, c: Vector2, s: float, kind: String, col:
 			ci.draw_colored_polygon(pts, Color(col, 0.35 * a))
 			pts.append(pts[0])
 			ci.draw_polyline(pts, k, w, true)
+		"tactique":
+			for sgn in [-1.0, 1.0]:
+				var a0 := c + Vector2(-s * 0.7 * sgn, s * 0.7).rotated(rot)
+				var a1 := c + Vector2(s * 0.7 * sgn, -s * 0.7).rotated(rot)
+				ci.draw_line(a0, a1, k, w * 1.2, true)
+				ci.draw_circle(a1, w * 1.2, k)
+		"projet":
+			var pts := _rot([Vector2(-s * 0.6, -s * 0.6), Vector2(s * 0.6, -s * 0.6), Vector2(s * 0.6, s * 0.6), Vector2(-s * 0.6, s * 0.6)], c, rot)
+			pts.append(pts[0])
+			ci.draw_polyline(pts, k, w, true)
+			ci.draw_line(c + Vector2(-s * 0.3, 0), c + Vector2(s * 0.3, 0), k, w, true)
+			ci.draw_line(c + Vector2(0, -s * 0.3), c + Vector2(0, s * 0.3), k, w, true)
+		"loi":
+			var pts := _rot([Vector2(-s * 0.5, -s * 0.75), Vector2(s * 0.5, -s * 0.75), Vector2(s * 0.5, s * 0.75), Vector2(-s * 0.5, s * 0.75)], c, 0.0)
+			ci.draw_colored_polygon(pts, Color(col, 0.3 * a))
+			pts.append(pts[0])
+			ci.draw_polyline(pts, k, w, true)
+			for i in 3:
+				var yy := -s * 0.35 + i * s * 0.35
+				ci.draw_line(c + Vector2(-s * 0.3, yy), c + Vector2(s * 0.3, yy), k, maxf(1.0, w * 0.7), true)
 		"batiment":
 			var pts := _rot([Vector2(-s * 0.7, s * 0.7), Vector2(-s * 0.7, -s * 0.1), Vector2(0, -s * 0.75), Vector2(s * 0.7, -s * 0.1), Vector2(s * 0.7, s * 0.7)], c, 0.0)
 			ci.draw_colored_polygon(pts, Color(col, 0.3 * a))

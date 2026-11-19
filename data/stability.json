@@ -23,7 +23,7 @@
 		"attacked": {"value": -15, "days": 90},
 		"war": {"per_quarter": -1, "max": -6},
 		"garrison": 5,
-		"buildings": {"forum": 10, "prefecture": 10, "cathedrale": 5, "colisee_etoiles": 5, "capitale": 0},
+		"buildings": {"forum": 10, "prefecture": 10, "cathedrale": 5, "colisee_etoiles": 5, "capitale": 0, "poste_securite": 5, "bureau_securite": 10, "maison_spectacles": 5, "grand_theatre": 10, "grand_temple": 3, "sanctuaire": 5, "grand_mausolee": 3, "senat_local": 5, "grenier_universel": 5, "jardin_symbiotique": 3},
 		"intendant": {"base": 5, "per_level": 2},
 		"conquered": {"value": -15, "days": 1800}, "counter_network": 5, "agitation": {"value": -15, "days": 360}
 	},

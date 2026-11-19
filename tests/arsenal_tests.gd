@@ -36,24 +36,43 @@ func _apply(st: GameState, cmd: Dictionary) -> String:
 	return why
 
 
+## Ouvre les ères d'Armement jusqu'à `era` (marques données par les paliers, lot 2 de l'arbre) : la
+## marque de toutes les familles vaut alors `era`. Accorde les moins avancées d'abord.
+func _arm(st: GameState, eid: int, era: int) -> void:
+	var e := st.get_empire(eid)
+	for target in range(2, era + 1):
+		var guard := 0
+		while not Research.era_open(e.techs, "armement", target, e.faction(), st, eid) and guard < 40:
+			guard += 1
+			var pick := ""
+			for tid in Research.visible_for(st, eid):
+				var t := Research.tech(tid)
+				if e.techs.has(tid) or String(t.get("domain", "")) != "armement" or int(t.get("era", 1)) != target - 1 \
+						or t.has("mastery") or t.has("find") or Research.spec_taken(e.techs, tid) != "":
+					continue
+				pick = tid
+				break
+			if pick == "":
+				break
+			Research.grant(st, eid, [pick])
+
+
 func _home(st: GameState, eid: int) -> int:
 	return st.galaxy.get_planet(st.get_empire(eid).capital_planet).system_id
 
 
 func _test_data() -> void:
 	var techs: Dictionary = Research.data()["technologies"]
-	# Chaque famille monte de la marque I à la V dans l'arbre commun.
-	var reach := {}
+	# Marques : les paliers d'Armement (prop. 4) les donnent, aucune technologie ne les porte plus.
+	var carriers := PackedStringArray()
 	for tid in techs:
-		if techs[tid].has("requires"):
-			continue
-		for fam in techs[tid].get("effects", {}).get("marks", {}):
-			reach[fam] = int(reach.get(fam, 1)) + int(techs[tid]["effects"]["marks"][fam])
-	var short := PackedStringArray()
-	for fam in Research.mark_families():
-		if int(reach.get(fam, 1)) != 5:
-			short.append("%s %d" % [fam, int(reach.get(fam, 1))])
-	_ok(short.is_empty(), "les 9 familles montent jusqu'à la marque V, pas plus (%s)" % ", ".join(short))
+		if techs[tid].get("effects", {}).has("marks"):
+			carriers.append(tid)
+	var tiers: Dictionary = Research.data().get("tiers", {}).get("armement", {})
+	var reach := 1
+	for era in tiers:
+		reach += int(tiers[era].get("effects", {}).get("marks", {}).get("kinetic", 0))
+	_ok(carriers.is_empty() and reach == 5, "les marques viennent des paliers d'Armement, jusqu'à la V (%d ; %s)" % [reach, ", ".join(carriers)])
 	# Doctrines : paires réciproques de la même ère, en Armement.
 	var bad := PackedStringArray()
 	var n := 0
@@ -83,12 +102,13 @@ func _test_marks() -> void:
 	var st := _state()
 	var m := Research.marks(st, 0)
 	_ok(m.size() == 9 and int(m["kinetic"]) == 1 and int(m["shield"]) == 1, "marque I partout au départ")
-	Research.grant(st, 0, ["canons_masse", "accelerateurs"])
-	_ok(int(Research.marks(st, 0)["kinetic"]) == 3, "deux technologies de canons : marque III")
+	_arm(st, 0, 3)
+	_ok(int(Research.marks(st, 0)["kinetic"]) == 3, "ère III d'Armement ouverte : marque III")
 	_ok(Combat.weapon_bonus(st, 0, "kinetic") == 40, "marque III : +40 % de dégâts")
-	Research.grant(st, 0, ["blindage_composite"])
-	_ok(int(Combat.defense_bonus(st, 0)["armor"]) == 20, "blindage marque II : +20 % de protection")
-	_ok(Research.next_mark_tech(st, 0, "kinetic") == "canons_rail", "la marque suivante des canons : Canons à rail")
+	_ok(int(Combat.defense_bonus(st, 0)["armor"]) == 40, "blindage marque III : +40 % de protection")
+	var nxt := Research.next_mark_tech(st, 0, "kinetic")
+	_ok(nxt != "" and String(Research.tech(nxt)["domain"]) == "armement" and int(Research.tech(nxt)["era"]) == 3,
+			"la marque suivante passe par une technologie d'Armement de l'ère III (%s)" % nxt)
 	# Les armes de peuple gardent leur bonus à part (griffes de l'Essaim).
 	var sk := _state("khthari")
 	var kid := -1
@@ -106,7 +126,7 @@ func _test_ship_marks_and_refit() -> void:
 	var home := _home(st, 0)
 	var f := st.spawn_ship(0, "corvette", home)
 	var old: Dictionary = Combat.ship_marks(st, f, 0).duplicate()
-	Research.grant(st, 0, ["canons_masse"])
+	_arm(st, 0, 2)
 	_ok(int(Combat.ship_marks(st, f, 0)["kinetic"]) == int(old["kinetic"]), "un vaisseau garde les marques de sa construction")
 	_ok(Fleets.outdated_count(st, f) == 1, "il est en retard d'une marque")
 	var g := st.spawn_ship(0, "corvette", home)
@@ -137,7 +157,7 @@ func _test_ship_marks_and_refit() -> void:
 			far = s.id
 			break
 	var h := st.spawn_ship(0, "corvette", far)
-	Research.grant(st, 0, ["accelerateurs"])
+	_arm(st, 0, 3)
 	_ok(Fleets.outdated_count(st, h) == 1 and SimCommands.validate(st, SimCommands.refit(0, h.id)).contains("colonie"),
 			"pas de remise à niveau hors d'un système à soi")
 	# Partir interrompt la remise à niveau.
@@ -194,12 +214,12 @@ func _test_doctrine_combat() -> void:
 	var abordage := _duel(func(st: GameState, _a: Fleet, _b: Fleet) -> void: Research.grant(st, 0, ["abordage"]), "fregate")
 	_ok(abordage[0] == fbase[0], "abordage : rien de plus à longue portée")
 	var base := _duel(func(_st: GameState, _a: Fleet, _b: Fleet) -> void: pass)
-	var marked := _duel(func(st: GameState, _a: Fleet, _b: Fleet) -> void: Research.grant(st, 0, ["canons_masse", "accelerateurs"]))
+	var marked := _duel(func(st: GameState, _a: Fleet, _b: Fleet) -> void: _arm(st, 0, 3))
 	_ok(marked[0] > base[0], "des canons marque III frappent plus fort (%d contre %d)" % [marked[0], base[0]])
 	var stale := _duel(func(st: GameState, a: Fleet, _b: Fleet) -> void:
 		for i in a.gen.size():
 			a.gen[i] = Research.mark_gen(st, 0)
-		Research.grant(st, 0, ["canons_masse", "accelerateurs"]))
+		_arm(st, 0, 3))
 	_ok(stale[0] == base[0], "sans remise à niveau, la flotte tire encore en marque I (%d contre %d)" % [stale[0], base[0]])
 	# Rideau d'acier : les corvettes (écran) encaissent moins.
 	var rideau := _duel(func(st: GameState, _a: Fleet, _b: Fleet) -> void: Research.grant(st, 1, ["rideau_acier"]))
@@ -222,7 +242,8 @@ func _test_wrecks() -> void:
 	var st := _state("choeur")
 	var me := st.get_empire(0)
 	var foe := 1
-	Research.grant(st, foe, ["canons_masse", "accelerateurs", "rideau_acier"])
+	_arm(st, foe, 3)
+	Research.grant(st, foe, ["rideau_acier"])
 	var out := Research.study_wrecks(st, 0, foe)
 	var ids: Array = []
 	for r in out:
@@ -235,7 +256,8 @@ func _test_wrecks() -> void:
 	sw.fleets.clear()
 	var sid := _combat._empty_system(sw)
 	_combat._meet_and_war(sw, 0, 1)
-	Research.grant(sw, 1, ["lentilles"])
+	_arm(sw, 1, 2)
+	var wreck_t := Research.next_mark_tech(sw, 0, "beam")
 	_combat._spawn(sw, 0, "croiseur", sid, 3)
 	_combat._spawn(sw, 1, "corvette", sid, 1)
 	var sim := Simulation.new(sw)
@@ -245,8 +267,8 @@ func _test_wrecks() -> void:
 	_ok(int(rep.get("winner", -1)) == 0, "trois croiseurs gagnent")
 	_ok(int(sw.get_empire(0).stats.get("battles_won", 0)) == 1 and int(sw.get_empire(0).stats.get("kills", 0)) >= 1
 			and int(sw.get_empire(1).stats.get("ships_lost", 0)) >= 1, "victoires, destructions et pertes sont comptées")
-	_ok(int(sw.get_empire(0).research_shelf.get("lentilles", 0)) > 0 and rep.get("wrecks", []).size() > 0,
-			"les épaves des rayons ennemis font avancer les Lentilles de focalisation")
+	_ok(wreck_t != "" and int(sw.get_empire(0).research_shelf.get(wreck_t, 0)) > 0 and rep.get("wrecks", []).size() > 0,
+			"les épaves d'une flotte mieux armée font avancer l'Armement (%s)" % wreck_t)
 
 
 func _test_eurekas() -> void:
@@ -282,7 +304,7 @@ func _test_ai_refit() -> void:
 	var e := st.get_empire(0)
 	var f := st.spawn_ship(0, "fregate", _home(st, 0))
 	f.add_ship("fregate", -1, f.gen[0])
-	Research.grant(st, 0, ["canons_masse"])
+	_arm(st, 0, 2)
 	e.resources["materials"] = 2000
 	_ok(Fleets.outdated_count(st, f) == 2, "flotte IA en retard d'une marque")
 	AiPlayer.think(st, e)
@@ -293,7 +315,7 @@ func _test_save() -> void:
 	var st := _state()
 	st.fleets.clear()
 	var f := st.spawn_ship(0, "corvette", _home(st, 0))
-	Research.grant(st, 0, ["canons_masse"])
+	_arm(st, 0, 2)
 	st.spawn_ship(0, "corvette", _home(st, 0))
 	f.refit_left = 3
 	var e := st.get_empire(0)

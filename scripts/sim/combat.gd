@@ -128,6 +128,15 @@ static func fleet_pd(f: Fleet) -> int:
 
 
 ## Bouclier de flotte (module titanesque) : le plus fort de la flotte, ajouté au bouclier de chaque vaisseau.
+## Ions (lot 2 de l'arbre) : une flotte touchée par une arme à ions garde ce % de ses boucliers et de sa
+## défense ponctuelle le jour du coup et le lendemain (100 sinon).
+static func ion_pct(b: Dictionary, f: Fleet, day: int) -> int:
+	var ions: Dictionary = b.get("ion", {})
+	if ions.is_empty() or not ions.has(str(f.id)) or day - int(ions[str(f.id)]) > 1:
+		return 100
+	return int(data()["weapons"].get("ion", {}).get("ion_pct", 50))
+
+
 static func fleet_shield(f: Fleet) -> int:
 	var n := 0
 	for s in f.ships:
@@ -170,15 +179,25 @@ static func fleet_tactic(f: Fleet) -> String:
 
 
 ## Tactiques ouvertes à une flotte : certaines demandent un vaisseau particulier ("requires" :
-## l'Adaptative veut une Frégate des Quarante, capable de changer de manière de se battre).
-static func tactic_ids_for(f: Fleet) -> Array[String]:
+## l'Adaptative veut une Frégate des Quarante, capable de changer de manière de se battre), d'autres
+## une technologie ("requires_tech", lot 2 de l'arbre : vérifiée seulement avec la partie, au moment
+## de choisir ; une tactique déjà prise reste valable).
+static func tactic_ids_for(f: Fleet, state: GameState = null) -> Array[String]:
 	var out: Array[String] = []
 	for t: Dictionary in data()["tactics"]:
 		var need := String(t.get("requires", ""))
 		if need != "" and not _fleet_has_flag(f, need):
 			continue
+		var tech := String(t.get("requires_tech", ""))
+		if tech != "" and (state == null or f == null or not Research.knows(state, f.owner, tech)) and (f == null or f.tactic != String(t["id"])):
+			continue
 		out.append(String(t["id"]))
 	return out
+
+
+## Technologie qui débloque une tactique ("" pour les tactiques libres).
+static func tactic_tech(id: String) -> String:
+	return String(tactic(id).get("requires_tech", ""))
 
 
 static func _fleet_has_flag(f: Fleet, flag: String) -> bool:
@@ -250,13 +269,22 @@ static func shot_damage(weapon: String, power: int, phase: int, shooter_tactic: 
 	if defense > 0 and target_def.has(def_kind):
 		@warning_ignore("integer_division")
 		defense = mini(90, defense * (100 + int(target_def[def_kind])) / 100)
-	var mult := int(tactic(shooter_tactic)["dmg"][phase])
+	var st := tactic(shooter_tactic)
+	var pierce := int(st.get("pierce", 0))  # Raid en profondeur : une part du blindage et des boucliers percée
+	if pierce > 0 and defense > 0:
+		@warning_ignore("integer_division")
+		defense = defense * (100 - pierce) / 100
+	var mult := int(st["dmg"][phase])
 	var taken := int(tactic(target_tactic).get("taken", 100))
 	var size_pct := int(wd.get("vs_size", {}).get(String(sd.get("size", "medium")), 100)) if target_ship != "" else 100
 	var pd := 0
 	if wd.get("intercept", false) and target_ship != "":
 		@warning_ignore("integer_division")
 		pd = mini(int(data().get("pd_cap", 60)), (int(sd.get("pd", 0)) + target_fleet_pd) * (100 + int(target_def.get("pd", 0))) / 100)
+		var cut := int(st.get("pd_cut", 0))  # Salves croisées, Guerre électronique
+		if cut > 0:
+			@warning_ignore("integer_division")
+			pd = pd * (100 - cut) / 100
 	@warning_ignore("integer_division")
 	var d := power * eff * mult * bonus_pct * (100 - defense) * taken / 10000000000
 	@warning_ignore("integer_division")
@@ -671,7 +699,10 @@ static func check_tactic(state: GameState, empire_id: int, fleet_id: int, tactic
 		return "cette flotte ne vous appartient pas"
 	if not tactic_ids().has(tactic_id):
 		return "tactique inconnue : %s" % tactic_id
-	if not tactic_ids_for(f).has(tactic_id):
+	var tt := tactic_tech(tactic_id)
+	if tt != "" and not Research.knows(state, empire_id, tt):
+		return "technologie requise : %s" % String(Research.tech(tt).get("label", tt))
+	if not tactic_ids_for(f, state).has(tactic_id):
 		return "cette flotte ne peut pas suivre la tactique %s" % tactic_label(tactic_id)
 	if fleet_tactic(f) == tactic_id:
 		return "la flotte suit déjà cette tactique"

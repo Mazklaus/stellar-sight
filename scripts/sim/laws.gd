@@ -115,6 +115,20 @@ static func empire_pop(state: GameState, empire_id: int) -> int:
 	return n
 
 
+## Lot 2 de l'arbre (prop. 45) : une loi de niveau N (N ≥ 2) demande une technologie du champ État
+## de l'ère N au moins (Maîtrises exclues). Renvoie le plus haut niveau ouvert (1 sans rien).
+static func tech_level(state: GameState, empire_id: int) -> int:
+	var e := state.get_empire(empire_id)
+	var best := 1
+	if e == null:
+		return best
+	for tid in e.techs:
+		var t := Research.tech(String(tid))
+		if String(t.get("field", "")) == "etat" and not t.has("mastery"):
+			best = maxi(best, int(t.get("era", 1)))
+	return best
+
+
 static func adopt_cost(id: String) -> Dictionary:
 	var lv := int(law_def(id).get("level", 0))
 	if lv <= 0:
@@ -274,6 +288,8 @@ static func check_adopt(state: GameState, empire_id: int, id: String) -> String:
 			return "%s n'est pas au pouvoir" % Politics.label(state, empire_id, i)
 		if level(state, empire_id, i) < int(d["level"]):
 			return "il faut que %s atteigne le niveau %d (niveau %d)" % [Politics.label(state, empire_id, i), int(d["level"]), level(state, empire_id, i)]
+	if int(d.get("level", 0)) >= 2 and tech_level(state, empire_id) < int(d["level"]):
+		return "il faut une technologie d'État de l'ère %d (recherche : Chancelleries, Administration…)" % int(d["level"])
 	var cost := Admin.influence_cost(state, empire_id, adopt_cost(id)) if not state.admin.is_empty() else adopt_cost(id)
 	if not cost.is_empty() and not Economy.can_afford(state.get_empire(empire_id), cost):
 		return "pas assez d'influence (%s)" % GameData.format_amounts(cost)

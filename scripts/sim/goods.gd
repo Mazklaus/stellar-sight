@@ -309,15 +309,21 @@ static func _strategic_yields(state: GameState, own: Dictionary) -> void:
 			continue
 		for g in own[eid]:
 			var sd := strategic(String(g))
-			if sd.is_empty() or Research.current_era(state, e.id) < int(sd["era"]):
+			if sd.is_empty() or not strategic_open(state, e.id, String(g)):
 				continue
 			e.resources[String(g)] = int(e.resources.get(String(g), 0)) + int(own[eid][g])
 
 
 ## Le gisement d'un stratégique compte-t-il déjà pour cet empire (ère atteinte) ?
+## Lot 2 de l'arbre (prop. 35) : il faut la technologie d'extraction du stratégique (Extraction de
+## plasmine, de ferronoir, d'éthérine) ; les peuples sans recherche (PNJ) gardent la règle de l'ère.
 static func strategic_open(state: GameState, eid: int, good: String) -> bool:
 	var sd := strategic(good)
-	return not sd.is_empty() and Research.current_era(state, eid) >= int(sd["era"])
+	if sd.is_empty():
+		return false
+	if Research.fx_sub(state, eid, "strategic_extract", good) > 0:
+		return true
+	return GameState.is_npc(eid) and Research.current_era(state, eid) >= int(sd["era"])
 
 
 # --- Monopoles ---------------------------------------------------------------------------------

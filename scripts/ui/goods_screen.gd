@@ -138,7 +138,7 @@ static func build_resources(es: EmpireScreens, col: VBoxContainer) -> void:
 		row.add_child(_label("ère %d" % int(d["era"]), 100.0, 13, UiTheme.TEXT_DIM))
 		row.add_child(_label("stock %d" % (int(me.resources.get(s, 0)) if me else 0), 140.0, 14))
 		var n := int(own.get(s, 0))
-		row.add_child(_label("%d gisement%s%s" % [n, "s" if n > 1 else "", "" if Goods.strategic_open(state, player, s) or n == 0 else " (pas encore à cette ère)"], 300.0, 13))
+		row.add_child(_label("%d gisement%s%s" % [n, "s" if n > 1 else "", "" if Goods.strategic_open(state, player, s) or n == 0 else " (technologie d'extraction requise)"], 300.0, 13))
 		sb.body.add_child(row)
 	var mono: Dictionary = state.goods.get("mono", {})
 	if not mono.is_empty():

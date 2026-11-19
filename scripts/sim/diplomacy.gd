@@ -589,6 +589,8 @@ static func check_terms(state: GameState, a: int, b: int, treaty: String) -> Str
 				return "les peuples mêlés ne sont pas actifs dans cette partie"
 			if has_migration(state, a, b):
 				return "un traité de migration est déjà en vigueur"
+			if Research.fx_int(state, a, "treaty_migration") <= 0:
+				return "il faut d'abord Colons formés (recherche, Société)"
 			if not has_pact(state, a, b):
 				return "il faut d'abord signer la paix"
 		PASSAGE, PROSP:

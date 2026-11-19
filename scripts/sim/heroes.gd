@@ -266,7 +266,7 @@ static func recruit(state: GameState, empire_id: int, cand: Dictionary) -> int:
 		traits.append(String(t))
 	state.heroes[id] = {
 		"id": id, "owner": empire_id, "name": String(cand["name"]), "portrait": String(cand["portrait"]),
-		"cls": String(cand["cls"]), "lvl": 1 + WondersCatalog.fx(state, empire_id, "hero_start_lvl"), "xp": 0, "traits": traits,
+		"cls": String(cand["cls"]), "lvl": 1 + WondersCatalog.fx(state, empire_id, "hero_start_lvl") + Economy.building_sum(state, empire_id, "hero_start_lvl"), "xp": 0, "traits": traits,
 		"born": state.tick - int(cand.get("age", 30)) * DAYS_PER_YEAR,
 		"post": "", "target": -1, "arrive": 0, "wound": 0, "joined": state.tick,
 		"amb": String(cand.get("amb", "")), "served": state.tick, "amb_n": 0, "amb_done": 0,
@@ -1092,7 +1092,7 @@ static func _wound(state: GameState, h: Dictionary, out: Array[Dictionary], why:
 			return
 	var days := int(data()["wound_days"])
 	@warning_ignore("integer_division")
-	days = days * maxi(10, 100 + trait_fx(h, "wound_pct")) / 100
+	days = days * maxi(10, 100 + trait_fx(h, "wound_pct") + Economy.building_sum(state, owner, "hero_heal_pct")) / 100  # Institut des héros
 	h["wound"] = state.tick + days
 	out.append(state.add_chronicle("%s est blessé : %s. Il reprendra du service dans %d jours." % [h["name"], why, days],
 			Espionage.private_to(state, [owner])))

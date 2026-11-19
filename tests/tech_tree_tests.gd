@@ -9,21 +9,7 @@ var _check: Callable
 
 ## Technologies qui ne débloquent encore rien (bonus chiffré seul) : le lot 2 leur donne un déblocage
 ## et fait de leur bonus une Maîtrise. La liste ne doit que raccourcir.
-const AWAITING_LOT2 := [
-	"canons_masse", "lentilles", "blindage_composite", "tetes_chercheuses", "boucliers_phase", "interception", "marines",
-	"accelerateurs", "plasma", "plaques_ablatives", "essaims", "antimatiere", "blindage_reactif", "canons_rail",
-	"faisceaux_gamma", "missiles_furtifs", "obusiers", "phase_dense", "canons_singularite", "escadres_autonomes",
-	"lances_stellaires", "matiere_programmable", "nuees_pensantes", "torpilles_singulieres", "frappe_profondeur",
-	"rideau_acier", "feu_lointain", "abordage", "guerre_eclair", "guerre_usure", "defense_planetaire", "propulseurs",
-	"cales_rapides", "hyperflux", "coques_series", "ia_bord", "saut_precision", "coques_modulaires", "capteurs",
-	"pont_orbital", "hydroponie", "fusion_compacte", "extraction", "banques_donnees", "recyclage", "bourses",
-	"automatisation", "nanofabrication", "cristallographie", "compagnies", "forage_manteau", "replicateurs",
-	"fabriques_autonomes", "ecopes", "abondance", "logistique", "adaptation", "biomes_extremes", "medecine",
-	"colons_formes", "genetique", "rhetorique", "administration", "administration2", "conscription_planetaire",
-	"medecine_campagne", "propagande", "cadastre_algorithmique", "ambassades", "conversion_culturelle",
-	"administration_quantique", "spatioports", "adaptation_totale", "symbiose", "mondes_toxiques", "cites_flottantes",
-	"cites_creusees", "chancelleries", "holovision", "reseau_mondes", "detecteurs_abysse",
-]
+const AWAITING_LOT2 := []
 
 
 func run(check: Callable) -> void:
@@ -219,11 +205,11 @@ func _test_golden_rule() -> void:
 			unlock = true  # règle tenue par le code (pilier, projet, action)
 		for k in fx:
 			var ks := String(k)
-			if not (ks.ends_with("_pct") or ks in ["marks", "hab_bonus", "hab_set", "hab_min", "max_projects", "stability_threshold",
-					"claim_vision", "curio_detect", "curio_power", "troops_pct", "building_slots", "building_slots_all", "outpost_slots",
+			# Les règles nouvelles (hab_set, migration, detect_veil, hero_backup…) comptent comme déblocage (lot 2).
+			if not (ks.ends_with("_pct") or ks in ["marks", "hab_bonus", "hab_min", "max_projects", "stability_threshold",
+					"curio_power", "troops_pct", "building_slots", "building_slots_all", "outpost_slots",
 					"trade_routes", "opinion_all", "council_seats", "alliances", "hero_cap", "colony_start_pop", "landing_days",
-					"admin_cap", "outpost_yields", "detect_veil", "stability", "culture_museum", "culture_troupe", "culture_defect",
-					"migration", "admin_distance_half", "stability_threshold_off", "tribun", "meme_firewall", "hero_backup", "detect"]):
+					"admin_cap", "stability", "culture_museum", "stability_threshold_off", "tribun", "detect"]):
 				unlock = true
 		if not unlock and not AWAITING_LOT2.has(tid):
 			fails.append(tid)

@@ -132,7 +132,8 @@ static func growth_per_day(state: GameState, colony: Colony) -> int:
 	pct = pct * maxi(10, 100 + Research.fx_int(state, colony.owner, "growth_pct") + FaithWars.growth_pct(state, colony)
 			+ GroundSiege.growth_pct(state, state.galaxy.get_planet(colony.planet_id).system_id) + WorldForge.growth_pct(state, colony.planet_id)
 			+ LivingWorlds.growth_pct(state, colony.planet_id)
-			+ Ecology.growth_pct(state, colony.planet_id) + Insolites.growth_pct(state, colony.owner)) / 100
+			+ Ecology.growth_pct(state, colony.planet_id) + Insolites.growth_pct(state, colony.owner)
+			+ local_sum(colony, "growth_local_pct")) / 100  # Clinique, Centre de clonage
 	# Route intérieure (voir Trade) : la jeune colonie desservie grandit plus vite.
 	return int(GameData.rules()["growth_per_day"]) * pct / 100 + Trade.internal_growth(state, colony.planet_id)
 
@@ -203,6 +204,10 @@ static func colony_yields(state: GameState, colony: Colony) -> Dictionary:
 		for r in dy:
 			@warning_ignore("integer_division")
 			gross[r] = int(gross.get(r, 0)) + int(dy[r]) * dep_mult / 100
+	# Monopole des cristaux (féodalité) : chaque raffinerie de cristaux rapporte aussi de l'influence.
+	var ri := int(fx.get("refinery_influence", 0))
+	if ri > 0 and colony.buildings.has("raffinerie"):
+		gross["influence"] = int(gross.get("influence", 0)) + ri
 	var knowledge_pct := 0
 	# Économie d'abondance : plus d'entretien des bâtiments.
 	var bld_upkeep := maxi(0, 100 + int(fx.get("building_upkeep_pct", 0)))
@@ -515,6 +520,8 @@ static func building_unlocked(state: GameState, empire_id: int, building_id: Str
 		return false  # défenses spatiales : selon le réglage de la partie
 	if not Portals.building_allowed(state, building_id):
 		return false  # portails de saut : selon le réglage de la partie
+	if not fits_species(state, empire_id, b):
+		return false  # carrière nourricière, serre de lumière… : selon le peuple
 	return Research.knows_all(state, empire_id, b.get("requires_tech", []))
 
 
@@ -629,6 +636,8 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 		var mw := FaithNatures.check_mausoleum(state, empire_id, planet_id)
 		if mw != "":
 			return mw
+	if not fits_species(state, empire_id, b):
+		return "réservé à d'autres peuples"
 	if not building_unlocked(state, empire_id, building_id):
 		return "technologie requise : %s" % Research.missing_text(state, empire_id, b.get("requires_tech", []))
 	if c.construction != "":
@@ -644,6 +653,18 @@ static func check_build(state: GameState, empire_id: int, planet_id: int, buildi
 	var needs := String(b.get("requires_building", ""))
 	if needs != "" and not c.buildings.has(needs):
 		return "nécessite d'abord : %s" % String(GameData.building(needs).get("label", needs))
+	var group := String(b.get("annex_group", ""))
+	if group != "":
+		for o in c.buildings:
+			if String(GameData.building(o).get("annex_group", "")) == group:
+				return "un seul agrandissement de ce genre ici : %s" % String(GameData.building(o).get("label", o))
+	var add_dep := String(b.get("adds_deposit", ""))
+	if add_dep != "":
+		if p.deposits.has(add_dep):
+			return "ce monde a déjà ce gisement"
+		var from: Array = b.get("deposit_from", [])
+		if not from.is_empty() and not from.has(p.type):
+			return "impossible sur ce monde (%s)" % p.type_label()
 	var special := check_special(state, empire_id, c, p, building_id)
 	if special != "":
 		return special
@@ -739,7 +760,52 @@ static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet
 static func takes_slot(building_id: String) -> bool:
 	var b := GameData.building(building_id)
 	return not b.has("upgrades") and not b.get("project", false) and not b.has("family") and Defenses.takes_slot(building_id) \
-			and String(b.get("portals", "")) == ""
+			and String(b.get("portals", "")) == "" and not b.get("annex", false)
+
+
+## Somme d'une clé numérique des bâtiments d'une colonie (Clinique, Cale sèche, Atelier…).
+static func local_sum(colony: Colony, key: String) -> int:
+	var n := 0
+	for b in colony.buildings:
+		n += int(GameData.building(b).get(key, 0))
+	return n
+
+
+## Somme d'une clé numérique des bâtiments de toutes les colonies d'un empire (Bureau du renseignement,
+## Camp de recrutement, Institut des héros…). L'ordre des colonies ne compte pas : c'est une somme.
+static func building_sum(state: GameState, empire_id: int, key: String) -> int:
+	var n := 0
+	for pid in state.colonies:
+		var c: Colony = state.colonies[pid]
+		if c.owner == empire_id:
+			n += local_sum(c, key)
+	return n
+
+
+## Instituts (annexes de l'Académie) : réduction du coût des technologies d'un domaine, 25 % au plus.
+static func institute_pct(state: GameState, empire_id: int, domain: String) -> int:
+	var n := 0
+	for pid in state.colonies:
+		var c: Colony = state.colonies[pid]
+		if c.owner != empire_id:
+			continue
+		for b in c.buildings:
+			var bd := GameData.building(b)
+			if String(bd.get("research_domain", "")) == domain:
+				n += int(bd.get("research_domain_pct", 0))
+	return maxi(-25, n)
+
+
+## Bâtiment réservé à un régime alimentaire (requires_diet) ou à des couches d'espèce (requires.species) ?
+static func fits_species(state: GameState, empire_id: int, b: Dictionary) -> bool:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return true
+	var diets: Array = b.get("requires_diet", [])
+	if not diets.is_empty() and not diets.has(FactionTraits.diet(e.faction())):
+		return false
+	var sp: Dictionary = b.get("requires", {}).get("species", {})
+	return sp.is_empty() or FactionTraits.species_matches(e.faction(), sp)
 
 
 ## Type de planète obtenu par un projet de terraformation ("" s'il ne s'applique pas à ce monde) :
@@ -793,7 +859,8 @@ static func building_slots_used(colony: Colony) -> int:
 	var n := 0
 	for b in colony.buildings:
 		var bd := GameData.building(b)
-		if bd.get("buildable", true) and not bd.has("family") and String(bd.get("portals", "")) == "":
+		if bd.get("buildable", true) and not bd.has("family") and String(bd.get("portals", "")) == "" \
+				and not bd.get("annex", false):
 			n += 1  # relais, portails et ancres ne prennent pas d'emplacement
 	return n
 

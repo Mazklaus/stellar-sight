@@ -47,7 +47,8 @@ static func cells_total(state: GameState, empire_id: int) -> int:
 	var per: Array = c["per_era"]
 	var era := Research.current_era(state, empire_id)
 	return int(c["start"]) + int(per[clampi(era - 1, 0, per.size() - 1)]) + int(talent(state, empire_id).get("extra_cells", 0)) \
-			+ Research.fx_int(state, empire_id, "spy_cells")  # Oreilles de Nadir (peuple mineur)
+			+ Research.fx_int(state, empire_id, "spy_cells") \
+			+ Economy.building_sum(state, empire_id, "spy_cells")  # Oreilles de Nadir, Bureau du renseignement
 
 
 ## Talents d'espionnage du peuple : celui de sa fiche (research.spy, credo Profit) plus ceux de ses
@@ -210,6 +211,9 @@ static func growth_parts(state: GameState, a: int, b: int) -> Array:
 		var w := counter_weight(state, b)
 		out.append(["Contre-espionnage (%d cellule%s%s)" % [counter, "s" if counter > 1 else "", ", Inquisition" if w > counter else ""],
 				-w * int(cfg["counter_per_cell"])])
+	var ci := Economy.building_sum(state, b, "counter_intel")  # postes de sécurité, bureaux du renseignement
+	if ci > 0:
+		out.append(["Sécurité intérieure (bâtiments)", -ci * int(cfg["counter_per_cell"])])
 	return out
 
 

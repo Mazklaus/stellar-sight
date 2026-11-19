@@ -282,6 +282,8 @@ static func check_found(state: GameState, a: int, b: int, fid: String) -> String
 	var need := int(data()["found"]["alliance_days"])
 	if Diplomacy.team_of(state, a, b) <= 0 and Diplomacy.pact_days(state, a, b) < need and not bool(talent(state, a).get("quick_found", false)):
 		return "il faut %d ans d'alliance (encore %d jours)" % [need / GameCalendar.DAYS_PER_YEAR, need - Diplomacy.pact_days(state, a, b)]
+	if Research.fx_int(state, a, "federation") <= 0:
+		return "il faut d'abord les Ambassades (recherche, Société) pour fonder un Koinon"
 	if bool(form(fid).get("faith", false)) and not _faith_ok(state, a, b):
 		return "une Communion exige une même foi (ou la Tolérance des deux côtés)"
 	if state.get_empire(b).is_ai() and Diplomacy.opinion(state, b, a) < 0:

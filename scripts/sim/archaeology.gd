@@ -1020,7 +1020,8 @@ static func _forge(state: GameState, eid: int, k: String, added: Array[Dictionar
 		return
 	match String(nd.get("fallback", "")):
 		"research":
-			var txt := Events.give_research(state, eid, int(nd.get("pct", 30)))
+			var fd := Research.grant_find(state, eid, "strates")  # trouvaille (prop. 10 de l'arbre)
+			var txt := ("une trouvaille, %s" % String(Research.tech(fd).get("label", fd))) if fd != "" else Events.give_research(state, eid, int(nd.get("pct", 30)))
 			added.append(state.add_chronicle("Les fragments de Savoir de %s se recoupent : %s." % [e.short_name(), txt], who))
 		"influence":
 			var n := Events.era_scaled(state, eid, int(nd.get("n", 150)))

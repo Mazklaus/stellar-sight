@@ -1224,6 +1224,10 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Insolites.note_departure(state, int(cmd["planet"]), int(sd.get("pop_cost", 0)))  # un départ n'est pas une mort
 			c.ship_build = String(cmd["ship"])
 			c.ship_days = Fleets.ship_days(state, e.id, String(cmd["ship"]))
+			var sdl := Economy.local_sum(c, "ship_days_local_pct")  # Cale sèche, Chaîne navale
+			if sdl != 0:
+				@warning_ignore("integer_division")
+				c.ship_days = maxi(1, c.ship_days * (100 + sdl) / 100)
 			PeopleHulls.on_build(state, e.id, int(cmd["planet"]), String(cmd["ship"]), c)  # épaves, sauvegarde
 		"move_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]

@@ -311,18 +311,28 @@ func _battle_hits(st: GameState, design_id: String) -> Array:
 	return counts
 
 
+## Ouvre l'ère `era` d'Armement (technologies principales des ères d'avant).
+func _open_armement(st: GameState, era: int) -> void:
+	var techs: Dictionary = GameData.technologies()["technologies"]
+	var f := st.get_empire(0).faction()
+	for tid: String in techs:
+		var t: Dictionary = techs[tid]
+		if String(t["domain"]) == "armement" and int(t.get("era", 1)) < era and Research.is_visible(f, tid) \
+				and not t.has("mastery") and not t.has("find") and not t.has("spec"):
+			Research.grant(st, 0, [tid])
+
+
 func _test_miniaturisation() -> void:
 	var st := _state("vael", 7171)
 	Research.grant(st, 0, ["coques_lourdes", "artillerie"])
 	var spec := {"name": "Croiseur d'artillerie", "hull": "croiseur", "modules": ["piece_artillerie", "piece_artillerie"]}
 	_ok(SimCommands.validate(st, SimCommands.save_design(0, spec)) != "", "sans marque III, pas d'artillerie sur un croiseur")
-	Research.grant(st, 0, ["canons_rail", "obusiers"])
-	_ok(SimCommands.validate(st, SimCommands.save_design(0, spec)) == "", "artillerie marque III : deux pièces sur un croiseur (%s)" % SimCommands.validate(st, SimCommands.save_design(0, spec)))
 	var pd := {"name": "Corvette bouclier", "hull": "corvette", "modules": ["antimissile", "antimissile", "antimissile"]}
 	_ok(SimCommands.validate(st, SimCommands.save_design(0, pd)) != "", "sans marque III, l'antimissile reste en défense")
-	Research.grant(st, 0, ["interception", "phase_dense"])
+	_open_armement(st, 3)  # lot 2 de l'arbre : la marque III vient du palier de l'ère III d'Armement
+	_ok(SimCommands.validate(st, SimCommands.save_design(0, spec)) == "", "artillerie marque III : deux pièces sur un croiseur (%s)" % SimCommands.validate(st, SimCommands.save_design(0, spec)))
 	_ok(SimCommands.validate(st, SimCommands.save_design(0, pd)) == "", "antimissile marque III : il tient aussi en soutien")
-	Research.grant(st, 0, ["chasse", "antimatiere"])
+	Research.grant(st, 0, ["chasse"])
 	var fr := {"name": "Frégate porteuse", "hull": "fregate", "modules": ["hangar_chasseurs"]}
 	_ok(SimCommands.validate(st, SimCommands.save_design(0, fr)) == "" and int(Designs.compute("fregate", ["hangar_chasseurs"])["weapons"]["fighters"]) > 0,
 			"chasseurs marque III : un hangar léger sur une frégate")

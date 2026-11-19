@@ -331,6 +331,12 @@ static func force(state: GameState, f: Fleet, target: String) -> int:
 	if PeopleHulls.fleet_flag(f, "boarding"):
 		pct += rule("eperon_pct", 50)
 	pct += Research.fx_int(state, f.owner, "board_pct")
+	pct += int(Combat.tactic(Combat.fleet_tactic(f)).get("board_pct", 0))  # Abordage en vague
+	if state.battles.has(f.system_id):
+		for o in Fleets.fleets_at(state, f.system_id):
+			if o.owner == f.owner and Combat._fleet_has_flag(o, "tractor"):
+				pct += rule("tractor_pct", 25)  # rayon tracteur : la cible accrochée
+				break
 	var h := Heroes.assigned_to(state, "fleet", f.id, f.owner)
 	if not h.is_empty():
 		pct += Heroes.trait_fx(h, "board_pct")

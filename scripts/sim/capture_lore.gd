@@ -326,7 +326,7 @@ static func derelict(state: GameState, eid: int, ship: String, sid: int, keep: b
 	e.resources["materials"] = int(e.resources.get("materials", 0)) + maxi(1, int(GameData.ship(ship).get("cost", {}).get("materials", 0)) * _r("scrap_pct", 30) / 100)
 	if Capture.full(state):
 		study_ship(state, eid, ship, true)
-	else:
+	elif Research.grant_find(state, eid, "capture") == "":  # trouvaille (prop. 10 de l'arbre)
 		Events.give_research(state, eid, 15)
 
 

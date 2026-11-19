@@ -57,7 +57,7 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 	var sys_id := state.galaxy.get_planet(c.planet_id).system_id
 	if c.construction != "" and not e.blackout and not Stability.frozen(state, sys_id) and WarPeace.occupier(state, sys_id) < 0 \
 			and not Private.skip_day(state, sys_id) and not Ports.skip_build(state, c):
-		c.construction_days -= 1
+		c.construction_days -= 1 + Economy.local_sum(c, "build_speed")  # Atelier de nanofabrication
 		if c.construction_days <= 0:
 			_finish_building(state, c, e, state.galaxy.get_planet(c.planet_id).display_name(state.galaxy), added)
 
@@ -144,6 +144,16 @@ static func _finish_building(state: GameState, c: Colony, e: Empire, planet_name
 	if b.get("eco_heal", false):
 		Ecology.heal(state, c.planet_id)  # Ingénierie climatique : projet, rien ne reste bâti
 		added.append(state.add_chronicle("%s : l'ingénierie climatique a rendu de l'air à %s. Les nuages sont neufs, encore un peu raides." % [e.short_name(), planet_name], Espionage.private_to(state, [e.id], state.galaxy.get_planet(c.planet_id).system_id)))
+		return
+	var dep := String(b.get("adds_deposit", ""))
+	if dep != "":
+		var dp := state.galaxy.get_planet(c.planet_id)
+		if not dp.deposits.has(dep):  # Enrichissement des sols, Forage géothermique, Puits du manteau
+			var deps := Array(dp.deposits)
+			deps.append(dep)
+			state.override_planet(c.planet_id, {"deposits": deps})
+		added.append(state.add_chronicle("%s : %s sur %s, le monde a un gisement de plus (%s)." % [e.short_name(), label, planet_name,
+				String(GameData.deposit(dep).get("label", dep)).to_lower()], Espionage.private_to(state, [e.id], dp.system_id)))
 		return
 	var base := String(b.get("upgrades", ""))
 	var at := c.buildings.find(base) if base != "" else -1

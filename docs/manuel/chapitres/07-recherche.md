@@ -35,15 +35,34 @@ Les peuples qui n'inventent rien (les Silencieux) ont un **Catalogue des acquisi
 
 Chaque ère a son coût de base, et chaque technologie connue renchérit un peu les suivantes. Un grand empire paie aussi sa recherche plus cher : au-delà de cinq colonies, chacune ajoute 5 % au coût. S'étendre rapporte du Savoir, mais pas gratuitement.
 
+### Les paliers d'ère
+
+Ouvrir une ère dans un domaine donne son **palier**, sans rien rechercher. Un losange en tête de colonne le signale, doré une fois l'ère ouverte ; survolez-le pour le lire.
+
+- **Armement** : les **marques d'armes**. Six familles d'armes, les ions et trois défenses passent toutes ensemble à la marque II, III, IV puis V, +20 % à chaque fois.
+- **Génie** : vitesse des flottes, chantiers plus rapides, puis vaisseaux moins chers.
+- **Économie** : +3 % de toutes les productions à chaque ère.
+- **Société** : croissance et stabilité, en alternance.
+
 ### Ce que débloquent les technologies
 
-- **Contenu.** Classes de vaisseaux (croiseur, cuirassé, porte-vaisseaux, titan…), bâtiments, mégastructures, traités.
-- **Marques I à V.** Six familles d'armes et trois défenses montent de marque en marque, +20 % à chaque fois.
-- **Spécialisations.** À certains nœuds, on choisit une branche sur deux : aujourd'hui les trois paires de doctrines d'Armement (Rideau d'acier ou Frappe en profondeur, Feu lointain ou Abordage, Guerre d'usure ou Guerre éclair). Le choix est définitif ; l'autre branche ne s'obtient plus que par échange, vol, épaves ou trouvaille. Un petit écu les signale.
-- **Maîtrises.** Des bonus purs, facultatifs, accrochés à une technologie parente (Réseaux savants après les Banques de données). Jamais prérequises, elles ne comptent pas pour ouvrir l'ère suivante ; leur carte est plus petite, juste sous leur parente.
-- **Trouvailles.** Des technologies qui ne se recherchent pas : curiosités, ruines, Strates, quêtes, prises ou hauts faits les livrent. Elles ont leur bande, en pointillés.
+Toute technologie débloque quelque chose qu'on voit : un bâtiment, un vaisseau, un module, une tactique, un projet, une loi, un traité ou une règle nouvelle. Les vieux bonus chiffrés (« +15 % de nourriture ») sont devenus des **Maîtrises**.
+
+- **Contenu.** Classes de vaisseaux (croiseur, cuirassé, porte-vaisseaux, titan…), bâtiments, mégastructures, modules (canon à masse lourd, lance à plasma, rayon tracteur, baie de réparation, bouclier de flottille, canon à ions…).
+- **Tactiques.** Les cinq tactiques de base restent libres ; une douzaine d'autres viennent de la recherche : Feu concentré, Salves croisées, Guerre électronique, Harcèlement, Mur d'acier, Raid profond, Barrage, Abordage en vague, Charge éclair, Retraite ordonnée, et le Dernier mot de l'ultime d'Armement.
+- **Armes à ions.** Une famille à part : peu de dégâts, mais une cible touchée perd un temps la moitié de ses boucliers et de sa défense antimissile.
+- **Bâtiments.** Clinique et Centre de clonage, Dômes biosphériques, Poste et Bureau de sécurité, Maison des spectacles et Grand théâtre, Bureau du renseignement, Institut des héros, Camp de recrutement et Académie militaire, Cale sèche et Chaîne navale, Usine automatisée, Atelier de nanofabrication, Recycleur orbital, Fabrique autonome, Réplicateur, Grenier universel, Cité scellée, Jardin symbiotique.
+- **Annexes.** Elles agrandissent un bâtiment sans prendre d'emplacement : les **Instituts** vouent l'Académie à un domaine (ses technologies coûtent 10 % de moins, 25 % au plus), le Grand scriptorium, l'Athénée, le Ganglion majeur, le Grand temple puis le Sanctuaire, le Grand mausolée, le Sénat local, la Bourse de commerce, la Raffinerie avancée, la Cour de justice, le Puits d'extraction, les Abris civils.
+- **Projets.** Rien ne reste bâti, le monde change : Enrichissement des sols, Forage géothermique et Puits du manteau lui donnent un gisement de plus.
+- **Selon le peuple.** Ceux qui ne mangent pas ont leur bâtiment à la place des fermes, sans technologie : Carrière nourricière (mangeurs de roche), Batteries communes (courant vital), Serre de lumière (végétaux), Puits d'écho (êtres de lumière). Six coques de peuple gagnent une capacité avec une technologie de leur peuple (Coursier, Martyr, Frégate des Quarante, Galère de fief, Corvette de concorde, Nef de pénitence).
+- **Ressources stratégiques.** Plasmine, Ferronoir et Éthérine ne rapportent qu'avec leur technologie d'extraction (Économie, ères II à IV).
+- **Lois et traités.** Une loi de niveau 2, 3 ou 4 demande une technologie d'État de la même ère ; les alliances demandent les Chancelleries, le traité de migration Colons formés, la fondation d'un Koinon les Ambassades.
+- **Ultimes.** Chaque domaine a la sienne, qui demande trois autres technologies de l'ère V : le Verbe final (Armement), le Moteur à singularité (Génie), l'Économie d'abondance, la Symbiose.
+- **Spécialisations.** À certains nœuds, on choisit une branche sur deux : les trois paires de doctrines d'Armement (Rideau d'acier ou Frappe en profondeur, Feu lointain ou Abordage, Guerre d'usure ou Guerre éclair), et en Société, rayonner ou convertir (Réseau des mondes ou Conversion culturelle). Le choix est définitif ; l'autre branche ne s'obtient plus que par échange, vol, épaves ou trouvaille. Un petit écu les signale.
+- **Maîtrises.** Des bonus purs, facultatifs, accrochés à une technologie parente (Agronomie orbitale après l'Hydroponie, Postcombustion après les Propulseurs). Jamais prérequises, elles ne comptent pas pour ouvrir l'ère suivante ; leur carte est plus petite, juste sous leur parente.
+- **Trouvailles.** Des technologies qui ne se recherchent pas : une grande curiosité, une puissance ancienne, les fragments de Savoir des Strates ou une prise démontée les livrent (Fonderie des Anciens, Codex des navigateurs disparus, Foyer à plasma ancien…). Chacune vaut sa cousine de l'arbre, qu'on n'a plus à rechercher. Elles ont leur bande, en pointillés.
 - **Technologies dangereuses.** Quelques technologies de l'ère V (étoiles captives, nuées pensantes…) rapprochent la fin de partie du pilier Crises. Un triangle rouge et la fiche le disent avant de lancer.
-- **Effets.** Vitesse, coût des vaisseaux, croissance, habitabilité, vision, emplacements, garnisons.
+- **Effets.** Habitabilité, vision, emplacements, garnisons, et ce que portent les Maîtrises.
 - **Technologies de peuple.** Variantes propres à votre peuple, exclusives, voire hérétiques ou interdites selon son credo.
 - **Courants.** Chaque technologie porte un des six courants politiques (Forge, Académie, Concorde, Sève, Autel, Glaive) : la découvrir lui donne un peu de soutien. La recherche dessine la vie politique.
 
@@ -51,7 +70,7 @@ Chaque ère a son coût de base, et chaque technologie connue renchérit un peu 
 
 Plus de quarante technologies ont un **eurêka** : un objectif en jeu (rencontrer des empires, coloniser un type de monde, gagner des batailles, signer une paix…) qui paie 40 % de leur coût, une fois. Un point doré le signale dans l'arbre.
 
-Le vainqueur d'une bataille étudie les **épaves** des vaincus : un peu de chaque marque où ils le dépassent, et de leurs doctrines. C'est la seule façon d'obtenir la doctrine qu'on n'a pas choisie.
+Le vainqueur d'une bataille étudie les **épaves** des vaincus : un peu d'une technologie d'Armement qu'il n'a pas, et de leurs doctrines. C'est la seule façon d'obtenir la doctrine qu'on n'a pas choisie.
 
 ::: chronique Lettre d'un frère scribe|Frère Anselme du Scriptorium, Chœur Éternel
 « L'innovation est suspecte. Toutefois, les canons qui tirent plus loin ne sont pas une innovation : ce sont des prières plus convaincantes. Le Conclave a tranché en ce sens à l'unanimité moins une voix, qui a depuis rejoint le chœur des martyrs. »

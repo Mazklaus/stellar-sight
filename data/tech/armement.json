@@ -7,12 +7,7 @@
 			"era": 1,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Canons cinétiques marque II : +20 % de dégâts.",
-			"effects": {
-				"marks": {
-					"kinetic": 1
-				}
-			},
+			"text": "Débloque le Canon à masse lourd (emplacement lourd des grandes coques). Les marques des armes viennent des paliers d'Armement.",
 			"eureka": {
 				"kind": "kills",
 				"n": 3
@@ -25,12 +20,7 @@
 			"era": 1,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Rayons marque II : +20 % de dégâts.",
-			"effects": {
-				"marks": {
-					"beam": 1
-				}
-			}
+			"text": "Débloque la tactique Feu concentré (+25 % à moyenne portée)."
 		},
 		"blindage_composite": {
 			"label": "Blindage composite",
@@ -38,15 +28,10 @@
 			"era": 1,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Blindage marque II : +20 % de protection du blindage.",
+			"text": "Débloque les Cloisons étanches (module de défense : coque et un peu de blindage).",
 			"needs": [
 				"vaisseaux"
 			],
-			"effects": {
-				"marks": {
-					"armor": 1
-				}
-			},
 			"eureka": {
 				"kind": "ships_lost",
 				"n": 3
@@ -58,12 +43,7 @@
 			"era": 1,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Missiles marque II : +20 % de dégâts.",
-			"effects": {
-				"marks": {
-					"missile": 1
-				}
-			}
+			"text": "Débloque la tactique Salves croisées : la défense ponctuelle adverse arrête un quart de missiles de moins."
 		},
 		"boucliers_phase": {
 			"label": "Boucliers à phase",
@@ -71,18 +51,13 @@
 			"era": 2,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Boucliers marque II : +20 % de protection des boucliers.",
+			"text": "Débloque le Bouclier de flotte des titans.",
 			"pre": [
 				"lentilles"
 			],
 			"needs": [
 				"vaisseaux"
-			],
-			"effects": {
-				"marks": {
-					"shield": 1
-				}
-			}
+			]
 		},
 		"boucliers_durcis": {
 			"label": "Boucliers durcis",
@@ -106,18 +81,13 @@
 			"era": 2,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Défense ponctuelle marque II : +20 % d'interception des missiles, torpilles et chasseurs.",
+			"text": "Débloque les Tourelles d'interception (défense ponctuelle du vaisseau et un peu de la flotte) et le Dôme antimissile des titans.",
 			"pre": [
 				"blindage_composite"
 			],
 			"needs": [
 				"vaisseaux"
-			],
-			"effects": {
-				"marks": {
-					"pd": 1
-				}
-			}
+			]
 		},
 		"torpilles": {
 			"label": "Torpilles à fusion",
@@ -158,19 +128,34 @@
 			"era": 2,
 			"field": "troupes",
 			"current": "glaive",
-			"text": "+25 % de troupes embarquées.",
+			"text": "Débloque la Caserne titanesque. Sa Maîtrise, Fusiliers d'élite, embarque plus de troupes.",
 			"pre": [
 				"canons_masse"
 			],
 			"needs": [
 				"vaisseaux"
 			],
-			"effects": {
-				"troops_pct": 25
-			},
 			"eureka": {
 				"kind": "conquests",
 				"n": 1
+			}
+		},
+		"fusiliers_elite": {
+			"label": "Fusiliers d'élite",
+			"domain": "armement",
+			"era": 3,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "+25 % de troupes embarquées.",
+			"pre": [
+				"marines"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"mastery": "marines",
+			"effects": {
+				"troops_pct": 25
 			}
 		},
 		"blindes_assaut": {
@@ -209,16 +194,11 @@
 			"era": 3,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Canons cinétiques marque III : +20 % de dégâts en plus.",
+			"text": "Débloque le Rayon tracteur : la flotte ennemie accrochée ne quitte plus la bataille, et l'abordage contre elle gagne en force.",
 			"pre": [
 				"canons_masse",
 				"marines"
-			],
-			"effects": {
-				"marks": {
-					"kinetic": 1
-				}
-			}
+			]
 		},
 		"plasma": {
 			"label": "Rayons à plasma",
@@ -226,15 +206,10 @@
 			"era": 3,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Rayons marque III : +20 % de dégâts en plus.",
+			"text": "Débloque la Lance à plasma (rayon lourd des grandes coques).",
 			"pre": [
 				"boucliers_phase"
-			],
-			"effects": {
-				"marks": {
-					"beam": 1
-				}
-			}
+			]
 		},
 		"plaques_ablatives": {
 			"label": "Plaques ablatives",
@@ -242,18 +217,13 @@
 			"era": 3,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Blindage marque III : +20 % de protection en plus.",
+			"text": "Débloque les Plaques ablatives (blindage plus épais).",
 			"pre": [
 				"interception"
 			],
 			"needs": [
 				"vaisseaux"
-			],
-			"effects": {
-				"marks": {
-					"armor": 1
-				}
-			}
+			]
 		},
 		"essaims": {
 			"label": "Missiles en essaim",
@@ -261,16 +231,10 @@
 			"era": 3,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Missiles marque III et torpilles marque II : +20 % de dégâts.",
+			"text": "Débloque le Lance-essaim (missiles légers en gerbe).",
 			"pre": [
 				"torpilles"
-			],
-			"effects": {
-				"marks": {
-					"missile": 1,
-					"torpedo": 1
-				}
-			}
+			]
 		},
 		"artillerie": {
 			"label": "Artillerie lourde",
@@ -310,19 +274,13 @@
 			"era": 4,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Boucliers et défense ponctuelle marque III : +20 % de protection.",
+			"text": "Débloque le Bouclier de flottille (module de soutien qui couvre les vaisseaux voisins).",
 			"pre": [
 				"plasma"
 			],
 			"needs": [
 				"vaisseaux"
-			],
-			"effects": {
-				"marks": {
-					"shield": 1,
-					"pd": 1
-				}
-			}
+			]
 		},
 		"canons_rail": {
 			"label": "Canons à rail",
@@ -330,16 +288,10 @@
 			"era": 4,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Canons cinétiques marque IV et artillerie marque II : +20 % de dégâts.",
+			"text": "Débloque le Canon à rail (canon lourd des grandes coques).",
 			"pre": [
 				"artillerie"
-			],
-			"effects": {
-				"marks": {
-					"kinetic": 1,
-					"artillery": 1
-				}
-			}
+			]
 		},
 		"antimatiere": {
 			"label": "Torpilles à antimatière",
@@ -347,20 +299,14 @@
 			"era": 4,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Torpilles marque III et chasseurs marque II : +20 % de dégâts.",
+			"text": "Débloque la Torpille à antimatière (torpille lourde des grandes coques).",
 			"pre": [
 				"essaims",
 				"chasse"
 			],
 			"needs": [
 				"vaisseaux"
-			],
-			"effects": {
-				"marks": {
-					"torpedo": 1,
-					"fighters": 1
-				}
-			}
+			]
 		},
 		"faisceaux_gamma": {
 			"label": "Faisceaux gamma",
@@ -368,16 +314,10 @@
 			"era": 4,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Rayons marque IV et boucliers marque IV.",
+			"text": "Débloque la famille d'armes Ions : le Canon à ions coupe à moitié les boucliers et la défense ponctuelle de la flotte touchée jusqu'au lendemain.",
 			"pre": [
 				"plasma"
 			],
-			"effects": {
-				"marks": {
-					"beam": 1,
-					"shield": 1
-				}
-			},
 			"flavor": "Le rayon est invisible. Le trou qu'il laisse, beaucoup moins."
 		},
 		"missiles_furtifs": {
@@ -386,16 +326,10 @@
 			"era": 4,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Missiles marque IV et torpilles marque IV.",
+			"text": "Débloque la tactique Guerre électronique : la défense ponctuelle adverse arrête 40 % de projectiles de moins.",
 			"pre": [
 				"essaims"
 			],
-			"effects": {
-				"marks": {
-					"missile": 1,
-					"torpedo": 1
-				}
-			},
 			"flavor": "Les tourelles adverses tirent sur ce qu'elles voient. C'est tout le problème."
 		},
 		"blindage_reactif": {
@@ -404,19 +338,13 @@
 			"era": 4,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Blindage marque IV et défense ponctuelle marque IV.",
+			"text": "Débloque le Blindage réactif (blindage et un peu de défense ponctuelle).",
 			"pre": [
 				"plaques_ablatives"
 			],
 			"needs": [
 				"vaisseaux"
-			],
-			"effects": {
-				"marks": {
-					"armor": 1,
-					"pd": 1
-				}
-			}
+			]
 		},
 		"obusiers": {
 			"label": "Obusiers à fragmentation",
@@ -424,16 +352,10 @@
 			"era": 4,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Artillerie marque III et chasseurs marque III.",
+			"text": "Débloque le Canon de siège des titans.",
 			"pre": [
 				"artillerie"
-			],
-			"effects": {
-				"marks": {
-					"artillery": 1,
-					"fighters": 1
-				}
-			}
+			]
 		},
 		"canons_singularite": {
 			"label": "Canons à singularité",
@@ -441,19 +363,13 @@
 			"era": 5,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Canons cinétiques marque V et artillerie marque IV.",
+			"text": "Débloque le Canon à singularité des léviathans.",
 			"pre": [
 				"canons_rail"
 			],
 			"danger": "Percer l'espace à chaque tir attire l'attention de ce qui vit derrière : la fin de partie approche.",
 			"ai": {
 				"paix": 40
-			},
-			"effects": {
-				"marks": {
-					"kinetic": 1,
-					"artillery": 1
-				}
 			},
 			"flavor": "Le projectile pèse un gramme. Il en paraît beaucoup plus à l'arrivée."
 		},
@@ -463,16 +379,10 @@
 			"era": 5,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Rayons marque V et boucliers marque V.",
+			"text": "Débloque la Lance stellaire des titans.",
 			"pre": [
 				"faisceaux_gamma"
-			],
-			"effects": {
-				"marks": {
-					"beam": 1,
-					"shield": 1
-				}
-			}
+			]
 		},
 		"torpilles_singulieres": {
 			"label": "Torpilles à singularité",
@@ -480,17 +390,25 @@
 			"era": 5,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Missiles marque V et torpilles marque V.",
+			"text": "Débloque la Torpille à singularité.",
 			"pre": [
 				"missiles_furtifs",
 				"antimatiere"
-			],
-			"effects": {
-				"marks": {
-					"missile": 1,
-					"torpedo": 1
-				}
-			}
+			]
+		},
+		"verbe_final": {
+			"label": "Le Verbe final",
+			"domain": "armement",
+			"era": 5,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Technologie ultime (il faut 3 autres technologies de l'ère V d'Armement). Débloque le Canon du Verbe final et la tactique Dernier mot : la doctrine finale, plein feu à toutes les portées.",
+			"ultimate": 3,
+			"danger": "Une arme qui clôt les débats rouvre ceux des puissances anciennes : la fin de partie approche.",
+			"ai": {
+				"paix": 40
+			},
+			"flavor": "Les diplomates appellent ça un argument. Les survivants n'appellent plus."
 		},
 		"matiere_programmable": {
 			"label": "Matière programmable",
@@ -498,7 +416,7 @@
 			"era": 5,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Blindage marque V et défense ponctuelle marque V.",
+			"text": "Débloque le Blindage programmable (blindage, bouclier et coque).",
 			"pre": [
 				"blindage_reactif"
 			],
@@ -508,12 +426,6 @@
 			"danger": "Une matière qui obéit peut un jour cesser d'obéir : la fin de partie approche.",
 			"ai": {
 				"paix": 40
-			},
-			"effects": {
-				"marks": {
-					"armor": 1,
-					"pd": 1
-				}
 			}
 		},
 		"escadres_autonomes": {
@@ -522,16 +434,10 @@
 			"era": 5,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Chasseurs marque IV et artillerie marque V.",
+			"text": "Débloque le Hangar géant des titans.",
 			"pre": [
 				"obusiers"
-			],
-			"effects": {
-				"marks": {
-					"fighters": 1,
-					"artillery": 1
-				}
-			}
+			]
 		},
 		"nuees_pensantes": {
 			"label": "Nuées pensantes",
@@ -539,7 +445,7 @@
 			"era": 5,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Chasseurs marque V.",
+			"text": "Débloque la Nuée de drones (emplacement lourd : chasseurs et défense ponctuelle).",
 			"pre": [
 				"escadres_autonomes"
 			],
@@ -550,11 +456,6 @@
 			"ai": {
 				"paix": 40
 			},
-			"effects": {
-				"marks": {
-					"fighters": 1
-				}
-			},
 			"flavor": "Elles votent avant chaque attaque. Toujours à l'unanimité."
 		},
 		"rideau_acier": {
@@ -563,7 +464,7 @@
 			"era": 2,
 			"field": "doctrines",
 			"current": "glaive",
-			"text": "Doctrine : les vaisseaux d'écran encaissent 20 % de dégâts en moins.",
+			"text": "Doctrine : les vaisseaux d'écran encaissent 20 % de dégâts en moins. Débloque la tactique Mur d'acier.",
 			"needs": [
 				"vaisseaux"
 			],
@@ -583,7 +484,7 @@
 			"era": 2,
 			"field": "doctrines",
 			"current": "glaive",
-			"text": "Doctrine : 25 % des tirs ignorent les rangs et visent n'importe quel vaisseau, arrière compris.",
+			"text": "Doctrine : 25 % des tirs ignorent les rangs et visent n'importe quel vaisseau, arrière compris. Débloque la tactique Raid en profondeur.",
 			"needs": [
 				"vaisseaux"
 			],
@@ -603,7 +504,7 @@
 			"era": 3,
 			"field": "doctrines",
 			"current": "glaive",
-			"text": "Doctrine : +15 % de dégâts à longue portée, -10 % à courte portée.",
+			"text": "Doctrine : +15 % de dégâts à longue portée, -10 % à courte portée. Débloque la tactique Barrage.",
 			"needs": [
 				"vaisseaux"
 			],
@@ -656,7 +557,7 @@
 			"era": 3,
 			"field": "doctrines",
 			"current": "glaive",
-			"text": "Doctrine : +15 % de dégâts à courte portée, +25 % de troupes embarquées et (prises de guerre complètes) force d'abordage +20 %.",
+			"text": "Doctrine : +15 % de dégâts à courte portée, +25 % de troupes embarquées et (prises de guerre complètes) force d'abordage +20 %. Débloque la tactique Abordage en vague.",
 			"needs": [
 				"vaisseaux"
 			],
@@ -680,7 +581,7 @@
 			"era": 4,
 			"field": "doctrines",
 			"current": "glaive",
-			"text": "Doctrine : réparations deux fois plus rapides, sièges 25 % plus efficaces.",
+			"text": "Doctrine : réparations deux fois plus rapides, sièges 25 % plus efficaces. Débloque la tactique Retraite ordonnée.",
 			"needs": [
 				"vaisseaux"
 			],
@@ -701,7 +602,7 @@
 			"era": 4,
 			"field": "doctrines",
 			"current": "glaive",
-			"text": "Doctrine : flottes 20 % plus rapides, +10 % de dégâts le premier jour de chaque bataille.",
+			"text": "Doctrine : flottes 20 % plus rapides, +10 % de dégâts le premier jour de chaque bataille. Débloque la tactique Charge éclair.",
 			"needs": [
 				"vaisseaux"
 			],
@@ -752,7 +653,7 @@
 			"era": 2,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Tir sur les régiments qui débarquent dans vos systèmes : 10 % de leur santé (combat au sol complet).",
+			"text": "Débloque les Abris civils (moitié moins de morts sous les bombardements). Tir sur les régiments qui débarquent : 10 % de leur santé (combat au sol complet).",
 			"pre": [
 				"bastions"
 			],
@@ -902,6 +803,37 @@
 			],
 			"pillar": "superarmes",
 			"flavor": "Un bouton, sous une vitre, sous une autre vitre, sous un serment."
+		},
+		"foyer_plasma_ancien": {
+			"label": "Foyer à plasma ancien",
+			"domain": "armement",
+			"era": 3,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Trouvaille : un foyer d'arme à plasma intact, démonté pièce à pièce. Il vaut Plasma (Lance à plasma) sans le rechercher.",
+			"find": true,
+			"find_of": "plasma",
+			"find_sources": [
+				"curio",
+				"ancients",
+				"capture"
+			],
+			"flavor": "Il était encore chaud. Les ingénieurs ont préféré ne pas demander depuis quand."
+		},
+		"plans_bouclier_oublie": {
+			"label": "Plans d'un bouclier oublié",
+			"domain": "armement",
+			"era": 4,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Trouvaille : un bouclier de flottille dessiné par une puissance ancienne. Il vaut Phase dense (Bouclier de flottille) sans la rechercher.",
+			"find": true,
+			"find_of": "phase_dense",
+			"find_sources": [
+				"ancients",
+				"strates"
+			],
+			"flavor": "L'original protégeait une flotte entière. De quoi, les plans ne le disent pas."
 		}
 	}
 }

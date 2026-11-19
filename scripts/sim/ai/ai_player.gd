@@ -746,6 +746,7 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 		var cap := Economy.max_pop(state, p, e.id, c.buildings)
 		if c.population >= cap - 1:
 			out.append("habitats")
+			out.append_array(["dome_biospherique", "dome_renforce", "cite_scellee"])  # filtrés par check_build
 		if int(net.get("influence", 0)) < 4:
 			out.append("forum")
 		out.append("complexe_minier")
@@ -753,6 +754,22 @@ static func building_wishes(ctx: Dictionary, c: Colony, net: Dictionary) -> Arra
 			out.append("centrale_fusion")
 		if int(net.get("food", 0)) < 10 and FactionTraits.diet(e.faction()) == "food":
 			out.append("ferme_hydroponique")
+		# Lot 2 de l'arbre : bâtiments selon le peuple (régime) et seconds choix utiles.
+		var diet := FactionTraits.diet(e.faction())
+		if diet == "materials" and int(net.get("materials", 0)) < 10:
+			out.append("carriere_nourriciere")
+		if diet == "energy" and int(net.get("energy", 0)) < 10:
+			out.append_array(["batteries_communes", "serre_lumiere"])
+		if int(net.get("energy", 0)) < 10:
+			out.append("puits_echo")
+		if use >= 1:
+			if c.population * 2 < cap:
+				out.append("clinique")
+			out.append("usine_automatisee")
+			if _is_main_yard(ctx, c):
+				out.append("cale_seche")
+				if not e.wars.is_empty():
+					out.append("camp_recrutement")
 	return out
 
 
@@ -1559,7 +1576,7 @@ static func tactic_for(ctx: Dictionary, f: Fleet) -> String:
 	if skill <= 0:
 		return "assaut"  # la Recrue charge, même avec des missiles
 	# Une flotte qui peut suivre l'Adaptative (Frégate des Quarante) la prend dès que le peuple est connu.
-	if _use(ctx) >= 1 and Combat.tactic_ids_for(f).has("adaptatif"):
+	if _use(ctx) >= 1 and Combat.tactic_ids_for(f, ctx["state"]).has("adaptatif"):
 		return "adaptatif"
 	if skill == 1:
 		return Combat.default_tactic()
@@ -1569,11 +1586,18 @@ static func tactic_for(ctx: Dictionary, f: Fleet) -> String:
 		for k in w:
 			for i in 3:
 				by_phase[i] += int(w[k]) * Combat.weapon_eff(String(k), i)
+	var pick := Combat.default_tactic()
 	if by_phase[0] > by_phase[2] * 5 / 4:
-		return "distance"
-	if by_phase[2] > by_phase[0] * 5 / 4:
-		return "assaut"
-	return Combat.default_tactic()
+		pick = "distance"
+	elif by_phase[2] > by_phase[0] * 5 / 4:
+		pick = "assaut"
+	# Tactiques débloquées par la recherche (lot 2 de l'arbre) : la même idée, en mieux.
+	var ok := Combat.tactic_ids_for(f, ctx["state"])
+	var better: Array = {"distance": ["barrage"], "assaut": ["charge_eclair"], "equilibre": ["feu_concentre"]}.get(pick, [])
+	for t in better:
+		if ok.has(t):
+			return String(t)
+	return pick
 
 
 ## Système d'un empire ennemi le plus facile à prendre : garnison, flottes vues sur place, distance.
@@ -1915,6 +1939,11 @@ static func research_pick(ctx: Dictionary) -> String:
 			w *= 3  # le bâtiment de recherche et celui du penchant du peuple d'abord (Raffinerie d'Ossarane)
 		if use >= 1 and not state.portals.is_empty():
 			w *= AiPortals.tech_mult(ctx, tid)  # trous de ver connus, rivaux : portails de saut
+		if use >= 1 and t.has("effects") and t["effects"].has("strategic_extract") and Goods.active(state):
+			for g in t["effects"]["strategic_extract"]:
+				if Goods.owned(state, e.id).has(g):
+					w *= 4  # un gisement stratégique attend sa technologie d'extraction
+					break
 		if Research.is_mastery(tid):
 			@warning_ignore("integer_division")
 			w = w * 2 / 3  # Maîtrise : facultative, après ce qui ouvre quelque chose
@@ -2018,7 +2047,7 @@ static func research_building(ctx: Dictionary) -> String:
 	var e: Empire = ctx["e"]
 	for bid in GameData.buildings():
 		var bd := GameData.building(bid)
-		if not bd.has("requires_tech") or int(bd.get("yields", {}).get("knowledge", 0)) <= 0:
+		if not bd.has("requires_tech") or int(bd.get("yields", {}).get("knowledge", 0)) <= 0 or bd.get("annex", false):
 			continue
 		if Economy.building_unlocked(state, e.id, bid):
 			return String(bid)

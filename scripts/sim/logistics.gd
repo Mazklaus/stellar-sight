@@ -386,7 +386,7 @@ static func autonomy(state: GameState, f: Fleet) -> int:
 	pct += Heroes.trait_fx(Heroes.at_post(state, "fleet", f.id, f.owner), "autonomy_pct")
 	if Combat._fleet_has_flag(f, "supply_hold"):
 		pct += int((_cfg("supply_hold") as Dictionary).get("autonomy_pct", 100))
-	if Combat._fleet_has_flag(f, "cold_blood"):
+	if PeopleHulls.has_flag(state, f, "cold_blood"):
 		pct += 100  # Sang-froid (coque de peuple reptilienne) : autonomie doublée
 	return maxi(10, int(_cfg("autonomy_days")) * maxi(10, pct) / 100)
 
@@ -422,7 +422,7 @@ static func repair_pct(state: GameState, f: Fleet, base: int) -> int:
 	var pct := base
 	if not f.is_moving() and has_depot(state, f.system_id) and supplies(state, WarPeace.holder(state, f.system_id), f.owner):
 		pct = maxi(pct, int((_cfg("depot") as Dictionary).get("repair_pct", 8)))
-	if exhausted(state, f) and not Combat._fleet_has_flag(f, "fleet_repair") and not bool(Combat.trait_value(state, f.owner, "repair_anywhere", false)):
+	if exhausted(state, f) and not PeopleHulls.has_flag(state, f, "fleet_repair") and not bool(Combat.trait_value(state, f.owner, "repair_anywhere", false)):
 		pct = int((_cfg("supply_hold") as Dictionary).get("repair_pct", 1)) if Combat._fleet_has_flag(f, "supply_hold") else 0
 	return pct
 

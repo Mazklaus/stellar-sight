@@ -5197,7 +5197,7 @@
     "Trouvaille"
    ],
    "family": "meca",
-   "summary": "Technologie qui ne se recherche pas : curiosités, ruines, Strates, quêtes, prises ou hauts faits la livrent",
+   "summary": "Technologie qui ne se recherche pas : une grande curiosité, une puissance ancienne, les Strates ou une prise démontée la livrent ; elle vaut sa cousine de l'arbre",
    "chapters": [
     "07-recherche"
    ],
@@ -5263,6 +5263,87 @@
    ],
    "family": "meca",
    "summary": "Ce qu'un peuple peut faire selon ses couches (vaisseaux, chantier, nourriture, naissances, colonies) ; ce qui ne lui sert à rien disparaît de son arbre",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "palier_ere",
+   "name": "Palier d'ère",
+   "forms": [
+    "Palier d'ère",
+    "Paliers d'ère"
+   ],
+   "family": "meca",
+   "summary": "Améliorations gratuites qu'on gagne en ouvrant une ère dans un domaine de recherche ; les marques d'armes viennent des paliers d'Armement",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "annexe",
+   "name": "Annexe",
+   "forms": [
+    "Annexe",
+    "Annexes"
+   ],
+   "family": "meca",
+   "summary": "Agrandissement d'un bâtiment qui ne prend pas d'emplacement (Institut sur l'Académie, Grand temple sur le Temple, Bourse de commerce sur le Comptoir…)",
+   "chapters": [
+    "07-recherche"
+   ],
+   "strict": true
+  },
+  {
+   "id": "institut",
+   "name": "Institut",
+   "forms": [
+    "Institut",
+    "Instituts"
+   ],
+   "family": "meca",
+   "summary": "Annexe de l'Académie vouée à un domaine : ses technologies coûtent 10 % de moins dans tout l'empire, 25 % au plus en cumulant",
+   "chapters": [
+    "07-recherche"
+   ],
+   "strict": true
+  },
+  {
+   "id": "armes_ions",
+   "name": "Armes à ions",
+   "forms": [
+    "Armes à ions",
+    "Canon à ions",
+    "Canons à ions"
+   ],
+   "family": "meca",
+   "summary": "Famille d'armes à faibles dégâts : la cible touchée perd un temps la moitié de ses boucliers et de sa défense antimissile",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "projet_colonie",
+   "name": "Projet de colonie",
+   "forms": [
+    "Projet de colonie",
+    "Projets de colonie"
+   ],
+   "family": "meca",
+   "summary": "Chantier dont rien ne reste bâti : le monde change (Enrichissement des sols, Forage géothermique, Puits du manteau lui donnent un gisement)",
+   "chapters": [
+    "07-recherche"
+   ]
+  },
+  {
+   "id": "technologie_ultime",
+   "name": "Technologie ultime",
+   "forms": [
+    "Technologie ultime",
+    "Technologies ultimes"
+   ],
+   "family": "meca",
+   "summary": "La dernière technologie d'un domaine : elle demande trois autres technologies de son ère V (Verbe final, Moteur à singularité, Économie d'abondance, Symbiose)",
    "chapters": [
     "07-recherche"
    ]

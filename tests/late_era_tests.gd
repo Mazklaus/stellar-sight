@@ -221,7 +221,7 @@ func _test_habitats_and_outposts() -> void:
 			break
 	var od := _plant(st, 0, dep_planet.id, 0, Colony.KIND_OUTPOST)
 	var m0 := int(Economy.colony_yields(st, od)["gross"]["materials"])
-	Research.grant(st, 0, ["forage_manteau"])
+	Research.grant(st, 0, ["forage_manteau", "cartographie_manteau"])
 	_ok(int(Economy.colony_yields(st, od)["gross"]["materials"]) == m0 + 2, "Forage du manteau : un filon riche rapporte le double")
 
 
@@ -308,10 +308,10 @@ func _test_upkeep_and_trade() -> void:
 	var st := sim.state
 	var home: Colony = st.colonies[st.empires[0].capital_planet]
 	var u0: Dictionary = Economy.colony_yields(st, home)["upkeep"]
-	Research.grant(st, 0, ["replicateurs"])
+	Research.grant(st, 0, ["replicateurs", "cuisine_moleculaire"])
 	var u1: Dictionary = Economy.colony_yields(st, home)["upkeep"]
 	_ok(int(u1["food"]) < int(u0["food"]), "Réplicateurs : la population mange moins (%d -> %d)" % [int(u0["food"]), int(u1["food"])])
-	Research.grant(st, 0, ["abondance"])
+	Research.grant(st, 0, ["abondance", "post_rarete"])
 	var u2: Dictionary = Economy.colony_yields(st, home)["upkeep"]
 	_ok(int(u2["energy"]) < int(u1["energy"]), "Économie d'abondance : plus d'entretien des bâtiments")
 	# Compagnies marchandes : un accord commercial rapporte le double.
