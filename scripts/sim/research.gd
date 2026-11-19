@@ -706,6 +706,14 @@ static func cost(state: GameState, empire_id: int, tid: String, colonies := -1) 
 		c = c * int(rs.get("domain_cost_pct", {}).get(String(t.get("domain", "")), 100)) / 100
 		for tag in t.get("tags", []):
 			c = c * int(rs.get("tag_cost_pct", {}).get(String(tag), 100)) / 100
+		# Compilation (Teyl, lot 4 de l'arbre) : chaque technologie connue du même domaine et du même champ.
+		if int(rs.get("compile_per", 0)) > 0:
+			var same := 0
+			for k in e.techs:
+				var kt0 := tech(String(k))
+				if String(kt0.get("domain", "")) == String(t.get("domain", "")) and String(kt0.get("field", "")) == String(t.get("field", "")):
+					same += 1
+			c = c * (100 - mini(int(rs.get("compile_max", 20)), same * int(rs["compile_per"]))) / 100
 		if is_heretic(f, tid):
 			c = c * int(t["heretic"].get("cost_pct", 100)) / 100
 		# Brevets d'un peuple mineur absorbé (trait d'assimilation de Tharsis, voir Minors).
@@ -1252,6 +1260,7 @@ const STAT_TEXTS := {
 	"quests": "achever %d quêtes",
 	"curios": "étudier %d curiosités",
 	"prizes": "faire %d prises",
+	"looted": "piller %d ressources",
 }
 
 

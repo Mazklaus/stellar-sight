@@ -501,7 +501,7 @@ static func site_reason(state: GameState, eid: int, pid: int, wid: String) -> St
 static func _system_has(state: GameState, eid: int, sid: int, bid: String) -> bool:
 	for opid in state.galaxy.systems[sid].planet_ids:
 		var o: Colony = state.colonies.get(opid)
-		if o and o.owner == eid and o.buildings.has(bid):
+		if o and o.owner == eid and o.has_kind(bid):
 			return true
 	return false
 

@@ -563,7 +563,7 @@ static func integration_rate(state: GameState, c: Colony, fid: String) -> int:
 	var own := founder_of(state, c.owner)
 	if _layer(fid, "credo") != "" and _layer(fid, "credo") == _layer(own, "credo"):
 		v += int(ig.get("same_credo", 2))
-	if c.buildings.has("forum"):
+	if c.has_kind("forum"):
 		v += int(ig.get("forum", 2))
 	if not state.heroes.is_empty():
 		var sid := state.galaxy.get_planet(c.planet_id).system_id

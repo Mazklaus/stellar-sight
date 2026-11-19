@@ -196,7 +196,7 @@ static func _borrow(state: GameState, eid: int, ed: Dictionary, mine: Array[int]
 	var best := -1
 	for pid in mine:
 		var c: Colony = state.colonies[pid]
-		if not c.buildings.has("arsenal") and not c.buildings.has("capitale"):
+		if not c.has_kind("arsenal") and not c.buildings.has("capitale"):
 			continue
 		if best < 0 or c.population > (state.colonies[best] as Colony).population:
 			best = pid

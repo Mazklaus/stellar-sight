@@ -194,7 +194,7 @@ static func has_depot(state: GameState, sid: int, holder := -1) -> bool:
 		return false
 	for pid in state.galaxy.systems[sid].planet_ids:
 		var c: Colony = state.colonies.get(pid)
-		if c != null and c.owner == holder and c.is_established() and c.buildings.has(DEPOT):
+		if c != null and c.owner == holder and c.is_established() and c.has_kind(DEPOT):
 			return true
 	if Megastructures.depot_at(state, sid, holder):
 		return true  # Siphon de géante achevé

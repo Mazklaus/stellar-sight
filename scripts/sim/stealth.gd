@@ -279,6 +279,7 @@ static func cloak(state: GameState, f: Fleet) -> int:
 		if up:
 			c = base_cloak(state, f)
 			c += int(talent(state, f.owner).get("cloak", 0))
+			c += Research.fx_int(state, f.owner, "cloak")  # Voile profond (lot 4 de l'arbre)
 			c += StealthBridges.hero_cloak(state, f)
 		c += _terrain_cloak(state, f, Fleets.vision_center(state, f))
 		if p == "silence":

@@ -158,6 +158,30 @@ static func buildings() -> Dictionary:
 	return _load("buildings")
 
 
+## Lot 4 de l'arbre : un bâtiment de peuple (replaces_building) compte comme le bâtiment commun qu'il
+## remplace (Tribune = Forum, Campement de clan = Dépôt de flotte…). Renvoie l'identifiant commun.
+static func building_kind(id: String) -> String:
+	return String(buildings().get(id, {}).get("replaces_building", id))
+
+
+## Bâtiments de peuple qui remplacent ce bâtiment commun.
+static var _variants := {}
+static func building_variants(id: String) -> Array[String]:
+	if _variants.is_empty():
+		for k in buildings():
+			var base := String(buildings()[k].get("replaces_building", ""))
+			if base != "":
+				if not _variants.has(base):
+					_variants[base] = [] as Array[String]
+				(_variants[base] as Array[String]).append(String(k))
+		_variants["_"] = [] as Array[String]
+		for base in _variants:
+			(_variants[base] as Array[String]).sort()
+	var out: Array[String] = []
+	out.assign(_variants.get(id, []))
+	return out
+
+
 static func building(id: String) -> Dictionary:
 	var b: Dictionary = buildings().get(id, {})
 	if b.is_empty():

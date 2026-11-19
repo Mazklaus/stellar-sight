@@ -525,11 +525,20 @@ static func _pct_cost(cost: Dictionary, pct: int) -> Dictionary:
 static func tribute_cost(state: GameState, empire_id: int) -> Dictionary:
 	var td: Dictionary = data()["tribute"]
 	var gross := int((Economy.empire_income(state, empire_id)["gross"] as Dictionary).get("energy", 0))
-	return _pct_cost({"energy": int(td["base"]) + int(td["per_energy"]) * maxi(0, gross)}, int(talent(state, empire_id).get("pirate_pct", 0)))
+	return _pct_cost({"energy": int(td["base"]) + int(td["per_energy"]) * maxi(0, gross)}, _pirate_pct(state, empire_id))
 
 
 static func hire_cost(state: GameState, empire_id: int) -> Dictionary:
-	return _pct_cost(data()["hire"]["cost"], int(talent(state, empire_id).get("pirate_pct", 0)))
+	return _pct_cost(data()["hire"]["cost"], _pirate_pct(state, empire_id))
+
+
+## Prix payé aux pirates en % (talent du peuple, puis Contrats à la chaîne du lot 4 de l'arbre).
+@warning_ignore("integer_division")
+static func _pirate_pct(state: GameState, empire_id: int) -> int:
+	var base := int(talent(state, empire_id).get("pirate_pct", 0))
+	if base <= 0:
+		base = 100
+	return maxi(10, base * maxi(10, 100 + Research.fx_int(state, empire_id, "pirate_pct")) / 100)
 
 
 static func bounty_cost(state: GameState, empire_id: int) -> Dictionary:

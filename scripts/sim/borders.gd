@@ -357,6 +357,8 @@ static func fleet_right(state: GameState, f: Fleet, o: int) -> bool:
 		return true
 	if PeopleHulls.concord_right(state, f, o):
 		return true  # Pavillon de concorde (coques de peuple)
+	if Research.fx_int(state, f.owner, "forged_papers") > 0 and not Combat.at_war(state, f.owner, o):
+		return true  # Faux papiers (Brisecomète, lot 4 de l'arbre) : hors guerre, pas besoin de droit
 	if harmless(state, f, o):
 		return civil_ok(state, o, f.owner)
 	return grants(state, o, f.owner)
@@ -1020,7 +1022,7 @@ static func charge_toll(state: GameState, f: Fleet, sid: int) -> void:
 		return
 	ev.resources["energy"] = int(ev.resources["energy"]) - paid
 	var eo := state.get_empire(o)
-	eo.resources["energy"] = int(eo.resources.get("energy", 0)) + paid * maxi(1, int(talent(state, o).get("toll_x", 1)))
+	eo.resources["energy"] = int(eo.resources.get("energy", 0)) + paid * maxi(1, int(talent(state, o).get("toll_x", 1)) + Research.fx_int(state, o, "toll_x"))
 
 
 # --- Flottes à nos portes (lot 2) ------------------------------------------------------------------------

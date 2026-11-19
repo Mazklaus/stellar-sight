@@ -610,6 +610,9 @@ static func add_fav(state: GameState, id: int, eid: int, v: int) -> void:
 		return
 	if v > 0 and (grudge(state, id, eid) or at_war_with(state, id, eid)):
 		return
+	if v > 0 and Research.fx_int(state, eid, "translators") > 0:
+		@warning_ignore("integer_division")
+		v = v * 3 / 2  # Traducteurs universels (Vael, lot 4 de l'arbre)
 	(m["fav"] as Dictionary)[eid] = clampi(fav(state, id, eid) + v, 0, int(data()["favor"]["max"]))
 
 

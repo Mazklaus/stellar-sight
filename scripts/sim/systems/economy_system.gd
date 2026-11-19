@@ -156,7 +156,7 @@ static func _finish_building(state: GameState, c: Colony, e: Empire, planet_name
 				String(GameData.deposit(dep).get("label", dep)).to_lower()], Espionage.private_to(state, [e.id], dp.system_id)))
 		return
 	var base := String(b.get("upgrades", ""))
-	var at := c.buildings.find(base) if base != "" else -1
+	var at := c.kind_index(base) if base != "" else -1  # un bâtiment de peuple compte comme le commun
 	if at >= 0:
 		c.buildings[at] = bid
 	else:
@@ -255,6 +255,11 @@ static func _monthly_traits(state: GameState, e: Empire, added: Array[Dictionary
 			e.resources[r] = int(e.resources.get(r, 0)) + int(am[r])
 			total += int(am[r])
 		Research.count_stat(state, e.id, "looted", total)
+		# Butin de clan (Ferrocornes, lot 4 de l'arbre) : une part du butin revient en Savoir.
+		var lk := int(e.faction().get("research", {}).get("loot_knowledge_pct", 0))
+		if lk > 0 and total > 0:
+			@warning_ignore("integer_division")
+			e.resources["knowledge"] = int(e.resources.get("knowledge", 0)) + total * lk / 100
 		Stability.on_loot(state, e.id)
 		Heroes.on_loot(state, e.id, int(lp["system"]))
 		if not e.is_ai() or not victim.is_ai():

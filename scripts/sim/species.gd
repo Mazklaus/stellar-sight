@@ -289,6 +289,10 @@ static func build(spec: Dictionary) -> Dictionary:
 		var t := trait_def(String(tid))
 		_merge(f, t.get("fields", {}))
 		f["traits"].append({"name": String(t["label"]), "text": String(t["text"])})
+	# Lot 4 de l'arbre : talent de recherche propre au peuple (Compilation, Butin de clan…).
+	var rt: Dictionary = GameData.species_parts().get("research_talents", {}).get(String(spec.get("research_talent", "")), {})
+	if not rt.is_empty():
+		f["research"] = rt.duplicate(true)
 	var origin := brick("origine", String(spec["origine"]))
 	f["traits"].append({"name": String(origin["label"]), "text": String(origin["text"])})
 	var gov := brick("gouvernement", String(spec["gouvernement"]))
