@@ -189,11 +189,30 @@
 			],
 			"label": "Itérations",
 			"text": "Le Nœud premier ne meurt pas ; tous les vingt ans, il se réécrit et change d'archétype de règne."
+		},
+		"collectionneur": {
+			"kind": "immortel",
+			"title": [
+				"Sire",
+				"Dame"
+			],
+			"label": "Immortel",
+			"text": "Sire Cassivel règne à jamais : ni vieillesse, ni héritier, ni dynastie. Sa mort de héros jette le Muséum dans la crise « Orphelin », sauf copie de sauvegarde (peuples insolites, prop. 65)."
+		},
+		"necro_conseil": {
+			"kind": "iteration",
+			"title": [
+				"Premier des Morts",
+				"Première des Morts"
+			],
+			"label": "Nécro-conseil",
+			"text": "Le Premier des Morts ne meurt plus ; tous les vingt ans, le Nécro-conseil en désigne un autre, plus ancien encore (peuples insolites, prop. 63)."
 		}
 	},
 	"immortal_kinds": [
 		"reine",
-		"iteration"
+		"iteration",
+		"immortel"
 	],
 	"no_front_kinds": [
 		"reine"

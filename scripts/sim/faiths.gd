@@ -326,6 +326,8 @@ static func is_hive(state: GameState, eid: int) -> bool:
 ## Une conscience collective fermée à la foi : toute ruche, sauf celle qui suit une foi de Communion
 ## (lot 4), dont les colonies croient d'un seul esprit.
 static func closed(state: GameState, eid: int) -> bool:
+	if Insolites.silent(state, eid):
+		return true  # les Silencieux ne croient pas
 	if not is_hive(state, eid):
 		return false
 	var sf := state_faith(state, eid)
@@ -662,7 +664,7 @@ static func pressures(state: GameState) -> Dictionary:
 				n *= FaithWars.secondary_holy_x(state, fid, c)
 				# Patriarcats : le métropolite prêche comme un petit monde saint.
 				n *= FaithNatures.source_x(state, c, fid)
-				n = n * (100 + FaithNatures.spectacle_pct(state, c, fid)) / 100
+				n = n * (100 + FaithNatures.spectacle_pct(state, c, fid) + FaithNatures.traversee_pct(state, c, fid)) / 100
 				# Merveilles : lieu saint de la foi d'État de leur maître (prop. 20 des merveilles).
 				n *= WondersCatalog.holy_x(state, c, fid)
 			elif fid == INCROYANCE:
@@ -981,6 +983,8 @@ static func offer_natures(state: GameState, eid: int, fid: String, via: String) 
 	var avail := nature_ids()
 	if not TranscendenceWorld.has_partis(state):
 		avail.erase("culte_partis")  # le culte des Partis attend qu'un peuple soit parti (Transcendance)
+	if state.insolites.is_empty() or InsAsphodele.asphodeles(state).is_empty():
+		avail.erase("traversee")  # la Traversée n'existe que là où Asphodèle accueille les morts
 	var out: Array = []
 	var e := state.get_empire(eid)
 	var pref: Array = []

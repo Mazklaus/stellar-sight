@@ -490,7 +490,7 @@ static func _fix_order(e: Empire) -> void:
 static func advance(state: GameState, empire_id: int, income: int) -> Array[String]:
 	var done: Array[String] = []
 	var e := state.get_empire(empire_id)
-	if e == null or e.research_queue.is_empty():
+	if e == null or e.research_queue.is_empty() or Insolites.no_research(state, empire_id):
 		return done
 	var budget := monthly_budget(int(e.resources.get("knowledge", 0)), income)
 	while budget > 0 and not e.research_queue.is_empty():

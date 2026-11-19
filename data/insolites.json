@@ -1,5 +1,5 @@
 {
-	"_doc": "Les peuples insolites (étude « Les 15 peuples insolites et le 9e peuple », validée le 2026-11-19). Lot 1 : les peuples sans monde (Flotte-Exode, Cirque Zambalù, Orbe-Monde Halcyre, Hardes de Kraal), champ de faction \"nomad\" {kind, ship, count}. Lot 2 : les peuples qui vivent chez les autres (Compagnie Ventrelune, Bureau des Affaires Courantes, Enfants du Signal, Rêveurs d'Ysmer), champ de faction \"guest\" {kind, worldless?}. Chaque champ est posé par une brique d'espèce ; ce fichier donne les règles de chaque sorte. Les durées sont en jours, les pourcentages en points de %. Tout est en nombres entiers (déterminisme).",
+	"_doc": "Les peuples insolites (étude « Les 15 peuples insolites et le 9e peuple », validée le 2026-11-19). Lot 1 : les peuples sans monde (Flotte-Exode, Cirque Zambalù, Orbe-Monde Halcyre, Hardes de Kraal), champ de faction \"nomad\" {kind, ship, count}. Lot 2 : les peuples qui vivent chez les autres (Compagnie Ventrelune, Bureau des Affaires Courantes, Enfants du Signal, Rêveurs d'Ysmer), champ de faction \"guest\" {kind, worldless?}. Lot 3 : les populations étranges (Asphodèle, Cité des Trépassés ; Muséum de Sire Cassivel ; Silencieux ; Observateurs de Quiétude), même champ \"guest\". Chaque champ est posé par une brique d'espèce ; ce fichier donne les règles de chaque sorte. Les durées sont en jours, les pourcentages en points de %. Tout est en nombres entiers (déterminisme).",
 	"_sources": "Inspirations lues pour l'étude (wiki Endless Space 2 : Vodyani, Chœur Ombral ; Stellaris : Caravaneers, Tiyanki ; Endless Legend : Cultistes) ; Battlestar Galactica, les Gardiens de la Galaxie (Ego), Star Wars Rebels (Purrgil) et Farscape (Pilote) de mémoire. Voir l'étude pour le détail.",
 	"rivals": {
 		"_doc": "Prop. 3. Réglage « Peuples insolites » de la nouvelle partie : part des rivaux tirés au hasard qui peuvent être insolites.",
@@ -91,6 +91,34 @@
 					"influence": 25
 				},
 				"purge_stability_days": 30
+			},
+			"ossuaire": {
+				"label": "Ossuaire",
+				"text": "Une nécropole d'Asphodèle posée chez un signataire du Pacte funéraire : l'hôte y gagne stabilité et piété, et ses morts rejoignent Asphodèle à toute distance.",
+				"tithe": {},
+				"tithe_per_pop": 0,
+				"radiance": 0,
+				"hidden": false,
+				"purge_cost": {
+					"influence": 20
+				},
+				"purge_stability_days": 60,
+				"host_gain": {
+					"influence": 1
+				},
+				"stability": 3
+			},
+			"poste": {
+				"label": "Poste voilé",
+				"text": "Un poste d'observation caché des Observateurs de Quiétude, au-dessus d'un peuple pré-spatial : il étudie, il protège, il ne se montre pas.",
+				"tithe": {},
+				"tithe_per_pop": 0,
+				"radiance": 0,
+				"hidden": true,
+				"purge_cost": {
+					"influence": 30
+				},
+				"purge_stability_days": 0
 			}
 		}
 	},
@@ -258,6 +286,17 @@
 		"reve_commun": {
 			"_doc": "Prop. 58.",
 			"pct": 50
+		},
+		"grand_rassemblement": {
+			"_doc": "Prop. 64.",
+			"pct": 50
+		},
+		"musee_vivant": {
+			"_doc": "Prop. 69."
+		},
+		"envol": {
+			"_doc": "Prop. 81.",
+			"count": 2
 		}
 	},
 	"ai": {
@@ -269,7 +308,15 @@
 		"bureau_publish": true,
 		"signal_borrow": true,
 		"ysmer_inspire_pmille": 300,
-		"sign_opinion": -20
+		"sign_opinion": -20,
+		"asphodele_raise_influence": 80,
+		"pact_opinion": -10,
+		"cassivel_buy_reserve": 120,
+		"cassivel_backup_reserve": 400,
+		"silencieux_war_power_pct": 120,
+		"silencieux_war_min_days": 1800,
+		"quietude_uplift_influence": 60,
+		"teyl_awaken_pmille": 150
 	},
 	"ventrelune": {
 		"_doc": "Prop. 35 à 41. Parts en %, prix en énergie.",
@@ -462,5 +509,138 @@
 		"reverie_influence": 1,
 		"dream_hold_days": 1800,
 		"dream_pct": 50
+	},
+	"asphodele": {
+		"_doc": "Prop. 59 à 64. Les Âmes : chaque mois, toute baisse de population d'une colonie (bataille, invasion, famine, écologie, crise, épidémie) compte des morts ; un départ en vaisseau colon n'en est pas un. Les morts à reach_jumps sauts d'une colonie d'Asphodèle, sur une planète à Ossuaire, ou chez un fidèle de la Traversée, versent leurs Âmes ; souls_per_pop Âmes deviennent un habitant numérisé, qui garde son espèce.",
+		"reach_jumps": 5,
+		"souls_per_pop": 2,
+		"souls_cap_per_month": 4,
+		"raise_cost": {
+			"influence": 60
+		},
+		"fallen_max": 8,
+		"council_seats": 3,
+		"lassitude_max": 60,
+		"lassitude_stab": -4,
+		"release_knowledge": 120,
+		"release_influence": 20,
+		"pact_days_min": 360,
+		"faith_like": [
+			"ancetres",
+			"traversee"
+		],
+		"faith_hate": [
+			"eglise_universelle",
+			"patriarcats",
+			"dieu_present",
+			"harmonie"
+		],
+		"faith_like_op": 15,
+		"faith_hate_op": -15,
+		"council_names": [
+			"la Veuve d'Airain",
+			"le Premier Fossoyeur",
+			"l'Archiviste des Noms",
+			"la Dame des Cendres",
+			"le Juge Sans Visage",
+			"le Passeur Aveugle",
+			"l'Enfant Millénaire",
+			"la Sentinelle du Seuil"
+		]
+	},
+	"cassivel": {
+		"_doc": "Prop. 65 à 70. Sire Cassivel est le souverain à jamais et un héros qui voyage ; sa mort jette le Muséum dans la crise « Orphelin », sauf copie de sauvegarde. Cinq vitrines : espèces (un spécimen de chaque, achetés, volés ou vivant dans ses colonies), reliques, héros captifs, créatures du Vivarium, prises de guerre.",
+		"hero_name": "Sire Cassivel",
+		"hero_cls": "orateur",
+		"hero_lvl": 3,
+		"backup_cost": {
+			"energy": 250,
+			"knowledge": 200
+		},
+		"backup_days": 180,
+		"orphan_days": 1080,
+		"orphan_stab": -15,
+		"orphan_prod_pct": -25,
+		"buy_cost": {
+			"energy": 200
+		},
+		"piece_radiance": 3,
+		"gallery_min": 3,
+		"gallery_radiance": 40,
+		"gallery_influence": 5,
+		"escape_pmille": 15,
+		"rescue_pmille": 20,
+		"visitors_pmille": 60,
+		"visitors_influence": 15,
+		"showcases": [
+			"espece",
+			"relique",
+			"heros",
+			"creature",
+			"vaisseau"
+		],
+		"showcase_labels": {
+			"espece": "Espèces",
+			"relique": "Reliques",
+			"heros": "Héros captifs",
+			"creature": "Créatures",
+			"vaisseau": "Prises de guerre"
+		},
+		"buy_cd_days": 360
+	},
+	"silencieux": {
+		"_doc": "Prop. 71 à 76. Immunisés à la culture, à la foi, à la psionique, aux intrigues et à la diplomatie ; pas de recherche (technologies par les épaves, les prises et les ruines seulement) ; production très haute, pas de stabilité, habitants assemblés ; un avant-poste devient une usine. Une Directive, affichée à tous, dit ce qu'ils font.",
+		"replicate_days": 720,
+		"replicate_pmille": 150,
+		"directive_days": 720,
+		"directives": {
+			"extraire": {
+				"label": "Extraire les métaux %s",
+				"text": "Le système le plus riche à portée."
+			},
+			"etendre": {
+				"label": "Étendre les usines vers %s",
+				"text": "Un système libre à portée, pour un avant-poste."
+			},
+			"eliminer": {
+				"label": "Écarter l'obstacle %s",
+				"text": "Un empire tient le système visé : il gêne la directive."
+			},
+			"_doc": "Le %s reçoit le nom du système, précédé de « de », « du » ou « d' » sauf pour « vers »."
+		},
+		"directive_jumps": 6,
+		"awaken_cost": {
+			"knowledge": 150
+		},
+		"awaken_pmille": 350,
+		"awaken_cd_days": 360,
+		"awaken_jumps": 4,
+		"force_victories": [
+			"conquete",
+			"domination"
+		]
+	},
+	"quietude": {
+		"_doc": "Prop. 77 à 82. Postes voilés au-dessus des pré-spatiaux, élévation discrète, scandale de la découverte, escadres voilées, l'Envol, les Protégés.",
+		"post_cost": {
+			"influence": 40
+		},
+		"post_knowledge": 3,
+		"post_jumps": 12,
+		"uplift_cost": {
+			"influence": 30
+		},
+		"uplift_days": 540,
+		"uplift_aware": 10,
+		"uplift_cd_days": 180,
+		"detect_pmille": 25,
+		"detect_fleet_pmille": 40,
+		"detect_battle_pmille": 300,
+		"scandal_influence": -50,
+		"protege_gift": {
+			"knowledge": 10,
+			"influence": 3
+		},
+		"colony_influence_pct": 200
 	}
 }

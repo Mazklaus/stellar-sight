@@ -1129,6 +1129,21 @@
 			"spend": 15,
 			"capture": true,
 			"text": "Prises de guerre : les plans de son modèle le plus nombreux. Vous gagnez +10 % d'analyse contre ce modèle (dégâts, jusqu'à +15 %) sans combattre, et il s'affiche au dossier."
+		},
+		{
+			"id": "acquisition_discrete",
+			"family": "larcin",
+			"label": "Acquisition discrète",
+			"tier": 2,
+			"cost": {
+				"influence": 35
+			},
+			"days": 45,
+			"success": 60,
+			"discovery": 35,
+			"spend": 15,
+			"insolites": true,
+			"text": "Muséum de Sire Cassivel : un habitant de son peuple disparaît une nuit et se réveille dans une vitrine confortable. Un spécimen de plus pour la Collection (peuples insolites, prop. 68)."
 		}
 	],
 	"_operations": "tier : palier minimal du réseau ; success / discovery : chances de base en % ; spend : infiltration consommée par une réussite",
@@ -1198,6 +1213,11 @@
 				"encryption": 2,
 				"decryption": 2,
 				"text": "Des esprits de silicium : déchiffrement et chiffrement +2."
+			},
+			"machines": {
+				"label": "Rien à corrompre",
+				"intrigue_immune": 1,
+				"text": "Des machines sans désirs : aucune intrigue ne prend sur elles (peuples insolites, prop. 71)."
 			}
 		}
 	},

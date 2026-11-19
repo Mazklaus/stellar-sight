@@ -67,6 +67,8 @@
 		"pairs": [
 			{"fa": "zambalu", "fb": "choeur", "card": "t_hymne_chapiteau", "memory": "tones_clash"},
 			{"fa": "bureau", "fb": "brisecomete", "card": "t_formulaire_contrebande", "memory": "tones_clash"},
+			{"fa": "asphodele", "fb": "choeur", "card": "t_garde_des_morts", "memory": "tones_clash"},
+			{"fa": "silencieux", "fb": "teyl", "card": "t_freres_endormis", "memory": "tones_clash"},
 			{"a": "Picaresque / pulp", "b": "Grimdark", "card": "t_contrebande", "memory": "tones_clash"},
 			{"a": "Space opera héroïque", "b": "Grimdark", "card": "t_heros_fanatiques", "memory": "tones_clash"},
 			{"a": "Classique / hard SF", "b": "Cosmique / étrange", "card": "t_equations", "memory": "tones_clash"},
@@ -426,6 +428,20 @@
 				{"label": "Créer le formulaire de contrebande légale", "fx": [{"k": "res", "res": {"energy": 40}}, {"k": "rep", "v": 2}, {"k": "opinion", "kind": "ev_gift"}]},
 				{"label": "Fermer les guichets à ces gens-là", "fx": [{"k": "res", "res": {"influence": 15}}, {"k": "opinion", "kind": "ev_snub"}]},
 				{"label": "Classer l'affaire", "fx": []}
+			], "default": 2},
+		{"id": "t_garde_des_morts", "title": "Choc des tons : qui garde les morts ?", "trigger": "contact",
+			"text": "Premier contact avec {rival}. Le Chœur chante ses morts pour l'éternité ; Asphodèle les réveille pour le mardi suivant. Chacun trouve l'autre profondément indécent. Un défunt, interrogé, dit qu'il aimerait surtout qu'on lui demande son avis.",
+			"choices": [
+				{"label": "Un concile des morts, à frais partagés", "fx": [{"k": "res", "res": {"influence": -20}}, {"k": "opinion", "kind": "ev_gift"}]},
+				{"label": "Nos morts sont à nous : fermez les nécropoles", "fx": [{"k": "res", "res": {"influence": 20}}, {"k": "opinion", "kind": "ev_snub"}]},
+				{"label": "Laisser les morts en décider", "fx": []}
+			], "default": 2},
+		{"id": "t_freres_endormis", "title": "Choc des tons : les frères endormis", "trigger": "contact",
+			"text": "Premier contact avec {rival}. La Noosphère a envoyé un poème ; les Silencieux ont renvoyé un accusé de réception, puis l'inventaire du vaisseau qui le portait. Teyl y voit un frère qui dort. Les Silencieux y voient un gisement de métaux qui parle beaucoup.",
+			"choices": [
+				{"label": "Leur parler encore, patiemment", "fx": [{"k": "res", "res": {"knowledge": 30}}]},
+				{"label": "Fermer les fréquences", "fx": [{"k": "res", "res": {"influence": 10}}, {"k": "opinion", "kind": "ev_snub"}]},
+				{"label": "Noter et attendre", "fx": []}
 			], "default": 2},
 		{"id": "t_hymne_chapiteau", "title": "Choc des tons : l'Hymne et le Chapiteau", "trigger": "contact",
 			"text": "Premier contact avec {rival}. Les uns chantent le même hymne depuis dix mille ans ; les autres en ont tiré une comédie musicale, avec claquettes au deuxième couplet. Toutes les places sont vendues. Personne ne sait encore qui le prend le plus mal.",

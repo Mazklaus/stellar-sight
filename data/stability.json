@@ -58,7 +58,8 @@
 			"survie": {"label": "Habitués à la disette", "text": "Famine et coupures d'énergie ne font pas baisser la stabilité.", "no_shortage": true}
 		},
 		"archetype": {
-			"synthetique": {"label": "Châssis empilables", "text": "Pas de malus de surpopulation.", "no_overpop": true}
+			"synthetique": {"label": "Châssis empilables", "text": "Pas de malus de surpopulation.", "no_overpop": true},
+			"machines": {"label": "Aucun état d'âme", "text": "Pas de stabilité : des machines ne se révoltent pas, ne s'enthousiasment pas.", "no_stability": true}
 		}
 	}
 }

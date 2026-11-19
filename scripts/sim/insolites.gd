@@ -6,6 +6,9 @@ extends RefCounted
 ##   - Cirque Stellaire Zambalù (InsZambalu) : Troupes, représentations, Fan-clubs, Grand Numéro.
 ##   - Orbe-Monde Halcyre (InsHalcyre) : une planète qui marche, mange des lunes et s'allume en étoile.
 ##   - Hardes de Kraal (InsKraal) : des vaisseaux vivants qui naissent, vieillissent et broutent.
+## Lot 2 : les peuples qui vivent chez les autres (InsVentrelune, InsBureau, InsSignal, InsYsmer).
+## Lot 3 : les populations étranges, qui viennent des morts (InsAsphodele), tiennent en un seul homme
+## (InsCassivel), ne pensent pas (InsSilencieux) ou refusent d'être vues (InsQuietude).
 ## Chaque peuple porte un champ de faction "nomad" {kind, ship, count}, posé par une brique d'espèce
 ## (data/species_parts.json) : un peuple créé dans l'éditeur avec la même brique suit les mêmes règles.
 ##
@@ -109,6 +112,18 @@ static func found(state: GameState, e: Empire, sid: int) -> void:
 		"ysmer":
 			InsYsmer.found(state, e, sid, ed)
 			return
+		"asphodele":
+			InsAsphodele.found(state, e, sid, ed)
+			return
+		"cassivel":
+			InsCassivel.found(state, e, sid, ed)
+			return
+		"silencieux":
+			InsSilencieux.found(state, e, sid, ed)
+			return
+		"quietude":
+			InsQuietude.found(state, e, sid, ed)
+			return
 	var nm: Dictionary = f["nomad"]
 	var ship := String(nm.get("ship", ""))
 	match k:
@@ -140,6 +155,8 @@ static func after_setup(state: GameState) -> void:
 				InsSignal.seed_nodes(state, eid)
 			"ysmer":
 				InsYsmer.seed_reverie(state, eid)  # le Dormeur a déjà un rêveur chez le plus proche voisin
+			"cassivel":
+				InsCassivel.after_setup(state, eid)  # Sire Cassivel, héros et souverain
 
 
 static func worth_saving(state: GameState) -> bool:
@@ -208,7 +225,7 @@ static func keeps_alive(state: GameState, eid: int) -> bool:
 			return InsKraal.herd_pop(state, eid) > 0
 		"signal":
 			return InsSignal.alive(state, eid)
-		"ventrelune", "bureau", "ysmer":
+		"ventrelune", "bureau", "ysmer", "asphodele", "cassivel", "silencieux", "quietude":
 			return false
 	return FactionTraits.city_fleet(state, eid) != null
 
@@ -239,6 +256,8 @@ static func _kind_income(state: GameState, eid: int) -> Dictionary:
 			return InsHalcyre.income(state, eid)
 		"kraal":
 			return InsKraal.income(state, eid)
+		"cassivel":
+			return InsCassivel.income(state, eid)
 	return {}
 
 
@@ -326,6 +345,8 @@ static func implant_visible(state: GameState, pid: int, eid: int, k := "fan_club
 			return InsSignal.detects(state, eid, im)
 		"reverie":
 			return InsYsmer.detects(state, eid)
+		"poste":
+			return false  # le poste voilé ne se voit qu'une fois découvert : il tombe aussitôt
 	return int(im.get("seen", 0)) > 0
 
 
@@ -356,6 +377,7 @@ static func _implant_month(state: GameState, _added: Array[Dictionary]) -> void:
 			if n > 0:
 				host.resources[r] = int(host.resources.get(r, 0)) - n
 				owner.resources[r] = int(owner.resources.get(r, 0)) + n
+		Insolites.add_to(host.resources, df.get("host_gain", {}))  # piété des Ossuaires
 		var rad := int(df.get("radiance", 0))
 		if rad > 0 and not state.culture.is_empty():
 			var cum := Culture._m(state, "cum")
@@ -376,6 +398,8 @@ static func check_purge(state: GameState, eid: int, pid: int, k := "fan_club") -
 		return "seuls des Éveillés peuvent plonger dans le Songe pour chasser une rêverie"
 	if k == "noeud" and InsSignal.hosted(state, int(im["o"]), eid):
 		return "un accord d'hébergement protège ce nœud : rompez-le d'abord"
+	if k == "ossuaire":
+		return "un Ossuaire tient au Pacte funéraire : rompez le pacte pour le fermer"
 	var cost: Dictionary = implant_def(k).get("purge_cost", {})
 	if not Economy.can_afford(state.get_empire(eid), cost):
 		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)
@@ -387,6 +411,8 @@ const PURGE_TEXT := {
 	"guichet": "Le guichet ferme. Une affichette indique de s'adresser au guichet d'à côté, qui n'existe pas.",
 	"noeud": "Les calculateurs redémarrent. Pendant une seconde, tous les écrans ont affiché le même mot.",
 	"reverie": "Les Éveillés sont revenus du Songe ; les dormeurs ne se souviennent plus de ce qu'ils rêvaient.",
+	"ossuaire": "On rend les morts aux familles, qui ne savent pas trop quoi en faire.",
+	"poste": "Le poste voilé est démonté. Les jeunes peuples ne sauront jamais qu'on les aimait.",
 }
 
 
@@ -533,6 +559,8 @@ static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 		out.append(["Registre d'état civil", ns])
 	if InsBureau.bailiffs(state, sid, owner):
 		out.append(["Huissiers du Bureau", -3])
+	InsAsphodele.stability_parts(state, sid, owner, out)
+	InsCassivel.stability_parts(state, owner, out)
 	return out
 
 
@@ -593,6 +621,12 @@ static func production_bonus(state: GameState, eid: int, resource: String) -> in
 	var n := InsBureau.norm_fx(state, eid, "knowledge_pct") if resource == "knowledge" else 0
 	if InsBureau.sanctioned(state, eid):
 		n += c_int("bureau", "sanction_income_pct", -10)
+	match kind(state, eid):
+		"cassivel":
+			n += InsCassivel.production_bonus(state, eid)  # Muséum Orphelin
+		"silencieux":
+			if resource == "knowledge":
+				n -= 100  # ils ne cherchent pas : ils démontent
 	return n
 
 
@@ -691,6 +725,80 @@ static func expropriation_casus(state: GameState, a: int, b: int) -> bool:
 	return not state.insolites.is_empty() and InsVentrelune.expropriation_casus(state, a, b)
 
 
+## Opinion de a envers b (Diplomacy.opinion_parts) : les fois face à Asphodèle.
+static func opinion_parts(state: GameState, a: int, b: int) -> Array:
+	var out := []
+	if not state.insolites.is_empty():
+		InsAsphodele.opinion_parts(state, a, b, out)
+	return out
+
+
+## Sources de Rayonnement (Culture.source_parts) : la Collection du Muséum.
+static func culture_parts(state: GameState, eid: int) -> Array:
+	var out := []
+	if not state.insolites.is_empty():
+		InsCassivel.culture_parts(state, eid, out)
+	return out
+
+
+## Immunités des Silencieux (culture, foi, diplomatie ; psionique et intrigues par leurs talents).
+static func silent(state: GameState, eid: int) -> bool:
+	return not state.insolites.is_empty() and InsSilencieux.is_silent(state, eid)
+
+
+## Ni file de recherche ni Savoir (Research.advance) : les Silencieux n'inventent pas.
+static func no_research(state: GameState, eid: int) -> bool:
+	return silent(state, eid)
+
+
+## Victoire permise à cet empire (Victory.progress) : la force seulement pour les Silencieux.
+static func victory_allowed(state: GameState, eid: int, id: String) -> bool:
+	return state.insolites.is_empty() or InsSilencieux.victory_allowed(state, eid, id)
+
+
+## Loi « Rites funéraires protégés » (Amphictyonie) : pas de Pacte funéraire.
+static func funeral_banned(state: GameState) -> bool:
+	return not state.amph.is_empty() and Amphictyony.founded(state) and Amphictyony.banned(state, "funeral_pact")
+
+
+## Un héros meurt (Heroes.die) : liste des morts d'Asphodèle, chute de Sire Cassivel.
+static func on_hero_death(state: GameState, h: Dictionary, out: Array[Dictionary]) -> void:
+	if state.insolites.is_empty():
+		return
+	InsCassivel.on_hero_death(state, h, out)
+	InsAsphodele.on_hero_death(state, h)
+
+
+## Un départ volontaire n'est pas une mort (recensement d'Asphodèle).
+static func note_departure(state: GameState, pid: int, n: int) -> void:
+	if not state.insolites.is_empty():
+		InsAsphodele.note_departure(state, pid, n)
+
+
+## Avènement d'un pré-spatial (MinorsLife.rise) : un Protégé des Observateurs.
+static func on_minor_rise(state: GameState, mid: int, added: Array[Dictionary]) -> void:
+	if not state.insolites.is_empty():
+		InsQuietude.on_rise(state, mid, added)
+
+
+## Opérations d'espionnage des peuples insolites (drapeau "insolites" dans data/espionage.json).
+static func spy_check(state: GameState, a: int, b: int, op_id: String) -> String:
+	match op_id:
+		"acquisition_discrete":
+			if kind(state, a) != "cassivel":
+				return "seul le Muséum vole des spécimens"
+			if InsCassivel.species_of(state, b) == "" or InsCassivel.species_held(state, a).has(InsCassivel.species_of(state, b)):
+				return "la vitrine a déjà son spécimen de ce peuple"
+	return ""
+
+
+static func spy_apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
+	match String(o["id"]):
+		"acquisition_discrete":
+			return InsCassivel.spy_steal(state, a, b)
+	return ""
+
+
 # --- Chaque jour ----------------------------------------------------------------------------------
 
 static func daily(state: GameState) -> Array[Dictionary]:
@@ -722,8 +830,17 @@ static func daily(state: GameState) -> Array[Dictionary]:
 				InsSignal.daily(state, eid, ed, month, added)
 			"ysmer":
 				InsYsmer.daily(state, eid, ed, month, added)
+			"asphodele":
+				InsAsphodele.daily(state, eid, ed, month, added)
+			"cassivel":
+				InsCassivel.daily(state, eid, ed, month, added)
+			"silencieux":
+				InsSilencieux.daily(state, eid, ed, month, added)
+			"quietude":
+				InsQuietude.daily(state, eid, ed, month, added)
 	InsZambalu.numero_day(state, added)
 	if month:
+		InsAsphodele.census(state, added)  # les morts du mois, une fois pour toute la galaxie
 		_implant_month(state, added)
 	return added
 
@@ -731,7 +848,9 @@ static func daily(state: GameState) -> Array[Dictionary]:
 # --- Ordres des joueurs ---------------------------------------------------------------------------
 ## Actions (SimCommands.ins_act) : "build" (ship), "settle", "purge" (pid, k), "delegate", "sentinel" (pid),
 ## "devour" (pid), "pilot" (fleet) ; lot 2 : "buy" et "nationalize" (pid), "sign" (b, norm), "summon"
-## (target), "host" et "unhost" (s), "inspire" et "nightmare" (pid), "dream_fleet".
+## (target), "host" et "unhost" (s), "inspire" et "nightmare" (pid), "dream_fleet" ; lot 3 : "pact" et
+## "unpact" (a), "raise" et "release" (i), "backup", "acquire" (w : empire ou mineur), "awaken" (pid),
+## "post" et "uplift" (m : mineur).
 
 static func check(state: GameState, eid: int, act: String, d: Dictionary) -> String:
 	if state.insolites.is_empty():
@@ -768,6 +887,22 @@ static func check(state: GameState, eid: int, act: String, d: Dictionary) -> Str
 			return InsYsmer.check_breath(state, eid, act, int(d.get("pid", -1)))
 		"dream_fleet":
 			return InsYsmer.check_dream_fleet(state, eid)
+		"pact", "unpact":
+			return InsAsphodele.check_pact(state, eid, int(d.get("a", -1)), act == "pact")
+		"raise":
+			return InsAsphodele.check_raise(state, eid, int(d.get("i", -1)))
+		"release":
+			return InsAsphodele.check_release(state, eid, int(d.get("i", -1)))
+		"backup":
+			return InsCassivel.check_backup(state, eid)
+		"acquire":
+			return InsCassivel.check_acquire(state, eid, int(d.get("w", -1)))
+		"awaken":
+			return InsSilencieux.check_awaken(state, eid, int(d.get("pid", -1)))
+		"post":
+			return InsQuietude.check_post(state, eid, int(d.get("m", -1)))
+		"uplift":
+			return InsQuietude.check_uplift(state, eid, int(d.get("m", -1)))
 	return "action inconnue : %s" % act
 
 
@@ -802,6 +937,22 @@ static func apply(state: GameState, eid: int, act: String, d: Dictionary) -> Arr
 			InsYsmer.breath(state, eid, act, int(d["pid"]), added)
 		"dream_fleet":
 			InsYsmer.dream_fleet(state, eid, added)
+		"pact", "unpact":
+			InsAsphodele.set_pact(state, eid, int(d["a"]), act == "pact", added)
+		"raise":
+			InsAsphodele.raise(state, eid, int(d["i"]), added)
+		"release":
+			InsAsphodele.release(state, eid, int(d["i"]), added)
+		"backup":
+			InsCassivel.backup(state, eid, added)
+		"acquire":
+			InsCassivel.acquire(state, eid, int(d["w"]), added)
+		"awaken":
+			InsSilencieux.awaken(state, eid, int(d["pid"]), added)
+		"post":
+			InsQuietude.post(state, eid, int(d["m"]), added)
+		"uplift":
+			InsQuietude.uplift(state, eid, int(d["m"]), added)
 	return added
 
 
@@ -830,6 +981,14 @@ static func status_lines(state: GameState, eid: int) -> Array[String]:
 			out = InsSignal.status_lines(state, eid, ed)
 		"ysmer":
 			out = InsYsmer.status_lines(state, eid, ed)
+		"asphodele":
+			out = InsAsphodele.status_lines(state, eid, ed)
+		"cassivel":
+			out = InsCassivel.status_lines(state, eid, ed)
+		"silencieux":
+			out = InsSilencieux.status_lines(state, eid, ed)
+		"quietude":
+			out = InsQuietude.status_lines(state, eid, ed)
 	var y: Dictionary = ed.get("yard", {})
 	if not y.is_empty():
 		out.append("Chantier embarqué : %s (%d j)" % [String(GameData.ship(String(y["ship"])).get("label", y["ship"])), int(y["left"])])

@@ -80,7 +80,8 @@
 			"ruche": {"label": "Antennes", "text": "La ruche sent les vibrations du vide : +1 de détection sur place.", "stationary": 1}
 		},
 		"credo": {
-			"profit": {"label": "Contrebandiers", "text": "Les flottes voilées gagnent +1 de camouflage.", "cloak": 1}
+			"profit": {"label": "Contrebandiers", "text": "Les flottes voilées gagnent +1 de camouflage.", "cloak": 1},
+			"non_ingerence": {"label": "Escadres voilées", "text": "Protéger sans se montrer : toutes leurs flottes ont au moins 2 de camouflage, +1 de détection sur place (peuples insolites, prop. 80).", "base_cloak": 2, "stationary": 1}
 		}
 	},
 	"ai": {"_doc": "Prop. 36 : niveau d'IA (skill) à partir duquel l'IA réagit (détecteurs après une embuscade) ou lance des raids camouflés.", "react_skill": 1, "raid_skill": 2, "listen_after_ambush_days": 720}

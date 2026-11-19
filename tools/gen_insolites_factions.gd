@@ -20,12 +20,20 @@ const META := {
 		"lore": "Un jour, une antenne a capté un message. Personne ne l'a compris ; tout le monde l'a recopié. Les Enfants du Signal n'ont ni corps ni monde : ils vivent dans les calculateurs des autres, se copient d'un relais à l'autre, mutent, se disputent avec leurs propres variantes. Ils ne veulent pas de mal. Ils veulent seulement exister partout."},
 	"ysmer": {"name": "Rêveurs d'Ysmer", "short": "Ysmer", "color": "#9b7fd4", "broken_rule": "Territoire dans les rêves des autres",
 		"lore": "Sur le monde d'Ysmer dort le Dormeur, et tout un peuple dort avec lui. Ils ne bâtissent presque rien, ne voyagent presque pas : ils rêvent. Et leurs rêves s'installent, une nuit après l'autre, dans le sommeil des autres peuples. Une idée géniale au réveil, un cauchemar récurrent, une flotte qui n'existait pas hier : c'est peut-être eux."},
+	"asphodele": {"name": "Asphodèle, Cité des Trépassés", "short": "Asphodèle", "color": "#b8b2a7", "broken_rule": "Sa population ne naît pas",
+		"lore": "Asphodèle ne fait pas d'enfants : elle reçoit des morts. Ceux des batailles, des famines, des pestes, de tous les peuples, recopiés dans la pierre-mémoire et réveillés dans ses nécropoles, avec leur espèce, leurs manies et leurs vieilles rancunes. Le Nécro-conseil gouverne : des morts illustres, très anciens, très fatigués. On les laisse partir quand ils le demandent. On leur dit merci. Ils répondent rarement."},
+	"cassivel": {"name": "Muséum de Sire Cassivel", "short": "Cassivel", "color": "#c9853a", "broken_rule": "Un seul dirigeant, à jamais",
+		"lore": "Sire Cassivel est vieux comme une étoile moyenne et poli comme un commissaire-priseur. Il veut un exemplaire de tout : chaque espèce, chaque relique, chaque bête, chaque vaisseau, et quelques héros, bien nourris, dans des vitrines confortables. Ses serviteurs époussettent, étiquettent et rattrapent ce qui s'évade. Il n'a pas d'héritier. Il n'en a jamais eu besoin. Pour l'instant."},
+	"silencieux": {"name": "Silencieux", "short": "Silencieux", "color": "#7d8a99", "broken_rule": "Ne négocie pas, n'invente pas",
+		"lore": "Personne ne sait qui a construit les Silencieux, ni pourquoi. Ils ne parlent pas, ne prient pas, ne rêvent pas : ils extraient, assemblent, se répliquent. Ils ne haïssent personne ; ils écartent ce qui gêne. Leur directive s'affiche sur toutes les fréquences, en clair, comme un panneau de chantier. On peut la lire. On ne peut pas la discuter."},
+	"quietude": {"name": "Observateurs de Quiétude", "short": "Quiétude", "color": "#8fb9a8", "broken_rule": "Gagne en se cachant",
+		"lore": "Les lithes de Quiétude vivent lentement, pensent longtemps, et regardent. Au-dessus des jeunes peuples qui n'ont pas encore quitté leur monde, ils posent des postes voilés, prennent des notes, et parfois, très discrètement, poussent un peu. Ils ont un principe : ne jamais être vus. Ils ont aussi un problème : ils aiment beaucoup leurs protégés."},
 }
 
 
 func _init() -> void:
 	var out := []
-	for fid in ["exode", "zambalu", "halcyre", "kraal", "ventrelune", "bureau", "signal", "ysmer"]:
+	for fid in ["exode", "zambalu", "halcyre", "kraal", "ventrelune", "bureau", "signal", "ysmer", "asphodele", "cassivel", "silencieux", "quietude"]:
 		var spec := Species.from_preset(fid)
 		var m: Dictionary = META[fid]
 		spec["id"] = "p_tmp"

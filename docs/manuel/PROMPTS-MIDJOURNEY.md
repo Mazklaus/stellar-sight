@@ -724,3 +724,43 @@ portrait of a face made of static noise and scrolling data lines appearing acros
 ```
 portrait of a sleeping translucent being of soft violet light floating above an ancient sanctuary, eyes closed, wisps of dreams rising from its body and stretching across space toward distant inhabited planets, serene and uncanny, cosmic dreamlike atmosphere epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
 ```
+
+## MJ-74 · Portrait · Asphodèle, Cité des Trépassés
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche d'Asphodèle (chapitre « Les peuples insolites »)
+- Sujet : Une cité nécropole de pierre-mémoire sous un ciel sans soleil ; une longue file de silhouettes translucides franchit une grande porte, accueillies par un préposé à la lanterne
+
+```
+portrait of a vast necropolis city carved from dark memory-stone under a sunless sky, a long procession of translucent ghostly figures of many alien species walking through a monumental gate, welcomed by a calm robed gatekeeper holding a lantern, three ancient spectral councillors watching from a high balcony, solemn grimdark yet gentle mood epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
+
+## MJ-75 · Portrait · Muséum de Sire Cassivel
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche du Muséum de Sire Cassivel (chapitre « Les peuples insolites »)
+- Sujet : Un aristocrate extraterrestre souriant, cape brodée et loupe d'orfèvre, dans une galerie sans fin de vitrines : spécimens, reliques, un amiral captif boudeur, une créature dans un bocal géant, la proue d'un vaisseau ennemi
+
+```
+portrait of a charming smiling alien aristocrat collector in an embroidered cape holding a jeweller's loupe, standing in an endless museum gallery of glass display cases, alien specimens, ancient relics, a sulking captive admiral in dress uniform inside a vitrine, a creature floating in a giant jar, the prow of a captured enemy starship mounted on the wall, picaresque pulp adventure mood, warm gallery light epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
+
+## MJ-76 · Portrait · Silencieux
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche des Silencieux (chapitre « Les peuples insolites »)
+- Sujet : Une usine-machine sans visage qui s'étend sur un monde gris ; des automates identiques avancent en rangs, une ligne de texte lumineuse sans fin projetée dans le ciel
+
+```
+portrait of a faceless colossal machine factory spreading across a grey airless world, rows of identical skeletal automatons marching in perfect formation, cold industrial lights, a single luminous line of directive glyphs projected across the sky, no emotion, hard science fiction, vast and indifferent mood epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
+
+## MJ-77 · Portrait · Observateurs de Quiétude
+
+- Format : 3:4 · Forme du cadre : arche
+- Emplacement : Fiche des Observateurs de Quiétude (chapitre « Les peuples insolites »)
+- Sujet : Un sage de pierre immense et patient, assis dans un poste d'observation voilé derrière une lune, regarde en contrebas un petit village pré-industriel qui lève les yeux sans le voir
+
+```
+portrait of an immense patient stone sage with mineral skin and glowing crystal eyes, seated inside a cloaked observation post hidden behind a moon, gazing down at a small pre-industrial alien village whose people look up at the sky without seeing it, notebooks of carved stone around him, serene contemplative hard science fiction mood epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
+```
