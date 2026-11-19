@@ -145,8 +145,7 @@ static func open_fleet_menu(main: Node, state: GameState, player: int, f: Fleet)
 	menu.popup_hide.connect(func() -> void:
 		if is_instance_valid(menu):
 			menu.queue_free.call_deferred())
-	main.add_child(menu)
-	menu.popup_centered()
+	UiTheme.popup_menu(main, menu)
 
 
 static func _item(menu: PopupMenu, cmds: Array[Dictionary], state: GameState, player: int, act: String, d: Dictionary, text: String) -> void:
@@ -255,8 +254,7 @@ static func open_people_menu(main: Node, state: GameState, player: int) -> void:
 	menu.popup_hide.connect(func() -> void:
 		if is_instance_valid(menu):
 			menu.queue_free.call_deferred())
-	main.add_child(menu)
-	menu.popup_centered()
+	UiTheme.popup_menu(main, menu)
 
 
 ## Menu des peuples, lot 4 : Registre et Boucle du Sablier, Consensus et Patience des Lithes, comètes de

@@ -516,8 +516,9 @@ func _test_ai_game() -> void:
 	_ok(worked, "IA : les Lithes entreprennent une Œuvre lente")
 	_ok(cometed, "IA : la Sporemère lance des comètes")
 	_ok(seasoned, "IA : le Hallier change de saison")
-	print("    (Sablier : %d annulations, Sable %d ; Lithes : %d Œuvres achevées ; Myrr : %d systèmes, %d absorbés ; Hallier : %d jardins)" % [
-			int(Insolites.emp(st, s).get("undone", 0)), int(Insolites.emp(st, s).get("sand", 0)), (Insolites.emp(st, g).get("done", {}) as Dictionary).size(),
+	# La partie peut s'arrêter avant l'an 10 (victoire) : le premier jardin demande huit ans (garden_days).
+	print("    (arrêt au jour %d ; Sablier : %d annulations, Sable %d ; Lithes : %d Œuvres achevées ; Myrr : %d systèmes, %d absorbés ; Hallier : %d jardins)" % [
+			st.tick, int(Insolites.emp(st, s).get("undone", 0)), int(Insolites.emp(st, s).get("sand", 0)), (Insolites.emp(st, g).get("done", {}) as Dictionary).size(),
 			InsMyrr.seeded(st, m).size(), int(Insolites.emp(st, m).get("absorbed", 0)), InsVergemonde.gardens(st, v)])
 	var d1 := st.to_dict()
 	var st2 := GameState.from_dict(JSON.parse_string(JSON.stringify(d1)))

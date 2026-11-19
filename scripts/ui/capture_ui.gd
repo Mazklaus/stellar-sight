@@ -60,8 +60,7 @@ static func open_prize_menu(main: Node, state: GameState, player: int, f: Fleet)
 	menu.popup_hide.connect(func() -> void:
 		if is_instance_valid(menu):
 			menu.queue_free.call_deferred())
-	main.add_child(menu)
-	menu.popup_centered()
+	UiTheme.popup_menu(main, menu)
 
 
 static func _item(menu: PopupMenu, cmds: Array[Dictionary], state: GameState, player: int, act: String, f: Fleet, ship: String, extra: Dictionary, text: String) -> void:

@@ -82,6 +82,15 @@ static func apply_to(node: Node) -> void:
 			apply_to(child)
 
 
+## Ouvre un menu surgissant (PopupMenu créé à la volée) au centre de l'écran. Il est posé sur la fenêtre
+## racine et non sous main.gd : un Node2D le soumettrait au zoom de la caméra de la carte (menu minuscule
+## en vue éloignée) et couperait l'héritage du thème (police par défaut).
+static func popup_menu(from: Node, menu: PopupMenu) -> void:
+	menu.theme = theme()
+	from.get_tree().root.add_child(menu)
+	menu.popup_centered()
+
+
 ## Cadre plat à angles droits. border_all : épaisseur des filets (0 = aucun) ; border_top >= 0 la change en haut.
 static func box(bg: Color, border: Color, margin := 10, border_all := 1, border_top := -1) -> StyleBoxFlat:
 	var st := StyleBoxFlat.new()
