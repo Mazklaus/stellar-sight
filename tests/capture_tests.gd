@@ -209,7 +209,7 @@ func _test_rules() -> void:
 			break
 	_ok(not res.is_empty() and String(res[0][1]) == "" and not boom.ships.has("t_boom"), "Charge d'autodestruction : le vaisseau saute, pas de prise")
 	# Technologies et doctrine.
-	_ok(not Research.tech("equipes_prise").is_empty() and not Research.tech("capsules_assaut").is_empty() and not Research.tech("ingenierie_inverse").is_empty(), "trois technologies de prise")
+	_ok(not Research.tech("equipes_prise").is_empty() and Research.heir_of("capsules_assaut") == "equipes_prise" and not Research.tech("ingenierie_inverse").is_empty(), "technologies de prise (Capsules fondues dans Équipes de prise)")
 	_ok(int(Research.tech("abordage")["effects"].get("board_pct", 0)) == 20, "doctrine Abordage : force +20 %")
 	for m in ["grappins", "capsules_assaut", "sas_pieges", "charge_autodestruction", "grue_recuperation"]:
 		_ok(not Designs.module(m).is_empty(), "module %s" % m)

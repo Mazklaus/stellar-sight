@@ -199,7 +199,7 @@ func _test_habitats_and_outposts() -> void:
 	var barren := _free_planet(st, "barren")
 	var rock := _free_planet(st, "asteroids")
 	_ok(Economy.max_pop(st, barren, 0) == 0, "monde stérile inhabitable sans technologie")
-	Research.grant(st, 0, ["cites_creusees"])
+	Research.grant(st, 0, ["terraformation"])
 	_ok(Economy.max_pop(st, barren, 0) > 0 and Economy.max_pop(st, rock, 0) > 0, "Cités creusées : stériles et astéroïdes habitables")
 	var c := _plant(st, 0, barren.id, 1)
 	_ok(int(Economy.colony_yields(st, c)["gross"]["materials"]) >= 2, "les habitants d'un monde creusé extraient des matériaux")

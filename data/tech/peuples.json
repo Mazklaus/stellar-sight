@@ -160,7 +160,7 @@
 			"era": 3,
 			"field": "armes",
 			"current": "glaive",
-			"text": "+10 % de dégâts pour toutes les armes.",
+			"text": "+10 % de dégâts pour toutes les armes. Améliore la coque Sporange de guerre : les larves éclosent à bord, les troupes de la flotte se reforment même loin de chez elles.",
 			"pre": [
 				"griffes"
 			],
@@ -260,7 +260,7 @@
 			"era": 2,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "+1 vision pour les colonies, et +10 % de vitesse. Améliore la coque Coursier de saut : le navigateur trouve son chemin loin des dépôts, autonomie doublée.",
+			"text": "+1 vision pour les colonies, et +10 % de vitesse. Améliore la coque Coursier de saut : le navigateur trouve son chemin loin des dépôts, autonomie doublée. Améliore aussi le Grand Voilier de lignée : il trouve un mouillage partout, la flotte se répare trois fois plus vite hors de chez elle.",
 			"pre": [
 				"cartes_lignees"
 			],
@@ -1000,7 +1000,7 @@
 			"era": 2,
 			"field": "commerce",
 			"current": "forge",
-			"text": "Credo Profit : deux livres de comptes, dont un pour le fisc : frais du marché -10 %, revenus des routes commerciales +15 %.",
+			"text": "Credo Profit : deux livres de comptes, dont un pour le fisc : frais du marché -10 %, revenus des routes commerciales +15 %. Améliore l'Épave remontée (on fait le plein sur les épaves, autonomie doublée) et la Comète-marché (on achète ses pièces partout, la flotte se répare trois fois plus vite hors de chez elle).",
 			"pre": [
 				"logistique"
 			],
@@ -2220,6 +2220,289 @@
 				"ins_pct": {
 					"exode.hope_sign": 100
 				}
+			}
+		},
+		"flotte_ville_ii": {
+			"label": "Flotte-ville II : les batteries",
+			"domain": "armement",
+			"era": 2,
+			"field": "armes",
+			"current": "glaive",
+			"text": "La capitale mobile se hérisse de batteries prises aux vaincus : les armes de la Flotte-ville frappent 50 % plus fort.",
+			"pre": [
+				"campements_fortifies"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"horde"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"city_battery_pct": 50
+			},
+			"flavor": "On ne sait plus qui a forgé ces canons. On sait qui les a gagnés."
+		},
+		"flotte_ville_iii": {
+			"label": "Flotte-ville III : le chantier",
+			"domain": "genie",
+			"era": 3,
+			"field": "coques",
+			"current": "forge",
+			"text": "La Flotte-ville embarque un chantier : là où elle campe, vos flottes se réparent et se remettent à niveau comme dans une colonie, et les vaisseaux construits dans ce système coûtent 20 % de moins.",
+			"pre": [
+				"flotte_ville_ii"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"horde"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"city_yard": 20
+			}
+		},
+		"serres_coursives": {
+			"label": "Serres de coursive",
+			"domain": "economie",
+			"era": 1,
+			"field": "production",
+			"current": "seve",
+			"text": "Module de nef : chaque Nef-cité au mouillage cultive ses coursives, +2 nourriture par mois.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conseil_survie"
+					]
+				}
+			},
+			"effects": {
+				"nef_yields": {
+					"food": 2
+				}
+			},
+			"flavor": "Des tomates entre deux sas. On ne demande plus d'où vient l'eau."
+		},
+		"ateliers_coursives": {
+			"label": "Ateliers de coursive",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "forge",
+			"text": "Module de nef : chaque Nef-cité au mouillage refond ce qu'elle trouve, +2 matériaux par mois.",
+			"pre": [
+				"serres_coursives"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conseil_survie"
+					]
+				}
+			},
+			"effects": {
+				"nef_yields": {
+					"materials": 2
+				}
+			}
+		},
+		"observatoire_proue": {
+			"label": "Observatoire de proue",
+			"domain": "genie",
+			"era": 2,
+			"field": "senseurs",
+			"current": "academie",
+			"text": "Module de nef : chaque Nef-cité au mouillage observe le ciel qu'elle a sous les yeux, +2 Savoir par mois.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conseil_survie"
+					]
+				}
+			},
+			"effects": {
+				"nef_yields": {
+					"knowledge": 2
+				}
+			}
+		},
+		"bulle_repli": {
+			"label": "Bulle de Repli",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "academie",
+			"text": "Nouvelle bulle temporelle, le Repli : une de vos flottes en route revient à son point de départ comme si elle n'était jamais partie ; à l'arrêt dans une bataille, elle rentre au système de votre capitale.",
+			"pre": [
+				"sable_fin"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"chronarchie"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"bubble_repli": 1
+			},
+			"flavor": "Elle est partie demain. Elle est rentrée hier. Elle n'a rien vu."
+		},
+		"bulle_pli": {
+			"label": "Bulle de Pli",
+			"domain": "economie",
+			"era": 3,
+			"field": "production",
+			"current": "forge",
+			"text": "Nouvelle bulle temporelle, le Pli : le chantier d'une de vos colonies s'achève tout de suite (bâtiment et vaisseau en cours).",
+			"pre": [
+				"bulle_repli"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"chronarchie"
+					]
+				}
+			},
+			"effects": {
+				"bubble_pli": 1
+			}
+		},
+		"oeuvre_souffle": {
+			"label": "Œuvre du souffle",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "seve",
+			"text": "Nouvelle Œuvre lente : rendre habitable un monde stérile ou toxique.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"consensus_seculaire"
+					]
+				}
+			},
+			"effects": {
+				"gravea_works": 1
+			}
+		},
+		"oeuvre_orbites": {
+			"label": "Œuvre des orbites",
+			"domain": "genie",
+			"era": 3,
+			"field": "propulsion",
+			"current": "forge",
+			"text": "Nouvelle Œuvre lente : déplacer une planète gelée ou stérile vers la zone tempérée.",
+			"pre": [
+				"oeuvre_souffle"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"consensus_seculaire"
+					]
+				}
+			},
+			"effects": {
+				"gravea_works": 1
+			}
+		},
+		"oeuvre_etoile": {
+			"label": "Œuvre de l'étoile",
+			"domain": "genie",
+			"era": 4,
+			"field": "mega_ing",
+			"current": "academie",
+			"text": "Nouvelle Œuvre lente : refroidir l'étoile, et tous les mondes brûlants du système deviennent tempérés.",
+			"pre": [
+				"oeuvre_orbites"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"consensus_seculaire"
+					]
+				}
+			},
+			"effects": {
+				"gravea_works": 1
+			},
+			"flavor": "Il a fallu trois siècles pour convaincre l'étoile. Elle n'a jamais dit oui ; elle a juste cessé de dire non."
+		},
+		"bordees_reglees": {
+			"label": "Bordées réglées",
+			"domain": "armement",
+			"era": 2,
+			"field": "armes",
+			"current": "glaive",
+			"text": "Trait Canonniers : +10 % de dégâts le premier jour de chaque bataille. Améliore la coque Affût de roc : ses canonniers réparent entre deux salves, la flotte se répare trois fois plus vite hors de chez elle.",
+			"requires": {
+				"species": {
+					"traits": [
+						"canonniers"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"first_day_damage_pct": 10
+			}
+		},
+		"mues_coques": {
+			"label": "Mues des coques",
+			"domain": "genie",
+			"era": 2,
+			"field": "coques",
+			"current": "forge",
+			"text": "Archétype reptilien : réparations 25 % plus rapides. Améliore la coque Nef-tanière : la coque mue, la flotte se répare partout comme chez elle.",
+			"requires": {
+				"species": {
+					"archetype": [
+						"reptilien"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"repair_pct": 25
+			}
+		},
+		"accord_parfait": {
+			"label": "Accord parfait",
+			"domain": "genie",
+			"era": 2,
+			"field": "senseurs",
+			"current": "academie",
+			"text": "Registre Cosmique / étrange : détection +1. Améliore la coque Diapason : l'écho remet les coques d'accord, la flotte se répare trois fois plus vite hors de chez elle.",
+			"requires": {
+				"species": {
+					"registre": [
+						"Cosmique / étrange"
+					]
+				}
+			},
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"detect": 1
 			}
 		}
 	}

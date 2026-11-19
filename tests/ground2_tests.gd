@@ -89,7 +89,7 @@ func _test_specialists() -> void:
 	var st := _new()
 	_ok(Ground.type_ids().has("commandos") and Ground.type_ids().has("genie"), "deux spécialistes au catalogue : forces spéciales et génie")
 	_ok(not Ground.type_allowed(st, 0, "commandos"), "les forces spéciales demandent une technologie")
-	_learn(st, 0, ["forces_speciales", "genie_siege"])
+	_learn(st, 0, ["blindes_assaut", "genie_siege"])
 	_ok(Ground.type_allowed(st, 0, "commandos") and Ground.type_allowed(st, 0, "genie"), "technologies apprises : spécialistes ouverts")
 	# Génie : puissance de siège à bord.
 	var home := _home(st, 0)
@@ -105,7 +105,7 @@ func _test_specialists() -> void:
 	_add_building(st2, target, 1, "bastion")
 	var inf := _regs(st2, 0, target, "infanterie", 1)
 	_ok(Ground.landing_fire_pct(st2, target, 0, inf) == 10, "un Bastion tire sur les péniches (10 %)")
-	_learn(st2, 1, ["defense_planetaire"])
+	_learn(st2, 1, ["bastions"])
 	_ok(Ground.landing_fire_pct(st2, target, 0, inf) == 20, "Défense planétaire : +10 %")
 	var com := _regs(st2, 0, target, "commandos", 1)
 	_ok(Ground.landing_fire_pct(st2, target, 0, com) == 0, "un commando sabote les batteries")
@@ -357,7 +357,7 @@ func _test_ai() -> void:
 			break
 	_ok(GroundSiege.posture(st, (x[2] as Fleet).id) == "selectif", "l'IA bombarde en Sélectif quand elle assiège")
 	var techs: Array = []
-	for t in ["forces_speciales", "genie_siege", "defense_planetaire", "pont_orbital", "conscription_planetaire", "medecine_campagne",
+	for t in ["blindes_assaut", "genie_siege", "bastions", "pont_orbital", "conscription_planetaire", "medecine_campagne",
 			"citadelle_planetaire", "doctrine_interarmes", "infanterie_antiaerienne", "propagande_front", "bombardement_precision"]:
 		if not Research.tech(t).is_empty():
 			techs.append(t)

@@ -211,9 +211,9 @@ L'option de partie **Combat au sol** a deux réglages. **Simplifié** garde les 
 | Régiment | Santé | Dégâts | Places | Coût | Il faut | Atout |
 | --- | --- | --- | --- | --- | --- | --- |
 | Infanterie | 100 | 6-12 | 4 | 20 matériaux, 10 nourriture, 2 recrues, 30 j | Rien | Bon marché |
-| Blindés | 240 | 10-15 | 8 | 55 matériaux, 10 énergie, 3 recrues, 45 j | Blindés d'assaut | +50 % contre l'infanterie |
+| Blindés | 240 | 10-15 | 8 | 55 matériaux, 10 énergie, 3 recrues, 45 j | Régiments spécialisés | +50 % contre l'infanterie |
 | Aérien | 200 | 14-22 | 8 | 60 matériaux, 20 énergie, 3 recrues, 50 j | Assaut aéroporté | +50 % contre les blindés |
-| Forces spéciales | 80 | 8-14 | 4 | 40 matériaux, 15 énergie, 2 recrues | Forces spéciales | Sabotent milice et batteries |
+| Forces spéciales | 80 | 8-14 | 4 | 40 matériaux, 15 énergie, 2 recrues | Régiments spécialisés | Sabotent milice et batteries |
 | Génie de siège | 120 | 4-8 | 6 | 45 matériaux, 10 énergie, 2 recrues | Génie de siège | Usent les remparts, +50 % contre la milice |
 | Marcheur de siège | 1 500 | 30-45 | 40 | 900 matériaux, 200 énergie, 30 cristaux, 10 recrues, 180 j | Chantier titanesque | Un seul par empire |
 

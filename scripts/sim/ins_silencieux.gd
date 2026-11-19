@@ -77,19 +77,87 @@ static func _pick(state: GameState, eid: int, added: Array[Dictionary]) -> void:
 		if v > best_v:
 			best_v = v
 			best = int(sid)
-	if best < 0:
+	var k := ""
+	if best >= 0:
+		var owner2 := state.system_owner(best)
+		k = "eliminer" if owner2 >= 0 and owner2 != eid and not GameState.is_npc(owner2) else ("extraire" if state.galaxy.systems[best].planet_ids.size() >= 3 else "etendre")
+	# Directives acquises (Catalogue des acquisitions) : Démonter les épaves d'un champ de bataille à
+	# portée, sinon, une fois sur trois ou faute de cible, Optimiser leur système le plus peuplé.
+	var open := unlocked(state, eid)
+	var turn := posmod(hash([state.seed_value, eid, state.tick / 30, "directive"]), 3)
+	if open.has("demonter") and turn != 0:
+		var wsid := -1
+		for sid in keys:
+			if int(d[sid]) <= _c("directive_jumps", 6) and int(state.battle_wrecks.get(int(sid), 0)) > 0 and e.explored.has(int(sid)):
+				wsid = int(sid)
+				break
+		if wsid >= 0:
+			best = wsid
+			k = "demonter"
+	if open.has("optimiser") and k != "demonter" and (best < 0 or turn == 0):
+		var top := -1
+		var top_pop := 0
+		for pid in state.sorted_colony_ids():
+			var c: Colony = state.colonies[pid]
+			if c.owner == eid and c.population > top_pop:
+				top_pop = c.population
+				top = state.galaxy.get_planet(int(pid)).system_id
+		if top >= 0:
+			best = top
+			k = "optimiser"
+	if best < 0 or k == "":
 		return
-	var owner2 := state.system_owner(best)
-	var k := "eliminer" if owner2 >= 0 and owner2 != eid and not GameState.is_npc(owner2) else ("extraire" if state.galaxy.systems[best].planet_ids.size() >= 3 else "etendre")
 	Insolites.emp(state, eid)["dir"] = {"k": k, "sid": best, "until": state.tick + _c("directive_days", 720)}
 	added.append(state.add_chronicle("Sur toutes les fréquences, en clair, les Silencieux affichent une nouvelle ligne. %s." % directive_text(state, eid).trim_prefix("Directive : "),
 			Espionage.public_to(state, [eid])))
+
+
+## Technologies acquises : tout ce que savent les Silencieux vient d'une épave, d'une prise ou d'une ruine.
+static func acquisitions(state: GameState, eid: int) -> int:
+	return state.get_empire(eid).techs.size()
+
+
+## Directives ouvertes, dans l'ordre des données : sans seuil, ou seuil "need" d'acquisitions atteint.
+static func unlocked(state: GameState, eid: int) -> Array[String]:
+	var out: Array[String] = []
+	var n := acquisitions(state, eid)
+	var dirs: Dictionary = Insolites.cfg("silencieux").get("directives", {})
+	for k in dirs:
+		if not String(k).begins_with("_") and int((dirs[k] as Dictionary).get("need", 0)) <= n:
+			out.append(String(k))
+	return out
+
+
+## Directive tournée vers eux-mêmes (Optimiser) : elle ne s'achève pas quand le système est à eux.
+static func _inward(k: String) -> bool:
+	return k == "optimiser"
+
+
+## Production d'une colonie en % de plus : Optimiser les chaînes de son système.
+static func colony_pct(state: GameState, pid: int) -> int:
+	var c: Colony = state.colonies.get(pid)
+	if c == null or Insolites.kind(state, c.owner) != "silencieux":
+		return 0
+	var d := directive(state, c.owner)
+	if d.is_empty() or String(d["k"]) != "optimiser" or int(d["sid"]) != state.galaxy.get_planet(pid).system_id:
+		return 0
+	return _c("optimize_pct", 20)
+
+
+## Épaves en % (Research.study_wrecks) : Démonter les épaves, où qu'on se batte tant que la directive dure.
+static func salvage_pct(state: GameState, eid: int) -> int:
+	if Insolites.kind(state, eid) != "silencieux":
+		return 100
+	var d := directive(state, eid)
+	return _c("salvage_pct", 200) if not d.is_empty() and String(d["k"]) == "demonter" else 100
 
 
 ## Empire qui gêne la directive (-1 sinon) : celui qui tient le système visé.
 static func obstacle(state: GameState, eid: int) -> int:
 	var d := directive(state, eid)
 	if d.is_empty():
+		return -1
+	if _inward(String(d["k"])):
 		return -1
 	var o := state.system_owner(int(d["sid"]))
 	return o if o >= 0 and o != eid and not GameState.is_npc(o) else -1
@@ -120,7 +188,7 @@ static func daily(state: GameState, eid: int, ed: Dictionary, month: bool, added
 	if not month:
 		return
 	var d: Dictionary = ed.get("dir", {})
-	if d.is_empty() or int(d["until"]) <= state.tick or state.system_owner(int(d["sid"])) == eid:
+	if d.is_empty() or int(d["until"]) <= state.tick or (state.system_owner(int(d["sid"])) == eid and not _inward(String(d["k"]))):
 		_pick(state, eid, added)
 	if state.tick >= _c("replicate_days", 720):
 		_replicate(state, eid, added)
@@ -192,6 +260,9 @@ static func victory_allowed(state: GameState, eid: int, id: String) -> bool:
 
 static func status_lines(state: GameState, eid: int, _ed: Dictionary) -> Array[String]:
 	var out: Array[String] = [directive_text(state, eid)]
+	var open := unlocked(state, eid)
+	out.append("Catalogue des acquisitions : %d technologies acquises ; directives ouvertes : %s" % [acquisitions(state, eid),
+			", ".join(PackedStringArray(open.map(func(k: String) -> String: return String(Insolites.cfg("silencieux")["directives"][k]["label"]).replace(" %s", "").to_lower())))])
 	var ob := obstacle(state, eid)
 	if ob >= 0:
 		out.append("Obstacle à la directive : %s" % state.get_empire(ob).display_name())

@@ -265,7 +265,24 @@
 		"kardashev": "Kardashev"
 	},
 	"renamed": {
-		"_doc": "Sauvegardes anciennes (prop. 109) : technologie renommée ou fondue -> héritière. Une technologie absente d'ici et des données est oubliée au chargement."
+		"_doc": "Sauvegardes anciennes (prop. 109) : technologie renommée ou fondue -> héritière. Une technologie absente d'ici et des données est oubliée au chargement.",
+		"tetes_chercheuses": "lentilles",
+		"missiles_furtifs": "essaims",
+		"accelerateurs": "artillerie",
+		"obusiers": "canons_rail",
+		"nuees_pensantes": "escadres_autonomes",
+		"torpilles_singulieres": "canons_singularite",
+		"defense_planetaire": "bastions",
+		"boucliers_planetaires": "citadelle_planetaire",
+		"phase_dense": "faisceaux_gamma",
+		"forces_speciales": "blindes_assaut",
+		"capsules_assaut": "equipes_prise",
+		"plaques_ablatives": "interception",
+		"champs_de_mines": "plates_formes_defense",
+		"cites_flottantes": "habitats",
+		"mondes_toxiques": "biomes_extremes",
+		"holovision": "propagande",
+		"cites_creusees": "terraformation"
 	},
 	"tiers": {
 		"_doc": "Paliers d'ère (prop. 4 de l'étude de l'arbre) : ouvrir une ère dans un domaine donne ces améliorations sans rien rechercher, affichées en tête de colonne. Les marques d'armes viennent des paliers d'Armement (marque V à l'ère V). Effets au format des technologies.",

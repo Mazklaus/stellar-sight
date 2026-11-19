@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.57
+
+- **La refonte de l'arbre de recherche** (chapitre 5) s'achève : **les restes des lots**. Armement et Société resserrés autour d'une trentaine de technologies principales (dix-sept fusions, deux nouvelles Maîtrises ; les anciennes technologies retrouvent leur héritière dans les vieilles sauvegardes) ; trois **spécialisations** de plus (chantier lourd, l'ombre ou la gloire, le peuplement) ; **Flotte-ville II et III** des Ferrocornes (batteries, chantier embarqué) ; **modules de nef** de l'Exode ; bulles **Repli** et **Pli** du Sablier ; **Œuvres lentes par ère** de Gravéa ; **directives** des Silencieux par acquisitions (Optimiser, Démonter) ; les sept dernières **coques de peuple** gagnent leur capacité. Correction : une trouvaille ne compte plus dans le seuil d'ouverture d'une ère (une ère pouvait rester fermée). Sauvegarde 101 inchangée.
+
 ### Édition 2.56
 
 - **La refonte de l'arbre de recherche** (chapitre 5), cinquième et dernier lot : **les peuples insolites et les Destinées**. Trente-quatre technologies propres qui affinent la mécanique de chaque peuple insolite (Kraal sans coques ni chantier, Guichet central du Bureau à la place du Tribunal) ; onze **talents de recherche** propres, qui remplacent ceux qu'ils empruntaient ; les talents deviennent une **brique de l'éditeur d'espèces** ; chaque **Destinée** se gagne en **trois étapes** (compte à rebours en pause, puis plus court, puis la Destinée). Sauvegarde 101 inchangée.

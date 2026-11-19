@@ -312,6 +312,62 @@ static func bubble(state: GameState, eid: int, sid: int, mode: String, added: Ar
 			Espionage.private_to(state, [eid, state.system_owner(sid)], sid)))
 
 
+## Repli et Pli (arbre, restes du lot 5 : bulles débloquées une à une, bubble_repli / bubble_pli).
+## Repli : une flotte en route revient à son système de départ ; à l'arrêt dans une bataille, elle rentre
+## au système de la capitale. Pli : le chantier d'une colonie (bâtiment et vaisseau) s'achève tout de suite.
+## Même Sable et même recharge que les autres bulles.
+static func check_fold(state: GameState, eid: int, mode: String, target: int) -> String:
+	if not is_guardian(state, eid):
+		return "seuls les Gardiens plient le temps"
+	var key := "bubble_repli" if mode == "repli" else ("bubble_pli" if mode == "pli" else "")
+	if key == "":
+		return "bulle inconnue"
+	if Research.fx_int(state, eid, key) <= 0:
+		return "technologie requise : %s" % ("Bulle de Repli" if mode == "repli" else "Bulle de Pli")
+	if int(Insolites.emp(state, eid).get("bub", 0)) > state.tick:
+		return "le Sablier se recharge (%d jours)" % (int(Insolites.emp(state, eid)["bub"]) - state.tick)
+	if mode == "repli":
+		var f: Fleet = state.fleets.get(target)
+		if f == null or f.owner != eid:
+			return "cette flotte ne vous appartient pas"
+		if not f.is_moving() and not state.battles.has(f.system_id):
+			return "la flotte doit être en route, ou prise dans une bataille"
+		if not f.is_moving() and FactionTraits.capital_system(state, eid) in [-1, f.system_id]:
+			return "la flotte est déjà chez elle"
+	else:
+		var c: Colony = state.colonies.get(target)
+		if c == null or c.owner != eid:
+			return "cette colonie ne vous appartient pas"
+		if c.construction == "" and c.ship_build == "":
+			return "aucun chantier en cours sur cette colonie"
+	if int(Insolites.emp(state, eid).get("sand", 0)) < _c("bubble_sand", 30):
+		return "Sable insuffisant (%d / %d)" % [int(Insolites.emp(state, eid).get("sand", 0)), _c("bubble_sand", 30)]
+	return ""
+
+
+static func fold(state: GameState, eid: int, mode: String, target: int, added: Array[Dictionary]) -> void:
+	var ed := Insolites.emp(state, eid)
+	ed["sand"] = int(ed["sand"]) - _c("bubble_sand", 30)
+	ed["bub"] = state.tick + Insolites.tuned(state, eid, "sablier", "bubble_cd_days", _c("bubble_cd_days", 360))
+	if mode == "repli":
+		var f: Fleet = state.fleets[target]
+		if not f.is_moving():
+			f.system_id = FactionTraits.capital_system(state, eid)
+		f.path.clear()
+		f.progress = 0
+		f.standing_order = ""
+		added.append(state.add_chronicle("%s replie le temps : %s est de retour à %s, et personne n'a vu partir." % [
+				state.get_empire(eid).display_name(), f.fleet_name, state.galaxy.systems[f.system_id].system_name], Espionage.private_to(state, [eid], f.system_id)))
+	else:
+		var c: Colony = state.colonies[target]
+		if c.construction != "":
+			c.construction_days = mini(c.construction_days, 1)
+		if c.ship_build != "":
+			c.ship_days = mini(c.ship_days, 1)
+		added.append(state.add_chronicle("Sur %s, le chantier se plie : demain, ce sera déjà fini." % state.galaxy.get_planet(target).display_name(state.galaxy),
+				Espionage.private_to(state, [eid], state.galaxy.get_planet(target).system_id)))
+
+
 ## Production d'un système en points de % (déchirure, bulle).
 static func system_pct(state: GameState, sid: int) -> int:
 	var n := 0

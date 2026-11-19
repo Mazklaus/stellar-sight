@@ -13,13 +13,13 @@ Format conseillé : carré 1:1, 1024 px, sujet centré (le jeu en tire un médai
 square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Canons à masse réactive" (era 1 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
-## lentilles · Lentilles de focalisation
+## lentilles · Optiques et autoguidage
 
 - Fichier : `assets/tech/lentilles.png` · Domaine : armement · Ère 1
-- Ce qu'elle fait : Débloque la tactique Feu concentré (+25 % à moyenne portée).
+- Ce qu'elle fait : Débloque la tactique Feu concentré (+25 % à moyenne portée). Débloque la tactique Salves croisées : la défense ponctuelle adverse arrête un quart de missiles de moins.
 
 ```
-square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Lentilles de focalisation" (era 1 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Optiques et autoguidage" (era 1 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## blindage_composite · Blindage composite
@@ -29,15 +29,6 @@ square sci-fi concept art, a gleaming starship weapon system firing, evoking the
 
 ```
 square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Blindage composite" (era 1 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
-## tetes_chercheuses · Missiles à tête chercheuse
-
-- Fichier : `assets/tech/tetes_chercheuses.png` · Domaine : armement · Ère 1
-- Ce qu'elle fait : Débloque la tactique Salves croisées : la défense ponctuelle adverse arrête un quart de missiles de moins.
-
-```
-square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Missiles à tête chercheuse" (era 1 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## boucliers_phase · Boucliers à phase
@@ -61,7 +52,7 @@ square sci-fi concept art, layered armor plates and energy shields protecting a 
 ## interception · Tourelles d'interception
 
 - Fichier : `assets/tech/interception.png` · Domaine : armement · Ère 2
-- Ce qu'elle fait : Débloque les Tourelles d'interception (défense ponctuelle du vaisseau et un peu de la flotte) et le Dôme antimissile des titans.
+- Ce qu'elle fait : Débloque les Tourelles d'interception (défense ponctuelle du vaisseau et un peu de la flotte) et le Dôme antimissile des titans. Débloque les Plaques ablatives (blindage plus épais).
 
 ```
 square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Tourelles d'interception" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -79,7 +70,7 @@ square sci-fi concept art, a gleaming starship weapon system firing, evoking the
 ## bastions · Bastions orbitaux
 
 - Fichier : `assets/tech/bastions.png` · Domaine : armement · Ère 2
-- Ce qu'elle fait : Débloque le Bastion orbital : garnison et batterie de défense d'un système.
+- Ce qu'elle fait : Débloque le Bastion orbital : garnison et batterie de défense d'un système. Débloque les Abris civils (moitié moins de morts sous les bombardements). Tir sur les régiments qui débarquent : 10 % de leur santé (combat au sol complet).
 
 ```
 square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Bastions orbitaux" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -103,13 +94,13 @@ square sci-fi concept art, armored ground troops and dropships, evoking the tech
 square sci-fi concept art, armored ground troops and dropships, evoking the technology "Fusiliers d'élite" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
-## blindes_assaut · Blindés d'assaut
+## blindes_assaut · Régiments spécialisés
 
 - Fichier : `assets/tech/blindes_assaut.png` · Domaine : armement · Ère 2
-- Ce qu'elle fait : Débloque les régiments de Blindés (combat au sol complet) : ils encaissent et écrasent l'infanterie.
+- Ce qu'elle fait : Débloque les régiments de Blindés (combat au sol complet) : ils encaissent et écrasent l'infanterie. Débloque les régiments de Forces spéciales (combat au sol complet) : ils sabotent milice et batteries au débarquement.
 
 ```
-square sci-fi concept art, armored ground troops and dropships, evoking the technology "Blindés d'assaut" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+square sci-fi concept art, armored ground troops and dropships, evoking the technology "Régiments spécialisés" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## assaut_aeroporte · Assaut aéroporté
@@ -121,15 +112,6 @@ square sci-fi concept art, armored ground troops and dropships, evoking the tech
 square sci-fi concept art, armored ground troops and dropships, evoking the technology "Assaut aéroporté" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
-## accelerateurs · Accélérateurs magnétiques
-
-- Fichier : `assets/tech/accelerateurs.png` · Domaine : armement · Ère 3
-- Ce qu'elle fait : Débloque le Rayon tracteur : la flotte ennemie accrochée ne quitte plus la bataille, et l'abordage contre elle gagne en force.
-
-```
-square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Accélérateurs magnétiques" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
 ## plasma · Rayons à plasma
 
 - Fichier : `assets/tech/plasma.png` · Domaine : armement · Ère 3
@@ -139,19 +121,10 @@ square sci-fi concept art, a gleaming starship weapon system firing, evoking the
 square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Rayons à plasma" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
-## plaques_ablatives · Plaques ablatives
-
-- Fichier : `assets/tech/plaques_ablatives.png` · Domaine : armement · Ère 3
-- Ce qu'elle fait : Débloque les Plaques ablatives (blindage plus épais).
-
-```
-square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Plaques ablatives" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
 ## essaims · Missiles en essaim
 
 - Fichier : `assets/tech/essaims.png` · Domaine : armement · Ère 3
-- Ce qu'elle fait : Débloque le Lance-essaim (missiles légers en gerbe).
+- Ce qu'elle fait : Débloque le Lance-essaim (missiles légers en gerbe). Débloque la tactique Guerre électronique : la défense ponctuelle adverse arrête 40 % de projectiles de moins.
 
 ```
 square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Missiles en essaim" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -160,7 +133,7 @@ square sci-fi concept art, a gleaming starship weapon system firing, evoking the
 ## artillerie · Artillerie lourde
 
 - Fichier : `assets/tech/artillerie.png` · Domaine : armement · Ère 3
-- Ce qu'elle fait : Famille d'armes Artillerie (portée longue, rien en phase courte). Il faut aussi les Cuirassés pour en armer un vaisseau.
+- Ce qu'elle fait : Famille d'armes Artillerie (portée longue, rien en phase courte). Il faut aussi les Cuirassés pour en armer un vaisseau. Débloque le Rayon tracteur : la flotte ennemie accrochée ne quitte plus la bataille, et l'abordage contre elle gagne en force.
 
 ```
 square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Artillerie lourde" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -175,22 +148,13 @@ square sci-fi concept art, a gleaming starship weapon system firing, evoking the
 square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Escadrilles de chasse" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
-## phase_dense · Boucliers de phase dense
-
-- Fichier : `assets/tech/phase_dense.png` · Domaine : armement · Ère 4
-- Ce qu'elle fait : Débloque le Bouclier de flottille (module de soutien qui couvre les vaisseaux voisins).
-
-```
-square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Boucliers de phase dense" (era 4 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
-## canons_rail · Canons à rail
+## canons_rail · Canons lourds
 
 - Fichier : `assets/tech/canons_rail.png` · Domaine : armement · Ère 4
-- Ce qu'elle fait : Débloque le Canon à rail (canon lourd des grandes coques).
+- Ce qu'elle fait : Débloque le Canon à rail (canon lourd des grandes coques). Débloque le Canon de siège des titans.
 
 ```
-square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Canons à rail" (era 4 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Canons lourds" (era 4 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## antimatiere · Torpilles à antimatière
@@ -205,19 +169,10 @@ square sci-fi concept art, a gleaming starship weapon system firing, evoking the
 ## faisceaux_gamma · Faisceaux gamma
 
 - Fichier : `assets/tech/faisceaux_gamma.png` · Domaine : armement · Ère 4
-- Ce qu'elle fait : Débloque la famille d'armes Ions : le Canon à ions coupe à moitié les boucliers et la défense ponctuelle de la flotte touchée jusqu'au lendemain.
+- Ce qu'elle fait : Débloque la famille d'armes Ions : le Canon à ions coupe à moitié les boucliers et la défense ponctuelle de la flotte touchée jusqu'au lendemain. Débloque le Bouclier de flottille (module de soutien qui couvre les vaisseaux voisins).
 
 ```
 square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Faisceaux gamma" (era 4 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
-## missiles_furtifs · Missiles furtifs
-
-- Fichier : `assets/tech/missiles_furtifs.png` · Domaine : armement · Ère 4
-- Ce qu'elle fait : Débloque la tactique Guerre électronique : la défense ponctuelle adverse arrête 40 % de projectiles de moins.
-
-```
-square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Missiles furtifs" (era 4 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## blindage_reactif · Blindage réactif
@@ -229,22 +184,13 @@ square sci-fi concept art, a gleaming starship weapon system firing, evoking the
 square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Blindage réactif" (era 4 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
-## obusiers · Obusiers à fragmentation
-
-- Fichier : `assets/tech/obusiers.png` · Domaine : armement · Ère 4
-- Ce qu'elle fait : Débloque le Canon de siège des titans.
-
-```
-square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Obusiers à fragmentation" (era 4 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
-## canons_singularite · Canons à singularité
+## canons_singularite · Armes à singularité
 
 - Fichier : `assets/tech/canons_singularite.png` · Domaine : armement · Ère 5
-- Ce qu'elle fait : Débloque le Canon à singularité des léviathans.
+- Ce qu'elle fait : Débloque le Canon à singularité des léviathans. Débloque la Torpille à singularité.
 
 ```
-square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Canons à singularité" (era 5 of 5, near-mythical), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Armes à singularité" (era 5 of 5, near-mythical), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## lances_stellaires · Lances stellaires
@@ -254,15 +200,6 @@ square sci-fi concept art, a gleaming starship weapon system firing, evoking the
 
 ```
 square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Lances stellaires" (era 5 of 5, near-mythical), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
-## torpilles_singulieres · Torpilles à singularité
-
-- Fichier : `assets/tech/torpilles_singulieres.png` · Domaine : armement · Ère 5
-- Ce qu'elle fait : Débloque la Torpille à singularité.
-
-```
-square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Torpilles à singularité" (era 5 of 5, near-mythical), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## verbe_final · Le Verbe final
@@ -286,19 +223,10 @@ square sci-fi concept art, layered armor plates and energy shields protecting a 
 ## escadres_autonomes · Escadres autonomes
 
 - Fichier : `assets/tech/escadres_autonomes.png` · Domaine : armement · Ère 5
-- Ce qu'elle fait : Débloque le Hangar géant des titans.
+- Ce qu'elle fait : Débloque le Hangar géant des titans. Débloque la Nuée de drones (emplacement lourd : chasseurs et défense ponctuelle).
 
 ```
 square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Escadres autonomes" (era 5 of 5, near-mythical), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
-## nuees_pensantes · Nuées pensantes
-
-- Fichier : `assets/tech/nuees_pensantes.png` · Domaine : armement · Ère 5
-- Ce qu'elle fait : Débloque la Nuée de drones (emplacement lourd : chasseurs et défense ponctuelle).
-
-```
-square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Nuées pensantes" (era 5 of 5, near-mythical), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## rideau_acier · Rideau d'acier
@@ -331,19 +259,10 @@ square sci-fi concept art, a holographic war-room tactical map with fleet format
 ## equipes_prise · Équipes de prise
 
 - Fichier : `assets/tech/equipes_prise.png` · Domaine : armement · Ère 2
-- Ce qu'elle fait : Prises de guerre complètes : toute flotte qui porte des troupes peut se mettre en posture d'abordage ; modules Grappins, Sas piégés et Charge d'autodestruction.
+- Ce qu'elle fait : Prises de guerre complètes : toute flotte qui porte des troupes peut se mettre en posture d'abordage ; modules Grappins, Sas piégés et Charge d'autodestruction. Prises de guerre complètes : module Capsules d'assaut, qui permet d'aborder dès la phase moyenne.
 
 ```
 square sci-fi concept art, armored ground troops and dropships, evoking the technology "Équipes de prise" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
-## capsules_assaut · Capsules d'assaut
-
-- Fichier : `assets/tech/capsules_assaut.png` · Domaine : armement · Ère 3
-- Ce qu'elle fait : Prises de guerre complètes : module Capsules d'assaut, qui permet d'aborder dès la phase moyenne.
-
-```
-square sci-fi concept art, armored ground troops and dropships, evoking the technology "Capsules d'assaut" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## abordage · Abordage
@@ -373,15 +292,6 @@ square sci-fi concept art, a holographic war-room tactical map with fleet format
 square sci-fi concept art, a holographic war-room tactical map with fleet formations, evoking the technology "Guerre éclair" (era 4 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
-## forces_speciales · Forces spéciales
-
-- Fichier : `assets/tech/forces_speciales.png` · Domaine : armement · Ère 2
-- Ce qu'elle fait : Débloque les régiments de Forces spéciales (combat au sol complet) : ils sabotent milice et batteries au débarquement.
-
-```
-square sci-fi concept art, armored ground troops and dropships, evoking the technology "Forces spéciales" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
 ## genie_siege · Génie de siège
 
 - Fichier : `assets/tech/genie_siege.png` · Domaine : armement · Ère 2
@@ -391,40 +301,13 @@ square sci-fi concept art, armored ground troops and dropships, evoking the tech
 square sci-fi concept art, armored ground troops and dropships, evoking the technology "Génie de siège" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
-## defense_planetaire · Défense planétaire
-
-- Fichier : `assets/tech/defense_planetaire.png` · Domaine : armement · Ère 2
-- Ce qu'elle fait : Débloque les Abris civils (moitié moins de morts sous les bombardements). Tir sur les régiments qui débarquent : 10 % de leur santé (combat au sol complet).
-
-```
-square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Défense planétaire" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
 ## plates_formes_defense · Plates-formes de défense
 
 - Fichier : `assets/tech/plates_formes_defense.png` · Domaine : armement · Ère 2
-- Ce qu'elle fait : Défenses spatiales : plates-formes fixes autour de la station, modules à rayons, hangar, défense ponctuelle, bouclier, réparation et commandement, hangar planétaire. +2 places de plates-formes par système.
+- Ce qu'elle fait : Défenses spatiales : plates-formes fixes autour de la station, modules à rayons, hangar, défense ponctuelle, bouclier, réparation et commandement, hangar planétaire. +2 places de plates-formes par système. Défenses spatiales complètes : mouilleur de mines de station, modules Mouilleur de mines et Démineur pour les vaisseaux.
 
 ```
 square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Plates-formes de défense" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
-## champs_de_mines · Champs de mines
-
-- Fichier : `assets/tech/champs_de_mines.png` · Domaine : armement · Ère 3
-- Ce qu'elle fait : Défenses spatiales complètes : mouilleur de mines de station, modules Mouilleur de mines et Démineur pour les vaisseaux.
-
-```
-square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Champs de mines" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
-## boucliers_planetaires · Boucliers planétaires
-
-- Fichier : `assets/tech/boucliers_planetaires.png` · Domaine : armement · Ère 3
-- Ce qu'elle fait : Défenses spatiales : le Bouclier planétaire divise par deux bombardement et dévastation, et le siège l'use avant les fortifications.
-
-```
-square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Boucliers planétaires" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## remparts_stellaires · Remparts stellaires
@@ -439,7 +322,7 @@ square sci-fi concept art, layered armor plates and energy shields protecting a 
 ## citadelle_planetaire · Citadelles
 
 - Fichier : `assets/tech/citadelle_planetaire.png` · Domaine : armement · Ère 3
-- Ce qu'elle fait : Débloque la Citadelle : fortifications, tir au débarquement, et la population à l'abri des bombardements tant qu'elle tient.
+- Ce qu'elle fait : Débloque la Citadelle : fortifications, tir au débarquement, et la population à l'abri des bombardements tant qu'elle tient. Défenses spatiales : le Bouclier planétaire divise par deux bombardement et dévastation, et le siège l'use avant les fortifications.
 
 ```
 square sci-fi concept art, layered armor plates and energy shields protecting a station, evoking the technology "Citadelles" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -1741,19 +1624,10 @@ square sci-fi concept art, settlers founding a colony on a strange new world, ev
 square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Santé publique" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
-## mondes_toxiques · Mondes toxiques
-
-- Fichier : `assets/tech/mondes_toxiques.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Les mondes toxiques deviennent habitables (40 %).
-
-```
-square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Mondes toxiques" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
 ## biomes_extremes · Biomes extrêmes
 
 - Fichier : `assets/tech/biomes_extremes.png` · Domaine : societe · Ère 2
-- Ce qu'elle fait : Débloque les Dômes renforcés (+4 population maximale), et +20 % d'habitabilité sur les mondes désertiques et glaciaires.
+- Ce qu'elle fait : Débloque les Dômes renforcés (+4 population maximale), et +20 % d'habitabilité sur les mondes désertiques et glaciaires. Les mondes toxiques deviennent habitables (40 %).
 
 ```
 square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Biomes extrêmes" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -1780,19 +1654,10 @@ square sci-fi concept art, settlers founding a colony on a strange new world, ev
 ## habitats · Habitats orbitaux
 
 - Fichier : `assets/tech/habitats.png` · Domaine : societe · Ère 3
-- Ce qu'elle fait : Débloque les Habitats orbitaux.
+- Ce qu'elle fait : Débloque les Habitats orbitaux. Les géantes gazeuses deviennent habitables (30 %).
 
 ```
 square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Habitats orbitaux" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
-## cites_flottantes · Cités flottantes
-
-- Fichier : `assets/tech/cites_flottantes.png` · Domaine : societe · Ère 3
-- Ce qu'elle fait : Les géantes gazeuses deviennent habitables (30 %).
-
-```
-square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Cités flottantes" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## genetique · Génétique appliquée
@@ -1816,7 +1681,7 @@ square sci-fi concept art, settlers founding a colony on a strange new world, ev
 ## propagande · Propagande
 
 - Fichier : `assets/tech/propagande.png` · Domaine : societe · Ère 3
-- Ce qu'elle fait : +20 % d'influence, +5 stabilité dans tous vos systèmes. Avec les religions : pare-feu culturel contre les fois Mème.
+- Ce qu'elle fait : +20 % d'influence, +5 stabilité dans tous vos systèmes. Avec les religions : pare-feu culturel contre les fois Mème. Rayonnement +25 %. Débloque l'Holothéâtre éternel et les Troupes de spectacle.
 
 ```
 square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Propagande" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -1834,19 +1699,10 @@ square sci-fi concept art, a grand interstellar administrative palace and its of
 ## terraformation · Terraformation
 
 - Fichier : `assets/tech/terraformation.png` · Domaine : societe · Ère 4
-- Ce qu'elle fait : Projet de Terraformation sur une colonie d'un monde continental, océanique, désertique, glaciaire ou toxique : la planète devient le second monde préféré de votre peuple (80 % d'habitabilité).
+- Ce qu'elle fait : Projet de Terraformation sur une colonie d'un monde continental, océanique, désertique, glaciaire ou toxique : la planète devient le second monde préféré de votre peuple (80 % d'habitabilité). Les mondes stériles (30 %) et les ceintures d'astéroïdes (50 %) deviennent habitables : on vit dans la roche, on y extrait des matériaux.
 
 ```
 square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Terraformation" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
-## cites_creusees · Cités creusées
-
-- Fichier : `assets/tech/cites_creusees.png` · Domaine : societe · Ère 4
-- Ce qu'elle fait : Les mondes stériles (30 %) et les ceintures d'astéroïdes (50 %) deviennent habitables : on vit dans la roche, on y extrait des matériaux.
-
-```
-square sci-fi concept art, settlers founding a colony on a strange new world, evoking the technology "Cités creusées" (era 4 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## cadastre_algorithmique · Cadastre algorithmique
@@ -1973,15 +1829,6 @@ square sci-fi concept art, a grand interstellar administrative palace and its of
 
 ```
 square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Arts holographiques" (era 2 of 5, early and rough), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
-```
-
-## holovision · Holovision
-
-- Fichier : `assets/tech/holovision.png` · Domaine : societe · Ère 3
-- Ce qu'elle fait : Rayonnement +25 %. Débloque l'Holothéâtre éternel et les Troupes de spectacle.
-
-```
-square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Holovision" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## reseau_mondes · Réseau des mondes
@@ -2446,7 +2293,7 @@ square sci-fi concept art, a gleaming starship weapon system firing, evoking the
 ## acide · Sécrétions acides
 
 - Fichier : `assets/tech/acide.png` · Domaine : armement · Ère 3
-- Ce qu'elle fait : +10 % de dégâts pour toutes les armes.
+- Ce qu'elle fait : +10 % de dégâts pour toutes les armes. Améliore la coque Sporange de guerre : les larves éclosent à bord, les troupes de la flotte se reforment même loin de chez elles.
 
 ```
 square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Sécrétions acides" (era 3 of 5, advanced and refined), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -2482,7 +2329,7 @@ square sci-fi concept art, a starship drive and a glowing jump gate, evoking the
 ## ecoles_navigateurs · Écoles de navigateurs
 
 - Fichier : `assets/tech/ecoles_navigateurs.png` · Domaine : genie · Ère 2
-- Ce qu'elle fait : +1 vision pour les colonies, et +10 % de vitesse. Améliore la coque Coursier de saut : le navigateur trouve son chemin loin des dépôts, autonomie doublée.
+- Ce qu'elle fait : +1 vision pour les colonies, et +10 % de vitesse. Améliore la coque Coursier de saut : le navigateur trouve son chemin loin des dépôts, autonomie doublée. Améliore aussi le Grand Voilier de lignée : il trouve un mouillage partout, la flotte se répare trois fois plus vite hors de chez elle.
 
 ```
 square sci-fi concept art, a starship drive and a glowing jump gate, evoking the technology "Écoles de navigateurs" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -2779,7 +2626,7 @@ square sci-fi concept art, settlers founding a colony on a strange new world, ev
 ## comptabilite_occulte · Comptabilité occulte
 
 - Fichier : `assets/tech/comptabilite_occulte.png` · Domaine : economie · Ère 2
-- Ce qu'elle fait : Credo Profit : deux livres de comptes, dont un pour le fisc : frais du marché -10 %, revenus des routes commerciales +15 %.
+- Ce qu'elle fait : Credo Profit : deux livres de comptes, dont un pour le fisc : frais du marché -10 %, revenus des routes commerciales +15 %. Améliore l'Épave remontée (on fait le plein sur les épaves, autonomie doublée) et la Comète-marché (on achète ses pièces partout, la flotte se répare trois fois plus vite hors de chez elle).
 
 ```
 square sci-fi concept art, a bustling interstellar trade hub with cargo ships, evoking the technology "Comptabilité occulte" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
@@ -3278,6 +3125,123 @@ square sci-fi concept art, settlers founding a colony on a strange new world, ev
 
 ```
 square sci-fi concept art, a cultural festival of light, temples and holographic art, evoking the technology "Psaumes des coursives" (era 3 of 5, advanced and refined), green and teal tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## flotte_ville_ii · Flotte-ville II : les batteries
+
+- Fichier : `assets/tech/flotte_ville_ii.png` · Domaine : armement · Ère 2
+- Ce qu'elle fait : La capitale mobile se hérisse de batteries prises aux vaincus : les armes de la Flotte-ville frappent 50 % plus fort.
+
+```
+square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Flotte-ville II : les batteries" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## flotte_ville_iii · Flotte-ville III : le chantier
+
+- Fichier : `assets/tech/flotte_ville_iii.png` · Domaine : genie · Ère 3
+- Ce qu'elle fait : La Flotte-ville embarque un chantier : là où elle campe, vos flottes se réparent et se remettent à niveau comme dans une colonie, et les vaisseaux construits dans ce système coûtent 20 % de moins.
+
+```
+square sci-fi concept art, a starship hull under construction in an orbital shipyard, evoking the technology "Flotte-ville III : le chantier" (era 3 of 5, advanced and refined), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## serres_coursives · Serres de coursive
+
+- Fichier : `assets/tech/serres_coursives.png` · Domaine : economie · Ère 1
+- Ce qu'elle fait : Module de nef : chaque Nef-cité au mouillage cultive ses coursives, +2 nourriture par mois.
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Serres de coursive" (era 1 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## ateliers_coursives · Ateliers de coursive
+
+- Fichier : `assets/tech/ateliers_coursives.png` · Domaine : economie · Ère 2
+- Ce qu'elle fait : Module de nef : chaque Nef-cité au mouillage refond ce qu'elle trouve, +2 matériaux par mois.
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Ateliers de coursive" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## observatoire_proue · Observatoire de proue
+
+- Fichier : `assets/tech/observatoire_proue.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Module de nef : chaque Nef-cité au mouillage observe le ciel qu'elle a sous les yeux, +2 Savoir par mois.
+
+```
+square sci-fi concept art, a sensor array scanning the dark between stars, evoking the technology "Observatoire de proue" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## bulle_repli · Bulle de Repli
+
+- Fichier : `assets/tech/bulle_repli.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Nouvelle bulle temporelle, le Repli : une de vos flottes en route revient à son point de départ comme si elle n'était jamais partie ; à l'arrêt dans une bataille, elle rentre au système de votre capitale.
+
+```
+square sci-fi concept art, a starship drive and a glowing jump gate, evoking the technology "Bulle de Repli" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## bulle_pli · Bulle de Pli
+
+- Fichier : `assets/tech/bulle_pli.png` · Domaine : economie · Ère 3
+- Ce qu'elle fait : Nouvelle bulle temporelle, le Pli : le chantier d'une de vos colonies s'achève tout de suite (bâtiment et vaisseau en cours).
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Bulle de Pli" (era 3 of 5, advanced and refined), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## oeuvre_souffle · Œuvre du souffle
+
+- Fichier : `assets/tech/oeuvre_souffle.png` · Domaine : economie · Ère 2
+- Ce qu'elle fait : Nouvelle Œuvre lente : rendre habitable un monde stérile ou toxique.
+
+```
+square sci-fi concept art, vast automated industrial complexes on a planet, evoking the technology "Œuvre du souffle" (era 2 of 5, early and rough), gold and amber tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## oeuvre_orbites · Œuvre des orbites
+
+- Fichier : `assets/tech/oeuvre_orbites.png` · Domaine : genie · Ère 3
+- Ce qu'elle fait : Nouvelle Œuvre lente : déplacer une planète gelée ou stérile vers la zone tempérée.
+
+```
+square sci-fi concept art, a starship drive and a glowing jump gate, evoking the technology "Œuvre des orbites" (era 3 of 5, advanced and refined), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## oeuvre_etoile · Œuvre de l'étoile
+
+- Fichier : `assets/tech/oeuvre_etoile.png` · Domaine : genie · Ère 4
+- Ce qu'elle fait : Nouvelle Œuvre lente : refroidir l'étoile, et tous les mondes brûlants du système deviennent tempérés.
+
+```
+square sci-fi concept art, a colossal space megastructure under construction, evoking the technology "Œuvre de l'étoile" (era 4 of 5, advanced and refined), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## bordees_reglees · Bordées réglées
+
+- Fichier : `assets/tech/bordees_reglees.png` · Domaine : armement · Ère 2
+- Ce qu'elle fait : Trait Canonniers : +10 % de dégâts le premier jour de chaque bataille. Améliore la coque Affût de roc : ses canonniers réparent entre deux salves, la flotte se répare trois fois plus vite hors de chez elle.
+
+```
+square sci-fi concept art, a gleaming starship weapon system firing, evoking the technology "Bordées réglées" (era 2 of 5, early and rough), red and ember tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## mues_coques · Mues des coques
+
+- Fichier : `assets/tech/mues_coques.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Archétype reptilien : réparations 25 % plus rapides. Améliore la coque Nef-tanière : la coque mue, la flotte se répare partout comme chez elle.
+
+```
+square sci-fi concept art, a starship hull under construction in an orbital shipyard, evoking the technology "Mues des coques" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
+```
+
+## accord_parfait · Accord parfait
+
+- Fichier : `assets/tech/accord_parfait.png` · Domaine : genie · Ère 2
+- Ce qu'elle fait : Registre Cosmique / étrange : détection +1. Améliore la coque Diapason : l'écho remet les coques d'accord, la flotte se répare trois fois plus vite hors de chez elle.
+
+```
+square sci-fi concept art, a sensor array scanning the dark between stars, evoking the technology "Accord parfait" (era 2 of 5, early and rough), steel blue tones, centered subject, painterly, epic yet slightly whimsical, Endless Space 2 inspired, no text --ar 1:1
 ```
 
 ## lignees_croisees_etape1 · Pactes de sang

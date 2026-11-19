@@ -63,6 +63,12 @@ static func planet_work(state: GameState, eid: int, pid: int) -> Dictionary:
 	return GameData.planet_type(p.type).get("outpost_yields", {})
 
 
+## Modules de nef (arbre, prop. 8 : l'équivalent des bâtiments de colonie) : ce que chaque nef au mouillage
+## rapporte de plus par mois, somme des effets nef_yields des technologies connues.
+static func modules(state: GameState, eid: int) -> Dictionary:
+	return Research.effects(state, eid).get("nef_yields", {})
+
+
 ## Revenu des nefs au mouillage : un fonds par nef, plus le travail des planètes libres du système
 ## (compté une fois par nef, deux nefs au plus par système).
 static func income(state: GameState, eid: int) -> Dictionary:
@@ -77,10 +83,12 @@ static func income(state: GameState, eid: int) -> Dictionary:
 	var sids := per_sys.keys()
 	sids.sort()
 	var base: Dictionary = Insolites.cfg("exode").get("anchor_base", {})
+	var mods := modules(state, eid)
 	var pct := _c("anchor_work_pct", 100)
 	for sid in sids:
 		var n := int(per_sys[sid])
 		Insolites.add_to(out, base, n)
+		Insolites.add_to(out, mods, n)
 		var work := {}
 		for pid in state.galaxy.systems[int(sid)].planet_ids:
 			Insolites.add_to(work, planet_work(state, eid, pid))
@@ -376,6 +384,9 @@ static func status_lines(state: GameState, eid: int, ed: Dictionary) -> Array[St
 	var out: Array[String] = []
 	out.append("Population à bord : %d / %d (%d nef%s)" % [int(ed["pop"]), pop_cap(state, eid), nef_count(state, eid), "s" if nef_count(state, eid) > 1 else ""])
 	out.append("Espoir : %d / %d" % [int(ed.get("hope", 0)), _c("hope_max", 100)])
+	var mods := modules(state, eid)
+	if not mods.is_empty():
+		out.append("Modules de nef : %s par nef au mouillage et par mois" % GameData.format_amounts(mods))
 	if arrived(state, eid):
 		out.append("L'Exode s'est posé : c'est l'Arrivée.")
 	else:

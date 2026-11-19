@@ -35,17 +35,17 @@ func _initialize() -> void:
 	var sim: Simulation = main.simulation
 	sim.advance(30 * 120)
 	var me := st.get_empire(0)
-	Research.grant(st, 0, ["extraction", "fusion_compacte", "logistique", "blindage_composite", "tetes_chercheuses",
+	Research.grant(st, 0, ["extraction", "fusion_compacte", "logistique", "blindage_composite", "lentilles",
 			"lentilles", "debarquement", "propulseurs", "cales_rapides", "adaptation", "administration", "rhetorique"])
 	me.research_queue.clear()
-	for t in ["boucliers_phase", "coques_lourdes", "serviteurs", "mondes_toxiques"]:
+	for t in ["boucliers_phase", "coques_lourdes", "serviteurs", "biomes_extremes"]:
 		if Research.check_queue(st, 0, t) == "":
 			Research.apply_queue(st, 0, t, false)
 	me.research_progress = Research.cost(st, 0, me.research_queue[0]) / 3 if not me.research_queue.is_empty() else 0
 	# Lot 2 : une doctrine choisie (l'autre est barrée), des épaves et un eurêka en cours.
 	Research.grant(st, 0, ["rideau_acier"])
-	me.eurekas["mondes_toxiques"] = true
-	me.research_shelf["mondes_toxiques"] = Research.cost(st, 0, "mondes_toxiques") * 40 / 100
+	me.eurekas["biomes_extremes"] = true
+	me.research_shelf["biomes_extremes"] = Research.cost(st, 0, "biomes_extremes") * 40 / 100
 	me.research_shelf["frappe_profondeur"] = Research.cost(st, 0, "frappe_profondeur") * 30 / 100
 	main._refresh_all()
 	main.toggle_empire_screen("research")
@@ -64,7 +64,7 @@ func _initialize() -> void:
 	var war := st.spawn_ship(0, "fregate", home)
 	war.add_ship("fregate", -1, war.gen[0])
 	war.add_ship("corvette", -1, war.gen[0])
-	Research.grant(st, 0, ["accelerateurs"])
+	Research.grant(st, 0, ["artillerie"])
 	me.resources["materials"] = maxi(500, int(me.resources["materials"]))
 	main._refresh_all()
 	main.select_fleet(war.id)

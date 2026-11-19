@@ -25,7 +25,7 @@
 		"_doc": "Prop. 2 : à partir du début de la fin de partie, un tirage tous les every_days jours, pct % de chance, multipliée par le facteur de chaque palier atteint (jours écoulés depuis le début, facteur en %). Tirage par hachage de la graine : identique sur toutes les machines."},
 	"gap_days": 3600,
 	"next_pct": 150,
-	"early": {"days": 1800, "max": 3600, "techs": ["etoiles_captives", "canons_singularite", "matiere_programmable", "nuees_pensantes", "nexus_savoir"], "relics": ["coeur_veilleur", "flamme_spectre"],
+	"early": {"days": 1800, "max": 3600, "techs": ["etoiles_captives", "canons_singularite", "matiere_programmable", "escadres_autonomes", "nexus_savoir"], "relics": ["coeur_veilleur", "flamme_spectre"],
 		"_doc": "Prop. 4 : chaque déclencheur (une technologie interdite, une relique interdite, une atrocité) avance la fin de partie de days jours, une fois par déclencheur, max au plus."},
 	"power": {"min": 900, "top": 3, "wave": 3, "reinf_pct": 15, "reinf_days": 240, "reinf_max": 12, "heart_pct": 60, "station_pct": 25,
 		"_doc": "Prop. 6 : puissance visée = moyenne de la puissance militaire des top empires les plus armés × réglage de force (%), au moins min. La vague d'arrivée en fait wave flottes ; chaque station envoie tous les reinf_days jours un renfort de reinf_pct % (reinf_max flottes en vie au plus). Le cœur vaut heart_pct %, chaque autre station station_pct %."},

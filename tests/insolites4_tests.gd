@@ -240,6 +240,8 @@ func _test_gravea() -> void:
 		st.colonies.erase(target)
 		st.rebuild_ownership()
 	st.override_planet(target, {"type": "barren"})
+	_ok(SimCommands.validate(st, SimCommands.ins_act(g, "work", {"w": "habitable", "pid": target})).contains("technologie"), "Œuvres par ère : rendre un monde habitable attend l'Œuvre du souffle")
+	Research.grant(st, g, ["oeuvre_souffle"])
 	_ok(SimCommands.validate(st, SimCommands.ins_act(g, "work", {"w": "habitable", "pid": target})) == "", "une Œuvre lente peut commencer")
 	SimCommands.apply(st, SimCommands.ins_act(g, "work", {"w": "habitable", "pid": target}))
 	var works: Array = ed["works"]

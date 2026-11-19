@@ -21,7 +21,7 @@ Le bloc Règles de la nouvelle partie propose cinq réglages :
 
 Passé la date, la galaxie tire tous les deux ans : une chance sur cinq d'abord, deux sur cinq dix ans plus tard, trois sur cinq vingt ans plus tard. La crise est donc **probable, jamais réglée à l'heure**. Sa force suit la galaxie : une galaxie qui a désarmé affronte une crise plus faible, mais jamais en dessous d'un plancher.
 
-**Les actes imprudents.** Certaines choses attirent l'attention de ce qui attend dehors : les cinq technologies les plus folles de l'ère V (Étoiles captives, Canons à singularité, Matière programmable, Nuées pensantes, Nexus du savoir), deux reliques (le Cœur du Veilleur et la Flamme du Spectre) et toute **atrocité** (extermination d'une population). Chacun de ces actes avance la fin de partie de **cinq ans**, une fois par acte, dix ans au plus. La chronique le signale : « quelque chose, très loin, a remarqué ».
+**Les actes imprudents.** Certaines choses attirent l'attention de ce qui attend dehors : les cinq technologies les plus folles de l'ère V (Étoiles captives, Armes à singularité, Matière programmable, Escadres autonomes, Nexus du savoir), deux reliques (le Cœur du Veilleur et la Flamme du Spectre) et toute **atrocité** (extermination d'une population). Chacun de ces actes avance la fin de partie de **cinq ans**, une fois par acte, dix ans au plus. La chronique le signale : « quelque chose, très loin, a remarqué ».
 
 ### Le préavis
 

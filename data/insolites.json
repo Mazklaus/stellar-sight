@@ -630,7 +630,7 @@
 		"buy_cd_days": 360
 	},
 	"silencieux": {
-		"_doc": "Prop. 71 à 76. Immunisés à la culture, à la foi, à la psionique, aux intrigues et à la diplomatie ; pas de recherche (technologies par les épaves, les prises et les ruines seulement) ; production très haute, pas de stabilité, habitants assemblés ; un avant-poste devient une usine. Une Directive, affichée à tous, dit ce qu'ils font.",
+		"_doc": "Prop. 71 à 76. Immunisés à la culture, à la foi, à la psionique, aux intrigues et à la diplomatie ; pas de recherche (technologies par les épaves, les prises et les ruines seulement) ; production très haute, pas de stabilité, habitants assemblés ; un avant-poste devient une usine. Une Directive, affichée à tous, dit ce qu'ils font. Directives nouvelles par acquisitions : Optimiser (production +optimize_pct % du système), Démonter (épaves à salvage_pct %).",
 		"replicate_days": 720,
 		"replicate_pmille": 150,
 		"directive_days": 720,
@@ -647,7 +647,17 @@
 				"label": "Écarter l'obstacle %s",
 				"text": "Un empire tient le système visé : il gêne la directive."
 			},
-			"_doc": "Le %s reçoit le nom du système, précédé de « de », « du » ou « d' » sauf pour « vers »."
+			"_doc": "Le %s reçoit le nom du système, précédé de « de », « du » ou « d' » sauf pour « vers ». need : nombre de technologies acquises (épaves, prises, ruines) qui débloque la directive (Catalogue des acquisitions).",
+			"optimiser": {
+				"label": "Optimiser les chaînes %s",
+				"text": "Un de leurs systèmes : production +optimize_pct % tant que la directive dure.",
+				"need": 8
+			},
+			"demonter": {
+				"label": "Démonter les épaves %s",
+				"text": "Un système où l'on s'est battu : leurs épaves rapportent deux fois plus tant que la directive dure.",
+				"need": 16
+			}
 		},
 		"directive_jumps": 6,
 		"awaken_cost": {
@@ -659,7 +669,9 @@
 		"force_victories": [
 			"conquete",
 			"domination"
-		]
+		],
+		"optimize_pct": 20,
+		"salvage_pct": 200
 	},
 	"quietude": {
 		"_doc": "Prop. 77 à 82. Postes voilés au-dessus des pré-spatiaux, élévation discrète, scandale de la découverte, escadres voilées, l'Envol, les Protégés.",
@@ -729,7 +741,7 @@
 		]
 	},
 	"gravea": {
-		"_doc": "Prop. 89 à 93. works : Œuvres lentes, map = type de planète avant : type après, scope planet (la planète visée) ou system (tout le système). Temps : time_month jours de réserve par mois sans entreprise depuis idle_days (et en paix), time_max au plus, dépensés d'un coup (hasten_min au moins).",
+		"_doc": "Prop. 89 à 93. works : Œuvres lentes, map = type de planète avant : type après, scope planet (la planète visée) ou system (tout le système). Temps : time_month jours de réserve par mois sans entreprise depuis idle_days (et en paix), time_max au plus, dépensés d'un coup (hasten_min au moins). Une Œuvre qui porte tech demande cette technologie (une par ère : souffle, orbites, étoile) ; Fondre la ceinture est connue d'emblée.",
 		"works_max": 3,
 		"cons_days": 720,
 		"cons_keep_days": 360,
@@ -764,7 +776,8 @@
 				"cost": {
 					"materials": 250,
 					"energy": 200
-				}
+				},
+				"tech": "oeuvre_souffle"
 			},
 			"deplacer": {
 				"label": "Déplacer une planète",
@@ -778,7 +791,8 @@
 				"cost": {
 					"materials": 350,
 					"energy": 250
-				}
+				},
+				"tech": "oeuvre_orbites"
 			},
 			"refroidir": {
 				"label": "Refroidir l'étoile",
@@ -793,7 +807,8 @@
 					"materials": 400,
 					"energy": 400,
 					"knowledge": 200
-				}
+				},
+				"tech": "oeuvre_etoile"
 			}
 		}
 	},
@@ -868,8 +883,7 @@
 		},
 		"defense_techs": [
 			"citadelle_planetaire",
-			"bastions",
-			"boucliers_planetaires"
+			"bastions"
 		]
 	},
 	"vergemonde": {

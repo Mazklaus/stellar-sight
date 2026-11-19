@@ -34,7 +34,7 @@ func _initialize() -> void:
 		e.resources["energy"] = 9000
 		e.resources["food"] = 9000
 		st.ground["rec"][str(e.id)] = 60
-	for t in ["blindes_assaut", "assaut_aeroporte", "forces_speciales", "genie_siege", "debarquement"]:
+	for t in ["blindes_assaut", "assaut_aeroporte", "genie_siege", "debarquement"]:
 		st.get_empire(me).techs[t] = true
 	st.get_empire(me).tech_fx_n = -1
 	for sys in st.galaxy.systems:

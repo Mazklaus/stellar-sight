@@ -383,7 +383,8 @@
 			"needs": [
 				"chantier",
 				"vaisseaux"
-			]
+			],
+			"spec": "chantier_lourd"
 		},
 		"baies": {
 			"label": "Baies de lancement",
@@ -401,7 +402,8 @@
 			],
 			"effects": {
 				"curio_power": 1
-			}
+			},
+			"spec": "chantier_lourd"
 		},
 		"arsenaux": {
 			"label": "Arsenaux orbitaux",

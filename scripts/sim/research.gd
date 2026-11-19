@@ -159,7 +159,8 @@ static func _info(faction: Dictionary, state: GameState, eid: int) -> Dictionary
 			kept.append(tid)
 			set[tid] = true
 			var t: Dictionary = techs[tid]
-			if not t.has("mastery"):
+			# Une trouvaille ne se cherche pas : elle ne compte pas dans le seuil d'ère (sinon une ère peut rester fermée).
+			if not t.has("mastery") and not t.has("find"):
 				var ck := "%s:%d" % [String(t["domain"]), int(t.get("era", 1))]
 				counts[ck] = int(counts.get(ck, 0)) + 1
 	# Une Maîtrise suit sa parente : remplacée (technologie de peuple) ou sans objet, elle disparaît.
@@ -1230,6 +1231,8 @@ static func study_wrecks(state: GameState, winner: int, loser: int) -> Array:
 	if w == null or l == null:
 		return out
 	var pct := int(data().get("wreck_pct", 10)) * wreck_mult(w.faction()) / 100
+	if not state.insolites.is_empty():
+		pct = pct * InsSilencieux.salvage_pct(state, winner) / 100  # Démonter les épaves
 	var mine := marks(state, winner)
 	var theirs := marks(state, loser)
 	var targets: Array[String] = []
