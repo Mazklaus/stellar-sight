@@ -9,6 +9,8 @@ extends RefCounted
 ## Lot 2 : les peuples qui vivent chez les autres (InsVentrelune, InsBureau, InsSignal, InsYsmer).
 ## Lot 3 : les populations étranges, qui viennent des morts (InsAsphodele), tiennent en un seul homme
 ## (InsCassivel), ne pensent pas (InsSilencieux) ou refusent d'être vues (InsQuietude).
+## Lot 4 : le temps, la lenteur et la vie végétale : défaire le passé (InsSablier), agir en décennies
+## (InsGravea), coloniser sans vaisseau (InsMyrr) et changer les mondes en jardins (InsVergemonde).
 ## Chaque peuple porte un champ de faction "nomad" {kind, ship, count}, posé par une brique d'espèce
 ## (data/species_parts.json) : un peuple créé dans l'éditeur avec la même brique suit les mêmes règles.
 ##
@@ -124,6 +126,18 @@ static func found(state: GameState, e: Empire, sid: int) -> void:
 		"quietude":
 			InsQuietude.found(state, e, sid, ed)
 			return
+		"sablier":
+			InsSablier.found(state, e, sid, ed)
+			return
+		"gravea":
+			InsGravea.found(state, e, sid, ed)
+			return
+		"myrr":
+			InsMyrr.found(state, e, sid, ed)
+			return
+		"vergemonde":
+			InsVergemonde.found(state, e, sid, ed)
+			return
 	var nm: Dictionary = f["nomad"]
 	var ship := String(nm.get("ship", ""))
 	match k:
@@ -157,6 +171,8 @@ static func after_setup(state: GameState) -> void:
 				InsYsmer.seed_reverie(state, eid)  # le Dormeur a déjà un rêveur chez le plus proche voisin
 			"cassivel":
 				InsCassivel.after_setup(state, eid)  # Sire Cassivel, héros et souverain
+			"sablier":
+				InsSablier.after_setup(state, eid)  # le Gardien chronal
 
 
 static func worth_saving(state: GameState) -> bool:
@@ -225,7 +241,7 @@ static func keeps_alive(state: GameState, eid: int) -> bool:
 			return InsKraal.herd_pop(state, eid) > 0
 		"signal":
 			return InsSignal.alive(state, eid)
-		"ventrelune", "bureau", "ysmer", "asphodele", "cassivel", "silencieux", "quietude":
+		"ventrelune", "bureau", "ysmer", "asphodele", "cassivel", "silencieux", "quietude", "sablier", "gravea", "myrr", "vergemonde":
 			return false
 	return FactionTraits.city_fleet(state, eid) != null
 
@@ -413,6 +429,7 @@ const PURGE_TEXT := {
 	"reverie": "Les Éveillés sont revenus du Songe ; les dormeurs ne se souviennent plus de ce qu'ils rêvaient.",
 	"ossuaire": "On rend les morts aux familles, qui ne savent pas trop quoi en faire.",
 	"poste": "Le poste voilé est démonté. Les jeunes peuples ne sauront jamais qu'on les aimait.",
+	"mycelium": "On brûle les caves, les égouts, les champs. Ça sent le pain grillé pendant une semaine, et la terre ne donne plus rien de l'année.",
 }
 
 
@@ -423,6 +440,8 @@ static func purge(state: GameState, eid: int, pid: int, added: Array[Dictionary]
 	var owner := state.get_empire(int(im["o"]))
 	remove_implant(state, pid, k)
 	var sid := state.galaxy.get_planet(pid).system_id
+	if k == "mycelium" and Ecology.has_biosphere(state, pid):
+		Ecology._set_health(state, pid, maxi(0, Ecology.health(state, pid) - c_int("myrr", "burn_eco", 30)))  # seul le feu l'arrête
 	sub(state, "purged")[str(sid)] = state.tick + int(df.get("purge_stability_days", 0))
 	added.append(state.add_chronicle("%s purge le %s de %s sur %s. %s" % [
 			state.get_empire(eid).display_name(), String(df.get("label", k)).to_lower(), owner.short_name() if owner else "?",
@@ -525,7 +544,58 @@ static func invade_block(state: GameState, eid: int) -> String:
 		"exode":
 			if int(emp(state, eid).get("arrived", 0)) == 0:
 				return "l'Exode ne prend pas la terre des autres : il cherche la sienne"
+		"myrr":
+			return "la Sporemère n'envahit pas : le mycélium gagne les mondes de proche en proche"
 	return ""
+
+
+## Raison qui empêche d'envahir ce système ("" sinon) : un monde des Lithes y hiberne.
+static func target_block(state: GameState, sid: int) -> String:
+	if state.insolites.is_empty():
+		return ""
+	var g := InsGravea.invade_block(state, sid)
+	return g if g != "" else InsMyrr.invade_block(state, sid)
+
+
+## Raison qui empêche de construire un vaisseau ("" sinon) : la Sporemère n'en a aucun, jamais.
+static func ship_block(state: GameState, eid: int) -> String:
+	if state.insolites.is_empty() or kind(state, eid) != "myrr":
+		return ""
+	return "la Sporemère ne construit aucun vaisseau : elle lance des comètes-semences"
+
+
+## Production d'une colonie en % (Economy.colony_yields) : déchirures et bulles du Sablier, monde des
+## Lithes qui hiberne, système de Myrr isolé du réseau.
+static func colony_pct(state: GameState, pid: int) -> int:
+	if state.insolites.is_empty():
+		return 100
+	var pct := maxi(0, 100 + InsSablier.system_pct(state, state.galaxy.get_planet(pid).system_id))
+	@warning_ignore("integer_division")
+	pct = pct * InsGravea.colony_pct(state, pid) / 100 * InsMyrr.colony_pct(state, pid) / 100
+	return pct
+
+
+## Un système va changer de main (Combat.capture_system) : le Registre des Gardiens.
+static func on_capture(state: GameState, sid: int, new_owner: int, old: int) -> void:
+	if not state.insolites.is_empty():
+		InsSablier.on_capture(state, sid, new_owner, old)
+
+
+## Une technologie est volée (Espionage, « Voler une technologie ») : le Registre des Gardiens.
+static func on_tech_stolen(state: GameState, thief: int, victim: int, tid: String, amount: int) -> void:
+	if not state.insolites.is_empty():
+		InsSablier.on_tech_stolen(state, thief, victim, tid, amount)
+
+
+## Espérance de vie des héros en % (Heroes.life_years) : la longévité des Gardiens.
+static func life_pct(state: GameState, eid: int) -> int:
+	return 100 if state.insolites.is_empty() else InsSablier.life_pct(state, eid)
+
+
+## Bombardement orbital (GroundSiege) : le feu sur un système de Myrr.
+static func on_bombard(state: GameState, sid: int, owner: int) -> void:
+	if not state.insolites.is_empty():
+		InsMyrr.on_bombard(state, sid, owner)
 
 
 ## Raison qui empêche de revendiquer une planète ("" sinon) : elle a été mangée par l'Orbe-Monde.
@@ -550,6 +620,7 @@ static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 		out.append(["Implant purgé", -5])
 	if InsYsmer.nightmare(state, sid):
 		out.append(["Cauchemars des Ysmer", c_int("ysmer", "nightmare_stab", -10)])
+	InsSablier.stability_parts(state, sid, out)
 	if owner < 0:
 		return out
 	if InsSignal.symptoms(state, sid, owner):
@@ -561,6 +632,7 @@ static func stability_parts(state: GameState, sid: int, owner: int) -> Array:
 		out.append(["Huissiers du Bureau", -3])
 	InsAsphodele.stability_parts(state, sid, owner, out)
 	InsCassivel.stability_parts(state, owner, out)
+	InsVergemonde.stability_parts(state, owner, out)
 	return out
 
 
@@ -591,6 +663,7 @@ static func speed_pct(state: GameState, f: Fleet) -> int:
 static func on_ship_lost(state: GameState, f: Fleet, i: int, b: Dictionary) -> void:
 	if state.insolites.is_empty():
 		return
+	InsSablier.on_ship_lost(state, f, i)  # le Registre des Gardiens
 	var carcass: Dictionary = GameData.ship(f.ships[i]).get("carcass", {})
 	if carcass.is_empty():
 		return
@@ -627,6 +700,10 @@ static func production_bonus(state: GameState, eid: int, resource: String) -> in
 		"silencieux":
 			if resource == "knowledge":
 				n -= 100  # ils ne cherchent pas : ils démontent
+		"myrr":
+			n += InsMyrr.production_bonus(state, eid, resource)  # symbioses
+		"vergemonde":
+			n += InsVergemonde.production_bonus(state, eid, resource)  # les trois âges
 	return n
 
 
@@ -652,10 +729,12 @@ static func growth_pct(state: GameState, eid: int) -> int:
 
 
 ## Raison qui empêche une déclaration de guerre ("" sinon) : le Bureau envoie des Mises en demeure.
-static func war_block(state: GameState, eid: int) -> String:
+static func war_block(state: GameState, eid: int, target := -1) -> String:
 	if state.insolites.is_empty():
 		return ""
 	match kind(state, eid):
+		"gravea":
+			return InsGravea.war_block(state, eid, target)  # Consensus séculaire
 		"bureau":
 			return "le Bureau ne déclare jamais de guerre : il adresse une Mise en demeure"
 		"signal":
@@ -669,6 +748,8 @@ static func claim_block(state: GameState, eid: int, claim_kind: String) -> Strin
 		return ""
 	if claim_kind == Colony.KIND_COLONY and kind(state, eid) == "ysmer":
 		return "les Ysmer n'ont qu'un monde, celui du Dormeur : leur territoire est dans les rêves des autres"
+	if kind(state, eid) == "myrr":
+		return "la Sporemère ne revendique rien : elle lance des comètes-semences (menu des peuples)"
 	return ""
 
 
@@ -767,6 +848,7 @@ static func on_hero_death(state: GameState, h: Dictionary, out: Array[Dictionary
 		return
 	InsCassivel.on_hero_death(state, h, out)
 	InsAsphodele.on_hero_death(state, h)
+	InsSablier.on_hero_death(state, h, out)
 
 
 ## Un départ volontaire n'est pas une mort (recensement d'Asphodèle).
@@ -838,6 +920,14 @@ static func daily(state: GameState) -> Array[Dictionary]:
 				InsSilencieux.daily(state, eid, ed, month, added)
 			"quietude":
 				InsQuietude.daily(state, eid, ed, month, added)
+			"sablier":
+				InsSablier.daily(state, eid, ed, month, added)
+			"gravea":
+				InsGravea.daily(state, eid, ed, month, added)
+			"myrr":
+				InsMyrr.daily(state, eid, ed, month, added)
+			"vergemonde":
+				InsVergemonde.daily(state, eid, ed, month, added)
 	InsZambalu.numero_day(state, added)
 	if month:
 		InsAsphodele.census(state, added)  # les morts du mois, une fois pour toute la galaxie
@@ -850,7 +940,8 @@ static func daily(state: GameState) -> Array[Dictionary]:
 ## "devour" (pid), "pilot" (fleet) ; lot 2 : "buy" et "nationalize" (pid), "sign" (b, norm), "summon"
 ## (target), "host" et "unhost" (s), "inspire" et "nightmare" (pid), "dream_fleet" ; lot 3 : "pact" et
 ## "unpact" (a), "raise" et "release" (i), "backup", "acquire" (w : empire ou mineur), "awaken" (pid),
-## "post" et "uplift" (m : mineur).
+## "post" et "uplift" (m : mineur) ; lot 4 : "undo" (i), "bubble" (s, mode), "loop", "work" (w, pid),
+## "hasten" (i), "deliberate" (t), "sleep" (pid), "comet" (s), "burn" (pid), "season" (s), "heart" (pid).
 
 static func check(state: GameState, eid: int, act: String, d: Dictionary) -> String:
 	if state.insolites.is_empty():
@@ -903,6 +994,28 @@ static func check(state: GameState, eid: int, act: String, d: Dictionary) -> Str
 			return InsQuietude.check_post(state, eid, int(d.get("m", -1)))
 		"uplift":
 			return InsQuietude.check_uplift(state, eid, int(d.get("m", -1)))
+		"undo":
+			return InsSablier.check_undo(state, eid, int(d.get("i", -1)))
+		"bubble":
+			return InsSablier.check_bubble(state, eid, int(d.get("s", -1)), String(d.get("mode", "")))
+		"loop":
+			return InsSablier.check_loop(state, eid)
+		"work":
+			return InsGravea.check_work(state, eid, String(d.get("w", "")), int(d.get("pid", -1)))
+		"hasten":
+			return InsGravea.check_hasten(state, eid, int(d.get("i", -1)))
+		"deliberate":
+			return InsGravea.check_deliberate(state, eid, int(d.get("t", -1)))
+		"sleep":
+			return InsGravea.check_sleep(state, eid, int(d.get("pid", -1)))
+		"comet":
+			return InsMyrr.check_comet(state, eid, int(d.get("s", -1)))
+		"burn":
+			return InsMyrr.check_burn(state, eid, int(d.get("pid", -1)))
+		"season":
+			return InsVergemonde.check_season(state, eid, String(d.get("s", "")))
+		"heart":
+			return InsVergemonde.check_heart(state, eid, int(d.get("pid", -1)))
 	return "action inconnue : %s" % act
 
 
@@ -953,6 +1066,28 @@ static func apply(state: GameState, eid: int, act: String, d: Dictionary) -> Arr
 			InsQuietude.post(state, eid, int(d["m"]), added)
 		"uplift":
 			InsQuietude.uplift(state, eid, int(d["m"]), added)
+		"undo":
+			InsSablier.undo(state, eid, int(d["i"]), added)
+		"bubble":
+			InsSablier.bubble(state, eid, int(d["s"]), String(d["mode"]), added)
+		"loop":
+			InsSablier.loop(state, eid, added)
+		"work":
+			InsGravea.start_work(state, eid, String(d["w"]), int(d["pid"]), added)
+		"hasten":
+			InsGravea.hasten(state, eid, int(d["i"]), added)
+		"deliberate":
+			InsGravea.deliberate(state, eid, int(d["t"]), added)
+		"sleep":
+			InsGravea.sleep(state, eid, int(d["pid"]), added)
+		"comet":
+			InsMyrr.comet(state, eid, int(d["s"]), added)
+		"burn":
+			InsMyrr.burn(state, eid, int(d["pid"]), added)
+		"season":
+			InsVergemonde.set_season(state, eid, String(d["s"]), added)
+		"heart":
+			InsVergemonde.heart(state, eid, int(d["pid"]), added)
 	return added
 
 
@@ -989,6 +1124,14 @@ static func status_lines(state: GameState, eid: int) -> Array[String]:
 			out = InsSilencieux.status_lines(state, eid, ed)
 		"quietude":
 			out = InsQuietude.status_lines(state, eid, ed)
+		"sablier":
+			out = InsSablier.status_lines(state, eid, ed)
+		"gravea":
+			out = InsGravea.status_lines(state, eid, ed)
+		"myrr":
+			out = InsMyrr.status_lines(state, eid, ed)
+		"vergemonde":
+			out = InsVergemonde.status_lines(state, eid, ed)
 	var y: Dictionary = ed.get("yard", {})
 	if not y.is_empty():
 		out.append("Chantier embarqué : %s (%d j)" % [String(GameData.ship(String(y["ship"])).get("label", y["ship"])), int(y["left"])])

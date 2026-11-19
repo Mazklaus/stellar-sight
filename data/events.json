@@ -69,6 +69,8 @@
 			{"fa": "bureau", "fb": "brisecomete", "card": "t_formulaire_contrebande", "memory": "tones_clash"},
 			{"fa": "asphodele", "fb": "choeur", "card": "t_garde_des_morts", "memory": "tones_clash"},
 			{"fa": "silencieux", "fb": "teyl", "card": "t_freres_endormis", "memory": "tones_clash"},
+			{"fa": "myrr", "fb": "vergemonde", "card": "t_foret_pourriture", "memory": "tones_clash"},
+			{"fa": "sablier", "fb": "gravea", "card": "t_sable_pierre", "memory": "tones_clash"},
 			{"a": "Picaresque / pulp", "b": "Grimdark", "card": "t_contrebande", "memory": "tones_clash"},
 			{"a": "Space opera héroïque", "b": "Grimdark", "card": "t_heros_fanatiques", "memory": "tones_clash"},
 			{"a": "Classique / hard SF", "b": "Cosmique / étrange", "card": "t_equations", "memory": "tones_clash"},
@@ -441,6 +443,20 @@
 			"choices": [
 				{"label": "Leur parler encore, patiemment", "fx": [{"k": "res", "res": {"knowledge": 30}}]},
 				{"label": "Fermer les fréquences", "fx": [{"k": "res", "res": {"influence": 10}}, {"k": "opinion", "kind": "ev_snub"}]},
+				{"label": "Noter et attendre", "fx": []}
+			], "default": 2},
+		{"id": "t_foret_pourriture", "title": "Choc des tons : la forêt et la pourriture", "trigger": "contact",
+			"text": "Premier contact avec {rival}. Le Hallier plante, la Sporemère décompose ; chacun voit dans l'autre la moitié d'un cycle qu'il préférerait mener seul. Le Hallier parle de jardins. Myrr répond, très lentement, que tous les jardins finissent par être à elle.",
+			"choices": [
+				{"label": "Proposer un partage des mondes", "fx": [{"k": "res", "res": {"influence": 20}}]},
+				{"label": "Brûler les frontières", "fx": [{"k": "res", "res": {"materials": 40}}, {"k": "opinion", "kind": "ev_snub"}]},
+				{"label": "Laisser pousser et voir", "fx": []}
+			], "default": 2},
+		{"id": "t_sable_pierre", "title": "Choc des tons : le sable et la pierre", "trigger": "contact",
+			"text": "Premier contact avec {rival}. Les Gardiens défont le temps quand il les blesse ; les Lithes l'attendent depuis des millénaires et le trouvent très bien comme il est. Les Lithes ont commencé une phrase de bienvenue. Les Gardiens savent déjà comment elle finit, et c'est un peu gênant pour tout le monde.",
+			"choices": [
+				{"label": "Écouter la phrase jusqu'au bout", "fx": [{"k": "res", "res": {"knowledge": 30}}]},
+				{"label": "Leur dire la fin tout de suite", "fx": [{"k": "res", "res": {"influence": 10}}, {"k": "opinion", "kind": "ev_snub"}]},
 				{"label": "Noter et attendre", "fx": []}
 			], "default": 2},
 		{"id": "t_hymne_chapiteau", "title": "Choc des tons : l'Hymne et le Chapiteau", "trigger": "contact",

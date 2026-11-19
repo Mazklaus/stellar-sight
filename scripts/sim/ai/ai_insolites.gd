@@ -17,7 +17,12 @@ extends RefCounted
 ##   - Quiétude pose des postes voilés au-dessus des pré-spatiaux et les élève en secret.
 ## Et la réaction des autres : envoyer un délégué au Grand Numéro, purger un implant, signer une norme ou
 ## la refuser, nationaliser des parts, tolérer le Signal (Accord d'hébergement) ; lot 3 : signer le Pacte
-## funéraire d'Asphodèle, tenter d'éveiller une usine des Silencieux (Noosphère).
+## funéraire d'Asphodèle, tenter d'éveiller une usine des Silencieux (Noosphère) ; lot 4 : brûler les
+## colonies de Myrr en guerre, chasser le mycélium.
+## Lot 4 : le Sablier défait ses pertes quand il a le Sable, bâtit la Boucle, comprime sa capitale ; les
+## Lithes lancent des Œuvres, dépensent leur Temps, délibèrent contre les voisins hostiles et hibernent sous
+## la menace ; Myrr lance ses comètes vers les mondes libres les plus proches ; le Hallier choisit sa saison
+## (Marcheurs en guerre ou pour s'étendre, Pousses sinon) et plante des Cœurs.
 
 
 static func _ai() -> Dictionary:
@@ -69,6 +74,14 @@ static func think(ctx: Dictionary) -> void:
 			_silencieux(ctx)
 		"quietude":
 			_quietude(ctx)
+		"sablier":
+			_sablier(ctx)
+		"gravea":
+			_gravea(ctx)
+		"myrr":
+			_myrr(ctx)
+		"vergemonde":
+			_vergemonde(ctx)
 
 
 static func _go(ctx: Dictionary, f: Fleet, sid: int, why := "") -> bool:
@@ -154,6 +167,8 @@ static func _react(ctx: Dictionary) -> void:
 					want = want or not InsSignal.hosted(state, owner, e.id)
 				"reverie":
 					want = want or int(e.resources.get("influence", 0)) >= 60
+				"mycelium":
+					want = true  # il ronge la colonie : on le chasse dès qu'on peut
 			if want and Insolites.check_purge(state, e.id, int(pid), k) == "":
 				AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "purge", {"pid": int(pid), "k": k}))
 				done = true
@@ -181,6 +196,21 @@ static func _react(ctx: Dictionary) -> void:
 			var sc: Colony = state.colonies[pid]
 			if InsSilencieux.is_silent(state, sc.owner) and InsSilencieux.check_awaken(state, e.id, int(pid)) == "":
 				AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "awaken", {"pid": int(pid)}))
+				break
+	# Feu contre Myrr : en guerre avec la Sporemère, une flotte à l'arrêt sur une de ses colonies la brûle.
+	for m in InsMyrr.mothers(state):
+		if m == e.id or not Combat.at_war(state, e.id, m):
+			continue
+		var burned := false
+		for f in Fleets.empire_fleets(state, e.id):
+			if f.is_moving() or not Combat.is_armed(f):
+				continue
+			for pid in state.galaxy.systems[f.system_id].planet_ids:
+				var mc: Colony = state.colonies.get(pid)
+				if mc != null and mc.owner == m and InsMyrr.check_burn(state, e.id, int(pid)) == "":
+					burned = AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "burn", {"pid": int(pid)}))
+					break
+			if burned:
 				break
 	# Parts de la Compagnie : on nationalise en guerre, ou quand elle a pris la majorité d'un monde.
 	if Insolites.kind(state, e.id) != "ventrelune":
@@ -576,4 +606,158 @@ static func _quietude(ctx: Dictionary) -> void:
 		if InsQuietude.check_post(state, e.id, mid) == "":
 			if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "post", {"m": mid})):
 				AiPlayer._intent(ctx, "Pose un poste voilé")
+				return
+
+
+# --- Gardiens du Sablier Fêlé --------------------------------------------------------------------
+
+static func _sablier(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var ed := Insolites.emp(state, e.id)
+	if InsSablier.check_loop(state, e.id) == "":
+		if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "loop")):
+			AiPlayer._intent(ctx, "Bâtit une étape de la Boucle")
+			return
+	if int(ed.get("sand", 0)) >= int(_ai().get("sablier_undo_sand", 60)):
+		# Ce qui coûte le plus d'abord (système, héros), en partant du plus récent.
+		var reg := InsSablier.ledger(state, e.id)
+		var best := -1
+		var best_c := -1
+		for i in range(reg.size() - 1, -1, -1):
+			var c := InsSablier.undo_cost(reg[i])
+			if c > best_c and InsSablier.check_undo(state, e.id, i) == "":
+				best_c = c
+				best = i
+		if best >= 0 and AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "undo", {"i": best})):
+			AiPlayer._intent(ctx, "Défait le passé")
+			return
+	var cap := FactionTraits.capital_system(state, e.id)
+	if cap >= 0 and int(ed.get("sand", 0)) >= int(_ai().get("sablier_undo_sand", 60)) + Insolites.c_int("sablier", "bubble_sand", 30) and InsSablier.check_bubble(state, e.id, cap, "compression") == "":
+		AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "bubble", {"s": cap, "mode": "compression"}))
+
+
+# --- Lithes de Gravéa ----------------------------------------------------------------------------
+
+static func _gravea(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var ed := Insolites.emp(state, e.id)
+	# Hibernation : un monde attaqué s'endort.
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c.owner == e.id and InsGravea.check_sleep(state, e.id, int(pid)) == "":
+			if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "sleep", {"pid": int(pid)})):
+				AiPlayer._intent(ctx, "Un monde menacé s'endort")
+				return
+	# Patience : le Temps accumulé va à l'Œuvre la plus avancée.
+	var works: Array = ed.get("works", [])
+	if int(ed.get("time", 0)) * 2 >= Insolites.c_int("gravea", "time_max", 720) and not works.is_empty():
+		var bi := 0
+		for i in works.size():
+			if int(works[i]["left"]) < int(works[bi]["left"]):
+				bi = i
+		if InsGravea.check_hasten(state, e.id, bi) == "" and AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "hasten", {"i": bi})):
+			return
+	# Consensus : on délibère contre les voisins hostiles (le siècle n'attend pas).
+	if AiLevels.aggression(e) >= 0:
+		for o in state.empires:
+			if o.id != e.id and not o.is_npc() and not o.eliminated and e.contacts.has(o.id) and Diplomacy.opinion(state, e.id, o.id) < int(_ai().get("gravea_deliberate_opinion", -30)):
+				if InsGravea.check_deliberate(state, e.id, o.id) == "" and AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "deliberate", {"t": o.id})):
+					return
+	# Œuvres lentes : une de plus quand on en a les moyens.
+	if works.size() >= Insolites.c_int("gravea", "works_max", 3):
+		return
+	var seen := {}
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c.owner != e.id:
+			continue
+		var sid := state.galaxy.get_planet(int(pid)).system_id
+		if seen.has(sid):
+			continue
+		seen[sid] = true
+		for q in state.galaxy.systems[sid].planet_ids:
+			for w in InsGravea.work_ids():
+				if InsGravea.check_work(state, e.id, w, int(q)) == "":
+					if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "work", {"w": w, "pid": int(q)})):
+						AiPlayer._intent(ctx, "Entreprend une Œuvre lente")
+						return
+
+
+# --- Sporemère de Myrr ---------------------------------------------------------------------------
+
+static func _myrr(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var cost: Dictionary = Insolites.cfg("myrr").get("comet_cost", {})
+	# Défense sans flotte (prop. 97) : les matériaux qu'aucun chantier naval ne prend vont aux défenses
+	# planétaires, en guerre d'abord dans les systèmes menacés, sinon à la capitale.
+	if int(e.resources.get("materials", 0)) >= int(_ai().get("myrr_defense_materials", 300)):
+		var order: Array[int] = []
+		var cap := FactionTraits.capital_system(state, e.id)
+		for pid in state.sorted_colony_ids():
+			var c: Colony = state.colonies[pid]
+			if c.owner != e.id or not c.is_colony() or c.construction != "":
+				continue
+			var sid := state.galaxy.get_planet(int(pid)).system_id
+			if _foe_power(state, e.id, sid) > 0 or (not e.wars.is_empty() and sid == cap):
+				order.push_front(int(pid))
+			elif sid == cap or not e.wars.is_empty():
+				order.append(int(pid))
+		for pid in order:
+			for bid in _ai().get("myrr_defenses", ["citadelle", "bastion", "batterie_planetaire", "bouclier_planetaire"]):
+				if SimCommands.validate(state, SimCommands.build(e.id, pid, String(bid))) == "":
+					if AiPlayer._issue(ctx, SimCommands.build(e.id, pid, String(bid))):
+						AiPlayer._intent(ctx, "Arme ses mondes (aucune flotte)")
+						return
+	if int(e.resources.get("materials", 0)) < int(cost.get("materials", 0)) + int(_ai().get("myrr_comet_materials", 120)):
+		return
+	if (Insolites.emp(state, e.id).get("comets", []) as Array).size() >= Insolites.c_int("myrr", "comet_max", 2):
+		return
+	# Distance de chaque système à la plus proche colonie (une seule passe par système ensemencé).
+	var dist := {}
+	for s in InsMyrr.seeded(state, e.id):
+		var d: Dictionary = FactionTraits.jumps_from(state.galaxy, s)
+		for k in d:
+			if not dist.has(k) or int(d[k]) < int(dist[k]):
+				dist[k] = int(d[k])
+	var cands := []
+	for k in dist:
+		if int(dist[k]) > 0 and int(dist[k]) <= Insolites.c_int("myrr", "comet_jumps", 5):
+			cands.append([int(dist[k]), int(k)])
+	cands.sort()
+	for cd in cands:
+		var sid := int(cd[1])
+		if InsMyrr.check_comet(state, e.id, sid) == "":
+			if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "comet", {"s": sid})):
+				AiPlayer._intent(ctx, "Lance une comète-semence")
+				return
+
+
+# --- Hallier de Vergemonde -----------------------------------------------------------------------
+
+static func _vergemonde(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var ed := Insolites.emp(state, e.id)
+	var cols := 0
+	for pid in state.sorted_colony_ids():
+		if (state.colonies[pid] as Colony).owner == e.id:
+			cols += 1
+	var want := "pousses"
+	if not e.wars.is_empty() or cols < 4:
+		want = "marcheurs"
+	elif int(e.resources.get("influence", 0)) < 30:
+		want = "enracines"
+	if String(ed.get("season", "")) != want and InsVergemonde.check_season(state, e.id, want) == "":
+		if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "season", {"s": want})):
+			return
+	if int(e.resources.get("influence", 0)) < int(_ai().get("vergemonde_heart_influence", 150)):
+		return
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c.owner == e.id and InsVergemonde.check_heart(state, e.id, int(pid)) == "":
+			if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "heart", {"pid": int(pid)})):
+				AiPlayer._intent(ctx, "Plante un Cœur")
 				return

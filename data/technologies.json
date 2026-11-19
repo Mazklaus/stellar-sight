@@ -2197,6 +2197,82 @@
 			"victory": "envol",
 			"flavor": "« Ils ne sauront jamais. C'est le plus beau cadeau. »"
 		},
+		"paradoxe_stable": {
+			"label": "Le Paradoxe stable",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : ouvre la Boucle, trois étapes de deux ans qui envoient dans le passé la technologie qui les fonde ; fermée avec le Gardien chronal vivant et tenue un an, elle donne la victoire.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"chronarchie"
+					]
+				}
+			},
+			"victory": "paradoxe",
+			"flavor": "« Nous l'avons inventé parce que nous l'avions déjà. »"
+		},
+		"remodelage": {
+			"label": "Le Remodelage",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand les Lithes ont achevé cinq Œuvres lentes dans cinq systèmes, et le tiennent un an, la galaxie a pris leur forme.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"consensus_seculaire"
+					]
+				}
+			},
+			"victory": "remodelage",
+			"flavor": "« Nous ne sommes pas pressés. Les montagnes non plus. »"
+		},
+		"biosphere_unique": {
+			"label": "La Biosphère unique",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand un organisme fongoïde ou végétal couvre 40 % des planètes habitables de la galaxie, et le tient deux ans, il n'y a plus qu'une seule vie.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"fongoide",
+						"vegetal"
+					],
+					"credo": [
+						"survie"
+					]
+				}
+			},
+			"victory": "biosphere",
+			"flavor": "« Tout est relié. Tout. »"
+		},
+		"grand_jardin": {
+			"label": "Le Grand Jardin",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand le Hallier tient huit mondes-jardins et trois mondes vivants Liés, cinq ans durant, la galaxie a changé de couleur.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"cercle_enracines"
+					]
+				}
+			},
+			"victory": "grand_jardin",
+			"flavor": "« Plantez. Attendez. Plantez encore. »"
+		},
 		"grande_moisson": {
 			"label": "La Grande Moisson",
 			"domain": "societe",

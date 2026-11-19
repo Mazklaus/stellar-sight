@@ -638,6 +638,8 @@ static func _effect(state: GameState, eid: int, power: String, target: int, adde
 					Espionage.private_to(state, [eid])))
 		"foire":
 			PsionicsBridges.foire(state, eid, target, added)
+		"sable_rendu", "deja_vu":
+			InsSablier.psi_effect(state, eid, power, target, added)  # Chronopathie (peuples insolites, prop. 87)
 		_:
 			PsionicsDream.effect(state, eid, power, target, added)
 

@@ -222,6 +222,7 @@ static func _bombard(state: GameState, sid: int, by: int, owner: int, p: String)
 	if bp <= 0:
 		return
 	AncientsBridges.on_bombard(state, sid, by)  # Monde saint bombardé : guerre sainte
+	Insolites.on_bombard(state, sid, owner)  # le feu sur le mycélium de Myrr
 	@warning_ignore("integer_division")
 	add_dev(state, sid, int(d.get("dev_per_day", 0)) * bp / 100)
 	var every := int(d.get("pop_every_days", 0))

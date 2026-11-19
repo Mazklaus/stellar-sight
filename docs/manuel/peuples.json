@@ -192,7 +192,7 @@
     "histoire": "Sur Asphodèle, la pierre se souvient. Les morts de la galaxie y sont recopiés, et ils continuent : ils travaillent, ils discutent, ils gouvernent. Trois Anciens siègent au Nécro-conseil ; les plus vieux, un jour, demandent à partir pour de bon.",
     "jouer": "Chaque mois, les populations mortes à cinq sauts de vos colonies (bataille, invasion, famine, catastrophe) vous versent des **Âmes** ; deux Âmes font un habitant, qui garde son espèce. Proposez le **Pacte funéraire** (menu des peuples) : le signataire reçoit des **Ossuaires** (stabilité +3, 1 d'influence par mois) et tous ses morts vous rejoignent à toute distance. Un héros tombé n'importe où peut être réveillé en **Revenant** (60 d'influence). Les trois Anciens du Nécro-conseil prennent de l'**Usure** : au-delà de cinq ans, chacun coûte 4 de stabilité partout ; **laissez-le partir** pour 120 Savoir et 20 d'influence, et un mort plus récent prend sa place.",
     "contrer": "Ne pas signer le Pacte, ou le rompre : les Ossuaires tombent et vos morts restent à vous (sauf à cinq sauts d'Asphodèle). L'Amphictyonie peut voter **Rites funéraires protégés**, qui interdit le Pacte partout. Les fois qui se méfient de la mort-passage (Églises universelles, Patriarcats, Dieu présent, Harmonie) lui sont hostiles.",
-    "victoire": "**Le Grand Rassemblement** (archétype Esprits numérisés). Que la moitié de la population de la galaxie vive à Asphodèle.",
+    "victoire": "**Le Grand Rassemblement** (archétype Esprits numérisés). Avoir accueilli, depuis le début de la partie, autant d'Âmes que la moitié de la population actuelle de la galaxie.",
     "chronique_source": "Registre des arrivées|Porte de l'Ouest, Asphodèle",
     "chronique": "« Arrivés ce matin : quatre mille deux cents marins de la bataille de Kesh, des deux camps. Ils ont demandé s'ils devaient continuer la guerre. Le préposé leur a dit qu'il y avait du thé, et qu'on verrait après. Personne n'a repris la guerre. »",
     "conseil": "Le Pacte vaut mieux que la guerre : un grand empire pacifique qui signe vous donnera, à la longue, plus d'Âmes que toutes les batailles à votre portée."
@@ -235,5 +235,57 @@
     "chronique_source": "Carnet d'observation, poste 7|Observateurs de Quiétude",
     "chronique": "« Année 312 de l'observation. Les petits ont inventé la poésie. Elle parle surtout de la lune. Nous sommes derrière la lune. Le Conseil se demande s'il faut se sentir flatté ; la délibération est prévue pour le siècle prochain. »",
     "conseil": "Choisissez des peuples loin des routes : chaque flotte étrangère qui passe et s'arrête est un regard de trop."
+  },
+  "sablier": {
+    "portrait": "MJ-78",
+    "devise": "Cela n'est pas arrivé. Cela n'arrivera pas. Ou alors, une seule fois.",
+    "difficulte": "●●●○ Exigeant",
+    "regle": "**Annule le passé.** Les Gardiens défont les événements qui les ont blessés, mais chaque paradoxe déchire un peu plus la réalité autour d'eux.",
+    "histoire": "Le Sablier des Gardiens s'est fêlé il y a très longtemps, ou demain, selon qui raconte. Depuis, le sable qui en tombe permet de reprendre un moment perdu. Les Gardiens s'en servent avec prudence : ils savent ce que coûte une ville qui n'a jamais existé.",
+    "jouer": "Le **Registre** (menu des peuples) garde six mois d'événements qui vous ont touchés : vaisseau perdu au combat, système conquis, héros mort, technologie volée. **Annuler** coûte du **Sable** (5 par mois, 200 au plus ; de 20 pour un vaisseau à 80 pour un système) : le vaisseau revient à la capitale, le système vous revient, le héros se relève, la technologie n'a jamais été volée. Chaque annulation ouvre une **déchirure** dans le système (production -25 %, stabilité -5, pendant deux ans), d'où sortent parfois des créatures du Hiatus ; à trois annulations au même endroit, **effondrement local** : la moitié de la population disparaît. Une **bulle temporelle** (30 de Sable, une par an, depuis la fiche de la planète) comprime le temps d'un de vos systèmes (+25 %) ou dilate celui d'un autre empire (-25 %). Vos héros vivent deux fois et demie plus longtemps, votre psionique est la **Chronopathie**.",
+    "contrer": "Frapper fort et vite : le Sable est rare, et chaque annulation abîme le système où elle a lieu. Un système conquis ne s'annule plus s'il a changé de main depuis. Tuer le **Gardien chronal** est un point fixe : on ne l'annule pas, et la Boucle se défait.",
+    "victoire": "**Le Paradoxe stable** (gouvernement Chronarchie). Bâtir les trois étapes de **la Boucle** (deux ans chacune) avec le Gardien chronal vivant.",
+    "chronique_source": "Registre des Gardiens, page arrachée|Gardiens du Sablier Fêlé",
+    "chronique": "« Bataille de Nuly : perdue. Bataille de Nuly : gagnée. Bataille de Nuly : n'a pas eu lieu. Note pour le Conseil : arrêter de toucher à Nuly. »",
+    "conseil": "Gardez du Sable pour ce qui compte vraiment : un système vaut quatre vaisseaux, et une annulation de trop au même endroit coûte la moitié d'un monde."
+  },
+  "gravea": {
+    "portrait": "MJ-79",
+    "devise": "Nous avons commencé cette phrase avant votre naissance. Patience.",
+    "difficulte": "●●●○ Exigeant",
+    "regle": "**Agit en décennies.** Les Lithes ne font rien vite, mais ce qu'ils font change la forme des mondes.",
+    "histoire": "Les Lithes de Gravéa vivent à l'échelle des montagnes. Une conversation peut durer un siècle, une décision davantage. Ils regardent les autres peuples s'agiter avec une affection lointaine, comme on regarde une averse.",
+    "jouer": "Lancez des **Œuvres lentes** depuis la fiche d'une planète de vos systèmes : fondre une ceinture d'astéroïdes en monde, rendre habitable un monde stérile ou toxique, déplacer une planète vers la zone tempérée, refroidir l'étoile (dix à quinze ans, trois à la fois). Sans rien entreprendre pendant six mois, et en paix, vous accumulez du **Temps** (credo Patience) : dépensez-le d'un coup pour avancer une Œuvre. Le **Consensus séculaire** délibère deux ans avant toute guerre (menu des peuples) ; vos garnisons valent beaucoup. Un monde attaqué peut **hiberner** trois ans : impossible à envahir, mais il ne produit plus rien.",
+    "contrer": "Prendre le système d'une Œuvre avant la fin : le chantier est perdu. Une délibération est publique : la cible a deux ans pour se préparer.",
+    "victoire": "**Le Remodelage** (gouvernement Consensus séculaire). Achever cinq Œuvres lentes dans cinq systèmes différents.",
+    "chronique_source": "Procès-verbal du Consensus, séance 1|Lithes de Gravéa",
+    "chronique": "« Ouverture de la séance. Le doyen propose de répondre à la déclaration de guerre de l'Empire Vael. Une voix demande si l'Empire Vael existe encore. Suspension de séance pour vérification. »",
+    "conseil": "Commencez une Œuvre dès que possible : la première prend dix ans, et la victoire en demande cinq."
+  },
+  "myrr": {
+    "portrait": "MJ-80",
+    "devise": "Je ne conquiers pas. Je pousse.",
+    "difficulte": "●●●● Expert",
+    "regle": "**Aucun vaisseau.** La Sporemère ne construit ni vaisseau ni revendication : elle ensemence des comètes et colonise lentement, mais irrémédiablement.",
+    "histoire": "Myrr est un seul champignon, grand comme un système, qui pense lentement et ne meurt pas vraiment. Elle n'a jamais construit de vaisseau. Elle lance des comètes chargées de spores, et quelques années plus tard, il y a Myrr, partout.",
+    "jouer": "Lancez des **comètes-semences** (120 matériaux, 60 d'énergie) vers un système à cinq sauts au plus d'une de vos colonies, depuis la fiche d'une planète ou le menu des peuples ; une seconde comète vers le même système le rejoint deux fois plus vite. Dans un système ensemencé, le **mycélium** gagne une planète par mois, parfois : planètes libres, avant-postes étrangers, puis colonies des autres, qu'il ronge d'un habitant par mois jusqu'à les absorber. Chaque espèce absorbée donne une **symbiose** (un petit bonus de production). Vos systèmes coupés de la capitale produisent moitié moins (**réseau mycorhizien**). Pas de flotte : les **spores** usent les flottes ennemies dans vos systèmes, vos garnisons valent double, et vous savez d'emblée bâtir citadelles, bastions et boucliers planétaires.",
+    "contrer": "**Seul le feu l'arrête.** Une flotte armée en guerre, à l'arrêt dans un système de Myrr, peut **brûler le mycélium** depuis l'orbite (fiche de la planète) ; un bombardement fait de même. Un système brûlé ne pousse plus pendant un an, et c'est le seul moment où l'on peut l'envahir. Chez soi, on purge le mycélium (30 d'influence).",
+    "victoire": "**La Biosphère unique** (archétype fongoïde ou végétal, credo Survie). Tenir 40 % des planètes habitables de la galaxie.",
+    "chronique_source": "Rapport d'un gouverneur de Teyl|Noosphères de Teyl",
+    "chronique": "« Les colons de Lyethae signalent des filaments blancs dans les égouts. Je leur ai dit de ne pas s'inquiéter. Ils me répondent, tous en même temps, qu'ils ne s'inquiètent plus du tout. »",
+    "conseil": "Ensemencez loin des empires guerriers et reliez vos systèmes de proche en proche : un réseau coupé par le feu, c'est la moitié de votre production."
+  },
+  "vergemonde": {
+    "portrait": "MJ-81",
+    "devise": "Nous plantons des arbres sous lesquels nous ne nous assiérons jamais.",
+    "difficulte": "●●○○ Abordable",
+    "regle": "**Transforme lentement les mondes.** Le Hallier fait de chaque colonie un jardin, puis éveille ses jardins en mondes vivants.",
+    "histoire": "Le Hallier de Vergemonde est une forêt qui marche, puis s'arrête, puis pense. Ses Pousses apprennent, ses Marcheurs travaillent et se battent, ses Enracinés ne bougent plus et se souviennent de tout. Ils ont appris à aimer le feu, qui rend les forêts plus belles.",
+    "jouer": "Votre population vit en **trois âges** : les Pousses (Savoir), les Marcheurs (matériaux, énergie) et les Enracinés (influence, stabilité). Choisissez une **saison** (menu des peuples, une fois par an) : la répartition glisse vers elle de deux points par mois. Chaque colonie devient un **monde-jardin** (gaïa) au bout de huit ans ; tous les quatre ans ensuite, le jardin gagne une autre planète du système. Sur un monde-jardin, **plantez un Cœur** (120 d'influence, 120 de Savoir) : il devient un monde vivant, bienveillant d'emblée, dont l'humeur monte deux fois plus vite pour vous. Forts en défense, faibles en attaque. Le **Feu-qui-renouvelle** emporte parfois deux habitants d'une colonie, et la forêt repousse plus dense un an plus tard.",
+    "contrer": "Le temps : un jardin prend huit ans, la victoire bien plus. Prendre une colonie avant qu'elle fleurisse, ou se brouiller avec ses mondes vivants.",
+    "victoire": "**Le Grand Jardin** (gouvernement Cercle des Enracinés). Huit mondes-jardins et trois mondes vivants Liés. La **Biosphère unique** lui est ouverte aussi.",
+    "chronique_source": "Chant des Enracinés, troisième couplet|Hallier de Vergemonde",
+    "chronique": "« Le feu est passé cette nuit sur la colline des Anciens. Ils n'ont rien dit ; ils savaient. Au printemps, il y aura des Pousses, et elles chanteront mieux que nous. »",
+    "conseil": "Saison des Marcheurs tant que vous vous étendez, saison des Pousses ensuite : les jardins viennent tout seuls, il suffit de tenir les colonies."
   }
 }

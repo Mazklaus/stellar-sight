@@ -409,6 +409,79 @@
 			"chronicle": "L'Envol. Deux peuples sont nés aux étoiles sans savoir qui veillait sur eux. %s referme ses carnets ; quelque part, un lithe sourit, très lentement.",
 			"src": "Étude des peuples insolites, prop. 81 (document de game design)"
 		},
+		"paradoxe": {
+			"kind": "people",
+			"label": "Le Paradoxe stable",
+			"requires": {
+				"gouvernement": [
+					"chronarchie"
+				]
+			},
+			"tech": "paradoxe_stable",
+			"text": "Fermer la Boucle (%d étapes, chacune deux ans de chantier) avec le Gardien chronal vivant, et le tenir %d an.",
+			"counter": "Tuer le Gardien chronal : c'est un point fixe, la Boucle se défait et il faut cinq ans pour qu'un autre vienne. Lui voler du temps : chaque annulation déchire un système.",
+			"hold_days": 360,
+			"on_fail": "reset",
+			"count": 3,
+			"chronicle": "Le Paradoxe stable. %s ferme la Boucle : la technologie qui l'a fondée vient d'elle-même, et le temps, autour, se tait. Il n'y a plus de passé à défaire, seulement le leur.",
+			"src": "Étude des peuples insolites, prop. 88 (document de game design)"
+		},
+		"remodelage": {
+			"kind": "people",
+			"label": "Le Remodelage",
+			"requires": {
+				"gouvernement": [
+					"consensus_seculaire"
+				]
+			},
+			"tech": "remodelage",
+			"text": "Achever %d Œuvres lentes dans autant de systèmes différents, et le tenir %d an.",
+			"counter": "Prendre les systèmes où les Lithes ont un chantier : l'Œuvre est perdue avec eux. Les faire entrer en guerre pour vider leur réserve de Temps.",
+			"hold_days": 360,
+			"on_fail": "pause",
+			"count": 5,
+			"chronicle": "Le Remodelage. %s a changé la forme de cinq systèmes. Les cartes de la galaxie sont à refaire, et les Lithes, très lentement, commencent la suivante.",
+			"src": "Étude des peuples insolites, prop. 93 (nouvelle)"
+		},
+		"biosphere": {
+			"kind": "people",
+			"label": "La Biosphère unique",
+			"requires": {
+				"archetype": [
+					"fongoide",
+					"vegetal"
+				],
+				"credo": [
+					"survie"
+				]
+			},
+			"tech": "biosphere_unique",
+			"text": "Tenir au moins %d %% des planètes habitables de la galaxie, et le tenir %d ans.",
+			"counter": "Stériliser, brûler : purger le mycélium, brûler ses colonies depuis l'orbite, bombarder ses systèmes ; prendre les mondes-jardins.",
+			"hold_days": 720,
+			"on_fail": "pause",
+			"pct": 40,
+			"chronicle": "La Biosphère unique. %s couvre deux mondes habitables sur cinq. On ne sait plus très bien où finit la galaxie et où commence l'organisme.",
+			"src": "Étude des peuples insolites, prop. 99 (document de game design)"
+		},
+		"grand_jardin": {
+			"kind": "people",
+			"label": "Le Grand Jardin",
+			"requires": {
+				"gouvernement": [
+					"cercle_enracines"
+				]
+			},
+			"tech": "grand_jardin",
+			"text": "Tenir %d mondes-jardins et %d mondes vivants Liés, et le tenir %d ans.",
+			"counter": "Brûler les jardins : prendre ses mondes-jardins, fâcher ses mondes vivants, bombarder.",
+			"hold_days": 1800,
+			"on_fail": "pause",
+			"gardens": 8,
+			"living": 3,
+			"chronicle": "Le Grand Jardin. %s a fait fleurir assez de mondes pour que la galaxie, vue de loin, ait changé de couleur.",
+			"src": "Étude des peuples insolites, prop. 105 (nouvelle)"
+		},
 		"oeuvres": {
 			"kind": "classic",
 			"label": "Les Grands Œuvres",

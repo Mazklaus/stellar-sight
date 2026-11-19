@@ -974,6 +974,7 @@ static func _apply(state: GameState, a: int, b: int, o: Dictionary) -> String:
 			@warning_ignore("integer_division")
 			var amount := maxi(1, Research.cost(state, a, tid) * int(o["steal_pct"]) / 100)
 			Research.add_progress(state, a, tid, amount)
+			Insolites.on_tech_stolen(state, a, b, tid, amount)  # le Registre des Gardiens du Sablier
 			if int(Research.tech(tid).get("era", 1)) > Research.current_era(state, a):
 				Deeds.note(state, a, "steal_up")
 			Research.count_stat(state, a, "stolen")

@@ -394,7 +394,7 @@ static func check_declare_war(state: GameState, empire_id: int, target: int, bre
 		return "vous n'avez jamais rencontré cet empire"
 	if e.wars.has(target):
 		return "vous êtes déjà en guerre"
-	var ib := Insolites.war_block(state, empire_id)
+	var ib := Insolites.war_block(state, empire_id, target)
 	if ib != "":
 		return ib
 	if not state.rulers.is_empty() and RulersDynasty.in_regency(state, empire_id):
@@ -560,6 +560,9 @@ static func check_invade(state: GameState, empire_id: int, fleet_id: int) -> Str
 		return "aucun système ennemi à envahir ici"
 	if not at_war(state, empire_id, owner):
 		return "vous n'êtes pas en guerre avec %s" % state.get_empire(owner).short_name()
+	var tb := Insolites.target_block(state, f.system_id)  # un monde des Lithes hiberne
+	if tb != "":
+		return tb
 	var lim := WarLaws.check_invade(state, empire_id, f.system_id)
 	if lim != "":
 		return lim
@@ -587,6 +590,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 	var old := state.system_owner(system_id)
 	var eo := state.get_empire(old)
 	var en := state.get_empire(new_owner)
+	Insolites.on_capture(state, system_id, new_owner, old)  # le Registre des Gardiens du Sablier
 	Wars.on_capture(state, system_id, new_owner, old)
 	Diplomacy.note_conquest(state, new_owner, old)
 	Research.count_stat(state, new_owner, "conquests")

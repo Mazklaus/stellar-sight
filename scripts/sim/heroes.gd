@@ -144,7 +144,8 @@ static func life_years(state: GameState, empire_id: int) -> int:
 	# Ingénierie des espèces : Longévifs, traits poussés, Lents mais éternels.
 	if y > 0 and not state.genetics.is_empty():
 		y = maxi(10, y + Genetics.life_years(state, empire_id, ""))
-	return y
+	@warning_ignore("integer_division")
+	return y * Insolites.life_pct(state, empire_id) / 100  # longévité des Gardiens du Sablier
 
 
 static func _archetype_raw(state: GameState, empire_id: int) -> String:

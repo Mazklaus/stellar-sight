@@ -12,7 +12,8 @@
 		"_doc": "Formes de psionisme (catalogue ouvert, consigne du 2026-11-17 : d'autres peuples apporteront d'autres formes, peut-être très différentes). Une forme dit d'où vient le pouvoir, son nom et ses pouvoirs propres (champ form des pouvoirs). Un empire suit la forme de son talent (talents.*.form), sinon la forme par défaut.",
 		"default": "songe",
 		"list": [
-			{"id": "songe", "label": "Le Songe", "resource": "Résonance", "text": "Un plan psychique sous la réalité, que les esprits sensibles entendent comme un rêve partagé. On y puise, on y plonge, et parfois quelque chose y répond."}
+			{"id": "songe", "label": "Le Songe", "resource": "Résonance", "text": "Un plan psychique sous la réalité, que les esprits sensibles entendent comme un rêve partagé. On y puise, on y plonge, et parfois quelque chose y répond."},
+			{"id": "chronopathie", "label": "La Chronopathie", "resource": "Résonance", "text": "Le pouvoir des Gardiens du Sablier (peuples insolites, prop. 87) : sentir le temps comme une matière, se souvenir de l'avenir, y reprendre un peu de sable. Pas de Songe, pas de plongée : seulement l'écho de ce qui a été et de ce qui sera."}
 		]
 	},
 	"levels": [
@@ -66,7 +67,9 @@
 		{"id": "domination", "form": "songe", "label": "Domination mentale", "tech": "precognition", "target": "enemy_system", "cost": 100, "cooldown": 1080, "felure": 15, "screened": true, "hero": "stratege", "min_hero": 2, "garrison_max": 30, "caught_pct": 100,
 			"text": "Un système ennemi, en guerre, où mouille la flotte d'un stratège sensitif de puissance 2 ou plus : la garnison (30 au plus) dépose les armes et le système vous revient. Sans écran psychique dans le système. Grief lourd « Viol des esprits »."},
 		{"id": "foire", "form": "songe", "label": "Foire aux visions", "tech": "telepathie", "target": "empire", "cost": 15, "cooldown": 180, "felure": 2, "requires_talent": "foire", "income": {"energy": 60}, "false_pct": 33,
-			"text": "Médiums de foire : vendre des visions à un empire rencontré (+60 énergie). Une sur trois est fausse, et il s'en souviendra."}
+			"text": "Médiums de foire : vendre des visions à un empire rencontré (+60 énergie). Une sur trois est fausse, et il s'en souviendra."},
+		{"id": "sable_rendu", "form": "chronopathie", "label": "Sable rendu", "tech": "telepathie", "target": "self", "cost": 30, "cooldown": 360, "felure": 6, "text": "Se souvenir d'un futur où l'on avait plus de temps, et en rapporter un peu : +40 de Sable pour les Gardiens du Sablier."},
+		{"id": "deja_vu", "form": "chronopathie", "label": "Déjà-vu", "tech": "telepathie", "target": "empire", "cost": 35, "cooldown": 180, "felure": 5, "screened": true, "hero": "ombre", "text": "Un empire rencontré : vous avez déjà vu ce qu'il va faire. Son dossier complet tombe sur la table."}
 	],
 	"navigation": {"_doc": "Prop. 22 : Navigation par le Songe (ordre jump {fleet, sys}). Une flotte à l'arrêt saute vers un système à max_jumps sauts au plus, hors des routes. lost_pct : elle s'égare vers un système voisin de la cible et perd lost_hp_pct % de sa coque ; beast_pct : une bête du Songe la suit.",
 		"tech": "navigation_songe", "label": "Navigation par le Songe", "cost": 40, "cooldown": 120, "felure": 6, "max_jumps": 4, "lost_pct": 15, "lost_hp_pct": 25, "beast_pct": 8,
@@ -167,6 +170,9 @@
 	"ancients": {"_doc": "Prop. 36 : les Hiérophantes de l'Aube Première (kind) sont les maîtres du Songe : à opinion teach_op ou plus, Ouvrir le Songe coûte teach_pct % de moins ; un pacte les irrite (pact_op).", "kind": "hierophantes", "teach_op": 25, "teach_pct": -50, "pact_op": -30},
 	"espionage": {"_doc": "Prop. 37 : avec le Registre des sensitifs, chiffrement (encryption) contre les espions ; une Lecture des esprits réussie donne detect points de détection contre l'empire lu (furtivité).", "encryption": 2, "detect": 2},
 	"talents": {
+		"gouvernement": {
+			"chronarchie": {"label": "Chronopathes", "text": "Les Gardiens du Sablier n'entendent pas le Songe mais le temps : forme Chronopathie (Sable rendu, Déjà-vu), sensitifs latents dès la naissance.", "form": "chronopathie", "innate": 1}
+		},
 		"_doc": "Prop. 35 : talents psioniques par couche d'espèce (registre, archétype, gouvernement, credo, origine, traits), donc valables pour les peuples créés. Clés : form, innate (niveau de naissance), cap, res_pct, power_cost_pct, felure_pct, screen, hero_pct, sure_jump, phare_free, nefs_calm, psi_ground_pct, foire, dive_years, screens_free.",
 		"registre": {
 			"Space opera héroïque": {"label": "Destins", "text": "Les héros naissent pour un destin : sensitifs bien plus fréquents (+8 % par an chez une espèce Latente).", "hero_pct": 8},
