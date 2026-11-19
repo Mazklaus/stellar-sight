@@ -662,6 +662,7 @@ static func pressures(state: GameState) -> Dictionary:
 				n *= FaithWars.secondary_holy_x(state, fid, c)
 				# Patriarcats : le métropolite prêche comme un petit monde saint.
 				n *= FaithNatures.source_x(state, c, fid)
+				n = n * (100 + FaithNatures.spectacle_pct(state, c, fid)) / 100
 				# Merveilles : lieu saint de la foi d'État de leur maître (prop. 20 des merveilles).
 				n *= WondersCatalog.holy_x(state, c, fid)
 			elif fid == INCROYANCE:

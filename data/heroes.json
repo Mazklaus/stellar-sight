@@ -841,7 +841,8 @@
 			"look": "mandibles",
 			"label": "Guerrière aux mandibules d'or",
 			"archetypes": [
-				"ruche"
+				"ruche",
+				"vaisseaux_vivants"
 			]
 		},
 		{
@@ -849,7 +850,8 @@
 			"look": "eyes",
 			"label": "Guetteuse aux cent yeux",
 			"archetypes": [
-				"ruche"
+				"ruche",
+				"vaisseaux_vivants"
 			]
 		},
 		{
@@ -857,7 +859,8 @@
 			"look": "crown",
 			"label": "Princesse de la ponte",
 			"archetypes": [
-				"ruche"
+				"ruche",
+				"vaisseaux_vivants"
 			]
 		},
 		{
@@ -873,7 +876,8 @@
 			"look": "shards",
 			"label": "Héraut aux éclats",
 			"archetypes": [
-				"lithoide"
+				"lithoide",
+				"planete_etre"
 			]
 		},
 		{
@@ -881,7 +885,8 @@
 			"look": "boulder",
 			"label": "Vétéran de basalte",
 			"archetypes": [
-				"lithoide"
+				"lithoide",
+				"planete_etre"
 			]
 		},
 		{
@@ -889,7 +894,8 @@
 			"look": "geode",
 			"label": "Sage-géode",
 			"archetypes": [
-				"lithoide"
+				"lithoide",
+				"planete_etre"
 			]
 		},
 		{
@@ -967,7 +973,8 @@
 	],
 	"avatar_governments": [
 		"ruche",
-		"conscience"
+		"conscience",
+		"aucun"
 	],
 	"loyalty": {
 		"start": 60,
@@ -1143,6 +1150,12 @@
 				"label": "Avatars",
 				"avatar": 1,
 				"text": "Pas de héros mais des Avatars, nœuds de la conscience partagée : ni ambition, ni désertion, ni capture."
+			},
+			"aucun": {
+				"label": "L'Avatar",
+				"avatar": 1,
+				"cap": -2,
+				"text": "Un seul héros : l'Avatar que la planète-être façonne pour parler aux petits êtres. Ni ambition, ni désertion, ni capture."
 			},
 			"horde": {
 				"label": "Champions",

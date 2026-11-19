@@ -281,7 +281,8 @@ static func at_war(state: GameState, a: int, b: int) -> bool:
 	var e := state.get_empire(a)
 	if e == null or not e.wars.has(b):
 		return false
-	return not Crisis.truce(state, a, b)  # trêve sacrée du Front commun contre la crise
+	# Trêve sacrée du Front commun contre la crise ; trêve du Grand Numéro du Cirque (Insolites).
+	return not Crisis.truce(state, a, b) and not Insolites.truce(state, a, b)
 
 
 ## Hostilité entre deux flottes : la guerre entre leurs empires, sauf pour la Faune, dont l'humeur
@@ -545,6 +546,9 @@ static func check_invade(state: GameState, empire_id: int, fleet_id: int) -> Str
 		return "cette flotte ne vous appartient pas"
 	if f.is_moving():
 		return "la flotte doit être à l'arrêt dans le système visé"
+	var nomad := Insolites.invade_block(state, empire_id)
+	if nomad != "":
+		return nomad
 	var occ := WarPeace.occupier(state, f.system_id)
 	if occ >= 0:
 		return WarPeace.check_liberate(state, empire_id, f, occ)

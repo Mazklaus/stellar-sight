@@ -1,0 +1,125 @@
+{
+	"_doc": "Les peuples insolites (étude « Les 15 peuples insolites et le 9e peuple », validée le 2026-11-19). Lot 1 : les peuples sans monde (Flotte-Exode, Cirque Zambalù, Orbe-Monde Halcyre, Hardes de Kraal). Chaque peuple a un champ de faction \"nomad\" {kind, ship, count} posé par une brique d'espèce ; ce fichier donne les règles de chaque sorte. Les durées sont en jours, les pourcentages en points de %. Tout est en nombres entiers (déterminisme).",
+	"_sources": "Inspirations lues pour l'étude (wiki Endless Space 2 : Vodyani, Chœur Ombral ; Stellaris : Caravaneers, Tiyanki ; Endless Legend : Cultistes) ; Battlestar Galactica, les Gardiens de la Galaxie (Ego), Star Wars Rebels (Purrgil) et Farscape (Pilote) de mémoire. Voir l'étude pour le détail.",
+	"rivals": {
+		"_doc": "Prop. 3. Réglage « Peuples insolites » de la nouvelle partie : part des rivaux tirés au hasard qui peuvent être insolites.",
+		"modes": [
+			{"id": "aucun", "label": "Aucun", "text": "Les rivaux tirés au hasard sont pris parmi les huit peuples classiques.", "max_pct": 0},
+			{"id": "quelques", "label": "Quelques-uns", "text": "Un tiers des rivaux tirés au hasard au plus sont des peuples insolites.", "max_pct": 34},
+			{"id": "libres", "label": "Libres", "text": "Les rivaux tirés au hasard sont pris parmi tous les peuples, classiques et insolites.", "max_pct": 100},
+			{"id": "tous", "label": "Tous", "text": "Les rivaux tirés au hasard sont pris d'abord parmi les peuples insolites.", "max_pct": 100, "prefer": true}
+		],
+		"default": "quelques"
+	},
+	"carried": {
+		"_doc": "Prop. 8. Population portée (sur une flotte, une planète-être, une harde) : elle compte pour la part de population galactique (Moisson), le score et la Légende des peuples. Nourriture : les peuples sans monde se nourrissent eux-mêmes (pas d'entretien).",
+		"score_pct": 100
+	},
+	"implants": {
+		"_doc": "Prop. 9. Implants : un peuple qui existe sur la planète d'un autre empire. Chaque sorte : ce que l'implant verse chaque mois à son propriétaire (pris chez l'hôte), s'il est caché, et ce que coûte à l'hôte de le purger.",
+		"kinds": {
+			"fan_club": {"label": "Fan-club", "text": "Une colonie conquise par la Tournée triomphale : elle reste à son propriétaire, adopte la culture du Cirque et lui verse une dîme.", "tithe": {"energy": 3, "influence": 1}, "tithe_per_pop": 1, "radiance": 12, "hidden": false, "purge_cost": {"influence": 40}, "purge_stability_days": 120}
+		}
+	},
+	"yard": {
+		"_doc": "Les peuples sans chantier planétaire construisent dans leur cité mobile (Nef-cité, Cité-chapiteau) : un vaisseau à la fois, à la durée normale. L'Orbe-Monde et les Kraal ne construisent rien.",
+		"kinds": ["exode", "zambalu"]
+	},
+	"exode": {
+		"start_pop": 24,
+		"nef_cap": 12,
+		"anchor_base": {"food": 2, "energy": 1, "knowledge": 2},
+		"anchor_work_pct": 100,
+		"growth_per_pop": 50,
+		"growth_threshold": 900,
+		"stalk_days": 720,
+		"stalk_warn_days": 630,
+		"hunter_ships": ["corvette", "corvette", "fregate"],
+		"hunter_extra_per_years": 2,
+		"hunter_stay_days": 60,
+		"final_hunt_days": 30,
+		"final_hunt_extra": 4,
+		"hope_start": 60,
+		"hope_max": 100,
+		"hope_month": 0,
+		"hope_hunted": -5,
+		"hope_sign": 6,
+		"hope_refugee": 2,
+		"hope_nef_lost": -15,
+		"hope_after_secession": 35,
+		"refugee_jumps": 3,
+		"refugee_max_month": 3,
+		"refugee_min_pop": 3
+	},
+	"zambalu": {
+		"start_pop": 10,
+		"show_days": 60,
+		"show_ticket": 20,
+		"show_radiance": 40,
+		"show_stability": 10,
+		"show_stability_days": 180,
+		"tour_days": 90,
+		"recruit_tier": 3,
+		"recruit_pop": 3,
+		"recruit_next_tier": 2,
+		"pop_yields": {"influence": 1, "energy": 1},
+		"pop_per_yield": 2,
+		"numero_every_days": 3600,
+		"numero_first_days": 1800,
+		"numero_call_days": 30,
+		"numero_truce_days": 180,
+		"numero_influence": 15,
+		"numero_radiance": 30
+	},
+	"halcyre": {
+		"start_mass": 30,
+		"eat_days": 60,
+		"eat_types": ["barren", "asteroids", "arctic", "toxic", "gas_giant"],
+		"eat_mass_base": 3,
+		"eat_mass_size_div": 2,
+		"eat_colony_days": 120,
+		"eat_colony_mass_per_pop": 2,
+		"hunger_days": 180,
+		"hunger_month": -1,
+		"mass_yields": {"energy": 1, "materials": 1, "knowledge": 1},
+		"mass_per_yield": 4,
+		"mass_influence_div": 10,
+		"mass_damage_div": 3,
+		"mass_damage_max": 60,
+		"sentinel_mass": 4,
+		"living_mood": 3,
+		"ego_mood": -4,
+		"ignition_mass": 300,
+		"siege_power_pct": 100
+	},
+	"kraal": {
+		"ages": ["kraal_petit", "kraal_jeune", "kraal_adulte", "kraal_ancien"],
+		"age_months": [18, 30, 60],
+		"age_pop": {"kraal_petit": 1, "kraal_jeune": 2, "kraal_adulte": 3, "kraal_ancien": 4},
+		"start_herd": ["kraal_ancien", "kraal_adulte", "kraal_adulte", "kraal_jeune", "kraal_jeune", "kraal_petit"],
+		"pasture_types": ["gas_giant"],
+		"pasture_zones": ["nebuleuse"],
+		"memory_jumps": 4,
+		"pasture_max": 100,
+		"graze_month": 12,
+		"regrow_month": 5,
+		"birth_min_graze": 25,
+		"birth_months": 3,
+		"claim_days": 30,
+		"graze_yields": {"energy": 1, "materials": 1},
+		"route_pct": 130,
+		"off_route_pct": 85,
+		"pilot_damage_pct": 10,
+		"pilot_max": 3,
+		"pilot_min_pop": 2
+	},
+	"victories": {
+		"allumage": {"_doc": "Prop. 28. Masse tenue 3 ans sans siège.", "mass": 300}
+	},
+	"ai": {
+		"exode_flee_days": 600,
+		"zambalu_escort_power": 60,
+		"halcyre_sentinel_mass": 50,
+		"kraal_min_graze": 30
+	}
+}

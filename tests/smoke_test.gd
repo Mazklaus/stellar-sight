@@ -1220,6 +1220,8 @@ func _test_species_editor(main: Node, menu: MainMenu) -> void:
 	menu.show_page("new")
 	menu.select_faction("p_ligue_de_sel")
 	_check(menu._scene_name.text == "Ligue de Sel", "le peuple créé se choisit dans Nouvelle partie")
+	menu.slots = MainMenu.default_slots()  # l'écran part de rivaux « Au hasard » : on pose les huit classiques
+	menu._refresh_slots()
 	_check(menu.toggle_rival("p_ligue_de_sel") and menu.rival_ids().has("p_ligue_de_sel"), "un peuple créé peut être un rival")
 	_check(not menu.rival_ids("p_ligue_de_sel").has("p_ligue_de_sel"), "le peuple joué n'est pas son propre rival")
 	menu.toggle_rival("ossarane")
@@ -1268,7 +1270,10 @@ func _test_game_menu(main: Node, menu: MainMenu) -> void:
 	menu.set_victory("allies", false)
 	menu.set_ai_scaling(true)
 	var setup := menu.empire_setup("vael", 3)
-	_check(setup["starts"] == ["", "avance", "", "", "", "", "", ""] and setup["distances"] == ["", "", "", "proche", "", "", "", ""], "départs et distances par empire (%s)" % [setup["distances"]])
+	# L'écran part de sept places « Au hasard » : la place n de la liste est le (n + 1)e empire.
+	var i0: int = (setup["slots"] as Array).find(0) + 1
+	var i3: int = (setup["slots"] as Array).find(3) + 1
+	_check(i0 > 0 and i3 > 0 and setup["starts"][i0] == "avance" and setup["starts"].count("avance") == 1 and setup["distances"][i3] == "proche" and setup["distances"].count("proche") == 1, "départs et distances par empire (%s)" % [setup["distances"]])
 	_check(menu.save_preset("Ma partie") and menu.current_preset() == "Ma partie" and menu.preset_names() == ["Ma partie"], "préréglage enregistré et reconnu")
 	menu.apply_preset("default")
 	_check(menu.slots[0]["start"] == "" and menu.victories["domination"] and not menu.ai_scaling, "Par défaut : tout revient")
@@ -1369,7 +1374,7 @@ func _test_rival_slots(main: Node, menu: MainMenu) -> void:
 	menu.randomize_slots()
 	var a := menu.empire_setup("ossarane", 9)
 	_check(a == menu.empire_setup("ossarane", 9), "même graine, mêmes rivaux tirés au hasard")
-	_check(not a["rivals"].has("ossarane") and a["rivals"].size() == 7 and a["rivals"].duplicate().all(func(f: String) -> bool: return a["rivals"].count(f) == 1), "au hasard sans doublons (%s)" % [a["rivals"]])
+	_check(not a["rivals"].has("ossarane") and a["rivals"].size() == mini(menu.slots.size(), MainMenu.MAX_EMPIRES - 1) and a["rivals"].duplicate().all(func(f: String) -> bool: return a["rivals"].count(f) == 1), "au hasard sans doublons (%s)" % [a["rivals"]])
 	# Peuples en double : deux Kh'thari et votre propre peuple en face.
 	menu.slots = MainMenu.default_slots().slice(0, 4)  # les quatre de la V1 : 6 empires, la taille conseillée
 	menu.set_duplicates(true)

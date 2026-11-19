@@ -276,6 +276,11 @@ static func opinion_parts(state: GameState, a: int, b: int) -> Array[Dictionary]
 	var rb := String(sb.get("registre", ""))
 	var dis := int(cfg["registre_same"]) if ra == rb else _pair_value(cfg["registre_pairs"], ra, rb)
 	_part(out, "Registres : %s / %s" % [ra, rb] if ra != rb else "Même registre", dis * int(cfg["registre_scale"]))
+	var fa := state.get_empire(a).faction_id if state.get_empire(a) else ""
+	var fb := state.get_empire(b).faction_id if state.get_empire(b) else ""
+	for fp: Array in cfg.get("faction_pairs", []):
+		if (String(fp[0]) == fa and String(fp[1]) == fb) or (String(fp[0]) == fb and String(fp[1]) == fa):
+			_part(out, String(fp[3]), int(fp[2]))
 	var ca := String(sa.get("credo", ""))
 	var cb := String(sb.get("credo", ""))
 	if ca != "" and ca == cb:
@@ -546,6 +551,9 @@ static func check_terms(state: GameState, a: int, b: int, treaty: String) -> Str
 		return "traité inconnu : %s" % treaty
 	if no_treaties(state, a) or no_treaties(state, b):
 		return "l'Essaim ne signe rien : il digère"
+	var ib := Insolites.treaty_block(state, a, b)
+	if ib != "":
+		return ib
 	var vw := Vassals.check_treaty(state, a, b, treaty)
 	if vw != "":
 		return vw

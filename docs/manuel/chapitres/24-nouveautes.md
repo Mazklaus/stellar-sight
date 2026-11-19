@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.48
+
+- **Les peuples insolites** (chapitre 48), premier lot : les **peuples sans monde**. La **Flotte-Exode** (Nefs-cités, Traqueurs, Espoir, réfugiés, l'Arrivée sur la Terre promise), le **Cirque Zambalù** (Troupes, représentations, Tournée triomphale et Fan-clubs, Recrues, le Grand Numéro), l'**Orbe-Monde Halcyre** (Masse, Lunes-sentinelles, dévorer un monde, victoire de l'**Allumage**) et les **Hardes de Kraal** (âges, pâturages, naissances, Pilotes, carcasses). Nouveau réglage **Peuples insolites** au menu, **population portée**, **implants**, **chantier embarqué**, nature de foi **le Grand Spectacle**, choc des tons **le Cirque et le Chœur**. Les chapitres suivants prennent un numéro de plus. Sauvegarde 101.
+
 ### Édition 2.47
 
 - **La biosphère dans le reste de la galaxie** (chapitre 44) : **catastrophes climatiques** arrêtées par le bouclier planétaire, centrales allégées par les **mégastructures énergétiques**, débris des **démantèlements**, **réfugiés climatiques**, trait d'espèce **Tolérants**, précepte **Sacralité du vivant**, famille **Biosphères** de l'Amphictyonie (**Convention des biosphères**, **Libre exploitation**), opération **Sabotage écologique**, **siège** et **terre brûlée**, **monde-usine**, **biosphères remarquables**, méfiance de la Préservation envers l'Extraction, hauts faits **Le Jardinier de Kynes** et **Terre brûlée**, six événements écologiques, planètes qui verdissent ou grisonnent dans la vue système. Sauvegarde 100.

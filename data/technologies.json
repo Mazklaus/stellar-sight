@@ -1991,7 +1991,8 @@
 			"requires": {
 				"species": {
 					"gouvernement": [
-						"horde"
+						"horde",
+						"conseil_survie"
 					]
 				}
 			},
@@ -2052,6 +2053,24 @@
 			"victory": "noosphere",
 			"flavor": "Douze esprits, et plus un seul silence entre deux pensées."
 		},
+		"allumage": {
+			"label": "L'Allumage",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand l'Orbe-Monde atteint une Masse de 300 et la tient trois ans sans être assiégé, il s'allume en étoile.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"planete_etre"
+					]
+				}
+			},
+			"victory": "allumage",
+			"flavor": "« Toute planète rêve d'être une étoile. La plupart ont la décence de ne pas essayer. »"
+		},
 		"grande_moisson": {
 			"label": "La Grande Moisson",
 			"domain": "societe",
@@ -2063,7 +2082,8 @@
 			"requires": {
 				"species": {
 					"archetype": [
-						"ruche"
+						"ruche",
+						"vaisseaux_vivants"
 					]
 				}
 			},

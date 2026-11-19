@@ -397,6 +397,8 @@ static func hostile(state: GameState, beast: Fleet, empire_id: int) -> bool:
 		if not beast.ships.is_empty() and String(beast.ships[0]) == "bete_machine_tombeau" and bool(talent(state, empire_id).get("parley", false)):
 			return false
 		return true
+	if Insolites.fauna_kin(state, empire_id):
+		return false  # parenté des Kraal : les troupeaux sauvages ne les attaquent pas
 	var ab: Variant = LivingWorldsWar.antibody_hostile(h, empire_id)
 	if ab != null:
 		return bool(ab)  # anticorps d'un monde vivant : seul l'empire visé est chassé

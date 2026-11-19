@@ -487,6 +487,8 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 	out.append_array(Archaeology.stability_parts(state, sid, owner))
 	# Prises de guerre : trophées de clan, quartier refusé (voir Capture).
 	out.append_array(Capture.stability_parts(state, sid, owner))
+	# Peuples insolites : spectacle du Cirque, implant purgé (voir Insolites).
+	out.append_array(Insolites.stability_parts(state, sid, owner))
 	# Décret.
 	var d := active_decree(state, sid)
 	if d != "":

@@ -332,9 +332,26 @@ static func pressure_pct(state: GameState, fid: String) -> int:
 ## Multiplicateur de prêche d'une colonie source (métropolite des Patriarcats).
 static func source_x(state: GameState, c: Colony, fid: String) -> int:
 	var x := FaithBridges.source_x(state, c, fid)
+	if FaithWars.nature(state, fid) == "grand_spectacle" and not state.insolites.is_empty():
+		# Grand Spectacle : la scène du Cirque prêche comme un monde saint.
+		var sid := state.galaxy.get_planet(c.planet_id).system_id
+		if int((state.insolites.get("stage", {}) as Dictionary).get(str(sid), 0)) > state.tick:
+			x = maxi(x, int(FaithWars.data()["natures"].get("spectacle_stage_x", 2)))
 	if FaithWars.nature(state, fid) == "patriarcats" and int(_peek_emp(state, c.owner).get("metro", -1)) == c.planet_id:
 		return maxi(x, int(cd()["patriarcats"]["metro_x"]))
 	return x
+
+
+## Grand Spectacle : +20 % de prêche par palier culturel de l'empire maître de la colonie (le meilleur
+## qu'il atteint chez un autre empire).
+static func spectacle_pct(state: GameState, c: Colony, fid: String) -> int:
+	if FaithWars.nature(state, fid) != "grand_spectacle" or state.culture.is_empty() or GameState.is_npc(c.owner):
+		return 0
+	var best := 0
+	for e in state.empires:
+		if e.id != c.owner and not e.eliminated:
+			best = maxi(best, Culture.tier(state, c.owner, e.id))
+	return best * int(FaithWars.data()["natures"].get("spectacle_tier_pct", 20))
 
 
 ## Pression du dominion d'un dieu présent (Faiths.pressures, via FaithWars.extra_pressures).
@@ -1292,8 +1309,11 @@ static func ai(state: GameState) -> void:
 # --- Sauvegarde -----------------------------------------------------------------------------------
 
 static func fix(state: GameState) -> void:
-	var n := _nat(state)
-	for k in n["emp"]:
+	# Lecture seule : ne pas créer les sous-tables absentes (l'empreinte de la sauvegarde changerait).
+	if not (state.faiths.get("nat", {}) is Dictionary):
+		return
+	var n: Dictionary = state.faiths["nat"]
+	for k in n.get("emp", {}):
 		var e: Dictionary = n["emp"][k]
 		for f in ["karma", "piety", "harmony", "authority", "school_at", "metro"]:
 			if e.has(f):
@@ -1302,7 +1322,7 @@ static func fix(state: GameState) -> void:
 			e["icon"]["end"] = int(e["icon"]["end"])
 		for h: Dictionary in e.get("harm", []):
 			h["end"] = int(h["end"])
-	for k in n["faith"]:
+	for k in n.get("faith", {}):
 		var d: Dictionary = n["faith"][k]
 		for f in ["primat", "term_end", "reform", "omen_next", "debt"]:
 			if d.has(f):

@@ -94,6 +94,259 @@
 		"siege": 4,
 		"fleet_barracks": true
 	},
+	"nef_cite": {
+		"label": "Nef-cité",
+		"plural": "Nefs-cités",
+		"line": "line",
+		"size": "titan",
+		"role": "Capitale",
+		"description": "Une ville entière dans une coque de quatre kilomètres, des serres sous des verrières fêlées, et un conseil qui se réunit chaque matin pour décider où fuir. Elle porte ce qui reste d'un peuple.",
+		"requires": {
+			"species": {
+				"gouvernement": [
+					"conseil_survie"
+				]
+			}
+		},
+		"capital": true,
+		"spawn_only": true,
+		"cost": {
+			"materials": 400,
+			"energy": 150
+		},
+		"days": 240,
+		"upkeep": {},
+		"speed": 20,
+		"vision": 2,
+		"hp": 1100,
+		"armor": 20,
+		"pd": 15,
+		"weapons": {
+			"beam": 20,
+			"kinetic": 15
+		},
+		"troops": 8,
+		"fleet_barracks": true
+	},
+	"cite_chapiteau": {
+		"label": "Cité-chapiteau",
+		"plural": "Cités-chapiteaux",
+		"line": "rear",
+		"size": "titan",
+		"role": "Capitale",
+		"description": "Un chapiteau de toile solaire tendu sur des mâts de neuf cents mètres, des loges, des ménageries, une fanfare permanente et une billetterie qui ne ferme jamais. On l'entend arriver deux systèmes à l'avance.",
+		"requires": {
+			"species": {
+				"gouvernement": [
+					"troupe"
+				]
+			},
+			"unique_per_empire": true
+		},
+		"capital": true,
+		"spawn_only": true,
+		"cost": {
+			"materials": 350,
+			"energy": 200
+		},
+		"days": 240,
+		"upkeep": {},
+		"speed": 24,
+		"vision": 3,
+		"hp": 900,
+		"armor": 10,
+		"pd": 20,
+		"weapons": {
+			"beam": 15
+		},
+		"troops": 4
+	},
+	"troupe_cirque": {
+		"label": "Troupe",
+		"plural": "Troupes",
+		"line": "rear",
+		"size": "medium",
+		"role": "Spectacle",
+		"description": "Un cargo repeint en rouge et or, des acrobates, un dompteur de nuées et un régisseur qui a déjà vu pire. Sans armes : ses seules munitions sont les confettis.",
+		"requires": {
+			"species": {
+				"gouvernement": [
+					"troupe"
+				]
+			}
+		},
+		"cost": {
+			"materials": 60,
+			"energy": 30
+		},
+		"days": 30,
+		"upkeep": {
+			"energy": 1
+		},
+		"speed": 35,
+		"vision": 2,
+		"hp": 80
+	},
+	"orbe_monde": {
+		"label": "Orbe-Monde",
+		"plural": "Orbes-Mondes",
+		"line": "line",
+		"size": "titan",
+		"role": "Planète-être",
+		"description": "Une planète qui pense, qui marche et qui a faim. Ses océans sont sa mémoire, ses montagnes ses poings ; quand elle passe, les lunes du système changent d'orbite par politesse.",
+		"requires": {
+			"species": {
+				"archetype": [
+					"planete_etre"
+				]
+			},
+			"unique_per_empire": true
+		},
+		"capital": true,
+		"spawn_only": true,
+		"unboardable": true,
+		"cost": {
+			"materials": 900
+		},
+		"days": 360,
+		"upkeep": {},
+		"speed": 7,
+		"vision": 3,
+		"hp": 3000,
+		"armor": 35,
+		"pd": 20,
+		"weapons": {
+			"kinetic": 70,
+			"missile": 20
+		},
+		"troops": 12,
+		"siege": 6
+	},
+	"kraal_petit": {
+		"label": "Petit Kraal",
+		"plural": "Petits Kraal",
+		"line": "screen",
+		"size": "small",
+		"role": "Kraal",
+		"description": "Un baleineau de vide, encore tendre, qui suit sa mère d'une étoile à l'autre et mord tout ce qui brille.",
+		"requires": {
+			"species": {
+				"archetype": [
+					"vaisseaux_vivants"
+				]
+			}
+		},
+		"spawn_only": true,
+		"unboardable": true,
+		"carcass": {
+			"materials": 10
+		},
+		"cost": {},
+		"days": 1,
+		"upkeep": {},
+		"speed": 34,
+		"vision": 1,
+		"hp": 60,
+		"armor": 5,
+		"weapons": {
+			"kinetic": 6
+		}
+	},
+	"kraal_jeune": {
+		"label": "Jeune Kraal",
+		"plural": "Jeunes Kraal",
+		"line": "screen",
+		"size": "medium",
+		"role": "Kraal",
+		"description": "Assez grand pour chasser seul, trop jeune pour savoir quand fuir.",
+		"requires": {
+			"species": {
+				"archetype": [
+					"vaisseaux_vivants"
+				]
+			}
+		},
+		"spawn_only": true,
+		"unboardable": true,
+		"carcass": {
+			"materials": 25
+		},
+		"cost": {},
+		"days": 1,
+		"upkeep": {},
+		"speed": 30,
+		"vision": 1,
+		"hp": 160,
+		"armor": 10,
+		"weapons": {
+			"kinetic": 14
+		}
+	},
+	"kraal_adulte": {
+		"label": "Kraal adulte",
+		"plural": "Kraal adultes",
+		"line": "line",
+		"size": "large",
+		"role": "Kraal",
+		"description": "Une cathédrale de cartilage et de plaques d'os, qui avale du gaz et recrache des flottes. Les Adultes donnent naissance aux Petits.",
+		"requires": {
+			"species": {
+				"archetype": [
+					"vaisseaux_vivants"
+				]
+			}
+		},
+		"spawn_only": true,
+		"unboardable": true,
+		"carcass": {
+			"materials": 60
+		},
+		"cost": {},
+		"days": 1,
+		"upkeep": {},
+		"speed": 26,
+		"vision": 2,
+		"hp": 380,
+		"armor": 18,
+		"weapons": {
+			"kinetic": 28,
+			"missile": 8
+		}
+	},
+	"kraal_ancien": {
+		"label": "Kraal ancien",
+		"plural": "Kraal anciens",
+		"line": "line",
+		"size": "titan",
+		"role": "Doyen",
+		"description": "Un vieux Kraal couvert de cicatrices et de colonies de lichen, qui se souvient de chaque route de migration. Toute la Harde le suit.",
+		"requires": {
+			"species": {
+				"archetype": [
+					"vaisseaux_vivants"
+				]
+			}
+		},
+		"capital": true,
+		"spawn_only": true,
+		"unboardable": true,
+		"carcass": {
+			"materials": 150
+		},
+		"cost": {},
+		"days": 1,
+		"upkeep": {},
+		"speed": 22,
+		"vision": 3,
+		"hp": 900,
+		"armor": 25,
+		"pd": 10,
+		"weapons": {
+			"kinetic": 45,
+			"missile": 15
+		},
+		"troops": 6
+	},
 	"arche_bordure": {
 		"label": "Arche de la Bordure",
 		"plural": "Arches de la Bordure",

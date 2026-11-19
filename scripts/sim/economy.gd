@@ -318,6 +318,9 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 	gross["influence"] += Stability.extra_influence(state, empire_id)
 	# Horde : la flotte-ville rapporte ce que rapporte une capitale.
 	_add(gross, FactionTraits.city_yields(state, empire_id))
+	# Peuples sans monde : nefs au mouillage, artistes du Chapiteau, Masse de l'Orbe, pâturages (Insolites).
+	if not state.insolites.is_empty():
+		_add(gross, Insolites.income(state, empire_id))
 	# Registre Picaresque : la réputation rapporte des « crédits ».
 	gross["energy"] += Reputation.income(state, empire_id)
 	# Créatures : safaris (profit), gardiens vénérés (foi).
@@ -563,6 +566,9 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 	var lwb := LivingWorlds.colony_block(state, planet_id, empire_id)
 	if lwb != "":
 		return lwb
+	var inb := Insolites.colony_block(state, planet_id)
+	if inb != "":
+		return inb
 	if not in_range(state, empire_id, p.system_id):
 		return "hors de portée : il faut un vaisseau colon à l'arrêt dans ce système (ou une revendication établie dans le système)"
 	if kind == Colony.KIND_COLONY and species != "" and species != Peoples.founder_of(state, empire_id):

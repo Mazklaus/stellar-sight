@@ -45,6 +45,7 @@
 		},
 		"gouvernement": {
 			"syndicat": {"label": "Contrebandiers", "text": "Leurs intrusions ne coûtent que moitié, et leurs convois passent même les frontières closes.", "intr_pct": -50, "civil_always": true},
+			"troupe": {"label": "Gens du spectacle", "text": "Leurs Troupes sans armes passent même les frontières closes : qui refuserait l'entrée au Cirque ?", "civil_always": true},
 			"republique": {"label": "Laissez-passer de la République", "text": "Ses demandes de laissez-passer sont gratuites, et les IA les acceptent volontiers.", "pass_free": true, "pass_bonus": 25},
 			"feodalite": {"label": "Droit de péage", "text": "Ses péages rapportent le double.", "toll_x": 2}
 		}
