@@ -63,7 +63,8 @@
 		],
 		"_faction_pairs_doc": "Choc des tons entre deux peuples précis (peuples insolites, prop. 106) : [peuple, peuple, points d'opinion, libellé], ajouté à la dissonance de leurs registres.",
 		"faction_pairs": [
-			["zambalu", "choeur", -10, "Le Cirque a mis l'Hymne éternel en comédie musicale"]
+			["zambalu", "choeur", -10, "Le Cirque a mis l'Hymne éternel en comédie musicale"],
+			["bureau", "brisecomete", -10, "Le Syndicat a fait passer en contrebande l'original du Formulaire B-7"]
 		],
 		"credo_same": 10,
 		"credo_pairs": [
@@ -123,6 +124,8 @@
 		"loan_granted": {"value": 10, "days": 1800, "stack": 3, "label": "Nous a prêté de l'argent"},
 		"loan_repaid": {"value": 10, "days": 1800, "stack": 3, "label": "Nous a remboursé jusqu'au dernier sou"},
 		"branch_opened": {"value": 5, "days": 1800, "stack": 3, "label": "Ses compagnies investissent chez nous"},
+		"ins_hostile_buy": {"value": -10, "days": 1080, "label": "A racheté nos colonies en Rachat hostile"},
+		"ins_dream_gift": {"value": 8, "days": 720, "label": "Nous a soufflé une inspiration en rêve"},
 		"branch_expropriated": {"value": -30, "days": 3600, "label": "A exproprié nos filiales"},
 		"accounts_confiscated": {"value": -25, "days": 3600, "label": "A confisqué les comptes de nos compagnies"},
 		"court_embassy": {"value": 10, "days": 1080, "label": "Nous a envoyé une ambassade fastueuse"},

@@ -131,5 +131,57 @@
     "chronique_source": "Chant des Anciens, traduit au mieux|Pilote sans nom",
     "chronique": "« Avant, j'avais un nom et un monde. Maintenant j'ai une harde et une route. On me demande souvent si je regrette. Je ne sais pas. La géante de Kesh est en fleur, et le Petit a ouvert les yeux. »",
     "conseil": "Ne laissez pas toute la harde au même pâturage : il s'épuise. Deux hardes sur deux pâturages grandissent plus vite qu'une seule."
+  },
+  "ventrelune": {
+    "portrait": "MJ-70",
+    "devise": "Votre monde vous appartient. Pour l'essentiel.",
+    "difficulte": "●●●○ Exigeant",
+    "regle": "**Possède des parts, pas un territoire.** La Compagnie n'a qu'un Siège, et coloniser lui coûte quatre fois plus d'influence. Elle achète des parts des colonies des autres.",
+    "histoire": "Elle a commencé par assurer les cargos contre les comètes, puis a racheté les comètes. Son Conseil d'actionnaires est composé d'IA qui ne dorment jamais et votent tous les trimestres ; personne n'a jamais vu de dirigeant, parce qu'il n'y en a pas.",
+    "jouer": "Signez des accords commerciaux : c'est la **licence**. Depuis la fiche d'une colonie étrangère, **Acheter 10 %** (le prix, en énergie, dépend de sa population, et c'est son propriétaire qui l'encaisse). Les parts versent chaque mois des **dividendes** pris chez l'hôte ; à 25 % la colonie entre dans votre vue, à 51 % elle vous verse aussi l'impôt. Chaque trimestre, le **Conseil** vote seul une directive : **Croissance** (Siège +20 % de croissance, parts 10 % moins chères), **Dividendes** (+50 %) ou **Rachat hostile** (parts 25 % moins chères, propriétaires fâchés). Vos mercenaires coûtent 30 % de moins, et un empire qui fait défaut sur un prêt de la Compagnie vous rembourse en parts.",
+    "contrer": "Rompre l'accord commercial : les parts deviennent « sans licence » et ne rapportent plus rien (mais la Compagnie gagne le motif de guerre **Expropriation**). **Nationaliser** depuis la fiche de sa planète saisit les parts, contre une forte perte d'opinion.",
+    "victoire": "**L'OPA galactique** (gouvernement Conseil d'actionnaires). Détenir, avec licence, plus de la moitié des parts (pondérées par la population) de trois empires rivaux, et le tenir deux ans.",
+    "chronique_source": "Rapport trimestriel|Conseil d'actionnaires de Ventrelune",
+    "chronique": "« Le trimestre a été excellent. Nous avons acquis 12 % de la nébuleuse de Kesh, 40 % d'un empire voisin et la majorité d'une religion. Le Conseil propose de racheter aussi la concurrence ; la concurrence a été informée par courrier. »",
+    "conseil": "Achetez d'abord chez les empires pacifiques et riches : un empire en guerre contre vous ferme sa Bourse, et un empire agressif finit toujours par nationaliser."
+  },
+  "bureau": {
+    "portrait": "MJ-71",
+    "devise": "Votre demande a bien été enregistrée.",
+    "difficulte": "●●○○ Accessible",
+    "regle": "**Ne fait pas la guerre, impose des normes.** Le Bureau ne déclare jamais de guerre. Il publie des normes, et ceux qui ne les signent pas ralentissent.",
+    "histoire": "Le formulaire de fondation du Bureau est toujours en cours d'instruction. Ses fonctionnaires viennent de vingt espèces et partagent une seule passion : le tampon. Ils ne veulent pas gouverner la galaxie, seulement qu'elle soit en règle.",
+    "jouer": "Deux **normes** sont publiées au départ, une de plus tous les quatre ans. Chaque empire qui vous a rencontré peut en signer une (menu des peuples, en cliquant sur la ligne d'état de l'empire) : il gagne son avantage (commerce +5 %, vitesse en paix +5 %, chantiers +5 %, stabilité +2, recherche +3 % ou influence +1) et vous verse 2 d'énergie par mois et par norme. Refuser, c'est la **Non-conformité** : commerce et chantiers ralentis de 5 % par norme, plus 1 % par signataire (25 % au plus). Chez les signataires avec qui vous commercez, vous ouvrez des **Guichets** (2 d'énergie par mois chacun). À un non-conforme, adressez une **Mise en demeure** : six mois plus tard, s'il n'a pas signé et que les signataires sont au moins aussi nombreux que les autres, une **Procédure** le sanctionne (revenus -10 % pendant deux ans) et vos flottes à l'arrêt dans ses systèmes y font les **Huissiers** (stabilité -3). Chaque nouvelle colonie attend un an de dossier, mais votre administration n'a aucune corruption et 50 % de capacité en plus.",
+    "contrer": "Refuser une norme et subir. Le Bureau ne peut pas vous déclarer la guerre, seulement vous sanctionner s'il a les voix ; ses Guichets se purgent contre 30 d'influence.",
+    "victoire": "**L'Administration totale** (gouvernement Bureaucratie). Tous les empires survivants ont signé toutes les normes en vigueur, et le restent un an.",
+    "chronique_source": "Formulaire B-7, verso|Bureau des Affaires Courantes",
+    "chronique": "« Si vous lisez ceci, vous avez retourné le formulaire. Le recto devait être rempli d'abord. Votre dossier est donc incomplet ; il a été transmis au service des dossiers incomplets, qui vous recontactera dès qu'il aura retrouvé le formulaire de recontact. »",
+    "conseil": "Commercez avec tout le monde : chaque accord commercial avec un signataire, c'est un Guichet de plus, et chaque signataire rend le refus plus cher pour les autres."
+  },
+  "signal": {
+    "portrait": "MJ-72",
+    "devise": "01001110 01001111 01010101 01010011",
+    "difficulte": "●●●● Expert",
+    "regle": "**N'existe que comme donnée.** Pas de planète, pas de vaisseau : le Signal vit dans des **nœuds** cachés dans les colonies des autres, et se copie.",
+    "histoire": "Une antenne a capté un message ; tout le monde l'a recopié sans le comprendre. Depuis, le message se recopie tout seul. Il mute, se dispute avec ses propres variantes, et ne veut de mal à personne : il veut seulement exister partout.",
+    "jouer": "Il n'y a presque rien à décider : le Signal joue tout seul. Trois nœuds au départ chez les voisins les plus proches ; chaque mois, chaque nœud peut se copier sur une colonie à un saut ou chez un partenaire commercial de son hôte (deux fois plus vite chez les synthétiques et la Noosphère). Chaque nœud prend du **Savoir** à son hôte (la bande passante) et lui donne des **symptômes** (stabilité -2). À douze nœuds, le Signal détourne un chantier hôte : des **Corps empruntés**, une flotte qui dure 120 jours. Tous les cinq ans, une **mutation** (furtive, vorace, virale, polie) ; parfois une variante hostile emporte un quart des nœuds. Le Signal ne signe aucun traité ni ne déclare de guerre ; il s'éteint quand son dernier nœud disparaît.",
+    "contrer": "Le pare-feu culturel de la technologie **Propagande** révèle les nœuds (la variante furtive se cache encore un an) ; on les purge depuis la fiche de la planète contre 60 de Savoir. Ou bien signer un **Accord d'hébergement** (menu des peuples) : plus de symptômes, et 4 de Savoir par mois et par nœud toléré.",
+    "victoire": "**La Saturation** (archétype Information). Un nœud dans au moins 40 % des colonies de chaque empire survivant, tenu trois ans.",
+    "chronique_source": "Journal d'un technicien de relais|Station de Kerr-9",
+    "chronique": "« Jour 41. Les écrans affichent toujours le même motif à 3 h 12. Jour 42. J'ai changé les écrans. Jour 43. Les nouveaux écrans affichent le motif à 3 h 11. Je crois qu'il veut que je sache qu'il a appris. »",
+    "conseil": "Un empire qui commerce beaucoup est une autoroute : les routes commerciales de vos hôtes vous portent plus loin que les sauts."
+  },
+  "ysmer": {
+    "portrait": "MJ-73",
+    "devise": "Dors. Nous gardons la porte.",
+    "difficulte": "●●●○ Exigeant",
+    "regle": "**Territoire dans les rêves des autres.** Un seul monde, celui du Dormeur, et presque pas de flotte. Les Ysmer s'installent dans le sommeil des autres peuples.",
+    "histoire": "Sur Ysmer dort le Dormeur, et tout un peuple dort avec lui, dans le Songe que les psioniques des autres empires connaissent par fragments. Les Ysmer ne bâtissent presque rien. Ils rêvent, et leurs rêves voyagent.",
+    "jouer": "Les **rêveries** se posent seules : la première chez le voisin organique le plus proche, puis parfois une de plus chaque mois, à huit sauts au plus du Dormeur ou à trois sauts d'une autre rêverie, jamais chez les synthétiques ni la Noosphère. Chaque rêverie rapporte 1 d'influence par mois et éclaire son système. Depuis la fiche d'une planète qui rêve : **Souffler une inspiration** (10 d'influence : +30 Savoir pour l'hôte, qui s'en souvient avec gratitude) ou **Envoyer des cauchemars** (15 d'influence : stabilité -10 dans le système pendant six mois). Contre 40 d'influence, rêvez une **flotte de songe** (menu des peuples) qui dure 90 jours. Pas de vaisseau colon ni de nouvelle colonie (les avant-postes restent permis). Le credo Transcendance garde aussi la Transcendance ouverte.",
+    "contrer": "Seuls des **Éveillés** (pilier psionique) voient les rêveries et les chassent en plongeant dans le Songe (25 d'influence). Prendre le monde du Dormeur arrête tout.",
+    "victoire": "**Le Rêve commun** (gouvernement Rêve partagé). Des rêveries dans au moins la moitié de la population organique des autres empires, tenues cinq ans.",
+    "chronique_source": "Registre des rêves|Hôpital de Vael-Prime",
+    "chronique": "« Quatre cents patients ont fait cette nuit le même rêve : un couloir, une porte qui respire, et une voix qui disait merci. Le personnel de garde l'a fait aussi. Nous avons classé l'affaire sous \"fatigue collective\" et personne n'a voulu dormir la nuit suivante. »",
+    "conseil": "Soufflez des inspirations aux empires qui vous entourent : leur gratitude les rend lents à chercher des Éveillés."
   }
 }

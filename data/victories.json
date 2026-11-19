@@ -291,6 +291,74 @@
 			"chronicle": "L'Allumage. %s s'embrase : là où marchait une planète brille désormais une jeune étoile, qui a l'air très contente d'elle.",
 			"src": "Étude des peuples insolites, prop. 28 (nouvelle)"
 		},
+		"opa": {
+			"kind": "people",
+			"label": "L'OPA galactique",
+			"requires": {
+				"gouvernement": [
+					"actionnaires"
+				]
+			},
+			"tech": "opa_galactique",
+			"text": "Détenir au moins %d %% des parts (pondérées par la population) de %d empires rivaux, avec licence, et le tenir %d ans.",
+			"counter": "Nationaliser les parts, rompre les accords commerciaux, lui faire la guerre.",
+			"pct": 51,
+			"rivals": 3,
+			"hold_days": 720,
+			"on_fail": "reset",
+			"chronicle": "OPA galactique : %s détient désormais la majorité de la galaxie. Les empires gardent leurs drapeaux ; ils reçoivent seulement, chaque trimestre, un rapport aux actionnaires.",
+			"src": "Étude des peuples insolites, prop. 41 (document de game design)"
+		},
+		"administration": {
+			"kind": "people",
+			"label": "L'Administration totale",
+			"requires": {
+				"gouvernement": [
+					"bureaucratie"
+				]
+			},
+			"tech": "administration_totale",
+			"text": "Faire signer toutes les normes en vigueur à tous les empires survivants, et le tenir %d an.",
+			"counter": "Refuser une norme et subir la Non-conformité ; faire perdre des signatures au Bureau.",
+			"hold_days": 360,
+			"on_fail": "reset",
+			"chronicle": "Administration totale : tous les empires de la galaxie sont en règle. %s tamponne le dernier formulaire, puis cherche, un peu inquiet, ce qu'il pourra bien normer demain.",
+			"src": "Étude des peuples insolites, prop. 46 (document de game design)"
+		},
+		"saturation": {
+			"kind": "people",
+			"label": "La Saturation",
+			"requires": {
+				"archetype": [
+					"information"
+				]
+			},
+			"tech": "saturation",
+			"text": "Avoir un nœud dans au moins %d %% des colonies de chaque empire survivant, et le tenir %d ans.",
+			"counter": "Le pare-feu culturel (Propagande) pour voir les nœuds, les purger, couper les routes commerciales.",
+			"hold_days": 1080,
+			"on_fail": "reset",
+			"pct": 40,
+			"chronicle": "La Saturation. %s est partout : dans chaque calculateur, chaque relais, chaque rêve de machine. Il ne reste plus rien à copier ; le Signal se demande, pour la première fois, ce qu'il pourrait bien dire.",
+			"src": "Étude des peuples insolites, prop. 52 (nouvelle)"
+		},
+		"reve_commun": {
+			"kind": "people",
+			"label": "Le Rêve commun",
+			"requires": {
+				"gouvernement": [
+					"reve_partage"
+				]
+			},
+			"tech": "reve_commun",
+			"text": "Avoir des rêveries dans au moins %d %% de la population organique des autres empires, et le tenir %d ans.",
+			"counter": "Des Éveillés (pilier psionique) pour voir et chasser les rêveries ; prendre le monde du Dormeur.",
+			"hold_days": 1800,
+			"on_fail": "reset",
+			"pct": 50,
+			"chronicle": "Le Rêve commun. Une nuit, toute la galaxie fait le même rêve, celui de %s, et au matin personne n'a vraiment envie de se réveiller.",
+			"src": "Étude des peuples insolites, prop. 58 (nouvelle)"
+		},
 		"oeuvres": {
 			"kind": "classic",
 			"label": "Les Grands Œuvres",

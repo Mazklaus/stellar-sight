@@ -132,7 +132,7 @@ static func growth_per_day(state: GameState, colony: Colony) -> int:
 	pct = pct * maxi(10, 100 + Research.fx_int(state, colony.owner, "growth_pct") + FaithWars.growth_pct(state, colony)
 			+ GroundSiege.growth_pct(state, state.galaxy.get_planet(colony.planet_id).system_id) + WorldForge.growth_pct(state, colony.planet_id)
 			+ LivingWorlds.growth_pct(state, colony.planet_id)
-			+ Ecology.growth_pct(state, colony.planet_id)) / 100
+			+ Ecology.growth_pct(state, colony.planet_id) + Insolites.growth_pct(state, colony.owner)) / 100
 	# Route intérieure (voir Trade) : la jeune colonie desservie grandit plus vite.
 	return int(GameData.rules()["growth_per_day"]) * pct / 100 + Trade.internal_growth(state, colony.planet_id)
 
@@ -341,8 +341,10 @@ static func empire_income(state: GameState, empire_id: int) -> Dictionary:
 		for r in ci:
 			gross[r] = int(gross.get(r, 0)) + int(ci[r])
 	var treaties := Diplomacy.treaty_income(state, empire_id)
+	var tpct := Insolites.trade_pct(state, empire_id)  # normes du Bureau, Non-conformité
 	for r in treaties:
-		gross[r] += int(treaties[r])
+		@warning_ignore("integer_division")
+		gross[r] += int(treaties[r]) * tpct / 100 if r == "energy" else int(treaties[r])
 	if state.politics_on:
 		# Lois : revenu des traités (Dividende de la paix), entretien en influence.
 		var lt := Laws.treaty_income(state, empire_id)
@@ -413,6 +415,8 @@ static func production_pct(state: GameState, empire_id: int, resource: String) -
 		bonus += Stability.empire_pct(state, empire_id)
 	# Bonus de collection des espèces de l'empire (voir Peoples).
 	bonus += Peoples.collection_pct(state, empire_id, resource)
+	if not state.insolites.is_empty():
+		bonus += Insolites.production_bonus(state, empire_id, resource)  # normes du Bureau, sanctions
 	pct = pct * (100 + bonus) / 100
 	return pct * AiLevels.production_pct(state, empire_id) / 100
 
@@ -569,6 +573,9 @@ static func check_colonize(state: GameState, empire_id: int, planet_id: int, kin
 	var inb := Insolites.colony_block(state, planet_id)
 	if inb != "":
 		return inb
+	var icb := Insolites.claim_block(state, empire_id, kind)
+	if icb != "":
+		return icb
 	if not in_range(state, empire_id, p.system_id):
 		return "hors de portée : il faut un vaisseau colon à l'arrêt dans ce système (ou une revendication établie dans le système)"
 	if kind == Colony.KIND_COLONY and species != "" and species != Peoples.founder_of(state, empire_id):

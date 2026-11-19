@@ -2071,6 +2071,78 @@
 			"victory": "allumage",
 			"flavor": "« Toute planète rêve d'être une étoile. La plupart ont la décence de ne pas essayer. »"
 		},
+		"opa_galactique": {
+			"label": "L'OPA galactique",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand la Compagnie détient la majorité des parts de trois empires rivaux et la tient deux ans, la galaxie lui appartient.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"actionnaires"
+					]
+				}
+			},
+			"victory": "opa",
+			"flavor": "« Nous ne conquérons pas. Nous diversifions notre portefeuille. »"
+		},
+		"administration_totale": {
+			"label": "L'Administration totale",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand tous les empires survivants ont signé toutes les normes en vigueur, et le restent un an, le Bureau a fini son travail.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"bureaucratie"
+					]
+				}
+			},
+			"victory": "administration",
+			"flavor": "« Formulaire Z-0 : déclaration de fin de l'Histoire. À remplir en trois exemplaires. »"
+		},
+		"saturation": {
+			"label": "La Saturation",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand le Signal habite 40 % des colonies de chaque empire survivant, et le tient trois ans, il est partout.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"information"
+					]
+				}
+			},
+			"victory": "saturation",
+			"flavor": "« 01001110 01001111 01010101 01010011 »"
+		},
+		"reve_commun": {
+			"label": "Le Rêve commun",
+			"domain": "societe",
+			"era": 4,
+			"text": "Victoire de peuple : quand la moitié de la population organique de la galaxie rêve avec les Ysmer, et le tient cinq ans, tous font le même rêve.",
+			"pre": [
+				"genetique"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"reve_partage"
+					]
+				}
+			},
+			"victory": "reve_commun",
+			"flavor": "« Dors. Nous gardons la porte. »"
+		},
 		"grande_moisson": {
 			"label": "La Grande Moisson",
 			"domain": "societe",

@@ -87,7 +87,8 @@
 				{"name": "Routes de migration", "text": "Les Kraal vont 30 % plus vite vers un pâturage qu'ils connaissent, 15 % moins vite ailleurs."},
 				{"name": "Pilotes", "text": "Une harde à l'arrêt chez un ennemi sans défense arrache un habitant à sa colonie et le lie à un Kraal comme Pilote : +10 % de dégâts par Pilote (trois par harde au plus)."},
 				{"name": "Parenté avec la Faune", "text": "Les troupeaux de créatures ne les attaquent jamais. Un Kraal mort ne se capture pas, mais sa carcasse se dépèce : le vainqueur y prend des matériaux."}
-			]}
+			]},
+		{"id": "information", "label": "Information", "text": "L'espèce n'a pas de corps : c'est une donnée qui se copie dans les calculateurs des autres.", "requires": {"gouvernement": ["aucun"]}, "fields": {"guest": {"kind": "signal", "worldless": true}, "ships_excluded": ["colony_ship"], "start_ships": [], "food_upkeep_pct": 0, "ai": {"research_bias": {"societe": 2, "genie": 1}}}, "traits": [{"name": "Nœuds", "text": "Aucune planète, aucun vaisseau : le peuple vit dans des Nœuds cachés dans les colonies des autres empires, et se copie de proche en proche, le long des routes commerciales. Sans un seul nœud, il s'éteint."}, {"name": "Bande passante", "text": "Chaque nœud prend chaque mois une part du Savoir de son hôte. L'hôte souffre de symptômes étranges (stabilité -2) et ne voit les nœuds qu'avec le pare-feu culturel (Propagande). Synthétiques et Noosphère l'attrapent deux fois plus vite."}, {"name": "Corps empruntés", "text": "À partir de douze nœuds, le Signal détourne un chantier hôte : une flotte qui dure 120 jours, puis s'éteint."}, {"name": "Mutations", "text": "Tous les cinq ans, une variante gagne un trait (furtive, vorace, virale, polie) ; parfois une variante hostile emporte un quart des nœuds."}, {"name": "Accord d'hébergement", "text": "Le Signal ne signe aucun traité ni ne déclare de guerre. Un hôte peut seulement signer un Accord d'hébergement : plus de symptômes, et du Savoir offert pour chaque nœud toléré."}]}
 	],
 	"gouvernement": [
 		{"id": "feodalite", "label": "Féodalité", "text": "Des fiefs, des serments et un héritier qui lorgne le trône.",
@@ -140,7 +141,7 @@
 				{"name": "Faim sans traité", "text": "La ruche chasse une proie à la fois : sans guerre, elle attaque le premier empire rencontré, puis le plus proche. Les colonies conquises sont digérées. Chaque larve défend la ruche : garnisons 50 % plus nombreuses, et 50 % de régiments sans entretien en plus (combat au sol complet). La ruche ne capitule jamais, et rase sans état d'âme."}
 			]},
 		{"id": "conseil_survie", "label": "Conseil de survie", "text": "Pas de capitale, pas de frontières : quatre nefs, un conseil, et la peur de ce qui suit.",
-			"excludes": {"archetype": ["ruche", "planete_etre", "vaisseaux_vivants"]},
+			"excludes": {"archetype": ["ruche", "planete_etre", "vaisseaux_vivants", "information"]},
 			"fields": {"nomad": {"kind": "exode", "ship": "nef_cite", "count": 4}, "ships_excluded": ["colony_ship"], "start_ships": ["scout", "corvette", "corvette"], "growth_pct": 50, "ai": {"research_bias": {"genie": 1, "societe": 1}}},
 			"traits": [
 				{"name": "Nefs-cités", "text": "Pas de monde : quatre Nefs-cités portent tout le peuple. Une nef au mouillage travaille toutes les planètes de son système sans les coloniser ; en route, elle ne produit rien. Une nef perdue ne se reconstruit pas."},
@@ -149,7 +150,7 @@
 				{"name": "L'Arrivée", "text": "Sur la Terre promise, l'Exode peut se poser : il devient un empire planétaire, et les Traqueurs livrent une dernière bataille."}
 			]},
 		{"id": "troupe", "label": "Troupe itinérante", "text": "Un directeur, des artistes, des fans partout et des terres nulle part.",
-			"excludes": {"archetype": ["ruche", "planete_etre", "vaisseaux_vivants"]},
+			"excludes": {"archetype": ["ruche", "planete_etre", "vaisseaux_vivants", "information"]},
 			"fields": {"nomad": {"kind": "zambalu", "ship": "cite_chapiteau", "count": 1}, "ships_excluded": ["colony_ship"], "start_ships": ["scout", "troupe_cirque", "troupe_cirque"], "growth_pct": 0, "ai": {"research_bias": {"societe": 2}}},
 			"traits": [
 				{"name": "Le Chapiteau", "text": "Une seule cité mobile, la Cité-chapiteau, et des Troupes, vaisseaux de spectacle sans armes qui passent toutes les frontières des empires en paix avec le Cirque."},
@@ -159,7 +160,7 @@
 				{"name": "Le Grand Numéro", "text": "Tous les dix ans, un spectacle galactique : les empires qui y envoient un délégué suspendent leurs guerres entre eux six mois."}
 			]},
 		{"id": "aucun", "label": "Aucun", "text": "Pas d'institutions, pas de chefs, pas de débats : une seule volonté.",
-			"requires": {"archetype": ["planete_etre"]},
+			"requires": {"archetype": ["planete_etre", "information"]},
 			"fields": {"ai": {"research_bias": {"economie": 1}}},
 			"traits": [
 				{"name": "Une seule volonté", "text": "Le peuple n'a pas de gouvernement à proprement parler : ce qui pense, c'est lui tout entier."}
@@ -169,7 +170,10 @@
 			"fields": {"combat": {"no_surrender": 1}, "ai": {"research_bias": {"armement": 1}}},
 			"traits": [
 				{"name": "Instinct de harde", "text": "Pas de conseil ni de lois : les Anciens guident, les autres suivent. Une harde ne capitule jamais."}
-			]}
+			]},
+		{"id": "actionnaires", "label": "Conseil d'actionnaires", "text": "Pas de dirigeant ni de dynastie : un conseil d'IA vote chaque trimestre la directive de la Compagnie.", "excludes": {"archetype": ["ruche", "planete_etre", "vaisseaux_vivants", "information"]}, "fields": {"guest": {"kind": "ventrelune"}, "colony_influence_pct": 400, "ai": {"research_bias": {"economie": 3}, "extra_warships": -2, "colony_bonus": -20}}, "traits": [{"name": "Le Siège", "text": "Une station-siège et presque aucune colonie : fonder une colonie coûte quatre fois plus d'influence."}, {"name": "Parts", "text": "La Compagnie achète 10 % à la fois des colonies des empires avec qui elle a un accord commercial (le propriétaire touche le prix). Les parts versent des dividendes chaque mois ; à 25 %, elle voit la colonie ; à 51 %, elle touche aussi l'impôt."}, {"name": "Licence", "text": "Sans accord commercial, les parts sont « sans licence » : plus de dividendes, et un motif de guerre Expropriation. Le propriétaire peut nationaliser les parts, contre une forte perte d'opinion."}, {"name": "Conseil d'actionnaires", "text": "Chaque trimestre, le Conseil vote une directive : Croissance (croissance +20 %, parts moins chères), Dividendes (+50 %) ou Rachat hostile (parts bien moins chères, propriétaires fâchés)."}, {"name": "Armée privée et prêts", "text": "Flotte réduite, mais mercenaires 30 % moins chers. Un empire qui fait défaut sur un prêt de la Compagnie la rembourse en parts."}]},
+		{"id": "bureaucratie", "label": "Bureaucratie", "text": "Des guichets, des tampons, et des formulaires pour remplir les formulaires.", "excludes": {"archetype": ["ruche", "planete_etre", "vaisseaux_vivants", "information"]}, "fields": {"guest": {"kind": "bureau"}, "ai": {"research_bias": {"societe": 2, "economie": 1}}}, "traits": [{"name": "Les Normes", "text": "Le Bureau publie des normes (deux au départ, une de plus tous les quatre ans). Les signer donne un petit avantage et coûte une redevance ; ne pas les signer, c'est la Non-conformité : commerce et chantiers ralentis, d'autant plus qu'il y a de signataires."}, {"name": "Guichets", "text": "Chez les signataires avec qui il commerce, le Bureau ouvre des Guichets qui prélèvent un droit."}, {"name": "Pas de guerre", "text": "Le Bureau ne déclare jamais la guerre. Il adresse une Mise en demeure ; six mois après, si les signataires l'emportent au vote, une Procédure sanctionne le non-conforme (revenus -10 % deux ans) et les Huissiers troublent ses systèmes."}, {"name": "Paperasse", "text": "Chaque nouvelle colonie attend son dossier un an de plus ; en échange, capacité administrative +50 % et aucune corruption. Il arrive au Bureau de perdre un dossier."}]},
+		{"id": "reve_partage", "label": "Rêve partagé", "text": "Un seul dormeur, et tout un peuple dans son rêve.", "excludes": {"archetype": ["ruche", "planete_etre", "vaisseaux_vivants", "information", "synthetique"]}, "fields": {"guest": {"kind": "ysmer"}, "ships_excluded": ["colony_ship"], "start_ships": ["scout"], "ai": {"research_bias": {"societe": 3}, "extra_warships": -3}}, "traits": [{"name": "Le Dormeur", "text": "Un seul monde physique, le sanctuaire du Dormeur : pas de vaisseau colon, pas de nouvelle colonie, presque pas de flotte."}, {"name": "Rêveries", "text": "Le peuple s'installe dans le sommeil des populations organiques (jamais chez les synthétiques ni la Noosphère) : une rêverie de plus chaque mois, parfois, à trois sauts du Dormeur ou d'une autre rêverie. Invisibles, sauf aux Éveillés (pilier psionique) qui les chassent par la plongée. Chaque rêverie rapporte 1 influence par mois."}, {"name": "Souffler un rêve", "text": "Depuis une rêverie : une inspiration (+30 Savoir pour l'hôte, qui s'en souvient avec gratitude) ou des cauchemars (stabilité -10 dans le système six mois)."}, {"name": "Flotte de songe", "text": "Contre 40 influence, les dormeurs rêvent une flotte qui dure 90 jours puis se dissipe."}]}
 	],
 	"credo": [
 		{"id": "honneur", "label": "Honneur", "text": "Un serment vaut plus qu'une flotte. En théorie.",
@@ -192,7 +196,9 @@
 			"fields": {"production_pct": {"knowledge": 90}, "research": {"name": "Archives de la Flotte", "text": "Savoir -10 % : les nefs ont emporté ce qu'elles ont pu."}},
 			"traits": [
 				{"name": "L'Espoir", "text": "L'Espoir remplace la stabilité : il monte avec chaque signe de la Terre promise et chaque réfugié sauvé, baisse avec le temps et avec chaque nef perdue. À zéro, une nef fait sécession."}
-			]}
+			]},
+		{"id": "ordre", "label": "Ordre", "text": "Tout a sa place, et chaque place a son formulaire.", "fields": {"production_pct": {"influence": 110, "energy": 95}, "research": {"name": "Archives centrales", "text": "Influence +10 %, énergie -5 % (le classement coûte cher)."}, "ai": {"research_bias": {"societe": 2}}}},
+		{"id": "propagation", "label": "Propagation", "text": "Exister, c'est être copié.", "requires": {"archetype": ["information"]}, "fields": {"production_pct": {"knowledge": 110}, "research": {"name": "Calcul distribué", "text": "Savoir +10 % : chaque copie pense un peu."}, "ai": {"research_bias": {"genie": 2}}}}
 	],
 	"origine": [
 		{"id": "gisement_cristaux", "label": "Veine de cristaux", "text": "Un gisement de cristaux de saut garanti dans le système d'origine.", "fields": {"home_deposit": "crystals"}},
@@ -265,7 +271,8 @@
 		{"id": "synthetique_2", "look": "antenna", "label": "Coordinatrice à antennes", "archetypes": ["synthetique"]},
 		{"id": "synthetique_3", "look": "core", "label": "Noyau ouvert", "archetypes": ["synthetique"]},
 		{"id": "planete_etre_1", "look": "rings", "label": "Avatar au regard d'orage", "archetypes": ["planete_etre"]},
-		{"id": "vaisseaux_vivants_1", "look": "mandibles", "label": "Doyenne de la harde", "archetypes": ["vaisseaux_vivants"]}
+		{"id": "vaisseaux_vivants_1", "look": "mandibles", "label": "Doyenne de la harde", "archetypes": ["vaisseaux_vivants"]},
+		{"id": "information_1", "look": "core", "label": "Visage composé de bruit", "archetypes": ["information"]}
 	],
 	"ship_styles": ["ossarane", "choeur", "vael", "khthari", "teyl", "ferrocornes", "brisecomete", "murmurants"],
 	"temperaments": [
@@ -285,6 +292,10 @@
 		"exode": {"registre": "Space opera héroïque", "archetype": "humanoide", "gouvernement": "conseil_survie", "credo": "espoir", "origine": "sans_heritage", "biomes": ["continental", "ocean"], "traits": ["tenaces", "navigateurs"], "temperament": -1, "portrait": "humanoide_6", "ship_style": "vael"},
 		"zambalu": {"registre": "Picaresque / pulp", "archetype": "humanoide", "gouvernement": "troupe", "credo": "plaisir", "origine": "sans_heritage", "biomes": ["continental", "desert"], "traits": ["pluriel", "orateurs"], "temperament": -1, "portrait": "humanoide_4", "ship_style": "brisecomete"},
 		"halcyre": {"registre": "Cosmique / étrange", "archetype": "planete_etre", "gouvernement": "aucun", "credo": "survie", "origine": "sans_heritage", "biomes": ["arctic", "toxic"], "traits": ["tenaces"], "temperament": 0, "portrait": "planete_etre_1", "ship_style": "murmurants"},
-		"kraal": {"registre": "Grimdark", "archetype": "vaisseaux_vivants", "gouvernement": "troupeau", "credo": "survie", "origine": "sans_heritage", "biomes": ["toxic", "desert"], "traits": ["canonniers"], "temperament": 1, "portrait": "vaisseaux_vivants_1", "ship_style": "khthari"}
+		"kraal": {"registre": "Grimdark", "archetype": "vaisseaux_vivants", "gouvernement": "troupeau", "credo": "survie", "origine": "sans_heritage", "biomes": ["toxic", "desert"], "traits": ["canonniers"], "temperament": 1, "portrait": "vaisseaux_vivants_1", "ship_style": "khthari"},
+		"ventrelune": {"registre": "Classique / hard SF", "archetype": "humanoide", "gouvernement": "actionnaires", "credo": "profit", "origine": "sans_heritage", "biomes": ["continental", "arctic"], "traits": ["orateurs", "tolerants"], "temperament": 0, "portrait": "humanoide_3", "ship_style": "brisecomete"},
+		"bureau": {"registre": "Picaresque / pulp", "archetype": "humanoide", "gouvernement": "bureaucratie", "credo": "ordre", "origine": "sans_heritage", "biomes": ["continental", "desert"], "traits": ["pluriel", "erudits", "lents"], "temperament": -1, "portrait": "humanoide_2", "ship_style": "teyl"},
+		"signal": {"registre": "Cosmique / étrange", "archetype": "information", "gouvernement": "aucun", "credo": "propagation", "origine": "sans_heritage", "biomes": ["arctic", "toxic"], "traits": ["erudits"], "temperament": 0, "portrait": "information_1", "ship_style": "murmurants"},
+		"ysmer": {"registre": "Cosmique / étrange", "archetype": "energetique", "gouvernement": "reve_partage", "credo": "transcendance", "origine": "sans_heritage", "biomes": ["ocean", "arctic"], "traits": ["orateurs", "pelerins"], "temperament": -1, "portrait": "energetique_2", "ship_style": "choeur"}
 	}
 }

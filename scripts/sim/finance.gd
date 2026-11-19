@@ -682,6 +682,8 @@ static func bankrupt(state: GameState, eid: int, added: Array[Dictionary]) -> vo
 	for l: Dictionary in loans(state, eid):
 		if String(l["l"]) == "empire" and int(l["w"]) >= 0:
 			lenders[int(l["w"])] = true
+			if not state.insolites.is_empty():
+				InsVentrelune.on_default(state, eid, int(l["w"]), int(l["p"]), added)  # la dette devient des parts
 		elif String(l["l"]) == "house":
 			FinanceBridges.house_wronged(state, eid, int(l["w"]), false)
 	for lid in lenders:

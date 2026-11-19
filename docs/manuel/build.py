@@ -24,7 +24,7 @@ RACINE = os.path.normpath(os.path.join(ICI, "..", ".."))
 DATA = os.path.join(RACINE, "data")
 
 # --- Réglages d'édition --------------------------------------------------
-EDITION = "2.48"
+EDITION = "2.49"
 # Formes des encarts d'image : droit, arrondi, coupe, asym, arche, medaillon.
 # Une ligne à changer pour tout le manuel.
 FORMES = {"grande": "coupe", "portrait": "arche", "medaillon": "medaillon", "capture": "droit"}
@@ -361,7 +361,9 @@ NOMS_COUCHE = {
     "honneur": "Honneur", "foi": "Foi", "raison": "Raison", "survie": "Survie", "profit": "Profit",
     "plaisir": "Plaisir", "planete_etre": "Planète-être", "vaisseaux_vivants": "Vaisseaux vivants",
     "conseil_survie": "Conseil de survie", "troupe": "Troupe itinérante", "aucun": "Aucun", "troupeau": "Troupeau",
-    "espoir": "Espoir",
+    "espoir": "Espoir", "information": "Information", "actionnaires": "Conseil d'actionnaires",
+    "bureaucratie": "Bureaucratie", "reve_partage": "Rêve partagé", "ordre": "Ordre", "propagation": "Propagation",
+    "transcendance": "Transcendance",
 }
 BIOMES = {"arctic": "Glaciaire", "desert": "Désert", "ocean": "Océan", "jungle": "Jungle", "toxic": "Toxique",
           "barren": "Stérile", "terran": "Tempéré", "tundra": "Toundra", "gas": "Géante gazeuse", "volcanic": "Volcanique",

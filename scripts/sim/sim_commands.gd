@@ -1195,6 +1195,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				c.owner = e.id
 			c.kind = kind
 			c.days_left = LivingWorlds.claim_days(state, e.id, pid, Economy.claim_days(kind))  # monde vivant Méfiant : deux fois plus long
+			c.days_left += Insolites.claim_extra_days(state, e.id, kind)  # dossier d'un an du Bureau
 			var sp := String(cmd.get("species", ""))
 			c.founder = sp if kind == Colony.KIND_COLONY and sp != e.faction_id else ""
 			state.add_colony(c)

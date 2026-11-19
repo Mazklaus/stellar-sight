@@ -5,8 +5,14 @@ extends RefCounted
 ##     promise, garde ses nefs ensemble et arme une escorte dans son chantier embarqué ;
 ##   - le Cirque envoie ses Troupes jouer chez les empires en paix et en construit d'autres ;
 ##   - l'Orbe-Monde va manger là où il y a à manger, laisse des Lunes-sentinelles, dévore en guerre ;
-##   - les Kraal vont de pâturage en pâturage et arrachent des Pilotes chez l'ennemi.
-## Et la réaction des autres : envoyer un délégué au Grand Numéro, purger un Fan-club.
+##   - les Kraal vont de pâturage en pâturage et arrachent des Pilotes chez l'ennemi ;
+##   - la Compagnie propose le commerce, achète des parts, prête aux empires à court d'énergie ;
+##   - le Bureau met en demeure les non-conformes ;
+##   - le Signal n'a rien à décider (il se propage seul) ; ses Corps empruntés se battent comme une flotte ;
+##   - les Ysmer soufflent des inspirations aux voisins, des cauchemars aux ennemis, et rêvent une flotte
+##     de songe en guerre.
+## Et la réaction des autres : envoyer un délégué au Grand Numéro, purger un implant, signer une norme ou
+## la refuser, nationaliser des parts, tolérer le Signal (Accord d'hébergement).
 
 
 static func _ai() -> Dictionary:
@@ -44,6 +50,12 @@ static func think(ctx: Dictionary) -> void:
 			_halcyre(ctx)
 		"kraal":
 			_kraal(ctx)
+		"ventrelune":
+			_ventrelune(ctx)
+		"bureau":
+			_bureau(ctx)
+		"ysmer":
+			_ysmer(ctx)
 
 
 static func _go(ctx: Dictionary, f: Fleet, sid: int, why := "") -> bool:
@@ -106,17 +118,130 @@ static func _react(ctx: Dictionary) -> void:
 	if InsZambalu.open_call(state) >= 0 and InsZambalu.check_delegate(state, e.id) == "":
 		if AiLevels.aggression(e) <= 0 or not e.wars.is_empty():
 			AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "delegate"))
-	# Fan-clubs : on purge l'implant d'un ennemi, ou quand on a de l'influence à revendre.
-	var im: Dictionary = state.insolites.get("implants", {})
-	for key in im.keys():
-		var pid := int(key)
-		var c: Colony = state.colonies.get(pid)
-		if c == null or c.owner != e.id:
+	# Implants : on purge celui d'un ennemi, ou quand on a de quoi (le Signal toléré reste).
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c.owner != e.id:
 			continue
-		var owner := int(im[key]["o"])
-		if (Combat.at_war(state, e.id, owner) or int(e.resources.get("influence", 0)) >= 150) and Insolites.check_purge(state, e.id, pid) == "":
-			AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "purge", {"pid": pid}))
+		var done := false
+		for im: Dictionary in Insolites.implants_on(state, int(pid)):
+			var k := String(im["k"])
+			var owner := int(im["o"])
+			if not Insolites.implant_visible(state, int(pid), e.id, k):
+				continue
+			var want := Combat.at_war(state, e.id, owner)
+			match k:
+				"fan_club", "guichet":
+					want = want or int(e.resources.get("influence", 0)) >= 150
+				"noeud":
+					if not want and AiLevels.aggression(e) <= 0 and InsSignal.check_host(state, e.id, owner, true) == "":
+						AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "host", {"s": owner}))
+						done = true
+						break
+					want = want or not InsSignal.hosted(state, owner, e.id)
+				"reverie":
+					want = want or int(e.resources.get("influence", 0)) >= 60
+			if want and Insolites.check_purge(state, e.id, int(pid), k) == "":
+				AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "purge", {"pid": int(pid), "k": k}))
+				done = true
+				break
+		if done:
 			break
+	# Normes du Bureau : on signe si l'on ne déteste pas le Bureau.
+	for b in InsBureau.bureaus(state):
+		if b == e.id or not e.contacts.has(b):
+			continue
+		if Diplomacy.opinion(state, e.id, b) < int(_ai().get("sign_opinion", -20)):
+			continue
+		for norm in InsBureau.unsigned(state, b, e.id):
+			if InsBureau.check_sign(state, e.id, b, String(norm)) == "":
+				AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "sign", {"b": b, "norm": String(norm)}))
+				break
+	# Parts de la Compagnie : on nationalise en guerre, ou quand elle a pris la majorité d'un monde.
+	if Insolites.kind(state, e.id) != "ventrelune":
+		for pid in state.sorted_colony_ids():
+			var c: Colony = state.colonies[pid]
+			if c.owner != e.id:
+				continue
+			var h := InsVentrelune.holder(state, int(pid))
+			if h < 0:
+				continue
+			if Combat.at_war(state, e.id, h) or (AiLevels.aggression(e) > 0 and InsVentrelune.share(state, h, int(pid)) >= 51):
+				AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "nationalize", {"pid": int(pid)}))
+				break
+
+
+# --- Compagnie Ventrelune ------------------------------------------------------------------------
+
+static func _ventrelune(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var reserve := int(_ai().get("ventrelune_buy_reserve", 150))
+	# Le commerce d'abord : c'est la licence.
+	for o in state.empires:
+		if o.id != e.id and not o.is_npc() and not o.eliminated and e.contacts.has(o.id) and not Diplomacy.has_trade(state, e.id, o.id) \
+				and not Combat.at_war(state, e.id, o.id) and Diplomacy.check_terms(state, e.id, o.id, Diplomacy.TRADE) == "":
+			if AiPlayer._issue(ctx, SimCommands.propose_treaty(e.id, o.id, Diplomacy.TRADE)):
+				break
+	# Acheter des parts : la plus grosse colonie qu'on peut payer sans entamer la réserve.
+	var best := -1
+	var best_pop := -1
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c.owner == e.id or c.population <= best_pop:
+			continue
+		if InsVentrelune.check_buy(state, e.id, int(pid)) != "":
+			continue
+		if int(e.resources.get("energy", 0)) - InsVentrelune.price(state, e.id, int(pid)) < reserve:
+			continue
+		best = int(pid)
+		best_pop = c.population
+	if best >= 0 and AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "buy", {"pid": best})):
+		AiPlayer._intent(ctx, "Achète des parts de %s" % state.galaxy.get_planet(best).display_name(state.galaxy))
+	# Prêteur galactique : prêter à qui manque d'énergie (le défaut se paie en parts).
+	if not state.finance.is_empty() and int(e.resources.get("energy", 0)) >= reserve * 3:
+		for o in state.empires:
+			if o.id == e.id or o.is_npc() or o.eliminated:
+				continue
+			if Finance.ai_wants_loan(state, o.id, 100) and Finance.check_lend(state, e.id, o.id, 100) == "":
+				AiPlayer._issue(ctx, SimCommands.finance_lend(e.id, o.id, 100))
+				break
+
+
+# --- Bureau des Affaires Courantes -----------------------------------------------------------------
+
+static func _bureau(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if not bool(_ai().get("bureau_publish", true)):
+		return
+	for o in state.empires:
+		if InsBureau.check_summon(state, e.id, o.id) == "" and InsBureau.unsigned(state, e.id, o.id).size() >= 2:
+			if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "summon", {"target": o.id})):
+				AiPlayer._intent(ctx, "Met en demeure %s" % o.short_name())
+				break
+
+
+# --- Rêveurs d'Ysmer -----------------------------------------------------------------------------
+
+static func _ysmer(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if not e.wars.is_empty() and InsYsmer.check_dream_fleet(state, e.id) == "":
+		if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "dream_fleet")):
+			AiPlayer._intent(ctx, "Rêve une flotte de songe")
+			return
+	var rv := InsYsmer.reveries(state, e.id)
+	if rv.is_empty():
+		return
+	var pid := rv[posmod(state.tick / 30, rv.size())]
+	var owner := (state.colonies[pid] as Colony).owner
+	if Combat.at_war(state, e.id, owner):
+		if InsYsmer.check_breath(state, e.id, "nightmare", pid) == "":
+			AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "nightmare", {"pid": pid}))
+	elif posmod(hash([state.tick, e.id, "inspire"]), 1000) < int(_ai().get("ysmer_inspire_pmille", 300)) \
+			and int(e.resources.get("influence", 0)) >= 60 and InsYsmer.check_breath(state, e.id, "inspire", pid) == "":
+		AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "inspire", {"pid": pid}))
 
 
 # --- Flotte-Exode --------------------------------------------------------------------------------

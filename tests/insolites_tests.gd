@@ -89,7 +89,7 @@ func _test_rivals() -> void:
 	for fid in s2["rivals"]:
 		if GameData.insolite_faction_ids().has(fid):
 			k2 += 1
-	_ok(k2 == ODD.size(), "réglage Tous : les insolites d'abord (%d)" % k2)
+	_ok(k2 == mini((s2["rivals"] as Array).size(), GameData.insolite_faction_ids().size()), "réglage Tous : les insolites d'abord (%d)" % k2)
 	_ok(MainMenu.insolites_default() == "quelques", "Quelques-uns par défaut")
 	m.free()
 	var st := GameState.create(3, 150, 1800.0, "ossarane", {"ai_level": ""})

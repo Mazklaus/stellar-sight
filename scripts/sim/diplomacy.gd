@@ -1285,7 +1285,12 @@ static func check_contract(state: GameState, merc: int, client: int, target: int
 ## Signe le contrat (conditions vérifiées) : les mercenaires entrent en guerre contre la cible.
 static func sign_contract(state: GameState, merc: int, client: int, target: int) -> void:
 	var r := _rel_w(state, merc, client)
-	r["contract"] = {"merc": merc, "client": client, "target": target, "fee": contract_fee(state, merc),
+	var fee := contract_fee(state, merc)
+	var fpct := Insolites.contract_fee_pct(state, client)  # armée privée de la Compagnie Ventrelune
+	if fpct != 0:
+		@warning_ignore("integer_division")
+		fee["energy"] = int(fee["energy"]) * maxi(0, 100 + fpct) / 100
+	r["contract"] = {"merc": merc, "client": client, "target": target, "fee": fee,
 			"since": state.tick, "until": state.tick + int(ability("mercenary")["max_days"])}
 	_drop_contract_proposals(state, merc, client)
 	state.add_chronicle("%s loue ses flottes à %s contre %s, pour %s par mois. Les canons sont neutres ; les factures, beaucoup moins." % [

@@ -205,6 +205,18 @@
      "prompt": "a living rogue planet with rings of floating rock slowly swallowing a small moon in a stream of debris, in the foreground its avatar a tall courteous humanoid figure of polished stone and glowing veins, slightly too large, bowing politely to tiny astonished scouts in spacesuits, cosmic and uncanny mood"},
     {"id": "MJ-69", "titre": "Portrait · Hardes de Kraal", "format": "3:4", "forme": "portrait", "emplacement": "Fiche des Hardes de Kraal (chapitre « Les peuples insolites »)",
      "sujet": "Une harde de baleines du vide aux os apparents broutant les nuages d'une géante gazeuse ; sur le front du plus vieux, une petite silhouette humaine liée par des filaments : le Pilote",
-     "prompt": "a herd of colossal space whales with exposed bone plates and cartilage fins grazing the cloud bands of a gas giant, a newborn calf among them, on the brow of the oldest whale a small human figure bound by glowing organic filaments, the pilot, grim and majestic mood"}
+     "prompt": "a herd of colossal space whales with exposed bone plates and cartilage fins grazing the cloud bands of a gas giant, a newborn calf among them, on the brow of the oldest whale a small human figure bound by glowing organic filaments, the pilot, grim and majestic mood"},
+    {"id": "MJ-70", "titre": "Portrait · Compagnie Ventrelune", "format": "3:4", "forme": "portrait", "emplacement": "Fiche de la Compagnie Ventrelune (chapitre « Les peuples insolites »)",
+     "sujet": "Une directrice au sourire impeccable, tailleur sombre et broche en forme de lune, devant un mur de cours de bourse galactiques ; derrière elle, la station-siège en forme de coffre-fort",
+     "prompt": "portrait of an immaculately dressed corporate executive with a perfect polite smile, dark tailored suit and a crescent moon brooch, standing before a wall of glowing galactic stock tickers and planet valuation charts, behind her through a window a vault-shaped headquarters space station, cold luxury, classic hard science fiction"},
+    {"id": "MJ-71", "titre": "Portrait · Bureau des Affaires Courantes", "format": "3:4", "forme": "portrait", "emplacement": "Fiche du Bureau des Affaires Courantes (chapitre « Les peuples insolites »)",
+     "sujet": "Un fonctionnaire extraterrestre à six bras, chacun avec un tampon, derrière un guichet sans fin ; des piles de dossiers jusqu'au plafond et une file d'attente d'espèces variées",
+     "prompt": "portrait of a weary six-armed alien bureaucrat behind an endless service counter, each hand holding a different rubber stamp, towering stacks of paper files reaching the ceiling, a long queue of diverse alien species waiting with numbered tickets, absurd comic picaresque mood, warm dusty office light"},
+    {"id": "MJ-72", "titre": "Portrait · Enfants du Signal", "format": "3:4", "forme": "portrait", "emplacement": "Fiche des Enfants du Signal (chapitre « Les peuples insolites »)",
+     "sujet": "Un visage composé de bruit et de lignes de données sur des dizaines d'écrans d'une salle de relais déserte, qui regarde le spectateur",
+     "prompt": "portrait of a face made of static noise and scrolling data lines appearing across dozens of screens in an empty dark relay station control room, the face looking straight at the viewer, cyan glow, eerie cosmic mystery, glitch patterns"},
+    {"id": "MJ-73", "titre": "Portrait · Rêveurs d'Ysmer", "format": "3:4", "forme": "portrait", "emplacement": "Fiche des Rêveurs d'Ysmer (chapitre « Les peuples insolites »)",
+     "sujet": "Un être de lumière violette endormi, flottant au-dessus d'un sanctuaire ; de son sommeil montent des volutes qui s'étirent vers des planètes lointaines",
+     "prompt": "portrait of a sleeping translucent being of soft violet light floating above an ancient sanctuary, eyes closed, wisps of dreams rising from its body and stretching across space toward distant inhabited planets, serene and uncanny, cosmic dreamlike atmosphere"}
   ]
 }
