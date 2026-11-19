@@ -1205,7 +1205,7 @@ func _setup_empires(player_faction: String, rivals: Variant = null, duplicates :
 					target = pid
 					break
 			if not galaxy.planets[target].deposits.has(dep):
-				var deps := Array(galaxy.planets[target].deposits)
+				var deps := Array(galaxy.planets[target].deposits).duplicate()  # copie, sinon la planète de base change aussi
 				deps.append(dep)
 				override_planet(target, {"deposits": deps})
 		_guarantee_worlds(e, sys.id, homes)

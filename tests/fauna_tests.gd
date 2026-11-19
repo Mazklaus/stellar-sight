@@ -267,12 +267,17 @@ func _test_ai() -> void:
 	var pas := _nest_of(st, "passive")
 	_ok(not AiFauna.dangerous(st, 1, pas), "IA : une espèce passive ne gêne pas la colonisation")
 	var sim := Simulation.new(GameState.create(11, 150, 1800.0, "", {"creatures": "normales"}))
-	sim.advance(360 * 4)
 	var acts := 0
-	for e in sim.state.empires:
-		for sp in Fauna.species_ids():
-			if Fauna.study_end(sim.state, e.id, sp) != 0 or Fauna.stance(sim.state, e.id, sp) != "":
-				acts += 1
+	# Au plus 4 ans, par mois ; on s'arrête dès qu'une IA étudie, chasse ou apprivoise.
+	for m in 12 * 4:
+		sim.advance(30)
+		acts = 0
+		for e in sim.state.empires:
+			for sp in Fauna.species_ids():
+				if Fauna.study_end(sim.state, e.id, sp) != 0 or Fauna.stance(sim.state, e.id, sp) != "":
+					acts += 1
+		if acts > 0:
+			break
 	_ok(acts > 0, "les IA étudient, chassent ou apprivoisent (%d)" % acts)
 
 

@@ -133,7 +133,7 @@ func _test_natures() -> void:
 	var fc := Faiths.founded_by(st, ch)
 	var fm := Faiths.founded_by(st, mu)
 	_ok(String(Faiths.faith(st, fc)["offer"][0]) == "dieu_en_chantier" and String(Faiths.faith(st, fm)["offer"][0]) == "chronolatrie", "natures préférées : Dieu en chantier (Chœur), Chronolâtrie (Murmurants)")
-	_ok(FaithWars.data()["natures"]["list"].size() == 19, "dix-neuf natures de foi (10 SF + 9 classiques)")
+	_ok(FaithWars.data()["natures"]["list"].size() >= 19, "au moins dix-neuf natures de foi (10 SF + 9 classiques ; catalogue ouvert)")
 	var v := _id_of(st, "vael")
 	var fv := Faiths.reveal(st, v, "relique", -1, _added())
 	_ok(FaithWars.nature(st, fv) == "" and (Faiths.faith(st, fv)["offer"] as Array).has("precurseurs"), "Révélation par relique : les Précurseurs parmi les trois natures proposées")

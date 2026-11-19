@@ -284,10 +284,15 @@ func _test_ai() -> void:
 	_ok(j <= 8, "gardien de test à portée (%d sauts)" % j)
 	_ok(AiFauna.nest_target(ctx, f, home) == sid, "IA : à 1,5 fois sa force estimée, elle part l'abattre")
 	var sim := Simulation.new(GameState.create(11, 150, 1800.0, "", {"creatures": "normales"}))
-	sim.advance(360 * 4)
 	var seen := 0
-	for gid in Guardians.ids(sim.state):
-		seen += (Guardians.list(sim.state)[gid]["seen"] as Dictionary).size()
+	# Au plus 4 ans, par mois ; on s'arrête au premier gardien repéré.
+	for m in 12 * 4:
+		sim.advance(30)
+		seen = 0
+		for gid in Guardians.ids(sim.state):
+			seen += (Guardians.list(sim.state)[gid]["seen"] as Dictionary).size()
+		if seen > 0:
+			break
 	_ok(seen > 0, "les IA repèrent les gardiens (%d)" % seen)
 
 

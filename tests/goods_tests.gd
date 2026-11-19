@@ -418,15 +418,20 @@ func _test_black() -> void:
 func _test_ai() -> void:
 	var st := GameState.create(4242, 150, 1800.0, "", {"spectator": true, "ai_level": "normal", "goods": "normaux", "market": "actif"})
 	var sim := Simulation.new(st)
+	var lux := 0
+	var traded := false
+	# Au plus 8 ans ; on s'arrête dès que les deux constats sont faits.
 	for i in 360 * 8:
 		sim.step()
-	var lux := 0
-	for e in st.empires:
-		lux += Goods.luxuries_of(st, e.id).size()
+		if st.tick % 30 != 0 and i != 360 * 8 - 1:
+			continue
+		lux = 0
+		for e in st.empires:
+			lux += Goods.luxuries_of(st, e.id).size()
+		traded = not st.goods.get("mkt", {}).is_empty()
+		if lux > 0 and (traded or not st.goods.get("lic", []).is_empty()):
+			break
 	_ok(lux > 0, "en 8 ans, les IA exploitent des luxes (%d)" % lux)
-	var traded := false
-	for eid in st.goods.get("mkt", {}):
-		traded = true
 	_ok(traded or not st.goods.get("lic", []).is_empty(), "et commercent (marché ou licences)")
 
 

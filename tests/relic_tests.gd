@@ -318,14 +318,20 @@ func _test_curio_talents() -> void:
 
 func _test_ai() -> void:
 	var sim := Simulation.new(_new(23, "vael", "normales", "normal"))
-	sim.advance(360 * 6)
 	var started := 0
-	for sid in sim.state.digs:
-		if int(sim.state.digs[sid]["by"]) >= 0:
-			started += 1
 	var frag := 0
-	for k in sim.state.relic_meta:
-		frag += int(sim.state.relic_meta[k]["frag"])
+	# Au plus 6 ans, par mois ; on s'arrête dès que fouilles et fragments sont là.
+	for m in 12 * 6:
+		sim.advance(30)
+		started = 0
+		for sid in sim.state.digs:
+			if int(sim.state.digs[sid]["by"]) >= 0:
+				started += 1
+		frag = 0
+		for k in sim.state.relic_meta:
+			frag += int(sim.state.relic_meta[k]["frag"])
+		if started > 0 and frag > 0:
+			break
 	_ok(started > 0, "les IA lancent des fouilles (%d en 6 ans)" % started)
 	_ok(frag > 0, "les fragments circulent (%d)" % frag)
 

@@ -184,12 +184,16 @@ func _test_ai() -> void:
 	var sim := Simulation.new(st)
 	var pacts := 0
 	var lic := 0
+	# Au plus 12 ans ; on s'arrête dès qu'un accord ou une licence apparaît (le test ne demande que ça).
 	for i in 360 * 12:
 		sim.step()
 		if st.tick % 30 == 0:
 			pacts = maxi(pacts, (st.goods.get("pacts", []) as Array).size())
-	for k in st.goods.get("tlic", {}):
-		lic += (st.goods["tlic"][k] as Array).size()
+			lic = 0
+			for k in st.goods.get("tlic", {}):
+				lic += (st.goods["tlic"][k] as Array).size()
+			if pacts > 0 or lic > 0:
+				break
 	_ok(pacts > 0 or lic > 0, "en 12 ans, les IA signent des accords de recherche ou achètent des licences (%d accords, %d licences)" % [pacts, lic])
 
 

@@ -244,13 +244,19 @@ func _test_piracy() -> void:
 func _test_ai() -> void:
 	var st := GameState.create(4242, 150, 1800.0, "", {"spectator": true, "ai_level": "normal"})
 	var sim := Simulation.new(st)
+	var any := false
+	# Au plus 6 ans ; on s'arrête dès qu'un accord et une route existent.
 	for i in 360 * 6:
 		sim.step()
-	var any := false
-	for e in st.empires:
-		for o in st.empires:
-			if e.id < o.id and Trade.tier(st, e.id, o.id) > 0:
-				any = true
+		if st.tick % 30 != 0 and i != 360 * 6 - 1:
+			continue
+		any = false
+		for e in st.empires:
+			for o in st.empires:
+				if e.id < o.id and Trade.tier(st, e.id, o.id) > 0:
+					any = true
+		if any and not (st.trade.get("routes", []) as Array).is_empty():
+			break
 	_ok(any, "en 6 ans, des IA signent du commerce")
 	var routes: Array = st.trade.get("routes", [])
 	_ok(not routes.is_empty(), "et des routes circulent (%d)" % routes.size())

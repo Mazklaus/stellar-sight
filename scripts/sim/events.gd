@@ -858,7 +858,7 @@ static func apply_fx(state: GameState, empire_id: int, item: Dictionary, fxs: Ar
 				var p := state.galaxy.get_planet(pid) if pid >= 0 else null
 				var dep := String(fx["what"])
 				if p != null and not p.deposits.has(dep):
-					var deps: Array = Array(p.deposits)
+					var deps: Array = Array(p.deposits).duplicate()  # copie : Array() sur un tableau typé garde la même référence
 					deps.append(dep)
 					state.override_planet(pid, {"deposits": deps})
 			"pirates":
