@@ -62,7 +62,7 @@ static func check_season(state: GameState, eid: int, s: String) -> String:
 static func set_season(state: GameState, eid: int, s: String, added: Array[Dictionary]) -> void:
 	var ed := Insolites.emp(state, eid)
 	ed["season"] = s
-	ed["season_t"] = state.tick + _c("season_cd_days", 360)
+	ed["season_t"] = state.tick + Insolites.tuned(state, eid, "vergemonde", "season_cd_days", _c("season_cd_days", 360))
 	added.append(state.add_chronicle("Le Hallier de Vergemonde entre dans la %s. Personne ne l'a décidé ; tout le monde l'a senti." % String(SEASON_LABEL[s]).to_lower(),
 			Espionage.private_to(state, [eid])))
 
@@ -133,7 +133,7 @@ static func _grow(state: GameState, eid: int, ed: Dictionary, added: Array[Dicti
 			since[str(pid)] = state.tick
 		var p := state.galaxy.get_planet(int(pid))
 		if p.type != "gaia":
-			if gardenable(state, int(pid)) and state.tick - int(since[str(pid)]) >= _c("garden_days", 2880):
+			if gardenable(state, int(pid)) and state.tick - int(since[str(pid)]) >= Insolites.tuned(state, eid, "vergemonde", "garden_days", _c("garden_days", 2880)):
 				_garden(state, eid, int(pid), added, true)
 				spread[str(p.system_id)] = state.tick
 			continue
@@ -239,6 +239,7 @@ static func daily(state: GameState, eid: int, ed: Dictionary, month: bool, added
 	_drift(ed)
 	_grow(state, eid, ed, added)
 	_fire(state, eid, ed, added)
+	Insolites.learn(state, eid, "learn_garden", gardens(state, eid))  # Mémoire des anneaux
 
 
 # --- Victoire : le Grand Jardin (prop. 105) ----------------------------------------------------------

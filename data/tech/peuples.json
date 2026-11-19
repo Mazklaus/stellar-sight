@@ -1491,6 +1491,736 @@
 				"n": 200
 			},
 			"flavor": "Le scribe du clan note tout : « une caisse de lingots, un réacteur, un ambassadeur (abîmé) »."
+		},
+		"brouillage_piste": {
+			"label": "Brouillage de piste",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "glaive",
+			"text": "Les Traqueurs mettent moitié plus de temps à retrouver une flotte-ville mouillée au même endroit.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conseil_survie"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"exode.stalk_days": 50
+				}
+			},
+			"flavor": "On a laissé derrière nous une traînée d'ions qui mène droit à une géante gazeuse. Les Traqueurs adorent les géantes gazeuses."
+		},
+		"nefs_elargies": {
+			"label": "Nefs élargies",
+			"domain": "genie",
+			"era": 2,
+			"field": "coques",
+			"current": "seve",
+			"text": "Chaque nef-cité loge 25 % d'habitants de plus : on a abattu les cloisons des coursives.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conseil_survie"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"exode.nef_cap": 25
+				}
+			}
+		},
+		"decors_holographiques": {
+			"label": "Décors holographiques",
+			"domain": "societe",
+			"era": 2,
+			"field": "culture",
+			"current": "concorde",
+			"text": "Un spectacle répand moitié plus de Rayonnement : la pyramide de lumière se voit depuis l'orbite.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"troupe"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"zambalu.show_radiance": 50
+				}
+			}
+		},
+		"chapiteau_deux": {
+			"label": "Chapiteau II",
+			"domain": "economie",
+			"era": 2,
+			"field": "commerce",
+			"current": "forge",
+			"text": "Un chapiteau à deux pistes : le prix du billet monte de moitié.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"troupe"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"zambalu.show_ticket": 50
+				}
+			}
+		},
+		"haute_voltige": {
+			"label": "Haute voltige",
+			"domain": "genie",
+			"era": 3,
+			"field": "propulsion",
+			"current": "concorde",
+			"text": "Les tournées montent leur prochaine représentation 30 % plus vite.",
+			"pre": [
+				"decors_holographiques"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"troupe"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"zambalu.tour_days": -30
+				}
+			},
+			"flavor": "Le trapéziste a sauté d'une nef à l'autre en plein saut hyperspatial. Il l'a refait pour la photo."
+		},
+		"lunes_sentinelles_ii": {
+			"label": "Lunes-sentinelles II",
+			"domain": "armement",
+			"era": 2,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Détacher une Lune-sentinelle ne coûte plus que la moitié de la Masse.",
+			"requires": {
+				"species": {
+					"archetype": [
+						"planete_etre"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"halcyre.sentinel_mass": -50
+				}
+			}
+		},
+		"croute_blindee": {
+			"label": "Croûte blindée",
+			"domain": "armement",
+			"era": 3,
+			"field": "defenses",
+			"current": "glaive",
+			"text": "Il faut une flotte moitié plus forte pour assiéger l'Orbe-Monde.",
+			"pre": [
+				"lunes_sentinelles_ii"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"planete_etre"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"halcyre.siege_power_pct": 50
+				}
+			}
+		},
+		"coeur_fusion": {
+			"label": "Cœur en fusion",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "forge",
+			"text": "L'Orbe digère 30 % plus vite : dévorer un corps ou une colonie prend moins de temps.",
+			"requires": {
+				"species": {
+					"archetype": [
+						"planete_etre"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"halcyre.eat_days": -30,
+					"halcyre.eat_colony_days": -30
+				}
+			},
+			"flavor": "Les astronomes voisins ont noté que l'Orbe-Monde avait légèrement rosi. Puis qu'il avait faim."
+		},
+		"lignees_robustes": {
+			"label": "Lignées robustes",
+			"domain": "societe",
+			"era": 1,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Les naissances viennent un tiers plus tôt : deux Adultes au pâturage donnent un Petit plus vite.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"troupeau"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"kraal.birth_months": -33
+				}
+			}
+		},
+		"paturages_profonds": {
+			"label": "Pâturages profonds",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "seve",
+			"text": "La harde broute 40 % de moins par mois : un pâturage s'épuise bien moins vite.",
+			"pre": [
+				"lignees_robustes"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"troupeau"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"kraal.graze_month": -40
+				}
+			}
+		},
+		"chant_migration": {
+			"label": "Chant de migration",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "seve",
+			"text": "Sur les routes de migration connues, la harde va encore 15 % plus vite.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"troupeau"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"kraal.route_pct": 15
+				}
+			},
+			"flavor": "Les jeunes ne connaissent pas la route. Ils connaissent la chanson, ce qui revient au même."
+		},
+		"audit_prealable": {
+			"label": "Audit préalable",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "forge",
+			"text": "La Compagnie voit une colonie dès 15 % de parts au lieu de 25 %.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"actionnaires"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"ventrelune.view_pct": -40
+				}
+			}
+		},
+		"rachat_levier": {
+			"label": "Rachat à effet de levier",
+			"domain": "economie",
+			"era": 3,
+			"field": "commerce",
+			"current": "forge",
+			"text": "Les parts coûtent 25 % de moins (le prix plancher reste le même).",
+			"pre": [
+				"audit_prealable"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"actionnaires"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"ventrelune.share_price_per_pop": -25
+				}
+			},
+			"flavor": "« Nous achetons votre colonie avec l'argent de votre colonie. » Personne n'a trouvé la faille dans le raisonnement."
+		},
+		"formulaires_dematerialises": {
+			"label": "Formulaires dématérialisés",
+			"domain": "societe",
+			"era": 2,
+			"field": "etat",
+			"current": "concorde",
+			"text": "Le dossier d'une nouvelle colonie attend moitié moins longtemps. Débloque le Guichet central, qui remplace le Tribunal.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"bureaucratie"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"bureau.file_days": -50
+				}
+			}
+		},
+		"huissiers_assermentes": {
+			"label": "Huissiers assermentés",
+			"domain": "societe",
+			"era": 3,
+			"field": "etat",
+			"current": "glaive",
+			"text": "Une Procédure du Bureau sanctionne moitié plus longtemps.",
+			"pre": [
+				"formulaires_dematerialises"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"bureaucratie"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"bureau.sanction_days": 50
+				}
+			},
+			"flavor": "L'huissier a tout saisi, y compris la chaise sur laquelle il était assis. Par conscience professionnelle."
+		},
+		"protocoles_viraux": {
+			"label": "Protocoles viraux",
+			"domain": "societe",
+			"era": 2,
+			"field": "culture",
+			"current": "academie",
+			"text": "Le Signal se copie moitié plus souvent dans les colonies voisines.",
+			"requires": {
+				"species": {
+					"archetype": [
+						"information"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"signal.spread_pmille": 50
+				}
+			}
+		},
+		"corps_empruntes_ii": {
+			"label": "Corps empruntés II",
+			"domain": "armement",
+			"era": 3,
+			"field": "troupes",
+			"current": "glaive",
+			"text": "Les vaisseaux empruntés restent deux fois plus longtemps sous le contrôle du Signal.",
+			"pre": [
+				"protocoles_viraux"
+			],
+			"requires": {
+				"species": {
+					"archetype": [
+						"information"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"signal.borrow_days": 100
+				}
+			}
+		},
+		"reverie_profonde": {
+			"label": "Rêverie profonde",
+			"domain": "societe",
+			"era": 2,
+			"field": "esprit",
+			"current": "autel",
+			"text": "Les rêveries s'installent 40 % plus souvent dans les populations voisines.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"reve_partage"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"ysmer.spread_pmille": 40
+				}
+			}
+		},
+		"flotte_songe_durable": {
+			"label": "Flotte de songe durable",
+			"domain": "armement",
+			"era": 3,
+			"field": "doctrines",
+			"current": "autel",
+			"text": "Une flotte de songe dure deux fois plus longtemps avant de se dissiper.",
+			"pre": [
+				"reverie_profonde"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"reve_partage"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"ysmer.dream_fleet_days": 100
+				}
+			},
+			"flavor": "L'amiral ennemi a juré qu'il avait vu cette flotte se dissiper. Elle était revenue. Il ne dort plus."
+		},
+		"ossuaires_ii": {
+			"label": "Ossuaires II",
+			"domain": "societe",
+			"era": 2,
+			"field": "colonisation",
+			"current": "autel",
+			"text": "Deux fois plus de morts peuvent rouvrir les yeux chaque mois.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"necro_conseil"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"asphodele.souls_cap_per_month": 100
+				}
+			}
+		},
+		"vitrines_climatisees": {
+			"label": "Vitrines climatisées",
+			"domain": "genie",
+			"era": 2,
+			"field": "senseurs",
+			"current": "concorde",
+			"text": "Les pièces vivantes de la Collection s'échappent bien moins souvent (60 % de moins).",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"collectionneur"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"cassivel.escape_pmille": -60
+				}
+			}
+		},
+		"visites_guidees": {
+			"label": "Visites guidées",
+			"domain": "societe",
+			"era": 2,
+			"field": "culture",
+			"current": "concorde",
+			"text": "Les visiteurs de marque viennent moitié plus souvent (et laissent leur influence).",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"collectionneur"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"cassivel.visitors_pmille": 50
+				}
+			},
+			"flavor": "« Sur votre gauche, un ambassadeur en formol. Ne touchez pas, il mord encore. »"
+		},
+		"optique_voilee": {
+			"label": "Optique voilée",
+			"domain": "genie",
+			"era": 2,
+			"field": "senseurs",
+			"current": "academie",
+			"text": "Les postes voilés sont 40 % moins souvent découverts.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conseil_anciens"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"quietude.detect_pmille": -40
+				}
+			}
+		},
+		"elevation_douce": {
+			"label": "Élévation douce",
+			"domain": "societe",
+			"era": 3,
+			"field": "esprit",
+			"current": "academie",
+			"text": "Chaque élévation fait mûrir une espèce primitive 30 % plus vite.",
+			"pre": [
+				"optique_voilee"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conseil_anciens"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"quietude.uplift_days": 30
+				}
+			}
+		},
+		"sable_fin": {
+			"label": "Sable fin",
+			"domain": "societe",
+			"era": 2,
+			"field": "esprit",
+			"current": "academie",
+			"text": "Le Sable remonte 60 % plus vite chaque mois.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"chronarchie"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"sablier.sand_month": 60
+				}
+			}
+		},
+		"bulles_rapprochees": {
+			"label": "Bulles rapprochées",
+			"domain": "genie",
+			"era": 3,
+			"field": "propulsion",
+			"current": "academie",
+			"text": "On peut gonfler une nouvelle bulle temporelle deux fois plus tôt.",
+			"pre": [
+				"sable_fin"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"chronarchie"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"sablier.bubble_cd_days": -50
+				}
+			},
+			"flavor": "La bulle a éclaté hier. On en a gonflé une autre la semaine dernière, par précaution."
+		},
+		"oeuvres_hatees": {
+			"label": "Œuvres hâtées",
+			"domain": "economie",
+			"era": 2,
+			"field": "production",
+			"current": "seve",
+			"text": "La réserve de Temps monte moitié plus vite quand les Lithes n'entreprennent rien.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"consensus_seculaire"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"gravea.time_month": 50
+				}
+			}
+		},
+		"hibernation_profonde": {
+			"label": "Hibernation profonde",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Une colonie endormie dort moitié plus longtemps, à l'abri de tout.",
+			"pre": [
+				"oeuvres_hatees"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"consensus_seculaire"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"gravea.sleep_days": 50
+				}
+			}
+		},
+		"cometes_semences_ii": {
+			"label": "Comètes-semences II",
+			"domain": "genie",
+			"era": 2,
+			"field": "propulsion",
+			"current": "seve",
+			"text": "Les comètes-semences portent 40 % plus loin de vos colonies.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"reseau_mycorhizien"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"myrr.comet_jumps": 40
+				}
+			}
+		},
+		"cometes_semences_iii": {
+			"label": "Comètes-semences III",
+			"domain": "genie",
+			"era": 4,
+			"field": "propulsion",
+			"current": "seve",
+			"text": "Les comètes-semences portent encore 40 % plus loin.",
+			"pre": [
+				"cometes_semences_ii"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"reseau_mycorhizien"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"myrr.comet_jumps": 40
+				}
+			}
+		},
+		"spores_ralentissantes": {
+			"label": "Spores ralentissantes",
+			"domain": "armement",
+			"era": 2,
+			"field": "defenses",
+			"current": "seve",
+			"text": "Les spores pèsent deux fois plus sur les flottes ennemies dans vos systèmes.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"reseau_mycorhizien"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"myrr.spore_pct": 100
+				}
+			},
+			"flavor": "L'équipage a éternué pendant trois semaines. La flotte, elle, a avancé à la vitesse d'un éternuement."
+		},
+		"saisons_accelerees": {
+			"label": "Saisons accélérées",
+			"domain": "societe",
+			"era": 2,
+			"field": "esprit",
+			"current": "seve",
+			"text": "On peut changer de Saison deux fois par an.",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"cercle_enracines"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"vergemonde.season_cd_days": -50
+				}
+			}
+		},
+		"jardinage_patient": {
+			"label": "Jardinage patient",
+			"domain": "societe",
+			"era": 3,
+			"field": "colonisation",
+			"current": "seve",
+			"text": "Une colonie devient monde-jardin 30 % plus vite.",
+			"pre": [
+				"saisons_accelerees"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"cercle_enracines"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"vergemonde.garden_days": -30
+				}
+			}
+		},
+		"psaumes_coursives": {
+			"label": "Psaumes des coursives",
+			"domain": "societe",
+			"era": 3,
+			"field": "culture",
+			"current": "autel",
+			"text": "Chaque signe de la Terre promise donne deux fois plus d'Espoir.",
+			"pre": [
+				"nefs_elargies"
+			],
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conseil_survie"
+					]
+				}
+			},
+			"effects": {
+				"ins_pct": {
+					"exode.hope_sign": 100
+				}
+			}
 		}
 	}
 }

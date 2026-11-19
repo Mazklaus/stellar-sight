@@ -503,7 +503,7 @@ static func building_cost(state: GameState, empire_id: int, building_id: String)
 	var pct := Research.fx_int(state, empire_id, "building_cost_pct")
 	if building_id == "temple":
 		pct += Research.fx_int(state, empire_id, "temple_cost_pct")  # Aniconisme
-	elif building_id == "tribunal":
+	elif GameData.building_kind(building_id) == "tribunal":
 		pct += Research.fx_int(state, empire_id, "tribunal_cost_pct")  # Cadastre algorithmique
 	pct += Defenses.cost_pct(state, empire_id, building_id)  # Bâtisseurs de forteresses
 	pct += Portals.cost_pct(state, empire_id, building_id)  # Tisseurs de portes
@@ -763,7 +763,8 @@ static func check_special(state: GameState, empire_id: int, c: Colony, p: Planet
 	if b.get("per_system", false):
 		for pid in state.galaxy.systems[p.system_id].planet_ids:
 			var o: Colony = state.colonies.get(pid)
-			if o and (o.buildings.has(building_id) or o.construction == building_id):
+			var kd := GameData.building_kind(building_id)
+			if o and (o.has_kind(kd) or o.construction == building_id or GameData.building_kind(o.construction) == kd):
 				return "déjà une %s dans ce système" % String(b.get("label", building_id)).to_lower()
 	if b.get("empire_unique", false) or b.get("galaxy_unique", false):
 		var galaxy := bool(b.get("galaxy_unique", false))

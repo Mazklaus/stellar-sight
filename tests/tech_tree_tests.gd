@@ -52,7 +52,7 @@ func _test_catalog() -> void:
 		var fields := []
 		for fd: Dictionary in Research.domain(String(t["domain"])).get("fields", []):
 			fields.append(String(fd["id"]))
-		if not cur_ids.has(String(t.get("current", ""))) or not (fields.has(String(t.get("field", ""))) or (t.has("victory") and t.get("field", "") == "destinee")):
+		if not cur_ids.has(String(t.get("current", ""))) or not (fields.has(String(t.get("field", ""))) or ((t.has("victory") or t.has("destiny_stage")) and t.get("field", "") == "destinee")):
 			bad.append(tid)
 	_ok(bad.is_empty(), "chaque technologie a un champ de son domaine et un courant politique (%s)" % ", ".join(bad))
 	_ok(Research.heir_of("canons_masse") == "canons_masse" and Research.heir_of("technologie_disparue") == "", "sauvegardes : héritière ou oubli d'une technologie disparue")

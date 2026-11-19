@@ -136,7 +136,7 @@ static func daily(state: GameState, eid: int, ed: Dictionary, month: bool, added
 
 
 static func _spread(state: GameState, eid: int) -> void:
-	var chance := _c("spread_pmille", 60) * (100 + mut_fx(state, eid, "spread_pct")) / 100
+	var chance := Insolites.tuned(state, eid, "signal", "spread_pmille", _c("spread_pmille", 60)) * (100 + mut_fx(state, eid, "spread_pct")) / 100
 	for pid in nodes(state, eid):
 		var c: Colony = state.colonies.get(pid)
 		if c == null:
@@ -208,7 +208,7 @@ static func _borrow(state: GameState, eid: int, ed: Dictionary, mine: Array[int]
 	for i in range(1, ships.size()):
 		f.add_ship(String(ships[i]), -1, Research.mark_gen(state, eid))
 	f.fleet_name = "Corps empruntés"
-	(ed["borrow"] as Dictionary)[str(f.id)] = state.tick + _c("borrow_days", 120)
+	(ed["borrow"] as Dictionary)[str(f.id)] = state.tick + Insolites.tuned(state, eid, "signal", "borrow_days", _c("borrow_days", 120))
 	ed["borrow_cd"] = state.tick + _c("borrow_cooldown_days", 720)
 	var host := (state.colonies[best] as Colony).owner
 	added.append(state.add_chronicle("Les chantiers de %s ont construit cette nuit %d vaisseaux que personne n'a commandés. Leurs équipages parlent d'une seule voix." % [

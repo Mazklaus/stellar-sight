@@ -608,7 +608,7 @@ static func capacity_parts(state: GameState, eid: int) -> Array:
 			forum = true
 		if c.buildings.has("prefecture"):
 			pref += 1
-		if c.buildings.has("tribunal"):
+		if c.has_kind("tribunal"):
 			trib += 1
 		if c.buildings.has("temple"):
 			temples += 1
@@ -777,7 +777,7 @@ static func _cor_buildings(state: GameState, eid: int, sid: int) -> Array[String
 static func _has_building(state: GameState, eid: int, sid: int, b: String) -> bool:
 	for pid in state.galaxy.systems[sid].planet_ids:
 		var c: Colony = state.colonies.get(pid)
-		if c != null and c.owner == eid and c.is_established() and c.buildings.has(b):
+		if c != null and c.owner == eid and c.is_established() and c.has_kind(b):
 			return true
 	return false
 

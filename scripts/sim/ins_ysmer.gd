@@ -95,7 +95,7 @@ static func _spread(state: GameState, eid: int) -> void:
 		var src := sources[i]
 		var reach := _c("dormeur_jumps", 8) if i == 0 and home >= 0 else _c("spread_jumps", 3)
 		var h := hash([state.seed_value, state.tick, eid, src, "reve"])
-		if posmod(h, 1000) >= _c("spread_pmille", 50):
+		if posmod(h, 1000) >= Insolites.tuned(state, eid, "ysmer", "spread_pmille", _c("spread_pmille", 50)):
 			continue
 		var d: Dictionary = FactionTraits.jumps_from(state.galaxy, src)
 		var cands: Array[int] = []
@@ -134,6 +134,7 @@ static func breath(state: GameState, eid: int, act: String, pid: int, added: Arr
 	if act == "inspire":
 		Economy.pay(state.get_empire(eid), Insolites.cfg("ysmer").get("inspire_cost", {}))
 		host.resources["knowledge"] = int(host.resources.get("knowledge", 0)) + _c("inspire_knowledge", 30)
+		Insolites.learn(state, eid, "learn_inspire", 1)  # Rêves savants
 		Diplomacy.remember(state, c.owner, eid, "ins_dream_gift")
 		added.append(state.add_chronicle("À %s, un chercheur se réveille avec la solution d'un problème qu'il ne s'était jamais posé. Il remercie le café." % name, Espionage.private_to(state, [eid, c.owner])))
 	else:
@@ -170,7 +171,7 @@ static func dream_fleet(state: GameState, eid: int, added: Array[Dictionary]) ->
 		f.add_ship(String(ships[i]), -1, Research.mark_gen(state, eid))
 	f.fleet_name = "Flotte de songe"
 	var ed := Insolites.emp(state, eid)
-	(ed["dream"] as Dictionary)[str(f.id)] = state.tick + _c("dream_fleet_days", 90)
+	(ed["dream"] as Dictionary)[str(f.id)] = state.tick + Insolites.tuned(state, eid, "ysmer", "dream_fleet_days", _c("dream_fleet_days", 90))
 	ed["dream_cd"] = state.tick + _c("dream_fleet_days", 90) + _c("dream_fleet_cooldown_days", 360)
 	added.append(state.add_chronicle("Au-dessus du Dormeur, des vaisseaux se condensent comme la buée sur une vitre. Ils dureront le temps d'un rêve.", Espionage.private_to(state, [eid], sid)))
 

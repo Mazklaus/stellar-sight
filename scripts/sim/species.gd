@@ -7,7 +7,8 @@ extends RefCounted
 ## Spec (ce que l'éditeur enregistre, voir SpeciesLibrary) :
 ##   {"format": 1, "id": "p_…", "name", "short", "lore", "color": "#rrggbb", "portrait", "ship_style",
 ##    "temperament": -1 | 0 | 1, "registre", "archetype", "gouvernement", "credo", "origine",
-##    "biomes": [monde natal (100 %), second biome (80 %)], "traits": [identifiants]}
+##    "biomes": [monde natal (100 %), second biome (80 %)], "traits": [identifiants],
+##    "research_talent": talent de recherche choisi (facultatif, "" = celui des couches)}
 ##
 ## Budget (bloc "budget") : les traits positifs coûtent des points, les défauts en rendent (plafonnés),
 ## un trait de croissance coûte un point de plus et un seul est permis, un défaut annulé par une autre
@@ -167,6 +168,9 @@ static func errors(spec: Dictionary) -> Array[String]:
 		for l2 in exc:
 			if (exc[l2] as Array).has(String(spec.get(l2, ""))):
 				out.append("%s est incompatible avec %s" % [b["label"], brick(String(l2), String(spec[l2])).get("label", spec[l2])])
+	var rid := String(spec.get("research_talent", ""))
+	if rid != "" and not talent_fits(spec, rid):
+		out.append("le talent de recherche « %s » ne convient pas à ces couches" % String(talents().get(rid, {}).get("name", rid)))
 	var biomes: Array = spec.get("biomes", [])
 	var allowed: Array = parts()["biomes"]
 	if biomes.size() != 2 or String(biomes[0]) == String(biomes[1]) or not allowed.has(String(biomes[0])) or not allowed.has(String(biomes[1])):
@@ -289,10 +293,12 @@ static func build(spec: Dictionary) -> Dictionary:
 		var t := trait_def(String(tid))
 		_merge(f, t.get("fields", {}))
 		f["traits"].append({"name": String(t["label"]), "text": String(t["text"])})
-	# Lot 4 de l'arbre : talent de recherche propre au peuple (Compilation, Butin de clan…).
-	var rt: Dictionary = GameData.species_parts().get("research_talents", {}).get(String(spec.get("research_talent", "")), {})
-	if not rt.is_empty():
-		f["research"] = rt.duplicate(true)
+	# Talent de recherche choisi (briques de l'éditeur, props 21 et 71 de l'arbre) : remplace celui des couches.
+	var rid := String(spec.get("research_talent", ""))
+	if rid != "" and talent_fits(spec, rid):
+		var rt: Dictionary = (talents().get(rid, {}) as Dictionary).duplicate(true)
+		rt.erase("requires")
+		f["research"] = rt
 	var origin := brick("origine", String(spec["origine"]))
 	f["traits"].append({"name": String(origin["label"]), "text": String(origin["text"])})
 	var gov := brick("gouvernement", String(spec["gouvernement"]))
@@ -372,6 +378,39 @@ static func _mul(a: int, b: int) -> int:
 
 ## Spec de départ tiré de la combinaison déclarée d'un peuple officiel (« Partir de… »), ou un peuple
 ## neutre si preset == "". Nom et identifiant restent à donner.
+## Talents de recherche (briques de l'éditeur) : id -> {name, text, requires?, effets}.
+static func talents() -> Dictionary:
+	return parts().get("research_talents", {})
+
+
+## Le talent convient-il aux couches de cette fiche ? (requires : une valeur parmi la liste, par couche)
+static func talent_fits(spec: Dictionary, tid: String) -> bool:
+	var t: Dictionary = talents().get(tid, {})
+	if t.is_empty():
+		return false
+	var req: Dictionary = t.get("requires", {})
+	for layer in req:
+		if layer == "traits":
+			var any := false
+			for x in spec.get("traits", []):
+				if (req[layer] as Array).has(String(x)):
+					any = true
+			if not any:
+				return false
+		elif not (req[layer] as Array).has(String(spec.get(layer, ""))):
+			return false
+	return true
+
+
+## Talents proposés à cette fiche dans l'éditeur, dans l'ordre des données.
+static func talent_choices(spec: Dictionary) -> Array[String]:
+	var out: Array[String] = []
+	for k in talents():
+		if talent_fits(spec, String(k)):
+			out.append(String(k))
+	return out
+
+
 static func from_preset(preset: String) -> Dictionary:
 	var p: Dictionary = parts()["presets"].get(preset, {})
 	var spec := {"format": FORMAT, "id": "", "name": "", "short": "", "lore": "", "color": "#9b7fd4",

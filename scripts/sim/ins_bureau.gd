@@ -214,7 +214,7 @@ static func _procedure(state: GameState, b: int, target: int, added: Array[Dicti
 		else:
 			no += 1
 	if yes >= 1 and yes >= no:
-		(Insolites.emp(state, b)["sanc"] as Dictionary)[str(target)] = state.tick + _c("sanction_days", 720)
+		(Insolites.emp(state, b)["sanc"] as Dictionary)[str(target)] = state.tick + Insolites.tuned(state, b, "bureau", "sanction_days", _c("sanction_days", 720))
 		added.append(state.add_chronicle("PROCÉDURE : par %d voix contre %d, les signataires sanctionnent %s (revenus %d %% pendant %d ans). Les Huissiers du Bureau sont en route, avec des formulaires en triple exemplaire." % [
 				yes, no, t.display_name(), _c("sanction_income_pct", -10), _c("sanction_days", 720) / GameCalendar.DAYS_PER_YEAR], Espionage.public_to(state, [b, target])))
 	else:
@@ -233,6 +233,7 @@ static func _month(state: GameState, b: int, ed: Dictionary, added: Array[Dictio
 		if o == null or o.eliminated:
 			continue
 		# Redevance : quelques crédits par norme signée.
+		Insolites.learn(state, b, "learn_norm", (sg[k] as Array).size())  # Normes techniques
 		var fee := mini((sg[k] as Array).size() * _c("fee", 2), maxi(0, int(o.resources.get("energy", 0))))
 		if fee > 0:
 			o.resources["energy"] = int(o.resources.get("energy", 0)) - fee

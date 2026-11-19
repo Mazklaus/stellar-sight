@@ -266,6 +266,11 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 	var e := state.get_empire(empire_id)
 	if e == null or e.eliminated:
 		return out
+	# Destinées en étapes (prop. 20 de l'arbre) : la deuxième étape raccourcit le compte à rebours.
+	var dh := Research.fx_sub(state, empire_id, "destiny_hold", id)
+	if dh != 0 and int(out["hold"]) > 0:
+		@warning_ignore("integer_division")
+		out["hold"] = maxi(1, int(out["hold"]) * (100 + dh) / 100)
 	match id:
 		"conquete":
 			_conquest(state, e, out)
@@ -329,6 +334,9 @@ static func progress(state: GameState, empire_id: int, id: String) -> Dictionary
 			Transcendence.victory(state, e, out)
 		"contact":
 			Contact.victory(state, e, out)
+	# Première étape d'une Destinée : la condition perdue met le compte à rebours en pause.
+	if not out["cond"] and int(out["held"]) > 0 and Research.fx_sub(state, empire_id, "destiny_keep", id) > 0:
+		out["keep"] = true
 	if is_people(id) and not has_tech(state, empire_id, id):
 		out["lines"].append("Technologie requise : %s" % String(Research.tech(tech_for(id)).get("label", tech_for(id))))
 		out["cond"] = false

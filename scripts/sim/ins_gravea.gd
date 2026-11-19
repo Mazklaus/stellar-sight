@@ -209,7 +209,7 @@ static func check_sleep(state: GameState, eid: int, pid: int) -> String:
 
 
 static func sleep(state: GameState, eid: int, pid: int, added: Array[Dictionary]) -> void:
-	Insolites.sub(state, "sleep")[str(pid)] = state.tick + _c("sleep_days", 1080)
+	Insolites.sub(state, "sleep")[str(pid)] = state.tick + Insolites.tuned(state, eid, "gravea", "sleep_days", _c("sleep_days", 1080))
 	Insolites.emp(state, eid)["acted"] = state.tick
 	added.append(state.add_chronicle("%s s'endort. Les Lithes rentrent dans la roche, la surface se referme ; les envahisseurs ne trouvent qu'une montagne qui ne répond plus." % state.galaxy.get_planet(pid).display_name(state.galaxy),
 			Espionage.public_to(state, [eid])))
@@ -248,7 +248,7 @@ static func daily(state: GameState, eid: int, ed: Dictionary, month: bool, added
 		return
 	var e := state.get_empire(eid)
 	if state.tick - int(ed.get("acted", 0)) >= _c("idle_days", 180) and e.wars.is_empty():
-		ed["time"] = mini(_c("time_max", 720), int(ed.get("time", 0)) + _c("time_month", 20))
+		ed["time"] = mini(_c("time_max", 720), int(ed.get("time", 0)) + Insolites.tuned(state, eid, "gravea", "time_month", _c("time_month", 20)))
 	var cons: Dictionary = ed.get("cons", {})
 	for k in cons.keys():
 		if int(cons[k]) + _c("cons_keep_days", 360) < state.tick and not e.wars.has(int(k)):

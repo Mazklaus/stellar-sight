@@ -1,6 +1,53 @@
 {
 	"_doc": "Destinées : technologies des victoires de peuple (bande Peuple de l'arbre).",
 	"technologies": {
+		"lignees_croisees_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"feodalite"
+					]
+				}
+			},
+			"label": "Pactes de sang",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "lignees_croisees",
+			"text": "Destinée « Lignées croisées », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"elu": 1
+				}
+			}
+		},
+		"lignees_croisees_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"feodalite"
+					]
+				}
+			},
+			"label": "Arbres généalogiques",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "lignees_croisees",
+			"pre": [
+				"lignees_croisees_etape1"
+			],
+			"text": "Destinée « Lignées croisées », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"elu": -25
+				}
+			}
+		},
 		"lignees_croisees": {
 			"label": "Lignées croisées",
 			"domain": "societe",
@@ -9,7 +56,8 @@
 			"current": "concorde",
 			"text": "Victoire de peuple, l'Élu des routes : permet d'unir ses lignées à celles d'un allié de longue date (Diplomatie). Quand toutes les dynasties rivales sont unies et l'héritier loyal, l'Élu naît en deux ans.",
 			"pre": [
-				"propagande"
+				"propagande",
+				"lignees_croisees_etape2"
 			],
 			"requires": {
 				"species": {
@@ -20,6 +68,59 @@
 			},
 			"victory": "elu"
 		},
+		"dernier_couplet_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "autel",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"theocratie"
+					],
+					"credo": [
+						"foi"
+					]
+				}
+			},
+			"label": "Premier couplet",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "dernier_couplet",
+			"text": "Destinée « Le Dernier Couplet », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"couplet": 1
+				}
+			}
+		},
+		"dernier_couplet_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "autel",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"theocratie"
+					],
+					"credo": [
+						"foi"
+					]
+				}
+			},
+			"label": "Second couplet",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "dernier_couplet",
+			"pre": [
+				"dernier_couplet_etape1"
+			],
+			"text": "Destinée « Le Dernier Couplet », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"couplet": -25
+				}
+			}
+		},
 		"dernier_couplet": {
 			"label": "Le Dernier Couplet",
 			"domain": "societe",
@@ -28,7 +129,8 @@
 			"current": "autel",
 			"text": "Victoire de peuple : débloque la Cathédrale-chœur. Trois cathédrales dans trois systèmes, puis deux ans d'Exaltation, et l'hymne s'achève enfin.",
 			"pre": [
-				"pelerinages"
+				"pelerinages",
+				"dernier_couplet_etape2"
 			],
 			"requires": {
 				"species": {
@@ -42,6 +144,53 @@
 			},
 			"victory": "couplet"
 		},
+		"charte_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"republique"
+					]
+				}
+			},
+			"label": "Avant-projet",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "charte",
+			"text": "Destinée « Charte des Quarante et Un », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"charte": 1
+				}
+			}
+		},
+		"charte_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"republique"
+					]
+				}
+			},
+			"label": "Navette parlementaire",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "charte",
+			"pre": [
+				"charte_etape1"
+			],
+			"text": "Destinée « Charte des Quarante et Un », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"charte": -25
+				}
+			}
+		},
 		"charte": {
 			"label": "Charte des Quarante et Un",
 			"domain": "societe",
@@ -50,7 +199,8 @@
 			"current": "concorde",
 			"text": "Victoire de peuple : la Charte s'ouvre à la signature. Chaque empire survivant en paix et en commerce avec la république la signe ; deux ans de ratification sans défection, et elle préside la galaxie.",
 			"pre": [
-				"propagande"
+				"propagande",
+				"charte_etape2"
 			],
 			"requires": {
 				"species": {
@@ -61,6 +211,55 @@
 			},
 			"victory": "charte"
 		},
+		"terre_promise_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "seve",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"horde",
+						"conseil_survie"
+					]
+				}
+			},
+			"label": "Cartes chantées",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "terre_promise",
+			"text": "Destinée « Chants de la route », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"terre_promise": 1
+				}
+			}
+		},
+		"terre_promise_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "seve",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"horde",
+						"conseil_survie"
+					]
+				}
+			},
+			"label": "Mémoire de la route",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "terre_promise",
+			"pre": [
+				"terre_promise_etape1"
+			],
+			"text": "Destinée « Chants de la route », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"terre_promise": -25
+				}
+			}
+		},
 		"terre_promise": {
 			"label": "Chants de la route",
 			"domain": "societe",
@@ -69,7 +268,8 @@
 			"current": "seve",
 			"text": "Victoire de peuple : les anciens chants des clans donnent le chemin de la Terre promise. Chaque mois, ils disent à combien de sauts de la flotte-ville elle se trouve ; à deux sauts, ils la nomment.",
 			"pre": [
-				"administration2"
+				"administration2",
+				"terre_promise_etape2"
 			],
 			"requires": {
 				"species": {
@@ -82,6 +282,53 @@
 			"victory": "terre_promise",
 			"flavor": "« Là où les étoiles chantent faux, tourne à gauche. » Personne ne sait plus chanter juste."
 		},
+		"legende_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"syndicat"
+					]
+				}
+			},
+			"label": "Conteurs des docks",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "legende",
+			"text": "Destinée « Mille et une histoires », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"legende": 1
+				}
+			}
+		},
+		"legende_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"syndicat"
+					]
+				}
+			},
+			"label": "Registre des exploits",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "legende",
+			"pre": [
+				"legende_etape1"
+			],
+			"text": "Destinée « Mille et une histoires », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"legende": -25
+				}
+			}
+		},
 		"legende": {
 			"label": "Mille et une histoires",
 			"domain": "societe",
@@ -90,7 +337,8 @@
 			"current": "concorde",
 			"text": "Victoire de peuple : les conteurs des docks recueillent les exploits du peuple. Sept exploits différents et une réputation d'au moins 60, tenus un an, et la Légende entre dans l'histoire.",
 			"pre": [
-				"administration2"
+				"administration2",
+				"legende_etape2"
 			],
 			"requires": {
 				"species": {
@@ -102,6 +350,59 @@
 			"victory": "legende",
 			"flavor": "« C'était trois contre un. Puis dix contre un, au deuxième verre. »"
 		},
+		"silence_parfait_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "academie",
+			"requires": {
+				"species": {
+					"archetype": [
+						"energetique"
+					],
+					"credo": [
+						"raison"
+					]
+				}
+			},
+			"label": "Voix basse",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "silence_parfait",
+			"text": "Destinée « Le Grand Silence », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"silence": 1
+				}
+			}
+		},
+		"silence_parfait_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "academie",
+			"requires": {
+				"species": {
+					"archetype": [
+						"energetique"
+					],
+					"credo": [
+						"raison"
+					]
+				}
+			},
+			"label": "Murmure",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "silence_parfait",
+			"pre": [
+				"silence_parfait_etape1"
+			],
+			"text": "Destinée « Le Grand Silence », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"silence": -25
+				}
+			}
+		},
 		"silence_parfait": {
 			"label": "Le Grand Silence",
 			"domain": "societe",
@@ -110,7 +411,8 @@
 			"current": "academie",
 			"text": "Victoire de peuple : les colonies apprennent à se taire tout à fait. Huit colonies peuplées tenues trois ans sans qu'aucun empire non allié ne les aperçoive, et le Silence parfait est atteint.",
 			"pre": [
-				"administration2"
+				"administration2",
+				"silence_parfait_etape2"
 			],
 			"requires": {
 				"species": {
@@ -125,6 +427,53 @@
 			"victory": "silence",
 			"flavor": "« Nous ne sommes pas cachés. Vous ne regardez simplement pas au bon endroit, ni au bon moment. »"
 		},
+		"noosphere_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "academie",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conscience"
+					]
+				}
+			},
+			"label": "Synapses",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "noosphere",
+			"text": "Destinée « Éveil de la Noosphère », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"noosphere": 1
+				}
+			}
+		},
+		"noosphere_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "academie",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conscience"
+					]
+				}
+			},
+			"label": "Pensée commune",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "noosphere",
+			"pre": [
+				"noosphere_etape1"
+			],
+			"text": "Destinée « Éveil de la Noosphère », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"noosphere": -25
+				}
+			}
+		},
 		"noosphere": {
 			"label": "Éveil de la Noosphère",
 			"domain": "societe",
@@ -133,7 +482,8 @@
 			"current": "academie",
 			"text": "Victoire de peuple : quand au moins douze colonies pensent ensemble, sans un seul nœud coupé, et le tiennent deux ans, la Noosphère s'éveille.",
 			"pre": [
-				"administration2"
+				"administration2",
+				"noosphere_etape2"
 			],
 			"requires": {
 				"species": {
@@ -145,6 +495,53 @@
 			"victory": "noosphere",
 			"flavor": "Douze esprits, et plus un seul silence entre deux pensées."
 		},
+		"allumage_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "academie",
+			"requires": {
+				"species": {
+					"archetype": [
+						"planete_etre"
+					]
+				}
+			},
+			"label": "Noyau dense",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "allumage",
+			"text": "Destinée « L'Allumage », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"allumage": 1
+				}
+			}
+		},
+		"allumage_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "academie",
+			"requires": {
+				"species": {
+					"archetype": [
+						"planete_etre"
+					]
+				}
+			},
+			"label": "Première étincelle",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "allumage",
+			"pre": [
+				"allumage_etape1"
+			],
+			"text": "Destinée « L'Allumage », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"allumage": -25
+				}
+			}
+		},
 		"allumage": {
 			"label": "L'Allumage",
 			"domain": "societe",
@@ -153,7 +550,8 @@
 			"current": "academie",
 			"text": "Victoire de peuple : quand l'Orbe-Monde atteint une Masse de 300 et la tient trois ans sans être assiégé, il s'allume en étoile.",
 			"pre": [
-				"forage_manteau"
+				"forage_manteau",
+				"allumage_etape2"
 			],
 			"requires": {
 				"species": {
@@ -165,6 +563,53 @@
 			"victory": "allumage",
 			"flavor": "« Toute planète rêve d'être une étoile. La plupart ont la décence de ne pas essayer. »"
 		},
+		"opa_galactique_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"actionnaires"
+					]
+				}
+			},
+			"label": "Prise de participation",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "opa_galactique",
+			"text": "Destinée « L'OPA galactique », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"opa": 1
+				}
+			}
+		},
+		"opa_galactique_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"actionnaires"
+					]
+				}
+			},
+			"label": "Pacte d'actionnaires",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "opa_galactique",
+			"pre": [
+				"opa_galactique_etape1"
+			],
+			"text": "Destinée « L'OPA galactique », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"opa": -25
+				}
+			}
+		},
 		"opa_galactique": {
 			"label": "L'OPA galactique",
 			"domain": "societe",
@@ -173,7 +618,8 @@
 			"current": "concorde",
 			"text": "Victoire de peuple : quand la Compagnie détient la majorité des parts de trois empires rivaux et la tient deux ans, la galaxie lui appartient.",
 			"pre": [
-				"compagnies"
+				"compagnies",
+				"opa_galactique_etape2"
 			],
 			"requires": {
 				"species": {
@@ -185,6 +631,53 @@
 			"victory": "opa",
 			"flavor": "« Nous ne conquérons pas. Nous diversifions notre portefeuille. »"
 		},
+		"administration_totale_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"bureaucratie"
+					]
+				}
+			},
+			"label": "Normes des normes",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "administration_totale",
+			"text": "Destinée « L'Administration totale », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"administration": 1
+				}
+			}
+		},
+		"administration_totale_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"bureaucratie"
+					]
+				}
+			},
+			"label": "Guichet unique",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "administration_totale",
+			"pre": [
+				"administration_totale_etape1"
+			],
+			"text": "Destinée « L'Administration totale », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"administration": -25
+				}
+			}
+		},
 		"administration_totale": {
 			"label": "L'Administration totale",
 			"domain": "societe",
@@ -193,7 +686,8 @@
 			"current": "concorde",
 			"text": "Victoire de peuple : quand tous les empires survivants ont signé toutes les normes en vigueur, et le restent un an, le Bureau a fini son travail.",
 			"pre": [
-				"cadastre_algorithmique"
+				"cadastre_algorithmique",
+				"administration_totale_etape2"
 			],
 			"requires": {
 				"species": {
@@ -205,6 +699,53 @@
 			"victory": "administration",
 			"flavor": "« Formulaire Z-0 : déclaration de fin de l'Histoire. À remplir en trois exemplaires. »"
 		},
+		"saturation_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "academie",
+			"requires": {
+				"species": {
+					"archetype": [
+						"information"
+					]
+				}
+			},
+			"label": "Bande passante",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "saturation",
+			"text": "Destinée « La Saturation », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"saturation": 1
+				}
+			}
+		},
+		"saturation_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "academie",
+			"requires": {
+				"species": {
+					"archetype": [
+						"information"
+					]
+				}
+			},
+			"label": "Écho partout",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "saturation",
+			"pre": [
+				"saturation_etape1"
+			],
+			"text": "Destinée « La Saturation », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"saturation": -25
+				}
+			}
+		},
 		"saturation": {
 			"label": "La Saturation",
 			"domain": "societe",
@@ -213,7 +754,8 @@
 			"current": "academie",
 			"text": "Victoire de peuple : quand le Signal habite 40 % des colonies de chaque empire survivant, et le tient trois ans, il est partout.",
 			"pre": [
-				"banques_donnees"
+				"banques_donnees",
+				"saturation_etape2"
 			],
 			"requires": {
 				"species": {
@@ -225,6 +767,53 @@
 			"victory": "saturation",
 			"flavor": "« 01001110 01001111 01010101 01010011 »"
 		},
+		"reve_commun_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "seve",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"reve_partage"
+					]
+				}
+			},
+			"label": "Sommeil partagé",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "reve_commun",
+			"text": "Destinée « Le Rêve commun », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"reve_commun": 1
+				}
+			}
+		},
+		"reve_commun_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "seve",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"reve_partage"
+					]
+				}
+			},
+			"label": "Rêve éveillé",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "reve_commun",
+			"pre": [
+				"reve_commun_etape1"
+			],
+			"text": "Destinée « Le Rêve commun », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"reve_commun": -25
+				}
+			}
+		},
 		"reve_commun": {
 			"label": "Le Rêve commun",
 			"domain": "societe",
@@ -233,7 +822,8 @@
 			"current": "seve",
 			"text": "Victoire de peuple : quand la moitié de la population organique de la galaxie rêve avec les Ysmer, et le tient cinq ans, tous font le même rêve.",
 			"pre": [
-				"holovision"
+				"holovision",
+				"reve_commun_etape2"
 			],
 			"requires": {
 				"species": {
@@ -245,6 +835,53 @@
 			"victory": "reve_commun",
 			"flavor": "« Dors. Nous gardons la porte. »"
 		},
+		"grand_rassemblement_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "academie",
+			"requires": {
+				"species": {
+					"archetype": [
+						"esprits_numerises"
+					]
+				}
+			},
+			"label": "Registre des morts",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "grand_rassemblement",
+			"text": "Destinée « Le Grand Rassemblement », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"grand_rassemblement": 1
+				}
+			}
+		},
+		"grand_rassemblement_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "academie",
+			"requires": {
+				"species": {
+					"archetype": [
+						"esprits_numerises"
+					]
+				}
+			},
+			"label": "Chemin des âmes",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "grand_rassemblement",
+			"pre": [
+				"grand_rassemblement_etape1"
+			],
+			"text": "Destinée « Le Grand Rassemblement », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"grand_rassemblement": -25
+				}
+			}
+		},
 		"grand_rassemblement": {
 			"label": "Le Grand Rassemblement",
 			"domain": "societe",
@@ -253,7 +890,8 @@
 			"current": "academie",
 			"text": "Victoire de peuple : quand Asphodèle a accueilli les morts de la moitié de la galaxie (en cumul), et le tient deux ans, tous les vivants savent où ils iront.",
 			"pre": [
-				"habitats"
+				"habitats",
+				"grand_rassemblement_etape2"
 			],
 			"requires": {
 				"species": {
@@ -265,6 +903,53 @@
 			"victory": "grand_rassemblement",
 			"flavor": "« Entrez. Il y a de la place pour tout le monde. »"
 		},
+		"musee_vivant_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"collectionneur"
+					]
+				}
+			},
+			"label": "Catalogue raisonné",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "musee_vivant",
+			"text": "Destinée « Le Musée vivant », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"musee_vivant": 1
+				}
+			}
+		},
+		"musee_vivant_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"collectionneur"
+					]
+				}
+			},
+			"label": "Dernière salle",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "musee_vivant",
+			"pre": [
+				"musee_vivant_etape1"
+			],
+			"text": "Destinée « Le Musée vivant », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"musee_vivant": -25
+				}
+			}
+		},
 		"musee_vivant": {
 			"label": "Le Musée vivant",
 			"domain": "societe",
@@ -273,7 +958,8 @@
 			"current": "concorde",
 			"text": "Victoire de peuple : quand le Muséum expose un représentant de chaque espèce de la partie, et le tient un an, Sire Cassivel ferme la dernière vitrine.",
 			"pre": [
-				"arts_holographiques"
+				"arts_holographiques",
+				"musee_vivant_etape2"
 			],
 			"requires": {
 				"species": {
@@ -285,6 +971,53 @@
 			"victory": "musee_vivant",
 			"flavor": "« Ne touchez pas les spécimens. Les spécimens, ne touchez pas les visiteurs. »"
 		},
+		"envol_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conseil_anciens"
+					]
+				}
+			},
+			"label": "Patience des étoiles",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "envol",
+			"text": "Destinée « L'Envol », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"envol": 1
+				}
+			}
+		},
+		"envol_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"conseil_anciens"
+					]
+				}
+			},
+			"label": "Phare discret",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "envol",
+			"pre": [
+				"envol_etape1"
+			],
+			"text": "Destinée « L'Envol », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"envol": -25
+				}
+			}
+		},
 		"envol": {
 			"label": "L'Envol",
 			"domain": "societe",
@@ -293,7 +1026,8 @@
 			"current": "concorde",
 			"text": "Victoire de peuple : quand deux espèces primitives atteignent l'espace sous les postes voilés de Quiétude sans que personne ne les découvre entre-temps, les Observateurs ont gagné.",
 			"pre": [
-				"ambassades"
+				"ambassades",
+				"envol_etape2"
 			],
 			"requires": {
 				"species": {
@@ -305,6 +1039,53 @@
 			"victory": "envol",
 			"flavor": "« Ils ne sauront jamais. C'est le plus beau cadeau. »"
 		},
+		"paradoxe_stable_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "academie",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"chronarchie"
+					]
+				}
+			},
+			"label": "Fissure maîtrisée",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "paradoxe_stable",
+			"text": "Destinée « Le Paradoxe stable », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"paradoxe": 1
+				}
+			}
+		},
+		"paradoxe_stable_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "academie",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"chronarchie"
+					]
+				}
+			},
+			"label": "Boucle ouverte",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "paradoxe_stable",
+			"pre": [
+				"paradoxe_stable_etape1"
+			],
+			"text": "Destinée « Le Paradoxe stable », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"paradoxe": -25
+				}
+			}
+		},
 		"paradoxe_stable": {
 			"label": "Le Paradoxe stable",
 			"domain": "societe",
@@ -313,7 +1094,8 @@
 			"current": "academie",
 			"text": "Victoire de peuple : ouvre la Boucle, trois étapes de deux ans qui envoient dans le passé la technologie qui les fonde ; fermée avec le Gardien chronal vivant et tenue un an, elle donne la victoire.",
 			"pre": [
-				"precognition"
+				"precognition",
+				"paradoxe_stable_etape2"
 			],
 			"requires": {
 				"species": {
@@ -325,6 +1107,53 @@
 			"victory": "paradoxe",
 			"flavor": "« Nous l'avons inventé parce que nous l'avions déjà. »"
 		},
+		"remodelage_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "seve",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"consensus_seculaire"
+					]
+				}
+			},
+			"label": "Plan millénaire",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "remodelage",
+			"text": "Destinée « Le Remodelage », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"remodelage": 1
+				}
+			}
+		},
+		"remodelage_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "seve",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"consensus_seculaire"
+					]
+				}
+			},
+			"label": "Géologie dirigée",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "remodelage",
+			"pre": [
+				"remodelage_etape1"
+			],
+			"text": "Destinée « Le Remodelage », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"remodelage": -25
+				}
+			}
+		},
 		"remodelage": {
 			"label": "Le Remodelage",
 			"domain": "societe",
@@ -333,7 +1162,8 @@
 			"current": "seve",
 			"text": "Victoire de peuple : quand les Lithes ont achevé cinq Œuvres lentes dans cinq systèmes, et le tiennent un an, la galaxie a pris leur forme.",
 			"pre": [
-				"terraformation"
+				"terraformation",
+				"remodelage_etape2"
 			],
 			"requires": {
 				"species": {
@@ -345,6 +1175,53 @@
 			"victory": "remodelage",
 			"flavor": "« Nous ne sommes pas pressés. Les montagnes non plus. »"
 		},
+		"biosphere_unique_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "seve",
+			"requires": {
+				"species": {
+					"archetype": [
+						"fongoide"
+					]
+				}
+			},
+			"label": "Mycélium patient",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "biosphere_unique",
+			"text": "Destinée « La Biosphère unique », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"biosphere": 1
+				}
+			}
+		},
+		"biosphere_unique_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "seve",
+			"requires": {
+				"species": {
+					"archetype": [
+						"fongoide"
+					]
+				}
+			},
+			"label": "Couverture de spores",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "biosphere_unique",
+			"pre": [
+				"biosphere_unique_etape1"
+			],
+			"text": "Destinée « La Biosphère unique », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"biosphere": -25
+				}
+			}
+		},
 		"biosphere_unique": {
 			"label": "La Biosphère unique",
 			"domain": "societe",
@@ -353,7 +1230,8 @@
 			"current": "seve",
 			"text": "Victoire de peuple : quand un organisme fongoïde ou végétal couvre 40 % des planètes habitables de la galaxie, et le tient deux ans, il n'y a plus qu'une seule vie.",
 			"pre": [
-				"biomes_extremes"
+				"biomes_extremes",
+				"biosphere_unique_etape2"
 			],
 			"requires": {
 				"species": {
@@ -365,6 +1243,53 @@
 			"victory": "biosphere",
 			"flavor": "« Tout est relié. Tout. »"
 		},
+		"grand_jardin_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "seve",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"cercle_enracines"
+					]
+				}
+			},
+			"label": "Semis d'étoiles",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "grand_jardin",
+			"text": "Destinée « Le Grand Jardin », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"grand_jardin": 1
+				}
+			}
+		},
+		"grand_jardin_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "seve",
+			"requires": {
+				"species": {
+					"gouvernement": [
+						"cercle_enracines"
+					]
+				}
+			},
+			"label": "Racines croisées",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "grand_jardin",
+			"pre": [
+				"grand_jardin_etape1"
+			],
+			"text": "Destinée « Le Grand Jardin », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"grand_jardin": -25
+				}
+			}
+		},
 		"grand_jardin": {
 			"label": "Le Grand Jardin",
 			"domain": "societe",
@@ -373,7 +1298,8 @@
 			"current": "seve",
 			"text": "Victoire de peuple : quand le Hallier tient huit mondes-jardins et trois mondes vivants Liés, cinq ans durant, la galaxie a changé de couleur.",
 			"pre": [
-				"terraformation"
+				"terraformation",
+				"grand_jardin_etape2"
 			],
 			"requires": {
 				"species": {
@@ -385,6 +1311,55 @@
 			"victory": "grand_jardin",
 			"flavor": "« Plantez. Attendez. Plantez encore. »"
 		},
+		"grande_moisson_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "seve",
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche",
+						"vaisseaux_vivants"
+					]
+				}
+			},
+			"label": "Banque génétique",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "grande_moisson",
+			"text": "Destinée « La Grande Moisson », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"moisson": 1
+				}
+			}
+		},
+		"grande_moisson_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "seve",
+			"requires": {
+				"species": {
+					"archetype": [
+						"ruche",
+						"vaisseaux_vivants"
+					]
+				}
+			},
+			"label": "Faim commune",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "grande_moisson",
+			"pre": [
+				"grande_moisson_etape1"
+			],
+			"text": "Destinée « La Grande Moisson », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"moisson": -25
+				}
+			}
+		},
 		"grande_moisson": {
 			"label": "La Grande Moisson",
 			"domain": "societe",
@@ -393,7 +1368,8 @@
 			"current": "seve",
 			"text": "Victoire de peuple : quand l'Essaim porte la moitié de toute la vie de la galaxie et a digéré assez de peuples conquis, et le tient deux ans, la Moisson est faite.",
 			"pre": [
-				"genetique"
+				"genetique",
+				"grande_moisson_etape2"
 			],
 			"requires": {
 				"species": {
@@ -405,6 +1381,53 @@
 			},
 			"victory": "moisson"
 		},
+		"idole_etape1": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"credo": [
+						"plaisir"
+					]
+				}
+			},
+			"label": "Affiches lumineuses",
+			"era": 2,
+			"destiny_stage": 1,
+			"destiny": "idole",
+			"text": "Destinée « Idole des étoiles », première étape : si la condition de la victoire cesse d'être remplie, le compte à rebours se met en pause au lieu de repartir de zéro.",
+			"effects": {
+				"destiny_keep": {
+					"idole": 1
+				}
+			}
+		},
+		"idole_etape2": {
+			"domain": "societe",
+			"field": "destinee",
+			"current": "concorde",
+			"requires": {
+				"species": {
+					"credo": [
+						"plaisir"
+					]
+				}
+			},
+			"label": "Tournée d'adieu",
+			"era": 3,
+			"destiny_stage": 2,
+			"destiny": "idole",
+			"pre": [
+				"idole_etape1"
+			],
+			"text": "Destinée « Idole des étoiles », deuxième étape : le compte à rebours de la victoire est un quart plus court.",
+			"effects": {
+				"destiny_hold": {
+					"idole": -25
+				}
+			}
+		},
 		"idole": {
 			"label": "Idole des étoiles",
 			"domain": "societe",
@@ -413,7 +1436,8 @@
 			"current": "concorde",
 			"text": "Victoire de peuple : la grande tournée commence. Influente chez des empires qui réunissent 60 % de la population étrangère rencontrée, tenu un an, et la galaxie entière danse sur votre musique.",
 			"pre": [
-				"holovision"
+				"holovision",
+				"idole_etape2"
 			],
 			"requires": {
 				"species": {

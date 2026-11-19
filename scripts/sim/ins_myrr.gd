@@ -114,8 +114,8 @@ static func check_comet(state: GameState, eid: int, sid: int) -> String:
 		return "système revendiqué par un autre empire : le mycélium y viendra de proche en proche"
 	if _free_planets(state, sid).is_empty():
 		return "aucune planète libre où tomber"
-	if comet_range(state, eid, sid) > _c("comet_jumps", 5):
-		return "trop loin (%d sauts au plus d'une colonie)" % _c("comet_jumps", 5)
+	if comet_range(state, eid, sid) > Insolites.tuned(state, eid, "myrr", "comet_jumps", _c("comet_jumps", 5)):
+		return "trop loin (%d sauts au plus d'une colonie)" % Insolites.tuned(state, eid, "myrr", "comet_jumps", _c("comet_jumps", 5))
 	var comets: Array = Insolites.emp(state, eid).get("comets", [])
 	var stacking := false
 	for cm: Dictionary in comets:
@@ -215,6 +215,7 @@ static func _feed(state: GameState, eid: int, added: Array[Dictionary]) -> void:
 
 
 static func _absorb(state: GameState, eid: int, c: Colony, added: Array[Dictionary]) -> void:
+	Insolites.learn(state, eid, "learn_absorb", 1)  # Absorption
 	var was := c.owner
 	var we := state.get_empire(was)
 	Insolites.remove_implant(state, c.planet_id, "mycelium")
@@ -334,7 +335,7 @@ static func colony_pct(state: GameState, pid: int) -> int:
 # --- Spores (prop. 97) -------------------------------------------------------------------------------
 
 static func _spores(state: GameState, eid: int) -> void:
-	var pct := _c("spore_pct", 2)
+	var pct := Insolites.tuned(state, eid, "myrr", "spore_pct", _c("spore_pct", 2))
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
 		if f.owner == eid or f.is_moving() or f.owner < 0 or GameState.is_npc(f.owner) or state.system_owner(f.system_id) != eid:
