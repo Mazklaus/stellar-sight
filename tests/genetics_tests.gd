@@ -257,9 +257,18 @@ func _test_lineage() -> void:
 	# L'espèce change : la lignée suit.
 	Genetics._set_genome(st, e, "ossarane", {"add": ["g_robustes"]})
 	_ok(Genetics.traits_of(GameData.faction(lid)).has("g_robustes"), "Lignée : suit le génome de son espèce")
+	_reload_ok(st, lid, "Lignée")
 	var st2 := new_game("simple", "ossarane", {"peoples": "actifs"})
 	give_techs(st2, 0, ["genetique"])
 	_ok(GeneticsBridges.check_lineage(st2, 0, "ossarane", ["g_robustes"], []) != "", "Lignées : réglage complet seulement")
+
+
+## Une partie où est né un peuple (lignée, hybride) se recharge, et ce peuple garde sa fiche.
+func _reload_ok(st: GameState, fid: String, what: String) -> void:
+	var st2 := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_dict())))
+	_ok(st2 != null, "%s : la partie se recharge (%s)" % [what, GameState.last_error if st2 == null else "ok"])
+	if st2 != null and fid != "":
+		_ok(st2.custom_factions.has(fid) and st2.checksum() == st.checksum(), "%s : fiche et empreinte gardées" % what)
 
 
 func _other_species(st: GameState, c: Colony, fid: String, n: int) -> void:
@@ -320,6 +329,7 @@ func _test_hybrids() -> void:
 		_ok(Genetics.margin_total(st, 0, hid) == Genetics.margin_total(st, 0, "ossarane") + 1, "Hybride : un point de marge en plus")
 		_ok(int(GameData.faction(hid)["production_pct"].get("crystals", 100)) == 150, "Hybride : le meilleur des deux parents")
 	_ok(Genetics.stat(st, 0, "hybrids") == 1, "Hybride : compté")
+	_reload_ok(st, hid, "Hybride")
 
 
 func _test_bridges() -> void:

@@ -670,7 +670,8 @@ static func from_dict(d: Dictionary) -> GameState:
 	# Peuples créés avant les empires : leur fiche vient de la sauvegarde, pas de la bibliothèque.
 	for cf: Dictionary in d.get("custom_factions", []):
 		var fd: Dictionary = GameData._to_ints(cf)
-		if not Species.is_valid_id(String(fd.get("id", ""))) or not fd.has("species"):
+		var cid := String(fd.get("id", ""))
+		if not (Species.is_valid_id(cid) or Genetics.is_derived_id(cid)) or not fd.has("species"):
 			last_error = "peuple créé invalide : %s" % fd.get("id", "?")
 			return null
 		s.custom_factions[String(fd["id"])] = fd

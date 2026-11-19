@@ -3,31 +3,16 @@ extends SceneTree
 ## piliers actifs, mode spectateur), chronométrée système par système, année par année.
 ##   godot --headless --path . -s res://tools/profile_game.gd
 ## Réglages (variables d'environnement) : SEED (3), YEARS (40), LEVEL (niveau d'IA, défaut du menu),
-## SAVE_EVERY (années entre deux mesures de sauvegarde, 10), OUT (fichier JSON du résultat, facultatif).
-## Le pas reprend Simulation.step() dans le même ordre (à garder aligné si step() change) ; les signaux
-## de chronique ne sont pas émis (rien n'y est branché ici).
+## SAVE_EVERY (années entre deux mesures de sauvegarde, 10), OUT (fichier JSON du résultat, facultatif),
+## SAVE_AT + SAVE_PATH (sauvegarder la partie à la fin de cette année, pour tools/deep_profile.gd).
+## Le pas suit la liste de Simulation.daily_systems(), la même que step() ; les signaux de chronique
+## ne sont pas émis (rien n'y est branché ici).
 
 const SAVE_TMP := "user://profile_game_tmp.json"
 
 
 func _systems(events: Array) -> Array:
-	return [
-		["Économie", EconomySystem.process], ["Flottes", FleetSystem.process],
-		["Combat", func(st: GameState) -> Array: return CombatSystem.process(st, events)],
-		["Défenses", Defenses.daily], ["Furtivité", Stealth.daily], ["Portails", Portals.daily],
-		["Terrain", Terrain.daily], ["Logistique", Logistics.daily], ["Combat au sol", Ground.daily],
-		["Diplomatie", DiplomacySystem.process], ["Amphictyonie", AmphictyonySystem.process],
-		["Politique", PoliticsSystem.process], ["Stabilité", StabilitySystem.process],
-		["Pirates", PirateSystem.process], ["Biens", GoodsSystem.process], ["Commerce", TradeSystem.process],
-		["Faune", FaunaSystem.process], ["Crises", Crisis.daily], ["Anciennes", Ancients.daily],
-		["Mineurs", Minors.daily], ["Culture", Culture.daily], ["Merveilles", Wonders.daily],
-		["Mégastructures", Megastructures.daily], ["Archéologie", Archaeology.daily],
-		["Capture", Capture.daily], ["Forge", WorldForge.daily], ["Hauts faits", Deeds.daily],
-		["Souverains", Rulers.daily], ["Cour", Court.daily], ["Administration", Admin.daily],
-		["Finances", Finance.daily], ["Économie privée", Private.daily], ["Spatioports", Ports.daily],
-		["Événements", EventSystem.process], ["Héros", Heroes.daily], ["Victoire", VictorySystem.process],
-		["Chronique", ChronicleSystem.process], ["IA", AiSystem.process],
-	]
+	return Simulation.daily_systems(events)
 
 
 func _initialize() -> void:
@@ -82,6 +67,8 @@ func _initialize() -> void:
 		print("an %2d : %6.2f ms/jour (pire jour %6.1f ms) | colonies %3d flottes %4d | %4.0f Mo | %s" % [
 			y + 1, row["ms_per_day"], worst, row["colonies"], row["fleets"], row["mem_mb"],
 			", ".join(row["top"].map(func(p: Array) -> String: return "%s %.1f" % [p[0], p[1] / 360.0 / 1000.0]))])
+		if OS.get_environment("SAVE_AT") != "" and y + 1 == int(OS.get_environment("SAVE_AT")):
+			SaveGame.save_state(st, OS.get_environment("SAVE_PATH"))
 		if (y + 1) % save_every == 0:
 			saves.append(_measure_save(st))
 	var days := years * 360
