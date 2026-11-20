@@ -1,5 +1,30 @@
 # Performance : référence et points lents
 
+## Caches gardés d'un jour à l'autre (2026-11-20)
+
+Règle retenue : un cache ne survit au jour que si sa validité se lit dans l'état, sans compter sur un
+compteur posé à chaque écriture. Le mode vérifié (`SimCache`, `SS_CACHE_VERIFY=1`) recalcule et compare
+chaque valeur relue ; le banc de l'an 40 tourne quelques jours dans ce mode.
+
+- Fait : liste triée des régiments (`Ground._sorted`, dans `state.ground_idx`). Un régiment ne naît qu'à
+  `_new_regiment`, qui avance toujours « nid », et les autres écritures ne font que dissoudre : même table,
+  même « nid » et même taille = même ensemble d'identifiants. 2 900 régiments à l'an 50, triés 19 fois par jour avant.
+- Fait, à calcul identique dans le jour : capacités et colonies candidates gardées le temps d'une série de
+  migrations (`Movements.migration_dest`), ravitaillement, tenant et rang gardés pendant la récupération
+  des régiments.
+- Essayé puis écarté : revenu d'empire gardé pour le jour. Le mode vérifié l'a trouvé périmé 5 fois en un
+  mois (après l'Amphictyonie et l'IA) : il aurait changé la partie. Gardé le temps d'un seul système, aucun
+  écart en un mois, mais rien ne le prouve et le gain ne dépasse pas 2 %. Les zones de ravitaillement, les
+  opinions et les routes lisent trop de piliers pour qu'une preuve de ce genre existe : non faits.
+
+| 90 jours depuis | avant (ms/jour) | après | Combat au sol avant | après |
+| --- | --- | --- | --- | --- |
+| an 30 | 410 | 406 | 6 | 4 |
+| an 40 | 742 | 696 | 36 | 24 |
+| an 50 | 784 | 722 | 65 | 42 |
+
+Empreintes identiques (30 jours, 90 jours, 14 ans graine 3 en mode vérifié : aucun écart).
+
 ## Fin de partie, étude approfondie (2026-11-20)
 
 Étude : https://claude.ai/artifact/KR4kwB4YpjZPLYHgZENSy2 (37 propositions). Seules celles qui gardent la
