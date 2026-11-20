@@ -12,6 +12,19 @@ const DATA_DIR := "res://data"
 static var _cache := {}
 
 
+## « de » + un nom, à la française : « de le Trône » -> « du Trône », « de les » -> « des »,
+## « de Éclat » -> « d'Éclat ». Pour les textes de la chronique qui collent « de %s ».
+static func de(name: String) -> String:
+	for pair in [["le ", "du "], ["Le ", "du "], ["les ", "des "], ["Les ", "des "]]:
+		if name.begins_with(pair[0]):
+			return pair[1] + name.substr(pair[0].length())
+	if name.begins_with("La ") or name.begins_with("L'"):
+		return "de " + name[0].to_lower() + name.substr(1)
+	if name != "" and "aeiouyhAEIOUYHÉÈÊÀÂÎÔÛéèêàâîôûœŒ".contains(name[0]) and not name.begins_with("la ") and not name.begins_with("l'"):
+		return "d'" + name
+	return "de " + name
+
+
 static func rules() -> Dictionary:
 	return _load("rules")
 

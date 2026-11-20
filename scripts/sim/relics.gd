@@ -498,8 +498,8 @@ static func triumph(state: GameState, empire_id: int, rid: String, added: Array[
 		e.fervor = mini(int(e.faction()["fervor"].get("max", 100)), e.fervor + int(rules()["holy_triumph_fervor"]))
 	touch(state)
 	Research.count_stat(state, empire_id, "triumphs")
-	added.append(state.add_chronicle("%s célèbre le Triomphe de %s : %s. Les foules se pressent, les marchands de souvenirs aussi." % [
-			e.display_name(), String(def(rid)["name"]), String(t["label"]).to_lower()], Espionage.public_to(state, [empire_id])))
+	added.append(state.add_chronicle("%s célèbre le Triomphe %s : %s. Les foules se pressent, les marchands de souvenirs aussi." % [
+			e.display_name(), GameData.de(String(def(rid)["name"])), String(t["label"]).to_lower()], Espionage.public_to(state, [empire_id])))
 
 
 ## Effets du Triomphe en texte (pour l'interface).
