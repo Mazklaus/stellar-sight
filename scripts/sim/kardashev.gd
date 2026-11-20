@@ -381,14 +381,16 @@ static func compute(state: GameState, eid: int, power := -1) -> int:
 
 # --- Chaque mois -------------------------------------------------------------------------------
 
+## Appelé chaque jour : chaque empire est mis à jour à son jour du mois (EconomySystem.month_day,
+## le 1er pour les humains), la part commune (KardashevWorld) le 1er.
 static func monthly(state: GameState, added: Array[Dictionary]) -> void:
 	if not enabled(state):
 		return
 	for e in state.empires:
-		if e.is_npc() or e.eliminated:
+		if e.is_npc() or e.eliminated or not EconomySystem.month_day(state, e):
 			continue
 		_update(state, e.id, added)
-	if full(state):
+	if full(state) and state.tick % int(GameData.rules()["month_days"]) == 0:
 		KardashevWorld.monthly(state, added)
 
 

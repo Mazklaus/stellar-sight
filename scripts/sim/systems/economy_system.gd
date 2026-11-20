@@ -11,7 +11,8 @@ static func process(state: GameState) -> Array[Dictionary]:
 	var added: Array[Dictionary] = []
 	for pid in state.sorted_colony_ids():
 		_process_colony(state, state.colonies[pid], added)
-	if state.tick % int(GameData.rules()["month_days"]) == 0:
+	var month := state.tick % int(GameData.rules()["month_days"]) == 0
+	if month:
 		Peoples.refresh(state)
 		Peoples.monthly(state, added)
 		Movements.monthly(state, added)
@@ -21,15 +22,30 @@ static func process(state: GameState) -> Array[Dictionary]:
 		Transcendence.monthly(state, added)
 		Megastructures.monthly(state, added)
 		WorldForge.monthly(state, added)
-		Kardashev.monthly(state, added)
+	Kardashev.monthly(state, added)  # chaque jour : chaque empire à son jour du mois (month_day)
+	if month:
 		LivingWorlds.monthly(state, added)
 		Ecology.monthly(state, added)
 		Contact.monthly(state, added)
 		PeopleHulls.monthly(state, added)  # ponte, marché flottant, ambassade
 		CodexProgress.monthly(state)
-		for e in state.empires:
+	for e in state.empires:
+		if month_day(state, e):
 			_monthly_balance(state, e, added)
 	return added
+
+
+## Jour du bilan mensuel d'un empire (grande passe d'optimisation, prop. 14) : le 1er du mois pour les
+## joueurs humains ; les empires IA ont chacun leur jour, pour que tous les bilans ne tombent pas le même.
+static func month_day(state: GameState, e: Empire) -> bool:
+	var md := int(GameData.rules()["month_days"])
+	return posmod(state.tick - month_offset(e, md), md) == 0
+
+
+static func month_offset(e: Empire, md := 30) -> int:
+	if e == null or not e.is_ai() or e.is_npc():
+		return 0
+	return 2 + posmod(e.id * 7, md - 3)
 
 
 static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary]) -> void:

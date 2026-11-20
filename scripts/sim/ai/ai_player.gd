@@ -45,9 +45,12 @@ static func think(state: GameState, e: Empire) -> void:
 	_faction_talents(ctx)
 	_research(ctx)
 	_victory(ctx)
-	_buildings(ctx)
+	var slow := slow_turn(state, e, ctx["lv"])
+	if slow:
+		_buildings(ctx)
 	_foothold_claims(ctx)
-	_designs(ctx)
+	if slow:
+		_designs(ctx)
 	_shipyards(ctx)
 	_refits(ctx)
 	_fleets(ctx)
@@ -101,6 +104,17 @@ static func think(state: GameState, e: Empire) -> void:
 	AiInsolites.think(ctx)
 	if String(ctx["intent"]) != "":
 		e.ai_intent = ctx["intent"]
+
+
+## Décisions lentes (bâtiments, conception de vaisseaux) : à chaque réflexion en début de partie, puis
+## une réflexion par mois à partir de slow_after_days (data/ai.json) ; la partie est alors installée et
+## ces choix pèsent cher pour peu de changement (grande passe d'optimisation, prop. 17).
+static func slow_turn(state: GameState, e: Empire, lv: Dictionary) -> bool:
+	var after := int(GameData.ai().get("slow_after_days", 0))
+	if after <= 0 or state.tick < after:
+		return true
+	var every := maxi(1, int(lv.get("think_days", 10)))
+	return posmod(state.tick + e.id * 3, int(GameData.rules()["month_days"])) < every
 
 
 # --- Outils ------------------------------------------------------------------------------------
