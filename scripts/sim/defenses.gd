@@ -117,8 +117,16 @@ static func role(bid: String) -> String:
 	return String(d) if d is String else ""
 
 
+static var _tier_memo := {}
+
+
 static func station_tier_of(bid: String) -> int:
-	return int(GameData.building(bid).get("station", 0))
+	# Lu des millions de fois en fin de partie : mémorisé (donnée du jeu, fixe pendant la partie).
+	var t: Variant = _tier_memo.get(bid)
+	if t == null:
+		t = int(GameData.building(bid).get("station", 0))
+		_tier_memo[bid] = t
+	return t
 
 
 static func module_def(bid: String) -> Dictionary:
@@ -800,8 +808,13 @@ static func _foe_of(state: GameState, owner: int, f: Fleet) -> bool:
 
 
 static func inhibits(state: GameState, sid: int) -> bool:
-	return full(state) and holds(state, sid) and tier(state, sid) >= 2 and has_module(state, sid, "module_inhibiteur") \
-			and not DefensesBridges.cut(state, sid, "inhib")
+	if not full(state):
+		return false
+	var st := station(state, sid)  # une seule fois (holds, tier et has_module la recalculaient chacun)
+	if int(st.get("t", 0)) < 2 or silenced(state, sid):
+		return false
+	var c := _station_colony(state, st)
+	return c != null and c.buildings.has("module_inhibiteur") and not DefensesBridges.cut(state, sid, "inhib")
 
 
 static func _mine_hits(state: GameState, f: Fleet, sid: int, owner: int, density: int) -> bool:

@@ -84,7 +84,9 @@ static func record(state: GameState, seen_by: Array[Dictionary]) -> void:
 			else:
 				known["day"] = state.tick
 				known["info"] = now
+	Stealth.at_memo_begin()
 	_record_fleets(state, seen_by)
+	Stealth.at_memo_end()
 
 
 ## Silhouettes : chaque flotte étrangère vue est notée (système, jour, taille, armée ou non) ; une

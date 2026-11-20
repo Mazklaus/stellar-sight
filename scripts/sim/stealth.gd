@@ -437,6 +437,34 @@ static func _dist(state: GameState, sid: int, maxr: int) -> Dictionary:
 ## Détection d'un empire (et de ses alliés) sur un système, pour un camouflage donné :
 ## {"det": meilleure détection, "dist": distance de la source la plus proche qui perce cam (-1 si aucune)}.
 static func detection_at(state: GameState, viewer: int, sid: int, cam := 0, against := -1) -> Dictionary:
+	if _at_memo_on:
+		var mk := Vector4i(viewer, sid, cam, against)
+		var hit: Variant = _at_memo.get(mk)
+		if hit == null:
+			hit = _detection_at(state, viewer, sid, cam, against)
+			_at_memo[mk] = hit
+		return hit
+	return _detection_at(state, viewer, sid, cam, against)
+
+
+## Mémo de detection_at pendant le relevé quotidien des flottes (Intel) : chaque empire y teste chaque
+## flotte camouflée, et les flottes d'un même système redemandent la même détection. Le relevé ne
+## change ni les sources, ni les alliances, ni les bonus : at_memo_end() le vide toujours.
+static var _at_memo := {}
+static var _at_memo_on := false
+
+
+static func at_memo_begin() -> void:
+	_at_memo.clear()
+	_at_memo_on = true
+
+
+static func at_memo_end() -> void:
+	_at_memo.clear()
+	_at_memo_on = false
+
+
+static func _detection_at(state: GameState, viewer: int, sid: int, cam: int, against: int) -> Dictionary:
 	var out := {"det": 0, "dist": -1}
 	if viewer < 0 or viewer >= state.empires.size():
 		return out

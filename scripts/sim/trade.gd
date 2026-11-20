@@ -384,10 +384,12 @@ static func compute(state: GameState) -> Array[Dictionary]:
 	var added: Array[Dictionary] = []
 	var routes: Array = []
 	var ints := {}
+	Portals.memo_begin()
 	for e in state.empires:
 		if e.eliminated or e.is_npc():
 			continue
 		_routes_of_empire(state, e.id, routes, ints)
+	Portals.memo_end()
 	var armed := _hostile_presence(state)
 	_update_risk(state, routes)
 	var income := {}

@@ -321,6 +321,12 @@ static func service_parts(state: GameState, pid: int) -> Array:
 static func refresh(state: GameState) -> void:
 	if state.ports.is_empty():
 		return
+	Portals.memo_begin()  # desserte : mêmes raccourcis demandés des milliers de fois
+	_refresh(state)
+	Portals.memo_end()
+
+
+static func _refresh(state: GameState) -> void:
 	var old_nodes: Dictionary = state.ports.get("nodes", {})
 	state.ports["sv"] = {}
 	state.ports["st"] = {}

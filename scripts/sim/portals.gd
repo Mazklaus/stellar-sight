@@ -437,10 +437,11 @@ static func _has_building(state: GameState, sid: int, bid: String) -> bool:
 
 
 static func _inhibited(state: GameState, eid: int, sid: int) -> bool:
-	if not Defenses.enabled(state) or not Defenses.inhibits(state, sid):
-		return false
+	# Le test de guerre d'abord : il est bien moins cher que celui de la station (fin de partie).
 	var o := state.system_owner(sid)
-	return o >= 0 and o != eid and Combat.at_war(state, o, eid)
+	if o < 0 or o == eid or not Combat.at_war(state, o, eid):
+		return false
+	return Defenses.enabled(state) and Defenses.inhibits(state, sid)
 
 
 ## Corridor de relais praticable par eid entre deux systèmes voisins (prop. 14, 16, 32).
@@ -520,10 +521,37 @@ static func civil_links(state: GameState, eid: int, sid: int) -> Array[int]:
 	var out: Array[int] = []
 	if not enabled(state) or eid < 0 or eid >= state.empires.size():
 		return out
+	var mk := eid * 100000 + sid
+	if _civil_memo_on and _civil_memo.has(mk):
+		return _civil_memo[mk]
 	var ed := edges(state, eid, sid, state.empires[eid].explored)
 	for i in range(0, ed.size(), 2):
 		out.append(int(ed[i]))
+	if _civil_memo_on:
+		_civil_memo[mk] = out
 	return out
+
+
+## Mémo des raccourcis civils pendant un calcul d'ensemble qui ne change ni les possessions, ni les
+## guerres, ni les stations (routes commerciales, desserte des ports) : des milliers de recherches de
+## chemin y redemandent les mêmes systèmes. memo_end() le vide toujours.
+static var _civil_memo := {}
+static var _civil_memo_on := false
+static var _civil_memo_depth := 0
+
+
+static func memo_begin() -> void:
+	if _civil_memo_depth == 0:
+		_civil_memo.clear()
+	_civil_memo_depth += 1
+	_civil_memo_on = true
+
+
+static func memo_end() -> void:
+	_civil_memo_depth = maxi(0, _civil_memo_depth - 1)
+	if _civil_memo_depth == 0:
+		_civil_memo.clear()
+		_civil_memo_on = false
 
 
 ## Route a -> b en corridor de relais praticable pour eid (effets civils).
