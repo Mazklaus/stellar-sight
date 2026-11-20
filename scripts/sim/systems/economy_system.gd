@@ -191,16 +191,21 @@ static func _finish_building(state: GameState, c: Colony, e: Empire, planet_name
 ## Colonie qui accueille les migrants (Spatioports de transit) : la moins peuplée de l'empire qui a
 ## encore de la place (à égalité, la plus petite identifiant). null si toutes sont pleines.
 static func migration_target(state: GameState, from: Colony) -> Colony:
-	var best: Colony = null
+	# La colonie la moins peuplée qui a encore de la place (à égalité, le plus petit identifiant) :
+	# candidates rangées par (population, identifiant), et la capacité n'est calculée que jusqu'à la
+	# première qui convient (même réponse que le parcours complet, sans calculer toutes les capacités).
+	var cands: Array[Vector2i] = []
 	for pid in state.sorted_colony_ids():
 		var c: Colony = state.colonies[pid]
 		if c == from or c.owner != from.owner or not c.is_colony() or not c.is_established():
 			continue
-		if best != null and c.population >= best.population:
-			continue
-		if c.population < Economy.max_pop(state, state.galaxy.get_planet(pid), c.owner, c.buildings):
-			best = c
-	return best
+		cands.append(Vector2i(c.population, pid))
+	cands.sort()
+	for v in cands:
+		var c: Colony = state.colonies[v.y]
+		if c.population < Economy.max_pop(state, state.galaxy.get_planet(v.y), c.owner, c.buildings):
+			return c
+	return null
 
 
 static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionary]) -> void:
