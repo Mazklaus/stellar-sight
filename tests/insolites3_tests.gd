@@ -346,7 +346,7 @@ func _test_tones() -> void:
 
 func _test_ai_game() -> void:
 	var opts := {"spectator": true, "ai_level": "normal", "minors": "normal", "rivals": ["asphodele", "cassivel", "silencieux", "quietude", "ossarane", "teyl", "choeur"]}
-	var st := GameState.create(7, 150, 1800.0, "", opts.duplicate(true))
+	var st := GameState.create(8, 150, 1800.0, "", opts.duplicate(true))
 	var sim := Simulation.new(st)
 	var alive5 := true
 	var early_win := false

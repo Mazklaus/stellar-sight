@@ -211,18 +211,23 @@ func _test_build_ship() -> void:
 
 
 func _test_colony_ship() -> void:
-	var st := GameState.create(16)
+	# Une planète libre dans un système voisin : on prend la première graine qui en offre une.
+	var st: GameState = null
+	var home := -1
+	var target := -1
+	for sd in range(16, 24):
+		st = GameState.create(sd)
+		home = _home(st)
+		for n in st.galaxy.systems[home].neighbors:
+			if st.system_owner(n) == -1:
+				for pid in st.galaxy.systems[n].planet_ids:
+					if target == -1:
+						target = pid
+		if target != -1:
+			break
 	var sim := Simulation.new(st)
 	var e := st.get_empire(0)
-	var home := _home(st)
 	var colonist := _fleet_with(st, 0, "colony_ship")
-	# Une planète libre dans un système voisin.
-	var target := -1
-	for n in st.galaxy.systems[home].neighbors:
-		if st.system_owner(n) == -1:
-			for pid in st.galaxy.systems[n].planet_ids:
-				if target == -1:
-					target = pid
 	_ok(target != -1, "une planète libre dans un système voisin")
 	var dest := st.galaxy.get_planet(target).system_id
 	_ok(not Economy.in_range(st, 0, dest), "sans vaisseau, un système voisin est hors de portée")

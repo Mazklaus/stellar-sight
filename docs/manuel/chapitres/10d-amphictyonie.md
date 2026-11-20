@@ -75,7 +75,7 @@ Elles vont par **familles de deux voies opposées**, en trois niveaux à voter d
 | Ombres | A | Charte du renseignement, Bureau des chiffres, Transparence des chancelleries | Un espion pris chez un membre est une infraction ; découverte +15 puis +30 % entre membres |
 | | B | Concurrence des ombres, Marché des secrets, Bourse aux espions | Opérations -15, -30, -40 % |
 | Faune et périls (créatures ou pirates) | A | Sanctuaires, Réserves des Abysses, Arche des espèces | Détruire un nid est une infraction ; stabilité +1, +2, +3 ; croissance +3 puis +5 % |
-| | B | Primes de chasse, Patrouilles communes, Grande Battue | Chaque repaire démantelé ou nid détruit rapporte 15 influence, puis 45 |
+| | B | Primes de chasse, Patrouilles communes, Grande Battue | Chaque repaire démantelé ou nid détruit rapporte 15 influence, puis 30, puis 45 |
 | Suzerains et sujets (vassaux) | A | Charte des sujets, Souveraineté garantie, Égalité des couronnes | Loyauté des sujets +0,5, +1, +1,5 par mois ; plus d'intégration dès le II |
 | | B | Droit de révision, Droit des suzerains, Pleine suzeraineté | Délai entre deux durcissements -20, -35, -50 % |
 | Navigation (frontières) | A | Mer ouverte, Routes franches, Libre navigation | Pas de frontière close entre membres ; puis aucun péage entre eux ; enfin libre-passage des flottes de guerre de chacun chez tous |
