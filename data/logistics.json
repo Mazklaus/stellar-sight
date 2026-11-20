@@ -2,7 +2,7 @@
 	"_sources": "Étude Logistique et ravitaillement (2026-11-15, 30 propositions validées) : https://claude.ai/artifact/LEjbkUYDLaJxXV4ZVgfkgu. Zone comptée en sauts depuis les colonies et les bases : portée de Galactic Civilizations IV (wiki.galciv.com, Ship & Sensor Range) et de Master of Orion. Réserves qui s'épuisent loin des bases, flottes à quai sans frais : Stellaris 4.0 (dev diary #369, extraits). Têtes de pont et dépôts : Europa Universalis V (PCGamesN). Lignes de ravitaillement à couper : Victoria 3 (dev diary #39). Écartés : carburant et ravitailleurs à piloter de Distant Worlds 2, surcoût d'entretien à distance et capacité navale de Stellaris (consigne : ne pas pénaliser les empires guerriers).",
 	"modes": [
 		{"id": "aucune", "label": "Désactivée", "desc": "Comme avant : une flotte reste aussi forte au fond du territoire ennemi que chez elle."},
-		{"id": "simple", "label": "Simple", "desc": "Zone de ravitaillement autour de vos systèmes et de ceux de vos alliés, réserves de 120 jours au-delà, puis malus doux (plus de réparation, dégâts réduits). Têtes de pont, ravitailleurs et dépôts de flotte prolongent la portée."},
+		{"id": "simple", "label": "Simple", "desc": "Zone de ravitaillement autour de vos systèmes et de ceux de vos alliés, réserves de 300 jours au-delà, puis malus doux (plus de réparation, dégâts réduits). Têtes de pont, ravitailleurs et dépôts de flotte prolongent la portée."},
 		{"id": "complete", "label": "Complète", "desc": "Comme Simple, plus les lignes coupées par l'ennemi, les batailles et sièges qui consomment double, la réquisition, l'encerclement des planètes assiégées et le ravitaillement des régiments."}
 	],
 	"default_mode": "simple",
@@ -12,7 +12,7 @@
 		"cut": {"label": "Coupée", "text": "Plus aucun chemin libre vers la zone : les réserves fondent deux fois plus vite."}
 	},
 	"range": 2,
-	"autonomy_days": 120,
+	"autonomy_days": 300,
 	"refill_per_day": 10,
 	"exhausted": {"damage_pct_per_week": 2, "damage_pct_max": 30},
 	"docked_upkeep_pct": -25,
@@ -27,7 +27,7 @@
 	"requisition": {"stability": -10, "devastation": 10, "cooldown_days": 180, "grievance": 1},
 	"sabotage": {"reserve_pct": 50, "depot_days": 60},
 	"closed_mult": 2,
-	"weariness": {"after_days": 60, "points": 1},
+	"weariness": {"after_days": 150, "points": 1},
 	"free_port_cost": {"energy": 2},
 	"talents": {
 		"_doc": "Prop. 25. Talents de logistique par couche d'espèce (catalogue ouvert, valables pour les peuples personnalisés) : autonomy_pct, range, requisition_free, mobile_depot, never_cut, free_ports.",

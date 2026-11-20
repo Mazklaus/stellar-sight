@@ -338,7 +338,7 @@ static func speed_pct(state: GameState, f: Fleet) -> int:
 
 ## Portée de vision d'une flotte en sauts (Silence radio : son système ; Balayage actif : +1).
 static func vision_of(state: GameState, f: Fleet) -> int:
-	var v := Fleets.vision(f)
+	var v := Fleets.vision(f, state)
 	if not full(state):
 		return v
 	match posture(state, f):

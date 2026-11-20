@@ -9,6 +9,8 @@
 	],
 	"default": "normales",
 	"min_jumps_from_start": 4,
+	"near_jumps": 3,
+	"near_min": 2,
 	"min_jumps_between": 3,
 	"roam_jumps": 2,
 	"migrate_days": 240,

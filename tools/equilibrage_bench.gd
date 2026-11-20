@@ -4,10 +4,13 @@ extends SceneTree
 ## les jalons d'exploration (jour où chaque empire connaît 25/50/75/100 % de la carte, premier contact),
 ## la géométrie de la galaxie, la Menace du Fléau et la première victoire. La partie continue après.
 ## Repères par peuple, par an ("kpi") : mois de famine, de panne, d'Exaltation, de dissidence, repérages du
-## peuple voilé, lignes de chronique reçues et tours de 30 jours où il s'est passé quelque chose ; avancée
+## peuple voilé, lignes de chronique reçues, tours de 30 jours où il s'est passé quelque chose ("turns")
+## et tours qui ont offert une décision ("decisions" : technologie, vaisseau, colonie, flotte arrivée,
+## événement, proposition) ; avancée
 ## de chaque victoire ("victory") et jour où chaque condition a été remplie ("met" en fin de partie).
 ##   SEED=3 YEARS=20 OUT=x.jsonl godot --headless --path . -s res://tools/equilibrage_bench.gd
-## Variables : SEED, YEARS (20), LEVEL, SIZE (taille de galaxie du menu), STOP_ON_WIN=1.
+## Variables : SEED, YEARS (20), LEVEL, SIZE (taille de galaxie du menu), STOP_ON_WIN=1,
+## DISTANCES (proches, normales, vastes), TURN (tour par tour : jours par tour, 30 ou 10).
 
 func _env_int(n: String, d: int) -> int:
 	var v := OS.get_environment(n)
@@ -16,7 +19,7 @@ func _env_int(n: String, d: int) -> int:
 
 func _kpi(kpi: Dictionary, id: int) -> Dictionary:
 	if not kpi.has(id):
-		kpi[id] = {"starving": 0, "blackout": 0, "exalted": 0, "dissent": 0, "spotted": 0, "lines": 0, "turns": 0}
+		kpi[id] = {"starving": 0, "blackout": 0, "exalted": 0, "dissent": 0, "spotted": 0, "lines": 0, "turns": 0, "decisions": 0}
 	return kpi[id]
 
 
@@ -44,6 +47,10 @@ func _initialize() -> void:
 	opts.merge(menu.empire_setup("", seed_value), true)
 	opts.merge(menu.game_options(), true)
 	opts["galaxy"] = menu.galaxy_settings.duplicate()
+	if OS.get_environment("DISTANCES") != "":
+		opts["galaxy"]["distances"] = OS.get_environment("DISTANCES")
+	if OS.get_environment("TURN") != "":
+		opts["turn_days"] = _env_int("TURN", 0)
 	menu.free()
 	var st := GameState.create(seed_value, 150, 1800.0, "", opts)
 	var g := st.galaxy
@@ -70,6 +77,7 @@ func _initialize() -> void:
 	var kpi := {}
 	var last_spot := {}
 	var turn_seen := {}
+	var dec_sig := {}
 	var met := {}
 	for y in years:
 		var t0 := Time.get_ticks_msec()
@@ -101,6 +109,23 @@ func _initialize() -> void:
 					k["exalted"] += 1 if e.fervor >= 60 else 0
 					k["dissent"] += 1 if e.dissent else 0
 					k["turns"] += 1 if turn_seen.has(e.id) else 0
+					# Repère « jamais deux tours vides » (C3) : le mois a-t-il offert une décision ? Technologie
+					# finie, vaisseau sorti des chantiers, colonie de plus, flotte arrivée, événement ou proposition.
+					var built := 0
+					for sb in e.ships_built.values():
+						built += int(sb)
+					var arrived := 0
+					for f in Fleets.empire_fleets(st, e.id):
+						if not f.is_moving():
+							arrived += f.id * 1000 + f.system_id
+					var props := 0
+					for p in st.proposals:
+						if int(p["to"]) == e.id:
+							props += 1
+					var sig := [e.techs.size(), built, Victory.systems_held(st, e.id), arrived, Events.inbox(st, e.id).size(), props]
+					if dec_sig.has(e.id) and dec_sig[e.id] != sig:
+						k["decisions"] += 1
+					dec_sig[e.id] = sig
 					for vid in e.victory:
 						var mk := "%d:%s" % [e.id, vid]
 						if int(e.victory[vid].get("pct", 0)) >= 100 and not met.has(mk):
@@ -143,7 +168,7 @@ func _initialize() -> void:
 			for vid in e.victory:
 				vic[vid] = int(e.victory[vid].get("pct", 0))
 			rows.append({"id": e.id, "kpi": _kpi(kpi, e.id).duplicate(), "allies": allies, "victory": vic, "sys": Victory.systems_held(st, e.id), "pop": int(tot.get("population", 0)),
-				"expl": e.explored.size(), "score": Victory.score(st, e.id), "techs": e.techs.size(),
+				"expl": e.explored.size(), "surv": e.surveyed.size(), "score": Victory.score(st, e.id), "techs": e.techs.size(),
 				"warships": Diplomacy.warships(st, e.id), "ships": ships, "fleets": fleets, "wars": e.wars.size(),
 				"contacts": e.contacts.size(), "res": e.resources.duplicate()})
 		kpi.clear()

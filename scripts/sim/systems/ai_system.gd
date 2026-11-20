@@ -3,7 +3,7 @@ extends RefCounted
 ## Empires IA, exécutés à la fin de chaque tick.
 ##
 ## Chaque IA réfléchit à son rythme (think_days de son niveau), en décalé selon son identifiant
-## pour que toutes ne pensent pas le même jour. Elle ne voit que ce que voit son empire
+## pour que toutes ne pensent pas le même jour ; au tour par tour, une fois par tour. Elle ne voit que ce que voit son empire
 ## (systèmes explorés, routes connues) et n'agit que par des ordres ordinaires (SimCommands),
 ## validés comme ceux d'un joueur : elle ne peut rien faire qu'un humain ne puisse pas faire.
 ##
@@ -15,7 +15,11 @@ extends RefCounted
 static func process(state: GameState) -> Array[Dictionary]:
 	var added: Array[Dictionary] = []
 	for e in state.empires:
-		if not e.is_ai() or e.eliminated or not should_think(state, e):
+		if not e.is_ai() or e.eliminated:
+			continue
+		if not should_think(state, e):
+			if state.turn_days > 0:
+				AiPlayer.follow_up(state, e)  # ordres qui tiennent tout le tour, réaction à une bataille
 			continue
 		var last: Variant = state.chronicle.back() if not state.chronicle.is_empty() else null
 		AiPlayer.think(state, e)
@@ -31,6 +35,10 @@ static func process(state: GameState) -> Array[Dictionary]:
 
 
 ## L'IA de cet empire réfléchit-elle ce jour-ci ?
+## Au tour par tour (étude d'équilibrage, C4), une réflexion par tour, le premier jour de sa résolution :
+## l'IA décide aussi souvent que le joueur, sur la même information.
 static func should_think(state: GameState, e: Empire) -> bool:
+	if state.turn_days > 0:
+		return posmod(state.tick - 1, state.turn_days) == 0
 	var every := maxi(1, int(AiLevels.level(e.ai_level).get("think_days", 10)))
 	return posmod(state.tick + e.id * 3, every) == 0

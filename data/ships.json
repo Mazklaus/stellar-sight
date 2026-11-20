@@ -9,7 +9,8 @@
 		"days": 20,
 		"upkeep": {"energy": 1},
 		"speed": 40,
-		"vision": 2,
+		"vision": 1,
+		"scout": true,
 		"hp": 30
 	},
 	"chalutier": {

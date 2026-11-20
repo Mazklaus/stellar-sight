@@ -595,6 +595,8 @@ func _build_fleet_card() -> void:
 			["stop", "ARRÊTER", "S'arrêter au système le plus proche sur la route"],
 			["patrol", "PATROUILLE", "Aller-retour permanent entre la position de la flotte et un système : cliquez, puis clic droit sur le système (ou Maj + clic droit). Les pirates évitent les systèmes gardés."],
 			["guard", "GARDER", "Défenses spatiales complètes : garder ce système. La flotte y reçoit +10 % de dégâts, la couverture de la station, et y revient si on l'en attire."],
+			["stance", "CONSIGNE", "Consigne d'engagement, tenue sans votre intervention : engager, éviter le combat (la flotte rompt dès qu'il s'engage) ou se replier si elle est surclassée. Clic : consigne suivante."],
+			["rally", "RALLIEMENT ICI", "Point de ralliement des chantiers : vos vaisseaux armés neufs viennent d'eux-mêmes dans ce système. Clic : le poser ici, ou l'enlever."],
 			["posture", "POSTURE", "Furtivité : changer de posture (aucune, Silence radio, Balayage actif, Embuscade). Clic : posture suivante."],
 			["board", "ABORDAGE", "Prises de guerre : posture d'abordage. La flotte dépense ses troupes pour prendre les vaisseaux ennemis très abîmés au lieu de les achever."],
 			["prizes", "PRISES", "Prises de guerre : remettre en état, refondre, démanteler ou vendre les vaisseaux pris (au chantier d'une de vos colonies)."],
@@ -660,12 +662,21 @@ func _refresh_fleet_card() -> void:
 				_system_label(f.destination()), eta, "s" if eta > 1 else "", _system_label(f.next_system())]
 	else:
 		_fleet_status.text = "En orbite de %s." % _system_label(f.system_id)
+	if not f.queue.is_empty():
+		var steps := PackedStringArray()
+		for q in f.queue:
+			steps.append(_system_label(q))
+		_fleet_status.text += "\nPuis : %s." % ", ".join(steps)
+	if f.is_moving() and f.progress == 0:
+		var wait := Fleets.spool_days(_state, f, f.system_id, f.path[0]) - f.spool
+		if wait > 0:
+			_fleet_status.text += "\nMise en route : départ dans %d jour%s." % [wait, "s" if wait > 1 else ""]
 	_fleet_status.text += combat_status(_state, f)
 	var adm := Heroes.assigned_to(_state, "fleet", f.id, f.owner)
 	if not adm.is_empty():
 		_fleet_status.text += "\nAmiral ✦ %s, niveau %d%s." % [adm["name"], int(adm["lvl"]),
 				(" (en route, %d j)" % (int(adm["arrive"]) - _state.tick)) if int(adm["arrive"]) > _state.tick else ""]
-	var v := Fleets.vision(f)
+	var v := Fleets.vision(f, _state)
 	_fleet_stats.text = "%d vaisseau%s  ·  vitesse %d  ·  vision %d saut%s" % [f.ships.size(), "x" if f.ships.size() > 1 else "",
 			Fleets.speed(f, _state), v, "s" if v > 1 else ""]
 	var herd := Fauna.herd_of(_state, f)
@@ -754,6 +765,11 @@ func _refresh_fleet_card() -> void:
 	if f.is_patrolling():
 		_fleet_buttons["patrol"].tooltip_text = "Patrouille entre %s et %s. Clic : l'arrêter." % [g.systems[f.patrol[0]].system_name, g.systems[f.patrol[1]].system_name]
 	_fleet_buttons["guard"].visible = mine and Combat.is_armed(f) and Defenses.full(_state)
+	_fleet_buttons["stance"].visible = mine
+	_fleet_buttons["stance"].text = "CONSIGNE : %s" % Fleets.stance_label(f.stance).to_upper()
+	var me := _state.get_empire(_player)
+	_fleet_buttons["rally"].visible = mine and not f.is_moving() and Combat.is_armed(f)
+	_fleet_buttons["rally"].text = "RALLIEMENT : ICI" if me != null and me.rally_system == f.system_id else "RALLIEMENT ICI"
 	_fleet_buttons["posture"].visible = mine and Stealth.enabled(_state)
 	if mine and Stealth.enabled(_state):
 		var pz := Stealth.posture(_state, f)

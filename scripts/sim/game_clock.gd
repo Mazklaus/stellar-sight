@@ -27,8 +27,11 @@ enum { MODE_REALTIME, MODE_TURNS }
 const SECONDS_PER_DAY: Array[float] = [1.0, 0.5, 0.25, 0.1, 0.04]
 const MAX_DAYS_PER_FRAME := 8
 ## Durées de tour proposées (jours de jeu), et celle par défaut.
-const TURN_LENGTHS: Array[int] = [5, 10, 30]
-const DEFAULT_TURN_DAYS := 10
+## Un tour = un mois par défaut (étude d'équilibrage, C1) : le mois est déjà l'unité des revenus, de la
+## croissance et de la ferveur. Les tours de 10 jours restent proposés ; ceux de 5 jours ont disparu
+## (une sauvegarde qui en avait garde les siens).
+const TURN_LENGTHS: Array[int] = [30, 10]
+const DEFAULT_TURN_DAYS := 30
 ## Minuteurs de tour en réseau (l'hôte les fait respecter) : aucun ; « fixe » : chaque tour dure au plus
 ## s secondes ; « dernier » : quand un seul joueur n'a pas terminé, il a s secondes.
 const TURN_TIMERS: Array[Dictionary] = [

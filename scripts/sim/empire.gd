@@ -27,6 +27,13 @@ var starving: bool = false
 var blackout: bool = false
 ## Systèmes explorés (vus au moins une fois) : id -> true. Le reste de la galaxie est dans le brouillard.
 var explored: Dictionary = {}
+## Systèmes reconnus (étude d'équilibrage, A5 : voir n'est pas connaître) : un de ses vaisseaux y est
+## passé, il y a une revendication, ou un échange de cartes les a donnés. Planètes, gisements et
+## curiosités ne se lisent que là ; un système seulement exploré montre son étoile et son propriétaire.
+var surveyed: Dictionary = {}
+## Point de ralliement des chantiers (C6) : les vaisseaux armés qui sortent des chantiers s'y rendent
+## d'eux-mêmes. -1 : aucun.
+var rally_system: int = -1
 ## Dernière information connue (voir Intel) : système -> {"day": jour du relevé, "info": relevé}.
 var intel: Dictionary = {}
 ## Flottes étrangères aperçues puis perdues de vue (voir Intel) : flotte -> {"sys", "day", "owner",
@@ -223,6 +230,8 @@ func to_dict() -> Dictionary:
 		"starving": starving,
 		"blackout": blackout,
 		"explored": sorted_explored(),
+		"surveyed": sorted_surveyed(),
+		"rally": rally_system,
 		"intel": Intel.to_list(self),
 		"sightings": Intel.sightings_to_list(self),
 		"contacts": Array(contacts),
@@ -310,6 +319,12 @@ func _sorted_shelf() -> Array:
 	return out
 
 
+func sorted_surveyed() -> Array:
+	var ids := surveyed.keys()
+	ids.sort()
+	return ids
+
+
 func sorted_explored() -> Array:
 	var ids := explored.keys()
 	ids.sort()
@@ -334,6 +349,10 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.blackout = bool(d["blackout"])
 	for sid in d["explored"]:
 		e.explored[int(sid)] = true
+	# Sauvegardes d'avant « voir n'est pas connaître » : tout ce qui était exploré est reconnu.
+	for sid in d.get("surveyed", d["explored"]):
+		e.surveyed[int(sid)] = true
+	e.rally_system = int(d.get("rally", -1))
 	Intel.from_list(e, d.get("intel", []))
 	Intel.sightings_from_list(e, d.get("sightings", []))
 	for c in d["contacts"]:

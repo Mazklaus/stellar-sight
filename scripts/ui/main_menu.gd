@@ -116,6 +116,7 @@ var _size_select: OptionButton
 var _shape_select: OptionButton
 var _lanes_select: OptionButton
 var _placement_select: OptionButton
+var _distances_select: OptionButton
 var _guaranteed_select: OptionButton
 var _placement_desc: Label
 var _galaxy_adv: PopupPanel
@@ -129,7 +130,7 @@ const COLOR_NAMES := ["Or", "Pourpre", "Azur", "Vert", "Violet", "Orange", "Turq
 	"Brun", "Gris", "Lime"]
 ## Façon de jouer choisie pour la nouvelle partie (GameClock.MODE_*), et longueur des tours.
 var time_mode: int = 0
-var turn_days: int = 10
+var turn_days: int = GameClock.DEFAULT_TURN_DAYS
 ## Minuteur de tour en réseau (GameClock.TURN_TIMERS) ; la ligne n'apparaît qu'au tour par tour.
 var turn_timer := ""
 var _timer_select: OptionButton
@@ -2128,7 +2129,7 @@ func set_migrations(id: String) -> void:
 
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
-	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
+	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "turn_days": turn_days if time_mode == GameClock.MODE_TURNS else 0, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
@@ -2367,7 +2368,7 @@ func _build_new_page(root: Control) -> void:
 	_time_select.tooltip_text = "Temps réel : le temps file, Espace met en pause.\nTour par tour : le temps est arrêté pendant vos ordres ; Fin de tour (Espace) fait passer les jours du tour."
 	_time_select.add_item("Temps réel pausable")
 	for d in GameClock.TURN_LENGTHS:
-		_time_select.add_item("Tour par tour, %d jours" % d)
+		_time_select.add_item("Tour par tour, un mois (30 jours)" if d == 30 else "Tour par tour, %d jours" % d)
 	_time_select.item_selected.connect(set_time_choice)
 	_labeled_row(game, "Temps", _time_select)
 	_timer_select = OptionButton.new()
@@ -3059,7 +3060,7 @@ func _rebuild_tiles() -> void:
 		_faction_cards[fid] = tile
 
 
-## Change un réglage de la galaxie ("size", "shape", "lanes", "placement", "guaranteed").
+## Change un réglage de la galaxie ("size", "shape", "lanes", "placement", "guaranteed", "distances").
 func set_galaxy(key: String, value: Variant) -> bool:
 	var next := galaxy_settings.duplicate()
 	next[key] = value
@@ -3083,6 +3084,8 @@ func _settings_select(key: String) -> OptionButton:
 	b.clip_text = true
 	var tip := PackedStringArray()
 	for e: Dictionary in GalaxySettings._table(key):
+		if bool(e.get("hidden", false)):
+			continue
 		var label := String(e["label"])
 		if key == "size":
 			label = "%s : %d systèmes" % [label, int(e["systems"])]
@@ -3108,6 +3111,8 @@ func _build_galaxy_advanced(page_root: Control) -> void:
 	box.add_child(_header("Galaxie : réglages avancés"))
 	_lanes_select = _settings_select("lanes")
 	_labeled_row(box, "Routes", _lanes_select)
+	_distances_select = _settings_select("distances")
+	_labeled_row(box, "Distances", _distances_select)
 	_placement_select = _settings_select("placement")
 	_labeled_row(box, "Départs", _placement_select)
 	_placement_desc = UiTheme.paragraph("", 500, 13)
@@ -3132,7 +3137,7 @@ func _refresh_galaxy() -> void:
 	_refresh_preset()
 	if _size_select == null:
 		return
-	for pair in [[_size_select, "size"], [_shape_select, "shape"], [_lanes_select, "lanes"], [_placement_select, "placement"]]:
+	for pair in [[_size_select, "size"], [_shape_select, "shape"], [_lanes_select, "lanes"], [_placement_select, "placement"], [_distances_select, "distances"]]:
 		var b: OptionButton = pair[0]
 		for i in b.item_count:
 			if String(b.get_item_metadata(i)) == String(galaxy_settings[pair[1]]):
@@ -3751,7 +3756,7 @@ static func _without_seed(d: Dictionary) -> Dictionary:
 func default_settings() -> Dictionary:
 	return {"faction": selected_faction, "slots": random_slots(), "duplicates": false, "insolites": insolites_default(), "team": 0,
 		"ai_level": AiLevels.default_id(), "temperament": AiLevels.default_temperament(), "spectator": false,
-		"time_mode": GameClock.MODE_REALTIME, "turn_days": 10, "timer": "", "deadline": Victory.default_deadline(), "people": true,
+		"time_mode": GameClock.MODE_REALTIME, "turn_days": GameClock.DEFAULT_TURN_DAYS, "timer": "", "deadline": Victory.default_deadline(), "people": true,
 		"victories": DEFAULT_VICTORIES.duplicate(), "ai_scaling": false,
 		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "plagues": true, "events": Events.default_frequency(), "curios": Curios.default_density(),
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
@@ -3816,7 +3821,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_temperament(String(d.get("temperament", base["temperament"])))
 	set_spectator(bool(d.get("spectator", false)))
 	var turns := int(d.get("time_mode", GameClock.MODE_REALTIME)) == GameClock.MODE_TURNS
-	var ti := GameClock.TURN_LENGTHS.find(int(d.get("turn_days", 10)))
+	var ti := GameClock.TURN_LENGTHS.find(int(d.get("turn_days", GameClock.DEFAULT_TURN_DAYS)))
 	set_time_choice(1 + maxi(0, ti) if turns else 0)
 	set_turn_timer(String(d.get("timer", "")))
 	set_deadline(int(d.get("deadline", base["deadline"])))

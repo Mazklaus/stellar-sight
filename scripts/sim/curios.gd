@@ -108,6 +108,33 @@ static func setup(state: GameState, density_id: String) -> void:
 					break
 			var names: Array = (data()["names"] as Dictionary).get(typ, [""])
 			state.curios[pid] = {"lvl": lvl, "type": typ, "name": _h(state, ["name", pid]) % names.size(), "done": -1, "day": 0, "prog": {}}
+	# Voisinage vivant (étude d'équilibrage, A8) : chaque départ a une curiosité de niveau 1 à
+	# near_jumps sauts ou moins (3), pour que les premiers tours aient quelque chose à sonder.
+	var near_j := int(data().get("near_jumps", 3))
+	for d: Dictionary in starts:
+		var has := false
+		for pid in state.curios:
+			if int(d.get(state.galaxy.get_planet(int(pid)).system_id, 999)) <= near_j:
+				has = true
+				break
+		if has:
+			continue
+		var best := -1
+		var best_h := 0
+		for sys in state.galaxy.systems:
+			var j := int(d.get(sys.id, 999))
+			if j < 1 or j > near_j or state.system_owner(sys.id) >= 0:
+				continue
+			for pid in sys.planet_ids:
+				var h := _h(state, ["voisin", pid])
+				if best < 0 or h < best_h or (h == best_h and pid < best):
+					best = pid
+					best_h = h
+		if best < 0:
+			continue
+		var typ2 := String(types[_h(state, ["type", best]) % types.size()])
+		var names2: Array = (data()["names"] as Dictionary).get(typ2, [""])
+		state.curios[best] = {"lvl": 1, "type": typ2, "name": _h(state, ["name", best]) % names2.size(), "done": -1, "day": 0, "prog": {}}
 
 
 # --- Ce qu'un empire voit et peut faire ---------------------------------------------------------
@@ -138,7 +165,8 @@ static func sees(state: GameState, empire_id: int, pid: int) -> bool:
 	if e == null or e.is_npc():
 		return false
 	var sid := state.galaxy.get_planet(pid).system_id
-	return e.explored.has(sid) and int(state.curios[pid]["lvl"]) <= detect(state, empire_id)
+	# Voir n'est pas connaître : il faut qu'un vaisseau soit passé dans le système.
+	return e.surveyed.has(sid) and int(state.curios[pid]["lvl"]) <= detect(state, empire_id)
 
 
 ## Curiosités ouvertes visibles par l'empire dans un système, par identifiant de planète.

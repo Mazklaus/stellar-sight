@@ -175,6 +175,17 @@ static func share(a: Empire, b: Empire) -> void:
 	_merge_into(b, a)
 
 
+## Relevés plus récents de from sur ces seuls systèmes, donnés à to (échange de cartes limité).
+static func share_systems(from: Empire, to: Empire, sids: Array[int]) -> void:
+	for sid in sids:
+		if not from.intel.has(sid):
+			continue
+		var theirs: Dictionary = from.intel[sid]
+		var mine: Dictionary = to.intel.get(sid, {})
+		if mine.is_empty() or int(theirs["day"]) > int(mine["day"]):
+			to.intel[sid] = {"day": int(theirs["day"]), "info": theirs["info"]}
+
+
 static func _merge_into(from: Empire, to: Empire) -> void:
 	var ids := from.intel.keys()
 	ids.sort()

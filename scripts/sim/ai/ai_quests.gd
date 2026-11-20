@@ -26,6 +26,8 @@ static func think(ctx: Dictionary) -> void:
 	var sent := false
 	for qid in Quests.of(state, e.id, true):
 		var q: Dictionary = state.quests[qid]
+		if int(q.get("wait", 0)) > state.tick:
+			continue  # le chapitre suivant n'est pas encore ouvert : rien à y faire, on n'immobilise pas l'éclaireur
 		var brs: Array = Quests.chapter(q)["branches"]
 		for b in brs.size():
 			var g: Dictionary = brs[b]["goal"]

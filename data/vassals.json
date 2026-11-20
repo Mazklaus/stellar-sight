@@ -40,7 +40,7 @@
 	},
 	"amph_voix_pct": -50,
 	"terms": {
-		"min_war_days": 60,
+		"min_war_days": 120,
 		"cooldown_days": 60,
 		"cede_base": 15,
 		"cede_per_pop": 3,

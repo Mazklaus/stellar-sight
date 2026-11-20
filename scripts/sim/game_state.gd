@@ -92,6 +92,9 @@ var next_design_id: int = 0
 var victory_rules: Dictionary = default_victory_rules()
 ## Difficulté progressive : les bonus des IA Expert et Légende montent avec le temps (AiLevels).
 var ai_scaling := false
+## Tour par tour : durée du tour en jours (0 = temps réel). Fixée à la création ; les IA règlent leur
+## rythme dessus (une réflexion par tour, voir AiSystem.should_think).
+var turn_days: int = 0
 var winner: Dictionary = {}
 ## Peuples créés dans l'éditeur qui jouent dans cette partie : identifiant -> fiche complète
 ## (Species.build), recopiée au lancement et sauvegardée, pour que la partie ne dépende pas des
@@ -256,6 +259,7 @@ var _npc: Empire = null
 ## - "victories" : {"conquete", "domination", "allies"} à false pour retirer ces victoires ou faire
 ##   jouer chaque allié pour lui-même (défaut : tout en jeu, comme Endless Space 2) ;
 ## - "ai_scaling" : difficulté progressive (défaut non) ;
+## - "turn_days" : partie au tour par tour, durée du tour en jours (défaut 0 : temps réel) ;
 ## - "starts" : départ par indice d'empire ("" = normal, "avance" = une avance de colonies et de
 ##   vaisseaux, voir rules.json "advanced_start") ;
 ## - "distances" : distance de chaque empire à l'empire 0 ("" = selon le placement, "proche" ou
@@ -309,6 +313,7 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	s.victory_rules["oeuvres"] = bool(vic.get("oeuvres", false))  # Grands Œuvres (voir WondersBridges)
 	s.victory_rules["annales"] = bool(vic.get("annales", false))  # Les Annales (voir DeedsBridges)
 	s.ai_scaling = bool(options.get("ai_scaling", false))
+	s.turn_days = maxi(0, int(options.get("turn_days", 0)))
 	s._setup_empires(player_faction, options.get("rivals", null), bool(options.get("duplicates", false)), options.get("distances", []))
 	s._setup_colors(options.get("colors", []))
 	s._setup_teams(options.get("teams", []))
@@ -390,6 +395,8 @@ static func _base(seed_value_: int, system_count_: int, galaxy_radius_: float, s
 		s.galaxy = GalaxyGenerator.generate(seed_value_, system_count_, galaxy_radius_, GalaxySettings.generator_shape(s.galaxy_settings))
 	else:
 		s.galaxy = Galaxy.from_dict(galaxy_data)
+	if s.galaxy != null:
+		s.galaxy.lane_scale_pct = GalaxySettings.lane_scale_pct(s.galaxy_settings)
 	# Flux aléatoire distinct de celui de la génération, dérivé de la même graine.
 	s.rng.seed = hash([seed_value_, "simulation"])
 	# Une nouvelle partie (ou un chargement) repart sans les modèles de la précédente.
@@ -449,6 +456,7 @@ func to_dict() -> Dictionary:
 		"next_design_id": next_design_id,
 		"victory_rules": victory_rules.duplicate(),
 		"ai_scaling": ai_scaling,
+		"turn_days": turn_days,
 		"winner": winner.duplicate(),
 		"custom_factions": _sorted_values(custom_factions),
 		"networks": Espionage.networks_to_list(self),
@@ -635,7 +643,11 @@ static func from_dict(d: Dictionary) -> GameState:
 	if not galaxy_data is Dictionary:
 		last_error = "galaxie illisible"
 		return null
-	var s := GameState._base(int(d["seed"]), int(d["system_count"]), float(d["galaxy_radius"]), d.get("galaxy_settings", {}), galaxy_data)
+	# Une partie sauvegardée avant le réglage « Distances » garde ses routes d'origine.
+	var saved_settings: Dictionary = (d.get("galaxy_settings", {}) as Dictionary).duplicate()
+	if not saved_settings.has("distances"):
+		saved_settings["distances"] = "heritage"
+	var s := GameState._base(int(d["seed"]), int(d["system_count"]), float(d["galaxy_radius"]), saved_settings, galaxy_data)
 	if s.galaxy == null:
 		last_error = "galaxie incohérente"
 		return null
@@ -770,6 +782,7 @@ static func from_dict(d: Dictionary) -> GameState:
 		if vr.has(k):
 			s.victory_rules[k] = bool(vr[k])
 	s.ai_scaling = bool(d.get("ai_scaling", false))
+	s.turn_days = maxi(0, int(d.get("turn_days", 0)))
 	var w: Dictionary = d.get("winner", {})
 	if not w.is_empty():
 		var allies := []

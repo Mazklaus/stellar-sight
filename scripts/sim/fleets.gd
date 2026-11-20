@@ -18,6 +18,9 @@ static func lane_length(galaxy: Galaxy, a: int, b: int) -> int:
 		if Portals.is_shortcut(galaxy, a, b):
 			return 1  # trou de ver ou portail de saut (voir Portals) : un jour pour toute flotte
 	var d := maxi(1, roundi(galaxy.systems[a].position.distance_to(galaxy.systems[b].position)))
+	if galaxy.lane_scale_pct != 100:
+		@warning_ignore("integer_division")
+		d = maxi(1, d * galaxy.lane_scale_pct / 100)
 	var pct := maxi(galaxy.systems[a].transit_pct, galaxy.systems[b].transit_pct)
 	if pct > 0:
 		@warning_ignore("integer_division")
@@ -53,11 +56,54 @@ static func speed(fleet: Fleet, state: GameState = null) -> int:
 
 
 ## Portée de vision d'une flotte, en sauts : celle de son meilleur vaisseau.
-static func vision(fleet: Fleet) -> int:
+## Avec l'état, la Télémétrie à longue base (effet scout_vision) allonge celle des éclaireurs.
+static func vision(fleet: Fleet, state: GameState = null) -> int:
 	var v := 0
+	var far := 0
+	if state != null and fleet.owner >= 0:
+		far = Research.fx_int(state, fleet.owner, "scout_vision")
 	for s in fleet.ships:
-		v = maxi(v, int(GameData.ship(s).get("vision", 0)))
+		var sd := GameData.ship(s)
+		var sv := int(sd.get("vision", 0))
+		if far != 0 and bool(sd.get("scout", false)):
+			sv += far
+		v = maxi(v, sv)
 	return v
+
+
+## Mise en route avant le saut (étude d'équilibrage, A6) : jours qu'une flotte passe à l'arrêt avant de
+## quitter un système par une route, selon sa plus grande coque (data/rules.json, "spool_days"). Les
+## Maîtrises de propulsion la raccourcissent (effet spool_days_pct). Trous de ver, portails et portes
+## n'en demandent pas.
+static func spool_days(state: GameState, fleet: Fleet, from: int, to: int) -> int:
+	var table: Dictionary = GameData.rules().get("spool_days", {})
+	if table.is_empty():
+		return 0
+	var g := state.galaxy
+	if not g.gates.is_empty() and g.gates.has(from) and g.gates.has(to):
+		return 0
+	if (not g.wormholes.is_empty() or not g.portal_gates.is_empty()) and (Portals.is_shortcut(g, from, to) or not g.systems[from].neighbors.has(to)):
+		return 0
+	var need := 0
+	for s in fleet.ships:
+		need = maxi(need, int(table.get(String(GameData.ship(s).get("size", "small")), 0)))
+	if need > 0 and fleet.owner >= 0:
+		var pct := 100 + Research.fx_int(state, fleet.owner, "spool_days_pct")
+		@warning_ignore("integer_division")
+		need = maxi(0, (need * pct + 50) / 100)
+	return need
+
+
+## Jours de mise en route qu'il reste à passer sur tout le trajet d'une flotte.
+static func spool_remaining(state: GameState, fleet: Fleet) -> int:
+	if not fleet.is_moving() or (GameData.rules().get("spool_days", {}) as Dictionary).is_empty():
+		return 0
+	var d := 0
+	if fleet.progress == 0:
+		d += maxi(0, spool_days(state, fleet, fleet.system_id, fleet.path[0]) - fleet.spool)
+	for i in range(1, fleet.path.size()):
+		d += spool_days(state, fleet, fleet.path[i - 1], fleet.path[i])
+	return d
 
 
 ## Plus court chemin de from à to par les routes connues de l'empire (sans from, avec to).
@@ -133,7 +179,11 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid: Va
 	var border := flags & (Borders.PATH_ARMED | Borders.PATH_CIVIL) != 0
 	var strict := border and Borders.strict(state)
 	var armed := flags & Borders.PATH_ARMED != 0
-	var detour := int(Borders.data().get("detour", 20000))
+	# Les pénalités de détour sont en unités de route : elles suivent l'échelle des distances.
+	@warning_ignore("integer_division")
+	var detour := int(Borders.data().get("detour", 20000)) * state.galaxy.lane_scale_pct / 100
+	@warning_ignore("integer_division")
+	var lair_detour := LAIR_DETOUR * state.galaxy.lane_scale_pct / 100
 	var blocked_by := {}
 	# Portails de saut (voir Portals) : trous de ver, portails, corridors de relais.
 	var shortcuts := not state.portals.is_empty() and (not state.galaxy.wormholes.is_empty() or not state.galaxy.portal_gates.is_empty())
@@ -174,7 +224,7 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid: Va
 				ll = maxi(1, ll / Portals.lane_mult(state, empire_id, best, n))
 			var d: int = d0 + ll
 			if lairs and explored.has(n) and (Pirates.is_lair(state, n) or Fauna.avoided(state, empire_id, n)):
-				d += LAIR_DETOUR
+				d += lair_detour
 			if border:
 				var o := state.system_owner(n)
 				if o >= 0 and o != empire_id:
@@ -330,7 +380,7 @@ static func remaining_distance(state: GameState, fleet: Fleet) -> int:
 static func eta_days(state: GameState, fleet: Fleet) -> int:
 	var v := speed(fleet, state)
 	@warning_ignore("integer_division")
-	return (remaining_distance(state, fleet) + v - 1) / v
+	return (remaining_distance(state, fleet) + v - 1) / v + spool_remaining(state, fleet)
 
 
 ## Jours de trajet d'un itinéraire calculé par plan_route (pour l'aperçu avant l'ordre).
@@ -368,7 +418,7 @@ static func vision_center(state: GameState, fleet: Fleet) -> int:
 # --- Exploration automatique ------------------------------------------------------------------
 
 ## Système vers lequel une flotte en exploration automatique doit se diriger : le plus proche
-## (en distance de route) des systèmes connus mais inexplorés, en évitant ceux que vise déjà une
+## (en distance de route) des systèmes connus mais pas encore reconnus (aucun vaisseau n'y est passé), en évitant ceux que vise déjà une
 ## autre flotte du même empire en exploration. -1 s'il n'y en a plus aucun de joignable.
 ## Déterministe : égalités départagées par l'identifiant.
 static func explore_target(state: GameState, fleet: Fleet) -> int:
@@ -383,7 +433,7 @@ static func explore_target(state: GameState, fleet: Fleet) -> int:
 	var best_d := 0
 	for k in res["dist"]:
 		var sid := int(k)
-		if is_explored(state, fleet.owner, sid):
+		if is_surveyed(state, fleet.owner, sid):
 			continue
 		var d := int(res["dist"][k])
 		var free := not taken.has(sid)
@@ -440,7 +490,7 @@ static func _own_visible(state: GameState, empire_id: int) -> Dictionary:
 		var f: Fleet = state.fleets[fid]
 		if f.owner == empire_id:
 			var sid := vision_center(state, f)
-			sources[sid] = maxi(int(sources.get(sid, -1)), Stealth.vision_of(state, f) if not state.stealth.is_empty() else vision(f))
+			sources[sid] = maxi(int(sources.get(sid, -1)), Stealth.vision_of(state, f) if not state.stealth.is_empty() else vision(f, state))
 	if not state.stealth.is_empty():
 		Stealth.beacon_vision(state, empire_id, sources)
 	Megastructures.vision(state, empire_id, sources)  # Réseau de veille
@@ -480,7 +530,7 @@ static func visible_all(state: GameState) -> Array[Dictionary]:
 			continue
 		var src := sources[f.owner]
 		var sid := vision_center(state, f)
-		src[sid] = maxi(int(src.get(sid, -1)), Stealth.vision_of(state, f) if not state.stealth.is_empty() else vision(f))
+		src[sid] = maxi(int(src.get(sid, -1)), Stealth.vision_of(state, f) if not state.stealth.is_empty() else vision(f, state))
 	if not state.stealth.is_empty():
 		for i in count:
 			Stealth.beacon_vision(state, state.empires[i].id, sources[i])
@@ -536,6 +586,12 @@ static func _flood(g: Galaxy, start: int, radius: int, seen: Dictionary, pierce 
 					seen[n] = true
 					next.append(n)
 		frontier = next
+
+
+## Système reconnu : un vaisseau de l'empire y est passé (voir Empire.surveyed).
+static func is_surveyed(state: GameState, empire_id: int, system_id: int) -> bool:
+	var e := state.get_empire(empire_id)
+	return e != null and e.surveyed.has(system_id)
 
 
 static func is_explored(state: GameState, empire_id: int, system_id: int) -> bool:
@@ -758,6 +814,76 @@ static func check_patrol(state: GameState, empire_id: int, fleet_id: int, system
 	if f.destination() == system_id:
 		return "la patrouille doit aller ailleurs que là où va la flotte"
 	return check_move(state, empire_id, fleet_id, system_id)
+
+
+## Ajouter une étape : la flotte s'y rendra après sa destination actuelle (et les étapes déjà données).
+static func check_queue(state: GameState, empire_id: int, fleet_id: int, system_id: int) -> String:
+	var f: Fleet = state.fleets.get(fleet_id)
+	if f == null or f.owner != empire_id:
+		return "cette flotte ne vous appartient pas"
+	if state.galaxy.get_system(system_id) == null:
+		return "système inconnu : %d" % system_id
+	if not is_known(state, empire_id, system_id):
+		return "ce système n'apparaît sur aucune de vos cartes"
+	if not f.is_moving() and f.queue.is_empty():
+		return check_move(state, empire_id, fleet_id, system_id)
+	if f.queue.size() >= Fleet.QUEUE_MAX:
+		return "pas plus de %d étapes" % Fleet.QUEUE_MAX
+	var last := f.queue[-1] if not f.queue.is_empty() else f.destination()
+	if last == system_id:
+		return "la flotte y va déjà"
+	return ""
+
+
+static func check_stance(state: GameState, empire_id: int, fleet_id: int, stance: String) -> String:
+	var f: Fleet = state.fleets.get(fleet_id)
+	if f == null or f.owner != empire_id:
+		return "cette flotte ne vous appartient pas"
+	if not Fleet.STANCES.has(stance):
+		return "consigne inconnue : %s" % stance
+	return ""
+
+
+static func stance_label(stance: String) -> String:
+	return {"": "Engager", "eviter": "Éviter le combat", "repli": "Se replier si surclassée"}.get(stance, stance)
+
+
+## Point de ralliement des chantiers : un système connu de l'empire, ou -1 pour l'enlever.
+static func check_rally(state: GameState, empire_id: int, system_id: int) -> String:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return "empire inconnu"
+	if system_id < 0:
+		return "" if e.rally_system >= 0 else "aucun point de ralliement à enlever"
+	if state.galaxy.get_system(system_id) == null or not is_known(state, empire_id, system_id):
+		return "ce système n'apparaît sur aucune de vos cartes"
+	return ""
+
+
+## Où une flotte rompt le combat : le système de l'empire le plus proche par ses routes (à égalité le
+## plus petit identifiant), sinon le voisin connu le plus proche sans flotte ennemie. -1 : nulle part.
+static func retreat_target(state: GameState, f: Fleet) -> int:
+	var res := _dijkstra(state, f.owner, f.system_id, Borders.path_flags(state, f))
+	var best := -1
+	var best_d := 0
+	for k in res["dist"]:
+		var sid := int(k)
+		if sid == f.system_id or state.system_owner(sid) != f.owner or state.battles.has(sid):
+			continue
+		var d := int(res["dist"][k])
+		if best < 0 or d < best_d or (d == best_d and sid < best):
+			best = sid
+			best_d = d
+	if best >= 0:
+		return best
+	for n in state.galaxy.systems[f.system_id].neighbors:
+		if not is_known(state, f.owner, n) or state.battles.has(n):
+			continue
+		var d := lane_length(state.galaxy, f.system_id, n)
+		if best < 0 or d < best_d or (d == best_d and n < best):
+			best = n
+			best_d = d
+	return best
 
 
 static func check_stop(state: GameState, empire_id: int, fleet_id: int) -> String:

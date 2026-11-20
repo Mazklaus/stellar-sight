@@ -18,6 +18,9 @@ var _tabs := {}
 var _pages := {}
 var _fullscreen: Button
 var _auto_pause: Button
+var _stop_intrusion: Button
+var _stop_war: Button
+var _stop_events: Button
 var _silhouettes: Button
 var _detail: Button
 var _scale_b: Button
@@ -94,6 +97,22 @@ func _ready() -> void:
 	_auto_pause = _toggle_row(game, "Pause automatique dans les écrans d'empire",
 			"Le temps s'arrête quand vous consultez l'économie ou vos colonies, et repart à la fermeture.", func() -> void:
 		UiSettings.auto_pause_menus = not UiSettings.auto_pause_menus
+		UiSettings.save_settings()
+		sync())
+	game.add_child(UiTheme.section("Tour par tour : ce qui interrompt le tour"))
+	_stop_intrusion = _toggle_row(game, "Une flotte étrangère armée entre chez vous",
+			"Le tour s'arrête quand une flotte armée d'un autre empire, de pirates ou d'une crise arrive dans un de vos systèmes. Une bataille l'interrompt toujours.", func() -> void:
+		UiSettings.turn_stop_intrusion = not UiSettings.turn_stop_intrusion
+		UiSettings.save_settings()
+		sync())
+	_stop_war = _toggle_row(game, "On vous déclare la guerre",
+			"Le tour s'arrête le jour où un empire vous déclare la guerre.", func() -> void:
+		UiSettings.turn_stop_war = not UiSettings.turn_stop_war
+		UiSettings.save_settings()
+		sync())
+	_stop_events = _toggle_row(game, "Un événement attend votre choix",
+			"Le tour s'arrête quand un événement à choix arrive.", func() -> void:
+		UiSettings.turn_stop_events = not UiSettings.turn_stop_events
 		UiSettings.save_settings()
 		sync())
 	game.add_child(UiTheme.section("Infobulles et glossaire"))
@@ -189,6 +208,9 @@ func sync() -> void:
 		return
 	_set_toggle(_fullscreen, UiSettings.fullscreen)
 	_set_toggle(_auto_pause, UiSettings.auto_pause_menus)
+	_set_toggle(_stop_intrusion, UiSettings.turn_stop_intrusion)
+	_set_toggle(_stop_war, UiSettings.turn_stop_war)
+	_set_toggle(_stop_events, UiSettings.turn_stop_events)
 	_set_toggle(_silhouettes, UiSettings.fleet_silhouettes)
 	_scale.text = "%d %%" % roundi(UiSettings.ui_scale * 100.0)
 	_detail.text = String(GameData.battle_visuals().get("detail", {}).get("labels", {}).get(UiSettings.replay_detail, UiSettings.replay_detail))

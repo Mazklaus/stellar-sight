@@ -32,6 +32,35 @@ const MIN_TARGET_VALUE := 12
 const COLONIZER_RESERVE := 100
 
 
+## Entre deux réflexions, au tour par tour : ce qu'un joueur obtient par des ordres qui tiennent tout le
+## tour. Un vaisseau colon arrivé fonde sa colonie (ou repart si la place est prise), un éclaireur à
+## l'arrêt reprend l'exploration, et un empire pris dans une bataille commande ses flottes de guerre.
+## Rien d'autre : ni chantier, ni diplomatie, ni déclaration de guerre.
+static func follow_up(state: GameState, e: Empire) -> void:
+	var ctx := {}
+	var fought := false
+	for f in Fleets.empire_fleets(state, e.id):
+		if f.is_moving() or not state.fleets.has(f.id):
+			continue
+		var colon := Fleets.colonizer_ship(f) != ""
+		var idle_scout := f.is_idle() and not colon and not Combat.is_warfleet(f) and not FactionTraits.is_city_fleet(f)
+		if not colon and not idle_scout and not state.battles.has(f.system_id):
+			continue
+		if ctx.is_empty():
+			ctx = {"state": state, "e": e, "lv": AiLevels.level(e.ai_level), "ai": AiLevels.personality(e), "salt": 0, "intent": ""}
+		if state.battles.has(f.system_id):
+			fought = true
+		elif AiInsolites.managed(state, f) or ((not state.megas.is_empty() or not state.forge.is_empty()) and Megastructures.is_architect_fleet(f)) \
+				or (not state.transcendence.is_empty() and Transcendence.is_ark(state, f)):
+			continue
+		elif colon:
+			_colonizer(ctx, f)
+		elif _frontier(ctx) and not _forgets(ctx):
+			_issue(ctx, SimCommands.set_fleet_order(e.id, f.id, Fleet.ORDER_EXPLORE))
+	if fought:
+		_command_warfleets(ctx)
+
+
 ## Réfléchit et agit pour l'empire e.
 static func think(state: GameState, e: Empire) -> void:
 	var ctx := {
@@ -57,7 +86,7 @@ static func think(state: GameState, e: Empire) -> void:
 	# Les niveaux qui réfléchissent très souvent ne revoient leur stratégie militaire qu'un jour sur
 	# deux ou trois : la guerre se joue sur des semaines, et la simulation reste rapide.
 	var every := maxi(1, int(ctx["lv"].get("think_days", 10)))
-	if every >= 4 or posmod(state.tick + e.id * 3, 4) < every:
+	if state.turn_days > 0 or every >= 4 or posmod(state.tick + e.id * 3, 4) < every:
 		_military(ctx)
 	_diplomacy(ctx)
 	AiHeroes.think(ctx)
@@ -253,6 +282,8 @@ static func best_claim(state: GameState, e: Empire, system_id: int, use: int, vi
 	var owner := Intel.owner_in(state, e, vis, system_id)
 	if owner != -1 and owner != e.id:
 		return {}
+	if not e.surveyed.has(system_id):
+		return {}  # aperçu de loin : on ne sait pas ce qu'il y a à revendiquer
 	var best := {}
 	for pid in state.galaxy.systems[system_id].planet_ids:
 		var c: Colony = Intel.colony_in(state, e, vis, pid)
@@ -337,7 +368,9 @@ static func colonize_target(ctx: Dictionary, f: Fleet) -> Dictionary:
 		var claim: Dictionary = cand[1]
 		@warning_ignore("integer_division")
 		var days := int(dist[sid]) / maxi(1, speed)
-		var score := int(claim["value"]) * 10 - days * 2 if plan else 100000 - days
+		# Le poids du trajet dans le choix reste celui d'avant l'échelle des distances.
+		@warning_ignore("integer_division")
+		var score := int(claim["value"]) * 10 - days * 200 / state.galaxy.lane_scale_pct if plan else 100000 - days
 		score -= _far_fief_penalty(ctx, sid) * 10
 		score += border_bias(ctx, sid)
 		if best.is_empty() or score > best_score:
@@ -900,6 +933,8 @@ static func _open(ctx: Dictionary) -> bool:
 ## Reste-t-il des systèmes connus mais inexplorés ?
 static func _frontier_left(state: GameState, e: Empire) -> bool:
 	for sid in e.sorted_explored():
+		if not e.surveyed.has(sid):
+			return true
 		for n in state.galaxy.systems[int(sid)].neighbors:
 			if not e.explored.has(n):
 				return true
@@ -1649,7 +1684,7 @@ static func _war_target(ctx: Dictionary, from: int) -> int:
 			continue
 		var defense := Intel.garrison_in(state, e, _seen(ctx), sid) + _defense_at(ctx, sid) * 2
 		@warning_ignore("integer_division")
-		var score := defense * 10 + int(res["dist"][k]) / 20
+		var score := defense * 10 + int(res["dist"][k]) * 5 / state.galaxy.lane_scale_pct
 		# Buts de guerre : on va d'abord chercher ce qu'on revendique (sauf la Recrue).
 		if state.wars_on and _skill(ctx) >= 1 and Wars.has_claim(state, e.id, sid):
 			@warning_ignore("integer_division")

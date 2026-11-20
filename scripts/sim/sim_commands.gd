@@ -45,6 +45,21 @@ static func stop_fleet(player: int, fleet_id: int) -> Dictionary:
 	return {"type": "stop_fleet", "player": player, "fleet": fleet_id}
 
 
+## Ajoute une étape au trajet d'une flotte : elle s'y rendra après sa destination actuelle.
+static func queue_fleet(player: int, fleet_id: int, system_id: int) -> Dictionary:
+	return {"type": "queue_fleet", "player": player, "fleet": fleet_id, "system": system_id}
+
+
+## Consigne d'engagement d'une flotte : "" (engager), "eviter" ou "repli" (voir Fleet.stance).
+static func set_fleet_stance(player: int, fleet_id: int, stance: String) -> Dictionary:
+	return {"type": "set_fleet_stance", "player": player, "fleet": fleet_id, "stance": stance}
+
+
+## Point de ralliement des chantiers de l'empire (system_id = -1 : l'enlever).
+static func set_rally(player: int, system_id: int) -> Dictionary:
+	return {"type": "set_rally", "player": player, "system": system_id}
+
+
 ## Donne (ou retire, avec "") un ordre permanent à une flotte : Fleet.ORDER_EXPLORE.
 static func set_fleet_order(player: int, fleet_id: int, order: String) -> Dictionary:
 	return {"type": "set_fleet_order", "player": player, "fleet": fleet_id, "order": order}
@@ -846,6 +861,12 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Fleets.check_move(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("system", -1)))
 		"stop_fleet":
 			return Fleets.check_stop(state, int(cmd["player"]), int(cmd.get("fleet", -1)))
+		"queue_fleet":
+			return Fleets.check_queue(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("system", -1)))
+		"set_fleet_stance":
+			return Fleets.check_stance(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("stance", "")))
+		"set_rally":
+			return Fleets.check_rally(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"set_fleet_order":
 			return Fleets.check_order(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("order", "")))
 		"merge_fleets":
@@ -1234,12 +1255,29 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var plan := Fleets.plan_route(state, f, int(cmd["system"]))
 			f.standing_order = ""  # un ordre donné à la main reprend la main sur l'exploration
+			f.queue.clear()  # et sur les étapes données avant
 			f.system_id = int(plan["system"])
 			f.path.assign(plan["path"])
 			f.progress = int(plan["progress"])
+		"queue_fleet":
+			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			if not f.is_moving() and f.queue.is_empty():
+				var plan := Fleets.plan_route(state, f, int(cmd["system"]))
+				f.standing_order = ""
+				f.system_id = int(plan["system"])
+				f.path.assign(plan["path"])
+				f.progress = int(plan["progress"])
+			else:
+				f.queue.append(int(cmd["system"]))
+		"set_fleet_stance":
+			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			f.stance = String(cmd["stance"])
+		"set_rally":
+			state.get_empire(int(cmd["player"])).rally_system = int(cmd["system"])
 		"stop_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			f.standing_order = ""
+			f.queue.clear()
 			var lane := Fleets.lane_length(state.galaxy, f.system_id, f.path[0])
 			if f.progress * 2 >= lane:
 				f.path.resize(1)  # finir la route en cours

@@ -30,6 +30,12 @@ static var glossary_links := true
 static var glossary_intro_done := false
 ## Coques de peuple (prop. 38) : silhouette de la coque de tête sur l'icône de flotte de la carte.
 static var fleet_silhouettes := false
+## Tour par tour (étude d'équilibrage, C5) : ce qui interrompt un tour en cours de résolution, en plus
+## d'une bataille : une flotte étrangère armée qui entre chez vous, une déclaration de guerre, un
+## événement à choix.
+static var turn_stop_intrusion := true
+static var turn_stop_war := true
+static var turn_stop_events := true
 static var _loaded := false
 
 
@@ -55,6 +61,9 @@ static func load_settings() -> void:
 		tip_lock_mode = "minuterie"
 	glossary_links = bool(cfg.get_value("tips", "glossary_links", true))
 	glossary_intro_done = bool(cfg.get_value("tips", "intro_done", false))
+	turn_stop_intrusion = bool(cfg.get_value("turns", "stop_intrusion", true))
+	turn_stop_war = bool(cfg.get_value("turns", "stop_war", true))
+	turn_stop_events = bool(cfg.get_value("turns", "stop_events", true))
 
 
 static func save_settings() -> void:
@@ -71,6 +80,9 @@ static func save_settings() -> void:
 	cfg.set_value("tips", "glossary_links", glossary_links)
 	cfg.set_value("tips", "intro_done", glossary_intro_done)
 	cfg.set_value("display", "fleet_silhouettes", fleet_silhouettes)
+	cfg.set_value("turns", "stop_intrusion", turn_stop_intrusion)
+	cfg.set_value("turns", "stop_war", turn_stop_war)
+	cfg.set_value("turns", "stop_events", turn_stop_events)
 	cfg.save(PATH)
 
 
