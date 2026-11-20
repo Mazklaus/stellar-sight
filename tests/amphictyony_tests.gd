@@ -22,6 +22,7 @@ func run(check: Callable) -> void:
 	_test_atrocity()
 	_test_defense()
 	_test_market_and_spies()
+	_test_bounty_scale()
 	_test_ai()
 	_test_save()
 	_test_determinism()
@@ -452,3 +453,22 @@ func _test_determinism() -> void:
 	sb = Simulation.new(mid)
 	sb.advance(250)
 	_ok(a.checksum() == mid.checksum(), "Déterminisme : même partie avec l'Amphictyonie, même reprise depuis une sauvegarde")
+
+
+## Étude d'équilibrage, G7 : les primes de « Primes et patrouilles » montent de 15 en 15 (15, 30, 45).
+## Les niveaux s'additionnent (level_sum) : chacun doit donc valoir 1.
+func _test_bounty_scale() -> void:
+	var found := false
+	for f: Dictionary in Amphictyony.family_defs():
+		for way in ["a", "b"]:
+			var w: Dictionary = f.get(way, {})
+			if String(w.get("label", "")) != "Primes et patrouilles":
+				continue
+			found = true
+			var total := 0
+			var seen: Array[int] = []
+			for l: Dictionary in w.get("levels", []):
+				total += int(l.get("bounty", 0))
+				seen.append(int(Amphictyony.data()["bounty"].get(str(mini(total, 3)), {}).get("influence", 0)))
+			_ok(seen == [15, 30, 45], "primes de chasse : 15, 30 puis 45 influence (%s)" % str(seen))
+	_ok(found, "la voie « Primes et patrouilles » existe")

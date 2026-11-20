@@ -1405,7 +1405,16 @@ func _pick_home_systems(count: int) -> Array[int]:
 			return _pick_homes_balanced(count)
 		"chaotique":
 			return _pick_homes_chaotic(count)
-	return _pick_homes_spread(count)
+	# Le premier départ tiré est plus central que les suivants (placés au plus loin) : on mélange
+	# l'attribution avec la graine, pour que le premier empire de la liste (Ossarane dans une partie
+	# par défaut) ne reçoive pas toujours la place centrale (étude d'équilibrage, F1).
+	var homes := _pick_homes_spread(count)
+	for i in range(homes.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var tmp := homes[i]
+		homes[i] = homes[j]
+		homes[j] = tmp
+	return homes
 
 
 ## Départs équilibrés : un secteur angulaire par empire ; dans chacun, le système d'au moins trois
