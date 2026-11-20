@@ -105,6 +105,8 @@
 		"_doc": "Prop. 19 : les gardiens éveillés (sauf pacifiques et Mange-soleil) chassent les flottes de la crise à reach sauts de leur tanière, puis rentrent ; les troupeaux fuient."},
 	"nemesis": {
 		"from_day": 3600, "name": "Ambition démesurée",
+		"ai_one_in": {"1": 30, "2": 4, "3": 4},
+		"_ai_one_in": "IA (2026-11-20, partie longue) : chance par an de prendre la voie, une sur N, selon l'agressivité de l'empire (tempérament + peuple). En dessous de la plus petite clé, jamais. Agressivité 1 = les peuples durs (Chœur, Kh'thari, Ferrocornes...) au tempérament Normal par défaut.",
 		"text": "Pourquoi combattre la crise quand on peut le devenir ? Un empire peut prendre la voie de l'Ambition démesurée : chaque conquête, chaque guerre, chaque atrocité et chaque technologie interdite nourrit sa Menace. Au dernier palier, il n'y a plus de retour : la galaxie entière lui fait la guerre, et il lui reste à achever son grand œuvre.",
 		"gain": {"conquests": 15, "wars": 10, "battles_won": 2, "atrocity": 60, "tech": 30},
 		"tiers": [

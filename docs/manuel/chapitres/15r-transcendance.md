@@ -55,7 +55,7 @@ Pendant le Passage, l'espèce qui part ne croît plus et ses flottes s'effacent 
 
 ### Victoire ou départ
 
-En issue **Victoire**, le Passage achevé arrête la partie : victoire de Transcendance, partagée avec les empires qui l'ont rejoint. En issue **Départ**, l'espèce fondatrice quitte la galaxie ; l'empire est compté **Transcendé** au tableau final, avec le plus haut score, et la partie continue pour les autres :
+En issue **Victoire**, le Passage achevé arrête la partie : victoire de Transcendance, partagée avec les empires qui l'ont rejoint. Si la partie continue après une autre victoire déjà proclamée, le Passage achevé fait partir l'espèce comme en issue Départ. En issue **Départ**, l'espèce fondatrice quitte la galaxie ; l'empire est compté **Transcendé** au tableau final, avec le plus haut score, et la partie continue pour les autres :
 
 - **L'État successeur** : les autres espèces de l'empire fondent un nouvel État, qui hérite de leurs mondes, des techniques et de la moitié des flottes. Sans autre espèce, les mondes deviennent **délaissés**.
 - **La Curée** : un monde délaissé garde ses ruines ; qui le colonise fouille une **relique de savoir**, une technique de l'empire parti. Les Brisecomètes qui commerçaient avec lui touchent une part de ses réserves (contrat d'héritage).

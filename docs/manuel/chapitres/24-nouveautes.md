@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.59
+
+- **Parties longues jusqu'à l'an 50** : l'**Ambition démesurée** (chapitre des crises) s'ouvre aux IA agressives, avec une chance sur trente par an au tempérament Normal (avant, aucune IA ne la prenait avec les réglages par défaut) ; après une victoire déjà proclamée, un **Passage achevé** fait partir l'espèce comme en issue Départ (avant, il ne se passait rien). Fin de partie nettement plus rapide (mégastructures indexées par système). Corrections : capture au filet de la dernière bête d'un troupeau, accords de plusieurs phrases de la chronique. Sauvegarde 101 inchangée.
+
 ### Édition 2.58
 
 - **Arbre de recherche** (chapitre 5), derniers restes : chaque Destinée gagne un **outil de victoire** à sa première étape ; **Corps de mémoire** d'Asphodèle (remplace la Médecine coloniale, Âmes recueillies plus loin) ; **Siège de la Compagnie** de Ventrelune, 2e rang de la capitale en annexe (dividendes +25 %). Sauvegarde 101 inchangée.

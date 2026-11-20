@@ -98,7 +98,8 @@ static func think(ctx: Dictionary) -> void:
 		AiPlayer._intent(ctx, "Verse au %s" % String(pj.get("name", "grand chantier")))
 
 
-## Devenir la crise (prop. 23) : un empire très belliqueux, assez habile, peut prendre la voie ; devenu le
+## Devenir la crise (prop. 23) : un empire agressif, assez habile, peut prendre la voie (une chance sur
+## « ai_one_in » par an selon son agressivité, data/crises.json) ; devenu le
 ## Fléau, il verse à son grand œuvre dès que ses réserves le permettent.
 static func _nemesis(ctx: Dictionary) -> void:
 	var state: GameState = ctx["state"]
@@ -106,8 +107,9 @@ static func _nemesis(ctx: Dictionary) -> void:
 		return
 	var e: Empire = ctx["e"]
 	if CrisisNemesis.who(state) < 0:
-		if AiLevels.aggression(e) >= 2 and int(ctx["lv"].get("faction_use", 1)) >= 1 and CrisisNemesis.check_ambition(state, e.id) == "" \
-				and Crisis._h(state, ["ambition", e.id, state.tick / 360]) % 4 == 0:
+		var one_in := int((CrisisNemesis.data().get("ai_one_in", {}) as Dictionary).get(str(AiLevels.aggression(e)), 0))
+		if one_in > 0 and int(ctx["lv"].get("faction_use", 1)) >= 1 and CrisisNemesis.check_ambition(state, e.id) == "" \
+				and Crisis._h(state, ["ambition", e.id, state.tick / 360]) % one_in == 0:
 			if AiPlayer._issue(ctx, SimCommands.crisis_ambition(e.id)):
 				AiPlayer._intent(ctx, "Nourrit une ambition démesurée")
 		return

@@ -262,6 +262,23 @@ func _test_depart_renounce() -> void:
 	_ok(cmd(st, oss, "renounce") == "" and Transcendence.renounced(st, oss) and not Transcendence.in_passage(st, oss), "Renoncer : la voie et le Passage sont perdus")
 	_ok(cmd(st, oss, "path", {"path": "depart"}) != "", "Renoncer : plus jamais l'Orée")
 
+	# Issue Victoire, mais la partie continue après une victoire déjà proclamée : le Passage achevé
+	# fait quitter la galaxie (partie longue 2026-11-20 : avant, il ne se passait rien).
+	var st2 := new_game("complete", "ossarane")
+	var o2 := eid_of(st2, "ossarane")
+	var x2 := 0 if o2 != 0 else 1
+	st2.winner = {"empire": o2, "victory": "conquete", "tick": st2.tick, "allies": []}
+	to_passage(st2, x2, "apotheose" if Transcendence.path_why(st2, x2, "apotheose") == "" else "depart")
+	Transcendence.sub(st2, "passage")[str(x2)]["prog"] = 9999
+	if Transcendence.path_of(st2, x2) == "depart":
+		months(st2, 1)
+		var f2 := Transcendence.ark_fleet(st2, x2)
+		f2.system_id = int(Transcendence.ark(st2, x2)["target"])
+		f2.path.clear()
+	months(st2, 1)
+	_ok(Transcendence.done(st2, x2) and st2.get_empire(x2).eliminated, "après une victoire : le Passage achevé fait quitter la galaxie")
+	_ok(int(st2.winner["empire"]) == o2, "après une victoire : le vainqueur reste le même")
+
 
 func _test_ai_save() -> void:
 	var st := new_game("complete", "ossarane", {"ai_level": "normal"})

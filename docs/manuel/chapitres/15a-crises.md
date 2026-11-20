@@ -150,7 +150,7 @@ Pourquoi combattre la crise quand on peut la devenir ? Dès l'an 10, un empire, 
 
 Le dernier palier est un **point de non-retour**. Toute la galaxie déclare la guerre au Fléau, et personne ne peut plus faire la paix avec lui. Les autres empires frappent ses flottes **10 % plus fort**. Le Fléau doit alors bâtir **la Couronne du Néant**, en y versant 200 énergie ou matériaux à la fois (1 200 par empire rival, 2 400 au moins). S'il l'achève, c'est la **Victoire du Fléau**. S'il perd sa capitale, la voie est **brisée** : sa Menace retombe à rien et il ne pourra jamais la reprendre.
 
-L'IA ne prend cette voie que si elle est très belliqueuse.
+Une IA agressive peut prendre cette voie : une chance sur trente par an pour un peuple d'agressivité 1 (le Chœur, les Kh'thari ou les Ferrocornes au tempérament Normal, par exemple), une sur quatre au-delà. Les IA Recrues ne la prennent jamais.
 
 ### L'onglet Crise
 
