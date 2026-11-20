@@ -307,15 +307,13 @@ static func colonize_target(ctx: Dictionary, f: Fleet) -> Dictionary:
 	var use := _use(ctx)
 	var plan := bool(ctx["lv"].get("plan_targets", true))
 	var taken := _targeted(state, e, f.id)
-	var res := Fleets._dijkstra(state, e.id, f.system_id, Borders.path_flags(state, f))
-	var speed := Fleets.speed(f, state)
-	var best := {}
-	var best_score := 0
-	var ids: Array = res["dist"].keys()
-	ids.sort()
-	for k in ids:
+	# Les systèmes qui méritent un colon d'abord, le calcul des routes ensuite et seulement s'il en
+	# reste : en fin de partie il n'y en a presque plus, et la recherche de chemins coûtait le plus.
+	# Même parcours qu'avant (systèmes explorés par identifiant croissant, puis ceux que la route atteint).
+	var cands: Array = []
+	for k in e.sorted_explored():
 		var sid := int(k)
-		if not Fleets.is_explored(state, e.id, sid) or taken.has(sid) or Economy.has_foothold(state, e.id, sid):
+		if taken.has(sid) or Economy.has_foothold(state, e.id, sid):
 			continue
 		if _owner(ctx, sid) != -1 or Pirates.guard_fleet(state, sid) != null or Pirates.is_port(state, sid):
 			continue
@@ -324,8 +322,21 @@ static func colonize_target(ctx: Dictionary, f: Fleet) -> Dictionary:
 		var claim := best_claim(state, e, sid, use, _seen(ctx))
 		if claim.is_empty() or int(claim["value"]) < MIN_TARGET_VALUE:
 			continue
+		cands.append([sid, claim])
+	var best := {}
+	if cands.is_empty():
+		return best
+	var res := Fleets._dijkstra(state, e.id, f.system_id, Borders.path_flags(state, f))
+	var speed := Fleets.speed(f, state)
+	var best_score := 0
+	var dist: Dictionary = res["dist"]
+	for cand: Array in cands:
+		var sid: int = cand[0]
+		if not dist.has(sid):
+			continue
+		var claim: Dictionary = cand[1]
 		@warning_ignore("integer_division")
-		var days := int(res["dist"][k]) / maxi(1, speed)
+		var days := int(dist[sid]) / maxi(1, speed)
 		var score := int(claim["value"]) * 10 - days * 2 if plan else 100000 - days
 		score -= _far_fief_penalty(ctx, sid) * 10
 		score += border_bias(ctx, sid)

@@ -368,17 +368,21 @@ static var _class_ids_cache: Array[String] = []
 
 
 static var _ship_fast := {}
+## Change à chaque modèle enregistré ou effacé : les mémos par identifiant de vaisseau (Combat) s'y fient.
+static var ship_gen := 0
 
 
 static func register_custom_ship(id: String, stats: Dictionary) -> void:
 	_custom[id] = stats
 	_ship_fast.erase(id)
 	_ids_cache = []
+	ship_gen += 1
 
 
 static func clear_custom_ships() -> void:
 	_custom.clear()
 	_ids_cache = []
+	ship_gen += 1
 	Capture.clear_cache()
 
 

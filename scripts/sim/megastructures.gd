@@ -1152,8 +1152,12 @@ static func pop_bonus(state: GameState, pid: int, owner: int) -> int:
 		return 0
 	var n := 0
 	var sid := state.galaxy.get_planet(pid).system_id
-	for m in in_system(state, sid):
-		if int(m["p"]) == pid and int(m["o"]) == owner and complete(m) and String(m.get("mod", "")) != "":
+	# Lecture directe de l'index (sans copie de la liste) : appelée pour chaque capacité de colonie.
+	var here: Variant = (_index(state)["sys"] as Dictionary).get(sid)
+	if here == null:
+		return 0
+	for m: Dictionary in here:
+		if int(m["p"]) == pid and int(m["o"]) == owner and String(m.get("mod", "")) != "" and complete(m):
 			n += int(((kind_def(String(m["k"])).get("module_fx", {}) as Dictionary).get(String(m["mod"]), {}) as Dictionary).get("pop", 0))
 	return n
 
