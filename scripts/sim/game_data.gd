@@ -367,8 +367,12 @@ static var _ids_cache: Array[String] = []
 static var _class_ids_cache: Array[String] = []
 
 
+static var _ship_fast := {}
+
+
 static func register_custom_ship(id: String, stats: Dictionary) -> void:
 	_custom[id] = stats
+	_ship_fast.erase(id)
 	_ids_cache = []
 
 
@@ -379,6 +383,11 @@ static func clear_custom_ships() -> void:
 
 
 static func ship(id: String) -> Dictionary:
+	# Table directe d'abord : les classes des données sont lues 60 000 fois par jour en fin de partie.
+	# Un modèle enregistré sous le même identifiant l'en retire (register_custom_ship).
+	var fast: Variant = _ship_fast.get(id)
+	if fast != null:
+		return fast
 	if _custom.has(id):
 		return _custom[id]
 	if id.contains("~"):
@@ -391,6 +400,7 @@ static func ship(id: String) -> Dictionary:
 	var found := _ship_data(id)
 	if not found.is_empty():
 		memo[id] = found
+		_ship_fast[id] = found
 	return found
 
 

@@ -43,6 +43,7 @@ var _faction_cache: Dictionary = {}
 var _faction_gen := -1
 var _faction_id_cached := ""
 var _faction_rev := -1
+var _species_key := ""
 ## Ingénierie des espèces (voir Genetics) : génome par espèce vivant dans l'empire {fid: {"add": [traits],
 ## "rem": [traits], "bio": second biome, "cyber": bool, "synth": bool, "graft": {ressource: %}, "gfood": %,
 ## "grafted": [espèces greffées]}}, voie d'élévation choisie ("" = aucune) et compteur de révisions
@@ -144,7 +145,19 @@ func faction() -> Dictionary:
 		_faction_id_cached = faction_id
 		_faction_rev = genome_rev
 		_species_cache.clear()
+		_species_key = ""
 	return _faction_cache
+
+
+## Clé de cache des talents de peuple (« peuple:fiche de l'espèce »), gardée avec la fiche : la reconstruire
+## à chaque appel coûtait 13 µs, des milliers de fois par jour en fin de partie.
+func species_key() -> String:
+	if not npc_faction.is_empty():
+		return "%s:%s" % [faction_id, str(npc_faction.get("species", {}))]
+	var f := faction()
+	if _species_key == "":
+		_species_key = "%s:%s" % [faction_id, str(f.get("species", {}))]
+	return _species_key
 
 
 ## Fiche d'une espèce qui vit dans l'empire (populations mêlées), son génome posé dessus.

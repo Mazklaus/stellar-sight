@@ -142,7 +142,7 @@ static func talent(state: GameState, eid: int) -> Dictionary:
 	var e := state.get_empire(eid) if eid >= 0 else null
 	if e == null or e.is_npc():
 		return {}
-	var ck := "%s:%s" % [e.faction_id, str(e.faction().get("species", {}))]
+	var ck := e.species_key()
 	if _talent_cache.has(ck):
 		return _talent_cache[ck]
 	var out := {}
@@ -469,16 +469,22 @@ static func detection_at(state: GameState, viewer: int, sid: int, cam := 0, agai
 static var _at_memo := {}
 static var _reach_memo := {}
 static var _at_memo_on := false
+static var _who_memo := {}
+static var _extra_memo := {}
 
 
 static func at_memo_begin() -> void:
 	_at_memo.clear()
+	_who_memo.clear()
+	_extra_memo.clear()
 	_reach_memo.clear()
 	_at_memo_on = true
 
 
 static func at_memo_end() -> void:
 	_at_memo.clear()
+	_who_memo.clear()
+	_extra_memo.clear()
 	_reach_memo.clear()
 	_at_memo_on = false
 
@@ -489,18 +495,31 @@ static func _reach(state: GameState, viewer: int, sid: int, against: int) -> Pac
 	var out := PackedInt32Array()
 	if viewer < 0 or viewer >= state.empires.size() or state.galaxy.systems[sid].blind:
 		return out
-	var who: Array[int] = [viewer]
-	who.append_array(Fleets.allies_of(state, viewer))
+	# Alliés du témoin et bonus d'un empire contre un autre : les mêmes pour toutes les flottes et tous
+	# les systèmes du relevé, gardés avec le mémo (_reach n'est appelé que mémo ouvert).
+	var who: Array[int]
+	if _who_memo.has(viewer):
+		who = _who_memo[viewer]
+	else:
+		who = [viewer]
+		who.append_array(Fleets.allies_of(state, viewer))
+		_who_memo[viewer] = who
 	var dists := _dist(state, sid, 8)
 	var veil_target := against >= 0 and against < state.empires.size() and Veil.is_veiled(state, against)
 	var stat := int(cfg("stationary_bonus").get("detect", 2)) if veil_target else 0
 	for eid in who:
-		var extra := StealthBridges.codes_bonus(state, eid, against) if against >= 0 else 0
-		if veil_target:
-			extra += Research.fx_int(state, eid, "detect_veil")
-		extra += PsionicsBridges.detect_bonus(state, eid, against)
-		var tal := int(talent(state, eid).get("stationary", 0))
-		for src in sources(state, eid):
+		var xk := Vector2i(eid, against)
+		var xv: Variant = _extra_memo.get(xk)
+		if xv == null:
+			var x := StealthBridges.codes_bonus(state, eid, against) if against >= 0 else 0
+			if veil_target:
+				x += Research.fx_int(state, eid, "detect_veil")
+			x += PsionicsBridges.detect_bonus(state, eid, against)
+			xv = Vector2i(x, int(talent(state, eid).get("stationary", 0)))
+			_extra_memo[xk] = xv
+		var extra: int = xv.x
+		var tal: int = xv.y
+		for src: Array in sources(state, eid):
 			var d := int(dists.get(int(src[0]), 99))
 			if d > int(src[1]):
 				continue
