@@ -43,8 +43,14 @@ static var _dist_cache := {}
 static var _ambushers := {}
 
 
+## (la table chargée ne change plus : gardée ici, la lecture se fait des milliers de fois par jour)
+static var _data: Dictionary = {}
+
+
 static func data() -> Dictionary:
-	return GameData.stealth()
+	if _data.is_empty():
+		_data = GameData.stealth()
+	return _data
 
 
 static func cfg(section: String) -> Dictionary:

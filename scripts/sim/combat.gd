@@ -10,8 +10,14 @@ extends RefCounted
 ## Tout en entiers, aucun aléatoire hors de state.rng.
 
 
+## (la table chargée ne change plus : gardée ici, la lecture se fait des milliers de fois par jour)
+static var _data: Dictionary = {}
+
+
 static func data() -> Dictionary:
-	return GameData.combat()
+	if _data.is_empty():
+		_data = GameData.combat()
+	return _data
 
 
 # --- Vaisseaux et flottes ----------------------------------------------------------------------
@@ -219,7 +225,12 @@ static func tactic_tech(id: String) -> String:
 static func _fleet_has_flag(f: Fleet, flag: String) -> bool:
 	if f == null:
 		return false
+	# (une flotte aligne souvent le même modèle en série : chaque modèle n'est lu qu'une fois de suite)
+	var last := ""
 	for s in f.ships:
+		if s == last:
+			continue
+		last = s
 		if GameData.ship(s).get(flag, false):
 			return true
 	return false
