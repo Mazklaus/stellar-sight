@@ -241,26 +241,52 @@ static func ids(state: GameState) -> Array[int]:
 
 
 static func all_sorted(state: GameState) -> Array[Dictionary]:
-	var out: Array[Dictionary] = []
-	for id in ids(state):
-		out.append(get_m(state, id))
-	return out
+	return (_index(state)["all"] as Array[Dictionary]).duplicate()
 
 
 static func owned_by(state: GameState, eid: int) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
-	for m in all_sorted(state):
+	for m: Dictionary in _index(state)["all"]:
 		if int(m["o"]) == eid:
 			out.append(m)
 	return out
 
 
 static func in_system(state: GameState, sid: int) -> Array[Dictionary]:
-	var out: Array[Dictionary] = []
-	for m in all_sorted(state):
-		if int(m["s"]) == sid:
-			out.append(m)
+	var v: Variant = (_index(state)["sys"] as Dictionary).get(sid)
+	if v == null:
+		return [] as Array[Dictionary]
+	return (v as Array[Dictionary]).duplicate()
+
+
+## Index des mégastructures (liste triée, et par système) gardé dans state.log_cache : recalculé à
+## chaque jour, à chaque ordre, et dès que la liste change (changed(), ou une taille différente pour
+## qui écrit directement dans entries()). Les entrées sont les mêmes dictionnaires que l'état : un
+## changement de propriétaire se voit tout de suite. Partie longue (2026-11-20) : sans index, l'Économie
+## parcourait les 150 à 210 mégastructures de la fin de partie pour chaque planète.
+static func _index(state: GameState) -> Dictionary:
+	var list := entries(state)
+	var idx: Variant = state.log_cache.get("megas")
+	if idx is Dictionary and int(idx["n"]) == list.size() and is_same(idx["list"], list):
+		return idx
+	var all: Array[Dictionary] = []
+	var by_sys := {}
+	for id in ids(state):
+		var m := get_m(state, id)
+		all.append(m)
+		var sid := int(m.get("s", -1))
+		if not by_sys.has(sid):
+			var a: Array[Dictionary] = []
+			by_sys[sid] = a
+		(by_sys[sid] as Array[Dictionary]).append(m)
+	var out := {"n": list.size(), "list": list, "all": all, "sys": by_sys}
+	state.log_cache["megas"] = out
 	return out
+
+
+## À appeler après tout ajout, retrait ou remplacement d'une entrée de entries().
+static func changed(state: GameState) -> void:
+	state.log_cache.erase("megas")
 
 
 static func is_ruin(m: Dictionary) -> bool:
@@ -700,6 +726,7 @@ static func pose(state: GameState, eid: int, fid: int, k: String, pid: int, adde
 		if not sw.is_empty():
 			entries(state).erase(str(int(sw["id"])))
 	entries(state)[str(id)] = m
+	changed(state)
 	sub(state, "plans").erase(str(fid))
 	_stat(state, eid, "posed", 1)
 	touch(state)
@@ -814,6 +841,7 @@ static func cancel(state: GameState, eid: int, id: int, added: Array[Dictionary]
 	for r in back:
 		e.resources[r] = int(e.resources.get(r, 0)) + int(back[r])
 	entries(state).erase(str(id))
+	changed(state)
 	touch(state)
 	added.append(state.add_chronicle("%s abandonne le chantier de %s. Les jalons restent plantés, pour les archéologues." % [e.short_name(), name_of(state, m)], [eid]))
 
@@ -1220,6 +1248,7 @@ static func _sync_owner(state: GameState, m: Dictionary, added: Array[Dictionary
 	m.erase("f")
 	if int(m["st"]) == 0:
 		entries(state).erase(str(int(m["id"])))  # un Chantier qui ne tenait pas : rien à prendre
+		changed(state)
 		touch(state)
 		return
 	touch(state)
@@ -1308,4 +1337,5 @@ static func migrate_wonders(state: GameState) -> void:
 			m["ruin"] = 1
 			m["o"] = -1
 		entries(state)[str(id)] = m
+		changed(state)
 	touch(state)

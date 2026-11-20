@@ -88,6 +88,9 @@ static func daily(state: GameState, added: Array[Dictionary]) -> void:
 	var nets: Dictionary = state.fauna["nets"]
 	var seen := {}
 	for fid in state.sorted_fleet_ids():
+		# Une capture plus haut dans la boucle peut avoir rayé le troupeau (dernière bête prise).
+		if not state.fleets.has(fid):
+			continue
 		var f: Fleet = state.fleets[fid]
 		if GameState.is_npc(f.owner) or f.is_moving() or state.battles.has(f.system_id) or Combat.is_armed(f) or not has_net(f):
 			continue

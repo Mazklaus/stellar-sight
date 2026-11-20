@@ -1105,8 +1105,8 @@ static func _members_month(state: GameState, eid: int, added: Array[Dictionary])
 			remove_member(state, eid, int(m["id"]))
 			if was_head:
 				var nh := head(h)
-				added.append(state.add_chronicle("%s %s, %s, s'éteint à %d ans. %s lui succède à la tête de %s %s." % [String(m["name"]), String(h["name"]),
-						String(words(state, eid)["head"]), a, String(nh.get("name", "?")), String(words(state, eid)["the"]), String(h["name"])],
+				added.append(state.add_chronicle("%s %s, %s, s'éteint à %d ans. %s lui succède à la tête %s." % [String(m["name"]), String(h["name"]),
+						String(words(state, eid)["head"]), a, String(nh.get("name", "?")), GameData.de("%s %s" % [String(words(state, eid)["the"]), String(h["name"])])],
 						Espionage.private_to(state, [eid])))
 		if (h["members"] as Array).size() < r_int("members_max") and _h(state, ["cousin", eid, int(h["id"]), state.tick]) % 24 == 0:
 			add_member(state, eid, h)

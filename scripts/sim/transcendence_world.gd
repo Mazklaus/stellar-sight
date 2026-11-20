@@ -554,8 +554,8 @@ static func _tick_fauna(state: GameState, eid: int, added: Array[Dictionary]) ->
 	if Fauna.species(sp).is_empty():
 		return
 	Fauna.spawn_herd(state, sp, near, -1, state.tick + 360)
-	added.append(state.add_chronicle("Des bêtes s'agitent près de %s : quelque chose, dans le Passage de %s, les attire comme une lumière attire les phalènes." % [
-			Transcendence.oeuvre_label(Transcendence.path_of(state, eid)), state.get_empire(eid).short_name()], Espionage.private_to(state, [eid])))
+	added.append(state.add_chronicle("Des bêtes s'agitent près %s : quelque chose, dans le Passage de %s, les attire comme une lumière attire les phalènes." % [
+			GameData.de(Transcendence.oeuvre_label(Transcendence.path_of(state, eid))), state.get_empire(eid).short_name()], Espionage.private_to(state, [eid])))
 
 
 ## Chaque année de Passage, ceux qui lui font la guerre déplaisent aux futurs Partis (prop. 23).
