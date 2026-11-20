@@ -28,6 +28,7 @@ etiquette: Annexe
 | Flotte suivante, précédente | [[F]], [[Maj]]+[[F]] |
 | Envoyer la flotte | Clic droit sur un système |
 | Patrouille | [[Maj]]+clic droit |
+| Ajouter une étape au trajet | [[Ctrl]]+clic droit |
 | Flotte inactive suivante | [[I]], [[Maj]]+[[I]] |
 | Exploration automatique | [[E]] |
 | Tactique de combat | [[T]] |

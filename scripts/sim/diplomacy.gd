@@ -779,10 +779,10 @@ static func _drop_proposals(state: GameState, a: int, b: int, treaty: String) ->
 
 
 ## Échange de cartes (étude d'équilibrage, A4). Chacun reçoit le territoire de l'autre et ce que l'autre
-## a exploré à maps_jumps sauts autour (3), avec ses relevés plus récents sur ces systèmes (voir Intel) :
+## a exploré à maps_jumps sauts autour (1), avec ses relevés plus récents sur ces systèmes (voir Intel) :
 ## pas les cartes qu'il a reçues d'un tiers, ni ses explorations lointaines.
 ## atlas : l'atlas complet, tout ce que l'autre a exploré. Le traité d'échange de cartes le donne quand
-## les deux empires ont atteint l'ère atlas_era (3).
+## les deux empires ont atteint l'ère atlas_era (4).
 static func share_maps(state: GameState, a: int, b: int, atlas := false) -> void:
 	var ea := state.get_empire(a)
 	var eb := state.get_empire(b)

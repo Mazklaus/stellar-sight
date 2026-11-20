@@ -14,9 +14,9 @@ Les empires qui se rencontrent entrent en **guerre froide** : pas encore de comb
 | Guerre froide | Statut de départ : pas de combat, la guerre reste possible |
 | Guerre | Combats, sièges, invasions. Un score de guerre compte vaisseaux détruits et systèmes pris |
 | Paix | Aucune attaque. Une **trêve d'un an** suit la signature. +1 influence par mois |
-| Alliance | Après six mois de paix. Guerres, cartes et vision partagées. +2 influence par mois |
+| Alliance | Après six mois de paix. Guerres et vision partagées ; chaque mois, la carte du territoire de l'allié. +2 influence par mois |
 | Commerce | Avec la paix, en trois paliers : voir plus bas |
-| Échange de cartes | Chacun reçoit les systèmes explorés par l'autre ; une fois tous les deux ans |
+| Échange de cartes | Chacun reçoit le territoire de l'autre et ce qu'il a exploré à un saut autour. Quand les deux empires ont atteint la quatrième ère, le traité donne l'**atlas complet** : tout ce que l'autre a exploré. Une fois tous les deux ans |
 | Migration | Avec la paix et les peuples mêlés : les habitants circulent entre les deux empires, chacun colonise avec l'espèce de l'autre ; un accord commercial double le flux |
 
 Après la trêve, on peut **dénoncer** la paix et revenir à la guerre froide. On peut aussi attaquer sans prévenir : vous voilà **parjure** aux yeux de toute la galaxie, et elle s'en souviendra longtemps.
@@ -141,9 +141,9 @@ Le bloc affiche aussi, dans les deux sens, ce que chacun peut faire chez l'autre
 
 **L'intrusion.** Une flotte en intrusion que le propriétaire **voit** lui laisse un souvenir (-5, jusqu'à quatre fois, effacé en deux ans), une seule fois tant qu'elle reste. Si elle **stationne** plus de 30 jours, chaque mois ajoute -1. Pendant une **trêve**, l'intrusion compte double. Quand un droit prend fin (politique retirée, traité échu, alliance rompue), vos flottes ont **60 jours** pour sortir sans faute.
 
-**La sommation.** Contre un empire dont vous voyez les flottes en intrusion, le bloc Frontières propose **Sommer de partir** : il a **30 jours** pour retirer ses flottes. S'il obéit, l'incident est clos. S'il ignore la sommation, il en garde la marque (-15 auprès de vous), et vous tenez contre lui pour **cinq ans** le motif de guerre **Violation de frontière** (chapitre 7). Pendant ce temps, si vous êtes en **guerre froide**, vos flottes armées **ripostent** : elles attaquent ses intrus chez vous, sans déclaration de guerre. En paix, jamais : la paix protège, il vous reste l'opinion et le motif. Une nouvelle sommation attend 60 jours.
+**La sommation.** Contre un empire dont vous voyez les flottes en intrusion, le bloc Frontières propose **Sommer de partir** : il a **60 jours** pour retirer ses flottes. S'il obéit, l'incident est clos. S'il ignore la sommation, il en garde la marque (-15 auprès de vous), et vous tenez contre lui pour **cinq ans** le motif de guerre **Violation de frontière** (chapitre 7). Pendant ce temps, si vous êtes en **guerre froide**, vos flottes armées **ripostent** : elles attaquent ses intrus chez vous, sans déclaration de guerre. En paix, jamais : la paix protège, il vous reste l'opinion et le motif. Une nouvelle sommation attend 60 jours.
 
-**Le laissez-passer.** Pour une flotte précise, demandez le passage chez un empire pendant **90 jours** (15 influence ; gratuit pour la République de Vael). Une IA répond aussitôt, selon son opinion, son tempérament et la taille de la flotte ; un joueur humain a 15 jours. Accorder un laissez-passer plaît (+3).
+**Le laissez-passer.** Pour une flotte précise, demandez le passage chez un empire pendant **180 jours** (15 influence ; gratuit pour la République de Vael). Une IA répond aussitôt, selon son opinion, son tempérament et la taille de la flotte ; un joueur humain a 15 jours. Accorder un laissez-passer plaît (+3).
 
 **Le péage.** Dans la colonne de gauche, fixez ce que paie chaque flotte de guerre étrangère **de passage avec un droit** à chaque saut dans vos systèmes : 0, 2, 5 ou 10 énergie. Alliés, sujets et membres de votre Koinon ne paient pas ; les lignées féodales d'Ossarane touchent le double.
 

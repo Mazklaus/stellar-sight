@@ -5493,6 +5493,101 @@
    "chapters": [
     "07-recherche"
    ]
+  },
+  {
+   "id": "mise_en_route",
+   "name": "Mise en route",
+   "forms": [
+    "Mise en route",
+    "mise en route"
+   ],
+   "family": "meca",
+   "summary": "Jours qu'une flotte passe à l'arrêt, moteurs en charge, avant de quitter un système : 1 pour les petites coques, 2 pour les moyennes, 4 pour les grandes, 6 pour les titans. Les Maîtrises de propulsion la raccourcissent",
+   "chapters": [
+    "06-flottes"
+   ]
+  },
+  {
+   "id": "systeme_reconnu",
+   "name": "Système reconnu",
+   "forms": [
+    "Système reconnu",
+    "système reconnu",
+    "systèmes reconnus"
+   ],
+   "family": "meca",
+   "summary": "Système où l'un de vos vaisseaux est passé (ou reçu par un échange de cartes) : on y lit planètes, gisements et curiosités. Un système seulement aperçu ne montre que son étoile et son propriétaire",
+   "chapters": [
+    "06-flottes"
+   ]
+  },
+  {
+   "id": "atlas_complet",
+   "name": "Atlas complet",
+   "forms": [
+    "Atlas complet",
+    "atlas complet"
+   ],
+   "family": "meca",
+   "summary": "Ce que donne l'échange de cartes quand les deux empires ont atteint la quatrième ère : tout ce que l'autre a exploré, et non plus son seul territoire",
+   "chapters": [
+    "10-diplomatie"
+   ]
+  },
+  {
+   "id": "etape_trajet",
+   "name": "Étape",
+   "forms": [
+    "Étape",
+    "Étapes"
+   ],
+   "family": "meca",
+   "summary": "Destination suivante d'une flotte, ajoutée par Ctrl + clic droit : elle s'y rend après sa destination actuelle (huit au plus)",
+   "chapters": [
+    "06-flottes"
+   ],
+   "strict": true
+  },
+  {
+   "id": "consigne_engagement",
+   "name": "Consigne d'engagement",
+   "forms": [
+    "Consigne d'engagement",
+    "consigne d'engagement",
+    "Consigne"
+   ],
+   "family": "meca",
+   "summary": "Ce qu'une flotte fait sans vous quand un combat s'engage : engager, éviter le combat, ou se replier si elle est surclassée",
+   "chapters": [
+    "06-flottes"
+   ]
+  },
+  {
+   "id": "point_ralliement",
+   "name": "Point de ralliement",
+   "forms": [
+    "Point de ralliement",
+    "point de ralliement"
+   ],
+   "family": "meca",
+   "summary": "Système où vos vaisseaux armés neufs se rendent d'eux-mêmes à leur sortie des chantiers",
+   "chapters": [
+    "06-flottes"
+   ]
+  },
+  {
+   "id": "distances_reglage",
+   "name": "Distances",
+   "forms": [
+    "Distances"
+   ],
+   "family": "meca",
+   "summary": "Réglage de la partie qui fixe la durée des trajets entre les étoiles : proches, normales ou vastes",
+   "chapters": [
+    "06-flottes",
+    "02-premiere-partie"
+   ],
+   "strict": true
   }
  ]
 }

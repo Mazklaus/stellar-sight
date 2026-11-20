@@ -20,7 +20,7 @@ La nouvelle partie tient sur un seul écran, rangé en cinq blocs. Les réglages
 | Empire | Votre peuple (les huit peuples de départ, vos peuples créés, ou « Au hasard »), sa couleur, et l'accès à l'éditeur de peuples |
 | Rivaux | Le nombre d'empires adverses, et pour chacun : peuple, couleur, niveau d'IA, tempérament, départ avancé, distance, équipe ; la difficulté progressive |
 | Galaxie | Taille (de 90 à 420 systèmes), forme (spirale de 2 à 6 bras, elliptique, anneau, amas), routes, départs, mondes garantis, graine |
-| Partie | Le mode (jouer ou regarder en spectateur), le temps (temps réel pausable ou tours de 5, 10 ou 30 jours), et les mécaniques en jeu, détaillées ci-dessous |
+| Partie | Le mode (jouer ou regarder en spectateur), le temps (temps réel pausable ou tours d'un mois ou de 10 jours), et les mécaniques en jeu, détaillées ci-dessous |
 | Victoire | Victoires actives, alliés vainqueurs ensemble ou non, date limite du score (30, 60 ou 90 ans, ou aucune) |
 
 Chaque mécanique peut être retirée de la partie. Une partie sans elle se joue exactement comme si elle n'existait pas. Par défaut, tout est en jeu :
@@ -52,16 +52,18 @@ Côté victoire, la conquête, la domination et la victoire diplomatique sont co
 Une **graine** (un nombre ou un mot) recrée exactement la même galaxie. Le **code de partie** résume tous les réglages en une ligne à partager. Les **préréglages** enregistrent vos réglages favoris, et **Partie rapide** lance une petite galaxie sans détour.
 
 ::: conseil
-Pour une première partie, prenez la Concorde de Vael ou les Lignées d'Ossarane, trois ou quatre rivaux en niveau Recrue ou Normal, une galaxie moyenne et le tour par tour de 10 jours. Vous aurez tout le temps de lire les infobulles.
+Pour une première partie, prenez la Concorde de Vael ou les Lignées d'Ossarane, trois ou quatre rivaux en niveau Recrue ou Normal, une galaxie moyenne et le tour par tour d'un mois. Vous aurez tout le temps de lire les infobulles.
 :::
 
 ### Temps réel ou tour par tour
 
 En **temps réel pausable**, les jours défilent à la vitesse choisie (cinq crans, touches [[1]] à [[5]]) et [[Espace]] met en pause à tout moment. Vous pouvez donner tous vos ordres pendant la pause.
 
-Au **tour par tour**, le temps est arrêté pendant que vous jouez. Le cadran devient un bouton **Fin de tour** ([[Espace]]) qui fait défiler les jours du tour, puis s'arrête au tour suivant. Si une bataille éclate avec vos flottes pendant le tour, il s'interrompt pour vous laisser choisir la tactique ou vous retirer.
+Au **tour par tour**, le temps est arrêté pendant que vous jouez. Le cadran devient un bouton **Fin de tour** ([[Espace]]) qui fait défiler les jours du tour, puis s'arrête au tour suivant. Un tour dure **un mois** (30 jours), l'unité des revenus, de la croissance et de la recherche ; des tours de 10 jours restent proposés. Si une bataille éclate avec vos flottes pendant le tour, il s'interrompt pour vous laisser choisir la tactique ou vous retirer. Il s'interrompt aussi quand on vous **déclare la guerre**, quand une **flotte étrangère armée** entre dans un de vos systèmes, et quand un **événement** attend votre choix : chacun de ces arrêts se coche dans les options (onglet Jeu). Les étapes, la consigne d'engagement et le point de ralliement (chapitre 4) font tenir vos ordres tout le mois.
 
-Les cinq crans du cadran (touches [[1]] à [[5]]) règlent alors l'**allure de résolution** : à quelle vitesse les jours du tour défilent, le temps de voir les flottes avancer et les batailles éclater. Contemplative (un tour de 10 jours en 4 secondes), posée (1,5 seconde, l'allure de départ), vive, rapide ou éclair (0,3 seconde). L'infobulle du cadran rappelle l'allure choisie.
+Au tour par tour, les IA décident **une fois par tour**, comme vous, sur la même information.
+
+Les cinq crans du cadran (touches [[1]] à [[5]]) règlent alors l'**allure de résolution** : à quelle vitesse les jours du tour défilent, le temps de voir les flottes avancer et les batailles éclater. Contemplative (10 jours en 4 secondes, donc un tour d'un mois en 12), posée (10 jours en 1,5 seconde, l'allure de départ), vive, rapide ou éclair (10 jours en 0,3 seconde). L'infobulle du cadran rappelle l'allure choisie.
 
 Les deux modes appliquent exactement les mêmes règles : un tour n'est qu'une suite de jours ordinaires. Seul votre confort change.
 
@@ -84,7 +86,7 @@ La page **Multijoueur** de l'accueil réunit tout. Jusqu'à douze joueurs humain
 **Par Internet.** L'hôte ouvre le port UDP 24570 : sa box le fait parfois seule (la ligne « Par Internet » du salon le dit), sinon il faut une redirection de ce port vers son PC et, sous Windows, le bouton **Autoriser dans le pare-feu**. **Tester l'accès depuis Internet** vérifie l'ouverture. Derrière une box qui partage son adresse (CGNAT, fréquent en 4G), seul un réseau privé comme Tailscale fonctionne.
 
 ::: conseil
-Pour une première partie entre amis, prenez les tours simultanés de 10 jours, l'allure posée et un minuteur « Dernier joueur : 1 min » : personne n'attend longtemps celui qui hésite.
+Pour une première partie entre amis, prenez les tours simultanés d'un mois, l'allure posée et un minuteur « Dernier joueur : 1 min » : personne n'attend longtemps celui qui hésite.
 :::
 
 ### Les dix premières minutes

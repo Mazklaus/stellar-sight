@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.60
+
+- **Équilibrage, lot 1 : l'espace et le tour par tour.** Routes de saut trois fois et demie plus longues, avec un réglage **Distances** (proches, normales, vastes) ; **mise en route** avant chaque saut (1 à 6 jours selon la coque) ; **trois générations de moteurs** (×1,25, ×1,6, ×2,5) à la place des petits bonus de vitesse ; l'éclaireur voit à **un saut** (deux avec la Télémétrie à longue base) ; **voir n'est pas connaître** (un système aperçu ne montre que son étoile et son propriétaire) ; l'**échange de cartes** ne donne plus que le territoire et ses abords, l'**atlas complet** vient à la quatrième ère ; un **voisinage vivant** autour de chaque départ (peuple mineur, curiosité, nid à trois sauts au plus) ; délais de guerre, de frontière et de ravitaillement allongés avec les trajets. Au **tour par tour**, un tour dure **un mois** par défaut, les IA décident une fois par tour, le tour s'interrompt sur une déclaration de guerre, une flotte étrangère armée chez vous ou un événement à choix (réglable), et trois ordres tiennent tout le tour : **étapes** ([[Ctrl]]+clic droit), **consigne d'engagement**, **point de ralliement** des chantiers. Les sauvegardes d'avant gardent leurs distances.
+
 ### Édition 2.59
 
 - **Parties longues jusqu'à l'an 50** : l'**Ambition démesurée** (chapitre des crises) s'ouvre aux IA agressives, avec une chance sur trente par an au tempérament Normal (avant, aucune IA ne la prenait avec les réglages par défaut) ; après une victoire déjà proclamée, un **Passage achevé** fait partir l'espèce comme en issue Départ (avant, il ne se passait rien). Fin de partie nettement plus rapide (mégastructures indexées par système). Corrections : capture au filet de la dernière bête d'un troupeau, accords de plusieurs phrases de la chronique. Sauvegarde 101 inchangée.

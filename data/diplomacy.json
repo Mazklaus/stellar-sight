@@ -25,7 +25,7 @@
 		"trade": {"label": "Commerce", "verb": "le commerce",
 			"desc": "Trois paliers (voir data/trade.json) : comptoirs ouverts, accord commercial, libre-échange. Chaque palier ouvre des routes commerciales plus rentables. Exige la paix ; prend fin avec elle."},
 		"maps": {"label": "Échange de cartes", "verb": "un échange de cartes",
-			"desc": "Chacun reçoit le territoire de l'autre et ce qu'il a exploré à 3 sauts autour. Quand les deux empires ont atteint la troisième ère, le traité donne l'atlas complet : tout ce que l'autre a exploré. Impossible en guerre ; pas plus d'une fois tous les deux ans."},
+			"desc": "Chacun reçoit le territoire de l'autre et ce qu'il a exploré à un saut autour. Quand les deux empires ont atteint la quatrième ère, le traité donne l'atlas complet : tout ce que l'autre a exploré. Impossible en guerre ; pas plus d'une fois tous les deux ans."},
 		"migration": {"label": "Traité de migration", "verb": "un traité de migration",
 			"desc": "Peuples mêlés : les habitants circulent entre les deux empires (avec l'option Migrations) et chacun peut coloniser avec l'espèce de l'autre. Un accord commercial double le flux. Exige la paix ; prend fin avec elle."},
 		"passage": {"label": "Libre-passage", "verb": "un traité de libre-passage",
