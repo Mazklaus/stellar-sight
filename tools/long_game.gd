@@ -8,7 +8,14 @@ extends SceneTree
 ## d'empreinte), SAVE_DIR (user://), CONTINUE (1 : la partie continue après une victoire, comme le
 ## joueur qui choisit « continuer » ; 0 : on s'arrête), SLOW_DAY_MS (20000 : un jour plus long est
 ## signalé comme blocage possible), LOAD (reprendre depuis une sauvegarde faite par ce banc : la partie
-## repart de son année et va jusqu'à YEARS).
+## repart de son année et va jusqu'à YEARS), HANG_S (120 : un jour qui ne finit pas en HANG_S secondes est
+## un blocage ; un fil de garde l'écrit, avec le système en cours, puis arrête le banc).
+
+var _hang_mutex := Mutex.new()
+var _hang_beat := 0
+var _hang_where := ""
+var _hang_stop := false
+var _hang_thread: Thread
 
 func _initialize() -> void:
 	var seed_value := _env_int("SEED", 3)
@@ -49,6 +56,9 @@ func _initialize() -> void:
 	print("Partie longue : graine %d, %d empires, %d ans" % [seed_value, st.empires.size(), years])
 	var events: Array = []
 	var systems := Simulation.daily_systems(events)
+	_hang_beat = Time.get_ticks_msec()
+	_hang_thread = Thread.new()
+	_hang_thread.start(_watch_hang.bind(_env_int("HANG_S", 120) * 1000, out_path))
 	var win_logged := not st.winner.is_empty()
 	for y in range(first_year, years):
 		var year_us := {}
@@ -63,6 +73,7 @@ func _initialize() -> void:
 			st.log_cache.clear()
 			events.clear()
 			for s in systems:
+				_beat("jour %d, %s" % [st.tick, s[0]])
 				var a := Time.get_ticks_usec()
 				var added: Array = s[1].call(st)
 				year_us[s[0]] = int(year_us.get(s[0], 0)) + Time.get_ticks_usec() - a
@@ -117,6 +128,10 @@ func _initialize() -> void:
 	if out != null:
 		out.close()
 	print("Fin : tick %d, vainqueur %s, empreinte %s" % [st.tick, str(st.winner), st.checksum().substr(0, 16)])
+	_hang_mutex.lock()
+	_hang_stop = true
+	_hang_mutex.unlock()
+	_hang_thread.wait_to_finish()
 	quit()
 
 
@@ -161,3 +176,35 @@ func _emit(out: FileAccess, row: Dictionary) -> void:
 func _env_int(name: String, def: int) -> int:
 	var v := OS.get_environment(name)
 	return int(v) if v.is_valid_int() else def
+
+
+func _beat(where: String) -> void:
+	_hang_mutex.lock()
+	_hang_beat = Time.get_ticks_msec()
+	_hang_where = where
+	_hang_mutex.unlock()
+
+
+## Fil de garde : la simulation tourne sur le fil principal ; si elle ne bat plus, on écrit où elle est
+## restée (sortie et fichier OUT) et on tue le processus, au lieu d'attendre le timeout pendant des heures.
+func _watch_hang(limit_ms: int, out_path: String) -> void:
+	while true:
+		OS.delay_msec(1000)
+		_hang_mutex.lock()
+		var stop := _hang_stop
+		var age := Time.get_ticks_msec() - _hang_beat
+		var where := _hang_where
+		_hang_mutex.unlock()
+		if stop:
+			return
+		if age > limit_ms:
+			var msg := "BLOCAGE : plus de %d s sans avancer (%s)" % [age / 1000, where]
+			printerr(msg)
+			if out_path != "":
+				var f := FileAccess.open(out_path, FileAccess.READ_WRITE)
+				if f != null:
+					f.seek_end()
+					f.store_line(JSON.stringify({"type": "hang", "where": where, "seconds": age / 1000}))
+					f.close()
+			OS.kill(OS.get_process_id())
+			return

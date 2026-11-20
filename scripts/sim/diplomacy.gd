@@ -89,8 +89,17 @@ static func days(key: String, default := 0) -> int:
 
 # --- Relations ---------------------------------------------------------------------------------
 
+static var _key_memo := {}
+
+
 static func key(a: int, b: int) -> String:
-	return "%d-%d" % [mini(a, b), maxi(a, b)]
+	# Lue des centaines de milliers de fois par jour en fin de partie : la chaîne est gardée.
+	var v := Vector2i(mini(a, b), maxi(a, b))
+	var k: Variant = _key_memo.get(v)
+	if k == null:
+		k = "%d-%d" % [v.x, v.y]
+		_key_memo[v] = k
+	return k
 
 
 ## Relation entre deux empires (lecture ; {} si rien n'a jamais été signé).

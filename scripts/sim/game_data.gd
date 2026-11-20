@@ -383,6 +383,18 @@ static func ship(id: String) -> Dictionary:
 		return _custom[id]
 	if id.contains("~"):
 		return Capture.prize_stats(id) if not id.ends_with("~copie") else {}  # prises de guerre (voir Capture)
+	# Classes des données (fixes pendant la partie) : lues des millions de fois en fin de partie.
+	var memo: Dictionary = _cache.get_or_add("ship_memo", {})
+	var hit: Variant = memo.get(id)
+	if hit != null:
+		return hit
+	var found := _ship_data(id)
+	if not found.is_empty():
+		memo[id] = found
+	return found
+
+
+static func _ship_data(id: String) -> Dictionary:
 	# Créatures (data/creatures.json, « units ») : elles se lisent comme des classes au combat, sans
 	# figurer parmi les classes que l'on construit.
 	if id.begins_with("crise_"):

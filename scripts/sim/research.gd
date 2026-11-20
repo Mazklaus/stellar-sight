@@ -1011,9 +1011,17 @@ static func advance(state: GameState, empire_id: int, income: int) -> Array[Stri
 	var e := state.get_empire(empire_id)
 	if e == null or e.research_queue.is_empty() or Insolites.no_research(state, empire_id):
 		return done
+	# Une technologie obtenue par un autre chemin (relique, don, trouvaille) quitte la file : sinon la
+	# sauvegarde ne se recharge plus et, arrivée en tête, elle bloquait la boucle ci-dessous.
+	for tid in e.research_queue.duplicate():
+		if e.techs.has(tid):
+			unqueue(e, tid)
 	var budget := monthly_budget(int(e.resources.get("knowledge", 0)), income)
 	while budget > 0 and not e.research_queue.is_empty():
 		var tid := e.research_queue[0]
+		if e.techs.has(tid):
+			unqueue(e, tid)  # déjà obtenue par un autre chemin : sans cela, la boucle ne finissait jamais
+			continue
 		var need := cost(state, empire_id, tid) - e.research_progress
 		var spend := mini(budget, maxi(0, need))
 		e.research_progress += spend
@@ -1029,21 +1037,16 @@ static func advance(state: GameState, empire_id: int, income: int) -> Array[Stri
 ## Découvre une technologie (fin de recherche, épave, ou test) : effets ponctuels compris.
 static func complete(state: GameState, empire_id: int, tid: String) -> void:
 	var e := state.get_empire(empire_id)
-	if e == null or e.techs.has(tid):
+	if e == null:
+		return
+	if e.techs.has(tid):
+		unqueue(e, tid)
 		return
 	e.techs[tid] = true
 	Heroes.act(state, empire_id, "tech")
 	Politics.on_tech(state, empire_id, String(tech(tid).get("current", "")))  # la recherche dessine la vie politique
 	Crisis.on_tech(state, empire_id, tid)  # technologie interdite : la fin de partie approche
-	if not e.research_queue.is_empty() and e.research_queue[0] == tid:
-		e.research_queue.remove_at(0)
-		e.research_progress = 0
-		if not e.research_queue.is_empty():
-			e.research_progress = int(e.research_shelf.get(e.research_queue[0], 0))
-			e.research_shelf.erase(e.research_queue[0])
-	else:
-		e.research_queue.erase(tid)
-	e.research_shelf.erase(tid)
+	unqueue(e, tid)
 	var f := e.faction()
 	if FactionTraits.has_fervor(f):
 		var t := tech(tid)
@@ -1053,6 +1056,21 @@ static func complete(state: GameState, empire_id: int, tid: String) -> void:
 			gain += int(t["heretic"].get("fervor", 0))
 		e.fervor = clampi(e.fervor + gain, 0, int(f["fervor"]["max"]))
 	e.tech_fx_n = -1
+
+
+## Retire de la file et de l'étagère une technologie que l'empire vient d'obtenir. À appeler par tout
+## code qui écrit directement dans e.techs : une technologie connue restée dans la file disparaît au
+## rechargement (Empire.from_dict) et la sauvegarde est refusée (empreinte différente).
+static func unqueue(e: Empire, tid: String) -> void:
+	if not e.research_queue.is_empty() and e.research_queue[0] == tid:
+		e.research_queue.remove_at(0)
+		e.research_progress = 0
+		if not e.research_queue.is_empty():
+			e.research_progress = int(e.research_shelf.get(e.research_queue[0], 0))
+			e.research_shelf.erase(e.research_queue[0])
+	else:
+		e.research_queue.erase(tid)
+	e.research_shelf.erase(tid)
 
 
 ## Accorde des technologies sans les rechercher (scénarios, tests, IA de démonstration).

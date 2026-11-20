@@ -437,6 +437,82 @@ static func _dist(state: GameState, sid: int, maxr: int) -> Dictionary:
 ## Détection d'un empire (et de ses alliés) sur un système, pour un camouflage donné :
 ## {"det": meilleure détection, "dist": distance de la source la plus proche qui perce cam (-1 si aucune)}.
 static func detection_at(state: GameState, viewer: int, sid: int, cam := 0, against := -1) -> Dictionary:
+	if _at_memo_on:
+		var mk := Vector4i(viewer, sid, cam, against)
+		var hit: Variant = _at_memo.get(mk)
+		if hit == null:
+			# Les sources à portée ne dépendent pas du camouflage : gardées par (viewer, sid, against),
+			# puis chaque camouflage n'y cherche que la distance.
+			var rk := Vector3i(viewer, sid, against)
+			var reach: Variant = _reach_memo.get(rk)
+			if reach == null:
+				reach = _reach(state, viewer, sid, against)
+				_reach_memo[rk] = reach
+			var pairs: PackedInt32Array = reach
+			var out := {"det": 0, "dist": -1}
+			for i in range(0, pairs.size(), 2):
+				var det := pairs[i]
+				var d := pairs[i + 1]
+				if det > int(out["det"]):
+					out["det"] = det
+				if det >= cam and (int(out["dist"]) < 0 or d < int(out["dist"])):
+					out["dist"] = d
+			hit = out
+			_at_memo[mk] = hit
+		return hit
+	return _detection_at(state, viewer, sid, cam, against)
+
+
+## Mémo de detection_at pendant le relevé quotidien des flottes (Intel) : chaque empire y teste chaque
+## flotte camouflée, et les flottes d'un même système redemandent la même détection. Le relevé ne
+## change ni les sources, ni les alliances, ni les bonus : at_memo_end() le vide toujours.
+static var _at_memo := {}
+static var _reach_memo := {}
+static var _at_memo_on := false
+
+
+static func at_memo_begin() -> void:
+	_at_memo.clear()
+	_reach_memo.clear()
+	_at_memo_on = true
+
+
+static func at_memo_end() -> void:
+	_at_memo.clear()
+	_reach_memo.clear()
+	_at_memo_on = false
+
+
+## Sources de viewer (et de ses alliés) qui portent jusqu'à sid : [détection, distance, ...], dans l'ordre
+## exact où _detection_at les parcourt (même résultat pour tout camouflage).
+static func _reach(state: GameState, viewer: int, sid: int, against: int) -> PackedInt32Array:
+	var out := PackedInt32Array()
+	if viewer < 0 or viewer >= state.empires.size() or state.galaxy.systems[sid].blind:
+		return out
+	var who: Array[int] = [viewer]
+	who.append_array(Fleets.allies_of(state, viewer))
+	var dists := _dist(state, sid, 8)
+	var veil_target := against >= 0 and against < state.empires.size() and Veil.is_veiled(state, against)
+	var stat := int(cfg("stationary_bonus").get("detect", 2)) if veil_target else 0
+	for eid in who:
+		var extra := StealthBridges.codes_bonus(state, eid, against) if against >= 0 else 0
+		if veil_target:
+			extra += Research.fx_int(state, eid, "detect_veil")
+		extra += PsionicsBridges.detect_bonus(state, eid, against)
+		var tal := int(talent(state, eid).get("stationary", 0))
+		for src in sources(state, eid):
+			var d := int(dists.get(int(src[0]), 99))
+			if d > int(src[1]):
+				continue
+			var det := int(src[2]) + extra
+			if d == 0 and int(src[3]) == 1:
+				det += stat + tal
+			out.append(det)
+			out.append(d)
+	return out
+
+
+static func _detection_at(state: GameState, viewer: int, sid: int, cam: int, against: int) -> Dictionary:
 	var out := {"det": 0, "dist": -1}
 	if viewer < 0 or viewer >= state.empires.size():
 		return out

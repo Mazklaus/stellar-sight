@@ -20,6 +20,7 @@ func run(check: Callable) -> void:
 	_test_faction_research()
 	_test_ai_research()
 	_test_save_roundtrip()
+	_test_known_in_queue()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -341,3 +342,30 @@ func _apply(st: GameState, cmd: Dictionary) -> bool:
 		return false
 	SimCommands.apply(st, cmd)
 	return true
+
+
+## Technologie obtenue hors recherche alors qu'elle était en file (relique des Partis, graine 3, an 31) :
+## la partie se figeait au bilan mensuel suivant et la sauvegarde ne se rechargeait plus.
+func _test_known_in_queue() -> void:
+	var st := _state()
+	var e := st.empires[0]
+	var ids := Research.visible_ids(e.faction())
+	var a := ""
+	var b := ""
+	for tid in ids:
+		if e.techs.has(tid) or Research.is_find(tid):
+			continue
+		if a == "":
+			a = tid
+		elif b == "":
+			b = tid
+			break
+	e.research_queue.assign([a, b])
+	e.techs[a] = true  # écrite directement, comme le faisaient les ruines
+	e.techs[b] = true
+	e.resources["knowledge"] = 100000
+	Research.advance(st, 0, 1000)
+	_ok(e.research_queue.is_empty(), "technologies déjà connues retirées de la file au bilan (pas de boucle sans fin)")
+	e.research_queue.assign([a])
+	Research.complete(st, 0, a)
+	_ok(e.research_queue.is_empty(), "complete() retire de la file une technologie déjà connue")
