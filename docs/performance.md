@@ -27,6 +27,19 @@ Ce qui reste (fin de partie, conteneur) : l'IA (≈ 100 ms/jour), les revenus de
 traitement mensuel le 1er du mois (pic ≈ 1,9 s), la vision. Les gains suivants demandent de changer le rythme
 de la simulation (propositions 14, 17, 18 de l'étude, écartées pour l'instant).
 
+### Changement de rythme (propositions 14 et 17, acceptées ensuite)
+
+- 14 : le bilan mensuel de chaque IA tombe sur son propre jour du mois (`EconomySystem.month_offset`, jours 2
+  à 29 selon l'empire). Le joueur humain et les PNJ gardent le 1er. Le bilan Kardashev suit le même jour.
+- 17 : après `slow_after_days` (an 6, `data/ai.json`), l'IA ne revoit ses bâtiments et ses plans de vaisseaux
+  qu'une fois par mois (`AiPlayer.slow_turn`) ; avant, rien ne change.
+- 18 (réflexions de l'IA étalées) : inutile, la mesure montre qu'elles le sont déjà, un empire par jour.
+
+La partie change donc : nouvelle empreinte graine 3, 14 ans = `76c4385475954e73`. An 12 : 263 → 229 ms/jour,
+pire jour 1 911 → ≈ 1 250 ; an 14 : 263 → 232, pire jour 1 860 → 1 349. Le pic du 1er du mois (30 jours depuis
+l'an 12) passe de 1 554 à 1 005 ms. Force de l'IA vérifiée sur 14 ans (graines 3 et 17) : score total +1 %,
+bâtiments −4,5 %.
+
 Outils : `tools/profile_game.gd` (suit `Simulation.daily_systems()`, `SAVE_AT` pour garder une sauvegarde),
 `tools/instrument_profile.py` + `tools/deep_profile.gd` (temps de chaque fonction, sur une copie instrumentée),
 banc `tests/endgame_perf_tests.gd` (sauvegarde de l'an 12 dans `tests/data/fin_de_partie.json.gz`).
