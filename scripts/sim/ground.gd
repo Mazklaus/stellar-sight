@@ -30,8 +30,14 @@ const MODES: Array[String] = ["simplifie", "complet"]
 const SHOTS_MAX := 900
 
 
+## (la table chargée ne change plus : gardée ici, la lecture se fait des milliers de fois par jour)
+static var _data: Dictionary = {}
+
+
 static func data() -> Dictionary:
-	return GameData.ground()
+	if _data.is_empty():
+		_data = GameData.ground()
+	return _data
 
 
 static func _cfg(k: String) -> Dictionary:

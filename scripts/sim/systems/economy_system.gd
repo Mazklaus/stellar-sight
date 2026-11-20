@@ -83,7 +83,6 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 		Peoples.normalize(c)
 	if not c.faith.is_empty():
 		Faiths.normalize(c)
-	var cap := Economy.max_pop(state, state.galaxy.get_planet(c.planet_id), c.owner, c.buildings)
 	if e.starving:
 		c.growth = 0
 		return
@@ -99,6 +98,8 @@ static func _process_colony(state: GameState, c: Colony, added: Array[Dictionary
 	# Culte du Je (ruches) : les drones dissidents non tolérés arrêtent la ponte.
 	if FaithWars.je_blocks_growth(state, c):
 		return
+	# Calculée seulement ici : les colonies arrêtées plus haut n'en ont pas besoin.
+	var cap := Economy.max_pop(state, state.galaxy.get_planet(c.planet_id), c.owner, c.buildings)
 	if c.population >= cap:
 		# Biomasse (Essaim Kh'thari) : une colonie pleine continue de grandir, le surplus est digéré.
 		var bio: Dictionary = e.faction().get("biomass", {})

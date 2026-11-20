@@ -1,5 +1,42 @@
 # Performance : référence et points lents
 
+## Fin de partie, étude approfondie (2026-11-20)
+
+Étude : https://claude.ai/artifact/KR4kwB4YpjZPLYHgZENSy2 (37 propositions). Seules celles qui gardent la
+partie identique ont été codées. Empreintes de contrôle, identiques avant et après : 90 jours depuis l'an 30
+(graine 7) `f17295c64b906022`, l'an 40 (graine 7) `e26cb039e9a09951`, l'an 50 (graine 11) `681d099dca6e36d3` ;
+30 jours : `9f5fad3b3fa81da1`, `46f5e2b729dfae5a`, `21493d924dc7de9a` ; 14 ans graine 3 `76c4385475954e73`.
+
+| 90 jours depuis | avant (ms/jour) | après | Flottes avant | après | IA avant | après |
+| --- | --- | --- | --- | --- | --- | --- |
+| an 30 | 414 | 365 | 91 | 62 | 122 | 113 |
+| an 40 | 750 | 611 | 136 | 90 | 280 | 236 |
+| an 50 | 912 | 730 | 201 | 109 | 278 | 236 |
+
+(Conteneur cloud, les deux versions mesurées en même temps. Le 1er du mois reste autour de 3 s à l'an 50.)
+
+Ce qui a changé :
+- clé des talents de peuple et marque « peuple voilé » gardées avec la fiche (`Empire.species_key`, `veiled`) ;
+- table de couverture de détection par empire et par jour (`Stealth._cover`) : chaque source est propagée une
+  fois dans son rayon, au lieu d'être relue pour chaque flotte testée ; alliés et bonus gardés pendant le relevé ;
+- repérages quotidiens (`StealthBridges.daily`) sous le même mémo que le relevé d'Intel ;
+- camouflage et détection d'une flotte arrêtés dès que le résultat est acquis ; voiles jugés une fois par
+  propriétaire dans un relevé (`Veil.filter_survey`) ;
+- puissance d'un vaisseau gardée par modèle (`Combat.ship_strength`, vidée par `GameData.ship_gen`) ;
+- cible de colonisation : les systèmes candidats d'abord, la recherche de chemins seulement s'il en reste ;
+- fiches de vaisseaux en table directe, tables de réglages gardées par pilier, capacité d'une colonie calculée
+  seulement quand elle sert, bonus de population des mégastructures lu sans copie.
+
+Ce qui n'a pas été fait, et pourquoi : le profil est plat (les 10 premières fonctions pèsent 16 %). Le reste
+du gain annoncé par l'étude vient de caches gardés d'un jour à l'autre (revenus d'empire, zones de
+ravitaillement, opinions, régiments triés, adjacence des routes). Ils demandent des compteurs de version
+posés à chaque écriture de l'état (propositions 27 et 28) : sans eux, rien ne garantit la partie identique.
+C'est un chantier à part, à faire avec un mode « cache vérifié » qui recalcule et compare.
+
+Outils ajoutés : `tools/instrument_edges.py` (profil avec arêtes appelant > appelé, sur une copie),
+`tools/deep_profile_edges.gd` (temps par système et empreinte depuis une sauvegarde : `LOAD`, `DAYS`, `OUT`),
+`tools/profile_report.py` (`top`, `fn`, `tree`, `days`).
+
 ## Parties longues, an 30 à 50 (2026-11-20)
 
 Étude : https://claude.ai/artifact/2kMB5CmUnXUApuZT3tgaio. Lot A (empreinte identique) : 30 jours depuis la

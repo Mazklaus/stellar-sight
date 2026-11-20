@@ -1141,7 +1141,7 @@ static func talent(state: GameState, eid: int) -> Dictionary:
 	var e := state.get_empire(eid) if eid >= 0 else null
 	if e == null or e.is_npc():
 		return {}
-	var ck := "%s:%s" % [e.faction_id, str(e.faction().get("species", {}))]
+	var ck := e.species_key()
 	if _talent_cache.has(ck):
 		return _talent_cache[ck]
 	var out := {}

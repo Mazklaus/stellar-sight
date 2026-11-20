@@ -36,14 +36,21 @@ static var _talent_cache := {}
 ## FleetSystem.update_exploration et après chaque ordre qui change une posture).
 static var _cache_key := ""
 static var _cloak_cache := {}
+static var _cover_cache := {}
 static var _src_cache := {}
 static var _dist_cache := {}
 ## Embuscades du jour (flottes cachées qui engagent), remplies par filter_battle.
 static var _ambushers := {}
 
 
+## (la table chargée ne change plus : gardée ici, la lecture se fait des milliers de fois par jour)
+static var _data: Dictionary = {}
+
+
 static func data() -> Dictionary:
-	return GameData.stealth()
+	if _data.is_empty():
+		_data = GameData.stealth()
+	return _data
 
 
 static func cfg(section: String) -> Dictionary:
@@ -125,6 +132,7 @@ static func invalidate() -> void:
 	_cloak_cache.clear()
 	_src_cache.clear()
 	_dist_cache.clear()
+	_cover_cache.clear()
 
 
 static func _fresh(state: GameState) -> void:
@@ -134,6 +142,7 @@ static func _fresh(state: GameState) -> void:
 		_cloak_cache.clear()
 		_src_cache.clear()
 		_dist_cache.clear()
+		_cover_cache.clear()
 
 
 # --- Talents de peuple -------------------------------------------------------------------------
@@ -142,7 +151,7 @@ static func talent(state: GameState, eid: int) -> Dictionary:
 	var e := state.get_empire(eid) if eid >= 0 else null
 	if e == null or e.is_npc():
 		return {}
-	var ck := "%s:%s" % [e.faction_id, str(e.faction().get("species", {}))]
+	var ck := e.species_key()
 	if _talent_cache.has(ck):
 		return _talent_cache[ck]
 	var out := {}
@@ -224,9 +233,14 @@ static func base_cloak(state: GameState, f: Fleet) -> int:
 		return int(cfg("non_empires").get("pirate_cloak", 2))
 	if f.owner >= 0 and f.owner < state.empires.size() and Veil.is_veiled(state, f.owner):
 		return 3
+	# Le plus faible camouflage de la flotte : dès qu'un vaisseau n'en a pas, le reste ne change rien
+	# (le résultat ne dépend plus de lo dès qu'il est à 0 ou moins).
 	var lo := 99
+	var cap := int(data().get("module_max", 4))
 	for s in f.ships:
-		lo = mini(lo, ship_cloak(s))
+		lo = mini(lo, mini(cap, int(GameData.ship(s).get("cloak", 0))))
+		if lo <= 0:
+			break
 	if lo > 0 and lo < 99 and f.owner >= 0:
 		lo += Genetics.cloak_bonus(state, f.owner)  # Résonance du Voile (traits façonnés)
 	if f.owner >= 0 and lo < 99:
@@ -350,8 +364,11 @@ static func beacon_vision(state: GameState, eid: int, src: Dictionary) -> void:
 ## Détection d'une flotte (sur toute sa portée).
 static func fleet_detect(state: GameState, f: Fleet) -> int:
 	var best := 0
+	var cap := int(data().get("module_max", 4)) - 1
 	for s in f.ships:
-		best = maxi(best, ship_detect(s))
+		best = maxi(best, mini(cap, int(GameData.ship(s).get("detect", 0))))
+		if best >= cap:
+			break
 	var d := int(data().get("base_detection", 1)) + best + _empire_detect(state, f.owner) + StealthBridges.hero_detect(state, f)
 	if posture(state, f) == "scan":
 		d += int(cfg("postures").get("scan", {}).get("detect", 1))
@@ -434,6 +451,40 @@ static func _dist(state: GameState, sid: int, maxr: int) -> Dictionary:
 	return out
 
 
+## Couverture d'un empire, système par système (gardée pour la journée, comme sources()) : pour chaque
+## système atteint par au moins une source, la meilleure détection par distance. 10 cases :
+## [sur place à l'arrêt, sur place en mouvement, à 1 saut, ... à 8 sauts], COVER_NONE = aucune source.
+## Chaque source est propagée une fois dans son rayon, au lieu d'être relue pour chaque flotte testée :
+## à distance égale, seule la meilleure détection compte (les bonus s'ajoutent ensuite, par empire).
+const COVER_NONE := -1000000
+
+
+static func _cover(state: GameState, eid: int) -> Dictionary:
+	var srcs := sources(state, eid)  # passe par _fresh : le cache ci-dessous est celui du jour
+	if _cover_cache.has(eid):
+		return _cover_cache[eid]
+	var out := {}
+	for src: Array in srcs:
+		var det := int(src[2])
+		var rest := int(src[3]) == 1
+		var near := _dist(state, int(src[0]), mini(int(src[1]), 8))
+		for t in near:
+			var d: int = near[t]
+			var slots: PackedInt32Array
+			if out.has(t):
+				slots = out[t]
+			else:
+				slots = PackedInt32Array()
+				slots.resize(10)
+				slots.fill(COVER_NONE)
+			var i := d + 1 if d > 0 else (0 if rest else 1)
+			if det > slots[i]:
+				slots[i] = det
+			out[t] = slots
+	_cover_cache[eid] = out
+	return out
+
+
 ## Détection d'un empire (et de ses alliés) sur un système, pour un camouflage donné :
 ## {"det": meilleure détection, "dist": distance de la source la plus proche qui perce cam (-1 si aucune)}.
 static func detection_at(state: GameState, viewer: int, sid: int, cam := 0, against := -1) -> Dictionary:
@@ -469,16 +520,22 @@ static func detection_at(state: GameState, viewer: int, sid: int, cam := 0, agai
 static var _at_memo := {}
 static var _reach_memo := {}
 static var _at_memo_on := false
+static var _who_memo := {}
+static var _extra_memo := {}
 
 
 static func at_memo_begin() -> void:
 	_at_memo.clear()
+	_who_memo.clear()
+	_extra_memo.clear()
 	_reach_memo.clear()
 	_at_memo_on = true
 
 
 static func at_memo_end() -> void:
 	_at_memo.clear()
+	_who_memo.clear()
+	_extra_memo.clear()
 	_reach_memo.clear()
 	_at_memo_on = false
 
@@ -489,26 +546,38 @@ static func _reach(state: GameState, viewer: int, sid: int, against: int) -> Pac
 	var out := PackedInt32Array()
 	if viewer < 0 or viewer >= state.empires.size() or state.galaxy.systems[sid].blind:
 		return out
-	var who: Array[int] = [viewer]
-	who.append_array(Fleets.allies_of(state, viewer))
-	var dists := _dist(state, sid, 8)
+	# Alliés du témoin et bonus d'un empire contre un autre : les mêmes pour toutes les flottes et tous
+	# les systèmes du relevé, gardés avec le mémo (_reach n'est appelé que mémo ouvert).
+	var who: Array[int]
+	if _who_memo.has(viewer):
+		who = _who_memo[viewer]
+	else:
+		who = [viewer]
+		who.append_array(Fleets.allies_of(state, viewer))
+		_who_memo[viewer] = who
 	var veil_target := against >= 0 and against < state.empires.size() and Veil.is_veiled(state, against)
 	var stat := int(cfg("stationary_bonus").get("detect", 2)) if veil_target else 0
 	for eid in who:
-		var extra := StealthBridges.codes_bonus(state, eid, against) if against >= 0 else 0
-		if veil_target:
-			extra += Research.fx_int(state, eid, "detect_veil")
-		extra += PsionicsBridges.detect_bonus(state, eid, against)
-		var tal := int(talent(state, eid).get("stationary", 0))
-		for src in sources(state, eid):
-			var d := int(dists.get(int(src[0]), 99))
-			if d > int(src[1]):
+		var xk := Vector2i(eid, against)
+		var xv: Variant = _extra_memo.get(xk)
+		if xv == null:
+			var x := StealthBridges.codes_bonus(state, eid, against) if against >= 0 else 0
+			if veil_target:
+				x += Research.fx_int(state, eid, "detect_veil")
+			x += PsionicsBridges.detect_bonus(state, eid, against)
+			xv = Vector2i(x, int(talent(state, eid).get("stationary", 0)))
+			_extra_memo[xk] = xv
+		var extra: int = xv.x
+		var tal: int = xv.y
+		var slots: Variant = _cover(state, eid).get(sid)
+		if slots == null:
+			continue
+		var sl: PackedInt32Array = slots
+		for i in 10:
+			if sl[i] == COVER_NONE:
 				continue
-			var det := int(src[2]) + extra
-			if d == 0 and int(src[3]) == 1:
-				det += stat + tal
-			out.append(det)
-			out.append(d)
+			out.append(sl[i] + extra + (stat + tal if i == 0 else 0))
+			out.append(maxi(0, i - 1))
 	return out
 
 
@@ -520,7 +589,6 @@ static func _detection_at(state: GameState, viewer: int, sid: int, cam: int, aga
 		return out  # tempête de radiations : détection 0
 	var who: Array[int] = [viewer]
 	who.append_array(Fleets.allies_of(state, viewer))
-	var dists := _dist(state, sid, 8)
 	# Prop. 28 : contre un peuple voilé (le Chœur), une présence à l'arrêt sur place voit +2, et les
 	# Détecteurs d'abysse donnent leur bonus (detect_veil) partout : le Voile d'avant, à l'identique.
 	var veil_target := against >= 0 and against < state.empires.size() and Veil.is_veiled(state, against)
@@ -531,13 +599,15 @@ static func _detection_at(state: GameState, viewer: int, sid: int, cam: int, aga
 			extra += Research.fx_int(state, eid, "detect_veil")
 		extra += PsionicsBridges.detect_bonus(state, eid, against)  # Lecture des esprits réussie
 		var tal := int(talent(state, eid).get("stationary", 0))
-		for src in sources(state, eid):
-			var d := int(dists.get(int(src[0]), 99))
-			if d > int(src[1]):
+		var slots: Variant = _cover(state, eid).get(sid)
+		if slots == null:
+			continue
+		var sl: PackedInt32Array = slots
+		for i in 10:
+			if sl[i] == COVER_NONE:
 				continue
-			var det := int(src[2]) + extra
-			if d == 0 and int(src[3]) == 1:
-				det += stat + tal
+			var det := sl[i] + extra + (stat + tal if i == 0 else 0)
+			var d := maxi(0, i - 1)
 			if det > int(out["det"]):
 				out["det"] = det
 			if det >= cam and (int(out["dist"]) < 0 or d < int(out["dist"])):

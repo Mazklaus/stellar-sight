@@ -10,8 +10,14 @@ extends RefCounted
 ## Tout en entiers, aucun aléatoire hors de state.rng.
 
 
+## (la table chargée ne change plus : gardée ici, la lecture se fait des milliers de fois par jour)
+static var _data: Dictionary = {}
+
+
 static func data() -> Dictionary:
-	return GameData.combat()
+	if _data.is_empty():
+		_data = GameData.combat()
+	return _data
 
 
 # --- Vaisseaux et flottes ----------------------------------------------------------------------
@@ -63,9 +69,25 @@ static func ship_damage_profile(ship_id: String) -> int:
 
 
 ## Puissance d'un vaisseau intact : ce qu'il inflige et ce qu'il encaisse, en une seule note.
+## Gardée par identifiant tant qu'aucun modèle n'est enregistré ni effacé (GameData.ship_gen) : l'IA la
+## redemandait pour chaque vaisseau de chaque flotte, 2 500 fois par jour en fin de partie. Les prises de
+## guerre (identifiant avec « ~ ») ne sont pas gardées.
+static var _strength_memo := {}
+static var _strength_gen := -1
+
+
 static func ship_strength(ship_id: String) -> int:
+	if _strength_gen != GameData.ship_gen:
+		_strength_memo.clear()
+		_strength_gen = GameData.ship_gen
+	var hit: Variant = _strength_memo.get(ship_id)
+	if hit != null:
+		return hit
 	@warning_ignore("integer_division")
-	return (ship_damage_profile(ship_id) + Fleet.max_hp_of(ship_id)) / 10
+	var v := (ship_damage_profile(ship_id) + Fleet.max_hp_of(ship_id)) / 10
+	if not ship_id.contains("~"):
+		_strength_memo[ship_id] = v
+	return v
 
 
 ## Puissance d'une flotte, réduite par les dégâts subis.
@@ -203,7 +225,12 @@ static func tactic_tech(id: String) -> String:
 static func _fleet_has_flag(f: Fleet, flag: String) -> bool:
 	if f == null:
 		return false
+	# (une flotte aligne souvent le même modèle en série : chaque modèle n'est lu qu'une fois de suite)
+	var last := ""
 	for s in f.ships:
+		if s == last:
+			continue
+		last = s
 		if GameData.ship(s).get(flag, false):
 			return true
 	return false
