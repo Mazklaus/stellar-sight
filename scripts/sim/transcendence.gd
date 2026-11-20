@@ -308,7 +308,7 @@ static func choose_path(state: GameState, eid: int, pid: String, added: Array[Di
 	_stat(state, eid, "path", 1)
 	state.relic_rev += 1
 	Announce.next(state, "transcend_oree", {"actor": eid})
-	added.append(state.add_chronicle("%s franchit l'Orée et se voue à %s. %s" % [e.display_name(), path_label(pid).to_lower(), String(path_def(pid).get("text", "")).get_slice(".", 0) + "."],
+	added.append(state.add_chronicle("%s franchit l'Orée et choisit la voie « %s ». %s" % [e.display_name(), String(path_def(pid).get("short", path_label(pid))), String(path_def(pid).get("text", "")).get_slice(".", 0) + "."],
 			Espionage.public_to(state, [eid])))
 
 

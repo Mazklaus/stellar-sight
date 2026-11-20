@@ -1253,7 +1253,7 @@ static func _finish(state: GameState, result: String, by: int, added: Array[Dict
 			var relic_txt := ""
 			if relic != "" and by >= 0 and not GameState.is_npc(by):
 				relic_txt = " Relique pour le coup final : %s à %s." % [Quests.give_relic(state, by, relic), state.get_empire(by).short_name()]
-			text = "%s est vaincue ! Toute la galaxie respire : +%d de stabilité pendant dix ans. Le partage de la gloire : %s.%s" % [
+			text = "Crise vaincue : %s n'est plus ! Toute la galaxie respire : +%d de stabilité pendant dix ans. Le partage de la gloire : %s.%s" % [
 					name_of(k), int(v["stab"]), ", ".join(parts) if not parts.is_empty() else "personne en particulier", relic_txt]
 			Relics.touch(state)
 		"defaite":
