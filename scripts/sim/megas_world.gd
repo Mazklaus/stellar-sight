@@ -88,6 +88,7 @@ static func place_ruins(state: GameState) -> void:
 		var id := int(state.megas.get("next", 1))
 		state.megas["next"] = id + 1
 		Megastructures.entries(state)[str(id)] = {"id": id, "k": k, "o": -1, "s": sid, "p": int(pick[1]), "st": st, "w": 0, "ruin": 1}
+		Megastructures.changed(state)
 		placed += 1
 
 
@@ -298,6 +299,7 @@ static func fire(state: GameState, eid: int, id: int, pid: int, added: Array[Dic
 	for o in Megastructures.in_system(state, p.system_id):
 		if int(o["p"]) == pid:
 			Megastructures.entries(state).erase(str(int(o["id"])))
+			Megastructures.changed(state)
 	state.override_planet(pid, {"type": "asteroids"})
 	for x in state.empires:
 		x.hab_cache.clear()
@@ -394,6 +396,7 @@ static func daily(state: GameState, added: Array[Dictionary]) -> void:
 		if int(m.get("wk", 0)) >= weak:
 			ArchaeoWorld.queue_history(state, int(m["s"]), "m", "epave")  # ses débris deviendront un site
 			Megastructures.entries(state).erase(str(int(m["id"])))
+			Megastructures.changed(state)
 			Megastructures.touch(state)
 			added.append(state.add_chronicle("Des saboteurs ennemis trouvent le point faible du Brise-monde de %s : il saute, et emporte avec lui une bonne partie de la croûte de %s." % [
 					state.get_empire(int(m["o"])).short_name(), Megastructures.site_name(state, m)]))

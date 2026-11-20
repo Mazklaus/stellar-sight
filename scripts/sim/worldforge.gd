@@ -322,6 +322,7 @@ static func remove_body(state: GameState, pid: int) -> void:
 	for m in Megastructures.in_system(state, p.system_id):
 		if int(m["p"]) == pid:
 			Megastructures.entries(state).erase(str(int(m["id"])))
+			Megastructures.changed(state)
 	var s := state.galaxy.systems[p.system_id]
 	s.planet_ids.erase(pid)
 	s.planet_count = s.planet_ids.size()
