@@ -621,6 +621,31 @@ static func count_in(have: Dictionary, domain_id: String, era: int) -> int:
 	return n
 
 
+## Toutes les ères ouvertes d'un coup ({"domaine:ère": true}, ères 2 et plus) : même règle
+## qu'era_open, mais les technologies connues ne sont comptées qu'une fois (grande passe
+## d'optimisation : current_era et open_tiers appelaient era_open domaine par domaine, ère par ère).
+static func open_eras(have: Dictionary, faction := {}, state: GameState = null, eid := -1) -> Dictionary:
+	var have_n := {}
+	var techs: Dictionary = data().get("technologies", {})
+	for tid in have:
+		var t: Dictionary = techs.get(String(tid), {})
+		if t.has("mastery"):
+			continue
+		var k := "%s:%d" % [String(t.get("domain", "")), int(t.get("era", 0))]
+		have_n[k] = int(have_n.get(k, 0)) + 1
+	var counts: Dictionary = {} if faction.is_empty() else _info(faction, state, eid)["counts"]
+	var out := {}
+	for d in domain_ids():
+		for era in range(2, eras() + 1):
+			var k := "%s:%d" % [d, era - 1]
+			var need := era_threshold(era)
+			if not faction.is_empty():
+				need = mini(need, int(counts.get(k, 0)))
+			if int(have_n.get(k, 0)) >= need:
+				out["%s:%d" % [d, era]] = true
+	return out
+
+
 static func era_threshold(era: int) -> int:
 	var th: Array = data().get("era_thresholds", [])
 	return int(th[era - 1]) if era >= 1 and era <= th.size() else 0
@@ -655,11 +680,11 @@ static func open_tiers(state: GameState, empire_id: int) -> Array:
 	var e := state.get_empire(empire_id)
 	if e == null:
 		return out
-	var f := e.faction()
+	var opened := open_eras(e.techs, e.faction(), state, empire_id)
 	for d in domain_ids():
 		for era in range(2, eras() + 1):
 			var tr := tier(d, era)
-			if tr.is_empty() or not era_open(e.techs, d, era, f, state, empire_id):
+			if tr.is_empty() or not opened.has("%s:%d" % [d, era]):
 				continue
 			var x := tr.duplicate()
 			x["domain"] = d
@@ -674,10 +699,10 @@ static func current_era(state: GameState, empire_id: int) -> int:
 	if e == null:
 		return 1
 	var best := 1
-	var f := e.faction()
+	var opened := open_eras(e.techs, e.faction(), state, empire_id)
 	for d in domain_ids():
 		for era in range(2, eras() + 1):
-			if era_open(e.techs, d, era, f, state, empire_id):
+			if opened.has("%s:%d" % [d, era]):
 				best = maxi(best, era)
 	return best
 

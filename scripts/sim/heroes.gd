@@ -335,12 +335,15 @@ static func ensure_heir(state: GameState, e: Empire) -> void:
 
 ## Identifiants des héros d'un empire (tous si empire_id < 0), triés.
 static func ids_of(state: GameState, empire_id: int) -> Array[int]:
-	var ids := state.heroes.keys()
+	# Filtre puis trie (même ordre qu'un tri de toutes les clés, en triant beaucoup moins).
+	var ids: Array = []
+	for id in state.heroes:
+		if empire_id < 0 or int(state.heroes[id]["owner"]) == empire_id:
+			ids.append(id)
 	ids.sort()
 	var out: Array[int] = []
 	for id in ids:
-		if empire_id < 0 or int(state.heroes[id]["owner"]) == empire_id:
-			out.append(int(id))
+		out.append(int(id))
 	return out
 
 

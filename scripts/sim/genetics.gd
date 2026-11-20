@@ -209,6 +209,17 @@ static func root(fid: String) -> String:
 	return fid.substr(0, i) if i > 0 else fid
 
 
+## Peuple né en cours de partie (lignée « base~L~empire~n » ou hybride « a~H~b~empire~n ») : sa
+## fiche n'existe que dans la sauvegarde. Sert au contrôle du chargement (GameState.from_dict).
+static func is_derived_id(fid: String) -> bool:
+	if fid.length() > 160 or (fid.find("~L~") <= 0 and fid.find("~H~") <= 0):
+		return false
+	for ch in fid:
+		if not ((ch >= "a" and ch <= "z") or (ch >= "0" and ch <= "9") or ch == "_" or ch == "~" or ch == "L" or ch == "H"):
+			return false
+	return true
+
+
 static func is_lineage(fid: String) -> bool:
 	return fid.find("~L~") > 0
 

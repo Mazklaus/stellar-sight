@@ -1,5 +1,38 @@
 # Performance : référence et points lents
 
+## Grande passe d'optimisation (2026-11-19, PR #152)
+
+Étude : https://claude.ai/artifact/8Yp78SgMZRpyGfNSvCR8Hw. Seules les propositions qui laissent la partie
+identique ont été retenues : l'empreinte finale (graine 3, 14 ans) reste `5ae4f7b8cdc5fe6d`, la même que sur
+main avant la passe ; 30 jours depuis la sauvegarde de l'an 12 donnent `f68b9ef06cd68e54` des deux côtés.
+
+| An | avant (ms/jour) | après | pire jour avant | après |
+| --- | --- | --- | --- | --- |
+| 1 | 102 | 58 | 567 | 322 |
+| 6 | 215 | 142 | 1 288 | 925 |
+| 9 | 357 | 229 | 2 368 | 1 592 |
+| 12 | 418 | 263 | 2 491 | 1 911 |
+| 14 | 462 | 263 | 2 899 | 1 860 |
+
+Moyenne sur 14 ans (ms/jour), avant → après : IA 89,6 → 60,6 · Logistique 39,4 → 14,9 · Flottes 38,3 → 31,1 ·
+Économie 32,3 → 24,6 · Combat au sol 29,3 → 7,9.
+
+Ce qui a changé : ère courante comptée en un passage (`Research.open_eras`), partie commune des zones de
+ravitaillement (`Logistics._shared`) et bouts de corridor mémorisés, régiments triés par flotte seulement,
+détection calculée une fois par flotte vue, plafonds des régiments mémorisés pendant la récupération,
+héros filtrés avant le tri, bilan Kardashev une fois par mois, `get_empire` / `is_npc` / `GameData.building`
+plus directs.
+
+Ce qui reste (fin de partie, conteneur) : l'IA (≈ 100 ms/jour), les revenus des empires recalculés par chaque
+traitement mensuel le 1er du mois (pic ≈ 1,9 s), la vision. Les gains suivants demandent de changer le rythme
+de la simulation (propositions 14, 17, 18 de l'étude, écartées pour l'instant).
+
+Outils : `tools/profile_game.gd` (suit `Simulation.daily_systems()`, `SAVE_AT` pour garder une sauvegarde),
+`tools/instrument_profile.py` + `tools/deep_profile.gd` (temps de chaque fonction, sur une copie instrumentée),
+banc `tests/endgame_perf_tests.gd` (sauvegarde de l'an 12 dans `tests/data/fin_de_partie.json.gz`).
+
+## Petite passe (2026-11-18)
+
 Mesure du 2026-11-18 (petite passe d'optimisation), à refaire avant et après la grande passe.
 Rapport complet : https://claude.ai/artifact/DhzaeHwU8Hnm6gtqm3mGwK
 

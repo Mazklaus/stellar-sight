@@ -324,12 +324,31 @@ static func regiments_of(state: GameState, eid: int) -> Array[Dictionary]:
 
 
 static func aboard(state: GameState, fid: int) -> Array[Dictionary]:
+	# Trie seulement les régiments de la flotte (même ordre qu'un tri de tous les identifiants).
+	var regs: Dictionary = _g(state)["r"]
+	var ids: Array[int] = []
+	for k in regs:
+		if int(regs[k]["f"]) == fid:
+			ids.append(int(k))
+	ids.sort()
 	var out: Array[Dictionary] = []
+	for rid in ids:
+		out.append(regs[str(rid)])
+	return out
+
+
+## Régiments embarqués, flotte par flotte ({flotte: [régiments]}, chaque liste dans l'ordre des
+## identifiants) : un seul passage pour toutes les flottes.
+static func aboard_by_fleet(state: GameState) -> Dictionary:
+	var by_f := {}
 	for rid in _sorted_ids(state):
 		var r: Dictionary = state.ground["r"][str(rid)]
-		if int(r["f"]) == fid:
-			out.append(r)
-	return out
+		var fid := int(r["f"])
+		if fid >= 0:
+			if not by_f.has(fid):
+				by_f[fid] = []
+			(by_f[fid] as Array).append(r)
+	return by_f
 
 
 ## Régiments au sol dans un système (d'un empire, ou de tous si eid < 0).
@@ -938,13 +957,16 @@ static func _check_transport(state: GameState) -> void:
 		if fid >= 0 and not state.fleets.has(fid):
 			lost[int(r["o"])] = int(lost.get(int(r["o"]), 0)) + 1
 			state.ground["r"].erase(str(rid))
+	var by_f := aboard_by_fleet(state)
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
-		var regs := aboard(state, fid)
+		var regs: Array = by_f.get(fid, [])
 		if regs.is_empty():
 			continue
 		var cap := capacity(state, f)
-		var used := used_places(state, fid)
+		var used := 0
+		for r: Dictionary in regs:
+			used += size_of(String(r["t"]))
 		var i := regs.size() - 1
 		while used > cap and i >= 0:
 			used -= size_of(String(regs[i]["t"]))
@@ -986,6 +1008,9 @@ static func _recover(state: GameState) -> void:
 	var fighting := {}
 	for b in battles(state):
 		fighting[int(b["s"])] = true
+	var rec_fx := {}
+	var hp_memo := {}
+	var mo_memo := {}
 	for rid in _sorted_ids(state):
 		var r: Dictionary = state.ground["r"][str(rid)]
 		var sid := int(r["s"])
@@ -995,10 +1020,21 @@ static func _recover(state: GameState) -> void:
 			continue  # logistique complète : régiments sans ravitaillement, aucun renfort
 		var home := int(r["f"]) < 0 and WarPeace.holder(state, sid) == int(r["o"])
 		var pct := int(rc.get("home_pct", 10)) if home else int(rc.get("away_pct", 3))
+		var o := int(r["o"])
+		if not rec_fx.has(o):
+			rec_fx[o] = Research.fx_int(state, o, "ground_recovery_pct")
 		@warning_ignore("integer_division")
-		pct = pct * maxi(10, 100 + Research.fx_int(state, int(r["o"]), "ground_recovery_pct")) / 100
-		var mh := max_hp(r)
-		var mm := max_morale(r, state)
+		pct = pct * maxi(10, 100 + int(rec_fx[o])) / 100
+		# Plafonds mémorisés le temps du passage : ils ne dépendent que du type, de l'espèce, du rang
+		# et du propriétaire, et rien ne les change pendant la récupération.
+		var hk := "%s|%s" % [String(r["t"]), String(r.get("sp", ""))]
+		if not hp_memo.has(hk):
+			hp_memo[hk] = max_hp(r)
+		var mk := "%s|%d|%d" % [String(r["t"]), rank_pct(r), o]
+		if not mo_memo.has(mk):
+			mo_memo[mk] = max_morale(r, state)
+		var mh: int = hp_memo[hk]
+		var mm: int = mo_memo[mk]
 		@warning_ignore("integer_division")
 		r["hp"] = mini(mh, int(r["hp"]) + maxi(1, mh * pct / 100))
 		@warning_ignore("integer_division")

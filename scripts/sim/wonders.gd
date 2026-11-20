@@ -195,10 +195,11 @@ static func max_builds(state: GameState, eid: int) -> int:
 ## Merveilles tenues : [[merveille, planète, propriétaire], …] (bâtiments achevés ou à une étape).
 static func held(state: GameState) -> Array:
 	var out: Array = []
+	var wl := GameData.wonders_list()
 	for pid in state.sorted_colony_ids():
 		var c: Colony = state.colonies[pid]
 		for b in c.buildings:
-			if is_wonder(b):
+			if wl.has(b):
 				out.append([b, pid, c.owner])
 	return out
 

@@ -670,7 +670,8 @@ static func from_dict(d: Dictionary) -> GameState:
 	# Peuples créés avant les empires : leur fiche vient de la sauvegarde, pas de la bibliothèque.
 	for cf: Dictionary in d.get("custom_factions", []):
 		var fd: Dictionary = GameData._to_ints(cf)
-		if not Species.is_valid_id(String(fd.get("id", ""))) or not fd.has("species"):
+		var cid := String(fd.get("id", ""))
+		if not (Species.is_valid_id(cid) or Genetics.is_derived_id(cid)) or not fd.has("species"):
 			last_error = "peuple créé invalide : %s" % fd.get("id", "?")
 			return null
 		s.custom_factions[String(fd["id"])] = fd
@@ -916,6 +917,10 @@ func spawn_ship(owner_id: int, ship_id: String, system_id: int) -> Fleet:
 
 
 func get_empire(id: int) -> Empire:
+	# Les empires ordinaires d'abord (le cas de loin le plus fréquent) : tous les autres
+	# identifiants sont à partir de NPC_ID.
+	if id >= 0 and id < NPC_ID:
+		return empires[id] if id < empires.size() else null
 	if id == NPC_ID:
 		return npc_empire()
 	if id == PIRATE_ID:
@@ -1065,6 +1070,8 @@ static func is_minor(id: int) -> bool:
 
 ## Faction non jouable (Sans-Bannière, Pirates, Faune, Crise ou puissance ancienne).
 static func is_npc(id: int) -> bool:
+	if id < NPC_ID:
+		return false
 	return id == NPC_ID or id == PIRATE_ID or id == FAUNA_ID or id == CRISIS_ID or is_ancient(id) or is_minor(id)
 
 

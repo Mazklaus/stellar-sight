@@ -71,91 +71,64 @@ func step() -> void:
 	flush_commands()
 	state.tick += 1
 	state.log_cache.clear()
-	for entry in EconomySystem.process(state):
-		chronicle_added.emit(entry)
-	for entry in FleetSystem.process(state):
-		chronicle_added.emit(entry)
 	var events: Array = []
-	for entry in CombatSystem.process(state, events):
-		chronicle_added.emit(entry)
-	for ev in events:
-		combat_event.emit(ev)
-	for entry in Defenses.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Stealth.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Portals.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Terrain.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Logistics.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Ground.daily(state):
-		chronicle_added.emit(entry)
-	for entry in DiplomacySystem.process(state):
-		chronicle_added.emit(entry)
-	for entry in AmphictyonySystem.process(state):
-		chronicle_added.emit(entry)
-	for entry in PoliticsSystem.process(state):
-		chronicle_added.emit(entry)
-	for entry in StabilitySystem.process(state):
-		chronicle_added.emit(entry)
-	for entry in PirateSystem.process(state):
-		chronicle_added.emit(entry)
-	for entry in GoodsSystem.process(state):
-		chronicle_added.emit(entry)
-	for entry in TradeSystem.process(state):
-		chronicle_added.emit(entry)
-	for entry in FaunaSystem.process(state):
-		chronicle_added.emit(entry)
-	for entry in Crisis.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Ancients.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Minors.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Culture.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Wonders.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Megastructures.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Archaeology.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Capture.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Insolites.daily(state):
-		chronicle_added.emit(entry)
-	for entry in WorldForge.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Deeds.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Rulers.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Court.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Admin.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Finance.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Private.daily(state):
-		chronicle_added.emit(entry)
-	for entry in Ports.daily(state):
-		chronicle_added.emit(entry)
-	for entry in EventSystem.process(state):
-		chronicle_added.emit(entry)
-	for entry in Heroes.daily(state):
-		chronicle_added.emit(entry)
-	for entry in VictorySystem.process(state):
-		chronicle_added.emit(entry)
-	for entry in ChronicleSystem.process(state):
-		chronicle_added.emit(entry)
-	# Les empires IA décident en dernier, sur l'état du jour. Leurs ordres passent par les mêmes
-	# règles que ceux des joueurs (SimCommands), mais ils ne vont pas dans command_log :
-	# l'IA fait partie de la simulation, elle se rejoue toute seule à l'identique.
-	for entry in AiSystem.process(state):
-		chronicle_added.emit(entry)
+	for s in daily_systems(events):
+		for entry in s[1].call(state):
+			chronicle_added.emit(entry)
+		if s[0] == "Combat":
+			for ev in events:
+				combat_event.emit(ev)
 	ticked.emit(state.tick)
+
+
+## Les systèmes du jour, dans leur ordre fixe : [nom, fonction(état) -> entrées de chronique].
+## Seule liste à tenir à jour : step() et l'outil de mesure (tools/profile_game.gd) la suivent.
+## Les empires IA décident en dernier, sur l'état du jour. Leurs ordres passent par les mêmes
+## règles que ceux des joueurs (SimCommands), mais ils ne vont pas dans command_log :
+## l'IA fait partie de la simulation, elle se rejoue toute seule à l'identique.
+## events reçoit les événements de combat pour l'interface (émis juste après le combat).
+static func daily_systems(events: Array) -> Array:
+	return [
+		["Économie", EconomySystem.process],
+		["Flottes", FleetSystem.process],
+		["Combat", func(st: GameState) -> Array[Dictionary]: return CombatSystem.process(st, events)],
+		["Défenses", Defenses.daily],
+		["Furtivité", Stealth.daily],
+		["Portails", Portals.daily],
+		["Terrain", Terrain.daily],
+		["Logistique", Logistics.daily],
+		["Combat au sol", Ground.daily],
+		["Diplomatie", DiplomacySystem.process],
+		["Amphictyonie", AmphictyonySystem.process],
+		["Politique", PoliticsSystem.process],
+		["Stabilité", StabilitySystem.process],
+		["Pirates", PirateSystem.process],
+		["Biens", GoodsSystem.process],
+		["Commerce", TradeSystem.process],
+		["Faune", FaunaSystem.process],
+		["Crises", Crisis.daily],
+		["Anciennes", Ancients.daily],
+		["Mineurs", Minors.daily],
+		["Culture", Culture.daily],
+		["Merveilles", Wonders.daily],
+		["Mégastructures", Megastructures.daily],
+		["Archéologie", Archaeology.daily],
+		["Capture", Capture.daily],
+		["Insolites", Insolites.daily],
+		["Forge", WorldForge.daily],
+		["Hauts faits", Deeds.daily],
+		["Souverains", Rulers.daily],
+		["Cour", Court.daily],
+		["Administration", Admin.daily],
+		["Finances", Finance.daily],
+		["Économie privée", Private.daily],
+		["Spatioports", Ports.daily],
+		["Événements", EventSystem.process],
+		["Héros", Heroes.daily],
+		["Victoire", VictorySystem.process],
+		["Chronique", ChronicleSystem.process],
+		["IA", AiSystem.process],
+	]
 
 
 func advance(ticks: int) -> void:
