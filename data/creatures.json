@@ -88,7 +88,7 @@
 		"first_day": 5400, "spread_days": 1080, "gap_days": 720,
 		"count": {"aucune": 0, "rares": 1, "normales": 1, "grouillantes": 2}, "big_galaxy": 220,
 		"_count": "Nombre de fléaux selon la densité de créatures, un de plus si la galaxie a au moins big_galaxy systèmes (2 au plus). En Rares, une partie sur deux n'en a pas.",
-		"life_days": 360, "stay_days": 25, "eat_pop": 3, "eat_stab": -20, "eat_stab_days": 360,
+		"life_days": 900, "stay_days": 25, "eat_pop": 3, "eat_stab": -20, "eat_stab_days": 360,
 		"triumph": {"stab": 10, "days": 720, "influence": 60, "min_share": 20},
 		"_triumph": "Partagé selon les dégâts : chaque empire qui a fait au moins min_share % des dégâts reçoit sa part d'influence et de stabilité (au moins 3) ; le premier reçoit le trophée.",
 		"kinds": {

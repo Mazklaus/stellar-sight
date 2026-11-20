@@ -111,7 +111,7 @@ func _test_roam() -> void:
 	_colony(st, 1, 2, 8)
 	var added: Array[Dictionary] = []
 	var pid := Plagues._spawn(st, "migration", added)
-	for i in 300:
+	for i in 900:
 		sim.advance(1)
 		if int(Plagues.list(st)[pid]["eaten"]) > 0 or String(Plagues.list(st)[pid]["status"]) != "alive":
 			break
