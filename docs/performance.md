@@ -1,5 +1,32 @@
 # Performance : référence et points lents
 
+## Parties longues, an 30 à 50 (2026-11-20)
+
+Étude : https://claude.ai/artifact/2kMB5CmUnXUApuZT3tgaio. Lot A (empreinte identique) : 30 jours depuis la
+sauvegarde de l'an 30 (graine 7) = `9f5fad3b3fa81da1`, depuis l'an 50 (graine 11) = `21493d924dc7de9a`, 14 ans
+graine 3 = `76c4385475954e73`, identiques avant et après.
+
+| 30 jours depuis | avant (ms/jour) | après | 1er du mois avant | après |
+| --- | --- | --- | --- | --- |
+| an 30 | 613 | 534 | 3 943 | 2 822 |
+| an 50 | 1 660 | 1 135 | 13 287 | 4 327 |
+
+Ce qui a changé : test d'inhibiteur des portails après le test de guerre (il parcourait tous les bâtiments
+du système), station de défense calculée une fois par test, raccourcis civils mémorisés pendant le calcul
+des routes commerciales et de la desserte des ports (`Portals.memo_begin/memo_end`), bouts de portail
+mémorisés pendant une recherche de chemin, détection gardée par système pendant le relevé des flottes
+(`Stealth.at_memo_begin/at_memo_end`), cible de migration sans calculer toutes les capacités, clés de
+relation et fiches de vaisseaux gardées. Commerce : 209 → 15 ms/jour à l'an 50 ; Spatioports : 85 → 11.
+
+Ce qui reste à l'an 50 (ms/jour, conteneur) : IA 345, Flottes 251 (relevé de vision), Économie 159.
+
+Bug corrigé en chemin : une technologie obtenue sans recherche (relique des ruines d'un peuple parti,
+défenses de la Sporemère) restait dans la file ; la sauvegarde était refusée au chargement et, en tête de
+file, `Research.advance` tournait sans fin (partie graine 3 figée à l'an 32). `Research.unqueue`.
+
+Outils : `tools/long_game.gd` a un fil de garde (`HANG_S`, 120 s) qui écrit où la partie est restée
+bloquée ; banc `tests/endgame_perf_tests.gd` à l'an 40 (`tests/data/fin_de_partie_an40.json.gz`).
+
 ## Grande passe d'optimisation (2026-11-19, PR #152)
 
 Étude : https://claude.ai/artifact/8Yp78SgMZRpyGfNSvCR8Hw. Seules les propositions qui laissent la partie
