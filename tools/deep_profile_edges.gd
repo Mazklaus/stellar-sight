@@ -1,5 +1,5 @@
 extends SceneTree
-## Profil détaillé avec arêtes appelant > appelé. LOAD, DAYS, OUT (json).
+## Profil détaillé avec arêtes appelant > appelé. LOAD, DAYS, OUT (json), DOM (jour du mois à sonder seul).
 const PROF := "res://scripts/sim/prof_scope.gd"
 
 func _initialize() -> void:
@@ -15,16 +15,21 @@ func _initialize() -> void:
 	var per_sys := {}
 	var per_day: Array = []
 	var counts := _counts(st)
+	# DOM=1 : ne sonder que ce jour du mois (le 1er, où tombent les bilans mensuels).
+	var only_dom := int(OS.get_environment("DOM")) if OS.get_environment("DOM") != "" else 0
 	if prof != null:
-		prof.set("enabled", true)
+		prof.set("enabled", only_dom == 0)
 	var t0 := Time.get_ticks_usec()
 	for d in days:
 		var a := Time.get_ticks_usec()
 		st.tick += 1
+		if prof != null and only_dom > 0:
+			prof.set("enabled", posmod(int(st.tick), 30) + 1 == only_dom)
 		st.log_cache.clear()
 		events.clear()
 		var row := {}
 		for s in systems:
+			SimCache.where = String(s[0])
 			var b := Time.get_ticks_usec()
 			s[1].call(st)
 			var dt := Time.get_ticks_usec() - b
@@ -36,7 +41,8 @@ func _initialize() -> void:
 	if prof != null:
 		prof.set("enabled", false)
 	var out := {"total_ms": total, "days": days, "tick": st.tick, "counts": counts, "counts_end": _counts(st),
-		"checksum": st.checksum().substr(0, 16), "per_sys_ms_day": {}, "per_day": per_day, "instrumented": prof != null}
+		"checksum": st.checksum().substr(0, 16), "per_sys_ms_day": {}, "per_day": per_day, "instrumented": prof != null,
+		"cache_bad": SimCache.bad, "cache_log": SimCache.log, "cache_hits": SimCache.hits}
 	for k in per_sys:
 		out["per_sys_ms_day"][k] = per_sys[k] / 1000.0 / days
 	if prof != null:

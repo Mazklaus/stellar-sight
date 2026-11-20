@@ -313,17 +313,53 @@ static func regiment(state: GameState, rid: int) -> Dictionary:
 
 
 static func _sorted_ids(state: GameState) -> Array[int]:
-	var out: Array[int] = []
-	for k in _g(state)["r"]:
-		out.append(int(k))
-	out.sort()
-	return out
+	return (_sorted(state)["ids"] as Array[int]).duplicate()  # l'appelant peut dissoudre en parcourant
+
+
+## Régiments par identifiant croissant (les mêmes dictionnaires que l'état). Pour les lectures seules :
+## ne pas créer ni dissoudre de régiment pendant le parcours.
+static func _sorted_rows(state: GameState) -> Array:
+	return _sorted(state)["rows"]
+
+
+## Liste triée des régiments, gardée d'un jour à l'autre dans state.ground_idx (dérivé, non sauvegardé).
+## Elle reste juste tant que l'ensemble des identifiants n'a pas changé, ce qui se lit sans compteur posé
+## à chaque écriture : un régiment ne naît qu'à _new_regiment, qui avance toujours « nid » ; les autres
+## écritures ne font que dissoudre, donc réduire la taille. Même table, même « nid » et même taille =
+## aucun ajout et aucune dissolution depuis le tri. Les régiments eux-mêmes sont lus dans l'état à
+## chaque parcours : leurs champs (flotte, système, propriétaire) ne sont pas gardés.
+static func _sorted(state: GameState) -> Dictionary:
+	var g := _g(state)
+	var regs: Dictionary = g["r"]
+	var idx := state.ground_idx
+	if not idx.is_empty() and is_same(idx["regs"], regs) and int(idx["nid"]) == int(g["nid"]) and int(idx["n"]) == regs.size():
+		if SimCache.verify:
+			SimCache.count(SimCache.hits, "régiments")
+			var fresh := _sort_regs(regs)
+			if fresh[0] != idx["ids"] or fresh[1] != idx["rows"]:
+				SimCache.mismatch("régiments", "jour %d, %s" % [state.tick, SimCache.where])
+				idx["ids"] = fresh[0]
+				idx["rows"] = fresh[1]
+		return idx
+	var s := _sort_regs(regs)
+	state.ground_idx = {"regs": regs, "nid": int(g["nid"]), "n": regs.size(), "ids": s[0], "rows": s[1]}
+	return state.ground_idx
+
+
+static func _sort_regs(regs: Dictionary) -> Array:
+	var ids: Array[int] = []
+	for k in regs:
+		ids.append(int(k))
+	ids.sort()
+	var rows: Array = []
+	for rid in ids:
+		rows.append(regs[str(rid)])
+	return [ids, rows]
 
 
 static func regiments_of(state: GameState, eid: int) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
-	for rid in _sorted_ids(state):
-		var r: Dictionary = state.ground["r"][str(rid)]
+	for r: Dictionary in _sorted_rows(state):
 		if int(r["o"]) == eid:
 			out.append(r)
 	return out
@@ -347,8 +383,7 @@ static func aboard(state: GameState, fid: int) -> Array[Dictionary]:
 ## identifiants) : un seul passage pour toutes les flottes.
 static func aboard_by_fleet(state: GameState) -> Dictionary:
 	var by_f := {}
-	for rid in _sorted_ids(state):
-		var r: Dictionary = state.ground["r"][str(rid)]
+	for r: Dictionary in _sorted_rows(state):
 		var fid := int(r["f"])
 		if fid >= 0:
 			if not by_f.has(fid):
@@ -360,8 +395,7 @@ static func aboard_by_fleet(state: GameState) -> Dictionary:
 ## Régiments au sol dans un système (d'un empire, ou de tous si eid < 0).
 static func on_ground(state: GameState, sid: int, eid := -1) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
-	for rid in _sorted_ids(state):
-		var r: Dictionary = state.ground["r"][str(rid)]
+	for r: Dictionary in _sorted_rows(state):
 		if int(r["f"]) < 0 and int(r["s"]) == sid and (eid < 0 or int(r["o"]) == eid):
 			out.append(r)
 	return out
@@ -392,11 +426,16 @@ static func sync_all(state: GameState) -> void:
 	if not full(state):
 		return
 	var used := {}
-	for rid in _sorted_ids(state):
-		var r: Dictionary = state.ground["r"][str(rid)]
+	var sizes := {}
+	for r: Dictionary in _sorted_rows(state):
 		var fid := int(r["f"])
 		if fid >= 0:
-			used[fid] = int(used.get(fid, 0)) + size_of(String(r["t"]))
+			var t := String(r["t"])
+			var sz: Variant = sizes.get(t)
+			if sz == null:
+				sz = size_of(t)
+				sizes[t] = sz
+			used[fid] = int(used.get(fid, 0)) + int(sz)
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
 		f.troops = int(used.get(f.id, 0))
@@ -1017,16 +1056,33 @@ static func _recover(state: GameState) -> void:
 	var rec_fx := {}
 	var hp_memo := {}
 	var mo_memo := {}
-	for rid in _sorted_ids(state):
-		var r: Dictionary = state.ground["r"][str(rid)]
+	# Ravitaillement et tenant d'un système, rang d'une expérience : la récupération ne change que la
+	# santé et le moral des régiments, ces trois réponses sont donc les mêmes pendant tout le passage.
+	var cut_memo := {}
+	var holder_memo := {}
+	var rank_memo := {}
+	for r: Dictionary in _sorted_rows(state):
 		var sid := int(r["s"])
-		if int(r["f"]) < 0 and fighting.has(sid):
-			continue
-		if int(r["f"]) < 0 and Logistics.ground_unsupplied(state, int(r["o"]), sid):
-			continue  # logistique complète : régiments sans ravitaillement, aucun renfort
-		var home := int(r["f"]) < 0 and WarPeace.holder(state, sid) == int(r["o"])
-		var pct := int(rc.get("home_pct", 10)) if home else int(rc.get("away_pct", 3))
 		var o := int(r["o"])
+		var landed := int(r["f"]) < 0
+		if landed and fighting.has(sid):
+			continue
+		if landed:
+			var ck := Vector2i(o, sid)
+			var cut: Variant = cut_memo.get(ck)
+			if cut == null:
+				cut = Logistics.ground_unsupplied(state, o, sid)
+				cut_memo[ck] = cut
+			if cut:
+				continue  # logistique complète : régiments sans ravitaillement, aucun renfort
+		var home := false
+		if landed:
+			var hv: Variant = holder_memo.get(sid)
+			if hv == null:
+				hv = WarPeace.holder(state, sid)
+				holder_memo[sid] = hv
+			home = int(hv) == o
+		var pct := int(rc.get("home_pct", 10)) if home else int(rc.get("away_pct", 3))
 		if not rec_fx.has(o):
 			rec_fx[o] = Research.fx_int(state, o, "ground_recovery_pct")
 		@warning_ignore("integer_division")
@@ -1036,7 +1092,12 @@ static func _recover(state: GameState) -> void:
 		var hk := "%s|%s" % [String(r["t"]), String(r.get("sp", ""))]
 		if not hp_memo.has(hk):
 			hp_memo[hk] = max_hp(r)
-		var mk := "%s|%d|%d" % [String(r["t"]), rank_pct(r), o]
+		var xp := int(r.get("xp", 0))
+		var rp: Variant = rank_memo.get(xp)
+		if rp == null:
+			rp = rank_pct(r)
+			rank_memo[xp] = rp
+		var mk := "%s|%d|%d" % [String(r["t"]), int(rp), o]
 		if not mo_memo.has(mk):
 			mo_memo[mk] = max_morale(r, state)
 		var mh: int = hp_memo[hk]

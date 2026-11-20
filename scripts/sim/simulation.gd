@@ -73,6 +73,7 @@ func step() -> void:
 	state.log_cache.clear()
 	var events: Array = []
 	for s in daily_systems(events):
+		SimCache.where = s[0]
 		for entry in s[1].call(state):
 			chronicle_added.emit(entry)
 		if s[0] == "Combat":

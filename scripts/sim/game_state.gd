@@ -226,6 +226,8 @@ var portals: Dictionary = {}  # portails de saut (voir Portals) ; {} = désactiv
 var hero_death: Dictionary = {}
 ## Zones de ravitaillement et lignes du jour (dérivé de l'état, non sauvegardé, recalculé chaque tick).
 var log_cache: Dictionary = {}
+## Liste triée des régiments (voir Ground._sorted) : dérivée, non sauvegardée, gardée d'un jour à l'autre.
+var ground_idx: Dictionary = {}
 var _pirates: Empire
 var _fauna: Empire
 var _crisis_e: Empire

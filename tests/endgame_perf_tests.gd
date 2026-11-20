@@ -90,3 +90,14 @@ func _test_endgame_40() -> void:
 	print("  an 40 : %.0f ms par jour, pire jour %.0f ms (%d jours)" % [mean, worst, DAYS_40])
 	_ok(mean < MEAN_40_MS * slack, "Partie longue, an 40 : jour moyen assez rapide (%.0f ms, seuil %.0f)" % [mean, MEAN_40_MS * slack])
 	_ok(worst < WORST_40_MS * slack, "Partie longue, an 40 : pire jour tenable (%.0f ms, seuil %.0f)" % [worst, WORST_40_MS * slack])
+	# Caches gardés d'un jour à l'autre (voir SimCache) : quelques jours en mode vérifié, chaque valeur
+	# relue est recalculée et comparée. Aucun écart permis.
+	var was := SimCache.verify
+	SimCache.verify = true
+	SimCache.bad.clear()
+	SimCache.hits.clear()
+	for d in 5:
+		sim.step()
+	SimCache.verify = was
+	_ok(SimCache.bad.is_empty(), "Partie longue : aucun cache périmé en mode vérifié (%s)" % str(SimCache.bad))
+	_ok(int(SimCache.hits.get("régiments", 0)) > 0, "Partie longue : le cache des régiments est bien relu (%d fois)" % int(SimCache.hits.get("régiments", 0)))

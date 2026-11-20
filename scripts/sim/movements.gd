@@ -225,13 +225,23 @@ static func partners(state: GameState, empire_id: int) -> Array[int]:
 
 
 ## Colonie d'arrivée d'un migrant : place libre, habitabilité, jeunesse, stabilité, distance.
-static func migration_dest(state: GameState, src: Colony, fid: String, owners: Array[int]) -> Colony:
+##
+## memo (facultatif) : un dictionnaire gardé par l'appelant le temps d'une série de migrations (_migrate).
+## Il retient les colonies établies de chaque empire et la capacité d'une colonie pour une espèce. Les
+## deux ne dépendent que de ce qu'une migration ne touche pas (propriétaire, établissement, bâtiments,
+## planète, habitabilité, mégastructures, mondes vivants) : seules la population, les espèces et les fois
+## bougent pendant la série. Même résultat qu'en reparcourant tout.
+static func migration_dest(state: GameState, src: Colony, fid: String, owners: Array[int], memo: Variant = null) -> Colony:
 	var jumps := FactionTraits.jumps_from(state.galaxy, _sid(state, src))
 	var src_hab := Peoples.hab(state, src.owner, fid, state.galaxy.get_planet(src.planet_id).type)
 	var best: Colony = null
 	var bs := -1000000
 	var max_j := int(data().get("migration_jumps", 6)) + Private.migration_bonus(state, src.owner)  # paquebots
-	for pid in state.sorted_colony_ids():
+	var pids: Array = state.sorted_colony_ids() if memo == null else _memo_colonies(state, memo, owners)
+	var caps: Variant = null
+	if memo != null and fid != "":
+		caps = (memo as Dictionary).get_or_add("cap:" + fid, {})
+	for pid in pids:
 		var c: Colony = state.colonies[pid]
 		if not owners.has(c.owner) or c == src or not c.is_colony() or not c.is_established():
 			continue
@@ -241,7 +251,15 @@ static func migration_dest(state: GameState, src: Colony, fid: String, owners: A
 		var h := Peoples.hab(state, c.owner, fid, state.galaxy.get_planet(pid).type)
 		if h < Peoples.BIRTH_HAB:
 			continue
-		var room := _room(state, c, fid)
+		var room: int
+		if caps == null:
+			room = _room(state, c, fid)
+		else:
+			var cap: Variant = (caps as Dictionary).get(pid)
+			if cap == null:
+				cap = Economy.max_pop(state, state.galaxy.get_planet(pid), c.owner, c.buildings, fid)
+				caps[pid] = cap
+			room = int(cap) - c.population
 		if room <= 0:
 			continue
 		var s := room * 10 + h - src_hab + Stability.value(state, _sid(state, c)) - j * 5
@@ -255,6 +273,21 @@ static func migration_dest(state: GameState, src: Colony, fid: String, owners: A
 			bs = s
 			best = c
 	return best
+
+
+## Colonies établies des empires owners, par identifiant croissant (gardées dans memo, par liste d'empires).
+static func _memo_colonies(state: GameState, memo: Dictionary, owners: Array[int]) -> Array:
+	var key := "col:" + str(owners)
+	var hit: Variant = memo.get(key)
+	if hit != null:
+		return hit
+	var out: Array = []
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if owners.has(c.owner) and c.is_colony() and c.is_established():
+			out.append(pid)
+	memo[key] = out
+	return out
 
 
 ## Bilan trimestriel (décalé selon l'empire) : quelques migrants par empire. Mensuel avec le trait de
@@ -275,6 +308,7 @@ static func _migrate(state: GameState, e: Empire, month: int, added: Array[Dicti
 	var abroad := 0
 	var abroad_cap := int(data().get("abroad_per_turn", 1))
 	var home_only: Array[int] = [e.id]
+	var memo := {}  # colonies candidates et capacités, valables pour toute la série (voir migration_dest)
 	for pid in state.sorted_colony_ids():
 		if moved >= cap:
 			break
@@ -287,7 +321,7 @@ static func _migrate(state: GameState, e: Empire, month: int, added: Array[Dicti
 		var fid := _leaver(state, c, why)
 		if fid == "":
 			continue
-		var dest := migration_dest(state, c, fid, owners if abroad < abroad_cap else home_only)
+		var dest := migration_dest(state, c, fid, owners if abroad < abroad_cap else home_only, memo)
 		if dest == null:
 			continue
 		if dest.owner != e.id:
