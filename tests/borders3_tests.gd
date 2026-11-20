@@ -73,13 +73,13 @@ func _test_corridor() -> void:
 	_ok(Espionage.op_def("corridor_discret").get("borders", false), "Opération « Corridor discret » au catalogue de l'espionnage")
 	_ok(Borders.spy_check(st, 1, 0, "corridor_discret") == "", "Corridor possible chez un empire qui ne vous ouvre pas ses frontières")
 	var what := Borders.spy_apply(st, 1, 0, {})
-	_ok(what != "" and Borders.corridor(st, 0, 1), "Corridor ouvert pour 90 jours")
+	_ok(what != "" and Borders.corridor(st, 0, 1), "Corridor ouvert pour 180 jours")
 	var f := st.spawn_ship(1, "corvette", _cap(st, 0))
 	Simulation.new(st).step()
 	_ok(Borders.intruders(st, 0, 1).is_empty() and _memory(st, 0, 1, "intrusion") == 0, "Corridor : aucune intrusion constatée")
 	_ok(Borders.spy_check(st, 1, 0, "corridor_discret") != "", "Un seul corridor à la fois")
-	st.tick += 91
-	_ok(not Borders.fleet_right(st, f, 0), "Corridor refermé au bout de 90 jours")
+	st.tick += 181
+	_ok(not Borders.fleet_right(st, f, 0), "Corridor refermé au bout de 180 jours")
 
 
 func _test_faith() -> void:

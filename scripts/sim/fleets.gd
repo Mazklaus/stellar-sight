@@ -94,18 +94,6 @@ static func spool_days(state: GameState, fleet: Fleet, from: int, to: int) -> in
 	return need
 
 
-## Jours de mise en route qu'il reste à passer sur tout le trajet d'une flotte.
-static func spool_remaining(state: GameState, fleet: Fleet) -> int:
-	if not fleet.is_moving() or (GameData.rules().get("spool_days", {}) as Dictionary).is_empty():
-		return 0
-	var d := 0
-	if fleet.progress == 0:
-		d += maxi(0, spool_days(state, fleet, fleet.system_id, fleet.path[0]) - fleet.spool)
-	for i in range(1, fleet.path.size()):
-		d += spool_days(state, fleet, fleet.path[i - 1], fleet.path[i])
-	return d
-
-
 ## Plus court chemin de from à to par les routes connues de l'empire (sans from, avec to).
 ## Vide si to == from ou s'il n'existe aucun chemin connu. Dijkstra à égalités départagées
 ## par l'identifiant : le même résultat sur toutes les machines.
@@ -379,8 +367,22 @@ static func remaining_distance(state: GameState, fleet: Fleet) -> int:
 ## Jours avant l'arrivée (0 à l'arrêt).
 static func eta_days(state: GameState, fleet: Fleet) -> int:
 	var v := speed(fleet, state)
+	if not fleet.is_moving() or (GameData.rules().get("spool_days", {}) as Dictionary).is_empty():
+		@warning_ignore("integer_division")
+		return (remaining_distance(state, fleet) + v - 1) / v
+	# Avec la mise en route, chaque étape repart de zéro : le reste du trajet du jour d'arrivée est
+	# perdu. On compte donc tronçon par tronçon (un tronçon = les routes enchaînées sans mise en route).
+	var days := maxi(0, spool_days(state, fleet, fleet.system_id, fleet.path[0]) - fleet.spool) if fleet.progress == 0 else 0
+	var segment := lane_length(state.galaxy, fleet.system_id, fleet.path[0]) - fleet.progress
+	for i in range(1, fleet.path.size()):
+		var need := spool_days(state, fleet, fleet.path[i - 1], fleet.path[i])
+		if need > 0:
+			@warning_ignore("integer_division")
+			days += (segment + v - 1) / v + need
+			segment = 0
+		segment += lane_length(state.galaxy, fleet.path[i - 1], fleet.path[i])
 	@warning_ignore("integer_division")
-	return (remaining_distance(state, fleet) + v - 1) / v + spool_remaining(state, fleet)
+	return days + (segment + v - 1) / v
 
 
 ## Jours de trajet d'un itinéraire calculé par plan_route (pour l'aperçu avant l'ordre).

@@ -456,7 +456,6 @@ func to_dict() -> Dictionary:
 		"next_design_id": next_design_id,
 		"victory_rules": victory_rules.duplicate(),
 		"ai_scaling": ai_scaling,
-		"turn_days": turn_days,
 		"winner": winner.duplicate(),
 		"custom_factions": _sorted_values(custom_factions),
 		"networks": Espionage.networks_to_list(self),
@@ -486,6 +485,11 @@ func to_dict() -> Dictionary:
 		"peoples": Peoples.to_dict(self),
 		"moves": Movements.to_dict(self),
 	}
+	# Écrits seulement s'ils servent : une sauvegarde d'avant garde son empreinte.
+	if turn_days > 0:
+		d["turn_days"] = turn_days
+	if String(galaxy_settings.get("distances", "")) == "heritage":
+		(d["galaxy_settings"] as Dictionary).erase("distances")
 	# Religion : seulement quand l'option est active (une partie sans religions garde la même empreinte).
 	if faith_on:
 		d["faiths"] = Faiths.to_dict(self)

@@ -1501,6 +1501,7 @@ func _find_button(node: Node, prefix: String) -> Button:
 func _reveal_map(main: Node) -> void:
 	for sys in main.galaxy.systems:
 		main.simulation.state.get_empire(0).explored[sys.id] = true
+		main.simulation.state.get_empire(0).surveyed[sys.id] = true
 
 
 ## Vue de replay : ouverte depuis le rapport (R), Espace n'y touche qu'à la lecture, Échap revient au rapport.

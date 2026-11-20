@@ -147,7 +147,7 @@ func total_max_hp() -> int:
 
 
 func to_dict() -> Dictionary:
-	return {
+	var d := {
 		"id": id,
 		"owner": owner,
 		"name": fleet_name,
@@ -155,9 +155,6 @@ func to_dict() -> Dictionary:
 		"system": system_id,
 		"path": Array(path),
 		"progress": progress,
-		"spool": spool,
-		"queue": Array(queue),
-		"stance": stance,
 		"order": standing_order,
 		"hp": Array(hp),
 		"troops": troops,
@@ -166,6 +163,14 @@ func to_dict() -> Dictionary:
 		"refit": refit_left,
 		"patrol": Array(patrol),
 	}
+	# Écrits seulement s'ils servent : une sauvegarde d'avant garde son empreinte.
+	if spool > 0:
+		d["spool"] = spool
+	if not queue.is_empty():
+		d["queue"] = Array(queue)
+	if stance != "":
+		d["stance"] = stance
+	return d
 
 
 static func from_dict(d: Dictionary) -> Fleet:

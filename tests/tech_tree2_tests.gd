@@ -170,7 +170,8 @@ func _test_masteries() -> void:
 		for k in parent.get("effects", {}):
 			if String(k).ends_with("_pct"):
 				pct = true
-		_ok(not pct, "Maîtrises : %s ne porte plus de pourcentage, sa Maîtrise le porte" % pair[0])
+		# Exception voulue : les moteurs portent la vitesse de leur génération, la Maîtrise la mise en route.
+		_ok(not pct or String(pair[0]) == "propulseurs", "Maîtrises : %s ne porte plus de pourcentage, sa Maîtrise le porte" % pair[0])
 
 
 func _test_people_hulls() -> void:

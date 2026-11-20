@@ -291,7 +291,10 @@ func _test_retreat() -> void:
 	_ok(sim.submit(SimCommands.move_fleet(0, mine.id, home)), "ordre de retraite pendant la bataille")
 	sim.step()
 	_ok(st.fleets.has(mine.id) and mine.is_moving(), "la flotte quitte le système")
-	sim.step()
+	# La mise en route retient la flotte quelques jours au contact : la bataille dure jusqu'au départ.
+	for _i in 6:
+		if st.battles.has(sid):
+			sim.step()
 	_ok(not st.battles.has(sid), "la bataille prend fin quand un camp s'en va")
 
 

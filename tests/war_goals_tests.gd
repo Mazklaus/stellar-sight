@@ -89,7 +89,7 @@ func _pair(st: GameState, human_ok := true) -> Array:
 
 
 ## Fait commencer la guerre il y a days jours.
-func _age(st: GameState, a: int, b: int, days := 200) -> void:
+func _age(st: GameState, a: int, b: int, days := 300) -> void:
 	Wars.war(st, a, b)["t"] = st.tick - days
 
 
@@ -396,7 +396,7 @@ func _test_ai() -> void:
 	var st3 := _new()
 	Wars.claim(st3, a, sid)
 	SimCommands.apply(st3, SimCommands.declare_war(a, b, "revendication", "conquete"))
-	_age(st3, a, b, 30)
+	_age(st3, a, b, 110)
 	Wars.on_battle(st3, a, b, 100000)
 	Combat.capture_system(st3, sid, a)
 	st3.tick += 40

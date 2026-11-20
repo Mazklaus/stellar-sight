@@ -218,7 +218,7 @@ static func color_taken(c: Color, used: Array[Color]) -> bool:
 
 
 func to_dict() -> Dictionary:
-	return {
+	var d := {
 		"id": id,
 		"faction": faction_id,
 		"color": color_hex,
@@ -230,8 +230,6 @@ func to_dict() -> Dictionary:
 		"starving": starving,
 		"blackout": blackout,
 		"explored": sorted_explored(),
-		"surveyed": sorted_surveyed(),
-		"rally": rally_system,
 		"intel": Intel.to_list(self),
 		"sightings": Intel.sightings_to_list(self),
 		"contacts": Array(contacts),
@@ -265,6 +263,12 @@ func to_dict() -> Dictionary:
 		"genome": Genetics.genome_to_list(self),
 		"gene_path": gene_path,
 	}
+	# Écrits seulement s'ils servent : une sauvegarde d'avant (reconnu = exploré) garde son empreinte.
+	if surveyed.size() != explored.size() or not explored.has_all(surveyed.keys()):
+		d["surveyed"] = sorted_surveyed()
+	if rally_system >= 0:
+		d["rally"] = rally_system
+	return d
 
 
 func _sorted_exploits() -> Array:

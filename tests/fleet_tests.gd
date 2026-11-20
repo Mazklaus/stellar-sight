@@ -74,13 +74,11 @@ func _test_start() -> void:
 		for f in fleets:
 			all_home = all_home and f.system_id == home and not f.is_moving()
 		_ok(all_home, "%s : flottes à l'arrêt au système d'origine" % e.faction_id)
-		# Vision de départ : l'éclaireur voit à 2 sauts.
+		# Vision de départ : l'éclaireur voit à 1 saut (2 avec la Télémétrie longue).
 		var ok := e.explored.has(home)
 		for n in st.galaxy.systems[home].neighbors:
 			ok = ok and e.explored.has(n)
-			for n2 in st.galaxy.systems[n].neighbors:
-				ok = ok and e.explored.has(n2)
-		_ok(ok, "%s : origine et systèmes à 2 sauts explorés" % e.faction_id)
+		_ok(ok, "%s : origine et systèmes voisins explorés" % e.faction_id)
 		_ok(e.explored.size() < st.galaxy.systems.size() / 4, "%s : la majeure partie de la galaxie est dans le brouillard (%d explorés)" % [e.faction_id, e.explored.size()])
 	_ok(_fleet_with(st, 0, "scout").fleet_name == "Éclaireur 1", "les flottes sont nommées d'après leur vaisseau")
 
@@ -92,7 +90,7 @@ func _test_move() -> void:
 	var target := _frontier_system(st, 0)
 	_ok(target != -1, "un système connu mais inexploré existe")
 	var path := Fleets.find_path(st, 0, scout.system_id, target)
-	_ok(path.size() >= 3 and path[-1] == target, "chemin de %d sauts vers la frontière" % path.size())
+	_ok(path.size() >= 2 and path[-1] == target, "chemin de %d sauts vers la frontière" % path.size())
 	var linked := true
 	var prev := scout.system_id
 	for s in path:
@@ -107,10 +105,12 @@ func _test_move() -> void:
 	_ok(Fleets.eta_days(st, scout) == expected, "délai annoncé = délai de l'itinéraire (%d j)" % expected)
 	var mid := Fleets.position(st, scout)
 	sim.step()
+	_ok(scout.progress == 0 and scout.spool == 1, "premier jour : mise en route, la flotte ne bouge pas")
+	sim.step()
 	_ok(scout.progress == Fleets.speed(scout, st) or scout.system_id != st.galaxy.get_planet(st.get_empire(0).capital_planet).system_id,
 			"la flotte avance de sa vitesse chaque jour")
 	_ok(Fleets.position(st, scout) != mid, "sa position sur la carte change")
-	var days := 1 + _run_until_stopped(sim, scout.id)
+	var days := 2 + _run_until_stopped(sim, scout.id)
 	_ok(scout.system_id == target and not scout.is_moving() and scout.progress == 0, "arrivée à destination")
 	_ok(days == expected, "arrivée au jour prévu (%d j, prévu %d)" % [days, expected])
 	_ok(Fleets.is_explored(st, 0, target), "le système d'arrivée est exploré")
@@ -145,6 +145,7 @@ func _test_turn_around_and_stop() -> void:
 	var n: int = st.galaxy.systems[home].neighbors[0]
 	sim.submit(SimCommands.move_fleet(0, scout.id, n))
 	sim.flush_commands()
+	sim.step()  # mise en route
 	sim.step()
 	var lane := Fleets.lane_length(st.galaxy, home, n)
 	var done := scout.progress
@@ -371,7 +372,7 @@ func _test_auto_explore() -> void:
 	sim.submit(SimCommands.set_fleet_order(0, scout.id, Fleet.ORDER_EXPLORE))
 	sim.flush_commands()
 	_ok(scout.is_exploring() and scout.is_moving(), "exploration auto : l'éclaireur part aussitôt")
-	_ok(not Fleets.is_explored(st, 0, scout.destination()), "il vise un système inexploré")
+	_ok(not Fleets.is_surveyed(st, 0, scout.destination()), "il vise un système qu'il n'a pas reconnu")
 	_ok(Fleets.idle_fleets(st, 0).size() == 1 and Fleets.idle_fleets(st, 0)[0].id == colonist.id, "il ne compte plus parmi les flottes inactives")
 	var stopped_days := 0
 	for _d in 240:
@@ -381,7 +382,7 @@ func _test_auto_explore() -> void:
 	_ok(scout.is_exploring(), "toujours en exploration après 240 jours")
 	_ok(stopped_days == 0, "l'éclaireur ne reste jamais à l'arrêt (obtenu %d jours)" % stopped_days)
 	var explored := st.get_empire(0).explored.size()
-	_ok(explored > start + 30, "l'exploration auto découvre la galaxie (%d -> %d systèmes)" % [start, explored])
+	_ok(explored > start + 10, "l'exploration auto découvre la galaxie (%d -> %d systèmes)" % [start, explored])
 	print("  exploration auto : %d systèmes explorés en %d jours" % [explored, st.tick])
 	# Sauvegarde et rediffusion.
 	var loaded := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_dict())))
@@ -437,6 +438,7 @@ func _test_auto_explore_end() -> void:
 	var e := st.get_empire(0)
 	for sys in st.galaxy.systems:
 		e.explored[sys.id] = true
+		e.surveyed[sys.id] = true
 	sim.step()
 	sim.step()  # arrivée ou cible explorée : plus rien à viser
 	var guard := 0
