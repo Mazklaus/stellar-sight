@@ -412,6 +412,7 @@ static func _tick_ruins(state: GameState, added: Array[Dictionary]) -> void:
 				var t := String(cands[Transcendence._h(state, ["ruin", k, i]) % cands.size()])
 				cands.erase(t)
 				finder.techs[t] = true
+				Research.unqueue(finder, t)
 				got.append(String(Research.tech(t).get("label", t)))
 		Transcendence._stat(state, c.owner, "tr_ruins", 1)
 		r.erase(k)

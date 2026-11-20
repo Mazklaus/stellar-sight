@@ -34,6 +34,7 @@ static func found(_state: GameState, e: Empire, _sid: int, ed: Dictionary) -> vo
 	# Défense sans flotte (prop. 97) : la Sporemère sait d'emblée armer ses mondes.
 	for t in Insolites.cfg("myrr").get("defense_techs", []):
 		e.techs[String(t)] = true
+		Research.unqueue(e, String(t))
 	e.tech_fx_n = -1
 	ed["comets"] = []
 	ed["sym"] = []

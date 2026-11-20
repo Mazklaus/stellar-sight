@@ -176,6 +176,10 @@ static func _test_curee_partis() -> void:
 	for t in known:
 		if not fe.techs.has(t) and not Research.tech(String(t)).is_empty():
 			missing += 1
+	# Toutes les technologies en file : celle de la relique doit en sortir.
+	for t in Research.data().get("technologies", {}):
+		if not fe.techs.has(t):
+			fe.research_queue.append(String(t))
 	var c := Colony.new()
 	c.planet_id = cap
 	c.owner = friend
@@ -185,6 +189,12 @@ static func _test_curee_partis() -> void:
 	var before := fe.techs.size()
 	TranscendenceTests.months(st, 1)
 	_ok(missing == 0 or fe.techs.size() > before, "La Curée : une relique de savoir fouillée")
+	var stale := 0
+	for t in fe.research_queue:
+		if fe.techs.has(t):
+			stale += 1
+	_ok(stale == 0, "La Curée : la relique sort de la file de recherche (sinon la sauvegarde ne se recharge plus)")
+	_ok(SaveGame.save_state(st, "user://test_curee.json") == OK and SaveGame.load_state("user://test_curee.json") != null, "La Curée : la partie se recharge")
 	_ok(Transcendence.stat(st, friend, "tr_ruins") == 1, "La Curée : comptée pour le haut fait")
 	# Interventions : le favori des Partis reçoit un bienfait.
 	var pc := Transcendence.cfg("partis")
