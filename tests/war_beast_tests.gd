@@ -12,6 +12,7 @@ func run(check: Callable) -> void:
 	print("Bêtes de guerre et talents…")
 	_test_vivarium()
 	_test_capture()
+	_test_capture_last_beast()
 	_test_release()
 	_test_talents()
 	_test_slayer()
@@ -104,6 +105,29 @@ func _test_capture() -> void:
 	var s2 := Simulation.new(st2)
 	s2.advance(int(WarBeasts.data()["net_days"]) + 2)
 	_ok(WarBeasts.beasts(st2, v2).is_empty(), "sans apprivoisement, pas de capture")
+
+
+## Partie longue graine 7 (2026-11-20) : le filet prend la dernière bête d'un troupeau dont la flotte
+## vient APRÈS celle du chalutier dans l'ordre des flottes ; le troupeau rayé ne doit pas planter la boucle.
+func _test_capture_last_beast() -> void:
+	var st := _new(13)
+	var vael := _eid(st, "vael")
+	var nest := _nacre_nest(st)
+	_tame(st, vael, "nacrelles")
+	_cap_colony(st, vael).buildings.append("vivarium")
+	for fid in Fauna.nest_herds(st, nest):
+		st.fleets.erase(fid)
+		Fauna.herds(st).erase(fid)
+	var boat := st.spawn_ship(vael, "chalutier", nest)
+	var herd := Fauna.spawn_herd(st, "nacrelles", nest, nest)
+	while herd.ships.size() > 1:
+		herd.ships.remove_at(herd.ships.size() - 1)
+		herd.hp.remove_at(herd.hp.size() - 1)
+	_ok(herd.id > boat.id, "le troupeau passe après le chalutier dans l'ordre des flottes")
+	var added: Array[Dictionary] = []
+	st.fauna["nets"] = {boat.id: [nest, st.tick - int(WarBeasts.data()["net_days"]) - 1]}
+	WarBeasts.daily(st, added)
+	_ok(not st.fleets.has(herd.id) and WarBeasts.beasts(st, vael).size() == 1, "dernière bête prise : le troupeau disparaît, la journée se termine sans erreur")
 
 
 func _test_release() -> void:
