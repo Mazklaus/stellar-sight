@@ -159,6 +159,9 @@ static func daily(state: GameState) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	if state.seen_cache.size() < state.empires.size():
 		return out
+	# Même mémo que le relevé quotidien (Intel) : rien dans cette boucle ne change les sources, les
+	# alliances ni les bonus de détection (un repérage n'écrit que des souvenirs et des compteurs).
+	Stealth.at_memo_begin()
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
 		if f.owner < 0 or f.owner >= state.empires.size() or not Stealth.veil_up(state, f):
@@ -182,4 +185,5 @@ static func daily(state: GameState) -> Array[Dictionary]:
 				path[str(sid)] = 1
 				st["path"] = path
 				st["spectre"] = path.size()
+	Stealth.at_memo_end()
 	return out

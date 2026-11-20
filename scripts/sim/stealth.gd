@@ -227,9 +227,14 @@ static func base_cloak(state: GameState, f: Fleet) -> int:
 		return int(cfg("non_empires").get("pirate_cloak", 2))
 	if f.owner >= 0 and f.owner < state.empires.size() and Veil.is_veiled(state, f.owner):
 		return 3
+	# Le plus faible camouflage de la flotte : dès qu'un vaisseau n'en a pas, le reste ne change rien
+	# (le résultat ne dépend plus de lo dès qu'il est à 0 ou moins).
 	var lo := 99
+	var cap := int(data().get("module_max", 4))
 	for s in f.ships:
-		lo = mini(lo, ship_cloak(s))
+		lo = mini(lo, mini(cap, int(GameData.ship(s).get("cloak", 0))))
+		if lo <= 0:
+			break
 	if lo > 0 and lo < 99 and f.owner >= 0:
 		lo += Genetics.cloak_bonus(state, f.owner)  # Résonance du Voile (traits façonnés)
 	if f.owner >= 0 and lo < 99:
@@ -353,8 +358,11 @@ static func beacon_vision(state: GameState, eid: int, src: Dictionary) -> void:
 ## Détection d'une flotte (sur toute sa portée).
 static func fleet_detect(state: GameState, f: Fleet) -> int:
 	var best := 0
+	var cap := int(data().get("module_max", 4)) - 1
 	for s in f.ships:
-		best = maxi(best, ship_detect(s))
+		best = maxi(best, mini(cap, int(GameData.ship(s).get("detect", 0))))
+		if best >= cap:
+			break
 	var d := int(data().get("base_detection", 1)) + best + _empire_detect(state, f.owner) + StealthBridges.hero_detect(state, f)
 	if posture(state, f) == "scan":
 		d += int(cfg("postures").get("scan", {}).get("detect", 1))

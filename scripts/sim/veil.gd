@@ -22,7 +22,7 @@ static func has(faction: Dictionary) -> bool:
 
 static func is_veiled(state: GameState, empire_id: int) -> bool:
 	var e := state.get_empire(empire_id)
-	return e != null and has(e.faction())
+	return e != null and e.veiled()
 
 
 ## Technologie qui perce le voile.
@@ -82,12 +82,22 @@ static func spot(state: GameState, owner: int, viewer: int) -> void:
 
 
 ## Le relevé d'un système tel que viewer le voit : sans les revendications qui lui sont cachées.
+## Chaque propriétaire n'est jugé qu'une fois (toutes ses revendications du système ont le même sort, et
+## un second repérage le même jour ne change rien).
 static func filter_survey(state: GameState, survey: Dictionary, viewer: int, sid: int, near_set: Dictionary) -> Dictionary:
 	var out := survey
 	var hidden := {}
+	var last := viewer  # dernier propriétaire jugé (les revendications d'un même empire se suivent souvent)
+	var judged := {}
 	for cl in survey["claims"]:
 		var owner := int(cl[1])
-		if owner != viewer and is_veiled(state, owner):
+		if owner == last or owner == viewer:
+			continue
+		last = owner
+		if judged.has(owner):
+			continue
+		judged[owner] = true
+		if is_veiled(state, owner):
 			if hides(state, owner, viewer, sid, near_set):
 				hidden[owner] = true
 			else:

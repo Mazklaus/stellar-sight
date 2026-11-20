@@ -44,6 +44,7 @@ var _faction_gen := -1
 var _faction_id_cached := ""
 var _faction_rev := -1
 var _species_key := ""
+var _veiled := -1
 ## Ingénierie des espèces (voir Genetics) : génome par espèce vivant dans l'empire {fid: {"add": [traits],
 ## "rem": [traits], "bio": second biome, "cyber": bool, "synth": bool, "graft": {ressource: %}, "gfood": %,
 ## "grafted": [espèces greffées]}}, voie d'élévation choisie ("" = aucune) et compteur de révisions
@@ -146,7 +147,18 @@ func faction() -> Dictionary:
 		_faction_rev = genome_rev
 		_species_cache.clear()
 		_species_key = ""
+		_veiled = -1
 	return _faction_cache
+
+
+## Peuple voilé (fiche avec un champ "veil") ? Gardé avec la fiche : demandé des milliers de fois par jour.
+func veiled() -> bool:
+	if not npc_faction.is_empty():
+		return npc_faction.has("veil")
+	var f := faction()
+	if _veiled < 0:
+		_veiled = 1 if f.has("veil") else 0
+	return _veiled == 1
 
 
 ## Clé de cache des talents de peuple (« peuple:fiche de l'espèce »), gardée avec la fiche : la reconstruire
