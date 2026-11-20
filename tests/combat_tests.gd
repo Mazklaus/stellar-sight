@@ -259,7 +259,7 @@ func _test_blockade() -> void:
 	var mid: int = st.galaxy.systems[home].neighbors[0]
 	var far := -1
 	for n in st.galaxy.systems[mid].neighbors:
-		if n != home:
+		if n != home and not st.galaxy.systems[home].neighbors.has(n):
 			far = n
 	for s in [home, mid, far]:
 		st.get_empire(0).explored[s] = true
