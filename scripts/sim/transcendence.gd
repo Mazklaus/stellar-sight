@@ -77,8 +77,11 @@ static func full(state: GameState) -> bool:
 
 
 ## Issue « Départ » : l'espèce fondatrice quitte la galaxie, la partie continue.
+## Le Passage achevé fait-il quitter la galaxie ? En mode « Départ », toujours ; en mode « Victoire »,
+## aussi quand la partie continue après une victoire déjà proclamée (choix de l'utilisateur, 2026-11-20 :
+## sinon le Passage s'achevait sans rien faire).
 static func departs(state: GameState) -> bool:
-	return enabled(state) and outcome(state) == "depart"
+	return enabled(state) and (outcome(state) == "depart" or not state.winner.is_empty())
 
 
 static func applies(state: GameState, eid: int) -> bool:
