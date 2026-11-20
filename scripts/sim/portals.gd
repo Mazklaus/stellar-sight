@@ -473,7 +473,9 @@ static func gate_range(state: GameState, sid: int) -> int:
 
 ## Saut de portail praticable de a vers b pour eid (prop. 19, 23, 25, 26) ; smuggle : éclaireurs et
 ## civils d'un peuple contrebandier, qui passent sans droit de passage (jamais en guerre).
-static func gate_ok(state: GameState, eid: int, a: int, b: int, smuggle := false) -> bool:
+## memo (facultatif) : réponses par système gardées pendant UN calcul qui ne change rien à l'état (une
+## recherche de chemin) ; il ne doit servir que pour un même eid et un même smuggle.
+static func gate_ok(state: GameState, eid: int, a: int, b: int, smuggle := false, memo: Variant = null) -> bool:
 	var g := state.galaxy
 	var links: Dictionary = g.portal_links.get(a, {})
 	if not links.has(b):
@@ -482,14 +484,29 @@ static func gate_ok(state: GameState, eid: int, a: int, b: int, smuggle := false
 		return false
 	if eid < 0 or GameState.is_npc(eid):
 		return false  # créatures et crises ne passent jamais les portails (prop. 33)
-	for sid in [a, b]:
-		var o := state.system_owner(sid)
-		if not may_use(state, o, eid):
-			if not (smuggle and o >= 0 and not Combat.at_war(state, o, eid)):
-				return false
-		if _gate_cut(state, sid):
-			return false
-	return not _inhibited(state, eid, b)
+	if not _end_ok(state, eid, a, smuggle, memo) or not _end_ok(state, eid, b, smuggle, memo):
+		return false
+	if memo == null:
+		return not _inhibited(state, eid, b)
+	var ik := -1 - b
+	if not memo.has(ik):
+		memo[ik] = _inhibited(state, eid, b)
+	return not memo[ik]
+
+
+## Un bout de portail utilisable par eid : droit de passage (ou contrebande hors guerre), pas coupé.
+static func _end_ok(state: GameState, eid: int, sid: int, smuggle: bool, memo: Variant) -> bool:
+	if memo != null and memo.has(sid):
+		return memo[sid]
+	var o := state.system_owner(sid)
+	var ok := true
+	if not may_use(state, o, eid):
+		ok = smuggle and o >= 0 and not Combat.at_war(state, o, eid)
+	if ok and _gate_cut(state, sid):
+		ok = false
+	if memo != null:
+		memo[sid] = ok
+	return ok
 
 
 static func smuggler(state: GameState, eid: int) -> bool:
@@ -497,7 +514,7 @@ static func smuggler(state: GameState, eid: int) -> bool:
 
 
 ## Arêtes de raccourci depuis un système pour le Dijkstra des flottes : [voisin, longueur, ...].
-static func edges(state: GameState, eid: int, sid: int, explored: Dictionary, smuggle := false) -> Array[int]:
+static func edges(state: GameState, eid: int, sid: int, explored: Dictionary, smuggle := false, memo: Variant = null) -> Array[int]:
 	var out: Array[int] = []
 	var g := state.galaxy
 	var w := int(g.wormholes.get(sid, -1))
@@ -509,7 +526,7 @@ static func edges(state: GameState, eid: int, sid: int, explored: Dictionary, sm
 		var keys := links.keys()
 		keys.sort()
 		for b in keys:
-			if explored.has(int(b)) and gate_ok(state, eid, sid, int(b), smuggle):
+			if explored.has(int(b)) and gate_ok(state, eid, sid, int(b), smuggle, memo):
 				out.append(int(b))
 				out.append(1)
 	return out
@@ -524,7 +541,7 @@ static func civil_links(state: GameState, eid: int, sid: int) -> Array[int]:
 	var mk := eid * 100000 + sid
 	if _civil_memo_on and _civil_memo.has(mk):
 		return _civil_memo[mk]
-	var ed := edges(state, eid, sid, state.empires[eid].explored)
+	var ed := edges(state, eid, sid, state.empires[eid].explored, false, _civil_gmemo.get_or_add(eid, {}) if _civil_memo_on else null)
 	for i in range(0, ed.size(), 2):
 		out.append(int(ed[i]))
 	if _civil_memo_on:
@@ -536,6 +553,7 @@ static func civil_links(state: GameState, eid: int, sid: int) -> Array[int]:
 ## guerres, ni les stations (routes commerciales, desserte des ports) : des milliers de recherches de
 ## chemin y redemandent les mêmes systèmes. memo_end() le vide toujours.
 static var _civil_memo := {}
+static var _civil_gmemo := {}
 static var _civil_memo_on := false
 static var _civil_memo_depth := 0
 
@@ -543,6 +561,7 @@ static var _civil_memo_depth := 0
 static func memo_begin() -> void:
 	if _civil_memo_depth == 0:
 		_civil_memo.clear()
+		_civil_gmemo.clear()
 	_civil_memo_depth += 1
 	_civil_memo_on = true
 
@@ -551,6 +570,7 @@ static func memo_end() -> void:
 	_civil_memo_depth = maxi(0, _civil_memo_depth - 1)
 	if _civil_memo_depth == 0:
 		_civil_memo.clear()
+		_civil_gmemo.clear()
 		_civil_memo_on = false
 
 

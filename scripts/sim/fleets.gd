@@ -139,6 +139,7 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid: Va
 	var shortcuts := not state.portals.is_empty() and (not state.galaxy.wormholes.is_empty() or not state.galaxy.portal_gates.is_empty())
 	var relays := not state.galaxy.relays.is_empty()
 	var smuggle := flags & Borders.PATH_SMUGGLE != 0
+	var gate_memo := {}  # bouts de portail déjà testés pendant cette recherche (Portals.gate_ok)
 	# Tableaux indexés par système pendant le calcul (plus rapides que des dictionnaires), puis les
 	# dictionnaires du résultat, remplis dans l'ordre de découverte, comme avant.
 	var g := state.galaxy
@@ -192,7 +193,7 @@ static func _dijkstra_raw(state: GameState, empire_id: int, from: int, avoid: Va
 				if old < 0 or d < old:
 					_heap_push(heap, (d << 16) | n)
 		if shortcuts:
-			var ex := Portals.edges(state, empire_id, best, explored, smuggle)
+			var ex := Portals.edges(state, empire_id, best, explored, smuggle, gate_memo)
 			for j in range(0, ex.size(), 2):
 				var n := ex[j]
 				if done[n] == 1:
