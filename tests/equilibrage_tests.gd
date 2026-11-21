@@ -21,6 +21,7 @@ func run(check: Callable) -> void:
 	_test_stance()
 	_test_rally()
 	_test_build_queue()
+	_test_claim_queue()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -372,4 +373,40 @@ func _test_build_queue() -> void:
 	_ok(sim.submit(SimCommands.clear_build_queue(0, cap.planet_id, true)), "la file se vide sur ordre")
 	sim.flush_commands()
 	_ok(cap.ship_queue.is_empty() and cap.ship_build == "scout", "le vaisseau en chantier, lui, continue")
+
+
+## File de colonisation : projets au complet, le suivant attend et part tout seul.
+func _test_claim_queue() -> void:
+	for seed_value in [21, 22, 23, 24, 25, 26]:
+		var st := GameState.create(seed_value)
+		var sim := Simulation.new(st)
+		var e := st.get_empire(0)
+		for r in ["materials", "energy", "food", "influence"]:
+			e.resources[r] = 5000
+		var free: Array[int] = []
+		for pid in st.galaxy.systems[_home(st)].planet_ids:
+			if SimCommands.validate(st, SimCommands.colonize(0, pid, Colony.KIND_OUTPOST)) == "":
+				free.append(pid)
+		var cap := Economy.max_projects_for(st, 0)
+		if free.size() < cap + 1:
+			continue
+		_ok(not sim.submit(SimCommands.clear_claim_queue(0)), "refus : file de colonisation déjà vide")
+		for i in cap:
+			sim.submit(SimCommands.colonize(0, free[i], Colony.KIND_OUTPOST))
+		sim.flush_commands()
+		var next := free[cap]
+		_ok(SimCommands.validate(st, SimCommands.colonize(0, next, Colony.KIND_OUTPOST)).ends_with("colonisations en cours"), "projets au complet : refus direct")
+		_ok(sim.submit(SimCommands.queue_claim(0, next, Colony.KIND_OUTPOST)), "le projet suivant se met en file")
+		sim.flush_commands()
+		_ok(e.claim_queue.size() == 1 and not st.colonies.has(next), "rien n'est lancé ni payé tant que la file attend")
+		_ok(not sim.submit(SimCommands.queue_claim(0, next, Colony.KIND_OUTPOST)), "refus : déjà dans la file")
+		var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_dict())))
+		_ok(back != null and back.get_empire(0).claim_queue.size() == 1 and back.checksum() == st.checksum(), "la file de colonisation est sauvegardée")
+		var days := 0
+		while days < 200 and not st.colonies.has(next):
+			sim.step()
+			days += 1
+		_ok(st.colonies.has(next) and e.claim_queue.is_empty(), "un projet fini, le suivant de la file se lance tout seul (%d j)" % days)
+		return
+	_ok(false, "aucune graine d'essai n'offre assez de planètes libres au départ")
 

@@ -34,6 +34,10 @@ var surveyed: Dictionary = {}
 ## Point de ralliement des chantiers (C6) : les vaisseaux armés qui sortent des chantiers s'y rendent
 ## d'eux-mêmes. -1 : aucun.
 var rally_system: int = -1
+## File de colonisation (équilibrage, tour par tour) : projets [{"planet", "kind", "species"}] lancés
+## tout seuls dès qu'un projet en cours s'achève (voir Economy.run_queues). Payés au lancement.
+const CLAIM_QUEUE_MAX := 5
+var claim_queue: Array = []
 ## Dernière information connue (voir Intel) : système -> {"day": jour du relevé, "info": relevé}.
 var intel: Dictionary = {}
 ## Flottes étrangères aperçues puis perdues de vue (voir Intel) : flotte -> {"sys", "day", "owner",
@@ -268,6 +272,8 @@ func to_dict() -> Dictionary:
 		d["surveyed"] = sorted_surveyed()
 	if rally_system >= 0:
 		d["rally"] = rally_system
+	if not claim_queue.is_empty():
+		d["claim_queue"] = claim_queue.duplicate(true)
 	return d
 
 
@@ -357,6 +363,9 @@ static func from_dict(d: Dictionary) -> Empire:
 	for sid in d.get("surveyed", d["explored"]):
 		e.surveyed[int(sid)] = true
 	e.rally_system = int(d.get("rally", -1))
+	for q in d.get("claim_queue", []):
+		if q is Dictionary:
+			e.claim_queue.append({"planet": int(q.get("planet", -1)), "kind": String(q.get("kind", "")), "species": String(q.get("species", ""))})
 	Intel.from_list(e, d.get("intel", []))
 	Intel.sightings_from_list(e, d.get("sightings", []))
 	for c in d["contacts"]:

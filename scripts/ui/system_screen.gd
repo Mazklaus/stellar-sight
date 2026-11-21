@@ -656,6 +656,16 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 				actions.append(_claim_action(p, Colony.KIND_COLONY, fid))
 	if c == null:
 		actions.append(_claim_action(p, Colony.KIND_OUTPOST))
+	var qme := _state.get_empire(_player)
+	if qme and not qme.claim_queue.is_empty():
+		var qnames: Array[String] = []
+		for q: Dictionary in qme.claim_queue:
+			var qp := _state.galaxy.get_planet(int(q["planet"]))
+			qnames.append(qp.display_name(_state.galaxy) if qp else "?")
+		var qclear := SimCommands.clear_claim_queue(_player)
+		actions.append({"text": "Vider la file de colonisation", "detail": "à la suite : %s" % ", ".join(qnames), "reason": "",
+				"tooltip": "Ces projets seront lancés l'un après l'autre, et payés au lancement. Vider la file ne coûte rien.",
+				"action": func() -> void: command_requested.emit(qclear)})
 	var me := _state.get_empire(_player)
 	# Forge des mondes : chantiers planétaires sur ce corps, colonie ou non.
 	actions.append_array(ForgeUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
@@ -894,6 +904,15 @@ func _claim_action(p: Planet, kind: String, species := "") -> Dictionary:
 				Peoples.label(species), Peoples.hab(_state, _player, species, p.type)]
 	if by_ship:
 		tip += "\nLe vaisseau colon en orbite se démonte pour la fonder."
+	# Projets au complet (ou caisses vides) : la colonisation se met en file, lancée dès qu'une place se libère.
+	var cq := SimCommands.queue_claim(_player, p.id, kind, species)
+	if reason != "" and Economy.claim_can_wait(reason) and SimCommands.validate(_state, cq) == "":
+		return {
+			"text": "Mettre en file : %s  (%s, %d j)" % [label, GameData.format_amounts(Economy.claim_cost_for(_state, _player, p.id, kind)), Economy.claim_days(kind)],
+			"reason": "",
+			"tooltip": "%s.\nCe projet sera lancé, et payé, dès que ce sera possible.\n\n%s" % [reason.capitalize(), tip],
+			"action": func() -> void: command_requested.emit(cq),
+		}
 	return {
 		"text": "%s  (%s%s, %d j)" % [label, GameData.format_amounts(Economy.claim_cost_for(_state, _player, p.id, kind)),
 				" + vaisseau colon" if by_ship else "", Economy.claim_days(kind)],

@@ -5602,6 +5602,18 @@
    "chapters": [
     "04-colonies"
    ]
+  },
+  {
+   "id": "file_colonisation",
+   "name": "File de colonisation",
+   "forms": [
+    "File de colonisation"
+   ],
+   "family": "meca",
+   "summary": "Colonisations et avant-postes qu'un empire lancera tout seul, l'un après l'autre, dès qu'un projet en cours s'achève (cinq au plus, payés au lancement)",
+   "chapters": [
+    "04-colonies"
+   ]
   }
  ]
 }

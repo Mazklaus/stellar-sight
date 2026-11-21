@@ -108,6 +108,8 @@ Chaque colonie bâtit dans ses emplacements : fermes, centrales, mines, forums p
 
 Une colonie ne mène qu'un chantier et qu'un vaisseau à la fois. Quand l'emplacement est pris, l'ordre devient **Mettre en file** : le bâtiment ou le vaisseau attend son tour (cinq au plus par file), puis se lance tout seul. Rien n'est payé avant le lancement : si les ressources manquent ce jour-là, la file patiente ; si l'élément n'est plus possible, il sort de la file et la chronique vous le dit. **Vider la file** ne coûte rien. Au tour par tour, c'est ce qui évite qu'une colonie dorme jusqu'au tour suivant.
 
+La **file de colonisation** suit la même règle à l'échelle de l'empire : quand vos colonisations en cours sont au complet, ou que les caisses sont vides, « Coloniser » et « Poser un avant-poste » deviennent **Mettre en file** (cinq projets au plus). Le premier de la file part dès qu'une place se libère.
+
 ### Le chantier spatial
 
 Chaque colonie peuplée construit un vaisseau à la fois, indépendamment de ses bâtiments. Le vaisseau terminé apparaît en orbite, dans sa propre flotte. Le chapitre 6 explique comment concevoir vos propres modèles.

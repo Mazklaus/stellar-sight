@@ -650,11 +650,53 @@ static func check_queue_build(state: GameState, empire_id: int, planet_id: int, 
 	return ""
 
 
+## Un refus de colonisation qui ne tient qu'au moment (projets en cours, ressources) : la file attend.
+static func claim_can_wait(why: String) -> bool:
+	return why.ends_with("colonisations en cours") or why.begins_with("ressources insuffisantes")
+
+
+## Mise en file d'une colonisation : possible quand elle ne bute que sur le nombre de projets en cours
+## ou sur les ressources du jour.
+static func check_queue_claim(state: GameState, empire_id: int, planet_id: int, kind: String, species: String) -> String:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return "empire inconnu : %d" % empire_id
+	if e.claim_queue.size() >= Empire.CLAIM_QUEUE_MAX:
+		return "file pleine (%d au plus)" % Empire.CLAIM_QUEUE_MAX
+	for q: Dictionary in e.claim_queue:
+		if int(q["planet"]) == planet_id:
+			return "déjà dans la file"
+	var why := check_colonize(state, empire_id, planet_id, kind, species)
+	if why != "" and not claim_can_wait(why):
+		return why
+	return ""
+
+
+static func _run_claim_queues(state: GameState, added: Array[Dictionary]) -> void:
+	for e in state.empires:
+		while not e.claim_queue.is_empty():
+			var q: Dictionary = e.claim_queue[0]
+			var cmd := SimCommands.colonize(e.id, int(q["planet"]), String(q["kind"]), String(q["species"]))
+			var why := SimCommands.validate(state, cmd)
+			if why == "":
+				e.claim_queue.pop_front()
+				SimCommands.apply(state, cmd)
+				continue
+			if claim_can_wait(why):
+				break
+			e.claim_queue.pop_front()
+			var p := state.galaxy.get_planet(int(q["planet"]))
+			if p != null:
+				added.append(state.add_chronicle("%s : la colonisation de %s sort de la file (%s)." % [e.short_name(), p.display_name(state.galaxy), why],
+						Espionage.private_to(state, [e.id], p.system_id)))
+
+
 ## Chaque jour : une colonie dont le chantier (ou le chantier spatial) est libre lance le premier
 ## élément de sa file. Pas assez de ressources : elle attend. Devenu impossible : l'élément saute,
 ## et la chronique le dit à son propriétaire.
 static func run_queues(state: GameState) -> Array[Dictionary]:
 	var added: Array[Dictionary] = []
+	_run_claim_queues(state, added)
 	for pid in state.sorted_colony_ids():
 		var c: Colony = state.colonies[pid]
 		if c.build_queue.is_empty() and c.ship_queue.is_empty():

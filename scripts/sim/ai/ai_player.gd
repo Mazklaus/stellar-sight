@@ -625,17 +625,19 @@ static func _queue_ahead(ctx: Dictionary) -> void:
 	var state: GameState = ctx["state"]
 	var e: Empire = ctx["e"]
 	var net := _net(ctx)
+	# Autant de chantiers d'avance que le tour peut en finir (un par dizaine de jours, comme en temps réel).
+	@warning_ignore("integer_division")
+	var ahead := clampi(state.turn_days / 10 - 1, 1, Colony.QUEUE_MAX)
 	for c in _my_colonies(ctx):
-		if c.construction == "" or not c.build_queue.is_empty() or not c.is_colony() or _forgets(ctx):
-			continue
-		if Economy.building_slots_used(c) + 1 >= Economy.building_slots(state, c):
+		if c.construction == "" or not c.is_colony() or _forgets(ctx):
 			continue
 		var wishes := Ecology.ai_filter(ctx, c, building_wishes(ctx, c, net))
 		for b in wishes:
-			if b == c.construction or c.buildings.has(b) or not Economy.building_unlocked(state, e.id, b):
-				continue
-			if _issue(ctx, SimCommands.queue_build(e.id, c.planet_id, b)):
+			if c.build_queue.size() >= ahead or Economy.building_slots_used(c) + 1 + c.build_queue.size() >= Economy.building_slots(state, c):
 				break
+			if b == c.construction or c.buildings.has(b) or c.build_queue.has(b) or not Economy.building_unlocked(state, e.id, b):
+				continue
+			_issue(ctx, SimCommands.queue_build(e.id, c.planet_id, b))
 
 
 static func _buildings(ctx: Dictionary) -> void:
@@ -900,12 +902,18 @@ static func _foothold_claims(ctx: Dictionary) -> void:
 	if AiAdmin.restrain(ctx):  # Administration : trop au-dessus de la capacité pour s'étendre encore
 		return
 	for sid in EmpireReport.owned_systems(state, e.id):
-		if Economy.active_projects(state, e.id) >= max_claims:
+		var busy := Economy.active_projects(state, e.id) >= max_claims
+		# Tour par tour : projets au complet, l'IA met la suite en file (une d'avance), comme le joueur.
+		if busy and (state.turn_days <= 0 or not e.claim_queue.is_empty()):
 			return
 		if not Economy.has_foothold(state, e.id, sid) or _forgets(ctx):
 			continue
 		var claim := best_claim(state, e, sid, use, _seen(ctx))
 		if claim.is_empty():
+			continue
+		if busy:
+			if _issue(ctx, SimCommands.queue_claim(e.id, int(claim["planet"]), String(claim["kind"]), String(claim.get("species", "")))):
+				return
 			continue
 		var cost := Economy.claim_cost_for(state, e.id, int(claim["planet"]), String(claim["kind"]))
 		if _res(ctx, "influence") - int(cost.get("influence", 0)) < reserve_inf and int(cost.get("influence", 0)) > 0:

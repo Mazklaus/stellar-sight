@@ -56,6 +56,16 @@ static func queue_build(player: int, planet_id: int, id: String, ship := false) 
 	return {"type": "queue_build", "player": player, "planet": planet_id, "id": id, "ship": ship}
 
 
+## Met une colonisation (ou un avant-poste) dans la file de l'empire : lancée, et payée, dès qu'un
+## projet en cours s'achève. clear_claim_queue vide cette file.
+static func queue_claim(player: int, planet_id: int, kind: String, species := "") -> Dictionary:
+	return {"type": "queue_claim", "player": player, "planet": planet_id, "kind": kind, "species": species}
+
+
+static func clear_claim_queue(player: int) -> Dictionary:
+	return {"type": "clear_claim_queue", "player": player}
+
+
 ## Vide la file de production (bâtiments ou vaisseaux) d'une colonie.
 static func clear_build_queue(player: int, planet_id: int, ship := false) -> Dictionary:
 	return {"type": "clear_build_queue", "player": player, "planet": planet_id, "ship": ship}
@@ -872,6 +882,11 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Fleets.check_move(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("system", -1)))
 		"stop_fleet":
 			return Fleets.check_stop(state, int(cmd["player"]), int(cmd.get("fleet", -1)))
+		"queue_claim":
+			return Economy.check_queue_claim(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("kind", "")), String(cmd.get("species", "")))
+		"clear_claim_queue":
+			var qe := state.get_empire(int(cmd["player"]))
+			return "" if qe != null and not qe.claim_queue.is_empty() else "la file est déjà vide"
 		"queue_build":
 			return Economy.check_queue_build(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("id", "")), bool(cmd.get("ship", false)))
 		"clear_build_queue":
@@ -1279,6 +1294,10 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			f.system_id = int(plan["system"])
 			f.path.assign(plan["path"])
 			f.progress = int(plan["progress"])
+		"queue_claim":
+			state.get_empire(int(cmd["player"])).claim_queue.append({"planet": int(cmd["planet"]), "kind": String(cmd["kind"]), "species": String(cmd.get("species", ""))})
+		"clear_claim_queue":
+			state.get_empire(int(cmd["player"])).claim_queue.clear()
 		"queue_build":
 			var qc: Colony = state.colonies[int(cmd["planet"])]
 			(qc.ship_queue if bool(cmd.get("ship", false)) else qc.build_queue).append(String(cmd["id"]))
