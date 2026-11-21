@@ -6,6 +6,8 @@ for n in ["essai_mystique","essai_noble","essai_cornu"]:
     rig=json.load(open(OUT+n+"/rig.json"))
     im=np.asarray(Image.open(SRC+n+".jpg").convert("RGB"))
     H,W=im.shape[:2]
+    if not rig.get("chin"):
+        continue
     poly=np.array(rig["chin"],np.int32)
     x0,y0=poly.min(0)-12; x1,y1=poly.max(0)+12
     m=np.zeros((H,W),np.uint8); cv2.fillPoly(m,[poly],255)

@@ -18,6 +18,32 @@ P={
    eyes=[[318,430],[425,442]],eye=[13,7],glow="#ff5a2a",
    chin=[[295,520],[330,514],[365,517],[400,513],[436,520],[430,560],[405,592],[368,604],[330,592],[305,560]]),
 }
+# Repères saisis dans l'artefact « Repères de portrait » : python3 tools/portrait_rig_prep.py reperes.json
+# (chaque « image » doit se trouver dans assets/art/essais/ ; le masque est alors calculé par rembg).
+def from_reperes(path):
+    out={}
+    for r in json.load(open(path))["reperes_portraits"]:
+        W,H=r["taille"]; px=lambda k:[r[k][0]*W,r[k][1]*H]
+        g,d,s,m=px("tete_g"),px("tete_d"),px("sommet"),px("menton")
+        el,er=px("oeil_g"),px("oeil_d"); ed=abs(er[0]-el[0])
+        e=dict(head=[(g[0]+d[0])/2,(s[1]+m[1])/2,abs(d[0]-g[0])/2,abs(m[1]-s[1])/2],neck=px("cou"),
+               face=px("nez")+[0.45*abs(d[0]-g[0])],chest=px("epaules")[1],
+               eyes=[[int(el[0]),int(el[1])],[int(er[0]),int(er[1])]],eye=[max(6,int(ed*0.19)),max(4,int(ed*0.08))],glow="#ffd9a0")
+        if "bouche_g" in r and "bouche_d" in r:
+            bg,bd=px("bouche_g"),px("bouche_d"); cx=(bg[0]+bd[0])/2
+            e["chin"]=[[int(bg[0]),int(bg[1])],[int(cx-(cx-bg[0])/2),int(bg[1]-3)],[int(cx),int(bg[1]-2)],[int(cx+(bd[0]-cx)/2),int(bd[1]-3)],[int(bd[0]),int(bd[1])],
+                       [int(bd[0]+4),int((bd[1]+m[1])/2)],[int(cx+(bd[0]-cx)*0.6),int(m[1]-8)],[int(cx),int(m[1])],[int(cx-(cx-bg[0])*0.6),int(m[1]-8)],[int(bg[0]-4),int((bg[1]+m[1])/2)]]
+        out[r["image"].rsplit(".",1)[0]]=e
+    return out
+if len(sys.argv)>1:
+    P=from_reperes(sys.argv[1])
+    import os
+    for n in P:
+        if not os.path.exists(MASKS+n+"_mask.png"):
+            from rembg import remove, new_session
+            os.makedirs(MASKS,exist_ok=True)
+            remove(Image.open(SRC+n+".jpg").convert("RGB"),session=new_session("isnet-general-use"),only_mask=True).save(MASKS+n+"_mask.png")
+
 def ss(a,b,x):
     t=np.clip((x-a)/(b-a),0,1); return t*t*(3-2*t)
 for n,c in P.items():
@@ -87,7 +113,7 @@ for n,c in P.items():
     w_chest=1-ss(c["chest"],H,pts[:,1])
     rig=dict(size=[W,H],verts=pts.tolist(),tris=keep,w_head=w_head.round(4).tolist(),
              w_face=w_face.round(4).tolist(),w_chest=w_chest.round(4).tolist(),
-             head=c["head"],neck=c["neck"],face=c["face"],chest=c["chest"],chin=c["chin"],
+             head=c["head"],neck=c["neck"],face=c["face"],chest=c["chest"],chin=c.get("chin",[]),
              lids=lids,eye=c["eye"],glow=c["glow"])
     json.dump(rig,open(OUT+n+"/rig.json","w"))
     print(n,len(pts),len(keep))
