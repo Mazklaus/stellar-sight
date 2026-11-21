@@ -5654,6 +5654,34 @@
    "chapters": [
     "15-victoire"
    ]
+  },
+  {
+   "id": "meute",
+   "name": "Meute",
+   "forms": [
+    "Meute",
+    "meute"
+   ],
+   "family": "meca",
+   "summary": "Ce que l'Essaim doit réunir avant sa première chasse : 3 colonies et 6 vaisseaux armés",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
+   "id": "coalition_conquerant",
+   "name": "Coalition contre le conquérant",
+   "forms": [
+    "Coalition contre le conquérant",
+    "coalition contre le conquérant",
+    "Vote de coalition",
+    "vote de coalition"
+   ],
+   "family": "meca",
+   "summary": "Vote annoncé à tous contre un empire qui a conquis et tient 35 % des systèmes habités : soixante jours plus tard, ceux qui le connaissent lui déclarent la guerre",
+   "chapters": [
+    "09-guerre"
+   ]
   }
  ]
 }

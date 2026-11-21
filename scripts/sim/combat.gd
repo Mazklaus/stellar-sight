@@ -393,6 +393,30 @@ static func hunts(state: GameState, empire_id: int) -> bool:
 	return bool(trait_value(state, empire_id, "prey", false))
 
 
+## La chasse attend la meute (équilibrage B4) : la première chasse d'un Essaim ne s'ouvre qu'avec
+## assez de colonies et de vaisseaux armés. Les suivantes ne demandent rien.
+static func pack_ready(state: GameState, empire_id: int) -> bool:
+	var e := state.get_empire(empire_id)
+	var h: Dictionary = e.faction().get("hunt", {})
+	if h.is_empty() or int(e.stats.get("hunts", 0)) > 0 or int(e.stats.get("conquests", 0)) > 0 or int(e.stats.get("wars", 0)) > 0:
+		return true
+	var cols := 0
+	for pid in state.colonies:
+		var c: Colony = state.colonies[pid]
+		if c.owner == empire_id and c.is_colony() and c.is_established():
+			cols += 1
+	if cols < int(h.get("first_colonies", 0)):
+		return false
+	var ships := 0
+	for fid in state.fleets:
+		var f: Fleet = state.fleets[fid]
+		if f.owner == empire_id:
+			for s in f.ships:
+				if is_armed_ship(String(s)):
+					ships += 1
+	return ships >= int(h.get("first_warships", 0))
+
+
 ## L'empire est-il en guerre avec au moins un empire encore en vie ?
 static func has_live_war(state: GameState, empire_id: int) -> bool:
 	for w in state.get_empire(empire_id).wars:
@@ -678,6 +702,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 		var tasty := digested * bio * (Genetics.savoury_pct(state, old) - 100) / 100
 		en.resources["materials"] = int(en.resources.get("materials", 0)) + digested * bio + tasty
 		en.biomass += digested * bio + tasty
+		en.resources["knowledge"] = int(en.resources.get("knowledge", 0)) + digested * int(FactionTraits.biomass_gain(state, new_owner).get("knowledge", 0))  # mémoire de l'Essaim (B3)
 		Research.count_stat(state, en.id, "digested", digested)
 		if eo != null and not state.genetics.is_empty():
 			GeneticsBridges.on_digest(state, new_owner, eo.faction_id, added)

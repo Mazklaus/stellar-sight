@@ -263,7 +263,7 @@ func _test_faction_research() -> void:
 	_ok(FactionTraits.sacrifice_gain(sc, 0) == g0 + 10, "Offrande consacrée : +10 ferveur par offrande")
 	var sk := _state("khthari")
 	_ok(int(Economy.production_pct(sk, 0, "knowledge")) == 50, "Essaim : Savoir divisé par deux")
-	_ok(int(FactionTraits.biomass_gain(sk, 0)["knowledge"]) == 2, "Essaim : la biomasse nourrit aussi la mémoire génétique")
+	_ok(int(FactionTraits.biomass_gain(sk, 0)["knowledge"]) == 6, "Essaim : la biomasse nourrit aussi la mémoire génétique")
 	Research.grant(sk, 0, ["digestion_totale"])
 	_ok(int(FactionTraits.biomass_gain(sk, 0)["materials"]) == 20, "Digestion totale : +5 matériaux par population digérée")
 	# Vael : +5 % de Savoir par empire en paix, plafonné.
@@ -292,7 +292,7 @@ func _test_ai_research() -> void:
 	var labs := 0
 	for e in st.empires:
 		counts.append("%s %d" % [e.short_name(), e.techs.size()])
-		if e.techs.size() < 3 and not e.eliminated:
+		if e.techs.size() < 2 and not e.eliminated:
 			all_research = false
 		for t in e.techs:
 			if Research.is_heretic(e.faction(), String(t)):

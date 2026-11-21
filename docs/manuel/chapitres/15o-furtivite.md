@@ -68,7 +68,7 @@ Le **brouilleur** plafonne une flotte repérée de loin à « identifiée », sa
 
 ### Les Murmurants d'Abysse
 
-Le **Voile** des peuples énergétiques voilés devient un **camouflage inné de 3** sur leurs flottes. Contre eux, une présence **à l'arrêt** sur place voit +2, et les **Détecteurs d'abysse** donnent +2 partout : exactement le Voile d'avant, mais dans les règles communes. Le Silence parfait ne change pas.
+Le **Voile** des peuples énergétiques voilés devient un **camouflage inné de 3** sur leurs flottes. Contre eux, une présence **à l'arrêt** sur place voit +2, et les **Détecteurs d'abysse** donnent +2 partout : exactement le Voile d'avant, mais dans les règles communes. Le Silence parfait ne change pas. **Le Voile se perce de près** : un de vos systèmes doté de senseurs de niveau 2 (un **Réseau d'écoute**, ou une technologie de détection) sent aussi les colonies voilées de ses **voisins immédiats**. Un peuple voilé installé contre votre frontière ne reste donc pas caché longtemps, et chaque repérage remet à zéro le compte à rebours du Silence parfait.
 
 ### Ponts avec les autres piliers
 

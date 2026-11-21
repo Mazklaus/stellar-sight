@@ -76,6 +76,8 @@ Une **guerre juste** donne +1 de stabilité à l'attaquant et pousse le Glaive ;
 
 **La reddition.** Après 60 jours, le vainqueur **exige la reddition** et le vaincu peut **se rendre au but** de l'autre. Le panneau affiche l'avis de l'adversaire : sa marge d'acceptation additionne le score, le rapport de forces (jusqu'à +50), la moitié de sa lassitude et le prix du but. Une demande repoussée attend 90 jours. Au lieu du but seul, le vainqueur peut dicter un **traité à la carte** (chapitre « La diplomatie », Fin des guerres).
 
+**La coalition contre le conquérant.** Un empire qui a déjà conquis un système et qui tient **35 % des systèmes habités** est mis au vote : la chronique l'annonce à toute la galaxie, et soixante jours plus tard les empires qui le connaissent et ne sont pas ses alliés lui déclarent la guerre, sauf les plus pacifiques. Vous restez libre de vous y joindre ou non. La coalition se dissout quand il retombe sous 25 %. Cette règle vaut pour tout le monde et remplace l'ancienne ligue tacite des voisins de l'Essaim.
+
 **La trêve.** Toute paix ouvre une trêve d'un an plus 7 jours par point de score dépensé, trois ans au plus. La **rompre** reste possible, à grand prix : stabilité -5 pendant un an, lassitude de départ +20 %, et toute la galaxie s'en souvient (-20 ; -40 chez la victime).
 
 **Les noms.** Chaque guerre reçoit un nom selon son but : Guerre des Bannières, Querelle des maisons, Sécession de… La chronique s'en souvient.

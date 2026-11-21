@@ -297,11 +297,11 @@ func _test_growth() -> void:
 func _test_famine_and_blackout() -> void:
 	var sim := Simulation.new(GameState.create(9))
 	var st := sim.state
-	# L'Essaim mange 50 % de plus : 30 pop, c'est bien plus que ce que son monde nourrit.
-	var e := _empire(st, "khthari")
+	# (L'Essaim ne connaît plus la famine : il se mange lui-même, voir equilibrage_tests.)
+	var e := _empire(st, "ossarane")
 	var c: Colony = st.colonies[e.capital_planet]
 	c.population = 30
-	e.resources["food"] = 0
+	e.resources["food"] = -1000  # un manque que le bilan du mois ne comble pas
 	var famine := []
 	sim.chronicle_added.connect(func(entry: Dictionary) -> void:
 		if entry["text"].contains("Famine"):

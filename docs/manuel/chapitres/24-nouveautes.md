@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.62
+
+- **Équilibrage, lot 3 : les peuples principaux.** **L'Essaim se mange lui-même** : plus de famine, ses colonies les plus peuplées digèrent un habitant par mois quand la nourriture manque (30 nourriture chacun) ; **mémoire de l'Essaim** : +6 Savoir par habitant digéré, proie conquise comprise ; **la chasse attend la meute** : première guerre seulement avec 3 colonies et 6 vaisseaux armés. **Murmurants** : le trait Assemblées ouvertes disparaît de leur fiche (influence et énergie normales) ; **le Voile se perce de près** : un système doté de senseurs de niveau 2 sent les colonies voilées de ses voisins immédiats, et les IA qui ont rencontré un peuple voilé équipent leurs frontières. **Coalition publique** contre tout conquérant qui tient 35 % des systèmes habités, annoncée par un vote, à la place des règles tacites contre l'Essaim. Sauvegarde 101 inchangée.
+
 ### Édition 2.61
 
 - **Équilibrage, lot 2 : victoires et économie.** Réglage **Victoire** : aucune victoire proclamée avant l'an 20 par défaut (dès le début, an 10, an 20, an 30), avec une **alerte galactique** quand une condition est remplie plus tôt ; Conquête et Domination ne se partagent plus qu'entre **la moitié des empires vivants au plus** ; **Légende** des Brisecomète à 9 exploits tenus 3 ans, **Grand Rayonnement** tenu 5 ans chez quatre rivaux au moins, **Silence parfait** des Murmurants à 15 % des systèmes de la galaxie tenus 5 ans ; date limite par défaut à **50 ans**. **Plafonds de stock** d'énergie, de matériaux et d'influence, avec leurs débouchés (énergie et matériaux vendus à perte, largesses d'influence : stabilité et intégration) ; l'influence d'une revendication monte de **10 % par système déjà tenu**. Sauvegarde 101 inchangée.
