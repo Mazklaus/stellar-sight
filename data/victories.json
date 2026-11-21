@@ -227,7 +227,7 @@
 			"counter": "Les battre : chaque bataille perdue ternit la légende (réputation -8). Tuer, capturer ou corrompre leurs héros : sans héros, la légende retombe à zéro.",
 			"exploits": 9,
 			"min_reputation": 60,
-			"hold_days": 1080,
+			"hold_days": 1440,
 			"on_fail": "reset",
 			"chronicle": "On ne raconte plus les exploits de %s : on les chante, on les brode, on les vend en feuilletons. La Légende est entrée dans l'histoire, avec quelques arrangements."
 		},

@@ -40,7 +40,7 @@ Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie 
 | La Moisson | Kh'thari | 30 % de la population galactique, 60 population digérée, 3 ans |
 | L'Éveil de la Noosphère | Teyl | 18 colonies reliées sans coupure, 3 ans |
 | La Terre promise | Ferrocornes | Le monde caché colonisé, à 8 sauts du berceau, la flotte-ville y campe 3 ans |
-| La Légende | Brisecomète | 9 exploits sur 11, réputation de 60, 3 ans |
+| La Légende | Brisecomète | 9 exploits sur 11, réputation de 60, 4 ans |
 | Le Silence parfait | Murmurants | 15 % des systèmes de la galaxie, 4 ans sans être repéré |
 | L'Idole des étoiles | Credo Plaisir (éditeur) | Influent chez 60 % de la population étrangère rencontrée, 1 an |
 

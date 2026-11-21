@@ -465,8 +465,8 @@ func _test_legende() -> void:
 	e.reputation = 100
 	_months(st, 14)
 	_ok(st.winner.is_empty(), "un an de Légende ne suffit plus")
-	_months(st, 24)
-	_ok(not st.winner.is_empty(), "trois ans de Légende : victoire (%s)" % str(st.winner))
+	_months(st, 36)
+	_ok(not st.winner.is_empty(), "quatre ans de Légende : victoire (%s)" % str(st.winner))
 
 
 func _test_silence() -> void:
@@ -497,8 +497,8 @@ func _test_silence() -> void:
 	_ok(Victory.held(st, 0, "silence") == 0 and str(Victory.progress(st, 0, "silence")["lines"]).contains("Dernier repérage"), "un repérage : tout est à refaire")
 	_months(st, 38)
 	_ok(st.winner.is_empty(), "trois ans de silence ne suffisent plus")
-	_months(st, 24)
-	_ok(not st.winner.is_empty() and String(st.winner["victory"]) == "silence", "cinq ans de silence : victoire (%s)" % str(st.winner))
+	_months(st, 12)
+	_ok(not st.winner.is_empty() and String(st.winner["victory"]) == "silence", "quatre ans de silence : victoire (%s)" % str(st.winner))
 
 
 func _test_noosphere() -> void:

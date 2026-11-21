@@ -506,7 +506,7 @@ func _test_bloc_cap() -> void:
 func _test_victory_values() -> void:
 	var leg := Victory.info("legende")
 	var ray := Victory.info("rayonnement")
-	_ok(int(leg.get("exploits", 0)) == 9 and int(leg.get("hold_days", 0)) == 1080, "Légende : 9 exploits tenus 3 ans")
+	_ok(int(leg.get("exploits", 0)) == 9 and int(leg.get("hold_days", 0)) == 1440, "Légende : 9 exploits tenus 4 ans")
 	_ok(int(ray.get("min_rivals", 0)) == 4 and int(ray.get("hold_days", 0)) == 1800, "Grand Rayonnement : 4 rivaux au moins, tenu 5 ans")
 	_ok(Victory.default_deadline() == 18000, "date limite par défaut : 50 ans")
 

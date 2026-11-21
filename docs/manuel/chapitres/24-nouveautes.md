@@ -5,7 +5,7 @@ etiquette: Annexe
 ---
 ### Édition 2.63
 
-- **Équilibrage : les victoires de peuple au niveau des autres.** Aucune victoire des huit peuples principaux ne se tient plus moins de **trois ans**, comme la Domination. **L'Élu des routes** : trois ans d'alliance avant chaque union, 100 d'influence par union, quatre ans pour faire naître l'Élu. **Le Dernier Couplet** : quatre cathédrales-chœurs, trois ans de chant. **L'Éveil de la Noosphère** : 18 colonies reliées, trois ans. **La Terre promise** : à huit sauts du berceau, la flotte-ville y campe trois ans. **La Charte des Quarante et Un** : trois ans de ratification. **Le Silence parfait** : quatre ans au lieu de cinq. **La Moisson** : 30 % de la population galactique et 60 population digérée, trois ans. La Légende ne change pas.
+- **Équilibrage : les victoires de peuple au niveau des autres.** Aucune victoire des huit peuples principaux ne se tient plus moins de **trois ans**, comme la Domination. **L'Élu des routes** : trois ans d'alliance avant chaque union, 100 d'influence par union, quatre ans pour faire naître l'Élu. **Le Dernier Couplet** : quatre cathédrales-chœurs, trois ans de chant. **L'Éveil de la Noosphère** : 18 colonies reliées, trois ans. **La Terre promise** : à huit sauts du berceau, la flotte-ville y campe trois ans. **La Charte des Quarante et Un** : trois ans de ratification. **Le Silence parfait** : quatre ans au lieu de cinq. **La Moisson** : 30 % de la population galactique et 60 population digérée, trois ans. **La Légende** : quatre ans au lieu de trois (mesurée la plus rapide des huit).
 
 ### Édition 2.62
 
