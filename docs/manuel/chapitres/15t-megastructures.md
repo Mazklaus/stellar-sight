@@ -27,7 +27,7 @@ Une mégastructure se pose sur un **astre précis** d'un système que vous tenez
 3. L'architecte **reste sur place** jusqu'à ce que le Chantier tienne. S'il part, le Chantier attend. Un Chantier qui ne tient pas encore s'abandonne ; la moitié de son coût revient.
 4. Chaque étape suivante se lance à part, **payée au lancement**. Une étape achevée produit tout de suite.
 
-L'empire n'avance qu'**une étape à la fois** au départ. La **Méga-ingénierie avancée**, le **Grand Architecte** de la cour et le talent des Ferrocornes en ajoutent. Chaque type a sa limite : une par colonie, jusqu'à trois, ou une seule par empire.
+L'empire n'avance qu'**une étape à la fois** au départ. La **Méga-ingénierie avancée**, le **Grand Architecte** de la cour et le talent des Ferrocornes en ajoutent. Chaque type a sa limite : une par colonie, jusqu'à trois, ou une seule par empire. Et l'empire entier a son **plafond** : il ne bâtit que **deux mégastructures, plus une par ère de recherche atteinte** (sept au plus). Les ruines que vous relevez ne comptent pas : une mégastructure doit rester un événement.
 
 ### Le catalogue
 
