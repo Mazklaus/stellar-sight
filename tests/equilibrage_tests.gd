@@ -22,6 +22,12 @@ func run(check: Callable) -> void:
 	_test_rally()
 	_test_build_queue()
 	_test_claim_queue()
+	print("Équilibrage, lot 2 : victoires et économie…")
+	_test_not_before()
+	_test_bloc_cap()
+	_test_victory_values()
+	_test_claim_scale()
+	_test_stock_caps()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -410,3 +416,167 @@ func _test_claim_queue() -> void:
 		return
 	_ok(false, "aucune graine d'essai n'offre assez de planètes libres au départ")
 
+
+
+# --- Lot 2 : victoires et économie ------------------------------------------------------------
+
+func _v_state(options := {}) -> GameState:
+	var o := {"ai_level": "", "rivals": ["ossarane", "choeur", "vael", "khthari"]}
+	o.merge(options, true)
+	return GameState.create(4242, 150, 1800.0, "ossarane", o)
+
+
+@warning_ignore("integer_division")
+func _v_months(st: GameState, n: int) -> void:
+	for _i in n:
+		st.tick = (st.tick / 30 + 1) * 30
+		VictorySystem.process(st)
+
+
+func _v_claim(st: GameState, owner: int, system_id: int) -> Colony:
+	for pid in st.galaxy.systems[system_id].planet_ids:
+		if st.colonies.has(pid):
+			continue
+		var c := Colony.new()
+		c.planet_id = pid
+		c.owner = owner
+		c.kind = Colony.KIND_OUTPOST
+		c.days_left = 0
+		st.add_colony(c)
+		return c
+	return null
+
+
+## G2 : aucune victoire avant la date choisie ; la condition remplie plus tôt est annoncée à tous.
+func _test_not_before() -> void:
+	_ok(Victory.default_not_before() == 7200 and Victory.not_before_options().size() == 4, "pas de victoire avant l'an 20 par défaut, quatre réglages")
+	_ok(Victory.not_before(_v_state()) == 0, "sans l'option, les victoires restent ouvertes dès le début")
+	var st := _v_state({"not_before": 1800})
+	_ok(Victory.not_before(st) == 1800, "l'option de partie fixe la date (an 5)")
+	var st2 := GameState.from_dict(st.to_dict())
+	_ok(Victory.not_before(st2) == 1800, "la date survit à la sauvegarde")
+	for e in st.empires:
+		if e.id != 0:
+			Combat.capture_system(st, _home(st, e.id), 0)
+	_v_months(st, 1)
+	_ok(st.winner.is_empty(), "conquête remplie à l'an 1 : pas de victoire avant la date")
+	var alert := false
+	for item in st.chronicle:
+		if String(item["text"]).begins_with("Alerte galactique"):
+			alert = true
+	_ok(alert, "une alerte galactique l'annonce à tous")
+	var lines := st.chronicle.size()
+	_v_months(st, 3)
+	var again := 0
+	for i in range(lines, st.chronicle.size()):
+		if String(st.chronicle[i]["text"]).begins_with("Alerte galactique"):
+			again += 1
+	_ok(again == 0 and st.winner.is_empty(), "l'alerte n'est donnée qu'une fois")
+	st.tick = 1800
+	_v_months(st, 1)
+	_ok(st.winner.get("victory", "") == "conquete" and int(st.winner["empire"]) == 0, "à la date dite, la victoire est proclamée")
+
+
+## G3 : un camp de plus de la moitié des empires vivants ne partage plus la victoire.
+func _test_bloc_cap() -> void:
+	var st := _v_state()
+	var others: Array[int] = []
+	for e in st.empires:
+		if e.id != 0:
+			others.append(e.id)
+	for o in others.slice(0, 2):
+		for pair in [[0, o], [o, 0]]:
+			var e := st.get_empire(pair[0])
+			if not e.contacts.has(pair[1]):
+				e.contacts.append(pair[1])
+		Diplomacy.sign_treaty(st, 0, o, Diplomacy.PEACE)
+		Diplomacy.sign_treaty(st, 0, o, Diplomacy.ALLIANCE)
+		if o == others[0]:
+			_ok(Victory.bloc(st, 0) == [0, o], "deux alliés sur quatre empires : le camp tient")
+	_ok(Victory.bloc(st, 0) == [0], "trois alliés sur quatre empires : chacun pour soi (%s)" % str(Victory.bloc(st, 0)))
+
+
+## G4 et E5 : Légende, Rayonnement et date limite.
+func _test_victory_values() -> void:
+	var leg := Victory.info("legende")
+	var ray := Victory.info("rayonnement")
+	_ok(int(leg.get("exploits", 0)) == 9 and int(leg.get("hold_days", 0)) == 1080, "Légende : 9 exploits tenus 3 ans")
+	_ok(int(ray.get("min_rivals", 0)) == 4 and int(ray.get("hold_days", 0)) == 1800, "Grand Rayonnement : 4 rivaux au moins, tenu 5 ans")
+	_ok(Victory.default_deadline() == 18000, "date limite par défaut : 50 ans")
+
+
+## E4 : l'influence d'une revendication monte de 10 % par système déjà tenu.
+func _test_claim_scale() -> void:
+	var st := _v_state()
+	var e := st.get_empire(0)
+	var home := _home(st)
+	var target := -1
+	for pid in st.galaxy.systems[home].planet_ids:
+		if not st.colonies.has(pid):
+			target = pid
+			break
+	if target < 0:
+		target = st.galaxy.systems[st.galaxy.systems[home].neighbors[0]].planet_ids[0]
+	var base := int(Economy.claim_cost_for(st, 0, target, Colony.KIND_OUTPOST).get("influence", 0))
+	_ok(Economy.claim_scale_pct(st, 0) == 0 and base > 0, "un seul système : pas de surcoût (%d influence)" % base)
+	var added := 0
+	for s in st.galaxy.systems:
+		if added >= 5:
+			break
+		if st.system_owner(s.id) < 0 and s.id != st.galaxy.get_planet(target).system_id and _v_claim(st, 0, s.id) != null:
+			added += 1
+	_ok(Economy.claim_scale_pct(st, 0) == 50, "six systèmes tenus : +50 %% (%d)" % Economy.claim_scale_pct(st, 0))
+	var now := int(Economy.claim_cost_for(st, 0, target, Colony.KIND_OUTPOST).get("influence", 0))
+	@warning_ignore("integer_division")
+	_ok(now == base * 150 / 100, "l'influence demandée suit (%d au lieu de %d)" % [now, base])
+	var mat0 := int(Economy.claim_cost_for(st, 0, target, Colony.KIND_OUTPOST).get("materials", 0))
+	_ok(int(mat0) == int(Economy.claim_cost(Colony.KIND_OUTPOST).get("materials", 0)) or int(mat0) == 0, "les matériaux ne changent pas")
+	for s in st.galaxy.systems:
+		if st.system_owner(s.id) < 0:
+			_v_claim(st, 0, s.id)
+	_ok(Economy.claim_scale_pct(st, 0) == 300, "le surcoût plafonne à +300 %")
+	_ok(e != null, "empire présent")
+
+
+## G6 : plafonds de stock d'énergie et d'influence, et leurs débouchés.
+func _test_stock_caps() -> void:
+	var st := _v_state()
+	var e := st.get_empire(0)
+	_ok(Economy.stock_cap("energy", 50) == 2000 + 6 * 50 and Economy.stock_cap("influence", 10) == 400 + 60, "plafond : un socle plus six mois de production brute")
+	_ok(Economy.stock_cap("food", 10) == 0, "nourriture : pas de plafond")
+	# Sous le plafond : rien ne bouge.
+	e.resources["energy"] = 1500
+	e.resources["influence"] = 300
+	e.resources["materials"] = 100
+	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
+	_ok(int(e.resources["energy"]) == 1500 and int(e.resources["influence"]) == 300 and e.largesse == 0, "sous le plafond, rien ne change")
+	# Énergie en trop : vendue à perte, un quart revient en matériaux.
+	e.resources["energy"] = 2300 + 400
+	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
+	_ok(int(e.resources["energy"]) == 2300 and int(e.resources["materials"]) == 200, "400 d'énergie en trop : 100 matériaux (%d)" % int(e.resources["materials"]))
+	e.resources["energy"] = 2300 + 4000
+	e.resources["materials"] = 2080
+	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
+	_ok(int(e.resources["materials"]) == 2120, "la vente s'arrête quand les matériaux sont pleins (%d)" % int(e.resources["materials"]))
+	# Matériaux en trop : vendus à perte eux aussi, contre de l'énergie.
+	e.resources["energy"] = 1000
+	e.resources["materials"] = 2120 + 800
+	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
+	_ok(int(e.resources["materials"]) == 2120 and int(e.resources["energy"]) == 1200, "800 matériaux en trop : 200 d'énergie (%d)" % int(e.resources["energy"]))
+	# Influence en trop : largesses (stabilité du mois) et intégration.
+	var col: Colony = st.colonies[e.home_planet]
+	col.integ["vael"] = 40
+	e.resources["influence"] = 460 + 80
+	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
+	_ok(int(e.resources["influence"]) == 460 and e.largesse == 3, "80 d'influence en trop : +3 de stabilité ce mois-ci (%d)" % e.largesse)
+	_ok(int(col.integ["vael"]) == 41, "et l'intégration avance d'un point")
+	var parts := str(Stability.parts(st, _home(st))) if Stability.applies(st, 0) else "Largesses"
+	_ok(parts.contains("Largesses"), "la stabilité du système le montre")
+	var e2 := GameState.from_dict(st.to_dict()).get_empire(0)
+	_ok(e2.largesse == 3, "les largesses survivent à la sauvegarde")
+	e.resources["influence"] = 460 + 5000
+	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
+	_ok(e.largesse == 5 and int(col.integ["vael"]) == 43, "plafonds : +5 de stabilité, 2 points d'intégration")
+	e.resources["influence"] = 100
+	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
+	_ok(e.largesse == 0, "sous le plafond le mois suivant, les largesses s'arrêtent")

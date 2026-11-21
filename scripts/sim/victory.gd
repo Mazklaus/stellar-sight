@@ -76,7 +76,7 @@ static func rule_text(id: String) -> String:
 		"legende":
 			return t % [int(v["exploits"]), int(v["min_reputation"]), maxi(1, years)]
 		"silence":
-			return t % [int(v["colonies"]), years]
+			return t % [int(v["systems_pct"]), years]
 		"spirituelle":
 			return t % [int(v["share_pct"]), years]
 		"rayonnement":
@@ -132,6 +132,23 @@ static func deadline_days_for(option_id: String) -> int:
 
 static func default_deadline() -> int:
 	return maxi(0, deadline_days_for(String(data().get("default_deadline", ""))))
+
+
+## Réglage « Pas de victoire avant l'an … » (étude d'équilibrage, G2) : options du menu, valeur par
+## défaut du menu, et jour avant lequel aucune victoire n'est proclamée dans cette partie (0 = aucun).
+static func not_before_options() -> Array:
+	return data().get("not_before", [])
+
+
+static func default_not_before() -> int:
+	for d: Dictionary in not_before_options():
+		if String(d["id"]) == String(data().get("default_not_before", "")):
+			return int(d["days"])
+	return 0
+
+
+static func not_before(state: GameState) -> int:
+	return int(state.victory_rules.get("not_before", 0))
 
 
 ## Date limite de la partie en jours (0 = sans date limite).
@@ -410,6 +427,21 @@ static func bloc(state: GameState, empire_id: int) -> Array[int]:
 		if not state.get_empire(s).eliminated and not out.has(s) and (Vassals.bond_days(state, s) >= grace or Vassals.is_court(state, s)):
 			out.append(s)
 	out.sort()
+	# Alliance bornée (étude d'équilibrage, G3) : un bloc qui réunit plus de la moitié des empires en
+	# vie ne conquiert ni ne domine ensemble, chacun n'y compte alors que pour lui (et ses sujets).
+	var cap_pct := int(data().get("bloc_max_pct", 0))
+	if cap_pct > 0 and out.size() > 1:
+		var alive := 0
+		for e in state.empires:
+			if not e.eliminated:
+				alive += 1
+		if out.size() * 100 > alive * cap_pct:
+			var alone: Array[int] = [empire_id]
+			for s in Vassals.subjects_of(state, empire_id):
+				if out.has(s):
+					alone.append(s)
+			alone.sort()
+			return alone
 	return out
 
 
@@ -853,16 +885,18 @@ static func _legende(state: GameState, e: Empire, out: Dictionary) -> void:
 
 ## Le Silence parfait (archétype Énergétique) : assez de colonies peuplées, et pas un repérage depuis
 ## le dernier bilan (VictorySystem vérifie tous les check_days) ; un repérage remet tout à zéro.
+## Systèmes à tenir pour le Silence parfait : une part de la galaxie (équilibrage B6), arrondie au-dessus.
+@warning_ignore("integer_division")
+static func silence_needed(state: GameState) -> int:
+	return maxi(1, (state.galaxy.systems.size() * int(info("silence")["systems_pct"]) + 99) / 100)
+
+
 static func _silence(state: GameState, e: Empire, out: Dictionary) -> void:
-	var want := int(info("silence")["colonies"])
-	var n := 0
-	for pid in state.colonies:
-		var c: Colony = state.colonies[pid]
-		if c.owner == e.id and c.is_established():
-			n += 1
+	var want := silence_needed(state)
+	var n := systems_held(state, e.id)
 	var since := -1 if e.spotted_tick < 0 else state.tick - e.spotted_tick
 	var quiet := since < 0 or since > int(data().get("check_days", 30))
-	out["lines"].append("Colonies peuplées : %d / %d" % [n, want])
+	out["lines"].append("Systèmes tenus : %d / %d" % [n, want])
 	if since < 0:
 		out["lines"].append("Jamais repéré")
 	else:

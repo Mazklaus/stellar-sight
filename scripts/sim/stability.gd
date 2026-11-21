@@ -461,6 +461,9 @@ static func parts(state: GameState, sid: int, cx := {}) -> Array:
 			if state.system_owner(n) == owner and int(entry(state, n).get("v", 50)) < int(tiers()[1]["min"]):
 				out.append(["Nœud voisin en révolte", int(tal["revolt_neighbors"])])
 				break
+	# Largesses : l'influence au-delà du plafond de stock (équilibrage G6).
+	if state.get_empire(owner) != null and state.get_empire(owner).largesse != 0:
+		out.append(["Largesses de l'influence", state.get_empire(owner).largesse])
 	# Suite d'un événement (voir Events).
 	if en.has("ev_end") and state.tick < int(en["ev_end"]):
 		var card := String(en.get("ev_card", ""))

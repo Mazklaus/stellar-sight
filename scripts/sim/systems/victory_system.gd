@@ -53,8 +53,22 @@ static func _monthly(state: GameState, every: int, added: Array[Dictionary]) -> 
 			rec["warn"] = level
 			e.victory[id] = rec
 			if bool(p["won"]) or (hold > 0 and int(rec.get("held", 0)) >= hold and Victory.has_tech(state, e.id, id)):
+				# « Pas de victoire avant l'an … » : la condition remplie trop tôt est annoncée à tous, et
+				# proclamée à la date si elle tient encore.
+				var nb := Victory.not_before(state)
+				if state.tick < nb:
+					if int(rec.get("early", 0)) == 0:
+						rec["early"] = 1
+						e.victory[id] = rec
+						@warning_ignore("integer_division")
+						added.append(state.add_chronicle("Alerte galactique : %s a rempli toutes les conditions de %s. La victoire sera proclamée à l'an %d si personne ne l'en empêche d'ici là." % [
+								e.display_name(), Victory.label(id), nb / GameCalendar.DAYS_PER_YEAR + 1], Espionage.public_to(state, [e.id])))
+					continue
 				_proclaim(state, e.id, id, added)
 				return
+			elif int(rec.get("early", 0)) != 0:
+				rec.erase("early")
+				e.victory[id] = rec
 
 
 static func _warning(e: Empire, id: String, at: int) -> String:

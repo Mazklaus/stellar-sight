@@ -142,7 +142,7 @@ static func fund(state: GameState, eid: int, res: String, added: Array[Dictionar
 	e.resources[res] = int(e.resources.get(res, 0)) - pack
 	var nm := nem(state)
 	nm["fund"] = int(nm["fund"]) + pack
-	if int(nm["fund"]) >= int(nm["need"]) and state.winner.is_empty():
+	if int(nm["fund"]) >= int(nm["need"]) and state.winner.is_empty() and state.tick >= Victory.not_before(state):
 		state.winner = {"empire": eid, "victory": "fleau", "tick": state.tick, "allies": []}
 		added.append(state.add_chronicle(Victory.chronicle_text("fleau", e, [], state)))
 

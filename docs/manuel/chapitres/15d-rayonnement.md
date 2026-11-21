@@ -106,7 +106,7 @@ Prendre le système d'un **Musée galactique** emporte ses reliques exposées ; 
 
 ### Victoires
 
-**Le Grand Rayonnement** (victoire classique, cochée par défaut) : être au moins **Influent** chez chaque empire survivant rencontré (au moins deux) et le tenir **deux ans**. Le compte à rebours se met en pause quand un empire vous échappe. Toute la galaxie est prévenue quand votre culture est Influente chez la moitié, puis les trois quarts des empires.
+**Le Grand Rayonnement** (victoire classique, cochée par défaut) : être au moins **Influent** chez chaque empire survivant rencontré (au moins quatre) et le tenir **cinq ans**. Le compte à rebours se met en pause quand un empire vous échappe. Toute la galaxie est prévenue quand votre culture est Influente chez la moitié, puis les trois quarts des empires.
 
 **L'Idole des étoiles** (victoire de peuple du credo **Plaisir**, nouveau credo de l'éditeur d'espèces) : être Influent chez des empires qui réunissent **60 %** de la population étrangère rencontrée, et le tenir un an.
 

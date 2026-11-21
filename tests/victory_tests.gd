@@ -112,7 +112,7 @@ func _test_data() -> void:
 
 func _test_rules() -> void:
 	var st := _state()
-	_ok(Victory.deadline(st) == Victory.default_deadline() and Victory.default_deadline() == 21600, "date limite par défaut : 60 ans")
+	_ok(Victory.deadline(st) == Victory.default_deadline() and Victory.default_deadline() == 18000, "date limite par défaut : 50 ans")
 	_ok(Victory.enabled(st, "score") and Victory.enabled(st, "elu"), "score et victoires de peuple en jeu par défaut")
 	var st2 := _state("ossarane", {"deadline": 0, "people_victories": false})
 	_ok(not Victory.enabled(st2, "score") and not Victory.enabled(st2, "elu") and Victory.enabled(st2, "conquete"), "sans date limite ni victoires de peuple")
@@ -458,20 +458,23 @@ func _test_legende() -> void:
 	Reputation.exploit(st, 0, "contrat")
 	_months(st, 1)
 	pr = Victory.progress(st, 0, "legende")
-	_ok(pr["cond"] and int(pr["pct"]) >= Victory.met_at(), "sept exploits et la réputation : le compte à rebours démarre")
+	_ok(pr["cond"] and int(pr["pct"]) >= Victory.met_at(), "les exploits et la réputation : le compte à rebours démarre")
 	e.reputation = min_rep - 1
 	_months(st, 1)
 	_ok(Victory.held(st, 0, "legende") == 0, "la réputation retombe sous %d : tout est à refaire" % min_rep)
 	e.reputation = 100
 	_months(st, 14)
-	_ok(not st.winner.is_empty(), "un an de Légende : victoire (%s)" % str(st.winner))
+	_ok(st.winner.is_empty(), "un an de Légende ne suffit plus")
+	_months(st, 24)
+	_ok(not st.winner.is_empty(), "trois ans de Légende : victoire (%s)" % str(st.winner))
 
 
 func _test_silence() -> void:
 	var st := _state("murmurants")
 	var e := st.get_empire(0)
 	_ok(Array(Victory.ids_for(st, 0)).has("silence") and not Array(Victory.ids_for(st, 1)).has("silence"), "Silence parfait : visé par l'archétype Énergétique seulement")
-	var want := int(Victory.info("silence")["colonies"])
+	var want := Victory.silence_needed(st)
+	_ok(want == 23, "Silence parfait : 15 %% des 150 systèmes (%d)" % want)
 	var d := FactionTraits.jumps_from(st.galaxy, _home_system(st, 0))
 	var order: Array = d.keys()
 	order.sort()
@@ -485,7 +488,7 @@ func _test_silence() -> void:
 	Research.grant(st, 0, ["silence_parfait"])
 	_months(st, 1)
 	var pr := Victory.progress(st, 0, "silence")
-	_ok(pr["cond"] and str(pr["lines"]).contains("Jamais repéré"), "%d colonies, jamais repérés : le compte à rebours démarre (%s)" % [want, str(pr["lines"])])
+	_ok(pr["cond"] and str(pr["lines"]).contains("Jamais repéré"), "%d systèmes, jamais repérés : le compte à rebours démarre (%s)" % [want, str(pr["lines"])])
 	_months(st, 6)
 	_ok(Victory.held(st, 0, "silence") >= 150, "le silence tient")
 	Veil.spot(st, 0, 1)
@@ -493,7 +496,9 @@ func _test_silence() -> void:
 	_months(st, 1)
 	_ok(Victory.held(st, 0, "silence") == 0 and str(Victory.progress(st, 0, "silence")["lines"]).contains("Dernier repérage"), "un repérage : tout est à refaire")
 	_months(st, 38)
-	_ok(not st.winner.is_empty() and String(st.winner["victory"]) == "silence", "trois ans de silence : victoire (%s)" % str(st.winner))
+	_ok(st.winner.is_empty(), "trois ans de silence ne suffisent plus")
+	_months(st, 24)
+	_ok(not st.winner.is_empty() and String(st.winner["victory"]) == "silence", "cinq ans de silence : victoire (%s)" % str(st.winner))
 
 
 func _test_noosphere() -> void:

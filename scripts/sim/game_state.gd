@@ -303,6 +303,8 @@ static func create(seed_value_: int, system_count_: int = 150, galaxy_radius_: f
 	s.victory_rules = default_victory_rules()
 	s.victory_rules["deadline"] = maxi(0, int(options.get("deadline", Victory.default_deadline())))
 	s.victory_rules["people"] = bool(options.get("people_victories", true))
+	if int(options.get("not_before", 0)) > 0:
+		s.victory_rules["not_before"] = int(options["not_before"])  # écrit seulement s'il sert
 	var vic: Dictionary = options.get("victories", {})
 	for k in ["conquete", "domination", "allies"]:
 		s.victory_rules[k] = bool(vic.get(k, true))
@@ -778,6 +780,8 @@ static func from_dict(d: Dictionary) -> GameState:
 	var vr: Dictionary = d.get("victory_rules", {})
 	s.victory_rules = default_victory_rules()
 	s.victory_rules["deadline"] = int(vr.get("deadline", 0))
+	if int(vr.get("not_before", 0)) > 0:
+		s.victory_rules["not_before"] = int(vr["not_before"])
 	for k in ["people", "conquete", "domination", "allies"]:
 		s.victory_rules[k] = bool(vr.get(k, true))
 	s.victory_rules["spirituelle"] = bool(vr.get("spirituelle", false))
