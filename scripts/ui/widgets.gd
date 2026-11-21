@@ -396,6 +396,8 @@ class ArtSlot:
 			return
 		var p := art_path(art_id)
 		_tex.texture = load(p) as Texture2D if p != "" else null
+		# Essai « portraits animés » : une illustration de personnage respire, regarde, cligne.
+		PortraitMotion.attach(self, _tex, art_id)
 
 	func _draw() -> void:
 		var r := Rect2(Vector2.ZERO, size)
