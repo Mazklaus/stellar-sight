@@ -41,6 +41,7 @@ static func process(state: GameState, events: Array = []) -> Array[Dictionary]:
 	_repairs(state, fought)
 	_eliminations(state, added)
 	_hunger(state, added)
+	_coalitions(state, added)
 	return added
 
 
@@ -52,12 +53,68 @@ static func _hunger(state: GameState, added: Array[Dictionary]) -> void:
 	for e in state.empires:
 		if e.eliminated or not Combat.hunts(state, e.id) or Combat.has_live_war(state, e.id):
 			continue
+		if not Combat.pack_ready(state, e.id):
+			continue  # la chasse attend la meute (équilibrage B4)
 		var prey := Combat.nearest_prey(state, e.id)
 		if prey < 0:
 			continue
 		Combat.start_war(state, e.id, prey, true, true)
+		Research.count_stat(state, e.id, "hunts")
 		added.append(state.add_chronicle("%s a fini de digérer. Il flaire %s, et se met en chasse : c'est la guerre." % [
 				e.display_name(), state.get_empire(prey).display_name()], Espionage.public_to(state, [e.id, prey])))
+
+
+## Coalition publique contre un conquérant (équilibrage G5, à la place des règles cachées contre
+## l'Essaim) : un empire qui a déjà conquis et tient 35 % des systèmes habités est mis au vote, annoncé
+## à tous ; soixante jours plus tard, les IA qui le connaissent et ne lui sont pas liées lui déclarent
+## la guerre (sauf les pacifiques). Le joueur décide pour lui-même. Sous 25 %, la coalition se dissout.
+static func _coalitions(state: GameState, added: Array[Dictionary]) -> void:
+	if state.tick % 30 != 0:
+		return
+	var co: Dictionary = GameData.rules().get("coalition", {})
+	if co.is_empty():
+		return
+	var held := {}
+	var total := 0
+	for e in state.empires:
+		if e.eliminated or GameState.is_npc(e.id):
+			continue
+		held[e.id] = Victory.systems_held(state, e.id)
+		total += int(held[e.id])
+	if total <= 0:
+		return
+	for e in state.empires:
+		if not held.has(e.id):
+			continue
+		var at := int(e.stats.get("coalition", 0))
+		var share := int(held[e.id]) * 100
+		if at == 0:
+			if int(e.stats.get("conquests", 0)) > 0 and share >= int(co["systems_pct"]) * total and held.size() >= 3:
+				e.stats["coalition"] = state.tick + int(co["vote_days"])
+				added.append(state.add_chronicle("Vote de coalition : %s tient %d %% des systèmes habités après ses conquêtes. Dans %d jours, la galaxie décide de s'unir contre lui." % [
+						e.display_name(), share / total, int(co["vote_days"])]))
+			continue
+		if share < int(co["end_pct"]) * total:
+			e.stats.erase("coalition")
+			added.append(state.add_chronicle("La coalition contre %s se dissout : il ne fait plus peur à personne." % e.display_name()))
+			continue
+		if at < 0 or state.tick < at:
+			continue
+		e.stats["coalition"] = -1  # vote tenu
+		var joined: Array[String] = []
+		for o in state.empires:
+			if o.id == e.id or not held.has(o.id) or not o.is_ai() or not o.contacts.has(e.id) or o.wars.has(e.id):
+				continue
+			if AiLevels.aggression(o) <= -2 or Diplomacy.allied(state, o.id, e.id):
+				continue
+			if SimCommands.validate(state, SimCommands.declare_war(o.id, e.id)) != "":
+				continue
+			SimCommands.apply(state, SimCommands.declare_war(o.id, e.id))
+			joined.append(o.short_name())
+		if joined.is_empty():
+			added.append(state.add_chronicle("Vote de coalition contre %s : personne ne se lève. On reparlera de courage une autre fois." % e.display_name()))
+		else:
+			added.append(state.add_chronicle("Vote de coalition contre %s : %s lui déclare%s la guerre." % [e.display_name(), ", ".join(joined), "nt" if joined.size() > 1 else ""]))
 
 
 ## Mise en route avant le saut : tant que ses moteurs chargent, une flotte qui veut partir est encore

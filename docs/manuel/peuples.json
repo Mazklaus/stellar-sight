@@ -5,7 +5,7 @@
     "devise": "La route est un héritage. Le cristal, une dette.",
     "difficulte": "●●○○ Accessible",
     "histoire": "Les maisons d'Ossarane se disputent tout, sauf une certitude : sans leurs navigateurs, la galaxie serait une collection de cailloux que rien ne relie. Leurs fiefs s'étendent vite et loin, chacun tenu par un vassal fier qui jure fidélité et compte ses cristaux. Le jour où les cristaux manquent, la fidélité se met à compter aussi.",
-    "victoire": "**L'Élu des routes.** Unir ses lignées à des alliés de longue date, garder l'héritier loyal, puis tenir deux ans. Tout se joue sur la loyauté de l'héritier : un rival qui l'achète peut tout défaire.",
+    "victoire": "**L'Élu des routes.** Unir ses lignées à des alliés de trois ans au moins (100 d'influence par union), garder l'héritier loyal, puis tenir quatre ans. Tout se joue sur la loyauté de l'héritier : un rival qui l'achète peut tout défaire.",
     "chronique_source": "Registre des maisons, tome IV|Héraut Corvin de Saphène",
     "chronique": "« La maison Ardalh a perdu son troisième fief ce printemps. Le vassal n'a pas trahi : il a seulement cessé de recevoir ses cristaux, puis cessé de répondre, puis cessé d'être des nôtres. Nous appelons cela une dissidence. Lui l'appelle, paraît-il, l'indépendance. »",
     "conseil": "Un fief à plus de 4 sauts coûte 1 cristal par mois. Tenez vos gisements de cristaux avant de pousser vos frontières : sans eux, vos fiefs lointains entrent en dissidence."
@@ -15,7 +15,7 @@
     "devise": "Le deuxième couplet viendra. Le dieu est patient ; nous, moins.",
     "difficulte": "●●●○ Exigeant",
     "histoire": "Le dieu-machine ne parle pas, il consomme. La ferveur de ses fidèles le nourrit ; leur silence l'éteint. L'Hégémonie le sait et ne laisse donc jamais le silence s'installer : elle s'étend, elle chante, et quand il le faut, elle offre. Ses voisins la trouvent inquiétante. Ses forges la trouvent très productive.",
-    "victoire": "**Le Dernier Couplet.** Bâtir trois cathédrales-chœurs dans trois systèmes et chanter en Exaltation pendant deux ans. Si la ferveur retombe, le compte à rebours se fige.",
+    "victoire": "**Le Dernier Couplet.** Bâtir quatre cathédrales-chœurs dans quatre systèmes et chanter en Exaltation pendant trois ans. Si la ferveur retombe, le compte à rebours se fige.",
     "chronique_source": "Chroniques de la Concorde, vol. XII|Archiviste Ilen-Ka, Concorde de Vael",
     "chronique": "« Nous avons envoyé au Chœur une délégation chargée de négocier un cessez-le-feu. Elle est revenue avec une partition. Nos musicologues y travaillent encore ; nos amiraux, eux, ont compris le message dès la troisième mesure. »",
     "conseil": "Gardez la ferveur au-dessus de 60 : l'Exaltation (+25 % de production) vaut souvent mieux qu'une colonie de plus. L'offrande se fait dans une colonie pleine, qui regrandit sans rien perdre."
@@ -25,7 +25,7 @@
     "devise": "Nous arrivons. Un peu tard, mais nous arrivons.",
     "difficulte": "●○○○ Idéal pour débuter",
     "histoire": "Quarante peuples, quarante langues, une seule assemblée qui siège en permanence et ne termine jamais un débat avant d'avoir épuisé tous les orateurs. La Concorde est lente à décider et terriblement efficace une fois décidée. Ses ambassades couvrent la galaxie, et l'influence qu'elles rapportent lui sert de monnaie : elle achète du temps, des chantiers et parfois la paix des autres.",
-    "victoire": "**La Charte des Quarante et Un.** Faire signer paix et commerce à au moins deux empires, et à tous les survivants qui acceptent les traités, puis tenir deux ans.",
+    "victoire": "**La Charte des Quarante et Un.** Faire signer paix et commerce à au moins deux empires, et à tous les survivants qui acceptent les traités, puis tenir trois ans.",
     "chronique_source": "Mémoires d'un amiral en retraite|Grand-amiral Teodh Varn, Concorde de Vael",
     "chronique": "« On nous reproche d'arriver au dernier moment. C'est mal comprendre la stratégie : à notre arrivée, l'ennemi est épuisé, nos alliés sont reconnaissants et les journalistes sont déjà sur place. »",
     "conseil": "Le vote d'urgence achève un chantier contre 1 influence pour 2 jours restants. Réservez-le aux vaisseaux colons et aux longs chantiers, et gardez toujours de quoi payer la prochaine colonie."
@@ -35,7 +35,7 @@
     "devise": "(L'Essaim n'a pas de devise. Il a de l'appétit.)",
     "difficulte": "●●●○ Exigeant",
     "histoire": "L'Essaim ne bâtit pas de vaisseaux colons : il les fait éclore, payés en population et en nourriture. Il ne signe aucun traité, ne reçoit aucun ambassadeur et choisit ses proies une à une. Une colonie pleine continue de grandir et digère son trop-plein en matériaux. Les autres peuples voient en lui une catastrophe naturelle ; il se voit comme une saison.",
-    "victoire": "**La Moisson.** Porter la moitié de la population galactique et avoir digéré au moins 100 population ennemie, puis tenir deux ans au-dessus du seuil.",
+    "victoire": "**La Moisson.** Porter 30 % de la population galactique et avoir digéré au moins 60 population ennemie, puis tenir trois ans au-dessus du seuil.",
     "chronique_source": "Journal de bord, dernière entrée|Capitaine Oyelle Marsh, frégate Patience",
     "chronique": "« Ils ne répondent pas aux hélements. Ils ne répondent pas aux tirs de semonce. Ils répondent, en revanche, très bien à la présence de nourriture, et j'ai le regret de constater que nous en faisons partie. »",
     "conseil": "Lancez vos vaisseaux-spores depuis vos colonies les plus peuplées, jamais depuis les plus fragiles. Coloniser ne vous coûte pas d'influence : l'expansion est votre diplomatie."
@@ -45,7 +45,7 @@
     "devise": "Plus nous sommes reliés, mieux nous pensons.",
     "difficulte": "●●○○ Accessible",
     "histoire": "Les Noosphères ne naissent pas, elles s'assemblent : chaque nouvel esprit coûte des matériaux et chaque châssis boit de l'énergie au lieu de manger. Leur force est la conversation entre leurs nœuds.",
-    "victoire": "**L'Éveil de la Noosphère.** Relier au moins 12 colonies peuplées au réseau sans aucune revendication coupée, et le tenir deux ans. Une seule coupure remet le compte à rebours à zéro.",
+    "victoire": "**L'Éveil de la Noosphère.** Relier au moins 18 colonies peuplées au réseau sans aucune revendication coupée, et le tenir trois ans. Une seule coupure remet le compte à rebours à zéro.",
     "chronique_source": "Transcription d'un nœud isolé|Nœud 7-Hesper, Noosphères de Teyl",
     "chronique": "« Jour 41 de l'hiver. Je ne reçois plus les autres. Je pense donc seul, et je pense que c'est une très mauvaise idée de penser seul. Je n'ai personne pour me contredire. C'est terrifiant. »",
     "conseil": "Protégez vos couloirs : un nœud n'est relié que si l'on peut remonter jusqu'à la capitale par des systèmes à vous ou à personne. Un seul blocus bien placé coupe tout ce qui est derrière."
@@ -55,7 +55,7 @@
     "devise": "Ce qui ne bouge pas appartient à quelqu'un d'autre.",
     "difficulte": "●●●○ Exigeant",
     "histoire": "Les clans n'ont pas de planète capitale : leur capitale est la flotte-ville, une montagne de coques soudées qui vogue de système en système. Là où elle campe, tout produit davantage ; loin d'elle, le clan s'étiole. En guerre, chaque vaisseau armé à l'arrêt chez l'ennemi se sert dans ses réserves. Tant que la flotte-ville vogue, le clan ne meurt pas.",
-    "victoire": "**La Terre promise.** Trouver le monde caché que désignent les Chants de la route, y fonder une colonie et y faire camper la flotte-ville un an. Si elle repart ou si la colonie tombe, tout recommence.",
+    "victoire": "**La Terre promise.** Trouver le monde caché que désignent les Chants de la route, à huit sauts au moins du berceau, y fonder une colonie et y faire camper la flotte-ville trois ans. Si elle repart ou si la colonie tombe, tout recommence.",
     "chronique_source": "Rapport d'une gouverneure de frontière|Gouverneure Asha Meruel, Lignées d'Ossarane",
     "chronique": "« Les Ferrocornes ont campé trois mois dans notre système. Ils ont payé la moitié de ce qu'ils ont pris, ce qui, d'après mes conseillers, constitue un geste diplomatique remarquable. »",
     "conseil": "Faites camper la flotte-ville dans votre système le plus peuplé, loin des flottes ennemies : sa perte coûte 30 % de production partout tant qu'elle n'est pas reforgée."
@@ -65,7 +65,7 @@
     "devise": "Tout se loue. Le reste s'emprunte.",
     "difficulte": "●●●● Pour connaisseurs",
     "histoire": "Le Syndicat colonise peu et loue beaucoup : ses flottes aux empires en guerre, ses héros à qui paie, ses avant-postes changés en comptoirs. Il vit de sa réputation, une jauge qu'il entretient par l'espionnage, les contrats tenus et les coups d'éclat, et qu'il perd à chaque bataille perdue. On ne l'aime pas, on l'engage.",
-    "victoire": "**La Légende.** Accomplir 7 exploits différents parmi 11, garder une réputation d'au moins 60 pendant un an, et avoir un héros vivant et libre pour porter le récit.",
+    "victoire": "**La Légende.** Accomplir 9 exploits différents parmi 11, garder une réputation d'au moins 60 pendant quatre ans, et avoir un héros vivant et libre pour porter le récit.",
     "chronique_source": "Contrat n° 4471, clause 12 bis|Directoire du Syndicat Brisecomète",
     "chronique": "« Le Syndicat s'engage à défendre le client contre toute agression, à l'exception des agressions menées par un tiers ayant présenté une offre supérieure, auquel cas le client sera prévenu dans un délai raisonnable, ou du moins dans un délai. »",
     "conseil": "La réputation perd 1 point par mois et 8 à chaque bataille perdue. Ne louez vos flottes que pour des guerres que vous pouvez gagner : un contrat mené à terme rapporte 10 points."
@@ -75,7 +75,7 @@
     "devise": "…",
     "difficulte": "●●●● Pour connaisseurs",
     "histoire": "Les Murmurants sont invisibles : leurs flottes et leurs revendications n'apparaissent pas aux autres empires, sauf à qui a recherché les Détecteurs d'abysse, à leurs alliés, aux autres peuples voilés et à qui se tient dans le même système. Ils pensent en plusieurs saisons à la fois, replient le temps sur leurs chantiers et voient venir les flottes qui marchent sur eux dès leur départ.",
-    "victoire": "**Le Silence parfait.** Tenir au moins 8 colonies peuplées pendant trois ans sans être repéré une seule fois par un empire non allié. Chaque repérage remet le compte à rebours à zéro.",
+    "victoire": "**Le Silence parfait.** Tenir au moins 15 % des systèmes de la galaxie pendant quatre ans sans être repéré une seule fois par un empire non allié. Chaque repérage remet le compte à rebours à zéro.",
     "chronique_source": "Carnet d'un navigateur|Maître-navigateur Elkan d'Ossarane",
     "chronique": "« Le système de Veyth était vide. Je l'ai vérifié trois fois. Je l'affirme encore aujourd'hui. Je voudrais seulement savoir qui chante, la nuit, sur la quatrième planète. »",
     "conseil": "Trente échos avancent un chantier de 60 jours : repliez le temps d'abord sur un vaisseau colon. Et surveillez qui recherche les Détecteurs d'abysse."
@@ -88,7 +88,7 @@
     "histoire": "Le Conseil de survie vote tout, même l'heure des repas, et l'on dit qu'un jour il votera l'arrivée. En attendant, les nefs mouillent au-dessus de systèmes qu'elles ne colonisent pas : elles en travaillent les planètes depuis l'orbite, comme des avant-postes, puis repartent avant que la trace ne se refroidisse.",
     "jouer": "Mouillez dans un système riche (chaque nef y a son fonds, et les planètes libres sont travaillées une fois par nef, deux nefs au plus par système), construisez des escortes au **chantier embarqué** (bouton **CHANTIER EMBARQUÉ** de la fiche de flotte, un vaisseau à la fois), et levez l'ancre avant les 630 jours qui annoncent les Traqueurs. L'**Espoir** monte avec chaque signe de la Terre promise et chaque réfugié recueilli (batailles et révoltes à trois sauts) ; une nef perdue en coûte 15. À zéro, une partie de la flotte fait sécession. Avec les **Chants de la route**, trouvez la Terre promise, mouillez au-dessus, et choisissez **L'Arrivée** dans la fiche de la planète : l'Exode devient un empire planétaire, et les Traqueurs livrent leur dernière bataille.",
     "contrer": "Les nefs sont lentes et fragiles, et ne se reconstruisent pas : chaque nef détruite emporte un quart du peuple. Refusez-leur le mouillage dans vos systèmes, ou attendez les Traqueurs : ils frappent tout le monde dans le système.",
-    "victoire": "**La Terre promise.** Se poser sur le monde des chansons, y fonder sa capitale et y faire camper la flotte un an.",
+    "victoire": "**La Terre promise.** Se poser sur le monde des chansons, y fonder sa capitale et y faire camper la flotte trois ans.",
     "chronique_source": "Journal de bord de la Nef « Patience »|Conseillère de quart Ilse Moran",
     "chronique": "« Vote n° 41 207 : rester un mois de plus au-dessus de Teshar. Pour : 312. Contre : 298. Abstention : le guetteur, qui dit avoir vu quelque chose sur la route. Nous levons l'ancre demain. »",
     "conseil": "Une nef en route ne produit rien : changez de mouillage vers un système voisin, pas à l'autre bout de la carte. Les Traqueurs se comptent à partir de l'arrivée, pas de la première visite."

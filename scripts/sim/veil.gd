@@ -5,7 +5,8 @@ extends RefCounted
 ## - à ceux qui ont la technologie qui perce le voile (champ "veil" "tech" de la fiche) ;
 ## - aux autres peuples voilés (ils se reconnaissent) et aux alliés (vision partagée) ;
 ## - dans un système où l'observateur a lui-même une flotte à l'arrêt ou une revendication : de si
-##   près, la présence se sent.
+##   près, la présence se sent ;
+## - dans un système voisin d'un système de l'observateur doté de senseurs de niveau 2 (B7).
 ## Le spectateur voit tout. La mémoire de carte (Intel) et l'IA n'enregistrent que ce qui se voit.
 ## Un peuple voilé vu par un empire non allié est « repéré » (Empire.spotted_tick), ce que compte la
 ## victoire du Silence parfait.
@@ -52,6 +53,14 @@ static func near(state: GameState, viewer: int) -> Dictionary:
 		var f: Fleet = state.fleets[fid]
 		if f.owner == viewer and not f.is_moving():
 			out[f.system_id] = true
+	# Le Voile se perce de près (équilibrage B7) : un système de l'observateur doté de senseurs de
+	# niveau 2 (technologie ou bâtiment de détection) sent aussi ses voisins immédiats.
+	var need := int(GameData.rules().get("veil_near_detect", 0))
+	if need > 0:
+		for src: Array in Stealth.sources(state, viewer):
+			if int(src[3]) == 1 and int(src[2]) >= need and state.system_owner(int(src[0])) == viewer:
+				for n in state.galaxy.systems[int(src[0])].neighbors:
+					out[n] = true
 	return out
 
 

@@ -28,6 +28,12 @@ func run(check: Callable) -> void:
 	_test_victory_values()
 	_test_claim_scale()
 	_test_stock_caps()
+	print("Équilibrage, lot 3 : peuples principaux…")
+	_test_self_digest()
+	_test_coalition()
+	_test_veil_near()
+	_test_murmurants_sheet()
+	_test_people_victories()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -500,7 +506,7 @@ func _test_bloc_cap() -> void:
 func _test_victory_values() -> void:
 	var leg := Victory.info("legende")
 	var ray := Victory.info("rayonnement")
-	_ok(int(leg.get("exploits", 0)) == 9 and int(leg.get("hold_days", 0)) == 1080, "Légende : 9 exploits tenus 3 ans")
+	_ok(int(leg.get("exploits", 0)) == 9 and int(leg.get("hold_days", 0)) == 1440, "Légende : 9 exploits tenus 4 ans")
 	_ok(int(ray.get("min_rivals", 0)) == 4 and int(ray.get("hold_days", 0)) == 1800, "Grand Rayonnement : 4 rivaux au moins, tenu 5 ans")
 	_ok(Victory.default_deadline() == 18000, "date limite par défaut : 50 ans")
 
@@ -580,3 +586,137 @@ func _test_stock_caps() -> void:
 	e.resources["influence"] = 100
 	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
 	_ok(e.largesse == 0, "sous le plafond le mois suivant, les largesses s'arrêtent")
+
+
+# --- Lot 3 : peuples principaux -----------------------------------------------------------------
+
+func _id_of(st: GameState, faction: String) -> int:
+	for e in st.empires:
+		if e.faction_id == faction:
+			return e.id
+	return -1
+
+
+## B2 et B3 : l'Essaim se mange lui-même au lieu de subir la famine, et apprend en mangeant.
+func _test_self_digest() -> void:
+	var st := _v_state()
+	var kh := st.get_empire(_id_of(st, "khthari"))
+	var home: Colony = st.colonies[kh.home_planet]
+	var pop := home.population
+	kh.resources["food"] = -40
+	kh.resources["knowledge"] = 0
+	var added: Array[Dictionary] = []
+	EconomySystem._self_digest(st, kh, added)
+	_ok(home.population == pop - 1 and int(kh.resources["food"]) == -10, "nourriture à -40 : la capitale digère un habitant (30 nourriture)")
+	_ok(int(kh.resources["knowledge"]) == 6, "un habitant digéré : +6 Savoir (%d)" % int(kh.resources["knowledge"]))
+	_ok(added.size() == 1 and int(kh.stats.get("self_digested", 0)) == 1, "la chronique le dit la première fois")
+	EconomySystem._self_digest(st, kh, added)
+	_ok(home.population == pop - 2 and int(kh.resources["food"]) == 20 and added.size() == 1, "le mois suivant, un autre : le manque est comblé, sans nouvelle ligne")
+	EconomySystem._self_digest(st, kh, added)
+	_ok(home.population == pop - 2, "nourriture positive : plus personne n'est mangé")
+	# Un autre peuple ne se mange pas.
+	var os := st.get_empire(_id_of(st, "ossarane"))
+	var op: int = (st.colonies[os.home_planet] as Colony).population
+	os.resources["food"] = -40
+	EconomySystem._self_digest(st, os, added)
+	_ok((st.colonies[os.home_planet] as Colony).population == op and int(os.resources["food"]) == -40, "Ossarane ne se mange pas")
+	# La proie conquise instruit aussi (B3).
+	var ch := _id_of(st, "choeur")
+	(st.colonies[st.get_empire(ch).home_planet] as Colony).population = 6
+	kh.resources["knowledge"] = 0
+	Combat.capture_system(st, _home(st, ch), kh.id)
+	_ok(int(kh.resources["knowledge"]) >= 5 * 6, "capitale conquise : 5 habitants digérés, +30 Savoir au moins (%d)" % int(kh.resources["knowledge"]))
+
+
+## G5 : coalition publique contre tout conquérant (35 % des systèmes habités après une conquête).
+func _test_coalition() -> void:
+	var st := GameState.create(4242, 150, 1800.0, "ossarane", {"ai_level": "normal", "rivals": ["ossarane", "choeur", "vael", "teyl"]})
+	var big := st.get_empire(1)
+	for e in st.empires:
+		for o in st.empires:
+			if e.id != o.id and not e.contacts.has(o.id):
+				e.contacts.append(o.id)
+	var n := 0
+	for s in st.galaxy.systems:
+		if n >= 6:
+			break
+		if st.system_owner(s.id) < 0 and _v_claim(st, big.id, s.id) != null:
+			n += 1
+	st.tick = 3600
+	var added: Array[Dictionary] = []
+	CombatSystem._coalitions(st, added)
+	_ok(added.is_empty() and not big.stats.has("coalition"), "grand mais sans conquête : pas de vote")
+	big.stats["conquests"] = 1
+	CombatSystem._coalitions(st, added)
+	_ok(int(big.stats.get("coalition", 0)) == 3660 and added.size() == 1 and String(added[0]["text"]).begins_with("Vote de coalition"), "7 systèmes sur 10 après une conquête : le vote est annoncé à tous")
+	st.tick = 3630
+	CombatSystem._coalitions(st, added)
+	_ok(big.wars.is_empty(), "avant la date du vote, rien ne bouge")
+	st.tick = 3660
+	CombatSystem._coalitions(st, added)
+	var at_war := 0
+	for e in st.empires:
+		if e.id != big.id and Combat.at_war(st, e.id, big.id):
+			at_war += 1
+	_ok(at_war == 2 and not Combat.at_war(st, 0, big.id), "au vote, les deux IA lui déclarent la guerre ; le joueur décide pour lui-même (%d)" % at_war)
+	_ok(int(big.stats.get("coalition", 0)) == -1, "le vote n'a lieu qu'une fois")
+	# Il retombe sous 25 % : la coalition se dissout.
+	for pid in st.colonies.keys():
+		var c: Colony = st.colonies[pid]
+		if c.owner == big.id and pid != big.home_planet:
+			st.colonies.erase(pid)
+	st.rebuild_ownership()
+	for s in st.galaxy.systems:
+		if Victory.systems_held(st, 0) >= 3:
+			break
+		if st.system_owner(s.id) < 0:
+			_v_claim(st, 0, s.id)
+	st.tick = 3690
+	CombatSystem._coalitions(st, added)
+	_ok(not big.stats.has("coalition"), "sous 25 %, la coalition se dissout")
+
+
+## B7 : le Voile se perce de près (senseurs de niveau 2 dans un système voisin).
+func _test_veil_near() -> void:
+	var st := _v_state({"rivals": ["ossarane", "choeur", "vael", "murmurants"]})
+	var mu := _id_of(st, "murmurants")
+	var home := _home(st)
+	var nb: int = st.galaxy.systems[home].neighbors[0]
+	_ok(Veil.hides(st, mu, 0, nb), "sans senseurs, le système voisin reste voilé")
+	Research.grant(st, 0, ["detecteurs_1"])
+	(st.colonies[st.get_empire(0).home_planet] as Colony).buildings.append("reseau_ecoute")
+	Stealth.invalidate()
+	_ok(not Veil.hides(st, mu, 0, nb), "Réseau d'écoute à la capitale : le voisin immédiat n'est plus voilé")
+	var far := -1
+	for s in st.galaxy.systems:
+		if s.id != home and not st.galaxy.systems[home].neighbors.has(s.id) and st.system_owner(s.id) < 0:
+			far = s.id
+			break
+	_ok(Veil.hides(st, mu, 0, far), "plus loin, le Voile tient")
+
+
+## B5 : les Murmurants sans « Assemblées ouvertes ».
+func _test_murmurants_sheet() -> void:
+	var f := GameData.faction("murmurants")
+	_ok(not (f["species"]["traits"] as Array).has("orateurs"), "Murmurants : plus d'Assemblées ouvertes")
+	_ok(not (f["production_pct"] as Dictionary).has("influence") and int(f["production_pct"]["knowledge"]) == 120, "influence et énergie normales, Savoir +20 % gardé")
+
+
+## Victoires de peuple au niveau des autres : aucune tenue moins de trois ans, seuils relevés.
+func _test_people_victories() -> void:
+	var dom := int(Victory.info("domination")["hold_days"])
+	for id in ["elu", "couplet", "charte", "moisson", "noosphere", "legende", "terre_promise", "silence"]:
+		var v: Dictionary = Victory.info(id)
+		_ok(int(v["hold_days"]) >= dom, "%s : tenue au moins aussi longtemps que la Domination (%d)" % [id, int(v["hold_days"])])
+	var elu := Victory.info("elu")
+	_ok(int(elu["alliance_days"]) == 1080 and int(elu["union_cost"]["influence"]) == 100 and int(elu["hold_days"]) == 1440, "Élu : 3 ans d'alliance, 100 d'influence, 4 ans")
+	_ok(int(Victory.info("couplet")["sites"]) == 4, "Dernier Couplet : 4 cathédrales")
+	_ok(int(Victory.info("noosphere")["nodes"]) == 18, "Noosphère : 18 colonies reliées")
+	_ok(int(Victory.info("terre_promise")["min_jumps"]) == 8, "Terre promise : à 8 sauts")
+	_ok(int(Victory.info("silence")["hold_days"]) == 1440, "Silence parfait : 4 ans")
+	var mo := Victory.info("moisson")
+	_ok(int(mo["pop_share_pct"]) == 30 and int(mo["digested"]) == 60, "Moisson : 30 % de la population, 60 digérés")
+	var st := GameState.create(5, 150, 1800.0, "ferrocornes", {"ai_level": ""})
+	var pid := Victory.promised_planet(st, 0)
+	var d: Dictionary = FactionTraits.jumps_from(st.galaxy, st.galaxy.get_planet(st.get_empire(0).home_planet).system_id)
+	_ok(pid >= 0 and int(d[st.galaxy.get_planet(pid).system_id]) >= 8, "la Terre promise est bien à 8 sauts ou plus")

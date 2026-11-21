@@ -47,7 +47,7 @@ func _spec(preset: String, name := "Peuple d'essai") -> Dictionary:
 
 
 func _test_presets() -> void:
-	var expect := {"ossarane": [2, 4], "choeur": [2, 4], "vael": [4, 4], "khthari": [1, 5], "teyl": [2, 4], "ferrocornes": [2, 4], "brisecomete": [5, 5], "murmurants": [4, 4]}
+	var expect := {"ossarane": [2, 4], "choeur": [2, 4], "vael": [4, 4], "khthari": [1, 5], "teyl": [2, 4], "ferrocornes": [2, 4], "brisecomete": [5, 5], "murmurants": [2, 4]}
 	for p in expect:
 		var s := _spec(p)
 		_ok(Species.check(s) == "", "modèle %s valide (%s)" % [p, Species.check(s)])
@@ -831,12 +831,14 @@ func _test_syndicate() -> void:
 	# Une partie entre IA avec un syndicat : rien ne casse, et il trouve des clients.
 	var sp := Simulation.new(GameState.create(9, 150, 1800.0, "", {"spectator": true, "ai_level": "normal", "rivals": ["ossarane", "choeur", fid, "vael", "khthari"]}))
 	var signed := 0
-	for i in 30:
+	for i in 90:  # l'Essaim attend sa meute et les guerres viennent plus tard (équilibrage B4) : on s'arrête au premier contrat
 		sp.advance(60)
 		for e in sp.state.empires:
 			if not Diplomacy.contract_of(sp.state, e.id).is_empty():
 				signed += 1
-	_ok(signed > 0, "partie entre IA : le syndicat trouve des clients (%d relevés sous contrat sur 30)" % signed)
+		if signed > 0:
+			break
+	_ok(signed > 0, "partie entre IA : le syndicat trouve des clients (%d relevés sous contrat)" % signed)
 
 
 ## Credo Profit : espionnage industriel, branché sur l'espionnage commun (Espionage, talent "spy").
