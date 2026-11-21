@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.63
+
+- **Équilibrage : les victoires de peuple au niveau des autres.** Aucune victoire des huit peuples principaux ne se tient plus moins de **trois ans**, comme la Domination. **L'Élu des routes** : trois ans d'alliance avant chaque union, 100 d'influence par union, quatre ans pour faire naître l'Élu. **Le Dernier Couplet** : quatre cathédrales-chœurs, trois ans de chant. **L'Éveil de la Noosphère** : 18 colonies reliées, trois ans. **La Terre promise** : à huit sauts du berceau, la flotte-ville y campe trois ans. **La Charte des Quarante et Un** : trois ans de ratification. **Le Silence parfait** : quatre ans au lieu de cinq. **La Moisson** : 30 % de la population galactique et 60 population digérée, trois ans. La Légende ne change pas.
+
 ### Édition 2.62
 
 - **Équilibrage, lot 3 : les peuples principaux.** **L'Essaim se mange lui-même** : plus de famine, ses colonies les plus peuplées digèrent un habitant par mois quand la nourriture manque (30 nourriture chacun) ; **mémoire de l'Essaim** : +6 Savoir par habitant digéré, proie conquise comprise ; **la chasse attend la meute** : première guerre seulement avec 3 colonies et 6 vaisseaux armés. **Murmurants** : le trait Assemblées ouvertes disparaît de leur fiche (influence et énergie normales) ; **le Voile se perce de près** : un système doté de senseurs de niveau 2 sent les colonies voilées de ses voisins immédiats, et les IA qui ont rencontré un peuple voilé équipent leurs frontières. **Coalition publique** contre tout conquérant qui tient 35 % des systèmes habités, annoncée par un vote, à la place des règles tacites contre l'Essaim. Sauvegarde 101 inchangée.

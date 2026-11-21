@@ -134,13 +134,13 @@
 			"text": "Unir ses lignées à toutes les dynasties rivales qui signent des traités, puis faire naître l'Élu : %d ans, unions intactes et héritier loyal (%d ou plus).",
 			"counter": "Soudoyer l'héritier, rompre l'alliance, déclarer la guerre.",
 			"min_unions": 1,
-			"alliance_days": 180,
+			"alliance_days": 1080,
 			"union_cost": {
-				"influence": 50,
+				"influence": 100,
 				"crystals": 10
 			},
 			"heir_min": 50,
-			"hold_days": 720,
+			"hold_days": 1440,
 			"on_fail": "reset",
 			"chronicle": "L'Élu des routes est né : il a les yeux de quatre dynasties et le sens de l'orientation d'un navigateur. %s règne sur toutes les lignées."
 		},
@@ -159,8 +159,8 @@
 			"text": "Bâtir %d Cathédrales-chœurs dans %d systèmes différents, puis chanter %d ans en Exaltation. Le chant s'interrompt sous l'Exaltation et repart de zéro si une cathédrale tombe.",
 			"counter": "Prendre une cathédrale, faire retomber la ferveur.",
 			"building": "cathedrale",
-			"sites": 3,
-			"hold_days": 720,
+			"sites": 4,
+			"hold_days": 1080,
 			"on_fail": "pause",
 			"chronicle": "Le deuxième couplet s'achève enfin. %s entonne le troisième : la galaxie entière doit désormais le connaître par cœur."
 		},
@@ -176,7 +176,7 @@
 			"text": "Faire signer la Charte à chaque empire survivant (paix ou alliance, et accord commercial ou libre-échange ; au moins %d signataires), puis la ratifier %d ans sans défection. Un empire qui ne signe rien la bloque tant qu'il existe.",
 			"counter": "Refuser ou annuler le commerce, rompre la paix.",
 			"min_signatories": 2,
-			"hold_days": 720,
+			"hold_days": 1080,
 			"on_fail": "reset",
 			"chronicle": "La Charte des Quarante et Un est ratifiée. %s préside désormais l'assemblée de la galaxie ; la première séance a duré onze jours."
 		},
@@ -192,9 +192,9 @@
 			"tech": "grande_moisson",
 			"text": "Porter %d %% de toute la population de la galaxie, avoir digéré au moins %d population conquise, et tenir ainsi %d ans.",
 			"counter": "Coalition militaire, coloniser plus vite, reprendre les mondes.",
-			"pop_share_pct": 50,
-			"digested": 100,
-			"hold_days": 720,
+			"pop_share_pct": 30,
+			"digested": 60,
+			"hold_days": 1080,
 			"on_fail": "reset",
 			"chronicle": "La Moisson est faite. %s ne conquiert plus la galaxie : il la digère."
 		},
@@ -209,8 +209,8 @@
 			"tech": "noosphere",
 			"text": "Relier au moins %d colonies peuplées au réseau, sans aucune revendication coupée, et le tenir %d ans : la Noosphère s'éveille.",
 			"counter": "Couper le réseau : blocus, avant-postes sur ses routes, prise d'une colonie.",
-			"nodes": 12,
-			"hold_days": 720,
+			"nodes": 18,
+			"hold_days": 1080,
 			"on_fail": "reset",
 			"chronicle": "La Noosphère s'éveille. %s ne pense plus en colonies mais en galaxie ; sa première pensée commune a duré quatre secondes et réglé trois guerres."
 		},
@@ -241,11 +241,11 @@
 				]
 			},
 			"tech": "terre_promise",
-			"text": "Trouver la Terre promise, un monde caché à au moins %d sauts du berceau du clan (les Chants de la route disent à combien de sauts elle est, puis la nomment à %d sauts), y fonder une colonie et y faire camper la flotte-ville %d an.",
+			"text": "Trouver la Terre promise, un monde caché à au moins %d sauts du berceau du clan (les Chants de la route disent à combien de sauts elle est, puis la nomment à %d sauts), y fonder une colonie et y faire camper la flotte-ville %d ans.",
 			"counter": "La coloniser avant eux, la leur reprendre, abattre la flotte-ville.",
-			"min_jumps": 6,
+			"min_jumps": 8,
 			"reveal_jumps": 2,
-			"hold_days": 360,
+			"hold_days": 1080,
 			"on_fail": "reset",
 			"chronicle": "La flotte-ville de %s se pose enfin sur la Terre promise. Les clans déchargent les tentes, puis se demandent avec inquiétude ce qu'on fait quand on n'a plus nulle part où aller."
 		},
@@ -264,9 +264,9 @@
 			"text": "Tenir au moins %d %% des systèmes de la galaxie pendant %d ans sans être repéré une seule fois par un empire non allié. Chaque repérage remet le compte à rebours à zéro.",
 			"counter": "Rechercher les Détecteurs d'abysse et garder l'œil sur leurs systèmes, ou y laisser une flotte à l'arrêt.",
 			"systems_pct": 15,
-			"hold_days": 1800,
+			"hold_days": 1440,
 			"on_fail": "reset",
-			"chronicle": "Cinq ans sans un bruit. On cherche %s dans les archives pour le proclamer vainqueur, mais personne ne se souvient l'avoir jamais rencontré."
+			"chronicle": "Quatre ans sans un bruit. On cherche %s dans les archives pour le proclamer vainqueur, mais personne ne se souvient l'avoir jamais rencontré."
 		},
 		"idole": {
 			"kind": "people",

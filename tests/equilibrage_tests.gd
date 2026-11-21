@@ -33,6 +33,7 @@ func run(check: Callable) -> void:
 	_test_coalition()
 	_test_veil_near()
 	_test_murmurants_sheet()
+	_test_people_victories()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -699,3 +700,23 @@ func _test_murmurants_sheet() -> void:
 	var f := GameData.faction("murmurants")
 	_ok(not (f["species"]["traits"] as Array).has("orateurs"), "Murmurants : plus d'Assemblées ouvertes")
 	_ok(not (f["production_pct"] as Dictionary).has("influence") and int(f["production_pct"]["knowledge"]) == 120, "influence et énergie normales, Savoir +20 % gardé")
+
+
+## Victoires de peuple au niveau des autres : aucune tenue moins de trois ans, seuils relevés.
+func _test_people_victories() -> void:
+	var dom := int(Victory.info("domination")["hold_days"])
+	for id in ["elu", "couplet", "charte", "moisson", "noosphere", "legende", "terre_promise", "silence"]:
+		var v: Dictionary = Victory.info(id)
+		_ok(int(v["hold_days"]) >= dom, "%s : tenue au moins aussi longtemps que la Domination (%d)" % [id, int(v["hold_days"])])
+	var elu := Victory.info("elu")
+	_ok(int(elu["alliance_days"]) == 1080 and int(elu["union_cost"]["influence"]) == 100 and int(elu["hold_days"]) == 1440, "Élu : 3 ans d'alliance, 100 d'influence, 4 ans")
+	_ok(int(Victory.info("couplet")["sites"]) == 4, "Dernier Couplet : 4 cathédrales")
+	_ok(int(Victory.info("noosphere")["nodes"]) == 18, "Noosphère : 18 colonies reliées")
+	_ok(int(Victory.info("terre_promise")["min_jumps"]) == 8, "Terre promise : à 8 sauts")
+	_ok(int(Victory.info("silence")["hold_days"]) == 1440, "Silence parfait : 4 ans")
+	var mo := Victory.info("moisson")
+	_ok(int(mo["pop_share_pct"]) == 30 and int(mo["digested"]) == 60, "Moisson : 30 % de la population, 60 digérés")
+	var st := GameState.create(5, 150, 1800.0, "ferrocornes", {"ai_level": ""})
+	var pid := Victory.promised_planet(st, 0)
+	var d: Dictionary = FactionTraits.jumps_from(st.galaxy, st.galaxy.get_planet(st.get_empire(0).home_planet).system_id)
+	_ok(pid >= 0 and int(d[st.galaxy.get_planet(pid).system_id]) >= 8, "la Terre promise est bien à 8 sauts ou plus")

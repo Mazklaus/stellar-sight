@@ -210,7 +210,7 @@ func _test_alliances() -> void:
 	st2.colonies[e.home_planet].population = 300
 	e.stats["digested"] = 100
 	Research.grant(st2, 0, ["grande_moisson"])
-	_months(st2, 25)
+	_months(st2, 37)
 	_ok(st2.winner.get("victory", "") == "moisson" and Array(st2.winner["allies"]).is_empty(), "une victoire de peuple ne se partage pas")
 
 
@@ -231,7 +231,7 @@ func _test_score_deadline() -> void:
 	_ok(Victory.score(st, 0) == base + 5 + 6, "score : +5 par technologie, +2 par vaisseau détruit")
 
 
-## Ossarane : unions sur des alliances de longue date, héritier loyal, deux ans.
+## Ossarane : unions sur des alliances de trois ans, héritier loyal, quatre ans.
 @warning_ignore("integer_division")
 func _test_elu() -> void:
 	var st := _state("ossarane")
@@ -251,10 +251,10 @@ func _test_elu() -> void:
 		Diplomacy.sign_treaty(st, 0, o, Diplomacy.PEACE)
 		Diplomacy.sign_treaty(st, 0, o, Diplomacy.ALLIANCE)
 	_ok(Victory.check_union(st, 0, vael).contains("durer"), "Élu : l'alliance doit durer")
-	st.tick += 200
+	st.tick += 1100
 	var inf := int(e.resources["influence"])
 	_ok(_apply(st, SimCommands.unite_lineages(0, vael)) == "", "Élu : union avec Vael")
-	_ok(int(e.resources["influence"]) == inf - 50 and Victory.united(st, 0, vael), "Élu : l'union coûte et tient")
+	_ok(int(e.resources["influence"]) == inf - 100 and Victory.united(st, 0, vael), "Élu : l'union coûte et tient")
 	_ok(_apply(st, SimCommands.unite_lineages(0, vael)) != "", "Élu : pas deux fois la même union")
 	var p := Victory.progress(st, 0, "elu")
 	_ok(not p["cond"] and int(p["pct"]) == (Victory.met_at() - 1) / 2, "Élu : une union sur deux (%d %%)" % int(p["pct"]))
@@ -271,21 +271,21 @@ func _test_elu() -> void:
 	Diplomacy.cancel(st, choeur, 0, Diplomacy.ALLIANCE)
 	_months(st, 1)
 	_ok(not Victory.united(st, 0, choeur) and not Diplomacy.rel(st, 0, choeur).has("union"), "Élu : l'union tombe avec l'alliance")
-	# On recommence, et on tient deux ans.
+	# On recommence, et on tient quatre ans.
 	Diplomacy.sign_treaty(st, 0, choeur, Diplomacy.ALLIANCE)
-	st.tick += 200
+	st.tick += 1100
 	_ok(_apply(st, SimCommands.unite_lineages(0, choeur)) == "", "Élu : nouvelle union après une nouvelle alliance")
-	_months(st, 25)
-	_ok(st.winner.get("victory", "") == "elu" and int(st.winner["empire"]) == 0, "Élu : deux ans, victoire de l'Élu des routes")
+	_months(st, 49)
+	_ok(st.winner.get("victory", "") == "elu" and int(st.winner["empire"]) == 0, "Élu : quatre ans, victoire de l'Élu des routes")
 
 
-## Chœur : trois cathédrales dans trois systèmes, puis l'Exaltation tenue deux ans.
+## Chœur : quatre cathédrales dans quatre systèmes, puis l'Exaltation tenue trois ans.
 func _test_couplet() -> void:
 	var st := _state("choeur")
 	var e := st.get_empire(0)
 	var systems: Array[int] = []
 	for s in st.galaxy.systems:
-		if systems.size() >= 3:
+		if systems.size() >= 4:
 			break
 		if st.system_owner(s.id) < 0 and s.planet_count > 0:
 			var c := _claim(st, 0, s.id, Colony.KIND_COLONY, 4)
@@ -297,12 +297,12 @@ func _test_couplet() -> void:
 	_months(st, 3)
 	_ok(Victory.held(st, 0, "couplet") == 0, "Couplet : sans la technologie, le chant ne commence pas")
 	Research.grant(st, 0, ["dernier_couplet"])
-	_ok(Victory.cathedral_systems(st, 0).size() == 3, "Couplet : trois cathédrales comptées")
+	_ok(Victory.cathedral_systems(st, 0).size() == 4, "Couplet : quatre cathédrales comptées")
 	_months(st, 4)
 	_ok(Victory.held(st, 0, "couplet") == 120, "Couplet : quatre mois de chant")
 	e.fervor = 10
 	_months(st, 2)
-	_ok(Victory.held(st, 0, "couplet") == 120 and Victory.progress(st, 0, "couplet")["lines"].has("Compte à rebours en pause : 1 an 8 mois"),
+	_ok(Victory.held(st, 0, "couplet") == 120 and Victory.progress(st, 0, "couplet")["lines"].has("Compte à rebours en pause : 2 ans 8 mois"),
 			"Couplet : sans Exaltation, le chant se met en pause")
 	# Une cathédrale prise : il faut tout reprendre.
 	var lost := -1
@@ -316,8 +316,8 @@ func _test_couplet() -> void:
 	st.colonies[lost].owner = 0
 	st.rebuild_ownership()
 	e.fervor = 90
-	_months(st, 24)
-	_ok(st.winner.get("victory", "") == "couplet", "Couplet : deux ans d'Exaltation, l'hymne s'achève")
+	_months(st, 36)
+	_ok(st.winner.get("victory", "") == "couplet", "Couplet : trois ans d'Exaltation, l'hymne s'achève")
 	# Ordre de construction : seulement avec la technologie, et pas pour les autres peuples.
 	var st2 := _state("choeur")
 	var home := st2.get_empire(0).home_planet
@@ -357,18 +357,18 @@ func _test_charte() -> void:
 	_ok(Victory.held(st, 0, "charte") == 0, "Charte : une défection, la ratification repart de zéro")
 	Diplomacy.sign_treaty(st, 0, oss, Diplomacy.TRADE)
 	Diplomacy.sign_treaty(st, 0, oss, Diplomacy.TRADE)
-	_months(st, 24)
-	_ok(st.winner.get("victory", "") == "charte" and int(st.winner["empire"]) == 0, "Charte : deux ans de ratification, victoire")
+	_months(st, 36)
+	_ok(st.winner.get("victory", "") == "charte" and int(st.winner["empire"]) == 0, "Charte : trois ans de ratification, victoire")
 
 
-## Kh'thari : la moitié de la population de la galaxie, et assez de peuples digérés.
+## Kh'thari : 30 % de la population de la galaxie, et assez de peuples digérés.
 func _test_moisson() -> void:
 	var st := _state("khthari")
 	var e := st.get_empire(0)
 	st.colonies[e.home_planet].population = 200
 	var p := Victory.progress(st, 0, "moisson")
 	_ok(not p["won"] and int(p["pct"]) == 0, "Moisson : rien de digéré, 0 %")
-	e.stats["digested"] = 50
+	e.stats["digested"] = 30
 	p = Victory.progress(st, 0, "moisson")
 	_ok(not p["won"] and int(p["pct"]) == (Victory.met_at() - 1) / 2, "Moisson : la moitié digérée (%d %%)" % int(p["pct"]))
 	e.stats["digested"] = 100
@@ -376,8 +376,8 @@ func _test_moisson() -> void:
 	_months(st, 1)
 	p = Victory.progress(st, 0, "moisson")
 	_ok(st.winner.is_empty() and p["cond"] and int(p["pct"]) >= Victory.met_at(), "Moisson : seuils atteints, le compte à rebours démarre (%d %%)" % int(p["pct"]))
-	_months(st, 24)
-	_ok(st.winner.get("victory", "") == "moisson", "Moisson : faite après deux ans tenus")
+	_months(st, 36)
+	_ok(st.winner.get("victory", "") == "moisson", "Moisson : faite après trois ans tenus")
 	# La digestion d'une conquête est bien comptée.
 	var st2 := _state("khthari")
 	var victim := _id_of(st2, "vael")
@@ -386,8 +386,8 @@ func _test_moisson() -> void:
 	_ok(int(st2.get_empire(0).stats.get("digested", 0)) == 8, "Moisson : population digérée à la conquête (%d)" % int(st2.get_empire(0).stats.get("digested", 0)))
 
 
-## Teyl : douze colonies reliées au réseau, aucune revendication coupée, deux ans tenus.
-## Ferrocornes : trouver la Terre promise, y fonder une colonie, y faire camper la flotte-ville un an.
+## Teyl : dix-huit colonies reliées au réseau, aucune revendication coupée, trois ans tenus.
+## Ferrocornes : trouver la Terre promise, y fonder une colonie, y faire camper la flotte-ville trois ans.
 func _test_terre_promise() -> void:
 	var st := _state("ferrocornes")
 	var e := st.get_empire(0)
@@ -419,8 +419,8 @@ func _test_terre_promise() -> void:
 	_months(st, 1)
 	pr = Victory.progress(st, 0, "terre_promise")
 	_ok(pr["cond"] and int(pr["pct"]) >= Victory.met_at() and st.winner.is_empty(), "colonie fondée, flotte-ville au camp : le compte à rebours démarre")
-	_months(st, 13)
-	_ok(not st.winner.is_empty(), "un an au camp : la Terre promise est atteinte (%s)" % str(st.winner))
+	_months(st, 37)
+	_ok(not st.winner.is_empty(), "trois ans au camp : la Terre promise est atteinte (%s)" % str(st.winner))
 	# Lever le camp remet le compte à zéro.
 	var st3 := _state("ferrocornes")
 	Research.grant(st3, 0, ["terre_promise"])
@@ -554,11 +554,11 @@ func _test_noosphere() -> void:
 	_months(st, 1)
 	p = Victory.progress(st, 0, "noosphere")
 	_ok(not p["cond"] and int(st.get_empire(0).victory["noosphere"]["held"]) == 0 and str(p["lines"]).contains("coupées"), "Noosphère : la coupure remet le compte à rebours à zéro")
-	# Le nœud est repris par l'ennemi : le réseau est entier à nouveau, deux ans suffisent.
+	# Le nœud est repris par l'ennemi : le réseau est entier à nouveau, trois ans suffisent.
 	st.colonies.erase(lone.planet_id)
 	st.rebuild_ownership()
-	_months(st, 25)
-	_ok(st.winner.get("victory", "") == "noosphere", "Noosphère : éveillée après deux ans tenus")
+	_months(st, 37)
+	_ok(st.winner.get("victory", "") == "noosphere", "Noosphère : éveillée après trois ans tenus")
 	_ok(Victory.chronicle_text("noosphere", st.get_empire(0)).contains("Teyl"), "Noosphère : la chronique nomme Teyl")
 
 
@@ -616,7 +616,7 @@ func _test_ai_pursuit() -> void:
 	e.resources["energy"] = 10000
 	var made := 0
 	for s in st.galaxy.systems:
-		if made >= 4:
+		if made >= 5:
 			break
 		if st.system_owner(s.id) < 0 and s.planet_count > 0:
 			_claim(st, 0, s.id, Colony.KIND_COLONY, 3 + made)
@@ -628,14 +628,14 @@ func _test_ai_pursuit() -> void:
 		if st.colonies[pid].owner == 0 and st.colonies[pid].construction == "cathedrale":
 			building += 1
 	_ok(building == 1, "IA : une cathédrale lancée par réflexion")
-	for _i in 4:
+	for _i in 5:
 		AiPlayer._victory(_ctx(st, 0))
 	var sites := {}
 	for pid in st.colonies:
 		var c: Colony = st.colonies[pid]
 		if c.owner == 0 and c.construction == "cathedrale":
 			sites[st.galaxy.get_planet(pid).system_id] = true
-	_ok(sites.size() == 3, "IA : trois cathédrales dans trois systèmes, pas plus (%d)" % sites.size())
+	_ok(sites.size() == 4, "IA : quatre cathédrales dans quatre systèmes, pas plus (%d)" % sites.size())
 	# Ossarane : unit ses lignées à ses alliés de longue date.
 	var st2 := _state("ossarane")
 	var vael := _id_of(st2, "vael")
@@ -645,7 +645,7 @@ func _test_ai_pursuit() -> void:
 	_meet(st2, 0, vael)
 	Diplomacy.sign_treaty(st2, 0, vael, Diplomacy.PEACE)
 	Diplomacy.sign_treaty(st2, 0, vael, Diplomacy.ALLIANCE)
-	st2.tick += 200
+	st2.tick += 1100
 	AiPlayer._victory(_ctx(st2, 0))
 	_ok(Victory.united(st2, 0, vael), "IA : Ossarane unit ses lignées à son allié")
 

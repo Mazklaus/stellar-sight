@@ -34,15 +34,17 @@ Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie 
 
 | Victoire | Peuple | En bref |
 | --- | --- | --- |
-| L'Élu des routes | Ossarane | Unions de lignées, héritier loyal, 2 ans |
-| Le Dernier Couplet | Chœur Éternel | 3 cathédrales-chœurs, 2 ans en Exaltation |
-| La Charte des Quarante et Un | Vael | Paix et accord commercial (au moins) avec tous, 2 ans |
-| La Moisson | Kh'thari | La moitié de la population galactique, 2 ans |
-| L'Éveil de la Noosphère | Teyl | 12 colonies reliées sans coupure, 2 ans |
-| La Terre promise | Ferrocornes | Le monde caché colonisé, la flotte-ville y campe 1 an |
+| L'Élu des routes | Ossarane | Unions de lignées après 3 ans d'alliance, héritier loyal, 4 ans |
+| Le Dernier Couplet | Chœur Éternel | 4 cathédrales-chœurs, 3 ans en Exaltation |
+| La Charte des Quarante et Un | Vael | Paix et accord commercial (au moins) avec tous, 3 ans |
+| La Moisson | Kh'thari | 30 % de la population galactique, 60 population digérée, 3 ans |
+| L'Éveil de la Noosphère | Teyl | 18 colonies reliées sans coupure, 3 ans |
+| La Terre promise | Ferrocornes | Le monde caché colonisé, à 8 sauts du berceau, la flotte-ville y campe 3 ans |
 | La Légende | Brisecomète | 9 exploits sur 11, réputation de 60, 3 ans |
-| Le Silence parfait | Murmurants | 15 % des systèmes de la galaxie, 5 ans sans être repéré |
+| Le Silence parfait | Murmurants | 15 % des systèmes de la galaxie, 4 ans sans être repéré |
 | L'Idole des étoiles | Credo Plaisir (éditeur) | Influent chez 60 % de la population étrangère rencontrée, 1 an |
+
+Aucune victoire des huit peuples principaux ne se tient moins de **trois ans**, comme la Domination : vos rivaux ont le temps de la voir venir et de la défaire.
 
 ### L'avancée
 
@@ -58,5 +60,5 @@ Chaque victoire a une **avancée** de 0 à 100 %. À 75 %, la condition est remp
 :::
 
 ::: marge
-Surveillez l'écran des victoires plus que l'écran militaire. On m'a battu un jour sans tirer un coup : trois cathédrales et deux ans de chansons.
+Surveillez l'écran des victoires plus que l'écran militaire. On m'a battu un jour sans tirer un coup : quatre cathédrales et trois ans de chansons.
 :::
