@@ -261,12 +261,12 @@
 				]
 			},
 			"tech": "silence_parfait",
-			"text": "Tenir au moins %d colonies peuplées pendant %d ans sans être repéré une seule fois par un empire non allié. Chaque repérage remet le compte à rebours à zéro.",
+			"text": "Tenir au moins %d %% des systèmes de la galaxie pendant %d ans sans être repéré une seule fois par un empire non allié. Chaque repérage remet le compte à rebours à zéro.",
 			"counter": "Rechercher les Détecteurs d'abysse et garder l'œil sur leurs systèmes, ou y laisser une flotte à l'arrêt.",
-			"colonies": 8,
-			"hold_days": 1080,
+			"systems_pct": 15,
+			"hold_days": 1800,
 			"on_fail": "reset",
-			"chronicle": "Trois ans sans un bruit. On cherche %s dans les archives pour le proclamer vainqueur, mais personne ne se souvient l'avoir jamais rencontré."
+			"chronicle": "Cinq ans sans un bruit. On cherche %s dans les archives pour le proclamer vainqueur, mais personne ne se souvient l'avoir jamais rencontré."
 		},
 		"idole": {
 			"kind": "people",

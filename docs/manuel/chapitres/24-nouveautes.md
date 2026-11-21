@@ -5,7 +5,7 @@ etiquette: Annexe
 ---
 ### Édition 2.61
 
-- **Équilibrage, lot 2 : victoires et économie.** Réglage **Victoire** : aucune victoire proclamée avant l'an 20 par défaut (dès le début, an 10, an 20, an 30), avec une **alerte galactique** quand une condition est remplie plus tôt ; Conquête et Domination ne se partagent plus qu'entre **la moitié des empires vivants au plus** ; **Légende** des Brisecomète à 9 exploits tenus 3 ans, **Grand Rayonnement** tenu 5 ans chez quatre rivaux au moins ; date limite par défaut à **50 ans**. **Plafonds de stock** d'énergie, de matériaux et d'influence, avec leurs débouchés (énergie et matériaux vendus à perte, largesses d'influence : stabilité et intégration) ; l'influence d'une revendication monte de **10 % par système déjà tenu**. Sauvegarde 101 inchangée.
+- **Équilibrage, lot 2 : victoires et économie.** Réglage **Victoire** : aucune victoire proclamée avant l'an 20 par défaut (dès le début, an 10, an 20, an 30), avec une **alerte galactique** quand une condition est remplie plus tôt ; Conquête et Domination ne se partagent plus qu'entre **la moitié des empires vivants au plus** ; **Légende** des Brisecomète à 9 exploits tenus 3 ans, **Grand Rayonnement** tenu 5 ans chez quatre rivaux au moins, **Silence parfait** des Murmurants à 15 % des systèmes de la galaxie tenus 5 ans ; date limite par défaut à **50 ans**. **Plafonds de stock** d'énergie, de matériaux et d'influence, avec leurs débouchés (énergie et matériaux vendus à perte, largesses d'influence : stabilité et intégration) ; l'influence d'une revendication monte de **10 % par système déjà tenu**. Sauvegarde 101 inchangée.
 
 ### Édition 2.60
 

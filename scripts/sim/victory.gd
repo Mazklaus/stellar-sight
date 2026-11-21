@@ -76,7 +76,7 @@ static func rule_text(id: String) -> String:
 		"legende":
 			return t % [int(v["exploits"]), int(v["min_reputation"]), maxi(1, years)]
 		"silence":
-			return t % [int(v["colonies"]), years]
+			return t % [int(v["systems_pct"]), years]
 		"spirituelle":
 			return t % [int(v["share_pct"]), years]
 		"rayonnement":
@@ -885,16 +885,18 @@ static func _legende(state: GameState, e: Empire, out: Dictionary) -> void:
 
 ## Le Silence parfait (archétype Énergétique) : assez de colonies peuplées, et pas un repérage depuis
 ## le dernier bilan (VictorySystem vérifie tous les check_days) ; un repérage remet tout à zéro.
+## Systèmes à tenir pour le Silence parfait : une part de la galaxie (équilibrage B6), arrondie au-dessus.
+@warning_ignore("integer_division")
+static func silence_needed(state: GameState) -> int:
+	return maxi(1, (state.galaxy.systems.size() * int(info("silence")["systems_pct"]) + 99) / 100)
+
+
 static func _silence(state: GameState, e: Empire, out: Dictionary) -> void:
-	var want := int(info("silence")["colonies"])
-	var n := 0
-	for pid in state.colonies:
-		var c: Colony = state.colonies[pid]
-		if c.owner == e.id and c.is_established():
-			n += 1
+	var want := silence_needed(state)
+	var n := systems_held(state, e.id)
 	var since := -1 if e.spotted_tick < 0 else state.tick - e.spotted_tick
 	var quiet := since < 0 or since > int(data().get("check_days", 30))
-	out["lines"].append("Colonies peuplées : %d / %d" % [n, want])
+	out["lines"].append("Systèmes tenus : %d / %d" % [n, want])
 	if since < 0:
 		out["lines"].append("Jamais repéré")
 	else:

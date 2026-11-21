@@ -41,7 +41,7 @@ Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie 
 | L'Éveil de la Noosphère | Teyl | 12 colonies reliées sans coupure, 2 ans |
 | La Terre promise | Ferrocornes | Le monde caché colonisé, la flotte-ville y campe 1 an |
 | La Légende | Brisecomète | 9 exploits sur 11, réputation de 60, 3 ans |
-| Le Silence parfait | Murmurants | 8 colonies, 3 ans sans être repéré |
+| Le Silence parfait | Murmurants | 15 % des systèmes de la galaxie, 5 ans sans être repéré |
 | L'Idole des étoiles | Credo Plaisir (éditeur) | Influent chez 60 % de la population étrangère rencontrée, 1 an |
 
 ### L'avancée
