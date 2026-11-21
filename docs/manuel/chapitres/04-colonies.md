@@ -31,9 +31,9 @@ Pour s'installer dans un **nouveau système**, il faut y amener un vaisseau colo
 
 ### Les réserves
 
-L'énergie et l'influence ne s'entassent pas sans fin. Chaque stock a un **plafond** : 2 000 d'énergie, 400 d'influence, plus **douze mois de production brute** de la ressource (vos centrales et vos forums relèvent donc le plafond). Au bilan du mois, ce qui dépasse trouve un débouché :
+L'énergie, les matériaux et l'influence ne s'entassent pas sans fin. Chaque stock a un **plafond** : 2 000 d'énergie, 2 000 matériaux, 400 d'influence, plus **six mois de production brute** de la ressource (vos centrales, vos mines et vos forums relèvent donc le plafond). Au bilan du mois, ce qui dépasse trouve un débouché :
 
-- **l'énergie en trop se vend à perte** : un quart de l'excédent revient en matériaux, tant que vos matériaux n'ont pas eux-mêmes atteint ce niveau ;
+- **l'énergie et les matériaux en trop se vendent à perte** : un quart de l'excédent d'énergie revient en matériaux, un quart de l'excédent de matériaux en énergie, tant que l'autre stock n'est pas plein lui aussi ;
 - **l'influence en trop devient des largesses** : +1 de stabilité dans tout l'empire par tranche de 25 (jusqu'à +5, pour le mois), et l'intégration de vos peuples avance de 1 point par tranche de 50 (2 au plus).
 
 Mieux vaut donc dépenser que thésauriser : une réserve pleine ne rapporte que des miettes.

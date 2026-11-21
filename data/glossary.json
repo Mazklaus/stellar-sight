@@ -2557,7 +2557,7 @@
     "Plafond de crédit"
    ],
    "family": "meca",
-   "summary": "Ce que l'empire peut devoir : environ douze mois de production brute d'énergie",
+   "summary": "Ce que l'empire peut devoir : environ six mois de production brute d'énergie",
    "chapters": [
     "15j-fiscalite"
    ]
@@ -5624,7 +5624,7 @@
     "plafonds de stock"
    ],
    "family": "meca",
-   "summary": "Réserve maximale d'énergie ou d'influence : un socle plus douze mois de production brute ; l'excédent part en débouchés",
+   "summary": "Réserve maximale d'énergie, de matériaux ou d'influence : un socle plus six mois de production brute ; l'excédent part en débouchés",
    "chapters": [
     "04-colonies"
    ]

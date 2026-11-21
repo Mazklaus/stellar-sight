@@ -28,8 +28,9 @@
 	},
 	"claim_scale": {"influence_pct_per_system": 10, "max_pct": 300},
 	"stock_caps": {
-		"energy": {"base": 2000, "months": 12, "sell_pct": 25, "to": "materials"},
-		"influence": {"base": 400, "months": 12, "stab_per": 25, "stab_max": 5, "integ_per": 50, "integ_max": 2}
+		"energy": {"base": 2000, "months": 6, "sell_pct": 25, "to": "materials"},
+		"materials": {"base": 2000, "months": 6, "sell_pct": 25, "to": "energy"},
+		"influence": {"base": 400, "months": 6, "stab_per": 25, "stab_max": 5, "integ_per": 50, "integ_max": 2}
 	},
 	"start_ships": ["scout", "colony_ship"],
 	"advanced_start": {"colonies": 2, "pop": 3, "resources": {"materials": 150, "energy": 100, "influence": 30}},

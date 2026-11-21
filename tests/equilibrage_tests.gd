@@ -542,7 +542,7 @@ func _test_claim_scale() -> void:
 func _test_stock_caps() -> void:
 	var st := _v_state()
 	var e := st.get_empire(0)
-	_ok(Economy.stock_cap("energy", 50) == 2000 + 12 * 50 and Economy.stock_cap("influence", 10) == 400 + 120, "plafond : un socle plus douze mois de production brute")
+	_ok(Economy.stock_cap("energy", 50) == 2000 + 6 * 50 and Economy.stock_cap("influence", 10) == 400 + 60, "plafond : un socle plus six mois de production brute")
 	_ok(Economy.stock_cap("food", 10) == 0, "nourriture : pas de plafond")
 	# Sous le plafond : rien ne bouge.
 	e.resources["energy"] = 1500
@@ -551,25 +551,30 @@ func _test_stock_caps() -> void:
 	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
 	_ok(int(e.resources["energy"]) == 1500 and int(e.resources["influence"]) == 300 and e.largesse == 0, "sous le plafond, rien ne change")
 	# Énergie en trop : vendue à perte, un quart revient en matériaux.
-	e.resources["energy"] = 2600 + 400
+	e.resources["energy"] = 2300 + 400
 	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
-	_ok(int(e.resources["energy"]) == 2600 and int(e.resources["materials"]) == 200, "400 d'énergie en trop : 100 matériaux (%d)" % int(e.resources["materials"]))
-	e.resources["energy"] = 2600 + 4000
-	e.resources["materials"] = 2200
+	_ok(int(e.resources["energy"]) == 2300 and int(e.resources["materials"]) == 200, "400 d'énergie en trop : 100 matériaux (%d)" % int(e.resources["materials"]))
+	e.resources["energy"] = 2300 + 4000
+	e.resources["materials"] = 2080
 	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
-	_ok(int(e.resources["materials"]) == 2240, "la vente s'arrête quand les matériaux sont pleins (%d)" % int(e.resources["materials"]))
+	_ok(int(e.resources["materials"]) == 2120, "la vente s'arrête quand les matériaux sont pleins (%d)" % int(e.resources["materials"]))
+	# Matériaux en trop : vendus à perte eux aussi, contre de l'énergie.
+	e.resources["energy"] = 1000
+	e.resources["materials"] = 2120 + 800
+	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
+	_ok(int(e.resources["materials"]) == 2120 and int(e.resources["energy"]) == 1200, "800 matériaux en trop : 200 d'énergie (%d)" % int(e.resources["energy"]))
 	# Influence en trop : largesses (stabilité du mois) et intégration.
 	var col: Colony = st.colonies[e.home_planet]
 	col.integ["vael"] = 40
-	e.resources["influence"] = 520 + 80
+	e.resources["influence"] = 460 + 80
 	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
-	_ok(int(e.resources["influence"]) == 520 and e.largesse == 3, "80 d'influence en trop : +3 de stabilité ce mois-ci (%d)" % e.largesse)
+	_ok(int(e.resources["influence"]) == 460 and e.largesse == 3, "80 d'influence en trop : +3 de stabilité ce mois-ci (%d)" % e.largesse)
 	_ok(int(col.integ["vael"]) == 41, "et l'intégration avance d'un point")
 	var parts := str(Stability.parts(st, _home(st))) if Stability.applies(st, 0) else "Largesses"
 	_ok(parts.contains("Largesses"), "la stabilité du système le montre")
 	var e2 := GameState.from_dict(st.to_dict()).get_empire(0)
 	_ok(e2.largesse == 3, "les largesses survivent à la sauvegarde")
-	e.resources["influence"] = 520 + 5000
+	e.resources["influence"] = 460 + 5000
 	Economy.apply_stock_caps(st, e, {"energy": 50, "influence": 10, "materials": 20})
 	_ok(e.largesse == 5 and int(col.integ["vael"]) == 43, "plafonds : +5 de stabilité, 2 points d'intégration")
 	e.resources["influence"] = 100

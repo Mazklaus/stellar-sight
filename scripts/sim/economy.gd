@@ -517,25 +517,31 @@ static func stock_cap(res: String, gross_month: int) -> int:
 	return int(sc["base"]) + int(sc["months"]) * maxi(0, gross_month)
 
 
-## Plafonds de stock et débouchés, au bilan du mois : l'énergie en trop se vend à perte,
+## Plafonds de stock et débouchés, au bilan du mois : l'énergie et les matériaux en trop se vendent à perte,
 ## l'influence en trop nourrit la stabilité (un mois) et l'intégration des peuples.
 static func apply_stock_caps(state: GameState, e: Empire, gross: Dictionary) -> void:
 	var caps: Dictionary = GameData.rules().get("stock_caps", {})
 	e.largesse = 0
 	if caps.is_empty():
 		return
-	var ce: Dictionary = caps.get("energy", {})
-	if not ce.is_empty():
-		var cap := stock_cap("energy", int(gross.get("energy", 0)))
-		var over := int(e.resources.get("energy", 0)) - cap
-		if over > 0:
-			e.resources["energy"] = cap
-			var to := String(ce.get("to", ""))
-			if to != "":
-				var room := stock_cap("energy", int(gross.get(to, 0))) - int(e.resources.get(to, 0))
-				@warning_ignore("integer_division")
-				var gain := mini(maxi(0, room), over * int(ce["sell_pct"]) / 100)
-				e.resources[to] = int(e.resources.get(to, 0)) + gain
+	for res in ["energy", "materials"]:
+		var ce: Dictionary = caps.get(res, {})
+		if ce.is_empty():
+			continue
+		var cap := stock_cap(res, int(gross.get(res, 0)))
+		var over := int(e.resources.get(res, 0)) - cap
+		if over <= 0:
+			continue
+		e.resources[res] = cap
+		var to := String(ce.get("to", ""))
+		if to == "":
+			continue
+		@warning_ignore("integer_division")
+		var gain := over * int(ce["sell_pct"]) / 100
+		var to_cap := stock_cap(to, int(gross.get(to, 0)))
+		if to_cap > 0:
+			gain = mini(gain, maxi(0, to_cap - int(e.resources.get(to, 0))))
+		e.resources[to] = int(e.resources.get(to, 0)) + gain
 	var ci: Dictionary = caps.get("influence", {})
 	if not ci.is_empty():
 		var cap := stock_cap("influence", int(gross.get("influence", 0)))
