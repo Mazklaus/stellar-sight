@@ -50,6 +50,17 @@ static func queue_fleet(player: int, fleet_id: int, system_id: int) -> Dictionar
 	return {"type": "queue_fleet", "player": player, "fleet": fleet_id, "system": system_id}
 
 
+## Met un bâtiment (ship = false) ou un vaisseau (ship = true) dans la file de production d'une colonie :
+## il se lancera, et se paiera, quand l'emplacement se libérera.
+static func queue_build(player: int, planet_id: int, id: String, ship := false) -> Dictionary:
+	return {"type": "queue_build", "player": player, "planet": planet_id, "id": id, "ship": ship}
+
+
+## Vide la file de production (bâtiments ou vaisseaux) d'une colonie.
+static func clear_build_queue(player: int, planet_id: int, ship := false) -> Dictionary:
+	return {"type": "clear_build_queue", "player": player, "planet": planet_id, "ship": ship}
+
+
 ## Consigne d'engagement d'une flotte : "" (engager), "eviter" ou "repli" (voir Fleet.stance).
 static func set_fleet_stance(player: int, fleet_id: int, stance: String) -> Dictionary:
 	return {"type": "set_fleet_stance", "player": player, "fleet": fleet_id, "stance": stance}
@@ -861,6 +872,15 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Fleets.check_move(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("system", -1)))
 		"stop_fleet":
 			return Fleets.check_stop(state, int(cmd["player"]), int(cmd.get("fleet", -1)))
+		"queue_build":
+			return Economy.check_queue_build(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("id", "")), bool(cmd.get("ship", false)))
+		"clear_build_queue":
+			var qc: Colony = state.colonies.get(int(cmd.get("planet", -1)))
+			if qc == null or qc.owner != int(cmd["player"]):
+				return "cette planète ne vous appartient pas"
+			if (qc.ship_queue if bool(cmd.get("ship", false)) else qc.build_queue).is_empty():
+				return "la file est déjà vide"
+			return ""
 		"queue_fleet":
 			return Fleets.check_queue(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("system", -1)))
 		"set_fleet_stance":
@@ -1259,6 +1279,12 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			f.system_id = int(plan["system"])
 			f.path.assign(plan["path"])
 			f.progress = int(plan["progress"])
+		"queue_build":
+			var qc: Colony = state.colonies[int(cmd["planet"])]
+			(qc.ship_queue if bool(cmd.get("ship", false)) else qc.build_queue).append(String(cmd["id"]))
+		"clear_build_queue":
+			var qc: Colony = state.colonies[int(cmd["planet"])]
+			(qc.ship_queue if bool(cmd.get("ship", false)) else qc.build_queue).clear()
 		"queue_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			if not f.is_moving() and f.queue.is_empty():

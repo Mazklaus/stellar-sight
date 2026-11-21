@@ -20,6 +20,7 @@ func run(check: Callable) -> void:
 	_test_queue()
 	_test_stance()
 	_test_rally()
+	_test_build_queue()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -313,3 +314,62 @@ func _test_rally() -> void:
 	_ok(not new_scout_moving, "un vaisseau sans armes reste au chantier")
 	var loaded := GameState.from_dict(st.to_dict())
 	_ok(loaded != null and loaded.get_empire(0).rally_system == n, "le point de ralliement est sauvegardé")
+
+
+## File de production : un bâtiment et un vaisseau mis en file partent tout seuls quand la place se libère.
+func _test_build_queue() -> void:
+	var st := GameState.create(21)
+	var sim := Simulation.new(st)
+	var e := st.get_empire(0)
+	var cap: Colony = st.colonies[e.capital_planet]
+	for r in ["materials", "energy", "food", "influence"]:
+		e.resources[r] = 5000
+	var first := ""
+	var second := ""
+	for bid in GameData.buildings():
+		if SimCommands.validate(st, SimCommands.build(0, cap.planet_id, String(bid))) == "":
+			if first == "":
+				first = String(bid)
+			elif second == "":
+				second = String(bid)
+	_ok(first != "" and second != "", "deux bâtiments possibles sur la capitale")
+	if first == "" or second == "":
+		return
+	_ok(not sim.submit(SimCommands.clear_build_queue(0, cap.planet_id)), "refus : rien à vider")
+	sim.submit(SimCommands.build(0, cap.planet_id, first))
+	sim.flush_commands()
+	_ok(sim.submit(SimCommands.queue_build(0, cap.planet_id, second)), "chantier occupé : le suivant se met en file")
+	sim.flush_commands()
+	_ok(cap.construction == first and cap.build_queue.size() == 1, "la file attend la fin du chantier")
+	_ok(not sim.submit(SimCommands.queue_build(1, cap.planet_id, second)), "refus : la colonie d'un autre")
+	_ok(not sim.submit(SimCommands.queue_build(0, cap.planet_id, "batiment_imaginaire")), "refus : bâtiment inconnu")
+	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_dict())))
+	_ok(back != null and (back.colonies[cap.planet_id] as Colony).build_queue.size() == 1, "la file est sauvegardée")
+	var days := 0
+	while days < 400 and not (cap.buildings.has(first) and (cap.construction == second or cap.buildings.has(second))):
+		sim.step()
+		days += 1
+	_ok(cap.buildings.has(first) and cap.build_queue.is_empty() and (cap.construction == second or cap.buildings.has(second)),
+			"le chantier fini, le suivant de la file se lance tout seul")
+	# Sans ressources, la file attend au lieu de sauter.
+	sim.submit(SimCommands.queue_build(0, cap.planet_id, first))
+	sim.flush_commands()
+	# Vaisseaux : même principe au chantier spatial.
+	sim.submit(SimCommands.build_ship(0, cap.planet_id, "scout"))
+	sim.flush_commands()
+	_ok(cap.ship_build == "scout" and sim.submit(SimCommands.queue_build(0, cap.planet_id, "scout", true)), "un vaisseau en file derrière celui du chantier")
+	sim.flush_commands()
+	var scouts := Fleets.empire_fleets(st, 0).size()
+	days = 0
+	while days < 400 and (cap.ship_build != "" or not cap.ship_queue.is_empty()):
+		sim.step()
+		days += 1
+	_ok(Fleets.empire_fleets(st, 0).size() >= scouts + 2 or days < 400, "les deux vaisseaux sortent l'un après l'autre")
+	_ok(sim.submit(SimCommands.build_ship(0, cap.planet_id, "scout")), "chantier relancé")
+	sim.flush_commands()
+	sim.submit(SimCommands.queue_build(0, cap.planet_id, "scout", true))
+	sim.flush_commands()
+	_ok(sim.submit(SimCommands.clear_build_queue(0, cap.planet_id, true)), "la file se vide sur ordre")
+	sim.flush_commands()
+	_ok(cap.ship_queue.is_empty() and cap.ship_build == "scout", "le vaisseau en chantier, lui, continue")
+

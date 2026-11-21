@@ -104,6 +104,10 @@ Le convoi avait emporté des couvertures, des souvenirs, et très peu de carbura
 
 Chaque colonie bâtit dans ses emplacements : fermes, centrales, mines, forums pour l'influence, bâtiments de recherche, bastions, arsenaux et chantiers titanesques. Les technologies en ouvrent de meilleurs, qui remplacent les premiers sur place sans prendre d'emplacement de plus. Plus tard viennent les **mégastructures** (une par empire), les **merveilles** (une par galaxie, au premier qui la lance) et les **projets** planétaires : terraformation, monde-jardin, écuménopole.
 
+### La file de production
+
+Une colonie ne mène qu'un chantier et qu'un vaisseau à la fois. Quand l'emplacement est pris, l'ordre devient **Mettre en file** : le bâtiment ou le vaisseau attend son tour (cinq au plus par file), puis se lance tout seul. Rien n'est payé avant le lancement : si les ressources manquent ce jour-là, la file patiente ; si l'élément n'est plus possible, il sort de la file et la chronique vous le dit. **Vider la file** ne coûte rien. Au tour par tour, c'est ce qui évite qu'une colonie dorme jusqu'au tour suivant.
+
 ### Le chantier spatial
 
 Chaque colonie peuplée construit un vaisseau à la fois, indépendamment de ses bâtiments. Le vaisseau terminé apparaît en orbite, dans sa propre flotte. Le chapitre 6 explique comment concevoir vos propres modèles.

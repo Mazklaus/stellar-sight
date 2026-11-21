@@ -5588,6 +5588,20 @@
     "02-premiere-partie"
    ],
    "strict": true
+  },
+  {
+   "id": "file_production",
+   "name": "File de production",
+   "forms": [
+    "File de production",
+    "Files de production",
+    "Mettre en file"
+   ],
+   "family": "meca",
+   "summary": "Bâtiments ou vaisseaux qu'une colonie lancera tout seule, l'un après l'autre, quand son chantier se libère (cinq au plus, payés au lancement)",
+   "chapters": [
+    "04-colonies"
+   ]
   }
  ]
 }

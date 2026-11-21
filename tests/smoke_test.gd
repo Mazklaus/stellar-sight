@@ -508,7 +508,9 @@ func _test_fleet_ui(main: Node) -> void:
 	await process_frame
 	await process_frame
 	_check(st.colonies[me.capital_planet].ship_build == "scout", "éclaireur mis en chantier depuis la vue système")
-	_check(screen.find_action("Chantier spatial : Vaisseau colon").disabled, "un seul vaisseau à la fois par chantier")
+	var queued := screen.find_action("Mettre en file : Vaisseau colon")
+	_check(screen.find_action("Chantier spatial : Vaisseau colon") == null and queued != null and not queued.disabled,
+			"un seul vaisseau à la fois par chantier : le suivant se met en file")
 	main.close_system_view()
 	# On rend l'état de départ aux tests suivants (qui vérifient les stocks initiaux).
 	st.colonies[me.capital_planet].ship_build = ""

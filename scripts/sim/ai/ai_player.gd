@@ -77,6 +77,8 @@ static func think(state: GameState, e: Empire) -> void:
 	var slow := slow_turn(state, e, ctx["lv"])
 	if slow:
 		_buildings(ctx)
+		if state.turn_days > 0:
+			_queue_ahead(ctx)
 	_foothold_claims(ctx)
 	if slow:
 		_designs(ctx)
@@ -140,8 +142,8 @@ static func think(state: GameState, e: Empire) -> void:
 ## ces choix pèsent cher pour peu de changement (grande passe d'optimisation, prop. 17).
 static func slow_turn(state: GameState, e: Empire, lv: Dictionary) -> bool:
 	var after := int(GameData.ai().get("slow_after_days", 0))
-	if after <= 0 or state.tick < after:
-		return true
+	if after <= 0 or state.tick < after or state.turn_days > 0:
+		return true  # au tour par tour, une seule réflexion par tour : elle décide de tout
 	var every := maxi(1, int(lv.get("think_days", 10)))
 	return posmod(state.tick + e.id * 3, int(GameData.rules()["month_days"])) < every
 
@@ -616,6 +618,25 @@ static func _singing(ctx: Dictionary) -> bool:
 
 
 # --- 2. Bâtiments ------------------------------------------------------------------------------
+
+## Tour par tour : l'IA ne repasse qu'au tour suivant, alors elle met en file le chantier d'après sur
+## chaque colonie occupée, comme le joueur. Un seul d'avance : le tour suivant jugera mieux du reste.
+static func _queue_ahead(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var net := _net(ctx)
+	for c in _my_colonies(ctx):
+		if c.construction == "" or not c.build_queue.is_empty() or not c.is_colony() or _forgets(ctx):
+			continue
+		if Economy.building_slots_used(c) + 1 >= Economy.building_slots(state, c):
+			continue
+		var wishes := Ecology.ai_filter(ctx, c, building_wishes(ctx, c, net))
+		for b in wishes:
+			if b == c.construction or c.buildings.has(b) or not Economy.building_unlocked(state, e.id, b):
+				continue
+			if _issue(ctx, SimCommands.queue_build(e.id, c.planet_id, b)):
+				break
+
 
 static func _buildings(ctx: Dictionary) -> void:
 	var state: GameState = ctx["state"]

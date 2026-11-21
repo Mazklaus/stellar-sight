@@ -627,6 +627,76 @@ static func variant_for(state: GameState, empire_id: int, building_id: String) -
 
 
 ## "" si l'empire peut lancer ce chantier, sinon la raison du refus.
+## Mise en file (voir Colony.build_queue) : on vérifie seulement ce qui ne changera pas d'ici le
+## lancement ; le coût, l'emplacement libre et le reste se jugent au moment de lancer.
+static func check_queue_build(state: GameState, empire_id: int, planet_id: int, id: String, ship: bool) -> String:
+	var c: Colony = state.colonies.get(planet_id)
+	if c == null or c.owner != empire_id:
+		return "cette planète ne vous appartient pas"
+	if not c.is_established() or not c.is_colony():
+		return "la colonie n'est pas encore fondée"
+	if (c.ship_queue if ship else c.build_queue).size() >= Colony.QUEUE_MAX:
+		return "file pleine (%d au plus)" % Colony.QUEUE_MAX
+	if ship:
+		if not Designs.buildable_ids(state, empire_id).has(id):
+			return "vaisseau inconnu : %s" % id
+		return ""
+	var bid := variant_for(state, empire_id, id)
+	var b := GameData.building(bid)
+	if b.is_empty() or not b.get("buildable", true) or Wonders.is_wonder(bid):
+		return "bâtiment inconnu : %s" % id
+	if not building_unlocked(state, empire_id, bid):
+		return "technologie manquante"
+	return ""
+
+
+## Chaque jour : une colonie dont le chantier (ou le chantier spatial) est libre lance le premier
+## élément de sa file. Pas assez de ressources : elle attend. Devenu impossible : l'élément saute,
+## et la chronique le dit à son propriétaire.
+static func run_queues(state: GameState) -> Array[Dictionary]:
+	var added: Array[Dictionary] = []
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c.build_queue.is_empty() and c.ship_queue.is_empty():
+			continue
+		var e := state.get_empire(c.owner)
+		if e == null:
+			c.build_queue.clear()
+			c.ship_queue.clear()
+			continue
+		while c.construction == "" and not c.build_queue.is_empty():
+			var bid := c.build_queue[0]
+			var cmd := SimCommands.build(c.owner, pid, bid)
+			var why := SimCommands.validate(state, cmd)
+			if why == "":
+				c.build_queue.pop_front()
+				SimCommands.apply(state, cmd)
+				break
+			if not can_afford(e, building_cost(state, c.owner, variant_for(state, c.owner, bid))):
+				break
+			c.build_queue.pop_front()
+			added.append(_queue_dropped(state, c, String(GameData.building(variant_for(state, c.owner, bid)).get("label", bid)), why))
+		while c.ship_build == "" and not c.ship_queue.is_empty():
+			var sid := c.ship_queue[0]
+			var cmd := SimCommands.build_ship(c.owner, pid, sid)
+			var why := SimCommands.validate(state, cmd)
+			if why == "":
+				c.ship_queue.pop_front()
+				SimCommands.apply(state, cmd)
+				break
+			if not can_afford(e, Fleets.ship_cost(state, c.owner, sid, pid)):
+				break
+			c.ship_queue.pop_front()
+			added.append(_queue_dropped(state, c, String(GameData.ship(sid).get("label", sid)), why))
+	return added
+
+
+static func _queue_dropped(state: GameState, c: Colony, label: String, why: String) -> Dictionary:
+	var p := state.galaxy.get_planet(c.planet_id)
+	return state.add_chronicle("%s : « %s » sort de la file de production (%s)." % [p.display_name(state.galaxy), label, why],
+			Espionage.private_to(state, [c.owner], p.system_id))
+
+
 static func check_build(state: GameState, empire_id: int, planet_id: int, building_id: String) -> String:
 	building_id = variant_for(state, empire_id, building_id)
 	var e := state.get_empire(empire_id)

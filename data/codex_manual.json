@@ -192,6 +192,12 @@
 "captures": []
 },
 {
+"id": "04-colonies#la-file-de-production",
+"title": "La file de production",
+"text": "Une colonie ne mène qu'un chantier et qu'un vaisseau à la fois. Quand l'emplacement est pris, l'ordre devient [b]Mettre en file[/b] : le bâtiment ou le vaisseau attend son tour (cinq au plus par file), puis se lance tout seul. Rien n'est payé avant le lancement : si les ressources manquent ce jour-là, la file patiente ; si l'élément n'est plus possible, il sort de la file et la chronique vous le dit. [b]Vider la file[/b] ne coûte rien. Au tour par tour, c'est ce qui évite qu'une colonie dorme jusqu'au tour suivant.",
+"captures": []
+},
+{
 "id": "04-colonies#le-chantier-spatial",
 "title": "Le chantier spatial",
 "text": "Chaque colonie peuplée construit un vaisseau à la fois, indépendamment de ses bâtiments. Le vaisseau terminé apparaît en orbite, dans sa propre flotte. Le chapitre 6 explique comment concevoir vos propres modèles.\n\n[i][b]Fragment[/b] ·\n[b]Fragment · Rapport d'une colonie de frontière« Population : 3. Production : modeste. Moral : excellent depuis que nous avons découvert que la faune locale est comestible. Moral des faunes locales : non évalué. »[/b]\n\nIntendante Mira Solvay, colonie de Kessel II[/i]",
@@ -3688,7 +3694,7 @@
 {
 "id": "24-nouveautes#édition-2-60",
 "title": "Édition 2.60",
-"text": "• [b]Équilibrage, lot 1 : l'espace et le tour par tour.[/b] Routes de saut trois fois et demie plus longues, avec un réglage [b]Distances[/b] (proches, normales, vastes) ; [b]mise en route[/b] avant chaque saut (1 à 6 jours selon la coque) ; [b]trois générations de moteurs[/b] (×1,25, ×1,6, ×2,5) à la place des petits bonus de vitesse ; l'éclaireur voit à [b]un saut[/b] (deux avec la Télémétrie à longue base) ; [b]voir n'est pas connaître[/b] (un système aperçu ne montre que son étoile et son propriétaire) ; l'[b]échange de cartes[/b] ne donne plus que le territoire et ses abords, l'[b]atlas complet[/b] vient à la quatrième ère ; un [b]voisinage vivant[/b] autour de chaque départ (peuple mineur, curiosité, nid à trois sauts au plus) ; délais de guerre, de frontière et de ravitaillement allongés avec les trajets. Au [b]tour par tour[/b], un tour dure [b]un mois[/b] par défaut, les IA décident une fois par tour, le tour s'interrompt sur une déclaration de guerre, une flotte étrangère armée chez vous ou un événement à choix (réglable), et trois ordres tiennent tout le tour : [b]étapes[/b] ([b]Ctrl[/b]+clic droit), [b]consigne d'engagement[/b], [b]point de ralliement[/b] des chantiers. Les sauvegardes d'avant gardent leurs distances.",
+"text": "• [b]Équilibrage, lot 1 : l'espace et le tour par tour.[/b] Routes de saut trois fois et demie plus longues, avec un réglage [b]Distances[/b] (proches, normales, vastes) ; [b]mise en route[/b] avant chaque saut (1 à 6 jours selon la coque) ; [b]trois générations de moteurs[/b] (×1,25, ×1,6, ×2,5) à la place des petits bonus de vitesse ; l'éclaireur voit à [b]un saut[/b] (deux avec la Télémétrie à longue base) ; [b]voir n'est pas connaître[/b] (un système aperçu ne montre que son étoile et son propriétaire) ; l'[b]échange de cartes[/b] ne donne plus que le territoire et ses abords, l'[b]atlas complet[/b] vient à la quatrième ère ; un [b]voisinage vivant[/b] autour de chaque départ (peuple mineur, curiosité, nid à trois sauts au plus) ; délais de guerre, de frontière et de ravitaillement allongés avec les trajets. Au [b]tour par tour[/b], un tour dure [b]un mois[/b] par défaut, les IA décident une fois par tour, le tour s'interrompt sur une déclaration de guerre, une flotte étrangère armée chez vous ou un événement à choix (réglable), et trois ordres tiennent tout le tour : [b]étapes[/b] ([b]Ctrl[/b]+clic droit), [b]consigne d'engagement[/b], [b]point de ralliement[/b] des chantiers. Chaque colonie a aussi une [b]file de production[/b] : quand le chantier ou le chantier spatial est occupé, l'ordre devient « Mettre en file » (cinq éléments au plus), lancés et payés l'un après l'autre ; les IA s'en servent au tour par tour. Les sauvegardes d'avant gardent leurs distances.",
 "captures": []
 },
 {
