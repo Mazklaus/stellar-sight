@@ -1,12 +1,12 @@
 {
 	"_doc": "Essai « portraits animés » : réglages de PortraitMotion (shaders/portrait_alive.gdshader) par identifiant d'illustration (celui d'assets/art/<id>.png). Coordonnées en fractions de l'image (0..1, origine en haut à gauche). Tout champ absent prend la valeur de « defaults ». Sans « eyes », pas de clignement ni de lueur. Une boucle vidéo assets/art/<id>.ogv, si elle existe, remplace l'animation.",
 	"defaults": {
-		"breath_amp": 0.006,
+		"breath_amp": 0.009,
 		"breath_period": 4.6,
 		"shoulders": 0.45,
 		"head": [0.5, 0.33],
 		"head_radius": 0.15,
-		"gaze_amp": 0.0035,
+		"gaze_amp": 0.006,
 		"eye_size": [0.024, 0.0095],
 		"blink_every": 4.5,
 		"glow": 0.0,

@@ -100,7 +100,7 @@ void fragment() {
 	vec2 dh = uv - head;
 	float hw = 1.0 - smoothstep(head_radius * 0.55, head_radius * 1.25, length(dh * vec2(1.0, 0.8)));
 	vec2 gaze = vec2(noise1(t * 0.23), noise1(t * 0.19 + 11.0) * 0.6) * gaze_amp;
-	float tilt = noise1(t * 0.13 + 5.0) * 0.012;
+	float tilt = noise1(t * 0.13 + 5.0) * 0.02;
 	vec2 rot = vec2(dh.x * cos(tilt) - dh.y * sin(tilt), dh.x * sin(tilt) + dh.y * cos(tilt));
 	uv = mix(uv, head + rot - gaze, hw);
 	vec4 col = texture(TEXTURE, uv);

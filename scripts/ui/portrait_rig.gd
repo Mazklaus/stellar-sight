@@ -11,11 +11,12 @@ extends Control
 const RIG_DIR := "res://assets/art/essais/rig/"
 
 ## Réglages de l'animation.
-var breath_px := 5.0
+var breath_px := 8.0
 var breath_period := 4.6
-var head_deg := 1.6
-var turn_px := 7.0
-var talk := true
+var head_deg := 3.2
+var turn_px := 13.0
+## Mâchoire qui parle : coupée (jugée inutile par l'utilisateur), gardée en option.
+var talk := false
 var seed_value := 0.0
 
 var _rig := {}
