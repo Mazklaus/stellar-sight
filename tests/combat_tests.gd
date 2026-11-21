@@ -376,6 +376,7 @@ func _test_khthari() -> void:
 	_ok(kh.faction_id == "khthari", "le joueur joue l'Essaim")
 	var other := st.get_empire(1)
 	var added: Array[Dictionary] = []
+	kh.stats["hunts"] = 1  # la meute est déjà formée (la première chasse est testée plus bas)
 	FleetSystem._meet(st, kh, other, added)
 	_ok(Combat.at_war(st, 0, 1), "l'Essaim sans proie part en guerre contre le premier empire rencontré")
 	FleetSystem._meet(st, kh, st.get_empire(3), added)
@@ -501,8 +502,7 @@ func _test_ai_war() -> void:
 	_ok(int(n["declared"]) > 0, "des IA belliqueuses déclarent la guerre (%d)" % n["declared"])
 	_ok(int(n["battles"]) > 0, "des batailles ont lieu entre IA (%d)" % n["battles"])
 	# Tempérament pacifique : aucune déclaration (seul l'Essaim est en guerre, par nature). Rejoindre la
-	# coalition contre un Essaim conquérant n'est pas une agression : un peuple que son caractère décale
-	# au-dessus de Pacifique le fait (voir AiPlayer._swarm_coalition).
+	# coalition publique contre un conquérant n'est pas une agression (voir CombatSystem._coalitions).
 	var st2 := GameState.create(17, 150, 1800.0, "", {"spectator": true, "ai_level": "normal", "temperament": "pacifique"})
 	var sim2 := Simulation.new(st2)
 	var declared := [0]
@@ -543,8 +543,8 @@ func _test_ai_war() -> void:
 	_ok(AiPlayer.wanted_warships(ctx) < big, "une Recrue pacifique arme moins qu'une Légende belliqueuse")
 
 
-## Coalition contre l'Essaim : un voisin entre en guerre contre un Essaim qui a déjà conquis et qui
-## le dépasse d'au moins 25 % en systèmes ; ni avant sa première conquête, ni s'il est plus petit.
+## La chasse attend la meute (équilibrage B4) : à la première rencontre, un Essaim sans meute n'attaque
+## pas ; avec 3 colonies et 6 vaisseaux armés, la rencontre vaut déclaration de guerre.
 func _test_swarm_coalition() -> void:
 	var st := _state(43, "ossarane")
 	var me := st.get_empire(0)
@@ -552,39 +552,30 @@ func _test_swarm_coalition() -> void:
 	for e in st.empires:
 		if e.faction_id == "khthari":
 			sw = e
+	_ok(not Combat.pack_ready(st, sw.id), "au départ, l'Essaim n'a pas sa meute")
 	FleetSystem._meet(st, me, sw, [])
-	_ok(Combat.at_war(st, sw.id, 0), "première rencontre : l'Essaim sans proie attaque")
-	# Ossarane n'est pas sa proie ici : on remet les compteurs à zéro.
-	sw.wars.clear()
-	me.wars.clear()
-	st.tick = 400
-	# L'Essaim s'installe autour de la capitale d'Ossarane (3 systèmes voisins).
-	var home := _home(st, 0)
+	_ok(not Combat.at_war(st, sw.id, 0), "première rencontre sans meute : l'Essaim attend")
+	var home := _home(st, sw.id)
 	var placed := 0
-	for n in st.galaxy.systems[home].neighbors:
-		if placed >= 3 or st.system_owner(n) != -1 or st.galaxy.systems[n].planet_ids.is_empty():
+	for sys in st.galaxy.systems:
+		var n: int = sys.id
+		if placed >= 2 or st.system_owner(n) != -1 or st.galaxy.systems[n].planet_ids.is_empty():
 			continue
 		var c := Colony.new()
 		c.planet_id = st.galaxy.systems[n].planet_ids[0]
 		c.owner = sw.id
-		c.kind = Colony.KIND_OUTPOST
+		c.kind = Colony.KIND_COLONY
+		c.population = 2
+		c.days_left = 0
 		st.add_colony(c)
 		placed += 1
-	me.explored.merge(_explore_all(st), true)
-	me.ai_level = "veteran"
-	var ctx := {"state": st, "e": me, "lv": AiLevels.level("veteran"), "ai": AiLevels.personality(me), "salt": 0, "intent": ""}
-	_ok(not AiPlayer._swarm_coalition(ctx), "pas de coalition avant la première conquête de l'Essaim")
-	sw.stats["conquests"] = 1
-	ctx = {"state": st, "e": me, "lv": AiLevels.level("veteran"), "ai": AiLevels.personality(me), "salt": 0, "intent": ""}
-	var bigger := Victory.systems_held(st, sw.id) * 4 >= Victory.systems_held(st, 0) * 5
-	_ok(AiPlayer._swarm_coalition(ctx) == bigger and Combat.at_war(st, 0, sw.id) == bigger,
-			"coalition contre un Essaim plus grand que soi (%d systèmes contre %d)" % [Victory.systems_held(st, sw.id), Victory.systems_held(st, 0)])
-	_ok(bigger, "le cas de test place bien l'Essaim au-dessus")
-	me.ai_level = "recrue"
-	me.wars.clear()
-	sw.wars.clear()
-	ctx = {"state": st, "e": me, "lv": AiLevels.level("recrue"), "ai": AiLevels.personality(me), "salt": 0, "intent": ""}
-	_ok(not AiPlayer._swarm_coalition(ctx), "la Recrue ne voit pas venir le danger")
+	_ok(placed == 2 and not Combat.pack_ready(st, sw.id), "trois colonies sans vaisseaux : pas encore")
+	_spawn(st, sw.id, "corvette", home, 6)
+	_ok(Combat.pack_ready(st, sw.id), "trois colonies et six vaisseaux armés : la meute est prête")
+	st.tick = 390
+	CombatSystem._hunger(st, [])
+	_ok(Combat.at_war(st, sw.id, 0) and int(sw.stats.get("hunts", 0)) == 1, "la meute prête, l'Essaim ouvre sa première chasse")
+	_ok(Combat.pack_ready(st, sw.id), "les chasses suivantes n'attendent plus rien")
 
 
 func _explore_all(st: GameState) -> Dictionary:

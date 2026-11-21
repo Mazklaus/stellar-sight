@@ -209,6 +209,36 @@ static func migration_target(state: GameState, from: Colony) -> Colony:
 	return null
 
 
+## L'Essaim se mange lui-même (équilibrage B2 et B3) : quand la nourriture manque, les colonies les plus
+## peuplées digèrent chacune un habitant, rendu en nourriture et en Savoir, jusqu'à combler le manque.
+static func _self_digest(state: GameState, e: Empire, added: Array[Dictionary]) -> void:
+	var sd: Dictionary = e.faction().get("self_digest", {})
+	var diet := FactionTraits.diet(e.faction())
+	if sd.is_empty() or int(e.resources.get(diet, 0)) >= 0:
+		return
+	var cols: Array[Colony] = []
+	for pid in state.sorted_colony_ids():
+		var c: Colony = state.colonies[pid]
+		if c.owner == e.id and c.is_colony() and c.population > 1:
+			cols.append(c)
+	cols.sort_custom(func(a: Colony, b: Colony) -> bool:
+		return a.population > b.population if a.population != b.population else a.planet_id < b.planet_id)
+	var know := int(FactionTraits.biomass_gain(state, e.id).get("knowledge", 0))
+	var eaten := 0
+	for c in cols:
+		if int(e.resources.get(diet, 0)) >= 0:
+			break
+		c.population -= 1
+		c.growth = 0
+		e.resources[diet] = int(e.resources.get(diet, 0)) + int(sd["food"])
+		e.resources["knowledge"] = int(e.resources.get("knowledge", 0)) + know
+		eaten += 1
+	if eaten > 0:
+		if int(e.stats.get("self_digested", 0)) == 0:
+			added.append(state.add_chronicle("%s a faim, et se sert chez lui : les colonies les plus peuplées digèrent les leurs. Personne ne proteste, c'est le principe." % e.display_name(), Espionage.private_to(state, [e.id])))
+		Research.count_stat(state, e.id, "self_digested", eaten)
+
+
 static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionary]) -> void:
 	var inc_all := Economy.empire_income(state, e.id)
 	var net: Dictionary = inc_all["net"]
@@ -222,6 +252,7 @@ static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionar
 
 	_monthly_traits(state, e, added)
 
+	_self_digest(state, e, added)
 	var was_starving := e.starving
 	# Famine : plus de nourriture, ou plus de matériaux pour un peuple qui mange la roche.
 	e.starving = int(e.resources.get(FactionTraits.diet(e.faction()), 0)) < 0

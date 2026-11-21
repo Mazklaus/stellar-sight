@@ -21,13 +21,30 @@ static func _alarmed(ctx: Dictionary) -> bool:
 	return state.tick - last <= int(cfg().get("listen_after_ambush_days", 720))
 
 
+## L'empire a-t-il rencontré un peuple voilé (qui n'est pas son allié) ? Ses frontières s'équipent alors
+## de Réseaux d'écoute : le Voile se perce de près (équilibrage B7).
+static func _knows_veiled(ctx: Dictionary) -> bool:
+	if ctx.has("knows_veiled"):
+		return ctx["knows_veiled"]
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	var out := false
+	if not e.veiled():
+		for o in e.contacts:
+			if Veil.is_veiled(state, int(o)) and not state.get_empire(int(o)).eliminated and not Diplomacy.allied(state, e.id, int(o)):
+				out = true
+				break
+	ctx["knows_veiled"] = out
+	return out
+
+
 ## Bâtiments souhaités pour cette colonie (ajoutés aux vœux des défenses).
 static func wishes(ctx: Dictionary, c: Colony) -> Array[String]:
 	var out: Array[String] = []
 	var state: GameState = ctx["state"]
 	if not Stealth.enabled(state) or not c.is_established() or c.buildings.has("reseau_ecoute"):
 		return out
-	if AiPlayer._skill(ctx) < int(cfg().get("react_skill", 1)) or not _alarmed(ctx):
+	if AiPlayer._skill(ctx) < int(cfg().get("react_skill", 1)) or not (_alarmed(ctx) or _knows_veiled(ctx)):
 		return out
 	var e: Empire = ctx["e"]
 	var sid := state.galaxy.get_planet(c.planet_id).system_id
@@ -40,7 +57,7 @@ static func wishes(ctx: Dictionary, c: Colony) -> Array[String]:
 ## Technologie à chercher en priorité (« » si rien).
 static func research_wish(ctx: Dictionary) -> String:
 	var state: GameState = ctx["state"]
-	if not Stealth.enabled(state) or AiPlayer._skill(ctx) < int(cfg().get("react_skill", 1)) or not _alarmed(ctx):
+	if not Stealth.enabled(state) or AiPlayer._skill(ctx) < int(cfg().get("react_skill", 1)) or not (_alarmed(ctx) or _knows_veiled(ctx)):
 		return ""
 	var e: Empire = ctx["e"]
 	for t in ["capteurs", "detecteurs_1"]:

@@ -190,7 +190,7 @@ func _test_talents() -> void:
 			"brisecomete":
 				_ok(bool(Culture.talent(st, e.id).get("ignore_embargo", false)) and Culture.tal(st, e.id, "luxury_extra") == 10, "Brisecomète : contrebande de feuilletons, luxes")
 			"murmurants":
-				_ok(Culture.tal(st, e.id, "radiance_pct") == 15, "Murmurants : trait Orateurs +15 %")
+				_ok(Culture.tal(st, e.id, "radiance_pct") == 0, "Murmurants : plus de trait Orateurs (équilibrage B5)")
 		_ok(not Culture.talent_labels(st, e.id).is_empty(), "talents affichés pour %s" % e.faction_id)
 
 

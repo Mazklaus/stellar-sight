@@ -281,7 +281,7 @@ static func _meet(state: GameState, a: Empire, b: Empire, added: Array[Dictionar
 	for pair in [[a, b], [b, a]]:
 		var swarm: Empire = pair[0]
 		var prey: Empire = pair[1]
-		if Combat.hunts(state, swarm.id) and not swarm.wars.has(prey.id) and not Combat.has_live_war(state, swarm.id):
+		if Combat.hunts(state, swarm.id) and not swarm.wars.has(prey.id) and not Combat.has_live_war(state, swarm.id) and Combat.pack_ready(state, swarm.id):
 			added.append(Combat.start_war(state, swarm.id, prey.id, true))
 			break
 	# Choc des tons (voir Events) : la rencontre de deux registres opposés.

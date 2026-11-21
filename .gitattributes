@@ -1,0 +1,2 @@
+tools/determinism_reference.txt text eol=lf
+tools/determinism_starts/*.json text eol=lf
