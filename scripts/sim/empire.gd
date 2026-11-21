@@ -27,6 +27,17 @@ var starving: bool = false
 var blackout: bool = false
 ## Systèmes explorés (vus au moins une fois) : id -> true. Le reste de la galaxie est dans le brouillard.
 var explored: Dictionary = {}
+## Systèmes reconnus (étude d'équilibrage, A5 : voir n'est pas connaître) : un de ses vaisseaux y est
+## passé, il y a une revendication, ou un échange de cartes les a donnés. Planètes, gisements et
+## curiosités ne se lisent que là ; un système seulement exploré montre son étoile et son propriétaire.
+var surveyed: Dictionary = {}
+## Point de ralliement des chantiers (C6) : les vaisseaux armés qui sortent des chantiers s'y rendent
+## d'eux-mêmes. -1 : aucun.
+var rally_system: int = -1
+## File de colonisation (équilibrage, tour par tour) : projets [{"planet", "kind", "species"}] lancés
+## tout seuls dès qu'un projet en cours s'achève (voir Economy.run_queues). Payés au lancement.
+const CLAIM_QUEUE_MAX := 5
+var claim_queue: Array = []
 ## Dernière information connue (voir Intel) : système -> {"day": jour du relevé, "info": relevé}.
 var intel: Dictionary = {}
 ## Flottes étrangères aperçues puis perdues de vue (voir Intel) : flotte -> {"sys", "day", "owner",
@@ -211,7 +222,7 @@ static func color_taken(c: Color, used: Array[Color]) -> bool:
 
 
 func to_dict() -> Dictionary:
-	return {
+	var d := {
 		"id": id,
 		"faction": faction_id,
 		"color": color_hex,
@@ -256,6 +267,14 @@ func to_dict() -> Dictionary:
 		"genome": Genetics.genome_to_list(self),
 		"gene_path": gene_path,
 	}
+	# Écrits seulement s'ils servent : une sauvegarde d'avant (reconnu = exploré) garde son empreinte.
+	if surveyed.size() != explored.size() or not explored.has_all(surveyed.keys()):
+		d["surveyed"] = sorted_surveyed()
+	if rally_system >= 0:
+		d["rally"] = rally_system
+	if not claim_queue.is_empty():
+		d["claim_queue"] = claim_queue.duplicate(true)
+	return d
 
 
 func _sorted_exploits() -> Array:
@@ -310,6 +329,12 @@ func _sorted_shelf() -> Array:
 	return out
 
 
+func sorted_surveyed() -> Array:
+	var ids := surveyed.keys()
+	ids.sort()
+	return ids
+
+
 func sorted_explored() -> Array:
 	var ids := explored.keys()
 	ids.sort()
@@ -334,6 +359,13 @@ static func from_dict(d: Dictionary) -> Empire:
 	e.blackout = bool(d["blackout"])
 	for sid in d["explored"]:
 		e.explored[int(sid)] = true
+	# Sauvegardes d'avant « voir n'est pas connaître » : tout ce qui était exploré est reconnu.
+	for sid in d.get("surveyed", d["explored"]):
+		e.surveyed[int(sid)] = true
+	e.rally_system = int(d.get("rally", -1))
+	for q in d.get("claim_queue", []):
+		if q is Dictionary:
+			e.claim_queue.append({"planet": int(q.get("planet", -1)), "kind": String(q.get("kind", "")), "species": String(q.get("species", ""))})
 	Intel.from_list(e, d.get("intel", []))
 	Intel.sightings_from_list(e, d.get("sightings", []))
 	for c in d["contacts"]:

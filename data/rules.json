@@ -8,6 +8,9 @@
 		{"id": "knowledge", "label": "Savoir", "short": "Sav"}
 	],
 	"start_resources": {"energy": 100, "materials": 200, "food": 100, "influence": 60, "crystals": 0},
+	"distances": {"_doc": "Échelle des distances (étude d'équilibrage, A2 et A10) : longueur des routes de saut en % de la distance sur la carte, selon le réglage « Distances » de la partie. Un saut d'éclaireur dure environ 16 jours à 350. « heritage » : parties sauvegardées avant ce réglage.", "proches": 230, "normales": 350, "vastes": 500, "heritage": 100},
+	"spool_days": {"_doc": "Mise en route avant le saut (A6) : jours à l'arrêt avant de quitter un système, selon la plus grande coque de la flotte.", "small": 1, "medium": 2, "large": 4, "titan": 6},
+	"stance_fallback_pct": 150,
 	"month_days": 30,
 	"food_per_pop": 1,
 	"pop_per_knowledge": 5,

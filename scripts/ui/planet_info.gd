@@ -133,12 +133,22 @@ static func colony_lines(state: GameState, p: Planet, c: Colony, player: int) ->
 		lines.append("Culte du Je : %d drones dissidents" % int(FaithWars.je(state, c.planet_id)["n"]))
 	if c.construction != "":
 		lines.append("Chantier : %s (%d j)" % [GameData.building(c.construction).get("label", c.construction), c.construction_days])
+	if c.owner == player and not c.build_queue.is_empty():
+		var qn: Array[String] = []
+		for qid in c.build_queue:
+			qn.append(String(GameData.building(Economy.variant_for(state, player, qid)).get("label", qid)))
+		lines.append("Puis : %s" % ", ".join(qn))
 	if not state.wonders.is_empty():
 		for pair in Wonders.builds_by(state, player):
 			if int(pair[1]["p"]) == c.planet_id:
 				lines.append("Grand chantier : %s (%d %%)" % [Wonders.label(String(pair[0])), Wonders.pct(pair[1])])
 	if c.ship_build != "":
 		lines.append("Chantier spatial : %s (%d j)" % [GameData.ship(c.ship_build).get("label", c.ship_build), c.ship_days])
+	if c.owner == player and not c.ship_queue.is_empty():
+		var sn: Array[String] = []
+		for qid in c.ship_queue:
+			sn.append(String(GameData.ship(qid).get("label", qid)))
+		lines.append("Puis : %s" % ", ".join(sn))
 	if c.owner == player:
 		lines.append("Par mois (avant bonus) : %s" % GameData.format_amounts(net_yields(state, c), true))
 	return lines

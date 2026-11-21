@@ -281,6 +281,7 @@ func _test_talents() -> void:
 	var o := _empire_of(ost, "ossarane")
 	for s in ost.galaxy.systems:
 		o.explored[s.id] = true
+		o.surveyed[s.id] = true
 	var ships := Fleets.empire_fleets(ost, o.id).filter(func(f: Fleet) -> bool: return Fleets.colonizer_ship(f) != "")
 	var cap_sys := ost.galaxy.get_planet(o.capital_planet).system_id
 	var far := int(o.faction()["fiefs"]["far_jumps"])

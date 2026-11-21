@@ -38,7 +38,7 @@
 	},
 	"place": {
 		"min_jumps": 3,
-		"near_jumps": 6,
+		"near_jumps": 3,
 		"apart": 2,
 		"_doc": "À min_jumps sauts au moins de tout départ ; chaque départ en a au moins un à near_jumps sauts ou moins si possible ; apart sauts entre deux peuples ; jamais dans la poche d'une ancienne."
 	},

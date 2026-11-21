@@ -119,7 +119,7 @@ func _test_intrusion() -> void:
 	sim.step()
 	_ok(_memory(st, 0, 1, "intrusion") == 1, "Une intrusion ne compte qu'une fois tant que la flotte reste")
 	_ok(Borders.intrusions_in(st, 0).size() == 2, "Liste des intrusions chez soi")
-	for i in 35:
+	for i in 65:
 		sim.step()
 	Borders.monthly(st)
 	_ok(_memory(st, 0, 1, "intr_stay") >= 1, "Stationner sans droit aggrave la faute chaque mois")

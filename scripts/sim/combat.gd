@@ -667,6 +667,8 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 		c.construction_days = 0
 		c.ship_build = ""
 		c.ship_days = 0
+		c.build_queue.clear()
+		c.ship_queue.clear()
 		c.growth = 0
 		if eo.capital_planet == pid:
 			lost_capital = true

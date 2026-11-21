@@ -60,11 +60,46 @@ static func _hunger(state: GameState, added: Array[Dictionary]) -> void:
 				e.display_name(), state.get_empire(prey).display_name()], Espionage.public_to(state, [e.id, prey])))
 
 
+## Mise en route avant le saut : tant que ses moteurs chargent, une flotte qui veut partir est encore
+## là, et encore sous le feu.
+static func _spooling(state: GameState, f: Fleet) -> bool:
+	return f.progress == 0 and f.spool < Fleets.spool_days(state, f, f.system_id, f.path[0])
+
+
+## Consignes d'engagement (C6) : au jour où la bataille s'engage, une flotte à l'arrêt qui doit éviter
+## le combat, ou se replier si elle est surclassée, part vers le système ami le plus proche. Elle reste
+## sous le feu le temps de sa mise en route.
+static func _stances(state: GameState, fleets: Array) -> void:
+	for f: Fleet in fleets:
+		if f.stance == "" or f.is_moving() or f.owner < 0 or Fleets.anchored(state, f) or Terrain.pinned(state, f):
+			continue
+		var foes := 0
+		var mine := 0
+		for g: Fleet in fleets:
+			if g.owner == f.owner:
+				mine += Combat.fleet_power(g)
+			elif Combat.hostile_fleets(state, f, g):
+				foes += Combat.fleet_power(g)
+		if foes <= 0:
+			continue
+		if f.stance == Fleet.STANCE_FALLBACK and foes * 100 <= mine * int(GameData.rules().get("stance_fallback_pct", 150)):
+			continue
+		var to := Fleets.retreat_target(state, f)
+		var plan := Fleets.plan_route(state, f, to) if to >= 0 else {}
+		if plan.is_empty():
+			continue
+		f.queue.clear()
+		if f.standing_order == Fleet.ORDER_EXPLORE:
+			f.standing_order = ""
+		f.path.assign(plan["path"])
+		f.progress = 0
+
+
 static func _stationary_by_system(state: GameState) -> Dictionary:
 	var out := {}
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
-		if f.is_moving() and not Terrain.pinned(state, f):
+		if f.is_moving() and not Terrain.pinned(state, f) and not _spooling(state, f):
 			continue  # (une flotte retenue par la gravité du lieu reste dans la bataille)
 		if not out.has(f.system_id):
 			out[f.system_id] = []
@@ -121,6 +156,7 @@ static func _battle_day(state: GameState, sid: int, fleets: Array, added: Array[
 	var fresh := b.is_empty()
 	if fresh:
 		b = _new_battle(state, sid)
+		_stances(state, fleets)
 	b["day"] = int(b["day"]) + 1
 	var day := int(b["day"])
 	var phase := Combat.phase_index(day)

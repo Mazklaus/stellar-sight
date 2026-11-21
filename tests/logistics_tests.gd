@@ -152,9 +152,9 @@ func _test_reserves() -> void:
 	_ok(far >= 0, "un système loin de tout (4 sauts)")
 	var f := st.spawn_ship(0, "corvette", far)
 	_ok(Logistics.status(st, f) == Logistics.OUT, "loin de tout : flotte Étirée")
-	_ok(Logistics.reserves(st, f) == 120 and Logistics.autonomy(st, f) == 120, "réserves pleines : 120 jours")
+	_ok(Logistics.reserves(st, f) == 300 and Logistics.autonomy(st, f) == 300, "réserves pleines : 300 jours")
 	sim.advance(10)
-	_ok(Logistics.reserves(st, f) == 110, "hors zone : -1 jour de réserves par jour")
+	_ok(Logistics.reserves(st, f) == 290, "hors zone : -1 jour de réserves par jour")
 	f.hp[0] = 1
 	st.logistics["res"][str(f.id)] = 1
 	sim.advance(1)
@@ -170,10 +170,10 @@ func _test_reserves() -> void:
 	f.system_id = _home(st, 0)
 	sim.advance(1)
 	_ok(Logistics.dry_days(st, f) == 0 and Logistics.reserves(st, f) == 10, "de retour en zone : malus levé, +10 jours de réserves par jour")
-	sim.advance(12)
-	_ok(Logistics.reserves(st, f) == 120 and not st.logistics["res"].has(str(f.id)), "réserves refaites (rien de stocké quand elles sont pleines)")
+	sim.advance(30)
+	_ok(Logistics.reserves(st, f) == 300 and not st.logistics["res"].has(str(f.id)), "réserves refaites (rien de stocké quand elles sont pleines)")
 	# Avertissement d'itinéraire.
-	_ok(Logistics.route_warning(st, f, [far], 200).contains("trajet dure"), "itinéraire trop long pour les réserves : averti")
+	_ok(Logistics.route_warning(st, f, [far], 400).contains("trajet dure"), "itinéraire trop long pour les réserves : averti")
 	_ok(Logistics.route_warning(st, f, [_home(st, 0)]) == "", "itinéraire dans la zone : rien à signaler")
 
 
@@ -222,7 +222,7 @@ func _test_cut() -> void:
 	st.log_cache.clear()
 	_ok(Logistics.status(st, f) == Logistics.CUT, "tous les voisins tenus par l'ennemi : flotte Coupée")
 	sim.advance(1)
-	_ok(Logistics.reserves(st, f) <= 118, "Coupée : réserves consommées deux fois plus vite")
+	_ok(Logistics.reserves(st, f) <= 298, "Coupée : réserves consommées deux fois plus vite")
 	var cut_note := false
 	for c in st.chronicle:
 		if String(c.get("text", "")).contains("coupée de ses arrières"):
@@ -277,7 +277,7 @@ func _test_research_and_hero() -> void:
 	st.get_empire(0).tech_fx_n = -1
 	_ok(Logistics.range_of(st, 0) == r0 + 1, "Lignes de ravitaillement : +1 saut")
 	var f := st.spawn_ship(0, "corvette", _home(st, 0))
-	_ok(Logistics.autonomy(st, f) == 180, "Soutes profondes : réserves +50 %%")
+	_ok(Logistics.autonomy(st, f) == 450, "Soutes profondes : réserves +50 %%")
 	_ok(Logistics.bridge_days(st, 0) == 15, "Logistique de campagne : tête de pont en 15 jours")
 	_ok(Heroes.trait_def("intendant_flotte").get("fx", {}).has("autonomy_pct"), "trait d'amiral Intendant")
 	_ok(GameData.designs_data().get("modules", {}).has("soute_ravitaillement") and Designs.FLAGS.has("supply_hold"), "module Soute de ravitaillement dans le Chantier")
@@ -319,7 +319,7 @@ func _test_sabotage() -> void:
 	var f := st.spawn_ship(1, "corvette", _far(st, 1, 4))
 	_ok(Logistics.spy_check(st, 0, 1, "saboter_depots") == "", "une flotte loin de ses bases : cible possible")
 	Logistics.spy_apply(st, 0, 1, op)
-	_ok(Logistics.reserves(st, f) == 60, "sabotage : la moitié des réserves")
+	_ok(Logistics.reserves(st, f) == 150, "sabotage : la moitié des réserves")
 	_ok(int(st.logistics["sab"]["1"]) > st.tick, "et ses dépôts fermés")
 
 
@@ -339,7 +339,7 @@ func _test_encircled_and_ground() -> void:
 	var g := _new(7, "vael", {"logistics": "complete", "ground": "complet"})
 	var far := _far(g, 0, 4)
 	var r := Ground._new_regiment(g, 0, "infanterie", Peoples.founder_of(g, 0), far)
-	g.logistics["gr"]["0:%d" % far] = 121
+	g.logistics["gr"]["0:%d" % far] = 301
 	var mo := int(r["mo"])
 	Logistics._ground_supply(g)
 	_ok(int(r["mo"]) < mo and Logistics.ground_unsupplied(g, 0, far), "régiments sans ravitaillement : le moral fond, plus de renforts")
@@ -348,14 +348,14 @@ func _test_encircled_and_ground() -> void:
 func _test_talents() -> void:
 	var teyl := _new(7, "teyl")
 	var f := teyl.spawn_ship(0, "corvette", _home(teyl, 0))
-	_ok(Logistics.autonomy(teyl, f) == 240, "Synthétiques (Teyl) : réserves doublées")
+	_ok(Logistics.autonomy(teyl, f) == 600, "Synthétiques (Teyl) : réserves doublées")
 	var mur := _new(7, "murmurants")
 	_ok(bool(Logistics.talent(mur, 0).get("never_cut", false)), "Énergétiques (Murmurants) : jamais Coupés")
 	var oss := _new(7, "ossarane")
 	_ok(Logistics.range_of(oss, 0) == 3, "Navigateurs (Ossarane) : zone +1 saut")
 	var kh := _new(7, "khthari")
 	_ok(bool(Logistics.talent(kh, 0).get("requisition_free", false)), "Ruche (Kh'thari) : réquisition sans rancune")
-	_ok(Logistics.autonomy(kh, kh.spawn_ship(0, "corvette", _home(kh, 0))) == 150, "credo Survie : réserves +25 %%")
+	_ok(Logistics.autonomy(kh, kh.spawn_ship(0, "corvette", _home(kh, 0))) == 375, "credo Survie : réserves +25 %%")
 	var bri := _new(7, "brisecomete")
 	_ok(bool(Logistics.talent(bri, 0).get("free_ports", false)), "registre Picaresque (Brisecomète) : ports francs gratuits")
 	var fer := _new(7, "ferrocornes")

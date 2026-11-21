@@ -105,7 +105,7 @@ func _test_modes() -> void:
 	_ok(neutron >= 0 and Terrain.at(plain, neutron).is_empty(), "sans terrain, l'étoile à neutrons n'a pas d'effet")
 	var lanes_same := true
 	for l in plain.galaxy.lanes:
-		if Fleets.lane_length(plain.galaxy, l.x, l.y) != maxi(1, roundi(plain.galaxy.systems[l.x].position.distance_to(plain.galaxy.systems[l.y].position))):
+		if Fleets.lane_length(plain.galaxy, l.x, l.y) != maxi(1, maxi(1, roundi(plain.galaxy.systems[l.x].position.distance_to(plain.galaxy.systems[l.y].position))) * plain.galaxy.lane_scale_pct / 100):
 			lanes_same = false
 	_ok(lanes_same, "sans terrain, les routes gardent leur longueur")
 	_ok(Terrain.MODES.size() == 4 and Terrain.mode_defs().size() == 4, "quatre densités : Aucun, Clairsemé, Normal, Dense")

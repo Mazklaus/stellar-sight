@@ -23,13 +23,16 @@
 			"era": 1,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "Débloque la tactique Harcèlement (bien de loin, un peu moins touchée). Sa Maîtrise, Postcombustion, rend les flottes plus rapides.",
+			"text": "Première génération de moteurs : toutes les flottes vont un quart plus vite (vitesse ×1,25). Débloque la tactique Harcèlement (bien de loin, un peu moins touchée). Sa Maîtrise, Postcombustion, raccourcit la mise en route avant le saut.",
 			"needs": [
 				"vaisseaux"
 			],
 			"tags": [
 				"saut"
-			]
+			],
+			"effects": {
+				"fleet_speed_pct": 25
+			}
 		},
 		"postcombustion": {
 			"label": "Postcombustion",
@@ -37,7 +40,7 @@
 			"era": 2,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "+10 % de vitesse pour toutes les flottes.",
+			"text": "Mise en route avant le saut raccourcie d'un quart pour toutes les flottes.",
 			"pre": [
 				"propulseurs"
 			],
@@ -46,7 +49,7 @@
 			],
 			"mastery": "propulseurs",
 			"effects": {
-				"fleet_speed_pct": 10
+				"spool_days_pct": -25
 			}
 		},
 		"detecteurs_abysse": {
@@ -243,6 +246,27 @@
 				"n": 15
 			}
 		},
+		"telemetrie_longue": {
+			"label": "Télémétrie à longue base",
+			"domain": "genie",
+			"era": 2,
+			"field": "senseurs",
+			"current": "academie",
+			"text": "Vos éclaireurs voient à deux sauts au lieu d'un : ils dressent la carte sans entrer partout.",
+			"pre": [
+				"capteurs"
+			],
+			"needs": [
+				"vaisseaux"
+			],
+			"effects": {
+				"scout_vision": 1
+			},
+			"eureka": {
+				"kind": "explored",
+				"n": 25
+			}
+		},
 		"cales_rapides": {
 			"label": "Chantiers à cadence",
 			"domain": "genie",
@@ -318,7 +342,7 @@
 			"era": 2,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "Débloque les Nacelles à hyperflux : le vaisseau force les blocus. Sa Maîtrise, Flux continu, rend les flottes plus rapides.",
+			"text": "Deuxième génération de moteurs : vitesse ×1,6 au lieu de ×1,25. Débloque les Nacelles à hyperflux : le vaisseau force les blocus. Sa Maîtrise, Flux continu, raccourcit encore la mise en route.",
 			"pre": [
 				"propulseurs"
 			],
@@ -331,6 +355,9 @@
 			"eureka": {
 				"kind": "explored",
 				"n": 35
+			},
+			"effects": {
+				"fleet_speed_pct": 35
 			}
 		},
 		"flux_continu": {
@@ -339,7 +366,7 @@
 			"era": 3,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "+10 % de vitesse pour toutes les flottes.",
+			"text": "Mise en route avant le saut raccourcie d'un quart de plus.",
 			"pre": [
 				"hyperflux"
 			],
@@ -348,7 +375,7 @@
 			],
 			"mastery": "hyperflux",
 			"effects": {
-				"fleet_speed_pct": 10
+				"spool_days_pct": -25
 			}
 		},
 		"coques_series": {
@@ -486,7 +513,7 @@
 			"era": 4,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "Débloque l'Œil du Titan. Sa Maîtrise, Sauts calculés, rend les flottes plus rapides.",
+			"text": "Troisième génération de moteurs : vitesse ×2,5 au lieu de ×1,6, la galaxie se traverse en quelques mois. Débloque l'Œil du Titan. Sa Maîtrise, Sauts calculés, réduit la mise en route au quart.",
 			"pre": [
 				"hyperflux"
 			],
@@ -495,7 +522,10 @@
 			],
 			"tags": [
 				"saut"
-			]
+			],
+			"effects": {
+				"fleet_speed_pct": 90
+			}
 		},
 		"sauts_calcules": {
 			"label": "Sauts calculés",
@@ -503,7 +533,7 @@
 			"era": 5,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "+15 % de vitesse pour toutes les flottes.",
+			"text": "Mise en route avant le saut réduite au quart de sa durée d'origine.",
 			"pre": [
 				"saut_precision"
 			],
@@ -512,7 +542,7 @@
 			],
 			"mastery": "saut_precision",
 			"effects": {
-				"fleet_speed_pct": 15
+				"spool_days_pct": -25
 			}
 		},
 		"coques_modulaires": {

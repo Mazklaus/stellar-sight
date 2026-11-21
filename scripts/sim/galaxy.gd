@@ -6,6 +6,9 @@ var seed_value: int = 0
 var systems: Array[StarSystem] = []
 ## Chaque route relie deux identifiants de systèmes : Vector2i(a, b) avec a < b.
 var lanes: Array[Vector2i] = []
+## Échelle des distances : longueur des routes en % de la distance sur la carte (réglage « Distances »
+## de la partie, voir GalaxySettings.lane_scale_pct). Posée par GameState à la création et au chargement.
+var lane_scale_pct: int = 100
 ## Toutes les planètes, indexées par leur identifiant.
 var planets: Array[Planet] = []
 ## Portes stellaires ouvertes (voir WondersCatalog) : système -> propriétaire. Donnée dérivée, non sauvegardée.

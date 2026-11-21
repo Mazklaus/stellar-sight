@@ -35,7 +35,25 @@ static func process(state: GameState) -> Array[Dictionary]:
 				added.append(entry)
 		elif f.is_patrolling():
 			patrol_step(state, f)
+		elif not f.queue.is_empty() and not f.is_moving() and not state.battles.has(f.system_id):
+			queue_step(state, f)
 	return added
+
+
+## Étapes (C6) : arrivée à destination, la flotte repart vers l'étape suivante. Une étape devenue
+## injoignable est sautée.
+static func queue_step(state: GameState, f: Fleet) -> void:
+	while not f.queue.is_empty():
+		var to: int = f.queue.pop_front()
+		if to == f.system_id:
+			continue
+		var plan := Fleets.plan_route(state, f, to)
+		if plan.is_empty():
+			continue
+		f.system_id = int(plan["system"])
+		f.path.assign(plan["path"])
+		f.progress = int(plan["progress"])
+		return
 
 
 ## Patrouille : arrivée à un bout, la flotte repart vers l'autre (pas pendant une bataille).
@@ -77,7 +95,7 @@ static func _refit_step(state: GameState, f: Fleet) -> Dictionary:
 ## destination a été explorée en chemin (un éclaireur voit à deux sauts, il n'a pas besoin d'y aller).
 ## Quand il ne reste rien à explorer, l'ordre s'arrête et la chronique le signale.
 static func explore_step(state: GameState, f: Fleet) -> Dictionary:
-	if f.is_moving() and not Fleets.is_explored(state, f.owner, f.destination()):
+	if f.is_moving() and not Fleets.is_surveyed(state, f.owner, f.destination()):
 		return {}
 	# Un éclaireur s'arrête le temps de sonder une curiosité rapide (voir Curios).
 	if not f.is_moving() and Curios.wants_to_stay(state, f):
@@ -114,6 +132,11 @@ static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictiona
 	if c.ship_days > 0:
 		return
 	var f := state.spawn_ship(c.owner, c.ship_build, p.system_id)
+	# Point de ralliement des chantiers (C6) : un vaisseau armé neuf s'y rend de lui-même.
+	if e.rally_system >= 0 and e.rally_system != p.system_id and Combat.is_armed(f):
+		var rplan := Fleets.plan_route(state, f, e.rally_system)
+		if not rplan.is_empty():
+			f.path.assign(rplan["path"])
 	Research.count_stat(state, c.owner, "built")
 	Politics.on_ship(state, p.system_id, Combat.is_armed(f))
 	c.ship_build = ""
@@ -131,6 +154,11 @@ static func _move(state: GameState, f: Fleet) -> void:
 		return
 	if Terrain.pinned(state, f):
 		return  # trou noir, tempête gravitationnelle : on ne quitte pas la bataille
+	# Mise en route avant le saut : la flotte reste à l'arrêt le temps de charger ses moteurs.
+	if f.progress == 0:
+		if f.spool < Fleets.spool_days(state, f, f.system_id, f.path[0]):
+			f.spool += 1
+			return
 	var sp := Terrain.fleet_speed(state, f, Fleets.speed(f, state))
 	if state.faith_on:
 		# Voies sacrées : routes bénies plus rapides pour les fidèles, fermées (ralenties) aux autres.
@@ -175,6 +203,13 @@ static func _move(state: GameState, f: Fleet) -> void:
 			f.path.clear()
 		elif dx == 1:
 			break
+		if f.is_moving():
+			# Étape : nouvelle mise en route avant le saut suivant, le reste du trajet du jour est perdu.
+			f.spool = 0
+			if Fleets.spool_days(state, f, f.system_id, f.path[0]) > 0:
+				f.progress = 0
+				return
+	f.spool = 0
 	f.progress = 0  # arrivée : le reste du trajet du jour est perdu
 
 
@@ -190,6 +225,14 @@ static func update_exploration(state: GameState) -> Array[Dictionary]:
 		var seen: Dictionary = seen_by[e.id]
 		for sid in seen:
 			e.explored[sid] = true
+	# Voir n'est pas connaître : un système est reconnu quand un vaisseau de l'empire s'y trouve, ou
+	# qu'il y tient une revendication.
+	for f: Fleet in state.fleets.values():
+		if f.owner >= 0 and f.owner < state.empires.size():
+			state.empires[f.owner].surveyed[f.system_id] = true
+	for c: Colony in state.colonies.values():
+		if c.owner >= 0 and c.owner < state.empires.size():
+			state.empires[c.owner].surveyed[state.galaxy.get_planet(c.planet_id).system_id] = true
 	Intel.record(state, seen_by)
 	for e in state.empires:
 		var seen: Dictionary = seen_by[e.id]

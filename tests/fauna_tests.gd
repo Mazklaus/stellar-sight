@@ -65,7 +65,7 @@ func _test_setup() -> void:
 	for sid in nests:
 		for e in st.empires:
 			var cap := FactionTraits.capital_system(st, e.id)
-			if cap >= 0 and int(FactionTraits.jumps_from(st.galaxy, cap).get(sid, 999)) < int(Fauna.data()["min_jumps_from_start"]):
+			if cap >= 0 and int(FactionTraits.jumps_from(st.galaxy, cap).get(sid, 999)) < int(Fauna.data().get("near_min", Fauna.data()["min_jumps_from_start"])):
 				far = false
 		if Fauna.nest_herds(st, sid).size() != 3:
 			herds_ok = false
@@ -76,7 +76,7 @@ func _test_setup() -> void:
 			if st.galaxy.get_planet(pid).deposits.has(dep):
 				found = true
 		deposit = deposit and found
-	_ok(far, "nids à 4 sauts au moins de chaque capitale")
+	_ok(far, "nids jamais collés à une capitale (2 sauts au moins, 4 hors nid de voisinage)")
 	_ok(herds_ok, "trois troupeaux par nid en densité normale")
 	_ok(deposit, "chaque nid porte le gisement de son espèce")
 	var rare := _new(11, "grouillantes")

@@ -20,6 +20,11 @@ var construction: String = ""
 var construction_days: int = 0
 ## Vaisseau en construction au chantier spatial ("" = aucun) et jours restants.
 ## Le chantier spatial est indépendant de celui des bâtiments.
+## Files de production (équilibrage, tour par tour) : ce qui se lancera tout seul quand le chantier ou
+## le chantier spatial se libère (voir Economy.run_queues). Rien n'est payé avant le lancement.
+const QUEUE_MAX := 5
+var build_queue: Array[String] = []
+var ship_queue: Array[String] = []
 var ship_build: String = ""
 var ship_days: int = 0
 ## Populations mixtes (voir Peoples) : habitants qui ne sont pas de l'espèce du propriétaire, par
@@ -71,6 +76,10 @@ func to_dict() -> Dictionary:
 		"ship_build": ship_build,
 		"ship_days": ship_days,
 	}
+	if not build_queue.is_empty():
+		d["build_queue"] = Array(build_queue)
+	if not ship_queue.is_empty():
+		d["ship_queue"] = Array(ship_queue)
 	if not species.is_empty():
 		var sp := {}
 		var keys := species.keys()
@@ -111,6 +120,10 @@ static func from_dict(d: Dictionary) -> Colony:
 	c.construction_days = int(d["construction_days"])
 	c.ship_build = String(d["ship_build"])
 	c.ship_days = int(d["ship_days"])
+	for q in d.get("build_queue", []):
+		c.build_queue.append(String(q))
+	for q in d.get("ship_queue", []):
+		c.ship_queue.append(String(q))
 	var sp: Dictionary = d.get("species", {})
 	for k in sp:
 		if int(sp[k]) > 0:

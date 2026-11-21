@@ -270,7 +270,7 @@ L'option de partie **Logistique** a trois réglages. **Désactivée** garde les 
 | Étirée | Hors de la zone | -1 jour par jour |
 | Coupée (Complète) | Hors de la zone, sans chemin libre pour y revenir | -2 jours par jour |
 
-**Les réserves.** Une flotte de guerre emporte **120 jours** de réserves. En logistique complète, chaque jour de bataille ou de siège en compte deux. Une flotte sans droit dans un territoire qui lui est clos en compte aussi deux. Quand les soutes sont vides, la flotte ne se répare plus du tout et ses dégâts baissent de **2 % par semaine**, jusqu'à **-30 %**. Elle ne perd jamais un vaisseau pour autant : il suffit de rentrer dans la zone pour que le malus tombe dès le premier jour. La chronique prévient quand une flotte vide ses soutes.
+**Les réserves.** Une flotte de guerre emporte **300 jours** de réserves. En logistique complète, chaque jour de bataille ou de siège en compte deux. Une flotte sans droit dans un territoire qui lui est clos en compte aussi deux. Quand les soutes sont vides, la flotte ne se répare plus du tout et ses dégâts baissent de **2 % par semaine**, jusqu'à **-30 %**. Elle ne perd jamais un vaisseau pour autant : il suffit de rentrer dans la zone pour que le malus tombe dès le premier jour. La chronique prévient quand une flotte vide ses soutes.
 
 **Couper les lignes (Complète).** Un système où stationne une flotte armée ennemie, sans flotte amie pour la contester, barre le passage aux convois. Une flotte hors zone dont tous les chemins de retour passent par de tels systèmes est **Coupée** : ses réserves fondent deux fois plus vite. Après 60 jours coupée, elle ajoute 1 point de **lassitude** à votre camp. Les IA Vétéran et plus cherchent à se placer sur le chemin du retour de vos flottes étirées.
 
@@ -291,7 +291,7 @@ L'option de partie **Logistique** a trois réglages. **Désactivée** garde les 
 
 **Encerclement (Complète).** Une planète assiégée dont tous les systèmes voisins sont tenus par l'ennemi, ou barrés par ses flottes, est **encerclée** : sa garnison et ses fortifications ne se relèvent plus, et le siège les use chaque jour d'un point de plus.
 
-**Régiments (Complète, avec le combat au sol complet).** Des régiments au sol hors de la zone de leur empire tiennent 120 jours. Ensuite ils ne se remettent plus de leurs blessures et perdent 2 de moral par jour, le double s'ils sont coupés : ils finissent par quitter le front.
+**Régiments (Complète, avec le combat au sol complet).** Des régiments au sol hors de la zone de leur empire tiennent 300 jours. Ensuite ils ne se remettent plus de leurs blessures et perdent 2 de moral par jour, le double s'ils sont coupés : ils finissent par quitter le front.
 
 **Espionnage.** L'opération **Saboter les dépôts** (rang 2, 25 influence, 40 jours) coûte la moitié de leurs réserves aux flottes de la cible qui sont loin de leurs bases. Elle ferme aussi ses dépôts de flotte pendant deux mois.
 

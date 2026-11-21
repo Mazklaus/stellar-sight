@@ -756,7 +756,7 @@ static func sign_treaty(state: GameState, a: int, b: int, treaty: String) -> voi
 					"Libre-échange entre %s et %s : plus de douane, plus de tarifs. Les contrebandiers cherchent un nouveau métier."]
 			state.add_chronicle(String(lines[clampi(t - 1, 0, 2)]) % [ea.display_name(), eb.display_name()], Espionage.public_to(state, [a, b]))
 		MAPS:
-			share_maps(state, a, b)
+			share_maps(state, a, b, atlas_open(state, a, b))
 			_set_cooldown(state, a, b, MAPS, days("maps_cooldown_days", 720))
 			_set_cooldown(state, b, a, MAPS, days("maps_cooldown_days", 720))
 			state.add_chronicle("%s et %s échangent leurs cartes. Chacun découvre que l'autre dessine très mal les comètes." % [
@@ -778,15 +778,71 @@ static func _drop_proposals(state: GameState, a: int, b: int, treaty: String) ->
 	state.proposals = kept
 
 
-## Chacun reçoit les systèmes explorés par l'autre, et ses relevés plus récents (voir Intel).
-static func share_maps(state: GameState, a: int, b: int) -> void:
+## Échange de cartes (étude d'équilibrage, A4). Chacun reçoit le territoire de l'autre et ce que l'autre
+## a exploré à maps_jumps sauts autour (1), avec ses relevés plus récents sur ces systèmes (voir Intel) :
+## pas les cartes qu'il a reçues d'un tiers, ni ses explorations lointaines.
+## atlas : l'atlas complet, tout ce que l'autre a exploré. Le traité d'échange de cartes le donne quand
+## les deux empires ont atteint l'ère atlas_era (4).
+static func share_maps(state: GameState, a: int, b: int, atlas := false) -> void:
 	var ea := state.get_empire(a)
 	var eb := state.get_empire(b)
-	for sid in ea.explored:
+	if atlas:
+		for sid in ea.explored:
+			eb.explored[sid] = true
+		for sid in eb.explored:
+			ea.explored[sid] = true
+		for sid in ea.surveyed.keys():
+			eb.surveyed[sid] = true
+		for sid in eb.surveyed.keys():
+			ea.surveyed[sid] = true
+		Intel.share(ea, eb)
+		return
+	var from_a := map_share(state, a)
+	var from_b := map_share(state, b)
+	for sid in from_a:
 		eb.explored[sid] = true
-	for sid in eb.explored:
+		if ea.surveyed.has(sid):
+			eb.surveyed[sid] = true
+	for sid in from_b:
 		ea.explored[sid] = true
-	Intel.share(ea, eb)
+		if eb.surveyed.has(sid):
+			ea.surveyed[sid] = true
+	Intel.share_systems(ea, eb, from_a)
+	Intel.share_systems(eb, ea, from_b)
+
+
+## Ce qu'un empire donne dans un échange de cartes : ses systèmes et ceux qu'il a explorés à
+## maps_jumps sauts autour. Tableau trié.
+static func map_share(state: GameState, empire_id: int) -> Array[int]:
+	var e := state.get_empire(empire_id)
+	var jumps := days("maps_jumps", 3)
+	var dist := {}
+	var queue: Array[int] = []
+	for sid in EmpireReport.owned_systems(state, empire_id):
+		dist[sid] = 0
+		queue.append(sid)
+	var i := 0
+	while i < queue.size():
+		var sid := queue[i]
+		i += 1
+		if int(dist[sid]) >= jumps:
+			continue
+		for n in state.galaxy.systems[sid].neighbors:
+			if not dist.has(n):
+				dist[n] = int(dist[sid]) + 1
+				queue.append(n)
+	var out: Array[int] = []
+	for sid in queue:
+		if e.explored.has(sid):
+			out.append(sid)
+	out.sort()
+	return out
+
+
+## L'échange de cartes entre ces deux empires donne-t-il l'atlas complet ?
+static func atlas_open(state: GameState, a: int, b: int) -> bool:
+	var need := days("atlas_era", 3)
+	return Research.current_era(state, a) >= need and Research.current_era(state, b) >= need
 
 
 ## Fin d'une guerre (par la paix) : plus aucune hostilité, les sièges se lèveront d'eux-mêmes.

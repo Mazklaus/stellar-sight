@@ -379,7 +379,7 @@ func _draw() -> void:
 			continue
 		var key := s.id == selected_id or s.id == hovered_id or (state != null and owner_of(s.id) >= 0)
 		if show_all_labels or key:
-			_draw_label(s, px, show_dots or key)
+			_draw_label(s, px, (show_dots or key) and (not fog or state == null or Fleets.is_surveyed(state, viewer, s.id)))
 
 
 const TRADE_TIER_COLORS := [Color(0.6, 0.6, 0.6), Color(0.75, 0.62, 0.35), Color(0.95, 0.8, 0.35), Color(0.55, 0.9, 1.0)]

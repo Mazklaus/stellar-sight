@@ -111,10 +111,13 @@ func _test_truce_and_alliance() -> void:
 	_apply(st, SimCommands.answer_proposal(0, int(Diplomacy.pending(st, 1, 0, "alliance")["id"]), true))
 	_ok(Diplomacy.allied(st, 0, 1) and Diplomacy.allies(st, 0) == [1], "alliance signée")
 	_ok(SimCommands.validate(st, SimCommands.declare_war(1, 0)) != "", "on ne déclare pas la guerre à un allié")
+	# Cartes d'alliés : chacun donne ses systèmes et leurs abords, pas tout ce qu'il a vu.
+	var cap1: int = st.galaxy.get_planet(st.get_empire(1).capital_planet).system_id
+	st.get_empire(0).explored.erase(cap1)
 	st.get_empire(1).explored[77] = true
 	var sim := Simulation.new(st)
 	sim.advance(30)
-	_ok(st.get_empire(0).explored.has(77), "les alliés partagent leurs cartes chaque mois")
+	_ok(st.get_empire(0).explored.has(cap1), "les alliés partagent leurs cartes chaque mois")
 	_ok(Diplomacy.trust(st, 0, 1) > 0, "la confiance monte sous traité (Stellaris)")
 	_ok(_apply(st, SimCommands.cancel_treaty(0, 1, "alliance")), "on peut quitter une alliance")
 	_ok(Diplomacy.status(st, 0, 1) == "cold" and not Diplomacy.has_trade(st, 0, 1), "quitter l'alliance ramène à la guerre froide")
@@ -297,7 +300,7 @@ func _test_mediation() -> void:
 	_apply(st, SimCommands.declare_war(1, 2))
 	st.get_empire(0).resources["influence"] = 200
 	_ok(SimCommands.validate(st, SimCommands.mediate(0, 1, 2)) != "", "trop tôt : la guerre vient de commencer")
-	Diplomacy._rel_w(st, 1, 2)["since"] = st.tick - 100
+	Diplomacy._rel_w(st, 1, 2)["since"] = st.tick - 130
 	if Diplomacy.opinion(st, 1, 0) < 0 or Diplomacy.opinion(st, 2, 0) < 0:
 		_ok(SimCommands.validate(st, SimCommands.mediate(0, 1, 2)) != "", "il faut être respecté des deux camps")
 	for i in 3:

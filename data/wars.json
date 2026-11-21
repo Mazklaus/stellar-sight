@@ -53,7 +53,7 @@
 		"_doc": "Reddition (prop. 12) : le perdant accepte le but du vainqueur si score du vainqueur + bonus de flotte + 'accept' du but >= 0. Bonus de flotte : (puissance du vainqueur en % de celle du perdant - 100) / fleet_div, entre 0 et fleet_max.",
 		"fleet_div": 4,
 		"fleet_max": 50,
-		"min_days": 60,
+		"min_days": 120,
 		"cooldown_days": 90
 	},
 	"humiliation": {
@@ -803,7 +803,7 @@
 		"reserve": 60,
 		"demand_at": 0,
 		"yield_at": 25,
-		"demand_min_days": 120,
+		"demand_min_days": 240,
 		"aggression_extra_pct": 25,
 		"separate_at": 60,
 		"ultimatum_every": 360
@@ -849,11 +849,11 @@
 	"prep": {
 		"_doc": "Prop. 21. Une IA masse ses flottes avant de déclarer (days par niveau : Recrue, Normale, au-delà) ; qui a un réseau d'espions chez elle (palier tier ou plus) ou le talent Prévision en est averti. La préparation s'oublie après expire_days.",
 		"days": [
-			45,
-			30,
-			20
+			90,
+			60,
+			45
 		],
-		"expire_days": 150,
+		"expire_days": 360,
 		"tier": 1
 	},
 	"kanly": {

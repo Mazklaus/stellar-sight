@@ -656,6 +656,16 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 				actions.append(_claim_action(p, Colony.KIND_COLONY, fid))
 	if c == null:
 		actions.append(_claim_action(p, Colony.KIND_OUTPOST))
+	var qme := _state.get_empire(_player)
+	if qme and not qme.claim_queue.is_empty():
+		var qnames: Array[String] = []
+		for q: Dictionary in qme.claim_queue:
+			var qp := _state.galaxy.get_planet(int(q["planet"]))
+			qnames.append(qp.display_name(_state.galaxy) if qp else "?")
+		var qclear := SimCommands.clear_claim_queue(_player)
+		actions.append({"text": "Vider la file de colonisation", "detail": "à la suite : %s" % ", ".join(qnames), "reason": "",
+				"tooltip": "Ces projets seront lancés l'un après l'autre, et payés au lancement. Vider la file ne coûte rien.",
+				"action": func() -> void: command_requested.emit(qclear)})
 	var me := _state.get_empire(_player)
 	# Forge des mondes : chantiers planétaires sur ce corps, colonie ou non.
 	actions.append_array(ForgeUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
@@ -685,6 +695,18 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 		if Echoes.has(f) and c.ship_build != "":
 			actions.append(_fold_action(p, Echoes.SHIP))
 	if c and c.owner == _player and c.is_established() and c.is_colony():
+		for ship_q: bool in [false, true]:
+			var q: Array[String] = c.ship_queue if ship_q else c.build_queue
+			if q.is_empty():
+				continue
+			var names: Array[String] = []
+			for qid in q:
+				names.append(String((GameData.ship(qid) if ship_q else GameData.building(Economy.variant_for(_state, _player, qid))).get("label", qid)))
+			var ccmd := SimCommands.clear_build_queue(_player, p.id, ship_q)
+			actions.append({"text": "Vider la file %s" % ("du chantier spatial" if ship_q else "des bâtiments"),
+					"detail": "à la suite : %s" % ", ".join(names), "reason": "",
+					"tooltip": "Ces éléments seront lancés l'un après l'autre, et payés au lancement. Vider la file ne coûte rien.",
+					"action": func() -> void: command_requested.emit(ccmd)})
 		for sid in Designs.buildable_ids(_state, _player):
 			actions.append(_ship_action(p, sid))
 		if Ground.full(_state):
@@ -792,6 +814,17 @@ func _ship_action(p: Planet, ship_id: String) -> Dictionary:
 	if Combat.is_military(ship_id):
 		detail = "%s, %d j  »  puissance %d, vitesse %d" % [price, days, Combat.ship_strength(ship_id), spd]
 		tip += "\n\n%s" % Combat.ship_summary(ship_id)
+	# Chantier occupé : le vaisseau se met en file, il partira (et se paiera) à la suite.
+	var sc: Colony = _state.colonies.get(p.id)
+	var sq := SimCommands.queue_build(_player, p.id, ship_id, true)
+	if reason != "" and sc != null and sc.ship_build != "" and SimCommands.validate(_state, sq) == "":
+		return {
+			"text": "Mettre en file : %s" % sd["label"],
+			"detail": detail,
+			"reason": "",
+			"tooltip": "Le chantier spatial est occupé : ce vaisseau sera lancé, et payé, dès qu'il se libère.\n\n%s" % tip,
+			"action": func() -> void: command_requested.emit(sq),
+		}
 	return {
 		"text": "Chantier spatial : %s" % sd["label"],
 		"detail": detail,
@@ -871,6 +904,15 @@ func _claim_action(p: Planet, kind: String, species := "") -> Dictionary:
 				Peoples.label(species), Peoples.hab(_state, _player, species, p.type)]
 	if by_ship:
 		tip += "\nLe vaisseau colon en orbite se démonte pour la fonder."
+	# Projets au complet (ou caisses vides) : la colonisation se met en file, lancée dès qu'une place se libère.
+	var cq := SimCommands.queue_claim(_player, p.id, kind, species)
+	if reason != "" and Economy.claim_can_wait(reason) and SimCommands.validate(_state, cq) == "":
+		return {
+			"text": "Mettre en file : %s  (%s, %d j)" % [label, GameData.format_amounts(Economy.claim_cost_for(_state, _player, p.id, kind)), Economy.claim_days(kind)],
+			"reason": "",
+			"tooltip": "%s.\nCe projet sera lancé, et payé, dès que ce sera possible.\n\n%s" % [reason.capitalize(), tip],
+			"action": func() -> void: command_requested.emit(cq),
+		}
 	return {
 		"text": "%s  (%s%s, %d j)" % [label, GameData.format_amounts(Economy.claim_cost_for(_state, _player, p.id, kind)),
 				" + vaisseau colon" if by_ship else "", Economy.claim_days(kind)],
@@ -895,6 +937,18 @@ func _build_action(p: Planet, bid: String, b: Dictionary) -> Dictionary:
 		gain = "remplace %s, %s" % [String(GameData.building(String(b["upgrades"])).get("label", "")).to_lower(), gain]
 	var pid := p.id
 	var tip := String(b.get("text", ""))
+	# Chantier occupé : le bâtiment se met en file, il sera lancé (et payé) à la suite.
+	var bc: Colony = _state.colonies.get(p.id)
+	var bq := SimCommands.queue_build(_player, p.id, bid)
+	if reason != "" and bc != null and bc.construction != "" and bc.construction != bid and not bc.build_queue.has(bid) \
+			and SimCommands.validate(_state, bq) == "":
+		return {
+			"text": "Mettre en file : %s" % b["label"],
+			"detail": "%s, %d j  »  %s" % [GameData.format_amounts(Economy.building_cost(_state, _player, bid)), int(b["days"]), gain],
+			"reason": "",
+			"tooltip": "Le chantier est occupé : ce bâtiment sera lancé, et payé, dès qu'il se libère.\n\n%s" % tip,
+			"action": func() -> void: command_requested.emit(bq),
+		}
 	return {
 		"text": "%s : %s" % [verb, b["label"]],
 		"detail": "%s, %d j  »  %s" % [GameData.format_amounts(Economy.building_cost(_state, _player, bid)), int(b["days"]), gain],

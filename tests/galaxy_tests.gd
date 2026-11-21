@@ -157,4 +157,4 @@ func _test_save() -> void:
 	var d := GameState.create(56, 150, 1800.0, "vael", {"ai_level": ""}).to_dict()
 	d.erase("galaxy_settings")
 	var old := GameState.from_dict(d)
-	_ok(old != null and old.galaxy_settings == GalaxySettings.defaults(), "ancienne sauvegarde : galaxie par défaut")
+	_ok(old != null and old.galaxy_settings == GalaxySettings.normalize({"distances": "heritage"}), "ancienne sauvegarde : galaxie par défaut, distances d'origine")

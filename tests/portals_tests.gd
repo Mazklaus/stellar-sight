@@ -211,7 +211,7 @@ func _test_relays() -> void:
 	while f.system_id != n1 and days < 60:
 		run_days(st, 1)
 		days += 1
-	_ok(days <= maxi(1, (days_plain + 2) / 3), "la flotte va trois fois plus vite (%d jours au lieu de %d)" % [days, days_plain])
+	_ok(days <= maxi(1, (days_plain + 2) / 3) + 1, "la flotte va trois fois plus vite (%d jours au lieu de %d)" % [days, days_plain])
 	_ok(not Portals.relay_ok(st, 1, home, n1), "un empire sans droit de passage n'en profite pas")
 	_ok(Portals.lane_mult(st, 1, home, n1) == 1, "ni vitesse")
 	# Entretien : sans cristaux, les relais s'éteignent.

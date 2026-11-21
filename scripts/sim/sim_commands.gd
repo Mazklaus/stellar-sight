@@ -45,6 +45,42 @@ static func stop_fleet(player: int, fleet_id: int) -> Dictionary:
 	return {"type": "stop_fleet", "player": player, "fleet": fleet_id}
 
 
+## Ajoute une étape au trajet d'une flotte : elle s'y rendra après sa destination actuelle.
+static func queue_fleet(player: int, fleet_id: int, system_id: int) -> Dictionary:
+	return {"type": "queue_fleet", "player": player, "fleet": fleet_id, "system": system_id}
+
+
+## Met un bâtiment (ship = false) ou un vaisseau (ship = true) dans la file de production d'une colonie :
+## il se lancera, et se paiera, quand l'emplacement se libérera.
+static func queue_build(player: int, planet_id: int, id: String, ship := false) -> Dictionary:
+	return {"type": "queue_build", "player": player, "planet": planet_id, "id": id, "ship": ship}
+
+
+## Met une colonisation (ou un avant-poste) dans la file de l'empire : lancée, et payée, dès qu'un
+## projet en cours s'achève. clear_claim_queue vide cette file.
+static func queue_claim(player: int, planet_id: int, kind: String, species := "") -> Dictionary:
+	return {"type": "queue_claim", "player": player, "planet": planet_id, "kind": kind, "species": species}
+
+
+static func clear_claim_queue(player: int) -> Dictionary:
+	return {"type": "clear_claim_queue", "player": player}
+
+
+## Vide la file de production (bâtiments ou vaisseaux) d'une colonie.
+static func clear_build_queue(player: int, planet_id: int, ship := false) -> Dictionary:
+	return {"type": "clear_build_queue", "player": player, "planet": planet_id, "ship": ship}
+
+
+## Consigne d'engagement d'une flotte : "" (engager), "eviter" ou "repli" (voir Fleet.stance).
+static func set_fleet_stance(player: int, fleet_id: int, stance: String) -> Dictionary:
+	return {"type": "set_fleet_stance", "player": player, "fleet": fleet_id, "stance": stance}
+
+
+## Point de ralliement des chantiers de l'empire (system_id = -1 : l'enlever).
+static func set_rally(player: int, system_id: int) -> Dictionary:
+	return {"type": "set_rally", "player": player, "system": system_id}
+
+
 ## Donne (ou retire, avec "") un ordre permanent à une flotte : Fleet.ORDER_EXPLORE.
 static func set_fleet_order(player: int, fleet_id: int, order: String) -> Dictionary:
 	return {"type": "set_fleet_order", "player": player, "fleet": fleet_id, "order": order}
@@ -846,6 +882,26 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Fleets.check_move(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("system", -1)))
 		"stop_fleet":
 			return Fleets.check_stop(state, int(cmd["player"]), int(cmd.get("fleet", -1)))
+		"queue_claim":
+			return Economy.check_queue_claim(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("kind", "")), String(cmd.get("species", "")))
+		"clear_claim_queue":
+			var qe := state.get_empire(int(cmd["player"]))
+			return "" if qe != null and not qe.claim_queue.is_empty() else "la file est déjà vide"
+		"queue_build":
+			return Economy.check_queue_build(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("id", "")), bool(cmd.get("ship", false)))
+		"clear_build_queue":
+			var qc: Colony = state.colonies.get(int(cmd.get("planet", -1)))
+			if qc == null or qc.owner != int(cmd["player"]):
+				return "cette planète ne vous appartient pas"
+			if (qc.ship_queue if bool(cmd.get("ship", false)) else qc.build_queue).is_empty():
+				return "la file est déjà vide"
+			return ""
+		"queue_fleet":
+			return Fleets.check_queue(state, int(cmd["player"]), int(cmd.get("fleet", -1)), int(cmd.get("system", -1)))
+		"set_fleet_stance":
+			return Fleets.check_stance(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("stance", "")))
+		"set_rally":
+			return Fleets.check_rally(state, int(cmd["player"]), int(cmd.get("system", -1)))
 		"set_fleet_order":
 			return Fleets.check_order(state, int(cmd["player"]), int(cmd.get("fleet", -1)), String(cmd.get("order", "")))
 		"merge_fleets":
@@ -1234,12 +1290,39 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var plan := Fleets.plan_route(state, f, int(cmd["system"]))
 			f.standing_order = ""  # un ordre donné à la main reprend la main sur l'exploration
+			f.queue.clear()  # et sur les étapes données avant
 			f.system_id = int(plan["system"])
 			f.path.assign(plan["path"])
 			f.progress = int(plan["progress"])
+		"queue_claim":
+			state.get_empire(int(cmd["player"])).claim_queue.append({"planet": int(cmd["planet"]), "kind": String(cmd["kind"]), "species": String(cmd.get("species", ""))})
+		"clear_claim_queue":
+			state.get_empire(int(cmd["player"])).claim_queue.clear()
+		"queue_build":
+			var qc: Colony = state.colonies[int(cmd["planet"])]
+			(qc.ship_queue if bool(cmd.get("ship", false)) else qc.build_queue).append(String(cmd["id"]))
+		"clear_build_queue":
+			var qc: Colony = state.colonies[int(cmd["planet"])]
+			(qc.ship_queue if bool(cmd.get("ship", false)) else qc.build_queue).clear()
+		"queue_fleet":
+			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			if not f.is_moving() and f.queue.is_empty():
+				var plan := Fleets.plan_route(state, f, int(cmd["system"]))
+				f.standing_order = ""
+				f.system_id = int(plan["system"])
+				f.path.assign(plan["path"])
+				f.progress = int(plan["progress"])
+			else:
+				f.queue.append(int(cmd["system"]))
+		"set_fleet_stance":
+			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			f.stance = String(cmd["stance"])
+		"set_rally":
+			state.get_empire(int(cmd["player"])).rally_system = int(cmd["system"])
 		"stop_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			f.standing_order = ""
+			f.queue.clear()
 			var lane := Fleets.lane_length(state.galaxy, f.system_id, f.path[0])
 			if f.progress * 2 >= lane:
 				f.path.resize(1)  # finir la route en cours

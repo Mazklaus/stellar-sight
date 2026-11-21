@@ -831,12 +831,12 @@ func _test_syndicate() -> void:
 	# Une partie entre IA avec un syndicat : rien ne casse, et il trouve des clients.
 	var sp := Simulation.new(GameState.create(9, 150, 1800.0, "", {"spectator": true, "ai_level": "normal", "rivals": ["ossarane", "choeur", fid, "vael", "khthari"]}))
 	var signed := 0
-	for i in 18:
+	for i in 30:
 		sp.advance(60)
 		for e in sp.state.empires:
 			if not Diplomacy.contract_of(sp.state, e.id).is_empty():
 				signed += 1
-	_ok(signed > 0, "partie entre IA : le syndicat trouve des clients (%d relevés sous contrat sur 18)" % signed)
+	_ok(signed > 0, "partie entre IA : le syndicat trouve des clients (%d relevés sous contrat sur 30)" % signed)
 
 
 ## Credo Profit : espionnage industriel, branché sur l'espionnage commun (Espionage, talent "spy").

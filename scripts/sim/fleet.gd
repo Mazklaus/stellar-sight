@@ -31,6 +31,17 @@ var system_id: int = -1
 var path: Array[int] = []
 ## Distance déjà parcourue sur la route system_id -> path[0].
 var progress: int = 0
+## Jours de mise en route déjà passés avant de quitter `system_id` (voir Fleets.spool_days).
+var spool: int = 0
+## Ordres qui tiennent tout le tour (étude d'équilibrage, C6). queue : destinations suivantes, prises
+## une à une à chaque arrivée. stance : consigne d'engagement, "" (engager), STANCE_AVOID (rompre le
+## combat dès qu'il s'engage) ou STANCE_FALLBACK (se replier si la flotte est surclassée).
+var queue: Array[int] = []
+var stance: String = ""
+const STANCE_AVOID := "eviter"
+const STANCE_FALLBACK := "repli"
+const STANCES: Array[String] = ["", "eviter", "repli"]
+const QUEUE_MAX := 8
 ## Ordre permanent : "" (aucun, la flotte attend les ordres), ORDER_EXPLORE (exploration automatique)
 ## ou ORDER_PATROL (aller-retour entre les deux systèmes de `patrol`).
 var standing_order: String = ""
@@ -136,7 +147,7 @@ func total_max_hp() -> int:
 
 
 func to_dict() -> Dictionary:
-	return {
+	var d := {
 		"id": id,
 		"owner": owner,
 		"name": fleet_name,
@@ -152,6 +163,14 @@ func to_dict() -> Dictionary:
 		"refit": refit_left,
 		"patrol": Array(patrol),
 	}
+	# Écrits seulement s'ils servent : une sauvegarde d'avant garde son empreinte.
+	if spool > 0:
+		d["spool"] = spool
+	if not queue.is_empty():
+		d["queue"] = Array(queue)
+	if stance != "":
+		d["stance"] = stance
+	return d
 
 
 static func from_dict(d: Dictionary) -> Fleet:
@@ -176,6 +195,12 @@ static func from_dict(d: Dictionary) -> Fleet:
 	for s in d["path"]:
 		f.path.append(int(s))
 	f.progress = int(d["progress"])
+	f.spool = int(d.get("spool", 0))
+	for s in d.get("queue", []):
+		f.queue.append(int(s))
+	f.stance = String(d.get("stance", ""))
+	if not STANCES.has(f.stance):
+		f.stance = ""
 	f.standing_order = String(d.get("order", ""))  # absent des sauvegardes d'avant l'exploration auto
 	if not STANDING_ORDERS.has(f.standing_order):
 		f.standing_order = ""

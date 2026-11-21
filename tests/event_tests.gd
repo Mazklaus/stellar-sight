@@ -92,6 +92,7 @@ func _test_detection() -> void:
 		return
 	var sid := st.galaxy.get_planet(high).system_id
 	st.get_empire(0).explored[sid] = true
+	st.get_empire(0).surveyed[sid] = true
 	_ok(Curios.detect(st, 0) == 2 and not Curios.sees(st, 0, high), "détection 2 au départ : le niveau 4 reste invisible")
 	st.get_empire(0).techs["capteurs"] = 0
 	_ok(Curios.detect(st, 0) == 3 and Curios.power(st, 0) >= 2, "les capteurs améliorent détection et puissance (%d, %d)" % [Curios.detect(st, 0), Curios.power(st, 0)])
@@ -110,7 +111,9 @@ func _test_probe() -> void:
 	var pid: int = pick[0]
 	var sid: int = pick[1]
 	st.get_empire(0).explored[sid] = true
+	st.get_empire(0).surveyed[sid] = true
 	st.get_empire(1).explored[sid] = true
+	st.get_empire(1).surveyed[sid] = true
 	var d := Curios.duration(st, 0, pid)
 	_ok(Curios.power(st, 0) == 2 and d == int(Curios.data()["days_by_gap"]["1"]), "Vael (Raison) : puissance 2 contre niveau 1, %d jours" % d)
 	var scout := st.spawn_ship(0, "scout", sid)
@@ -141,6 +144,7 @@ func _test_explore_wait() -> void:
 		return
 	var sid: int = pick[1]
 	st.get_empire(0).explored[sid] = true
+	st.get_empire(0).surveyed[sid] = true
 	var scout := st.spawn_ship(0, "scout", sid)
 	scout.standing_order = Fleet.ORDER_EXPLORE
 	_ok(Curios.wants_to_stay(st, scout), "un éclaireur en exploration automatique s'arrête sonder une curiosité rapide")

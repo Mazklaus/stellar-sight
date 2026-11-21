@@ -235,7 +235,7 @@
 			"era": 1,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "Les routes de saut des maisons : +15 % de vitesse pour toutes les flottes.",
+			"text": "Les routes de saut des maisons : la première génération de moteurs, en mieux (vitesse ×1,4 au lieu de ×1,25).",
 			"requires": {
 				"species": {
 					"traits": [
@@ -248,7 +248,7 @@
 				"vaisseaux"
 			],
 			"effects": {
-				"fleet_speed_pct": 15
+				"fleet_speed_pct": 40
 			},
 			"tags": [
 				"saut"

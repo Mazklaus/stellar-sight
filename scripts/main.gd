@@ -103,6 +103,11 @@ var _fleets_moving := {}
 var _defeat_told := false
 ## Dernière proposition diplomatique annoncée (les suivantes reçues par le joueur font un avis).
 var _proposals_told := -1
+## Tour par tour : guerres, flottes étrangères armées chez soi et événements déjà connus, pour
+## n'interrompre le tour que sur du nouveau (voir _turn_interruptions).
+var _turn_wars := {}
+var _turn_intruders := {}
+var _turn_events := -1
 
 
 func _ready() -> void:
@@ -443,6 +448,9 @@ func open_system_view(id: int, planet_id := -1) -> void:
 		return
 	if not Fleets.is_explored(simulation.state, view_empire, id):
 		_hud.notify("Système inexploré : envoyez d'abord un vaisseau y jeter un œil.")
+		return
+	if not Fleets.is_surveyed(simulation.state, view_empire, id) and not spectator:
+		_hud.notify("Système aperçu de loin : on voit son étoile et son propriétaire. Un vaisseau doit y passer pour en lire les planètes.")
 		return
 	if is_empire_screen_open():
 		close_empire_screen()
@@ -871,6 +879,9 @@ func _start(state: GameState) -> void:
 	_pending_ui = {}
 	_empire_screens.see_all = spectator
 	_proposals_told = state.next_proposal_id - 1
+	_turn_wars = {}
+	_turn_intruders = {}
+	_turn_events = -1
 	simulation.ticked.connect(func(_tick: int) -> void:
 		_announce_arrivals()
 		_announce_proposals()
@@ -881,6 +892,7 @@ func _start(state: GameState) -> void:
 		_announce_deeds()
 		_announce_election()
 		announce.try_open(false)
+		_turn_interruptions()
 		_check_defeat()
 		_check_victory()
 		_refresh_all())
@@ -890,6 +902,44 @@ func _start(state: GameState) -> void:
 	_fleets_moving = _moving_fleet_ids()
 	_hud.show_chronicle({})
 	GameClock.attach(simulation)
+
+
+## Tour par tour (étude d'équilibrage, C5) : en plus d'une bataille, le tour en cours de résolution
+## s'interrompt quand on déclare la guerre au joueur, quand une flotte étrangère armée entre dans un de
+## ses systèmes, et quand un événement attend son choix. Chaque arrêt se coche dans les options.
+func _turn_interruptions() -> void:
+	var st := simulation.state
+	var e := st.get_empire(view_empire)
+	if spectator or e == null:
+		return
+	var why := ""
+	var wars := {}
+	for o in e.wars:
+		wars[o] = true
+		if not _turn_wars.has(o) and why == "" and UiSettings.turn_stop_war:
+			var oe := st.get_empire(o)
+			why = "Guerre avec %s : le tour s'interrompt." % (oe.short_name() if oe != null else "un ennemi")
+	var first := _turn_events < 0
+	_turn_wars = wars
+	var intr := {}
+	var seen: Dictionary = st.seen_cache[view_empire] if st.seen_tick == st.tick and view_empire < st.seen_cache.size() else {}
+	for f: Fleet in st.fleets.values():
+		if f.owner == view_empire or f.is_moving() or st.system_owner(f.system_id) != view_empire:
+			continue
+		if not Combat.is_armed(f) or Diplomacy.allied(st, view_empire, f.owner):
+			continue
+		if not seen.is_empty() and not Fleets.fleet_visible(st, view_empire, f, seen):
+			continue
+		intr[f.id] = true
+		if not _turn_intruders.has(f.id) and why == "" and UiSettings.turn_stop_intrusion:
+			why = "Flotte étrangère armée à %s : le tour s'interrompt." % galaxy.get_system(f.system_id).system_name
+	_turn_intruders = intr
+	var inbox := Events.inbox(st, view_empire).size()
+	if inbox > _turn_events and why == "" and UiSettings.turn_stop_events and not first:
+		why = "Un événement attend votre choix : le tour s'interrompt."
+	_turn_events = inbox
+	if why != "" and not first and GameClock.interrupt_turn():
+		_hud.notify(why, "bad")
 
 
 func _refresh_all() -> void:
@@ -1244,6 +1294,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_right_press = Vector2(-1, -1)
 			if mb.shift_pressed or _patrol_pick:
 				order_fleet_patrol(_pick_system_at(mb.position))
+			elif mb.ctrl_pressed:
+				queue_fleet_to(_pick_system_at(mb.position))
 			else:
 				order_fleet_to(_pick_system_at(mb.position))
 		return
@@ -1489,6 +1541,24 @@ func select_fleet(fleet_id: int) -> void:
 	_hud.show_fleet(fleet_id)
 
 
+## Ctrl + clic droit : ajoute une étape au trajet de la flotte sélectionnée (ordres qui tiennent tout
+## le tour, étude d'équilibrage C6).
+func queue_fleet_to(system_id: int) -> void:
+	var f: Fleet = simulation.state.fleets.get(selected_fleet)
+	if f == null or f.owner != view_empire or system_id < 0:
+		return
+	var cmd := SimCommands.queue_fleet(view_empire, f.id, system_id)
+	var why := SimCommands.validate(simulation.state, cmd)
+	if why != "":
+		_hud.notify("%s : %s." % [f.fleet_name, why], "warn")
+		return
+	if _submit(cmd):
+		var where := galaxy.get_system(system_id).system_name if Fleets.is_explored(simulation.state, view_empire, system_id) else "un système inexploré"
+		_hud.notify("%s : étape ajoutée, %s." % [f.fleet_name, where])
+		_hud.show_fleet(f.id)
+		_view.queue_redraw()
+
+
 ## Envoie la flotte sélectionnée vers un système (si c'est la nôtre).
 func order_fleet_to(system_id: int) -> void:
 	var f: Fleet = simulation.state.fleets.get(selected_fleet)
@@ -1623,6 +1693,17 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 			else:
 				_patrol_pick = true
 				_hud.notify("Patrouille : clic droit sur le système où %s fera l'aller-retour." % f.fleet_name)
+			_hud.show_fleet(fleet_id)
+		"stance":
+			var nxt_s := String(Fleet.STANCES[(Fleet.STANCES.find(f.stance) + 1) % Fleet.STANCES.size()])
+			if _submit(SimCommands.set_fleet_stance(view_empire, fleet_id, nxt_s)):
+				_hud.notify("%s : consigne « %s »." % [f.fleet_name, Fleets.stance_label(nxt_s).to_lower()])
+			_hud.show_fleet(fleet_id)
+		"rally":
+			var me := st.get_empire(view_empire)
+			var here := f.system_id if me != null and me.rally_system != f.system_id else -1
+			if _submit(SimCommands.set_rally(view_empire, here)):
+				_hud.notify("Point de ralliement des chantiers : %s." % (galaxy.get_system(here).system_name if here >= 0 else "aucun"))
 			_hud.show_fleet(fleet_id)
 		"guard":
 			var act := "unguard" if f.is_guarding() else "guard"

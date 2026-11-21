@@ -78,7 +78,7 @@ func _test_summons_obeyed() -> void:
 	var f: Fleet = x[1]
 	_ok(Borders.check_summons(st, 0, 1) == "", "Sommation possible contre un intrus vu")
 	SimCommands.apply(st, SimCommands.border_act(0, "summons", 1))
-	_ok(Borders.summons_end(st, 0, 1) == st.tick + 30, "Sommation : 30 jours pour partir")
+	_ok(Borders.summons_end(st, 0, 1) == st.tick + 60, "Sommation : 60 jours pour partir")
 	_ok(Borders.check_summons(st, 0, 1) != "", "Une seule sommation à la fois")
 	f.system_id = Borders.nearest_permitted(st, f)
 	sim.step()
@@ -91,7 +91,7 @@ func _test_summons_ignored() -> void:
 	var x := _intruder(st)
 	var sim: Simulation = x[0]
 	SimCommands.apply(st, SimCommands.border_act(0, "summons", 1))
-	for i in 31:
+	for i in 61:
 		sim.step()
 	_ok(Borders.summons_end(st, 0, 1) == 0 and Borders.has_cb(st, 0, 1), "Sommation ignorée : motif de guerre « Violation de frontière »")
 	_ok(_memory(st, 0, 1, "summons_ignored") == 1, "Sommation ignorée : souvenir -15")
@@ -231,7 +231,7 @@ func _test_navigation() -> void:
 	_ok(Borders.fleet_right(st, f, 0), "Libre navigation III : les flottes de guerre des membres passent")
 	_amph(st, -1)
 	var x := _intruder(st)
-	_ok(Borders.summons_days(st, 0, 1) == 15, "Espaces souverains : sommation en 15 jours")
+	_ok(Borders.summons_days(st, 0, 1) == 30, "Espaces souverains : sommation en 30 jours")
 	_amph(st, -3)
 	var g := _spawn(st, 1, ["corvette"], _cap(st, 0))
 	var n0 := _memory(st, 0, 1, "intrusion")

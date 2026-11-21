@@ -405,17 +405,22 @@ static func _zambalu(ctx: Dictionary) -> void:
 		if f.is_moving() or shows.has(str(f.id)):
 			continue
 		var best := -1
-		for pair in _near(state, f.system_id, 8):
-			var sid := int(pair[1])
-			if taken.has(sid) or not e.explored.has(sid):
-				continue
-			var b := InsZambalu.host_of(state, e.id, sid)
-			if b < 0 or Combat.at_war(state, e.id, b) or InsZambalu.banned(state, b):
-				continue
-			if int((state.insolites.get("stage", {}) as Dictionary).get(str(sid), 0)) > state.tick:
-				continue
-			best = sid
-			break
+		# D'abord le public proche ; s'il n'y en a pas (espace vaste, voisins lointains), la troupe
+		# part en grande tournée plutôt que d'attendre au Chapiteau.
+		for reach: int in [8, 30]:
+			for pair in _near(state, f.system_id, reach):
+				var sid := int(pair[1])
+				if taken.has(sid) or not e.explored.has(sid):
+					continue
+				var b := InsZambalu.host_of(state, e.id, sid)
+				if b < 0 or Combat.at_war(state, e.id, b) or InsZambalu.banned(state, b):
+					continue
+				if int((state.insolites.get("stage", {}) as Dictionary).get(str(sid), 0)) > state.tick:
+					continue
+				best = sid
+				break
+			if best >= 0:
+				break
 		if best >= 0 and _go(ctx, f, best, "Part en tournée"):
 			taken[best] = true
 	# Le Chapiteau fuit les flottes ennemies.

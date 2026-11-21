@@ -255,6 +255,41 @@ static func setup(state: GameState, density_id: String) -> void:
 	var off := posmod(hash([state.seed_value, "faune"]), ids.size())
 	for i in picked.size():
 		create_nest(state, picked[i], ids[(off + i) % ids.size()])
+	# Voisinage vivant (étude d'équilibrage, A8) : chaque départ a un nid (ou un repaire pirate) à
+	# near_jumps sauts ou moins (3), jamais à moins de near_min (2) : une rencontre dès les premiers tours.
+	var near_j := int(data().get("near_jumps", 3))
+	var near_min := int(data().get("near_min", 2))
+	var extra := 0
+	for d: Dictionary in starts:
+		var has := false
+		for sid in nests(state):
+			if int(d.get(int(sid), 999)) <= near_j:
+				has = true
+				break
+		for sid in state.lairs:
+			if int(d.get(int(sid), 999)) <= near_j:
+				has = true
+		if has:
+			continue
+		var best := -1
+		var best_h := 0
+		for s in state.galaxy.systems:
+			var j := int(d.get(s.id, 999))
+			if j < near_min or j > near_j or state.system_owner(s.id) >= 0 or s.planet_ids.is_empty() or state.lairs.has(s.id) or nests(state).has(s.id):
+				continue
+			var close := false
+			for o: Dictionary in starts:
+				if int(o.get(s.id, 999)) < near_min:
+					close = true
+			if close:
+				continue
+			var h := hash([state.seed_value, "nid voisin", s.id])
+			if best < 0 or h < best_h or (h == best_h and s.id < best):
+				best = s.id
+				best_h = h
+		if best >= 0:
+			create_nest(state, best, ids[(off + picked.size() + extra) % ids.size()])
+			extra += 1
 
 
 static func create_nest(state: GameState, sid: int, sp: String) -> void:
