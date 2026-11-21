@@ -75,6 +75,7 @@ static func take(state: GameState, eid: int, added: Array[Dictionary]) -> void:
 	n["tier"] = 0
 	n["fund"] = 0
 	n["since"] = state.tick
+	n.erase("conq")
 	added.append(state.add_chronicle("%s prend la voie de l'Ambition démesurée. Les autres empires ne le savent pas encore ; ils l'apprendront à ses actes." % state.get_empire(eid).display_name(),
 			Espionage.private_to(state, [eid])))
 
@@ -85,6 +86,53 @@ static func take(state: GameState, eid: int, added: Array[Dictionary]) -> void:
 static func on_stat(state: GameState, eid: int, key: String, n: int) -> void:
 	if who(state) == eid and data().get("gain", {}).has(key):
 		gain(state, eid, int(data()["gain"][key]) * n)
+
+
+## Équilibrage, lot 4 (D2) : un système conquis par l'ambitieux, compté chaque mois tant qu'il le tient.
+static func on_conquest(state: GameState, eid: int, sid: int) -> void:
+	if who(state) != eid:
+		return
+	var nm := nem(state)
+	var conq: Array = nm.get("conq", [])
+	if not conq.has(sid):
+		conq.append(sid)
+	nm["conq"] = conq
+
+
+## La Menace monte dans la durée (D2) : chaque mois de guerre, et par système conquis encore tenu.
+static func monthly(state: GameState, eid: int) -> void:
+	var md: Dictionary = data().get("monthly", {})
+	var e := state.get_empire(eid)
+	if md.is_empty() or e == null or tier(state) >= tiers().size():
+		return
+	var nm := nem(state)
+	var pts := 0
+	if not e.wars.is_empty():
+		pts += int(md.get("at_war", 0))
+	if nm.has("conq"):
+		var kept: Array = []
+		for sid in nm["conq"]:
+			if state.system_owner(int(sid)) == eid:
+				kept.append(sid)
+		nm["conq"] = kept
+		pts += kept.size() * int(md.get("per_conquest", 0))
+	gain(state, eid, pts)
+
+
+## D1 : parmi les « ai_top » premières puissances militaires (vaisseaux armés, à égalité le plus petit id) ?
+static func ai_strong(state: GameState, eid: int) -> bool:
+	var top := int(data().get("ai_top", 0))
+	if top <= 0:
+		return true
+	var mine := Diplomacy.warships(state, eid)
+	var better := 0
+	for o in state.empires:
+		if o.id == eid or o.eliminated or GameState.is_npc(o.id):
+			continue
+		var w := Diplomacy.warships(state, o.id)
+		if w > mine or (w == mine and o.id < eid):
+			better += 1
+	return better < top
 
 
 static func gain(state: GameState, eid: int, pts: int) -> void:
@@ -163,6 +211,8 @@ static func daily(state: GameState, added: Array[Dictionary]) -> void:
 	var e := state.get_empire(eid)
 	var col: Colony = state.colonies.get(e.capital_planet) if e != null else null
 	if e != null and not e.eliminated and col != null and col.owner == eid:
+		if state.tick % 30 == 0:
+			monthly(state, eid)
 		return
 	var nm := nem(state)
 	(nm["broken"] as Array).append(eid)
@@ -172,6 +222,7 @@ static func daily(state: GameState, added: Array[Dictionary]) -> void:
 	nm["tier"] = 0
 	nm["fund"] = 0
 	nm["need"] = 0
+	nm.erase("conq")
 	Relics.touch(state)
 	if was >= 1 and e != null:
 		added.append(state.add_chronicle(String(data().get("broken_text", "{empire} : l'ambition est brisée.")).replace("{empire}", e.display_name())))

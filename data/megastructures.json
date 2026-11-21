@@ -59,6 +59,8 @@
 		"black_hole": "trou noir"
 	},
 	"rules": {
+		"cap": {"base": 2, "per_era": 1, "max": 7},
+		"_cap": "Équilibrage lot 4 (E3) : un empire bâtit au plus base + per_era par ère de recherche atteinte (max au plus) ; les ruines relevées ne comptent pas.",
 		"slots": 1,
 		"ship": "architecte",
 		"cancel_refund_pct": 50,

@@ -174,9 +174,18 @@ func _initialize() -> void:
 		kpi.clear()
 		var nm := {}
 		if CrisisNemesis.enabled(st) and CrisisNemesis.who(st) >= 0:
-			nm = {"who": CrisisNemesis.who(st), "menace": int(CrisisNemesis.nem(st).get("menace", 0)), "tier": CrisisNemesis.tier(st)}
+			nm = {"who": CrisisNemesis.who(st), "menace": int(CrisisNemesis.nem(st).get("menace", 0)), "tier": CrisisNemesis.tier(st),
+				"conq": (CrisisNemesis.nem(st).get("conq", []) as Array).size(), "since": int(CrisisNemesis.nem(st).get("since", 0))}
+		var megas_n := 0
+		var megas_ruins := 0
+		for m: Dictionary in Megastructures.all_sorted(st):
+			if Megastructures.is_ruin(m):
+				megas_ruins += 1
+			else:
+				megas_n += 1
 		_emit(out, {"type": "year", "year": y + 1, "ms_per_day": (Time.get_ticks_msec() - t0) / 360.0,
-			"colonies": st.colonies.size(), "fleets": st.fleets.size(), "empires": rows, "nemesis": nm})
+			"colonies": st.colonies.size(), "fleets": st.fleets.size(), "empires": rows, "nemesis": nm,
+			"megas": megas_n, "mega_ruins": megas_ruins})
 		if win_logged and _env_int("STOP_ON_WIN", 0) == 1:
 			break
 	_emit(out, {"type": "end", "tick": st.tick, "marks": marks, "contact": contact, "met": met, "winner": st.winner})

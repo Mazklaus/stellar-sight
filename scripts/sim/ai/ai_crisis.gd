@@ -108,7 +108,8 @@ static func _nemesis(ctx: Dictionary) -> void:
 	var e: Empire = ctx["e"]
 	if CrisisNemesis.who(state) < 0:
 		var one_in := int((CrisisNemesis.data().get("ai_one_in", {}) as Dictionary).get(str(AiLevels.aggression(e)), 0))
-		if one_in > 0 and int(ctx["lv"].get("faction_use", 1)) >= 1 and CrisisNemesis.check_ambition(state, e.id) == "" \
+		if one_in > 0 and int(ctx["lv"].get("faction_use", 1)) >= 1 and state.tick >= int(CrisisNemesis.data().get("ai_from_day", 0)) \
+				and CrisisNemesis.check_ambition(state, e.id) == "" and CrisisNemesis.ai_strong(state, e.id) \
 				and Crisis._h(state, ["ambition", e.id, state.tick / 360]) % one_in == 0:
 			if AiPlayer._issue(ctx, SimCommands.crisis_ambition(e.id)):
 				AiPlayer._intent(ctx, "Nourrit une ambition démesurée")
