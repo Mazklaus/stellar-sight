@@ -34,6 +34,8 @@ var surveyed: Dictionary = {}
 ## Point de ralliement des chantiers (C6) : les vaisseaux armés qui sortent des chantiers s'y rendent
 ## d'eux-mêmes. -1 : aucun.
 var rally_system: int = -1
+## Largesses (équilibrage G6) : stabilité offerte ce mois-ci par l'influence au-delà du plafond.
+var largesse: int = 0
 ## File de colonisation (équilibrage, tour par tour) : projets [{"planet", "kind", "species"}] lancés
 ## tout seuls dès qu'un projet en cours s'achève (voir Economy.run_queues). Payés au lancement.
 const CLAIM_QUEUE_MAX := 5
@@ -272,6 +274,8 @@ func to_dict() -> Dictionary:
 		d["surveyed"] = sorted_surveyed()
 	if rally_system >= 0:
 		d["rally"] = rally_system
+	if largesse != 0:
+		d["largesse"] = largesse
 	if not claim_queue.is_empty():
 		d["claim_queue"] = claim_queue.duplicate(true)
 	return d
@@ -363,6 +367,7 @@ static func from_dict(d: Dictionary) -> Empire:
 	for sid in d.get("surveyed", d["explored"]):
 		e.surveyed[int(sid)] = true
 	e.rally_system = int(d.get("rally", -1))
+	e.largesse = int(d.get("largesse", 0))
 	for q in d.get("claim_queue", []):
 		if q is Dictionary:
 			e.claim_queue.append({"planet": int(q.get("planet", -1)), "kind": String(q.get("kind", "")), "species": String(q.get("species", ""))})
@@ -411,6 +416,8 @@ static func from_dict(d: Dictionary) -> Empire:
 		e.eurekas[String(t)] = true
 	for v: Dictionary in d.get("victory", []):
 		e.victory[String(v["id"])] = {"pct": int(v.get("pct", 0)), "held": int(v.get("held", 0)), "warn": int(v.get("warn", 0))}
+		if int(v.get("early", 0)) != 0:
+			e.victory[String(v["id"])]["early"] = 1
 	for dd: Dictionary in d.get("dossiers", []):
 		var dos: Dictionary = GameData._to_ints(dd)
 		var about := int(dos["about"])

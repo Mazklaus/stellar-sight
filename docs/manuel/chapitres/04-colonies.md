@@ -27,6 +27,17 @@ Une planète se revendique de deux façons.
 
 Pour s'installer dans un **nouveau système**, il faut y amener un vaisseau colon, qui se démonte pour fonder la revendication : il ne reste alors à payer que l'influence. Une fois une revendication établie dans un système, ses autres planètes se revendiquent depuis la vue système, sans vaisseau.
 
+**Une expansion qui dure.** L'influence demandée par une revendication monte de **10 % par système déjà tenu** au-delà du premier (300 % de plus au maximum) : la sixième étoile coûte moitié plus cher que la première, la onzième le double. Un grand empire s'étend donc moins vite qu'un petit, et la galaxie reste à prendre bien après les premières années.
+
+### Les réserves
+
+L'énergie et l'influence ne s'entassent pas sans fin. Chaque stock a un **plafond** : 2 000 d'énergie, 400 d'influence, plus **douze mois de production brute** de la ressource (vos centrales et vos forums relèvent donc le plafond). Au bilan du mois, ce qui dépasse trouve un débouché :
+
+- **l'énergie en trop se vend à perte** : un quart de l'excédent revient en matériaux, tant que vos matériaux n'ont pas eux-mêmes atteint ce niveau ;
+- **l'influence en trop devient des largesses** : +1 de stabilité dans tout l'empire par tranche de 25 (jusqu'à +5, pour le mois), et l'intégration de vos peuples avance de 1 point par tranche de 50 (2 au plus).
+
+Mieux vaut donc dépenser que thésauriser : une réserve pleine ne rapporte que des miettes.
+
 L'**habitabilité** dit si votre espèce peut vivre sur une planète, et à quel point : chaque peuple a ses mondes préférés, en supporte d'autres moins bien et en refuse certains. Les technologies, la terraformation et certains traits repoussent ces limites.
 
 ::: conseil

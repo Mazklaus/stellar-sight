@@ -134,6 +134,23 @@ static func default_deadline() -> int:
 	return maxi(0, deadline_days_for(String(data().get("default_deadline", ""))))
 
 
+## Réglage « Pas de victoire avant l'an … » (étude d'équilibrage, G2) : options du menu, valeur par
+## défaut du menu, et jour avant lequel aucune victoire n'est proclamée dans cette partie (0 = aucun).
+static func not_before_options() -> Array:
+	return data().get("not_before", [])
+
+
+static func default_not_before() -> int:
+	for d: Dictionary in not_before_options():
+		if String(d["id"]) == String(data().get("default_not_before", "")):
+			return int(d["days"])
+	return 0
+
+
+static func not_before(state: GameState) -> int:
+	return int(state.victory_rules.get("not_before", 0))
+
+
 ## Date limite de la partie en jours (0 = sans date limite).
 static func deadline(state: GameState) -> int:
 	# Une crise de fin de partie arrivée repousse la date limite (voir Crisis.deadline).
@@ -410,6 +427,21 @@ static func bloc(state: GameState, empire_id: int) -> Array[int]:
 		if not state.get_empire(s).eliminated and not out.has(s) and (Vassals.bond_days(state, s) >= grace or Vassals.is_court(state, s)):
 			out.append(s)
 	out.sort()
+	# Alliance bornée (étude d'équilibrage, G3) : un bloc qui réunit plus de la moitié des empires en
+	# vie ne conquiert ni ne domine ensemble, chacun n'y compte alors que pour lui (et ses sujets).
+	var cap_pct := int(data().get("bloc_max_pct", 0))
+	if cap_pct > 0 and out.size() > 1:
+		var alive := 0
+		for e in state.empires:
+			if not e.eliminated:
+				alive += 1
+		if out.size() * 100 > alive * cap_pct:
+			var alone: Array[int] = [empire_id]
+			for s in Vassals.subjects_of(state, empire_id):
+				if out.has(s):
+					alone.append(s)
+			alone.sort()
+			return alone
 	return out
 
 

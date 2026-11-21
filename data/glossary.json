@@ -5614,6 +5614,46 @@
    "chapters": [
     "04-colonies"
    ]
+  },
+  {
+   "id": "plafond_de_stock",
+   "name": "Plafond de stock",
+   "forms": [
+    "Plafond de stock",
+    "plafond de stock",
+    "plafonds de stock"
+   ],
+   "family": "meca",
+   "summary": "Réserve maximale d'énergie ou d'influence : un socle plus douze mois de production brute ; l'excédent part en débouchés",
+   "chapters": [
+    "04-colonies"
+   ]
+  },
+  {
+   "id": "largesses",
+   "name": "Largesses",
+   "forms": [
+    "Largesses",
+    "largesses"
+   ],
+   "family": "meca",
+   "summary": "Influence au-delà du plafond de stock : elle donne de la stabilité pour le mois et fait avancer l'intégration des peuples",
+   "chapters": [
+    "04-colonies"
+   ]
+  },
+  {
+   "id": "alerte_galactique",
+   "name": "Alerte galactique",
+   "forms": [
+    "Alerte galactique",
+    "alerte galactique"
+   ],
+   "family": "meca",
+   "summary": "Annonce à tous les empires qu'une condition de victoire est remplie avant la date où les victoires peuvent être proclamées",
+   "chapters": [
+    "15-victoire"
+   ]
   }
  ]
 }

@@ -148,6 +148,9 @@ var _mode_select: OptionButton
 var deadline_days: int = Victory.default_deadline()
 var people_victories := true
 var _deadline_select: OptionButton
+## « Pas de victoire avant l'an … » (Victory.not_before_options), en jours.
+var not_before_days: int = Victory.default_not_before()
+var _not_before_select: OptionButton
 var _people_check: CheckBox
 ## Victoires classiques en jeu et alliés qui gagnent ensemble (GameState.victory_rules).
 ## Victoires cochées par défaut : une seule source pour l'écran et pour default_settings() (sinon le
@@ -1579,6 +1582,15 @@ func set_deadline(days: int) -> void:
 			_deadline_select.select(i)
 
 
+func set_not_before(days: int) -> void:
+	not_before_days = maxi(0, days)
+	_refresh_preset()
+	var opts := Victory.not_before_options()
+	for i in opts.size():
+		if int(opts[i]["days"]) == not_before_days and _not_before_select:
+			_not_before_select.select(i)
+
+
 func set_people_victories(on: bool) -> void:
 	people_victories = on
 	_people_check.set_pressed_no_signal(on)
@@ -2129,7 +2141,7 @@ func set_migrations(id: String) -> void:
 
 ## Règles de la partie pour GameState.create (en plus des empires et de la galaxie).
 func game_options() -> Dictionary:
-	return {"victories": victories.duplicate(), "ai_scaling": ai_scaling, "turn_days": turn_days if time_mode == GameClock.MODE_TURNS else 0, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
+	return {"victories": victories.duplicate(), "not_before": not_before_days, "ai_scaling": ai_scaling, "turn_days": turn_days if time_mode == GameClock.MODE_TURNS else 0, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics,
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
 		"ancients": ancients, "awakenings": awakenings, "minors": minors, "culture": culture, "culture_defect": culture_defect, "wonders": wonders,
@@ -2992,6 +3004,13 @@ func _build_new_page(root: Control) -> void:
 		_deadline_select.add_item("Score : %s" % String(d["label"]).to_lower())
 	_deadline_select.item_selected.connect(func(i: int) -> void: set_deadline(int(Victory.deadline_options()[i]["days"])))
 	_labeled_row(vic, "Limite", _deadline_select)
+	_not_before_select = OptionButton.new()
+	_not_before_select.clip_text = true
+	_not_before_select.tooltip_text = "Aucune victoire n'est proclamée avant cette date. Une condition remplie plus tôt est annoncée\nà toute la galaxie, et proclamée à la date si elle tient encore : les autres ont le temps de réagir."
+	for d: Dictionary in Victory.not_before_options():
+		_not_before_select.add_item(String(d["label"]))
+	_not_before_select.item_selected.connect(func(i: int) -> void: set_not_before(int(Victory.not_before_options()[i]["days"])))
+	_labeled_row(vic, "Victoire", _not_before_select)
 	_people_check = CheckBox.new()
 	_people_check.text = "Victoires de peuple"
 	_people_check.focus_mode = Control.FOCUS_NONE
@@ -3008,7 +3027,7 @@ func _build_new_page(root: Control) -> void:
 		"domination": ["Domination", "Tenir une grande part des systèmes de la galaxie pendant un temps."],
 		"allies": ["Alliés ensemble", "Les alliés additionnent leurs conquêtes et leurs systèmes, et gagnent ensemble\n(Endless Space 2). Décoché : chacun pour soi, même allié."],
 		"spirituelle": ["Spirituelle", "Avec les religions : votre foi d'État majoritaire dans plus de la moitié des colonies\nde chaque empire survivant, tenue 5 ans (Civilization VI). En option, décochée par défaut."],
-		"rayonnement": ["Grand Rayonnement", "Avec le rayonnement culturel : votre culture Influente chez chaque empire survivant\nrencontré, tenue 2 ans (Civilization V et VI). Alertes à toute la galaxie à la moitié et aux trois quarts."],
+		"rayonnement": ["Grand Rayonnement", "Avec le rayonnement culturel : votre culture Influente chez chaque empire survivant\nrencontré (quatre au moins), tenue 5 ans (Civilization V et VI). Alertes à toute la galaxie à la moitié et aux trois quarts."],
 		"oeuvres": ["Grands Œuvres", "Avec les merveilles : tenir 2 à 5 Grands Œuvres d'ère V selon la taille de la galaxie,\nchacun 50 % plus cher que le précédent, et les garder un an (Endless Space 2). En option, décochée par défaut."],
 		"annales": ["Les Annales", "Avec les hauts faits : détenir un tiers des hauts faits en jeu et rester premier en Gloire\npendant 2 ans (Old World, Humankind). En option, décochée par défaut."],
 		"diplomatique": ["Diplomatique", "Avec l'Amphictyonie : être élu Chancelier des étoiles (dès l'an 30, tous les 10 ans)\navec 67 % de toutes les voix d'une assemblée qui réunit 75 % des empires, puis faire accepter le verdict."],
@@ -3024,6 +3043,7 @@ func _build_new_page(root: Control) -> void:
 	grid.add_child(_victory_check("oeuvres", vtips["oeuvres"]))
 	grid.add_child(_victory_check("annales", vtips["annales"]))
 	set_deadline(deadline_days)
+	set_not_before(not_before_days)
 	var back_b := Widgets.RoundButton.new("back", "Retour")
 	back_b.tooltip_text = "Échap"
 	back_b.anchor_top = 1.0
@@ -3737,7 +3757,7 @@ func settings() -> Dictionary:
 		sl.erase("human")  # les places de joueurs ne valent que pour le salon en cours
 	return {"faction": selected_faction, "slots": saved_slots, "duplicates": allow_duplicates, "insolites": insolites_mode, "team": player_team,
 		"ai_level": ai_level, "temperament": temperament, "spectator": spectator,
-		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "people": people_victories,
+		"time_mode": time_mode, "turn_days": turn_days, "timer": turn_timer, "deadline": deadline_days, "not_before": not_before_days, "people": people_victories,
 		"victories": victories.duplicate(), "ai_scaling": ai_scaling, "pirates": pirates, "creatures": creatures, "plagues": plagues, "events": events, "curios": curios, "quests": quests, "politics": politics, "galaxy": galaxy_settings.duplicate(),
 		"goods": goods, "market": market, "peoples": peoples, "migrations": migrations, "faiths": faiths, "amphictyony": amphictyony, "vassals": vassals, "koinon": koinon, "wargoals": wargoals, "occupation": occupation, "borders": borders, "ground": ground, "logistics": logistics, "terrain": terrain, "storms": storms,
 		"crises": crises, "crisis_start": crisis_start, "crisis_strength": crisis_strength, "crisis_kinds": crisis_kinds.duplicate(), "crisis_nemesis": crisis_nemesis,
@@ -3756,7 +3776,7 @@ static func _without_seed(d: Dictionary) -> Dictionary:
 func default_settings() -> Dictionary:
 	return {"faction": selected_faction, "slots": random_slots(), "duplicates": false, "insolites": insolites_default(), "team": 0,
 		"ai_level": AiLevels.default_id(), "temperament": AiLevels.default_temperament(), "spectator": false,
-		"time_mode": GameClock.MODE_REALTIME, "turn_days": GameClock.DEFAULT_TURN_DAYS, "timer": "", "deadline": Victory.default_deadline(), "people": true,
+		"time_mode": GameClock.MODE_REALTIME, "turn_days": GameClock.DEFAULT_TURN_DAYS, "timer": "", "deadline": Victory.default_deadline(), "not_before": Victory.default_not_before(), "people": true,
 		"victories": DEFAULT_VICTORIES.duplicate(), "ai_scaling": false,
 		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "plagues": true, "events": Events.default_frequency(), "curios": Curios.default_density(),
 		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
@@ -3825,6 +3845,7 @@ func apply_settings(d: Dictionary) -> PackedStringArray:
 	set_time_choice(1 + maxi(0, ti) if turns else 0)
 	set_turn_timer(String(d.get("timer", "")))
 	set_deadline(int(d.get("deadline", base["deadline"])))
+	set_not_before(int(d.get("not_before", base["not_before"])))
 	set_people_victories(bool(d.get("people", true)))
 	var vic: Dictionary = d.get("victories", {}) if d.get("victories", {}) is Dictionary else {}
 	for k in victories:

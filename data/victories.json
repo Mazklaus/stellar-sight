@@ -26,8 +26,8 @@
 		},
 		{
 			"id": "normale",
-			"label": "Normale (60 ans)",
-			"days": 21600
+			"label": "Normale (50 ans)",
+			"days": 18000
 		},
 		{
 			"id": "longue",
@@ -41,6 +41,14 @@
 		}
 	],
 	"default_deadline": "normale",
+	"not_before": [
+		{"id": "aucune", "label": "Dès le début", "days": 0},
+		{"id": "an10", "label": "Pas avant l'an 10", "days": 3600},
+		{"id": "an20", "label": "Pas avant l'an 20", "days": 7200},
+		{"id": "an30", "label": "Pas avant l'an 30", "days": 10800}
+	],
+	"default_not_before": "an20",
+	"bloc_max_pct": 50,
 	"score": {
 		"pop": 2,
 		"colony": 10,
@@ -108,8 +116,8 @@
 			"culture": true,
 			"text": "Que sa culture soit au moins « Influente » chez chaque empire survivant rencontré (au moins %d), et le tenir %d ans. Alertes à toute la galaxie à la moitié et aux trois quarts des empires.",
 			"counter": "Fermer ses frontières, voter l'Exception culturelle, couper les routes, déclarer la guerre (elle coupe la diffusion) ou dénigrer sa culture par l'espionnage.",
-			"min_rivals": 2,
-			"hold_days": 720,
+			"min_rivals": 4,
+			"hold_days": 1800,
 			"on_fail": "pause",
 			"chronicle": "Le Grand Rayonnement : de bord en bord de la galaxie, on chante les chansons de %s, on porte ses modes et on rit de ses blagues. Plus besoin de flottes quand tout le monde vous imite.",
 			"src": "Victoire culturelle, Civilization VI (touristes étrangers) et Civilization V (Influent sur toutes les civilisations)"
@@ -215,11 +223,11 @@
 				]
 			},
 			"tech": "legende",
-			"text": "Accomplir %d exploits improbables différents (vaincre une flotte trois fois plus forte, voler une technologie, mener un contrat à terme…), puis garder une réputation d'au moins %d pendant %d an, avec au moins un héros vivant et libre pour porter la légende.",
+			"text": "Accomplir %d exploits improbables différents (vaincre une flotte trois fois plus forte, voler une technologie, mener un contrat à terme…), puis garder une réputation d'au moins %d pendant %d ans, avec au moins un héros vivant et libre pour porter la légende.",
 			"counter": "Les battre : chaque bataille perdue ternit la légende (réputation -8). Tuer, capturer ou corrompre leurs héros : sans héros, la légende retombe à zéro.",
-			"exploits": 7,
+			"exploits": 9,
 			"min_reputation": 60,
-			"hold_days": 360,
+			"hold_days": 1080,
 			"on_fail": "reset",
 			"chronicle": "On ne raconte plus les exploits de %s : on les chante, on les brode, on les vend en feuilletons. La Légende est entrée dans l'histoire, avec quelques arrangements."
 		},

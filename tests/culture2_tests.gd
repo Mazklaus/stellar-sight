@@ -233,7 +233,7 @@ func _test_victory() -> void:
 			st.culture["tier"]["0>%d" % e.id] = 4
 	var pr := Victory.progress(st, 0, "rayonnement")
 	_ok(bool(pr["cond"]), "Influent chez chaque empire survivant : le compte à rebours démarre")
-	_ok(int(pr["hold"]) == 720, "à tenir deux ans")
+	_ok(int(pr["hold"]) == 1800, "à tenir cinq ans")
 	st.culture["tier"]["0>1"] = 3
 	_ok(not bool(Victory.progress(st, 0, "rayonnement")["cond"]), "un seul empire manquant suffit à arrêter")
 	var added: Array[Dictionary] = []

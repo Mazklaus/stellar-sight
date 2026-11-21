@@ -13,12 +13,14 @@ Huit victoires sont ouvertes à tous, et chaque peuple a la sienne. Le bloc Vict
 | --- | --- | --- |
 | Conquête | Par défaut | Tenir la capitale d'origine de chaque rival hors de votre camp, en gardant la vôtre. Rester seuls en vie suffit aussi |
 | Domination | Par défaut | Revendiquer 50 % des systèmes de la galaxie pendant 3 ans. Les systèmes des alliés comptent, mais chaque allié ajoute 10 points au seuil |
-| Score | Si une date limite est choisie | Avoir le plus haut score à la date limite (30, 60 ou 90 ans ; 60 par défaut) |
+| Score | Si une date limite est choisie | Avoir le plus haut score à la date limite (30, 50 ou 90 ans ; 50 par défaut) |
 | Spirituelle | En option, avec les religions | Votre foi d'État majoritaire dans plus de la moitié des colonies de chaque empire survivant, le vôtre compris, pendant 5 ans |
 | Diplomatique | Par défaut, avec l'Amphictyonie | Être élu **Chancelier des étoiles** par l'Amphictyonie, puis faire accepter le verdict |
-| Le Grand Rayonnement | Par défaut, avec le rayonnement culturel | Être au moins **Influent** chez chaque empire survivant rencontré (au moins deux), pendant 2 ans (chapitre 22) |
+| Le Grand Rayonnement | Par défaut, avec le rayonnement culturel | Être au moins **Influent** chez chaque empire survivant rencontré (au moins quatre), pendant 5 ans (chapitre 22) |
 
-**Le camp.** Conquête et Domination se gagnent en camp, si l'option « alliés vainqueurs ensemble » est cochée (c'est le cas par défaut) : les alliés partagent la victoire. Les membres d'un même **Koinon** comptent comme des alliés après cinq ans dans la ligue ; un **sujet** compte pour son suzerain après cinq ans de lien (ses systèmes pour moitié), mais ne peut gagner ni la conquête ni la domination pour lui-même. Ces délais de grâce empêchent les ralliements de la dernière heure.
+**Pas de victoire avant l'heure.** Le réglage **Victoire** de la nouvelle partie fixe la date avant laquelle aucune victoire n'est proclamée : dès le début, l'an 10, l'an **20** (par défaut) ou l'an 30. Une condition remplie plus tôt n'est pas perdue : une **alerte galactique** l'annonce à tous les empires, et la victoire est proclamée à la date dite si la condition tient toujours. Les rivaux ont donc le temps de réagir.
+
+**Le camp.** Conquête et Domination se gagnent en camp, si l'option « alliés vainqueurs ensemble » est cochée (c'est le cas par défaut) : les alliés partagent la victoire, tant que le camp ne réunit pas **plus de la moitié des empires vivants**. Au-delà, chacun ne gagne que pour lui-même et ses sujets : une galaxie entière ne se déclare pas alliée pour gagner ensemble. Les membres d'un même **Koinon** comptent comme des alliés après cinq ans dans la ligue ; un **sujet** compte pour son suzerain après cinq ans de lien (ses systèmes pour moitié), mais ne peut gagner ni la conquête ni la domination pour lui-même. Ces délais de grâce empêchent les ralliements de la dernière heure.
 
 **Le Chancelier des étoiles.** L'élection a lieu tous les dix ans à partir de l'an 30, entre les deux plus fortes voix de l'assemblée. Il faut **67 % de toutes les voix**, abstentions comprises, dans une assemblée d'au moins quatre membres qui réunit au moins 75 % des empires vivants. Le candidat battu peut refuser le verdict dans les 60 jours : c'est la **Dernière Guerre**, où ceux qui ont voté pour l'élu marchent sur lui. L'élu gagne quand le battu s'incline, laisse passer le délai, ou perd sa capitale ; s'il la tient dix ans, le titre retourne aux archives. Les alliés de l'élu gagnent avec lui. Le détail est au chapitre 12.
 
@@ -38,7 +40,7 @@ Chaque peuple a une victoire qui lui ressemble, débloquée par une technologie 
 | La Moisson | Kh'thari | La moitié de la population galactique, 2 ans |
 | L'Éveil de la Noosphère | Teyl | 12 colonies reliées sans coupure, 2 ans |
 | La Terre promise | Ferrocornes | Le monde caché colonisé, la flotte-ville y campe 1 an |
-| La Légende | Brisecomète | 7 exploits sur 11, réputation de 60, 1 an |
+| La Légende | Brisecomète | 9 exploits sur 11, réputation de 60, 3 ans |
 | Le Silence parfait | Murmurants | 8 colonies, 3 ans sans être repéré |
 | L'Idole des étoiles | Credo Plaisir (éditeur) | Influent chez 60 % de la population étrangère rencontrée, 1 an |
 

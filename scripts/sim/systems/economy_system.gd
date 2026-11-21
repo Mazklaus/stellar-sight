@@ -250,6 +250,9 @@ static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionar
 	if e.blackout and not was_blackout:
 		added.append(state.add_chronicle("Pénurie d'énergie chez %s : les chantiers s'arrêtent, les bougies se vendent très bien." % e.display_name(), Espionage.private_to(state, [e.id])))
 
+	# Plafonds de stock et débouchés (équilibrage G6).
+	Economy.apply_stock_caps(state, e, inc_all["gross"])
+
 	# Les stocks ne descendent jamais sous zéro : le manque se paie en famine ou en chantiers arrêtés.
 	for r in e.resources:
 		e.resources[r] = maxi(0, int(e.resources[r]))

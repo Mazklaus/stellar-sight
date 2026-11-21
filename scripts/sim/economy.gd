@@ -490,7 +490,70 @@ static func claim_cost_for(state: GameState, empire_id: int, planet_id: int, kin
 		var cp := Research.fx_int(state, empire_id, "claim_cost_pct")  # Arche-Semencière
 		if cp != 0:
 			cost = Research.scaled_amounts(cost, cp)
+	# Expansion qui dure (équilibrage E4) : l'influence demandée monte avec chaque système déjà tenu.
+	var pct := claim_scale_pct(state, empire_id)
+	if pct > 0 and int(cost.get("influence", 0)) > 0:
+		cost = cost.duplicate()
+		@warning_ignore("integer_division")
+		cost["influence"] = int(cost["influence"]) * (100 + pct) / 100
 	return FactionTraits.adjust_claim_cost(state, empire_id, cost, kind)
+
+
+## Surcoût d'influence des revendications, en % : 10 % par système déjà tenu au-delà du premier.
+static func claim_scale_pct(state: GameState, empire_id: int) -> int:
+	var cs: Dictionary = GameData.rules().get("claim_scale", {})
+	var per := int(cs.get("influence_pct_per_system", 0))
+	if per <= 0:
+		return 0
+	return mini(int(cs.get("max_pct", 300)), per * maxi(0, Stability.systems_of(state, empire_id).size() - 1))
+
+
+## Plafond de stock d'une ressource (équilibrage G6) : un socle, plus des mois de production brute.
+## 0 = pas de plafond.
+static func stock_cap(res: String, gross_month: int) -> int:
+	var sc: Dictionary = GameData.rules().get("stock_caps", {}).get(res, {})
+	if sc.is_empty():
+		return 0
+	return int(sc["base"]) + int(sc["months"]) * maxi(0, gross_month)
+
+
+## Plafonds de stock et débouchés, au bilan du mois : l'énergie en trop se vend à perte,
+## l'influence en trop nourrit la stabilité (un mois) et l'intégration des peuples.
+static func apply_stock_caps(state: GameState, e: Empire, gross: Dictionary) -> void:
+	var caps: Dictionary = GameData.rules().get("stock_caps", {})
+	e.largesse = 0
+	if caps.is_empty():
+		return
+	var ce: Dictionary = caps.get("energy", {})
+	if not ce.is_empty():
+		var cap := stock_cap("energy", int(gross.get("energy", 0)))
+		var over := int(e.resources.get("energy", 0)) - cap
+		if over > 0:
+			e.resources["energy"] = cap
+			var to := String(ce.get("to", ""))
+			if to != "":
+				var room := stock_cap("energy", int(gross.get(to, 0))) - int(e.resources.get(to, 0))
+				@warning_ignore("integer_division")
+				var gain := mini(maxi(0, room), over * int(ce["sell_pct"]) / 100)
+				e.resources[to] = int(e.resources.get(to, 0)) + gain
+	var ci: Dictionary = caps.get("influence", {})
+	if not ci.is_empty():
+		var cap := stock_cap("influence", int(gross.get("influence", 0)))
+		var over := int(e.resources.get("influence", 0)) - cap
+		if over > 0:
+			e.resources["influence"] = cap
+			@warning_ignore("integer_division")
+			e.largesse = mini(int(ci["stab_max"]), over / int(ci["stab_per"]))
+			@warning_ignore("integer_division")
+			var pts := mini(int(ci["integ_max"]), over / int(ci["integ_per"]))
+			if pts > 0:
+				for pid in state.sorted_colony_ids():
+					var c: Colony = state.colonies[pid]
+					if c.owner != e.id:
+						continue
+					for fid in c.integ.keys():
+						if int(c.integ[fid]) < 100:
+							c.integ[fid] = mini(100, int(c.integ[fid]) + pts)
 
 
 ## Colonisations simultanées permises (règle commune + technologies d'administration).
