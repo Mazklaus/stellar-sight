@@ -34,6 +34,9 @@ func run(check: Callable) -> void:
 	_test_veil_near()
 	_test_murmurants_sheet()
 	_test_people_victories()
+	# Lot 4 : Fléau et échelle.
+	_test_scourge_path()
+	_test_mega_cap()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -720,3 +723,81 @@ func _test_people_victories() -> void:
 	var pid := Victory.promised_planet(st, 0)
 	var d: Dictionary = FactionTraits.jumps_from(st.galaxy, st.galaxy.get_planet(st.get_empire(0).home_planet).system_id)
 	_ok(pid >= 0 and int(d[st.galaxy.get_planet(pid).system_id]) >= 8, "la Terre promise est bien à 8 sauts ou plus")
+
+
+## Lot 4, D1 à D3 : la voie du Fléau pour les forts, la Menace qui monte dans la durée.
+func _test_scourge_path() -> void:
+	var nd := CrisisNemesis.data()
+	_ok(int(nd["gain"]["battles_won"]) == 6 and int(nd["gain"]["conquests"]) == 30, "exploits mieux payés : bataille 6, conquête 30")
+	_ok(int(nd["ai_from_day"]) == 5400 and int(nd["ai_top"]) == 3 and int(nd["ai_one_in"]["1"]) == 10, "IA : pas avant l'an 15, trois premières puissances, une chance sur dix")
+	var st := GameState.create(11, 120, 1600.0, "vael", {"ai_level": "", "crises": "une", "crisis_kinds": ["recif"], "crisis_nemesis": true})
+	# Puissance militaire : les trois premiers en vaisseaux armés.
+	for f in st.fleets.values():
+		f.ships.clear()
+	var n := 0
+	for e in st.empires:
+		if GameState.is_npc(e.id) or e.eliminated:
+			continue
+		for _i in maxi(0, 6 - n):
+			st.spawn_ship(e.id, "corvette", FactionTraits.capital_system(st, e.id))
+		n += 1
+	var strong := 0
+	for e in st.empires:
+		if not GameState.is_npc(e.id) and CrisisNemesis.ai_strong(st, e.id):
+			strong += 1
+	_ok(strong == 3 and CrisisNemesis.ai_strong(st, 0) and not CrisisNemesis.ai_strong(st, 3), "seuls les trois empires les mieux armés peuvent prendre la voie (%d)" % strong)
+	# La Menace dans la durée.
+	st.tick = 3600
+	var added: Array[Dictionary] = []
+	CrisisNemesis.take(st, 0, added)
+	CrisisNemesis.monthly(st, 0)
+	_ok(int(CrisisNemesis.nem(st)["menace"]) == 0, "en paix et sans conquête, la Menace ne monte pas seule")
+	Combat.start_war(st, 0, 1)
+	var before := int(CrisisNemesis.nem(st)["menace"])
+	CrisisNemesis.monthly(st, 0)
+	_ok(int(CrisisNemesis.nem(st)["menace"]) == before + 3, "+3 par mois de guerre")
+	var prey := FactionTraits.capital_system(st, 1)
+	Combat.capture_system(st, prey, 0)
+	before = int(CrisisNemesis.nem(st)["menace"])
+	CrisisNemesis.monthly(st, 0)
+	var held := 1 if st.system_owner(prey) == 0 else 0
+	var war := 3 if not st.get_empire(0).wars.is_empty() else 0
+	_ok(held == 1 and int(CrisisNemesis.nem(st)["menace"]) == before + war + 1, "+1 par mois et par système conquis encore tenu")
+	for pid in st.galaxy.systems[prey].planet_ids:
+		if st.colonies.has(pid):
+			st.colonies[pid].owner = 1
+	st.rebuild_ownership()
+	before = int(CrisisNemesis.nem(st)["menace"])
+	CrisisNemesis.monthly(st, 0)
+	_ok(int(CrisisNemesis.nem(st)["menace"]) == before + war and (CrisisNemesis.nem(st)["conq"] as Array).is_empty(), "un système repris ne compte plus")
+	var st2 := GameState.create(11, 120, 1600.0, "vael", {"ai_level": "", "crises": "une", "crisis_kinds": ["recif"], "crisis_nemesis": true})
+	st2.tick = 3600
+	CrisisNemesis.take(st2, 0, added)
+	Combat.start_war(st2, 0, 1)
+	Combat.capture_system(st2, FactionTraits.capital_system(st2, 1), 0)
+	CrisisNemesis.monthly(st2, 0)
+	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st2.to_snapshot())))
+	_ok(back != null and back.checksum() == st2.checksum() and (CrisisNemesis.nem(back)["conq"] as Array).size() == 1, "la voie et ses conquêtes survivent à la sauvegarde")
+
+
+## Lot 4, E3 : mégastructures rares.
+func _test_mega_cap() -> void:
+	var st := GameState.create(4242, 150, 1800.0, "ossarane", {"ai_level": "", "megastructures": "completes"})
+	var era := Research.current_era(st, 0)
+	_ok(Megastructures.cap(st, 0) == mini(7, 2 + era), "plafond : 2, plus 1 par ère atteinte (%d à l'ère %d)" % [Megastructures.cap(st, 0), era])
+	var cap_sys := FactionTraits.capital_system(st, 0)
+	var k := "essaim_dyson"
+	Research.grant(st, 0, Megastructures.kind_def(k).get("tech", []))
+	var cap := Megastructures.cap(st, 0)
+	_ok(not Megastructures.site_reason(st, 0, k, cap_sys, -1).contains("plafond"), "sous le plafond, on peut bâtir")
+	var ids: Array[int] = []
+	for i in cap:
+		var id := int(st.megas["next"])
+		st.megas["next"] = id + 1
+		Megastructures.entries(st)[str(id)] = {"id": id, "k": "ascenseur_orbital", "o": 0, "s": cap_sys, "p": 9000 + i, "st": 1, "w": 0}
+		ids.append(id)
+	Megastructures.changed(st)
+	_ok(Megastructures.built_count(st, 0) == cap and Megastructures.site_reason(st, 0, k, cap_sys, -1).contains("plafond"), "au plafond, plus de nouveau chantier")
+	Megastructures.get_m(st, ids[0])["found"] = 1
+	_ok(Megastructures.built_count(st, 0) == cap - 1 and not Megastructures.site_reason(st, 0, k, cap_sys, -1).contains("plafond"), "une ruine relevée ne compte pas")
+	_ok(Megastructures.cap(st, 1) >= 3 and Megastructures.built_count(st, 1) == 0, "le plafond est par empire")
