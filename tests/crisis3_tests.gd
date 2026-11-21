@@ -257,19 +257,23 @@ func _test_nemesis() -> void:
 	var added: Array[Dictionary] = []
 	CrisisNemesis.take(st, 0, added)
 	_ok(CrisisNemesis.check_ambition(st, 1) != "", "un seul empire à la fois")
-	Research.count_stat(st, 0, "conquests", 10)
+	var per := int(CrisisNemesis.data()["gain"]["conquests"])
+	var t1 := int(CrisisNemesis.tier_def(1)["at"])
+	var t2 := int(CrisisNemesis.tier_def(2)["at"])
+	var t3 := int(CrisisNemesis.tier_def(3)["at"])
+	Research.count_stat(st, 0, "conquests", ceili(float(t1) / per))
 	_ok(CrisisNemesis.tier(st) == 1, "conquêtes : premier palier (%d de Menace)" % int(CrisisNemesis.nem(st)["menace"]))
 	Relics.touch(st)
 	_ok(Research.fx_int(st, 0, "damage_pct") >= 5, "Ambition démesurée : +5 % de dégâts")
 	Crisis.on_atrocity(st, 0)
-	Research.count_stat(st, 0, "conquests", 13)
+	Research.count_stat(st, 0, "conquests", ceili(float(t2 - t1) / per))
 	_ok(CrisisNemesis.tier(st) == 2, "deuxième palier : Ombre sur la galaxie")
 	var mem := false
 	for m in st.memories:
 		if int(m["about"]) == 0 and String(m["kind"]) == "nemesis":
 			mem = true
 	_ok(mem, "les autres empires s'en souviennent")
-	Research.count_stat(st, 0, "conquests", 30)
+	Research.count_stat(st, 0, "conquests", ceili(float(t3 - t2) / per))
 	_ok(CrisisNemesis.is_scourge(st, 0), "dernier palier : le Fléau des étoiles")
 	var all_war := true
 	for e in st.empires:
@@ -297,7 +301,7 @@ func _test_nemesis_broken() -> void:
 	st.tick = 3600
 	var added: Array[Dictionary] = []
 	CrisisNemesis.take(st, 1, added)
-	Research.count_stat(st, 1, "conquests", 12)
+	Research.count_stat(st, 1, "conquests", 20)
 	_ok(CrisisNemesis.tier(st) == 1, "une IA prend la voie")
 	var e := st.empires[1]
 	var col: Colony = st.colonies[e.capital_planet]
@@ -317,7 +321,7 @@ func _test_save() -> void:
 	var added: Array[Dictionary] = []
 	Crisis.begin(st, "dechirure", added)
 	CrisisNemesis.take(st, 1, added)
-	Research.count_stat(st, 1, "conquests", 12)
+	Research.count_stat(st, 1, "conquests", 20)
 	sim.advance(400)
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_snapshot())))
 	_ok(back != null and back.checksum() == st.checksum(), "sauvegarde relue, même empreinte (présage, Fléau)")

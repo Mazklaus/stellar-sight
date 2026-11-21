@@ -112,9 +112,9 @@
 		"monthly": {"at_war": 3, "per_conquest": 1},
 		"_monthly": "Équilibrage lot 4 (D2) : chaque mois, at_war si l'empire est en guerre, plus per_conquest par système conquis depuis la prise de la voie et encore tenu (nem.conq). D1 : une IA ne prend la voie qu'à partir de ai_from_day et si elle compte parmi les ai_top premières puissances militaires (vaisseaux armés).",
 		"tiers": [
-			{"at": 150, "label": "Ambition démesurée", "fx": {"damage_pct": 5, "ship_days_pct": -10}, "text": "On murmure le nom de {empire} dans les chancelleries, et pas pour s'en réjouir."},
-			{"at": 400, "label": "Ombre sur la galaxie", "fx": {"damage_pct": 10, "ship_days_pct": -15, "troops_pct": 20}, "text": "{empire} n'est plus une puissance parmi d'autres : c'est une ombre qui s'étend. Les autres empires s'en souviendront."},
-			{"at": 800, "label": "Fléau des étoiles", "fx": {"damage_pct": 15, "ship_days_pct": -20, "troops_pct": 30, "stability": 5}, "final": true, "text": "{empire} se proclame Fléau des étoiles. Il n'y a plus de retour possible : toute la galaxie lui déclare la guerre, et il entreprend {oeuvre}."}
+			{"at": 500, "label": "Ambition démesurée", "fx": {"damage_pct": 5, "ship_days_pct": -10}, "text": "On murmure le nom de {empire} dans les chancelleries, et pas pour s'en réjouir."},
+			{"at": 1200, "label": "Ombre sur la galaxie", "fx": {"damage_pct": 10, "ship_days_pct": -15, "troops_pct": 20}, "text": "{empire} n'est plus une puissance parmi d'autres : c'est une ombre qui s'étend. Les autres empires s'en souviendront."},
+			{"at": 2200, "label": "Fléau des étoiles", "fx": {"damage_pct": 15, "ship_days_pct": -20, "troops_pct": 30, "stability": 5}, "final": true, "text": "{empire} se proclame Fléau des étoiles. Il n'y a plus de retour possible : toute la galaxie lui déclare la guerre, et il entreprend {oeuvre}."}
 		],
 		"foes_damage_pct": 10,
 		"oeuvre": {"name": "la Couronne du Néant", "need_per_empire": 1200, "min": 2400, "pack": 200, "text": "Un trône bâti dans le vide entre les étoiles, d'où l'on règne sur tout ce qui reste. Une fois achevé, la partie est gagnée pour le Fléau."},
