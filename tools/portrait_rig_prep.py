@@ -23,7 +23,10 @@ P={
 def from_reperes(path):
     out={}
     for r in json.load(open(path))["reperes_portraits"]:
-        W,H=r["taille"]; px=lambda k:[r[k][0]*W,r[k][1]*H]
+        # Coordonnées en fractions : on les rapporte à la taille réelle de l'image du dépôt.
+        name=r["image"].rsplit(".",1)[0]
+        name={"exemple_mystique":"essai_mystique"}.get(name,name)
+        W,H=Image.open(SRC+name+".jpg").size; px=lambda k:[r[k][0]*W,r[k][1]*H]
         g,d,s,m=px("tete_g"),px("tete_d"),px("sommet"),px("menton")
         el,er=px("oeil_g"),px("oeil_d"); ed=abs(er[0]-el[0])
         e=dict(head=[(g[0]+d[0])/2,(s[1]+m[1])/2,abs(d[0]-g[0])/2,abs(m[1]-s[1])/2],neck=px("cou"),
@@ -33,7 +36,7 @@ def from_reperes(path):
             bg,bd=px("bouche_g"),px("bouche_d"); cx=(bg[0]+bd[0])/2
             e["chin"]=[[int(bg[0]),int(bg[1])],[int(cx-(cx-bg[0])/2),int(bg[1]-3)],[int(cx),int(bg[1]-2)],[int(cx+(bd[0]-cx)/2),int(bd[1]-3)],[int(bd[0]),int(bd[1])],
                        [int(bd[0]+4),int((bd[1]+m[1])/2)],[int(cx+(bd[0]-cx)*0.6),int(m[1]-8)],[int(cx),int(m[1])],[int(cx-(cx-bg[0])*0.6),int(m[1]-8)],[int(bg[0]-4),int((bg[1]+m[1])/2)]]
-        out[r["image"].rsplit(".",1)[0]]=e
+        out[name]=e
     return out
 if len(sys.argv)>1:
     P=from_reperes(sys.argv[1])

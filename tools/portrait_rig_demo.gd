@@ -25,10 +25,16 @@ func _initialize() -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 22)
 	col.add_child(row)
+	# PORTRAIT_RIGS="id:Libellé,id2:Libellé2" remplace la liste par défaut.
+	var rigs: Array = RIGS
+	if OS.get_environment("PORTRAIT_RIGS") != "":
+		rigs = []
+		for part in OS.get_environment("PORTRAIT_RIGS").split(","):
+			rigs.append(part.split(":"))
 	var i := 0
-	for r in RIGS:
+	for r in rigs:
 		var box := VBoxContainer.new()
-		box.add_child(PortraitRig.new(r[0], Vector2(390, 518), float(i) * 1.7))
+		box.add_child(PortraitRig.new(r[0], Vector2(390, 518), 0.0 if rigs.size() < 3 else float(i) * 1.7))
 		var l := Label.new()
 		l.text = r[1]
 		box.add_child(l)
