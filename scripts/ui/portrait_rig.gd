@@ -15,8 +15,8 @@ var breath_px := 8.0
 var breath_period := 4.6
 var head_deg := 3.2
 var turn_px := 13.0
-## Mâchoire qui parle : coupée (jugée inutile par l'utilisateur), gardée en option.
-var talk := false
+## Mâchoire qui parle (ligne des lèvres placée dans l'outil « Bouche des portraits »).
+var talk := true
 var seed_value := 0.0
 
 var _rig := {}

@@ -21,7 +21,7 @@ func _initialize() -> void:
 	col.position = Vector2(24, 14)
 	col.add_theme_constant_override("separation", 8)
 	root.add_child(col)
-	col.add_child(UiTheme.title("Portraits découpés et rigués (méthode 3) : respiration, tête, regard, clignement", 20))
+	col.add_child(UiTheme.title("Portraits découpés et rigués (méthode 3) : respiration, tête, regard, clignement, parole", 20))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 22)
 	col.add_child(row)

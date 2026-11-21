@@ -38,7 +38,24 @@ def from_reperes(path):
                        [int(bd[0]+4),int((bd[1]+m[1])/2)],[int(cx+(bd[0]-cx)*0.6),int(m[1]-8)],[int(cx),int(m[1])],[int(cx-(cx-bg[0])*0.6),int(m[1]-8)],[int(bg[0]-4),int((bg[1]+m[1])/2)]]
         out[name]=e
     return out
-if len(sys.argv)>1:
+# Bouche placée à la main dans l'artefact (mode « bouche ») : python3 tools/portrait_rig_prep.py bouches.json
+# « levres » = points de la ligne entre les lèvres, de gauche à droite (coins compris) ; « menton » = bas du menton.
+# La mâchoire est découpée le long de cette ligne, puis descend en arrondi jusqu'au menton.
+def chin_from_mouth(lev,men):
+    lev=[[int(x),int(y)] for x,y in lev]
+    l,r=lev[0],lev[-1]; cx=(l[0]+r[0])/2; w=r[0]-l[0]
+    low=[[int(r[0]+w*0.06),int((r[1]+men[1])/2)],[int(cx+w*0.3),int(men[1]-w*0.08)],[int(men[0]),int(men[1])],
+         [int(cx-w*0.3),int(men[1]-w*0.08)],[int(l[0]-w*0.06),int((l[1]+men[1])/2)]]
+    return lev+low, len(lev)
+SEAM_N={}
+if len(sys.argv)>1 and "bouches" in json.load(open(sys.argv[1])):
+    for b in json.load(open(sys.argv[1]))["bouches"]:
+        n=b["image"].rsplit(".",1)[0]
+        W,H=Image.open(SRC+n+".jpg").size
+        lev=[[x*W,y*H] for x,y in b["levres"]]; men=[b["menton"][0]*W,b["menton"][1]*H]
+        if n in P:
+            P[n]["chin"],SEAM_N[n]=chin_from_mouth(lev,men)
+elif len(sys.argv)>1:
     P=from_reperes(sys.argv[1])
     import os
     for n in P:
@@ -116,7 +133,7 @@ for n,c in P.items():
     w_chest=1-ss(c["chest"],H,pts[:,1])
     rig=dict(size=[W,H],verts=pts.tolist(),tris=keep,w_head=w_head.round(4).tolist(),
              w_face=w_face.round(4).tolist(),w_chest=w_chest.round(4).tolist(),
-             head=c["head"],neck=c["neck"],face=c["face"],chest=c["chest"],chin=c.get("chin",[]),
+             head=c["head"],neck=c["neck"],face=c["face"],chest=c["chest"],chin=c.get("chin",[]),seam_n=SEAM_N.get(n,5),
              lids=lids,eye=c["eye"],glow=c["glow"])
     json.dump(rig,open(OUT+n+"/rig.json","w"))
     print(n,len(pts),len(keep))

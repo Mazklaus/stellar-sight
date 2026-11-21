@@ -13,7 +13,7 @@ for n in ["essai_mystique","essai_noble","essai_cornu"]:
     m=np.zeros((H,W),np.uint8); cv2.fillPoly(m,[poly],255)
     # bords adoucis sauf le haut (lèvre)
     soft=cv2.GaussianBlur(m,(0,0),5)
-    top=poly[:5]
+    top=poly[:int(rig.get("seam_n",5))]
     edge=np.zeros_like(m)
     cv2.polylines(edge,[top.reshape(-1,1,2)],False,255,1)
     # sous la ligne des lèvres on garde l'alpha net sur 6 px
