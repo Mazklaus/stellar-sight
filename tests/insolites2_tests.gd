@@ -216,7 +216,23 @@ func _test_bureau() -> void:
 	var before: int = total.call()
 	InsBureau._lose_file(st, b, ed, added)
 	_ok(total.call() == before - 1, "le Bureau perd une signature (dossier égaré)")
-	# Victoire fabriquée : tout le monde signe tout.
+	# Victoire fabriquée : tout le monde signe tout. Deux normes ne suffisent plus (équilibrage, lot 6).
+	var bed := Insolites.emp(st, b)
+	var need_norms := int(Insolites.cfg("bureau")["total_min_norms"])
+	for e in st.empires:
+		if e.id != b and not e.is_npc():
+			_contact(st, b, e.id)
+			for n in InsBureau.published(st, b):
+				var c0 := SimCommands.ins_act(e.id, "sign", {"b": b, "norm": String(n)})
+				if SimCommands.validate(st, c0) == "":
+					SimCommands.apply(st, c0)
+	st.get_empire(b).techs["administration_totale"] = true
+	_ok(need_norms == 5 and InsBureau.published(st, b).size() < need_norms and not Victory.progress(st, b, "administration")["cond"], "Administration totale : pas avant cinq normes en vigueur")
+	st.get_empire(b).techs.erase("administration_totale")
+	for nd: Dictionary in Insolites.cfg("bureau")["norms"]:
+		if (bed["norms"] as Array).size() < need_norms and not (bed["norms"] as Array).has(String(nd["id"])):
+			(bed["norms"] as Array).append(String(nd["id"]))
+	_ok(int(GameData.victories()["victories"]["administration"]["hold_days"]) == 1080, "Administration totale : tenue trois ans")
 	for e in st.empires:
 		if e.id == b or e.is_npc():
 			continue

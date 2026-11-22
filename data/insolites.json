@@ -338,6 +338,7 @@
 		"signal_borrow": true,
 		"ysmer_inspire_pmille": 300,
 		"sign_opinion": -20,
+		"sign_opinion_per_norm": 10,
 		"asphodele_raise_influence": 80,
 		"pact_opinion": -10,
 		"cassivel_buy_reserve": 120,
@@ -413,7 +414,8 @@
 		"sanction_income_pct": -10,
 		"file_days": 360,
 		"lost_file_chance_pmille": 30,
-		"total_hold_days": 360,
+		"total_hold_days": 1080,
+		"total_min_norms": 5,
 		"norms": [
 			{
 				"id": "soutes_c12",

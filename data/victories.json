@@ -331,7 +331,7 @@
 			"tech": "administration_totale",
 			"text": "Faire signer toutes les normes en vigueur à tous les empires survivants, et le tenir %d an.",
 			"counter": "Refuser une norme et subir la Non-conformité ; faire perdre des signatures au Bureau.",
-			"hold_days": 360,
+			"hold_days": 1080,
 			"on_fail": "reset",
 			"chronicle": "Administration totale : tous les empires de la galaxie sont en règle. %s tamponne le dernier formulaire, puis cherche, un peu inquiet, ce qu'il pourra bien normer demain.",
 			"src": "Étude des peuples insolites, prop. 46 (document de game design)"

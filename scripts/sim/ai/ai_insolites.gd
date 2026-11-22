@@ -175,11 +175,13 @@ static func _react(ctx: Dictionary) -> void:
 				break
 		if done:
 			break
-	# Normes du Bureau : on signe si l'on ne déteste pas le Bureau.
+	# Normes du Bureau : on signe la première si l'on ne déteste pas le Bureau ; chaque norme déjà signée
+	# demande une meilleure opinion pour la suivante (équilibrage, lot 6 : tout signer donnait la victoire).
 	for b in InsBureau.bureaus(state):
 		if b == e.id or not e.contacts.has(b):
 			continue
-		if Diplomacy.opinion(state, e.id, b) < int(_ai().get("sign_opinion", -20)):
+		var bar := int(_ai().get("sign_opinion", -20)) + int(_ai().get("sign_opinion_per_norm", 0)) * InsBureau.signed(state, b, e.id).size()
+		if Diplomacy.opinion(state, e.id, b) < bar:
 			continue
 		for norm in InsBureau.unsigned(state, b, e.id):
 			if InsBureau.check_sign(state, e.id, b, String(norm)) == "":
