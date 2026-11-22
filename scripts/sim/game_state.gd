@@ -1207,7 +1207,7 @@ func _setup_empires(player_faction: String, rivals: Variant = null, duplicates :
 		if not GameData.is_official(fid):
 			custom_factions[fid] = GameData.faction(fid).duplicate(true)
 	GameData.set_game_factions(custom_factions)
-	var homes := _assign_distances(_pick_home_systems(order.size()), distances)
+	var homes := _keep_from_predators(_assign_distances(_pick_home_systems(order.size()), distances), order, distances)
 	var rules := GameData.rules()
 	var hw: Dictionary = rules["homeworld"]
 	for i in mini(order.size(), homes.size()):
@@ -1250,6 +1250,12 @@ func _setup_empires(player_faction: String, rivals: Variant = null, duplicates :
 				var deps := Array(galaxy.planets[target].deposits).duplicate()  # copie, sinon la planète de base change aussi
 				deps.append(dep)
 				override_planet(target, {"deposits": deps})
+		# Plancher du peuple (étude d'équilibrage, F3) : gisements posés sur le monde d'origine même.
+		for fd in faction.get("start_floor", {}).get("home_deposits", []):
+			if not galaxy.planets[home_id].deposits.has(String(fd)):
+				var hdeps := Array(galaxy.planets[home_id].deposits).duplicate()
+				hdeps.append(String(fd))
+				override_planet(home_id, {"deposits": hdeps})
 		_guarantee_worlds(e, sys.id, homes)
 		var c := Colony.new()
 		c.planet_id = home_id
@@ -1305,7 +1311,8 @@ func _setup_colors(wanted: Array) -> void:
 ## Mondes habitables garantis (réglage de la galaxie) : à deux sauts au plus du départ, au moins N
 ## planètes d'un type préféré du peuple ; il en manque, des planètes rocheuses proches sont changées.
 func _guarantee_worlds(e: Empire, home_sys: int, homes: Array[int]) -> void:
-	var want := int(galaxy_settings.get("guaranteed", 0))
+	# Le plancher du peuple (champ "start_floor"."worlds", F3) vaut même sans le réglage de la galaxie.
+	var want := maxi(int(galaxy_settings.get("guaranteed", 0)), int(e.faction().get("start_floor", {}).get("worlds", 0)))
 	var preferred: Array = e.faction().get("preferred", [])
 	if want <= 0 or preferred.is_empty():
 		return
@@ -1337,6 +1344,87 @@ func _guarantee_worlds(e: Empire, home_sys: int, homes: Array[int]) -> void:
 		var sizes: Array = types[t]["sizes"]
 		override_planet(spare[k], {"type": t, "size": int(round((float(sizes[0]) + float(sizes[1])) * 0.5))})
 		_guaranteed[spare[k]] = true
+
+
+## Sauts depuis un système vers tous les autres (parcours en largeur).
+func _jumps_from(origin: int) -> Dictionary:
+	var out := {origin: 0}
+	var frontier: Array[int] = [origin]
+	while not frontier.is_empty():
+		var next: Array[int] = []
+		for sid in frontier:
+			for nb in galaxy.systems[sid].neighbors:
+				if not out.has(nb):
+					out[nb] = int(out[sid]) + 1
+					next.append(nb)
+		frontier = next
+	return out
+
+
+## Distance à un prédateur (étude d'équilibrage, F4) : aucun départ à moins de predator_min_jumps sauts
+## de celui d'un peuple qui chasse le premier rencontré (champ "predator" du peuple). Le prédateur
+## échange d'abord sa place avec le rival le plus isolé ; s'il reste trop près de quelqu'un, il part du
+## système libre assez loin de tous le plus proche de sa place. Sans tirage : la suite du hasard ne bouge pas.
+## Dans une galaxie trop petite, c'est le mieux possible et non une garantie.
+func _keep_from_predators(homes: Array[int], order: Array[String], distances: Array) -> Array[int]:
+	var min_jumps := int(GameData.rules().get("starts", {}).get("predator_min_jumps", 0))
+	if min_jumps <= 0 or homes.size() < 2:
+		return homes
+	for i in mini(order.size(), homes.size()):
+		if not bool(GameData.faction(order[i]).get("predator", false)):
+			continue
+		if _isolation(homes, i, homes[i]) >= min_jumps:
+			continue
+		# 1. La place la plus isolée, prise à un rival sans distance demandée (jamais à l'empire 0).
+		var wished := i < distances.size() and String(distances[i]) in ["proche", "lointain"]
+		if i > 0 and not wished:
+			var best := i
+			var best_iso := _isolation(homes, i, homes[i])
+			for k in range(1, mini(order.size(), homes.size())):
+				if k == i or bool(GameData.faction(order[k]).get("predator", false)):
+					continue
+				if k < distances.size() and String(distances[k]) in ["proche", "lointain"]:
+					continue
+				var iso := _isolation(homes, k, homes[k])
+				if iso > best_iso:
+					best_iso = iso
+					best = k
+			if best != i:
+				var tmp := homes[i]
+				homes[i] = homes[best]
+				homes[best] = tmp
+		# 2. Toujours trop près : le système libre assez loin de tous le plus proche de sa place (il ne
+		# s'exile pas au bout de la galaxie) ; aucun n'est assez loin, alors le plus isolé.
+		var cur := _isolation(homes, i, homes[i])
+		if cur >= min_jumps:
+			continue
+		var from := galaxy.systems[homes[i]].position
+		var pick := homes[i]
+		var pick_d := INF
+		var far := homes[i]
+		for s in galaxy.systems:
+			if homes.has(s.id) or s.planet_count < 2 or s.star_type == "neutron" or s.star_type == "black_hole":
+				continue
+			var iso := _isolation(homes, i, s.id)
+			if iso > cur:
+				cur = iso
+				far = s.id
+			var d := s.position.distance_squared_to(from)
+			if iso >= min_jumps and d < pick_d:
+				pick_d = d
+				pick = s.id
+		homes[i] = pick if pick_d < INF else far
+	return homes
+
+
+## Sauts entre un système et le départ le plus proche, celui de l'empire « skip » mis à part.
+func _isolation(homes: Array[int], skip: int, sid: int) -> int:
+	var jumps := _jumps_from(sid)
+	var out := 1 << 30
+	for k in homes.size():
+		if k != skip:
+			out = mini(out, int(jumps.get(homes[k], 1 << 30)))
+	return out
 
 
 ## Distance au joueur choisie par rival : les départs tirés ne changent pas, seule leur attribution.
@@ -1461,7 +1549,9 @@ func _pick_homes_balanced(count: int) -> Array[int]:
 			var a := fposmod(pos.angle() - offset, TAU)
 			if a < k * width or a >= (k + 1) * width:
 				continue
-			var score := absf(pos.length() / galaxy_radius - 0.62)
+			# Près de l'anneau, et près du milieu du secteur : deux voisins ne se collent plus à leur
+			# frontière commune (étude d'équilibrage, F2).
+			var score := absf(pos.length() / galaxy_radius - 0.62) + 0.6 * absf((a - k * width) / width - 0.5)
 			if score < best_score:
 				best_score = score
 				best = c

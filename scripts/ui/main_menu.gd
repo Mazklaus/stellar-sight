@@ -110,7 +110,7 @@ const TEAM_COUNT := 4
 var player_team := 0
 var _team_select: OptionButton
 ## Réglages de la galaxie (GalaxySettings) : taille, forme, routes, départs, mondes garantis.
-var galaxy_settings: Dictionary = GalaxySettings.defaults()
+var galaxy_settings: Dictionary = GalaxySettings.new_game_defaults()
 var _galaxy_banner: Widgets.ArtSlot
 var _size_select: OptionButton
 var _shape_select: OptionButton
@@ -1208,8 +1208,18 @@ func _draw_pool(used: Array[String], drawn_insolites: int, random_count: int) ->
 	var cap := random_count if pct >= 100 else (maxi(1, random_count * pct / 100) if pct > 0 else 0)
 	var classic: Array[String] = []
 	var odd: Array[String] = []
+	# Au plus un peuple prédateur pour quatre empires (étude d'équilibrage, F7).
+	var per := int(GameData.rules().get("starts", {}).get("predator_per", 0))
+	var predators := 0
+	for u in used:
+		if bool(GameData.faction(u).get("predator", false)):
+			predators += 1
+	@warning_ignore("integer_division")
+	var no_predator := per > 0 and predators >= maxi(1, (slots.size() + 1) / per)
 	for f in GameData.all_faction_ids():
 		if not allow_duplicates and used.has(f):
+			continue
+		if no_predator and bool(GameData.faction(f).get("predator", false)):
 			continue
 		if bool(GameData.faction(f).get("insolite", false)):
 			odd.append(f)
@@ -3779,7 +3789,7 @@ func default_settings() -> Dictionary:
 		"time_mode": GameClock.MODE_REALTIME, "turn_days": GameClock.DEFAULT_TURN_DAYS, "timer": "", "deadline": Victory.default_deadline(), "not_before": Victory.default_not_before(), "people": true,
 		"victories": DEFAULT_VICTORIES.duplicate(), "ai_scaling": false,
 		"pirates": Pirates.default_density(), "creatures": Fauna.default_density(), "plagues": true, "events": Events.default_frequency(), "curios": Curios.default_density(),
-		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.defaults(),
+		"quests": Quests.default_mode(), "politics": Politics.default_mode(), "galaxy": GalaxySettings.new_game_defaults(),
 		"goods": String(GameData.goods()["default_mode"]), "market": String(GameData.goods()["default_market"]), "peoples": "actifs", "migrations": "actives", "faiths": "actives", "amphictyony": "active", "vassals": "actifs", "koinon": "actif", "wargoals": "actifs", "occupation": "occupation", "borders": String(GameData.borders()["default_mode"]), "ground": String(GameData.ground()["default_mode"]), "logistics": String(GameData.logistics()["default_mode"]),
 		"terrain": Terrain.default_density(), "storms": Terrain.default_storms(),
 		"crises": Crisis.default_mode(), "crisis_start": Crisis.default_start(), "crisis_strength": Crisis.default_strength(), "crisis_kinds": [], "crisis_nemesis": true,

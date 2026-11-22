@@ -107,7 +107,9 @@ func _test_placements() -> void:
 			homes[st.galaxy.get_planet(e.home_planet).system_id] = true
 		_ok(st.empires.size() == 8 and homes.size() == 8, "départs %s : 8 empires, 8 systèmes différents" % placement)
 	# Équilibré : chacun dans son secteur, à mi-distance du centre, système d'au moins 3 planètes.
-	var bal := _state({"placement": "equilibre", "size": "grande"}, 31, "ossarane", {"rivals": rivals, "duplicates": true})
+	# Sans prédateur : l'Essaim quitte son secteur quand un voisin est à moins de six sauts (voir equilibrage_tests).
+	var calm := ["choeur", "vael", "teyl", "ossarane", "choeur", "vael", "teyl"]
+	var bal := _state({"placement": "equilibre", "size": "grande"}, 31, "ossarane", {"rivals": calm, "duplicates": true})
 	var ok := true
 	for e in bal.empires:
 		var s := bal.galaxy.systems[bal.galaxy.get_planet(e.capital_planet).system_id]

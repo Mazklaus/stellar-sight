@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.65
+
+- **Équilibrage, lot 5 : départs et IA.** L'écran Nouvelle partie propose une **grande galaxie** (230 systèmes pour huit empires), des départs **équilibrés** et **un monde habitable garanti** à deux sauts ; Standard et Chaotique restent au menu. **Plancher par peuple** : sols fertiles sur le monde natal de l'Essaim, un monde de leur goût à deux sauts pour le Chœur et Vael, quel que soit le réglage. **Personne ne part à moins de six sauts de l'Essaim.** Rivaux tirés au hasard : **un prédateur pour quatre empires** au plus. **Bonus de l'IA écrits en clair** sur la fiche de chaque rival ; la difficulté progressive atteint ses pleins bonus à l'**an 20** (au lieu de l'an 40). Sauvegarde 101 inchangée.
+
 ### Édition 2.64
 
 - **Équilibrage, lot 4 : Fléau et échelle.** **La voie du Fléau est pour les forts** : une IA ne prend l'Ambition démesurée qu'à partir de l'an 15 et si elle compte parmi les trois premières puissances militaires (une chance sur dix par an). **La Menace monte dans la durée** : +3 par mois de guerre, +1 par mois et par système conquis encore tenu ; bataille gagnée 6 (au lieu de 2), système conquis 30 (au lieu de 15). Les **paliers** passent à 900, 1 600 et 2 600 pour un calendrier plus long : premier palier environ trois ans après la prise de la voie, Fléau des étoiles douze à quinze ans après. Mêmes règles pour le joueur. **Mégastructures rares** : un empire en bâtit deux, plus une par ère de recherche atteinte (sept au plus) ; les ruines relevées ne comptent pas. **Ceux qui restent ne repartent pas** : l'État successeur d'un empire parti en Transcendance ne franchit plus l'Orée à son tour, ce qui morcelait la galaxie après l'an 30. L'IA qui a pris la voie du Fléau déclare ses guerres avec plus d'audace.

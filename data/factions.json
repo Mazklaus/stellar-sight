@@ -19,6 +19,7 @@
 			{"name": "Levée du ban", "text": "En guerre contre un empire dont la flotte dépasse la sienne, chaque fief lève une corvette tous les 6 mois (4 au plus par levée), qui rejoint la capitale. La levée cesse dès que sa flotte dépasse celle de l'ennemi."}
 		]},
 	{"id": "choeur", "name": "Hégémonie du Chœur Éternel", "short": "Chœur Éternel", "registre": "Grimdark",
+		"start_floor": {"worlds": 1},
 		"species": {"archetype": "humanoide", "gouvernement": "theocratie", "credo": "foi", "traits": ["fanatisme"]},
 		"color": "#c0392b", "preferred": ["arctic", "desert"],
 		"production_pct": {"materials": 125, "knowledge": 80},
@@ -37,6 +38,7 @@
 			{"name": "Croisade", "text": "Chaque vaisseau ennemi détruit rapporte +2 ferveur, chaque système conquis +10. Le dieu-machine aime la guerre presque autant que les hymnes."}
 		]},
 	{"id": "vael", "name": "Concorde de Vael", "short": "Vael", "registre": "Space opera héroïque",
+		"start_floor": {"worlds": 1},
 		"species": {"archetype": "humanoide", "gouvernement": "republique", "credo": "raison", "traits": ["pluriel"]},
 		"color": "#4a90e2", "preferred": ["ocean", "continental"],
 		"production_pct": {"influence": 150, "energy": 110},
@@ -56,6 +58,7 @@
 			{"name": "Au dernier moment", "text": "Une flotte qui rejoint une bataille déjà engagée inflige 30 % de dégâts en plus jusqu'à la fin de la bataille. C'est une tradition."}
 		]},
 	{"id": "khthari", "name": "Essaim Kh'thari", "short": "Kh'thari", "registre": "Horreur biologique",
+		"predator": true, "start_floor": {"home_deposits": ["fertile"]},
 		"species": {"archetype": "ruche", "gouvernement": "ruche", "credo": "survie", "traits": ["fecondite"]},
 		"color": "#6fcf3a", "preferred": ["toxic", "ocean"],
 		"production_pct": {"influence": 50, "knowledge": 50},

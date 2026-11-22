@@ -53,6 +53,26 @@ static func production_pct(state: GameState, empire_id: int) -> int:
 	return pct
 
 
+## Bonus de l'IA en clair (étude d'équilibrage, G9) : ce que son niveau lui donne aujourd'hui, pour que le
+## joueur le voie au lieu de le deviner. "" pour un humain.
+static func bonus_text(state: GameState, empire_id: int) -> String:
+	var e := state.get_empire(empire_id)
+	if e == null or not e.is_ai():
+		return ""
+	var full := int(level(e.ai_level).get("production_pct", 100)) - 100
+	if full <= 0:
+		return "Aucun bonus (IA %s)" % label(e.ai_level)
+	if not state.ai_scaling:
+		var start: Dictionary = level(e.ai_level).get("start_bonus", {})
+		return "Bonus de l'IA %s : production +%d %%%s" % [label(e.ai_level), full,
+				", avance au départ" if not start.is_empty() else ""]
+	var now := production_pct(state, empire_id) - 100
+	if now >= full:
+		return "Bonus de l'IA %s : production +%d %% (difficulté progressive, montée terminée)" % [label(e.ai_level), full]
+	return "Bonus de l'IA %s : production +%d %% aujourd'hui, +%d %% à l'an %d (difficulté progressive)" % [
+			label(e.ai_level), now, full, scaling_days() / GameCalendar.DAYS_PER_YEAR]
+
+
 ## Durée de la montée des bonus en difficulté progressive, en jours (data/ai.json).
 static func scaling_days() -> int:
 	return int(GameData.ai().get("scaling_days", 14400))
