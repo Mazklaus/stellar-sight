@@ -301,7 +301,7 @@ func _test_nemesis_broken() -> void:
 	st.tick = 3600
 	var added: Array[Dictionary] = []
 	CrisisNemesis.take(st, 1, added)
-	Research.count_stat(st, 1, "conquests", 20)
+	Research.count_stat(st, 1, "conquests", 35)
 	_ok(CrisisNemesis.tier(st) == 1, "une IA prend la voie")
 	var e := st.empires[1]
 	var col: Colony = st.colonies[e.capital_planet]
@@ -321,7 +321,7 @@ func _test_save() -> void:
 	var added: Array[Dictionary] = []
 	Crisis.begin(st, "dechirure", added)
 	CrisisNemesis.take(st, 1, added)
-	Research.count_stat(st, 1, "conquests", 20)
+	Research.count_stat(st, 1, "conquests", 35)
 	sim.advance(400)
 	var back := GameState.from_dict(JSON.parse_string(JSON.stringify(st.to_snapshot())))
 	_ok(back != null and back.checksum() == st.checksum(), "sauvegarde relue, même empreinte (présage, Fléau)")

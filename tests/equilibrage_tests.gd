@@ -729,7 +729,7 @@ func _test_people_victories() -> void:
 func _test_scourge_path() -> void:
 	var nd := CrisisNemesis.data()
 	_ok(int(nd["gain"]["battles_won"]) == 6 and int(nd["gain"]["conquests"]) == 30, "exploits mieux payés : bataille 6, conquête 30")
-	_ok(int(CrisisNemesis.tier_def(1)["at"]) == 500 and int(CrisisNemesis.tier_def(2)["at"]) == 1200 and int(CrisisNemesis.tier_def(3)["at"]) == 2200, "paliers de la Menace : 500, 1 200, 2 200")
+	_ok(int(CrisisNemesis.tier_def(1)["at"]) == 900 and int(CrisisNemesis.tier_def(2)["at"]) == 1600 and int(CrisisNemesis.tier_def(3)["at"]) == 2600, "paliers de la Menace : 900, 1 600, 2 600")
 	_ok(int(nd["ai_from_day"]) == 5400 and int(nd["ai_top"]) == 3 and int(nd["ai_one_in"]["1"]) == 10, "IA : pas avant l'an 15, trois premières puissances, une chance sur dix")
 	var st := GameState.create(11, 120, 1600.0, "vael", {"ai_level": "", "crises": "une", "crisis_kinds": ["recif"], "crisis_nemesis": true})
 	# Puissance militaire : les trois premiers en vaisseaux armés.
