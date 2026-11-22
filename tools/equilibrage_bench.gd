@@ -54,6 +54,7 @@ func _initialize() -> void:
 	menu.free()
 	var st := GameState.create(seed_value, 150, 1800.0, "", opts)
 	var g := st.galaxy
+	var n_emp := st.empires.size()
 	var n_sys := g.systems.size()
 	# Géométrie : longueur des routes, sauts et distance entre mondes d'origine.
 	var lanes: Array = []
@@ -142,6 +143,14 @@ func _initialize() -> void:
 							marks[k] = st.tick
 					if not e.contacts.is_empty() and not contact.has(e.id):
 						contact[e.id] = st.tick
+			while n_emp < st.empires.size():
+				var ne: Empire = st.empires[n_emp]
+				var last: Array = []
+				for ci in range(maxi(0, st.chronicle.size() - 5), st.chronicle.size()):
+					last.append(String(st.chronicle[ci]["text"]))
+				_emit(out, {"type": "born", "tick": st.tick, "id": ne.id, "faction": ne.faction_id, "name": ne.display_name(),
+					"sys": Victory.systems_held(st, ne.id), "chronicle": last})
+				n_emp += 1
 			if not win_logged and not st.winner.is_empty():
 				win_logged = true
 				_emit(out, {"type": "win", "tick": st.tick, "winner": st.winner,
