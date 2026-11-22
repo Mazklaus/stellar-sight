@@ -673,6 +673,7 @@ static func capture_system(state: GameState, system_id: int, new_owner: int) -> 
 	Wars.on_capture(state, system_id, new_owner, old)
 	Diplomacy.note_conquest(state, new_owner, old)
 	Research.count_stat(state, new_owner, "conquests")
+	CrisisNemesis.on_conquest(state, new_owner, system_id)
 	var digest := bool(trait_value(state, new_owner, "digest", false))
 	var bio := int(en.faction().get("biomass", {}).get("materials", 0))
 	var digested := 0

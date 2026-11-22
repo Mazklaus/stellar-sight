@@ -136,21 +136,23 @@ Pourquoi combattre la crise quand on peut la devenir ? Dès l'an 10, un empire, 
 
 | Acte | Menace |
 | --- | --- |
-| Système conquis | 15 |
+| Système conquis | 30 |
 | Guerre déclarée | 10 |
-| Bataille gagnée | 2 |
+| Bataille gagnée | 6 |
 | Atrocité | 60 |
 | Technologie interdite | 30 |
+| Chaque mois de guerre | 3 |
+| Chaque mois, par système conquis depuis la prise de la voie et encore tenu | 1 |
 
 | Palier | Menace | Effets (cumulés) |
 | --- | --- | --- |
-| Ambition démesurée | 150 | Dégâts +5 %, vaisseaux 10 % plus vite |
-| Ombre sur la galaxie | 400 | Dégâts +10 %, vaisseaux 15 % plus vite, troupes +20 % ; tous les autres empires s'en souviennent |
-| Fléau des étoiles | 800 | Dégâts +15 %, vaisseaux 20 % plus vite, troupes +30 %, +5 stabilité |
+| Ambition démesurée | 900 | Dégâts +5 %, vaisseaux 10 % plus vite |
+| Ombre sur la galaxie | 1 600 | Dégâts +10 %, vaisseaux 15 % plus vite, troupes +20 % ; tous les autres empires s'en souviennent |
+| Fléau des étoiles | 2 600 | Dégâts +15 %, vaisseaux 20 % plus vite, troupes +30 %, +5 stabilité |
 
 Le dernier palier est un **point de non-retour**. Toute la galaxie déclare la guerre au Fléau, et personne ne peut plus faire la paix avec lui. Les autres empires frappent ses flottes **10 % plus fort**. Le Fléau doit alors bâtir **la Couronne du Néant**, en y versant 200 énergie ou matériaux à la fois (1 200 par empire rival, 2 400 au moins). S'il l'achève, c'est la **Victoire du Fléau**. S'il perd sa capitale, la voie est **brisée** : sa Menace retombe à rien et il ne pourra jamais la reprendre.
 
-Une IA agressive peut prendre cette voie : une chance sur trente par an pour un peuple d'agressivité 1 (le Chœur, les Kh'thari ou les Ferrocornes au tempérament Normal, par exemple), une sur quatre au-delà. Les IA Recrues ne la prennent jamais.
+Une IA agressive peut prendre cette voie, mais seulement à partir de l'an 15 et si elle compte parmi les **trois premières puissances militaires** de la galaxie : une chance sur dix par an pour un peuple d'agressivité 1 (le Chœur, les Kh'thari ou les Ferrocornes au tempérament Normal, par exemple), une sur quatre au-delà. Les IA Recrues ne la prennent jamais.
 
 ### L'onglet Crise
 

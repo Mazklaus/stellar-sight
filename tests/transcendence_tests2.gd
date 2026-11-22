@@ -150,6 +150,7 @@ static func _test_succession() -> void:
 	TranscendenceTests.months(st, 1)
 	_ok(e.eliminated and Transcendence.done(st, oss), "Départ : l'espèce fondatrice quitte la galaxie")
 	_ok(st.empires.size() == n0 + 1, "État successeur fondé")
+	_ok(Transcendence.renounced(st, st.empires.back().id) and Transcendence.check_path(st, st.empires.back().id, "depart") != "", "ceux qui sont restés ne franchiront jamais l'Orée")
 	var ne := st.empires[st.empires.size() - 1]
 	_ok(ne.faction_id == other_fid and not ne.eliminated and ne.techs.size() >= techs, "Successeur : l'espèce restée, les techniques héritées")
 	var col: Colony = st.colonies.get(c.planet_id)

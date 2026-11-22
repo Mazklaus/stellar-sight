@@ -163,6 +163,7 @@ static func restore(state: GameState, eid: int, id: int, added: Array[Dictionary
 
 static func restored(state: GameState, m: Dictionary, added: Array[Dictionary]) -> void:
 	m.erase("ruin")
+	m["found"] = 1  # une trouvaille relevée ne compte pas dans le plafond (Megastructures.cap)
 	m.erase("rs")
 	m.erase("dmg")
 	m.erase("sg")

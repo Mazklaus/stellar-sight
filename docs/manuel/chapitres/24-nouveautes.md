@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.64
+
+- **Équilibrage, lot 4 : Fléau et échelle.** **La voie du Fléau est pour les forts** : une IA ne prend l'Ambition démesurée qu'à partir de l'an 15 et si elle compte parmi les trois premières puissances militaires (une chance sur dix par an). **La Menace monte dans la durée** : +3 par mois de guerre, +1 par mois et par système conquis encore tenu ; bataille gagnée 6 (au lieu de 2), système conquis 30 (au lieu de 15). Les **paliers** passent à 900, 1 600 et 2 600 pour un calendrier plus long : premier palier environ trois ans après la prise de la voie, Fléau des étoiles douze à quinze ans après. Mêmes règles pour le joueur. **Mégastructures rares** : un empire en bâtit deux, plus une par ère de recherche atteinte (sept au plus) ; les ruines relevées ne comptent pas. **Ceux qui restent ne repartent pas** : l'État successeur d'un empire parti en Transcendance ne franchit plus l'Orée à son tour, ce qui morcelait la galaxie après l'an 30. L'IA qui a pris la voie du Fléau déclare ses guerres avec plus d'audace.
+
 ### Édition 2.63
 
 - **Équilibrage : les victoires de peuple au niveau des autres.** Aucune victoire des huit peuples principaux ne se tient plus moins de **trois ans**, comme la Domination. **L'Élu des routes** : trois ans d'alliance avant chaque union, 100 d'influence par union, quatre ans pour faire naître l'Élu. **Le Dernier Couplet** : quatre cathédrales-chœurs, trois ans de chant. **L'Éveil de la Noosphère** : 18 colonies reliées, trois ans. **La Terre promise** : à huit sauts du berceau, la flotte-ville y campe trois ans. **La Charte des Quarante et Un** : trois ans de ratification. **Le Silence parfait** : quatre ans au lieu de cinq. **La Moisson** : 30 % de la population galactique et 60 population digérée, trois ans. **La Légende** : quatre ans au lieu de trois (mesurée la plus rapide des huit).

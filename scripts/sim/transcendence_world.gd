@@ -336,6 +336,10 @@ static func _successor(state: GameState, eid: int, sids: Array[int], left: Dicti
 	var nid := RulersDynasty.spawn_empire(state, eid, sids, {}, "transcend", added)
 	if nid < 0:
 		return -1
+	# Équilibrage, lot 4 : ceux qui sont restés ne repartent pas. Sans cela l'État successeur, qui hérite
+	# des technologies, franchissait l'Orée à son tour et la galaxie se morcelait (82 empires nés en 12 parties).
+	if bool(Transcendence.cfg("succession").get("stays", true)):
+		Transcendence.sub(state, "renounced")[str(nid)] = state.tick
 	var ne := state.get_empire(nid)
 	if best != "" and not GameData.faction(best).is_empty():
 		ne.faction_id = best

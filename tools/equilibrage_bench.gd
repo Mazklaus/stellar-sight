@@ -54,6 +54,7 @@ func _initialize() -> void:
 	menu.free()
 	var st := GameState.create(seed_value, 150, 1800.0, "", opts)
 	var g := st.galaxy
+	var n_emp := st.empires.size()
 	var n_sys := g.systems.size()
 	# Géométrie : longueur des routes, sauts et distance entre mondes d'origine.
 	var lanes: Array = []
@@ -142,6 +143,14 @@ func _initialize() -> void:
 							marks[k] = st.tick
 					if not e.contacts.is_empty() and not contact.has(e.id):
 						contact[e.id] = st.tick
+			while n_emp < st.empires.size():
+				var ne: Empire = st.empires[n_emp]
+				var last: Array = []
+				for ci in range(maxi(0, st.chronicle.size() - 5), st.chronicle.size()):
+					last.append(String(st.chronicle[ci]["text"]))
+				_emit(out, {"type": "born", "tick": st.tick, "id": ne.id, "faction": ne.faction_id, "name": ne.display_name(),
+					"sys": Victory.systems_held(st, ne.id), "chronicle": last})
+				n_emp += 1
 			if not win_logged and not st.winner.is_empty():
 				win_logged = true
 				_emit(out, {"type": "win", "tick": st.tick, "winner": st.winner,
@@ -174,9 +183,18 @@ func _initialize() -> void:
 		kpi.clear()
 		var nm := {}
 		if CrisisNemesis.enabled(st) and CrisisNemesis.who(st) >= 0:
-			nm = {"who": CrisisNemesis.who(st), "menace": int(CrisisNemesis.nem(st).get("menace", 0)), "tier": CrisisNemesis.tier(st)}
+			nm = {"who": CrisisNemesis.who(st), "menace": int(CrisisNemesis.nem(st).get("menace", 0)), "tier": CrisisNemesis.tier(st),
+				"conq": (CrisisNemesis.nem(st).get("conq", []) as Array).size(), "since": int(CrisisNemesis.nem(st).get("since", 0))}
+		var megas_n := 0
+		var megas_ruins := 0
+		for m: Dictionary in Megastructures.all_sorted(st):
+			if Megastructures.is_ruin(m):
+				megas_ruins += 1
+			else:
+				megas_n += 1
 		_emit(out, {"type": "year", "year": y + 1, "ms_per_day": (Time.get_ticks_msec() - t0) / 360.0,
-			"colonies": st.colonies.size(), "fleets": st.fleets.size(), "empires": rows, "nemesis": nm})
+			"colonies": st.colonies.size(), "fleets": st.fleets.size(), "empires": rows, "nemesis": nm,
+			"megas": megas_n, "mega_ruins": megas_ruins})
 		if win_logged and _env_int("STOP_ON_WIN", 0) == 1:
 			break
 	_emit(out, {"type": "end", "tick": st.tick, "marks": marks, "contact": contact, "met": met, "winner": st.winner})

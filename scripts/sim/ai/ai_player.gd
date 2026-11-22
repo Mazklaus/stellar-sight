@@ -1248,6 +1248,8 @@ static func _declare_wars(ctx: Dictionary) -> void:
 	if Insolites.silent(state, e.id):
 		return  # Silencieux : jamais par haine ni par occasion, seulement contre l'obstacle à la directive (AiInsolites)
 	var aggr := AiLevels.aggression(e)
+	if CrisisNemesis.who(state) == e.id:
+		aggr = mini(3, aggr + int(CrisisNemesis.data().get("ai_bold", 0)))  # qui a pris la voie du Fléau agit en conséquence (D4)
 	if Crisis.active(state) and aggr < 2:
 		return  # pas de guerre opportuniste pendant une crise de fin de partie (sauf les plus belliqueux)
 	if _skill(ctx) >= 1 and aggr < 2:

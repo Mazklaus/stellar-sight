@@ -2143,7 +2143,7 @@
     "Menace"
    ],
    "family": "meca",
-   "summary": "La jauge de l'empire qui a pris la voie de l'Ambition démesurée : trois paliers, jusqu'au Fléau des étoiles",
+   "summary": "La jauge de l'empire qui a pris la voie de l'Ambition démesurée : elle monte par ses actes et par ses mois de guerre, trois paliers, jusqu'au Fléau des étoiles",
    "chapters": [
     "15a-crises"
    ]
@@ -5681,6 +5681,19 @@
    "summary": "Vote annoncé à tous contre un empire qui a conquis et tient 35 % des systèmes habités : soixante jours plus tard, ceux qui le connaissent lui déclarent la guerre",
    "chapters": [
     "09-guerre"
+   ]
+  },
+  {
+   "id": "plafond_de_megastructures",
+   "name": "Plafond de mégastructures",
+   "forms": [
+    "Plafond de mégastructures",
+    "plafond de mégastructures"
+   ],
+   "family": "meca",
+   "summary": "Un empire ne bâtit que deux mégastructures, plus une par ère de recherche atteinte (sept au plus) ; les ruines relevées ne comptent pas",
+   "chapters": [
+    "15t-megastructures"
    ]
   }
  ]

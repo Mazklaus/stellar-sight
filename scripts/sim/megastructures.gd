@@ -326,6 +326,23 @@ static func count_kind(state: GameState, eid: int, k: String) -> int:
 	return n
 
 
+## Équilibrage, lot 4 (E3) : mégastructures rares. Plafond de celles qu'un empire bâtit lui-même :
+## rules.cap = base + per_era par ère atteinte, max au plus. Les ruines relevées ("found") ne comptent pas.
+static func cap(state: GameState, eid: int) -> int:
+	var c: Dictionary = cfg("rules").get("cap", {})
+	if c.is_empty():
+		return 9999
+	return mini(int(c.get("max", 7)), int(c.get("base", 2)) + int(c.get("per_era", 1)) * Research.current_era(state, eid))
+
+
+static func built_count(state: GameState, eid: int) -> int:
+	var n := 0
+	for m in owned_by(state, eid):
+		if not m.has("found") and not is_ruin(m):
+			n += 1
+	return n
+
+
 static func complete_count(state: GameState, eid: int, k: String) -> int:
 	var n := 0
 	for m in owned_by(state, eid):
@@ -437,6 +454,8 @@ static func site_reason(state: GameState, eid: int, k: String, sid: int, pid: in
 		return "système inconnu"
 	if not _holds(state, eid, sid):
 		return "il faut tenir le système (une colonie ou un avant-poste établi, sans occupant)"
+	if built_count(state, eid) >= cap(state, eid):
+		return "plafond atteint : %d mégastructures bâties (une de plus par ère de recherche)" % cap(state, eid)
 	var site: Dictionary = d.get("site", {})
 	var s := state.galaxy.systems[sid]
 	var b := String(site.get("body", "star"))
