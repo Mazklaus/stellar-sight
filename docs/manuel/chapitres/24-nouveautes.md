@@ -5,7 +5,7 @@ etiquette: Annexe
 ---
 ### Édition 2.65
 
-- **Équilibrage, lot 5 : départs et IA.** L'écran Nouvelle partie propose une **grande galaxie** (230 systèmes pour huit empires), des départs **équilibrés** et **un monde habitable garanti** à deux sauts ; Standard et Chaotique restent au menu. **Plancher par peuple** : sols fertiles sur le monde natal de l'Essaim, un monde de leur goût à deux sauts pour le Chœur et Vael, quel que soit le réglage. **Personne ne part à moins de six sauts de l'Essaim.** Rivaux tirés au hasard : **un prédateur pour quatre empires** au plus. **Bonus de l'IA écrits en clair** sur la fiche de chaque rival ; la difficulté progressive atteint ses pleins bonus à l'**an 20** (au lieu de l'an 40). Sauvegarde 101 inchangée.
+- **Équilibrage, lot 5 : départs et IA.** L'écran Nouvelle partie propose des départs **équilibrés** (chacun au milieu de son secteur) et **un monde habitable garanti** à deux sauts ; Standard et Chaotique restent au menu. **Plancher par peuple** : sols fertiles sur le monde natal de l'Essaim, un monde de leur goût à deux sauts pour le Chœur et Vael, quel que soit le réglage. **Personne ne part à moins de six sauts de l'Essaim.** Rivaux tirés au hasard : **un prédateur pour quatre empires** au plus. **Bonus de l'IA écrits en clair** sur la fiche de chaque rival ; la difficulté progressive atteint ses pleins bonus à l'**an 20** (au lieu de l'an 40). Sauvegarde 101 inchangée.
 
 ### Édition 2.64
 

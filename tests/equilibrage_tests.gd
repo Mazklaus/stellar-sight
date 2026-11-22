@@ -808,9 +808,10 @@ func _test_mega_cap() -> void:
 ## Lot 5 : départs (F2 à F7) et bonus de l'IA (G9).
 func _test_starts() -> void:
 	var ng := GalaxySettings.new_game_defaults()
-	_ok(ng["size"] == "grande" and ng["placement"] == "equilibre" and int(ng["guaranteed"]) == 1, "nouvelle partie : grande galaxie, départs équilibrés, un monde garanti")
+	_ok(ng["size"] == "moyenne" and ng["placement"] == "equilibre" and int(ng["guaranteed"]) == 1, "nouvelle partie : galaxie moyenne, départs équilibrés, un monde garanti")
 	_ok(GalaxySettings.defaults()["size"] == "moyenne" and GalaxySettings.defaults()["placement"] == "standard", "sans réglages : la galaxie d'origine")
-	_ok(GalaxySettings.recommended_empires(ng) == 8, "grande galaxie : 8 empires conseillés")
+	_ok(GalaxySettings.recommended_empires({"size": "grande"}) == 8, "grande galaxie : 8 empires conseillés")
+	ng["size"] = "grande"
 	var min_jumps := int(GameData.rules()["starts"]["predator_min_jumps"])
 	var far := 0
 	var fertile := 0
