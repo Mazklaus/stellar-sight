@@ -38,6 +38,14 @@ func _initialize() -> void:
 	var menu := MainMenu.new()
 	menu.slots = MainMenu.default_slots()
 	menu.spectator = true
+	# EMPIRES=n (moins de huit) : n peuples tirés au hasard parmi les huit principaux, avec la graine
+	# (étude d'équilibrage, F5 et F7). empire_setup("") n'a pas de joueur : n places, n empires.
+	var n_env := _env_int("EMPIRES", 0)
+	if n_env > 0 and n_env < menu.slots.size():
+		menu.insolites_mode = "aucun"
+		menu.slots = []
+		for _i in n_env:
+			menu.slots.append(MainMenu.new_slot(MainMenu.RANDOM_FACTION))
 	if OS.get_environment("LEVEL") != "":
 		menu.ai_level = OS.get_environment("LEVEL")
 	if OS.get_environment("SIZE") != "":

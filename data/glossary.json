@@ -5695,6 +5695,32 @@
    "chapters": [
     "15t-megastructures"
    ]
+  },
+  {
+   "id": "depart_equilibre",
+   "name": "Départs équilibrés",
+   "forms": [
+    "Départs équilibrés",
+    "départs équilibrés"
+   ],
+   "family": "meca",
+   "summary": "Le placement proposé par défaut : la galaxie est partagée en secteurs, un par empire, chacun part au milieu du sien avec un monde habitable garanti à deux sauts ; personne ne part à moins de six sauts de l'Essaim",
+   "chapters": [
+    "02-premiere-partie"
+   ]
+  },
+  {
+   "id": "difficulte_progressive",
+   "name": "Difficulté progressive",
+   "forms": [
+    "Difficulté progressive",
+    "difficulté progressive"
+   ],
+   "family": "meca",
+   "summary": "Réglage des rivaux : les bonus de production des IA Expert et Légende partent de zéro, sans avance au départ, et atteignent leur pleine valeur à l'an 20",
+   "chapters": [
+    "02-premiere-partie"
+   ]
   }
  ]
 }

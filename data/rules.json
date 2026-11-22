@@ -38,6 +38,12 @@
 	"advanced_start": {"colonies": 2, "pop": 3, "resources": {"materials": 150, "energy": 100, "influence": 30}},
 	"claim_vision": 1,
 	"colony_start_pop": 1,
+	"starts": {
+		"_doc": "Étude d'équilibrage, lot 5. new_game : réglages de galaxie proposés par l'écran Nouvelle partie (F2 ; F6 mesurée : la grande galaxie à huit empires coûte le double en fin de partie, elle reste un choix du menu). predator_min_jumps : aucun départ à moins de N sauts de celui d'un peuple prédateur (champ \"predator\" du peuple, F4). predator_per : au plus un prédateur tiré au hasard pour N empires (F7). Le plancher de chaque peuple est dans son champ \"start_floor\" {home_deposits, worlds} (F3).",
+		"new_game": {"size": "moyenne", "placement": "equilibre", "guaranteed": 1},
+		"predator_min_jumps": 6,
+		"predator_per": 4
+	},
 	"homeworld": {"size": 4, "pop": 8, "buildings": ["capitale", "ferme_hydroponique", "complexe_minier"]},
 	"deposits": [
 		{"id": "minerals", "label": "Filons riches", "chance": 12, "yields": {"materials": 2}},

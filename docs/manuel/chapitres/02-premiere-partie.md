@@ -23,6 +23,10 @@ La nouvelle partie tient sur un seul écran, rangé en cinq blocs. Les réglages
 | Partie | Le mode (jouer ou regarder en spectateur), le temps (temps réel pausable ou tours d'un mois ou de 10 jours), et les mécaniques en jeu, détaillées ci-dessous |
 | Victoire | Victoires actives, alliés vainqueurs ensemble ou non, date limite du score (30, 60 ou 90 ans, ou aucune) |
 
+**Les départs.** L'écran propose une galaxie moyenne (150 systèmes), des départs **équilibrés** (la galaxie est partagée en secteurs, un par empire) et **un monde habitable garanti** à deux sauts de chez vous. « Standard » (au plus loin les uns des autres) et « Chaotique » (la loterie) restent au menu. La **grande galaxie** (230 systèmes) donne plus d'espace à huit empires, mais ses fins de partie se calculent environ deux fois plus lentement. Quel que soit le réglage, chaque peuple reçoit ce dont sa règle a besoin : un gisement de cristaux pour Ossarane et les Murmurants, la géothermie pour le Réseau Teyl, des filons pour les Ferrocornes, des **sols fertiles** sur le monde natal de l'Essaim, un monde de leur goût à deux sauts pour le Chœur et Vael. Le Syndicat Brisecomète part de rien, et s'en vante. Enfin, **personne ne part à moins de six sauts de l'Essaim** : il chasse le premier qu'il rencontre, et dans une galaxie trop petite pour tenir cette distance, il part du coin le plus isolé. Parmi les rivaux tirés au hasard, il y a au plus un prédateur pour quatre empires.
+
+**Les bonus de l'IA.** Recrue, Normale et Vétéran jouent sans aucun bonus. Expert produit 15 % de plus et Légende 30 % de plus, avec une avance au départ. La fiche d'un rival, dans l'écran Diplomatie, écrit en clair le bonus qu'il touche aujourd'hui. Avec la **difficulté progressive**, ces bonus partent de zéro, sans avance au départ, et atteignent leur pleine valeur à l'**an 20**.
+
 Chaque mécanique peut être retirée de la partie. Une partie sans elle se joue exactement comme si elle n'existait pas. Par défaut, tout est en jeu :
 
 | Réglage | Choix (défaut en gras) | Chapitre |

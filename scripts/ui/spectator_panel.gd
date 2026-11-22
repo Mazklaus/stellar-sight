@@ -193,7 +193,7 @@ func refresh() -> void:
 		var intent := e.ai_intent if e.ai_intent != "" else ("En réflexion…" if e.is_ai() else "")
 		(r["intent"] as Label).text = intent
 		(r["button"] as Button).tooltip_text = "%s\n%s\n%s\nTempérament %s : %s %s" % [e.display_name(),
-				AiLevels.level(e.ai_level).get("desc", "") if e.is_ai() else "Joueur humain",
+				AiLevels.bonus_text(_state, e.id) if e.is_ai() else "Joueur humain",
 				String(AiLevels.personality(e).get("style", "")), AiLevels.temperament_label(e),
 				AiLevels.temperament(e.ai_temperament).get("desc", ""),
 				String(AiLevels.personality(e).get("temperament", {}).get("text", ""))]

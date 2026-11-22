@@ -368,7 +368,7 @@ func _test_main_scene() -> void:
 
 	var old_seed: int = main.galaxy.seed_value
 	main.new_game(old_seed + 1)
-	_check(main.galaxy.seed_value == old_seed + 1 and main.galaxy.systems.size() == main.SYSTEM_COUNT, "nouvelle galaxie")
+	_check(main.galaxy.seed_value == old_seed + 1 and main.galaxy.systems.size() == GalaxySettings.system_count(main.simulation.state.galaxy_settings), "nouvelle galaxie")
 	for _i in 10:
 		await process_frame
 	DirAccess.remove_absolute(main.save_path)

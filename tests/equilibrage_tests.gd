@@ -37,6 +37,7 @@ func run(check: Callable) -> void:
 	# Lot 4 : Fléau et échelle.
 	_test_scourge_path()
 	_test_mega_cap()
+	_test_starts()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -802,3 +803,72 @@ func _test_mega_cap() -> void:
 	Megastructures.get_m(st, ids[0])["found"] = 1
 	_ok(Megastructures.built_count(st, 0) == cap - 1 and not Megastructures.site_reason(st, 0, k, cap_sys, -1).contains("plafond"), "une ruine relevée ne compte pas")
 	_ok(Megastructures.cap(st, 1) >= 3 and Megastructures.built_count(st, 1) == 0, "le plafond est par empire")
+
+
+## Lot 5 : départs (F2 à F7) et bonus de l'IA (G9).
+func _test_starts() -> void:
+	var ng := GalaxySettings.new_game_defaults()
+	_ok(ng["size"] == "moyenne" and ng["placement"] == "equilibre" and int(ng["guaranteed"]) == 1, "nouvelle partie : galaxie moyenne, départs équilibrés, un monde garanti")
+	_ok(GalaxySettings.defaults()["size"] == "moyenne" and GalaxySettings.defaults()["placement"] == "standard", "sans réglages : la galaxie d'origine")
+	_ok(GalaxySettings.recommended_empires({"size": "grande"}) == 8, "grande galaxie : 8 empires conseillés")
+	ng["size"] = "grande"
+	var min_jumps := int(GameData.rules()["starts"]["predator_min_jumps"])
+	var far := 0
+	var fertile := 0
+	var worlds := 0
+	var total := 0
+	for sd in [11, 22, 33, 44, 55, 66]:
+		var st := GameState.create(sd, 150, 1800.0, "", {"galaxy": ng})
+		var pred := _id_of(st, "khthari")
+		var home := _home(st, pred)
+		var jumps := st._jumps_from(home)
+		var nearest := 1 << 30
+		for e in st.empires:
+			if e.id != pred:
+				nearest = mini(nearest, int(jumps[_home(st, e.id)]))
+		total += 1
+		if nearest >= min_jumps:
+			far += 1
+		if st.galaxy.planets[st.get_empire(pred).home_planet].deposits.has("fertile"):
+			fertile += 1
+		for fid in ["choeur", "vael"]:
+			var e := st.get_empire(_id_of(st, fid))
+			var hs := _home(st, e.id)
+			var j2 := st._jumps_from(hs)
+			var found := false
+			for sys in st.galaxy.systems:
+				if sys.id != hs and int(j2.get(sys.id, 99)) <= 2:
+					for pid in sys.planet_ids:
+						if e.faction()["preferred"].has(st.galaxy.planets[pid].type):
+							found = true
+			if found:
+				worlds += 1
+	_ok(far == total, "aucun départ à moins de %d sauts de l'Essaim (%d parties sur %d)" % [min_jumps, far, total])
+	_ok(fertile == total, "l'Essaim part sur des sols fertiles")
+	_ok(worlds == total * 2, "Chœur et Vael ont un monde de leur goût à deux sauts (%d sur %d)" % [worlds, total * 2])
+	# Le plancher vaut aussi sans le réglage de la galaxie.
+	var plain := GameState.create(77, 150, 1800.0, "")
+	_ok(plain.galaxy.planets[plain.get_empire(_id_of(plain, "khthari")).home_planet].deposits.has("fertile"), "sols fertiles même dans la galaxie d'origine")
+	# Tirage des rivaux : un prédateur pour quatre empires au plus, même avec les doublons.
+	var menu := MainMenu.new()
+	menu.slots = MainMenu.random_slots()
+	menu.allow_duplicates = true
+	menu.insolites_mode = "aucun"
+	var worst := 0
+	for sd in 40:
+		var n := 0
+		for fid in menu.empire_setup("", sd)["rivals"]:
+			if bool(GameData.faction(String(fid)).get("predator", false)):
+				n += 1
+		worst = maxi(worst, n)
+	_ok(worst <= 2 and menu.slots.size() + 1 == 8, "8 empires tirés au hasard : 2 prédateurs au plus (pire tirage %d)" % worst)
+	menu.free()
+	# Bonus de l'IA : affichés, et progressifs jusqu'à l'an 20.
+	_ok(AiLevels.scaling_days() == 7200, "difficulté progressive : bonus pleins à l'an 20")
+	var ai := GameState.create(5, 150, 1800.0, "ossarane", {"ai_level": "expert", "ai_scaling": true})
+	_ok(AiLevels.bonus_text(ai, 0) == "" and AiLevels.bonus_text(ai, 1).contains("+0 % aujourd'hui"), "bonus affichés : zéro au départ en progressif")
+	ai.tick = 7200
+	_ok(AiLevels.production_pct(ai, 1) == 115 and AiLevels.bonus_text(ai, 1).contains("montée terminée"), "bonus pleins à l'an 20")
+	var flat := GameState.create(5, 150, 1800.0, "ossarane", {"ai_level": "normal"})
+	_ok(AiLevels.bonus_text(flat, 1).begins_with("Aucun bonus"), "IA Normale : aucun bonus, et c'est écrit")
+

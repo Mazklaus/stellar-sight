@@ -70,6 +70,17 @@ static func defaults() -> Dictionary:
 			"distances": "normales"}
 
 
+## Réglages proposés par l'écran Nouvelle partie (étude d'équilibrage, F2) : un secteur par empire et
+## un monde habitable garanti à deux sauts, dans la galaxie moyenne (data/rules.json, starts.new_game). defaults()
+## reste la galaxie d'origine : c'est elle que prennent les tests et les sauvegardes sans réglages.
+static func new_game_defaults() -> Dictionary:
+	var out := defaults()
+	var ng: Dictionary = GameData.rules().get("starts", {}).get("new_game", {})
+	for key in ng:
+		out[key] = ng[key]
+	return normalize(out)
+
+
 ## Réglages complétés et vérifiés : une valeur inconnue ou absente reprend celle par défaut.
 static func normalize(settings: Variant) -> Dictionary:
 	var out := defaults()
