@@ -23,6 +23,10 @@ Un peuple insolite choisi à la main dans une place n'est jamais retiré. Vous p
 
 Un peuple sans monde porte sa population ailleurs : sur ses nefs, dans son chapiteau, dans sa Masse, dans sa harde. Cette **population portée** compte pour la part de population galactique (la Moisson), pour le score et pour la Légende des peuples. Ces peuples se nourrissent eux-mêmes : pas d'entretien en nourriture. Ils ne sont éliminés que quand leur dernier porteur disparaît.
 
+### Le Savoir des peuples sans monde
+
+Sans colonies, pas de laboratoires : ces peuples tirent leur **Savoir** de ce qu'ils font. Une **Nef-cité au mouillage** rapporte 10 Savoir par mois. Chaque **Kraal qui devient Ancien** en rapporte 250, et chaque adulte ou Ancien qui broute 1 par mois. Chaque **représentation** du Cirque en rapporte 120. Chaque point de **Masse** dévoré par l'Orbe en rapporte 30. C'est assez pour atteindre la technologie de leur victoire, pas pour suivre un empire de colonies : le reste s'achète (licences, accords de recherche) ou se prend.
+
 ### Les implants
 
 Un **implant** est un peuple qui existe sur la planète d'un autre empire. Une planète peut porter un implant de chaque sorte. Son maître le **purge** depuis la fiche de la planète, s'il le voit ; le système vacille ensuite quelque temps.

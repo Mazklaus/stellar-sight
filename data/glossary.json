@@ -4241,7 +4241,7 @@
     "l'Allumage"
    ],
    "family": "meca",
-   "summary": "Victoire de l'Orbe-Monde : tenir 300 de Masse trois ans sans être assiégé, et s'allumer en étoile.",
+   "summary": "Victoire de l'Orbe-Monde : tenir 200 de Masse trois ans sans être assiégé, et s'allumer en étoile.",
    "chapters": [
     "17a-insolites"
    ]
@@ -4281,7 +4281,7 @@
     "Pilotes"
    ],
    "family": "bestiaire",
-   "summary": "Habitant arraché à une colonie ennemie et lié à un Kraal : +10 % de dégâts, trois par harde.",
+   "summary": "Habitant arraché à une colonie ennemie et lié à un Kraal : +10 % de dégâts, trois par harde. Six Pilotes comptent pour la Moisson des Kraal.",
    "chapters": [
     "17a-insolites"
    ]
@@ -4357,7 +4357,7 @@
     "l'OPA galactique"
    ],
    "family": "meca",
-   "summary": "Victoire de la Compagnie : la majorité des parts (pondérées par la population) de trois empires rivaux, tenue deux ans.",
+   "summary": "Victoire de la Compagnie : la majorité des parts (pondérées par la population) de trois empires rivaux, tenue trois ans.",
    "chapters": [
     "17a-insolites"
    ]
@@ -4425,7 +4425,7 @@
     "l'Administration totale"
    ],
    "family": "meca",
-   "summary": "Victoire du Bureau : tous les empires survivants ont signé toutes les normes en vigueur, et le restent un an.",
+   "summary": "Victoire du Bureau : cinq normes au moins en vigueur, toutes signées par tous les empires survivants, pendant trois ans.",
    "chapters": [
     "17a-insolites"
    ]
@@ -4515,7 +4515,7 @@
     "le Rêve commun"
    ],
    "family": "meca",
-   "summary": "Victoire des Ysmer : des rêveries dans la moitié de la population organique des autres empires, tenues cinq ans.",
+   "summary": "Victoire des Ysmer : des rêveries dans 35 % de la population organique des autres empires, tenues trois ans.",
    "chapters": [
     "17a-insolites"
    ]
@@ -4737,7 +4737,7 @@
     "le Musée vivant"
    ],
    "family": "meca",
-   "summary": "Victoire du Muséum : un représentant de chaque espèce des autres empires et des mineurs rencontrés, tenu un an.",
+   "summary": "Victoire du Muséum : un représentant de chaque espèce des autres empires et des mineurs rencontrés, tenu trois ans.",
    "chapters": [
     "17a-insolites"
    ]
@@ -4923,7 +4923,7 @@
     "la Boucle"
    ],
    "family": "meca",
-   "summary": "Trois projets successifs des Gardiens du Sablier ; fermée avec le Gardien chronal vivant, elle donne la victoire du Paradoxe stable.",
+   "summary": "Trois projets successifs des Gardiens du Sablier, payés en Sable (80, 120, 160) ; fermée avec le Gardien chronal vivant et tenue trois ans, elle donne la victoire du Paradoxe stable.",
    "chapters": [
     "17a-insolites"
    ]
@@ -5082,7 +5082,7 @@
     "la Biosphère unique"
    ],
    "family": "meca",
-   "summary": "Victoire de Myrr (ouverte au Hallier) : tenir 40 % des planètes habitables de la galaxie.",
+   "summary": "Victoire de Myrr (ouverte au Hallier) : tenir 25 % des planètes habitables de la galaxie pendant trois ans.",
    "chapters": [
     "17a-insolites"
    ]
