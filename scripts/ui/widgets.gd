@@ -318,6 +318,9 @@ class ArtSlot:
 	var tech_id := ""
 	var _tex: TextureRect
 	var _caption: Label
+	## Portrait dessiné animé (essai « portraits animés ») : horloge propre et cadence de redessin.
+	var _anim_t := 0.0
+	var _anim_acc := 0.0
 
 	func _init(id := "", slot_size := Vector2(300, 160), color := Color(0.38, 0.86, 0.92), m := "none") -> void:
 		art_id = id
@@ -396,6 +399,39 @@ class ArtSlot:
 			return
 		var p := art_path(art_id)
 		_tex.texture = load(p) as Texture2D if p != "" else null
+		# Essai « portraits animés » : une illustration de personnage respire, regarde, cligne.
+		PortraitMotion.attach(self, _tex, art_id)
+		# Sans illustration, la silhouette dessinée s'anime elle aussi (voir _draw_portrait).
+		set_process(PortraitMotion.enabled and _tex.texture == null and _is_drawn_portrait())
+
+	func _is_drawn_portrait() -> bool:
+		return art_id.begins_with("portrait_") or art_id.begins_with("hero_") or art_id.begins_with("ruler_")
+
+	## Redessine la silhouette animée environ 30 fois par seconde, seulement quand elle est visible.
+	func _process(delta: float) -> void:
+		_anim_t += delta
+		_anim_acc += delta
+		if _anim_acc >= 1.0 / 30.0 and is_visible_in_tree():
+			_anim_acc = 0.0
+			queue_redraw()
+
+	## Pose animée du buste : [respiration 0..1, angle de la tête, décalage de la tête, fermeture des yeux].
+	func _pose() -> Array:
+		if not PortraitMotion.enabled:
+			return [0.0, 0.0, Vector2.ZERO, 0.0]
+		var ph := float(hash(art_id) % 997) * 0.37 + float(variant) * 1.3 + float(int(hero.get("seed", 0)) % 101) * 0.11
+		var t := _anim_t + ph
+		var period := 4.6
+		var u := fmod(t, period) / period
+		var b := 0.5 + 0.5 * sin(u * TAU - 0.6 * sin(u * TAU))
+		var ang := deg_to_rad(2.4) * (sin(t * 0.37) * 0.6 + sin(t * 0.83 + 1.7) * 0.4)
+		var sway := Vector2(sin(t * 0.29 + 0.5), sin(t * 0.41) * 0.4)
+		# Clignement : une fois par intervalle de 4,3 s, à un moment tiré de l'intervalle.
+		var every := 4.3
+		var slot := floorf(t / every)
+		var at := 0.5 + absf(fmod(sin(slot * 91.3 + ph) * 9137.1, 1.0)) * (every - 1.2)
+		var blink := clampf(1.0 - absf(t - slot * every - at - 0.08) / 0.08, 0.0, 1.0)
+		return [b, ang, sway, blink]
 
 	func _draw() -> void:
 		var r := Rect2(Vector2.ZERO, size)
@@ -504,8 +540,16 @@ class ArtSlot:
 		draw_circle(Vector2(cx, base * 0.42), s * 0.42, Color(tint, 0.07))
 		var sw := s * (0.5 if look == "colossus" or look == "boulder" else 0.4) * sw_k
 		var sh_y := base * 0.78
+		# Animation : les yeux s'éteignent le temps d'un clignement et leur lueur pulse doucement.
+		var pose := _pose()
+		var breath: float = pose[0]
+		eye = Color(eye.lightened(0.08 * sin(_anim_t * 1.7 + float(variant))), eye.a * (1.0 - 0.9 * float(pose[3])))
 		if ruler_ref:
 			_draw_ruler_backdrop(r, String(rdef.get("backdrop", "")), cx, base, s)
+		# Respiration : le buste s'étire un peu vers le haut depuis le bas du cadre.
+		var sy := 1.0 + 0.02 * breath
+		draw_set_transform(Vector2(0.0, base * (1.0 - sy)), 0.0, Vector2(1.0, sy))
+		if ruler_ref:
 			_draw_ruler_mantle(String(rdef.get("mantle", "")), cx, sh_y, sw, s, base)
 		if me:
 			# La cape aux couleurs de son empire, derrière les épaules.
@@ -516,6 +560,12 @@ class ArtSlot:
 				Vector2(cx + sw * 0.3, sh_y - s * 0.08), Vector2(cx + sw * 0.85, sh_y), Vector2(cx + sw, base)]), Color(fill.darkened(0.2), 0.25 if glow else 1.0))
 		var head := Vector2(cx, base * 0.48)
 		var hr := s * (0.14 if look == "crown" and hive else 0.17) * head_k
+		# Tête : soulevée avec les épaules, elle pivote autour du cou et dérive un peu.
+		var neck := Vector2(cx, (sh_y - s * 0.08) - (base - (sh_y - s * 0.08)) * (sy - 1.0))
+		var hang: float = pose[1]
+		var hoff: Vector2 = pose[2] * s * 0.012
+		var hxf := Transform2D(hang, neck + hoff) * Transform2D(0.0, -Vector2(cx, sh_y - s * 0.08))
+		draw_set_transform_matrix(hxf)
 		if hero_ref:
 			_draw_hero_attire(head, hr, cx, sh_y, sw, s, base, edge, me)
 		if synth:
@@ -715,6 +765,7 @@ class ArtSlot:
 					draw_circle(head + Vector2(side * hr * 0.38, -hr * 0.05), 2.2, eye)
 		if ruler_ref:
 			_draw_ruler_regalia(String(rdef.get("regalia", "")), head, hr)
+		draw_set_transform_matrix(Transform2D.IDENTITY)
 		if me:
 			_draw_hero_state(r, head, hr, edge)
 
