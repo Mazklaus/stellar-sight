@@ -228,7 +228,7 @@
 		"sentinel_mass": 4,
 		"living_mood": 3,
 		"ego_mood": -4,
-		"ignition_mass": 200,
+		"ignition_mass": 300,
 		"siege_power_pct": 100
 	},
 	"kraal": {
@@ -281,15 +281,15 @@
 		"pilot_max": 3,
 		"pilot_min_pop": 2,
 		"moisson": {
-			"_doc": "Lot 6 de l'équilibrage : la Moisson des Kraal à leur échelle (une harde, pas un empire de colonies). digested compte les Pilotes arrachés.",
+			"_doc": "Lot 6 de l'équilibrage : la Moisson des Kraal à leur échelle (une harde, pas un empire de colonies). digested à 0 : aucune population digérée exigée (les Pilotes, trois par harde, ne s'arrachent qu'en guerre : au banc, la condition ne se remplissait jamais).",
 			"pop_share_pct": 10,
-			"digested": 6
+			"digested": 0
 		}
 	},
 	"victories": {
 		"allumage": {
 			"_doc": "Prop. 28. Masse tenue 3 ans sans siège.",
-			"mass": 200
+			"mass": 300
 		},
 		"opa": {
 			"_doc": "Prop. 41.",
@@ -736,20 +736,20 @@
 		"life_pct": 250,
 		"psi_sand": 40,
 		"loop_stages": 3,
-		"loop_days": 720,
+		"loop_days": 1080,
 		"chrono_days": 1800,
 		"gone_days": 360,
 		"loop_costs": [
 			{
-				"sand": 80,
+				"sand": 120,
 				"energy": 200
 			},
 			{
-				"sand": 120,
+				"sand": 160,
 				"energy": 300
 			},
 			{
-				"sand": 160,
+				"sand": 200,
 				"energy": 400
 			}
 		]

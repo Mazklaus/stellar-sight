@@ -296,7 +296,7 @@
 			"tech": "allumage",
 			"text": "Atteindre une Masse de %d et la tenir %d ans sans être assiégé (une puissance armée ennemie au moins égale à celle de l'Orbe dans son système arrête le compte à rebours) : la planète-être s'allume en étoile.",
 			"counter": "L'assiéger avec une grande puissance armée, comme le Monde-Ego ; l'affamer en lui fermant les systèmes où manger.",
-			"mass": 200,
+			"mass": 300,
 			"hold_days": 1080,
 			"on_fail": "pause",
 			"chronicle": "L'Allumage. %s s'embrase : là où marchait une planète brille désormais une jeune étoile, qui a l'air très contente d'elle.",

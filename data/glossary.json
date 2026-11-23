@@ -4241,7 +4241,7 @@
     "l'Allumage"
    ],
    "family": "meca",
-   "summary": "Victoire de l'Orbe-Monde : tenir 200 de Masse trois ans sans être assiégé, et s'allumer en étoile.",
+   "summary": "Victoire de l'Orbe-Monde : tenir 300 de Masse trois ans sans être assiégé, et s'allumer en étoile.",
    "chapters": [
     "17a-insolites"
    ]
@@ -4281,7 +4281,7 @@
     "Pilotes"
    ],
    "family": "bestiaire",
-   "summary": "Habitant arraché à une colonie ennemie et lié à un Kraal : +10 % de dégâts, trois par harde. Six Pilotes comptent pour la Moisson des Kraal.",
+   "summary": "Habitant arraché à une colonie ennemie et lié à un Kraal : +10 % de dégâts, trois par harde.",
    "chapters": [
     "17a-insolites"
    ]
@@ -4923,7 +4923,7 @@
     "la Boucle"
    ],
    "family": "meca",
-   "summary": "Trois projets successifs des Gardiens du Sablier, payés en Sable (80, 120, 160) ; fermée avec le Gardien chronal vivant et tenue trois ans, elle donne la victoire du Paradoxe stable.",
+   "summary": "Trois projets successifs des Gardiens du Sablier, de trois ans chacun, payés en Sable (120, 160, 200) ; fermée avec le Gardien chronal vivant et tenue trois ans, elle donne la victoire du Paradoxe stable.",
    "chapters": [
     "17a-insolites"
    ]

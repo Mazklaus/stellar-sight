@@ -218,9 +218,9 @@ func _test_sablier() -> void:
 	ed["sand"] = 0
 	_ok(InsSablier.check_loop(st, s).contains("Sable"), "la Boucle demande du Sable")
 	ed["sand"] = 200
-	_ok(InsSablier.loop_sand(st, s) == 80 and not InsSablier.loop_cost(st, s).has("knowledge"), "première étape : 80 Sable, pas de Savoir")
+	_ok(InsSablier.loop_sand(st, s) == 120 and not InsSablier.loop_cost(st, s).has("knowledge"), "première étape : 120 Sable, pas de Savoir")
 	SimCommands.apply(st, SimCommands.ins_act(s, "loop"))
-	_ok(not (ed["lp"] as Dictionary).is_empty() and int(ed["sand"]) == 120, "une étape de la Boucle est en chantier, le Sable est dépensé")
+	_ok(not (ed["lp"] as Dictionary).is_empty() and int(ed["sand"]) == 80, "une étape de la Boucle est en chantier, le Sable est dépensé")
 	ed["lp"] = {"left": 1}
 	InsSablier.daily(st, s, ed, false, added)
 	_ok(int(ed["loop"]) == 1, "l'étape se ferme")

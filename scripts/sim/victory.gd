@@ -775,12 +775,13 @@ static func _moisson(state: GameState, e: Empire, out: Dictionary) -> void:
 	var dig := int(e.stats.get("digested", 0))
 	var want_dig := int(own.get("digested", v["digested"]))
 	out["lines"].append("Part de la population galactique : %d %% / %d %%" % [share, want_share])
-	out["lines"].append("Population digérée : %d / %d" % [dig, want_dig])
+	if want_dig > 0:
+		out["lines"].append("Population digérée : %d / %d" % [dig, want_dig])
 	# La Moisson se tient : le compte à rebours repart de zéro si l'Essaim retombe sous le seuil.
 	out["cond"] = share >= want_share and dig >= want_dig
 	# L'avancée suit la plus en retard des deux mesures.
 	var r1 := 1000 * mini(share, want_share) / maxi(1, want_share)
-	var r2 := 1000 * mini(dig, want_dig) / maxi(1, want_dig)
+	var r2 := 1000 * mini(dig, want_dig) / want_dig if want_dig > 0 else 1000
 	_timed(out, mini(r1, r2), 1000)
 
 

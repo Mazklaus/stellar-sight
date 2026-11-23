@@ -879,7 +879,7 @@ func _test_starts() -> void:
 func _test_insolites() -> void:
 	for id in ["idole", "opa", "administration", "grand_rassemblement", "musee_vivant", "envol", "paradoxe", "remodelage", "biosphere", "reve_commun", "allumage", "saturation"]:
 		_ok(int(Victory.info(id)["hold_days"]) >= 1080, "victoire insolite tenue trois ans au moins : %s" % id)
-	_ok(int(Insolites.cfg("victories")["allumage"]["mass"]) == int(Victory.info("allumage")["mass"]) and int(Victory.info("allumage")["mass"]) == 200, "Allumage : 200 de Masse, même chiffre dans la règle et dans le texte")
+	_ok(int(Insolites.cfg("victories")["allumage"]["mass"]) == int(Victory.info("allumage")["mass"]) and int(Victory.info("allumage")["mass"]) == 300, "Allumage : 300 de Masse, même chiffre dans la règle et dans le texte")
 	_ok(int(Insolites.cfg("victories")["reve_commun"]["pct"]) == int(Victory.info("reve_commun")["pct"]) and int(Insolites.cfg("victories")["biosphere"]["pct"]) == int(Victory.info("biosphere")["pct"]), "Rêve commun et Biosphère : même seuil dans la règle et dans le texte")
 	# Les nomades tirent leur Savoir de leur mécanique, et leur IA suit tôt le chemin de sa victoire.
 	_ok(int(Insolites.cfg("exode")["anchor_base"]["knowledge"]) >= 10, "Exode : le mouillage rapporte du Savoir")
@@ -895,7 +895,7 @@ func _test_insolites() -> void:
 		_ok(not GameData.faction(fid).get("ai", {}).has("victory_first") and not GameData.faction(fid).get("ai", {}).has("victory_path_after"), "peuple principal : IA de recherche inchangée (%s)" % fid)
 	# La Moisson des Kraal à leur échelle ; celle de l'Essaim ne bouge pas.
 	_ok(int(Victory.info("moisson")["pop_share_pct"]) == 30 and int(Victory.info("moisson")["digested"]) == 60, "Moisson de l'Essaim inchangée")
-	_ok(int(Insolites.cfg("kraal")["moisson"]["pop_share_pct"]) < 30 and int(Insolites.cfg("kraal")["moisson"]["digested"]) <= 2 * Insolites.c_int("kraal", "pilot_max", 3), "Moisson des Kraal : à la portée de deux hardes de Pilotes")
+	_ok(int(Insolites.cfg("kraal")["moisson"]["pop_share_pct"]) < 30 and int(Insolites.cfg("kraal")["moisson"]["digested"]) == 0, "Moisson des Kraal : une part de population à leur échelle, sans population digérée exigée")
 	# La Boucle du Sablier se paie en Sable, jamais en Savoir.
 	for c: Dictionary in Insolites.cfg("sablier")["loop_costs"]:
 		_ok(int(c.get("sand", 0)) > 0 and not c.has("knowledge") and int(c["sand"]) <= Insolites.c_int("sablier", "sand_max", 200), "Boucle : étape payée en Sable, dans la limite de la réserve")
