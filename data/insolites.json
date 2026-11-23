@@ -398,7 +398,7 @@
 		"default_share_per_energy": 10,
 		"opa_pct": 51,
 		"opa_rivals": 3,
-		"opa_hold_days": 720
+		"opa_hold_days": 1080
 	},
 	"bureau": {
 		"_doc": "Prop. 42 à 47.",
@@ -550,7 +550,7 @@
 		},
 		"dream_fleet_cooldown_days": 360,
 		"reverie_influence": 1,
-		"dream_hold_days": 1800,
+		"dream_hold_days": 1080,
 		"dream_pct": 50
 	},
 	"asphodele": {
