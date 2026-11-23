@@ -38,6 +38,7 @@ func run(check: Callable) -> void:
 	_test_scourge_path()
 	_test_mega_cap()
 	_test_starts()
+	_test_insolites()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -872,3 +873,29 @@ func _test_starts() -> void:
 	var flat := GameState.create(5, 150, 1800.0, "ossarane", {"ai_level": "normal"})
 	_ok(AiLevels.bonus_text(flat, 1).begins_with("Aucun bonus"), "IA Normale : aucun bonus, et c'est écrit")
 
+
+
+## Lot 6 : les peuples insolites à la portée de leur victoire (réglages lus dans les données).
+func _test_insolites() -> void:
+	for id in ["idole", "opa", "administration", "grand_rassemblement", "musee_vivant", "envol", "paradoxe", "remodelage", "biosphere", "reve_commun", "allumage", "saturation"]:
+		_ok(int(Victory.info(id)["hold_days"]) >= 1080, "victoire insolite tenue trois ans au moins : %s" % id)
+	_ok(int(Insolites.cfg("victories")["allumage"]["mass"]) == int(Victory.info("allumage")["mass"]) and int(Victory.info("allumage")["mass"]) == 300, "Allumage : 300 de Masse, même chiffre dans la règle et dans le texte")
+	_ok(int(Insolites.cfg("victories")["reve_commun"]["pct"]) == int(Victory.info("reve_commun")["pct"]) and int(Insolites.cfg("victories")["biosphere"]["pct"]) == int(Victory.info("biosphere")["pct"]), "Rêve commun et Biosphère : même seuil dans la règle et dans le texte")
+	# Les nomades tirent leur Savoir de leur mécanique, et leur IA suit tôt le chemin de sa victoire.
+	_ok(int(Insolites.cfg("exode")["anchor_base"]["knowledge"]) >= 10, "Exode : le mouillage rapporte du Savoir")
+	_ok(int(GameData.faction("kraal")["research"]["learn_ancient"]) >= 250 and int(Insolites.cfg("kraal")["graze_yields"].get("knowledge", 0)) > 0, "Kraal : les Anciens et la pâture rapportent du Savoir")
+	_ok(int(Insolites.cfg("zambalu").get("show_knowledge", 0)) > 0, "Zambalù : une représentation rapporte du Savoir")
+	_ok(int(GameData.faction("halcyre")["research"]["learn_mass"]) >= 30, "Halcyre : la Masse dévorée rapporte du Savoir")
+	for fid in ["exode", "kraal", "zambalu", "halcyre", "myrr"]:
+		_ok(int(GameData.faction(fid)["ai"].get("victory_path_after", 20)) < 20 and bool(GameData.faction(fid)["ai"].get("victory_first", false)), "IA nomade : chemin de victoire suivi tôt, étape de Destinée en tête de file (%s)" % fid)
+		for vt in Victory.people_techs(GameData.faction(fid)):
+			for pre in Research.tech(vt).get("pre", []):
+				_ok(int(Research.tech(String(pre)).get("era", 1)) <= 3 or String(Research.tech(String(pre)).get("field", "")) == "destinee" or not Research.is_visible(GameData.faction(fid), String(pre)), "Destinée de %s : pas de second prérequis d'ère IV (%s)" % [fid, pre])
+	for fid in ["ossarane", "khthari", "teyl", "ferrocornes"]:
+		_ok(not GameData.faction(fid).get("ai", {}).has("victory_first") and not GameData.faction(fid).get("ai", {}).has("victory_path_after"), "peuple principal : IA de recherche inchangée (%s)" % fid)
+	# La Moisson des Kraal à leur échelle ; celle de l'Essaim ne bouge pas.
+	_ok(int(Victory.info("moisson")["pop_share_pct"]) == 30 and int(Victory.info("moisson")["digested"]) == 60, "Moisson de l'Essaim inchangée")
+	_ok(int(Insolites.cfg("kraal")["moisson"]["pop_share_pct"]) < 30 and int(Insolites.cfg("kraal")["moisson"]["digested"]) == 0, "Moisson des Kraal : une part de population à leur échelle, sans population digérée exigée")
+	# La Boucle du Sablier se paie en Sable, jamais en Savoir.
+	for c: Dictionary in Insolites.cfg("sablier")["loop_costs"]:
+		_ok(int(c.get("sand", 0)) > 0 and not c.has("knowledge") and int(c["sand"]) <= Insolites.c_int("sablier", "sand_max", 200), "Boucle : étape payée en Sable, dans la limite de la réserve")

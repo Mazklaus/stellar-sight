@@ -1942,6 +1942,7 @@ const ERA_VALUE := [100, 180, 324, 583, 1050]
 ## et ne voit pas qu'une technologie hérétique fâche son dieu ; les autres l'évitent.
 static func _research(ctx: Dictionary) -> void:
 	var e: Empire = ctx["e"]
+	_victory_first(ctx)
 	var guard := 0
 	while e.research_queue.size() < 2 and guard < 3:
 		guard += 1
@@ -1952,6 +1953,42 @@ static func _research(ctx: Dictionary) -> void:
 			return
 		if e.research_queue.size() == 1:
 			_intent(ctx, "Recherche : %s" % String(Research.tech(tid).get("label", tid)))
+
+
+## Peuples à la recherche lente (bloc ai.victory_first de leur fiche : les peuples sans monde) : dès qu'une
+## étape de leur Destinée ou l'un de ses prérequis directs devient possible, elle passe en tête de file.
+## Sans cela, deux technologies déjà en file leur prenaient des années avant d'y revenir.
+static func _victory_first(ctx: Dictionary) -> void:
+	var state: GameState = ctx["state"]
+	var e: Empire = ctx["e"]
+	if not bool(ctx["ai"].get("victory_first", false)) or not Victory.people_enabled(state) or _use(ctx) < 1:
+		return
+	var victory_techs := Victory.people_techs(e.faction())
+	var cands: Array[String] = []
+	var path := victory_path(state, e, victory_techs)
+	for vt in victory_techs:
+		if not e.techs.has(vt):
+			cands.append(vt)
+	var keys := path.keys()
+	keys.sort()
+	for k in keys:
+		if int(path[k]) == 5:
+			cands.append(String(k))
+	if not e.research_queue.is_empty() and cands.has(e.research_queue[0]):
+		return  # déjà sur le chemin
+	var best := ""
+	var best_cost := -1
+	for tid in cands:
+		if e.techs.has(tid) or not Research.is_visible(e.faction(), tid, state, e.id):
+			continue
+		if Research.check_queue(state, e.id, tid, true) != "":
+			continue
+		var c := Research.cost(state, e.id, tid) - int(e.research_shelf.get(tid, 0))
+		if best == "" or c < best_cost:
+			best = tid
+			best_cost = c
+	if best != "" and _issue(ctx, SimCommands.research(e.id, best, true)):
+		_intent(ctx, "Recherche sa Destinée : %s" % String(Research.tech(best).get("label", best)))
 
 
 ## Meilleure technologie à mettre en file ("" si aucune).
@@ -1966,7 +2003,7 @@ static func research_pick(ctx: Dictionary) -> String:
 	if Victory.people_enabled(state):
 		victory_techs = Victory.people_techs(f)
 	# Le chemin vers la victoire de peuple ne passe qu'après les bases (bâtiment de recherche, économie).
-	var path := victory_path(state, e, victory_techs) if e.techs.size() >= VICTORY_PATH_AFTER else {}
+	var path := victory_path(state, e, victory_techs) if e.techs.size() >= int(ctx["ai"].get("victory_path_after", VICTORY_PATH_AFTER)) else {}
 	var bias_techs: Array = []
 	if use >= 1 and ctx["ai"].has("building_bias"):
 		bias_techs = GameData.building(String(ctx["ai"]["building_bias"])).get("requires_tech", [])

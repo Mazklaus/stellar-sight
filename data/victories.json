@@ -278,10 +278,10 @@
 				]
 			},
 			"tech": "idole",
-			"text": "Que sa culture soit au moins « Influente » chez des empires qui réunissent %d %% de la population étrangère rencontrée, et le tenir %d an.",
+			"text": "Que sa culture soit au moins « Influente » chez des empires qui réunissent %d %% de la population étrangère rencontrée, et le tenir %d ans.",
 			"counter": "Garder sa population à l'abri de ses fêtes : Exception culturelle, frontières fermées, embargo, ou la guerre.",
 			"pct": 60,
-			"hold_days": 360,
+			"hold_days": 1080,
 			"on_fail": "reset",
 			"chronicle": "L'Idole des étoiles : %s ne gouverne personne, mais tout le monde danse sur sa musique. Les autres empires ont encore des drapeaux ; plus personne ne se souvient de leurs hymnes."
 		},
@@ -315,7 +315,7 @@
 			"counter": "Nationaliser les parts, rompre les accords commerciaux, lui faire la guerre.",
 			"pct": 51,
 			"rivals": 3,
-			"hold_days": 720,
+			"hold_days": 1080,
 			"on_fail": "reset",
 			"chronicle": "OPA galactique : %s détient désormais la majorité de la galaxie. Les empires gardent leurs drapeaux ; ils reçoivent seulement, chaque trimestre, un rapport aux actionnaires.",
 			"src": "Étude des peuples insolites, prop. 41 (document de game design)"
@@ -329,9 +329,9 @@
 				]
 			},
 			"tech": "administration_totale",
-			"text": "Faire signer toutes les normes en vigueur à tous les empires survivants, et le tenir %d an.",
+			"text": "Faire signer toutes les normes en vigueur à tous les empires survivants, et le tenir %d ans.",
 			"counter": "Refuser une norme et subir la Non-conformité ; faire perdre des signatures au Bureau.",
-			"hold_days": 360,
+			"hold_days": 1080,
 			"on_fail": "reset",
 			"chronicle": "Administration totale : tous les empires de la galaxie sont en règle. %s tamponne le dernier formulaire, puis cherche, un peu inquiet, ce qu'il pourra bien normer demain.",
 			"src": "Étude des peuples insolites, prop. 46 (document de game design)"
@@ -364,9 +364,9 @@
 			"tech": "reve_commun",
 			"text": "Avoir des rêveries dans au moins %d %% de la population organique des autres empires, et le tenir %d ans.",
 			"counter": "Des Éveillés (pilier psionique) pour voir et chasser les rêveries ; prendre le monde du Dormeur.",
-			"hold_days": 1800,
+			"hold_days": 1080,
 			"on_fail": "reset",
-			"pct": 50,
+			"pct": 35,
 			"chronicle": "Le Rêve commun. Une nuit, toute la galaxie fait le même rêve, celui de %s, et au matin personne n'a vraiment envie de se réveiller.",
 			"src": "Étude des peuples insolites, prop. 58 (nouvelle)"
 		},
@@ -381,7 +381,7 @@
 			"tech": "grand_rassemblement",
 			"text": "Avoir accueilli, en cumul, autant de morts qu'au moins %d %% de la population actuelle de la galaxie, et le tenir %d ans.",
 			"counter": "Une paix prolongée (moins de morts) ; la loi « Rites funéraires protégés » de l'Amphictyonie, qui interdit les Pactes funéraires ; prendre ses nécropoles.",
-			"hold_days": 720,
+			"hold_days": 1080,
 			"on_fail": "pause",
 			"pct": 50,
 			"chronicle": "Le Grand Rassemblement. %s a recueilli les morts de la moitié de la galaxie ; dans ses nécropoles, ils sont plus nombreux que les vivants dehors, et ils commencent à voter.",
@@ -396,9 +396,9 @@
 				]
 			},
 			"tech": "musee_vivant",
-			"text": "Exposer un représentant de chaque espèce des autres empires vivants et des peuples mineurs rencontrés, et le tenir %d an.",
+			"text": "Exposer un représentant de chaque espèce des autres empires vivants et des peuples mineurs rencontrés, et le tenir %d ans.",
 			"counter": "Libérer les spécimens (s'emparer de ses colonies, faire évader les captifs), ne pas commercer avec lui, se tenir loin de ses agents.",
-			"hold_days": 360,
+			"hold_days": 1080,
 			"on_fail": "reset",
 			"chronicle": "Le Musée vivant. %s a un exemplaire de tout. Sire Cassivel fait le tour des vitrines, puis demande, un peu triste : « Et maintenant ? »",
 			"src": "Étude des peuples insolites, prop. 69 (document de game design)"
@@ -412,9 +412,9 @@
 				]
 			},
 			"tech": "envol",
-			"text": "Faire atteindre l'espace (Avènement) à %d espèces primitives sous un poste voilé, sans être découvert entre-temps, et le tenir %d an.",
+			"text": "Faire atteindre l'espace (Avènement) à %d espèces primitives sous un poste voilé, sans être découvert entre-temps, et le tenir %d ans.",
 			"counter": "Révéler les observateurs (stationner une flotte, tenir son propre poste au-dessus des pré-spatiaux) ; conquérir les primitifs.",
-			"hold_days": 360,
+			"hold_days": 1080,
 			"on_fail": "reset",
 			"count": 2,
 			"chronicle": "L'Envol. Deux peuples sont nés aux étoiles sans savoir qui veillait sur eux. %s referme ses carnets ; quelque part, un lithe sourit, très lentement.",
@@ -429,9 +429,9 @@
 				]
 			},
 			"tech": "paradoxe_stable",
-			"text": "Fermer la Boucle (%d étapes, chacune deux ans de chantier) avec le Gardien chronal vivant, et le tenir %d an.",
+			"text": "Fermer la Boucle (%d étapes, chacune deux ans de chantier) avec le Gardien chronal vivant, et le tenir %d ans.",
 			"counter": "Tuer le Gardien chronal : c'est un point fixe, la Boucle se défait et il faut cinq ans pour qu'un autre vienne. Lui voler du temps : chaque annulation déchire un système.",
-			"hold_days": 360,
+			"hold_days": 1080,
 			"on_fail": "reset",
 			"count": 3,
 			"chronicle": "Le Paradoxe stable. %s ferme la Boucle : la technologie qui l'a fondée vient d'elle-même, et le temps, autour, se tait. Il n'y a plus de passé à défaire, seulement le leur.",
@@ -446,9 +446,9 @@
 				]
 			},
 			"tech": "remodelage",
-			"text": "Achever %d Œuvres lentes dans autant de systèmes différents, et le tenir %d an.",
+			"text": "Achever %d Œuvres lentes dans autant de systèmes différents, et le tenir %d ans.",
 			"counter": "Prendre les systèmes où les Lithes ont un chantier : l'Œuvre est perdue avec eux. Les faire entrer en guerre pour vider leur réserve de Temps.",
-			"hold_days": 360,
+			"hold_days": 1080,
 			"on_fail": "pause",
 			"count": 5,
 			"chronicle": "Le Remodelage. %s a changé la forme de cinq systèmes. Les cartes de la galaxie sont à refaire, et les Lithes, très lentement, commencent la suivante.",
@@ -465,10 +465,10 @@
 			"tech": "biosphere_unique",
 			"text": "Tenir au moins %d %% des planètes habitables de la galaxie, et le tenir %d ans.",
 			"counter": "Stériliser, brûler : purger le mycélium, brûler ses colonies depuis l'orbite, bombarder ses systèmes ; prendre les mondes-jardins.",
-			"hold_days": 720,
+			"hold_days": 1080,
 			"on_fail": "pause",
-			"pct": 40,
-			"chronicle": "La Biosphère unique. %s couvre deux mondes habitables sur cinq. On ne sait plus très bien où finit la galaxie et où commence l'organisme.",
+			"pct": 25,
+			"chronicle": "La Biosphère unique. %s couvre un monde habitable sur quatre. On ne sait plus très bien où finit la galaxie et où commence l'organisme.",
 			"src": "Étude des peuples insolites, prop. 99 (document de game design)"
 		},
 		"grand_jardin": {

@@ -106,8 +106,10 @@ static func nomad_ids(state: GameState) -> Array[int]:
 	var out: Array[int] = []
 	if state.insolites.is_empty():
 		return out
+	var eds: Dictionary = state.insolites.get("emp", {})
 	for e in state.empires:
-		if not e.eliminated and kind_of_faction(e.faction()) != "":
+		# Seulement ceux qui ont l'état de leur règle : un empire né sans lui ne fait rien planter.
+		if not e.eliminated and kind_of_faction(e.faction()) != "" and eds.has(str(e.id)):
 			out.append(e.id)
 	return out
 

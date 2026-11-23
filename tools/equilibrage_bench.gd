@@ -46,6 +46,11 @@ func _initialize() -> void:
 		menu.slots = []
 		for _i in n_env:
 			menu.slots.append(MainMenu.new_slot(MainMenu.RANDOM_FACTION))
+	# INSOLITE=<peuple> REPLACE=<0 à 7> : le peuple insolite prend la place d'un des huit principaux
+	# (étude d'équilibrage, H2 : un banc par insolite, à tour de rôle à la place de chacun).
+	var ins_env := OS.get_environment("INSOLITE")
+	if ins_env != "" and not GameData.faction(ins_env).is_empty():
+		menu.slots[posmod(_env_int("REPLACE", 0), menu.slots.size())]["faction"] = ins_env
 	if OS.get_environment("LEVEL") != "":
 		menu.ai_level = OS.get_environment("LEVEL")
 	if OS.get_environment("SIZE") != "":

@@ -567,6 +567,10 @@ static func spawn_empire(state: GameState, parent: int, sids: Array, r: Dictiona
 	e.contacts.sort()
 	state.rebuild_ownership()
 	FleetSystem.update_exploration(state)
+	# Un empire né d'un peuple insolite qui a un monde reçoit l'état de sa règle (comme à la fondation) :
+	# sans lui, ses mécaniques plantaient chaque jour (vu au banc : successeurs du Sablier et de Vergemonde).
+	if not state.insolites.is_empty() and Insolites.kind_of_faction(e.faction()) != "" and not Insolites.worldless(e.faction()) and best >= 0:
+		Insolites.found(state, e, state.galaxy.get_planet(best).system_id)
 	if not state.rulers.is_empty() and not r.is_empty():
 		var en := Rulers._blank(state, nid)
 		en["parent"] = parent

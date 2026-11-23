@@ -28,8 +28,14 @@ static func found(state: GameState, _e: Empire, _sid: int, ed: Dictionary) -> vo
 	ed["hosts"] = {}
 
 
+## Les nœuds du Signal, sur les seules colonies qui existent encore : un monde rasé ou abandonné dans
+## le mois garde son implant jusqu'au ménage mensuel (Insolites._implant_month), et le lire plantait.
 static func nodes(state: GameState, eid: int) -> Array[int]:
-	return Insolites.implants_of(state, eid, "noeud")
+	var out: Array[int] = []
+	for pid in Insolites.implants_of(state, eid, "noeud"):
+		if state.colonies.has(pid):
+			out.append(pid)
+	return out
 
 
 static func mut_fx(state: GameState, eid: int, key: String) -> int:

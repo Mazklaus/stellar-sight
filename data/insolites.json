@@ -147,7 +147,7 @@
 		"anchor_base": {
 			"food": 2,
 			"energy": 1,
-			"knowledge": 2
+			"knowledge": 10
 		},
 		"anchor_work_pct": 100,
 		"growth_per_pop": 50,
@@ -179,7 +179,9 @@
 		"start_pop": 10,
 		"show_days": 60,
 		"show_ticket": 20,
+		"show_knowledge": 120,
 		"show_radiance": 40,
+		"show_radiance_pct": 10,
 		"show_stability": 10,
 		"show_stability_days": 180,
 		"tour_days": 90,
@@ -208,11 +210,11 @@
 			"toxic",
 			"gas_giant"
 		],
-		"eat_mass_base": 3,
+		"eat_mass_base": 6,
 		"eat_mass_size_div": 2,
 		"eat_colony_days": 120,
 		"eat_colony_mass_per_pop": 2,
-		"hunger_days": 180,
+		"hunger_days": 360,
 		"hunger_month": -1,
 		"mass_yields": {
 			"energy": 1,
@@ -270,13 +272,19 @@
 		"claim_days": 30,
 		"graze_yields": {
 			"energy": 1,
-			"materials": 1
+			"materials": 1,
+			"knowledge": 1
 		},
 		"route_pct": 130,
 		"off_route_pct": 85,
 		"pilot_damage_pct": 10,
 		"pilot_max": 3,
-		"pilot_min_pop": 2
+		"pilot_min_pop": 2,
+		"moisson": {
+			"_doc": "Lot 6 de l'équilibrage : la Moisson des Kraal à leur échelle (une harde, pas un empire de colonies). digested à 0 : aucune population digérée exigée (les Pilotes, trois par harde, ne s'arrachent qu'en guerre : au banc, la condition ne se remplissait jamais).",
+			"pop_share_pct": 16,
+			"digested": 0
+		}
 	},
 	"victories": {
 		"allumage": {
@@ -297,7 +305,7 @@
 		},
 		"reve_commun": {
 			"_doc": "Prop. 58.",
-			"pct": 50
+			"pct": 35
 		},
 		"grand_rassemblement": {
 			"_doc": "Prop. 64.",
@@ -320,7 +328,7 @@
 		},
 		"biosphere": {
 			"_doc": "Prop. 99 (ouverte aussi au Hallier, prop. 105).",
-			"pct": 40
+			"pct": 25
 		},
 		"grand_jardin": {
 			"_doc": "Prop. 105.",
@@ -332,12 +340,16 @@
 		"exode_flee_days": 600,
 		"zambalu_escort_power": 60,
 		"halcyre_sentinel_mass": 50,
+		"halcyre_feed_jumps": 14,
 		"kraal_min_graze": 30,
+		"kraal_pilot_jumps": 8,
+		"kraal_pilot_power_pct": 70,
 		"ventrelune_buy_reserve": 150,
 		"bureau_publish": true,
 		"signal_borrow": true,
 		"ysmer_inspire_pmille": 300,
 		"sign_opinion": -20,
+		"sign_opinion_per_norm": 6,
 		"asphodele_raise_influence": 80,
 		"pact_opinion": -10,
 		"cassivel_buy_reserve": 120,
@@ -397,7 +409,7 @@
 		"default_share_per_energy": 10,
 		"opa_pct": 51,
 		"opa_rivals": 3,
-		"opa_hold_days": 720
+		"opa_hold_days": 1080
 	},
 	"bureau": {
 		"_doc": "Prop. 42 à 47.",
@@ -413,7 +425,8 @@
 		"sanction_income_pct": -10,
 		"file_days": 360,
 		"lost_file_chance_pmille": 30,
-		"total_hold_days": 360,
+		"total_hold_days": 1080,
+		"total_min_norms": 5,
 		"norms": [
 			{
 				"id": "soutes_c12",
@@ -548,7 +561,7 @@
 		},
 		"dream_fleet_cooldown_days": 360,
 		"reverie_influence": 1,
-		"dream_hold_days": 1800,
+		"dream_hold_days": 1080,
 		"dream_pct": 50
 	},
 	"asphodele": {
@@ -697,7 +710,7 @@
 		"colony_influence_pct": 200
 	},
 	"sablier": {
-		"_doc": "Prop. 83 à 88. Sable : réserve propre (pas un bien). undo_cost par sorte d'événement du Registre (ship, colony, hero, tech). Déchirure : tear_pct % de production en moins et tear_stab de stabilité pendant tear_days ; à tear_collapse annulations dans un système avant guérison, effondrement (population divisée par deux). La Boucle : loop_stages étapes de loop_days jours, coûts dans loop_costs.",
+		"_doc": "Prop. 83 à 88. Sable : réserve propre (pas un bien). undo_cost par sorte d'événement du Registre (ship, colony, hero, tech). Déchirure : tear_pct % de production en moins et tear_stab de stabilité pendant tear_days ; à tear_collapse annulations dans un système avant guérison, effondrement (population divisée par deux). La Boucle : loop_stages étapes de loop_days jours, coûts dans loop_costs (\"sand\" = Sable, le reste en ressources ; lot 6 de l'équilibrage : le Sable remplace le Savoir, que la recherche vidait chaque mois).",
 		"hero_name": "le Gardien chronal",
 		"sand_start": 40,
 		"sand_month": 5,
@@ -723,19 +736,20 @@
 		"life_pct": 250,
 		"psi_sand": 40,
 		"loop_stages": 3,
-		"loop_days": 720,
+		"loop_days": 1080,
 		"chrono_days": 1800,
+		"gone_days": 360,
 		"loop_costs": [
 			{
-				"knowledge": 400,
+				"sand": 120,
 				"energy": 200
 			},
 			{
-				"knowledge": 700,
+				"sand": 160,
 				"energy": 300
 			},
 			{
-				"knowledge": 1000,
+				"sand": 200,
 				"energy": 400
 			}
 		]

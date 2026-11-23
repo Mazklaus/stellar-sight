@@ -303,8 +303,12 @@ static func victory(state: GameState, e: Empire, out: Dictionary) -> void:
 			ok += 1
 		else:
 			out["lines"].append("%s : %d norme(s) à signer" % [o.short_name(), unsigned(state, e.id, o.id).size()])
-	out["lines"].insert(0, "Empires en règle : %d / %d (normes en vigueur : %d)" % [ok, total, published(state, e.id).size()])
-	out["cond"] = total > 0 and ok >= total
+	# Équilibrage, lot 6 : deux normes signées par tous ne font pas une galaxie administrée. Il faut un
+	# vrai corpus (total_min_norms normes en vigueur), et chaque norme de plus se signe moins volontiers.
+	var need := int(Insolites.cfg("bureau").get("total_min_norms", 0))
+	var have := published(state, e.id).size()
+	out["lines"].insert(0, "Empires en règle : %d / %d (normes en vigueur : %d sur %d requises)" % [ok, total, have, need])
+	out["cond"] = total > 0 and ok >= total and have >= need
 	Victory._timed(out, ok, maxi(1, total))
 
 

@@ -23,6 +23,7 @@ func run(check: Callable) -> void:
 	_test_vergemonde()
 	_test_tones()
 	_test_ai_game()
+	_test_born()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -213,13 +214,26 @@ func _test_sablier() -> void:
 	_rich(st, s)
 	_ok(InsSablier.check_loop(st, s) != "", "la Boucle demande sa technologie")
 	st.get_empire(s).techs["paradoxe_stable"] = true
+	# Lot 6 de l'équilibrage : la Boucle se paie en Sable (le Savoir, vidé chaque mois par la recherche, ne s'amassait jamais).
+	ed["sand"] = 0
+	_ok(InsSablier.check_loop(st, s).contains("Sable"), "la Boucle demande du Sable")
+	ed["sand"] = 200
+	_ok(InsSablier.loop_sand(st, s) == 120 and not InsSablier.loop_cost(st, s).has("knowledge"), "première étape : 120 Sable, pas de Savoir")
 	SimCommands.apply(st, SimCommands.ins_act(s, "loop"))
-	_ok(not (ed["lp"] as Dictionary).is_empty(), "une étape de la Boucle est en chantier")
+	_ok(not (ed["lp"] as Dictionary).is_empty() and int(ed["sand"]) == 80, "une étape de la Boucle est en chantier, le Sable est dépensé")
 	ed["lp"] = {"left": 1}
 	InsSablier.daily(st, s, ed, false, added)
 	_ok(int(ed["loop"]) == 1, "l'étape se ferme")
 	ed["loop"] = 3
 	_ok(Victory.progress(st, s, "paradoxe")["cond"], "victoire : le Paradoxe stable")
+	# Le Gardien parti sans mourir : la Boucle tient, un successeur vient un an plus tard.
+	if not InsSablier.hero(st, s).is_empty():
+		st.heroes.erase(int(ed["hero"]))
+		InsSablier.daily(st, s, ed, false, added)
+		_ok(int(ed["hero"]) == -1 and int(ed["loop"]) == 3 and int(ed["back"]) == st.tick + Insolites.c_int("sablier", "gone_days", 360), "Gardien parti sans mourir : la Boucle tient, un successeur est attendu")
+		st.tick = int(ed["back"])
+		InsSablier.daily(st, s, ed, false, added)
+		_ok(not InsSablier.hero(st, s).is_empty(), "un nouveau Gardien chronal prend le Sablier")
 
 
 func _test_gravea() -> void:
@@ -533,3 +547,19 @@ func _test_ai_game() -> void:
 		sa.step()
 		sb.step()
 	_ok(JSON.stringify(ga.to_dict()) == JSON.stringify(gb.to_dict()), "déterminisme : deux parties identiques restent identiques")
+
+
+## Équilibrage, lot 6 : un empire né en cours de partie d'un peuple insolite reçoit l'état de sa règle.
+func _test_born() -> void:
+	var st := _game(23)
+	var sab := _eid(st, "sablier")
+	var cap := st.galaxy.get_planet(st.get_empire(sab).capital_planet).system_id
+	var added: Array[Dictionary] = []
+	var nid := RulersDynasty.spawn_empire(st, sab, [cap], {}, "test", added)
+	_ok(nid >= 0 and Insolites.kind(st, nid) == "sablier" and String(Insolites.emp(st, nid).get("k", "")) == "sablier", "empire né du Sablier : il a l'état de sa règle")
+	_ok(Insolites.nomad_ids(st).has(nid), "il compte parmi les peuples insolites en jeu")
+	(st.insolites["emp"] as Dictionary).erase(str(nid))
+	_ok(not Insolites.nomad_ids(st).has(nid), "un empire sans état de règle est laissé de côté au lieu de planter")
+	InsZambalu.numero_day(st, added)
+	_ok(InsZambalu.open_call(st) == -1, "le Grand Numéro ne plante plus sur lui")
+

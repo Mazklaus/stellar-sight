@@ -638,7 +638,9 @@ static func _end_battle(state: GameState, sid: int, added: Array[Dictionary], ev
 					state.galaxy.systems[sid].system_name, we.short_name(), ", ".join(found)], Espionage.private_to(state, [winner], sid)))
 	var losses := PackedStringArray()
 	for s: Dictionary in b["sides"]:
-		losses.append("%s %d" % [state.get_empire(int(s["empire"])).short_name(), Combat.count_ships(s["lost"])])
+		# Un camp dont l'empire n'existe plus à la fin de la bataille (vu une fois au banc) : on le nomme quand même.
+		var le := state.get_empire(int(s["empire"]))
+		losses.append("%s %d" % [le.short_name() if le != null else "Inconnus", Combat.count_ships(s["lost"])])
 	var sname := state.galaxy.systems[sid].system_name
 	if winner >= 0:
 		added.append(state.add_chronicle("Bataille de %s : victoire de %s. Pertes : %s. Les vainqueurs comptent leurs morts, les vaincus leurs excuses." % [
