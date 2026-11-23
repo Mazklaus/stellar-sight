@@ -626,7 +626,9 @@ static func _sablier(ctx: Dictionary) -> void:
 		if AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "loop")):
 			AiPlayer._intent(ctx, "Bâtit une étape de la Boucle")
 			return
-	if int(ed.get("sand", 0)) >= int(_ai().get("sablier_undo_sand", 60)):
+	# La Boucle d'abord : la technologie connue, le Sable de l'étape suivante ne se dépense plus ailleurs.
+	var keep := InsSablier.loop_sand(state, e.id) if e.techs.has("paradoxe_stable") and int(ed.get("loop", 0)) < Insolites.c_int("sablier", "loop_stages", 3) else 0
+	if int(ed.get("sand", 0)) >= int(_ai().get("sablier_undo_sand", 60)) + keep:
 		# Ce qui coûte le plus d'abord (système, héros), en partant du plus récent.
 		var reg := InsSablier.ledger(state, e.id)
 		var best := -1
@@ -640,7 +642,7 @@ static func _sablier(ctx: Dictionary) -> void:
 			AiPlayer._intent(ctx, "Défait le passé")
 			return
 	var cap := FactionTraits.capital_system(state, e.id)
-	if cap >= 0 and int(ed.get("sand", 0)) >= int(_ai().get("sablier_undo_sand", 60)) + Insolites.c_int("sablier", "bubble_sand", 30) and InsSablier.check_bubble(state, e.id, cap, "compression") == "":
+	if cap >= 0 and int(ed.get("sand", 0)) >= int(_ai().get("sablier_undo_sand", 60)) + keep + Insolites.c_int("sablier", "bubble_sand", 30) and InsSablier.check_bubble(state, e.id, cap, "compression") == "":
 		AiPlayer._issue(ctx, SimCommands.ins_act(e.id, "bubble", {"s": cap, "mode": "compression"}))
 
 

@@ -71,7 +71,8 @@ static func _spawn_hero(state: GameState, eid: int) -> void:
 
 static func hero(state: GameState, eid: int) -> Dictionary:
 	var id := int(Insolites.emp(state, eid).get("hero", -1))
-	return state.heroes.get(id, {}) if id >= 0 else {}
+	var h: Dictionary = state.heroes.get(id, {}) if id >= 0 else {}
+	return h if not h.is_empty() and int(h.get("owner", -1)) == eid else {}
 
 
 # --- Le Registre (prop. 83) --------------------------------------------------------------------------
@@ -411,7 +412,26 @@ static func psi_effect(state: GameState, eid: int, power: String, target: int, a
 static func loop_cost(state: GameState, eid: int) -> Dictionary:
 	var costs: Array = Insolites.cfg("sablier").get("loop_costs", [])
 	var k := int(Insolites.emp(state, eid).get("loop", 0))
-	return costs[mini(k, costs.size() - 1)] if not costs.is_empty() else {}
+	var c: Dictionary = (costs[mini(k, costs.size() - 1)] as Dictionary).duplicate() if not costs.is_empty() else {}
+	c.erase("sand")
+	return c
+
+
+## Sable que demande l'étape suivante de la Boucle (clé "sand" de loop_costs : réserve propre, pas un bien).
+static func loop_sand(state: GameState, eid: int) -> int:
+	var costs: Array = Insolites.cfg("sablier").get("loop_costs", [])
+	var k := int(Insolites.emp(state, eid).get("loop", 0))
+	return int((costs[mini(k, costs.size() - 1)] as Dictionary).get("sand", 0)) if not costs.is_empty() else 0
+
+
+## Coût affiché de l'étape suivante : le Sable, puis les ressources.
+static func loop_cost_text(state: GameState, eid: int) -> String:
+	var parts := PackedStringArray()
+	if loop_sand(state, eid) > 0:
+		parts.append("%d Sable" % loop_sand(state, eid))
+	if not loop_cost(state, eid).is_empty():
+		parts.append(GameData.format_amounts(loop_cost(state, eid)))
+	return ", ".join(parts)
 
 
 static func check_loop(state: GameState, eid: int) -> String:
@@ -426,6 +446,8 @@ static func check_loop(state: GameState, eid: int) -> String:
 		return "il faut le Gardien chronal vivant"
 	if not state.get_empire(eid).techs.has("paradoxe_stable"):
 		return "il faut la technologie Le Paradoxe stable"
+	if int(ed.get("sand", 0)) < loop_sand(state, eid):
+		return "Sable insuffisant (il faut %d)" % loop_sand(state, eid)
 	var cost := loop_cost(state, eid)
 	if not Economy.can_afford(state.get_empire(eid), cost):
 		return "ressources insuffisantes (il faut %s)" % GameData.format_amounts(cost)
@@ -435,6 +457,7 @@ static func check_loop(state: GameState, eid: int) -> String:
 static func loop(state: GameState, eid: int, added: Array[Dictionary]) -> void:
 	Economy.pay(state.get_empire(eid), loop_cost(state, eid))
 	var ed := Insolites.emp(state, eid)
+	ed["sand"] = int(ed.get("sand", 0)) - loop_sand(state, eid)
 	ed["lp"] = {"left": _c("loop_days", 720)}
 	added.append(state.add_chronicle("Les Gardiens commencent l'étape %d de la Boucle : un projet dont les plans leur viendront de lui-même, plus tard, c'est-à-dire avant." % (int(ed.get("loop", 0)) + 1),
 			Espionage.public_to(state, [eid])))
@@ -449,6 +472,13 @@ static func daily(state: GameState, eid: int, ed: Dictionary, month: bool, added
 			ed["loop"] = int(ed.get("loop", 0)) + 1
 			added.append(state.add_chronicle("Une étape de la Boucle se ferme (%d / %d). Quelque part dans le passé des Gardiens, une technologie arrive, envoyée par elle-même." % [int(ed["loop"]), _c("loop_stages", 3)],
 					Espionage.public_to(state, [eid])))
+	# Le Gardien parti sans mourir (couronné, passé ailleurs, renvoyé) : ce n'est pas un point fixe, la
+	# Boucle tient, et un successeur prend le Sablier après gone_days. Sans cela, le poste restait vide
+	# jusqu'à la fin de la partie et le Paradoxe stable devenait impossible (lot 6 de l'équilibrage).
+	if int(ed.get("hero", -1)) >= 0 and hero(state, eid).is_empty():
+		ed["hero"] = -1
+		ed["back"] = state.tick + _c("gone_days", 360)
+		added.append(state.add_chronicle("Le Gardien chronal n'est plus à son poste. Le Sablier attend : un successeur se présentera, il l'a toujours fait.", Espionage.public_to(state, [eid])))
 	if int(ed.get("hero", -1)) < 0 and int(ed.get("back", 0)) > 0 and state.tick >= int(ed["back"]):
 		ed["back"] = 0
 		_spawn_hero(state, eid)

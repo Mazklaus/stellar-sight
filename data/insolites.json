@@ -699,7 +699,7 @@
 		"colony_influence_pct": 200
 	},
 	"sablier": {
-		"_doc": "Prop. 83 à 88. Sable : réserve propre (pas un bien). undo_cost par sorte d'événement du Registre (ship, colony, hero, tech). Déchirure : tear_pct % de production en moins et tear_stab de stabilité pendant tear_days ; à tear_collapse annulations dans un système avant guérison, effondrement (population divisée par deux). La Boucle : loop_stages étapes de loop_days jours, coûts dans loop_costs.",
+		"_doc": "Prop. 83 à 88. Sable : réserve propre (pas un bien). undo_cost par sorte d'événement du Registre (ship, colony, hero, tech). Déchirure : tear_pct % de production en moins et tear_stab de stabilité pendant tear_days ; à tear_collapse annulations dans un système avant guérison, effondrement (population divisée par deux). La Boucle : loop_stages étapes de loop_days jours, coûts dans loop_costs (\"sand\" = Sable, le reste en ressources ; lot 6 de l'équilibrage : le Sable remplace le Savoir, que la recherche vidait chaque mois).",
 		"hero_name": "le Gardien chronal",
 		"sand_start": 40,
 		"sand_month": 5,
@@ -727,17 +727,18 @@
 		"loop_stages": 3,
 		"loop_days": 720,
 		"chrono_days": 1800,
+		"gone_days": 360,
 		"loop_costs": [
 			{
-				"knowledge": 400,
+				"sand": 80,
 				"energy": 200
 			},
 			{
-				"knowledge": 700,
+				"sand": 120,
 				"energy": 300
 			},
 			{
-				"knowledge": 1000,
+				"sand": 160,
 				"energy": 400
 			}
 		]

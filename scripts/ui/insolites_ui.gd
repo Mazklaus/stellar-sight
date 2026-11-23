@@ -279,7 +279,7 @@ static func _lot4_menu(menu: PopupMenu, cmds: Array[Dictionary], state: GameStat
 			for i in range(reg.size() - 1, -1, -1):
 				_item(menu, cmds, state, player, "undo", {"i": i}, "Annuler : %s (%d Sable)" % [InsSablier.entry_text(state, reg[i]), InsSablier.undo_cost(reg[i])])
 			menu.add_separator("La Boucle (%d / %d)" % [int(ed.get("loop", 0)), Insolites.c_int("sablier", "loop_stages", 3)])
-			_item(menu, cmds, state, player, "loop", {}, "Commencer l'étape suivante (%s)" % GameData.format_amounts(InsSablier.loop_cost(state, player)))
+			_item(menu, cmds, state, player, "loop", {}, "Commencer l'étape suivante (%s)" % InsSablier.loop_cost_text(state, player))
 		"gravea":
 			menu.add_separator("Consensus séculaire")
 			var cons: Dictionary = ed.get("cons", {})
