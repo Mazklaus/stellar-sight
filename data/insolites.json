@@ -282,7 +282,7 @@
 		"pilot_min_pop": 2,
 		"moisson": {
 			"_doc": "Lot 6 de l'équilibrage : la Moisson des Kraal à leur échelle (une harde, pas un empire de colonies). digested à 0 : aucune population digérée exigée (les Pilotes, trois par harde, ne s'arrachent qu'en guerre : au banc, la condition ne se remplissait jamais).",
-			"pop_share_pct": 10,
+			"pop_share_pct": 12,
 			"digested": 0
 		}
 	},
@@ -349,7 +349,7 @@
 		"signal_borrow": true,
 		"ysmer_inspire_pmille": 300,
 		"sign_opinion": -20,
-		"sign_opinion_per_norm": 10,
+		"sign_opinion_per_norm": 6,
 		"asphodele_raise_influence": 80,
 		"pact_opinion": -10,
 		"cassivel_buy_reserve": 120,

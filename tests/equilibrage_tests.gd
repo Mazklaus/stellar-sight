@@ -886,7 +886,7 @@ func _test_insolites() -> void:
 	_ok(int(GameData.faction("kraal")["research"]["learn_ancient"]) >= 250 and int(Insolites.cfg("kraal")["graze_yields"].get("knowledge", 0)) > 0, "Kraal : les Anciens et la pâture rapportent du Savoir")
 	_ok(int(Insolites.cfg("zambalu").get("show_knowledge", 0)) > 0, "Zambalù : une représentation rapporte du Savoir")
 	_ok(int(GameData.faction("halcyre")["research"]["learn_mass"]) >= 30, "Halcyre : la Masse dévorée rapporte du Savoir")
-	for fid in ["exode", "kraal", "zambalu", "halcyre"]:
+	for fid in ["exode", "kraal", "zambalu", "halcyre", "myrr"]:
 		_ok(int(GameData.faction(fid)["ai"].get("victory_path_after", 20)) < 20 and bool(GameData.faction(fid)["ai"].get("victory_first", false)), "IA nomade : chemin de victoire suivi tôt, étape de Destinée en tête de file (%s)" % fid)
 		for vt in Victory.people_techs(GameData.faction(fid)):
 			for pre in Research.tech(vt).get("pre", []):

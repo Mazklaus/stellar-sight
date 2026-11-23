@@ -556,7 +556,7 @@
 		"color": "#c7b7e8",
 		"preferred": ["toxic", "ocean"],
 		"lore": "Myrr est un seul champignon, grand comme un système, qui pense lentement et ne meurt pas vraiment. Elle n'a jamais construit de vaisseau : elle lance des comètes chargées de spores, qui tombent là où personne ne regarde. Quelques mois plus tard, il y a une forêt blanche. Quelques années plus tard, il y a Myrr, partout, et les anciens habitants qui font partie de quelque chose de plus grand.",
-		"ai": {"food_margin": 4, "research_bias": {"economie": 3, "societe": 2}, "style": "Réseau mycorhizien, survie : Pas de chefs : des nœuds, des filaments, et des décisions qui remontent lentement.", "temperament": {"aggression": 0, "label": "Mesuré", "text": "Ni plus ni moins que le réglage de l'IA."}},
+		"ai": {"victory_path_after": 4, "victory_first": true, "food_margin": 4, "research_bias": {"economie": 3, "societe": 2}, "style": "Réseau mycorhizien, survie : Pas de chefs : des nœuds, des filaments, et des décisions qui remontent lentement.", "temperament": {"aggression": 0, "label": "Mesuré", "text": "Ni plus ni moins que le réglage de l'IA."}},
 		"combat": {"garrison_pct": 200},
 		"echoes": {"fold_cost": 30, "fold_days": 60, "foresight": true, "max": 100, "per_colony": 1, "per_month": 2},
 		"food_upkeep_pct": 100,
