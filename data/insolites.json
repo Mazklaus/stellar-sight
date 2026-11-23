@@ -181,6 +181,7 @@
 		"show_ticket": 20,
 		"show_knowledge": 120,
 		"show_radiance": 40,
+		"show_radiance_pct": 10,
 		"show_stability": 10,
 		"show_stability_days": 180,
 		"tour_days": 90,
@@ -209,11 +210,11 @@
 			"toxic",
 			"gas_giant"
 		],
-		"eat_mass_base": 3,
+		"eat_mass_base": 6,
 		"eat_mass_size_div": 2,
 		"eat_colony_days": 120,
 		"eat_colony_mass_per_pop": 2,
-		"hunger_days": 180,
+		"hunger_days": 360,
 		"hunger_month": -1,
 		"mass_yields": {
 			"energy": 1,
@@ -281,7 +282,7 @@
 		"pilot_min_pop": 2,
 		"moisson": {
 			"_doc": "Lot 6 de l'équilibrage : la Moisson des Kraal à leur échelle (une harde, pas un empire de colonies). digested compte les Pilotes arrachés.",
-			"pop_share_pct": 15,
+			"pop_share_pct": 10,
 			"digested": 6
 		}
 	},
@@ -341,6 +342,8 @@
 		"halcyre_sentinel_mass": 50,
 		"halcyre_feed_jumps": 14,
 		"kraal_min_graze": 30,
+		"kraal_pilot_jumps": 8,
+		"kraal_pilot_power_pct": 70,
 		"ventrelune_buy_reserve": 150,
 		"bureau_publish": true,
 		"signal_borrow": true,

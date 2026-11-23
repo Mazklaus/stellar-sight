@@ -353,6 +353,25 @@ static func _exode(ctx: Dictionary) -> void:
 		if dist <= int(Victory.info("terre_promise")["reveal_jumps"]) and psid != cf.system_id:
 			if _go(ctx, cf, psid, "Fait route vers la Terre promise"):
 				return
+	# Les Chants connus, la flotte-ville marche vers la Terre promise sans attendre les Traqueurs : le
+	# mouillage le plus proche d'elle, à quatre sauts au plus (lot 6 de l'équilibrage : elle tournait en rond).
+	if promised >= 0:
+		var psid2 := state.galaxy.get_planet(promised).system_id
+		var to_p: Dictionary = FactionTraits.jumps_from(state.galaxy, psid2)
+		var cur := int(to_p.get(cf.system_id, 999))
+		var march := -1
+		var march_d := cur
+		for pair in _near(state, cf.system_id, 4):
+			var sid := int(pair[1])
+			var dd := int(to_p.get(sid, 999))
+			if dd >= march_d or _foe_power(state, e.id, sid) > 0:
+				continue
+			if SimCommands.validate(state, SimCommands.move_fleet(e.id, cf.id, sid)) != "":
+				continue
+			march = sid
+			march_d = dd
+		if march >= 0 and _go(ctx, cf, march, "Suit les Chants de la route"):
+			return
 	var here := _anchor_value(state, e.id, cf.system_id)
 	var threatened := _foe_power(state, e.id, cf.system_id) > 0
 	if stay < int(_ai().get("exode_flee_days", 600)) and here > 0 and not threatened:
@@ -409,18 +428,24 @@ static func _zambalu(ctx: Dictionary) -> void:
 		var best := -1
 		# D'abord le public proche ; s'il n'y en a pas (espace vaste, voisins lointains), la troupe
 		# part en grande tournée plutôt que d'attendre au Chapiteau.
-		for reach: int in [8, 30]:
-			for pair in _near(state, f.system_id, reach):
-				var sid := int(pair[1])
-				if taken.has(sid) or not e.explored.has(sid):
-					continue
-				var b := InsZambalu.host_of(state, e.id, sid)
-				if b < 0 or Combat.at_war(state, e.id, b) or InsZambalu.banned(state, b):
-					continue
-				if int((state.insolites.get("stage", {}) as Dictionary).get(str(sid), 0)) > state.tick:
-					continue
-				best = sid
-				break
+		# Un public pas encore conquis d'abord (culture sous « Influent ») : c'est lui qui compte pour l'Idole.
+		for won: bool in [false, true]:
+			for reach: int in [8, 30]:
+				for pair in _near(state, f.system_id, reach):
+					var sid := int(pair[1])
+					if taken.has(sid) or not e.explored.has(sid):
+						continue
+					var b := InsZambalu.host_of(state, e.id, sid)
+					if b < 0 or Combat.at_war(state, e.id, b) or InsZambalu.banned(state, b):
+						continue
+					if not won and not state.culture.is_empty() and (state.get_empire(b).is_npc() or Culture.ratio_pct(state, e.id, b) >= 100):
+						continue
+					if int((state.insolites.get("stage", {}) as Dictionary).get(str(sid), 0)) > state.tick:
+						continue
+					best = sid
+					break
+				if best >= 0:
+					break
 			if best >= 0:
 				break
 		if best >= 0 and _go(ctx, f, best, "Part en tournée"):
@@ -495,6 +520,27 @@ static func _kraal(ctx: Dictionary) -> void:
 			continue
 		if not e.wars.is_empty() and Combat.is_warfleet(f) and state.system_owner(f.system_id) >= 0 and Combat.at_war(state, e.id, state.system_owner(f.system_id)):
 			continue  # en chasse chez l'ennemi
+		# En guerre, une harde sans tous ses Pilotes va en arracher à la colonie ennemie la plus proche qu'elle
+		# domine (lot 6 de l'équilibrage : sous IA, aucune harde ne s'arrêtait jamais sur une colonie ennemie).
+		if not e.wars.is_empty() and Combat.is_warfleet(f) and int((Insolites.emp(state, e.id).get("pilots", {}) as Dictionary).get(str(f.id), 0)) < Insolites.c_int("kraal", "pilot_max", 3):
+			var hunted := false
+			for pair in _near(state, f.system_id, int(_ai().get("kraal_pilot_jumps", 8))):
+				var to := int(pair[1])
+				var owner := state.system_owner(to)
+				if owner < 0 or owner == e.id or not Combat.at_war(state, e.id, owner) or taken.has(to):
+					continue
+				if _foe_power(state, e.id, to) * 100 > Combat.fleet_power(f) * int(_ai().get("kraal_pilot_power_pct", 70)):
+					continue
+				var prey := false
+				for pid in state.galaxy.systems[to].planet_ids:
+					var c: Colony = state.colonies.get(pid)
+					prey = prey or (c != null and c.owner == owner and c.is_colony() and c.population >= Insolites.c_int("kraal", "pilot_min_pop", 2))
+				if prey and _go(ctx, f, to, "La Harde va lier un Pilote"):
+					taken[to] = true
+					hunted = true
+					break
+			if hunted:
+				continue
 		if InsKraal.is_pasture(state, f.system_id) and InsKraal.graze(state, e.id, f.system_id) >= want and not taken.has(f.system_id):
 			taken[f.system_id] = true
 			continue

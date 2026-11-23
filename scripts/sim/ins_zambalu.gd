@@ -120,7 +120,11 @@ static func _show_day(state: GameState, eid: int, ed: Dictionary, f: Fleet, b: i
 	if not state.culture.is_empty():
 		var cum := Culture._m(state, "cum")
 		var ck := Culture._k(eid, b)
-		cum[ck] = int(cum.get(ck, 0)) + Insolites.tuned(state, eid, "zambalu", "show_radiance", _c("show_radiance", 40))
+		# Un triomphe pèse à la mesure du public : une part du patrimoine de l'hôte, jamais moins que le fixe
+		# (lot 6 de l'équilibrage : 40 points fixes ne suivaient pas le patrimoine d'un grand empire).
+		@warning_ignore("integer_division")
+		var rad := maxi(_c("show_radiance", 40), Culture.heritage(state, b) * _c("show_radiance_pct", 0) / 100)
+		cum[ck] = int(cum.get(ck, 0)) + Insolites.tuned(state, eid, "zambalu", "show_radiance", rad)
 	else:
 		# Sans rayonnement culturel, les Recrues viennent des tournées : un artiste par représentation.
 		ed["pop"] = int(ed["pop"]) + 1
