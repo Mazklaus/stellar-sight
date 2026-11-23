@@ -296,7 +296,7 @@
 			"tech": "allumage",
 			"text": "Atteindre une Masse de %d et la tenir %d ans sans être assiégé (une puissance armée ennemie au moins égale à celle de l'Orbe dans son système arrête le compte à rebours) : la planète-être s'allume en étoile.",
 			"counter": "L'assiéger avec une grande puissance armée, comme le Monde-Ego ; l'affamer en lui fermant les systèmes où manger.",
-			"mass": 300,
+			"mass": 200,
 			"hold_days": 1080,
 			"on_fail": "pause",
 			"chronicle": "L'Allumage. %s s'embrase : là où marchait une planète brille désormais une jeune étoile, qui a l'air très contente d'elle.",
@@ -366,7 +366,7 @@
 			"counter": "Des Éveillés (pilier psionique) pour voir et chasser les rêveries ; prendre le monde du Dormeur.",
 			"hold_days": 1080,
 			"on_fail": "reset",
-			"pct": 50,
+			"pct": 35,
 			"chronicle": "Le Rêve commun. Une nuit, toute la galaxie fait le même rêve, celui de %s, et au matin personne n'a vraiment envie de se réveiller.",
 			"src": "Étude des peuples insolites, prop. 58 (nouvelle)"
 		},
@@ -467,8 +467,8 @@
 			"counter": "Stériliser, brûler : purger le mycélium, brûler ses colonies depuis l'orbite, bombarder ses systèmes ; prendre les mondes-jardins.",
 			"hold_days": 1080,
 			"on_fail": "pause",
-			"pct": 40,
-			"chronicle": "La Biosphère unique. %s couvre deux mondes habitables sur cinq. On ne sait plus très bien où finit la galaxie et où commence l'organisme.",
+			"pct": 25,
+			"chronicle": "La Biosphère unique. %s couvre un monde habitable sur quatre. On ne sait plus très bien où finit la galaxie et où commence l'organisme.",
 			"src": "Étude des peuples insolites, prop. 99 (document de game design)"
 		},
 		"grand_jardin": {

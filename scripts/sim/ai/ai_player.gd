@@ -1966,7 +1966,7 @@ static func research_pick(ctx: Dictionary) -> String:
 	if Victory.people_enabled(state):
 		victory_techs = Victory.people_techs(f)
 	# Le chemin vers la victoire de peuple ne passe qu'après les bases (bâtiment de recherche, économie).
-	var path := victory_path(state, e, victory_techs) if e.techs.size() >= VICTORY_PATH_AFTER else {}
+	var path := victory_path(state, e, victory_techs) if e.techs.size() >= int(ctx["ai"].get("victory_path_after", VICTORY_PATH_AFTER)) else {}
 	var bias_techs: Array = []
 	if use >= 1 and ctx["ai"].has("building_bias"):
 		bias_techs = GameData.building(String(ctx["ai"]["building_bias"])).get("requires_tech", [])

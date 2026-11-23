@@ -464,7 +464,9 @@ static func _halcyre(ctx: Dictionary) -> void:
 					return
 	if not edible.is_empty():
 		return  # il reste à manger ici : l'Orbe mangera demain
-	for pair in _near(state, sid, 6):
+	# Le plus proche d'abord, mais loin s'il le faut (lot 6 de l'équilibrage : à six sauts, l'Orbe avait vite
+	# tout mangé, errait, et la Faim lui reprenait sa Masse).
+	for pair in _near(state, sid, int(_ai().get("halcyre_feed_jumps", 14))):
 		var to := int(pair[1])
 		var owner := state.system_owner(to)
 		if owner >= 0 and owner != e.id and Combat.at_war(state, owner, e.id):

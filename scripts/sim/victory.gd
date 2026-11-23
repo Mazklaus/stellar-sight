@@ -769,9 +769,11 @@ static func _moisson(state: GameState, e: Empire, out: Dictionary) -> void:
 	var ps := population_share(state, e.id)
 	@warning_ignore("integer_division")
 	var share := 100 * ps[1] / maxi(1, ps[0])
-	var want_share := int(v["pop_share_pct"])
+	# Les Kraal moissonnent à leur échelle (bloc "moisson" de leur règle) : une harde n'est pas un empire de colonies.
+	var own: Dictionary = Insolites.cfg("kraal").get("moisson", {}) if Insolites.kind(state, e.id) == "kraal" else {}
+	var want_share := int(own.get("pop_share_pct", v["pop_share_pct"]))
 	var dig := int(e.stats.get("digested", 0))
-	var want_dig := int(v["digested"])
+	var want_dig := int(own.get("digested", v["digested"]))
 	out["lines"].append("Part de la population galactique : %d %% / %d %%" % [share, want_share])
 	out["lines"].append("Population digérée : %d / %d" % [dig, want_dig])
 	# La Moisson se tient : le compte à rebours repart de zéro si l'Essaim retombe sous le seuil.

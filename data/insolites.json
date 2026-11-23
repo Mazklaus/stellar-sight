@@ -147,7 +147,7 @@
 		"anchor_base": {
 			"food": 2,
 			"energy": 1,
-			"knowledge": 2
+			"knowledge": 10
 		},
 		"anchor_work_pct": 100,
 		"growth_per_pop": 50,
@@ -179,6 +179,7 @@
 		"start_pop": 10,
 		"show_days": 60,
 		"show_ticket": 20,
+		"show_knowledge": 120,
 		"show_radiance": 40,
 		"show_stability": 10,
 		"show_stability_days": 180,
@@ -226,7 +227,7 @@
 		"sentinel_mass": 4,
 		"living_mood": 3,
 		"ego_mood": -4,
-		"ignition_mass": 300,
+		"ignition_mass": 200,
 		"siege_power_pct": 100
 	},
 	"kraal": {
@@ -270,18 +271,24 @@
 		"claim_days": 30,
 		"graze_yields": {
 			"energy": 1,
-			"materials": 1
+			"materials": 1,
+			"knowledge": 1
 		},
 		"route_pct": 130,
 		"off_route_pct": 85,
 		"pilot_damage_pct": 10,
 		"pilot_max": 3,
-		"pilot_min_pop": 2
+		"pilot_min_pop": 2,
+		"moisson": {
+			"_doc": "Lot 6 de l'équilibrage : la Moisson des Kraal à leur échelle (une harde, pas un empire de colonies). digested compte les Pilotes arrachés.",
+			"pop_share_pct": 15,
+			"digested": 6
+		}
 	},
 	"victories": {
 		"allumage": {
 			"_doc": "Prop. 28. Masse tenue 3 ans sans siège.",
-			"mass": 300
+			"mass": 200
 		},
 		"opa": {
 			"_doc": "Prop. 41.",
@@ -297,7 +304,7 @@
 		},
 		"reve_commun": {
 			"_doc": "Prop. 58.",
-			"pct": 50
+			"pct": 35
 		},
 		"grand_rassemblement": {
 			"_doc": "Prop. 64.",
@@ -320,7 +327,7 @@
 		},
 		"biosphere": {
 			"_doc": "Prop. 99 (ouverte aussi au Hallier, prop. 105).",
-			"pct": 40
+			"pct": 25
 		},
 		"grand_jardin": {
 			"_doc": "Prop. 105.",
@@ -332,6 +339,7 @@
 		"exode_flee_days": 600,
 		"zambalu_escort_power": 60,
 		"halcyre_sentinel_mass": 50,
+		"halcyre_feed_jumps": 14,
 		"kraal_min_graze": 30,
 		"ventrelune_buy_reserve": 150,
 		"bureau_publish": true,

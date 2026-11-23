@@ -560,7 +560,7 @@
 			"current": "academie",
 			"text": "Victoire de peuple : quand l'Orbe-Monde atteint une Masse de 300 et la tient trois ans sans être assiégé, il s'allume en étoile.",
 			"pre": [
-				"forage_manteau",
+				"extraction",
 				"allumage_etape2"
 			],
 			"requires": {

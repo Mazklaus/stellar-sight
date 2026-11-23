@@ -113,6 +113,8 @@ static func _show_day(state: GameState, eid: int, ed: Dictionary, f: Fleet, b: i
 	var ticket := mini(Insolites.tuned(state, eid, "zambalu", "show_ticket", _c("show_ticket", 20)), maxi(0, int(host.resources.get("energy", 0))))
 	host.resources["energy"] = int(host.resources.get("energy", 0)) - ticket
 	e.resources["energy"] = int(e.resources.get("energy", 0)) + ticket
+	# Les mécènes paient aussi les savants de la troupe (lot 6 de l'équilibrage : le Cirque n'avait aucun Savoir).
+	e.resources["knowledge"] = int(e.resources.get("knowledge", 0)) + Insolites.tuned(state, eid, "zambalu", "show_knowledge", _c("show_knowledge", 0))
 	Insolites.sub(state, "stage")[str(sid)] = state.tick + _c("show_stability_days", 180)
 	_spectacle_mass(state, e, host, sid)
 	if not state.culture.is_empty():
