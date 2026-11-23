@@ -23,6 +23,7 @@ func run(check: Callable) -> void:
 	_test_vergemonde()
 	_test_tones()
 	_test_ai_game()
+	_test_born()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -533,3 +534,19 @@ func _test_ai_game() -> void:
 		sa.step()
 		sb.step()
 	_ok(JSON.stringify(ga.to_dict()) == JSON.stringify(gb.to_dict()), "déterminisme : deux parties identiques restent identiques")
+
+
+## Équilibrage, lot 6 : un empire né en cours de partie d'un peuple insolite reçoit l'état de sa règle.
+func _test_born() -> void:
+	var st := _game(23)
+	var sab := _eid(st, "sablier")
+	var cap := st.galaxy.get_planet(st.get_empire(sab).capital_planet).system_id
+	var added: Array[Dictionary] = []
+	var nid := RulersDynasty.spawn_empire(st, sab, [cap], {}, "test", added)
+	_ok(nid >= 0 and Insolites.kind(st, nid) == "sablier" and String(Insolites.emp(st, nid).get("k", "")) == "sablier", "empire né du Sablier : il a l'état de sa règle")
+	_ok(Insolites.nomad_ids(st).has(nid), "il compte parmi les peuples insolites en jeu")
+	(st.insolites["emp"] as Dictionary).erase(str(nid))
+	_ok(not Insolites.nomad_ids(st).has(nid), "un empire sans état de règle est laissé de côté au lieu de planter")
+	InsZambalu.numero_day(st, added)
+	_ok(InsZambalu.open_call(st) == -1, "le Grand Numéro ne plante plus sur lui")
+
