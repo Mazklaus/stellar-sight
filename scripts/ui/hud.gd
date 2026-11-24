@@ -28,6 +28,10 @@ signal fleet_system_requested(fleet_id: int)
 signal idle_fleet_requested
 ## Clic sur une pastille de la barre d'alertes (voir AlertBar).
 signal alert_requested(kind: String, arg: int)
+## Un calque de la carte est coché ou décoché (voir GalaxyView.LAYERS).
+signal layer_toggled(id: String, on: bool)
+## Un des trois boutons de palier de zoom est pressé (voir GalaxyView.TIER_*).
+signal zoom_tier_requested(tier: int)
 
 const MARGIN := 10.0
 const CARD_WIDTH := 320.0
@@ -86,6 +90,13 @@ var _lens_panel: PanelContainer
 var _lens_note: Label
 ## Boutons du panneau, par identifiant de lentille ("" = la carte des empires).
 var lens_buttons := {}
+## Cases des calques, par identifiant, et légende de la lentille active.
+var layer_boxes := {}
+var _legend: PanelContainer
+var _legend_box: VBoxContainer
+## Boutons de palier de zoom, à gauche du cadran.
+var tier_buttons: Array[Button] = []
+var _tier_box: VBoxContainer
 var _tab_orbit: Button
 var _tab_manage: Button
 var _info_panel: PanelContainer
@@ -456,6 +467,7 @@ func set_lens(value: String) -> void:
 		(lens_buttons[id] as Button).set_pressed_no_signal(id == value)
 	if _lens_note:
 		_lens_note.text = String(LENS_TIPS.get(value, ""))
+	_refresh_legend()
 	lens_changed.emit(value)
 
 
@@ -484,7 +496,8 @@ func _build_tabs() -> void:
 	_lens_button.pressed.connect(func() -> void:
 		_lens_button.set_pressed_no_signal(lens != "")
 		_lens_panel.visible = not _lens_panel.visible
-		_refresh_lens_panel())
+		_refresh_lens_panel()
+		_refresh_legend())
 	_tab_orbit = _tab("Vue orbitale", "L'étoile et ses planètes en orbite  (Tab)")
 	_tab_orbit.pressed.connect(func() -> void: system_mode_requested.emit(false))
 	_tab_manage = _tab("Gestion du système", "Les planètes côte à côte, pour comparer  (Tab)")
@@ -529,9 +542,180 @@ func _build_lens_panel() -> void:
 			row.add_child(b)
 			lens_buttons[id] = b
 	box.add_child(HSeparator.new())
+	# Calques : ce que la carte superpose, quelle que soit la lentille.
+	var layers := HBoxContainer.new()
+	layers.add_theme_constant_override("separation", 10)
+	box.add_child(layers)
+	var layers_label := Label.new()
+	layers_label.theme_type_variation = &"Section"
+	layers_label.text = "CALQUES"
+	layers_label.custom_minimum_size = Vector2(110, 0)
+	layers.add_child(layers_label)
+	for l: Array in GalaxyView.LAYERS:
+		var id := String(l[0])
+		var c := CheckBox.new()
+		c.text = String(l[1])
+		c.tooltip_text = String(l[2])
+		c.button_pressed = true
+		c.focus_mode = Control.FOCUS_NONE
+		c.toggled.connect(func(on: bool) -> void: layer_toggled.emit(id, on))
+		layers.add_child(c)
+		layer_boxes[id] = c
+	box.add_child(HSeparator.new())
 	_lens_note = UiTheme.paragraph("", 620.0, 13)
 	box.add_child(_lens_note)
+	_legend = PanelContainer.new()
+	_legend.add_theme_stylebox_override("panel", UiTheme.box(Color(0.03, 0.04, 0.06, 0.82), UiTheme.LINE, 8, 1))
+	_legend.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_legend.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_legend.offset_top = 40.0
+	_legend.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_legend.visible = false
+	add_child(_legend)
+	_legend_box = VBoxContainer.new()
+	_legend_box.add_theme_constant_override("separation", 2)
+	_legend_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_legend.add_child(_legend_box)
 	set_lens(lens)
+
+
+## Légende d'une lentille : [[couleur, ce qu'elle veut dire], ...] (vide pour la carte des empires).
+static func lens_legend(id: String) -> Array:
+	var grey := Color(0.62, 0.64, 0.68)
+	var red := Color(0.86, 0.33, 0.31)
+	var gold := Color(0.92, 0.76, 0.36)
+	match id:
+		"borders":
+			return [[GalaxyView.BORDER_OPEN_COLOR, "Vos flottes de guerre passent"], [GalaxyView.BORDER_GUARDED_COLOR, "Vaisseaux sans armes seulement"],
+					[GalaxyView.BORDER_CLOSED_COLOR, "Frontière close"], [Color.WHITE, "Vos systèmes"]]
+		"amph":
+			return [[gold, "Membre de l'Amphictyonie"], [red, "Hors-la-loi"], [Color(0.55, 0.58, 0.62), "Reste dehors"]]
+		"economy":
+			return [[Color(0.85, 0.88, 0.93), "Bilan mensuel du système, sous l'étoile"]]
+		"trade":
+			return [[GalaxyView.TRADE_INTERNAL_COLOR, "Route intérieure"], [GalaxyView.TRADE_TIER_COLORS[1], "Traité de premier palier"],
+					[GalaxyView.TRADE_TIER_COLORS[2], "Deuxième palier"], [GalaxyView.TRADE_TIER_COLORS[3], "Troisième palier"],
+					[GalaxyView.BATTLE_COLOR, "Route bloquée"], [Color(0.95, 0.45, 0.3), "Arc : risque pirate"]]
+		"private":
+			return [[GalaxyView.PRIVATE_MINE_COLOR, "Station minière"], [GalaxyView.PRIVATE_RESORT_COLOR, "Station touristique"],
+					[GalaxyView.PRIVATE_BRANCH_COLOR, "Filiale"], [red, "Zone militaire, repaire"]]
+		"ports":
+			var out := []
+			for i in PortsUi.STATE_COLORS.size():
+				out.append([PortsUi.STATE_COLORS[i], Ports.state_label(i)])
+			return out
+		"stability":
+			var out := []
+			var tiers: Array = Stability.data()["tiers"]
+			for i in range(tiers.size() - 1, -1, -1):
+				var t: Dictionary = tiers[i]
+				out.append([Color.html(String(t.get("color", "#a9b4c2"))), "%s (à partir de %d)" % [String(t["label"]), int(t["min"])]])
+			out.append([grey, "Monde libre"])
+			return out
+		"corruption":
+			return [[AdminUi.corruption_color(0), "Moins de 10"], [AdminUi.corruption_color(10), "De 10 à 19"],
+					[AdminUi.corruption_color(20), "De 20 à 29"], [AdminUi.corruption_color(30), "30 et plus"], [Color(0.95, 0.78, 0.36), "Anneau : siège d'administration"]]
+		"fiscal":
+			return [[Color(0.92, 0.78, 0.36), "Franchise fiscale"], [Color(0.88, 0.57, 0.23), "Fuite fiscale"], [red, "Grève fiscale"],
+					[Color(0.55, 0.58, 0.62), "Rien à signaler"]]
+		"politics":
+			return [[Color(0.85, 0.88, 0.93), "Couleur du courant dominant ; trait plein s'il est au pouvoir, pointillé sinon"]]
+		"peoples":
+			return [[Color(0.85, 0.88, 0.93), "Anneau partagé selon la part de chaque espèce"]]
+		"faith":
+			return [[Color(0.85, 0.88, 0.93), "Anneau partagé selon la part de chaque croyance"], [gold, "Monde saint"]]
+		"psionics":
+			return [[Color(0.72, 0.6, 0.95), "Sensitifs et écrans"], [Color(1.0, 0.9, 0.5), "Portée du Phare"], [Color(1.0, 0.7, 0.2), "Ambre"],
+					[Color(0.8, 0.3, 0.9), "Monde hanté"]]
+		"culture":
+			var out := []
+			for i in Culture.tiers().size():
+				out.append([Culture.tier_color(i), Culture.tier_label(i)])
+			out.append([Color(0.95, 0.5, 0.9), "Défection en cours"])
+			return out
+		"war":
+			return [[red, "Système ennemi"], [Color(0.95, 0.8, 0.35), "Pointillé : votre revendication"], [grey, "Hachures : occupé, à la couleur de l'occupant"]]
+		"sensors":
+			return [[Color(0.35, 0.85, 0.95), "Couvert par vos senseurs, plus net où ils portent mieux"], [Color.WHITE, "Anneau : poste d'écoute"]]
+	return []
+
+
+func _refresh_legend() -> void:
+	if _legend == null:
+		return
+	var list := lens_legend(lens)
+	_legend.visible = not list.is_empty() and not _lens_panel.visible and not _system_mode and not _empire_screen
+	if not _legend.visible:
+		return
+	for c in _legend_box.get_children():
+		_legend_box.remove_child(c)
+		c.queue_free()
+	for e: Array in list:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var chip := ColorRect.new()
+		chip.color = e[0]
+		chip.custom_minimum_size = Vector2(12, 12)
+		chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(chip)
+		var text := Label.new()
+		text.text = String(e[1])
+		text.add_theme_font_size_override("font_size", 13)
+		text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(text)
+		_legend_box.add_child(row)
+	_legend.reset_size()
+
+
+## Textes de la légende affichée (pour les tests).
+func legend_texts() -> PackedStringArray:
+	var out := PackedStringArray()
+	if _legend and _legend.visible:
+		for row in _legend_box.get_children():
+			out.append((row.get_child(1) as Label).text)
+	return out
+
+
+## Règle les cases des calques sans émettre (la carte fait foi).
+func set_layers(layers: Dictionary) -> void:
+	for id: String in layer_boxes:
+		(layer_boxes[id] as CheckBox).set_pressed_no_signal(bool(layers.get(id, true)))
+
+
+## Trois boutons de palier à gauche du cadran (B1) : Galaxie, Région, Système.
+func _build_tier_buttons() -> void:
+	_tier_box = VBoxContainer.new()
+	_tier_box.add_theme_constant_override("separation", 2)
+	_tier_box.anchor_left = 1.0
+	_tier_box.anchor_right = 1.0
+	_tier_box.anchor_top = 1.0
+	_tier_box.anchor_bottom = 1.0
+	_tier_box.offset_right = -TimeDial.SIDE - MARGIN - 8.0
+	_tier_box.offset_left = _tier_box.offset_right - 86.0
+	_tier_box.offset_bottom = -MARGIN - 46.0
+	_tier_box.offset_top = _tier_box.offset_bottom - 80.0
+	_tier_box.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	add_child(_tier_box)
+	var tips := ["Les empires vus de loin : territoires, capitales, fronts", "Les systèmes et les flottes", "Au plus près : silhouettes des flottes, cargos sur les routes"]
+	for i in GalaxyView.TIER_NAMES.size():
+		var b := Button.new()
+		b.theme_type_variation = &"BarButton"
+		b.text = GalaxyView.TIER_NAMES[i].to_upper()
+		b.toggle_mode = true
+		b.focus_mode = Control.FOCUS_NONE
+		b.tooltip_text = tips[i]
+		b.add_theme_font_size_override("font_size", 12)
+		b.pressed.connect(func() -> void: zoom_tier_requested.emit(i))
+		_tier_box.add_child(b)
+		tier_buttons.append(b)
+
+
+## Palier de zoom affiché par la carte : son bouton s'allume.
+func set_zoom_tier(tier: int) -> void:
+	for i in tier_buttons.size():
+		tier_buttons[i].set_pressed_no_signal(i == tier)
 
 
 ## Nom d'une lentille pour le joueur.
@@ -1098,6 +1282,9 @@ func _refresh_side_visibility() -> void:
 			alert_bar.refresh()
 	if spectator_panel:
 		spectator_panel.visible = spectator and not _system_mode and not _empire_screen
+	if _tier_box:
+		_tier_box.visible = not _system_mode and not _empire_screen
+	_refresh_legend()
 	_refresh_idle_button()
 
 
@@ -1167,6 +1354,7 @@ func _build_dial() -> void:
 	turn_players.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	turn_players.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	add_child(turn_players)
+	_build_tier_buttons()
 	var menu := Widgets.IconButton.new("menu", 36)
 	menu.theme_type_variation = &""
 	menu.anchor_left = 1.0

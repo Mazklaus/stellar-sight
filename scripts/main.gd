@@ -7,7 +7,7 @@ extends Node2D
 const SYSTEM_COUNT := 150
 const GALAXY_RADIUS := 1800.0
 const PICK_RADIUS_PX := 14.0
-const FLEET_PICK_RADIUS_PX := 11.0
+const FLEET_PICK_RADIUS_PX := 14.0
 ## Au-delà de ce déplacement (pixels), un clic droit est un glissé de caméra, pas un ordre.
 const RIGHT_CLICK_SLOP_PX := 6.0
 const START_ZOOM := 0.22
@@ -18,6 +18,8 @@ const MENU_ZOOM := 0.3
 const MENU_DRIFT := Vector2(14.0, 5.0)
 ## Empire du joueur local : 0 en solo et pour l'hôte, celui que l'hôte a confié à un client en réseau.
 var local_player := 0
+var _fleet_menu: PopupMenu
+var _zoom_tier := -1
 ## Multijoueur en réseau (lockstep) : inactive en solo.
 var net: NetSession
 ## On est client d'une partie en réseau (pour revenir à la page Multijoueur si elle s'interrompt).
@@ -157,6 +159,8 @@ func _ready() -> void:
 	_hud.lens_changed.connect(func(l: String) -> void:
 		_view.lens = l
 		_view.queue_redraw())
+	_hud.layer_toggled.connect(func(id: String, on: bool) -> void: _view.set_layer(id, on))
+	_hud.zoom_tier_requested.connect(func(t: int) -> void: _camera.glide_to(_camera.position, GalaxyView.TIER_JUMP[t]))
 
 	_system_screen = SystemScreen.new()
 	add_child(_system_screen)
@@ -1330,6 +1334,10 @@ func _process(delta: float) -> void:
 	if galaxy == null:
 		return
 	_view.day_fraction = GameClock.day_fraction()
+	var zt := GalaxyView.tier_of(_camera.zoom.x)
+	if zt != _zoom_tier:
+		_zoom_tier = zt
+		_hud.set_zoom_tier(zt)
 	_codex_sync -= delta
 	if _codex_sync <= 0.0:
 		_codex_sync = 1.0
@@ -1354,6 +1362,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		var fleet := _pick_fleet_at(mb.position)
 		if fleet >= 0 and not mb.double_click:
 			select_fleet(fleet)
+			return
+		# Insigne « +N » : la liste des flottes qui n'ont pas trouvé place sous l'étoile.
+		var more := _view.pick_overflow(get_viewport().get_canvas_transform().affine_inverse() * mb.position, FLEET_PICK_RADIUS_PX / _camera.zoom.x)
+		if more >= 0 and not mb.double_click:
+			_open_fleet_menu(more, mb.position)
 			return
 		var picked := _pick_system_at(mb.position)
 		if mb.double_click and picked >= 0:
@@ -1603,6 +1616,24 @@ func _pick_fleet_at(screen_pos: Vector2) -> int:
 # --- Flottes ----------------------------------------------------------------------------------
 
 ## Sélectionne une flotte (-1 : aucune). Sa fiche s'affiche et son trajet se dessine.
+## Liste des flottes cachées derrière l'insigne « +N » d'un système : en choisir une la sélectionne.
+func _open_fleet_menu(system_id: int, screen_pos: Vector2) -> void:
+	if _fleet_menu == null:
+		_fleet_menu = PopupMenu.new()
+		_fleet_menu.id_pressed.connect(func(fid: int) -> void: select_fleet(fid))
+		_hud.add_child(_fleet_menu)
+	_fleet_menu.clear()
+	for fid: int in _view.overflow_fleets(system_id):
+		var f: Fleet = simulation.state.fleets.get(fid)
+		if f == null:
+			continue
+		var owner := simulation.state.get_empire(f.owner)
+		_fleet_menu.add_item("%s  (%d)%s" % [f.fleet_name, f.ships.size(), "" if f.owner == local_player or owner == null else "  ·  " + owner.display_name()], fid)
+	_fleet_menu.position = Vector2i(screen_pos)
+	_fleet_menu.reset_size()
+	_fleet_menu.popup()
+
+
 func select_fleet(fleet_id: int) -> void:
 	_patrol_pick = _patrol_pick and fleet_id == selected_fleet
 	selected_fleet = fleet_id

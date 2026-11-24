@@ -51,7 +51,7 @@ Chaque coque a désormais sa **forme** : un dard, une tour, des épaules, une co
 
 - **Au Chantier**, la silhouette de la coque s'affiche au centre tant qu'elle n'a pas de portrait illustré, et chaque modèle de la liste a sa vignette.
 - **Dans le rapport de bataille**, chaque camp montre une vignette par classe engagée, de la plus grosse à la plus petite ; une classe entièrement perdue est grisée, une prise d'abordage est cerclée d'or.
-- **Sur la carte**, l'option **Silhouettes des flottes sur la carte** (Options, Affichage ; coupée par défaut) remplace le chevron par la silhouette du plus gros vaisseau, nez dans le sens de la marche. Un simple contact furtif reste un chevron gris.
+- **Sur la carte**, l'option **Silhouettes des flottes sur la carte** (Options, Affichage ; coupée par défaut) remplace l'insigne par la silhouette du plus gros vaisseau, nez dans le sens de la marche, à tous les zooms ; au palier Système, la silhouette est de toute façon affichée. Un simple contact furtif reste un insigne gris marqué d'un point d'interrogation.
 - **Dans l'éditeur d'espèces**, le choix **Style de vaisseaux** décide aussi du style des silhouettes d'un peuple créé.
 
 Une silhouette peut être remplacée par une image : un fichier PNG au nom du style et de la forme (`assets/battle/hulls/<style>_<forme>.png`) prend la place du dessin, partout où la silhouette apparaît.
