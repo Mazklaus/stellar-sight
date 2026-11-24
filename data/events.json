@@ -87,7 +87,7 @@
 	"cards": [
 		{"id": "prophete_docks", "title": "Le prophète des docks", "trigger": "monthly", "weight": 10,
 			"subjects": {"system": "low_stab"}, "if": {"stability": true, "stab_below": 50},
-			"text": "Sur les quais de {system}, un docker juché sur une caisse annonce la fin des temps pour mardi prochain. La foule grossit. Les dockers, eux, ne travaillent plus : il faut bien finir sa vie en beauté.",
+			"text": "Depuis neuf jours, un docker du nom d'Ansel Brock prêche sur le quai 4 de {system}, debout sur une caisse de fret. Il annonce que les étoiles s'éteindront l'une après l'autre et donne une date, qui tombe dans six semaines. Le premier soir, il avait une trentaine d'auditeurs. La capitainerie en a compté quatre mille hier.\n\nLes équipes de nuit ont cessé de décharger. Onze cargos attendent en orbite et les entrepôts frigorifiques commencent à manquer de place. Le syndic des dockers refuse d'ordonner la reprise : ses hommes lui ont répondu qu'ils ne passeraient pas leurs dernières semaines à porter des caisses.\n\nBrock n'a rien demandé et n'a insulté personne. Le gouverneur le décrit comme un homme calme, employé au port depuis vingt-six ans, que nul n'avait entendu parler de religion avant ce mois-ci. Il attend des instructions.",
 			"choices": [
 				{"label": "L'écouter et lui offrir une chaire", "fx": [{"k": "res", "res": {"influence": -25}}, {"k": "stab", "v": 12, "days": 360}, {"k": "revelation", "via": "prophete"}]},
 				{"label": "Le faire taire discrètement", "fx": [{"k": "stab", "v": -6, "days": 180}, {"k": "res", "res": {"energy": 40}}]},
@@ -96,16 +96,16 @@
 
 		{"id": "greve_cristaux", "title": "Grève des cristalliers", "trigger": "monthly", "weight": 8,
 			"subjects": {"system": "own"}, "if": {"min_year": 2, "stability": true},
-			"text": "Les cristalliers de {system} déposent leurs outils. Ils réclament une prime de risque : les cristaux de saut ont la fâcheuse habitude de sauter.",
+			"text": "Les ateliers de taille de {system} sont fermés depuis lundi. Les cristalliers ont rangé leurs outils après l'éclatement d'un cristal de saut sur un établi de l'atelier 3, qui a coûté la main droite à un compagnon et la vue à son apprenti. C'est le quatrième accident de l'année.\n\nLa guilde demande une prime de risque et le remplacement des écrans de protection, qui datent de la fondation. Son doyen rappelle qu'un tailleur met douze ans à se former et que personne d'autre dans la colonie ne sait lire le fil d'un cristal. Les réserves des chantiers tiennent trois semaines.\n\nL'intendant a fait savoir que des tailleurs d'autres colonies accepteraient de venir travailler sous escorte. Il ajoute que la charte de la guilde est à vendre, si le trésor veut faire des cristalliers ses propres employés.",
 			"choices": [
 				{"label": "Payer la prime", "fx": [{"k": "res", "res": {"energy": -60}}, {"k": "stab", "v": 8, "days": 360}]},
 				{"label": "Faire venir des briseurs de grève", "fx": [{"k": "stab", "v": -10, "days": 360}, {"k": "res", "res": {"crystals": 10}}]},
-				{"label": "Racheter la guilde (et la grève avec)", "if": {"layers": {"credo": ["profit"]}}, "fx": [{"k": "res", "res": {"energy": -30}}, {"k": "stab", "v": 6, "days": 360}, {"k": "res", "res": {"crystals": 10}}]}
+				{"label": "Racheter la charte de la guilde", "if": {"layers": {"credo": ["profit"]}}, "fx": [{"k": "res", "res": {"energy": -30}}, {"k": "stab", "v": 6, "days": 360}, {"k": "res", "res": {"crystals": 10}}]}
 			], "default": 0},
 
 		{"id": "fete_moissons", "title": "La fête des moissons", "trigger": "monthly", "weight": 8,
 			"subjects": {"system": "rich"}, "if": {"stock_above": {"food": 150}, "stability": true},
-			"text": "Les greniers de {system} débordent. Le peuple propose une fête ; le trésor propose de tout revendre. Le peuple a des fourches, mais le trésor a des comptables.",
+			"text": "La récolte de {system} dépasse d'un tiers celle de l'an dernier. Les silos sont pleins depuis la fin du mois et le grain s'entasse sous des bâches, sur les aires de battage. L'intendant aux vivres estime qu'une partie sera perdue avant l'hiver si rien n'est décidé.\n\nLes communes agricoles ont adressé une pétition au gouverneur. Elles demandent que le surplus serve à une fête des moissons ouverte à tous, comme il s'en donnait du temps des fondateurs, et que les autres colonies y soient conviées. Le texte porte soixante mille signatures.\n\nLe trésor a fait ses comptes de son côté. Trois négociants offrent un bon prix pour le lot entier, payable à l'enlèvement. L'intendant, lui, voudrait garder le grain pour une mauvaise année.",
 			"choices": [
 				{"label": "Que la fête commence", "fx": [{"k": "res", "res": {"food": -80}}, {"k": "stab", "v": 10, "days": 360, "scope": "empire"}]},
 				{"label": "Vendre les surplus", "fx": [{"k": "res", "res": {"food": -80, "energy": 60}}]},
@@ -114,7 +114,7 @@
 
 		{"id": "rumeurs_secession", "title": "Rumeurs de sécession", "trigger": "monthly", "weight": 9,
 			"subjects": {"system": "low_stab"}, "if": {"stability": true, "stab_below": 35},
-			"text": "À {system}, on imprime des drapeaux. Personne n'est d'accord sur les couleurs, ce qui retarde un peu l'indépendance, mais pas indéfiniment.",
+			"text": "Le préfet de {system} a saisi la semaine dernière deux cents drapeaux dans une imprimerie du quartier des entrepôts. Ils portent des couleurs qui ne sont pas celles de l'empire. L'imprimeur a déclaré qu'il avait exécuté une commande payée d'avance et qu'il ignorait le nom du client.\n\nDes comités se réunissent dans les arrière-salles depuis l'hiver. Ils ne s'accordent pas encore sur un programme. Les uns veulent un conseil élu et la libre disposition des impôts, les autres parlent d'indépendance. Les rapports de police notent que des officiers de la milice locale assistent aux réunions sans se cacher.\n\nLe préfet ne croit pas à un soulèvement cette année. Il demande ce qu'il doit répondre aux notables, qui attendent un geste de la capitale.",
 			"choices": [
 				{"label": "Accorder des privilèges locaux", "fx": [{"k": "res", "res": {"influence": -40}}, {"k": "stab", "v": 15, "days": 540}]},
 				{"label": "Envoyer la garde", "fx": [{"k": "stab", "v": 8, "days": 180}, {"k": "rep", "v": -5}]},
@@ -123,16 +123,16 @@
 
 		{"id": "scandale_bal", "title": "Le scandale du bal", "trigger": "monthly", "weight": 6,
 			"subjects": {"hero": "orateur"},
-			"text": "{hero} a dansé avec la mauvaise personne au bal de l'ambassade. Ou avec la bonne : les versions diffèrent selon le journal. Tout le monde en parle, ce qui est déjà une forme de diplomatie.",
+			"text": "{hero} a ouvert le bal de l'ambassade au bras d'une personne que le protocole plaçait à l'autre bout de la salle. Ils ont dansé quatre fois de suite. Le chef du protocole a compté.\n\nLes journaux de la capitale en font leur première page ce matin. L'un parle d'une liaison, un autre d'une manœuvre concertée avec une cour étrangère. Deux ambassadeurs ont demandé des éclaircissements par écrit.\n\n{hero} garde le silence. Son secrétaire fait savoir que le gouvernement sera obéi, quelle que soit la ligne retenue, et qu'un éditeur de feuilletons a déjà fait une offre pour le récit de la soirée.",
 			"choices": [
 				{"label": "Assumer avec panache", "fx": [{"k": "renown", "v": 60}, {"k": "res", "res": {"influence": -15}}]},
-				{"label": "Démentir, tout démentir", "fx": [{"k": "res", "res": {"influence": 20}}, {"k": "hero_xp", "v": -20}]},
+				{"label": "Tout démentir", "fx": [{"k": "res", "res": {"influence": 20}}, {"k": "hero_xp", "v": -20}]},
 				{"label": "Vendre l'histoire aux feuilletons", "if": {"layers": {"registre": ["Picaresque / pulp"]}}, "fx": [{"k": "rep", "v": 6}, {"k": "res", "res": {"energy": 40}}]}
 			], "default": 1},
 
 		{"id": "duel_honneur", "title": "Un duel d'honneur", "trigger": "monthly", "weight": 6,
 			"subjects": {"hero": "stratege", "rival": "contact"},
-			"text": "Un officier de {rival} a traité {hero} de « pilote du dimanche ». Les témoins sont choisis, les sabres aiguisés, et la date fixée un dimanche, pour l'ironie.",
+			"text": "Lors d'une réception donnée pour les attachés navals, un officier de {rival} a dit à voix haute que {hero} devait ses victoires à ses subordonnés. Une trentaine de personnes l'ont entendu. {hero} a quitté la salle sans répondre et a envoyé ses témoins le lendemain.\n\nL'officier maintient ses propos et accepte la rencontre. Les témoins des deux parties se sont accordés sur le sabre et sur un terrain neutre, à bord d'une station de commerce. Aucune date n'est arrêtée tant que le gouvernement n'a pas donné son avis.\n\nLe code de l'état-major ne défend pas le duel. Il prévoit aussi une autre voie, celle d'une demande de réparation adressée aux supérieurs de l'offenseur, qui devraient alors le désavouer ou le couvrir. La chancellerie de {rival} n'a encore rien dit.",
 			"choices": [
 				{"label": "Relever le défi", "risky": {"pct": 65, "win": [{"k": "renown", "v": 100}, {"k": "hero_xp", "v": 120}], "lose": [{"k": "hero_wound"}]}},
 				{"label": "Refuser avec mépris", "fx": [{"k": "opinion", "kind": "ev_snub"}]},
@@ -141,7 +141,7 @@
 
 		{"id": "memoires_intendant", "title": "Les mémoires d'un intendant", "trigger": "monthly", "weight": 6,
 			"subjects": {"hero": "intendant"},
-			"text": "{hero} veut publier ses mémoires de gestion. Quatre cents pages sur l'optimisation des greniers, et un chapitre étonnamment passionné sur les tuyaux.",
+			"text": "{hero} a remis au cabinet un manuscrit de quatre cents pages, tiré de ses années d'intendance. L'ouvrage décrit la tenue des greniers, le calcul des réserves et l'entretien des réseaux d'eau, avec des tableaux repris des comptes réels de plusieurs colonies.\n\nLes lecteurs du cabinet le jugent aride et exact. Le chapitre sur les canalisations contient une méthode de détection des fuites que l'académie ne connaissait pas. Deux écoles d'administration ont demandé à en recevoir des exemplaires.\n\nL'impression coûterait peu. Le manuscrit cite cependant des chiffres que le trésor n'a jamais rendus publics, et l'archiviste recommande de le classer.",
 			"choices": [
 				{"label": "Financer l'édition", "fx": [{"k": "res", "res": {"energy": -30}}, {"k": "hero_xp", "v": 150}, {"k": "research", "pct": 10}]},
 				{"label": "Classer le manuscrit", "fx": [{"k": "hero_xp", "v": 40}]}
@@ -149,7 +149,7 @@
 
 		{"id": "ombre_bavarde", "title": "L'agent qui en savait trop", "trigger": "monthly", "weight": 5,
 			"subjects": {"hero": "ombre"},
-			"text": "{hero} a été vu en train de raconter ses missions dans une cantine. En détail. Avec des dessins.",
+			"text": "Un rapport de la sûreté signale que {hero} a passé trois soirées dans la cantine d'un arsenal à raconter d'anciennes missions. Les récits donnaient des lieux et des dates. Un ouvrier a conservé un croquis fait sur une nappe, qui représente assez fidèlement l'intérieur d'une ambassade étrangère.\n\nUne quarantaine de personnes ont entendu tout ou partie de ces histoires. La sûreté n'a relevé parmi elles aucun agent connu, ce qui ne prouve rien. Deux des opérations évoquées sont toujours en cours.\n\nLe directeur du renseignement voit deux partis. On peut rappeler {hero} à ses obligations. On peut aussi demander que les récits continuent, à condition de fournir désormais ce qu'il faut raconter.",
 			"choices": [
 				{"label": "Le rappeler à l'ordre", "fx": [{"k": "hero_xp", "v": 60}]},
 				{"label": "Transformer ses récits en désinformation", "risky": {"pct": 60, "win": [{"k": "renown", "v": 80}, {"k": "hero_xp", "v": 120}], "lose": [{"k": "res", "res": {"influence": -40}}]}}
@@ -157,7 +157,7 @@
 
 		{"id": "vocation", "title": "Une vocation tardive", "trigger": "monthly", "weight": 5,
 			"subjects": {"hero": "any"},
-			"text": "{hero} a découvert, à son âge, la poésie de combat. Ses rapports sont désormais en alexandrins. L'état-major hésite entre l'admiration et la migraine.",
+			"text": "Depuis deux mois, {hero} rédige ses rapports en vers. Le dernier compte cent douze alexandrins et rend compte d'une inspection de dépôts. L'état-major a vérifié : tous les chiffres y sont, à leur place, et aucun n'est faux.\n\nDes copies circulent dans la capitale. Un théâtre a donné lecture publique du rapport sur les manœuvres d'automne devant une salle pleine, et un imprimeur prépare un recueil sans avoir demandé d'autorisation. Des officiers plus jeunes commencent à imiter le procédé, avec moins de bonheur.\n\nLe chef d'état-major fait observer qu'un rapport en vers demande trois fois plus de temps à lire. Il ne conteste pas que celui-ci ait été lu par beaucoup plus de monde.",
 			"choices": [
 				{"label": "Encourager l'artiste", "fx": [{"k": "renown", "v": 50}, {"k": "stab", "v": 4, "days": 360, "scope": "capital"}]},
 				{"label": "Exiger de la prose", "fx": [{"k": "hero_xp", "v": 80}]}
@@ -165,7 +165,7 @@
 
 		{"id": "reconversion_pirate", "title": "Une offre de reconversion", "trigger": "monthly", "weight": 7,
 			"subjects": {"system": "frontier"}, "if": {"lairs_known": true, "min_year": 2},
-			"text": "Un capitaine pirate frappe à la porte de {system}. Il en a assez des raids, des primes et des perroquets. Il propose ses services, et son navire, pour un prix raisonnable et une amnistie qui ne l'est pas.",
+			"text": "Une frégate sans pavillon s'est présentée devant {system} tous feux allumés, canons rentrés. Son capitaine, Dorn Vasque, est connu des tribunaux de trois colonies pour une vingtaine d'abordages. Il a demandé à parler au commandant de la place et il est descendu seul.\n\nVasque dit qu'il a soixante hommes à nourrir et qu'aucun de ses anciens associés n'est mort dans son lit. Il offre son vaisseau et ce qu'il sait des repaires de la région. Il veut en échange une somme, qu'il a chiffrée, et l'amnistie pour tout son équipage.\n\nLes familles des marins qu'il a rançonnés habitent pour beaucoup à {system}. Le commandant de la place le garde sous escorte. Il fait remarquer qu'un homme pareil, s'il dit vrai, vaudrait surtout par ce qu'il peut apprendre à nos équipages.",
 			"choices": [
 				{"label": "Accepter le marché", "fx": [{"k": "res", "res": {"energy": -70}}, {"k": "ship", "ship": "fregate"}, {"k": "stab", "v": -4, "days": 180}]},
 				{"label": "Le livrer à la justice", "fx": [{"k": "stab", "v": 6, "days": 360}, {"k": "rep", "v": -3}]},
@@ -174,16 +174,16 @@
 
 		{"id": "douane_ports", "title": "Contrebande à la douane", "trigger": "monthly", "weight": 6,
 			"subjects": {"system": "own"}, "if": {"ports_known": true},
-			"text": "Les douaniers de {system} saisissent une cargaison venue d'un port franc : liqueurs, épices et une caisse qui ronronne. Le propriétaire propose de partager les bénéfices.",
+			"text": "Les douaniers de {system} ont ouvert un conteneur déclaré comme pièces de rechange, venu d'un port franc. Ils y ont trouvé six cents bouteilles de liqueur et des épices pour une valeur dix fois supérieure. Au fond, une caisse percée de trous abritait cinq petits animaux à fourrure grise, d'une espèce que le vétérinaire du port n'a pas su nommer.\n\nLe destinataire s'est présenté le soir même. C'est un négociant établi, qui paie ses taxes sur tout le reste. Il ne conteste rien et propose au chef de poste un arrangement : la marchandise sort, et le poste touche un cinquième de la vente.\n\nLe chef de poste a transmis l'offre au lieu de l'accepter. Il signale que ses hommes nourrissent les animaux depuis trois jours et leur ont donné des noms. La moitié du port défile au bureau pour les voir.",
 			"choices": [
 				{"label": "Tout confisquer", "fx": [{"k": "res", "res": {"energy": 50}}, {"k": "stab", "v": -3, "days": 180}]},
 				{"label": "Fermer les yeux contre une commission", "fx": [{"k": "res", "res": {"energy": 80}}, {"k": "rep", "v": 4}, {"k": "stab", "v": -6, "days": 360}]},
-				{"label": "Adopter la caisse qui ronronne", "fx": [{"k": "stab", "v": 6, "days": 360}]}
+				{"label": "Garder les animaux au poste", "fx": [{"k": "stab", "v": 6, "days": 360}]}
 			], "default": 0},
 
 		{"id": "deserteurs", "title": "Des déserteurs ennemis", "trigger": "monthly", "weight": 9,
 			"subjects": {"rival": "war", "system": "frontier"}, "if": {"war": true},
-			"text": "Un équipage de {rival} se présente à {system}, drapeau blanc et cale pleine. Ils disent en avoir assez de cette guerre. Ils disent aussi qu'ils mangent beaucoup.",
+			"text": "Une corvette de {rival} est sortie du saut devant {system} en émettant sur la fréquence de détresse. Elle a coupé ses moteurs à distance de tir et attendu. Son commandant demande l'asile pour quatre-vingt-trois membres d'équipage.\n\nIl explique que son bâtiment n'a pas été ravitaillé depuis cinq mois et que l'amirauté lui a refusé deux fois la relève. Les médecins montés à bord confirment que l'équipage est amaigri et que les soutes à vivres sont vides. Aucun officier ne manque à l'appel, ce qui écarte une mutinerie.\n\nL'état-major voudrait d'abord les entendre un par un sur les mouvements de leur flotte, ce que leur gouvernement prendrait mal. La chancellerie note que les rendre à {rival} sans conditions serait remarqué.",
 			"choices": [
 				{"label": "Les accueillir avec leur navire", "fx": [{"k": "ship", "ship": "corvette"}, {"k": "res", "res": {"food": -40}}]},
 				{"label": "Les renvoyer chez eux, en geste de paix", "fx": [{"k": "opinion", "kind": "ev_gift"}, {"k": "res", "res": {"influence": 15}}]},
@@ -192,7 +192,7 @@
 
 		{"id": "veteran_mutile", "title": "Le vétéran", "trigger": "monthly", "weight": 7,
 			"subjects": {"system": "capital"}, "if": {"recent_battle": "lost"},
-			"text": "Un vétéran de la dernière bataille perdue parcourt {system} en racontant ce qu'il a vu. Il ne ment pas, et c'est bien le problème.",
+			"text": "Un sous-officier revenu de la dernière défaite parle chaque soir sur les places de {system}. Il s'appelle Marek Hollin, il était chef de pièce, et il a passé onze heures dans un compartiment scellé avant d'être recueilli. Il raconte ce qu'il a vu et ne dit rien de plus.\n\nSon récit ne s'accorde pas avec le communiqué de l'amirauté. Hollin donne l'heure à laquelle l'ordre de repli est arrivé et le nombre de coques qui ne l'ont jamais reçu. Les familles des disparus viennent l'écouter et lui posent les questions auxquelles l'amirauté n'a pas répondu.\n\nL'état-major reconnaît en privé que l'homme ne ment pas. Il propose de l'affecter comme instructeur sur une lune de garnison, loin de la capitale. Le ministre des pensions suggère au contraire de lui donner une tribune officielle.",
 			"choices": [
 				{"label": "Lui offrir une pension et une tribune", "fx": [{"k": "res", "res": {"energy": -40}}, {"k": "stab", "v": 8, "days": 360, "scope": "empire"}]},
 				{"label": "L'envoyer au calme sur une lune lointaine", "fx": [{"k": "stab", "v": -5, "days": 360, "scope": "empire"}]}
@@ -200,7 +200,7 @@
 
 		{"id": "ruee_epaves", "title": "La ruée vers les épaves", "trigger": "monthly", "weight": 7,
 			"subjects": {"system": "capital"}, "if": {"recent_battle": "won"},
-			"text": "Les épaves de la dernière victoire attirent ferrailleurs, savants et touristes. Les trois se battent pour les mêmes morceaux.",
+			"text": "Le champ d'épaves laissé par la dernière victoire dérive à portée de remorqueur. Les guetteurs y ont compté plus de deux cents coques, dont une trentaine presque entières. Depuis une semaine, tout ce qui vole à {system} s'y rend.\n\nLes ferrailleurs sont arrivés les premiers et découpent déjà. L'académie a envoyé une mission qui réclame les salles des machines intactes, avant que les chalumeaux n'y passent. Deux équipes en sont venues aux mains dans la soute d'un croiseur, et la prévôté a dû les séparer.\n\nLe clergé de la flotte demande pour sa part que le champ soit consacré avant qu'on y touche davantage. Des marins des deux camps y sont encore, et les aumôniers n'ont pas fini de les compter.",
 			"choices": [
 				{"label": "Priorité aux savants", "fx": [{"k": "research", "pct": 20}]},
 				{"label": "Priorité aux ferrailleurs", "fx": [{"k": "res", "res": {"materials": 90}}]},
@@ -209,24 +209,24 @@
 
 		{"id": "decouverte_fortuite", "title": "Une découverte fortuite", "trigger": "monthly", "weight": 9,
 			"if": {"researching": true},
-			"text": "Un stagiaire a renversé son café sur une expérience. L'expérience a mieux marché. On cherche maintenant quel café.",
+			"text": "Un laboratoire de l'académie signale un résultat qu'il n'avait pas cherché. Un assistant de première année a laissé tomber un gobelet dans le bain d'une cuve d'essai. Le rendement de la réaction a doublé dans l'heure et n'est pas retombé depuis.\n\nL'équipe a refait l'expérience onze fois. Elle réussit avec la boisson du réfectoire de l'aile nord et échoue avec toutes les autres, y compris celle de l'aile sud, qui vient du même fournisseur. Les chimistes soupçonnent une impureté de la tuyauterie et démontent la fontaine.\n\nLe directeur demande s'il peut publier en l'état. Un industriel, averti on ne sait comment, a fait une offre pour l'exclusivité du procédé avant même qu'il soit compris.",
 			"choices": [
 				{"label": "Publier les résultats", "fx": [{"k": "research", "pct": 20}]},
-				{"label": "Breveter le café", "fx": [{"k": "res", "res": {"energy": 60}}]}
+				{"label": "Vendre l'exclusivité du procédé", "fx": [{"k": "res", "res": {"energy": 60}}]}
 			], "default": 0},
 
 		{"id": "accident_labo", "title": "L'accident de laboratoire", "trigger": "monthly", "weight": 6,
 			"subjects": {"system": "rich"}, "if": {"researching": true, "min_year": 3},
-			"text": "Une expérience de {system} a ouvert un trou de la taille d'une assiette dans la réalité. Il est encore là. Il fait un petit bruit.",
+			"text": "Un essai mené à l'institut de {system} a laissé dans la salle 6 une ouverture circulaire de vingt-huit centimètres, suspendue à un mètre du sol. Elle n'a pas d'épaisseur. Vue de face, elle est noire, et l'on ne voit rien de profil.\n\nLes instruments que l'on y introduit ressortent intacts et n'ont rien enregistré. L'ouverture ne grandit pas. Elle émet un son continu, très bas, que les techniciens entendent mieux la nuit, quand les ventilations sont coupées. Trois d'entre eux affirment que le son change quand on lui parle.\n\nL'institut a évacué l'aile et attend des ordres. Le génie propose de noyer la salle dans le béton. La directrice des essais demande six mois et une équipe d'acousticiens.",
 			"choices": [
-				{"label": "Étudier le trou", "risky": {"pct": 55, "win": [{"k": "research", "pct": 45}], "lose": [{"k": "stab", "v": -12, "days": 360}, {"k": "pop", "v": -1}]}},
-				{"label": "Le boucher avec du béton", "fx": [{"k": "res", "res": {"materials": -40}}]},
+				{"label": "Étudier l'ouverture", "risky": {"pct": 55, "win": [{"k": "research", "pct": 45}], "lose": [{"k": "stab", "v": -12, "days": 360}, {"k": "pop", "v": -1}]}},
+				{"label": "Noyer la salle dans le béton", "fx": [{"k": "res", "res": {"materials": -40}}]},
 				{"label": "L'écouter", "if": {"layers": {"registre": ["Cosmique / étrange"]}}, "fx": [{"k": "echoes", "v": 15}, {"k": "research", "pct": 15}]}
 			], "default": 1},
 
 		{"id": "antiquaire", "title": "Le marchand d'antiquités", "trigger": "monthly", "weight": 6,
 			"if": {"min_year": 2},
-			"text": "Un marchand ambulant propose « la boussole de l'Ancien Empire, authentique, garantie, presque pas cassée ». Il propose aussi une garantie, authentique, presque pas cassée.",
+			"text": "Un marchand itinérant du nom de Tibor Kess a obtenu audience auprès de l'intendant du palais. Il présente un instrument de laiton dans un coffret, qu'il donne pour une boussole de navigation de l'Ancien Empire. Le cadran porte une fêlure et l'aiguille ne désigne aucun pôle connu.\n\nLes experts du musée l'ont examinée une heure. Le métal est ancien et la gravure est d'une main qu'ils ne reconnaissent pas. Ils ne garantissent rien de plus. Kess produit un certificat dont le sceau est lui-même fendu, et demande un prix élevé sans être absurde.\n\nSa soute contient une quarantaine d'autres pièces du même genre. Un négociant de la capitale estime qu'elles se revendraient bien en bloc, authentiques ou non.",
 			"choices": [
 				{"label": "Acheter la boussole", "risky": {"pct": 50, "win": [{"k": "research", "pct": 35}], "lose": [{"k": "rep", "v": -3}]}, "fx": [{"k": "res", "res": {"energy": -40}}]},
 				{"label": "Le chasser", "fx": []},
@@ -235,7 +235,7 @@
 
 		{"id": "penurie_pieces", "title": "Pénurie de pièces détachées", "trigger": "monthly", "weight": 7,
 			"if": {"stock_below": {"materials": 60}, "min_year": 1},
-			"text": "Plus une vis dans les entrepôts. Les ingénieurs démontent les chaises pour réparer les vaisseaux, et l'état-major tient ses réunions debout.",
+			"text": "Les magasins de la flotte n'ont plus de pièces de rechange courantes. L'inventaire de ce matin ne compte ni joints ni roulements. Quatre bâtiments sont immobilisés au quai pour des avaries qu'un atelier réparerait en une journée.\n\nLes chefs mécaniciens se servent où ils peuvent. Un arsenal a démonté les rayonnages de ses propres magasins pour en tirer de l'acier, et une corvette a pris l'espace avec des charnières prélevées sur le mobilier de son carré. L'état-major a interdit ces pratiques sans proposer autre chose.\n\nLes concessions minières ont du minerai en stock et refusent de le céder au tarif de l'État. Des fournisseurs étrangers livreraient sous dix jours, à un prix qu'ils savent pouvoir demander.",
 			"choices": [
 				{"label": "Réquisitionner les mines", "fx": [{"k": "res", "res": {"materials": 80}}, {"k": "stab", "v": -6, "days": 360, "scope": "empire"}]},
 				{"label": "Acheter au prix fort", "fx": [{"k": "res", "res": {"energy": -60, "materials": 80}}]}
@@ -243,7 +243,7 @@
 
 		{"id": "comete", "title": "Une comète en approche", "trigger": "monthly", "weight": 6,
 			"subjects": {"system": "own"},
-			"text": "Une comète frôlera {system} dans trois semaines. Les astronomes parlent de « frôler » ; les assureurs parlent d'autre chose.",
+			"text": "L'observatoire de {system} suit depuis un mois une comète de neuf kilomètres dont l'orbite croise celle de la colonie. Elle passera dans dix-neuf jours. Le dernier calcul la place à quarante mille kilomètres de la surface, avec une marge d'erreur du même ordre.\n\nSa queue est déjà visible en plein jour. Les temples sont pleins et les marchés à moitié vides, car une partie des habitants a gagné les campagnes. Les prêtres n'ont pas attendu l'avis des astronomes pour y lire un présage, qu'ils disent favorable.\n\nLe génie orbital peut la dévier avec des charges, si l'ordre est donné cette semaine. Les ingénieurs des eaux ont une autre idée et voudraient la freiner pour la mettre en orbite. Elle contient assez de glace pour remplir les réservoirs pendant dix ans.",
 			"choices": [
 				{"label": "La dévier", "fx": [{"k": "res", "res": {"energy": -50}}]},
 				{"label": "La capturer pour ses glaces", "risky": {"pct": 60, "win": [{"k": "res", "res": {"materials": 120, "food": 60}}], "lose": [{"k": "pop", "v": -1}, {"k": "stab", "v": -10, "days": 360}]}},
@@ -252,7 +252,7 @@
 
 		{"id": "recensement", "title": "Le grand recensement", "trigger": "monthly", "weight": 6,
 			"if": {"min_colonies": 4},
-			"text": "Le bureau du recensement a fini de compter. Il demande s'il faut recommencer, car le résultat ne plaît à personne.",
+			"text": "Le bureau du recensement a remis ses tableaux après quatorze mois de travail. L'empire compte moins d'habitants que les gouverneurs ne l'annonçaient. Dans trois colonies, l'écart dépasse un dixième.\n\nLes subventions et les sièges sont calculés sur ces chiffres. Les gouverneurs concernés ont écrit avant même la publication pour contester la méthode. Le directeur du bureau maintient ses totaux et joint les registres, maison par maison.\n\nLe cabinet suggère d'ajouter aux tableaux une estimation des « habitants non joints », qui ramènerait chaque colonie à peu près à son ancien chiffre. Le directeur a prévenu qu'il ne signerait pas ce document.",
 			"choices": [
 				{"label": "Publier les chiffres", "fx": [{"k": "res", "res": {"influence": 30}}, {"k": "stab", "v": -4, "days": 360, "scope": "empire"}]},
 				{"label": "Arrondir à la hausse", "fx": [{"k": "stab", "v": 5, "days": 360, "scope": "empire"}, {"k": "rep", "v": -2}]}
@@ -260,7 +260,7 @@
 
 		{"id": "mecene", "title": "Un mécène excentrique", "trigger": "monthly", "weight": 6,
 			"if": {"min_year": 2, "no_marks": ["mecene"]},
-			"text": "Une richissime collectionneuse propose de financer vos chantiers. Elle ne demande presque rien en échange : juste « un petit service, un jour ». Elle sourit beaucoup.",
+			"text": "Une collectionneuse du nom d'Ysolde Carrant a fait remettre au trésor une proposition de don. La somme couvrirait une année de chantiers. Carrant possède des mines dans quatre systèmes et la plus grande collection privée d'art ancien que l'on connaisse.\n\nSon notaire précise qu'elle ne veut ni titre ni concession. La lettre demande seulement que l'empire se souvienne d'elle le jour où elle aura un service à lui demander. Elle n'en dit pas la nature.\n\nLe trésor a vérifié la provenance des fonds et n'y trouve rien à redire. Le chancelier observe que Carrant n'a jamais rien donné à personne et que ses débiteurs parlent d'elle avec prudence.",
 			"choices": [
 				{"label": "Accepter l'argent", "fx": [{"k": "res", "res": {"energy": 120}}, {"k": "mark", "m": "mecene"}]},
 				{"label": "Refuser poliment", "fx": [{"k": "res", "res": {"influence": 10}}]}
@@ -268,16 +268,16 @@
 
 		{"id": "mecene_du", "title": "Le mécène réclame son dû", "trigger": "monthly", "weight": 30,
 			"subjects": {"rival": "contact"}, "if": {"marks": ["mecene"], "mark_days": 360},
-			"text": "La collectionneuse est revenue. Le « petit service » : saboter la réception de {rival}, en glissant des limaces dans le buffet. Elle a apporté les limaces.",
+			"text": "Ysolde Carrant est revenue, un an après son don. Elle a été reçue par le chancelier et n'est restée qu'un quart d'heure. Le service qu'elle demande tient en une phrase.\n\nUne vente d'art ancien a lieu le mois prochain sur une station neutre. Carrant y convoite une pièce que les envoyés de {rival} ont mission d'acheter à tout prix. Elle voudrait que leur vaisseau soit retenu par nos douanes le jour de la vente, sous un prétexte quelconque, pendant vingt-quatre heures.\n\nElle a rappelé le montant de son don et n'a rien ajouté. Le trésor peut le lui rendre, avec les intérêts qu'elle fixerait. La chancellerie fait observer que {rival} nous saurait gré d'être averti, et que Carrant a des amis dans la capitale.",
 			"choices": [
-				{"label": "Rendre le service", "fx": [{"k": "opinion", "kind": "ev_snub"}, {"k": "unmark", "m": "mecene"}, {"k": "rep", "v": 4}]},
+				{"label": "Retenir le vaisseau à la douane", "fx": [{"k": "opinion", "kind": "ev_snub"}, {"k": "unmark", "m": "mecene"}, {"k": "rep", "v": 4}]},
 				{"label": "Rembourser, avec intérêts", "fx": [{"k": "res", "res": {"energy": -150}}, {"k": "unmark", "m": "mecene"}]},
 				{"label": "La dénoncer à {rival}", "fx": [{"k": "opinion", "kind": "ev_gift"}, {"k": "unmark", "m": "mecene"}, {"k": "stab", "v": -6, "days": 360, "scope": "capital"}]}
 			], "default": 1},
 
 		{"id": "echange_culturel", "title": "Un échange culturel", "trigger": "monthly", "weight": 7,
 			"subjects": {"rival": "peace"},
-			"text": "{rival} propose d'échanger des troupes de théâtre. Leur pièce dure onze heures ; la vôtre, trois actes et un entracte. Les diplomates négocient la durée.",
+			"text": "L'ambassade de {rival} propose un échange de troupes de théâtre pour la prochaine saison. Leur compagnie nationale viendrait jouer dans la capitale pendant que la nôtre se produirait chez eux. La proposition émane de leur souverain en personne.\n\nLeur pièce dure onze heures et se donne sans interruption, de la tombée de la nuit au matin. Le public y est tenu au silence. Notre directeur des théâtres doute de remplir une salle dans ces conditions et demande une subvention pour offrir les places.\n\nLeurs envoyés ont vu notre répertoire et l'ont trouvé court. Ils n'en ont pas moins retenu trois œuvres. Le chancelier pense qu'un refus serait pris pour du dédain.",
 			"choices": [
 				{"label": "Accepter l'échange", "fx": [{"k": "res", "res": {"influence": -20}}, {"k": "opinion", "kind": "ev_gift"}]},
 				{"label": "Décliner", "fx": []}
@@ -285,9 +285,9 @@
 
 		{"id": "diplomate_egare", "title": "Le diplomate égaré", "trigger": "monthly", "weight": 6,
 			"subjects": {"rival": "contact", "system": "capital"},
-			"text": "Un diplomate de {rival} s'est perdu dans les couloirs de {system} et a ouvert la mauvaise porte. Celle des archives secrètes. Il jure n'avoir rien vu ; il a pris des notes quand même.",
+			"text": "Un attaché de l'ambassade de {rival} a été trouvé hier soir dans la salle des archives réservées du palais de {system}. Le garde de l'étage l'a surpris debout devant un rayonnage ouvert, un carnet à la main. La porte n'avait pas été forcée.\n\nL'attaché explique qu'il cherchait le bureau des visas et qu'il s'est trompé d'escalier. Il a remis son carnet sans difficulté. Les pages portent des cotes de dossiers recopiées avec soin, dans l'ordre du rayonnage. Il jouit de l'immunité et son ambassadeur le réclame.\n\nLa sûreté note que l'homme a des dettes de jeu dans la capitale et qu'il a paru soulagé d'être pris par nous plutôt que par les siens. Elle demande la permission de lui parler seule, avant de le rendre.",
 			"choices": [
-				{"label": "Le raccompagner avec un sourire", "fx": [{"k": "opinion", "kind": "ev_gift"}]},
+				{"label": "Le raccompagner à son ambassade", "fx": [{"k": "opinion", "kind": "ev_gift"}]},
 				{"label": "Confisquer ses notes", "fx": [{"k": "opinion", "kind": "ev_snub"}, {"k": "research", "pct": 10}]},
 				{"label": "Le retourner", "if": {"layers": {"credo": ["profit", "raison"]}}, "risky": {"pct": 50, "win": [{"k": "research", "pct": 25}], "lose": [{"k": "opinion", "kind": "ev_snub"}, {"k": "res", "res": {"influence": -20}}]}}
 			], "default": 0},
