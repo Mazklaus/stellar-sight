@@ -431,6 +431,19 @@ func _test_power() -> void:
 	_ok(FaithScreen.precept_cards(st, "aucune").is_empty(), "sans foi, pas de carte de précepte")
 	# Sénat (C27) : les doléances ne passent en tête que si elles pressent.
 	_ok(not SenateScreen.grievance_urgent(st, 0), "au calme, les doléances restent en bas de l'écran")
+	# Rayonnement (C29) : l'échelle des paliers monte ; Panthéon (C30) : chaque héros dans un seul groupe.
+	var scale := CultureScreen.tier_scale()
+	var rising := scale.size() == Culture.tiers().size()
+	for i in range(1, scale.size()):
+		rising = rising and int(scale[i][2]) > int(scale[i - 1][2])
+	_ok(rising, "Rayonnement : l'échelle des paliers suit les seuils croissants")
+	var grouped := 0
+	var seats_ok := false
+	for grp: Dictionary in HeroScreen.groups(st, 0):
+		grouped += (grp["ids"] as Array).size()
+		if String(grp["key"]) == "council":
+			seats_ok = int(grp["vacant"]) == Heroes.seats(st, 0) - Heroes.council(st, 0).size()
+	_ok(grouped == Heroes.ids_of(st, 0).size() and seats_ok, "Panthéon : chaque héros a son groupe, les sièges vides du conseil sont comptés")
 	# Anneau des relations (C16) : un empire par place, les sujets après leur suzerain.
 	var ring := DiplomacyTable.ring_order(st, 0)
 	var ring_ok := ring.size() == st.empires.size() - 1 and not ring.has(0)

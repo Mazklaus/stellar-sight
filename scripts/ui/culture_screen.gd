@@ -25,22 +25,13 @@ static func build(es: EmpireScreens) -> void:
 	pl.mouse_filter = Control.MOUSE_FILTER_STOP
 	var top := Culture.top_influencer(state, player)
 	if int(top[1]) >= 0:
-		es._key_value(g, "Culture dominante chez vous", "%s (%s)" % [state.get_empire(int(top[1])).short_name(), Culture.tier_label(int(top[0]))])
+		var dl := es._key_value(g, "Culture dominante", state.get_empire(int(top[1])).short_name())
+		dl.tooltip_text = "La culture étrangère la plus avancée chez vous : %s, %s." % [state.get_empire(int(top[1])).display_name(), Culture.tier_label(int(top[0])).to_lower()]
+		dl.mouse_filter = Control.MOUSE_FILTER_STOP
 	var inc := Culture.income(state, player)
 	if not inc.is_empty():
 		es._key_value(g, "Revenu culturel", GameData.format_amounts(inc))
 	var ex := Culture.exposed(state, player)
-	if Culture.has_museum(state, player):
-		es._side_box.add_child(HSeparator.new())
-		es._side_box.add_child(UiTheme.dim("Musée galactique", 13))
-		if ex.is_empty():
-			es._side_box.add_child(UiTheme.paragraph("Aucune relique au Reliquaire à exposer.", EmpireScreens.SIDE_WIDTH - 24.0, 12))
-		else:
-			var names := PackedStringArray()
-			for rid in ex:
-				names.append(String(Relics.def(rid).get("name", rid)))
-			var th := Culture.theme_of(ex)
-			es._side_box.add_child(UiTheme.paragraph(", ".join(names) + (" : thème complet (%s), Rayonnement doublé." % th if th != "" else "."), EmpireScreens.SIDE_WIDTH - 24.0, 12))
 	var tl := Culture.talent_labels(state, player)
 	if not tl.is_empty():
 		es._side_box.add_child(HSeparator.new())
@@ -82,6 +73,7 @@ static func build(es: EmpireScreens) -> void:
 
 	var tb := Widgets.Block.new("Votre culture dans la galaxie")
 	col.add_child(tb)
+	tb.body.add_child(_tier_scale())
 	var grid := GridContainer.new()
 	grid.columns = 5
 	grid.add_theme_constant_override("h_separation", 18)
@@ -94,6 +86,9 @@ static func build(es: EmpireScreens) -> void:
 		tb.body.add_child(UiTheme.dim("Aucun empire rencontré : votre culture n'a encore personne à séduire.", 14))
 	for b in tg:
 		_row(es, grid, b)
+
+	if Culture.has_museum(state, player):
+		col.add_child(_museum_block(state, ex))
 
 	var defs := CultureLife.defections_of(state, player)
 	if not defs.is_empty():
@@ -152,7 +147,7 @@ static func _row(es: EmpireScreens, grid: GridContainer, b: int) -> void:
 	mine.add_theme_color_override("font_color", Culture.tier_color(t).lightened(0.2))
 	mine.tooltip_text = "%s\nCumul reçu : %d ; son Patrimoine : %d." % [String(Culture.tiers()[t]["text"]), Culture.cumul(state, player, b), Culture.heritage(state, b)]
 	mine.mouse_filter = Control.MOUSE_FILTER_STOP
-	grid.add_child(mine)
+	grid.add_child(_with_dot(t, mine))
 	var fp := Culture.flow_parts(state, player, b)
 	var fl := Label.new()
 	fl.text = ("coupée (%s)" % fp["cut"]) if String(fp["cut"]) != "" else "%d %%" % Culture.flow_pct(state, player, b, fp)
@@ -165,11 +160,12 @@ static func _row(es: EmpireScreens, grid: GridContainer, b: int) -> void:
 	var theirs := Label.new()
 	if minor:
 		theirs.text = "-"
+		grid.add_child(theirs)
 	else:
 		var t2 := Culture.tier(state, b, player)
 		theirs.text = "%s  %d %%" % [Culture.tier_label(t2), Culture.ratio_pct(state, b, player)]
 		theirs.add_theme_color_override("font_color", Culture.tier_color(t2).lightened(0.2))
-	grid.add_child(theirs)
+		grid.add_child(_with_dot(t2, theirs))
 	var acts := HBoxContainer.new()
 	acts.add_theme_constant_override("separation", 6)
 	grid.add_child(acts)
@@ -194,6 +190,67 @@ static func _row(es: EmpireScreens, grid: GridContainer, b: int) -> void:
 	tr.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.cul_act(player, "troupe", b)))
 	acts.add_child(tr)
 	es.culture_buttons["troupe:%d" % b] = tr
+
+
+## Un palier se lit d'abord à sa pastille : la même couleur que sur l'échelle en tête du tableau.
+static func _with_dot(tier: int, label: Control) -> Control:
+	var box := HBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	var dot := Widgets.Dot.new(Culture.tier_color(tier), 12.0)
+	dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	box.add_child(dot)
+	box.add_child(label)
+	return box
+
+
+## L'échelle des paliers, du plus faible au plus fort : [palier, libellé, seuil en %].
+static func tier_scale() -> Array:
+	var out := []
+	for i in Culture.tiers().size():
+		out.append([i, Culture.tier_label(i), int(Culture.tiers()[i].get("min", 0))])
+	return out
+
+
+static func _tier_scale() -> Control:
+	var row := HFlowContainer.new()
+	row.add_theme_constant_override("h_separation", 18)
+	for e in tier_scale():
+		var l := UiTheme.dim("%s  %d %%" % [e[1], e[2]] if int(e[2]) > 0 else String(e[1]), 12)
+		l.tooltip_text = String(Culture.tiers()[int(e[0])].get("text", ""))
+		l.mouse_filter = Control.MOUSE_FILTER_STOP
+		row.add_child(_with_dot(int(e[0]), l))
+	return row
+
+
+## Le Musée galactique en vitrine : une case par emplacement, vide tant qu'aucune relique ne l'occupe.
+static func _museum_block(state: GameState, ex: Array[String]) -> Control:
+	var b := Widgets.Block.new("Musée galactique")
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	b.body.add_child(row)
+	var slots := int(Culture.data()["sources"]["museum_slots"])
+	for i in slots:
+		var held := i < ex.size()
+		var rid := ex[i] if held else ""
+		var cell := VBoxContainer.new()
+		cell.add_theme_constant_override("separation", 4)
+		var slot := Widgets.ArtSlot.new(("relic_" + rid) if held else "", Vector2(150, 100), UiTheme.GOLD if held else Color(0.5, 0.6, 0.7), "star" if held else "lock")
+		slot.mouse_filter = Control.MOUSE_FILTER_STOP
+		if held:
+			slot.variant = rid.hash() % 97
+			slot.tooltip_text = String(Relics.def(rid).get("text", ""))
+		else:
+			slot.tooltip_text = "Vitrine vide : il faut une relique au Reliquaire, que nul héros ne porte."
+		cell.add_child(slot)
+		var cap := UiTheme.paragraph(String(Relics.def(rid).get("name", rid)) if held else "Vitrine vide", 150.0, 12)
+		if not held:
+			cap.modulate = Color(1, 1, 1, 0.6)
+		cell.add_child(cap)
+		row.add_child(cell)
+	var th := Culture.theme_of(ex)
+	var note := "Thème complet (%s) : le Rayonnement du Musée est doublé." % th if th != "" else ("Aucune relique au Reliquaire à exposer." if ex.is_empty() else "Trois reliques d'un même thème doublent le Rayonnement du Musée.")
+	b.body.add_child(UiTheme.dim(note, 13))
+	return b
 
 
 static func radiance_tip(state: GameState, eid: int) -> String:
