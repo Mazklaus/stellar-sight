@@ -18,6 +18,7 @@ func run(check: Callable) -> void:
 	_test_screens()
 	_test_power()
 	_test_new_game_steps()
+	_test_species_steps()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -508,3 +509,70 @@ func _test_new_game_steps() -> void:
 	_ok(menu.recap_lines().size() >= 5, "nouvelle partie : le récapitulatif dit le peuple, la galaxie, les rivaux, les règles et la victoire")
 	_ok(MainMenu.home_line(3) != "" and not MainMenu.home_line(3).begins_with("Prototype"), "accueil : une phrase de chronique à la place de la ligne Prototype")
 	menu.queue_free()
+
+
+## Menus guidés (D2) : la création d'un peuple en six étapes, et la vue complète à trois onglets.
+func _test_species_steps() -> void:
+	var ed := SpeciesEditor.new()
+	Engine.get_main_loop().root.add_child(ed)
+	_ok(ed.guided and ed.step == 0 and ed._step_buttons.size() == 6 and ed._step_pages[0].visible, "peuple : six étapes, « D'où partir » d'abord")
+	_ok(ed._sections["layer_registre"].get_parent() == ed._slots["step1"] and ed._sections["traits"].get_parent() == ed._slots["step3"], "peuple : registre à l'étape 2, traits à l'étape 4")
+	var placed := 0
+	for id in ed._sections:
+		if (ed._sections[id] as Control).get_parent() != null:
+			placed += 1
+	_ok(placed == ed._sections.size(), "peuple : chaque section a sa place dans la vue guidée")
+	ed.set_step(2)
+	_ok(ed._step_pages[2].visible and not ed._step_pages[0].visible and ed._next_b.text.contains("Ce qui les distingue") and ed._prev_b.text.contains("Qui sont-ils"),
+			"peuple : Suivant et Précédent portent le nom de l'étape où ils mènent")
+	# Page blanche : le portrait suit l'archétype tant qu'on ne l'a pas choisi.
+	ed.set_layer("archetype", "lithoide")
+	_ok(String(ed.spec["portrait"]).begins_with("lithoide"), "peuple : sur une page blanche, le portrait suit l'archétype (%s)" % ed.spec["portrait"])
+	ed.set_portrait("humanoide_3")
+	ed.set_layer("archetype", "reptilien")
+	_ok(String(ed.spec["portrait"]) == "humanoide_3", "peuple : un portrait choisi ne bouge plus")
+	# Le refus se montre à l'étape en cause.
+	ed.set_layer("archetype", "ruche")
+	var errs := ed.step_errors()
+	_ok(not (errs[1] as PackedStringArray).is_empty() and not (errs[2] as PackedStringArray).is_empty() and (errs[3] as PackedStringArray).is_empty(),
+			"peuple : une ruche sans esprit de ruche est signalée à Nature et à Mœurs, pas aux Traits")
+	_ok(ed._step_buttons[1].text.ends_with("!") and ed._step_errors[1].visible and not ed._step_errors[3].visible, "peuple : le fil marque l'étape à corriger")
+	ed.set_layer("archetype", "humanoide")
+	ed._name_edit.text = ""
+	ed._name_edit.text_changed.emit("")
+	errs = ed.step_errors()
+	_ok(not (errs[5] as PackedStringArray).is_empty() and (errs[1] as PackedStringArray).is_empty(), "peuple : un nom vide est signalé à la dernière étape")
+	ed._name_edit.text = "Gens du Sel"
+	ed._name_edit.text_changed.emit("Gens du Sel")
+	ed.toggle_trait("prolifiques")
+	ed.toggle_trait("pelerins")
+	(ed.spec["traits"] as Array).append("pelerins")
+	ed._refresh()
+	_ok(not (ed.step_errors()[3] as PackedStringArray).is_empty(), "peuple : deux traits de croissance sont signalés aux Traits")
+	(ed.spec["traits"] as Array).clear()
+	ed._refresh()
+	# Chronique proposée : trois lignes, une phrase par brique, et pas d'écrasement sans second clic.
+	var c := SpeciesEditor.chronicle(ed.spec)
+	_ok(c.split("\n").size() == 3 and not c.contains("%"), "peuple : la chronique proposée tient en trois lignes")
+	var missing := []
+	for layer in ["archetype", "gouvernement", "credo", "origine"]:
+		for b: Dictionary in Species.options(layer):
+			if not (SpeciesEditor.chronicle_parts().get(layer, {}) as Dictionary).has(String(b["id"])):
+				missing.append("%s/%s" % [layer, b["id"]])
+	for bm in Species.parts()["biomes"]:
+		if not (SpeciesEditor.chronicle_parts().get("biome", {}) as Dictionary).has(String(bm)):
+			missing.append("biome/%s" % bm)
+	_ok(missing.is_empty(), "peuple : chaque brique a sa phrase de chronique (%s)" % str(missing))
+	_ok(ed.propose_chronicle() and String(ed.spec["lore"]) == c and ed._lore_edit.text == c, "peuple : la chronique s'écrit dans l'histoire vide")
+	ed.set_layer("credo", "profit")
+	_ok(ed.propose_chronicle() and String(ed.spec["lore"]) != c, "peuple : une proposition non retouchée se remplace d'un clic")
+	ed.spec["lore"] = "Texte du joueur."
+	_ok(not ed.propose_chronicle() and String(ed.spec["lore"]) == "Texte du joueur." and ed.propose_chronicle(), "peuple : un texte du joueur n'est remplacé qu'au second clic")
+	# Vue complète : les trois onglets d'origine, avec les mêmes contrôles.
+	ed.show_tab("layers")
+	_ok(not ed.guided and ed._pages["layers"].visible and not ed._step_pages[2].visible and ed._sections["layer_registre"].get_parent() == ed._slots["layers"]
+			and ed._sections["names"].get_parent() == ed._slots["identity_form"], "peuple : la vue complète range les sections dans les trois onglets")
+	ed.set_step(4)
+	_ok(ed.guided and ed._step_pages[4].visible and ed._sections["portraits"].get_parent() == ed._slots["step4"] and not ed._pages["layers"].visible, "peuple : retour à la vue guidée")
+	_ok(Species.errors(ed.spec.merged({"id": "p_gens_du_sel"}, true)).is_empty(), "peuple : le peuple composé par étapes est valide")
+	ed.queue_free()

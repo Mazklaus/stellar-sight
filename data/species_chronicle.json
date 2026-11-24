@@ -1,0 +1,71 @@
+{
+	"_doc": "Phrases de chronique de l'éditeur de peuples (refonte D2) : le bouton « Proposer une chronique » assemble trois lignes à partir des choix faits. Ligne 1 = archétype + monde natal, ligne 2 = gouvernement + credo, ligne 3 = origine. Une phrase par brique, complète et sans accord à faire avec les autres. Lu par SpeciesEditor seulement : rien ici ne touche aux règles.",
+	"archetype": {
+		"humanoide": "Ils marchent sur deux jambes et vivent quatre-vingts ans les bonnes années.",
+		"ruche": "Ils naissent par couvées de plusieurs milliers et aucun d'eux ne porte de nom.",
+		"lithoide": "Leur corps est de la roche qui pousse ; un adulte a mis trois siècles à se former.",
+		"reptilien": "Ils pondent à la saison chaude et comptent leur âge en mues.",
+		"synthetique": "Aucun d'eux n'est né : chacun est sorti d'un atelier, avec une date et un numéro de série.",
+		"energetique": "Ils n'ont pas de corps que l'on puisse toucher, seulement une lueur que les instruments captent mieux que l'œil.",
+		"planete_etre": "Ils sont un seul être, de la taille d'un monde, qui voyage entre les étoiles et se nourrit de lunes.",
+		"vaisseaux_vivants": "Ils naissent dans le vide, en hardes, et ce que les autres peuples prennent pour leurs navires, ce sont eux.",
+		"information": "Ils n'ont jamais eu de corps. Ils habitent les calculateurs des autres et s'y recopient.",
+		"esprits_numerises": "Ce sont des morts, recopiés un à un dans la pierre-mémoire.",
+		"machines": "Ce sont des automates : ils exécutent, et rien n'indique qu'ils sachent qu'ils le font.",
+		"fongoide": "Ils sont un seul mycélium, étendu sous des continents entiers, qui se souvient de ce qu'il a touché.",
+		"vegetal": "Ils marchent pendant leur jeunesse, puis prennent racine et ne bougent plus."
+	},
+	"biome": {
+		"continental": "Leur monde natal a des continents tempérés et des saisons.",
+		"ocean": "Leur monde natal est une mer presque sans rivage.",
+		"desert": "Leur monde natal est un désert où l'eau se garde sous clé.",
+		"arctic": "Leur monde natal est pris dans la glace dix mois sur douze.",
+		"toxic": "Leur monde natal a un air que personne d'autre ne respire."
+	},
+	"gouvernement": {
+		"feodalite": "Des maisons se partagent les fiefs et doivent le service à un suzerain, qui change quand une lignée s'éteint ou qu'on l'y aide.",
+		"theocratie": "Le clergé gouverne au nom d'un dieu auquel il faut des offrandes chaque mois.",
+		"republique": "Des assemblées élues votent les lois, et rien ne se décide sans elles.",
+		"conscience": "Il n'y a pas de capitale : chaque colonie est un nœud du même réseau, et le réseau décide.",
+		"syndicat": "Un conseil d'actionnaires tient les comptes, signe les contrats et envoie les flottes là où elles rapportent.",
+		"horde": "Les clans suivent la flotte-ville et n'ont ni palais ni frontière.",
+		"ruche": "Une seule volonté commande à tous les corps.",
+		"conseil_survie": "Quatre nefs portent tout le peuple, et un conseil décide de la route.",
+		"troupe": "Un directeur mène la troupe de monde en monde ; elle ne possède aucune terre.",
+		"aucun": "Ils n'ont ni institutions ni chefs, et n'en ont pas l'usage.",
+		"troupeau": "Les matriarches mènent les hardes et donnent le signal des migrations.",
+		"actionnaires": "Un conseil d'intelligences vote chaque trimestre la directive de la Compagnie.",
+		"bureaucratie": "Les bureaux gouvernent : toute décision passe par un guichet et y laisse une trace écrite.",
+		"reve_partage": "Tout le peuple vit dans le rêve d'un seul dormeur, que l'on veille jour et nuit.",
+		"necro_conseil": "Les morts illustres siègent au conseil et les vivants appliquent leurs arrêts.",
+		"collectionneur": "Un seul maître règne depuis toujours, servi par une maison qui ne discute pas.",
+		"conseil_anciens": "Les anciens délibèrent pendant des générations avant de trancher.",
+		"chronarchie": "L'ordre des Gardiens du Sablier gouverne et veille sur le cours du temps.",
+		"consensus_seculaire": "Ils prennent une décision par siècle et ne reviennent pas dessus.",
+		"reseau_mycorhizien": "Les décisions remontent de nœud en nœud le long des filaments, sans que personne les ordonne.",
+		"cercle_enracines": "Les plus vieux arbres décident, et les jeunes, qui marchent encore, exécutent."
+	},
+	"credo": {
+		"honneur": "Un serment prêté les lie jusqu'à la mort, et ils tiennent registre de ceux des autres.",
+		"foi": "Ils lisent le ciel comme une écriture et tiennent leurs voisins pour des gens qui ne savent pas lire.",
+		"raison": "Ils mesurent, publient et débattent avant d'agir.",
+		"profit": "Chez eux toute chose a un prix, affiché ou non.",
+		"survie": "Ils ne demandent qu'à durer et jugent le reste à cette mesure.",
+		"plaisir": "Ils tiennent la fête pour une affaire sérieuse et y consacrent leurs meilleures années.",
+		"transcendance": "Ils tiennent la matière pour une étape et se préparent à la quitter.",
+		"espoir": "Ils cherchent un monde qui leur a été promis et que personne n'a encore vu.",
+		"ordre": "Chaque chose chez eux a une place assignée, et chaque personne aussi.",
+		"propagation": "Ils ne se connaissent qu'un devoir, celui de se recopier.",
+		"collection": "Ils veulent posséder un exemplaire de chaque chose qui existe.",
+		"non_ingerence": "Ils observent les autres peuples et s'interdisent d'intervenir chez eux.",
+		"efficacite": "Ils ne retiennent d'une action que son rendement.",
+		"patience": "Ils attendent volontiers un siècle que les choses se règlent d'elles-mêmes."
+	},
+	"origine": {
+		"gisement_cristaux": "Leur système d'origine porte une veine de cristaux de saut, exploitée dès les premiers vols.",
+		"gisement_filons": "Leur système d'origine porte des filons riches, qui ont payé leurs premières coques.",
+		"gisement_geothermie": "Leur monde a le cœur chaud, et ils en ont toujours tiré leur énergie.",
+		"sans_heritage": "Leur système ne leur a rien donné de rare ; ils ont fait avec ce qu'ils avaient.",
+		"rejeton": "Ils ont grandi sous la protection d'une puissance ancienne, à qui ils versent encore un tribut."
+	}
+}
