@@ -1914,6 +1914,17 @@ func _build_diplomacy() -> void:
 		pair.add_child(UiTheme.dim(Diplomacy.status_label(st), 13))
 		legend.add_child(pair)
 	left.body.add_child(legend)
+	var leagues := diplo_table.league_legend()
+	if not leagues.is_empty():
+		var ll := HFlowContainer.new()
+		ll.add_theme_constant_override("h_separation", 12)
+		for lg: Array in leagues:
+			var lp := HBoxContainer.new()
+			lp.add_theme_constant_override("separation", 4)
+			lp.add_child(Widgets.Dot.new(lg[1], 10))
+			lp.add_child(UiTheme.dim(String(lg[0]), 13))
+			ll.add_child(lp)
+		left.body.add_child(ll)
 
 	# Colonne de droite défilante : relation, sujets, Koinon peuvent dépasser l'écran.
 	var right_scroll := ScrollContainer.new()

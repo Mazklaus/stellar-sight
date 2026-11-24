@@ -431,3 +431,19 @@ func _test_power() -> void:
 	_ok(FaithScreen.precept_cards(st, "aucune").is_empty(), "sans foi, pas de carte de précepte")
 	# Sénat (C27) : les doléances ne passent en tête que si elles pressent.
 	_ok(not SenateScreen.grievance_urgent(st, 0), "au calme, les doléances restent en bas de l'écran")
+	# Anneau des relations (C16) : un empire par place, les sujets après leur suzerain.
+	var ring := DiplomacyTable.ring_order(st, 0)
+	var ring_ok := ring.size() == st.empires.size() - 1 and not ring.has(0)
+	for e in st.empires:
+		ring_ok = ring_ok and (e.id == 0 or ring.count(e.id) == 1)
+	_ok(ring_ok, "anneau des relations : chaque autre empire y figure une fois")
+	var table := DiplomacyTable.new(430.0)
+	table.size = Vector2(430, 430)
+	table.setup(st, 0, ring[0])
+	var inside := true
+	for id in ring:
+		var lr := table.label_rect(id)
+		var rect := Rect2(lr[0], lr[1])
+		inside = inside and rect.position.x >= 0.0 and rect.position.y >= 0.0 and rect.end.x <= 430.0 and rect.end.y <= 430.0
+	_ok(inside and table.buttons.size() == ring.size(), "anneau des relations : toutes les étiquettes tiennent dans le bloc")
+	table.free()
