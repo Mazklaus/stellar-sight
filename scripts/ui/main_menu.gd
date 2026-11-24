@@ -565,10 +565,7 @@ func show_page(name: String) -> void:
 	elif lan.is_listening():
 		lan.close()
 	if name == "join":
-		_join_choice.visible = false
-		_guest_lobby.visible = false
-		_join_form.visible = true
-		_join_go.visible = true
+		set_join_mode("")
 		_resume_net.visible = FileAccess.file_exists(NetSession.AUTOSAVE_PATH)
 	if name != "new" and name != "species" and host_new:
 		host_new = false
@@ -591,6 +588,9 @@ func back() -> bool:
 		return true
 	if page == "new" and new_step > 0:
 		set_step(new_step - 1)
+		return true
+	if page == "join" and join_mode != "":
+		set_join_mode("")
 		return true
 	if page != "home":
 		show_page("home")
@@ -756,6 +756,14 @@ var host_new := false
 var lobby_holders := {}
 const HUMAN_SLOT := "__human__"
 var _join_form: Control
+## Refonte D3c : les deux grands choix, le côté Héberger, les volets de réglages réseau.
+var join_mode := ""
+var _mp_choice: HBoxContainer
+var _mp_cards := {}
+var _mp_host: VBoxContainer
+var _mp_host_net: VBoxContainer
+var _mp_join_net: VBoxContainer
+var _join_probe: Control
 var _join_go: Control
 var _lobby_label: Label
 ## Salon côté invité : panneau des places, et mon identifiant de pair.
@@ -843,11 +851,46 @@ func _build_join_page(root: Control) -> void:
 	var title := UiTheme.title("Multijoueur", 24)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
+	# Refonte D3c : deux grands choix d'abord ; le port, l'adresse et les mots de passe sont rangés
+	# dans un volet « Réglages réseau » de chaque côté.
+	_mp_choice = HBoxContainer.new()
+	_mp_choice.add_theme_constant_override("separation", 16)
+	box.add_child(_mp_choice)
+	for entry: Array in [["host", "Héberger", "Vous réglez la partie, les autres vous rejoignent. Une partie interrompue se reprend ici."],
+			["join", "Rejoindre", "Une partie de votre réseau apparaît toute seule. Sinon, l'hôte vous donne son adresse."]]:
+		var card := Button.new()
+		card.focus_mode = Control.FOCUS_NONE
+		card.custom_minimum_size = Vector2(252, 150)
+		card.add_theme_stylebox_override("normal", UiTheme.box(Color(0.03, 0.04, 0.06, 0.8), Color(1, 1, 1, 0.14), 14, 1))
+		card.add_theme_stylebox_override("hover", UiTheme.box(Color(UiTheme.ACCENT, 0.12), Color(UiTheme.ACCENT, 0.8), 14, 1))
+		card.add_theme_stylebox_override("pressed", UiTheme.box(Color(UiTheme.ACCENT, 0.2), UiTheme.ACCENT, 14, 1))
+		var inner := VBoxContainer.new()
+		inner.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 14)
+		inner.alignment = BoxContainer.ALIGNMENT_CENTER
+		inner.add_theme_constant_override("separation", 8)
+		inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card.add_child(inner)
+		var head := UiTheme.title(String(entry[1]).to_upper(), 22)
+		head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		inner.add_child(head)
+		var what := UiTheme.paragraph(String(entry[2]), 220, 13)
+		what.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		what.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		what.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		inner.add_child(what)
+		var mode := String(entry[0])
+		card.pressed.connect(func() -> void: set_join_mode(mode))
+		_mp_choice.add_child(card)
+		_mp_cards[mode] = card
 	# Héberger : nouvelle partie (tour par tour proposé d'abord) ou reprise de la dernière.
-	box.add_child(UiTheme.section("Héberger"))
+	_mp_host = VBoxContainer.new()
+	_mp_host.add_theme_constant_override("separation", 12)
+	box.add_child(_mp_host)
+	_mp_host.add_child(UiTheme.section("Héberger"))
 	var host_row := HBoxContainer.new()
 	host_row.add_theme_constant_override("separation", 12)
-	box.add_child(host_row)
+	_mp_host.add_child(host_row)
 	var host_b := Widgets.RoundButton.new("plus", "Nouvelle partie en réseau", 15)
 	host_b.tooltip_text = "Régler la partie comme en solo ; elle s'ouvrira au réseau dès son lancement. Les tours simultanés sont proposés d'abord."
 	host_b.pressed.connect(open_host_new)
@@ -857,9 +900,10 @@ func _build_join_page(root: Control) -> void:
 	resume_b.pressed.connect(func() -> void: host_resume_requested.emit())
 	host_row.add_child(resume_b)
 	_resume_net = resume_b
+	_mp_host_net = _net_fold(_mp_host, "Mot de passe, pare-feu et test d'accès depuis Internet.", false)
 	var pw_row := HBoxContainer.new()
 	pw_row.add_theme_constant_override("separation", 14)
-	box.add_child(pw_row)
+	_mp_host_net.add_child(pw_row)
 	pw_row.add_child(UiTheme.dim("Mot de passe de la partie", 15))
 	_host_password = _secret_field(String(cfg.get_value("net", "host_password", "")), "aucun (conseillé si le port est ouvert sur Internet)")
 	_host_password.tooltip_text = "Demandé à ceux qui rejoignent vos parties (nouvelles ou reprises). Il ne circule jamais en clair, mais il est gardé sur ce PC : n'y mettez pas un mot de passe qui vous sert ailleurs."
@@ -867,7 +911,7 @@ func _build_join_page(root: Control) -> void:
 	pw_row.add_child(_host_password)
 	var access_row := HBoxContainer.new()
 	access_row.add_theme_constant_override("separation", 12)
-	box.add_child(access_row)
+	_mp_host_net.add_child(access_row)
 	if WindowsFirewall.available():
 		var fw := Button.new()
 		fw.text = "Autoriser dans le pare-feu"
@@ -883,29 +927,34 @@ func _build_join_page(root: Control) -> void:
 	_access_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_access_status.custom_minimum_size = Vector2(520, 0)
 	_access_status.visible = false
-	box.add_child(_access_status)
-	box.add_child(HSeparator.new())
-	box.add_child(UiTheme.section("Rejoindre"))
+	_mp_host_net.add_child(_access_status)
 	var form := VBoxContainer.new()
 	form.add_theme_constant_override("separation", 12)
 	box.add_child(form)
 	_join_form = form
+	form.add_child(UiTheme.section("Rejoindre"))
+	var name_grid := GridContainer.new()
+	name_grid.columns = 2
+	name_grid.add_theme_constant_override("h_separation", 14)
+	form.add_child(name_grid)
+	_join_name = _join_field(name_grid, "Votre nom", String(cfg.get_value("net", "name", "")), "Nom vu par les autres joueurs")
+	_join_name.max_length = 24
 	form.add_child(UiTheme.dim("Parties sur votre réseau", 14))
 	_lan_list = VBoxContainer.new()
 	_lan_list.add_theme_constant_override("separation", 4)
 	form.add_child(_lan_list)
 	_lan_hint = UiTheme.dim("Recherche… (une partie hébergée sur le même réseau apparaît ici toute seule)", 13)
 	_lan_list.add_child(_lan_hint)
-	var intro := UiTheme.paragraph("Ou entrez l'adresse que l'hôte vous donne, puis choisissez votre empire. Si vous avez quitté la partie, même par une coupure, vous retrouvez le vôtre. Il faut la même version du jeu et de Godot.", 520, 14)
+	# Le volet s'ouvre de lui-même si une adresse a déjà servi : on rejoint alors d'un clic.
+	_mp_join_net = _net_fold(form, "Adresse de l'hôte, port et mot de passe, pour une partie hors de votre réseau.", String(cfg.get_value("net", "address", "")) != "")
+	var intro := UiTheme.paragraph("Entrez l'adresse que l'hôte vous donne, puis choisissez votre empire. Si vous avez quitté la partie, même par une coupure, vous retrouvez le vôtre. Il faut la même version du jeu et de Godot.", 520, 14)
 	intro.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
-	form.add_child(intro)
+	_mp_join_net.add_child(intro)
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 14)
 	grid.add_theme_constant_override("v_separation", 8)
-	form.add_child(grid)
-	_join_name = _join_field(grid, "Votre nom", String(cfg.get_value("net", "name", "")), "Nom vu par les autres joueurs")
-	_join_name.max_length = 24
+	_mp_join_net.add_child(grid)
 	_join_address = _join_field(grid, "Adresse de l'hôte", String(cfg.get_value("net", "address", "")), "192.168.1.20, adresse Tailscale…")
 	_join_port = _join_field(grid, "Port", str(cfg.get_value("net", "port", NetSession.DEFAULT_PORT)), "")
 	grid.add_child(UiTheme.dim("Mot de passe", 15))
@@ -927,20 +976,69 @@ func _build_join_page(root: Control) -> void:
 	var buttons := HBoxContainer.new()
 	box.add_child(buttons)
 	var back_b := Widgets.RoundButton.new("back", "Retour", 16)
-	back_b.pressed.connect(func() -> void: show_page("home"))
+	back_b.pressed.connect(func() -> void: back())
 	buttons.add_child(back_b)
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	buttons.add_child(spacer)
 	var probe_b := Widgets.RoundButton.new("reset", "Tester", 16)
+	_join_probe = probe_b
 	probe_b.tooltip_text = "Vérifie que la partie répond à cette adresse, sans la rejoindre."
 	probe_b.pressed.connect(test_join_address)
 	buttons.add_child(probe_b)
 	var go := Widgets.RoundButton.new("check", "Rejoindre", 16)
-	go.pressed.connect(request_join)
+	# Sans adresse tapée, Rejoindre ouvre d'abord le volet où on la donne.
+	go.pressed.connect(func() -> void:
+		if _join_address.text.strip_edges() == "":
+			(_mp_join_net.get_meta("toggle") as Button).toggled.emit(true)
+		request_join())
 	buttons.add_child(go)
 	_join_go = go
 	_join_address.text_submitted.connect(func(_t: String) -> void: request_join())
+
+
+## Volet replié « Réglages réseau » : un bouton qui montre ou cache ce qu'on y range.
+func _net_fold(parent: Control, tip: String, open: bool) -> VBoxContainer:
+	var toggle := Button.new()
+	toggle.focus_mode = Control.FOCUS_NONE
+	toggle.toggle_mode = true
+	toggle.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	toggle.tooltip_text = tip
+	toggle.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	parent.add_child(toggle)
+	var fold := VBoxContainer.new()
+	fold.add_theme_constant_override("separation", 10)
+	parent.add_child(fold)
+	var show := func(on: bool) -> void:
+		fold.visible = on
+		toggle.set_pressed_no_signal(on)
+		toggle.text = "%s  Réglages réseau" % ("▾" if on else "▸")
+	toggle.toggled.connect(show)
+	show.call(open)
+	fold.set_meta("toggle", toggle)
+	return fold
+
+
+## Page Multijoueur : "" (les deux grands choix), "host" ou "join".
+func set_join_mode(mode: String) -> void:
+	join_mode = mode
+	_mp_choice.visible = mode == ""
+	_mp_host.visible = mode == "host"
+	_join_form.visible = mode == "join"
+	_join_go.visible = mode == "join"
+	_join_probe.visible = mode == "join"
+	_join_choice.visible = false
+	_guest_lobby.visible = false
+
+
+## Une fois la partie jointe (choix de l'empire, salon) : plus de grands choix ni de formulaire.
+func _join_stage() -> void:
+	join_mode = "join"
+	_mp_choice.visible = false
+	_mp_host.visible = false
+	_join_form.visible = false
+	_join_go.visible = false
+	_join_probe.visible = false
 
 
 func _join_field(grid: GridContainer, label: String, value: String, placeholder: String) -> LineEdit:
@@ -1227,8 +1325,7 @@ func open_host_new() -> void:
 func show_lobby(st: Dictionary) -> void:
 	if page != "join":
 		show_page("join")
-	_join_form.visible = false
-	_join_go.visible = false
+	_join_stage()
 	_join_choice.visible = false
 	_guest_lobby.visible = true
 	for c in _guest_lobby.get_children():
@@ -1351,8 +1448,7 @@ func _guest_color_select(_fid: String, color: String) -> OptionButton:
 ## L'hôte propose ses empires : une ligne par empire, cliquable s'il est libre.
 func show_empire_choice(empires: Array) -> void:
 	show_page("join")
-	_join_form.visible = false
-	_join_go.visible = false
+	_join_stage()
 	for c in _join_choice.get_children():
 		c.queue_free()
 	_join_choice.visible = true

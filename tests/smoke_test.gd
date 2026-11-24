@@ -1145,7 +1145,14 @@ func _test_navigation_ui(main: Node) -> void:
 	var choice_buttons := menu._join_choice.get_children().filter(func(n: Node) -> bool: return n is Button and not n.is_queued_for_deletion())
 	_check(not menu._join_form.visible and choice_buttons.size() == 2 and not choice_buttons[0].disabled and choice_buttons[1].disabled, "Multijoueur : choix de l'empire, les empires joués sont grisés")
 	menu.show_page("join")
-	_check(menu._join_form.visible and not menu._join_choice.visible, "Multijoueur : la page revient au formulaire")
+	_check(menu._mp_choice.visible and not menu._join_form.visible and not menu._mp_host.visible and not menu._join_choice.visible, "Multijoueur : la page revient aux deux grands choix")
+	(menu._mp_cards["host"] as Button).pressed.emit()
+	_check(menu.join_mode == "host" and menu._mp_host.visible and not menu._mp_host_net.visible and not menu._join_go.visible, "Multijoueur : Héberger, réglages réseau repliés")
+	(menu._mp_host_net.get_meta("toggle") as Button).toggled.emit(true)
+	_check(menu._mp_host_net.visible and menu._host_password.is_visible_in_tree(), "Multijoueur : le volet de réglages réseau montre le mot de passe")
+	_check(menu.back() and menu.join_mode == "" and menu.page == "join", "Multijoueur : Échap revient aux deux choix")
+	menu.set_join_mode("join")
+	_check(menu._join_form.visible and menu._join_go.visible and menu._join_name.is_visible_in_tree(), "Multijoueur : Rejoindre montre le formulaire")
 	var old_time := menu._time_select.selected
 	menu.open_host_new()
 	_check(menu.page == "new" and menu.host_new and menu.time_mode == clock.MODE_TURNS, "Héberger : page Nouvelle partie, tours simultanés proposés")
@@ -1199,6 +1206,7 @@ func _test_navigation_ui(main: Node) -> void:
 	menu.apply_settings(menu_before)
 	menu.set_time_choice(old_time)
 	menu.show_page("join")
+	menu.set_join_mode("join")
 	menu._join_address.text = ""
 	menu.request_join()
 	_check(menu._join_status.text.contains("adresse"), "Rejoindre : l'adresse est demandée")
