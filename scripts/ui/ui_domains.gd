@@ -28,7 +28,7 @@ const DOMAINS := [
 	{"id": "chroniques", "label": "Chroniques", "key": "F7", "glyph": "chronicles", "tabs": [
 		["Journal", ["chronicles:quests", "chronicles:events", "chronicles:crisis"]],
 		["Annonces", ["chronicles:announces"]],
-		["Annales", ["chronicles:annals", "chronicles:hours", "chronicles:deeds"]],
+		["Annales", ["chronicles:annals", "chronicles:deeds"]],
 		["Bestiaire", ["chronicles:bestiary"]]]},
 	{"id": "victoire", "label": "Victoire", "key": "F8", "glyph": "victory", "tabs": [
 		["Victoires", ["victory"]], ["Transcendance", ["transcendence"]], ["Contact", ["contact"]],

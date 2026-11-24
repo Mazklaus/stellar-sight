@@ -149,6 +149,8 @@ var shipyard: ShipyardScreen
 ## Écran Victoire : tout voir (mode spectateur), lignes de progression par victoire (pour les tests).
 var see_all := false
 var victory_rows := {}
+## Bouton qui déplie le détail des victoires (écran Victoire).
+var victory_detail: Button
 var _vict_sig := ""
 var _shipyard_selected := ""
 ## Écran Renseignement (IntelScreen) : empire dont on lit le dossier, boutons − / + des cellules par
@@ -2452,24 +2454,137 @@ func _build_victory() -> void:
 	for id in mine:
 		_side_box.add_child(UiTheme.section(Victory.label(id)))
 		_side_box.add_child(UiTheme.paragraph(Victory.rule_text(id), SIDE_WIDTH - 24.0, 13))
-		_side_box.add_child(UiTheme.dim("La contrer : %s" % String(Victory.info(id).get("counter", "")), 12))
+		var counter := UiTheme.paragraph("La contrer : %s" % String(Victory.info(id).get("counter", "")), SIDE_WIDTH - 24.0, 12)
+		counter.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		_side_box.add_child(counter)
 	_side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("victory").get("why", "")), SIDE_WIDTH - 24.0, 13))
 
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_content.add_child(scroll)
+	var page := VBoxContainer.new()
+	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	page.add_theme_constant_override("separation", 18)
+	scroll.add_child(page)
+	page.add_child(_victory_ranking())
+	page.add_child(_victory_paths())
 	var cols := HFlowContainer.new()
 	cols.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cols.add_theme_constant_override("h_separation", 22)
 	cols.add_theme_constant_override("v_separation", 18)
-	scroll.add_child(cols)
+	var count := 0
 	for id in Victory.ids():
 		if not Victory.enabled(_state, id):
 			continue
 		if Victory.is_people(id) and not _victory_relevant(id):
 			continue
 		cols.add_child(_victory_block(id))
+		count += 1
+	var open := bool(pane_current.get("victory_detail", false))
+	victory_detail = Button.new()
+	victory_detail.toggle_mode = true
+	victory_detail.focus_mode = Control.FOCUS_NONE
+	victory_detail.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	victory_detail.text = "DÉTAIL DES %d VICTOIRES" % count
+	victory_detail.tooltip_text = "Chaque victoire, sa règle, et l'avancée de tous les empires connus."
+	victory_detail.set_pressed_no_signal(open)
+	cols.visible = open
+	victory_detail.toggled.connect(func(on: bool) -> void:
+		pane_current["victory_detail"] = on
+		cols.visible = on)
+	page.add_child(victory_detail)
+	page.add_child(cols)
+
+
+## Pour chaque empire encore en lice, sa victoire la plus avancée parmi celles qu'on peut lire :
+## [{empire, id, pct}], le plus avancé d'abord. id vide et pct -1 : rien de lisible chez lui.
+static func victory_leaders(state: GameState, viewer: int, empires: Array[Empire]) -> Array:
+	var out := []
+	for e in empires:
+		if e.eliminated:
+			continue
+		var best := {"empire": e.id, "id": "", "pct": -1}
+		for id in Victory.ids():
+			if id == Victory.SCORE or not Victory.applies(state, e.id, id):
+				continue
+			var pct := Victory.visible_pct(state, viewer, e.id, id)
+			if pct > int(best["pct"]):
+				best = {"empire": e.id, "id": id, "pct": pct}
+		out.append(best)
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a["pct"]) > int(b["pct"]) or (int(a["pct"]) == int(b["pct"]) and int(a["empire"]) < int(b["empire"])))
+	return out
+
+
+func _victory_line(name: String, name_color: Color, what: String, pct: int, fill_color: Color, tip: String) -> Control:
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 12)
+	line.mouse_filter = Control.MOUSE_FILTER_STOP
+	line.tooltip_text = tip
+	var nl := Label.new()
+	nl.text = name
+	nl.custom_minimum_size = Vector2(230, 0)
+	nl.clip_text = true
+	nl.add_theme_color_override("font_color", name_color)
+	line.add_child(nl)
+	if what != "":
+		var wl := Label.new()
+		wl.text = what
+		wl.custom_minimum_size = Vector2(250, 0)
+		wl.clip_text = true
+		line.add_child(wl)
+	var bar := ProgressBar.new()
+	bar.show_percentage = false
+	bar.custom_minimum_size = Vector2(260, 8)
+	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	bar.max_value = 100
+	bar.value = maxi(0, pct)
+	bar.add_theme_stylebox_override("fill", UiTheme.box(fill_color, Color(0, 0, 0, 0), 0, 0))
+	line.add_child(bar)
+	var val := Label.new()
+	val.theme_type_variation = &"Numbers"
+	val.custom_minimum_size = Vector2(56, 0)
+	val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	val.text = "%d %%" % pct if pct >= 0 else "?"
+	if pct >= Victory.met_at():
+		val.add_theme_color_override("font_color", UiTheme.WARN)
+	line.add_child(val)
+	return line
+
+
+## En tête de l'écran : qui est le plus près de gagner, et par quelle voie.
+func _victory_ranking() -> Control:
+	var blk := Widgets.Block.new("La course")
+	var viewer := -1 if see_all else _player
+	for r: Dictionary in victory_leaders(_state, viewer, _victory_empires()):
+		var e := _state.get_empire(int(r["empire"]))
+		var id := String(r["id"])
+		var tip := "Rien de lisible : une victoire ne se voit chez un rival qu'à partir de %d %%." % Victory.visible_at()
+		if id != "":
+			tip = "%s\n%s" % [Victory.rule_text(id), "\n".join(Victory.progress(_state, e.id, id)["lines"])]
+		blk.body.add_child(_victory_line(e.short_name() + (" (vous)" if e.id == _player and not see_all else ""), e.color().lightened(0.25),
+				Victory.label(id) if id != "" else "voie inconnue", int(r["pct"]), e.color(), tip))
+	return blk
+
+
+## Vos propres voies, de la plus avancée à la moins avancée.
+func _victory_paths() -> Control:
+	var blk := Widgets.Block.new("Vos voies")
+	var rows := []
+	for id in Victory.ids():
+		if id == Victory.SCORE or not Victory.applies(_state, _player, id):
+			continue
+		rows.append([int(Victory.progress(_state, _player, id)["pct"]), id])
+	rows.sort_custom(func(a: Array, b: Array) -> bool: return int(a[0]) > int(b[0]) or (int(a[0]) == int(b[0]) and String(a[1]) < String(b[1])))
+	var me := _state.get_empire(_player)
+	for r: Array in rows:
+		var id := String(r[1])
+		blk.body.add_child(_victory_line(Victory.label(id), UiTheme.GOLD if Victory.is_people(id) else UiTheme.TEXT, "", int(r[0]), me.color(),
+				"%s\n%s" % [Victory.rule_text(id), "\n".join(Victory.progress(_state, _player, id)["lines"])]))
+	if Victory.enabled(_state, Victory.SCORE):
+		blk.body.add_child(UiTheme.dim("À la date limite, le meilleur score l'emporte : le vôtre est de %d, le plus haut connu de %d." % [Victory.score(_state, _player), _best_score()], 13))
+	return blk
 
 
 ## Une victoire de peuple ne s'affiche que si un empire connu peut la viser.

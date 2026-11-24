@@ -193,18 +193,32 @@ class Frise:
 			draw_line(Vector2(x, y - 4), Vector2(x, y + 4), Color(1, 1, 1, 0.35), 1.0)
 			var lab := GameCalendar.date_string(yr * 360).get_slice(" ", GameCalendar.date_string(yr * 360).get_slice_count(" ") - 1)
 			draw_string(f, Vector2(x - 14, y + 22), lab, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, UiTheme.TEXT_DIM)
+		# Une étiquette ne se pose que là où elle ne recouvre pas la précédente du même côté ; sinon le jalon
+		# reste seul sur la ligne (son titre se lit dans la liste dessous).
 		var up := true
+		var free_up := -1.0e9
+		var free_down := -1.0e9
 		for rec in hours:
 			var x := _x_of(int(rec["t"]))
 			var col := Announce.family_color(Announce.family_of(String(rec["k"])))
-			var tip_y := y - 30.0 if up else y + 30.0
-			draw_line(Vector2(x, y), Vector2(x, tip_y), Color(col, 0.6), 1.0, true)
-			draw_circle(Vector2(x, y), 5.0, col)
-			draw_circle(Vector2(x, y), 2.0, Color(0.02, 0.02, 0.03))
 			var title := String(Announce.kind_def(String(rec["k"])).get("title", ""))
 			var tw := minf(150.0, f.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x)
 			var tx := x + 3.0 if x + 3.0 + tw < size.x - 4.0 else x - 3.0 - tw
-			draw_string(f, Vector2(tx, tip_y - 2 if up else tip_y + 10), title, HORIZONTAL_ALIGNMENT_LEFT, 150, 11, Color(col, 0.95))
+			var side := 0
+			if tx >= (free_up if up else free_down):
+				side = 1 if up else -1
+			elif tx >= (free_down if up else free_up):
+				side = -1 if up else 1
+			if side != 0:
+				var tip_y := y - 30.0 * side
+				draw_line(Vector2(x, y), Vector2(x, tip_y), Color(col, 0.6), 1.0, true)
+				draw_string(f, Vector2(tx, tip_y - 2 if side > 0 else tip_y + 10), title, HORIZONTAL_ALIGNMENT_LEFT, 150, 11, Color(col, 0.95))
+				if side > 0:
+					free_up = tx + tw + 8.0
+				else:
+					free_down = tx + tw + 8.0
+			draw_circle(Vector2(x, y), 5.0, col)
+			draw_circle(Vector2(x, y), 2.0, Color(0.02, 0.02, 0.03))
 			up = not up
 		if hours.is_empty():
 			draw_string(f, Vector2(24, y - 12), "Premier jour", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, UiTheme.TEXT_DIM)

@@ -1,6 +1,6 @@
 class_name EventPanel
 extends CanvasLayer
-## Fenêtre d'événement (voir Events) : illustration, titre, texte, puis un bouton par choix avec ses
+## Fenêtre d'événement (voir Events) : illustration à gauche, puis à droite titre, texte, puis un bouton par choix avec ses
 ## effets chiffrés et, pour un choix réservé à une couche d'espèce, l'étiquette de cette couche.
 ## main.gd l'ouvre quand une carte arrive dans la boîte du joueur (pause automatique en solo).
 ## « Réduire » la laisse dans la boîte : l'écran Chroniques (J) la rouvre. Sans réponse au bout de
@@ -26,16 +26,14 @@ var _system := -1
 
 
 func _ready() -> void:
-	var box := AnnounceFrame.build(self, WIDTH, "Décision")
-	# Emplacement d'illustration (images générées en fin de projet : assets/art/event_<carte>).
-	_art = Widgets.ArtSlot.new("", Vector2(WIDTH, 150), Color(0.95, 0.78, 0.45), "star")
-	box.add_child(_art)
+	# Illustration à gauche sur toute la hauteur (images générées en fin de projet : assets/art/event_<carte>).
+	var box := AnnounceFrame.build(self, WIDTH, "Décision", 10, AnnounceFrame.ART_WIDTH)
+	_art = AnnounceFrame.art_of(self)
 	_title = UiTheme.title("", 28)
-	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_title.custom_minimum_size = Vector2(WIDTH, 0)
 	box.add_child(_title)
 	_when = UiTheme.dim("", 13)
-	_when.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_when)
 	_text = TipManager.paragraph(WIDTH - 20.0, 15)
 	box.add_child(_text)
@@ -44,7 +42,7 @@ func _ready() -> void:
 	_choices.add_theme_constant_override("separation", 8)
 	box.add_child(_choices)
 	var buttons := HBoxContainer.new()
-	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.alignment = BoxContainer.ALIGNMENT_END
 	buttons.add_theme_constant_override("separation", 40)
 	box.add_child(buttons)
 	_locate = Widgets.RoundButton.new("next", "Montrer l'emplacement", 14)

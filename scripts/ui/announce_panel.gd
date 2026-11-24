@@ -37,6 +37,7 @@ var _window: PanelContainer
 var _box: VBoxContainer
 var _band: FamilyBand
 var _art: Widgets.ArtSlot
+var _side_art: Widgets.ArtSlot
 var _special: VBoxContainer
 var _title: Label
 var _sub: Label
@@ -60,9 +61,15 @@ func _ready() -> void:
 	_window = PanelContainer.new()
 	_window.theme_type_variation = &"WindowPanel"
 	_root.add_child(_window)
+	# Hors Fanfare, le gabarit commun : l'illustration à gauche sur toute la hauteur, le texte à droite.
+	var split := HBoxContainer.new()
+	split.add_theme_constant_override("separation", 16)
+	_window.add_child(split)
+	_side_art = AnnounceFrame.side_art(AnnounceFrame.ART_WIDTH)
+	split.add_child(_side_art)
 	_box = VBoxContainer.new()
 	_box.add_theme_constant_override("separation", 8)
-	_window.add_child(_box)
+	split.add_child(_box)
 	_band = FamilyBand.new()
 	_box.add_child(_band)
 	_art = Widgets.ArtSlot.new("", Vector2(WIDTH, 150), UiTheme.ACCENT, "star")
@@ -157,6 +164,11 @@ func open(state: GameState, viewer: int, recs: Array[Dictionary], g: int, nav_at
 	_art.custom_minimum_size = Vector2(w, 280 if fanfare else 150)
 	var motif: String = {"guerre": "faction", "diplomatie": "faction", "colonies": "planet", "au_dela": "star"}.get(fam, "star")
 	_art.set_art("annonces/%s" % kind, fcol, motif)
+	_art.visible = fanfare
+	_side_art.set_art("annonces/%s" % kind, fcol, motif)
+	_side_art.visible = not fanfare
+	for l: Label in [_title, _sub, _lead]:
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if fanfare else HORIZONTAL_ALIGNMENT_LEFT
 	_title.text = Announce.title(state, rec).to_upper() if fanfare else Announce.title(state, rec)
 	_title.add_theme_font_size_override("font_size", 40 if fanfare else 28)
 	_sub.text = Announce.subtitle(rec)

@@ -7,7 +7,7 @@ extends RefCounted
 ## partie, dès son premier présage, voir CrisisPanel).
 ## Construit dans les conteneurs d'EmpireScreens (_grid, _key_value…).
 
-const TABS := [["crisis", "Crise"], ["quests", "Quêtes"], ["deeds", "Hauts faits"], ["events", "Événements"], ["annals", "Annales"], ["relics", "Reliquaire"], ["archeo", "Archéologie"], ["bestiary", "Bestiaire"], ["announces", "Annonces"], ["hours", "Heures"]]
+const TABS := [["crisis", "Crise"], ["quests", "Quêtes"], ["deeds", "Hauts faits"], ["events", "Événements"], ["annals", "Annales"], ["relics", "Reliquaire"], ["archeo", "Archéologie"], ["bestiary", "Bestiaire"], ["announces", "Annonces"]]
 
 
 ## Onglets offerts dans cette partie (selon les réglages de la Nouvelle partie).
@@ -20,8 +20,7 @@ static func tabs(state: GameState) -> Array[String]:
 	if Deeds.enabled(state):
 		out.append("deeds")  # hauts faits galactiques (voir DeedsUi)
 	out.append("events")
-	if Deeds.enabled(state):
-		out.append("annals")
+	out.append("annals")  # la frise commune : annales, hauts faits et grandes heures
 	if not state.relics.is_empty():
 		out.append("relics")
 	if Archaeology.full(state):
@@ -29,7 +28,6 @@ static func tabs(state: GameState) -> Array[String]:
 	if Fauna.active(state):
 		out.append("bestiary")
 	out.append("announces")  # registre des annonces typées (voir AnnounceUi)
-	out.append("hours")  # frise des grandes heures de l'empire
 	return out
 
 
@@ -71,7 +69,9 @@ static func build(es: EmpireScreens) -> void:
 	es._side_box.add_child(HSeparator.new())
 	es._side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("chronicles").get("why", "")), EmpireScreens.SIDE_WIDTH - 24.0, 13))
 
-	# Onglets, puis contenu défilant.
+	# Onglets, puis contenu défilant. Les Heures ont rejoint la frise des Annales.
+	if es.chron_tab == "hours":
+		es.chron_tab = "annals"
 	var offered := tabs(state)
 	if not offered.has(es.chron_tab):
 		es.chron_tab = offered[0]

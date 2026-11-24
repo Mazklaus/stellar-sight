@@ -444,6 +444,29 @@ func _test_power() -> void:
 		if String(grp["key"]) == "council":
 			seats_ok = int(grp["vacant"]) == Heroes.seats(st, 0) - Heroes.council(st, 0).size()
 	_ok(grouped == Heroes.ids_of(st, 0).size() and seats_ok, "Panthéon : chaque héros a son groupe, les sièges vides du conseil sont comptés")
+	# Fenêtres en jeu (C35) : le gabarit à deux colonnes porte son illustration à gauche.
+	var layer := CanvasLayer.new()
+	var fbox := AnnounceFrame.build(layer, 500.0, "Décision", 10, AnnounceFrame.ART_WIDTH)
+	var fart := AnnounceFrame.art_of(layer)
+	_ok(fart != null and fart.get_parent() == fbox.get_parent() and fart.get_index() == 0, "fenêtres en jeu : illustration à gauche du texte")
+	layer.free()
+	# Journal (C31) et Annales (C32).
+	_ok(QuestPanel.pressing(st, 0).is_empty(), "Journal : rien ne presse au premier jour")
+	var tl := DeedsUi.timeline(st, 0, 0)
+	var tl_ok := true
+	for i in range(1, tl.size()):
+		tl_ok = tl_ok and int(tl[i - 1]["t"]) >= int(tl[i]["t"])
+	_ok(tl_ok and DeedsUi.timeline(st, 0, 0, "deed").size() <= tl.size(), "Annales : la frise va du plus récent au plus ancien, le filtre ne fait que retirer")
+	_ok(ChronicleScreen.tabs(st).has("annals") and not ChronicleScreen.tabs(st).has("hours"), "Annales : les Heures ont rejoint la frise")
+	var gr := DeedsUi.glory_ranking(st, 0, true)
+	_ok(gr.size() == st.empires.size(), "Annales : un rang de Gloire par empire en lice")
+	# Victoires (C34) : un rang par empire en lice, le plus avancé d'abord.
+	var lead := EmpireScreens.victory_leaders(st, -1, st.empires)
+	var sorted_ok := lead.size() == st.empires.size()
+	for i in range(1, lead.size()):
+		sorted_ok = sorted_ok and int(lead[i - 1]["pct"]) >= int(lead[i]["pct"])
+	_ok(sorted_ok, "Victoires : la course classe chaque empire par sa voie la plus avancée")
+	_ok(BestiaryPanel.shade_of(st, 0, String(Fauna.species_ids()[0])) == "shadow", "Bestiaire : une espèce non étudiée reste une silhouette")
 	# Anneau des relations (C16) : un empire par place, les sujets après leur suzerain.
 	var ring := DiplomacyTable.ring_order(st, 0)
 	var ring_ok := ring.size() == st.empires.size() - 1 and not ring.has(0)

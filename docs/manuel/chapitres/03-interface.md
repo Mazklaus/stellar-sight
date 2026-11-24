@@ -58,8 +58,8 @@ Les écrans d'empire sont rangés en **huit domaines**. Le panneau d'empire port
 | Diplomatie | [[F4]] | Empires (l'anneau des relations ; la fiche de l'empire choisi tient en trois volets : Relation pour le statut, l'opinion et ses raisons, Traiter pour les traités et les propositions, Guerre pour les motifs, les buts et la paix), Ligue (vos sujets et votre Koinon), Voisins (les peuples mineurs et les civilisations anciennes), Assemblée (l'Amphictyonie : séance, vote, propositions, résolutions et Nomos), Renseignement (cellules, réseaux, dossiers, opérations) |
 | Commerce | [[F5]] | Routes (capacité, routes intérieures, risques), Marché (luxes, stratégiques, licences, monopoles ; achats, commandes, accords), Accords (accords de recherche, licences de technologie, diffusion), Privé, Réseau |
 | Pouvoir | [[F6]] | Trône, Cour, Sénat (courants politiques, élections, lois), Foi (foi d'État, grandes fois, croyances de vos colonies), Rayonnement, Panthéon (vos héros, leurs postes, les candidats) |
-| Chroniques | [[F7]] | Journal (quêtes, événements, crise de fin de partie), Annonces, Annales (annales, grandes heures, hauts faits), Bestiaire |
-| Victoire | [[F8]] | Victoires (l'avancée de chaque empire), Transcendance, Contact, L'Échelle |
+| Chroniques | [[F7]] | Journal (quêtes, événements, crise de fin de partie), Annonces, Annales (une seule frise pour les annales, les hauts faits et les grandes heures, avec le classement de Gloire ; le choix des hauts faits à côté), Bestiaire |
+| Victoire | [[F8]] | Victoires (la course : la voie la plus avancée de chaque empire, puis les vôtres, puis le détail), Transcendance, Contact, L'Échelle |
 
 Un onglet dont le pilier n'est pas en jeu n'apparaît pas. Quelques écrans gardent en plus une touche directe : Sénat [[P]], Foi [[Y]], Assemblée [[M]], Commerce [[C]], Chroniques [[J]], Panthéon [[F10]], Trône [[Maj]]+[[F10]], Ordre [[F12]].
 

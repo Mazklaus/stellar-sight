@@ -24,19 +24,15 @@ var _choices: VBoxContainer
 
 
 func _ready() -> void:
-	var box := AnnounceFrame.build(self, WIDTH, "Décision")
-	# Emplacement d'illustration (images générées en fin de projet : assets/art/deed_<haut fait>).
-	_art = Widgets.ArtSlot.new("", Vector2(WIDTH, 150), Color(0.95, 0.82, 0.4), "star")
-	box.add_child(_art)
-	var head := UiTheme.dim("HAUT FAIT GALACTIQUE", 13)
-	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(head)
+	# Illustration à gauche sur toute la hauteur (images générées en fin de projet : assets/art/deed_<haut fait>).
+	var box := AnnounceFrame.build(self, WIDTH, "Décision", 10, AnnounceFrame.ART_WIDTH)
+	_art = AnnounceFrame.art_of(self)
+	box.add_child(UiTheme.dim("HAUT FAIT GALACTIQUE", 13))
 	_title = UiTheme.title("", 28)
-	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_title.custom_minimum_size = Vector2(WIDTH, 0)
 	box.add_child(_title)
 	_sub = UiTheme.dim("", 13)
-	_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_sub)
 	_text = UiTheme.paragraph("", WIDTH - 20.0, 15)
 	box.add_child(_text)

@@ -5,10 +5,14 @@ extends RefCounted
 ## fondu d'ouverture réglable (AnnounceSettings.anim). Les annonces (AnnouncePanel) ont le même cadre,
 ## avec le bandeau de leur famille.
 
+const ART_WIDTH := 300.0
+const ART_MIN_HEIGHT := 380.0
+
 
 ## Pose le voile et la fenêtre sur layer (calque 7) ; renvoie la boîte où mettre le contenu.
 ## tag : libellé du filet de tête ("" : pas de filet).
-static func build(layer: CanvasLayer, width: float, tag := "", separation := 10) -> VBoxContainer:
+## art_width > 0 : gabarit à deux colonnes, l'illustration à gauche sur toute la hauteur (voir art_of).
+static func build(layer: CanvasLayer, width: float, tag := "", separation := 10, art_width := 0.0) -> VBoxContainer:
 	layer.layer = 7
 	layer.visible = false
 	var dim := ColorRect.new()
@@ -21,15 +25,37 @@ static func build(layer: CanvasLayer, width: float, tag := "", separation := 10)
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	layer.add_child(center)
 	var window := PanelContainer.new()
+	window.name = "Window"
 	window.theme_type_variation = &"WindowPanel"
 	center.add_child(window)
 	var box := VBoxContainer.new()
 	box.custom_minimum_size = Vector2(width, 0)
 	box.add_theme_constant_override("separation", separation)
-	window.add_child(box)
+	if art_width > 0.0:
+		var split := HBoxContainer.new()
+		split.name = "Split"
+		split.add_theme_constant_override("separation", 16)
+		window.add_child(split)
+		split.add_child(side_art(art_width))
+		split.add_child(box)
+	else:
+		window.add_child(box)
 	if tag != "":
 		box.add_child(DecisionBand.new(tag))
 	return box
+
+
+## L'illustration de la colonne de gauche : elle prend toute la hauteur de la fenêtre.
+static func side_art(art_width: float) -> Widgets.ArtSlot:
+	var art := Widgets.ArtSlot.new("", Vector2(art_width, ART_MIN_HEIGHT), UiTheme.ACCENT, "star")
+	art.name = "Art"
+	art.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	return art
+
+
+## L'illustration d'une fenêtre bâtie à deux colonnes (null sinon).
+static func art_of(layer: CanvasLayer) -> Widgets.ArtSlot:
+	return layer.get_node_or_null("Center/Window/Split/Art") as Widgets.ArtSlot
 
 
 ## Fondu d'ouverture du voile et de la fenêtre (à appeler après visible = true).
