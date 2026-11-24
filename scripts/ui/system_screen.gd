@@ -22,12 +22,19 @@ signal cycle_requested(step: int)
 signal mode_changed(manage: bool)
 
 ## Colonne de gestion, à gauche, sous le panneau d'empire.
-const PANEL_WIDTH := EmpireBar.WIDTH
+## Plus large que le panneau d'empire : la ligne de stabilité et ses décrets y tiennent, et la scène commence
+## vraiment à sa droite (elle passait dessous).
+const PANEL_WIDTH := 500.0
 const PANEL_TOP := EmpireBar.MARGIN + EmpireBar.HEIGHT + 8.0
 const MARGIN := 10.0
 ## Début de la scène, à droite de la colonne.
 const SCENE_LEFT := PANEL_WIDTH + 2.0 * MARGIN
 const CARD_SIZE := Vector2(150, 56)
+## Les quatre onglets du panneau de gauche : la fiche de la planète, puis ses ordres par nature.
+const TABS := [["overview", "Aperçu"], ["build", "Construire"], ["yard", "Chantier"], ["troops", "Troupes"]]
+const TAB_TIPS := {"overview": "La planète, son état, les défenses du système.", "build": "Bâtiments et grands chantiers de la colonie.",
+		"yard": "Chantier spatial : les vaisseaux à mettre en construction.", "troops": "Régiments à lever ou à louer."}
+const TAB_TITLES := {"build": "BÂTIMENTS ET GRANDS CHANTIERS", "yard": "VAISSEAUX", "troops": "RÉGIMENTS"}
 const ACCENT := UiTheme.ACCENT
 const TYPE_DOT_COLORS := {
 	"continental": Color(0.3, 0.6, 0.35), "ocean": Color(0.2, 0.45, 0.85), "desert": Color(0.9, 0.65, 0.35),
@@ -74,6 +81,11 @@ var _dep_label: Label
 var _status_title: Label
 var _status_label: Label
 var _actions_title: Label
+## Onglet du panneau de gauche (voir TABS), gardé d'une planète et d'un système à l'autre.
+var tab := "overview"
+var tab_buttons := {}
+var _tab_row: Control
+var _overview_nodes: Array = []
 var _actions: VBoxContainer
 var _actions_sig := ""
 var _pot_title: Label
@@ -427,7 +439,9 @@ func _refresh_defenses(s: StarSystem) -> void:
 	var passages: Array[String] = []
 	if read_only or (viewer_e != null and viewer_e.explored.has(s.id)):
 		passages = Portals.passage_lines(_state, _player, s.id)
-	_def_row.visible = not lines.is_empty() or not passages.is_empty()
+	# Défenses et passages se lisent dans l'Aperçu ; les autres onglets gardent la place pour leurs ordres.
+	_def_row.set_meta("wanted", not lines.is_empty() or not passages.is_empty())
+	_def_row.visible = bool(_def_row.get_meta("wanted")) and tab == "overview"
 	if lines.is_empty() and passages.is_empty():
 		return
 	var text := ""
@@ -556,6 +570,21 @@ func _build_panel() -> void:
 	box.add_child(_p_title)
 	_p_sub = _text_label(box)
 	_p_sub.modulate = Color(0.75, 0.8, 0.92)
+	var tabs := HFlowContainer.new()
+	tabs.add_theme_constant_override("h_separation", 2)
+	box.add_child(tabs)
+	for t: Array in TABS:
+		var tb := Button.new()
+		tb.theme_type_variation = &"TabButton"
+		tb.toggle_mode = true
+		tb.focus_mode = Control.FOCUS_NONE
+		tb.add_theme_font_size_override("font_size", 12)
+		tb.text = String(t[1]).to_upper()
+		var tid := String(t[0])
+		tb.pressed.connect(func() -> void: set_tab(tid))
+		tabs.add_child(tb)
+		tab_buttons[tid] = tb
+	_tab_row = tabs
 	box.add_child(HSeparator.new())
 	_hab_title = _section(box, "Pour votre espèce")
 	_hab_bar = ProgressBar.new()
@@ -573,6 +602,7 @@ func _build_panel() -> void:
 	_dep_label = _text_label(box)
 	_status_title = _section(box, "Statut")
 	_status_label = _text_label(box)
+	_overview_nodes = [_hab_title, _hab_bar, _hab_label, _pot_title, _pot_view, _dep_title, _dep_label, _status_title, _status_label]
 	_actions_title = _section(box, "Ordres")
 	_actions = VBoxContainer.new()
 	_actions.add_theme_constant_override("separation", 4)
@@ -581,16 +611,18 @@ func _build_panel() -> void:
 
 func _refresh_panel(s: StarSystem) -> void:
 	var p := _state.galaxy.get_planet(planet_id) if planet_id >= 0 else null
-	for n: Control in [_hab_title, _hab_bar, _hab_label, _pot_title, _pot_view, _dep_title, _dep_label, _actions_title]:
-		n.visible = p != null
+	for n: Control in [_hab_title, _hab_bar, _hab_label, _pot_title, _pot_view, _dep_title, _dep_label, _status_label]:
+		n.set_meta("wanted", p != null)
+	_tab_row.visible = p != null
 	if p == null:
 		_p_title.text = GalaxyGenerator.star_label(s.star_type)
 		_p_title.add_theme_color_override("font_color", GalaxyView.STAR_COLORS.get(s.star_type, Color.WHITE))
 		_p_sub.text = "Aucune planète en orbite. Rien que le vide, et une étoile qui s'en moque éperdument." \
 				if s.planet_count == 0 else "Choisissez une planète."
-		_status_title.visible = false
+		_status_title.set_meta("wanted", false)
 		_status_label.text = ""
 		_set_actions([])
+		_apply_tab()
 		return
 	var c: Colony = Intel.shown_colony(_state, p.id)
 	_p_title.text = p.display_name(_state.galaxy)
@@ -599,7 +631,7 @@ func _refresh_panel(s: StarSystem) -> void:
 
 	var hab := PlanetInfo.habitability(_state, p, _player)
 	_hab_bar.value = int(hab["pct"])
-	_hab_bar.visible = int(hab["pct"]) > 0
+	_hab_bar.set_meta("wanted", int(hab["pct"]) > 0)
 	var fill := StyleBoxFlat.new()
 	fill.bg_color = Color(0.9, 0.35, 0.3).lerp(Color(0.4, 0.9, 0.5), float(hab["pct"]) / 100.0)
 	fill.set_corner_radius_all(3)
@@ -624,7 +656,7 @@ func _refresh_panel(s: StarSystem) -> void:
 
 	if c == null and Ecology.has_biosphere(_state, p.id):
 		_dep_label.text += "\n" + Ecology.line(_state, p.id)
-	_status_title.visible = true
+	_status_title.set_meta("wanted", true)
 	_status_label.text = "\n".join(PlanetInfo.colony_lines(_state, p, c, _player)) if c else "Aucune revendication. Elle n'attend que vous (ou un voisin plus rapide)."
 	var lw_lines := LivingUi.lines(_state, _player, p)  # monde vivant
 	if not lw_lines.is_empty():
@@ -636,7 +668,7 @@ func _refresh_panel(s: StarSystem) -> void:
 
 	var actions := planet_actions(p)
 	_set_actions(actions)
-	_actions_title.visible = not actions.is_empty()
+	_apply_tab()
 
 
 ## Ordres possibles sur une planète (colonisation, avant-poste, chantiers), avec leur raison de refus.
@@ -682,18 +714,24 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 		actions.append({"text": "Raser le portail", "detail": "le portail de ce système est détruit", "reason": "",
 				"tooltip": "Vous occupez ce système : détruire son portail de saut coupe le réseau ennemi.",
 				"action": func() -> void: command_requested.emit(rcmd)})
+	_tag(actions, "overview")
 	if me and c and c.owner == _player and c.is_established():
 		var f := me.faction()
 		if FactionTraits.can_rush(f) and c.construction != "":
 			actions.append(_rush_action(p, FactionTraits.RUSH_BUILDING))
+			_tag(actions, "build")
 		if FactionTraits.can_rush(f) and c.ship_build != "":
 			actions.append(_rush_action(p, FactionTraits.RUSH_SHIP))
+			_tag(actions, "yard")
 		if FactionTraits.has_fervor(f) and c.is_colony():
 			actions.append(_sacrifice_action(p))
+			_tag(actions, "overview")
 		if Echoes.has(f) and c.construction != "":
 			actions.append(_fold_action(p, Echoes.BUILDING))
+			_tag(actions, "build")
 		if Echoes.has(f) and c.ship_build != "":
 			actions.append(_fold_action(p, Echoes.SHIP))
+			_tag(actions, "yard")
 	if c and c.owner == _player and c.is_established() and c.is_colony():
 		for ship_q: bool in [false, true]:
 			var q: Array[String] = c.ship_queue if ship_q else c.build_queue
@@ -707,8 +745,10 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 					"detail": "à la suite : %s" % ", ".join(names), "reason": "",
 					"tooltip": "Ces éléments seront lancés l'un après l'autre, et payés au lancement. Vider la file ne coûte rien.",
 					"action": func() -> void: command_requested.emit(ccmd)})
+			_tag(actions, "yard" if ship_q else "build")
 		for sid in Designs.buildable_ids(_state, _player):
 			actions.append(_ship_action(p, sid))
+		_tag(actions, "yard")
 		if Ground.full(_state):
 			for t in Ground.type_ids():
 				var techs: Array = Ground.type_def(t).get("requires_tech", [])
@@ -723,6 +763,7 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 					actions.append(_recruit_action(p, t))
 			if not _state.lairs.is_empty() or GroundOccupation.syndicate(_state) >= 0:
 				actions.append(_hire_action(p))
+			_tag(actions, "troops")
 	if c and c.owner == _player and c.is_established():
 		actions.append_array(WondersUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
 		actions.append_array(MegasUi.system_actions(_state, _player, p, func(cmd: Dictionary) -> void: command_requested.emit(cmd)))
@@ -745,7 +786,57 @@ func planet_actions(p: Planet) -> Array[Dictionary]:
 				possible = false
 			if b.get("buildable", true) and possible:
 				actions.append(_build_action(p, bid, b))
+	_tag(actions, "build")
 	return actions
+
+
+## Range dans l'onglet tab les ordres qui n'en ont pas encore (voir TABS).
+func _tag(actions: Array[Dictionary], tab: String) -> void:
+	for a in actions:
+		if not a.has("tab"):
+			a["tab"] = tab
+
+
+## Nombre d'ordres par onglet, pour les quatre onglets.
+static func tab_counts(actions: Array[Dictionary]) -> Dictionary:
+	var out := {}
+	for t: Array in TABS:
+		out[t[0]] = 0
+	for a in actions:
+		var tab := String(a.get("tab", "overview"))
+		out[tab] = int(out.get(tab, 0)) + 1
+	return out
+
+
+## Montre l'onglet id du panneau de gauche. L'Aperçu porte la fiche de la planète, les trois autres leurs ordres.
+func set_tab(id: String) -> void:
+	tab = id
+	_apply_tab()
+
+
+func _apply_tab() -> void:
+	var counts := {}
+	for t: Array in TABS:
+		counts[t[0]] = 0
+	for b in _actions.get_children():
+		var bt := String(b.get_meta("tab", "overview"))
+		counts[bt] = int(counts.get(bt, 0)) + 1
+	if tab != "overview" and int(counts.get(tab, 0)) == 0:
+		tab = "overview"
+	for id: String in tab_buttons:
+		var tb: Button = tab_buttons[id]
+		tb.set_pressed_no_signal(id == tab)
+		tb.disabled = id != "overview" and int(counts[id]) == 0
+		tb.tooltip_text = "Rien à ordonner ici sur cette planète." if tb.disabled else String(TAB_TIPS.get(id, ""))
+	var shown := 0
+	for b in _actions.get_children():
+		(b as Control).visible = String(b.get_meta("tab", "overview")) == tab
+		shown += 1 if (b as Control).visible else 0
+	for n: Control in _overview_nodes:
+		n.visible = tab == "overview" and bool(n.get_meta("wanted", true))
+	_def_row.visible = tab == "overview" and bool(_def_row.get_meta("wanted", false))
+	_actions_title.visible = shown > 0
+	_actions_title.text = "ORDRES" if tab == "overview" else String(TAB_TITLES.get(tab, "ORDRES"))
 
 
 ## Vote d'urgence (Concorde de Vael) : achever le chantier en cours contre de l'influence.
@@ -974,9 +1065,13 @@ func _set_actions(actions: Array[Dictionary]) -> void:
 		b.focus_mode = Control.FOCUS_NONE
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.text = a["text"] if not a.has("detail") else "%s\n%s" % [a["text"], a["detail"]]
+		# Un libellé trop long se coupe au lieu d'élargir le panneau.
+		b.clip_text = true
+		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		b.disabled = a["reason"] != ""
 		b.tooltip_text = a["tooltip"]
 		b.pressed.connect(a["action"])
+		b.set_meta("tab", String(a.get("tab", "overview")))
 		_actions.add_child(b)
 
 

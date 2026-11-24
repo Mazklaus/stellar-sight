@@ -444,6 +444,10 @@ func _test_power() -> void:
 		if String(grp["key"]) == "council":
 			seats_ok = int(grp["vacant"]) == Heroes.seats(st, 0) - Heroes.council(st, 0).size()
 	_ok(grouped == Heroes.ids_of(st, 0).size() and seats_ok, "Panthéon : chaque héros a son groupe, les sièges vides du conseil sont comptés")
+	# Vue d'un système (B6) : chaque ordre a son onglet, et les quatre onglets sont comptés.
+	var acts: Array[Dictionary] = [{"tab": "build"}, {"tab": "yard"}, {"tab": "yard"}, {}]
+	var tc := SystemScreen.tab_counts(acts)
+	_ok(int(tc["build"]) == 1 and int(tc["yard"]) == 2 and int(tc["overview"]) == 1 and int(tc["troops"]) == 0, "vue système : les ordres se rangent dans quatre onglets")
 	# Fenêtres en jeu (C35) : le gabarit à deux colonnes porte son illustration à gauche.
 	var layer := CanvasLayer.new()
 	var fbox := AnnounceFrame.build(layer, 500.0, "Décision", 10, AnnounceFrame.ART_WIDTH)
