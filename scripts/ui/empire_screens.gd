@@ -116,6 +116,10 @@ var diplo_tab := "empires"
 var diplo_pane := "relation"
 var diplo_pane_buttons := {}
 var diplo_panes := {}
+## Volets internes d'un écran (Assemblée, opérations du Renseignement) : groupe -> {"boxes", "buttons"},
+## et le volet montré de chaque groupe, gardé d'une reconstruction à l'autre.
+var panes := {}
+var pane_current := {}
 var diplo_table: DiplomacyTable
 var treaty_buttons := {}
 var cancel_buttons := {}
@@ -2286,6 +2290,56 @@ func _relation_block(id: int) -> Control:
 			acts_deal.add_child(b)
 			ability_buttons["mediate_%d" % w] = b
 	return blk
+
+
+## Rangée d'onglets d'un groupe de volets. `defs` : [[id, libellé], ...]. Tous les volets sont construits,
+## un seul est visible : pane_box(groupe, id) rend la colonne à remplir, que l'appelant place lui-même.
+func pane_row(group: String, defs: Array, fallback: String) -> HFlowContainer:
+	var tabs := HFlowContainer.new()
+	tabs.add_theme_constant_override("h_separation", 6)
+	tabs.add_theme_constant_override("v_separation", 4)
+	var cur := String(pane_current.get(group, fallback))
+	var known := false
+	for d: Array in defs:
+		known = known or String(d[0]) == cur
+	if not known:
+		cur = fallback
+	pane_current[group] = cur
+	var boxes := {}
+	var buttons := {}
+	for d: Array in defs:
+		var pid := String(d[0])
+		var pb := Button.new()
+		pb.theme_type_variation = &"TabButton"
+		pb.toggle_mode = true
+		pb.focus_mode = Control.FOCUS_NONE
+		pb.text = String(d[1]).to_upper()
+		pb.add_theme_font_size_override("font_size", 13)
+		pb.set_pressed_no_signal(pid == cur)
+		pb.pressed.connect(func() -> void: set_pane(group, pid))
+		tabs.add_child(pb)
+		buttons[pid] = pb
+		var box := VBoxContainer.new()
+		box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		box.add_theme_constant_override("separation", 18)
+		box.visible = pid == cur
+		boxes[pid] = box
+	panes[group] = {"boxes": boxes, "buttons": buttons}
+	return tabs
+
+
+func pane_box(group: String, id: String) -> VBoxContainer:
+	return panes[group]["boxes"][id]
+
+
+func set_pane(group: String, id: String) -> void:
+	if not panes.has(group) or not (panes[group]["boxes"] as Dictionary).has(id):
+		return
+	pane_current[group] = id
+	for k: String in panes[group]["boxes"]:
+		if is_instance_valid(panes[group]["boxes"][k]):
+			(panes[group]["boxes"][k] as Control).visible = k == id
+			(panes[group]["buttons"][k] as Button).set_pressed_no_signal(k == id)
 
 
 ## Montre un volet de la fiche d'un empire : "relation", "deal" (Traiter) ou "war" (Guerre).

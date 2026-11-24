@@ -358,3 +358,30 @@ func _test_screens() -> void:
 	_ok(UiDomains.locate("diplomacy") == [3, 0] and UiDomains.locate("diplomacy:league") == [3, 1] and UiDomains.locate("diplomacy:neighbors") == [3, 2],
 			"Empires, Ligue et Voisins ouvrent le domaine Diplomatie")
 	_ok(UiDomains.offered(st, 0, "diplomacy:empires") and UiDomains.locate("amphictyony") == [3, 3], "l'onglet Empires est toujours offert, l'Assemblée suit")
+	# Renseignement (C20) : opérations en cartes par famille, les possibles d'abord.
+	var fams := IntelScreen.ops_by_family(st, 0, 1)
+	var seen := 0
+	var sorted_ok := true
+	for f: Dictionary in fams:
+		seen += (f["ops"] as Array).size()
+		var ready := int(f["ready"])
+		for i in (f["ops"] as Array).size():
+			var free := Espionage.check_op(st, 0, 1, String(f["ops"][i])) == ""
+			sorted_ok = sorted_ok and free == (i < ready)
+	_ok(fams.size() == Espionage.FAMILY_LABELS.size() and seen == Espionage.op_ids().size(), "chaque opération figure dans une famille, une seule fois")
+	_ok(sorted_ok, "dans chaque famille, les opérations possibles viennent d'abord")
+	# Volets internes (C17, C20) : un seul visible, le choix survit à une reconstruction.
+	var es := EmpireScreens.new()
+	var row := es.pane_row("essai", [["a", "A"], ["b", "B"]], "a")
+	_ok(es.pane_box("essai", "a").visible and not es.pane_box("essai", "b").visible, "le volet par défaut est montré")
+	es.set_pane("essai", "b")
+	_ok(es.pane_box("essai", "b").visible and not es.pane_box("essai", "a").visible and (es.panes["essai"]["buttons"]["b"] as Button).button_pressed, "changer de volet")
+	for k: String in es.panes["essai"]["boxes"]:
+		(es.panes["essai"]["boxes"][k] as Node).free()
+	row.free()
+	var row2 := es.pane_row("essai", [["a", "A"], ["b", "B"]], "a")
+	_ok(es.pane_box("essai", "b").visible, "le volet choisi reste après reconstruction")
+	for k: String in es.panes["essai"]["boxes"]:
+		(es.panes["essai"]["boxes"][k] as Node).free()
+	row2.free()
+	es.free()

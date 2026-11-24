@@ -7,6 +7,8 @@ extends RefCounted
 ## Construit dans les conteneurs d'EmpireScreens, dont il reprend les aides (_grid, _key_value…).
 
 const BAR_WIDTH := 130.0
+## Largeur d'une carte d'opération.
+const OP_CARD := 250.0
 
 
 static func build(es: EmpireScreens) -> void:
@@ -72,11 +74,19 @@ static func build(es: EmpireScreens) -> void:
 			es._side_box.add_child(tlab)
 	es._side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("intel").get("why", "")), EmpireScreens.SIDE_WIDTH - 24.0, 13))
 
-	# Contenu : réseaux à gauche, dossier à droite.
+	# Contenu en deux temps : d'abord les réseaux et le dossier de l'empire choisi, puis ses opérations.
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	es._content.add_child(scroll)
+	var page := VBoxContainer.new()
+	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	page.add_theme_constant_override("separation", 18)
+	scroll.add_child(page)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 22)
-	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	es._content.add_child(row)
+	page.add_child(row)
 	var left := Widgets.Block.new("Réseaux de l'ombre")
 	left.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	row.add_child(left)
@@ -101,22 +111,15 @@ static func build(es: EmpireScreens) -> void:
 		tiers.add_child(l)
 	left.body.add_child(tiers)
 
-	# Colonne de droite défilante : dossiers de découverte, opérations, dossier de renseignement.
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	row.add_child(scroll)
-	var right := VBoxContainer.new()
-	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right.add_theme_constant_override("separation", 18)
-	scroll.add_child(right)
+	if es.intel_selected >= 0:
+		var dossier := _dossier_block(es, es.intel_selected)
+		dossier.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(dossier)
 	var cases := Espionage.cases_for(state, player)
 	if not cases.is_empty():
-		right.add_child(_cases_block(es, cases))
+		page.add_child(_cases_block(es, cases))
 	if es.intel_selected >= 0:
-		right.add_child(_operations_block(es, es.intel_selected))
-		right.add_child(_dossier_block(es, es.intel_selected))
+		page.add_child(_operations_block(es, es.intel_selected))
 
 
 ## Ce qui change l'écran : réseaux, mois, sondes, contacts, empire choisi.
@@ -379,41 +382,100 @@ static func _operations_block(es: EmpireScreens, target: int) -> Control:
 		cancel.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.spy_cancel(player, target)))
 		line.add_child(cancel)
 		blk.body.add_child(line)
-	var g := GridContainer.new()
-	g.columns = 5
-	g.add_theme_constant_override("h_separation", 14)
-	g.add_theme_constant_override("v_separation", 4)
-	blk.body.add_child(g)
-	for h in ["Opération", "Coût", "Succès", "Découverte", ""]:
-		g.add_child(UiTheme.dim(h, 12))
-	for op_id in Espionage.op_ids():
-		var o := Espionage.op_def(op_id)
-		var name := Label.new()
-		name.text = String(o["label"])
-		name.tooltip_text = "%s. %s\nPalier requis : %d (%s). Durée : %d jours. Une réussite consomme %d d'infiltration." % [
-				Espionage.FAMILY_LABELS.get(String(o["family"]), o["family"]), o["text"], Espionage.tier_at(int(o["tier"])), Espionage.tier_info(int(o["tier"]))["label"], int(o["days"]), int(o.get("spend", 0))]
-		name.mouse_filter = Control.MOUSE_FILTER_STOP
-		g.add_child(name)
-		var cost := Label.new()
-		cost.text = GameData.format_amounts(Espionage.op_cost(state, player, op_id))
-		g.add_child(cost)
-		var ch := Espionage.chances(state, player, target, op_id)
-		g.add_child(_pct_label(int(ch["success"]), ch["success_parts"], true))
-		g.add_child(_pct_label(int(ch["discovery"]), ch["discovery_parts"], false))
-		var b := Button.new()
-		b.text = "LANCER"
-		b.focus_mode = Control.FOCUS_NONE
-		var why := Espionage.check_op(state, player, target, op_id)
-		b.disabled = why != ""
-		b.tooltip_text = why if why != "" else "Lancer : %s" % o["label"]
-		b.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.spy_op(player, target, op_id)))
-		g.add_child(b)
-		es.intel_op_buttons[op_id] = b
+	# Une carte par opération, rangées par famille ; celles qu'on peut lancer viennent d'abord.
+	var fams := ops_by_family(state, player, target)
+	var defs: Array = []
+	for f: Dictionary in fams:
+		defs.append([f["family"], "%s %d/%d" % [f["label"], int(f["ready"]), (f["ops"] as Array).size()]])
+	if defs.is_empty():
+		return blk
+	blk.body.add_child(es.pane_row("intel_ops", defs, String(defs[0][0])))
+	for f: Dictionary in fams:
+		var box := es.pane_box("intel_ops", String(f["family"]))
+		blk.body.add_child(box)
+		var flow := HFlowContainer.new()
+		flow.add_theme_constant_override("h_separation", 12)
+		flow.add_theme_constant_override("v_separation", 12)
+		box.add_child(flow)
+		for op_id: String in f["ops"]:
+			flow.add_child(_op_card(es, target, op_id))
 	if Diplomacy.allied(state, player, target):
 		var warn := UiTheme.paragraph("C'est un allié : des agents pris chez lui rompraient l'alliance.", 420, 13)
 		warn.add_theme_color_override("font_color", UiTheme.WARN)
 		blk.body.add_child(warn)
 	return blk
+
+
+## Les opérations rangées par famille, dans l'ordre des familles du jeu :
+## [{family, label, ops (ids, les possibles d'abord), ready (nombre de possibles)}].
+static func ops_by_family(state: GameState, player: int, target: int) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for fam: String in Espionage.FAMILY_LABELS:
+		var ok: Array[String] = []
+		var no: Array[String] = []
+		for op_id in Espionage.op_ids():
+			if String(Espionage.op_def(op_id).get("family", "")) != fam:
+				continue
+			if Espionage.check_op(state, player, target, op_id) == "":
+				ok.append(op_id)
+			else:
+				no.append(op_id)
+		if ok.is_empty() and no.is_empty():
+			continue
+		out.append({"family": fam, "label": String(Espionage.FAMILY_LABELS[fam]), "ops": ok + no, "ready": ok.size()})
+	return out
+
+
+static func _op_card(es: EmpireScreens, target: int, op_id: String) -> Control:
+	var state := es._state
+	var player := es._player
+	var o := Espionage.op_def(op_id)
+	var why := Espionage.check_op(state, player, target, op_id)
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", UiTheme.box(Color(1, 1, 1, 0.035), UiTheme.LINE, 0, 1))
+	card.custom_minimum_size = Vector2(OP_CARD, 0)
+	var pad := MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		pad.add_theme_constant_override("margin_" + side, 10)
+	card.add_child(pad)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	pad.add_child(box)
+	var name := Label.new()
+	name.text = String(o["label"])
+	name.add_theme_font_size_override("font_size", 15)
+	name.custom_minimum_size = Vector2(OP_CARD - 20.0, 0)
+	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(name)
+	var txt := UiTheme.paragraph(String(o["text"]), OP_CARD - 20.0, 12)
+	txt.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	box.add_child(txt)
+	box.add_child(UiTheme.dim("Palier %d, %d jours, %s" % [int(o["tier"]), int(o["days"]), GameData.format_amounts(Espionage.op_cost(state, player, op_id))], 12))
+	var ch := Espionage.chances(state, player, target, op_id)
+	var odds := HBoxContainer.new()
+	odds.add_theme_constant_override("separation", 6)
+	odds.add_child(UiTheme.dim("Succès", 12))
+	odds.add_child(_pct_label(int(ch["success"]), ch["success_parts"], true))
+	var gap := Control.new()
+	gap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	odds.add_child(gap)
+	odds.add_child(UiTheme.dim("Découverte", 12))
+	odds.add_child(_pct_label(int(ch["discovery"]), ch["discovery_parts"], false))
+	box.add_child(odds)
+	var b := Button.new()
+	b.text = "LANCER"
+	b.focus_mode = Control.FOCUS_NONE
+	b.disabled = why != ""
+	b.tooltip_text = why if why != "" else "Lancer : %s. Une réussite consomme %d d'infiltration." % [o["label"], int(o.get("spend", 0))]
+	b.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.spy_op(player, target, op_id)))
+	box.add_child(b)
+	if why != "":
+		card.modulate = Color(1, 1, 1, 0.6)
+		var wl := UiTheme.paragraph(why.left(1).to_upper() + why.substr(1) + ".", OP_CARD - 20.0, 12)
+		wl.add_theme_color_override("font_color", UiTheme.WARN)
+		box.add_child(wl)
+	es.intel_op_buttons[op_id] = b
+	return card
 
 
 static func _pct_label(v: int, parts: Array, good_high: bool) -> Label:
