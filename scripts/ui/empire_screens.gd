@@ -35,6 +35,8 @@ const CONTENT_LEFT := SIDE_WIDTH + 2.0 * MARGIN + 18.0
 ## Le contenu s'arrête avant le cadran du temps, en bas à droite.
 const CONTENT_RIGHT := TimeDial.SIDE + 30.0
 const COLUMN_WIDTHS := [200.0, 200.0, 120.0, 210.0, 230.0]
+## Colonnes du tableau des colonies : clé de tri, titre.
+const COLONY_COLUMNS := [["name", "Planète"], ["type", "Type"], ["pop", "Population"], ["build", "Chantier"], ["net", "Bilan par mois"]]
 const COLONY_FILTERS := [["all", "Toutes"], ["colony", "Colonies"], ["outpost", "Avant-postes"], ["founding", "Fondations"]]
 const TYPE_COLORS := {
 	"continental": Color(0.35, 0.7, 0.4), "ocean": Color(0.25, 0.5, 0.9), "desert": Color(0.9, 0.65, 0.35),
@@ -49,6 +51,10 @@ var current := ""
 ## Planète choisie dans l'écran Colonies (-1 = aucune).
 var selected_planet := -1
 var colony_filter := "all"
+## Tri du tableau des colonies (refonte, C2) : colonne ("" = ordre de l'empire) et sens.
+var colony_sort := ""
+var colony_sort_desc := false
+var _col_heads: Array[Button] = []
 var _state: GameState
 var _player := 0
 var _root: Control
@@ -71,7 +77,11 @@ var _donut: Widgets.Donut
 var _donut_legend: VBoxContainer
 var _sys_list: VBoxContainer
 var _sys_sig := ""
-var _alerts: Label
+var _alerts: VBoxContainer
+var _alerts_sig := "-"
+## Courbes du bilan, par ressource, et liens des alertes (pour les tests).
+var res_curves := {}
+var alert_links: Array[Button] = []
 var _faction_art: Widgets.ArtSlot
 var _trait: Label
 # Colonies
@@ -85,7 +95,7 @@ var _filter_tabs := {}
 ## Écologie : boutons de doctrine environnementale (écran Colonies).
 var _eco_buttons := {}
 var _eco_label: Label
-var _col_head_build: Label
+var _free_yards: Array[int] = []
 var _pick_art: Widgets.ArtSlot
 var _pick_title: Label
 var _pick_lines: Label
@@ -539,6 +549,55 @@ func open_selected_colony() -> void:
 		planet_requested.emit(selected_planet)
 
 
+## Trie le tableau des colonies par une colonne : premier clic croissant (décroissant pour les nombres),
+## second clic inversé, troisième clic retour à l'ordre de l'empire.
+func sort_colonies(key: String) -> void:
+	var numeric := key == "pop" or key == "net"
+	if colony_sort != key:
+		colony_sort = key
+		colony_sort_desc = numeric
+	elif colony_sort_desc == numeric:
+		colony_sort_desc = not numeric
+	else:
+		colony_sort = ""
+	_col_sig = ""
+	refresh()
+
+
+## Valeur de tri d'une colonie pour une colonne. Chantier : les chantiers libres d'abord, puis les
+## plus proches de la fin, les avant-postes en dernier.
+static func colony_sort_key(c: Dictionary, key: String, free: Array) -> Variant:
+	match key:
+		"name":
+			return String(c["name"]).to_lower()
+		"type":
+			return String(c["type_label"]).to_lower()
+		"pop":
+			return int(c["population"]) if c["established"] else -1
+		"build":
+			if free.has(int(c["planet_id"])):
+				return -1
+			return int(c["construction_days"]) if String(c["construction"]) != "" else 100000
+		"net":
+			var n := 0
+			for k: String in (c["net"] as Dictionary):
+				n += int(c["net"][k])
+			return n
+	return 0
+
+
+func _refresh_colony_heads() -> void:
+	for i in _col_heads.size():
+		var key := String(COLONY_COLUMNS[i][0])
+		var text := String(COLONY_COLUMNS[i][1])
+		if key == "build" and colony_filter == "biosphere":
+			text = "Biosphère  →  équilibre"
+		if key == colony_sort and colony_filter != "biosphere":
+			text += "  ▾" if colony_sort_desc else "  ▴"
+		_col_heads[i].text = text.to_upper()
+		_col_heads[i].add_theme_color_override("font_color", UiTheme.ACCENT if key == colony_sort and colony_filter != "biosphere" else UiTheme.TEXT_DIM)
+
+
 func set_colony_filter(f: String) -> void:
 	colony_filter = f
 	for id in _filter_tabs:
@@ -799,11 +858,11 @@ func _build_economy() -> void:
 	table.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(table)
 	var grid := GridContainer.new()
-	grid.columns = 6
-	grid.add_theme_constant_override("h_separation", 18)
+	grid.columns = 7
+	grid.add_theme_constant_override("h_separation", 16)
 	grid.add_theme_constant_override("v_separation", 10)
 	table.body.add_child(grid)
-	for h in ["", "Stock", "Production", "Entretien", "Bilan / mois", "Tendance"]:
+	for h in ["", "Stock", "Production", "Entretien", "Bilan / mois", "Tendance", "24 mois"]:
 		var l := UiTheme.section(h)
 		if h != "":
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -811,7 +870,7 @@ func _build_economy() -> void:
 	for r in GameData.resource_ids():
 		var name_box := HBoxContainer.new()
 		name_box.add_theme_constant_override("separation", 8)
-		name_box.custom_minimum_size = Vector2(170, 0)
+		name_box.custom_minimum_size = Vector2(150, 0)
 		name_box.add_child(ResourceIcon.make(r, 20))
 		var name_l := Label.new()
 		name_l.text = GameData.resource_label(r)
@@ -824,10 +883,14 @@ func _build_economy() -> void:
 			l.theme_type_variation = &"Numbers"
 			l.add_theme_font_size_override("font_size", 20 if i < 4 else 14)
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-			l.custom_minimum_size = Vector2(76 if i < 4 else 150, 0)
+			l.custom_minimum_size = Vector2(68 if i < 4 else 124, 0)
 			grid.add_child(l)
 			labels.append(l)
 		_res_rows[r] = labels
+		var curve := Widgets.Sparkline.new(100, 26)
+		curve.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		grid.add_child(curve)
+		res_curves[r] = curve
 
 	var share := Widgets.Block.new("Répartition de la production")
 	share.custom_minimum_size = Vector2(380, 0)
@@ -862,8 +925,10 @@ func _build_economy() -> void:
 	var alerts := Widgets.Block.new("Alertes")
 	alerts.custom_minimum_size = Vector2(380, 0)
 	bottom.add_child(alerts)
-	_alerts = UiTheme.paragraph("", 340, 15)
+	_alerts = VBoxContainer.new()
+	_alerts.add_theme_constant_override("separation", 12)
 	alerts.body.add_child(_alerts)
+	_alerts_sig = "-"
 
 
 func _refresh_economy() -> void:
@@ -888,7 +953,7 @@ func _refresh_economy() -> void:
 		var trend := ""
 		var col := UiTheme.TEXT_DIM
 		if int(r["months_left"]) >= 0:
-			trend = "épuisé dans %d mois" % r["months_left"]
+			trend = "épuisé dans %d mois" % r["months_left"] if int(r["stock"]) > 0 else "stock vide"
 			col = UiTheme.WARN if int(r["months_left"]) > 2 else UiTheme.BAD
 		elif int(r["net"]) > 0:
 			trend = "en hausse"
@@ -900,6 +965,7 @@ func _refresh_economy() -> void:
 			labels[2].mouse_filter = Control.MOUSE_FILTER_STOP
 		labels[5].text = trend
 		labels[5].add_theme_color_override("font_color", col)
+		(res_curves[r["id"]] as Widgets.Sparkline).set_values(me.ledger.get(r["id"], []), ResourceIcon.color_of(r["id"]))
 		# Anneau : part de chaque ressource dans la production brute.
 		var rc := ResourceIcon.color_of(r["id"])
 		parts.append({"value": float(r["gross"]), "color": rc})
@@ -920,18 +986,7 @@ func _refresh_economy() -> void:
 		_donut_legend.add_child(leg)
 	_donut.set_parts(parts, str(gross_total))
 
-	var alerts := PackedStringArray()
-	if me.starving:
-		alerts.append("Famine : les réserves de nourriture sont vides et la population décline. Construisez des fermes ou colonisez un monde fertile.")
-	if me.blackout:
-		alerts.append("Pénurie d'énergie : tous les chantiers sont à l'arrêt tant que le stock reste vide.")
-	for r: Dictionary in EmpireReport.resources(_state, _player):
-		if int(r["months_left"]) >= 0 and int(r["months_left"]) <= 6 and int(r["stock"]) > 0:
-			alerts.append("%s : épuisé dans %d mois à ce rythme." % [r["label"], r["months_left"]])
-	if alerts.is_empty():
-		alerts.append("Aucune crise en vue. Les comptables de l'empire s'ennuient, ce qui est bon signe.")
-	_alerts.text = "\n\n".join(alerts)
-	_alerts.add_theme_color_override("font_color", UiTheme.BAD if me.starving or me.blackout else UiTheme.TEXT_DIM)
+	_refresh_alerts()
 
 	_faction_art.set_caption(me.short_name(), 30)
 	_trait.text = EmpireBar.trait_summary(me.faction())
@@ -942,6 +997,73 @@ func _refresh_economy() -> void:
 	(_totals["systems"] as Label).text = str(t["systems"])
 	(_totals["founding"] as Label).text = "%d / %d" % [t["founding"], t["max_projects"]]
 	_refresh_system_rows()
+
+
+## Alertes du bilan : [{text, planet, bad}]. planet = colonie en cause (-1 si aucune), où mène le lien.
+static func economy_alerts(state: GameState, player: int) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var me := state.get_empire(player)
+	if me == null:
+		return out
+	var cols := EmpireReport.colonies(state, player)
+	if me.starving:
+		var big := -1
+		var pop := -1
+		for c: Dictionary in cols:
+			if bool(c["established"]) and int(c["population"]) > pop:
+				pop = int(c["population"])
+				big = int(c["planet_id"])
+		out.append({"bad": true, "planet": big, "text": "Famine : les réserves de nourriture sont vides et la population décline. Construisez des fermes ou colonisez un monde fertile."})
+	if me.blackout:
+		out.append({"bad": true, "planet": _worst_colony(cols, "energy"), "text": "Pénurie d'énergie : tous les chantiers sont à l'arrêt tant que le stock reste vide."})
+	for r: Dictionary in EmpireReport.resources(state, player):
+		if int(r["months_left"]) >= 0 and int(r["months_left"]) <= 6 and int(r["stock"]) > 0:
+			out.append({"bad": false, "planet": _worst_colony(cols, String(r["id"])),
+					"text": "%s : épuisé dans %d mois à ce rythme." % [r["label"], r["months_left"]]})
+	return out
+
+
+## Colonie au plus mauvais bilan pour cette ressource (-1 si aucune n'est en déficit).
+static func _worst_colony(cols: Array[Dictionary], res: String) -> int:
+	var worst := -1
+	var low := 0
+	for c: Dictionary in cols:
+		var n := int((c["net"] as Dictionary).get(res, 0))
+		if n < low:
+			low = n
+			worst = int(c["planet_id"])
+	return worst
+
+
+func _refresh_alerts() -> void:
+	var list := economy_alerts(_state, _player)
+	var sig := str(list)
+	if sig == _alerts_sig:
+		return
+	_alerts_sig = sig
+	for c in _alerts.get_children():
+		_alerts.remove_child(c)
+		c.queue_free()
+	alert_links.clear()
+	if list.is_empty():
+		_alerts.add_child(UiTheme.paragraph("Aucune crise en vue. Les comptables de l'empire s'ennuient, ce qui est bon signe.", 340, 15))
+		return
+	for a: Dictionary in list:
+		var text := UiTheme.paragraph(String(a["text"]), 340, 15)
+		text.add_theme_color_override("font_color", UiTheme.BAD if bool(a["bad"]) else UiTheme.WARN)
+		_alerts.add_child(text)
+		var pid := int(a["planet"])
+		if pid < 0 or not _state.colonies.has(pid):
+			continue
+		var b := Button.new()
+		b.theme_type_variation = &"BarButton"
+		b.focus_mode = Control.FOCUS_NONE
+		b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		b.text = "VOIR %s" % _state.galaxy.get_planet(pid).display_name(_state.galaxy).to_upper()
+		b.tooltip_text = "Ouvrir la colonie en cause"
+		b.pressed.connect(func() -> void: planet_requested.emit(pid))
+		_alerts.add_child(b)
+		alert_links.append(b)
 
 
 ## Une ligne par système de l'empire : nom, revendications, bilan. Un clic ouvre sa vue système.
@@ -1055,13 +1177,24 @@ func _build_colonies() -> void:
 	var indent := Control.new()
 	indent.custom_minimum_size = Vector2(12, 0)  # même retrait que le texte des lignes
 	header.add_child(indent)
-	var titles := ["Planète", "Type", "Population", "Chantier", "Bilan par mois"]
-	for i in titles.size():
-		var l := UiTheme.section(titles[i])
+	# En-têtes cliquables : un clic trie, un second inverse, un troisième rend l'ordre de l'empire.
+	_col_heads.clear()
+	for i in COLONY_COLUMNS.size():
+		var l := Button.new()
+		l.flat = true
+		l.theme_type_variation = &"SortHead"
+		l.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		l.focus_mode = Control.FOCUS_NONE
+		l.add_theme_font_override("font", UiTheme.section("").get_theme_font("font"))
+		l.add_theme_font_size_override("font_size", 13)
+		l.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 		l.custom_minimum_size = Vector2(COLUMN_WIDTHS[i], 0)
+		l.tooltip_text = "Trier par cette colonne"
+		var key := String(COLONY_COLUMNS[i][0])
+		l.pressed.connect(func() -> void: sort_colonies(key))
 		header.add_child(l)
-		if i == 3:
-			_col_head_build = l
+		_col_heads.append(l)
+	_refresh_colony_heads()
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -1128,13 +1261,21 @@ func _refresh_colonies() -> void:
 			var ha := Ecology.health(_state, int(a["planet_id"]))
 			var hb := Ecology.health(_state, int(b["planet_id"]))
 			return ha < hb or (ha == hb and int(a["planet_id"]) < int(b["planet_id"])))
+	elif colony_sort != "":
+		var free := TurnChecks.free_yards(_state, _player)
+		list.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			var ka: Variant = colony_sort_key(a, colony_sort, free)
+			var kb: Variant = colony_sort_key(b, colony_sort, free)
+			if ka == kb:
+				return int(a["planet_id"]) < int(b["planet_id"])
+			return ka > kb if colony_sort_desc else ka < kb)
 	_refresh_eco_side()
-	if _col_head_build != null:
-		_col_head_build.text = ("Biosphère  →  équilibre" if colony_filter == "biosphere" else "Chantier").to_upper()
+	_refresh_colony_heads()
 	var ids := PackedStringArray()
 	for c in list:
 		ids.append(str(c["planet_id"]))
 	var sig := colony_filter + ":" + ",".join(ids)
+	_free_yards = TurnChecks.free_yards(_state, _player)
 	if sig != _col_sig:
 		_col_sig = sig
 		_rebuild_colony_rows(list)
@@ -1274,6 +1415,10 @@ func _fill_colony_row(row: Dictionary, c: Dictionary) -> void:
 	(cells[2] as Label).add_theme_color_override("font_color", UiTheme.WARN if not c["established"] else UiTheme.TEXT)
 	(cells[3] as Label).text = "%s (%d j)" % [c["construction"], c["construction_days"]] if c["construction"] != "" else "—"
 	(cells[3] as Label).add_theme_color_override("font_color", UiTheme.TEXT if c["construction"] != "" else UiTheme.TEXT_DIM)
+	if c["construction"] == "" and _free_yards.has(int(c["planet_id"])):
+		# Chantier vide alors qu'on peut y bâtir : la colonne le dit (C2).
+		(cells[3] as Label).text = "LIBRE"
+		(cells[3] as Label).add_theme_color_override("font_color", UiTheme.WARN)
 	if colony_filter == "biosphere":
 		# Onglet Biosphères : la colonne Chantier montre la jauge, sa tendance et son palier.
 		var pid := int(c["planet_id"])

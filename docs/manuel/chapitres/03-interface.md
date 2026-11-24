@@ -52,7 +52,7 @@ Les écrans d'empire sont rangés en **huit domaines**. Le panneau d'empire port
 
 | Domaine | Touche | Onglets |
 | --- | --- | --- |
-| Empire | [[F1]] | Bilan (ressources, production par système, alertes), Colonies (colonies et avant-postes, peuples de l'empire, politique d'accueil), Ordre (stabilité des systèmes, décrets), Administration, Trésor, Grands chantiers (merveilles, mégastructures, forge des mondes) |
+| Empire | [[F1]] | Bilan (ressources et leur courbe sur vingt-quatre mois, production par système, alertes qui mènent à la colonie en cause), Colonies (tableau triable des colonies et avant-postes, peuples de l'empire, politique d'accueil), Ordre (stabilité des systèmes, les plus calmes repliés en une ligne, décrets), Administration, Trésor, Grands chantiers (merveilles, mégastructures, forge des mondes) |
 | Savoir | [[F2]] | Recherche (l'arbre des technologies, la file d'attente), Génome, Songe, Fouilles (archéologie et Reliquaire) |
 | Forces | [[F3]] | Chantier (conception des modèles de vaisseaux), Armées |
 | Diplomatie | [[F4]] | Empires (l'anneau des relations ; pour chaque empire : statut, traités, opinion et ses raisons, propositions ; les blocs des sujets et de votre Koinon), Assemblée (l'Amphictyonie : séance, vote, propositions, résolutions et Nomos), Renseignement (cellules, réseaux, dossiers, opérations) |

@@ -1106,6 +1106,53 @@ class Donut:
 		draw_string(nf, c + Vector2(-vw * 0.5, 24), center_value, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, UiTheme.TEXT)
 
 
+## Courbe d'une série de valeurs (bilan des derniers mois) : ligne, repère du zéro, dernier point marqué.
+class Sparkline:
+	extends Control
+	var values: Array = []
+	var color := Color.WHITE
+
+	func _init(w := 150.0, h := 26.0) -> void:
+		custom_minimum_size = Vector2(w, h)
+		mouse_filter = Control.MOUSE_FILTER_STOP
+
+	func set_values(v: Array, col: Color) -> void:
+		values = v
+		color = col
+		if v.is_empty():
+			tooltip_text = "Pas encore de mois écoulé."
+		else:
+			tooltip_text = "Bilan net des %d derniers mois : de %+d à %+d, dernier %+d." % [v.size(), v.min(), v.max(), v[v.size() - 1]]
+		queue_redraw()
+
+	## Points de la courbe dans le cadre, du plus ancien au plus récent.
+	func points() -> PackedVector2Array:
+		var out := PackedVector2Array()
+		if values.is_empty():
+			return out
+		var lo := minf(0.0, float(values.min()))
+		var hi := maxf(0.0, float(values.max()))
+		var span := maxf(1.0, hi - lo)
+		var n := values.size()
+		for i in n:
+			var x := 2.0 + (size.x - 6.0) * (float(i) / float(maxi(1, n - 1)) if n > 1 else 1.0)
+			out.append(Vector2(x, 2.0 + (size.y - 4.0) * (1.0 - (float(values[i]) - lo) / span)))
+		return out
+
+	func _draw() -> void:
+		if values.is_empty():
+			draw_line(Vector2(2, size.y * 0.5), Vector2(size.x - 2, size.y * 0.5), Color(1, 1, 1, 0.1), 1.0)
+			return
+		var lo := minf(0.0, float(values.min()))
+		var hi := maxf(0.0, float(values.max()))
+		var zero := 2.0 + (size.y - 4.0) * (1.0 - (0.0 - lo) / maxf(1.0, hi - lo))
+		draw_line(Vector2(2, zero), Vector2(size.x - 2, zero), Color(1, 1, 1, 0.14), 1.0)
+		var pts := points()
+		if pts.size() > 1:
+			draw_polyline(pts, color, 1.5, true)
+		draw_circle(pts[pts.size() - 1], 2.5, color)
+
+
 ## Entrée du menu principal : pictogramme dans un cercle, libellé en capitales sur un bandeau
 ## translucide qui s'efface vers la droite. Les entrées se posent le long d'une orbite.
 ## glyph : "new", "load", "resume", "options", "quit".

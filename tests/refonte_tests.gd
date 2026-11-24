@@ -15,6 +15,7 @@ func run(check: Callable) -> void:
 	_test_alerts()
 	_test_map()
 	_test_fleet_card()
+	_test_screens()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -224,3 +225,46 @@ func _test_fleet_card() -> void:
 	panel.set_tab("fleets")
 	_ok(panel.row_count() == Fleets.empire_fleets(st, 0).size(), "navigateur : retour à la liste des flottes")
 	panel.queue_free()
+
+
+func _test_screens() -> void:
+	# Colonies (C2) : clés de tri du tableau.
+	var a := {"planet_id": 1, "name": "Brume", "type_label": "Océan", "population": 4, "established": true, "construction": "", "construction_days": 0, "net": {"energy": 3, "materials": -1}}
+	var b := {"planet_id": 2, "name": "aube", "type_label": "Aride", "population": 9, "established": true, "construction": "Mine", "construction_days": 12, "net": {"energy": 1}}
+	var c := {"planet_id": 3, "name": "Cendre", "type_label": "Lave", "population": 0, "established": false, "construction": "", "construction_days": 0, "net": {}}
+	_ok(EmpireScreens.colony_sort_key(b, "name", []) < EmpireScreens.colony_sort_key(a, "name", []), "tri des colonies par nom, sans égard à la casse")
+	_ok(EmpireScreens.colony_sort_key(b, "pop", []) > EmpireScreens.colony_sort_key(a, "pop", []) and EmpireScreens.colony_sort_key(c, "pop", []) == -1, "tri par population, fondations en dernier")
+	_ok(EmpireScreens.colony_sort_key(a, "build", [1]) < EmpireScreens.colony_sort_key(b, "build", [1])
+			and EmpireScreens.colony_sort_key(b, "build", [1]) < EmpireScreens.colony_sort_key(c, "build", [1]), "tri par chantier : les libres d'abord, puis les plus proches de la fin")
+	_ok(EmpireScreens.colony_sort_key(a, "net", []) == 2 and EmpireScreens.colony_sort_key(c, "net", []) == 0, "tri par bilan")
+	# Ordre (C4) : les systèmes calmes se replient.
+	var st := GameState.create(11)
+	var mine := Stability.systems_of(st, 0)
+	var tiers := Stability.tiers()
+	var best := String(tiers[tiers.size() - 1]["id"])
+	var calm := OrderScreen.calm_systems(st, 0)
+	var wrong := 0
+	for sid in calm:
+		if Stability.tier_id(st, sid) != best or not mine.has(sid):
+			wrong += 1
+	_ok(wrong == 0, "les systèmes calmes sont à l'empire et au meilleur palier")
+	_ok(OrderScreen.FOLD_FROM == 3 and OrderScreen.fold_calm, "le repli des systèmes calmes est actif par défaut, au-delà de trois")
+	# Bilan (C1) : registre des 24 derniers mois et alertes qui mènent à la colonie en cause.
+	var me := st.get_empire(0)
+	for i in 30:
+		me.note_month({"energy": i, "materials": -2})
+	_ok((me.ledger["energy"] as Array).size() == Empire.LEDGER_MONTHS and int(me.ledger["energy"][0]) == 6 and int(me.ledger["energy"][23]) == 29,
+			"le registre garde les 24 derniers mois")
+	var back := GameState.from_dict(st.to_dict())
+	_ok(back.get_empire(0).ledger == me.ledger and back.checksum() == st.checksum(), "le registre survit à la sauvegarde")
+	var sl := Widgets.Sparkline.new(130, 26)
+	sl.size = Vector2(130, 26)
+	sl.set_values(me.ledger["energy"], Color.WHITE)
+	var pts := sl.points()
+	_ok(pts.size() == 24 and pts[0].y > pts[23].y and pts[0].x < pts[23].x, "la courbe monte quand le bilan monte")
+	sl.free()
+	_ok(EmpireScreens.economy_alerts(st, 0).is_empty(), "pas d'alerte dans un empire sain")
+	me.starving = true
+	var al := EmpireScreens.economy_alerts(st, 0)
+	_ok(al.size() >= 1 and int(al[0]["planet"]) == me.capital_planet and bool(al[0]["bad"]), "la famine désigne la colonie la plus peuplée")
+	me.starving = false
