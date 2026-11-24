@@ -74,6 +74,23 @@ func _initialize() -> void:
 func _scroll_to(main: Node, text: String) -> void:
 	var l := _find_label(main, text)
 	if l == null:
+		# Refonte : la section peut être dans un autre volet de la fiche d'empire, ou dans un autre onglet.
+		var es: EmpireScreens = main._empire_screens
+		if es.current == "diplomacy" and es.diplo_tab == "empires":
+			for pane: String in ["deal", "war", "relation"]:
+				es.set_diplo_pane(pane)
+				await _frames(4)
+				l = _find_label(main, text)
+				if l != null:
+					break
+		if l == null:
+			for addr: String in ["diplomacy:league", "diplomacy:neighbors", "diplomacy:assembly", "diplomacy:empires"]:
+				es.show_address(addr)
+				await _frames(8)
+				l = _find_label(main, text)
+				if l != null:
+					break
+	if l == null:
 		return
 	var sc: Node = l.get_parent()
 	while sc != null and not sc is ScrollContainer:
@@ -88,7 +105,7 @@ func _scroll_to(main: Node, text: String) -> void:
 func _find_label(n: Node, text: String) -> Control:
 	for c in n.find_children("*", "Label", true, false):
 		var l := c as Label
-		if l.is_visible_in_tree() and l.text.contains(text):
+		if l.is_visible_in_tree() and (l.text.contains(text) or l.text.contains(text.to_upper())):
 			return l
 	return null
 

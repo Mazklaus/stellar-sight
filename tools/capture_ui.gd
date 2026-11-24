@@ -77,6 +77,8 @@ func _initialize() -> void:
 	for t in main._hud._toasts.get_children():
 		t.queue_free()
 	main._hud.notify("Partie sauvegardée (%s)" % GameCalendar.date_string(st.tick), "good")
+	main.close_event_panel()
+	main.close_announce_panel()
 	await _frames(5)
 	await _shot(out + "/galaxie-interface.png")
 	main._hud.set_lens("economy")

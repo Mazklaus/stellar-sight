@@ -51,6 +51,10 @@ func _initialize() -> void:
 	main.select_fleet(mine.id)
 	main._refresh_all()
 	await _frames(30)
+	# Le premier contact ouvre sa fenêtre : on la referme pour montrer la fiche.
+	main.close_event_panel()
+	main.close_announce_panel()
+	await _frames(6)
 	await _shot(out + "/fiche-flotte-voilee.png")
 	main.toggle_empire_screen("shipyard")
 	await _frames(20)

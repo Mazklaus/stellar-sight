@@ -37,12 +37,20 @@ func _initialize() -> void:
 	main.select_fleet(-1)
 	main._select(-1)
 	await _frames(60)
+	for t in main._hud._toasts.get_children():
+		t.queue_free()
+	main.close_event_panel()
+	main.close_announce_panel()
+	await _frames(4)
 	await _shot(out + "/spectateur-vue-ensemble.png")
 
 	main.follow_empire(2)
 	main.set_spectator_fog(true)
 	main.go_to_capital()
 	await _frames(90)
+	main.close_event_panel()
+	main.close_announce_panel()
+	await _frames(4)
 	await _shot(out + "/spectateur-yeux-empire.png")
 
 	# Partie normale : le joueur (Ossarane) au départ, ses rivaux IA ont un an d'avance.
