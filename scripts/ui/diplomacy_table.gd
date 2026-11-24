@@ -7,7 +7,7 @@ extends Control
 ## Les guerres et alliances entre les autres empires longent le bord ; seules celles de l'empire choisi
 ## sont marquées. Une ligue (Koinon) est une bande de couleur qui enveloppe ses membres : son Stratège
 ## porte un cercle plein, un associé un cercle en pointillés. Un sujet est plus petit, à côté de son
-## suzerain, relié à lui par un trait doré.
+## suzerain, relié à lui par un trait doré ; son étiquette dit « Sujet », la couleur du rayon garde le statut.
 
 signal empire_selected(empire_id: int)
 
@@ -21,8 +21,10 @@ const STATUS_COLORS := {
 ## Couleurs des ligues, dans l'ordre de leurs identifiants.
 const LEAGUE_COLORS := [Color(0.78, 0.61, 1.0), Color(1.0, 0.56, 0.75), Color(0.48, 0.88, 0.63), Color(0.93, 0.85, 0.45)]
 const GOLD := Color(0.85, 0.64, 0.25)
-## Marge laissée aux étiquettes entre l'anneau et le bord du bloc.
-const LABEL_ROOM := 105.0
+## Marge minimale laissée aux étiquettes entre l'anneau et le bord du bloc ; elle grandit avec la plus
+## longue étiquette (voir _room).
+const LABEL_ROOM := 96.0
+const ROOM_MAX := 122.0
 const NAME_MAX := 13
 
 var selected := -1
@@ -31,6 +33,7 @@ var buttons := {}
 var _state: GameState
 var _player := 0
 var _ids: Array[int] = []
+var _room := LABEL_ROOM
 
 
 func _init(side := 440.0) -> void:
@@ -107,6 +110,9 @@ func setup(state: GameState, player: int, selected_id: int) -> void:
 		b.pressed.connect(func() -> void: empire_selected.emit(target))
 		add_child(b)
 		buttons[id] = b
+	_room = LABEL_ROOM
+	for id in _ids:
+		_room = minf(ROOM_MAX, maxf(_room, _label_width(id) + 30.0))
 	_layout()
 	queue_redraw()
 
@@ -122,7 +128,7 @@ func _center() -> Vector2:
 
 
 func _radius() -> float:
-	return maxf(60.0, minf(size.x, size.y) * 0.5 - LABEL_ROOM)
+	return maxf(60.0, minf(size.x, size.y) * 0.5 - _room)
 
 
 ## Angle de la place k sur l'anneau (la première en haut, puis dans le sens des aiguilles).
@@ -156,7 +162,7 @@ func status_line(id: int) -> String:
 	if lord == _player:
 		text = "Votre sujet"
 	elif lord >= 0:
-		text = "Sujet, %s" % text.to_lower()
+		text = "Sujet"
 	return "%s  %+d" % [text, Diplomacy.opinion(_state, id, _player)]
 
 
@@ -171,9 +177,8 @@ func label_rect(id: int) -> Array:
 	var a := _angle(_ids.find(id))
 	var cs := cos(a)
 	var sn := sin(a)
-	var f := get_theme_default_font()
-	var w := maxf(f.get_string_size(_short(id), HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x, f.get_string_size(status_line(id), HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x) + 4.0
-	var t := _center() + Vector2.from_angle(a) * (_radius() + 26.0)
+	var w := _label_width(id)
+	var t := _center() + Vector2.from_angle(a) * (_radius() + 26.0 + 12.0 * (1.0 - absf(cs)))
 	var align := HORIZONTAL_ALIGNMENT_CENTER
 	var x := t.x - w * 0.5
 	if absf(cs) >= 0.3:
@@ -183,6 +188,11 @@ func label_rect(id: int) -> Array:
 	x = clampf(x, 2.0, maxf(2.0, size.x - w - 2.0))
 	y = clampf(y, 2.0, maxf(2.0, size.y - 34.0))
 	return [Vector2(x, y), Vector2(w, 32.0), align]
+
+
+func _label_width(id: int) -> float:
+	var f := get_theme_default_font()
+	return maxf(f.get_string_size(_short(id), HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x, f.get_string_size(status_line(id), HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x) + 4.0
 
 
 func _layout() -> void:
@@ -240,7 +250,7 @@ func _draw() -> void:
 		var col := league_color(lid)
 		var a0 := _angle(ks[0])
 		var a1 := _angle(ks[ks.size() - 1])
-		for pass_def: Array in [[44.0, Color(col, 0.3)], [40.0, bg], [40.0, Color(col, 0.1)]]:
+		for pass_def: Array in [[44.0, Color(col, 0.55)], [40.0, bg], [40.0, Color(col, 0.16)]]:
 			if a1 > a0:
 				draw_arc(c, r, a0, a1, 48, pass_def[1], float(pass_def[0]), true)
 			for a: float in [a0, a1]:
