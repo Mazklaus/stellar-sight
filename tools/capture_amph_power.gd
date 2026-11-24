@@ -109,7 +109,7 @@ func _initialize() -> void:
 func _find_label(n: Node, text: String) -> Control:
 	for c in n.find_children("*", "Label", true, false):
 		var l := c as Label
-		if l.is_visible_in_tree() and l.text.contains(text):
+		if l.is_visible_in_tree() and (l.text.contains(text) or l.text.contains(text.to_upper())):
 			return l
 	return null
 

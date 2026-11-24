@@ -41,48 +41,86 @@ static func _sites_block(es: EmpireScreens) -> Control:
 	var sites := Relics.known_sites(state, player)
 	if sites.is_empty():
 		blk.body.add_child(UiTheme.dim("Aucun site connu. Les plus anciens (strate Première) demandent une détection de niveau 3.", 14))
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 12)
+	flow.add_theme_constant_override("v_separation", 12)
+	if not sites.is_empty():
+		blk.body.add_child(flow)
 	for sid in sites:
 		var d: Dictionary = state.digs[sid]
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 12)
+		var card := PanelContainer.new()
+		card.add_theme_stylebox_override("panel", UiTheme.box(Color(1, 1, 1, 0.035), UiTheme.LINE, 10, 1))
+		card.custom_minimum_size = Vector2(SITE_CARD, 0)
+		var row := VBoxContainer.new()
+		row.add_theme_constant_override("separation", 6)
+		card.add_child(row)
 		var nm := Button.new()
 		nm.flat = true
 		nm.focus_mode = Control.FOCUS_NONE
 		nm.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		nm.text = "%s (%s)" % [Relics.site_name(state, sid), state.galaxy.systems[sid].system_name]
-		nm.tooltip_text = Archaeology.site_desc(state, player, sid)
-		nm.custom_minimum_size = Vector2(300, 0)
+		nm.tooltip_text = "Ouvrir le système"
 		nm.clip_text = true
 		var first := int(state.galaxy.systems[sid].planet_ids[0])
 		nm.pressed.connect(func() -> void: es.planet_requested.emit(first))
 		row.add_child(nm)
 		var by := int(d["by"])
 		var status := Archaeology.site_desc(state, player, sid)
+		var done_ch := site_progress(d)
 		if int(d["done"]) >= 0:
 			status += " · terminé par %s" % state.get_empire(int(d["done"])).short_name()
 			if Archaeology.sub(state, "hl").has(str(sid)):
 				status += " · Haut lieu"
 		elif Relics.hidden_from(state, player, sid):
 			status += " · un voile cache ce qui s'y passe"
+			done_ch = -1
 		elif by == player and int(d["next"]) >= 0:
-			status += " · %s · chapitre %d / %d · %d %% · jet dans %d jours" % [Archaeology.method_label(String(d.get("me", ""))), int(d["ch"]) + 1, int(d["chapters"]),
+			status += " · %s · %d %% de réussite · jet dans %d jours" % [Archaeology.method_label(String(d.get("me", ""))),
 					Relics.success_pct(state, player, sid), int(d["next"]) - state.tick]
 		elif by >= 0 and int(d["next"]) >= 0:
 			status += " · fouillé par %s" % state.get_empire(by).short_name()
-		var st_l := UiTheme.paragraph(status, 420.0, 13)
+		var st_l := UiTheme.paragraph(status, SITE_CARD - 20.0, 12)
 		st_l.modulate = Color(1, 1, 1, 0.7)
-		st_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(st_l)
+		if done_ch >= 0:
+			var pr := HBoxContainer.new()
+			pr.add_theme_constant_override("separation", 8)
+			var bar := ProgressBar.new()
+			bar.show_percentage = false
+			bar.max_value = maxi(1, int(d["chapters"]))
+			bar.value = done_ch
+			bar.custom_minimum_size = Vector2(0, 6)
+			bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			pr.add_child(bar)
+			pr.add_child(UiTheme.dim("chapitre %d / %d" % [done_ch, int(d["chapters"])], 12))
+			row.add_child(pr)
+		var acts := HFlowContainer.new()
+		acts.add_theme_constant_override("h_separation", 6)
 		if Relics.is_open(state, sid) and (by != player or int(d["next"]) < 0):
 			for m in ["prudente", "methodique", "pillage"]:
 				var why := Relics.check_start(state, player, sid, m)
-				row.add_child(_button(es, Archaeology.method_label(m), why, String((Archaeology.methods().get(m, {}) as Dictionary).get("text", "")),
+				acts.add_child(_button(es, Archaeology.method_label(m), why, String((Archaeology.methods().get(m, {}) as Dictionary).get("text", "")),
 						"dig:%d:%s" % [sid, m], SimCommands.dig_start(player, sid, m), m == "methodique"))
 		elif Relics.is_open(state, sid) and by == player:
-			row.add_child(_button(es, "Indice (%d fragments)" % int(Relics.data()["digs"]["clue_fragments"]), Relics.check_clue(state, player, sid),
+			acts.add_child(_button(es, "Indice (%d fragments)" % int(Relics.data()["digs"]["clue_fragments"]), Relics.check_clue(state, player, sid),
 					"+1 au prochain jet.", "clue:%d" % sid, SimCommands.dig_clue(player, sid)))
-		blk.body.add_child(row)
+		if acts.get_child_count() > 0:
+			row.add_child(acts)
+		else:
+			acts.free()
+		flow.add_child(card)
 	return blk
+
+
+const SITE_CARD := 318.0
+
+
+## Chapitres déjà franchis d'un site (tous quand il est terminé).
+static func site_progress(d: Dictionary) -> int:
+	if int(d.get("done", -1)) >= 0:
+		return int(d.get("chapters", 0))
+	return clampi(int(d.get("ch", 0)), 0, int(d.get("chapters", 0)))
 
 
 static func _trails_block(es: EmpireScreens) -> Control:

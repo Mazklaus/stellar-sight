@@ -79,41 +79,41 @@
    "id": "dedaigneuse",
    "label": "Dédaigneuse",
    "below": 0,
-   "text": "Elle vous regarde comme on regarde un insecte sur une vitre."
+   "text": "Elle ne nous accorde aucune attention."
   },
   {
    "id": "condescendante",
    "label": "Condescendante",
    "below": 100,
-   "text": "Elle vous tolère, avec un sourire qui en dit long."
+   "text": "Elle tolère notre présence et nous surveille."
   },
   {
    "id": "bienveillante",
    "label": "Bienveillante",
    "below": 9999,
-   "text": "Elle vous trouve presque attendrissant. Presque."
+   "text": "Elle nous traite avec une bienveillance distante."
   }
  ],
  "force_words": [
   [
    0.25,
-   "Ce serait un massacre. Le vôtre."
+   "Aucune de nos flottes ne reviendrait d'un engagement."
   ],
   [
    0.5,
-   "Vous l'agaceriez, sans plus."
+   "Nos flottes lui causeraient des pertes légères avant d'être détruites."
   ],
   [
    0.9,
-   "Peut-être, avec toute votre flotte, beaucoup de chance et quelques prières."
+   "Une victoire demanderait toute notre flotte et des circonstances favorables."
   ],
   [
    1.4,
-   "Ce serait un combat d'égal à égal, de ceux dont on fait des chansons."
+   "Les forces sont comparables et l'issue d'une guerre serait incertaine."
   ],
   [
    999,
-   "Vos flottes l'impressionneraient. Elle ne l'avouera jamais."
+   "Nos flottes surclassent les siennes."
   ]
  ],
  "requests": {
@@ -169,7 +169,7 @@
   {
    "id": "hero",
    "w": 5,
-   "text": "un héros ancien, venu de l'autre bout des âges"
+   "text": "un héros ancien"
   }
  ],
  "contrib": {
@@ -197,27 +197,27 @@
  "buildings": {
   "forge_etoile": {
    "label": "Forge-étoile",
-   "text": "Une forge qui boit une étoile à la paille. Personne ne sait plus la construire."
+   "text": "Une forge qui tire son énergie directement d'une étoile. Aucun empire actuel ne sait en construire."
   },
   "archive_vivante": {
    "label": "Archive vivante",
-   "text": "Une bibliothèque qui se souvient d'elle-même, et de vous."
+   "text": "Une archive qui se recopie et se corrige elle-même depuis sa fondation."
   },
   "sanctuaire_eternel": {
    "label": "Sanctuaire éternel",
-   "text": "On y prie depuis si longtemps que les murs répondent."
+   "text": "Un lieu de prière en service continu depuis les premiers âges de la galaxie."
   },
   "crypte_stase": {
    "label": "Crypte de stase",
-   "text": "Des millions de cercueils de métal, alignés, patients."
+   "text": "Des millions de caissons de stase alignés, où dorment les sujets de la Dynastie."
   },
   "jardin_des_especes": {
    "label": "Jardin des espèces",
-   "text": "Un monde-zoo : des espèces disparues partout ailleurs y vivent sous cloche."
+   "text": "Un monde-réserve où vivent des espèces disparues partout ailleurs."
   },
   "bergerie_orbitale": {
    "label": "Bergerie orbitale",
-   "text": "Un anneau qui surveille quelque chose. Nul ne sait quoi, ni pour qui."
+   "text": "Un anneau de surveillance en orbite. On ignore ce qu'il observe."
   }
  },
  "loot": {
@@ -239,7 +239,7 @@
    "short": "Conservatoire",
    "color": "#6fd3c7",
    "register": "Space opera",
-   "blurb": "Un musée vivant aussi vieux que les étoiles. Le Conservatoire collectionne les espèces, les catalogue, et vous regarde avec l'intérêt poli d'un conservateur devant une vitrine.",
+   "blurb": "Le Conservatoire d'Ylm recense les espèces de la galaxie depuis une époque antérieure à tous les empires connus. Il en garde des représentants vivants dans sa Réserve et tient les empires jeunes pour des sujets d'étude.",
    "rival": "kheb",
    "roles": [
     "parvenue",
@@ -251,7 +251,7 @@
     "intrusion"
    ],
    "angers_text": "L'extermination et les déportations, les flottes armées chez lui.",
-   "wants_text": "Des spécimens pour sa Réserve, et que personne n'extermine personne.",
+   "wants_text": "Des spécimens pour sa Réserve, et qu'aucune espèce ne soit exterminée.",
    "requests": [
     "anc_conservatoire_specimen",
     "anc_conservatoire_purges"
@@ -302,7 +302,7 @@
    "short": "Kheb",
    "color": "#b8a24a",
    "register": "Grimdark",
-   "blurb": "Des machines endormies dans des mondes-tombeaux depuis soixante millions d'années. Le protocole de réveil dure trois ans, et le Pharaon se réveillera avec la migraine.",
+   "blurb": "La Dynastie de Kheb est un peuple de machines endormi dans des mondes-tombeaux depuis soixante millions d'années. Son protocole de réveil dure trois ans. Elle ne tolère personne aux abords de ses cryptes.",
    "rival": "conservatoire",
    "roles": [
     "parvenue"
@@ -313,7 +313,7 @@
     "intrusion"
    ],
    "angers_text": "Posséder un système voisin de ses tombeaux, les flottes armées chez elle.",
-   "wants_text": "Rien. Qu'on s'en aille.",
+   "wants_text": "Qu'on se tienne à distance de ses tombeaux.",
    "requests": [
     "anc_kheb_silence",
     "anc_kheb_offrande"
@@ -321,7 +321,7 @@
    "mission": {
     "stat": "conquests",
     "n": 1,
-    "text": "Rappeler aux jeunes peuples que la galaxie a des maîtres : conquérir un système."
+    "text": "Conquérir un système, pour rappeler aux jeunes peuples l'ordre ancien."
    },
    "demand": "anc_kheb_exige",
    "posts": [
@@ -363,7 +363,7 @@
    "short": "Hiérophantes",
    "color": "#e8c97a",
    "register": "Médiéval spatial",
-   "blurb": "Une théocratie psionique qui prie depuis l'aube de la galaxie. Autour d'elle, des Mondes saints superbes et libres, qu'il est formellement interdit de toucher.",
+   "blurb": "Les Hiérophantes forment une théocratie psionique plus ancienne que tous les empires connus. Ils entourent leur domaine de Mondes saints, laissés vides, dont ils interdisent l'accès.",
    "rival": "bibliotheque",
    "roles": [
     "parvenue"
@@ -428,7 +428,7 @@
    "short": "Bibliothèque",
    "color": "#8fa8e8",
    "register": "Hard SF",
-   "blurb": "Des archivistes cyborgs qui ont lu tout ce qui a été écrit, deux fois. Ils prêtent volontiers leur savoir, et facturent les retards au millénaire.",
+   "blurb": "Les archivistes d'Aster sont des cyborgs qui copient et classent tout ce que la galaxie écrit. Ils prêtent leur savoir aux empires jeunes et tiennent un compte exact de ce qu'on leur doit.",
    "rival": "hierophantes",
    "roles": [
     "parvenue",
@@ -439,8 +439,8 @@
     "atrocity",
     "intrusion"
    ],
-   "angers_text": "Les atrocités (qui brûle les gens brûle les livres), les flottes armées chez elle.",
-   "wants_text": "Des héros savants à interroger, des reliques à étudier, et le silence dans la salle de lecture.",
+   "angers_text": "Les atrocités, qui détruisent aussi les archives des victimes, et les flottes armées chez elle.",
+   "wants_text": "Des héros savants à interroger et des reliques à étudier.",
    "requests": [
     "anc_bibliotheque_savant",
     "anc_bibliotheque_relique"
@@ -491,7 +491,7 @@
    "short": "Bergers",
    "color": "#c08ae0",
    "register": "Cosmique / étrange",
-   "blurb": "Des machines-bergères qui veillent sur un troupeau dont personne ne connaît la nature. Elles n'ont pas d'opinion. Elles ont des plans.",
+   "blurb": "Les Bergers d'Orrhë sont des machines qui gardent quelque chose dont personne n'a pu établir la nature. Elles ne négocient pas et n'expliquent jamais leurs offres.",
    "rival": "",
    "roles": [
     "gardienne"
@@ -500,7 +500,7 @@
    "no_opinion": true,
    "angers": [],
    "angers_text": "Rien de prévisible.",
-   "wants_text": "On ne sait pas. Elles proposent des paris.",
+   "wants_text": "On l'ignore. Elles proposent des marchés dont elles taisent l'enjeu.",
    "requests": [
     "anc_bergers_greffe",
     "anc_bergers_recensement"
@@ -563,7 +563,7 @@
    "vision": 3,
    "military": true,
    "ancient": "conservatoire",
-   "description": "Une vitrine armée. Ne pas toucher : elle mord."
+   "description": "Un vaisseau de garde du Conservatoire, armé pour interdire l'approche de la Réserve."
   },
   "ancien_conservatoire_arche": {
    "label": "Arche des Espèces",
@@ -582,7 +582,7 @@
    "vision": 4,
    "military": true,
    "ancient": "conservatoire",
-   "description": "Mille espèces dorment à bord, chacune sous sa cloche, chacune avec son étiquette."
+   "description": "Un transport qui porte mille espèces en sommeil, chacune dans son habitat scellé."
   },
   "ancien_kheb_scarabee": {
    "label": "Scarabée de Kheb",
@@ -601,7 +601,7 @@
    "vision": 2,
    "military": true,
    "ancient": "kheb",
-   "description": "Il se répare en marchant. Il marche depuis soixante millions d'années."
+   "description": "Une machine de guerre qui se répare en marche, en service depuis soixante millions d'années."
   },
   "ancien_kheb_sarcophage": {
    "label": "Sarcophage de l'Aube",
@@ -620,7 +620,7 @@
    "vision": 3,
    "military": true,
    "ancient": "kheb",
-   "description": "Un tombeau volant. Ce qu'il y a dedans n'est pas tout à fait mort."
+   "description": "Un tombeau armé. Ses occupants sont en stase et peuvent être réveillés."
   },
   "ancien_hierophantes_psaume": {
    "label": "Psaume ardent",
@@ -639,7 +639,7 @@
    "vision": 3,
    "military": true,
    "ancient": "hierophantes",
-   "description": "Il chante en tirant. Les deux sont insupportables."
+   "description": "Un vaisseau de ligne dont l'équipage psionique chante pendant le tir."
   },
   "ancien_hierophantes_cathedrale": {
    "label": "Cathédrale de l'Aube",
@@ -658,7 +658,7 @@
    "vision": 4,
    "military": true,
    "ancient": "hierophantes",
-   "description": "Une nef de prière de trente kilomètres. Les fidèles y entrent à genoux, les ennemis aussi."
+   "description": "Une nef de prière de trente kilomètres, vaisseau amiral des Hiérophantes."
   },
   "ancien_bibliotheque_lecteur": {
    "label": "Lecteur d'Aster",
@@ -677,7 +677,7 @@
    "vision": 4,
    "military": true,
    "ancient": "bibliotheque",
-   "description": "Il a lu votre doctrine militaire. Il a pris des notes dans la marge."
+   "description": "Un vaisseau d'étude armé, qui enregistre les doctrines de ses adversaires pendant le combat."
   },
   "ancien_bibliotheque_index": {
    "label": "Gardien du Savoir",
@@ -696,7 +696,7 @@
    "vision": 5,
    "military": true,
    "ancient": "bibliotheque",
-   "description": "Un index de toutes choses, armé pour défendre ses fiches."
+   "description": "Le vaisseau qui porte l'index général de la Bibliothèque, armé pour le défendre."
   },
   "ancien_bergers_veilleur": {
    "label": "Veilleur d'Orrhë",
@@ -734,7 +734,7 @@
    "vision": 5,
    "military": true,
    "ancient": "bergers",
-   "description": "Un bâton de berger long comme un continent. Le troupeau, c'est peut-être vous."
+   "description": "Un vaisseau en forme de crosse, long comme un continent. Sa fonction dans le troupeau n'est pas connue."
   }
  },
  "cards": [
@@ -746,7 +746,7 @@
    "art": "ancient",
    "choices": [
     {
-     "label": "Saluer bien bas",
+     "label": "Saluer avec déférence",
      "fx": [
       {
        "k": "ancient",
@@ -766,7 +766,7 @@
   {
    "id": "anc_conservatoire_specimen",
    "title": "Le Conservatoire demande un spécimen",
-   "text": "Une sonde du Conservatoire d'Ylm se pose sur votre monde le plus peuplé avec une cloche de verre et une étiquette déjà remplie. Elle voudrait « un individu représentatif, en bon état ». Il paraît que la Réserve est très confortable.",
+   "text": "Une sonde du Conservatoire d'Ylm s'est posée sur notre monde le plus peuplé et a transmis une demande en bonne forme. Le Conservatoire souhaite recevoir un groupe de volontaires de notre espèce, qui vivront dans sa Réserve et n'en reviendront pas.\n\nLes rares témoignages sortis de la Réserve décrivent des habitats reconstitués avec soin et des pensionnaires bien traités. La sonde attend la réponse en orbite et n'a formulé aucune menace.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -804,7 +804,7 @@
   {
    "id": "anc_conservatoire_purges",
    "title": "Le Conservatoire veut une galaxie sans purges",
-   "text": "Le Conservatoire d'Ylm vous demande de signer la Charte des Espèces : renoncer pour toujours à l'extermination. Il tient à ses vitrines.",
+   "text": "Le Conservatoire d'Ylm nous soumet sa Charte des Espèces. Le signataire renonce pour toujours à exterminer un peuple, quel qu'en soit le motif. Le Conservatoire fait savoir qu'il tient un registre des signataires et un autre des refus.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -843,7 +843,7 @@
   {
    "id": "anc_kheb_silence",
    "title": "Kheb exige le silence",
-   "text": "Une voix sèche comme un caveau sort de tous vos récepteurs : « Vos émissions troublent le sommeil de la Dynastie. Baissez le son. » Il faudrait couper les grandes antennes un an.",
+   "text": "Tous nos récepteurs ont capté le même message de la Dynastie de Kheb. Elle déclare que nos émissions perturbent le sommeil de ses tombeaux et demande qu'elles cessent. Nos techniciens estiment qu'il faudrait couper les grandes antennes pendant un an, ce qui gênerait le commerce.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -869,7 +869,7 @@
      ]
     },
     {
-     "label": "Monter le volume",
+     "label": "Continuer d'émettre",
      "fx": [
       {
        "k": "ancient",
@@ -885,7 +885,7 @@
   {
    "id": "anc_kheb_offrande",
    "title": "Une offrande pour les tombeaux",
-   "text": "Des prêtres-machines de Kheb tendent une coupe vide vers vos chantiers. Ils veulent des matériaux, beaucoup, pour « entretenir les cryptes ». Personne n'ose demander ce qu'il y a dans les cryptes.",
+   "text": "Des prêtres-machines de Kheb se sont présentés devant nos chantiers. Ils demandent des matériaux en grande quantité pour l'entretien des cryptes. Ils n'ont pas répondu aux questions de nos intendants sur ce que les cryptes contiennent.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -908,7 +908,7 @@
      ]
     },
     {
-     "label": "La coupe restera vide",
+     "label": "Refuser l'offrande",
      "fx": [
       {
        "k": "ancient",
@@ -924,7 +924,7 @@
   {
    "id": "anc_hierophantes_pelerinage",
    "title": "Les Hiérophantes invitent au pèlerinage",
-   "text": "Les Hiérophantes de l'Aube Première acceptent, une fois par millénaire, qu'une délégation étrangère vienne prier sur leurs Mondes saints. C'est votre tour. Les frais de voyage sont à votre charge, la révélation est offerte.",
+   "text": "Les Hiérophantes de l'Aube Première admettent une délégation étrangère sur leurs Mondes saints une fois par millénaire, et ils ont désigné notre empire pour celle-ci. Le voyage est à nos frais. Les délégations précédentes sont rentrées très écoutées dans leur pays.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -956,7 +956,7 @@
      ]
     },
     {
-     "label": "Nous prierons chez nous",
+     "label": "Décliner l'invitation",
      "fx": [
       {
        "k": "ancient",
@@ -972,7 +972,7 @@
   {
    "id": "anc_hierophantes_machines",
    "title": "Bannir les machines pensantes",
-   "text": "Les Hiérophantes vous demandent de débrancher vos intelligences artificielles, « avant qu'elles ne se mettent à prier ». Vos ingénieurs pleurent ; vos prêtres applaudissent.",
+   "text": "Les Hiérophantes nous demandent d'éteindre nos intelligences artificielles. Leur doctrine tient une machine qui pense pour une âme contrefaite. Nos ingénieurs préviennent que les chantiers en seraient ralentis pendant trois ans. Le clergé de plusieurs de nos mondes soutient la demande.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1014,7 +1014,7 @@
   {
    "id": "anc_bibliotheque_savant",
    "title": "La Bibliothèque voudrait un savant",
-   "text": "La Grande Bibliothèque d'Aster aimerait « emprunter » un de vos héros pour cinq ans, le temps de lui poser quelques questions. Elle promet de le rendre en bon état, avec un marque-page.",
+   "text": "La Grande Bibliothèque d'Aster demande à recevoir l'un de nos héros pour cinq ans. Ses archivistes veulent l'interroger sur ses travaux et lui ouvrent leurs salles en échange. Les savants qui ont fait ce séjour sont rentrés à la date dite, avec des connaissances que leurs collègues n'avaient pas.",
    "trigger": "ancient",
    "art": "ancient",
    "subjects": {
@@ -1055,7 +1055,7 @@
   {
    "id": "anc_bibliotheque_relique",
    "title": "Une relique à étudier",
-   "text": "La Bibliothèque a entendu parler de vos reliques. Elle propose de verser une grosse somme de Savoir pour en étudier les traces, sans rien emporter. Juste une photocopie.",
+   "text": "La Grande Bibliothèque d'Aster a eu connaissance de nos reliques. Elle propose une forte somme de Savoir pour le droit de les examiner sur place. Ses archivistes s'engagent à n'en faire que des relevés et à ne rien emporter.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1094,7 +1094,7 @@
   {
    "id": "anc_bergers_greffe",
    "title": "Les Bergers proposent une greffe",
-   "text": "Les Bergers d'Orrhë offrent d'« ajuster » vos populations. Ils ne disent pas comment. Ils ne disent pas pourquoi. Ils attendent.",
+   "text": "Les Bergers d'Orrhë proposent de modifier nos populations. Leur message ne décrit ni le procédé ni le résultat attendu, et il ne demande rien en échange. Leurs vaisseaux stationnent à la frontière dans l'attente d'une réponse.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1138,7 +1138,7 @@
   {
    "id": "anc_bergers_recensement",
    "title": "Recensement d'Orrhë",
-   "text": "Une flotte de Veilleurs compte vos vaisseaux, un par un, en silence. Ils proposent d'en réparer quelques-uns pendant qu'ils y sont. Ou d'en garder quelques-uns. Ce n'est pas très clair.",
+   "text": "Une flotte de Veilleurs d'Orrhë parcourt nos ports et dénombre nos vaisseaux. Elle offre d'en remettre certains en état. Nos traducteurs ne s'accordent pas sur la suite du message, qui peut aussi se lire comme l'annonce qu'elle en retiendra quelques-uns.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1179,7 +1179,7 @@
   {
    "id": "anc_mission",
    "title": "{anc} vous confie une mission",
-   "text": "{anc_mission}\n\nVous avez dix ans. L'ancienne précise qu'elle n'aime pas attendre, mais qu'elle a l'habitude.",
+   "text": "{anc_mission}\n\nLe délai est de dix ans. Elle n'a pas dit ce qu'elle ferait en cas d'échec.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1210,7 +1210,7 @@
   {
    "id": "anc_cadeau",
    "title": "Un cadeau de {anc}",
-   "text": "{anc} vous fait parvenir {anc_gift}. Refuser serait très mal vu.",
+   "text": "{anc} nous fait parvenir {anc_gift}. Un refus serait pris pour une offense.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1225,7 +1225,7 @@
      ]
     },
     {
-     "label": "Refuser (par fierté)",
+     "label": "Refuser le cadeau",
      "fx": [
       {
        "k": "ancient",
@@ -1241,7 +1241,7 @@
   {
    "id": "anc_conservatoire_exige",
    "title": "Ultimatum du Conservatoire",
-   "text": "Le Conservatoire d'Ylm a classé votre empire parmi les « espèces nuisibles ». Il exige réparation : une forte amende, et vos excuses publiques. Sinon, il viendra mettre de l'ordre dans sa collection.",
+   "text": "Le Conservatoire d'Ylm a inscrit notre empire sur sa liste des espèces nuisibles. Il exige une forte amende et des excuses publiques. S'il ne les obtient pas, ses flottes viendront retirer elles-mêmes les espèces qu'il estime menacées.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1278,7 +1278,7 @@
   {
    "id": "anc_kheb_exige",
    "title": "Ultimatum de Kheb",
-   "text": "« Vos colonies campent sur le seuil de nos tombeaux. Retirez-vous. » La Dynastie exige un des systèmes voisins de sa poche ; il lui reviendra.",
+   "text": "La Dynastie de Kheb nous signifie que nos colonies occupent les abords de ses tombeaux. Elle exige que l'un des systèmes voisins de sa poche lui soit remis.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1308,7 +1308,7 @@
   {
    "id": "anc_hierophantes_exige",
    "title": "Ultimatum des Hiérophantes",
-   "text": "« Vous avez souillé l'Aube. » Les Hiérophantes exigent que vous abandonniez les Mondes saints que vous occupez, et que vos machines se taisent.",
+   "text": "Les Hiérophantes nous accusent d'avoir profané l'Aube. Ils exigent l'abandon des Mondes saints que nous occupons et l'extinction de nos machines pensantes.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1344,7 +1344,7 @@
   {
    "id": "anc_bibliotheque_exige",
    "title": "Ultimatum de la Bibliothèque",
-   "text": "La Grande Bibliothèque d'Aster vous adresse une facture de retard de quatre mille ans. Elle exige le règlement en Savoir, ou l'une de vos reliques en gage.",
+   "text": "La Grande Bibliothèque d'Aster nous présente le compte de ce que nous lui devons, arrêté sur quatre mille ans. Elle exige d'être réglée en Savoir ou de recevoir l'une de nos reliques en gage.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1388,12 +1388,12 @@
   {
    "id": "anc_punition",
    "title": "{anc} vous déclare la guerre",
-   "text": "{anc} a épuisé sa patience. Ses flottes quittent leur sommeil pour vous punir. Elle s'arrêtera quand elle aura pris ce qui lui revient, ou dans quatre ans.",
+   "text": "{anc} nous déclare la guerre, et ses flottes sortent de leur sommeil. D'après les précédents connus, elle cessera le combat quand elle aura repris ce qu'elle réclame, ou au bout de quatre ans.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
     {
-     "label": "Aux armes !",
+     "label": "Aux armes",
      "fx": []
     }
    ],
@@ -1402,7 +1402,7 @@
   {
    "id": "anc_eveil_preavis",
    "title": "{anc} remue dans son sommeil",
-   "text": "Les étoiles autour de la poche {anc_de} changent de couleur. Les observatoires parlent d'une respiration. {anc_why}\n\nDans un an, elle sera éveillée, et elle voudra régner.",
+   "text": "Les étoiles qui entourent la poche {anc_de} changent de couleur selon un rythme régulier. {anc_why}\n\nNos observatoires lui donnent un an avant l'éveil complet. Elle entendra alors régner.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1428,7 +1428,7 @@
      ]
     },
     {
-     "label": "Prier pour qu'elle se rendorme",
+     "label": "Ne rien changer",
      "fx": []
     }
    ],
@@ -1437,7 +1437,7 @@
   {
    "id": "anc_eveil",
    "title": "{anc} s'éveille",
-   "text": "{anc} est debout. Ses chantiers rouvrent, ses flottes se comptent par dizaines, et ses hérauts parcourent déjà la galaxie avec des traités de soumission tout prêts.\n\nToute la galaxie peut la combattre sans motif : c'est l'Endiguement. Ceux qui s'y joignent reçoivent +10 % de dégâts tant qu'ils la combattent{anc_aid}.",
+   "text": "{anc} est éveillée. Ses chantiers ont rouvert et ses flottes se comptent par dizaines. Ses hérauts portent déjà des traités de soumission aux empires voisins.\n\nToute la galaxie peut la combattre sans motif : c'est l'Endiguement. Ceux qui s'y joignent reçoivent +10 % de dégâts tant qu'ils la combattent{anc_aid}.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1461,7 +1461,7 @@
   {
    "id": "anc_dominion",
    "title": "{anc} exige votre soumission",
-   "text": "Un héraut {anc_de} dépose un traité sur votre table. Devenir son Dominion : un tribut chaque mois (5 % de votre énergie et de votre Savoir), votre voix à l'Amphictyonie se tait (elle ne reconnaît pas l'assemblée), mais sa protection contre ses ennemis. Refuser, c'est la guerre.",
+   "text": "Un héraut {anc_de} nous a remis un traité qui ferait de notre empire son Dominion. Nous lui verserions chaque mois 5 % de notre énergie et de notre Savoir. Notre voix à l'Amphictyonie se tairait, car elle ne reconnaît pas l'assemblée. Elle nous protégerait en retour contre ses ennemis. Un refus vaut déclaration de guerre.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1491,12 +1491,12 @@
   {
    "id": "anc_decadence",
    "title": "{anc} décline",
-   "text": "{anc} a trop grandi, trop vite, après trop longtemps. Ses flottes rouillent, ses gouverneurs dorment debout. Ses Dominions peuvent se libérer, et elle redevient conquérable comme un autre empire.",
+   "text": "{anc} s'est étendue trop vite après un trop long sommeil. Ses flottes ne sont plus entretenues et ses gouverneurs n'obéissent plus. Ses Dominions peuvent se libérer, et elle redevient conquérable comme un autre empire.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
     {
-     "label": "Enfin",
+     "label": "Bien noté",
      "fx": []
     }
    ],
@@ -1505,12 +1505,12 @@
   {
    "id": "anc_gardienne",
    "title": "{anc} se lève contre la crise",
-   "text": "{anc} ouvre les yeux et regarde la crise qui ronge la galaxie. Elle n'aime pas qu'on abîme sa vitrine. Ses flottes rejoignent le Front commun ; elle retournera au repos quand la crise sera vaincue.",
+   "text": "{anc} s'éveille devant la crise qui gagne la galaxie. Ses flottes rejoignent le Front commun. Elle a fait savoir qu'elle retournerait au repos une fois la crise vaincue.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
     {
-     "label": "Enfin du renfort",
+     "label": "Bien noté",
      "fx": []
     }
    ],
@@ -1519,7 +1519,7 @@
   {
    "id": "anc_guerre_ciel",
    "title": "Guerre au ciel",
-   "text": "{anc} s'éveille à son tour pour affronter {anc_rival}. Deux puissances d'avant se battent, et la galaxie entière est leur champ de bataille.\n\nChoisir un camp, c'est sa protection pendant dix ans et une part du butin, mais l'autre vous tiendra pour ennemi. Les neutres forment la Ligue des non-alignés.",
+   "text": "{anc} s'éveille à son tour pour affronter {anc_rival}. Les deux puissances anciennes se font la guerre à travers toute la galaxie.\n\nChoisir un camp, c'est sa protection pendant dix ans et une part du butin, mais l'autre vous tiendra pour ennemi. Les neutres forment la Ligue des non-alignés.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1562,7 +1562,7 @@
   {
    "id": "anc_tombeau",
    "title": "Un tombeau s'ouvre",
-   "text": "Sur {system}, un tombeau {anc_de} ouvre les yeux. {anc_tomb}",
+   "text": "Un tombeau {anc_de} s'est ouvert à {system}. {anc_tomb}",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
@@ -1576,12 +1576,12 @@
   {
    "id": "anc_guerre_sainte",
    "title": "Guerre sainte",
-   "text": "Vous avez touché à un Monde saint. {anc} se lève d'un bond, et ses prêtres ont déjà écrit le sermon de votre chute.",
+   "text": "Nous avons touché à un Monde saint. {anc} s'éveille et nous déclare la guerre sainte.",
    "trigger": "ancient",
    "art": "ancient",
    "choices": [
     {
-     "label": "Que les dieux reconnaissent les leurs",
+     "label": "Se préparer à la guerre",
      "fx": []
     }
    ],

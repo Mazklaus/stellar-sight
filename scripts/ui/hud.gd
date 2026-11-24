@@ -24,8 +24,19 @@ signal fleet_action_requested(action: String, fleet_id: int)
 ## Liste des flottes : sélectionner une flotte (et y centrer la carte), ou ouvrir son système.
 signal fleet_requested(fleet_id: int)
 signal fleet_system_requested(fleet_id: int)
+## Navigateur : aller à un système (open : l'ouvrir), ou à ce qui attend une décision.
+signal nav_system_requested(system_id: int, open: bool)
+signal todo_requested(item: Dictionary)
+## Lien « Système : … » de la fiche de flotte : passer à la fiche du système où elle se trouve.
+signal fleet_place_requested(fleet_id: int)
 ## Bouton « flottes inactives » : passer à la prochaine flotte qui attend des ordres.
 signal idle_fleet_requested
+## Clic sur une pastille de la barre d'alertes (voir AlertBar).
+signal alert_requested(kind: String, arg: int)
+## Un calque de la carte est coché ou décoché (voir GalaxyView.LAYERS).
+signal layer_toggled(id: String, on: bool)
+## Un des trois boutons de palier de zoom est pressé (voir GalaxyView.TIER_*).
+signal zoom_tier_requested(tier: int)
 
 const MARGIN := 10.0
 const CARD_WIDTH := 320.0
@@ -44,21 +55,71 @@ const STAR_LORE := {
 	"black_hole": "Rien ne s'en échappe, pas même les excuses. On y trouve pourtant des cristaux de saut.",
 }
 
+## Lentilles de la carte, rangées en cinq familles (refonte, A3) : [famille, [[identifiant, nom], …]].
+const LENS_FAMILIES := [
+	["Territoires", [["", "Empires"], ["borders", "Frontières et passages"], ["amph", "Assemblée"]]],
+	["Richesse", [["economy", "Économie"], ["trade", "Commerce"], ["private", "Économie privée"], ["ports", "Spatioports"]]],
+	["Ordre", [["stability", "Stabilité"], ["corruption", "Corruption"], ["fiscal", "Fiscalité"], ["politics", "Politique"]]],
+	["Peuples", [["peoples", "Peuples"], ["faith", "Foi"], ["psionics", "Songe"], ["culture", "Rayonnement"]]],
+	["Guerre", [["war", "Guerre et occupations"], ["sensors", "Senseurs"]]],
+]
+## Ce que montre chaque lentille (infobulle du bouton et ligne du panneau).
+const LENS_TIPS := {
+	"": "La carte des empires : à qui appartient chaque système.",
+	"borders": "Votre droit de passage chez chaque voisin (vert : vos flottes de guerre passent, ambre : vaisseaux sans armes seulement, rouge : frontière close) et les intrus chez vous.  (A ; Q en QWERTY)",
+	"amph": "Les empires membres de l'Amphictyonie (or), les hors-la-loi (rouge) et ceux qui restent dehors (gris), avec leurs voix.  (X)",
+	"economy": "Le bilan mensuel de chacun de vos systèmes.  (L)",
+	"trade": "Vos routes commerciales (couleur du traité, rouge si bloquée) et le risque pirate le long du chemin.  (G)",
+	"private": "L'économie privée : stations, cargos, filiales, repaires.  (G, deux fois)",
+	"ports": "Le réseau de distribution des spatioports : desserte, portées, liaisons.",
+	"stability": "La stabilité de chacun de vos systèmes, et les mondes libres.  (K)",
+	"corruption": "La corruption de chacun de vos systèmes (Administration).  (K, deux fois)",
+	"fiscal": "La fiscalité : franchises, grèves, fuite fiscale.",
+	"politics": "Le courant qui domine l'opinion de chacun de vos systèmes, et ses représentants au pouvoir ou non.  (O)",
+	"peoples": "La part de chaque espèce dans vos systèmes, et l'espèce majoritaire.  (U)",
+	"faith": "La part de chaque croyance dans vos systèmes, la majoritaire, et les mondes saints connus.  (N)",
+	"psionics": "Les sensitifs, les écrans, le Phare, l'ambre et les mondes hantés.  (U, deux fois)",
+	"culture": "Chez chaque empire, le palier de votre culture (gris Inconnu, bleu Exotique, vert Familier, or En vogue, orange Influent, rouge Dominant) ; chez vous, la culture étrangère dominante et les défections en cours.",
+	"war": "Les systèmes de vos ennemis (rouge), vos revendications (pointillé or), les systèmes occupés hachurés à la couleur de l'occupant.  (W ; Z en QWERTY)",
+	"sensors": "La couverture de vos senseurs (furtivité).  (W, deux fois)",
+}
+
+## Ordres de flotte par groupe (refonte, B3) : identifiant, titre, ordres. Tout ordre absent d'ici va
+## dans « Autres ordres ».
+## Rangées de composition affichées avant de résumer le reste.
+const FLEET_ROWS_MAX := 6
+const FLEET_GROUPS := [
+	["move", "Déplacement", ["explore", "patrol", "guard", "stop"]],
+	["here", "Sur place", ["colonize", "embark", "disembark", "requisition", "bomb", "invade"]],
+	["conduct", "Conduite", ["stance", "posture", "tactic"]],
+	["more", "Autres ordres", []],
+]
+
 var bar: EmpireBar
 var dial: TimeDial
 var turn_players: TurnPlayersPanel
 var _tabs: HBoxContainer
 var _tab_galaxy: Button
-var _tab_economy: Button
-var _tab_stability: Button
-var _tab_politics: Button
-var _tab_trade: Button
-var _tab_peoples: Button
-var _tab_faith: Button
-var _tab_amph: Button
-var _tab_war: Button
-var _tab_borders: Button
-var _tab_culture: Button
+## Sélecteur de lentilles (refonte, A3) : un bouton qui nomme la lentille, et son panneau par familles.
+var _lens_button: Button
+var _lens_panel: PanelContainer
+var _lens_note: Label
+## Boutons du panneau, par identifiant de lentille ("" = la carte des empires).
+var lens_buttons := {}
+## Cases des calques, par identifiant, et légende de la lentille active.
+var layer_boxes := {}
+var _legend: PanelContainer
+var _legend_box: VBoxContainer
+## Boutons de palier de zoom, à gauche du cadran.
+var tier_buttons: Array[Button] = []
+var _tier_box: VBoxContainer
+var _fleet_comp: VBoxContainer
+var fleet_place_link: LinkButton
+var _fleet_comp_sig := ""
+var _fleet_group_heads := {}
+var _fleet_group_boxes := {}
+var _fleet_more_button: Button
+var _fleet_more_open := false
 var _tab_orbit: Button
 var _tab_manage: Button
 var _info_panel: PanelContainer
@@ -91,6 +152,10 @@ var _fleet_stats: Label
 var _fleet_hint: Label
 var _fleet_buttons: Dictionary = {}
 var fleet_list: FleetListPanel
+## Panneau de droite réduit à une barre d'alertes (refonte, A4), et la languette qui bascule.
+var side_reduced := false
+var alert_bar: AlertBar
+var side_toggle: Button
 var idle_button: Button
 ## Mode spectateur : aucun ordre, le tableau des empires remplace la liste des flottes.
 var spectator := false
@@ -111,6 +176,7 @@ func _ready() -> void:
 	_build_quest_tracker()
 	_build_fleet_list()
 	_build_spectator_panel()
+	_build_side_toggle()
 	_build_dial()
 
 	_toasts = VBoxContainer.new()
@@ -145,12 +211,10 @@ func set_state(state: GameState, player: int) -> void:
 	_player = player
 	bar.set_state(state, player)
 	fleet_list.set_state(state, player)
+	alert_bar.set_state(state, player)
 	quest_tracker.set_state(state, player)
 	spectator_panel.set_state(state if spectator else null, player)
-	if _tab_borders:
-		_tab_borders.visible = not _system_mode and Borders.active(state)
-	if _tab_culture:
-		_tab_culture.visible = not _system_mode and Culture.enabled(state)
+	_refresh_lens_panel()
 	_hover_id = -1
 	show_system(null, state)
 
@@ -159,6 +223,8 @@ func set_state(state: GameState, player: int) -> void:
 func refresh() -> void:
 	bar.refresh()
 	fleet_list.refresh()
+	if alert_bar.visible:
+		alert_bar.refresh()
 	quest_tracker.refresh()
 	if spectator:
 		spectator_panel.refresh()
@@ -211,7 +277,8 @@ func show_system(s: StarSystem, state: GameState) -> void:
 func set_empire_screen_open(on: bool) -> void:
 	_empire_screen = on
 	_tabs.visible = not on
-	_chronicle.visible = not on
+	if on:
+		_lens_panel.visible = false
 	_place_toasts()
 	_refresh_side_visibility()
 	_refresh_fleet_card()
@@ -223,18 +290,9 @@ func set_system_mode(on: bool) -> void:
 	_system_mode = on
 	# Dans la vue système, « Vue galaxie » ramène à la carte ; la lentille laisse place aux deux vues du système.
 	_tab_galaxy.set_pressed_no_signal(not on and lens == "")
-	_tab_economy.visible = not on
-	_tab_stability.visible = not on
-	_tab_politics.visible = not on
-	_tab_trade.visible = not on
-	_tab_peoples.visible = not on
-	_tab_faith.visible = not on
-	_tab_amph.visible = not on
-	_tab_war.visible = not on
-	if _tab_borders:
-		_tab_borders.visible = not on and _state != null and Borders.active(_state)
-	if _tab_culture:
-		_tab_culture.visible = not on and _state != null and Culture.enabled(_state)
+	_lens_button.visible = not on
+	if on:
+		_lens_panel.visible = false
 	_tab_orbit.visible = on
 	_tab_manage.visible = on
 	if on:
@@ -426,19 +484,13 @@ func cycle_war_lens() -> void:
 func set_lens(value: String) -> void:
 	lens = value
 	_tab_galaxy.set_pressed_no_signal(value == "")
-	_tab_economy.set_pressed_no_signal(value == "economy")
-	_tab_stability.set_pressed_no_signal(value == "stability" or value == "corruption" or value == "fiscal")
-	_tab_politics.set_pressed_no_signal(value == "politics")
-	_tab_trade.set_pressed_no_signal(value == "trade" or value == "private" or value == "ports")
-	_tab_peoples.set_pressed_no_signal(value == "peoples" or value == "psionics")
-	_tab_faith.set_pressed_no_signal(value == "faith")
-	_tab_amph.set_pressed_no_signal(value == "amph")
-	if _tab_war:
-		_tab_war.set_pressed_no_signal(value == "war" or value == "sensors")
-	if _tab_borders:
-		_tab_borders.set_pressed_no_signal(value == "borders")
-	if _tab_culture:
-		_tab_culture.set_pressed_no_signal(value == "culture")
+	_lens_button.text = ("Lentille : %s" % lens_label(value)).to_upper()
+	_lens_button.set_pressed_no_signal(value != "")
+	for id: String in lens_buttons:
+		(lens_buttons[id] as Button).set_pressed_no_signal(id == value)
+	if _lens_note:
+		_lens_note.text = String(LENS_TIPS.get(value, ""))
+	_refresh_legend()
 	lens_changed.emit(value)
 
 
@@ -463,27 +515,12 @@ func _build_tabs() -> void:
 			close_system_requested.emit()
 		else:
 			set_lens(""))
-	_tab_economy = _tab("Économie", "Lentille économique : bilan mensuel de chacun de vos systèmes, sur la carte  (L)")
-	_tab_economy.pressed.connect(func() -> void: set_lens("" if lens == "economy" else "economy"))
-	_tab_stability = _tab("Stabilité", "Lentille de stabilité : la stabilité de chacun de vos systèmes, et les mondes libres, sur la carte ; un second clic montre la corruption (Administration), puis la fiscalité (franchises, grèves, fuite fiscale)  (K)")
-	_tab_stability.pressed.connect(cycle_stability_lens)
-	_tab_politics = _tab("Politique", "Lentille politique : le courant qui domine l'opinion de chacun de vos systèmes, et ses représentants au pouvoir ou non  (O)")
-	_tab_politics.pressed.connect(func() -> void: set_lens("" if lens == "politics" else "politics"))
-	_tab_trade = _tab("Commerce", "Lentille du commerce : vos routes commerciales (couleur du traité, rouge si bloquée) et le risque pirate le long du chemin ; un second clic montre l'économie privée (stations, cargos, filiales, repaires), puis le réseau de distribution des spatioports (desserte, portées, liaisons)  (G)")
-	_tab_trade.pressed.connect(cycle_trade_lens)
-	_tab_peoples = _tab("Peuples", "Lentille des peuples : la part de chaque espèce dans vos systèmes, et l'espèce majoritaire ; deuxième clic : lentille psionique (pouvoirs psioniques en jeu)  (U)")
-	_tab_peoples.pressed.connect(cycle_peoples_lens)
-	_tab_faith = _tab("Foi", "Lentille de la foi : la part de chaque croyance dans vos systèmes, la majoritaire, et les mondes saints connus  (N)")
-	_tab_faith.pressed.connect(func() -> void: set_lens("" if lens == "faith" else "faith"))
-	_tab_amph = _tab("Assemblée", "Lentille de l'Amphictyonie : les empires membres (or), les hors-la-loi (rouge) et ceux qui restent dehors (gris), avec leurs voix  (X)")
-	_tab_amph.pressed.connect(func() -> void: set_lens("" if lens == "amph" else "amph"))
-	_tab_war = _tab("Guerre", "Lentille de guerre : les systèmes de vos ennemis (rouge), vos revendications (pointillé or), les systèmes occupés hachurés à la couleur de l'occupant. Second clic, si la furtivité est en jeu : la couverture de vos senseurs  (W ; Z en QWERTY)")
-	_tab_war.pressed.connect(cycle_war_lens)
-	_tab_borders = _tab("Frontières", "Lentille des frontières : votre droit de passage chez chaque voisin (vert : vos flottes de guerre passent, ambre : vaisseaux sans armes seulement, rouge : frontière close) et les intrus chez vous  (A ; Q en QWERTY)")
-	_tab_borders.pressed.connect(func() -> void: set_lens("" if lens == "borders" else "borders"))
-	_tab_culture = _tab("Culture", "Lentille du rayonnement : chez chaque empire, le palier de votre culture (gris Inconnu, bleu Exotique, vert Familier, or En vogue, orange Influent, rouge Dominant) ; chez vous, la culture étrangère dominante et les défections en cours")
-	_tab_culture.pressed.connect(func() -> void: set_lens("" if lens == "culture" else "culture"))
-	_tab_culture.visible = false
+	_lens_button = _tab("Lentille : empires", "Choisir ce que la carte montre : cinq familles de lentilles. Les touches L, K, O, G, U, N, X, W et A restent.")
+	_lens_button.pressed.connect(func() -> void:
+		_lens_button.set_pressed_no_signal(lens != "")
+		_lens_panel.visible = not _lens_panel.visible
+		_refresh_lens_panel()
+		_refresh_legend())
 	_tab_orbit = _tab("Vue orbitale", "L'étoile et ses planètes en orbite  (Tab)")
 	_tab_orbit.pressed.connect(func() -> void: system_mode_requested.emit(false))
 	_tab_manage = _tab("Gestion du système", "Les planètes côte à côte, pour comparer  (Tab)")
@@ -491,6 +528,262 @@ func _build_tabs() -> void:
 	_tab_orbit.visible = false
 	_tab_manage.visible = false
 	_tab_galaxy.set_pressed_no_signal(true)
+	_build_lens_panel()
+
+
+## Panneau du sélecteur : une ligne par famille, ses lentilles en boutons, puis ce que montre la lentille.
+func _build_lens_panel() -> void:
+	_lens_panel = PanelContainer.new()
+	_lens_panel.add_theme_stylebox_override("panel", UiTheme.box(UiTheme.PANEL, UiTheme.LINE, 10, 1))
+	_lens_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_lens_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_lens_panel.offset_top = 40.0
+	_lens_panel.visible = false
+	add_child(_lens_panel)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	_lens_panel.add_child(box)
+	for fam: Array in LENS_FAMILIES:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 6)
+		box.add_child(row)
+		var name_label := Label.new()
+		name_label.theme_type_variation = &"Section"
+		name_label.text = String(fam[0]).to_upper()
+		name_label.custom_minimum_size = Vector2(110, 0)
+		row.add_child(name_label)
+		for l: Array in fam[1]:
+			var id := String(l[0])
+			var b := Button.new()
+			b.text = String(l[1])
+			b.toggle_mode = true
+			b.focus_mode = Control.FOCUS_NONE
+			b.tooltip_text = String(LENS_TIPS.get(id, ""))
+			b.pressed.connect(func() -> void:
+				_lens_panel.visible = false
+				set_lens(id))
+			row.add_child(b)
+			lens_buttons[id] = b
+	box.add_child(HSeparator.new())
+	# Calques : ce que la carte superpose, quelle que soit la lentille.
+	var layers := HBoxContainer.new()
+	layers.add_theme_constant_override("separation", 10)
+	box.add_child(layers)
+	var layers_label := Label.new()
+	layers_label.theme_type_variation = &"Section"
+	layers_label.text = "CALQUES"
+	layers_label.custom_minimum_size = Vector2(110, 0)
+	layers.add_child(layers_label)
+	for l: Array in GalaxyView.LAYERS:
+		var id := String(l[0])
+		var c := CheckBox.new()
+		c.text = String(l[1])
+		c.tooltip_text = String(l[2])
+		c.button_pressed = true
+		c.focus_mode = Control.FOCUS_NONE
+		c.toggled.connect(func(on: bool) -> void: layer_toggled.emit(id, on))
+		layers.add_child(c)
+		layer_boxes[id] = c
+	box.add_child(HSeparator.new())
+	_lens_note = UiTheme.paragraph("", 620.0, 13)
+	box.add_child(_lens_note)
+	_legend = PanelContainer.new()
+	_legend.add_theme_stylebox_override("panel", UiTheme.box(Color(0.03, 0.04, 0.06, 0.82), UiTheme.LINE, 8, 1))
+	_legend.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_legend.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_legend.offset_top = 40.0
+	_legend.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_legend.visible = false
+	add_child(_legend)
+	_legend_box = VBoxContainer.new()
+	_legend_box.add_theme_constant_override("separation", 2)
+	_legend_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_legend.add_child(_legend_box)
+	set_lens(lens)
+
+
+## Légende d'une lentille : [[couleur, ce qu'elle veut dire], ...] (vide pour la carte des empires).
+static func lens_legend(id: String) -> Array:
+	var grey := Color(0.62, 0.64, 0.68)
+	var red := Color(0.86, 0.33, 0.31)
+	var gold := Color(0.92, 0.76, 0.36)
+	match id:
+		"borders":
+			return [[GalaxyView.BORDER_OPEN_COLOR, "Vos flottes de guerre passent"], [GalaxyView.BORDER_GUARDED_COLOR, "Vaisseaux sans armes seulement"],
+					[GalaxyView.BORDER_CLOSED_COLOR, "Frontière close"], [Color.WHITE, "Vos systèmes"]]
+		"amph":
+			return [[gold, "Membre de l'Amphictyonie"], [red, "Hors-la-loi"], [Color(0.55, 0.58, 0.62), "Reste dehors"]]
+		"economy":
+			return [[Color(0.85, 0.88, 0.93), "Bilan mensuel du système, sous l'étoile"]]
+		"trade":
+			return [[GalaxyView.TRADE_INTERNAL_COLOR, "Route intérieure"], [GalaxyView.TRADE_TIER_COLORS[1], "Traité de premier palier"],
+					[GalaxyView.TRADE_TIER_COLORS[2], "Deuxième palier"], [GalaxyView.TRADE_TIER_COLORS[3], "Troisième palier"],
+					[GalaxyView.BATTLE_COLOR, "Route bloquée"], [Color(0.95, 0.45, 0.3), "Arc : risque pirate"]]
+		"private":
+			return [[GalaxyView.PRIVATE_MINE_COLOR, "Station minière"], [GalaxyView.PRIVATE_RESORT_COLOR, "Station touristique"],
+					[GalaxyView.PRIVATE_BRANCH_COLOR, "Filiale"], [red, "Zone militaire, repaire"]]
+		"ports":
+			var out := []
+			for i in PortsUi.STATE_COLORS.size():
+				out.append([PortsUi.STATE_COLORS[i], Ports.state_label(i)])
+			return out
+		"stability":
+			var out := []
+			var tiers: Array = Stability.data()["tiers"]
+			for i in range(tiers.size() - 1, -1, -1):
+				var t: Dictionary = tiers[i]
+				out.append([Color.html(String(t.get("color", "#a9b4c2"))), "%s (à partir de %d)" % [String(t["label"]), int(t["min"])]])
+			out.append([grey, "Monde libre"])
+			return out
+		"corruption":
+			return [[AdminUi.corruption_color(0), "Moins de 10"], [AdminUi.corruption_color(10), "De 10 à 19"],
+					[AdminUi.corruption_color(20), "De 20 à 29"], [AdminUi.corruption_color(30), "30 et plus"], [Color(0.95, 0.78, 0.36), "Anneau : siège d'administration"]]
+		"fiscal":
+			return [[Color(0.92, 0.78, 0.36), "Franchise fiscale"], [Color(0.88, 0.57, 0.23), "Fuite fiscale"], [red, "Grève fiscale"],
+					[Color(0.55, 0.58, 0.62), "Rien à signaler"]]
+		"politics":
+			return [[Color(0.85, 0.88, 0.93), "Couleur du courant dominant ; trait plein s'il est au pouvoir, pointillé sinon"]]
+		"peoples":
+			return [[Color(0.85, 0.88, 0.93), "Anneau partagé selon la part de chaque espèce"]]
+		"faith":
+			return [[Color(0.85, 0.88, 0.93), "Anneau partagé selon la part de chaque croyance"], [gold, "Monde saint"]]
+		"psionics":
+			return [[Color(0.72, 0.6, 0.95), "Sensitifs et écrans"], [Color(1.0, 0.9, 0.5), "Portée du Phare"], [Color(1.0, 0.7, 0.2), "Ambre"],
+					[Color(0.8, 0.3, 0.9), "Monde hanté"]]
+		"culture":
+			var out := []
+			for i in Culture.tiers().size():
+				out.append([Culture.tier_color(i), Culture.tier_label(i)])
+			out.append([Color(0.95, 0.5, 0.9), "Défection en cours"])
+			return out
+		"war":
+			return [[red, "Système ennemi"], [Color(0.95, 0.8, 0.35), "Pointillé : votre revendication"], [grey, "Hachures : occupé, à la couleur de l'occupant"]]
+		"sensors":
+			return [[Color(0.35, 0.85, 0.95), "Couvert par vos senseurs, plus net où ils portent mieux"], [Color.WHITE, "Anneau : poste d'écoute"]]
+	return []
+
+
+func _refresh_legend() -> void:
+	if _legend == null:
+		return
+	var list := lens_legend(lens)
+	_legend.visible = not list.is_empty() and not _lens_panel.visible and not _system_mode and not _empire_screen
+	if not _legend.visible:
+		return
+	for c in _legend_box.get_children():
+		_legend_box.remove_child(c)
+		c.queue_free()
+	for e: Array in list:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var chip := ColorRect.new()
+		chip.color = e[0]
+		chip.custom_minimum_size = Vector2(12, 12)
+		chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(chip)
+		var text := Label.new()
+		text.text = String(e[1])
+		text.add_theme_font_size_override("font_size", 13)
+		text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(text)
+		_legend_box.add_child(row)
+	_legend.reset_size()
+
+
+## Textes de la légende affichée (pour les tests).
+func legend_texts() -> PackedStringArray:
+	var out := PackedStringArray()
+	if _legend and _legend.visible:
+		for row in _legend_box.get_children():
+			out.append((row.get_child(1) as Label).text)
+	return out
+
+
+## Règle les cases des calques sans émettre (la carte fait foi).
+func set_layers(layers: Dictionary) -> void:
+	for id: String in layer_boxes:
+		(layer_boxes[id] as CheckBox).set_pressed_no_signal(bool(layers.get(id, true)))
+
+
+## Trois boutons de palier à gauche du cadran (B1) : Galaxie, Région, Système.
+func _build_tier_buttons() -> void:
+	_tier_box = VBoxContainer.new()
+	_tier_box.add_theme_constant_override("separation", 2)
+	_tier_box.anchor_left = 1.0
+	_tier_box.anchor_right = 1.0
+	_tier_box.anchor_top = 1.0
+	_tier_box.anchor_bottom = 1.0
+	_tier_box.offset_right = -TimeDial.SIDE - MARGIN - 8.0
+	_tier_box.offset_left = _tier_box.offset_right - 86.0
+	_tier_box.offset_bottom = -MARGIN - 46.0
+	_tier_box.offset_top = _tier_box.offset_bottom - 80.0
+	_tier_box.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	add_child(_tier_box)
+	var tips := ["Les empires vus de loin : territoires, capitales, fronts", "Les systèmes et les flottes", "Au plus près : silhouettes des flottes, cargos sur les routes"]
+	for i in GalaxyView.TIER_NAMES.size():
+		var b := Button.new()
+		b.theme_type_variation = &"BarButton"
+		b.text = GalaxyView.TIER_NAMES[i].to_upper()
+		b.toggle_mode = true
+		b.focus_mode = Control.FOCUS_NONE
+		b.tooltip_text = tips[i]
+		b.add_theme_font_size_override("font_size", 12)
+		b.pressed.connect(func() -> void: zoom_tier_requested.emit(i))
+		_tier_box.add_child(b)
+		tier_buttons.append(b)
+
+
+## Palier de zoom affiché par la carte : son bouton s'allume.
+func set_zoom_tier(tier: int) -> void:
+	for i in tier_buttons.size():
+		tier_buttons[i].set_pressed_no_signal(i == tier)
+
+
+## Nom d'une lentille pour le joueur.
+static func lens_label(id: String) -> String:
+	for fam: Array in LENS_FAMILIES:
+		for l: Array in fam[1]:
+			if String(l[0]) == id:
+				return String(l[1])
+	return id
+
+
+## La lentille est-elle offerte dans cette partie, pour cet empire ?
+func lens_offered(id: String) -> bool:
+	if _state == null:
+		return true
+	match id:
+		"borders":
+			return Borders.active(_state)
+		"private":
+			return Private.applies(_state, _player)
+		"ports":
+			return Ports.enabled(_state)
+		"corruption":
+			return Admin.full(_state) and Admin.has_corruption(_state, _player)
+		"fiscal":
+			return Finance.full(_state) and Finance.applies(_state, _player)
+		"psionics":
+			return Psionics.applies(_state, _player)
+		"culture":
+			return Culture.enabled(_state)
+		"sensors":
+			return Stealth.enabled(_state)
+	return true
+
+
+## Referme le sélecteur de lentilles ; vrai s'il était ouvert (Échap).
+func close_lens_panel() -> bool:
+	var was := _lens_panel.visible
+	_lens_panel.visible = false
+	return was
+
+
+func _refresh_lens_panel() -> void:
+	for id: String in lens_buttons:
+		(lens_buttons[id] as Button).visible = lens_offered(id)
 
 
 func _tab(text: String, tip: String) -> Button:
@@ -581,15 +874,49 @@ func _build_fleet_card() -> void:
 	inner.add_child(_fleet_kind)
 	_fleet_status = UiTheme.paragraph("", CARD_WIDTH - 26.0, 14)
 	inner.add_child(_fleet_status)
+	fleet_place_link = LinkButton.new()
+	fleet_place_link.focus_mode = Control.FOCUS_NONE
+	fleet_place_link.underline = LinkButton.UNDERLINE_MODE_ON_HOVER
+	fleet_place_link.add_theme_font_size_override("font_size", 13)
+	fleet_place_link.tooltip_text = "Passer à la fiche de ce système"
+	fleet_place_link.pressed.connect(func() -> void: fleet_place_requested.emit(_fleet_id))
+	inner.add_child(fleet_place_link)
 	_fleet_stats = UiTheme.dim("", 13)
 	_fleet_stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_fleet_stats.custom_minimum_size = Vector2(CARD_WIDTH - 26.0, 0)
 	inner.add_child(_fleet_stats)
-	var grid := GridContainer.new()
-	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 4)
-	grid.add_theme_constant_override("v_separation", 4)
-	inner.add_child(grid)
+	# Composition (refonte, B3) : une rangée par classe, avec sa silhouette, son nombre et l'état des coques.
+	_fleet_comp = VBoxContainer.new()
+	_fleet_comp.add_theme_constant_override("separation", 2)
+	inner.add_child(_fleet_comp)
+	# Ordres rangés par usage ; les plus rares attendent derrière « Autres ordres ».
+	var grids := {}
+	for gdef: Array in FLEET_GROUPS:
+		var gid := String(gdef[0])
+		var box := VBoxContainer.new()
+		box.add_theme_constant_override("separation", 4)
+		if gid == "more":
+			_fleet_more_button = Button.new()
+			_fleet_more_button.focus_mode = Control.FOCUS_NONE
+			_fleet_more_button.toggle_mode = true
+			_fleet_more_button.theme_type_variation = &"BarButton"
+			_fleet_more_button.tooltip_text = "Les ordres dont on se sert rarement : ralliement, abordage, prises, balise, rassembler, détacher, rapport, remise à niveau."
+			_fleet_more_button.pressed.connect(func() -> void:
+				_fleet_more_open = not _fleet_more_open
+				_refresh_fleet_groups())
+			inner.add_child(_fleet_more_button)
+		else:
+			var head := UiTheme.section(String(gdef[1]))
+			inner.add_child(head)
+			_fleet_group_heads[gid] = head
+		inner.add_child(box)
+		var gg := GridContainer.new()
+		gg.columns = 2
+		gg.add_theme_constant_override("h_separation", 4)
+		gg.add_theme_constant_override("v_separation", 4)
+		box.add_child(gg)
+		grids[gid] = gg
+		_fleet_group_boxes[gid] = box
 	for a in [["explore", "EXPLORATION AUTO", "La flotte part seule vers les systèmes inexplorés les plus proches, et continue jusqu'à ce qu'il n'y en ait plus  (E)"],
 			["colonize", "COLONISER ICI", "Ouvrir le système pour choisir la planète où fonder la revendication"],
 			["stop", "ARRÊTER", "S'arrêter au système le plus proche sur la route"],
@@ -623,16 +950,124 @@ func _build_fleet_card() -> void:
 			b.toggle_mode = true
 		var action: String = a[0]
 		b.pressed.connect(func() -> void: fleet_action_requested.emit(action, _fleet_id))
-		# Tactique et invasion prennent toute la largeur, sous la grille.
+		var group := fleet_group_of(action)
+		# Tactique et invasion prennent toute la largeur, sous la grille de leur groupe.
 		if action == "tactic" or action == "invade" or action == "refit" or action == "bomb":
 			b.clip_text = true
-			inner.add_child(b)
+			(_fleet_group_boxes[group] as VBoxContainer).add_child(b)
 		else:
-			grid.add_child(b)
+			(grids[group] as GridContainer).add_child(b)
 		_fleet_buttons[action] = b
-	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte (Maj : patrouiller).  F : flotte suivante.  I : flotte inactive suivante.  T : tactique.", CARD_WIDTH - 26.0, 12)
+	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte (Maj : patrouiller). Clic molette : choisir l'ordre.  F : flotte suivante.  I : flotte inactive suivante.  T : tactique.", CARD_WIDTH - 26.0, 12)
 	_fleet_hint.theme_type_variation = &"Dim"
 	inner.add_child(_fleet_hint)
+
+
+## Groupe d'un ordre de flotte (voir FLEET_GROUPS) ; « more » pour ceux qui n'y sont pas nommés.
+static func fleet_group_of(action: String) -> String:
+	for gdef: Array in FLEET_GROUPS:
+		if (gdef[2] as Array).has(action):
+			return String(gdef[0])
+	return "more"
+
+
+## Un titre de groupe ne s'affiche que si un de ses ordres est offert ; « Autres ordres » dit combien
+## il en cache.
+func _refresh_fleet_groups() -> void:
+	for gdef: Array in FLEET_GROUPS:
+		var gid := String(gdef[0])
+		var n := 0
+		for action: String in _fleet_buttons:
+			if fleet_group_of(action) == gid and (_fleet_buttons[action] as Button).visible:
+				n += 1
+		var box: VBoxContainer = _fleet_group_boxes[gid]
+		if gid == "more":
+			_fleet_more_button.visible = n > 0
+			_fleet_more_button.text = "AUTRES ORDRES (%d)  %s" % [n, "▴" if _fleet_more_open else "▾"]
+			_fleet_more_button.set_pressed_no_signal(_fleet_more_open)
+			box.visible = n > 0 and _fleet_more_open
+			# La fiche ne doit pas sortir de l'écran : le détail s'efface le temps de choisir un ordre rare.
+			_fleet_comp.visible = not box.visible
+			_fleet_stats.visible = not box.visible
+			_fleet_hint.visible = _fleet_hint.visible and not box.visible
+		else:
+			(_fleet_group_heads[gid] as Control).visible = n > 0
+			box.visible = n > 0
+
+
+## Composition d'une flotte, classe par classe : [{ship, label, n, hp, max}], la plus solide d'abord.
+## Les marques successives d'une même classe (Frégate Mk 2, Mk 3) comptent ensemble.
+static func fleet_rows(f: Fleet) -> Array[Dictionary]:
+	var by := {}
+	var mark := RegEx.create_from_string("\\s+Mk\\s*\\d+$")
+	for i in f.ships.size():
+		var id := String(f.ships[i])
+		var label := mark.sub(String(GameData.ship(id).get("label", id)), "")
+		if not by.has(label):
+			by[label] = {"ship": id, "label": label, "n": 0, "hp": 0, "max": 0}
+		var m := Fleet.max_hp_of(id)
+		by[label]["n"] += 1
+		by[label]["max"] += m
+		by[label]["hp"] += clampi(f.hp[i], 0, m) if i < f.hp.size() and f.hp[i] >= 0 else m
+	var out: Array[Dictionary] = []
+	for label: String in by:
+		out.append(by[label])
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var ma := Fleet.max_hp_of(String(a["ship"]))
+		var mb := Fleet.max_hp_of(String(b["ship"]))
+		return ma > mb or (ma == mb and String(a["ship"]) < String(b["ship"])))
+	return out
+
+
+func _refresh_fleet_comp(f: Fleet, owner: Empire) -> void:
+	var rows := fleet_rows(f)
+	var sig := "%d|%s" % [f.owner, str(rows)]
+	if sig == _fleet_comp_sig:
+		return
+	_fleet_comp_sig = sig
+	for c in _fleet_comp.get_children():
+		_fleet_comp.remove_child(c)
+		c.queue_free()
+	var style := SpeciesLook.hull_style(owner.faction_id) if owner != null else ""
+	var catalog := GameData.ship_ids()
+	for k in rows.size():
+		var r: Dictionary = rows[k]
+		if k >= FLEET_ROWS_MAX and rows.size() > FLEET_ROWS_MAX + 1:
+			var rest := 0
+			for j in range(k, rows.size()):
+				rest += int(rows[j]["n"])
+			_fleet_comp.add_child(UiTheme.dim("et %d autres vaisseaux de %d classes" % [rest, rows.size() - k], 13))
+			break
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		var slot := Control.new()
+		slot.custom_minimum_size = Vector2(26, 22)
+		row.add_child(slot)
+		if catalog.has(r["ship"]) and owner != null:
+			var pic := TextureRect.new()
+			pic.texture = HullArt.icon(style, String(r["ship"]), owner.color())
+			pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			pic.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			slot.add_child(pic)
+		var name_label := Label.new()
+		name_label.text = "%s × %d" % [r["label"], int(r["n"])] if int(r["n"]) > 1 else String(r["label"])
+		name_label.add_theme_font_size_override("font_size", 14)
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.clip_text = true
+		row.add_child(name_label)
+		var pct := int(r["hp"]) * 100 / maxi(1, int(r["max"]))
+		var bar := ProgressBar.new()
+		bar.custom_minimum_size = Vector2(90, 8)
+		bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		bar.show_percentage = false
+		bar.max_value = 100
+		bar.value = pct
+		bar.tooltip_text = "Coque : %d sur %d" % [int(r["hp"]), int(r["max"])]
+		bar.modulate = Color(0.45, 0.85, 0.55) if pct >= 67 else (Color(0.95, 0.75, 0.35) if pct >= 34 else Color(0.93, 0.42, 0.38))
+		row.add_child(bar)
+		_fleet_comp.add_child(row)
 
 
 func _refresh_fleet_card() -> void:
@@ -652,6 +1087,11 @@ func _refresh_fleet_card() -> void:
 	_fleet_title.text = f.fleet_name
 	_fleet_title.add_theme_color_override("font_color", owner.color().lightened(0.35))
 	_fleet_kind.text = Fleets.composition(f) if mine else "%s  ·  %s" % [owner.short_name(), Fleets.composition(f)]
+	# Les rangées de composition disent la même chose, en mieux : la ligne ne reste que pour nommer l'empire.
+	_fleet_kind.visible = not mine
+	if not mine:
+		_fleet_kind.text = owner.short_name()
+	_refresh_fleet_comp(f, owner)
 	if f.is_exploring() and mine:
 		var eta := Fleets.eta_days(_state, f)
 		_fleet_status.text = "Exploration automatique : cap sur %s (%d jour%s)." % [_system_label(f.destination()), eta, "s" if eta > 1 else ""] \
@@ -858,6 +1298,9 @@ func _refresh_fleet_card() -> void:
 	_fleet_buttons["report"].visible = mine and armed
 	_fleet_buttons["report"].disabled = last_report(_state, _player).is_empty()
 	_fleet_hint.visible = mine
+	fleet_place_link.visible = not f.is_moving() and Fleets.is_explored(_state, _player, f.system_id)
+	fleet_place_link.text = "Système : %s" % _system_label(f.system_id)
+	_refresh_fleet_groups()
 
 
 ## Régiments à bord d'une flotte (combat au sol complet) : nombre, places, force.
@@ -961,6 +1404,8 @@ func _build_fleet_list() -> void:
 	add_child(fleet_list)
 	fleet_list.fleet_requested.connect(func(fid: int) -> void: fleet_requested.emit(fid))
 	fleet_list.fleet_system_requested.connect(func(fid: int) -> void: fleet_system_requested.emit(fid))
+	fleet_list.system_requested.connect(func(sid: int, open: bool) -> void: nav_system_requested.emit(sid, open))
+	fleet_list.todo_requested.connect(func(item: Dictionary) -> void: todo_requested.emit(item))
 	# La liste se range juste sous la chronique, dont la hauteur suit la longueur du texte.
 	_chronicle.resized.connect(_place_fleet_list)
 	_place_fleet_list()
@@ -994,13 +1439,60 @@ func _build_spectator_panel() -> void:
 
 
 func _refresh_side_visibility() -> void:
+	var on_map := not _system_mode and not _empire_screen and not spectator
+	if _chronicle:
+		_chronicle.visible = not _empire_screen and not (side_reduced and on_map)
 	if fleet_list:
-		fleet_list.visible = not _system_mode and not _empire_screen and not spectator
+		fleet_list.visible = on_map and not side_reduced
 	if quest_tracker:
-		quest_tracker.set_allowed(not _system_mode and not _empire_screen and not spectator)
+		quest_tracker.set_allowed(on_map and not side_reduced)
+	if alert_bar:
+		alert_bar.visible = on_map and side_reduced
+		side_toggle.visible = on_map
+		side_toggle.text = "«" if side_reduced else "»"
+		side_toggle.tooltip_text = ("Rouvrir le panneau : chronique, quêtes, flottes" if side_reduced else "Réduire le panneau à ses alertes, pour dégager la carte") + "  (touche ²)"
+		side_toggle.offset_right = -MARGIN - (AlertBar.WIDTH if side_reduced else CHRONICLE_WIDTH) - 4.0
+		side_toggle.offset_left = side_toggle.offset_right - 24.0
+		if alert_bar.visible:
+			alert_bar.refresh()
 	if spectator_panel:
 		spectator_panel.visible = spectator and not _system_mode and not _empire_screen
+	if _tier_box:
+		_tier_box.visible = not _system_mode and not _empire_screen
+	_refresh_legend()
 	_refresh_idle_button()
+
+
+## Languette et barre d'alertes du panneau de droite (refonte, A4).
+func _build_side_toggle() -> void:
+	side_reduced = UiSettings.side_reduced
+	alert_bar = AlertBar.new()
+	alert_bar.anchor_left = 1.0
+	alert_bar.anchor_right = 1.0
+	alert_bar.offset_left = -MARGIN - AlertBar.WIDTH
+	alert_bar.offset_right = -MARGIN
+	alert_bar.offset_top = MARGIN
+	alert_bar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	alert_bar.visible = false
+	add_child(alert_bar)
+	alert_bar.alert_requested.connect(func(kind: String, arg: int) -> void: alert_requested.emit(kind, arg))
+	side_toggle = Button.new()
+	side_toggle.focus_mode = Control.FOCUS_NONE
+	side_toggle.anchor_left = 1.0
+	side_toggle.anchor_right = 1.0
+	side_toggle.offset_top = MARGIN
+	side_toggle.offset_bottom = MARGIN + 28.0
+	side_toggle.pressed.connect(func() -> void: set_side_reduced(not side_reduced))
+	add_child(side_toggle)
+
+
+## Réduit le panneau de droite (chronique, quêtes, flottes) à sa barre d'alertes, ou le rouvre.
+func set_side_reduced(on: bool) -> void:
+	side_reduced = on
+	if UiSettings.side_reduced != on:
+		UiSettings.side_reduced = on
+		UiSettings.save_settings()
+	_refresh_side_visibility()
 
 
 func _refresh_idle_button() -> void:
@@ -1037,6 +1529,7 @@ func _build_dial() -> void:
 	turn_players.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	turn_players.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	add_child(turn_players)
+	_build_tier_buttons()
 	var menu := Widgets.IconButton.new("menu", 36)
 	menu.theme_type_variation = &""
 	menu.anchor_left = 1.0
@@ -1072,7 +1565,10 @@ func _refresh_card() -> void:
 	if _info_panel == null:
 		return
 	var id := card_system()
-	if _state == null or id < 0 or _system_mode or _empire_screen:
+	# Une seule fiche à la fois (refonte, A5) : une flotte choisie garde la sienne ; celle d'un système
+	# ne revient que le temps d'un survol, pour voir où l'on envoie la flotte.
+	var fleet_shown := _fleet_panel != null and _fleet_panel.visible and _hover_id < 0
+	if _state == null or id < 0 or _system_mode or _empire_screen or fleet_shown:
 		_info_panel.visible = false
 		return
 	_info_panel.visible = true
@@ -1133,6 +1629,8 @@ func _refresh_card() -> void:
 	var tlines := Terrain.lines(_state, s.id)
 	for line in tlines:
 		_card_owner.text += "\n" + line
+	_card_owner.tooltip_text = "\n\n".join(PackedStringArray(Terrain.lore_lines(_state, s.id)))
+	_card_owner.mouse_filter = Control.MOUSE_FILTER_PASS if _card_owner.tooltip_text != "" else Control.MOUSE_FILTER_IGNORE
 	var wl := CaptureLore.field_text(_state, s.id)  # champ d'épaves (prises de guerre)
 	if wl != "":
 		_card_owner.text += "\n" + wl

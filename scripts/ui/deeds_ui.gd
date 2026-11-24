@@ -169,24 +169,116 @@ static func _deed_row(es: EmpireScreens, id: String) -> Control:
 
 # --- Annales (prop. 22) ---------------------------------------------------------------------------
 
+const TIMELINE_KINDS := [["", "Tout"], ["annal", "Annales"], ["deed", "Hauts faits"], ["hour", "Grandes heures"]]
+const TIMELINE_MAX := 120
+
+
+## La frise commune, de la plus récente à la plus ancienne : [{t, kind, rec}], kind « annal » (premières et
+## moments de l'empire), « deed » (hauts faits) ou « hour » (grandes heures annoncées). filter "" = tout.
+static func timeline(state: GameState, player: int, viewer: int, filter := "") -> Array:
+	var out := []
+	if Deeds.enabled(state):
+		for x: Dictionary in Deeds.annals_of(state, player):
+			var kind := "deed" if String(x["k"]) in ["deed", "late"] else "annal"
+			if filter == "" or filter == kind:
+				out.append({"t": int(x["d"]), "kind": kind, "rec": x})
+	if filter == "" or filter == "hour":
+		for rec in Announce.hours(state, viewer):
+			out.append({"t": int(rec["t"]), "kind": "hour", "rec": rec})
+	out.sort_custom(func(p: Dictionary, q: Dictionary) -> bool:
+		return int(p["t"]) > int(q["t"]) or (int(p["t"]) == int(q["t"]) and String(p["kind"]) < String(q["kind"])))
+	return out
+
+
+## Gloire des empires connus, la plus haute d'abord : [[empire, gloire]].
+static func glory_ranking(state: GameState, player: int, see_all: bool) -> Array:
+	var out := []
+	var me := state.get_empire(player)
+	for e in state.empires:
+		if e.eliminated or not (e.id == player or see_all or (me != null and me.contacts.has(e.id))):
+			continue
+		out.append([e.id, Deeds.glory(state, e.id)])
+	out.sort_custom(func(p: Array, q: Array) -> bool: return int(p[1]) > int(q[1]) or (int(p[1]) == int(q[1]) and int(p[0]) < int(q[0])))
+	return out
+
+
 static func build_annals(es: EmpireScreens, col: VBoxContainer) -> void:
 	var state := es._state
 	var player := es._player
-	if not Deeds.enabled(state):
-		col.add_child(UiTheme.dim("Pas d'Annales dans cette partie (hauts faits désactivés).", 15))
-		return
+	var viewer := AnnounceUi.viewer_of(es)
+	var frise := AnnounceUi.Frise.new()
+	frise.state = state
+	frise.hours = Announce.hours(state, viewer)
+	frise.viewer = viewer
+	col.add_child(frise)
+	es.chronicle_buttons["hours:frise"] = frise
+	var filter := String(es.pane_current.get("annals_filter", ""))
+	var frow := HBoxContainer.new()
+	frow.add_theme_constant_override("separation", 6)
+	col.add_child(frow)
+	for k: Array in TIMELINE_KINDS:
+		if not Deeds.enabled(state) and String(k[0]) in ["annal", "deed"]:
+			continue
+		var fb := Button.new()
+		fb.theme_type_variation = &"TabButton"
+		fb.toggle_mode = true
+		fb.focus_mode = Control.FOCUS_NONE
+		fb.add_theme_font_size_override("font_size", 13)
+		fb.text = String(k[1]).to_upper()
+		fb.set_pressed_no_signal(String(k[0]) == filter)
+		var kid := String(k[0])
+		fb.pressed.connect(func() -> void:
+			es.pane_current["annals_filter"] = kid
+			es.show_screen("chronicles"))
+		es.chronicle_buttons["annals_filter:" + kid] = fb
+		frow.add_child(fb)
+	var split := HBoxContainer.new()
+	split.add_theme_constant_override("separation", 22)
+	col.add_child(split)
 	var blk := Widgets.Block.new("Les Annales de %s" % state.get_empire(player).short_name())
-	col.add_child(blk)
-	var a := Deeds.annals_of(state, player)
-	if a.is_empty():
+	blk.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	split.add_child(blk)
+	var tl := timeline(state, player, viewer, filter)
+	if tl.is_empty():
 		blk.body.add_child(UiTheme.dim("Rien encore. L'histoire commence par une première colonie, une première bataille, un premier traité.", 14))
-	var shown := 0
-	for i in range(a.size() - 1, -1, -1):
-		var x: Dictionary = a[i]
-		blk.body.add_child(_annal_row(state, x))
-		shown += 1
-		if shown >= 80:
-			break
+	for i in mini(tl.size(), TIMELINE_MAX):
+		blk.body.add_child(_timeline_row(es, tl[i]))
+	if tl.size() > TIMELINE_MAX:
+		blk.body.add_child(UiTheme.dim("Les entrées plus anciennes ne sont pas montrées : filtrez la frise.", 13))
+	if Deeds.enabled(state):
+		var rank := Widgets.Block.new("Gloire")
+		rank.custom_minimum_size = Vector2(330, 0)
+		rank.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		split.add_child(rank)
+		var rk := glory_ranking(state, player, es.see_all)
+		var top := 1
+		for r: Array in rk:
+			top = maxi(top, int(r[1]))
+		for r: Array in rk:
+			var e := state.get_empire(int(r[0]))
+			var line := HBoxContainer.new()
+			line.add_theme_constant_override("separation", 8)
+			var nl := Label.new()
+			nl.text = e.short_name()
+			nl.custom_minimum_size = Vector2(130, 0)
+			nl.clip_text = true
+			nl.add_theme_color_override("font_color", e.color().lightened(0.25))
+			line.add_child(nl)
+			var bar := ProgressBar.new()
+			bar.show_percentage = false
+			bar.custom_minimum_size = Vector2(110, 8)
+			bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			bar.max_value = top
+			bar.value = int(r[1])
+			bar.add_theme_stylebox_override("fill", UiTheme.box(e.color(), Color(0, 0, 0, 0), 0, 0))
+			line.add_child(bar)
+			var val := Label.new()
+			val.theme_type_variation = &"Numbers"
+			val.text = str(int(r[1]))
+			line.add_child(val)
+			rank.body.add_child(line)
+	if not Deeds.enabled(state):
+		return
 	var gal := Widgets.Block.new("Palmarès de la galaxie")
 	col.add_child(gal)
 	var any := false
@@ -203,7 +295,43 @@ static func build_annals(es: EmpireScreens, col: VBoxContainer) -> void:
 		gal.body.add_child(UiTheme.dim("Aucun haut fait accompli pour l'instant. Tout reste à prendre.", 13))
 
 
-static func _annal_row(state: GameState, x: Dictionary) -> Control:
+## Une ligne de la frise : la date, une pastille à la couleur de sa nature, le fait.
+static func _timeline_row(es: EmpireScreens, it: Dictionary) -> Control:
+	var state := es._state
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var date := UiTheme.dim(GameCalendar.date_string(int(it["t"])), 13)
+	date.custom_minimum_size = Vector2(96, 0)
+	row.add_child(date)
+	var kind := String(it["kind"])
+	var dot := Widgets.Dot.new({"deed": Color(0.95, 0.78, 0.4), "hour": UiTheme.ACCENT}.get(kind, Color(0.6, 0.66, 0.74)), 10.0)
+	dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(dot)
+	if kind == "hour":
+		var rec: Dictionary = it["rec"]
+		var t := Label.new()
+		t.text = Announce.title(state, rec)
+		t.tooltip_text = String(rec["x"])
+		t.mouse_filter = Control.MOUSE_FILTER_STOP
+		t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		t.clip_text = true
+		row.add_child(t)
+		var aid := int(rec["id"])
+		var b := Button.new()
+		b.flat = true
+		b.focus_mode = Control.FOCUS_NONE
+		b.text = "Rouvrir"
+		b.pressed.connect(func() -> void: es.announce_requested.emit(aid))
+		es.chronicle_buttons["hour:%d" % aid] = b
+		row.add_child(b)
+	else:
+		var l := _annal_row(state, it["rec"], false)
+		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(l)
+	return row
+
+
+static func _annal_row(state: GameState, x: Dictionary, dated := true) -> Control:
 	var id := String(x["id"])
 	var txt := ""
 	match String(x["k"]):
@@ -220,6 +348,11 @@ static func _annal_row(state: GameState, x: Dictionary) -> Control:
 			txt = "Début d'un âge d'or"
 	if int(x["g"]) > 0:
 		txt += "  (+%d Gloire)" % int(x["g"])
+	if not dated:
+		var l := Label.new()
+		l.text = txt
+		l.clip_text = true
+		return l
 	return UiTheme.dim("%s  ·  %s" % [GameCalendar.date_string(int(x["d"])), txt], 13)
 
 

@@ -269,6 +269,7 @@ func _test_main_scene() -> void:
 	_check(scene != null, "main.tscn se charge")
 	var main := scene.instantiate()
 	main.save_path = "user://saves/test_quicksave.json"  # ne jamais toucher la vraie sauvegarde du joueur
+	main.save_dir = "user://test_saves_ui"
 	main.start_with_menu = false
 	root.add_child(main)
 	for _i in 10:
@@ -343,9 +344,37 @@ func _test_main_scene() -> void:
 	_check(main._system_screen._title.text == "Port-Libre", "l'en-tête de la vue système suit le nouveau nom")
 	main.close_system_view()
 
-	# F5 sauvegarde, F9 recharge exactement la même partie.
-	_press(KEY_F5)
+	# Ctrl+S sauvegarde, Ctrl+L recharge exactement la même partie (F5 est le domaine Commerce).
+	_press(KEY_S, KEY_NONE, true)
 	var saved_checksum: String = main.simulation.state.checksum()
+	# Refonte D3b : la sauvegarde rapide porte son en-tête ; le menu du jeu fait une sauvegarde à part et la liste la montre.
+	var qhead := SaveGame.head(main.save_path)
+	_check(String(qhead.get("kind", "")) == "quick" and String(qhead.get("empire", "")) != "", "sauvegarde rapide : l'en-tête dit le peuple joué (%s)" % str(qhead.get("empire", "")))
+	for old: Dictionary in SaveGame.list(main.save_dir):
+		SaveGame.remove(String(old["path"]))
+	main.open_pause_menu()
+	main._pause_menu.new_save_requested.emit()
+	main._pause_menu.show_page("load")
+	_check(main._pause_menu.save_list.paths.size() == 1 and main._pause_menu._load.visible, "menu du jeu : la nouvelle sauvegarde est dans la liste de Charger")
+	_check(main._pause_menu.back() and main._pause_menu.page == "home", "menu du jeu : Échap revient de la liste")
+	main.close_pause_menu()
+	main.autosave_clock = float(UiSettings.autosave_minutes) * 60.0
+	var was_paused: bool = clock.paused
+	clock.set_paused(true)
+	_check(not main.tick_autosave(1.0), "sauvegarde automatique : rien tant que le temps est arrêté")
+	clock.set_paused(false)
+	_check(main.tick_autosave(1.0) == (UiSettings.autosave_minutes > 0) and (UiSettings.autosave_minutes <= 0 or SaveGame.list(main.save_dir).size() == 2), "sauvegarde automatique : écrite quand l'intervalle est passé")
+	clock.set_paused(was_paused)
+	_check(main.latest_save() != "" , "Continuer a une sauvegarde à reprendre")
+	var first_auto := ""
+	for sv: Dictionary in SaveGame.list(main.save_dir):
+		if String(sv.get("kind", "")) == "auto":
+			first_auto = String(sv["path"])
+	_check(UiSettings.autosave_minutes <= 0 or first_auto.get_file() == "auto_1.json", "sauvegarde automatique : premier des trois fichiers")
+	var manual_path := ""
+	for sv: Dictionary in SaveGame.list(main.save_dir):
+		if String(sv.get("kind", "")) == "manual":
+			manual_path = String(sv["path"])
 	var saved_tick: int = main.simulation.state.tick
 	_press(KEY_SPACE)
 	for _i in 40:
@@ -359,12 +388,19 @@ func _test_main_scene() -> void:
 		main.close_deed_panel()
 	if main.is_event_panel_open():
 		main.close_event_panel()
-	_press(KEY_F9)
+	_press(KEY_L, KEY_NONE, true)
 	_check(main.simulation.state.tick == saved_tick, "F9 : retour au jour sauvegardé")
 	_check(main.simulation.state.checksum() == saved_checksum, "F9 : partie rechargée à l'identique")
 	_check(main.galaxy.systems[5].system_name == "Port-Libre", "F9 : le nom sauvegardé revient")
 	_check(clock.paused and clock.simulation == main.simulation, "F9 : l'horloge suit la partie chargée, en pause")
 	_check(main._view.galaxy == main.galaxy, "F9 : la vue affiche la partie chargée")
+	main.simulation.submit(SimCommands.rename_system(0, 5, "Encore-Autre"))
+	main.simulation.flush_commands()
+	main._pause_menu.load_path_requested.emit(manual_path)
+	_check(main.simulation.state.checksum() == saved_checksum and not main._pause_menu.is_open(), "menu du jeu : une sauvegarde de la liste se recharge à l'identique")
+	for old: Dictionary in SaveGame.list(main.save_dir):
+		SaveGame.remove(String(old["path"]))
+	_check(SaveGame.list(main.save_dir).is_empty(), "les sauvegardes d'essai sont effacées")
 
 	var old_seed: int = main.galaxy.seed_value
 	main.new_game(old_seed + 1)
@@ -684,13 +720,21 @@ func _test_navigation_ui(main: Node) -> void:
 	var row := screens.economy_row_text("materials")
 	_check(row.begins_with("Matériaux|%d|" % me.resources["materials"]), "ligne des matériaux (%s)" % row)
 	_check(not main._camera.is_processing_unhandled_input(), "la carte ne réagit plus sous un menu d'empire")
-	_press(KEY_F2)
+	_check(screens._tab.text.begins_with("EMPIRE") and screens.domain_buttons.has("Bilan") and screens.domain_buttons.has("Colonies"), "le domaine Empire montre ses onglets")
+	(screens.domain_buttons["Colonies"] as Button).pressed.emit()
 	await process_frame
-	_check(screens.current == "colonies", "F2 passe aux colonies")
+	_check(screens.current == "colonies", "l'onglet Colonies du domaine Empire")
 	var rows := screens.colony_buttons()
 	_check(rows.size() == EmpireReport.colonies(st, 0).size() and rows.size() >= 2, "une ligne par colonie ou avant-poste (%d)" % rows.size())
-	_press(KEY_F2)
-	_check(not screens.is_open() and not hud.bar.screen_button("colonies").button_pressed, "F2 referme les colonies")
+	_press(KEY_F1)
+	_check(not screens.is_open() and not hud.bar.screen_button("colonies").button_pressed, "F1 referme le domaine Empire")
+	_press(KEY_F1)
+	await process_frame
+	_check(screens.current == "colonies", "F1 rouvre le domaine là où on l'avait laissé")
+	_press(KEY_F5)
+	await process_frame
+	_check(screens.current == "trade" and hud.bar.domain_button(4).button_pressed, "F5 passe au domaine Commerce")
+	_press(KEY_F5)
 	_check(main._camera.is_processing_unhandled_input(), "la carte reprend la main")
 	main.toggle_empire_screen("colonies")
 	await process_frame
@@ -711,9 +755,9 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(not screens.is_open() and main.is_system_view_open() and main._system_screen.planet_id == me.capital_planet,
 			"Ouvrir la vue système depuis la colonie choisie")
 	main.close_system_view()
-	_press(KEY_F3)
+	_press(KEY_F2)
 	await process_frame
-	_check(screens.is_open() and screens.current == "research" and screens._tab.text.begins_with("RECHERCHE"), "F3 : écran Recherche")
+	_check(screens.is_open() and screens.current == "research" and screens._tab.text.begins_with("SAVOIR"), "F2 : domaine Savoir, écran Recherche")
 	var rme: Empire = main.simulation.state.get_empire(main.view_empire)
 	var rtree: ResearchTree = screens.research_tree
 	_check(rtree != null and rtree.card_ids().size() == Research.visible_for(main.simulation.state, main.view_empire).size(), "l'arbre montre toutes les technologies du peuple")
@@ -737,9 +781,23 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(main.is_codex_open() and main.codex.current == "cat:technologies:" + rfirst, "la fiche ouvre la page Codex de la technologie")
 	main.codex.close_codex()
 	await process_frame
-	_press(KEY_F6)
+	_press(KEY_F3)
 	await process_frame
-	_check(screens.current == "shipyard" and screens.shipyard != null and screens._tab.text.begins_with("CHANTIER"), "F6 : écran Chantier")
+	_check(screens.current == "fleets" and screens._tab.text.begins_with("FORCES") and not screens.fleets_buttons.is_empty(), "F3 : domaine Forces, onglet Flottes")
+	screens.show_address("shipyard")
+	await process_frame
+	_check(screens.current == "shipyard" and screens.shipyard != null, "Forces : onglet Chantier")
+	# Un domaine fermé sur un onglet sans entrée dans l'ancienne barre se rouvre sur cet onglet.
+	if UiDomains.offered(main.simulation.state, main.view_empire, "megas"):
+		screens.show_address("megas")
+		await process_frame
+		_press(KEY_F1)
+		await process_frame
+		_press(KEY_F1)
+		await process_frame
+		_check(screens.is_open() and screens.current == "megas", "F1 rouvre le domaine Empire sur Mégastructures")
+		screens.show_address("shipyard")
+		await process_frame
 	var yard: ShipyardScreen = screens.shipyard
 	var yst: GameState = main.simulation.state
 	var yhull := String(Designs.hull_ids_for(rme.faction_id)[0])
@@ -873,8 +931,15 @@ func _test_navigation_ui(main: Node) -> void:
 	# Au tour par tour, le centre du cadran termine le tour.
 	clock.set_mode(clock.MODE_TURNS, 5)
 	var d0: int = clock.day
+	# La fin de tour prévient d'abord de ce qui attend (refonte, A6), puis une seconde pression finit le tour.
+	main.simulation.state.get_empire(main.local_player).research_queue.clear()
+	main._turn_overridden = {}
+	main._turn_warned_at = -1
+	dial.pause_toggled.emit()
+	_check(not clock.is_resolving_turn() and "Avant de finir le tour" in "\n".join(hud.toast_texts()), "fin de tour : avertissement de ce qui attend")
 	dial.pause_toggled.emit()
 	_check(clock.is_resolving_turn(), "cadran au tour par tour : fin de tour")
+	_check(not main._turn_overridden.is_empty(), "fin de tour : un point écarté ne reviendra pas")
 	dial.speed_requested.emit(0)
 	for _i in 60:
 		await process_frame
@@ -1061,7 +1126,7 @@ func _test_navigation_ui(main: Node) -> void:
 	# Les lancements des tests ne remplacent pas la « dernière partie » de l'utilisateur.
 	menu.presets_path = "user://test_new_game_presets.json"
 	_check(menu.is_open() and not hud.visible and menu._resume.visible, "menu principal : la partie en cours peut reprendre")
-	_check(not menu._continue.visible and menu._items.size() == 9, "accueil : Reprendre remplace Continuer")
+	_check(not menu._continue.visible and menu._items.size() == 10, "accueil : Reprendre remplace Continuer")
 	menu.show_page("join")
 	_check(menu._join_page.visible and not menu._home.visible, "accueil : page Multijoueur")
 	# Réseau local : une partie annoncée apparaît dans la liste, sans adresse à taper.
@@ -1080,7 +1145,14 @@ func _test_navigation_ui(main: Node) -> void:
 	var choice_buttons := menu._join_choice.get_children().filter(func(n: Node) -> bool: return n is Button and not n.is_queued_for_deletion())
 	_check(not menu._join_form.visible and choice_buttons.size() == 2 and not choice_buttons[0].disabled and choice_buttons[1].disabled, "Multijoueur : choix de l'empire, les empires joués sont grisés")
 	menu.show_page("join")
-	_check(menu._join_form.visible and not menu._join_choice.visible, "Multijoueur : la page revient au formulaire")
+	_check(menu._mp_choice.visible and not menu._join_form.visible and not menu._mp_host.visible and not menu._join_choice.visible, "Multijoueur : la page revient aux deux grands choix")
+	(menu._mp_cards["host"] as Button).pressed.emit()
+	_check(menu.join_mode == "host" and menu._mp_host.visible and not menu._mp_host_net.visible and not menu._join_go.visible, "Multijoueur : Héberger, réglages réseau repliés")
+	(menu._mp_host_net.get_meta("toggle") as Button).toggled.emit(true)
+	_check(menu._mp_host_net.visible and menu._host_password.is_visible_in_tree(), "Multijoueur : le volet de réglages réseau montre le mot de passe")
+	_check(menu.back() and menu.join_mode == "" and menu.page == "join", "Multijoueur : Échap revient aux deux choix")
+	menu.set_join_mode("join")
+	_check(menu._join_form.visible and menu._join_go.visible and menu._join_name.is_visible_in_tree(), "Multijoueur : Rejoindre montre le formulaire")
 	var old_time := menu._time_select.selected
 	menu.open_host_new()
 	_check(menu.page == "new" and menu.host_new and menu.time_mode == clock.MODE_TURNS, "Héberger : page Nouvelle partie, tours simultanés proposés")
@@ -1134,6 +1206,7 @@ func _test_navigation_ui(main: Node) -> void:
 	menu.apply_settings(menu_before)
 	menu.set_time_choice(old_time)
 	menu.show_page("join")
+	menu.set_join_mode("join")
 	menu._join_address.text = ""
 	menu.request_join()
 	_check(menu._join_status.text.contains("adresse"), "Rejoindre : l'adresse est demandée")
@@ -1743,9 +1816,9 @@ func _test_intel_ui(main: Node) -> void:
 	for k in st.networks.keys():
 		if int(st.networks[k]["a"]) == me:
 			st.networks.erase(k)
-	_press(KEY_F8)
+	main.toggle_empire_screen("intel")
 	await process_frame
-	_check(screens.current == "intel", "F8 : écran Renseignement")
+	_check(screens.current == "intel" and screens._tab.text.begins_with("DIPLOMATIE"), "écran Renseignement, domaine Diplomatie")
 	_check(screens.intel_buttons.has(rival) and screens.intel_buttons.has(me), "écran Renseignement : lignes du rival et du contre-espionnage")
 	if screens.intel_buttons.has(rival):
 		(screens.intel_buttons[rival][1] as Button).pressed.emit()
@@ -1758,9 +1831,9 @@ func _test_intel_ui(main: Node) -> void:
 	screens.show_screen("intel")
 	await process_frame
 	_check(st.get_empire(me).dossiers.has(rival), "écran Renseignement : dossier ouvert au palier Amirauté")
-	_press(KEY_F8)
+	_press(KEY_F4)
 	await process_frame
-	_check(not screens.is_open(), "F8 referme l'écran Renseignement")
+	_check(not screens.is_open(), "F4 referme l'écran Renseignement")
 
 
 ## Écran Panthéon (F10) : offre, choix, affectation, rappel.
@@ -2309,9 +2382,10 @@ func _find_label(n: Node, prefix: String) -> bool:
 func _test_victory_ui(main: Node) -> void:
 	var screens: EmpireScreens = main._empire_screens
 	var st: GameState = main.simulation.state
-	_press(KEY_F7)
+	screens.domain_last.erase(7)
+	_press(KEY_F8)
 	await process_frame
-	_check(screens.current == "victory", "F7 : écran Victoire")
+	_check(screens.current == "victory", "F8 : domaine Victoire")
 	_check(screens.victory_rows.has("conquete") and screens.victory_rows.has("domination") and screens.victory_rows.has("score"),
 			"écran Victoire : les trois victoires classiques")
 	var mine := Victory.people_ids_for(st.get_empire(main.view_empire).faction())
@@ -2358,9 +2432,9 @@ func _test_victory_ui(main: Node) -> void:
 		screens.set_colony_filter("all")
 		screens.show_screen("victory")
 		await process_frame
-	_press(KEY_F7)
+	_press(KEY_F8)
 	await process_frame
-	_check(not screens.is_open(), "F7 referme l'écran Victoire")
+	_check(not screens.is_open(), "F8 referme l'écran Victoire")
 	# Fin de partie : le panneau s'ouvre au tick suivant la proclamation.
 	st.winner = {"empire": main.view_empire, "victory": "conquete", "tick": st.tick, "allies": []}
 	main.simulation.ticked.emit(st.tick)
@@ -2392,8 +2466,9 @@ func _quiet_minor_contacts(main: Node) -> void:
 	_check(not main.is_modal_open(), "aucune fenêtre ouverte avant les tests de touches de la carte")
 
 
-func _press(keycode: Key, physical: Key = KEY_NONE) -> void:
+func _press(keycode: Key, physical: Key = KEY_NONE, ctrl := false) -> void:
 	var ev := InputEventKey.new()
+	ev.ctrl_pressed = ctrl
 	ev.keycode = keycode
 	ev.physical_keycode = physical if physical != KEY_NONE else keycode
 	ev.pressed = true

@@ -7,7 +7,7 @@
 			"era": 1,
 			"field": "coques",
 			"current": "glaive",
-			"text": "Débloque le Transport de troupes.",
+			"text": "Débloque le Transport de troupes.", "lore": "Une coque à fond plat, doublée d'un bouclier thermique, capable d'entrer dans une atmosphère et d'en ressortir. Elle porte un régiment et ses véhicules dans des soutes qui s'ouvrent par l'avant. Les équipages l'appellent la barge.",
 			"needs": [
 				"chantier",
 				"vaisseaux"
@@ -23,7 +23,7 @@
 			"era": 1,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "Première génération de moteurs : toutes les flottes vont un quart plus vite (vitesse ×1,25). Débloque la tactique Harcèlement (bien de loin, un peu moins touchée). Sa Maîtrise, Postcombustion, raccourcit la mise en route avant le saut.",
+			"text": "Première génération de moteurs : toutes les flottes vont un quart plus vite (vitesse ×1,25). Débloque la tactique Harcèlement (bien de loin, un peu moins touchée). Sa Maîtrise, Postcombustion, raccourcit la mise en route avant le saut.", "lore": "Un tore de confinement long comme la coque, où brûle le deutérium tiré des géantes gazeuses. Les Lignées l'ont d'abord monté sur les remorqueurs miniers de Kessane, avant d'oser le confier aux flottes. Il faut quatre heures pour le refroidir après chaque saut.",
 			"needs": [
 				"vaisseaux"
 			],
@@ -35,7 +35,7 @@
 			}
 		},
 		"postcombustion": {
-			"label": "Postcombustion",
+			"label": "Postcombustion", "lore": "Une seconde injection de deutérium dans la tuyère, qui porte le réacteur à son régime en quelques minutes. Les mécaniciens la redoutent, car elle use les parois deux fois plus vite. On remplace la chambre tous les cent sauts.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -53,7 +53,7 @@
 			}
 		},
 		"detecteurs_abysse": {
-			"label": "Détecteurs d'abysse",
+			"label": "Détecteurs d'abysse", "lore": "Des capteurs accordés sur le bruit de fond entre les étoiles, là où les peuples d'énergie laissent une trace. Les opérateurs ne voient pas ces flottes. Ils relèvent sur leurs écrans une zone où le bruit manque.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -72,7 +72,7 @@
 			"flavor": "« Il n'y a rien là-bas. » — « Alors pourquoi le rien nous regarde-t-il ? »"
 		},
 		"voiles_1": {
-			"label": "Voiles de camouflage",
+			"label": "Voiles de camouflage", "lore": "Un revêtement qui absorbe la chaleur de la coque et la rejette d'un seul côté, à l'opposé de l'observateur. Il oblige à couper la moitié des machines. Les petites coques le supportent, les grandes n'ont pas assez de surface pour leur réacteur.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -88,7 +88,7 @@
 			"flavor": "« On ne voit rien. » — « C'est le but. »"
 		},
 		"voiles_2": {
-			"label": "Voiles réfractifs",
+			"label": "Voiles réfractifs", "lore": "Un revêtement à facettes qui dévie la lumière et les ondes radar autour de la coque. Il se pose en panneaux, que l'on règle un à un au chantier. Une coque moyenne en porte assez pour disparaître des écrans à moyenne distance.",
 			"domain": "genie",
 			"era": 3,
 			"field": "senseurs",
@@ -104,7 +104,7 @@
 			"flavor": "La lumière fait un détour. Elle ne s'en plaint pas."
 		},
 		"voiles_3": {
-			"label": "Voiles d'ombre",
+			"label": "Voiles d'ombre", "lore": "Un champ qui courbe la lumière autour de la coque entière, réacteur compris. Il demande autant d'énergie que les moteurs. Les plus grands vaisseaux peuvent enfin s'y cacher, à condition de ne pas tirer.",
 			"domain": "genie",
 			"era": 4,
 			"field": "senseurs",
@@ -120,7 +120,7 @@
 			"flavor": "Le croiseur était là depuis une semaine. Personne ne l'a cru, même après."
 		},
 		"detecteurs_1": {
-			"label": "Réseau de détecteurs",
+			"label": "Réseau de détecteurs", "lore": "Plusieurs antennes réparties sur des milliers de kilomètres, qui comparent leurs relevés. Une coque camouflée ne se trahit sur aucune d'elles prise à part. On la devine à l'écart entre deux mesures.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -133,7 +133,7 @@
 			"flavor": "Écouter le silence, c'est déjà entendre quelque chose."
 		},
 		"detecteurs_2": {
-			"label": "Senseurs tachyoniques",
+			"label": "Senseurs tachyoniques", "lore": "Des capteurs qui relèvent le sillage laissé par un moteur plusieurs heures après son passage. Un éclaireur peut en déposer un en balise et repartir. La balise émet une fois par jour, pendant quelques secondes.",
 			"domain": "genie",
 			"era": 3,
 			"field": "senseurs",
@@ -146,7 +146,7 @@
 			"flavor": "Les tachyons arrivent avant la question. C'est pratique, et un peu vexant."
 		},
 		"detecteurs_3": {
-			"label": "Senseurs quantiques",
+			"label": "Senseurs quantiques", "lore": "Des paires de particules liées, dont une moitié reste à bord et l'autre est semée dans le système. Toute coque qui passe près d'une graine trouble sa jumelle. Aucun camouflage connu ne l'empêche.",
 			"domain": "genie",
 			"era": 4,
 			"field": "senseurs",
@@ -162,7 +162,7 @@
 			"flavor": "Observer change le résultat. Ici, il le change en « trouvé »."
 		},
 		"navigation_songe": {
-			"label": "Navigation par le Songe",
+			"label": "Navigation par le Songe", "lore": "Une méthode qui confie le saut à un sensitif en transe, capable de sentir un système voisin sans voie pour y mener. La flotte suit son indication. Il arrive qu'il se trompe d'étoile.",
 			"domain": "genie",
 			"era": 4,
 			"field": "propulsion",
@@ -178,7 +178,7 @@
 			"flavor": "Le pilote ferme les yeux. Le vaisseau, lui, préférerait qu'il les garde ouverts."
 		},
 		"ecoute_profonde": {
-			"label": "Écoute profonde",
+			"label": "Écoute profonde", "lore": "De grandes antennes tournées vers l'extérieur de la galaxie, où aucun empire n'émet. Elles ont relevé un signal trop régulier pour être naturel. Les flottes en retrouvent des échos anciens, pris dans la poussière.",
 			"domain": "genie",
 			"era": 4,
 			"field": "senseurs",
@@ -194,7 +194,7 @@
 			"flavor": "On a tendu l'oreille vers le vide. Le vide, pour une fois, a quelque chose à dire."
 		},
 		"paleo_ingenierie": {
-			"label": "Paléo-ingénierie",
+			"label": "Paléo-ingénierie", "lore": "L'art de rebâtir un engin disparu d'après ses débris, en comblant les manques par le calcul. Les chantiers en tirent des gabarits qu'ils savent construire. Une pièce manquante ne suffit plus à arrêter une reconstitution.",
 			"domain": "genie",
 			"era": 4,
 			"field": "coques",
@@ -214,7 +214,7 @@
 			"flavor": "Personne ne sait comment ça marche. Ça marche. Le service qualité a démissionné."
 		},
 		"senseurs_gravitationnels": {
-			"label": "Senseurs gravitationnels",
+			"label": "Senseurs gravitationnels", "lore": "Des masses suspendues dans le vide d'une enceinte, dont on mesure les déplacements au milliardième de millimètre. Elles réagissent au passage d'une coque que les gaz d'une nébuleuse cachent aux autres instruments.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -235,7 +235,7 @@
 			"era": 1,
 			"field": "senseurs",
 			"current": "academie",
-			"text": "Les colonies et avant-postes voient un saut plus loin. Curiosités : +1 détection et +1 puissance d'expédition, et la Station d'étude.",
+			"text": "Les colonies et avant-postes voient un saut plus loin. Curiosités : +1 détection et +1 puissance d'expédition, et la Station d'étude.", "lore": "Des antennes de plusieurs kilomètres, déployées en étoile autour d'une colonie, qui écoutent le rayonnement des coques et le sillage des sauts. Les équipes d'étude s'en servent aussi pour sonder un objet inconnu avant d'y envoyer quelqu'un.",
 			"effects": {
 				"claim_vision": 1,
 				"curio_detect": 1,
@@ -247,7 +247,7 @@
 			}
 		},
 		"telemetrie_longue": {
-			"label": "Télémétrie à longue base",
+			"label": "Télémétrie à longue base", "lore": "Deux télescopes montés aux extrémités de la coque d'un éclaireur, dont on combine les images. Ils distinguent une planète d'un système voisin. L'équipage dresse la carte sans quitter son poste d'observation.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -273,7 +273,7 @@
 			"era": 1,
 			"field": "coques",
 			"current": "forge",
-			"text": "Débloque la Cale sèche : les vaisseaux construits dans la colonie sortent 25 % plus vite. Sa Maîtrise accélère tous les chantiers.",
+			"text": "Débloque la Cale sèche : les vaisseaux construits dans la colonie sortent 25 % plus vite. Sa Maîtrise accélère tous les chantiers.", "lore": "Une cale close, tenue sous air, où la coque avance de poste en poste sur un chariot. Les ouvriers y travaillent sans scaphandre. Les sections arrivent des ateliers déjà câblées et se soudent entre elles en une journée.",
 			"needs": [
 				"chantier",
 				"vaisseaux"
@@ -284,7 +284,7 @@
 			}
 		},
 		"cales_paralleles": {
-			"label": "Cales parallèles",
+			"label": "Cales parallèles", "lore": "Plusieurs cales bâties côte à côte, servies par les mêmes grues et les mêmes magasins. Les équipes passent de l'une à l'autre selon l'avancement de chaque coque. Un chantier n'attend plus qu'une pièce arrive pour continuer.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -303,7 +303,7 @@
 			}
 		},
 		"coques_lourdes": {
-			"label": "Coques lourdes",
+			"label": "Coques lourdes", "lore": "Une charpente à double quille, capable de porter un blindage et des pièces lourdes sans se tordre à l'accélération. Elle se monte en quatre sections soudées dans la cale. C'est la première coque qui exige un équipage de plusieurs centaines.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -322,7 +322,7 @@
 			}
 		},
 		"torpilleurs": {
-			"label": "Torpilleurs",
+			"label": "Torpilleurs", "lore": "Une petite coque bâtie autour de deux tubes qui la traversent de la proue au milieu. Elle n'a presque pas de blindage et compte sur sa vitesse. Son équipage dort entre les torpilles.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -337,7 +337,7 @@
 			]
 		},
 		"hyperflux": {
-			"label": "Moteurs à hyperflux",
+			"label": "Moteurs à hyperflux", "lore": "Un réacteur qui ne s'éteint plus entre deux sauts et garde ses cristaux sous charge. Il double presque la poussée du premier moteur à fusion. Les nacelles se montent à l'écart de la coque, au bout de pylônes, à cause de la chaleur.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -361,7 +361,7 @@
 			}
 		},
 		"flux_continu": {
-			"label": "Flux continu",
+			"label": "Flux continu", "lore": "Un circuit qui fait tourner le flux dans les cristaux sans jamais le laisser retomber. Le réacteur est prêt au saut presque aussitôt l'ordre donné. Il consomme en veille ce qu'un ancien moteur brûlait en route.",
 			"domain": "genie",
 			"era": 3,
 			"field": "propulsion",
@@ -379,7 +379,7 @@
 			}
 		},
 		"coques_series": {
-			"label": "Coques de série",
+			"label": "Coques de série", "lore": "Des coques dessinées une fois et reproduites à l'identique, dont toutes les pièces sont interchangeables. Un vaisseau avarié prend les siennes sur un autre. Les magasins des flottes ne tiennent plus que quelques centaines de références.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -398,7 +398,7 @@
 			}
 		},
 		"bombardes": {
-			"label": "Bombardes de siège",
+			"label": "Bombardes de siège", "lore": "Une coque construite autour d'un seul canon, qui tire vers le sol des charges de plusieurs tonnes. Elle se place en orbite basse et n'en bouge plus pendant le siège. Elle ne sait pas se défendre contre un autre vaisseau.",
 			"domain": "genie",
 			"era": 3,
 			"field": "coques",
@@ -414,7 +414,7 @@
 			"spec": "chantier_lourd"
 		},
 		"baies": {
-			"label": "Baies de lancement",
+			"label": "Baies de lancement", "lore": "Des hangars ouverts sur les deux flancs de la coque, avec leurs catapultes et leurs ateliers. Un appareil y est réarmé en vingt minutes. Les mêmes baies lancent les drones qui sondent les épaves et les ruines.",
 			"domain": "genie",
 			"era": 3,
 			"field": "coques",
@@ -433,7 +433,7 @@
 			"spec": "chantier_lourd"
 		},
 		"arsenaux": {
-			"label": "Arsenaux orbitaux",
+			"label": "Arsenaux orbitaux", "lore": "Un chantier en orbite haute, dont les cales mesurent plus d'un kilomètre. On y assemble les coques trop lourdes pour décoller d'une planète. Dix mille ouvriers y vivent à demeure avec leurs familles.",
 			"domain": "genie",
 			"era": 3,
 			"field": "coques",
@@ -448,7 +448,7 @@
 			]
 		},
 		"ia_bord": {
-			"label": "Intelligences de bord",
+			"label": "Intelligences de bord", "lore": "Un esprit de calcul logé au centre de la coque, qui règle le tir plus vite qu'un équipage. Il garde une copie de lui-même à terre, mise à jour à chaque escale. Les officiers synthétiques tiennent la leur de la même façon.",
 			"domain": "genie",
 			"era": 3,
 			"field": "coques",
@@ -475,7 +475,7 @@
 			}
 		},
 		"tir_predictif": {
-			"label": "Tir prédictif",
+			"label": "Tir prédictif", "lore": "Un calcul qui tient compte des habitudes du pilote adverse autant que de sa trajectoire. La salve part vers l'endroit où il va manœuvrer. Les esprits de bord s'échangent ce qu'ils ont appris après chaque combat.",
 			"domain": "genie",
 			"era": 4,
 			"field": "coques",
@@ -493,7 +493,7 @@
 			}
 		},
 		"cuirasses": {
-			"label": "Cuirassés",
+			"label": "Cuirassés", "lore": "La plus grande coque de ligne, longue de deux kilomètres et servie par quatre mille hommes. Elle porte l'artillerie lourde sur trois ponts. Seul un arsenal en orbite peut la mettre en chantier.",
 			"domain": "genie",
 			"era": 4,
 			"field": "coques",
@@ -508,7 +508,7 @@
 			]
 		},
 		"saut_precision": {
-			"label": "Saut de précision",
+			"label": "Saut de précision", "lore": "Un moteur qui choisit son point d'arrivée à quelques kilomètres près et enchaîne les sauts sans s'arrêter. La galaxie se traverse en une saison. Les pilotes ne voient plus les systèmes qu'ils franchissent.",
 			"domain": "genie",
 			"era": 4,
 			"field": "propulsion",
@@ -528,7 +528,7 @@
 			}
 		},
 		"sauts_calcules": {
-			"label": "Sauts calculés",
+			"label": "Sauts calculés", "lore": "Des tables de saut calculées à l'avance pour chaque voie et tenues à jour heure par heure. Le navigateur n'a plus qu'à lire la sienne. Un vaisseau repart avant que son sillage soit retombé.",
 			"domain": "genie",
 			"era": 5,
 			"field": "propulsion",
@@ -546,7 +546,7 @@
 			}
 		},
 		"coques_modulaires": {
-			"label": "Coques modulaires",
+			"label": "Coques modulaires", "lore": "Des coques faites de blocs que l'on détache et remplace en quelques heures. Un vaisseau avarié échange sa section touchée contre une neuve, loin de tout chantier. Les navires-ateliers en transportent plusieurs de chaque modèle.",
 			"domain": "genie",
 			"era": 4,
 			"field": "coques",
@@ -561,7 +561,7 @@
 			]
 		},
 		"coques_standard": {
-			"label": "Coques standardisées",
+			"label": "Coques standardisées", "lore": "Un seul jeu de plans pour toutes les coques d'une même classe, quel que soit le chantier. Les tôles sont découpées avant la commande. Un vaisseau perdu est remplacé par son jumeau, sorti de la cale suivante.",
 			"domain": "genie",
 			"era": 5,
 			"field": "coques",
@@ -581,7 +581,7 @@
 			}
 		},
 		"stabilisation_ver": {
-			"label": "Stabilisation des trous de ver",
+			"label": "Stabilisation des trous de ver", "lore": "Un anneau de générateurs posé à la bouche d'un trou de ver, qui l'empêche de se refermer pendant le passage. Les premiers pilotes l'ont franchi sur des coques sans équipage, commandées de loin. Le transit dure moins d'un jour.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -600,7 +600,7 @@
 			"flavor": "On ne referme pas une plaie de l'espace. On lui met une attelle, et on prie."
 		},
 		"relais_hyperspatiaux": {
-			"label": "Relais hyperspatiaux",
+			"label": "Relais hyperspatiaux", "lore": "Une bouée placée à chaque bout d'une voie de saut, qui émet une fréquence sur laquelle les cristaux s'accordent. Le vaisseau saute sans avoir à calculer sa route. Les deux bouées doivent rester réglées l'une sur l'autre à la seconde près.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -619,7 +619,7 @@
 			"flavor": "Une balise qui chante, une autre qui répond, et entre les deux l'espace qui se fait tout petit."
 		},
 		"portails_saut": {
-			"label": "Portails de saut",
+			"label": "Portails de saut", "lore": "Un anneau de deux kilomètres qui ouvre un passage vers un autre anneau accordé sur lui. La traversée prend un jour, quel que soit le nombre de voies entre les deux. L'accord se perd au-delà de six sauts.",
 			"domain": "genie",
 			"era": 3,
 			"field": "propulsion",
@@ -639,7 +639,7 @@
 			"flavor": "Le premier essai a envoyé une boîte de conserve à neuf années-lumière. Elle est revenue pleine."
 		},
 		"grands_portails": {
-			"label": "Grands portails",
+			"label": "Grands portails", "lore": "Un anneau de dix kilomètres, alimenté par sa propre centrale, qui tient l'accord sur dix sauts. Une flotte entière le franchit sans rompre sa formation. Sa construction occupe un système pendant des années.",
 			"domain": "genie",
 			"era": 4,
 			"field": "propulsion",
@@ -659,7 +659,7 @@
 			"flavor": "Plus large, plus loin, plus cher. Les ingénieurs appellent ça le progrès ; les comptables, autrement."
 		},
 		"lignes_ravitaillement": {
-			"label": "Lignes de ravitaillement",
+			"label": "Lignes de ravitaillement", "lore": "Des dépôts échelonnés le long des voies, tenus par un corps d'intendance qui ne dépend pas des flottes. Chaque dépôt garde un mois de vivres et de deutérium. Les intendants ont leur propre grade et leurs propres vaisseaux.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -679,7 +679,7 @@
 			"flavor": "Une balise tous les trois sauts, un entrepôt tous les dix, et un comptable partout."
 		},
 		"soutes_profondes": {
-			"label": "Soutes profondes",
+			"label": "Soutes profondes", "lore": "Des soutes creusées dans l'épaisseur de la double coque, là où l'on ne logeait que du lest. Les flottes y gagnent la moitié de leurs réserves. Le chargement prend un jour de plus au départ.",
 			"domain": "genie",
 			"era": 3,
 			"field": "propulsion",
@@ -697,7 +697,7 @@
 			}
 		},
 		"logistique_campagne": {
-			"label": "Logistique de campagne",
+			"label": "Logistique de campagne", "lore": "Des dépôts démontables, qui voyagent derrière la flotte et s'installent dès qu'un système est tenu. Ils sont en service en deux semaines. Les intendants débarquent avec la seconde vague.",
 			"domain": "genie",
 			"era": 4,
 			"field": "propulsion",
@@ -715,7 +715,7 @@
 			}
 		},
 		"ravitaillement": {
-			"label": "Ravitaillement en vol",
+			"label": "Ravitaillement en vol", "lore": "Des pétroliers qui accostent une coque en route et lui passent carburant et vivres sans qu'elle ralentisse. Les escadres ne rentrent plus au port pour si peu. Les arsenaux reçoivent moins de coques et les gardent moins longtemps.",
 			"domain": "genie",
 			"era": 4,
 			"field": "coques",
@@ -735,7 +735,7 @@
 			}
 		},
 		"navigation_stellaire": {
-			"label": "Navigation stellaire",
+			"label": "Navigation stellaire", "lore": "Des cartes des courants de gaz et des puits de gravité, tenues à jour par les pilotes eux-mêmes. Chaque retour de mission y ajoute ses relevés. Un pilote breveté traverse une nébuleuse par des passes que ses instruments seuls ne trouveraient pas.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -758,7 +758,7 @@
 			"flavor": "Une carte des courants, un pilote qui sait la lire, et le brouillard devient une autoroute."
 		},
 		"chantier_titanesque": {
-			"label": "Chantier titanesque",
+			"label": "Chantier titanesque", "lore": "Une cale ouverte sur le vide, assez longue pour un vaisseau de cinq kilomètres. Le titan y est bâti en dix ans par une ville entière d'ouvriers. Il n'en sortira qu'une fois et n'y reviendra jamais.",
 			"domain": "genie",
 			"era": 5,
 			"field": "coques",
@@ -774,7 +774,7 @@
 			]
 		},
 		"leviathans": {
-			"label": "Léviathans",
+			"label": "Léviathans", "lore": "Un vaisseau de vingt kilomètres, qui emporte ses propres forges et répare ce qu'il perd. Son équipage se compte en dizaines de milliers et y passe sa vie. Il ne se pose nulle part.",
 			"domain": "genie",
 			"era": 5,
 			"field": "coques",
@@ -789,7 +789,7 @@
 			]
 		},
 		"nefs_mondes": {
-			"label": "Nefs-mondes",
+			"label": "Nefs-mondes", "lore": "Un vaisseau grand comme une petite lune, avec ses champs, ses villes et un ciel peint. Ceux qui y naissent n'ont pas tous vu une planète. Il traverse la galaxie par ses propres moyens.",
 			"domain": "genie",
 			"era": 5,
 			"field": "coques",
@@ -805,7 +805,7 @@
 			]
 		},
 		"puits_gravite": {
-			"label": "Puits de gravité",
+			"label": "Puits de gravité", "lore": "Un générateur qui creuse dans l'espace un creux comparable à celui d'une planète. Une flotte prise dedans ne trouve plus la sortie de son saut. Le léviathan qui le porte reste lui-même immobile tant qu'il le tient.",
 			"domain": "genie",
 			"era": 5,
 			"field": "mega_ing",
@@ -820,7 +820,7 @@
 			]
 		},
 		"etoiles_captives": {
-			"label": "Étoiles captives",
+			"label": "Étoiles captives", "lore": "Une étoile naine enfermée dans une cage de champs, au cœur d'une nef-monde. Elle éclaire les ponts et alimente les moteurs. On peut aussi ouvrir la cage d'un côté.",
 			"domain": "genie",
 			"era": 5,
 			"field": "mega_ing",
@@ -839,7 +839,7 @@
 			}
 		},
 		"moteur_singularite": {
-			"label": "Moteur à singularité",
+			"label": "Moteur à singularité", "lore": "Un moteur qui porte un trou noir de la taille d'un atome et tire sa poussée de ce qu'il y jette. Il ne s'éteint pas. Les ingénieurs qui l'ont construit vivent sur un autre vaisseau que lui.",
 			"domain": "genie",
 			"era": 5,
 			"field": "coques",
@@ -852,7 +852,7 @@
 			"flavor": "On ne va plus d'une étoile à l'autre. On laisse l'autre venir."
 		},
 		"ingenierie_inverse": {
-			"label": "Ingénierie inverse",
+			"label": "Ingénierie inverse", "lore": "Des ateliers où l'on démonte une coque étrangère pièce par pièce, en dessinant chacune. Les ingénieurs remontent ensuite l'ensemble pour vérifier qu'ils l'ont compris. Une épave en bon état occupe un atelier pendant un an.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -870,7 +870,7 @@
 			"flavor": "Démonter pour comprendre, remonter pour vérifier, recommencer pour l'avoir vraiment compris."
 		},
 		"pont_orbital": {
-			"label": "Pont orbital",
+			"label": "Pont orbital", "lore": "De grandes navettes à fond plat, qui descendent un bataillon et ses véhicules en un seul voyage. Elles se posent sur n'importe quelle plaine. Il faut une heure pour les vider et autant pour les faire remonter.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -887,7 +887,7 @@
 			}
 		},
 		"inhibiteur_saut": {
-			"label": "Inhibiteur de saut",
+			"label": "Inhibiteur de saut", "lore": "Un émetteur monté sur la station, qui dérègle les cristaux de toute coque entrée dans le système. Les moteurs étrangers ne trouvent plus leur accord. Il faut détruire la station pour repartir.",
 			"domain": "genie",
 			"era": 3,
 			"field": "senseurs",
@@ -898,7 +898,7 @@
 			]
 		},
 		"architectes_stellaires": {
-			"label": "Architectes stellaires",
+			"label": "Architectes stellaires", "lore": "Un corps d'ingénieurs formés à bâtir dans le vide des ouvrages plus grands que des villes. Leur vaisseau porte ses propres fonderies. Un chantier les retient d'ordinaire plus longtemps que ne dure une carrière.",
 			"domain": "genie",
 			"era": 2,
 			"field": "mega_ing",
@@ -914,7 +914,7 @@
 			"flavor": "Le plan tient sur une serviette. La serviette fait trois kilomètres."
 		},
 		"anneau_orbital": {
-			"label": "Anneaux orbitaux",
+			"label": "Anneaux orbitaux", "lore": "Un anneau bâti autour d'une planète à hauteur d'orbite basse, relié au sol par des câbles. Sa première moitié reçoit des batteries. Le reste est aménagé selon les besoins de la colonie, en cales ou en logements.",
 			"domain": "genie",
 			"era": 3,
 			"field": "mega_ing",
@@ -927,7 +927,7 @@
 			"flavor": "On a voulu agrandir le spatioport. On a fait le tour."
 		},
 		"mega_ingenierie": {
-			"label": "Méga-ingénierie",
+			"label": "Méga-ingénierie", "lore": "La science des ouvrages à l'échelle d'un système, où le poids d'une structure se compte en masses de lunes. Les ingénieurs y apprennent aussi à lire les ruines de ceux qui ont bâti avant eux. Certaines peuvent être relevées.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -940,7 +940,7 @@
 			"flavor": "À cette échelle, une erreur d'arrondi a son propre climat."
 		},
 		"mega_chantier": {
-			"label": "Méga-chantiers navals",
+			"label": "Méga-chantiers navals", "lore": "Un chantier long de cent kilomètres, où une coque avance de poste en poste comme sur une chaîne. Les titans y sont assemblés à couvert. Un empire n'a pas les moyens d'en entretenir deux.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -957,7 +957,7 @@
 			"flavor": "On n'y construit pas des vaisseaux. On y construit des flottes, à la chaîne."
 		},
 		"reseau_veille": {
-			"label": "Réseau de veille",
+			"label": "Réseau de veille", "lore": "Des milliers de sondes dormantes semées dans toute la galaxie, reliées à une salle d'écoute unique. Chacune ne s'éveille que pour signaler un passage. Les opérateurs finissent par voir ce qui se cache.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -971,7 +971,7 @@
 			"flavor": "Plus rien ne bouge dans la galaxie sans qu'un stagiaire le note."
 		},
 		"centre_coordination": {
-			"label": "Coordination stratégique",
+			"label": "Coordination stratégique", "lore": "Un état-major installé dans une station bâtie pour lui, d'où toutes les flottes de l'empire sont suivies sur une même table. Les ordres de route et les convois y sont réglés ensemble. Vingt mille personnes y travaillent par quarts.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -984,7 +984,7 @@
 			"flavor": "Chaque flotte reçoit son ordre de mission, sa météo, et un mot d'encouragement."
 		},
 		"catapulte_quantique": {
-			"label": "Catapulte quantique",
+			"label": "Catapulte quantique", "lore": "Un accélérateur bâti autour d'une étoile à neutrons, qui se sert de sa gravité pour lancer une flotte à très grande distance. Le tir ne se corrige pas en route. Les flottes arrivent parfois à un système de leur but.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -998,7 +998,7 @@
 			"flavor": "Le calcul est exact. C'est l'univers qui arrondit."
 		},
 		"mega_ingenierie_avancee": {
-			"label": "Méga-ingénierie avancée",
+			"label": "Méga-ingénierie avancée", "lore": "Des équipes assez nombreuses et assez rodées pour mener deux grands ouvrages de front. Les fonderies travaillent pour l'un pendant que l'autre attend ses pièces. Les architectes passent de chantier en chantier sans rentrer.",
 			"domain": "genie",
 			"era": 5,
 			"field": "mega_ing",
@@ -1014,7 +1014,7 @@
 			"flavor": "Deux chantiers de la taille d'un système solaire, et un seul chef de chantier. Il ne dort plus."
 		},
 		"agglomeration": {
-			"label": "Agglomération",
+			"label": "Agglomération", "lore": "Des remorqueurs qui poussent les blocs d'une ceinture les uns contre les autres pendant des dizaines d'années, jusqu'à ce que leur masse les tienne ensemble. Le monde obtenu reste nu et chaud pendant un siècle. Les architectes savent aussi bâtir un habitat creux là où il n'y a rien à réunir.",
 			"domain": "genie",
 			"era": 3,
 			"field": "mega_ing",
@@ -1028,7 +1028,7 @@
 			"flavor": "Mille cailloux qui ne servaient à rien. Un caillou qui sert à tout."
 		},
 		"compression_gravitationnelle": {
-			"label": "Compression gravitationnelle",
+			"label": "Compression gravitationnelle", "lore": "Un procédé qui dépouille une géante gazeuse de son enveloppe et resserre ce qui reste. Il en sort un monde petit et très lourd, où les métaux affleurent. On y marche courbé.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -1042,7 +1042,7 @@
 			"flavor": "On a pressé la géante comme un citron. Il en est resté le pépin, et il vaut une fortune."
 		},
 		"moteurs_planetaires": {
-			"label": "Moteurs planétaires",
+			"label": "Moteurs planétaires", "lore": "Des tuyères de la hauteur d'une chaîne de montagnes, plantées sur un hémisphère d'une planète. Elles la font quitter son orbite en quelques années. Les habitants restent chez eux pendant le voyage.",
 			"domain": "genie",
 			"era": 5,
 			"field": "mega_ing",
@@ -1055,7 +1055,7 @@
 			"flavor": "Le monde ne tourne plus seulement sur lui-même. Il a aussi un itinéraire."
 		},
 		"archeologie_stellaire": {
-			"label": "Archéologie stellaire",
+			"label": "Archéologie stellaire", "lore": "Une méthode de fouille par couches, qui date chaque objet d'après la poussière déposée sur lui. Les fouilleurs relèvent tout avant de déplacer quoi que ce soit. Ce qu'ils remontent part au musée avec la fiche de son emplacement.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -1071,7 +1071,7 @@
 			"flavor": "Avant, on creusait pour trouver de l'or. Maintenant, on creuse pour trouver des gens qui creusaient pour trouver de l'or."
 		},
 		"dechiffrement_strates": {
-			"label": "Déchiffrement des Strates",
+			"label": "Déchiffrement des Strates", "lore": "La lecture des écritures trouvées dans les couches les plus anciennes des fouilles. Les fragments cessent d'être de simples pièces de musée, car certains sont des plans. Les plus longs occupent une équipe pendant des années.",
 			"domain": "genie",
 			"era": 3,
 			"field": "senseurs",
@@ -1087,7 +1087,7 @@
 			"flavor": "Les inscriptions disaient « Défense d'entrer ». Il a fallu trois siècles pour les lire, et trois secondes pour les ignorer."
 		},
 		"codex_navigateurs": {
-			"label": "Codex des navigateurs disparus",
+			"label": "Codex des navigateurs disparus", "lore": "Les carnets de bord d'un peuple de pilotes disparu, tenus sur plusieurs siècles. Ils décrivent un moteur que leurs auteurs réglaient à l'oreille. Les marges portent des corrections de plusieurs mains.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -1102,7 +1102,7 @@
 			"flavor": "Les marges sont pleines de jurons. Les navigateurs étaient donc des gens comme nous."
 		},
 		"cartes_anciennes": {
-			"label": "Cartes des Anciens",
+			"label": "Cartes des Anciens", "lore": "Des cartes gravées sur des plaques de métal, qui donnent les passes à travers les nébuleuses et autour des trous noirs. Elles sont plus anciennes que tous les peuples qui les lisent. Leurs relevés sont encore justes.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",

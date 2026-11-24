@@ -15,6 +15,11 @@ static func rename_system(player: int, system_id: int, new_name: String) -> Dict
 	return {"type": "rename_system", "player": player, "system": system_id, "name": new_name}
 
 
+## Renomme une de ses flottes.
+static func rename_fleet(player: int, fleet_id: int, new_name: String) -> Dictionary:
+	return {"type": "rename_fleet", "player": player, "fleet": fleet_id, "name": new_name}
+
+
 ## Lance une colonie ("colony") ou un avant-poste ("outpost") sur une planète.
 ## Une colonie sur un de ses propres avant-postes le transforme en colonie.
 ## species : peuple de l'empire qui fondera la colonie (voir Peoples) ; "" = celui de l'empire.
@@ -311,6 +316,11 @@ static func research(player: int, tech_id: String, front := false) -> Dictionary
 ## Retire une technologie de la file de recherche (et celles qui en dépendaient).
 static func research_remove(player: int, tech_id: String) -> Dictionary:
 	return {"type": "research_remove", "player": player, "tech": tech_id}
+
+
+## Déplace une technologie de la file de recherche au rang `to` (0 = recherche en cours).
+static func research_move(player: int, tech_id: String, to: int) -> Dictionary:
+	return {"type": "research_move", "player": player, "tech": tech_id, "to": to}
 
 
 ## Affecte n cellules d'espionnage chez target (target == player : contre-espionnage chez soi).
@@ -872,6 +882,18 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			if n.length() > NAME_MAX_LENGTH:
 				return "nom trop long (%d caractères max)" % NAME_MAX_LENGTH
 			return ""
+		"rename_fleet":
+			var rf: Fleet = state.fleets.get(int(cmd.get("fleet", -1)))
+			if rf == null or rf.owner != int(cmd["player"]):
+				return "cette flotte ne vous appartient pas"
+			var rn := String(cmd.get("name", "")).strip_edges()
+			if rn.is_empty():
+				return "nom vide"
+			if rn.length() > NAME_MAX_LENGTH:
+				return "nom trop long (%d caractères max)" % NAME_MAX_LENGTH
+			if rn == rf.fleet_name:
+				return "c'est déjà son nom"
+			return ""
 		"colonize":
 			return Economy.check_colonize(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("kind", "")), String(cmd.get("species", "")))
 		"build":
@@ -1153,6 +1175,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Research.check_queue(state, int(cmd["player"]), String(cmd.get("tech", "")), bool(cmd.get("front", false)))
 		"research_remove":
 			return Research.check_remove(state, int(cmd["player"]), String(cmd.get("tech", "")))
+		"research_move":
+			return Research.check_move(state, int(cmd["player"]), String(cmd.get("tech", "")), int(cmd.get("to", -1)))
 		"spy_cells":
 			return Espionage.check_cells(state, int(cmd["player"]), int(cmd.get("target", -1)), int(cmd.get("n", -1)))
 		"spy_op":
@@ -1225,6 +1249,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 ## Applique un ordre déjà validé.
 static func apply(state: GameState, cmd: Dictionary) -> void:
 	match String(cmd["type"]):
+		"rename_fleet":
+			(state.fleets[int(cmd["fleet"])] as Fleet).fleet_name = String(cmd["name"]).strip_edges()
 		"rename_system":
 			var sys := state.galaxy.get_system(int(cmd["system"]))
 			var old_name := sys.system_name
@@ -1711,6 +1737,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Research.apply_queue(state, int(cmd["player"]), String(cmd["tech"]), bool(cmd.get("front", false)))
 		"research_remove":
 			Research.apply_remove(state, int(cmd["player"]), String(cmd["tech"]))
+		"research_move":
+			Research.apply_move(state, int(cmd["player"]), String(cmd["tech"]), int(cmd["to"]))
 		"seat":
 			var e := state.get_empire(int(cmd["player"]))
 			e.ai_level = String(cmd["ai"])

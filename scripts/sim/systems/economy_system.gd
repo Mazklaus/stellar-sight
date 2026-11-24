@@ -245,6 +245,7 @@ static func _monthly_balance(state: GameState, e: Empire, added: Array[Dictionar
 	Culture.note_influence(state, e.id, int(inc_all["gross"].get("influence", 0)))
 	for r in net:
 		e.resources[r] = int(e.resources.get(r, 0)) + int(net[r])
+	e.note_month(net)
 
 	# Ingénierie des espèces : les programmes prennent leur mensualité sur le stock.
 	Genetics.monthly_empire(state, e, added)

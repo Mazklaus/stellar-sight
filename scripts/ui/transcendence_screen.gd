@@ -33,6 +33,7 @@ static func tabs(es: EmpireScreens, active: String) -> void:
 		es.kardashev_buttons["tab:" + sid] = b
 		row.add_child(b)
 	es._side_box.add_child(row)
+	row.visible = false  # la rangée du domaine Victoire porte ces onglets (refonte, A1)
 
 
 static func build(es: EmpireScreens) -> void:

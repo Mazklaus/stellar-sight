@@ -508,6 +508,10 @@ static func crises() -> Dictionary:
 
 
 ## Peuples mineurs (data/minors.json) : catalogue, réglages, cartes.
+static func first_contact() -> Dictionary:
+	return _load("first_contact")
+
+
 static func minors() -> Dictionary:
 	return _load("minors")
 
@@ -706,3 +710,12 @@ static func _to_ints(v: Variant) -> Variant:
 			out[k] = _to_ints(v[k])
 		return out
 	return v
+
+
+## Texte d'une infobulle ou d'une fiche : la description d'univers d'abord, l'effet de jeu ensuite, à part.
+static func lore_then(lore: String, text: String, lead := "") -> String:
+	if lore == "":
+		return text
+	if text == "":
+		return lore
+	return "%s\n\n%s%s" % [lore, lead, text]

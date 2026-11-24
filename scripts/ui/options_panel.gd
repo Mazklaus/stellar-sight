@@ -9,7 +9,7 @@ signal back_requested
 
 const ROW_WIDTH := 760.0
 const VALUE_WIDTH := 300.0
-const TABS := [["display", "Affichage"], ["game", "Partie"], ["announce", "Annonces"], ["controls", "Commandes"]]
+const TABS := [["display", "Affichage"], ["map", "Carte"], ["game", "Partie"], ["announce", "Annonces"], ["controls", "Commandes"]]
 
 var tab := "display"
 ## Rangée des boutons du bas (Retour, Valeurs par défaut), que le menu principal place dans les coins.
@@ -18,10 +18,17 @@ var _tabs := {}
 var _pages := {}
 var _fullscreen: Button
 var _auto_pause: Button
+var _autosave: Button
 var _stop_intrusion: Button
 var _stop_war: Button
 var _stop_events: Button
+var _warn_todo: Button
 var _silhouettes: Button
+var _emblems: Button
+var _art_ids: Button
+var _cargos: Button
+var _labels: Button
+var _glide: Button
 var _detail: Button
 var _scale_b: Button
 var _scale: Button
@@ -46,7 +53,7 @@ func _ready() -> void:
 	add_child(title)
 	var tabs := HBoxContainer.new()
 	tabs.alignment = BoxContainer.ALIGNMENT_CENTER
-	tabs.add_theme_constant_override("separation", 40)
+	tabs.add_theme_constant_override("separation", 26)
 	add_child(tabs)
 	for t in TABS:
 		var b := Button.new()
@@ -66,6 +73,11 @@ func _ready() -> void:
 	var display := _page("display")
 	_fullscreen = _toggle_row(display, "Plein écran", "Touche F11, à tout moment.", func() -> void:
 		UiSettings.toggle_fullscreen()
+		sync())
+	_art_ids = _toggle_row(display, "Nom des images provisoires",
+			"Tant qu'une illustration n'est pas déposée, son emplacement montre un tableau provisoire. Le nom du fichier attendu s'écrit dans le coin ; la liste complète est dans le Codex, à « Galerie des illustrations ».", func() -> void:
+		UiSettings.art_ids = not UiSettings.art_ids
+		UiSettings.save_settings()
 		sync())
 	var srow := _row(display, "Échelle de l'interface", "Agrandit textes et panneaux, pour les grands écrans.")
 	_scale = _value_box("", false) as Button
@@ -88,17 +100,53 @@ func _ready() -> void:
 		UiSettings.cycle_battle_scale()
 		sync())
 	brow.add_child(_scale_b)
-	_silhouettes = _toggle_row(display, "Silhouettes des flottes sur la carte",
-			"Remplace le chevron par la silhouette du plus gros vaisseau, au style de son peuple.", func() -> void:
+	# Onglet Carte (refonte D3f) : ce que la carte montre, et comment elle passe d'un palier à l'autre.
+	var map := _page("map")
+	_emblems = _toggle_row(map, "Emblèmes des empires",
+			"De loin, chaque empire porte son emblème au-dessus de son nom, sur son territoire.", func() -> void:
+		UiSettings.map_emblems = not UiSettings.map_emblems
+		UiSettings.save_settings()
+		sync())
+	_silhouettes = _toggle_row(map, "Silhouettes des flottes",
+			"Remplace le chevron par la silhouette du plus gros vaisseau, au style de son peuple, à tous les paliers. De près, les silhouettes se montrent toujours.", func() -> void:
 		UiSettings.fleet_silhouettes = not UiSettings.fleet_silhouettes
 		UiSettings.save_settings()
 		sync())
+	_cargos = _toggle_row(map, "Cargos sur les routes commerciales",
+			"De près, de petits cargos suivent vos routes. Sans eux, la carte ne se redessine que lorsqu'il s'y passe quelque chose.", func() -> void:
+		UiSettings.map_cargos = not UiSettings.map_cargos
+		UiSettings.save_settings()
+		sync())
+	var names_row := _row(map, "Noms des systèmes", "Quels systèmes portent leur nom sur la carte. Le système choisi ou survolé est toujours nommé.")
+	_labels = _value_box("", false) as Button
+	_labels.tooltip_text = "Clic : tous les systèmes explorés, ou les systèmes habités seulement"
+	_labels.pressed.connect(func() -> void:
+		UiSettings.cycle_map("labels")
+		sync())
+	names_row.add_child(_labels)
+	var glide_row := _row(map, "Passage d'un palier à l'autre", "Le temps que met la carte à glisser quand on saute au palier Galaxie, Région ou Système par les trois boutons du cadran.")
+	_glide = _value_box("", false) as Button
+	_glide.tooltip_text = "Clic : Immédiat, Vif, Posé, Lent"
+	_glide.pressed.connect(func() -> void:
+		UiSettings.cycle_map("glide")
+		sync())
+	glide_row.add_child(_glide)
+	map.add_child(UiTheme.dim("Les calques (routes, flottes, noms, curiosités, terrains) se cochent sur la carte, dans le sélecteur de lentilles.", 13))
 	var game := _page("game")
 	_auto_pause = _toggle_row(game, "Pause automatique dans les écrans d'empire",
 			"Le temps s'arrête quand vous consultez l'économie ou vos colonies, et repart à la fermeture.", func() -> void:
 		UiSettings.auto_pause_menus = not UiSettings.auto_pause_menus
 		UiSettings.save_settings()
 		sync())
+	var arow := _row(game, "Sauvegarde automatique", "Le jeu enregistre la partie de lui-même, sur trois fichiers qui tournent. Le temps en pause ne compte pas.")
+	_autosave = _value_box("", false) as Button
+	_autosave.tooltip_text = "Clic : jamais, toutes les 5, 10 ou 20 minutes"
+	_autosave.pressed.connect(func() -> void:
+		var i := UiSettings.AUTOSAVE_CHOICES.find(UiSettings.autosave_minutes)
+		UiSettings.autosave_minutes = UiSettings.AUTOSAVE_CHOICES[(i + 1) % UiSettings.AUTOSAVE_CHOICES.size()]
+		UiSettings.save_settings()
+		sync())
+	arow.add_child(_autosave)
 	game.add_child(UiTheme.section("Tour par tour : ce qui interrompt le tour"))
 	_stop_intrusion = _toggle_row(game, "Une flotte étrangère armée entre chez vous",
 			"Le tour s'arrête quand une flotte armée d'un autre empire, de pirates ou d'une crise arrive dans un de vos systèmes. Une bataille l'interrompt toujours.", func() -> void:
@@ -113,6 +161,11 @@ func _ready() -> void:
 	_stop_events = _toggle_row(game, "Un événement attend votre choix",
 			"Le tour s'arrête quand un événement à choix arrive.", func() -> void:
 		UiSettings.turn_stop_events = not UiSettings.turn_stop_events
+		UiSettings.save_settings()
+		sync())
+	_warn_todo = _toggle_row(game, "Prévenir avant la fin du tour",
+			"Avant de finir le tour, le jeu signale ce qui attend encore : décisions, propositions, recherche vide, chantiers libres, flottes sans ordres. Une seconde pression finit le tour quand même.", func() -> void:
+		UiSettings.turn_warn_todo = not UiSettings.turn_warn_todo
 		UiSettings.save_settings()
 		sync())
 	game.add_child(UiTheme.section("Infobulles et glossaire"))
@@ -190,6 +243,13 @@ func reset_defaults() -> void:
 	UiSettings.ui_scale = 1.0
 	UiSettings.apply()
 	UiSettings.auto_pause_menus = false
+	UiSettings.autosave_minutes = 10
+	UiSettings.fleet_silhouettes = false
+	UiSettings.map_emblems = true
+	UiSettings.art_ids = true
+	UiSettings.map_cargos = true
+	UiSettings.map_labels = "all"
+	UiSettings.map_glide = "normal"
 	UiSettings.replay_detail = "normal"
 	UiSettings.battle_scale = "escarmouche"
 	UiSettings.tip_delay = 0.35
@@ -208,10 +268,17 @@ func sync() -> void:
 		return
 	_set_toggle(_fullscreen, UiSettings.fullscreen)
 	_set_toggle(_auto_pause, UiSettings.auto_pause_menus)
+	_autosave.text = "Jamais" if UiSettings.autosave_minutes <= 0 else "Toutes les %d minutes" % UiSettings.autosave_minutes
 	_set_toggle(_stop_intrusion, UiSettings.turn_stop_intrusion)
 	_set_toggle(_stop_war, UiSettings.turn_stop_war)
 	_set_toggle(_stop_events, UiSettings.turn_stop_events)
+	_set_toggle(_warn_todo, UiSettings.turn_warn_todo)
 	_set_toggle(_silhouettes, UiSettings.fleet_silhouettes)
+	_set_toggle(_emblems, UiSettings.map_emblems)
+	_set_toggle(_art_ids, UiSettings.art_ids)
+	_set_toggle(_cargos, UiSettings.map_cargos)
+	_labels.text = String(UiSettings.MAP_LABEL_NAMES[UiSettings.map_labels])
+	_glide.text = String(UiSettings.MAP_GLIDE_NAMES[UiSettings.map_glide])
 	_scale.text = "%d %%" % roundi(UiSettings.ui_scale * 100.0)
 	_detail.text = String(GameData.battle_visuals().get("detail", {}).get("labels", {}).get(UiSettings.replay_detail, UiSettings.replay_detail))
 	_scale_b.text = String(GameData.battle_visuals().get("ground", {}).get("scale_labels", {}).get(UiSettings.battle_scale, UiSettings.battle_scale))

@@ -15,12 +15,15 @@ const CATALOGS := [
 	{"id": "crises", "family": "bestiaire", "label": "Crises de fin de partie", "locked": true, "secret": true, "link": true},
 	{"id": "technologies", "family": "meca", "label": "Technologies"},
 	{"id": "batiments", "family": "meca", "label": "Bâtiments"},
+	{"id": "mondes", "family": "meca", "label": "Types de mondes"},
+	{"id": "terrains", "family": "meca", "label": "Terrains"},
 	{"id": "vaisseaux", "family": "meca", "label": "Vaisseaux"},
 	{"id": "merveilles", "family": "meca", "label": "Merveilles", "link": true},
 	{"id": "reliques", "family": "meca", "label": "Reliques"},
 	{"id": "biens", "family": "meca", "label": "Luxes et stratégiques"},
 	{"id": "lois", "family": "meca", "label": "Lois des courants"},
 	{"id": "pouvoirs", "family": "meca", "label": "Pouvoirs psioniques"},
+	{"id": "galerie", "family": "meca", "label": "Galerie des illustrations"},
 ]
 
 static var _cache: Dictionary = {}
@@ -113,14 +116,14 @@ static func entries(cid: String) -> Array:
 						["Ère", _roman(int(x.get("era", 1)))], ["Sorte", _tech_kind(x)],
 						["Courant", String(GameData.politics()["currents"][Politics.index_of(String(x["current"]))]["short"]) if Politics.index_of(String(x.get("current", ""))) >= 0 else ""],
 						["Requiert", _tech_names(x.get("pre", []), techs)]],
-						String(x.get("flavor", "")), [], ["07-recherche"]))
+						String(x.get("flavor", "")) if Research.shows_flavor(x) else "", [], ["07-recherche"]))
 		"batiments":
 			var b: Dictionary = _data("data/buildings.json")
 			for k: String in b:
 				if k.begins_with("_") or not b[k] is Dictionary or not (b[k] as Dictionary).has("label"):
 					continue
 				var x: Dictionary = b[k]
-				out.append(_e(cid, k, String(x["label"]), String(x.get("text", "")), String(x.get("text", "")),
+				out.append(_e(cid, k, String(x["label"]), String(x.get("lore", x.get("text", ""))), GameData.lore_then(String(x.get("lore", "")), String(x.get("text", "")), "**En jeu.** "),
 						[["Coût", _amounts(x.get("cost", {}))], ["Délai", ("%d jours" % int(x["days"])) if x.has("days") else ""], ["Produit", _amounts(x.get("yields", {}))], ["Entretien", _amounts(x.get("upkeep", {}))]],
 						"", [], ["04-colonies"]))
 		"vaisseaux":
@@ -142,6 +145,23 @@ static func entries(cid: String) -> Array:
 		"reliques":
 			for r: Dictionary in _data("data/relics.json").get("relics", []):
 				out.append(_e(cid, String(r["id"]), String(r["name"]), String(r.get("text", "")), String(r.get("text", "")), [], "", [], ["14-perils"]))
+		"mondes":
+			var pt: Dictionary = _data("data/planet_types.json")
+			for k: String in pt:
+				if not pt[k] is Dictionary or not (pt[k] as Dictionary).has("label"):
+					continue
+				var x: Dictionary = pt[k]
+				var sizes: Array = x.get("sizes", [])
+				out.append(_e(cid, k, String(x["label"]), String(x.get("lore", "")), String(x.get("lore", "")),
+						[["Habitabilité de base", "%d %%" % int(x.get("base_hab", 0))], ["Tailles", "%d à %d" % [int(sizes[0]), int(sizes[1])] if sizes.size() == 2 else ""],
+						["Par citoyen", _amounts(x.get("pop_yields", x.get("city_pop_yields", {})))], ["Avant-poste", _amounts(x.get("outpost_yields", {}))]],
+						"", [], ["04-colonies"]))
+		"terrains":
+			var tr: Dictionary = (_data("data/terrain.json") as Dictionary).get("terrains", {})
+			for k: String in tr:
+				var x: Dictionary = tr[k]
+				out.append(_e(cid, k, String(x["label"]), String(x.get("lore", "")), String(x.get("lore", "")),
+						[["Inconvénient", String(x.get("bad", ""))], ["Avantage", String(x.get("good", ""))]], "", [], []))
 		"biens":
 			var g: Dictionary = _data("data/goods.json")
 			for x: Dictionary in g.get("luxuries", []):
@@ -163,6 +183,16 @@ static func entries(cid: String) -> Array:
 				out.append(_e(cid, String(x["id"]), String(x["label"]), String(x.get("text", "")), String(x.get("text", "")),
 						[["Coût", "%d Résonance" % int(x.get("cost", 0))], ["Recharge", "%d jours" % int(x.get("cooldown", 0))], ["Fêlure", "%d %%" % int(x.get("felure", 0))]],
 						"", [], ["15q-psionique"]))
+		"galerie":
+			# Refonte, F4 : chaque emplacement d'illustration, son fichier attendu et son état.
+			for x: Dictionary in ArtCatalog.slots():
+				var fam := ArtCatalog.family(String(x["family"]))
+				var there := ArtCatalog.has_file(String(x["id"]))
+				var what := "%s : %s." % [String(fam["label"]), String(x["label"])]
+				out.append(_e(cid, String(x["id"]).replace("/", "__"), "%s · %s" % [String(fam["label"]), String(x["label"])], what,
+						what + (" L'illustration définitive est en place." if there else " Tableau provisoire : déposez l'image sous le nom indiqué pour le remplacer."),
+						[["Fichier attendu", "assets/art/%s.png" % String(x["id"])], ["Format", String(x["format"])], ["Priorité", "rang %d" % int(x["rank"])],
+						["État", "définitive" if there else "provisoire"]], "", [], []))
 	_cache[cid] = out
 	return out
 
@@ -191,7 +221,12 @@ static func _first_sentences(s: String) -> String:
 
 ## Texte de la page d'une technologie.
 static func _tech_body(k: String, x: Dictionary, techs: Dictionary, nexts: Dictionary) -> String:
-	var parts := PackedStringArray([String(x.get("text", ""))])
+	var parts := PackedStringArray()
+	if String(x.get("lore", "")) != "":
+		parts.append(String(x["lore"]))
+		parts.append("**En jeu.** " + String(x.get("text", "")))
+	else:
+		parts.append(String(x.get("text", "")))
 	var owner := {}
 	for f: Dictionary in GameData.factions():
 		if Research.is_visible(f, k):

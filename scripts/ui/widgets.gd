@@ -463,6 +463,12 @@ class ArtSlot:
 				_shade(r)
 			draw_rect(r, Color(1, 1, 1, 0.08), false, 1.0)
 			return
+		if _wants_tableau():
+			_draw_tableau(r)
+			if _caption and _caption.text != "":
+				_shade(r)
+			draw_rect(r, Color(1, 1, 1, 0.08), false, 1.0)
+			return
 		match motif:
 			"faction":
 				for i in 3:
@@ -501,6 +507,91 @@ class ArtSlot:
 		if _caption and _caption.text != "":
 			_shade(r)
 		draw_rect(r, Color(1, 1, 1, 0.08), false, 1.0)
+
+	## Un emplacement nommé, assez grand et sans illustration reçoit un tableau provisoire (refonte, F3).
+	func _wants_tableau() -> bool:
+		return art_id != "" and motif != "none" and motif != "lock" and not is_banner() and minf(size.x, size.y) >= 70.0
+
+	## Tableau provisoire : un ciel, un astre et un horizon tirés de l'identifiant, dans la teinte de
+	## l'emplacement, avec son nom dans un coin pour savoir quelle image manque. Le fichier déposé
+	## sous ce nom dans assets/art/ le remplace.
+	func _draw_tableau(r: Rect2) -> void:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash(art_id)
+		var w := r.size.x
+		var h := r.size.y
+		var s := minf(w, h)
+		var night := Color(0.03, 0.05, 0.09)
+		var top := night.lerp(tint, 0.10)
+		var glow := night.lerp(tint, 0.42)
+		var hz := h * rng.randf_range(0.66, 0.8)
+		draw_polygon(PackedVector2Array([Vector2.ZERO, Vector2(w, 0), Vector2(w, hz), Vector2(0, hz)]), PackedColorArray([top, top, glow, glow]))
+		var near := night.lerp(tint, 0.16)
+		draw_polygon(PackedVector2Array([Vector2(0, hz), Vector2(w, hz), Vector2(w, h), Vector2(0, h)]), PackedColorArray([near, near, night, night]))
+		for i in int(clampf(w * h / 900.0, 24.0, 160.0)):
+			var p := Vector2(rng.randf() * w, rng.randf() * hz * 0.92)
+			draw_circle(p, rng.randf_range(0.5, 1.3), Color(1, 1, 1, rng.randf_range(0.15, 0.7) * (1.0 - p.y / hz * 0.7)))
+		# L'astre : une planète et son croissant, un soleil bas, une galaxie ou deux lunes selon le motif.
+		var c := Vector2(w * rng.randf_range(0.58, 0.8), hz * rng.randf_range(0.3, 0.55))
+		match motif:
+			"planet", "faction":
+				var pr := s * rng.randf_range(0.2, 0.3)
+				draw_circle(c, pr * 1.3, Color(tint, 0.07))
+				draw_circle(c, pr, night.lerp(tint, 0.3))
+				draw_circle(c + Vector2(-pr, -pr) * 0.16, pr * 0.84, Color(night.lerp(tint, 0.62), 0.9))
+				draw_arc(c, pr, PI * 0.9, PI * 1.6, 40, Color(tint.lightened(0.5), 0.75), 1.5, true)
+				if rng.randf() < 0.45:
+					draw_set_transform(c, rng.randf_range(-0.5, 0.5), Vector2(1.0, 0.28))
+					draw_arc(Vector2.ZERO, pr * 1.7, 0.0, TAU, 64, Color(tint.lightened(0.35), 0.5), 2.0, true)
+					draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+				if motif == "faction":
+					draw_circle(c + Vector2(-pr * 2.2, -pr * 0.6), pr * 0.22, Color(tint.lightened(0.4), 0.8))
+			"galaxy":
+				for i in 220:
+					var t := rng.randf()
+					var a := float(rng.randi() % 2) * PI + t * 4.4 + rng.randf_range(-0.25, 0.25)
+					draw_circle(c + Vector2(cos(a), sin(a) * 0.42) * t * s * 0.42, rng.randf_range(0.5, 1.5), Color(tint.lightened(0.45), rng.randf_range(0.2, 0.8) * (1.0 - t * 0.6)))
+				draw_circle(c, s * 0.04, Color(tint.lightened(0.7), 0.85))
+			_:
+				c.y = hz - s * rng.randf_range(0.02, 0.16)
+				for i in 5:
+					draw_circle(c, s * (0.4 - 0.07 * i), Color(tint.lightened(0.2), 0.05 + 0.035 * i))
+				draw_circle(c, s * 0.09, tint.lightened(0.65))
+		# L'horizon : crêtes, tours ou dunes, en deux plans.
+		var kind := rng.randi() % 3
+		for layer in 2:
+			var base := hz - (1 - layer) * h * 0.035
+			var col := night.lerp(tint, 0.2 - 0.12 * layer)
+			var pts := PackedVector2Array([Vector2(0, h), Vector2(0, base)])
+			var x := 0.0
+			var ph := rng.randf() * TAU
+			while x < w:
+				var step := rng.randf_range(0.03, 0.09) * w
+				match kind:
+					0:
+						pts.append(Vector2(x + step * 0.5, base - rng.randf_range(0.02, 0.14) * h * (1.4 - 0.6 * layer)))
+						pts.append(Vector2(x + step, base - rng.randf_range(0.0, 0.03) * h))
+					1:
+						var th := rng.randf_range(0.02, 0.16) * h * (1.3 - 0.5 * layer)
+						pts.append(Vector2(x, base - th))
+						pts.append(Vector2(x + step * 0.7, base - th))
+						pts.append(Vector2(x + step * 0.7, base))
+						pts.append(Vector2(x + step, base))
+					_:
+						pts.append(Vector2(x + step, base - (0.5 + 0.5 * sin(ph + x / w * 9.0)) * h * 0.05 * (1.5 - layer)))
+				x += step
+			pts.append(Vector2(w, base))
+			pts.append(Vector2(w, h))
+			var tri := Geometry2D.triangulate_polygon(pts)
+			if not tri.is_empty():
+				draw_colored_polygon(pts, col)
+			else:
+				draw_rect(Rect2(0, base, w, h - base), col)
+		# Le premier plan s'assombrit vers le bas du cadre.
+		draw_polygon(PackedVector2Array([Vector2(0, hz), Vector2(w, hz), Vector2(w, h), Vector2(0, h)]),
+				PackedColorArray([Color(night, 0.0), Color(night, 0.0), Color(night, 0.85), Color(night, 0.85)]))
+		if UiSettings.art_ids and w >= 150.0:
+			draw_string(ThemeDB.fallback_font, Vector2(7, 14), art_id, HORIZONTAL_ALIGNMENT_LEFT, w - 14.0, 10, Color(1, 1, 1, 0.5))
 
 	## Portrait provisoire d'un peuple créé (« portrait_<id> ») tant qu'aucune illustration n'est
 	## déposée : un buste en silhouette, humanoïde ou insectoïde, avec l'ornement décrit par le champ
@@ -736,8 +827,11 @@ class ArtSlot:
 					draw_arc(head, hr * 1.08, PI * 1.0, PI * 2.0, 24, edge, 3.0, true)
 					draw_line(head + Vector2(0, -hr * 1.08), head + Vector2(0, hr * 0.35), edge, 2.5, true)
 					for side in [-1.0, 1.0]:
+						# Deux plumes en triangles : d'un seul tenant, le contour se recoupait et la triangulation échouait.
 						draw_colored_polygon(PackedVector2Array([head + Vector2(side * hr * 0.95, -hr * 0.5), head + Vector2(side * hr * 1.9, -hr * 1.5),
-								head + Vector2(side * hr * 1.5, -hr * 0.6), head + Vector2(side * hr * 1.8, -hr * 0.9), head + Vector2(side * hr * 1.05, -hr * 0.15)]), Color(edge, 0.8))
+								head + Vector2(side * hr * 1.5, -hr * 0.6)]), Color(edge, 0.8))
+						draw_colored_polygon(PackedVector2Array([head + Vector2(side * hr * 1.2, -hr * 0.45), head + Vector2(side * hr * 1.8, -hr * 0.9),
+								head + Vector2(side * hr * 1.05, -hr * 0.15)]), Color(edge, 0.8))
 				"eyepatch":
 					draw_line(head + Vector2(-hr * 0.95, -hr * 0.45), head + Vector2(hr * 0.95, hr * 0.1), edge, 1.5, true)
 					draw_circle(head + Vector2(hr * 0.38, -hr * 0.05), hr * 0.22, edge.darkened(0.6))
@@ -983,6 +1077,21 @@ class RoundButton:
 		mouse_entered.connect(queue_redraw)
 		mouse_exited.connect(queue_redraw)
 
+	## Change le libellé (un bouton Suivant porte le nom de l'étape où il mène).
+	func set_label(text_value: String) -> void:
+		label_text = text_value.to_upper()
+		var f := UiTheme.font(400, 2)
+		var w := DIAMETER + 14.0 + f.get_string_size(label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, get_theme_font_size("font_size")).x + 4.0
+		var right := offset_right
+		var grows_left := grow_horizontal == Control.GROW_DIRECTION_BEGIN
+		custom_minimum_size.x = w
+		if grows_left:
+			offset_left = right - w
+			offset_right = right
+		else:
+			size.x = w
+		queue_redraw()
+
 	func _draw() -> void:
 		var hot := is_hovered() and not disabled
 		var col := UiTheme.ACCENT if hot else UiTheme.TEXT
@@ -1104,6 +1213,98 @@ class Donut:
 		var nf := UiTheme.font(300)
 		var vw := nf.get_string_size(center_value, HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x
 		draw_string(nf, c + Vector2(-vw * 0.5, 24), center_value, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, UiTheme.TEXT)
+
+
+## Barre empilée : des parts côte à côte, à une échelle donnée (pour comparer deux barres).
+class StackBar:
+	extends Control
+	## [{"value": int, "color": Color, "label": String}]
+	var parts: Array = []
+	var scale_max := 1.0
+
+	func _init(w := 700.0, h := 16.0) -> void:
+		custom_minimum_size = Vector2(w, h)
+		mouse_filter = Control.MOUSE_FILTER_STOP
+
+	func set_parts(value: Array, top: float) -> void:
+		parts = value
+		scale_max = maxf(1.0, top)
+		var tips := PackedStringArray()
+		for p in parts:
+			if int(p["value"]) > 0:
+				tips.append("%s : %d" % [p["label"], int(p["value"])])
+		tooltip_text = "\n".join(tips)
+		queue_redraw()
+
+	func total() -> int:
+		var t := 0
+		for p in parts:
+			t += maxi(0, int(p["value"]))
+		return t
+
+	## Rectangles des parts, dans l'ordre.
+	func rects() -> Array[Rect2]:
+		var out: Array[Rect2] = []
+		var x := 0.0
+		for p in parts:
+			var w := size.x * maxf(0.0, float(p["value"])) / scale_max
+			out.append(Rect2(x, 0, w, size.y))
+			x += w
+		return out
+
+	func _draw() -> void:
+		draw_rect(Rect2(Vector2.ZERO, size), Color(1, 1, 1, 0.05))
+		var rs := rects()
+		for i in rs.size():
+			if rs[i].size.x >= 1.0:
+				draw_rect(Rect2(rs[i].position, Vector2(maxf(1.0, rs[i].size.x - 1.0), rs[i].size.y)), parts[i]["color"])
+
+
+## Courbe d'une série de valeurs (bilan des derniers mois) : ligne, repère du zéro, dernier point marqué.
+class Sparkline:
+	extends Control
+	var values: Array = []
+	var color := Color.WHITE
+
+	func _init(w := 150.0, h := 26.0) -> void:
+		custom_minimum_size = Vector2(w, h)
+		mouse_filter = Control.MOUSE_FILTER_STOP
+
+	func set_values(v: Array, col: Color) -> void:
+		values = v
+		color = col
+		if v.is_empty():
+			tooltip_text = "Pas encore de mois écoulé."
+		else:
+			tooltip_text = "Bilan net des %d derniers mois : de %+d à %+d, dernier %+d." % [v.size(), v.min(), v.max(), v[v.size() - 1]]
+		queue_redraw()
+
+	## Points de la courbe dans le cadre, du plus ancien au plus récent.
+	func points() -> PackedVector2Array:
+		var out := PackedVector2Array()
+		if values.is_empty():
+			return out
+		var lo := minf(0.0, float(values.min()))
+		var hi := maxf(0.0, float(values.max()))
+		var span := maxf(1.0, hi - lo)
+		var n := values.size()
+		for i in n:
+			var x := 2.0 + (size.x - 6.0) * (float(i) / float(maxi(1, n - 1)) if n > 1 else 1.0)
+			out.append(Vector2(x, 2.0 + (size.y - 4.0) * (1.0 - (float(values[i]) - lo) / span)))
+		return out
+
+	func _draw() -> void:
+		if values.is_empty():
+			draw_line(Vector2(2, size.y * 0.5), Vector2(size.x - 2, size.y * 0.5), Color(1, 1, 1, 0.1), 1.0)
+			return
+		var lo := minf(0.0, float(values.min()))
+		var hi := maxf(0.0, float(values.max()))
+		var zero := 2.0 + (size.y - 4.0) * (1.0 - (0.0 - lo) / maxf(1.0, hi - lo))
+		draw_line(Vector2(2, zero), Vector2(size.x - 2, zero), Color(1, 1, 1, 0.14), 1.0)
+		var pts := points()
+		if pts.size() > 1:
+			draw_polyline(pts, color, 1.5, true)
+		draw_circle(pts[pts.size() - 1], 2.5, color)
 
 
 ## Entrée du menu principal : pictogramme dans un cercle, libellé en capitales sur un bandeau
@@ -1239,3 +1440,53 @@ class TitleRing:
 			var w := f.get_string_size(lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 			var y := c.y - total * 0.5 + (i + 0.8) * fs * 1.45
 			draw_string(f, Vector2(c.x - w * 0.5 + 11.0, y), lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.88, 0.95, 1.0, 0.95))
+
+
+## Trajet d'une route en miniature : les systèmes traversés reliés d'un trait, les deux bouts marqués,
+## le système qui bloque en rouge.
+class RouteMap:
+	extends Control
+	var path := PackedVector2Array()
+	var color := Color.WHITE
+	var blocked_at := -1
+
+	func _init(w := 120.0, h := 34.0) -> void:
+		custom_minimum_size = Vector2(w, h)
+		mouse_filter = Control.MOUSE_FILTER_STOP
+
+	## `positions` : positions des systèmes sur la carte, dans l'ordre du trajet.
+	func set_path(positions: PackedVector2Array, col: Color, blocked := -1) -> void:
+		path = positions
+		color = col
+		blocked_at = blocked
+		queue_redraw()
+
+	## Le trajet ramené dans le cadre, proportions gardées.
+	func fitted(frame: Vector2) -> PackedVector2Array:
+		var out := PackedVector2Array()
+		if path.is_empty():
+			return out
+		var lo := path[0]
+		var hi := path[0]
+		for p in path:
+			lo = lo.min(p)
+			hi = hi.max(p)
+		var span := (hi - lo).max(Vector2(1, 1))
+		var inner := frame - Vector2(12, 12)
+		var k := minf(inner.x / span.x, inner.y / span.y)
+		var off := Vector2(6, 6) + (inner - span * k) * 0.5
+		for p in path:
+			out.append(off + (p - lo) * k)
+		return out
+
+	func _draw() -> void:
+		var pts := fitted(size)
+		if pts.is_empty():
+			return
+		if pts.size() > 1:
+			draw_polyline(pts, Color(color, 0.75), 1.5, true)
+		for i in pts.size():
+			var end := i == 0 or i == pts.size() - 1
+			draw_circle(pts[i], 3.0 if end else 1.5, color if end else Color(color, 0.6))
+		if blocked_at >= 0 and blocked_at < pts.size():
+			draw_circle(pts[blocked_at], 4.5, UiTheme.BAD)

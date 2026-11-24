@@ -38,6 +38,26 @@ static func default_frequency() -> String:
 	return String(data().get("default_frequency", "normaux"))
 
 
+## Carte de la fenêtre de premier contact ; ses textes par peuple sont dans data/first_contact.json.
+const CONTACT_CARD := "premier_contact"
+
+
+## Textes de premier contact d'un peuple : {"voix", "salut", "replique"} (ceux de « defaut » pour un peuple créé).
+static func contact_texts(faction_id: String) -> Dictionary:
+	var d: Dictionary = GameData.first_contact()
+	return (d.get("peuples", {}) as Dictionary).get(faction_id, d.get("defaut", {}))
+
+
+## Qui parle au nom du rival d'une carte de contact : son souverain s'il en a un, sinon la voix de son peuple.
+static func contact_voice(state: GameState, item: Dictionary) -> String:
+	var r := state.get_empire(int(item.get("rival", -1)))
+	if r == null:
+		return ""
+	if Rulers.enabled(state) and Rulers.has_ruler(state, r.id):
+		return Rulers.full_name(state, r.id)
+	return String(contact_texts(r.faction_id).get("voix", ""))
+
+
 static func enabled(state: GameState) -> bool:
 	return int(freq_def(state.event_freq).get("pct", 0)) > 0
 
@@ -143,6 +163,7 @@ static func daily(state: GameState, added: Array[Dictionary]) -> void:
 					inbox.remove_at(i)
 				continue
 			i += 1
+	_waits(state, added)
 	if not enabled(state):
 		return
 	var month := int(GameData.rules()["month_days"])
@@ -157,6 +178,111 @@ static func daily(state: GameState, added: Array[Dictionary]) -> void:
 			continue
 		if draw(state, e.id, "monthly", {}, added) != "":
 			m["next"] = state.tick + int(fd["cooldown"])
+
+
+# --- Chaînes (refonte de l'interface, E7) ------------------------------------------------------------
+# Un choix peut porter "then" : la carte suivante de l'affaire arrive plus tard, après un délai tiré entre
+# deux bornes ("days": [min, max], jamais montré au joueur) ou quand un objectif est rempli ("goal").
+# Les suites attendues sont dans meta["wait"] (la clé n'existe que s'il y en a).
+
+const WAIT_MAX_DAYS := 1800  # un objectif jamais rempli finit par classer l'affaire
+
+static func chain_def(id: String) -> Dictionary:
+	return (data().get("chains", {}) as Dictionary).get(id, {})
+
+
+## Suites attendues par un empire : [{"card", "chain", "tick", "at" | "goal", "text", "system", …}].
+static func waits(state: GameState, empire_id: int) -> Array:
+	return state.ev_meta[empire_id].get("wait", []) if state.ev_meta.has(empire_id) else []
+
+
+static func _then(state: GameState, empire_id: int, item: Dictionary, c: Dictionary, t: Dictionary) -> void:
+	var w := {"card": String(t["card"]), "chain": String(c.get("chain", "")), "tick": state.tick,
+			"system": int(item.get("system", -1)), "planet": int(item.get("planet", -1)),
+			"rival": int(item.get("rival", -1)), "hero": int(item.get("hero", -1))}
+	if t.has("goal"):
+		w["goal"] = String(t["goal"])
+		w["text"] = fill(state, empire_id, item, String(t.get("text", "")))
+	else:
+		var d: Array = t.get("days", [120, 240])
+		w["at"] = state.tick + int(d[0]) + _h(state, ["then", empire_id, int(item["id"])]) % maxi(1, int(d[1]) - int(d[0]) + 1)
+	var m := meta(state, empire_id)
+	if not m.has("wait"):
+		m["wait"] = []
+	(m["wait"] as Array).append(w)
+
+
+## L'objectif d'une suite est-il rempli, ou son délai écoulé ?
+static func wait_ready(state: GameState, empire_id: int, w: Dictionary) -> bool:
+	match String(w.get("goal", "")):
+		"":
+			return state.tick >= int(w.get("at", 0))
+		"fleet":
+			return not Fleets.fleets_at(state, int(w.get("system", -1)), empire_id).is_empty()
+	return false
+
+
+static func _waits(state: GameState, added: Array[Dictionary]) -> void:
+	var ids := state.ev_meta.keys()
+	ids.sort()
+	for eid in ids:
+		var m: Dictionary = state.ev_meta[eid]
+		if not m.has("wait"):
+			continue
+		var e := state.get_empire(int(eid))
+		var ws: Array = m["wait"]
+		var i := 0
+		while i < ws.size():
+			var w: Dictionary = ws[i]
+			var sid := int(w.get("system", -1))
+			# Le lieu de l'affaire est perdu, ou l'objectif n'a jamais été rempli : elle s'arrête là.
+			if e == null or e.eliminated or (sid >= 0 and state.system_owner(sid) != int(eid)) \
+					or (w.has("goal") and state.tick - int(w["tick"]) > WAIT_MAX_DAYS):
+				ws.remove_at(i)
+				continue
+			if wait_ready(state, int(eid), w):
+				ws.remove_at(i)
+				push(state, int(eid), String(w["card"]), w, added)
+				continue
+			i += 1
+		if ws.is_empty():
+			m.erase("wait")
+
+
+## Affaires en cours pour le suivi de droite : [[texte, couleur]], le nom de l'affaire puis ce qu'on attend.
+static func affair_lines(state: GameState, empire_id: int) -> Array:
+	var out := []
+	for w: Dictionary in waits(state, empire_id):
+		out.append(["▸ %s" % String(chain_def(String(w.get("chain", ""))).get("title", "Affaire en cours")), Color(0.92, 0.94, 1.0)])
+		out.append([String(w["text"]) if String(w.get("text", "")) != "" else "On attend des nouvelles de %s." % _sys_name(state, int(w.get("system", -1))), Color(0.92, 0.94, 1.0, 0.7)])
+	return out
+
+
+## Les cartes déjà reçues d'une affaire, dans l'ordre, pour les relire au Journal :
+## [{"title", "text", "label", "tick"}].
+static func chain_story(state: GameState, empire_id: int, chain: String) -> Array:
+	var out := []
+	if not state.ev_meta.has(empire_id):
+		return out
+	for x: Dictionary in state.ev_meta[empire_id]["log"]:
+		if String(x.get("chain", "")) != chain:
+			continue
+		var c := card(String(x["card"]))
+		var item := {"id": -1, "card": String(x["card"]), "system": int(x.get("system", -1)), "planet": -1, "rival": -1, "hero": -1}
+		out.append({"title": String(x["title"]), "text": fill(state, empire_id, item, String(c.get("text", ""))), "label": String(x["label"]), "tick": int(x["tick"])})
+	return out
+
+
+## Affaires dont le journal garde au moins une carte, la plus récente d'abord.
+static func chains_logged(state: GameState, empire_id: int) -> Array[String]:
+	var out: Array[String] = []
+	if state.ev_meta.has(empire_id):
+		var log: Array = state.ev_meta[empire_id]["log"]
+		for i in range(log.size() - 1, -1, -1):
+			var ch := String((log[i] as Dictionary).get("chain", ""))
+			if ch != "" and not out.has(ch):
+				out.append(ch)
+	return out
 
 
 static func _auto_answer(state: GameState, empire_id: int, item: Dictionary, added: Array[Dictionary]) -> void:
@@ -223,7 +349,18 @@ static func push(state: GameState, empire_id: int, card_id: String, subj: Dictio
 ## Premier contact : chaque empire reçoit la carte de la paire de registres, et chacun garde d'office
 ## le souvenir du choc (proposition 7).
 static func on_contact(state: GameState, a: Empire, b: Empire, added: Array[Dictionary]) -> void:
-	if a.is_npc() or b.is_npc() or not enabled(state):
+	if a.is_npc() or b.is_npc():
+		return
+	# La fenêtre de premier contact (refonte, E4) : le salut de l'autre, et trois réponses. Elle passe
+	# avant le choc des tons, et vaut même quand les événements sont coupés.
+	for pair in [[a, b], [b, a]]:
+		var waiting := false
+		for it: Dictionary in inbox(state, (pair[0] as Empire).id):
+			if String(it["card"]) == CONTACT_CARD and int(it.get("rival", -1)) == (pair[1] as Empire).id:
+				waiting = true
+		if not waiting:
+			push(state, (pair[0] as Empire).id, CONTACT_CARD, {"rival": (pair[1] as Empire).id}, added)
+	if not enabled(state):
 		return
 	var ra := String(a.faction().get("registre", ""))
 	var rb := String(b.faction().get("registre", ""))
@@ -506,8 +643,11 @@ static func choices(state: GameState, empire_id: int, item: Dictionary) -> Array
 				var lv := layer_value(state, empire_id, String(layer))
 				tag = _layer_label(String(layer), lv)
 		var why := _cost_problem(state, empire_id, item, ch)
+		var lines := fx_lines(state, empire_id, item, ch.get("fx", []))
+		if ch.has("note"):  # ce que le choix entraîne quand aucun effet chiffré ne le dit
+			lines.append(fill(state, empire_id, item, String(ch["note"])))
 		out.append({"index": i, "label": fill(state, empire_id, item, String(ch["label"])), "tag": tag, "ok": why == "", "why": why,
-				"lines": fx_lines(state, empire_id, item, ch.get("fx", [])), "risky": ch.has("risky"),
+				"lines": lines, "risky": ch.has("risky"),
 				"pct": int((ch.get("risky", {}) as Dictionary).get("pct", 100)),
 				"win": fx_lines(state, empire_id, item, (ch.get("risky", {}) as Dictionary).get("win", [])),
 				"lose": fx_lines(state, empire_id, item, (ch.get("risky", {}) as Dictionary).get("lose", []))})
@@ -599,6 +739,8 @@ static func choose(state: GameState, empire_id: int, event_id: int, index: int, 
 		added.append(state.add_chronicle("%s : « %s », %s. %s" % [e.short_name(), String(c["title"]),
 				"le pari est gagné" if win else "le pari tourne mal", ", ".join(lines) + "." if not lines.is_empty() else ""],
 				Espionage.private_to(state, [empire_id])))
+	if ch.has("then"):
+		_then(state, empire_id, item, c, ch["then"])
 	_close(state, empire_id, item, index, fill(state, empire_id, item, String(ch["label"])) + ((" (%s)" % result) if result != "" else ""))
 
 
@@ -606,8 +748,15 @@ static func _close(state: GameState, empire_id: int, item: Dictionary, index: in
 	var m := meta(state, empire_id)
 	(m["inbox"] as Array).erase(item)
 	var log: Array = m["log"]
-	log.append({"card": String(item["card"]), "title": String(card(String(item["card"])).get("title", "")),
-			"choice": index, "label": label, "tick": state.tick, "system": int(item.get("system", -1))})
+	var title := String(card(String(item["card"])).get("title", ""))
+	if String(item["card"]) == CONTACT_CARD:
+		title = "Premier contact : %s" % _rival_name(state, item)
+	var entry := {"card": String(item["card"]), "title": title,
+			"choice": index, "label": label, "tick": state.tick, "system": int(item.get("system", -1))}
+	var chain := String(card(String(item["card"])).get("chain", ""))
+	if chain != "":
+		entry["chain"] = chain
+	log.append(entry)
 	while log.size() > int(data().get("log_max", 30)):
 		log.pop_front()
 
@@ -923,6 +1072,10 @@ static func fill(state: GameState, empire_id: int, item: Dictionary, s: String) 
 	out = out.replace("{system}", _sys_name(state, sid if sid >= 0 else FactionTraits.capital_system(state, empire_id)))
 	out = out.replace("{planet}", state.galaxy.get_planet(pid).display_name(state.galaxy) if pid >= 0 else "?")
 	out = out.replace("{rival}", _rival_name(state, item))
+	if out.contains("{salut}") or out.contains("{replique}"):
+		var rv := state.get_empire(int(item.get("rival", -1)))
+		out = out.replace("{salut}", String(contact_texts(rv.faction_id if rv != null else "").get("salut", "")))
+		out = out.replace("{replique}", String(contact_texts(state.get_empire(empire_id).faction_id).get("replique", "")))
 	out = out.replace("{hero}", _hero_name(state, item))
 	out = Crisis.fill(state, out)  # jetons des cartes de crise de fin de partie
 	out = Ancients.fill(state, empire_id, item, out)  # jetons des puissances anciennes
@@ -944,8 +1097,11 @@ static func meta_to_list(state: GameState) -> Array:
 	var out := []
 	for eid in ids:
 		var m: Dictionary = state.ev_meta[eid]
-		out.append({"e": int(eid), "next": int(m["next"]), "seen": _pairs(m["seen"]), "marks": _pairs(m["marks"]),
-				"inbox": (m["inbox"] as Array).duplicate(true), "log": (m["log"] as Array).duplicate(true)})
+		var row := {"e": int(eid), "next": int(m["next"]), "seen": _pairs(m["seen"]), "marks": _pairs(m["marks"]),
+				"inbox": (m["inbox"] as Array).duplicate(true), "log": (m["log"] as Array).duplicate(true)}
+		if m.has("wait"):
+			row["wait"] = (m["wait"] as Array).duplicate(true)
+		out.append(row)
 	return out
 
 
@@ -964,8 +1120,13 @@ static func meta_from_list(state: GameState, list: Array) -> void:
 			v2["title"] = String(v2.get("title", ""))
 			v2["label"] = String(v2.get("label", ""))
 			log.append(v2)
+		var wait := []
+		for it: Dictionary in d.get("wait", []):
+			wait.append(GameData._to_ints(it))
 		state.ev_meta[int(d["e"])] = {"next": int(d.get("next", 0)), "seen": _unpairs(d.get("seen", [])),
 				"marks": _unpairs(d.get("marks", [])), "inbox": inbox, "log": log}
+		if not wait.is_empty():
+			state.ev_meta[int(d["e"])]["wait"] = wait
 
 
 static func _pairs(d: Dictionary) -> Array:

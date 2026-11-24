@@ -216,7 +216,25 @@ static func _budget_block(es: EmpireScreens, inc: Dictionary) -> Control:
 		spend.append(["Remboursement du capital", principal])
 	if inflation > 0:
 		spend.append(["Inflation", inflation])
+	var top := 1
+	for side in [income, spend]:
+		var t := 0
+		for p in side:
+			t += maxi(0, int(p[1]))
+		top = maxi(top, t)
+	var bars := VBoxContainer.new()
+	bars.add_theme_constant_override("separation", 6)
+	b.body.add_child(bars)
+	b.body.move_child(bars, row.get_index())
+	var palettes := [[Color(0.45, 0.82, 0.55), Color(0.4, 0.75, 0.85), Color(0.75, 0.85, 0.5)],
+			[Color(0.9, 0.5, 0.42), Color(0.93, 0.68, 0.4), Color(0.8, 0.6, 0.75), Color(0.7, 0.7, 0.78), Color(0.9, 0.82, 0.5),
+			Color(0.85, 0.4, 0.55), Color(0.6, 0.55, 0.85), Color(0.95, 0.9, 0.7)]]
+	var si := 0
 	for side in [["Recettes", income], ["Dépenses", spend]]:
+		var pal: Array = palettes[si]
+		si += 1
+		var parts := []
+		var k := 0
 		var c := VBoxContainer.new()
 		c.custom_minimum_size = Vector2(340, 0)
 		row.add_child(c)
@@ -224,10 +242,35 @@ static func _budget_block(es: EmpireScreens, inc: Dictionary) -> Control:
 		for p in (side[1] as Array):
 			if int(p[1]) == 0:
 				continue
+			var pc: Color = pal[k % pal.size()]
+			k += 1
+			parts.append({"value": int(p[1]), "color": pc, "label": String(p[0])})
+			var lr := HBoxContainer.new()
+			lr.add_theme_constant_override("separation", 8)
+			var dot := ColorRect.new()
+			dot.color = pc
+			dot.custom_minimum_size = Vector2(10, 10)
+			dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			lr.add_child(dot)
 			var l := Label.new()
 			l.text = "%d   %s" % [int(p[1]), String(p[0])]
 			l.add_theme_font_size_override("font_size", 13)
-			c.add_child(l)
+			lr.add_child(l)
+			c.add_child(lr)
+		var br := HBoxContainer.new()
+		br.add_theme_constant_override("separation", 10)
+		var bl := UiTheme.dim(String(side[0]), 13)
+		bl.custom_minimum_size = Vector2(80, 0)
+		br.add_child(bl)
+		var sb := Widgets.StackBar.new(W - 170.0, 16)
+		sb.set_parts(parts, float(top))
+		br.add_child(sb)
+		var tv := Label.new()
+		tv.theme_type_variation = &"Numbers"
+		tv.text = str(sb.total())
+		br.add_child(tv)
+		bars.add_child(br)
+		es.order_buttons["budget:%s" % side[0]] = sb
 	var net := int(inc["net"].get("energy", 0))
 	var energy := int(e.resources.get("energy", 0))
 	var proj := energy + 12 * net
@@ -333,18 +376,34 @@ static func _borrow_block(es: EmpireScreens) -> Control:
 		nl.custom_minimum_size = Vector2(300, 0)
 		nl.clip_text = true
 		row.add_child(nl)
-		for amount in [100, 300, 500, 1000]:
-			var bt := Button.new()
-			bt.focus_mode = Control.FOCUS_NONE
-			bt.add_theme_font_size_override("font_size", 12)
-			bt.text = "+%d" % amount
+		var lo := int(lc["min"])
+		var hi := int(lc["max"])
+		var sl := HSlider.new()
+		sl.min_value = lo
+		sl.max_value = hi
+		sl.step = 100
+		sl.value = clampi(int(es.borrow_amounts.get(key, 300)), lo, hi)
+		sl.custom_minimum_size = Vector2(220, 0)
+		sl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		sl.focus_mode = Control.FOCUS_NONE
+		row.add_child(sl)
+		var bt := Button.new()
+		bt.focus_mode = Control.FOCUS_NONE
+		bt.custom_minimum_size = Vector2(170, 0)
+		row.add_child(bt)
+		var lender := String(lk[1])
+		var sync := func(v: float) -> void:
+			var amount := int(v)
+			es.borrow_amounts[key] = amount
 			var why := Finance.check_borrow(state, player, key, amount)
+			bt.text = "EMPRUNTER %d" % amount
 			bt.disabled = why != ""
-			bt.tooltip_text = why if why != "" else "Emprunter %d énergie à %s." % [amount, String(lk[1])]
-			var a := int(amount)
-			bt.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.finance_borrow(player, key, a)))
-			row.add_child(bt)
-			es.order_buttons["borrow:%s:%d" % [key, amount]] = bt
+			bt.tooltip_text = why if why != "" else "Emprunter %d énergie à %s." % [amount, lender]
+		sl.value_changed.connect(sync)
+		sync.call(sl.value)
+		bt.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.finance_borrow(player, key, int(sl.value))))
+		es.order_buttons["borrow:%s" % key] = bt
+		es.order_buttons["borrow_amount:%s" % key] = sl
 		b.body.add_child(row)
 	return b
 

@@ -7,7 +7,7 @@ extends RefCounted
 ## partie, dès son premier présage, voir CrisisPanel).
 ## Construit dans les conteneurs d'EmpireScreens (_grid, _key_value…).
 
-const TABS := [["crisis", "Crise"], ["quests", "Quêtes"], ["deeds", "Hauts faits"], ["events", "Événements"], ["annals", "Annales"], ["relics", "Reliquaire"], ["archeo", "Archéologie"], ["bestiary", "Bestiaire"], ["announces", "Annonces"], ["hours", "Heures"]]
+const TABS := [["crisis", "Crise"], ["quests", "Quêtes"], ["deeds", "Hauts faits"], ["events", "Événements"], ["annals", "Annales"], ["relics", "Reliquaire"], ["archeo", "Archéologie"], ["bestiary", "Bestiaire"], ["announces", "Annonces"]]
 
 
 ## Onglets offerts dans cette partie (selon les réglages de la Nouvelle partie).
@@ -20,8 +20,7 @@ static func tabs(state: GameState) -> Array[String]:
 	if Deeds.enabled(state):
 		out.append("deeds")  # hauts faits galactiques (voir DeedsUi)
 	out.append("events")
-	if Deeds.enabled(state):
-		out.append("annals")
+	out.append("annals")  # la frise commune : annales, hauts faits et grandes heures
 	if not state.relics.is_empty():
 		out.append("relics")
 	if Archaeology.full(state):
@@ -29,7 +28,6 @@ static func tabs(state: GameState) -> Array[String]:
 	if Fauna.active(state):
 		out.append("bestiary")
 	out.append("announces")  # registre des annonces typées (voir AnnounceUi)
-	out.append("hours")  # frise des grandes heures de l'empire
 	return out
 
 
@@ -71,7 +69,9 @@ static func build(es: EmpireScreens) -> void:
 	es._side_box.add_child(HSeparator.new())
 	es._side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("chronicles").get("why", "")), EmpireScreens.SIDE_WIDTH - 24.0, 13))
 
-	# Onglets, puis contenu défilant.
+	# Onglets, puis contenu défilant. Les Heures ont rejoint la frise des Annales.
+	if es.chron_tab == "hours":
+		es.chron_tab = "annals"
 	var offered := tabs(state)
 	if not offered.has(es.chron_tab):
 		es.chron_tab = offered[0]
@@ -84,6 +84,8 @@ static func build(es: EmpireScreens) -> void:
 	bar.alignment = BoxContainer.ALIGNMENT_CENTER
 	bar.add_theme_constant_override("separation", 30)
 	top.add_child(bar)
+	var grp := UiDomains.group("chronicles:" + es.chron_tab)
+	var shown := 0
 	for t in TABS:
 		if not offered.has(String(t[0])):
 			continue
@@ -104,6 +106,10 @@ static func build(es: EmpireScreens) -> void:
 			es.show_screen("chronicles"))
 		es.chronicle_buttons["tab:%s" % tid] = tb
 		bar.add_child(tb)
+		# Seuls les onglets du même groupe restent visibles (le Journal réunit Quêtes, Événements et Crise).
+		tb.visible = grp.has("chronicles:" + tid)
+		shown += 1 if tb.visible else 0
+	bar.visible = shown > 1
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -198,6 +204,21 @@ static func build(es: EmpireScreens) -> void:
 		var prog := Curios.progress(state, player, pid)
 		cg.add_child(UiTheme.dim("en cours : %d / %d" % [prog, Curios.duration(state, player, pid)] if prog > 0 else "", 13))
 
+	# Affaires (refonte E7c) : les cartes déjà reçues de chaque chaîne, à relire dans l'ordre.
+	for chain in Events.chains_logged(state, player):
+		var ab := Widgets.Block.new(String(Events.chain_def(chain).get("title", "Affaire")))
+		col.add_child(ab)
+		for part: Dictionary in Events.chain_story(state, player, chain):
+			var head := UiTheme.title(String(part["title"]), 17)
+			ab.body.add_child(head)
+			ab.body.add_child(UiTheme.dim(GameCalendar.date_string(int(part["tick"])), 13))
+			ab.body.add_child(UiTheme.paragraph(String(part["text"]), 900.0, 14))
+			var dec := UiTheme.paragraph("Votre décision : %s" % String(part["label"]), 900.0, 14)
+			dec.add_theme_color_override("font_color", UiTheme.GOLD)
+			ab.body.add_child(dec)
+		for w: Dictionary in Events.waits(state, player):
+			if String(w.get("chain", "")) == chain:
+				ab.body.add_child(UiTheme.dim(String(w["text"]) if String(w.get("text", "")) != "" else "L'affaire suit son cours.", 14))
 	var jr := Widgets.Block.new("Journal")
 	col.add_child(jr)
 	if log.is_empty():
@@ -222,6 +243,7 @@ static func _reliquary_block(es: EmpireScreens) -> Control:
 		blk.body.add_child(tl)
 	if mine.is_empty() and (m.is_empty() or (m["fakes"] as Array).is_empty()):
 		blk.body.add_child(UiTheme.dim("Aucune relique. Les fouilles en sortent une à la fin de leur dernier chapitre ; les espions et les conquérants en prennent aussi.", 14))
+	blk.body.add_child(_showcase(es, mine))
 	for rid in mine:
 		blk.body.add_child(_relic_row(es, rid))
 	if not m.is_empty():
@@ -258,6 +280,41 @@ static func _reliquary_block(es: EmpireScreens) -> Control:
 		tools.add_child(sell)
 	blk.body.add_child(tools)
 	return blk
+
+
+## Vitrine du Reliquaire (refonte, C11) : une case par relique de la partie, vide tant qu'on ne l'a pas.
+static func showcase(state: GameState, player: int) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var mine := Relics.owned(state, player)
+	var ids := state.relics.keys()
+	ids.sort()
+	for rid in ids:
+		if mine.has(String(rid)):
+			out.append({"id": String(rid), "held": true})
+	for rid in ids:
+		if not mine.has(String(rid)):
+			out.append({"id": String(rid), "held": false})
+	return out
+
+
+static func _showcase(es: EmpireScreens, mine: Array[String]) -> Control:
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 4)
+	flow.add_theme_constant_override("v_separation", 4)
+	for c: Dictionary in showcase(es._state, es._player):
+		var rid := String(c["id"])
+		var held := bool(c["held"])
+		var slot := Widgets.ArtSlot.new(("relic_" + rid) if held else "", Vector2(58, 42), UiTheme.GOLD if held else Color(0.5, 0.6, 0.7), "star" if held else "lock")
+		slot.mouse_filter = Control.MOUSE_FILTER_STOP
+		if held:
+			slot.variant = rid.hash() % 97
+			slot.tooltip_text = "%s\n%s" % [String(Relics.def(rid)["name"]), String(Relics.def(rid)["text"])]
+		else:
+			slot.tooltip_text = "Case vide : cette relique n'est pas à vous."
+		flow.add_child(slot)
+	if mine.is_empty():
+		flow.modulate = Color(1, 1, 1, 0.8)
+	return flow
 
 
 static func _relic_row(es: EmpireScreens, rid: String) -> Control:

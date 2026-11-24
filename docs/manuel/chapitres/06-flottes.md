@@ -9,7 +9,9 @@ Au début de la partie, presque toute la galaxie est cachée. Vos flottes la dé
 
 ### Déplacer une flotte
 
-Sélectionnez une flotte d'un clic sur son chevron (ou [[F]] et [[Maj]]+[[F]] pour passer de l'une à l'autre), puis cliquez droit sur un système. La flotte prend le plus court chemin connu et avance chaque jour à la vitesse de son vaisseau le plus lent. Le trajet et le délai s'affichent en pointillés. Avec l'option Frontières, le chemin contourne l'espace où la flotte n'a pas le droit d'aller, et prévient d'une **intrusion** s'il ne peut l'éviter (chapitre 8). Avec l'option Terrain, les routes qui touchent une nébuleuse ou un trou noir sont plus longues, et le chemin les contourne quand c'est plus court (chapitre 7). Un contre-ordre en plein trajet est accepté : la flotte finit sa route ou fait demi-tour, selon ce qui est le plus court. **Arrêter** la pose au système le plus proche.
+Sur la carte, chaque flotte porte un **insigne** à la couleur de son empire, avec son nombre de vaisseaux. Sa forme dit sa nature : un triangle pour une flotte armée, un losange pour des éclaireurs, un cercle pour des civils. Un point ambre signale une flotte à vous qui attend des ordres, un point rouge une flotte en combat, un liseré une flotte en patrouille ou en garde, un point d'or un héros à bord. À l'arrêt, les flottes d'un système se rangent en éventail sous l'étoile, les vôtres d'abord ; au-delà de quatre, un insigne « +N » ouvre la liste des autres. Vos flottes en route traînent un trait fin jusqu'à leur destination, avec le délai en jours.
+
+Sélectionnez une flotte d'un clic sur son insigne (ou [[F]] et [[Maj]]+[[F]] pour passer de l'une à l'autre), puis cliquez droit sur un système. Un **clic molette** sur le système ouvre à la place la liste de ce que la flotte peut y faire : y aller, y aller après les ordres en cours, patrouiller jusque-là, ouvrir le système, et sur place coloniser, embarquer, déposer, envahir ou garder. La flotte prend le plus court chemin connu et avance chaque jour à la vitesse de son vaisseau le plus lent. Le trajet et le délai s'affichent en pointillés. Avec l'option Frontières, le chemin contourne l'espace où la flotte n'a pas le droit d'aller, et prévient d'une **intrusion** s'il ne peut l'éviter (chapitre 8). Avec l'option Terrain, les routes qui touchent une nébuleuse ou un trou noir sont plus longues, et le chemin les contourne quand c'est plus court (chapitre 7). Un contre-ordre en plein trajet est accepté : la flotte finit sa route ou fait demi-tour, selon ce qui est le plus court. **Arrêter** la pose au système le plus proche.
 
 **Les distances.** L'espace est grand : au réglage **Distances normales**, un éclaireur met un peu plus de deux semaines par saut, une frégate trois, un titan plus d'un mois, et traverser la galaxie prend des années avec les moteurs de départ. Le réglage se choisit à la création de la partie (Galaxie, réglages avancés) : **proches**, **normales** ou **vastes**. Il change la durée des trajets, pas la carte.
 
@@ -23,14 +25,16 @@ Sélectionnez une flotte d'un clic sur son chevron (ou [[F]] et [[Maj]]+[[F]] po
 
 **Le point de ralliement.** Le bouton **Ralliement ici** d'une flotte armée à l'arrêt fait de son système le point de ralliement de vos chantiers : chaque vaisseau armé neuf s'y rend de lui-même. Un second clic l'enlève.
 
-La fiche de flotte, en bas à gauche, permet aussi de **rassembler** les flottes à l'arrêt dans un même système, d'en **détacher** un vaisseau, de **coloniser** avec un vaisseau colon et de mettre la flotte en **patrouille** ([[Maj]]+clic droit) entre deux systèmes.
+La **fiche de flotte**, en bas à gauche, montre la composition classe par classe : la silhouette, le nombre de vaisseaux (les marques successives d'une classe comptent ensemble) et une barre pour l'état des coques, verte, ambre ou rouge. Les ordres y sont rangés par usage : **Déplacement** (exploration, patrouille, garde, arrêt), **Sur place** (coloniser, embarquer, déposer, bombarder, envahir, selon ce que le système permet), **Conduite** (consigne, posture, tactique). Les ordres dont on se sert rarement attendent derrière **Autres ordres**. Tant qu'une flotte est choisie, sa fiche est la seule affichée : celle d'un système ne revient que le temps d'un survol, et le lien « Système : … » y mène.
+
+La fiche de flotte permet aussi de **rassembler** les flottes à l'arrêt dans un même système, d'en **détacher** un vaisseau, de **coloniser** avec un vaisseau colon et de mettre la flotte en **patrouille** ([[Maj]]+clic droit) entre deux systèmes.
 
 ::: capture docs/apercu-flottes-liste.png|Liste des flottes et exploration automatique
 :::
 
 ### Ne perdre aucune flotte de vue
 
-La **liste des flottes**, à droite sous la chronique, montre toutes vos flottes et leur état : en route, en exploration, en attente d'ordres. Le bouton des **flottes inactives**, au-dessus du cadran, et la touche [[I]] amènent à la prochaine flotte qui attend vos ordres.
+L'onglet **Flottes** du navigateur, à droite sous la chronique, montre toutes vos flottes et leur état : en route, en exploration, en attente d'ordres. Le bouton des **flottes inactives**, au-dessus du cadran, et la touche [[I]] amènent à la prochaine flotte qui attend vos ordres.
 
 L'**exploration automatique** ([[E]]) est un ordre permanent : la flotte vise le système pas encore reconnu le plus proche, change de cible si un autre de vos vaisseaux y est passé entre-temps, évite celles qu'un autre explorateur vise déjà, et s'arrête quand il n'y a plus rien à atteindre. Un ordre manuel la coupe.
 

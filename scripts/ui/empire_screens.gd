@@ -15,6 +15,10 @@ signal screen_changed(screen_id: String)
 signal war_requested(empire_id: int)
 ## Un ordre de l'écran Diplomatie (proposer, répondre, rompre, soudoyer, banquet, arbitrer).
 signal command_requested(cmd: Dictionary)
+## Montrer une flotte sur la carte (l'écran se ferme).
+signal fleet_requested(fleet_id: int)
+## Rouvrir un rapport de bataille spatiale (rang dans state.battle_reports).
+signal battle_report_requested(index: int)
 ## Rouvrir une carte d'événement de la boîte (écran Chroniques).
 signal event_requested(event_id: int)
 ## Ouvrir le choix de récompense d'un haut fait (voir DeedPanel).
@@ -35,6 +39,8 @@ const CONTENT_LEFT := SIDE_WIDTH + 2.0 * MARGIN + 18.0
 ## Le contenu s'arrête avant le cadran du temps, en bas à droite.
 const CONTENT_RIGHT := TimeDial.SIDE + 30.0
 const COLUMN_WIDTHS := [200.0, 200.0, 120.0, 210.0, 230.0]
+## Colonnes du tableau des colonies : clé de tri, titre.
+const COLONY_COLUMNS := [["name", "Planète"], ["type", "Type"], ["pop", "Population"], ["build", "Chantier"], ["net", "Bilan par mois"]]
 const COLONY_FILTERS := [["all", "Toutes"], ["colony", "Colonies"], ["outpost", "Avant-postes"], ["founding", "Fondations"]]
 const TYPE_COLORS := {
 	"continental": Color(0.35, 0.7, 0.4), "ocean": Color(0.25, 0.5, 0.9), "desert": Color(0.9, 0.65, 0.35),
@@ -49,10 +55,20 @@ var current := ""
 ## Planète choisie dans l'écran Colonies (-1 = aucune).
 var selected_planet := -1
 var colony_filter := "all"
+## Tri du tableau des colonies (refonte, C2) : colonne ("" = ordre de l'empire) et sens.
+var colony_sort := ""
+var colony_sort_desc := false
+var _col_heads: Array[Button] = []
 var _state: GameState
 var _player := 0
 var _root: Control
 var _tab: Button
+## Onglets du domaine ouvert (refonte, A1 et A2) : une rangée sous l'onglet de l'écran.
+var _domain_row: HBoxContainer
+## Boutons de cette rangée, par libellé d'onglet (pour les tests).
+var domain_buttons := {}
+## Dernière adresse visitée dans chaque domaine (voir UiDomains).
+var domain_last := {}
 var _side: PanelContainer
 var _side_box: VBoxContainer
 ## Défilement de la colonne de gauche quand elle dépasse l'écran (beaucoup de peuples, par exemple).
@@ -65,7 +81,11 @@ var _donut: Widgets.Donut
 var _donut_legend: VBoxContainer
 var _sys_list: VBoxContainer
 var _sys_sig := ""
-var _alerts: Label
+var _alerts: VBoxContainer
+var _alerts_sig := "-"
+## Courbes du bilan, par ressource, et liens des alertes (pour les tests).
+var res_curves := {}
+var alert_links: Array[Button] = []
 var _faction_art: Widgets.ArtSlot
 var _trait: Label
 # Colonies
@@ -79,7 +99,7 @@ var _filter_tabs := {}
 ## Écologie : boutons de doctrine environnementale (écran Colonies).
 var _eco_buttons := {}
 var _eco_label: Label
-var _col_head_build: Label
+var _free_yards: Array[int] = []
 var _pick_art: Widgets.ArtSlot
 var _pick_title: Label
 var _pick_lines: Label
@@ -91,6 +111,15 @@ var _diplo_sig := ""
 var war_buttons := {}
 ## Empire choisi dans l'écran Diplomatie, et les boutons de sa relation (pour les tests).
 var diplo_selected := -1
+## Onglet de la diplomatie (empires, league, neighbors) et volet de la fiche d'un empire (relation, deal, war).
+var diplo_tab := "empires"
+var diplo_pane := "relation"
+var diplo_pane_buttons := {}
+var diplo_panes := {}
+## Volets internes d'un écran (Assemblée, opérations du Renseignement) : groupe -> {"boxes", "buttons"},
+## et le volet montré de chaque groupe, gardé d'une reconstruction à l'autre.
+var panes := {}
+var pane_current := {}
 var diplo_table: DiplomacyTable
 var treaty_buttons := {}
 var cancel_buttons := {}
@@ -120,6 +149,8 @@ var shipyard: ShipyardScreen
 ## Écran Victoire : tout voir (mode spectateur), lignes de progression par victoire (pour les tests).
 var see_all := false
 var victory_rows := {}
+## Bouton qui déplie le détail des victoires (écran Victoire).
+var victory_detail: Button
 var _vict_sig := ""
 var _shipyard_selected := ""
 ## Écran Renseignement (IntelScreen) : empire dont on lit le dossier, boutons − / + des cellules par
@@ -130,6 +161,24 @@ var intel_buttons := {}
 var intel_op_buttons := {}
 var intel_case_buttons := {}
 var _intel_sig := ""
+var _peoples_sig := ""
+## Onglet Flottes : tri, flotte choisie, boutons (pour les tests).
+var _fleets_sig := ""
+var _battles_sig := ""
+var battles_buttons := {}
+## Écran Armées : groupes de régiments dépliés (clé « f:flotte » ou « s:système »).
+var armies_open := {}
+var armies_buttons := {}
+var fleets_sort := "power"
+var fleets_sort_desc := true
+var fleets_selected := -1
+var fleets_buttons := {}
+## Cartes des merveilles, par id (pour les tests).
+var wonder_cards := {}
+## Montant réglé au curseur d'emprunt, par prêteur (gardé d'un rafraîchissement à l'autre).
+var borrow_amounts := {}
+## Menus de statut de l'onglet Peuples, par espèce (pour les tests).
+var peoples_buttons := {}
 ## Écran Panthéon (HeroScreen) : boutons par héros et par candidat (pour les tests).
 var hero_buttons := {}
 ## Boutons de l'écran Ordre intérieur (« sid:décret », « free:sid »), pour les tests.
@@ -165,6 +214,12 @@ var culture_buttons := {}
 var _culture_sig := ""
 var genome_buttons := {}
 var _genome_sig := ""
+## Écran Songe : pouvoir choisi, dont on montre les cibles.
+var psionics_power := ""
+## Écran Génome : espèce affichée, traits cochés par espèce ({add, rem}), traits impossibles montrés ou non.
+var genome_species := ""
+var genome_picks := {}
+var genome_show_all := false
 ## Écran Songe : boutons « path », « power:pouvoir:cible »… (tests).
 var psionics_buttons := {}
 var _psionics_sig := ""
@@ -233,6 +288,16 @@ func _ready() -> void:
 	_tab.pressed.connect(func() -> void: close_requested.emit())
 	_root.add_child(_tab)
 
+	_domain_row = HBoxContainer.new()
+	_domain_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_domain_row.add_theme_constant_override("separation", 22)
+	_domain_row.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	_domain_row.offset_left = CONTENT_LEFT
+	_domain_row.offset_right = -CONTENT_RIGHT
+	_domain_row.offset_top = 38.0
+	_domain_row.offset_bottom = 66.0
+	_root.add_child(_domain_row)
+
 	_side = PanelContainer.new()
 	_side.theme_type_variation = &"SidePanel"
 	_side.position = Vector2(MARGIN, SIDE_TOP)
@@ -249,7 +314,7 @@ func _ready() -> void:
 	_content = MarginContainer.new()
 	_content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_content.offset_left = CONTENT_LEFT
-	_content.offset_top = 64.0
+	_content.offset_top = 78.0
 	_content.offset_right = -CONTENT_RIGHT
 	_content.offset_bottom = -24.0
 	_root.add_child(_content)
@@ -303,8 +368,7 @@ func show_screen(screen_id: String) -> void:
 	_filter_tabs.clear()
 	_col_sig = ""
 	_sys_sig = ""
-	var sc := EmpireBar.screen_info({"transcendence": "victory", "contact": "victory", "kardashev": "victory", "megas": "wonders", "forge": "wonders"}.get(screen_id, screen_id))
-	_tab.text = ("%s     ×" % sc.get("label", screen_id)).to_upper()
+	_fill_domain_row()
 	match screen_id:
 		"economy":
 			_build_economy()
@@ -320,6 +384,12 @@ func show_screen(screen_id: String) -> void:
 			_build_victory()
 		"intel":
 			IntelScreen.build(self)
+		"peoples":
+			PeoplesScreen.build(self)
+		"fleets":
+			FleetsScreen.build(self)
+		"battles":
+			BattlesScreen.build(self)
 		"heroes":
 			HeroScreen.build(self)
 		"order":
@@ -372,6 +442,44 @@ func show_screen(screen_id: String) -> void:
 	screen_changed.emit(screen_id)
 
 
+## Ouvre une adresse de domaine (« trade:market », « order:admin », « economy » ; voir UiDomains).
+func show_address(addr: String) -> void:
+	UiDomains.apply_sub(self, addr)
+	show_screen(UiDomains.screen_of(addr))
+
+
+## Onglet du haut (nom du domaine) et rangée de ses onglets. Un écran hors domaine garde son nom.
+func _fill_domain_row() -> void:
+	for c in _domain_row.get_children():
+		_domain_row.remove_child(c)
+		c.queue_free()
+	domain_buttons.clear()
+	var addr := UiDomains.address(self)
+	var at := UiDomains.locate(addr)
+	var d := int(at[0])
+	if d < 0:
+		_tab.text = ("%s     ×" % EmpireBar.screen_info(current).get("label", current)).to_upper()
+		return
+	domain_last[d] = addr
+	var dom: Dictionary = UiDomains.DOMAINS[d]
+	_tab.text = ("%s     ×" % dom["label"]).to_upper()
+	var tabs: Array = dom["tabs"]
+	for t in tabs.size():
+		var target := UiDomains.first_offered(_state, _player, d, t)
+		if target == "":
+			continue
+		var tb := Button.new()
+		tb.theme_type_variation = &"TabButton"
+		tb.add_theme_font_size_override("font_size", 13)
+		tb.toggle_mode = true
+		tb.focus_mode = Control.FOCUS_NONE
+		tb.text = String(tabs[t][0]).to_upper()
+		tb.set_pressed_no_signal(t == int(at[1]))
+		tb.pressed.connect(func() -> void: show_address(target))
+		_domain_row.add_child(tb)
+		domain_buttons[String(tabs[t][0])] = tb
+
+
 ## Met à jour les chiffres (à chaque tick et après chaque ordre).
 func refresh() -> void:
 	if not is_open() or _state == null:
@@ -391,6 +499,15 @@ func refresh() -> void:
 		"intel":
 			if IntelScreen.signature(self) != _intel_sig:
 				show_screen("intel")
+		"peoples":
+			if PeoplesScreen.signature(self) != _peoples_sig:
+				show_screen("peoples")
+		"fleets":
+			if FleetsScreen.signature(self) != _fleets_sig:
+				show_screen("fleets")
+		"battles":
+			if BattlesScreen.signature(self) != _battles_sig:
+				show_screen("battles")
 		"heroes":
 			if HeroScreen.signature(self) != _hero_sig:
 				show_screen("heroes")
@@ -486,6 +603,55 @@ func open_selected_colony() -> void:
 		planet_requested.emit(selected_planet)
 
 
+## Trie le tableau des colonies par une colonne : premier clic croissant (décroissant pour les nombres),
+## second clic inversé, troisième clic retour à l'ordre de l'empire.
+func sort_colonies(key: String) -> void:
+	var numeric := key == "pop" or key == "net"
+	if colony_sort != key:
+		colony_sort = key
+		colony_sort_desc = numeric
+	elif colony_sort_desc == numeric:
+		colony_sort_desc = not numeric
+	else:
+		colony_sort = ""
+	_col_sig = ""
+	refresh()
+
+
+## Valeur de tri d'une colonie pour une colonne. Chantier : les chantiers libres d'abord, puis les
+## plus proches de la fin, les avant-postes en dernier.
+static func colony_sort_key(c: Dictionary, key: String, free: Array) -> Variant:
+	match key:
+		"name":
+			return String(c["name"]).to_lower()
+		"type":
+			return String(c["type_label"]).to_lower()
+		"pop":
+			return int(c["population"]) if c["established"] else -1
+		"build":
+			if free.has(int(c["planet_id"])):
+				return -1
+			return int(c["construction_days"]) if String(c["construction"]) != "" else 100000
+		"net":
+			var n := 0
+			for k: String in (c["net"] as Dictionary):
+				n += int(c["net"][k])
+			return n
+	return 0
+
+
+func _refresh_colony_heads() -> void:
+	for i in _col_heads.size():
+		var key := String(COLONY_COLUMNS[i][0])
+		var text := String(COLONY_COLUMNS[i][1])
+		if key == "build" and colony_filter == "biosphere":
+			text = "Biosphère  →  équilibre"
+		if key == colony_sort and colony_filter != "biosphere":
+			text += "  ▾" if colony_sort_desc else "  ▴"
+		_col_heads[i].text = text.to_upper()
+		_col_heads[i].add_theme_color_override("font_color", UiTheme.ACCENT if key == colony_sort and colony_filter != "biosphere" else UiTheme.TEXT_DIM)
+
+
 func set_colony_filter(f: String) -> void:
 	colony_filter = f
 	for id in _filter_tabs:
@@ -509,41 +675,18 @@ func _build_peoples_side() -> void:
 	if not _state.peoples_on:
 		return
 	var cnt := Peoples.empire_counts(_state, _player)
-	if cnt.size() <= 1:
-		_build_moves_side()
-		return
 	_side_box.add_child(HSeparator.new())
 	_side_box.add_child(UiTheme.section("Peuples de l'empire"))
-	var g := _grid()
-	_side_box.add_child(g)
-	var keys := cnt.keys()
-	keys.sort_custom(func(a: String, b: String) -> bool:
-		return int(cnt[a]) > int(cnt[b]) or (int(cnt[a]) == int(cnt[b]) and a < b))
-	var colonists := Peoples.colonist_species(_state, _player)
-	var coll := {}
-	for entry: Dictionary in Peoples.collections(_state, _player):
-		coll[entry["species"]] = entry
-	for fid: String in keys:
-		var bits := PackedStringArray()
-		if fid == Peoples.founder_of(_state, _player):
-			bits.append("fondateurs")
-		elif colonists.has(fid):
-			bits.append("colons")
-		if coll.has(fid):
-			var en: Dictionary = coll[fid]
-			bits.append("collection %s : +%d %% %s" % [["I", "II", "III"][clampi(int(en["tier"]) - 1, 0, 2)], int(en["pct"]),
-					GameData.resource_label(String(en["resource"])).to_lower()])
-		var shown := "%d" % int(cnt[fid])
-		if coll.has(fid):
-			shown += "  · +%d %% %s" % [int(coll[fid]["pct"]), GameData.resource_label(String(coll[fid]["resource"])).to_lower()]
-		var v := _key_value(g, Peoples.label(fid), shown)
-		v.tooltip_text = ", ".join(bits) if not bits.is_empty() else "Moins de %d habitants : ni colons ni collection." % int(Peoples.data().get("colonize_min", 2))
-		v.mouse_filter = Control.MOUSE_FILTER_STOP
-	_build_status_rows(keys)
-	_side_box.add_child(UiTheme.paragraph("Chaque espèce garde son corps, ses biomes et ses talents. Avec %d habitants, elle peut fonder des colonies ; à %s, elle donne un bonus de collection." % [
-			int(Peoples.data().get("colonize_min", 2)), "/".join(PackedStringArray(Array(Peoples.data().get("collection_tiers", [10, 25, 50])).map(func(x: Variant) -> String: return str(int(x)))))],
-			SIDE_WIDTH - 24.0, 12))
-	_build_moves_side()
+	_side_box.add_child(UiTheme.paragraph("%d espèce%s %s dans l'empire. Effectifs, statuts et accueil des réfugiés se règlent dans l'onglet Peuples." % [
+			cnt.size(), "s" if cnt.size() > 1 else "", "vivent" if cnt.size() > 1 else "vit"], SIDE_WIDTH - 24.0, 13))
+	var b := Button.new()
+	b.theme_type_variation = &"BarButton"
+	b.focus_mode = Control.FOCUS_NONE
+	b.text = "VOIR LES PEUPLES"
+	b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	b.pressed.connect(func() -> void: show_address("peoples"))
+	_side_box.add_child(b)
+	peoples_buttons["open"] = b
 
 
 ## Mouvements (lot 3) : politique d'accueil, revendication d'une diaspora, talents de peuples mêlés.
@@ -600,52 +743,8 @@ func _build_moves_side() -> void:
 		_side_box.add_child(p)
 
 
-## Statut de chaque autre espèce (lot 2) : un menu par espèce, l'intégration moyenne, la doléance.
-@warning_ignore("integer_division")
-func _build_status_rows(keys: Array) -> void:
-	var own := Peoples.founder_of(_state, _player)
-	var rows := VBoxContainer.new()
-	rows.add_theme_constant_override("separation", 4)
-	for fid: String in keys:
-		if fid == own:
-			continue
-		var row := HBoxContainer.new()
-		var name_l := Label.new()
-		var integ := Peoples.empire_integration(_state, _player, fid)
-		name_l.text = "%s · %d %%" % [Peoples.label(fid), integ] if integ >= 0 else Peoples.label(fid)
-		name_l.tooltip_text = "Intégration moyenne des %s dans l'empire : elle monte chaque année, sauf pour les assujettis et les expulsés. Sous 50 %%, ils produisent moins et pèsent sur la stabilité." % Peoples.label(fid)
-		name_l.mouse_filter = Control.MOUSE_FILTER_STOP
-		name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(name_l)
-		var ob := OptionButton.new()
-		ob.custom_minimum_size = Vector2(130, 0)
-		var cur := Peoples.status(_state, _player, fid)
-		var allowed := Peoples.allowed_statuses(_state, _player, fid)
-		var ids: Array[String] = []
-		for st in allowed:
-			ob.add_item(Peoples.status_label(st))
-			ob.set_item_tooltip(ids.size(), String(Peoples.status_def(st).get("text", "")))
-			ids.append(st)
-		ob.selected = ids.find(cur)
-		var nx := Peoples.next_change(_state, _player, fid)
-		if _state.tick < nx:
-			ob.disabled = true
-			ob.tooltip_text = "Statut changé récemment : prochain changement le %s." % GameCalendar.date_string(nx)
-		else:
-			ob.tooltip_text = "Statut des %s (modifiable tous les %d ans)." % [Peoples.label(fid), int(Peoples.data().get("status_days", 1800)) / 360]
-		ob.item_selected.connect(func(i: int) -> void:
-			if ids[i] != cur:
-				command_requested.emit(SimCommands.peoples_status(_player, fid, ids[i]))
-				ob.disabled = true)
-		row.add_child(ob)
-		rows.add_child(row)
-	if rows.get_child_count() == 0:
-		return
-	_side_box.add_child(UiTheme.section("Statuts"))
-	_side_box.add_child(rows)
-	var d := Peoples.rights_demand(_state, _player)
-	if not d.is_empty():
-		_side_box.add_child(UiTheme.paragraph("Doléance : les %s réclament la citoyenneté avant le %s." % [Peoples.label(String(d["fid"])), GameCalendar.date_string(int(d["end"]))], SIDE_WIDTH - 24.0, 12))
+## Au-delà de ce nombre de caractères, la valeur d'une ligne de la colonne de gauche est coupée.
+const KEY_VALUE_MAX := 20
 
 
 func _key_value(grid: GridContainer, key: String, value := "") -> Label:
@@ -657,6 +756,14 @@ func _key_value(grid: GridContainer, key: String, value := "") -> Label:
 	v.theme_type_variation = &"Numbers"
 	v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	v.text = value
+	# Une valeur longue ne doit pas élargir la colonne de gauche par-dessus le contenu : elle est coupée,
+	# le texte entier reste dans l'infobulle.
+	if value.length() > KEY_VALUE_MAX:
+		v.clip_text = true
+		v.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		v.custom_minimum_size = Vector2(SIDE_WIDTH * 0.52, 0)
+		v.tooltip_text = value
+		v.mouse_filter = Control.MOUSE_FILTER_STOP
 	grid.add_child(v)
 	return v
 
@@ -746,11 +853,11 @@ func _build_economy() -> void:
 	table.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(table)
 	var grid := GridContainer.new()
-	grid.columns = 6
-	grid.add_theme_constant_override("h_separation", 18)
+	grid.columns = 7
+	grid.add_theme_constant_override("h_separation", 16)
 	grid.add_theme_constant_override("v_separation", 10)
 	table.body.add_child(grid)
-	for h in ["", "Stock", "Production", "Entretien", "Bilan / mois", "Tendance"]:
+	for h in ["", "Stock", "Production", "Entretien", "Bilan / mois", "Tendance", "24 mois"]:
 		var l := UiTheme.section(h)
 		if h != "":
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -758,7 +865,7 @@ func _build_economy() -> void:
 	for r in GameData.resource_ids():
 		var name_box := HBoxContainer.new()
 		name_box.add_theme_constant_override("separation", 8)
-		name_box.custom_minimum_size = Vector2(170, 0)
+		name_box.custom_minimum_size = Vector2(150, 0)
 		name_box.add_child(ResourceIcon.make(r, 20))
 		var name_l := Label.new()
 		name_l.text = GameData.resource_label(r)
@@ -771,10 +878,14 @@ func _build_economy() -> void:
 			l.theme_type_variation = &"Numbers"
 			l.add_theme_font_size_override("font_size", 20 if i < 4 else 14)
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-			l.custom_minimum_size = Vector2(76 if i < 4 else 150, 0)
+			l.custom_minimum_size = Vector2(68 if i < 4 else 124, 0)
 			grid.add_child(l)
 			labels.append(l)
 		_res_rows[r] = labels
+		var curve := Widgets.Sparkline.new(100, 26)
+		curve.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		grid.add_child(curve)
+		res_curves[r] = curve
 
 	var share := Widgets.Block.new("Répartition de la production")
 	share.custom_minimum_size = Vector2(380, 0)
@@ -809,8 +920,10 @@ func _build_economy() -> void:
 	var alerts := Widgets.Block.new("Alertes")
 	alerts.custom_minimum_size = Vector2(380, 0)
 	bottom.add_child(alerts)
-	_alerts = UiTheme.paragraph("", 340, 15)
+	_alerts = VBoxContainer.new()
+	_alerts.add_theme_constant_override("separation", 12)
 	alerts.body.add_child(_alerts)
+	_alerts_sig = "-"
 
 
 func _refresh_economy() -> void:
@@ -835,7 +948,7 @@ func _refresh_economy() -> void:
 		var trend := ""
 		var col := UiTheme.TEXT_DIM
 		if int(r["months_left"]) >= 0:
-			trend = "épuisé dans %d mois" % r["months_left"]
+			trend = "épuisé dans %d mois" % r["months_left"] if int(r["stock"]) > 0 else "stock vide"
 			col = UiTheme.WARN if int(r["months_left"]) > 2 else UiTheme.BAD
 		elif int(r["net"]) > 0:
 			trend = "en hausse"
@@ -847,6 +960,7 @@ func _refresh_economy() -> void:
 			labels[2].mouse_filter = Control.MOUSE_FILTER_STOP
 		labels[5].text = trend
 		labels[5].add_theme_color_override("font_color", col)
+		(res_curves[r["id"]] as Widgets.Sparkline).set_values(me.ledger.get(r["id"], []), ResourceIcon.color_of(r["id"]))
 		# Anneau : part de chaque ressource dans la production brute.
 		var rc := ResourceIcon.color_of(r["id"])
 		parts.append({"value": float(r["gross"]), "color": rc})
@@ -867,18 +981,7 @@ func _refresh_economy() -> void:
 		_donut_legend.add_child(leg)
 	_donut.set_parts(parts, str(gross_total))
 
-	var alerts := PackedStringArray()
-	if me.starving:
-		alerts.append("Famine : les réserves de nourriture sont vides et la population décline. Construisez des fermes ou colonisez un monde fertile.")
-	if me.blackout:
-		alerts.append("Pénurie d'énergie : tous les chantiers sont à l'arrêt tant que le stock reste vide.")
-	for r: Dictionary in EmpireReport.resources(_state, _player):
-		if int(r["months_left"]) >= 0 and int(r["months_left"]) <= 6 and int(r["stock"]) > 0:
-			alerts.append("%s : épuisé dans %d mois à ce rythme." % [r["label"], r["months_left"]])
-	if alerts.is_empty():
-		alerts.append("Aucune crise en vue. Les comptables de l'empire s'ennuient, ce qui est bon signe.")
-	_alerts.text = "\n\n".join(alerts)
-	_alerts.add_theme_color_override("font_color", UiTheme.BAD if me.starving or me.blackout else UiTheme.TEXT_DIM)
+	_refresh_alerts()
 
 	_faction_art.set_caption(me.short_name(), 30)
 	_trait.text = EmpireBar.trait_summary(me.faction())
@@ -889,6 +992,73 @@ func _refresh_economy() -> void:
 	(_totals["systems"] as Label).text = str(t["systems"])
 	(_totals["founding"] as Label).text = "%d / %d" % [t["founding"], t["max_projects"]]
 	_refresh_system_rows()
+
+
+## Alertes du bilan : [{text, planet, bad}]. planet = colonie en cause (-1 si aucune), où mène le lien.
+static func economy_alerts(state: GameState, player: int) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var me := state.get_empire(player)
+	if me == null:
+		return out
+	var cols := EmpireReport.colonies(state, player)
+	if me.starving:
+		var big := -1
+		var pop := -1
+		for c: Dictionary in cols:
+			if bool(c["established"]) and int(c["population"]) > pop:
+				pop = int(c["population"])
+				big = int(c["planet_id"])
+		out.append({"bad": true, "planet": big, "text": "Famine : les réserves de nourriture sont vides et la population décline. Construisez des fermes ou colonisez un monde fertile."})
+	if me.blackout:
+		out.append({"bad": true, "planet": _worst_colony(cols, "energy"), "text": "Pénurie d'énergie : tous les chantiers sont à l'arrêt tant que le stock reste vide."})
+	for r: Dictionary in EmpireReport.resources(state, player):
+		if int(r["months_left"]) >= 0 and int(r["months_left"]) <= 6 and int(r["stock"]) > 0:
+			out.append({"bad": false, "planet": _worst_colony(cols, String(r["id"])),
+					"text": "%s : épuisé dans %d mois à ce rythme." % [r["label"], r["months_left"]]})
+	return out
+
+
+## Colonie au plus mauvais bilan pour cette ressource (-1 si aucune n'est en déficit).
+static func _worst_colony(cols: Array[Dictionary], res: String) -> int:
+	var worst := -1
+	var low := 0
+	for c: Dictionary in cols:
+		var n := int((c["net"] as Dictionary).get(res, 0))
+		if n < low:
+			low = n
+			worst = int(c["planet_id"])
+	return worst
+
+
+func _refresh_alerts() -> void:
+	var list := economy_alerts(_state, _player)
+	var sig := str(list)
+	if sig == _alerts_sig:
+		return
+	_alerts_sig = sig
+	for c in _alerts.get_children():
+		_alerts.remove_child(c)
+		c.queue_free()
+	alert_links.clear()
+	if list.is_empty():
+		_alerts.add_child(UiTheme.paragraph("Aucune crise en vue. Les comptables de l'empire s'ennuient, ce qui est bon signe.", 340, 15))
+		return
+	for a: Dictionary in list:
+		var text := UiTheme.paragraph(String(a["text"]), 340, 15)
+		text.add_theme_color_override("font_color", UiTheme.BAD if bool(a["bad"]) else UiTheme.WARN)
+		_alerts.add_child(text)
+		var pid := int(a["planet"])
+		if pid < 0 or not _state.colonies.has(pid):
+			continue
+		var b := Button.new()
+		b.theme_type_variation = &"BarButton"
+		b.focus_mode = Control.FOCUS_NONE
+		b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		b.text = "VOIR %s" % _state.galaxy.get_planet(pid).display_name(_state.galaxy).to_upper()
+		b.tooltip_text = "Ouvrir la colonie en cause"
+		b.pressed.connect(func() -> void: planet_requested.emit(pid))
+		_alerts.add_child(b)
+		alert_links.append(b)
 
 
 ## Une ligne par système de l'empire : nom, revendications, bilan. Un clic ouvre sa vue système.
@@ -1002,13 +1172,24 @@ func _build_colonies() -> void:
 	var indent := Control.new()
 	indent.custom_minimum_size = Vector2(12, 0)  # même retrait que le texte des lignes
 	header.add_child(indent)
-	var titles := ["Planète", "Type", "Population", "Chantier", "Bilan par mois"]
-	for i in titles.size():
-		var l := UiTheme.section(titles[i])
+	# En-têtes cliquables : un clic trie, un second inverse, un troisième rend l'ordre de l'empire.
+	_col_heads.clear()
+	for i in COLONY_COLUMNS.size():
+		var l := Button.new()
+		l.flat = true
+		l.theme_type_variation = &"SortHead"
+		l.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		l.focus_mode = Control.FOCUS_NONE
+		l.add_theme_font_override("font", UiTheme.section("").get_theme_font("font"))
+		l.add_theme_font_size_override("font_size", 13)
+		l.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 		l.custom_minimum_size = Vector2(COLUMN_WIDTHS[i], 0)
+		l.tooltip_text = "Trier par cette colonne"
+		var key := String(COLONY_COLUMNS[i][0])
+		l.pressed.connect(func() -> void: sort_colonies(key))
 		header.add_child(l)
-		if i == 3:
-			_col_head_build = l
+		_col_heads.append(l)
+	_refresh_colony_heads()
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -1075,13 +1256,21 @@ func _refresh_colonies() -> void:
 			var ha := Ecology.health(_state, int(a["planet_id"]))
 			var hb := Ecology.health(_state, int(b["planet_id"]))
 			return ha < hb or (ha == hb and int(a["planet_id"]) < int(b["planet_id"])))
+	elif colony_sort != "":
+		var free := TurnChecks.free_yards(_state, _player)
+		list.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			var ka: Variant = colony_sort_key(a, colony_sort, free)
+			var kb: Variant = colony_sort_key(b, colony_sort, free)
+			if ka == kb:
+				return int(a["planet_id"]) < int(b["planet_id"])
+			return ka > kb if colony_sort_desc else ka < kb)
 	_refresh_eco_side()
-	if _col_head_build != null:
-		_col_head_build.text = ("Biosphère  →  équilibre" if colony_filter == "biosphere" else "Chantier").to_upper()
+	_refresh_colony_heads()
 	var ids := PackedStringArray()
 	for c in list:
 		ids.append(str(c["planet_id"]))
 	var sig := colony_filter + ":" + ",".join(ids)
+	_free_yards = TurnChecks.free_yards(_state, _player)
 	if sig != _col_sig:
 		_col_sig = sig
 		_rebuild_colony_rows(list)
@@ -1221,6 +1410,10 @@ func _fill_colony_row(row: Dictionary, c: Dictionary) -> void:
 	(cells[2] as Label).add_theme_color_override("font_color", UiTheme.WARN if not c["established"] else UiTheme.TEXT)
 	(cells[3] as Label).text = "%s (%d j)" % [c["construction"], c["construction_days"]] if c["construction"] != "" else "—"
 	(cells[3] as Label).add_theme_color_override("font_color", UiTheme.TEXT if c["construction"] != "" else UiTheme.TEXT_DIM)
+	if c["construction"] == "" and _free_yards.has(int(c["planet_id"])):
+		# Chantier vide alors qu'on peut y bâtir : la colonne le dit (C2).
+		(cells[3] as Label).text = "LIBRE"
+		(cells[3] as Label).add_theme_color_override("font_color", UiTheme.WARN)
 	if colony_filter == "biosphere":
 		# Onglet Biosphères : la colonne Chantier montre la jauge, sa tendance et son palier.
 		var pid := int(c["planet_id"])
@@ -1272,6 +1465,15 @@ func _build_research() -> void:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 6)
 	_content.add_child(col)
+	research_queue_bar = null
+	if not Insolites.no_research(_state, _player):
+		research_queue_bar = ResearchQueueBar.new()
+		col.add_child(research_queue_bar)
+		research_queue_bar.tech_picked.connect(func(tid: String) -> void: research_tree.select(tid))
+		research_queue_bar.remove_requested.connect(func(tid: String) -> void: command_requested.emit(SimCommands.research_remove(_player, tid)))
+		research_queue_bar.move_requested.connect(func(tid: String, to: int) -> void:
+			if Research.check_move(_state, _player, tid, to) == "":
+				command_requested.emit(SimCommands.research_move(_player, tid, to)))
 	col.add_child(_research_toolbar())
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -1298,6 +1500,8 @@ func _build_research() -> void:
 var research_filter := {"field": "", "kind": "", "text": "", "mine": false}
 var research_zoom := 1.0
 var research_path: Array[String] = []
+## File de recherche en bandeau, au-dessus de l'arbre (null pour un peuple qui n'invente rien).
+var research_queue_bar: ResearchQueueBar
 
 
 ## Barre au-dessus de l'arbre : recherche par nom, champ, « ce que ça débloque », Mon peuple, zoom.
@@ -1455,9 +1659,8 @@ func _fill_research_side() -> void:
 		ll.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 		_side_box.add_child(ll)
 
-	if not e.research_queue.is_empty():
-		_side_box.add_child(UiTheme.section("File de recherche"))
-		_side_box.add_child(_queue_chips(e, income))
+	if research_queue_bar != null and is_instance_valid(research_queue_bar):
+		research_queue_bar.fill(_state, _player)
 	_fill_tech_panel()
 
 
@@ -1481,47 +1684,6 @@ func _fill_research_catalogue(e: Empire) -> void:
 	hint.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 	_side_box.add_child(hint)
 	_fill_tech_panel()
-
-
-## File de recherche en pastilles rondes, à la manière d'Endless Space 2 : une pastille par
-## technologie (couleur du domaine, rang dans la file), et sous chacune les mois avant qu'elle soit
-## achevée à ce rythme. Clic : sa fiche.
-func _queue_chips(e: Empire, income: int) -> Control:
-	var flow := HFlowContainer.new()
-	flow.add_theme_constant_override("h_separation", 6)
-	flow.add_theme_constant_override("v_separation", 4)
-	var left := 0
-	for i in e.research_queue.size():
-		var tid := e.research_queue[i]
-		var t := Research.tech(tid)
-		left += Research.cost(_state, _player, tid) - (e.research_progress if i == 0 else int(e.research_shelf.get(tid, 0)))
-		var col := Color.html(String(Research.domain(String(t["domain"])).get("color", "#ffffff")))
-		var cell := VBoxContainer.new()
-		cell.add_theme_constant_override("separation", 0)
-		var b := Button.new()
-		b.focus_mode = Control.FOCUS_NONE
-		b.custom_minimum_size = Vector2(38, 38)
-		b.text = str(i + 1)
-		b.add_theme_font_override("font", UiTheme.numbers_font())
-		b.add_theme_font_size_override("font_size", 15)
-		var st := UiTheme.box(Color(col.darkened(0.6), 0.9 if i == 0 else 0.6), Color(col, 0.95 if i == 0 else 0.6), 0, 2)
-		st.set_corner_radius_all(19)
-		st.corner_detail = 12
-		b.add_theme_stylebox_override("normal", st)
-		var hv := st.duplicate() as StyleBoxFlat
-		hv.bg_color = Color(col.darkened(0.3), 0.9)
-		b.add_theme_stylebox_override("hover", hv)
-		b.add_theme_stylebox_override("pressed", hv)
-		@warning_ignore("integer_division")
-		var months := (left + income - 1) / income if income > 0 else -1
-		b.tooltip_text = "%s\n%s" % [t.get("label", tid), "achevée dans %d mois environ" % months if months >= 0 else "le Savoir manque"]
-		b.pressed.connect(func() -> void: research_tree.select(tid))
-		cell.add_child(b)
-		var m := UiTheme.dim("%d m" % months if months >= 0 else "?", 12)
-		m.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		cell.add_child(m)
-		flow.add_child(cell)
-	return flow
 
 
 ## Fiche de la technologie choisie, en bas à gauche par-dessus la colonne (comme dans Endless Space 2).
@@ -1556,6 +1718,13 @@ func _tech_detail(tid: String) -> Control:
 	var sub := UiTheme.dim("%s%s  ·  ère %d  ·  %d Savoir" % [dom.get("label", ""), (" · " + fld) if fld != "" else "", int(t["era"]), Research.cost(_state, _player, tid)], 13)
 	sub.add_theme_color_override("font_color", Color.html(String(dom.get("color", "#ffffff"))).lightened(0.2))
 	box.add_child(sub)
+	# Refonte E2 : la chose telle qu'elle existe dans l'univers d'abord, puis, à part, ce qu'elle fait en jeu.
+	if String(t.get("lore", "")) != "":
+		var lore := UiTheme.paragraph(String(t["lore"]), SIDE_WIDTH - 24.0, 14)
+		lore.add_theme_color_override("font_color", Color(UiTheme.TEXT, 0.82))
+		lore.name = "Lore"
+		box.add_child(lore)
+		box.add_child(Widgets.NotchHeader.new("En jeu", 12))
 	box.add_child(UiTheme.paragraph(String(t.get("text", "")), SIDE_WIDTH - 24.0, 14))
 	var unlocks := Research.unlocks(f, tid)
 	if not unlocks.is_empty():
@@ -1627,7 +1796,8 @@ func _tech_detail(tid: String) -> Control:
 		var h := UiTheme.paragraph(String(t["heretic"].get("text", "Hérétique pour votre peuple.")), SIDE_WIDTH - 24.0, 13)
 		h.add_theme_color_override("font_color", UiTheme.BAD)
 		box.add_child(h)
-	if t.has("flavor"):
+	# Une technologie décrite ne garde son bon mot que si elle est marquée « quote » (une sur dix au plus).
+	if Research.shows_flavor(t):
 		var fl := UiTheme.paragraph("« %s »" % t["flavor"], SIDE_WIDTH - 24.0, 13)
 		fl.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 		box.add_child(fl)
@@ -1736,6 +1906,9 @@ func _build_diplomacy() -> void:
 	var left := Widgets.Block.new("Galaxie diplomatique")
 	left.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	row.add_child(left)
+	if not UiDomains.offered(_state, _player, "diplomacy:" + diplo_tab):
+		diplo_tab = "empires"
+	left.visible = diplo_tab == "empires"
 	diplo_table = DiplomacyTable.new(430.0)
 	left.body.add_child(diplo_table)
 	diplo_table.setup(_state, _player, diplo_selected)
@@ -1751,6 +1924,17 @@ func _build_diplomacy() -> void:
 		pair.add_child(UiTheme.dim(Diplomacy.status_label(st), 13))
 		legend.add_child(pair)
 	left.body.add_child(legend)
+	var leagues := diplo_table.league_legend()
+	if not leagues.is_empty():
+		var ll := HFlowContainer.new()
+		ll.add_theme_constant_override("h_separation", 12)
+		for lg: Array in leagues:
+			var lp := HBoxContainer.new()
+			lp.add_theme_constant_override("separation", 4)
+			lp.add_child(Widgets.Dot.new(lg[1], 10))
+			lp.add_child(UiTheme.dim(String(lg[0]), 13))
+			ll.add_child(lp)
+		left.body.add_child(ll)
 
 	# Colonne de droite défilante : relation, sujets, Koinon peuvent dépasser l'écran.
 	var right_scroll := ScrollContainer.new()
@@ -1765,16 +1949,24 @@ func _build_diplomacy() -> void:
 	right_scroll.add_child(right)
 	var props := Diplomacy.proposals_for(_state, _player)
 	if not props.is_empty():
-		right.add_child(_proposals_block(props))
-	right.add_child(_relation_block(diplo_selected))
+		var pb := _proposals_block(props)
+		pb.visible = diplo_tab == "empires"
+		right.add_child(pb)
+	var rel := _relation_block(diplo_selected)
+	rel.visible = diplo_tab == "empires"
+	right.add_child(rel)
+	# Ligue et Voisins ont leur onglet (refonte, C18 et C19) : construits ici, montrés selon l'onglet.
 	var kb := KoinonUi.league_block(_state, _player, _vassal_emit, koinon_buttons, koinon_draft)
 	if kb != null:
+		kb.visible = diplo_tab == "league"
 		right.add_child(kb)
 	var ab := AncientsUi.block(_state, _player, _vassal_emit, koinon_buttons, koinon_draft)
 	if ab != null:
+		ab.visible = diplo_tab == "neighbors"
 		right.add_child(ab)
 	var mb := MinorsUi.block(_state, _player, _vassal_emit, koinon_buttons, koinon_draft)
 	if mb != null:
+		mb.visible = diplo_tab == "neighbors"
 		right.add_child(mb)
 
 
@@ -1892,29 +2084,60 @@ func _relation_block(id: int) -> Control:
 		blk.body.add_child(UiTheme.paragraph("Aucun contact : vos éclaireurs n'ont pas encore croisé cet empire." if not e.eliminated else "Cet empire a disparu de la galaxie.", 520, 14))
 		return blk
 
+	# Trois volets (refonte, C16) : Relation, Traiter, Guerre. Tous construits, un seul montré.
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 6)
+	blk.body.add_child(tabs)
+	var p_rel := VBoxContainer.new()
+	var p_deal := VBoxContainer.new()
+	var p_war := VBoxContainer.new()
+	diplo_panes = {"relation": p_rel, "deal": p_deal, "war": p_war}
+	diplo_pane_buttons = {}
+	for pn in [["relation", "Relation"], ["deal", "Traiter"], ["war", "Guerre"]]:
+		var pid := String(pn[0])
+		var pb := Button.new()
+		pb.theme_type_variation = &"TabButton"
+		pb.toggle_mode = true
+		pb.focus_mode = Control.FOCUS_NONE
+		pb.text = String(pn[1]).to_upper()
+		pb.add_theme_font_size_override("font_size", 13)
+		pb.set_pressed_no_signal(pid == diplo_pane)
+		pb.pressed.connect(func() -> void: set_diplo_pane(pid))
+		tabs.add_child(pb)
+		diplo_pane_buttons[pid] = pb
+		var pane: VBoxContainer = diplo_panes[pid]
+		pane.add_theme_constant_override("separation", 8)
+		pane.visible = pid == diplo_pane
+		blk.body.add_child(pane)
+	var acts_deal := HFlowContainer.new()
+	var acts_war := HFlowContainer.new()
+	for fl: HFlowContainer in [acts_deal, acts_war]:
+		fl.add_theme_constant_override("h_separation", 10)
+		fl.add_theme_constant_override("v_separation", 6)
+
 	# Opinions, détaillées dans l'infobulle.
 	var g := _grid(2)
-	blk.body.add_child(g)
+	p_rel.add_child(g)
 	_opinion_row(g, "Son opinion de vous", id, _player)
 	_opinion_row(g, "Votre opinion de lui", _player, id)
 	for ab in Diplomacy.faction_abilities(e.faction()):
 		var t := UiTheme.paragraph("%s. %s" % [ab["label"], ab["text"]], 520, 13)
 		t.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
-		blk.body.add_child(t)
+		p_rel.add_child(t)
 	if InsSilencieux.is_silent(_state, id):  # la directive des Silencieux est affichée à tous (prop. 74)
 		var dt := UiTheme.paragraph(InsSilencieux.directive_text(_state, id), 520, 13)
 		dt.add_theme_color_override("font_color", UiTheme.WARN)
-		blk.body.add_child(dt)
+		p_rel.add_child(dt)
 	if Diplomacy.has_heir(_state, id):
-		blk.body.add_child(UiTheme.dim("Loyauté de son héritier : %d / 100" % e.heir_loyalty, 13))
+		p_rel.add_child(UiTheme.dim("Loyauté de son héritier : %d / 100" % e.heir_loyalty, 13))
 
 	# Traités : un bouton par traité, avec ce que l'autre en pense (comme la barre d'Endless Space 2).
-	blk.body.add_child(UiTheme.section("Proposer"))
+	p_deal.add_child(UiTheme.section("Proposer"))
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 12)
 	grid.add_theme_constant_override("v_separation", 6)
-	blk.body.add_child(grid)
+	p_deal.add_child(grid)
 	for t in Diplomacy.TREATY_IDS:
 		if t == Diplomacy.MIGRATION and not _state.peoples_on:
 			continue
@@ -1956,19 +2179,21 @@ func _relation_block(id: int) -> Control:
 		verdict.custom_minimum_size = Vector2(240, 0)
 		grid.add_child(verdict)
 	# Frontières : accès dans les deux sens, politique, intrus (voir BordersUi).
-	blk.body.add_child(BordersUi.relation(_state, _player, id, _vassal_emit, border_buttons))
+	p_rel.add_child(BordersUi.relation(_state, _player, id, _vassal_emit, border_buttons))
 	# Buts de guerre : motifs, revendications, score en %, reddition sur but (voir WarsUi).
-	blk.body.add_child(WarsUi.relation(_state, _player, id, _vassal_emit, war_goal_buttons, war_draft))
+	p_war.add_child(WarsUi.relation(_state, _player, id, _vassal_emit, war_goal_buttons, war_draft))
 	# Paix à conditions, reddition, protection, sujets (voir VassalUi).
-	blk.body.add_child(VassalUi.relation(_state, _player, id, _vassal_emit, vassal_buttons, vassal_draft))
+	p_deal.add_child(VassalUi.relation(_state, _player, id, _vassal_emit, vassal_buttons, vassal_draft))
 	# Koinon : fonder, entrer, guerre commune, exclusion (voir KoinonUi).
-	blk.body.add_child(KoinonUi.relation(_state, _player, id, _vassal_emit, koinon_buttons, koinon_draft))
+	p_deal.add_child(KoinonUi.relation(_state, _player, id, _vassal_emit, koinon_buttons, koinon_draft))
 
 	# Rompre, déclarer, intriguer, arbitrer.
 	var acts := HFlowContainer.new()
 	acts.add_theme_constant_override("h_separation", 10)
 	acts.add_theme_constant_override("v_separation", 6)
-	blk.body.add_child(acts)
+	p_rel.add_child(acts)
+	p_deal.add_child(acts_deal)
+	p_war.add_child(acts_war)
 	for t in [Diplomacy.ALLIANCE, Diplomacy.PEACE, Diplomacy.TRADE, Diplomacy.MIGRATION, Diplomacy.PASSAGE, Diplomacy.PROSP]:
 		var label: String = {"alliance": "QUITTER L'ALLIANCE", "peace": "DÉNONCER LA PAIX", "trade": "ROMPRE LE COMMERCE", "migration": "FERMER LA MIGRATION",
 				"passage": "DÉNONCER LE LIBRE-PASSAGE", "prosp": "FIN DE LA PROSPECTION"}[t]
@@ -2028,7 +2253,7 @@ func _relation_block(id: int) -> Control:
 				command_requested.emit(SimCommands.declare_war(_player, target, String(c[0]), String(c[1]), brk))
 			else:
 				war_requested.emit(target))
-		acts.add_child(war)
+		acts_war.add_child(war)
 		war_buttons[id] = war
 	if Diplomacy.has_heir(_state, id):
 		var b := Button.new()
@@ -2038,7 +2263,7 @@ func _relation_block(id: int) -> Control:
 		b.disabled = why != ""
 		b.tooltip_text = why if why != "" else "Sa loyauté baisse de %d. À 0, il vous livre son fief le plus lointain. Ils le sauront." % int(Diplomacy.ability("heir")["bribe_loss"])
 		b.pressed.connect(func() -> void: command_requested.emit(SimCommands.bribe_heir(_player, id)))
-		acts.add_child(b)
+		acts_deal.add_child(b)
 		ability_buttons["bribe"] = b
 	# Flottes à louer : le syndicat propose ses flottes, ou le client les engage.
 	if Diplomacy.has_ability(_state, _player, "mercenary") and not e.eliminated:
@@ -2054,7 +2279,7 @@ func _relation_block(id: int) -> Control:
 					_state.get_empire(w).short_name(), e.short_name(), GameData.format_amounts(Diplomacy.contract_fee(_state, _player))]
 			var target := w
 			b.pressed.connect(func() -> void: command_requested.emit(SimCommands.contract(_player, _player, id, target)))
-			acts.add_child(b)
+			acts_deal.add_child(b)
 			ability_buttons["hire_out_%d" % w] = b
 	if Diplomacy.has_ability(_state, id, "mercenary") and not e.eliminated:
 		for w in me.wars:
@@ -2069,7 +2294,7 @@ func _relation_block(id: int) -> Control:
 					e.short_name(), _state.get_empire(w).short_name(), GameData.format_amounts(Diplomacy.contract_fee(_state, id))]
 			var target := w
 			b.pressed.connect(func() -> void: command_requested.emit(SimCommands.contract(_player, id, _player, target)))
-			acts.add_child(b)
+			acts_deal.add_child(b)
 			ability_buttons["hire_%d" % w] = b
 	if Victory.applies(_state, _player, "elu") and not Diplomacy.no_treaties(_state, id) and not e.eliminated:
 		var b := Button.new()
@@ -2081,7 +2306,7 @@ func _relation_block(id: int) -> Control:
 		b.tooltip_text = (why if why != "" else "Un pas vers l'Élu des routes : l'union tient tant que l'alliance tient.") if not united \
 				else "Vos maisons sont unies. Si l'alliance tombe, l'union tombe avec elle."
 		b.pressed.connect(func() -> void: command_requested.emit(SimCommands.unite_lineages(_player, id)))
-		acts.add_child(b)
+		acts_deal.add_child(b)
 		ability_buttons["union"] = b
 	if Diplomacy.has_ability(_state, _player, "mediation"):
 		for w in e.wars:
@@ -2095,9 +2320,68 @@ func _relation_block(id: int) -> Control:
 			b.tooltip_text = why if why != "" else "Les Veilleurs du Seuil imposent la paix (%s)." % GameData.format_amounts(Diplomacy.ability("mediation")["cost"])
 			var other := w
 			b.pressed.connect(func() -> void: command_requested.emit(SimCommands.mediate(_player, id, other)))
-			acts.add_child(b)
+			acts_deal.add_child(b)
 			ability_buttons["mediate_%d" % w] = b
 	return blk
+
+
+## Rangée d'onglets d'un groupe de volets. `defs` : [[id, libellé], ...]. Tous les volets sont construits,
+## un seul est visible : pane_box(groupe, id) rend la colonne à remplir, que l'appelant place lui-même.
+func pane_row(group: String, defs: Array, fallback: String) -> HFlowContainer:
+	var tabs := HFlowContainer.new()
+	tabs.add_theme_constant_override("h_separation", 6)
+	tabs.add_theme_constant_override("v_separation", 4)
+	var cur := String(pane_current.get(group, fallback))
+	var known := false
+	for d: Array in defs:
+		known = known or String(d[0]) == cur
+	if not known:
+		cur = fallback
+	pane_current[group] = cur
+	var boxes := {}
+	var buttons := {}
+	for d: Array in defs:
+		var pid := String(d[0])
+		var pb := Button.new()
+		pb.theme_type_variation = &"TabButton"
+		pb.toggle_mode = true
+		pb.focus_mode = Control.FOCUS_NONE
+		pb.text = String(d[1]).to_upper()
+		pb.add_theme_font_size_override("font_size", 13)
+		pb.set_pressed_no_signal(pid == cur)
+		pb.pressed.connect(func() -> void: set_pane(group, pid))
+		tabs.add_child(pb)
+		buttons[pid] = pb
+		var box := VBoxContainer.new()
+		box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		box.add_theme_constant_override("separation", 18)
+		box.visible = pid == cur
+		boxes[pid] = box
+	panes[group] = {"boxes": boxes, "buttons": buttons}
+	return tabs
+
+
+func pane_box(group: String, id: String) -> VBoxContainer:
+	return panes[group]["boxes"][id]
+
+
+func set_pane(group: String, id: String) -> void:
+	if not panes.has(group) or not (panes[group]["boxes"] as Dictionary).has(id):
+		return
+	pane_current[group] = id
+	for k: String in panes[group]["boxes"]:
+		if is_instance_valid(panes[group]["boxes"][k]):
+			(panes[group]["boxes"][k] as Control).visible = k == id
+			(panes[group]["buttons"][k] as Button).set_pressed_no_signal(k == id)
+
+
+## Montre un volet de la fiche d'un empire : "relation", "deal" (Traiter) ou "war" (Guerre).
+func set_diplo_pane(pane: String) -> void:
+	diplo_pane = pane
+	for k: String in diplo_panes:
+		if is_instance_valid(diplo_panes[k]):
+			(diplo_panes[k] as Control).visible = k == pane
+			(diplo_pane_buttons[k] as Button).set_pressed_no_signal(k == pane)
 
 
 func _opinion_row(g: GridContainer, caption: String, who: int, about: int) -> void:
@@ -2178,24 +2462,137 @@ func _build_victory() -> void:
 	for id in mine:
 		_side_box.add_child(UiTheme.section(Victory.label(id)))
 		_side_box.add_child(UiTheme.paragraph(Victory.rule_text(id), SIDE_WIDTH - 24.0, 13))
-		_side_box.add_child(UiTheme.dim("La contrer : %s" % String(Victory.info(id).get("counter", "")), 12))
+		var counter := UiTheme.paragraph("La contrer : %s" % String(Victory.info(id).get("counter", "")), SIDE_WIDTH - 24.0, 12)
+		counter.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		_side_box.add_child(counter)
 	_side_box.add_child(UiTheme.paragraph(String(EmpireBar.screen_info("victory").get("why", "")), SIDE_WIDTH - 24.0, 13))
 
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_content.add_child(scroll)
+	var page := VBoxContainer.new()
+	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	page.add_theme_constant_override("separation", 18)
+	scroll.add_child(page)
+	page.add_child(_victory_ranking())
+	page.add_child(_victory_paths())
 	var cols := HFlowContainer.new()
 	cols.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cols.add_theme_constant_override("h_separation", 22)
 	cols.add_theme_constant_override("v_separation", 18)
-	scroll.add_child(cols)
+	var count := 0
 	for id in Victory.ids():
 		if not Victory.enabled(_state, id):
 			continue
 		if Victory.is_people(id) and not _victory_relevant(id):
 			continue
 		cols.add_child(_victory_block(id))
+		count += 1
+	var open := bool(pane_current.get("victory_detail", false))
+	victory_detail = Button.new()
+	victory_detail.toggle_mode = true
+	victory_detail.focus_mode = Control.FOCUS_NONE
+	victory_detail.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	victory_detail.text = "DÉTAIL DES %d VICTOIRES" % count
+	victory_detail.tooltip_text = "Chaque victoire, sa règle, et l'avancée de tous les empires connus."
+	victory_detail.set_pressed_no_signal(open)
+	cols.visible = open
+	victory_detail.toggled.connect(func(on: bool) -> void:
+		pane_current["victory_detail"] = on
+		cols.visible = on)
+	page.add_child(victory_detail)
+	page.add_child(cols)
+
+
+## Pour chaque empire encore en lice, sa victoire la plus avancée parmi celles qu'on peut lire :
+## [{empire, id, pct}], le plus avancé d'abord. id vide et pct -1 : rien de lisible chez lui.
+static func victory_leaders(state: GameState, viewer: int, empires: Array[Empire]) -> Array:
+	var out := []
+	for e in empires:
+		if e.eliminated:
+			continue
+		var best := {"empire": e.id, "id": "", "pct": -1}
+		for id in Victory.ids():
+			if id == Victory.SCORE or not Victory.applies(state, e.id, id):
+				continue
+			var pct := Victory.visible_pct(state, viewer, e.id, id)
+			if pct > int(best["pct"]):
+				best = {"empire": e.id, "id": id, "pct": pct}
+		out.append(best)
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a["pct"]) > int(b["pct"]) or (int(a["pct"]) == int(b["pct"]) and int(a["empire"]) < int(b["empire"])))
+	return out
+
+
+func _victory_line(name: String, name_color: Color, what: String, pct: int, fill_color: Color, tip: String) -> Control:
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 12)
+	line.mouse_filter = Control.MOUSE_FILTER_STOP
+	line.tooltip_text = tip
+	var nl := Label.new()
+	nl.text = name
+	nl.custom_minimum_size = Vector2(230, 0)
+	nl.clip_text = true
+	nl.add_theme_color_override("font_color", name_color)
+	line.add_child(nl)
+	if what != "":
+		var wl := Label.new()
+		wl.text = what
+		wl.custom_minimum_size = Vector2(250, 0)
+		wl.clip_text = true
+		line.add_child(wl)
+	var bar := ProgressBar.new()
+	bar.show_percentage = false
+	bar.custom_minimum_size = Vector2(260, 8)
+	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	bar.max_value = 100
+	bar.value = maxi(0, pct)
+	bar.add_theme_stylebox_override("fill", UiTheme.box(fill_color, Color(0, 0, 0, 0), 0, 0))
+	line.add_child(bar)
+	var val := Label.new()
+	val.theme_type_variation = &"Numbers"
+	val.custom_minimum_size = Vector2(56, 0)
+	val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	val.text = "%d %%" % pct if pct >= 0 else "?"
+	if pct >= Victory.met_at():
+		val.add_theme_color_override("font_color", UiTheme.WARN)
+	line.add_child(val)
+	return line
+
+
+## En tête de l'écran : qui est le plus près de gagner, et par quelle voie.
+func _victory_ranking() -> Control:
+	var blk := Widgets.Block.new("La course")
+	var viewer := -1 if see_all else _player
+	for r: Dictionary in victory_leaders(_state, viewer, _victory_empires()):
+		var e := _state.get_empire(int(r["empire"]))
+		var id := String(r["id"])
+		var tip := "Rien de lisible : une victoire ne se voit chez un rival qu'à partir de %d %%." % Victory.visible_at()
+		if id != "":
+			tip = "%s\n%s" % [Victory.rule_text(id), "\n".join(Victory.progress(_state, e.id, id)["lines"])]
+		blk.body.add_child(_victory_line(e.short_name() + (" (vous)" if e.id == _player and not see_all else ""), e.color().lightened(0.25),
+				Victory.label(id) if id != "" else "voie inconnue", int(r["pct"]), e.color(), tip))
+	return blk
+
+
+## Vos propres voies, de la plus avancée à la moins avancée.
+func _victory_paths() -> Control:
+	var blk := Widgets.Block.new("Vos voies")
+	var rows := []
+	for id in Victory.ids():
+		if id == Victory.SCORE or not Victory.applies(_state, _player, id):
+			continue
+		rows.append([int(Victory.progress(_state, _player, id)["pct"]), id])
+	rows.sort_custom(func(a: Array, b: Array) -> bool: return int(a[0]) > int(b[0]) or (int(a[0]) == int(b[0]) and String(a[1]) < String(b[1])))
+	var me := _state.get_empire(_player)
+	for r: Array in rows:
+		var id := String(r[1])
+		blk.body.add_child(_victory_line(Victory.label(id), UiTheme.GOLD if Victory.is_people(id) else UiTheme.TEXT, "", int(r[0]), me.color(),
+				"%s\n%s" % [Victory.rule_text(id), "\n".join(Victory.progress(_state, _player, id)["lines"])]))
+	if Victory.enabled(_state, Victory.SCORE):
+		blk.body.add_child(UiTheme.dim("À la date limite, le meilleur score l'emporte : le vôtre est de %d, le plus haut connu de %d." % [Victory.score(_state, _player), _best_score()], 13))
+	return blk
 
 
 ## Une victoire de peuple ne s'affiche que si un empire connu peut la viser.

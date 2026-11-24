@@ -10,6 +10,56 @@ const W := 760.0
 const INK := Color(0.78, 0.66, 0.42)
 
 
+## Jauge charge contre capacité, en tête de l'écran (refonte, C5).
+class Gauge:
+	extends Control
+	var charge := 0
+	var cap := 1
+	var step_pct := 25
+
+	func _init() -> void:
+		custom_minimum_size = Vector2(AdminUi.W, 46)
+
+	## Part de la barre remplie (la capacité est au milieu ; le double de la capacité remplit tout).
+	func fill_ratio() -> float:
+		return clampf(float(charge) / float(maxi(1, cap) * 2), 0.0, 1.0)
+
+	func _draw() -> void:
+		var w := size.x
+		var bar := Rect2(0, 18, w, 12)
+		draw_rect(bar, Color(1, 1, 1, 0.07))
+		draw_rect(Rect2(bar.position, Vector2(w * fill_ratio(), bar.size.y)), AdminUi.gauge_color(charge, cap))
+		var f := UiTheme.caps_font()
+		# Tranches de dépassement, à droite de la capacité.
+		var k := 1
+		while k * step_pct < 100:
+			var x := w * (0.5 + 0.5 * float(k * step_pct) / 100.0)
+			draw_line(Vector2(x, 18), Vector2(x, 30), Color(0, 0, 0, 0.45), 1.0)
+			draw_string(f, Vector2(x - 14, 44), "+%d %%" % (k * step_pct), HORIZONTAL_ALIGNMENT_LEFT, -1, 10, UiTheme.TEXT_DIM)
+			k += 1
+		draw_line(Vector2(w * 0.5, 12), Vector2(w * 0.5, 34), UiTheme.TEXT, 2.0)
+		draw_string(f, Vector2(w * 0.5 - 60, 10), "CAPACITÉ %d" % cap, HORIZONTAL_ALIGNMENT_CENTER, 120, 11, UiTheme.TEXT)
+		draw_string(f, Vector2(0, 10), "CHARGE %d" % charge, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, AdminUi.gauge_color(charge, cap))
+
+
+static func _gauge_block(state: GameState, player: int) -> Control:
+	var b := Widgets.Block.new("Charge et capacité")
+	var gz := Gauge.new()
+	gz.charge = Admin.load_of(state, player)
+	gz.cap = Admin.capacity(state, player)
+	gz.step_pct = maxi(5, Admin.d_int("over", "step_pct"))
+	gz.tooltip_text = "Le trait du milieu est la capacité : au-delà, chaque tranche de %d %% coûte de la stabilité, du Savoir et de l'influence." % Admin.d_int("over", "step_pct")
+	b.body.add_child(gz)
+	var over := Admin.over_pct(state, player)
+	var line := "Les bureaux tiennent la charge : il reste %d de marge." % (gz.cap - gz.charge) if over <= 0 else \
+			("La charge dépasse la capacité de %d %%, soit %d tranche%s de pénalité." % [over, Admin.steps(state, player), "s" if Admin.steps(state, player) > 1 else ""] if Admin.steps(state, player) > 0 \
+			else "La charge dépasse la capacité de %d %% : pas encore de pénalité, la première tranche tombe à +%d %%." % [over, Admin.d_int("over", "step_pct")])
+	var lp := UiTheme.paragraph(line, W, 13)
+	lp.add_theme_color_override("font_color", gauge_color(gz.charge, gz.cap) if over > 0 else UiTheme.TEXT_DIM)
+	b.body.add_child(lp)
+	return b
+
+
 static func build(es: EmpireScreens) -> void:
 	var state := es._state
 	var player := es._player
@@ -20,17 +70,6 @@ static func build(es: EmpireScreens) -> void:
 	var over := Admin.over_pct(state, player)
 	var gl := es._key_value(g, "Charge / capacité", "%d / %d" % [load, cap])
 	gl.add_theme_color_override("font_color", gauge_color(load, cap))
-	var bar := ProgressBar.new()
-	bar.min_value = 0
-	bar.max_value = maxi(1, cap) * 2
-	bar.value = mini(load, maxi(1, cap) * 2)
-	bar.show_percentage = false
-	bar.custom_minimum_size = Vector2(EmpireScreens.SIDE_WIDTH - 40.0, 12)
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = gauge_color(load, cap)
-	bar.add_theme_stylebox_override("fill", fill)
-	bar.tooltip_text = "La moitié de la barre est la capacité : au-delà, chaque tranche de %d %% coûte de la stabilité, du Savoir et de l'influence." % Admin.d_int("over", "step_pct")
-	es._side_box.add_child(bar)
 	var g2 := es._grid()
 	es._side_box.add_child(g2)
 	var n := Admin.steps(state, player)
@@ -75,6 +114,7 @@ static func build(es: EmpireScreens) -> void:
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.add_theme_constant_override("separation", 18)
 	scroll.add_child(col)
+	col.add_child(_gauge_block(state, player))
 	col.add_child(_effort_block(es))
 	col.add_child(_breakdown_block(state, player))
 	if Admin.full(state):
@@ -129,7 +169,7 @@ static func _effort_block(es: EmpireScreens) -> Control:
 
 
 static func _breakdown_block(state: GameState, player: int) -> Control:
-	var b := Widgets.Block.new("Charge et capacité")
+	var b := Widgets.Block.new("Détail de la charge et de la capacité")
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 40)
 	b.body.add_child(row)

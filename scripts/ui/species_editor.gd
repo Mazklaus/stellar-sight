@@ -13,6 +13,18 @@ signal back_requested
 signal library_changed
 
 const TABS := [["identity", "Identité"], ["layers", "Couches"], ["traits", "Traits"]]
+## Vue guidée (refonte D2) : six étapes, dans l'ordre des questions que se pose le joueur plutôt que
+## dans celui des données. [id, libellé du fil, question en titre, aide, sections montrées].
+## Les mêmes sections se rangent dans les trois onglets d'origine quand on passe en vue complète.
+const STEPS := [
+	["start", "Départ", "D'où partir", "Un peuple officiel prête ses couches et ses traits, que vous changez ensuite. La page blanche part d'un peuple neutre.", ["start"]],
+	["who", "Nature", "Qui sont-ils", "Le registre règle le ton et l'opinion que les autres peuples ont d'eux. L'archétype dit de quoi ils sont faits.", ["layer_registre", "layer_archetype", "temper"]],
+	["life", "Mœurs", "Comment vivent-ils", "Les couches sont gratuites : chacune apporte sa règle, avec sa force et son prix.", ["layer_gouvernement", "layer_credo", "layer_origine", "biomes"]],
+	["traits", "Traits", "Ce qui les distingue", "", ["traits", "talent"]],
+	["look", "Apparence", "À quoi ressemblent-ils", "Rien sur cette page ne change les règles.", ["portraits", "look"]],
+	["name", "Histoire", "Leur nom et leur histoire", "Le nom complet sert dans les chroniques, le nom court sur la carte et dans les listes.", ["names", "lore"]],
+]
+const PROPOSE_TEXT := "Proposer une chronique"
 const COLORS := ["#e8b44a", "#c0392b", "#4a90e2", "#6fcf3a", "#3fb6a8", "#9b7fd4", "#d96fb0", "#c46a2b", "#e0d6b8", "#7f8fa6"]
 const LAYER_LABELS := {"registre": "Registre", "archetype": "Archétype", "gouvernement": "Gouvernement", "credo": "Credo", "origine": "Origine"}
 const BIOME_LABELS := {"continental": "Continental", "ocean": "Océanique", "desert": "Désertique", "arctic": "Glaciaire", "toxic": "Toxique"}
@@ -22,6 +34,9 @@ const STYLE_LABELS := {"ossarane": "Navires d'Ossarane", "choeur": "Cathédrales
 var spec: Dictionary = {}
 var editing_id := ""
 var tab := "identity"
+## Vue guidée (les six étapes) ou vue complète (les trois onglets), et étape montrée.
+var guided := true
+var step := 0
 ## Dernier message affiché sous les boutons (enregistrement, erreur…).
 var status := ""
 
@@ -53,6 +68,24 @@ var _status_label: Label
 var _delete_b: Button
 var _delete_armed := false
 var _syncing := false
+var _sections := {}
+var _slots := {}
+var _step_pages: Array[ScrollContainer] = []
+var _step_buttons: Array[Button] = []
+var _step_errors: Array[Label] = []
+var _thread: HBoxContainer
+var _tab_row: HBoxContainer
+var _mode_b: Button
+var _nav: HBoxContainer
+var _prev_b: Button
+var _next_b: Button
+var _propose_b: Button
+var _propose_armed := false
+var _last_proposal := ""
+## Le portrait a été choisi (à la main, ou hérité d'un modèle ou d'un peuple enregistré) : il ne suit
+## plus l'archétype. Sur une page blanche, il le suit tant qu'on n'y a pas touché.
+var _portrait_picked := false
+static var _chronicle_parts := {}
 
 
 func _ready() -> void:
@@ -81,6 +114,7 @@ func _ready() -> void:
 func open_new(preset: String) -> void:
 	spec = Species.from_preset(preset)
 	editing_id = ""
+	_portrait_picked = preset != ""
 	if preset != "":
 		spec["name"] = "Héritiers de %s" % GameData.faction(preset).get("short", preset)
 		spec["short"] = "Héritiers"
@@ -98,8 +132,11 @@ func open_saved(id: String) -> void:
 		return
 	spec = s.duplicate(true)
 	editing_id = id
+	_portrait_picked = true
 	_set_status("")
 	_sync_all()
+	if guided and step == 0 and _nav != null:
+		set_step(1)
 
 
 ## Copie d'un peuple enregistré, sous un nouveau nom.
@@ -113,13 +150,20 @@ func duplicate_current() -> void:
 
 
 func set_layer(layer: String, id: String) -> void:
+	var changed := String(spec.get(layer, "")) != id
 	spec[layer] = id
-	# Le portrait reste celui choisi : la galerie se réordonne seulement (ceux de l'archétype d'abord).
+	# Le portrait choisi reste : la galerie se réordonne seulement (ceux de l'archétype d'abord).
+	# Sur une page blanche, tant qu'aucun n'a été choisi, il suit l'archétype.
+	if layer == "archetype" and changed and not _portrait_picked:
+		var ps := Species.portraits(id)
+		if not ps.is_empty():
+			spec["portrait"] = String(ps[0]["id"])
 	_sync_all()
 
 
 func set_portrait(id: String) -> void:
 	spec["portrait"] = id
+	_portrait_picked = true
 	_refresh()
 
 
@@ -183,9 +227,143 @@ func delete_current() -> bool:
 
 func show_tab(id: String) -> void:
 	tab = id
-	for t in _tabs:
-		(_tabs[t] as Button).set_pressed_no_signal(t == id)
-		(_pages[t] as Control).visible = t == id
+	if guided:
+		guided = false
+		_place()
+		_rebuild_list()
+	_show_pages()
+
+
+## Vue guidée (six étapes) ou vue complète (les trois onglets) : les mêmes contrôles, rangés autrement.
+func set_guided(on: bool) -> void:
+	guided = on
+	_place()
+	_rebuild_list()
+	_show_pages()
+
+
+func set_step(i: int) -> void:
+	step = clampi(i, 0, STEPS.size() - 1)
+	if guided:
+		_show_pages()
+	else:
+		set_guided(true)
+
+
+## Les refus de Species.errors rangés par étape : [PackedStringArray] × STEPS.size(). Une exigence
+## entre deux couches se montre aux deux étapes, puisqu'on peut la lever de l'un ou l'autre côté.
+func step_errors() -> Array:
+	var out := []
+	for i in STEPS.size():
+		out.append(PackedStringArray())
+	var probe := spec.duplicate(true)
+	probe["id"] = editing_id if editing_id != "" else Species.make_id(String(spec.get("name", "")), GameData.library_faction_ids())
+	var errs := Species.errors(probe)
+	if errs.is_empty():
+		return out
+	var trait_errs := Species.trait_errors(probe)
+	var pairs := {}
+	for layer in Species.layers():
+		var b := Species.brick(String(layer), String(spec.get(layer, "")))
+		if b.is_empty():
+			continue
+		for l2 in b.get("requires", {}):
+			pairs["%s demande : %s" % [b["label"], Species._labels(String(l2), b["requires"][l2])]] = [String(layer), String(l2)]
+		for l2 in b.get("excludes", {}):
+			pairs["%s est incompatible avec %s" % [b["label"], Species.brick(String(l2), String(spec.get(l2, ""))).get("label", spec.get(l2, ""))]] = [String(layer), String(l2)]
+	for e in errs:
+		var where := {}
+		if trait_errs.has(e) or e.begins_with("le talent"):
+			where[_step_index("traits")] = true
+		elif pairs.has(e):
+			for l in pairs[e]:
+				where[_layer_step(String(l))] = true
+		elif e.begins_with("couleur") or e.begins_with("portrait") or e.begins_with("style"):
+			where[_step_index("look")] = true
+		elif e.begins_with("tempérament"):
+			where[_step_index("who")] = true
+		elif e.contains("biome"):
+			where[_step_index("life")] = true
+		else:
+			for layer in Species.layers():
+				if e.contains("« %s »" % layer):
+					where[_layer_step(String(layer))] = true
+			if where.is_empty():
+				where[_step_index("name")] = true
+		for i in where:
+			# Un tableau compacté rangé dans un Array est une copie : on le reprend, on le repose.
+			var mine: PackedStringArray = out[i]
+			mine.append(e)
+			out[i] = mine
+	return out
+
+
+func _step_index(id: String) -> int:
+	for i in STEPS.size():
+		if String(STEPS[i][0]) == id:
+			return i
+	return 0
+
+
+## Étape qui porte une section ; une couche ajoutée aux données sans place prévue va dans « Mœurs ».
+func _layer_step(layer: String) -> int:
+	for i in STEPS.size():
+		if (STEPS[i][4] as Array).has("layer_" + layer) or (layer == "biomes" and (STEPS[i][4] as Array).has("biomes")):
+			return i
+	return _step_index("life")
+
+
+static func chronicle_parts() -> Dictionary:
+	if _chronicle_parts.is_empty():
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/species_chronicle.json"))
+		_chronicle_parts = parsed if parsed is Dictionary else {"_": {}}
+	return _chronicle_parts
+
+
+## Trois lignes de chronique tirées des choix : le corps et le monde natal, le gouvernement et le
+## credo, l'origine. Chaque brique apporte sa phrase (data/species_chronicle.json).
+static func chronicle(s: Dictionary) -> String:
+	var c := chronicle_parts()
+	var biomes: Array = s.get("biomes", [])
+	var keys := [
+		[["archetype", String(s.get("archetype", ""))], ["biome", String(biomes[0]) if not biomes.is_empty() else ""]],
+		[["gouvernement", String(s.get("gouvernement", ""))], ["credo", String(s.get("credo", ""))]],
+		[["origine", String(s.get("origine", ""))]],
+	]
+	var lines := PackedStringArray()
+	for group: Array in keys:
+		var bits := PackedStringArray()
+		for k: Array in group:
+			var t := String((c.get(k[0], {}) as Dictionary).get(k[1], ""))
+			if t != "":
+				bits.append(t)
+		if not bits.is_empty():
+			lines.append(" ".join(bits))
+	return "\n".join(lines).substr(0, Species.LORE_MAX)
+
+
+## Écrit la chronique proposée dans l'histoire. Un texte que le joueur a écrit n'est remplacé qu'au
+## second clic (ou avec force). Renvoie vrai si l'histoire a été écrite.
+func propose_chronicle(force := false) -> bool:
+	var cur := String(spec.get("lore", "")).strip_edges()
+	if cur != "" and cur != _last_proposal and not force and not _propose_armed:
+		_propose_armed = true
+		_propose_b.text = "Remplacer votre texte ?"
+		return false
+	_disarm_propose()
+	_last_proposal = chronicle(spec)
+	spec["lore"] = _last_proposal
+	_syncing = true
+	_lore_edit.text = _last_proposal
+	_syncing = false
+	_refresh()
+	return true
+
+
+func _disarm_propose() -> void:
+	_propose_armed = false
+	if _propose_b:
+		_propose_b.text = PROPOSE_TEXT
 
 
 # --- Construction -------------------------------------------------------------------------------
@@ -231,12 +409,11 @@ func _build_library() -> void:
 func _rebuild_list() -> void:
 	for c in _list.get_children():
 		c.queue_free()
-	_list.add_child(UiTheme.section("Partir d'un peuple officiel"))
-	for fid in GameData.faction_ids():
-		var f := GameData.faction(fid)
-		var b := _list_button(String(f["short"]), Color.html(String(f["color"])), "Nouveau peuple sur le modèle de %s (mêmes couches et traits, chiffres des briques)." % f["name"])
-		b.pressed.connect(open_new.bind(fid))
-		_list.add_child(b)
+	# En vue guidée, les modèles officiels sont à l'étape « Départ » : la bibliothèque ne garde que vos peuples.
+	if not guided:
+		_list.add_child(UiTheme.section("Partir d'un peuple officiel"))
+		for fid in GameData.faction_ids():
+			_list.add_child(_model_button(fid))
 	_list.add_child(UiTheme.section("Vos peuples"))
 	var ids := GameData.library_faction_ids()
 	if ids.is_empty():
@@ -256,15 +433,40 @@ func _rebuild_list() -> void:
 			_list.add_child(l)
 
 
+func _model_button(fid: String) -> Button:
+	var f := GameData.faction(fid)
+	var b := _list_button(String(f["short"]), Color.html(String(f["color"])), "Nouveau peuple sur le modèle de %s (mêmes couches et traits, chiffres des briques)." % f["name"])
+	b.pressed.connect(func() -> void:
+		open_new(fid)
+		if guided:
+			set_step(1))
+	return b
+
+
 func _build_center() -> void:
 	var col := VBoxContainer.new()
 	col.position = Vector2(326, 74)
 	col.custom_minimum_size = Vector2(830, 0)
 	col.add_theme_constant_override("separation", 8)
 	add_child(col)
-	var tabs := HBoxContainer.new()
-	tabs.add_theme_constant_override("separation", 36)
-	col.add_child(tabs)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 12)
+	col.add_child(top)
+	_thread = HBoxContainer.new()
+	_thread.add_theme_constant_override("separation", 4)
+	top.add_child(_thread)
+	for i in STEPS.size():
+		var b := Button.new()
+		b.theme_type_variation = &"TabButton"
+		b.toggle_mode = true
+		b.focus_mode = Control.FOCUS_NONE
+		var k := i
+		b.pressed.connect(func() -> void: set_step(k))
+		_thread.add_child(b)
+		_step_buttons.append(b)
+	_tab_row = HBoxContainer.new()
+	_tab_row.add_theme_constant_override("separation", 36)
+	top.add_child(_tab_row)
 	for t in TABS:
 		var b := Button.new()
 		b.theme_type_variation = &"TabButton"
@@ -272,7 +474,7 @@ func _build_center() -> void:
 		b.focus_mode = Control.FOCUS_NONE
 		b.text = String(t[1]).to_upper()
 		b.pressed.connect(show_tab.bind(String(t[0])))
-		tabs.add_child(b)
+		_tab_row.add_child(b)
 		_tabs[t[0]] = b
 	var frame := _frame(col)
 	frame.custom_minimum_size = Vector2(830, 600)
@@ -281,29 +483,159 @@ func _build_center() -> void:
 	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	frame.add_child(stack)
 	for t in TABS:
-		var scroll := ScrollContainer.new()
-		scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-		stack.add_child(scroll)
-		var page := VBoxContainer.new()
-		page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		page.add_theme_constant_override("separation", 10)
-		scroll.add_child(page)
-		_pages[t[0]] = scroll
-	_build_identity(_pages["identity"].get_child(0))
-	_build_layers(_pages["layers"].get_child(0))
-	_build_traits(_pages["traits"].get_child(0))
-	show_tab("identity")
-
-
-func _build_identity(page: VBoxContainer) -> void:
-	var top := HBoxContainer.new()
-	top.add_theme_constant_override("separation", 20)
-	page.add_child(top)
+		_pages[t[0]] = _scroll_page(stack)
+	for i in STEPS.size():
+		var scroll := _scroll_page(stack)
+		var page: VBoxContainer = scroll.get_child(0)
+		page.add_child(UiTheme.title(String(STEPS[i][2]), 24))
+		if String(STEPS[i][3]) != "":
+			page.add_child(UiTheme.dim(String(STEPS[i][3]), 14))
+		var err := UiTheme.paragraph("", 790, 13)
+		err.add_theme_color_override("font_color", UiTheme.BAD)
+		err.visible = false
+		page.add_child(err)
+		_step_errors.append(err)
+		_step_pages.append(scroll)
+		_slots["step%d" % i] = page
+	_nav = HBoxContainer.new()
+	col.add_child(_nav)
+	_prev_b = Button.new()
+	_prev_b.focus_mode = Control.FOCUS_NONE
+	_prev_b.pressed.connect(func() -> void: set_step(step - 1))
+	_nav.add_child(_prev_b)
+	# La bascule de vue reste au milieu de la rangée, dans les deux vues.
+	for i in 2:
+		var nav_gap := Control.new()
+		nav_gap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_nav.add_child(nav_gap)
+		if i == 0:
+			_mode_b = Button.new()
+			_mode_b.focus_mode = Control.FOCUS_NONE
+			_mode_b.tooltip_text = "Vue guidée : six étapes, une question à la fois. Vue complète : tout sur trois onglets, pour qui sait ce qu'il cherche."
+			_mode_b.pressed.connect(func() -> void: set_guided(not guided))
+			_nav.add_child(_mode_b)
+	_next_b = Button.new()
+	_next_b.focus_mode = Control.FOCUS_NONE
+	_next_b.pressed.connect(func() -> void: set_step(step + 1))
+	_nav.add_child(_next_b)
+	# Emplacements de la vue complète : l'onglet Identité garde ses deux colonnes.
+	var identity: VBoxContainer = _pages["identity"].get_child(0)
+	var id_top := HBoxContainer.new()
+	id_top.add_theme_constant_override("separation", 20)
+	identity.add_child(id_top)
 	var form := VBoxContainer.new()
 	form.add_theme_constant_override("separation", 8)
 	form.custom_minimum_size = Vector2(380, 0)
-	top.add_child(form)
+	id_top.add_child(form)
+	var lore_col := VBoxContainer.new()
+	lore_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	id_top.add_child(lore_col)
+	_slots["identity_form"] = form
+	_slots["identity_lore"] = lore_col
+	_slots["identity_bottom"] = identity
+	var layers_page: VBoxContainer = _pages["layers"].get_child(0)
+	layers_page.add_child(UiTheme.dim("Les couches sont gratuites : chacune apporte sa règle, avec sa force et son prix.", 14))
+	_slots["layers"] = layers_page
+	_slots["traits"] = _pages["traits"].get_child(0)
+	_build_start()
+	_build_identity()
+	_build_layers()
+	_build_traits()
+	_place()
+	_show_pages()
+
+
+func _scroll_page(stack: Control) -> ScrollContainer:
+	var scroll := ScrollContainer.new()
+	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	stack.add_child(scroll)
+	var page := VBoxContainer.new()
+	page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	page.add_theme_constant_override("separation", 10)
+	scroll.add_child(page)
+	return scroll
+
+
+## Une section : un groupe de contrôles construit une fois, que _place range selon la vue.
+func _section(id: String) -> VBoxContainer:
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 8)
+	_sections[id] = v
+	return v
+
+
+## Range les sections dans les étapes (vue guidée) ou dans les trois onglets (vue complète).
+func _place() -> void:
+	var plan := []
+	if guided:
+		for i in STEPS.size():
+			plan.append(["step%d" % i, STEPS[i][4]])
+	else:
+		plan = [["identity_form", ["names", "look", "temper", "talent"]], ["identity_lore", ["lore"]], ["identity_bottom", ["portraits"]], ["traits", ["traits"]]]
+	var placed := {}
+	for entry: Array in plan:
+		for id in entry[1]:
+			_move(String(id), String(entry[0]))
+			placed[id] = true
+	# Les couches (et toute couche ajoutée aux données sans place prévue), puis les biomes.
+	var rest := "step%d" % _step_index("life") if guided else "layers"
+	for layer in Species.layers():
+		if not placed.has("layer_" + String(layer)):
+			_move("layer_" + String(layer), rest)
+	if not placed.has("biomes"):
+		_move("biomes", rest)
+
+
+func _move(id: String, slot: String) -> void:
+	var n: Control = _sections.get(id)
+	var to: Control = _slots.get(slot)
+	if n == null or to == null:
+		return
+	if n.get_parent() != null:
+		n.get_parent().remove_child(n)
+	to.add_child(n)
+
+
+func _show_pages() -> void:
+	_thread.visible = guided
+	_tab_row.visible = not guided
+	_mode_b.text = "Vue complète" if guided else "Vue guidée"
+	for t in _tabs:
+		(_tabs[t] as Button).set_pressed_no_signal(t == tab)
+		(_pages[t] as Control).visible = not guided and t == tab
+	for i in STEPS.size():
+		_step_buttons[i].set_pressed_no_signal(i == step)
+		_step_pages[i].visible = guided and i == step
+	_prev_b.visible = guided and step > 0
+	if step > 0:
+		_prev_b.text = "Précédent : %s" % STEPS[step - 1][2]
+	_next_b.visible = guided and step < STEPS.size() - 1
+	if step < STEPS.size() - 1:
+		_next_b.text = "Suivant : %s" % STEPS[step + 1][2]
+
+
+func _build_start() -> void:
+	var sec := _section("start")
+	var blank := _list_button("Page blanche", Color(0.75, 0.78, 0.84), "Un peuple neutre, à composer de zéro.")
+	blank.pressed.connect(func() -> void:
+		open_new("")
+		set_step(1))
+	sec.add_child(blank)
+	sec.add_child(UiTheme.section("Sur le modèle d'un peuple officiel"))
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 8)
+	flow.add_theme_constant_override("v_separation", 6)
+	sec.add_child(flow)
+	for fid in GameData.faction_ids():
+		flow.add_child(_model_button(fid))
+	sec.add_child(UiTheme.dim("Vos peuples enregistrés se rouvrent depuis la bibliothèque, à gauche.", 13))
+
+
+func _build_identity() -> void:
+	var form := _section("names")
+	form.custom_minimum_size = Vector2(380, 0)
+	form.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_name_edit = _line(form, "Nom", "Le nom complet : « Lignées d'Ossarane ».", Species.NAME_MAX)
 	_name_edit.text_changed.connect(func(t: String) -> void:
 		if not _syncing:
@@ -314,6 +646,9 @@ func _build_identity(page: VBoxContainer) -> void:
 		if not _syncing:
 			spec["short"] = t
 			_refresh())
+	form = _section("look")
+	form.custom_minimum_size = Vector2(380, 0)
+	form.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	form.add_child(UiTheme.section("Couleur"))
 	_color_row = HBoxContainer.new()
 	_color_row.add_theme_constant_override("separation", 6)
@@ -342,6 +677,9 @@ func _build_identity(page: VBoxContainer) -> void:
 		spec["ship_style"] = String(Species.parts()["ship_styles"][i])
 		_refresh())
 	form.add_child(_style_select)
+	form = _section("temper")
+	form.custom_minimum_size = Vector2(380, 0)
+	form.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	form.add_child(UiTheme.section("Tempérament quand l'IA le joue"))
 	_temper_select = OptionButton.new()
 	for t: Dictionary in Species.parts()["temperaments"]:
@@ -351,6 +689,9 @@ func _build_identity(page: VBoxContainer) -> void:
 		_refresh())
 	form.add_child(_temper_select)
 	# Talent de recherche (props 21 et 71 de l'arbre) : une brique choisie comme un trait, selon les couches.
+	form = _section("talent")
+	form.custom_minimum_size = Vector2(380, 0)
+	form.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	form.add_child(UiTheme.section("Talent de recherche"))
 	_talent_select = OptionButton.new()
 	_talent_select.tooltip_text = "Par défaut, le talent vient des couches (souvent du credo). Les talents proposés dépendent du gouvernement et de l'archétype."
@@ -360,10 +701,9 @@ func _build_identity(page: VBoxContainer) -> void:
 		spec["research_talent"] = "" if i <= 0 else _talent_ids[i - 1]
 		_refresh())
 	form.add_child(_talent_select)
-	var lore_col := VBoxContainer.new()
+	var lore_col := _section("lore")
 	lore_col.add_theme_constant_override("separation", 6)
 	lore_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top.add_child(lore_col)
 	lore_col.add_child(UiTheme.section("Histoire"))
 	_lore_edit = TextEdit.new()
 	_lore_edit.custom_minimum_size = Vector2(380, 250)
@@ -371,20 +711,29 @@ func _build_identity(page: VBoxContainer) -> void:
 	_lore_edit.placeholder_text = "Quelques lignes de chronique : d'où vient ce peuple, ce qu'il veut, ce qu'on dit de lui."
 	_lore_edit.text_changed.connect(func() -> void:
 		if not _syncing:
+			_disarm_propose()
 			spec["lore"] = _lore_edit.text.substr(0, Species.LORE_MAX)
 			_refresh())
 	lore_col.add_child(_lore_edit)
-	page.add_child(UiTheme.section("Portrait (libre ; ceux de l'archétype en premier)"))
+	_propose_b = Button.new()
+	_propose_b.text = PROPOSE_TEXT
+	_propose_b.focus_mode = Control.FOCUS_NONE
+	_propose_b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_propose_b.tooltip_text = "Écrit trois lignes tirées de vos choix : le corps et le monde natal, le gouvernement et le credo, l'origine. À reprendre à votre main."
+	_propose_b.pressed.connect(func() -> void: propose_chronicle())
+	lore_col.add_child(_propose_b)
+	var gallery := _section("portraits")
+	gallery.add_child(UiTheme.section("Portrait (libre ; ceux de l'archétype en premier)"))
 	_portrait_grid = GridContainer.new()
 	_portrait_grid.columns = 8
 	_portrait_grid.add_theme_constant_override("h_separation", 8)
 	_portrait_grid.add_theme_constant_override("v_separation", 8)
-	page.add_child(_portrait_grid)
+	gallery.add_child(_portrait_grid)
 
 
-func _build_layers(page: VBoxContainer) -> void:
-	page.add_child(UiTheme.dim("Les couches sont gratuites : chacune apporte sa règle, avec sa force et son prix.", 14))
+func _build_layers() -> void:
 	for layer in Species.layers():
+		var page := _section("layer_" + String(layer))
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 14)
 		page.add_child(row)
@@ -413,7 +762,7 @@ func _build_layers(page: VBoxContainer) -> void:
 		_layer_texts[layer] = txt
 	var brow := HBoxContainer.new()
 	brow.add_theme_constant_override("separation", 14)
-	page.add_child(brow)
+	_section("biomes").add_child(brow)
 	var bl := Label.new()
 	bl.text = "Biomes"
 	bl.custom_minimum_size = Vector2(130, 0)
@@ -435,7 +784,9 @@ func _build_layers(page: VBoxContainer) -> void:
 		_biome_selects.append(sel)
 
 
-func _build_traits(page: VBoxContainer) -> void:
+func _build_traits() -> void:
+	var page := _section("traits")
+	page.add_theme_constant_override("separation", 10)
 	_budget_label = Label.new()
 	_budget_label.add_theme_font_size_override("font_size", 17)
 	page.add_child(_budget_label)
@@ -565,6 +916,7 @@ func _sync_all() -> void:
 		return
 	_syncing = true
 	_disarm_delete()
+	_disarm_propose()
 	_name_edit.text = String(spec.get("name", ""))
 	_short_edit.text = String(spec.get("short", ""))
 	_lore_edit.text = String(spec.get("lore", ""))
@@ -646,6 +998,20 @@ func _refresh() -> void:
 	var errs := Species.errors(probe)
 	_preview_errors.text = "" if errs.is_empty() else "À corriger : " + " ; ".join(PackedStringArray(errs))
 	(get_meta("save_button") as Button).disabled = not errs.is_empty()
+	# Le refus se montre à l'étape en cause : sur le fil, et en tête de la page.
+	var by_step := step_errors()
+	for i in _step_buttons.size():
+		var mine: PackedStringArray = by_step[i]
+		var b := _step_buttons[i]
+		b.text = "%d  %s%s" % [i + 1, String(STEPS[i][1]).to_upper(), "" if mine.is_empty() else "  !"]
+		b.tooltip_text = String(STEPS[i][2]) + ("" if mine.is_empty() else "\nÀ corriger : " + " ; ".join(mine))
+		for key in ["font_color", "font_pressed_color", "font_hover_color", "font_hover_pressed_color"]:
+			if mine.is_empty():
+				b.remove_theme_color_override(key)
+			else:
+				b.add_theme_color_override(key, UiTheme.BAD)
+		_step_errors[i].text = "" if mine.is_empty() else "À corriger ici : " + " ; ".join(mine)
+		_step_errors[i].visible = not mine.is_empty()
 	var lines := PackedStringArray()
 	# L'aperçu se montre même si le peuple n'est pas encore enregistrable (nom vide, trop de traits…),
 	# tant que ses couches existent : on voit ce qu'on compose.

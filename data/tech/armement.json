@@ -7,7 +7,7 @@
 			"era": 1,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Débloque le Canon à masse lourd (emplacement lourd des grandes coques). Les marques des armes viennent des paliers d'Armement.",
+			"text": "Débloque le Canon à masse lourd (emplacement lourd des grandes coques). Les marques des armes viennent des paliers d'Armement.", "lore": "Un rail de quarante mètres logé dans l'axe de la coque, qui lance une ogive de tungstène gainée d'explosif. La charge détone une fraction de seconde après l'impact, une fois le blindage traversé. Le recul impose de couper les moteurs le temps du tir.",
 			"eureka": {
 				"kind": "kills",
 				"n": 3
@@ -20,7 +20,7 @@
 			"era": 1,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Débloque la tactique Feu concentré (+25 % à moyenne portée). Débloque la tactique Salves croisées : la défense ponctuelle adverse arrête un quart de missiles de moins.",
+			"text": "Débloque la tactique Feu concentré (+25 % à moyenne portée). Débloque la tactique Salves croisées : la défense ponctuelle adverse arrête un quart de missiles de moins.", "lore": "Des miroirs taillés en orbite, où le verre refroidit sans se déformer, et des têtes chercheuses qui suivent la chaleur d'une tuyère. Les artilleurs règlent leurs pièces sur une même cible depuis des coques éloignées de mille kilomètres.",
 			"pre": []
 		},
 		"blindage_composite": {
@@ -29,7 +29,7 @@
 			"era": 1,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Débloque les Cloisons étanches (module de défense : coque et un peu de blindage).",
+			"text": "Débloque les Cloisons étanches (module de défense : coque et un peu de blindage).", "lore": "Des plaques faites de couches alternées de céramique et d'alliage, collées à chaud. La céramique casse le projectile, le métal retient les éclats. Les chantiers les posent en double paroi autour des compartiments, que des portes ferment au premier trou.",
 			"needs": [
 				"vaisseaux"
 			],
@@ -39,7 +39,7 @@
 			}
 		},
 		"boucliers_phase": {
-			"label": "Boucliers à phase",
+			"label": "Boucliers à phase", "lore": "Un champ qui change de fréquence plusieurs milliers de fois par seconde, pour qu'un rayon ne reste jamais accordé sur lui. Le générateur occupe un compartiment entier et réclame son propre réacteur. Seules les plus grandes coques ont la place de le loger.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -53,7 +53,7 @@
 			]
 		},
 		"boucliers_durcis": {
-			"label": "Boucliers durcis",
+			"label": "Boucliers durcis", "lore": "Des bobines blindées de plomb et refroidies à l'hélium, qui tiennent leur champ là où l'étoile dérègle les autres. Le premier jeu a été monté sur un ravitailleur qui desservait un phare, au bord d'une étoile à neutrons.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -69,7 +69,7 @@
 			"flavor": "« Le champ magnétique de l'étoile éteint nos boucliers. » — « Alors on en fabrique qui ne l'écoutent pas. »"
 		},
 		"interception": {
-			"label": "Tourelles d'interception",
+			"label": "Tourelles d'interception", "lore": "De petites tourelles à tir rapide, asservies à un radar qui suit plusieurs centaines d'objets à la fois. Elles ouvrent le feu sans intervention de l'équipage, dans les deux dernières secondes de la course d'un missile.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -83,7 +83,7 @@
 			]
 		},
 		"torpilles": {
-			"label": "Torpilles à fusion",
+			"label": "Torpilles à fusion", "lore": "Un engin lent de douze mètres, qui porte une charge à fusion jusqu'à la coque adverse et la fait détoner au contact. Il lui faut un vaisseau bâti autour de ses tubes. Les équipages le chargent à la main, un par un.",
 			"domain": "armement",
 			"era": 2,
 			"field": "armes",
@@ -101,7 +101,7 @@
 			}
 		},
 		"bastions": {
-			"label": "Bastions orbitaux",
+			"label": "Bastions orbitaux", "lore": "Des casemates orbitales armées par la garnison, reliées à des abris creusés sous les villes. Les colons y descendent par des puits ouverts dans chaque quartier. L'exercice d'alerte a lieu deux fois par an.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -119,7 +119,7 @@
 			}
 		},
 		"marines": {
-			"label": "Marines d'assaut",
+			"label": "Marines d'assaut", "lore": "Des régiments formés pour combattre à bord, dans des coursives où l'on ne tire qu'à courte portée. Les recrues passent leur première année en apesanteur. Elles gardent ensuite l'habitude de dormir attachées.",
 			"domain": "armement",
 			"era": 2,
 			"field": "troupes",
@@ -137,7 +137,7 @@
 			}
 		},
 		"fusiliers_elite": {
-			"label": "Fusiliers d'élite",
+			"label": "Fusiliers d'élite", "lore": "Des fusiliers choisis parmi les marines après trois campagnes, logés dans des entreponts refaits pour eux. On y a retiré les cloisons et doublé les couchettes. Une coque en emporte un quart de plus sans changer ses vivres.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -155,7 +155,7 @@
 			}
 		},
 		"blindes_assaut": {
-			"label": "Régiments spécialisés",
+			"label": "Régiments spécialisés", "lore": "Des chars débarqués par barge, que suivent des équipes de quelques hommes déposées de nuit derrière les lignes. Les deux armes ne s'entraînent pas dans les mêmes camps et s'entendent mal en garnison.",
 			"domain": "armement",
 			"era": 2,
 			"field": "troupes",
@@ -170,7 +170,7 @@
 			}
 		},
 		"assaut_aeroporte": {
-			"label": "Assaut aéroporté",
+			"label": "Assaut aéroporté", "lore": "Des appareils d'attaque lâchés de l'orbite dans une coque qui brûle à la rentrée. Ils se déploient à dix kilomètres du sol et volent une heure environ, tant qu'ils ont du carburant. Leurs pilotes visent les colonnes de chars, qui n'ont rien pour leur répondre.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -185,7 +185,7 @@
 			}
 		},
 		"plasma": {
-			"label": "Rayons à plasma",
+			"label": "Rayons à plasma", "lore": "Un jet de gaz porté à plusieurs millions de degrés, tenu en faisceau par un champ magnétique jusqu'à la cible. Il fond le blindage au lieu de le percer. La lance qui le projette mesure la moitié de la coque.",
 			"domain": "armement",
 			"era": 3,
 			"field": "armes",
@@ -196,7 +196,7 @@
 			]
 		},
 		"essaims": {
-			"label": "Missiles en essaim",
+			"label": "Missiles en essaim", "lore": "Des missiles de la taille d'un homme, tirés par gerbes de soixante. Chacun porte un brouilleur à la place d'une partie de sa charge. Les tourelles adverses perdent leurs cibles dans le nombre.",
 			"domain": "armement",
 			"era": 3,
 			"field": "armes",
@@ -208,7 +208,7 @@
 			"flavor": "Les tourelles adverses tirent sur ce qu'elles voient. C'est tout le problème."
 		},
 		"artillerie": {
-			"label": "Artillerie lourde",
+			"label": "Artillerie lourde", "lore": "Des pièces de gros calibre qui tirent à plusieurs milliers de kilomètres, sur une position calculée d'avance. L'obus met une minute à arriver. Elles ne servent plus à rien quand les lignes se touchent.",
 			"domain": "armement",
 			"era": 3,
 			"field": "armes",
@@ -227,7 +227,7 @@
 			}
 		},
 		"chasse": {
-			"label": "Escadrilles de chasse",
+			"label": "Escadrilles de chasse", "lore": "Des appareils à un seul pilote, armés pour quelques passes et rappelés avant d'être à sec. Ils passent entre les grandes coques et frappent celles de l'arrière. Les pilotes sont formés en deux ans et servent rarement plus de cinq.",
 			"domain": "armement",
 			"era": 3,
 			"field": "armes",
@@ -241,7 +241,7 @@
 			]
 		},
 		"canons_rail": {
-			"label": "Canons lourds",
+			"label": "Canons lourds", "lore": "Un rail de trois cents mètres, alimenté par des condensateurs qui mettent une minute à se recharger. Le projectile part à une fraction notable de la vitesse de la lumière. La coque est construite autour de la pièce, et non la pièce posée sur la coque.",
 			"domain": "armement",
 			"era": 4,
 			"field": "armes",
@@ -252,7 +252,7 @@
 			]
 		},
 		"antimatiere": {
-			"label": "Torpilles à antimatière",
+			"label": "Torpilles à antimatière", "lore": "Une torpille dont la charge tient dans une bouteille magnétique grosse comme le poing. Quelques grammes suffisent à ouvrir un cuirassé. Les soutes qui les gardent sont séparées du reste du vaisseau et peuvent être larguées.",
 			"domain": "armement",
 			"era": 4,
 			"field": "armes",
@@ -267,7 +267,7 @@
 			]
 		},
 		"faisceaux_gamma": {
-			"label": "Faisceaux gamma",
+			"label": "Faisceaux gamma", "lore": "Un faisceau de particules chargées, qui traverse la coque sans la percer et grille ses circuits. Les boucliers touchés tombent pendant qu'on remplace les fusibles. Il faut une journée à un équipage entraîné.",
 			"domain": "armement",
 			"era": 4,
 			"field": "armes",
@@ -279,7 +279,7 @@
 			"flavor": "Le rayon est invisible. Le trou qu'il laisse, beaucoup moins."
 		},
 		"blindage_reactif": {
-			"label": "Blindage réactif",
+			"label": "Blindage réactif", "lore": "Des plaques doublées d'une couche d'explosif, qui détonent vers l'extérieur quand un projectile les frappe. Le coup est dévié avant d'atteindre la coque. On remplace les plaques parties au premier arsenal.",
 			"domain": "armement",
 			"era": 4,
 			"field": "defenses",
@@ -293,7 +293,7 @@
 			]
 		},
 		"canons_singularite": {
-			"label": "Armes à singularité",
+			"label": "Armes à singularité", "lore": "Une arme qui projette un point de gravité assez dense pour écraser une coque sur elle-même. Le point ne dure qu'une seconde. Seuls les plus grands vaisseaux portent le générateur qui le forme.",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
@@ -309,7 +309,7 @@
 			"flavor": "Le projectile pèse un gramme. Il en paraît beaucoup plus à l'arrivée."
 		},
 		"lances_stellaires": {
-			"label": "Lances stellaires",
+			"label": "Lances stellaires", "lore": "Un faisceau tiré de la matière d'une étoile, prélevée et tenue sous champ à bord d'un titan. Il traverse un cuirassé dans sa longueur. Le titan doit refaire sa provision après quelques tirs.",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
@@ -320,7 +320,7 @@
 			]
 		},
 		"verbe_final": {
-			"label": "Le Verbe final",
+			"label": "Le Verbe final", "lore": "Une pièce qui dénoue les liaisons de la matière sur son trajet, au lieu de la frapper. Rien de ce qu'elle touche ne laisse de débris. Les artilleurs qui la servent ont demandé qu'on ne lui donne pas d'autre nom.",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
@@ -334,7 +334,7 @@
 			"flavor": "Les diplomates appellent ça un argument. Les survivants n'appellent plus."
 		},
 		"matiere_programmable": {
-			"label": "Matière programmable",
+			"label": "Matière programmable", "lore": "Une matière dont les grains changent d'arrangement sur ordre, du plus dur au plus souple. La coque épaissit là où le coup arrive. Elle se referme seule après la bataille.",
 			"domain": "armement",
 			"era": 5,
 			"field": "defenses",
@@ -352,7 +352,7 @@
 			}
 		},
 		"escadres_autonomes": {
-			"label": "Escadres autonomes",
+			"label": "Escadres autonomes", "lore": "Des escadrilles de drones qui décollent, combattent et rentrent sans qu'un pilote les commande. Un titan en porte plusieurs milliers. Les pertes se remplacent à bord, dans l'atelier du hangar.",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
@@ -368,7 +368,7 @@
 			"flavor": "Elles votent avant chaque attaque. Toujours à l'unanimité."
 		},
 		"rideau_acier": {
-			"label": "Rideau d'acier",
+			"label": "Rideau d'acier", "lore": "Une manière de ranger la flotte, où les petites coques se placent en avant et serrent leurs intervalles. Leurs commandants apprennent à tenir la ligne sous le feu sans rompre la formation. Le manuel fait quarante pages et se récite à l'école de guerre.",
 			"domain": "armement",
 			"era": 2,
 			"field": "doctrines",
@@ -388,7 +388,7 @@
 			}
 		},
 		"frappe_profondeur": {
-			"label": "Frappe en profondeur",
+			"label": "Frappe en profondeur", "lore": "Des calculateurs de tir qui cherchent, derrière la première ligne adverse, les coques que celle-ci protège. Les artilleurs règlent leurs salves pour passer dans les intervalles. La méthode vient des duels entre convois, où l'escorte ne valait rien et la cargaison tout.",
 			"domain": "armement",
 			"era": 2,
 			"field": "doctrines",
@@ -408,7 +408,7 @@
 			}
 		},
 		"feu_lointain": {
-			"label": "Feu lointain",
+			"label": "Feu lointain", "lore": "Une école de tir qui engage l'ennemi dès qu'il paraît sur les écrans et refuse le combat rapproché. Les commandants manœuvrent pour garder la distance. Les équipages s'exercent peu au tir à vue.",
 			"domain": "armement",
 			"era": 3,
 			"field": "doctrines",
@@ -431,7 +431,7 @@
 			}
 		},
 		"equipes_prise": {
-			"label": "Équipes de prise",
+			"label": "Équipes de prise", "lore": "Des équipes de douze, entraînées à franchir un sas sous le feu et à tenir une passerelle. Elles apprennent le plan des coques étrangères sur des épaves remorquées jusqu'à l'école. Leur règlement interdit de tirer dans une salle des machines.",
 			"domain": "armement",
 			"era": 2,
 			"field": "troupes",
@@ -446,7 +446,7 @@
 			"flavor": "La première leçon de l'école de prise : on n'abîme pas ce qu'on veut garder. La seconde : on l'abîme quand même un peu."
 		},
 		"abordage": {
-			"label": "Abordage",
+			"label": "Abordage", "lore": "Une doctrine qui cherche le contact et jette les troupes sur la coque adverse dès que les sas sont à portée. Les vaisseaux embarquent plus de fusiliers que de munitions. Une prise ramenée au port vaut une promotion à son capitaine.",
 			"domain": "armement",
 			"era": 3,
 			"field": "doctrines",
@@ -470,7 +470,7 @@
 			}
 		},
 		"guerre_usure": {
-			"label": "Guerre d'usure",
+			"label": "Guerre d'usure", "lore": "Une doctrine qui accepte les batailles longues et compte sur ses ateliers pour les gagner. Chaque escadre traîne ses navires de réparation. Les commandants apprennent à rompre le combat sans se débander.",
 			"domain": "armement",
 			"era": 4,
 			"field": "doctrines",
@@ -491,7 +491,7 @@
 			}
 		},
 		"guerre_eclair": {
-			"label": "Guerre éclair",
+			"label": "Guerre éclair", "lore": "Une doctrine qui frappe avant que l'adversaire ait rassemblé ses forces. Les flottes voyagent sans leurs convois et vivent sur leurs soutes. Tout se joue dans les premières heures, où chaque capitaine connaît sa cible.",
 			"domain": "armement",
 			"era": 4,
 			"field": "doctrines",
@@ -512,7 +512,7 @@
 			}
 		},
 		"genie_siege": {
-			"label": "Génie de siège",
+			"label": "Génie de siège", "lore": "Des sapeurs qui travaillent sous les fortifications, avec des foreuses reprises aux mines. Ils creusent une galerie de plusieurs kilomètres en quelques semaines. Leurs officiers sortent presque tous des écoles de géologie.",
 			"domain": "armement",
 			"era": 2,
 			"field": "troupes",
@@ -527,7 +527,7 @@
 			}
 		},
 		"plates_formes_defense": {
-			"label": "Plates-formes de défense",
+			"label": "Plates-formes de défense", "lore": "Des tourelles sans moteur ni équipage, placées en orbite fixe autour de la station et commandées depuis elle. Un remorqueur les met en place en une journée. Elles ne quittent plus leur poste.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -545,7 +545,7 @@
 			}
 		},
 		"remparts_stellaires": {
-			"label": "Remparts stellaires",
+			"label": "Remparts stellaires", "lore": "Une station agrandie jusqu'à devenir une place forte, avec ses propres chantiers et sa garnison. Son canon à ions porte jusqu'au point de saut. Un dôme de champ couvre la planète qu'elle garde.",
 			"domain": "armement",
 			"era": 4,
 			"field": "defenses",
@@ -560,7 +560,7 @@
 			}
 		},
 		"citadelle_planetaire": {
-			"label": "Citadelles",
+			"label": "Citadelles", "lore": "Une forteresse enterrée sous la capitale d'une colonie, assez grande pour abriter toute sa population. Ses batteries tirent à travers l'atmosphère sur les barges. Un générateur de champ couvre la ville, dans les empires qui savent en bâtir.",
 			"domain": "armement",
 			"era": 3,
 			"field": "defenses",
@@ -572,7 +572,7 @@
 			]
 		},
 		"doctrine_interarmes": {
-			"label": "Doctrine interarmes",
+			"label": "Doctrine interarmes", "lore": "Un règlement qui place les fantassins, les chars et les appareils sous un seul chef, à l'échelle du bataillon. Les trois armes s'entraînent ensemble une saison par an. Un officier ne monte plus en grade sans avoir servi dans deux d'entre elles.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -587,7 +587,7 @@
 			}
 		},
 		"infanterie_antiaerienne": {
-			"label": "Missiles portatifs",
+			"label": "Missiles portatifs", "lore": "Un tube d'un mètre vingt, porté à l'épaule, qui lance un missile guidé sur la chaleur d'un moteur. Chaque section en reçoit deux. Les pilotes ont appris à voler plus haut.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -602,7 +602,7 @@
 			}
 		},
 		"bombardement_precision": {
-			"label": "Bombardement de précision",
+			"label": "Bombardement de précision", "lore": "Des obus guidés depuis l'orbite par un observateur au sol, qui tombent à quelques mètres du point désigné. Les artilleurs visent les casemates une à une. Les quartiers voisins restent debout.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -617,7 +617,7 @@
 			}
 		},
 		"brise_monde": {
-			"label": "Brise-monde",
+			"label": "Brise-monde", "lore": "Une arme de la taille d'une lune, qui concentre son tir sur le noyau d'une planète jusqu'à ce qu'elle se disloque. Il faut des semaines pour la mettre en batterie. Un empire n'en construit qu'une.",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
@@ -633,7 +633,7 @@
 			"flavor": "La question n'est plus de savoir si l'on peut. La question est de savoir qui le pardonnera."
 		},
 		"anneau_extinction": {
-			"label": "Anneau d'extinction",
+			"label": "Anneau d'extinction", "lore": "Un anneau bâti autour d'une étoile, qui en libère l'énergie d'un coup dans toutes les directions. Rien ne survit dans les systèmes voisins, pas même les colonies de l'empire qui le déclenche. Il a été conçu pour le jour où il n'y aurait plus d'autre réponse.",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
@@ -649,7 +649,7 @@
 			"flavor": "Un bouton, sous une vitre, sous une autre vitre, sous un serment."
 		},
 		"foyer_plasma_ancien": {
-			"label": "Foyer à plasma ancien",
+			"label": "Foyer à plasma ancien", "lore": "La chambre d'une arme à plasma, retrouvée intacte dans une épave dont personne ne connaît les constructeurs. Les ingénieurs l'ont démontée en numérotant chaque pièce. Ils en ont tiré une copie qui fonctionne, sans savoir encore à quoi servent deux de ses organes.",
 			"domain": "armement",
 			"era": 3,
 			"field": "armes",
@@ -665,7 +665,7 @@
 			"flavor": "Il était encore chaud. Les ingénieurs ont préféré ne pas demander depuis quand."
 		},
 		"plans_bouclier_oublie": {
-			"label": "Plans d'un bouclier oublié",
+			"label": "Plans d'un bouclier oublié", "lore": "Les plans d'un générateur capable de couvrir plusieurs coques d'un seul champ, tracés sur un métal qui ne s'oxyde pas. La puissance qui les a dessinés ne l'a peut-être jamais construit. Les cotes sont données dans une unité qu'il a fallu retrouver.",
 			"domain": "armement",
 			"era": 4,
 			"field": "defenses",
@@ -680,7 +680,7 @@
 			"flavor": "L'original protégeait une flotte entière. De quoi, les plans ne le disent pas."
 		},
 		"generaux_corps": {
-			"label": "Généraux de corps",
+			"label": "Généraux de corps", "lore": "Un état-major assez nombreux pour suivre deux campagnes depuis le même vaisseau. Le général garde auprès de lui un adjoint pour chaque front. Les ordres passent par des relais posés entre les systèmes.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -700,7 +700,7 @@
 			}
 		},
 		"droit_guerre": {
-			"label": "Droit de la guerre",
+			"label": "Droit de la guerre", "lore": "Un corps de juristes attaché à la chancellerie, qui rédige les griefs avant la guerre et les traités après. Ils savent présenter une exigence nouvelle comme la suite d'une ancienne. Leurs mémoires sont envoyés à toutes les cours avant l'ouverture des pourparlers.",
 			"domain": "armement",
 			"era": 3,
 			"field": "doctrines",
@@ -719,7 +719,7 @@
 			}
 		},
 		"logistique_occupation": {
-			"label": "Logistique d'occupation",
+			"label": "Logistique d'occupation", "lore": "Une intendance qui suit les troupes d'occupation et rouvre en un mois les marchés, les écoles et les tribunaux. Les habitants sont payés dans leur propre monnaie. Les officiers répondent des pillages sur leur solde.",
 			"domain": "armement",
 			"era": 4,
 			"field": "doctrines",
@@ -738,7 +738,7 @@
 			}
 		},
 		"contre_mesures_crise": {
-			"label": "Contre-mesures de crise",
+			"label": "Contre-mesures de crise", "lore": "Les relevés du premier présage, repris par les arsenaux pour régler les charges et les fréquences de tir contre ce qui vient. Chaque flotte reçoit ses réglages avec une notice de quatre pages. On la corrige après chaque rencontre.",
 			"domain": "armement",
 			"era": 3,
 			"field": "defenses",
@@ -758,7 +758,7 @@
 			"flavor": "Le présage décrivait la fin du monde. Les ingénieurs y ont surtout lu des spécifications."
 		},
 		"manuel_braves": {
-			"label": "Manuel des braves",
+			"label": "Manuel des braves", "lore": "Un carnet relié de toile, trouvé intact, qui décrit pas à pas l'instruction d'une troupe d'abordage. Son auteur ne s'y nomme pas. Les écoles en ont tiré des copies sans y changer une ligne.",
 			"domain": "armement",
 			"era": 2,
 			"field": "troupes",

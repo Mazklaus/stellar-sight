@@ -104,6 +104,9 @@ var marks_log: Array[Dictionary] = []
 ## Faits d'armes et de règne comptés pour les eurêkas : kills, ships_lost, battles_won, conquests,
 ## besieged, wars, built, sacrifices.
 var stats: Dictionary = {}
+## Registre des bilans mensuels (ressource -> bilans nets des derniers mois, du plus ancien au plus récent).
+const LEDGER_MONTHS := 24
+var ledger: Dictionary = {}
 ## Eurêkas déjà obtenus (id de technologie -> true).
 var eurekas: Dictionary = {}
 ## Victoires (voir VictorySystem) : id de victoire -> {"pct": avancée au dernier bilan, "held": jours
@@ -274,6 +277,8 @@ func to_dict() -> Dictionary:
 		d["surveyed"] = sorted_surveyed()
 	if rally_system >= 0:
 		d["rally"] = rally_system
+	if not ledger.is_empty():
+		d["ledger"] = ledger.duplicate(true)
 	if largesse != 0:
 		d["largesse"] = largesse
 	if not claim_queue.is_empty():
@@ -345,8 +350,24 @@ func sorted_explored() -> Array:
 	return ids
 
 
+## Inscrit le bilan net du mois au registre (les LEDGER_MONTHS derniers mois sont gardés).
+func note_month(net: Dictionary) -> void:
+	for r in GameData.resource_ids():
+		var line: Array = ledger.get(r, [])
+		line.append(int(net.get(r, 0)))
+		while line.size() > LEDGER_MONTHS:
+			line.pop_front()
+		ledger[r] = line
+
+
 static func from_dict(d: Dictionary) -> Empire:
 	var e := Empire.new()
+	var led: Dictionary = d.get("ledger", {})
+	for r in led:
+		var line := []
+		for v in led[r]:
+			line.append(int(v))
+		e.ledger[String(r)] = line
 	e.id = int(d["id"])
 	e.faction_id = String(d["faction"])
 	e.color_hex = String(d.get("color", ""))

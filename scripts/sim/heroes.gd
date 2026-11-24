@@ -592,7 +592,8 @@ static func post_effect_text(state: GameState, h: Dictionary) -> String:
 					v = int(c[k])
 			@warning_ignore("integer_division")
 			var amount := (hl + 1) / 2 if c.has("encryption_half") else v * hl / 2
-			return String(c.get("text", "")) % amount
+			# Une classe sans bonus de conseil (le général) n'a pas de texte à remplir.
+			return String(c["text"]) % amount if c.has("text") else "Aucun bonus d'empire pour cette classe."
 		"amph":
 			return txt % AmphInst.ambassador_pct(state, int(h["owner"]))
 		"koinon":

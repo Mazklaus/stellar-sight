@@ -3,6 +3,16 @@
 Déposez ici les images d'habillage (PNG, JPG ou WebP). Chaque emplacement de l'interface (`Widgets.ArtSlot`)
 cherche un fichier portant son identifiant et l'affiche à la place du motif dessiné. Aucun code à changer.
 
+Tant que le fichier manque, un emplacement nommé montre un **tableau provisoire** (ciel, astre, horizon) tiré de
+son identifiant, avec ce nom dans le coin (Options, Affichage, « Nom des images provisoires »).
+
+- `EMPLACEMENTS.md` : la liste complète des 400 emplacements, par famille, avec le nom de fichier et le format.
+- `CONSIGNES.md` : une consigne de génération par emplacement (sujet, cadrage, palette).
+- Dans le jeu : Codex, « Galerie des illustrations », qui dit pour chacun s'il est provisoire ou définitif.
+- Ces deux fichiers se régénèrent par `godot --headless --path . -s res://tools/art_list.gd`.
+
+Le tableau ci-dessous garde les familles d'origine et leurs usages.
+
 | Identifiant | Où | Format conseillé |
 | --- | --- | --- |
 | `faction_<id>` (ossarane, choeur, vael, khthari, teyl, ferrocornes, brisecomete, murmurants) | Portrait d'un peuple : choix de faction, colonne de l'écran Économie | portrait, 3:4 |

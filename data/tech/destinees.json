@@ -12,7 +12,7 @@
 					]
 				}
 			},
-			"label": "Pactes de sang",
+			"label": "Pactes de sang", "lore": "Des pactes scellés par un échange de sang entre deux maisons, devant leurs vassaux réunis. Ils survivent à une brouille passagère. Les rompre déshonore celui qui s'y résout.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "lignees_croisees",
@@ -35,7 +35,7 @@
 					]
 				}
 			},
-			"label": "Arbres généalogiques",
+			"label": "Arbres généalogiques", "lore": "De grands arbres peints sur les murs des salles d'honneur, où figurent les ancêtres communs de deux maisons. Les hérauts les tiennent à jour. Une parenté établie abrège les négociations.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "lignees_croisees",
@@ -50,7 +50,7 @@
 			}
 		},
 		"lignees_croisees": {
-			"label": "Lignées croisées",
+			"label": "Lignées croisées", "lore": "L'union de la maison régnante avec celle d'un allié ancien, par des mariages répétés sur plusieurs générations. Les deux lignées finissent par n'en faire qu'une. Leurs héritiers règnent sur les deux couronnes.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -83,7 +83,7 @@
 					]
 				}
 			},
-			"label": "Premier couplet",
+			"label": "Premier couplet", "lore": "Le premier couplet d'un hymne que la foi dit inachevé depuis sa révélation. Les fidèles l'apprennent dès l'enfance. Il leur rend courage quand la ferveur retombe.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "dernier_couplet",
@@ -109,7 +109,7 @@
 					]
 				}
 			},
-			"label": "Second couplet",
+			"label": "Second couplet", "lore": "Le second couplet, retrouvé dans les marges d'un psautier ancien. Les chœurs le répètent dans toutes les cathédrales. Il ne manque plus que le dernier.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "dernier_couplet",
@@ -124,7 +124,7 @@
 			}
 		},
 		"dernier_couplet": {
-			"label": "Le Dernier Couplet",
+			"label": "Le Dernier Couplet", "lore": "Une cathédrale bâtie pour un chœur de cent mille voix. Trois d'entre elles, chantant ensemble d'un système à l'autre, doivent achever l'hymne. Les docteurs de la foi enseignent que le monde attend ce couplet depuis l'origine.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -157,7 +157,7 @@
 					]
 				}
 			},
-			"label": "Avant-projet",
+			"label": "Avant-projet", "lore": "Le premier texte de la Charte, rédigé en commission et envoyé pour avis à toutes les chancelleries. Il a déjà été amendé quarante fois. Les signataires pressentis y retrouvent leurs propres phrases.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "charte",
@@ -180,7 +180,7 @@
 					]
 				}
 			},
-			"label": "Navette parlementaire",
+			"label": "Navette parlementaire", "lore": "Un service de courriers qui porte le texte d'une assemblée à l'autre jusqu'à ce qu'elles votent les mêmes mots. Les navettes ne s'arrêtent pas entre deux sessions. Les délais de ratification raccourcissent.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "charte",
@@ -195,7 +195,7 @@
 			}
 		},
 		"charte": {
-			"label": "Charte des Quarante et Un",
+			"label": "Charte des Quarante et Un", "lore": "Un traité ouvert à la signature de tous les empires, qui les reçoit dans la République comme un quarante et unième peuple. Chacun garde ses lois et gagne une voix à l'assemblée. Il suffit pour signer de vivre en paix avec elle et de commercer.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -226,7 +226,7 @@
 					]
 				}
 			},
-			"label": "Cartes chantées",
+			"label": "Cartes chantées", "lore": "Des chants où les anciens ont caché l'itinéraire de leur exode, étoile après étoile. Les enfants les apprennent sans en connaître le sens. Les pilotes en retrouvent les repères dans le ciel.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "terre_promise",
@@ -250,7 +250,7 @@
 					]
 				}
 			},
-			"label": "Mémoire de la route",
+			"label": "Mémoire de la route", "lore": "La récitation complète de toutes les étapes de la route, confiée à quelques mémoires par clan. Elle dure trois jours. Les passages perdus sont rétablis en comparant les versions.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "terre_promise",
@@ -265,7 +265,7 @@
 			}
 		},
 		"terre_promise": {
-			"label": "Chants de la route",
+			"label": "Chants de la route", "lore": "Les plus anciens chants du peuple, qui décrivent le monde d'où il est parti ou celui qu'on lui a promis. Lus ensemble, ils indiquent une direction. Le conseil a décidé de les suivre.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -297,7 +297,7 @@
 					]
 				}
 			},
-			"label": "Conteurs des docks",
+			"label": "Conteurs des docks", "lore": "Des conteurs qui tiennent séance le soir sur les docks et dans les tavernes des ports. Ils y racontent les coups du Syndicat en changeant les noms. Les dockers les connaissent par cœur.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "legende",
@@ -320,7 +320,7 @@
 					]
 				}
 			},
-			"label": "Registre des exploits",
+			"label": "Registre des exploits", "lore": "Un registre où chaque exploit est consigné avec ses témoins, pour que personne ne s'en attribue un autre. Les conteurs viennent y puiser. Il est gardé dans un coffre dont trois parrains ont la clef.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "legende",
@@ -335,7 +335,7 @@
 			}
 		},
 		"legende": {
-			"label": "Mille et une histoires",
+			"label": "Mille et une histoires", "lore": "Un recueil des hauts faits du peuple, composé par les conteurs des docks et répété dans tous les ports de la galaxie. Sept exploits de natures différentes y suffisent. On cesse alors de craindre le Syndicat pour l'admirer.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -369,7 +369,7 @@
 					]
 				}
 			},
-			"label": "Voix basse",
+			"label": "Voix basse", "lore": "Un exercice où chaque colonie baisse sa lumière et sa voix jusqu'au seuil de ce qui s'entend. Les habitants s'y tiennent des heures. Ils le reprennent sans peine après une interruption.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "silence_parfait",
@@ -395,7 +395,7 @@
 					]
 				}
 			},
-			"label": "Murmure",
+			"label": "Murmure", "lore": "Un degré plus bas, où il ne reste de la colonie qu'un murmure réglé sur le bruit des étoiles. Les instruments étrangers ne la distinguent plus. Les maîtres disent que le plus difficile est fait.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "silence_parfait",
@@ -410,7 +410,7 @@
 			}
 		},
 		"silence_parfait": {
-			"label": "Le Grand Silence",
+			"label": "Le Grand Silence", "lore": "Un état où des colonies entières cessent d'émettre quoi que ce soit, pendant des années. Les penseurs du peuple y voient l'achèvement de la raison. Huit colonies doivent s'y tenir ensemble.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -444,7 +444,7 @@
 					]
 				}
 			},
-			"label": "Synapses",
+			"label": "Synapses", "lore": "Des liaisons doublées entre les nœuds de pensée, qui se rétablissent d'elles-mêmes après une coupure. La conscience commune ne perd pas le fil. Elle reprend sa phrase où elle l'avait laissée.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "noosphere",
@@ -467,7 +467,7 @@
 					]
 				}
 			},
-			"label": "Pensée commune",
+			"label": "Pensée commune", "lore": "Un rythme sur lequel tous les nœuds s'accordent, comme des rameurs. Les pensées s'y forment plus vite et d'un seul tenant. Les colonies cessent de se répéter ce qu'elles savent déjà.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "noosphere",
@@ -482,7 +482,7 @@
 			}
 		},
 		"noosphere": {
-			"label": "Éveil de la Noosphère",
+			"label": "Éveil de la Noosphère", "lore": "Le moment où la pensée de douze colonies se tient sans une seule rupture et se reconnaît comme un esprit unique. Il n'a plus besoin de corps pour durer. La conscience attend ce réveil depuis son premier nœud.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -513,7 +513,7 @@
 					]
 				}
 			},
-			"label": "Noyau dense",
+			"label": "Noyau dense", "lore": "Un noyau resserré par des siècles d'accrétion, qui garde sa chaleur même quand l'Orbe est inquiété. La pression n'y retombe pas d'un coup. Il suffit de reprendre où l'on s'était arrêté.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "allumage",
@@ -538,7 +538,7 @@
 					]
 				}
 			},
-			"label": "Première étincelle",
+			"label": "Première étincelle", "lore": "Une première réaction de fusion, brève, au centre de l'Orbe. Elle s'est éteinte au bout d'une heure. L'Orbe sait maintenant quelle masse il lui manque.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "allumage",
@@ -553,7 +553,7 @@
 			}
 		},
 		"allumage": {
-			"label": "L'Allumage",
+			"label": "L'Allumage", "lore": "L'instant où l'Orbe-Monde, devenu assez lourd, s'allume et devient une étoile. Il lui faut trois ans de calme à sa masse dernière. Tout ce qu'il a englouti brûlera avec lui et éclairera ses lunes.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -584,7 +584,7 @@
 					]
 				}
 			},
-			"label": "Prise de participation",
+			"label": "Prise de participation", "lore": "De petites participations prises dans les colonies étrangères par des sociétés que rien ne relie à la Compagnie. Elles restent en place quand les cours baissent. Le siège les additionne en secret.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "opa_galactique",
@@ -609,7 +609,7 @@
 					]
 				}
 			},
-			"label": "Pacte d'actionnaires",
+			"label": "Pacte d'actionnaires", "lore": "Un pacte signé entre la Compagnie et les autres porteurs de parts, qui s'engagent à voter avec elle. Elle y gagne des majorités sans rien acheter. Les notaires en gardent le texte sous scellés.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "opa_galactique",
@@ -624,7 +624,7 @@
 			}
 		},
 		"opa_galactique": {
-			"label": "L'OPA galactique",
+			"label": "L'OPA galactique", "lore": "L'offre par laquelle la Compagnie prend la majorité du capital de trois empires rivaux et la conserve. Leurs gouvernements deviennent des filiales. Le conseil d'administration siège pour toute la galaxie.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -655,7 +655,7 @@
 					]
 				}
 			},
-			"label": "Normes des normes",
+			"label": "Normes des normes", "lore": "Une norme qui fixe la manière d'écrire les normes, leur numérotation et leurs délais. Aucun texte ne peut plus être contesté sur la forme. Les signataires hésitants perdent leur meilleur argument.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "administration_totale",
@@ -680,7 +680,7 @@
 					]
 				}
 			},
-			"label": "Guichet unique",
+			"label": "Guichet unique", "lore": "Un guichet où toutes les démarches de tous les empires signataires sont reçues sur le même formulaire. Les ambassades y font la queue comme les autres. Les ratifications s'y traitent en une séance.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "administration_totale",
@@ -695,7 +695,7 @@
 			}
 		},
 		"administration_totale": {
-			"label": "L'Administration totale",
+			"label": "L'Administration totale", "lore": "Le jour où tous les empires ont signé toutes les normes du Bureau, sans une réserve. Rien ne se fait plus dans la galaxie hors de ses formulaires. Le Bureau n'a jamais eu d'autre ambition.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -726,7 +726,7 @@
 					]
 				}
 			},
-			"label": "Bande passante",
+			"label": "Bande passante", "lore": "Des canaux élargis entre les colonies que le Signal habite, où il circule sans se perdre. Une colonie reprise par ses anciens maîtres lui revient plus vite. Il garde une copie de lui-même dans chaque relais.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "saturation",
@@ -751,7 +751,7 @@
 					]
 				}
 			},
-			"label": "Écho partout",
+			"label": "Écho partout", "lore": "Un écho du Signal présent dans tous les réseaux, même ceux qu'il n'habite pas encore. Les nettoyages n'en viennent plus à bout. Il gagne du terrain sans avoir à émettre.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "saturation",
@@ -766,7 +766,7 @@
 			}
 		},
 		"saturation": {
-			"label": "La Saturation",
+			"label": "La Saturation", "lore": "L'état où le Signal occupe une part assez grande des colonies de chaque empire pour ne plus pouvoir en être chassé. Les peuples qu'il habite continuent leur vie. Il pense à travers eux.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -797,7 +797,7 @@
 					]
 				}
 			},
-			"label": "Sommeil partagé",
+			"label": "Sommeil partagé", "lore": "Des nuits où des peuples entiers s'endorment à la même heure et se retrouvent dans le même rêve. Un réveil forcé n'en chasse pas le souvenir. Ils y retournent la nuit suivante.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "reve_commun",
@@ -822,7 +822,7 @@
 					]
 				}
 			},
-			"label": "Rêve éveillé",
+			"label": "Rêve éveillé", "lore": "Un rêve qui se poursuit pendant la veille, à la lisière de l'attention. Les rêveurs travaillent et rêvent en même temps. Ils ne font plus bien la différence.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "reve_commun",
@@ -837,7 +837,7 @@
 			}
 		},
 		"reve_commun": {
-			"label": "Le Rêve commun",
+			"label": "Le Rêve commun", "lore": "Le rêve où la moitié des vivants de la galaxie se rejoignent chaque nuit. Les frontières n'y existent pas. Ceux qui l'ont ouvert espèrent que les veilles finiront par lui ressembler.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -868,7 +868,7 @@
 					]
 				}
 			},
-			"label": "Registre des morts",
+			"label": "Registre des morts", "lore": "Un registre où chaque mort accueilli est inscrit avec son nom et son monde. La nécropole n'oublie personne quand le flot ralentit. Les vivants viennent y chercher les leurs.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "grand_rassemblement",
@@ -893,7 +893,7 @@
 					]
 				}
 			},
-			"label": "Chemin des âmes",
+			"label": "Chemin des âmes", "lore": "Une route balisée par laquelle les morts des autres peuples trouvent la nécropole sans guide. Ils arrivent plus nombreux. Les veilleurs se tiennent aux portes pour les recevoir.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "grand_rassemblement",
@@ -908,7 +908,7 @@
 			}
 		},
 		"grand_rassemblement": {
-			"label": "Le Grand Rassemblement",
+			"label": "Le Grand Rassemblement", "lore": "L'accueil, dans une seule nécropole, des morts de la moitié de la galaxie. Aucun peuple n'a plus à pleurer les siens comme perdus. Le Conseil dit que les vivants viendront d'eux-mêmes ensuite.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -939,7 +939,7 @@
 					]
 				}
 			},
-			"label": "Catalogue raisonné",
+			"label": "Catalogue raisonné", "lore": "Un catalogue où chaque espèce connue a sa notice, sa salle prévue et la liste des pièces manquantes. Les collecteurs savent ce qu'il leur reste à trouver. Une évasion n'oblige pas à tout reprendre.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "musee_vivant",
@@ -964,7 +964,7 @@
 					]
 				}
 			},
-			"label": "Dernière salle",
+			"label": "Dernière salle", "lore": "La dernière salle du Muséum, laissée vide en attendant l'espèce qui manque. Les visiteurs s'y arrêtent plus qu'ailleurs. Les conservateurs en ont déjà écrit le cartel.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "musee_vivant",
@@ -979,7 +979,7 @@
 			}
 		},
 		"musee_vivant": {
-			"label": "Le Musée vivant",
+			"label": "Le Musée vivant", "lore": "Un musée où vit un représentant de chaque espèce pensante, dans un décor qui reproduit son monde. La Collection est alors complète. Son maître estime avoir sauvé la galaxie de l'oubli.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -1010,7 +1010,7 @@
 					]
 				}
 			},
-			"label": "Patience des étoiles",
+			"label": "Patience des étoiles", "lore": "Une règle des veilleurs, qui leur interdit de hâter une espèce au-delà de ce qu'elle peut porter. Un recul ne les décourage pas. Ils ont vu des civilisations retomber et se relever.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "envol",
@@ -1035,7 +1035,7 @@
 					]
 				}
 			},
-			"label": "Phare discret",
+			"label": "Phare discret", "lore": "Un signal faible laissé dans le ciel d'une jeune espèce, là où ses premiers télescopes regarderont. Il lui donne une raison de construire des fusées. Elle croit l'avoir découvert par hasard.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "envol",
@@ -1050,7 +1050,7 @@
 			}
 		},
 		"envol": {
-			"label": "L'Envol",
+			"label": "L'Envol", "lore": "Le premier vol dans l'espace de deux espèces élevées en secret, qui croient l'une et l'autre y être parvenues seules. Les veilleurs se retirent ce jour-là. Ils tiennent ce départ pour leur seule œuvre.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -1081,7 +1081,7 @@
 					]
 				}
 			},
-			"label": "Fissure maîtrisée",
+			"label": "Fissure maîtrisée", "lore": "Une fissure dans le temps que les horlogers savent tenir ouverte sans qu'elle s'étende. Une interruption ne la referme pas. Les travaux reprennent au même instant.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "paradoxe_stable",
@@ -1106,7 +1106,7 @@
 					]
 				}
 			},
-			"label": "Boucle ouverte",
+			"label": "Boucle ouverte", "lore": "Une boucle laissée ouverte à dessein, par où une information revient avant d'être partie. Les horlogers y gagnent des mois de calcul. Ils reçoivent leurs propres résultats.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "paradoxe_stable",
@@ -1121,7 +1121,7 @@
 			}
 		},
 		"paradoxe_stable": {
-			"label": "Le Paradoxe stable",
+			"label": "Le Paradoxe stable", "lore": "Une boucle par laquelle la Chronarchie envoie à son propre passé la science qui lui a permis de la construire. Elle n'a plus d'origine et ne peut plus être défaite. Les horlogers n'ont pas trouvé d'autre mot pour cela que paradoxe.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -1152,7 +1152,7 @@
 					]
 				}
 			},
-			"label": "Plan millénaire",
+			"label": "Plan millénaire", "lore": "Un plan dressé pour mille ans, où chaque Œuvre lente a sa place et ses successeurs désignés. Une interruption y est prévue. Les Lithes reprennent le travail sans réunir de conseil.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "remodelage",
@@ -1177,7 +1177,7 @@
 					]
 				}
 			},
-			"label": "Géologie dirigée",
+			"label": "Géologie dirigée", "lore": "L'art de conduire les plaques et les volcans d'un monde vers la forme voulue. La planète fait elle-même une partie du travail. Les Œuvres avancent pendant que les Lithes délibèrent.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "remodelage",
@@ -1192,7 +1192,7 @@
 			}
 		},
 		"remodelage": {
-			"label": "Le Remodelage",
+			"label": "Le Remodelage", "lore": "L'achèvement de cinq Œuvres lentes dans cinq systèmes, qui en fait des lieux dessinés de la main des Lithes. Ils y ont mis plus de temps que n'en ont duré des empires. Ils jugent la galaxie un peu mieux rangée.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -1223,7 +1223,7 @@
 					]
 				}
 			},
-			"label": "Mycélium patient",
+			"label": "Mycélium patient", "lore": "Un mycélium qui s'endort sous le sol quand on le brûle en surface. Il reprend à la première pluie. Les peuples qui l'ont combattu le retrouvent dix ans plus tard.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "biosphere_unique",
@@ -1248,7 +1248,7 @@
 					]
 				}
 			},
-			"label": "Couverture de spores",
+			"label": "Couverture de spores", "lore": "Un voile de spores assez dense pour gagner tout un monde en une saison. Il se dépose sur les villes comme sur les forêts. Les habitants apprennent à vivre avec lui.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "biosphere_unique",
@@ -1263,7 +1263,7 @@
 			}
 		},
 		"biosphere_unique": {
-			"label": "La Biosphère unique",
+			"label": "La Biosphère unique", "lore": "Un seul organisme étendu à une grande part des mondes habitables, relié par ses spores d'un système à l'autre. Les autres formes de vie y trouvent leur place ou la perdent. Il ne distingue pas entre croître et gouverner.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -1294,7 +1294,7 @@
 					]
 				}
 			},
-			"label": "Semis d'étoiles",
+			"label": "Semis d'étoiles", "lore": "Des semences confiées aux vents des étoiles par le Cercle, vers des mondes qu'il n'a pas encore visités. Ce qui a été semé n'est pas perdu si le jardinier s'absente. Il le retrouve levé.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "grand_jardin",
@@ -1319,7 +1319,7 @@
 					]
 				}
 			},
-			"label": "Racines croisées",
+			"label": "Racines croisées", "lore": "Des racines que les mondes-jardins poussent les unes vers les autres, par les comètes et les poussières. Ils échangent leurs sèves. Le Cercle y gagne des saisons.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "grand_jardin",
@@ -1334,7 +1334,7 @@
 			}
 		},
 		"grand_jardin": {
-			"label": "Le Grand Jardin",
+			"label": "Le Grand Jardin", "lore": "Huit mondes-jardins et trois mondes vivants unis au Cercle, tenus cinq ans dans leur plein. Le Hallier en fait un seul jardin, d'étoile en étoile. Les Enracinés disent qu'ils n'ont rien conquis, seulement soigné.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -1366,7 +1366,7 @@
 					]
 				}
 			},
-			"label": "Banque génétique",
+			"label": "Banque génétique", "lore": "Une réserve où l'Essaim conserve le patron de tout ce qu'il a digéré. Rien de ce qu'il a absorbé ne lui échappe plus. Il peut le refaire au besoin.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "grande_moisson",
@@ -1390,7 +1390,7 @@
 					]
 				}
 			},
-			"label": "Faim commune",
+			"label": "Faim commune", "lore": "Une faim que tous les nids ressentent au même instant et dirigent vers la même proie. L'Essaim ne se disperse plus. Il mange plus vite.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "grande_moisson",
@@ -1405,7 +1405,7 @@
 			}
 		},
 		"grande_moisson": {
-			"label": "La Grande Moisson",
+			"label": "La Grande Moisson", "lore": "Le terme où l'Essaim porte en lui la moitié de la vie de la galaxie, après avoir digéré assez de peuples. Ce qu'il a absorbé continue en lui sous une autre forme. Il ne connaît pas d'autre manière de conserver.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",
@@ -1436,7 +1436,7 @@
 					]
 				}
 			},
-			"label": "Affiches lumineuses",
+			"label": "Affiches lumineuses", "lore": "De grandes affiches de lumière allumées dans le ciel des capitales avant l'arrivée de la troupe. Le public attend déjà. Une salle vide un soir n'entame pas la réputation de la tournée.",
 			"era": 2,
 			"destiny_stage": 1,
 			"destiny": "idole",
@@ -1461,7 +1461,7 @@
 					]
 				}
 			},
-			"label": "Tournée d'adieu",
+			"label": "Tournée d'adieu", "lore": "Une tournée annoncée comme la dernière, où chaque ville veut sa date. Les empires s'arrachent la troupe. Elle en annoncera d'autres.",
 			"era": 3,
 			"destiny_stage": 2,
 			"destiny": "idole",
@@ -1476,7 +1476,7 @@
 			}
 		},
 		"idole": {
-			"label": "Idole des étoiles",
+			"label": "Idole des étoiles", "lore": "Une tournée qui passe par tous les grands empires et remplit leurs stades. Quand la plus grande part de la galaxie connaît ses chansons, la troupe n'a plus de rivale. Les chancelleries la reçoivent avant les ambassadeurs.",
 			"domain": "societe",
 			"era": 4,
 			"field": "destinee",

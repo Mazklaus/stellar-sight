@@ -56,7 +56,19 @@ static func build(es: EmpireScreens) -> void:
 	# Pouvoirs.
 	var pb := Widgets.Block.new("Pouvoirs : %s" % Psionics.form_label(state, player))
 	col.add_child(pb)
-	for p: Dictionary in Psionics.powers_of(state, player):
+	# Les pouvoirs en cartes (refonte, C10) : on choisit le pouvoir, puis sa cible dans la liste dessous.
+	var powers := Psionics.powers_of(state, player)
+	var ids := PackedStringArray()
+	for p: Dictionary in powers:
+		ids.append(String(p["id"]))
+	if not ids.has(es.psionics_power):
+		es.psionics_power = ""
+	var cards := HFlowContainer.new()
+	cards.add_theme_constant_override("h_separation", 10)
+	cards.add_theme_constant_override("v_separation", 10)
+	pb.body.add_child(cards)
+	var chosen := {}
+	for p: Dictionary in powers:
 		var pid := String(p["id"])
 		var fc: Array = Psionics.felure_chance(state, player, pid)
 		var parts := PackedStringArray()
@@ -67,16 +79,64 @@ static func build(es: EmpireScreens) -> void:
 		var h := Psionics.power_hero(state, player, pid)
 		if not h.is_empty():
 			tip += "\nSensitif : %s (puissance %d)" % [h["name"], Psionics.hero_power(state, h)]
-		var row := HFlowContainer.new()
-		row.add_theme_constant_override("h_separation", 8)
-		pb.body.add_child(row)
-		var lab := Label.new()
-		lab.text = "%s (%d, fêlure %d %%)" % [String(p["label"]), Psionics.power_cost(state, player, pid), int(fc[0])]
-		lab.custom_minimum_size = Vector2(300, 0)
-		row.add_child(lab)
-		for t in _targets(state, player, p):
-			var why := Psionics.check_power(state, player, pid, int(t[0]))
-			row.add_child(_btn(es, String(t[1]), why, tip, SimCommands.psi_act(player, "power", {"power": pid, "target": int(t[0])}), "power:%s:%d" % [pid, int(t[0])]))
+		var targets := _targets(state, player, p)
+		var usable := 0
+		for t in targets:
+			if Psionics.check_power(state, player, pid, int(t[0])) == "":
+				usable += 1
+		var on := pid == es.psionics_power
+		if on:
+			chosen = {"p": p, "targets": targets, "tip": tip}
+		var card := Button.new()
+		card.toggle_mode = true
+		card.focus_mode = Control.FOCUS_NONE
+		card.set_pressed_no_signal(on)
+		card.custom_minimum_size = Vector2(236, 104)
+		card.tooltip_text = tip
+		var cc := VBoxContainer.new()
+		cc.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		cc.offset_left = 10
+		cc.offset_right = -10
+		cc.offset_top = 6
+		cc.offset_bottom = -6
+		cc.add_theme_constant_override("separation", 2)
+		cc.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card.add_child(cc)
+		var head := Label.new()
+		head.text = String(p["label"])
+		head.add_theme_font_size_override("font_size", 16)
+		head.add_theme_color_override("font_color", COLOR if usable > 0 else UiTheme.TEXT_DIM)
+		head.clip_text = true
+		head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		cc.add_child(head)
+		var meta := UiTheme.dim("%d Résonance · fêlure %d %% · recharge %d j" % [Psionics.power_cost(state, player, pid), int(fc[0]), int(p.get("cooldown", 0))], 11)
+		meta.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		cc.add_child(meta)
+		var tx := UiTheme.paragraph(String(p["text"]), 216.0, 11)
+		tx.clip_text = true
+		tx.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		tx.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		cc.add_child(tx)
+		card.pressed.connect(func() -> void:
+			es.psionics_power = "" if es.psionics_power == pid else pid
+			es.show_screen("psionics"))
+		cards.add_child(card)
+		es.psionics_buttons["card:" + pid] = card
+	if chosen.is_empty():
+		pb.body.add_child(UiTheme.dim("Choisissez un pouvoir pour voir ses cibles.", 13))
+	else:
+		var cp: Dictionary = chosen["p"]
+		var cpid := String(cp["id"])
+		pb.body.add_child(UiTheme.section("Cible de « %s »" % String(cp["label"])))
+		var list := HFlowContainer.new()
+		list.add_theme_constant_override("h_separation", 8)
+		list.add_theme_constant_override("v_separation", 6)
+		pb.body.add_child(list)
+		for t in (chosen["targets"] as Array):
+			var why := Psionics.check_power(state, player, cpid, int(t[0]))
+			list.add_child(_btn(es, String(t[1]), why, String(chosen["tip"]), SimCommands.psi_act(player, "power", {"power": cpid, "target": int(t[0])}), "power:%s:%d" % [cpid, int(t[0])]))
+		if (chosen["targets"] as Array).is_empty():
+			list.add_child(UiTheme.dim("Aucune cible pour l'instant.", 13))
 
 	# Espèces.
 	var sb := Widgets.Block.new("Vos espèces et le Songe")

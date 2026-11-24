@@ -5,7 +5,7 @@ image: MJ-13
 epigraphe: Nous ne savons pas tout. Mais nous savons qui sait.
 signature: Directoire du Syndicat Brisecomète, note interne
 ---
-L'écran Renseignement ([[F8]]) gère vos **cellules d'espionnage** : des équipes que vous placez chez un empire rencontré pour y bâtir un réseau, ou chez vous pour vous défendre. Vous en avez deux au départ ; les ères en ajoutent.
+L'écran Renseignement (domaine Diplomatie, [[F4]]) gère vos **cellules d'espionnage** : des équipes que vous placez chez un empire rencontré pour y bâtir un réseau, ou chez vous pour vous défendre. Vous en avez deux au départ ; les ères en ajoutent.
 
 ### Bâtir un réseau
 

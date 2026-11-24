@@ -79,6 +79,7 @@ static func build(es: EmpireScreens) -> void:
 	var state := es._state
 	var player := es._player
 	es._wonders_sig = signature(es)
+	es.wonder_cards.clear()
 	es._side_header("screen_wonders", "Merveilles", Color(0.9, 0.78, 0.45), "faction")
 	MegasUi.tabs(es, "wonders")
 	if not Wonders.enabled(state):
@@ -126,19 +127,16 @@ static func build(es: EmpireScreens) -> void:
 		var wid := String(pair[0])
 		var entry: Dictionary = pair[1]
 		var p := state.galaxy.get_planet(int(entry["p"]))
-		var rivals := PackedStringArray()
-		for r in Wonders.rivals_known(state, player, wid, seen):
-			if WondersBridges.auscultated(state, player, int(r[0])):
-				rivals.append("%s (%d %%)" % [state.get_empire(int(r[0])).short_name(), Wonders.pct(Wonders.build_of(state, int(r[0]), wid))])
-			else:
-				rivals.append("%s (%d %%+)" % [state.get_empire(int(r[0])).short_name(), int(r[1]) * Wonders.r_int("quarter")])
-		var line := "%s sur %s : %d %%, %d pts/jour, mensualité %s." % [Wonders.label(wid), p.display_name(state.galaxy), Wonders.pct(entry),
+		var line := "%s sur %s : %d pts/jour, mensualité %s." % [Wonders.label(wid), p.display_name(state.galaxy),
 				Wonders.speed(state, player, wid, p.id), GameData.format_amounts(Wonders.installment(state, player, wid, entry))]
-		if not rivals.is_empty():
-			line += " Rivaux connus : %s." % ", ".join(rivals)
 		if not bool(entry.get("ok", 1)):
 			line += " Mensualité impayée : le chantier est à l'arrêt."
 		bb.body.add_child(UiTheme.paragraph(line, W, 13))
+		bb.body.add_child(_race_bar("Vous", Wonders.pct(entry), state.get_empire(player).color(), false))
+		for r in Wonders.rivals_known(state, player, wid, seen):
+			var exact := WondersBridges.auscultated(state, player, int(r[0]))
+			var rp := Wonders.pct(Wonders.build_of(state, int(r[0]), wid)) if exact else int(r[1]) * Wonders.r_int("quarter")
+			bb.body.add_child(_race_bar(state.get_empire(int(r[0])).short_name(), rp, state.get_empire(int(r[0])).color(), not exact))
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)
 		bb.body.add_child(row)
@@ -171,47 +169,30 @@ static func build(es: EmpireScreens) -> void:
 	if any_shared:
 		col.add_child(shared)
 
-	var by_fam := {}
+	var by_era := {}
 	for wid in Wonders.all_ids():
 		if not Wonders.visible_for(state, player, wid) or Wonders.def(wid).has("collective"):
 			continue
 		if not Wonders.build_of(state, player, wid).is_empty():
 			continue
-		var fam := Wonders.family(wid)
-		if not by_fam.has(fam):
-			by_fam[fam] = []
-		by_fam[fam].append(wid)
-	for fam in Wonders.data()["families"]:
-		if not by_fam.has(fam):
-			continue
-		var fb := Widgets.Block.new(Wonders.family_label(String(fam)))
-		col.add_child(fb)
-		for wid: String in by_fam[fam]:
-			var at := Wonders.built_at(state, wid)
-			var state_txt := ""
-			if Wonders.galaxy_unique(wid) and at >= 0:
-				var o: Colony = state.colonies[at]
-				state_txt = "achevée par %s" % state.get_empire(o.owner).short_name()
-			elif WondersCatalog.ruin_of(state, wid) >= 0:
-				var rp := WondersCatalog.ruin_of(state, wid)
-				state_txt = "en ruine sur %s : qui tient cette planète peut la restaurer" % (state.galaxy.get_planet(rp).display_name(state.galaxy) if Fleets.is_explored(state, player, state.galaxy.get_planet(rp).system_id) else "un monde inexploré")
-			elif not Wonders.unlocked(state, player, wid):
-				state_txt = Wonders.check_start(state, player, state.get_empire(player).capital_planet, wid)
-			else:
-				var site := _first_site(state, player, wid)
-				state_txt = ("site possible : %s" % state.galaxy.get_planet(site).display_name(state.galaxy)) if site >= 0 else "aucun site convenable pour l'instant"
-				var riv := Wonders.rivals_known(state, player, wid, seen)
-				if not riv.is_empty():
-					state_txt += " ; en course chez %d rival(s)" % riv.size()
-			var lbl := UiTheme.paragraph("%s (ère %d, %s, %d j) : %s\n%s" % [Wonders.label(wid), int(Wonders.def(wid).get("era", 1)),
-					GameData.format_amounts(Wonders.total_cost(state, player, wid)), int(Wonders.def(wid).get("days", 360)), Wonders.effect_text(wid), state_txt], W, 12)
-			fb.body.add_child(lbl)
-			if Wonders.unlocked(state, player, wid) and not (Wonders.galaxy_unique(wid) and at >= 0):
-				var site := _first_site(state, player, wid)
-				if site >= 0:
-					var row := HBoxContainer.new()
-					fb.body.add_child(row)
-					_button(es, row, "Lancer sur %s" % state.galaxy.get_planet(site).display_name(state.galaxy), SimCommands.won_act(player, "start", wid, site))
+		var era := int(Wonders.def(wid).get("era", 1))
+		if not by_era.has(era):
+			by_era[era] = []
+		by_era[era].append(wid)
+	var eras := by_era.keys()
+	eras.sort()
+	for era: int in eras:
+		var eb := Widgets.Block.new("Ère %s" % ["I", "II", "III", "IV", "V", "VI"][clampi(era - 1, 0, 5)])
+		col.add_child(eb)
+		var flow := HFlowContainer.new()
+		flow.add_theme_constant_override("h_separation", 14)
+		flow.add_theme_constant_override("v_separation", 14)
+		eb.body.add_child(flow)
+		# Celles qu'on peut encore viser d'abord, les achevées en dernier.
+		var open_first: Array = (by_era[era] as Array).filter(func(w: String) -> bool: return String(card_state(state, player, w, seen)["id"]) != "done")
+		open_first.append_array((by_era[era] as Array).filter(func(w: String) -> bool: return String(card_state(state, player, w, seen)["id"]) == "done"))
+		for wid: String in open_first:
+			flow.add_child(_card(es, wid, seen))
 
 	var held := Wonders.held(state)
 	if not held.is_empty():
@@ -225,6 +206,121 @@ static func build(es: EmpireScreens) -> void:
 			var stg := Wonders.stage_at(state, String(row[0]), pid)
 			hb.body.add_child(UiTheme.paragraph("%s : %s, sur %s%s" % [Wonders.label(String(row[0])), state.get_empire(int(row[2])).short_name(),
 					state.galaxy.get_planet(pid).display_name(state.galaxy), (" (étape %d)" % stg) if stg > 0 else ""], W, 12))
+
+
+## État d'une merveille pour l'empire : {id, text, color, detail}.
+## id : "done" (achevée par un empire), "ruin", "locked", "race" (des rivaux y travaillent), "free", "nosite".
+static func card_state(state: GameState, player: int, wid: String, seen: Dictionary) -> Dictionary:
+	var at := Wonders.built_at(state, wid)
+	if Wonders.galaxy_unique(wid) and at >= 0:
+		var o: Colony = state.colonies[at]
+		return {"id": "done", "text": "ACHEVÉE PAR %s" % state.get_empire(o.owner).short_name().to_upper(), "color": UiTheme.TEXT_DIM, "detail": ""}
+	var rp := WondersCatalog.ruin_of(state, wid)
+	if rp >= 0:
+		var where := state.galaxy.get_planet(rp).display_name(state.galaxy) if Fleets.is_explored(state, player, state.galaxy.get_planet(rp).system_id) else "un monde inexploré"
+		return {"id": "ruin", "text": "EN RUINE", "color": UiTheme.WARN, "detail": "Sur %s : qui tient cette planète peut la restaurer." % where}
+	if not Wonders.unlocked(state, player, wid):
+		return {"id": "locked", "text": "VERROUILLÉE", "color": UiTheme.TEXT_DIM,
+				"detail": Wonders.check_start(state, player, state.get_empire(player).capital_planet, wid)}
+	var riv := Wonders.rivals_known(state, player, wid, seen)
+	var site := _first_site(state, player, wid)
+	var detail := ("Site possible : %s." % state.galaxy.get_planet(site).display_name(state.galaxy)) if site >= 0 else "Aucun site convenable pour l'instant."
+	if not riv.is_empty():
+		return {"id": "race", "text": "EN COURSE CHEZ %d RIVA%s" % [riv.size(), "UX" if riv.size() > 1 else "L"], "color": Color(0.95, 0.62, 0.3), "detail": detail}
+	if site < 0:
+		return {"id": "nosite", "text": "SANS SITE", "color": UiTheme.TEXT_DIM, "detail": detail}
+	return {"id": "free", "text": "LIBRE", "color": UiTheme.GOOD, "detail": detail}
+
+
+const CARD_WIDTH := 236.0
+const FAMILY_TINTS := {"galactique": Color(0.9, 0.78, 0.45), "mega": Color(0.55, 0.75, 0.95), "registre": Color(0.6, 0.85, 0.7),
+		"credo": Color(0.8, 0.6, 0.9), "collective": Color(0.9, 0.6, 0.5), "oeuvre": Color(0.95, 0.9, 0.7)}
+
+
+## Carte de catalogue (merveilles, mégastructures, forge) : image, nom, état, coût, effet, précision.
+## Rend [carte, corps] : le corps reçoit les boutons éventuels.
+static func catalog_card(art_id: String, tint: Color, title: String, badge: String, badge_col: Color, meta: String, text: String, detail: String, faded: bool) -> Array:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", UiTheme.box(Color(1, 1, 1, 0.035), UiTheme.LINE, 0, 1))
+	panel.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+	if faded:
+		panel.modulate = Color(1, 1, 1, 0.62)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 4)
+	panel.add_child(col)
+	var art := Widgets.ArtSlot.new(art_id, Vector2(CARD_WIDTH, 96), tint, "star")
+	art.variant = art_id.hash() % 97
+	art.set_caption(title, 17)
+	col.add_child(art)
+	var pad := MarginContainer.new()
+	for side in ["left", "right", "bottom"]:
+		pad.add_theme_constant_override("margin_" + side, 10)
+	col.add_child(pad)
+	var body := VBoxContainer.new()
+	body.add_theme_constant_override("separation", 4)
+	pad.add_child(body)
+	var bl := Label.new()
+	bl.theme_type_variation = &"Numbers"
+	bl.text = badge
+	bl.add_theme_font_size_override("font_size", 12)
+	bl.add_theme_color_override("font_color", badge_col)
+	bl.clip_text = true
+	body.add_child(bl)
+	if meta != "":
+		var ml := UiTheme.paragraph(meta, CARD_WIDTH - 20.0, 11)
+		ml.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		body.add_child(ml)
+	body.add_child(UiTheme.paragraph(text, CARD_WIDTH - 20.0, 12))
+	if detail != "":
+		var dl := UiTheme.paragraph(detail, CARD_WIDTH - 20.0, 11)
+		dl.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		body.add_child(dl)
+	return [panel, body]
+
+
+static func _card(es: EmpireScreens, wid: String, seen: Dictionary) -> Control:
+	var state := es._state
+	var player := es._player
+	var st := card_state(state, player, wid, seen)
+	var fam := Wonders.family(wid)
+	var made := catalog_card("wonder_" + wid, FAMILY_TINTS.get(fam, Color(0.9, 0.78, 0.45)), Wonders.label(wid), String(st["text"]), st["color"],
+			"%s · %s · %d j" % [Wonders.family_label(fam), GameData.format_amounts(Wonders.total_cost(state, player, wid)), int(Wonders.def(wid).get("days", 360))],
+			Wonders.effect_text(wid), String(st["detail"]), String(st["id"]) == "done" or String(st["id"]) == "locked")
+	if String(st["id"]) == "free" or String(st["id"]) == "race":
+		var site := _first_site(state, player, wid)
+		if site >= 0:
+			var row := HBoxContainer.new()
+			(made[1] as VBoxContainer).add_child(row)
+			_button(es, row, "Lancer sur %s" % state.galaxy.get_planet(site).display_name(state.galaxy), SimCommands.won_act(player, "start", wid, site))
+	es.wonder_cards[wid] = made[0]
+	return made[0]
+
+
+## Barre d'avancement d'un concurrent dans la course à une merveille.
+static func _race_bar(who: String, pct: int, color: Color, at_least: bool) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var n := Label.new()
+	n.text = who
+	n.custom_minimum_size = Vector2(150, 0)
+	n.clip_text = true
+	n.add_theme_font_size_override("font_size", 13)
+	row.add_child(n)
+	var bar := ProgressBar.new()
+	bar.show_percentage = false
+	bar.max_value = 100
+	bar.value = pct
+	bar.custom_minimum_size = Vector2(W - 260.0, 8)
+	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = color
+	bar.add_theme_stylebox_override("fill", fill)
+	row.add_child(bar)
+	var v := Label.new()
+	v.theme_type_variation = &"Numbers"
+	v.text = "avancement inconnu" if at_least and pct <= 0 else "%d %%%s" % [pct, " au moins" if at_least else ""]
+	row.add_child(v)
+	return row
 
 
 static func _button(es: EmpireScreens, row: HBoxContainer, text: String, cmd: Dictionary) -> void:

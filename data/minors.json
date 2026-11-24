@@ -448,7 +448,7 @@
 					"ocean"
 				],
 				"color": "#a8c890",
-				"lore": "Des herbivores patients qui comptent jusqu'à sept et enterrent leurs morts sous des cairns."
+				"lore": "Des herbivores qui comptent jusqu'à sept et enterrent leurs morts sous des cairns."
 			},
 			"pres_tisseurs": {
 				"name": "Tisseurs des marais",
@@ -465,7 +465,7 @@
 					"desert"
 				],
 				"color": "#90b0a0",
-				"lore": "Ils tissent des toiles grandes comme des villages, et y suspendent des objets brillants sans savoir pourquoi."
+				"lore": "Ils tissent des toiles grandes comme des villages et y suspendent des objets brillants, pour une raison inconnue."
 			},
 			"pres_lueurs": {
 				"name": "Lueurs des cavernes",
@@ -482,7 +482,7 @@
 					"desert"
 				],
 				"color": "#b8a8e0",
-				"lore": "Des feux follets qui se rassemblent la nuit pour chanter à la même fréquence que les étoiles."
+				"lore": "Des êtres lumineux qui se rassemblent la nuit et émettent ensemble sur une fréquence proche de celle des étoiles voisines."
 			}
 		},
 		"_doc": "Prop. 26 (lot 2) : rares planètes colonisables abritant une espèce pré-consciente ; avec la technologie tech, un projet (cost, days) sur la colonie en fait pop habitants d'une nouvelle espèce, reconnaissante (stabilité +5 pendant stab_days)."
@@ -583,7 +583,7 @@
 				"continental",
 				"desert"
 			],
-			"blurb": "Une poignée de maisons chevaleresques sur un monde fortifié, qui prêtent serment à qui les mérite et se battent entre elles le reste du temps.",
+			"blurb": "Quelques maisons chevaleresques tiennent un monde fortifié. Elles prêtent serment au suzerain qu'elles jugent digne et règlent leurs querelles par les armes.",
 			"gift": {
 				"label": "Chevaliers du serment",
 				"text": "Vos régiments infligent 15 % de dégâts en plus au sol.",
@@ -618,7 +618,7 @@
 				"ocean",
 				"continental"
 			],
-			"blurb": "Des seigneurs-paysans reptiliens qui récoltent une sève dans la brume du matin et la vendent à prix d'or aux comptoirs de la vallée.",
+			"blurb": "Des seigneurs-paysans reptiliens récoltent une sève dans les brumes de leurs vallées et la vendent cher aux comptoirs étrangers.",
 			"gift": {
 				"label": "Sève de brume",
 				"text": "Leur sève nourrit vos colons : croissance des colonies +15 %.",
@@ -653,7 +653,7 @@
 				"continental",
 				"ocean"
 			],
-			"blurb": "Une petite république de diplomates, d'avocats et de rêveurs, dont le sénat siège sans interruption depuis trois siècles. Les débats aussi.",
+			"blurb": "Une petite république de diplomates et de juristes, dont le sénat siège sans interruption depuis trois siècles.",
 			"gift": {
 				"label": "Le sénat vous écoute",
 				"text": "+3 % des voix à l'Amphictyonie.",
@@ -686,7 +686,7 @@
 				"arctic",
 				"continental"
 			],
-			"blurb": "Des moines qui gardent un phare au bout du monde et recopient des savoirs dont ils ne comprennent pas encore la moitié.",
+			"blurb": "Des moines gardent un phare aux confins et recopient des savoirs anciens, dont une partie leur reste incompréhensible.",
 			"gift": {
 				"label": "Copistes du phare",
 				"text": "Un eurêka tous les 3 ans (un quart de votre recherche en cours).",
@@ -721,7 +721,7 @@
 				"desert",
 				"arctic"
 			],
-			"blurb": "Un monde-forteresse de pierre vivante, où chaque génération ajoute une muraille et oublie pourquoi.",
+			"blurb": "Un monde-forteresse de pierre vivante. Chaque génération y ajoute une muraille, selon une règle dont l'origine est perdue.",
 			"gift": {
 				"label": "Flotte-forteresse",
 				"text": "La levée de leur flotte coûte moitié prix.",
@@ -755,7 +755,7 @@
 				"desert",
 				"arctic"
 			],
-			"blurb": "Les survivants d'une guerre atomique, qui prient sur les ruines et pensent mériter leur sort. Ils n'ont pas tort, disent les archives.",
+			"blurb": "Les survivants d'une guerre atomique prient sur les ruines de leurs villes. Leur foi enseigne que la catastrophe était méritée.",
 			"gift": {
 				"label": "Ferveur des cendres",
 				"text": "Zèle de votre foi d'État +10 chaque année.",
@@ -788,7 +788,7 @@
 				"continental",
 				"arctic"
 			],
-			"blurb": "Des habitats en anneau autour d'une géante, gérés par une coopérative qui vote tout, y compris la couleur des sas.",
+			"blurb": "Des habitats en anneau autour d'une géante gazeuse, gérés par une coopérative où chaque décision passe au vote.",
 			"gift": {
 				"label": "Cargos de la Coopérative",
 				"text": "+1 route commerciale.",
@@ -826,7 +826,7 @@
 				"desert",
 				"continental"
 			],
-			"blurb": "Une civilisation à l'aube de l'atome, qui lance des fusées de plus en plus grosses et des satellites de plus en plus curieux.",
+			"blurb": "Une civilisation au début de l'âge atomique, qui lance ses premières fusées et ses premiers satellites.",
 			"gift": {
 				"label": "Bureau des brevets de Tharsis",
 				"text": "Un eurêka par an (un quart de votre recherche en cours).",
@@ -859,7 +859,7 @@
 				"ocean",
 				"desert"
 			],
-			"blurb": "Une station-marché où tout se vend, surtout ce qui ne devrait pas. Le patron change chaque semaine ; la commission, jamais.",
+			"blurb": "Une station-marché où tout se vend, y compris ce que les lois des empires interdisent. Sa direction change souvent et sa commission reste la même.",
 			"gift": {
 				"label": "Contrebandiers du Bazar",
 				"text": "Opérations d'espionnage 30 % moins chères.",
@@ -896,7 +896,7 @@
 				"continental",
 				"ocean"
 			],
-			"blurb": "De petits êtres duveteux qui ont vu passer un vaisseau il y a trois générations et lui construisent depuis des pistes d'atterrissage en bambou.",
+			"blurb": "De petits êtres duveteux ont vu passer un vaisseau il y a trois générations. Ils lui construisent depuis des pistes d'atterrissage en bambou.",
 			"gift": {
 				"label": "Grand-Prêtre du Cargo",
 				"text": "Ils vénèrent le premier vaisseau venu : le premier empire à les trouver démarre à 30 de faveur. Leur suzerain reçoit une fois le héros « Grand-Prêtre du Cargo ».",
@@ -932,7 +932,7 @@
 				"ocean",
 				"continental"
 			],
-			"blurb": "Un réseau fongique grand comme un continent, qui pense lentement et pousse vite. Il aimerait pousser ailleurs.",
+			"blurb": "Un réseau fongique grand comme un continent, à la pensée lente et à la croissance rapide. Il cherche à s'étendre sur d'autres mondes.",
 			"gift": {
 				"label": "Spores de Myrr",
 				"text": "Vos nouvelles colonies démarrent avec 1 habitant de plus.",
@@ -967,7 +967,7 @@
 				"toxic",
 				"desert"
 			],
-			"blurb": "Une clinique devenue une nation : on y greffe tout, à tout le monde, et les patients ont fini par voter.",
+			"blurb": "Une clinique de greffes devenue une nation, dont les anciens patients forment aujourd'hui le corps électoral.",
 			"gift": {
 				"label": "Chirurgiens de Vashti",
 				"text": "Réparation des vaisseaux +50 %.",
@@ -1000,7 +1000,7 @@
 				"arctic",
 				"barren"
 			],
-			"blurb": "Des cristaux qui chantent en dormant. Leurs rêves ont parfois un an d'avance sur la réalité.",
+			"blurb": "Des cristaux qui émettent des sons pendant leurs phases de sommeil. Leurs rêves décrivent parfois des événements avec un an d'avance.",
 			"gift": {
 				"label": "Préscience",
 				"text": "Leur suzerain sent venir les crises de fin de partie un an plus tôt.",
@@ -1033,7 +1033,7 @@
 				"barren",
 				"arctic"
 			],
-			"blurb": "Une machine qui s'est persuadée d'être un peuple. Elle écoute toute la galaxie et se trompe rarement sur ce qu'elle entend.",
+			"blurb": "Une machine d'écoute qui se considère comme un peuple. Elle capte les communications de toute la galaxie et les interprète avec peu d'erreurs.",
 			"gift": {
 				"label": "Oreilles de Nadir",
 				"text": "+1 cellule d'espionnage.",
@@ -1081,7 +1081,7 @@
 		{
 			"id": "min_suzerain",
 			"title": "{min} vous prête serment",
-			"text": "{min} vous reconnaît pour suzerain. Son cadeau : {min_gift}\n\nUn suzerain se défend : un rival plus généreux peut vous le prendre.",
+			"text": "{min} vous reconnaît pour suzerain. Son cadeau : {min_gift}\n\nUn rival plus généreux peut vous ravir ce serment.",
 			"trigger": "minor",
 			"art": "contact",
 			"choices": [
@@ -1095,7 +1095,7 @@
 		{
 			"id": "min_age",
 			"title": "{min} entre dans un nouvel âge",
-			"text": "Votre poste d'observation le confirme : {min} passe à l'âge {min_age}. {min_line}",
+			"text": "Votre poste d'observation confirme que {min} passe à l'âge {min_age}. {min_line}",
 			"trigger": "minor",
 			"art": "contact",
 			"choices": [
@@ -1123,7 +1123,7 @@
 		{
 			"id": "min_integrated",
 			"title": "{min} rejoint votre empire",
-			"text": "Après des années de protection, {min} accepte de devenir une province de votre empire. Ses habitants sont déjà des vôtres ; son trait d'assimilation vous est offert.",
+			"text": "Après des années de protection, {min} accepte de devenir une province de votre empire. Ses habitants rejoignent votre population et vous recevez son trait d'assimilation.",
 			"trigger": "minor",
 			"art": "contact",
 			"choices": [
@@ -1137,7 +1137,7 @@
 		{
 			"id": "min_conquered",
 			"title": "{min} conquis",
-			"text": "Le monde de {min} est à vous. Ses habitants, eux, ne sont pas encore d'accord : choc culturel, stabilité en berne, et une galaxie qui a vu.",
+			"text": "Le monde de {min} est à vous. Ses habitants n'acceptent pas la conquête : attendez-vous à un choc culturel et à une stabilité basse. Les autres empires en ont pris note.",
 			"trigger": "minor",
 			"art": "contact",
 			"choices": [
@@ -1151,7 +1151,7 @@
 		{
 			"id": "min_asteroid",
 			"title": "Un astéroïde menace {min}",
-			"text": "Un astéroïde fonce sur le monde de {min}, qui ne le sait pas encore. Le détruire coûte de l'énergie et fera parler d'étranges lueurs dans le ciel ; ne rien faire les renverra peut-être à l'âge de pierre.",
+			"text": "Un astéroïde se dirige vers le monde de {min}, dont les habitants l'ignorent encore. Le détruire coûte de l'énergie, et ils verront l'explosion dans leur ciel. Si l'on ne fait rien, l'impact peut les ramener à l'âge de pierre.",
 			"trigger": "minor",
 			"art": "contact",
 			"choices": [
@@ -1166,7 +1166,7 @@
 					]
 				},
 				{
-					"label": "Laisser faire la nature",
+					"label": "Ne pas intervenir",
 					"fx": [
 						{
 							"k": "minor",
@@ -1181,7 +1181,7 @@
 		{
 			"id": "min_conquered_space",
 			"title": "{min} conquis",
-			"text": "La capitale de {min} est à vous. On peut la garder, avec ses habitants qui ne sont pas encore d'accord, ou la raser et disperser son peuple : le butin serait considérable ({min_loot}), la réputation beaucoup moins.",
+			"text": "La capitale de {min} est à vous. Vous pouvez la garder avec ses habitants, qui n'acceptent pas la conquête. Vous pouvez aussi la raser et disperser son peuple : le butin serait considérable ({min_loot}), et votre réputation en souffrirait.",
 			"trigger": "minor",
 			"art": "contact",
 			"choices": [

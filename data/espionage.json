@@ -1116,9 +1116,9 @@
 			"text": "Archéologie : une fausse antiquité glissée dans son musée. Tant qu'elle y reste (dix ans), aucun thème ne tient et les experts se disputent."
 		},
 		{
-			"id": "voler_plans",
+			"id": "voler_plans_modele",
 			"family": "larcin",
-			"label": "Voler les plans",
+			"label": "Voler les plans d'un vaisseau",
 			"tier": 2,
 			"cost": {
 				"influence": 30

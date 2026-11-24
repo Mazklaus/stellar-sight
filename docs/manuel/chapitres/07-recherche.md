@@ -11,7 +11,7 @@ Une seule ressource fait avancer la science : le **Savoir**. Il s'accumule chaqu
 
 ### L'arbre
 
-L'écran Recherche ([[F3]]) montre l'arbre de votre peuple : quatre domaines, **Armement**, **Génie spatial**, **Économie** et **Société**, sur cinq ères. Une ère s'ouvre dans un domaine quand vous y connaissez assez de technologies de l'ère précédente. L'arbre n'a pas de taille plafond : il défile, et se zoome (Ctrl + molette, ou les boutons − et +).
+L'écran Recherche (domaine Savoir, [[F2]]) montre l'arbre de votre peuple : quatre domaines, **Armement**, **Génie spatial**, **Économie** et **Société**, sur cinq ères. Une ère s'ouvre dans un domaine quand vous y connaissez assez de technologies de l'ère précédente. L'arbre n'a pas de taille plafond : il défile, et se zoome (Ctrl + molette, ou les boutons − et +).
 
 Chaque domaine se range en **champs** : Armes, Défenses, Troupes et Doctrines en Armement ; Coques et chantiers, Propulsion et portails, Senseurs et furtivité, Méga-ingénierie en Génie ; Production, Savoir, Commerce et finances, Mégastructures en Économie ; Colonisation, État, Culture et foi, Esprit en Société. Les champs servent au rangement et au filtre, sans effet de jeu.
 

@@ -9,7 +9,7 @@ signal screen_requested(screen_id: String)
 
 const WIDTH := 360.0
 ## Hauteur réservée au panneau : la colonne de la vue système commence en dessous.
-const HEIGHT := 132.0
+const HEIGHT := 190.0
 const MARGIN := 10.0
 ## Menus d'empire : identifiant, libellé, raccourci, pictogramme, disponible ou non (et pourquoi).
 const SCREENS := [
@@ -23,6 +23,12 @@ const SCREENS := [
 		"why": "Concevez vos vaisseaux : une coque, des modules dans ses emplacements, un rang et une cible. Les modèles enregistrés rejoignent la liste de construction."},
 	{"id": "armies", "label": "Armées", "key": "", "glyph": "armies", "ready": true,
 		"why": "Vos régiments : la réserve de recrues, l'entretien, les troupes en formation, où se trouve chaque régiment, les batailles au sol en cours et leurs rapports."},
+	{"id": "peoples", "label": "Peuples", "key": "", "glyph": "colonies", "ready": true,
+		"why": "Les espèces de l'empire : effectifs, rôle, intégration, statut, accueil des réfugiés."},
+	{"id": "fleets", "label": "Flottes", "key": "", "glyph": "shipyard", "ready": true,
+		"why": "Toutes vos flottes en tableau : composition, puissance, position, ordre, amiral, autonomie."},
+	{"id": "battles", "label": "Batailles", "key": "", "glyph": "armies", "ready": true,
+		"why": "Les rapports de bataille, dans l'espace et au sol, du plus récent au plus ancien."},
 	{"id": "victory", "label": "Victoire", "key": "F7", "glyph": "victory", "ready": true,
 		"why": "Toutes les façons de gagner cette partie, et où en est chaque empire. La victoire de peuple d'un rival reste cachée tant qu'il n'est pas à mi-chemin."},
 	{"id": "trade", "label": "Commerce", "key": "C", "glyph": "trade", "ready": true,
@@ -71,6 +77,9 @@ var _emblem: Widgets.Emblem
 var _name: Label
 var _chips := {}
 var _screen_buttons := {}
+## Boutons des huit domaines, dans l'ordre de UiDomains.DOMAINS.
+var _domain_buttons: Array[Button] = []
+var _open_domain := -1
 var _status: Label
 ## Jauge du trait de faction (ferveur, fiefs, ambassades, biomasse), au bout de la 2e ligne.
 var _gauge: Widgets.RichTipPanel
@@ -85,20 +94,16 @@ func _ready() -> void:
 	box.add_theme_constant_override("separation", 4)
 	add_child(box)
 
+	# Rangée du haut : le Codex, puis le nom de l'empire (clic : le Trône) et son emblème.
 	var icons := HBoxContainer.new()
 	icons.add_theme_constant_override("separation", 2)
 	box.add_child(icons)
-	for sc in SCREENS:
-		if sc.get("hidden", false):
-			continue
-		var b := Widgets.IconButton.new(String(sc["glyph"]), 25)
-		b.toggle_mode = true
-		b.disabled = not sc["ready"]
-		b.tooltip_text = ("%s  (%s)" % [sc["label"], sc["key"]] if String(sc["key"]) != "" else String(sc["label"])) + ("\nBientôt : l'écran est en place." if sc.get("soon", false) else "")
-		var id: String = sc["id"]
-		b.pressed.connect(func() -> void: screen_requested.emit(id))
-		icons.add_child(b)
-		_screen_buttons[id] = b
+	var codex := Widgets.IconButton.new("codex", 25)
+	codex.toggle_mode = true
+	codex.tooltip_text = "Codex de l'Archonte  (Maj+F1)"
+	codex.pressed.connect(func() -> void: screen_requested.emit("codex"))
+	icons.add_child(codex)
+	_screen_buttons["codex"] = codex
 	# Le nom prend la place qui reste et s'abrège s'il est trop long : la barre garde sa largeur.
 	_name = Label.new()
 	_name.theme_type_variation = &"Section"
@@ -118,6 +123,44 @@ func _ready() -> void:
 	_emblem.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	icons.add_child(_emblem)
 
+	# Les huit domaines (refonte, A1) : pictogramme et nom, F1 à F8.
+	var grid := GridContainer.new()
+	grid.columns = 4
+	grid.add_theme_constant_override("h_separation", 2)
+	grid.add_theme_constant_override("v_separation", 0)
+	box.add_child(grid)
+	for d in UiDomains.DOMAINS.size():
+		var dom: Dictionary = UiDomains.DOMAINS[d]
+		var b := Button.new()
+		b.theme_type_variation = &"BarButton"
+		b.toggle_mode = true
+		b.focus_mode = Control.FOCUS_NONE
+		b.custom_minimum_size = Vector2((WIDTH - 26.0) / 4.0, 38)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var names := PackedStringArray()
+		for t: Array in dom["tabs"]:
+			names.append(String(t[0]))
+		b.tooltip_text = "%s  (%s)\n%s" % [dom["label"], dom["key"], ", ".join(names)]
+		var col := VBoxContainer.new()
+		col.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		col.alignment = BoxContainer.ALIGNMENT_CENTER
+		col.add_theme_constant_override("separation", -2)
+		col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.add_child(col)
+		var glyph := Widgets.IconButton.new(String(dom["glyph"]), 22)
+		glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		glyph.add_theme_stylebox_override("normal", StyleBoxEmpty.new())
+		glyph.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		col.add_child(glyph)
+		var name_label := Label.new()
+		name_label.text = String(dom["label"])
+		name_label.add_theme_font_size_override("font_size", 12)
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		col.add_child(name_label)
+		b.pressed.connect(func() -> void: screen_requested.emit("domain:%d" % d))
+		grid.add_child(b)
+		_domain_buttons.append(b)
 	box.add_child(_rule())
 	for row_ids in ROWS:
 		var row := HBoxContainer.new()
@@ -221,7 +264,7 @@ func refresh() -> void:
 static func trait_summary(faction: Dictionary) -> String:
 	var lines := PackedStringArray()
 	if String(faction.get("broken_rule", "")) != "":
-		lines.append("Règle cassée : %s" % String(faction["broken_rule"]))
+		lines.append("Particularité : %s" % String(faction["broken_rule"]))
 	for t: Dictionary in faction.get("traits", []):
 		lines.append("%s : %s" % [t["name"], t["text"]])
 	return "\n".join(lines) if not lines.is_empty() else String(faction.get("trait", ""))
@@ -234,8 +277,10 @@ func gauge_text() -> String:
 
 ## Le menu d'empire ouvert est mis en évidence ("" = aucun).
 func set_open_screen(screen_id: String) -> void:
-	for id in _screen_buttons:
-		(_screen_buttons[id] as Button).set_pressed_no_signal(id == screen_id)
+	_open_domain = UiDomains.domain_of(screen_id)
+	for d in _domain_buttons.size():
+		_domain_buttons[d].set_pressed_no_signal(d == _open_domain)
+	(_screen_buttons["codex"] as Button).set_pressed_no_signal(screen_id == "codex")
 
 
 ## Pastille « nouveau » sur l'icône du Codex (glossaire en jeu, prop. 33).
@@ -255,8 +300,16 @@ func resource_text() -> String:
 	return "  ".join(parts)
 
 
+## Bouton qui mène à un écran : celui de son domaine (ou le Codex).
 func screen_button(screen_id: String) -> Button:
-	return _screen_buttons.get(screen_id)
+	if _screen_buttons.has(screen_id):
+		return _screen_buttons[screen_id]
+	var d := UiDomains.domain_of(screen_id)
+	return _domain_buttons[d] if d >= 0 else null
+
+
+func domain_button(d: int) -> Button:
+	return _domain_buttons[d]
 
 
 func _status_line(me: Empire) -> String:

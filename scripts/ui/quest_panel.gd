@@ -7,11 +7,28 @@ extends RefCounted
 ## « contribute », « camp:<i> », « parley:<système> ».
 
 const BRANCH_WIDTH := 430.0
+const STRIP := Vector2(220, 96)
 
 
 static func build(es: EmpireScreens, col: VBoxContainer) -> void:
 	var state := es._state
 	var player := es._player
+	var urgent := pressing(state, player)
+	if not urgent.is_empty():
+		var bar := HFlowContainer.new()
+		bar.add_theme_constant_override("h_separation", 10)
+		for u: Array in urgent:
+			var ub := Button.new()
+			ub.theme_type_variation = &"PrimaryButton"
+			ub.focus_mode = Control.FOCUS_NONE
+			ub.text = String(u[1])
+			var tab := String(u[0])
+			ub.pressed.connect(func() -> void:
+				es.chron_tab = tab
+				es.show_screen("chronicles"))
+			es.chronicle_buttons["pressing:" + tab] = ub
+			bar.add_child(ub)
+		col.add_child(bar)
 	var cur := Quests.current(state)
 	if not cur.is_empty():
 		col.add_child(_galactic_block(es, cur))
@@ -27,8 +44,25 @@ static func build(es: EmpireScreens, col: VBoxContainer) -> void:
 		var empty := Widgets.Block.new("Quêtes en cours")
 		empty.body.add_child(UiTheme.dim("Aucune quête pour l'instant. La quête de votre peuple arrive à la fin de la première année ; les autres naissent des curiosités, des événements et de la vie de l'empire.", 14))
 		col.add_child(empty)
-	for id in active:
-		col.add_child(_quest_block(es, state.quests[id]))
+	if not active.is_empty():
+		var defs := []
+		for id in active:
+			defs.append([str(id), Quests.title(state, state.quests[id])])
+		# Le bandeau remplace les onglets de texte : une vignette par quête, la quête choisie en grand dessous.
+		es.pane_row("quest", defs, str(active[0])).free()
+		var strip := HFlowContainer.new()
+		strip.add_theme_constant_override("h_separation", 12)
+		strip.add_theme_constant_override("v_separation", 12)
+		col.add_child(strip)
+		for id in active:
+			var card := _strip_card(es, state.quests[id])
+			es.panes["quest"]["buttons"][str(id)] = card
+			es.chronicle_buttons["quest_card:%d" % id] = card
+			strip.add_child(card)
+		for id in active:
+			var box := es.pane_box("quest", str(id))
+			box.add_child(_quest_block(es, state.quests[id]))
+			col.add_child(box)
 	var log: Array = state.galactic.get("log", [])
 	if not old.is_empty() or not log.is_empty():
 		var done := Widgets.Block.new("Quêtes passées")
@@ -46,6 +80,50 @@ static func build(es: EmpireScreens, col: VBoxContainer) -> void:
 			done.body.add_child(UiTheme.paragraph("%s  ·  Retournement « %s »%s" % [GameCalendar.date_string(int(l["tick"])), String(l["title"]),
 					(", remporté par %s" % w.short_name()) if w != null else ", sans vainqueur"], 900.0, 14))
 		col.add_child(done)
+
+
+## Ce qui presse ailleurs dans le Journal : [onglet, libellé]. Événements sans réponse, crise connue.
+static func pressing(state: GameState, player: int) -> Array:
+	var out := []
+	var n := Events.inbox(state, player).size()
+	if n > 0:
+		out.append(["events", "%d décision%s en attente" % [n, "s" if n > 1 else ""]])
+	if Crisis.enabled(state) and Crisis.known(state, player):
+		out.append(["crisis", Crisis.name_of(Crisis.kind(state))])
+	return out
+
+
+## Vignette d'une quête dans le bandeau : image provisoire, titre, chapitre en cours.
+static func _strip_card(es: EmpireScreens, q: Dictionary) -> Button:
+	var state := es._state
+	var credo := Quests.is_credo(q)
+	var b := Button.new()
+	b.toggle_mode = true
+	b.focus_mode = Control.FOCUS_NONE
+	b.theme_type_variation = &"TabButton"
+	b.custom_minimum_size = Vector2(STRIP.x + 16.0, STRIP.y + 62.0)
+	var qid := str(int(q["id"]))
+	b.set_pressed_no_signal(String(es.pane_current.get("quest", "")) == qid)
+	b.pressed.connect(func() -> void: es.set_pane("quest", qid))
+	var v := VBoxContainer.new()
+	v.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 8)
+	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_theme_constant_override("separation", 2)
+	b.add_child(v)
+	var art := Widgets.ArtSlot.new("quest_" + String(q.get("tpl", qid)), STRIP, UiTheme.GOLD if credo else UiTheme.ACCENT, "star")
+	art.variant = int(q["id"]) % 97
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_child(art)
+	var t := Label.new()
+	t.text = Quests.title(state, q)
+	b.tooltip_text = t.text
+	t.clip_text = true
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_child(t)
+	var sub := UiTheme.dim("Chapitre %d / %d%s" % [int(q["ch"]) + 1, Quests.chapters(q).size(), " · quête de peuple" if credo else ""], 12)
+	sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_child(sub)
+	return b
 
 
 static func _quest_block(es: EmpireScreens, q: Dictionary) -> Control:

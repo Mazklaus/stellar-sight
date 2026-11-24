@@ -109,6 +109,8 @@ func _initialize() -> void:
 	screens.diplo_selected = d
 	screens.show_screen("diplomacy")
 	await _frames(10)
+	screens.set_diplo_pane("deal")
+	await _frames(6)
 	await _scroll_to(main, "Spécialité")
 	await _shot(out + "/ecran-sujet-specialise.png")
 	quit()
@@ -116,6 +118,23 @@ func _initialize() -> void:
 
 func _scroll_to(main: Node, text: String) -> void:
 	var l := _find_label(main, text)
+	if l == null:
+		# Refonte : la section peut être dans un autre volet de la fiche d'empire, ou dans un autre onglet.
+		var es: EmpireScreens = main._empire_screens
+		if es.current == "diplomacy" and es.diplo_tab == "empires":
+			for pane: String in ["deal", "war", "relation"]:
+				es.set_diplo_pane(pane)
+				await _frames(4)
+				l = _find_label(main, text)
+				if l != null:
+					break
+		if l == null:
+			for addr: String in ["diplomacy:league", "diplomacy:neighbors", "diplomacy:assembly", "diplomacy:empires"]:
+				es.show_address(addr)
+				await _frames(8)
+				l = _find_label(main, text)
+				if l != null:
+					break
 	if l == null:
 		return
 	var sc: Node = l.get_parent()
@@ -130,9 +149,9 @@ func _scroll_to(main: Node, text: String) -> void:
 
 func _find_label(n: Node, text: String) -> Control:
 	for c in n.find_children("*", "", true, false):
-		if c is Label and (c as Label).is_visible_in_tree() and (c as Label).text.contains(text):
+		if c is Label and (c as Label).is_visible_in_tree() and (c as Label).text.to_upper().contains(text.to_upper()):
 			return c
-		if c is Button and (c as Button).is_visible_in_tree() and (c as Button).text.contains(text):
+		if c is Button and (c as Button).is_visible_in_tree() and (c as Button).text.to_upper().contains(text.to_upper()):
 			return c
 	return null
 

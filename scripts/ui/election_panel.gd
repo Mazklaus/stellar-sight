@@ -21,7 +21,8 @@ var _player := -1
 
 
 func _ready() -> void:
-	var box := AnnounceFrame.build(self, WIDTH, "Élection")
+	var box := AnnounceFrame.build(self, WIDTH, "Élection", 10, AnnounceFrame.ART_WIDTH)
+	AnnounceFrame.art_of(self).set_art("election", Color(0.7, 0.6, 0.9), "faction")
 	_title = UiTheme.title("", 28)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_title)

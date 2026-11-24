@@ -109,6 +109,7 @@
 		]
 	},
 	"memories": {
+		"fc_voisins": {"value": 15, "days": 1800, "label": "Nous a salués en voisins au premier contact"}, "fc_hautain": {"value": -10, "days": 1800, "label": "Nous a pris de haut au premier contact"},
 		"restitution": {"value": 30, "days": 3600, "stack": 3, "label": "Nous a rendu un trésor de nos ancêtres"},
 		"pillage_sites": {"value": -20, "days": 1800, "stack": 2, "label": "A pillé les tombes de nos ancêtres"},
 		"world_breaker": {"value": -30, "days": 3600, "stack": 2, "label": "A brisé un monde avec sa superarme"},

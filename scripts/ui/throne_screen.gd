@@ -10,6 +10,10 @@ const W := 760.0
 const GOLD := Color(0.95, 0.78, 0.36)
 
 
+## Largeur d'une carte d'enfant dans l'arbre de la lignée.
+const CHILD_CARD := 210.0
+
+
 static func build(es: EmpireScreens) -> void:
 	var state := es._state
 	var player := es._player
@@ -79,6 +83,7 @@ static func _tabs(es: EmpireScreens) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
 	es._side_box.add_child(row)
+	row.visible = false  # la rangée du domaine porte ces onglets (refonte, A1)
 	for t in [["trone", "Trône"], ["cour", "La Cour"]]:
 		var b := Button.new()
 		b.text = String(t[1])
@@ -200,21 +205,23 @@ static func _line_block(es: EmpireScreens, col: VBoxContainer, state: GameState,
 		b.body.add_child(UiTheme.dim("Héritier désigné : %s" % String(hh.get("name", "")), 13))
 	if hs.is_empty() and dyn:
 		b.body.add_child(UiTheme.dim("Aucun enfant pour l'instant. Sans héritier, la lignée s'éteint à la mort du souverain.", 13))
-	for c: Dictionary in hs:
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 10)
-		b.body.add_child(row)
-		var apt := PackedStringArray()
-		for k: String in Rulers.APTS:
-			apt.append("%s %d" % [String(Rulers.data()["aptitudes"][k]["label"]).left(3), int((c["apt"] as Dictionary).get(k, 0))])
-		var l := Label.new()
-		l.text = "%s, %d ans%s  ·  %s%s" % [String(c["name"]), RulersDynasty.child_age(state, c), " (bâtard)" if int(c.get("bastard", 0)) == 1 else "", "  ".join(apt),
-				("  ·  éduqué : " + String(Heroes.class_def(String(c["edu"]))["label"]).to_lower()) if String(c["edu"]) != "" else ""]
-		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(l)
-		if String(c["edu"]) == "":
-			var cls := RulersDynasty._best_cls(c)
-			_button(es, row, "Éduquer : %s" % String(Heroes.class_def(cls)["label"]).to_lower(), SimCommands.ruler_act(player, "educate", int(c["id"]), cls), "educate:%d" % int(c["id"]))
+	if not hs.is_empty():
+		# Arbre : le souverain (et son consort) en haut, un trait, puis une carte par enfant.
+		var top := HBoxContainer.new()
+		top.alignment = BoxContainer.ALIGNMENT_CENTER
+		top.add_theme_constant_override("separation", 12)
+		b.body.add_child(top)
+		top.add_child(_tree_box(String(Rulers.ruler(state, player).get("name", "Le souverain")), "sur le trône", GOLD))
+		if String(en.get("consort", "")) != "":
+			top.add_child(_tree_box(String(en["consort"]), "consort", UiTheme.TEXT))
+		b.body.add_child(Bracket.new())
+		var flow := HFlowContainer.new()
+		flow.alignment = FlowContainer.ALIGNMENT_CENTER
+		flow.add_theme_constant_override("h_separation", 12)
+		flow.add_theme_constant_override("v_separation", 12)
+		b.body.add_child(flow)
+		for c: Dictionary in hs:
+			flow.add_child(_child_card(es, state, player, c, String(hh.get("name", "")) == String(c["name"])))
 	var ar := HBoxContainer.new()
 	ar.add_theme_constant_override("separation", 8)
 	b.body.add_child(ar)
@@ -225,6 +232,98 @@ static func _line_block(es: EmpireScreens, col: VBoxContainer, state: GameState,
 				_button(es, ar, "Mariage avec %s" % state.get_empire(int(o)).short_name(), cmd, "marry:%d" % int(o))
 	if Rulers.mortal(state) and not Rulers.immortal_kind(state, player):
 		_button(es, ar, "Abdiquer (légitimité %d)" % Rulers.r_int("abdicate_adj"), SimCommands.ruler_act(player, "abdicate"), "abdicate")
+
+
+## Aptitudes d'un enfant de la lignée, pour sa carte : [[libellé, valeur], ...] dans l'ordre de Rulers.APTS.
+static func child_apts(c: Dictionary) -> Array:
+	var out := []
+	for k: String in Rulers.APTS:
+		out.append([String(Rulers.data()["aptitudes"][k]["label"]), int((c.get("apt", {}) as Dictionary).get(k, 0))])
+	return out
+
+
+static func _tree_box(name: String, role: String, col: Color) -> Control:
+	var p := PanelContainer.new()
+	p.add_theme_stylebox_override("panel", UiTheme.box(Color(1, 1, 1, 0.05), col.darkened(0.3), 0, 1))
+	var pad := MarginContainer.new()
+	for side in ["left", "right"]:
+		pad.add_theme_constant_override("margin_" + side, 14)
+	for side in ["top", "bottom"]:
+		pad.add_theme_constant_override("margin_" + side, 6)
+	p.add_child(pad)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 0)
+	pad.add_child(v)
+	var n := Label.new()
+	n.text = name
+	n.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	n.add_theme_font_size_override("font_size", 15)
+	n.add_theme_color_override("font_color", col)
+	v.add_child(n)
+	var r := UiTheme.dim(role, 12)
+	r.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(r)
+	return p
+
+
+static func _child_card(es: EmpireScreens, state: GameState, player: int, c: Dictionary, designated: bool) -> Control:
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", UiTheme.box(Color(1, 1, 1, 0.035), GOLD if designated else UiTheme.LINE, 0, 1))
+	card.custom_minimum_size = Vector2(CHILD_CARD, 0)
+	var pad := MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		pad.add_theme_constant_override("margin_" + side, 10)
+	card.add_child(pad)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	pad.add_child(box)
+	var n := Label.new()
+	n.text = String(c["name"])
+	n.add_theme_font_size_override("font_size", 15)
+	if designated:
+		n.add_theme_color_override("font_color", GOLD)
+	box.add_child(n)
+	var bits := PackedStringArray(["%d ans" % RulersDynasty.child_age(state, c)])
+	if designated:
+		bits.append("héritier désigné")
+	if int(c.get("bastard", 0)) == 1:
+		bits.append("bâtard")
+	box.add_child(UiTheme.dim(", ".join(bits), 12))
+	var g := GridContainer.new()
+	g.columns = 2
+	g.add_theme_constant_override("h_separation", 12)
+	box.add_child(g)
+	for a: Array in child_apts(c):
+		g.add_child(UiTheme.dim(String(a[0]), 12))
+		var bar := Label.new()
+		bar.text = "◆".repeat(int(a[1])) + "◇".repeat(maxi(0, int(Rulers.data()["apt_max"]) - int(a[1])))
+		bar.add_theme_color_override("font_color", GOLD)
+		bar.add_theme_font_size_override("font_size", 13)
+		g.add_child(bar)
+	if String(c["edu"]) != "":
+		box.add_child(UiTheme.dim("Éduqué : %s" % String(Heroes.class_def(String(c["edu"]))["label"]).to_lower(), 12))
+	else:
+		var cls := RulersDynasty._best_cls(c)
+		_button(es, box, "Éduquer : %s" % String(Heroes.class_def(cls)["label"]).to_lower(), SimCommands.ruler_act(player, "educate", int(c["id"]), cls), "educate:%d" % int(c["id"]))
+	return card
+
+
+## Trait qui relie le souverain à ses enfants.
+class Bracket:
+	extends Control
+
+	func _init() -> void:
+		custom_minimum_size = Vector2(0, 18)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var c := Color(1, 1, 1, 0.3)
+		var mid := size.x * 0.5
+		var half := minf(size.x * 0.5 - 20.0, 360.0)
+		draw_line(Vector2(mid, 0), Vector2(mid, 9), c, 1.0)
+		draw_line(Vector2(mid - half, 9), Vector2(mid + half, 9), c, 1.0)
+		draw_line(Vector2(mid - half, 9), Vector2(mid - half, 18), c, 1.0)
+		draw_line(Vector2(mid + half, 9), Vector2(mid + half, 18), c, 1.0)
 
 
 static func _legacy_block(es: EmpireScreens, col: VBoxContainer, state: GameState, player: int, en: Dictionary) -> void:

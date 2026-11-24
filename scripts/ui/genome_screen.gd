@@ -76,8 +76,37 @@ static func build(es: EmpireScreens) -> void:
 		r.add_child(_btn(es, "Annuler", "", "La moitié de ce qui a été versé revient.", SimCommands.gen_act(player, "cancel", {"id": int(p["id"])}), "cancel:%d" % int(p["id"])))
 		pb.body.add_child(r)
 
-	for fid in Genetics.species_of(state, player):
-		_species_block(es, col, fid)
+	# Une espèce à la fois, choisie dans une rangée de portraits (refonte, C9).
+	var species := Genetics.species_of(state, player)
+	if not species.has(es.genome_species):
+		es.genome_species = e.faction_id if species.has(e.faction_id) else (String(species[0]) if not species.is_empty() else "")
+	if species.size() > 1:
+		var pick := HFlowContainer.new()
+		pick.add_theme_constant_override("h_separation", 10)
+		pick.add_theme_constant_override("v_separation", 10)
+		col.add_child(pick)
+		for fid in species:
+			var sf := String(fid)
+			var pb2 := Button.new()
+			pb2.toggle_mode = true
+			pb2.focus_mode = Control.FOCUS_NONE
+			pb2.custom_minimum_size = Vector2(150, 96)
+			pb2.set_pressed_no_signal(sf == es.genome_species)
+			pb2.tooltip_text = "%s : %d habitants" % [Genetics.label(state, player, sf), Genetics.pop_of(state, player, sf)]
+			var tint := Color.html(String(GameData.faction(sf).get("color", "#66ccdd")))
+			var art := Widgets.ArtSlot.new(GameData.portrait_art(sf), Vector2(146, 92), tint, "faction")
+			art.position = Vector2(2, 2)
+			art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			art.set_caption(Genetics.label(state, player, sf), 14)
+			art.modulate = Color.WHITE if sf == es.genome_species else Color(1, 1, 1, 0.55)
+			pb2.add_child(art)
+			pb2.pressed.connect(func() -> void:
+				es.genome_species = sf
+				es.show_screen("genome"))
+			pick.add_child(pb2)
+			es.genome_buttons["species:" + sf] = pb2
+	if es.genome_species != "":
+		_species_block(es, col, es.genome_species)
 	for lid in GeneticsBridges.lineages_of(state, player):
 		var lb := Widgets.Block.new("Lignée : %s" % String(GameData.faction(lid).get("name", lid)))
 		col.add_child(lb)
@@ -154,10 +183,17 @@ static func _species_block(es: EmpireScreens, col: VBoxContainer, fid: String) -
 	var voies := Genetics.voies_of(f, e.gene_path)
 	var extra: Array = Genetics.sub(state, "stolen").get(str(player), []) + Genetics.sub(state, "samples").get(str(player), [])
 	var cur := Genetics.traits_of(f)
+	# Traits en cartes à cocher : on coche ce qu'on ajoute et ce qu'on retire, puis on lance un seul programme.
+	var picks: Dictionary = es.genome_picks.get(fid, {"add": [], "rem": []})
+	var adds: Array = (picks["add"] as Array).filter(func(t: String) -> bool: return not cur.has(t))
+	var rems: Array = (picks["rem"] as Array).filter(func(t: String) -> bool: return cur.has(t))
+	es.genome_picks[fid] = {"add": adds, "rem": rems}
+	var res_name := "matériaux" if Genetics.resource_for(state, player, fid) == "materials" else "Savoir"
 	var flow := HFlowContainer.new()
-	flow.add_theme_constant_override("h_separation", 6)
-	flow.add_theme_constant_override("v_separation", 4)
+	flow.add_theme_constant_override("h_separation", 8)
+	flow.add_theme_constant_override("v_separation", 8)
 	b.body.add_child(flow)
+	var hidden := 0
 	for t: Dictionary in Genetics.catalogue():
 		var tid := String(t["id"])
 		if cur.has(tid):
@@ -165,17 +201,46 @@ static func _species_block(es: EmpireScreens, col: VBoxContainer, fid: String) -
 		var v := String(t["voie"])
 		if not voies.has(v) and not extra.has(tid):
 			continue
-		var cost := Genetics.mod_cost(state, player, fid, [tid], [], "")
-		flow.add_child(_btn(es, "+%s (%d)" % [String(t["label"]), int(t.get("cost", 0))], Genetics.check_mod(state, player, fid, [tid], [], ""),
-				"%s (%s, %d point(s)) : %s\nProgramme : %d %s." % [String(t["label"]), Genetics.voie_label(v), int(t.get("cost", 0)), String(t.get("text", "")), cost,
-				"matériaux" if Genetics.resource_for(state, player, fid) == "materials" else "Savoir"],
-				SimCommands.gen_act(player, "mod", {"fid": fid, "add": [tid]}), "add:%s:%s" % [fid, tid]))
+		var why := Genetics.check_mod(state, player, fid, [tid], [], "")
+		if why != "" and not adds.has(tid) and not es.genome_show_all:
+			hidden += 1
+			continue
+		flow.add_child(_trait_card(es, fid, tid, "add", adds.has(tid), why,
+				"%s · %d point%s" % [Genetics.voie_label(v), int(t.get("cost", 0)), "s" if int(t.get("cost", 0)) > 1 else ""], String(t.get("text", ""))))
 	for tid in cur:
 		if Genetics.trait_def(String(tid)).is_empty():
 			continue
-		flow.add_child(_btn(es, "-%s" % Genetics.trait_label(String(tid)), Genetics.check_mod(state, player, fid, [], [tid], ""),
-				"Retirer %s : %d point(s) rendus." % [Genetics.trait_label(String(tid)), Genetics.trait_cost(String(tid))],
-				SimCommands.gen_act(player, "mod", {"fid": fid, "rem": [tid]}), "rem:%s:%s" % [fid, String(tid)]))
+		flow.add_child(_trait_card(es, fid, String(tid), "rem", rems.has(String(tid)), Genetics.check_mod(state, player, fid, [], [String(tid)], ""),
+				"Trait actuel · %d point%s rendu%s" % [Genetics.trait_cost(String(tid)), "s" if Genetics.trait_cost(String(tid)) > 1 else "", "s" if Genetics.trait_cost(String(tid)) > 1 else ""],
+				String(Genetics.trait_def(String(tid)).get("text", ""))))
+	var bar := HBoxContainer.new()
+	bar.add_theme_constant_override("separation", 12)
+	b.body.add_child(bar)
+	if hidden > 0 or es.genome_show_all:
+		var all_b := Button.new()
+		all_b.focus_mode = Control.FOCUS_NONE
+		all_b.text = "MASQUER LES IMPOSSIBLES" if es.genome_show_all else "VOIR TOUT (%d masqué%s)" % [hidden, "s" if hidden > 1 else ""]
+		all_b.tooltip_text = "Les traits que cette espèce ne peut pas recevoir pour l'instant, avec la raison."
+		all_b.pressed.connect(func() -> void:
+			es.genome_show_all = not es.genome_show_all
+			es.show_screen("genome"))
+		bar.add_child(all_b)
+		es.genome_buttons["show_all"] = all_b
+	if not adds.is_empty() or not rems.is_empty():
+		var parts := PackedStringArray()
+		for t in adds:
+			parts.append("+" + Genetics.trait_label(String(t)))
+		for t in rems:
+			parts.append("-" + Genetics.trait_label(String(t)))
+		var why_all := Genetics.check_mod(state, player, fid, adds, rems, "")
+		var sum := UiTheme.paragraph("Programme : %s. Coût : %d %s." % [", ".join(parts), Genetics.mod_cost(state, player, fid, adds, rems, ""), res_name], 420.0, 13)
+		bar.add_child(sum)
+		var go := _btn(es, "LANCER LE PROGRAMME", why_all, "Un seul programme pour tout ce qui est coché.",
+				SimCommands.gen_act(player, "mod", {"fid": fid, "add": adds.duplicate(), "rem": rems.duplicate()}), "launch:" + fid)
+		go.pressed.connect(func() -> void: es.genome_picks.erase(fid))
+		bar.add_child(go)
+	else:
+		bar.add_child(UiTheme.dim("Cochez les traits à ajouter ou à retirer, puis lancez le programme.", 13))
 	var acts := HFlowContainer.new()
 	acts.add_theme_constant_override("h_separation", 6)
 	b.body.add_child(acts)
@@ -218,6 +283,53 @@ static func _species_block(es: EmpireScreens, col: VBoxContainer, fid: String) -
 			acts.add_child(_btn(es, "Greffer (%d habitants)" % GeneticsBridges.graft_price(state, player), GeneticsBridges.check_graft(state, player, fid),
 					"Prendre leur point fort pour votre peuple : %s." % GameData.format_amounts(GeneticsBridges.graft_gain(state, player, fid), true),
 					SimCommands.gen_act(player, "graft", {"fid": fid}), "graft:" + fid))
+
+
+## Carte à cocher d'un trait (kind : "add" pour l'ajouter, "rem" pour le retirer).
+static func _trait_card(es: EmpireScreens, fid: String, tid: String, kind: String, on: bool, why: String, meta: String, text: String) -> Button:
+	var b := Button.new()
+	b.toggle_mode = true
+	b.focus_mode = Control.FOCUS_NONE
+	b.set_pressed_no_signal(on)
+	b.disabled = why != "" and not on
+	b.custom_minimum_size = Vector2(236, 92)
+	b.tooltip_text = text + ("\n\nImpossible : %s." % why if why != "" else "")
+	var col := VBoxContainer.new()
+	col.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	col.offset_left = 10
+	col.offset_right = -10
+	col.offset_top = 6
+	col.offset_bottom = -6
+	col.add_theme_constant_override("separation", 2)
+	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(col)
+	var head := Label.new()
+	head.text = "%s %s" % ["☑" if on else "☐", ("Retirer : " if kind == "rem" else "") + Genetics.trait_label(tid)]
+	head.add_theme_font_size_override("font_size", 15)
+	head.add_theme_color_override("font_color", UiTheme.ACCENT if on else (UiTheme.TEXT_DIM if why != "" else UiTheme.TEXT))
+	head.clip_text = true
+	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(head)
+	var ml := UiTheme.dim(meta, 11)
+	ml.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.add_child(ml)
+	var tl := UiTheme.paragraph(why if why != "" and not on else text, 216.0, 11)
+	tl.add_theme_color_override("font_color", UiTheme.WARN if why != "" and not on else UiTheme.TEXT_DIM)
+	tl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tl.clip_text = true
+	tl.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	col.add_child(tl)
+	b.pressed.connect(func() -> void:
+		var picks: Dictionary = es.genome_picks.get(fid, {"add": [], "rem": []})
+		var list: Array = picks[kind]
+		if list.has(tid):
+			list.erase(tid)
+		else:
+			list.append(tid)
+		es.genome_picks[fid] = picks
+		es.show_screen("genome"))
+	es.genome_buttons["%s:%s:%s" % [kind, fid, tid]] = b
+	return b
 
 
 static func _btn(es: EmpireScreens, text: String, why: String, tip: String, command: Dictionary, key: String) -> Button:

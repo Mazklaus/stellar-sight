@@ -7,7 +7,7 @@ extends Node2D
 const SYSTEM_COUNT := 150
 const GALAXY_RADIUS := 1800.0
 const PICK_RADIUS_PX := 14.0
-const FLEET_PICK_RADIUS_PX := 11.0
+const FLEET_PICK_RADIUS_PX := 14.0
 ## Au-delà de ce déplacement (pixels), un clic droit est un glissé de caméra, pas un ordre.
 const RIGHT_CLICK_SLOP_PX := 6.0
 const START_ZOOM := 0.22
@@ -18,6 +18,8 @@ const MENU_ZOOM := 0.3
 const MENU_DRIFT := Vector2(14.0, 5.0)
 ## Empire du joueur local : 0 en solo et pour l'hôte, celui que l'hôte a confié à un client en réseau.
 var local_player := 0
+var _fleet_menu: PopupMenu
+var _zoom_tier := -1
 ## Multijoueur en réseau (lockstep) : inactive en solo.
 var net: NetSession
 ## On est client d'une partie en réseau (pour revenir à la page Multijoueur si elle s'interrompt).
@@ -27,8 +29,13 @@ var _net_turn_target := -1
 var player_name := ""
 
 var simulation: Simulation
-## Fichier de sauvegarde rapide (F5 / F9). Les tests le redirigent ailleurs.
+## Fichier de sauvegarde rapide (Ctrl+S / Ctrl+L). Les tests le redirigent ailleurs.
 var save_path := SaveGame.QUICKSAVE_PATH
+## Dossier des sauvegardes à part et automatiques, lu par les listes (les tests en donnent un autre).
+var save_dir := SaveGame.SAVE_DIR
+## Temps de jeu réel écoulé depuis la dernière sauvegarde automatique (la pause ne compte pas).
+var autosave_clock := 0.0
+var _thumb: Image
 ## Faction du joueur local pour les nouvelles parties (choisie dans le menu principal).
 var player_faction := "ossarane"
 ## Niveau des empires IA pour les nouvelles parties (AiLevels), et partie sans joueur (spectateur).
@@ -68,6 +75,8 @@ var _codex_paused := false
 ## Fenêtre de récompense des hauts faits (voir Deeds).
 var _deed_panel: DeedPanel
 var _deeds_told := {}
+## Technologies du joueur déjà signalées (refonte E2 : une découverte se dit, et mène à sa fiche).
+var _techs_told := {}
 var _events_told := {}
 ## Annonces typées (fenêtre commune, colonne à droite, avis cliquables, pause unifiée des fenêtres).
 var announce: AnnounceCenter
@@ -75,6 +84,8 @@ var announce: AnnounceCenter
 var _pending_ui := {}
 ## Fin de tour demandée alors que des décisions attendent : un second appui confirme (prop. 28).
 var _turn_warned_at := -1
+## Points de fin de tour que le joueur a déjà passés outre (texte -> true ; voir TurnChecks).
+var _turn_overridden := {}
 ## Fenêtre d'élection (voir Politics) : dernière élection du joueur déjà montrée, pause qu'elle a mise.
 var _election_panel: ElectionPanel
 var _election_told := -1
@@ -97,6 +108,9 @@ var _auto_paused := false
 ## Flotte sélectionnée (-1 = aucune).
 var selected_fleet := -1
 var _right_press := Vector2(-1, -1)
+var _middle_press := Vector2(-1, -1)
+var _order_menu: PopupMenu
+var _order_target := -1
 ## Flottes du joueur en route au tick précédent : pour annoncer leur arrivée.
 var _fleets_moving := {}
 ## La défaite du joueur a déjà été annoncée.
@@ -151,9 +165,24 @@ func _ready() -> void:
 		if f:
 			open_system_view(f.system_id if not f.is_moving() else f.next_system()))
 	_hud.idle_fleet_requested.connect(func() -> void: cycle_idle_fleet(1))
+	_hud.todo_requested.connect(_go_to_todo)
+	_hud.nav_system_requested.connect(func(sid: int, open: bool) -> void:
+		if open:
+			open_system_view(sid)
+		else:
+			select_fleet(-1)
+			_go_to_system(sid))
+	_hud.fleet_place_requested.connect(func(fid: int) -> void:
+		var f: Fleet = simulation.state.fleets.get(fid)
+		if f:
+			select_fleet(-1)
+			_select(f.system_id))
+	_hud.alert_requested.connect(_on_alert)
 	_hud.lens_changed.connect(func(l: String) -> void:
 		_view.lens = l
 		_view.queue_redraw())
+	_hud.layer_toggled.connect(func(id: String, on: bool) -> void: _view.set_layer(id, on))
+	_hud.zoom_tier_requested.connect(func(t: int) -> void: _camera.glide_to(_camera.position, GalaxyView.TIER_JUMP[t], maxf(0.01, UiSettings.map_glide_seconds())))
 
 	_system_screen = SystemScreen.new()
 	add_child(_system_screen)
@@ -183,7 +212,15 @@ func _ready() -> void:
 	_empire_screens.war_requested.connect(declare_war)
 	_empire_screens.codex_requested.connect(func(aid: String) -> void: open_codex(aid))
 	_empire_screens.command_requested.connect(diplomacy_command)
-	_empire_screens.screen_changed.connect(func(id: String) -> void: _hud.bar.set_open_screen(id))
+	_empire_screens.screen_changed.connect(func(_id: String) -> void: _hud.bar.set_open_screen(UiDomains.address(_empire_screens)))
+	_empire_screens.battle_report_requested.connect(func(i: int) -> void:
+		if i < 0 or i >= simulation.state.battle_reports.size():
+			return
+		close_empire_screen()
+		_hud.battle_report.show_report(simulation.state, view_empire, simulation.state.battle_reports[i]))
+	_empire_screens.fleet_requested.connect(func(fid: int) -> void:
+		close_empire_screen()
+		focus_fleet(fid))
 	_empire_screens.planet_requested.connect(func(pid: int) -> void:
 		close_empire_screen()
 		open_system_view(galaxy.get_planet(pid).system_id, pid))
@@ -191,10 +228,14 @@ func _ready() -> void:
 	_pause_menu = PauseMenu.new()
 	add_child(_pause_menu)
 	_pause_menu.resume_requested.connect(close_pause_menu)
-	_pause_menu.save_requested.connect(save_game)
+	_pause_menu.save_requested.connect(func() -> void: save_game())
+	_pause_menu.new_save_requested.connect(func() -> void: save_game(SaveGame.new_path(save_dir), "manual"))
 	_pause_menu.load_requested.connect(func() -> void:
 		close_pause_menu()
 		load_game())
+	_pause_menu.load_path_requested.connect(func(path: String) -> void:
+		close_pause_menu()
+		load_game(path))
 	_pause_menu.main_menu_requested.connect(func() -> void:
 		close_pause_menu()
 		open_main_menu())
@@ -333,7 +374,10 @@ func _ready() -> void:
 			_hud.notify("%s : que la chronique commence." % me.display_name(), "good"))
 	_main_menu.resume_requested.connect(close_main_menu)
 	_main_menu.continue_requested.connect(func() -> void:
-		if load_game():
+		if load_game(latest_save()):
+			close_main_menu())
+	_main_menu.load_requested.connect(func(path: String) -> void:
+		if load_game(path):
 			close_main_menu())
 	_main_menu.quit_requested.connect(func() -> void: get_tree().quit())
 	_main_menu.codex_requested.connect(func() -> void: open_codex())
@@ -409,17 +453,68 @@ func new_game(seed_value: int, keep_net := false) -> void:
 		_camera.zoom = Vector2(START_ZOOM, START_ZOOM)
 
 
-func save_game() -> void:
-	if SaveGame.save_state(simulation.state, save_path, GameClock.settings(), {"announce": announce.to_ui()}) == OK:
-		_hud.notify("Partie sauvegardée (%s)" % GameCalendar.date_string(simulation.state.tick), "good")
+## Écrit la partie. Sans chemin : la sauvegarde rapide. kind : "quick", "manual" (fichier à part) ou
+## "auto" ; il se lit dans la liste des sauvegardes, avec le peuple joué et une vignette de la carte.
+func save_game(path := "", kind := "quick") -> bool:
+	if path == "":
+		path = save_path
+	var me := simulation.state.get_empire(local_player)
+	var meta := {"kind": kind}
+	if me != null:
+		meta["empire"] = me.display_name()
+		meta["color"] = me.color().to_html(false)
+	var ok := SaveGame.save_state(simulation.state, path, GameClock.settings(), {"announce": announce.to_ui()}, meta) == OK
+	if ok:
+		var img := _thumb if _pause_menu.is_open() and _thumb != null else _grab_thumb()
+		if img != null:
+			img.save_png(SaveGame.thumb_path(path))
+		autosave_clock = 0.0
+		_hud.notify("%s (%s)" % ["Sauvegarde automatique" if kind == "auto" else "Partie sauvegardée", GameCalendar.date_string(simulation.state.tick)], "good")
 	else:
 		_hud.notify("Échec de la sauvegarde : %s" % SaveGame.last_error, "bad")
+	return ok
 
 
-## Recharge la sauvegarde rapide. Renvoie false (avec un message) si c'est impossible.
-func load_game() -> bool:
+## La carte telle qu'on la voit, en petit, pour la liste des sauvegardes (rien sans écran).
+func _grab_thumb() -> Image:
+	if DisplayServer.get_name() == "headless":
+		return null
+	var img := get_viewport().get_texture().get_image()
+	if img == null or img.is_empty():
+		return null
+	img.resize(320, 180, Image.INTERPOLATE_BILINEAR)
+	return img
+
+
+## La sauvegarde la plus récente : celle que « Continuer » reprend. Vide s'il n'y en a aucune.
+func latest_save() -> String:
+	var best := save_path if SaveGame.exists(save_path) else ""
+	var best_time := int(FileAccess.get_modified_time(save_path)) if best != "" else -1
+	for s: Dictionary in SaveGame.list(save_dir):
+		if int(s["mtime"]) > best_time:
+			best_time = int(s["mtime"])
+			best = String(s["path"])
+	return best
+
+
+## Sauvegarde automatique (refonte D3b) : toutes les N minutes de jeu réel, sur trois fichiers qui
+## tournent. Rien en réseau (l'hôte a la sienne), ni pendant que le temps est arrêté.
+func tick_autosave(delta: float) -> bool:
+	if UiSettings.autosave_minutes <= 0 or not game_in_progress or simulation == null or net.is_active() or GameClock.paused or spectator:
+		return false
+	autosave_clock += delta
+	if autosave_clock < float(UiSettings.autosave_minutes) * 60.0:
+		return false
+	autosave_clock = 0.0
+	return save_game(SaveGame.autosave_path(save_dir), "auto")
+
+
+## Recharge une sauvegarde (sans chemin : la sauvegarde rapide). Renvoie false, avec un message, si c'est impossible.
+func load_game(path := "") -> bool:
+	if path == "":
+		path = save_path
 	leave_network("Vous avez quitté la partie en réseau pour charger une sauvegarde.")
-	var state := SaveGame.load_state(save_path)
+	var state := SaveGame.load_state(path)
 	if state == null:
 		_hud.notify("Chargement impossible : %s" % SaveGame.last_error, "bad")
 		return false
@@ -431,6 +526,7 @@ func load_game() -> bool:
 	_start(state)
 	GameClock.apply_settings(SaveGame.last_clock)
 	game_in_progress = true
+	autosave_clock = 0.0
 	var me := state.get_empire(view_empire)
 	if me and FactionTraits.capital_system(state, me.id) >= 0:
 		_select(FactionTraits.capital_system(state, me.id))
@@ -509,6 +605,9 @@ func toggle_empire_screen(screen_id: String) -> void:
 	if screen_id == "codex":
 		toggle_codex()
 		return
+	if screen_id.begins_with("domain:"):
+		toggle_domain(int(screen_id.get_slice(":", 1)))
+		return
 	if screen_id == "insolites":
 		InsolitesUi.open_people_menu(self, simulation.state if simulation else null, view_empire)
 		return
@@ -516,9 +615,9 @@ func toggle_empire_screen(screen_id: String) -> void:
 		close_empire_screen()
 		return
 	var sc := EmpireBar.screen_info(screen_id)
-	if not sc.get("ready", false):
+	if not sc.get("ready", false) and UiDomains.domain_of(screen_id) < 0:  # un onglet de domaine est toujours prêt
 		_hud.notify(String(sc.get("why", "Bientôt.")))
-		_hud.bar.set_open_screen(_empire_screens.current)
+		_hud.bar.set_open_screen(UiDomains.address(_empire_screens))
 		return
 	if not _empire_screens.is_open() and UiSettings.auto_pause_menus and not GameClock.paused and not net.is_active():
 		_auto_paused = true
@@ -527,6 +626,37 @@ func toggle_empire_screen(screen_id: String) -> void:
 	_empire_screens.open(screen_id, simulation.state, view_empire)
 	_hud.set_empire_screen_open(true)
 	_update_map_input()
+
+
+## Ouvre une adresse de domaine (« chronicles:events », « trade:routes » ; voir UiDomains).
+func open_address(addr: String) -> void:
+	UiDomains.apply_sub(_empire_screens, addr)
+	var screen := UiDomains.screen_of(addr)
+	if _empire_screens.is_open():
+		_empire_screens.show_screen(screen)
+	else:
+		toggle_empire_screen(screen)
+
+
+## Ouvre un domaine (F1 à F8) là où on l'avait laissé, ou le ferme s'il est déjà affiché.
+func toggle_domain(d: int) -> void:
+	var st: GameState = simulation.state if simulation else null
+	var open_addr := UiDomains.address(_empire_screens) if _empire_screens.is_open() else ""
+	if open_addr != "" and UiDomains.domain_of(open_addr) == d:
+		close_empire_screen()
+		return
+	var addr := String(_empire_screens.domain_last.get(d, ""))
+	if addr == "" or not UiDomains.offered(st, view_empire, addr):
+		addr = UiDomains.first_of_domain(st, view_empire, d)
+	if addr == "":
+		_hud.bar.set_open_screen(open_addr)
+		return
+	UiDomains.apply_sub(_empire_screens, addr)
+	var screen := UiDomains.screen_of(addr)
+	if _empire_screens.is_open():
+		_empire_screens.show_screen(screen)
+	else:
+		toggle_empire_screen(screen)
 
 
 func close_empire_screen() -> void:
@@ -575,7 +705,7 @@ func toggle_codex(aid := "") -> void:
 
 
 func _on_codex_closed() -> void:
-	_hud.bar.set_open_screen(_empire_screens.current if _empire_screens.is_open() else "")
+	_hud.bar.set_open_screen(UiDomains.address(_empire_screens))
 	if _codex_paused:
 		_codex_paused = false
 		GameClock.set_paused(false)
@@ -614,9 +744,12 @@ func open_main_menu() -> void:
 	_camera.stop_glide()
 	_camera.zoom = Vector2(MENU_ZOOM, MENU_ZOOM)
 	var label := ""
-	if SaveGame.exists(save_path):
-		label = Time.get_datetime_string_from_unix_time(int(FileAccess.get_modified_time(save_path)), true)
-	_main_menu.open(game_in_progress, SaveGame.exists(save_path), label)
+	var latest := latest_save()
+	if latest != "":
+		var h := SaveGame.head(latest)
+		label = "%s, %s" % [h.get("empire", "partie"), h.get("date", "")] if h.has("empire") else String(h.get("date", ""))
+	_main_menu.save_list.dir = save_dir
+	_main_menu.open(game_in_progress, latest != "", label)
 	_update_map_input()
 
 
@@ -632,6 +765,8 @@ func open_pause_menu() -> void:
 	_paused_before = GameClock.paused
 	_auto_pause(true)
 	_hud.show_hover(null, Vector2.ZERO)
+	_thumb = _grab_thumb()  # la carte avant que le menu la couvre
+	_pause_menu.save_list.dir = save_dir
 	_pause_menu.open(GameClock.date_string() if not net.is_active() else "", net.is_active())
 	_update_map_input()
 
@@ -699,15 +834,54 @@ func _announce_blocked() -> bool:
 ## Espace et le centre du cadran. Au tour par tour, finir le tour alors que des décisions attendent
 ## demande un second appui (prop. 28 de l'étude de la fenêtre d'événement).
 func toggle_pause_or_turn() -> void:
-	if GameClock.would_end_turn() and announce != null and not announce.decisions().is_empty():
+	if GameClock.would_end_turn() and not spectator and simulation != null and UiSettings.turn_warn_todo:
+		# Un point déjà signalé et passé outre ne revient pas tant qu'il ne change pas (chantiers libres en fin de partie).
+		var todo: Array[Dictionary] = []
+		for item: Dictionary in TurnChecks.todo(simulation.state, local_player):
+			if not _turn_overridden.has(String(item["text"])):
+				todo.append(item)
 		var now := Time.get_ticks_msec()
-		if _turn_warned_at < 0 or now - _turn_warned_at > 4000:
+		if not todo.is_empty() and (_turn_warned_at < 0 or now - _turn_warned_at > 4000):
 			_turn_warned_at = now
-			var n: int = announce.decisions().size()
-			_hud.notify("%d décision%s en attente (colonne de droite). Appuyez de nouveau pour finir le tour." % [n, "s" if n > 1 else ""], "bad")
+			var first: Dictionary = todo[0]
+			_hud.notify("Avant de finir le tour : %s. Appuyez de nouveau pour le finir quand même." % TurnChecks.summary(todo), "bad",
+					func() -> void: _go_to_todo(first), 6.0)
 			return
+		var kept := {}
+		for item: Dictionary in TurnChecks.todo(simulation.state, local_player):
+			if String(item["kind"]) != "decisions":
+				kept[String(item["text"])] = true
+		_turn_overridden = kept
 	_turn_warned_at = -1
 	GameClock.toggle_pause()
+
+
+## Clic sur une pastille de la barre d'alertes (voir AlertBar).
+func _on_alert(kind: String, arg: int) -> void:
+	match kind:
+		"decisions":
+			open_address("chronicles:events")
+		"quest":
+			open_address("chronicles:quests")
+		"routes":
+			open_address("trade:routes")
+		"battle":
+			_go_to_system(arg)
+
+
+## Mène à ce qu'un point de TurnChecks.todo signale.
+func _go_to_todo(item: Dictionary) -> void:
+	match String(item["kind"]):
+		"decisions":
+			open_address("chronicles:events")
+		"diplomacy":
+			open_address("diplomacy")
+		"research":
+			open_address("research")
+		"build":
+			open_system_view(int(item["arg"]))
+		"fleet":
+			cycle_idle_fleet(1)
 
 
 # --- Événements -------------------------------------------------------------------------------
@@ -754,6 +928,25 @@ func _announce_events() -> void:
 		if not _events_told.has(int(item["id"])):
 			open_event(int(item["id"]))
 			return
+
+
+## Une technologie obtenue depuis hier se signale par un message : un clic ouvre sa fiche, où se lit
+## sa description. Au-delà de trois d'un coup (trouvaille, échange en bloc), un seul message les compte.
+func _announce_techs() -> void:
+	var e := simulation.state.get_empire(local_player)
+	if spectator or e == null:
+		return
+	var fresh: Array[String] = Research.new_techs(e.techs, _techs_told)
+	if fresh.is_empty():
+		return
+	_techs_told = e.techs.duplicate()
+	if fresh.size() > 3:
+		_hud.notify("%d technologies acquises" % fresh.size(), "good", func() -> void: open_address("research"))
+		return
+	for tid in fresh:
+		_hud.notify("Découverte : %s" % String(Research.tech(tid).get("label", tid)), "good", func() -> void:
+			_empire_screens.research_selected = tid
+			open_address("research"))
 
 
 # --- Hauts faits -------------------------------------------------------------------------------
@@ -869,6 +1062,7 @@ func _start(state: GameState) -> void:
 	close_victory_panel()
 	close_event_panel()
 	_events_told.clear()
+	_techs_told = state.get_empire(local_player).techs.duplicate() if state.get_empire(local_player) != null else {}
 	close_deed_panel()
 	_deeds_told.clear()
 	close_election_panel()
@@ -890,6 +1084,7 @@ func _start(state: GameState) -> void:
 		announce.try_open(true)
 		_announce_events()
 		_announce_deeds()
+		_announce_techs()
 		_announce_election()
 		announce.try_open(false)
 		_turn_interruptions()
@@ -1151,7 +1346,7 @@ func resume_network_game() -> bool:
 ## Fin de la session. Un client revient à la page Multijoueur, d'où il retrouve son empire en rejoignant.
 func _on_net_ended(reason: String) -> void:
 	if not _net_client:
-		_hud.notify("Partie en réseau terminée : %s. Vous pouvez sauvegarder (F5) pour la garder." % reason, "bad")
+		_hud.notify("Partie en réseau terminée : %s. Vous pouvez sauvegarder (Ctrl+S) pour la garder." % reason, "bad")
 		return
 	_net_client = false
 	open_main_menu()
@@ -1254,6 +1449,10 @@ func _process(delta: float) -> void:
 	if galaxy == null:
 		return
 	_view.day_fraction = GameClock.day_fraction()
+	var zt := GalaxyView.tier_of(_camera.zoom.x)
+	if zt != _zoom_tier:
+		_zoom_tier = zt
+		_hud.set_zoom_tier(zt)
 	_codex_sync -= delta
 	if _codex_sync <= 0.0:
 		_codex_sync = 1.0
@@ -1261,6 +1460,7 @@ func _process(delta: float) -> void:
 	if _main_menu.is_open():
 		_camera.position += MENU_DRIFT * delta  # la galaxie dérive doucement derrière le menu
 		return
+	tick_autosave(delta)
 	if is_system_view_open() or is_modal_open():
 		return
 	var id := _pick_system()
@@ -1279,12 +1479,25 @@ func _unhandled_input(event: InputEvent) -> void:
 		if fleet >= 0 and not mb.double_click:
 			select_fleet(fleet)
 			return
+		# Insigne « +N » : la liste des flottes qui n'ont pas trouvé place sous l'étoile.
+		var more := _view.pick_overflow(get_viewport().get_canvas_transform().affine_inverse() * mb.position, FLEET_PICK_RADIUS_PX / _camera.zoom.x)
+		if more >= 0 and not mb.double_click:
+			_open_fleet_menu(more, mb.position)
+			return
 		var picked := _pick_system_at(mb.position)
 		if mb.double_click and picked >= 0:
 			open_system_view(picked)
 		else:
 			select_fleet(-1)
 			_select(picked)
+		return
+	# Clic molette (sans glisser) avec une flotte sélectionnée : la liste de ce qu'elle peut faire là.
+	if mb and mb.button_index == MOUSE_BUTTON_MIDDLE and not is_system_view_open() and not is_modal_open():
+		if mb.pressed:
+			_middle_press = mb.position
+		elif _middle_press.x >= 0.0 and mb.position.distance_to(_middle_press) <= RIGHT_CLICK_SLOP_PX:
+			_middle_press = Vector2(-1, -1)
+			open_order_menu(_pick_system_at(mb.position), mb.position)
 		return
 	# Clic droit (sans glisser) avec une flotte sélectionnée : l'envoyer vers le système visé.
 	if mb and mb.button_index == MOUSE_BUTTON_RIGHT and not is_system_view_open() and not is_modal_open():
@@ -1351,9 +1564,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _pause_menu.is_open():
 		if key.keycode == KEY_ESCAPE and not _pause_menu.back():
 			close_pause_menu()
-		elif key.keycode == KEY_F5:
+		elif key.keycode == KEY_S and key.ctrl_pressed:
 			save_game()
-		elif key.keycode == KEY_F9:
+		elif key.keycode == KEY_L and key.ctrl_pressed:
 			close_pause_menu()
 			load_game()
 		return
@@ -1366,6 +1579,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				_hud.battle_replay.hide_replay()
 			elif _hud.battle_report.visible:
 				_hud.battle_report.hide_report()
+			elif _hud.close_lens_panel():
+				pass
 			elif is_empire_screen_open():
 				close_empire_screen()
 			elif is_system_view_open():
@@ -1376,20 +1591,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				_select(-1)
 			else:
 				open_pause_menu()
-		KEY_F1:
-			toggle_empire_screen("economy")
-		KEY_F2:
-			toggle_empire_screen("colonies")
-		KEY_F3:
-			toggle_empire_screen("research")
-		KEY_F4:
-			toggle_empire_screen("diplomacy")
-		KEY_F6:
-			toggle_empire_screen("shipyard")
-		KEY_F7:
-			toggle_empire_screen("victory")
-		KEY_F8:
-			toggle_empire_screen("intel")
+		KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8:
+			toggle_domain(key.keycode - KEY_F1)
 		KEY_F10:
 			toggle_empire_screen("throne" if key.shift_pressed else "heroes")
 		KEY_F12:
@@ -1400,8 +1603,13 @@ func _unhandled_input(event: InputEvent) -> void:
 				chat.open_input()
 			elif not is_system_view_open() and not is_empire_screen_open():
 				open_system_view(_view.selected_id)
+		KEY_S:
+			if key.ctrl_pressed:
+				save_game()
 		KEY_L:
-			if not is_system_view_open():
+			if key.ctrl_pressed:
+				load_game()
+			elif not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "economy" else "economy")
 		KEY_K:
 			if not is_system_view_open():
@@ -1422,10 +1630,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				_hud.battle_replay.toggle_play()
 			else:
 				toggle_pause_or_turn()
-		KEY_F5:
-			save_game()
-		KEY_F9:
-			load_game()
 		KEY_LEFT, KEY_RIGHT:
 			if is_system_view_open():
 				_system_screen.select_adjacent_planet(-1 if key.keycode == KEY_LEFT else 1)
@@ -1435,6 +1639,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				return
 			if key.physical_keycode == KEY_H:
 				go_to_capital()
+				return
+			if key.physical_keycode == KEY_QUOTELEFT and not is_system_view_open() and not is_empire_screen_open():
+				_hud.set_side_reduced(not _hud.side_reduced)
 				return
 			if key.physical_keycode == KEY_J:
 				toggle_empire_screen("chronicles")
@@ -1533,6 +1740,85 @@ func _pick_fleet_at(screen_pos: Vector2) -> int:
 # --- Flottes ----------------------------------------------------------------------------------
 
 ## Sélectionne une flotte (-1 : aucune). Sa fiche s'affiche et son trajet se dessine.
+## Ordres que la flotte choisie peut recevoir pour ce système : [[identifiant, libellé], ...].
+func order_choices(system_id: int) -> Array:
+	var out := []
+	var f: Fleet = simulation.state.fleets.get(selected_fleet) if simulation else null
+	if f == null or f.owner != view_empire or system_id < 0 or spectator:
+		return out
+	var known := Fleets.is_explored(simulation.state, view_empire, system_id)
+	var where := galaxy.get_system(system_id).system_name if known else "ce système inexploré"
+	var here := not f.is_moving() and f.system_id == system_id
+	if not here:
+		out.append(["go", "Aller à %s" % where])
+		out.append(["queue", "Y aller ensuite, après les ordres en cours"])
+		out.append(["patrol", "Patrouiller jusqu'à %s" % where])
+	else:
+		for action: String in ["colonize", "embark", "disembark", "invade", "guard"]:
+			var b := _hud.fleet_button(action)
+			if b and b.visible and not b.disabled:
+				out.append([action, b.text.capitalize()])
+	if known:
+		out.append(["open", "Ouvrir %s" % where])
+	return out
+
+
+## Menu d'ordres (refonte, B2) : clic molette sur un système avec une flotte choisie. Le clic droit
+## simple continue d'envoyer la flotte sans rien demander.
+func open_order_menu(system_id: int, screen_pos: Vector2) -> void:
+	var list := order_choices(system_id)
+	if list.is_empty():
+		return
+	if _order_menu == null:
+		_order_menu = PopupMenu.new()
+		_order_menu.theme = UiTheme.theme()
+		_order_menu.index_pressed.connect(func(i: int) -> void: do_order(String(_order_menu.get_item_metadata(i)), _order_target))
+		_hud.add_child(_order_menu)
+	_order_target = system_id
+	_order_menu.clear()
+	for e: Array in list:
+		_order_menu.add_item(String(e[1]))
+		_order_menu.set_item_metadata(_order_menu.item_count - 1, e[0])
+	_order_menu.position = Vector2i(screen_pos)
+	_order_menu.reset_size()
+	_order_menu.popup()
+
+
+func do_order(order: String, system_id: int) -> void:
+	match order:
+		"go":
+			order_fleet_to(system_id)
+		"queue":
+			queue_fleet_to(system_id)
+		"patrol":
+			order_fleet_patrol(system_id)
+		"open":
+			open_system_view(system_id)
+		_:
+			var b := _hud.fleet_button(order)
+			if b:
+				b.pressed.emit()
+
+
+## Liste des flottes cachées derrière l'insigne « +N » d'un système : en choisir une la sélectionne.
+func _open_fleet_menu(system_id: int, screen_pos: Vector2) -> void:
+	if _fleet_menu == null:
+		_fleet_menu = PopupMenu.new()
+		_fleet_menu.theme = UiTheme.theme()
+		_fleet_menu.id_pressed.connect(func(fid: int) -> void: select_fleet(fid))
+		_hud.add_child(_fleet_menu)
+	_fleet_menu.clear()
+	for fid: int in _view.overflow_fleets(system_id):
+		var f: Fleet = simulation.state.fleets.get(fid)
+		if f == null:
+			continue
+		var owner := simulation.state.get_empire(f.owner)
+		_fleet_menu.add_item("%s  (%d)%s" % [f.fleet_name, f.ships.size(), "" if f.owner == local_player or owner == null else "  ·  " + owner.display_name()], fid)
+	_fleet_menu.position = Vector2i(screen_pos)
+	_fleet_menu.reset_size()
+	_fleet_menu.popup()
+
+
 func select_fleet(fleet_id: int) -> void:
 	_patrol_pick = _patrol_pick and fleet_id == selected_fleet
 	selected_fleet = fleet_id

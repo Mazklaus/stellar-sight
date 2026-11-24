@@ -14,6 +14,8 @@ extends RefCounted
 const POUR := Color(0.42, 0.78, 0.45)
 const CONTRE := Color(0.86, 0.36, 0.33)
 const ABST := Color(0.5, 0.53, 0.58)
+## Largeur d'une carte de la file des propositions.
+const QUEUE_CARD := 290.0
 
 
 ## Hémicycle du dernier vote : un siège par tranche de voix, coloré par le vote du membre.
@@ -142,17 +144,23 @@ static func build(es: EmpireScreens) -> void:
 		b.body.add_child(UiTheme.paragraph("Une assemblée de tous les empires qui le veulent : une tribune, des voix pesées, des résolutions qui tordent les règles du commerce, du savoir, de la guerre, de la foi, des peuples, des ombres et des périls ; et une loi commune, le Nomos, dont la première ligne interdit les atrocités. Elle naît quand assez d'empires se connaissent." if state.amph_on
 				else "Pas d'assemblée galactique dans cette partie.", 760.0, 15))
 		return
-	col.add_child(_session_block(es))
+	# Deux volets : la séance et sa file d'abord, les institutions et la loi ensuite.
+	col.add_child(es.pane_row("amph", [["seance", "Séance"], ["institutions", "Institutions et Nomos"]], "seance"))
+	var seance := es.pane_box("amph", "seance")
+	var inst := es.pane_box("amph", "institutions")
+	col.add_child(seance)
+	col.add_child(inst)
+	seance.add_child(_session_block(es))
 	if AmphInst.special_on(state) or AmphInst.coal_on(state) or not AmphInst.open_trigs(state).is_empty():
-		col.add_child(_crisis_block(es))
-	col.add_child(_queue_block(es))
+		seance.add_child(_crisis_block(es))
+	seance.add_child(_queue_block(es))
 	if Amphictyony.is_member(state, player) and not ro:
-		col.add_child(_propose_block(es))
-	col.add_child(_inst_block(es))
-	col.add_child(_power_block(es))
-	col.add_child(_mutual_block(es))
-	col.add_child(_law_block(es))
-	col.add_child(_members_block(es))
+		seance.add_child(_propose_block(es))
+	inst.add_child(_inst_block(es))
+	inst.add_child(_power_block(es))
+	inst.add_child(_mutual_block(es))
+	inst.add_child(_law_block(es))
+	inst.add_child(_members_block(es))
 
 
 ## Ce qui change l'écran : mois, séance, file, résolutions, peines, membres.
@@ -308,42 +316,58 @@ static func _queue_block(es: EmpireScreens) -> Control:
 		b.body.add_child(UiTheme.dim("La file est vide : chaque amphictyon peut y déposer une proposition.", 14))
 		return b
 	var member := Amphictyony.is_member(state, player) and state.get_empire(player) != null
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 14)
+	flow.add_theme_constant_override("v_separation", 14)
+	b.body.add_child(flow)
 	for p: Dictionary in q:
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 10)
-		b.body.add_child(row)
+		var card := PanelContainer.new()
+		card.add_theme_stylebox_override("panel", UiTheme.box(Color(1, 1, 1, 0.035), UiTheme.LINE, 0, 1))
+		card.custom_minimum_size = Vector2(QUEUE_CARD, 0)
+		card.tooltip_text = Amphictyony.prop_text(state, p)
+		flow.add_child(card)
+		var pad := MarginContainer.new()
+		for side in ["left", "right", "top", "bottom"]:
+			pad.add_theme_constant_override("margin_" + side, 10)
+		pad.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card.add_child(pad)
+		var box := VBoxContainer.new()
+		box.add_theme_constant_override("separation", 4)
+		box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pad.add_child(box)
 		var nl := Label.new()
 		nl.text = Amphictyony.cap(Amphictyony.prop_label(state, p))
-		nl.custom_minimum_size = Vector2(380, 0)
+		nl.custom_minimum_size = Vector2(QUEUE_CARD - 20.0, 0)
 		nl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		nl.add_theme_font_size_override("font_size", 15)
-		nl.mouse_filter = Control.MOUSE_FILTER_STOP
-		nl.tooltip_text = Amphictyony.prop_text(state, p)
-		row.add_child(nl)
-		var by := UiTheme.dim(pwho(state, player, int(p["by"])), 13)
-		by.custom_minimum_size = Vector2(170, 0)
-		row.add_child(by)
-		var sup := UiTheme.dim("soutien %d voix" % Amphictyony.support_weight(state, p), 13)
-		sup.custom_minimum_size = Vector2(120, 0)
-		row.add_child(sup)
+		nl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(nl)
+		box.add_child(UiTheme.dim("Déposée par %s" % pwho(state, player, int(p["by"])), 13))
+		var sup := Label.new()
+		sup.theme_type_variation = &"Numbers"
+		sup.text = "%d voix de soutien" % Amphictyony.support_weight(state, p)
+		box.add_child(sup)
 		if int(p.get("frozen", 0)) > state.tick:
-			var fz := UiTheme.dim("gelée jusqu'au %s" % GameCalendar.date_string(int(p["frozen"])), 13)
+			var fz := UiTheme.dim("Gelée jusqu'au %s" % GameCalendar.date_string(int(p["frozen"])), 13)
 			fz.add_theme_color_override("font_color", Color(0.55, 0.75, 0.95))
-			row.add_child(fz)
+			box.add_child(fz)
 		if not member:
 			continue
-		if AmphInst.is_councillor(state, player):
-			row.add_child(_btn(es, "urgent:%d" % int(p["id"]), "Urgence", AmphInst.check_urgent(state, player, int(p["id"])), SimCommands.amph_act(player, "urgent", int(p["id"])),
-					"Ouvre la séance tout de suite sur cette proposition. Une fois par décennie et par conseiller."))
-		if AmphInst.arbiter(state) == player:
-			row.add_child(_btn(es, "freeze:%d" % int(p["id"]), "Geler", AmphInst.check_freeze(state, player, int(p["id"])), SimCommands.amph_act(player, "freeze", int(p["id"])),
-					"La proposition ne peut pas passer en séance pendant deux ans."))
+		var row := HFlowContainer.new()
+		row.add_theme_constant_override("h_separation", 6)
+		box.add_child(row)
 		if int(p["by"]) == player:
 			row.add_child(_btn(es, "withdraw", "Retirer", Amphictyony.check_withdraw(state, player), SimCommands.amph_withdraw(player), "Sans remboursement."))
 		else:
 			var on := (p["sup"] as Array).has(player)
 			row.add_child(_btn(es, "support:%d" % int(p["id"]), "Soutenu" if on else "Soutenir", Amphictyony.check_support(state, player, int(p["id"])),
 					SimCommands.amph_support(player, int(p["id"])), "Vos voix s'ajoutent à son soutien : la plus soutenue passe en séance."))
+		if AmphInst.is_councillor(state, player):
+			row.add_child(_btn(es, "urgent:%d" % int(p["id"]), "Urgence", AmphInst.check_urgent(state, player, int(p["id"])), SimCommands.amph_act(player, "urgent", int(p["id"])),
+					"Ouvre la séance tout de suite sur cette proposition. Une fois par décennie et par conseiller."))
+		if AmphInst.arbiter(state) == player:
+			row.add_child(_btn(es, "freeze:%d" % int(p["id"]), "Geler", AmphInst.check_freeze(state, player, int(p["id"])), SimCommands.amph_act(player, "freeze", int(p["id"])),
+					"La proposition ne peut pas passer en séance pendant deux ans."))
 	return b
 
 

@@ -9,11 +9,13 @@ Ce chapitre vous accompagne de l'écran d'accueil jusqu'à votre première colon
 
 ### Le menu principal
 
-L'écran d'accueil propose **Continuer** (ou Reprendre), **Nouvelle partie**, **Peuples** (l'éditeur pour créer le vôtre), **Multijoueur**, **Options** et **Quitter**. Les options règlent le plein écran, l'échelle de l'interface (100, 125 ou 150 %) et la pause automatique quand un écran d'empire est ouvert. Elles appartiennent à votre poste et ne sont jamais enregistrées dans une partie.
+L'écran d'accueil propose **Continuer** (ou Reprendre), **Charger** dès qu'il existe une sauvegarde, **Nouvelle partie**, **Peuples** (l'éditeur pour créer le vôtre), **Multijoueur**, **Options** et **Quitter**. Les options règlent le plein écran, l'échelle de l'interface (100, 125 ou 150 %) et la pause automatique quand un écran d'empire est ouvert. Elles appartiennent à votre poste et ne sont jamais enregistrées dans une partie.
 
 ### L'écran Nouvelle partie
 
-La nouvelle partie tient sur un seul écran, rangé en cinq blocs. Les réglages par défaut donnent une partie équilibrée : vous pouvez tout laisser tel quel et cliquer sur **Commencer**.
+La nouvelle partie se règle en cinq étapes : **Votre peuple**, **La galaxie**, **Vos rivaux**, **Les règles**, **La victoire**. Un fil en haut de l'écran les montre et permet de sauter de l'une à l'autre ; en bas, les deux boutons portent le nom de l'étape où ils mènent, et [[Échap]] revient d'une étape. Les réglages par défaut donnent une partie équilibrée : dès la première étape, **Partie rapide** lance avec ce peuple et les réglages de votre dernière partie. L'étape de la galaxie dessine une galaxie tirée avec vos réglages (celle de votre graine, ou un exemple si la graine est laissée au hasard). L'étape des règles propose trois préréglages, **Découverte** (peu d'hostiles, pas de crise, les grands systèmes en version simple), **Classique** (les réglages par défaut) et **Tout**, puis le détail ligne par ligne. La dernière étape récapitule la partie ; les préréglages enregistrés et le code de partie s'y trouvent, avec **Commencer**.
+
+Les réglages eux-mêmes n'ont pas changé :
 
 | Bloc | Ce qu'on y règle |
 | --- | --- |
@@ -65,6 +67,8 @@ En **temps réel pausable**, les jours défilent à la vitesse choisie (cinq cra
 
 Au **tour par tour**, le temps est arrêté pendant que vous jouez. Le cadran devient un bouton **Fin de tour** ([[Espace]]) qui fait défiler les jours du tour, puis s'arrête au tour suivant. Un tour dure **un mois** (30 jours), l'unité des revenus, de la croissance et de la recherche ; des tours de 10 jours restent proposés. Si une bataille éclate avec vos flottes pendant le tour, il s'interrompt pour vous laisser choisir la tactique ou vous retirer. Il s'interrompt aussi quand on vous **déclare la guerre**, quand une **flotte étrangère armée** entre dans un de vos systèmes, et quand un **événement** attend votre choix : chacun de ces arrêts se coche dans les options (onglet Jeu). Les étapes, la consigne d'engagement et le point de ralliement (chapitre 4) font tenir vos ordres tout le mois.
 
+Avant de finir le tour, le jeu vous prévient de ce qui attend encore : décisions à trancher, propositions diplomatiques sans réponse, recherche vide, chantier libre là où l'on peut bâtir, flottes sans ordres. Un clic sur l'avertissement y mène ; une seconde pression sur [[Espace]] finit le tour quand même, et un point déjà écarté ne revient pas tant qu'il ne change pas. L'avertissement se décoche dans les options (onglet Jeu).
+
 Au tour par tour, les IA décident **une fois par tour**, comme vous, sur la même information.
 
 Les cinq crans du cadran (touches [[1]] à [[5]]) règlent alors l'**allure de résolution** : à quelle vitesse les jours du tour défilent, le temps de voir les flottes avancer et les batailles éclater. Contemplative (10 jours en 4 secondes, donc un tour d'un mois en 12), posée (10 jours en 1,5 seconde, l'allure de départ), vive, rapide ou éclair (10 jours en 0,3 seconde). L'infobulle du cadran rappelle l'allure choisie.
@@ -95,10 +99,10 @@ Pour une première partie entre amis, prenez les tours simultanés d'un mois, l'
 
 ### Les dix premières minutes
 
-La partie démarre en pause, le 1er janvier 2400, centrée sur votre système natal. Vous disposez d'un monde de taille 4 peuplé de 8 habitants, avec un palais, des fermes et un complexe minier, d'un **éclaireur** et d'un **vaisseau colon**. Voici un ordre de marche raisonnable :
+La partie démarre en pause, le 1er janvier 2400, centrée sur votre système natal. Vous disposez d'un monde de taille 4 peuplé de 8 habitants, avec un palais, des fermes et un complexe minier, d'un **éclaireur** et d'un **vaisseau colon**. Le suivi **Premiers pas**, en haut à droite, vous souffle les trois premiers gestes (sonder, coloniser, rechercher) et se ferme quand ils sont faits. Voici un ordre de marche raisonnable :
 
 1. **Lancez l'exploration.** Sélectionnez l'éclaireur et appuyez sur [[E]] : il partira de lui-même vers le système inexploré le plus proche, puis le suivant.
-2. **Choisissez une recherche.** Ouvrez l'écran Recherche ([[F3]]) et mettez deux technologies en file. Le Savoir s'accumule dès le premier jour.
+2. **Choisissez une recherche.** Ouvrez l'écran Recherche (domaine Savoir, [[F2]]) et mettez deux technologies en file. Le Savoir s'accumule dès le premier jour.
 3. **Lancez un chantier.** Entrez dans votre système natal (double-clic), choisissez une planète et un bâtiment dans la section Ordres. Une colonie bâtit deux projets à la fois au départ.
 4. **Envoyez le vaisseau colon.** Dès que l'éclaireur a trouvé un monde habitable proche, envoyez-y le colon d'un clic droit, puis donnez l'ordre de coloniser. Il se démonte pour fonder la colonie : il ne reste à payer que l'influence.
 5. **Reprenez le temps.** [[Espace]], et regardez la chronique en haut à droite raconter vos premiers pas.
@@ -109,4 +113,4 @@ La partie démarre en pause, le 1er janvier 2400, centrée sur votre système na
 
 ### Sauvegarder
 
-[[F5]] fait une sauvegarde rapide et [[F9]] la recharge. Le menu du jeu ([[Échap]]) permet aussi de sauvegarder et de charger sous un autre nom. Une sauvegarde reprend la partie au jour près, avec la même galaxie, même sur une autre machine.
+[[Ctrl]]+[[S]] fait une sauvegarde rapide et [[Ctrl]]+[[L]] la recharge. Le menu du jeu ([[Échap]]) fait aussi une **nouvelle sauvegarde**, dans un fichier à part, et **Charger** y ouvre la liste de toutes vos sauvegardes, avec leur vignette. Le jeu enregistre de lui-même toutes les dix minutes, sur trois fichiers qui tournent (Options, onglet Partie). Une sauvegarde reprend la partie au jour près, avec la même galaxie, même sur une autre machine.

@@ -182,19 +182,29 @@ static func build(es: EmpireScreens) -> void:
 
 	var cb := Widgets.Block.new("Catalogue")
 	col.add_child(cb)
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 14)
+	flow.add_theme_constant_override("v_separation", 14)
+	cb.body.add_child(flow)
+	var tint := Color(0.6, 0.85, 0.7)
 	for op in WorldForge.op_ids():
 		var d := WorldForge.op_def(op)
 		if bool(d.get("dismantle", false)) and not WorldForge.dismantle_on(state):
 			continue
-		var tech := "" if WorldForge.unlocked(state, player, op) else " — technologie : %s" % Research.missing_text(state, player, d.get("tech", []))
+		var open := WorldForge.unlocked(state, player, op)
 		var days := "%d à %d j" % [int(d.get("days_base", 0)) + int(d.get("days_per_size", 0)), int(d.get("days_base", 0)) + 5 * int(d.get("days_per_size", 0))] if d.has("days_base") else "%d j" % int(d.get("days", 0))
-		cb.body.add_child(UiTheme.paragraph("%s (%s, %s%s)%s\n%s" % [WorldForge.op_label(op), GameData.format_amounts(d.get("cost", {})), days,
-				(", %d Masse" % int(d["mass"])) if d.has("mass") else "", tech, String(d.get("text", ""))], 760.0, 12))
+		var made := WondersUi.catalog_card("forge_" + String(op), tint, WorldForge.op_label(op), "DISPONIBLE" if open else "TECHNOLOGIE MANQUANTE",
+				UiTheme.GOOD if open else UiTheme.TEXT_DIM, "%s · %s%s" % [GameData.format_amounts(d.get("cost", {})), days, (" · %d Masse" % int(d["mass"])) if d.has("mass") else ""],
+				String(d.get("text", "")), "" if open else "Il manque : %s." % Research.missing_text(state, player, d.get("tech", [])), not open)
+		flow.add_child(made[0])
+		es.wonder_cards["forge:" + String(op)] = made[0]
 	for k in WorldForge.cfg("instant"):
 		var d: Dictionary = WorldForge.cfg("instant")[k]
 		if k == "belier" and not WorldForge.dismantle_on(state):
 			continue
-		cb.body.add_child(UiTheme.paragraph("%s\n%s" % [String(d.get("label", k)), String(d.get("text", ""))], 760.0, 12))
+		var made := WondersUi.catalog_card("forge_" + String(k), tint, String(d.get("label", k)), "TIR IMMÉDIAT", Color(0.95, 0.62, 0.3), "", String(d.get("text", "")), "", false)
+		flow.add_child(made[0])
+		es.wonder_cards["forge:" + String(k)] = made[0]
 
 
 static func _first_colony(state: GameState, player: int, sid: int) -> int:

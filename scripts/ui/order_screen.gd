@@ -88,8 +88,16 @@ static func build(es: EmpireScreens) -> void:
 		for sid in Stability.systems_of(state, player):
 			list.append([Stability.value(state, sid), sid])
 		list.sort()
+		# Refonte, C4 : la liste montre d'abord les systèmes qui posent problème ; ceux du meilleur
+		# palier, quand ils sont nombreux, tiennent en une ligne qu'on déplie.
+		var calm := calm_systems(state, player)
+		var folded := fold_calm and calm.size() > FOLD_FROM
 		for it in list:
+			if folded and calm.has(int(it[1])):
+				continue
 			mine.body.add_child(_system_row(es, int(it[1]), cx))
+		if calm.size() > FOLD_FROM:
+			mine.body.add_child(_calm_row(es, calm, folded))
 		if list.is_empty():
 			mine.body.add_child(UiTheme.dim("Aucun système revendiqué.", 14))
 	var free := free_worlds(state, player)
@@ -105,6 +113,9 @@ static func build(es: EmpireScreens) -> void:
 
 ## Onglet de l'écran : « Ordre intérieur » ou « Administration » (voir AdminUi).
 static var tab := "ordre"
+## Les systèmes sans histoire sont repliés en une ligne, dès qu'il y en a plus de FOLD_FROM.
+static var fold_calm := true
+const FOLD_FROM := 3
 
 
 ## Boutons d'onglet (seulement si le pilier Administration ou la Fiscalité est en jeu pour l'empire).
@@ -119,6 +130,7 @@ static func _tabs(es: EmpireScreens) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
 	es._side_box.add_child(row)
+	row.visible = false  # la rangée du domaine porte ces onglets (refonte, A1)
 	for t in tabs:
 		var b := Button.new()
 		b.text = String(t[1])
@@ -143,10 +155,49 @@ static func signature(es: EmpireScreens) -> String:
 		return "tresor|" + FinanceUi.signature(es)
 	var e := state.get_empire(es._player)
 	@warning_ignore("integer_division")
-	return "%d|%s|%s|%s|%d|%d|%s|%s|%d|%d" % [state.tick / 30, str(Stability.systems_of(state, es._player)), str(state.stability),
+	return "%s|%d|%s|%s|%s|%d|%d|%s|%s|%d|%d" % [str(fold_calm), state.tick / 30, str(Stability.systems_of(state, es._player)), str(state.stability),
 			str(free_worlds(state, es._player)), e.resources.get("influence", 0) if e else 0, e.resources.get("energy", 0) if e else 0,
 			str(Pirates.known_lairs(state, es._player)) + str(Pirates.known_ports(state, es._player)), str(state.lairs) + str(state.pirate_meta),
 			es.order_victim, Heroes.ids_of(state, es._player).size()]
+
+
+## Systèmes de l'empire au meilleur palier de stabilité, sans décret en cours : rien à y faire.
+static func calm_systems(state: GameState, player: int) -> Array[int]:
+	var out: Array[int] = []
+	var tiers := Stability.tiers()
+	if tiers.is_empty():
+		return out
+	var best := String(tiers[tiers.size() - 1]["id"])
+	for sid in Stability.systems_of(state, player):
+		if Stability.tier_id(state, sid) == best and Stability.active_decree(state, sid).is_empty():
+			out.append(sid)
+	return out
+
+
+static func _calm_row(es: EmpireScreens, calm: Array[int], folded: bool) -> Control:
+	var state := es._state
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	var tiers := Stability.tiers()
+	var top: Dictionary = tiers[tiers.size() - 1]
+	var names := PackedStringArray()
+	for sid in calm:
+		names.append(state.galaxy.systems[sid].system_name)
+	var text := UiTheme.paragraph("%d systèmes au palier %s%s" % [calm.size(), String(top["label"]),
+			(" : " + ", ".join(names)) if folded else ", affichés ci-dessus."], 760.0, 14)
+	text.add_theme_color_override("font_color", Color(String(top["color"])))
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(text)
+	var b := Button.new()
+	b.text = "DÉPLIER" if folded else "REPLIER"
+	b.focus_mode = Control.FOCUS_NONE
+	b.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	b.pressed.connect(func() -> void:
+		fold_calm = not fold_calm
+		es.refresh())
+	row.add_child(b)
+	es.order_buttons["fold_calm"] = b
+	return row
 
 
 ## Mondes libres (Sans-Bannière) voisins d'un système de l'empire, par identifiant.

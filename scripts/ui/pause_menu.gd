@@ -7,6 +7,9 @@ extends CanvasLayer
 signal resume_requested
 signal save_requested
 signal load_requested
+## Refonte D3b et D3e : une sauvegarde à part (nouveau fichier), et le chargement d'un fichier de la liste.
+signal new_save_requested
+signal load_path_requested(path: String)
 signal main_menu_requested
 ## « Ouvrir en réseau » : la partie en cours accueille d'autres joueurs (NetSession).
 signal host_requested
@@ -43,10 +46,10 @@ const SHORTCUT_GROUPS := [
 		["Page préc. / suiv.", "Système précédent / suivant"],
 	]],
 	["Menus", [
-		["F1 à F4", "Économie, Colonies, Recherche, Diplomatie"],
-		["F6 / F7", "Chantier, Victoire"],
+		["F1 à F4", "Empire, Savoir, Forces, Diplomatie"],
+		["F5 à F8", "Commerce, Pouvoir, Chroniques, Victoire"],
 		["Échap", "Revenir en arrière, puis ce menu"],
-		["F5 / F9", "Sauvegarde / chargement rapide"],
+		["Ctrl+S / Ctrl+L", "Sauvegarde / chargement rapide"],
 		["F11", "Plein écran"],
 	]],
 	["Codex et infobulles", [
@@ -64,6 +67,8 @@ var _home: VBoxContainer
 var _shortcuts: VBoxContainer
 var _confirm: VBoxContainer
 var _options: OptionsPanel
+var _load: VBoxContainer
+var save_list: SaveList
 var _date: Label
 
 
@@ -94,8 +99,9 @@ func _ready() -> void:
 	_home.add_child(_date)
 	_home.add_child(Widgets.NotchHeader.new("", 4))
 	_item("Reprendre", "Échap", func() -> void: resume_requested.emit())
-	_item("Sauvegarder", "F5", func() -> void: save_requested.emit())
-	_item("Charger", "F9", func() -> void: load_requested.emit())
+	_item("Sauvegarde rapide", "Ctrl+S", func() -> void: save_requested.emit()).tooltip_text = "Toujours le même fichier, que Ctrl+L recharge."
+	_item("Nouvelle sauvegarde", "", func() -> void: new_save_requested.emit()).tooltip_text = "Un fichier à part, qui reste dans la liste jusqu'à ce que vous l'effaciez."
+	_item("Charger", "", func() -> void: show_page("load")).tooltip_text = "La liste de vos sauvegardes : rapide, automatiques et à part."
 	_item("Ouvrir en réseau", "", func() -> void: host_requested.emit())
 	_item("Raccourcis", "", func() -> void: show_page("shortcuts"))
 	_item("Options", "", func() -> void: show_page("options"))
@@ -146,7 +152,7 @@ func _ready() -> void:
 	_confirm.add_theme_constant_override("separation", 14)
 	stack.add_child(_confirm)
 	_confirm.add_child(_page_title("Quitter le jeu ?"))
-	var why := UiTheme.paragraph("La partie n'est pas sauvegardée automatiquement. La galaxie continuera sans vous, ou plutôt ne continuera pas du tout.", 440, 15)
+	var why := UiTheme.paragraph("Ce qui s'est joué depuis la dernière sauvegarde sera perdu. La galaxie continuera sans vous, ou plutôt ne continuera pas du tout.", 440, 15)
 	why.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	why.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 	_confirm.add_child(why)
@@ -161,6 +167,18 @@ func _ready() -> void:
 	var quit := Widgets.RoundButton.new("check", "Quitter", 16)
 	quit.pressed.connect(func() -> void: quit_requested.emit())
 	buttons.add_child(quit)
+
+	_load = VBoxContainer.new()
+	_load.add_theme_constant_override("separation", 12)
+	stack.add_child(_load)
+	_load.add_child(_page_title("Charger"))
+	save_list = SaveList.new()
+	save_list.load_requested.connect(func(path: String) -> void: load_path_requested.emit(path))
+	_load.add_child(save_list)
+	var load_back := Widgets.RoundButton.new("back", "Retour", 16)
+	load_back.tooltip_text = "Échap"
+	load_back.pressed.connect(func() -> void: show_page("home"))
+	_load.add_child(load_back)
 
 	_options = OptionsPanel.new()
 	_options.custom_minimum_size = Vector2(440, 0)
@@ -187,13 +205,16 @@ func is_open() -> bool:
 	return visible
 
 
-## Pages : "home", "shortcuts", "options", "confirm_quit".
+## Pages : "home", "shortcuts", "options", "load", "confirm_quit".
 func show_page(name: String) -> void:
 	page = name
 	_home.visible = name == "home"
 	_shortcuts.visible = name == "shortcuts"
 	_options.visible = name == "options"
 	_confirm.visible = name == "confirm_quit"
+	_load.visible = name == "load"
+	if name == "load":
+		save_list.refresh()
 	if name == "options":
 		_options.sync()
 	_window.reset_size()

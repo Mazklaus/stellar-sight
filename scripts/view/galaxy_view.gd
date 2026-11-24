@@ -18,7 +18,32 @@ const LABEL_FONT_SIZE := 13
 ## Zoom à partir duquel tous les systèmes montrent leurs pastilles de planètes.
 const PLANET_DOTS_MIN_ZOOM := 0.8
 ## Rayon du halo de territoire autour d'un système revendiqué, en unités du monde.
-const TERRITORY_RADIUS := 85.0
+## Portée d'un système dans le champ des territoires, et des points semés le long des voies.
+const TERRITORY_RADIUS := 95.0
+const TERRITORY_LANE_REACH := 0.55
+const TERRITORY_LANE_STEP := 55.0
+## Côté de l'image du champ des territoires.
+const TERRITORY_TEXTURE := 1024
+const TERRITORY_FIELD_SHADER := preload("res://shaders/territory_field.gdshader")
+const TERRITORY_SHADER := preload("res://shaders/territory.gdshader")
+## Paliers de zoom (refonte, B1) : de loin les empires, à mi-distance les systèmes et les flottes,
+## de près les silhouettes et les cargos.
+const TIER_GALAXY := 0
+const TIER_REGION := 1
+const TIER_SYSTEM := 2
+const TIER_REGION_ZOOM := 0.3
+const TIER_SYSTEM_ZOOM := 1.4
+## Zoom visé par les trois boutons de palier.
+const TIER_JUMP: Array[float] = [0.2, 0.45, 1.8]
+const TIER_NAMES: Array[String] = ["Galaxie", "Région", "Système"]
+## Insignes de flotte (B2) : au plus quatre en éventail sous l'étoile, le reste derrière un « +N ».
+const FAN_MAX := 4
+const FAN_RADIUS := 30.0
+const FAN_STEP := 0.7
+## Calques de la carte (A3), cochés dans le sélecteur de lentilles.
+const LAYERS: Array = [["routes", "Routes", "Vos routes commerciales, et leurs cargos vus de près"], ["fleets", "Flottes", "Les flottes et leurs insignes"],
+		["names", "Noms", "Les noms des systèmes"], ["sites", "Curiosités", "Merveilles, mégastructures, fouilles, mondes vivants"],
+		["terrain", "Terrains", "Nébuleuses, tempêtes et épaves"]]
 
 var state: GameState
 var galaxy: Galaxy
@@ -43,6 +68,17 @@ var _fleet_pos := {}
 var _background := PackedVector2Array()
 var _font: Font
 var _last_zoom := -1.0
+## Calques affichés (voir LAYERS).
+var layers := {"routes": true, "fleets": true, "names": true, "sites": true, "terrain": true}
+## Territoires : image du champ, recalculée quand la carte connue change (voir _update_territory).
+var _terr_sig := -1
+var _terr_view: SubViewport
+var _terr_field: ColorRect
+var _terr_sprite: Sprite2D
+## Flottes à l'arrêt masquées derrière un « +N », par système : {pos, ids}.
+var _overflow := {}
+## Des cargos circulent (palier Système) : la carte se redessine à chaque image.
+var _cargo_live := false
 
 
 const BATTLE_COLOR := Color(1.0, 0.42, 0.36)
@@ -51,11 +87,13 @@ const GROUND_BATTLE_COLOR := Color(0.95, 0.68, 0.32)
 
 func _ready() -> void:
 	_font = UiTheme.body_font()
+	_build_territory()
 
 
 func set_state(value: GameState) -> void:
 	state = value
 	galaxy = value.galaxy if value else null
+	_terr_sig = -1
 	selected_id = -1
 	hovered_id = -1
 	_make_background()
@@ -74,6 +112,8 @@ func _process(_delta: float) -> void:
 			if state.fleets[fid].is_moving():
 				queue_redraw()
 				break
+	if _cargo_live:
+		queue_redraw()
 
 
 # --- Brouillard de guerre -----------------------------------------------------------------------
@@ -130,6 +170,8 @@ func pick_system(world_pos: Vector2, max_distance: float) -> int:
 func pick_fleet(world_pos: Vector2, max_distance: float) -> int:
 	var best := -1
 	var best_d := max_distance * max_distance
+	if not layers["fleets"]:
+		return best
 	var positions := fleet_positions()
 	for fid in positions:
 		var d: float = (positions[fid] as Vector2).distance_squared_to(world_pos)
@@ -149,6 +191,23 @@ func _zoom() -> float:
 	return cam.zoom.x if cam else 1.0
 
 
+## Palier d'un zoom (voir TIER_*).
+static func tier_of(z: float) -> int:
+	if z < TIER_REGION_ZOOM:
+		return TIER_GALAXY
+	return TIER_SYSTEM if z >= TIER_SYSTEM_ZOOM else TIER_REGION
+
+
+## Palier affiché.
+func tier() -> int:
+	return tier_of(_zoom())
+
+
+func set_layer(id: String, on: bool) -> void:
+	layers[id] = on
+	queue_redraw()
+
+
 func _make_background() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = galaxy.seed_value + 7
@@ -163,9 +222,11 @@ func _draw() -> void:
 	var px := 1.0 / _zoom()  # un pixel écran, en unités du monde
 	_seen = Fleets.visible_systems(state, viewer) if state != null and fog else {}
 
-	_draw_territory()
-	_draw_terrain(px)
-	_draw_wrecks(px)
+	var t := tier()
+	_draw_territory(px, t)
+	if layers["terrain"]:
+		_draw_terrain(px)
+		_draw_wrecks(px)
 
 	for p in _background:
 		draw_circle(p, 1.1 * px, Color(1, 1, 1, 0.22))
@@ -181,6 +242,7 @@ func _draw() -> void:
 		var alpha := 0.75 if lit else (0.22 if ea and eb else 0.1)
 		draw_line(a, b, Color(LANE_COLOR, alpha), (2.0 if lit else 1.0) * px, true)
 	_draw_portals(px)
+	_draw_trade_layer(px, t)
 
 	for s in galaxy.systems:
 		if is_explored(s.id):
@@ -189,20 +251,24 @@ func _draw() -> void:
 		elif is_known(s.id):
 			_draw_unknown_system(s, px)
 
-	_draw_fleets(px)
+	if layers["fleets"]:
+		_draw_fleets(px)
 	_draw_conflicts(px)
-	_draw_lairs(px)
-	_draw_minors(px)
-	_draw_wonders(px)
-	_draw_oeuvres(px)
-	_draw_megas(px)
-	_draw_forge(px)
-	_draw_living(px)
-	_draw_archaeo(px)
-	_draw_contact(px)
-	_draw_quests(px)
+	if t != TIER_GALAXY:
+		# De loin, la carte ne garde que les empires, les fronts et la crise.
+		_draw_lairs(px)
+		_draw_minors(px)
+		if layers["sites"]:
+			_draw_wonders(px)
+			_draw_oeuvres(px)
+			_draw_megas(px)
+			_draw_forge(px)
+			_draw_living(px)
+			_draw_archaeo(px)
+			_draw_contact(px)
+		_draw_quests(px)
+		_draw_convoys(px)
 	_draw_crisis(px)
-	_draw_convoys(px)
 
 	if lens == "economy" and state != null:
 		# Lentille économique : tout s'assombrit sauf les systèmes du joueur, qui affichent leur bilan.
@@ -372,14 +438,302 @@ func _draw() -> void:
 		draw_rect(Rect2(-4000, -4000, 8000, 8000), Color(0.0, 0.01, 0.02, 0.72))
 		_draw_trade(px)
 		return
-	var show_all_labels := _zoom() >= LABEL_MIN_ZOOM
+	_draw_labels(px, t)
+	_draw_empire_names(px)
+
+
+## Étiquettes de la carte des empires. De loin, seules les capitales et le système choisi sont nommés ;
+## plus près, une étiquette qui en recouvrirait une autre passe sous son étoile, ou s'efface.
+func _draw_labels(px: float, t: int) -> void:
+	var show_all := _zoom() >= LABEL_MIN_ZOOM
 	var show_dots := _zoom() >= PLANET_DOTS_MIN_ZOOM
+	var first: Array[StarSystem] = []
+	var owned: Array[StarSystem] = []
+	var rest: Array[StarSystem] = []
 	for s in galaxy.systems:
 		if not is_explored(s.id):
 			continue
-		var key := s.id == selected_id or s.id == hovered_id or (state != null and owner_of(s.id) >= 0)
-		if show_all_labels or key:
-			_draw_label(s, px, (show_dots or key) and (not fog or state == null or Fleets.is_surveyed(state, viewer, s.id)))
+		var chosen := s.id == selected_id or s.id == hovered_id
+		if chosen:
+			first.append(s)
+		elif not layers["names"]:
+			continue
+		elif t == TIER_GALAXY:
+			if is_capital(s.id):
+				owned.append(s)
+		elif state != null and owner_of(s.id) >= 0:
+			owned.append(s)
+		elif show_all and UiSettings.map_labels == "all":
+			rest.append(s)
+	var placed: Array[Rect2] = []
+	var z := _zoom()
+	for group: Array in [first, owned, rest]:
+		for s: StarSystem in group:
+			var chosen := s.id == selected_id or s.id == hovered_id
+			var key := chosen or (state != null and owner_of(s.id) >= 0)
+			var w := _font.get_string_size(s.system_name, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_FONT_SIZE).x + 14.0
+			var at := s.position * z
+			var box := Rect2(at.x - w * 0.5, at.y - 34.0, w, 21.0)
+			var dy := 0.0
+			if _overlaps(box, placed):
+				box.position.y += 52.0
+				dy = 52.0
+				if _overlaps(box, placed):
+					if not chosen:
+						continue
+					box.position.y -= 52.0
+					dy = 0.0
+			placed.append(box)
+			var dots := dy == 0.0 and t != TIER_GALAXY and (show_dots or key) \
+					and (not fog or state == null or Fleets.is_surveyed(state, viewer, s.id))
+			_draw_label(s, px, dots, dy)
+
+
+static func _overlaps(box: Rect2, placed: Array[Rect2]) -> bool:
+	for r in placed:
+		if r.intersects(box):
+			return true
+	return false
+
+
+## Le système porte-t-il la capitale de son propriétaire connu ?
+func is_capital(sid: int) -> bool:
+	if state == null:
+		return false
+	var owner := state.get_empire(owner_of(sid))
+	return owner != null and galaxy.systems[sid].planet_ids.has(owner.capital_planet)
+
+
+## Nom de chaque empire en grandes lettres sur son territoire (B5b), au palier Galaxie ; il s'efface
+## en fondu à l'approche du palier Région.
+func _draw_empire_names(px: float) -> void:
+	if state == null:
+		return
+	var z := _zoom()
+	var alpha := 1.0 - smoothstep(TIER_REGION_ZOOM * 0.85, TIER_REGION_ZOOM * 1.2, z)
+	if alpha <= 0.02:
+		return
+	var groups := {}
+	for s in galaxy.systems:
+		if not is_explored(s.id):
+			continue
+		var o := owner_of(s.id)
+		if o < 0 or state.get_empire(o) == null:
+			continue
+		if not groups.has(o):
+			groups[o] = []
+		(groups[o] as Array).append(s.position)
+	# Le vôtre d'abord, puis les plus grands ; un nom qui en recouvrirait un autre attend qu'on s'approche.
+	var order := groups.keys()
+	order.sort_custom(func(a: int, b: int) -> bool:
+		if (a == viewer) != (b == viewer):
+			return a == viewer
+		var na := (groups[a] as Array).size()
+		var nb := (groups[b] as Array).size()
+		return na > nb or (na == nb and a < b))
+	var placed: Array[Rect2] = []
+	for o: int in order:
+		var pts: Array = groups[o]
+		var c := Vector2.ZERO
+		for p: Vector2 in pts:
+			c += p
+		c /= float(pts.size())
+		var mean := c
+		# Le nom se pose sur le territoire : à mi-chemin du centre et du système le plus central.
+		var core: Vector2 = pts[0]
+		for p: Vector2 in pts:
+			if p.distance_squared_to(mean) < core.distance_squared_to(mean):
+				core = p
+		var sxx := 0.0
+		var syy := 0.0
+		var sxy := 0.0
+		for p: Vector2 in pts:
+			var d := p - mean
+			sxx += d.x * d.x
+			syy += d.y * d.y
+			sxy += d.x * d.y
+		# Le nom suit le grand axe du territoire, sans jamais trop pencher.
+		var angle := clampf(0.5 * atan2(2.0 * sxy, sxx - syy), -0.5, 0.5) if pts.size() > 1 else 0.0
+		var spread := sqrt((sxx + syy) / float(pts.size()))
+		var size := int(clampf(spread * z * 0.28, 12.0, 22.0))
+		var text := " ".join(state.get_empire(o).display_name().to_upper().split(""))
+		var w := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		c = mean.lerp(core, 0.5)
+		# L'emblème au-dessus, le nom dessous, comme sur la carte de Stellaris.
+		var er := clampf(size * 0.95, 13.0, 22.0)
+		var h := size + absf(sin(angle)) * w + er * 2.0 + 6.0
+		var box := Rect2(c.x * z - w * 0.5, c.y * z - h * 0.5, w, h)
+		if _overlaps(box, placed):
+			# Pas la place pour le nom : l'emblème seul, s'il tient.
+			var small := Rect2(c.x * z - er, c.y * z - er, er * 2.0, er * 2.0)
+			if UiSettings.map_emblems and not _overlaps(small, placed):
+				placed.append(small)
+				draw_set_transform(c, 0.0, Vector2(px, px))
+				draw_emblem(self, Vector2.ZERO, er * 0.8, state.get_empire(o).faction_id, Color(1, 1, 1, 0.9 * alpha))
+				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+			continue
+		placed.append(box)
+		draw_set_transform(c, 0.0, Vector2(px, px))
+		if UiSettings.map_emblems:
+			draw_emblem(self, Vector2(0, -er - 2.0), er, state.get_empire(o).faction_id, Color(1, 1, 1, 0.92 * alpha))
+		draw_set_transform(c, angle * 0.5, Vector2(px, px))
+		var base := size * 0.35 + size * 0.5 + 6.0
+		draw_string_outline(_font, Vector2(-w * 0.5, base), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 5, Color(0.01, 0.02, 0.04, 0.7 * alpha))
+		draw_string(_font, Vector2(-w * 0.5, base), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(1, 1, 1, 0.85 * alpha))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Nombre de motifs d'emblème.
+const EMBLEM_MOTIFS := 8
+
+
+## Motif et variante de l'emblème d'un peuple : tirés de son identifiant, donc toujours les mêmes.
+static func emblem_of(faction_id: String) -> Vector2i:
+	var h := absi(hash("emblem:" + faction_id))
+	return Vector2i(h % EMBLEM_MOTIFS, (h / EMBLEM_MOTIFS) % 3)
+
+
+## Emblème provisoire d'un peuple, en attendant les icônes dessinées : un cercle et un motif blanc
+## (étoile, anneaux, croissant, chevrons, soleil, losanges, trident, hexagone) en trois variantes.
+static func draw_emblem(on: CanvasItem, c: Vector2, r: float, faction_id: String, col: Color) -> void:
+	var e := emblem_of(faction_id)
+	var v := e.y
+	on.draw_circle(c, r, Color(0.02, 0.03, 0.05, 0.55 * col.a))
+	on.draw_arc(c, r, 0.0, TAU, 40, col, maxf(1.5, r * 0.11), true)
+	var k := r * 0.62
+	match e.x:
+		0:  # étoile à 4, 5 ou 6 branches
+			var n := 4 + v
+			var pts := PackedVector2Array()
+			for i in n * 2:
+				pts.append(c + Vector2.from_angle(-PI * 0.5 + PI * i / n) * (k if i % 2 == 0 else k * 0.42))
+			on.draw_colored_polygon(pts, col)
+		1:  # anneaux emboîtés
+			for i in 2 + (1 if v > 0 else 0):
+				on.draw_arc(c, k * (1.0 - 0.33 * i), 0.0, TAU, 32, col, maxf(1.5, r * 0.1), true)
+			if v == 2:
+				on.draw_circle(c, k * 0.14, col)
+		2:  # croissant, tourné selon la variante
+			var a0 := [0.6, 2.2, 3.8][v] as float
+			on.draw_arc(c, k * 0.8, a0, a0 + PI * 1.25, 28, col, k * 0.38, true)
+			on.draw_circle(c + Vector2.from_angle(a0 + PI * 1.62) * k * 0.55, k * 0.16, col)
+		3:  # chevrons empilés
+			for i in 2 + v % 2:
+				var y := (i - (1 + v % 2) * 0.5) * k * 0.55
+				var up := -1.0 if v == 2 else 1.0
+				on.draw_polyline(PackedVector2Array([c + Vector2(-k * 0.75, y + k * 0.3 * up), c + Vector2(0, y - k * 0.3 * up), c + Vector2(k * 0.75, y + k * 0.3 * up)]), col, maxf(2.0, r * 0.14), true)
+		4:  # soleil : disque et rayons
+			on.draw_circle(c, k * 0.4, col)
+			var n := 6 + v * 2
+			for i in n:
+				var d := Vector2.from_angle(TAU * i / n)
+				on.draw_line(c + d * k * 0.58, c + d * k, col, maxf(1.5, r * 0.1), true)
+		5:  # losanges
+			var n := 1 + v
+			for i in n:
+				var o := c + Vector2((i - (n - 1) * 0.5) * k * 0.72, 0)
+				var s := k * (0.85 if n == 1 else 0.5)
+				on.draw_colored_polygon(PackedVector2Array([o + Vector2(0, -s), o + Vector2(s * 0.6, 0), o + Vector2(0, s), o + Vector2(-s * 0.6, 0)]), col)
+		6:  # trident
+			var w := maxf(2.0, r * 0.14)
+			on.draw_line(c + Vector2(0, -k), c + Vector2(0, k), col, w, true)
+			var spread := k * (0.5 + 0.12 * v)
+			on.draw_polyline(PackedVector2Array([c + Vector2(-spread, -k * 0.8), c + Vector2(-spread, -k * 0.05), c + Vector2(spread, -k * 0.05), c + Vector2(spread, -k * 0.8)]), col, w, true)
+			on.draw_line(c + Vector2(-k * 0.35, k * 0.55), c + Vector2(k * 0.35, k * 0.55), col, w, true)
+		_:  # hexagone, plein, creux ou pointé
+			var pts := PackedVector2Array()
+			for i in 7:
+				pts.append(c + Vector2.from_angle(PI / 6.0 + TAU * i / 6.0) * k)
+			if v == 0:
+				on.draw_colored_polygon(pts.slice(0, 6), col)
+			else:
+				on.draw_polyline(pts, col, maxf(2.0, r * 0.14), true)
+				if v == 2:
+					on.draw_circle(c, k * 0.3, col)
+
+
+# --- Routes commerciales, toujours visibles (B4) ------------------------------------------------
+
+## Vos routes actives en trait fin le long des voies, sans passer par la lentille du commerce : à la
+## couleur du partenaire, rouges si elles sont bloquées. Au palier Système, de petits cargos les
+## parcourent (un par tranche de valeur) ; ce sont des figurants, pas des unités. Une route bloquée
+## garde ses cargos à l'arrêt devant le système en cause.
+func _draw_trade_layer(px: float, t: int) -> void:
+	_cargo_live = false
+	if state == null or viewer < 0 or not layers["routes"] or lens == "trade" or lens == "private":
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	var nth := 0
+	for r: Dictionary in Trade.routes_of(state, viewer):
+		nth += 1
+		var path: Array = r["path"]
+		if path.size() < 2:
+			continue
+		var blocked := bool(r.get("blocked", false))
+		var other := int(r["to"]) if int(r["from"]) == viewer else int(r["from"])
+		var partner := state.get_empire(other)
+		var col: Color = partner.color() if partner else TRADE_INTERNAL_COLOR
+		var line := BATTLE_COLOR if blocked else col
+		var pts := PackedVector2Array()
+		for sid in path:
+			if not is_explored(int(sid)):
+				break
+			pts.append(galaxy.systems[int(sid)].position)
+		if pts.size() < 2:
+			continue
+		var total := 0.0
+		for i in range(pts.size() - 1):
+			var a := pts[i]
+			var b := pts[i + 1]
+			# Décalé d'un rien sur le côté : la voie de saut reste lisible dessous.
+			var n := (b - a).normalized().orthogonal() * 2.5 * px
+			draw_line(a + n, b + n, Color(line, 0.42), 1.2 * px, true)
+			total += a.distance_to(b)
+		if blocked and t != TIER_GALAXY and r.has("at") and is_explored(int(r["at"])):
+			var at := galaxy.systems[int(r["at"])].position + Vector2(-15.0, -13.0) * px
+			draw_circle(at, 5.5 * px, Color(0.02, 0.03, 0.05, 0.9))
+			draw_arc(at, 5.5 * px, 0.0, TAU, 16, BATTLE_COLOR, 1.3 * px, true)
+			draw_line(at + Vector2(-3.4, 3.4) * px, at + Vector2(3.4, -3.4) * px, BATTLE_COLOR, 1.3 * px, true)
+		if t != TIER_SYSTEM or total <= 0.0 or not UiSettings.map_cargos:
+			continue
+		_cargo_live = true
+		var count := cargo_count(r)
+		if blocked:
+			var stop := path.find(r.get("at", -1))
+			if stop <= 0 or stop >= pts.size():
+				continue
+			var from := pts[stop - 1]
+			var dir := (pts[stop] - from).normalized()
+			for i in count:
+				_draw_cargo(pts[stop] - dir * (22.0 + 13.0 * i) * px, dir, col, px)
+			continue
+		for i in count:
+			var u := fposmod(now * 26.0 / total + float(i) / float(count) + nth * 0.37, 1.0) * total
+			for k in range(pts.size() - 1):
+				var seg := pts[k].distance_to(pts[k + 1])
+				if u <= seg or k == pts.size() - 2:
+					var dir := (pts[k + 1] - pts[k]).normalized()
+					_draw_cargo(pts[k] + dir * minf(u, seg) + dir.orthogonal() * 2.5 * px, dir, col, px)
+					break
+				u -= seg
+
+
+## Nombre de cargos d'une route : un par tranche de valeur, quatre au plus.
+static func cargo_count(r: Dictionary) -> int:
+	return clampi(1 + absi(int(r.get("value", 0))) / 12, 1, 4)
+
+
+func _draw_cargo(pos: Vector2, dir: Vector2, col: Color, px: float) -> void:
+	var side := dir.orthogonal()
+	var l := 5.0 * px
+	var w := 2.2 * px
+	var hull := PackedVector2Array([pos + dir * l, pos + dir * l * 0.4 + side * w, pos - dir * l + side * w,
+			pos - dir * l - side * w, pos + dir * l * 0.4 - side * w])
+	var back := PackedVector2Array()
+	for p in hull:
+		back.append(pos + (p - pos) * 1.45)
+	draw_colored_polygon(back, Color(0.02, 0.03, 0.05, 0.9))
+	draw_colored_polygon(hull, col)
 
 
 const TRADE_TIER_COLORS := [Color(0.6, 0.6, 0.6), Color(0.75, 0.62, 0.35), Color(0.95, 0.8, 0.35), Color(0.55, 0.9, 1.0)]
@@ -572,20 +926,101 @@ func _draw_conflicts(px: float) -> void:
 ## Territoire : une zone à la couleur de l'empire autour de ses systèmes et le long de ses routes.
 ## Couleur opaque (fond teinté) plutôt que transparente : les zones qui se chevauchent
 ## se fondent en une seule tache au lieu de s'assombrir par endroits.
-func _draw_territory() -> void:
-	if state == null:
+## Territoires (B5a) : chaque empire occupe une zone continue aux bords arrondis, qui suit ses voies de
+## saut, comme sur la carte de Stellaris. Le dessin est confié à deux shaders : le premier calcule, dans
+## une image hors écran et seulement quand la carte connue change, à quel empire revient chaque point
+## et à quelle distance il est du bord ; le second l'affiche derrière la carte.
+func _draw_territory(px: float, t: int) -> void:
+	if state == null or _terr_sprite == null:
 		return
-	var bg: Color = ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color.BLACK)
-	for lane in galaxy.lanes:
-		var oa := owner_of(lane.x)
-		if oa != -1 and oa == owner_of(lane.y) and is_explored(lane.x) and is_explored(lane.y):
-			var faded := not (is_seen(lane.x) and is_seen(lane.y))
-			var tint := bg.lerp(state.get_empire(oa).color(), 0.08 if faded else 0.13)
-			draw_line(galaxy.systems[lane.x].position, galaxy.systems[lane.y].position, tint, TERRITORY_RADIUS * 1.1)
+	_update_territory()
+	var mat := _terr_sprite.material as ShaderMaterial
+	mat.set_shader_parameter("px", px)
+	mat.set_shader_parameter("fill", 0.5 if t == TIER_GALAXY else 0.36)
+	mat.set_shader_parameter("rim", 0.2 if t == TIER_GALAXY else 0.24)
+
+
+## Sites des territoires : [{pos, r, owner, seen}]. Un site par système connu (owner -1 s'il est sans
+## maître connu), et des points le long des voies de saut, chacun rendu à l'extrémité la plus proche :
+## le territoire suit les voies et s'arrête à mi-chemin d'un voisin.
+func territory_sites() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	if state == null or galaxy == null:
+		return out
+	var code := {}
 	for s in galaxy.systems:
-		var owner := state.get_empire(owner_of(s.id))
-		if owner and is_explored(s.id):
-			draw_circle(s.position, TERRITORY_RADIUS, bg.lerp(owner.color(), 0.13 if is_seen(s.id) else 0.08))
+		if not is_known(s.id):
+			continue
+		var o := -1
+		if is_explored(s.id):
+			o = owner_of(s.id)
+			if o < 0 or state.get_empire(o) == null:
+				o = -1
+		code[s.id] = o
+		out.append({"pos": s.position, "r": TERRITORY_RADIUS, "owner": o, "seen": is_seen(s.id)})
+	for lane in galaxy.lanes:
+		if not code.has(lane.x) or not code.has(lane.y):
+			continue
+		if code[lane.x] == -1 and code[lane.y] == -1:
+			continue
+		var a := galaxy.systems[lane.x].position
+		var b := galaxy.systems[lane.y].position
+		var n := int(a.distance_to(b) / TERRITORY_LANE_STEP)
+		for i in range(1, n + 1):
+			var k := float(i) / float(n + 1)
+			var near: int = lane.x if k < 0.5 else lane.y
+			out.append({"pos": a.lerp(b, k), "r": TERRITORY_RADIUS * TERRITORY_LANE_REACH, "owner": code[near], "seen": is_seen(near)})
+	return out
+
+
+func _update_territory() -> void:
+	var sites := territory_sites()
+	var sig := hash(str(sites))
+	if sig == _terr_sig:
+		return
+	_terr_sig = sig
+	var n := maxi(1, sites.size())
+	var data := Image.create(n, 1, false, Image.FORMAT_RGBAF)
+	var tints := Image.create(n, 1, false, Image.FORMAT_RGBA8)
+	var extent := 600.0
+	for i in sites.size():
+		var e: Dictionary = sites[i]
+		var p: Vector2 = e["pos"]
+		extent = maxf(extent, maxf(absf(p.x), absf(p.y)) + TERRITORY_RADIUS + 80.0)
+		data.set_pixel(i, 0, Color(p.x, p.y, float(e["r"]), float(e["owner"])))
+		var owner := state.get_empire(int(e["owner"]))
+		if owner:
+			tints.set_pixel(i, 0, owner.color() if bool(e["seen"]) else owner.color().darkened(0.4))
+	var mat := _terr_field.material as ShaderMaterial
+	mat.set_shader_parameter("sites", ImageTexture.create_from_image(data))
+	mat.set_shader_parameter("tints", ImageTexture.create_from_image(tints))
+	mat.set_shader_parameter("count", sites.size())
+	mat.set_shader_parameter("extent", extent)
+	_terr_view.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_terr_sprite.scale = Vector2.ONE * (extent * 2.0 / float(TERRITORY_TEXTURE))
+
+
+func _build_territory() -> void:
+	_terr_view = SubViewport.new()
+	_terr_view.size = Vector2i(TERRITORY_TEXTURE, TERRITORY_TEXTURE)
+	_terr_view.transparent_bg = true
+	_terr_view.disable_3d = true
+	_terr_view.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	add_child(_terr_view)
+	_terr_field = ColorRect.new()
+	_terr_field.size = Vector2(TERRITORY_TEXTURE, TERRITORY_TEXTURE)
+	var field := ShaderMaterial.new()
+	field.shader = TERRITORY_FIELD_SHADER
+	_terr_field.material = field
+	_terr_view.add_child(_terr_field)
+	_terr_sprite = Sprite2D.new()
+	_terr_sprite.texture = _terr_view.get_texture()
+	_terr_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_terr_sprite.show_behind_parent = true
+	var look := ShaderMaterial.new()
+	look.shader = TERRITORY_SHADER
+	_terr_sprite.material = look
+	add_child(_terr_sprite)
 
 
 func _draw_system(s: StarSystem, px: float) -> void:
@@ -593,7 +1028,17 @@ func _draw_system(s: StarSystem, px: float) -> void:
 	if not is_seen(s.id):
 		color = color.darkened(0.35)  # exploré mais hors de vue : dernières observations
 	var r := (6.5 if s.star_type == "blue_giant" else 4.5) * px
-	_draw_claims(s, r, px)
+	if lens == "" and tier() == TIER_GALAXY:
+		# De loin, le territoire dit déjà à qui est le système : l'étoile se fait petite, seule la
+		# capitale garde sa marque.
+		r *= 0.6
+		if is_capital(s.id):
+			var cap := _owner_color(state.get_empire(owner_of(s.id)), s.id)
+			var d := 5.0 * px
+			draw_colored_polygon(PackedVector2Array([s.position + Vector2(0, -d), s.position + Vector2(d, 0), s.position + Vector2(0, d), s.position + Vector2(-d, 0)]), Color(0.02, 0.03, 0.05, 0.9))
+			draw_arc(s.position, d * 1.5, 0.0, TAU, 20, cap, 1.6 * px, true)
+	else:
+		_draw_claims(s, r, px)
 	draw_circle(s.position, r * 2.8, Color(color, 0.12))
 	if s.star_type == "black_hole":
 		draw_circle(s.position, r, Color.BLACK)
@@ -705,17 +1150,31 @@ func _draw_unknown_system(s: StarSystem, px: float) -> void:
 
 # --- Flottes ------------------------------------------------------------------------------------
 
-## Flottes visibles : un chevron à la couleur de l'empire, pointé dans le sens de la marche.
-## À l'arrêt, les flottes d'un même système s'alignent à droite de l'étoile.
-## La flotte sélectionnée montre son trajet et le délai d'arrivée.
+## Flottes visibles (refonte, B2). De loin, un tiret par flotte : les vôtres à gauche de l'étoile, les
+## autres à droite. Plus près, un insigne dont la forme dit la nature (triangle : guerre, losange :
+## éclaireur, cercle : civil), à la couleur du propriétaire, avec le nombre de vaisseaux ; au plus près,
+## la silhouette du plus gros vaisseau. La flotte choisie montre son trajet et le délai d'arrivée.
 func _draw_fleets(px: float) -> void:
 	_fleet_pos = fleet_positions(px)
+	var t := tier()
 	if selected_fleet >= 0 and _fleet_pos.has(selected_fleet):
 		_draw_supply_zone(state.fleets[selected_fleet], px)
 		_draw_route(state.fleets[selected_fleet], px)
 	for fid in _fleet_pos:
-		_draw_fleet_icon(state.fleets[fid], _fleet_pos[fid], px)
-	if fog:
+		if t == TIER_GALAXY:
+			_draw_fleet_dash(state.fleets[fid], _fleet_pos[fid], px)
+		else:
+			_draw_fleet_icon(state.fleets[fid], _fleet_pos[fid], px, t)
+	for sid: int in _overflow:
+		var more: Dictionary = _overflow[sid]
+		var text := "+%d" % (more["ids"] as Array).size()
+		draw_set_transform(more["pos"], 0.0, Vector2(px, px))
+		draw_rect(Rect2(-12, -9, 24, 18), Color(0.02, 0.03, 0.05, 0.9))
+		draw_rect(Rect2(-12, -9, 24, 18), Color(0.75, 0.8, 0.88, 0.7), false, 1.0)
+		var w := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+		draw_string(_font, Vector2(-w * 0.5, 4), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.9, 0.93, 0.97))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if fog and t != TIER_GALAXY:
 		_draw_ghosts(px)
 
 
@@ -739,34 +1198,118 @@ func _draw_ghosts(px: float) -> void:
 		draw_polyline(pts, col, 1.3 * px, true)
 
 
-## Position (monde) de chaque flotte visible par le joueur, telle qu'elle est dessinée.
+## Position (monde) de chaque flotte visible par le joueur, telle qu'elle est dessinée. À l'arrêt, les
+## flottes d'un système se rangent en éventail sous l'étoile, les vôtres d'abord ; au-delà de quatre,
+## les suivantes attendent derrière un insigne « +N » (voir overflow_fleets).
 func fleet_positions(px := -1.0) -> Dictionary:
 	var out := {}
+	_overflow = {}
 	if state == null:
 		return out
 	if px < 0.0:
 		px = 1.0 / _zoom()
 		if fog:
 			_seen = Fleets.visible_systems(state, viewer)
-	var stacked := {}
+	var far := tier() == TIER_GALAXY
+	var mine := {}
+	var others := {}
 	for fid in state.sorted_fleet_ids():
 		var f: Fleet = state.fleets[fid]
 		if fog and not Fleets.fleet_visible(state, viewer, f, _seen):
 			continue
-		var pos: Vector2
 		if f.is_moving():
-			pos = Fleets.position(state, f, day_fraction)
-		else:
-			var k := int(stacked.get(f.system_id, 0))
-			stacked[f.system_id] = k + 1
-			pos = galaxy.systems[f.system_id].position + Vector2(16.0 + k * 13.0, 10.0) * px
-		out[fid] = pos
+			out[fid] = Fleets.position(state, f, day_fraction)
+			continue
+		var side: Dictionary = mine if f.owner == viewer else others
+		if not side.has(f.system_id):
+			side[f.system_id] = []
+		(side[f.system_id] as Array).append(fid)
+	var at := {}
+	for sid: int in mine:
+		at[sid] = true
+	for sid: int in others:
+		at[sid] = true
+	for sid: int in at:
+		var c := galaxy.systems[sid].position
+		var left: Array = mine.get(sid, [])
+		var right: Array = others.get(sid, [])
+		if far:
+			for i in left.size():
+				out[left[i]] = c + Vector2(-9.0 - i * 5.0, 0.0) * px
+			for i in right.size():
+				out[right[i]] = c + Vector2(9.0 + i * 5.0, 0.0) * px
+			continue
+		var ids: Array = left + right
+		var hidden: Array = []
+		if ids.size() > FAN_MAX:
+			hidden = ids.slice(FAN_MAX)
+			ids = ids.slice(0, FAN_MAX)
+			# La flotte choisie reste toujours sous les yeux.
+			var k := hidden.find(selected_fleet)
+			if k >= 0:
+				hidden[k] = ids[FAN_MAX - 1]
+				ids[FAN_MAX - 1] = selected_fleet
+		var slots := ids.size() + (1 if not hidden.is_empty() else 0)
+		for i in slots:
+			var angle := PI * 0.5 + ((slots - 1) * 0.5 - i) * FAN_STEP
+			var pos := c + Vector2.from_angle(angle) * FAN_RADIUS * px
+			if i < ids.size():
+				out[ids[i]] = pos
+			else:
+				_overflow[sid] = {"pos": pos, "ids": hidden}
 	return out
 
 
-func _draw_fleet_icon(f: Fleet, pos: Vector2, px: float) -> void:
+## Flottes d'un système cachées derrière son insigne « +N ».
+func overflow_fleets(sid: int) -> Array:
+	return (_overflow[sid]["ids"] as Array).duplicate() if _overflow.has(sid) else []
+
+
+## Système dont l'insigne « +N » se trouve sous cette position (-1 si aucun).
+func pick_overflow(world_pos: Vector2, max_distance: float) -> int:
+	if not layers["fleets"]:
+		return -1
+	fleet_positions()
+	for sid: int in _overflow:
+		if (_overflow[sid]["pos"] as Vector2).distance_to(world_pos) <= max_distance:
+			return sid
+	return -1
+
+
+## Nature d'une flotte, qui donne la forme de son insigne : "war", "scout" ou "civil".
+static func fleet_kind(f: Fleet) -> String:
+	if Combat.is_armed(f):
+		return "war"
+	for sh in f.ships:
+		if String(sh) != "scout" and String(GameData.ship(String(sh)).get("role", "")) != "Éclaireur":
+			return "civil"
+	return "scout" if not f.ships.is_empty() else "civil"
+
+
+## État d'une flotte lisible sans cliquer : "battle" (en combat), "idle" (attend vos ordres),
+## "patrol" (ordre permanent), "" sinon. Seul le combat se lit sur les flottes des autres.
+func fleet_status(f: Fleet) -> String:
+	if not f.is_moving() and state.battles.has(f.system_id) and Espionage.battle_sides(state.battles[f.system_id]).has(f.owner):
+		return "battle"
+	if f.owner != viewer:
+		return ""
+	if f.is_idle():
+		return "idle"
+	return "patrol" if f.is_patrolling() or f.is_guarding() else ""
+
+
+## Palier Galaxie : la flotte n'est qu'un tiret à la couleur de son empire.
+func _draw_fleet_dash(f: Fleet, pos: Vector2, px: float) -> void:
 	var col := state.get_empire(f.owner).color()
-	# Furtivité : un simple contact est un chevron gris, sans pavillon ; vos flottes voilées pâlissent.
+	if f.id == selected_fleet:
+		draw_arc(pos, 7.0 * px, 0.0, TAU, 16, SELECT_COLOR, 1.5 * px, true)
+	draw_line(pos + Vector2(0, -5.0) * px, pos + Vector2(0, 5.0) * px, Color(0.02, 0.03, 0.05, 0.9), 4.0 * px)
+	draw_line(pos + Vector2(0, -4.0) * px, pos + Vector2(0, 4.0) * px, col, 2.4 * px)
+
+
+func _draw_fleet_icon(f: Fleet, pos: Vector2, px: float, t := TIER_REGION) -> void:
+	var col := state.get_empire(f.owner).color()
+	# Furtivité : un simple contact est un insigne gris, sans compte ; vos flottes voilées pâlissent.
 	var veiled := false
 	var contact := false
 	if not state.stealth.is_empty() and viewer >= 0:
@@ -778,39 +1321,79 @@ func _draw_fleet_icon(f: Fleet, pos: Vector2, px: float) -> void:
 	if veiled:
 		col = Color(col, 0.45)
 	var dir := Vector2.RIGHT
-	if f.is_moving():
+	var moving := f.is_moving()
+	if moving:
 		dir = (galaxy.systems[f.path[0]].position - galaxy.systems[f.system_id].position).normalized()
-	var side := dir.orthogonal()
-	var s := (7.0 if f.ships.size() > 1 else 6.0) * px
-	var tip := pos + dir * s
-	var pts := PackedVector2Array([tip, pos - dir * s * 0.7 + side * s * 0.75, pos - dir * s * 0.25, pos - dir * s * 0.7 - side * s * 0.75])
-	if f.id == selected_fleet:
-		draw_circle(pos, s * 1.9, Color(SELECT_COLOR, 0.18))
-		draw_arc(pos, s * 1.9, 0.0, TAU, 24, SELECT_COLOR, 1.5 * px, true)
-	var lead := _lead_ship(f) if UiSettings.fleet_silhouettes and not contact else ""
+	var chosen := f.id == selected_fleet
+	# En route : un trait fin jusqu'à la destination et le délai, pour vos flottes.
+	if moving and f.owner == viewer and not chosen:
+		var from := pos
+		for sid in f.path:
+			var to := galaxy.systems[sid].position
+			draw_line(from, to, Color(col, 0.3), 1.0 * px, true)
+			from = to
+	if chosen:
+		draw_circle(pos, 16.0 * px, Color(SELECT_COLOR, 0.18))
+		draw_arc(pos, 16.0 * px, 0.0, TAU, 24, SELECT_COLOR, 1.5 * px, true)
+	var status := "" if contact else fleet_status(f)
+	var lead := _lead_ship(f) if (t == TIER_SYSTEM or UiSettings.fleet_silhouettes) and not contact else ""
+	var dark := Color(0.02, 0.03, 0.05, 0.9)
 	if lead != "":
 		# Coques de peuple (prop. 38) : la silhouette du plus gros vaisseau, nez dans le sens de la marche.
 		var tex := HullArt.icon(SpeciesLook.hull_style(state.get_empire(f.owner).faction_id), lead, col)
-		var h := s * 2.6
+		var h := (20.0 if f.ships.size() > 1 else 17.0) * px
 		var w := h * float(tex.get_width()) / float(maxi(1, tex.get_height()))
 		draw_set_transform(pos, dir.angle() + PI * 0.5, Vector2.ONE)
 		draw_texture_rect(tex, Rect2(-w * 0.5, -h * 0.5, w, h), false, Color(1, 1, 1, col.a))
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	else:
-		draw_colored_polygon(pts, Color(0.02, 0.03, 0.05, 0.85))
-		var inner := PackedVector2Array()
-		for p in pts:
-			inner.append(pos + (p - pos) * 0.78)
-		draw_colored_polygon(inner, col)
-	if f.ships.size() > 1:
 		draw_set_transform(pos, 0.0, Vector2(px, px))
-		draw_string(_font, Vector2(8, 12), str(f.ships.size()), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 1, 1, 0.85))
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		if f.ships.size() > 1:
+			draw_string(_font, Vector2(8, 12), str(f.ships.size()), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 1, 1, 0.85))
+	else:
+		draw_set_transform(pos, 0.0, Vector2(px, px))
+		if status == "patrol":
+			draw_arc(Vector2.ZERO, 13.5, 0.0, TAU, 24, Color(col, 0.85), 1.0, true)
+		var kind := "civil" if contact else fleet_kind(f)
+		var mid := Vector2.ZERO
+		match kind:
+			"war":
+				var pts := PackedVector2Array([Vector2(0, -11.5), Vector2(11.5, 8.0), Vector2(-11.5, 8.0)])
+				draw_colored_polygon(pts, dark)
+				draw_colored_polygon(_shrunk(pts, Vector2(0, 1.5), 0.76), col)
+				mid = Vector2(0, 2.0)
+			"scout":
+				var pts := PackedVector2Array([Vector2(0, -10.5), Vector2(10.5, 0), Vector2(0, 10.5), Vector2(-10.5, 0)])
+				draw_colored_polygon(pts, dark)
+				draw_colored_polygon(_shrunk(pts, Vector2.ZERO, 0.8), col)
+			_:
+				draw_circle(Vector2.ZERO, 9.0, dark)
+				draw_circle(Vector2.ZERO, 7.4, col)
+		var text := "?" if contact else str(f.ships.size())
+		var ink := Color(0.03, 0.04, 0.06, col.a) if col.get_luminance() > 0.42 else Color(1, 1, 1, col.a)
+		var w := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x
+		draw_string(_font, mid + Vector2(-w * 0.5, 3.6), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, ink)
+		if moving:
+			# Une pointe devant l'insigne : le sens de la marche.
+			var tip := dir * 17.0
+			var side := dir.orthogonal() * 3.2
+			draw_colored_polygon(PackedVector2Array([tip, tip - dir * 5.0 + side, tip - dir * 5.0 - side]), col)
+	# État : point rouge en combat, ambre si la flotte attend vos ordres.
+	if status == "battle" or status == "idle":
+		draw_circle(Vector2(9.5, -9.5), 4.0, dark)
+		draw_circle(Vector2(9.5, -9.5), 2.8, BATTLE_COLOR if status == "battle" else Color(0.96, 0.72, 0.3))
 	# Médaillon d'or : un héros commande cette flotte.
 	if not Heroes.at_post(state, "fleet", f.id, f.owner).is_empty():
-		var m := pos + Vector2(0, -s * 1.35)
-		draw_circle(m, 3.2 * px, Color(0.02, 0.03, 0.05, 0.9))
-		draw_circle(m, 2.4 * px, Color(0.95, 0.78, 0.36))
+		draw_circle(Vector2(-9.5, -9.5), 3.6, dark)
+		draw_circle(Vector2(-9.5, -9.5), 2.6, Color(0.95, 0.78, 0.36))
+	if moving and f.owner == viewer and not chosen:
+		draw_string(_font, Vector2(13, 14), "%d j" % Fleets.eta_days(state, f), HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.85, 0.89, 0.95, 0.8))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+static func _shrunk(pts: PackedVector2Array, around: Vector2, k: float) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	for p in pts:
+		out.append(around + (p - around) * k)
+	return out
 
 
 ## Classe de tête d'une flotte : celle qui a le plus de structure.
@@ -901,9 +1484,9 @@ func _draw_claims(s: StarSystem, r: float, px: float) -> void:
 
 ## Étiquette du système : son nom dans un petit cartouche sombre, une pastille par planète dessous
 ## (pleine si la planète est revendiquée, à la couleur de son propriétaire).
-func _draw_label(s: StarSystem, px: float, dots := true) -> void:
+func _draw_label(s: StarSystem, px: float, dots := true, dy := 0.0) -> void:
 	# On annule le zoom localement pour que le texte reste net et de taille constante.
-	draw_set_transform(s.position, 0.0, Vector2(px, px))
+	draw_set_transform(s.position + Vector2(0.0, dy) * px, 0.0, Vector2(px, px))
 	var selected := s.id == selected_id
 	var owner := state.get_empire(owner_of(s.id)) if state else null
 	var w := _font.get_string_size(s.system_name, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_FONT_SIZE).x

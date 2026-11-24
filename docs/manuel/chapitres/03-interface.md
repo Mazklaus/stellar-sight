@@ -8,8 +8,8 @@ L'écran principal montre la carte de la galaxie. Tout ce qui sert à gouverner 
 
 ::: capture docs/apercu-interface.png|La carte galactique
 1 12 8 Le **panneau d'empire** : les menus d'empire, votre peuple, vos ressources avec leur bilan mensuel, et une ligne d'état.
-2 50 2 Les **onglets de vue** : Vue galaxie, lentilles, et Gestion du système quand un système est ouvert.
-3 88 5 La **chronique galactique** : les dernières nouvelles, racontées par le chroniqueur.
+2 50 2 Les **onglets de vue** : Vue galaxie, le sélecteur de lentilles, et Gestion du système quand un système est ouvert.
+3 88 5 Le **panneau de droite** : la chronique galactique, les quêtes suivies et le navigateur (flottes, colonies, chantiers, à faire). Sa languette le réduit à une barre d'alertes.
 4 6 80 La **fiche de sélection** : le système survolé ou choisi, ses planètes, et le bouton pour y entrer.
 5 54 46 Un **système** : son nom, une pastille par planète, un cartouche à la couleur de son propriétaire.
 6 94 90 Le **cadran du temps** : pause au centre, la date dessous, la vitesse sur l'arc. Au tour par tour, il devient Fin de tour.
@@ -17,13 +17,25 @@ L'écran principal montre la carte de la galaxie. Tout ce qui sert à gouverner 
 
 ### La carte
 
-On se déplace en faisant glisser la carte (clic droit ou molette enfoncée) ou au clavier ([[Z]] [[Q]] [[S]] [[D]] ou les flèches), et l'on zoome à la molette, vers le curseur. Les noms des systèmes apparaissent quand on zoome. [[Tab]] et [[Maj]]+[[Tab]] passent d'un de vos systèmes à l'autre, [[H]] ramène à la capitale.
+On se déplace en faisant glisser la carte (clic droit ou molette enfoncée) ou au clavier ([[Z]] [[Q]] [[S]] [[D]] ou les flèches), et l'on zoome à la molette, vers le curseur. [[Tab]] et [[Maj]]+[[Tab]] passent d'un de vos systèmes à l'autre, [[H]] ramène à la capitale.
+
+La carte ne montre pas la même chose à toutes les distances. Elle a **trois paliers**, et trois boutons à gauche du cadran y mènent d'un clic. Au palier **Galaxie**, au plus loin, on lit les empires : leurs territoires, leur emblème et leur nom écrits dessus, les capitales, les combats et la crise ; chaque flotte n'est qu'un tiret, les vôtres à gauche de l'étoile, celles des autres à droite. Au palier **Région**, celui du début de partie, on lit les systèmes : leurs noms, leurs planètes, les insignes des flottes. Au palier **Système**, au plus près, les insignes laissent la place à la silhouette du plus gros vaisseau de chaque flotte, et de petits cargos parcourent vos routes commerciales.
+
+Le **territoire** d'un empire est une zone continue aux bords arrondis, cernée d'un liseré à sa couleur. Elle entoure ses systèmes et suit ses voies de saut ; entre deux voisins, la limite passe à mi-chemin de la voie qui les relie, et un mince intervalle sombre sépare les deux couleurs. Un système vu il y a longtemps garde une teinte plus sourde.
+
+Vos **routes commerciales** se voient en permanence, en trait fin le long des voies, à la couleur du partenaire ; une route bloquée passe au rouge, ses cargos attendent devant le système en cause, marqué d'un rond barré. Ces cargos sont des figurants : ils ne se sélectionnent pas et ne pèsent pas sur la partie.
 
 Les **routes de saut** relient les systèmes. Les flottes ne voyagent que le long de ces routes. Un système voisin d'un système connu apparaît comme une simple lueur, sans nom ni planètes, tant que personne ne l'a exploré.
 
 ### Les lentilles
 
+Le bouton **Lentille**, en haut au centre, nomme la lentille en cours et ouvre le sélecteur. Les lentilles y sont rangées en cinq familles : **Territoires** (empires, frontières et passages, Assemblée), **Richesse** (économie, commerce, économie privée, spatioports), **Ordre** (stabilité, corruption, fiscalité, politique), **Peuples** (peuples, foi, Songe, rayonnement) et **Guerre** (guerre et occupations, senseurs). Une lentille dont le pilier n'est pas en jeu n'y figure pas, et la ligne du bas dit ce que montre celle qui est choisie. Tant qu'une lentille est active, sa **légende** reste affichée sous le bouton : chaque couleur et ce qu'elle veut dire. Sous les familles, cinq **calques** se cochent et se décochent, quelle que soit la lentille : routes commerciales, flottes, noms des systèmes, curiosités (merveilles, mégastructures, fouilles) et terrains. Les touches ci-dessous restent.
+
 Une lentille assombrit la carte et n'en garde qu'une lecture. La **lentille économique** ([[L]]) montre le bilan de chacun de vos systèmes par ressource. La lentille de **stabilité** ([[K]]) colore vos systèmes selon leur humeur. La lentille **politique** ([[O]]) montre le courant qui domine chaque système. La lentille du **commerce** ([[G]]) trace vos routes commerciales et le risque pirate le long du chemin. La lentille des **peuples** ([[U]]) cercle chaque système de la part de chaque espèce et nomme la majoritaire. La lentille de la **foi** ([[N]]) fait de même avec les croyances, et marque d'une étoile les mondes saints que vous connaissez. La lentille de l'**Amphictyonie** ([[X]]) cercle d'or les empires membres, de rouge les hors-la-loi, de gris ceux qui restent dehors, avec les voix de chacun à sa capitale. Avec l'option Frontières, la lentille des **frontières** ([[A]]) colore chaque système étranger selon votre droit de passage (chapitre 8).
+
+### Le panneau de droite et ses alertes
+
+La chronique, les quêtes suivies et le **navigateur** occupent le bord droit de la carte. Le navigateur a quatre onglets : **Flottes** (toutes vos flottes et leur état), **Colonies** (vos systèmes, leurs planètes et leur population), **Chantiers** (ce qui se construit, le plus proche de la fin d'abord, avec le délai en jours) et **À faire** (ce qui attend une décision, le même compte que l'avertissement de fin de tour). Un clic centre la carte ou mène à l'écran concerné, un double-clic ouvre le système. La languette à leur gauche (ou la touche [[²]]) les replie en une **barre d'alertes** étroite, qui dégage la vue et ne garde que ce qui demande votre attention : les décisions en attente, un combat ou un siège qui vous concerne, vos routes commerciales bloquées, vos quêtes en cours. Chaque pastille porte un compte ; un clic mène à ce qu'elle signale. Le jeu se souvient du choix d'une partie à l'autre.
 
 ### La vue système
 
@@ -36,24 +48,23 @@ Double-cliquez sur un système, ou appuyez sur [[Entrée]], pour y entrer. La **
 
 ### Les écrans d'empire
 
-Les écrans d'empire s'ouvrent en plein écran, par les pictogrammes du panneau d'empire ou par leur raccourci. La carte s'efface derrière un voile, le panneau d'empire et le cadran restent visibles. [[Échap]] referme l'écran.
+Les écrans d'empire sont rangés en **huit domaines**. Le panneau d'empire porte un bouton par domaine, et les touches [[F1]] à [[F8]] les ouvrent. Un domaine s'ouvre en plein écran : son nom en haut au centre, et dessous la rangée de ses onglets. La carte s'efface derrière un voile, le panneau d'empire et le cadran restent visibles. Un domaine rouvert revient à l'onglet où vous l'aviez laissé. La même touche, ou [[Échap]], le referme.
 
-| Écran | Touche | Contenu |
+| Domaine | Touche | Onglets |
 | --- | --- | --- |
-| Économie | [[F1]] | Bilan des ressources, production par système, alertes |
-| Colonies | [[F2]] | Toutes vos colonies et avant-postes, filtrables ; les peuples de l'empire, leur statut et la politique d'accueil |
-| Recherche | [[F3]] | L'arbre des technologies, la file d'attente |
-| Diplomatie | [[F4]] | L'anneau des relations ; pour chaque empire : statut, traités, opinion et ses raisons, propositions ; les blocs des sujets (clauses, loyauté, possessions) et de votre Koinon (rang, cohésion, lois, synode) |
-| Chantier | [[F6]] | Conception des modèles de vaisseaux |
-| Victoires | [[F7]] | L'avancée de chaque empire vers chaque victoire |
-| Renseignement | [[F8]] | Cellules d'espionnage, réseaux, dossiers, opérations |
-| Panthéon | [[F10]] | Vos héros, leurs postes, les candidats |
-| Ordre intérieur | [[F12]] | Stabilité des systèmes, décrets |
-| Sénat | [[P]] | Courants politiques, élections, lois |
-| Foi | [[Y]] | Foi d'État, grandes fois (nature, doctrines, préceptes), croyances de vos colonies |
-| Amphictyonie | [[M]] | Séance en cours et vote, file des propositions, pupitre pour proposer, résolutions et Nomos, amphictyons et leurs voix |
-| Commerce | [[C]] | Quatre onglets : routes (capacité, routes intérieures, risques), ressources (luxes, stratégiques, licences, monopoles), marché (achats, commandes, accords), Savoir (accords de recherche, licences de technologie, diffusion) |
-| Chroniques | [[J]] | Crise de fin de partie, quêtes, événements, Reliquaire, Bestiaire |
+| Empire | [[F1]] | Bilan (ressources et leur courbe sur vingt-quatre mois, production par système, alertes qui mènent à la colonie en cause), Colonies (tableau triable des colonies et avant-postes, peuples de l'empire, politique d'accueil), Peuples (les espèces de l'empire en cartes, leurs statuts, l'accueil des réfugiés), Ordre (stabilité des systèmes, les plus calmes repliés en une ligne, décrets), Administration (jauge de charge en tête), Trésor (budget en barres, emprunt au curseur), Grands chantiers (merveilles, mégastructures, forge des mondes, en cartes) |
+| Savoir | [[F2]] | Recherche (l'arbre des technologies, la file d'attente), Génome, Songe, Fouilles (archéologie et Reliquaire) |
+| Forces | [[F3]] | Flottes (toutes vos flottes en tableau : renommer, fusionner, scinder, mettre à niveau), Chantier (conception des modèles de vaisseaux), Armées (régiments groupés par lieu), Batailles (rapports dans l'espace et au sol) |
+| Diplomatie | [[F4]] | Empires (l'anneau des relations ; la fiche de l'empire choisi tient en trois volets : Relation pour le statut, l'opinion et ses raisons, Traiter pour les traités et les propositions, Guerre pour les motifs, les buts et la paix), Ligue (vos sujets et votre Koinon), Voisins (les peuples mineurs et les civilisations anciennes), Assemblée (l'Amphictyonie : séance, vote, propositions, résolutions et Nomos), Renseignement (cellules, réseaux, dossiers, opérations) |
+| Commerce | [[F5]] | Routes (capacité, routes intérieures, risques), Marché (luxes, stratégiques, licences, monopoles ; achats, commandes, accords), Accords (accords de recherche, licences de technologie, diffusion), Privé, Réseau |
+| Pouvoir | [[F6]] | Trône, Cour, Sénat (courants politiques, élections, lois), Foi (foi d'État, grandes fois, croyances de vos colonies), Rayonnement, Panthéon (vos héros, leurs postes, les candidats) |
+| Chroniques | [[F7]] | Journal (quêtes, événements, crise de fin de partie), Annonces, Annales (une seule frise pour les annales, les hauts faits et les grandes heures, avec le classement de Gloire ; le choix des hauts faits à côté), Bestiaire |
+| Victoire | [[F8]] | Victoires (la course : la voie la plus avancée de chaque empire, puis les vôtres, puis le détail), Transcendance, Contact, L'Échelle |
+
+Un onglet dont le pilier n'est pas en jeu n'apparaît pas. Quelques écrans gardent en plus une touche directe : Sénat [[P]], Foi [[Y]], Assemblée [[M]], Commerce [[C]], Chroniques [[J]], Panthéon [[F10]], Trône [[Maj]]+[[F10]], Ordre [[F12]].
+
+| Autre | Touche | Contenu |
+| --- | --- | --- |
 | Codex de l'Archonte | [[Maj]]+[[F1]] | Ce manuel, le lexique, les fiches des peuples, des créatures et des technologies, les Chroniques |
 
 ### Les infobulles et le Codex

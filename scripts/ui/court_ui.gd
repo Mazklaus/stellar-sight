@@ -45,54 +45,117 @@ static func build(es: EmpireScreens) -> void:
 	_faste_block(es, col, state, player, en)
 
 
+## Largeur d'un emplacement d'office.
+const SLOT_CARD := 236.0
+
+
 static func _offices_block(es: EmpireScreens, col: VBoxContainer, state: GameState, player: int, en: Dictionary) -> void:
 	var b := Widgets.Block.new("Grands offices")
 	col.add_child(b)
 	b.body.add_child(UiTheme.paragraph("Les titulaires viennent des %s ou de vos héros. Nommer flatte une maison ; révoquer l'offense. Une maison sans office s'aigrit." % String(Court.words(state, player)["plural"]).to_lower(), W, 13))
+	# Un emplacement par office : le titulaire dedans, ou « vacant » bien visible.
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 12)
+	flow.add_theme_constant_override("v_separation", 12)
+	b.body.add_child(flow)
 	for oid in Court.office_ids(state, player):
 		var od := Court.office_def(oid)
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 10)
-		b.body.add_child(row)
-		var l := Label.new()
 		var o := Court.holder(state, player, oid)
-		var who := "vacant" if o.is_empty() else "%s (%s %d)" % [Court.holder_name(state, player, o), String(Rulers.data()["aptitudes"][String(od["apt"])]["label"]), Court.office_apt(state, player, oid)]
-		l.text = "%s : %s" % [Court.office_label(state, player, oid), who]
-		l.tooltip_text = String(od.get("text", ""))
-		l.mouse_filter = Control.MOUSE_FILTER_STOP
-		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(l)
+		var apt_label := String(Rulers.data()["aptitudes"][String(od["apt"])]["label"])
+		var acts := _slot(flow, Court.office_label(state, player, oid), "" if o.is_empty() else Court.holder_name(state, player, o),
+				"" if o.is_empty() else "%s %d" % [apt_label, Court.office_apt(state, player, oid)], String(od.get("text", "")), true)
 		var items: Array = []
 		for h: Dictionary in Court.houses(state, player):
 			for m: Dictionary in h["members"]:
-				items.append(["%s %s (%s %d)" % [String(m["name"]), String(h["name"]), String(Rulers.data()["aptitudes"][String(od["apt"])]["label"]).left(3), int(Court.apts(m)[String(od["apt"])])],
+				items.append(["%s %s (%s %d)" % [String(m["name"]), String(h["name"]), apt_label.left(3), int(Court.apts(m)[String(od["apt"])])],
 						SimCommands.court_act(player, "appoint", int(m["id"]), 0, oid)])
 		for hid in Heroes.ids_of(state, player):
 			var hh: Dictionary = state.heroes[hid]
 			items.append(["Héros : %s" % String(hh["name"]), SimCommands.court_act(player, "appoint", hid, 1, oid)])
-		_menu(es, row, "Nommer…", items)
+		_menu(es, acts, "Nommer…", items)
 		if not o.is_empty():
-			ThroneScreen._button(es, row, "Libérer", SimCommands.court_act(player, "vacate", -1, -1, oid), "court:vacate:" + oid)
-	b.body.add_child(HSeparator.new())
+			ThroneScreen._button(es, acts, "Libérer", SimCommands.court_act(player, "vacate", -1, -1, oid), "court:vacate:" + oid)
 	for p: Dictionary in Court.data()["minor_posts"]:
 		if bool(p.get("megas", false)) and not Megastructures.enabled(state):
 			continue  # Grand Architecte : seulement avec les mégastructures
-		var row2 := HBoxContainer.new()
-		row2.add_theme_constant_override("separation", 10)
-		b.body.add_child(row2)
 		var mid := int((en["minor"] as Dictionary).get(String(p["id"]), -1))
 		var m2 := Court.member(state, player, mid)
-		var l2 := Label.new()
-		l2.text = "%s : %s" % [String(p["label"]), "vacant" if m2.is_empty() else "%s %s" % [String(m2["name"]), String(Court.house_of_member(state, player, mid)["name"])]]
-		l2.tooltip_text = String(p["text"])
-		l2.mouse_filter = Control.MOUSE_FILTER_STOP
-		l2.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row2.add_child(l2)
+		var acts2 := _slot(flow, String(p["label"]), "" if m2.is_empty() else "%s %s" % [String(m2["name"]), String(Court.house_of_member(state, player, mid)["name"])],
+				"", String(p["text"]), false)
 		var items2: Array = []
 		for h: Dictionary in Court.houses(state, player):
 			for m: Dictionary in h["members"]:
 				items2.append(["%s %s (%d)" % [String(m["name"]), String(h["name"]), int(Court.apts(m)[String(p["apt"])])], SimCommands.court_act(player, "minor", int(m["id"]), -1, String(p["id"]))])
-		_menu(es, row2, "Nommer…", items2)
+		_menu(es, acts2, "Nommer…", items2)
+
+
+## Emplacement d'un office : titre, titulaire (ou « Vacant »), aptitude. Rend la rangée des boutons.
+static func _slot(flow: Control, title: String, holder: String, apt: String, tip: String, major: bool) -> HBoxContainer:
+	var vacant := holder == ""
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", UiTheme.box(Color(1, 1, 1, 0.05 if major else 0.025), UiTheme.WARN if vacant else UiTheme.LINE, 0, 1))
+	card.custom_minimum_size = Vector2(SLOT_CARD, 0)
+	card.tooltip_text = tip
+	flow.add_child(card)
+	var pad := MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		pad.add_theme_constant_override("margin_" + side, 10)
+	pad.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(pad)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 3)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pad.add_child(box)
+	box.add_child(UiTheme.dim(title.to_upper(), 12))
+	var n := Label.new()
+	n.text = "Vacant" if vacant else holder
+	n.clip_text = true
+	n.custom_minimum_size = Vector2(SLOT_CARD - 20.0, 0)
+	n.add_theme_font_size_override("font_size", 16)
+	n.add_theme_color_override("font_color", UiTheme.WARN if vacant else UiTheme.TEXT)
+	n.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(n)
+	box.add_child(UiTheme.dim(apt if apt != "" else " ", 12))
+	var acts := HBoxContainer.new()
+	acts.add_theme_constant_override("separation", 8)
+	box.add_child(acts)
+	return acts
+
+
+## Blason d'une maison : écu à sa couleur, partition tirée de son identifiant.
+class Blazon:
+	extends Control
+	var color := Color.WHITE
+	var pattern := 0
+
+	func _init(col: Color, seed_id: int, side := 34.0) -> void:
+		color = col
+		pattern = absi(seed_id) % 4
+		custom_minimum_size = Vector2(side, side * 1.15)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func outline() -> PackedVector2Array:
+		var w := size.x
+		var h := size.y
+		return PackedVector2Array([Vector2(0, 0), Vector2(w, 0), Vector2(w, h * 0.55), Vector2(w * 0.5, h), Vector2(0, h * 0.55)])
+
+	func _draw() -> void:
+		var pts := outline()
+		draw_colored_polygon(pts, color.darkened(0.45))
+		var w := size.x
+		var h := size.y
+		var light := color.lightened(0.1)
+		match pattern:
+			0:
+				draw_colored_polygon(PackedVector2Array([Vector2(0, 0), Vector2(w * 0.5, 0), Vector2(w * 0.5, h), Vector2(0, h * 0.55)]), light)
+			1:
+				draw_colored_polygon(PackedVector2Array([Vector2(0, 0), Vector2(w, 0), Vector2(w, h * 0.3), Vector2(0, h * 0.3)]), light)
+			2:
+				draw_colored_polygon(PackedVector2Array([Vector2(0, 0), Vector2(w * 0.3, 0), Vector2(w, h * 0.45), Vector2(w, h * 0.55), Vector2(w * 0.8, h * 0.72), Vector2(0, h * 0.2)]), light)
+			_:
+				draw_colored_polygon(PackedVector2Array([Vector2(w * 0.5, h * 0.15), Vector2(w * 0.8, h * 0.42), Vector2(w * 0.5, h * 0.72), Vector2(w * 0.2, h * 0.42)]), light)
+		pts.append(pts[0])
+		draw_polyline(pts, color.lightened(0.35), 1.2, true)
 
 
 static func _house_block(es: EmpireScreens, col: VBoxContainer, state: GameState, player: int, en: Dictionary, h: Dictionary) -> void:
@@ -112,7 +175,12 @@ static func _house_block(es: EmpireScreens, col: VBoxContainer, state: GameState
 		tip.append("%s : %+d" % [String(p[0]), int(p[1])])
 	fav.tooltip_text = "\n".join(tip) if not tip.is_empty() else "Rien ne pèse sur sa faveur."
 	fav.mouse_filter = Control.MOUSE_FILTER_STOP
-	b.body.add_child(fav)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 12)
+	head.add_child(Blazon.new(Color(String(h["color"])), hid))
+	fav.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	head.add_child(fav)
+	b.body.add_child(head)
 	b.body.add_child(UiTheme.paragraph("%s Siège : %s." % [String(v.get("text", "")), String(v.get("seat_text", ""))], W, 13))
 	var fs := Court.fiefs_of(state, player, hid)
 	var fn := PackedStringArray()

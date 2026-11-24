@@ -81,6 +81,81 @@ static func _summary_block(es: EmpireScreens) -> Control:
 	return b
 
 
+## Schéma des liaisons : les systèmes colonisés de l'empire et les voies qui les relient.
+## {"nodes": [{sid, pos, name, port (niveau, 0 sans port), state (0 relié, 2 coupé, 3 non relié ou bloqué), capital}], "links": [[i, j]]}.
+static func schema(state: GameState, player: int) -> Dictionary:
+	var nodes: Array[Dictionary] = []
+	var index := {}
+	var cap := FactionTraits.capital_system(state, player)
+	for sid in Stability.systems_of(state, player):
+		var n := Ports.node(state, player, sid)
+		var st := 0
+		if not n.is_empty():
+			if int(n.get("bk", 0)) == 1 or int(n.get("lk", 0)) != 1:
+				st = 3
+			if int(n.get("cut", 0)) == 1 and int(n.get("bk", 0)) != 1:
+				st = 2
+		index[sid] = nodes.size()
+		nodes.append({"sid": sid, "pos": state.galaxy.systems[sid].position, "name": state.galaxy.systems[sid].system_name,
+				"port": int(n.get("l", 0)) if not n.is_empty() else 0, "has_port": not n.is_empty(), "state": st, "capital": sid == cap})
+	var links: Array = []
+	for sid: int in index:
+		for nb in state.galaxy.systems[sid].neighbors:
+			if index.has(int(nb)) and int(nb) > sid:
+				links.append([index[sid], index[int(nb)]])
+	return {"nodes": nodes, "links": links}
+
+
+## Dessin du schéma : un carré par port (couleur de son état), un point par système sans port,
+## un losange doré pour la capitale.
+class Schema:
+	extends Control
+	var data := {}
+
+	func _init(d: Dictionary, w := 420.0, h := 240.0) -> void:
+		data = d
+		custom_minimum_size = Vector2(w, h)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func fitted() -> PackedVector2Array:
+		var out := PackedVector2Array()
+		var nodes: Array = data.get("nodes", [])
+		if nodes.is_empty():
+			return out
+		var lo: Vector2 = nodes[0]["pos"]
+		var hi := lo
+		for n: Dictionary in nodes:
+			lo = lo.min(n["pos"])
+			hi = hi.max(n["pos"])
+		var span := (hi - lo).max(Vector2(1, 1))
+		var inner := size - Vector2(40, 36)
+		var k := minf(inner.x / span.x, inner.y / span.y)
+		var off := Vector2(20, 12) + (inner - span * k) * 0.5
+		for n: Dictionary in nodes:
+			out.append(off + ((n["pos"] as Vector2) - lo) * k)
+		return out
+
+	func _draw() -> void:
+		var pts := fitted()
+		var nodes: Array = data.get("nodes", [])
+		for l: Array in data.get("links", []):
+			draw_line(pts[int(l[0])], pts[int(l[1])], Color(1, 1, 1, 0.22), 1.0, true)
+		var font := get_theme_default_font()
+		for i in nodes.size():
+			var n: Dictionary = nodes[i]
+			var p := pts[i]
+			if bool(n["has_port"]):
+				var c: Color = PortsUi.STATE_COLORS[int(n["state"])]
+				var half := 3.0 + minf(3.0, float(n["port"]))
+				draw_rect(Rect2(p - Vector2(half, half), Vector2(half, half) * 2.0), c)
+				draw_string(font, p + Vector2(-40, half + 12), String(n["name"]), HORIZONTAL_ALIGNMENT_CENTER, 80, 11, Color(1, 1, 1, 0.75))
+			else:
+				draw_circle(p, 2.5, Color(1, 1, 1, 0.45))
+			if bool(n["capital"]):
+				var r := 9.0
+				draw_polyline(PackedVector2Array([p + Vector2(0, -r), p + Vector2(r, 0), p + Vector2(0, r), p + Vector2(-r, 0), p + Vector2(0, -r)]), UiTheme.GOLD, 1.5, true)
+
+
 static func _ports_block(es: EmpireScreens) -> Control:
 	var state := es._state
 	var player := es._player
@@ -89,10 +164,18 @@ static func _ports_block(es: EmpireScreens) -> Control:
 	if ids.is_empty():
 		b.body.add_child(UiTheme.dim("Aucun port : bâtissez un Comptoir, puis améliorez-le en Spatioport.", 13))
 		return b
+	var split := HBoxContainer.new()
+	split.add_theme_constant_override("separation", 30)
+	b.body.add_child(split)
 	var g := GridContainer.new()
 	g.columns = 5
 	g.add_theme_constant_override("h_separation", 22)
-	b.body.add_child(g)
+	g.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	split.add_child(g)
+	var draw := Schema.new(schema(state, player))
+	draw.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	split.add_child(draw)
+	b.body.add_child(UiTheme.dim("Schéma : un carré par port, à la couleur de son état ; un point par système sans port ; le losange marque la capitale.", 12))
 	for h in ["Système", "Port", "Portée", "État", "Réserve"]:
 		g.add_child(_label(h, 0, UiTheme.TEXT_DIM))
 	for sid in ids:

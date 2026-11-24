@@ -70,13 +70,28 @@ static func build(es: EmpireScreens) -> void:
 		col.add_child(_offer_block(es, offer))
 	var mine := Widgets.Block.new("Vos %s" % noun.to_lower())
 	col.add_child(mine)
-	var flow := HFlowContainer.new()
-	flow.add_theme_constant_override("h_separation", 16)
-	flow.add_theme_constant_override("v_separation", 16)
-	mine.body.add_child(flow)
 	var ids := Heroes.ids_of(state, player)
-	for id in ids:
-		flow.add_child(_hero_card(es, state.heroes[id]))
+	for grp: Dictionary in groups(state, player):
+		var gids: Array = grp["ids"]
+		var vacant := int(grp.get("vacant", 0))
+		if gids.is_empty() and vacant == 0:
+			continue
+		var head := HBoxContainer.new()
+		head.add_theme_constant_override("separation", 10)
+		mine.body.add_child(head)
+		head.add_child(UiTheme.title(String(grp["label"]), 16))
+		var count := UiTheme.dim(str(gids.size()) if vacant == 0 else "%d, %s" % [gids.size(), "1 siège vacant" if vacant == 1 else "%d sièges vacants" % vacant], 13)
+		if vacant > 0 or String(grp["key"]) == "":
+			count.add_theme_color_override("font_color", UiTheme.WARN)
+		head.add_child(count)
+		var flow := HFlowContainer.new()
+		flow.add_theme_constant_override("h_separation", 16)
+		flow.add_theme_constant_override("v_separation", 16)
+		mine.body.add_child(flow)
+		for id: int in gids:
+			flow.add_child(_hero_card(es, state.heroes[id]))
+		for i in vacant:
+			flow.add_child(_vacant_card())
 	if ids.is_empty():
 		mine.body.add_child(UiTheme.dim("Aucun héros pour l'instant : le renom en fera venir.", 14))
 	var market := Heroes.for_hire(state, player)
@@ -85,6 +100,47 @@ static func build(es: EmpireScreens) -> void:
 	var held := Heroes.prisoners_of(state, player)
 	if not held.is_empty():
 		col.add_child(_prison_block(es, held))
+
+
+## Les héros rangés par poste, ceux qui attendent un poste d'abord : [{key, label, ids, vacant}].
+## Le conseil compte ses sièges vides (vacant), pour qu'un siège libre ne passe pas inaperçu.
+static func groups(state: GameState, player: int) -> Array:
+	var defs := [["", "Sans poste"], ["council", "Conseil"], ["fleet", "Flottes et armées"], ["system", "Systèmes"], ["agent", "Réseaux"], ["mission", "Missions"]]
+	var by := {}
+	for d in defs:
+		by[d[0]] = []
+	for id in Heroes.ids_of(state, player):
+		var post := String(state.heroes[id]["post"])
+		var key := post
+		if post == "army":
+			key = "fleet"
+		elif not by.has(post):
+			key = "mission"
+		by[key].append(id)
+	var out := []
+	for d in defs:
+		var g := {"key": d[0], "label": d[1], "ids": by[d[0]], "vacant": 0}
+		if String(d[0]) == "council":
+			g["vacant"] = maxi(0, Heroes.seats(state, player) - (by["council"] as Array).size())
+		out.append(g)
+	return out
+
+
+static func _vacant_card() -> Control:
+	var card := PanelContainer.new()
+	card.custom_minimum_size = Vector2(CARD_WIDTH + 80.0, PORTRAIT.y + 20.0)
+	card.modulate = Color(1, 1, 1, 0.7)
+	var v := VBoxContainer.new()
+	v.alignment = BoxContainer.ALIGNMENT_CENTER
+	card.add_child(v)
+	var t := UiTheme.title("Siège vacant", 16)
+	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	t.add_theme_color_override("font_color", UiTheme.WARN)
+	v.add_child(t)
+	var d := UiTheme.paragraph("Affectez-y un héros par le menu « Affecter… » de sa carte.", CARD_WIDTH + 40.0, 13)
+	d.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(d)
+	return card
 
 
 ## Ce qui change l'écran : héros, renom et offre, mois, flottes et réseaux (cibles possibles).

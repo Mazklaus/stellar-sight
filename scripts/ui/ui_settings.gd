@@ -8,6 +8,8 @@ const PATH := "user://settings.cfg"
 static var fullscreen := false
 ## Mettre le jeu en pause à l'ouverture d'un menu d'empire (et reprendre à la fermeture).
 static var auto_pause_menus := false
+## Panneau de droite de la carte réduit à sa barre d'alertes (refonte, A4).
+static var side_reduced := false
 ## Échelle de toute l'interface (lisibilité sur grands écrans).
 static var ui_scale := 1.0
 const UI_SCALES := [1.0, 1.25, 1.5]
@@ -36,6 +38,24 @@ static var fleet_silhouettes := false
 static var turn_stop_intrusion := true
 static var turn_stop_war := true
 static var turn_stop_events := true
+## La fin de tour prévient de ce qui attend encore (refonte, A6 ; voir TurnChecks).
+static var turn_warn_todo := true
+## Carte (refonte D3f, onglet Carte des options) : emblèmes des empires sur leur territoire, cargos sur
+## les routes vues de près, systèmes nommés, durée du glissement d'un palier de zoom à l'autre.
+static var map_emblems := true
+## Images provisoires (refonte, F3) : le nom de l'emplacement s'écrit dans le coin du tableau.
+static var art_ids := true
+static var map_cargos := true
+static var map_labels := "all"
+const MAP_LABELS := ["all", "owned"]
+const MAP_LABEL_NAMES := {"all": "Tous les systèmes explorés", "owned": "Les systèmes habités seulement"}
+static var map_glide := "normal"
+const MAP_GLIDES := ["none", "fast", "normal", "slow"]
+const MAP_GLIDE_NAMES := {"none": "Immédiat", "fast": "Vif", "normal": "Posé", "slow": "Lent"}
+const MAP_GLIDE_SECONDS := {"none": 0.0, "fast": 0.25, "normal": 0.45, "slow": 0.9}
+## Sauvegarde automatique : minutes de jeu réel entre deux enregistrements (0 = jamais).
+static var autosave_minutes := 10
+const AUTOSAVE_CHOICES := [0, 5, 10, 20]
 static var _loaded := false
 
 
@@ -46,6 +66,7 @@ static func load_settings() -> void:
 		return
 	fullscreen = bool(cfg.get_value("display", "fullscreen", false))
 	auto_pause_menus = bool(cfg.get_value("game", "auto_pause_menus", false))
+	side_reduced = bool(cfg.get_value("display", "side_reduced", false))
 	ui_scale = float(cfg.get_value("display", "ui_scale", 1.0))
 	replay_detail = String(cfg.get_value("display", "replay_detail", "normal"))
 	if not REPLAY_DETAILS.has(replay_detail):
@@ -64,6 +85,19 @@ static func load_settings() -> void:
 	turn_stop_intrusion = bool(cfg.get_value("turns", "stop_intrusion", true))
 	turn_stop_war = bool(cfg.get_value("turns", "stop_war", true))
 	turn_stop_events = bool(cfg.get_value("turns", "stop_events", true))
+	turn_warn_todo = bool(cfg.get_value("turns", "warn_todo", true))
+	autosave_minutes = int(cfg.get_value("game", "autosave_minutes", 10))
+	map_emblems = bool(cfg.get_value("map", "emblems", true))
+	art_ids = bool(cfg.get_value("display", "art_ids", true))
+	map_cargos = bool(cfg.get_value("map", "cargos", true))
+	map_labels = String(cfg.get_value("map", "labels", "all"))
+	if not MAP_LABELS.has(map_labels):
+		map_labels = "all"
+	map_glide = String(cfg.get_value("map", "glide", "normal"))
+	if not MAP_GLIDES.has(map_glide):
+		map_glide = "normal"
+	if not AUTOSAVE_CHOICES.has(autosave_minutes):
+		autosave_minutes = 10
 
 
 static func save_settings() -> void:
@@ -71,6 +105,7 @@ static func save_settings() -> void:
 	cfg.load(PATH)  # garde les autres sections (annonces : AnnounceSettings)
 	cfg.set_value("display", "fullscreen", fullscreen)
 	cfg.set_value("game", "auto_pause_menus", auto_pause_menus)
+	cfg.set_value("display", "side_reduced", side_reduced)
 	cfg.set_value("display", "ui_scale", ui_scale)
 	cfg.set_value("display", "replay_detail", replay_detail)
 	cfg.set_value("display", "battle_scale", battle_scale)
@@ -83,6 +118,13 @@ static func save_settings() -> void:
 	cfg.set_value("turns", "stop_intrusion", turn_stop_intrusion)
 	cfg.set_value("turns", "stop_war", turn_stop_war)
 	cfg.set_value("turns", "stop_events", turn_stop_events)
+	cfg.set_value("turns", "warn_todo", turn_warn_todo)
+	cfg.set_value("game", "autosave_minutes", autosave_minutes)
+	cfg.set_value("map", "emblems", map_emblems)
+	cfg.set_value("display", "art_ids", art_ids)
+	cfg.set_value("map", "cargos", map_cargos)
+	cfg.set_value("map", "labels", map_labels)
+	cfg.set_value("map", "glide", map_glide)
 	cfg.save(PATH)
 
 
@@ -153,3 +195,17 @@ static func _tips_changed() -> void:
 	save_settings()
 	if TipManager.instance != null:
 		TipManager.instance.apply_settings()
+
+
+## Durée, en secondes, du glissement d'un palier de zoom à l'autre (0 : saut immédiat).
+static func map_glide_seconds() -> float:
+	return float(MAP_GLIDE_SECONDS.get(map_glide, 0.45))
+
+
+## Fait passer un réglage à choix (map_labels, map_glide) à la valeur suivante.
+static func cycle_map(key: String) -> void:
+	if key == "labels":
+		map_labels = MAP_LABELS[(MAP_LABELS.find(map_labels) + 1) % MAP_LABELS.size()]
+	elif key == "glide":
+		map_glide = MAP_GLIDES[(MAP_GLIDES.find(map_glide) + 1) % MAP_GLIDES.size()]
+	save_settings()

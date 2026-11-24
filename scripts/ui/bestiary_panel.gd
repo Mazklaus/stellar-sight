@@ -5,6 +5,8 @@ extends RefCounted
 ## et les attitudes (Étudier, Chasser, Apprivoiser, Renoncer). Les espèces encore inconnues restent des
 ## silhouettes. Boutons enregistrés dans es.chronicle_buttons pour les tests : « fauna:<espèce>:<attitude> ».
 
+const CARD := 470.0
+
 
 static func build(es: EmpireScreens, col: VBoxContainer) -> void:
 	var state := es._state
@@ -21,10 +23,14 @@ static func build(es: EmpireScreens, col: VBoxContainer) -> void:
 	for t: Array in tl:
 		intro.body.add_child(UiTheme.dim("Talent du peuple : %s. %s" % [t[0], t[1]], 13))
 	_vivarium(es, col)
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 16)
+	flow.add_theme_constant_override("v_separation", 16)
+	col.add_child(flow)
 	for sp in known:
-		col.add_child(_species_block(es, sp))
+		flow.add_child(_species_block(es, sp))
 	for i in Fauna.species_ids().size() - known.size():
-		col.add_child(_unknown_block())
+		flow.add_child(_unknown_block())
 	_guardians(es, col)
 	_plagues(es, col)
 
@@ -147,50 +153,83 @@ static func _vivarium(es: EmpireScreens, col: VBoxContainer) -> void:
 		blk.body.add_child(row)
 
 
+## Le cadre d'une fiche : vignette à gauche (silhouette sombre tant que l'espèce n'est pas étudiée), nom et
+## première ligne à droite ; le reste de la fiche s'ajoute dans le corps rendu.
+static func _card(title: String, art_id: String, shade: String) -> Array:
+	var card := PanelContainer.new()
+	card.custom_minimum_size = Vector2(CARD, 0)
+	var body := VBoxContainer.new()
+	body.add_theme_constant_override("separation", 6)
+	card.add_child(body)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 12)
+	body.add_child(top)
+	var art := Widgets.ArtSlot.new(art_id, Vector2(110, 84), Color(0.55, 0.8, 0.6) if shade == "" else Color(0.5, 0.6, 0.7), "lock" if shade == "unknown" else "star")
+	art.variant = art_id.hash() % 97
+	if shade == "shadow":
+		art.modulate = Color(0.35, 0.42, 0.55)
+		art.tooltip_text = "Une silhouette : étudiez l'espèce pour la voir de près."
+		art.mouse_filter = Control.MOUSE_FILTER_STOP
+	elif shade == "unknown":
+		card.modulate = Color(1, 1, 1, 0.7)
+	top.add_child(art)
+	var head := VBoxContainer.new()
+	head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_theme_constant_override("separation", 2)
+	top.add_child(head)
+	head.add_child(UiTheme.title(title, 18))
+	return [card, body, head]
+
+
+## Ce que la vignette montre d'une espèce : "" étudiée, "shadow" rencontrée seulement.
+static func shade_of(state: GameState, player: int, sp: String) -> String:
+	return "" if Fauna.studied(state, player, sp) else "shadow"
+
+
 static func _unknown_block() -> Control:
-	var blk := Widgets.Block.new("Espèce inconnue")
-	blk.body.add_child(UiTheme.dim("Des éclaireurs parlent de formes dans le vide. Rencontrez-la pour l'inscrire au Bestiaire.", 14))
-	return blk
+	var c := _card("Espèce inconnue", "", "unknown")
+	(c[2] as VBoxContainer).add_child(UiTheme.paragraph("Des éclaireurs parlent de formes dans le vide. Rencontrez-la pour l'inscrire au Bestiaire.", CARD - 150.0, 13))
+	return c[0]
 
 
 static func _species_block(es: EmpireScreens, sp: String) -> Control:
 	var state := es._state
 	var player := es._player
 	var sd := Fauna.species(sp)
-	var blk := Widgets.Block.new(String(sd["label"]))
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 16)
+	var c := _card(String(sd["label"]), "fauna_" + sp, shade_of(state, player, sp))
+	var body: VBoxContainer = c[1]
+	var head: VBoxContainer = c[2]
 	var temper := UiTheme.title("%s" % Fauna.temper_label(sp), 16)
 	temper.tooltip_text = String((Fauna.data()["tempers"][Fauna.temper(sp)] as Dictionary).get("text", ""))
 	temper.mouse_filter = Control.MOUSE_FILTER_STOP
 	head.add_child(temper)
-	head.add_child(UiTheme.dim(_relation_text(state, player, sp), 14))
-	blk.body.add_child(head)
-	blk.body.add_child(UiTheme.paragraph(String(sd["text"]), 900.0, 14))
+	head.add_child(UiTheme.paragraph(_relation_text(state, player, sp), CARD - 150.0, 13))
+	body.add_child(UiTheme.paragraph(String(sd["text"]), CARD - 24.0, 14))
 	var p := Fauna.species_power(sp)
 	var spread := 15 if Fauna.studied(state, player, sp) else 40
 	@warning_ignore("integer_division")
 	var lo := maxi(1, p * (100 - spread) / 100 / 5 * 5)
 	@warning_ignore("integer_division")
 	var hi := (p * (100 + spread) / 100 + 4) / 5 * 5
-	blk.body.add_child(UiTheme.paragraph("Troupeau type : %d %s, puissance %d à %d." % [int(sd.get("herd", 1)),
-			String(GameData.ship(String(sd["unit"])).get("plural", "")).to_lower(), lo, hi], 900.0, 14))
+	body.add_child(UiTheme.paragraph("Troupeau type : %d %s, puissance %d à %d." % [int(sd.get("herd", 1)),
+			String(GameData.ship(String(sd["unit"])).get("plural", "")).to_lower(), lo, hi], CARD - 24.0, 14))
 	if Fauna.studied(state, player, sp):
-		blk.body.add_child(UiTheme.paragraph("Faiblesse : %s" % String(sd["weakness"]), 900.0, 14))
-		blk.body.add_child(UiTheme.paragraph("Étude terminée : %s" % String(sd.get("study_text", "")), 900.0, 14))
+		body.add_child(UiTheme.paragraph("Faiblesse : %s" % String(sd["weakness"]), CARD - 24.0, 14))
+		body.add_child(UiTheme.paragraph("Étude terminée : %s" % String(sd.get("study_text", "")), CARD - 24.0, 14))
 	elif Fauna.study_end(state, player, sp) > 0:
-		blk.body.add_child(UiTheme.dim("Étude en cours : encore %d jours avant de connaître leur faiblesse." % (Fauna.study_end(state, player, sp) - state.tick), 14))
+		body.add_child(UiTheme.paragraph("Étude en cours : encore %d jours avant de connaître leur faiblesse." % (Fauna.study_end(state, player, sp) - state.tick), CARD - 24.0, 13))
 	else:
-		blk.body.add_child(UiTheme.dim("Faiblesse inconnue : étudiez l'espèce.", 14))
+		body.add_child(UiTheme.dim("Faiblesse inconnue : étudiez l'espèce.", 14))
 	var nests: Array[String] = []
 	for sid in Fauna.nest_ids(state):
 		if String(Fauna.nests(state)[sid]["sp"]) == sp and Fleets.is_explored(state, player, sid):
 			nests.append(state.galaxy.systems[sid].system_name)
-	blk.body.add_child(UiTheme.dim(("Nid repéré : %s." % ", ".join(nests)) if not nests.is_empty() else "Aucun nid repéré.", 13))
+	body.add_child(UiTheme.paragraph(("Nid repéré : %s." % ", ".join(nests)) if not nests.is_empty() else "Aucun nid repéré.", CARD - 24.0, 13))
 	if Fauna.kills(state, player, sp) > 0:
-		blk.body.add_child(UiTheme.dim("Abattues par vos flottes : %d." % Fauna.kills(state, player, sp), 13))
-	var orders := HBoxContainer.new()
-	orders.add_theme_constant_override("separation", 10)
+		body.add_child(UiTheme.dim("Abattues par vos flottes : %d." % Fauna.kills(state, player, sp), 13))
+	var orders := HFlowContainer.new()
+	orders.add_theme_constant_override("h_separation", 8)
+	orders.add_theme_constant_override("v_separation", 6)
 	for att in ["etude", "chasse", "apprivoise", "renoncer"]:
 		if att == "apprivoise" and not Fauna.tamable(state, player, sp):
 			continue
@@ -215,8 +254,8 @@ static func _species_block(es: EmpireScreens, sp: String) -> Control:
 		b.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.fauna_attitude(player, sp, a)))
 		es.chronicle_buttons["fauna:%s:%s" % [sp, att]] = b
 		orders.add_child(b)
-	blk.body.add_child(orders)
-	return blk
+	body.add_child(orders)
+	return c[0]
 
 
 static func _relation_text(state: GameState, player: int, sp: String) -> String:

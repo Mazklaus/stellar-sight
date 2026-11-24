@@ -2,7 +2,7 @@
 	"_doc": "Technologies communes du domaine Société.",
 	"technologies": {
 		"implants_neuraux": {
-			"label": "Implants neuraux",
+			"label": "Implants neuraux", "lore": "De petits appareils greffés sous le crâne, reliés aux nerfs par des fils plus fins qu'un cheveu. Le porteur commande une machine comme il bouge la main. L'opération se fait à seize ans, avec l'accord écrit de l'intéressé.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -15,7 +15,7 @@
 			"flavor": "Le premier implant permettait de lire plus vite. Le second, de lire les petites lignes du contrat du premier."
 		},
 		"resequencage": {
-			"label": "Reséquençage",
+			"label": "Reséquençage", "lore": "Une technique qui ôte un caractère du génome d'une espèce ou lui en rend un qu'elle avait perdu. Les généticiens travaillent sur une génération à la fois. Un comité d'éthique lit chaque dossier avant la première injection.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -28,7 +28,7 @@
 			"flavor": "On a retiré la timidité. On a perdu les poètes. On les remettra à la prochaine version."
 		},
 		"acclimatation_glandulaire": {
-			"label": "Acclimatation glandulaire",
+			"label": "Acclimatation glandulaire", "lore": "Une série de greffes qui modifie la sueur et le sang d'un colon pour un climat qui n'est pas le sien. Le traitement dure deux ans. Ses enfants en héritent, mais le monde natal de l'espèce leur reste le plus doux.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -41,7 +41,7 @@
 			"flavor": "Les colons ont maintenant des branchies. Ils regrettent un peu les mondes secs, par nostalgie."
 		},
 		"evolution_dirigee": {
-			"label": "Évolution dirigée",
+			"label": "Évolution dirigée", "lore": "Des laboratoires capables de conduire plusieurs lignées à la fois et de prévoir leur descendance sur dix générations. Les essais se font d'abord en simulation. Un programme coûte moins qu'une flotte.",
 			"domain": "societe",
 			"era": 4,
 			"field": "colonisation",
@@ -54,7 +54,7 @@
 			"flavor": "L'évolution prenait des millions d'années. Le comité d'éthique, lui, prend trois semaines."
 		},
 		"matrices_conscience": {
-			"label": "Matrices de conscience",
+			"label": "Matrices de conscience", "lore": "Des supports où l'esprit d'un vivant est recopié neurone par neurone, pendant qu'il reste éveillé. Il continue ensuite dans un corps construit. Le transfert d'un peuple entier s'étale sur une génération.",
 			"domain": "societe",
 			"era": 5,
 			"field": "colonisation",
@@ -67,7 +67,7 @@
 			"flavor": "« Est-ce que je suis encore moi ? » La matrice répond oui. Elle est programmée pour."
 		},
 		"theorie_psionique": {
-			"label": "Théorie psionique",
+			"label": "Théorie psionique", "lore": "Le premier traité qui décrit les phénomènes de l'esprit avec des mesures et des protocoles. Ses auteurs ont trouvé le don chez une personne sur mille, à l'état de trace. Ils ont appelé Résonance ce que leurs instruments enregistraient.",
 			"domain": "societe",
 			"era": 3,
 			"field": "esprit",
@@ -80,7 +80,7 @@
 			"flavor": "La première équation du Songe tenait sur une ligne. La deuxième tenait sur le mur. Le mathématicien, lui, ne tenait plus debout."
 		},
 		"telepathie": {
-			"label": "Télépathie",
+			"label": "Télépathie", "lore": "Une discipline qui apprend aux sensitifs à entendre une pensée étrangère et à faire taire la leur. Le collège les reçoit enfants et les garde dix ans. Les premiers diplômés ont été placés auprès des juges et des médecins.",
 			"domain": "societe",
 			"era": 3,
 			"field": "esprit",
@@ -93,7 +93,7 @@
 			"flavor": "« Je sais ce que vous pensez. » Le plus dur, au Collège, c'est d'apprendre à ne pas le dire."
 		},
 		"ecrans_psychiques": {
-			"label": "Écrans psychiques",
+			"label": "Écrans psychiques", "lore": "Des cages de fil d'argent noyées dans les murs, qui brouillent ce qu'un sensitif cherche à lire ou à imposer. Elles protègent aussi ceux qui n'ont aucun don. Les salles du conseil en ont été équipées les premières.",
 			"domain": "societe",
 			"era": 3,
 			"field": "esprit",
@@ -106,7 +106,7 @@
 			"flavor": "Un casque de cuivre, un bruit blanc, une chanson idiote qu'on se répète. Les trois marchent. La chanson marche le mieux."
 		},
 		"precognition": {
-			"label": "Précognition",
+			"label": "Précognition", "lore": "Un don rare, que quelques sensitifs exercent ensemble dans une salle sans lumière. Ils décrivent des flottes qui n'ont pas encore quitté leur port. Un greffier note tout, et l'on vérifie ensuite.",
 			"domain": "societe",
 			"era": 4,
 			"field": "esprit",
@@ -119,7 +119,7 @@
 			"flavor": "Les précogs savent tout à l'avance, sauf pourquoi on continue de les surprendre avec des fêtes d'anniversaire."
 		},
 		"grammaire_etoiles": {
-			"label": "Grammaire des étoiles",
+			"label": "Grammaire des étoiles", "lore": "Une grammaire tirée du Signal lui-même, qui permet de lire ses phrases au lieu de compter ses motifs. Les linguistes y ont reconnu des temps et des personnes. Ils savent maintenant ce qu'il faut répondre pour en entendre davantage.",
 			"domain": "societe",
 			"era": 5,
 			"field": "esprit",
@@ -132,7 +132,7 @@
 			"flavor": "Le verbe y est une étoile, le sujet une galaxie, et le complément nous."
 		},
 		"oree": {
-			"label": "L'Orée",
+			"label": "L'Orée", "lore": "Le moment où un peuple sait assez de choses pour choisir ce qu'il deviendra. Cinq écoles proposent chacune sa voie et se disputent les esprits. La décision engage toutes les générations suivantes.",
 			"domain": "societe",
 			"era": 5,
 			"field": "esprit",
@@ -145,7 +145,7 @@
 			"flavor": "Au bord de l'Orée, les philosophes ont cessé de se disputer. Ce n'est pas qu'ils soient d'accord : ils regardent tous dans la même direction."
 		},
 		"ouverture_songe": {
-			"label": "Ouverture du Songe",
+			"label": "Ouverture du Songe", "lore": "Un chantier qui réunit les sensitifs les plus forts de l'empire autour d'un seul point, jusqu'à ce que le Songe s'y ouvre. On y descend ensuite comme dans une mine. Tous ceux qui plongent ne remontent pas inchangés.",
 			"domain": "societe",
 			"era": 4,
 			"field": "esprit",
@@ -163,7 +163,7 @@
 			"era": 1,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "Débloque les Dômes biosphériques (+2 population maximale), et +20 % d'habitabilité sur les mondes continentaux et océaniques (hors monde d'origine).",
+			"text": "Débloque les Dômes biosphériques (+2 population maximale), et +20 % d'habitabilité sur les mondes continentaux et océaniques (hors monde d'origine).", "lore": "Des dômes de verre feuilleté posés sur une ossature d'acier, sous lesquels on règle l'air et la durée du jour. Les colons y passent leurs premières années, le temps que leur corps s'habitue à la pesanteur et aux pollens du dehors. Un traitement des muqueuses, renouvelé chaque année, fait le reste.",
 			"needs": [
 				"colonies"
 			],
@@ -185,7 +185,7 @@
 			"era": 1,
 			"field": "etat",
 			"current": "academie",
-			"text": "Débloque le Poste de sécurité. +1 colonisation simultanée. Seuil de surextension +2 systèmes (Administration : +8 capacité).",
+			"text": "Débloque le Poste de sécurité. +1 colonisation simultanée. Seuil de surextension +2 systèmes (Administration : +8 capacité).", "lore": "Un corps de fonctionnaires formés dans la capitale et envoyés pour six ans dans une colonie qui n'est pas la leur. Ils tiennent le cadastre et commandent le poste de garde. Leurs rapports partent avec le courrier de chaque convoi.",
 			"needs": [
 				"colonies"
 			],
@@ -204,14 +204,14 @@
 			"era": 1,
 			"field": "culture",
 			"current": "concorde",
-			"text": "Débloque la Maison des spectacles (stabilité). Sa Maîtrise, Art oratoire : +15 % d'influence.",
+			"text": "Débloque la Maison des spectacles (stabilité). Sa Maîtrise, Art oratoire : +15 % d'influence.", "lore": "Un enseignement de la parole publique, donné aux magistrats et aux officiers avant leur première affectation. On y apprend à tenir une salle de deux mille personnes sans amplification. Les colonies bâtissent pour ces orateurs des salles où l'on donne aussi le théâtre.",
 			"eureka": {
 				"kind": "contacts",
 				"n": 1
 			}
 		},
 		"art_oratoire": {
-			"label": "Art oratoire",
+			"label": "Art oratoire", "lore": "Des écoles de parole ouvertes à tous les magistrats, où l'on s'exerce devant un jury de colons tirés au sort. Les discours officiels raccourcissent de moitié. Les colonies en écoutent davantage jusqu'au bout.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -233,7 +233,7 @@
 			"era": 1,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "Débloque la Clinique (+25 % de croissance dans la colonie). Sa Maîtrise, Santé publique : +15 % de croissance partout.",
+			"text": "Débloque la Clinique (+25 % de croissance dans la colonie). Sa Maîtrise, Santé publique : +15 % de croissance partout.", "lore": "Un service de santé propre aux colonies, avec ses vaccins contre les fièvres de chaque monde et ses sages-femmes itinérantes. Chaque clinique tient le registre des naissances et celui des maladies encore sans nom. Les souches inconnues partent sous scellés vers la capitale.",
 			"needs": [
 				"naissance"
 			],
@@ -243,7 +243,7 @@
 			}
 		},
 		"sante_publique": {
-			"label": "Santé publique",
+			"label": "Santé publique", "lore": "Un réseau de dispensaires et d'aqueducs, bâti quartier par quartier d'après le relevé des maladies. L'eau est contrôlée à chaque fontaine. La mortalité des enfants tombe en une génération.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -261,7 +261,7 @@
 			}
 		},
 		"biomes_extremes": {
-			"label": "Biomes extrêmes",
+			"label": "Biomes extrêmes", "lore": "Des dômes à triple paroi et des combinaisons légères, portées toute la journée sans gêne. Les colons s'installent sous des ciels qu'ils ne peuvent pas respirer. Les enfants nés là mettent leur masque avant de savoir lire.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -289,7 +289,7 @@
 			}
 		},
 		"chancelleries": {
-			"label": "Chancelleries",
+			"label": "Chancelleries", "lore": "Un corps de diplomates de carrière, logés à demeure dans les capitales étrangères. Ils écrivent chaque semaine et ne rentrent que tous les dix ans. Un traité n'est signé qu'après leur avis.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -308,7 +308,7 @@
 			}
 		},
 		"colons_formes": {
-			"label": "Colons formés",
+			"label": "Colons formés", "lore": "Des écoles où les futurs colons apprennent un métier utile à une ville neuve avant leur départ. Chaque convoi emporte son médecin et son forgeron. Les colonies perdent moins de monde pendant leur première année.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -327,7 +327,7 @@
 			}
 		},
 		"habitats": {
-			"label": "Habitats orbitaux",
+			"label": "Habitats orbitaux", "lore": "Des cylindres de plusieurs kilomètres, mis en rotation pour donner un poids à ceux qui y vivent. On y cultive sous des lampes. Les géantes gazeuses, sans sol où se poser, se peuplent de cette façon.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -350,7 +350,7 @@
 			}
 		},
 		"genetique": {
-			"label": "Génétique appliquée",
+			"label": "Génétique appliquée", "lore": "Des cliniques où l'on corrige avant la naissance les maladies inscrites dans le sang des parents. Les familles y viennent de toute la colonie. Les cuves de la même clinique font grandir des organes de rechange.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -374,7 +374,7 @@
 			]
 		},
 		"therapies_geniques": {
-			"label": "Thérapies géniques",
+			"label": "Thérapies géniques", "lore": "Des traitements donnés une fois dans la vie, qui réparent le génome d'un adulte. Les maladies de vieillesse reculent de vingt ans. Les familles ont plus d'enfants, parce que les parents vivent assez pour les élever.",
 			"domain": "societe",
 			"era": 4,
 			"field": "colonisation",
@@ -392,7 +392,7 @@
 			}
 		},
 		"propagande": {
-			"label": "Propagande",
+			"label": "Propagande", "lore": "Un ministère qui écrit les nouvelles et choisit les visages affichés dans les ports. Ses rédacteurs lisent aussi ce qui vient de l'étranger et y répondent dans la semaine. Les colonies reçoivent le même journal le même jour.",
 			"domain": "societe",
 			"era": 3,
 			"field": "culture",
@@ -418,7 +418,7 @@
 			"flavor": "Douze mille chaînes, et toujours rien à regarder. Sauf, curieusement, les feuilletons du voisin."
 		},
 		"administration2": {
-			"label": "Gouverneurs de secteur",
+			"label": "Gouverneurs de secteur", "lore": "Des gouverneurs nommés à la tête de plusieurs systèmes, avec le droit de trancher sans en référer à la capitale. Ils rendent leurs comptes une fois par an. Les convois de colons partent sur leur seule signature.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -437,7 +437,7 @@
 			}
 		},
 		"terraformation": {
-			"label": "Terraformation",
+			"label": "Terraformation", "lore": "Un chantier de plusieurs dizaines d'années, qui change l'air et les eaux d'une planète entière. Les machines travaillent autour des villes sans les déplacer. Les colons voient le ciel changer de couleur de leur vivant.",
 			"domain": "societe",
 			"era": 4,
 			"field": "colonisation",
@@ -464,7 +464,7 @@
 			}
 		},
 		"cadastre_algorithmique": {
-			"label": "Cadastre algorithmique",
+			"label": "Cadastre algorithmique", "lore": "Un cadastre tenu par des machines, qui connaît chaque parcelle de l'empire et le nom de tous ceux qui l'ont possédée. Les litiges de bornage se règlent en une audience. Les juges y gagnent le temps de traiter le reste.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -488,7 +488,7 @@
 			"flavor": "Chaque astéroïde a son numéro, chaque numéro son propriétaire, chaque propriétaire son contrôleur fiscal."
 		},
 		"administration_quantique": {
-			"label": "Administration quantique",
+			"label": "Administration quantique", "lore": "Des registres qui se mettent à jour au même instant dans toutes les colonies, sans courrier. Un préfet lointain ne peut plus prétexter le délai. Un bureau de sécurité compare les comptes à ce que voient ses inspecteurs.",
 			"domain": "societe",
 			"era": 5,
 			"field": "etat",
@@ -512,7 +512,7 @@
 			"flavor": "Le formulaire est à la fois rempli et vierge, jusqu'à ce qu'un fonctionnaire le regarde."
 		},
 		"prefectures": {
-			"label": "Capitales de secteur",
+			"label": "Capitales de secteur", "lore": "Une ville choisie dans chaque système pour loger le préfet et ses bureaux. Les colonies voisines y envoient leurs requêtes au lieu de les adresser à la capitale. La réponse arrive dans la semaine.",
 			"domain": "societe",
 			"era": 4,
 			"field": "etat",
@@ -535,7 +535,7 @@
 			"flavor": "Un gouverneur, un palais, un tampon. L'empire peut grandir : quelqu'un d'autre signera les formulaires."
 		},
 		"ambassades": {
-			"label": "Ambassades permanentes",
+			"label": "Ambassades permanentes", "lore": "Des ambassades bâties en dur dans chaque capitale étrangère, avec leur personnel et leurs archives. Les ambassadeurs se connaissent entre eux depuis des années. C'est dans leurs salons que s'est discutée la première ligue.",
 			"domain": "societe",
 			"era": 4,
 			"field": "etat",
@@ -556,7 +556,7 @@
 			"flavor": "Des diplomates à demeure, des réceptions chaque semaine, et un buffet qui fait plus pour la paix que dix traités."
 		},
 		"mondes_jardins": {
-			"label": "Mondes-jardins",
+			"label": "Mondes-jardins", "lore": "Un monde refait dans le détail, où chaque vallée a reçu le climat et les espèces qui lui conviennent. Les jardiniers y travaillent pendant un siècle. Tous les peuples s'y trouvent bien.",
 			"domain": "societe",
 			"era": 5,
 			"field": "colonisation",
@@ -576,7 +576,7 @@
 			"flavor": "Un monde fait pour la vie, par la vie. Les poètes s'y installent en premier ; les promoteurs, juste après."
 		},
 		"assemblee": {
-			"label": "Assemblée interstellaire",
+			"label": "Assemblée interstellaire", "lore": "Un palais où siègent les délégués de tous les empires connus, avec un hémicycle de dix mille places. Il n'en existe qu'un dans la galaxie. L'empire qui l'a bâti y parle le premier.",
 			"domain": "societe",
 			"era": 5,
 			"field": "etat",
@@ -592,7 +592,7 @@
 			"flavor": "Un parlement pour toutes les espèces. Les débats durent des siècles ; c'était le but."
 		},
 		"spatioports": {
-			"label": "Spatioports de transit",
+			"label": "Spatioports de transit", "lore": "Des gares d'orbite d'où partent chaque jour des paquebots pour les colonies qui manquent de bras. Le voyage est payé par l'empire. Une ville pleine cesse de refuser des naissances.",
 			"domain": "societe",
 			"era": 5,
 			"field": "colonisation",
@@ -613,7 +613,7 @@
 			"spec": "peuplement"
 		},
 		"adaptation_totale": {
-			"label": "Adaptation totale",
+			"label": "Adaptation totale", "lore": "Des cités entièrement closes, qui fabriquent leur air et leur eau, et des corps préparés à tous les climats. Aucun monde habitable n'est plus vraiment hostile. Les colons choisissent une planète pour sa vue.",
 			"domain": "societe",
 			"era": 5,
 			"field": "colonisation",
@@ -646,7 +646,7 @@
 			"spec": "peuplement"
 		},
 		"symbiose": {
-			"label": "Symbiose universelle",
+			"label": "Symbiose universelle", "lore": "Un accord entre un peuple et les mondes qu'il habite, où la ville et la forêt vivent des mêmes cycles. Les jardins portent ce que les usines rejettent. Les colons ne se sentent plus étrangers nulle part.",
 			"domain": "societe",
 			"era": 5,
 			"field": "colonisation",
@@ -660,7 +660,7 @@
 			"flavor": "Plus de mondes hostiles, seulement des mondes qu'on n'a pas encore compris."
 		},
 		"conscription_planetaire": {
-			"label": "Registres de conscription",
+			"label": "Registres de conscription", "lore": "Un registre de tous les habitants en âge de servir, tenu dans chaque colonie par un officier d'état civil. Le tirage au sort a lieu une fois par an, sur la place. Les exemptions sont affichées avec leur motif.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -671,7 +671,7 @@
 			]
 		},
 		"service_universel": {
-			"label": "Service universel",
+			"label": "Service universel", "lore": "Une loi qui appelle sous les drapeaux tous les jeunes gens d'une classe d'âge, pour deux ans. Les casernes sont bâties près des villes. Les anciens appelés restent inscrits dans la réserve jusqu'à quarante ans.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -686,7 +686,7 @@
 			}
 		},
 		"medecine_campagne": {
-			"label": "Médecine de campagne",
+			"label": "Médecine de campagne", "lore": "Des hôpitaux montés sous tente à quelques kilomètres du front, où un blessé est opéré dans l'heure. Les chirurgiens y sont formés avec les officiers. Un régiment retrouve ses hommes au lieu d'en recevoir de nouveaux.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -700,7 +700,7 @@
 			}
 		},
 		"propagande_front": {
-			"label": "Propagande du front",
+			"label": "Propagande du front", "lore": "Un service qui porte aux régiments leur courrier, leurs journaux et des films tournés sur le front même. Les soldats y voient leurs propres compagnies. Les opérateurs sont comptés parmi les pertes comme les autres.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -715,7 +715,7 @@
 			}
 		},
 		"arts_holographiques": {
-			"label": "Arts holographiques",
+			"label": "Arts holographiques", "lore": "Une sculpture en lumière, que l'on fige dans une plaque et que l'on expose sans la garder sous verre. Les musées montrent des pièces trop fragiles pour voyager. Les copies se vendent dans les ports.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -730,7 +730,7 @@
 			"flavor": "La sculpture en lumière dure a ruiné deux siècles de marbriers, et enrichi les vendeurs de lunettes."
 		},
 		"reseau_mondes": {
-			"label": "Réseau des mondes",
+			"label": "Réseau des mondes", "lore": "Un réseau qui porte aux colonies les plus lointaines les mêmes chants et les mêmes images qu'à la capitale. Les voisins le captent sans l'avoir demandé. Leurs enfants en connaissent les refrains.",
 			"domain": "societe",
 			"era": 4,
 			"field": "culture",
@@ -745,7 +745,7 @@
 			"spec": "voie_culturelle"
 		},
 		"conversion_culturelle": {
-			"label": "Conversion culturelle",
+			"label": "Conversion culturelle", "lore": "Des missions qui s'installent chez les voisins, ouvrent des écoles et enseignent la langue de l'empire. Elles s'adressent aux provinces mécontentes. Quelques-unes ont demandé à changer de drapeau.",
 			"domain": "societe",
 			"era": 4,
 			"field": "culture",
@@ -761,7 +761,7 @@
 			"spec": "voie_culturelle"
 		},
 		"forum_interstellaire": {
-			"label": "Forum interstellaire",
+			"label": "Forum interstellaire", "lore": "Une cité construite pour recevoir les délégués de tous les empires, sur un terrain qui n'appartient à aucun. L'empire qui la bâtit en nomme le président. Les débats y sont traduits dans toutes les langues connues.",
 			"domain": "societe",
 			"era": 4,
 			"field": "etat",
@@ -774,7 +774,7 @@
 			"flavor": "Pour la première fois, tout le monde se parle. Ce n'est pas forcément une bonne nouvelle."
 		},
 		"oeuvre_monumentale": {
-			"label": "Art monumental",
+			"label": "Art monumental", "lore": "Un monument à l'échelle d'une lune, sculpté ou assemblé pour être vu d'un monde entier. Les artistes s'y succèdent sur trois générations. Les colons s'y rendent une fois dans leur vie.",
 			"domain": "societe",
 			"era": 4,
 			"field": "culture",
@@ -787,7 +787,7 @@
 			"flavor": "L'artiste a demandé une étoile comme toile. Le comité a dit oui, pour voir."
 		},
 		"recycleurs_atmospheriques": {
-			"label": "Recycleurs atmosphériques",
+			"label": "Recycleurs atmosphériques", "lore": "Des filtres montés sur toutes les cheminées d'une colonie, qui retiennent les gaz et les rendent aux usines. Ils sont visités par un corps d'inspecteurs. Une usine qui les débranche est fermée le jour même.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -804,7 +804,7 @@
 			"flavor": "Ce qui sort des cheminées y retourne. Les cheminées, vexées, ont demandé un syndicat."
 		},
 		"ingenierie_climatique": {
-			"label": "Ingénierie climatique",
+			"label": "Ingénierie climatique", "lore": "Des miroirs en orbite et des semeurs de nuages, réglés pour corriger le climat d'un monde vivant sans le brusquer. Chaque intervention est proposée au monde, puis observée une saison. Les ingénieurs se retirent quand il se remet à pleuvoir seul.",
 			"domain": "societe",
 			"era": 4,
 			"field": "colonisation",
@@ -818,7 +818,7 @@
 			"flavor": "Nous avons appris à fabriquer des nuages. Il reste à leur apprendre à pleuvoir au bon endroit."
 		},
 		"mondes_coquilles": {
-			"label": "Mondes-coquilles",
+			"label": "Mondes-coquilles", "lore": "Une enveloppe transparente tendue à quelques kilomètres du sol, qui retient un air respirable autour d'un monde nu. Des mâts la tiennent tous les cent kilomètres. Sous elle, les colons vivent sans combinaison.",
 			"domain": "societe",
 			"era": 4,
 			"field": "colonisation",
@@ -835,7 +835,7 @@
 			"flavor": "Le ciel a un plafond, désormais. Il est très haut, et on le repeint au printemps."
 		},
 		"mondes_sur_mesure": {
-			"label": "Mondes sur mesure",
+			"label": "Mondes sur mesure", "lore": "Une planète fabriquée sur une orbite vide, à partir de matière apportée d'ailleurs, selon le type commandé. La livraison prend des dizaines d'années. D'autres empires en ont acheté.",
 			"domain": "societe",
 			"era": 5,
 			"field": "colonisation",
@@ -852,7 +852,7 @@
 			"flavor": "Océan, désert ou glacier ? Le catalogue fait quatre cents pages ; les fjords sont en option."
 		},
 		"pharmacopee_perdue": {
-			"label": "Pharmacopée perdue",
+			"label": "Pharmacopée perdue", "lore": "Un herbier de plusieurs milliers de planches, où chaque plante est décrite avec la séquence qui la rend utile. La civilisation qui l'a dressé s'est éteinte sans laisser d'autre livre. Les généticiens l'ont lu comme un cours.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -867,7 +867,7 @@
 			"flavor": "Chaque page soigne une maladie qui n'existe plus. Et trois qui existent encore."
 		},
 		"archives_cadastrales": {
-			"label": "Archives cadastrales",
+			"label": "Archives cadastrales", "lore": "Le cadastre d'un empire disparu, conservé avec tous les procès qu'il a fait naître. On y suit une parcelle sur quarante générations. Les juristes en ont repris la méthode de classement.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -882,7 +882,7 @@
 			"flavor": "Trois mille ans de querelles de bornage. Les juristes pleurent de joie."
 		},
 		"cryptographie": {
-			"label": "Cryptographie",
+			"label": "Cryptographie", "lore": "Un service de chiffreurs qui change les codes de l'empire à date irrégulière. Les clefs voyagent par courrier, jamais par radio. Le même service lit le courrier des autres, dans une salle voisine.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -902,7 +902,7 @@
 			"flavor": "Le message dit « tout va bien ». Le message chiffré dit aussi « tout va bien », mais personne ne le croit."
 		},
 		"contre_espionnage": {
-			"label": "Contre-espionnage",
+			"label": "Contre-espionnage", "lore": "Un service chargé de surveiller ceux qui surveillent, logé à part et payé sur un autre budget. Ses agents suivent les habitudes des ambassades étrangères. Ils tiennent une fiche sur chaque visiteur qui pose trop de questions.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -921,7 +921,7 @@
 			}
 		},
 		"agents_dormants": {
-			"label": "Agents dormants",
+			"label": "Agents dormants", "lore": "Des agents installés depuis des années sous un métier ordinaire, qui n'ont jamais envoyé de message. Quand un réseau tombe, ils ne sont sur aucune liste. Ils reprennent le travail avec ce qu'ils savent du quartier.",
 			"domain": "societe",
 			"era": 4,
 			"field": "etat",
@@ -942,7 +942,7 @@
 			"spec": "ombre_ou_gloire"
 		},
 		"theologie_comparee": {
-			"label": "Théologie comparée",
+			"label": "Théologie comparée", "lore": "Une chaire où l'on étudie les croyances des autres peuples dans leurs propres textes. Les prêtres qui en sortent savent répondre à un missionnaire étranger. Ils sont envoyés dans les colonies de la frontière.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -963,7 +963,7 @@
 			"flavor": "Le débat a duré trois jours. À la fin, chacun était sûr d'avoir gagné, ce qui est la définition même du dialogue interreligieux."
 		},
 		"grands_temples": {
-			"label": "Grands temples",
+			"label": "Grands temples", "lore": "Des sanctuaires bâtis pour recevoir des dizaines de milliers de fidèles, visibles depuis l'orbite. Leur chantier occupe une génération de maçons. Les pèlerins y viennent de mondes où la foi n'a pas encore de prêtre.",
 			"domain": "societe",
 			"era": 3,
 			"field": "culture",
@@ -980,7 +980,7 @@
 			}
 		},
 		"schisme_reforme": {
-			"label": "Schisme et réforme",
+			"label": "Schisme et réforme", "lore": "Un concile permanent, où les docteurs de la foi débattent des nouveautés avant qu'elles ne divisent les fidèles. Une doctrine contestée y est amendée au lieu d'être condamnée. Les dissidents gardent leur chaire.",
 			"domain": "societe",
 			"era": 4,
 			"field": "culture",
@@ -1000,7 +1000,7 @@
 			}
 		},
 		"doctrine_commandement": {
-			"label": "Doctrine de commandement",
+			"label": "Doctrine de commandement", "lore": "Un recueil des campagnes passées, annoté par ceux qui les ont menées, que tout officier étudie avant son premier commandement. Les erreurs y figurent avec le nom de leur auteur. Il est révisé après chaque guerre.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1018,7 +1018,7 @@
 			}
 		},
 		"legendes_vivantes": {
-			"label": "Légendes vivantes",
+			"label": "Légendes vivantes", "lore": "Une coutume qui garde les grands serviteurs de l'empire en activité, entourés d'élèves et de biographes. Leur nom suffit à ouvrir des portes. À leur âge, ils apprennent encore.",
 			"domain": "societe",
 			"era": 4,
 			"field": "culture",
@@ -1037,7 +1037,7 @@
 			"spec": "ombre_ou_gloire"
 		},
 		"protocole_cour": {
-			"label": "Protocole de cour",
+			"label": "Protocole de cour", "lore": "Un règlement qui fixe la place de chaque maison aux audiences et l'ordre dans lequel on leur parle. Une maison nouvelle y est inscrite sans en déplacer une ancienne. Le grand maître des cérémonies en garde le seul exemplaire à jour.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1057,7 +1057,7 @@
 			"flavor": "Le protocole tient en neuf cents pages. La page sur les chaises en fait quatre-vingts."
 		},
 		"genealogies": {
-			"label": "Généalogies",
+			"label": "Généalogies", "lore": "Des registres de la maison régnante, tenus par des archivistes qui notent les études et les faits de chaque enfant. Le conseil s'en sert pour désigner l'héritier le plus capable. L'aîné écarté reçoit un apanage.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1076,7 +1076,7 @@
 			}
 		},
 		"grands_mariages": {
-			"label": "Grands mariages",
+			"label": "Grands mariages", "lore": "Des noces célébrées pendant un mois dans les deux capitales, devant les délégués de toute la galaxie. Les deux maisons échangent des otages d'honneur et des œuvres d'art. Les peuples en gardent le souvenir plus longtemps que des traités.",
 			"domain": "societe",
 			"era": 4,
 			"field": "etat",
@@ -1095,7 +1095,7 @@
 			}
 		},
 		"sondages": {
-			"label": "Sondages",
+			"label": "Sondages", "lore": "Des enquêteurs qui interrogent quelques milliers d'habitants choisis selon leur colonie et leur métier. Le Sénat connaît l'état de l'opinion un mois avant le vote. Les partis ont aussitôt ouvert leurs propres bureaux.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1115,7 +1115,7 @@
 			"flavor": "Marge d'erreur : trois points. Marge d'embarras : illimitée."
 		},
 		"institutions": {
-			"label": "Institutions",
+			"label": "Institutions", "lore": "Des assemblées et des cours assez anciennes pour que personne ne songe à les renverser. Une émotion populaire y passe par des commissions avant de devenir une loi. Les partis survivent à leurs défaites.",
 			"domain": "societe",
 			"era": 4,
 			"field": "etat",
@@ -1134,7 +1134,7 @@
 			}
 		},
 		"droit_federal": {
-			"label": "Droit fédéral",
+			"label": "Droit fédéral", "lore": "Un corps de légistes formés au droit de la ligue autant qu'à celui de leur empire. Ils rédigent les amendements dans la forme que l'assemblée ne peut pas refuser d'examiner. Leurs textes viennent en discussion une session plus tôt.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1153,7 +1153,7 @@
 			}
 		},
 		"clienteles": {
-			"label": "Clientèles",
+			"label": "Clientèles", "lore": "Un échange de charges et de faveurs entre la cour et les familles qui gouvernent un État sujet. Leurs fils sont élevés à la capitale. Un sujet à qui l'empire a confié un rôle précis y tient plus qu'à son indépendance.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1172,7 +1172,7 @@
 			}
 		},
 		"diplomatie_multilaterale": {
-			"label": "Diplomatie multilatérale",
+			"label": "Diplomatie multilatérale", "lore": "Des délégations assez nombreuses pour siéger dans plusieurs commissions le même jour. Chaque dossier a son rapporteur. L'empire peut défendre deux textes à la fois devant l'assemblée.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1191,7 +1191,7 @@
 			}
 		},
 		"xenologie": {
-			"label": "Xénologie",
+			"label": "Xénologie", "lore": "L'étude des autres espèces par ceux qui vivent parmi elles pendant des années. Les xénologues rédigent des guides de voisinage, distribués aux colons. On y apprend ce qu'il ne faut pas servir à table.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -1211,7 +1211,7 @@
 			}
 		},
 		"patrouilles_stellaires": {
-			"label": "Patrouilles stellaires",
+			"label": "Patrouilles stellaires", "lore": "De petites coques qui parcourent les abords des systèmes selon un tour irrégulier. Leurs équipages connaissent chaque caillou de leur secteur. Un repaire s'y trahit par ses allées et venues.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1230,7 +1230,7 @@
 			}
 		},
 		"amnistie": {
-			"label": "Amnistie",
+			"label": "Amnistie", "lore": "Une loi qui efface les condamnations d'un équipage pirate, s'il se rend avec sa coque. Les capitaines la connaissent par cœur. Ceux qui l'acceptent servent sous pavillon impérial, à la solde ordinaire.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1250,7 +1250,7 @@
 			"flavor": "Les anciens pirates portent l'uniforme avec une fierté sincère. Ils ont juste gardé l'habitude de compter les cargaisons des autres."
 		},
 		"xenozoologie": {
-			"label": "Xénozoologie",
+			"label": "Xénozoologie", "lore": "Des stations d'observation placées sur le passage des bêtes du vide, où on les suit d'une saison à l'autre. Les zoologues en tirent le calendrier de leurs migrations. Un seul spécimen capturé leur suffit pour décrire l'espèce.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -1270,7 +1270,7 @@
 			}
 		},
 		"dressage": {
-			"label": "Dressage",
+			"label": "Dressage", "lore": "Un art de conduire les bêtes du vide au combat, par des sons émis depuis une coque qu'elles ont appris à suivre. Le dresseur vit auprès d'elles depuis leur éclosion. Un vivarium bien tenu en élève deux de plus par portée.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -1290,7 +1290,7 @@
 			}
 		},
 		"biologie_leviathans": {
-			"label": "Biologie des léviathans",
+			"label": "Biologie des léviathans", "lore": "L'anatomie complète des grandes bêtes du vide, dressée sur des carcasses remorquées jusqu'aux laboratoires. On y a décrit plus de deux cents organes. Chacun a trouvé preneur chez les chimistes ou les armuriers.",
 			"domain": "societe",
 			"era": 4,
 			"field": "colonisation",
@@ -1310,7 +1310,7 @@
 			}
 		},
 		"protectorats": {
-			"label": "Protectorats",
+			"label": "Protectorats", "lore": "Un statut qui laisse à une cité ses lois et son prince, et confie sa défense à l'empire. Le traité tient en une page. Un résident de l'empire siège au conseil de la cité, sans y voter.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1329,7 +1329,7 @@
 			}
 		},
 		"elevation": {
-			"label": "Élévation",
+			"label": "Élévation", "lore": "Un programme d'écoles et de tutelle, mené sur plusieurs générations auprès d'une espèce qui commence à parler. Les maîtres vivent dans ses villages. Il s'achève le jour où ses délégués prêtent serment comme citoyens.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -1348,7 +1348,7 @@
 			}
 		},
 		"biosemiotique": {
-			"label": "Biosémiotique",
+			"label": "Biosémiotique", "lore": "L'étude des signes par lesquels un monde vivant montre son état, dans la couleur de ses mers ou le rythme de ses floraisons. Les observateurs les relèvent depuis l'orbite. Un monde qui se tait est noté comme les autres.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -1367,7 +1367,7 @@
 			}
 		},
 		"symbioses_planetaires": {
-			"label": "Symbioses planétaires",
+			"label": "Symbioses planétaires", "lore": "Des plantes et des microbes choisis pour qu'un monde vivant les reconnaisse comme siens. Les colonies les cultivent autour de leurs murs. Le monde tolère mieux une ville qu'il sent comme une de ses forêts.",
 			"domain": "societe",
 			"era": 4,
 			"field": "colonisation",
@@ -1387,7 +1387,7 @@
 			"flavor": "On ne dompte pas une planète. On négocie avec elle, et elle lit les petites lignes."
 		},
 		"douanes_stellaires": {
-			"label": "Douanes stellaires",
+			"label": "Douanes stellaires", "lore": "Des postes de contrôle aux points de saut, tenus par un corps de douaniers armés. Chaque coque de passage déclare sa cargaison. Les registres de transit sont envoyés chaque mois à la capitale.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1406,7 +1406,7 @@
 			}
 		},
 		"cartographie_juridique": {
-			"label": "Cartographie juridique",
+			"label": "Cartographie juridique", "lore": "Des atlas où chaque système figure avec les titres que l'empire peut faire valoir sur lui, traités anciens et premières découvertes compris. Les cartographes travaillent avec les archivistes. Leurs cartes sont jointes aux déclarations de guerre.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1425,7 +1425,7 @@
 			}
 		},
 		"voie_songe": {
-			"label": "Rêve partagé",
+			"label": "Rêve partagé", "lore": "De grands dortoirs où les fidèles du Songe s'endorment à la même heure dans tout l'empire. Ils font le même rêve et s'y retrouvent. Chaque nuit, ils y restent un peu plus longtemps.",
 			"domain": "societe",
 			"era": 5,
 			"field": "esprit",
@@ -1441,7 +1441,7 @@
 			"path": "songe"
 		},
 		"voie_televersement": {
-			"label": "Mémoire distribuée",
+			"label": "Mémoire distribuée", "lore": "Des esprits copiés qui se partagent le travail et se relaient sans dormir, en gardant une mémoire commune. Ce que l'un apprend, tous le savent. Les corps restés en arrière sont de moins en moins nombreux.",
 			"domain": "societe",
 			"era": 5,
 			"field": "esprit",
@@ -1457,7 +1457,7 @@
 			"path": "televersement"
 		},
 		"voie_apotheose": {
-			"label": "Liturgie de l'ascension",
+			"label": "Liturgie de l'ascension", "lore": "Un office chanté dans tous les temples à la fois, dont le texte change un peu chaque année. Les fidèles disent qu'ils sentent la distance diminuer. Les prêtres tiennent le compte des strophes qui restent.",
 			"domain": "societe",
 			"era": 5,
 			"field": "esprit",
@@ -1473,7 +1473,7 @@
 			"path": "apotheose"
 		},
 		"voie_mue": {
-			"label": "Chrysalide",
+			"label": "Chrysalide", "lore": "Des cocons où les volontaires s'enferment pour plusieurs années, pendant que leur corps se refait. Ceux qui en sortent ne ressemblent plus à leurs parents. Les familles veillent à tour de rôle.",
 			"domain": "societe",
 			"era": 5,
 			"field": "esprit",
@@ -1489,7 +1489,7 @@
 			"path": "mue"
 		},
 		"voie_depart": {
-			"label": "Arches générationnelles",
+			"label": "Arches générationnelles", "lore": "Des arches construites pour un voyage de plusieurs milliers d'années, hors de la galaxie. Ceux qui embarquent savent que leurs descendants seuls arriveront. Les premières quilles sont déjà posées.",
 			"domain": "societe",
 			"era": 5,
 			"field": "esprit",
@@ -1505,7 +1505,7 @@
 			"path": "depart"
 		},
 		"restauration_ecologique": {
-			"label": "Restauration écologique",
+			"label": "Restauration écologique", "lore": "Des territoires fermés à toute présence, où l'on réintroduit les espèces dans l'ordre de leur apparition. Les gardes n'y entrent qu'à pied. Une forêt replantée de cette façon met un siècle à se suffire.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",

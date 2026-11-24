@@ -2,7 +2,7 @@
 	"_doc": "Technologies communes du domaine Économie.",
 	"technologies": {
 		"reprogrammation": {
-			"label": "Reprogrammation",
+			"label": "Reprogrammation", "lore": "Des ateliers où l'on réécrit les routines d'un esprit synthétique pendant qu'il dort. L'opération prend une nuit par individu. Chacun garde une copie de ce qu'il était, scellée, qu'il peut demander à relire.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -20,7 +20,7 @@
 			"era": 1,
 			"field": "production",
 			"current": "seve",
-			"text": "Débloque l'Enrichissement des sols (projet : un gisement fertile de plus). Sa Maîtrise, Agronomie orbitale : +15 % de nourriture.",
+			"text": "Débloque l'Enrichissement des sols (projet : un gisement fertile de plus). Sa Maîtrise, Agronomie orbitale : +15 % de nourriture.", "lore": "Des bacs en étages sous lampes, nourris par une solution de sels que l'on dose plante par plante. Les agronomes en ont tiré des souches de bactéries qui fixent l'azote dans une terre pauvre. On les répand sur les sols d'une colonie une saison avant les premières semailles.",
 			"needs": [
 				"nourriture"
 			],
@@ -30,7 +30,7 @@
 			}
 		},
 		"agronomie_orbitale": {
-			"label": "Agronomie orbitale",
+			"label": "Agronomie orbitale", "lore": "Des serres en orbite, où les semences sont essayées sous toutes les pesanteurs et toutes les lumières avant de descendre. Une variété y est mise au point en trois saisons. Les colonies reçoivent leurs graines avec le climat qui leur convient.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -55,7 +55,7 @@
 			"era": 1,
 			"field": "production",
 			"current": "forge",
-			"text": "Débloque le Forage géothermique (projet : un gisement géothermique de plus sur un monde sec). Sa Maîtrise : +15 % d'énergie.",
+			"text": "Débloque le Forage géothermique (projet : un gisement géothermique de plus sur un monde sec). Sa Maîtrise : +15 % d'énergie.", "lore": "Un réacteur à fusion qui tient dans un conteneur de fret et se pose sur n'importe quel sol. Il alimente les foreuses qui descendent chercher la chaleur de la roche, à huit ou dix kilomètres sous un monde sec.",
 			"eureka": {
 				"kind": "building",
 				"what": "centrale_fusion",
@@ -63,7 +63,7 @@
 			}
 		},
 		"fusion_stabilisee": {
-			"label": "Fusion stabilisée",
+			"label": "Fusion stabilisée", "lore": "Un réglage des aimants qui tient le plasma sans à-coups pendant des années. Les centrales ne s'arrêtent plus que pour leur visite. Les équipes de conduite passent de douze personnes à trois.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -85,7 +85,7 @@
 			"era": 1,
 			"field": "production",
 			"current": "forge",
-			"text": "Débloque le Puits d'extraction (agrandit le Complexe minier, sans emplacement). Sa Maîtrise, Filons profonds : +15 % de matériaux.",
+			"text": "Débloque le Puits d'extraction (agrandit le Complexe minier, sans emplacement). Sa Maîtrise, Filons profonds : +15 % de matériaux.", "lore": "Des puits verticaux foncés au-delà de la croûte altérée, là où les filons n'ont jamais vu l'eau. Des haveuses sans équipage y travaillent dans une chaleur qui interdit toute présence. Le minerai remonte par une chaîne à godets jusqu'au complexe de surface.",
 			"eureka": {
 				"kind": "building",
 				"what": "complexe_minier",
@@ -93,7 +93,7 @@
 			}
 		},
 		"filons_profonds": {
-			"label": "Filons profonds",
+			"label": "Filons profonds", "lore": "Un sondage par ondes qui dessine les veines de minerai à plusieurs kilomètres sous la galerie. Les mineurs savent où percer avant d'ouvrir le chantier. Les galeries creusées à l'aveugle sont rebouchées avec les déblais.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -115,14 +115,14 @@
 			"era": 1,
 			"field": "savoir",
 			"current": "academie",
-			"text": "Débloque l'Académie : +4 Savoir et +10 % de Savoir dans sa colonie.",
+			"text": "Débloque l'Académie : +4 Savoir et +10 % de Savoir dans sa colonie.", "lore": "Un établissement où l'on entre sur concours à seize ans pour en sortir dix ans plus tard. Il loge ses élèves et garde les instruments que personne d'autre n'a les moyens d'entretenir. Chaque colonie qui en possède un y dépose aussi ses archives.",
 			"eureka": {
 				"kind": "pop",
 				"n": 25
 			}
 		},
 		"raffinage": {
-			"label": "Raffinage des cristaux",
+			"label": "Raffinage des cristaux", "lore": "Des fours où le cristal brut est chauffé puis refroidi sur plusieurs semaines, pour en chasser les défauts. Un cristal mal recuit éclate au premier saut. Les maîtres raffineurs le jugent au son, en le frappant d'une baguette.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -138,7 +138,7 @@
 			}
 		},
 		"extraction_plasmine": {
-			"label": "Extraction de plasmine",
+			"label": "Extraction de plasmine", "lore": "Un procédé qui sépare la plasmine de sa roche à froid, sous azote. Le minerai chauffé perd ce qui fait son prix. Les mines travaillent de nuit sur les mondes chauds.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -154,7 +154,7 @@
 			}
 		},
 		"logistique": {
-			"label": "Logistique impériale",
+			"label": "Logistique impériale", "lore": "Un service central qui suit chaque conteneur de l'empire, du quai de départ à l'entrepôt d'arrivée. Les colonies cessent de garder des réserves en double. Les terrains ainsi rendus sont bâtis dans l'année.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -172,7 +172,7 @@
 			}
 		},
 		"banques_donnees": {
-			"label": "Banques de données",
+			"label": "Banques de données", "lore": "Des archives où chaque résultat est rangé sous une même cote dans toutes les colonies. Un chercheur consulte en un jour ce qui demandait un voyage. Les académies se partagent alors les sujets au lieu de les refaire.",
 			"domain": "economie",
 			"era": 2,
 			"field": "savoir",
@@ -187,7 +187,7 @@
 			}
 		},
 		"recyclage": {
-			"label": "Recyclage orbital",
+			"label": "Recyclage orbital", "lore": "Des remorqueurs qui ramassent les débris de l'orbite et les portent à un four solaire. Une coque réformée y est refondue en une semaine. Les ferrailleurs ont un droit de premier regard sur ce qui flotte.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -202,7 +202,7 @@
 			}
 		},
 		"economie_circulaire": {
-			"label": "Économie circulaire",
+			"label": "Économie circulaire", "lore": "Une règle qui oblige chaque usine à reprendre ce qu'elle a vendu, une fois hors d'usage. Les décharges ferment l'une après l'autre. Les fonderies tirent des vieilles machines plus de métal que certaines mines.",
 			"domain": "economie",
 			"era": 3,
 			"field": "production",
@@ -220,7 +220,7 @@
 			}
 		},
 		"bourses": {
-			"label": "Bourses interstellaires",
+			"label": "Bourses interstellaires", "lore": "Une salle de cotation ouverte jour et nuit, où se négocient des cargaisons qui n'ont pas encore quitté leur port. Les prix sont transmis à toutes les colonies dans la journée. Les banques y prêtent sur la foi d'un simple connaissement.",
 			"domain": "economie",
 			"era": 3,
 			"field": "commerce",
@@ -246,7 +246,7 @@
 			}
 		},
 		"automatisation": {
-			"label": "Automatisation",
+			"label": "Automatisation", "lore": "Des ateliers où les machines se règlent et se réparent entre elles, sous la surveillance d'une équipe de nuit de quatre personnes. On n'y allume plus les lampes. Les ouvriers d'avant ont été reclassés à l'entretien.",
 			"domain": "economie",
 			"era": 3,
 			"field": "production",
@@ -264,7 +264,7 @@
 			}
 		},
 		"usines_noires": {
-			"label": "Usines noires",
+			"label": "Usines noires", "lore": "Des usines entièrement fermées, sans fenêtres ni vestiaires, où personne n'entre de l'année. Les matières arrivent par un quai et les produits sortent par un autre. Un seul ingénieur en surveille dix depuis la ville.",
 			"domain": "economie",
 			"era": 4,
 			"field": "production",
@@ -281,7 +281,7 @@
 			}
 		},
 		"nanofabrication": {
-			"label": "Nanofabrication",
+			"label": "Nanofabrication", "lore": "Des cuves où une pièce se forme couche d'atomes par couche d'atomes, à partir d'une poudre et d'un plan. Elle en sort finie, sans usinage. Un chantier reçoit ses poutres dans l'ordre où il les pose.",
 			"domain": "economie",
 			"era": 3,
 			"field": "production",
@@ -292,7 +292,7 @@
 			]
 		},
 		"assembleurs": {
-			"label": "Assembleurs moléculaires",
+			"label": "Assembleurs moléculaires", "lore": "Des machines qui montent un bâtiment à partir de ses matières brutes, sans passer par des pièces. Le chantier n'a plus de déchets ni d'échafaudages. Les maçons sont devenus conducteurs d'assembleurs.",
 			"domain": "economie",
 			"era": 4,
 			"field": "production",
@@ -307,7 +307,7 @@
 			}
 		},
 		"cristallographie": {
-			"label": "Cristallographie",
+			"label": "Cristallographie", "lore": "Une science de la croissance des cristaux, qui permet de les faire pousser en cuve au lieu de tailler ceux des mines. Un cristal cultivé met six mois à atteindre sa taille. Il porte la marque de sa raffinerie, gravée au cœur.",
 			"domain": "economie",
 			"era": 3,
 			"field": "production",
@@ -323,7 +323,7 @@
 			}
 		},
 		"cristaux_purs": {
-			"label": "Cristaux purs",
+			"label": "Cristaux purs", "lore": "Des cristaux cultivés dans le vide, loin de toute vibration, où aucun défaut ne se forme. Ils supportent deux fois plus de sauts avant d'être changés. Les raffineries en orbite ont remplacé celles du sol.",
 			"domain": "economie",
 			"era": 4,
 			"field": "production",
@@ -340,7 +340,7 @@
 			}
 		},
 		"extraction_ferronoir": {
-			"label": "Extraction du ferronoir",
+			"label": "Extraction du ferronoir", "lore": "Un procédé de forage qui attaque le ferronoir au jet de plasma, parce qu'aucune fraise ne l'entame. Le minerai sort en plaques qu'on ne sait pas encore fondre. Les arsenaux l'emploient tel quel.",
 			"domain": "economie",
 			"era": 3,
 			"field": "production",
@@ -356,7 +356,7 @@
 			}
 		},
 		"reseaux_savants": {
-			"label": "Réseaux savants",
+			"label": "Réseaux savants", "lore": "Une liaison permanente entre toutes les académies, qui se communiquent leurs mesures le jour même. Une expérience commencée dans une colonie se poursuit dans une autre pendant sa nuit. Les articles portent des dizaines de signatures.",
 			"domain": "economie",
 			"era": 3,
 			"field": "savoir",
@@ -377,7 +377,7 @@
 			}
 		},
 		"arcologies_productives": {
-			"label": "Arcologies productives",
+			"label": "Arcologies productives", "lore": "Des bâtiments de production empilés sur des centaines d'étages, ou enfoncés d'autant sous terre. Une ferme tient dans une tour. Les anciens terrains sont rendus à la ville.",
 			"domain": "economie",
 			"era": 4,
 			"field": "production",
@@ -394,7 +394,7 @@
 			"flavor": "On a fini par construire vers le haut. Puis vers le bas. Puis dans les deux sens à la fois."
 		},
 		"ecopes": {
-			"label": "Écopes et foreuses",
+			"label": "Écopes et foreuses", "lore": "Des écopes qui plongent dans l'atmosphère des géantes et des foreuses ancrées sur les astéroïdes. Elles travaillent sans équipage, visitées par l'avant-poste voisin. Un monde sans colonie se met à produire.",
 			"domain": "economie",
 			"era": 4,
 			"field": "production",
@@ -425,7 +425,7 @@
 			"flavor": "Trois techniciens, un chat, et désormais une foreuse de quatre kilomètres. Le chat est ravi."
 		},
 		"fabriques_autonomes": {
-			"label": "Fabriques autonomes",
+			"label": "Fabriques autonomes", "lore": "Une fabrique qui extrait ses matières, s'entretient et s'agrandit sans personnel. On la dépose et on revient chercher ce qu'elle a produit. Elle se contente de l'emplacement d'un entrepôt.",
 			"domain": "economie",
 			"era": 4,
 			"field": "production",
@@ -445,7 +445,7 @@
 			"flavor": "Les usines se construisent elles-mêmes. Elles demandent seulement qu'on arrête de les regarder."
 		},
 		"compagnies": {
-			"label": "Compagnies marchandes",
+			"label": "Compagnies marchandes", "lore": "De grandes compagnies à charte, qui arment leurs propres convois et tiennent comptoir dans les ports étrangers. Elles avancent les fonds de leurs voyages. La banque de l'empire est née de leurs lettres de change.",
 			"domain": "economie",
 			"era": 4,
 			"field": "commerce",
@@ -469,7 +469,7 @@
 			"flavor": "Elles ont des actionnaires, des flottes et des avis sur la politique étrangère. Surtout des avis."
 		},
 		"forage_manteau": {
-			"label": "Forage du manteau",
+			"label": "Forage du manteau", "lore": "Un puits qui traverse la croûte d'une planète pour atteindre les filons du manteau. Le forage dure des années et se fait sous refroidissement constant. Les gisements qu'il ouvre sont plus riches que tous ceux de la surface.",
 			"domain": "economie",
 			"era": 4,
 			"field": "production",
@@ -486,7 +486,7 @@
 			"flavor": "La croûte, c'était l'emballage."
 		},
 		"cartographie_manteau": {
-			"label": "Cartographie du manteau",
+			"label": "Cartographie du manteau", "lore": "Une carte complète de l'intérieur d'une planète, dressée par des millions de sondes laissées dans la roche. Chaque veine y figure avec sa teneur. Les mines ne creusent plus un mètre de trop.",
 			"domain": "economie",
 			"era": 5,
 			"field": "production",
@@ -501,7 +501,7 @@
 			}
 		},
 		"extraction_etherine": {
-			"label": "Extraction de l'éthérine",
+			"label": "Extraction de l'éthérine", "lore": "Un procédé qui recueille l'éthérine à l'état de vapeur, dans des pièges refroidis près du zéro absolu. Elle ne se laisse voir qu'à la lumière ultraviolette. Les ingénieurs qui la manipulent portent un dosimètre.",
 			"domain": "economie",
 			"era": 4,
 			"field": "production",
@@ -517,7 +517,7 @@
 			}
 		},
 		"arcologie_planetaire": {
-			"label": "Arcologie planétaire",
+			"label": "Arcologie planétaire", "lore": "Une ville qui couvre un monde entier, sur plusieurs niveaux, océans compris. Le sol d'origine n'est plus visible qu'au fond des puits d'aération. Tout ce qu'on y mange vient d'ailleurs.",
 			"domain": "economie",
 			"era": 5,
 			"field": "production",
@@ -533,7 +533,7 @@
 			"flavor": "De l'espace, on ne voit plus le sol. Du sol, on ne voit plus l'espace. Personne ne se plaint : personne ne sort."
 		},
 		"collecteur_stellaire": {
-			"label": "Collecteur stellaire",
+			"label": "Collecteur stellaire", "lore": "Une coque fermée autour d'une étoile, qui en recueille toute la lumière. Vue de l'extérieur, l'étoile disparaît du ciel. L'ouvrage demande la matière de plusieurs planètes.",
 			"domain": "economie",
 			"era": 5,
 			"field": "megastructures",
@@ -551,7 +551,7 @@
 			"flavor": "L'étoile n'a rien demandé. Elle brille pareil, simplement plus pour nous."
 		},
 		"nexus_savoir": {
-			"label": "Nexus du savoir",
+			"label": "Nexus du savoir", "lore": "Une station de la taille d'une ville, où logent cent mille chercheurs et les machines qui les secondent. Toutes les académies de l'empire y ont une aile. Les étudiants y passent leur dernière année.",
 			"domain": "economie",
 			"era": 5,
 			"field": "megastructures",
@@ -572,7 +572,7 @@
 			"flavor": "Quarante mille chercheurs, un seul café. La productivité n'a jamais été aussi haute."
 		},
 		"replicateurs": {
-			"label": "Réplicateurs de matière",
+			"label": "Réplicateurs de matière", "lore": "Des appareils qui composent un aliment à partir de ses éléments, sans champ ni bétail. Le goût a demandé plus de travail que la chimie. Les cantines des colonies en ont reçu les premières.",
 			"domain": "economie",
 			"era": 5,
 			"field": "production",
@@ -591,7 +591,7 @@
 			"flavor": "Ça a le goût de ce que vous voulez. Ça a surtout la texture de rien."
 		},
 		"cuisine_moleculaire": {
-			"label": "Cuisine moléculaire",
+			"label": "Cuisine moléculaire", "lore": "Une cuisine qui donne à chaque convive ce que son corps réclame, au gramme près. Rien n'est perdu entre la réserve et l'assiette. Une colonie se nourrit avec la moitié de ses anciennes récoltes.",
 			"domain": "economie",
 			"era": 5,
 			"field": "production",
@@ -609,7 +609,7 @@
 			}
 		},
 		"abondance": {
-			"label": "Économie d'abondance",
+			"label": "Économie d'abondance", "lore": "Une économie où les biens ordinaires ne manquent plus à personne et ont cessé d'avoir un prix. Les greniers publics distribuent sans compter. Le commerce ne porte plus que sur ce qui est rare ou fait à la main.",
 			"domain": "economie",
 			"era": 5,
 			"field": "production",
@@ -619,7 +619,7 @@
 			"flavor": "La rareté était une habitude. On s'en est défait comme des autres."
 		},
 		"post_rarete": {
-			"label": "Post-rareté",
+			"label": "Post-rareté", "lore": "Des bâtiments qui s'entretiennent avec ce qu'ils produisent et l'énergie qu'ils captent. Les budgets de réparation ont disparu des comptes des colonies. Les intendants ont été affectés à d'autres services.",
 			"domain": "economie",
 			"era": 5,
 			"field": "production",
@@ -634,7 +634,7 @@
 			}
 		},
 		"essaim_dyson": {
-			"label": "Essaim de Dyson",
+			"label": "Essaim de Dyson", "lore": "Des milliers de voiles placées en orbite autour d'une étoile, qui renvoient sa lumière vers des stations de collecte. Chaque voile a la surface d'une ville. Il faut des années pour que l'essaim se voie depuis les mondes voisins.",
 			"domain": "economie",
 			"era": 3,
 			"field": "megastructures",
@@ -647,7 +647,7 @@
 			"flavor": "Un miroir, c'est de la décoration. Un milliard, c'est une politique énergétique."
 		},
 		"forge_noyau": {
-			"label": "Forges-noyaux",
+			"label": "Forges-noyaux", "lore": "Un puits foré jusqu'au manteau d'une planète morte, d'où le métal monte déjà fondu. La forge est bâtie sur le puits même. On ne l'installe que sur des mondes où personne ne vivra.",
 			"domain": "economie",
 			"era": 3,
 			"field": "megastructures",
@@ -660,7 +660,7 @@
 			"flavor": "Le manteau d'une planète morte, c'est une mine qui n'a jamais servi."
 		},
 		"siphon_geante": {
-			"label": "Siphons de géante",
+			"label": "Siphons de géante", "lore": "Une station suspendue dans la haute atmosphère d'une géante gazeuse, qui en pompe l'hydrogène par une trompe de plusieurs centaines de kilomètres. Les flottes viennent y faire le plein. Les équipes de la station sont relevées tous les trois mois.",
 			"domain": "economie",
 			"era": 3,
 			"field": "megastructures",
@@ -673,7 +673,7 @@
 			"flavor": "Une paille, très longue. Et beaucoup de patience."
 		},
 		"matriochka": {
-			"label": "Cerveau Matriochka",
+			"label": "Cerveau Matriochka", "lore": "Des coques de calcul emboîtées autour d'une étoile, dont chacune se nourrit de la chaleur perdue par la précédente. L'ensemble pense comme un seul esprit. Il prend à l'étoile presque tout ce qu'elle donne.",
 			"domain": "economie",
 			"era": 5,
 			"field": "megastructures",
@@ -686,7 +686,7 @@
 			"flavor": "Une étoile qui calcule. Elle a déjà trouvé trois erreurs dans nos manuels."
 		},
 		"decompresseur": {
-			"label": "Décompression de matière",
+			"label": "Décompression de matière", "lore": "Une station en orbite au bord d'un trou noir, qui en arrache la matière avant qu'elle n'y tombe. Elle remonte par des canaux magnétiques, déjà triée par éléments. Les cargos font la queue à distance prudente.",
 			"domain": "economie",
 			"era": 5,
 			"field": "megastructures",
@@ -699,7 +699,7 @@
 			"flavor": "On ne sort rien d'un trou noir, disaient-ils. Ils n'avaient pas essayé avec un tire-bouchon gravitationnel."
 		},
 		"demantelement": {
-			"label": "Démantèlement planétaire",
+			"label": "Démantèlement planétaire", "lore": "Une flotte de foreuses qui défait une planète couche par couche et envoie sa matière aux fonderies. Le travail dure des dizaines d'années. La loi oblige à évacuer toute colonie avant le premier coup.",
 			"domain": "economie",
 			"era": 4,
 			"field": "production",
@@ -712,7 +712,7 @@
 			"flavor": "Rien ne se perd, tout se démonte."
 		},
 		"fonderie_anciens": {
-			"label": "Fonderie des Anciens",
+			"label": "Fonderie des Anciens", "lore": "Les plans d'une usine sans ouvriers, gravés sur les murs de l'usine elle-même. Elle a fonctionné seule pendant des millénaires, jusqu'à l'épuisement de son gisement. Les ingénieurs ont recopié les murs avant de toucher aux machines.",
 			"domain": "economie",
 			"era": 3,
 			"field": "production",
@@ -727,7 +727,7 @@
 			"flavor": "Personne ne sait ce qu'elle fabriquait. Elle a l'air contente de fabriquer autre chose."
 		},
 		"droit_societes": {
-			"label": "Droit des sociétés",
+			"label": "Droit des sociétés", "lore": "Un code qui donne à une compagnie le droit de posséder des biens et de plaider. Elle répond de ses dettes sur ses avoirs, sans engager ceux de ses membres. Les chartes sont enregistrées à la capitale et renouvelées tous les vingt ans.",
 			"domain": "economie",
 			"era": 2,
 			"field": "commerce",
@@ -747,7 +747,7 @@
 			"flavor": "La société a une personnalité juridique. Elle n'a pas encore de personnalité tout court."
 		},
 		"courtage": {
-			"label": "Courtage interstellaire",
+			"label": "Courtage interstellaire", "lore": "Une profession de courtiers assermentés, qui gardent les ordres de l'empire et ne les exécutent qu'au prix fixé. Ils répondent des écarts sur leur caution. La charge se transmet et se vend.",
 			"domain": "economie",
 			"era": 3,
 			"field": "commerce",
@@ -771,7 +771,7 @@
 			"era": 1,
 			"field": "production",
 			"current": "forge",
-			"text": "Kardashev en jeu, type I atteint : +10 % d'énergie.",
+			"text": "Kardashev en jeu, type I atteint : +10 % d'énergie.", "lore": "Un maillage de lignes supraconductrices enterrées, qui relie toutes les centrales d'un monde et répartit leur production d'un fuseau à l'autre. La nuit d'un continent est alimentée par le jour d'un autre. La salle de répartition occupe d'ordinaire un ancien abri, sous la capitale.",
 			"pre": [
 				"fusion_compacte"
 			],
@@ -785,7 +785,7 @@
 			"kard": 1
 		},
 		"collecte_stellaire": {
-			"label": "Collecte stellaire",
+			"label": "Collecte stellaire", "lore": "Des stations de réception placées près des colonies, qui reçoivent par faisceau l'énergie captée autour de l'étoile. Les centrales au sol ne servent plus qu'en secours. La nuit n'a plus d'effet sur les réseaux.",
 			"domain": "economie",
 			"era": 3,
 			"field": "megastructures",
@@ -804,7 +804,7 @@
 			"kard": 2
 		},
 		"flux_galactique": {
-			"label": "Flux galactique",
+			"label": "Flux galactique", "lore": "Un réseau de faisceaux qui relie les étoiles captées de l'empire et porte leur énergie là où elle manque. Une colonie s'éclaire avec un soleil qu'elle ne voit pas. Les pannes locales ont cessé.",
 			"domain": "economie",
 			"era": 5,
 			"field": "megastructures",
