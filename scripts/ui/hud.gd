@@ -24,6 +24,11 @@ signal fleet_action_requested(action: String, fleet_id: int)
 ## Liste des flottes : sélectionner une flotte (et y centrer la carte), ou ouvrir son système.
 signal fleet_requested(fleet_id: int)
 signal fleet_system_requested(fleet_id: int)
+## Navigateur : aller à un système (open : l'ouvrir), ou à ce qui attend une décision.
+signal nav_system_requested(system_id: int, open: bool)
+signal todo_requested(item: Dictionary)
+## Lien « Système : … » de la fiche de flotte : passer à la fiche du système où elle se trouve.
+signal fleet_place_requested(fleet_id: int)
 ## Bouton « flottes inactives » : passer à la prochaine flotte qui attend des ordres.
 signal idle_fleet_requested
 ## Clic sur une pastille de la barre d'alertes (voir AlertBar).
@@ -79,6 +84,17 @@ const LENS_TIPS := {
 	"sensors": "La couverture de vos senseurs (furtivité).  (W, deux fois)",
 }
 
+## Ordres de flotte par groupe (refonte, B3) : identifiant, titre, ordres. Tout ordre absent d'ici va
+## dans « Autres ordres ».
+## Rangées de composition affichées avant de résumer le reste.
+const FLEET_ROWS_MAX := 6
+const FLEET_GROUPS := [
+	["move", "Déplacement", ["explore", "patrol", "guard", "stop"]],
+	["here", "Sur place", ["colonize", "embark", "disembark", "requisition", "bomb", "invade"]],
+	["conduct", "Conduite", ["stance", "posture", "tactic"]],
+	["more", "Autres ordres", []],
+]
+
 var bar: EmpireBar
 var dial: TimeDial
 var turn_players: TurnPlayersPanel
@@ -97,6 +113,13 @@ var _legend_box: VBoxContainer
 ## Boutons de palier de zoom, à gauche du cadran.
 var tier_buttons: Array[Button] = []
 var _tier_box: VBoxContainer
+var _fleet_comp: VBoxContainer
+var fleet_place_link: LinkButton
+var _fleet_comp_sig := ""
+var _fleet_group_heads := {}
+var _fleet_group_boxes := {}
+var _fleet_more_button: Button
+var _fleet_more_open := false
 var _tab_orbit: Button
 var _tab_manage: Button
 var _info_panel: PanelContainer
@@ -851,15 +874,49 @@ func _build_fleet_card() -> void:
 	inner.add_child(_fleet_kind)
 	_fleet_status = UiTheme.paragraph("", CARD_WIDTH - 26.0, 14)
 	inner.add_child(_fleet_status)
+	fleet_place_link = LinkButton.new()
+	fleet_place_link.focus_mode = Control.FOCUS_NONE
+	fleet_place_link.underline = LinkButton.UNDERLINE_MODE_ON_HOVER
+	fleet_place_link.add_theme_font_size_override("font_size", 13)
+	fleet_place_link.tooltip_text = "Passer à la fiche de ce système"
+	fleet_place_link.pressed.connect(func() -> void: fleet_place_requested.emit(_fleet_id))
+	inner.add_child(fleet_place_link)
 	_fleet_stats = UiTheme.dim("", 13)
 	_fleet_stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_fleet_stats.custom_minimum_size = Vector2(CARD_WIDTH - 26.0, 0)
 	inner.add_child(_fleet_stats)
-	var grid := GridContainer.new()
-	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 4)
-	grid.add_theme_constant_override("v_separation", 4)
-	inner.add_child(grid)
+	# Composition (refonte, B3) : une rangée par classe, avec sa silhouette, son nombre et l'état des coques.
+	_fleet_comp = VBoxContainer.new()
+	_fleet_comp.add_theme_constant_override("separation", 2)
+	inner.add_child(_fleet_comp)
+	# Ordres rangés par usage ; les plus rares attendent derrière « Autres ordres ».
+	var grids := {}
+	for gdef: Array in FLEET_GROUPS:
+		var gid := String(gdef[0])
+		var box := VBoxContainer.new()
+		box.add_theme_constant_override("separation", 4)
+		if gid == "more":
+			_fleet_more_button = Button.new()
+			_fleet_more_button.focus_mode = Control.FOCUS_NONE
+			_fleet_more_button.toggle_mode = true
+			_fleet_more_button.theme_type_variation = &"BarButton"
+			_fleet_more_button.tooltip_text = "Les ordres dont on se sert rarement : ralliement, abordage, prises, balise, rassembler, détacher, rapport, remise à niveau."
+			_fleet_more_button.pressed.connect(func() -> void:
+				_fleet_more_open = not _fleet_more_open
+				_refresh_fleet_groups())
+			inner.add_child(_fleet_more_button)
+		else:
+			var head := UiTheme.section(String(gdef[1]))
+			inner.add_child(head)
+			_fleet_group_heads[gid] = head
+		inner.add_child(box)
+		var gg := GridContainer.new()
+		gg.columns = 2
+		gg.add_theme_constant_override("h_separation", 4)
+		gg.add_theme_constant_override("v_separation", 4)
+		box.add_child(gg)
+		grids[gid] = gg
+		_fleet_group_boxes[gid] = box
 	for a in [["explore", "EXPLORATION AUTO", "La flotte part seule vers les systèmes inexplorés les plus proches, et continue jusqu'à ce qu'il n'y en ait plus  (E)"],
 			["colonize", "COLONISER ICI", "Ouvrir le système pour choisir la planète où fonder la revendication"],
 			["stop", "ARRÊTER", "S'arrêter au système le plus proche sur la route"],
@@ -893,16 +950,124 @@ func _build_fleet_card() -> void:
 			b.toggle_mode = true
 		var action: String = a[0]
 		b.pressed.connect(func() -> void: fleet_action_requested.emit(action, _fleet_id))
-		# Tactique et invasion prennent toute la largeur, sous la grille.
+		var group := fleet_group_of(action)
+		# Tactique et invasion prennent toute la largeur, sous la grille de leur groupe.
 		if action == "tactic" or action == "invade" or action == "refit" or action == "bomb":
 			b.clip_text = true
-			inner.add_child(b)
+			(_fleet_group_boxes[group] as VBoxContainer).add_child(b)
 		else:
-			grid.add_child(b)
+			(grids[group] as GridContainer).add_child(b)
 		_fleet_buttons[action] = b
 	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte (Maj : patrouiller).  F : flotte suivante.  I : flotte inactive suivante.  T : tactique.", CARD_WIDTH - 26.0, 12)
 	_fleet_hint.theme_type_variation = &"Dim"
 	inner.add_child(_fleet_hint)
+
+
+## Groupe d'un ordre de flotte (voir FLEET_GROUPS) ; « more » pour ceux qui n'y sont pas nommés.
+static func fleet_group_of(action: String) -> String:
+	for gdef: Array in FLEET_GROUPS:
+		if (gdef[2] as Array).has(action):
+			return String(gdef[0])
+	return "more"
+
+
+## Un titre de groupe ne s'affiche que si un de ses ordres est offert ; « Autres ordres » dit combien
+## il en cache.
+func _refresh_fleet_groups() -> void:
+	for gdef: Array in FLEET_GROUPS:
+		var gid := String(gdef[0])
+		var n := 0
+		for action: String in _fleet_buttons:
+			if fleet_group_of(action) == gid and (_fleet_buttons[action] as Button).visible:
+				n += 1
+		var box: VBoxContainer = _fleet_group_boxes[gid]
+		if gid == "more":
+			_fleet_more_button.visible = n > 0
+			_fleet_more_button.text = "AUTRES ORDRES (%d)  %s" % [n, "▴" if _fleet_more_open else "▾"]
+			_fleet_more_button.set_pressed_no_signal(_fleet_more_open)
+			box.visible = n > 0 and _fleet_more_open
+			# La fiche ne doit pas sortir de l'écran : le détail s'efface le temps de choisir un ordre rare.
+			_fleet_comp.visible = not box.visible
+			_fleet_stats.visible = not box.visible
+			_fleet_hint.visible = _fleet_hint.visible and not box.visible
+		else:
+			(_fleet_group_heads[gid] as Control).visible = n > 0
+			box.visible = n > 0
+
+
+## Composition d'une flotte, classe par classe : [{ship, label, n, hp, max}], la plus solide d'abord.
+## Les marques successives d'une même classe (Frégate Mk 2, Mk 3) comptent ensemble.
+static func fleet_rows(f: Fleet) -> Array[Dictionary]:
+	var by := {}
+	var mark := RegEx.create_from_string("\\s+Mk\\s*\\d+$")
+	for i in f.ships.size():
+		var id := String(f.ships[i])
+		var label := mark.sub(String(GameData.ship(id).get("label", id)), "")
+		if not by.has(label):
+			by[label] = {"ship": id, "label": label, "n": 0, "hp": 0, "max": 0}
+		var m := Fleet.max_hp_of(id)
+		by[label]["n"] += 1
+		by[label]["max"] += m
+		by[label]["hp"] += clampi(f.hp[i], 0, m) if i < f.hp.size() and f.hp[i] >= 0 else m
+	var out: Array[Dictionary] = []
+	for label: String in by:
+		out.append(by[label])
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var ma := Fleet.max_hp_of(String(a["ship"]))
+		var mb := Fleet.max_hp_of(String(b["ship"]))
+		return ma > mb or (ma == mb and String(a["ship"]) < String(b["ship"])))
+	return out
+
+
+func _refresh_fleet_comp(f: Fleet, owner: Empire) -> void:
+	var rows := fleet_rows(f)
+	var sig := "%d|%s" % [f.owner, str(rows)]
+	if sig == _fleet_comp_sig:
+		return
+	_fleet_comp_sig = sig
+	for c in _fleet_comp.get_children():
+		_fleet_comp.remove_child(c)
+		c.queue_free()
+	var style := SpeciesLook.hull_style(owner.faction_id) if owner != null else ""
+	var catalog := GameData.ship_ids()
+	for k in rows.size():
+		var r: Dictionary = rows[k]
+		if k >= FLEET_ROWS_MAX and rows.size() > FLEET_ROWS_MAX + 1:
+			var rest := 0
+			for j in range(k, rows.size()):
+				rest += int(rows[j]["n"])
+			_fleet_comp.add_child(UiTheme.dim("et %d autres vaisseaux de %d classes" % [rest, rows.size() - k], 13))
+			break
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		var slot := Control.new()
+		slot.custom_minimum_size = Vector2(26, 22)
+		row.add_child(slot)
+		if catalog.has(r["ship"]) and owner != null:
+			var pic := TextureRect.new()
+			pic.texture = HullArt.icon(style, String(r["ship"]), owner.color())
+			pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			pic.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			slot.add_child(pic)
+		var name_label := Label.new()
+		name_label.text = "%s × %d" % [r["label"], int(r["n"])] if int(r["n"]) > 1 else String(r["label"])
+		name_label.add_theme_font_size_override("font_size", 14)
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		name_label.clip_text = true
+		row.add_child(name_label)
+		var pct := int(r["hp"]) * 100 / maxi(1, int(r["max"]))
+		var bar := ProgressBar.new()
+		bar.custom_minimum_size = Vector2(90, 8)
+		bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		bar.show_percentage = false
+		bar.max_value = 100
+		bar.value = pct
+		bar.tooltip_text = "Coque : %d sur %d" % [int(r["hp"]), int(r["max"])]
+		bar.modulate = Color(0.45, 0.85, 0.55) if pct >= 67 else (Color(0.95, 0.75, 0.35) if pct >= 34 else Color(0.93, 0.42, 0.38))
+		row.add_child(bar)
+		_fleet_comp.add_child(row)
 
 
 func _refresh_fleet_card() -> void:
@@ -922,6 +1087,11 @@ func _refresh_fleet_card() -> void:
 	_fleet_title.text = f.fleet_name
 	_fleet_title.add_theme_color_override("font_color", owner.color().lightened(0.35))
 	_fleet_kind.text = Fleets.composition(f) if mine else "%s  ·  %s" % [owner.short_name(), Fleets.composition(f)]
+	# Les rangées de composition disent la même chose, en mieux : la ligne ne reste que pour nommer l'empire.
+	_fleet_kind.visible = not mine
+	if not mine:
+		_fleet_kind.text = owner.short_name()
+	_refresh_fleet_comp(f, owner)
 	if f.is_exploring() and mine:
 		var eta := Fleets.eta_days(_state, f)
 		_fleet_status.text = "Exploration automatique : cap sur %s (%d jour%s)." % [_system_label(f.destination()), eta, "s" if eta > 1 else ""] \
@@ -1128,6 +1298,9 @@ func _refresh_fleet_card() -> void:
 	_fleet_buttons["report"].visible = mine and armed
 	_fleet_buttons["report"].disabled = last_report(_state, _player).is_empty()
 	_fleet_hint.visible = mine
+	fleet_place_link.visible = not f.is_moving() and Fleets.is_explored(_state, _player, f.system_id)
+	fleet_place_link.text = "Système : %s" % _system_label(f.system_id)
+	_refresh_fleet_groups()
 
 
 ## Régiments à bord d'une flotte (combat au sol complet) : nombre, places, force.
@@ -1231,6 +1404,8 @@ func _build_fleet_list() -> void:
 	add_child(fleet_list)
 	fleet_list.fleet_requested.connect(func(fid: int) -> void: fleet_requested.emit(fid))
 	fleet_list.fleet_system_requested.connect(func(fid: int) -> void: fleet_system_requested.emit(fid))
+	fleet_list.system_requested.connect(func(sid: int, open: bool) -> void: nav_system_requested.emit(sid, open))
+	fleet_list.todo_requested.connect(func(item: Dictionary) -> void: todo_requested.emit(item))
 	# La liste se range juste sous la chronique, dont la hauteur suit la longueur du texte.
 	_chronicle.resized.connect(_place_fleet_list)
 	_place_fleet_list()
@@ -1390,7 +1565,10 @@ func _refresh_card() -> void:
 	if _info_panel == null:
 		return
 	var id := card_system()
-	if _state == null or id < 0 or _system_mode or _empire_screen:
+	# Une seule fiche à la fois (refonte, A5) : une flotte choisie garde la sienne ; celle d'un système
+	# ne revient que le temps d'un survol, pour voir où l'on envoie la flotte.
+	var fleet_shown := _fleet_panel != null and _fleet_panel.visible and _hover_id < 0
+	if _state == null or id < 0 or _system_mode or _empire_screen or fleet_shown:
 		_info_panel.visible = false
 		return
 	_info_panel.visible = true

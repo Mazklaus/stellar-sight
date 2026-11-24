@@ -25,14 +25,16 @@ Sélectionnez une flotte d'un clic sur son insigne (ou [[F]] et [[Maj]]+[[F]] po
 
 **Le point de ralliement.** Le bouton **Ralliement ici** d'une flotte armée à l'arrêt fait de son système le point de ralliement de vos chantiers : chaque vaisseau armé neuf s'y rend de lui-même. Un second clic l'enlève.
 
-La fiche de flotte, en bas à gauche, permet aussi de **rassembler** les flottes à l'arrêt dans un même système, d'en **détacher** un vaisseau, de **coloniser** avec un vaisseau colon et de mettre la flotte en **patrouille** ([[Maj]]+clic droit) entre deux systèmes.
+La **fiche de flotte**, en bas à gauche, montre la composition classe par classe : la silhouette, le nombre de vaisseaux (les marques successives d'une classe comptent ensemble) et une barre pour l'état des coques, verte, ambre ou rouge. Les ordres y sont rangés par usage : **Déplacement** (exploration, patrouille, garde, arrêt), **Sur place** (coloniser, embarquer, déposer, bombarder, envahir, selon ce que le système permet), **Conduite** (consigne, posture, tactique). Les ordres dont on se sert rarement attendent derrière **Autres ordres**. Tant qu'une flotte est choisie, sa fiche est la seule affichée : celle d'un système ne revient que le temps d'un survol, et le lien « Système : … » y mène.
+
+La fiche de flotte permet aussi de **rassembler** les flottes à l'arrêt dans un même système, d'en **détacher** un vaisseau, de **coloniser** avec un vaisseau colon et de mettre la flotte en **patrouille** ([[Maj]]+clic droit) entre deux systèmes.
 
 ::: capture docs/apercu-flottes-liste.png|Liste des flottes et exploration automatique
 :::
 
 ### Ne perdre aucune flotte de vue
 
-La **liste des flottes**, à droite sous la chronique, montre toutes vos flottes et leur état : en route, en exploration, en attente d'ordres. Le bouton des **flottes inactives**, au-dessus du cadran, et la touche [[I]] amènent à la prochaine flotte qui attend vos ordres.
+L'onglet **Flottes** du navigateur, à droite sous la chronique, montre toutes vos flottes et leur état : en route, en exploration, en attente d'ordres. Le bouton des **flottes inactives**, au-dessus du cadran, et la touche [[I]] amènent à la prochaine flotte qui attend vos ordres.
 
 L'**exploration automatique** ([[E]]) est un ordre permanent : la flotte vise le système pas encore reconnu le plus proche, change de cible si un autre de vos vaisseaux y est passé entre-temps, évite celles qu'un autre explorateur vise déjà, et s'arrête quand il n'y a plus rien à atteindre. Un ordre manuel la coupe.
 

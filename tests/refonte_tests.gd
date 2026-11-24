@@ -14,6 +14,7 @@ func run(check: Callable) -> void:
 	_test_lenses()
 	_test_alerts()
 	_test_map()
+	_test_fleet_card()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -162,3 +163,56 @@ func _test_map() -> void:
 		_ok((far_pos[ids[0]] as Vector2).x < c.x and (far_pos[ids[5]] as Vector2).x > c.x and view.overflow_fleets(home).is_empty(),
 				"palier Galaxie : tirets à gauche et à droite de l'étoile")
 	view.queue_free()
+
+
+func _test_fleet_card() -> void:
+	# Fiche de flotte (B3) : groupes d'ordres et rangées de composition.
+	_ok(Hud.fleet_group_of("patrol") == "move" and Hud.fleet_group_of("invade") == "here" and Hud.fleet_group_of("tactic") == "conduct"
+			and Hud.fleet_group_of("merge") == "more", "les ordres sont rangés par usage, les rares dans « Autres ordres »")
+	var f := Fleet.new()
+	f.add_ship("scout")
+	f.add_ship("colony_ship")
+	f.add_ship("colony_ship")
+	f.hp[f.ships.find("scout")] = 1
+	var rows := Hud.fleet_rows(f)
+	var total := 0
+	for r: Dictionary in rows:
+		total += int(r["n"])
+	_ok(rows.size() == 2 and total == 3, "composition : une rangée par classe (%s)" % str(rows))
+	var scout_row: Dictionary = rows[0] if String(rows[0]["ship"]) == "scout" else rows[1]
+	_ok(int(scout_row["hp"]) == 1 and int(scout_row["max"]) == Fleet.max_hp_of("scout"), "composition : état des coques par classe")
+
+	# Navigateur (A4) : colonies, chantiers, à faire.
+	var st := GameState.create(11)
+	var me := st.get_empire(0)
+	var home := st.galaxy.get_planet(me.capital_planet).system_id
+	var cols := FleetListPanel.colony_rows(st, 0)
+	_ok(cols.size() >= 1 and int(cols[0]["planets"]) >= 1 and cols.any(func(r: Dictionary) -> bool: return int(r["sid"]) == home), "navigateur : la colonie d'origine est listée")
+	_ok(FleetListPanel.colony_rows(st, 99).is_empty() and FleetListPanel.yard_rows(st, 99).is_empty(), "navigateur : rien pour un empire absent")
+	var cap: Colony = st.colonies[me.capital_planet]
+	var before := FleetListPanel.yard_rows(st, 0).size()
+	if cap.ship_build == "":
+		cap.ship_build = "scout"
+		cap.ship_days = 7
+		var yards := FleetListPanel.yard_rows(st, 0)
+		_ok(yards.size() == before + 1 and yards.any(func(r: Dictionary) -> bool: return int(r["days"]) == 7 and int(r["sid"]) == home), "navigateur : un vaisseau en chantier est listé avec son délai")
+	var panel := FleetListPanel.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(panel)
+	panel.set_state(st, 0)
+	_ok(panel.tab == "fleets" and panel.tab_buttons.size() == 4, "navigateur : quatre onglets, Flottes d'abord")
+	me.research_queue.clear()
+	panel.set_tab("todo")
+	var got := []
+	panel.todo_requested.connect(func(item: Dictionary) -> void: got.append(item["kind"]))
+	_ok(panel.alt_buttons.size() == TurnChecks.todo(st, 0).size() and not panel.alt_buttons.is_empty(), "navigateur : « À faire » liste ce qui attend")
+	_ok((panel.tab_buttons["todo"] as Button).text.begins_with("À FAIRE ("), "navigateur : l'onglet « À faire » porte son compte")
+	panel.alt_buttons[0].pressed.emit()
+	_ok(got.size() == 1, "navigateur : un clic mène à ce qui attend")
+	panel.set_tab("colonies")
+	var went := []
+	panel.system_requested.connect(func(sid: int, open: bool) -> void: went.append([sid, open]))
+	panel.alt_buttons[0].pressed.emit()
+	_ok(panel.alt_buttons.size() == cols.size() and went.size() == 1 and went[0][1] == false, "navigateur : un clic sur une colonie centre la carte")
+	panel.set_tab("fleets")
+	_ok(panel.row_count() == Fleets.empire_fleets(st, 0).size(), "navigateur : retour à la liste des flottes")
+	panel.queue_free()

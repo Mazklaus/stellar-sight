@@ -9,7 +9,7 @@ L'écran principal montre la carte de la galaxie. Tout ce qui sert à gouverner 
 ::: capture docs/apercu-interface.png|La carte galactique
 1 12 8 Le **panneau d'empire** : les menus d'empire, votre peuple, vos ressources avec leur bilan mensuel, et une ligne d'état.
 2 50 2 Les **onglets de vue** : Vue galaxie, le sélecteur de lentilles, et Gestion du système quand un système est ouvert.
-3 88 5 Le **panneau de droite** : la chronique galactique, les quêtes suivies et la liste des flottes. Sa languette le réduit à une barre d'alertes.
+3 88 5 Le **panneau de droite** : la chronique galactique, les quêtes suivies et le navigateur (flottes, colonies, chantiers, à faire). Sa languette le réduit à une barre d'alertes.
 4 6 80 La **fiche de sélection** : le système survolé ou choisi, ses planètes, et le bouton pour y entrer.
 5 54 46 Un **système** : son nom, une pastille par planète, un cartouche à la couleur de son propriétaire.
 6 94 90 Le **cadran du temps** : pause au centre, la date dessous, la vitesse sur l'arc. Au tour par tour, il devient Fin de tour.
@@ -35,7 +35,7 @@ Une lentille assombrit la carte et n'en garde qu'une lecture. La **lentille éco
 
 ### Le panneau de droite et ses alertes
 
-La chronique, les quêtes suivies et la liste des flottes occupent le bord droit de la carte. La languette à leur gauche (ou la touche [[²]]) les replie en une **barre d'alertes** étroite, qui dégage la vue et ne garde que ce qui demande votre attention : les décisions en attente, un combat ou un siège qui vous concerne, vos routes commerciales bloquées, vos quêtes en cours. Chaque pastille porte un compte ; un clic mène à ce qu'elle signale. Le jeu se souvient du choix d'une partie à l'autre.
+La chronique, les quêtes suivies et le **navigateur** occupent le bord droit de la carte. Le navigateur a quatre onglets : **Flottes** (toutes vos flottes et leur état), **Colonies** (vos systèmes, leurs planètes et leur population), **Chantiers** (ce qui se construit, le plus proche de la fin d'abord, avec le délai en jours) et **À faire** (ce qui attend une décision, le même compte que l'avertissement de fin de tour). Un clic centre la carte ou mène à l'écran concerné, un double-clic ouvre le système. La languette à leur gauche (ou la touche [[²]]) les replie en une **barre d'alertes** étroite, qui dégage la vue et ne garde que ce qui demande votre attention : les décisions en attente, un combat ou un siège qui vous concerne, vos routes commerciales bloquées, vos quêtes en cours. Chaque pastille porte un compte ; un clic mène à ce qu'elle signale. Le jeu se souvient du choix d'une partie à l'autre.
 
 ### La vue système
 

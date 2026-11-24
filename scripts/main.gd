@@ -155,6 +155,18 @@ func _ready() -> void:
 		if f:
 			open_system_view(f.system_id if not f.is_moving() else f.next_system()))
 	_hud.idle_fleet_requested.connect(func() -> void: cycle_idle_fleet(1))
+	_hud.todo_requested.connect(_go_to_todo)
+	_hud.nav_system_requested.connect(func(sid: int, open: bool) -> void:
+		if open:
+			open_system_view(sid)
+		else:
+			select_fleet(-1)
+			_go_to_system(sid))
+	_hud.fleet_place_requested.connect(func(fid: int) -> void:
+		var f: Fleet = simulation.state.fleets.get(fid)
+		if f:
+			select_fleet(-1)
+			_select(f.system_id))
 	_hud.alert_requested.connect(_on_alert)
 	_hud.lens_changed.connect(func(l: String) -> void:
 		_view.lens = l
