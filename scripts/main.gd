@@ -75,6 +75,8 @@ var announce: AnnounceCenter
 var _pending_ui := {}
 ## Fin de tour demandée alors que des décisions attendent : un second appui confirme (prop. 28).
 var _turn_warned_at := -1
+## Points de fin de tour que le joueur a déjà passés outre (texte -> true ; voir TurnChecks).
+var _turn_overridden := {}
 ## Fenêtre d'élection (voir Politics) : dernière élection du joueur déjà montrée, pause qu'elle a mise.
 var _election_panel: ElectionPanel
 var _election_told := -1
@@ -151,6 +153,7 @@ func _ready() -> void:
 		if f:
 			open_system_view(f.system_id if not f.is_moving() else f.next_system()))
 	_hud.idle_fleet_requested.connect(func() -> void: cycle_idle_fleet(1))
+	_hud.alert_requested.connect(_on_alert)
 	_hud.lens_changed.connect(func(l: String) -> void:
 		_view.lens = l
 		_view.queue_redraw())
@@ -532,6 +535,16 @@ func toggle_empire_screen(screen_id: String) -> void:
 	_update_map_input()
 
 
+## Ouvre une adresse de domaine (« chronicles:events », « trade:routes » ; voir UiDomains).
+func open_address(addr: String) -> void:
+	UiDomains.apply_sub(_empire_screens, addr)
+	var screen := UiDomains.screen_of(addr)
+	if _empire_screens.is_open():
+		_empire_screens.show_screen(screen)
+	else:
+		toggle_empire_screen(screen)
+
+
 ## Ouvre un domaine (F1 à F8) là où on l'avait laissé, ou le ferme s'il est déjà affiché.
 func toggle_domain(d: int) -> void:
 	var st: GameState = simulation.state if simulation else null
@@ -723,15 +736,54 @@ func _announce_blocked() -> bool:
 ## Espace et le centre du cadran. Au tour par tour, finir le tour alors que des décisions attendent
 ## demande un second appui (prop. 28 de l'étude de la fenêtre d'événement).
 func toggle_pause_or_turn() -> void:
-	if GameClock.would_end_turn() and announce != null and not announce.decisions().is_empty():
+	if GameClock.would_end_turn() and not spectator and simulation != null and UiSettings.turn_warn_todo:
+		# Un point déjà signalé et passé outre ne revient pas tant qu'il ne change pas (chantiers libres en fin de partie).
+		var todo: Array[Dictionary] = []
+		for item: Dictionary in TurnChecks.todo(simulation.state, local_player):
+			if not _turn_overridden.has(String(item["text"])):
+				todo.append(item)
 		var now := Time.get_ticks_msec()
-		if _turn_warned_at < 0 or now - _turn_warned_at > 4000:
+		if not todo.is_empty() and (_turn_warned_at < 0 or now - _turn_warned_at > 4000):
 			_turn_warned_at = now
-			var n: int = announce.decisions().size()
-			_hud.notify("%d décision%s en attente (colonne de droite). Appuyez de nouveau pour finir le tour." % [n, "s" if n > 1 else ""], "bad")
+			var first: Dictionary = todo[0]
+			_hud.notify("Avant de finir le tour : %s. Appuyez de nouveau pour le finir quand même." % TurnChecks.summary(todo), "bad",
+					func() -> void: _go_to_todo(first), 6.0)
 			return
+		var kept := {}
+		for item: Dictionary in TurnChecks.todo(simulation.state, local_player):
+			if String(item["kind"]) != "decisions":
+				kept[String(item["text"])] = true
+		_turn_overridden = kept
 	_turn_warned_at = -1
 	GameClock.toggle_pause()
+
+
+## Clic sur une pastille de la barre d'alertes (voir AlertBar).
+func _on_alert(kind: String, arg: int) -> void:
+	match kind:
+		"decisions":
+			open_address("chronicles:events")
+		"quest":
+			open_address("chronicles:quests")
+		"routes":
+			open_address("trade:routes")
+		"battle":
+			_go_to_system(arg)
+
+
+## Mène à ce qu'un point de TurnChecks.todo signale.
+func _go_to_todo(item: Dictionary) -> void:
+	match String(item["kind"]):
+		"decisions":
+			open_address("chronicles:events")
+		"diplomacy":
+			open_address("diplomacy")
+		"research":
+			open_address("research")
+		"build":
+			open_system_view(int(item["arg"]))
+		"fleet":
+			cycle_idle_fleet(1)
 
 
 # --- Événements -------------------------------------------------------------------------------
@@ -1390,6 +1442,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				_hud.battle_replay.hide_replay()
 			elif _hud.battle_report.visible:
 				_hud.battle_report.hide_report()
+			elif _hud.close_lens_panel():
+				pass
 			elif is_empire_screen_open():
 				close_empire_screen()
 			elif is_system_view_open():
@@ -1448,6 +1502,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				return
 			if key.physical_keycode == KEY_H:
 				go_to_capital()
+				return
+			if key.physical_keycode == KEY_QUOTELEFT and not is_system_view_open() and not is_empire_screen_open():
+				_hud.set_side_reduced(not _hud.side_reduced)
 				return
 			if key.physical_keycode == KEY_J:
 				toggle_empire_screen("chronicles")

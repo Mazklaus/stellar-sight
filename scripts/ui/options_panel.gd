@@ -21,6 +21,7 @@ var _auto_pause: Button
 var _stop_intrusion: Button
 var _stop_war: Button
 var _stop_events: Button
+var _warn_todo: Button
 var _silhouettes: Button
 var _detail: Button
 var _scale_b: Button
@@ -113,6 +114,11 @@ func _ready() -> void:
 	_stop_events = _toggle_row(game, "Un événement attend votre choix",
 			"Le tour s'arrête quand un événement à choix arrive.", func() -> void:
 		UiSettings.turn_stop_events = not UiSettings.turn_stop_events
+		UiSettings.save_settings()
+		sync())
+	_warn_todo = _toggle_row(game, "Prévenir avant la fin du tour",
+			"Avant de finir le tour, le jeu signale ce qui attend encore : décisions, propositions, recherche vide, chantiers libres, flottes sans ordres. Une seconde pression finit le tour quand même.", func() -> void:
+		UiSettings.turn_warn_todo = not UiSettings.turn_warn_todo
 		UiSettings.save_settings()
 		sync())
 	game.add_child(UiTheme.section("Infobulles et glossaire"))
@@ -211,6 +217,7 @@ func sync() -> void:
 	_set_toggle(_stop_intrusion, UiSettings.turn_stop_intrusion)
 	_set_toggle(_stop_war, UiSettings.turn_stop_war)
 	_set_toggle(_stop_events, UiSettings.turn_stop_events)
+	_set_toggle(_warn_todo, UiSettings.turn_warn_todo)
 	_set_toggle(_silhouettes, UiSettings.fleet_silhouettes)
 	_scale.text = "%d %%" % roundi(UiSettings.ui_scale * 100.0)
 	_detail.text = String(GameData.battle_visuals().get("detail", {}).get("labels", {}).get(UiSettings.replay_detail, UiSettings.replay_detail))

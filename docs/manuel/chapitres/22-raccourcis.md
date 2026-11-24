@@ -15,6 +15,7 @@ etiquette: Annexe
 | Ouvrir la vue système | Double-clic, ou [[Entrée]] |
 | Système suivant, précédent de l'empire | [[Tab]], [[Maj]]+[[Tab]] |
 | Revenir à la capitale | [[H]] |
+| Réduire ou rouvrir le panneau de droite | [[²]] |
 | Se déplacer | Clic droit glissé, [[Z]] [[Q]] [[S]] [[D]] ou flèches |
 | Zoomer | Molette |
 | Revenir en arrière, menu du jeu | [[Échap]] |

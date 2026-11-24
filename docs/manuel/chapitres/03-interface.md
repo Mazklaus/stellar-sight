@@ -8,8 +8,8 @@ L'écran principal montre la carte de la galaxie. Tout ce qui sert à gouverner 
 
 ::: capture docs/apercu-interface.png|La carte galactique
 1 12 8 Le **panneau d'empire** : les menus d'empire, votre peuple, vos ressources avec leur bilan mensuel, et une ligne d'état.
-2 50 2 Les **onglets de vue** : Vue galaxie, lentilles, et Gestion du système quand un système est ouvert.
-3 88 5 La **chronique galactique** : les dernières nouvelles, racontées par le chroniqueur.
+2 50 2 Les **onglets de vue** : Vue galaxie, le sélecteur de lentilles, et Gestion du système quand un système est ouvert.
+3 88 5 Le **panneau de droite** : la chronique galactique, les quêtes suivies et la liste des flottes. Sa languette le réduit à une barre d'alertes.
 4 6 80 La **fiche de sélection** : le système survolé ou choisi, ses planètes, et le bouton pour y entrer.
 5 54 46 Un **système** : son nom, une pastille par planète, un cartouche à la couleur de son propriétaire.
 6 94 90 Le **cadran du temps** : pause au centre, la date dessous, la vitesse sur l'arc. Au tour par tour, il devient Fin de tour.
@@ -23,7 +23,13 @@ Les **routes de saut** relient les systèmes. Les flottes ne voyagent que le lon
 
 ### Les lentilles
 
+Le bouton **Lentille**, en haut au centre, nomme la lentille en cours et ouvre le sélecteur. Les lentilles y sont rangées en cinq familles : **Territoires** (empires, frontières et passages, Assemblée), **Richesse** (économie, commerce, économie privée, spatioports), **Ordre** (stabilité, corruption, fiscalité, politique), **Peuples** (peuples, foi, Songe, rayonnement) et **Guerre** (guerre et occupations, senseurs). Une lentille dont le pilier n'est pas en jeu n'y figure pas, et la ligne du bas dit ce que montre celle qui est choisie. Les touches ci-dessous restent.
+
 Une lentille assombrit la carte et n'en garde qu'une lecture. La **lentille économique** ([[L]]) montre le bilan de chacun de vos systèmes par ressource. La lentille de **stabilité** ([[K]]) colore vos systèmes selon leur humeur. La lentille **politique** ([[O]]) montre le courant qui domine chaque système. La lentille du **commerce** ([[G]]) trace vos routes commerciales et le risque pirate le long du chemin. La lentille des **peuples** ([[U]]) cercle chaque système de la part de chaque espèce et nomme la majoritaire. La lentille de la **foi** ([[N]]) fait de même avec les croyances, et marque d'une étoile les mondes saints que vous connaissez. La lentille de l'**Amphictyonie** ([[X]]) cercle d'or les empires membres, de rouge les hors-la-loi, de gris ceux qui restent dehors, avec les voix de chacun à sa capitale. Avec l'option Frontières, la lentille des **frontières** ([[A]]) colore chaque système étranger selon votre droit de passage (chapitre 8).
+
+### Le panneau de droite et ses alertes
+
+La chronique, les quêtes suivies et la liste des flottes occupent le bord droit de la carte. La languette à leur gauche (ou la touche [[²]]) les replie en une **barre d'alertes** étroite, qui dégage la vue et ne garde que ce qui demande votre attention : les décisions en attente, un combat ou un siège qui vous concerne, vos routes commerciales bloquées, vos quêtes en cours. Chaque pastille porte un compte ; un clic mène à ce qu'elle signale. Le jeu se souvient du choix d'une partie à l'autre.
 
 ### La vue système
 

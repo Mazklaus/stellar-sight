@@ -881,8 +881,15 @@ func _test_navigation_ui(main: Node) -> void:
 	# Au tour par tour, le centre du cadran termine le tour.
 	clock.set_mode(clock.MODE_TURNS, 5)
 	var d0: int = clock.day
+	# La fin de tour prévient d'abord de ce qui attend (refonte, A6), puis une seconde pression finit le tour.
+	main.simulation.state.get_empire(main.local_player).research_queue.clear()
+	main._turn_overridden = {}
+	main._turn_warned_at = -1
+	dial.pause_toggled.emit()
+	_check(not clock.is_resolving_turn() and "Avant de finir le tour" in "\n".join(hud.toast_texts()), "fin de tour : avertissement de ce qui attend")
 	dial.pause_toggled.emit()
 	_check(clock.is_resolving_turn(), "cadran au tour par tour : fin de tour")
+	_check(not main._turn_overridden.is_empty(), "fin de tour : un point écarté ne reviendra pas")
 	dial.speed_requested.emit(0)
 	for _i in 60:
 		await process_frame

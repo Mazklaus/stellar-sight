@@ -26,6 +26,8 @@ signal fleet_requested(fleet_id: int)
 signal fleet_system_requested(fleet_id: int)
 ## Bouton « flottes inactives » : passer à la prochaine flotte qui attend des ordres.
 signal idle_fleet_requested
+## Clic sur une pastille de la barre d'alertes (voir AlertBar).
+signal alert_requested(kind: String, arg: int)
 
 const MARGIN := 10.0
 const CARD_WIDTH := 320.0
@@ -44,21 +46,46 @@ const STAR_LORE := {
 	"black_hole": "Rien ne s'en échappe, pas même les excuses. On y trouve pourtant des cristaux de saut.",
 }
 
+## Lentilles de la carte, rangées en cinq familles (refonte, A3) : [famille, [[identifiant, nom], …]].
+const LENS_FAMILIES := [
+	["Territoires", [["", "Empires"], ["borders", "Frontières et passages"], ["amph", "Assemblée"]]],
+	["Richesse", [["economy", "Économie"], ["trade", "Commerce"], ["private", "Économie privée"], ["ports", "Spatioports"]]],
+	["Ordre", [["stability", "Stabilité"], ["corruption", "Corruption"], ["fiscal", "Fiscalité"], ["politics", "Politique"]]],
+	["Peuples", [["peoples", "Peuples"], ["faith", "Foi"], ["psionics", "Songe"], ["culture", "Rayonnement"]]],
+	["Guerre", [["war", "Guerre et occupations"], ["sensors", "Senseurs"]]],
+]
+## Ce que montre chaque lentille (infobulle du bouton et ligne du panneau).
+const LENS_TIPS := {
+	"": "La carte des empires : à qui appartient chaque système.",
+	"borders": "Votre droit de passage chez chaque voisin (vert : vos flottes de guerre passent, ambre : vaisseaux sans armes seulement, rouge : frontière close) et les intrus chez vous.  (A ; Q en QWERTY)",
+	"amph": "Les empires membres de l'Amphictyonie (or), les hors-la-loi (rouge) et ceux qui restent dehors (gris), avec leurs voix.  (X)",
+	"economy": "Le bilan mensuel de chacun de vos systèmes.  (L)",
+	"trade": "Vos routes commerciales (couleur du traité, rouge si bloquée) et le risque pirate le long du chemin.  (G)",
+	"private": "L'économie privée : stations, cargos, filiales, repaires.  (G, deux fois)",
+	"ports": "Le réseau de distribution des spatioports : desserte, portées, liaisons.",
+	"stability": "La stabilité de chacun de vos systèmes, et les mondes libres.  (K)",
+	"corruption": "La corruption de chacun de vos systèmes (Administration).  (K, deux fois)",
+	"fiscal": "La fiscalité : franchises, grèves, fuite fiscale.",
+	"politics": "Le courant qui domine l'opinion de chacun de vos systèmes, et ses représentants au pouvoir ou non.  (O)",
+	"peoples": "La part de chaque espèce dans vos systèmes, et l'espèce majoritaire.  (U)",
+	"faith": "La part de chaque croyance dans vos systèmes, la majoritaire, et les mondes saints connus.  (N)",
+	"psionics": "Les sensitifs, les écrans, le Phare, l'ambre et les mondes hantés.  (U, deux fois)",
+	"culture": "Chez chaque empire, le palier de votre culture (gris Inconnu, bleu Exotique, vert Familier, or En vogue, orange Influent, rouge Dominant) ; chez vous, la culture étrangère dominante et les défections en cours.",
+	"war": "Les systèmes de vos ennemis (rouge), vos revendications (pointillé or), les systèmes occupés hachurés à la couleur de l'occupant.  (W ; Z en QWERTY)",
+	"sensors": "La couverture de vos senseurs (furtivité).  (W, deux fois)",
+}
+
 var bar: EmpireBar
 var dial: TimeDial
 var turn_players: TurnPlayersPanel
 var _tabs: HBoxContainer
 var _tab_galaxy: Button
-var _tab_economy: Button
-var _tab_stability: Button
-var _tab_politics: Button
-var _tab_trade: Button
-var _tab_peoples: Button
-var _tab_faith: Button
-var _tab_amph: Button
-var _tab_war: Button
-var _tab_borders: Button
-var _tab_culture: Button
+## Sélecteur de lentilles (refonte, A3) : un bouton qui nomme la lentille, et son panneau par familles.
+var _lens_button: Button
+var _lens_panel: PanelContainer
+var _lens_note: Label
+## Boutons du panneau, par identifiant de lentille ("" = la carte des empires).
+var lens_buttons := {}
 var _tab_orbit: Button
 var _tab_manage: Button
 var _info_panel: PanelContainer
@@ -91,6 +118,10 @@ var _fleet_stats: Label
 var _fleet_hint: Label
 var _fleet_buttons: Dictionary = {}
 var fleet_list: FleetListPanel
+## Panneau de droite réduit à une barre d'alertes (refonte, A4), et la languette qui bascule.
+var side_reduced := false
+var alert_bar: AlertBar
+var side_toggle: Button
 var idle_button: Button
 ## Mode spectateur : aucun ordre, le tableau des empires remplace la liste des flottes.
 var spectator := false
@@ -111,6 +142,7 @@ func _ready() -> void:
 	_build_quest_tracker()
 	_build_fleet_list()
 	_build_spectator_panel()
+	_build_side_toggle()
 	_build_dial()
 
 	_toasts = VBoxContainer.new()
@@ -145,12 +177,10 @@ func set_state(state: GameState, player: int) -> void:
 	_player = player
 	bar.set_state(state, player)
 	fleet_list.set_state(state, player)
+	alert_bar.set_state(state, player)
 	quest_tracker.set_state(state, player)
 	spectator_panel.set_state(state if spectator else null, player)
-	if _tab_borders:
-		_tab_borders.visible = not _system_mode and Borders.active(state)
-	if _tab_culture:
-		_tab_culture.visible = not _system_mode and Culture.enabled(state)
+	_refresh_lens_panel()
 	_hover_id = -1
 	show_system(null, state)
 
@@ -159,6 +189,8 @@ func set_state(state: GameState, player: int) -> void:
 func refresh() -> void:
 	bar.refresh()
 	fleet_list.refresh()
+	if alert_bar.visible:
+		alert_bar.refresh()
 	quest_tracker.refresh()
 	if spectator:
 		spectator_panel.refresh()
@@ -211,7 +243,8 @@ func show_system(s: StarSystem, state: GameState) -> void:
 func set_empire_screen_open(on: bool) -> void:
 	_empire_screen = on
 	_tabs.visible = not on
-	_chronicle.visible = not on
+	if on:
+		_lens_panel.visible = false
 	_place_toasts()
 	_refresh_side_visibility()
 	_refresh_fleet_card()
@@ -223,18 +256,9 @@ func set_system_mode(on: bool) -> void:
 	_system_mode = on
 	# Dans la vue système, « Vue galaxie » ramène à la carte ; la lentille laisse place aux deux vues du système.
 	_tab_galaxy.set_pressed_no_signal(not on and lens == "")
-	_tab_economy.visible = not on
-	_tab_stability.visible = not on
-	_tab_politics.visible = not on
-	_tab_trade.visible = not on
-	_tab_peoples.visible = not on
-	_tab_faith.visible = not on
-	_tab_amph.visible = not on
-	_tab_war.visible = not on
-	if _tab_borders:
-		_tab_borders.visible = not on and _state != null and Borders.active(_state)
-	if _tab_culture:
-		_tab_culture.visible = not on and _state != null and Culture.enabled(_state)
+	_lens_button.visible = not on
+	if on:
+		_lens_panel.visible = false
 	_tab_orbit.visible = on
 	_tab_manage.visible = on
 	if on:
@@ -426,19 +450,12 @@ func cycle_war_lens() -> void:
 func set_lens(value: String) -> void:
 	lens = value
 	_tab_galaxy.set_pressed_no_signal(value == "")
-	_tab_economy.set_pressed_no_signal(value == "economy")
-	_tab_stability.set_pressed_no_signal(value == "stability" or value == "corruption" or value == "fiscal")
-	_tab_politics.set_pressed_no_signal(value == "politics")
-	_tab_trade.set_pressed_no_signal(value == "trade" or value == "private" or value == "ports")
-	_tab_peoples.set_pressed_no_signal(value == "peoples" or value == "psionics")
-	_tab_faith.set_pressed_no_signal(value == "faith")
-	_tab_amph.set_pressed_no_signal(value == "amph")
-	if _tab_war:
-		_tab_war.set_pressed_no_signal(value == "war" or value == "sensors")
-	if _tab_borders:
-		_tab_borders.set_pressed_no_signal(value == "borders")
-	if _tab_culture:
-		_tab_culture.set_pressed_no_signal(value == "culture")
+	_lens_button.text = ("Lentille : %s" % lens_label(value)).to_upper()
+	_lens_button.set_pressed_no_signal(value != "")
+	for id: String in lens_buttons:
+		(lens_buttons[id] as Button).set_pressed_no_signal(id == value)
+	if _lens_note:
+		_lens_note.text = String(LENS_TIPS.get(value, ""))
 	lens_changed.emit(value)
 
 
@@ -463,27 +480,11 @@ func _build_tabs() -> void:
 			close_system_requested.emit()
 		else:
 			set_lens(""))
-	_tab_economy = _tab("Économie", "Lentille économique : bilan mensuel de chacun de vos systèmes, sur la carte  (L)")
-	_tab_economy.pressed.connect(func() -> void: set_lens("" if lens == "economy" else "economy"))
-	_tab_stability = _tab("Stabilité", "Lentille de stabilité : la stabilité de chacun de vos systèmes, et les mondes libres, sur la carte ; un second clic montre la corruption (Administration), puis la fiscalité (franchises, grèves, fuite fiscale)  (K)")
-	_tab_stability.pressed.connect(cycle_stability_lens)
-	_tab_politics = _tab("Politique", "Lentille politique : le courant qui domine l'opinion de chacun de vos systèmes, et ses représentants au pouvoir ou non  (O)")
-	_tab_politics.pressed.connect(func() -> void: set_lens("" if lens == "politics" else "politics"))
-	_tab_trade = _tab("Commerce", "Lentille du commerce : vos routes commerciales (couleur du traité, rouge si bloquée) et le risque pirate le long du chemin ; un second clic montre l'économie privée (stations, cargos, filiales, repaires), puis le réseau de distribution des spatioports (desserte, portées, liaisons)  (G)")
-	_tab_trade.pressed.connect(cycle_trade_lens)
-	_tab_peoples = _tab("Peuples", "Lentille des peuples : la part de chaque espèce dans vos systèmes, et l'espèce majoritaire ; deuxième clic : lentille psionique (pouvoirs psioniques en jeu)  (U)")
-	_tab_peoples.pressed.connect(cycle_peoples_lens)
-	_tab_faith = _tab("Foi", "Lentille de la foi : la part de chaque croyance dans vos systèmes, la majoritaire, et les mondes saints connus  (N)")
-	_tab_faith.pressed.connect(func() -> void: set_lens("" if lens == "faith" else "faith"))
-	_tab_amph = _tab("Assemblée", "Lentille de l'Amphictyonie : les empires membres (or), les hors-la-loi (rouge) et ceux qui restent dehors (gris), avec leurs voix  (X)")
-	_tab_amph.pressed.connect(func() -> void: set_lens("" if lens == "amph" else "amph"))
-	_tab_war = _tab("Guerre", "Lentille de guerre : les systèmes de vos ennemis (rouge), vos revendications (pointillé or), les systèmes occupés hachurés à la couleur de l'occupant. Second clic, si la furtivité est en jeu : la couverture de vos senseurs  (W ; Z en QWERTY)")
-	_tab_war.pressed.connect(cycle_war_lens)
-	_tab_borders = _tab("Frontières", "Lentille des frontières : votre droit de passage chez chaque voisin (vert : vos flottes de guerre passent, ambre : vaisseaux sans armes seulement, rouge : frontière close) et les intrus chez vous  (A ; Q en QWERTY)")
-	_tab_borders.pressed.connect(func() -> void: set_lens("" if lens == "borders" else "borders"))
-	_tab_culture = _tab("Culture", "Lentille du rayonnement : chez chaque empire, le palier de votre culture (gris Inconnu, bleu Exotique, vert Familier, or En vogue, orange Influent, rouge Dominant) ; chez vous, la culture étrangère dominante et les défections en cours")
-	_tab_culture.pressed.connect(func() -> void: set_lens("" if lens == "culture" else "culture"))
-	_tab_culture.visible = false
+	_lens_button = _tab("Lentille : empires", "Choisir ce que la carte montre : cinq familles de lentilles. Les touches L, K, O, G, U, N, X, W et A restent.")
+	_lens_button.pressed.connect(func() -> void:
+		_lens_button.set_pressed_no_signal(lens != "")
+		_lens_panel.visible = not _lens_panel.visible
+		_refresh_lens_panel())
 	_tab_orbit = _tab("Vue orbitale", "L'étoile et ses planètes en orbite  (Tab)")
 	_tab_orbit.pressed.connect(func() -> void: system_mode_requested.emit(false))
 	_tab_manage = _tab("Gestion du système", "Les planètes côte à côte, pour comparer  (Tab)")
@@ -491,6 +492,91 @@ func _build_tabs() -> void:
 	_tab_orbit.visible = false
 	_tab_manage.visible = false
 	_tab_galaxy.set_pressed_no_signal(true)
+	_build_lens_panel()
+
+
+## Panneau du sélecteur : une ligne par famille, ses lentilles en boutons, puis ce que montre la lentille.
+func _build_lens_panel() -> void:
+	_lens_panel = PanelContainer.new()
+	_lens_panel.add_theme_stylebox_override("panel", UiTheme.box(UiTheme.PANEL, UiTheme.LINE, 10, 1))
+	_lens_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_lens_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_lens_panel.offset_top = 40.0
+	_lens_panel.visible = false
+	add_child(_lens_panel)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	_lens_panel.add_child(box)
+	for fam: Array in LENS_FAMILIES:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 6)
+		box.add_child(row)
+		var name_label := Label.new()
+		name_label.theme_type_variation = &"Section"
+		name_label.text = String(fam[0]).to_upper()
+		name_label.custom_minimum_size = Vector2(110, 0)
+		row.add_child(name_label)
+		for l: Array in fam[1]:
+			var id := String(l[0])
+			var b := Button.new()
+			b.text = String(l[1])
+			b.toggle_mode = true
+			b.focus_mode = Control.FOCUS_NONE
+			b.tooltip_text = String(LENS_TIPS.get(id, ""))
+			b.pressed.connect(func() -> void:
+				_lens_panel.visible = false
+				set_lens(id))
+			row.add_child(b)
+			lens_buttons[id] = b
+	box.add_child(HSeparator.new())
+	_lens_note = UiTheme.paragraph("", 620.0, 13)
+	box.add_child(_lens_note)
+	set_lens(lens)
+
+
+## Nom d'une lentille pour le joueur.
+static func lens_label(id: String) -> String:
+	for fam: Array in LENS_FAMILIES:
+		for l: Array in fam[1]:
+			if String(l[0]) == id:
+				return String(l[1])
+	return id
+
+
+## La lentille est-elle offerte dans cette partie, pour cet empire ?
+func lens_offered(id: String) -> bool:
+	if _state == null:
+		return true
+	match id:
+		"borders":
+			return Borders.active(_state)
+		"private":
+			return Private.applies(_state, _player)
+		"ports":
+			return Ports.enabled(_state)
+		"corruption":
+			return Admin.full(_state) and Admin.has_corruption(_state, _player)
+		"fiscal":
+			return Finance.full(_state) and Finance.applies(_state, _player)
+		"psionics":
+			return Psionics.applies(_state, _player)
+		"culture":
+			return Culture.enabled(_state)
+		"sensors":
+			return Stealth.enabled(_state)
+	return true
+
+
+## Referme le sélecteur de lentilles ; vrai s'il était ouvert (Échap).
+func close_lens_panel() -> bool:
+	var was := _lens_panel.visible
+	_lens_panel.visible = false
+	return was
+
+
+func _refresh_lens_panel() -> void:
+	for id: String in lens_buttons:
+		(lens_buttons[id] as Button).visible = lens_offered(id)
 
 
 func _tab(text: String, tip: String) -> Button:
@@ -994,13 +1080,57 @@ func _build_spectator_panel() -> void:
 
 
 func _refresh_side_visibility() -> void:
+	var on_map := not _system_mode and not _empire_screen and not spectator
+	if _chronicle:
+		_chronicle.visible = not _empire_screen and not (side_reduced and on_map)
 	if fleet_list:
-		fleet_list.visible = not _system_mode and not _empire_screen and not spectator
+		fleet_list.visible = on_map and not side_reduced
 	if quest_tracker:
-		quest_tracker.set_allowed(not _system_mode and not _empire_screen and not spectator)
+		quest_tracker.set_allowed(on_map and not side_reduced)
+	if alert_bar:
+		alert_bar.visible = on_map and side_reduced
+		side_toggle.visible = on_map
+		side_toggle.text = "«" if side_reduced else "»"
+		side_toggle.tooltip_text = ("Rouvrir le panneau : chronique, quêtes, flottes" if side_reduced else "Réduire le panneau à ses alertes, pour dégager la carte") + "  (touche ²)"
+		side_toggle.offset_right = -MARGIN - (AlertBar.WIDTH if side_reduced else CHRONICLE_WIDTH) - 4.0
+		side_toggle.offset_left = side_toggle.offset_right - 24.0
+		if alert_bar.visible:
+			alert_bar.refresh()
 	if spectator_panel:
 		spectator_panel.visible = spectator and not _system_mode and not _empire_screen
 	_refresh_idle_button()
+
+
+## Languette et barre d'alertes du panneau de droite (refonte, A4).
+func _build_side_toggle() -> void:
+	side_reduced = UiSettings.side_reduced
+	alert_bar = AlertBar.new()
+	alert_bar.anchor_left = 1.0
+	alert_bar.anchor_right = 1.0
+	alert_bar.offset_left = -MARGIN - AlertBar.WIDTH
+	alert_bar.offset_right = -MARGIN
+	alert_bar.offset_top = MARGIN
+	alert_bar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	alert_bar.visible = false
+	add_child(alert_bar)
+	alert_bar.alert_requested.connect(func(kind: String, arg: int) -> void: alert_requested.emit(kind, arg))
+	side_toggle = Button.new()
+	side_toggle.focus_mode = Control.FOCUS_NONE
+	side_toggle.anchor_left = 1.0
+	side_toggle.anchor_right = 1.0
+	side_toggle.offset_top = MARGIN
+	side_toggle.offset_bottom = MARGIN + 28.0
+	side_toggle.pressed.connect(func() -> void: set_side_reduced(not side_reduced))
+	add_child(side_toggle)
+
+
+## Réduit le panneau de droite (chronique, quêtes, flottes) à sa barre d'alertes, ou le rouvre.
+func set_side_reduced(on: bool) -> void:
+	side_reduced = on
+	if UiSettings.side_reduced != on:
+		UiSettings.side_reduced = on
+		UiSettings.save_settings()
+	_refresh_side_visibility()
 
 
 func _refresh_idle_button() -> void:
