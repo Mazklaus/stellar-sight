@@ -104,7 +104,7 @@
 			"flavor": "La lumière fait un détour. Elle ne s'en plaint pas."
 		},
 		"voiles_3": {
-			"label": "Voiles d'ombre",
+			"label": "Voiles d'ombre", "lore": "Un champ qui courbe la lumière autour de la coque entière, réacteur compris. Il demande autant d'énergie que les moteurs. Les plus grands vaisseaux peuvent enfin s'y cacher, à condition de ne pas tirer.",
 			"domain": "genie",
 			"era": 4,
 			"field": "senseurs",
@@ -146,7 +146,7 @@
 			"flavor": "Les tachyons arrivent avant la question. C'est pratique, et un peu vexant."
 		},
 		"detecteurs_3": {
-			"label": "Senseurs quantiques",
+			"label": "Senseurs quantiques", "lore": "Des paires de particules liées, dont une moitié reste à bord et l'autre est semée dans le système. Toute coque qui passe près d'une graine trouble sa jumelle. Aucun camouflage connu ne l'empêche.",
 			"domain": "genie",
 			"era": 4,
 			"field": "senseurs",
@@ -162,7 +162,7 @@
 			"flavor": "Observer change le résultat. Ici, il le change en « trouvé »."
 		},
 		"navigation_songe": {
-			"label": "Navigation par le Songe",
+			"label": "Navigation par le Songe", "lore": "Une méthode qui confie le saut à un sensitif en transe, capable de sentir un système voisin sans voie pour y mener. La flotte suit son indication. Il arrive qu'il se trompe d'étoile.",
 			"domain": "genie",
 			"era": 4,
 			"field": "propulsion",
@@ -178,7 +178,7 @@
 			"flavor": "Le pilote ferme les yeux. Le vaisseau, lui, préférerait qu'il les garde ouverts."
 		},
 		"ecoute_profonde": {
-			"label": "Écoute profonde",
+			"label": "Écoute profonde", "lore": "De grandes antennes tournées vers l'extérieur de la galaxie, où aucun empire n'émet. Elles ont relevé un signal trop régulier pour être naturel. Les flottes en retrouvent des échos anciens, pris dans la poussière.",
 			"domain": "genie",
 			"era": 4,
 			"field": "senseurs",
@@ -194,7 +194,7 @@
 			"flavor": "On a tendu l'oreille vers le vide. Le vide, pour une fois, a quelque chose à dire."
 		},
 		"paleo_ingenierie": {
-			"label": "Paléo-ingénierie",
+			"label": "Paléo-ingénierie", "lore": "L'art de rebâtir un engin disparu d'après ses débris, en comblant les manques par le calcul. Les chantiers en tirent des gabarits qu'ils savent construire. Une pièce manquante ne suffit plus à arrêter une reconstitution.",
 			"domain": "genie",
 			"era": 4,
 			"field": "coques",
@@ -475,7 +475,7 @@
 			}
 		},
 		"tir_predictif": {
-			"label": "Tir prédictif",
+			"label": "Tir prédictif", "lore": "Un calcul qui tient compte des habitudes du pilote adverse autant que de sa trajectoire. La salve part vers l'endroit où il va manœuvrer. Les esprits de bord s'échangent ce qu'ils ont appris après chaque combat.",
 			"domain": "genie",
 			"era": 4,
 			"field": "coques",
@@ -493,7 +493,7 @@
 			}
 		},
 		"cuirasses": {
-			"label": "Cuirassés",
+			"label": "Cuirassés", "lore": "La plus grande coque de ligne, longue de deux kilomètres et servie par quatre mille hommes. Elle porte l'artillerie lourde sur trois ponts. Seul un arsenal en orbite peut la mettre en chantier.",
 			"domain": "genie",
 			"era": 4,
 			"field": "coques",
@@ -508,7 +508,7 @@
 			]
 		},
 		"saut_precision": {
-			"label": "Saut de précision",
+			"label": "Saut de précision", "lore": "Un moteur qui choisit son point d'arrivée à quelques kilomètres près et enchaîne les sauts sans s'arrêter. La galaxie se traverse en une saison. Les pilotes ne voient plus les systèmes qu'ils franchissent.",
 			"domain": "genie",
 			"era": 4,
 			"field": "propulsion",
@@ -528,7 +528,7 @@
 			}
 		},
 		"sauts_calcules": {
-			"label": "Sauts calculés",
+			"label": "Sauts calculés", "lore": "Des tables de saut calculées à l'avance pour chaque voie et tenues à jour heure par heure. Le navigateur n'a plus qu'à lire la sienne. Un vaisseau repart avant que son sillage soit retombé.",
 			"domain": "genie",
 			"era": 5,
 			"field": "propulsion",
@@ -546,7 +546,7 @@
 			}
 		},
 		"coques_modulaires": {
-			"label": "Coques modulaires",
+			"label": "Coques modulaires", "lore": "Des coques faites de blocs que l'on détache et remplace en quelques heures. Un vaisseau avarié échange sa section touchée contre une neuve, loin de tout chantier. Les navires-ateliers en transportent plusieurs de chaque modèle.",
 			"domain": "genie",
 			"era": 4,
 			"field": "coques",
@@ -561,7 +561,7 @@
 			]
 		},
 		"coques_standard": {
-			"label": "Coques standardisées",
+			"label": "Coques standardisées", "lore": "Un seul jeu de plans pour toutes les coques d'une même classe, quel que soit le chantier. Les tôles sont découpées avant la commande. Un vaisseau perdu est remplacé par son jumeau, sorti de la cale suivante.",
 			"domain": "genie",
 			"era": 5,
 			"field": "coques",
@@ -639,7 +639,7 @@
 			"flavor": "Le premier essai a envoyé une boîte de conserve à neuf années-lumière. Elle est revenue pleine."
 		},
 		"grands_portails": {
-			"label": "Grands portails",
+			"label": "Grands portails", "lore": "Un anneau de dix kilomètres, alimenté par sa propre centrale, qui tient l'accord sur dix sauts. Une flotte entière le franchit sans rompre sa formation. Sa construction occupe un système pendant des années.",
 			"domain": "genie",
 			"era": 4,
 			"field": "propulsion",
@@ -697,7 +697,7 @@
 			}
 		},
 		"logistique_campagne": {
-			"label": "Logistique de campagne",
+			"label": "Logistique de campagne", "lore": "Des dépôts démontables, qui voyagent derrière la flotte et s'installent dès qu'un système est tenu. Ils sont en service en deux semaines. Les intendants débarquent avec la seconde vague.",
 			"domain": "genie",
 			"era": 4,
 			"field": "propulsion",
@@ -715,7 +715,7 @@
 			}
 		},
 		"ravitaillement": {
-			"label": "Ravitaillement en vol",
+			"label": "Ravitaillement en vol", "lore": "Des pétroliers qui accostent une coque en route et lui passent carburant et vivres sans qu'elle ralentisse. Les escadres ne rentrent plus au port pour si peu. Les arsenaux reçoivent moins de coques et les gardent moins longtemps.",
 			"domain": "genie",
 			"era": 4,
 			"field": "coques",
@@ -758,7 +758,7 @@
 			"flavor": "Une carte des courants, un pilote qui sait la lire, et le brouillard devient une autoroute."
 		},
 		"chantier_titanesque": {
-			"label": "Chantier titanesque",
+			"label": "Chantier titanesque", "lore": "Une cale ouverte sur le vide, assez longue pour un vaisseau de cinq kilomètres. Le titan y est bâti en dix ans par une ville entière d'ouvriers. Il n'en sortira qu'une fois et n'y reviendra jamais.",
 			"domain": "genie",
 			"era": 5,
 			"field": "coques",
@@ -774,7 +774,7 @@
 			]
 		},
 		"leviathans": {
-			"label": "Léviathans",
+			"label": "Léviathans", "lore": "Un vaisseau de vingt kilomètres, qui emporte ses propres forges et répare ce qu'il perd. Son équipage se compte en dizaines de milliers et y passe sa vie. Il ne se pose nulle part.",
 			"domain": "genie",
 			"era": 5,
 			"field": "coques",
@@ -789,7 +789,7 @@
 			]
 		},
 		"nefs_mondes": {
-			"label": "Nefs-mondes",
+			"label": "Nefs-mondes", "lore": "Un vaisseau grand comme une petite lune, avec ses champs, ses villes et un ciel peint. Ceux qui y naissent n'ont pas tous vu une planète. Il traverse la galaxie par ses propres moyens.",
 			"domain": "genie",
 			"era": 5,
 			"field": "coques",
@@ -805,7 +805,7 @@
 			]
 		},
 		"puits_gravite": {
-			"label": "Puits de gravité",
+			"label": "Puits de gravité", "lore": "Un générateur qui creuse dans l'espace un creux comparable à celui d'une planète. Une flotte prise dedans ne trouve plus la sortie de son saut. Le léviathan qui le porte reste lui-même immobile tant qu'il le tient.",
 			"domain": "genie",
 			"era": 5,
 			"field": "mega_ing",
@@ -820,7 +820,7 @@
 			]
 		},
 		"etoiles_captives": {
-			"label": "Étoiles captives",
+			"label": "Étoiles captives", "lore": "Une étoile naine enfermée dans une cage de champs, au cœur d'une nef-monde. Elle éclaire les ponts et alimente les moteurs. On peut aussi ouvrir la cage d'un côté.",
 			"domain": "genie",
 			"era": 5,
 			"field": "mega_ing",
@@ -839,7 +839,7 @@
 			}
 		},
 		"moteur_singularite": {
-			"label": "Moteur à singularité",
+			"label": "Moteur à singularité", "lore": "Un moteur qui porte un trou noir de la taille d'un atome et tire sa poussée de ce qu'il y jette. Il ne s'éteint pas. Les ingénieurs qui l'ont construit vivent sur un autre vaisseau que lui.",
 			"domain": "genie",
 			"era": 5,
 			"field": "coques",
@@ -927,7 +927,7 @@
 			"flavor": "On a voulu agrandir le spatioport. On a fait le tour."
 		},
 		"mega_ingenierie": {
-			"label": "Méga-ingénierie",
+			"label": "Méga-ingénierie", "lore": "La science des ouvrages à l'échelle d'un système, où le poids d'une structure se compte en masses de lunes. Les ingénieurs y apprennent aussi à lire les ruines de ceux qui ont bâti avant eux. Certaines peuvent être relevées.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -940,7 +940,7 @@
 			"flavor": "À cette échelle, une erreur d'arrondi a son propre climat."
 		},
 		"mega_chantier": {
-			"label": "Méga-chantiers navals",
+			"label": "Méga-chantiers navals", "lore": "Un chantier long de cent kilomètres, où une coque avance de poste en poste comme sur une chaîne. Les titans y sont assemblés à couvert. Un empire n'a pas les moyens d'en entretenir deux.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -957,7 +957,7 @@
 			"flavor": "On n'y construit pas des vaisseaux. On y construit des flottes, à la chaîne."
 		},
 		"reseau_veille": {
-			"label": "Réseau de veille",
+			"label": "Réseau de veille", "lore": "Des milliers de sondes dormantes semées dans toute la galaxie, reliées à une salle d'écoute unique. Chacune ne s'éveille que pour signaler un passage. Les opérateurs finissent par voir ce qui se cache.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -971,7 +971,7 @@
 			"flavor": "Plus rien ne bouge dans la galaxie sans qu'un stagiaire le note."
 		},
 		"centre_coordination": {
-			"label": "Coordination stratégique",
+			"label": "Coordination stratégique", "lore": "Un état-major installé dans une station bâtie pour lui, d'où toutes les flottes de l'empire sont suivies sur une même table. Les ordres de route et les convois y sont réglés ensemble. Vingt mille personnes y travaillent par quarts.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -984,7 +984,7 @@
 			"flavor": "Chaque flotte reçoit son ordre de mission, sa météo, et un mot d'encouragement."
 		},
 		"catapulte_quantique": {
-			"label": "Catapulte quantique",
+			"label": "Catapulte quantique", "lore": "Un accélérateur bâti autour d'une étoile à neutrons, qui se sert de sa gravité pour lancer une flotte à très grande distance. Le tir ne se corrige pas en route. Les flottes arrivent parfois à un système de leur but.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -998,7 +998,7 @@
 			"flavor": "Le calcul est exact. C'est l'univers qui arrondit."
 		},
 		"mega_ingenierie_avancee": {
-			"label": "Méga-ingénierie avancée",
+			"label": "Méga-ingénierie avancée", "lore": "Des équipes assez nombreuses et assez rodées pour mener deux grands ouvrages de front. Les fonderies travaillent pour l'un pendant que l'autre attend ses pièces. Les architectes passent de chantier en chantier sans rentrer.",
 			"domain": "genie",
 			"era": 5,
 			"field": "mega_ing",
@@ -1028,7 +1028,7 @@
 			"flavor": "Mille cailloux qui ne servaient à rien. Un caillou qui sert à tout."
 		},
 		"compression_gravitationnelle": {
-			"label": "Compression gravitationnelle",
+			"label": "Compression gravitationnelle", "lore": "Un procédé qui dépouille une géante gazeuse de son enveloppe et resserre ce qui reste. Il en sort un monde petit et très lourd, où les métaux affleurent. On y marche courbé.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -1042,7 +1042,7 @@
 			"flavor": "On a pressé la géante comme un citron. Il en est resté le pépin, et il vaut une fortune."
 		},
 		"moteurs_planetaires": {
-			"label": "Moteurs planétaires",
+			"label": "Moteurs planétaires", "lore": "Des tuyères de la hauteur d'une chaîne de montagnes, plantées sur un hémisphère d'une planète. Elles la font quitter son orbite en quelques années. Les habitants restent chez eux pendant le voyage.",
 			"domain": "genie",
 			"era": 5,
 			"field": "mega_ing",

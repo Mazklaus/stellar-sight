@@ -241,7 +241,7 @@
 			]
 		},
 		"canons_rail": {
-			"label": "Canons lourds",
+			"label": "Canons lourds", "lore": "Un rail de trois cents mètres, alimenté par des condensateurs qui mettent une minute à se recharger. Le projectile part à une fraction notable de la vitesse de la lumière. La coque est construite autour de la pièce, et non la pièce posée sur la coque.",
 			"domain": "armement",
 			"era": 4,
 			"field": "armes",
@@ -252,7 +252,7 @@
 			]
 		},
 		"antimatiere": {
-			"label": "Torpilles à antimatière",
+			"label": "Torpilles à antimatière", "lore": "Une torpille dont la charge tient dans une bouteille magnétique grosse comme le poing. Quelques grammes suffisent à ouvrir un cuirassé. Les soutes qui les gardent sont séparées du reste du vaisseau et peuvent être larguées.",
 			"domain": "armement",
 			"era": 4,
 			"field": "armes",
@@ -267,7 +267,7 @@
 			]
 		},
 		"faisceaux_gamma": {
-			"label": "Faisceaux gamma",
+			"label": "Faisceaux gamma", "lore": "Un faisceau de particules chargées, qui traverse la coque sans la percer et grille ses circuits. Les boucliers touchés tombent pendant qu'on remplace les fusibles. Il faut une journée à un équipage entraîné.",
 			"domain": "armement",
 			"era": 4,
 			"field": "armes",
@@ -279,7 +279,7 @@
 			"flavor": "Le rayon est invisible. Le trou qu'il laisse, beaucoup moins."
 		},
 		"blindage_reactif": {
-			"label": "Blindage réactif",
+			"label": "Blindage réactif", "lore": "Des plaques doublées d'une couche d'explosif, qui détonent vers l'extérieur quand un projectile les frappe. Le coup est dévié avant d'atteindre la coque. On remplace les plaques parties au premier arsenal.",
 			"domain": "armement",
 			"era": 4,
 			"field": "defenses",
@@ -293,7 +293,7 @@
 			]
 		},
 		"canons_singularite": {
-			"label": "Armes à singularité",
+			"label": "Armes à singularité", "lore": "Une arme qui projette un point de gravité assez dense pour écraser une coque sur elle-même. Le point ne dure qu'une seconde. Seuls les plus grands vaisseaux portent le générateur qui le forme.",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
@@ -309,7 +309,7 @@
 			"flavor": "Le projectile pèse un gramme. Il en paraît beaucoup plus à l'arrivée."
 		},
 		"lances_stellaires": {
-			"label": "Lances stellaires",
+			"label": "Lances stellaires", "lore": "Un faisceau tiré de la matière d'une étoile, prélevée et tenue sous champ à bord d'un titan. Il traverse un cuirassé dans sa longueur. Le titan doit refaire sa provision après quelques tirs.",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
@@ -320,7 +320,7 @@
 			]
 		},
 		"verbe_final": {
-			"label": "Le Verbe final",
+			"label": "Le Verbe final", "lore": "Une pièce qui dénoue les liaisons de la matière sur son trajet, au lieu de la frapper. Rien de ce qu'elle touche ne laisse de débris. Les artilleurs qui la servent ont demandé qu'on ne lui donne pas d'autre nom.",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
@@ -334,7 +334,7 @@
 			"flavor": "Les diplomates appellent ça un argument. Les survivants n'appellent plus."
 		},
 		"matiere_programmable": {
-			"label": "Matière programmable",
+			"label": "Matière programmable", "lore": "Une matière dont les grains changent d'arrangement sur ordre, du plus dur au plus souple. La coque épaissit là où le coup arrive. Elle se referme seule après la bataille.",
 			"domain": "armement",
 			"era": 5,
 			"field": "defenses",
@@ -352,7 +352,7 @@
 			}
 		},
 		"escadres_autonomes": {
-			"label": "Escadres autonomes",
+			"label": "Escadres autonomes", "lore": "Des escadrilles de drones qui décollent, combattent et rentrent sans qu'un pilote les commande. Un titan en porte plusieurs milliers. Les pertes se remplacent à bord, dans l'atelier du hangar.",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
@@ -470,7 +470,7 @@
 			}
 		},
 		"guerre_usure": {
-			"label": "Guerre d'usure",
+			"label": "Guerre d'usure", "lore": "Une doctrine qui accepte les batailles longues et compte sur ses ateliers pour les gagner. Chaque escadre traîne ses navires de réparation. Les commandants apprennent à rompre le combat sans se débander.",
 			"domain": "armement",
 			"era": 4,
 			"field": "doctrines",
@@ -491,7 +491,7 @@
 			}
 		},
 		"guerre_eclair": {
-			"label": "Guerre éclair",
+			"label": "Guerre éclair", "lore": "Une doctrine qui frappe avant que l'adversaire ait rassemblé ses forces. Les flottes voyagent sans leurs convois et vivent sur leurs soutes. Tout se joue dans les premières heures, où chaque capitaine connaît sa cible.",
 			"domain": "armement",
 			"era": 4,
 			"field": "doctrines",
@@ -545,7 +545,7 @@
 			}
 		},
 		"remparts_stellaires": {
-			"label": "Remparts stellaires",
+			"label": "Remparts stellaires", "lore": "Une station agrandie jusqu'à devenir une place forte, avec ses propres chantiers et sa garnison. Son canon à ions porte jusqu'au point de saut. Un dôme de champ couvre la planète qu'elle garde.",
 			"domain": "armement",
 			"era": 4,
 			"field": "defenses",
@@ -617,7 +617,7 @@
 			}
 		},
 		"brise_monde": {
-			"label": "Brise-monde",
+			"label": "Brise-monde", "lore": "Une arme de la taille d'une lune, qui concentre son tir sur le noyau d'une planète jusqu'à ce qu'elle se disloque. Il faut des semaines pour la mettre en batterie. Un empire n'en construit qu'une.",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
@@ -633,7 +633,7 @@
 			"flavor": "La question n'est plus de savoir si l'on peut. La question est de savoir qui le pardonnera."
 		},
 		"anneau_extinction": {
-			"label": "Anneau d'extinction",
+			"label": "Anneau d'extinction", "lore": "Un anneau bâti autour d'une étoile, qui en libère l'énergie d'un coup dans toutes les directions. Rien ne survit dans les systèmes voisins, pas même les colonies de l'empire qui le déclenche. Il a été conçu pour le jour où il n'y aurait plus d'autre réponse.",
 			"domain": "armement",
 			"era": 5,
 			"field": "armes",
@@ -665,7 +665,7 @@
 			"flavor": "Il était encore chaud. Les ingénieurs ont préféré ne pas demander depuis quand."
 		},
 		"plans_bouclier_oublie": {
-			"label": "Plans d'un bouclier oublié",
+			"label": "Plans d'un bouclier oublié", "lore": "Les plans d'un générateur capable de couvrir plusieurs coques d'un seul champ, tracés sur un métal qui ne s'oxyde pas. La puissance qui les a dessinés ne l'a peut-être jamais construit. Les cotes sont données dans une unité qu'il a fallu retrouver.",
 			"domain": "armement",
 			"era": 4,
 			"field": "defenses",
@@ -719,7 +719,7 @@
 			}
 		},
 		"logistique_occupation": {
-			"label": "Logistique d'occupation",
+			"label": "Logistique d'occupation", "lore": "Une intendance qui suit les troupes d'occupation et rouvre en un mois les marchés, les écoles et les tribunaux. Les habitants sont payés dans leur propre monnaie. Les officiers répondent des pillages sur leur solde.",
 			"domain": "armement",
 			"era": 4,
 			"field": "doctrines",
