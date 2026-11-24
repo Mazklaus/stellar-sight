@@ -99,7 +99,7 @@ Pour une première partie entre amis, prenez les tours simultanés d'un mois, l'
 
 ### Les dix premières minutes
 
-La partie démarre en pause, le 1er janvier 2400, centrée sur votre système natal. Vous disposez d'un monde de taille 4 peuplé de 8 habitants, avec un palais, des fermes et un complexe minier, d'un **éclaireur** et d'un **vaisseau colon**. Voici un ordre de marche raisonnable :
+La partie démarre en pause, le 1er janvier 2400, centrée sur votre système natal. Vous disposez d'un monde de taille 4 peuplé de 8 habitants, avec un palais, des fermes et un complexe minier, d'un **éclaireur** et d'un **vaisseau colon**. Le suivi **Premiers pas**, en haut à droite, vous souffle les trois premiers gestes (sonder, coloniser, rechercher) et se ferme quand ils sont faits. Voici un ordre de marche raisonnable :
 
 1. **Lancez l'exploration.** Sélectionnez l'éclaireur et appuyez sur [[E]] : il partira de lui-même vers le système inexploré le plus proche, puis le suivant.
 2. **Choisissez une recherche.** Ouvrez l'écran Recherche (domaine Savoir, [[F2]]) et mettez deux technologies en file. Le Savoir s'accumule dès le premier jour.

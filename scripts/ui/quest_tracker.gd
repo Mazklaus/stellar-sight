@@ -92,17 +92,29 @@ static func lines(state: GameState, player: int) -> Array:
 
 func refresh() -> void:
 	var ls := lines(_state, _player)
-	var sig := str(ls)
+	# Premières minutes (refonte D3d) : trois objectifs à la suite, au-dessus des quêtes.
+	var steps := FirstSteps.lines(_state, _player)
+	var sig := str(ls) + str(steps)
 	if sig == _sig:
 		return
 	_sig = sig
 	for c in _box.get_children():
 		c.queue_free()
-	_empty = ls.is_empty()
+	_empty = ls.is_empty() and steps.is_empty()
 	if _empty:
 		visible = false
 		return
-	var head := UiTheme.section("Quêtes")
+	if not steps.is_empty():
+		_block("Premiers pas", steps, true)
+	if not ls.is_empty():
+		_block("Quêtes", ls, false)
+	visible = _allowed
+
+
+## Un bloc du suivi : son titre, puis ses lignes. wrap : les lignes longues passent à la ligne (le
+## geste à faire), au lieu d'être coupées (les titres de quête).
+func _block(title: String, ls: Array, wrap: bool) -> void:
+	var head := UiTheme.section(title)
 	head.add_theme_color_override("font_color", UiTheme.GOLD)
 	head.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_box.add_child(head)
@@ -110,6 +122,9 @@ func refresh() -> void:
 		var lab := UiTheme.dim(String(l[0]), 13)
 		lab.add_theme_color_override("font_color", l[1])
 		lab.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		lab.clip_text = true
+		if wrap:
+			lab.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			lab.custom_minimum_size = Vector2(Hud.CHRONICLE_WIDTH - 30.0, 0)
+		else:
+			lab.clip_text = true
 		_box.add_child(lab)
-	visible = _allowed

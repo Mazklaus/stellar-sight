@@ -21,6 +21,7 @@ func run(check: Callable) -> void:
 	_test_species_steps()
 	_test_save_list()
 	_test_map_options()
+	_test_first_steps()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -638,3 +639,35 @@ func _test_map_options() -> void:
 	UiSettings.map_labels = before[2]
 	_ok(panel._silhouettes.get_parent().get_parent() == panel._pages["map"], "options : les silhouettes des flottes sont rangées dans Carte")
 	panel.queue_free()
+
+
+## Premières minutes (D3d) : trois objectifs à la suite, lus dans l'état de la partie.
+func _test_first_steps() -> void:
+	var st := GameState.create(21, 60, 900.0, "ossarane")
+	_ok(FirstSteps.active(st, 0) and FirstSteps.steps(st, 0) == [0, 1, 2] and FirstSteps.current(st, 0) == 0, "premiers pas : trois objectifs, sonder d'abord")
+	var ls := FirstSteps.lines(st, 0)
+	_ok(ls.size() == 4 and String(ls[0][0]).begins_with("▸") and String(ls[1][0]).contains("éclaireur"), "premiers pas : l'objectif en cours dit le geste")
+	var e := st.get_empire(0)
+	for s in st.galaxy.systems:
+		if not e.surveyed.has(s.id):
+			e.surveyed[s.id] = true
+			e.explored[s.id] = true
+			break
+	_ok(FirstSteps.current(st, 0) == 1 and String(FirstSteps.lines(st, 0)[0][0]).begins_with("✓"), "premiers pas : un système sondé, on passe à la colonie")
+	e.research_queue.append("x")
+	_ok(FirstSteps.done(st, 0)[2] and FirstSteps.current(st, 0) == 1, "premiers pas : une recherche en file compte, la colonie reste à faire")
+	for fid in st.fleets.keys():
+		if (st.fleets[fid] as Fleet).owner == 0 and Fleets.colonizer_ship(st.fleets[fid]) != "":
+			st.fleets.erase(fid)
+	_ok(FirstSteps.steps(st, 0) == [0, 2] and not FirstSteps.active(st, 0), "premiers pas : sans vaisseau colon, l'objectif de colonie tombe et le suivi se ferme")
+	e.research_queue.clear()
+	_ok(FirstSteps.active(st, 0) and FirstSteps.current(st, 0) == 2, "premiers pas : file de recherche vide, le rappel revient")
+	st.tick = FirstSteps.LIMIT_DAYS + 1
+	_ok(not FirstSteps.active(st, 0) and FirstSteps.lines(st, 0).is_empty(), "premiers pas : plus de guide passé deux ans")
+	var odd := GameState.create(21, 60, 900.0, "signal")
+	_ok(FirstSteps.steps(odd, 0).is_empty() and not FirstSteps.active(odd, 0), "premiers pas : un peuple sans monde natal n'est pas guidé")
+	var tracker := QuestTracker.new()
+	Engine.get_main_loop().root.add_child(tracker)
+	tracker.set_state(GameState.create(21, 60, 900.0, "ossarane"), 0)
+	_ok(tracker.visible and tracker._box.get_child_count() >= 5, "premiers pas : le suivi les montre au-dessus des quêtes")
+	tracker.queue_free()
