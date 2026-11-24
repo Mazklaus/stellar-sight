@@ -13,7 +13,9 @@ L'écran d'accueil propose **Continuer** (ou Reprendre), **Nouvelle partie**, **
 
 ### L'écran Nouvelle partie
 
-La nouvelle partie tient sur un seul écran, rangé en cinq blocs. Les réglages par défaut donnent une partie équilibrée : vous pouvez tout laisser tel quel et cliquer sur **Commencer**.
+La nouvelle partie se règle en cinq étapes : **Votre peuple**, **La galaxie**, **Vos rivaux**, **Les règles**, **La victoire**. Un fil en haut de l'écran les montre et permet de sauter de l'une à l'autre ; en bas, les deux boutons portent le nom de l'étape où ils mènent, et [[Échap]] revient d'une étape. Les réglages par défaut donnent une partie équilibrée : dès la première étape, **Partie rapide** lance avec ce peuple et les réglages de votre dernière partie. L'étape de la galaxie dessine une galaxie tirée avec vos réglages (celle de votre graine, ou un exemple si la graine est laissée au hasard). L'étape des règles propose trois préréglages, **Découverte** (peu d'hostiles, pas de crise, les grands systèmes en version simple), **Classique** (les réglages par défaut) et **Tout**, puis le détail ligne par ligne. La dernière étape récapitule la partie ; les préréglages enregistrés et le code de partie s'y trouvent, avec **Commencer**.
+
+Les réglages eux-mêmes n'ont pas changé :
 
 | Bloc | Ce qu'on y règle |
 | --- | --- |

@@ -17,6 +17,7 @@ func run(check: Callable) -> void:
 	_test_fleet_card()
 	_test_screens()
 	_test_power()
+	_test_new_game_steps()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -487,3 +488,23 @@ func _test_power() -> void:
 		inside = inside and rect.position.x >= 0.0 and rect.position.y >= 0.0 and rect.end.x <= 430.0 and rect.end.y <= 430.0
 	_ok(inside and table.buttons.size() == ring.size(), "anneau des relations : toutes les étiquettes tiennent dans le bloc")
 	table.free()
+
+
+## Menus guidés (D1) : la Nouvelle partie en cinq étapes.
+func _test_new_game_steps() -> void:
+	var menu := MainMenu.new()
+	Engine.get_main_loop().root.add_child(menu)
+	menu.show_page("new")
+	_ok(menu.new_step == 0 and menu.step_buttons.size() == MainMenu.STEPS.size(), "nouvelle partie : cinq étapes, la première d'abord")
+	menu.set_step(3)
+	_ok(menu.back() and menu.new_step == 2 and menu.page == "new", "nouvelle partie : Échap revient à l'étape précédente")
+	menu.set_step(99)
+	_ok(menu.new_step == MainMenu.STEPS.size() - 1 and menu._np_go.visible and not menu._np_next.visible, "nouvelle partie : la dernière étape porte Commencer")
+	var classic := str(MainMenu.rules_part(menu.settings()))
+	_ok(menu.apply_rules_preset("decouverte") and menu.rules_preset_id == "decouverte" and str(MainMenu.rules_part(menu.settings())) != classic,
+			"nouvelle partie : Découverte change les règles")
+	_ok(menu.crises != Crisis.default_mode() and not menu.plagues, "nouvelle partie : Découverte retire la crise et les fléaux")
+	_ok(menu.apply_rules_preset("classique") and str(MainMenu.rules_part(menu.settings())) == classic, "nouvelle partie : Classique rend les réglages par défaut")
+	_ok(menu.recap_lines().size() >= 5, "nouvelle partie : le récapitulatif dit le peuple, la galaxie, les rivaux, les règles et la victoire")
+	_ok(MainMenu.home_line(3) != "" and not MainMenu.home_line(3).begins_with("Prototype"), "accueil : une phrase de chronique à la place de la ligne Prototype")
+	menu.queue_free()

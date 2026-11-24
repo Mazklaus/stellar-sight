@@ -33,7 +33,8 @@ const ClockScript := preload("res://scripts/sim/game_clock.gd")
 const NET_SETTINGS := "user://net.cfg"
 
 const TAGLINE := "Chronique d'une galaxie qui n'avait rien demandé"
-const NEWS := "Prototype : galaxie, économie et colonisation jouables. Recherche et diplomatie en préparation."
+## Longueur au-delà de laquelle une phrase de chronique ne tient plus sur la ligne de l'accueil.
+const HOME_LINE_MAX := 170
 ## Rayon de la planète de l'accueil, en part de la hauteur de l'écran.
 const PLANET_RADIUS := 0.6
 const TILE_SIZE := Vector2(150, 240)
@@ -46,6 +47,27 @@ const SLOT_COL_LEVEL := 160.0
 const SLOT_COL_TEMPER := 158.0
 ## Case « Au hasard » du choix de faction : un peuple est tiré au lancement.
 const RANDOM_FACTION := "random"
+## Les cinq étapes de la Nouvelle partie, dans l'ordre.
+const STEPS := ["Votre peuple", "La galaxie", "Vos rivaux", "Les règles", "La victoire"]
+const STEP_COLUMN := 470.0
+const STEP_TOP := 118.0
+## Ce qu'un préréglage de règles ne touche pas : le peuple, les rivaux, la galaxie, le temps et la victoire.
+const NOT_RULES := ["faction", "slots", "duplicates", "insolites", "team", "ai_level", "temperament", "spectator", "galaxy", "seed",
+		"time_mode", "turn_days", "timer", "deadline", "not_before", "people", "victories", "ai_scaling"]
+## Préréglages de règles : identifiant, nom, ce qu'il donne, puis les listes à poser (liste -> rang) et les cases.
+const RULE_PRESETS := [
+	{"id": "decouverte", "label": "Découverte", "text": "Pour une première partie. Peu de pirates et de créatures, ni fléaux ni crise de fin de partie, et les grands systèmes (administration, finances, ports, défenses, furtivité, génétique) dans leur version simple.",
+		"selects": {"_pirate_select": 1, "_creature_select": 1, "_crises_select": 0, "_quest_select": 1, "_logistics_select": 1, "_ground_select": 0,
+			"_admin_select": 1, "_finance_select": 1, "_private_select": 1, "_ports_select": 1, "_defenses_select": 1, "_stealth_select": 1,
+			"_genetics_select": 1, "_psionics_select": 1, "_megas_select": 2, "_eco_select": 1, "_cap_select": 1, "_archaeo_select": 1,
+			"_kard_select": 1, "_portals_select": 1, "_court_select": 1, "_hero_death_select": 1, "_culture_defect_select": 2,
+			"_transcendence_select": 1, "_contact_select": 1, "_living_select": 0},
+		"checks": {"_plague_check": false}},
+	{"id": "classique", "label": "Classique", "text": "Les réglages par défaut du jeu : tous les piliers en jeu, une crise de fin de partie, pirates et créatures en nombre normal.",
+		"selects": {}, "checks": {}},
+	{"id": "tout", "label": "Tout", "text": "Tout ce que le jeu sait faire, au plus fort : toutes les crises, mondes vivants fréquents, ruines de mégastructures et mondes forgés en nombre.",
+		"selects": {"_crises_select": 2, "_living_select": 2, "_mega_ruins_select": 2, "_forge_anc_select": 2}, "checks": {}},
+]
 const TYPE_LABELS := {"continental": "continental", "ocean": "océanique", "desert": "désertique", "arctic": "glaciaire",
 	"toxic": "toxique", "gas_giant": "géante gazeuse", "barren": "stérile", "asteroids": "astéroïdes"}
 
@@ -64,6 +86,27 @@ var _hint_label: Label
 var _resume: Button
 var _continue: Button
 var _new_page: Control
+## Nouvelle partie en cinq étapes (voir STEPS) : l'étape montrée, et ses pièces.
+var new_step := 0
+var step_buttons: Array[Button] = []
+var rule_buttons := {}
+## Préréglage de règles en cours ("" : personnalisées).
+var rules_preset_id := "classique"
+var _rules_snapshot := ""
+var _np_left: Control
+var _np_rivals: Control
+var _np_bottom: HBoxContainer
+var _np_blocks := {}
+var _np_back: Widgets.RoundButton
+var _np_next: Widgets.RoundButton
+var _np_go: Widgets.RoundButton
+var _np_quick: Button
+var _np_bar: Control
+var _np_side: Control
+var _np_preview: GalaxyPreview
+var _np_rules: Control
+var _np_recap: Label
+var _np_side_title: Label
 var _scene_art: Widgets.ArtSlot
 var _scene_name: Label
 var _faction_emblem: Widgets.Emblem
@@ -423,7 +466,7 @@ func _ready() -> void:
 	var bullet := Widgets.Dot.new(UiTheme.ACCENT, 8)
 	bullet.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	news.add_child(bullet)
-	news.add_child(UiTheme.dim(NEWS, 14))
+	news.add_child(UiTheme.dim(home_line(randi()), 14))
 	var version := UiTheme.dim("Prototype  ·  Godot 4.7", 13)
 	version.anchor_left = 1.0
 	version.anchor_right = 1.0
@@ -496,6 +539,8 @@ func is_open() -> bool:
 
 
 func show_page(name: String) -> void:
+	if name == "new" and page == "home":
+		set_step(0)  # une nouvelle partie commence par le peuple ; revenir d'une sous-page garde l'étape
 	page = name
 	_home.visible = name == "home"
 	_new_page.visible = name == "new"
@@ -533,10 +578,162 @@ func back() -> bool:
 	if page == "species":
 		show_page(_species_return)
 		return true
+	if page == "new" and new_step > 0:
+		set_step(new_step - 1)
+		return true
 	if page != "home":
 		show_page("home")
 		return true
 	return false
+
+
+## La ligne du bas de l'accueil : la première phrase de la chronique d'un peuple, tirée à chaque lancement.
+static func home_line(pick: int) -> String:
+	var lines: Array[String] = []
+	for fid in GameData.faction_ids():
+		var lore := String(GameData.faction(fid).get("lore", ""))
+		var cut := lore.find(". ")
+		var first := lore.substr(0, cut + 1) if cut > 0 else lore
+		if first != "" and first.length() <= HOME_LINE_MAX:
+			lines.append(first)
+	return lines[absi(pick) % lines.size()] if not lines.is_empty() else TAGLINE
+
+
+# --- Nouvelle partie en étapes ----------------------------------------------------------------------
+
+## Montre l'étape i (0 à 4) de la Nouvelle partie.
+func set_step(i: int) -> void:
+	new_step = clampi(i, 0, STEPS.size() - 1)
+	_layout_step()
+
+
+func _layout_step() -> void:
+	if _np_bottom == null:
+		return
+	var s := new_step
+	for i in step_buttons.size():
+		step_buttons[i].set_pressed_no_signal(i == s)
+	_np_left.visible = s == 0
+	_scene_art.modulate = Color(1, 1, 1, 0.85 if s == 0 else 0.22)
+	_np_rivals.visible = s == 2
+	var owner_step := {"traits": 0, "galaxy": 1, "game": 3, "vic": 4}
+	for k: String in _np_blocks:
+		(_np_blocks[k] as Control).visible = int(owner_step[k]) == s
+	_np_bottom.visible = s != 2
+	if s == 0:
+		# Les traits du peuple, sous ses portraits, dans la moitié gauche ; l'illustration tient la droite.
+		_np_bottom.anchor_top = 1.0
+		_np_bottom.anchor_right = 0.5
+		_np_bottom.offset_top = -330
+		_np_bottom.offset_right = -2
+	else:
+		# Une colonne de réglages à gauche ; l'aperçu, les préréglages ou le récapitulatif à droite.
+		_np_bottom.anchor_top = 0.0
+		_np_bottom.anchor_right = 0.0
+		_np_bottom.offset_top = STEP_TOP
+		_np_bottom.offset_right = 32.0 + STEP_COLUMN
+	_np_bottom.offset_left = 32
+	_np_bottom.offset_bottom = -96
+	_np_side.visible = s == 1 or s == 3 or s == 4
+	_np_preview.visible = s == 1
+	_np_rules.visible = s == 3
+	_np_recap.visible = s == 4
+	_np_bar.visible = s == 4
+	_np_quick.visible = s == 0
+	_np_side_title.text = {1: "Une galaxie de cette forme", 3: "Trois façons de régler la partie", 4: "Votre partie"}.get(s, "")
+	_np_back.set_label("Retour" if s == 0 else STEPS[s - 1])
+	_np_next.visible = s < STEPS.size() - 1
+	if _np_next.visible:
+		_np_next.set_label(STEPS[s + 1])
+	_np_go.visible = s == STEPS.size() - 1
+	_refresh_wizard()
+
+
+## Graine montrée par l'aperçu : celle qu'on a tapée, sinon une graine d'exemple.
+func preview_seed() -> int:
+	var text := _seed_edit.text.strip_edges() if _seed_edit else ""
+	if text.is_valid_int():
+		return text.to_int()
+	return text.hash() if text != "" else 1
+
+
+## Met à jour l'aperçu de la galaxie, les préréglages de règles et le récapitulatif.
+func _refresh_wizard() -> void:
+	if _np_bottom == null or _applying:
+		return
+	var snap := str(rules_part(settings()))
+	if snap != _rules_snapshot:
+		# Un réglage touché à la main : règles personnalisées, sauf si l'on retombe sur les défauts.
+		rules_preset_id = "classique" if snap == str(rules_part(default_settings())) else ""
+		_rules_snapshot = snap
+	for id: String in rule_buttons:
+		(rule_buttons[id] as Button).set_pressed_no_signal(id == rules_preset_id)
+	if new_step == 1:
+		_np_preview.show_galaxy(galaxy_settings, preview_seed(), _seed_edit.text.strip_edges() == "")
+	if new_step == 4:
+		_np_recap.text = "\n".join(recap_lines())
+
+
+## Les seuls réglages de règles d'un jeu de réglages (ce que les préréglages Découverte, Classique et Tout posent).
+static func rules_part(d: Dictionary) -> Dictionary:
+	var out := {}
+	for k: String in d:
+		if not NOT_RULES.has(k):
+			out[k] = d[k]
+	return out
+
+
+## Pose un préréglage de règles : les défauts d'abord, puis ce que le préréglage change.
+func apply_rules_preset(id: String) -> bool:
+	var def := {}
+	for p: Dictionary in RULE_PRESETS:
+		if String(p["id"]) == id:
+			def = p
+	if def.is_empty():
+		return false
+	var cur := settings()
+	var base := rules_part(default_settings())
+	for k: String in base:
+		cur[k] = base[k]
+	apply_settings(cur)
+	for name: String in def["selects"]:
+		var sel := get(name) as OptionButton
+		if sel != null and int(def["selects"][name]) < sel.item_count:
+			sel.select(int(def["selects"][name]))
+			sel.item_selected.emit(int(def["selects"][name]))
+	for name: String in def["checks"]:
+		var chk := get(name) as CheckBox
+		if chk != null:
+			chk.button_pressed = bool(def["checks"][name])
+	_rules_snapshot = str(rules_part(settings()))
+	rules_preset_id = id
+	_refresh_wizard()
+	return true
+
+
+## Le récapitulatif de la dernière étape, une ligne par étape.
+func recap_lines() -> PackedStringArray:
+	var out := PackedStringArray()
+	var f := GameData.faction(selected_faction) if selected_faction != RANDOM_FACTION else {}
+	out.append("Peuple : %s" % (String(f.get("name", selected_faction)) if selected_faction != RANDOM_FACTION else "au hasard"))
+	var seed_text := _seed_edit.text.strip_edges() if _seed_edit else ""
+	out.append("Galaxie : %s, graine %s" % [GalaxySettings.summary(galaxy_settings), seed_text if seed_text != "" else "au hasard"])
+	out.append("Rivaux : %d empire%s, niveau par défaut %s" % [slots.size(), "s" if slots.size() > 1 else "", AiLevels.label(ai_level).to_lower()])
+	var rules := "personnalisées"
+	for p: Dictionary in RULE_PRESETS:
+		if String(p["id"]) == rules_preset_id:
+			rules = String(p["label"]).to_lower()
+	out.append("Règles : %s, %s" % [rules, "temps réel pausable" if time_mode == GameClock.MODE_REALTIME else "tour par tour"])
+	var on := PackedStringArray()
+	for key: String in victories:
+		if bool(victories[key]) and key != "allies":
+			on.append(Victory.label(key) if Victory.ids().has(key) else key)
+	if people_victories:
+		on.append("victoires de peuple")
+	out.append("Victoire : %s" % (", ".join(on).to_lower() if not on.is_empty() else "au score seulement"))
+	if _deadline_select != null and _deadline_select.selected >= 0:
+		out.append("Limite : %s" % _deadline_select.get_item_text(_deadline_select.selected).to_lower())
+	return out
 
 
 # --- Rejoindre une partie en réseau ---------------------------------------------------------------
@@ -2250,13 +2447,15 @@ func _build_new_page(root: Control) -> void:
 	title.offset_top = 18
 	page_root.add_child(title)
 	_build_presets_bar(page_root)
+	_build_steps(page_root)
 
 	# Écran unique en blocs, à la Endless Space 2 : Empire (peuple joué) en haut à gauche, Rivaux en
 	# haut à droite, puis en bas les traits du peuple, la Galaxie, la Partie et la Victoire.
 	_scene_art.modulate = Color(1, 1, 1, 0.5)  # l'illustration passe en fond, sous le bloc Rivaux
 	_scene_name.visible = false
 	var left := VBoxContainer.new()
-	left.position = Vector2(32, 74)
+	_np_left = left
+	left.position = Vector2(32, STEP_TOP)
 	left.add_theme_constant_override("separation", 10)
 	page_root.add_child(left)
 	left.add_child(_header("Empire"))
@@ -2316,8 +2515,10 @@ func _build_new_page(root: Control) -> void:
 	bottom.offset_bottom = -96
 	bottom.add_theme_constant_override("separation", 20)
 	page_root.add_child(bottom)
+	_np_bottom = bottom
 	var traits := _bottom_block(bottom, "Affinité et traits", 0)
 	traits.get_parent().get_parent().size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_np_blocks["traits"] = traits.get_parent().get_parent()
 	var trow := HBoxContainer.new()
 	trow.add_theme_constant_override("separation", 10)
 	traits.add_child(trow)
@@ -2346,6 +2547,7 @@ func _build_new_page(root: Control) -> void:
 
 	# Galaxie : taille, forme, graine ; routes, départs et mondes garantis derrière « Avancé ».
 	var galaxy := _bottom_block(bottom, "Galaxie", 330, 0)
+	_np_blocks["galaxy"] = galaxy.get_parent().get_parent()
 	_galaxy_banner = Widgets.ArtSlot.new("new_game_galaxy", Vector2(330, 38), Color(0.45, 0.6, 0.95), "galaxy")
 	galaxy.add_child(_galaxy_banner)
 	var gbox := _block_rows(galaxy)
@@ -2369,7 +2571,8 @@ func _build_new_page(root: Control) -> void:
 
 	# Partie : jouer ou regarder, temps réel ou tour par tour.
 	# Le bloc défile : chaque pilier y ajoute son réglage, et il déborde de la hauteur du bas de page.
-	var game_body := _bottom_block(bottom, "Partie", 330, 0)
+	var game_body := _bottom_block(bottom, "Les règles", 330, 0)
+	_np_blocks["game"] = game_body.get_parent().get_parent()
 	_game_scroll = ScrollContainer.new()
 	_game_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_game_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -3006,7 +3209,11 @@ func _build_new_page(root: Control) -> void:
 	game.add_child(_scaling_check)
 
 	# Victoire : date limite du score, victoires de peuple.
-	var vic := _block_rows(_bottom_block(bottom, "Victoire", 330, 0))
+	var vic_body := _bottom_block(bottom, "Victoire", 330, 0)
+	_np_blocks["vic"] = vic_body.get_parent().get_parent()
+	for k: String in _np_blocks:
+		(_np_blocks[k] as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var vic := _block_rows(vic_body)
 	_deadline_select = OptionButton.new()
 	_deadline_select.clip_text = true
 	_deadline_select.tooltip_text = "Date limite : à cette date, le meilleur score l'emporte si personne n'a gagné avant.\nLes autres victoires se cochent en dessous (F8 pour suivre la course)."
@@ -3061,8 +3268,9 @@ func _build_new_page(root: Control) -> void:
 	back_b.offset_left = 28
 	back_b.offset_top = -76
 	back_b.offset_bottom = -76 + back_b.custom_minimum_size.y
-	back_b.pressed.connect(func() -> void: show_page("home"))
+	back_b.pressed.connect(func() -> void: back())
 	page_root.add_child(back_b)
+	_np_back = back_b
 	var go := Widgets.RoundButton.new("check", "Commencer")
 	go.tooltip_text = "Entrée dans la graine, ou double-clic sur un portrait"
 	go.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -3073,6 +3281,126 @@ func _build_new_page(root: Control) -> void:
 	go.offset_bottom = -76 + go.custom_minimum_size.y
 	go.pressed.connect(launch)
 	page_root.add_child(go)
+	_np_go = go
+	_np_next = Widgets.RoundButton.new("next", STEPS[1])
+	_np_next.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_np_next.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_np_next.offset_right = -32
+	_np_next.offset_top = -76
+	_np_next.offset_bottom = -76 + _np_next.custom_minimum_size.y
+	_np_next.pressed.connect(func() -> void: set_step(new_step + 1))
+	page_root.add_child(_np_next)
+	_layout_step()
+
+
+## Le fil des cinq étapes, le bouton Partie rapide, et le panneau de droite des étapes à une colonne
+## (aperçu de la galaxie, préréglages de règles, récapitulatif).
+func _build_steps(page_root: Control) -> void:
+	var thread := HBoxContainer.new()
+	thread.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	thread.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	thread.offset_top = 64
+	thread.add_theme_constant_override("separation", 6)
+	page_root.add_child(thread)
+	for i in STEPS.size():
+		var b := Button.new()
+		b.theme_type_variation = &"TabButton"
+		b.toggle_mode = true
+		b.focus_mode = Control.FOCUS_NONE
+		b.text = "%d  %s" % [i + 1, String(STEPS[i]).to_upper()]
+		var k := i
+		b.pressed.connect(func() -> void: set_step(k))
+		thread.add_child(b)
+		step_buttons.append(b)
+	_np_quick = Button.new()
+	_np_quick.text = "Partie rapide"
+	_np_quick.focus_mode = Control.FOCUS_NONE
+	_np_quick.tooltip_text = "Lance tout de suite, avec ce peuple et les réglages de votre dernière partie (les réglages par défaut si c'est la première)."
+	_np_quick.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_np_quick.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_np_quick.offset_right = -32
+	_np_quick.offset_top = 22
+	_np_quick.pressed.connect(func() -> void:
+		if not quick_game():
+			launch())
+	page_root.add_child(_np_quick)
+	var side := VBoxContainer.new()
+	side.anchor_right = 1.0
+	side.anchor_bottom = 1.0
+	side.offset_left = 32.0 + STEP_COLUMN + 28.0
+	side.offset_right = -32
+	side.offset_top = STEP_TOP
+	side.offset_bottom = -96
+	side.add_theme_constant_override("separation", 8)
+	page_root.add_child(side)
+	_np_side = side
+	_np_side_title = _header("")
+	side.add_child(_np_side_title)
+	_np_preview = GalaxyPreview.new()
+	_np_preview.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	side.add_child(_np_preview)
+	var rules := VBoxContainer.new()
+	rules.add_theme_constant_override("separation", 12)
+	side.add_child(rules)
+	_np_rules = rules
+	for p: Dictionary in RULE_PRESETS:
+		var rb := Button.new()
+		rb.toggle_mode = true
+		rb.focus_mode = Control.FOCUS_NONE
+		rb.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		rb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		rb.custom_minimum_size = Vector2(0, 92)
+		rb.text = "%s\n%s" % [String(p["label"]).to_upper(), String(p["text"])]
+		var pid := String(p["id"])
+		rb.pressed.connect(func() -> void: apply_rules_preset(pid))
+		rules.add_child(rb)
+		rule_buttons[pid] = rb
+	var note := UiTheme.paragraph("Le détail se règle à gauche, ligne par ligne. Toucher à une ligne fait passer les règles en « personnalisées ».", 700.0, 13)
+	note.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	rules.add_child(note)
+	_np_recap = UiTheme.paragraph("", 900.0, 18)
+	_np_recap.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	side.add_child(_np_recap)
+
+
+## Aperçu d'une galaxie tirée avec les réglages en cours : étoiles et voies de saut, à l'échelle du cadre.
+class GalaxyPreview:
+	extends Control
+	var galaxy: Galaxy
+	var example := true
+	var _key := ""
+
+	func _init() -> void:
+		custom_minimum_size = Vector2(300, 300)
+		clip_contents = true
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func show_galaxy(settings: Dictionary, seed_value: int, is_example: bool) -> void:
+		var key := "%s|%d" % [str(settings), seed_value]
+		example = is_example
+		if key != _key:
+			_key = key
+			galaxy = GalaxyGenerator.generate(seed_value, GalaxySettings.system_count(settings), GalaxySettings.radius(settings), GalaxySettings.generator_shape(settings))
+		queue_redraw()
+
+	func _draw() -> void:
+		draw_rect(Rect2(Vector2.ZERO, size), Color(0.02, 0.03, 0.05, 0.8))
+		draw_rect(Rect2(Vector2.ZERO, size), Color(1, 1, 1, 0.1), false, 1.0)
+		if galaxy == null or galaxy.systems.is_empty():
+			return
+		var reach := 1.0
+		for sys in galaxy.systems:
+			reach = maxf(reach, sys.position.length())
+		var k := (minf(size.x, size.y) * 0.5 - 26.0) / reach
+		var c := size * 0.5
+		for l in galaxy.lanes:
+			draw_line(c + galaxy.systems[l.x].position * k, c + galaxy.systems[l.y].position * k, Color(0.5, 0.7, 0.9, 0.22), 1.0, true)
+		for sys in galaxy.systems:
+			draw_circle(c + sys.position * k, 2.2, GalaxyView.STAR_COLORS.get(sys.star_type, Color.WHITE))
+		var cap := "%d systèmes, %d voies de saut" % [galaxy.systems.size(), galaxy.lanes.size()]
+		if example:
+			cap += " · un exemple : sans graine, la vôtre sera tirée au lancement"
+		draw_string(UiTheme.font(400), Vector2(12, size.y - 12), cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, UiTheme.TEXT_DIM)
 
 
 ## Refait la rangée de portraits : officiels, peuples créés de la bibliothèque (user://species/), « Au hasard ».
@@ -3182,11 +3510,12 @@ func _refresh_galaxy() -> void:
 ## (peuple ou au hasard, couleur, niveau d'IA, tempérament), à la Galactic Civilizations IV.
 func _build_rivals_block(page_root: Control) -> void:
 	var outer := VBoxContainer.new()
+	_np_rivals = outer
 	outer.anchor_left = 0.5
-	outer.anchor_right = 1.0
-	outer.offset_left = 26
-	outer.offset_right = -32
-	outer.offset_top = 74
+	outer.anchor_right = 0.5
+	outer.offset_left = -400
+	outer.offset_right = 400
+	outer.offset_top = STEP_TOP
 	outer.add_theme_constant_override("separation", 8)
 	page_root.add_child(outer)
 	var head := HBoxContainer.new()
@@ -3247,7 +3576,7 @@ func _build_rivals_block(page_root: Control) -> void:
 		cols.add_child(l)
 	var list_scroll := ScrollContainer.new()
 	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	list_scroll.custom_minimum_size = Vector2(0, 6 * 38)
+	list_scroll.custom_minimum_size = Vector2(0, 11 * 39)  # les onze rivaux possibles tiennent sans défiler
 	body.add_child(list_scroll)
 	_slot_scroll = list_scroll
 	_slot_list = VBoxContainer.new()
@@ -4094,6 +4423,7 @@ func _build_presets_bar(page_root: Control) -> void:
 	bar.offset_top = 22
 	bar.add_theme_constant_override("separation", 8)
 	page_root.add_child(bar)
+	_np_bar = bar
 	_preset_select = OptionButton.new()
 	_preset_select.custom_minimum_size = Vector2(200, 0)
 	_preset_select.clip_text = true
@@ -4229,6 +4559,7 @@ func _rebuild_presets() -> void:
 
 ## Le menu des préréglages montre celui qui correspond à l'écran, ou « Personnalisé ».
 func _refresh_preset() -> void:
+	_refresh_wizard()
 	if host_new and not _settings_signal:
 		_settings_signal = true
 		_emit_settings_changed.call_deferred()

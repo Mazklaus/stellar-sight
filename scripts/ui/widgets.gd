@@ -983,6 +983,21 @@ class RoundButton:
 		mouse_entered.connect(queue_redraw)
 		mouse_exited.connect(queue_redraw)
 
+	## Change le libellé (un bouton Suivant porte le nom de l'étape où il mène).
+	func set_label(text_value: String) -> void:
+		label_text = text_value.to_upper()
+		var f := UiTheme.font(400, 2)
+		var w := DIAMETER + 14.0 + f.get_string_size(label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, get_theme_font_size("font_size")).x + 4.0
+		var right := offset_right
+		var grows_left := grow_horizontal == Control.GROW_DIRECTION_BEGIN
+		custom_minimum_size.x = w
+		if grows_left:
+			offset_left = right - w
+			offset_right = right
+		else:
+			size.x = w
+		queue_redraw()
+
 	func _draw() -> void:
 		var hot := is_hovered() and not disabled
 		var col := UiTheme.ACCENT if hot else UiTheme.TEXT
