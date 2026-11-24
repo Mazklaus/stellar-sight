@@ -25,6 +25,7 @@ func run(check: Callable) -> void:
 	_test_lore_texts()
 	_test_first_contact()
 	_test_chains()
+	_test_defects()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -810,6 +811,22 @@ func _test_first_contact() -> void:
 
 
 ## E7 : chaînes d'événements. La carte suivante arrive plus tard (délai caché) ou quand l'objectif est rempli.
+## Lot 6 : défauts relevés pendant l'étude.
+func _test_defects() -> void:
+	var seen := {}
+	var twice := []
+	for o: Dictionary in Espionage.data()["operations"]:
+		if seen.has(String(o["id"])):
+			twice.append(String(o["id"]))
+		seen[String(o["id"])] = true
+	_ok(twice.is_empty() and bool(Espionage.op_def("voler_plans_modele").get("capture", false)) and bool(Espionage.op_def("voler_plans").get("wonders", false)),
+			"défauts : chaque opération d'espionnage a son identifiant %s" % str(twice))
+	var st := GameState.create(11, 60, 1200.0, "ossarane", {"ai_level": ""})
+	for cls: String in Heroes.data()["classes"]:
+		var txt := Heroes.post_effect_text(st, {"post": "council", "cls": cls, "lvl": 3, "traits": [], "owner": 0})
+		_ok(txt != "" and not txt.contains("%d"), "défauts : un héros %s au conseil a son texte d'effet" % cls)
+
+
 func _test_chains() -> void:
 	var st := GameState.create(11, 60, 1200.0, "ossarane", {"ai_level": "", "events": "normaux"})
 	var a := st.empires[0]

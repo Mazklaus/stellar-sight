@@ -736,8 +736,11 @@ class ArtSlot:
 					draw_arc(head, hr * 1.08, PI * 1.0, PI * 2.0, 24, edge, 3.0, true)
 					draw_line(head + Vector2(0, -hr * 1.08), head + Vector2(0, hr * 0.35), edge, 2.5, true)
 					for side in [-1.0, 1.0]:
+						# Deux plumes en triangles : d'un seul tenant, le contour se recoupait et la triangulation échouait.
 						draw_colored_polygon(PackedVector2Array([head + Vector2(side * hr * 0.95, -hr * 0.5), head + Vector2(side * hr * 1.9, -hr * 1.5),
-								head + Vector2(side * hr * 1.5, -hr * 0.6), head + Vector2(side * hr * 1.8, -hr * 0.9), head + Vector2(side * hr * 1.05, -hr * 0.15)]), Color(edge, 0.8))
+								head + Vector2(side * hr * 1.5, -hr * 0.6)]), Color(edge, 0.8))
+						draw_colored_polygon(PackedVector2Array([head + Vector2(side * hr * 1.2, -hr * 0.45), head + Vector2(side * hr * 1.8, -hr * 0.9),
+								head + Vector2(side * hr * 1.05, -hr * 0.15)]), Color(edge, 0.8))
 				"eyepatch":
 					draw_line(head + Vector2(-hr * 0.95, -hr * 0.45), head + Vector2(hr * 0.95, hr * 0.1), edge, 1.5, true)
 					draw_circle(head + Vector2(hr * 0.38, -hr * 0.05), hr * 0.22, edge.darkened(0.6))
