@@ -94,20 +94,22 @@ func _test_map() -> void:
 	view.set_state(st)
 	var me := st.get_empire(0)
 	var home := st.galaxy.get_planet(me.capital_planet).system_id
-	var cells := view.territory_cells()
-	_ok(cells.has(home) and int(cells[home]["owner"]) == 0, "le système d'origine a son territoire")
-	var fill: PackedVector2Array = cells[home]["fill"]
-	var far := 0.0
-	for p in fill:
-		far = maxf(far, p.distance_to(st.galaxy.systems[home].position))
-	_ok(fill.size() == GalaxyView.TERRITORY_STEPS and far <= GalaxyView.TERRITORY_RADIUS * 1.06, "un territoire ne dépasse pas sa portée (%.0f)" % far)
-	_ok(not (cells[home]["edges"] as Array).is_empty(), "un territoire isolé a son bord")
-	var owned := 0
-	for s in st.galaxy.systems:
-		if st.system_owner(s.id) >= 0 and st.get_empire(st.system_owner(s.id)) != null:
-			owned += 1
-	_ok(cells.size() == owned, "une cellule par système possédé (%d pour %d)" % [cells.size(), owned])
-	_ok(view.territory_cells() == cells, "les territoires ne sont recalculés que si la carte change")
+	var sites := view.territory_sites()
+	var mine := 0
+	var on_lane := 0
+	var known := 0
+	for e: Dictionary in sites:
+		if int(e["owner"]) == 0:
+			mine += 1
+		if float(e["r"]) < GalaxyView.TERRITORY_RADIUS:
+			on_lane += 1
+		else:
+			known += 1
+	_ok(known == st.galaxy.systems.size(), "territoires : un site par système connu (%d)" % known)
+	_ok(mine >= 2 and on_lane > 0, "territoires : le système d'origine et ses voies portent la couleur de l'empire (%d sites)" % mine)
+	view.fog = true
+	_ok(view.territory_sites().size() < sites.size(), "territoires : rien n'est tracé hors des cartes")
+	view.fog = false
 	_ok(view.is_capital(home), "la capitale est reconnue")
 
 	# Insignes : éventail sous l'étoile, « +N » au-delà de quatre, nature et état.

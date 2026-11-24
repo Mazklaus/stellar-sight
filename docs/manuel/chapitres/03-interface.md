@@ -21,7 +21,7 @@ On se déplace en faisant glisser la carte (clic droit ou molette enfoncée) ou 
 
 La carte ne montre pas la même chose à toutes les distances. Elle a **trois paliers**, et trois boutons à gauche du cadran y mènent d'un clic. Au palier **Galaxie**, au plus loin, on lit les empires : leurs territoires, leur nom écrit dessus, les capitales, les combats et la crise ; chaque flotte n'est qu'un tiret, les vôtres à gauche de l'étoile, celles des autres à droite. Au palier **Région**, celui du début de partie, on lit les systèmes : leurs noms, leurs planètes, les insignes des flottes. Au palier **Système**, au plus près, les insignes laissent la place à la silhouette du plus gros vaisseau de chaque flotte, et de petits cargos parcourent vos routes commerciales.
 
-Le **territoire** d'un empire est une zone continue à bord net : chaque point de la carte revient au système connu le plus proche, s'il est à portée. La limite n'est tracée que là où le territoire s'arrête ou touche celui d'un voisin. Un système vu il y a longtemps garde une teinte plus sourde.
+Le **territoire** d'un empire est une zone continue aux bords arrondis, cernée d'un liseré à sa couleur. Elle entoure ses systèmes et suit ses voies de saut ; entre deux voisins, la limite passe à mi-chemin de la voie qui les relie, et un mince intervalle sombre sépare les deux couleurs. Un système vu il y a longtemps garde une teinte plus sourde.
 
 Vos **routes commerciales** se voient en permanence, en trait fin le long des voies, à la couleur du partenaire ; une route bloquée passe au rouge, ses cargos attendent devant le système en cause, marqué d'un rond barré. Ces cargos sont des figurants : ils ne se sélectionnent pas et ne pèsent pas sur la partie.
 

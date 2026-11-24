@@ -18,9 +18,14 @@ const LABEL_FONT_SIZE := 13
 ## Zoom à partir duquel tous les systèmes montrent leurs pastilles de planètes.
 const PLANET_DOTS_MIN_ZOOM := 0.8
 ## Rayon du halo de territoire autour d'un système revendiqué, en unités du monde.
-const TERRITORY_RADIUS := 130.0
-## Finesse du contour d'un territoire (points par système).
-const TERRITORY_STEPS := 48
+## Portée d'un système dans le champ des territoires, et des points semés le long des voies.
+const TERRITORY_RADIUS := 95.0
+const TERRITORY_LANE_REACH := 0.55
+const TERRITORY_LANE_STEP := 55.0
+## Côté de l'image du champ des territoires.
+const TERRITORY_TEXTURE := 768
+const TERRITORY_FIELD_SHADER := preload("res://shaders/territory_field.gdshader")
+const TERRITORY_SHADER := preload("res://shaders/territory.gdshader")
 ## Paliers de zoom (refonte, B1) : de loin les empires, à mi-distance les systèmes et les flottes,
 ## de près les silhouettes et les cargos.
 const TIER_GALAXY := 0
@@ -65,10 +70,11 @@ var _font: Font
 var _last_zoom := -1.0
 ## Calques affichés (voir LAYERS).
 var layers := {"routes": true, "fleets": true, "names": true, "sites": true, "terrain": true}
-## Territoires : cellules calculées pour la dernière répartition connue des systèmes.
+## Territoires : image du champ, recalculée quand la carte connue change (voir _update_territory).
 var _terr_sig := -1
-var _terr_cells := {}
-var _terr_near := {}
+var _terr_view: SubViewport
+var _terr_field: ColorRect
+var _terr_sprite: Sprite2D
 ## Flottes à l'arrêt masquées derrière un « +N », par système : {pos, ids}.
 var _overflow := {}
 ## Des cargos circulent (palier Système) : la carte se redessine à chaque image.
@@ -81,14 +87,13 @@ const GROUND_BATTLE_COLOR := Color(0.95, 0.68, 0.32)
 
 func _ready() -> void:
 	_font = UiTheme.body_font()
+	_build_territory()
 
 
 func set_state(value: GameState) -> void:
 	state = value
 	galaxy = value.galaxy if value else null
 	_terr_sig = -1
-	_terr_cells = {}
-	_terr_near = {}
 	selected_id = -1
 	hovered_id = -1
 	_make_background()
@@ -830,113 +835,101 @@ func _draw_conflicts(px: float) -> void:
 ## Territoire : une zone à la couleur de l'empire autour de ses systèmes et le long de ses routes.
 ## Couleur opaque (fond teinté) plutôt que transparente : les zones qui se chevauchent
 ## se fondent en une seule tache au lieu de s'assombrir par endroits.
-## Territoires (B5a) : chaque empire occupe une zone continue à bord net. Un point de la carte revient
-## au système connu le plus proche s'il est à portée ; la limite n'est tracée que là où le territoire
-## s'arrête ou touche celui d'un autre.
+## Territoires (B5a) : chaque empire occupe une zone continue aux bords arrondis, qui suit ses voies de
+## saut, comme sur la carte de Stellaris. Le dessin est confié à deux shaders : le premier calcule, dans
+## une image hors écran et seulement quand la carte connue change, à quel empire revient chaque point
+## et à quelle distance il est du bord ; le second l'affiche derrière la carte.
 func _draw_territory(px: float, t: int) -> void:
-	if state == null:
+	if state == null or _terr_sprite == null:
 		return
-	var bg: Color = ProjectSettings.get_setting("rendering/environment/defaults/default_clear_color", Color.BLACK)
-	var cells := territory_cells()
-	var strong := 0.34 if t == TIER_GALAXY else 0.17
-	for sid: int in cells:
-		var cell: Dictionary = cells[sid]
-		var owner := state.get_empire(int(cell["owner"]))
-		if owner == null:
-			continue
-		draw_colored_polygon(cell["fill"], bg.lerp(owner.color(), strong if is_seen(sid) else strong * 0.62))
-	for sid: int in cells:
-		var cell: Dictionary = cells[sid]
-		var owner := state.get_empire(int(cell["owner"]))
-		if owner == null:
-			continue
-		var col := _owner_color(owner, sid)
-		for run: PackedVector2Array in cell["edges"]:
-			draw_polyline(run, Color(col, 0.1), 6.0 * px, true)
-			draw_polyline(run, Color(col, 0.62), 1.4 * px, true)
+	_update_territory()
+	var mat := _terr_sprite.material as ShaderMaterial
+	mat.set_shader_parameter("px", px)
+	mat.set_shader_parameter("fill", 0.5 if t == TIER_GALAXY else 0.36)
+	mat.set_shader_parameter("rim", 0.2 if t == TIER_GALAXY else 0.24)
 
 
-## Cellules de territoire, par système possédé : {owner, fill (contour plein), edges (tronçons de
-## frontière à tracer)}. Recalculées seulement quand la carte connue du joueur change.
-func territory_cells() -> Dictionary:
+## Sites des territoires : [{pos, r, owner, seen}]. Un site par système connu (owner -1 s'il est sans
+## maître connu), et des points le long des voies de saut, chacun rendu à l'extrémité la plus proche :
+## le territoire suit les voies et s'arrête à mi-chemin d'un voisin.
+func territory_sites() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
 	if state == null or galaxy == null:
-		return {}
-	var n := galaxy.systems.size()
-	# -2 : hors des cartes ; -1 : connu, sans maître connu ; sinon l'empire.
-	var code := PackedInt32Array()
-	code.resize(n)
+		return out
+	var code := {}
 	for s in galaxy.systems:
-		var c := -2
-		if is_explored(s.id):
-			var o := owner_of(s.id)
-			c = o if o >= 0 and state.get_empire(o) != null else -1
-		elif is_known(s.id):
-			c = -1
-		code[s.id] = c
-	var sig := hash(code)
-	if sig == _terr_sig:
-		return _terr_cells
-	_terr_sig = sig
-	_terr_cells = {}
-	if _terr_near.is_empty():
-		var reach := TERRITORY_RADIUS * TERRITORY_RADIUS * 4.0
-		for a in galaxy.systems:
-			var near := PackedInt32Array()
-			for b in galaxy.systems:
-				if b.id != a.id and a.position.distance_squared_to(b.position) < reach:
-					near.append(b.id)
-			_terr_near[a.id] = near
-	for s in galaxy.systems:
-		var mine := code[s.id]
-		if mine < 0:
+		if not is_known(s.id):
 			continue
-		var fill := PackedVector2Array()
-		var rim := PackedVector2Array()
-		var open := PackedByteArray()
-		for k in TERRITORY_STEPS:
-			var d := Vector2.from_angle(TAU * k / TERRITORY_STEPS)
-			var r := TERRITORY_RADIUS
-			var lim := -1
-			for j: int in _terr_near[s.id]:
-				if code[j] == -2:
-					continue
-				var v := galaxy.systems[j].position - s.position
-				var dv := d.dot(v)
-				if dv <= 0.0:
-					continue
-				var reach := v.length_squared() / (2.0 * dv)
-				if reach < r:
-					r = reach
-					lim = j
-			var same := lim >= 0 and code[lim] == mine
-			# Entre deux systèmes du même empire les cellules se recouvrent d'un rien : pas de couture.
-			fill.append(s.position + d * (r * 1.05 if same else r))
-			rim.append(s.position + d * maxf(r - 1.5, 0.0))
-			open.append(0 if same else 1)
-		var edges: Array[PackedVector2Array] = []
-		var first := -1
-		for k in TERRITORY_STEPS:
-			if open[k] == 0:
-				first = k
-				break
-		if first == -1:
-			var loop := rim.duplicate()
-			loop.append(rim[0])
-			edges.append(loop)
-		else:
-			var run := PackedVector2Array()
-			for i in range(1, TERRITORY_STEPS + 1):
-				var k := (first + i) % TERRITORY_STEPS
-				if open[k] == 1:
-					run.append(rim[k])
-				else:
-					if run.size() >= 2:
-						edges.append(run)
-					run = PackedVector2Array()
-			if run.size() >= 2:
-				edges.append(run)
-		_terr_cells[s.id] = {"owner": mine, "fill": fill, "edges": edges}
-	return _terr_cells
+		var o := -1
+		if is_explored(s.id):
+			o = owner_of(s.id)
+			if o < 0 or state.get_empire(o) == null:
+				o = -1
+		code[s.id] = o
+		out.append({"pos": s.position, "r": TERRITORY_RADIUS, "owner": o, "seen": is_seen(s.id)})
+	for lane in galaxy.lanes:
+		if not code.has(lane.x) or not code.has(lane.y):
+			continue
+		if code[lane.x] == -1 and code[lane.y] == -1:
+			continue
+		var a := galaxy.systems[lane.x].position
+		var b := galaxy.systems[lane.y].position
+		var n := int(a.distance_to(b) / TERRITORY_LANE_STEP)
+		for i in range(1, n + 1):
+			var k := float(i) / float(n + 1)
+			var near: int = lane.x if k < 0.5 else lane.y
+			out.append({"pos": a.lerp(b, k), "r": TERRITORY_RADIUS * TERRITORY_LANE_REACH, "owner": code[near], "seen": is_seen(near)})
+	return out
+
+
+func _update_territory() -> void:
+	var sites := territory_sites()
+	var sig := hash(str(sites))
+	if sig == _terr_sig:
+		return
+	_terr_sig = sig
+	var n := maxi(1, sites.size())
+	var data := Image.create(n, 1, false, Image.FORMAT_RGBAF)
+	var tints := Image.create(n, 1, false, Image.FORMAT_RGBA8)
+	var extent := 600.0
+	for i in sites.size():
+		var e: Dictionary = sites[i]
+		var p: Vector2 = e["pos"]
+		extent = maxf(extent, maxf(absf(p.x), absf(p.y)) + TERRITORY_RADIUS + 80.0)
+		data.set_pixel(i, 0, Color(p.x, p.y, float(e["r"]), float(e["owner"])))
+		var owner := state.get_empire(int(e["owner"]))
+		if owner:
+			tints.set_pixel(i, 0, owner.color() if bool(e["seen"]) else owner.color().darkened(0.4))
+	var mat := _terr_field.material as ShaderMaterial
+	mat.set_shader_parameter("sites", ImageTexture.create_from_image(data))
+	mat.set_shader_parameter("tints", ImageTexture.create_from_image(tints))
+	mat.set_shader_parameter("count", sites.size())
+	mat.set_shader_parameter("extent", extent)
+	_terr_view.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_terr_sprite.scale = Vector2.ONE * (extent * 2.0 / float(TERRITORY_TEXTURE))
+
+
+func _build_territory() -> void:
+	_terr_view = SubViewport.new()
+	_terr_view.size = Vector2i(TERRITORY_TEXTURE, TERRITORY_TEXTURE)
+	_terr_view.transparent_bg = true
+	_terr_view.disable_3d = true
+	_terr_view.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	add_child(_terr_view)
+	_terr_field = ColorRect.new()
+	_terr_field.size = Vector2(TERRITORY_TEXTURE, TERRITORY_TEXTURE)
+	var field := ShaderMaterial.new()
+	field.shader = TERRITORY_FIELD_SHADER
+	_terr_field.material = field
+	_terr_view.add_child(_terr_field)
+	_terr_sprite = Sprite2D.new()
+	_terr_sprite.texture = _terr_view.get_texture()
+	_terr_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_terr_sprite.show_behind_parent = true
+	var look := ShaderMaterial.new()
+	look.shader = TERRITORY_SHADER
+	_terr_sprite.material = look
+	add_child(_terr_sprite)
 
 
 func _draw_system(s: StarSystem, px: float) -> void:
