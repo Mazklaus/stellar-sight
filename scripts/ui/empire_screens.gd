@@ -111,6 +111,11 @@ var _diplo_sig := ""
 var war_buttons := {}
 ## Empire choisi dans l'écran Diplomatie, et les boutons de sa relation (pour les tests).
 var diplo_selected := -1
+## Onglet de la diplomatie (empires, league, neighbors) et volet de la fiche d'un empire (relation, deal, war).
+var diplo_tab := "empires"
+var diplo_pane := "relation"
+var diplo_pane_buttons := {}
+var diplo_panes := {}
 var diplo_table: DiplomacyTable
 var treaty_buttons := {}
 var cancel_buttons := {}
@@ -1875,6 +1880,9 @@ func _build_diplomacy() -> void:
 	var left := Widgets.Block.new("Galaxie diplomatique")
 	left.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	row.add_child(left)
+	if not UiDomains.offered(_state, _player, "diplomacy:" + diplo_tab):
+		diplo_tab = "empires"
+	left.visible = diplo_tab == "empires"
 	diplo_table = DiplomacyTable.new(430.0)
 	left.body.add_child(diplo_table)
 	diplo_table.setup(_state, _player, diplo_selected)
@@ -1904,16 +1912,24 @@ func _build_diplomacy() -> void:
 	right_scroll.add_child(right)
 	var props := Diplomacy.proposals_for(_state, _player)
 	if not props.is_empty():
-		right.add_child(_proposals_block(props))
-	right.add_child(_relation_block(diplo_selected))
+		var pb := _proposals_block(props)
+		pb.visible = diplo_tab == "empires"
+		right.add_child(pb)
+	var rel := _relation_block(diplo_selected)
+	rel.visible = diplo_tab == "empires"
+	right.add_child(rel)
+	# Ligue et Voisins ont leur onglet (refonte, C18 et C19) : construits ici, montrés selon l'onglet.
 	var kb := KoinonUi.league_block(_state, _player, _vassal_emit, koinon_buttons, koinon_draft)
 	if kb != null:
+		kb.visible = diplo_tab == "league"
 		right.add_child(kb)
 	var ab := AncientsUi.block(_state, _player, _vassal_emit, koinon_buttons, koinon_draft)
 	if ab != null:
+		ab.visible = diplo_tab == "neighbors"
 		right.add_child(ab)
 	var mb := MinorsUi.block(_state, _player, _vassal_emit, koinon_buttons, koinon_draft)
 	if mb != null:
+		mb.visible = diplo_tab == "neighbors"
 		right.add_child(mb)
 
 
@@ -2031,29 +2047,60 @@ func _relation_block(id: int) -> Control:
 		blk.body.add_child(UiTheme.paragraph("Aucun contact : vos éclaireurs n'ont pas encore croisé cet empire." if not e.eliminated else "Cet empire a disparu de la galaxie.", 520, 14))
 		return blk
 
+	# Trois volets (refonte, C16) : Relation, Traiter, Guerre. Tous construits, un seul montré.
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 6)
+	blk.body.add_child(tabs)
+	var p_rel := VBoxContainer.new()
+	var p_deal := VBoxContainer.new()
+	var p_war := VBoxContainer.new()
+	diplo_panes = {"relation": p_rel, "deal": p_deal, "war": p_war}
+	diplo_pane_buttons = {}
+	for pn in [["relation", "Relation"], ["deal", "Traiter"], ["war", "Guerre"]]:
+		var pid := String(pn[0])
+		var pb := Button.new()
+		pb.theme_type_variation = &"TabButton"
+		pb.toggle_mode = true
+		pb.focus_mode = Control.FOCUS_NONE
+		pb.text = String(pn[1]).to_upper()
+		pb.add_theme_font_size_override("font_size", 13)
+		pb.set_pressed_no_signal(pid == diplo_pane)
+		pb.pressed.connect(func() -> void: set_diplo_pane(pid))
+		tabs.add_child(pb)
+		diplo_pane_buttons[pid] = pb
+		var pane: VBoxContainer = diplo_panes[pid]
+		pane.add_theme_constant_override("separation", 8)
+		pane.visible = pid == diplo_pane
+		blk.body.add_child(pane)
+	var acts_deal := HFlowContainer.new()
+	var acts_war := HFlowContainer.new()
+	for fl: HFlowContainer in [acts_deal, acts_war]:
+		fl.add_theme_constant_override("h_separation", 10)
+		fl.add_theme_constant_override("v_separation", 6)
+
 	# Opinions, détaillées dans l'infobulle.
 	var g := _grid(2)
-	blk.body.add_child(g)
+	p_rel.add_child(g)
 	_opinion_row(g, "Son opinion de vous", id, _player)
 	_opinion_row(g, "Votre opinion de lui", _player, id)
 	for ab in Diplomacy.faction_abilities(e.faction()):
 		var t := UiTheme.paragraph("%s. %s" % [ab["label"], ab["text"]], 520, 13)
 		t.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
-		blk.body.add_child(t)
+		p_rel.add_child(t)
 	if InsSilencieux.is_silent(_state, id):  # la directive des Silencieux est affichée à tous (prop. 74)
 		var dt := UiTheme.paragraph(InsSilencieux.directive_text(_state, id), 520, 13)
 		dt.add_theme_color_override("font_color", UiTheme.WARN)
-		blk.body.add_child(dt)
+		p_rel.add_child(dt)
 	if Diplomacy.has_heir(_state, id):
-		blk.body.add_child(UiTheme.dim("Loyauté de son héritier : %d / 100" % e.heir_loyalty, 13))
+		p_rel.add_child(UiTheme.dim("Loyauté de son héritier : %d / 100" % e.heir_loyalty, 13))
 
 	# Traités : un bouton par traité, avec ce que l'autre en pense (comme la barre d'Endless Space 2).
-	blk.body.add_child(UiTheme.section("Proposer"))
+	p_deal.add_child(UiTheme.section("Proposer"))
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 12)
 	grid.add_theme_constant_override("v_separation", 6)
-	blk.body.add_child(grid)
+	p_deal.add_child(grid)
 	for t in Diplomacy.TREATY_IDS:
 		if t == Diplomacy.MIGRATION and not _state.peoples_on:
 			continue
@@ -2095,19 +2142,21 @@ func _relation_block(id: int) -> Control:
 		verdict.custom_minimum_size = Vector2(240, 0)
 		grid.add_child(verdict)
 	# Frontières : accès dans les deux sens, politique, intrus (voir BordersUi).
-	blk.body.add_child(BordersUi.relation(_state, _player, id, _vassal_emit, border_buttons))
+	p_rel.add_child(BordersUi.relation(_state, _player, id, _vassal_emit, border_buttons))
 	# Buts de guerre : motifs, revendications, score en %, reddition sur but (voir WarsUi).
-	blk.body.add_child(WarsUi.relation(_state, _player, id, _vassal_emit, war_goal_buttons, war_draft))
+	p_war.add_child(WarsUi.relation(_state, _player, id, _vassal_emit, war_goal_buttons, war_draft))
 	# Paix à conditions, reddition, protection, sujets (voir VassalUi).
-	blk.body.add_child(VassalUi.relation(_state, _player, id, _vassal_emit, vassal_buttons, vassal_draft))
+	p_deal.add_child(VassalUi.relation(_state, _player, id, _vassal_emit, vassal_buttons, vassal_draft))
 	# Koinon : fonder, entrer, guerre commune, exclusion (voir KoinonUi).
-	blk.body.add_child(KoinonUi.relation(_state, _player, id, _vassal_emit, koinon_buttons, koinon_draft))
+	p_deal.add_child(KoinonUi.relation(_state, _player, id, _vassal_emit, koinon_buttons, koinon_draft))
 
 	# Rompre, déclarer, intriguer, arbitrer.
 	var acts := HFlowContainer.new()
 	acts.add_theme_constant_override("h_separation", 10)
 	acts.add_theme_constant_override("v_separation", 6)
-	blk.body.add_child(acts)
+	p_rel.add_child(acts)
+	p_deal.add_child(acts_deal)
+	p_war.add_child(acts_war)
 	for t in [Diplomacy.ALLIANCE, Diplomacy.PEACE, Diplomacy.TRADE, Diplomacy.MIGRATION, Diplomacy.PASSAGE, Diplomacy.PROSP]:
 		var label: String = {"alliance": "QUITTER L'ALLIANCE", "peace": "DÉNONCER LA PAIX", "trade": "ROMPRE LE COMMERCE", "migration": "FERMER LA MIGRATION",
 				"passage": "DÉNONCER LE LIBRE-PASSAGE", "prosp": "FIN DE LA PROSPECTION"}[t]
@@ -2167,7 +2216,7 @@ func _relation_block(id: int) -> Control:
 				command_requested.emit(SimCommands.declare_war(_player, target, String(c[0]), String(c[1]), brk))
 			else:
 				war_requested.emit(target))
-		acts.add_child(war)
+		acts_war.add_child(war)
 		war_buttons[id] = war
 	if Diplomacy.has_heir(_state, id):
 		var b := Button.new()
@@ -2177,7 +2226,7 @@ func _relation_block(id: int) -> Control:
 		b.disabled = why != ""
 		b.tooltip_text = why if why != "" else "Sa loyauté baisse de %d. À 0, il vous livre son fief le plus lointain. Ils le sauront." % int(Diplomacy.ability("heir")["bribe_loss"])
 		b.pressed.connect(func() -> void: command_requested.emit(SimCommands.bribe_heir(_player, id)))
-		acts.add_child(b)
+		acts_deal.add_child(b)
 		ability_buttons["bribe"] = b
 	# Flottes à louer : le syndicat propose ses flottes, ou le client les engage.
 	if Diplomacy.has_ability(_state, _player, "mercenary") and not e.eliminated:
@@ -2193,7 +2242,7 @@ func _relation_block(id: int) -> Control:
 					_state.get_empire(w).short_name(), e.short_name(), GameData.format_amounts(Diplomacy.contract_fee(_state, _player))]
 			var target := w
 			b.pressed.connect(func() -> void: command_requested.emit(SimCommands.contract(_player, _player, id, target)))
-			acts.add_child(b)
+			acts_deal.add_child(b)
 			ability_buttons["hire_out_%d" % w] = b
 	if Diplomacy.has_ability(_state, id, "mercenary") and not e.eliminated:
 		for w in me.wars:
@@ -2208,7 +2257,7 @@ func _relation_block(id: int) -> Control:
 					e.short_name(), _state.get_empire(w).short_name(), GameData.format_amounts(Diplomacy.contract_fee(_state, id))]
 			var target := w
 			b.pressed.connect(func() -> void: command_requested.emit(SimCommands.contract(_player, id, _player, target)))
-			acts.add_child(b)
+			acts_deal.add_child(b)
 			ability_buttons["hire_%d" % w] = b
 	if Victory.applies(_state, _player, "elu") and not Diplomacy.no_treaties(_state, id) and not e.eliminated:
 		var b := Button.new()
@@ -2220,7 +2269,7 @@ func _relation_block(id: int) -> Control:
 		b.tooltip_text = (why if why != "" else "Un pas vers l'Élu des routes : l'union tient tant que l'alliance tient.") if not united \
 				else "Vos maisons sont unies. Si l'alliance tombe, l'union tombe avec elle."
 		b.pressed.connect(func() -> void: command_requested.emit(SimCommands.unite_lineages(_player, id)))
-		acts.add_child(b)
+		acts_deal.add_child(b)
 		ability_buttons["union"] = b
 	if Diplomacy.has_ability(_state, _player, "mediation"):
 		for w in e.wars:
@@ -2234,9 +2283,18 @@ func _relation_block(id: int) -> Control:
 			b.tooltip_text = why if why != "" else "Les Veilleurs du Seuil imposent la paix (%s)." % GameData.format_amounts(Diplomacy.ability("mediation")["cost"])
 			var other := w
 			b.pressed.connect(func() -> void: command_requested.emit(SimCommands.mediate(_player, id, other)))
-			acts.add_child(b)
+			acts_deal.add_child(b)
 			ability_buttons["mediate_%d" % w] = b
 	return blk
+
+
+## Montre un volet de la fiche d'un empire : "relation", "deal" (Traiter) ou "war" (Guerre).
+func set_diplo_pane(pane: String) -> void:
+	diplo_pane = pane
+	for k: String in diplo_panes:
+		if is_instance_valid(diplo_panes[k]):
+			(diplo_panes[k] as Control).visible = k == pane
+			(diplo_pane_buttons[k] as Button).set_pressed_no_signal(k == pane)
 
 
 func _opinion_row(g: GridContainer, caption: String, who: int, about: int) -> void:

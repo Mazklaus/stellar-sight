@@ -18,7 +18,7 @@ const DOMAINS := [
 	{"id": "forces", "label": "Forces", "key": "F3", "glyph": "armies", "tabs": [
 		["Flottes", ["fleets"]], ["Chantier", ["shipyard"]], ["Armées", ["armies"]], ["Batailles", ["battles"]]]},
 	{"id": "diplomatie", "label": "Diplomatie", "key": "F4", "glyph": "diplomacy", "tabs": [
-		["Empires", ["diplomacy"]], ["Assemblée", ["amphictyony"]], ["Renseignement", ["intel"]]]},
+		["Empires", ["diplomacy:empires"]], ["Ligue", ["diplomacy:league"]], ["Voisins", ["diplomacy:neighbors"]], ["Assemblée", ["amphictyony"]], ["Renseignement", ["intel"]]]},
 	{"id": "commerce", "label": "Commerce", "key": "F5", "glyph": "trade", "tabs": [
 		["Routes", ["trade:routes"]], ["Marché", ["trade:market", "trade:resources"]],
 		["Accords", ["trade:knowledge"]], ["Privé", ["trade:private"]], ["Réseau", ["trade:ports"]]]},
@@ -35,7 +35,7 @@ const DOMAINS := [
 		["L'Échelle", ["kardashev"]]]},
 ]
 ## Onglet par défaut des écrans à onglets internes.
-const DEFAULT_SUB := {"order": "ordre", "throne": "trone", "trade": "routes", "chronicles": "quests"}
+const DEFAULT_SUB := {"diplomacy": "empires", "order": "ordre", "throne": "trone", "trade": "routes", "chronicles": "quests"}
 
 
 static func screen_of(addr: String) -> String:
@@ -91,6 +91,13 @@ static func offered(state: GameState, player: int, addr: String) -> bool:
 			return ChronicleScreen.tabs(state).has(sub)
 		"peoples":
 			return state.peoples_on
+		"diplomacy":
+			if sub == "league":
+				return state.koinon_on and Koinon.league_of(state, player) >= 0
+			if sub == "neighbors":
+				return player >= 0 and ((Minors.enabled(state) and not Minors.met(state, player).is_empty()) \
+						or (Ancients.enabled(state) and not Ancients.met(state, player).is_empty()))
+			return true
 		"megas":
 			return Megastructures.enabled(state)
 		"forge":
@@ -127,6 +134,8 @@ static func address(es: EmpireScreens) -> String:
 		return ""
 	var sub := ""
 	match es.current:
+		"diplomacy":
+			sub = es.diplo_tab
 		"order":
 			sub = OrderScreen.tab
 		"throne":
@@ -149,6 +158,8 @@ static func apply_sub(es: EmpireScreens, addr: String) -> void:
 	if sub == "":
 		return
 	match screen_of(addr):
+		"diplomacy":
+			es.diplo_tab = sub
 		"order":
 			OrderScreen.tab = sub
 		"throne":

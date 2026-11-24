@@ -354,3 +354,7 @@ func _test_screens() -> void:
 	st.battle_reports.append({"sides": [{"empire": 1}, {"empire": 2}], "end": 95, "winner": 1, "system_name": "Ailleurs"})
 	var be := BattlesScreen.entries(st, 0)
 	_ok(be.size() == 1 and String(be[0]["verdict"]) == "won" and int(be[0]["index"]) == st.battle_reports.size() - 2, "seules les batailles de l'empire sont listées")
+	# Diplomatie (C16, C18, C19) : onglets Empires, Ligue, Voisins.
+	_ok(UiDomains.locate("diplomacy") == [3, 0] and UiDomains.locate("diplomacy:league") == [3, 1] and UiDomains.locate("diplomacy:neighbors") == [3, 2],
+			"Empires, Ligue et Voisins ouvrent le domaine Diplomatie")
+	_ok(UiDomains.offered(st, 0, "diplomacy:empires") and UiDomains.locate("amphictyony") == [3, 3], "l'onglet Empires est toujours offert, l'Assemblée suit")
