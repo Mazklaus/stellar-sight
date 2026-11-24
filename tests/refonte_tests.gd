@@ -385,3 +385,40 @@ func _test_screens() -> void:
 		(es.panes["essai"]["boxes"][k] as Node).free()
 	row2.free()
 	es.free()
+	# Commerce (C21) : routes bloquées en tête, trajet en miniature.
+	var old_routes: Array = st.trade.get("routes", [])
+	st.trade["routes"] = [{"from": 0, "to": 1, "kind": "ext", "net": 9, "path": [0, 1], "blocked": false}, {"from": 1, "to": 0, "kind": "ext", "net": 2, "path": [1, 0], "blocked": true, "at": 1},
+			{"from": 0, "to": 2, "kind": "ext", "net": 14, "path": [0, 2], "blocked": false}, {"from": 1, "to": 2, "kind": "ext", "net": 50, "path": [1, 2], "blocked": false}]
+	var rr := TradeScreen.route_rows(st, 0)
+	_ok(rr.size() == 3 and bool(rr[0]["blocked"]) and int(rr[1]["net"]) == 14 and int(rr[2]["net"]) == 9, "routes de l'empire : la bloquée d'abord, puis les plus rentables")
+	st.trade["routes"] = old_routes
+	var rm := Widgets.RouteMap.new()
+	rm.set_path(PackedVector2Array([Vector2(100, 100), Vector2(300, 100), Vector2(300, 180)]), Color.WHITE, 1)
+	var fit := rm.fitted(Vector2(120, 34))
+	var inside := true
+	for q in fit:
+		inside = inside and q.x >= 0.0 and q.x <= 120.0 and q.y >= 0.0 and q.y <= 34.0
+	_ok(fit.size() == 3 and inside and is_equal_approx(fit[1].x, fit[2].x), "le trajet miniature tient dans son cadre et garde ses proportions")
+	rm.free()
+	# Accords (C23) : une carte par partenaire, les partenaires commerciaux d'abord.
+	var kp := GoodsScreen.knowledge_partners(st, 0)
+	var tp := Trade.partners(st, 0)
+	var kp_ok := kp.size() >= tp.size()
+	for i in tp.size():
+		kp_ok = kp_ok and kp[i] == int(tp[i])
+	for o in kp:
+		kp_ok = kp_ok and o != 0 and kp.count(o) == 1
+	_ok(kp_ok, "partenaires de savoir : chacun une fois, les partenaires commerciaux d'abord")
+	# Réseau (C24) : schéma des liaisons.
+	var sch := PortsUi.schema(st, 0)
+	var sch_ok := (sch["nodes"] as Array).size() == Stability.systems_of(st, 0).size()
+	var caps := 0
+	for n: Dictionary in sch["nodes"]:
+		caps += 1 if bool(n["capital"]) else 0
+	for l: Array in sch["links"]:
+		sch_ok = sch_ok and state_neighbors(st, int(sch["nodes"][int(l[0])]["sid"]), int(sch["nodes"][int(l[1])]["sid"]))
+	_ok(sch_ok and caps == 1, "schéma du réseau : un nœud par système colonisé, la capitale marquée, des liens entre voisins seulement")
+
+
+func state_neighbors(st: GameState, a: int, b: int) -> bool:
+	return st.galaxy.systems[a].neighbors.has(b)

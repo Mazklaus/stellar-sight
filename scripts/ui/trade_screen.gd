@@ -32,7 +32,8 @@ static func build(es: EmpireScreens) -> void:
 	for r in GameData.resource_ids():
 		if int(inc.get(r, 0)) != 0:
 			parts.append("%+d %s" % [int(inc[r]), GameData.resource_label(r).to_lower()])
-	es._key_value(g, "Revenu du mois", ", ".join(parts) if not parts.is_empty() else "aucun")
+	es._side_box.add_child(UiTheme.dim("Revenu du mois", 13))
+	es._side_box.add_child(UiTheme.paragraph(", ".join(parts) if not parts.is_empty() else "Aucun.", EmpireScreens.SIDE_WIDTH - 24.0, 14))
 	es._side_box.add_child(HSeparator.new())
 	es._side_box.add_child(UiTheme.dim("Routes intérieures réservées", 13))
 	var rrow := HBoxContainer.new()
@@ -130,22 +131,28 @@ static func build(es: EmpireScreens) -> void:
 		PortsUi.build(es, col)
 		return
 
-	var sent := Widgets.Block.new("Vos routes (%d / %d)" % [Trade.sent_by(state, player).size(), cap])
+	# Un seul tableau : les routes bloquées en tête, puis les plus rentables.
+	var rows := route_rows(state, player)
+	var sent := Widgets.Block.new("Routes (%d envoyées sur %d possibles)" % [Trade.sent_by(state, player).size(), cap])
 	col.add_child(sent)
-	for r in Trade.sent_by(state, player):
-		sent.body.add_child(_route_row(es, r, true))
-	if Trade.sent_by(state, player).is_empty():
+	if rows.is_empty():
 		sent.body.add_child(UiTheme.dim("Aucune route : signez l'ouverture de comptoirs dans la diplomatie, ou réservez une route intérieure.", 14))
-	var recv: Array[Dictionary] = []
-	for r in Trade.routes_of(state, player):
-		if int(r["to"]) == player and int(r["from"]) != player:
-			recv.append(r)
-	if not recv.is_empty():
-		var rb := Widgets.Block.new("Routes de vos partenaires")
-		col.add_child(rb)
-		rb.body.add_child(UiTheme.paragraph("Elles rapportent autant aux deux bouts : vos partenaires les envoient avec leur propre capacité.", 760.0, 13))
-		for r in recv:
-			rb.body.add_child(_route_row(es, r, false))
+	else:
+		var head := HBoxContainer.new()
+		head.add_theme_constant_override("separation", 12)
+		for h in [["Route", 220.0], ["Trajet", 120.0], ["Détail", 400.0], ["Rapport", 0.0]]:
+			var hl := UiTheme.dim(String(h[0]), 12)
+			hl.custom_minimum_size = Vector2(float(h[1]), 0)
+			head.add_child(hl)
+		sent.body.add_child(head)
+		for r in rows:
+			sent.body.add_child(_route_row(es, r, int(r["from"]) == player))
+		var got := 0
+		for r in rows:
+			if int(r["from"]) != player:
+				got += 1
+		if got > 0:
+			sent.body.add_child(UiTheme.paragraph("Les routes marquées « reçue » sont envoyées par vos partenaires avec leur propre capacité ; elles rapportent autant aux deux bouts.", 760.0, 13))
 	var idle: Array[int] = []
 	for o in Trade.partners(state, player):
 		var has := false
@@ -200,6 +207,21 @@ static func risky_systems(state: GameState, player: int) -> Array:
 	return out
 
 
+## Toutes les routes de l'empire, envoyées et reçues : les bloquées d'abord, puis par rapport décroissant.
+static func route_rows(state: GameState, player: int) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for r in Trade.routes_of(state, player):
+		if int(r["from"]) == player or int(r["to"]) == player:
+			out.append(r)
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var ba := bool(a.get("blocked", false))
+		var bb := bool(b.get("blocked", false))
+		if ba != bb:
+			return ba
+		return int(a.get("net", 0)) > int(b.get("net", 0)))
+	return out
+
+
 static func _name(state: GameState, eid: int) -> String:
 	var e := state.get_empire(eid)
 	return e.display_name() if e else "?"
@@ -224,11 +246,25 @@ static func _route_row(es: EmpireScreens, r: Dictionary, mine: bool) -> Control:
 	nl.custom_minimum_size = Vector2(220, 0)
 	nl.clip_text = true
 	nl.add_theme_font_size_override("font_size", 16)
+	if ext and not mine:
+		nl.text += "  (reçue)"
 	row.add_child(nl)
 	var p: Array = r["path"]
+	var blocked := bool(r.get("blocked", false))
+	var mini := Widgets.RouteMap.new()
+	var pts := PackedVector2Array()
+	var stop := -1
+	for i in p.size():
+		pts.append(state.galaxy.systems[int(p[i])].position)
+		if blocked and int(p[i]) == int(r.get("at", -1)):
+			stop = i
+	mini.set_path(pts, nl.get_theme_color("font_color"), stop)
+	mini.tooltip_text = "Chemin : " + " → ".join(p.map(func(s: Variant) -> String: return state.galaxy.systems[int(s)].system_name))
+	row.add_child(mini)
 	var info := Label.new()
 	info.add_theme_font_size_override("font_size", 14)
-	info.custom_minimum_size = Vector2(420, 0)
+	info.custom_minimum_size = Vector2(400, 0)
+	info.clip_text = true
 	var bits := PackedStringArray(["%d sauts" % maxi(0, p.size() - 1)])
 	if ext:
 		var ti := Trade.tier_info(int(r["tier"]))
@@ -258,9 +294,16 @@ static func _route_row(es: EmpireScreens, r: Dictionary, mine: bool) -> Control:
 		nv.add_theme_color_override("font_color", UiTheme.GOLD)
 	else:
 		nv.text = "active"
-	nv.tooltip_text = "Chemin : " + " → ".join(p.map(func(s: Variant) -> String: return state.galaxy.systems[int(s)].system_name))
-	nv.mouse_filter = Control.MOUSE_FILTER_STOP
 	row.add_child(nv)
+	if blocked:
+		var at := int(r.get("at", p[0]))
+		var go := Button.new()
+		go.text = "VOIR SUR LA CARTE"
+		go.focus_mode = Control.FOCUS_NONE
+		go.tooltip_text = "Montre %s sur la carte : une flotte armée sur place rouvre la route." % state.galaxy.systems[at].system_name
+		go.pressed.connect(func() -> void: es.announce_locate_requested.emit(at))
+		row.add_child(go)
+		es.trade_buttons["locate:%d" % at] = go
 	return row
 
 

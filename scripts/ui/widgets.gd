@@ -1331,3 +1331,53 @@ class TitleRing:
 			var w := f.get_string_size(lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 			var y := c.y - total * 0.5 + (i + 0.8) * fs * 1.45
 			draw_string(f, Vector2(c.x - w * 0.5 + 11.0, y), lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.88, 0.95, 1.0, 0.95))
+
+
+## Trajet d'une route en miniature : les systèmes traversés reliés d'un trait, les deux bouts marqués,
+## le système qui bloque en rouge.
+class RouteMap:
+	extends Control
+	var path := PackedVector2Array()
+	var color := Color.WHITE
+	var blocked_at := -1
+
+	func _init(w := 120.0, h := 34.0) -> void:
+		custom_minimum_size = Vector2(w, h)
+		mouse_filter = Control.MOUSE_FILTER_STOP
+
+	## `positions` : positions des systèmes sur la carte, dans l'ordre du trajet.
+	func set_path(positions: PackedVector2Array, col: Color, blocked := -1) -> void:
+		path = positions
+		color = col
+		blocked_at = blocked
+		queue_redraw()
+
+	## Le trajet ramené dans le cadre, proportions gardées.
+	func fitted(frame: Vector2) -> PackedVector2Array:
+		var out := PackedVector2Array()
+		if path.is_empty():
+			return out
+		var lo := path[0]
+		var hi := path[0]
+		for p in path:
+			lo = lo.min(p)
+			hi = hi.max(p)
+		var span := (hi - lo).max(Vector2(1, 1))
+		var inner := frame - Vector2(12, 12)
+		var k := minf(inner.x / span.x, inner.y / span.y)
+		var off := Vector2(6, 6) + (inner - span * k) * 0.5
+		for p in path:
+			out.append(off + (p - lo) * k)
+		return out
+
+	func _draw() -> void:
+		var pts := fitted(size)
+		if pts.is_empty():
+			return
+		if pts.size() > 1:
+			draw_polyline(pts, Color(color, 0.75), 1.5, true)
+		for i in pts.size():
+			var end := i == 0 or i == pts.size() - 1
+			draw_circle(pts[i], 3.0 if end else 1.5, color if end else Color(color, 0.6))
+		if blocked_at >= 0 and blocked_at < pts.size():
+			draw_circle(pts[blocked_at], 4.5, UiTheme.BAD)
