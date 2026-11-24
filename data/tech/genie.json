@@ -88,7 +88,7 @@
 			"flavor": "« On ne voit rien. » — « C'est le but. »"
 		},
 		"voiles_2": {
-			"label": "Voiles réfractifs",
+			"label": "Voiles réfractifs", "lore": "Un revêtement à facettes qui dévie la lumière et les ondes radar autour de la coque. Il se pose en panneaux, que l'on règle un à un au chantier. Une coque moyenne en porte assez pour disparaître des écrans à moyenne distance.",
 			"domain": "genie",
 			"era": 3,
 			"field": "senseurs",
@@ -133,7 +133,7 @@
 			"flavor": "Écouter le silence, c'est déjà entendre quelque chose."
 		},
 		"detecteurs_2": {
-			"label": "Senseurs tachyoniques",
+			"label": "Senseurs tachyoniques", "lore": "Des capteurs qui relèvent le sillage laissé par un moteur plusieurs heures après son passage. Un éclaireur peut en déposer un en balise et repartir. La balise émet une fois par jour, pendant quelques secondes.",
 			"domain": "genie",
 			"era": 3,
 			"field": "senseurs",
@@ -361,7 +361,7 @@
 			}
 		},
 		"flux_continu": {
-			"label": "Flux continu",
+			"label": "Flux continu", "lore": "Un circuit qui fait tourner le flux dans les cristaux sans jamais le laisser retomber. Le réacteur est prêt au saut presque aussitôt l'ordre donné. Il consomme en veille ce qu'un ancien moteur brûlait en route.",
 			"domain": "genie",
 			"era": 3,
 			"field": "propulsion",
@@ -398,7 +398,7 @@
 			}
 		},
 		"bombardes": {
-			"label": "Bombardes de siège",
+			"label": "Bombardes de siège", "lore": "Une coque construite autour d'un seul canon, qui tire vers le sol des charges de plusieurs tonnes. Elle se place en orbite basse et n'en bouge plus pendant le siège. Elle ne sait pas se défendre contre un autre vaisseau.",
 			"domain": "genie",
 			"era": 3,
 			"field": "coques",
@@ -414,7 +414,7 @@
 			"spec": "chantier_lourd"
 		},
 		"baies": {
-			"label": "Baies de lancement",
+			"label": "Baies de lancement", "lore": "Des hangars ouverts sur les deux flancs de la coque, avec leurs catapultes et leurs ateliers. Un appareil y est réarmé en vingt minutes. Les mêmes baies lancent les drones qui sondent les épaves et les ruines.",
 			"domain": "genie",
 			"era": 3,
 			"field": "coques",
@@ -433,7 +433,7 @@
 			"spec": "chantier_lourd"
 		},
 		"arsenaux": {
-			"label": "Arsenaux orbitaux",
+			"label": "Arsenaux orbitaux", "lore": "Un chantier en orbite haute, dont les cales mesurent plus d'un kilomètre. On y assemble les coques trop lourdes pour décoller d'une planète. Dix mille ouvriers y vivent à demeure avec leurs familles.",
 			"domain": "genie",
 			"era": 3,
 			"field": "coques",
@@ -448,7 +448,7 @@
 			]
 		},
 		"ia_bord": {
-			"label": "Intelligences de bord",
+			"label": "Intelligences de bord", "lore": "Un esprit de calcul logé au centre de la coque, qui règle le tir plus vite qu'un équipage. Il garde une copie de lui-même à terre, mise à jour à chaque escale. Les officiers synthétiques tiennent la leur de la même façon.",
 			"domain": "genie",
 			"era": 3,
 			"field": "coques",
@@ -619,7 +619,7 @@
 			"flavor": "Une balise qui chante, une autre qui répond, et entre les deux l'espace qui se fait tout petit."
 		},
 		"portails_saut": {
-			"label": "Portails de saut",
+			"label": "Portails de saut", "lore": "Un anneau de deux kilomètres qui ouvre un passage vers un autre anneau accordé sur lui. La traversée prend un jour, quel que soit le nombre de voies entre les deux. L'accord se perd au-delà de six sauts.",
 			"domain": "genie",
 			"era": 3,
 			"field": "propulsion",
@@ -679,7 +679,7 @@
 			"flavor": "Une balise tous les trois sauts, un entrepôt tous les dix, et un comptable partout."
 		},
 		"soutes_profondes": {
-			"label": "Soutes profondes",
+			"label": "Soutes profondes", "lore": "Des soutes creusées dans l'épaisseur de la double coque, là où l'on ne logeait que du lest. Les flottes y gagnent la moitié de leurs réserves. Le chargement prend un jour de plus au départ.",
 			"domain": "genie",
 			"era": 3,
 			"field": "propulsion",
@@ -887,7 +887,7 @@
 			}
 		},
 		"inhibiteur_saut": {
-			"label": "Inhibiteur de saut",
+			"label": "Inhibiteur de saut", "lore": "Un émetteur monté sur la station, qui dérègle les cristaux de toute coque entrée dans le système. Les moteurs étrangers ne trouvent plus leur accord. Il faut détruire la station pour repartir.",
 			"domain": "genie",
 			"era": 3,
 			"field": "senseurs",
@@ -914,7 +914,7 @@
 			"flavor": "Le plan tient sur une serviette. La serviette fait trois kilomètres."
 		},
 		"anneau_orbital": {
-			"label": "Anneaux orbitaux",
+			"label": "Anneaux orbitaux", "lore": "Un anneau bâti autour d'une planète à hauteur d'orbite basse, relié au sol par des câbles. Sa première moitié reçoit des batteries. Le reste est aménagé selon les besoins de la colonie, en cales ou en logements.",
 			"domain": "genie",
 			"era": 3,
 			"field": "mega_ing",
@@ -1014,7 +1014,7 @@
 			"flavor": "Deux chantiers de la taille d'un système solaire, et un seul chef de chantier. Il ne dort plus."
 		},
 		"agglomeration": {
-			"label": "Agglomération",
+			"label": "Agglomération", "lore": "Des remorqueurs qui poussent les blocs d'une ceinture les uns contre les autres pendant des dizaines d'années, jusqu'à ce que leur masse les tienne ensemble. Le monde obtenu reste nu et chaud pendant un siècle. Les architectes savent aussi bâtir un habitat creux là où il n'y a rien à réunir.",
 			"domain": "genie",
 			"era": 3,
 			"field": "mega_ing",
@@ -1071,7 +1071,7 @@
 			"flavor": "Avant, on creusait pour trouver de l'or. Maintenant, on creuse pour trouver des gens qui creusaient pour trouver de l'or."
 		},
 		"dechiffrement_strates": {
-			"label": "Déchiffrement des Strates",
+			"label": "Déchiffrement des Strates", "lore": "La lecture des écritures trouvées dans les couches les plus anciennes des fouilles. Les fragments cessent d'être de simples pièces de musée, car certains sont des plans. Les plus longs occupent une équipe pendant des années.",
 			"domain": "genie",
 			"era": 3,
 			"field": "senseurs",

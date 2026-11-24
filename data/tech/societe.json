@@ -2,7 +2,7 @@
 	"_doc": "Technologies communes du domaine Société.",
 	"technologies": {
 		"implants_neuraux": {
-			"label": "Implants neuraux",
+			"label": "Implants neuraux", "lore": "De petits appareils greffés sous le crâne, reliés aux nerfs par des fils plus fins qu'un cheveu. Le porteur commande une machine comme il bouge la main. L'opération se fait à seize ans, avec l'accord écrit de l'intéressé.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -15,7 +15,7 @@
 			"flavor": "Le premier implant permettait de lire plus vite. Le second, de lire les petites lignes du contrat du premier."
 		},
 		"resequencage": {
-			"label": "Reséquençage",
+			"label": "Reséquençage", "lore": "Une technique qui ôte un caractère du génome d'une espèce ou lui en rend un qu'elle avait perdu. Les généticiens travaillent sur une génération à la fois. Un comité d'éthique lit chaque dossier avant la première injection.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -28,7 +28,7 @@
 			"flavor": "On a retiré la timidité. On a perdu les poètes. On les remettra à la prochaine version."
 		},
 		"acclimatation_glandulaire": {
-			"label": "Acclimatation glandulaire",
+			"label": "Acclimatation glandulaire", "lore": "Une série de greffes qui modifie la sueur, le souffle et le sang d'un colon pour un climat qui n'est pas le sien. Le traitement dure deux ans. Ses enfants en héritent, mais le monde natal de l'espèce leur reste le plus doux.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -67,7 +67,7 @@
 			"flavor": "« Est-ce que je suis encore moi ? » La matrice répond oui. Elle est programmée pour."
 		},
 		"theorie_psionique": {
-			"label": "Théorie psionique",
+			"label": "Théorie psionique", "lore": "Le premier traité qui décrit les phénomènes de l'esprit avec des mesures et des protocoles. Ses auteurs ont trouvé le don chez une personne sur mille, à l'état de trace. Ils ont appelé Résonance ce que leurs instruments enregistraient.",
 			"domain": "societe",
 			"era": 3,
 			"field": "esprit",
@@ -80,7 +80,7 @@
 			"flavor": "La première équation du Songe tenait sur une ligne. La deuxième tenait sur le mur. Le mathématicien, lui, ne tenait plus debout."
 		},
 		"telepathie": {
-			"label": "Télépathie",
+			"label": "Télépathie", "lore": "Une discipline qui apprend aux sensitifs à entendre une pensée étrangère et à faire taire la leur. Le collège les reçoit enfants et les garde dix ans. Les premiers diplômés ont été placés auprès des juges et des médecins.",
 			"domain": "societe",
 			"era": 3,
 			"field": "esprit",
@@ -93,7 +93,7 @@
 			"flavor": "« Je sais ce que vous pensez. » Le plus dur, au Collège, c'est d'apprendre à ne pas le dire."
 		},
 		"ecrans_psychiques": {
-			"label": "Écrans psychiques",
+			"label": "Écrans psychiques", "lore": "Des cages de fil d'argent noyées dans les murs, qui brouillent ce qu'un sensitif cherche à lire ou à imposer. Elles protègent aussi ceux qui n'ont aucun don. Les salles du conseil en ont été équipées les premières.",
 			"domain": "societe",
 			"era": 3,
 			"field": "esprit",
@@ -327,7 +327,7 @@
 			}
 		},
 		"habitats": {
-			"label": "Habitats orbitaux",
+			"label": "Habitats orbitaux", "lore": "Des cylindres de plusieurs kilomètres, mis en rotation pour donner un poids à ceux qui y vivent. On y cultive sous des lampes. Les géantes gazeuses, sans sol où se poser, se peuplent de cette façon.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -350,7 +350,7 @@
 			}
 		},
 		"genetique": {
-			"label": "Génétique appliquée",
+			"label": "Génétique appliquée", "lore": "Des cliniques où l'on corrige avant la naissance les maladies inscrites dans le sang des parents. Les familles y viennent de toute la colonie. Les cuves de la même clinique font grandir des organes de rechange.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -392,7 +392,7 @@
 			}
 		},
 		"propagande": {
-			"label": "Propagande",
+			"label": "Propagande", "lore": "Un ministère qui écrit les nouvelles, commande les spectacles et choisit les visages affichés dans les ports. Ses rédacteurs lisent aussi ce qui vient de l'étranger et y répondent dans la semaine. Les colonies reçoivent le même journal le même jour.",
 			"domain": "societe",
 			"era": 3,
 			"field": "culture",
@@ -418,7 +418,7 @@
 			"flavor": "Douze mille chaînes, et toujours rien à regarder. Sauf, curieusement, les feuilletons du voisin."
 		},
 		"administration2": {
-			"label": "Gouverneurs de secteur",
+			"label": "Gouverneurs de secteur", "lore": "Des gouverneurs nommés à la tête de plusieurs systèmes, avec le droit de trancher sans en référer à la capitale. Ils rendent leurs comptes une fois par an. Les convois de colons partent sur leur seule signature.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -464,7 +464,7 @@
 			}
 		},
 		"cadastre_algorithmique": {
-			"label": "Cadastre algorithmique",
+			"label": "Cadastre algorithmique", "lore": "Un cadastre tenu par des machines, qui connaît chaque parcelle de l'empire et le nom de tous ceux qui l'ont possédée. Les litiges de bornage se règlent en une audience. Les juges y gagnent le temps de traiter le reste.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -671,7 +671,7 @@
 			]
 		},
 		"service_universel": {
-			"label": "Service universel",
+			"label": "Service universel", "lore": "Une loi qui appelle sous les drapeaux tous les jeunes gens d'une classe d'âge, pour deux ans. Les casernes sont bâties près des villes. Les anciens appelés restent inscrits dans la réserve jusqu'à quarante ans.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -700,7 +700,7 @@
 			}
 		},
 		"propagande_front": {
-			"label": "Propagande du front",
+			"label": "Propagande du front", "lore": "Un service qui porte aux régiments leur courrier, leurs journaux et des films tournés sur le front même. Les soldats y voient leurs propres compagnies. Les opérateurs sont comptés parmi les pertes comme les autres.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -852,7 +852,7 @@
 			"flavor": "Océan, désert ou glacier ? Le catalogue fait quatre cents pages ; les fjords sont en option."
 		},
 		"pharmacopee_perdue": {
-			"label": "Pharmacopée perdue",
+			"label": "Pharmacopée perdue", "lore": "Un herbier de plusieurs milliers de planches, où chaque plante est décrite avec la séquence qui la rend utile. La civilisation qui l'a dressé s'est éteinte sans laisser d'autre livre. Les généticiens l'ont lu comme un cours.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -867,7 +867,7 @@
 			"flavor": "Chaque page soigne une maladie qui n'existe plus. Et trois qui existent encore."
 		},
 		"archives_cadastrales": {
-			"label": "Archives cadastrales",
+			"label": "Archives cadastrales", "lore": "Le cadastre d'un empire disparu, conservé avec tous les procès qu'il a fait naître. On y suit une parcelle sur quarante générations. Les juristes en ont repris la méthode de classement.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -902,7 +902,7 @@
 			"flavor": "Le message dit « tout va bien ». Le message chiffré dit aussi « tout va bien », mais personne ne le croit."
 		},
 		"contre_espionnage": {
-			"label": "Contre-espionnage",
+			"label": "Contre-espionnage", "lore": "Un service chargé de surveiller ceux qui surveillent, logé à part et payé sur un autre budget. Ses agents suivent les habitudes des ambassades étrangères. Ils tiennent une fiche sur chaque visiteur qui pose trop de questions.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -963,7 +963,7 @@
 			"flavor": "Le débat a duré trois jours. À la fin, chacun était sûr d'avoir gagné, ce qui est la définition même du dialogue interreligieux."
 		},
 		"grands_temples": {
-			"label": "Grands temples",
+			"label": "Grands temples", "lore": "Des sanctuaires bâtis pour recevoir des dizaines de milliers de fidèles, visibles depuis l'orbite. Leur chantier occupe une génération de maçons. Les pèlerins y viennent de mondes où la foi n'a pas encore de prêtre.",
 			"domain": "societe",
 			"era": 3,
 			"field": "culture",
@@ -1057,7 +1057,7 @@
 			"flavor": "Le protocole tient en neuf cents pages. La page sur les chaises en fait quatre-vingts."
 		},
 		"genealogies": {
-			"label": "Généalogies",
+			"label": "Généalogies", "lore": "Des registres de la maison régnante, tenus par des archivistes qui notent les études et les faits de chaque enfant. Le conseil s'en sert pour désigner l'héritier le plus capable. L'aîné écarté reçoit un apanage.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1134,7 +1134,7 @@
 			}
 		},
 		"droit_federal": {
-			"label": "Droit fédéral",
+			"label": "Droit fédéral", "lore": "Un corps de légistes formés au droit de la ligue autant qu'à celui de leur empire. Ils rédigent les amendements dans la forme que l'assemblée ne peut pas refuser d'examiner. Leurs textes viennent en discussion une session plus tôt.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1153,7 +1153,7 @@
 			}
 		},
 		"clienteles": {
-			"label": "Clientèles",
+			"label": "Clientèles", "lore": "Un échange de charges et de faveurs entre la cour et les familles qui gouvernent un État sujet. Leurs fils sont élevés à la capitale. Un sujet à qui l'empire a confié un rôle précis y tient plus qu'à son indépendance.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1172,7 +1172,7 @@
 			}
 		},
 		"diplomatie_multilaterale": {
-			"label": "Diplomatie multilatérale",
+			"label": "Diplomatie multilatérale", "lore": "Des délégations assez nombreuses pour siéger dans plusieurs commissions le même jour. Chaque dossier a son rapporteur. L'empire peut défendre deux textes à la fois devant l'assemblée.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1230,7 +1230,7 @@
 			}
 		},
 		"amnistie": {
-			"label": "Amnistie",
+			"label": "Amnistie", "lore": "Une loi qui efface les condamnations d'un équipage pirate, s'il se rend avec sa coque. Les capitaines la connaissent par cœur. Ceux qui l'acceptent servent sous pavillon impérial, à la solde ordinaire.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1270,7 +1270,7 @@
 			}
 		},
 		"dressage": {
-			"label": "Dressage",
+			"label": "Dressage", "lore": "Un art de conduire les bêtes du vide au combat, par des sons émis depuis une coque qu'elles ont appris à suivre. Le dresseur vit auprès d'elles depuis leur éclosion. Un vivarium bien tenu en élève deux de plus par portée.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -1329,7 +1329,7 @@
 			}
 		},
 		"elevation": {
-			"label": "Élévation",
+			"label": "Élévation", "lore": "Un programme d'écoles et de tutelle, mené sur plusieurs générations auprès d'une espèce qui commence à parler. Les maîtres vivent dans ses villages. Il s'achève le jour où ses délégués prêtent serment comme citoyens.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -1348,7 +1348,7 @@
 			}
 		},
 		"biosemiotique": {
-			"label": "Biosémiotique",
+			"label": "Biosémiotique", "lore": "L'étude des signes par lesquels un monde vivant montre son état, dans la couleur de ses mers ou le rythme de ses floraisons. Les observateurs les relèvent depuis l'orbite. Un monde qui se tait est noté comme les autres.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -1406,7 +1406,7 @@
 			}
 		},
 		"cartographie_juridique": {
-			"label": "Cartographie juridique",
+			"label": "Cartographie juridique", "lore": "Des atlas où chaque système figure avec les titres que l'empire peut faire valoir sur lui, traités anciens et premières découvertes compris. Les cartographes travaillent avec les archivistes. Leurs cartes sont jointes aux déclarations de guerre.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1505,7 +1505,7 @@
 			"path": "depart"
 		},
 		"restauration_ecologique": {
-			"label": "Restauration écologique",
+			"label": "Restauration écologique", "lore": "Des territoires fermés à toute présence, où l'on réintroduit les espèces dans l'ordre de leur apparition. Les gardes n'y entrent qu'à pied. Une forêt replantée de cette façon met un siècle à se suffire.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",

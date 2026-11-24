@@ -137,7 +137,7 @@
 			}
 		},
 		"fusiliers_elite": {
-			"label": "Fusiliers d'élite",
+			"label": "Fusiliers d'élite", "lore": "Des fusiliers choisis parmi les marines après trois campagnes, logés dans des entreponts refaits pour eux. On y a retiré les cloisons et doublé les couchettes. Une coque en emporte un quart de plus sans changer ses vivres.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -170,7 +170,7 @@
 			}
 		},
 		"assaut_aeroporte": {
-			"label": "Assaut aéroporté",
+			"label": "Assaut aéroporté", "lore": "Des appareils d'attaque lâchés de l'orbite dans une coque qui brûle à la rentrée. Ils se déploient à dix kilomètres du sol et volent une heure environ, tant qu'ils ont du carburant. Leurs pilotes visent les colonnes de chars, qui n'ont rien pour leur répondre.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -185,7 +185,7 @@
 			}
 		},
 		"plasma": {
-			"label": "Rayons à plasma",
+			"label": "Rayons à plasma", "lore": "Un jet de gaz porté à plusieurs millions de degrés, tenu en faisceau par un champ magnétique jusqu'à la cible. Il fond le blindage au lieu de le percer. La lance qui le projette mesure la moitié de la coque.",
 			"domain": "armement",
 			"era": 3,
 			"field": "armes",
@@ -196,7 +196,7 @@
 			]
 		},
 		"essaims": {
-			"label": "Missiles en essaim",
+			"label": "Missiles en essaim", "lore": "Des missiles de la taille d'un homme, tirés par gerbes de soixante. Chacun porte un brouilleur à la place d'une partie de sa charge. Les tourelles adverses perdent leurs cibles dans le nombre.",
 			"domain": "armement",
 			"era": 3,
 			"field": "armes",
@@ -208,7 +208,7 @@
 			"flavor": "Les tourelles adverses tirent sur ce qu'elles voient. C'est tout le problème."
 		},
 		"artillerie": {
-			"label": "Artillerie lourde",
+			"label": "Artillerie lourde", "lore": "Des pièces de gros calibre qui tirent à plusieurs milliers de kilomètres, sur une position calculée d'avance. L'obus met une minute à arriver. Elles ne servent plus à rien quand les lignes se touchent.",
 			"domain": "armement",
 			"era": 3,
 			"field": "armes",
@@ -227,7 +227,7 @@
 			}
 		},
 		"chasse": {
-			"label": "Escadrilles de chasse",
+			"label": "Escadrilles de chasse", "lore": "Des appareils à un seul pilote, armés pour quelques passes et rappelés avant d'être à sec. Ils passent entre les grandes coques et frappent celles de l'arrière. Les pilotes sont formés en deux ans et servent rarement plus de cinq.",
 			"domain": "armement",
 			"era": 3,
 			"field": "armes",
@@ -408,7 +408,7 @@
 			}
 		},
 		"feu_lointain": {
-			"label": "Feu lointain",
+			"label": "Feu lointain", "lore": "Une école de tir qui engage l'ennemi dès qu'il paraît sur les écrans et refuse le combat rapproché. Les commandants manœuvrent pour garder la distance. Les équipages s'exercent peu au tir à vue.",
 			"domain": "armement",
 			"era": 3,
 			"field": "doctrines",
@@ -446,7 +446,7 @@
 			"flavor": "La première leçon de l'école de prise : on n'abîme pas ce qu'on veut garder. La seconde : on l'abîme quand même un peu."
 		},
 		"abordage": {
-			"label": "Abordage",
+			"label": "Abordage", "lore": "Une doctrine qui cherche le contact et jette les troupes sur la coque adverse dès que les sas sont à portée. Les vaisseaux embarquent plus de fusiliers que de munitions. Une prise ramenée au port vaut une promotion à son capitaine.",
 			"domain": "armement",
 			"era": 3,
 			"field": "doctrines",
@@ -560,7 +560,7 @@
 			}
 		},
 		"citadelle_planetaire": {
-			"label": "Citadelles",
+			"label": "Citadelles", "lore": "Une forteresse enterrée sous la capitale d'une colonie, assez grande pour abriter toute sa population. Ses batteries tirent à travers l'atmosphère sur les barges. Un générateur de champ couvre la ville, dans les empires qui savent en bâtir.",
 			"domain": "armement",
 			"era": 3,
 			"field": "defenses",
@@ -572,7 +572,7 @@
 			]
 		},
 		"doctrine_interarmes": {
-			"label": "Doctrine interarmes",
+			"label": "Doctrine interarmes", "lore": "Un règlement qui place les fantassins, les chars et les appareils sous un seul chef, à l'échelle du bataillon. Les trois armes s'entraînent ensemble une saison par an. Un officier ne monte plus en grade sans avoir servi dans deux d'entre elles.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -587,7 +587,7 @@
 			}
 		},
 		"infanterie_antiaerienne": {
-			"label": "Missiles portatifs",
+			"label": "Missiles portatifs", "lore": "Un tube d'un mètre vingt, porté à l'épaule, qui lance un missile guidé sur la chaleur d'un moteur. Chaque section en reçoit deux. Les pilotes ont appris à voler plus haut.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -602,7 +602,7 @@
 			}
 		},
 		"bombardement_precision": {
-			"label": "Bombardement de précision",
+			"label": "Bombardement de précision", "lore": "Des obus guidés depuis l'orbite par un observateur au sol, qui tombent à quelques mètres du point désigné. Les artilleurs visent les casemates une à une. Les quartiers voisins restent debout.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -649,7 +649,7 @@
 			"flavor": "Un bouton, sous une vitre, sous une autre vitre, sous un serment."
 		},
 		"foyer_plasma_ancien": {
-			"label": "Foyer à plasma ancien",
+			"label": "Foyer à plasma ancien", "lore": "La chambre d'une arme à plasma, retrouvée intacte dans une épave dont personne ne connaît les constructeurs. Les ingénieurs l'ont démontée en numérotant chaque pièce. Ils en ont tiré une copie qui fonctionne, sans savoir encore à quoi servent deux de ses organes.",
 			"domain": "armement",
 			"era": 3,
 			"field": "armes",
@@ -680,7 +680,7 @@
 			"flavor": "L'original protégeait une flotte entière. De quoi, les plans ne le disent pas."
 		},
 		"generaux_corps": {
-			"label": "Généraux de corps",
+			"label": "Généraux de corps", "lore": "Un état-major assez nombreux pour suivre deux campagnes depuis le même vaisseau. Le général garde auprès de lui un adjoint pour chaque front. Les ordres passent par des relais posés entre les systèmes.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -700,7 +700,7 @@
 			}
 		},
 		"droit_guerre": {
-			"label": "Droit de la guerre",
+			"label": "Droit de la guerre", "lore": "Un corps de juristes attaché à la chancellerie, qui rédige les griefs avant la guerre et les traités après. Ils savent présenter une exigence nouvelle comme la suite d'une ancienne. Leurs mémoires sont envoyés à toutes les cours avant l'ouverture des pourparlers.",
 			"domain": "armement",
 			"era": 3,
 			"field": "doctrines",
@@ -738,7 +738,7 @@
 			}
 		},
 		"contre_mesures_crise": {
-			"label": "Contre-mesures de crise",
+			"label": "Contre-mesures de crise", "lore": "Les relevés du premier présage, repris par les arsenaux pour régler les charges et les fréquences de tir contre ce qui vient. Chaque flotte reçoit ses réglages avec une notice de quatre pages. On la corrige après chaque rencontre.",
 			"domain": "armement",
 			"era": 3,
 			"field": "defenses",
