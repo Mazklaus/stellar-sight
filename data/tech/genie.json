@@ -7,7 +7,7 @@
 			"era": 1,
 			"field": "coques",
 			"current": "glaive",
-			"text": "Débloque le Transport de troupes.",
+			"text": "Débloque le Transport de troupes.", "lore": "Une coque à fond plat, doublée d'un bouclier thermique, capable d'entrer dans une atmosphère et d'en ressortir. Elle porte un régiment et ses véhicules dans des soutes qui s'ouvrent par l'avant. Les équipages l'appellent la barge.",
 			"needs": [
 				"chantier",
 				"vaisseaux"
@@ -23,7 +23,7 @@
 			"era": 1,
 			"field": "propulsion",
 			"current": "forge",
-			"text": "Première génération de moteurs : toutes les flottes vont un quart plus vite (vitesse ×1,25). Débloque la tactique Harcèlement (bien de loin, un peu moins touchée). Sa Maîtrise, Postcombustion, raccourcit la mise en route avant le saut.",
+			"text": "Première génération de moteurs : toutes les flottes vont un quart plus vite (vitesse ×1,25). Débloque la tactique Harcèlement (bien de loin, un peu moins touchée). Sa Maîtrise, Postcombustion, raccourcit la mise en route avant le saut.", "lore": "Un tore de confinement long comme la coque, où brûle le deutérium tiré des géantes gazeuses. Les Lignées l'ont d'abord monté sur les remorqueurs miniers de Kessane, avant d'oser le confier aux flottes. Il faut quatre heures pour le refroidir après chaque saut.",
 			"needs": [
 				"vaisseaux"
 			],
@@ -235,7 +235,7 @@
 			"era": 1,
 			"field": "senseurs",
 			"current": "academie",
-			"text": "Les colonies et avant-postes voient un saut plus loin. Curiosités : +1 détection et +1 puissance d'expédition, et la Station d'étude.",
+			"text": "Les colonies et avant-postes voient un saut plus loin. Curiosités : +1 détection et +1 puissance d'expédition, et la Station d'étude.", "lore": "Des antennes de plusieurs kilomètres, déployées en étoile autour d'une colonie, qui écoutent le rayonnement des coques et le sillage des sauts. Les équipes d'étude s'en servent aussi pour sonder un objet inconnu avant d'y envoyer quelqu'un.",
 			"effects": {
 				"claim_vision": 1,
 				"curio_detect": 1,
@@ -273,7 +273,7 @@
 			"era": 1,
 			"field": "coques",
 			"current": "forge",
-			"text": "Débloque la Cale sèche : les vaisseaux construits dans la colonie sortent 25 % plus vite. Sa Maîtrise accélère tous les chantiers.",
+			"text": "Débloque la Cale sèche : les vaisseaux construits dans la colonie sortent 25 % plus vite. Sa Maîtrise accélère tous les chantiers.", "lore": "Une cale close, tenue sous air, où la coque avance de poste en poste sur un chariot. Les ouvriers y travaillent sans scaphandre. Les sections arrivent des ateliers déjà câblées et se soudent entre elles en une journée.",
 			"needs": [
 				"chantier",
 				"vaisseaux"

@@ -1718,6 +1718,13 @@ func _tech_detail(tid: String) -> Control:
 	var sub := UiTheme.dim("%s%s  ·  ère %d  ·  %d Savoir" % [dom.get("label", ""), (" · " + fld) if fld != "" else "", int(t["era"]), Research.cost(_state, _player, tid)], 13)
 	sub.add_theme_color_override("font_color", Color.html(String(dom.get("color", "#ffffff"))).lightened(0.2))
 	box.add_child(sub)
+	# Refonte E2 : la chose telle qu'elle existe dans l'univers d'abord, puis, à part, ce qu'elle fait en jeu.
+	if String(t.get("lore", "")) != "":
+		var lore := UiTheme.paragraph(String(t["lore"]), SIDE_WIDTH - 24.0, 14)
+		lore.add_theme_color_override("font_color", Color(UiTheme.TEXT, 0.82))
+		lore.name = "Lore"
+		box.add_child(lore)
+		box.add_child(Widgets.NotchHeader.new("En jeu", 12))
 	box.add_child(UiTheme.paragraph(String(t.get("text", "")), SIDE_WIDTH - 24.0, 14))
 	var unlocks := Research.unlocks(f, tid)
 	if not unlocks.is_empty():
@@ -1789,7 +1796,8 @@ func _tech_detail(tid: String) -> Control:
 		var h := UiTheme.paragraph(String(t["heretic"].get("text", "Hérétique pour votre peuple.")), SIDE_WIDTH - 24.0, 13)
 		h.add_theme_color_override("font_color", UiTheme.BAD)
 		box.add_child(h)
-	if t.has("flavor"):
+	# Une technologie décrite ne garde son bon mot que si elle est marquée « quote » (une sur dix au plus).
+	if Research.shows_flavor(t):
 		var fl := UiTheme.paragraph("« %s »" % t["flavor"], SIDE_WIDTH - 24.0, 13)
 		fl.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 		box.add_child(fl)

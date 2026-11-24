@@ -113,7 +113,7 @@ static func entries(cid: String) -> Array:
 						["Ère", _roman(int(x.get("era", 1)))], ["Sorte", _tech_kind(x)],
 						["Courant", String(GameData.politics()["currents"][Politics.index_of(String(x["current"]))]["short"]) if Politics.index_of(String(x.get("current", ""))) >= 0 else ""],
 						["Requiert", _tech_names(x.get("pre", []), techs)]],
-						String(x.get("flavor", "")), [], ["07-recherche"]))
+						String(x.get("flavor", "")) if Research.shows_flavor(x) else "", [], ["07-recherche"]))
 		"batiments":
 			var b: Dictionary = _data("data/buildings.json")
 			for k: String in b:
@@ -191,7 +191,12 @@ static func _first_sentences(s: String) -> String:
 
 ## Texte de la page d'une technologie.
 static func _tech_body(k: String, x: Dictionary, techs: Dictionary, nexts: Dictionary) -> String:
-	var parts := PackedStringArray([String(x.get("text", ""))])
+	var parts := PackedStringArray()
+	if String(x.get("lore", "")) != "":
+		parts.append(String(x["lore"]))
+		parts.append("**En jeu.** " + String(x.get("text", "")))
+	else:
+		parts.append(String(x.get("text", "")))
 	var owner := {}
 	for f: Dictionary in GameData.factions():
 		if Research.is_visible(f, k):

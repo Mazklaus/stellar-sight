@@ -163,7 +163,7 @@
 			"era": 1,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "Débloque les Dômes biosphériques (+2 population maximale), et +20 % d'habitabilité sur les mondes continentaux et océaniques (hors monde d'origine).",
+			"text": "Débloque les Dômes biosphériques (+2 population maximale), et +20 % d'habitabilité sur les mondes continentaux et océaniques (hors monde d'origine).", "lore": "Des dômes de verre feuilleté posés sur une ossature d'acier, sous lesquels on règle l'air et la durée du jour. Les colons y passent leurs premières années, le temps que leur corps s'habitue à la pesanteur et aux pollens du dehors. Un traitement des muqueuses, renouvelé chaque année, fait le reste.",
 			"needs": [
 				"colonies"
 			],
@@ -185,7 +185,7 @@
 			"era": 1,
 			"field": "etat",
 			"current": "academie",
-			"text": "Débloque le Poste de sécurité. +1 colonisation simultanée. Seuil de surextension +2 systèmes (Administration : +8 capacité).",
+			"text": "Débloque le Poste de sécurité. +1 colonisation simultanée. Seuil de surextension +2 systèmes (Administration : +8 capacité).", "lore": "Un corps de fonctionnaires formés dans la capitale et envoyés pour six ans dans une colonie qui n'est pas la leur. Ils tiennent le cadastre et commandent le poste de garde. Leurs rapports partent avec le courrier de chaque convoi.",
 			"needs": [
 				"colonies"
 			],
@@ -204,7 +204,7 @@
 			"era": 1,
 			"field": "culture",
 			"current": "concorde",
-			"text": "Débloque la Maison des spectacles (stabilité). Sa Maîtrise, Art oratoire : +15 % d'influence.",
+			"text": "Débloque la Maison des spectacles (stabilité). Sa Maîtrise, Art oratoire : +15 % d'influence.", "lore": "Un enseignement de la parole publique, donné aux magistrats et aux officiers avant leur première affectation. On y apprend à tenir une salle de deux mille personnes sans amplification. Les colonies bâtissent pour ces orateurs des salles où l'on donne aussi le théâtre.",
 			"eureka": {
 				"kind": "contacts",
 				"n": 1
@@ -233,7 +233,7 @@
 			"era": 1,
 			"field": "colonisation",
 			"current": "seve",
-			"text": "Débloque la Clinique (+25 % de croissance dans la colonie). Sa Maîtrise, Santé publique : +15 % de croissance partout.",
+			"text": "Débloque la Clinique (+25 % de croissance dans la colonie). Sa Maîtrise, Santé publique : +15 % de croissance partout.", "lore": "Un service de santé propre aux colonies, avec ses vaccins contre les fièvres de chaque monde et ses sages-femmes itinérantes. Chaque clinique tient le registre des naissances et celui des maladies encore sans nom. Les souches inconnues partent sous scellés vers la capitale.",
 			"needs": [
 				"naissance"
 			],

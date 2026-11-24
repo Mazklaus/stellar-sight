@@ -1065,6 +1065,22 @@ static func advance(state: GameState, empire_id: int, income: int) -> Array[Stri
 
 
 ## Découvre une technologie (fin de recherche, épave, ou test) : effets ponctuels compris.
+## Les technologies de known absentes de told, triées (ordre stable d'un poste à l'autre).
+static func new_techs(known: Dictionary, told: Dictionary) -> Array[String]:
+	var out: Array[String] = []
+	for tid in known:
+		if not told.has(tid):
+			out.append(String(tid))
+	out.sort()
+	return out
+
+
+## Le bon mot d'une technologie se montre-t-il ? Oui tant qu'elle n'a pas de description d'univers
+## (« lore », refonte E2) ; ensuite seulement si elle est marquée « quote ».
+static func shows_flavor(t: Dictionary) -> bool:
+	return String(t.get("flavor", "")) != "" and (String(t.get("lore", "")) == "" or bool(t.get("quote", false)))
+
+
 static func complete(state: GameState, empire_id: int, tid: String) -> void:
 	var e := state.get_empire(empire_id)
 	if e == null:

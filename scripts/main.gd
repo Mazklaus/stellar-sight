@@ -75,6 +75,8 @@ var _codex_paused := false
 ## Fenêtre de récompense des hauts faits (voir Deeds).
 var _deed_panel: DeedPanel
 var _deeds_told := {}
+## Technologies du joueur déjà signalées (refonte E2 : une découverte se dit, et mène à sa fiche).
+var _techs_told := {}
 var _events_told := {}
 ## Annonces typées (fenêtre commune, colonne à droite, avis cliquables, pause unifiée des fenêtres).
 var announce: AnnounceCenter
@@ -928,6 +930,25 @@ func _announce_events() -> void:
 			return
 
 
+## Une technologie obtenue depuis hier se signale par un message : un clic ouvre sa fiche, où se lit
+## sa description. Au-delà de trois d'un coup (trouvaille, échange en bloc), un seul message les compte.
+func _announce_techs() -> void:
+	var e := simulation.state.get_empire(local_player)
+	if spectator or e == null:
+		return
+	var fresh: Array[String] = Research.new_techs(e.techs, _techs_told)
+	if fresh.is_empty():
+		return
+	_techs_told = e.techs.duplicate()
+	if fresh.size() > 3:
+		_hud.notify("%d technologies acquises" % fresh.size(), "good", func() -> void: open_address("research"))
+		return
+	for tid in fresh:
+		_hud.notify("Découverte : %s" % String(Research.tech(tid).get("label", tid)), "good", func() -> void:
+			_empire_screens.research_selected = tid
+			open_address("research"))
+
+
 # --- Hauts faits -------------------------------------------------------------------------------
 
 ## Ouvre le choix de récompense item_id de la boîte du joueur (pause automatique en solo).
@@ -1041,6 +1062,7 @@ func _start(state: GameState) -> void:
 	close_victory_panel()
 	close_event_panel()
 	_events_told.clear()
+	_techs_told = state.get_empire(local_player).techs.duplicate() if state.get_empire(local_player) != null else {}
 	close_deed_panel()
 	_deeds_told.clear()
 	close_election_panel()
@@ -1062,6 +1084,7 @@ func _start(state: GameState) -> void:
 		announce.try_open(true)
 		_announce_events()
 		_announce_deeds()
+		_announce_techs()
 		_announce_election()
 		announce.try_open(false)
 		_turn_interruptions()

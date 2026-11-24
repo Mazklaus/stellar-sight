@@ -7,7 +7,7 @@
 			"era": 1,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Débloque le Canon à masse lourd (emplacement lourd des grandes coques). Les marques des armes viennent des paliers d'Armement.",
+			"text": "Débloque le Canon à masse lourd (emplacement lourd des grandes coques). Les marques des armes viennent des paliers d'Armement.", "lore": "Un rail de quarante mètres logé dans l'axe de la coque, qui lance une ogive de tungstène gainée d'explosif. La charge détone une fraction de seconde après l'impact, une fois le blindage traversé. Le recul impose de couper les moteurs le temps du tir.",
 			"eureka": {
 				"kind": "kills",
 				"n": 3
@@ -20,7 +20,7 @@
 			"era": 1,
 			"field": "armes",
 			"current": "glaive",
-			"text": "Débloque la tactique Feu concentré (+25 % à moyenne portée). Débloque la tactique Salves croisées : la défense ponctuelle adverse arrête un quart de missiles de moins.",
+			"text": "Débloque la tactique Feu concentré (+25 % à moyenne portée). Débloque la tactique Salves croisées : la défense ponctuelle adverse arrête un quart de missiles de moins.", "lore": "Des miroirs taillés en orbite, où le verre refroidit sans se déformer, et des têtes chercheuses qui suivent la chaleur d'une tuyère. Les artilleurs règlent leurs pièces sur une même cible depuis des coques éloignées de mille kilomètres.",
 			"pre": []
 		},
 		"blindage_composite": {
@@ -29,7 +29,7 @@
 			"era": 1,
 			"field": "defenses",
 			"current": "glaive",
-			"text": "Débloque les Cloisons étanches (module de défense : coque et un peu de blindage).",
+			"text": "Débloque les Cloisons étanches (module de défense : coque et un peu de blindage).", "lore": "Des plaques faites de couches alternées de céramique et d'alliage, collées à chaud. La céramique casse le projectile, le métal retient les éclats. Les chantiers les posent en double paroi autour des compartiments, que des portes ferment au premier trou.",
 			"needs": [
 				"vaisseaux"
 			],

@@ -20,7 +20,7 @@
 			"era": 1,
 			"field": "production",
 			"current": "seve",
-			"text": "Débloque l'Enrichissement des sols (projet : un gisement fertile de plus). Sa Maîtrise, Agronomie orbitale : +15 % de nourriture.",
+			"text": "Débloque l'Enrichissement des sols (projet : un gisement fertile de plus). Sa Maîtrise, Agronomie orbitale : +15 % de nourriture.", "lore": "Des bacs en étages sous lampes, nourris par une solution de sels que l'on dose plante par plante. Les agronomes en ont tiré des souches de bactéries qui fixent l'azote dans une terre pauvre. On les répand sur les sols d'une colonie une saison avant les premières semailles.",
 			"needs": [
 				"nourriture"
 			],
@@ -55,7 +55,7 @@
 			"era": 1,
 			"field": "production",
 			"current": "forge",
-			"text": "Débloque le Forage géothermique (projet : un gisement géothermique de plus sur un monde sec). Sa Maîtrise : +15 % d'énergie.",
+			"text": "Débloque le Forage géothermique (projet : un gisement géothermique de plus sur un monde sec). Sa Maîtrise : +15 % d'énergie.", "lore": "Un réacteur à fusion qui tient dans un conteneur de fret et se pose sur n'importe quel sol. Il alimente les foreuses qui descendent chercher la chaleur de la roche, à huit ou dix kilomètres sous un monde sec.",
 			"eureka": {
 				"kind": "building",
 				"what": "centrale_fusion",
@@ -85,7 +85,7 @@
 			"era": 1,
 			"field": "production",
 			"current": "forge",
-			"text": "Débloque le Puits d'extraction (agrandit le Complexe minier, sans emplacement). Sa Maîtrise, Filons profonds : +15 % de matériaux.",
+			"text": "Débloque le Puits d'extraction (agrandit le Complexe minier, sans emplacement). Sa Maîtrise, Filons profonds : +15 % de matériaux.", "lore": "Des puits verticaux foncés au-delà de la croûte altérée, là où les filons n'ont jamais vu l'eau. Des haveuses sans équipage y travaillent dans une chaleur qui interdit toute présence. Le minerai remonte par une chaîne à godets jusqu'au complexe de surface.",
 			"eureka": {
 				"kind": "building",
 				"what": "complexe_minier",
@@ -115,7 +115,7 @@
 			"era": 1,
 			"field": "savoir",
 			"current": "academie",
-			"text": "Débloque l'Académie : +4 Savoir et +10 % de Savoir dans sa colonie.",
+			"text": "Débloque l'Académie : +4 Savoir et +10 % de Savoir dans sa colonie.", "lore": "Un établissement où l'on entre sur concours à seize ans pour en sortir dix ans plus tard. Il loge ses élèves et garde les instruments que personne d'autre n'a les moyens d'entretenir. Chaque colonie qui en possède un y dépose aussi ses archives.",
 			"eureka": {
 				"kind": "pop",
 				"n": 25
@@ -771,7 +771,7 @@
 			"era": 1,
 			"field": "production",
 			"current": "forge",
-			"text": "Kardashev en jeu, type I atteint : +10 % d'énergie.",
+			"text": "Kardashev en jeu, type I atteint : +10 % d'énergie.", "lore": "Un maillage de lignes supraconductrices enterrées, qui relie toutes les centrales d'un monde et répartit leur production d'un fuseau à l'autre. La nuit d'un continent est alimentée par le jour d'un autre. La salle de répartition occupe d'ordinaire un ancien abri, sous la capitale.",
 			"pre": [
 				"fusion_compacte"
 			],

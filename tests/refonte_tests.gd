@@ -22,6 +22,7 @@ func run(check: Callable) -> void:
 	_test_save_list()
 	_test_map_options()
 	_test_first_steps()
+	_test_lore_texts()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -671,3 +672,35 @@ func _test_first_steps() -> void:
 	tracker.set_state(GameState.create(21, 60, 900.0, "ossarane"), 0)
 	_ok(tracker.visible and tracker._box.get_child_count() >= 5, "premiers pas : le suivi les montre au-dessus des quêtes")
 	tracker.queue_free()
+
+
+## Textes (E2) : descriptions d'univers des technologies, règles d'écriture vérifiables à la machine.
+func _test_lore_texts() -> void:
+	var techs: Dictionary = GameData.technologies()["technologies"]
+	var with_lore := 0
+	var bad := []
+	var quotes := 0
+	for tid: String in techs:
+		var t: Dictionary = techs[tid]
+		var lore := String(t.get("lore", ""))
+		if lore == "":
+			continue
+		with_lore += 1
+		if bool(t.get("quote", false)):
+			quotes += 1
+		# Pas de tiret long, pas de chiffre d'effet répété (« % », « × »), trois phrases au plus, 400 caractères au plus.
+		if lore.contains("—") or lore.contains("–") or lore.contains("%") or lore.contains("×") or lore.length() > 400 or lore.count(". ") > 2 or not lore.ends_with("."):
+			bad.append(tid)
+	_ok(with_lore >= 16, "textes : les technologies de la première ère ont leur description d'univers (%d)" % with_lore)
+	_ok(bad.is_empty(), "textes : les descriptions tiennent les règles d'écriture (%s)" % str(bad))
+	_ok(quotes * 10 <= with_lore, "textes : une technologie décrite sur dix au plus garde une citation")
+	var t0: Dictionary = techs["propulseurs"]
+	_ok(String(t0["lore"]).contains("deutérium") and not Research.shows_flavor(techs["canons_masse"]) and Research.shows_flavor({"flavor": "x"}) and Research.shows_flavor({"flavor": "x", "lore": "y", "quote": true}),
+			"textes : la description remplace le bon mot, sauf citation gardée")
+	var era1 := []
+	for tid: String in ["canons_masse", "lentilles", "blindage_composite", "debarquement", "propulseurs", "capteurs", "cales_rapides", "hydroponie",
+			"fusion_compacte", "extraction", "academies", "reseau_planetaire", "adaptation", "administration", "rhetorique", "medecine"]:
+		if String(techs[tid].get("lore", "")) == "":
+			era1.append(tid)
+	_ok(era1.is_empty(), "textes : aucune technologie commune de l'ère I sans description (%s)" % str(era1))
+	_ok(Research.new_techs({"b": true, "a": true, "c": true}, {"c": true}) == ["a", "b"], "textes : une découverte se signale une fois, dans un ordre stable")
