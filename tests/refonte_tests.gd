@@ -703,4 +703,34 @@ func _test_lore_texts() -> void:
 		if String(techs[tid].get("lore", "")) == "":
 			era1.append(tid)
 	_ok(era1.is_empty(), "textes : aucune technologie commune de l'ère I sans description (%s)" % str(era1))
+	# E3 : une ligne par type de monde, par terrain, et pour les bâtiments de départ et de la première ère.
+	var lines := {}
+	var pt: Dictionary = GameData.planet_types()
+	for k: String in pt:
+		if pt[k] is Dictionary and (pt[k] as Dictionary).has("label"):
+			lines["monde " + k] = String(pt[k].get("lore", ""))
+	var tr: Dictionary = Terrain.data()["terrains"]
+	for k: String in tr:
+		lines["terrain " + k] = String(tr[k].get("lore", ""))
+	for k: String in ["capitale", "ferme_hydroponique", "centrale_fusion", "complexe_minier", "forum", "comptoir", "temple", "tribunal", "depot_flotte", "station_etude",
+			"academie", "clinique", "dome_biospherique", "poste_securite", "maison_spectacles", "cale_seche", "enrichissement_sols", "forage_geothermique", "puits_extraction", "tripot_portuaire"]:
+		lines["bâtiment " + k] = String(GameData.building(k).get("lore", ""))
+	var wrong := []
+	for k: String in lines:
+		var l: String = lines[k]
+		if l == "" or l.length() > 200 or l.count(". ") > 1 or not l.ends_with(".") or l.contains("—") or l.contains("–") or l.contains("%") or l.contains("+"):
+			wrong.append(k)
+	_ok(lines.size() == 49 and wrong.is_empty(), "textes : mondes, terrains et premiers bâtiments ont une ligne aux règles (%d, %s)" % [lines.size(), str(wrong)])
+	_ok(GameData.lore_then("A.", "B.") == "A.\n\nB." and GameData.lore_then("", "B.") == "B." and GameData.lore_then("A.", "") == "A.", "textes : la description passe avant l'effet")
+	var st := GameState.create(3, 100, 1500.0, "vael", {"ai_level": "", "terrain": "normal"})
+	var found := false
+	for sid: int in st.galaxy.systems.size():
+		if not Terrain.at(st, sid).is_empty():
+			found = Terrain.lore_lines(st, sid).size() == Terrain.at(st, sid).size()
+			break
+	_ok(found, "textes : un système à terrain donne sa description au survol")
+	var cats := {}
+	for e: Dictionary in CodexCatalogs.entries("mondes") + CodexCatalogs.entries("terrains"):
+		cats[String(e["id"])] = String(e["body"])
+	_ok(cats.size() == 29 and String(cats.get("cat:mondes:ocean", "")).contains("hauts-fonds") and String(cats.get("cat:terrains:neutron", "")).contains("vingt kilomètres"), "textes : le Codex liste les mondes et les terrains (%d)" % cats.size())
 	_ok(Research.new_techs({"b": true, "a": true, "c": true}, {"c": true}) == ["a", "b"], "textes : une découverte se signale une fois, dans un ordre stable")

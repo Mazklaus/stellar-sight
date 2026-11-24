@@ -1629,6 +1629,8 @@ func _refresh_card() -> void:
 	var tlines := Terrain.lines(_state, s.id)
 	for line in tlines:
 		_card_owner.text += "\n" + line
+	_card_owner.tooltip_text = "\n\n".join(PackedStringArray(Terrain.lore_lines(_state, s.id)))
+	_card_owner.mouse_filter = Control.MOUSE_FILTER_PASS if _card_owner.tooltip_text != "" else Control.MOUSE_FILTER_IGNORE
 	var wl := CaptureLore.field_text(_state, s.id)  # champ d'épaves (prises de guerre)
 	if wl != "":
 		_card_owner.text += "\n" + wl

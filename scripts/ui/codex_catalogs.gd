@@ -15,6 +15,8 @@ const CATALOGS := [
 	{"id": "crises", "family": "bestiaire", "label": "Crises de fin de partie", "locked": true, "secret": true, "link": true},
 	{"id": "technologies", "family": "meca", "label": "Technologies"},
 	{"id": "batiments", "family": "meca", "label": "Bâtiments"},
+	{"id": "mondes", "family": "meca", "label": "Types de mondes"},
+	{"id": "terrains", "family": "meca", "label": "Terrains"},
 	{"id": "vaisseaux", "family": "meca", "label": "Vaisseaux"},
 	{"id": "merveilles", "family": "meca", "label": "Merveilles", "link": true},
 	{"id": "reliques", "family": "meca", "label": "Reliques"},
@@ -120,7 +122,7 @@ static func entries(cid: String) -> Array:
 				if k.begins_with("_") or not b[k] is Dictionary or not (b[k] as Dictionary).has("label"):
 					continue
 				var x: Dictionary = b[k]
-				out.append(_e(cid, k, String(x["label"]), String(x.get("text", "")), String(x.get("text", "")),
+				out.append(_e(cid, k, String(x["label"]), String(x.get("lore", x.get("text", ""))), GameData.lore_then(String(x.get("lore", "")), String(x.get("text", "")), "**En jeu.** "),
 						[["Coût", _amounts(x.get("cost", {}))], ["Délai", ("%d jours" % int(x["days"])) if x.has("days") else ""], ["Produit", _amounts(x.get("yields", {}))], ["Entretien", _amounts(x.get("upkeep", {}))]],
 						"", [], ["04-colonies"]))
 		"vaisseaux":
@@ -142,6 +144,23 @@ static func entries(cid: String) -> Array:
 		"reliques":
 			for r: Dictionary in _data("data/relics.json").get("relics", []):
 				out.append(_e(cid, String(r["id"]), String(r["name"]), String(r.get("text", "")), String(r.get("text", "")), [], "", [], ["14-perils"]))
+		"mondes":
+			var pt: Dictionary = _data("data/planet_types.json")
+			for k: String in pt:
+				if not pt[k] is Dictionary or not (pt[k] as Dictionary).has("label"):
+					continue
+				var x: Dictionary = pt[k]
+				var sizes: Array = x.get("sizes", [])
+				out.append(_e(cid, k, String(x["label"]), String(x.get("lore", "")), String(x.get("lore", "")),
+						[["Habitabilité de base", "%d %%" % int(x.get("base_hab", 0))], ["Tailles", "%d à %d" % [int(sizes[0]), int(sizes[1])] if sizes.size() == 2 else ""],
+						["Par citoyen", _amounts(x.get("pop_yields", x.get("city_pop_yields", {})))], ["Avant-poste", _amounts(x.get("outpost_yields", {}))]],
+						"", [], ["04-colonies"]))
+		"terrains":
+			var tr: Dictionary = (_data("data/terrain.json") as Dictionary).get("terrains", {})
+			for k: String in tr:
+				var x: Dictionary = tr[k]
+				out.append(_e(cid, k, String(x["label"]), String(x.get("lore", "")), String(x.get("lore", "")),
+						[["Inconvénient", String(x.get("bad", ""))], ["Avantage", String(x.get("good", ""))]], "", [], []))
 		"biens":
 			var g: Dictionary = _data("data/goods.json")
 			for x: Dictionary in g.get("luxuries", []):

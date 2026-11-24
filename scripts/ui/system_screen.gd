@@ -628,6 +628,8 @@ func _refresh_panel(s: StarSystem) -> void:
 	_p_title.text = p.display_name(_state.galaxy)
 	_p_title.add_theme_color_override("font_color", _state.get_empire(c.owner).color().lightened(0.3) if c else Color(0.95, 0.96, 1.0))
 	_p_sub.text = "%s  ·  taille %d  ·  orbite %d" % [p.type_label(), p.size, p.index + 1]
+	_p_sub.tooltip_text = String(GameData.planet_type(p.type).get("lore", ""))
+	_p_sub.mouse_filter = Control.MOUSE_FILTER_PASS
 
 	var hab := PlanetInfo.habitability(_state, p, _player)
 	_hab_bar.value = int(hab["pct"])
@@ -1027,7 +1029,7 @@ func _build_action(p: Planet, bid: String, b: Dictionary) -> Dictionary:
 		verb = "Améliorer"
 		gain = "remplace %s, %s" % [String(GameData.building(String(b["upgrades"])).get("label", "")).to_lower(), gain]
 	var pid := p.id
-	var tip := String(b.get("text", ""))
+	var tip := GameData.lore_then(String(b.get("lore", "")), String(b.get("text", "")))
 	# Chantier occupé : le bâtiment se met en file, il sera lancé (et payé) à la suite.
 	var bc: Colony = _state.colonies.get(p.id)
 	var bq := SimCommands.queue_build(_player, p.id, bid)

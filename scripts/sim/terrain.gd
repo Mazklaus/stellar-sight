@@ -381,6 +381,16 @@ static func lines(state: GameState, sid: int) -> Array[String]:
 	return out
 
 
+## Description d'univers de chaque terrain du système, une ligne par terrain (survol de la fiche).
+static func lore_lines(state: GameState, sid: int) -> Array[String]:
+	var out: Array[String] = []
+	for id in at(state, sid):
+		var l := String(def(id).get("lore", ""))
+		if l != "":
+			out.append("%s. %s" % [label(id), l])
+	return out
+
+
 ## Résumé court pour un en-tête (« Étoile à neutrons, Nébuleuse »).
 static func short(state: GameState, sid: int) -> String:
 	var parts := PackedStringArray()
