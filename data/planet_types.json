@@ -1,11 +1,11 @@
 {
-	"continental": {"label": "Continentale", "lore": "Des terres émergées entre deux océans, des saisons, un air qu'on respire sans masque.", "base_hab": 60, "sizes": [2, 5],
+	"continental": {"label": "Continentale", "lore": "Les terres émergées y occupent un tiers de la surface, et l'on y respire sans masque.", "base_hab": 60, "sizes": [2, 5],
 		"pop_yields": {"food": 2, "energy": 1, "materials": 1}, "outpost_yields": {"food": 1},
 		"weights": {"yellow": 14, "red": 6, "white": 6, "blue_giant": 3, "neutron": 0, "black_hole": 0}},
 	"ocean": {"label": "Océanique", "lore": "Une mer sans rivage, profonde de plusieurs kilomètres. On y bâtit sur les hauts-fonds, ou sur des plates-formes à l'ancre.", "base_hab": 50, "sizes": [2, 5],
 		"pop_yields": {"food": 3, "energy": 1}, "outpost_yields": {"food": 1},
 		"weights": {"yellow": 12, "red": 6, "white": 5, "blue_giant": 3, "neutron": 0, "black_hole": 0}},
-	"desert": {"label": "Désertique", "lore": "Du sable, de la roche nue, et une eau qui ne se trouve qu'en nappes profondes. Les villes s'y tiennent à l'ombre des canyons.", "base_hab": 50, "sizes": [1, 4],
+	"desert": {"label": "Désertique", "lore": "L'eau ne s'y trouve qu'en nappes profondes. Les villes se tiennent à l'ombre des canyons.", "base_hab": 50, "sizes": [1, 4],
 		"pop_yields": {"energy": 2, "materials": 1, "food": 1}, "outpost_yields": {"energy": 1},
 		"weights": {"yellow": 10, "red": 12, "white": 8, "blue_giant": 8, "neutron": 2, "black_hole": 1}},
 	"arctic": {"label": "Glaciaire", "lore": "Une croûte de glace épaisse d'un à trois kilomètres sur un sol gelé. On y vit de la chaleur des forages.", "base_hab": 40, "sizes": [1, 4],
