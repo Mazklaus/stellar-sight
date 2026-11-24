@@ -331,3 +331,26 @@ func _test_screens() -> void:
 		if bool(c3["held"]):
 			held_n += 1
 	_ok(show.size() == st.relics.size() and held_n == Relics.owned(st, 0).size(), "la vitrine a une case par relique de la partie")
+	# Forces (C12, C14, C15) : onglets Flottes et Batailles, armées groupées par lieu.
+	_ok(UiDomains.locate("fleets") == [2, 0] and UiDomains.locate("battles") == [2, 3], "Flottes ouvre le domaine Forces, Batailles le ferme")
+	var fr := FleetsScreen.rows(st, 0)
+	var own := 0
+	for fid in st.fleets:
+		if (st.fleets[fid] as Fleet).owner == 0:
+			own += 1
+	_ok(fr.size() == own and own > 0, "une ligne par flotte de l'empire")
+	var by_power := FleetsScreen.sorted_rows(st, 0, "power", true)
+	_ok(int(by_power[0]["power"]) >= int(by_power[by_power.size() - 1]["power"]), "tri des flottes par puissance")
+	var f0: Fleet = st.fleets[int(fr[0]["id"])]
+	_ok(SimCommands.validate(st, SimCommands.rename_fleet(0, f0.id, "  ")) != "" and SimCommands.validate(st, SimCommands.rename_fleet(1, f0.id, "Avant-garde")) != "",
+			"renommer une flotte : nom non vide, flotte à soi")
+	SimCommands.apply(st, SimCommands.rename_fleet(0, f0.id, " Avant-garde "))
+	_ok(f0.fleet_name == "Avant-garde", "la flotte prend son nouveau nom")
+	_ok(FleetsScreen.order_text(st, f0) != "", "chaque flotte a un ordre lisible")
+	var gr := ArmiesScreen.groups(st, [{"id": 1, "f": f0.id, "s": -1, "hp": 5, "mo": 5, "t": "inf", "sp": ""}, {"id": 2, "f": f0.id, "s": -1, "hp": 5, "mo": 5, "t": "inf", "sp": ""},
+			{"id": 3, "f": -1, "s": f0.system_id, "hp": 5, "mo": 5, "t": "inf", "sp": ""}])
+	_ok(gr.size() == 2 and String(gr[0]["key"]) == "f:%d" % f0.id and (gr[0]["regs"] as Array).size() == 2, "régiments groupés par lieu, les flottes d'abord")
+	st.battle_reports.append({"sides": [{"empire": 0}, {"empire": 1}], "end": 90, "winner": 0, "system_name": "Test"})
+	st.battle_reports.append({"sides": [{"empire": 1}, {"empire": 2}], "end": 95, "winner": 1, "system_name": "Ailleurs"})
+	var be := BattlesScreen.entries(st, 0)
+	_ok(be.size() == 1 and String(be[0]["verdict"]) == "won" and int(be[0]["index"]) == st.battle_reports.size() - 2, "seules les batailles de l'empire sont listées")

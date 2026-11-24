@@ -16,7 +16,7 @@ const DOMAINS := [
 		["Recherche", ["research"]], ["Génome", ["genome"]], ["Songe", ["psionics"]],
 		["Fouilles", ["chronicles:archeo", "chronicles:relics"]]]},
 	{"id": "forces", "label": "Forces", "key": "F3", "glyph": "armies", "tabs": [
-		["Chantier", ["shipyard"]], ["Armées", ["armies"]]]},
+		["Flottes", ["fleets"]], ["Chantier", ["shipyard"]], ["Armées", ["armies"]], ["Batailles", ["battles"]]]},
 	{"id": "diplomatie", "label": "Diplomatie", "key": "F4", "glyph": "diplomacy", "tabs": [
 		["Empires", ["diplomacy"]], ["Assemblée", ["amphictyony"]], ["Renseignement", ["intel"]]]},
 	{"id": "commerce", "label": "Commerce", "key": "F5", "glyph": "trade", "tabs": [
@@ -75,7 +75,7 @@ static func group(addr: String) -> Array:
 ## L'adresse est-elle offerte dans cette partie, pour cet empire ? (Un pilier hors jeu cache son onglet.)
 static func offered(state: GameState, player: int, addr: String) -> bool:
 	if state == null:
-		return true
+		return not screen_of(addr) in ["peoples", "fleets", "battles"]  # ces onglets n'ont rien à montrer sans partie
 	var sub := sub_of(addr)
 	match screen_of(addr):
 		"order":

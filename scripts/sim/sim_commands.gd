@@ -15,6 +15,11 @@ static func rename_system(player: int, system_id: int, new_name: String) -> Dict
 	return {"type": "rename_system", "player": player, "system": system_id, "name": new_name}
 
 
+## Renomme une de ses flottes.
+static func rename_fleet(player: int, fleet_id: int, new_name: String) -> Dictionary:
+	return {"type": "rename_fleet", "player": player, "fleet": fleet_id, "name": new_name}
+
+
 ## Lance une colonie ("colony") ou un avant-poste ("outpost") sur une planète.
 ## Une colonie sur un de ses propres avant-postes le transforme en colonie.
 ## species : peuple de l'empire qui fondera la colonie (voir Peoples) ; "" = celui de l'empire.
@@ -877,6 +882,18 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			if n.length() > NAME_MAX_LENGTH:
 				return "nom trop long (%d caractères max)" % NAME_MAX_LENGTH
 			return ""
+		"rename_fleet":
+			var rf: Fleet = state.fleets.get(int(cmd.get("fleet", -1)))
+			if rf == null or rf.owner != int(cmd["player"]):
+				return "cette flotte ne vous appartient pas"
+			var rn := String(cmd.get("name", "")).strip_edges()
+			if rn.is_empty():
+				return "nom vide"
+			if rn.length() > NAME_MAX_LENGTH:
+				return "nom trop long (%d caractères max)" % NAME_MAX_LENGTH
+			if rn == rf.fleet_name:
+				return "c'est déjà son nom"
+			return ""
 		"colonize":
 			return Economy.check_colonize(state, int(cmd["player"]), int(cmd.get("planet", -1)), String(cmd.get("kind", "")), String(cmd.get("species", "")))
 		"build":
@@ -1232,6 +1249,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 ## Applique un ordre déjà validé.
 static func apply(state: GameState, cmd: Dictionary) -> void:
 	match String(cmd["type"]):
+		"rename_fleet":
+			(state.fleets[int(cmd["fleet"])] as Fleet).fleet_name = String(cmd["name"]).strip_edges()
 		"rename_system":
 			var sys := state.galaxy.get_system(int(cmd["system"]))
 			var old_name := sys.system_name

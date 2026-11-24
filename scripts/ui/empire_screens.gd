@@ -15,6 +15,10 @@ signal screen_changed(screen_id: String)
 signal war_requested(empire_id: int)
 ## Un ordre de l'écran Diplomatie (proposer, répondre, rompre, soudoyer, banquet, arbitrer).
 signal command_requested(cmd: Dictionary)
+## Montrer une flotte sur la carte (l'écran se ferme).
+signal fleet_requested(fleet_id: int)
+## Rouvrir un rapport de bataille spatiale (rang dans state.battle_reports).
+signal battle_report_requested(index: int)
 ## Rouvrir une carte d'événement de la boîte (écran Chroniques).
 signal event_requested(event_id: int)
 ## Ouvrir le choix de récompense d'un haut fait (voir DeedPanel).
@@ -147,6 +151,17 @@ var intel_op_buttons := {}
 var intel_case_buttons := {}
 var _intel_sig := ""
 var _peoples_sig := ""
+## Onglet Flottes : tri, flotte choisie, boutons (pour les tests).
+var _fleets_sig := ""
+var _battles_sig := ""
+var battles_buttons := {}
+## Écran Armées : groupes de régiments dépliés (clé « f:flotte » ou « s:système »).
+var armies_open := {}
+var armies_buttons := {}
+var fleets_sort := "power"
+var fleets_sort_desc := true
+var fleets_selected := -1
+var fleets_buttons := {}
 ## Cartes des merveilles, par id (pour les tests).
 var wonder_cards := {}
 ## Montant réglé au curseur d'emprunt, par prêteur (gardé d'un rafraîchissement à l'autre).
@@ -360,6 +375,10 @@ func show_screen(screen_id: String) -> void:
 			IntelScreen.build(self)
 		"peoples":
 			PeoplesScreen.build(self)
+		"fleets":
+			FleetsScreen.build(self)
+		"battles":
+			BattlesScreen.build(self)
 		"heroes":
 			HeroScreen.build(self)
 		"order":
@@ -472,6 +491,12 @@ func refresh() -> void:
 		"peoples":
 			if PeoplesScreen.signature(self) != _peoples_sig:
 				show_screen("peoples")
+		"fleets":
+			if FleetsScreen.signature(self) != _fleets_sig:
+				show_screen("fleets")
+		"battles":
+			if BattlesScreen.signature(self) != _battles_sig:
+				show_screen("battles")
 		"heroes":
 			if HeroScreen.signature(self) != _hero_sig:
 				show_screen("heroes")

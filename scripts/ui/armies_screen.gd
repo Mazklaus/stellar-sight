@@ -76,8 +76,36 @@ static func build(es: EmpireScreens) -> void:
 	col.add_child(rb)
 	if regs.is_empty():
 		rb.body.add_child(UiTheme.dim("Aucun régiment. Levez-en un dans l'écran d'un de vos systèmes peuplés.", 14))
-	for r in regs:
-		rb.body.add_child(_regiment_row(es, r))
+	# Groupés par lieu (refonte, C14) : une ligne par flotte ou par système, qui se déplie.
+	for grp: Dictionary in groups(state, regs):
+		var key := String(grp["key"])
+		var opened := bool(es.armies_open.get(key, false)) or regs.size() <= GROUP_FROM
+		var head := HBoxContainer.new()
+		head.add_theme_constant_override("separation", 10)
+		var tb := Button.new()
+		tb.flat = true
+		tb.focus_mode = Control.FOCUS_NONE
+		tb.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		tb.custom_minimum_size = Vector2(360, 0)
+		tb.text = "%s  %s" % ["▾" if opened else "▸", grp["where"]]
+		tb.add_theme_font_size_override("font_size", 15)
+		tb.pressed.connect(func() -> void:
+			es.armies_open[key] = not bool(es.armies_open.get(key, false))
+			es.show_screen("armies"))
+		head.add_child(tb)
+		es.armies_buttons["group:" + key] = tb
+		var n := (grp["regs"] as Array).size()
+		var cnt := UiTheme.dim("%d régiment%s" % [n, "s" if n > 1 else ""], 14)
+		cnt.custom_minimum_size = Vector2(130, 0)
+		head.add_child(cnt)
+		var stt := UiTheme.dim("santé %d %%  ·  moral %d %%" % [int(grp["hp"]), int(grp["mo"])], 14)
+		if int(grp["hp"]) < 50 or int(grp["mo"]) < 50:
+			stt.add_theme_color_override("font_color", UiTheme.delta_color(-1))
+		head.add_child(stt)
+		rb.body.add_child(head)
+		if opened:
+			for r in (grp["regs"] as Array):
+				rb.body.add_child(_regiment_row(es, r))
 
 	var q := Ground.queue_of(state, player)
 	if not q.is_empty():
@@ -119,6 +147,51 @@ static func build(es: EmpireScreens) -> void:
 		db.body.add_child(UiTheme.paragraph("La dévastation réduit la production (-1 % pour 2 points), la croissance et la stabilité ; elle baisse de quelques points chaque mois, hors siège et hors bataille.", 760.0, 13))
 		for it: Array in dev:
 			db.body.add_child(UiTheme.paragraph("%s : dévastation %d %%." % [state.galaxy.systems[int(it[1])].system_name, int(it[0])], 760.0, 14))
+
+
+## Au-delà de ce nombre de régiments, les groupes s'ouvrent repliés.
+const GROUP_FROM := 8
+
+
+## Régiments groupés par lieu : [{key, where, regs, hp, mo}] (santé et moral moyens, en %), les flottes
+## d'abord, puis les garnisons, dans l'ordre des noms.
+static func groups(state: GameState, regs: Array) -> Array[Dictionary]:
+	var by := {}
+	for r: Dictionary in regs:
+		var key := ""
+		var where := ""
+		if int(r["f"]) >= 0 and state.fleets.has(int(r["f"])):
+			key = "f:%d" % int(r["f"])
+			where = "À bord de %s" % (state.fleets[int(r["f"])] as Fleet).fleet_name
+		elif int(r["s"]) >= 0:
+			key = "s:%d" % int(r["s"])
+			where = "Au sol, %s" % state.galaxy.systems[int(r["s"])].system_name
+		else:
+			key = "x"
+			where = "Sans affectation"
+		if not by.has(key):
+			by[key] = {"key": key, "where": where, "regs": [], "hp": 0, "mo": 0}
+		(by[key]["regs"] as Array).append(r)
+		@warning_ignore("integer_division")
+		by[key]["hp"] += int(r["hp"]) * 100 / maxi(1, Ground.max_hp(r))
+		@warning_ignore("integer_division")
+		by[key]["mo"] += int(r["mo"]) * 100 / maxi(1, Ground.max_morale(r))
+	var out: Array[Dictionary] = []
+	for key: String in by:
+		var g: Dictionary = by[key]
+		var n := (g["regs"] as Array).size()
+		@warning_ignore("integer_division")
+		g["hp"] = int(g["hp"]) / n
+		@warning_ignore("integer_division")
+		g["mo"] = int(g["mo"]) / n
+		out.append(g)
+	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var fa := String(a["key"]).begins_with("f")
+		var fb := String(b["key"]).begins_with("f")
+		if fa != fb:
+			return fa
+		return String(a["where"]) < String(b["where"]))
+	return out
 
 
 ## Ce qui change l'écran : régiments du joueur, file, batailles, rapports, réserve.

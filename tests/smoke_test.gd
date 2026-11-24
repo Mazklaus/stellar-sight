@@ -747,7 +747,21 @@ func _test_navigation_ui(main: Node) -> void:
 	await process_frame
 	_press(KEY_F3)
 	await process_frame
-	_check(screens.current == "shipyard" and screens.shipyard != null and screens._tab.text.begins_with("FORCES"), "F3 : domaine Forces, écran Chantier")
+	_check(screens.current == "fleets" and screens._tab.text.begins_with("FORCES") and not screens.fleets_buttons.is_empty(), "F3 : domaine Forces, onglet Flottes")
+	screens.show_address("shipyard")
+	await process_frame
+	_check(screens.current == "shipyard" and screens.shipyard != null, "Forces : onglet Chantier")
+	# Un domaine fermé sur un onglet sans entrée dans l'ancienne barre se rouvre sur cet onglet.
+	if UiDomains.offered(main.simulation.state, main.view_empire, "megas"):
+		screens.show_address("megas")
+		await process_frame
+		_press(KEY_F1)
+		await process_frame
+		_press(KEY_F1)
+		await process_frame
+		_check(screens.is_open() and screens.current == "megas", "F1 rouvre le domaine Empire sur Mégastructures")
+		screens.show_address("shipyard")
+		await process_frame
 	var yard: ShipyardScreen = screens.shipyard
 	var yst: GameState = main.simulation.state
 	var yhull := String(Designs.hull_ids_for(rme.faction_id)[0])

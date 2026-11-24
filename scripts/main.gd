@@ -206,6 +206,14 @@ func _ready() -> void:
 	_empire_screens.codex_requested.connect(func(aid: String) -> void: open_codex(aid))
 	_empire_screens.command_requested.connect(diplomacy_command)
 	_empire_screens.screen_changed.connect(func(_id: String) -> void: _hud.bar.set_open_screen(UiDomains.address(_empire_screens)))
+	_empire_screens.battle_report_requested.connect(func(i: int) -> void:
+		if i < 0 or i >= simulation.state.battle_reports.size():
+			return
+		close_empire_screen()
+		_hud.battle_report.show_report(simulation.state, view_empire, simulation.state.battle_reports[i]))
+	_empire_screens.fleet_requested.connect(func(fid: int) -> void:
+		close_empire_screen()
+		focus_fleet(fid))
 	_empire_screens.planet_requested.connect(func(pid: int) -> void:
 		close_empire_screen()
 		open_system_view(galaxy.get_planet(pid).system_id, pid))
@@ -541,7 +549,7 @@ func toggle_empire_screen(screen_id: String) -> void:
 		close_empire_screen()
 		return
 	var sc := EmpireBar.screen_info(screen_id)
-	if not sc.get("ready", false):
+	if not sc.get("ready", false) and UiDomains.domain_of(screen_id) < 0:  # un onglet de domaine est toujours prêt
 		_hud.notify(String(sc.get("why", "Bientôt.")))
 		_hud.bar.set_open_screen(UiDomains.address(_empire_screens))
 		return
