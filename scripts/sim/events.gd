@@ -38,6 +38,26 @@ static func default_frequency() -> String:
 	return String(data().get("default_frequency", "normaux"))
 
 
+## Carte de la fenêtre de premier contact ; ses textes par peuple sont dans data/first_contact.json.
+const CONTACT_CARD := "premier_contact"
+
+
+## Textes de premier contact d'un peuple : {"voix", "salut", "replique"} (ceux de « defaut » pour un peuple créé).
+static func contact_texts(faction_id: String) -> Dictionary:
+	var d: Dictionary = GameData.first_contact()
+	return (d.get("peuples", {}) as Dictionary).get(faction_id, d.get("defaut", {}))
+
+
+## Qui parle au nom du rival d'une carte de contact : son souverain s'il en a un, sinon la voix de son peuple.
+static func contact_voice(state: GameState, item: Dictionary) -> String:
+	var r := state.get_empire(int(item.get("rival", -1)))
+	if r == null:
+		return ""
+	if Rulers.enabled(state) and Rulers.has_ruler(state, r.id):
+		return Rulers.full_name(state, r.id)
+	return String(contact_texts(r.faction_id).get("voix", ""))
+
+
 static func enabled(state: GameState) -> bool:
 	return int(freq_def(state.event_freq).get("pct", 0)) > 0
 
@@ -223,7 +243,18 @@ static func push(state: GameState, empire_id: int, card_id: String, subj: Dictio
 ## Premier contact : chaque empire reçoit la carte de la paire de registres, et chacun garde d'office
 ## le souvenir du choc (proposition 7).
 static func on_contact(state: GameState, a: Empire, b: Empire, added: Array[Dictionary]) -> void:
-	if a.is_npc() or b.is_npc() or not enabled(state):
+	if a.is_npc() or b.is_npc():
+		return
+	# La fenêtre de premier contact (refonte, E4) : le salut de l'autre, et trois réponses. Elle passe
+	# avant le choc des tons, et vaut même quand les événements sont coupés.
+	for pair in [[a, b], [b, a]]:
+		var waiting := false
+		for it: Dictionary in inbox(state, (pair[0] as Empire).id):
+			if String(it["card"]) == CONTACT_CARD and int(it.get("rival", -1)) == (pair[1] as Empire).id:
+				waiting = true
+		if not waiting:
+			push(state, (pair[0] as Empire).id, CONTACT_CARD, {"rival": (pair[1] as Empire).id}, added)
+	if not enabled(state):
 		return
 	var ra := String(a.faction().get("registre", ""))
 	var rb := String(b.faction().get("registre", ""))
@@ -506,8 +537,11 @@ static func choices(state: GameState, empire_id: int, item: Dictionary) -> Array
 				var lv := layer_value(state, empire_id, String(layer))
 				tag = _layer_label(String(layer), lv)
 		var why := _cost_problem(state, empire_id, item, ch)
+		var lines := fx_lines(state, empire_id, item, ch.get("fx", []))
+		if ch.has("note"):  # ce que le choix entraîne quand aucun effet chiffré ne le dit
+			lines.append(fill(state, empire_id, item, String(ch["note"])))
 		out.append({"index": i, "label": fill(state, empire_id, item, String(ch["label"])), "tag": tag, "ok": why == "", "why": why,
-				"lines": fx_lines(state, empire_id, item, ch.get("fx", [])), "risky": ch.has("risky"),
+				"lines": lines, "risky": ch.has("risky"),
 				"pct": int((ch.get("risky", {}) as Dictionary).get("pct", 100)),
 				"win": fx_lines(state, empire_id, item, (ch.get("risky", {}) as Dictionary).get("win", [])),
 				"lose": fx_lines(state, empire_id, item, (ch.get("risky", {}) as Dictionary).get("lose", []))})
@@ -606,7 +640,10 @@ static func _close(state: GameState, empire_id: int, item: Dictionary, index: in
 	var m := meta(state, empire_id)
 	(m["inbox"] as Array).erase(item)
 	var log: Array = m["log"]
-	log.append({"card": String(item["card"]), "title": String(card(String(item["card"])).get("title", "")),
+	var title := String(card(String(item["card"])).get("title", ""))
+	if String(item["card"]) == CONTACT_CARD:
+		title = "Premier contact : %s" % _rival_name(state, item)
+	log.append({"card": String(item["card"]), "title": title,
 			"choice": index, "label": label, "tick": state.tick, "system": int(item.get("system", -1))})
 	while log.size() > int(data().get("log_max", 30)):
 		log.pop_front()
@@ -923,6 +960,10 @@ static func fill(state: GameState, empire_id: int, item: Dictionary, s: String) 
 	out = out.replace("{system}", _sys_name(state, sid if sid >= 0 else FactionTraits.capital_system(state, empire_id)))
 	out = out.replace("{planet}", state.galaxy.get_planet(pid).display_name(state.galaxy) if pid >= 0 else "?")
 	out = out.replace("{rival}", _rival_name(state, item))
+	if out.contains("{salut}") or out.contains("{replique}"):
+		var rv := state.get_empire(int(item.get("rival", -1)))
+		out = out.replace("{salut}", String(contact_texts(rv.faction_id if rv != null else "").get("salut", "")))
+		out = out.replace("{replique}", String(contact_texts(state.get_empire(empire_id).faction_id).get("replique", "")))
 	out = out.replace("{hero}", _hero_name(state, item))
 	out = Crisis.fill(state, out)  # jetons des cartes de crise de fin de partie
 	out = Ancients.fill(state, empire_id, item, out)  # jetons des puissances anciennes

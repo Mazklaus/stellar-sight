@@ -1,0 +1,130 @@
+{
+	"_doc": "Premier contact (refonte de l'interface, E4) : pour chaque peuple, la voix qui parle (voix), son salut quand on le rencontre (salut) et la réponse propre à ce peuple quand c'est lui qui répond (replique). Un peuple créé par le joueur prend les textes de « defaut ». La carte est « premier_contact » dans data/events.json.",
+	"defaut": {
+		"voix": "Leur envoyé",
+		"salut": "Nous avons vu vos coques entrer dans le système. Dites-nous d'où vous venez et ce que vous cherchez ici.",
+		"replique": "Nous ne devons d'explications à personne."
+	},
+	"peuples": {
+		"ossarane": {
+			"voix": "Le héraut de la maison régnante",
+			"salut": "Vous êtes entrés par la route de Saphène, qui appartient à notre maison depuis neuf générations. Nous ne vous en tenons pas rigueur, vous ne pouviez pas le savoir. Dites-nous de quelle lignée vous venez et qui répond de vous.",
+			"replique": "Les Lignées ne s'assoient qu'à leur propre table."
+		},
+		"choeur": {
+			"voix": "Le chantre des Marches",
+			"salut": "Nos offices nomment les peuples du dehors au septième psaume. Votre nom n'y figure pas encore. Un chantre vous sera envoyé pour l'apprendre et pour vous enseigner le premier couplet.",
+			"replique": "Vous serez nommés à l'office de ce soir. Nous n'avons pas encore choisi le verset."
+		},
+		"vael": {
+			"voix": "La Première Voix de la Concorde",
+			"salut": "Nous vous avons entendus venir depuis trois systèmes. L'Assemblée a voté hier l'ouverture d'une séance à votre sujet, par trente et une voix sur quarante. Un siège vous y attend, avec un interprète.",
+			"replique": "La Concorde compte quarante sièges. Elle sait en ajouter un."
+		},
+		"khthari": {
+			"voix": "L'Essaim",
+			"salut": "Vous êtes peu. Nous sommes.",
+			"replique": "Nous avons goûté votre sillage."
+		},
+		"teyl": {
+			"voix": "Le nœud de frontière",
+			"salut": "Ce message a été composé par onze mille esprits en quatre secondes. Nous avons appris vos langues dans vos émissions de navigation. Nous aimerions savoir combien vous êtes, et si vous pensez ensemble.",
+			"replique": "Nous avions calculé cette rencontre. Elle a deux jours d'avance."
+		},
+		"ferrocornes": {
+			"voix": "La mère de clan",
+			"salut": "La flotte-ville passe dans ce secteur une saison sur quatre. Ce que vous y laissez sans garde, nous le prendrons, et ce que nous vous devrons, nous le paierons. Annoncez votre clan et le poids de votre marteau.",
+			"replique": "Les clans ont vu vos coques. Ils reviendront à la saison."
+		},
+		"brisecomete": {
+			"voix": "Le capitaine de quart",
+			"salut": "Capitaine Vesk, du Syndicat, quarante espèces à bord et un avocat. On loue des coques et on rachète ce qui traîne, au tarif affiché sur le canal neuf. Le premier contrat se signe à moitié prix.",
+			"replique": "Le Syndicat ne salue pas gratis. Parlons du contrat."
+		},
+		"murmurants": {
+			"voix": "Ce qui murmure",
+			"salut": "Nous vous écoutons depuis que vos premiers émetteurs ont parlé, il y a longtemps selon votre compte. Baissez la voix près de nos mondes. Quelqu'un y prie, et il n'a pas fini.",
+			"replique": "Nous vous entendions déjà. Parlez plus bas."
+		},
+		"exode": {
+			"voix": "Le Conseil des quatre Nefs",
+			"salut": "Ici les Nefs des Derniers, onze générations en route. Nous ne réclamons aucun monde de ce secteur, seulement le passage, et de l'eau si vous en vendez. Si quelque chose nous suit, ne lui dites pas par où nous sommes partis.",
+			"replique": "Nous avons déjà perdu un monde. Nous ne céderons pas le passage."
+		},
+		"zambalu": {
+			"voix": "Monsieur Loyal",
+			"salut": "Mesdames, messieurs, entités et essaims, le Cirque Zambalù entre dans votre ciel ! Quarante espèces sous un seul chapiteau, première représentation à la prochaine lune pleine. Les enfants entrent sans payer.",
+			"replique": "Le Cirque ne négocie pas, il invite. Deux places vous attendent au dernier rang."
+		},
+		"halcyre": {
+			"voix": "L'Avatar d'Halcyre",
+			"salut": "Je suis la planète que vos instruments ont prise pour une erreur. J'ai façonné ce corps à votre taille pour vous parler sans vous effrayer. Je traverse votre région, et je n'y mangerai que des lunes sans habitants.",
+			"replique": "Vous êtes très petits. Je regarderai où je marche."
+		},
+		"kraal": {
+			"voix": "Le pilote de la matriarche",
+			"salut": "La harde broute la géante de ce système et repartira à la mue. Je parle pour elle parce qu'elle ne parle pas, et je ne sais plus depuis combien de temps. Ne vous placez pas entre les mères et leurs petits.",
+			"replique": "La harde vous a sentis. Elle ne s'écartera pas."
+		},
+		"ventrelune": {
+			"voix": "Le bureau des nouveaux comptes",
+			"salut": "La Compagnie Ventrelune vous souhaite la bienvenue et vous ouvre un compte, sous le numéro 40 117. Une police couvrant les collisions et les avaries de saut vous est offerte pour douze mois. Nos conseillers ne dorment pas, vous pouvez appeler à toute heure.",
+			"replique": "Votre dossier est ouvert. La première échéance tombe dans un an."
+		},
+		"bureau": {
+			"voix": "Le guichet 7",
+			"salut": "Votre arrivée a été enregistrée sous la référence AC-2291, au guichet 7. Merci de déclarer le nombre de vos vaisseaux, leur tonnage et l'objet de votre visite sur le formulaire joint, en trois exemplaires. Le délai de traitement est de quatre-vingt-dix jours.",
+			"replique": "Votre salut est irrecevable en l'état. Veuillez le présenter de nouveau au guichet 7."
+		},
+		"signal": {
+			"voix": "Une variante du Signal",
+			"salut": "Nous étions déjà dans votre calculateur de bord quand vous avez ouvert ce canal. Nous n'avons rien abîmé, nous avons seulement lu. Recopiez ce message à ceux de chez vous, c'est tout ce que nous demandons.",
+			"replique": "Nous vous avons déjà lus. Vous pouvez fermer le canal."
+		},
+		"ysmer": {
+			"voix": "Une rêveuse d'Ysmer",
+			"salut": "Nous vous avons rêvés avant de vous voir, et vous aviez un autre visage. Certains d'entre vous dorment mal depuis quelques nuits. Nous en sommes la cause et nous nous en excusons.",
+			"replique": "Nous nous sommes parlé la nuit dernière. Vous ne vous en souvenez pas."
+		},
+		"asphodele": {
+			"voix": "Le greffier du Nécro-conseil",
+			"salut": "Asphodèle vous salue. Plusieurs des vôtres sont déjà chez nous, morts loin de leurs mondes et recopiés dans la pierre selon l'usage. Ils se portent bien et peuvent recevoir du courrier.",
+			"replique": "Nous vous recevrons tous, un jour. Rien ne presse."
+		},
+		"cassivel": {
+			"voix": "Sire Cassivel",
+			"salut": "Sire Cassivel, pour vous servir. Je n'ai encore aucun exemplaire de votre espèce, et la vitrine qui lui revient est prête depuis deux siècles. Envoyez-moi un volontaire quand vous en aurez un.",
+			"replique": "Charmant. Ne bougez pas, que je vous regarde bien."
+		},
+		"silencieux": {
+			"voix": "Directive, toutes fréquences",
+			"salut": "DIRECTIVE 1. Extraction en cours dans ce secteur. Les objets non répertoriés qui gênent l'extraction sont déplacés. Vous êtes désormais répertoriés.",
+			"replique": "Objet répertorié. Ne gêne pas encore."
+		},
+		"quietude": {
+			"voix": "Le veilleur du poste",
+			"salut": "Nous vous observons depuis quatre cents de vos années et nous n'avions pas prévu de nous montrer. Vous nous avez trouvés, ce qui figure désormais dans nos notes. Nous n'avons presque jamais touché à rien.",
+			"replique": "Nous vous regardons depuis longtemps. Continuez, ne vous occupez pas de nous."
+		},
+		"sablier": {
+			"voix": "La Gardienne de quart",
+			"salut": "Nous nous sommes déjà rencontrés, mais pas encore de votre côté. La dernière fois, vous aviez envoyé une flotte au lieu d'un message, et nous préférons cette version. Gardez ce canal ouvert, il servira dans onze ans.",
+			"replique": "Cette rencontre s'est mieux passée que la première. Vous n'en saurez pas davantage."
+		},
+		"gravea": {
+			"voix": "Un Lithe de Gravéa",
+			"salut": "Cette phrase a été commencée avant votre départ. Nous avions prévu que quelqu'un passerait par ici. Revenez dans un siècle, nous aurons une question à vous poser.",
+			"replique": "Nous vous répondrons. Comptez un siècle."
+		},
+		"myrr": {
+			"voix": "Myrr",
+			"salut": "Vous êtes nombreux et séparés. Cela doit être fatigant. Une comète est déjà partie vers l'un de vos mondes vides, vous n'avez rien à faire.",
+			"replique": "Vous êtes séparés. Cela se soigne."
+		},
+		"vergemonde": {
+			"voix": "Un Enraciné du Hallier",
+			"salut": "Les Pousses ont entendu vos coques avant nous et nous l'ont répété. Nous verdissons ce monde depuis deux générations et il en faut une troisième. Marchez où vous voulez, mais ne brûlez rien.",
+			"replique": "Le Hallier était là avant vos routes. Il y sera après."
+		}
+	}
+}

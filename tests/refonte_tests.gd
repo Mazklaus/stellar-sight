@@ -23,6 +23,7 @@ func run(check: Callable) -> void:
 	_test_map_options()
 	_test_first_steps()
 	_test_lore_texts()
+	_test_first_contact()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -734,3 +735,66 @@ func _test_lore_texts() -> void:
 		cats[String(e["id"])] = String(e["body"])
 	_ok(cats.size() == 29 and String(cats.get("cat:mondes:ocean", "")).contains("hauts-fonds") and String(cats.get("cat:terrains:neutron", "")).contains("vingt kilomètres"), "textes : le Codex liste les mondes et les terrains (%d)" % cats.size())
 	_ok(Research.new_techs({"b": true, "a": true, "c": true}, {"c": true}) == ["a", "b"], "textes : une découverte se signale une fois, dans un ordre stable")
+
+
+## E4 : le premier contact en fenêtre pleine. Une carte par rencontre, le salut du peuple rencontré, trois réponses.
+func _test_first_contact() -> void:
+	var fc: Dictionary = GameData.first_contact()
+	var missing := []
+	var wrong := []
+	for f: Dictionary in GameData.factions():
+		var id := String(f["id"])
+		var t: Dictionary = (fc["peuples"] as Dictionary).get(id, {})
+		if t.is_empty():
+			missing.append(id)
+			continue
+		for k: String in ["voix", "salut", "replique"]:
+			var s := String(t.get(k, ""))
+			if s == "" or s.contains("—") or s.contains("–") or s.contains("«") or s.length() > 330:
+				wrong.append("%s.%s" % [id, k])
+	_ok(missing.is_empty() and wrong.is_empty(), "contact : chaque peuple a sa voix, son salut et sa réplique (%s, %s)" % [str(missing), str(wrong)])
+	_ok(Events.contact_texts("peuple_inconnu") == fc["defaut"], "contact : un peuple créé prend les textes par défaut")
+	var st := GameState.create(11, 60, 1200.0, "ossarane", {"ai_level": "", "events": "aucun"})
+	var a := st.empires[0]
+	var b: Empire = null
+	for e in st.empires:
+		if e.id != a.id and not e.is_npc():
+			b = e
+			break
+	_ok(b != null, "contact : un rival pour la rencontre")
+	if b == null:
+		return
+	var added: Array[Dictionary] = []
+	Events.on_contact(st, a, b, added)
+	var mine := []
+	for it: Dictionary in Events.inbox(st, a.id):
+		if String(it["card"]) == Events.CONTACT_CARD:
+			mine.append(it)
+	var theirs := []
+	for it: Dictionary in Events.inbox(st, b.id):
+		if String(it["card"]) == Events.CONTACT_CARD:
+			theirs.append(it)
+	_ok(mine.size() == 1 and theirs.size() == 1 and int(mine[0]["rival"]) == b.id, "contact : chacun reçoit la fenêtre, même événements coupés")
+	var item: Dictionary = mine[0]
+	var c := Events.card(Events.CONTACT_CARD)
+	var txt := Events.fill(st, a.id, item, String(c["text"]))
+	_ok(txt.contains(String(Events.contact_texts(b.faction_id)["salut"])) and not txt.contains("{"), "contact : le salut est celui du peuple rencontré")
+	var opts := Events.choices(st, a.id, item)
+	_ok(opts.size() == 3 and String(opts[2]["label"]).contains("propre table") and not (opts[0]["lines"] as Array).is_empty() and (opts[1]["lines"] as Array).size() == 1,
+			"contact : trois réponses, la troisième propre à votre peuple, l'effet écrit sous chacune")
+	_ok(Events.contact_voice(st, item) != "", "contact : quelqu'un parle au nom du peuple rencontré")
+	var before := Diplomacy.opinion(st, b.id, a.id)
+	var inf := int(a.resources.get("influence", 0))
+	Events.choose(st, a.id, int(item["id"]), 2, added)
+	_ok(Diplomacy.opinion(st, b.id, a.id) == before - 10 and int(a.resources.get("influence", 0)) == inf + 20, "contact : la réplique du peuple coûte 10 d'opinion et rapporte 20 d'influence")
+	var log: Array = Events.meta(st, a.id)["log"]
+	_ok(String(log[-1]["title"]) == "Premier contact : %s" % b.display_name(), "contact : le journal garde la rencontre sous son nom")
+	Events.choose(st, b.id, int(theirs[0]["id"]), 0, added)
+	_ok(Diplomacy.opinion(st, a.id, b.id) >= 15 - 20, "contact : venir en voisins vaut 15 d'opinion")
+	var panel := EventPanel.new()
+	Engine.get_main_loop().root.add_child(panel)
+	Events.on_contact(st, a, b, added)
+	var again: Dictionary = Events.inbox(st, a.id)[-1]
+	panel.open(st, a.id, again)
+	_ok(panel._voice.visible and panel._voice.text == Events.contact_voice(st, again) and panel._head.text == "Votre réponse" and panel.choice_buttons.size() == 3, "contact : la fenêtre montre la voix et trois réponses")
+	panel.queue_free()

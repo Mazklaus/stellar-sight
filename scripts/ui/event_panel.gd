@@ -19,6 +19,8 @@ var choice_buttons := {}
 var _art: Widgets.ArtSlot
 var _title: Label
 var _when: Label
+var _voice: Label  # premier contact : qui parle au nom du peuple rencontré
+var _head: Widgets.NotchHeader
 var _text: RichTextLabel
 var _choices: VBoxContainer
 var _locate: Widgets.RoundButton
@@ -35,9 +37,15 @@ func _ready() -> void:
 	box.add_child(_title)
 	_when = UiTheme.dim("", 13)
 	box.add_child(_when)
+	_voice = UiTheme.title("", 17)
+	_voice.add_theme_color_override("font_color", UiTheme.GOLD)
+	_voice.visible = false
+	_voice.mouse_filter = Control.MOUSE_FILTER_PASS
+	box.add_child(_voice)
 	_text = TipManager.paragraph(WIDTH - 20.0, 15)
 	box.add_child(_text)
-	box.add_child(Widgets.NotchHeader.new("Votre décision", 14))
+	_head = Widgets.NotchHeader.new("Votre décision", 14)
+	box.add_child(_head)
 	_choices = VBoxContainer.new()
 	_choices.add_theme_constant_override("separation", 8)
 	box.add_child(_choices)
@@ -72,6 +80,22 @@ func open(state: GameState, player: int, item: Dictionary) -> void:
 		"contact":
 			motif = "faction"
 	_art.set_art("event_%s" % String(item["card"]), Color(0.95, 0.78, 0.45), motif)
+	# Premier contact (refonte, E4) : la scène du peuple rencontré, sa voix, son salut, puis votre réponse.
+	var contact := bool(c.get("contact", false))
+	var rival := state.get_empire(int(item.get("rival", -1)))
+	_voice.visible = contact and rival != null
+	_head.text = "Votre réponse" if contact else "Votre décision"
+	for n in _title.get_parent().get_children():
+		if n is AnnounceFrame.DecisionBand:
+			(n as AnnounceFrame.DecisionBand).tag = "PREMIER CONTACT" if contact else "DÉCISION"
+			n.queue_redraw()
+	_head.queue_redraw()
+	if _voice.visible:
+		_voice.text = Events.contact_voice(state, item)
+		_voice.tooltip_text = "%s  ·  %s" % [String(rival.faction().get("registre", "")), rival.display_name()]
+		_when.text = "%s  ·  sans réponse dans %d jour%s, vous garderez vos distances" % [
+				GameCalendar.date_string(int(item["tick"])), left, "s" if left > 1 else ""]
+		_art.set_art("faction_%s_scene" % rival.faction_id, rival.color(), "faction")
 	_system = int(item.get("system", -1))
 	if _system < 0 and int(item.get("planet", -1)) >= 0:
 		_system = state.galaxy.get_planet(int(item["planet"])).system_id

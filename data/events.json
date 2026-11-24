@@ -459,6 +459,7 @@
 				{"label": "Leur dire la fin tout de suite", "fx": [{"k": "res", "res": {"influence": 10}}, {"k": "opinion", "kind": "ev_snub"}]},
 				{"label": "Noter et attendre", "fx": []}
 			], "default": 2},
+		{"id": "premier_contact", "title": "{rival}", "trigger": "contact", "contact": true, "text": "« {salut} »", "choices": [{"label": "« Nous venons en voisins. »", "fx": [{"k": "opinion", "kind": "fc_voisins"}]}, {"label": "« Nous passons, voilà tout. »", "note": "L'opinion de départ ne bouge pas. Ils garderont leurs distances.", "fx": []}, {"label": "« {replique} »", "fx": [{"k": "opinion", "kind": "fc_hautain"}, {"k": "res", "res": {"influence": 20}}]}], "default": 1},
 		{"id": "t_hymne_chapiteau", "title": "Choc des tons : l'Hymne et le Chapiteau", "trigger": "contact",
 			"text": "Premier contact avec {rival}. Les uns chantent le même hymne depuis dix mille ans ; les autres en ont tiré une comédie musicale, avec claquettes au deuxième couplet. Toutes les places sont vendues. Personne ne sait encore qui le prend le plus mal.",
 			"choices": [

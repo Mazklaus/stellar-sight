@@ -508,6 +508,10 @@ static func crises() -> Dictionary:
 
 
 ## Peuples mineurs (data/minors.json) : catalogue, réglages, cartes.
+static func first_contact() -> Dictionary:
+	return _load("first_contact")
+
+
 static func minors() -> Dictionary:
 	return _load("minors")
 
