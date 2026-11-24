@@ -180,7 +180,7 @@ func _ready() -> void:
 		_view.lens = l
 		_view.queue_redraw())
 	_hud.layer_toggled.connect(func(id: String, on: bool) -> void: _view.set_layer(id, on))
-	_hud.zoom_tier_requested.connect(func(t: int) -> void: _camera.glide_to(_camera.position, GalaxyView.TIER_JUMP[t]))
+	_hud.zoom_tier_requested.connect(func(t: int) -> void: _camera.glide_to(_camera.position, GalaxyView.TIER_JUMP[t], maxf(0.01, UiSettings.map_glide_seconds())))
 
 	_system_screen = SystemScreen.new()
 	add_child(_system_screen)

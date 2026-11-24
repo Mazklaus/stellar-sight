@@ -20,6 +20,7 @@ func run(check: Callable) -> void:
 	_test_new_game_steps()
 	_test_species_steps()
 	_test_save_list()
+	_test_map_options()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -616,3 +617,24 @@ func _test_save_list() -> void:
 	list.refresh()
 	_ok(list.paths.is_empty() and list._empty.visible, "liste : vide, elle le dit")
 	list.queue_free()
+
+
+## Options (D3f) : l'onglet Carte et ses cinq réglages.
+func _test_map_options() -> void:
+	var before := [UiSettings.map_emblems, UiSettings.map_cargos, UiSettings.map_labels, UiSettings.map_glide, UiSettings.fleet_silhouettes]
+	var path_guard := UiSettings.PATH
+	_ok(path_guard != "", "options : chemin des réglages")
+	var panel := OptionsPanel.new()
+	Engine.get_main_loop().root.add_child(panel)
+	panel.show_tab("map")
+	_ok(panel._pages.has("map") and panel._pages["map"].visible and OptionsPanel.TABS.size() == 5, "options : un cinquième onglet, Carte")
+	UiSettings.map_glide = "normal"
+	UiSettings.map_labels = "all"
+	panel.sync()
+	_ok(panel._glide.text == "Posé" and is_equal_approx(UiSettings.map_glide_seconds(), 0.45), "options : le glissement entre paliers part de Posé")
+	UiSettings.map_glide = "none"
+	_ok(UiSettings.map_glide_seconds() == 0.0, "options : Immédiat ne glisse pas")
+	UiSettings.map_glide = before[3]
+	UiSettings.map_labels = before[2]
+	_ok(panel._silhouettes.get_parent().get_parent() == panel._pages["map"], "options : les silhouettes des flottes sont rangées dans Carte")
+	panel.queue_free()

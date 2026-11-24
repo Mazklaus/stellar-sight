@@ -463,7 +463,7 @@ func _draw_labels(px: float, t: int) -> void:
 				owned.append(s)
 		elif state != null and owner_of(s.id) >= 0:
 			owned.append(s)
-		elif show_all:
+		elif show_all and UiSettings.map_labels == "all":
 			rest.append(s)
 	var placed: Array[Rect2] = []
 	var z := _zoom()
@@ -566,7 +566,7 @@ func _draw_empire_names(px: float) -> void:
 		if _overlaps(box, placed):
 			# Pas la place pour le nom : l'emblème seul, s'il tient.
 			var small := Rect2(c.x * z - er, c.y * z - er, er * 2.0, er * 2.0)
-			if not _overlaps(small, placed):
+			if UiSettings.map_emblems and not _overlaps(small, placed):
 				placed.append(small)
 				draw_set_transform(c, 0.0, Vector2(px, px))
 				draw_emblem(self, Vector2.ZERO, er * 0.8, state.get_empire(o).faction_id, Color(1, 1, 1, 0.9 * alpha))
@@ -574,7 +574,8 @@ func _draw_empire_names(px: float) -> void:
 			continue
 		placed.append(box)
 		draw_set_transform(c, 0.0, Vector2(px, px))
-		draw_emblem(self, Vector2(0, -er - 2.0), er, state.get_empire(o).faction_id, Color(1, 1, 1, 0.92 * alpha))
+		if UiSettings.map_emblems:
+			draw_emblem(self, Vector2(0, -er - 2.0), er, state.get_empire(o).faction_id, Color(1, 1, 1, 0.92 * alpha))
 		draw_set_transform(c, angle * 0.5, Vector2(px, px))
 		var base := size * 0.35 + size * 0.5 + 6.0
 		draw_string_outline(_font, Vector2(-w * 0.5, base), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 5, Color(0.01, 0.02, 0.04, 0.7 * alpha))
@@ -693,7 +694,7 @@ func _draw_trade_layer(px: float, t: int) -> void:
 			draw_circle(at, 5.5 * px, Color(0.02, 0.03, 0.05, 0.9))
 			draw_arc(at, 5.5 * px, 0.0, TAU, 16, BATTLE_COLOR, 1.3 * px, true)
 			draw_line(at + Vector2(-3.4, 3.4) * px, at + Vector2(3.4, -3.4) * px, BATTLE_COLOR, 1.3 * px, true)
-		if t != TIER_SYSTEM or total <= 0.0:
+		if t != TIER_SYSTEM or total <= 0.0 or not UiSettings.map_cargos:
 			continue
 		_cargo_live = true
 		var count := cargo_count(r)
