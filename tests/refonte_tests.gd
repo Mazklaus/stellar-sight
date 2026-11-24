@@ -40,7 +40,7 @@ func _test_domains() -> void:
 			_ok(UiDomains.domain_of(id) >= 0, "l'écran %s a un domaine" % id)
 	for tid: Array in ChronicleScreen.TABS:
 		_ok(UiDomains.domain_of("chronicles:%s" % tid[0]) >= 0, "l'onglet de chronique %s a un domaine" % tid[0])
-	_ok(UiDomains.locate("order") == [0, 2] and UiDomains.locate("order:tresor") == [0, 4], "Ordre et Trésor dans Empire")
+	_ok(UiDomains.locate("order") == [0, 3] and UiDomains.locate("order:tresor") == [0, 5], "Ordre et Trésor dans Empire")
 	_ok(UiDomains.domain_of("chronicles:archeo") == 1 and UiDomains.domain_of("chronicles:quests") == 6, "les Fouilles sont dans Savoir, le Journal dans Chroniques")
 	_ok(UiDomains.group("trade:resources").has("trade:market") and UiDomains.group("trade:routes").size() == 1, "Marché réunit Ressources et Marché")
 	_ok(UiDomains.group("megas").has("wonders") and UiDomains.domain_of("forge") == 0, "Grands chantiers réunit merveilles, mégastructures et forge")
@@ -268,3 +268,36 @@ func _test_screens() -> void:
 	var al := EmpireScreens.economy_alerts(st, 0)
 	_ok(al.size() >= 1 and int(al[0]["planet"]) == me.capital_planet and bool(al[0]["bad"]), "la famine désigne la colonie la plus peuplée")
 	me.starving = false
+	# Peuples (C3) : un onglet à part, des cartes par espèce.
+	_ok(UiDomains.locate("peoples") == [0, 2] and UiDomains.locate("order") == [0, 3], "l'onglet Peuples suit Colonies dans Empire")
+	var pc := PeoplesScreen.cards(st, 0)
+	_ok(UiDomains.offered(st, 0, "peoples") == st.peoples_on, "l'onglet Peuples suit le réglage des peuples mêlés")
+	if not pc.is_empty():
+		var sum := 0
+		for c2: Dictionary in pc:
+			sum += int(c2["pct"])
+		_ok(bool(pc[0]["founder"]) or int(pc[0]["count"]) >= int(pc[pc.size() - 1]["count"]), "les espèces vont de la plus nombreuse à la moins nombreuse")
+		_ok(sum <= 100 and sum > 100 - pc.size(), "les parts des espèces font le tout de l'empire")
+	# Administration (C5) : la capacité est au milieu de la jauge.
+	var gz := AdminUi.Gauge.new()
+	gz.cap = 40
+	gz.charge = 40
+	_ok(is_equal_approx(gz.fill_ratio(), 0.5), "charge égale à la capacité : la jauge est à moitié")
+	gz.charge = 200
+	_ok(is_equal_approx(gz.fill_ratio(), 1.0), "la jauge plafonne au double de la capacité")
+	gz.free()
+	# Trésor (C6) : barres empilées à la même échelle.
+	var sb := Widgets.StackBar.new(200, 16)
+	sb.size = Vector2(200, 16)
+	sb.set_parts([{"value": 30, "color": Color.WHITE, "label": "a"}, {"value": 20, "color": Color.WHITE, "label": "b"}], 100.0)
+	var rs := sb.rects()
+	_ok(sb.total() == 50 and is_equal_approx(rs[0].size.x, 60.0) and is_equal_approx(rs[1].position.x, 60.0) and is_equal_approx(rs[1].size.x, 40.0), "les parts d'une barre empilée se suivent à l'échelle")
+	sb.free()
+	# Grands chantiers (C7) : état des cartes de merveille.
+	if Wonders.enabled(st):
+		var known := ["done", "ruin", "locked", "race", "free", "nosite"]
+		var bad := 0
+		for wid in Wonders.all_ids():
+			if not known.has(String(WondersUi.card_state(st, 0, wid, {})["id"])):
+				bad += 1
+		_ok(bad == 0, "chaque merveille a un état de carte connu")

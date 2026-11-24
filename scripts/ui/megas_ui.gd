@@ -160,6 +160,10 @@ static func build(es: EmpireScreens) -> void:
 
 	var cb := Widgets.Block.new("Catalogue")
 	col.add_child(cb)
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 14)
+	flow.add_theme_constant_override("v_separation", 14)
+	cb.body.add_child(flow)
 	for k in Megastructures.kind_ids():
 		if not Megastructures.kind_allowed(state, k):
 			continue
@@ -168,8 +172,12 @@ static func build(es: EmpireScreens) -> void:
 		for i in Megastructures.stage_count(k):
 			var sd := Megastructures.stage_def(k, i)
 			st.append("%s (%s, %d j)" % [String(sd.get("label", "")), GameData.format_amounts(sd.get("cost", {})), int(sd.get("days", 0))])
-		var tech := "" if Megastructures.unlocked(state, player, k) else " — technologie : %s" % Research.missing_text(state, player, d.get("tech", []))
-		cb.body.add_child(UiTheme.paragraph("%s (ère %d)%s\n%s\nÉtapes : %s\n« %s »" % [Megastructures.label(k), int(d.get("era", 1)), tech, String(d.get("text", "")), ", ".join(st), String(d.get("quote", ""))], 760.0, 12))
+		var open := Megastructures.unlocked(state, player, k)
+		var made := WondersUi.catalog_card("mega_" + k, COLOR, Megastructures.label(k), "DISPONIBLE" if open else "TECHNOLOGIE MANQUANTE",
+				UiTheme.GOOD if open else UiTheme.TEXT_DIM, "Ère %d · %d étape%s" % [int(d.get("era", 1)), st.size(), "s" if st.size() > 1 else ""],
+				String(d.get("text", "")), ("" if open else "Il manque : %s.\n" % Research.missing_text(state, player, d.get("tech", []))) + "Étapes : %s." % ", ".join(st), not open)
+		flow.add_child(made[0])
+		es.wonder_cards["mega:" + k] = made[0]
 
 
 ## Boutons d'une de vos mégastructures (écran et fiche).

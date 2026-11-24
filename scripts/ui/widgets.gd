@@ -1106,6 +1106,51 @@ class Donut:
 		draw_string(nf, c + Vector2(-vw * 0.5, 24), center_value, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, UiTheme.TEXT)
 
 
+## Barre empilée : des parts côte à côte, à une échelle donnée (pour comparer deux barres).
+class StackBar:
+	extends Control
+	## [{"value": int, "color": Color, "label": String}]
+	var parts: Array = []
+	var scale_max := 1.0
+
+	func _init(w := 700.0, h := 16.0) -> void:
+		custom_minimum_size = Vector2(w, h)
+		mouse_filter = Control.MOUSE_FILTER_STOP
+
+	func set_parts(value: Array, top: float) -> void:
+		parts = value
+		scale_max = maxf(1.0, top)
+		var tips := PackedStringArray()
+		for p in parts:
+			if int(p["value"]) > 0:
+				tips.append("%s : %d" % [p["label"], int(p["value"])])
+		tooltip_text = "\n".join(tips)
+		queue_redraw()
+
+	func total() -> int:
+		var t := 0
+		for p in parts:
+			t += maxi(0, int(p["value"]))
+		return t
+
+	## Rectangles des parts, dans l'ordre.
+	func rects() -> Array[Rect2]:
+		var out: Array[Rect2] = []
+		var x := 0.0
+		for p in parts:
+			var w := size.x * maxf(0.0, float(p["value"])) / scale_max
+			out.append(Rect2(x, 0, w, size.y))
+			x += w
+		return out
+
+	func _draw() -> void:
+		draw_rect(Rect2(Vector2.ZERO, size), Color(1, 1, 1, 0.05))
+		var rs := rects()
+		for i in rs.size():
+			if rs[i].size.x >= 1.0:
+				draw_rect(Rect2(rs[i].position, Vector2(maxf(1.0, rs[i].size.x - 1.0), rs[i].size.y)), parts[i]["color"])
+
+
 ## Courbe d'une série de valeurs (bilan des derniers mois) : ligne, repère du zéro, dernier point marqué.
 class Sparkline:
 	extends Control

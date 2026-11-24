@@ -9,7 +9,7 @@ extends RefCounted
 ## id, libellé, touche, pictogramme, onglets [libellé, adresses du groupe].
 const DOMAINS := [
 	{"id": "empire", "label": "Empire", "key": "F1", "glyph": "economy", "tabs": [
-		["Bilan", ["economy"]], ["Colonies", ["colonies"]], ["Ordre", ["order:ordre"]],
+		["Bilan", ["economy"]], ["Colonies", ["colonies"]], ["Peuples", ["peoples"]], ["Ordre", ["order:ordre"]],
 		["Administration", ["order:admin"]], ["Trésor", ["order:tresor"]],
 		["Grands chantiers", ["wonders", "megas", "forge"]]]},
 	{"id": "savoir", "label": "Savoir", "key": "F2", "glyph": "research", "tabs": [
@@ -89,6 +89,8 @@ static func offered(state: GameState, player: int, addr: String) -> bool:
 			return sub != "ports" or Ports.enabled(state)
 		"chronicles":
 			return ChronicleScreen.tabs(state).has(sub)
+		"peoples":
+			return state.peoples_on
 		"megas":
 			return Megastructures.enabled(state)
 		"forge":

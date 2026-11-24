@@ -146,6 +146,13 @@ var intel_buttons := {}
 var intel_op_buttons := {}
 var intel_case_buttons := {}
 var _intel_sig := ""
+var _peoples_sig := ""
+## Cartes des merveilles, par id (pour les tests).
+var wonder_cards := {}
+## Montant réglé au curseur d'emprunt, par prêteur (gardé d'un rafraîchissement à l'autre).
+var borrow_amounts := {}
+## Menus de statut de l'onglet Peuples, par espèce (pour les tests).
+var peoples_buttons := {}
 ## Écran Panthéon (HeroScreen) : boutons par héros et par candidat (pour les tests).
 var hero_buttons := {}
 ## Boutons de l'écran Ordre intérieur (« sid:décret », « free:sid »), pour les tests.
@@ -345,6 +352,8 @@ func show_screen(screen_id: String) -> void:
 			_build_victory()
 		"intel":
 			IntelScreen.build(self)
+		"peoples":
+			PeoplesScreen.build(self)
 		"heroes":
 			HeroScreen.build(self)
 		"order":
@@ -454,6 +463,9 @@ func refresh() -> void:
 		"intel":
 			if IntelScreen.signature(self) != _intel_sig:
 				show_screen("intel")
+		"peoples":
+			if PeoplesScreen.signature(self) != _peoples_sig:
+				show_screen("peoples")
 		"heroes":
 			if HeroScreen.signature(self) != _hero_sig:
 				show_screen("heroes")
@@ -621,41 +633,18 @@ func _build_peoples_side() -> void:
 	if not _state.peoples_on:
 		return
 	var cnt := Peoples.empire_counts(_state, _player)
-	if cnt.size() <= 1:
-		_build_moves_side()
-		return
 	_side_box.add_child(HSeparator.new())
 	_side_box.add_child(UiTheme.section("Peuples de l'empire"))
-	var g := _grid()
-	_side_box.add_child(g)
-	var keys := cnt.keys()
-	keys.sort_custom(func(a: String, b: String) -> bool:
-		return int(cnt[a]) > int(cnt[b]) or (int(cnt[a]) == int(cnt[b]) and a < b))
-	var colonists := Peoples.colonist_species(_state, _player)
-	var coll := {}
-	for entry: Dictionary in Peoples.collections(_state, _player):
-		coll[entry["species"]] = entry
-	for fid: String in keys:
-		var bits := PackedStringArray()
-		if fid == Peoples.founder_of(_state, _player):
-			bits.append("fondateurs")
-		elif colonists.has(fid):
-			bits.append("colons")
-		if coll.has(fid):
-			var en: Dictionary = coll[fid]
-			bits.append("collection %s : +%d %% %s" % [["I", "II", "III"][clampi(int(en["tier"]) - 1, 0, 2)], int(en["pct"]),
-					GameData.resource_label(String(en["resource"])).to_lower()])
-		var shown := "%d" % int(cnt[fid])
-		if coll.has(fid):
-			shown += "  · +%d %% %s" % [int(coll[fid]["pct"]), GameData.resource_label(String(coll[fid]["resource"])).to_lower()]
-		var v := _key_value(g, Peoples.label(fid), shown)
-		v.tooltip_text = ", ".join(bits) if not bits.is_empty() else "Moins de %d habitants : ni colons ni collection." % int(Peoples.data().get("colonize_min", 2))
-		v.mouse_filter = Control.MOUSE_FILTER_STOP
-	_build_status_rows(keys)
-	_side_box.add_child(UiTheme.paragraph("Chaque espèce garde son corps, ses biomes et ses talents. Avec %d habitants, elle peut fonder des colonies ; à %s, elle donne un bonus de collection." % [
-			int(Peoples.data().get("colonize_min", 2)), "/".join(PackedStringArray(Array(Peoples.data().get("collection_tiers", [10, 25, 50])).map(func(x: Variant) -> String: return str(int(x)))))],
-			SIDE_WIDTH - 24.0, 12))
-	_build_moves_side()
+	_side_box.add_child(UiTheme.paragraph("%d espèce%s %s dans l'empire. Effectifs, statuts et accueil des réfugiés se règlent dans l'onglet Peuples." % [
+			cnt.size(), "s" if cnt.size() > 1 else "", "vivent" if cnt.size() > 1 else "vit"], SIDE_WIDTH - 24.0, 13))
+	var b := Button.new()
+	b.theme_type_variation = &"BarButton"
+	b.focus_mode = Control.FOCUS_NONE
+	b.text = "VOIR LES PEUPLES"
+	b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	b.pressed.connect(func() -> void: show_address("peoples"))
+	_side_box.add_child(b)
+	peoples_buttons["open"] = b
 
 
 ## Mouvements (lot 3) : politique d'accueil, revendication d'une diaspora, talents de peuples mêlés.
@@ -710,54 +699,6 @@ func _build_moves_side() -> void:
 		var p := UiTheme.paragraph("%s. %s" % [t[0], t[1]], SIDE_WIDTH - 24.0, 12)
 		p.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 		_side_box.add_child(p)
-
-
-## Statut de chaque autre espèce (lot 2) : un menu par espèce, l'intégration moyenne, la doléance.
-@warning_ignore("integer_division")
-func _build_status_rows(keys: Array) -> void:
-	var own := Peoples.founder_of(_state, _player)
-	var rows := VBoxContainer.new()
-	rows.add_theme_constant_override("separation", 4)
-	for fid: String in keys:
-		if fid == own:
-			continue
-		var row := HBoxContainer.new()
-		var name_l := Label.new()
-		var integ := Peoples.empire_integration(_state, _player, fid)
-		name_l.text = "%s · %d %%" % [Peoples.label(fid), integ] if integ >= 0 else Peoples.label(fid)
-		name_l.tooltip_text = "Intégration moyenne des %s dans l'empire : elle monte chaque année, sauf pour les assujettis et les expulsés. Sous 50 %%, ils produisent moins et pèsent sur la stabilité." % Peoples.label(fid)
-		name_l.mouse_filter = Control.MOUSE_FILTER_STOP
-		name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(name_l)
-		var ob := OptionButton.new()
-		ob.custom_minimum_size = Vector2(130, 0)
-		var cur := Peoples.status(_state, _player, fid)
-		var allowed := Peoples.allowed_statuses(_state, _player, fid)
-		var ids: Array[String] = []
-		for st in allowed:
-			ob.add_item(Peoples.status_label(st))
-			ob.set_item_tooltip(ids.size(), String(Peoples.status_def(st).get("text", "")))
-			ids.append(st)
-		ob.selected = ids.find(cur)
-		var nx := Peoples.next_change(_state, _player, fid)
-		if _state.tick < nx:
-			ob.disabled = true
-			ob.tooltip_text = "Statut changé récemment : prochain changement le %s." % GameCalendar.date_string(nx)
-		else:
-			ob.tooltip_text = "Statut des %s (modifiable tous les %d ans)." % [Peoples.label(fid), int(Peoples.data().get("status_days", 1800)) / 360]
-		ob.item_selected.connect(func(i: int) -> void:
-			if ids[i] != cur:
-				command_requested.emit(SimCommands.peoples_status(_player, fid, ids[i]))
-				ob.disabled = true)
-		row.add_child(ob)
-		rows.add_child(row)
-	if rows.get_child_count() == 0:
-		return
-	_side_box.add_child(UiTheme.section("Statuts"))
-	_side_box.add_child(rows)
-	var d := Peoples.rights_demand(_state, _player)
-	if not d.is_empty():
-		_side_box.add_child(UiTheme.paragraph("Doléance : les %s réclament la citoyenneté avant le %s." % [Peoples.label(String(d["fid"])), GameCalendar.date_string(int(d["end"]))], SIDE_WIDTH - 24.0, 12))
 
 
 func _key_value(grid: GridContainer, key: String, value := "") -> Label:
