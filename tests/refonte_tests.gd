@@ -322,3 +322,12 @@ func _test_screens() -> void:
 		_ok(re.research_progress == 7 and not re.research_shelf.has(picked[0]), "et retrouvé quand elle revient en tête")
 		_ok(SimCommands.validate(rs2, SimCommands.research_move(0, picked[1], 0)) == "", "l'ordre research_move est valide")
 		_ok(ResearchQueueBar.months(rs2, 0).size() == 3, "un délai par technologie de la file")
+	# Fouilles (C11) : avancement d'un site et vitrine du Reliquaire.
+	_ok(ArchaeoUi.site_progress({"done": -1, "ch": 2, "chapters": 4}) == 2 and ArchaeoUi.site_progress({"done": 3, "ch": 1, "chapters": 4}) == 4,
+			"un site terminé a tous ses chapitres, un site en cours ceux franchis")
+	var show := ChronicleScreen.showcase(st, 0)
+	var held_n := 0
+	for c3: Dictionary in show:
+		if bool(c3["held"]):
+			held_n += 1
+	_ok(show.size() == st.relics.size() and held_n == Relics.owned(st, 0).size(), "la vitrine a une case par relique de la partie")

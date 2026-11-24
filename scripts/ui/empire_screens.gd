@@ -188,6 +188,12 @@ var culture_buttons := {}
 var _culture_sig := ""
 var genome_buttons := {}
 var _genome_sig := ""
+## Écran Songe : pouvoir choisi, dont on montre les cibles.
+var psionics_power := ""
+## Écran Génome : espèce affichée, traits cochés par espèce ({add, rem}), traits impossibles montrés ou non.
+var genome_species := ""
+var genome_picks := {}
+var genome_show_all := false
 ## Écran Songe : boutons « path », « power:pouvoir:cible »… (tests).
 var psionics_buttons := {}
 var _psionics_sig := ""

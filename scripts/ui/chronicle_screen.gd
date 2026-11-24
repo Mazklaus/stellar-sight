@@ -228,6 +228,7 @@ static func _reliquary_block(es: EmpireScreens) -> Control:
 		blk.body.add_child(tl)
 	if mine.is_empty() and (m.is_empty() or (m["fakes"] as Array).is_empty()):
 		blk.body.add_child(UiTheme.dim("Aucune relique. Les fouilles en sortent une à la fin de leur dernier chapitre ; les espions et les conquérants en prennent aussi.", 14))
+	blk.body.add_child(_showcase(es, mine))
 	for rid in mine:
 		blk.body.add_child(_relic_row(es, rid))
 	if not m.is_empty():
@@ -264,6 +265,41 @@ static func _reliquary_block(es: EmpireScreens) -> Control:
 		tools.add_child(sell)
 	blk.body.add_child(tools)
 	return blk
+
+
+## Vitrine du Reliquaire (refonte, C11) : une case par relique de la partie, vide tant qu'on ne l'a pas.
+static func showcase(state: GameState, player: int) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var mine := Relics.owned(state, player)
+	var ids := state.relics.keys()
+	ids.sort()
+	for rid in ids:
+		if mine.has(String(rid)):
+			out.append({"id": String(rid), "held": true})
+	for rid in ids:
+		if not mine.has(String(rid)):
+			out.append({"id": String(rid), "held": false})
+	return out
+
+
+static func _showcase(es: EmpireScreens, mine: Array[String]) -> Control:
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 4)
+	flow.add_theme_constant_override("v_separation", 4)
+	for c: Dictionary in showcase(es._state, es._player):
+		var rid := String(c["id"])
+		var held := bool(c["held"])
+		var slot := Widgets.ArtSlot.new(("relic_" + rid) if held else "", Vector2(58, 42), UiTheme.GOLD if held else Color(0.5, 0.6, 0.7), "star" if held else "lock")
+		slot.mouse_filter = Control.MOUSE_FILTER_STOP
+		if held:
+			slot.variant = rid.hash() % 97
+			slot.tooltip_text = "%s\n%s" % [String(Relics.def(rid)["name"]), String(Relics.def(rid)["text"])]
+		else:
+			slot.tooltip_text = "Case vide : cette relique n'est pas à vous."
+		flow.add_child(slot)
+	if mine.is_empty():
+		flow.modulate = Color(1, 1, 1, 0.8)
+	return flow
 
 
 static func _relic_row(es: EmpireScreens, rid: String) -> Control:
