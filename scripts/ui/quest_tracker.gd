@@ -94,18 +94,21 @@ func refresh() -> void:
 	var ls := lines(_state, _player)
 	# Premières minutes (refonte D3d) : trois objectifs à la suite, au-dessus des quêtes.
 	var steps := FirstSteps.lines(_state, _player)
-	var sig := str(ls) + str(steps)
+	var affairs := Events.affair_lines(_state, _player)  # chaînes d'événements en attente (refonte E7c)
+	var sig := str(ls) + str(steps) + str(affairs)
 	if sig == _sig:
 		return
 	_sig = sig
 	for c in _box.get_children():
 		c.queue_free()
-	_empty = ls.is_empty() and steps.is_empty()
+	_empty = ls.is_empty() and steps.is_empty() and affairs.is_empty()
 	if _empty:
 		visible = false
 		return
 	if not steps.is_empty():
 		_block("Premiers pas", steps, true)
+	if not affairs.is_empty():
+		_block("Affaires en cours", affairs, true)
 	if not ls.is_empty():
 		_block("Quêtes", ls, false)
 	visible = _allowed

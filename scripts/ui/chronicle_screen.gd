@@ -204,6 +204,21 @@ static func build(es: EmpireScreens) -> void:
 		var prog := Curios.progress(state, player, pid)
 		cg.add_child(UiTheme.dim("en cours : %d / %d" % [prog, Curios.duration(state, player, pid)] if prog > 0 else "", 13))
 
+	# Affaires (refonte E7c) : les cartes déjà reçues de chaque chaîne, à relire dans l'ordre.
+	for chain in Events.chains_logged(state, player):
+		var ab := Widgets.Block.new(String(Events.chain_def(chain).get("title", "Affaire")))
+		col.add_child(ab)
+		for part: Dictionary in Events.chain_story(state, player, chain):
+			var head := UiTheme.title(String(part["title"]), 17)
+			ab.body.add_child(head)
+			ab.body.add_child(UiTheme.dim(GameCalendar.date_string(int(part["tick"])), 13))
+			ab.body.add_child(UiTheme.paragraph(String(part["text"]), 900.0, 14))
+			var dec := UiTheme.paragraph("Votre décision : %s" % String(part["label"]), 900.0, 14)
+			dec.add_theme_color_override("font_color", UiTheme.GOLD)
+			ab.body.add_child(dec)
+		for w: Dictionary in Events.waits(state, player):
+			if String(w.get("chain", "")) == chain:
+				ab.body.add_child(UiTheme.dim(String(w["text"]) if String(w.get("text", "")) != "" else "L'affaire suit son cours.", 14))
 	var jr := Widgets.Block.new("Journal")
 	col.add_child(jr)
 	if log.is_empty():

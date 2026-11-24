@@ -6,6 +6,9 @@ extends CanvasLayer
 ## « Réduire » la laisse dans la boîte : l'écran Chroniques (J) la rouvre. Sans réponse au bout de
 ## 30 jours, le choix par défaut s'applique tout seul.
 
+const LONG_TEXT := 700  # au-delà, le récit défile
+const LONG_HEIGHT := 330.0
+
 signal choice_made(event_id: int, index: int)
 signal locate_requested(system_id: int)
 signal minimized
@@ -69,7 +72,13 @@ func open(state: GameState, player: int, item: Dictionary) -> void:
 	event_id = int(item["id"])
 	var c := Events.card(String(item["card"]))
 	_title.text = Events.fill(state, player, item, String(c.get("title", "")))
-	TipManager.set_linked(_text, Events.fill(state, player, item, String(c.get("text", ""))))
+	var body := Events.fill(state, player, item, String(c.get("text", "")))
+	TipManager.set_linked(_text, body)
+	# Un récit long (chaînes, E7) défile dans la fenêtre au lieu de la faire déborder de l'écran.
+	var long := body.length() > LONG_TEXT
+	_text.fit_content = not long
+	_text.scroll_active = long
+	_text.custom_minimum_size.y = LONG_HEIGHT if long else 0.0
 	var left := maxi(0, int(item["until"]) - state.tick)
 	_when.text = "%s  ·  sans réponse dans %d jour%s, le choix par défaut s'appliquera" % [
 			GameCalendar.date_string(int(item["tick"])), left, "s" if left > 1 else ""]

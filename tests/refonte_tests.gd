@@ -24,6 +24,7 @@ func run(check: Callable) -> void:
 	_test_first_steps()
 	_test_lore_texts()
 	_test_first_contact()
+	_test_chains()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -797,4 +798,70 @@ func _test_first_contact() -> void:
 	var again: Dictionary = Events.inbox(st, a.id)[-1]
 	panel.open(st, a.id, again)
 	_ok(panel._voice.visible and panel._voice.text == Events.contact_voice(st, again) and panel._head.text == "Votre réponse" and panel.choice_buttons.size() == 3, "contact : la fenêtre montre la voix et trois réponses")
+	panel.queue_free()
+
+
+## E7 : chaînes d'événements. La carte suivante arrive plus tard (délai caché) ou quand l'objectif est rempli.
+func _test_chains() -> void:
+	var st := GameState.create(11, 60, 1200.0, "ossarane", {"ai_level": "", "events": "normaux"})
+	var a := st.empires[0]
+	var cap := FactionTraits.capital_system(st, a.id)
+	var added: Array[Dictionary] = []
+	_ok(Events.card_ids("monthly").has("pn_1") and not Events.card_ids("monthly").has("pn_2") and Events.card_ids("chain").size() >= 2, "chaînes : seule la première carte se tire, les suites attendent leur tour")
+	for id: String in ["pn_1", "pn_2", "pn_3"]:
+		var txt := String(Events.card(id)["text"])
+		_ok(txt.length() > 900 and txt.count("\n\n") >= 2 and not txt.contains("—") and not txt.contains("!"), "chaînes : %s est un récit long, en paragraphes" % id)
+	Events.push(st, a.id, "pn_1", {"system": cap}, added)
+	var it1: Dictionary = Events.inbox(st, a.id)[-1]
+	var opts := Events.choices(st, a.id, it1)
+	_ok(opts.size() == 3 and (opts[1]["lines"] as Array).has("On ne saura pas ce qu'il y a derrière."), "chaînes : un choix qui clôt l'affaire le dit")
+	Events.choose(st, a.id, int(it1["id"]), 0, added)
+	var ws := Events.waits(st, a.id)
+	_ok(ws.size() == 1 and String(ws[0]["card"]) == "pn_2" and int(ws[0]["at"]) >= st.tick + 150 and int(ws[0]["at"]) <= st.tick + 270, "chaînes : la suite est attendue entre 150 et 270 jours")
+	var lines := Events.affair_lines(st, a.id)
+	_ok(lines.size() == 2 and String(lines[0][0]).contains("Le puits Neuf") and not String(lines[1][0]).contains("jour"), "chaînes : le suivi nomme l'affaire sans dire le délai")
+	# La sauvegarde garde l'attente.
+	var copy := GameState.from_dict(st.to_dict())
+	_ok(Events.waits(copy, a.id).size() == 1 and int(Events.waits(copy, a.id)[0]["at"]) == int(ws[0]["at"]) and copy.checksum() == st.checksum(), "chaînes : l'attente passe la sauvegarde")
+	st.tick = int(ws[0]["at"]) - 1
+	Events.daily(st, added)
+	_ok(Events.waits(st, a.id).size() == 1, "chaînes : rien n'arrive avant l'heure")
+	st.tick += 1
+	Events.daily(st, added)
+	var box := Events.inbox(st, a.id)
+	_ok(Events.waits(st, a.id).is_empty() and not box.is_empty() and String(box[-1]["card"]) == "pn_2" and int(box[-1]["system"]) == cap, "chaînes : la deuxième carte arrive, au même endroit")
+	var it2: Dictionary = box[-1]
+	Events.choose(st, a.id, int(it2["id"]), 0, added)
+	ws = Events.waits(st, a.id)
+	_ok(ws.size() == 1 and String(ws[0]["goal"]) == "fleet" and String(ws[0]["text"]).begins_with("Amener une flotte à "), "chaînes : un objectif remplace le délai")
+	var far := ws[0].duplicate() as Dictionary
+	for sid: int in st.galaxy.systems.size():
+		if Fleets.fleets_at(st, sid, a.id).is_empty():
+			far["system"] = sid
+			break
+	_ok(not Events.wait_ready(st, a.id, far) and Events.wait_ready(st, a.id, ws[0]) == (not Fleets.fleets_at(st, cap, a.id).is_empty()), "chaînes : l'objectif attend une flotte sur place")
+	var tracker := QuestTracker.new()
+	Engine.get_main_loop().root.add_child(tracker)
+	tracker.set_state(st, a.id)
+	var shown := ""
+	for n in tracker._box.get_children():
+		if n is Label:
+			shown += (n as Label).text + "|"
+	_ok(shown.contains("AFFAIRES EN COURS") or shown.contains("Affaires en cours"), "chaînes : le suivi de droite montre l'affaire (%s)" % shown.left(80))
+	_ok(shown.contains("Amener une flotte à "), "chaînes : et son objectif")
+	tracker.queue_free()
+	if Fleets.fleets_at(st, cap, a.id).is_empty():
+		st.spawn_ship(a.id, "corvette", cap)
+	Events.daily(st, added)
+	box = Events.inbox(st, a.id)
+	_ok(not box.is_empty() and String(box[-1]["card"]) == "pn_3", "chaînes : l'objectif rempli, la troisième carte arrive")
+	Events.choose(st, a.id, int((box[-1] as Dictionary)["id"]), 2, added)
+	var story := Events.chain_story(st, a.id, "puits_neuf")
+	_ok(story.size() == 3 and String(story[0]["title"]) == "Le puits Neuf" and String(story[2]["title"]) == "La salle" and not String(story[1]["text"]).contains("{"), "chaînes : le Journal garde les trois cartes à relire")
+	_ok(Events.chains_logged(st, a.id) == ["puits_neuf"] and Events.waits(st, a.id).is_empty() and not Events.meta(st, a.id).has("wait"), "chaînes : l'affaire close ne laisse rien en attente")
+	var panel := EventPanel.new()
+	Engine.get_main_loop().root.add_child(panel)
+	Events.push(st, a.id, "pn_2", {"system": cap}, added)
+	panel.open(st, a.id, Events.inbox(st, a.id)[-1])
+	_ok(panel._text.scroll_active and not panel._text.fit_content and not panel._voice.visible, "chaînes : un récit long défile dans la fenêtre")
 	panel.queue_free()
