@@ -723,6 +723,14 @@ func _test_lore_texts() -> void:
 		if l == "" or l.length() > 200 or l.count(". ") > 1 or not l.ends_with(".") or l.contains("—") or l.contains("–") or l.contains("%") or l.contains("+"):
 			wrong.append(k)
 	_ok(lines.size() == 49 and wrong.is_empty(), "textes : mondes, terrains et premiers bâtiments ont une ligne aux règles (%d, %s)" % [lines.size(), str(wrong)])
+	var bare := []
+	var bd: Dictionary = GameData.buildings()
+	for k: String in bd:
+		if bd[k] is Dictionary and (bd[k] as Dictionary).has("label"):
+			var l := String(bd[k].get("lore", ""))
+			if l == "" or l.length() > 200 or l.count(". ") > 1 or not l.ends_with(".") or l.contains("%") or l.contains("+") or l.contains("—"):
+				bare.append(k)
+	_ok(bare.is_empty(), "textes : chaque bâtiment a sa ligne (%s)" % str(bare))
 	_ok(GameData.lore_then("A.", "B.") == "A.\n\nB." and GameData.lore_then("", "B.") == "B." and GameData.lore_then("A.", "") == "A.", "textes : la description passe avant l'effet")
 	var st := GameState.create(3, 100, 1500.0, "vael", {"ai_level": "", "terrain": "normal"})
 	var found := false

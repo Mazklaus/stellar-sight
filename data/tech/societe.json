@@ -211,7 +211,7 @@
 			}
 		},
 		"art_oratoire": {
-			"label": "Art oratoire",
+			"label": "Art oratoire", "lore": "Des écoles de parole ouvertes à tous les magistrats, où l'on s'exerce devant un jury de colons tirés au sort. Les discours officiels raccourcissent de moitié. Les colonies en écoutent davantage jusqu'au bout.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -243,7 +243,7 @@
 			}
 		},
 		"sante_publique": {
-			"label": "Santé publique",
+			"label": "Santé publique", "lore": "Un réseau de dispensaires et d'aqueducs, bâti quartier par quartier d'après le relevé des maladies. L'eau est contrôlée à chaque fontaine. La mortalité des enfants tombe en une génération.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -261,7 +261,7 @@
 			}
 		},
 		"biomes_extremes": {
-			"label": "Biomes extrêmes",
+			"label": "Biomes extrêmes", "lore": "Des dômes à triple paroi et des combinaisons légères, portées toute la journée sans gêne. Les colons s'installent sous des ciels qu'ils ne peuvent pas respirer. Les enfants nés là mettent leur masque avant de savoir lire.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -289,7 +289,7 @@
 			}
 		},
 		"chancelleries": {
-			"label": "Chancelleries",
+			"label": "Chancelleries", "lore": "Un corps de diplomates de carrière, logés à demeure dans les capitales étrangères. Ils écrivent chaque semaine et ne rentrent que tous les dix ans. Un traité n'est signé qu'après leur avis.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -308,7 +308,7 @@
 			}
 		},
 		"colons_formes": {
-			"label": "Colons formés",
+			"label": "Colons formés", "lore": "Des écoles où les futurs colons apprennent un métier utile à une ville neuve avant leur départ. Chaque convoi emporte son médecin et son forgeron. Les colonies perdent moins de monde pendant leur première année.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -660,7 +660,7 @@
 			"flavor": "Plus de mondes hostiles, seulement des mondes qu'on n'a pas encore compris."
 		},
 		"conscription_planetaire": {
-			"label": "Registres de conscription",
+			"label": "Registres de conscription", "lore": "Un registre de tous les habitants en âge de servir, tenu dans chaque colonie par un officier d'état civil. Le tirage au sort a lieu une fois par an, sur la place. Les exemptions sont affichées avec leur motif.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -686,7 +686,7 @@
 			}
 		},
 		"medecine_campagne": {
-			"label": "Médecine de campagne",
+			"label": "Médecine de campagne", "lore": "Des hôpitaux montés sous tente à quelques kilomètres du front, où un blessé est opéré dans l'heure. Les chirurgiens y sont formés avec les officiers. Un régiment retrouve ses hommes au lieu d'en recevoir de nouveaux.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -715,7 +715,7 @@
 			}
 		},
 		"arts_holographiques": {
-			"label": "Arts holographiques",
+			"label": "Arts holographiques", "lore": "Une sculpture en lumière, que l'on fige dans une plaque et que l'on expose sans la garder sous verre. Les musées montrent des pièces trop fragiles pour voyager. Les copies se vendent dans les ports.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -787,7 +787,7 @@
 			"flavor": "L'artiste a demandé une étoile comme toile. Le comité a dit oui, pour voir."
 		},
 		"recycleurs_atmospheriques": {
-			"label": "Recycleurs atmosphériques",
+			"label": "Recycleurs atmosphériques", "lore": "Des filtres montés sur toutes les cheminées d'une colonie, qui retiennent les gaz et les rendent aux usines. Ils sont visités par un corps d'inspecteurs. Une usine qui les débranche est fermée le jour même.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -882,7 +882,7 @@
 			"flavor": "Trois mille ans de querelles de bornage. Les juristes pleurent de joie."
 		},
 		"cryptographie": {
-			"label": "Cryptographie",
+			"label": "Cryptographie", "lore": "Un service de chiffreurs qui change les codes de l'empire à date irrégulière. Les clefs voyagent par courrier, jamais par radio. Le même service lit le courrier des autres, dans une salle voisine.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -942,7 +942,7 @@
 			"spec": "ombre_ou_gloire"
 		},
 		"theologie_comparee": {
-			"label": "Théologie comparée",
+			"label": "Théologie comparée", "lore": "Une chaire où l'on étudie les croyances des autres peuples dans leurs propres textes. Les prêtres qui en sortent savent répondre à un missionnaire étranger. Ils sont envoyés dans les colonies de la frontière.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -1000,7 +1000,7 @@
 			}
 		},
 		"doctrine_commandement": {
-			"label": "Doctrine de commandement",
+			"label": "Doctrine de commandement", "lore": "Un recueil des campagnes passées, annoté par ceux qui les ont menées, que tout officier étudie avant son premier commandement. Les erreurs y figurent avec le nom de leur auteur. Il est révisé après chaque guerre.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1037,7 +1037,7 @@
 			"spec": "ombre_ou_gloire"
 		},
 		"protocole_cour": {
-			"label": "Protocole de cour",
+			"label": "Protocole de cour", "lore": "Un règlement qui fixe la place de chaque maison aux audiences et l'ordre dans lequel on leur parle. Une maison nouvelle y est inscrite sans en déplacer une ancienne. Le grand maître des cérémonies en garde le seul exemplaire à jour.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1095,7 +1095,7 @@
 			}
 		},
 		"sondages": {
-			"label": "Sondages",
+			"label": "Sondages", "lore": "Des enquêteurs qui interrogent quelques milliers d'habitants choisis selon leur colonie et leur métier. Le Sénat connaît l'état de l'opinion un mois avant le vote. Les partis ont aussitôt ouvert leurs propres bureaux.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1191,7 +1191,7 @@
 			}
 		},
 		"xenologie": {
-			"label": "Xénologie",
+			"label": "Xénologie", "lore": "L'étude des autres espèces par ceux qui vivent parmi elles pendant des années. Les xénologues rédigent des guides de voisinage, distribués aux colons. On y apprend ce qu'il ne faut pas servir à table.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -1211,7 +1211,7 @@
 			}
 		},
 		"patrouilles_stellaires": {
-			"label": "Patrouilles stellaires",
+			"label": "Patrouilles stellaires", "lore": "De petites coques qui parcourent les abords des systèmes selon un tour irrégulier. Leurs équipages connaissent chaque caillou de leur secteur. Un repaire s'y trahit par ses allées et venues.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1250,7 +1250,7 @@
 			"flavor": "Les anciens pirates portent l'uniforme avec une fierté sincère. Ils ont juste gardé l'habitude de compter les cargaisons des autres."
 		},
 		"xenozoologie": {
-			"label": "Xénozoologie",
+			"label": "Xénozoologie", "lore": "Des stations d'observation placées sur le passage des bêtes du vide, où on les suit d'une saison à l'autre. Les zoologues en tirent le calendrier de leurs migrations. Un seul spécimen capturé leur suffit pour décrire l'espèce.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -1310,7 +1310,7 @@
 			}
 		},
 		"protectorats": {
-			"label": "Protectorats",
+			"label": "Protectorats", "lore": "Un statut qui laisse à une cité ses lois et son prince, et confie sa défense à l'empire. Le traité tient en une page. Un résident de l'empire siège au conseil de la cité, sans y voter.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1387,7 +1387,7 @@
 			"flavor": "On ne dompte pas une planète. On négocie avec elle, et elle lit les petites lignes."
 		},
 		"douanes_stellaires": {
-			"label": "Douanes stellaires",
+			"label": "Douanes stellaires", "lore": "Des postes de contrôle aux points de saut, tenus par un corps de douaniers armés. Chaque coque de passage déclare sa cargaison. Les registres de transit sont envoyés chaque mois à la capitale.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",

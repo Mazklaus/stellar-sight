@@ -2,7 +2,7 @@
 	"_doc": "Technologies communes du domaine Économie.",
 	"technologies": {
 		"reprogrammation": {
-			"label": "Reprogrammation",
+			"label": "Reprogrammation", "lore": "Des ateliers où l'on réécrit les routines d'un esprit synthétique pendant qu'il dort. L'opération prend une nuit par individu. Chacun garde une copie de ce qu'il était, scellée, qu'il peut demander à relire.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -30,7 +30,7 @@
 			}
 		},
 		"agronomie_orbitale": {
-			"label": "Agronomie orbitale",
+			"label": "Agronomie orbitale", "lore": "Des serres en orbite, où les semences sont essayées sous toutes les pesanteurs et toutes les lumières avant de descendre. Une variété y est mise au point en trois saisons. Les colonies reçoivent leurs graines avec le climat qui leur convient.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -63,7 +63,7 @@
 			}
 		},
 		"fusion_stabilisee": {
-			"label": "Fusion stabilisée",
+			"label": "Fusion stabilisée", "lore": "Un réglage des aimants qui tient le plasma sans à-coups pendant des années. Les centrales ne s'arrêtent plus que pour leur visite. Les équipes de conduite passent de douze personnes à trois.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -93,7 +93,7 @@
 			}
 		},
 		"filons_profonds": {
-			"label": "Filons profonds",
+			"label": "Filons profonds", "lore": "Un sondage par ondes qui dessine les veines de minerai à plusieurs kilomètres sous la galerie. Les mineurs savent où percer avant d'ouvrir le chantier. Les galeries creusées à l'aveugle sont rebouchées avec les déblais.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -122,7 +122,7 @@
 			}
 		},
 		"raffinage": {
-			"label": "Raffinage des cristaux",
+			"label": "Raffinage des cristaux", "lore": "Des fours où le cristal brut est chauffé puis refroidi sur plusieurs semaines, pour en chasser les défauts. Un cristal mal recuit éclate au premier saut. Les maîtres raffineurs le jugent au son, en le frappant d'une baguette.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -138,7 +138,7 @@
 			}
 		},
 		"extraction_plasmine": {
-			"label": "Extraction de plasmine",
+			"label": "Extraction de plasmine", "lore": "Un procédé qui sépare la plasmine de sa roche à froid, sous azote. Le minerai chauffé perd ce qui fait son prix. Les mines travaillent de nuit sur les mondes chauds.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -154,7 +154,7 @@
 			}
 		},
 		"logistique": {
-			"label": "Logistique impériale",
+			"label": "Logistique impériale", "lore": "Un service central qui suit chaque conteneur de l'empire, du quai de départ à l'entrepôt d'arrivée. Les colonies cessent de garder des réserves en double. Les terrains ainsi rendus sont bâtis dans l'année.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -172,7 +172,7 @@
 			}
 		},
 		"banques_donnees": {
-			"label": "Banques de données",
+			"label": "Banques de données", "lore": "Des archives où chaque résultat est rangé sous une même cote dans toutes les colonies. Un chercheur consulte en un jour ce qui demandait un voyage. Les académies se partagent alors les sujets au lieu de les refaire.",
 			"domain": "economie",
 			"era": 2,
 			"field": "savoir",
@@ -187,7 +187,7 @@
 			}
 		},
 		"recyclage": {
-			"label": "Recyclage orbital",
+			"label": "Recyclage orbital", "lore": "Des remorqueurs qui ramassent les débris de l'orbite et les portent à un four solaire. Une coque réformée y est refondue en une semaine. Les ferrailleurs ont un droit de premier regard sur ce qui flotte.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -727,7 +727,7 @@
 			"flavor": "Personne ne sait ce qu'elle fabriquait. Elle a l'air contente de fabriquer autre chose."
 		},
 		"droit_societes": {
-			"label": "Droit des sociétés",
+			"label": "Droit des sociétés", "lore": "Un code qui donne à une compagnie le droit de posséder des biens et de plaider. Elle répond de ses dettes sur ses avoirs, sans engager ceux de ses membres. Les chartes sont enregistrées à la capitale et renouvelées tous les vingt ans.",
 			"domain": "economie",
 			"era": 2,
 			"field": "commerce",

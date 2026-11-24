@@ -35,7 +35,7 @@
 			}
 		},
 		"postcombustion": {
-			"label": "Postcombustion",
+			"label": "Postcombustion", "lore": "Une seconde injection de deutérium dans la tuyère, qui porte le réacteur à son régime en quelques minutes. Les mécaniciens la redoutent, car elle use les parois deux fois plus vite. On remplace la chambre tous les cent sauts.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -53,7 +53,7 @@
 			}
 		},
 		"detecteurs_abysse": {
-			"label": "Détecteurs d'abysse",
+			"label": "Détecteurs d'abysse", "lore": "Des capteurs accordés sur le bruit de fond entre les étoiles, là où les peuples d'énergie laissent une trace. Les opérateurs ne voient pas ces flottes. Ils relèvent sur leurs écrans une zone où le bruit manque.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -72,7 +72,7 @@
 			"flavor": "« Il n'y a rien là-bas. » — « Alors pourquoi le rien nous regarde-t-il ? »"
 		},
 		"voiles_1": {
-			"label": "Voiles de camouflage",
+			"label": "Voiles de camouflage", "lore": "Un revêtement qui absorbe la chaleur de la coque et la rejette d'un seul côté, à l'opposé de l'observateur. Il oblige à couper la moitié des machines. Les petites coques le supportent, les grandes n'ont pas assez de surface pour leur réacteur.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -120,7 +120,7 @@
 			"flavor": "Le croiseur était là depuis une semaine. Personne ne l'a cru, même après."
 		},
 		"detecteurs_1": {
-			"label": "Réseau de détecteurs",
+			"label": "Réseau de détecteurs", "lore": "Plusieurs antennes réparties sur des milliers de kilomètres, qui comparent leurs relevés. Une coque camouflée ne se trahit sur aucune d'elles prise à part. On la devine à l'écart entre deux mesures.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -214,7 +214,7 @@
 			"flavor": "Personne ne sait comment ça marche. Ça marche. Le service qualité a démissionné."
 		},
 		"senseurs_gravitationnels": {
-			"label": "Senseurs gravitationnels",
+			"label": "Senseurs gravitationnels", "lore": "Des masses suspendues dans le vide d'une enceinte, dont on mesure les déplacements au milliardième de millimètre. Elles réagissent au passage d'une coque que les gaz d'une nébuleuse cachent aux autres instruments.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -247,7 +247,7 @@
 			}
 		},
 		"telemetrie_longue": {
-			"label": "Télémétrie à longue base",
+			"label": "Télémétrie à longue base", "lore": "Deux télescopes montés aux extrémités de la coque d'un éclaireur, dont on combine les images. Ils distinguent une planète d'un système voisin. L'équipage dresse la carte sans quitter son poste d'observation.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -284,7 +284,7 @@
 			}
 		},
 		"cales_paralleles": {
-			"label": "Cales parallèles",
+			"label": "Cales parallèles", "lore": "Plusieurs cales bâties côte à côte, servies par les mêmes grues et les mêmes magasins. Les équipes passent de l'une à l'autre selon l'avancement de chaque coque. Un chantier n'attend plus qu'une pièce arrive pour continuer.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -303,7 +303,7 @@
 			}
 		},
 		"coques_lourdes": {
-			"label": "Coques lourdes",
+			"label": "Coques lourdes", "lore": "Une charpente à double quille, capable de porter un blindage et des pièces lourdes sans se tordre à l'accélération. Elle se monte en quatre sections soudées dans la cale. C'est la première coque qui exige un équipage de plusieurs centaines.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -322,7 +322,7 @@
 			}
 		},
 		"torpilleurs": {
-			"label": "Torpilleurs",
+			"label": "Torpilleurs", "lore": "Une petite coque bâtie autour de deux tubes qui la traversent de la proue au milieu. Elle n'a presque pas de blindage et compte sur sa vitesse. Son équipage dort entre les torpilles.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -337,7 +337,7 @@
 			]
 		},
 		"hyperflux": {
-			"label": "Moteurs à hyperflux",
+			"label": "Moteurs à hyperflux", "lore": "Un réacteur qui ne s'éteint plus entre deux sauts et garde ses cristaux sous charge. Il double presque la poussée du premier moteur à fusion. Les nacelles se montent à l'écart de la coque, au bout de pylônes, à cause de la chaleur.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -379,7 +379,7 @@
 			}
 		},
 		"coques_series": {
-			"label": "Coques de série",
+			"label": "Coques de série", "lore": "Des coques dessinées une fois et reproduites à l'identique, dont toutes les pièces sont interchangeables. Un vaisseau avarié prend les siennes sur un autre. Les magasins des flottes ne tiennent plus que quelques centaines de références.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -581,7 +581,7 @@
 			}
 		},
 		"stabilisation_ver": {
-			"label": "Stabilisation des trous de ver",
+			"label": "Stabilisation des trous de ver", "lore": "Un anneau de générateurs posé à la bouche d'un trou de ver, qui l'empêche de se refermer pendant le passage. Les premiers pilotes l'ont franchi sur des coques sans équipage, commandées de loin. Le transit dure moins d'un jour.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -600,7 +600,7 @@
 			"flavor": "On ne referme pas une plaie de l'espace. On lui met une attelle, et on prie."
 		},
 		"relais_hyperspatiaux": {
-			"label": "Relais hyperspatiaux",
+			"label": "Relais hyperspatiaux", "lore": "Une bouée placée à chaque bout d'une voie de saut, qui émet une fréquence sur laquelle les cristaux s'accordent. Le vaisseau saute sans avoir à calculer sa route. Les deux bouées doivent rester réglées l'une sur l'autre à la seconde près.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -659,7 +659,7 @@
 			"flavor": "Plus large, plus loin, plus cher. Les ingénieurs appellent ça le progrès ; les comptables, autrement."
 		},
 		"lignes_ravitaillement": {
-			"label": "Lignes de ravitaillement",
+			"label": "Lignes de ravitaillement", "lore": "Des dépôts échelonnés le long des voies, tenus par un corps d'intendance qui ne dépend pas des flottes. Chaque dépôt garde un mois de vivres et de deutérium. Les intendants ont leur propre grade et leurs propres vaisseaux.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -735,7 +735,7 @@
 			}
 		},
 		"navigation_stellaire": {
-			"label": "Navigation stellaire",
+			"label": "Navigation stellaire", "lore": "Des cartes des courants de gaz et des puits de gravité, tenues à jour par les pilotes eux-mêmes. Chaque retour de mission y ajoute ses relevés. Un pilote breveté traverse une nébuleuse par des passes que ses instruments seuls ne trouveraient pas.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -852,7 +852,7 @@
 			"flavor": "On ne va plus d'une étoile à l'autre. On laisse l'autre venir."
 		},
 		"ingenierie_inverse": {
-			"label": "Ingénierie inverse",
+			"label": "Ingénierie inverse", "lore": "Des ateliers où l'on démonte une coque étrangère pièce par pièce, en dessinant chacune. Les ingénieurs remontent ensuite l'ensemble pour vérifier qu'ils l'ont compris. Une épave en bon état occupe un atelier pendant un an.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -870,7 +870,7 @@
 			"flavor": "Démonter pour comprendre, remonter pour vérifier, recommencer pour l'avoir vraiment compris."
 		},
 		"pont_orbital": {
-			"label": "Pont orbital",
+			"label": "Pont orbital", "lore": "De grandes navettes à fond plat, qui descendent un bataillon et ses véhicules en un seul voyage. Elles se posent sur n'importe quelle plaine. Il faut une heure pour les vider et autant pour les faire remonter.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -898,7 +898,7 @@
 			]
 		},
 		"architectes_stellaires": {
-			"label": "Architectes stellaires",
+			"label": "Architectes stellaires", "lore": "Un corps d'ingénieurs formés à bâtir dans le vide des ouvrages plus grands que des villes. Leur vaisseau porte ses propres fonderies. Un chantier les retient d'ordinaire plus longtemps que ne dure une carrière.",
 			"domain": "genie",
 			"era": 2,
 			"field": "mega_ing",
@@ -1055,7 +1055,7 @@
 			"flavor": "Le monde ne tourne plus seulement sur lui-même. Il a aussi un itinéraire."
 		},
 		"archeologie_stellaire": {
-			"label": "Archéologie stellaire",
+			"label": "Archéologie stellaire", "lore": "Une méthode de fouille par couches, qui date chaque objet d'après la poussière déposée sur lui. Les fouilleurs relèvent tout avant de déplacer quoi que ce soit. Ce qu'ils remontent part au musée avec la fiche de son emplacement.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -1087,7 +1087,7 @@
 			"flavor": "Les inscriptions disaient « Défense d'entrer ». Il a fallu trois siècles pour les lire, et trois secondes pour les ignorer."
 		},
 		"codex_navigateurs": {
-			"label": "Codex des navigateurs disparus",
+			"label": "Codex des navigateurs disparus", "lore": "Les carnets de bord d'un peuple de pilotes disparu, tenus sur plusieurs siècles. Ils décrivent un moteur que leurs auteurs réglaient à l'oreille. Les marges portent des corrections de plusieurs mains.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -1102,7 +1102,7 @@
 			"flavor": "Les marges sont pleines de jurons. Les navigateurs étaient donc des gens comme nous."
 		},
 		"cartes_anciennes": {
-			"label": "Cartes des Anciens",
+			"label": "Cartes des Anciens", "lore": "Des cartes gravées sur des plaques de métal, qui donnent les passes à travers les nébuleuses et autour des trous noirs. Elles sont plus anciennes que tous les peuples qui les lisent. Leurs relevés sont encore justes.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",

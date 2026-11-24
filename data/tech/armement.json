@@ -39,7 +39,7 @@
 			}
 		},
 		"boucliers_phase": {
-			"label": "Boucliers à phase",
+			"label": "Boucliers à phase", "lore": "Un champ qui change de fréquence plusieurs milliers de fois par seconde, pour qu'un rayon ne reste jamais accordé sur lui. Le générateur occupe un compartiment entier et réclame son propre réacteur. Seules les plus grandes coques ont la place de le loger.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -53,7 +53,7 @@
 			]
 		},
 		"boucliers_durcis": {
-			"label": "Boucliers durcis",
+			"label": "Boucliers durcis", "lore": "Des bobines blindées de plomb et refroidies à l'hélium, qui tiennent leur champ là où l'étoile dérègle les autres. Le premier jeu a été monté sur un ravitailleur qui desservait un phare, au bord d'une étoile à neutrons.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -69,7 +69,7 @@
 			"flavor": "« Le champ magnétique de l'étoile éteint nos boucliers. » — « Alors on en fabrique qui ne l'écoutent pas. »"
 		},
 		"interception": {
-			"label": "Tourelles d'interception",
+			"label": "Tourelles d'interception", "lore": "De petites tourelles à tir rapide, asservies à un radar qui suit plusieurs centaines d'objets à la fois. Elles ouvrent le feu sans intervention de l'équipage, dans les deux dernières secondes de la course d'un missile.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -83,7 +83,7 @@
 			]
 		},
 		"torpilles": {
-			"label": "Torpilles à fusion",
+			"label": "Torpilles à fusion", "lore": "Un engin lent de douze mètres, qui porte une charge à fusion jusqu'à la coque adverse et la fait détoner au contact. Il lui faut un vaisseau bâti autour de ses tubes. Les équipages le chargent à la main, un par un.",
 			"domain": "armement",
 			"era": 2,
 			"field": "armes",
@@ -101,7 +101,7 @@
 			}
 		},
 		"bastions": {
-			"label": "Bastions orbitaux",
+			"label": "Bastions orbitaux", "lore": "Des casemates orbitales armées par la garnison, reliées à des abris creusés sous les villes. Les colons y descendent par des puits ouverts dans chaque quartier. L'exercice d'alerte a lieu deux fois par an.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -119,7 +119,7 @@
 			}
 		},
 		"marines": {
-			"label": "Marines d'assaut",
+			"label": "Marines d'assaut", "lore": "Des régiments formés pour combattre à bord, dans des coursives où l'on ne tire qu'à courte portée. Les recrues passent leur première année en apesanteur. Elles gardent ensuite l'habitude de dormir attachées.",
 			"domain": "armement",
 			"era": 2,
 			"field": "troupes",
@@ -155,7 +155,7 @@
 			}
 		},
 		"blindes_assaut": {
-			"label": "Régiments spécialisés",
+			"label": "Régiments spécialisés", "lore": "Des chars débarqués par barge, que suivent des équipes de quelques hommes déposées de nuit derrière les lignes. Les deux armes ne s'entraînent pas dans les mêmes camps et s'entendent mal en garnison.",
 			"domain": "armement",
 			"era": 2,
 			"field": "troupes",
@@ -368,7 +368,7 @@
 			"flavor": "Elles votent avant chaque attaque. Toujours à l'unanimité."
 		},
 		"rideau_acier": {
-			"label": "Rideau d'acier",
+			"label": "Rideau d'acier", "lore": "Une manière de ranger la flotte, où les petites coques se placent en avant et serrent leurs intervalles. Leurs commandants apprennent à tenir la ligne sous le feu sans rompre la formation. Le manuel fait quarante pages et se récite à l'école de guerre.",
 			"domain": "armement",
 			"era": 2,
 			"field": "doctrines",
@@ -388,7 +388,7 @@
 			}
 		},
 		"frappe_profondeur": {
-			"label": "Frappe en profondeur",
+			"label": "Frappe en profondeur", "lore": "Des calculateurs de tir qui cherchent, derrière la première ligne adverse, les coques que celle-ci protège. Les artilleurs règlent leurs salves pour passer dans les intervalles. La méthode vient des duels entre convois, où l'escorte ne valait rien et la cargaison tout.",
 			"domain": "armement",
 			"era": 2,
 			"field": "doctrines",
@@ -431,7 +431,7 @@
 			}
 		},
 		"equipes_prise": {
-			"label": "Équipes de prise",
+			"label": "Équipes de prise", "lore": "Des équipes de douze, entraînées à franchir un sas sous le feu et à tenir une passerelle. Elles apprennent le plan des coques étrangères sur des épaves remorquées jusqu'à l'école. Leur règlement interdit de tirer dans une salle des machines.",
 			"domain": "armement",
 			"era": 2,
 			"field": "troupes",
@@ -512,7 +512,7 @@
 			}
 		},
 		"genie_siege": {
-			"label": "Génie de siège",
+			"label": "Génie de siège", "lore": "Des sapeurs qui travaillent sous les fortifications, avec des foreuses reprises aux mines. Ils creusent une galerie de plusieurs kilomètres en quelques semaines. Leurs officiers sortent presque tous des écoles de géologie.",
 			"domain": "armement",
 			"era": 2,
 			"field": "troupes",
@@ -527,7 +527,7 @@
 			}
 		},
 		"plates_formes_defense": {
-			"label": "Plates-formes de défense",
+			"label": "Plates-formes de défense", "lore": "Des tourelles sans moteur ni équipage, placées en orbite fixe autour de la station et commandées depuis elle. Un remorqueur les met en place en une journée. Elles ne quittent plus leur poste.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -758,7 +758,7 @@
 			"flavor": "Le présage décrivait la fin du monde. Les ingénieurs y ont surtout lu des spécifications."
 		},
 		"manuel_braves": {
-			"label": "Manuel des braves",
+			"label": "Manuel des braves", "lore": "Un carnet relié de toile, trouvé intact, qui décrit pas à pas l'instruction d'une troupe d'abordage. Son auteur ne s'y nomme pas. Les écoles en ont tiré des copies sans y changer une ligne.",
 			"domain": "armement",
 			"era": 2,
 			"field": "troupes",
