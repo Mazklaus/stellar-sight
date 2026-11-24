@@ -111,6 +111,12 @@ func _test_map() -> void:
 	_ok(view.territory_sites().size() < sites.size(), "territoires : rien n'est tracé hors des cartes")
 	view.fog = false
 	_ok(view.is_capital(home), "la capitale est reconnue")
+	var motifs := {}
+	for fid: String in GameData.faction_ids():
+		var e := GalaxyView.emblem_of(fid)
+		motifs[e] = true
+		_ok(e == GalaxyView.emblem_of(fid) and e.x >= 0 and e.x < GalaxyView.EMBLEM_MOTIFS and e.y >= 0 and e.y < 3, "emblème stable pour %s" % fid)
+	_ok(motifs.size() >= 8, "les emblèmes des peuples sont variés (%d)" % motifs.size())
 
 	# Insignes : éventail sous l'étoile, « +N » au-delà de quatre, nature et état.
 	for fid in st.fleets.keys():

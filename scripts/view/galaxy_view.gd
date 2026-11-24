@@ -23,7 +23,7 @@ const TERRITORY_RADIUS := 95.0
 const TERRITORY_LANE_REACH := 0.55
 const TERRITORY_LANE_STEP := 55.0
 ## Côté de l'image du champ des territoires.
-const TERRITORY_TEXTURE := 768
+const TERRITORY_TEXTURE := 1024
 const TERRITORY_FIELD_SHADER := preload("res://shaders/territory_field.gdshader")
 const TERRITORY_SHADER := preload("res://shaders/territory.gdshader")
 ## Paliers de zoom (refonte, B1) : de loin les empires, à mi-distance les systèmes et les flottes,
@@ -523,9 +523,11 @@ func _draw_empire_names(px: float) -> void:
 		if not groups.has(o):
 			groups[o] = []
 		(groups[o] as Array).append(s.position)
-	# Les plus grands empires d'abord ; un nom qui en recouvrirait un autre attend qu'on s'approche.
+	# Le vôtre d'abord, puis les plus grands ; un nom qui en recouvrirait un autre attend qu'on s'approche.
 	var order := groups.keys()
 	order.sort_custom(func(a: int, b: int) -> bool:
+		if (a == viewer) != (b == viewer):
+			return a == viewer
 		var na := (groups[a] as Array).size()
 		var nb := (groups[b] as Array).size()
 		return na > nb or (na == nb and a < b))
@@ -536,11 +538,17 @@ func _draw_empire_names(px: float) -> void:
 		for p: Vector2 in pts:
 			c += p
 		c /= float(pts.size())
+		var mean := c
+		# Le nom se pose sur le territoire : à mi-chemin du centre et du système le plus central.
+		var core: Vector2 = pts[0]
+		for p: Vector2 in pts:
+			if p.distance_squared_to(mean) < core.distance_squared_to(mean):
+				core = p
 		var sxx := 0.0
 		var syy := 0.0
 		var sxy := 0.0
 		for p: Vector2 in pts:
-			var d := p - c
+			var d := p - mean
 			sxx += d.x * d.x
 			syy += d.y * d.y
 			sxy += d.x * d.y
@@ -550,15 +558,97 @@ func _draw_empire_names(px: float) -> void:
 		var size := int(clampf(spread * z * 0.28, 12.0, 22.0))
 		var text := " ".join(state.get_empire(o).display_name().to_upper().split(""))
 		var w := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
-		var h := size + absf(sin(angle)) * w
+		c = mean.lerp(core, 0.5)
+		# L'emblème au-dessus, le nom dessous, comme sur la carte de Stellaris.
+		var er := clampf(size * 0.95, 13.0, 22.0)
+		var h := size + absf(sin(angle)) * w + er * 2.0 + 6.0
 		var box := Rect2(c.x * z - w * 0.5, c.y * z - h * 0.5, w, h)
 		if _overlaps(box, placed):
+			# Pas la place pour le nom : l'emblème seul, s'il tient.
+			var small := Rect2(c.x * z - er, c.y * z - er, er * 2.0, er * 2.0)
+			if not _overlaps(small, placed):
+				placed.append(small)
+				draw_set_transform(c, 0.0, Vector2(px, px))
+				draw_emblem(self, Vector2.ZERO, er * 0.8, state.get_empire(o).faction_id, Color(1, 1, 1, 0.9 * alpha))
+				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 			continue
 		placed.append(box)
-		draw_set_transform(c, angle, Vector2(px, px))
-		draw_string_outline(_font, Vector2(-w * 0.5, size * 0.35), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 5, Color(0.01, 0.02, 0.04, 0.7 * alpha))
-		draw_string(_font, Vector2(-w * 0.5, size * 0.35), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(1, 1, 1, 0.85 * alpha))
+		draw_set_transform(c, 0.0, Vector2(px, px))
+		draw_emblem(self, Vector2(0, -er - 2.0), er, state.get_empire(o).faction_id, Color(1, 1, 1, 0.92 * alpha))
+		draw_set_transform(c, angle * 0.5, Vector2(px, px))
+		var base := size * 0.35 + size * 0.5 + 6.0
+		draw_string_outline(_font, Vector2(-w * 0.5, base), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 5, Color(0.01, 0.02, 0.04, 0.7 * alpha))
+		draw_string(_font, Vector2(-w * 0.5, base), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(1, 1, 1, 0.85 * alpha))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Nombre de motifs d'emblème.
+const EMBLEM_MOTIFS := 8
+
+
+## Motif et variante de l'emblème d'un peuple : tirés de son identifiant, donc toujours les mêmes.
+static func emblem_of(faction_id: String) -> Vector2i:
+	var h := absi(hash("emblem:" + faction_id))
+	return Vector2i(h % EMBLEM_MOTIFS, (h / EMBLEM_MOTIFS) % 3)
+
+
+## Emblème provisoire d'un peuple, en attendant les icônes dessinées : un cercle et un motif blanc
+## (étoile, anneaux, croissant, chevrons, soleil, losanges, trident, hexagone) en trois variantes.
+static func draw_emblem(on: CanvasItem, c: Vector2, r: float, faction_id: String, col: Color) -> void:
+	var e := emblem_of(faction_id)
+	var v := e.y
+	on.draw_circle(c, r, Color(0.02, 0.03, 0.05, 0.55 * col.a))
+	on.draw_arc(c, r, 0.0, TAU, 40, col, maxf(1.5, r * 0.11), true)
+	var k := r * 0.62
+	match e.x:
+		0:  # étoile à 4, 5 ou 6 branches
+			var n := 4 + v
+			var pts := PackedVector2Array()
+			for i in n * 2:
+				pts.append(c + Vector2.from_angle(-PI * 0.5 + PI * i / n) * (k if i % 2 == 0 else k * 0.42))
+			on.draw_colored_polygon(pts, col)
+		1:  # anneaux emboîtés
+			for i in 2 + (1 if v > 0 else 0):
+				on.draw_arc(c, k * (1.0 - 0.33 * i), 0.0, TAU, 32, col, maxf(1.5, r * 0.1), true)
+			if v == 2:
+				on.draw_circle(c, k * 0.14, col)
+		2:  # croissant, tourné selon la variante
+			var a0 := [0.6, 2.2, 3.8][v] as float
+			on.draw_arc(c, k * 0.8, a0, a0 + PI * 1.25, 28, col, k * 0.38, true)
+			on.draw_circle(c + Vector2.from_angle(a0 + PI * 1.62) * k * 0.55, k * 0.16, col)
+		3:  # chevrons empilés
+			for i in 2 + v % 2:
+				var y := (i - (1 + v % 2) * 0.5) * k * 0.55
+				var up := -1.0 if v == 2 else 1.0
+				on.draw_polyline(PackedVector2Array([c + Vector2(-k * 0.75, y + k * 0.3 * up), c + Vector2(0, y - k * 0.3 * up), c + Vector2(k * 0.75, y + k * 0.3 * up)]), col, maxf(2.0, r * 0.14), true)
+		4:  # soleil : disque et rayons
+			on.draw_circle(c, k * 0.4, col)
+			var n := 6 + v * 2
+			for i in n:
+				var d := Vector2.from_angle(TAU * i / n)
+				on.draw_line(c + d * k * 0.58, c + d * k, col, maxf(1.5, r * 0.1), true)
+		5:  # losanges
+			var n := 1 + v
+			for i in n:
+				var o := c + Vector2((i - (n - 1) * 0.5) * k * 0.72, 0)
+				var s := k * (0.85 if n == 1 else 0.5)
+				on.draw_colored_polygon(PackedVector2Array([o + Vector2(0, -s), o + Vector2(s * 0.6, 0), o + Vector2(0, s), o + Vector2(-s * 0.6, 0)]), col)
+		6:  # trident
+			var w := maxf(2.0, r * 0.14)
+			on.draw_line(c + Vector2(0, -k), c + Vector2(0, k), col, w, true)
+			var spread := k * (0.5 + 0.12 * v)
+			on.draw_polyline(PackedVector2Array([c + Vector2(-spread, -k * 0.8), c + Vector2(-spread, -k * 0.05), c + Vector2(spread, -k * 0.05), c + Vector2(spread, -k * 0.8)]), col, w, true)
+			on.draw_line(c + Vector2(-k * 0.35, k * 0.55), c + Vector2(k * 0.35, k * 0.55), col, w, true)
+		_:  # hexagone, plein, creux ou pointé
+			var pts := PackedVector2Array()
+			for i in 7:
+				pts.append(c + Vector2.from_angle(PI / 6.0 + TAU * i / 6.0) * k)
+			if v == 0:
+				on.draw_colored_polygon(pts.slice(0, 6), col)
+			else:
+				on.draw_polyline(pts, col, maxf(2.0, r * 0.14), true)
+				if v == 2:
+					on.draw_circle(c, k * 0.3, col)
 
 
 # --- Routes commerciales, toujours visibles (B4) ------------------------------------------------

@@ -958,7 +958,7 @@ func _build_fleet_card() -> void:
 		else:
 			(grids[group] as GridContainer).add_child(b)
 		_fleet_buttons[action] = b
-	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte (Maj : patrouiller).  F : flotte suivante.  I : flotte inactive suivante.  T : tactique.", CARD_WIDTH - 26.0, 12)
+	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte (Maj : patrouiller). Clic molette : choisir l'ordre.  F : flotte suivante.  I : flotte inactive suivante.  T : tactique.", CARD_WIDTH - 26.0, 12)
 	_fleet_hint.theme_type_variation = &"Dim"
 	inner.add_child(_fleet_hint)
 

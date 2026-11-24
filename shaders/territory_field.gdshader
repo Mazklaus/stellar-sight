@@ -18,23 +18,24 @@ void fragment() {
 	vec2 p = (UV * 2.0 - 1.0) * extent;
 	float best = 1.0e9;
 	float own = -1.0;
-	int at = 0;
 	for (int i = 0; i < count; i++) {
 		vec4 s = texelFetch(sites, ivec2(i, 0), 0);
 		float d = distance(p, s.xy) - s.z;
 		if (d < best) {
 			best = d;
 			own = s.w;
-			at = i;
 		}
 	}
 	float mine = 0.0;
 	float theirs = 0.0;
+	vec3 blend = vec3(0.0);
 	for (int i = 0; i < count; i++) {
 		vec4 s = texelFetch(sites, ivec2(i, 0), 0);
 		float e = exp(-soft * (distance(p, s.xy) - s.z - best));
 		if (abs(s.w - own) < 0.5) {
 			mine += e;
+			// La teinte se fond entre les sites d'un même empire (vus ou non) : pas de marche.
+			blend += e * texelFetch(tints, ivec2(i, 0), 0).rgb;
 		} else {
 			theirs += e;
 		}
@@ -45,6 +46,6 @@ void fragment() {
 	if (own < -0.5 || count == 0) {
 		inside = -band;
 	}
-	vec3 tint = count > 0 ? texelFetch(tints, ivec2(at, 0), 0).rgb : vec3(0.0);
+	vec3 tint = mine > 1.0e-6 ? blend / mine : vec3(0.0);
 	COLOR = vec4(tint, clamp(0.5 + inside / (2.0 * band), 0.0, 1.0));
 }

@@ -101,6 +101,9 @@ var _auto_paused := false
 ## Flotte sélectionnée (-1 = aucune).
 var selected_fleet := -1
 var _right_press := Vector2(-1, -1)
+var _middle_press := Vector2(-1, -1)
+var _order_menu: PopupMenu
+var _order_target := -1
 ## Flottes du joueur en route au tick précédent : pour annoncer leur arrivée.
 var _fleets_moving := {}
 ## La défaite du joueur a déjà été annoncée.
@@ -1387,6 +1390,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			select_fleet(-1)
 			_select(picked)
 		return
+	# Clic molette (sans glisser) avec une flotte sélectionnée : la liste de ce qu'elle peut faire là.
+	if mb and mb.button_index == MOUSE_BUTTON_MIDDLE and not is_system_view_open() and not is_modal_open():
+		if mb.pressed:
+			_middle_press = mb.position
+		elif _middle_press.x >= 0.0 and mb.position.distance_to(_middle_press) <= RIGHT_CLICK_SLOP_PX:
+			_middle_press = Vector2(-1, -1)
+			open_order_menu(_pick_system_at(mb.position), mb.position)
+		return
 	# Clic droit (sans glisser) avec une flotte sélectionnée : l'envoyer vers le système visé.
 	if mb and mb.button_index == MOUSE_BUTTON_RIGHT and not is_system_view_open() and not is_modal_open():
 		if mb.pressed:
@@ -1628,6 +1639,66 @@ func _pick_fleet_at(screen_pos: Vector2) -> int:
 # --- Flottes ----------------------------------------------------------------------------------
 
 ## Sélectionne une flotte (-1 : aucune). Sa fiche s'affiche et son trajet se dessine.
+## Ordres que la flotte choisie peut recevoir pour ce système : [[identifiant, libellé], ...].
+func order_choices(system_id: int) -> Array:
+	var out := []
+	var f: Fleet = simulation.state.fleets.get(selected_fleet) if simulation else null
+	if f == null or f.owner != view_empire or system_id < 0 or spectator:
+		return out
+	var known := Fleets.is_explored(simulation.state, view_empire, system_id)
+	var where := galaxy.get_system(system_id).system_name if known else "ce système inexploré"
+	var here := not f.is_moving() and f.system_id == system_id
+	if not here:
+		out.append(["go", "Aller à %s" % where])
+		out.append(["queue", "Y aller ensuite, après les ordres en cours"])
+		out.append(["patrol", "Patrouiller jusqu'à %s" % where])
+	else:
+		for action: String in ["colonize", "embark", "disembark", "invade", "guard"]:
+			var b := _hud.fleet_button(action)
+			if b and b.visible and not b.disabled:
+				out.append([action, b.text.capitalize()])
+	if known:
+		out.append(["open", "Ouvrir %s" % where])
+	return out
+
+
+## Menu d'ordres (refonte, B2) : clic molette sur un système avec une flotte choisie. Le clic droit
+## simple continue d'envoyer la flotte sans rien demander.
+func open_order_menu(system_id: int, screen_pos: Vector2) -> void:
+	var list := order_choices(system_id)
+	if list.is_empty():
+		return
+	if _order_menu == null:
+		_order_menu = PopupMenu.new()
+		_order_menu.theme = UiTheme.theme()
+		_order_menu.index_pressed.connect(func(i: int) -> void: do_order(String(_order_menu.get_item_metadata(i)), _order_target))
+		_hud.add_child(_order_menu)
+	_order_target = system_id
+	_order_menu.clear()
+	for e: Array in list:
+		_order_menu.add_item(String(e[1]))
+		_order_menu.set_item_metadata(_order_menu.item_count - 1, e[0])
+	_order_menu.position = Vector2i(screen_pos)
+	_order_menu.reset_size()
+	_order_menu.popup()
+
+
+func do_order(order: String, system_id: int) -> void:
+	match order:
+		"go":
+			order_fleet_to(system_id)
+		"queue":
+			queue_fleet_to(system_id)
+		"patrol":
+			order_fleet_patrol(system_id)
+		"open":
+			open_system_view(system_id)
+		_:
+			var b := _hud.fleet_button(order)
+			if b:
+				b.pressed.emit()
+
+
 ## Liste des flottes cachées derrière l'insigne « +N » d'un système : en choisir une la sélectionne.
 func _open_fleet_menu(system_id: int, screen_pos: Vector2) -> void:
 	if _fleet_menu == null:
