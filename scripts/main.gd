@@ -1620,6 +1620,7 @@ func _pick_fleet_at(screen_pos: Vector2) -> int:
 func _open_fleet_menu(system_id: int, screen_pos: Vector2) -> void:
 	if _fleet_menu == null:
 		_fleet_menu = PopupMenu.new()
+		_fleet_menu.theme = UiTheme.theme()
 		_fleet_menu.id_pressed.connect(func(fid: int) -> void: select_fleet(fid))
 		_hud.add_child(_fleet_menu)
 	_fleet_menu.clear()
