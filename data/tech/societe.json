@@ -28,7 +28,7 @@
 			"flavor": "On a retiré la timidité. On a perdu les poètes. On les remettra à la prochaine version."
 		},
 		"acclimatation_glandulaire": {
-			"label": "Acclimatation glandulaire", "lore": "Une série de greffes qui modifie la sueur, le souffle et le sang d'un colon pour un climat qui n'est pas le sien. Le traitement dure deux ans. Ses enfants en héritent, mais le monde natal de l'espèce leur reste le plus doux.",
+			"label": "Acclimatation glandulaire", "lore": "Une série de greffes qui modifie la sueur et le sang d'un colon pour un climat qui n'est pas le sien. Le traitement dure deux ans. Ses enfants en héritent, mais le monde natal de l'espèce leur reste le plus doux.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -392,7 +392,7 @@
 			}
 		},
 		"propagande": {
-			"label": "Propagande", "lore": "Un ministère qui écrit les nouvelles, commande les spectacles et choisit les visages affichés dans les ports. Ses rédacteurs lisent aussi ce qui vient de l'étranger et y répondent dans la semaine. Les colonies reçoivent le même journal le même jour.",
+			"label": "Propagande", "lore": "Un ministère qui écrit les nouvelles et choisit les visages affichés dans les ports. Ses rédacteurs lisent aussi ce qui vient de l'étranger et y répondent dans la semaine. Les colonies reçoivent le même journal le même jour.",
 			"domain": "societe",
 			"era": 3,
 			"field": "culture",
