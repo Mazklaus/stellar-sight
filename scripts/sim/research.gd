@@ -922,6 +922,36 @@ static func check_remove(state: GameState, empire_id: int, tid: String) -> Strin
 	return ""
 
 
+## "" si l'empire peut déplacer cette technologie de sa file au rang `to` (0 = recherche en cours).
+static func check_move(state: GameState, empire_id: int, tid: String, to: int) -> String:
+	var e := state.get_empire(empire_id)
+	if e == null:
+		return "empire inconnu : %d" % empire_id
+	if not e.research_queue.has(tid):
+		return "pas dans la file"
+	if to < 0 or to >= e.research_queue.size():
+		return "rang hors de la file"
+	if e.research_queue.find(tid) == to:
+		return "déjà à ce rang"
+	return ""
+
+
+## Déplace une technologie dans la file. Ses prérequis encore en file repassent devant elle ; si la
+## recherche en cours change, le travail entamé est mis de côté et retrouvé plus tard.
+static func apply_move(state: GameState, empire_id: int, tid: String, to: int) -> void:
+	var e := state.get_empire(empire_id)
+	var head := e.research_queue[0]
+	e.research_queue.erase(tid)
+	e.research_queue.insert(clampi(to, 0, e.research_queue.size()), tid)
+	_fix_order(state, e)
+	if e.research_queue.is_empty() or e.research_queue[0] == head:
+		return
+	if e.research_progress > 0:
+		e.research_shelf[head] = e.research_progress
+	e.research_progress = int(e.research_shelf.get(e.research_queue[0], 0))
+	e.research_shelf.erase(e.research_queue[0])
+
+
 ## Ajoute une technologie à la file (en tête si front : elle devient la recherche en cours).
 ## Le Savoir déjà investi dans une recherche interrompue est mis de côté (research_shelf) et
 ## retrouvé quand on y revient.

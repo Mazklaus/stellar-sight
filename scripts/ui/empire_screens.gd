@@ -1411,6 +1411,15 @@ func _build_research() -> void:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 6)
 	_content.add_child(col)
+	research_queue_bar = null
+	if not Insolites.no_research(_state, _player):
+		research_queue_bar = ResearchQueueBar.new()
+		col.add_child(research_queue_bar)
+		research_queue_bar.tech_picked.connect(func(tid: String) -> void: research_tree.select(tid))
+		research_queue_bar.remove_requested.connect(func(tid: String) -> void: command_requested.emit(SimCommands.research_remove(_player, tid)))
+		research_queue_bar.move_requested.connect(func(tid: String, to: int) -> void:
+			if Research.check_move(_state, _player, tid, to) == "":
+				command_requested.emit(SimCommands.research_move(_player, tid, to)))
 	col.add_child(_research_toolbar())
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -1437,6 +1446,8 @@ func _build_research() -> void:
 var research_filter := {"field": "", "kind": "", "text": "", "mine": false}
 var research_zoom := 1.0
 var research_path: Array[String] = []
+## File de recherche en bandeau, au-dessus de l'arbre (null pour un peuple qui n'invente rien).
+var research_queue_bar: ResearchQueueBar
 
 
 ## Barre au-dessus de l'arbre : recherche par nom, champ, « ce que ça débloque », Mon peuple, zoom.
@@ -1594,9 +1605,8 @@ func _fill_research_side() -> void:
 		ll.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 		_side_box.add_child(ll)
 
-	if not e.research_queue.is_empty():
-		_side_box.add_child(UiTheme.section("File de recherche"))
-		_side_box.add_child(_queue_chips(e, income))
+	if research_queue_bar != null and is_instance_valid(research_queue_bar):
+		research_queue_bar.fill(_state, _player)
 	_fill_tech_panel()
 
 
@@ -1620,47 +1630,6 @@ func _fill_research_catalogue(e: Empire) -> void:
 	hint.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 	_side_box.add_child(hint)
 	_fill_tech_panel()
-
-
-## File de recherche en pastilles rondes, à la manière d'Endless Space 2 : une pastille par
-## technologie (couleur du domaine, rang dans la file), et sous chacune les mois avant qu'elle soit
-## achevée à ce rythme. Clic : sa fiche.
-func _queue_chips(e: Empire, income: int) -> Control:
-	var flow := HFlowContainer.new()
-	flow.add_theme_constant_override("h_separation", 6)
-	flow.add_theme_constant_override("v_separation", 4)
-	var left := 0
-	for i in e.research_queue.size():
-		var tid := e.research_queue[i]
-		var t := Research.tech(tid)
-		left += Research.cost(_state, _player, tid) - (e.research_progress if i == 0 else int(e.research_shelf.get(tid, 0)))
-		var col := Color.html(String(Research.domain(String(t["domain"])).get("color", "#ffffff")))
-		var cell := VBoxContainer.new()
-		cell.add_theme_constant_override("separation", 0)
-		var b := Button.new()
-		b.focus_mode = Control.FOCUS_NONE
-		b.custom_minimum_size = Vector2(38, 38)
-		b.text = str(i + 1)
-		b.add_theme_font_override("font", UiTheme.numbers_font())
-		b.add_theme_font_size_override("font_size", 15)
-		var st := UiTheme.box(Color(col.darkened(0.6), 0.9 if i == 0 else 0.6), Color(col, 0.95 if i == 0 else 0.6), 0, 2)
-		st.set_corner_radius_all(19)
-		st.corner_detail = 12
-		b.add_theme_stylebox_override("normal", st)
-		var hv := st.duplicate() as StyleBoxFlat
-		hv.bg_color = Color(col.darkened(0.3), 0.9)
-		b.add_theme_stylebox_override("hover", hv)
-		b.add_theme_stylebox_override("pressed", hv)
-		@warning_ignore("integer_division")
-		var months := (left + income - 1) / income if income > 0 else -1
-		b.tooltip_text = "%s\n%s" % [t.get("label", tid), "achevée dans %d mois environ" % months if months >= 0 else "le Savoir manque"]
-		b.pressed.connect(func() -> void: research_tree.select(tid))
-		cell.add_child(b)
-		var m := UiTheme.dim("%d m" % months if months >= 0 else "?", 12)
-		m.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		cell.add_child(m)
-		flow.add_child(cell)
-	return flow
 
 
 ## Fiche de la technologie choisie, en bas à gauche par-dessus la colonne (comme dans Endless Space 2).

@@ -313,6 +313,11 @@ static func research_remove(player: int, tech_id: String) -> Dictionary:
 	return {"type": "research_remove", "player": player, "tech": tech_id}
 
 
+## Déplace une technologie de la file de recherche au rang `to` (0 = recherche en cours).
+static func research_move(player: int, tech_id: String, to: int) -> Dictionary:
+	return {"type": "research_move", "player": player, "tech": tech_id, "to": to}
+
+
 ## Affecte n cellules d'espionnage chez target (target == player : contre-espionnage chez soi).
 static func spy_cells(player: int, target: int, n: int) -> Dictionary:
 	return {"type": "spy_cells", "player": player, "target": target, "n": n}
@@ -1153,6 +1158,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Research.check_queue(state, int(cmd["player"]), String(cmd.get("tech", "")), bool(cmd.get("front", false)))
 		"research_remove":
 			return Research.check_remove(state, int(cmd["player"]), String(cmd.get("tech", "")))
+		"research_move":
+			return Research.check_move(state, int(cmd["player"]), String(cmd.get("tech", "")), int(cmd.get("to", -1)))
 		"spy_cells":
 			return Espionage.check_cells(state, int(cmd["player"]), int(cmd.get("target", -1)), int(cmd.get("n", -1)))
 		"spy_op":
@@ -1711,6 +1718,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Research.apply_queue(state, int(cmd["player"]), String(cmd["tech"]), bool(cmd.get("front", false)))
 		"research_remove":
 			Research.apply_remove(state, int(cmd["player"]), String(cmd["tech"]))
+		"research_move":
+			Research.apply_move(state, int(cmd["player"]), String(cmd["tech"]), int(cmd["to"]))
 		"seat":
 			var e := state.get_empire(int(cmd["player"]))
 			e.ai_level = String(cmd["ai"])

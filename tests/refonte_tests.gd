@@ -301,3 +301,24 @@ func _test_screens() -> void:
 			if not known.has(String(WondersUi.card_state(st, 0, wid, {})["id"])):
 				bad += 1
 		_ok(bad == 0, "chaque merveille a un état de carte connu")
+	# Recherche (C8) : la file se réordonne, les prérequis repassent devant.
+	var rs2 := GameState.create(11)
+	var re := rs2.get_empire(0)
+	var picked: Array[String] = []
+	for tid in Research.visible_ids(re.faction(), rs2, 0):
+		if picked.size() >= 3:
+			break
+		if Research.check_queue(rs2, 0, tid) == "" and (Research.tech(tid).get("pre", []) as Array).is_empty():
+			Research.apply_queue(rs2, 0, tid, false)
+			picked.append(tid)
+	if picked.size() == 3:
+		re.research_progress = 7
+		_ok(Research.check_move(rs2, 0, picked[2], 2) != "" and Research.check_move(rs2, 0, picked[2], 5) != "" and Research.check_move(rs2, 0, picked[2], 0) == "",
+				"déplacer dans la file : rang valide et différent seulement")
+		Research.apply_move(rs2, 0, picked[2], 0)
+		_ok(re.research_queue[0] == picked[2] and re.research_queue.size() == 3, "la technologie déplacée passe en tête")
+		_ok(re.research_progress == 0 and int(re.research_shelf.get(picked[0], 0)) == 7, "le travail entamé est mis de côté")
+		Research.apply_move(rs2, 0, picked[0], 0)
+		_ok(re.research_progress == 7 and not re.research_shelf.has(picked[0]), "et retrouvé quand elle revient en tête")
+		_ok(SimCommands.validate(rs2, SimCommands.research_move(0, picked[1], 0)) == "", "l'ordre research_move est valide")
+		_ok(ResearchQueueBar.months(rs2, 0).size() == 3, "un délai par technologie de la file")
