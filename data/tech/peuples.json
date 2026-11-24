@@ -2,7 +2,7 @@
 	"_doc": "Technologies propres à certaines couches d'espèce (requires.species) : elles prennent place dans leur domaine quand elles remplacent une technologie commune ou en préparent une, sinon dans la bande Peuple.",
 	"technologies": {
 		"litanies": {
-			"label": "Litanies de visée",
+			"label": "Litanies de visée", "lore": "Des versets que les canonniers récitent à voix haute pendant le pointage, au rythme des culasses. Chaque pièce a les siens, gravés sur l'affût. Les servants tirent plus juste les jours où tout l'empire prie.",
 			"domain": "armement",
 			"era": 1,
 			"field": "armes",
@@ -24,7 +24,7 @@
 			"flavor": "Le canonnier chante, le canon écoute."
 		},
 		"charge_sacree": {
-			"label": "Charge sacrée",
+			"label": "Charge sacrée", "lore": "Une coque sans retour, chargée d'explosifs et montée par des volontaires qui ont reçu les derniers rites. Elle se jette sur la ligne adverse dès que les flottes se touchent. Les noms de l'équipage sont lus dans tous les temples le mois suivant.",
 			"domain": "armement",
 			"era": 2,
 			"field": "armes",
@@ -45,7 +45,7 @@
 			]
 		},
 		"zelotes": {
-			"label": "Zélotes d'assaut",
+			"label": "Zélotes d'assaut", "lore": "Des fidèles armés qui embarquent en surnombre et dorment dans les coursives. Ils ne touchent pas de solde. Les aumôniers les mènent à l'assaut avec les marines.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -69,7 +69,7 @@
 			}
 		},
 		"duellistes": {
-			"label": "Duellistes de lignée",
+			"label": "Duellistes de lignée", "lore": "Des officiers élevés dans les salles d'armes de leur maison, qui portent ses couleurs sur la passerelle. Ils se battent mieux sous les yeux des leurs. Une défaite chez soi se paie d'un rang à la cour.",
 			"domain": "armement",
 			"era": 1,
 			"field": "armes",
@@ -90,7 +90,7 @@
 			}
 		},
 		"ban_vassaux": {
-			"label": "Ban des vassaux",
+			"label": "Ban des vassaux", "lore": "Le droit du suzerain d'appeler les vassaux avec leurs gens d'armes, à leurs frais, pour défendre les fiefs. Chaque maison doit un contingent fixé par la coutume. Les levées se font à bord même des galères.",
 			"domain": "armement",
 			"era": 3,
 			"field": "defenses",
@@ -112,7 +112,7 @@
 			}
 		},
 		"dernier_moment": {
-			"label": "Doctrine du dernier moment",
+			"label": "Doctrine du dernier moment", "lore": "Une tradition des flottes de la République, où les escadres de réserve n'entrent en ligne qu'à l'instant choisi par l'assemblée des capitaines. Elles arrivent fraîches sur un ennemi fatigué. Le vote se fait par signaux.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -130,7 +130,7 @@
 			}
 		},
 		"griffes": {
-			"label": "Griffes chitineuses",
+			"label": "Griffes chitineuses", "lore": "Des pièces d'artillerie qui poussent sur la coque comme des membres et lancent des éclats de chitine durcie. Elles se réparent en muant. Le vaisseau les nourrit sur ses propres réserves.",
 			"domain": "armement",
 			"era": 1,
 			"field": "armes",
@@ -155,7 +155,7 @@
 			"flavor": "L'Essaim n'a pas inventé le canon. Il a fait pousser quelque chose qui y ressemble."
 		},
 		"acide": {
-			"label": "Sécrétions acides",
+			"label": "Sécrétions acides", "lore": "Une sécrétion des glandes de la coque, dont les munitions sont enduites avant le tir. Elle ronge le métal autour de l'impact pendant des heures. Les larves embarquées en sont couvertes à l'éclosion.",
 			"domain": "armement",
 			"era": 3,
 			"field": "armes",
@@ -179,7 +179,7 @@
 			}
 		},
 		"esprits_lies": {
-			"label": "Esprits-liés",
+			"label": "Esprits-liés", "lore": "Des fidèles qui ont offert leur cerveau à une tourelle, où il est conservé et relié aux instruments de visée. Ils ne dorment plus. Leur ordre les tient pour vivants et leur lit l'office chaque jour.",
 			"domain": "genie",
 			"era": 3,
 			"field": "coques",
@@ -205,7 +205,7 @@
 			"flavor": "Ils ont demandé à servir. Enfin, quelqu'un a demandé pour eux."
 		},
 		"forges_nefs": {
-			"label": "Forges-nefs",
+			"label": "Forges-nefs", "lore": "Des chantiers qui sont aussi des sanctuaires, où chaque rivet est posé pendant une prière. Les fidèles y travaillent sans salaire aux temps de ferveur. Une coque y coûte ce que coûtent le métal et le pain.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -230,7 +230,7 @@
 			}
 		},
 		"cartes_lignees": {
-			"label": "Cartes des lignées",
+			"label": "Cartes des lignées", "lore": "Des cartes de saut qu'une maison de navigateurs se transmet de mère en fille et ne montre à personne. Elles donnent des passes que les relevés publics ignorent. Un vaisseau guidé par elles arrive avant les autres.",
 			"domain": "genie",
 			"era": 1,
 			"field": "propulsion",
@@ -255,7 +255,7 @@
 			]
 		},
 		"ecoles_navigateurs": {
-			"label": "Écoles de navigateurs",
+			"label": "Écoles de navigateurs", "lore": "Des écoles tenues par les maisons de navigateurs, où l'on entre à sept ans. Les élèves y apprennent le ciel de mémoire avant de toucher un instrument. Chaque colonie en reçoit un diplômé pour sa tour de guet.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -283,7 +283,7 @@
 			]
 		},
 		"equipages_mixtes": {
-			"label": "Équipages mixtes",
+			"label": "Équipages mixtes", "lore": "Des équipages où chaque poste revient à l'espèce qui s'y entend le mieux. Les chantiers travaillent de la même façon, par équipes mêlées qui se relaient selon leurs heures de veille. Une coque n'attend jamais qu'un quart se repose.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -308,7 +308,7 @@
 			}
 		},
 		"spores_rapides": {
-			"label": "Cosses accélérées",
+			"label": "Cosses accélérées", "lore": "Des cosses où les coques grandissent dans un bain nourricier, à une chaleur réglée pour hâter leur croissance. Une couvée de vaisseaux sort en quelques semaines. Les premiers jours, leur peau est encore molle.",
 			"domain": "genie",
 			"era": 1,
 			"field": "coques",
@@ -330,7 +330,7 @@
 			}
 		},
 		"scriptorium": {
-			"label": "Scriptorium",
+			"label": "Scriptorium", "lore": "Une maison de copistes où les moines reproduisent à la main tous les textes connus et les commentent en marge. Rien n'y est tenu pour acquis avant trois lectures. Les découvertes y sont lentes et rarement démenties.",
 			"domain": "economie",
 			"era": 1,
 			"field": "savoir",
@@ -346,7 +346,7 @@
 			"replaces": "academies"
 		},
 		"forges_psalmodiques": {
-			"label": "Forges psalmodiques",
+			"label": "Forges psalmodiques", "lore": "Des fonderies où les équipes travaillent au rythme d'un chant, qui règle la cadence des marteaux. Aux temps de ferveur, les chœurs se relaient jour et nuit. Les hauts fourneaux ne refroidissent plus.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -369,7 +369,7 @@
 			}
 		},
 		"serviteurs": {
-			"label": "Serviteurs pénitents",
+			"label": "Serviteurs pénitents", "lore": "Des pénitents qui ont fait vœu de travailler sans repos pour racheter une faute, et que l'ordre place dans les ateliers. Ils font ce que d'autres peuples confient aux machines. Ils ne fondent pas de famille pendant leur vœu.",
 			"domain": "economie",
 			"era": 3,
 			"field": "production",
@@ -395,7 +395,7 @@
 			"flavor": "Ils travaillent sans relâche. Ils n'ont plus vraiment le choix, ni d'avis."
 		},
 		"universites": {
-			"label": "Universités des Quarante",
+			"label": "Universités des Quarante", "lore": "Une université où quarante espèces ont chacune leur chaire et leur manière de poser les questions. Un problème y est examiné sous tous ces angles. Les étudiants doivent suivre un cours chez au moins trois d'entre elles.",
 			"domain": "economie",
 			"era": 1,
 			"field": "savoir",
@@ -411,7 +411,7 @@
 			"replaces": "academies"
 		},
 		"ganglions": {
-			"label": "Ganglions de mémoire",
+			"label": "Ganglions de mémoire", "lore": "Un organe de la ruche, gros comme un bâtiment, où la mémoire de l'essaim est déposée et ruminée. Il se nourrit comme le reste du corps. Les ouvrières viennent y prendre ce qu'elles doivent savoir.",
 			"domain": "economie",
 			"era": 1,
 			"field": "savoir",
@@ -427,7 +427,7 @@
 			"replaces": "academies"
 		},
 		"digestion_totale": {
-			"label": "Digestion totale",
+			"label": "Digestion totale", "lore": "Une enzyme qui défait jusqu'aux os et aux coquilles ce que la ruche absorbe. Rien de ce qu'elle mange n'est rejeté. La matière ainsi rendue sert aux nids et aux coques.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -451,7 +451,7 @@
 			}
 		},
 		"monopole": {
-			"label": "Charte des cristaux",
+			"label": "Charte des cristaux", "lore": "Une charte qui réserve le commerce des cristaux de saut aux maisons des fiefs où on les raffine. Elles en fixent le prix entre elles. Leur voix compte davantage à la cour depuis qu'on ne saute plus sans elles.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -473,7 +473,7 @@
 			}
 		},
 		"catechisme": {
-			"label": "Catéchisme",
+			"label": "Catéchisme", "lore": "Un enseignement de la foi donné aux enfants de chaque ville, par demandes et réponses apprises par cœur. Les maîtres sont nommés par le temple. Une colonie assez peuplée entretient sa propre école.",
 			"domain": "societe",
 			"era": 1,
 			"field": "culture",
@@ -495,7 +495,7 @@
 			}
 		},
 		"offrande_consacree": {
-			"label": "Offrande consacrée",
+			"label": "Offrande consacrée", "lore": "Un rite qui bénit l'offrande avant qu'elle soit portée à l'autel, devant toute la colonie assemblée. Ce qui est donné devant témoins compte davantage. Les familles gardent le linge de la cérémonie.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -520,7 +520,7 @@
 			}
 		},
 		"pelerinages": {
-			"label": "Pèlerinages",
+			"label": "Pèlerinages", "lore": "Des routes saintes que les fidèles parcourent une fois dans leur vie, de monde en monde. Beaucoup s'établissent en chemin et y fondent un foyer. Les nefs qui les portent sont entretenues par les pèlerins eux-mêmes.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -541,7 +541,7 @@
 			}
 		},
 		"vassalite": {
-			"label": "Serments de vassalité",
+			"label": "Serments de vassalité", "lore": "Un serment prêté à genoux par chaque seigneur de fief, renouvelé à chaque avènement. Il oblige le vassal au conseil autant qu'à l'aide. Les seigneurs viennent siéger à la cour une saison par an.",
 			"domain": "societe",
 			"era": 1,
 			"field": "etat",
@@ -559,7 +559,7 @@
 			}
 		},
 		"tournois": {
-			"label": "Tournois des maisons",
+			"label": "Tournois des maisons", "lore": "Des joutes entre les champions des maisons, données chaque année dans la capitale. Elles règlent sans guerre bien des querelles de préséance. Les étrangers y sont invités et s'en souviennent.",
 			"domain": "societe",
 			"era": 3,
 			"field": "culture",
@@ -583,7 +583,7 @@
 			}
 		},
 		"assemblees": {
-			"label": "Assemblées élargies",
+			"label": "Assemblées élargies", "lore": "Des assemblées où siègent, à côté des élus, les délégués des métiers et des colonies lointaines. Une loi votée par tant de voix est moins discutée ensuite. Les séances sont publiques.",
 			"domain": "societe",
 			"era": 1,
 			"field": "etat",
@@ -603,7 +603,7 @@
 			}
 		},
 		"xenodiplomatie": {
-			"label": "Xénodiplomatie",
+			"label": "Xénodiplomatie", "lore": "L'habitude de consulter, avant de fonder une colonie, celle des quarante espèces qui connaît le mieux ce genre de monde. Elle y envoie ses bâtisseurs. Les villes sont dessinées pour plusieurs sortes d'habitants.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -629,7 +629,7 @@
 			}
 		},
 		"couvees": {
-			"label": "Couvées",
+			"label": "Couvées", "lore": "Des pontes nombreuses, élevées en commun dans des nurseries que toute la colonie entretient. Peu de petits se perdent. Une génération suffit à peupler une vallée.",
 			"domain": "societe",
 			"era": 1,
 			"field": "colonisation",
@@ -650,7 +650,7 @@
 			}
 		},
 		"metabolisme": {
-			"label": "Métabolisme adaptatif",
+			"label": "Métabolisme adaptatif", "lore": "Un organisme qui ajuste sa digestion et son sang à l'air qu'il respire, en quelques mues. Les ouvrières nées sur un monde lui sont déjà adaptées. La ruche s'installe là où d'autres ne tiennent pas un an.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -676,7 +676,7 @@
 			}
 		},
 		"geophagie": {
-			"label": "Géophagie",
+			"label": "Géophagie", "lore": "Une manière de se nourrir de la roche elle-même, en suivant les veines les plus riches vers la profondeur. Les carrières descendent à des kilomètres. Ce que les mangeurs ne digèrent pas remonte en minerai trié.",
 			"domain": "economie",
 			"era": 1,
 			"field": "production",
@@ -697,7 +697,7 @@
 			"flavor": "Le gourmet lithe distingue le granit de la vallée de celui du versant nord. Les autres ne voient que des cailloux."
 		},
 		"cristallisation": {
-			"label": "Cristallisation défensive",
+			"label": "Cristallisation défensive", "lore": "Une réaction du corps de pierre, qui se couvre d'une croûte de cristal quand il est frappé. Un défenseur ainsi figé arrête un obus. Il lui faut un jour pour retrouver ses mouvements.",
 			"domain": "armement",
 			"era": 3,
 			"field": "defenses",
@@ -719,7 +719,7 @@
 			}
 		},
 		"strates_vivantes": {
-			"label": "Strates vivantes",
+			"label": "Strates vivantes", "lore": "Des colonies établies dans l'épaisseur de la roche, sur des mondes sans air ni eau. Les habitants de pierre y trouvent de quoi vivre. Un astéroïde leur fait une demeure convenable.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -744,7 +744,7 @@
 			}
 		},
 		"condensateurs_ame": {
-			"label": "Condensateurs d'âme",
+			"label": "Condensateurs d'âme", "lore": "Un appareil qui retient et concentre l'écho laissé par les êtres de lumière qui se sont éteints. Les vivants y puisent de l'énergie et des souvenirs. On n'y entre qu'en silence.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -765,7 +765,7 @@
 			"flavor": "On y stocke les pensées en surplus. Personne ne sait ce qui arrive à celles qu'on ne vient jamais rechercher."
 		},
 		"resonance_stellaire": {
-			"label": "Résonance stellaire",
+			"label": "Résonance stellaire", "lore": "L'accord qu'un corps de lumière établit avec l'étoile du système où il s'installe. Il s'y nourrit directement. La nature du sol lui importe peu.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -786,7 +786,7 @@
 			}
 		},
 		"corps_denses": {
-			"label": "Corps denses",
+			"label": "Corps denses", "lore": "Un exercice par lequel un être de lumière se resserre jusqu'à devenir presque solide. Il peut alors tenir un mur et porter des coups. Les soldats le maintiennent pendant des heures.",
 			"domain": "armement",
 			"era": 2,
 			"field": "troupes",
@@ -808,7 +808,7 @@
 			]
 		},
 		"chaines_flux": {
-			"label": "Chaînes de flux",
+			"label": "Chaînes de flux", "lore": "Des lignes d'assemblage où les nouveaux citoyens sont montés, éveillés et instruits en quelques jours. La fonderie tient lieu de maternité. Chaque châssis reçoit un nom à sa sortie.",
 			"domain": "societe",
 			"era": 1,
 			"field": "colonisation",
@@ -829,7 +829,7 @@
 			"flavor": "Le premier modèle sorti de la chaîne s'est retourné et a demandé pourquoi. Le deuxième n'a rien demandé : on avait corrigé."
 		},
 		"chassis_specialises": {
-			"label": "Châssis spécialisés",
+			"label": "Châssis spécialisés", "lore": "Des corps construits pour un seul métier, avec les outils à la place des mains. Un mineur et un chercheur ne se ressemblent plus. Chacun peut demander un nouveau châssis s'il change d'emploi.",
 			"domain": "economie",
 			"era": 3,
 			"field": "production",
@@ -856,7 +856,7 @@
 			}
 		},
 		"chassis_etanches": {
-			"label": "Châssis étanches",
+			"label": "Châssis étanches", "lore": "Des corps scellés et chauffés de l'intérieur, dont les articulations ne gèlent pas. Les mondes de glace leur conviennent autant que les autres. Leurs villes n'y ont pas besoin de dômes.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -880,7 +880,7 @@
 			}
 		},
 		"cocons_guerre": {
-			"label": "Cocons de guerre",
+			"label": "Cocons de guerre", "lore": "Des cocons de la taille d'une cale, où une coque de guerre se forme en quelques mois. La ruche les file au bord d'un bassin de ponte. Le vaisseau en sort par ses propres forces.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -904,7 +904,7 @@
 			]
 		},
 		"ganglion_mere": {
-			"label": "Ganglion-mère",
+			"label": "Ganglion-mère", "lore": "Le plus grand ganglion de la ruche, où toutes ses pensées se rejoignent. Il règle ce que chaque nid absorbe et rend. Tant qu'il vit, l'essaim reforme ses troupes sans attendre d'ordre.",
 			"domain": "economie",
 			"era": 3,
 			"field": "savoir",
@@ -926,7 +926,7 @@
 			}
 		},
 		"grandes_serres": {
-			"label": "Grandes serres",
+			"label": "Grandes serres", "lore": "Des serres hautes de plusieurs centaines de mètres, où le peuple végétal expose ses frondes à une lumière concentrée par des miroirs. Il en tire l'énergie de toute la colonie. Les anciens y passent leurs journées.",
 			"domain": "economie",
 			"era": 1,
 			"field": "production",
@@ -946,7 +946,7 @@
 			}
 		},
 		"racines_profondes": {
-			"label": "Racines profondes",
+			"label": "Racines profondes", "lore": "Un réseau de racines qui relie tous les habitants d'une colonie sous le sol et descend jusqu'à la roche. Ce qui est coupé en surface repousse depuis le dessous. Un envahisseur doit tout retourner pour en finir.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -969,7 +969,7 @@
 			"flavor": "L'envahisseur a planté son drapeau. Au printemps suivant, le drapeau avait des feuilles."
 		},
 		"dissemination": {
-			"label": "Dissémination",
+			"label": "Dissémination", "lore": "Des graines et des spores lâchées par milliards dans l'espace, portées par la lumière des étoiles. La plupart se perdent. Celles qui arrivent attendent les colons et les accueillent déjà germées.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -995,7 +995,7 @@
 			]
 		},
 		"comptabilite_occulte": {
-			"label": "Comptabilité occulte",
+			"label": "Comptabilité occulte", "lore": "Une tenue de livres en partie double et en double exemplaire, dont un seul est montré aux agents du fisc. Les maisons de commerce se l'enseignent de père en fils. Les marges y gagnent ce que le trésor y perd.",
 			"domain": "economie",
 			"era": 2,
 			"field": "commerce",
@@ -1017,7 +1017,7 @@
 			}
 		},
 		"grandes_fetes": {
-			"label": "Grandes fêtes",
+			"label": "Grandes fêtes", "lore": "Un calendrier où chaque semaine a sa fête, payée par la ville. Les étrangers font le voyage pour les plus célèbres. Les habitants ne songent guère à se plaindre du reste.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -1039,7 +1039,7 @@
 			}
 		},
 		"normalisation": {
-			"label": "Normalisation",
+			"label": "Normalisation", "lore": "Un bureau qui fixe la mesure de toute chose, du pas de vis au format des requêtes. Les pièces d'un bâtiment sont les mêmes d'un bout à l'autre de l'empire. Un fonctionnaire muté retrouve son bureau tel qu'il l'a laissé.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1061,7 +1061,7 @@
 			}
 		},
 		"abris_profonds": {
-			"label": "Abris profonds",
+			"label": "Abris profonds", "lore": "Des abris creusés à plusieurs centaines de mètres sous chaque ville, avec leurs vivres et leurs hôpitaux. Toute la population sait y descendre en dix minutes. Les blessés y sont soignés à l'abri du feu.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -1083,7 +1083,7 @@
 			}
 		},
 		"signes_presages": {
-			"label": "Signes et présages",
+			"label": "Signes et présages", "lore": "Un collège d'interprètes qui tient registre de tout ce qui sort de l'ordinaire dans le ciel de l'empire. À force de noter, ils remarquent ce que d'autres laissent passer. Les capitaines les consultent avant d'approcher une anomalie.",
 			"domain": "societe",
 			"era": 2,
 			"field": "esprit",
@@ -1105,7 +1105,7 @@
 			}
 		},
 		"seuils": {
-			"label": "Science des seuils",
+			"label": "Science des seuils", "lore": "Une doctrine qui tient chaque âge de la vie et chaque étape d'un peuple pour un passage à préparer. Les fidèles en célèbrent beaucoup. Ils abordent les grands changements sans inquiétude.",
 			"domain": "societe",
 			"era": 2,
 			"field": "esprit",
@@ -1127,7 +1127,7 @@
 			}
 		},
 		"longue_patience": {
-			"label": "Longue patience",
+			"label": "Longue patience", "lore": "Une règle de construction qui exige des murs faits pour mille ans. Le chantier dure plus longtemps et l'ouvrage ne demande presque rien ensuite. Les bâtisseurs signent leur travail pour que leurs descendants en répondent.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -1148,7 +1148,7 @@
 			}
 		},
 		"discretion": {
-			"label": "Discrétion",
+			"label": "Discrétion", "lore": "L'usage d'observer un voisin de loin, sans jamais se mêler de ses affaires. Les veilleurs y gagnent un œil exercé. Les autres empires savent qu'ils n'ont rien à craindre de ce côté.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1170,7 +1170,7 @@
 			}
 		},
 		"rendement": {
-			"label": "Rendement",
+			"label": "Rendement", "lore": "Une revue de chaque plan, où l'on retire toute pièce qui ne sert pas. Les coques sortent plus légères et moins chères. Les mécaniciens ont moins à entretenir.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -1192,7 +1192,7 @@
 			}
 		},
 		"inventaire": {
-			"label": "Inventaire raisonné",
+			"label": "Inventaire raisonné", "lore": "Un catalogue où chaque objet des collections a sa fiche, avec sa provenance et son histoire. Les savants étrangers viennent le consulter. Les conservateurs savent reconnaître la valeur d'une pièce au premier regard.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -1214,7 +1214,7 @@
 			}
 		},
 		"essaimage": {
-			"label": "Essaimage",
+			"label": "Essaimage", "lore": "Un précepte qui fait à chaque famille un devoir d'envoyer ses cadets fonder ailleurs. Les convois partent complets. Une colonie nouvelle reçoit dès le premier jour plus de bras qu'elle n'en demandait.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -1236,7 +1236,7 @@
 			}
 		},
 		"routes_saphene": {
-			"label": "Routes de Saphène",
+			"label": "Routes de Saphène", "lore": "Des routes dont la garde et l'entretien sont confiés aux maisons qu'elles traversent, contre un droit de passage. Le courrier de la cour y circule sans escorte. Un fief lointain reste à portée de voix.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -1257,7 +1257,7 @@
 			}
 		},
 		"traducteurs_universels": {
-			"label": "Traducteurs universels",
+			"label": "Traducteurs universels", "lore": "Des interprètes formés dans une assemblée où quarante langues se parlent chaque jour. Ils en apprennent une de plus en quelques semaines. Les peuples mineurs sont reçus dans la leur.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1279,7 +1279,7 @@
 			}
 		},
 		"maillage": {
-			"label": "Maillage",
+			"label": "Maillage", "lore": "Un réseau où chaque nœud est relié à tous ses voisins et non à un centre. Une pensée contourne le système qui lui est fermé. Les nœuds endommagés sont repris par ceux d'à côté.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1300,7 +1300,7 @@
 			}
 		},
 		"noeuds_relais": {
-			"label": "Nœuds relais",
+			"label": "Nœuds relais", "lore": "Des relais posés chez les alliés avec leur accord, qui portent la pensée commune à travers leurs systèmes. Ils n'en lisent rien. Le réseau s'étend sans que l'empire ait à s'agrandir.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1321,7 +1321,7 @@
 			}
 		},
 		"campements_fortifies": {
-			"label": "Campements fortifiés",
+			"label": "Campements fortifiés", "lore": "Des camps que le clan dresse en une nuit dans les systèmes où il passe, avec leur enceinte et leurs réserves. On y entasse le butin et les vivres pris sur place. La flotte s'y ravitaille au retour.",
 			"domain": "armement",
 			"era": 2,
 			"field": "doctrines",
@@ -1342,7 +1342,7 @@
 			]
 		},
 		"planques": {
-			"label": "Planques",
+			"label": "Planques", "lore": "Des caches aménagées dans les astéroïdes et sur les mondes morts, où le Syndicat entrepose ce qu'il ne déclare pas. Chaque avant-poste en dissimule plusieurs. Leur emplacement ne figure sur aucune carte écrite.",
 			"domain": "economie",
 			"era": 2,
 			"field": "commerce",
@@ -1372,7 +1372,7 @@
 			}
 		},
 		"contrats_chaine": {
-			"label": "Contrats à la chaîne",
+			"label": "Contrats à la chaîne", "lore": "Un carnet d'adresses qui couvre tous les équipages hors-la-loi de la région, avec leurs tarifs et leurs dettes. Le Syndicat traite avec eux d'égal à égal. Il obtient pour moitié prix ce qu'un empire paierait le double.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1393,7 +1393,7 @@
 			}
 		},
 		"faux_papiers": {
-			"label": "Faux papiers",
+			"label": "Faux papiers", "lore": "Des ateliers de faussaires qui fournissent à chaque coque un pavillon et un manifeste au goût du port où elle entre. Les douanes n'y trouvent rien à redire en temps de paix. Les mêmes papiers servent plusieurs fois.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1415,7 +1415,7 @@
 			"flavor": "Le douanier a lu « Cargo de fleurs, équipage de six ». Il a compté quarante canons. Il a tamponné quand même."
 		},
 		"voile_profond": {
-			"label": "Voile profond",
+			"label": "Voile profond", "lore": "Une manière de moduler sa propre lumière sous le seuil que les instruments savent entendre. Les flottes du peuple d'énergie passent pour un bruit de fond. Elles se guident sur le chant des leurs.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -1439,7 +1439,7 @@
 			]
 		},
 		"chorale": {
-			"label": "Chorale des abysses",
+			"label": "Chorale des abysses", "lore": "Un chœur où de nouvelles voix s'ajoutent à chaque génération, sans qu'aucune ancienne se taise. Les Échos qu'il fait naître gagnent en force chaque mois. On l'entend d'un bout à l'autre de l'empire.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -1463,7 +1463,7 @@
 			}
 		},
 		"pillage_methodique": {
-			"label": "Pillage méthodique",
+			"label": "Pillage méthodique", "lore": "Un corps de scribes qui suit la horde et dresse la liste de ce qu'un système contient avant qu'on y touche. Rien n'est brûlé qui puisse s'emporter. Le partage se fait sur registre, clan par clan.",
 			"domain": "armement",
 			"era": 3,
 			"field": "doctrines",
@@ -1493,7 +1493,7 @@
 			"flavor": "Le scribe du clan note tout : « une caisse de lingots, un réacteur, un ambassadeur (abîmé) »."
 		},
 		"brouillage_piste": {
-			"label": "Brouillage de piste",
+			"label": "Brouillage de piste", "lore": "L'art d'effacer le sillage d'une flotte-ville et de semer de faux signaux sur d'autres routes. Les Traqueurs perdent des mois à les suivre. Les pilotes de l'arrière-garde y sont formés dès l'enfance.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -1514,7 +1514,7 @@
 			"flavor": "On a laissé derrière nous une traînée d'ions qui mène droit à une géante gazeuse. Les Traqueurs adorent les géantes gazeuses."
 		},
 		"nefs_elargies": {
-			"label": "Nefs élargies",
+			"label": "Nefs élargies", "lore": "Des nefs-cités dont on a abattu les cloisons et aménagé les soutes vides en logements. Les familles y vivent plus serrées et plus nombreuses. Le conseil a voté ces travaux après trois générations de débats.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -1534,7 +1534,7 @@
 			}
 		},
 		"decors_holographiques": {
-			"label": "Décors holographiques",
+			"label": "Décors holographiques", "lore": "Des décors de lumière qui s'élèvent au-dessus du chapiteau jusqu'à se voir depuis l'orbite. Un monde entier assiste au spectacle sans billet. La troupe compte sur ce qu'on en racontera.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -1554,7 +1554,7 @@
 			}
 		},
 		"chapiteau_deux": {
-			"label": "Chapiteau II",
+			"label": "Chapiteau II", "lore": "Un chapiteau à deux pistes, où deux numéros se jouent en même temps devant un public deux fois plus nombreux. Il faut une semaine pour le monter. Les meilleures places se vendent plus cher qu'un passage en première classe.",
 			"domain": "economie",
 			"era": 2,
 			"field": "commerce",
@@ -1574,7 +1574,7 @@
 			}
 		},
 		"haute_voltige": {
-			"label": "Haute voltige",
+			"label": "Haute voltige", "lore": "Une école de monteurs et d'acrobates qui dressent le matériel en répétant leurs numéros dessus. La troupe est prête à jouer presque aussitôt arrivée. Les accidents sont rares et font partie des légendes de la maison.",
 			"domain": "genie",
 			"era": 3,
 			"field": "propulsion",
@@ -1598,7 +1598,7 @@
 			"flavor": "Le trapéziste a sauté d'une nef à l'autre en plein saut hyperspatial. Il l'a refait pour la photo."
 		},
 		"lunes_sentinelles_ii": {
-			"label": "Lunes-sentinelles II",
+			"label": "Lunes-sentinelles II", "lore": "Une manière de détacher de soi une lune de garde en n'y laissant que le nécessaire. L'Orbe y perd moitié moins de sa propre masse. La lune garde assez de conscience pour reconnaître un ennemi.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -1618,7 +1618,7 @@
 			}
 		},
 		"croute_blindee": {
-			"label": "Croûte blindée",
+			"label": "Croûte blindée", "lore": "Une croûte épaissie et veinée de métal, que l'Orbe-Monde fait croître sur toute sa surface. Les bombardements n'en entament que les premières couches. Elle se referme en quelques saisons.",
 			"domain": "armement",
 			"era": 3,
 			"field": "defenses",
@@ -1641,7 +1641,7 @@
 			}
 		},
 		"coeur_fusion": {
-			"label": "Cœur en fusion",
+			"label": "Cœur en fusion", "lore": "Un noyau porté à une chaleur plus haute, où ce que l'Orbe engloutit se défait plus vite. Il lui faut moins de temps pour assimiler un corps. Sa surface en tremble pendant toute la digestion.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -1663,7 +1663,7 @@
 			"flavor": "Les astronomes voisins ont noté que l'Orbe-Monde avait légèrement rosi. Puis qu'il avait faim."
 		},
 		"lignees_robustes": {
-			"label": "Lignées robustes",
+			"label": "Lignées robustes", "lore": "Des lignées choisies par les anciennes de la harde pour leur vigueur. Les petits naissent plus tôt et tiennent debout dès le premier jour. Les mères reprennent la route avec eux.",
 			"domain": "societe",
 			"era": 1,
 			"field": "colonisation",
@@ -1683,7 +1683,7 @@
 			}
 		},
 		"paturages_profonds": {
-			"label": "Pâturages profonds",
+			"label": "Pâturages profonds", "lore": "L'habitude de brouter un pâturage en profondeur et lentement, sans l'arracher. Il repousse derrière la harde. Elle peut revenir au même endroit après quelques années.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -1706,7 +1706,7 @@
 			}
 		},
 		"chant_migration": {
-			"label": "Chant de migration",
+			"label": "Chant de migration", "lore": "Un chant long de plusieurs jours, où chaque strophe décrit une étape des routes de migration. Toute la harde le sait. Elle avance plus vite sur les chemins qu'il nomme.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -1727,7 +1727,7 @@
 			"flavor": "Les jeunes ne connaissent pas la route. Ils connaissent la chanson, ce qui revient au même."
 		},
 		"audit_prealable": {
-			"label": "Audit préalable",
+			"label": "Audit préalable", "lore": "Une équipe de comptables envoyée dans une colonie dès que la Compagnie y prend une participation, même faible. Ils en examinent tous les livres. Le siège sait ce que vaut la colonie avant de monter au capital.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1747,7 +1747,7 @@
 			}
 		},
 		"rachat_levier": {
-			"label": "Rachat à effet de levier",
+			"label": "Rachat à effet de levier", "lore": "Un montage où la Compagnie achète une colonie avec l'argent emprunté sur les revenus de cette même colonie. Elle y engage peu de ses fonds propres. Les banquiers du siège en ont fait leur spécialité.",
 			"domain": "economie",
 			"era": 3,
 			"field": "commerce",
@@ -1771,7 +1771,7 @@
 			"flavor": "« Nous achetons votre colonie avec l'argent de votre colonie. » Personne n'a trouvé la faille dans le raisonnement."
 		},
 		"formulaires_dematerialises": {
-			"label": "Formulaires dématérialisés",
+			"label": "Formulaires dématérialisés", "lore": "Des formulaires remplis et transmis sans papier, que le Bureau instruit dans l'ordre de leur arrivée. Un guichet unique les reçoit tous. Le dossier d'une colonie nouvelle n'attend plus la tournée du courrier.",
 			"domain": "societe",
 			"era": 2,
 			"field": "etat",
@@ -1791,7 +1791,7 @@
 			}
 		},
 		"huissiers_assermentes": {
-			"label": "Huissiers assermentés",
+			"label": "Huissiers assermentés", "lore": "Des huissiers nommés à vie, qui portent les décisions du Bureau jusque chez ceux qu'elles visent. Une sanction signifiée par eux ne se conteste pas avant son terme. Ils voyagent seuls et sans arme.",
 			"domain": "societe",
 			"era": 3,
 			"field": "etat",
@@ -1815,7 +1815,7 @@
 			"flavor": "L'huissier a tout saisi, y compris la chaise sur laquelle il était assis. Par conscience professionnelle."
 		},
 		"protocoles_viraux": {
-			"label": "Protocoles viraux",
+			"label": "Protocoles viraux", "lore": "Des séquences du Signal écrites pour se recopier d'elles-mêmes dans tout appareil qui les reçoit. Elles passent d'une colonie à sa voisine par les liaisons ordinaires. Les hôtes ne s'en aperçoivent pas tout de suite.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -1835,7 +1835,7 @@
 			}
 		},
 		"corps_empruntes_ii": {
-			"label": "Corps empruntés II",
+			"label": "Corps empruntés II", "lore": "Une emprise plus fine sur les machines que le Signal habite, qui ménage leurs circuits au lieu de les forcer. Un vaisseau emprunté sert deux fois plus longtemps. Son équipage d'origine met ce temps à le reprendre.",
 			"domain": "armement",
 			"era": 3,
 			"field": "troupes",
@@ -1858,7 +1858,7 @@
 			}
 		},
 		"reverie_profonde": {
-			"label": "Rêverie profonde",
+			"label": "Rêverie profonde", "lore": "Un rêve partagé assez dense pour déborder sur les dormeurs étrangers du voisinage. Ils s'y retrouvent sans l'avoir voulu et en gardent le souvenir. Certains demandent à y revenir.",
 			"domain": "societe",
 			"era": 2,
 			"field": "esprit",
@@ -1878,7 +1878,7 @@
 			}
 		},
 		"flotte_songe_durable": {
-			"label": "Flotte de songe durable",
+			"label": "Flotte de songe durable", "lore": "Des rêveurs entraînés à maintenir une flotte de songe sans se réveiller, en se relayant dans le même rêve. Elle tient deux fois plus longtemps. Elle se dissipe quand le dernier d'entre eux ouvre les yeux.",
 			"domain": "armement",
 			"era": 3,
 			"field": "doctrines",
@@ -1902,7 +1902,7 @@
 			"flavor": "L'amiral ennemi a juré qu'il avait vu cette flotte se dissiper. Elle était revenue. Il ne dort plus."
 		},
 		"ossuaires_ii": {
-			"label": "Ossuaires II",
+			"label": "Ossuaires II", "lore": "Des ossuaires agrandis et mieux tenus, où les morts sont rangés par ordre et préparés à l'avance. Le Conseil peut en rappeler deux fois plus chaque mois. Les familles viennent reconnaître les leurs avant le réveil.",
 			"domain": "societe",
 			"era": 2,
 			"field": "colonisation",
@@ -1922,7 +1922,7 @@
 			}
 		},
 		"vitrines_climatisees": {
-			"label": "Vitrines climatisées",
+			"label": "Vitrines climatisées", "lore": "Des vitrines où chaque pièce vivante retrouve l'air et la lumière de son monde d'origine. Elle y reste calme. Les gardiens n'ont presque plus d'évasions à consigner.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -1942,7 +1942,7 @@
 			}
 		},
 		"visites_guidees": {
-			"label": "Visites guidées",
+			"label": "Visites guidées", "lore": "Des guides attachés à la Collection, qui reçoivent les visiteurs de marque et leur montrent les pièces fermées au public. Les cours étrangères s'y font inviter. Chaque visite se termine par un échange de présents.",
 			"domain": "societe",
 			"era": 2,
 			"field": "culture",
@@ -1963,7 +1963,7 @@
 			"flavor": "« Sur votre gauche, un ambassadeur en formol. Ne touchez pas, il mord encore. »"
 		},
 		"optique_voilee": {
-			"label": "Optique voilée",
+			"label": "Optique voilée", "lore": "Des verres et des revêtements qui rendent un poste d'observation invisible depuis le monde qu'il surveille. Les veilleurs y séjournent des années. Les espèces observées ne lèvent pas les yeux au bon endroit.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -1983,7 +1983,7 @@
 			}
 		},
 		"elevation_douce": {
-			"label": "Élévation douce",
+			"label": "Élévation douce", "lore": "Une méthode d'enseignement qui souffle une idée à une espèce jeune et lui laisse croire qu'elle l'a trouvée. Elle mûrit plus vite et sans heurts. Les Anciens se retirent avant qu'on leur donne un nom.",
 			"domain": "societe",
 			"era": 3,
 			"field": "esprit",
@@ -2006,7 +2006,7 @@
 			}
 		},
 		"sable_fin": {
-			"label": "Sable fin",
+			"label": "Sable fin", "lore": "Un Sable moulu plus fin, qui s'écoule et se recueille plus vite dans les réservoirs de la Chronarchie. Les horlogers en perdent moins à chaque usage. La réserve se refait en moitié moins de temps.",
 			"domain": "societe",
 			"era": 2,
 			"field": "esprit",
@@ -2026,7 +2026,7 @@
 			}
 		},
 		"bulles_rapprochees": {
-			"label": "Bulles rapprochées",
+			"label": "Bulles rapprochées", "lore": "Un réglage des horloges maîtresses qui laisse le temps se remettre plus vite après une bulle. La suivante peut être gonflée deux fois plus tôt. Les horlogers surveillent les coutures entre les deux.",
 			"domain": "genie",
 			"era": 3,
 			"field": "propulsion",
@@ -2050,7 +2050,7 @@
 			"flavor": "La bulle a éclaté hier. On en a gonflé une autre la semaine dernière, par précaution."
 		},
 		"oeuvres_hatees": {
-			"label": "Œuvres hâtées",
+			"label": "Œuvres hâtées", "lore": "Une discipline par laquelle les Lithes mettent en réserve le temps qu'ils ne dépensent pas. Une saison d'immobilité leur en rend davantage. Ils appellent cela se hâter.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -2070,7 +2070,7 @@
 			}
 		},
 		"hibernation_profonde": {
-			"label": "Hibernation profonde",
+			"label": "Hibernation profonde", "lore": "Un sommeil où une colonie entière se fige dans sa roche, portes scellées. Rien ne l'atteint pendant qu'elle dort. Elle se réveille après un temps que les autres peuples comptent en générations.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -2093,7 +2093,7 @@
 			}
 		},
 		"cometes_semences_ii": {
-			"label": "Comètes-semences II",
+			"label": "Comètes-semences II", "lore": "Des comètes ensemencées de spores et lancées sur des orbites plus longues. Elles portent le réseau vers des systèmes que ses filaments n'atteignaient pas. La glace protège la semence pendant le voyage.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -2113,7 +2113,7 @@
 			}
 		},
 		"cometes_semences_iii": {
-			"label": "Comètes-semences III",
+			"label": "Comètes-semences III", "lore": "Des comètes choisies parmi les plus massives, capables de traverser plusieurs systèmes sans fondre. Le réseau essaime encore plus loin de ses colonies. Une sur dix arrive.",
 			"domain": "genie",
 			"era": 4,
 			"field": "propulsion",
@@ -2136,7 +2136,7 @@
 			}
 		},
 		"spores_ralentissantes": {
-			"label": "Spores ralentissantes",
+			"label": "Spores ralentissantes", "lore": "Des spores plus lourdes et plus collantes, que le réseau répand dans ses propres systèmes. Elles encrassent les tuyères et les capteurs des flottes étrangères. Les coques du réseau en sont nourries.",
 			"domain": "armement",
 			"era": 2,
 			"field": "defenses",
@@ -2157,7 +2157,7 @@
 			"flavor": "L'équipage a éternué pendant trois semaines. La flotte, elle, a avancé à la vitesse d'un éternuement."
 		},
 		"saisons_accelerees": {
-			"label": "Saisons accélérées",
+			"label": "Saisons accélérées", "lore": "Un accord du Cercle qui permet de faire tourner les Saisons plus vite que le calendrier. Tout le peuple change de travaux deux fois par an. Les anciens veillent à ce qu'aucune ne soit sautée.",
 			"domain": "societe",
 			"era": 2,
 			"field": "esprit",
@@ -2177,7 +2177,7 @@
 			}
 		},
 		"jardinage_patient": {
-			"label": "Jardinage patient",
+			"label": "Jardinage patient", "lore": "Une façon de conduire un monde vers le jardin en ne plantant chaque espèce qu'à son heure. Rien n'est à refaire. Le travail avance plus vite que celui des jardiniers pressés.",
 			"domain": "societe",
 			"era": 3,
 			"field": "colonisation",
@@ -2200,7 +2200,7 @@
 			}
 		},
 		"psaumes_coursives": {
-			"label": "Psaumes des coursives",
+			"label": "Psaumes des coursives", "lore": "Des psaumes de la Terre promise, chantés chaque soir dans les coursives des nefs. Un signe du ciel y est aussitôt mis en vers et repris par tous. L'Espoir y tient mieux que dans les rapports du conseil.",
 			"domain": "societe",
 			"era": 3,
 			"field": "culture",
@@ -2223,7 +2223,7 @@
 			}
 		},
 		"flotte_ville_ii": {
-			"label": "Flotte-ville II : les batteries",
+			"label": "Flotte-ville II : les batteries", "lore": "Des batteries prises sur les vaisseaux vaincus et remontées sur la capitale mobile de la horde. Elle en est couverte de la proue à la poupe. Chaque clan sert les pièces qu'il a rapportées.",
 			"domain": "armement",
 			"era": 2,
 			"field": "armes",
@@ -2248,7 +2248,7 @@
 			"flavor": "On ne sait plus qui a forgé ces canons. On sait qui les a gagnés."
 		},
 		"flotte_ville_iii": {
-			"label": "Flotte-ville III : le chantier",
+			"label": "Flotte-ville III : le chantier", "lore": "Un chantier complet embarqué sur la Flotte-ville, avec ses cales et ses forgerons. Les flottes de la horde s'y réparent là où elle campe. Elle n'a plus besoin de port.",
 			"domain": "genie",
 			"era": 3,
 			"field": "coques",
@@ -2272,7 +2272,7 @@
 			}
 		},
 		"serres_coursives": {
-			"label": "Serres de coursive",
+			"label": "Serres de coursive", "lore": "Des bacs de culture installés le long des coursives et sous les lampes des ponts. Chaque famille entretient les siens. Une nef au mouillage tire de là une part de ses vivres.",
 			"domain": "economie",
 			"era": 1,
 			"field": "production",
@@ -2293,7 +2293,7 @@
 			"flavor": "Des tomates entre deux sas. On ne demande plus d'où vient l'eau."
 		},
 		"ateliers_coursives": {
-			"label": "Ateliers de coursive",
+			"label": "Ateliers de coursive", "lore": "De petits ateliers ouverts dans les coursives, où l'on refond ce que les récupérateurs rapportent. Rien de métallique ne quitte la nef. Les apprentis y entrent à douze ans.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -2316,7 +2316,7 @@
 			}
 		},
 		"observatoire_proue": {
-			"label": "Observatoire de proue",
+			"label": "Observatoire de proue", "lore": "Un observatoire monté à la proue de chaque nef-cité, loin des lumières des ponts. On y relève le ciel du mouillage tant que la flotte ne bouge pas. Les cartes de l'exode en sont tirées.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -2336,7 +2336,7 @@
 			}
 		},
 		"bulle_repli": {
-			"label": "Bulle de Repli",
+			"label": "Bulle de Repli", "lore": "Une bulle temporelle qui ramène une flotte à l'instant de son départ. Le voyage n'a pas eu lieu pour elle. Les équipages gardent le souvenir de ce qu'ils n'ont pas fait.",
 			"domain": "genie",
 			"era": 2,
 			"field": "propulsion",
@@ -2361,7 +2361,7 @@
 			"flavor": "Elle est partie demain. Elle est rentrée hier. Elle n'a rien vu."
 		},
 		"bulle_pli": {
-			"label": "Bulle de Pli",
+			"label": "Bulle de Pli", "lore": "Une bulle temporelle posée sur un chantier, où le temps s'écoule beaucoup plus vite qu'au-dehors. L'ouvrage est fini quand elle se referme. Les ouvriers en sortent vieillis de plusieurs mois.",
 			"domain": "economie",
 			"era": 3,
 			"field": "production",
@@ -2382,7 +2382,7 @@
 			}
 		},
 		"oeuvre_souffle": {
-			"label": "Œuvre du souffle",
+			"label": "Œuvre du souffle", "lore": "Une Œuvre lente par laquelle les Lithes donnent un air à un monde qui n'en a pas. Ils le tirent de la roche, grain par grain. Plusieurs de leurs générations s'y succèdent.",
 			"domain": "economie",
 			"era": 2,
 			"field": "production",
@@ -2400,7 +2400,7 @@
 			}
 		},
 		"oeuvre_orbites": {
-			"label": "Œuvre des orbites",
+			"label": "Œuvre des orbites", "lore": "Une Œuvre lente qui déplace une planète vers une orbite plus douce, par des poussées répétées pendant des siècles. Les Lithes la mènent sans rien briser. Le monde arrive à sa place avec ses lunes.",
 			"domain": "genie",
 			"era": 3,
 			"field": "propulsion",
@@ -2421,7 +2421,7 @@
 			}
 		},
 		"oeuvre_etoile": {
-			"label": "Œuvre de l'étoile",
+			"label": "Œuvre de l'étoile", "lore": "Une Œuvre lente qui tempère une étoile en réglant ce qu'elle brûle. Les mondes trop proches cessent de cuire. Les Lithes disent que c'est la seule de leurs œuvres qui les ait pressés.",
 			"domain": "genie",
 			"era": 4,
 			"field": "mega_ing",
@@ -2443,7 +2443,7 @@
 			"flavor": "Il a fallu trois siècles pour convaincre l'étoile. Elle n'a jamais dit oui ; elle a juste cessé de dire non."
 		},
 		"bordees_reglees": {
-			"label": "Bordées réglées",
+			"label": "Bordées réglées", "lore": "Un exercice de tir où toutes les pièces d'un bord partent ensemble, au commandement. La première bordée arrive en un seul coup. Les canonniers s'y entraînent jusqu'à tirer les yeux fermés.",
 			"domain": "armement",
 			"era": 2,
 			"field": "armes",
@@ -2464,7 +2464,7 @@
 			}
 		},
 		"mues_coques": {
-			"label": "Mues des coques",
+			"label": "Mues des coques", "lore": "Des coques recouvertes d'une peau vivante, qui se détache par plaques et repousse dessous. Une avarie de surface disparaît à la mue suivante. Les équipages ramassent les vieilles écailles pour les forges.",
 			"domain": "genie",
 			"era": 2,
 			"field": "coques",
@@ -2485,7 +2485,7 @@
 			}
 		},
 		"accord_parfait": {
-			"label": "Accord parfait",
+			"label": "Accord parfait", "lore": "Un accord tenu par toute la flotte sur une même note, à laquelle chaque coque règle ses instruments. Ce qui détonne s'entend aussitôt. Une coque faussée par le combat est remise au ton par ses voisines.",
 			"domain": "genie",
 			"era": 2,
 			"field": "senseurs",
@@ -2506,7 +2506,7 @@
 			}
 		},
 		"corps_memoire": {
-			"label": "Corps de mémoire",
+			"label": "Corps de mémoire", "lore": "Un collège de la nécropole, où l'on recueille les souvenirs des morts à la place de soigner les vivants. Rien de ce qu'un défunt savait n'est perdu. Les médecins y sont archivistes.",
 			"domain": "societe",
 			"era": 1,
 			"field": "colonisation",

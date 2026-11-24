@@ -693,7 +693,7 @@ func _test_lore_texts() -> void:
 		# Pas de tiret long, pas de chiffre d'effet répété (« % », « × »), trois phrases au plus, 400 caractères au plus.
 		if lore.contains("—") or lore.contains("–") or lore.contains("%") or lore.contains("×") or lore.length() > 400 or lore.count(". ") > 2 or not lore.ends_with("."):
 			bad.append(tid)
-	_ok(with_lore >= 16, "textes : les technologies de la première ère ont leur description d'univers (%d)" % with_lore)
+	_ok(with_lore == techs.size(), "textes : toutes les technologies ont leur description d'univers (%d sur %d)" % [with_lore, techs.size()])
 	_ok(bad.is_empty(), "textes : les descriptions tiennent les règles d'écriture (%s)" % str(bad))
 	_ok(quotes * 10 <= with_lore, "textes : une technologie décrite sur dix au plus garde une citation")
 	var t0: Dictionary = techs["propulseurs"]
