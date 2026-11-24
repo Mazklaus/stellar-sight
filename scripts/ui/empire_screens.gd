@@ -741,6 +741,10 @@ func _build_moves_side() -> void:
 		_side_box.add_child(p)
 
 
+## Au-delà de ce nombre de caractères, la valeur d'une ligne de la colonne de gauche est coupée.
+const KEY_VALUE_MAX := 20
+
+
 func _key_value(grid: GridContainer, key: String, value := "") -> Label:
 	var k := Label.new()
 	k.text = key
@@ -750,6 +754,14 @@ func _key_value(grid: GridContainer, key: String, value := "") -> Label:
 	v.theme_type_variation = &"Numbers"
 	v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	v.text = value
+	# Une valeur longue ne doit pas élargir la colonne de gauche par-dessus le contenu : elle est coupée,
+	# le texte entier reste dans l'infobulle.
+	if value.length() > KEY_VALUE_MAX:
+		v.clip_text = true
+		v.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		v.custom_minimum_size = Vector2(SIDE_WIDTH * 0.52, 0)
+		v.tooltip_text = value
+		v.mouse_filter = Control.MOUSE_FILTER_STOP
 	grid.add_child(v)
 	return v
 

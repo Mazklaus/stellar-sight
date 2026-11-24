@@ -16,6 +16,7 @@ func run(check: Callable) -> void:
 	_test_map()
 	_test_fleet_card()
 	_test_screens()
+	_test_power()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -422,3 +423,11 @@ func _test_screens() -> void:
 
 func state_neighbors(st: GameState, a: int, b: int) -> bool:
 	return st.galaxy.systems[a].neighbors.has(b)
+
+
+func _test_power() -> void:
+	# Foi (C28) : préceptes en cartes.
+	var st := GameState.create(11)
+	_ok(FaithScreen.precept_cards(st, "aucune").is_empty(), "sans foi, pas de carte de précepte")
+	# Sénat (C27) : les doléances ne passent en tête que si elles pressent.
+	_ok(not SenateScreen.grievance_urgent(st, 0), "au calme, les doléances restent en bas de l'écran")

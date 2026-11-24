@@ -9,6 +9,10 @@ extends RefCounted
 ## Construit dans les conteneurs d'EmpireScreens, dont il reprend les aides (_grid, _key_value…).
 
 
+## Largeur d'une carte de précepte.
+const PRECEPT_CARD := 300.0
+
+
 static func build(es: EmpireScreens) -> void:
 	var state := es._state
 	var player := es._player
@@ -53,23 +57,33 @@ static func build(es: EmpireScreens) -> void:
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.add_theme_constant_override("separation", 18)
 	scroll.add_child(col)
+	# Trois volets : ma foi, les fois de la galaxie, agir.
+	col.add_child(es.pane_row("faith", [["mine", "Ma foi"], ["galaxy", "Fois de la galaxie"], ["act", "Agir"]], "mine"))
+	var mine := es.pane_box("faith", "mine")
+	var galaxy := es.pane_box("faith", "galaxy")
+	var act := es.pane_box("faith", "act")
+	for pane in [mine, galaxy, act]:
+		col.add_child(pane)
 	if Faiths.closed(state, player):
 		var b := Widgets.Block.new("Conscience collective")
 		b.body.add_child(UiTheme.paragraph("Une seule pensée ne prie pas : vos colonies n'ont pas de foi, ne prêchent pas et ne se convertissent pas. Seule une foi de Communion peut l'accueillir tout entière.", 760.0, 15))
-		col.add_child(b)
-		col.add_child(_state_block(es))
-		col.add_child(_je_block(es))
+		mine.add_child(b)
+		mine.add_child(_je_block(es))
+		act.add_child(_state_block(es))
 	else:
-		col.add_child(_state_block(es))
+		mine.add_child(_my_faith_block(es))
 		var nb := FaithNaturePanel.build(es)
 		if nb != null:
-			col.add_child(nb)
+			mine.add_child(nb)
+		mine.add_child(_colonies_block(es))
+		act.add_child(_state_block(es))
 		var vb := FaithNaturePanel.vocations(es)
 		if vb != null:
-			col.add_child(vb)
-		col.add_child(_missions_block(es))
-	col.add_child(_faiths_block(es))
-	col.add_child(_colonies_block(es))
+			act.add_child(vb)
+		act.add_child(_missions_block(es))
+	galaxy.add_child(_faiths_block(es))
+	if Faiths.closed(state, player):
+		mine.add_child(_colonies_block(es))
 
 
 ## Ce qui change l'écran : mois, fois (doctrines, préceptes), foi d'État, fidèles de l'empire.
@@ -150,6 +164,64 @@ static func _state_block(es: EmpireScreens) -> Control:
 		qb.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.faith_quarantine(player)))
 		b.body.add_child(qb)
 		es.faith_buttons["quarantine"] = qb
+	return b
+
+
+## Préceptes d'une foi, pour les cartes du volet « Ma foi » : [{id, label, text}].
+static func precept_cards(state: GameState, fid: String) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var f := Faiths.faith(state, fid)
+	for d in f.get("precepts", []):
+		var pd := Faiths.precept_def(String(d))
+		out.append({"id": String(d), "label": String(pd.get("label", d)), "text": String(pd.get("text", ""))})
+	return out
+
+
+## Volet « Ma foi » : la foi d'État, sa doctrine sur ses axes et ses préceptes en cartes.
+static func _my_faith_block(es: EmpireScreens) -> Control:
+	var state := es._state
+	var player := es._player
+	var sf := Faiths.state_faith(state, player)
+	var b := Widgets.Block.new(Faiths.name_of(state, sf))
+	var f := Faiths.faith(state, sf)
+	if f.is_empty():
+		b.body.add_child(UiTheme.paragraph("Votre empire ne suit aucune grande foi : ni préceptes ni doctrine. Le volet Agir permet d'en adopter une, dès qu'elle dépasse %d %% dans l'une de vos colonies." % int(Faiths.data()["state"]["adopt_share_pct"]), 760.0, 14))
+		return b
+	b.heading.add_theme_color_override("font_color", Faiths.color_of(state, sf).lightened(0.25))
+	b.body.add_child(_faith_tags(es, sf))
+	var h := Faiths.head(state, sf)
+	b.body.add_child(UiTheme.dim("%d fidèles dans la galaxie. Chef de foi : %s." % [Faiths.followers(state, sf),
+			"vous" if h == player else (state.get_empire(h).short_name() if h >= 0 else "personne")], 13))
+	if int(f.get("pending", 0)) > 0:
+		b.body.add_child(UiTheme.dim("Nature, doctrines et premier précepte restent à fixer (volet Fois de la galaxie).", 13))
+		return b
+	b.body.add_child(_doctrines_line(state, sf))
+	var cards := precept_cards(state, sf)
+	if cards.is_empty():
+		b.body.add_child(UiTheme.dim("Aucun précepte encore.", 13))
+		return b
+	var flow := HFlowContainer.new()
+	flow.add_theme_constant_override("h_separation", 12)
+	flow.add_theme_constant_override("v_separation", 12)
+	b.body.add_child(flow)
+	for c: Dictionary in cards:
+		var card := PanelContainer.new()
+		card.add_theme_stylebox_override("panel", UiTheme.box(Color(1, 1, 1, 0.035), UiTheme.LINE, 0, 1))
+		card.custom_minimum_size = Vector2(PRECEPT_CARD, 0)
+		var pad := MarginContainer.new()
+		for side in ["left", "right", "top", "bottom"]:
+			pad.add_theme_constant_override("margin_" + side, 10)
+		card.add_child(pad)
+		var box := VBoxContainer.new()
+		box.add_theme_constant_override("separation", 4)
+		pad.add_child(box)
+		var t := Label.new()
+		t.text = String(c["label"])
+		t.add_theme_font_size_override("font_size", 15)
+		t.add_theme_color_override("font_color", UiTheme.GOLD)
+		box.add_child(t)
+		box.add_child(UiTheme.paragraph(String(c["text"]), PRECEPT_CARD - 20.0, 12))
+		flow.add_child(card)
 	return b
 
 

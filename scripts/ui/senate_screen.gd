@@ -65,6 +65,10 @@ class Hemicycle:
 				s += 1
 
 
+## Largeur d'une carte de loi.
+const LAW_CARD := 310.0
+
+
 static func build(es: EmpireScreens) -> void:
 	var state := es._state
 	var player := es._player
@@ -123,10 +127,15 @@ static func build(es: EmpireScreens) -> void:
 		if Laws.applies(state, player):
 			col.add_child(_laws_block(es))
 		return
+	# Une doléance en cours (ou une crise qui couve) passe en tête ; au calme, le bloc descend en bas.
+	var urgent := grievance_urgent(state, player)
+	if urgent:
+		col.add_child(_grievance_block(es))
 	col.add_child(_assembly_block(es))
-	col.add_child(_currents_block(es))
-	col.add_child(_grievance_block(es))
 	col.add_child(_laws_block(es))
+	col.add_child(_currents_block(es))
+	if not urgent:
+		col.add_child(_grievance_block(es))
 	col.add_child(_count_block(es))
 
 
@@ -321,11 +330,19 @@ static func _currents_block(es: EmpireScreens) -> Control:
 
 
 ## Doléances de l'opposition, effets en cours, interrègne, menace de crise de régime.
+## Vrai si les doléances demandent l'attention : une doléance en cours, un interrègne, ou une stabilité
+## d'empire basse qui mène à la crise de régime.
+static func grievance_urgent(state: GameState, player: int) -> bool:
+	return not Grievances.current(state, player).is_empty() or Grievances.interregnum(state, player) or int(Politics.emp(state, player).get("low", 0)) > 0
+
+
 static func _grievance_block(es: EmpireScreens) -> Control:
 	var state := es._state
 	var player := es._player
 	var en := Politics.emp(state, player)
 	var b := Widgets.Block.new("Doléances")
+	if grievance_urgent(state, player):
+		b.heading.add_theme_color_override("font_color", UiTheme.WARN)
 	if Grievances.interregnum(state, player):
 		var il := UiTheme.dim("Interrègne après une crise de régime : aucune loi, pas de loi de pouvoir, jusqu'au %s." % GameCalendar.date_string(int(en["inter"])), 14)
 		il.add_theme_color_override("font_color", UiTheme.delta_color(-1))
@@ -374,40 +391,65 @@ static func _laws_block(es: EmpireScreens) -> Control:
 			h.add_theme_color_override("font_color", Politics.color(int(i)).lightened(0.25))
 			h.add_theme_font_size_override("font_size", 15)
 			b.body.add_child(h)
+			var cf := _law_flow()
+			b.body.add_child(cf)
 			for l: Dictionary in Laws.current_laws(int(i)):
-				b.body.add_child(_law_row(es, l, ro))
+				cf.add_child(_law_row(es, l, ro))
 	var ih := Label.new()
 	ih.text = "Lois indépendantes"
 	ih.add_theme_font_size_override("font_size", 15)
 	b.body.add_child(ih)
+	var inf := _law_flow()
+	b.body.add_child(inf)
 	for l: Dictionary in Laws.independent():
-		b.body.add_child(_law_row(es, l, ro))
+		inf.add_child(_law_row(es, l, ro))
 	return b
 
 
+static func _law_flow() -> HFlowContainer:
+	var f := HFlowContainer.new()
+	f.add_theme_constant_override("h_separation", 12)
+	f.add_theme_constant_override("v_separation", 12)
+	return f
+
+
+## Une loi en carte : nom (doré si en vigueur), effet, coût, bouton.
 static func _law_row(es: EmpireScreens, l: Dictionary, ro: bool) -> Control:
 	var state := es._state
 	var player := es._player
 	var id := String(l["id"])
 	var on := Laws.is_enacted(state, player, id)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", UiTheme.box(Color(1, 1, 1, 0.06 if on else 0.035), UiTheme.GOLD if on else UiTheme.LINE, 0, 1))
+	card.custom_minimum_size = Vector2(LAW_CARD, 0)
+	var pad := MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		pad.add_theme_constant_override("margin_" + side, 10)
+	card.add_child(pad)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	pad.add_child(box)
 	var nl := Label.new()
 	var lv := int(l.get("level", 0))
 	nl.text = ("%d. %s" % [lv, String(l["label"])]) if lv > 0 else String(l["label"])
-	nl.custom_minimum_size = Vector2(220, 0)
-	nl.add_theme_font_size_override("font_size", 14)
+	nl.custom_minimum_size = Vector2(LAW_CARD - 20.0, 0)
+	nl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	nl.add_theme_font_size_override("font_size", 15)
 	if on:
 		nl.add_theme_color_override("font_color", UiTheme.GOLD)
-	row.add_child(nl)
-	var tl := UiTheme.paragraph(String(l["text"]), 380.0, 12)
-	row.add_child(tl)
+	box.add_child(nl)
+	var tl := UiTheme.paragraph(String(l["text"]), LAW_CARD - 20.0, 12)
+	tl.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(tl)
+	var foot := HBoxContainer.new()
+	foot.add_theme_constant_override("separation", 8)
+	box.add_child(foot)
 	var cl := Label.new()
 	cl.text = ("%d inf., %d / mois" % [int(Laws.adopt_cost(id).get("influence", 0)), Laws.law_upkeep(state, player, id)]) if lv > 0 else "gratuite"
-	cl.custom_minimum_size = Vector2(110, 0)
+	cl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cl.add_theme_font_size_override("font_size", 12)
 	cl.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
-	row.add_child(cl)
+	foot.add_child(cl)
 	if not ro:
 		var btn := Button.new()
 		btn.focus_mode = Control.FOCUS_NONE
@@ -416,9 +458,9 @@ static func _law_row(es: EmpireScreens, l: Dictionary, ro: bool) -> Control:
 		btn.disabled = why != ""
 		btn.tooltip_text = why
 		btn.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.law_revoke(player, id) if on else SimCommands.law_adopt(player, id)))
-		row.add_child(btn)
+		foot.add_child(btn)
 		es.law_buttons[id] = btn
-	return row
+	return card
 
 
 ## Dépouillement par système : représentants, courant majoritaire, effet sur la stabilité.
