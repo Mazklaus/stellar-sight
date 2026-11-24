@@ -19,6 +19,7 @@ func run(check: Callable) -> void:
 	_test_power()
 	_test_new_game_steps()
 	_test_species_steps()
+	_test_save_list()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -576,3 +577,42 @@ func _test_species_steps() -> void:
 	_ok(ed.guided and ed._step_pages[4].visible and ed._sections["portraits"].get_parent() == ed._slots["step4"] and not ed._pages["layers"].visible, "peuple : retour à la vue guidée")
 	_ok(Species.errors(ed.spec.merged({"id": "p_gens_du_sel"}, true)).is_empty(), "peuple : le peuple composé par étapes est valide")
 	ed.queue_free()
+
+
+## Menus (D3b) : en-tête lisible sans charger la partie, liste triée, trois fichiers automatiques qui tournent.
+func _test_save_list() -> void:
+	var dir := "user://test_saves_refonte"
+	for old: Dictionary in SaveGame.list(dir):
+		SaveGame.remove(String(old["path"]))
+	var st := GameState.create(5)
+	var first := SaveGame.new_path(dir)
+	_ok(SaveGame.save_state(st, first, {"mode": "turns", "turn_days": 30}, {"announce": {"big": "x".repeat(6000)}}, {"empire": "Gens du Sel", "color": "c0392b", "kind": "manual"}) == OK, "sauvegarde à part écrite")
+	var h := SaveGame.head(first)
+	_ok(String(h.get("empire", "")) == "Gens du Sel" and String(h.get("kind", "")) == "manual" and String(h.get("date", "")) != "" and not h.has("state"),
+			"sauvegarde : l'en-tête se lit sans l'état, même avec un gros état de poste")
+	var loaded := SaveGame.load_state(first)
+	_ok(loaded != null and loaded.checksum() == st.checksum() and String(SaveGame.last_clock.get("mode", "")) == "turns", "sauvegarde : l'en-tête ne change rien au chargement")
+	_ok(SaveGame.new_path(dir) != first, "sauvegarde : un nouveau fichier n'écrase pas le précédent")
+	var autos := {}
+	for i in SaveGame.AUTOSAVE_SLOTS:
+		var p := SaveGame.autosave_path(dir)
+		autos[p] = true
+		SaveGame.save_state(st, p, {}, {}, {"kind": "auto"})
+	_ok(autos.size() == SaveGame.AUTOSAVE_SLOTS and autos.has(SaveGame.autosave_path(dir)), "sauvegarde automatique : trois fichiers, puis on réécrit l'un d'eux")
+	var f := FileAccess.open(dir.path_join("notes.json"), FileAccess.WRITE)
+	f.store_string("{\"autre\": 1}")
+	f.close()
+	_ok(SaveGame.list(dir).size() == 1 + SaveGame.AUTOSAVE_SLOTS, "liste : un fichier qui n'est pas une sauvegarde est ignoré")
+	_ok(SaveList.when_text("2026-11-24T19:23:40") == "24/11/2026, 19 h 23", "liste : le moment de l'enregistrement se lit en clair")
+	var list := SaveList.new()
+	list.dir = dir
+	Engine.get_main_loop().root.add_child(list)
+	_ok(list.paths.size() == 1 + SaveGame.AUTOSAVE_SLOTS and list._rows.get_child_count() == list.paths.size(), "liste : une ligne par sauvegarde")
+	list.remove(first)
+	_ok(not list.paths.has(first) and not FileAccess.file_exists(first), "liste : supprimer efface le fichier et la ligne")
+	for old: Dictionary in SaveGame.list(dir):
+		SaveGame.remove(String(old["path"]))
+	DirAccess.remove_absolute(dir.path_join("notes.json"))
+	list.refresh()
+	_ok(list.paths.is_empty() and list._empty.visible, "liste : vide, elle le dit")
+	list.queue_free()

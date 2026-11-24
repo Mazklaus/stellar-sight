@@ -18,6 +18,7 @@ var _tabs := {}
 var _pages := {}
 var _fullscreen: Button
 var _auto_pause: Button
+var _autosave: Button
 var _stop_intrusion: Button
 var _stop_war: Button
 var _stop_events: Button
@@ -100,6 +101,15 @@ func _ready() -> void:
 		UiSettings.auto_pause_menus = not UiSettings.auto_pause_menus
 		UiSettings.save_settings()
 		sync())
+	var arow := _row(game, "Sauvegarde automatique", "Le jeu enregistre la partie de lui-même, sur trois fichiers qui tournent. Le temps en pause ne compte pas.")
+	_autosave = _value_box("", false) as Button
+	_autosave.tooltip_text = "Clic : jamais, toutes les 5, 10 ou 20 minutes"
+	_autosave.pressed.connect(func() -> void:
+		var i := UiSettings.AUTOSAVE_CHOICES.find(UiSettings.autosave_minutes)
+		UiSettings.autosave_minutes = UiSettings.AUTOSAVE_CHOICES[(i + 1) % UiSettings.AUTOSAVE_CHOICES.size()]
+		UiSettings.save_settings()
+		sync())
+	arow.add_child(_autosave)
 	game.add_child(UiTheme.section("Tour par tour : ce qui interrompt le tour"))
 	_stop_intrusion = _toggle_row(game, "Une flotte étrangère armée entre chez vous",
 			"Le tour s'arrête quand une flotte armée d'un autre empire, de pirates ou d'une crise arrive dans un de vos systèmes. Une bataille l'interrompt toujours.", func() -> void:
@@ -196,6 +206,7 @@ func reset_defaults() -> void:
 	UiSettings.ui_scale = 1.0
 	UiSettings.apply()
 	UiSettings.auto_pause_menus = false
+	UiSettings.autosave_minutes = 10
 	UiSettings.replay_detail = "normal"
 	UiSettings.battle_scale = "escarmouche"
 	UiSettings.tip_delay = 0.35
@@ -214,6 +225,7 @@ func sync() -> void:
 		return
 	_set_toggle(_fullscreen, UiSettings.fullscreen)
 	_set_toggle(_auto_pause, UiSettings.auto_pause_menus)
+	_autosave.text = "Jamais" if UiSettings.autosave_minutes <= 0 else "Toutes les %d minutes" % UiSettings.autosave_minutes
 	_set_toggle(_stop_intrusion, UiSettings.turn_stop_intrusion)
 	_set_toggle(_stop_war, UiSettings.turn_stop_war)
 	_set_toggle(_stop_events, UiSettings.turn_stop_events)

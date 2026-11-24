@@ -9,7 +9,7 @@ Ce chapitre vous accompagne de l'écran d'accueil jusqu'à votre première colon
 
 ### Le menu principal
 
-L'écran d'accueil propose **Continuer** (ou Reprendre), **Nouvelle partie**, **Peuples** (l'éditeur pour créer le vôtre), **Multijoueur**, **Options** et **Quitter**. Les options règlent le plein écran, l'échelle de l'interface (100, 125 ou 150 %) et la pause automatique quand un écran d'empire est ouvert. Elles appartiennent à votre poste et ne sont jamais enregistrées dans une partie.
+L'écran d'accueil propose **Continuer** (ou Reprendre), **Charger** dès qu'il existe une sauvegarde, **Nouvelle partie**, **Peuples** (l'éditeur pour créer le vôtre), **Multijoueur**, **Options** et **Quitter**. Les options règlent le plein écran, l'échelle de l'interface (100, 125 ou 150 %) et la pause automatique quand un écran d'empire est ouvert. Elles appartiennent à votre poste et ne sont jamais enregistrées dans une partie.
 
 ### L'écran Nouvelle partie
 
@@ -113,4 +113,4 @@ La partie démarre en pause, le 1er janvier 2400, centrée sur votre système na
 
 ### Sauvegarder
 
-[[Ctrl]]+[[S]] fait une sauvegarde rapide et [[Ctrl]]+[[L]] la recharge. Le menu du jeu ([[Échap]]) permet aussi de sauvegarder et de charger sous un autre nom. Une sauvegarde reprend la partie au jour près, avec la même galaxie, même sur une autre machine.
+[[Ctrl]]+[[S]] fait une sauvegarde rapide et [[Ctrl]]+[[L]] la recharge. Le menu du jeu ([[Échap]]) fait aussi une **nouvelle sauvegarde**, dans un fichier à part, et **Charger** y ouvre la liste de toutes vos sauvegardes, avec leur vignette. Le jeu enregistre de lui-même toutes les dix minutes, sur trois fichiers qui tournent (Options, onglet Partie). Une sauvegarde reprend la partie au jour près, avec la même galaxie, même sur une autre machine.

@@ -7,6 +7,8 @@ extends CanvasLayer
 signal new_game_requested(faction_id: String, seed_value: int)
 signal resume_requested
 signal continue_requested
+## Refonte D3b : une sauvegarde choisie dans la liste.
+signal load_requested(path: String)
 signal quit_requested
 signal codex_requested
 ## « Rejoindre une partie » : adresse et port de l'hôte, nom du joueur (voir NetSession).
@@ -85,6 +87,9 @@ var _hint: PanelContainer
 var _hint_label: Label
 var _resume: Button
 var _continue: Button
+var _load_item: Button
+var _load_page: Control
+var save_list: SaveList
 var _new_page: Control
 ## Nouvelle partie en cinq étapes (voir STEPS) : l'étape montrée, et ses pièces.
 var new_step := 0
@@ -440,6 +445,7 @@ func _ready() -> void:
 
 	_resume = _menu_button("resume", "Reprendre la partie", "Revenir à la partie en cours, là où le temps s'est arrêté.", func() -> void: resume_requested.emit())
 	_continue = _menu_button("load", "Continuer", "", func() -> void: continue_requested.emit())
+	_load_item = _menu_button("load", "Charger", "Choisir parmi vos sauvegardes : rapide, automatiques et à part.", func() -> void: show_page("load"))
 	_quick = _menu_button("quick", "Partie rapide", "Relancer aussitôt avec les réglages de votre dernière partie, sur une nouvelle galaxie.", quick_game)
 	_menu_button("new", "Nouvelle partie", "Choisir un peuple et lancer une nouvelle galaxie.", func() -> void: show_page("new"))
 	_menu_button("species", "Peuples", "Créer, modifier et ranger vos propres peuples : couches d'espèce, traits, portrait.", func() -> void: open_species("home"))
@@ -510,6 +516,7 @@ func _ready() -> void:
 	foot.offset_bottom = -24
 	_options_page.add_child(foot)
 	_build_join_page(root)
+	_build_load_page(root)
 	_species = SpeciesEditor.new()
 	root.add_child(_species)
 	_species.back_requested.connect(func() -> void: show_page(_species_return))
@@ -523,7 +530,8 @@ func open(can_resume: bool, has_save: bool, save_label := "") -> void:
 	_resume.visible = can_resume
 	_continue.visible = not can_resume
 	_continue.disabled = not has_save
-	_continue.description = "Charger la sauvegarde rapide (%s)." % save_label if has_save else "Aucune sauvegarde pour l'instant."
+	_continue.description = "Reprendre la sauvegarde la plus récente (%s)." % save_label if has_save else "Aucune sauvegarde pour l'instant."
+	_load_item.visible = has_save
 	visible = true
 	show_page("home")
 	_layout_home()
@@ -545,6 +553,9 @@ func show_page(name: String) -> void:
 	_home.visible = name == "home"
 	_new_page.visible = name == "new"
 	_options_page.visible = name == "options"
+	_load_page.visible = name == "load"
+	if name == "load":
+		save_list.refresh()
 	if _join_page:
 		_join_page.visible = name == "join"
 	if name == "join":
@@ -768,6 +779,42 @@ var _ip_request: HTTPRequest
 var public_address := ""
 var _host_password: LineEdit
 var _join_status: Label
+
+
+## Page « Charger » (refonte D3b) : la liste des sauvegardes sous un voile, comme les Options.
+func _build_load_page(root: Control) -> void:
+	_load_page = Control.new()
+	_load_page.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_load_page.mouse_filter = Control.MOUSE_FILTER_STOP
+	_load_page.visible = false
+	root.add_child(_load_page)
+	var veil := ColorRect.new()
+	veil.color = Color(0.01, 0.02, 0.035, 0.88)
+	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_load_page.add_child(veil)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.anchor_bottom = 0.9
+	_load_page.add_child(center)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 16)
+	center.add_child(box)
+	var title := UiTheme.title("Charger", 34)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(title)
+	save_list = SaveList.new()
+	save_list.load_requested.connect(func(path: String) -> void: load_requested.emit(path))
+	box.add_child(save_list)
+	var back_b := Widgets.RoundButton.new("back", "Retour")
+	back_b.tooltip_text = "Échap"
+	back_b.anchor_top = 1.0
+	back_b.anchor_bottom = 1.0
+	back_b.offset_left = 28
+	back_b.offset_top = -76
+	back_b.offset_bottom = -76 + back_b.custom_minimum_size.y
+	back_b.pressed.connect(func() -> void: show_page("home"))
+	_load_page.add_child(back_b)
 
 
 func _build_join_page(root: Control) -> void:
@@ -4058,7 +4105,8 @@ func _layout_home() -> void:
 	for b in _items:
 		if b.visible:
 			shown.append(b)
-	var step := vs.y * 0.115
+	# Neuf entrées quand il y a des sauvegardes : le pas se resserre pour tenir dans l'écran.
+	var step := minf(vs.y * 0.115, vs.y * 0.84 / maxf(1.0, float(shown.size() - 1)))
 	for i in shown.size():
 		var y := c.y + (float(i) - float(shown.size() - 1) * 0.5) * step
 		var dy := y - c.y

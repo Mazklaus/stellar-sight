@@ -269,6 +269,7 @@ func _test_main_scene() -> void:
 	_check(scene != null, "main.tscn se charge")
 	var main := scene.instantiate()
 	main.save_path = "user://saves/test_quicksave.json"  # ne jamais toucher la vraie sauvegarde du joueur
+	main.save_dir = "user://test_saves_ui"
 	main.start_with_menu = false
 	root.add_child(main)
 	for _i in 10:
@@ -346,6 +347,34 @@ func _test_main_scene() -> void:
 	# Ctrl+S sauvegarde, Ctrl+L recharge exactement la même partie (F5 est le domaine Commerce).
 	_press(KEY_S, KEY_NONE, true)
 	var saved_checksum: String = main.simulation.state.checksum()
+	# Refonte D3b : la sauvegarde rapide porte son en-tête ; le menu du jeu fait une sauvegarde à part et la liste la montre.
+	var qhead := SaveGame.head(main.save_path)
+	_check(String(qhead.get("kind", "")) == "quick" and String(qhead.get("empire", "")) != "", "sauvegarde rapide : l'en-tête dit le peuple joué (%s)" % str(qhead.get("empire", "")))
+	for old: Dictionary in SaveGame.list(main.save_dir):
+		SaveGame.remove(String(old["path"]))
+	main.open_pause_menu()
+	main._pause_menu.new_save_requested.emit()
+	main._pause_menu.show_page("load")
+	_check(main._pause_menu.save_list.paths.size() == 1 and main._pause_menu._load.visible, "menu du jeu : la nouvelle sauvegarde est dans la liste de Charger")
+	_check(main._pause_menu.back() and main._pause_menu.page == "home", "menu du jeu : Échap revient de la liste")
+	main.close_pause_menu()
+	main.autosave_clock = float(UiSettings.autosave_minutes) * 60.0
+	var was_paused: bool = clock.paused
+	clock.set_paused(true)
+	_check(not main.tick_autosave(1.0), "sauvegarde automatique : rien tant que le temps est arrêté")
+	clock.set_paused(false)
+	_check(main.tick_autosave(1.0) == (UiSettings.autosave_minutes > 0) and (UiSettings.autosave_minutes <= 0 or SaveGame.list(main.save_dir).size() == 2), "sauvegarde automatique : écrite quand l'intervalle est passé")
+	clock.set_paused(was_paused)
+	_check(main.latest_save() != "" , "Continuer a une sauvegarde à reprendre")
+	var first_auto := ""
+	for sv: Dictionary in SaveGame.list(main.save_dir):
+		if String(sv.get("kind", "")) == "auto":
+			first_auto = String(sv["path"])
+	_check(UiSettings.autosave_minutes <= 0 or first_auto.get_file() == "auto_1.json", "sauvegarde automatique : premier des trois fichiers")
+	var manual_path := ""
+	for sv: Dictionary in SaveGame.list(main.save_dir):
+		if String(sv.get("kind", "")) == "manual":
+			manual_path = String(sv["path"])
 	var saved_tick: int = main.simulation.state.tick
 	_press(KEY_SPACE)
 	for _i in 40:
@@ -365,6 +394,13 @@ func _test_main_scene() -> void:
 	_check(main.galaxy.systems[5].system_name == "Port-Libre", "F9 : le nom sauvegardé revient")
 	_check(clock.paused and clock.simulation == main.simulation, "F9 : l'horloge suit la partie chargée, en pause")
 	_check(main._view.galaxy == main.galaxy, "F9 : la vue affiche la partie chargée")
+	main.simulation.submit(SimCommands.rename_system(0, 5, "Encore-Autre"))
+	main.simulation.flush_commands()
+	main._pause_menu.load_path_requested.emit(manual_path)
+	_check(main.simulation.state.checksum() == saved_checksum and not main._pause_menu.is_open(), "menu du jeu : une sauvegarde de la liste se recharge à l'identique")
+	for old: Dictionary in SaveGame.list(main.save_dir):
+		SaveGame.remove(String(old["path"]))
+	_check(SaveGame.list(main.save_dir).is_empty(), "les sauvegardes d'essai sont effacées")
 
 	var old_seed: int = main.galaxy.seed_value
 	main.new_game(old_seed + 1)
@@ -1090,7 +1126,7 @@ func _test_navigation_ui(main: Node) -> void:
 	# Les lancements des tests ne remplacent pas la « dernière partie » de l'utilisateur.
 	menu.presets_path = "user://test_new_game_presets.json"
 	_check(menu.is_open() and not hud.visible and menu._resume.visible, "menu principal : la partie en cours peut reprendre")
-	_check(not menu._continue.visible and menu._items.size() == 9, "accueil : Reprendre remplace Continuer")
+	_check(not menu._continue.visible and menu._items.size() == 10, "accueil : Reprendre remplace Continuer")
 	menu.show_page("join")
 	_check(menu._join_page.visible and not menu._home.visible, "accueil : page Multijoueur")
 	# Réseau local : une partie annoncée apparaît dans la liste, sans adresse à taper.

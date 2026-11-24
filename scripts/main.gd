@@ -31,6 +31,11 @@ var player_name := ""
 var simulation: Simulation
 ## Fichier de sauvegarde rapide (Ctrl+S / Ctrl+L). Les tests le redirigent ailleurs.
 var save_path := SaveGame.QUICKSAVE_PATH
+## Dossier des sauvegardes à part et automatiques, lu par les listes (les tests en donnent un autre).
+var save_dir := SaveGame.SAVE_DIR
+## Temps de jeu réel écoulé depuis la dernière sauvegarde automatique (la pause ne compte pas).
+var autosave_clock := 0.0
+var _thumb: Image
 ## Faction du joueur local pour les nouvelles parties (choisie dans le menu principal).
 var player_faction := "ossarane"
 ## Niveau des empires IA pour les nouvelles parties (AiLevels), et partie sans joueur (spectateur).
@@ -221,10 +226,14 @@ func _ready() -> void:
 	_pause_menu = PauseMenu.new()
 	add_child(_pause_menu)
 	_pause_menu.resume_requested.connect(close_pause_menu)
-	_pause_menu.save_requested.connect(save_game)
+	_pause_menu.save_requested.connect(func() -> void: save_game())
+	_pause_menu.new_save_requested.connect(func() -> void: save_game(SaveGame.new_path(save_dir), "manual"))
 	_pause_menu.load_requested.connect(func() -> void:
 		close_pause_menu()
 		load_game())
+	_pause_menu.load_path_requested.connect(func(path: String) -> void:
+		close_pause_menu()
+		load_game(path))
 	_pause_menu.main_menu_requested.connect(func() -> void:
 		close_pause_menu()
 		open_main_menu())
@@ -363,7 +372,10 @@ func _ready() -> void:
 			_hud.notify("%s : que la chronique commence." % me.display_name(), "good"))
 	_main_menu.resume_requested.connect(close_main_menu)
 	_main_menu.continue_requested.connect(func() -> void:
-		if load_game():
+		if load_game(latest_save()):
+			close_main_menu())
+	_main_menu.load_requested.connect(func(path: String) -> void:
+		if load_game(path):
 			close_main_menu())
 	_main_menu.quit_requested.connect(func() -> void: get_tree().quit())
 	_main_menu.codex_requested.connect(func() -> void: open_codex())
@@ -439,17 +451,68 @@ func new_game(seed_value: int, keep_net := false) -> void:
 		_camera.zoom = Vector2(START_ZOOM, START_ZOOM)
 
 
-func save_game() -> void:
-	if SaveGame.save_state(simulation.state, save_path, GameClock.settings(), {"announce": announce.to_ui()}) == OK:
-		_hud.notify("Partie sauvegardée (%s)" % GameCalendar.date_string(simulation.state.tick), "good")
+## Écrit la partie. Sans chemin : la sauvegarde rapide. kind : "quick", "manual" (fichier à part) ou
+## "auto" ; il se lit dans la liste des sauvegardes, avec le peuple joué et une vignette de la carte.
+func save_game(path := "", kind := "quick") -> bool:
+	if path == "":
+		path = save_path
+	var me := simulation.state.get_empire(local_player)
+	var meta := {"kind": kind}
+	if me != null:
+		meta["empire"] = me.display_name()
+		meta["color"] = me.color().to_html(false)
+	var ok := SaveGame.save_state(simulation.state, path, GameClock.settings(), {"announce": announce.to_ui()}, meta) == OK
+	if ok:
+		var img := _thumb if _pause_menu.is_open() and _thumb != null else _grab_thumb()
+		if img != null:
+			img.save_png(SaveGame.thumb_path(path))
+		autosave_clock = 0.0
+		_hud.notify("%s (%s)" % ["Sauvegarde automatique" if kind == "auto" else "Partie sauvegardée", GameCalendar.date_string(simulation.state.tick)], "good")
 	else:
 		_hud.notify("Échec de la sauvegarde : %s" % SaveGame.last_error, "bad")
+	return ok
 
 
-## Recharge la sauvegarde rapide. Renvoie false (avec un message) si c'est impossible.
-func load_game() -> bool:
+## La carte telle qu'on la voit, en petit, pour la liste des sauvegardes (rien sans écran).
+func _grab_thumb() -> Image:
+	if DisplayServer.get_name() == "headless":
+		return null
+	var img := get_viewport().get_texture().get_image()
+	if img == null or img.is_empty():
+		return null
+	img.resize(320, 180, Image.INTERPOLATE_BILINEAR)
+	return img
+
+
+## La sauvegarde la plus récente : celle que « Continuer » reprend. Vide s'il n'y en a aucune.
+func latest_save() -> String:
+	var best := save_path if SaveGame.exists(save_path) else ""
+	var best_time := int(FileAccess.get_modified_time(save_path)) if best != "" else -1
+	for s: Dictionary in SaveGame.list(save_dir):
+		if int(s["mtime"]) > best_time:
+			best_time = int(s["mtime"])
+			best = String(s["path"])
+	return best
+
+
+## Sauvegarde automatique (refonte D3b) : toutes les N minutes de jeu réel, sur trois fichiers qui
+## tournent. Rien en réseau (l'hôte a la sienne), ni pendant que le temps est arrêté.
+func tick_autosave(delta: float) -> bool:
+	if UiSettings.autosave_minutes <= 0 or not game_in_progress or simulation == null or net.is_active() or GameClock.paused or spectator:
+		return false
+	autosave_clock += delta
+	if autosave_clock < float(UiSettings.autosave_minutes) * 60.0:
+		return false
+	autosave_clock = 0.0
+	return save_game(SaveGame.autosave_path(save_dir), "auto")
+
+
+## Recharge une sauvegarde (sans chemin : la sauvegarde rapide). Renvoie false, avec un message, si c'est impossible.
+func load_game(path := "") -> bool:
+	if path == "":
+		path = save_path
 	leave_network("Vous avez quitté la partie en réseau pour charger une sauvegarde.")
-	var state := SaveGame.load_state(save_path)
+	var state := SaveGame.load_state(path)
 	if state == null:
 		_hud.notify("Chargement impossible : %s" % SaveGame.last_error, "bad")
 		return false
@@ -461,6 +524,7 @@ func load_game() -> bool:
 	_start(state)
 	GameClock.apply_settings(SaveGame.last_clock)
 	game_in_progress = true
+	autosave_clock = 0.0
 	var me := state.get_empire(view_empire)
 	if me and FactionTraits.capital_system(state, me.id) >= 0:
 		_select(FactionTraits.capital_system(state, me.id))
@@ -678,9 +742,12 @@ func open_main_menu() -> void:
 	_camera.stop_glide()
 	_camera.zoom = Vector2(MENU_ZOOM, MENU_ZOOM)
 	var label := ""
-	if SaveGame.exists(save_path):
-		label = Time.get_datetime_string_from_unix_time(int(FileAccess.get_modified_time(save_path)), true)
-	_main_menu.open(game_in_progress, SaveGame.exists(save_path), label)
+	var latest := latest_save()
+	if latest != "":
+		var h := SaveGame.head(latest)
+		label = "%s, %s" % [h.get("empire", "partie"), h.get("date", "")] if h.has("empire") else String(h.get("date", ""))
+	_main_menu.save_list.dir = save_dir
+	_main_menu.open(game_in_progress, latest != "", label)
 	_update_map_input()
 
 
@@ -696,6 +763,8 @@ func open_pause_menu() -> void:
 	_paused_before = GameClock.paused
 	_auto_pause(true)
 	_hud.show_hover(null, Vector2.ZERO)
+	_thumb = _grab_thumb()  # la carte avant que le menu la couvre
+	_pause_menu.save_list.dir = save_dir
 	_pause_menu.open(GameClock.date_string() if not net.is_active() else "", net.is_active())
 	_update_map_input()
 
@@ -1368,6 +1437,7 @@ func _process(delta: float) -> void:
 	if _main_menu.is_open():
 		_camera.position += MENU_DRIFT * delta  # la galaxie dérive doucement derrière le menu
 		return
+	tick_autosave(delta)
 	if is_system_view_open() or is_modal_open():
 		return
 	var id := _pick_system()

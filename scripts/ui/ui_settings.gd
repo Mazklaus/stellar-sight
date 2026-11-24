@@ -40,6 +40,9 @@ static var turn_stop_war := true
 static var turn_stop_events := true
 ## La fin de tour prévient de ce qui attend encore (refonte, A6 ; voir TurnChecks).
 static var turn_warn_todo := true
+## Sauvegarde automatique : minutes de jeu réel entre deux enregistrements (0 = jamais).
+static var autosave_minutes := 10
+const AUTOSAVE_CHOICES := [0, 5, 10, 20]
 static var _loaded := false
 
 
@@ -70,6 +73,9 @@ static func load_settings() -> void:
 	turn_stop_war = bool(cfg.get_value("turns", "stop_war", true))
 	turn_stop_events = bool(cfg.get_value("turns", "stop_events", true))
 	turn_warn_todo = bool(cfg.get_value("turns", "warn_todo", true))
+	autosave_minutes = int(cfg.get_value("game", "autosave_minutes", 10))
+	if not AUTOSAVE_CHOICES.has(autosave_minutes):
+		autosave_minutes = 10
 
 
 static func save_settings() -> void:
@@ -91,6 +97,7 @@ static func save_settings() -> void:
 	cfg.set_value("turns", "stop_war", turn_stop_war)
 	cfg.set_value("turns", "stop_events", turn_stop_events)
 	cfg.set_value("turns", "warn_todo", turn_warn_todo)
+	cfg.set_value("game", "autosave_minutes", autosave_minutes)
 	cfg.save(PATH)
 
 

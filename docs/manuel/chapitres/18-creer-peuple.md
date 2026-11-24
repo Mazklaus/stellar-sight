@@ -7,6 +7,8 @@ signature: Note de l'éditeur
 ---
 L'entrée **Peuples** du menu principal ouvre l'éditeur d'espèces. Votre peuple s'y assemble avec les mêmes briques que les huit officiels, et il joue exactement comme eux : vaisseaux, modules, technologies, talents et victoire de peuple viennent de ses couches.
 
+L'éditeur avance en **six étapes** : d'où partir, qui ils sont, comment ils vivent, ce qui les distingue, à quoi ils ressemblent, leur nom et leur histoire. Le fil en haut permet de sauter de l'une à l'autre, et l'étape où quelque chose est refusé s'y marque en rouge. Le bouton **Vue complète** range les mêmes réglages sur trois onglets (Identité, Couches, Traits).
+
 ### Les six couches
 
 | Couche | Rôle | Choix |
