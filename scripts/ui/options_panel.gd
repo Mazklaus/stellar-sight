@@ -25,6 +25,7 @@ var _stop_events: Button
 var _warn_todo: Button
 var _silhouettes: Button
 var _emblems: Button
+var _art_ids: Button
 var _cargos: Button
 var _labels: Button
 var _glide: Button
@@ -72,6 +73,11 @@ func _ready() -> void:
 	var display := _page("display")
 	_fullscreen = _toggle_row(display, "Plein écran", "Touche F11, à tout moment.", func() -> void:
 		UiSettings.toggle_fullscreen()
+		sync())
+	_art_ids = _toggle_row(display, "Nom des images provisoires",
+			"Tant qu'une illustration n'est pas déposée, son emplacement montre un tableau provisoire. Le nom du fichier attendu s'écrit dans le coin ; la liste complète est dans le Codex, à « Galerie des illustrations ».", func() -> void:
+		UiSettings.art_ids = not UiSettings.art_ids
+		UiSettings.save_settings()
 		sync())
 	var srow := _row(display, "Échelle de l'interface", "Agrandit textes et panneaux, pour les grands écrans.")
 	_scale = _value_box("", false) as Button
@@ -240,6 +246,7 @@ func reset_defaults() -> void:
 	UiSettings.autosave_minutes = 10
 	UiSettings.fleet_silhouettes = false
 	UiSettings.map_emblems = true
+	UiSettings.art_ids = true
 	UiSettings.map_cargos = true
 	UiSettings.map_labels = "all"
 	UiSettings.map_glide = "normal"
@@ -268,6 +275,7 @@ func sync() -> void:
 	_set_toggle(_warn_todo, UiSettings.turn_warn_todo)
 	_set_toggle(_silhouettes, UiSettings.fleet_silhouettes)
 	_set_toggle(_emblems, UiSettings.map_emblems)
+	_set_toggle(_art_ids, UiSettings.art_ids)
 	_set_toggle(_cargos, UiSettings.map_cargos)
 	_labels.text = String(UiSettings.MAP_LABEL_NAMES[UiSettings.map_labels])
 	_glide.text = String(UiSettings.MAP_GLIDE_NAMES[UiSettings.map_glide])

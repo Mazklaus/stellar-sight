@@ -26,6 +26,7 @@ func run(check: Callable) -> void:
 	_test_first_contact()
 	_test_chains()
 	_test_defects()
+	_test_art()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -811,6 +812,34 @@ func _test_first_contact() -> void:
 
 
 ## E7 : chaînes d'événements. La carte suivante arrive plus tard (délai caché) ou quand l'objectif est rempli.
+## Lot 6 : images provisoires et Galerie (F3, F4).
+func _test_art() -> void:
+	var slots := ArtCatalog.slots()
+	var ids := {}
+	var bad := []
+	for s: Dictionary in slots:
+		if ids.has(s["id"]) or String(s["label"]) == "" or ArtCatalog.family(String(s["family"])).is_empty():
+			bad.append(s["id"])
+		ids[s["id"]] = true
+	_ok(slots.size() >= 300 and bad.is_empty(), "images : %d emplacements recensés, chacun nommé une seule fois %s" % [slots.size(), str(bad)])
+	_ok(ids.has("event_pn_1") and ids.has("wonder_bourse_galactique") and ids.has("planet_ocean") and ids.has("screen_colonies")
+			and ids.has("faction_ossarane_scene") and ids.has("annonces/war_declared"), "images : cartes, merveilles, mondes, écrans, peuples et annonces y sont")
+	var pr := ArtCatalog.progress()
+	_ok(int(pr[1]) == slots.size() and int(pr[0]) <= int(pr[1]), "images : le décompte des illustrations déposées")
+	_ok(CodexCatalogs.entries("galerie").size() == slots.size() and String(CodexCatalogs.entry("cat:galerie:annonces__war_declared").get("name", "")) != "",
+			"images : la Galerie du Codex a une fiche par emplacement")
+	var slot := Widgets.ArtSlot.new("event_pn_1", Vector2(300, 160), UiTheme.ACCENT, "star")
+	slot.size = Vector2(300, 160)
+	var small := Widgets.ArtSlot.new("relic_x", Vector2(58, 42), UiTheme.ACCENT, "star")
+	small.size = Vector2(58, 42)
+	var locked := Widgets.ArtSlot.new("", Vector2(300, 160), UiTheme.ACCENT, "lock")
+	locked.size = Vector2(300, 160)
+	_ok(slot._wants_tableau() and not small._wants_tableau() and not locked._wants_tableau(), "images : tableau provisoire pour un emplacement nommé et assez grand")
+	slot.free()
+	small.free()
+	locked.free()
+
+
 ## Lot 6 : défauts relevés pendant l'étude.
 func _test_defects() -> void:
 	var seen := {}
@@ -821,6 +850,11 @@ func _test_defects() -> void:
 		seen[String(o["id"])] = true
 	_ok(twice.is_empty() and bool(Espionage.op_def("voler_plans_modele").get("capture", false)) and bool(Espionage.op_def("voler_plans").get("wonders", false)),
 			"défauts : chaque opération d'espionnage a son identifiant %s" % str(twice))
+	var placed: Array[Rect2] = [Rect2(100, 100, 120, 60)]
+	var free := SystemView.card_shift(Rect2(300, 100, 120, 60), placed, 4.0)
+	var down := SystemView.card_shift(Rect2(150, 130, 120, 60), placed, 4.0)
+	var up := SystemView.card_shift(Rect2(150, 70, 120, 60), placed, 4.0)
+	_ok(free == 0.0 and down == 34.0 and up == -34.0, "défauts : une fiche de planète gênée glisse du côté le plus court (%s, %s, %s)" % [free, down, up])
 	var st := GameState.create(11, 60, 1200.0, "ossarane", {"ai_level": ""})
 	for cls: String in Heroes.data()["classes"]:
 		var txt := Heroes.post_effect_text(st, {"post": "council", "cls": cls, "lvl": 3, "traits": [], "owner": 0})

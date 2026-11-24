@@ -92,6 +92,8 @@ var _backdrop: ColorRect
 var _star: ColorRect
 var _overlay: Control
 var _bodies := {}
+## Décalage vertical de la fiche de chaque planète quand elle gênerait une voisine (voir _place_cards).
+var _card_shift := {}
 var _belts := {}
 var _time := 0.0
 var _font: Font
@@ -364,8 +366,48 @@ func _draw_overlay() -> void:
 		var ka := planet_depth(a) + (4.0 if a == selected_planet else (2.0 if a == hovered_planet else 0.0))
 		var kb := planet_depth(b) + (4.0 if b == selected_planet else (2.0 if b == hovered_planet else 0.0))
 		return ka < kb)
+	_place_cards(order, sf)
 	for pid in order:
 		_draw_card(pid, sf)
+
+
+## Écarte les fiches de planètes voisines qui se recouvriraient. La fiche de la planète choisie garde
+## sa place, puis celle de la planète survolée, puis les autres de l'avant vers l'arrière ; une fiche
+## gênée glisse vers le bas ou vers le haut, du côté le plus court.
+func _place_cards(order: Array, sf: float) -> void:
+	_card_shift.clear()
+	var placed: Array[Rect2] = []
+	var by_rank := order.duplicate()
+	by_rank.reverse()
+	for pid: int in by_rank:
+		var rect := _draw_card(pid, sf, true)
+		var shift := card_shift(rect, placed, 4.0 * sf)
+		if shift != 0.0:
+			_card_shift[pid] = shift
+			rect.position.y += shift
+		placed.append(rect)
+
+
+## Décalage vertical qui sort un cadre de ceux déjà posés (0 s'il ne gêne personne).
+static func card_shift(rect: Rect2, placed: Array[Rect2], gap: float) -> float:
+	var best := 0.0
+	for dir: float in [1.0, -1.0]:
+		var r := rect
+		var moved := 0.0
+		for _i in 12:
+			var hit := false
+			for o in placed:
+				if r.grow(gap * 0.5).intersects(o):
+					var d := (o.end.y + gap - r.position.y) if dir > 0.0 else (o.position.y - gap - r.end.y)
+					r.position.y += d
+					moved += d
+					hit = true
+					break
+			if not hit:
+				break
+		if dir > 0.0 or absf(moved) < absf(best):
+			best = moved
+	return best
 
 
 ## Anneau de propriété : une colonie montre sa population en arc (comme une jauge),
@@ -395,7 +437,8 @@ func _draw_claim_ring(pid: int, c: Colony, pos: Vector2, radius: float) -> void:
 
 ## Fiche accrochée à une planète, reliée par un trait fin. Placée à droite de la planète,
 ## ou à gauche quand la planète est dans la moitié droite de la scène.
-func _draw_card(pid: int, sf: float) -> void:
+## measure : rend seulement le cadre de la fiche, sans rien dessiner (voir _place_cards).
+func _draw_card(pid: int, sf: float, measure := false) -> Rect2:
 	var p := state.galaxy.get_planet(pid)
 	var pos := planet_position(pid)
 	var r := planet_radius(pid)
@@ -440,6 +483,11 @@ func _draw_card(pid: int, sf: float) -> void:
 	var anchor := pos + Vector2((r + 14.0 * sf) * (1.0 if right else -1.0), -r * 0.6)
 	var top_left := Vector2(anchor.x if right else anchor.x - size_card.x, anchor.y - size_card.y * 0.35)
 	var rect := Rect2(top_left, size_card)
+	if measure:
+		return rect
+	var shift := float(_card_shift.get(pid, 0.0))
+	rect.position.y += shift
+	anchor.y += shift
 	var bg := Color(0.02, 0.03, 0.05, 0.72 if detailed else 0.5)
 	_overlay.draw_rect(rect, bg)
 	var edge := Color(1, 1, 1, 0.35 if detailed else 0.18)
@@ -474,6 +522,7 @@ func _draw_card(pid: int, sf: float) -> void:
 				var cell := Rect2(rect.position.x + pad + 22.0 + i * (pip + 2.0), y + 1.0, pip, pip - 1.0)
 				_overlay.draw_rect(cell, rc if i < int(pot[res]) else Color(rc, 0.14))
 			y += pip + 3.0
+	return rect
 
 
 func _name_color(pid: int) -> Color:

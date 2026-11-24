@@ -23,6 +23,7 @@ const CATALOGS := [
 	{"id": "biens", "family": "meca", "label": "Luxes et stratégiques"},
 	{"id": "lois", "family": "meca", "label": "Lois des courants"},
 	{"id": "pouvoirs", "family": "meca", "label": "Pouvoirs psioniques"},
+	{"id": "galerie", "family": "meca", "label": "Galerie des illustrations"},
 ]
 
 static var _cache: Dictionary = {}
@@ -182,6 +183,16 @@ static func entries(cid: String) -> Array:
 				out.append(_e(cid, String(x["id"]), String(x["label"]), String(x.get("text", "")), String(x.get("text", "")),
 						[["Coût", "%d Résonance" % int(x.get("cost", 0))], ["Recharge", "%d jours" % int(x.get("cooldown", 0))], ["Fêlure", "%d %%" % int(x.get("felure", 0))]],
 						"", [], ["15q-psionique"]))
+		"galerie":
+			# Refonte, F4 : chaque emplacement d'illustration, son fichier attendu et son état.
+			for x: Dictionary in ArtCatalog.slots():
+				var fam := ArtCatalog.family(String(x["family"]))
+				var there := ArtCatalog.has_file(String(x["id"]))
+				var what := "%s : %s." % [String(fam["label"]), String(x["label"])]
+				out.append(_e(cid, String(x["id"]).replace("/", "__"), "%s · %s" % [String(fam["label"]), String(x["label"])], what,
+						what + (" L'illustration définitive est en place." if there else " Tableau provisoire : déposez l'image sous le nom indiqué pour le remplacer."),
+						[["Fichier attendu", "assets/art/%s.png" % String(x["id"])], ["Format", String(x["format"])], ["Priorité", "rang %d" % int(x["rank"])],
+						["État", "définitive" if there else "provisoire"]], "", [], []))
 	_cache[cid] = out
 	return out
 

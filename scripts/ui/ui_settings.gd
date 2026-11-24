@@ -43,6 +43,8 @@ static var turn_warn_todo := true
 ## Carte (refonte D3f, onglet Carte des options) : emblèmes des empires sur leur territoire, cargos sur
 ## les routes vues de près, systèmes nommés, durée du glissement d'un palier de zoom à l'autre.
 static var map_emblems := true
+## Images provisoires (refonte, F3) : le nom de l'emplacement s'écrit dans le coin du tableau.
+static var art_ids := true
 static var map_cargos := true
 static var map_labels := "all"
 const MAP_LABELS := ["all", "owned"]
@@ -86,6 +88,7 @@ static func load_settings() -> void:
 	turn_warn_todo = bool(cfg.get_value("turns", "warn_todo", true))
 	autosave_minutes = int(cfg.get_value("game", "autosave_minutes", 10))
 	map_emblems = bool(cfg.get_value("map", "emblems", true))
+	art_ids = bool(cfg.get_value("display", "art_ids", true))
 	map_cargos = bool(cfg.get_value("map", "cargos", true))
 	map_labels = String(cfg.get_value("map", "labels", "all"))
 	if not MAP_LABELS.has(map_labels):
@@ -118,6 +121,7 @@ static func save_settings() -> void:
 	cfg.set_value("turns", "warn_todo", turn_warn_todo)
 	cfg.set_value("game", "autosave_minutes", autosave_minutes)
 	cfg.set_value("map", "emblems", map_emblems)
+	cfg.set_value("display", "art_ids", art_ids)
 	cfg.set_value("map", "cargos", map_cargos)
 	cfg.set_value("map", "labels", map_labels)
 	cfg.set_value("map", "glide", map_glide)
